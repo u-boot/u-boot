@@ -1,15 +1,12 @@
 if TARGET_T4240EMU
 
 config SYS_BOARD
-	string
 	default "t4qds"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	string
 	default "T4240EMU"
 
 endif
@@ -17,15 +14,12 @@ endif
 if TARGET_T4240QDS
 
 config SYS_BOARD
-	string
 	default "t4qds"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	string
 	default "T4240QDS"
 
 endif

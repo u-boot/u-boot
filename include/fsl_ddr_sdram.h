@@ -281,6 +281,7 @@ typedef struct memctl_options_partial_s {
 #define DDR_DATA_BUS_WIDTH_64 0
 #define DDR_DATA_BUS_WIDTH_32 1
 #define DDR_DATA_BUS_WIDTH_16 2
+#define DDR_CSWL_CS0	0x04000001
 /*
  * Generalized parameters for memory controller configuration,
  * might be a little specific to the FSL memory controller
@@ -340,6 +341,7 @@ typedef struct memctl_options_s {
 	unsigned int cpo_override;
 	unsigned int write_data_delay;		/* DQS adjust */
 
+	unsigned int cswl_override;
 	unsigned int wrlvl_override;
 	unsigned int wrlvl_sample;		/* Write leveling */
 	unsigned int wrlvl_start;

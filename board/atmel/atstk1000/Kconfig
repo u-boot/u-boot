@@ -1,19 +1,15 @@
 if TARGET_ATSTK1002
 
 config SYS_BOARD
-	string
 	default "atstk1000"
 
 config SYS_VENDOR
-	string
 	default "atmel"
 
 config SYS_SOC
-	string
 	default "at32ap700x"
 
 config SYS_CONFIG_NAME
-	string
 	default "atstk1002"
 
 endif
@@ -21,19 +17,15 @@ endif
 if TARGET_ATSTK1003
 
 config SYS_BOARD
-	string
 	default "atstk1000"
 
 config SYS_VENDOR
-	string
 	default "atmel"
 
 config SYS_SOC
-	string
 	default "at32ap700x"
 
 config SYS_CONFIG_NAME
-	string
 	default "atstk1003"
 
 endif
@@ -41,19 +33,15 @@ endif
 if TARGET_ATSTK1004
 
 config SYS_BOARD
-	string
 	default "atstk1000"
 
 config SYS_VENDOR
-	string
 	default "atmel"
 
 config SYS_SOC
-	string
 	default "at32ap700x"
 
 config SYS_CONFIG_NAME
-	string
 	default "atstk1004"
 
 endif
@@ -61,19 +49,15 @@ endif
 if TARGET_ATSTK1006
 
 config SYS_BOARD
-	string
 	default "atstk1000"
 
 config SYS_VENDOR
-	string
 	default "atmel"
 
 config SYS_SOC
-	string
 	default "at32ap700x"
 
 config SYS_CONFIG_NAME
-	string
 	default "atstk1006"
 
 endif

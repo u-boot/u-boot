@@ -33,7 +33,6 @@
  */
 
 #include "ubifs.h"
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/crc16.h>
 #include <linux/math64.h>

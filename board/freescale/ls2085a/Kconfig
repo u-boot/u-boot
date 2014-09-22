@@ -1,47 +1,31 @@
 if TARGET_LS2085A_EMU
 
-config SYS_CPU
-	string
-	default "armv8"
-
 config SYS_BOARD
-	string
 	default "ls2085a"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_SOC
-	string
 	default "fsl-lsch3"
 
 config SYS_CONFIG_NAME
-	string
 	default "ls2085a_emu"
 
 endif
 
 if TARGET_LS2085A_SIMU
 
-config SYS_CPU
-	string
-	default "armv8"
-
 config SYS_BOARD
-	string
 	default "ls2085a"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_SOC
-	string
 	default "fsl-lsch3"
 
 config SYS_CONFIG_NAME
-	string
 	default "ls2085a_simu"
 
 endif

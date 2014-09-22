@@ -34,7 +34,7 @@
 #ifdef CONFIG_MPC5xxx
 #include <mpc5xxx.h>
 #endif
-#if (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
+#if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
 #include <asm/mp.h>
 #endif
 
@@ -341,21 +341,23 @@ static int setup_ram_buf(void)
 
 static int setup_fdt(void)
 {
-#ifdef CONFIG_OF_EMBED
+#ifdef CONFIG_OF_CONTROL
+# ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
 	gd->fdt_blob = __dtb_dt_begin;
-#elif defined CONFIG_OF_SEPARATE
+# elif defined CONFIG_OF_SEPARATE
 	/* FDT is at end of image */
 	gd->fdt_blob = (ulong *)&_end;
-#elif defined(CONFIG_OF_HOSTFILE)
+# elif defined(CONFIG_OF_HOSTFILE)
 	if (read_fdt_from_file()) {
 		puts("Failed to read control FDT\n");
 		return -1;
 	}
-#endif
+# endif
 	/* Allow the early environment to override the fdt address */
 	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
 						(uintptr_t)gd->fdt_blob);
+#endif
 	return 0;
 }
 
@@ -392,7 +394,7 @@ static int setup_dest_addr(void)
 	gd->ram_top = board_get_usable_ram_top(gd->mon_len);
 	gd->relocaddr = gd->ram_top;
 	debug("Ram top: %08lX\n", (ulong)gd->ram_top);
-#if (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
+#if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
 	/*
 	 * We need to make sure the location we intend to put secondary core
 	 * boot code is reserved and not used by any part of u-boot
@@ -831,6 +833,8 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_OF_CONTROL
 	fdtdec_check_fdt,
 #endif
+	initf_malloc,
+	initf_dm,
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
@@ -866,8 +870,6 @@ static init_fnc_t init_sequence_f[] = {
 	sdram_adjust_866,
 	init_timebase,
 #endif
-	initf_malloc,
-	initf_dm,
 	init_baud_rate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
 	console_init_f,		/* stage 1 init of console */

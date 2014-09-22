@@ -1,11 +1,9 @@
 if TARGET_MUSENKI
 
 config SYS_BOARD
-	string
 	default "musenki"
 
 config SYS_CONFIG_NAME
-	string
 	default "MUSENKI"
 
 endif

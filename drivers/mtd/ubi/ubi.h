@@ -10,7 +10,6 @@
 #ifndef __UBI_UBI_H__
 #define __UBI_UBI_H__
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/types.h>
 #include <linux/list.h>

@@ -1,19 +1,15 @@
 if TARGET_CM4008
 
 config SYS_CPU
-	string
 	default "arm920t"
 
 config SYS_BOARD
-	string
 	default "cm4008"
 
 config SYS_SOC
-	string
 	default "ks8695"
 
 config SYS_CONFIG_NAME
-	string
 	default "cm4008"
 
 endif

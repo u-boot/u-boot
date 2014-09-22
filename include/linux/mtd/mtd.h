@@ -8,7 +8,6 @@
 #ifndef __MTD_MTD_H__
 #define __MTD_MTD_H__
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/types.h>
 #include <linux/uio.h>

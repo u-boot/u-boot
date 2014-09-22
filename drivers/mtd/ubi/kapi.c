@@ -8,7 +8,6 @@
 
 /* This file mostly implements UBI kernel API functions */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/module.h>
 #include <linux/slab.h>

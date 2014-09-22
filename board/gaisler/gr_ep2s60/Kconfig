@@ -1,19 +1,15 @@
 if TARGET_GR_EP2S60
 
 config SYS_CPU
-	string
 	default "leon3"
 
 config SYS_BOARD
-	string
 	default "gr_ep2s60"
 
 config SYS_VENDOR
-	string
 	default "gaisler"
 
 config SYS_CONFIG_NAME
-	string
 	default "gr_ep2s60"
 
 endif

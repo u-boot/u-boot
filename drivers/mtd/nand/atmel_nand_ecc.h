@@ -34,6 +34,9 @@
 #define pmecc_readl(addr, reg) \
 	readl(&addr->reg)
 
+#define pmecc_readb(addr, reg) \
+	readb(&addr->reg)
+
 #define pmecc_writel(addr, reg, value) \
 	writel((value), &addr->reg)
 

@@ -1,15 +1,12 @@
 if TARGET_VENTANA
 
 config SYS_BOARD
-	string
 	default "ventana"
 
 config SYS_VENDOR
-	string
 	default "nvidia"
 
 config SYS_CONFIG_NAME
-	string
 	default "ventana"
 
 endif

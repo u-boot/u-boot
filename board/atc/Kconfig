@@ -1,11 +1,9 @@
 if TARGET_ATC
 
 config SYS_BOARD
-	string
 	default "atc"
 
 config SYS_CONFIG_NAME
-	string
 	default "atc"
 
 endif

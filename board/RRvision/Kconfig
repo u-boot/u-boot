@@ -1,11 +1,9 @@
 if TARGET_RRVISION
 
 config SYS_BOARD
-	string
 	default "RRvision"
 
 config SYS_CONFIG_NAME
-	string
 	default "RRvision"
 
 endif

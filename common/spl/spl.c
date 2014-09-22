@@ -86,7 +86,7 @@ void spl_parse_image_header(const struct image_header *header)
 		spl_image.os = image_get_os(header);
 		spl_image.name = image_get_name(header);
 		debug("spl: payload image: %.*s load addr: 0x%x size: %d\n",
-			sizeof(spl_image.name), spl_image.name,
+			(int)sizeof(spl_image.name), spl_image.name,
 			spl_image.load_addr, spl_image.size);
 	} else {
 		/* Signature not found - assume u-boot.bin */

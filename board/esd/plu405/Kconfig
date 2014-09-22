@@ -1,15 +1,12 @@
 if TARGET_PLU405
 
 config SYS_BOARD
-	string
 	default "plu405"
 
 config SYS_VENDOR
-	string
 	default "esd"
 
 config SYS_CONFIG_NAME
-	string
 	default "PLU405"
 
 endif

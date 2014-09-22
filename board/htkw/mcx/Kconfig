@@ -1,15 +1,12 @@
 if TARGET_MCX
 
 config SYS_BOARD
-	string
 	default "mcx"
 
 config SYS_VENDOR
-	string
 	default "htkw"
 
 config SYS_CONFIG_NAME
-	string
 	default "mcx"
 
 endif

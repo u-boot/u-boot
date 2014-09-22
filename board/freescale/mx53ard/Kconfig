@@ -1,23 +1,18 @@
 if TARGET_MX53ARD
 
 config SYS_CPU
-	string
 	default "armv7"
 
 config SYS_BOARD
-	string
 	default "mx53ard"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_SOC
-	string
 	default "mx5"
 
 config SYS_CONFIG_NAME
-	string
 	default "mx53ard"
 
 endif

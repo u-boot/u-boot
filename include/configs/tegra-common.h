@@ -20,6 +20,10 @@
 
 #define CONFIG_DM
 #define CONFIG_CMD_DM
+#define CONFIG_DM_GPIO
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_DM_SERIAL
+#endif
 
 #define CONFIG_SYS_TIMER_RATE		1000000
 #define CONFIG_SYS_TIMER_COUNTER	NV_PA_TMRUS_BASE
@@ -40,14 +44,19 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* 4MB  */
+#define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
 
 /*
  * NS16550 Configuration
  */
-#define CONFIG_SYS_NS16550
+#ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
+#else
+#define CONFIG_TEGRA_SERIAL
+#endif
+#define CONFIG_SYS_NS16550
 
 /*
  * Common HW configuration.

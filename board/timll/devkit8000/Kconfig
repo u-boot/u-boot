@@ -1,15 +1,12 @@
 if TARGET_DEVKIT8000
 
 config SYS_BOARD
-	string
 	default "devkit8000"
 
 config SYS_VENDOR
-	string
 	default "timll"
 
 config SYS_CONFIG_NAME
-	string
 	default "devkit8000"
 
 endif

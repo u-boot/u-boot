@@ -1,15 +1,12 @@
 if TARGET_OMAP3_ZOOM1
 
 config SYS_BOARD
-	string
 	default "zoom1"
 
 config SYS_VENDOR
-	string
 	default "logicpd"
 
 config SYS_CONFIG_NAME
-	string
 	default "omap3_zoom1"
 
 endif

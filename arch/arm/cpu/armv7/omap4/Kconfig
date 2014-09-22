@@ -15,11 +15,9 @@ config TARGET_OMAP4_SDP4430
 endchoice
 
 config SYS_CPU
-	string
 	default "armv7"
 
 config SYS_SOC
-	string
 	default "omap4"
 
 source "board/gumstix/duovero/Kconfig"

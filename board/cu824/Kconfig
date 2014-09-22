@@ -1,11 +1,9 @@
 if TARGET_CU824
 
 config SYS_BOARD
-	string
 	default "cu824"
 
 config SYS_CONFIG_NAME
-	string
 	default "CU824"
 
 endif

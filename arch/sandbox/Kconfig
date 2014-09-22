@@ -2,15 +2,12 @@ menu "Sandbox architecture"
 	depends on SANDBOX
 
 config SYS_ARCH
-	string
 	default "sandbox"
 
 config SYS_BOARD
-	string
 	default "sandbox"
 
 config SYS_CONFIG_NAME
-	string
 	default "sandbox"
 
 endmenu

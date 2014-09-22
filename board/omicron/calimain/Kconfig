@@ -1,15 +1,12 @@
 if TARGET_CALIMAIN
 
 config SYS_BOARD
-	string
 	default "calimain"
 
 config SYS_VENDOR
-	string
 	default "omicron"
 
 config SYS_CONFIG_NAME
-	string
 	default "calimain"
 
 endif

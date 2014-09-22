@@ -1,15 +1,12 @@
 if TARGET_T1040QDS
 
 config SYS_BOARD
-	string
 	default "t1040qds"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	string
 	default "T1040QDS"
 
 endif

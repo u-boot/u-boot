@@ -1,11 +1,9 @@
 if TARGET_A3M071
 
 config SYS_BOARD
-	string
 	default "a3m071"
 
 config SYS_CONFIG_NAME
-	string
 	default "a3m071"
 
 endif

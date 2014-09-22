@@ -1,15 +1,12 @@
 if TARGET_XILINX_PPC440_GENERIC
 
 config SYS_BOARD
-	string
 	default "ppc440-generic"
 
 config SYS_VENDOR
-	string
 	default "xilinx"
 
 config SYS_CONFIG_NAME
-	string
 	default "xilinx-ppc440-generic"
 
 endif

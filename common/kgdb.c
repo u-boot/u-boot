@@ -103,7 +103,7 @@ static char remcomOutBuffer[BUFMAX];
 static char remcomRegBuffer[BUFMAX];
 
 static int initialized = 0;
-static int kgdb_active = 0, first_entry = 1;
+static int kgdb_active;
 static struct pt_regs entry_regs;
 static long error_jmp_buf[BUFMAX/2];
 static int longjmp_on_fault = 0;
@@ -348,16 +348,7 @@ handle_exception (struct pt_regs *regs)
 
 	kgdb_enter(regs, &kd);
 
-	if (first_entry) {
-		/*
-		 * the first time we enter kgdb, we save the processor
-		 * state so that we can return to the monitor if the
-		 * remote end quits gdb (or at least, tells us to quit
-		 * with the 'k' packet)
-		 */
-		entry_regs = *regs;
-		first_entry = 0;
-	}
+	entry_regs = *regs;
 
 	ptr = remcomOutBuffer;
 
@@ -459,7 +450,6 @@ handle_exception (struct pt_regs *regs)
 		case 'k':    /* kill the program, actually return to monitor */
 			kd.extype = KGDBEXIT_KILL;
 			*regs = entry_regs;
-			first_entry = 1;
 			goto doexit;
 
 		case 'C':    /* CSS  continue with signal SS */

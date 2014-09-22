@@ -1,15 +1,12 @@
 if TARGET_HARMONY
 
 config SYS_BOARD
-	string
 	default "harmony"
 
 config SYS_VENDOR
-	string
 	default "nvidia"
 
 config SYS_CONFIG_NAME
-	string
 	default "harmony"
 
 endif

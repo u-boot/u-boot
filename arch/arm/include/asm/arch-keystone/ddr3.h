@@ -50,6 +50,7 @@ struct ddr3_emif_config {
 
 void ddr3_init(void);
 void ddr3_reset_ddrphy(void);
+void ddr3_err_reset_workaround(void);
 void ddr3_init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg);
 void ddr3_init_ddremif(u32 base, struct ddr3_emif_config *emif_cfg);
 

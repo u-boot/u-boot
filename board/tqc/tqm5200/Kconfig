@@ -1,15 +1,12 @@
 if TARGET_AEV
 
 config SYS_BOARD
-	string
 	default "tqm5200"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "aev"
 
 endif
@@ -17,15 +14,12 @@ endif
 if TARGET_CHARON
 
 config SYS_BOARD
-	string
 	default "tqm5200"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "charon"
 
 endif
@@ -33,15 +27,12 @@ endif
 if TARGET_TB5200
 
 config SYS_BOARD
-	string
 	default "tqm5200"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TB5200"
 
 endif
@@ -49,15 +40,12 @@ endif
 if TARGET_TQM5200
 
 config SYS_BOARD
-	string
 	default "tqm5200"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM5200"
 
 endif

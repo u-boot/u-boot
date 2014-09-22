@@ -81,4 +81,8 @@ void ddr3_init(void)
 		while (1)
 			;
 	}
+
+	/* Apply the workaround for PG 1.0 and 1.1 Silicons */
+	if (cpu_revision() <= 1)
+		ddr3_err_reset_workaround();
 }

@@ -12,12 +12,14 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-flagadm          powerpc     mpc8xx         -           -           Kári Davíðsson <kd@flaga.is>
-gen860t          powerpc     mpc8xx         -           -           Keith Outwater <Keith_Outwater@mvis.com>
-sixnet           powerpc     mpc8xx         -           -           Dave Ellis <DGE@sixnetio.com>
-svm_sc8xx        powerpc     mpc8xx         -           -           John Zhan <zhanz@sinovee.com>
-stxxtc           powerpc     mpc8xx         -           -           Dan Malek <dan@embeddedalley.com>
-omap5912osk      arm         arm926ejs      -           -           Rishi Bhattacharya <rishi@ti.com>
+PK1C20           nios2       -              70fbc461    2014-08-24  Scott McNutt <smcnutt@psyent.com>
+PCI5441          nios2       -              70fbc461    2014-08-24  Scott McNutt <smcnutt@psyent.com>
+flagadm          powerpc     mpc8xx         aec6f8c5    2014-08-22  Kári Davíðsson <kd@flaga.is>
+gen860t          powerpc     mpc8xx         6bde1ec1    2014-08-22  Keith Outwater <Keith_Outwater@mvis.com>
+sixnet           powerpc     mpc8xx         4723ce49    2014-08-22  Dave Ellis <DGE@sixnetio.com>
+svm_sc8xx        powerpc     mpc8xx         d1a4aafd    2014-08-22  John Zhan <zhanz@sinovee.com>
+stxxtc           powerpc     mpc8xx         0ace4d9d    2014-08-22  Dan Malek <dan@embeddedalley.com>
+omap5912osk      arm         arm926ejs      62d636aa    2014-08-22  Rishi Bhattacharya <rishi@ti.com>
 p1023rds         powerpc     mpc85xx        d0bc5140    2014-07-22  Roy Zang <tie-fei.zang@freescale.com>
 spc1920          powerpc     mpc8xx         98ad54be    2014-07-07
 v37              powerpc     mpc8xx         b8c1438a    2014-07-07

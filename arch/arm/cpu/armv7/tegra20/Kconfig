@@ -36,7 +36,6 @@ config TARGET_COLIBRI_T20_IRIS
 endchoice
 
 config SYS_SOC
-	string
 	default "tegra20"
 
 source "board/nvidia/harmony/Kconfig"

@@ -114,9 +114,25 @@ int at91_clock_init(unsigned long main_clock)
 void at91_periph_clk_enable(int id)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	u32 regval;
 
-	if (id > 31)
-		writel(1 << (id - 32), &pmc->pcer1);
-	else
-		writel(1 << id, &pmc->pcer);
+	if (id > AT91_PMC_PCR_PID_MASK)
+		return;
+
+	regval = AT91_PMC_PCR_EN | AT91_PMC_PCR_CMD_WRITE | id;
+
+	writel(regval, &pmc->pcr);
+}
+
+void at91_periph_clk_disable(int id)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	u32 regval;
+
+	if (id > AT91_PMC_PCR_PID_MASK)
+		return;
+
+	regval = AT91_PMC_PCR_CMD_WRITE | id;
+
+	writel(regval, &pmc->pcr);
 }

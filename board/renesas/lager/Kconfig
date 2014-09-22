@@ -1,15 +1,12 @@
 if TARGET_LAGER
 
 config SYS_BOARD
-	string
 	default "lager"
 
 config SYS_VENDOR
-	string
 	default "renesas"
 
 config SYS_CONFIG_NAME
-	string
 	default "lager"
 
 endif

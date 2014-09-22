@@ -21,7 +21,6 @@
  * larger is the journal, the more memory its index may consume.
  */
 
-#define __UBOOT__
 #ifdef __UBOOT__
 #include <linux/compat.h>
 #include <linux/err.h>

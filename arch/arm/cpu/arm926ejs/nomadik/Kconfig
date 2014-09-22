@@ -9,11 +9,9 @@ config NOMADIK_NHK8815
 endchoice
 
 config SYS_CPU
-	string
 	default "arm926ejs"
 
 config SYS_SOC
-	string
 	default "nomadik"
 
 source "board/st/nhk8815/Kconfig"

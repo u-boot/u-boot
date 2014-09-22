@@ -1,11 +1,9 @@
 if TARGET_SPD823TS
 
 config SYS_BOARD
-	string
 	default "spd8xx"
 
 config SYS_CONFIG_NAME
-	string
 	default "SPD823TS"
 
 endif

@@ -86,7 +86,6 @@
  * room for future re-works of the WL sub-system.
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/slab.h>
 #include <linux/crc32.h>

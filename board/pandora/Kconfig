@@ -1,11 +1,9 @@
 if TARGET_OMAP3_PANDORA
 
 config SYS_BOARD
-	string
 	default "pandora"
 
 config SYS_CONFIG_NAME
-	string
 	default "omap3_pandora"
 
 endif

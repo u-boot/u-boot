@@ -1,15 +1,12 @@
 if TARGET_P2041RDB
 
 config SYS_BOARD
-	string
 	default "p2041rdb"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	string
 	default "P2041RDB"
 
 endif

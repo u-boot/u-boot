@@ -1,15 +1,12 @@
 if TARGET_SEABOARD
 
 config SYS_BOARD
-	string
 	default "seaboard"
 
 config SYS_VENDOR
-	string
 	default "nvidia"
 
 config SYS_CONFIG_NAME
-	string
 	default "seaboard"
 
 endif

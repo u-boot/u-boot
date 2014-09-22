@@ -2,7 +2,6 @@ menu "NDS32 architecture"
 	depends on NDS32
 
 config SYS_ARCH
-	string
 	default "nds32"
 
 choice

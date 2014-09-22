@@ -2,7 +2,6 @@ menu "SuperH architecture"
 	depends on SH
 
 config SYS_ARCH
-	string
 	default "sh"
 
 choice

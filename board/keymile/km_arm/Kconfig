@@ -1,15 +1,12 @@
 if TARGET_KM_KIRKWOOD
 
 config SYS_BOARD
-	string
 	default "km_arm"
 
 config SYS_VENDOR
-	string
 	default "keymile"
 
 config SYS_CONFIG_NAME
-	string
 	default "km_kirkwood"
 
 endif

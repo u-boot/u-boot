@@ -1,15 +1,12 @@
 if TARGET_BEAVER
 
 config SYS_BOARD
-	string
 	default "beaver"
 
 config SYS_VENDOR
-	string
 	default "nvidia"
 
 config SYS_CONFIG_NAME
-	string
 	default "beaver"
 
 endif

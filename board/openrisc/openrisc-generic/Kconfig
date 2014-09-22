@@ -1,15 +1,12 @@
 if TARGET_OPENRISC_GENERIC
 
 config SYS_BOARD
-	string
 	default "openrisc-generic"
 
 config SYS_VENDOR
-	string
 	default "openrisc"
 
 config SYS_CONFIG_NAME
-	string
 	default "openrisc-generic"
 
 endif

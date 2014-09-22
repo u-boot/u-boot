@@ -23,6 +23,14 @@
 
 #include <linux/types.h>
 
+#ifdef CONFIG_DM_SERIAL
+/*
+ * For driver model we always use one byte per register, and sort out the
+ * differences in the driver
+ */
+#define CONFIG_SYS_NS16550_REG_SIZE (-1)
+#endif
+
 #if !defined(CONFIG_SYS_NS16550_REG_SIZE) || (CONFIG_SYS_NS16550_REG_SIZE == 0)
 #error "Please define NS16550 registers size."
 #elif defined(CONFIG_SYS_NS16550_MEM32)
@@ -36,6 +44,21 @@
 	unsigned char x;						\
 	unsigned char postpad_##x[-CONFIG_SYS_NS16550_REG_SIZE - 1];
 #endif
+
+/**
+ * struct ns16550_platdata - information about a NS16550 port
+ *
+ * @base:		Base register address
+ * @reg_shift:		Shift size of registers (0=byte, 1=16bit, 2=32bit...)
+ * @clock:		UART base clock speed in Hz
+ */
+struct ns16550_platdata {
+	unsigned char *base;
+	int reg_shift;
+	int clock;
+};
+
+struct udevice;
 
 struct NS16550 {
 	UART_REG(rbr);		/* 0 */
@@ -64,6 +87,9 @@ struct NS16550 {
 	UART_REG(uasr);		/* F */
 	UART_REG(scr);		/* 10*/
 	UART_REG(ssr);		/* 11*/
+#endif
+#ifdef CONFIG_DM_SERIAL
+	struct ns16550_platdata *plat;
 #endif
 };
 
@@ -170,3 +196,43 @@ void NS16550_putc(NS16550_t com_port, char c);
 char NS16550_getc(NS16550_t com_port);
 int NS16550_tstc(NS16550_t com_port);
 void NS16550_reinit(NS16550_t com_port, int baud_divisor);
+
+/**
+ * ns16550_calc_divisor() - calculate the divisor given clock and baud rate
+ *
+ * Given the UART input clock and required baudrate, calculate the divisor
+ * that should be used.
+ *
+ * @port:	UART port
+ * @clock:	UART input clock speed in Hz
+ * @baudrate:	Required baud rate
+ * @return baud rate divisor that should be used
+ */
+int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate);
+
+/**
+ * ns16550_serial_ofdata_to_platdata() - convert DT to platform data
+ *
+ * Decode a device tree node for an ns16550 device. This includes the
+ * register base address and register shift properties. The caller must set
+ * up the clock frequency.
+ *
+ * @dev:	dev to decode platform data for
+ * @return:	0 if OK, -EINVAL on error
+ */
+int ns16550_serial_ofdata_to_platdata(struct udevice *dev);
+
+/**
+ * ns16550_serial_probe() - probe a serial port
+ *
+ * This sets up the serial port ready for use, except for the baud rate
+ * @return 0, or -ve on error
+ */
+int ns16550_serial_probe(struct udevice *dev);
+
+/**
+ * struct ns16550_serial_ops - ns16550 serial operations
+ *
+ * These should be used by the client driver for the driver's 'ops' member
+ */
+extern const struct dm_serial_ops ns16550_serial_ops;

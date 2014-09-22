@@ -29,7 +29,6 @@
  * 64 bits is enough to never overflow.
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/slab.h>
 #include <linux/crc32.h>

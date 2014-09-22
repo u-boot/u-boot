@@ -1,15 +1,12 @@
 if TARGET_PCI405
 
 config SYS_BOARD
-	string
 	default "pci405"
 
 config SYS_VENDOR
-	string
 	default "esd"
 
 config SYS_CONFIG_NAME
-	string
 	default "PCI405"
 
 endif

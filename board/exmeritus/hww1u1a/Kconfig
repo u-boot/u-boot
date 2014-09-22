@@ -1,15 +1,12 @@
 if TARGET_HWW1U1A
 
 config SYS_BOARD
-	string
 	default "hww1u1a"
 
 config SYS_VENDOR
-	string
 	default "exmeritus"
 
 config SYS_CONFIG_NAME
-	string
 	default "HWW1U1A"
 
 endif

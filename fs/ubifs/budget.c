@@ -20,7 +20,6 @@
  */
 
 #include "ubifs.h"
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/writeback.h>
 #else

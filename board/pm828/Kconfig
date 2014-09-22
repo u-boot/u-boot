@@ -1,11 +1,9 @@
 if TARGET_PM828
 
 config SYS_BOARD
-	string
 	default "pm828"
 
 config SYS_CONFIG_NAME
-	string
 	default "PM828"
 
 endif

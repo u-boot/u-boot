@@ -9,11 +9,9 @@ config TARGET_EDMINIV2
 endchoice
 
 config SYS_CPU
-	string
 	default "arm926ejs"
 
 config SYS_SOC
-	string
 	default "orion5x"
 
 source "board/LaCie/edminiv2/Kconfig"

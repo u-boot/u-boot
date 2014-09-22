@@ -1,15 +1,12 @@
 if TARGET_OMAP3_LOGIC
 
 config SYS_BOARD
-	string
 	default "omap3som"
 
 config SYS_VENDOR
-	string
 	default "logicpd"
 
 config SYS_CONFIG_NAME
-	string
 	default "omap3_logic"
 
 endif

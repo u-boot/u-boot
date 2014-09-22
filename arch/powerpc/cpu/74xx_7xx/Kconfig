@@ -2,7 +2,6 @@ menu "74xx_7xx CPU"
 	depends on 74xx_7xx
 
 config SYS_CPU
-	string
 	default "74xx_7xx"
 
 choice

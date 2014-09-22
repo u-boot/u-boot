@@ -1,23 +1,18 @@
 if TARGET_SPEAR310
 
 config SYS_CPU
-	string
 	default "arm926ejs"
 
 config SYS_BOARD
-	string
 	default "spear310"
 
 config SYS_VENDOR
-	string
 	default "spear"
 
 config SYS_SOC
-	string
 	default "spear"
 
 config SYS_CONFIG_NAME
-	string
 	default "spear3xx_evb"
 
 endif

@@ -11,7 +11,6 @@
  * resizing.
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/err.h>
 #include <linux/slab.h>

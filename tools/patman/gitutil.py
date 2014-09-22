@@ -33,7 +33,7 @@ def LogCmd(commit_range, git_dir=None, oneline=False, reverse=False,
     cmd = ['git']
     if git_dir:
         cmd += ['--git-dir', git_dir]
-    cmd += ['log', '--no-color']
+    cmd += ['--no-pager', 'log', '--no-color']
     if oneline:
         cmd.append('--oneline')
     if use_no_decorate:
@@ -152,7 +152,8 @@ def Checkout(commit_hash, git_dir=None, work_tree=None, force=False):
     if force:
         pipe.append('-f')
     pipe.append(commit_hash)
-    result = command.RunPipe([pipe], capture=True, raise_on_error=False)
+    result = command.RunPipe([pipe], capture=True, raise_on_error=False,
+                             capture_stderr=True)
     if result.return_code != 0:
         raise OSError, 'git checkout (%s): %s' % (pipe, result.stderr)
 
@@ -163,7 +164,8 @@ def Clone(git_dir, output_dir):
         commit_hash: Commit hash to check out
     """
     pipe = ['git', 'clone', git_dir, '.']
-    result = command.RunPipe([pipe], capture=True, cwd=output_dir)
+    result = command.RunPipe([pipe], capture=True, cwd=output_dir,
+                             capture_stderr=True)
     if result.return_code != 0:
         raise OSError, 'git clone: %s' % result.stderr
 
@@ -179,7 +181,7 @@ def Fetch(git_dir=None, work_tree=None):
     if work_tree:
         pipe.extend(['--work-tree', work_tree])
     pipe.append('fetch')
-    result = command.RunPipe([pipe], capture=True)
+    result = command.RunPipe([pipe], capture=True, capture_stderr=True)
     if result.return_code != 0:
         raise OSError, 'git fetch: %s' % result.stderr
 
@@ -214,94 +216,6 @@ def CreatePatches(start, count, series):
        return files[0], files[1:]
     else:
        return None, files
-
-def ApplyPatch(verbose, fname):
-    """Apply a patch with git am to test it
-
-    TODO: Convert these to use command, with stderr option
-
-    Args:
-        fname: filename of patch file to apply
-    """
-    col = terminal.Color()
-    cmd = ['git', 'am', fname]
-    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-    stdout, stderr = pipe.communicate()
-    re_error = re.compile('^error: patch failed: (.+):(\d+)')
-    for line in stderr.splitlines():
-        if verbose:
-            print line
-        match = re_error.match(line)
-        if match:
-            print checkpatch.GetWarningMsg(col, 'warning', match.group(1),
-                                           int(match.group(2)), 'Patch failed')
-    return pipe.returncode == 0, stdout
-
-def ApplyPatches(verbose, args, start_point):
-    """Apply the patches with git am to make sure all is well
-
-    Args:
-        verbose: Print out 'git am' output verbatim
-        args: List of patch files to apply
-        start_point: Number of commits back from HEAD to start applying.
-            Normally this is len(args), but it can be larger if a start
-            offset was given.
-    """
-    error_count = 0
-    col = terminal.Color()
-
-    # Figure out our current position
-    cmd = ['git', 'name-rev', 'HEAD', '--name-only']
-    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    stdout, stderr = pipe.communicate()
-    if pipe.returncode:
-        str = 'Could not find current commit name'
-        print col.Color(col.RED, str)
-        print stdout
-        return False
-    old_head = stdout.splitlines()[0]
-    if old_head == 'undefined':
-        str = "Invalid HEAD '%s'" % stdout.strip()
-        print col.Color(col.RED, str)
-        return False
-
-    # Checkout the required start point
-    cmd = ['git', 'checkout', 'HEAD~%d' % start_point]
-    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-    stdout, stderr = pipe.communicate()
-    if pipe.returncode:
-        str = 'Could not move to commit before patch series'
-        print col.Color(col.RED, str)
-        print stdout, stderr
-        return False
-
-    # Apply all the patches
-    for fname in args:
-        ok, stdout = ApplyPatch(verbose, fname)
-        if not ok:
-            print col.Color(col.RED, 'git am returned errors for %s: will '
-                    'skip this patch' % fname)
-            if verbose:
-                print stdout
-            error_count += 1
-            cmd = ['git', 'am', '--skip']
-            pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-            stdout, stderr = pipe.communicate()
-            if pipe.returncode != 0:
-                print col.Color(col.RED, 'Unable to skip patch! Aborting...')
-                print stdout
-                break
-
-    # Return to our previous position
-    cmd = ['git', 'checkout', old_head]
-    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = pipe.communicate()
-    if pipe.returncode:
-        print col.Color(col.RED, 'Could not move back to head commit')
-        print stdout, stderr
-    return error_count == 0
 
 def BuildEmailList(in_list, tag=None, alias=None, raise_on_error=True):
     """Build a list of email addresses based on an input list.
@@ -478,13 +392,13 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
     ...
     OSError: Recursive email alias at 'other'
     >>> LookupEmail('odd', alias, raise_on_error=False)
-    \033[1;31mAlias 'odd' not found\033[0m
+    Alias 'odd' not found
     []
     >>> # In this case the loop part will effectively be ignored.
     >>> LookupEmail('loop', alias, raise_on_error=False)
-    \033[1;31mRecursive email alias at 'other'\033[0m
-    \033[1;31mRecursive email alias at 'john'\033[0m
-    \033[1;31mRecursive email alias at 'mary'\033[0m
+    Recursive email alias at 'other'
+    Recursive email alias at 'john'
+    Recursive email alias at 'mary'
     ['j.bloggs@napier.co.nz', 'm.poppins@cloud.net']
     """
     if not alias:
@@ -569,6 +483,8 @@ def GetDefaultUserEmail():
 def Setup():
     """Set up git utils, by reading the alias files."""
     # Check for a git alias file also
+    global use_no_decorate
+
     alias_fname = GetAliasFile()
     if alias_fname:
         settings.ReadGitAliases(alias_fname)

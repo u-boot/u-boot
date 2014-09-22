@@ -1,11 +1,9 @@
 if TARGET_BCT_BRETTL2
 
 config SYS_BOARD
-	string
 	default "bct-brettl2"
 
 config SYS_CONFIG_NAME
-	string
 	default "bct-brettl2"
 
 endif

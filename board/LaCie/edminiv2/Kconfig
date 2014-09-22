@@ -1,15 +1,12 @@
 if TARGET_EDMINIV2
 
 config SYS_BOARD
-	string
 	default "edminiv2"
 
 config SYS_VENDOR
-	string
 	default "LaCie"
 
 config SYS_CONFIG_NAME
-	string
 	default "edminiv2"
 
 endif

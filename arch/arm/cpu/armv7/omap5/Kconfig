@@ -15,11 +15,9 @@ config TARGET_DRA7XX_EVM
 endchoice
 
 config SYS_CPU
-	string
 	default "armv7"
 
 config SYS_SOC
-	string
 	default "omap5"
 
 source "board/compulab/cm_t54/Kconfig"

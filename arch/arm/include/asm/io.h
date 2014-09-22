@@ -376,7 +376,12 @@ out:
 	return retval;
 }
 
-#elif !defined(readb)
+#else
+#define memset_io(a, b, c)		memset((void *)(a), (b), (c))
+#define memcpy_fromio(a, b, c)		memcpy((a), (void *)(b), (c))
+#define memcpy_toio(a, b, c)		memcpy((void *)(a), (b), (c))
+
+#if !defined(readb)
 
 #define readb(addr)			(__readwrite_bug("readb"),0)
 #define readw(addr)			(__readwrite_bug("readw"),0)
@@ -389,6 +394,7 @@ out:
 
 #define check_signature(io,sig,len)	(0)
 
+#endif
 #endif	/* __mem_pci */
 
 /*

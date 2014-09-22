@@ -1,11 +1,9 @@
 if TARGET_PR1
 
 config SYS_BOARD
-	string
 	default "pr1"
 
 config SYS_CONFIG_NAME
-	string
 	default "pr1"
 
 endif

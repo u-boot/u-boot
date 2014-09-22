@@ -9,7 +9,6 @@
  *
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -804,7 +803,7 @@ void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
 	*truncated = 0;
 	*len_incl_bad = 0;
 
-	if (!mtd->block_isbad) {
+	if (!mtd->_block_isbad) {
 		*len_incl_bad = length;
 		return;
 	}
@@ -820,7 +819,7 @@ void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
 
 		block_len = mtd->erasesize - (offset & (mtd->erasesize - 1));
 
-		if (!mtd->block_isbad(mtd, offset & ~(mtd->erasesize - 1)))
+		if (!mtd->_block_isbad(mtd, offset & ~(mtd->erasesize - 1)))
 			len_excl_bad += block_len;
 
 		*len_incl_bad += block_len;

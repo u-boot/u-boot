@@ -18,7 +18,6 @@ config TARGET_TEC_NG
 endchoice
 
 config SYS_SOC
-	string
 	default "tegra30"
 
 source "board/nvidia/beaver/Kconfig"

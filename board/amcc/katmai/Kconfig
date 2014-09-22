@@ -1,15 +1,12 @@
 if TARGET_KATMAI
 
 config SYS_BOARD
-	string
 	default "katmai"
 
 config SYS_VENDOR
-	string
 	default "amcc"
 
 config SYS_CONFIG_NAME
-	string
 	default "katmai"
 
 endif

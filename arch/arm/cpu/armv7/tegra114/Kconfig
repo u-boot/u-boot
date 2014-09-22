@@ -9,7 +9,6 @@ config TARGET_DALMORE
 endchoice
 
 config SYS_SOC
-	string
 	default "tegra114"
 
 source "board/nvidia/dalmore/Kconfig"

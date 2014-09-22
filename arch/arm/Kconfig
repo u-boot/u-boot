@@ -2,8 +2,10 @@ menu "ARM architecture"
 	depends on ARM
 
 config SYS_ARCH
-	string
 	default "arm"
+
+config ARM64
+	bool
 
 choice
 	prompt "Target select"
@@ -463,15 +465,21 @@ config TEGRA
 
 config TARGET_VEXPRESS_AEMV8A
 	bool "Support vexpress_aemv8a"
-
-config TARGET_VEXPRESS_AEMV8A_SEMI
-	bool "Support vexpress_aemv8a_semi"
+	select ARM64
 
 config TARGET_LS2085A_EMU
 	bool "Support ls2085a_emu"
+	select ARM64
 
 config TARGET_LS2085A_SIMU
 	bool "Support ls2085a_simu"
+	select ARM64
+
+config TARGET_LS1021AQDS
+	bool "Support ls1021aqds_nor"
+
+config TARGET_LS1021ATWR
+	bool "Support ls1021atwr_nor"
 
 config TARGET_BALLOON3
 	bool "Support balloon3"
@@ -513,6 +521,8 @@ config TARGET_JORNADA
 	bool "Support jornada"
 
 endchoice
+
+source "arch/arm/cpu/armv8/Kconfig"
 
 source "arch/arm/cpu/arm926ejs/davinci/Kconfig"
 
@@ -598,6 +608,8 @@ source "board/eukrea/cpu9260/Kconfig"
 source "board/eukrea/cpuat91/Kconfig"
 source "board/faraday/a320evb/Kconfig"
 source "board/freescale/ls2085a/Kconfig"
+source "board/freescale/ls1021aqds/Kconfig"
+source "board/freescale/ls1021atwr/Kconfig"
 source "board/freescale/mx23evk/Kconfig"
 source "board/freescale/mx25pdk/Kconfig"
 source "board/freescale/mx28evk/Kconfig"

@@ -36,7 +36,6 @@
  * refuses to mount.
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/crc32.h>
 #include <linux/slab.h>

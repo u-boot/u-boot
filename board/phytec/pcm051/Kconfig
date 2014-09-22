@@ -1,23 +1,18 @@
 if TARGET_PCM051
 
 config SYS_CPU
-	string
 	default "armv7"
 
 config SYS_BOARD
-	string
 	default "pcm051"
 
 config SYS_VENDOR
-	string
 	default "phytec"
 
 config SYS_SOC
-	string
 	default "am33xx"
 
 config SYS_CONFIG_NAME
-	string
 	default "pcm051"
 
 endif

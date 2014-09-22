@@ -11,7 +11,6 @@
 #include <fsl_mdio.h>
 #include <asm/io.h>
 #include <asm/errno.h>
-#include <asm/fsl_enet.h>
 
 void tsec_local_mdio_write(struct tsec_mii_mng __iomem *phyregs, int port_addr,
 		int dev_addr, int regnum, int value)
@@ -20,7 +19,8 @@ void tsec_local_mdio_write(struct tsec_mii_mng __iomem *phyregs, int port_addr,
 
 	out_be32(&phyregs->miimadd, (port_addr << 8) | (regnum & 0x1f));
 	out_be32(&phyregs->miimcon, value);
-	asm("sync");
+	/* Memory barrier */
+	mb();
 
 	while ((in_be32(&phyregs->miimind) & MIIMIND_BUSY) && timeout--)
 		;
@@ -38,11 +38,13 @@ int tsec_local_mdio_read(struct tsec_mii_mng __iomem *phyregs, int port_addr,
 
 	/* Clear the command register, and wait */
 	out_be32(&phyregs->miimcom, 0);
-	asm("sync");
+	/* Memory barrier */
+	mb();
 
 	/* Initiate a read command, and wait */
 	out_be32(&phyregs->miimcom, MIIMCOM_READ_CYCLE);
-	asm("sync");
+	/* Memory barrier */
+	mb();
 
 	/* Wait for the the indication that the read is done */
 	while ((in_be32(&phyregs->miimind) & (MIIMIND_NOTVALID | MIIMIND_BUSY))

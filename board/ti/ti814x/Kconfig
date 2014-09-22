@@ -1,23 +1,18 @@
 if TARGET_TI814X_EVM
 
 config SYS_CPU
-	string
 	default "armv7"
 
 config SYS_BOARD
-	string
 	default "ti814x"
 
 config SYS_VENDOR
-	string
 	default "ti"
 
 config SYS_SOC
-	string
 	default "am33xx"
 
 config SYS_CONFIG_NAME
-	string
 	default "ti814x_evm"
 
 endif

@@ -1,11 +1,9 @@
 if TARGET_BLACKVME
 
 config SYS_BOARD
-	string
 	default "blackvme"
 
 config SYS_CONFIG_NAME
-	string
 	default "blackvme"
 
 endif

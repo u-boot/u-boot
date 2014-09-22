@@ -1,15 +1,12 @@
 if TARGET_APC405
 
 config SYS_BOARD
-	string
 	default "apc405"
 
 config SYS_VENDOR
-	string
 	default "esd"
 
 config SYS_CONFIG_NAME
-	string
 	default "APC405"
 
 endif

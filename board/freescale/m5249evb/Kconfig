@@ -1,19 +1,15 @@
 if TARGET_M5249EVB
 
 config SYS_CPU
-	string
 	default "mcf52x2"
 
 config SYS_BOARD
-	string
 	default "m5249evb"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	string
 	default "M5249EVB"
 
 endif

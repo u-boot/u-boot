@@ -162,7 +162,19 @@ struct fsl_esdhc_cfg {
 };
 
 /* Select the correct accessors depending on endianess */
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+#if defined CONFIG_SYS_FSL_ESDHC_LE
+#define esdhc_read32		in_le32
+#define esdhc_write32		out_le32
+#define esdhc_clrsetbits32	clrsetbits_le32
+#define esdhc_clrbits32		clrbits_le32
+#define esdhc_setbits32		setbits_le32
+#elif defined(CONFIG_SYS_FSL_ESDHC_BE)
+#define esdhc_read32            in_be32
+#define esdhc_write32           out_be32
+#define esdhc_clrsetbits32      clrsetbits_be32
+#define esdhc_clrbits32         clrbits_be32
+#define esdhc_setbits32         setbits_be32
+#elif __BYTE_ORDER == __LITTLE_ENDIAN
 #define esdhc_read32		in_le32
 #define esdhc_write32		out_le32
 #define esdhc_clrsetbits32	clrsetbits_le32

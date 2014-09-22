@@ -29,7 +29,6 @@
  *
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 

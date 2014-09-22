@@ -1,15 +1,12 @@
 if TARGET_MUCMC52
 
 config SYS_BOARD
-	string
 	default "mucmc52"
 
 config SYS_VENDOR
-	string
 	default "manroland"
 
 config SYS_CONFIG_NAME
-	string
 	default "mucmc52"
 
 endif

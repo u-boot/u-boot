@@ -1,15 +1,12 @@
 if TARGET_DREAMPLUG
 
 config SYS_BOARD
-	string
 	default "dreamplug"
 
 config SYS_VENDOR
-	string
 	default "Marvell"
 
 config SYS_CONFIG_NAME
-	string
 	default "dreamplug"
 
 endif

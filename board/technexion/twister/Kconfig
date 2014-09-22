@@ -1,15 +1,12 @@
 if TARGET_TWISTER
 
 config SYS_BOARD
-	string
 	default "twister"
 
 config SYS_VENDOR
-	string
 	default "technexion"
 
 config SYS_CONFIG_NAME
-	string
 	default "twister"
 
 endif

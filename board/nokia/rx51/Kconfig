@@ -1,15 +1,12 @@
 if TARGET_NOKIA_RX51
 
 config SYS_BOARD
-	string
 	default "rx51"
 
 config SYS_VENDOR
-	string
 	default "nokia"
 
 config SYS_CONFIG_NAME
-	string
 	default "nokia_rx51"
 
 endif

@@ -1,15 +1,12 @@
 if TARGET_COLIBRI_T30
 
 config SYS_BOARD
-	string
 	default "colibri_t30"
 
 config SYS_VENDOR
-	string
 	default "toradex"
 
 config SYS_CONFIG_NAME
-	string
 	default "colibri_t30"
 
 endif

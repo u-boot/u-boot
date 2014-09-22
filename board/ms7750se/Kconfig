@@ -1,15 +1,12 @@
 if TARGET_MS7750SE
 
 config SYS_CPU
-	string
 	default "sh4"
 
 config SYS_BOARD
-	string
 	default "ms7750se"
 
 config SYS_CONFIG_NAME
-	string
 	default "ms7750se"
 
 endif

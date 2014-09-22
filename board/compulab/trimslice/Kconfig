@@ -1,15 +1,12 @@
 if TARGET_TRIMSLICE
 
 config SYS_BOARD
-	string
 	default "trimslice"
 
 config SYS_VENDOR
-	string
 	default "compulab"
 
 config SYS_CONFIG_NAME
-	string
 	default "trimslice"
 
 endif

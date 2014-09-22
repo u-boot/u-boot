@@ -1,15 +1,12 @@
 if TARGET_BSC9132QDS
 
 config SYS_BOARD
-	string
 	default "bsc9132qds"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	string
 	default "BSC9132QDS"
 
 endif

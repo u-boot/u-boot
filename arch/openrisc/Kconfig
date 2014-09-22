@@ -2,7 +2,6 @@ menu "OpenRISC architecture"
 	depends on OPENRISC
 
 config SYS_ARCH
-	string
 	default "openrisc"
 
 choice

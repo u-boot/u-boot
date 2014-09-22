@@ -1,19 +1,15 @@
 if TARGET_VCT
 
 config SYS_CPU
-	string
 	default "mips32"
 
 config SYS_BOARD
-	string
 	default "vct"
 
 config SYS_VENDOR
-	string
 	default "micronas"
 
 config SYS_CONFIG_NAME
-	string
 	default "vct"
 
 endif

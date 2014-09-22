@@ -1,15 +1,12 @@
 if TARGET_IPAM390
 
 config SYS_BOARD
-	string
 	default "ipam390"
 
 config SYS_VENDOR
-	string
 	default "Barix"
 
 config SYS_CONFIG_NAME
-	string
 	default "ipam390"
 
 endif

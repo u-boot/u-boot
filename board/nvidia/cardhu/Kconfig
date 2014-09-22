@@ -1,15 +1,12 @@
 if TARGET_CARDHU
 
 config SYS_BOARD
-	string
 	default "cardhu"
 
 config SYS_VENDOR
-	string
 	default "nvidia"
 
 config SYS_CONFIG_NAME
-	string
 	default "cardhu"
 
 endif

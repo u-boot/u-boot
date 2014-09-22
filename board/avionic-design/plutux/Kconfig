@@ -1,15 +1,12 @@
 if TARGET_PLUTUX
 
 config SYS_BOARD
-	string
 	default "plutux"
 
 config SYS_VENDOR
-	string
 	default "avionic-design"
 
 config SYS_CONFIG_NAME
-	string
 	default "plutux"
 
 endif

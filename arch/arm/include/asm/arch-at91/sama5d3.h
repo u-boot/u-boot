@@ -188,6 +188,7 @@
 #define ATMEL_PIO_PORTS		5
 #define CPU_HAS_PIO3
 #define PIO_SCDR_DIV		0x3fff
+#define CPU_HAS_PCR
 
 /*
  * PMECC table in ROM

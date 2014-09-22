@@ -1,15 +1,12 @@
 if TARGET_TRIZEPSIV
 
 config SYS_CPU
-	string
 	default "pxa"
 
 config SYS_BOARD
-	string
 	default "trizepsiv"
 
 config SYS_CONFIG_NAME
-	string
 	default "trizepsiv"
 
 endif

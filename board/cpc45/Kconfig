@@ -1,11 +1,9 @@
 if TARGET_CPC45
 
 config SYS_BOARD
-	string
 	default "cpc45"
 
 config SYS_CONFIG_NAME
-	string
 	default "CPC45"
 
 endif

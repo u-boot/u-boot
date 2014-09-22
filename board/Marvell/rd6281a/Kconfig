@@ -1,15 +1,12 @@
 if TARGET_RD6281A
 
 config SYS_BOARD
-	string
 	default "rd6281a"
 
 config SYS_VENDOR
-	string
 	default "Marvell"
 
 config SYS_CONFIG_NAME
-	string
 	default "rd6281a"
 
 endif

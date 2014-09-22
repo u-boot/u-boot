@@ -1,15 +1,12 @@
 if TARGET_KM82XX
 
 config SYS_BOARD
-	string
 	default "km82xx"
 
 config SYS_VENDOR
-	string
 	default "keymile"
 
 config SYS_CONFIG_NAME
-	string
 	default "km82xx"
 
 endif

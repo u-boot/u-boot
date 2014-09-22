@@ -2,7 +2,6 @@ menu "mpc824x CPU"
 	depends on MPC824X
 
 config SYS_CPU
-	string
 	default "mpc824x"
 
 choice

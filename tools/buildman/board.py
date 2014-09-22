@@ -239,13 +239,14 @@ class Boards:
             terms.append(term)
         return terms
 
-    def SelectBoards(self, args):
+    def SelectBoards(self, args, exclude=[]):
         """Mark boards selected based on args
 
         Args:
-            List of strings specifying boards to include, either named, or
-            by their target, architecture, cpu, vendor or soc. If empty, all
-            boards are selected.
+            args: List of strings specifying boards to include, either named,
+                  or by their target, architecture, cpu, vendor or soc. If
+                  empty, all boards are selected.
+            exclude: List of boards to exclude, regardless of 'args'
 
         Returns:
             Dictionary which holds the number of boards which were selected
@@ -258,17 +259,33 @@ class Boards:
         for term in terms:
             result[str(term)] = 0
 
+        exclude_list = []
+        for expr in exclude:
+            exclude_list.append(Expr(expr))
+
         for board in self._boards:
+            matching_term = None
+            build_it = False
             if terms:
                 match = False
                 for term in terms:
                     if term.Matches(board.props):
-                        board.build_it = True
-                        result[str(term)] += 1
-                        result['all'] += 1
+                        matching_term = str(term)
+                        build_it = True
                         break
             else:
+                build_it = True
+
+            # Check that it is not specifically excluded
+            for expr in exclude_list:
+                if expr.Matches(board.props):
+                    build_it = False
+                    break
+
+            if build_it:
                 board.build_it = True
+                if matching_term:
+                    result[matching_term] += 1
                 result['all'] += 1
 
         return result

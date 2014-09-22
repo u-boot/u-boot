@@ -1,15 +1,12 @@
 if TARGET_CAM_ENC_4XX
 
 config SYS_BOARD
-	string
 	default "cam_enc_4xx"
 
 config SYS_VENDOR
-	string
 	default "ait"
 
 config SYS_CONFIG_NAME
-	string
 	default "cam_enc_4xx"
 
 endif

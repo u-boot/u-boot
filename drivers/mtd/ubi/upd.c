@@ -26,7 +26,6 @@
  * transaction with a roll-back capability.
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/uaccess.h>
 #else

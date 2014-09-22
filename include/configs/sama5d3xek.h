@@ -79,8 +79,19 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-/* No NOR flash */
+/* NOR flash */
+#define CONFIG_CMD_FLASH
+
+#ifdef CONFIG_CMD_FLASH
+#define CONFIG_FLASH_CFI_DRIVER
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_SYS_FLASH_PROTECTION
+#define CONFIG_SYS_FLASH_BASE		0x10000000
+#define CONFIG_SYS_MAX_FLASH_SECT	131
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#else
 #define CONFIG_SYS_NO_FLASH
+#endif
 
 /*
  * Command line configuration.

@@ -15,7 +15,6 @@
  * corresponding subsystems, but most of it is here.
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/init.h>
 #include <linux/slab.h>

@@ -2,7 +2,6 @@ menu "mpc512x CPU"
 	depends on MPC512X
 
 config SYS_CPU
-	string
 	default "mpc512x"
 
 choice

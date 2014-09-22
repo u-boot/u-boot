@@ -1,19 +1,15 @@
 if TARGET_WOODBURN
 
 config SYS_CPU
-	string
 	default "arm1136"
 
 config SYS_BOARD
-	string
 	default "woodburn"
 
 config SYS_SOC
-	string
 	default "mx35"
 
 config SYS_CONFIG_NAME
-	string
 	default "woodburn"
 
 endif
@@ -21,19 +17,15 @@ endif
 if TARGET_WOODBURN_SD
 
 config SYS_CPU
-	string
 	default "arm1136"
 
 config SYS_BOARD
-	string
 	default "woodburn"
 
 config SYS_SOC
-	string
 	default "mx35"
 
 config SYS_CONFIG_NAME
-	string
 	default "woodburn_sd"
 
 endif

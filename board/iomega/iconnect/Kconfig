@@ -1,15 +1,12 @@
 if TARGET_ICONNECT
 
 config SYS_BOARD
-	string
 	default "iconnect"
 
 config SYS_VENDOR
-	string
 	default "iomega"
 
 config SYS_CONFIG_NAME
-	string
 	default "iconnect"
 
 endif

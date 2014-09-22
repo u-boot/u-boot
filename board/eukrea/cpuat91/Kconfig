@@ -1,23 +1,18 @@
 if TARGET_CPUAT91
 
 config SYS_CPU
-	string
 	default "arm920t"
 
 config SYS_BOARD
-	string
 	default "cpuat91"
 
 config SYS_VENDOR
-	string
 	default "eukrea"
 
 config SYS_SOC
-	string
 	default "at91"
 
 config SYS_CONFIG_NAME
-	string
 	default "cpuat91"
 
 endif

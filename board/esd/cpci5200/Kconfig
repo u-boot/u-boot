@@ -1,15 +1,12 @@
 if TARGET_CPCI5200
 
 config SYS_BOARD
-	string
 	default "cpci5200"
 
 config SYS_VENDOR
-	string
 	default "esd"
 
 config SYS_CONFIG_NAME
-	string
 	default "cpci5200"
 
 endif

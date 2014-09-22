@@ -114,6 +114,13 @@ the '&' operator to limit the selection:
 * 'freescale & arm sandbox'  All Freescale boards with ARM architecture,
                              plus sandbox
 
+You can also use -x to specifically exclude some boards. For example:
+
+ buildmand arm -x nvidia,freescale,.*ball$
+
+means to build all arm boards except nvidia, freescale and anything ending
+with 'ball'.
+
 It is convenient to use the -n option to see whaat will be built based on
 the subset given.
 
@@ -435,7 +442,11 @@ is fixed, but there is a new one at line 126. This is probably only because
 we added some code and moved the broken line father down the file.
 
 If many boards have the same error, then -e will display the error only
-once. This makes the output as concise as possible.
+once. This makes the output as concise as possible. To see which boards have
+each error, use -l.
+
+Buildman tries to distinguish warnings from errors, and shows warning lines
+separately with a 'w' prefix.
 
 The full build output in this case is available in:
 
@@ -670,7 +681,9 @@ snapper9g45=${at91-boards} BUILD_TAG=443
 This will use 'make ENABLE_AT91_TEST=1 BUILD_TAG=442' for snapper9260
 and 'make ENABLE_AT91_TEST=1 BUILD_TAG=443' for snapper9g45. A special
 variable ${target} is available to access the target name (snapper9260 and
-snapper9g20 in this case). Variables are resolved recursively.
+snapper9g20 in this case). Variables are resolved recursively. Note that
+variables can only contain the characters A-Z, a-z, 0-9, hyphen (-) and
+underscore (_).
 
 It is expected that any variables added are dealt with in U-Boot's
 config.mk file and documented in the README.
@@ -689,6 +702,12 @@ Other options
 =============
 
 Buildman has various other command line options. Try --help to see them.
+
+When doing builds, Buildman's return code will reflect the overall result:
+
+    0 (success)     No errors or warnings found
+    128             Errors found
+    129             Warnings found
 
 
 How to change from MAKEALL
@@ -730,10 +749,10 @@ followed by (afterwards, or perhaps concurrently in another terminal):
 to see the results of the build. Rather than showing you all the output,
 buildman just shows a summary, with red indicating that a commit introduced
 an error and green indicating that a commit fixed an error. Use the -e
-flag to see the full errors.
+flag to see the full errors and -l to see which boards caused which errors.
 
 If you really want to see build results as they happen, use -v when doing a
-build (and -e if you want to see errors as well).
+build (-e will be enabled automatically).
 
 You don't need to stick around on that branch while buildman is running. It
 checks out its own copy of the source code, so you can change branches,

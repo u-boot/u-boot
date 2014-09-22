@@ -118,6 +118,13 @@ do_board_defconfig () {
 	defconfig_path=$srctree/configs/$1
 	tmp_defconfig_path=configs/.tmp_defconfig
 
+	if [ ! -r $defconfig_path ]; then
+		echo >&2 "***"
+		echo >&2 "*** Can't find default configuration \"confis/$1\"!"
+		echo >&2 "***"
+		exit 1
+	fi
+
 	mkdir -p arch configs
 	# defconfig for Normal:
 	#  pick lines without prefixes and lines starting '+' prefix
@@ -170,7 +177,7 @@ do_savedefconfig () {
 	# backslashes as an escape character
 	while read -r line
 	do
-		output_lines="$output_lines $line"
+		output_lines="$output_lines%$line"
 	done < defconfig
 
 	for img in $subimages
@@ -185,42 +192,93 @@ do_savedefconfig () {
 			tmp=
 			match=
 
+			# "# CONFIG_FOO is not set" should not be divided.
+			# Use "%" as a separator, instead of a whitespace.
+			# "%" is unlikely to appear in defconfig context.
+			save_IFS=$IFS
+			IFS=%
 			# coalesce common lines together
 			for i in $output_lines
 			do
 				case "$i" in
-				"[+A-Z]*:$line")
-					tmp="$tmp $unmatched"
+				[+A-Z]*:$line)
+					tmp="$tmp%$unmatched"
 					i=$(echo "$i" | \
-					    sed -e "s/^\([^:]\)*/\1$symbol/")
-					tmp="$tmp $i"
+					    sed -e "s/^\([^:]*\)/\1$symbol/")
+					tmp="$tmp%$i"
 					match=1
 					;;
-				"$line")
-					tmp="$tmp $unmatched"
-					tmp="$tmp +$symbol:$i"
+				$line)
+					tmp="$tmp%$unmatched"
+					tmp="$tmp%+$symbol:$i"
 					match=1
 					;;
 				*)
-					tmp="$tmp $i"
+					tmp="$tmp%$i"
 					;;
 				esac
 			done
+
+			# Restore the default separator for the outer for loop.
+			IFS=$save_IFS
 
 			if [ "$match" ]; then
 				output_lines="$tmp"
 				unmatched=
 			else
-				unmatched="$unmatched $symbol:$line"
+				unmatched="$unmatched%$symbol:$line"
 			fi
 		done < defconfig
 	done
 
 	rm -f defconfig
+	touch defconfig
+
+	save_IFS=$IFS
+	IFS=%
+
 	for line in $output_lines
 	do
-		echo $line >> defconfig
+		case "$line" in
+		"")
+			# do not output blank lines
+			;;
+		*)
+			echo $line >> defconfig
+			;;
+		esac
 	done
+
+	IFS=$save_IFS
+}
+
+# Some sanity checks before running "make <objdir>/<target>",
+# where <objdir> should be either "spl" or "tpl".
+# Doing "make spl/menuconfig" etc. on a non-SPL board makes no sense.
+# It should be allowed only when ".config" exists and "CONFIG_SPL" is enabled.
+#
+# Usage:
+#   check_enabled_sumbimage <objdir>/<target> <objdir>
+check_enabled_subimage () {
+
+	case $2 in
+	spl|tpl) ;;
+	*)
+		echo >&2 "***"
+		echo >&2 "*** \"make $1\" is not supported."
+		echo >&2 "***"
+		exit 1
+		;;
+	esac
+	test -r "$KCONFIG_CONFIG" && get_enabled_subimages | grep -q $2 || {
+		config=CONFIG_$(echo $2 | tr '[a-z]' '[A-Z]')
+
+		echo >&2 "***"
+		echo >&2 "*** Create \"$KCONFIG_CONFIG\" with \"$config\" enabled"
+		echo >&2 "*** before \"make $1\"."
+		echo >&2 "***"
+		exit 1
+	}
 }
 
 # Usage:
@@ -236,6 +294,7 @@ do_others () {
 		objdir=
 	else
 		objdir=${1%/*}
+		check_enabled_subimage $1 $objdir
 	fi
 
 	run_make_config $target $objdir

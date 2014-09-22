@@ -2,7 +2,6 @@ menu "ARC architecture"
 	depends on ARC
 
 config SYS_ARCH
-	string
 	default "arc"
 
 choice

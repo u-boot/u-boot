@@ -1,11 +1,9 @@
 if TARGET_R360MPI
 
 config SYS_BOARD
-	string
 	default "r360mpi"
 
 config SYS_CONFIG_NAME
-	string
 	default "R360MPI"
 
 endif

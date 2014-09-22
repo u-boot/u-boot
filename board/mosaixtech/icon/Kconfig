@@ -1,15 +1,12 @@
 if TARGET_ICON
 
 config SYS_BOARD
-	string
 	default "icon"
 
 config SYS_VENDOR
-	string
 	default "mosaixtech"
 
 config SYS_CONFIG_NAME
-	string
 	default "icon"
 
 endif

@@ -1,19 +1,15 @@
 if TARGET_ATNGW100MKII
 
 config SYS_BOARD
-	string
 	default "atngw100mkii"
 
 config SYS_VENDOR
-	string
 	default "atmel"
 
 config SYS_SOC
-	string
 	default "at32ap700x"
 
 config SYS_CONFIG_NAME
-	string
 	default "atngw100mkii"
 
 endif

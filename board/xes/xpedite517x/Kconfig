@@ -1,15 +1,12 @@
 if TARGET_XPEDITE517X
 
 config SYS_BOARD
-	string
 	default "xpedite517x"
 
 config SYS_VENDOR
-	string
 	default "xes"
 
 config SYS_CONFIG_NAME
-	string
 	default "xpedite517x"
 
 endif

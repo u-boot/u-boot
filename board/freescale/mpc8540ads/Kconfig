@@ -1,15 +1,12 @@
 if TARGET_MPC8540ADS
 
 config SYS_BOARD
-	string
 	default "mpc8540ads"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	string
 	default "MPC8540ADS"
 
 endif

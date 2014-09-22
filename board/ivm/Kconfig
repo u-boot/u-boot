@@ -1,11 +1,9 @@
 if TARGET_IVML24
 
 config SYS_BOARD
-	string
 	default "ivm"
 
 config SYS_CONFIG_NAME
-	string
 	default "IVML24"
 
 endif
@@ -13,11 +11,9 @@ endif
 if TARGET_IVMS8
 
 config SYS_BOARD
-	string
 	default "ivm"
 
 config SYS_CONFIG_NAME
-	string
 	default "IVMS8"
 
 endif

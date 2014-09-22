@@ -1,15 +1,12 @@
 if TARGET_PAZ00
 
 config SYS_BOARD
-	string
 	default "paz00"
 
 config SYS_VENDOR
-	string
 	default "compal"
 
 config SYS_CONFIG_NAME
-	string
 	default "paz00"
 
 endif

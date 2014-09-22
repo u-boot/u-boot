@@ -189,12 +189,12 @@ struct ethoc_bd {
 	u32 addr;
 };
 
-static inline u32 ethoc_read(struct eth_device *dev, loff_t offset)
+static inline u32 ethoc_read(struct eth_device *dev, size_t offset)
 {
 	return readl(dev->iobase + offset);
 }
 
-static inline void ethoc_write(struct eth_device *dev, loff_t offset, u32 data)
+static inline void ethoc_write(struct eth_device *dev, size_t offset, u32 data)
 {
 	writel(data, dev->iobase + offset);
 }
@@ -202,7 +202,7 @@ static inline void ethoc_write(struct eth_device *dev, loff_t offset, u32 data)
 static inline void ethoc_read_bd(struct eth_device *dev, int index,
 				 struct ethoc_bd *bd)
 {
-	loff_t offset = ETHOC_BD_BASE + (index * sizeof(struct ethoc_bd));
+	size_t offset = ETHOC_BD_BASE + (index * sizeof(struct ethoc_bd));
 	bd->stat = ethoc_read(dev, offset + 0);
 	bd->addr = ethoc_read(dev, offset + 4);
 }
@@ -210,7 +210,7 @@ static inline void ethoc_read_bd(struct eth_device *dev, int index,
 static inline void ethoc_write_bd(struct eth_device *dev, int index,
 				  const struct ethoc_bd *bd)
 {
-	loff_t offset = ETHOC_BD_BASE + (index * sizeof(struct ethoc_bd));
+	size_t offset = ETHOC_BD_BASE + (index * sizeof(struct ethoc_bd));
 	ethoc_write(dev, offset + 0, bd->stat);
 	ethoc_write(dev, offset + 4, bd->addr);
 }

@@ -1,11 +1,9 @@
 if TARGET_COGENT_MPC8260
 
 config SYS_BOARD
-	string
 	default "cogent"
 
 config SYS_CONFIG_NAME
-	string
 	default "cogent_mpc8260"
 
 endif
@@ -13,11 +11,9 @@ endif
 if TARGET_COGENT_MPC8XX
 
 config SYS_BOARD
-	string
 	default "cogent"
 
 config SYS_CONFIG_NAME
-	string
 	default "cogent_mpc8xx"
 
 endif

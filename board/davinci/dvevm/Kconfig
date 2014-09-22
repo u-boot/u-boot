@@ -1,15 +1,12 @@
 if TARGET_DAVINCI_DVEVM
 
 config SYS_BOARD
-	string
 	default "dvevm"
 
 config SYS_VENDOR
-	string
 	default "davinci"
 
 config SYS_CONFIG_NAME
-	string
 	default "davinci_dvevm"
 
 endif

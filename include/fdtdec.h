@@ -376,6 +376,18 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int node,
  */
 int fdtdec_get_alias_node(const void *blob, const char *name);
 
+/**
+ * Get the offset of the given chosen node
+ *
+ * This looks up a property in /chosen containing the path to another node,
+ * then finds the offset of that node.
+ *
+ * @param blob		Device tree blob (if NULL, then error is returned)
+ * @param name		Property name, e.g. "stdout-path"
+ * @return Node offset referred to by that chosen node, or -ve FDT_ERR_...
+ */
+int fdtdec_get_chosen_node(const void *blob, const char *name);
+
 /*
  * Get the name for a compatible ID
  *

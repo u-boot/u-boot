@@ -1,23 +1,18 @@
 if TARGET_XFI3
 
 config SYS_CPU
-	string
 	default "arm926ejs"
 
 config SYS_BOARD
-	string
 	default "xfi3"
 
 config SYS_VENDOR
-	string
 	default "creative"
 
 config SYS_SOC
-	string
 	default "mxs"
 
 config SYS_CONFIG_NAME
-	string
 	default "xfi3"
 
 endif

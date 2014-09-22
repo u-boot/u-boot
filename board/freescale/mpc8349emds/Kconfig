@@ -1,15 +1,12 @@
 if TARGET_MPC8349EMDS
 
 config SYS_BOARD
-	string
 	default "mpc8349emds"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	string
 	default "MPC8349EMDS"
 
 endif

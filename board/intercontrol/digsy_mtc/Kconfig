@@ -1,15 +1,12 @@
 if TARGET_DIGSY_MTC
 
 config SYS_BOARD
-	string
 	default "digsy_mtc"
 
 config SYS_VENDOR
-	string
 	default "intercontrol"
 
 config SYS_CONFIG_NAME
-	string
 	default "digsy_mtc"
 
 endif

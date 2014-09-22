@@ -2,7 +2,6 @@ menu "M68000 architecture"
 	depends on M68K
 
 config SYS_ARCH
-	string
 	default "m68k"
 
 choice

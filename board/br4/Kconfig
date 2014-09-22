@@ -1,11 +1,9 @@
 if TARGET_BR4
 
 config SYS_BOARD
-	string
 	default "br4"
 
 config SYS_CONFIG_NAME
-	string
 	default "br4"
 
 endif

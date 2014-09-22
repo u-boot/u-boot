@@ -8,7 +8,6 @@
 
 #include <ubi_uboot.h>
 #include "ubi.h"
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/debugfs.h>
 #include <linux/uaccess.h>

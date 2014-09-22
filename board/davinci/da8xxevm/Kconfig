@@ -1,15 +1,12 @@
 if TARGET_DA830EVM
 
 config SYS_BOARD
-	string
 	default "da8xxevm"
 
 config SYS_VENDOR
-	string
 	default "davinci"
 
 config SYS_CONFIG_NAME
-	string
 	default "da830evm"
 
 endif
@@ -17,15 +14,12 @@ endif
 if TARGET_DA850EVM
 
 config SYS_BOARD
-	string
 	default "da8xxevm"
 
 config SYS_VENDOR
-	string
 	default "davinci"
 
 config SYS_CONFIG_NAME
-	string
 	default "da850evm"
 
 endif
@@ -33,15 +27,12 @@ endif
 if TARGET_HAWKBOARD
 
 config SYS_BOARD
-	string
 	default "da8xxevm"
 
 config SYS_VENDOR
-	string
 	default "davinci"
 
 config SYS_CONFIG_NAME
-	string
 	default "hawkboard"
 
 endif

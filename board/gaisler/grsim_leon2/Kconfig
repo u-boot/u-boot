@@ -1,19 +1,15 @@
 if TARGET_GRSIM_LEON2
 
 config SYS_CPU
-	string
 	default "leon2"
 
 config SYS_BOARD
-	string
 	default "grsim_leon2"
 
 config SYS_VENDOR
-	string
 	default "gaisler"
 
 config SYS_CONFIG_NAME
-	string
 	default "grsim_leon2"
 
 endif

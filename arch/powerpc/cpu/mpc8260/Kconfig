@@ -2,7 +2,6 @@ menu "mpc8260 CPU"
 	depends on MPC8260
 
 config SYS_CPU
-	string
 	default "mpc8260"
 
 choice

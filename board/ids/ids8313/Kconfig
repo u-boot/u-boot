@@ -1,15 +1,12 @@
 if TARGET_IDS8313
 
 config SYS_BOARD
-	string
 	default "ids8313"
 
 config SYS_VENDOR
-	string
 	default "ids"
 
 config SYS_CONFIG_NAME
-	string
 	default "ids8313"
 
 endif

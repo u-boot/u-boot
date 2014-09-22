@@ -8,7 +8,6 @@
  * published by the Free Software Foundation.
  *
  */
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/module.h>
 #include <linux/mtd/nand.h>

@@ -118,7 +118,8 @@ static int driver_check_compatible(const void *blob, int offset,
 	return -ENOENT;
 }
 
-int lists_bind_fdt(struct udevice *parent, const void *blob, int offset)
+int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
+		   struct udevice **devp)
 {
 	struct driver *driver = ll_entry_start(struct driver, driver);
 	const int n_ents = ll_entry_count(struct driver, driver);
@@ -130,6 +131,8 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset)
 	int ret = 0;
 
 	dm_dbg("bind node %s\n", fdt_get_name(blob, offset, NULL));
+	if (devp)
+		*devp = NULL;
 	for (entry = driver; entry != driver + n_ents; entry++) {
 		ret = driver_check_compatible(blob, offset, entry->of_match);
 		name = fdt_get_name(blob, offset, NULL);
@@ -149,10 +152,11 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset)
 		ret = device_bind(parent, entry, name, NULL, offset, &dev);
 		if (ret) {
 			dm_warn("Error binding driver '%s'\n", entry->name);
-			if (!result || ret != -ENOENT)
-				result = ret;
+			return ret;
 		} else {
 			found = true;
+			if (devp)
+				*devp = dev;
 		}
 		break;
 	}

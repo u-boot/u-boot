@@ -1,15 +1,12 @@
 if TARGET_NETSPACE_V2
 
 config SYS_BOARD
-	string
 	default "netspace_v2"
 
 config SYS_VENDOR
-	string
 	default "LaCie"
 
 config SYS_CONFIG_NAME
-	string
 	default "lacie_kw"
 
 endif

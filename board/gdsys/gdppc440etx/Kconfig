@@ -1,15 +1,12 @@
 if TARGET_GDPPC440ETX
 
 config SYS_BOARD
-	string
 	default "gdppc440etx"
 
 config SYS_VENDOR
-	string
 	default "gdsys"
 
 config SYS_CONFIG_NAME
-	string
 	default "gdppc440etx"
 
 endif

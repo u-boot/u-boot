@@ -2,7 +2,6 @@ menu "PowerPC architecture"
 	depends on PPC
 
 config SYS_ARCH
-	string
 	default "powerpc"
 
 choice

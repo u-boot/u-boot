@@ -1,15 +1,12 @@
 if TARGET_WHISTLER
 
 config SYS_BOARD
-	string
 	default "whistler"
 
 config SYS_VENDOR
-	string
 	default "nvidia"
 
 config SYS_CONFIG_NAME
-	string
 	default "whistler"
 
 endif
