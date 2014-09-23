@@ -74,3 +74,9 @@ int init_sata(int dev)
 
 	return ret;
 }
+
+/* On OMAP platforms SATA provides the SCSI subsystem */
+void scsi_init(void)
+{
+	init_sata(0);
+}
