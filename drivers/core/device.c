@@ -106,13 +106,18 @@ int device_bind(struct udevice *parent, struct driver *drv, const char *name,
 	 * a 'requested' sequence, and will be resolved (and ->seq updated)
 	 * when the device is probed.
 	 */
-	dev->req_seq = fdtdec_get_int(gd->fdt_blob, of_offset, "reg", -1);
 	dev->seq = -1;
+#ifdef CONFIG_OF_CONTROL
+	dev->req_seq = fdtdec_get_int(gd->fdt_blob, of_offset, "reg", -1);
+	if (!IS_ERR_VALUE(dev->req_seq))
+		dev->req_seq &= INT_MAX;
 	if (uc->uc_drv->name && of_offset != -1) {
 		fdtdec_get_alias_seq(gd->fdt_blob, uc->uc_drv->name, of_offset,
 				     &dev->req_seq);
 	}
-
+#else
+	dev->req_seq = -1;
+#endif
 	if (!dev->platdata && drv->platdata_auto_alloc_size)
 		dev->flags |= DM_FLAG_ALLOC_PDATA;
 
