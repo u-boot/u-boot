@@ -279,10 +279,12 @@
 		"bootm ${kernel_addr_r}\0"				\
 	"try_bootscript="						\
 		"mmc rescan;"						\
+		"if test -e mmc 0:2 ${bootscript} ; then "		\
 		"if ext4load mmc 0:2 ${kernel_addr_r} ${bootscript};"	\
 		"then;"							\
 			"\techo Running bootscript...;"			\
 			"\tsource ${kernel_addr_r};"			\
+		"fi ; "							\
 		"fi\0"
 
 /* The rest of the configuration is shared */
