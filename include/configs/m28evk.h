@@ -32,6 +32,7 @@
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_I2C
@@ -236,7 +237,7 @@
 	"addargs=run addcons addmtd addmisc\0"				\
 	"mmcload="							\
 		"mmc rescan ; "						\
-		"ext4load mmc 0:2 ${kernel_addr_r} ${bootfile}\0"	\
+		"load mmc 0:2 ${kernel_addr_r} ${bootfile}\0"		\
 	"ubiload="							\
 		"ubi part UBI ; ubifsmount ubi0:rootfs ; "		\
 		"ubifsload ${kernel_addr_r} /boot/${bootfile}\0"	\
@@ -280,7 +281,7 @@
 	"try_bootscript="						\
 		"mmc rescan;"						\
 		"if test -e mmc 0:2 ${bootscript} ; then "		\
-		"if ext4load mmc 0:2 ${kernel_addr_r} ${bootscript};"	\
+		"if load mmc 0:2 ${kernel_addr_r} ${bootscript};"	\
 		"then;"							\
 			"\techo Running bootscript...;"			\
 			"\tsource ${kernel_addr_r};"			\
