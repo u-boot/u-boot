@@ -158,10 +158,10 @@ static void board_clock_init(void)
 	 * For MOUThpm = 1000 MHz (MOUTapll)
 	 * doutcopy = MOUThpm / (ratio + 1) = 200 (4)
 	 * sclkhpm = doutcopy / (ratio + 1) = 200 (4)
-	 * cores_out = armclk / (ratio + 1) = 1000 (0)
+	 * cores_out = armclk / (ratio + 1) = 200 (4)
 	 */
 	clr = COPY_RATIO(7) | HPM_RATIO(7) | CORES_RATIO(7);
-	set = COPY_RATIO(4) | HPM_RATIO(4) | CORES_RATIO(0);
+	set = COPY_RATIO(4) | HPM_RATIO(4) | CORES_RATIO(4);
 
 	clrsetbits_le32(&clk->div_cpu1, clr, set);
 
