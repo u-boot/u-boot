@@ -197,6 +197,7 @@ int stdio_deregister_dev(struct stdio_dev *dev, int force)
 	}
 
 	list_del(&(dev->list));
+	free(dev);
 
 	/* reassign Device list */
 	list_for_each(pos, &(devs.list)) {
