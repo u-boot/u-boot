@@ -1249,9 +1249,11 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 			   ALIGN_END_ADDR(struct qTD, result->tds,
 					  queuesize));
 
-	if (disable_periodic(ctrl) < 0) {
-		debug("FATAL: periodic should never fail, but did");
-		goto fail3;
+	if (ctrl->periodic_schedules > 0) {
+		if (disable_periodic(ctrl) < 0) {
+			debug("FATAL: periodic should never fail, but did");
+			goto fail3;
+		}
 	}
 
 	/* hook up to periodic list */
