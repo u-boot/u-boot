@@ -1097,6 +1097,7 @@ submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 }
 
 struct int_queue {
+	int elementsize;
 	struct QH *first;
 	struct QH *current;
 	struct QH *last;
@@ -1191,6 +1192,7 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 		debug("ehci intr queue: out of memory\n");
 		goto fail1;
 	}
+	result->elementsize = elementsize;
 	result->first = memalign(USB_DMA_MINALIGN,
 				 sizeof(struct QH) * queuesize);
 	if (!result->first) {
@@ -1327,6 +1329,11 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 		queue->current++;
 	else
 		queue->current = NULL;
+
+	invalidate_dcache_range((uint32_t)cur->buffer,
+				ALIGN_END_ADDR(char, cur->buffer,
+					       queue->elementsize));
+
 	debug("Exit poll_int_queue with completed intr transfer. token is %x at %p (first at %p)\n",
 	      hc32_to_cpu(cur_td->qt_token), cur, queue->first);
 	return cur->buffer;
@@ -1409,9 +1416,6 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		      (uint32_t)backbuffer, (uint32_t)buffer);
 		return -EINVAL;
 	}
-
-	invalidate_dcache_range((uint32_t)buffer,
-				ALIGN_END_ADDR(char, buffer, length));
 
 	ret = destroy_int_queue(dev, queue);
 	if (ret < 0)
