@@ -99,6 +99,10 @@ static const unsigned char usb_kbd_arrow[] = {
 #define USB_KBD_BOOT_REPORT_SIZE 8
 
 struct usb_kbd_pdata {
+	unsigned long	intpipe;
+	int		intpktsize;
+	int		intinterval;
+
 	uint32_t	repeat_delay;
 
 	uint32_t	usb_in_pointer;
@@ -305,23 +309,11 @@ static int usb_kbd_irq(struct usb_device *dev)
 static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 {
 #if	defined(CONFIG_SYS_USB_EVENT_POLL)
-	struct usb_interface *iface;
-	struct usb_endpoint_descriptor *ep;
-	struct usb_kbd_pdata *data;
-	int pipe;
-	int maxp;
-
-	/* Get the pointer to USB Keyboard device pointer */
-	data = dev->privptr;
-	iface = &dev->config.if_desc[0];
-	ep = &iface->ep_desc[0];
-	pipe = usb_rcvintpipe(dev, ep->bEndpointAddress);
+	struct usb_kbd_pdata *data = dev->privptr;
 
 	/* Submit a interrupt transfer request */
-	maxp = usb_maxpacket(dev, pipe);
-	usb_submit_int_msg(dev, pipe, &data->new[0],
-		min(maxp, USB_KBD_BOOT_REPORT_SIZE),
-		ep->bInterval);
+	usb_submit_int_msg(dev, data->intpipe, &data->new[0], data->intpktsize,
+			   data->intinterval);
 
 	usb_kbd_irq_worker(dev);
 #elif	defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
@@ -389,7 +381,6 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	struct usb_interface *iface;
 	struct usb_endpoint_descriptor *ep;
 	struct usb_kbd_pdata *data;
-	int pipe, maxp;
 
 	if (dev->descriptor.bNumConfigurations != 1)
 		return 0;
@@ -438,8 +429,10 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	/* Set IRQ handler */
 	dev->irq_handle = usb_kbd_irq;
 
-	pipe = usb_rcvintpipe(dev, ep->bEndpointAddress);
-	maxp = usb_maxpacket(dev, pipe);
+	data->intpipe = usb_rcvintpipe(dev, ep->bEndpointAddress);
+	data->intpktsize = min(usb_maxpacket(dev, data->intpipe),
+			       USB_KBD_BOOT_REPORT_SIZE);
+	data->intinterval = ep->bInterval;
 
 	/* We found a USB Keyboard, install it. */
 	usb_set_protocol(dev, iface->desc.bInterfaceNumber, 0);
@@ -448,9 +441,8 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	usb_set_idle(dev, iface->desc.bInterfaceNumber, REPEAT_RATE, 0);
 
 	debug("USB KBD: enable interrupt pipe...\n");
-	if (usb_submit_int_msg(dev, pipe, data->new,
-			       min(maxp, USB_KBD_BOOT_REPORT_SIZE),
-			       ep->bInterval) < 0) {
+	if (usb_submit_int_msg(dev, data->intpipe, data->new, data->intpktsize,
+			       data->intinterval) < 0) {
 		printf("Failed to get keyboard state from device %04x:%04x\n",
 		       dev->descriptor.idVendor, dev->descriptor.idProduct);
 		/* Abort, we don't want to use that non-functional keyboard. */
