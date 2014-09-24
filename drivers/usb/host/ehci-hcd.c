@@ -1340,7 +1340,7 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 }
 
 /* Do not free buffers associated with QHs, they're owned by someone else */
-static int
+int
 destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
 {
 	struct ehci_ctrl *ctrl = dev->controller;

@@ -129,6 +129,8 @@ struct usb_device {
 	unsigned int slot_id;
 };
 
+struct int_queue;
+
 /*
  * You can initialize platform's USB host or device
  * ports by passing this enum as an argument to
@@ -162,6 +164,13 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, struct devrequest *setup);
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, int interval);
+
+#ifdef CONFIG_USB_EHCI /* Only the ehci code has pollable int support */
+struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
+	int queuesize, int elementsize, void *buffer);
+int destroy_int_queue(struct usb_device *dev, struct int_queue *queue);
+void *poll_int_queue(struct usb_device *dev, struct int_queue *queue);
+#endif
 
 /* Defines */
 #define USB_UHCI_VEND_ID	0x8086
