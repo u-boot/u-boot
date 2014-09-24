@@ -100,6 +100,7 @@
 # define CONFIG_DOS_PARTITION
 # define CONFIG_CMD_EXT4
 # define CONFIG_CMD_EXT4_WRITE
+# define CONFIG_CMD_FS_GENERIC
 #endif
 
 #define CONFIG_SYS_I2C_ZYNQ
@@ -159,14 +160,14 @@
 		"cp.b ${nor_flash_off} ${load_addr} ${fit_size} && " \
 		"bootm ${load_addr}\0" \
 	"sdboot=echo Copying FIT from SD to RAM... && " \
-		"fatload mmc 0 ${load_addr} ${fit_image} && " \
+		"load mmc 0 ${load_addr} ${fit_image} && " \
 		"bootm ${load_addr}\0" \
 	"jtagboot=echo TFTPing FIT to RAM... && " \
 		"tftpboot ${load_addr} ${fit_image} && " \
 		"bootm ${load_addr}\0" \
 	"usbboot=if usb start; then " \
 			"echo Copying FIT from USB to RAM... && " \
-			"fatload usb 0 ${load_addr} ${fit_image} && " \
+			"load usb 0 ${load_addr} ${fit_image} && " \
 			"bootm ${load_addr}\0" \
 		"fi\0"
 
