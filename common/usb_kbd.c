@@ -524,9 +524,19 @@ int drv_usb_kbd_init(void)
 int usb_kbd_deregister(int force)
 {
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
-	int ret = stdio_deregister(DEVNAME, force);
-	if (ret && ret != -ENODEV)
-		return ret;
+	struct stdio_dev *dev;
+	struct usb_device *usb_kbd_dev;
+	struct usb_kbd_pdata *data;
+
+	dev = stdio_get_by_name(DEVNAME);
+	if (dev) {
+		usb_kbd_dev = (struct usb_device *)dev->priv;
+		data = usb_kbd_dev->privptr;
+		if (stdio_deregister_dev(dev, force) != 0)
+			return 1;
+		free(data->new);
+		free(data);
+	}
 
 	return 0;
 #else
