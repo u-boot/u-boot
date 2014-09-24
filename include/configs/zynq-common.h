@@ -161,6 +161,7 @@
 # define CONFIG_DOS_PARTITION
 # define CONFIG_CMD_EXT4
 # define CONFIG_CMD_EXT4_WRITE
+# define CONFIG_CMD_FS_GENERIC
 #endif
 
 /* QSPI */
@@ -255,12 +256,12 @@
 	"fdt_high=0x20000000\0"	\
 	"initrd_high=0x20000000\0"	\
 	"bootenv=uEnv.txt\0" \
-	"loadbootenv=fatload mmc 0 ${loadbootenv_addr} ${bootenv}\0" \
+	"loadbootenv=load mmc 0 ${loadbootenv_addr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from SD ...; " \
 		"env import -t ${loadbootenv_addr} $filesize\0" \
-	"mmc_loadbit_fat=echo Loading bitstream from SD/MMC/eMMC to RAM.. && " \
+	"mmc_loadbit=echo Loading bitstream from SD/MMC/eMMC to RAM.. && " \
 		"mmcinfo && " \
-		"fatload mmc 0 ${loadbit_addr} ${bitstream_image} && " \
+		"load mmc 0 ${loadbit_addr} ${bitstream_image} && " \
 		"fpga load 0 ${loadbit_addr} ${filesize}\0" \
 	"norboot=echo Copying Linux from NOR flash to RAM... && " \
 		"cp.b 0xE2100000 ${kernel_load_address} ${kernel_size} && " \
@@ -287,17 +288,17 @@
 	"sdboot=if mmcinfo; then " \
 			"run uenvboot; " \
 			"echo Copying Linux from SD to RAM... && " \
-			"fatload mmc 0 ${kernel_load_address} ${kernel_image} && " \
-			"fatload mmc 0 ${devicetree_load_address} ${devicetree_image} && " \
-			"fatload mmc 0 ${ramdisk_load_address} ${ramdisk_image} && " \
+			"load mmc 0 ${kernel_load_address} ${kernel_image} && " \
+			"load mmc 0 ${devicetree_load_address} ${devicetree_image} && " \
+			"load mmc 0 ${ramdisk_load_address} ${ramdisk_image} && " \
 			"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}; " \
 		"fi\0" \
 	"usbboot=if usb start; then " \
 			"run uenvboot; " \
 			"echo Copying Linux from USB to RAM... && " \
-			"fatload usb 0 ${kernel_load_address} ${kernel_image} && " \
-			"fatload usb 0 ${devicetree_load_address} ${devicetree_image} && " \
-			"fatload usb 0 ${ramdisk_load_address} ${ramdisk_image} && " \
+			"load usb 0 ${kernel_load_address} ${kernel_image} && " \
+			"load usb 0 ${devicetree_load_address} ${devicetree_image} && " \
+			"load usb 0 ${ramdisk_load_address} ${ramdisk_image} && " \
 			"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}; " \
 		"fi\0" \
 	"nandboot=echo Copying Linux from NAND flash to RAM... && " \
@@ -325,7 +326,7 @@
 		"zynqrsa 0x100000 && " \
 		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 	"rsa_sdboot=echo Copying Image from SD to RAM... && " \
-		"fatload mmc 0 0x100000 ${boot_image} && " \
+		"load mmc 0 0x100000 ${boot_image} && " \
 		"zynqrsa 0x100000 && " \
 		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 	"rsa_jtagboot=echo TFTPing Image to RAM... && " \
