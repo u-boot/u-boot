@@ -102,6 +102,7 @@ struct usb_kbd_pdata {
 	unsigned long	intpipe;
 	int		intpktsize;
 	int		intinterval;
+	struct int_queue *intq;
 
 	uint32_t	repeat_delay;
 
@@ -324,6 +325,15 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 		       1, 0, data->new, USB_KBD_BOOT_REPORT_SIZE);
 	if (memcmp(data->old, data->new, USB_KBD_BOOT_REPORT_SIZE))
 		usb_kbd_irq_worker(dev);
+#elif	defined(CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE)
+	struct usb_kbd_pdata *data = dev->privptr;
+	if (poll_int_queue(dev, data->intq)) {
+		usb_kbd_irq_worker(dev);
+		/* We've consumed all queued int packets, create new */
+		destroy_int_queue(dev, data->intq);
+		data->intq = create_int_queue(dev, data->intpipe, 1,
+				      USB_KBD_BOOT_REPORT_SIZE, data->new);
+	}
 #endif
 }
 
@@ -441,8 +451,14 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	usb_set_idle(dev, iface->desc.bInterfaceNumber, REPEAT_RATE, 0);
 
 	debug("USB KBD: enable interrupt pipe...\n");
+#ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
+	data->intq = create_int_queue(dev, data->intpipe, 1,
+				      USB_KBD_BOOT_REPORT_SIZE, data->new);
+	if (!data->intq) {
+#else
 	if (usb_submit_int_msg(dev, data->intpipe, data->new, data->intpktsize,
 			       data->intinterval) < 0) {
+#endif
 		printf("Failed to get keyboard state from device %04x:%04x\n",
 		       dev->descriptor.idVendor, dev->descriptor.idProduct);
 		/* Abort, we don't want to use that non-functional keyboard. */
@@ -526,6 +542,9 @@ int usb_kbd_deregister(int force)
 		data = usb_kbd_dev->privptr;
 		if (stdio_deregister_dev(dev, force) != 0)
 			return 1;
+#ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
+		destroy_int_queue(usb_kbd_dev, data->intq);
+#endif
 		free(data->new);
 		free(data);
 	}
