@@ -143,7 +143,7 @@
 	"sdboot=mmcinfo && fatload mmc 0:0 10000000 image.ub && bootm 10000000\0"	\
 	"jtagboot=tftpboot 10000000 image.ub && bootm\0"
 
-#define CONFIG_BOOTARGS		"console=ttyPS0,115200 earlyprintk=cdns,uart,0xFF000000 earlycon=cdns,mmio,0xff000000,115200n8"
+#define CONFIG_BOOTARGS		"console=ttyPS0,115200 earlycon=cdns,mmio,0xff000000,115200n8"
 #define CONFIG_BOOTCOMMAND	"echo Hello Xilinx ZynqMP; run $modeboot"
 #define CONFIG_BOOTDELAY	5
 
