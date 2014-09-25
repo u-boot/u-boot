@@ -351,9 +351,9 @@
 		"mmc rescan;"						\
 		"if test -e mmc 0:1 ${bootscript} ; then "		\
 		"if load mmc 0:1 ${kernel_addr_r} ${bootscript};"	\
-		"then;"							\
-			"\techo Running bootscript...;"			\
-			"\tsource ${kernel_addr_r};"			\
+		"then ; "						\
+			"echo Running bootscript... ; "			\
+			"source ${kernel_addr_r} ; "			\
 		"fi ; "							\
 		"fi\0"
 
