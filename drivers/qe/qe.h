@@ -275,6 +275,7 @@ void *qe_muram_addr(uint offset);
 int qe_get_snum(void);
 void qe_put_snum(u8 snum);
 void qe_init(uint qe_base);
+void u_qe_init(void);
 void qe_reset(void);
 void qe_assign_page(uint snum, uint para_ram_base);
 int qe_set_brg(uint brg, uint rate);

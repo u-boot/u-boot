@@ -40,6 +40,7 @@ void qe_issue_cmd(uint cmd, uint sbc, u8 mcn, u32 cmd_data)
 	return;
 }
 
+#ifdef CONFIG_QE
 uint qe_muram_alloc(uint size, uint align)
 {
 	uint	retloc;
@@ -70,6 +71,7 @@ uint qe_muram_alloc(uint size, uint align)
 
 	return retloc;
 }
+#endif
 
 void *qe_muram_addr(uint offset)
 {
@@ -180,6 +182,17 @@ void qe_init(uint qe_base)
 	qe_snums_init();
 }
 
+#ifdef CONFIG_U_QE
+void u_qe_init(void)
+{
+	uint qe_base = CONFIG_SYS_IMMR + 0x01400000; /* QE immr base */
+	qe_immr = (qe_map_t *)qe_base;
+
+	qe_upload_firmware((const void *)CONFIG_SYS_QE_FW_ADDR);
+	out_be32(&qe_immr->iram.iready, QE_IRAM_READY);
+}
+#endif
+
 void qe_reset(void)
 {
 	qe_issue_cmd(QE_RESET, QE_CR_SUBBLOCK_INVALID,
@@ -212,6 +225,7 @@ void qe_assign_page(uint snum, uint para_ram_base)
 
 #define BRG_CLK		(gd->arch.brg_clk)
 
+#ifdef CONFIG_QE
 int qe_set_brg(uint brg, uint rate)
 {
 	volatile uint	*bp;
@@ -239,6 +253,7 @@ int qe_set_brg(uint brg, uint rate)
 
 	return 0;
 }
+#endif
 
 /* Set ethernet MII clock master
 */
