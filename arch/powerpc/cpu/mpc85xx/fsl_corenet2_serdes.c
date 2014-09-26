@@ -186,11 +186,6 @@ u64 serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift)
 #endif
 
 	cfg = in_be32(&gur->rcwsr[4]) & sd_prctl_mask;
-	/* Is serdes enabled at all? */
-	if (!cfg) {
-		printf("SERDES%d is not enabled\n", sd + 1);
-		return 0;
-	}
 
 /* Erratum A-007186
  * Freescale Scratch Pad Fuse Register n (SFP_FSPFR0)
