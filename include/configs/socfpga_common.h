@@ -79,6 +79,25 @@
 #define CONFIG_SYS_PL310_BASE		SOCFPGA_MPUL2_ADDRESS
 
 /*
+ * EPCS/EPCQx1 Serial Flash Controller
+ */
+#ifdef CONFIG_ALTERA_SPI
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_SF_DEFAULT_SPEED		30000000
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_BAR
+/*
+ * The base address is configurable in QSys, each board must specify the
+ * base address based on it's particular FPGA configuration. Please note
+ * that the address here is incremented by  0x400  from the Base address
+ * selected in QSys, since the SPI registers are at offset +0x400.
+ * #define CONFIG_SYS_SPI_BASE		0xff240400
+ */
+#endif
+
+/*
  * Ethernet on SoC (EMAC)
  */
 #if defined(CONFIG_CMD_NET) && !defined(CONFIG_SOCFPGA_VIRTUAL_TARGET)
