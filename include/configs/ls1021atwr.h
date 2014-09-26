@@ -50,6 +50,10 @@
 
 #define CONFIG_FSL_CAAM			/* Enable CAAM */
 
+#if !defined(CONFIG_SDCARD) && !defined(CONFIG_NAND) && !defined(CONFIG_SPI)
+#define CONFIG_U_QE
+#endif
+
 /*
  * IFC Definitions
  */
@@ -274,6 +278,8 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 #define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE    /* start of monitor */
+
+#define CONFIG_SYS_QE_FW_ADDR     0x67f40000
 
 /*
  * Environment

@@ -17,6 +17,10 @@
 #include <fsl_mdio.h>
 #include <tsec.h>
 #include <fsl_sec.h>
+#ifdef CONFIG_U_QE
+#include "../../../drivers/qe/qe.h"
+#endif
+
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -276,6 +280,10 @@ int board_init(void)
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	fsl_serdes_init();
 	config_serdes_mux();
+#endif
+
+#ifdef CONFIG_U_QE
+	u_qe_init();
 #endif
 
 	return 0;
