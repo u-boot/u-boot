@@ -13,12 +13,18 @@
 #include <fdt_support.h>
 #include <libfdt.h>
 #include <fsl_mc.h>
+#include <environment.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
 	init_final_memctl_regs();
+
+#ifdef CONFIG_ENV_IS_NOWHERE
+	gd->env_addr = (ulong)&default_environment[0];
+#endif
+
 	return 0;
 }
 
@@ -29,9 +35,20 @@ int board_early_init_f(void)
 	return 0;
 }
 
+void detail_board_ddr_info(void)
+{
+	puts("\nDDR    ");
+	print_size(gd->bd->bi_dram[0].size + gd->bd->bi_dram[1].size, "");
+	print_ddr_info(0);
+	if (gd->bd->bi_dram[2].size) {
+		puts("\nDP-DDR ");
+		print_size(gd->bd->bi_dram[2].size, "");
+		print_ddr_info(CONFIG_DP_DDR_CTRL);
+	}
+}
+
 int dram_init(void)
 {
-	printf("DRAM:  ");
 	gd->ram_size = initdram(0);
 
 	return 0;
@@ -87,6 +104,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
+
+	ft_cpu_setup(blob, bd);
 
 	/* limit the memory size to bank 1 until Linux can handle 40-bit PA */
 	base = getenv_bootm_low();

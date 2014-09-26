@@ -7,3 +7,5 @@
 obj-y += cpu.o
 obj-y += lowlevel.o
 obj-y += speed.o
+obj-$(CONFIG_MP) += mp.o
+obj-$(CONFIG_OF_LIBFDT) += fdt.o

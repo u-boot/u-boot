@@ -777,10 +777,6 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	 */
 	popts->bstopre = 0x100;
 
-	/* Minimum CKE pulse width -- tCKE(MIN) */
-	popts->tcke_clock_pulse_width_ps
-		= mclk_to_picos(FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR);
-
 	/*
 	 * Window for four activates -- tFAW
 	 *
@@ -1065,18 +1061,21 @@ void check_interleaving_options(fsl_ddr_info_t *pinfo)
 	unsigned int check_intlv, check_n_row_addr, check_n_col_addr;
 	unsigned long long check_rank_density;
 	struct dimm_params_s *dimm;
+	int first_ctrl = pinfo->first_ctrl;
+	int last_ctrl = first_ctrl + pinfo->num_ctrls - 1;
+
 	/*
 	 * Check if all controllers are configured for memory
 	 * controller interleaving. Identical dimms are recommended. At least
 	 * the size, row and col address should be checked.
 	 */
 	j = 0;
-	check_n_ranks = pinfo->dimm_params[0][0].n_ranks;
-	check_rank_density = pinfo->dimm_params[0][0].rank_density;
-	check_n_row_addr =  pinfo->dimm_params[0][0].n_row_addr;
-	check_n_col_addr = pinfo->dimm_params[0][0].n_col_addr;
-	check_intlv = pinfo->memctl_opts[0].memctl_interleaving_mode;
-	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+	check_n_ranks = pinfo->dimm_params[first_ctrl][0].n_ranks;
+	check_rank_density = pinfo->dimm_params[first_ctrl][0].rank_density;
+	check_n_row_addr =  pinfo->dimm_params[first_ctrl][0].n_row_addr;
+	check_n_col_addr = pinfo->dimm_params[first_ctrl][0].n_col_addr;
+	check_intlv = pinfo->memctl_opts[first_ctrl].memctl_interleaving_mode;
+	for (i = first_ctrl; i <= last_ctrl; i++) {
 		dimm = &pinfo->dimm_params[i][0];
 		if (!pinfo->memctl_opts[i].memctl_interleaving) {
 			continue;
@@ -1094,7 +1093,7 @@ void check_interleaving_options(fsl_ddr_info_t *pinfo)
 
 	}
 	if (intlv_invalid) {
-		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
+		for (i = first_ctrl; i <= last_ctrl; i++)
 			pinfo->memctl_opts[i].memctl_interleaving = 0;
 		printf("Not all DIMMs are identical. "
 			"Memory controller interleaving disabled.\n");
@@ -1123,10 +1122,10 @@ void check_interleaving_options(fsl_ddr_info_t *pinfo)
 		}
 		debug("%d of %d controllers are interleaving.\n", j, k);
 		if (j && (j != k)) {
-			for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
+			for (i = first_ctrl; i <= last_ctrl; i++)
 				pinfo->memctl_opts[i].memctl_interleaving = 0;
-			printf("Not all controllers have compatible "
-				"interleaving mode. All disabled.\n");
+			if ((last_ctrl - first_ctrl) > 1)
+				puts("Not all controllers have compatible interleaving mode. All disabled.\n");
 		}
 	}
 	debug("Checking interleaving options completed\n");

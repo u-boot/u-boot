@@ -37,7 +37,6 @@
 
 #define MAX_BANKS 8
 #define ERR_BYTE 0xFF /* Value returned for read bytes when read failed */
-#define FCM_TIMEOUT_MSECS 10 /* Maximum number of mSecs to wait for FCM */
 
 #define LTESR_NAND_MASK (LTESR_FCT | LTESR_PAR | LTESR_CC)
 
@@ -199,7 +198,8 @@ static int fsl_elbc_run_command(struct mtd_info *mtd)
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
 	fsl_lbc_t *lbc = ctrl->regs;
-	long long end_tick;
+	u32 timeo = (CONFIG_SYS_HZ * 10) / 1000;
+	u32 time_start;
 	u32 ltesr;
 
 	/* Setup the FMR[OP] to execute without write protection */
@@ -218,10 +218,10 @@ static int fsl_elbc_run_command(struct mtd_info *mtd)
 	out_be32(&lbc->lsor, priv->bank);
 
 	/* wait for FCM complete flag or timeout */
-	end_tick = usec2ticks(FCM_TIMEOUT_MSECS * 1000) + get_ticks();
+	time_start = get_timer(0);
 
 	ltesr = 0;
-	while (end_tick > get_ticks()) {
+	while (get_timer(time_start) < timeo) {
 		ltesr = in_be32(&lbc->ltesr);
 		if (ltesr & LTESR_CC)
 			break;

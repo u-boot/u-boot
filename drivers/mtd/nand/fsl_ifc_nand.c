@@ -26,8 +26,6 @@
 #define MAX_BANKS	CONFIG_SYS_FSL_IFC_BANK_COUNT
 #define ERR_BYTE	0xFF /* Value returned for read bytes
 				when read failed */
-#define IFC_TIMEOUT_MSECS 10 /* Maximum number of mSecs to wait for IFC
-				NAND Machine */
 
 struct fsl_ifc_ctrl;
 
@@ -292,7 +290,8 @@ static int fsl_ifc_run_command(struct mtd_info *mtd)
 	struct fsl_ifc_mtd *priv = chip->priv;
 	struct fsl_ifc_ctrl *ctrl = priv->ctrl;
 	struct fsl_ifc *ifc = ctrl->regs;
-	long long end_tick;
+	u32 timeo = (CONFIG_SYS_HZ * 10) / 1000;
+	u32 time_start;
 	u32 eccstat[4];
 	int i;
 
@@ -304,9 +303,9 @@ static int fsl_ifc_run_command(struct mtd_info *mtd)
 		  IFC_NAND_SEQ_STRT_FIR_STRT);
 
 	/* wait for NAND Machine complete flag or timeout */
-	end_tick = usec2ticks(IFC_TIMEOUT_MSECS * 1000) + get_ticks();
+	time_start = get_timer(0);
 
-	while (end_tick > get_ticks()) {
+	while (get_timer(time_start) < timeo) {
 		ctrl->status = ifc_in32(&ifc->ifc_nand.nand_evter_stat);
 
 		if (ctrl->status & IFC_NAND_EVTER_STAT_OPC)
@@ -812,15 +811,16 @@ static int fsl_ifc_sram_init(uint32_t ver)
 	struct fsl_ifc *ifc = ifc_ctrl->regs;
 	uint32_t cs = 0, csor = 0, csor_8k = 0, csor_ext = 0;
 	uint32_t ncfgr = 0;
-	long long end_tick;
+	u32 timeo = (CONFIG_SYS_HZ * 10) / 1000;
+	u32 time_start;
 
 	if (ver > FSL_IFC_V1_1_0) {
 		ncfgr = ifc_in32(&ifc->ifc_nand.ncfgr);
 		ifc_out32(&ifc->ifc_nand.ncfgr, ncfgr | IFC_NAND_SRAM_INIT_EN);
 
 		/* wait for  SRAM_INIT bit to be clear or timeout */
-		end_tick = usec2ticks(IFC_TIMEOUT_MSECS * 1000) + get_ticks();
-		while (end_tick > get_ticks()) {
+		time_start = get_timer(0);
+		while (get_timer(time_start) < timeo) {
 			ifc_ctrl->status =
 				ifc_in32(&ifc->ifc_nand.nand_evter_stat);
 
@@ -863,10 +863,9 @@ static int fsl_ifc_sram_init(uint32_t ver)
 	/* start read seq */
 	ifc_out32(&ifc->ifc_nand.nandseq_strt, IFC_NAND_SEQ_STRT_FIR_STRT);
 
-	/* wait for NAND Machine complete flag or timeout */
-	end_tick = usec2ticks(IFC_TIMEOUT_MSECS * 1000) + get_ticks();
+	time_start = get_timer(0);
 
-	while (end_tick > get_ticks()) {
+	while (get_timer(time_start) < timeo) {
 		ifc_ctrl->status = ifc_in32(&ifc->ifc_nand.nand_evter_stat);
 
 		if (ifc_ctrl->status & IFC_NAND_EVTER_STAT_OPC)
