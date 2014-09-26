@@ -214,6 +214,7 @@
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_MISC_INIT_R
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_PBSIZE		2048
 #define CONFIG_SYS_MAXARGS		16
