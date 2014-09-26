@@ -229,6 +229,8 @@ do_savedefconfig () {
 				unmatched="$unmatched%$symbol:$line"
 			fi
 		done < defconfig
+
+		output_lines="$output_lines%$unmatched"
 	done
 
 	rm -f defconfig
