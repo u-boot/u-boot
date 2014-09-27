@@ -31,6 +31,12 @@ struct msg_get_arm_mem {
 	u32 end_tag;
 };
 
+struct msg_get_mac_address {
+	struct bcm2835_mbox_hdr hdr;
+	struct bcm2835_mbox_tag_get_mac_address get_mac_address;
+	u32 end_tag;
+};
+
 struct msg_set_power_state {
 	struct bcm2835_mbox_hdr hdr;
 	struct bcm2835_mbox_tag_set_power_state set_power_state;
@@ -58,6 +64,29 @@ int dram_init(void)
 	}
 
 	gd->ram_size = msg->get_arm_mem.body.resp.mem_size;
+
+	return 0;
+}
+
+int misc_init_r(void)
+{
+	ALLOC_ALIGN_BUFFER(struct msg_get_mac_address, msg, 1, 16);
+	int ret;
+
+	if (getenv("usbethaddr"))
+		return 0;
+
+	BCM2835_MBOX_INIT_HDR(msg);
+	BCM2835_MBOX_INIT_TAG(&msg->get_mac_address, GET_MAC_ADDRESS);
+
+	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg->hdr);
+	if (ret) {
+		printf("bcm2835: Could not query MAC address\n");
+		/* Ignore error; not critical */
+		return 0;
+	}
+
+	eth_setenv_enetaddr("usbethaddr", msg->get_mac_address.body.resp.mac);
 
 	return 0;
 }
