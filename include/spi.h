@@ -30,24 +30,24 @@
 #define SPI_XFER_MMAP		0x08	/* Memory Mapped start */
 #define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
-#define SPI_XFER_U_PAGE		(1 << 5)
+#define SPI_XFER_U_PAGE	(1 << 5)
 
 /* SPI TX operation modes */
-#define SPI_OPM_TX_QPP		1 << 0
+#define SPI_OPM_TX_QPP		(1 << 0)
 
 /* SPI RX operation modes */
-#define SPI_OPM_RX_AS		1 << 0
-#define SPI_OPM_RX_DOUT		1 << 1
-#define SPI_OPM_RX_DIO		1 << 2
-#define SPI_OPM_RX_QOF		1 << 3
-#define SPI_OPM_RX_QIOF		1 << 4
-#define SPI_OPM_RX_EXTN		SPI_OPM_RX_AS | SPI_OPM_RX_DOUT | \
+#define SPI_OPM_RX_AS		(1 << 0)
+#define SPI_OPM_RX_DOUT	(1 << 1)
+#define SPI_OPM_RX_DIO		(1 << 2)
+#define SPI_OPM_RX_QOF		(1 << 3)
+#define SPI_OPM_RX_QIOF	(1 << 4)
+#define SPI_OPM_RX_EXTN	(SPI_OPM_RX_AS | SPI_OPM_RX_DOUT | \
 				SPI_OPM_RX_DIO | SPI_OPM_RX_QOF | \
-				SPI_OPM_RX_QIOF
+				SPI_OPM_RX_QIOF)
 
-/* SPI bus connection options */
-#define SPI_CONN_DUAL_SHARED	1 << 0
-#define SPI_CONN_DUAL_SEPARATED	1 << 1
+/* SPI bus connection options - see enum spi_dual_flash */
+#define SPI_CONN_DUAL_SHARED		(1 << 0)
+#define SPI_CONN_DUAL_SEPARATED	(1 << 1)
 
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec

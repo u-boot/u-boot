@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <spi.h>
 
 /*-----------------------------------------------------------------------
@@ -38,6 +39,35 @@ static int   		bitlen;
 static uchar 		dout[MAX_SPI_BYTES];
 static uchar 		din[MAX_SPI_BYTES];
 
+static int do_spi_xfer(int bus, int cs)
+{
+	struct spi_slave *slave;
+	int rcode = 0;
+
+	slave = spi_setup_slave(bus, cs, 1000000, mode);
+	if (!slave) {
+		printf("Invalid device %d:%d\n", bus, cs);
+		return -EINVAL;
+	}
+
+	spi_claim_bus(slave);
+	if (spi_xfer(slave, bitlen, dout, din,
+		     SPI_XFER_BEGIN | SPI_XFER_END) != 0) {
+		printf("Error during SPI transaction\n");
+		rcode = -EIO;
+	} else {
+		int j;
+
+		for (j = 0; j < ((bitlen + 7) / 8); j++)
+			printf("%02X", din[j]);
+		printf("\n");
+	}
+	spi_release_bus(slave);
+	spi_free_slave(slave);
+
+	return rcode;
+}
+
 /*
  * SPI read/write
  *
@@ -51,11 +81,9 @@ static uchar 		din[MAX_SPI_BYTES];
 
 int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	struct spi_slave *slave;
 	char  *cp = 0;
 	uchar tmp;
 	int   j;
-	int   rcode = 0;
 
 	/*
 	 * We use the last specified parameters, unless new ones are
@@ -103,27 +131,10 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	slave = spi_setup_slave(bus, cs, 1000000, mode);
-	if (!slave) {
-		printf("Invalid device %d:%d\n", bus, cs);
+	if (do_spi_xfer(bus, cs))
 		return 1;
-	}
 
-	spi_claim_bus(slave);
-	if(spi_xfer(slave, bitlen, dout, din,
-				SPI_XFER_BEGIN | SPI_XFER_END) != 0) {
-		printf("Error during SPI transaction\n");
-		rcode = 1;
-	} else {
-		for(j = 0; j < ((bitlen + 7) / 8); j++) {
-			printf("%02X", din[j]);
-		}
-		printf("\n");
-	}
-	spi_release_bus(slave);
-	spi_free_slave(slave);
-
-	return rcode;
+	return 0;
 }
 
 /***************************************************/

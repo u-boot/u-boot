@@ -51,46 +51,7 @@ static const char *sandbox_sf_state_name(enum sandbox_sf_state state)
 /* Assume all SPI flashes have 3 byte addresses since they do atm */
 #define SF_ADDR_LEN	3
 
-struct sandbox_spi_flash_erase_commands {
-	u8 cmd;
-	u32 size;
-};
-#define IDCODE_LEN 5
-#define MAX_ERASE_CMDS 3
-struct sandbox_spi_flash_data {
-	const char *name;
-	u8 idcode[IDCODE_LEN];
-	u32 size;
-	const struct sandbox_spi_flash_erase_commands
-						erase_cmds[MAX_ERASE_CMDS];
-};
-
-/* Structure describing all the flashes we know how to emulate */
-static const struct sandbox_spi_flash_data sandbox_sf_flashes[] = {
-	{
-		"M25P16", { 0x20, 0x20, 0x15 }, (2 << 20),
-		{	/* erase commands */
-			{ 0xd8, (64 << 10), }, /* sector */
-			{ 0xc7, (2 << 20), }, /* bulk */
-		},
-	},
-	{
-		"W25Q32", { 0xef, 0x40, 0x16 }, (4 << 20),
-		{	/* erase commands */
-			{ 0x20, (4 << 10), }, /* 4KB */
-			{ 0xd8, (64 << 10), }, /* sector */
-			{ 0xc7, (4 << 20), }, /* bulk */
-		},
-	},
-	{
-		"W25Q128", { 0xef, 0x40, 0x18 }, (16 << 20),
-		{	/* erase commands */
-			{ 0x20, (4 << 10), }, /* 4KB */
-			{ 0xd8, (64 << 10), }, /* sector */
-			{ 0xc7, (16 << 20), }, /* bulk */
-		},
-	},
-};
+#define IDCODE_LEN 3
 
 /* Used to quickly bulk erase backing store */
 static u8 sandbox_sf_0xff[0x1000];
@@ -109,7 +70,8 @@ struct sandbox_spi_flash {
 	 */
 	enum sandbox_sf_state state;
 	uint cmd;
-	const void *cmd_data;
+	/* Erase size of current erase command */
+	uint erase_size;
 	/* Current position in the flash; used when reading/writing/etc... */
 	uint off;
 	/* How many address bytes we've consumed */
@@ -117,7 +79,7 @@ struct sandbox_spi_flash {
 	/* The current flash status (see STAT_XXX defines above) */
 	u16 status;
 	/* Data describing the flash we're emulating */
-	const struct sandbox_spi_flash_data *data;
+	const struct spi_flash_params *data;
 	/* The file on disk to serv up data from */
 	int fd;
 };
@@ -127,8 +89,8 @@ static int sandbox_sf_setup(void **priv, const char *spec)
 	/* spec = idcode:file */
 	struct sandbox_spi_flash *sbsf;
 	const char *file;
-	size_t i, len, idname_len;
-	const struct sandbox_spi_flash_data *data;
+	size_t len, idname_len;
+	const struct spi_flash_params *data;
 
 	file = strchr(spec, ':');
 	if (!file) {
@@ -138,15 +100,14 @@ static int sandbox_sf_setup(void **priv, const char *spec)
 	idname_len = file - spec;
 	++file;
 
-	for (i = 0; i < ARRAY_SIZE(sandbox_sf_flashes); ++i) {
-		data = &sandbox_sf_flashes[i];
+	for (data = spi_flash_params_table; data->name; data++) {
 		len = strlen(data->name);
 		if (idname_len != len)
 			continue;
 		if (!memcmp(spec, data->name, len))
 			break;
 	}
-	if (i == ARRAY_SIZE(sandbox_sf_flashes)) {
+	if (!data->name) {
 		printf("sandbox_sf: unknown flash '%*s'\n", (int)idname_len,
 		       spec);
 		goto error;
@@ -223,7 +184,6 @@ static int sandbox_sf_process_cmd(struct sandbox_spi_flash *sbsf, const u8 *rx,
 		sbsf->pad_addr_bytes = 1;
 	case CMD_READ_ARRAY_SLOW:
 	case CMD_PAGE_PROGRAM:
- state_addr:
 		sbsf->state = SF_ADDR;
 		break;
 	case CMD_WRITE_DISABLE:
@@ -241,24 +201,25 @@ static int sandbox_sf_process_cmd(struct sandbox_spi_flash *sbsf, const u8 *rx,
 		sbsf->status |= STAT_WEL;
 		break;
 	default: {
-		size_t i;
+		int flags = sbsf->data->flags;
 
-		/* handle erase commands first */
-		for (i = 0; i < MAX_ERASE_CMDS; ++i) {
-			const struct sandbox_spi_flash_erase_commands *
-				erase_cmd = &sbsf->data->erase_cmds[i];
-
-			if (erase_cmd->cmd == 0x00)
-				continue;
-			if (sbsf->cmd != erase_cmd->cmd)
-				continue;
-
-			sbsf->cmd_data = erase_cmd;
-			goto state_addr;
+		/* we only support erase here */
+		if (sbsf->cmd == CMD_ERASE_CHIP) {
+			sbsf->erase_size = sbsf->data->sector_size *
+				sbsf->data->nr_sectors;
+		} else if (sbsf->cmd == CMD_ERASE_4K && (flags & SECT_4K)) {
+			sbsf->erase_size = 4 << 10;
+		} else if (sbsf->cmd == CMD_ERASE_32K && (flags & SECT_32K)) {
+			sbsf->erase_size = 32 << 10;
+		} else if (sbsf->cmd == CMD_ERASE_64K &&
+			   !(flags & (SECT_4K | SECT_32K))) {
+			sbsf->erase_size = 64 << 10;
+		} else {
+			debug(" cmd unknown: %#x\n", sbsf->cmd);
+			return 1;
 		}
-
-		debug(" cmd unknown: %#x\n", sbsf->cmd);
-		return 1;
+		sbsf->state = SF_ADDR;
+		break;
 	}
 	}
 
@@ -309,11 +270,14 @@ static int sandbox_sf_xfer(void *priv, const u8 *rx, u8 *tx,
 			u8 id;
 
 			debug(" id: off:%u tx:", sbsf->off);
-			if (sbsf->off < IDCODE_LEN)
-				id = sbsf->data->idcode[sbsf->off];
-			else
+			if (sbsf->off < IDCODE_LEN) {
+				/* Extract correct byte from ID 0x00aabbcc */
+				id = sbsf->data->jedec >>
+					(8 * (IDCODE_LEN - 1 - sbsf->off));
+			} else {
 				id = 0;
-			debug("%02x\n", id);
+			}
+			debug("%d %02x\n", sbsf->off, id);
 			tx[pos++] = id;
 			++sbsf->off;
 			break;
@@ -406,24 +370,22 @@ static int sandbox_sf_xfer(void *priv, const u8 *rx, u8 *tx,
 			break;
 		case SF_ERASE:
  case_sf_erase: {
-			const struct sandbox_spi_flash_erase_commands *
-						erase_cmd = sbsf->cmd_data;
-
 			if (!(sbsf->status & STAT_WEL)) {
 				puts("sandbox_sf: write enable not set before erase\n");
 				goto done;
 			}
 
 			/* verify address is aligned */
-			if (sbsf->off & (erase_cmd->size - 1)) {
+			if (sbsf->off & (sbsf->erase_size - 1)) {
 				debug(" sector erase: cmd:%#x needs align:%#x, but we got %#x\n",
-				      erase_cmd->cmd, erase_cmd->size,
+				      sbsf->cmd, sbsf->erase_size,
 				      sbsf->off);
 				sbsf->status &= ~STAT_WEL;
 				goto done;
 			}
 
-			debug(" sector erase addr: %u\n", sbsf->off);
+			debug(" sector erase addr: %u, size: %u\n", sbsf->off,
+			      sbsf->erase_size);
 
 			cnt = bytes - pos;
 			sandbox_spi_tristate(&tx[pos], cnt);
@@ -433,7 +395,7 @@ static int sandbox_sf_xfer(void *priv, const u8 *rx, u8 *tx,
 			 * TODO(vapier@gentoo.org): latch WIP in status, and
 			 * delay before clearing it ?
 			 */
-			ret = sandbox_erase_part(sbsf, erase_cmd->size);
+			ret = sandbox_erase_part(sbsf, sbsf->erase_size);
 			sbsf->status &= ~STAT_WEL;
 			if (ret) {
 				debug("sandbox_sf: Erase failed\n");
