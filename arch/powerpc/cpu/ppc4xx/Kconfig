@@ -106,9 +106,6 @@ config TARGET_FX12MM
 config TARGET_V5FX30TEVAL
 	bool "Support v5fx30teval"
 
-config TARGET_CRAYL1
-	bool "Support CRAYL1"
-
 config TARGET_CATCENTER
 	bool "Support CATcenter"
 
@@ -260,7 +257,6 @@ source "board/amcc/yosemite/Kconfig"
 source "board/amcc/yucca/Kconfig"
 source "board/avnet/fx12mm/Kconfig"
 source "board/avnet/v5fx30teval/Kconfig"
-source "board/cray/L1/Kconfig"
 source "board/csb272/Kconfig"
 source "board/csb472/Kconfig"
 source "board/dave/PPChameleonEVB/Kconfig"

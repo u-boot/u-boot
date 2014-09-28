@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+CRAYL1           powerpc     ppc4xx         -           -           David Updegraff <dave@cray.com>
 KAREF            powerpc     ppc4xx         -           -           Travis Sawyer <travis.sawyer@sandburst.com>
 METROBOX         powerpc     ppc4xx         -           -           Travis Sawyer <travis.sawyer@sandburst.com>
 PK1C20           nios2       -              70fbc461    2014-08-24  Scott McNutt <smcnutt@psyent.com>
