@@ -14,7 +14,7 @@
 /**
  * struct driver_info - Information required to instantiate a device
  *
- * @name:	Device name
+ * @name:	Driver name
  * @platdata:	Driver-specific platform data
  */
 struct driver_info {
