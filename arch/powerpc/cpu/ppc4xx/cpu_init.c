@@ -284,7 +284,7 @@ cpu_init_f (void)
 	reconfigure_pll(CONFIG_SYS_PLL_RECONFIG);
 
 #if (defined(CONFIG_405EP) || defined (CONFIG_405EX)) && \
-    !defined(CONFIG_APM821XX) &&!defined(CONFIG_SYS_4xx_GPIO_TABLE)
+    !defined(CONFIG_SYS_4xx_GPIO_TABLE)
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
 	 */
@@ -440,7 +440,7 @@ cpu_init_f (void)
 #if defined(CONFIG_405EX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)  || \
-    defined(CONFIG_460SX) || defined(CONFIG_APM821XX)
+    defined(CONFIG_460SX)
 	/*
 	 * Set PLB4 arbiter (Segment 0 and 1) to 4 deep pipeline read
 	 */

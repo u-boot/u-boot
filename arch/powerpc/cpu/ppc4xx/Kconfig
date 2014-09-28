@@ -52,9 +52,6 @@ config TARGET_ACADIA
 config TARGET_BAMBOO
 	bool "Support bamboo"
 
-config TARGET_BLUESTONE
-	bool "Support bluestone"
-
 config TARGET_BUBINGA
 	bool "Support bubinga"
 
@@ -239,7 +236,6 @@ endchoice
 
 source "board/amcc/acadia/Kconfig"
 source "board/amcc/bamboo/Kconfig"
-source "board/amcc/bluestone/Kconfig"
 source "board/amcc/bubinga/Kconfig"
 source "board/amcc/canyonlands/Kconfig"
 source "board/amcc/ebony/Kconfig"
