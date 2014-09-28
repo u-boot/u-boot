@@ -38,3 +38,9 @@ M:	FUKAUMI Naoki <naobsd@gmail.com>
 S:	Maintained
 F:	board/sunxi/dram_a20_olinuxino_l.c
 F:	configs/A20-OLinuXino-Lime_defconfig
+
+A20-OLINUXINO-LIME2 BOARD
+M:	Iain Paton <ipaton0@gmail.com>
+S:	Maintained
+F:	board/sunxi/dram_a20_olinuxino_l2.c
+F:	configs/A20-OLinuXino-Lime2_defconfig
