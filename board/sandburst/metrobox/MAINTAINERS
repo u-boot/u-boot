@@ -1,6 +1,0 @@
-METROBOX BOARD
-#M:	Travis Sawyer <travis.sawyer@sandburst.com>
-S:	Orphan (since 2014-03)
-F:	board/sandburst/metrobox/
-F:	include/configs/METROBOX.h
-F:	configs/METROBOX_defconfig

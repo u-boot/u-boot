@@ -226,12 +226,6 @@ config TARGET_ALPR
 config TARGET_P3P440
 	bool "Support p3p440"
 
-config TARGET_KAREF
-	bool "Support KAREF"
-
-config TARGET_METROBOX
-	bool "Support METROBOX"
-
 config TARGET_XPEDITE1000
 	bool "Support xpedite1000"
 
@@ -306,8 +300,6 @@ source "board/mpl/pip405/Kconfig"
 source "board/pcs440ep/Kconfig"
 source "board/prodrive/alpr/Kconfig"
 source "board/prodrive/p3p440/Kconfig"
-source "board/sandburst/karef/Kconfig"
-source "board/sandburst/metrobox/Kconfig"
 source "board/sbc405/Kconfig"
 source "board/sc3/Kconfig"
 source "board/t3corp/Kconfig"
