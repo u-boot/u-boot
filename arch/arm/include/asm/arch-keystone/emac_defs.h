@@ -202,21 +202,6 @@ struct mdio_regs {
 	dv_reg		userphysel1;
 };
 
-/* Ethernet MAC Registers Structure */
-struct emac_regs {
-	dv_reg		idver;
-	dv_reg		maccontrol;
-	dv_reg		macstatus;
-	dv_reg		soft_reset;
-	dv_reg		rx_maxlen;
-	u32		rsvd0;
-	dv_reg		rx_pause;
-	dv_reg		tx_pause;
-	dv_reg		emcontrol;
-	dv_reg		pri_map;
-	u32		rsvd1[6];
-};
-
 #define SGMII_ACCESS(port, reg) \
 	*((volatile unsigned int *)(sgmiis[port] + reg))
 

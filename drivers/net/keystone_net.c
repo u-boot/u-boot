@@ -45,8 +45,6 @@ static void keystone2_eth_mdio_enable(void);
 static int gen_get_link_speed(int phy_addr);
 
 /* EMAC Addresses */
-static volatile struct emac_regs	*adap_emac =
-	(struct emac_regs *)EMAC_EMACSL_BASE_ADDR;
 static volatile struct mdio_regs	*adap_mdio =
 	(struct mdio_regs *)EMAC_MDIO_BASE_ADDR;
 
@@ -169,10 +167,10 @@ static void  __attribute__((unused))
 	 * Check if link detected is giga-bit
 	 * If Gigabit mode detected, enable gigbit in MAC
 	 */
-	writel(readl(&(adap_emac[eth_priv->slave_port - 1].maccontrol)) |
+	writel(readl(DEVICE_EMACSL_BASE(eth_priv->slave_port - 1) +
+		     CPGMACSL_REG_CTL) |
 	       EMAC_MACCONTROL_GIGFORCE | EMAC_MACCONTROL_GIGABIT_ENABLE,
-	       &(adap_emac[eth_priv->slave_port - 1].maccontrol))
-		;
+	       DEVICE_EMACSL_BASE(eth_priv->slave_port - 1) + CPGMACSL_REG_CTL);
 }
 
 int keystone_sgmii_link_status(int port)
