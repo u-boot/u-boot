@@ -51,7 +51,7 @@
 /* MDIO module input frequency */
 #define EMAC_MDIO_BUS_FREQ		(clk_get_rate(pass_pll_clk))
 /* MDIO clock output frequency */
-#define EMAC_MDIO_CLOCK_FREQ		1000000                /* 1.0 MHz */
+#define EMAC_MDIO_CLOCK_FREQ		2500000	/* 2.5 MHz */
 
 /* MII Status Register */
 #define MII_STATUS_REG			1
