@@ -6,3 +6,5 @@ F:	board/freescale/mx6qarm2/
 F:	include/configs/mx6qarm2.h
 F:	configs/mx6qarm2_defconfig
 F:	configs/mx6dlarm2_defconfig
+F:	configs/mx6qarm2_lpddr2_defconfig
+F:	configs/mx6dlarm2_lpddr2_defconfig

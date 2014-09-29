@@ -32,7 +32,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+#if defined(CONFIG_MX6DL) && !defined(CONFIG_MX6DL_LPDDR2) && \
+	defined(CONFIG_DDR_32BIT)
+	gd->ram_size = ((phys_size_t)CONFIG_DDR_MB * 1024 * 1024) / 2;
+#else
+	gd->ram_size = (phys_size_t)CONFIG_DDR_MB * 1024 * 1024;
+#endif
 
 	return 0;
 }
