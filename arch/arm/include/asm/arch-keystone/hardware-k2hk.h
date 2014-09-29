@@ -95,4 +95,7 @@
 #define KS2_NETCP_PDMA_RX_RCV_QUEUE	4002
 #define KS2_NETCP_PDMA_TX_SND_QUEUE	648
 
+/* NETCP version */
+#define KS2_NETCP_V1_0
+
 #endif /* __ASM_ARCH_HARDWARE_H */
