@@ -426,7 +426,8 @@ ulong cpu_init_f(void)
 {
 	ulong flag = 0;
 	extern void m8560_cpm_reset (void);
-#ifdef CONFIG_SYS_DCSRBAR_PHYS
+#if defined(CONFIG_SYS_DCSRBAR_PHYS) || \
+	(defined(CONFIG_SECURE_BOOT) && defined(CONFIG_FSL_CORENET))
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 #if defined(CONFIG_SECURE_BOOT)
@@ -458,6 +459,12 @@ ulong cpu_init_f(void)
 #if defined(CONFIG_SYS_CPC_REINIT_F)
 	disable_cpc_sram();
 #endif
+
+#if defined(CONFIG_FSL_CORENET)
+	/* Put PAMU in bypass mode */
+	out_be32(&gur->pamubypenr, FSL_CORENET_PAMU_BYPASS);
+#endif
+
 #endif
 
 #ifdef CONFIG_CPM2
