@@ -10,7 +10,6 @@
 #define __CONFIG_H
 
 #define CONFIG_MX6
-#define CONFIG_MX6Q
 
 #include "mx6_common.h"
 
@@ -169,7 +168,11 @@
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
+#ifdef CONFIG_DDR_32BIT
+#define PHYS_SDRAM_SIZE			(1u * 1024 * 1024 * 1024)
+#else
 #define PHYS_SDRAM_SIZE			(2u * 1024 * 1024 * 1024)
+#endif
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
