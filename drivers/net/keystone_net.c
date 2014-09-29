@@ -12,9 +12,9 @@
 #include <net.h>
 #include <miiphy.h>
 #include <malloc.h>
-#include <asm/arch/emac_defs.h>
 #include <asm/arch/psc_defs.h>
 #include <asm/ti-common/keystone_nav.h>
+#include <asm/ti-common/keystone_net.h>
 
 unsigned int emac_dbg;
 

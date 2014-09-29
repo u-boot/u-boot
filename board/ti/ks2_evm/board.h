@@ -10,7 +10,7 @@
 #ifndef _KS2_BOARD
 #define _KS2_BOARD
 
-#include <asm/arch/emac_defs.h>
+#include <asm/ti-common/keystone_net.h>
 
 extern struct eth_priv_t eth_priv_cfg[];
 

@@ -13,8 +13,8 @@
 #include <exports.h>
 #include <fdt_support.h>
 #include <asm/arch/ddr3.h>
-#include <asm/arch/emac_defs.h>
 #include <asm/ti-common/ti-aemif.h>
+#include <asm/ti-common/keystone_net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

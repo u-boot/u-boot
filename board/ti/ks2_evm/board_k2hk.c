@@ -10,7 +10,7 @@
 #include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/emac_defs.h>
+#include <asm/ti-common/keystone_net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
