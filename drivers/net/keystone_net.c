@@ -12,11 +12,8 @@
 #include <net.h>
 #include <miiphy.h>
 #include <malloc.h>
-#include <asm/arch/psc_defs.h>
 #include <asm/ti-common/keystone_nav.h>
 #include <asm/ti-common/keystone_net.h>
-
-unsigned int emac_dbg;
 
 unsigned int emac_open;
 static unsigned int sys_has_mdio = 1;
@@ -409,9 +406,6 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 	sys_has_mdio =
 		(eth_priv->sgmii_link_type == SGMII_LINK_MAC_PHY) ? 1 : 0;
 
-	psc_enable_module(KS2_LPSC_PA);
-	psc_enable_module(KS2_LPSC_CPGMAC);
-
 	sgmii_serdes_setup_156p25mhz();
 
 	if (sys_has_mdio)
@@ -490,8 +484,6 @@ void keystone2_eth_close(struct eth_device *dev)
 	debug("- emac_close\n");
 }
 
-static int tx_send_loop;
-
 /*
  * This function sends a single packet on the network and returns
  * positive number (number of bytes transmitted) or negative for error
@@ -502,20 +494,11 @@ static int keystone2_eth_send_packet(struct eth_device *dev,
 	int ret_status = -1;
 	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
 
-	tx_send_loop = 0;
-
 	if (keystone_get_link_status(dev) == 0)
 		return -1;
-
-	emac_gigabit_enable(dev);
 
 	if (cpmac_drv_send((u32 *)packet, length, eth_priv->slave_port) != 0)
 		return ret_status;
-
-	if (keystone_get_link_status(dev) == 0)
-		return -1;
-
-	emac_gigabit_enable(dev);
 
 	return length;
 }

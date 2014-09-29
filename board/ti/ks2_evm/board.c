@@ -13,6 +13,7 @@
 #include <exports.h>
 #include <fdt_support.h>
 #include <asm/arch/ddr3.h>
+#include <asm/arch/psc_defs.h>
 #include <asm/ti-common/ti-aemif.h>
 #include <asm/ti-common/keystone_net.h>
 
@@ -68,6 +69,14 @@ int board_eth_init(bd_t *bis)
 	int res;
 	int port_num;
 	char link_type_name[32];
+
+	/* By default, select PA PLL clock as PA clock source */
+	if (psc_enable_module(KS2_LPSC_PA))
+		return -1;
+	if (psc_enable_module(KS2_LPSC_CPGMAC))
+		return -1;
+	if (psc_enable_module(KS2_LPSC_CRYPTO))
+		return -1;
 
 	port_num = get_num_eth_ports();
 
