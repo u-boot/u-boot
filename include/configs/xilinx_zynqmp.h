@@ -139,8 +139,10 @@
 	"fdt_addr=0x100000\0"		\
 	"fdt_high=0x10000000\0"		\
 	"netboot=tftpboot 80000 Image && tftpboot f000000 system.dtb && booti 80000 - f000000\0"	\
-	"qspiboot=sf probe 0; sf read 10000000 0 1000000; bootm 10080000\0"	\
-	"sdboot=mmcinfo && fatload mmc 0:0 10000000 image.ub && bootm 10000000\0"	\
+	"qspiboot=sf probe 0 && sf read f000000 100000 40000 && "	\
+		  "sf read 80000 140000 1800000 && booti 80000 - f000000\0"	\
+	"sdboot=mmcinfo && fatload mmc 0:0 f000000 system.dtb && "	\
+		"fatload mmc 0:0 f000000 Image && booti 80000 - f000000\0"	\
 	"jtagboot=tftpboot 10000000 image.ub && bootm\0"
 
 #define CONFIG_BOOTARGS		"console=ttyPS0,115200 earlycon=cdns,mmio,0xff000000,115200n8"
