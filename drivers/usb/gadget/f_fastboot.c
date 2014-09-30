@@ -355,7 +355,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		!strcmp_l1("max-download-size", cmd)) {
 		char str_num[12];
 
-		sprintf(str_num, "%08x", CONFIG_USB_FASTBOOT_BUF_SIZE);
+		sprintf(str_num, "0x%08x", CONFIG_USB_FASTBOOT_BUF_SIZE);
 		strncat(response, str_num, chars_left);
 	} else if (!strcmp_l1("serialno", cmd)) {
 		s = getenv("serial#");
