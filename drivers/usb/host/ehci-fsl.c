@@ -211,10 +211,57 @@ static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
 	return node_offset;
 }
 
+static const char *fdt_usb_get_node_type(void *blob, int start_offset,
+					 int *node_offset)
+{
+	const char *compat_dr = "fsl-usb2-dr";
+	const char *compat_mph = "fsl-usb2-mph";
+	const char *node_type = NULL;
+
+	*node_offset = fdt_node_offset_by_compatible(blob, start_offset,
+						     compat_mph);
+	if (*node_offset < 0) {
+		*node_offset = fdt_node_offset_by_compatible(blob,
+							     start_offset,
+							     compat_dr);
+		if (*node_offset < 0) {
+			printf("ERROR: could not find compatible node: %s\n",
+			       fdt_strerror(*node_offset));
+		} else {
+			node_type = compat_dr;
+		}
+	} else {
+		node_type = compat_mph;
+	}
+
+	return node_type;
+}
+
+static int fdt_fixup_usb_erratum(void *blob, const char *prop_erratum,
+				 int start_offset)
+{
+	int node_offset, err;
+	const char *node_type = NULL;
+
+	node_type = fdt_usb_get_node_type(blob, start_offset, &node_offset);
+	if (!node_type)
+		return -1;
+
+	err = fdt_setprop(blob, node_offset, prop_erratum, NULL, 0);
+	if (err < 0) {
+		printf("ERROR: could not set %s for %s: %s.\n",
+		       prop_erratum, node_type, fdt_strerror(err));
+	}
+
+	return node_offset;
+}
+
 void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 {
 	static const char * const modes[] = { "host", "peripheral", "otg" };
 	static const char * const phys[] = { "ulpi", "utmi" };
+	int usb_erratum_a006261_off = -1;
+	int usb_erratum_a007075_off = -1;
 	int usb_mode_off = -1;
 	int usb_phy_off = -1;
 	char str[5];
@@ -268,6 +315,23 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 
 		if (usb_phy_off < 0)
 			return;
+
+		if (has_erratum_a006261()) {
+			usb_erratum_a006261_off =  fdt_fixup_usb_erratum
+						   (blob,
+						    "fsl,usb-erratum-a006261",
+						    usb_erratum_a006261_off);
+			if (usb_erratum_a006261_off < 0)
+				return;
+		}
+		if (has_erratum_a007075()) {
+			usb_erratum_a007075_off =  fdt_fixup_usb_erratum
+						   (blob,
+						    "fsl,usb-erratum-a007075",
+						    usb_erratum_a007075_off);
+			if (usb_erratum_a007075_off < 0)
+				return;
+		}
 	}
 }
 #endif
