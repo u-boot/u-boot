@@ -9,6 +9,7 @@
 #include <linux/compiler.h>
 #include <asm/fsl_errata.h>
 #include <asm/processor.h>
+#include <fsl_usb.h>
 #include "fsl_corenet_serdes.h"
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004849

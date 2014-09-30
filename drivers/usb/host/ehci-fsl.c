@@ -14,7 +14,7 @@
 #include <asm/io.h>
 #include <usb/ehci-fsl.h>
 #include <hwconfig.h>
-#include <asm/fsl_errata.h>
+#include <fsl_usb.h>
 
 #include "ehci.h"
 
