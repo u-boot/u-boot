@@ -98,6 +98,7 @@
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 1250000 }
 
+#define CONFIG_BOARD_EARLY_INIT_F
 
 /***********************************************************************
  * Last Stage Init
