@@ -21,4 +21,9 @@ struct display_info_t {
 extern int detect_hdmi(struct display_info_t const *dev);
 #endif
 
+#ifdef CONFIG_IMX_VIDEO_SKIP
+extern struct display_info_t const displays[];
+extern size_t display_count;
+#endif
+
 #endif

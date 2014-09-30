@@ -6,9 +6,6 @@
 #include <asm/errno.h>
 #include <asm/imx-common/video.h>
 
-extern struct display_info_t const displays[];
-extern size_t display_count;
-
 int board_video_skip(void)
 {
 	int i;
