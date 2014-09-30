@@ -351,7 +351,8 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		strncat(response, FASTBOOT_VERSION, chars_left);
 	} else if (!strcmp_l1("bootloader-version", cmd)) {
 		strncat(response, U_BOOT_VERSION, chars_left);
-	} else if (!strcmp_l1("downloadsize", cmd)) {
+	} else if (!strcmp_l1("downloadsize", cmd) ||
+		!strcmp_l1("max-download-size", cmd)) {
 		char str_num[12];
 
 		sprintf(str_num, "%08x", CONFIG_USB_FASTBOOT_BUF_SIZE);
