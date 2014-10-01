@@ -69,8 +69,8 @@ get_enabled_subimages() {
 
 	# CONFIG_SPL=y -> spl
 	# CONFIG_TPL=y -> tpl
-	sed -n -e 's/^CONFIG_\(SPL\|TPL\)=y$/\1/p' $KCONFIG_CONFIG | \
-							tr '[A-Z]' '[a-z]'
+	sed -n -e 's/^CONFIG_SPL=y$/spl/p' -e 's/^CONFIG_TPL=y$/tpl/p' \
+							 $KCONFIG_CONFIG
 }
 
 do_silentoldconfig () {
