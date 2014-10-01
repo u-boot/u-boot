@@ -546,7 +546,14 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		error("unknown command: %s\n", cmdbuf);
 		fastboot_tx_write_str("FAILunknown command");
 	} else {
-		func_cb(ep, req);
+		if (req->actual < req->length) {
+			u8 *buf = (u8 *)req->buf;
+			buf[req->actual] = 0;
+			func_cb(ep, req);
+		} else {
+			error("buffer overflow\n");
+			fastboot_tx_write_str("FAILbuffer overflow");
+		}
 	}
 
 	if (req->status == 0) {
