@@ -63,6 +63,7 @@
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_I2C_EDID
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC
