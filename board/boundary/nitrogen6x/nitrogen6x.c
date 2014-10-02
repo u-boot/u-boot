@@ -593,6 +593,26 @@ struct display_info_t const displays[] = {{
 		.vsync_len      = 10,
 		.sync           = 0,
 		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
+	.bus	= 0,
+	.addr	= 0,
+	.pixfmt	= IPU_PIX_FMT_RGB24,
+	.detect	= NULL,
+	.enable	= enable_rgb,
+	.mode	= {
+		.name           = "qvga",
+		.refresh        = 60,
+		.xres           = 320,
+		.yres           = 240,
+		.pixclock       = 37037,
+		.left_margin    = 38,
+		.right_margin   = 37,
+		.upper_margin   = 16,
+		.lower_margin   = 15,
+		.hsync_len      = 30,
+		.vsync_len      = 3,
+		.sync           = 0,
+		.vmode          = FB_VMODE_NONINTERLACED
 } } };
 size_t display_count = ARRAY_SIZE(displays);
 
