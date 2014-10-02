@@ -622,17 +622,56 @@ static void setup_display(void)
 }
 #endif
 
+/* wl1271 pads on nitrogen6x */
+static iomux_v3_cfg_t const init_pads[] = {
+	/* WL12XX_WL_IRQ_GP */
+	NEW_PAD_CTRL(MX6_PAD_NANDF_CS1__GPIO6_IO14, WEAK_PULLDOWN),
+	/* WL12XX_WL_ENABLE_GP */
+	NEW_PAD_CTRL(MX6_PAD_NANDF_CS2__GPIO6_IO15, OUTPUT_40OHM),
+	/* WL12XX_BT_ENABLE_GP */
+	NEW_PAD_CTRL(MX6_PAD_NANDF_CS3__GPIO6_IO16, OUTPUT_40OHM),
+	/* USB otg power */
+	NEW_PAD_CTRL(MX6_PAD_EIM_D22__GPIO3_IO22, OUTPUT_40OHM),
+	NEW_PAD_CTRL(MX6_PAD_NANDF_D5__GPIO2_IO05, OUTPUT_40OHM),
+	NEW_PAD_CTRL(MX6_PAD_NANDF_WP_B__GPIO6_IO09, OUTPUT_40OHM),
+	NEW_PAD_CTRL(MX6_PAD_GPIO_8__GPIO1_IO08, OUTPUT_40OHM),
+	NEW_PAD_CTRL(MX6_PAD_GPIO_6__GPIO1_IO06, OUTPUT_40OHM),
+};
+
+#define WL12XX_WL_IRQ_GP	IMX_GPIO_NR(6, 14)
+
+static unsigned gpios_out_low[] = {
+	/* Disable wl1271 */
+	IMX_GPIO_NR(6, 15),	/* disable wireless */
+	IMX_GPIO_NR(6, 16),	/* disable bluetooth */
+	IMX_GPIO_NR(3, 22),	/* disable USB otg power */
+	IMX_GPIO_NR(2, 5),	/* ov5640 mipi camera reset */
+	IMX_GPIO_NR(1, 8),	/* ov5642 reset */
+};
+
+static unsigned gpios_out_high[] = {
+	IMX_GPIO_NR(1, 6),	/* ov5642 powerdown */
+	IMX_GPIO_NR(6, 9),	/* ov5640 mipi camera power down */
+};
+
+static void set_gpios(unsigned *p, int cnt, int val)
+{
+	int i;
+
+	for (i = 0; i < cnt; i++)
+		gpio_direction_output(*p++, val);
+}
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
 
-	/* Disable wl1271 For Nitrogen6w */
+	set_gpios(gpios_out_high, ARRAY_SIZE(gpios_out_high), 1);
+	set_gpios(gpios_out_low, ARRAY_SIZE(gpios_out_low), 0);
 	gpio_direction_input(WL12XX_WL_IRQ_GP);
-	gpio_direction_output(WL12XX_WL_ENABLE_GP, 0);
-	gpio_direction_output(WL12XX_BT_ENABLE_GP, 0);
-	gpio_direction_output(GP_USB_OTG_PWR, 0); /* OTG power off */
 
 	imx_iomux_v3_setup_multiple_pads(wl12xx_pads, ARRAY_SIZE(wl12xx_pads));
+	imx_iomux_v3_setup_multiple_pads(init_pads, ARRAY_SIZE(init_pads));
 	setup_buttons();
 
 #if defined(CONFIG_VIDEO_IPUV3)
