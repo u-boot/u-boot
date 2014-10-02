@@ -558,6 +558,11 @@ struct display_info_t const displays[] = {{
 } } };
 size_t display_count = ARRAY_SIZE(displays);
 
+int board_cfb_skip(void)
+{
+	return NULL != getenv("novideo");
+}
+
 static void setup_display(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
