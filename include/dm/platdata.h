@@ -27,4 +27,8 @@ struct driver_info {
 #define U_BOOT_DEVICE(__name)						\
 	ll_entry_declare(struct driver_info, __name, driver_info)
 
+/* Declare a list of devices. The argument is a driver_info[] array */
+#define U_BOOT_DEVICES(__name)						\
+	ll_entry_declare_list(struct driver_info, __name, driver_info)
+
 #endif
