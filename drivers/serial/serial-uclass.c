@@ -71,7 +71,7 @@ void serial_initialize(void)
 	serial_find_console_or_panic();
 }
 
-void serial_putc(char ch)
+static void serial_putc_dev(struct udevice *dev, char ch)
 {
 	struct dm_serial_ops *ops = serial_get_ops(cur_dev);
 	int err;
@@ -81,6 +81,11 @@ void serial_putc(char ch)
 	} while (err == -EAGAIN);
 	if (ch == '\n')
 		serial_putc('\r');
+}
+
+void serial_putc(char ch)
+{
+	serial_putc_dev(cur_dev, ch);
 }
 
 void serial_setbrg(void)
@@ -107,28 +112,32 @@ int serial_tstc(void)
 	return 1;
 }
 
-int serial_getc(void)
+static int serial_getc_dev(struct udevice *dev)
 {
-	struct dm_serial_ops *ops = serial_get_ops(cur_dev);
+	struct dm_serial_ops *ops = serial_get_ops(dev);
 	int err;
 
 	do {
-		err = ops->getc(cur_dev);
+		err = ops->getc(dev);
 	} while (err == -EAGAIN);
 
 	return err >= 0 ? err : 0;
+}
+
+int serial_getc(void)
+{
+	return serial_getc_dev(cur_dev);
 }
 
 void serial_stdio_init(void)
 {
 }
 
-void serial_stub_putc(struct stdio_dev *sdev, const char ch)
+static void serial_stub_putc(struct stdio_dev *sdev, const char ch)
 {
 	struct udevice *dev = sdev->priv;
-	struct dm_serial_ops *ops = serial_get_ops(dev);
 
-	ops->putc(dev, ch);
+	serial_putc_dev(dev, ch);
 }
 
 void serial_stub_puts(struct stdio_dev *sdev, const char *str)
@@ -140,15 +149,8 @@ void serial_stub_puts(struct stdio_dev *sdev, const char *str)
 int serial_stub_getc(struct stdio_dev *sdev)
 {
 	struct udevice *dev = sdev->priv;
-	struct dm_serial_ops *ops = serial_get_ops(dev);
 
-	int err;
-
-	do {
-		err = ops->getc(dev);
-	} while (err == -EAGAIN);
-
-	return err >= 0 ? err : 0;
+	return serial_getc_dev(dev);
 }
 
 int serial_stub_tstc(struct stdio_dev *sdev)
