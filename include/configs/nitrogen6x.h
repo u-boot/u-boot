@@ -270,13 +270,11 @@
 				"usb start ;" \
 			"fi; " \
 			"for disk in 0 1 ; do ${dtype} dev ${disk} ;" \
-				"for fs in fat ext2 ; do " \
-					"${fs}load " \
-						"${dtype} ${disk}:1 " \
-						"10008000 " \
-						"/6x_bootscript" \
-						"&& source 10008000 ; " \
-				"done ; " \
+				"load " \
+					"${dtype} ${disk}:1 " \
+					"10008000 " \
+					"/6x_bootscript" \
+					"&& source 10008000 ; " \
 			"done ; " \
 		"done; " \
 		"setenv stdout serial,vga ; " \
@@ -287,11 +285,9 @@
 	"upgradeu=for dtype in ${bootdevs}" \
 		"; do " \
 		"for disk in 0 1 ; do ${dtype} dev ${disk} ;" \
-		     "for fs in fat ext2 ; do " \
-				"${fs}load ${dtype} ${disk}:1 10008000 " \
-					"/6x_upgrade " \
-					"&& source 10008000 ; " \
-			"done ; " \
+			"load ${dtype} ${disk}:1 10008000 " \
+				"/6x_upgrade " \
+				"&& source 10008000 ; " \
 		"done ; " \
 	"done\0" \
 
