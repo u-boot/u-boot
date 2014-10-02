@@ -106,7 +106,7 @@ int board_mmc_init(bd_t *bis)
 {
 	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT);
 	sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT);
-#if !defined (CONFIG_SPL_BUILD) && defined (CONFIG_MMC_SUNXI_SLOT_EXTRA)
+#if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
 	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT_EXTRA);
 	sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT_EXTRA);
 #endif

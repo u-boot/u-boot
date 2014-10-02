@@ -67,4 +67,12 @@ config MMC3_CD_PIN
 	---help---
 	See MMC0_CD_PIN help text.
 
+config MMC_SUNXI_SLOT_EXTRA
+	int "mmc extra slot number"
+	default -1
+	---help---
+	sunxi builds always enable mmc0, some boards also have a second sdcard
+	slot or emmc on mmc1 - mmc3. Setting this to 1, 2 or 3 will enable
+	support for this.
+
 endif
