@@ -181,6 +181,7 @@
 
 /* GPIO */
 #define CONFIG_SUNXI_GPIO
+#define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_CMD_GPIO
 
 /* Ethernet support */

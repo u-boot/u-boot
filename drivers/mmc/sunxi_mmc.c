@@ -14,7 +14,9 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm-generic/gpio.h>
 
 struct sunxi_mmc_host {
 	unsigned mmc_no;
@@ -346,10 +348,29 @@ out:
 	return error;
 }
 
+static int sunxi_mmc_getcd(struct mmc *mmc)
+{
+	struct sunxi_mmc_host *mmchost = mmc->priv;
+	int cd_pin = -1;
+
+	switch (mmchost->mmc_no) {
+	case 0: cd_pin = sunxi_name_to_gpio(CONFIG_MMC0_CD_PIN); break;
+	case 1: cd_pin = sunxi_name_to_gpio(CONFIG_MMC1_CD_PIN); break;
+	case 2: cd_pin = sunxi_name_to_gpio(CONFIG_MMC2_CD_PIN); break;
+	case 3: cd_pin = sunxi_name_to_gpio(CONFIG_MMC3_CD_PIN); break;
+	}
+
+	if (cd_pin == -1)
+		return 1;
+
+	return !gpio_direction_input(cd_pin);
+}
+
 static const struct mmc_ops sunxi_mmc_ops = {
 	.send_cmd	= mmc_send_cmd,
 	.set_ios	= mmc_set_ios,
 	.init		= mmc_core_init,
+	.getcd		= sunxi_mmc_getcd,
 };
 
 int sunxi_mmc_init(int sdc_no)
