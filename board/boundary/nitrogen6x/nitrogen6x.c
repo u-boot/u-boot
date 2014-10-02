@@ -634,6 +634,26 @@ struct display_info_t const displays[] = {{
 		.sync           = 0x40000002,
 		.vmode          = FB_VMODE_NONINTERLACED
 } }, {
+	.bus	= 0,
+	.addr	= 0,
+	.pixfmt	= IPU_PIX_FMT_RGB666,
+	.detect	= NULL,
+	.enable	= enable_rgb,
+	.mode	= {
+		.name           = "svga",
+		.refresh        = 60,
+		.xres           = 800,
+		.yres           = 600,
+		.pixclock       = 15385,
+		.left_margin    = 220,
+		.right_margin   = 40,
+		.upper_margin   = 21,
+		.lower_margin   = 7,
+		.hsync_len      = 60,
+		.vsync_len      = 10,
+		.sync           = 0,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
 	.bus	= 2,
 	.addr	= 0x48,
 	.pixfmt	= IPU_PIX_FMT_RGB666,
