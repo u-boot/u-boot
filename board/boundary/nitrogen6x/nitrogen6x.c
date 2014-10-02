@@ -246,6 +246,7 @@ static void setup_iomux_enet(void)
 	gpio_set_value(IMX_GPIO_NR(1, 27), 1); /* Nitrogen6X PHY reset */
 
 	imx_iomux_v3_setup_multiple_pads(enet_pads2, ARRAY_SIZE(enet_pads2));
+	udelay(100);	/* Wait 100 us before using mii interface */
 }
 
 static iomux_v3_cfg_t const usb_pads[] = {
