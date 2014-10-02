@@ -554,6 +554,26 @@ struct display_info_t const displays[] = {{
 		.sync           = FB_SYNC_EXT,
 		.vmode          = FB_VMODE_NONINTERLACED
 } }, {
+	.bus	= 0,
+	.addr	= 0,
+	.pixfmt	= IPU_PIX_FMT_LVDS666,
+	.detect	= NULL,
+	.enable	= enable_lvds,
+	.mode	= {
+		.name           = "LG-9.7",
+		.refresh        = 60,
+		.xres           = 1024,
+		.yres           = 768,
+		.pixclock       = 15385, /* ~65MHz */
+		.left_margin    = 480,
+		.right_margin   = 260,
+		.upper_margin   = 16,
+		.lower_margin   = 6,
+		.hsync_len      = 250,
+		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
 	.bus	= 2,
 	.addr	= 0x38,
 	.pixfmt	= IPU_PIX_FMT_LVDS666,
