@@ -717,6 +717,9 @@ init_fnc_t init_sequence_r[] = {
 	initr_caches,
 #endif
 	initr_reloc_global_data,
+#if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
+	initr_unlock_ram_in_cache,
+#endif
 	initr_barrier,
 	initr_malloc,
 	bootstage_relocate,
@@ -758,9 +761,6 @@ init_fnc_t init_sequence_r[] = {
 	INIT_FUNC_WATCHDOG_RESET
 #ifdef CONFIG_SYS_DELAYED_ICACHE
 	initr_icache_enable,
-#endif
-#if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
-	initr_unlock_ram_in_cache,
 #endif
 #if defined(CONFIG_PCI) && defined(CONFIG_SYS_EARLY_PCI_INIT)
 	/*
