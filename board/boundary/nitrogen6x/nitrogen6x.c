@@ -494,10 +494,10 @@ static void enable_rgb(struct display_info_t const *dev)
 }
 
 struct display_info_t const displays[] = {{
-	.bus	= -1,
-	.addr	= 0,
+	.bus	= 1,
+	.addr	= 0x50,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
-	.detect	= detect_hdmi,
+	.detect	= detect_i2c,
 	.enable	= do_enable_hdmi,
 	.mode	= {
 		.name           = "HDMI",
