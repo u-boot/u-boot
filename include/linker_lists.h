@@ -143,6 +143,27 @@
 			section(".u_boot_list_2_"#_list"_2_"#_name)))
 
 /**
+ * ll_entry_declare_list() - Declare a list of link-generated array entries
+ * @_type:	Data type of each entry
+ * @_name:	Name of the entry
+ * @_list:	name of the list. Should contain only characters allowed
+ *		in a C variable name!
+ *
+ * This is like ll_entry_declare() but creates multiple entries. It should
+ * be assigned to an array.
+ *
+ * ll_entry_declare_list(struct my_sub_cmd, my_sub_cmd, cmd_sub, cmd.sub) = {
+ *	{ .x = 3, .y = 4 },
+ *	{ .x = 8, .y = 2 },
+ *	{ .x = 1, .y = 7 }
+ * };
+ */
+#define ll_entry_declare_list(_type, _name, _list)			\
+	_type _u_boot_list_2_##_list##_2_##_name[] __aligned(4)		\
+			__attribute__((unused,				\
+			section(".u_boot_list_2_"#_list"_2_"#_name)))
+
+/**
  * We need a 0-byte-size type for iterator symbols, and the compiler
  * does not allow defining objects of C type 'void'. Using an empty
  * struct is allowed by the compiler, but causes gcc versions 4.4 and
