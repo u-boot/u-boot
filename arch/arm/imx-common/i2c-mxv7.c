@@ -69,15 +69,29 @@ static void * const i2c_bases[] = {
 };
 
 /* i2c_index can be from 0 - 2 */
-void setup_i2c(unsigned i2c_index, int speed, int slave_addr,
-		struct i2c_pads_info *p)
+int setup_i2c(unsigned i2c_index, int speed, int slave_addr,
+	      struct i2c_pads_info *p)
 {
+	int ret;
+
 	if (i2c_index >= ARRAY_SIZE(i2c_bases))
-		return;
+		return -EINVAL;
 	/* Enable i2c clock */
-	enable_i2c_clk(1, i2c_index);
+	ret = enable_i2c_clk(1, i2c_index);
+	if (ret)
+		goto err_clk;
+
 	/* Make sure bus is idle */
-	force_idle_bus(p);
+	ret = force_idle_bus(p);
+	if (ret)
+		goto err_idle;
+
 	bus_i2c_init(i2c_bases[i2c_index], speed, slave_addr,
 			force_idle_bus, p);
+
+	return 0;
+
+err_idle:
+err_clk:
+	return ret;
 }

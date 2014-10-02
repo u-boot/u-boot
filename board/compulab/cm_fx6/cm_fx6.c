@@ -141,14 +141,36 @@ I2C_PADS(i2c2_pads,
 	 IMX_GPIO_NR(1, 6));
 
 
-static void cm_fx6_setup_i2c(void)
+static int cm_fx6_setup_one_i2c(int busnum, struct i2c_pads_info *pads)
 {
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, I2C_PADS_INFO(i2c0_pads));
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, I2C_PADS_INFO(i2c1_pads));
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, I2C_PADS_INFO(i2c2_pads));
+	int ret;
+
+	ret = setup_i2c(busnum, CONFIG_SYS_I2C_SPEED, 0x7f, pads);
+	if (ret)
+		printf("Warning: I2C%d setup failed: %d\n", busnum, ret);
+
+	return ret;
+}
+
+static int cm_fx6_setup_i2c(void)
+{
+	int ret = 0, err;
+
+	/* i2c<x>_pads are wierd macro variables; we can't use an array */
+	err = cm_fx6_setup_one_i2c(0, I2C_PADS_INFO(i2c0_pads));
+	if (err)
+		ret = err;
+	err = cm_fx6_setup_one_i2c(1, I2C_PADS_INFO(i2c1_pads));
+	if (err)
+		ret = err;
+	err = cm_fx6_setup_one_i2c(2, I2C_PADS_INFO(i2c2_pads));
+	if (err)
+		ret = err;
+
+	return ret;
 }
 #else
-static void cm_fx6_setup_i2c(void) { }
+static int cm_fx6_setup_i2c(void) { return 0; }
 #endif
 
 #ifdef CONFIG_USB_EHCI_MX6
@@ -409,9 +431,15 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 int board_init(void)
 {
+	int ret;
+
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 	cm_fx6_setup_gpmi_nand();
-	cm_fx6_setup_i2c();
+
+	/* Warn on failure but do not abort boot */
+	ret = cm_fx6_setup_i2c();
+	if (ret)
+		printf("Warning: I2C setup failed: %d\n", ret);
 
 	return 0;
 }
