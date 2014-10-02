@@ -9,11 +9,13 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <fdt_support.h>
 #include <sata.h>
+#include <serial_mxc.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/iomux.h>
@@ -564,3 +566,11 @@ u32 get_board_rev(void)
 	return cl_eeprom_get_board_rev();
 }
 
+static struct mxc_serial_platdata cm_fx6_mxc_serial_plat = {
+	.reg = (struct mxc_uart *)UART4_BASE,
+};
+
+U_BOOT_DEVICE(cm_fx6_serial) = {
+	.name	= "serial_mxc",
+	.platdata = &cm_fx6_mxc_serial_plat,
+};
