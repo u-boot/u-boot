@@ -180,6 +180,7 @@
 #endif
 
 #define CONFIG_DRIVE_TYPES CONFIG_DRIVE_SATA CONFIG_DRIVE_MMC CONFIG_DRIVE_USB
+#define CONFIG_UMSDEVS CONFIG_DRIVE_SATA CONFIG_DRIVE_MMC
 
 #if defined(CONFIG_SABRELITE)
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -260,6 +261,7 @@
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootdevs=" CONFIG_DRIVE_TYPES "\0" \
+	"umsdevs=" CONFIG_UMSDEVS "\0" \
 	"console=ttymxc1\0" \
 	"clearenv=if sf probe || sf probe || sf probe 1 ; then " \
 		"sf erase 0xc0000 0x2000 && " \
@@ -281,7 +283,26 @@
 		"echo ; echo 6x_bootscript not found ; " \
 		"echo ; echo serial console at 115200, 8N1 ; echo ; " \
 		"echo details at http://boundarydevices.com/6q_bootscript ; " \
-		"setenv stdout serial\0" \
+		"setenv stdout serial;" \
+		"setenv stdin serial,usbkbd;" \
+		"for dtype in ${umsdevs} ; do " \
+			"if itest.s sata == ${dtype}; then " \
+				"initcmd='sata init' ;" \
+			"else " \
+				"initcmd='mmc rescan' ;" \
+			"fi; " \
+			"for disk in 0 1 ; do " \
+				"if $initcmd && $dtype dev $disk ; then " \
+					"setenv stdout serial,vga; " \
+					"echo expose ${dtype} ${disk} " \
+						"over USB; " \
+					"ums 0 $dtype $disk ;" \
+				"fi; " \
+		"	done; " \
+		"done ;" \
+		"setenv stdout serial,vga; " \
+		"echo no block devices found;" \
+		"\0" \
 	"initrd_high=0xffffffff\0" \
 	"upgradeu=for dtype in ${bootdevs}" \
 		"; do " \
