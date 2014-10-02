@@ -615,6 +615,26 @@ struct display_info_t const displays[] = {{
 		.vmode          = FB_VMODE_NONINTERLACED
 } }, {
 	.bus	= 2,
+	.addr	= 0x10,
+	.pixfmt	= IPU_PIX_FMT_RGB666,
+	.detect	= detect_i2c,
+	.enable	= enable_rgb,
+	.mode	= {
+		.name           = "fusion7",
+		.refresh        = 60,
+		.xres           = 800,
+		.yres           = 480,
+		.pixclock       = 33898,
+		.left_margin    = 96,
+		.right_margin   = 24,
+		.upper_margin   = 3,
+		.lower_margin   = 10,
+		.hsync_len      = 72,
+		.vsync_len      = 7,
+		.sync           = 0x40000002,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
+	.bus	= 2,
 	.addr	= 0x48,
 	.pixfmt	= IPU_PIX_FMT_RGB666,
 	.detect	= detect_i2c,
