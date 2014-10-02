@@ -534,6 +534,26 @@ struct display_info_t const displays[] = {{
 		.sync           = FB_SYNC_EXT,
 		.vmode          = FB_VMODE_NONINTERLACED
 } }, {
+	.bus	= 0,
+	.addr	= 0,
+	.pixfmt	= IPU_PIX_FMT_RGB24,
+	.detect	= NULL,
+	.enable	= enable_lvds,
+	.mode	= {
+		.name           = "LDB-WXGA-S",
+		.refresh        = 60,
+		.xres           = 1280,
+		.yres           = 800,
+		.pixclock       = 14065,
+		.left_margin    = 40,
+		.right_margin   = 40,
+		.upper_margin   = 3,
+		.lower_margin   = 80,
+		.hsync_len      = 10,
+		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
 	.bus	= 2,
 	.addr	= 0x4,
 	.pixfmt	= IPU_PIX_FMT_LVDS666,
