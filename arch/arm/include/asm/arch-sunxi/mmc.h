@@ -123,5 +123,5 @@ struct sunxi_mmc {
 #define SUNXI_MMC_IDIE_TXIRQ		(0x1 << 0)
 #define SUNXI_MMC_IDIE_RXIRQ		(0x1 << 1)
 
-int sunxi_mmc_init(int sdc_no);
+struct mmc *sunxi_mmc_init(int sdc_no);
 #endif /* _SUNXI_MMC_H */

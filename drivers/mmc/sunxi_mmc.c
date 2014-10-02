@@ -373,7 +373,7 @@ static const struct mmc_ops sunxi_mmc_ops = {
 	.getcd		= sunxi_mmc_getcd,
 };
 
-int sunxi_mmc_init(int sdc_no)
+struct mmc *sunxi_mmc_init(int sdc_no)
 {
 	struct mmc_config *cfg = &mmc_host[sdc_no].cfg;
 
@@ -396,8 +396,5 @@ int sunxi_mmc_init(int sdc_no)
 	mmc_resource_init(sdc_no);
 	mmc_clk_io_on(sdc_no);
 
-	if (mmc_create(cfg, &mmc_host[sdc_no]) == NULL)
-		return -1;
-
-	return 0;
+	return mmc_create(cfg, &mmc_host[sdc_no]);
 }

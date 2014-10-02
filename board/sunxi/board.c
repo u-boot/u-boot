@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <mmc.h>
 #ifdef CONFIG_AXP152_POWER
 #include <axp152.h>
 #endif
@@ -104,11 +105,36 @@ static void mmc_pinmux_setup(int sdc)
 
 int board_mmc_init(bd_t *bis)
 {
+	__maybe_unused struct mmc *mmc0, *mmc1;
+	__maybe_unused char buf[512];
+
 	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT);
-	sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT);
+	mmc0 = sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT);
+	if (!mmc0)
+		return -1;
+
 #if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
 	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT_EXTRA);
-	sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT_EXTRA);
+	mmc1 = sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT_EXTRA);
+	if (!mmc1)
+		return -1;
+#endif
+
+#if CONFIG_MMC_SUNXI_SLOT == 0 && CONFIG_MMC_SUNXI_SLOT_EXTRA == 2
+	/*
+	 * Both mmc0 and mmc2 are bootable, figure out where we're booting
+	 * from. Try mmc0 first, just like the brom does.
+	 */
+	if (mmc_getcd(mmc0) && mmc_init(mmc0) == 0 &&
+	    mmc0->block_dev.block_read(0, 16, 1, buf) == 1) {
+		buf[12] = 0;
+		if (strcmp(&buf[4], "eGON.BT0") == 0)
+			return 0;
+	}
+
+	/* no bootable card in mmc0, so we must be booting from mmc2, swap */
+	mmc0->block_dev.dev = 1;
+	mmc1->block_dev.dev = 0;
 #endif
 
 	return 0;
