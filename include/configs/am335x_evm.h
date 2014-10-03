@@ -223,6 +223,7 @@
 /* Bootcount using the RTC block */
 #define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_BOOTCOUNT_AM33XX
+#define CONFIG_SYS_BOOTCOUNT_BE
 
 /* USB gadget RNDIS */
 #define CONFIG_SPL_MUSB_NEW_SUPPORT
