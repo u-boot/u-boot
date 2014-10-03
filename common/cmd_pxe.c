@@ -674,6 +674,15 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		char bootargs[CONFIG_SYS_CBSIZE] = "";
 		char finalbootargs[CONFIG_SYS_CBSIZE];
 
+		if (strlen(label->append ?: "") +
+		    strlen(ip_str) + strlen(mac_str) + 1 > sizeof(bootargs)) {
+			printf("bootarg overflow %zd+%zd+%zd+1 > %zd\n",
+			       strlen(label->append ?: ""),
+			       strlen(ip_str), strlen(mac_str),
+			       sizeof(bootargs));
+			return 1;
+		}
+
 		if (label->append)
 			strcpy(bootargs, label->append);
 		strcat(bootargs, ip_str);
