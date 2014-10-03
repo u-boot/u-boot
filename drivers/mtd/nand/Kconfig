@@ -29,4 +29,14 @@ config NAND_DENALI_SPARE_AREA_SKIP_BYTES
 
 endif
 
+if SPL_BUILD
+
+config SPL_NAND_DENALI
+	bool "Support Denali NAND controller for SPL"
+	help
+	  This is a small implementation of the Denali NAND controller
+	  for use on SPL.
+
+endif
+
 endmenu
