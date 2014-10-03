@@ -43,7 +43,10 @@ struct sunxi_mmc {
 	u32 chda;		/* 0x90 */
 	u32 cbda;		/* 0x94 */
 	u32 res1[26];
-	u32 fifo;		/* 0x100 FIFO access address */
+#if defined(CONFIG_SUN6I)
+	u32 res2[64];
+#endif
+	u32 fifo;		/* 0x100 (0x200 on sun6i) FIFO access address */
 };
 
 #define SUNXI_MMC_CLK_POWERSAVE		(0x1 << 17)

@@ -19,7 +19,6 @@
 struct sunxi_mmc_host {
 	unsigned mmc_no;
 	uint32_t *mclkreg;
-	unsigned database;
 	unsigned fatal_err;
 	unsigned mod_clk;
 	struct sunxi_mmc *reg;
@@ -57,7 +56,6 @@ static int mmc_resource_init(int sdc_no)
 		printf("Wrong mmc number %d\n", sdc_no);
 		return -1;
 	}
-	mmchost->database = (unsigned int)mmchost->reg + 0x100;
 	mmchost->mmc_no = sdc_no;
 
 	return 0;
@@ -74,6 +72,11 @@ static int mmc_clk_io_on(int sdc_no)
 
 	/* config ahb clock */
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
+
+#if defined(CONFIG_SUN6I)
+	/* unassert reset */
+	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
+#endif
 
 	/* config mod clock */
 	pll_clk = clock_get_pll6();
@@ -194,9 +197,9 @@ static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
 		}
 
 		if (reading)
-			buff[i] = readl(mmchost->database);
+			buff[i] = readl(&mmchost->reg->fifo);
 		else
-			writel(buff[i], mmchost->database);
+			writel(buff[i], &mmchost->reg->fifo);
 	}
 
 	return 0;
