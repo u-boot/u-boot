@@ -15,7 +15,11 @@
 #define CLK_GATE_CLOSE			0x0
 
 /* clock control module regs definition */
+#ifdef CONFIG_SUN6I
+#include <asm/arch/clock_sun6i.h>
+#else
 #include <asm/arch/clock_sun4i.h>
+#endif
 
 #ifndef __ASSEMBLY__
 int clock_init(void);
