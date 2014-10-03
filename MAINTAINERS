@@ -149,6 +149,15 @@ F:	arch/arm/include/asm/arch-davinci/
 F:	arch/arm/include/asm/arch-omap*/
 F:	arch/arm/include/asm/ti-common/
 
+ARM UNIPHIER
+M:	Masahiro Yamada <yamada.m@jp.panasonic.com>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-uniphier.git
+F:	arch/arm/cpu/armv7/uniphier/
+F:	arch/arm/include/asm/arch-uniphier/
+F:	configs/ph1_*_defconfig
+F:	drivers/serial/serial_uniphier.c
+
 ARM ZYNQ
 M:	Michal Simek <monstr@monstr.eu>
 S:	Maintained
