@@ -64,6 +64,8 @@ static struct module_pin_mux spi0_pin_mux[] = {
 };
 
 static struct module_pin_mux mii1_pin_mux[] = {
+	{OFFSET(mii1_crs), MODE(0) | RXACTIVE},		/* MII1_CRS */
+	{OFFSET(mii1_col), MODE(0) | RXACTIVE},		/* MII1_COL */
 	{OFFSET(mii1_rxerr), MODE(0) | RXACTIVE},	/* MII1_RXERR */
 	{OFFSET(mii1_txen), MODE(0)},			/* MII1_TXEN */
 	{OFFSET(mii1_rxdv), MODE(0) | RXACTIVE},	/* MII1_RXDV */
@@ -96,6 +98,7 @@ static struct module_pin_mux mii2_pin_mux[] = {
 	{OFFSET(gpmc_a10), MODE(1) | RXACTIVE},	/* MII2_RXD1 */
 	{OFFSET(gpmc_a11), MODE(1) | RXACTIVE},	/* MII2_RXD0 */
 	{OFFSET(gpmc_wpn), (MODE(1) | RXACTIVE)},/* MII2_RXERR */
+	{OFFSET(gpmc_wait0), (MODE(1) | RXACTIVE | PULLUP_EN)},
 						/*
 						 * MII2_CRS is shared with
 						 * NAND_WAIT0
