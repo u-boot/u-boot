@@ -29,6 +29,9 @@
 #error ("Board unsupported")
 #endif
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
 /* include common defines/options for all Keymile boards */
