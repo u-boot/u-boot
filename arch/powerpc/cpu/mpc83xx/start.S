@@ -283,6 +283,7 @@ in_flash:
 	bl	cpu_init_f
 
 	/* run 1st part of board init code (in Flash)*/
+	li	r3, 0		/* clear boot_flag for calling board_init_f */
 	bl	board_init_f
 
 	/* NOTREACHED - board_init_f() does not return */
