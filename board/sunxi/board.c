@@ -71,9 +71,9 @@ static void mmc_pinmux_setup(int sdc)
 		break;
 
 	case 1:
-		/* CMD-PH22, CLK-PH23, D0~D3-PH24~27 : 5 */
-		for (pin = SUNXI_GPH(22); pin <= SUNXI_GPH(27); pin++) {
-			sunxi_gpio_set_cfgpin(pin, SUN4I_GPH22_SDC1);
+		/* CMD-PG3, CLK-PG4, D0~D3-PG5-8 */
+		for (pin = SUNXI_GPG(3); pin <= SUNXI_GPG(8); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUN5I_GPG3_SDC1);
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
