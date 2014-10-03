@@ -664,7 +664,7 @@ int initr_mem(void)
 	/* Also take the logbuffer into account (pram is in kB) */
 	pram += (LOGBUFF_LEN + LOGBUFF_OVERHEAD) / 1024;
 # endif
-	sprintf(memsz, "%ldk", (gd->ram_size / 1024) - pram);
+	sprintf(memsz, "%ldk", (long int) ((gd->ram_size / 1024) - pram));
 	setenv("mem", memsz);
 
 	return 0;
