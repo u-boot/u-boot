@@ -231,10 +231,16 @@
 #define BOOT_TARGET_DEVICES_SCSI(func)
 #endif
 
+#ifdef CONFIG_USB_EHCI
+#define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
+#else
+#define BOOT_TARGET_DEVICES_USB(func)
+#endif
+
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	BOOT_TARGET_DEVICES_SCSI(func) \
-	func(USB, usb, 0) \
+	BOOT_TARGET_DEVICES_USB(func) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
