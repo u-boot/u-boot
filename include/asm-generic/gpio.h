@@ -198,8 +198,6 @@ struct dm_gpio_ops {
 	 * @return current function - GPIOF_...
 	 */
 	int (*get_function)(struct udevice *dev, unsigned offset);
-	int (*get_state)(struct udevice *dev, unsigned offset, char *state,
-			 int maxlen);
 };
 
 /**
