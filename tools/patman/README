@@ -52,12 +52,15 @@ will get a consistent result each time.
 How to configure it
 ===================
 
-For most cases of using patman for U-Boot development, patman will
-locate and use the file 'doc/git-mailrc' in your U-Boot directory.
-This contains most of the aliases you will need.
+For most cases of using patman for U-Boot development, patman can use the
+file 'doc/git-mailrc' in your U-Boot directory to supply the email aliases
+you need. To make this work, tell git where to find the file by typing
+this once:
 
-For Linux the 'scripts/get_maintainer.pl' handles figuring out where
-to send patches pretty well.
+    git config sendemail.aliasesfile doc/git-mailrc
+
+For both Linux and U-Boot the 'scripts/get_maintainer.pl' handles figuring
+out where to send patches pretty well.
 
 During the first run patman creates a config file for you by taking the default
 user name and email address from the global .gitconfig file.
