@@ -11,14 +11,10 @@
 #ifndef _SUNXI_TIMER_H_
 #define _SUNXI_TIMER_H_
 
-#define WDT_CTRL_RESTART	(0x1 << 0)
-#define WDT_CTRL_KEY		(0x0a57 << 1)
-#define WDT_MODE_EN		(0x1 << 0)
-#define WDT_MODE_RESET_EN	(0x1 << 1)
-
 #ifndef __ASSEMBLY__
 
 #include <linux/types.h>
+#include <asm/arch/watchdog.h>
 
 /* General purpose timer */
 struct sunxi_timer {
@@ -41,12 +37,6 @@ struct sunxi_64cnt {
 	u32 ctl;		/* 0xa0 */
 	u32 lo;			/* 0xa4 */
 	u32 hi;			/* 0xa8 */
-};
-
-/* Watchdog */
-struct sunxi_wdog {
-	u32 ctl;		/* 0x90 */
-	u32 mode;		/* 0x94 */
 };
 
 /* Rtc */
@@ -77,9 +67,8 @@ struct sunxi_timer_reg {
 	struct sunxi_timer timer[6];	/* We have 6 timers */
 	u8 res2[16];
 	struct sunxi_avs avs;
-	struct sunxi_wdog wdog;
-	u8 res3[8];
-	struct sunxi_64cnt cnt64;
+	struct sunxi_wdog wdog;	/* 0x90 */
+	struct sunxi_64cnt cnt64;	/* 0xa0 */
 	u8 res4[0x58];
 	struct sunxi_rtc rtc;
 	struct sunxi_alarm alarm;
