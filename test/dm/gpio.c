@@ -7,10 +7,13 @@
 #include <common.h>
 #include <fdtdec.h>
 #include <dm.h>
+#include <dm/root.h>
 #include <dm/ut.h>
 #include <dm/test.h>
 #include <dm/util.h>
 #include <asm/gpio.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* Test that sandbox GPIOs work correctly */
 static int dm_test_gpio(struct dm_test_state *dms)
@@ -138,3 +141,38 @@ static int dm_test_gpio_requestf(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_gpio_requestf, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that gpio_request() copies its string */
+static int dm_test_gpio_copy(struct dm_test_state *dms)
+{
+	unsigned int offset, gpio;
+	struct udevice *dev;
+	char buf[80], name[10];
+
+	ut_assertok(gpio_lookup_name("b6", &dev, &offset, &gpio));
+	strcpy(name, "odd_name");
+	ut_assertok(gpio_request(gpio, name));
+	sandbox_gpio_set_direction(dev, offset, 1);
+	sandbox_gpio_set_value(dev, offset, 1);
+	ut_assertok(gpio_get_status(dev, offset, buf, sizeof(buf)));
+	ut_asserteq_str("b6: output: 1 [x] odd_name", buf);
+	strcpy(name, "nothing");
+	ut_assertok(gpio_get_status(dev, offset, buf, sizeof(buf)));
+	ut_asserteq_str("b6: output: 1 [x] odd_name", buf);
+
+	return 0;
+}
+DM_TEST(dm_test_gpio_copy, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that we don't leak memory with GPIOs */
+static int dm_test_gpio_leak(struct dm_test_state *dms)
+{
+	ut_assertok(dm_test_gpio(dms));
+	ut_assertok(dm_test_gpio_anon(dms));
+	ut_assertok(dm_test_gpio_requestf(dms));
+	ut_assertok(dm_leak_check_end(dms));
+
+	return 0;
+}
+
+DM_TEST(dm_test_gpio_leak, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
