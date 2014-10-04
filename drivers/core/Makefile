@@ -5,3 +5,4 @@
 #
 
 obj-y := device.o lists.o root.o uclass.o util.o
+obj-$(CONFIG_OF_CONTROL) += simple-bus.o
