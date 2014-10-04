@@ -96,6 +96,24 @@ enum gpio_func_t {
 struct udevice;
 
 /**
+ * gpio_get_status() - get the current GPIO status as a string
+ *
+ * Obtain the current GPIO status as a string which can be presented to the
+ * user. A typical string is:
+ *
+ * "b4:  in: 1 [x] sdmmc_cd"
+ *
+ * which means this is GPIO bank b, offset 4, currently set to input, current
+ * value 1, [x] means that it is requested and the owner is 'sdmmc_cd'
+ *
+ * @dev:	Device to check
+ * @offset:	Offset of device GPIO to check
+ * @buf:	Place to put string
+ * @buffsize:	Size of string including \0
+ */
+int gpio_get_status(struct udevice *dev, int offset, char *buf, int buffsize);
+
+/**
  * gpio_get_function() - get the current function for a GPIO pin
  *
  * Note this returns GPIOF_UNUSED if the GPIO is not requested.

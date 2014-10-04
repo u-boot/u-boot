@@ -330,6 +330,45 @@ int gpio_get_raw_function(struct udevice *dev, int offset, const char **namep)
 	return get_function(dev, offset, false, namep);
 }
 
+int gpio_get_status(struct udevice *dev, int offset, char *buf, int buffsize)
+{
+	struct dm_gpio_ops *ops = gpio_get_ops(dev);
+	struct gpio_dev_priv *priv;
+	char *str = buf;
+	int func;
+	int ret;
+	int len;
+
+	BUILD_BUG_ON(GPIOF_COUNT != ARRAY_SIZE(gpio_function));
+
+	*buf = 0;
+	priv = dev->uclass_priv;
+	ret = gpio_get_raw_function(dev, offset, NULL);
+	if (ret < 0)
+		return ret;
+	func = ret;
+	len = snprintf(str, buffsize, "%s%d: %s",
+		       priv->bank_name ? priv->bank_name : "",
+		       offset, gpio_function[func]);
+	if (func == GPIOF_INPUT || func == GPIOF_OUTPUT ||
+	    func == GPIOF_UNUSED) {
+		const char *label;
+		bool used;
+
+		ret = ops->get_value(dev, offset);
+		if (ret < 0)
+			return ret;
+		used = gpio_get_function(dev, offset, &label) != GPIOF_UNUSED;
+		snprintf(str + len, buffsize - len, ": %d [%c]%s%s",
+			 ret,
+			 used ? 'x' : ' ',
+			 used ? " " : "",
+			 label ? label : "");
+	}
+
+	return 0;
+}
+
 /* We need to renumber the GPIOs when any driver is probed/removed */
 static int gpio_renumber(struct udevice *removed_dev)
 {
