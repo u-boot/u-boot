@@ -83,7 +83,7 @@ int gpio_get_value(unsigned gpio);
 int gpio_set_value(unsigned gpio, int value);
 
 /* State of a GPIO, as reported by get_function() */
-enum {
+enum gpio_func_t {
 	GPIOF_INPUT = 0,
 	GPIOF_OUTPUT,
 	GPIOF_UNUSED,		/* Not claimed */
@@ -94,6 +94,38 @@ enum {
 };
 
 struct udevice;
+
+/**
+ * gpio_get_function() - get the current function for a GPIO pin
+ *
+ * Note this returns GPIOF_UNUSED if the GPIO is not requested.
+ *
+ * @dev:	Device to check
+ * @offset:	Offset of device GPIO to check
+ * @namep:	If non-NULL, this is set to the nane given when the GPIO
+ *		was requested, or -1 if it has not been requested
+ * @return  -ENODATA if the driver returned an unknown function,
+ * -ENODEV if the device is not active, -EINVAL if the offset is invalid.
+ * GPIOF_UNUSED if the GPIO has not been requested. Otherwise returns the
+ * function from enum gpio_func_t.
+ */
+int gpio_get_function(struct udevice *dev, int offset, const char **namep);
+
+/**
+ * gpio_get_raw_function() - get the current raw function for a GPIO pin
+ *
+ * Note this does not return GPIOF_UNUSED - it will always return the GPIO
+ * driver's view of a pin function, even if it is not correctly set up.
+ *
+ * @dev:	Device to check
+ * @offset:	Offset of device GPIO to check
+ * @namep:	If non-NULL, this is set to the nane given when the GPIO
+ *		was requested, or -1 if it has not been requested
+ * @return  -ENODATA if the driver returned an unknown function,
+ * -ENODEV if the device is not active, -EINVAL if the offset is invalid.
+ * Otherwise returns the function from enum gpio_func_t.
+ */
+int gpio_get_raw_function(struct udevice *dev, int offset, const char **namep);
 
 /**
  * struct struct dm_gpio_ops - Driver model GPIO operations

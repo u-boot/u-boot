@@ -283,6 +283,53 @@ const char *gpio_get_bank_info(struct udevice *dev, int *bit_count)
 	return priv->bank_name;
 }
 
+static const char * const gpio_function[GPIOF_COUNT] = {
+	"input",
+	"output",
+	"unused",
+	"unknown",
+	"func",
+};
+
+int get_function(struct udevice *dev, int offset, bool skip_unused,
+		 const char **namep)
+{
+	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct dm_gpio_ops *ops = gpio_get_ops(dev);
+
+	BUILD_BUG_ON(GPIOF_COUNT != ARRAY_SIZE(gpio_function));
+	if (!device_active(dev))
+		return -ENODEV;
+	if (offset < 0 || offset >= uc_priv->gpio_count)
+		return -EINVAL;
+	if (namep)
+		*namep = uc_priv->name[offset];
+	if (skip_unused && !uc_priv->name[offset])
+		return GPIOF_UNUSED;
+	if (ops->get_function) {
+		int ret;
+
+		ret = ops->get_function(dev, offset);
+		if (ret < 0)
+			return ret;
+		if (ret >= ARRAY_SIZE(gpio_function))
+			return -ENODATA;
+		return ret;
+	}
+
+	return GPIOF_UNKNOWN;
+}
+
+int gpio_get_function(struct udevice *dev, int offset, const char **namep)
+{
+	return get_function(dev, offset, true, namep);
+}
+
+int gpio_get_raw_function(struct udevice *dev, int offset, const char **namep)
+{
+	return get_function(dev, offset, false, namep);
+}
+
 /* We need to renumber the GPIOs when any driver is probed/removed */
 static int gpio_renumber(struct udevice *removed_dev)
 {
