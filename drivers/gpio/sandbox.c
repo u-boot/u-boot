@@ -246,6 +246,13 @@ static int gpio_sandbox_probe(struct udevice *dev)
 	return 0;
 }
 
+static int gpio_sandbox_remove(struct udevice *dev)
+{
+	free(dev->priv);
+
+	return 0;
+}
+
 static const struct udevice_id sandbox_gpio_ids[] = {
 	{ .compatible = "sandbox,gpio" },
 	{ }
@@ -257,5 +264,6 @@ U_BOOT_DRIVER(gpio_sandbox) = {
 	.of_match = sandbox_gpio_ids,
 	.ofdata_to_platdata = sandbox_gpio_ofdata_to_platdata,
 	.probe	= gpio_sandbox_probe,
+	.remove	= gpio_sandbox_remove,
 	.ops	= &gpio_sandbox_ops,
 };
