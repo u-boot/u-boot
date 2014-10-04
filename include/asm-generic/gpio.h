@@ -29,6 +29,9 @@
  * Request a GPIO. This should be called before any of the other functions
  * are used on this GPIO.
  *
+ * Note: With driver model, the label is allocated so there is no need for
+ * the caller to preserve it.
+ *
  * @param gp	GPIO number
  * @param label	User label for this GPIO
  * @return 0 if ok, -1 on error
@@ -157,11 +160,14 @@ struct dm_gpio_ops {
  * @gpio_base: Base GPIO number for this device. For the first active device
  * this will be 0; the numbering for others will follow sequentially so that
  * @gpio_base for device 1 will equal the number of GPIOs in device 0.
+ * @name: Array of pointers to the name for each GPIO in this bank. The
+ * value of the pointer will be NULL if the GPIO has not been claimed.
  */
 struct gpio_dev_priv {
 	const char *bank_name;
 	unsigned gpio_count;
 	unsigned gpio_base;
+	char **name;
 };
 
 /* Access the GPIO operations for a device */

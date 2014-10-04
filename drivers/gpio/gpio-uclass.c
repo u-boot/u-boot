@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <malloc.h>
 #include <asm/gpio.h>
 #include <linux/ctype.h>
 
@@ -92,24 +93,41 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
  * gpio:	GPIO number
  * label:	Name for the requested GPIO
  *
+ * The label is copied and allocated so the caller does not need to keep
+ * the pointer around.
+ *
  * This function implements the API that's compatible with current
  * GPIO API used in U-Boot. The request is forwarded to particular
  * GPIO driver. Returns 0 on success, negative value on error.
  */
 int gpio_request(unsigned gpio, const char *label)
 {
+	struct gpio_dev_priv *uc_priv;
 	unsigned int offset;
 	struct udevice *dev;
+	char *str;
 	int ret;
 
 	ret = gpio_to_device(gpio, &dev, &offset);
 	if (ret)
 		return ret;
 
-	if (!gpio_get_ops(dev)->request)
-		return 0;
+	uc_priv = dev->uclass_priv;
+	if (uc_priv->name[offset])
+		return -EBUSY;
+	str = strdup(label);
+	if (!str)
+		return -ENOMEM;
+	if (gpio_get_ops(dev)->request) {
+		ret = gpio_get_ops(dev)->request(dev, offset, label);
+		if (ret) {
+			free(str);
+			return ret;
+		}
+	}
+	uc_priv->name[offset] = str;
 
-	return gpio_get_ops(dev)->request(dev, offset, label);
+	return 0;
 }
 
 /**
@@ -122,6 +140,7 @@ int gpio_request(unsigned gpio, const char *label)
  */
 int gpio_free(unsigned gpio)
 {
+	struct gpio_dev_priv *uc_priv;
 	unsigned int offset;
 	struct udevice *dev;
 	int ret;
@@ -130,9 +149,34 @@ int gpio_free(unsigned gpio)
 	if (ret)
 		return ret;
 
-	if (!gpio_get_ops(dev)->free)
-		return 0;
-	return gpio_get_ops(dev)->free(dev, offset);
+	uc_priv = dev->uclass_priv;
+	if (!uc_priv->name[offset])
+		return -ENXIO;
+	if (gpio_get_ops(dev)->free) {
+		ret = gpio_get_ops(dev)->free(dev, offset);
+		if (ret)
+			return ret;
+	}
+
+	free(uc_priv->name[offset]);
+	uc_priv->name[offset] = NULL;
+
+	return 0;
+}
+
+static int check_reserved(struct udevice *dev, unsigned offset,
+			  const char *func)
+{
+	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+
+	if (!uc_priv->name[offset]) {
+		printf("%s: %s: error: gpio %s%d not reserved\n",
+		       dev->name, func,
+		       uc_priv->bank_name ? uc_priv->bank_name : "", offset);
+		return -EBUSY;
+	}
+
+	return 0;
 }
 
 /**
@@ -152,8 +196,9 @@ int gpio_direction_input(unsigned gpio)
 	ret = gpio_to_device(gpio, &dev, &offset);
 	if (ret)
 		return ret;
+	ret = check_reserved(dev, offset, "dir_input");
 
-	return gpio_get_ops(dev)->direction_input(dev, offset);
+	return ret ? ret : gpio_get_ops(dev)->direction_input(dev, offset);
 }
 
 /**
@@ -174,8 +219,10 @@ int gpio_direction_output(unsigned gpio, int value)
 	ret = gpio_to_device(gpio, &dev, &offset);
 	if (ret)
 		return ret;
+	ret = check_reserved(dev, offset, "dir_output");
 
-	return gpio_get_ops(dev)->direction_output(dev, offset, value);
+	return ret ? ret :
+		gpio_get_ops(dev)->direction_output(dev, offset, value);
 }
 
 /**
@@ -196,8 +243,9 @@ int gpio_get_value(unsigned gpio)
 	ret = gpio_to_device(gpio, &dev, &offset);
 	if (ret)
 		return ret;
+	ret = check_reserved(dev, offset, "get_value");
 
-	return gpio_get_ops(dev)->get_value(dev, offset);
+	return ret ? ret : gpio_get_ops(dev)->get_value(dev, offset);
 }
 
 /**
@@ -218,8 +266,9 @@ int gpio_set_value(unsigned gpio, int value)
 	ret = gpio_to_device(gpio, &dev, &offset);
 	if (ret)
 		return ret;
+	ret = check_reserved(dev, offset, "set_value");
 
-	return gpio_get_ops(dev)->set_value(dev, offset, value);
+	return ret ? ret : gpio_get_ops(dev)->set_value(dev, offset, value);
 }
 
 const char *gpio_get_bank_info(struct udevice *dev, int *bit_count)
@@ -235,7 +284,7 @@ const char *gpio_get_bank_info(struct udevice *dev, int *bit_count)
 }
 
 /* We need to renumber the GPIOs when any driver is probed/removed */
-static int gpio_renumber(void)
+static int gpio_renumber(struct udevice *removed_dev)
 {
 	struct gpio_dev_priv *uc_priv;
 	struct udevice *dev;
@@ -250,7 +299,7 @@ static int gpio_renumber(void)
 	/* Ensure that we have a base for each bank */
 	base = 0;
 	uclass_foreach_dev(dev, uc) {
-		if (device_active(dev)) {
+		if (device_active(dev) && dev != removed_dev) {
 			uc_priv = dev->uclass_priv;
 			uc_priv->gpio_base = base;
 			base += uc_priv->gpio_count;
@@ -262,12 +311,27 @@ static int gpio_renumber(void)
 
 static int gpio_post_probe(struct udevice *dev)
 {
-	return gpio_renumber();
+	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+
+	uc_priv->name = calloc(uc_priv->gpio_count, sizeof(char *));
+	if (!uc_priv->name)
+		return -ENOMEM;
+
+	return gpio_renumber(NULL);
 }
 
 static int gpio_pre_remove(struct udevice *dev)
 {
-	return gpio_renumber();
+	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	int i;
+
+	for (i = 0; i < uc_priv->gpio_count; i++) {
+		if (uc_priv->name[i])
+			free(uc_priv->name[i]);
+	}
+	free(uc_priv->name);
+
+	return gpio_renumber(dev);
 }
 
 UCLASS_DRIVER(gpio) = {
