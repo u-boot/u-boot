@@ -67,6 +67,34 @@ static struct driver_info driver_info_pre_reloc = {
 	.platdata = &test_pdata_manual,
 };
 
+void dm_leak_check_start(struct dm_test_state *dms)
+{
+	dms->start = mallinfo();
+	if (!dms->start.uordblks)
+		puts("Warning: Please add '#define DEBUG' to the top of common/dlmalloc.c\n");
+}
+
+int dm_leak_check_end(struct dm_test_state *dms)
+{
+	struct mallinfo end;
+	int id;
+
+	/* Don't delete the root class, since we started with that */
+	for (id = UCLASS_ROOT + 1; id < UCLASS_COUNT; id++) {
+		struct uclass *uc;
+
+		uc = uclass_find(id);
+		if (!uc)
+			continue;
+		ut_assertok(uclass_destroy(uc));
+	}
+
+	end = mallinfo();
+	ut_asserteq(dms->start.uordblks, end.uordblks);
+
+	return 0;
+}
+
 /* Test that binding with platdata occurs correctly */
 static int dm_test_autobind(struct dm_test_state *dms)
 {
@@ -377,14 +405,11 @@ static int dm_test_leak(struct dm_test_state *dms)
 	int i;
 
 	for (i = 0; i < 2; i++) {
-		struct mallinfo start, end;
 		struct udevice *dev;
 		int ret;
 		int id;
 
-		start = mallinfo();
-		if (!start.uordblks)
-			puts("Warning: Please add '#define DEBUG' to the top of common/dlmalloc.c\n");
+		dm_leak_check_start(dms);
 
 		ut_assertok(dm_scan_platdata(false));
 		ut_assertok(dm_scan_fdt(gd->fdt_blob, false));
@@ -398,18 +423,7 @@ static int dm_test_leak(struct dm_test_state *dms)
 			ut_assertok(ret);
 		}
 
-		/* Don't delete the root class, since we started with that */
-		for (id = UCLASS_ROOT + 1; id < UCLASS_COUNT; id++) {
-			struct uclass *uc;
-
-			uc = uclass_find(id);
-			if (!uc)
-				continue;
-			ut_assertok(uclass_destroy(uc));
-		}
-
-		end = mallinfo();
-		ut_asserteq(start.uordblks, end.uordblks);
+		ut_assertok(dm_leak_check_end(dms));
 	}
 
 	return 0;

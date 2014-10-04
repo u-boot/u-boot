@@ -8,6 +8,7 @@
 #define __DM_TEST_H
 
 #include <dm.h>
+#include <malloc.h>
 
 /**
  * struct dm_test_cdata - configuration data for test instance
@@ -120,6 +121,7 @@ struct dm_test_state {
 	int force_fail_alloc;
 	int skip_post_probe;
 	struct udevice *removed;
+	struct mallinfo start;
 };
 
 /* Test flags for each test */
@@ -176,6 +178,27 @@ int dm_check_operations(struct dm_test_state *dms, struct udevice *dev,
  * @return 0 if OK, -ve on error
  */
 int dm_check_devices(struct dm_test_state *dms, int num_devices);
+
+/**
+ * dm_leak_check_start() - Prepare to check for a memory leak
+ *
+ * Call this before allocating memory to record the amount of memory being
+ * used.
+ *
+ * @dms: Overall test state
+ */
+void dm_leak_check_start(struct dm_test_state *dms);
+
+/**
+ * dm_leak_check_end() - Check that no memory has leaked
+ *
+ * Call this after dm_leak_check_start() and after you have hopefuilly freed
+ * all the memory that was allocated. This function will print an error if
+ * it sees a different amount of total memory allocated than before.
+ *
+ * @dms: Overall test state
+ */int dm_leak_check_end(struct dm_test_state *dms);
+
 
 /**
  * dm_test_main() - Run all the tests
