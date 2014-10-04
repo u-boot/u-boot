@@ -203,6 +203,13 @@ static int sb_gpio_get_state(struct udevice *dev, unsigned int offset,
 	return 0;
 }
 
+static int sb_gpio_get_function(struct udevice *dev, unsigned offset)
+{
+	if (get_gpio_flag(dev, offset, GPIOF_OUTPUT))
+		return GPIOF_OUTPUT;
+	return GPIOF_INPUT;
+}
+
 static const struct dm_gpio_ops gpio_sandbox_ops = {
 	.request		= sb_gpio_request,
 	.free			= sb_gpio_free,
@@ -210,7 +217,7 @@ static const struct dm_gpio_ops gpio_sandbox_ops = {
 	.direction_output	= sb_gpio_direction_output,
 	.get_value		= sb_gpio_get_value,
 	.set_value		= sb_gpio_set_value,
-	.get_state		= sb_gpio_get_state,
+	.get_function		= sb_gpio_get_function,
 };
 
 static int sandbox_gpio_ofdata_to_platdata(struct udevice *dev)
