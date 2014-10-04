@@ -146,6 +146,16 @@ int gpio_get_function(struct udevice *dev, int offset, const char **namep);
 int gpio_get_raw_function(struct udevice *dev, int offset, const char **namep);
 
 /**
+ * gpio_requestf() - request a GPIO using a format string for the owner
+ *
+ * This is a helper function for gpio_request(). It allows you to provide
+ * a printf()-format string for the GPIO owner. It calls gpio_request() with
+ * the string that is created
+ */
+int gpio_requestf(unsigned gpio, const char *fmt, ...)
+		__attribute__ ((format (__printf__, 2, 3)));
+
+/**
  * struct struct dm_gpio_ops - Driver model GPIO operations
  *
  * Refer to functions above for description. These function largely copy

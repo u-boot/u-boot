@@ -95,7 +95,7 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 26 driver model tests
+    Running 27 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
     Test: dm_test_bus_children
@@ -117,6 +117,7 @@ You should see something like this:
     Test: dm_test_gpio
     extra-gpios: get_value: error: gpio b5 not reserved
     Test: dm_test_gpio_anon
+    Test: dm_test_gpio_requestf
     Test: dm_test_leak
     Test: dm_test_lifecycle
     Test: dm_test_operations

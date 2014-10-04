@@ -131,6 +131,27 @@ int gpio_request(unsigned gpio, const char *label)
 }
 
 /**
+ * gpio_requestf() - [COMPAT] Request GPIO
+ * @gpio:	GPIO number
+ * @fmt:	Format string for the requested GPIO
+ * @...:	Arguments for the printf() format string
+ *
+ * This function implements the API that's compatible with current
+ * GPIO API used in U-Boot. The request is forwarded to particular
+ * GPIO driver. Returns 0 on success, negative value on error.
+ */
+int gpio_requestf(unsigned gpio, const char *fmt, ...)
+{
+	va_list args;
+	char buf[40];
+
+	va_start(args, fmt);
+	vscnprintf(buf, sizeof(buf), fmt, args);
+	va_end(args);
+	return gpio_request(gpio, buf);
+}
+
+/**
  * gpio_free() - [COMPAT] Relinquish GPIO
  * gpio:	GPIO number
  *

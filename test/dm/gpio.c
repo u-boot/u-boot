@@ -120,3 +120,21 @@ static int dm_test_gpio_anon(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_gpio_anon, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that gpio_requestf() works as expected */
+static int dm_test_gpio_requestf(struct dm_test_state *dms)
+{
+	unsigned int offset, gpio;
+	struct udevice *dev;
+	char buf[80];
+
+	ut_assertok(gpio_lookup_name("b5", &dev, &offset, &gpio));
+	ut_assertok(gpio_requestf(gpio, "testing %d %s", 1, "hi"));
+	sandbox_gpio_set_direction(dev, offset, 1);
+	sandbox_gpio_set_value(dev, offset, 1);
+	ut_assertok(gpio_get_status(dev, offset, buf, sizeof(buf)));
+	ut_asserteq_str("b5: output: 1 [x] testing 1 hi", buf);
+
+	return 0;
+}
+DM_TEST(dm_test_gpio_requestf, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
