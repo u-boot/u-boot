@@ -157,7 +157,7 @@ struct dwmci_idmac {
 	u32 cnt;
 	u32 addr;
 	u32 next_addr;
-};
+} __aligned(ARCH_DMA_MINALIGN);
 
 static inline void dwmci_writel(struct dwmci_host *host, int reg, u32 val)
 {

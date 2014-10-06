@@ -12,216 +12,162 @@
  *  Altera FPGA support
  */
 #include <common.h>
+#include <errno.h>
 #include <ACEX1K.h>
 #include <stratixII.h>
 
-/* Define FPGA_DEBUG to get debug printf's */
-/* #define FPGA_DEBUG */
+/* Define FPGA_DEBUG to 1 to get debug printf's */
+#define FPGA_DEBUG	0
 
-#ifdef	FPGA_DEBUG
-#define	PRINTF(fmt,args...)	printf (fmt ,##args)
-#else
-#define PRINTF(fmt,args...)
-#endif
-
-/* Local Static Functions */
-static int altera_validate (Altera_desc * desc, const char *fn);
-
-/* ------------------------------------------------------------------------- */
-int altera_load(Altera_desc *desc, const void *buf, size_t bsize)
-{
-	int ret_val = FPGA_FAIL;	/* assume a failure */
-
-	if (!altera_validate (desc, (char *)__FUNCTION__)) {
-		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
-	} else {
-		switch (desc->family) {
-		case Altera_ACEX1K:
-		case Altera_CYC2:
+static const struct altera_fpga {
+	enum altera_family	family;
+	const char		*name;
+	int			(*load)(Altera_desc *, const void *, size_t);
+	int			(*dump)(Altera_desc *, const void *, size_t);
+	int			(*info)(Altera_desc *);
+} altera_fpga[] = {
 #if defined(CONFIG_FPGA_ACEX1K)
-			PRINTF ("%s: Launching the ACEX1K Loader...\n",
-					__FUNCTION__);
-			ret_val = ACEX1K_load (desc, buf, bsize);
+	{ Altera_ACEX1K, "ACEX1K", ACEX1K_load, ACEX1K_dump, ACEX1K_info },
+	{ Altera_CYC2,   "ACEX1K", ACEX1K_load, ACEX1K_dump, ACEX1K_info },
 #elif defined(CONFIG_FPGA_CYCLON2)
-			PRINTF ("%s: Launching the CYCLONE II Loader...\n",
-					__FUNCTION__);
-			ret_val = CYC2_load (desc, buf, bsize);
-#else
-			printf ("%s: No support for ACEX1K devices.\n",
-					__FUNCTION__);
+	{ Altera_ACEX1K, "CycloneII", CYC2_load, CYC2_dump, CYC2_info },
+	{ Altera_CYC2,   "CycloneII", CYC2_load, CYC2_dump, CYC2_info },
 #endif
-			break;
-
 #if defined(CONFIG_FPGA_STRATIX_II)
-		case Altera_StratixII:
-			PRINTF ("%s: Launching the Stratix II Loader...\n",
-				__FUNCTION__);
-			ret_val = StratixII_load (desc, buf, bsize);
-			break;
+	{ Altera_StratixII, "StratixII", StratixII_load,
+	  StratixII_dump, StratixII_info },
 #endif
-		default:
-			printf ("%s: Unsupported family type, %d\n",
-					__FUNCTION__, desc->family);
-		}
+#if defined(CONFIG_FPGA_SOCFPGA)
+	{ Altera_SoCFPGA, "SoC FPGA", socfpga_load, NULL, NULL },
+#endif
+};
+
+static int altera_validate(Altera_desc *desc, const char *fn)
+{
+	if (!desc) {
+		printf("%s: NULL descriptor!\n", fn);
+		return -EINVAL;
 	}
 
-	return ret_val;
+	if ((desc->family < min_altera_type) ||
+	    (desc->family > max_altera_type)) {
+		printf("%s: Invalid family type, %d\n", fn, desc->family);
+		return -EINVAL;
+	}
+
+	if ((desc->iface < min_altera_iface_type) ||
+	    (desc->iface > max_altera_iface_type)) {
+		printf("%s: Invalid Interface type, %d\n", fn, desc->iface);
+		return -EINVAL;
+	}
+
+	if (!desc->size) {
+		printf("%s: NULL part size\n", fn);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static const struct altera_fpga *
+altera_desc_to_fpga(Altera_desc *desc, const char *fn)
+{
+	int i;
+
+	if (altera_validate(desc, fn)) {
+		printf("%s: Invalid device descriptor\n", fn);
+		return NULL;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(altera_fpga); i++) {
+		if (desc->family == altera_fpga[i].family)
+			break;
+	}
+
+	if (i == ARRAY_SIZE(altera_fpga)) {
+		printf("%s: Unsupported family type, %d\n", fn, desc->family);
+		return NULL;
+	}
+
+	return &altera_fpga[i];
+}
+
+int altera_load(Altera_desc *desc, const void *buf, size_t bsize)
+{
+	const struct altera_fpga *fpga = altera_desc_to_fpga(desc, __func__);
+
+	if (!fpga)
+		return FPGA_FAIL;
+
+	debug_cond(FPGA_DEBUG, "%s: Launching the %s Loader...\n",
+		   __func__, fpga->name);
+	if (fpga->load)
+		return fpga->load(desc, buf, bsize);
+	return 0;
 }
 
 int altera_dump(Altera_desc *desc, const void *buf, size_t bsize)
 {
-	int ret_val = FPGA_FAIL;	/* assume a failure */
+	const struct altera_fpga *fpga = altera_desc_to_fpga(desc, __func__);
 
-	if (!altera_validate (desc, (char *)__FUNCTION__)) {
-		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
-	} else {
-		switch (desc->family) {
-		case Altera_ACEX1K:
-#if defined(CONFIG_FPGA_ACEX)
-			PRINTF ("%s: Launching the ACEX1K Reader...\n",
-					__FUNCTION__);
-			ret_val = ACEX1K_dump (desc, buf, bsize);
-#else
-			printf ("%s: No support for ACEX1K devices.\n",
-					__FUNCTION__);
-#endif
-			break;
+	if (!fpga)
+		return FPGA_FAIL;
 
-#if defined(CONFIG_FPGA_STRATIX_II)
-		case Altera_StratixII:
-			PRINTF ("%s: Launching the Stratix II Reader...\n",
-				__FUNCTION__);
-			ret_val = StratixII_dump (desc, buf, bsize);
-			break;
-#endif
-		default:
-			printf ("%s: Unsupported family type, %d\n",
-					__FUNCTION__, desc->family);
-		}
-	}
-
-	return ret_val;
+	debug_cond(FPGA_DEBUG, "%s: Launching the %s Reader...\n",
+		   __func__, fpga->name);
+	if (fpga->dump)
+		return fpga->dump(desc, buf, bsize);
+	return 0;
 }
 
-int altera_info( Altera_desc *desc )
+int altera_info(Altera_desc *desc)
 {
-	int ret_val = FPGA_FAIL;
+	const struct altera_fpga *fpga = altera_desc_to_fpga(desc, __func__);
 
-	if (altera_validate (desc, (char *)__FUNCTION__)) {
-		printf ("Family:        \t");
-		switch (desc->family) {
-		case Altera_ACEX1K:
-			printf ("ACEX1K\n");
-			break;
-		case Altera_CYC2:
-			printf ("CYCLON II\n");
-			break;
-		case Altera_StratixII:
-			printf ("Stratix II\n");
-			break;
-			/* Add new family types here */
-		default:
-			printf ("Unknown family type, %d\n", desc->family);
-		}
+	if (!fpga)
+		return FPGA_FAIL;
 
-		printf ("Interface type:\t");
-		switch (desc->iface) {
-		case passive_serial:
-			printf ("Passive Serial (PS)\n");
-			break;
-		case passive_parallel_synchronous:
-			printf ("Passive Parallel Synchronous (PPS)\n");
-			break;
-		case passive_parallel_asynchronous:
-			printf ("Passive Parallel Asynchronous (PPA)\n");
-			break;
-		case passive_serial_asynchronous:
-			printf ("Passive Serial Asynchronous (PSA)\n");
-			break;
-		case altera_jtag_mode:		/* Not used */
-			printf ("JTAG Mode\n");
-			break;
-		case fast_passive_parallel:
-			printf ("Fast Passive Parallel (FPP)\n");
-			break;
-		case fast_passive_parallel_security:
-			printf
-			    ("Fast Passive Parallel with Security (FPPS) \n");
-			break;
-			/* Add new interface types here */
-		default:
-			printf ("Unsupported interface type, %d\n", desc->iface);
-		}
+	printf("Family:        \t%s\n", fpga->name);
 
-		printf("Device Size:   \t%zd bytes\n"
-		      "Cookie:        \t0x%x (%d)\n",
-		      desc->size, desc->cookie, desc->cookie);
-
-		if (desc->iface_fns) {
-			printf ("Device Function Table @ 0x%p\n", desc->iface_fns);
-			switch (desc->family) {
-			case Altera_ACEX1K:
-			case Altera_CYC2:
-#if defined(CONFIG_FPGA_ACEX1K)
-				ACEX1K_info (desc);
-#elif defined(CONFIG_FPGA_CYCLON2)
-				CYC2_info (desc);
-#else
-				/* just in case */
-				printf ("%s: No support for ACEX1K devices.\n",
-						__FUNCTION__);
-#endif
-				break;
-#if defined(CONFIG_FPGA_STRATIX_II)
-			case Altera_StratixII:
-				StratixII_info (desc);
-				break;
-#endif
-				/* Add new family types here */
-			default:
-				/* we don't need a message here - we give one up above */
-				break;
-			}
-		} else {
-			printf ("No Device Function Table.\n");
-		}
-
-		ret_val = FPGA_SUCCESS;
-	} else {
-		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
+	printf("Interface type:\t");
+	switch (desc->iface) {
+	case passive_serial:
+		printf("Passive Serial (PS)\n");
+		break;
+	case passive_parallel_synchronous:
+		printf("Passive Parallel Synchronous (PPS)\n");
+		break;
+	case passive_parallel_asynchronous:
+		printf("Passive Parallel Asynchronous (PPA)\n");
+		break;
+	case passive_serial_asynchronous:
+		printf("Passive Serial Asynchronous (PSA)\n");
+		break;
+	case altera_jtag_mode:		/* Not used */
+		printf("JTAG Mode\n");
+		break;
+	case fast_passive_parallel:
+		printf("Fast Passive Parallel (FPP)\n");
+		break;
+	case fast_passive_parallel_security:
+		printf("Fast Passive Parallel with Security (FPPS)\n");
+		break;
+		/* Add new interface types here */
+	default:
+		printf("Unsupported interface type, %d\n", desc->iface);
 	}
 
-	return ret_val;
-}
+	printf("Device Size:   \t%zd bytes\n"
+	       "Cookie:        \t0x%x (%d)\n",
+	       desc->size, desc->cookie, desc->cookie);
 
-/* ------------------------------------------------------------------------- */
-
-static int altera_validate (Altera_desc * desc, const char *fn)
-{
-	int ret_val = false;
-
-	if (desc) {
-		if ((desc->family > min_altera_type) &&
-			(desc->family < max_altera_type)) {
-			if ((desc->iface > min_altera_iface_type) &&
-				(desc->iface < max_altera_iface_type)) {
-				if (desc->size) {
-					ret_val = true;
-				} else {
-					printf ("%s: NULL part size\n", fn);
-				}
-			} else {
-				printf ("%s: Invalid Interface type, %d\n",
-					fn, desc->iface);
-			}
-		} else {
-			printf ("%s: Invalid family type, %d\n", fn, desc->family);
-		}
+	if (desc->iface_fns) {
+		printf("Device Function Table @ 0x%p\n", desc->iface_fns);
+		if (fpga->info)
+			fpga->info(desc);
 	} else {
-		printf ("%s: NULL descriptor!\n", fn);
+		printf("No Device Function Table.\n");
 	}
 
-	return ret_val;
+	return FPGA_SUCCESS;
 }
-
-/* ------------------------------------------------------------------------- */

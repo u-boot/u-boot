@@ -279,19 +279,21 @@ static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
 	u32 desc_num = priv->tx_currdescnum;
 	struct dmamacdescr *desc_p = &priv->tx_mac_descrtable[desc_num];
-
+	uint32_t desc_start = (uint32_t)desc_p;
+	uint32_t desc_end = desc_start +
+		roundup(sizeof(*desc_p), ARCH_DMA_MINALIGN);
+	uint32_t data_start = (uint32_t)desc_p->dmamac_addr;
+	uint32_t data_end = data_start +
+		roundup(length, ARCH_DMA_MINALIGN);
 	/*
 	 * Strictly we only need to invalidate the "txrx_status" field
 	 * for the following check, but on some platforms we cannot
-	 * invalidate only 4 bytes, so roundup to
-	 * ARCH_DMA_MINALIGN. This is safe because the individual
-	 * descriptors in the array are each aligned to
-	 * ARCH_DMA_MINALIGN.
+	 * invalidate only 4 bytes, so we flush the entire descriptor,
+	 * which is 16 bytes in total. This is safe because the
+	 * individual descriptors in the array are each aligned to
+	 * ARCH_DMA_MINALIGN and padded appropriately.
 	 */
-	invalidate_dcache_range(
-		(unsigned long)desc_p,
-		(unsigned long)desc_p +
-		roundup(sizeof(desc_p->txrx_status), ARCH_DMA_MINALIGN));
+	invalidate_dcache_range(desc_start, desc_end);
 
 	/* Check if the descriptor is owned by CPU */
 	if (desc_p->txrx_status & DESC_TXSTS_OWNBYDMA) {
@@ -299,11 +301,10 @@ static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 		return -1;
 	}
 
-	memcpy((void *)desc_p->dmamac_addr, packet, length);
+	memcpy(desc_p->dmamac_addr, packet, length);
 
 	/* Flush data to be sent */
-	flush_dcache_range((unsigned long)desc_p->dmamac_addr,
-			   (unsigned long)desc_p->dmamac_addr + length);
+	flush_dcache_range(data_start, data_end);
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
 	desc_p->txrx_status |= DESC_TXSTS_TXFIRST | DESC_TXSTS_TXLAST;
@@ -321,8 +322,7 @@ static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 #endif
 
 	/* Flush modified buffer descriptor */
-	flush_dcache_range((unsigned long)desc_p,
-			   (unsigned long)desc_p + sizeof(struct dmamacdescr));
+	flush_dcache_range(desc_start, desc_end);
 
 	/* Test the wrap-around condition. */
 	if (++desc_num >= CONFIG_TX_DESCR_NUM)
@@ -342,11 +342,14 @@ static int dw_eth_recv(struct eth_device *dev)
 	u32 status, desc_num = priv->rx_currdescnum;
 	struct dmamacdescr *desc_p = &priv->rx_mac_descrtable[desc_num];
 	int length = 0;
+	uint32_t desc_start = (uint32_t)desc_p;
+	uint32_t desc_end = desc_start +
+		roundup(sizeof(*desc_p), ARCH_DMA_MINALIGN);
+	uint32_t data_start = (uint32_t)desc_p->dmamac_addr;
+	uint32_t data_end;
 
 	/* Invalidate entire buffer descriptor */
-	invalidate_dcache_range((unsigned long)desc_p,
-				(unsigned long)desc_p +
-				sizeof(struct dmamacdescr));
+	invalidate_dcache_range(desc_start, desc_end);
 
 	status = desc_p->txrx_status;
 
@@ -357,9 +360,8 @@ static int dw_eth_recv(struct eth_device *dev)
 			 DESC_RXSTS_FRMLENSHFT;
 
 		/* Invalidate received data */
-		invalidate_dcache_range((unsigned long)desc_p->dmamac_addr,
-					(unsigned long)desc_p->dmamac_addr +
-					roundup(length, ARCH_DMA_MINALIGN));
+		data_end = data_start + roundup(length, ARCH_DMA_MINALIGN);
+		invalidate_dcache_range(data_start, data_end);
 
 		NetReceive(desc_p->dmamac_addr, length);
 
@@ -370,9 +372,7 @@ static int dw_eth_recv(struct eth_device *dev)
 		desc_p->txrx_status |= DESC_RXSTS_OWNBYDMA;
 
 		/* Flush only status field - others weren't changed */
-		flush_dcache_range((unsigned long)&desc_p->txrx_status,
-				   (unsigned long)&desc_p->txrx_status +
-				   sizeof(desc_p->txrx_status));
+		flush_dcache_range(desc_start, desc_end);
 
 		/* Test the wrap-around condition. */
 		if (++desc_num >= CONFIG_RX_DESCR_NUM)
