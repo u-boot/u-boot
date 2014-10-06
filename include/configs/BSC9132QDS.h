@@ -637,6 +637,27 @@ combinations. this should be removed later
 #endif
 
 /*
+ * Dynamic MTD Partition support with mtdparts
+ */
+#ifndef CONFIG_SYS_NO_FLASH
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_FLASH_CFI_MTD
+#define MTDIDS_DEFAULT "nor0=88000000.nor,nand0=ff800000.flash,"
+#define MTDPARTS_DEFAULT "mtdparts=88000000.nor:256k(dtb),7m(kernel)," \
+			"55m(fs),1m(uboot);ff800000.flash:1m(uboot)," \
+			"8m(kernel),512k(dtb),-(fs)"
+#endif
+/*
+ * Override partitions in device tree using info
+ * in "mtdparts" environment variable
+ */
+#ifdef CONFIG_CMD_MTDPARTS
+#define CONFIG_FDT_FIXUP_PARTITIONS
+#endif
+
+/*
  * Environment Configuration
  */
 
