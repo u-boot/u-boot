@@ -777,6 +777,11 @@ static int ci_pullup(struct usb_gadget *gadget, int is_on)
 		/* select DEVICE mode */
 		writel(USBMODE_DEVICE, &udc->usbmode);
 
+#if !defined(CONFIG_USB_GADGET_DUALSPEED)
+		/* Port force Full-Speed Connect */
+		setbits_le32(&udc->portsc, PFSC);
+#endif
+
 		writel(0xffffffff, &udc->epflush);
 
 		/* Turn on the USB connection by enabling the pullup resistor */

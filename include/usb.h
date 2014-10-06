@@ -216,7 +216,7 @@ int usb_host_eth_scan(int mode);
 #ifdef CONFIG_USB_KEYBOARD
 
 int drv_usb_kbd_init(void);
-int usb_kbd_deregister(void);
+int usb_kbd_deregister(int force);
 
 #endif
 /* routines */

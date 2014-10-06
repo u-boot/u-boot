@@ -305,11 +305,11 @@ static void init_phy_mux(struct fdt_usb *config, uint pts,
 #if defined(CONFIG_TEGRA20)
 	if (config->periph_id == PERIPH_ID_USBD) {
 		clrsetbits_le32(&usbctlr->port_sc1, PTS1_MASK,
-				PTS_UTMI << PTS1_SHIFT);
+				pts << PTS1_SHIFT);
 		clrbits_le32(&usbctlr->port_sc1, STS1);
 	} else {
 		clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK,
-				PTS_UTMI << PTS_SHIFT);
+				pts << PTS_SHIFT);
 		clrbits_le32(&usbctlr->port_sc1, STS);
 	}
 #else
