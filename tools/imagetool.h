@@ -168,6 +168,7 @@ void init_mxs_image_type(void);
 void init_fit_image_type(void);
 void init_ubl_image_type(void);
 void init_omap_image_type(void);
+void init_socfpga_image_type(void);
 void init_gpimage_type(void);
 
 void pbl_load_uboot(int fd, struct image_tool_params *mparams);
