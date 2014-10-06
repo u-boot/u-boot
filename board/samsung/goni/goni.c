@@ -33,6 +33,16 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
+void i2c_init_board(void)
+{
+	gpio_request(S5PC110_GPIO_J43, "i2c_clk");
+	gpio_request(S5PC110_GPIO_J40, "i2c_data");
+	gpio_direction_output(S5PC110_GPIO_J43, 1);
+	gpio_direction_output(S5PC110_GPIO_J40, 1);
+}
+#endif
+
 int power_init_board(void)
 {
 	int ret;
