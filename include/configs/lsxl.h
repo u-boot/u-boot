@@ -8,6 +8,8 @@
 #ifndef _CONFIG_LSXL_H
 #define _CONFIG_LSXL_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * Version number information
  */
@@ -157,7 +159,7 @@
 	"standard_env=setenv ipaddr; setenv netmask; setenv serverip; "	\
 		"setenv ncip; setenv gatewayip; setenv ethact; "	\
 		"setenv bootfile; setenv dnsip; "			\
-		"setenv bootsource hdd; run ser\0"			\
+		"setenv bootsource legacy; run ser\0"			\
 	"restore_env=run standard_env; saveenv; reset\0"		\
 	"ser=setenv stdin serial; setenv stdout serial; "		\
 		"setenv stderr serial\0"				\

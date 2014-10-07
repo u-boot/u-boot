@@ -1,5 +1,6 @@
 /*
- * (C) Copyright 2009
+ * (C) Copyright 2009-2014
+ * Gerald Kerma <dreagle@doukki.net>
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  *
@@ -23,12 +24,26 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
+ * Compression configuration
+ */
+#define CONFIG_BZIP2
+#define CONFIG_LZMA
+#define CONFIG_LZO
+
+/*
+ * Miscellaneous configurable options
+ */
+#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
+
+/*
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #include <config_cmd_default.h>
+#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
+#define CONFIG_CMD_IDE
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
@@ -54,8 +69,8 @@
  * it has to be rounded to sector size
  */
 #define CONFIG_ENV_SIZE			0x20000	/* 128k */
-#define CONFIG_ENV_ADDR			0x60000
-#define CONFIG_ENV_OFFSET		0x60000	/* env starts here */
+#define CONFIG_ENV_ADDR			0x80000
+#define CONFIG_ENV_OFFSET		0x80000	/* env starts here */
 
 /*
  * Default environment variables
@@ -64,14 +79,21 @@
 	"setenv bootargs ${x_bootargs} ${x_bootargs_root}; "	\
 	"${x_bootcmd_usb}; bootm 0x6400000;"
 
-#define CONFIG_MTDPARTS		"orion_nand:512k(uboot),"	\
-	"3m@1m(kernel),1m@4m(psm),13m@5m(rootfs) rw\0"
+#define CONFIG_MTDPARTS		\
+	"mtdparts=orion_nand:512K(uboot),"				\
+	"512K(env),1M(script),6M(kernel),"				\
+	"12M(ramdisk),4M(spare),-(rootfs)"
 
 #define CONFIG_EXTRA_ENV_SETTINGS	"x_bootargs=console"	\
 	"=ttyS0,115200 mtdparts="CONFIG_MTDPARTS	\
 	"x_bootcmd_kernel=nand read 0x6400000 0x100000 0x300000\0" \
 	"x_bootcmd_usb=usb start\0" \
 	"x_bootargs_root=root=/dev/mtdblock3 rw rootfstype=jffs2\0"
+
+#define MTDIDS_DEFAULT	"nand0=orion_nand"
+
+#define MTDPARTS_DEFAULT	\
+	"mtdparts="CONFIG_MTDPARTS
 
 /*
  * Ethernet Driver configuration
@@ -92,9 +114,23 @@
 #endif /* CONFIG_CMD_MMC */
 
 /*
+ * SATA driver configuration
+ */
+#ifdef CONFIG_CMD_IDE
+#define __io
+#define CONFIG_IDE_PREINIT
+#define CONFIG_DOS_PARTITION
+#define CONFIG_MVSATA_IDE_USE_PORT0
+#define CONFIG_MVSATA_IDE_USE_PORT1
+#define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
+#define CONFIG_SYS_ATA_IDE1_OFFSET	MV_SATA_PORT1_OFFSET
+#endif /* CONFIG_CMD_IDE */
+
+/*
  * File system
  */
 #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_UBI
