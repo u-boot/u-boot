@@ -758,6 +758,7 @@ unsigned long get_board_ddr_clk(void);
  * which is anyways not used in Secure Environment.
  */
 #undef CONFIG_CMD_USB
+#define CONFIG_CMD_BLOB
 #endif
 
 #endif	/* __CONFIG_H */

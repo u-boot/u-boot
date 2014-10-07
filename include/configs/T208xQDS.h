@@ -916,6 +916,7 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_SECURE_BOOT
 #include <asm/fsl_secure_boot.h>
+#define CONFIG_CMD_BLOB
 #undef CONFIG_CMD_USB
 #endif
 

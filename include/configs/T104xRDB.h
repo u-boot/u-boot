@@ -872,6 +872,7 @@
 
 #ifdef CONFIG_SECURE_BOOT
 #include <asm/fsl_secure_boot.h>
+#define CONFIG_CMD_BLOB
 #endif
 
 #endif	/* __CONFIG_H */

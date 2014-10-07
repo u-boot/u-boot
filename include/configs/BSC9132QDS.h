@@ -711,4 +711,8 @@ combinations. this should be removed later
 
 #include <asm/fsl_secure_boot.h>
 
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_CMD_BLOB
+#endif
+
 #endif	/* __CONFIG_H */
