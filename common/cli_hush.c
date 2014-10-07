@@ -3170,7 +3170,8 @@ static int parse_stream_outer(struct in_str *inp, int flag)
 		update_ifs_map();
 		if (!(flag & FLAG_PARSE_SEMICOLON) || (flag & FLAG_REPARSING)) mapset((uchar *)";$&|", 0);
 		inp->promptmode=1;
-		rcode = parse_stream(&temp, &ctx, inp, '\n');
+		rcode = parse_stream(&temp, &ctx, inp,
+				     flag & FLAG_CONT_ON_NEWLINE ? -1 : '\n');
 #ifdef __U_BOOT__
 		if (rcode == 1) flag_repeat = 0;
 #endif
