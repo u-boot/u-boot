@@ -11,6 +11,8 @@
 #ifndef _DM_PLATDATA_H
 #define _DM_PLATDATA_H
 
+#include <linker_lists.h>
+
 /**
  * struct driver_info - Information required to instantiate a device
  *
