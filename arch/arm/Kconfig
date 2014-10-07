@@ -521,6 +521,9 @@ config TARGET_COLIBRI_PXA270
 config TARGET_JORNADA
 	bool "Support jornada"
 
+config ARCH_UNIPHIER
+	bool "Panasonic UniPhier platform"
+
 endchoice
 
 source "arch/arm/cpu/armv8/Kconfig"
@@ -548,6 +551,8 @@ source "arch/arm/cpu/arm926ejs/orion5x/Kconfig"
 source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
 source "arch/arm/cpu/armv7/tegra-common/Kconfig"
+
+source "arch/arm/cpu/armv7/uniphier/Kconfig"
 
 source "arch/arm/cpu/arm926ejs/versatile/Kconfig"
 

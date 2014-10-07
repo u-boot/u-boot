@@ -215,12 +215,6 @@ Configuration Options:
 
 Platform specific options
 =========================
-   CONFIG_NAND_DENALI
-	Enables the denali.c driver.
-
-   CONFIG_SYS_NAND_DENALI_64BIT
-	Indicates that the Denali NAND controller is the 64-bit variant.
-
    CONFIG_NAND_OMAP_GPMC
 	Enables omap_gpmc.c driver for OMAPx and AMxxxx platforms.
 	GPMC controller is used for parallel NAND flash devices, and can

@@ -1,0 +1,42 @@
+menu "NAND Device Support"
+
+if !SPL_BUILD
+
+config NAND_DENALI
+	bool "Support Denali NAND controller"
+	help
+	  Enable support for the Denali NAND controller.
+
+config SYS_NAND_DENALI_64BIT
+	bool "Use 64-bit variant of Denali NAND controller"
+	depends on NAND_DENALI
+	help
+	  The Denali NAND controller IP has some variations in terms of
+	  the bus interface.  The DMA setup sequence is completely differenct
+	  between 32bit / 64bit AXI bus variants.
+
+	  If your Denali NAND controller is the 64-bit variant, say Y.
+	  Otherwise (32 bit), say N.
+
+config NAND_DENALI_SPARE_AREA_SKIP_BYTES
+	int "Number of bytes skipped in OOB area"
+	depends on NAND_DENALI
+	range 0 63
+	help
+	  This option specifies the number of bytes to skip from the beginning
+	  of OOB area before last ECC sector data starts.  This is potentially
+	  used to preserve the bad block marker in the OOB area.
+
+endif
+
+if SPL_BUILD
+
+config SPL_NAND_DENALI
+	bool "Support Denali NAND controller for SPL"
+	help
+	  This is a small implementation of the Denali NAND controller
+	  for use on SPL.
+
+endif
+
+endmenu
