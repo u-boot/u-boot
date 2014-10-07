@@ -395,4 +395,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_HASH
 #define CONFIG_SHA_HW_ACCEL
 
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_CMD_BLOB
+#endif
+
 #endif
