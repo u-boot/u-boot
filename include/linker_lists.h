@@ -11,6 +11,8 @@
 #ifndef __LINKER_LISTS_H__
 #define __LINKER_LISTS_H__
 
+#include <linux/compiler.h>
+
 /*
  * There is no use in including this from ASM files, but that happens
  * anyway, e.g. PPC kgdb.S includes command.h which incluse us.
