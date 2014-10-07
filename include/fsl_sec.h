@@ -29,6 +29,36 @@
 
 /* Security Engine Block (MS = Most Sig., LS = Least Sig.) */
 #if CONFIG_SYS_FSL_SEC_COMPAT >= 4
+/* RNG4 TRNG test registers */
+struct rng4tst {
+#define RTMCTL_PRGM 0x00010000	/* 1 -> program mode, 0 -> run mode */
+	u32 rtmctl;		/* misc. control register */
+	u32 rtscmisc;		/* statistical check misc. register */
+	u32 rtpkrrng;		/* poker range register */
+#define RTSDCTL_ENT_DLY_MIN	1200
+#define RTSDCTL_ENT_DLY_MAX	12800
+	union {
+		u32 rtpkrmax;	/* PRGM=1: poker max. limit register */
+		u32 rtpkrsq;	/* PRGM=0: poker square calc. result register */
+	};
+#define RTSDCTL_ENT_DLY_SHIFT 16
+#define RTSDCTL_ENT_DLY_MASK (0xffff << RTSDCTL_ENT_DLY_SHIFT)
+	u32 rtsdctl;		/* seed control register */
+	union {
+		u32 rtsblim;	/* PRGM=1: sparse bit limit register */
+		u32 rttotsam;	/* PRGM=0: total samples register */
+	};
+	u32 rtfreqmin;		/* frequency count min. limit register */
+	union {
+		u32 rtfreqmax;	/* PRGM=1: freq. count max. limit register */
+		u32 rtfreqcnt;	/* PRGM=0: freq. count register */
+	};
+	u32 rsvd1[40];
+#define RNG_STATE0_HANDLE_INSTANTIATED	0x00000001
+	u32 rdsta;		/*RNG DRNG Status Register*/
+	u32 rsvd2[15];
+};
+
 typedef struct ccsr_sec {
 	u32	res0;
 	u32	mcfgr;		/* Master CFG Register */
@@ -53,7 +83,9 @@ typedef struct ccsr_sec {
 	u8	res4[0x40];
 	u32	dar;		/* DECO Avail Register */
 	u32	drr;		/* DECO Reset Register */
-	u8	res5[0xe78];
+	u8	res5[0x4d8];
+	struct rng4tst rng;	/* RNG Registers */
+	u8	res11[0x8a0];
 	u32	crnr_ms;	/* CHA Revision Number Register, MS */
 	u32	crnr_ls;	/* CHA Revision Number Register, LS */
 	u32	ctpr_ms;	/* Compile Time Parameters Register, MS */

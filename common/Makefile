@@ -265,4 +265,6 @@ obj-y += aboot.o
 obj-y += fb_mmc.o
 endif
 
+obj-$(CONFIG_CMD_BLOB) += cmd_blob.o
+
 CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)
