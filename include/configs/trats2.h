@@ -15,8 +15,6 @@
 
 #define CONFIG_SYS_PROMPT	"Trats2 # "	/* Monitor Command Prompt */
 
-#undef CONFIG_DEFAULT_DEVICE_TREE
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos4412-trats2
 
 #define CONFIG_TIZEN			/* TIZEN lib */
 

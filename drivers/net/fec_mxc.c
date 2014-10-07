@@ -28,6 +28,14 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 #define FEC_XFER_TIMEOUT	5000
 
+/*
+ * The standard 32-byte DMA alignment does not work on mx6solox, which requires
+ * 64-byte alignment in the DMA RX FEC buffer.
+ * Introduce the FEC_DMA_RX_MINALIGN which can cover mx6solox needs and also
+ * satisfies the alignment on other SoCs (32-bytes)
+ */
+#define FEC_DMA_RX_MINALIGN	64
+
 #ifndef CONFIG_MII
 #error "CONFIG_MII has to be defined!"
 #endif
@@ -711,13 +719,37 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 			break;
 	}
 
+	if (!timeout) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	/*
+	 * The TDAR bit is cleared when the descriptors are all out from TX
+	 * but on mx6solox we noticed that the READY bit is still not cleared
+	 * right after TDAR.
+	 * These are two distinct signals, and in IC simulation, we found that
+	 * TDAR always gets cleared prior than the READY bit of last BD becomes
+	 * cleared.
+	 * In mx6solox, we use a later version of FEC IP. It looks like that
+	 * this intrinsic behaviour of TDAR bit has changed in this newer FEC
+	 * version.
+	 *
+	 * Fix this by polling the READY bit of BD after the TDAR polling,
+	 * which covers the mx6solox case and does not harm the other SoCs.
+	 */
+	timeout = FEC_XFER_TIMEOUT;
+	while (--timeout) {
+		invalidate_dcache_range(addr, addr + size);
+		if (!(readw(&fec->tbd_base[fec->tbd_index].status) &
+		    FEC_TBD_READY))
+			break;
+	}
+
 	if (!timeout)
 		ret = -EINVAL;
 
-	invalidate_dcache_range(addr, addr + size);
-	if (readw(&fec->tbd_base[fec->tbd_index].status) & FEC_TBD_READY)
-		ret = -EINVAL;
-
+out:
 	debug("fec_send: status 0x%x index %d ret %i\n",
 			readw(&fec->tbd_base[fec->tbd_index].status),
 			fec->tbd_index, ret);
@@ -881,9 +913,9 @@ static int fec_alloc_descs(struct fec_priv *fec)
 	/* Allocate RX buffers. */
 
 	/* Maximum RX buffer size. */
-	size = roundup(FEC_MAX_PKT_SIZE, ARCH_DMA_MINALIGN);
+	size = roundup(FEC_MAX_PKT_SIZE, FEC_DMA_RX_MINALIGN);
 	for (i = 0; i < FEC_RBD_NUM; i++) {
-		data = memalign(ARCH_DMA_MINALIGN, size);
+		data = memalign(FEC_DMA_RX_MINALIGN, size);
 		if (!data) {
 			printf("%s: error allocating rxbuf %d\n", __func__, i);
 			goto err_ring;

@@ -6,7 +6,7 @@ F:	include/configs/P3G4.h
 F:	configs/P3G4_defconfig
 
 ZUMA BOARD
-M:	Nye Liu <nyet@zumanetworks.com>
+#M:	Nye Liu <nyet@zumanetworks.com>
 S:	Orphan (since 2014-04)
 F:	include/configs/ZUMA.h
 F:	configs/ZUMA_defconfig

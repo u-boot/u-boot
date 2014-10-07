@@ -202,5 +202,8 @@ DnsStart(void)
 	NetSetTimeout(DNS_TIMEOUT, DnsTimeout);
 	net_set_udp_handler(DnsHandler);
 
+	/* Clear a previous MAC address, the server IP might have changed. */
+	memset(NetServerEther, 0, sizeof(NetServerEther));
+
 	DnsSend();
 }

@@ -6,12 +6,13 @@ F:	include/configs/T104xRDB.h
 F:	configs/T1040RDB_defconfig
 F:	configs/T1040RDB_NAND_defconfig
 F:	configs/T1040RDB_SPIFLASH_defconfig
+F:	configs/T1042RDB_defconfig
 F:	configs/T1042RDB_PI_defconfig
 F:	configs/T1042RDB_PI_NAND_defconfig
 F:	configs/T1042RDB_PI_SPIFLASH_defconfig
 
 T1040RDB_SDCARD BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	configs/T1040RDB_SDCARD_defconfig
 F:	configs/T1042RDB_PI_SDCARD_defconfig

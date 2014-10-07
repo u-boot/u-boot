@@ -269,7 +269,7 @@ static void dw_write_noniso_tx_fifo(struct usb_endpoint_instance
 		UDCDBGA("urb->buffer %p, buffer_length %d, actual_length %d",
 			urb->buffer, urb->buffer_length, urb->actual_length);
 
-		last = MIN(urb->actual_length - endpoint->sent,
+		last = min(urb->actual_length - endpoint->sent,
 			   endpoint->tx_packetSize);
 
 		if (last) {
@@ -285,7 +285,7 @@ static void dw_write_noniso_tx_fifo(struct usb_endpoint_instance
 
 			align = ((ulong)cp % sizeof(int));
 			if (align)
-				last = MIN(last, sizeof(int) - align);
+				last = min(last, sizeof(int) - align);
 
 			UDCDBGA("endpoint->sent %d, tx_packetSize %d, last %d",
 				endpoint->sent, endpoint->tx_packetSize, last);

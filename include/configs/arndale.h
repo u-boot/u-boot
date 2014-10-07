@@ -22,8 +22,6 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
 
 /* Allow tracing to be enabled */
 #define CONFIG_TRACE
@@ -226,7 +224,6 @@
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_MAX77686
 
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos5250-arndale
 
 #define CONFIG_PREBOOT
 

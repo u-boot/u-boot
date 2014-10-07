@@ -6,7 +6,7 @@ F:	include/configs/Sandpoint8240.h
 F:	configs/Sandpoint8240_defconfig
 
 SANDPOINT8245 BOARD
-M:	Jim Thompson <jim@musenki.com>
+#M:	Jim Thompson <jim@musenki.com>
 S:	Orphan (since 2014-04)
 F:	include/configs/Sandpoint8245.h
 F:	configs/Sandpoint8245_defconfig

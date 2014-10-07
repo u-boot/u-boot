@@ -22,10 +22,6 @@
 #define CONFIG_BOARD_COMMON
 #define CONFIG_SYS_GENERIC_BOARD
 
-/* Enable fdt support */
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
-
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 /* input clock of PLL: EXYNOS4 boards have 24MHz input clock */

@@ -6,7 +6,7 @@ F:	include/configs/qemu-mips.h
 F:	configs/qemu_mips_defconfig
 
 QEMU_MIPSEL BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	configs/qemu_mipsel_defconfig
 F:	include/configs/qemu-mips64.h

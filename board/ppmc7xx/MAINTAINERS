@@ -1,5 +1,5 @@
 PPMC7XX BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/ppmc7xx/
 F:	include/configs/ppmc7xx.h

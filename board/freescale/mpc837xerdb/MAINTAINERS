@@ -1,5 +1,5 @@
 MPC837XERDB BOARD
-M:	Joe D'Abbraccio <ljd015@freescale.com>
+#M:	Joe D'Abbraccio <ljd015@freescale.com>
 S:	Orphan (since 2014-06)
 F:	board/freescale/mpc837xerdb/
 F:	include/configs/MPC837XERDB.h

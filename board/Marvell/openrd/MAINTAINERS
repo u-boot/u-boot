@@ -6,7 +6,7 @@ F:	include/configs/openrd.h
 F:	configs/openrd_base_defconfig
 
 OPENRD_CLIENT BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	configs/openrd_client_defconfig
 F:	configs/openrd_ultimate_defconfig

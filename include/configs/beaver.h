@@ -24,11 +24,6 @@
 /* VDD core PMIC */
 #define CONFIG_TEGRA_VDD_CORE_TPS62366A_SET1
 
-/* Enable fdt support for Beaver. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra30-beaver
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
-
 /* High-level configuration options */
 #define V_PROMPT		"Tegra30 (Beaver) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Beaver"

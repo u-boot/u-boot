@@ -1,5 +1,5 @@
 VOVPN-GW BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/funkwerk/vovpn-gw/
 F:	include/configs/VoVPN-GW.h

@@ -67,6 +67,61 @@ void sama5d3xek_nand_hw_init(void)
 }
 #endif
 
+#ifndef CONFIG_SYS_NO_FLASH
+static void sama5d3xek_nor_hw_init(void)
+{
+	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
+
+	at91_periph_clk_enable(ATMEL_ID_SMC);
+
+	/* Configure SMC CS0 for NOR flash */
+	writel(AT91_SMC_SETUP_NWE(1) | AT91_SMC_SETUP_NCS_WR(0) |
+	       AT91_SMC_SETUP_NRD(2) | AT91_SMC_SETUP_NCS_RD(0),
+	       &smc->cs[0].setup);
+	writel(AT91_SMC_PULSE_NWE(10) | AT91_SMC_PULSE_NCS_WR(11) |
+	       AT91_SMC_PULSE_NRD(10) | AT91_SMC_PULSE_NCS_RD(11),
+	       &smc->cs[0].pulse);
+	writel(AT91_SMC_CYCLE_NWE(11) | AT91_SMC_CYCLE_NRD(14),
+	       &smc->cs[0].cycle);
+	writel(AT91_SMC_TIMINGS_TCLR(0) | AT91_SMC_TIMINGS_TADL(0)  |
+	       AT91_SMC_TIMINGS_TAR(0)  | AT91_SMC_TIMINGS_TRR(0)   |
+	       AT91_SMC_TIMINGS_TWB(0)  | AT91_SMC_TIMINGS_RBNSEL(0)|
+	       AT91_SMC_TIMINGS_NFSEL(0), &smc->cs[0].timings);
+	writel(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |
+	       AT91_SMC_MODE_EXNW_DISABLE |
+	       AT91_SMC_MODE_DBW_16 |
+	       AT91_SMC_MODE_TDF_CYCLE(1),
+	       &smc->cs[0].mode);
+
+	/* Address pin (A1 ~ A23) configuration */
+	at91_set_a_periph(AT91_PIO_PORTE, 1, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 2, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 3, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 4, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 5, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 6, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 7, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 8, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 9, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 10, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 11, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 12, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 13, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 14, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 15, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 16, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 17, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 18, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 19, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 20, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 21, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 22, 0);
+	at91_set_a_periph(AT91_PIO_PORTE, 23, 0);
+	/* CS0 pin configuration */
+	at91_set_a_periph(AT91_PIO_PORTE, 26, 0);
+}
+#endif
+
 #ifdef CONFIG_CMD_USB
 static void sama5d3xek_usb_hw_init(void)
 {
@@ -180,6 +235,9 @@ int board_init(void)
 
 #ifdef CONFIG_NAND_ATMEL
 	sama5d3xek_nand_hw_init();
+#endif
+#ifndef CONFIG_SYS_NO_FLASH
+	sama5d3xek_nor_hw_init();
 #endif
 #ifdef CONFIG_CMD_USB
 	sama5d3xek_usb_hw_init();

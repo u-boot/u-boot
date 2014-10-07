@@ -61,7 +61,7 @@
   #define CONFIG_SPI_FLASH_BAR
   #define CONFIG_SPI_FLASH_WINBOND
   #define CONFIG_SF_DEFAULT_BUS              0
-  #define CONFIG_SF_DEFAULT_CS               (0|(IMX_GPIO_NR(3, 19)<<8))
+  #define CONFIG_SF_DEFAULT_CS               0
 					     /* GPIO 3-19 (21248) */
   #define CONFIG_SF_DEFAULT_SPEED            30000000
   #define CONFIG_SF_DEFAULT_MODE             (SPI_MODE_0)
@@ -141,6 +141,7 @@
 #define CONFIG_PCI
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_PCI_FIXUP_DEV
 #define CONFIG_PCIE_IMX
 #endif
 

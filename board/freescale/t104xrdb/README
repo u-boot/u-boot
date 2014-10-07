@@ -4,9 +4,22 @@ The T1040RDB is a Freescale reference board that hosts the T1040 SoC
 (and variants). Variants inclued T1042 presonality of T1040, in which
 case T1040RDB can also be called T1042RDB.
 
+The T1042RDB is a Freescale reference board that hosts the T1042 SoC
+(and variants). The board is similar to T1040RDB, T1040 is a reduced
+personality of T1040 SoC without Integrated 8-port Gigabit(L2 Switch).
+
 The T1042RDB_PI is a Freescale reference board that hosts the T1042 SoC.
 (a personality of T1040 SoC). The board is similar to T1040RDB but is
 designed specially with low power features targeted for Printing Image Market.
+
+Basic difference's among T1040RDB, T1042RDB_PI, T1042RDB
+-------------------------------------------------------------------------
+Board		Si		Protocol		Targeted Market
+-------------------------------------------------------------------------
+T1040RDB	T1040		0x66                    Networking
+T1040RDB	T1042		0x86                    Networking
+T1042RDB_PI	T1042		0x06                    Printing & Imaging
+
 
 T1040 SoC Overview
 ------------------
@@ -194,10 +207,10 @@ The below commands apply to the board
    Commands for switching to alternate bank.
 
 	1. To change from vbank0 to vbank4
-		=> qixis_reset altbank (it will boot using vbank4)
+		=> cpld reset altbank (it will boot using vbank4)
 
 	2.To change from vbank4 to vbank0
-		=> qixis reset (it will boot using vbank0)
+		=> cpld reset (it will boot using vbank0)
 
 NAND boot with 2 Stage boot loader
 ----------------------------------
@@ -259,15 +272,15 @@ Switch Settings: (ON is 0, OFF is 1)
 ===============
 NAND boot SW setting:
 SW1: 10001000
-SW2: 00111001
+SW2: 00111011
 SW3: 11110001
 
 SPI boot SW setting:
 SW1: 00100010
-SW2: 10111001
+SW2: 10111011
 SW3: 11100001
 
 SD boot SW setting:
 SW1: 00100000
-SW2: 00111001
+SW2: 00111011
 SW3: 11100001

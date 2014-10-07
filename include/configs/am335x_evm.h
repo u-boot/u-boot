@@ -23,9 +23,6 @@
 # define CONFIG_TIMESTAMP
 # define CONFIG_LZO
 # ifdef CONFIG_ENABLE_VBOOT
-#  define CONFIG_OF_CONTROL
-#  define CONFIG_OF_SEPARATE
-#  define CONFIG_DEFAULT_DEVICE_TREE am335x-boneblack
 #  define CONFIG_FIT_SIGNATURE
 #  define CONFIG_RSA
 # endif
@@ -115,6 +112,9 @@
 		"nfsroot=${serverip}:${rootpath},${nfsopts} rw " \
 		"ip=dhcp\0" \
 	"bootenv=uEnv.txt\0" \
+	"loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
+	"bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
+		"source ${loadaddr}\0" \
 	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t -r $loadaddr $filesize\0" \
@@ -142,17 +142,21 @@
 	"mmcboot=mmc dev ${mmcdev}; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${mmcdev};" \
-			"if run loadbootenv; then " \
-				"echo Loaded environment from ${bootenv};" \
-				"run importbootenv;" \
-			"fi;" \
-			"if test -n $uenvcmd; then " \
-				"echo Running uenvcmd ...;" \
-				"run uenvcmd;" \
-			"fi;" \
-			"if run loadimage; then " \
-				"run mmcloados;" \
-			"fi;" \
+			"if run loadbootscript; then " \
+				"run bootscript;" \
+			"else " \
+				"if run loadbootenv; then " \
+					"echo Loaded environment from ${bootenv};" \
+					"run importbootenv;" \
+				"fi;" \
+				"if test -n $uenvcmd; then " \
+					"echo Running uenvcmd ...;" \
+					"run uenvcmd;" \
+				"fi;" \
+				"if run loadimage; then " \
+					"run mmcloados;" \
+				"fi;" \
+			"fi ;" \
 		"fi;\0" \
 	"spiboot=echo Booting from spi ...; " \
 		"run spiargs; " \
@@ -398,8 +402,6 @@
 #define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
-#define CONFIG_SPL_SPI_BUS		0
-#define CONFIG_SPL_SPI_CS		0
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
 #define CONFIG_ENV_IS_IN_SPI_FLASH

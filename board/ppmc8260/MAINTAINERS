@@ -1,5 +1,5 @@
 PPMC8260 BOARD
-M:	Brad Kemp <Brad.Kemp@seranoa.com>
+#M:	Brad Kemp <Brad.Kemp@seranoa.com>
 S:	Orphan (since 2014-04)
 F:	board/ppmc8260/
 F:	include/configs/ppmc8260.h

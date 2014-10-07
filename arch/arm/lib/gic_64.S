@@ -10,8 +10,8 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <linux/linkage.h>
-#include <asm/macro.h>
 #include <asm/gic.h>
+#include <asm/macro.h>
 
 
 /*************************************************************************
@@ -181,14 +181,10 @@ ENDPROC(gic_kick_secondary_cpus)
  *
  *************************************************************************/
 ENTRY(gic_wait_for_interrupt)
-0:	wfi
 #if defined(CONFIG_GICV3)
-	mrs	x9, ICC_IAR1_EL1
-	msr	ICC_EOIR1_EL1, x9
+	gic_wait_for_interrupt_m x9
 #elif defined(CONFIG_GICV2)
-	ldr	w9, [x0, GICC_AIAR]
-	str	w9, [x0, GICC_AEOIR]
+	gic_wait_for_interrupt_m x0, w9
 #endif
-	cbnz	w9, 0b
 	ret
 ENDPROC(gic_wait_for_interrupt)

@@ -1,5 +1,5 @@
 CORENET_DS BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/freescale/corenet_ds/
 F:	include/configs/P3041DS.h

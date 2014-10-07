@@ -1,5 +1,5 @@
 SOCRATES BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/socrates/
 F:	include/configs/socrates.h

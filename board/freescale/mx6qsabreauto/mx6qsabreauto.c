@@ -259,6 +259,13 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_MXC_SPI
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return (bus == 0 && cs == 0) ? (IMX_GPIO_NR(4, 9)) : -1;
+}
+#endif
+
 #ifdef CONFIG_CMD_BMODE
 static const struct boot_mode board_boot_modes[] = {
 	/* 4 bit bus width */

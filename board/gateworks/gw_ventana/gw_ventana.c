@@ -31,6 +31,7 @@
 #include <mmc.h>
 #include <mtd_node.h>
 #include <netdev.h>
+#include <pci.h>
 #include <power/pmic.h>
 #include <power/ltc3676_pmic.h>
 #include <power/pfuze100_pmic.h>
@@ -299,6 +300,7 @@ int board_ehci_hcd_init(int port)
 	/* Reset USB HUB (present on GW54xx/GW53xx) */
 	switch (info->model[3]) {
 	case '3': /* GW53xx */
+	case '5': /* GW552x */
 		SETUP_IOMUX_PAD(PAD_GPIO_9__GPIO1_IO09 | DIO_PAD_CFG);
 		gpio_direction_output(IMX_GPIO_NR(1, 9), 0);
 		mdelay(2);
@@ -354,9 +356,14 @@ iomux_v3_cfg_t const ecspi1_pads[] = {
 	IOMUX_PADS(PAD_EIM_D16__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL)),
 };
 
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return (bus == 0 && cs == 0) ? (IMX_GPIO_NR(3, 19)) : -1;
+}
+
 static void setup_spi(void)
 {
-	gpio_direction_output(CONFIG_SF_DEFAULT_CS, 1);
+	gpio_direction_output(IMX_GPIO_NR(3, 19), 1);
 	SETUP_IOMUX_PADS(ecspi1_pads);
 }
 #endif
@@ -392,7 +399,8 @@ int board_eth_init(bd_t *bis)
 	setup_iomux_enet();
 
 #ifdef CONFIG_FEC_MXC
-	cpu_eth_init(bis);
+	if (board_type != GW552x)
+		cpu_eth_init(bis);
 #endif
 
 #ifdef CONFIG_CI_UDC
@@ -614,15 +622,14 @@ static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_KEY_COL0__GPIO4_IO06 | DIO_PAD_CFG),
 	/* PANLEDR# */
 	IOMUX_PADS(PAD_KEY_ROW0__GPIO4_IO07 | DIO_PAD_CFG),
+	/* MX6_LOCLED# */
+	IOMUX_PADS(PAD_KEY_ROW4__GPIO4_IO15 | DIO_PAD_CFG),
 	/* IOEXP_PWREN# */
 	IOMUX_PADS(PAD_EIM_A19__GPIO2_IO19 | DIO_PAD_CFG),
 	/* IOEXP_IRQ# */
 	IOMUX_PADS(PAD_EIM_A20__GPIO2_IO18 | MUX_PAD_CTRL(IRQ_PAD_CTRL)),
 	/* DIOI2C_DIS# */
 	IOMUX_PADS(PAD_GPIO_19__GPIO4_IO05 | DIO_PAD_CFG),
-
-	/* MX6_LOCLED# */
-	IOMUX_PADS(PAD_KEY_ROW4__GPIO4_IO15 | DIO_PAD_CFG),
 	/* GPS_SHDN */
 	IOMUX_PADS(PAD_ENET_RXD0__GPIO1_IO27 | DIO_PAD_CFG),
 	/* VID_EN */
@@ -658,6 +665,30 @@ static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
 	/* PCIESKT_WDIS# */
 	IOMUX_PADS(PAD_DISP0_DAT23__GPIO5_IO17 | DIO_PAD_CFG),
+};
+
+static iomux_v3_cfg_t const gw552x_gpio_pads[] = {
+	/* PANLEDG# */
+	IOMUX_PADS(PAD_KEY_COL0__GPIO4_IO06 | DIO_PAD_CFG),
+	/* PANLEDR# */
+	IOMUX_PADS(PAD_KEY_ROW0__GPIO4_IO07 | DIO_PAD_CFG),
+	/* MX6_LOCLED# */
+	IOMUX_PADS(PAD_KEY_ROW4__GPIO4_IO15 | DIO_PAD_CFG),
+	/* PCI_RST# */
+	IOMUX_PADS(PAD_ENET_TXD1__GPIO1_IO29 | DIO_PAD_CFG),
+	/* MX6_DIO[4:9] */
+	IOMUX_PADS(PAD_CSI0_PIXCLK__GPIO5_IO18 | DIO_PAD_CFG),
+	IOMUX_PADS(PAD_CSI0_DATA_EN__GPIO5_IO20 | DIO_PAD_CFG),
+	IOMUX_PADS(PAD_CSI0_VSYNC__GPIO5_IO21 | DIO_PAD_CFG),
+	IOMUX_PADS(PAD_CSI0_DAT4__GPIO5_IO22 | DIO_PAD_CFG),
+	IOMUX_PADS(PAD_CSI0_DAT5__GPIO5_IO23 | DIO_PAD_CFG),
+	IOMUX_PADS(PAD_CSI0_DAT7__GPIO5_IO25 | DIO_PAD_CFG),
+	/* PCIEGBE1_OFF# */
+	IOMUX_PADS(PAD_GPIO_1__GPIO1_IO01 | DIO_PAD_CFG),
+	/* PCIEGBE2_OFF# */
+	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
 
 /*
@@ -908,6 +939,44 @@ struct ventana gpio_cfg[] = {
 		.pcie_sson = IMX_GPIO_NR(1, 20),
 		.wdis = IMX_GPIO_NR(5, 17),
 	},
+
+	/* GW552x */
+	{
+		.gpio_pads = gw552x_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw552x_gpio_pads)/2,
+		.dio_cfg = {
+			{
+				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+				IMX_GPIO_NR(1, 16),
+				{ 0, 0 },
+				0
+			},
+			{
+				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+				IMX_GPIO_NR(1, 19),
+				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+				2
+			},
+			{
+				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+				IMX_GPIO_NR(1, 17),
+				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+				3
+			},
+			{
+				{ IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
+				IMX_GPIO_NR(2, 10),
+				{ 0, 0 },
+				0
+			},
+		},
+		.leds = {
+			IMX_GPIO_NR(4, 6),
+			IMX_GPIO_NR(4, 7),
+			IMX_GPIO_NR(4, 15),
+		},
+		.pcie_rst = IMX_GPIO_NR(1, 29),
+	},
 };
 
 /* setup board specific PMIC */
@@ -997,14 +1066,16 @@ static void setup_board_gpio(int board)
 #endif
 
 	/* turn off (active-high) user LED's */
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < ARRAY_SIZE(gpio_cfg[board].leds); i++) {
 		if (gpio_cfg[board].leds[i])
 			gpio_direction_output(gpio_cfg[board].leds[i], 1);
 	}
 
 	/* Expansion Mezzanine IO */
-	gpio_direction_output(gpio_cfg[board].mezz_pwren, 0);
-	gpio_direction_input(gpio_cfg[board].mezz_irq);
+	if (gpio_cfg[board].mezz_pwren)
+		gpio_direction_output(gpio_cfg[board].mezz_pwren, 0);
+	if (gpio_cfg[board].mezz_irq)
+		gpio_direction_input(gpio_cfg[board].mezz_irq);
 
 	/* RS485 Transmit Enable */
 	if (gpio_cfg[board].rs485en)
@@ -1091,6 +1162,35 @@ int imx6_pcie_toggle_reset(void)
 		gpio_direction_output(pin, 1);
 	}
 	return 0;
+}
+
+/*
+ * Most Ventana boards have a PLX PEX860x PCIe switch onboard and use its
+ * GPIO's as PERST# signals for its downstream ports - configure the GPIO's
+ * properly and assert reset for 100ms.
+ */
+void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
+			 unsigned short vendor, unsigned short device,
+			 unsigned short class)
+{
+	u32 dw;
+
+	debug("%s: %02d:%02d.%02d: %04x:%04x\n", __func__,
+	      PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev), vendor, device);
+	if (vendor == PCI_VENDOR_ID_PLX &&
+	    (device & 0xfff0) == 0x8600 &&
+	    PCI_DEV(dev) == 0 && PCI_FUNC(dev) == 0) {
+		debug("configuring PLX 860X downstream PERST#\n");
+		pci_hose_read_config_dword(hose, dev, 0x62c, &dw);
+		dw |= 0xaaa8; /* GPIO1-7 outputs */
+		pci_hose_write_config_dword(hose, dev, 0x62c, dw);
+
+		pci_hose_read_config_dword(hose, dev, 0x644, &dw);
+		dw |= 0xfe;   /* GPIO1-7 output high */
+		pci_hose_write_config_dword(hose, dev, 0x644, dw);
+
+		mdelay(100);
+	}
 }
 #endif /* CONFIG_CMD_PCI */
 
@@ -1283,6 +1383,7 @@ int misc_init_r(void)
 		else if (is_cpu_type(MXC_CPU_MX6DL) ||
 			 is_cpu_type(MXC_CPU_MX6SOLO))
 			cputype = "imx6dl";
+		setenv("soctype", cputype);
 		if (8 << (ventana_info.nand_flash_size-1) >= 2048)
 			setenv("flash_layout", "large");
 		else
@@ -1305,7 +1406,8 @@ int misc_init_r(void)
 				sprintf(fdt, "%s-%s.dtb", cputype, str);
 				setenv("fdt_file1", fdt);
 			}
-			str[4] = 'x';
+			if (board_type != GW552x)
+				str[4] = 'x';
 			str[5] = 'x';
 			str[6] = 0;
 			if (!getenv("fdt_file2")) {
@@ -1341,10 +1443,11 @@ int misc_init_r(void)
 	 *  The Gateworks System Controller implements a boot
 	 *  watchdog (always enabled) as a workaround for IMX6 boot related
 	 *  errata such as:
-	 *    ERR005768 - no fix
-	 *    ERR006282 - fixed in silicon r1.3
+	 *    ERR005768 - no fix scheduled
+	 *    ERR006282 - fixed in silicon r1.2
 	 *    ERR007117 - fixed in silicon r1.3
 	 *    ERR007220 - fixed in silicon r1.3
+	 *    ERR007926 - no fix scheduled
 	 *  see http://cache.freescale.com/files/32bit/doc/errata/IMX6DQCE.pdf
 	 *
 	 * Disable the boot watchdog and display/clear the timeout flag if set

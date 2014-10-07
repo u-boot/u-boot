@@ -31,6 +31,7 @@
 #define CONFIG_DISPLAY_CPUINFO
 
 #define CONFIG_OF_LIBFDT
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* general purpose I/O */
 #define CONFIG_AT91_GPIO

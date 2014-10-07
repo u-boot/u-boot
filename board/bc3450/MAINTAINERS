@@ -1,5 +1,5 @@
 BC3450 BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/bc3450/
 F:	include/configs/BC3450.h

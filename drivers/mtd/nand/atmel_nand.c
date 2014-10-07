@@ -164,7 +164,7 @@ static void pmecc_gen_syndrome(struct mtd_info *mtd, int sector)
 
 	/* Fill odd syndromes */
 	for (i = 0; i < host->pmecc_corr_cap; i++) {
-		value = readl(&host->pmecc->rem_port[sector].rem[i / 2]);
+		value = pmecc_readl(host->pmecc, rem_port[sector].rem[i / 2]);
 		if (i & 1)
 			value >>= 16;
 		value &= 0xffff;
@@ -392,10 +392,11 @@ static int pmecc_err_location(struct mtd_info *mtd)
 	int16_t *smu = host->pmecc_smu;
 	int timeout = PMECC_MAX_TIMEOUT_US;
 
-	writel(PMERRLOC_DISABLE, &host->pmerrloc->eldis);
+	pmecc_writel(host->pmerrloc, eldis, PMERRLOC_DISABLE);
 
 	for (i = 0; i <= host->pmecc_lmu[cap + 1] >> 1; i++) {
-		writel(smu[(cap + 1) * num + i], &host->pmerrloc->sigma[i]);
+		pmecc_writel(host->pmerrloc, sigma[i],
+			     smu[(cap + 1) * num + i]);
 		err_nbr++;
 	}
 
@@ -403,12 +404,12 @@ static int pmecc_err_location(struct mtd_info *mtd)
 	if (sector_size == 1024)
 		val |= PMERRLOC_ELCFG_SECTOR_1024;
 
-	writel(val, &host->pmerrloc->elcfg);
-	writel(sector_size * 8 + host->pmecc_degree * cap,
-			&host->pmerrloc->elen);
+	pmecc_writel(host->pmerrloc, elcfg, val);
+	pmecc_writel(host->pmerrloc, elen,
+		     sector_size * 8 + host->pmecc_degree * cap);
 
 	while (--timeout) {
-		if (readl(&host->pmerrloc->elisr) & PMERRLOC_CALC_DONE)
+		if (pmecc_readl(host->pmerrloc, elisr) & PMERRLOC_CALC_DONE)
 			break;
 		WATCHDOG_RESET();
 		udelay(1);
@@ -419,7 +420,7 @@ static int pmecc_err_location(struct mtd_info *mtd)
 		return -1;
 	}
 
-	roots_nbr = (readl(&host->pmerrloc->elisr) & PMERRLOC_ERR_NUM_MASK)
+	roots_nbr = (pmecc_readl(host->pmerrloc, elisr) & PMERRLOC_ERR_NUM_MASK)
 			>> 8;
 	/* Number of roots == degree of smu hence <= cap */
 	if (roots_nbr == host->pmecc_lmu[cap + 1] >> 1)
@@ -443,7 +444,7 @@ static void pmecc_correct_data(struct mtd_info *mtd, uint8_t *buf, uint8_t *ecc,
 	sector_size = host->pmecc_sector_size;
 
 	while (err_nbr) {
-		tmp = readl(&host->pmerrloc->el[i]) - 1;
+		tmp = pmecc_readl(host->pmerrloc, el[i]) - 1;
 		byte_pos = tmp / 8;
 		bit_pos  = tmp % 8;
 
@@ -597,7 +598,7 @@ static int atmel_nand_pmecc_write_page(struct mtd_info *mtd,
 
 			pos = i * host->pmecc_bytes_per_sector + j;
 			chip->oob_poi[eccpos[pos]] =
-				readb(&host->pmecc->ecc_port[i].ecc[j]);
+				pmecc_readb(host->pmecc, ecc_port[i].ecc[j]);
 		}
 	}
 	chip->write_buf(mtd, chip->oob_poi, mtd->oobsize);
@@ -881,6 +882,7 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 		return -ENOMEM;
 	}
 
+	nand->options |= NAND_NO_SUBPAGE_WRITE;
 	nand->ecc.read_page = atmel_nand_pmecc_read_page;
 	nand->ecc.write_page = atmel_nand_pmecc_write_page;
 	nand->ecc.strength = cap;

@@ -38,15 +38,12 @@
 /* Number of bits in a C 'long' on this architecture */
 #define CONFIG_SANDBOX_BITS_PER_LONG	64
 
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_HOSTFILE
 #define CONFIG_OF_LIBFDT
 #define CONFIG_LMB
 #define CONFIG_FIT
 #define CONFIG_FIT_SIGNATURE
 #define CONFIG_RSA
 #define CONFIG_CMD_FDT
-#define CONFIG_DEFAULT_DEVICE_TREE	sandbox
 #define CONFIG_ANDROID_BOOT_IMAGE
 
 #define CONFIG_FS_FAT
@@ -94,7 +91,7 @@
 #define CONFIG_ENV_SIZE		8192
 #define CONFIG_ENV_IS_NOWHERE
 
-/* SPI */
+/* SPI - enable all SPI flash types for testing purposes */
 #define CONFIG_SANDBOX_SPI
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SF_TEST
@@ -102,7 +99,13 @@
 #define CONFIG_SPI_FLASH
 #define CONFIG_OF_SPI
 #define CONFIG_OF_SPI_FLASH
+#define CONFIG_SPI_FLASH_ATMEL
+#define CONFIG_SPI_FLASH_EON
+#define CONFIG_SPI_FLASH_GIGADEVICE
+#define CONFIG_SPI_FLASH_MACRONIX
 #define CONFIG_SPI_FLASH_SANDBOX
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_SPI_FLASH_SST
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_WINBOND
 

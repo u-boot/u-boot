@@ -53,7 +53,7 @@
 #define CONFIG_SPI_FLASH_SST
 #define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS  0
-#define CONFIG_SF_DEFAULT_CS   (0|(IMX_GPIO_NR(3, 19)<<8))
+#define CONFIG_SF_DEFAULT_CS   0
 #define CONFIG_SF_DEFAULT_SPEED 25000000
 #define CONFIG_SF_DEFAULT_MODE (SPI_MODE_0)
 #endif
@@ -192,11 +192,11 @@
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
-		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
-	"loaduimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"loaduimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
+	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \

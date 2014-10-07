@@ -27,8 +27,8 @@ Series-to: fred.blogs@napier.co.nz
 
 in one of your commits, the series will be sent there.
 
-In Linux this will also call get_maintainer.pl on each of your
-patches automatically.
+In Linux and U-Boot this will also call get_maintainer.pl on each of your
+patches automatically (unless you use -m to disable this).
 
 
 How to use this tool

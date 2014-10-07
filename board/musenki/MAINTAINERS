@@ -1,5 +1,5 @@
 MUSENKI BOARD
-M:	Jim Thompson <jim@musenki.com>
+#M:	Jim Thompson <jim@musenki.com>
 S:	Orphan (since 2014-04)
 F:	board/musenki/
 F:	include/configs/MUSENKI.h

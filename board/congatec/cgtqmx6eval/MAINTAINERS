@@ -1,5 +1,5 @@
 CGTQMX6EVAL BOARD
-M:	Leo Sartre <lsartre@adeneo-embedded.com>
+#M:	Leo Sartre <lsartre@adeneo-embedded.com>
 S:	Orphan (since 2014-06)
 F:	board/congatec/cgtqmx6eval/
 F:	include/configs/cgtqmx6eval.h

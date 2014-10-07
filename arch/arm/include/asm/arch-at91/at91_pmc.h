@@ -54,7 +54,7 @@ typedef struct at91_pmc {
 	u32	reserved5[21];
 	u32	wpmr;		/* 0xE4 Write Protect Mode Register (CAP0) */
 	u32	wpsr;		/* 0xE8 Write Protect Status Register (CAP0) */
-#ifdef CONFIG_SAMA5D3
+#ifdef CPU_HAS_PCR
 	u32	reserved6[8];
 	u32	pcer1;		/* 0x100 Periperial Clock Enable Register 1 */
 	u32	pcdr1;		/* 0x104 Periperial Clock Disable Register 1 */
@@ -146,6 +146,10 @@ typedef struct at91_pmc {
 #define AT91_PMC_IXR_PCKRDY2		0x00000400
 #define AT91_PMC_IXR_PCKRDY3		0x00000800
 #define AT91_PMC_IXR_MOSCSELS		0x00010000
+
+#define AT91_PMC_PCR_PID_MASK		(0x3f)
+#define AT91_PMC_PCR_CMD_WRITE		(0x1 << 12)
+#define AT91_PMC_PCR_EN			(0x1 << 28)
 
 #define		AT91_PMC_PCK		(1 <<  0)		/* Processor Clock */
 #define		AT91RM9200_PMC_UDP	(1 <<  1)		/* USB Devcice Port Clock [AT91RM9200 only] */

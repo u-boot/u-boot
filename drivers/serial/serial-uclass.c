@@ -25,6 +25,7 @@ struct udevice *cur_dev __attribute__ ((section(".data")));
 
 static void serial_find_console_or_panic(void)
 {
+#ifdef CONFIG_OF_CONTROL
 	int node;
 
 	/* Check for a chosen console */
@@ -44,7 +45,7 @@ static void serial_find_console_or_panic(void)
 			return;
 		cur_dev = NULL;
 	}
-
+#endif
 	/*
 	 * Failing that, get the device with sequence number 0, or in extremis
 	 * just the first serial device we can find. But we insist on having

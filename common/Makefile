@@ -243,13 +243,8 @@ obj-y += cmd_nvedit.o
 #environment
 obj-y += env_common.o
 #others
-ifdef CONFIG_DDR_SPD
-SPD := y
-endif
-ifdef CONFIG_SPD_EEPROM
-SPD := y
-endif
-obj-$(SPD) += ddr_spd.o
+obj-$(CONFIG_DDR_SPD) += ddr_spd.o
+obj-$(CONFIG_SPD_EEPROM) += ddr_spd.o
 obj-$(CONFIG_HWCONFIG) += hwconfig.o
 obj-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 obj-y += console.o
@@ -263,5 +258,11 @@ obj-$(CONFIG_FIT_SIGNATURE) += image-sig.o
 obj-$(CONFIG_IO_TRACE) += iotrace.o
 obj-y += memsize.o
 obj-y += stdio.o
+
+# This option is not just y/n - it can have a numeric value
+ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+obj-y += aboot.o
+obj-y += fb_mmc.o
+endif
 
 CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)

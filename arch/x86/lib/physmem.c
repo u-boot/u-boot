@@ -189,7 +189,7 @@ phys_addr_t arch_phys_memset(phys_addr_t start, int c, phys_size_t size)
 
 	/* Handle memory below 4GB. */
 	if (start <= max_addr) {
-		phys_size_t low_size = MIN(max_addr + 1 - start, size);
+		phys_size_t low_size = min(max_addr + 1 - start, size);
 		void *start_ptr = (void *)(uintptr_t)start;
 
 		assert(((phys_addr_t)(uintptr_t)start) == start);
@@ -208,7 +208,7 @@ phys_addr_t arch_phys_memset(phys_addr_t start, int c, phys_size_t size)
 		/* Handle the first partial page. */
 		if (offset) {
 			phys_addr_t end =
-				MIN(map_addr + LARGE_PAGE_SIZE, start + size);
+				min(map_addr + LARGE_PAGE_SIZE, start + size);
 			phys_size_t cur_size = end - start;
 			x86_phys_memset_page(map_addr, offset, c, cur_size);
 			size -= cur_size;

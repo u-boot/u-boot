@@ -12,11 +12,6 @@
 
 #include "tegra124-common.h"
 
-/* Enable fdt support for Venice2. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra124-venice2
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
-
 /* High-level configuration options */
 #define V_PROMPT			"Tegra124 (Venice2) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Venice2"

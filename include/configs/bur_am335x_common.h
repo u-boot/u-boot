@@ -151,7 +151,6 @@
 #undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_SETGETDCR
 #undef CONFIG_CMD_XIMG
-#undef CONFIG_CMD_CRC32
 /* define command we need always */
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_SOURCE

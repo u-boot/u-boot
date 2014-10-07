@@ -1,0 +1,11 @@
+menu "Library routines"
+
+config CC_OPTIMIZE_LIBS_FOR_SPEED
+	bool "Optimize libraries for speed"
+	help
+	  Enabling this option will pass "-O2" to gcc when compiling
+	  under "lib" directory.
+
+	  If unsure, say N.
+
+endmenu

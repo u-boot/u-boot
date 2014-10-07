@@ -14,8 +14,6 @@
 
 #define CONFIG_SYS_PROMPT	"Universal # "	/* Monitor Command Prompt */
 
-#undef CONFIG_DEFAULT_DEVICE_TREE
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos4210-universal_c210
 
 #define CONFIG_TIZEN			/* TIZEN lib */
 

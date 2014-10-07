@@ -1,5 +1,5 @@
 NET2BIG_V2 BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/LaCie/net2big_v2/
 F:	include/configs/lacie_kw.h

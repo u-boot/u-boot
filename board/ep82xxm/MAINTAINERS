@@ -1,5 +1,5 @@
 EP82XXM BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/ep82xxm/
 F:	include/configs/ep82xxm.h

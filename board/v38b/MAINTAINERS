@@ -1,5 +1,5 @@
 V38B BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/v38b/
 F:	include/configs/v38b.h

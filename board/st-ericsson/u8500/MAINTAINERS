@@ -1,5 +1,5 @@
 U8500 BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/st-ericsson/u8500/
 F:	include/configs/u8500_href.h

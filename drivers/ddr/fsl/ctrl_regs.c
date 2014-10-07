@@ -297,10 +297,13 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 	unsigned char taxpd_mclk = 0;
 	/* Mode register set cycle time (tMRD). */
 	unsigned char tmrd_mclk;
+#if defined(CONFIG_SYS_FSL_DDR4) || defined(CONFIG_SYS_FSL_DDR3)
+	const unsigned int mclk_ps = get_memory_clk_period_ps();
+#endif
 
 #ifdef CONFIG_SYS_FSL_DDR4
 	/* tXP=max(4nCK, 6ns) */
-	int txp = max((get_memory_clk_period_ps() * 4), 6000); /* unit=ps */
+	int txp = max(mclk_ps * 4, 6000); /* unit=ps */
 	trwt_mclk = 2;
 	twrt_mclk = 1;
 	act_pd_exit_mclk = picos_to_mclk(txp);
@@ -311,16 +314,19 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 	 */
 	tmrd_mclk = max(24, picos_to_mclk(15000));
 #elif defined(CONFIG_SYS_FSL_DDR3)
+	unsigned int data_rate = get_ddr_freq(0);
+	int txp;
 	/*
 	 * (tXARD and tXARDS). Empirical?
 	 * The DDR3 spec has not tXARD,
 	 * we use the tXP instead of it.
-	 * tXP=max(3nCK, 7.5ns) for DDR3.
+	 * tXP=max(3nCK, 7.5ns) for DDR3-800, 1066
+	 *     max(3nCK, 6ns) for DDR3-1333, 1600, 1866, 2133
 	 * spec has not the tAXPD, we use
 	 * tAXPD=1, need design to confirm.
 	 */
-	int txp = max((get_memory_clk_period_ps() * 3), 7500); /* unit=ps */
-	unsigned int data_rate = get_ddr_freq(0);
+	txp = max(mclk_ps * 3, (mclk_ps > 1540 ? 7500 : 6000));
+
 	tmrd_mclk = 4;
 	/* set the turnaround time */
 
@@ -578,6 +584,9 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	unsigned char cke_pls;
 	/* Window for four activates (tFAW) */
 	unsigned short four_act;
+#ifdef CONFIG_SYS_FSL_DDR3
+	const unsigned int mclk_ps = get_memory_clk_period_ps();
+#endif
 
 	/* FIXME add check that this must be less than acttorw_mclk */
 	add_lat_mclk = additive_latency;
@@ -619,10 +628,17 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 #ifdef CONFIG_SYS_FSL_DDR4
 	cpo = 0;
 	cke_pls = max(3, picos_to_mclk(5000));
+#elif defined(CONFIG_SYS_FSL_DDR3)
+	/*
+	 * cke pulse = max(3nCK, 7.5ns) for DDR3-800
+	 *             max(3nCK, 5.625ns) for DDR3-1066, 1333
+	 *             max(3nCK, 5ns) for DDR3-1600, 1866, 2133
+	 */
+	cke_pls = max(3, picos_to_mclk(mclk_ps > 1870 ? 7500 :
+				       (mclk_ps > 1245 ? 5625 : 5000)));
 #else
-	cke_pls = picos_to_mclk(popts->tcke_clock_pulse_width_ps);
+	cke_pls = FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR;
 #endif
-
 	four_act = picos_to_mclk(popts->tfaw_window_four_activates_ps);
 
 	ddr->timing_cfg_2 = (0
@@ -1886,9 +1902,12 @@ static void set_timing_cfg_9(fsl_ddr_cfg_regs_t *ddr)
 	debug("FSLDDR: timing_cfg_9 = 0x%08x\n", ddr->timing_cfg_9);
 }
 
+/* This function needs to be called after set_ddr_sdram_cfg() is called */
 static void set_ddr_dq_mapping(fsl_ddr_cfg_regs_t *ddr,
 			       const dimm_params_t *dimm_params)
 {
+	unsigned int acc_ecc_en = (ddr->ddr_sdram_cfg >> 2) & 0x1;
+
 	ddr->dq_map_0 = ((dimm_params->dq_mapping[0] & 0x3F) << 26) |
 			((dimm_params->dq_mapping[1] & 0x3F) << 20) |
 			((dimm_params->dq_mapping[2] & 0x3F) << 14) |
@@ -1907,9 +1926,11 @@ static void set_ddr_dq_mapping(fsl_ddr_cfg_regs_t *ddr,
 			((dimm_params->dq_mapping[15] & 0x3F) << 8) |
 			((dimm_params->dq_mapping[16] & 0x3F) << 2);
 
+	/* dq_map for ECC[4:7] is set to 0 if accumulated ECC is enabled */
 	ddr->dq_map_3 = ((dimm_params->dq_mapping[17] & 0x3F) << 26) |
 			((dimm_params->dq_mapping[8] & 0x3F) << 20) |
-			((dimm_params->dq_mapping[9] & 0x3F) << 14) |
+			(acc_ecc_en ? 0 :
+			 (dimm_params->dq_mapping[9] & 0x3F) << 14) |
 			dimm_params->dq_mapping_ors;
 
 	debug("FSLDDR: dq_map_0 = 0x%08x\n", ddr->dq_map_0);
@@ -2276,7 +2297,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	if (ip_rev > 0x40400)
 		unq_mrs_en = 1;
 
-	if (ip_rev > 0x40700)
+	if ((ip_rev > 0x40700) && (popts->cswl_override != 0))
 		ddr->debug[18] = popts->cswl_override;
 
 	set_ddr_sdram_cfg_2(ddr, popts, unq_mrs_en);

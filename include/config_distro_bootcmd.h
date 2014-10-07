@@ -53,10 +53,23 @@
 #endif
 
 #ifdef CONFIG_CMD_SCSI
-#define BOOTENV_SHARED_SCSI	BOOTENV_SHARED_BLKDEV(scsi)
+#define BOOTENV_RUN_SCSI_INIT "run scsi_init; "
+#define BOOTENV_SET_SCSI_NEED_INIT "setenv scsi_need_init; "
+#define BOOTENV_SHARED_SCSI \
+	"scsi_init=" \
+		"if ${scsi_need_init}; then " \
+			"setenv scsi_need_init false; " \
+			"scsi scan; " \
+		"fi\0" \
+	\
+	"scsi_boot=" \
+		BOOTENV_RUN_SCSI_INIT \
+		BOOTENV_SHARED_BLKDEV_BODY(scsi)
 #define BOOTENV_DEV_SCSI	BOOTENV_DEV_BLKDEV
 #define BOOTENV_DEV_NAME_SCSI	BOOTENV_DEV_NAME_BLKDEV
 #else
+#define BOOTENV_RUN_SCSI_INIT
+#define BOOTENV_SET_SCSI_NEED_INIT
 #define BOOTENV_SHARED_SCSI
 #define BOOTENV_DEV_SCSI \
 	BOOT_TARGET_DEVICES_references_SCSI_without_CONFIG_CMD_SCSI
@@ -189,7 +202,7 @@
 	\
 	BOOT_TARGET_DEVICES(BOOTENV_DEV)                                  \
 	\
-	"bootcmd=" BOOTENV_SET_USB_NEED_INIT                              \
+	"bootcmd=" BOOTENV_SET_USB_NEED_INIT BOOTENV_SET_SCSI_NEED_INIT   \
 		"for target in ${boot_targets}; do "                      \
 			"run bootcmd_${target}; "                         \
 		"done\0"

@@ -272,7 +272,7 @@ board. This allows feature development which is not board- or architecture-
 specific to be undertaken on a native platform. The sandbox is also used to
 run some of U-Boot's tests.
 
-See board/sandbox/sandbox/README.sandbox for more details.
+See board/sandbox/README.sandbox for more details.
 
 
 Configuration Options:
@@ -537,6 +537,12 @@ The following options need to be configured:
 		DDR controller interleaving on 256-byte. This is a special
 		interleaving mode, handled by Dickens for Freescale layerscape
 		SoCs with ARM core.
+
+		CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS
+		Number of controllers used as main memory.
+
+		CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
+		Number of controllers used for other than main memory.
 
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
@@ -1628,6 +1634,16 @@ The following options need to be configured:
 		The fastboot protocol requires a large memory buffer for
 		downloads. This buffer should be as large as possible for a
 		platform. Define this to the size available RAM for fastboot.
+
+		CONFIG_FASTBOOT_FLASH
+		The fastboot protocol includes a "flash" command for writing
+		the downloaded image to a non-volatile storage device. Define
+		this to enable the "fastboot flash" command.
+
+		CONFIG_FASTBOOT_FLASH_MMC_DEV
+		The fastboot "flash" command requires additional information
+		regarding the non-volatile storage device. Define this to
+		the eMMC device that fastboot should use to store the image.
 
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
@@ -3849,11 +3865,8 @@ Configuration Settings:
 		The memory will be freed (or in fact just forgotton) when
 		U-Boot relocates itself.
 
-		Pre-relocation malloc() is only supported on sandbox
+		Pre-relocation malloc() is only supported on ARM and sandbox
 		at present but is fairly easy to enable for other archs.
-
-		Pre-relocation malloc() is only supported on ARM at present
-		but is fairly easy to enable for other archs.
 
 - CONFIG_SYS_BOOTM_LEN:
 		Normally compressed uImages are limited to an

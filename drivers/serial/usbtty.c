@@ -475,7 +475,7 @@ static void __usbtty_puts (const char *str, int len)
 		if (space) {
 			write_buffer (&usbtty_output);
 
-			n = MIN (space, MIN (len, maxlen));
+			n = min(space, min(len, maxlen));
 			buf_push (&usbtty_output, str, n);
 
 			str += n;
@@ -882,7 +882,7 @@ static int write_buffer (circbuf_t * buf)
 			space_avail =
 				current_urb->buffer_length -
 				current_urb->actual_length;
-			popnum = MIN (space_avail, buf->size);
+			popnum = min(space_avail, buf->size);
 			if (popnum == 0)
 				break;
 

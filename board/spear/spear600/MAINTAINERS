@@ -6,7 +6,7 @@ F:	include/configs/spear6xx_evb.h
 F:	configs/spear600_defconfig
 
 SPEAR600_NAND BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	configs/spear600_nand_defconfig
 F:	configs/spear600_usbtty_defconfig

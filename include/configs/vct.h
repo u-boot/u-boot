@@ -296,7 +296,6 @@ int vct_gpio_get(int pin);
 #undef CONFIG_CMD_BEDBUG
 #undef CONFIG_CMD_CACHE
 #undef CONFIG_CMD_CONSOLE
-#undef CONFIG_CMD_CRC32
 #undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_EEPROM

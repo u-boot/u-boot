@@ -1,5 +1,5 @@
 WIRELESS_SPACE BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/LaCie/wireless_space/
 F:	include/configs/wireless_space.h

@@ -647,8 +647,6 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		read = strncmp(cmd, "read", 4) == 0; /* 1 = read, 0 = write */
 		printf("\nNAND %s: ", read ? "read" : "write");
 
-		nand = &nand_info[dev];
-
 		s = strchr(cmd, '.');
 
 		if (s && !strcmp(s, ".raw")) {
@@ -656,6 +654,8 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 			if (arg_off(argv[3], &dev, &off, &size, &maxsize))
 				return 1;
+
+			nand = &nand_info[dev];
 
 			if (argc > 4 && !str2long(argv[4], &pagecount)) {
 				printf("'%s' is not a number\n", argv[4]);
@@ -678,6 +678,8 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				adjust_size_for_badblocks(&size, off, dev);
 			rwsize = size;
 		}
+
+		nand = &nand_info[dev];
 
 		if (!s || !strcmp(s, ".jffs2") ||
 		    !strcmp(s, ".e") || !strcmp(s, ".i")) {

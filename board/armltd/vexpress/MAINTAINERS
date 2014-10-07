@@ -1,12 +1,12 @@
 VEXPRESS BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/armltd/vexpress/
 F:	include/configs/vexpress_ca15_tc2.h
 F:	configs/vexpress_ca15_tc2_defconfig
 
 VEXPRESS_CA5X2 BOARD
-M:	Matt Waddel <matt.waddel@linaro.org>
+#M:	Matt Waddel <matt.waddel@linaro.org>
 S:	Orphan (since 2014-08)
 F:	include/configs/vexpress_ca5x2.h
 F:	configs/vexpress_ca5x2_defconfig

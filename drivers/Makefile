@@ -1,3 +1,5 @@
+obj-$(CONFIG_DM) += core/
+obj-$(CONFIG_DM_DEMO) += demo/
 obj-$(CONFIG_BIOSEMU) += bios_emulator/
 obj-y += block/
 obj-$(CONFIG_BOOTCOUNT_LIMIT) += bootcount/
@@ -16,3 +18,4 @@ obj-y += watchdog/
 obj-$(CONFIG_QE) += qe/
 obj-y += memory/
 obj-y += pwm/
+obj-y += input/

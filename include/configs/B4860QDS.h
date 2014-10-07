@@ -227,6 +227,7 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 /* EEPROM */
+#define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
@@ -819,9 +820,16 @@ unsigned long get_board_ddr_clk(void);
 
 #define __USB_PHY_TYPE	ulpi
 
+#ifdef CONFIG_PPC_B4860
+#define HWCONFIG	"hwconfig=fsl_ddr:ctlr_intlv=null,"	\
+			"bank_intlv=cs0_cs1;"	\
+			"en_cpc:cpc2;"
+#else
+#define	HWCONFIG	"hwconfig=fsl_ddr:ctlr_intlv=null,bank_intlv=cs0_cs1;"
+#endif
+
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
-	"hwconfig=fsl_ddr:ctlr_intlv=null,"		\
-	"bank_intlv=cs0_cs1;"					\
+	HWCONFIG						\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"			\

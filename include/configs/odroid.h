@@ -16,8 +16,6 @@
 
 #define CONFIG_SYS_PROMPT	"Odroid # "	/* Monitor Command Prompt */
 
-#undef CONFIG_DEFAULT_DEVICE_TREE
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos4412-odroid
 
 #define CONFIG_SYS_L2CACHE_OFF
 #ifndef CONFIG_SYS_L2CACHE_OFF

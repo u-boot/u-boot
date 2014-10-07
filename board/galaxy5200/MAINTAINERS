@@ -1,5 +1,5 @@
 GALAXY5200 BOARD
-M:	Eric Millbrandt <emillbrandt@dekaresearch.com>
+#M:	Eric Millbrandt <emillbrandt@dekaresearch.com>
 S:	Orphan (since 2014-06)
 F:	board/galaxy5200/
 F:	include/configs/galaxy5200.h

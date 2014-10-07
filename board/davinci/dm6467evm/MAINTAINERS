@@ -1,5 +1,5 @@
 DM6467EVM BOARD
-M:	Sandeep Paulraj <s-paulraj@ti.com>
+#M:	Sandeep Paulraj <s-paulraj@ti.com>
 S:	Orphan (since 2014-08)
 F:	board/davinci/dm6467evm/
 F:	include/configs/davinci_dm6467evm.h

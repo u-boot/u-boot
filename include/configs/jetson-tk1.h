@@ -12,11 +12,6 @@
 
 #include "tegra124-common.h"
 
-/* Enable fdt support for Jetson TK1. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra124-jetson-tk1
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
-
 /* High-level configuration options */
 #define V_PROMPT			"Tegra124 (Jetson TK1) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Jetson TK1"

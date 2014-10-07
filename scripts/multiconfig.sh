@@ -118,6 +118,13 @@ do_board_defconfig () {
 	defconfig_path=$srctree/configs/$1
 	tmp_defconfig_path=configs/.tmp_defconfig
 
+	if [ ! -r $defconfig_path ]; then
+		echo >&2 "***"
+		echo >&2 "*** Can't find default configuration \"confis/$1\"!"
+		echo >&2 "***"
+		exit 1
+	fi
+
 	mkdir -p arch configs
 	# defconfig for Normal:
 	#  pick lines without prefixes and lines starting '+' prefix
@@ -245,6 +252,35 @@ do_savedefconfig () {
 	IFS=$save_IFS
 }
 
+# Some sanity checks before running "make <objdir>/<target>",
+# where <objdir> should be either "spl" or "tpl".
+# Doing "make spl/menuconfig" etc. on a non-SPL board makes no sense.
+# It should be allowed only when ".config" exists and "CONFIG_SPL" is enabled.
+#
+# Usage:
+#   check_enabled_sumbimage <objdir>/<target> <objdir>
+check_enabled_subimage () {
+
+	case $2 in
+	spl|tpl) ;;
+	*)
+		echo >&2 "***"
+		echo >&2 "*** \"make $1\" is not supported."
+		echo >&2 "***"
+		exit 1
+		;;
+	esac
+	test -r "$KCONFIG_CONFIG" && get_enabled_subimages | grep -q $2 || {
+		config=CONFIG_$(echo $2 | tr '[a-z]' '[A-Z]')
+
+		echo >&2 "***"
+		echo >&2 "*** Create \"$KCONFIG_CONFIG\" with \"$config\" enabled"
+		echo >&2 "*** before \"make $1\"."
+		echo >&2 "***"
+		exit 1
+	}
+}
+
 # Usage:
 #   do_others <objdir>/<target>
 # The field "<objdir>/" is typically empy, "spl/", "tpl/" for Normal, SPL, TPL,
@@ -258,6 +294,7 @@ do_others () {
 		objdir=
 	else
 		objdir=${1%/*}
+		check_enabled_subimage $1 $objdir
 	fi
 
 	run_make_config $target $objdir

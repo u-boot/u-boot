@@ -2148,7 +2148,7 @@ sub process {
 				"please, no space before tabs\n" . $herevet) &&
 			    $fix) {
 				while ($fixed[$linenr - 1] =~
-					   s/(^\+.*) {8,8}+\t/$1\t\t/) {}
+					   s/(^\+.*) {8,8}\t/$1\t\t/) {}
 				while ($fixed[$linenr - 1] =~
 					   s/(^\+.*) +\t/$1\t/) {}
 			}

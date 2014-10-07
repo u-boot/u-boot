@@ -1,5 +1,5 @@
 M5253EVBE BOARD
-M:	Hayden Fraser <Hayden.Fraser@freescale.com>
+#M:	Hayden Fraser <Hayden.Fraser@freescale.com>
 S:	Orphan (since 2014-06)
 F:	board/freescale/m5253evbe/
 F:	include/configs/M5253EVBE.h

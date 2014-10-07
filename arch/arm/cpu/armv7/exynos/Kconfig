@@ -23,18 +23,23 @@ config TARGET_ODROID
 
 config TARGET_ARNDALE
 	bool "Exynos5250 Arndale board"
+	select OF_CONTROL if !SPL_BUILD
 
 config TARGET_SMDK5250
 	bool "SMDK5250 board"
+	select OF_CONTROL if !SPL_BUILD
 
 config TARGET_SNOW
 	bool "Snow board"
+	select OF_CONTROL if !SPL_BUILD
 
 config TARGET_SMDK5420
 	bool "SMDK5420 board"
+	select OF_CONTROL if !SPL_BUILD
 
 config TARGET_PEACH_PIT
 	bool "Peach Pi board"
+	select OF_CONTROL if !SPL_BUILD
 
 endchoice
 

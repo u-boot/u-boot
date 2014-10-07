@@ -30,9 +30,9 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	 * to  pbsp = rdimms[ctrl_num] or pbsp = udimms[ctrl_num];
 	 */
 	if (popts->registered_dimm_en)
-		pbsp = rdimms[0];
+		pbsp = rdimms[ctrl_num];
 	else
-		pbsp = udimms[0];
+		pbsp = udimms[ctrl_num];
 
 
 	/* Get clk_adjust, wrlvl_start, wrlvl_ctl, according to the board ddr
@@ -72,6 +72,12 @@ found:
 		pbsp->clk_adjust, pbsp->wrlvl_start, pbsp->wrlvl_ctl_2,
 		pbsp->wrlvl_ctl_3);
 
+	if (ctrl_num == CONFIG_DP_DDR_CTRL) {
+		/* force DDR bus width to 32 bits */
+		popts->data_bus_width = 1;
+		popts->otf_burst_chop_en = 0;
+		popts->burst_length = DDR_BL8;
+	}
 	/*
 	 * Factors to consider for half-strength driver enable:
 	 *	- number of DIMMs installed
@@ -163,6 +169,10 @@ phys_size_t initdram(int board_type)
 
 void dram_init_banksize(void)
 {
+#ifdef CONFIG_SYS_DP_DDR_BASE_PHY
+	phys_size_t dp_ddr_size;
+#endif
+
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	if (gd->ram_size > CONFIG_SYS_LS2_DDR_BLOCK1_SIZE) {
 		gd->bd->bi_dram[0].size = CONFIG_SYS_LS2_DDR_BLOCK1_SIZE;
@@ -172,4 +182,24 @@ void dram_init_banksize(void)
 	} else {
 		gd->bd->bi_dram[0].size = gd->ram_size;
 	}
+
+#ifdef CONFIG_SYS_DP_DDR_BASE_PHY
+	/* initialize DP-DDR here */
+	puts("DP-DDR:  ");
+	/*
+	 * DDR controller use 0 as the base address for binding.
+	 * It is mapped to CONFIG_SYS_DP_DDR_BASE for core to access.
+	 */
+	dp_ddr_size = fsl_other_ddr_sdram(CONFIG_SYS_DP_DDR_BASE_PHY,
+					  CONFIG_DP_DDR_CTRL,
+					  CONFIG_DP_DDR_NUM_CTRLS,
+					  CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR,
+					  NULL, NULL, NULL);
+	if (dp_ddr_size) {
+		gd->bd->bi_dram[2].start = CONFIG_SYS_DP_DDR_BASE;
+		gd->bd->bi_dram[2].size = dp_ddr_size;
+	} else {
+		puts("Not detected");
+	}
+#endif
 }

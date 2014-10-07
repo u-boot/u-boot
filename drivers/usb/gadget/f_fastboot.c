@@ -10,6 +10,7 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+#include <config.h>
 #include <common.h>
 #include <errno.h>
 #include <malloc.h>
@@ -19,6 +20,9 @@
 #include <linux/compiler.h>
 #include <version.h>
 #include <g_dnl.h>
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+#include <fb_mmc.h>
+#endif
 
 #define FASTBOOT_VERSION		"0.4"
 
@@ -38,7 +42,7 @@
 struct f_fastboot {
 	struct usb_function usb_function;
 
-	/* IN/OUT EP's and correspoinding requests */
+	/* IN/OUT EP's and corresponding requests */
 	struct usb_ep *in_ep, *out_ep;
 	struct usb_request *in_req, *out_req;
 };
@@ -290,7 +294,7 @@ static int fastboot_add(struct usb_configuration *c)
 }
 DECLARE_GADGET_BIND_CALLBACK(usb_dnl_fastboot, fastboot_add);
 
-int fastboot_tx_write(const char *buffer, unsigned int buffer_size)
+static int fastboot_tx_write(const char *buffer, unsigned int buffer_size)
 {
 	struct usb_request *in_req = fastboot_func->in_req;
 	int ret;
@@ -338,6 +342,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 
 	strsep(&cmd, ":");
 	if (!cmd) {
+		error("missing variable\n");
 		fastboot_tx_write_str("FAILmissing var");
 		return;
 	}
@@ -358,6 +363,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		else
 			strcpy(response, "FAILValue not set");
 	} else {
+		error("unknown variable: %s\n", cmd);
 		strcpy(response, "FAILVariable not implemented");
 	}
 	fastboot_tx_write_str(response);
@@ -469,6 +475,28 @@ static void cb_boot(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write_str("OKAY");
 }
 
+#ifdef CONFIG_FASTBOOT_FLASH
+static void cb_flash(struct usb_ep *ep, struct usb_request *req)
+{
+	char *cmd = req->buf;
+	char response[RESPONSE_LEN];
+
+	strsep(&cmd, ":");
+	if (!cmd) {
+		error("missing partition name\n");
+		fastboot_tx_write_str("FAILmissing partition name");
+		return;
+	}
+
+	strcpy(response, "FAILno flash device defined");
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+	fb_mmc_flash_write(cmd, (void *)CONFIG_USB_FASTBOOT_BUF_ADDR,
+			   download_bytes, response);
+#endif
+	fastboot_tx_write_str(response);
+}
+#endif
+
 struct cmd_dispatch_info {
 	char *cmd;
 	void (*cb)(struct usb_ep *ep, struct usb_request *req);
@@ -488,6 +516,12 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 		.cmd = "boot",
 		.cb = cb_boot,
 	},
+#ifdef CONFIG_FASTBOOT_FLASH
+	{
+		.cmd = "flash",
+		.cb = cb_flash,
+	},
+#endif
 };
 
 static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
@@ -503,10 +537,12 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		}
 	}
 
-	if (!func_cb)
+	if (!func_cb) {
+		error("unknown command: %s\n", cmdbuf);
 		fastboot_tx_write_str("FAILunknown command");
-	else
+	} else {
 		func_cb(ep, req);
+	}
 
 	if (req->status == 0) {
 		*cmdbuf = '\0';

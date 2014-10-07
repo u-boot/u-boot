@@ -11,6 +11,7 @@ endif
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x40000
 LDFLAGS_FINAL += --gc-sections
+LDFLAGS_FINAL += --bss-plt
 PLATFORM_RELFLAGS += -fpic -mrelocatable -ffunction-sections -fdata-sections \
 								-meabi
 PLATFORM_CPPFLAGS += -D__powerpc__ -ffixed-r2

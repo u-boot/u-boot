@@ -227,8 +227,6 @@
 #define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */
 
 /* FDT support */
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /* RSA support */
@@ -273,18 +271,13 @@
 #define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION    1
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
-#if defined(CONFIG_OF_CONTROL) && defined(CONFIG_OF_SEPARATE)
-# define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot-dtb.img"
-#else
-# define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot.img"
-#endif
+#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot-dtb.img"
 #endif
 
 /* Disable dcache for SPL just for sure */
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_DCACHE_OFF
 #undef CONFIG_FPGA
-#undef CONFIG_OF_CONTROL
 #endif
 
 /* Address in RAM where the parameters must be copied by SPL. */
@@ -303,9 +296,7 @@
 #define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
-#define CONFIG_SPL_SPI_BUS	0
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x100000
-#define CONFIG_SPL_SPI_CS	0
 #endif
 
 /* for booting directly linux */

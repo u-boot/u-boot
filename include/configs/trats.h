@@ -16,8 +16,6 @@
 
 #define CONFIG_TRATS
 
-#undef CONFIG_DEFAULT_DEVICE_TREE
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos4210-trats
 
 #define CONFIG_TIZEN			/* TIZEN lib */
 

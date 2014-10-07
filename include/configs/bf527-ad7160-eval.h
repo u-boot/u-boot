@@ -136,7 +136,6 @@
  */
 #define CONFIG_MISC_INIT_R
 #define CONFIG_UART_CONSOLE	0
-#define CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED
 
 /*
  * Pull in common ADI header for remaining command/environment setup

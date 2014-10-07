@@ -8,7 +8,7 @@ F:	configs/igep0030_defconfig
 F:	configs/igep0032_defconfig
 
 IGEP0020_NAND BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	configs/igep0020_nand_defconfig
 F:	configs/igep0030_nand_defconfig

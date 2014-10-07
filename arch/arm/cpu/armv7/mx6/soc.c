@@ -324,10 +324,10 @@ const struct boot_mode soc_boot_modes[] = {
 	/* reserved value should start rom usb */
 	{"usb",		MAKE_CFGVAL(0x01, 0x00, 0x00, 0x00)},
 	{"sata",	MAKE_CFGVAL(0x20, 0x00, 0x00, 0x00)},
-	{"escpi1:0",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x08)},
-	{"escpi1:1",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x18)},
-	{"escpi1:2",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x28)},
-	{"escpi1:3",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x38)},
+	{"ecspi1:0",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x08)},
+	{"ecspi1:1",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x18)},
+	{"ecspi1:2",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x28)},
+	{"ecspi1:3",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x38)},
 	/* 4 bit bus width */
 	{"esdhc1",	MAKE_CFGVAL(0x40, 0x20, 0x00, 0x00)},
 	{"esdhc2",	MAKE_CFGVAL(0x40, 0x28, 0x00, 0x00)},
@@ -429,6 +429,9 @@ void v7_outer_cache_enable(void)
 		writel(val, &iomux->gpr[11]);
 	}
 #endif
+
+	/* Must disable the L2 before changing the latency parameters */
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 
 	writel(0x132, &pl310->pl310_tag_latency_ctrl);
 	writel(0x132, &pl310->pl310_data_latency_ctrl);

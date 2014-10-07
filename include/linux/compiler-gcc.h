@@ -64,8 +64,12 @@
 #endif
 
 #define __deprecated			__attribute__((deprecated))
+#ifndef __packed
 #define __packed			__attribute__((packed))
+#endif
+#ifndef __weak
 #define __weak				__attribute__((weak))
+#endif
 
 /*
  * it doesn't make sense on ARM (currently the only user of __naked) to trace
@@ -91,8 +95,12 @@
  * would be.
  * [...]
  */
+#ifndef __pure
 #define __pure				__attribute__((pure))
+#endif
+#ifndef __aligned
 #define __aligned(x)			__attribute__((aligned(x)))
+#endif
 #define __printf(a, b)			__attribute__((format(printf, a, b)))
 #define __scanf(a, b)			__attribute__((format(scanf, a, b)))
 #define  noinline			__attribute__((noinline))
@@ -115,4 +123,6 @@
  */
 #define uninitialized_var(x) x = x
 
+#ifndef __always_inline
 #define __always_inline		inline __attribute__((always_inline))
+#endif

@@ -1,5 +1,5 @@
 #
-# SPDX-License-Identifier:	GPL-2.0+
+# SPDX-License-Identifier:	ISC
 #
 # Author: Ulf Magnusson
 #   https://github.com/ulfalizer/Kconfiglib

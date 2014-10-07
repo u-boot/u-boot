@@ -864,6 +864,23 @@ u32 ata_low_level_rw_lba28(int dev, u32 blknr, lbaint_t blkcnt,
 	return blkcnt;
 }
 
+int sata_port_status(int dev, int port)
+{
+	struct sata_port_regs *port_mmio;
+	struct ahci_probe_ent *probe_ent = NULL;
+
+	if (dev < 0 || dev > (CONFIG_SYS_SATA_MAX_DEVICE - 1))
+		return -EINVAL;
+
+	if (sata_dev_desc[dev].priv == NULL)
+		return -ENODEV;
+
+	probe_ent = (struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+	port_mmio = (struct sata_port_regs *)probe_ent->port[port].port_mmio;
+
+	return readl(&(port_mmio->ssts)) && SATA_PORT_SSTS_DET_MASK;
+}
+
 /*
  * SATA interface between low level driver and command layer
  */

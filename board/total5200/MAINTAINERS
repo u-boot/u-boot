@@ -1,5 +1,5 @@
 TOTAL5200 BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/total5200/
 F:	include/configs/Total5200.h

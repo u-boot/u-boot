@@ -79,7 +79,6 @@ found:
 	 */
 	popts->wrlvl_override = 1;
 	popts->wrlvl_sample = 0xf;
-	popts->cswl_override = DDR_CSWL_CS0;
 
 	/*
 	 * Rtt and Rtt_WR override
@@ -89,9 +88,17 @@ found:
 	/* Enable ZQ calibration */
 	popts->zq_en = 1;
 
+#ifdef CONFIG_SYS_FSL_DDR4
+	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_80ohm);
+	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_80ohm) |
+			  DDR_CDR2_VREF_OVRD(70);	/* Vref = 70% */
+#else
+	popts->cswl_override = DDR_CSWL_CS0;
+
 	/* DHC_EN =1, ODT = 75 Ohm */
 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_75ohm);
 	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_75ohm);
+#endif
 }
 
 #ifdef CONFIG_SYS_DDR_RAW_TIMING

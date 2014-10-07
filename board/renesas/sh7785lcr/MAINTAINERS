@@ -1,5 +1,5 @@
 SH7785LCR BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/renesas/sh7785lcr/
 F:	include/configs/sh7785lcr.h
