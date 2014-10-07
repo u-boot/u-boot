@@ -400,6 +400,23 @@ extern unsigned long get_sdram_size(void);
 #endif
 
 /*
+ * Dynamic MTD Partition support with mtdparts
+ */
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT "nand0=ff800000.flash,"
+#define MTDPARTS_DEFAULT "mtdparts=ff800000.flash:1m(uboot)," \
+			"8m(kernel),512k(dtb),-(fs)"
+/*
+ * Override partitions in device tree using info
+ * in "mtdparts" environment variable
+ */
+#ifdef CONFIG_CMD_MTDPARTS
+#define CONFIG_FDT_FIXUP_PARTITIONS
+#endif
+
+/*
  * Environment Configuration
  */
 
