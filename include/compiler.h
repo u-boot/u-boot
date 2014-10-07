@@ -48,6 +48,10 @@
 # include <machine/endian.h>
 typedef unsigned long ulong;
 #endif
+#ifdef __FreeBSD__
+# include <sys/endian.h> /* htole32 and friends */
+#endif
+
 #include <time.h>
 
 typedef uint8_t __u8;
