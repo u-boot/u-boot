@@ -27,9 +27,6 @@
 
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
-
 /* select serial console configuration */
 #define CONFIG_SERIAL2
 #define CONFIG_BAUDRATE			115200

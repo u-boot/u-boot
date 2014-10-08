@@ -12,8 +12,4 @@
 #include <configs/exynos5250-common.h>
 
 
-/* Enable FIT support and comparison */
-#define CONFIG_FIT
-#define CONFIG_FIT_BEST_MATCH
-
 #endif	/* __CONFIG_SNOW_H */
