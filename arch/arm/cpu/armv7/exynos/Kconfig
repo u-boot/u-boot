@@ -5,6 +5,7 @@ choice
 
 config TARGET_SMDKV310
 	bool "Exynos4210 SMDKV310 board"
+	select OF_CONTROL if !SPL_BUILD
 
 config TARGET_TRATS
 	bool "Exynos4210 Trats board"
