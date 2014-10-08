@@ -51,6 +51,7 @@ endif
 obj-$(CONFIG_ADDR_MAP) += addr_map.o
 obj-y += hashtable.o
 obj-y += errno.o
+obj-$(CONFIG_ERRNO_STR) += errno_str.o
 obj-y += display_options.o
 obj-$(CONFIG_BCH) += bch.o
 obj-y += crc32.o
