@@ -1434,7 +1434,7 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 		printf("%s  FDT:          %s\n", p, uname);
 }
 
-int fit_image_select(const void *fit, int rd_noffset, int verify)
+static int fit_image_select(const void *fit, int rd_noffset, int verify)
 {
 	fit_image_print(fit, rd_noffset, "   ");
 
