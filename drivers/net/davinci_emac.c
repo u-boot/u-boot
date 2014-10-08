@@ -27,6 +27,7 @@
 #include <net.h>
 #include <miiphy.h>
 #include <malloc.h>
+#include <netdev.h>
 #include <linux/compiler.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
