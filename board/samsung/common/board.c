@@ -28,19 +28,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int __exynos_early_init_f(void)
+__weak int exynos_early_init_f(void)
 {
 	return 0;
 }
-int exynos_early_init_f(void)
-	__attribute__((weak, alias("__exynos_early_init_f")));
 
-int __exynos_power_init(void)
+__weak int exynos_power_init(void)
 {
 	return 0;
 }
-int exynos_power_init(void)
-	__attribute__((weak, alias("__exynos_power_init")));
 
 #if defined CONFIG_EXYNOS_TMU
 /* Boot Time Thermal Analysis for SoC temperature threshold breach */
