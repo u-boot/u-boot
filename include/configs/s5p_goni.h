@@ -39,8 +39,9 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_CMDLINE_EDITING
 
-/* Size of malloc() pool.*/
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 80 * SZ_1M)
+/* Size of malloc() pool before and after relocation */
+#define CONFIG_SYS_MALLOC_F_LEN		(1 << 10)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 << 20))
 
 /*
  * select serial console configuration
