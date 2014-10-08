@@ -105,12 +105,9 @@ static inline void *menu_item_destroy(struct menu *m,
 	return NULL;
 }
 
-void __menu_display_statusline(struct menu *m)
+__weak void menu_display_statusline(struct menu *m)
 {
-	return;
 }
-void menu_display_statusline(struct menu *m)
-	__attribute__ ((weak, alias("__menu_display_statusline")));
 
 /*
  * Display a menu so the user can make a choice of an item. First display its
