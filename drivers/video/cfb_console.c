@@ -1171,13 +1171,10 @@ void video_puts(struct stdio_dev *dev, const char *s)
  * video_set_lut() if they do not support 8 bpp format.
  * Implement weak default function instead.
  */
-void __video_set_lut(unsigned int index, unsigned char r,
+__weak void video_set_lut(unsigned int index, unsigned char r,
 		     unsigned char g, unsigned char b)
 {
 }
-
-void video_set_lut(unsigned int, unsigned char, unsigned char, unsigned char)
-	__attribute__ ((weak, alias("__video_set_lut")));
 
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 
@@ -2240,14 +2237,11 @@ static int video_init(void)
  * Implement a weak default function for boards that optionally
  * need to skip the video initialization.
  */
-int __board_video_skip(void)
+__weak int board_video_skip(void)
 {
 	/* As default, don't skip test */
 	return 0;
 }
-
-int board_video_skip(void)
-	__attribute__ ((weak, alias("__board_video_skip")));
 
 int drv_video_init(void)
 {
