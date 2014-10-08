@@ -9,7 +9,7 @@
 #ifndef __CONFIG_PEACH_PIT_H
 #define __CONFIG_PEACH_PIT_H
 
-#include <configs/exynos5-dt.h>
+#include <configs/exynos5-common.h>
 
 #include <configs/exynos5420.h>
 

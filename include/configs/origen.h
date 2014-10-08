@@ -9,7 +9,7 @@
 #ifndef __CONFIG_ORIGEN_H
 #define __CONFIG_ORIGEN_H
 
-#include <configs/exynos4-dt.h>
+#include <configs/exynos4-common.h>
 
 #define CONFIG_SYS_PROMPT		"ORIGEN # "
 

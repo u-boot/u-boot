@@ -6,8 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __CONFIG_EXYNOS4_COMMON_H
+#define __CONFIG_EXYNOS4_COMMON_H
 
 /* High Level Configuration Options */
 #define CONFIG_SAMSUNG			/* in a SAMSUNG core */
@@ -136,4 +136,4 @@
 /* Enable devicetree support */
 #define CONFIG_OF_LIBFDT
 
-#endif	/* __CONFIG_H */
+#endif	/* __CONFIG_EXYNOS4_COMMON_H */

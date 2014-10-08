@@ -6,8 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __CONFIG_EXYNOS5_COMMON_H
+#define __CONFIG_EXYNOS5_COMMON_H
 
 /* High Level Configuration Options */
 #define CONFIG_SAMSUNG			/* in a SAMSUNG core */
@@ -289,4 +289,4 @@
 #define EXYNOS_USB_SECONDARY_BOOT	0xfeed0002
 #define EXYNOS_IRAM_SECONDARY_BASE	0x02020018
 
-#endif	/* __CONFIG_H */
+#endif	/* __CONFIG_EXYNOS5_COMMON_H */

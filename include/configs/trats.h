@@ -10,7 +10,7 @@
 #ifndef __CONFIG_TRATS_H
 #define __CONFIG_TRATS_H
 
-#include <configs/exynos4-dt.h>
+#include <configs/exynos4-common.h>
 
 #define CONFIG_SYS_PROMPT	"Trats # "	/* Monitor Command Prompt */
 

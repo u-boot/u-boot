@@ -11,7 +11,7 @@
 #ifndef __CONFIG_TRATS2_H
 #define __CONFIG_TRATS2_H
 
-#include <configs/exynos4-dt.h>
+#include <configs/exynos4-common.h>
 
 #define CONFIG_SYS_PROMPT	"Trats2 # "	/* Monitor Command Prompt */
 

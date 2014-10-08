@@ -9,7 +9,7 @@
 #ifndef __CONFIG_SMDK_H
 #define __CONFIG_SMDK_H
 
-#include <configs/exynos5250-dt.h>
+#include <configs/exynos5250-common.h>
 
 
 /* Enable FIT support and comparison */

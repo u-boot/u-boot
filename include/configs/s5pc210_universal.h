@@ -10,7 +10,7 @@
 #ifndef __CONFIG_UNIVERSAL_H
 #define __CONFIG_UNIVERSAL_H
 
-#include <configs/exynos4-dt.h>
+#include <configs/exynos4-common.h>
 
 #define CONFIG_SYS_PROMPT	"Universal # "	/* Monitor Command Prompt */
 
