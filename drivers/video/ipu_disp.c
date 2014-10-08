@@ -377,7 +377,7 @@ static struct dp_csc_param_t dp_csc_array[CSC_NUM][CSC_NUM] = {
 static enum csc_type_t fg_csc_type = CSC_NONE, bg_csc_type = CSC_NONE;
 static int color_key_4rgb = 1;
 
-void ipu_dp_csc_setup(int dp, struct dp_csc_param_t dp_csc_param,
+static void ipu_dp_csc_setup(int dp, struct dp_csc_param_t dp_csc_param,
 			unsigned char srm_mode_update)
 {
 	u32 reg;
@@ -605,17 +605,6 @@ void ipu_dc_uninit(int dc_chan)
 	}
 }
 
-int ipu_chan_is_interlaced(ipu_channel_t channel)
-{
-	if (channel == MEM_DC_SYNC)
-		return !!(__raw_readl(DC_WR_CH_CONF_1) &
-			  DC_WR_CH_CONF_FIELD_MODE);
-	else if ((channel == MEM_BG_SYNC) || (channel == MEM_FG_SYNC))
-		return !!(__raw_readl(DC_WR_CH_CONF_5) &
-			  DC_WR_CH_CONF_FIELD_MODE);
-	return 0;
-}
-
 void ipu_dp_dc_enable(ipu_channel_t channel)
 {
 	int di;
@@ -782,7 +771,7 @@ void ipu_init_dc_mappings(void)
 	ipu_dc_map_config(4, 2, 21, 0xFC);
 }
 
-int ipu_pixfmt_to_map(uint32_t fmt)
+static int ipu_pixfmt_to_map(uint32_t fmt)
 {
 	switch (fmt) {
 	case IPU_PIX_FMT_GENERIC:

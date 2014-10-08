@@ -36,7 +36,7 @@ static struct fb_videomode const *gmode;
 static uint8_t gdisp;
 static uint32_t gpixfmt;
 
-void fb_videomode_to_var(struct fb_var_screeninfo *var,
+static void fb_videomode_to_var(struct fb_var_screeninfo *var,
 			 const struct fb_videomode *mode)
 {
 	var->xres = mode->xres;
