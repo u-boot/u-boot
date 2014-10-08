@@ -336,6 +336,9 @@ config TARGET_BCM958622HR
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
 
+config ARCH_S5PC1XX
+	bool "Samsung S5PC1XX"
+
 config ARCH_HIGHBANK
 	bool "Calxeda Highbank"
 
@@ -428,9 +431,6 @@ config RMOBILE
 
 config TARGET_CM_FX6
 	bool "Support cm_fx6"
-
-config TARGET_S5P_GONI
-	bool "Support s5p_goni"
 
 config TARGET_SMDKC100
 	bool "Support smdkc100"
@@ -550,6 +550,8 @@ source "arch/arm/cpu/arm926ejs/orion5x/Kconfig"
 
 source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
+source "arch/arm/cpu/armv7/s5pc1xx/Kconfig"
+
 source "arch/arm/cpu/armv7/tegra-common/Kconfig"
 
 source "arch/arm/cpu/armv7/uniphier/Kconfig"
@@ -657,7 +659,6 @@ source "board/raspberrypi/rpi_b/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"
 source "board/ronetix/pm9g45/Kconfig"
-source "board/samsung/goni/Kconfig"
 source "board/samsung/smdk2410/Kconfig"
 source "board/samsung/smdkc100/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
