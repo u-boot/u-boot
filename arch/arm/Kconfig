@@ -414,6 +414,9 @@ config TARGET_HUMMINGBOARD
 config TARGET_TQMA6
 	bool "TQ Systems TQMa6 board"
 
+config TARGET_OT1200
+	bool "Bachmann OT1200"
+
 config OMAP34XX
 	bool "OMAP34XX SoC"
 
@@ -583,6 +586,7 @@ source "board/atmel/at91sam9rlek/Kconfig"
 source "board/atmel/at91sam9x5ek/Kconfig"
 source "board/atmel/sama5d3_xplained/Kconfig"
 source "board/atmel/sama5d3xek/Kconfig"
+source "board/bachmann/ot1200/Kconfig"
 source "board/balloon3/Kconfig"
 source "board/barco/titanium/Kconfig"
 source "board/bluegiga/apx4devkit/Kconfig"

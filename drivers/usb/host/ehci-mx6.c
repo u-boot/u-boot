@@ -174,7 +174,7 @@ struct usbnc_regs {
 
 static void usb_oc_config(int index)
 {
-	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USBOH3_USB_BASE_ADDR +
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
 			USB_OTHERREGS_OFFSET);
 	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl[index]);
 	u32 val;
@@ -207,7 +207,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	enum usb_init_type type;
-	struct usb_ehci *ehci = (struct usb_ehci *)(USBOH3_USB_BASE_ADDR +
+	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
 		(0x200 * index));
 
 	if (index > 3)

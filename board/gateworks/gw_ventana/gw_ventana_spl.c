@@ -402,13 +402,6 @@ void board_init_f(ulong dummy)
 	struct ventana_board_info ventana_info;
 	int board_model;
 
-	/*
-	 * Zero out global data:
-	 *  - this shoudl be done by crt0.S
-	 *  - failure to zero it will cause i2c_setup to fail
-	 */
-	memset((void *)gd, 0, sizeof(struct global_data));
-
 	/* setup AIPS and disable watchdog */
 	arch_cpu_init();
 

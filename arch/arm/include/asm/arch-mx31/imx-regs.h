@@ -909,9 +909,19 @@ struct esdc_regs {
 #define MXC_CSPIPERIOD_32KHZ	(1 << 15)
 #define MAX_SPI_BYTES	4
 
+
 #define MXC_SPI_BASE_ADDRESSES \
 	0x43fa4000, \
 	0x50010000, \
 	0x53f84000,
+
+/*
+ * Generic timer support
+ */
+#ifdef CONFIG_MX31_CLK32
+#define	CONFIG_SYS_TIMER_RATE	CONFIG_MX31_CLK32
+#else
+#define	CONFIG_SYS_TIMER_RATE	32768
+#endif
 
 #endif /* __ASM_ARCH_MX31_IMX_REGS_H */

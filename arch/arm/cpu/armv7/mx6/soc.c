@@ -273,10 +273,25 @@ int board_postclk_init(void)
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
+#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
+	enum dcache_option option = DCACHE_WRITETHROUGH;
+#else
+	enum dcache_option option = DCACHE_WRITEBACK;
+#endif
+
 	/* Avoid random hang when download by usb */
 	invalidate_dcache_all();
+
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
+
+	/* Enable caching on OCRAM and ROM */
+	mmu_set_region_dcache_behaviour(ROMCP_ARB_BASE_ADDR,
+					ROMCP_ARB_END_ADDR,
+					option);
+	mmu_set_region_dcache_behaviour(IRAM_BASE_ADDR,
+					IRAM_SIZE,
+					option);
 }
 #endif
 
@@ -339,10 +354,10 @@ const struct boot_mode soc_boot_modes[] = {
 void s_init(void)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
-	int is_6q = is_cpu_type(MXC_CPU_MX6Q);
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	u32 mask480;
 	u32 mask528;
-
+	u32 reg, periph1, periph2;
 
 	if (is_cpu_type(MXC_CPU_MX6SX))
 		return;
@@ -357,15 +372,23 @@ void s_init(void)
 		ANATOP_PFD_CLKGATE_MASK(1) |
 		ANATOP_PFD_CLKGATE_MASK(2) |
 		ANATOP_PFD_CLKGATE_MASK(3);
-	mask528 = ANATOP_PFD_CLKGATE_MASK(0) |
-		ANATOP_PFD_CLKGATE_MASK(1) |
+	mask528 = ANATOP_PFD_CLKGATE_MASK(1) |
 		ANATOP_PFD_CLKGATE_MASK(3);
 
-	/*
-	 * Don't reset PFD2 on DL/S
-	 */
-	if (is_6q)
+	reg = readl(&ccm->cbcmr);
+	periph2 = ((reg & MXC_CCM_CBCMR_PRE_PERIPH2_CLK_SEL_MASK)
+		>> MXC_CCM_CBCMR_PRE_PERIPH2_CLK_SEL_OFFSET);
+	periph1 = ((reg & MXC_CCM_CBCMR_PRE_PERIPH_CLK_SEL_MASK)
+		>> MXC_CCM_CBCMR_PRE_PERIPH_CLK_SEL_OFFSET);
+
+	/* Checking if PLL2 PFD0 or PLL2 PFD2 is using for periph clock */
+	if ((periph2 != 0x2) && (periph1 != 0x2))
+		mask528 |= ANATOP_PFD_CLKGATE_MASK(0);
+
+	if ((periph2 != 0x1) && (periph1 != 0x1) &&
+		(periph2 != 0x3) && (periph1 != 0x3))
 		mask528 |= ANATOP_PFD_CLKGATE_MASK(2);
+
 	writel(mask480, &anatop->pfd_480_set);
 	writel(mask528, &anatop->pfd_528_set);
 	writel(mask480, &anatop->pfd_480_clr);
