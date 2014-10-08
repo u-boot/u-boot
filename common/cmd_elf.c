@@ -28,8 +28,7 @@ static unsigned long load_elf_image_phdr(unsigned long addr);
 static unsigned long load_elf_image_shdr(unsigned long addr);
 
 /* Allow ports to override the default behavior */
-__attribute__((weak))
-unsigned long do_bootelf_exec(ulong (*entry)(int, char * const[]),
+static unsigned long do_bootelf_exec(ulong (*entry)(int, char * const[]),
 			       int argc, char * const argv[])
 {
 	unsigned long ret;
