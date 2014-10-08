@@ -36,7 +36,7 @@ void __set_direction(unsigned pin, int input)
 	u = readl(GPIO_IO_CONF(pin));
 }
 
-void __set_level(unsigned pin, int high)
+static void __set_level(unsigned pin, int high)
 {
 	u32 u;
 
@@ -48,7 +48,7 @@ void __set_level(unsigned pin, int high)
 	writel(u, GPIO_OUT(pin));
 }
 
-void __set_blinking(unsigned pin, int blink)
+static void __set_blinking(unsigned pin, int blink)
 {
 	u32 u;
 
