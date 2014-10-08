@@ -194,7 +194,8 @@ static void rgb_enable(struct dc_com_reg *com)
 		writel(rgb_sel_tab[i], &com->pin_output_sel[i]);
 }
 
-int setup_window(struct disp_ctl_win *win, struct fdt_disp_config *config)
+static int setup_window(struct disp_ctl_win *win,
+			struct fdt_disp_config *config)
 {
 	win->x = 0;
 	win->y = 0;

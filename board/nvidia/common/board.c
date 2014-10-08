@@ -47,45 +47,18 @@ const struct tegra_sysinfo sysinfo = {
 	CONFIG_TEGRA_BOARD_STRING
 };
 
-void __pinmux_init(void)
-{
-}
-
-void pinmux_init(void) __attribute__((weak, alias("__pinmux_init")));
-
-void __pin_mux_usb(void)
-{
-}
-
-void pin_mux_usb(void) __attribute__((weak, alias("__pin_mux_usb")));
-
-void __pin_mux_spi(void)
-{
-}
-
-void pin_mux_spi(void) __attribute__((weak, alias("__pin_mux_spi")));
-
-void __gpio_early_init_uart(void)
-{
-}
-
-void gpio_early_init_uart(void)
-__attribute__((weak, alias("__gpio_early_init_uart")));
+__weak void pinmux_init(void) {}
+__weak void pin_mux_usb(void) {}
+__weak void pin_mux_spi(void) {}
+__weak void gpio_early_init_uart(void) {}
+__weak void pin_mux_display(void) {}
 
 #if defined(CONFIG_TEGRA_NAND)
-void __pin_mux_nand(void)
+__weak void pin_mux_nand(void)
 {
 	funcmux_select(PERIPH_ID_NDFLASH, FUNCMUX_DEFAULT);
 }
-
-void pin_mux_nand(void) __attribute__((weak, alias("__pin_mux_nand")));
 #endif
-
-void __pin_mux_display(void)
-{
-}
-
-void pin_mux_display(void) __attribute__((weak, alias("__pin_mux_display")));
 
 /*
  * Routine: power_det_init
@@ -204,11 +177,9 @@ int board_late_init(void)
 }
 
 #if defined(CONFIG_TEGRA_MMC)
-void __pin_mux_mmc(void)
+__weak void pin_mux_mmc(void)
 {
 }
-
-void pin_mux_mmc(void) __attribute__((weak, alias("__pin_mux_mmc")));
 
 /* this is a weak define that we are overriding */
 int board_mmc_init(bd_t *bd)

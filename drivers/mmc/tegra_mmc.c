@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/mmc.h>
 #include <asm/arch-tegra/tegra_mmc.h>
 #include <mmc.h>
 
@@ -508,7 +509,7 @@ static int tegra_mmc_core_init(struct mmc *mmc)
 	return 0;
 }
 
-int tegra_mmc_getcd(struct mmc *mmc)
+static int tegra_mmc_getcd(struct mmc *mmc)
 {
 	struct mmc_host *host = mmc->priv;
 

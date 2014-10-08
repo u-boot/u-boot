@@ -471,8 +471,8 @@ static void tegra_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 }
 
 /* i2c write version without the register address */
-int i2c_write_data(struct i2c_bus *bus, uchar chip, uchar *buffer, int len,
-		   bool end_with_repeated_start)
+static int i2c_write_data(struct i2c_bus *bus, uchar chip, uchar *buffer,
+			  int len, bool end_with_repeated_start)
 {
 	int rc;
 
@@ -493,7 +493,8 @@ int i2c_write_data(struct i2c_bus *bus, uchar chip, uchar *buffer, int len,
 }
 
 /* i2c read version without the register address */
-int i2c_read_data(struct i2c_bus *bus, uchar chip, uchar *buffer, int len)
+static int i2c_read_data(struct i2c_bus *bus, uchar chip, uchar *buffer,
+				int len)
 {
 	int rc;
 
