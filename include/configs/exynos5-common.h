@@ -14,7 +14,6 @@
 #include "exynos-common.h"
 
 #define CONFIG_SYS_CACHELINE_SIZE	64
-#define CONFIG_ARCH_EARLY_INIT_R
 #define CONFIG_EXYNOS_SPL
 
 /* Allow tracing to be enabled */
@@ -83,8 +82,6 @@
 /* specific .lds file */
 #define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
 
-/* Miscellaneous configurable options */
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 /* Boot Argument Buffer Size */
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
@@ -132,15 +129,10 @@
 #define CONFIG_BL1_OFFSET	(CONFIG_RES_BLOCK_SIZE + CONFIG_SEC_FW_SIZE)
 #define CONFIG_BL2_OFFSET	(CONFIG_BL1_OFFSET + CONFIG_BL1_SIZE)
 
-/* Store environment at the end of a 4 MB SPI flash */
-#define FLASH_SIZE		(0x4 << 20)
-#define CONFIG_ENV_OFFSET	(FLASH_SIZE - CONFIG_BL2_SIZE)
-
 /* U-boot copy size from boot Media to DRAM.*/
 #define BL2_START_OFFSET	(CONFIG_BL2_OFFSET/512)
 #define BL2_SIZE_BLOC_COUNT	(CONFIG_BL2_SIZE/512)
 
-#define CONFIG_SPI_BOOTING
 #define EXYNOS_COPY_SPI_FNPTR_ADDR	0x02020058
 #define SPI_FLASH_UBOOT_POS	(CONFIG_SEC_FW_SIZE + CONFIG_BL1_SIZE)
 
@@ -155,10 +147,6 @@
 #define CONFIG_I2C_EDID
 
 /* SPI */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_SPI_FLASH
-#define CONFIG_ENV_SPI_BASE	0x12D30000
-
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_EXYNOS_SPI
 #define CONFIG_CMD_SF

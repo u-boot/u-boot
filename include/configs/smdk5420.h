@@ -11,6 +11,8 @@
 
 #include <configs/exynos5420-common.h>
 
+#define CONFIG_BOARD_COMMON
+
 #define CONFIG_SMDK5420			/* which is in a SMDK5420 */
 
 
@@ -19,5 +21,6 @@
 
 #define CONFIG_SYS_PROMPT	"SMDK5420 # "
 #define CONFIG_IDENT_STRING	" for SMDK5420"
+#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
 #endif	/* __CONFIG_SMDK5420_H */
