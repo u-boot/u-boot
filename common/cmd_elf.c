@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <bootm.h>
 #include <command.h>
 #include <linux/ctype.h>
 #include <net.h>
