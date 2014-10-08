@@ -153,7 +153,7 @@ static void eth_current_changed(void)
 		setenv("ethact", NULL);
 }
 
-int eth_address_set(unsigned char *addr)
+static int eth_address_set(unsigned char *addr)
 {
 	return memcmp(addr, "\0\0\0\0\0\0", 6);
 }
