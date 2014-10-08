@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <asm/imx-common/regs-common.h>

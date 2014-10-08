@@ -7,7 +7,9 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <bootm.h>
 #include <common.h>
+#include <netdev.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>

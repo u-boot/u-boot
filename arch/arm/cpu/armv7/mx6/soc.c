@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <asm/armv7.h>
+#include <asm/bootm.h>
 #include <asm/pl310.h>
 #include <asm/errno.h>
 #include <asm/io.h>
