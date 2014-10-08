@@ -124,7 +124,7 @@ int env_init(void)
  * The legacy NAND code saved the environment in the first NAND device i.e.,
  * nand_dev_desc + 0. This is also the behaviour using the new NAND code.
  */
-int writeenv(size_t offset, u_char *buf)
+static int writeenv(size_t offset, u_char *buf)
 {
 	size_t end = offset + CONFIG_ENV_RANGE;
 	size_t amount_saved = 0;
@@ -233,7 +233,7 @@ int saveenv(void)
 }
 #endif /* CMD_SAVEENV */
 
-int readenv(size_t offset, u_char *buf)
+static int readenv(size_t offset, u_char *buf)
 {
 	size_t end = offset + CONFIG_ENV_RANGE;
 	size_t amount_loaded = 0;
