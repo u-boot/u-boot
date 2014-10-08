@@ -432,9 +432,6 @@ config RMOBILE
 config TARGET_CM_FX6
 	bool "Support cm_fx6"
 
-config TARGET_SMDKC100
-	bool "Support smdkc100"
-
 config TARGET_SOCFPGA_CYCLONE5
 	bool "Support socfpga_cyclone5"
 
@@ -660,7 +657,6 @@ source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"
 source "board/ronetix/pm9g45/Kconfig"
 source "board/samsung/smdk2410/Kconfig"
-source "board/samsung/smdkc100/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
 source "board/scb9328/Kconfig"
 source "board/schulercontrol/sc_sps_1/Kconfig"

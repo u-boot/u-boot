@@ -1,3 +1,4 @@
+dtb-$(CONFIG_S5PC100) += s5pc1xx-smdkc100.dtb
 dtb-$(CONFIG_S5PC110) += s5pc1xx-goni.dtb
 dtb-$(CONFIG_EXYNOS4) += exynos4210-origen.dtb \
 	exynos4210-smdkv310.dtb \
