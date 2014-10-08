@@ -75,7 +75,7 @@ static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 
 #ifdef CONFIG_SPL_BUILD
 /* Check wait pin as dev ready indicator */
-int omap_spl_dev_ready(struct mtd_info *mtd)
+static int omap_spl_dev_ready(struct mtd_info *mtd)
 {
 	return gpmc_cfg->status & (1 << 8);
 }
@@ -159,23 +159,6 @@ static int __maybe_unused omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
 		}
 	}
 	return 0;
-}
-
-/*
- * omap_reverse_list - re-orders list elements in reverse order [internal]
- * @list:	pointer to start of list
- * @length:	length of list
-*/
-void omap_reverse_list(u8 *list, unsigned int length)
-{
-	unsigned int i, j;
-	unsigned int half_length = length / 2;
-	u8 tmp;
-	for (i = 0, j = length - 1; i < half_length; i++, j--) {
-		tmp = list[i];
-		list[i] = list[j];
-		list[j] = tmp;
-	}
 }
 
 /*
@@ -350,6 +333,23 @@ static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
 }
 
 #ifdef CONFIG_NAND_OMAP_ELM
+/*
+ * omap_reverse_list - re-orders list elements in reverse order [internal]
+ * @list:	pointer to start of list
+ * @length:	length of list
+*/
+static void omap_reverse_list(u8 *list, unsigned int length)
+{
+	unsigned int i, j;
+	unsigned int half_length = length / 2;
+	u8 tmp;
+	for (i = 0, j = length - 1; i < half_length; i++, j--) {
+		tmp = list[i];
+		list[i] = list[j];
+		list[j] = tmp;
+	}
+}
+
 /*
  * omap_correct_data_bch - Compares the ecc read from nand spare area
  * with ECC registers values and corrects one bit error if it has occured
