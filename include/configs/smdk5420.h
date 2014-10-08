@@ -9,9 +9,7 @@
 #ifndef __CONFIG_SMDK5420_H
 #define __CONFIG_SMDK5420_H
 
-#include <configs/exynos5-common.h>
-
-#include <configs/exynos5420.h>
+#include <configs/exynos5420-common.h>
 
 #define CONFIG_SMDK5420			/* which is in a SMDK5420 */
 

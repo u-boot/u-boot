@@ -9,7 +9,9 @@
 #ifndef __CONFIG_EXYNOS5420_H
 #define __CONFIG_EXYNOS5420_H
 
-#define CONFIG_EXYNOS5420		/* which is in a Exynos5 Family */
+#define CONFIG_EXYNOS5420
+
+#include <configs/exynos5-common.h>
 
 #define MACH_TYPE_SMDK5420	8002
 #define CONFIG_MACH_TYPE	MACH_TYPE_SMDK5420
@@ -30,10 +32,6 @@
 #define CONFIG_DEVICE_TREE_LIST "exynos5420-peach-pit exynos5420-smdk5420"
 
 #define CONFIG_MAX_I2C_NUM	11
-
-/* Enable FIT support and comparison */
-#define CONFIG_FIT
-#define CONFIG_FIT_BEST_MATCH
 
 #define CONFIG_BOARD_REV_GPIO_COUNT	2
 
