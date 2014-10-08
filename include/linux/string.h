@@ -20,6 +20,10 @@ extern __kernel_size_t strspn(const char *,const char *);
  */
 #include <asm/string.h>
 
+#ifndef __HAVE_ARCH_BCOPY
+char *bcopy(const char *src, char *dest, int count);
+#endif
+
 #ifndef __HAVE_ARCH_STRCPY
 extern char * strcpy(char *,const char *);
 #endif
@@ -88,6 +92,9 @@ extern void * memchr(const void *,int,__kernel_size_t);
 #ifndef __HAVE_ARCH_MEMCHR_INV
 void *memchr_inv(const void *, int, size_t);
 #endif
+
+unsigned long ustrtoul(const char *cp, char **endp, unsigned int base);
+unsigned long long ustrtoull(const char *cp, char **endp, unsigned int base);
 
 #ifdef __cplusplus
 }
