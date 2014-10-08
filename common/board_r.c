@@ -364,7 +364,7 @@ static int initr_spi(void)
 
 #ifdef CONFIG_CMD_NAND
 /* go init the NAND */
-int initr_nand(void)
+static int initr_nand(void)
 {
 	puts("NAND:  ");
 	nand_init();
@@ -374,7 +374,7 @@ int initr_nand(void)
 
 #if defined(CONFIG_CMD_ONENAND)
 /* go init the NAND */
-int initr_onenand(void)
+static int initr_onenand(void)
 {
 	puts("NAND:  ");
 	onenand_init();
@@ -383,7 +383,7 @@ int initr_onenand(void)
 #endif
 
 #ifdef CONFIG_GENERIC_MMC
-int initr_mmc(void)
+static int initr_mmc(void)
 {
 	puts("MMC:   ");
 	mmc_initialize(gd->bd);
@@ -392,7 +392,7 @@ int initr_mmc(void)
 #endif
 
 #ifdef CONFIG_HAS_DATAFLASH
-int initr_dataflash(void)
+static int initr_dataflash(void)
 {
 	AT91F_DataflashInit();
 	dataflash_print_info();
