@@ -12,7 +12,7 @@
 #include <dm.h>
 #include <asm/gpio.h>
 
-int __weak name_to_gpio(const char *name)
+__weak int name_to_gpio(const char *name)
 {
 	return simple_strtoul(name, NULL, 10);
 }

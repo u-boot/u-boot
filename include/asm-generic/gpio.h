@@ -193,4 +193,6 @@ const char *gpio_get_bank_info(struct udevice *dev, int *offset_count);
 int gpio_lookup_name(const char *name, struct udevice **devp,
 		     unsigned int *offsetp, unsigned int *gpiop);
 
+int name_to_gpio(const char *name);
+
 #endif	/* _ASM_GENERIC_GPIO_H_ */
