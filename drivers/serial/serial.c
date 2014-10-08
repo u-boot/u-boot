@@ -256,28 +256,28 @@ void serial_initialize(void)
 	serial_assign(default_serial_console()->name);
 }
 
-int serial_stub_start(struct stdio_dev *sdev)
+static int serial_stub_start(struct stdio_dev *sdev)
 {
 	struct serial_device *dev = sdev->priv;
 
 	return dev->start();
 }
 
-int serial_stub_stop(struct stdio_dev *sdev)
+static int serial_stub_stop(struct stdio_dev *sdev)
 {
 	struct serial_device *dev = sdev->priv;
 
 	return dev->stop();
 }
 
-void serial_stub_putc(struct stdio_dev *sdev, const char ch)
+static void serial_stub_putc(struct stdio_dev *sdev, const char ch)
 {
 	struct serial_device *dev = sdev->priv;
 
 	dev->putc(ch);
 }
 
-void serial_stub_puts(struct stdio_dev *sdev, const char *str)
+static void serial_stub_puts(struct stdio_dev *sdev, const char *str)
 {
 	struct serial_device *dev = sdev->priv;
 

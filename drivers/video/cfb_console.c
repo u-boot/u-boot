@@ -944,7 +944,7 @@ static void parse_putc(const char c)
 		CURSOR_SET;
 }
 
-void video_putc(struct stdio_dev *dev, const char c)
+static void video_putc(struct stdio_dev *dev, const char c)
 {
 #ifdef CONFIG_CFB_CONSOLE_ANSI
 	int i;
@@ -1158,7 +1158,7 @@ void video_putc(struct stdio_dev *dev, const char c)
 		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 }
 
-void video_puts(struct stdio_dev *dev, const char *s)
+static void video_puts(struct stdio_dev *dev, const char *s)
 {
 	int count = strlen(s);
 
