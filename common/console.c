@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <stdarg.h>
+#include <iomux.h>
 #include <malloc.h>
 #include <os.h>
 #include <serial.h>
@@ -621,7 +622,7 @@ inline void dbg(const char *fmt, ...)
 
 }
 #else
-inline void dbg(const char *fmt, ...)
+static inline void dbg(const char *fmt, ...)
 {
 }
 #endif
