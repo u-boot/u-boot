@@ -124,7 +124,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 #endif
 #define CONFIG_SDHCI_CMD_DEFAULT_TIMEOUT	100
 
-int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
+static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		       struct mmc_data *data)
 {
 	struct sdhci_host *host = mmc->priv;
@@ -355,7 +355,7 @@ static void sdhci_set_power(struct sdhci_host *host, unsigned short power)
 	sdhci_writeb(host, pwr, SDHCI_POWER_CONTROL);
 }
 
-void sdhci_set_ios(struct mmc *mmc)
+static void sdhci_set_ios(struct mmc *mmc)
 {
 	u32 ctrl;
 	struct sdhci_host *host = mmc->priv;
@@ -393,7 +393,7 @@ void sdhci_set_ios(struct mmc *mmc)
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
 }
 
-int sdhci_init(struct mmc *mmc)
+static int sdhci_init(struct mmc *mmc)
 {
 	struct sdhci_host *host = mmc->priv;
 
