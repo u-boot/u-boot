@@ -30,4 +30,6 @@
 #define LCD_BPP			LCD_COLOR16
 #endif
 
+#define CONFIG_POWER_TPS65090_EC
+
 #endif	/* __CONFIG_PEACH_PIT_H */

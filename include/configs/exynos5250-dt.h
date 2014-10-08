@@ -42,6 +42,7 @@
 
 /* PMIC */
 #define CONFIG_POWER_MAX77686
+#define CONFIG_POWER_TPS65090_I2C
 
 /* Sound */
 #define CONFIG_CMD_SOUND
