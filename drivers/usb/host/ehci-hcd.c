@@ -119,15 +119,12 @@ static struct descriptor {
 #define ehci_is_TDI()	(0)
 #endif
 
-int __ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
+__weak int ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
 {
 	return PORTSC_PSPD(reg);
 }
 
-int ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
-	__attribute__((weak, alias("__ehci_get_port_speed")));
-
-void __ehci_set_usbmode(int index)
+__weak void ehci_set_usbmode(int index)
 {
 	uint32_t tmp;
 	uint32_t *reg_ptr;
@@ -141,16 +138,10 @@ void __ehci_set_usbmode(int index)
 	ehci_writel(reg_ptr, tmp);
 }
 
-void ehci_set_usbmode(int index)
-	__attribute__((weak, alias("__ehci_set_usbmode")));
-
-void __ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+__weak void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
 {
 	mdelay(50);
 }
-
-void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
-	__attribute__((weak, alias("__ehci_powerup_fixup")));
 
 static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 {
