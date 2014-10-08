@@ -202,7 +202,7 @@ u32 __weak get_board_rev(void)
 /********************************************************
  *  get_base(); get upper addr of current execution
  *******************************************************/
-u32 get_base(void)
+static u32 get_base(void)
 {
 	u32 val;
 

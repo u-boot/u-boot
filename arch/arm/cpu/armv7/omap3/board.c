@@ -266,7 +266,7 @@ int __weak misc_init_r(void)
  * Routine: wait_for_command_complete
  * Description: Wait for posting to finish on watchdog
  *****************************************************************************/
-void wait_for_command_complete(struct watchdog *wd_base)
+static void wait_for_command_complete(struct watchdog *wd_base)
 {
 	int pending = 1;
 	do {
