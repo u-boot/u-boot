@@ -60,7 +60,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 ulong monitor_flash_len;
 
-int __board_flash_wp_on(void)
+__weak int board_flash_wp_on(void)
 {
 	/*
 	 * Most flashes can't be detected when write protection is enabled,
@@ -70,15 +70,9 @@ int __board_flash_wp_on(void)
 	return 0;
 }
 
-int board_flash_wp_on(void)
-	__attribute__ ((weak, alias("__board_flash_wp_on")));
-
-void __cpu_secondary_init_r(void)
+__weak void cpu_secondary_init_r(void)
 {
 }
-
-void cpu_secondary_init_r(void)
-	__attribute__ ((weak, alias("__cpu_secondary_init_r")));
 
 static int initr_secondary_cpu(void)
 {

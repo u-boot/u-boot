@@ -128,13 +128,10 @@ int init_func_watchdog_reset(void)
 }
 #endif /* CONFIG_WATCHDOG */
 
-void __board_add_ram_info(int use_default)
+__weak void board_add_ram_info(int use_default)
 {
 	/* please define platform specific board_add_ram_info() */
 }
-
-void board_add_ram_info(int)
-	__attribute__ ((weak, alias("__board_add_ram_info")));
 
 static int init_baud_rate(void)
 {
@@ -221,16 +218,13 @@ static int show_dram_config(void)
 	return 0;
 }
 
-void __dram_init_banksize(void)
+__weak void dram_init_banksize(void)
 {
 #if defined(CONFIG_NR_DRAM_BANKS) && defined(CONFIG_SYS_SDRAM_BASE)
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = get_effective_memsize();
 #endif
 }
-
-void dram_init_banksize(void)
-	__attribute__((weak, alias("__dram_init_banksize")));
 
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
 static int init_func_i2c(void)
