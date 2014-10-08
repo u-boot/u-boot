@@ -236,7 +236,7 @@ long lmb_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 	return lmb_add_region(_rgn, base, size);
 }
 
-long lmb_overlaps_region(struct lmb_region *rgn, phys_addr_t base,
+static long lmb_overlaps_region(struct lmb_region *rgn, phys_addr_t base,
 				phys_size_t size)
 {
 	unsigned long i;
