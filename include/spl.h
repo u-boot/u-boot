@@ -72,6 +72,8 @@ void spl_sata_load_image(void);
 int spl_load_image_fat(block_dev_desc_t *block_dev, int partition, const char *filename);
 int spl_load_image_fat_os(block_dev_desc_t *block_dev, int partition);
 
+void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image);
+
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void);
 #endif
