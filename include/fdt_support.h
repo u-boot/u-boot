@@ -144,6 +144,8 @@ static inline u64 of_read_number(const fdt32_t *cell, int size)
 
 void of_bus_default_count_cells(void *blob, int parentoffset,
 					int *addrc, int *sizec);
+int ft_verify_fdt(void *fdt);
+int arch_fixup_memory_node(void *blob);
 
 #endif /* ifdef CONFIG_OF_LIBFDT */
 
