@@ -22,6 +22,8 @@
 
 #define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 
+#define CONFIG_CROS_EC_I2C		/* Support CROS_EC over I2C */
+
 /* USB */
 #define CONFIG_CMD_USB
 #define CONFIG_USB_XHCI

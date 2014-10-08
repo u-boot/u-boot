@@ -31,5 +31,6 @@
 #endif
 
 #define CONFIG_POWER_TPS65090_EC
+#define CONFIG_CROS_EC_SPI		/* Support CROS_EC over SPI */
 
 #endif	/* __CONFIG_PEACH_PIT_H */
