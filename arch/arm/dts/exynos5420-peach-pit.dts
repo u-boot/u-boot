@@ -32,7 +32,7 @@
 		mem-manuf = "samsung";
 		mem-type = "ddr3";
 		clock-frequency = <800000000>;
-		arm-frequency = <1700000000>;
+		arm-frequency = <900000000>;
 	};
 
 	tmu@10060000 {
