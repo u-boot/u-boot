@@ -14,6 +14,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_pio.h>
+#include <status_led.h>
 
 /* bit mask in PIO port B */
 #define	GREEN_LED	(1<<0)

@@ -34,6 +34,7 @@
 #include <onenand_uboot.h>
 #include <mmc.h>
 #include <scsi.h>
+#include <status_led.h>
 #include <libfdt.h>
 #include <fdtdec.h>
 #include <post.h>

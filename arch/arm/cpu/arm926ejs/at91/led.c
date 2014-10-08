@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/gpio.h>
 #include <asm/arch/gpio.h>
+#include <status_led.h>
 
 #ifdef CONFIG_RED_LED
 void red_led_on(void)
