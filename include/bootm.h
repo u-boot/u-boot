@@ -54,4 +54,6 @@ int bootm_find_ramdisk_fdt(int flag, int argc, char * const argv[]);
 int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		    int states, bootm_headers_t *images, int boot_progress);
 
+void arch_preboot_os(void);
+
 #endif
