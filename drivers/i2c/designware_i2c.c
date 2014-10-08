@@ -8,6 +8,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include "designware_i2c.h"
+#include <i2c.h>
 
 #ifdef CONFIG_I2C_MULTI_BUS
 static unsigned int bus_initialized[CONFIG_SYS_I2C_BUS_MAX];
@@ -76,16 +77,20 @@ static void set_speed(int i2c_spd)
  *
  * Set the i2c speed.
  */
-int i2c_set_bus_speed(int speed)
+int i2c_set_bus_speed(unsigned int speed)
 {
-	if (speed >= I2C_MAX_SPEED)
-		set_speed(IC_SPEED_MODE_MAX);
-	else if (speed >= I2C_FAST_SPEED)
-		set_speed(IC_SPEED_MODE_FAST);
-	else
-		set_speed(IC_SPEED_MODE_STANDARD);
+	int i2c_spd;
 
-	return 0;
+	if (speed >= I2C_MAX_SPEED)
+		i2c_spd = IC_SPEED_MODE_MAX;
+	else if (speed >= I2C_FAST_SPEED)
+		i2c_spd = IC_SPEED_MODE_FAST;
+	else
+		i2c_spd = IC_SPEED_MODE_STANDARD;
+
+	set_speed(i2c_spd);
+
+	return i2c_spd;
 }
 
 /*
@@ -93,7 +98,7 @@ int i2c_set_bus_speed(int speed)
  *
  * Gets the i2c speed.
  */
-int i2c_get_bus_speed(void)
+unsigned int i2c_get_bus_speed(void)
 {
 	u32 cntl;
 
@@ -429,7 +434,7 @@ int i2c_set_bus_num(unsigned int bus)
 	return 0;
 }
 
-int i2c_get_bus_num(void)
+unsigned int i2c_get_bus_num(void)
 {
 	return current_bus;
 }
