@@ -10,6 +10,7 @@
 #define __CONFIG_PEACH_PIT_H
 
 #include <configs/exynos5420-common.h>
+#include <configs/exynos5-dt-common.h>
 
 
 /* select serial console configuration */

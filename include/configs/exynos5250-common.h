@@ -22,8 +22,6 @@
 
 #define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 
-#define CONFIG_CROS_EC_I2C		/* Support CROS_EC over I2C */
-
 /* USB */
 #define CONFIG_CMD_USB
 #define CONFIG_USB_XHCI
@@ -44,7 +42,6 @@
 
 /* PMIC */
 #define CONFIG_POWER_MAX77686
-#define CONFIG_POWER_TPS65090_I2C
 
 /* Sound */
 #define CONFIG_CMD_SOUND
