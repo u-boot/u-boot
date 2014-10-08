@@ -33,8 +33,8 @@
 #define CONFIG_TRACE_EARLY_ADDR		0x50000000
 
 /* Keep L2 Cache Disabled */
-#define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_SYS_CACHELINE_SIZE	64
+#define CONFIG_CMD_CACHE
 
 /* Enable ACE acceleration for SHA1 and SHA256 */
 #define CONFIG_EXYNOS_ACE_SHA
