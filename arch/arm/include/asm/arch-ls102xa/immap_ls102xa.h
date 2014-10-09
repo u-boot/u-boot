@@ -182,7 +182,7 @@ struct ccsr_scfg {
 	u32 etsecmcr;
 	u32 sdhciovserlcr;
 	u32 resv14[61];
-	u32 sparecr;
+	u32 sparecr[8];
 };
 
 /* Clocking */
