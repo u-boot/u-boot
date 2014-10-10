@@ -1059,9 +1059,8 @@ static void denali_cmdfunc(struct mtd_info *mtd, unsigned int cmd, int col,
 		addr = MODE_11 | BANK(denali->flash_bank);
 		index_addr(denali, addr | 0, cmd);
 		break;
-	case NAND_CMD_PARAM:
-		clear_interrupts(denali);
 	case NAND_CMD_READID:
+	case NAND_CMD_PARAM:
 		reset_buf(denali);
 		/* sometimes ManufactureId read from register is not right
 		 * e.g. some of Micron MT29F32G08QAA MLC NAND chips
@@ -1070,6 +1069,15 @@ static void denali_cmdfunc(struct mtd_info *mtd, unsigned int cmd, int col,
 		addr = MODE_11 | BANK(denali->flash_bank);
 		index_addr(denali, addr | 0, cmd);
 		index_addr(denali, addr | 1, col & 0xFF);
+		if (cmd == NAND_CMD_PARAM)
+			udelay(50);
+		break;
+	case NAND_CMD_RNDOUT:
+		addr = MODE_11 | BANK(denali->flash_bank);
+		index_addr(denali, addr | 0, cmd);
+		index_addr(denali, addr | 1, col & 0xFF);
+		index_addr(denali, addr | 1, col >> 8);
+		index_addr(denali, addr | 0, NAND_CMD_RNDOUTSTART);
 		break;
 	case NAND_CMD_READ0:
 	case NAND_CMD_SEQIN:

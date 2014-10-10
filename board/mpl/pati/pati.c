@@ -311,6 +311,11 @@ void user_led1(int led_on)
 	sysconf->sc_sgpiodt2=reg; /* Data register */
 }
 
+int board_early_init_f(void)
+{
+	spi_init_f();
+	return 0;
+}
 
 /****************************************************************
  * Last Stage Init

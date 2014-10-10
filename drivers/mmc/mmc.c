@@ -594,10 +594,15 @@ int mmc_switch_part(int dev_num, unsigned int part_num)
 	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
 			 (mmc->part_config & ~PART_ACCESS_MASK)
 			 | (part_num & PART_ACCESS_MASK));
-	if (ret)
-		return ret;
 
-	return mmc_set_capacity(mmc, part_num);
+	/*
+	 * Set the capacity if the switch succeeded or was intended
+	 * to return to representing the raw device.
+	 */
+	if ((ret == 0) || ((ret == -ENODEV) && (part_num == 0)))
+		ret = mmc_set_capacity(mmc, part_num);
+
+	return ret;
 }
 
 int mmc_getcd(struct mmc *mmc)
@@ -1010,6 +1015,8 @@ static int mmc_startup(struct mmc *mmc)
 
 			if (err)
 				return err;
+			else
+				ext_csd[EXT_CSD_ERASE_GROUP_DEF] = 1;
 
 			/* Read out group size from ext_csd */
 			mmc->erase_grp_size =
@@ -1127,10 +1134,11 @@ static int mmc_startup(struct mmc *mmc)
 			mmc_set_bus_width(mmc, widths[idx]);
 
 			err = mmc_send_ext_csd(mmc, test_csd);
+			/* Only compare read only fields */
 			if (!err && ext_csd[EXT_CSD_PARTITIONING_SUPPORT] \
 				    == test_csd[EXT_CSD_PARTITIONING_SUPPORT]
-				 && ext_csd[EXT_CSD_ERASE_GROUP_DEF] \
-				    == test_csd[EXT_CSD_ERASE_GROUP_DEF] \
+				 && ext_csd[EXT_CSD_HC_WP_GRP_SIZE] \
+				    == test_csd[EXT_CSD_HC_WP_GRP_SIZE] \
 				 && ext_csd[EXT_CSD_REV] \
 				    == test_csd[EXT_CSD_REV]
 				 && ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] \

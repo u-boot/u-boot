@@ -25,8 +25,7 @@ static struct phy_driver KSZ804_driver = {
 #ifndef CONFIG_PHY_MICREL_KSZ9021
 /*
  * I can't believe Micrel used the exact same part number
- * for the KSZ9021
- * Shame Micrel, Shame!!!!!
+ * for the KSZ9021. Shame Micrel, Shame!
  */
 static struct phy_driver KS8721_driver = {
 	.name = "Micrel KS8721BL",
@@ -40,7 +39,7 @@ static struct phy_driver KS8721_driver = {
 #endif
 
 
-/**
+/*
  * KSZ9021 - KSZ9031 common
  */
 
@@ -69,8 +68,8 @@ static int ksz90xx_startup(struct phy_device *phydev)
 		phydev->speed = SPEED_10;
 	return 0;
 }
-#ifdef CONFIG_PHY_MICREL_KSZ9021
 
+#ifdef CONFIG_PHY_MICREL_KSZ9021
 /*
  * KSZ9021
  */

@@ -69,8 +69,8 @@ get_enabled_subimages() {
 
 	# CONFIG_SPL=y -> spl
 	# CONFIG_TPL=y -> tpl
-	sed -n -e 's/^CONFIG_\(SPL\|TPL\)=y$/\1/p' $KCONFIG_CONFIG | \
-							tr '[A-Z]' '[a-z]'
+	sed -n -e 's/^CONFIG_SPL=y$/spl/p' -e 's/^CONFIG_TPL=y$/tpl/p' \
+							 $KCONFIG_CONFIG
 }
 
 do_silentoldconfig () {
@@ -120,7 +120,7 @@ do_board_defconfig () {
 
 	if [ ! -r $defconfig_path ]; then
 		echo >&2 "***"
-		echo >&2 "*** Can't find default configuration \"confis/$1\"!"
+		echo >&2 "*** Can't find default configuration \"configs/$1\"!"
 		echo >&2 "***"
 		exit 1
 	fi
@@ -229,6 +229,8 @@ do_savedefconfig () {
 				unmatched="$unmatched%$symbol:$line"
 			fi
 		done < defconfig
+
+		output_lines="$output_lines%$unmatched"
 	done
 
 	rm -f defconfig

@@ -70,7 +70,13 @@ int init_sata(int dev)
 	writel(val, TI_SATA_WRAPPER_BASE + TI_SATA_SYSCONFIG);
 
 	ret = ahci_init(DWC_AHSATA_BASE);
-	scsi_scan(1);
 
 	return ret;
+}
+
+/* On OMAP platforms SATA provides the SCSI subsystem */
+void scsi_init(void)
+{
+	init_sata(0);
+	scsi_scan(1);
 }

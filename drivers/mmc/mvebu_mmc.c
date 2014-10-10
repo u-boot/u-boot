@@ -17,7 +17,11 @@
 #include <asm/arch/kirkwood.h>
 #include <mvebu_mmc.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define DRIVER_NAME "MVEBU_MMC"
+
+#define MVEBU_TARGET_DRAM 0
 
 static void mvebu_mmc_write(u32 offs, u32 val)
 {
@@ -164,6 +168,9 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			return TIMEOUT;
 		}
 	}
+	if (mvebu_mmc_read(SDIO_ERR_INTR_STATUS) &
+		(SDIO_ERR_CMD_TIMEOUT | SDIO_ERR_DATA_TIMEOUT))
+		return TIMEOUT;
 
 	/* Handling response */
 	if (cmd->resp_type & MMC_RSP_136) {
@@ -271,6 +278,7 @@ static void mvebu_mmc_set_bus(unsigned int bus)
 
 	/* default to maximum timeout */
 	ctrl_reg |= SDIO_HOST_CTRL_TMOUT(SDIO_HOST_CTRL_TMOUT_MAX);
+	ctrl_reg |= SDIO_HOST_CTRL_TMOUT_EN;
 
 	ctrl_reg |= SDIO_HOST_CTRL_PUSH_PULL_EN;
 
@@ -294,6 +302,55 @@ static void mvebu_mmc_set_ios(struct mmc *mmc)
 	      mmc->bus_width, mmc->clock);
 	mvebu_mmc_set_bus(mmc->bus_width);
 	mvebu_mmc_set_clk(mmc->clock);
+}
+
+/*
+ * Set window register.
+ */
+static void mvebu_window_setup(void)
+{
+	int i;
+
+	for (i = 0; i < 4; i++) {
+		mvebu_mmc_write(WINDOW_CTRL(i), 0);
+		mvebu_mmc_write(WINDOW_BASE(i), 0);
+	}
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		u32 size, base, attrib;
+
+		/* Enable DRAM bank */
+		switch (i) {
+		case 0:
+			attrib = KWCPU_ATTR_DRAM_CS0;
+			break;
+		case 1:
+			attrib = KWCPU_ATTR_DRAM_CS1;
+			break;
+		case 2:
+			attrib = KWCPU_ATTR_DRAM_CS2;
+			break;
+		case 3:
+			attrib = KWCPU_ATTR_DRAM_CS3;
+			break;
+		default:
+			/* invalide bank, disable access */
+			attrib = 0;
+			break;
+		}
+
+		size = gd->bd->bi_dram[i].size;
+		base = gd->bd->bi_dram[i].start;
+		if (size && attrib) {
+			mvebu_mmc_write(WINDOW_CTRL(i),
+					MVCPU_WIN_CTRL_DATA(size,
+							    MVEBU_TARGET_DRAM,
+							    attrib,
+							    MVCPU_WIN_ENABLE));
+		} else {
+			mvebu_mmc_write(WINDOW_CTRL(i), MVCPU_WIN_DISABLE);
+		}
+		mvebu_mmc_write(WINDOW_BASE(i), base);
+	}
 }
 
 static int mvebu_mmc_initialize(struct mmc *mmc)
@@ -322,6 +379,8 @@ static int mvebu_mmc_initialize(struct mmc *mmc)
 	mvebu_mmc_write(SDIO_NOR_INTR_EN, 0);
 	mvebu_mmc_write(SDIO_ERR_INTR_EN, 0);
 
+	mvebu_window_setup();
+
 	/* SW reset */
 	mvebu_mmc_write(SDIO_SW_RESET, SDIO_SW_RESET_NOW);
 
@@ -342,7 +401,8 @@ static struct mmc_config mvebu_mmc_cfg = {
 	.f_min		= MVEBU_MMC_BASE_FAST_CLOCK / MVEBU_MMC_BASE_DIV_MAX,
 	.f_max		= MVEBU_MMC_CLOCKRATE_MAX,
 	.voltages	= MMC_VDD_32_33 | MMC_VDD_33_34,
-	.host_caps	= MMC_MODE_4BIT | MMC_MODE_HS,
+	.host_caps	= MMC_MODE_4BIT | MMC_MODE_HS | MMC_MODE_HC |
+			  MMC_MODE_HS_52MHz,
 	.part_type	= PART_TYPE_DOS,
 	.b_max		= CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };

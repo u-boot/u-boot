@@ -1,6 +1,0 @@
-BLUESTONE BOARD
-#M:	Tirumala Marri <tmarri@apm.com>
-S:	Orphan (since 2014-03)
-F:	board/amcc/bluestone/
-F:	include/configs/bluestone.h
-F:	configs/bluestone_defconfig

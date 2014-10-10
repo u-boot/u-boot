@@ -64,12 +64,6 @@ config TARGET_SUVD3
 config TARGET_TUXX1
 	bool "Support tuxx1"
 
-config TARGET_MERGERBOX
-	bool "Support MERGERBOX"
-
-config TARGET_MVBLM7
-	bool "Support MVBLM7"
-
 config TARGET_TQM834X
 	bool "Support TQM834x"
 
@@ -89,8 +83,6 @@ source "board/freescale/mpc837xemds/Kconfig"
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
 source "board/keymile/km83xx/Kconfig"
-source "board/matrix_vision/mergerbox/Kconfig"
-source "board/matrix_vision/mvblm7/Kconfig"
 source "board/mpc8308_p1m/Kconfig"
 source "board/sbc8349/Kconfig"
 source "board/tqc/tqm834x/Kconfig"

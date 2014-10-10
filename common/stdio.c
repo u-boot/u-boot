@@ -34,6 +34,9 @@ char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 #define	CONFIG_SYS_DEVICE_NULLDEV	1
 #endif
 
+#ifdef	CONFIG_SYS_STDIO_DEREGISTER
+#define	CONFIG_SYS_DEVICE_NULLDEV	1
+#endif
 
 #ifdef CONFIG_SYS_DEVICE_NULLDEV
 void nulldev_putc(struct stdio_dev *dev, const char c)
@@ -172,7 +175,7 @@ int stdio_register(struct stdio_dev *dev)
  * returns 0 if success, -1 if device is assigned and 1 if devname not found
  */
 #ifdef	CONFIG_SYS_STDIO_DEREGISTER
-int stdio_deregister_dev(struct stdio_dev *dev)
+int stdio_deregister_dev(struct stdio_dev *dev, int force)
 {
 	int l;
 	struct list_head *pos;
@@ -181,6 +184,10 @@ int stdio_deregister_dev(struct stdio_dev *dev)
 	/* get stdio devices (ListRemoveItem changes the dev list) */
 	for (l=0 ; l< MAX_FILES; l++) {
 		if (stdio_devices[l] == dev) {
+			if (force) {
+				strcpy(temp_names[l], "nulldev");
+				continue;
+			}
 			/* Device is assigned -> report error */
 			return -1;
 		}
@@ -202,7 +209,7 @@ int stdio_deregister_dev(struct stdio_dev *dev)
 	return 0;
 }
 
-int stdio_deregister(const char *devname)
+int stdio_deregister(const char *devname, int force)
 {
 	struct stdio_dev *dev;
 
@@ -211,7 +218,7 @@ int stdio_deregister(const char *devname)
 	if (!dev) /* device not found */
 		return -ENODEV;
 
-	return stdio_deregister_dev(dev);
+	return stdio_deregister_dev(dev, force);
 }
 #endif	/* CONFIG_SYS_STDIO_DEREGISTER */
 

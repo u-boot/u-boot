@@ -1,6 +1,0 @@
-MVBC_P BOARD
-#M:	Andre Schwarz <andre.schwarz@matrix-vision.de>
-S:	Orphan (since 2014-03)
-F:	board/matrix_vision/mvbc_p/
-F:	include/configs/MVBC_P.h
-F:	configs/MVBC_P_defconfig

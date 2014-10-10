@@ -52,9 +52,6 @@ config TARGET_ACADIA
 config TARGET_BAMBOO
 	bool "Support bamboo"
 
-config TARGET_BLUESTONE
-	bool "Support bluestone"
-
 config TARGET_BUBINGA
 	bool "Support bubinga"
 
@@ -105,9 +102,6 @@ config TARGET_FX12MM
 
 config TARGET_V5FX30TEVAL
 	bool "Support v5fx30teval"
-
-config TARGET_CRAYL1
-	bool "Support CRAYL1"
 
 config TARGET_CATCENTER
 	bool "Support CATcenter"
@@ -226,12 +220,6 @@ config TARGET_ALPR
 config TARGET_P3P440
 	bool "Support p3p440"
 
-config TARGET_KAREF
-	bool "Support KAREF"
-
-config TARGET_METROBOX
-	bool "Support METROBOX"
-
 config TARGET_XPEDITE1000
 	bool "Support xpedite1000"
 
@@ -248,7 +236,6 @@ endchoice
 
 source "board/amcc/acadia/Kconfig"
 source "board/amcc/bamboo/Kconfig"
-source "board/amcc/bluestone/Kconfig"
 source "board/amcc/bubinga/Kconfig"
 source "board/amcc/canyonlands/Kconfig"
 source "board/amcc/ebony/Kconfig"
@@ -266,7 +253,6 @@ source "board/amcc/yosemite/Kconfig"
 source "board/amcc/yucca/Kconfig"
 source "board/avnet/fx12mm/Kconfig"
 source "board/avnet/v5fx30teval/Kconfig"
-source "board/cray/L1/Kconfig"
 source "board/csb272/Kconfig"
 source "board/csb472/Kconfig"
 source "board/dave/PPChameleonEVB/Kconfig"
@@ -306,8 +292,6 @@ source "board/mpl/pip405/Kconfig"
 source "board/pcs440ep/Kconfig"
 source "board/prodrive/alpr/Kconfig"
 source "board/prodrive/p3p440/Kconfig"
-source "board/sandburst/karef/Kconfig"
-source "board/sandburst/metrobox/Kconfig"
 source "board/sbc405/Kconfig"
 source "board/sc3/Kconfig"
 source "board/t3corp/Kconfig"

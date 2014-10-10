@@ -229,7 +229,6 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 		 * already be on in the command register.
 		 */
 		cmd = readl(port_mmio + PORT_CMD);
-		cmd |= PORT_CMD_FIS_RX;
 		cmd |= PORT_CMD_SPIN_UP;
 		writel_with_flush(cmd, port_mmio + PORT_CMD);
 

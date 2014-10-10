@@ -102,10 +102,10 @@ static struct pllctl_regs *pllctl_regs[] = {
 #define PLL_BWADJ_LO_SMASK      (PLL_BWADJ_LO_MASK << PLL_BWADJ_LO_SHIFT)
 #define PLL_BWADJ_HI_MASK       0xf
 
-#define PLLM_RATIO_DIV1         (PLLDIV_ENABLE | 0)
-#define PLLM_RATIO_DIV2         (PLLDIV_ENABLE | 0)
-#define PLLM_RATIO_DIV3         (PLLDIV_ENABLE | 1)
-#define PLLM_RATIO_DIV4         (PLLDIV_ENABLE | 4)
-#define PLLM_RATIO_DIV5         (PLLDIV_ENABLE | 17)
+#define PLLM_RATIO_DIV1         (PLLDIV_ENABLE | 0x0)
+#define PLLM_RATIO_DIV2         (PLLDIV_ENABLE | 0x0)
+#define PLLM_RATIO_DIV3         (PLLDIV_ENABLE | 0x1)
+#define PLLM_RATIO_DIV4         (PLLDIV_ENABLE | 0x4)
+#define PLLM_RATIO_DIV5         (PLLDIV_ENABLE | 0x17)
 
 #endif  /* _CLOCK_DEFS_H_ */

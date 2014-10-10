@@ -97,12 +97,6 @@ config TARGET_MUCMC52
 config TARGET_UC101
 	bool "Support uc101"
 
-config TARGET_MVBC_P
-	bool "Support MVBC_P"
-
-config TARGET_MVSMR
-	bool "Support MVSMR"
-
 config TARGET_PCM030
 	bool "Support pcm030"
 
@@ -139,8 +133,6 @@ source "board/jupiter/Kconfig"
 source "board/manroland/hmi1001/Kconfig"
 source "board/manroland/mucmc52/Kconfig"
 source "board/manroland/uc101/Kconfig"
-source "board/matrix_vision/mvbc_p/Kconfig"
-source "board/matrix_vision/mvsmr/Kconfig"
 source "board/mcc200/Kconfig"
 source "board/motionpro/Kconfig"
 source "board/munices/Kconfig"

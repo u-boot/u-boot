@@ -151,7 +151,7 @@
 			"run mmcboot;" \
 		"fi;" \
 		"if run loadzimage; then " \
-			"if test $fdtfile; then " \
+			"if test -z \"${fdtfile}\"; then " \
 				"setenv fdtfile omap3-${boardname}-${expansionname}.dtb;" \
 			"fi;" \
 			"if run loadfdt; then " \

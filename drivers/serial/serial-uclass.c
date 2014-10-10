@@ -198,7 +198,7 @@ static int serial_pre_remove(struct udevice *dev)
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
 	struct serial_dev_priv *upriv = dev->uclass_priv;
 
-	if (stdio_deregister_dev(upriv->sdev))
+	if (stdio_deregister_dev(upriv->sdev), 0)
 		return -EPERM;
 #endif
 

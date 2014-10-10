@@ -93,7 +93,6 @@ int board_late_init(void)
 	else
 		setenv("board_name", "dra7xx");
 #endif
-	init_sata(0);
 	return 0;
 }
 

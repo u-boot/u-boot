@@ -17,7 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int checkboard(void)
 {
-	puts("BOARD : Altera SOCFPGA Cyclone5 Board\n");
+	puts("BOARD: Altera SoCFPGA Cyclone5 Board\n");
 	return 0;
 }
 
@@ -34,6 +34,8 @@ int board_early_init_f(void)
  */
 int board_init(void)
 {
-	icache_enable();
+	/* Address of boot parameters for ATAG (if ATAG is used) */
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+
 	return 0;
 }

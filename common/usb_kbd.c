@@ -8,6 +8,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <errno.h>
 #include <malloc.h>
 #include <stdio_dev.h>
 #include <asm/byteorder.h>
@@ -170,11 +171,12 @@ static void usb_kbd_setled(struct usb_device *dev)
 {
 	struct usb_interface *iface = &dev->config.if_desc[0];
 	struct usb_kbd_pdata *data = dev->privptr;
-	uint32_t leds = data->flags & USB_KBD_LEDMASK;
+	ALLOC_ALIGN_BUFFER(uint32_t, leds, 1, USB_DMA_MINALIGN);
 
+	*leds = data->flags & USB_KBD_LEDMASK;
 	usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 		USB_REQ_SET_REPORT, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-		0x200, iface->desc.bInterfaceNumber, (void *)&leds, 1, 0);
+		0x200, iface->desc.bInterfaceNumber, leds, 1, 0);
 }
 
 #define CAPITAL_MASK	0x20
@@ -488,7 +490,7 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 /* Search for keyboard and register it if found. */
 int drv_usb_kbd_init(void)
 {
-	struct stdio_dev usb_kbd_dev, *old_dev;
+	struct stdio_dev usb_kbd_dev;
 	struct usb_device *dev;
 	char *stdinname = getenv("stdin");
 	int error, i;
@@ -506,16 +508,6 @@ int drv_usb_kbd_init(void)
 		/* Try probing the keyboard */
 		if (usb_kbd_probe(dev, 0) != 1)
 			continue;
-
-		/* We found a keyboard, check if it is already registered. */
-		debug("USB KBD: found set up device.\n");
-		old_dev = stdio_get_by_name(DEVNAME);
-		if (old_dev) {
-			/* Already registered, just return ok. */
-			debug("USB KBD: is already registered.\n");
-			usb_kbd_deregister();
-			return 1;
-		}
 
 		/* Register the keyboard */
 		debug("USB KBD: register.\n");
@@ -555,10 +547,14 @@ int drv_usb_kbd_init(void)
 }
 
 /* Deregister the keyboard. */
-int usb_kbd_deregister(void)
+int usb_kbd_deregister(int force)
 {
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
-	return stdio_deregister(DEVNAME);
+	int ret = stdio_deregister(DEVNAME, force);
+	if (ret && ret != -ENODEV)
+		return ret;
+
+	return 0;
 #else
 	return 1;
 #endif

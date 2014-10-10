@@ -32,6 +32,7 @@ void spl_sata_load_image(void)
 		hang();
 	} else {
 		/* try to recognize storage devices immediately */
+		scsi_scan(0);
 		stor_dev = scsi_get_dev(0);
 	}
 
