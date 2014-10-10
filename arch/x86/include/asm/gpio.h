@@ -6,6 +6,7 @@
 #ifndef _X86_GPIO_H_
 #define _X86_GPIO_H_
 
+#include <asm/arch/gpio.h>
 #include <asm-generic/gpio.h>
 
 #endif /* _X86_GPIO_H_ */
