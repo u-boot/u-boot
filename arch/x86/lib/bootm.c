@@ -121,7 +121,7 @@ static int boot_prep_linux(bootm_headers_t *images)
 	} else if (images->ep) {
 		cmd_line_dest = (void *)images->ep + COMMAND_LINE_OFFSET;
 	} else {
-		printf("## Kernel loading failed (no setup) ...\n");
+		printf("## Kernel loading failed (missing x86 kernel setup) ...\n");
 		goto error;
 	}
 

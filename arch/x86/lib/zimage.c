@@ -307,12 +307,12 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	base_ptr = load_zimage(bzImage_addr, bzImage_size, &load_address);
 
 	if (!base_ptr) {
-		printf("## Kernel loading failed ...\n");
+		puts("## Kernel loading failed ...\n");
 		return -1;
 	}
 	if (setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET,
 			0, initrd_addr, initrd_size)) {
-		printf("Setting up boot parameters failed ...\n");
+		puts("Setting up boot parameters failed ...\n");
 		return -1;
 	}
 
