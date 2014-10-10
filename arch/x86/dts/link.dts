@@ -32,4 +32,22 @@
 			memory-map = <0xff800000 0x00800000>;
 		};
 	};
+
+	lpc {
+		compatible = "intel,lpc";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		cros-ec@200 {
+			compatible = "google,cros-ec";
+			reg = <0x204 1 0x200 1 0x880 0x80>;
+
+			/* This describes the flash memory within the EC */
+			#address-cells = <1>;
+			#size-cells = <1>;
+			flash@8000000 {
+				reg = <0x08000000 0x20000>;
+				erase-value = <0xff>;
+			};
+		};
+	};
 };
