@@ -6,6 +6,10 @@
 	model = "Toradex Apalis T30";
 	compatible = "toradex,apalis_t30", "nvidia,tegra30";
 
+	chosen {
+		stdout-path = &uarta;
+	};
+
 	aliases {
 		i2c0 = "/i2c@7000d000";
 		i2c1 = "/i2c@7000c000";
