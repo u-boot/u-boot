@@ -299,6 +299,8 @@ static void tftp_complete(void)
 		putc('#');
 		TftpNumchars++;
 	}
+	puts("  ");
+	print_size(TftpTsize, "");
 #endif
 	time_start = get_timer(time_start);
 	if (time_start > 0) {
