@@ -18,7 +18,10 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
+#include <malloc.h>
 #include <asm/control_regs.h>
+#include <asm/cpu.h>
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <asm/interrupt.h>
@@ -338,4 +341,46 @@ int print_cpuinfo(void)
 	printf("CPU:   %s\n", cpu_has_64bit() ? "x86_64" : "x86");
 
 	return 0;
+}
+
+#define PAGETABLE_SIZE		(6 * 4096)
+
+/**
+ * build_pagetable() - build a flat 4GiB page table structure for 64-bti mode
+ *
+ * @pgtable: Pointer to a 24iKB block of memory
+ */
+static void build_pagetable(uint32_t *pgtable)
+{
+	uint i;
+
+	memset(pgtable, '\0', PAGETABLE_SIZE);
+
+	/* Level 4 needs a single entry */
+	pgtable[0] = (uint32_t)&pgtable[1024] + 7;
+
+	/* Level 3 has one 64-bit entry for each GiB of memory */
+	for (i = 0; i < 4; i++) {
+		pgtable[1024 + i * 2] = (uint32_t)&pgtable[2048] +
+							0x1000 * i + 7;
+	}
+
+	/* Level 2 has 2048 64-bit entries, each repesenting 2MiB */
+	for (i = 0; i < 2048; i++)
+		pgtable[2048 + i * 2] = 0x183 + (i << 21UL);
+}
+
+int cpu_jump_to_64bit(ulong setup_base, ulong target)
+{
+	uint32_t *pgtable;
+
+	pgtable = memalign(4096, PAGETABLE_SIZE);
+	if (!pgtable)
+		return -ENOMEM;
+
+	build_pagetable(pgtable);
+	cpu_call64((ulong)pgtable, setup_base, target);
+	free(pgtable);
+
+	return -EFAULT;
 }

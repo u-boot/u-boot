@@ -26,4 +26,30 @@ void cpu_disable_paging_pae(void);
  */
 int cpu_has_64bit(void);
 
+/**
+ * cpu_call64() - Jump to a 64-bit Linux kernel (internal function)
+ *
+ * The kernel is uncompressed and the 64-bit entry point is expected to be
+ * at @target.
+ *
+ * This function is used internally - see cpu_jump_to_64bit() for a more
+ * useful function.
+ *
+ * @pgtable:	Address of 24KB area containing the page table
+ * @setup_base:	Pointer to the setup.bin information for the kernel
+ * @target:	Pointer to the start of the kernel image
+ */
+void cpu_call64(ulong pgtable, ulong setup_base, ulong target);
+
+/**
+ * cpu_jump_to_64bit() - Jump to a 64-bit Linux kernel
+ *
+ * The kernel is uncompressed and the 64-bit entry point is expected to be
+ * at @target.
+ *
+ * @setup_base:	Pointer to the setup.bin information for the kernel
+ * @target:	Pointer to the start of the kernel image
+ */
+int cpu_jump_to_64bit(ulong setup_base, ulong target);
+
 #endif
