@@ -103,7 +103,7 @@ static int get_boot_protocol(struct setup_header *hdr)
 }
 
 struct boot_params *load_zimage(char *image, unsigned long kernel_size,
-				void **load_address)
+				ulong *load_addressp)
 {
 	struct boot_params *setup_base;
 	int setup_size;
@@ -155,9 +155,9 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 
 	/* Determine load address */
 	if (big_image)
-		*load_address = (void *)BZIMAGE_LOAD_ADDR;
+		*load_addressp = BZIMAGE_LOAD_ADDR;
 	else
-		*load_address = (void *)ZIMAGE_LOAD_ADDR;
+		*load_addressp = ZIMAGE_LOAD_ADDR;
 
 	printf("Building boot_params at 0x%8.8lx\n", (ulong)setup_base);
 	memset(setup_base, 0, sizeof(*setup_base));
@@ -204,10 +204,10 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 		return 0;
 	}
 
-	printf("Loading %s at address %p (%ld bytes)\n",
-		big_image ? "bzImage" : "zImage", *load_address, kernel_size);
+	printf("Loading %s at address %lx (%ld bytes)\n",
+	       big_image ? "bzImage" : "zImage", *load_addressp, kernel_size);
 
-	memmove(*load_address, image + setup_size, kernel_size);
+	memmove((void *)*load_addressp, image + setup_size, kernel_size);
 
 	return setup_base;
 }
@@ -261,30 +261,6 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	return 0;
 }
 
-void boot_zimage(void *setup_base, void *load_address)
-{
-	bootm_announce_and_cleanup();
-
-#ifdef CONFIG_SYS_COREBOOT
-	timestamp_add_now(TS_U_BOOT_START_KERNEL);
-#endif
-	/*
-	 * Set %ebx, %ebp, and %edi to 0, %esi to point to the boot_params
-	 * structure, and then jump to the kernel. We assume that %cs is
-	 * 0x10, 4GB flat, and read/execute, and the data segments are 0x18,
-	 * 4GB flat, and read/write. U-boot is setting them up that way for
-	 * itself in arch/i386/cpu/cpu.c.
-	 */
-	__asm__ __volatile__ (
-	"movl $0, %%ebp\n"
-	"cli\n"
-	"jmp *%[kernel_entry]\n"
-	:: [kernel_entry]"a"(load_address),
-	   [boot_params] "S"(setup_base),
-	   "b"(0), "D"(0)
-	);
-}
-
 void setup_pcat_compatibility(void)
 	__attribute__((weak, alias("__setup_pcat_compatibility")));
 
@@ -296,7 +272,7 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct boot_params *base_ptr;
 	void *bzImage_addr = NULL;
-	void *load_address;
+	ulong load_address;
 	char *s;
 	ulong bzImage_size = 0;
 	ulong initrd_addr = 0;
@@ -341,10 +317,7 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	}
 
 	/* we assume that the kernel is in place */
-	boot_zimage(base_ptr, load_address);
-	/* does not return */
-
-	return -1;
+	return boot_linux_kernel((ulong)base_ptr, load_address, false);
 }
 
 U_BOOT_CMD(
