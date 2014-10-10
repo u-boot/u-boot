@@ -19,4 +19,11 @@ void cpu_enable_paging_pae(ulong cr3);
  */
 void cpu_disable_paging_pae(void);
 
+/**
+ * cpu_has_64bit() - Check if the CPU has 64-bit support
+ *
+ * @return 1 if this CPU supports long mode (64-bit), 0 if not
+ */
+int cpu_has_64bit(void);
+
 #endif

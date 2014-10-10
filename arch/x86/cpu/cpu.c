@@ -275,3 +275,67 @@ void cpu_disable_paging_pae(void)
 		:
 		: "eax");
 }
+
+static bool has_cpuid(void)
+{
+	unsigned long flag;
+
+	asm volatile("pushf\n" \
+		"pop %%eax\n"
+		"mov %%eax, %%ecx\n"	/* ecx = flags */
+		"xor %1, %%eax\n"
+		"push %%eax\n"
+		"popf\n"		/* flags ^= $2 */
+		"pushf\n"
+		"pop %%eax\n"		/* eax = flags */
+		"push %%ecx\n"
+		"popf\n"		/* flags = ecx */
+		"xor %%ecx, %%eax\n"
+		"mov %%eax, %0"
+		: "=r" (flag)
+		: "i" (1 << 21)
+		: "eax", "ecx", "memory");
+
+	return flag != 0;
+}
+
+static bool can_detect_long_mode(void)
+{
+	unsigned long flag;
+
+	asm volatile("mov $0x80000000, %%eax\n"
+		"cpuid\n"
+		"mov %%eax, %0"
+		: "=r" (flag)
+		:
+		: "eax", "ebx", "ecx", "edx", "memory");
+
+	return flag > 0x80000000UL;
+}
+
+static bool has_long_mode(void)
+{
+	unsigned long flag;
+
+	asm volatile("mov $0x80000001, %%eax\n"
+		"cpuid\n"
+		"mov %%edx, %0"
+		: "=r" (flag)
+		:
+		: "eax", "ebx", "ecx", "edx", "memory");
+
+	return flag & (1 << 29) ? true : false;
+}
+
+int cpu_has_64bit(void)
+{
+	return has_cpuid() && can_detect_long_mode() &&
+		has_long_mode();
+}
+
+int print_cpuinfo(void)
+{
+	printf("CPU:   %s\n", cpu_has_64bit() ? "x86_64" : "x86");
+
+	return 0;
+}
