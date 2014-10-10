@@ -15,6 +15,7 @@
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/bootparam.h>
+#include <asm/cpu.h>
 #include <asm/byteorder.h>
 #include <asm/zimage.h>
 #ifdef CONFIG_SYS_COREBOOT
@@ -148,7 +149,11 @@ int boot_linux_kernel(ulong setup_base, ulong load_address, bool image_64bit)
 	timestamp_add_now(TS_U_BOOT_START_KERNEL);
 #endif
 	if (image_64bit) {
-		/* TODO(boot 64-bit kernel) */
+		if (!cpu_has_64bit()) {
+			puts("Cannot boot 64-bit kernel on 32-bit machine\n");
+			return -EFAULT;
+		}
+		return cpu_jump_to_64bit(setup_base, load_address);
 	} else {
 		/*
 		* Set %ebx, %ebp, and %edi to 0, %esi to point to the
@@ -178,7 +183,8 @@ static int boot_jump_linux(bootm_headers_t *images)
 	debug("## Transferring control to Linux (at address %08lx, kernel %08lx) ...\n",
 	      images->ep, images->os.load);
 
-	return boot_linux_kernel(images->ep, images->os.load, false);
+	return boot_linux_kernel(images->ep, images->os.load,
+				 images->os.arch == IH_ARCH_X86_64);
 }
 
 int do_bootm_linux(int flag, int argc, char * const argv[],
