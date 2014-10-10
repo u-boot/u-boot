@@ -97,6 +97,13 @@ car_init_ret:
 	/* Reserve space for global descriptor table */
 	subl	$X86_GDT_SIZE, %esp
 
+#if defined(CONFIG_SYS_MALLOC_F_LEN)
+	subl	$CONFIG_SYS_MALLOC_F_LEN, %esp
+	movl	%eax, %edx
+	addl	$GD_MALLOC_BASE, %edx
+	movl	%esp, (%edx)
+#endif
+
 	/* Align temporary global descriptor table to 16-byte boundary */
 	andl	$0xfffffff0, %esp
 
