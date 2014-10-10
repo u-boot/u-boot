@@ -109,7 +109,8 @@
 
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_COMMAND_HISTORY
-#define CONFIG_AUTOCOMPLETE
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_SUPPORT_VFAT
 /************************************************************
@@ -208,8 +209,7 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT			"boot > "
-#define CONFIG_SYS_CBSIZE			256
+#define CONFIG_SYS_CBSIZE			512
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + \
 						 sizeof(CONFIG_SYS_PROMPT) + \
 						 16)
