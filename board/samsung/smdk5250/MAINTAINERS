@@ -6,7 +6,7 @@ F:	include/configs/smdk5250.h
 F:	configs/smdk5250_defconfig
 
 SNOW BOARD
-M:	Rajeshwari Shinde <rajeshwari.s@samsung.com>
+M:	Akshay Saraswat <akshay.s@samsung.com>
 S:	Maintained
 F:	include/configs/snow.h
 F:	configs/snow_defconfig

@@ -1,0 +1,25 @@
+if ARCH_S5PC1XX
+
+choice
+	prompt "S5PC1XX board select"
+
+config TARGET_S5P_GONI
+	bool "S5P Goni board"
+	select OF_CONTROL if !SPL_BUILD
+
+config TARGET_SMDKC100
+	bool "Support smdkc100 board"
+	select OF_CONTROL if !SPL_BUILD
+
+endchoice
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_SOC
+	default "s5pc1xx"
+
+source "board/samsung/goni/Kconfig"
+source "board/samsung/smdkc100/Kconfig"
+
+endif

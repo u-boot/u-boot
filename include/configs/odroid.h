@@ -12,7 +12,7 @@
 #ifndef __CONFIG_ODROID_U3_H
 #define __CONFIG_ODROID_U3_H
 
-#include <configs/exynos4-dt.h>
+#include <configs/exynos4-common.h>
 
 #define CONFIG_SYS_PROMPT	"Odroid # "	/* Monitor Command Prompt */
 
@@ -37,8 +37,6 @@
 #define CONFIG_SYS_TEXT_BASE		0x43e00000
 
 #include <linux/sizes.h>
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL1

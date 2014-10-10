@@ -158,10 +158,10 @@ static void board_clock_init(void)
 	 * For MOUThpm = 1000 MHz (MOUTapll)
 	 * doutcopy = MOUThpm / (ratio + 1) = 200 (4)
 	 * sclkhpm = doutcopy / (ratio + 1) = 200 (4)
-	 * cores_out = armclk / (ratio + 1) = 1000 (0)
+	 * cores_out = armclk / (ratio + 1) = 200 (4)
 	 */
 	clr = COPY_RATIO(7) | HPM_RATIO(7) | CORES_RATIO(7);
-	set = COPY_RATIO(4) | HPM_RATIO(4) | CORES_RATIO(0);
+	set = COPY_RATIO(4) | HPM_RATIO(4) | CORES_RATIO(4);
 
 	clrsetbits_le32(&clk->div_cpu1, clr, set);
 
@@ -195,8 +195,8 @@ static void board_clock_init(void)
 	while (readl(&clk->mux_stat_dmc) & MUX_STAT_DMC_CHANGING)
 		continue;
 
-	/* Set MPLL to 880MHz */
-	set = SDIV(0) | PDIV(3) | MDIV(110) | FSEL(0) | PLL_ENABLE(1);
+	/* Set MPLL to 800MHz */
+	set = SDIV(0) | PDIV(3) | MDIV(100) | FSEL(0) | PLL_ENABLE(1);
 
 	clrsetbits_le32(&clk->mpll_con0, clr_pll_con0, set);
 
@@ -220,15 +220,15 @@ static void board_clock_init(void)
 	      DMC_RATIO(7) | DMCD_RATIO(7) | DMCP_RATIO(7);
 	/*
 	 * For:
-	 * MOUTdmc = 880 MHz
-	 * MOUTdphy = 880 MHz
+	 * MOUTdmc = 800 MHz
+	 * MOUTdphy = 800 MHz
 	 *
-	 * aclk_acp = MOUTdmc / (ratio + 1) = 220 (3)
-	 * pclk_acp = aclk_acp / (ratio + 1) = 110 (1)
-	 * sclk_dphy = MOUTdphy / (ratio + 1) = 440 (1)
-	 * sclk_dmc = MOUTdmc / (ratio + 1) = 440 (1)
-	 * aclk_dmcd = sclk_dmc / (ratio + 1) = 220 (1)
-	 * aclk_dmcp = aclk_dmcd / (ratio + 1) = 110 (1)
+	 * aclk_acp = MOUTdmc / (ratio + 1) = 200 (3)
+	 * pclk_acp = aclk_acp / (ratio + 1) = 100 (1)
+	 * sclk_dphy = MOUTdphy / (ratio + 1) = 400 (1)
+	 * sclk_dmc = MOUTdmc / (ratio + 1) = 400 (1)
+	 * aclk_dmcd = sclk_dmc / (ratio + 1) = 200 (1)
+	 * aclk_dmcp = aclk_dmcd / (ratio + 1) = 100 (1)
 	 */
 	set = ACP_RATIO(3) | ACP_PCLK_RATIO(1) | DPHY_RATIO(1) |
 	      DMC_RATIO(1) | DMCD_RATIO(1) | DMCP_RATIO(1);
@@ -244,13 +244,13 @@ static void board_clock_init(void)
 	      C2C_ACLK_RATIO(7) | DVSEM_RATIO(127) | DPM_RATIO(127);
 	/*
 	 * For:
-	 * MOUTg2d = 880 MHz
-	 * MOUTc2c = 880 Mhz
+	 * MOUTg2d = 800 MHz
+	 * MOUTc2c = 800 Mhz
 	 * MOUTpwi = 108 MHz
 	 *
-	 * sclk_g2d_acp = MOUTg2d / (ratio + 1) = 440 (1)
-	 * sclk_c2c = MOUTc2c / (ratio + 1) = 440 (1)
-	 * aclk_c2c = sclk_c2c / (ratio + 1) = 220 (1)
+	 * sclk_g2d_acp = MOUTg2d / (ratio + 1) = 400 (1)
+	 * sclk_c2c = MOUTc2c / (ratio + 1) = 400 (1)
+	 * aclk_c2c = sclk_c2c / (ratio + 1) = 200 (1)
 	 * sclk_pwi = MOUTpwi / (ratio + 1) = 18 (5)
 	 */
 	set = G2D_ACP_RATIO(1) | C2C_RATIO(1) | PWI_RATIO(5) |
@@ -282,9 +282,9 @@ static void board_clock_init(void)
 	clr = UART0_RATIO(15) | UART1_RATIO(15) | UART2_RATIO(15) |
 	      UART3_RATIO(15) | UART4_RATIO(15);
 	/*
-	 * For MOUTuart0-4: 880MHz
+	 * For MOUTuart0-4: 800MHz
 	 *
-	 * SCLK_UARTx = MOUTuartX / (ratio + 1) = 110 (7)
+	 * SCLK_UARTx = MOUTuartX / (ratio + 1) = 100 (7)
 	*/
 	set = UART0_RATIO(7) | UART1_RATIO(7) | UART2_RATIO(7) |
 	      UART3_RATIO(7) | UART4_RATIO(7);
@@ -298,12 +298,12 @@ static void board_clock_init(void)
 	clr = MMC0_RATIO(15) | MMC0_PRE_RATIO(255) | MMC1_RATIO(15) |
 	      MMC1_PRE_RATIO(255);
 	/*
-	 * For MOUTmmc0-3 = 880 MHz (MPLL)
+	 * For MOUTmmc0-3 = 800 MHz (MPLL)
 	 *
-	 * DOUTmmc1 = MOUTmmc1 / (ratio + 1) = 110 (7)
-	 * sclk_mmc1 = DOUTmmc1 / (ratio + 1) = 60 (1)
-	 * DOUTmmc0 = MOUTmmc0 / (ratio + 1) = 110 (7)
-	 * sclk_mmc0 = DOUTmmc0 / (ratio + 1) = 60 (1)
+	 * DOUTmmc1 = MOUTmmc1 / (ratio + 1) = 100 (7)
+	 * sclk_mmc1 = DOUTmmc1 / (ratio + 1) = 50 (1)
+	 * DOUTmmc0 = MOUTmmc0 / (ratio + 1) = 100 (7)
+	 * sclk_mmc0 = DOUTmmc0 / (ratio + 1) = 50 (1)
 	*/
 	set = MMC0_RATIO(7) | MMC0_PRE_RATIO(1) | MMC1_RATIO(7) |
 	      MMC1_PRE_RATIO(1);
@@ -318,12 +318,12 @@ static void board_clock_init(void)
 	clr = MMC2_RATIO(15) | MMC2_PRE_RATIO(255) | MMC3_RATIO(15) |
 	      MMC3_PRE_RATIO(255);
 	/*
-	 * For MOUTmmc0-3 = 880 MHz (MPLL)
+	 * For MOUTmmc0-3 = 800 MHz (MPLL)
 	 *
-	 * DOUTmmc3 = MOUTmmc3 / (ratio + 1) = 110 (7)
-	 * sclk_mmc3 = DOUTmmc3 / (ratio + 1) = 60 (1)
-	 * DOUTmmc2 = MOUTmmc2 / (ratio + 1) = 110 (7)
-	 * sclk_mmc2 = DOUTmmc2 / (ratio + 1) = 60 (1)
+	 * DOUTmmc3 = MOUTmmc3 / (ratio + 1) = 100 (7)
+	 * sclk_mmc3 = DOUTmmc3 / (ratio + 1) = 50 (1)
+	 * DOUTmmc2 = MOUTmmc2 / (ratio + 1) = 100 (7)
+	 * sclk_mmc2 = DOUTmmc2 / (ratio + 1) = 50 (1)
 	*/
 	set = MMC2_RATIO(7) | MMC2_PRE_RATIO(1) | MMC3_RATIO(7) |
 	      MMC3_PRE_RATIO(1);
@@ -337,10 +337,10 @@ static void board_clock_init(void)
 	/* CLK_DIV_FSYS3 */
 	clr = MMC4_RATIO(15) | MMC4_PRE_RATIO(255);
 	/*
-	 * For MOUTmmc4 = 880 MHz (MPLL)
+	 * For MOUTmmc4 = 800 MHz (MPLL)
 	 *
-	 * DOUTmmc4 = MOUTmmc4 / (ratio + 1) = 110 (7)
-	 * sclk_mmc4 = DOUTmmc4 / (ratio + 1) = 110 (0)
+	 * DOUTmmc4 = MOUTmmc4 / (ratio + 1) = 100 (7)
+	 * sclk_mmc4 = DOUTmmc4 / (ratio + 1) = 100 (0)
 	*/
 	set = MMC4_RATIO(7) | MMC4_PRE_RATIO(0);
 

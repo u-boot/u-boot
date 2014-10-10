@@ -14,9 +14,7 @@
 #include <asm/arch/mmc.h>
 #include <asm/arch/clk.h>
 #include <errno.h>
-#ifdef CONFIG_OF_CONTROL
 #include <asm/arch/pinmux.h>
-#endif
 
 static char *S5P_NAME = "SAMSUNG SDHCI";
 static void s5p_sdhci_set_control_reg(struct sdhci_host *host)

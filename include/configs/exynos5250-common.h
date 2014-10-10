@@ -10,7 +10,7 @@
 #ifndef __CONFIG_5250_H
 #define __CONFIG_5250_H
 
-#include <configs/exynos5-dt.h>
+#include <configs/exynos5-common.h>
 #define CONFIG_EXYNOS5250
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
@@ -24,17 +24,12 @@
 
 /* USB */
 #define CONFIG_CMD_USB
-#define CONFIG_USB_XHCI
-#define CONFIG_USB_XHCI_EXYNOS
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 #define CONFIG_USB_STORAGE
 
 #define CONFIG_SPL_TEXT_BASE	0x02023400
 
 #define CONFIG_BOOTCOMMAND	"mmc read 40007000 451 2000; bootm 40007000"
-
-#define CONFIG_SYS_PROMPT		"SMDK5250 # "
-#define CONFIG_IDENT_STRING		" for SMDK5250"
 
 #define CONFIG_IRAM_STACK	0x02050000
 

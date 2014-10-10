@@ -9,7 +9,18 @@
 #ifndef __CONFIG_EXYNOS5420_H
 #define __CONFIG_EXYNOS5420_H
 
-#define CONFIG_EXYNOS5420		/* which is in a Exynos5 Family */
+#define CONFIG_EXYNOS5420
+
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_SPI_FLASH
+#define CONFIG_ENV_SPI_BASE	0x12D30000
+#define FLASH_SIZE		(0x4 << 20)
+#define CONFIG_ENV_OFFSET	(FLASH_SIZE - CONFIG_BL2_SIZE)
+#define CONFIG_SPI_BOOTING
+
+#include <configs/exynos5-common.h>
+
+#define CONFIG_ARCH_EARLY_INIT_R
 
 #define MACH_TYPE_SMDK5420	8002
 #define CONFIG_MACH_TYPE	MACH_TYPE_SMDK5420
@@ -31,13 +42,11 @@
 
 #define CONFIG_MAX_I2C_NUM	11
 
-/* Enable FIT support and comparison */
-#define CONFIG_FIT
-#define CONFIG_FIT_BEST_MATCH
-
 #define CONFIG_BOARD_REV_GPIO_COUNT	2
 
 #define CONFIG_BOOTCOMMAND	"mmc read 20007000 451 2000; bootm 20007000"
+
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 
 /*
  * Put the initial stack pointer 1KB below this to allow room for the
@@ -48,5 +57,8 @@
 /* DRAM Memory Banks */
 #define CONFIG_NR_DRAM_BANKS	7
 #define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */
+
+/* Miscellaneous configurable options */
+#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
 #endif	/* __CONFIG_EXYNOS5420_H */

@@ -10,7 +10,7 @@
 #ifndef __CONFIG_UNIVERSAL_H
 #define __CONFIG_UNIVERSAL_H
 
-#include <configs/exynos4-dt.h>
+#include <configs/exynos4-common.h>
 
 #define CONFIG_SYS_PROMPT	"Universal # "	/* Monitor Command Prompt */
 
@@ -26,9 +26,6 @@
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
 
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL2
