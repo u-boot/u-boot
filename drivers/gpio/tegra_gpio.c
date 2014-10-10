@@ -171,6 +171,9 @@ static int tegra_gpio_request(struct udevice *dev, unsigned offset,
 {
 	struct tegra_port_info *state = dev_get_priv(dev);
 
+	if (!label)
+		return -EINVAL;
+
 	if (*state->label[offset])
 		return -EBUSY;
 
