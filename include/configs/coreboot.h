@@ -40,6 +40,7 @@
 #define CONFIG_BOOTSTAGE_USER_COUNT	60
 
 #define CONFIG_LZO
+#define CONFIG_FIT
 #undef CONFIG_ZLIB
 #undef CONFIG_GZIP
 
@@ -194,6 +195,7 @@
 #define CONFIG_CMD_EXT2
 
 #define CONFIG_CMD_ZBOOT
+#define CONFIG_CMD_ELF
 
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTARGS		\
@@ -219,7 +221,7 @@
 
 #define CONFIG_SYS_MEMTEST_START		0x00100000
 #define CONFIG_SYS_MEMTEST_END			0x01000000
-#define CONFIG_SYS_LOAD_ADDR			0x100000
+#define CONFIG_SYS_LOAD_ADDR			0x02000000
 
 /*-----------------------------------------------------------------------
  * SDRAM Configuration
