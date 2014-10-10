@@ -67,7 +67,7 @@ static void ns16550_writeb(NS16550_t port, int offset, int value)
 	 * these options at run-time, so use the existing CONFIG options.
 	 */
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
-	outb(value, addr);
+	outb(value, (ulong)addr);
 #elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_SYS_BIG_ENDIAN)
 	out_le32(addr, value);
 #elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
@@ -87,7 +87,7 @@ static int ns16550_readb(NS16550_t port, int offset)
 	offset *= 1 << plat->reg_shift;
 	addr = map_sysmem(plat->base, 0) + offset;
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
-	return inb(addr);
+	return inb((ulong)addr);
 #elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_SYS_BIG_ENDIAN)
 	return in_le32(addr);
 #elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
