@@ -167,7 +167,8 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	/* If we have a valid setup.bin, we will use that for entry (x86) */
-	if (images.os.arch == IH_ARCH_I386) {
+	if (images.os.arch == IH_ARCH_I386 ||
+	    images.os.arch == IH_ARCH_X86_64) {
 		ulong len;
 
 		ret = boot_get_setup(&images, IH_ARCH_I386, &images.ep, &len);
