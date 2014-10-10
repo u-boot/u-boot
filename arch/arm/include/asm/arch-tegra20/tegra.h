@@ -9,6 +9,7 @@
 #define _TEGRA20_H_
 
 #define NV_PA_SDRAM_BASE	0x00000000
+#define NV_PA_MC_BASE		0x7000F000
 
 #include <asm/arch-tegra/tegra.h>
 
