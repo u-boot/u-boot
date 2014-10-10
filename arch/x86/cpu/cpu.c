@@ -240,3 +240,38 @@ int icache_status(void)
 {
 	return 1;
 }
+
+void cpu_enable_paging_pae(ulong cr3)
+{
+	__asm__ __volatile__(
+		/* Load the page table address */
+		"movl	%0, %%cr3\n"
+		/* Enable pae */
+		"movl	%%cr4, %%eax\n"
+		"orl	$0x00000020, %%eax\n"
+		"movl	%%eax, %%cr4\n"
+		/* Enable paging */
+		"movl	%%cr0, %%eax\n"
+		"orl	$0x80000000, %%eax\n"
+		"movl	%%eax, %%cr0\n"
+		:
+		: "r" (cr3)
+		: "eax");
+}
+
+void cpu_disable_paging_pae(void)
+{
+	/* Turn off paging */
+	__asm__ __volatile__ (
+		/* Disable paging */
+		"movl	%%cr0, %%eax\n"
+		"andl	$0x7fffffff, %%eax\n"
+		"movl	%%eax, %%cr0\n"
+		/* Disable pae */
+		"movl	%%cr4, %%eax\n"
+		"andl	$0xffffffdf, %%eax\n"
+		"movl	%%eax, %%cr4\n"
+		:
+		:
+		: "eax");
+}
