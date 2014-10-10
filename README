@@ -2830,10 +2830,6 @@ CBFS (Coreboot Filesystem) support
 
 		Enable auto completion of commands using TAB.
 
-		Note that this feature has NOT been implemented yet
-		for the "hush" shell.
-
-
 		CONFIG_SYS_HUSH_PARSER
 
 		Define this variable to enable the "hush" shell (from
