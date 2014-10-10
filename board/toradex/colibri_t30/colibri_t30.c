@@ -35,7 +35,7 @@ void pinmux_init(void)
 void pin_mux_usb(void)
 {
 	/* Reset ASIX using LAN_RESET */
-	gpio_request(GPIO_PDD0, NULL);
+	gpio_request(GPIO_PDD0, "LAN_RESET");
 	gpio_direction_output(GPIO_PDD0, 0);
 	udelay(5);
 	gpio_set_value(GPIO_PDD0, 1);
