@@ -72,6 +72,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(COMPAT_NXP_PTN3460, "nxp,ptn3460"),
 	COMPAT(SAMSUNG_EXYNOS_SYSMMU, "samsung,sysmmu-v3.3"),
 	COMPAT(PARADE_PS8625, "parade,ps8625"),
+	COMPAT(COMPAT_INTEL_LPC, "intel,lpc"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
