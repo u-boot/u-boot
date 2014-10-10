@@ -1,8 +1,8 @@
 /include/ "skeleton.dtsi"
 
 / {
-	aliases {
-		console = "/serial";
+	chosen {
+		stdout-path = "/serial";
 	};
 
 	serial {
