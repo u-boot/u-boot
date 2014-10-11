@@ -171,6 +171,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"consdev=ttyAMA0\0"						\
 	"baudrate=115200\0"						\
+	"bootscript=boot.scr\0"						\
 	"bootdev=/dev/mmcblk0p2\0"					\
 	"rootdev=/dev/mmcblk0p3\0"					\
 	"netdev=eth0\0"							\
