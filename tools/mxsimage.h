@@ -81,8 +81,9 @@ struct sb_boot_image_header {
 #define	SB_VERSION_MAJOR	1
 #define	SB_VERSION_MINOR	1
 
-/* Enable to HTLLC verbose boot report. */
-#define SB_IMAGE_FLAG_VERBOSE	(1 << 0)
+/* Enable to HTLLC boot report. */
+#define SB_IMAGE_FLAG_DISPLAY_PROGRESS	(1 << 0)
+#define SB_IMAGE_FLAGS_MASK SB_IMAGE_FLAG_DISPLAY_PROGRESS
 
 struct sb_key_dictionary_key {
 	/* The CBC-MAC of image and sections header. */
