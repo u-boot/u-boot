@@ -9,10 +9,16 @@
 #ifndef __CONFIG_PEACH_PIT_H
 #define __CONFIG_PEACH_PIT_H
 
-#include <configs/exynos5-dt.h>
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_SPI_FLASH
+#define CONFIG_ENV_SPI_BASE	0x12D30000
+#define FLASH_SIZE		(0x4 << 20)
+#define CONFIG_ENV_OFFSET	(FLASH_SIZE - CONFIG_BL2_SIZE)
 
-#include <configs/exynos5420.h>
+#include <configs/exynos5420-common.h>
+#include <configs/exynos5-dt-common.h>
 
+#define CONFIG_BOARD_COMMON
 
 /* select serial console configuration */
 #define CONFIG_SERIAL3		/* use SERIAL 3 */
@@ -29,5 +35,11 @@
 #define CONFIG_EXYNOS_DP
 #define LCD_BPP			LCD_COLOR16
 #endif
+
+#define CONFIG_POWER_TPS65090_EC
+#define CONFIG_CROS_EC_SPI		/* Support CROS_EC over SPI */
+
+#define CONFIG_USB_XHCI
+#define CONFIG_USB_XHCI_EXYNOS
 
 #endif	/* __CONFIG_PEACH_PIT_H */

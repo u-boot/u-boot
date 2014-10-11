@@ -13,7 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/rmobile.h>
 
-/* QoS version 0.240 for ES1 and version 0.310 for ES2 */
+/* QoS version 0.240 for ES1 and version 0.334 for ES2 */
 
 enum {
 	DBSC3_00, DBSC3_01, DBSC3_02, DBSC3_03, DBSC3_04,
@@ -116,10 +116,16 @@ void qos_init(void)
 	/* S3C -QoS */
 	s3c = (struct rcar_s3c *)S3C_BASE;
 	if (IS_R8A7791_ES2()) {
-		writel(0x00FF1B0D, &s3c->s3cadsplcr);
-		writel(0x1F0D0B0A, &s3c->s3crorr);
-		writel(0x1F0D0B09, &s3c->s3cworr);
-		writel(0x00200808, &s3c->s3carcr11);
+		/* Linear All mode */
+		/* writel(0x00000000, &s3c->s3cadsplcr); */
+		/* Linear Linear 0x7000 to 0x7800 mode */
+		writel(0x00BF1B0C, &s3c->s3cadsplcr);
+		/* Split Linear 0x6800 t 0x7000 mode */
+		/* writel(0x00DF1B0C, &s3c->s3cadsplcr); */
+		/* Ssplit All mode */
+		/* writel(0x00FF1B0C, &s3c->s3cadsplcr); */
+		writel(0x1F0B0908, &s3c->s3crorr);
+		writel(0x1F0C0A08, &s3c->s3cworr);
 	} else {
 		writel(0x00FF1B1D, &s3c->s3cadsplcr);
 		writel(0x1F0D0C0C, &s3c->s3crorr);
@@ -149,10 +155,7 @@ void qos_init(void)
 	writel(0x00002032, &s3c_qos->s3cqos8);
 
 	s3c_qos = (struct rcar_s3c_qos *)S3C_QOS_MXI_BASE;
-	if (IS_R8A7791_ES2())
-		writel(0x80928092, &s3c_qos->s3cqos0);
-	else
-		writel(0x00820082, &s3c_qos->s3cqos0);
+	writel(0x00820082, &s3c_qos->s3cqos0);
 	writel(0x20960020, &s3c_qos->s3cqos1);
 	writel(0x20302030, &s3c_qos->s3cqos2);
 	writel(0x20AA20DC, &s3c_qos->s3cqos3);
@@ -185,7 +188,7 @@ void qos_init(void)
 		writel(0x00000001, &qos_addr->dbrqctr);
 		writel(0x00002078, &qos_addr->dbthres0);
 		writel(0x0000204B, &qos_addr->dbthres1);
-		writel(0x00001FE7, &qos_addr->dbthres2);
+		writel(0x0000201E, &qos_addr->dbthres2);
 		writel(0x00000001, &qos_addr->dblgqon);
 	}
 
@@ -193,13 +196,13 @@ void qos_init(void)
 	for (i = DBSC3_00; i < DBSC3_NR; i++) {
 		qos_addr = (struct rcar_dbsc3_qos *)dbsc3_0_w_qos_addr[i];
 		writel(0x00000002, &qos_addr->dblgcnt);
-		writel(0x000020EB, &qos_addr->dbtmval0);
-		writel(0x0000206E, &qos_addr->dbtmval1);
+		writel(0x00002096, &qos_addr->dbtmval0);
+		writel(0x00002064, &qos_addr->dbtmval1);
 		writel(0x00002050, &qos_addr->dbtmval2);
 		writel(0x0000203A, &qos_addr->dbtmval3);
 		writel(0x00000001, &qos_addr->dbrqctr);
 		writel(0x00002078, &qos_addr->dbthres0);
-		writel(0x0000205A, &qos_addr->dbthres1);
+		writel(0x0000204B, &qos_addr->dbthres1);
 		writel(0x0000203C, &qos_addr->dbthres2);
 		writel(0x00000001, &qos_addr->dblgqon);
 	}
@@ -215,7 +218,7 @@ void qos_init(void)
 		writel(0x00000001, &qos_addr->dbrqctr);
 		writel(0x00002078, &qos_addr->dbthres0);
 		writel(0x0000204B, &qos_addr->dbthres1);
-		writel(0x00001FE7, &qos_addr->dbthres2);
+		writel(0x0000201E, &qos_addr->dbthres2);
 		writel(0x00000001, &qos_addr->dblgqon);
 	}
 
@@ -223,13 +226,13 @@ void qos_init(void)
 	for (i = DBSC3_00; i < DBSC3_NR; i++) {
 		qos_addr = (struct rcar_dbsc3_qos *)dbsc3_1_w_qos_addr[i];
 		writel(0x00000002, &qos_addr->dblgcnt);
-		writel(0x000020EB, &qos_addr->dbtmval0);
-		writel(0x0000206E, &qos_addr->dbtmval1);
+		writel(0x00002096, &qos_addr->dbtmval0);
+		writel(0x00002064, &qos_addr->dbtmval1);
 		writel(0x00002050, &qos_addr->dbtmval2);
 		writel(0x0000203A, &qos_addr->dbtmval3);
 		writel(0x00000001, &qos_addr->dbrqctr);
 		writel(0x00002078, &qos_addr->dbthres0);
-		writel(0x0000205A, &qos_addr->dbthres1);
+		writel(0x0000204B, &qos_addr->dbthres1);
 		writel(0x0000203C, &qos_addr->dbthres2);
 		writel(0x00000001, &qos_addr->dblgqon);
 	}
@@ -245,14 +248,12 @@ void qos_init(void)
 	mxi = (struct rcar_mxi *)MXI_BASE;
 	writel(0x00000013, &mxi->mxrtcr);
 	writel(0x00000013, &mxi->mxwtcr);
-	writel(0x00780080, &mxi->mxsaar0);
-	writel(0x02000800, &mxi->mxsaar1);
 
 	/* QoS Control (MXI) */
 	mxi_qos = (struct rcar_mxi_qos *)MXI_QOS_BASE;
 	writel(0x0000000C, &mxi_qos->vspdu0);
 	writel(0x0000000C, &mxi_qos->vspdu1);
-	writel(0x0000000D, &mxi_qos->du0);
+	writel(0x0000000E, &mxi_qos->du0);
 	writel(0x0000000D, &mxi_qos->du1);
 
 	/* AXI -QoS */

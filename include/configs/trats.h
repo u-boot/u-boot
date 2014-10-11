@@ -10,7 +10,7 @@
 #ifndef __CONFIG_TRATS_H
 #define __CONFIG_TRATS_H
 
-#include <configs/exynos4-dt.h>
+#include <configs/exynos4-common.h>
 
 #define CONFIG_SYS_PROMPT	"Trats # "	/* Monitor Command Prompt */
 
@@ -38,10 +38,6 @@
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x4800000)
 
 #define CONFIG_SYS_TEXT_BASE		0x63300000
-
-#include <linux/sizes.h>
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL2

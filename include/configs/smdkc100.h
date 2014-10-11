@@ -47,6 +47,10 @@
  * 1MB = 0x100000, 0x100000 = 1024 * 1024
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
+
+/* Small malloc pool before relocation */
+#define CONFIG_SYS_MALLOC_F_LEN		(1 << 10)
+
 /*
  * select serial console configuration
  */
@@ -216,5 +220,7 @@
 #define CONFIG_SMC911X_BASE    0x98800300      /* SMC911X Drive Base   */
 #define CONFIG_ENV_SROM_BANK   3       /* Select SROM Bank-3 for Ethernet*/
 #endif /* CONFIG_CMD_NET */
+
+#define CONFIG_OF_LIBFDT
 
 #endif	/* __CONFIG_H */

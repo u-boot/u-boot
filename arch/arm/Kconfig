@@ -336,6 +336,9 @@ config TARGET_BCM958622HR
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
 
+config ARCH_S5PC1XX
+	bool "Samsung S5PC1XX"
+
 config ARCH_HIGHBANK
 	bool "Calxeda Highbank"
 
@@ -414,6 +417,9 @@ config TARGET_HUMMINGBOARD
 config TARGET_TQMA6
 	bool "TQ Systems TQMa6 board"
 
+config TARGET_OT1200
+	bool "Bachmann OT1200"
+
 config OMAP34XX
 	bool "OMAP34XX SoC"
 
@@ -428,12 +434,6 @@ config RMOBILE
 
 config TARGET_CM_FX6
 	bool "Support cm_fx6"
-
-config TARGET_S5P_GONI
-	bool "Support s5p_goni"
-
-config TARGET_SMDKC100
-	bool "Support smdkc100"
 
 config TARGET_SOCFPGA_CYCLONE5
 	bool "Support socfpga_cyclone5"
@@ -550,6 +550,8 @@ source "arch/arm/cpu/arm926ejs/orion5x/Kconfig"
 
 source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
+source "arch/arm/cpu/armv7/s5pc1xx/Kconfig"
+
 source "arch/arm/cpu/armv7/tegra-common/Kconfig"
 
 source "arch/arm/cpu/armv7/uniphier/Kconfig"
@@ -583,6 +585,7 @@ source "board/atmel/at91sam9rlek/Kconfig"
 source "board/atmel/at91sam9x5ek/Kconfig"
 source "board/atmel/sama5d3_xplained/Kconfig"
 source "board/atmel/sama5d3xek/Kconfig"
+source "board/bachmann/ot1200/Kconfig"
 source "board/balloon3/Kconfig"
 source "board/barco/titanium/Kconfig"
 source "board/bluegiga/apx4devkit/Kconfig"
@@ -657,9 +660,7 @@ source "board/raspberrypi/rpi_b/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"
 source "board/ronetix/pm9g45/Kconfig"
-source "board/samsung/goni/Kconfig"
 source "board/samsung/smdk2410/Kconfig"
-source "board/samsung/smdkc100/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
 source "board/scb9328/Kconfig"
 source "board/schulercontrol/sc_sps_1/Kconfig"

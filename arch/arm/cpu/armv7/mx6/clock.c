@@ -642,6 +642,33 @@ int enable_pcie_clock(void)
 			       BM_ANADIG_PLL_ENET_ENABLE_PCIE);
 }
 
+#ifdef CONFIG_SECURE_BOOT
+void hab_caam_clock_enable(unsigned char enable)
+{
+	u32 reg;
+
+	/* CG4 ~ CG6, CAAM clocks */
+	reg = __raw_readl(&imx_ccm->CCGR0);
+	if (enable)
+		reg |= (MXC_CCM_CCGR0_CAAM_WRAPPER_IPG_MASK |
+			MXC_CCM_CCGR0_CAAM_WRAPPER_ACLK_MASK |
+			MXC_CCM_CCGR0_CAAM_SECURE_MEM_MASK);
+	else
+		reg &= ~(MXC_CCM_CCGR0_CAAM_WRAPPER_IPG_MASK |
+			MXC_CCM_CCGR0_CAAM_WRAPPER_ACLK_MASK |
+			MXC_CCM_CCGR0_CAAM_SECURE_MEM_MASK);
+	__raw_writel(reg, &imx_ccm->CCGR0);
+
+	/* EMI slow clk */
+	reg = __raw_readl(&imx_ccm->CCGR6);
+	if (enable)
+		reg |= MXC_CCM_CCGR6_EMI_SLOW_MASK;
+	else
+		reg &= ~MXC_CCM_CCGR6_EMI_SLOW_MASK;
+	__raw_writel(reg, &imx_ccm->CCGR6);
+}
+#endif
+
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {

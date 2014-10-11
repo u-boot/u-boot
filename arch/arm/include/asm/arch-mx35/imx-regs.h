@@ -372,4 +372,16 @@ struct aips_regs {
 #define CCM_RCSR_NF_16BIT_SEL	(1 << 14)
 
 #endif
+
+/*
+ * Generic timer support
+ */
+#ifdef CONFIG_MX35_CLK32
+#define	CONFIG_SYS_TIMER_RATE	CONFIG_MX35_CLK32
+#else
+#define	CONFIG_SYS_TIMER_RATE	32768
+#endif
+
+#define CONFIG_SYS_TIMER_COUNTER	(GPT1_BASE_ADDR+36)
+
 #endif /* __ASM_ARCH_MX35_H */

@@ -6,22 +6,14 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __CONFIG_EXYNOS5_COMMON_H
+#define __CONFIG_EXYNOS5_COMMON_H
 
-/* High Level Configuration Options */
-#define CONFIG_SAMSUNG			/* in a SAMSUNG core */
-#define CONFIG_S5P			/* S5P Family */
-#define CONFIG_EXYNOS5			/* which is in a Exynos5 Family */
+#define CONFIG_EXYNOS5			/* Exynos5 Family */
 
-#include <asm/arch/cpu.h>		/* get chip and board defs */
+#include "exynos-common.h"
 
-#define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_ARCH_CPU_INIT
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_BOARD_COMMON
-#define CONFIG_ARCH_EARLY_INIT_R
+#define CONFIG_SYS_CACHELINE_SIZE	64
 #define CONFIG_EXYNOS_SPL
 
 /* Allow tracing to be enabled */
@@ -32,21 +24,10 @@
 #define CONFIG_TRACE_EARLY
 #define CONFIG_TRACE_EARLY_ADDR		0x50000000
 
-/* Keep L2 Cache Disabled */
-#define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_SYS_CACHELINE_SIZE	64
 
 /* Enable ACE acceleration for SHA1 and SHA256 */
 #define CONFIG_EXYNOS_ACE_SHA
 #define CONFIG_SHA_HW_ACCEL
-
-/* input clock of PLL: SMDK5250 has 24MHz input clock */
-#define CONFIG_SYS_CLK_FREQ		24000000
-
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_INITRD_TAG
-#define CONFIG_CMDLINE_EDITING
 
 /* Power Down Modes */
 #define S5P_CHECK_SLEEP			0x00000BAD
@@ -59,65 +40,25 @@
 #define INFORM2_OFFSET			0x808
 #define INFORM3_OFFSET			0x80c
 
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (4 << 20))
-
 /* select serial console configuration */
 #define CONFIG_BAUDRATE			115200
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
 #define CONFIG_SILENT_CONSOLE
-
-/* Enable keyboard */
-#define CONFIG_CROS_EC		/* CROS_EC protocol */
-#define CONFIG_CROS_EC_SPI		/* Support CROS_EC over SPI */
-#define CONFIG_CROS_EC_I2C		/* Support CROS_EC over I2C */
-#define CONFIG_CROS_EC_KEYB	/* CROS_EC keyboard input */
-#define CONFIG_CMD_CROS_EC
-#define CONFIG_KEYBOARD
-
-/* Console configuration */
-#define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_CONSOLE_MUX
+
 #define EXYNOS_DEVICE_SETTINGS \
-		"stdin=serial,cros-ec-keyb\0" \
-		"stdout=serial,lcd\0" \
-		"stderr=serial,lcd\0"
+		"stdin=serial\0" \
+		"stdout=serial\0" \
+		"stderr=serial\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	EXYNOS_DEVICE_SETTINGS
 
-/* SD/MMC configuration */
-#define CONFIG_GENERIC_MMC
-#define CONFIG_MMC
-#define CONFIG_SDHCI
-#define CONFIG_S5P_SDHCI
-#define CONFIG_DWMMC
-#define CONFIG_EXYNOS_DWMMC
-#define CONFIG_SUPPORT_EMMC_BOOT
-#define CONFIG_BOUNCE_BUFFER
-
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_SKIP_LOWLEVEL_INIT
-
-/* PWM */
-#define CONFIG_PWM
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-
-/* Command definition*/
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_HASH
-
-#define CONFIG_BOOTDELAY		3
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 /* Thermal Management Unit */
 #define CONFIG_EXYNOS_TMU
@@ -133,6 +74,7 @@
 
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x02020030
+#define CONFIG_SUPPORT_EMMC_BOOT
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
@@ -140,15 +82,7 @@
 /* specific .lds file */
 #define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
 
-/* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE		384	/* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 /* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5E00000)
@@ -175,10 +109,6 @@
 
 #define CONFIG_SYS_MONITOR_BASE	0x00000000
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_IMLS
-
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
 #define CONFIG_SECURE_BL1_ONLY
@@ -199,22 +129,12 @@
 #define CONFIG_BL1_OFFSET	(CONFIG_RES_BLOCK_SIZE + CONFIG_SEC_FW_SIZE)
 #define CONFIG_BL2_OFFSET	(CONFIG_BL1_OFFSET + CONFIG_BL1_SIZE)
 
-/* Store environment at the end of a 4 MB SPI flash */
-#define FLASH_SIZE		(0x4 << 20)
-#define CONFIG_ENV_OFFSET	(FLASH_SIZE - CONFIG_BL2_SIZE)
-
 /* U-boot copy size from boot Media to DRAM.*/
 #define BL2_START_OFFSET	(CONFIG_BL2_OFFSET/512)
 #define BL2_SIZE_BLOC_COUNT	(CONFIG_BL2_SIZE/512)
 
-#define CONFIG_SPI_BOOTING
 #define EXYNOS_COPY_SPI_FNPTR_ADDR	0x02020058
 #define SPI_FLASH_UBOOT_POS	(CONFIG_SEC_FW_SIZE + CONFIG_BL1_SIZE)
-
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
-#define CONFIG_CMD_PART
-#define CONFIG_PARTITION_UUIDS
 
 /* I2C */
 #define CONFIG_SYS_I2C_INIT_BOARD
@@ -227,10 +147,6 @@
 #define CONFIG_I2C_EDID
 
 /* SPI */
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_SPI_FLASH
-#define CONFIG_ENV_SPI_BASE	0x12D30000
-
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_EXYNOS_SPI
 #define CONFIG_CMD_SF
@@ -250,11 +166,6 @@
 #define CONFIG_ENV_SPI_MAX_HZ	50000000
 #endif
 
-/* PMIC */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
-#define CONFIG_POWER_TPS65090
-
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_SMC911X
@@ -268,9 +179,6 @@
 #define CONFIG_CMD_PXE
 #define CONFIG_MENU
 #endif
-
-/* Enable devicetree support */
-#define CONFIG_OF_LIBFDT
 
 /* SHA hashing */
 #define CONFIG_CMD_HASH
@@ -291,4 +199,8 @@
 #define EXYNOS_USB_SECONDARY_BOOT	0xfeed0002
 #define EXYNOS_IRAM_SECONDARY_BASE	0x02020018
 
-#endif	/* __CONFIG_H */
+/* Enable FIT support and comparison */
+#define CONFIG_FIT
+#define CONFIG_FIT_BEST_MATCH
+
+#endif	/* __CONFIG_EXYNOS5_COMMON_H */

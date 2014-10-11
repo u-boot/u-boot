@@ -24,6 +24,8 @@
 #define MACH_TYPE_TAURUS		2067
 #define MACH_TYPE_AXM			2068
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * Warning: changing CONFIG_SYS_TEXT_BASE requires
  * adapting the initial boot program.
