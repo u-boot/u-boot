@@ -237,9 +237,6 @@ int board_early_init_f(void)
 	setup_display();
 #endif
 
-	/* Bring Ethernet PHY out of reset. */
-	gpio_set_value(IMX_GPIO_NR(3, 23), 1);
-
 	return 0;
 }
 

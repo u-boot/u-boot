@@ -41,6 +41,10 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED	  |		\
 	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
 
+#define ENET_PHY_CFG_PAD_CTRL					\
+	(PAD_CTL_PKE | PAD_CTL_PUE |				\
+	PAD_CTL_PUS_22K_UP | PAD_CTL_HYS)
+
 #define RGMII_PAD_CTRL						\
 	(PAD_CTL_PKE | PAD_CTL_PUE |				\
 	PAD_CTL_PUS_100K_UP | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
@@ -98,18 +102,20 @@ static iomux_v3_cfg_t enet_pads1[] = {
 	MX6_PAD_RGMII_TD3__RGMII_TD3		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
 	MX6_PAD_RGMII_TX_CTL__RGMII_TX_CTL	| MUX_PAD_CTRL(RGMII_PAD_CTRL),
 	MX6_PAD_ENET_REF_CLK__ENET_TX_CLK	| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	/* pin 35 - 1 (PHY_AD2) on reset */
-	MX6_PAD_RGMII_RXC__GPIO6_IO30		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* pin 32 - 1 - (MODE0) all */
-	MX6_PAD_RGMII_RD0__GPIO6_IO25		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* pin 31 - 1 - (MODE1) all */
-	MX6_PAD_RGMII_RD1__GPIO6_IO27		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* pin 28 - 1 - (MODE2) all */
-	MX6_PAD_RGMII_RD2__GPIO6_IO28		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* pin 27 - 1 - (MODE3) all */
-	MX6_PAD_RGMII_RD3__GPIO6_IO29		| MUX_PAD_CTRL(NO_PAD_CTRL),
-	/* pin 33 - 1 - (CLK125_EN) 125Mhz clockout enabled */
-	MX6_PAD_RGMII_RX_CTL__GPIO6_IO24	| MUX_PAD_CTRL(NO_PAD_CTRL),
+
+	/* pin 35, PHY_AD2 */
+	MX6_PAD_RGMII_RXC__GPIO6_IO30	| MUX_PAD_CTRL(ENET_PHY_CFG_PAD_CTRL),
+	/* pin 32, MODE0 */
+	MX6_PAD_RGMII_RD0__GPIO6_IO25	| MUX_PAD_CTRL(ENET_PHY_CFG_PAD_CTRL),
+	/* pin 31, MODE1 */
+	MX6_PAD_RGMII_RD1__GPIO6_IO27	| MUX_PAD_CTRL(ENET_PHY_CFG_PAD_CTRL),
+	/* pin 28, MODE2 */
+	MX6_PAD_RGMII_RD2__GPIO6_IO28	| MUX_PAD_CTRL(ENET_PHY_CFG_PAD_CTRL),
+	/* pin 27, MODE3 */
+	MX6_PAD_RGMII_RD3__GPIO6_IO29	| MUX_PAD_CTRL(ENET_PHY_CFG_PAD_CTRL),
+	/* pin 33, CLK125_EN */
+	MX6_PAD_RGMII_RX_CTL__GPIO6_IO24 | MUX_PAD_CTRL(ENET_PHY_CFG_PAD_CTRL),
+
 	/* pin 42 PHY nRST */
 	MX6_PAD_EIM_D23__GPIO3_IO23		| MUX_PAD_CTRL(NO_PAD_CTRL),
 };
@@ -127,15 +133,37 @@ static void novena_spl_setup_iomux_enet(void)
 {
 	imx_iomux_v3_setup_multiple_pads(enet_pads1, ARRAY_SIZE(enet_pads1));
 
+	/* Assert Ethernet PHY nRST */
 	gpio_direction_output(IMX_GPIO_NR(3, 23), 0);
-	gpio_direction_output(IMX_GPIO_NR(6, 30), 1);
-	gpio_direction_output(IMX_GPIO_NR(6, 25), 1);
-	gpio_direction_output(IMX_GPIO_NR(6, 27), 1);
-	gpio_direction_output(IMX_GPIO_NR(6, 28), 1);
-	gpio_direction_output(IMX_GPIO_NR(6, 29), 1);
-	gpio_direction_output(IMX_GPIO_NR(6, 24), 1);
 
+	/*
+	 * Use imx6 internal pull-ups to drive PHY mode pins during PHY reset
+	 * de-assertion. The intention is to use weak signal drivers (pull-ups)
+	 * to prevent the conflict between PHY pins becoming outputs after
+	 * reset and imx6 still driving the pins. The issue is described in PHY
+	 * datasheet, p.14
+	 */
+	gpio_direction_input(IMX_GPIO_NR(6, 30)); /* PHY_AD2 = 1 */
+	gpio_direction_input(IMX_GPIO_NR(6, 25)); /* MODE0 = 1 */
+	gpio_direction_input(IMX_GPIO_NR(6, 27)); /* MODE1 = 1 */
+	gpio_direction_input(IMX_GPIO_NR(6, 28)); /* MODE2 = 1 */
+	gpio_direction_input(IMX_GPIO_NR(6, 29)); /* MODE3 = 1 */
+	gpio_direction_input(IMX_GPIO_NR(6, 24)); /* CLK125_EN = 1 */
+
+	/* Following reset timing (p.53, fig.8 from the PHY datasheet) */
+	mdelay(10);
+
+	/* De-assert Ethernet PHY nRST */
+	gpio_set_value(IMX_GPIO_NR(3, 23), 1);
+
+	/* PHY is now configured, connect FEC to the pads */
 	imx_iomux_v3_setup_multiple_pads(enet_pads2, ARRAY_SIZE(enet_pads2));
+
+	/*
+	 * PHY datasheet recommends on p.53 to wait at least 100us after reset
+	 * before using MII, so we enforce the delay here
+	 */
+	udelay(100);
 }
 
 /*
