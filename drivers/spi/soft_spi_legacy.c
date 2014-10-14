@@ -42,11 +42,6 @@ static inline struct soft_spi_slave *to_soft_spi(struct spi_slave *slave)
  */
 void spi_init (void)
 {
-#ifdef	SPI_INIT
-	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
-
-	SPI_INIT;
-#endif
 }
 
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,

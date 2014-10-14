@@ -194,7 +194,6 @@
 #define CONFIG_SOFT_SPI_GPIO_CS EXYNOS4_GPIO_Y43
 
 #define SPI_DELAY udelay(1)
-#undef SPI_INIT
 #define SPI_SCL(bit) universal_spi_scl(bit)
 #define SPI_SDA(bit) universal_spi_sda(bit)
 #define SPI_READ universal_spi_read()

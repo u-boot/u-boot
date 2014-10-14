@@ -99,7 +99,6 @@
 #define	CONFIG_VIDEO_BMP_GZIP
 #define	CONFIG_VIDEO_BMP_RLE8
 #define	CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)
-#undef	SPI_INIT
 
 #define	SPI_DELAY	udelay(10)
 #define	SPI_SDA(val)	zipitz2_spi_sda(val)
