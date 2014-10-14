@@ -87,9 +87,6 @@ int board_init(void)
 	boot_temp_check();
 #endif
 
-#ifdef CONFIG_EXYNOS_SPI
-	spi_init();
-#endif
 	return exynos_init();
 }
 
