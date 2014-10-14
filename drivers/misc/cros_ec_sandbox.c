@@ -525,8 +525,13 @@ int cros_ec_sandbox_init(struct cros_ec_dev *dev, const void *blob)
 	int node;
 	int err;
 
-	state = &s_state;
-	err = cros_ec_decode_ec_flash(blob, &ec->ec_config);
+	node = fdtdec_next_compatible(blob, 0, COMPAT_GOOGLE_CROS_EC);
+	if (node < 0) {
+		debug("Failed to find chrome-ec node'\n");
+		return -1;
+	}
+
+	err = cros_ec_decode_ec_flash(blob, node, &ec->ec_config);
 	if (err)
 		return err;
 
