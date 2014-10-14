@@ -887,7 +887,7 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 	v_total = height + v_sync_width + v_start_width + v_end_width;
 
 	/* Init clocking */
-	debug("pixel clk = %d\n", pixel_clk);
+	debug("pixel clk = %dHz\n", pixel_clk);
 
 	if (sig.ext_clk) {
 		if (!(g_di1_tvout && (disp == 1))) { /*not round div for tvout*/
