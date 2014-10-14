@@ -11,6 +11,7 @@ obj-y += spi-uclass.o
 obj-$(CONFIG_SANDBOX) += spi-emul-uclass.o
 else
 obj-y += spi.o
+obj-$(CONFIG_SOFT_SPI) += soft_spi_legacy.o
 endif
 
 obj-$(CONFIG_EP93XX_SPI) += ep93xx_spi.o
@@ -35,7 +36,6 @@ obj-$(CONFIG_MXS_SPI) += mxs_spi.o
 obj-$(CONFIG_OC_TINY_SPI) += oc_tiny_spi.o
 obj-$(CONFIG_OMAP3_SPI) += omap3_spi.o
 obj-$(CONFIG_SANDBOX_SPI) += sandbox_spi.o
-obj-$(CONFIG_SOFT_SPI) += soft_spi.o
 obj-$(CONFIG_SH_SPI) += sh_spi.o
 obj-$(CONFIG_SH_QSPI) += sh_qspi.o
 obj-$(CONFIG_FSL_ESPI) += fsl_espi.o
