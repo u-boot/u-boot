@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
 #include <spi.h>
@@ -95,15 +96,15 @@ static int spi_flash_set_qeb(struct spi_flash *flash, u8 idcode0)
 	}
 }
 
-static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
-		u8 *idcode)
+static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
+				     struct spi_flash *flash)
 {
 	const struct spi_flash_params *params;
-	struct spi_flash *flash;
 	u8 cmd;
 	u16 jedec = idcode[1] << 8 | idcode[2];
 	u16 ext_jedec = idcode[3] << 8 | idcode[4];
 
+	/* Validate params from spi_flash_params table */
 	params = spi_flash_params_table;
 	for (; params->name != NULL; params++) {
 		if ((params->jedec >> 16) == idcode[0]) {
@@ -120,13 +121,7 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 		printf("SF: Unsupported flash IDs: ");
 		printf("manuf %02x, jedec %04x, ext_jedec %04x\n",
 		       idcode[0], jedec, ext_jedec);
-		return NULL;
-	}
-
-	flash = calloc(1, sizeof(*flash));
-	if (!flash) {
-		debug("SF: Failed to allocate spi_flash\n");
-		return NULL;
+		return -EPROTONOSUPPORT;
 	}
 
 	/* Assign spi data */
@@ -227,15 +222,18 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 #ifdef CONFIG_SPI_FLASH_BAR
 	u8 curr_bank = 0;
 	if (flash->size > SPI_FLASH_16MB_BOUN) {
+		int ret;
+
 		flash->bank_read_cmd = (idcode[0] == 0x01) ?
 					CMD_BANKADDR_BRRD : CMD_EXTNADDR_RDEAR;
 		flash->bank_write_cmd = (idcode[0] == 0x01) ?
 					CMD_BANKADDR_BRWR : CMD_EXTNADDR_WREAR;
 
-		if (spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
-					  &curr_bank, 1)) {
+		ret = spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
+					    &curr_bank, 1);
+		if (ret) {
 			debug("SF: fail to read bank addr register\n");
-			return NULL;
+			return ret;
 		}
 		flash->bank_curr = curr_bank;
 	} else {
@@ -250,7 +248,7 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 		spi_flash_cmd_write_status(flash, 0);
 #endif
 
-	return flash;
+	return 0;
 }
 
 #ifdef CONFIG_OF_CONTROL
@@ -309,23 +307,29 @@ static int spi_enable_wp_pin(struct spi_flash *flash)
 }
 #endif
 
-static struct spi_flash *spi_flash_probe_slave(struct spi_slave *spi)
+/**
+ * spi_flash_probe_slave() - Probe for a SPI flash device on a bus
+ *
+ * @spi: Bus to probe
+ * @flashp: Pointer to place to put flash info, which may be NULL if the
+ * space should be allocated
+ */
+int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 {
-	struct spi_flash *flash = NULL;
 	u8 idcode[5];
 	int ret;
 
 	/* Setup spi_slave */
 	if (!spi) {
 		printf("SF: Failed to set up slave\n");
-		return NULL;
+		return -ENODEV;
 	}
 
 	/* Claim spi bus */
 	ret = spi_claim_bus(spi);
 	if (ret) {
 		debug("SF: Failed to claim SPI bus: %d\n", ret);
-		goto err_claim_bus;
+		return ret;
 	}
 
 	/* Read the ID codes */
@@ -340,10 +344,10 @@ static struct spi_flash *spi_flash_probe_slave(struct spi_slave *spi)
 	print_buffer(0, idcode, 1, sizeof(idcode), 0);
 #endif
 
-	/* Validate params from spi_flash_params table */
-	flash = spi_flash_validate_params(spi, idcode);
-	if (!flash)
+	if (spi_flash_validate_params(spi, idcode, flash)) {
+		ret = -EINVAL;
 		goto err_read_id;
+	}
 
 	/* Set the quad enable bit - only for quad commands */
 	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
@@ -351,13 +355,15 @@ static struct spi_flash *spi_flash_probe_slave(struct spi_slave *spi)
 	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
 		if (spi_flash_set_qeb(flash, idcode[0])) {
 			debug("SF: Fail to set QEB for %02x\n", idcode[0]);
-			return NULL;
+			ret = -EINVAL;
+			goto err_read_id;
 		}
 	}
 
 #ifdef CONFIG_OF_CONTROL
 	if (spi_flash_decode_fdt(gd->fdt_blob, flash)) {
 		debug("SF: FDT decode error\n");
+		ret = -EINVAL;
 		goto err_read_id;
 	}
 #endif
@@ -385,32 +391,50 @@ static struct spi_flash *spi_flash_probe_slave(struct spi_slave *spi)
 	/* Release spi bus */
 	spi_release_bus(spi);
 
-	return flash;
+	return 0;
 
 err_read_id:
 	spi_release_bus(spi);
-err_claim_bus:
-	spi_free_slave(spi);
-	return NULL;
+	return ret;
 }
 
-struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
+static struct spi_flash *spi_flash_probe_tail(struct spi_slave *bus)
+{
+	struct spi_flash *flash;
+
+	/* Allocate space if needed (not used by sf-uclass */
+	flash = calloc(1, sizeof(*flash));
+	if (!flash) {
+		debug("SF: Failed to allocate spi_flash\n");
+		return NULL;
+	}
+
+	if (spi_flash_probe_slave(bus, flash)) {
+		spi_free_slave(bus);
+		free(flash);
+		return NULL;
+	}
+
+	return flash;
+}
+
+struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
 		unsigned int max_hz, unsigned int spi_mode)
 {
-	struct spi_slave *spi;
+	struct spi_slave *bus;
 
-	spi = spi_setup_slave(bus, cs, max_hz, spi_mode);
-	return spi_flash_probe_slave(spi);
+	bus = spi_setup_slave(busnum, cs, max_hz, spi_mode);
+	return spi_flash_probe_tail(bus);
 }
 
 #ifdef CONFIG_OF_SPI_FLASH
 struct spi_flash *spi_flash_probe_fdt(const void *blob, int slave_node,
 				      int spi_node)
 {
-	struct spi_slave *spi;
+	struct spi_slave *bus;
 
-	spi = spi_setup_slave_fdt(blob, slave_node, spi_node);
-	return spi_flash_probe_slave(spi);
+	bus = spi_setup_slave_fdt(blob, slave_node, spi_node);
+	return spi_flash_probe_tail(bus);
 }
 #endif
 
