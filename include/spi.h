@@ -456,6 +456,35 @@ struct dm_spi_ops {
 	int (*cs_info)(struct udevice *bus, uint cs, struct spi_cs_info *info);
 };
 
+struct dm_spi_emul_ops {
+	/**
+	 * SPI transfer
+	 *
+	 * This writes "bitlen" bits out the SPI MOSI port and simultaneously
+	 * clocks "bitlen" bits in the SPI MISO port.  That's just the way SPI
+	 * works. Here the device is a slave.
+	 *
+	 * The source of the outgoing bits is the "dout" parameter and the
+	 * destination of the input bits is the "din" parameter.  Note that
+	 * "dout" and "din" can point to the same memory location, in which
+	 * case the input data overwrites the output data (since both are
+	 * buffered by temporary variables, this is OK).
+	 *
+	 * spi_xfer() interface:
+	 * @slave:	The SPI slave which will be sending/receiving the data.
+	 * @bitlen:	How many bits to write and read.
+	 * @dout:	Pointer to a string of bits sent to the device. The
+	 *		bits are held in a byte array and are sent MSB first.
+	 * @din:	Pointer to a string of bits that will be sent back to
+	 *		the master.
+	 * @flags:	A bitwise combination of SPI_XFER_* flags.
+	 *
+	 * Returns: 0 on success, not -1 on failure
+	 */
+	int (*xfer)(struct udevice *slave, unsigned int bitlen,
+		    const void *dout, void *din, unsigned long flags);
+};
+
 /**
  * spi_find_bus_and_cs() - Find bus and slave devices by number
  *
@@ -545,12 +574,28 @@ int spi_ofdata_to_platdata(const void *blob, int node, struct spi_slave *spi);
 int spi_cs_info(struct udevice *bus, uint cs, struct spi_cs_info *info);
 
 struct sandbox_state;
+
+/**
+ * sandbox_spi_get_emul() - get an emulator for a SPI slave
+ *
+ * This provides a way to attach an emulated SPI device to a particular SPI
+ * slave, so that xfer() operations on the slave will be handled by the
+ * emulator. If a emulator already exists on that chip select it is returned.
+ * Otherwise one is created.
+ *
+ * @state:	Sandbox state
+ * @bus:	SPI bus requesting the emulator
+ * @slave:	SPI slave device requesting the emulator
+ * @emuip:	Returns pointer to emulator
+ * @return 0 if OK, -ve on error
+ */
 int sandbox_spi_get_emul(struct sandbox_state *state,
 			 struct udevice *bus, struct udevice *slave,
 			 struct udevice **emulp);
 
 /* Access the serial operations for a device */
 #define spi_get_ops(dev)	((struct dm_spi_ops *)(dev)->driver->ops)
+#define spi_emul_get_ops(dev)	((struct dm_spi_emul_ops *)(dev)->driver->ops)
 #endif /* CONFIG_DM_SPI */
 
 #endif	/* _SPI_H_ */

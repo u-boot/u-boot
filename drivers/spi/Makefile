@@ -8,6 +8,7 @@
 # There are many options which enable SPI, so make this library available
 ifdef CONFIG_DM_SPI
 obj-y += spi-uclass.o
+obj-$(CONFIG_SANDBOX) += spi-emul-uclass.o
 else
 obj-y += spi.o
 endif
