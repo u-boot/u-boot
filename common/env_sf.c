@@ -12,6 +12,7 @@
 #include <common.h>
 #include <environment.h>
 #include <malloc.h>
+#include <spi.h>
 #include <spi_flash.h>
 #include <search.h>
 #include <errno.h>

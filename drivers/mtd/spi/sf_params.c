@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <spi.h>
 #include <spi_flash.h>
 
 #include "sf_internal.h"

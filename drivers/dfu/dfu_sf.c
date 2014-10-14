@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <div64.h>
 #include <dfu.h>
+#include <spi.h>
 #include <spi_flash.h>
 
 static long dfu_get_medium_size_sf(struct dfu_entity *dfu)
