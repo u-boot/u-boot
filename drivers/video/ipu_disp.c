@@ -802,28 +802,6 @@ int ipu_pixfmt_to_map(uint32_t fmt)
 }
 
 /*
- * This function is called to adapt synchronous LCD panel to IPU restriction.
- */
-void adapt_panel_to_ipu_restricitions(uint32_t *pixel_clk,
-				      uint16_t width, uint16_t height,
-				      uint16_t h_start_width,
-				      uint16_t h_end_width,
-				      uint16_t v_start_width,
-				      uint16_t *v_end_width)
-{
-	if (*v_end_width < 2) {
-		uint16_t total_width = width + h_start_width + h_end_width;
-		uint16_t total_height_old = height + v_start_width +
-			(*v_end_width);
-		uint16_t total_height_new = height + v_start_width + 2;
-		*v_end_width = 2;
-		*pixel_clk = (*pixel_clk) * total_width * total_height_new /
-			(total_width * total_height_old);
-		printf("WARNING: adapt panel end blank lines\n");
-	}
-}
-
-/*
  * This function is called to initialize a synchronous LCD panel.
  *
  * @param       disp            The DI the panel is attached to.
@@ -880,9 +858,12 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 	if ((v_sync_width == 0) || (h_sync_width == 0))
 		return -EINVAL;
 
-	adapt_panel_to_ipu_restricitions(&pixel_clk, width, height,
-					 h_start_width, h_end_width,
-					 v_start_width, &v_end_width);
+	/* adapt panel to ipu restricitions */
+	if (v_end_width < 2) {
+		v_end_width = 2;
+		puts("WARNING: v_end_width (lower_margin) must be >= 2, adjusted\n");
+	}
+
 	h_total = width + h_sync_width + h_start_width + h_end_width;
 	v_total = height + v_sync_width + v_start_width + v_end_width;
 
