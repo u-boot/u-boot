@@ -232,7 +232,7 @@ static void device_free(struct udevice *dev)
 	}
 }
 
-int device_probe(struct udevice *dev)
+int device_probe_child(struct udevice *dev, void *parent_priv)
 {
 	struct driver *drv;
 	int size = 0;
@@ -282,6 +282,8 @@ int device_probe(struct udevice *dev)
 				ret = -ENOMEM;
 				goto fail;
 			}
+			if (parent_priv)
+				memcpy(dev->parent_priv, parent_priv, size);
 		}
 
 		ret = device_probe(dev->parent);
@@ -333,6 +335,11 @@ fail:
 	device_free(dev);
 
 	return ret;
+}
+
+int device_probe(struct udevice *dev)
+{
+	return device_probe_child(dev, NULL);
 }
 
 int device_remove(struct udevice *dev)
