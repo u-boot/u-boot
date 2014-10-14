@@ -140,6 +140,37 @@ static int dm_test_bus_children_funcs(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_bus_children_funcs, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
+/* Test that we can iterate through children */
+static int dm_test_bus_children_iterators(struct dm_test_state *dms)
+{
+	struct udevice *bus, *dev, *child;
+
+	/* Walk through the children one by one */
+	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
+	ut_assertok(device_find_first_child(bus, &dev));
+	ut_asserteq_str("c-test@5", dev->name);
+	ut_assertok(device_find_next_child(&dev));
+	ut_asserteq_str("c-test@0", dev->name);
+	ut_assertok(device_find_next_child(&dev));
+	ut_asserteq_str("c-test@1", dev->name);
+	ut_assertok(device_find_next_child(&dev));
+	ut_asserteq_ptr(dev, NULL);
+
+	/* Move to the next child without using device_find_first_child() */
+	ut_assertok(device_find_child_by_seq(bus, 5, true, &dev));
+	ut_asserteq_str("c-test@5", dev->name);
+	ut_assertok(device_find_next_child(&dev));
+	ut_asserteq_str("c-test@0", dev->name);
+
+	/* Try a device with no children */
+	ut_assertok(device_find_first_child(dev, &child));
+	ut_asserteq_ptr(child, NULL);
+
+	return 0;
+}
+DM_TEST(dm_test_bus_children_iterators,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
 /* Test that the bus can store data about each child */
 static int dm_test_bus_parent_data(struct dm_test_state *dms)
 {

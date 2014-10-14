@@ -280,4 +280,22 @@ int device_find_child_by_of_offset(struct udevice *parent, int of_offset,
 int device_get_child_by_of_offset(struct udevice *parent, int seq,
 				  struct udevice **devp);
 
+/**
+ * device_find_first_child() - Find the first child of a device
+ *
+ * @parent: Parent device to search
+ * @devp: Returns first child device, or NULL if none
+ * @return 0
+ */
+int device_find_first_child(struct udevice *parent, struct udevice **devp);
+
+/**
+ * device_find_first_child() - Find the first child of a device
+ *
+ * @devp: Pointer to previous child device on entry. Returns pointer to next
+ *		child device, or NULL if none
+ * @return 0
+ */
+int device_find_next_child(struct udevice **devp);
+
 #endif

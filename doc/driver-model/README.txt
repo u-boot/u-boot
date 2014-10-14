@@ -95,7 +95,7 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 21 driver model tests
+    Running 22 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
     Test: dm_test_bus_children
@@ -103,6 +103,7 @@ You should see something like this:
     Device 'c-test@0': seq 0 is in use by 'a-test'
     Device 'c-test@1': seq 1 is in use by 'd-test'
     Test: dm_test_bus_children_funcs
+    Test: dm_test_bus_children_iterators
     Test: dm_test_bus_parent_data
     Test: dm_test_bus_parent_ops
     Test: dm_test_children
