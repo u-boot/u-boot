@@ -9,6 +9,7 @@
 #include <common.h>
 #include <div64.h>
 #include <malloc.h>
+#include <spi.h>
 #include <spi_flash.h>
 
 #include <asm/io.h>
