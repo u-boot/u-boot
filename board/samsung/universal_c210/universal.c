@@ -201,53 +201,6 @@ int exynos_early_init_f(void)
 	return 0;
 }
 
-#ifdef CONFIG_SOFT_SPI
-static void soft_spi_init(void)
-{
-	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_SCLK,
-		CONFIG_SOFT_SPI_MODE & SPI_CPOL);
-	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_MOSI, 1);
-	gpio_direction_input(CONFIG_SOFT_SPI_GPIO_MISO);
-	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_CS,
-		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
-		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
-	SPI_SCL(1);
-	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
-		CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH);
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
-		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
-}
-
-int  spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && cs == 0;
-}
-
-void universal_spi_scl(int bit)
-{
-	gpio_set_value(CONFIG_SOFT_SPI_GPIO_SCLK, bit);
-}
-
-void universal_spi_sda(int bit)
-{
-	gpio_set_value(CONFIG_SOFT_SPI_GPIO_MOSI, bit);
-}
-
-int universal_spi_read(void)
-{
-	return gpio_get_value(CONFIG_SOFT_SPI_GPIO_MISO);
-}
-#endif
-
 static void init_pmic_lcd(void)
 {
 	unsigned char val;
@@ -332,8 +285,6 @@ void exynos_cfg_lcd_gpio(void)
 	/* gpio pad configuration for LCD reset. */
 	gpio_request(EXYNOS4_GPIO_Y45, "lcd_reset");
 	gpio_cfg_pin(EXYNOS4_GPIO_Y45, S5P_GPIO_OUTPUT);
-
-	spi_init();
 }
 
 int mipi_power(void)
@@ -401,9 +352,6 @@ int exynos_init(void)
 		break;
 	}
 
-#ifdef CONFIG_SOFT_SPI
-	soft_spi_init();
-#endif
 	check_hw_revision();
 	printf("HW Revision:\t0x%x\n", board_rev);
 

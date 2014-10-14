@@ -41,6 +41,19 @@
 		status = "disabled";
 	};
 
+	soft-spi {
+		compatible = "u-boot,soft-spi";
+		cs-gpio = <&gpio 235 0>;	/* Y43 */
+		sclk-gpio = <&gpio 225 0>;	/* Y31 */
+		mosi-gpio = <&gpio 227 0>;	/* Y33 */
+		miso-gpio = <&gpio 224 0>;	/* Y30 */
+		spi-delay-us = <1>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cs@0 {
+		};
+	};
+
 	fimd@11c00000 {
 		compatible = "samsung,exynos-fimd";
 		reg = <0x11c00000 0xa4>;
