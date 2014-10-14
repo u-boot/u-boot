@@ -19,4 +19,5 @@ obj-$(CONFIG_DM_TEST) += ut.o
 ifneq ($(CONFIG_SANDBOX),)
 obj-$(CONFIG_DM_GPIO) += gpio.o
 obj-$(CONFIG_DM_SPI) += spi.o
+obj-$(CONFIG_DM_SPI_FLASH) += sf.o
 endif
