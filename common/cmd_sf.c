@@ -8,11 +8,13 @@
 
 #include <common.h>
 #include <div64.h>
+#include <dm.h>
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
 
 #include <asm/io.h>
+#include <dm/device-internal.h>
 
 static struct spi_flash *flash;
 
@@ -81,7 +83,12 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 	unsigned int speed = CONFIG_SF_DEFAULT_SPEED;
 	unsigned int mode = CONFIG_SF_DEFAULT_MODE;
 	char *endp;
+#ifdef CONFIG_DM_SPI_FLASH
+	struct udevice *new, *bus_dev;
+	int ret;
+#else
 	struct spi_flash *new;
+#endif
 
 	if (argc >= 2) {
 		cs = simple_strtoul(argv[1], &endp, 0);
@@ -109,6 +116,23 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 			return -1;
 	}
 
+#ifdef CONFIG_DM_SPI_FLASH
+	/* Remove the old device, otherwise probe will just be a nop */
+	ret = spi_find_bus_and_cs(bus, cs, &bus_dev, &new);
+	if (!ret) {
+		device_remove(new);
+		device_unbind(new);
+	}
+	flash = NULL;
+	ret = spi_flash_probe_bus_cs(bus, cs, speed, mode, &new);
+	if (ret) {
+		printf("Failed to initialize SPI flash at %u:%u (error %d)\n",
+		       bus, cs, ret);
+		return 1;
+	}
+
+	flash = new->uclass_priv;
+#else
 	new = spi_flash_probe(bus, cs, speed, mode);
 	if (!new) {
 		printf("Failed to initialize SPI flash at %u:%u\n", bus, cs);
@@ -118,6 +142,7 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 	if (flash)
 		spi_flash_free(flash);
 	flash = new;
+#endif
 
 	return 0;
 }

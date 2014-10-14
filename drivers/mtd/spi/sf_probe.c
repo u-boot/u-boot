@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
@@ -131,13 +132,15 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	flash->dual_flash = flash->spi->option;
 
 	/* Assign spi_flash ops */
+#ifndef CONFIG_DM_SPI_FLASH
 	flash->write = spi_flash_cmd_write_ops;
-#ifdef CONFIG_SPI_FLASH_SST
+#if defined(CONFIG_SPI_FLASH_SST)
 	if (params->flags & SST_WP)
 		flash->write = sst_write_wp;
 #endif
 	flash->erase = spi_flash_cmd_erase_ops;
 	flash->read = spi_flash_cmd_read_ops;
+#endif
 
 	/* Compute the flash size */
 	flash->shift = (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) ? 1 : 0;
@@ -398,7 +401,8 @@ err_read_id:
 	return ret;
 }
 
-static struct spi_flash *spi_flash_probe_tail(struct spi_slave *bus)
+#ifndef CONFIG_DM_SPI_FLASH
+struct spi_flash *spi_flash_probe_tail(struct spi_slave *bus)
 {
 	struct spi_flash *flash;
 
@@ -443,3 +447,61 @@ void spi_flash_free(struct spi_flash *flash)
 	spi_free_slave(flash->spi);
 	free(flash);
 }
+
+#else /* defined CONFIG_DM_SPI_FLASH */
+
+static int spi_flash_std_read(struct udevice *dev, u32 offset, size_t len,
+			      void *buf)
+{
+	struct spi_flash *flash = dev->uclass_priv;
+
+	return spi_flash_cmd_read_ops(flash, offset, len, buf);
+}
+
+int spi_flash_std_write(struct udevice *dev, u32 offset, size_t len,
+			const void *buf)
+{
+	struct spi_flash *flash = dev->uclass_priv;
+
+	return spi_flash_cmd_write_ops(flash, offset, len, buf);
+}
+
+int spi_flash_std_erase(struct udevice *dev, u32 offset, size_t len)
+{
+	struct spi_flash *flash = dev->uclass_priv;
+
+	return spi_flash_cmd_erase_ops(flash, offset, len);
+}
+
+int spi_flash_std_probe(struct udevice *dev)
+{
+	struct spi_slave *slave = dev_get_parentdata(dev);
+	struct spi_flash *flash;
+
+	flash = dev->uclass_priv;
+	flash->dev = dev;
+	debug("%s: slave=%p, cs=%d\n", __func__, slave, slave->cs);
+	return spi_flash_probe_slave(slave, flash);
+}
+
+static const struct dm_spi_flash_ops spi_flash_std_ops = {
+	.read = spi_flash_std_read,
+	.write = spi_flash_std_write,
+	.erase = spi_flash_std_erase,
+};
+
+static const struct udevice_id spi_flash_std_ids[] = {
+	{ .compatible = "spi-flash" },
+	{ }
+};
+
+U_BOOT_DRIVER(spi_flash_std) = {
+	.name		= "spi_flash_std",
+	.id		= UCLASS_SPI_FLASH,
+	.of_match	= spi_flash_std_ids,
+	.probe		= spi_flash_std_probe,
+	.priv_auto_alloc_size = sizeof(struct spi_flash),
+	.ops		= &spi_flash_std_ops,
+};
+
+#endif /* CONFIG_DM_SPI_FLASH */
