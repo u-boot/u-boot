@@ -6,7 +6,11 @@
 #
 
 # There are many options which enable SPI, so make this library available
+ifdef CONFIG_DM_SPI
+obj-y += spi-uclass.o
+else
 obj-y += spi.o
+endif
 
 obj-$(CONFIG_EP93XX_SPI) += ep93xx_spi.o
 obj-$(CONFIG_ALTERA_SPI) += altera_spi.o

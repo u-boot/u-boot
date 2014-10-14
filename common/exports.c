@@ -27,10 +27,12 @@ unsigned long get_version(void)
 # define i2c_write         dummy
 # define i2c_read          dummy
 #endif
-#ifndef CONFIG_CMD_SPI
+#if !defined(CONFIG_CMD_SPI) || defined(CONFIG_DM_SPI)
 # define spi_init          dummy
 # define spi_setup_slave   dummy
 # define spi_free_slave    dummy
+#endif
+#ifndef CONFIG_CMD_SPI
 # define spi_claim_bus     dummy
 # define spi_release_bus   dummy
 # define spi_xfer          dummy

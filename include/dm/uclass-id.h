@@ -22,6 +22,8 @@ enum uclass_id {
 	/* U-Boot uclasses start here */
 	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */
 	UCLASS_SERIAL,		/* Serial UART */
+	UCLASS_SPI,		/* SPI bus */
+	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
