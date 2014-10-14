@@ -25,6 +25,7 @@ enum uclass_id {
 	UCLASS_SERIAL,		/* Serial UART */
 	UCLASS_SPI,		/* SPI bus */
 	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
+	UCLASS_SPI_FLASH,	/* SPI flash */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,

@@ -15,6 +15,7 @@
 #ifndef _SPI_FLASH_H_
 #define _SPI_FLASH_H_
 
+#include <dm.h>	/* Because we dereference struct udevice here */
 #include <linux/types.h>
 
 #ifndef CONFIG_SF_DEFAULT_SPEED
@@ -61,7 +62,12 @@ struct spi_slave;
  * return 0 - Success, 1 - Failure
  */
 struct spi_flash {
+#ifdef CONFIG_DM_SPI_FLASH
 	struct spi_slave *spi;
+	struct udevice *dev;
+#else
+	struct spi_slave *spi;
+#endif
 	const char *name;
 	u8 dual_flash;
 	u8 shift;
@@ -82,12 +88,75 @@ struct spi_flash {
 	u8 dummy_byte;
 
 	void *memory_map;
+#ifndef CONFIG_DM_SPI_FLASH
+	/*
+	 * These are not strictly needed for driver model, but keep them here
+	 * whilt the transition is in progress.
+	 *
+	 * Normally each driver would provide its own operations, but for
+	 * SPI flash most chips use the same algorithms. One approach is
+	 * to create a 'common' SPI flash device which knows how to talk
+	 * to most devices, and then allow other drivers to be used instead
+	 * if requird, perhaps with a way of scanning through the list to
+	 * find the driver that matches the device.
+	 */
 	int (*read)(struct spi_flash *flash, u32 offset, size_t len, void *buf);
 	int (*write)(struct spi_flash *flash, u32 offset, size_t len,
 			const void *buf);
 	int (*erase)(struct spi_flash *flash, u32 offset, size_t len);
+#endif
 };
 
+struct dm_spi_flash_ops {
+	int (*read)(struct udevice *dev, u32 offset, size_t len, void *buf);
+	int (*write)(struct udevice *dev, u32 offset, size_t len,
+		     const void *buf);
+	int (*erase)(struct udevice *dev, u32 offset, size_t len);
+};
+
+/* Access the serial operations for a device */
+#define sf_get_ops(dev) ((struct dm_spi_flash_ops *)(dev)->driver->ops)
+
+#ifdef CONFIG_DM_SPI_FLASH
+int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
+			   unsigned int max_hz, unsigned int spi_mode,
+			   struct udevice **devp);
+
+/* Compatibility function - this is the old U-Boot API */
+struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
+				  unsigned int max_hz, unsigned int spi_mode);
+
+/* Compatibility function - this is the old U-Boot API */
+void spi_flash_free(struct spi_flash *flash);
+
+int spi_flash_remove(struct udevice *flash);
+
+static inline int spi_flash_read(struct spi_flash *flash, u32 offset,
+		size_t len, void *buf)
+{
+	return sf_get_ops(flash->dev)->read(flash->dev, offset, len, buf);
+}
+
+static inline int spi_flash_write(struct spi_flash *flash, u32 offset,
+		size_t len, const void *buf)
+{
+	return sf_get_ops(flash->dev)->write(flash->dev, offset, len, buf);
+}
+
+static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
+		size_t len)
+{
+	return sf_get_ops(flash->dev)->erase(flash->dev, offset, len);
+}
+
+struct sandbox_state;
+
+int sandbox_sf_bind_emul(struct sandbox_state *state, int busnum, int cs,
+			 struct udevice *bus, int of_offset, const char *spec);
+
+void sandbox_sf_unbind_emul(struct sandbox_state *state, int busnum, int cs);
+
+#else
 struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int spi_mode);
 
@@ -122,6 +191,7 @@ static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
 {
 	return flash->erase(flash, offset, len);
 }
+#endif
 
 void spi_boot(void) __noreturn;
 void spi_spl_load_image(uint32_t offs, unsigned int size, void *vdst);
