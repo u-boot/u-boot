@@ -57,7 +57,8 @@ struct driver_info;
  * @sibling_node: Next device in list of all devices
  * @flags: Flags for this device DM_FLAG_...
  * @req_seq: Requested sequence number for this device (-1 = any)
- * @seq: Allocated sequence number for this device (-1 = none)
+ * @seq: Allocated sequence number for this device (-1 = none). This is set up
+ * when the device is probed and will be unique within the device's uclass.
  */
 struct udevice {
 	struct driver *driver;
