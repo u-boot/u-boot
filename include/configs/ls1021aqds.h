@@ -69,6 +69,7 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_SYS_HAS_SERDES
 
+#define CONFIG_FSL_CAAM			/* Enable CAAM */
 /*
  * IFC Definitions
  */
@@ -387,5 +388,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
 #define CONFIG_CMD_BOOTZ
+
+#define CONFIG_MISC_INIT_R
+
+/* Hash command with SHA acceleration supported in hardware */
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
 
 #endif

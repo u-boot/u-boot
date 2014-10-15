@@ -13,6 +13,7 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
+#include <fsl_sec.h>
 
 #include "../common/qixis.h"
 #include "ls1021aqds_qixis.h"
@@ -212,6 +213,15 @@ int config_serdes_mux(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_MISC_INIT_R)
+int misc_init_r(void)
+{
+#ifdef CONFIG_FSL_CAAM
+	return sec_init();
+#endif
+}
+#endif
 
 int board_init(void)
 {
