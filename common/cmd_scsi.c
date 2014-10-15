@@ -10,6 +10,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <inttypes.h>
 #include <asm/processor.h>
 #include <scsi.h>
 #include <image.h>
@@ -391,7 +392,7 @@ static ulong scsi_read(int device, lbaint_t blknr, lbaint_t blkcnt,
 			blks=0;
 		}
 		debug("scsi_read_ext: startblk " LBAF
-		      ", blccnt %x buffer %lx\n",
+		      ", blccnt %x buffer %" PRIXPTR "\n",
 		      start, smallblks, buf_addr);
 		if (scsi_exec(pccb) != true) {
 			scsi_print_error(pccb);
@@ -401,7 +402,7 @@ static ulong scsi_read(int device, lbaint_t blknr, lbaint_t blkcnt,
 		buf_addr+=pccb->datalen;
 	} while(blks!=0);
 	debug("scsi_read_ext: end startblk " LBAF
-	      ", blccnt %x buffer %lx\n", start, smallblks, buf_addr);
+	      ", blccnt %x buffer %" PRIXPTR "\n", start, smallblks, buf_addr);
 	return(blkcnt);
 }
 
@@ -445,7 +446,7 @@ static ulong scsi_write(int device, lbaint_t blknr,
 			start += blks;
 			blks = 0;
 		}
-		debug("%s: startblk " LBAF ", blccnt %x buffer %lx\n",
+		debug("%s: startblk " LBAF ", blccnt %x buffer %" PRIXPTR "\n",
 		      __func__, start, smallblks, buf_addr);
 		if (scsi_exec(pccb) != true) {
 			scsi_print_error(pccb);
@@ -454,7 +455,7 @@ static ulong scsi_write(int device, lbaint_t blknr,
 		}
 		buf_addr += pccb->datalen;
 	} while (blks != 0);
-	debug("%s: end startblk " LBAF ", blccnt %x buffer %lx\n",
+	debug("%s: end startblk " LBAF ", blccnt %x buffer %" PRIXPTR "\n",
 	      __func__, start, smallblks, buf_addr);
 	return blkcnt;
 }
