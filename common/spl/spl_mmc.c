@@ -100,9 +100,10 @@ void spl_mmc_load_image(void)
 #endif
 		err = mmc_load_image_raw(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
-#ifdef CONFIG_SPL_FAT_SUPPORT
+#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
 	} else if (boot_mode == MMCSD_MODE_FS) {
-		debug("boot mode - FAT\n");
+		debug("boot mode - FS\n");
+#ifdef CONFIG_SPL_FAT_SUPPORT
 #ifdef CONFIG_SPL_OS_BOOT
 		if (spl_start_uboot() || spl_load_image_fat_os(&mmc->block_dev,
 								CONFIG_SYS_MMC_SD_FS_BOOT_PARTITION))
@@ -110,7 +111,20 @@ void spl_mmc_load_image(void)
 		err = spl_load_image_fat(&mmc->block_dev,
 					CONFIG_SYS_MMC_SD_FS_BOOT_PARTITION,
 					CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
+		if(err)
+#endif /* CONFIG_SPL_FAT_SUPPORT */
+		{
+#ifdef CONFIG_SPL_EXT_SUPPORT
+#ifdef CONFIG_SPL_OS_BOOT
+		if (spl_start_uboot() || spl_load_image_ext_os(&mmc->block_dev,
+								CONFIG_SYS_MMC_SD_FS_BOOT_PARTITION))
 #endif
+		err = spl_load_image_ext(&mmc->block_dev,
+					CONFIG_SYS_MMC_SD_FS_BOOT_PARTITION,
+					CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
+#endif /* CONFIG_SPL_EXT_SUPPORT */
+		}
+#endif /* defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT) */
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	} else if (boot_mode == MMCSD_MODE_EMMCBOOT) {
 		/*

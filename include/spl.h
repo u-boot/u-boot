@@ -74,6 +74,10 @@ int spl_load_image_fat_os(block_dev_desc_t *block_dev, int partition);
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image);
 
+/* SPL EXT image functions */
+int spl_load_image_ext(block_dev_desc_t *block_dev, int partition, const char *filename);
+int spl_load_image_ext_os(block_dev_desc_t *block_dev, int partition);
+
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void);
 #endif
