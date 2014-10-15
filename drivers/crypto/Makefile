@@ -6,3 +6,4 @@
 #
 
 obj-$(CONFIG_EXYNOS_ACE_SHA)	+= ace_sha.o
+obj-y += fsl/

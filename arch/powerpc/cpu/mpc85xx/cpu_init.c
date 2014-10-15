@@ -27,6 +27,9 @@
 #include <hwconfig.h>
 #include <linux/compiler.h>
 #include "mp.h"
+#ifdef CONFIG_FSL_CAAM
+#include <fsl_sec.h>
+#endif
 #ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #include <nand.h>
 #include <errno.h>
@@ -936,6 +939,10 @@ int cpu_init_r(void)
 
 #ifdef CONFIG_FMAN_ENET
 	fman_enet_init();
+#endif
+
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
 #endif
 
 #if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_FSL_SATA_ERRATUM_A001)

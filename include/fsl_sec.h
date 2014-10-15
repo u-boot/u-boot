@@ -99,6 +99,51 @@ typedef struct ccsr_sec {
 #define SEC_SCFGR_VIRT_EN		0x00008000
 #define SEC_CHAVID_LS_RNG_SHIFT		16
 #define SEC_CHAVID_RNG_LS_MASK		0x000f0000
+
+#define CONFIG_JRSTARTR_JR0		0x00000001
+
+struct jr_regs {
+#ifdef CONFIG_SYS_FSL_SEC_LE
+	u32 irba_l;
+	u32 irba_h;
+#else
+	u32 irba_h;
+	u32 irba_l;
+#endif
+	u32 rsvd1;
+	u32 irs;
+	u32 rsvd2;
+	u32 irsa;
+	u32 rsvd3;
+	u32 irja;
+#ifdef CONFIG_SYS_FSL_SEC_LE
+	u32 orba_l;
+	u32 orba_h;
+#else
+	u32 orba_h;
+	u32 orba_l;
+#endif
+	u32 rsvd4;
+	u32 ors;
+	u32 rsvd5;
+	u32 orjr;
+	u32 rsvd6;
+	u32 orsf;
+	u32 rsvd7;
+	u32 jrsta;
+	u32 rsvd8;
+	u32 jrint;
+	u32 jrcfg0;
+	u32 jrcfg1;
+	u32 rsvd9;
+	u32 irri;
+	u32 rsvd10;
+	u32 orwi;
+	u32 rsvd11;
+	u32 jrcr;
+};
+
+int sec_init(void);
 #endif
 
 #endif /* __FSL_SEC_H */
