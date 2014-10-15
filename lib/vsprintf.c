@@ -270,7 +270,7 @@ static char *put_dec_full(char *buf, unsigned q)
 	return buf;
 }
 /* No inlining helps gcc to use registers better */
-static noinline char *put_dec(char *buf, u64 num)
+static noinline char *put_dec(char *buf, uint64_t num)
 {
 	while (1) {
 		unsigned rem;
