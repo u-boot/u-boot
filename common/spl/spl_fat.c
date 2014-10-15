@@ -30,7 +30,7 @@ static int spl_register_fat_device(block_dev_desc_t *block_dev, int partition)
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: fat register err - %d\n", __func__, err);
 #endif
-		hang();
+		return err;
 	}
 
 	fat_registered = 1;
