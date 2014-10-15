@@ -188,7 +188,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     else:
         series = None
         options.verbose = True
-        options.show_errors = True
+        if not options.summary:
+            options.show_errors = True
 
     # By default we have one thread per CPU. But if there are not enough jobs
     # we can have fewer threads and use a high '-j' value for make.
