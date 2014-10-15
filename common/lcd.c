@@ -1023,7 +1023,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 
 	switch (bmp_bpix) {
 	case 1: /* pass through */
-	case 8:
+	case 8: {
 #ifdef CONFIG_LCD_BMP_RLE8
 		u32 compression = get_unaligned_le32(&bmp->header.compression);
 		if (compression == BMP_BI_RLE8) {
@@ -1056,7 +1056,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 			fb -= byte_width + lcd_line_length;
 		}
 		break;
-
+	}
 #if defined(CONFIG_BMP_16BPP)
 	case 16:
 		for (i = 0; i < height; ++i) {
