@@ -3547,7 +3547,7 @@ FIT uImage format:
 
 		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR,
 		CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS,
-		CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION
+		CONFIG_SYS_MMC_SD_FS_BOOT_PARTITION
 		Address, size and partition on the MMC to load U-Boot from
 		when the MMC is being used in raw mode.
 
@@ -3564,16 +3564,19 @@ FIT uImage format:
 		CONFIG_SPL_FAT_SUPPORT
 		Support for fs/fat/libfat.o in SPL binary
 
-		CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME
-		Filename to read to load U-Boot when reading from FAT
+		CONFIG_SPL_EXT_SUPPORT
+		Support for EXT filesystem in SPL binary
 
-		CONFIG_SPL_FAT_LOAD_KERNEL_NAME
+		CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
+		Filename to read to load U-Boot when reading from filesystem
+
+		CONFIG_SPL_FS_LOAD_KERNEL_NAME
 		Filename to read to load kernel uImage when reading
-		from FAT (for Falcon mode)
+		from filesystem (for Falcon mode)
 
-		CONFIG_SPL_FAT_LOAD_ARGS_NAME
+		CONFIG_SPL_FS_LOAD_ARGS_NAME
 		Filename to read to load kernel argument parameters
-		when reading from FAT (for Falcon mode)
+		when reading from filesystem (for Falcon mode)
 
 		CONFIG_SPL_MPC83XX_WAIT_FOR_NAND
 		Set this for NAND SPL on PPC mpc83xx targets, so that
