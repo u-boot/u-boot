@@ -59,6 +59,11 @@ ifdef FTRACE
 PLATFORM_CPPFLAGS += -finstrument-functions -DFTRACE
 endif
 
+# Allow use of stdint.h if available
+ifneq ($(USE_STDINT),)
+PLATFORM_CPPFLAGS += -DCONFIG_USE_STDINT
+endif
+
 #########################################################################
 
 RELFLAGS := $(PLATFORM_RELFLAGS)

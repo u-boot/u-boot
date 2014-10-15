@@ -36,8 +36,13 @@ typedef unsigned short u16;
 typedef signed int s32;
 typedef unsigned int u32;
 
+#if !defined(CONFIG_USE_STDINT) || !defined(__INT64_TYPE__)
 typedef signed long long s64;
 typedef unsigned long long u64;
+#else
+typedef __INT64_TYPE__ s64;
+typedef __UINT64_TYPE__ u64;
+#endif
 
 #define BITS_PER_LONG 32
 
