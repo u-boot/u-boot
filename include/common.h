@@ -766,7 +766,7 @@ void	invalidate_dcache_all(void);
 void	invalidate_icache_all(void);
 
 /* arch/$(ARCH)/lib/ticks.S */
-unsigned long long get_ticks(void);
+uint64_t get_ticks(void);
 void	wait_ticks    (unsigned long);
 
 /* arch/$(ARCH)/lib/time.c */
