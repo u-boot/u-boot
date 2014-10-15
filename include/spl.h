@@ -15,7 +15,7 @@
 /* Boot type */
 #define MMCSD_MODE_UNDEFINED	0
 #define MMCSD_MODE_RAW		1
-#define MMCSD_MODE_FAT		2
+#define MMCSD_MODE_FS		2
 #define MMCSD_MODE_EMMCBOOT	3
 
 struct spl_image_info {

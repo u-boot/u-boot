@@ -81,8 +81,8 @@ u32 spl_boot_mode(void)
 
 	if (val == MMCSD_MODE_RAW)
 		return MMCSD_MODE_RAW;
-	else if (val == MMCSD_MODE_FAT)
-		return MMCSD_MODE_FAT;
+	else if (val == MMCSD_MODE_FS)
+		return MMCSD_MODE_FS;
 	else
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 		return MMCSD_MODE_EMMCBOOT;

@@ -102,7 +102,7 @@ u32 spl_boot_mode(void)
 	switch (spl_boot_device()) {
 #ifdef CONFIG_SYS_USE_MMC
 	case BOOT_DEVICE_MMC1:
-		return MMCSD_MODE_FAT;
+		return MMCSD_MODE_FS;
 		break;
 #endif
 	case BOOT_DEVICE_NONE:

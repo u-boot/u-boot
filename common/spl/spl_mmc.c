@@ -101,15 +101,15 @@ void spl_mmc_load_image(void)
 		err = mmc_load_image_raw(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 #ifdef CONFIG_SPL_FAT_SUPPORT
-	} else if (boot_mode == MMCSD_MODE_FAT) {
+	} else if (boot_mode == MMCSD_MODE_FS) {
 		debug("boot mode - FAT\n");
 #ifdef CONFIG_SPL_OS_BOOT
 		if (spl_start_uboot() || spl_load_image_fat_os(&mmc->block_dev,
-								CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION))
+								CONFIG_SYS_MMC_SD_FS_BOOT_PARTITION))
 #endif
 		err = spl_load_image_fat(&mmc->block_dev,
-					CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION,
-					CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME);
+					CONFIG_SYS_MMC_SD_FS_BOOT_PARTITION,
+					CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 #endif
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	} else if (boot_mode == MMCSD_MODE_EMMCBOOT) {

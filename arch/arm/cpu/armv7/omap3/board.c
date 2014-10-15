@@ -90,7 +90,7 @@ u32 spl_boot_mode(void)
 	case BOOT_DEVICE_MMC2:
 		return MMCSD_MODE_RAW;
 	case BOOT_DEVICE_MMC1:
-		return MMCSD_MODE_FAT;
+		return MMCSD_MODE_FS;
 		break;
 	default:
 		puts("spl: ERROR:  unknown device - can't select boot mode\n");

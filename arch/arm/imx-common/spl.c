@@ -68,7 +68,7 @@ u32 spl_boot_mode(void)
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
 #ifdef CONFIG_SPL_FAT_SUPPORT
-		return MMCSD_MODE_FAT;
+		return MMCSD_MODE_FS;
 #else
 		return MMCSD_MODE_RAW;
 #endif

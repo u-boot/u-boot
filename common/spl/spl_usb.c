@@ -49,7 +49,7 @@ void spl_usb_load_image(void)
 #endif
 		err = spl_load_image_fat(stor_dev,
 				CONFIG_SYS_USB_FAT_BOOT_PARTITION,
-				CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME);
+				CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 
 		if (err) {
 			puts("Error loading USB device\n");
