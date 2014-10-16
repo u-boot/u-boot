@@ -70,7 +70,7 @@ idt_ptr:
  * GDT is setup in a safe location in RAM
  */
 gdt_ptr:
-	.word	0x20		/* limit (32 bytes = 4 GDT entries) */
+	.word	0x1f		/* limit (31 bytes = 4 GDT entries - 1) */
 	.long	BOOT_SEG + gdt	/* base */
 
 /* Some CPUs are picky about GDT alignment... */
