@@ -167,16 +167,21 @@
 
 /*
  * SPL
+ *
+ * SRAM Memory layout:
+ *
+ * 0xFFFF_0000 ...... Start of SRAM
+ * 0xFFFF_xxxx ...... Top of stack (grows down)
+ * 0xFFFF_yyyy ...... Malloc area
+ * 0xFFFF_zzzz ...... Global Data
+ * 0xFFFF_FF00 ...... End of SRAM
  */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_RAM_DEVICE
-#define CONFIG_SPL_TEXT_BASE		0xFFFF0000
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
-#define CONFIG_SPL_STACK_SIZE		(4 * 1024)
-#define CONFIG_SPL_MALLOC_SIZE		(5 * 1024)	/* FIXME */
-#define CONFIG_SYS_SPL_MALLOC_START	((unsigned long) (&__malloc_start))
-#define CONFIG_SYS_SPL_MALLOC_SIZE	(&__malloc_end - &__malloc_start)
+#define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
+#define CONFIG_SYS_SPL_MALLOC_START	CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SYS_SPL_MALLOC_SIZE	(5 * 1024)
 
 #define CHUNKSZ_CRC32			(1 * 1024)	/* FIXME: ewww */
 #define CONFIG_CRC32_VERIFY
