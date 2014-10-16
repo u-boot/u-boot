@@ -89,7 +89,7 @@ struct mxc_ccm_reg {
 	u32 analog_pll_video_tog;
 	u32 analog_pll_video_num;		/* 0x40b0 */
 	u32 analog_reserved6[3];
-	u32 analog_pll_vedio_denon;		/* 0x40c0 */
+	u32 analog_pll_video_denom;		/* 0x40c0 */
 	u32 analog_reserved7[7];
 	u32 analog_pll_enet;			/* 0x40e0 */
 	u32 analog_pll_enet_set;
