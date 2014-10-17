@@ -10,6 +10,7 @@
 #include <command.h>
 
 #include <net.h>
+#include <phy.h>
 #include <miiphy.h>
 #include <malloc.h>
 #include <asm/ti-common/keystone_nav.h>
@@ -398,8 +399,8 @@ int32_t cpmac_drv_send(u32 *buffer, int num_bytes, int slave_port_num)
 /* Eth device open */
 static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 {
-	int link;
 	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
+	struct phy_device *phy_dev = eth_priv->phy_dev;
 
 	debug("+ emac_open\n");
 
@@ -439,8 +440,8 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 	if (sys_has_mdio) {
 		keystone2_mdio_reset(mdio_bus);
 
-		link = keystone_get_link_status(dev);
-		if (link == 0) {
+		phy_startup(phy_dev);
+		if (phy_dev->link == 0) {
 			ksnav_close(&netcp_pktdma);
 			qm_close();
 			return -1;
@@ -461,6 +462,9 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 /* Eth device close */
 void keystone2_eth_close(struct eth_device *dev)
 {
+	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
+	struct phy_device *phy_dev = eth_priv->phy_dev;
+
 	debug("+ emac_close\n");
 
 	if (!emac_open)
@@ -470,6 +474,7 @@ void keystone2_eth_close(struct eth_device *dev)
 
 	ksnav_close(&netcp_pktdma);
 	qm_close();
+	phy_shutdown(phy_dev);
 
 	emac_open = 0;
 
@@ -522,6 +527,7 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 {
 	int res;
 	struct eth_device *dev;
+	struct phy_device *phy_dev;
 
 	dev = malloc(sizeof(struct eth_device));
 	if (dev == NULL)
@@ -555,6 +561,18 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 		if (res)
 			return res;
 	}
+
+	/* Create phy device and bind it with driver */
+#ifdef CONFIG_KSNET_MDIO_PHY_CONFIG_ENABLE
+	phy_dev = phy_connect(mdio_bus, eth_priv->phy_addr,
+			      dev, PHY_INTERFACE_MODE_SGMII);
+	phy_config(phy_dev);
+#else
+	phy_dev = phy_find_by_mask(mdio_bus, 1 << eth_priv->phy_addr,
+				   PHY_INTERFACE_MODE_SGMII);
+	phy_dev->dev = dev;
+#endif
+	eth_priv->phy_dev = phy_dev;
 
 	return 0;
 }

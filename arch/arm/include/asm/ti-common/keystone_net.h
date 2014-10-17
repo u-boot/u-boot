@@ -239,6 +239,7 @@ struct eth_priv_t {
 	int phy_addr;
 	int slave_port;
 	int sgmii_link_type;
+	struct phy_device *phy_dev;
 };
 
 int keystone2_emac_initialize(struct eth_priv_t *eth_priv);
