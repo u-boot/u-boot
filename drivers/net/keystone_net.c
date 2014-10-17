@@ -289,6 +289,11 @@ int mac_sl_config(u_int16_t port, struct mac_sl_cfg *cfg)
 	writel(cfg->max_rx_len, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_MAXLEN);
 	writel(cfg->ctl, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_CTL);
 
+#ifdef CONFIG_K2E_EVM
+	/* Map RX packet flow priority to 0 */
+	writel(0, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_RX_PRI_MAP);
+#endif
+
 	return ret;
 }
 
