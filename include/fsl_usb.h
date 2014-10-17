@@ -139,6 +139,12 @@ static inline bool has_erratum_a007075(void)
 	}
 	return false;
 }
+
+static inline bool has_erratum_a007798(void)
+{
+	return SVR_SOC_VER(get_svr()) == SVR_T4240 &&
+		IS_SVR_REV(get_svr(), 2, 0);
+}
 #else
 static inline bool has_erratum_a006261(void)
 {
@@ -146,6 +152,11 @@ static inline bool has_erratum_a006261(void)
 }
 
 static inline bool has_erratum_a007075(void)
+{
+	return false;
+}
+
+static inline bool has_erratum_a007798(void)
 {
 	return false;
 }

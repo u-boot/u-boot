@@ -130,8 +130,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 	in_le32(&ehci->usbmode);
 
-	if (SVR_SOC_VER(get_svr()) == SVR_T4240 &&
-	    IS_SVR_REV(get_svr(), 2, 0))
+	if (has_erratum_a007798())
 		set_txfifothresh(ehci, TXFIFOTHRESH);
 
 	return 0;
