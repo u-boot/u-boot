@@ -1113,7 +1113,7 @@ e1000_swfw_sync_acquire(struct e1000_hw *hw, uint16_t mask)
 			return -E1000_ERR_SWFW_SYNC;
 
 		swfw_sync = E1000_READ_REG(hw, SW_FW_SYNC);
-		if ((swfw_sync & swmask) && !(swfw_sync & fwmask))
+		if (!(swfw_sync & (fwmask | swmask)))
 			break;
 
 		/* firmware currently using resource (fwmask) */
