@@ -95,8 +95,6 @@ struct ccsr_gur {
 	u32	sdhcpcr;
 };
 
-#define SCFG_SCFGREVCR_REV		0xffffffff
-#define SCFG_SCFGREVCR_NOREV		0
 #define SCFG_ETSECDMAMCR_LE_BD_FR	0xf8001a0f
 #define SCFG_ETSECCMCR_GE2_CLK125	0x04000000
 #define SCFG_PIXCLKCR_PXCKEN		0x80000000

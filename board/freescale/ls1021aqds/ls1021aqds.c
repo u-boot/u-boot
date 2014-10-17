@@ -140,9 +140,7 @@ int board_early_init_f(void)
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
 
 #ifdef CONFIG_TSEC_ENET
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_REV);
 	out_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_NOREV);
 #endif
 
 #ifdef CONFIG_FSL_IFC

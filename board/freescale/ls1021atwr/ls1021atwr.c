@@ -255,11 +255,8 @@ int board_early_init_f(void)
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 
 #ifdef CONFIG_TSEC_ENET
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_REV);
 	out_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
 	out_be32(&scfg->etsecmcr, SCFG_ETSECCMCR_GE2_CLK125);
-	udelay(10);
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_NOREV);
 #endif
 
 #ifdef CONFIG_FSL_IFC
@@ -267,9 +264,7 @@ int board_early_init_f(void)
 #endif
 
 #ifdef CONFIG_FSL_DCU_FB
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_REV);
 	out_be32(&scfg->pixclkcr, SCFG_PIXCLKCR_PXCKEN);
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_NOREV);
 #endif
 
 	return 0;
