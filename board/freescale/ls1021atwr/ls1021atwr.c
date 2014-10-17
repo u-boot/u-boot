@@ -277,6 +277,16 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
+
+	/*
+	 * Set CCI-400 Slave interface S0, S1, S2 Shareable Override Register
+	 * All transactions are treated as non-shareable
+	 */
+	out_le32(&cci->slave[0].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[1].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	fsl_serdes_init();
 	config_serdes_mux();

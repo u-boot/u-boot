@@ -233,6 +233,13 @@ int board_init(void)
 	/* Set CCI-400 control override register to
 	 * enable barrier transaction */
 	out_le32(&cci->ctrl_ord, CCI400_CTRLORD_EN_BARRIER);
+	/*
+	 * Set CCI-400 Slave interface S0, S1, S2 Shareable Override Register
+	 * All transactions are treated as non-shareable
+	 */
+	out_le32(&cci->slave[0].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[1].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
 
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 

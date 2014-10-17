@@ -448,6 +448,7 @@ struct ccsr_ddr {
 
 #define CCI400_CTRLORD_TERM_BARRIER	0x00000008
 #define CCI400_CTRLORD_EN_BARRIER	0
+#define CCI400_SHAORD_NON_SHAREABLE	0x00000002
 
 /* CCI-400 registers */
 struct ccsr_cci400 {
