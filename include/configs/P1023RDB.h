@@ -374,6 +374,49 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
+	"netdev=eth0\0"						\
+	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
+	"loadaddr=1000000\0"					\
+	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
+	"tftpflash=tftpboot $loadaddr $uboot; "			\
+		"protect off $ubootaddr +$filesize; "		\
+		"erase $ubootaddr +$filesize; "			\
+		"cp.b $loadaddr $ubootaddr $filesize; "		\
+		"protect on $ubootaddr +$filesize; "		\
+		"cmp.b $loadaddr $ubootaddr $filesize\0"	\
+	"consoledev=ttyS0\0"					\
+	"ramdiskaddr=2000000\0"					\
+	"ramdiskfile=rootfs.ext2.gz.uboot\0"			\
+	"fdtaddr=c00000\0"					\
+	"fdtfile=p1023rdb.dtb\0"				\
+	"othbootargs=ramdisk_size=600000\0"			\
+	"bdev=sda1\0"						\
 	"hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"
+
+#define CONFIG_HDBOOT					\
+	"setenv bootargs root=/dev/$bdev rw "		\
+	"console=$consoledev,$baudrate $othbootargs;"	\
+	"tftp $loadaddr $bootfile;"			\
+	"tftp $fdtaddr $fdtfile;"			\
+	"bootm $loadaddr - $fdtaddr"
+
+#define CONFIG_NFSBOOTCOMMAND						\
+	"setenv bootargs root=/dev/nfs rw "				\
+	"nfsroot=$serverip:$rootpath "					\
+	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
+	"console=$consoledev,$baudrate $othbootargs;"			\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr - $fdtaddr"
+
+#define CONFIG_RAMBOOTCOMMAND						\
+	"setenv bootargs root=/dev/ram rw "				\
+	"console=$consoledev,$baudrate $othbootargs;"			\
+	"tftp $ramdiskaddr $ramdiskfile;"				\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr $ramdiskaddr $fdtaddr"
+
+#define CONFIG_BOOTCOMMAND		CONFIG_RAMBOOTCOMMAND
 
 #endif	/* __CONFIG_H */
