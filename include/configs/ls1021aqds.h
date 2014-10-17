@@ -115,6 +115,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45
 #define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
+#define CONFIG_SYS_WRITE_SWAPPED_DATA
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	2	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	1024	/* sectors per device */
