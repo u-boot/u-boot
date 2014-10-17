@@ -141,6 +141,7 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_TSEC_ENET
 	out_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
+	out_be32(&scfg->etsecmcr, SCFG_ETSECCMCR_GE2_CLK125);
 #endif
 
 #ifdef CONFIG_FSL_IFC
