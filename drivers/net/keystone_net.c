@@ -38,7 +38,6 @@ struct rx_buff_desc net_rx_buffs = {
 	.rx_flow	= 22,
 };
 
-static void keystone2_eth_mdio_enable(void);
 static void keystone2_net_serdes_setup(void);
 
 static int gen_get_link_speed(int phy_addr);
@@ -71,7 +70,7 @@ int keystone2_eth_read_mac_addr(struct eth_device *dev)
 	return 0;
 }
 
-static void keystone2_eth_mdio_enable(void)
+static void keystone2_mdio_reset(void)
 {
 	u_int32_t	clkdiv;
 
@@ -397,7 +396,6 @@ int32_t cpmac_drv_send(u32 *buffer, int num_bytes, int slave_port_num)
 /* Eth device open */
 static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 {
-	u_int32_t clkdiv;
 	int link;
 	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
 
@@ -409,9 +407,6 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 		(eth_priv->sgmii_link_type == SGMII_LINK_MAC_PHY) ? 1 : 0;
 
 	keystone2_net_serdes_setup();
-
-	if (sys_has_mdio)
-		keystone2_eth_mdio_enable();
 
 	keystone_sgmii_config(eth_priv->slave_port - 1,
 			      eth_priv->sgmii_link_type);
@@ -440,14 +435,7 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 	hw_config_streaming_switch();
 
 	if (sys_has_mdio) {
-		/* Init MDIO & get link state */
-		clkdiv = (EMAC_MDIO_BUS_FREQ / EMAC_MDIO_CLOCK_FREQ) - 1;
-		writel((clkdiv & 0xff) | MDIO_CONTROL_ENABLE |
-		       MDIO_CONTROL_FAULT, &adap_mdio->control)
-			;
-
-		/* We need to wait for MDIO to start */
-		udelay(1000);
+		keystone2_mdio_reset();
 
 		link = keystone_get_link_status(dev);
 		if (link == 0) {
