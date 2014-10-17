@@ -58,6 +58,7 @@ void init_pll(const struct pll_init_data *data);
 unsigned long clk_get_rate(unsigned int clk);
 unsigned long clk_round_rate(unsigned int clk, unsigned long hz);
 int clk_set_rate(unsigned int clk, unsigned long hz);
+void pass_pll_pa_clk_enable(void);
 int get_max_dev_speed(void);
 int get_max_arm_speed(void);
 
