@@ -17,6 +17,7 @@
 #include <asm/ti-common/keystone_serdes.h>
 
 unsigned int emac_open;
+static struct mii_dev *mdio_bus;
 static unsigned int sys_has_mdio = 1;
 
 #ifdef KEYSTONE2_EMAC_GIG_ENABLE
@@ -42,10 +43,6 @@ static void keystone2_net_serdes_setup(void);
 
 static int gen_get_link_speed(int phy_addr);
 
-/* EMAC Addresses */
-static volatile struct mdio_regs	*adap_mdio =
-	(struct mdio_regs *)EMAC_MDIO_BASE_ADDR;
-
 int keystone2_eth_read_mac_addr(struct eth_device *dev)
 {
 	struct eth_priv_t *eth_priv;
@@ -70,64 +67,67 @@ int keystone2_eth_read_mac_addr(struct eth_device *dev)
 	return 0;
 }
 
-static void keystone2_mdio_reset(void)
+/* MDIO */
+
+static int keystone2_mdio_reset(struct mii_dev *bus)
 {
-	u_int32_t	clkdiv;
+	u_int32_t clkdiv;
+	struct mdio_regs *adap_mdio = bus->priv;
 
 	clkdiv = (EMAC_MDIO_BUS_FREQ / EMAC_MDIO_CLOCK_FREQ) - 1;
 
-	writel((clkdiv & 0xffff) |
-	       MDIO_CONTROL_ENABLE |
-	       MDIO_CONTROL_FAULT |
-	       MDIO_CONTROL_FAULT_ENABLE,
+	writel((clkdiv & 0xffff) | MDIO_CONTROL_ENABLE |
+	       MDIO_CONTROL_FAULT | MDIO_CONTROL_FAULT_ENABLE,
 	       &adap_mdio->control);
 
 	while (readl(&adap_mdio->control) & MDIO_CONTROL_IDLE)
 		;
+
+	return 0;
 }
 
-/* Read a PHY register via MDIO inteface. Returns 1 on success, 0 otherwise */
-int keystone2_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data)
+/**
+ * keystone2_mdio_read - read a PHY register via MDIO interface.
+ * Blocks until operation is complete.
+ */
+static int keystone2_mdio_read(struct mii_dev *bus,
+			       int addr, int devad, int reg)
 {
-	int	tmp;
+	int tmp;
+	struct mdio_regs *adap_mdio = bus->priv;
 
 	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
 		;
 
-	writel(MDIO_USERACCESS0_GO |
-	       MDIO_USERACCESS0_WRITE_READ |
-	       ((reg_num & 0x1f) << 21) |
-	       ((phy_addr & 0x1f) << 16),
+	writel(MDIO_USERACCESS0_GO | MDIO_USERACCESS0_WRITE_READ |
+	       ((reg & 0x1f) << 21) | ((addr & 0x1f) << 16),
 	       &adap_mdio->useraccess0);
 
 	/* Wait for command to complete */
 	while ((tmp = readl(&adap_mdio->useraccess0)) & MDIO_USERACCESS0_GO)
 		;
 
-	if (tmp & MDIO_USERACCESS0_ACK) {
-		*data = tmp & 0xffff;
-		return 0;
-	}
+	if (tmp & MDIO_USERACCESS0_ACK)
+		return tmp & 0xffff;
 
-	*data = -1;
 	return -1;
 }
 
-/*
- * Write to a PHY register via MDIO inteface.
+/**
+ * keystone2_mdio_write - write to a PHY register via MDIO interface.
  * Blocks until operation is complete.
  */
-int keystone2_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data)
+static int keystone2_mdio_write(struct mii_dev *bus,
+				int addr, int devad, int reg, u16 val)
 {
+	struct mdio_regs *adap_mdio = bus->priv;
+
 	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
 		;
 
-	writel(MDIO_USERACCESS0_GO |
-	       MDIO_USERACCESS0_WRITE_WRITE |
-	       ((reg_num & 0x1f) << 21) |
-	       ((phy_addr & 0x1f) << 16) |
-	       (data & 0xffff),
-	       &adap_mdio->useraccess0);
+	writel(MDIO_USERACCESS0_GO | MDIO_USERACCESS0_WRITE_WRITE |
+	       ((reg & 0x1f) << 21) | ((addr & 0x1f) << 16) |
+	       (val & 0xffff), &adap_mdio->useraccess0);
 
 	/* Wait for command to complete */
 	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
@@ -139,12 +139,12 @@ int keystone2_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data)
 /* PHY functions for a generic PHY */
 static int gen_get_link_speed(int phy_addr)
 {
-	u_int16_t	tmp;
+	u_int16_t tmp;
 
-	if ((!keystone2_eth_phy_read(phy_addr, MII_STATUS_REG, &tmp)) &&
-	    (tmp & 0x04)) {
+	tmp = mdio_bus->read(mdio_bus, phy_addr,
+			     MDIO_DEVAD_NONE, MII_STATUS_REG);
+	if (tmp & 0x04)
 		return 0;
-	}
 
 	return -1;
 }
@@ -156,8 +156,10 @@ static void  __attribute__((unused))
 	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
 
 	if (sys_has_mdio) {
-		if (keystone2_eth_phy_read(eth_priv->phy_addr, 0, &data) ||
-		    !(data & (1 << 6))) /* speed selection MSB */
+		data = keystone2_mdio_read(mdio_bus, eth_priv->phy_addr,
+					   MDIO_DEVAD_NONE, 0);
+		/* speed selection MSB */
+		if (!(data & (1 << 6)))
 			return;
 	}
 
@@ -435,7 +437,7 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 	hw_config_streaming_switch();
 
 	if (sys_has_mdio) {
-		keystone2_mdio_reset();
+		keystone2_mdio_reset(mdio_bus);
 
 		link = keystone_get_link_status(dev);
 		if (link == 0) {
@@ -518,6 +520,7 @@ static int keystone2_eth_rcv_packet(struct eth_device *dev)
  */
 int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 {
+	int res;
 	struct eth_device *dev;
 
 	dev = malloc(sizeof(struct eth_device));
@@ -538,6 +541,20 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 	dev->recv		= keystone2_eth_rcv_packet;
 
 	eth_register(dev);
+
+	/* Register MDIO bus if it's not registered yet */
+	if (!mdio_bus) {
+		mdio_bus	= mdio_alloc();
+		mdio_bus->read	= keystone2_mdio_read;
+		mdio_bus->write	= keystone2_mdio_write;
+		mdio_bus->reset	= keystone2_mdio_reset;
+		mdio_bus->priv	= (void *)EMAC_MDIO_BASE_ADDR;
+		sprintf(mdio_bus->name, "ethernet-mdio");
+
+		res = mdio_register(mdio_bus);
+		if (res)
+			return res;
+	}
 
 	return 0;
 }
