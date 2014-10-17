@@ -34,4 +34,7 @@
 /* NAND Configuration */
 #define CONFIG_SYS_NAND_PAGE_2K
 
+/* SerDes */
+#define CONFIG_TI_KEYSTONE_SERDES
+
 #endif /* __CONFIG_K2E_EVM_H */
