@@ -42,8 +42,6 @@ struct rx_buff_desc net_rx_buffs = {
 
 static void keystone2_net_serdes_setup(void);
 
-static int gen_get_link_speed(int phy_addr);
-
 int keystone2_eth_read_mac_addr(struct eth_device *dev)
 {
 	struct eth_priv_t *eth_priv;
@@ -137,19 +135,6 @@ static int keystone2_mdio_write(struct mii_dev *bus,
 	return 0;
 }
 
-/* PHY functions for a generic PHY */
-static int gen_get_link_speed(int phy_addr)
-{
-	u_int16_t tmp;
-
-	tmp = mdio_bus->read(mdio_bus, phy_addr,
-			     MDIO_DEVAD_NONE, MII_STATUS_REG);
-	if (tmp & 0x04)
-		return 0;
-
-	return -1;
-}
-
 static void  __attribute__((unused))
 	keystone2_eth_gigabit_enable(struct eth_device *dev)
 {
@@ -180,35 +165,8 @@ int keystone_sgmii_link_status(int port)
 
 	status = __raw_readl(SGMII_STATUS_REG(port));
 
-	return status & SGMII_REG_STATUS_LINK;
-}
-
-
-int keystone_get_link_status(struct eth_device *dev)
-{
-	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
-	int sgmii_link;
-	int link_state = 0;
-#if CONFIG_GET_LINK_STATUS_ATTEMPTS > 1
-	int j;
-
-	for (j = 0; (j < CONFIG_GET_LINK_STATUS_ATTEMPTS) && (link_state == 0);
-	     j++) {
-#endif
-		sgmii_link =
-			keystone_sgmii_link_status(eth_priv->slave_port - 1);
-
-		if (sgmii_link) {
-			link_state = 1;
-
-			if (eth_priv->sgmii_link_type == SGMII_LINK_MAC_PHY)
-				if (gen_get_link_speed(eth_priv->phy_addr))
-					link_state = 0;
-		}
-#if CONFIG_GET_LINK_STATUS_ATTEMPTS > 1
-	}
-#endif
-	return link_state;
+	return (status & SGMII_REG_STATUS_LOCK) &&
+	       (status & SGMII_REG_STATUS_LINK);
 }
 
 int keystone_sgmii_config(int port, int interface)
@@ -490,8 +448,10 @@ static int keystone2_eth_send_packet(struct eth_device *dev,
 {
 	int ret_status = -1;
 	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
+	struct phy_device *phy_dev = eth_priv->phy_dev;
 
-	if (keystone_get_link_status(dev) == 0)
+	genphy_update_link(phy_dev);
+	if (phy_dev->link == 0)
 		return -1;
 
 	if (cpmac_drv_send((u32 *)packet, length, eth_priv->slave_port) != 0)
