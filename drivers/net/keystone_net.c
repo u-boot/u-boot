@@ -11,6 +11,7 @@
 
 #include <net.h>
 #include <phy.h>
+#include <errno.h>
 #include <miiphy.h>
 #include <malloc.h>
 #include <asm/ti-common/keystone_nav.h>
@@ -30,6 +31,7 @@ static unsigned int sys_has_mdio = 1;
 #define RX_BUFF_NUMS	24
 #define RX_BUFF_LEN	1520
 #define MAX_SIZE_STREAM_BUFFER RX_BUFF_LEN
+#define SGMII_ANEG_TIMEOUT		4000
 
 static u8 rx_buffs[RX_BUFF_NUMS * RX_BUFF_LEN] __aligned(16);
 
@@ -169,7 +171,7 @@ int keystone_sgmii_link_status(int port)
 	       (status & SGMII_REG_STATUS_LINK);
 }
 
-int keystone_sgmii_config(int port, int interface)
+int keystone_sgmii_config(struct phy_device *phy_dev, int port, int interface)
 {
 	unsigned int i, status, mask;
 	unsigned int mr_adv_ability, control;
@@ -230,11 +232,35 @@ int keystone_sgmii_config(int port, int interface)
 	if (control & SGMII_REG_CONTROL_AUTONEG)
 		mask |= SGMII_REG_STATUS_AUTONEG;
 
-	for (i = 0; i < 1000; i++) {
+	status = __raw_readl(SGMII_STATUS_REG(port));
+	if ((status & mask) == mask)
+		return 0;
+
+	printf("\n%s Waiting for SGMII auto negotiation to complete",
+	       phy_dev->dev->name);
+	while ((status & mask) != mask) {
+		/*
+		 * Timeout reached ?
+		 */
+		if (i > SGMII_ANEG_TIMEOUT) {
+			puts(" TIMEOUT !\n");
+			phy_dev->link = 0;
+			return 0;
+		}
+
+		if (ctrlc()) {
+			puts("user interrupt!\n");
+			phy_dev->link = 0;
+			return -EINTR;
+		}
+
+		if ((i++ % 500) == 0)
+			printf(".");
+
+		udelay(1000);   /* 1 ms */
 		status = __raw_readl(SGMII_STATUS_REG(port));
-		if ((status & mask) == mask)
-			break;
 	}
+	puts(" done\n");
 
 	return 0;
 }
@@ -374,7 +400,7 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 
 	keystone2_net_serdes_setup();
 
-	keystone_sgmii_config(eth_priv->slave_port - 1,
+	keystone_sgmii_config(phy_dev, eth_priv->slave_port - 1,
 			      eth_priv->sgmii_link_type);
 
 	udelay(10000);
