@@ -29,9 +29,9 @@ static struct mxs_i2c_regs *mxs_i2c_get_base(struct i2c_adapter *adap)
 	return (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 }
 
-static unsigned int mxs_i2c_get_bus_speed(void)
+static unsigned int mxs_i2c_get_bus_speed(struct i2c_adapter *adap)
 {
-	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(adap);
 	uint32_t clk = mxc_get_clock(MXC_XTAL_CLK);
 	uint32_t timing0;
 
@@ -43,11 +43,52 @@ static unsigned int mxs_i2c_get_bus_speed(void)
 	return clk / ((((timing0 >> 16) - 3) * 2) + 38);
 }
 
-static void mxs_i2c_reset(void)
+static uint mxs_i2c_set_bus_speed(struct i2c_adapter *adap, uint speed)
 {
-	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(adap);
+	/*
+	 * The timing derivation algorithm. There is no documentation for this
+	 * algorithm available, it was derived by using the scope and fiddling
+	 * with constants until the result observed on the scope was good enough
+	 * for 20kHz, 50kHz, 100kHz, 200kHz, 300kHz and 400kHz. It should be
+	 * possible to assume the algorithm works for other frequencies as well.
+	 *
+	 * Note it was necessary to cap the frequency on both ends as it's not
+	 * possible to configure completely arbitrary frequency for the I2C bus
+	 * clock.
+	 */
+	uint32_t clk = mxc_get_clock(MXC_XTAL_CLK);
+	uint32_t base = ((clk / speed) - 38) / 2;
+	uint16_t high_count = base + 3;
+	uint16_t low_count = base - 3;
+	uint16_t rcv_count = (high_count * 3) / 4;
+	uint16_t xmit_count = low_count / 4;
+
+	if (speed > 540000) {
+		printf("MXS I2C: Speed too high (%d Hz)\n", speed);
+		return -EINVAL;
+	}
+
+	if (speed < 12000) {
+		printf("MXS I2C: Speed too low (%d Hz)\n", speed);
+		return -EINVAL;
+	}
+
+	writel((high_count << 16) | rcv_count, &i2c_regs->hw_i2c_timing0);
+	writel((low_count << 16) | xmit_count, &i2c_regs->hw_i2c_timing1);
+
+	writel((0x0030 << I2C_TIMING2_BUS_FREE_OFFSET) |
+		(0x0030 << I2C_TIMING2_LEADIN_COUNT_OFFSET),
+		&i2c_regs->hw_i2c_timing2);
+
+	return 0;
+}
+
+static void mxs_i2c_reset(struct i2c_adapter *adap)
+{
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(adap);
 	int ret;
-	int speed = mxs_i2c_get_bus_speed();
+	int speed = mxs_i2c_get_bus_speed(adap);
 
 	ret = mxs_reset_block(&i2c_regs->hw_i2c_ctrl0_reg);
 	if (ret) {
@@ -62,12 +103,12 @@ static void mxs_i2c_reset(void)
 
 	writel(I2C_QUEUECTRL_PIO_QUEUE_MODE, &i2c_regs->hw_i2c_queuectrl_set);
 
-	i2c_set_bus_speed(speed);
+	mxs_i2c_set_bus_speed(adap, speed);
 }
 
-static void mxs_i2c_setup_read(uint8_t chip, int len)
+static void mxs_i2c_setup_read(struct i2c_adapter *adap, uint8_t chip, int len)
 {
-	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(adap);
 
 	writel(I2C_QUEUECMD_RETAIN_CLOCK | I2C_QUEUECMD_PRE_SEND_START |
 		I2C_QUEUECMD_MASTER_MODE | I2C_QUEUECMD_DIRECTION |
@@ -83,10 +124,10 @@ static void mxs_i2c_setup_read(uint8_t chip, int len)
 	writel(I2C_QUEUECTRL_QUEUE_RUN, &i2c_regs->hw_i2c_queuectrl_set);
 }
 
-static int mxs_i2c_write(uchar chip, uint addr, int alen,
-			uchar *buf, int blen, int stop)
+static int mxs_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
+			 int alen, uchar *buf, int blen, int stop)
 {
-	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(adap);
 	uint32_t data, tmp;
 	int i, remain, off;
 	int timeout = MXS_I2C_MAX_TIMEOUT;
@@ -141,9 +182,9 @@ static int mxs_i2c_write(uchar chip, uint addr, int alen,
 	return 0;
 }
 
-static int mxs_i2c_wait_for_ack(void)
+static int mxs_i2c_wait_for_ack(struct i2c_adapter *adap)
 {
-	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(adap);
 	uint32_t tmp;
 	int timeout = MXS_I2C_MAX_TIMEOUT;
 
@@ -175,7 +216,7 @@ static int mxs_i2c_wait_for_ack(void)
 	return 0;
 
 err:
-	mxs_i2c_reset();
+	mxs_i2c_reset(adap);
 	return 1;
 }
 
@@ -183,26 +224,26 @@ static int mxs_i2c_if_read(struct i2c_adapter *adap, uint8_t chip,
 			   uint addr, int alen, uint8_t *buffer,
 			   int len)
 {
-	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(adap);
 	uint32_t tmp = 0;
 	int timeout = MXS_I2C_MAX_TIMEOUT;
 	int ret;
 	int i;
 
-	ret = mxs_i2c_write(chip, addr, alen, NULL, 0, 0);
+	ret = mxs_i2c_write(adap, chip, addr, alen, NULL, 0, 0);
 	if (ret) {
 		debug("MXS I2C: Failed writing address\n");
 		return ret;
 	}
 
-	ret = mxs_i2c_wait_for_ack();
+	ret = mxs_i2c_wait_for_ack(adap);
 	if (ret) {
 		debug("MXS I2C: Failed writing address\n");
 		return ret;
 	}
 
-	mxs_i2c_setup_read(chip, len);
-	ret = mxs_i2c_wait_for_ack();
+	mxs_i2c_setup_read(adap, chip, len);
+	ret = mxs_i2c_wait_for_ack(adap);
 	if (ret) {
 		debug("MXS I2C: Failed reading address\n");
 		return ret;
@@ -235,13 +276,13 @@ static int mxs_i2c_if_write(struct i2c_adapter *adap, uint8_t chip,
 			    int len)
 {
 	int ret;
-	ret = mxs_i2c_write(chip, addr, alen, buffer, len, 1);
+	ret = mxs_i2c_write(adap, chip, addr, alen, buffer, len, 1);
 	if (ret) {
 		debug("MXS I2C: Failed writing address\n");
 		return ret;
 	}
 
-	ret = mxs_i2c_wait_for_ack();
+	ret = mxs_i2c_wait_for_ack(adap);
 	if (ret)
 		debug("MXS I2C: Failed writing address\n");
 
@@ -251,58 +292,17 @@ static int mxs_i2c_if_write(struct i2c_adapter *adap, uint8_t chip,
 static int mxs_i2c_probe(struct i2c_adapter *adap, uint8_t chip)
 {
 	int ret;
-	ret = mxs_i2c_write(chip, 0, 1, NULL, 0, 1);
+	ret = mxs_i2c_write(adap, chip, 0, 1, NULL, 0, 1);
 	if (!ret)
-		ret = mxs_i2c_wait_for_ack();
-	mxs_i2c_reset();
+		ret = mxs_i2c_wait_for_ack(adap);
+	mxs_i2c_reset(adap);
 	return ret;
-}
-
-static uint mxs_i2c_set_bus_speed(struct i2c_adapter *adap, uint speed)
-{
-	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
-	/*
-	 * The timing derivation algorithm. There is no documentation for this
-	 * algorithm available, it was derived by using the scope and fiddling
-	 * with constants until the result observed on the scope was good enough
-	 * for 20kHz, 50kHz, 100kHz, 200kHz, 300kHz and 400kHz. It should be
-	 * possible to assume the algorithm works for other frequencies as well.
-	 *
-	 * Note it was necessary to cap the frequency on both ends as it's not
-	 * possible to configure completely arbitrary frequency for the I2C bus
-	 * clock.
-	 */
-	uint32_t clk = mxc_get_clock(MXC_XTAL_CLK);
-	uint32_t base = ((clk / speed) - 38) / 2;
-	uint16_t high_count = base + 3;
-	uint16_t low_count = base - 3;
-	uint16_t rcv_count = (high_count * 3) / 4;
-	uint16_t xmit_count = low_count / 4;
-
-	if (speed > 540000) {
-		printf("MXS I2C: Speed too high (%d Hz)\n", speed);
-		return -EINVAL;
-	}
-
-	if (speed < 12000) {
-		printf("MXS I2C: Speed too low (%d Hz)\n", speed);
-		return -EINVAL;
-	}
-
-	writel((high_count << 16) | rcv_count, &i2c_regs->hw_i2c_timing0);
-	writel((low_count << 16) | xmit_count, &i2c_regs->hw_i2c_timing1);
-
-	writel((0x0030 << I2C_TIMING2_BUS_FREE_OFFSET) |
-		(0x0030 << I2C_TIMING2_LEADIN_COUNT_OFFSET),
-		&i2c_regs->hw_i2c_timing2);
-
-	return 0;
 }
 
 static void mxs_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
-	mxs_i2c_reset();
-	i2c_set_bus_speed(speed);
+	mxs_i2c_reset(adap);
+	mxs_i2c_set_bus_speed(adap, speed);
 
 	return;
 }
