@@ -24,9 +24,14 @@
 
 #define	MXS_I2C_MAX_TIMEOUT	1000000
 
+static struct mxs_i2c_regs *mxs_i2c_get_base(struct i2c_adapter *adap)
+{
+	return (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+}
+
 static void mxs_i2c_reset(void)
 {
-	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
 	int ret;
 	int speed = i2c_get_bus_speed();
 
@@ -48,7 +53,7 @@ static void mxs_i2c_reset(void)
 
 static void mxs_i2c_setup_read(uint8_t chip, int len)
 {
-	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
 
 	writel(I2C_QUEUECMD_RETAIN_CLOCK | I2C_QUEUECMD_PRE_SEND_START |
 		I2C_QUEUECMD_MASTER_MODE | I2C_QUEUECMD_DIRECTION |
@@ -67,7 +72,7 @@ static void mxs_i2c_setup_read(uint8_t chip, int len)
 static int mxs_i2c_write(uchar chip, uint addr, int alen,
 			uchar *buf, int blen, int stop)
 {
-	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
 	uint32_t data, tmp;
 	int i, remain, off;
 	int timeout = MXS_I2C_MAX_TIMEOUT;
@@ -124,7 +129,7 @@ static int mxs_i2c_write(uchar chip, uint addr, int alen,
 
 static int mxs_i2c_wait_for_ack(void)
 {
-	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
 	uint32_t tmp;
 	int timeout = MXS_I2C_MAX_TIMEOUT;
 
@@ -162,7 +167,7 @@ err:
 
 int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
-	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
 	uint32_t tmp = 0;
 	int timeout = MXS_I2C_MAX_TIMEOUT;
 	int ret;
@@ -237,7 +242,7 @@ int i2c_probe(uchar chip)
 
 int i2c_set_bus_speed(unsigned int speed)
 {
-	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
 	/*
 	 * The timing derivation algorithm. There is no documentation for this
 	 * algorithm available, it was derived by using the scope and fiddling
@@ -278,7 +283,7 @@ int i2c_set_bus_speed(unsigned int speed)
 
 unsigned int i2c_get_bus_speed(void)
 {
-	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
 	uint32_t clk = mxc_get_clock(MXC_XTAL_CLK);
 	uint32_t timing0;
 
