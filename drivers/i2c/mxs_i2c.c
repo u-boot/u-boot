@@ -26,7 +26,10 @@
 
 static struct mxs_i2c_regs *mxs_i2c_get_base(struct i2c_adapter *adap)
 {
-	return (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	if (adap->hwadapnr == 0)
+		return (struct mxs_i2c_regs *)MXS_I2C0_BASE;
+	else
+		return (struct mxs_i2c_regs *)MXS_I2C1_BASE;
 }
 
 static unsigned int mxs_i2c_get_bus_speed(struct i2c_adapter *adap)
@@ -311,3 +314,7 @@ U_BOOT_I2C_ADAP_COMPLETE(mxs0, mxs_i2c_init, mxs_i2c_probe,
 			 mxs_i2c_if_read, mxs_i2c_if_write,
 			 mxs_i2c_set_bus_speed,
 			 CONFIG_SYS_I2C_SPEED, 0, 0)
+U_BOOT_I2C_ADAP_COMPLETE(mxs1, mxs_i2c_init, mxs_i2c_probe,
+			 mxs_i2c_if_read, mxs_i2c_if_write,
+			 mxs_i2c_set_bus_speed,
+			 CONFIG_SYS_I2C_SPEED, 0, 1)
