@@ -8,7 +8,6 @@
 obj-$(CONFIG_BFIN_TWI_I2C) += bfin-twi_i2c.o
 obj-$(CONFIG_DW_I2C) += designware_i2c.o
 obj-$(CONFIG_I2C_MV) += mv_i2c.o
-obj-$(CONFIG_I2C_MXS) += mxs_i2c.o
 obj-$(CONFIG_PCA9564_I2C) += pca9564_i2c.o
 obj-$(CONFIG_TSI108_I2C) += tsi108_i2c.o
 obj-$(CONFIG_U8500_I2C) += u8500_i2c.o
@@ -21,6 +20,7 @@ obj-$(CONFIG_SYS_I2C_IHS) += ihs_i2c.o
 obj-$(CONFIG_SYS_I2C_KONA) += kona_i2c.o
 obj-$(CONFIG_SYS_I2C_MVTWSI) += mvtwsi.o
 obj-$(CONFIG_SYS_I2C_MXC) += mxc_i2c.o
+obj-$(CONFIG_SYS_I2C_MXS) += mxs_i2c.o
 obj-$(CONFIG_SYS_I2C_OMAP24XX) += omap24xx_i2c.o
 obj-$(CONFIG_SYS_I2C_OMAP34XX) += omap24xx_i2c.o
 obj-$(CONFIG_SYS_I2C_PPC4XX) += ppc4xx_i2c.o

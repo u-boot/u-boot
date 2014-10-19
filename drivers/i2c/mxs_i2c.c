@@ -29,11 +29,25 @@ static struct mxs_i2c_regs *mxs_i2c_get_base(struct i2c_adapter *adap)
 	return (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 }
 
+static unsigned int mxs_i2c_get_bus_speed(void)
+{
+	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
+	uint32_t clk = mxc_get_clock(MXC_XTAL_CLK);
+	uint32_t timing0;
+
+	timing0 = readl(&i2c_regs->hw_i2c_timing0);
+	/*
+	 * This is a reverse version of the algorithm presented in
+	 * i2c_set_bus_speed(). Please refer there for details.
+	 */
+	return clk / ((((timing0 >> 16) - 3) * 2) + 38);
+}
+
 static void mxs_i2c_reset(void)
 {
 	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
 	int ret;
-	int speed = i2c_get_bus_speed();
+	int speed = mxs_i2c_get_bus_speed();
 
 	ret = mxs_reset_block(&i2c_regs->hw_i2c_ctrl0_reg);
 	if (ret) {
@@ -165,7 +179,9 @@ err:
 	return 1;
 }
 
-int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
+static int mxs_i2c_if_read(struct i2c_adapter *adap, uint8_t chip,
+			   uint addr, int alen, uint8_t *buffer,
+			   int len)
 {
 	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
 	uint32_t tmp = 0;
@@ -214,7 +230,9 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	return 0;
 }
 
-int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
+static int mxs_i2c_if_write(struct i2c_adapter *adap, uint8_t chip,
+			    uint addr, int alen, uint8_t *buffer,
+			    int len)
 {
 	int ret;
 	ret = mxs_i2c_write(chip, addr, alen, buffer, len, 1);
@@ -230,7 +248,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	return ret;
 }
 
-int i2c_probe(uchar chip)
+static int mxs_i2c_probe(struct i2c_adapter *adap, uint8_t chip)
 {
 	int ret;
 	ret = mxs_i2c_write(chip, 0, 1, NULL, 0, 1);
@@ -240,7 +258,7 @@ int i2c_probe(uchar chip)
 	return ret;
 }
 
-int i2c_set_bus_speed(unsigned int speed)
+static uint mxs_i2c_set_bus_speed(struct i2c_adapter *adap, uint speed)
 {
 	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
 	/*
@@ -281,24 +299,15 @@ int i2c_set_bus_speed(unsigned int speed)
 	return 0;
 }
 
-unsigned int i2c_get_bus_speed(void)
-{
-	struct mxs_i2c_regs *i2c_regs = mxs_i2c_get_base(NULL);
-	uint32_t clk = mxc_get_clock(MXC_XTAL_CLK);
-	uint32_t timing0;
-
-	timing0 = readl(&i2c_regs->hw_i2c_timing0);
-	/*
-	 * This is a reverse version of the algorithm presented in
-	 * i2c_set_bus_speed(). Please refer there for details.
-	 */
-	return clk / ((((timing0 >> 16) - 3) * 2) + 38);
-}
-
-void i2c_init(int speed, int slaveadd)
+static void mxs_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
 	mxs_i2c_reset();
 	i2c_set_bus_speed(speed);
 
 	return;
 }
+
+U_BOOT_I2C_ADAP_COMPLETE(mxs0, mxs_i2c_init, mxs_i2c_probe,
+			 mxs_i2c_if_read, mxs_i2c_if_write,
+			 mxs_i2c_set_bus_speed,
+			 CONFIG_SYS_I2C_SPEED, 0, 0)
