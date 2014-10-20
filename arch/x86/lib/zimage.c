@@ -243,18 +243,21 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		hdr->loadflags |= HEAP_FLAG;
 	}
 
-	if (bootproto >= 0x0202) {
-		hdr->cmd_line_ptr = (uintptr_t)cmd_line;
-	} else if (bootproto >= 0x0200) {
-		setup_base->screen_info.cl_magic = COMMAND_LINE_MAGIC;
-		setup_base->screen_info.cl_offset =
-			(uintptr_t)cmd_line - (uintptr_t)setup_base;
+	if (cmd_line) {
+		if (bootproto >= 0x0202) {
+			hdr->cmd_line_ptr = (uintptr_t)cmd_line;
+		} else if (bootproto >= 0x0200) {
+			setup_base->screen_info.cl_magic = COMMAND_LINE_MAGIC;
+			setup_base->screen_info.cl_offset =
+				(uintptr_t)cmd_line - (uintptr_t)setup_base;
 
-		hdr->setup_move_size = 0x9100;
+			hdr->setup_move_size = 0x9100;
+		}
+
+		/* build command line at COMMAND_LINE_OFFSET */
+		build_command_line(cmd_line, auto_boot);
 	}
 
-	/* build command line at COMMAND_LINE_OFFSET */
-	build_command_line(cmd_line, auto_boot);
 	return 0;
 }
 
