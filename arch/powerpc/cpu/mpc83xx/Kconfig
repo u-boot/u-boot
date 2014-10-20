@@ -24,6 +24,7 @@ config TARGET_MPC8308RDB
 
 config TARGET_MPC8313ERDB
 	bool "Support MPC8313ERDB"
+	select SUPPORT_SPL
 
 config TARGET_MPC8315ERDB
 	bool "Support MPC8315ERDB"

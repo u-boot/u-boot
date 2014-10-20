@@ -70,8 +70,12 @@ config TPL_BUILD
 	depends on $KCONFIG_OBJDIR="tpl"
 	default y
 
+config SUPPORT_SPL
+	bool
+
 config SPL
 	bool
+	depends on SUPPORT_SPL
 	prompt "Enable SPL" if !SPL_BUILD
 	default y if SPL_BUILD
 	help

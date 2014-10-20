@@ -158,12 +158,14 @@ config TARGET_MX25PDK
 
 config TARGET_TX25
 	bool "Support tx25"
+	select SUPPORT_SPL
 
 config TARGET_ZMX25
 	bool "Support zmx25"
 
 config TARGET_APF27
 	bool "Support apf27"
+	select SUPPORT_SPL
 
 config TARGET_IMX27LITE
 	bool "Support imx27lite"
@@ -173,30 +175,39 @@ config TARGET_MAGNESIUM
 
 config TARGET_APX4DEVKIT
 	bool "Support apx4devkit"
+	select SUPPORT_SPL
 
 config TARGET_XFI3
 	bool "Support xfi3"
+	select SUPPORT_SPL
 
 config TARGET_M28EVK
 	bool "Support m28evk"
+	select SUPPORT_SPL
 
 config TARGET_MX23EVK
 	bool "Support mx23evk"
+	select SUPPORT_SPL
 
 config TARGET_MX28EVK
 	bool "Support mx28evk"
+	select SUPPORT_SPL
 
 config TARGET_MX23_OLINUXINO
 	bool "Support mx23_olinuxino"
+	select SUPPORT_SPL
 
 config TARGET_BG0900
 	bool "Support bg0900"
+	select SUPPORT_SPL
 
 config TARGET_SANSA_FUZE_PLUS
 	bool "Support sansa_fuze_plus"
+	select SUPPORT_SPL
 
 config TARGET_SC_SPS_1
 	bool "Support sc_sps_1"
+	select SUPPORT_SPL
 
 config ARCH_NOMADIK
 	bool "ST-Ericsson Nomadik"
@@ -221,6 +232,7 @@ config TARGET_SPEAR600
 
 config TARGET_X600
 	bool "Support x600"
+	select SUPPORT_SPL
 
 config ARCH_VERSATILE
 	bool "ARM Ltd. Versatile family"
@@ -239,6 +251,7 @@ config TARGET_MX31ADS
 
 config TARGET_MX31PDK
 	bool "Support mx31pdk"
+	select SUPPORT_SPL
 
 config TARGET_TT01
 	bool "Support tt01"
@@ -251,6 +264,7 @@ config TARGET_WOODBURN
 
 config TARGET_WOODBURN_SD
 	bool "Support woodburn_sd"
+	select SUPPORT_SPL
 
 config TARGET_FLEA3
 	bool "Support flea3"
@@ -281,54 +295,71 @@ config TARGET_VEXPRESS_CA9X4
 
 config TARGET_KWB
 	bool "Support kwb"
+	select SUPPORT_SPL
 
 config TARGET_TSERIES
 	bool "Support tseries"
+	select SUPPORT_SPL
 
 config TARGET_CM_T335
 	bool "Support cm_t335"
+	select SUPPORT_SPL
 
 config TARGET_PEPPER
 	bool "Support pepper"
+	select SUPPORT_SPL
 
 config TARGET_AM335X_IGEP0033
 	bool "Support am335x_igep0033"
+	select SUPPORT_SPL
 
 config TARGET_PCM051
 	bool "Support pcm051"
+	select SUPPORT_SPL
 
 config TARGET_DRACO
 	bool "Support draco"
+	select SUPPORT_SPL
 
 config TARGET_DXR2
 	bool "Support dxr2"
+	select SUPPORT_SPL
 
 config TARGET_PXM2
 	bool "Support pxm2"
+	select SUPPORT_SPL
 
 config TARGET_RUT
 	bool "Support rut"
+	select SUPPORT_SPL
 
 config TARGET_PENGWYN
 	bool "Support pengwyn"
+	select SUPPORT_SPL
 
 config TARGET_AM335X_EVM
 	bool "Support am335x_evm"
+	select SUPPORT_SPL
 
 config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
+	select SUPPORT_SPL
 
 config TARGET_TI814X_EVM
 	bool "Support ti814x_evm"
+	select SUPPORT_SPL
 
 config TARGET_TI816X_EVM
 	bool "Support ti816x_evm"
+	select SUPPORT_SPL
 
 config TARGET_SAMA5D3_XPLAINED
 	bool "Support sama5d3_xplained"
+	select SUPPORT_SPL
 
 config TARGET_SAMA5D3XEK
 	bool "Support sama5d3xek"
+	select SUPPORT_SPL
 
 config TARGET_BCM28155_AP
 	bool "Support bcm28155_ap"
@@ -350,9 +381,11 @@ config ARCH_HIGHBANK
 
 config ARCH_KEYSTONE
 	bool "TI Keystone"
+	select SUPPORT_SPL
 
 config TARGET_M53EVK
 	bool "Support m53evk"
+	select SUPPORT_SPL
 
 config TARGET_IMA3_MX53
 	bool "Support ima3-mx53"
@@ -416,6 +449,7 @@ config TARGET_MX6SXSABRESD
 
 config TARGET_GW_VENTANA
 	bool "Support gw_ventana"
+	select SUPPORT_SPL
 
 config TARGET_HUMMINGBOARD
 	bool "Support hummingboard"
@@ -431,33 +465,42 @@ config OMAP34XX
 
 config OMAP44XX
 	bool "OMAP44XX SoC"
+	select SUPPORT_SPL
 
 config OMAP54XX
 	bool "OMAP54XX SoC"
+	select SUPPORT_SPL
 
 config RMOBILE
 	bool "Renesas ARM SoCs"
 
 config TARGET_CM_FX6
 	bool "Support cm_fx6"
+	select SUPPORT_SPL
 
 config TARGET_SOCFPGA_CYCLONE5
 	bool "Support socfpga_cyclone5"
+	select SUPPORT_SPL
 
 config TARGET_SUN4I
 	bool "Support sun4i"
+	select SUPPORT_SPL
 
 config TARGET_SUN5I
 	bool "Support sun5i"
+	select SUPPORT_SPL
 
 config TARGET_SUN6I
 	bool "Support sun6i"
+	select SUPPORT_SPL
 
 config TARGET_SUN7I
 	bool "Support sun7i"
+	select SUPPORT_SPL
 
 config TARGET_SUN8I
 	bool "Support sun8i"
+	select SUPPORT_SPL
 
 config TARGET_SNOWBALL
 	bool "Support snowball"
@@ -470,9 +513,11 @@ config TARGET_VF610TWR
 
 config ZYNQ
 	bool "Xilinx Zynq Platform"
+	select SUPPORT_SPL
 
 config TEGRA
 	bool "NVIDIA Tegra"
+	select SUPPORT_SPL
 	select SPL
 	select OF_CONTROL if !SPL_BUILD
 
@@ -508,6 +553,7 @@ config TARGET_PALMTC
 
 config TARGET_PALMTREO680
 	bool "Support palmtreo680"
+	select SUPPORT_SPL
 
 config TARGET_PXA255_IDP
 	bool "Support pxa255_idp"
@@ -517,6 +563,7 @@ config TARGET_TRIZEPSIV
 
 config TARGET_VPAC270
 	bool "Support vpac270"
+	select SUPPORT_SPL
 
 config TARGET_XAENIAX
 	bool "Support xaeniax"
@@ -535,6 +582,7 @@ config TARGET_JORNADA
 
 config ARCH_UNIPHIER
 	bool "Panasonic UniPhier platform"
+	select SUPPORT_SPL
 
 endchoice
 

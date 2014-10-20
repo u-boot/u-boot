@@ -9,6 +9,7 @@ choice
 
 config TARGET_A3M071
 	bool "Support a3m071"
+	select SUPPORT_SPL
 
 config TARGET_A4M072
 	bool "Support a4m072"

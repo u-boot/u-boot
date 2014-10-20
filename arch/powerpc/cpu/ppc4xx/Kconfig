@@ -24,6 +24,7 @@ config TARGET_KORAT
 
 config TARGET_LWMON5
 	bool "Support lwmon5"
+	select SUPPORT_SPL
 
 config TARGET_PCS440EP
 	bool "Support pcs440ep"
