@@ -73,6 +73,9 @@ config TPL_BUILD
 config SUPPORT_SPL
 	bool
 
+config SUPPORT_TPL
+	bool
+
 config SPL
 	bool
 	depends on SUPPORT_SPL
@@ -83,7 +86,7 @@ config SPL
 
 config TPL
 	bool
-	depends on SPL
+	depends on SPL && SUPPORT_TPL
 	prompt "Enable TPL" if !SPL_BUILD
 	default y if TPL_BUILD
 	default n

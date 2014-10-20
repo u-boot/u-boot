@@ -28,6 +28,7 @@ config TARGET_BSC9132QDS
 config TARGET_C29XPCIE
 	bool "Support C29XPCIE"
 	select SUPPORT_SPL
+	select SUPPORT_TPL
 
 config TARGET_P3041DS
 	bool "Support P3041DS"
@@ -74,10 +75,12 @@ config TARGET_MPC8572DS
 config TARGET_P1010RDB
 	bool "Support P1010RDB"
 	select SUPPORT_SPL
+	select SUPPORT_TPL
 
 config TARGET_P1022DS
 	bool "Support P1022DS"
 	select SUPPORT_SPL
+	select SUPPORT_TPL
 
 config TARGET_P1023RDB
 	bool "Support P1023RDB"
@@ -85,10 +88,12 @@ config TARGET_P1023RDB
 config TARGET_P1_P2_RDB
 	bool "Support P1_P2_RDB"
 	select SUPPORT_SPL
+	select SUPPORT_TPL
 
 config TARGET_P1_P2_RDB_PC
 	bool "Support p1_p2_rdb_pc"
 	select SUPPORT_SPL
+	select SUPPORT_TPL
 
 config TARGET_P1_TWR
 	bool "Support p1_twr"
