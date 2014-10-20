@@ -70,8 +70,8 @@ int do_io_iow(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 /**************************************************/
 U_BOOT_CMD(iod, 2, 0, do_io_iod,
-	   "IO space display", "[.b, .w, .l] address [# of objects]");
+	   "IO space display", "[.b, .w, .l] address");
 
 U_BOOT_CMD(iow, 3, 0, do_io_iow,
-	   "IO space modify (auto-incrementing address)",
-	   "[.b, .w, .l] address");
+	   "IO space modify",
+	   "[.b, .w, .l] address value");
