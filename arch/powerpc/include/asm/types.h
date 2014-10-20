@@ -41,8 +41,12 @@ typedef unsigned long long u64;
 
 #define BITS_PER_LONG 32
 
+#ifdef CONFIG_PHYS_64BIT
+typedef unsigned long long dma_addr_t;
+#else
 /* DMA addresses are 32-bits wide */
 typedef u32 dma_addr_t;
+#endif
 
 #ifdef CONFIG_PHYS_64BIT
 typedef unsigned long long phys_addr_t;

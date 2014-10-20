@@ -16,6 +16,7 @@
 #include <netdev.h>
 #include <fsl_mdio.h>
 #include <tsec.h>
+#include <fsl_sec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -279,6 +280,15 @@ int board_init(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_MISC_INIT_R)
+int misc_init_r(void)
+{
+#ifdef CONFIG_FSL_CAAM
+	return sec_init();
+#endif
+}
+#endif
 
 void ft_board_setup(void *blob, bd_t *bd)
 {

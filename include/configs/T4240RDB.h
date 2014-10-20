@@ -47,6 +47,7 @@
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCIE1			/* PCIE controler 1 */
 #define CONFIG_PCIE2			/* PCIE controler 2 */
@@ -668,6 +669,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DOS_PARTITION
 #endif
 
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
+
 #define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
 
 #define __USB_PHY_TYPE	utmi
@@ -751,6 +758,7 @@ unsigned long get_board_ddr_clk(void);
  * which is anyways not used in Secure Environment.
  */
 #undef CONFIG_CMD_USB
+#define CONFIG_CMD_BLOB
 #endif
 
 #endif	/* __CONFIG_H */

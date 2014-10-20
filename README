@@ -544,6 +544,12 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
 		Number of controllers used for other than main memory.
 
+		CONFIG_SYS_FSL_SEC_BE
+		Defines the SEC controller register space as Big Endian
+
+		CONFIG_SYS_FSL_SEC_LE
+		Defines the SEC controller register space as Little Endian
+
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
 
