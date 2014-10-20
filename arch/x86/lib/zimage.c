@@ -18,6 +18,7 @@
 #include <asm/ptrace.h>
 #include <asm/zimage.h>
 #include <asm/byteorder.h>
+#include <asm/bootm.h>
 #include <asm/bootparam.h>
 #ifdef CONFIG_SYS_COREBOOT
 #include <asm/arch/timestamp.h>
@@ -257,26 +258,9 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	return 0;
 }
 
-/*
- * Implement a weak default function for boards that optionally
- * need to clean up the system before jumping to the kernel.
- */
-__weak void board_final_cleanup(void)
-{
-}
-
 void boot_zimage(void *setup_base, void *load_address)
 {
-	debug("## Transferring control to Linux (at address %08x) ...\n",
-	      (u32)setup_base);
-
-	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
-#ifdef CONFIG_BOOTSTAGE_REPORT
-	bootstage_report();
-#endif
-	board_final_cleanup();
-
-	printf("\nStarting kernel ...\n\n");
+	bootm_announce_and_cleanup();
 
 #ifdef CONFIG_SYS_COREBOOT
 	timestamp_add_now(TS_U_BOOT_START_KERNEL);
