@@ -85,10 +85,29 @@ System Logic:
  - QIXIS-II FPGA system controll
 Debug Features:
  - Support Legacy, COP/JTAG, Aurora, Event and EVT
-
+XFI:
+ - XFI is supported on T2080QDS through Lane A/B/C/D on Serdes 1 routed to
+ a on-board SFP+ cages, which to house optical module (fiber cable) or
+ direct attach cable(copper), the copper cable is used to emulate
+ 10GBASE-KR scenario.
+ So, for XFI usage, there are two scenarios, one will use fiber cable,
+ another will use copper cable. An hwconfig env "fsl_10gkr_copper" is
+ introduced to indicate a XFI port will use copper cable, and U-boot
+ will fixup the dtb accordingly.
+ It's used as: fsl_10gkr_copper:<10g_mac_name>
+ The <10g_mac_name> can be fm1_10g1, fm1_10g2, fm1_10g3, fm1_10g4, they
+ do not have to be coexist in hwconfig. If a MAC is listed in the env
+ "fsl_10gkr_copper", it will use copper cable, otherwise, fiber cable
+ will be used by default.
+ for ex. set "fsl_10gkr_copper:fm1_10g1,fm1_10g2,fm1_10g3,fm1_10g4" in
+ hwconfig, then both four XFI ports will use copper cable.
+ set "fsl_10gkr_copper:fm1_10g1,fm1_10g2" in hwconfig, then first two
+ XFI ports will use copper cable, the other two XFI ports will use fiber
+ cable.
 
 System Memory map
------------------
+----------------
+
 Start Address  End Address      Description			Size
 0xF_FFDF_0000  0xF_FFDF_0FFF    IFC - CPLD			4KB
 0xF_FF80_0000  0xF_FF80_FFFF    IFC - NAND Flash		64KB
