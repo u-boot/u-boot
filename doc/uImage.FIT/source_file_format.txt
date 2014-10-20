@@ -247,6 +247,8 @@ o config@1
     node of a "ramdisk" type).
   - fdt : Unit name of the corresponding fdt blob (component image node of a
     "fdt type").
+  - setup : Unit name of the corresponding setup binary (used for booting
+    an x86 kernel). This contains the setup.bin file built by the kernel.
 
 The FDT blob is required to properly boot FDT based kernel, so the minimal
 configuration for 2.6 FDT kernel is (kernel, fdt) pair.
