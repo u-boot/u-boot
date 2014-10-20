@@ -47,6 +47,15 @@
 #define EMI2		8
 #endif
 
+#define PCCR1_SGMIIA_KX_MASK		0x00008000
+#define PCCR1_SGMIIB_KX_MASK		0x00004000
+#define PCCR1_SGMIIC_KX_MASK		0x00002000
+#define PCCR1_SGMIID_KX_MASK		0x00001000
+#define PCCR1_SGMIIE_KX_MASK		0x00000800
+#define PCCR1_SGMIIF_KX_MASK		0x00000400
+#define PCCR1_SGMIIG_KX_MASK		0x00000200
+#define PCCR1_SGMIIH_KX_MASK		0x00000100
+
 static int mdio_mux[NUM_FM_PORTS];
 
 static const char * const mdio_names[] = {
@@ -195,6 +204,11 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 	int off;
 
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#ifdef CONFIG_T2080QDS
+	serdes_corenet_t *srds_regs =
+		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	u32 srds1_pccr1 = in_be32(&srds_regs->srdspccr1);
+#endif
 	u32 srds_s1 = in_be32(&gur->rcwsr[4]) &
 				FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
 
@@ -205,9 +219,54 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 		switch (port) {
 #if defined(CONFIG_T2080QDS)
 		case FM1_DTSEC1:
+			if (hwconfig_sub("fsl_1gkx", "fm1_1g1")) {
+				media_type = 1;
+				fdt_set_phy_handle(fdt, compat, addr,
+						   "phy_1gkx1");
+				fdt_status_okay_by_alias(fdt, "1gkx_pcs_mdio1");
+				sprintf(buf, "%s%s%s", buf, "lane-c,",
+						(char *)lane_mode[0]);
+				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
+					 PCCR1_SGMIIH_KX_MASK);
+				break;
+			}
 		case FM1_DTSEC2:
+			if (hwconfig_sub("fsl_1gkx", "fm1_1g2")) {
+				media_type = 1;
+				fdt_set_phy_handle(fdt, compat, addr,
+						   "phy_1gkx2");
+				fdt_status_okay_by_alias(fdt, "1gkx_pcs_mdio2");
+				sprintf(buf, "%s%s%s", buf, "lane-d,",
+						(char *)lane_mode[0]);
+				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
+					 PCCR1_SGMIIG_KX_MASK);
+				break;
+			}
 		case FM1_DTSEC9:
+			if (hwconfig_sub("fsl_1gkx", "fm1_1g9")) {
+				media_type = 1;
+				fdt_set_phy_handle(fdt, compat, addr,
+						   "phy_1gkx9");
+				fdt_status_okay_by_alias(fdt, "1gkx_pcs_mdio9");
+				sprintf(buf, "%s%s%s", buf, "lane-a,",
+						(char *)lane_mode[0]);
+				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
+					 PCCR1_SGMIIE_KX_MASK);
+				break;
+			}
 		case FM1_DTSEC10:
+			if (hwconfig_sub("fsl_1gkx", "fm1_1g10")) {
+				media_type = 1;
+				fdt_set_phy_handle(fdt, compat, addr,
+						   "phy_1gkx10");
+				fdt_status_okay_by_alias(fdt,
+							 "1gkx_pcs_mdio10");
+				sprintf(buf, "%s%s%s", buf, "lane-b,",
+						(char *)lane_mode[0]);
+				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
+					 PCCR1_SGMIIF_KX_MASK);
+				break;
+			}
 			if (mdio_mux[port] == EMI1_SLOT2) {
 				sprintf(alias, "phy_sgmii_s2_%x", phy);
 				fdt_set_phy_handle(fdt, compat, addr, alias);
@@ -219,7 +278,29 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 			}
 			break;
 		case FM1_DTSEC5:
+			if (hwconfig_sub("fsl_1gkx", "fm1_1g5")) {
+				media_type = 1;
+				fdt_set_phy_handle(fdt, compat, addr,
+						   "phy_1gkx5");
+				fdt_status_okay_by_alias(fdt, "1gkx_pcs_mdio5");
+				sprintf(buf, "%s%s%s", buf, "lane-g,",
+						(char *)lane_mode[0]);
+				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
+					 PCCR1_SGMIIC_KX_MASK);
+				break;
+			}
 		case FM1_DTSEC6:
+			if (hwconfig_sub("fsl_1gkx", "fm1_1g6")) {
+				media_type = 1;
+				fdt_set_phy_handle(fdt, compat, addr,
+						   "phy_1gkx6");
+				fdt_status_okay_by_alias(fdt, "1gkx_pcs_mdio6");
+				sprintf(buf, "%s%s%s", buf, "lane-h,",
+						(char *)lane_mode[0]);
+				out_be32(&srds_regs->srdspccr1, srds1_pccr1 |
+					 PCCR1_SGMIID_KX_MASK);
+				break;
+			}
 			if (mdio_mux[port] == EMI1_SLOT1) {
 				sprintf(alias, "phy_sgmii_s1_%x", phy);
 				fdt_set_phy_handle(fdt, compat, addr, alias);
@@ -262,6 +343,12 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 #endif
 		default:
 			break;
+		}
+		if (media_type) {
+			/* set property for 1000BASE-KX in dtb */
+			off = fdt_node_offset_by_compat_reg(fdt,
+					"fsl,fman-memac-mdio", addr + 0x1000);
+			fdt_setprop_string(fdt, off, "lane-instance", buf);
 		}
 
 	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_XGMII) {

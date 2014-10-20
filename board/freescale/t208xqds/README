@@ -104,6 +104,18 @@ XFI:
  set "fsl_10gkr_copper:fm1_10g1,fm1_10g2" in hwconfig, then first two
  XFI ports will use copper cable, the other two XFI ports will use fiber
  cable.
+1000BASE-KX(1G-KX):
+ - T2080QDS can support 1G-KX by using SGMII protocol, but serdes lane
+ runs in 1G-KX mode. By default, the lane runs in SGMII mode, to set a lane
+ in 1G-KX mode, need to set corresponding bit in SerDes Protocol Configuration
+ Register 1 (PCCR1), and U-boot fixup the dtb for kernel to do proper
+ initialization.
+ Hwconfig "fsl_1gkx" is used to indicate a lane runs in 1G-KX mode, MAC
+ 1/2/5/6/9/10 are available for 1G-KX, MAC 3/4 run in RGMII mode. To set a
+ MAC to use 1G-KX mode, set its' corresponding env in "fsl_1gkx", 'fm1_1g1'
+ stands for MAC 1, 'fm1_1g2' stands for MAC 2, etc.
+ For ex. set "fsl_1gkx:fm1_1g1,fm1_1g2,fm1_1g5,fm1_1g6,fm1_1g9,fm1_1g10" in
+ hwconfig, MAC 1/2/5/6/9/10 will use 1G-KX mode.
 
 System Memory map
 ----------------
