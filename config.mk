@@ -18,6 +18,8 @@ PLATFORM_LDFLAGS :=
 LDFLAGS :=
 LDFLAGS_FINAL :=
 OBJCOPYFLAGS :=
+# clear VENDOR for tcsh
+VENDOR :=
 #########################################################################
 
 ARCH := $(CONFIG_SYS_ARCH:"%"=%)
