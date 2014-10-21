@@ -12,6 +12,11 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+CPCI750		 powerpc     74xx_7xx	    -		-	    Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+DB64360		 powerpc     74xx_7xx	    -		-
+DB64460		 powerpc     74xx_7xx	    -		-
+p3m750		 powerpc     74xx_7xx	    -		-	    Stefan Roese <sr@denx.de>
+p3m7448		 powerpc     74xx_7xx	    -		-	    Stefan Roese <sr@denx.de>
 MVBC_P           powerpc     mpc5xxx        af55e35	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
 MVSMR            powerpc     mpc5xxx        af55e35	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
 MERGERBOX        powerpc     mpc83xx        e7a5656	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>

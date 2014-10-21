@@ -21,14 +21,6 @@
 
 #include "../include/memory.h"
 
-#ifdef CONFIG_DB64360
-#include "../db64360/mpsc.h"
-#endif
-
-#ifdef CONFIG_DB64460
-#include "../db64460/mpsc.h"
-#endif
-
 #include "ns16550.h"
 
 DECLARE_GLOBAL_DATA_PTR;
