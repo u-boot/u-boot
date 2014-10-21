@@ -457,6 +457,8 @@ void set_muxconf_regs(void)
 }
 
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
+#define SB_T35_WP_GPIO 59
+
 int board_mmc_getcd(struct mmc *mmc)
 {
 	u8 val;
@@ -469,7 +471,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0, 0, 0, -1, 59);
+	return omap_mmc_init(0, 0, 0, -1, SB_T35_WP_GPIO);
 }
 #endif
 
