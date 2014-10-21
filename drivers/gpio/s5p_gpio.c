@@ -8,7 +8,6 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
-#include <asm/arch/gpio.h>
 
 #define S5P_GPIO_GET_PIN(x)	(x % GPIO_PER_BANK)
 
@@ -222,7 +221,7 @@ static void s5p_gpio_set_rate(struct s5p_gpio_bank *bank, int gpio, int mode)
 	writel(value, &bank->drv);
 }
 
-struct s5p_gpio_bank *s5p_gpio_get_bank(unsigned int gpio)
+static struct s5p_gpio_bank *s5p_gpio_get_bank(unsigned int gpio)
 {
 	const struct gpio_info *data;
 	unsigned int upto;

@@ -7,7 +7,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <asm/arch/mmc.h>
 #include <power/pmic.h>
 #include <usb/s3c_udc.h>

@@ -7,9 +7,9 @@
  */
 
 #include <common.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/sromc.h>
-#include <asm/arch/gpio.h>
 #include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;

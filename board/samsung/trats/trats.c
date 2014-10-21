@@ -10,8 +10,8 @@
 #include <common.h>
 #include <lcd.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mipi_dsim.h>

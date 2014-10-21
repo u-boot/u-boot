@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/sromc.h>
 

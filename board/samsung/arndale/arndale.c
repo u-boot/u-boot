@@ -6,9 +6,9 @@
 
 #include <common.h>
 #include <usb.h>
+#include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/dwmmc.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/power.h>
 
 DECLARE_GLOBAL_DATA_PTR;

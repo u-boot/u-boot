@@ -815,11 +815,7 @@ static const struct gpio_name_num_table s5pc110_gpio_table[] = {
 void gpio_cfg_pin(int gpio, int cfg);
 void gpio_set_pull(int gpio, int mode);
 void gpio_set_drv(int gpio, int mode);
-int gpio_direction_output(unsigned gpio, int value);
-int gpio_set_value(unsigned gpio, int value);
-int gpio_get_value(unsigned gpio);
 void gpio_set_rate(int gpio, int mode);
-struct s5p_gpio_bank *s5p_gpio_get_bank(unsigned gpio);
 int s5p_gpio_get_pin(unsigned gpio);
 
 /* GPIO pins per bank  */

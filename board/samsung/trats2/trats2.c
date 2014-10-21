@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <lcd.h>
+#include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
 #include <asm/arch/mipi_dsim.h>
