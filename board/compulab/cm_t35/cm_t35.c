@@ -53,16 +53,6 @@ static u32 gpmc_net_config[GPMC_MAX_REG] = {
 	0
 };
 
-static u32 gpmc_nand_config[GPMC_MAX_REG] = {
-	M_NAND_GPMC_CONFIG1,
-	M_NAND_GPMC_CONFIG2,
-	M_NAND_GPMC_CONFIG3,
-	M_NAND_GPMC_CONFIG4,
-	M_NAND_GPMC_CONFIG5,
-	M_NAND_GPMC_CONFIG6,
-	0,
-};
-
 #ifdef CONFIG_LCD
 #ifdef CONFIG_CMD_NAND
 static int splash_load_from_nand(u32 bmp_load_addr)
@@ -147,9 +137,6 @@ int splash_screen_prepare(void)
 int board_init(void)
 {
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
-
-	enable_gpmc_cs_config(gpmc_nand_config, &gpmc_cfg->cs[0],
-			      CONFIG_SYS_NAND_BASE, GPMC_SIZE_16M);
 
 	/* board id for Linux */
 	if (get_cpu_family() == CPU_OMAP34XX)
