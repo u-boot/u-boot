@@ -5,7 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/include/ "exynos5.dtsi"
+#include "exynos5.dtsi"
 
 / {
 	config {

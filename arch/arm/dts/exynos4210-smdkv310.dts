@@ -7,7 +7,7 @@
  */
 
 /dts-v1/;
-/include/ "exynos4.dtsi"
+#include "exynos4.dtsi"
 
 / {
 	model = "Samsung SMDKV310 on Exynos4210";

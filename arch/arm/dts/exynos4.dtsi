@@ -7,7 +7,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/include/ "skeleton.dtsi"
+#include "skeleton.dtsi"
 
 / {
 	serial@13800000 {
