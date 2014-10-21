@@ -10,7 +10,7 @@
 /*
  * List of all commands and options that when defined enables support for
  * features required by distros to support boards in a standardised and
- * consitant manner.
+ * consistent manner.
  */
 
 #define CONFIG_BOOTP_BOOTPATH
