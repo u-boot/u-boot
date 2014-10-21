@@ -11,19 +11,20 @@
 
 #define S5P_GPIO_GET_PIN(x)	(x % GPIO_PER_BANK)
 
-#define CON_MASK(x)		(0xf << ((x) << 2))
-#define CON_SFR(x, v)		((v) << ((x) << 2))
+#define CON_MASK(val)			(0xf << ((val) << 2))
+#define CON_SFR(gpio, cfg)		((cfg) << ((gpio) << 2))
+#define CON_SFR_UNSHIFT(val, gpio)	((val) >> ((gpio) << 2))
 
-#define DAT_MASK(x)		(0x1 << (x))
-#define DAT_SET(x)		(0x1 << (x))
+#define DAT_MASK(gpio)			(0x1 << (gpio))
+#define DAT_SET(gpio)			(0x1 << (gpio))
 
-#define PULL_MASK(x)		(0x3 << ((x) << 1))
-#define PULL_MODE(x, v)		((v) << ((x) << 1))
+#define PULL_MASK(gpio)		(0x3 << ((gpio) << 1))
+#define PULL_MODE(gpio, pull)		((pull) << ((gpio) << 1))
 
-#define DRV_MASK(x)		(0x3 << ((x) << 1))
-#define DRV_SET(x, m)		((m) << ((x) << 1))
-#define RATE_MASK(x)		(0x1 << (x + 16))
-#define RATE_SET(x)		(0x1 << (x + 16))
+#define DRV_MASK(gpio)			(0x3 << ((gpio) << 1))
+#define DRV_SET(gpio, mode)		((mode) << ((gpio) << 1))
+#define RATE_MASK(gpio)		(0x1 << (gpio + 16))
+#define RATE_SET(gpio)			(0x1 << (gpio + 16))
 
 #define name_to_gpio(n) s5p_name_to_gpio(n)
 static inline int s5p_name_to_gpio(const char *name)
