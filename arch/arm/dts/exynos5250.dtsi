@@ -7,6 +7,7 @@
 
 #include "exynos5.dtsi"
 #include "exynos5250-pinctrl.dtsi"
+#include "exynos5250-pinctrl-uboot.dtsi"
 
 / {
 	aliases {

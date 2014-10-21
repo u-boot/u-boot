@@ -12,6 +12,8 @@
  * published by the Free Software Foundation.
 */
 
+#include "exynos54xx-pinctrl-uboot.dtsi"
+
 / {
 	pinctrl@13400000 {
 		gpy7: gpy7 {

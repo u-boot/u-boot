@@ -6,6 +6,7 @@
  */
 
 #include "exynos5.dtsi"
+#include "exynos54xx-pinctrl.dtsi"
 
 / {
 	config {
