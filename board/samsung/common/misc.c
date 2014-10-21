@@ -411,6 +411,8 @@ void check_boot_mode(void)
 void keys_init(void)
 {
 	/* Set direction to input */
+	gpio_request(KEY_VOL_UP_GPIO, "volume-up");
+	gpio_request(KEY_VOL_DOWN_GPIO, "volume-down");
 	gpio_direction_input(KEY_VOL_UP_GPIO);
 	gpio_direction_input(KEY_VOL_DOWN_GPIO);
 }

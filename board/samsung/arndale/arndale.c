@@ -19,6 +19,8 @@ int board_usb_init(int index, enum usb_init_type init)
 	/* Configure gpios for usb 3503 hub:
 	 * disconnect, toggle reset and connect
 	 */
+	gpio_request(EXYNOS5_GPIO_D17, "usb_connect");
+	gpio_request(EXYNOS5_GPIO_X35, "usb_reset");
 	gpio_direction_output(EXYNOS5_GPIO_D17, 0);
 	gpio_direction_output(EXYNOS5_GPIO_X35, 0);
 

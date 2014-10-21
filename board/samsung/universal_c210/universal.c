@@ -330,6 +330,7 @@ void exynos_cfg_lcd_gpio(void)
 	}
 
 	/* gpio pad configuration for LCD reset. */
+	gpio_request(EXYNOS4_GPIO_Y45, "lcd_reset");
 	gpio_cfg_pin(EXYNOS4_GPIO_Y45, S5P_GPIO_OUTPUT);
 
 	spi_init();
@@ -386,6 +387,7 @@ int exynos_init(void)
 		 * you should set it HIGH since it removes the inverter
 		 */
 		/* MASSMEMORY_EN: XMDMDATA_6: GPE3[6] */
+		gpio_request(EXYNOS4_GPIO_E36, "ldo_en");
 		gpio_direction_output(EXYNOS4_GPIO_E36, 0);
 		break;
 	default:
@@ -394,6 +396,7 @@ int exynos_init(void)
 		 * But set it as HIGH to ensure
 		 */
 		/* MASSMEMORY_EN: XMDMADDR_3: GPE1[3] */
+		gpio_request(EXYNOS4_GPIO_E13, "massmemory_en");
 		gpio_direction_output(EXYNOS4_GPIO_E13, 1);
 		break;
 	}
