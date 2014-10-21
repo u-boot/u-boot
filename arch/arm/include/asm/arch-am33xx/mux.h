@@ -36,7 +36,7 @@ struct module_pin_mux {
 
 /* Pad control register offset */
 #define PAD_CTRL_BASE	0x800
-#define OFFSET(x)	(unsigned int) (&((struct pad_signals *) \
+#define OFFSET(x)	(unsigned int) (&((struct pad_signals *)\
 				(PAD_CTRL_BASE))->x)
 
 /*
