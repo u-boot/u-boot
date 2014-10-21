@@ -98,7 +98,7 @@ int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 	}
 
 	out = dev->dout;
-	out[0] = cmd_version;
+	out[0] = EC_CMD_VERSION0 + cmd_version;
 	out[1] = cmd;
 	out[2] = (uint8_t)dout_len;
 	memcpy(out + 3, dout, dout_len);
@@ -165,7 +165,7 @@ int cros_ec_spi_decode_fdt(struct cros_ec_dev *dev, const void *blob)
  */
 int cros_ec_spi_init(struct cros_ec_dev *dev, const void *blob)
 {
-	dev->spi = spi_setup_slave_fdt(blob, dev->parent_node, dev->node);
+	dev->spi = spi_setup_slave_fdt(blob, dev->node, dev->parent_node);
 	if (!dev->spi) {
 		debug("%s: Could not setup SPI slave\n", __func__);
 		return -1;

@@ -1,12 +1,8 @@
 #ifndef _LINUX_ERR_H
 #define _LINUX_ERR_H
 
-/* XXX U-BOOT XXX */
-#if 0
 #include <linux/compiler.h>
-#else
 #include <linux/compat.h>
-#endif
 
 #include <asm/errno.h>
 
@@ -38,6 +34,19 @@ static inline long PTR_ERR(const void *ptr)
 static inline long IS_ERR(const void *ptr)
 {
 	return IS_ERR_VALUE((unsigned long)ptr);
+}
+
+/**
+ * ERR_CAST - Explicitly cast an error-valued pointer to another pointer type
+ * @ptr: The pointer to cast.
+ *
+ * Explicitly cast an error-valued pointer to another pointer type in such a
+ * way as to make it clear that's what's going on.
+ */
+static inline void * __must_check ERR_CAST(__force const void *ptr)
+{
+	/* cast away the const */
+	return (void *) ptr;
 }
 
 #endif

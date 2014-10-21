@@ -1,0 +1,22 @@
+if ARCH_KEYSTONE
+
+choice
+	prompt "TI Keystone board select"
+
+config TARGET_K2HK_EVM
+	bool "TI Keystone 2 Kepler/Hawking EVM"
+
+config TARGET_K2E_EVM
+	bool "TI Keystone 2 Edison EVM"
+
+endchoice
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_SOC
+	default "keystone"
+
+source "board/ti/ks2_evm/Kconfig"
+
+endif

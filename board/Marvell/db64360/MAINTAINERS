@@ -1,0 +1,6 @@
+DB64360 BOARD
+#M:	-
+S:	Maintained
+F:	board/Marvell/db64360/
+F:	include/configs/DB64360.h
+F:	configs/DB64360_defconfig

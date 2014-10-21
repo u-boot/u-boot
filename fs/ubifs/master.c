@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 as published by
- * the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
@@ -23,13 +12,19 @@
 /* This file implements reading and writing the master node */
 
 #include "ubifs.h"
+#ifdef __UBOOT__
+#include <linux/compat.h>
+#include <linux/err.h>
+#include <ubi_uboot.h>
+#endif
 
 /**
  * scan_for_master - search the valid master node.
  * @c: UBIFS file-system description object
  *
  * This function scans the master node LEBs and search for the latest master
- * node. Returns zero in case of success and a negative error code in case of
+ * node. Returns zero in case of success, %-EUCLEAN if there master area is
+ * corrupted and requires recovery, and a negative error code in case of
  * failure.
  */
 static int scan_for_master(struct ubifs_info *c)
@@ -40,7 +35,7 @@ static int scan_for_master(struct ubifs_info *c)
 
 	lnum = UBIFS_MST_LNUM;
 
-	sleb = ubifs_scan(c, lnum, 0, c->sbuf);
+	sleb = ubifs_scan(c, lnum, 0, c->sbuf, 1);
 	if (IS_ERR(sleb))
 		return PTR_ERR(sleb);
 	nodes_cnt = sleb->nodes_cnt;
@@ -48,7 +43,7 @@ static int scan_for_master(struct ubifs_info *c)
 		snod = list_entry(sleb->nodes.prev, struct ubifs_scan_node,
 				  list);
 		if (snod->type != UBIFS_MST_NODE)
-			goto out;
+			goto out_dump;
 		memcpy(c->mst_node, snod->node, snod->len);
 		offs = snod->offs;
 	}
@@ -56,7 +51,7 @@ static int scan_for_master(struct ubifs_info *c)
 
 	lnum += 1;
 
-	sleb = ubifs_scan(c, lnum, 0, c->sbuf);
+	sleb = ubifs_scan(c, lnum, 0, c->sbuf, 1);
 	if (IS_ERR(sleb))
 		return PTR_ERR(sleb);
 	if (sleb->nodes_cnt != nodes_cnt)
@@ -65,7 +60,7 @@ static int scan_for_master(struct ubifs_info *c)
 		goto out;
 	snod = list_entry(sleb->nodes.prev, struct ubifs_scan_node, list);
 	if (snod->type != UBIFS_MST_NODE)
-		goto out;
+		goto out_dump;
 	if (snod->offs != offs)
 		goto out;
 	if (memcmp((void *)c->mst_node + UBIFS_CH_SZ,
@@ -77,6 +72,12 @@ static int scan_for_master(struct ubifs_info *c)
 	return 0;
 
 out:
+	ubifs_scan_destroy(sleb);
+	return -EUCLEAN;
+
+out_dump:
+	ubifs_err("unexpected node type %d master LEB %d:%d",
+		  snod->type, lnum, snod->offs);
 	ubifs_scan_destroy(sleb);
 	return -EINVAL;
 }
@@ -141,7 +142,7 @@ static int validate_master(const struct ubifs_info *c)
 	}
 
 	main_sz = (long long)c->main_lebs * c->leb_size;
-	if (c->old_idx_sz & 7 || c->old_idx_sz >= main_sz) {
+	if (c->bi.old_idx_sz & 7 || c->bi.old_idx_sz >= main_sz) {
 		err = 9;
 		goto out;
 	}
@@ -211,7 +212,7 @@ static int validate_master(const struct ubifs_info *c)
 	}
 
 	if (c->lst.total_dead + c->lst.total_dark +
-	    c->lst.total_used + c->old_idx_sz > main_sz) {
+	    c->lst.total_used + c->bi.old_idx_sz > main_sz) {
 		err = 21;
 		goto out;
 	}
@@ -234,7 +235,7 @@ static int validate_master(const struct ubifs_info *c)
 
 out:
 	ubifs_err("bad master node at offset %d error %d", c->mst_offs, err);
-	dbg_dump_node(c, c->mst_node);
+	ubifs_dump_node(c, c->mst_node);
 	return -EINVAL;
 }
 
@@ -256,7 +257,8 @@ int ubifs_read_master(struct ubifs_info *c)
 
 	err = scan_for_master(c);
 	if (err) {
-		err = ubifs_recover_master_node(c);
+		if (err == -EUCLEAN)
+			err = ubifs_recover_master_node(c);
 		if (err)
 			/*
 			 * Note, we do not free 'c->mst_node' here because the
@@ -278,7 +280,7 @@ int ubifs_read_master(struct ubifs_info *c)
 	c->gc_lnum         = le32_to_cpu(c->mst_node->gc_lnum);
 	c->ihead_lnum      = le32_to_cpu(c->mst_node->ihead_lnum);
 	c->ihead_offs      = le32_to_cpu(c->mst_node->ihead_offs);
-	c->old_idx_sz      = le64_to_cpu(c->mst_node->index_size);
+	c->bi.old_idx_sz   = le64_to_cpu(c->mst_node->index_size);
 	c->lpt_lnum        = le32_to_cpu(c->mst_node->lpt_lnum);
 	c->lpt_offs        = le32_to_cpu(c->mst_node->lpt_offs);
 	c->nhead_lnum      = le32_to_cpu(c->mst_node->nhead_lnum);
@@ -297,7 +299,7 @@ int ubifs_read_master(struct ubifs_info *c)
 	c->lst.total_dead  = le64_to_cpu(c->mst_node->total_dead);
 	c->lst.total_dark  = le64_to_cpu(c->mst_node->total_dark);
 
-	c->calc_idx_sz = c->old_idx_sz;
+	c->calc_idx_sz = c->bi.old_idx_sz;
 
 	if (c->mst_node->flags & cpu_to_le32(UBIFS_MST_NO_ORPHS))
 		c->no_orphs = 1;
@@ -309,7 +311,7 @@ int ubifs_read_master(struct ubifs_info *c)
 		if (c->leb_cnt < old_leb_cnt ||
 		    c->leb_cnt < UBIFS_MIN_LEB_CNT) {
 			ubifs_err("bad leb_cnt on master node");
-			dbg_dump_node(c, c->mst_node);
+			ubifs_dump_node(c, c->mst_node);
 			return -EINVAL;
 		}
 
@@ -335,7 +337,58 @@ int ubifs_read_master(struct ubifs_info *c)
 	if (err)
 		return err;
 
+#ifndef __UBOOT__
 	err = dbg_old_index_check_init(c, &c->zroot);
+#endif
 
 	return err;
 }
+
+#ifndef __UBOOT__
+/**
+ * ubifs_write_master - write master node.
+ * @c: UBIFS file-system description object
+ *
+ * This function writes the master node. The caller has to take the
+ * @c->mst_mutex lock before calling this function. Returns zero in case of
+ * success and a negative error code in case of failure. The master node is
+ * written twice to enable recovery.
+ */
+int ubifs_write_master(struct ubifs_info *c)
+{
+	int err, lnum, offs, len;
+
+	ubifs_assert(!c->ro_media && !c->ro_mount);
+	if (c->ro_error)
+		return -EROFS;
+
+	lnum = UBIFS_MST_LNUM;
+	offs = c->mst_offs + c->mst_node_alsz;
+	len = UBIFS_MST_NODE_SZ;
+
+	if (offs + UBIFS_MST_NODE_SZ > c->leb_size) {
+		err = ubifs_leb_unmap(c, lnum);
+		if (err)
+			return err;
+		offs = 0;
+	}
+
+	c->mst_offs = offs;
+	c->mst_node->highest_inum = cpu_to_le64(c->highest_inum);
+
+	err = ubifs_write_node(c, c->mst_node, len, lnum, offs);
+	if (err)
+		return err;
+
+	lnum += 1;
+
+	if (offs == 0) {
+		err = ubifs_leb_unmap(c, lnum);
+		if (err)
+			return err;
+	}
+	err = ubifs_write_node(c, c->mst_node, len, lnum, offs);
+
+	return err;
+}
+#endif

@@ -43,9 +43,9 @@ static int _fdt_rw_check_header(void *fdt)
 
 #define FDT_RW_CHECK_HEADER(fdt) \
 	{ \
-		int err; \
-		if ((err = _fdt_rw_check_header(fdt)) != 0) \
-			return err; \
+		int __err; \
+		if ((__err = _fdt_rw_check_header(fdt)) != 0) \
+			return __err; \
 	}
 
 static inline int _fdt_data_size(void *fdt)

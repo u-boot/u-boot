@@ -43,6 +43,7 @@ obj-y	+= strmhz.o
 obj-$(CONFIG_TPM) += tpm.o
 obj-$(CONFIG_RBTREE)	+= rbtree.o
 obj-$(CONFIG_BITREVERSE) += bitrev.o
+obj-y += list_sort.o
 endif
 
 ifdef CONFIG_SPL_BUILD
@@ -58,6 +59,7 @@ obj-y += crc32.o
 obj-y += ctype.o
 obj-y += div64.o
 obj-y += hang.o
+obj-y += linux_compat.o
 obj-y += linux_string.o
 obj-$(CONFIG_REGEX) += slre.o
 obj-y += string.o

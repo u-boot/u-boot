@@ -1,0 +1,6 @@
+KATMAI BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/amcc/katmai/
+F:	include/configs/katmai.h
+F:	configs/katmai_defconfig

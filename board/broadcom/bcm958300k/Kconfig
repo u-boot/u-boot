@@ -1,0 +1,18 @@
+if TARGET_BCM958300K
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_BOARD
+	default "bcm_ep"
+
+config SYS_VENDOR
+	default "broadcom"
+
+config SYS_SOC
+	default "bcmcygnus"
+
+config SYS_CONFIG_NAME
+	default "bcm_ep_board"
+
+endif

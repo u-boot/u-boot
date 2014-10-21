@@ -1,0 +1,7 @@
+FX12MM BOARD
+M:	Georg Schardt <schardt@team-ctech.de>
+S:	Maintained
+F:	board/avnet/fx12mm/
+F:	include/configs/fx12mm.h
+F:	configs/fx12mm_defconfig
+F:	configs/fx12mm_flash_defconfig

@@ -1,0 +1,6 @@
+PIP405 BOARD
+M:	Denis Peter <d.peter@mpl.ch>
+S:	Maintained
+F:	board/mpl/pip405/
+F:	include/configs/PIP405.h
+F:	configs/PIP405_defconfig

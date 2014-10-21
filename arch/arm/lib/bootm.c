@@ -20,6 +20,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <asm/bootm.h>
+#include <asm/secure.h>
 #include <linux/compiler.h>
 
 #if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
@@ -184,27 +185,17 @@ static void setup_end_tag(bd_t *bd)
 
 __weak void setup_board_tags(struct tag **in_params) {}
 
+#ifdef CONFIG_ARM64
 static void do_nonsec_virt_switch(void)
 {
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
-	if (armv7_switch_nonsec() == 0)
-#ifdef CONFIG_ARMV7_VIRT
-		if (armv7_switch_hyp() == 0)
-			debug("entered HYP mode\n");
-#else
-		debug("entered non-secure state\n");
-#endif
-#endif
-
-#ifdef CONFIG_ARM64
 	smp_kick_all_cpus();
 	flush_dcache_all();	/* flush cache before swtiching to EL2 */
 	armv8_switch_to_el2();
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
 	armv8_switch_to_el1();
 #endif
-#endif
 }
+#endif
 
 /* Subcommand: PREP */
 static void boot_prep_linux(bootm_headers_t *images)
@@ -242,7 +233,6 @@ static void boot_prep_linux(bootm_headers_t *images)
 		printf("FDT and ATAGS support not compiled in - hanging\n");
 		hang();
 	}
-	do_nonsec_virt_switch();
 }
 
 /* Subcommand: GO */
@@ -262,8 +252,10 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 
 	announce_and_cleanup(fake);
 
-	if (!fake)
-		kernel_entry(images->ft_addr, 0x0, 0x0, 0x0);
+	if (!fake) {
+		do_nonsec_virt_switch();
+		kernel_entry(images->ft_addr, NULL, NULL, NULL);
+	}
 #else
 	unsigned long machid = gd->bd->bi_arch_number;
 	char *s;
@@ -289,8 +281,15 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	else
 		r2 = gd->bd->bi_boot_params;
 
-	if (!fake)
+	if (!fake) {
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+		armv7_init_nonsec();
+		secure_ram_addr(_do_nonsec_entry)(kernel_entry,
+						  0, machid, r2);
+#else
 		kernel_entry(0, machid, r2);
+#endif
+	}
 #endif
 }
 
@@ -362,7 +361,7 @@ void boot_prep_vxworks(bootm_headers_t *images)
 	if (images->ft_addr) {
 		off = fdt_path_offset(images->ft_addr, "/memory");
 		if (off < 0) {
-			if (arch_fixup_memory_node(images->ft_addr))
+			if (arch_fixup_fdt(images->ft_addr))
 				puts("## WARNING: fixup memory failed!\n");
 		}
 	}

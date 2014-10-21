@@ -9,19 +9,18 @@
 #ifndef __CONFIG_SMDK5420_H
 #define __CONFIG_SMDK5420_H
 
-#include <configs/exynos5-dt.h>
+#include <configs/exynos5420-common.h>
 
-#include <configs/exynos5420.h>
+#define CONFIG_BOARD_COMMON
 
 #define CONFIG_SMDK5420			/* which is in a SMDK5420 */
 
-#undef CONFIG_DEFAULT_DEVICE_TREE
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos5420-smdk5420
 
 /* select serial console configuration */
 #define CONFIG_SERIAL3		/* use SERIAL 3 */
 
 #define CONFIG_SYS_PROMPT	"SMDK5420 # "
 #define CONFIG_IDENT_STRING	" for SMDK5420"
+#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
 #endif	/* __CONFIG_SMDK5420_H */

@@ -1,0 +1,12 @@
+if TARGET_B4860QDS
+
+config SYS_BOARD
+	default "b4860qds"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	default "B4860QDS"
+
+endif

@@ -18,6 +18,19 @@
 #include <fat.h>
 #include <fs.h>
 
+int do_fat_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	return do_size(cmdtp, flag, argc, argv, FS_TYPE_FAT);
+}
+
+U_BOOT_CMD(
+	fatsize,	4,	0,	do_fat_size,
+	"determine a file's size",
+	"<interface> <dev[:part]> <filename>\n"
+	"    - Find file 'filename' from 'dev' on 'interface'\n"
+	"      and determine its size."
+);
+
 int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return do_load(cmdtp, flag, argc, argv, FS_TYPE_FAT);
@@ -27,7 +40,7 @@ int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	fatload,	7,	0,	do_fat_fsload,
 	"load binary file from a dos filesystem",
-	"<interface> [<dev[:part]>]  <addr> <filename> [bytes [pos]]\n"
+	"<interface> [<dev[:part]> [<addr> [<filename> [bytes [pos]]]]]\n"
 	"    - Load binary file 'filename' from 'dev' on 'interface'\n"
 	"      to address 'addr' from dos filesystem.\n"
 	"      'pos' gives the file position to start loading from.\n"

@@ -1,0 +1,12 @@
+if TARGET_HWW1U1A
+
+config SYS_BOARD
+	default "hww1u1a"
+
+config SYS_VENDOR
+	default "exmeritus"
+
+config SYS_CONFIG_NAME
+	default "HWW1U1A"
+
+endif

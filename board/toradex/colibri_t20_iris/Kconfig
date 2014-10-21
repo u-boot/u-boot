@@ -1,0 +1,12 @@
+if TARGET_COLIBRI_T20_IRIS
+
+config SYS_BOARD
+	default "colibri_t20_iris"
+
+config SYS_VENDOR
+	default "toradex"
+
+config SYS_CONFIG_NAME
+	default "colibri_t20_iris"
+
+endif

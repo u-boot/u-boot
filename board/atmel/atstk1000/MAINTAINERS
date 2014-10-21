@@ -1,0 +1,12 @@
+ATSTK1000 BOARD
+#M:	Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+S:	Orphan (since 2014-06)
+F:	board/atmel/atstk1000/
+F:	include/configs/atstk1002.h
+F:	configs/atstk1002_defconfig
+F:	include/configs/atstk1003.h
+F:	configs/atstk1003_defconfig
+F:	include/configs/atstk1004.h
+F:	configs/atstk1004_defconfig
+F:	include/configs/atstk1006.h
+F:	configs/atstk1006_defconfig

@@ -1,0 +1,6 @@
+BF533-EZKIT BOARD
+M:	Sonic Zhang <sonic.adi@gmail.com>
+S:	Maintained
+F:	board/bf533-ezkit/
+F:	include/configs/bf533-ezkit.h
+F:	configs/bf533-ezkit_defconfig

@@ -1,0 +1,7 @@
+- BOARD
+M:	Alexey Brodkin <abrodkin@synopsys.com>
+S:	Maintained
+F:	include/configs/arcangel4.h
+F:	configs/arcangel4_defconfig
+F:	include/configs/arcangel4-be.h
+F:	configs/arcangel4-be_defconfig

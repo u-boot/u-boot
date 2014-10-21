@@ -1,0 +1,38 @@
+if ZYNQ
+
+choice
+	prompt "Xilinx Zynq board select"
+
+config TARGET_ZYNQ_ZED
+	bool "Zynq ZedBoard"
+
+config TARGET_ZYNQ_MICROZED
+	bool "Zynq MicroZed"
+
+config TARGET_ZYNQ_ZC70X
+	bool "Zynq ZC702/ZC706 Board"
+
+config TARGET_ZYNQ_ZC770
+	bool "Zynq ZC770 Board"
+
+endchoice
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_BOARD
+	default "zynq"
+
+config SYS_VENDOR
+	default "xilinx"
+
+config SYS_SOC
+	default "zynq"
+
+config SYS_CONFIG_NAME
+	default "zynq_zed" if TARGET_ZYNQ_ZED
+	default "zynq_microzed" if TARGET_ZYNQ_MICROZED
+	default "zynq_zc70x" if TARGET_ZYNQ_ZC70X
+	default "zynq_zc770" if TARGET_ZYNQ_ZC770
+
+endif

@@ -103,7 +103,7 @@ void show_regs (struct pt_regs *regs)
 	"UK12_26",	"UK13_26",	"UK14_26",	"UK15_26",
 	"USER_32",	"FIQ_32",	"IRQ_32",	"SVC_32",
 	"UK4_32",	"UK5_32",	"UK6_32",	"ABT_32",
-	"UK8_32",	"UK9_32",	"UK10_32",	"UND_32",
+	"UK8_32",	"UK9_32",	"HYP_32",	"UND_32",
 	"UK12_32",	"UK13_32",	"UK14_32",	"SYS_32",
 	};
 

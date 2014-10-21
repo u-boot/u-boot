@@ -198,20 +198,22 @@
  */
 #if !defined(CONFIG_NOR_BOOT) && \
 	!(defined(CONFIG_QSPI_BOOT) && defined(CONFIG_AM43XX))
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_OS_BOOT
 
 /*
- * Place the image at the start of the ROM defined image space.
- * We limit our size to the ROM-defined downloaded image area, and use the
- * rest of the space for stack.  We load U-Boot itself into memory at
- * 0x80800000 for legacy reasons (to not conflict with older SPLs).  We
- * have our BSS be placed 1MiB after this, to allow for the default
- * Linux kernel address of 0x80008000 to work, in the Falcon Mode case.
- * We have the SPL malloc pool at the end of the BSS area.
+ * Place the image at the start of the ROM defined image space (per
+ * CONFIG_SPL_TEXT_BASE and we limit our size to the ROM-defined
+ * downloaded image area.  We initalize DRAM as soon as we can so that
+ * we can place stack, malloc and BSS there.  We load U-Boot itself into
+ * memory at 0x80800000 for legacy reasons (to not conflict with older
+ * SPLs).  We have our BSS be placed 2MiB after this, to allow for the
+ * default Linux kernel address of 0x80008000 to work with most sized
+ * kernels, in the Falcon Mode case.  We have the SPL malloc pool at the
+ * end of the BSS area.  We place our stack at 32MiB after the start of
+ * DRAM to allow room for all of the above.
  */
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SPL_STACK		(CONFIG_SYS_SDRAM_BASE + (32 << 20))
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		0x80800000
 #endif
@@ -243,13 +245,6 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x80	/* address 0x10000 */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0x80	/* 64KiB */
 
-/* NAND */
-#ifdef CONFIG_NAND
-#define CONFIG_CMD_SPL_NAND_OFS			0x240000 /* end of u-boot */
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS		0x280000
-#define CONFIG_CMD_SPL_WRITE_SIZE		0x2000
-#endif
-
 /* spl export command */
 #define CONFIG_CMD_SPL
 #endif
@@ -275,7 +270,6 @@
 #define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_MTD_SUPPORT
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #endif
 #endif /* !CONFIG_NOR_BOOT */
 

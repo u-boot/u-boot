@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2012 Freescale Semiconductor, Inc.
+ * Copyright 2009-2014 Freescale Semiconductor, Inc.
  *
  * This file is derived from arch/powerpc/cpu/mpc85xx/cpu.c and
  * arch/powerpc/cpu/mpc86xx/cpu.c. Basically this file contains
@@ -123,14 +123,14 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 {
 	const char *modes[] = { "host", "peripheral", "otg" };
 	const char *phys[] = { "ulpi", "utmi" };
-	const char *dr_mode_type = NULL;
-	const char *dr_phy_type = NULL;
 	int usb_mode_off = -1;
 	int usb_phy_off = -1;
 	char str[5];
 	int i, j;
 
 	for (i = 1; i <= CONFIG_USB_MAX_CONTROLLER_COUNT; i++) {
+		const char *dr_mode_type = NULL;
+		const char *dr_phy_type = NULL;
 		int mode_idx = -1, phy_idx = -1;
 		snprintf(str, 5, "%s%d", "usb", i);
 		if (hwconfig(str)) {
@@ -150,18 +150,16 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 				}
 			}
 
-			if (mode_idx < 0 || phy_idx < 0) {
-				puts("ERROR: wrong usb mode/phy defined!!\n");
-				return;
-			}
-
-			dr_mode_type = modes[mode_idx];
-			dr_phy_type = phys[phy_idx];
-
 			if (mode_idx < 0 && phy_idx < 0) {
 				printf("WARNING: invalid phy or mode\n");
 				return;
 			}
+
+			if (mode_idx > -1)
+				dr_mode_type = modes[mode_idx];
+
+			if (phy_idx > -1)
+				dr_phy_type = phys[phy_idx];
 		}
 
 		usb_mode_off = fdt_fixup_usb_mode_phy_type(blob,

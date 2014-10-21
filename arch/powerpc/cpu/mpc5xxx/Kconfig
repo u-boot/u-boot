@@ -1,0 +1,145 @@
+menu "mpc5xxx CPU"
+	depends on MPC5xxx
+
+config SYS_CPU
+	default "mpc5xxx"
+
+choice
+	prompt "Target select"
+
+config TARGET_A3M071
+	bool "Support a3m071"
+
+config TARGET_A4M072
+	bool "Support a4m072"
+
+config TARGET_BC3450
+	bool "Support BC3450"
+
+config TARGET_CANMB
+	bool "Support canmb"
+
+config TARGET_CM5200
+	bool "Support cm5200"
+
+config TARGET_GALAXY5200
+	bool "Support galaxy5200"
+
+config TARGET_ICECUBE
+	bool "Support IceCube"
+
+config TARGET_INKA4X0
+	bool "Support inka4x0"
+
+config TARGET_IPEK01
+	bool "Support ipek01"
+
+config TARGET_JUPITER
+	bool "Support jupiter"
+
+config TARGET_MCC200
+	bool "Support mcc200"
+
+config TARGET_MOTIONPRO
+	bool "Support motionpro"
+
+config TARGET_MUNICES
+	bool "Support munices"
+
+config TARGET_PM520
+	bool "Support PM520"
+
+config TARGET_TOTAL5200
+	bool "Support Total5200"
+
+config TARGET_V38B
+	bool "Support v38b"
+
+config TARGET_TOP5200
+	bool "Support TOP5200"
+
+config TARGET_CPCI5200
+	bool "Support cpci5200"
+
+config TARGET_MECP5200
+	bool "Support mecp5200"
+
+config TARGET_PF5200
+	bool "Support pf5200"
+
+config TARGET_O2D
+	bool "Support O2D"
+
+config TARGET_O2D300
+	bool "Support O2D300"
+
+config TARGET_O2DNT2
+	bool "Support O2DNT2"
+
+config TARGET_O2I
+	bool "Support O2I"
+
+config TARGET_O2MNT
+	bool "Support O2MNT"
+
+config TARGET_O3DNT
+	bool "Support O3DNT"
+
+config TARGET_DIGSY_MTC
+	bool "Support digsy_mtc"
+
+config TARGET_HMI1001
+	bool "Support hmi1001"
+
+config TARGET_MUCMC52
+	bool "Support mucmc52"
+
+config TARGET_UC101
+	bool "Support uc101"
+
+config TARGET_PCM030
+	bool "Support pcm030"
+
+config TARGET_AEV
+	bool "Support aev"
+
+config TARGET_CHARON
+	bool "Support charon"
+
+config TARGET_TB5200
+	bool "Support TB5200"
+
+config TARGET_TQM5200
+	bool "Support TQM5200"
+
+endchoice
+
+source "board/a3m071/Kconfig"
+source "board/a4m072/Kconfig"
+source "board/bc3450/Kconfig"
+source "board/canmb/Kconfig"
+source "board/cm5200/Kconfig"
+source "board/emk/top5200/Kconfig"
+source "board/esd/cpci5200/Kconfig"
+source "board/esd/mecp5200/Kconfig"
+source "board/esd/pf5200/Kconfig"
+source "board/galaxy5200/Kconfig"
+source "board/icecube/Kconfig"
+source "board/ifm/o2dnt2/Kconfig"
+source "board/inka4x0/Kconfig"
+source "board/intercontrol/digsy_mtc/Kconfig"
+source "board/ipek01/Kconfig"
+source "board/jupiter/Kconfig"
+source "board/manroland/hmi1001/Kconfig"
+source "board/manroland/mucmc52/Kconfig"
+source "board/manroland/uc101/Kconfig"
+source "board/mcc200/Kconfig"
+source "board/motionpro/Kconfig"
+source "board/munices/Kconfig"
+source "board/phytec/pcm030/Kconfig"
+source "board/pm520/Kconfig"
+source "board/total5200/Kconfig"
+source "board/tqc/tqm5200/Kconfig"
+source "board/v38b/Kconfig"
+
+endmenu

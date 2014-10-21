@@ -20,7 +20,6 @@
  */
 #define CONFIG_ARMV7		1	/* This is an ARM V7 CPU core */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
-#define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_MVBLX		1	/* working with mvBlueLYNX-X */
 #define CONFIG_MACH_TYPE	MACH_TYPE_MVBLX
 #define CONFIG_OMAP_GPIO

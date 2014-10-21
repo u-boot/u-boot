@@ -232,6 +232,7 @@ struct lmb;
 #define IH_TYPE_MXSIMAGE	16	/* Freescale MXSBoot Image	*/
 #define IH_TYPE_GPIMAGE		17	/* TI Keystone GPHeader Image	*/
 #define IH_TYPE_ATMELIMAGE	18	/* ATMEL ROM bootable Image	*/
+#define IH_TYPE_SOCFPGAIMAGE	19	/* Altera SOCFPGA Preloader	*/
 
 /*
  * Compression Types
@@ -412,6 +413,7 @@ void genimg_print_time(time_t timestamp);
 enum fit_load_op {
 	FIT_LOAD_IGNORED,	/* Ignore load address */
 	FIT_LOAD_OPTIONAL,	/* Can be provided, but optional */
+	FIT_LOAD_OPTIONAL_NON_ZERO,	/* Optional, a value of 0 is ignored */
 	FIT_LOAD_REQUIRED,	/* Must be provided */
 };
 
@@ -424,6 +426,10 @@ enum fit_load_op {
 #define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
 #define IMAGE_FORMAT_ANDROID	0x03	/* Android boot image */
 
+ulong genimg_get_kernel_addr_fit(char * const img_addr,
+			         const char **fit_uname_config,
+			         const char **fit_uname_kernel);
+ulong genimg_get_kernel_addr(char * const img_addr);
 int genimg_get_format(const void *img_addr);
 int genimg_has_config(bootm_headers_t *images);
 ulong genimg_get_image(ulong img_addr);

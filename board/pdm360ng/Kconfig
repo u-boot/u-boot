@@ -1,0 +1,9 @@
+if TARGET_PDM360NG
+
+config SYS_BOARD
+	default "pdm360ng"
+
+config SYS_CONFIG_NAME
+	default "pdm360ng"
+
+endif

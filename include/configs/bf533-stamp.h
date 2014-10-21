@@ -98,10 +98,11 @@
  */
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
+/*
 #define CONFIG_SF_DEFAULT_SPEED	30000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_ALL
-
+*/
 
 /*
  * Env Storage Settings
@@ -185,7 +186,6 @@
  */
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	0
-#define CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED
 
 /* FLASH/ETHERNET uses the same async bank */
 #define SHARED_RESOURCES 	1

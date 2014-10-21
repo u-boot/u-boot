@@ -187,6 +187,9 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 
 #ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
 
+#define NAND_CMD_LOCK_TIGHT     0x2c
+#define NAND_CMD_LOCK_STATUS    0x7a
+ 
 /******************************************************************************
  * Support for locking / unlocking operations of some NAND devices
  *****************************************************************************/

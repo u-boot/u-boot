@@ -23,7 +23,6 @@
 #define CONFIG_ZYNQ_I2C0
 #define CONFIG_ZYNQ_EEPROM
 #define CONFIG_ZYNQ_BOOT_FREEBSD
-#define CONFIG_DEFAULT_DEVICE_TREE	zynq-zc702
 
 #include <configs/zynq-common.h>
 

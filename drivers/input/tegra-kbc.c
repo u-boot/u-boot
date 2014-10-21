@@ -194,7 +194,7 @@ int tegra_kbc_check(struct input_config *input)
  *
  * @return 0 if no keys available, 1 if keys are available
  */
-static int kbd_tstc(void)
+static int kbd_tstc(struct stdio_dev *dev)
 {
 	/* Just get input to do this for us */
 	return input_tstc(&config.input);
@@ -207,7 +207,7 @@ static int kbd_tstc(void)
  *
  * @return ASCII key code, or 0 if no key, or -1 if error
  */
-static int kbd_getc(void)
+static int kbd_getc(struct stdio_dev *dev)
 {
 	/* Just get input to do this for us */
 	return input_getc(&config.input);
@@ -289,7 +289,7 @@ static void tegra_kbc_open(void)
  *
  * @return 0 if ok, -ve on error
  */
-static int init_tegra_keyboard(void)
+static int init_tegra_keyboard(struct stdio_dev *dev)
 {
 	/* check if already created */
 	if (config.created)

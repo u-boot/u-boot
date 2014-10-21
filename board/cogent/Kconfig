@@ -1,0 +1,19 @@
+if TARGET_COGENT_MPC8260
+
+config SYS_BOARD
+	default "cogent"
+
+config SYS_CONFIG_NAME
+	default "cogent_mpc8260"
+
+endif
+
+if TARGET_COGENT_MPC8XX
+
+config SYS_BOARD
+	default "cogent"
+
+config SYS_CONFIG_NAME
+	default "cogent_mpc8xx"
+
+endif

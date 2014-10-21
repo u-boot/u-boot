@@ -1,0 +1,12 @@
+if TARGET_CANYONLANDS
+
+config SYS_BOARD
+	default "canyonlands"
+
+config SYS_VENDOR
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	default "canyonlands"
+
+endif

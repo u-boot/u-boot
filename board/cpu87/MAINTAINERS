@@ -1,0 +1,7 @@
+CPU87 BOARD
+#M:	-
+S:	Maintained
+F:	board/cpu87/
+F:	include/configs/CPU87.h
+F:	configs/CPU87_defconfig
+F:	configs/CPU87_ROMBOOT_defconfig

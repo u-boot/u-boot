@@ -1,0 +1,6 @@
+TNETV107XEVM BOARD
+#M:	Chan-Taek Park <c-park@ti.com>
+S:	Orphan (since 2014-06)
+F:	board/ti/tnetv107xevm/
+F:	include/configs/tnetv107x_evm.h
+F:	configs/tnetv107x_evm_defconfig

@@ -1,0 +1,27 @@
+if OMAP54XX
+
+choice
+	prompt "OMAP5 board select"
+
+config TARGET_CM_T54
+	bool "CompuLab CM-T54"
+
+config TARGET_OMAP5_UEVM
+	bool "TI OMAP5 uEVM board"
+
+config TARGET_DRA7XX_EVM
+	bool "TI DRA7XX"
+
+endchoice
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_SOC
+	default "omap5"
+
+source "board/compulab/cm_t54/Kconfig"
+source "board/ti/omap5_uevm/Kconfig"
+source "board/ti/dra7xx/Kconfig"
+
+endif

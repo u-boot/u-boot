@@ -1,0 +1,7 @@
+TRIZEPSIV BOARD
+M:	Stefano Babic <sbabic@denx.de>
+S:	Maintained
+F:	board/trizepsiv/
+F:	include/configs/trizepsiv.h
+F:	configs/polaris_defconfig
+F:	configs/trizepsiv_defconfig

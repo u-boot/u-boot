@@ -1,0 +1,12 @@
+if TARGET_DU440
+
+config SYS_BOARD
+	default "du440"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "DU440"
+
+endif

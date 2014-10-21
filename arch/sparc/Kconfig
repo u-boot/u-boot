@@ -1,0 +1,33 @@
+menu "SPARC architecture"
+	depends on SPARC
+
+config SYS_ARCH
+	default "sparc"
+
+choice
+	prompt "Target select"
+
+config TARGET_GRSIM_LEON2
+	bool "Support grsim_leon2"
+
+config TARGET_GR_CPCI_AX2000
+	bool "Support gr_cpci_ax2000"
+
+config TARGET_GR_EP2S60
+	bool "Support gr_ep2s60"
+
+config TARGET_GR_XC3S_1500
+	bool "Support gr_xc3s_1500"
+
+config TARGET_GRSIM
+	bool "Support grsim"
+
+endchoice
+
+source "board/gaisler/gr_cpci_ax2000/Kconfig"
+source "board/gaisler/gr_ep2s60/Kconfig"
+source "board/gaisler/gr_xc3s_1500/Kconfig"
+source "board/gaisler/grsim/Kconfig"
+source "board/gaisler/grsim_leon2/Kconfig"
+
+endmenu

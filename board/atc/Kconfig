@@ -1,0 +1,9 @@
+if TARGET_ATC
+
+config SYS_BOARD
+	default "atc"
+
+config SYS_CONFIG_NAME
+	default "atc"
+
+endif

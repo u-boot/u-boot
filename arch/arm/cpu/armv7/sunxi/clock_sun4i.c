@@ -36,10 +36,13 @@ void clock_init_safe(void)
 	       CPU_CLK_SRC_PLL1 << CPU_CLK_SRC_SHIFT,
 	       &ccm->cpu_ahb_apb0_cfg);
 #ifdef CONFIG_SUN7I
-	writel(0x1 << AHB_GATE_OFFSET_DMA | readl(&ccm->ahb_gate0),
-	       &ccm->ahb_gate0);
+	setbits_le32(&ccm->ahb_gate0, 0x1 << AHB_GATE_OFFSET_DMA);
 #endif
 	writel(PLL6_CFG_DEFAULT, &ccm->pll6_cfg);
+#ifdef CONFIG_SUNXI_AHCI
+	setbits_le32(&ccm->ahb_gate0, 0x1 << AHB_GATE_OFFSET_SATA);
+	setbits_le32(&ccm->pll6_cfg, 0x1 << CCM_PLL6_CTRL_SATA_EN_SHIFT);
+#endif
 }
 #endif
 

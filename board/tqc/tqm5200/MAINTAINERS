@@ -1,0 +1,26 @@
+TQM5200 BOARD
+#M:	-
+S:	Maintained
+F:	board/tqc/tqm5200/
+F:	include/configs/aev.h
+F:	configs/aev_defconfig
+F:	include/configs/TQM5200.h
+F:	configs/cam5200_defconfig
+F:	configs/cam5200_niosflash_defconfig
+F:	configs/fo300_defconfig
+F:	configs/MiniFAP_defconfig
+F:	include/configs/TB5200.h
+F:	configs/TB5200_defconfig
+F:	configs/TB5200_B_defconfig
+F:	configs/TQM5200_defconfig
+F:	configs/TQM5200_B_defconfig
+F:	configs/TQM5200_B_HIGHBOOT_defconfig
+F:	configs/TQM5200_STK100_defconfig
+F:	configs/TQM5200S_defconfig
+F:	configs/TQM5200S_HIGHBOOT_defconfig
+
+CHARON BOARD
+M:	Heiko Schocher <hs@denx.de>
+S:	Maintained
+F:	include/configs/charon.h
+F:	configs/charon_defconfig

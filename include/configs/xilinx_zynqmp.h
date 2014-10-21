@@ -50,8 +50,6 @@
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_LIBFDT
 
-#define CONFIG_DEFAULT_DEVICE_TREE	zynqmp
-
 /* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
 #define COUNTER_FREQUENCY		4000000
 

@@ -1,0 +1,6 @@
+CPCIISER4 BOARD
+M:	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+S:	Maintained
+F:	board/esd/cpciiser4/
+F:	include/configs/CPCIISER4.h
+F:	configs/CPCIISER4_defconfig

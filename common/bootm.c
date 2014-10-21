@@ -185,7 +185,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-int bootm_find_ramdisk(int flag, int argc, char * const argv[])
+static int bootm_find_ramdisk(int flag, int argc, char * const argv[])
 {
 	int ret;
 
@@ -201,7 +201,7 @@ int bootm_find_ramdisk(int flag, int argc, char * const argv[])
 }
 
 #if defined(CONFIG_OF_LIBFDT)
-int bootm_find_fdt(int flag, int argc, char * const argv[])
+static int bootm_find_fdt(int flag, int argc, char * const argv[])
 {
 	int ret;
 
@@ -725,32 +725,15 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 	ulong		img_addr;
 	const void *buf;
-#if defined(CONFIG_FIT)
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_kernel = NULL;
+#if defined(CONFIG_FIT)
 	int		os_noffset;
 #endif
 
-	/* find out kernel image address */
-	if (argc < 1) {
-		img_addr = load_addr;
-		debug("*  kernel: default image load address = 0x%08lx\n",
-		      load_addr);
-#if defined(CONFIG_FIT)
-	} else if (fit_parse_conf(argv[0], load_addr, &img_addr,
-				  &fit_uname_config)) {
-		debug("*  kernel: config '%s' from image at 0x%08lx\n",
-		      fit_uname_config, img_addr);
-	} else if (fit_parse_subimage(argv[0], load_addr, &img_addr,
-				     &fit_uname_kernel)) {
-		debug("*  kernel: subimage '%s' from image at 0x%08lx\n",
-		      fit_uname_kernel, img_addr);
-#endif
-	} else {
-		img_addr = simple_strtoul(argv[0], NULL, 16);
-		debug("*  kernel: cmdline image address = 0x%08lx\n",
-		      img_addr);
-	}
+	img_addr = genimg_get_kernel_addr_fit(argc < 1 ? NULL : argv[0],
+					      &fit_uname_config,
+					      &fit_uname_kernel);
 
 	bootstage_mark(BOOTSTAGE_ID_CHECK_MAGIC);
 

@@ -1,0 +1,21 @@
+ICECUBE BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/icecube/
+F:	include/configs/IceCube.h
+F:	configs/icecube_5200_defconfig
+
+ICECUBE_5200_DDR BOARD
+#M:	-
+S:	Maintained
+F:	configs/icecube_5200_DDR_defconfig
+F:	configs/icecube_5200_DDR_LOWBOOT_defconfig
+F:	configs/icecube_5200_DDR_LOWBOOT08_defconfig
+F:	configs/icecube_5200_LOWBOOT_defconfig
+F:	configs/icecube_5200_LOWBOOT08_defconfig
+F:	configs/Lite5200_defconfig
+F:	configs/Lite5200_LOWBOOT_defconfig
+F:	configs/Lite5200_LOWBOOT08_defconfig
+F:	configs/lite5200b_defconfig
+F:	configs/lite5200b_LOWBOOT_defconfig
+F:	configs/lite5200b_PM_defconfig

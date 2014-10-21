@@ -1,0 +1,51 @@
+if TARGET_CPCI405
+
+config SYS_BOARD
+	default "cpci405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "CPCI405"
+
+endif
+
+if TARGET_CPCI4052
+
+config SYS_BOARD
+	default "cpci405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "CPCI4052"
+
+endif
+
+if TARGET_CPCI405AB
+
+config SYS_BOARD
+	default "cpci405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "CPCI405AB"
+
+endif
+
+if TARGET_CPCI405DT
+
+config SYS_BOARD
+	default "cpci405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "CPCI405DT"
+
+endif

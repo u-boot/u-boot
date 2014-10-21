@@ -1,0 +1,8 @@
+VERSATILE BOARD
+#M:	-
+S:	Maintained
+F:	board/armltd/versatile/
+F:	include/configs/versatile.h
+F:	configs/versatileab_defconfig
+F:	configs/versatilepb_defconfig
+F:	configs/versatileqemu_defconfig

@@ -1,0 +1,6 @@
+MECP5200 BOARD
+M:	Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+S:	Maintained
+F:	board/esd/mecp5200/
+F:	include/configs/mecp5200.h
+F:	configs/mecp5200_defconfig

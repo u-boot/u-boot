@@ -188,6 +188,7 @@ static void tqm8272_write_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int 
 		*base = buf[i];
 }
 
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 static int tqm8272_verify_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len)
 {
 	struct nand_chip *this = mtdinfo->priv;
@@ -199,6 +200,7 @@ static int tqm8272_verify_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int 
 			return -1;
 	return 0;
 }
+#endif
 #endif /* #ifndef CONFIG_NAND_SPL */
 
 void board_nand_select_device(struct nand_chip *nand, int chip)
@@ -247,7 +249,9 @@ int board_nand_init(struct nand_chip *nand)
 #ifndef CONFIG_NAND_SPL
 	nand->write_buf	 = tqm8272_write_buf;
 	nand->read_buf	 = tqm8272_read_buf;
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 	nand->verify_buf = tqm8272_verify_buf;
+#endif
 #endif
 
 	/*

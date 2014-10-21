@@ -37,7 +37,6 @@
 /*
  * SPL
  */
-#define CONFIG_SPL
 #define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 #define CONFIG_SPL_MAX_SIZE	2048

@@ -33,6 +33,18 @@ static const struct board_specific_parameters udimm0[] = {
 	{}
 };
 
+/* DP-DDR DIMM */
+static const struct board_specific_parameters udimm2[] = {
+	/*
+	 * memory controller 2
+	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl
+	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3
+	 */
+	{2,  2140, 0, 4,     4, 0x0, 0x0},
+	{1,  2140, 0, 4,     4, 0x0, 0x0},
+	{}
+};
+
 static const struct board_specific_parameters rdimm0[] = {
 	/*
 	 * memory controller 0
@@ -45,12 +57,29 @@ static const struct board_specific_parameters rdimm0[] = {
 	{}
 };
 
+/* DP-DDR DIMM */
+static const struct board_specific_parameters rdimm2[] = {
+	/*
+	 * memory controller 2
+	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl
+	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3
+	 */
+	{4,  2140, 0, 5,     4, 0x0, 0x0},
+	{2,  2140, 0, 5,     4, 0x0, 0x0},
+	{1,  2140, 0, 4,     4, 0x0, 0x0},
+	{}
+};
+
 static const struct board_specific_parameters *udimms[] = {
 	udimm0,
+	udimm0,
+	udimm2,
 };
 
 static const struct board_specific_parameters *rdimms[] = {
 	rdimm0,
+	rdimm0,
+	rdimm2,
 };
 
 

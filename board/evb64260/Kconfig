@@ -1,0 +1,19 @@
+if TARGET_P3G4
+
+config SYS_BOARD
+	default "evb64260"
+
+config SYS_CONFIG_NAME
+	default "P3G4"
+
+endif
+
+if TARGET_ZUMA
+
+config SYS_BOARD
+	default "evb64260"
+
+config SYS_CONFIG_NAME
+	default "ZUMA"
+
+endif

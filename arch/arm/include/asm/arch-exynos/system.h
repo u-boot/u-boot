@@ -39,5 +39,9 @@ struct exynos5_sysreg {
 
 void set_usbhost_mode(unsigned int mode);
 void set_system_display_ctrl(void);
+int exynos_lcd_early_init(const void *blob);
+
+/* Initialize the Parade dP<->LVDS bridge if present */
+int parade_init(const void *blob);
 
 #endif	/* _EXYNOS4_SYSTEM_H */

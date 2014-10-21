@@ -13,7 +13,11 @@
 #if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
 #include "mx6dl-ddr.h"
 #else
+#ifdef CONFIG_MX6SX
+#include "mx6sx-ddr.h"
+#else
 #error "Please select cpu"
+#endif	/* CONFIG_MX6SX */
 #endif	/* CONFIG_MX6DL or CONFIG_MX6S */
 #endif	/* CONFIG_MX6Q */
 #else

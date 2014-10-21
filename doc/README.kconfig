@@ -1,0 +1,226 @@
+Kconfig in U-Boot
+=================
+
+This document describes the configuration infrastructure of U-Boot.
+
+The conventional configuration was replaced by Kconfig at v2014.10-rc1 release.
+
+
+Language Specification
+----------------------
+
+Kconfig originates in Linux Kernel.
+See the file "Documentation/kbuild/kconfig*.txt" in your Linux Kernel
+source directory for a basic specification of Kconfig.
+
+
+Difference from Linux's Kconfig
+-------------------------------
+
+The biggest difference between Linux Kernel and U-Boot in terms of the
+configuration is that U-Boot has to configure multiple boot images per board:
+Normal, SPL, TPL.
+Kconfig functions need to be expanded for U-Boot to handle multiple images.
+The files scripts/kconfig/* were imported from Linux Kernel and adjusted
+for that purpose.
+
+See below for how each configuration target works in U-Boot:
+
+- config, nconfig, menuconfig, xconfig, gconfig
+
+  These targets are used to configure Normal and create (or modify) the
+  .config file.  For SPL configuration, the configutation targets are prefixed
+  with "spl/", for example "make spl/config", "make spl/menuconfig", etc.
+  Those targets create or modify the spl/.config file.  Likewise, run
+  "make tpl/config", "make tpl/menuconfig", etc. for TPL.
+
+- silentoldconfig
+
+  This target updates .config, include/generated/autoconf.h and
+  include/configs/*.  In U-Boot, the same thing is done for SPL, TPL,
+  if supported by the target board.  Depending on whether CONFIG_SPL and
+  CONFIG_TPL are defined, "make silentoldconfig" iterates three times at most
+  changing the work directory.
+
+  To sum up, "make silentoldconfig" possibly updates:
+  - .config, include/generated/autoconf.h, include/config/*
+  - spl/.config, spl/include/generated/autoconf.h, spl/include/config/*
+    (in case CONFIG_SPL=y)
+  - tpl/.config, tpl/include/generated/autoconf.h, tpl/include/config/*
+    (in case CONFIG_TPL=y)
+
+- defconfig, <board>_defconfig
+
+  The target "<board>_defconfig" is used to create the .config based on the
+  file configs/<board>_defconfig.  The "defconfig" target is the same
+  except it checks for a file specified with KBUILD_DEFCONFIG environment.
+
+  Note:
+  The defconfig files are placed under the "configs" directory,
+  not "arch/$(ARCH)/configs".  This is because "ARCH" is not necessarily
+  given from the command line for the U-Boot configuration and build.
+
+  The defconfig file format in U-Boot has the special syntax; each line has
+  "<condition>:" prefix to show which image(s) the line is valid for.
+  For example,
+
+  CONFIG_FOO=100
+  S:CONFIG_FOO=200
+  T:CONFIG_FOO=300
+  ST:CONFIG_BAR=y
+  +S:CONFIG_BAZ=y
+  +T:CONFIG_QUX=y
+  +ST:CONFIG_QUUX=y
+
+  Here, the "<condition>:" prefix is one of:
+  None  - the line is valid only for Normal image
+  S:    - the line is valid only for SPL image
+  T:    - the line is valid only for TPL image
+  ST:   - the line is valid for SPL and TPL images
+  +S:   - the line is valid for Normal and SPL images
+  +T:   - the line is valid for Normal and TPL images
+  +ST:  - the line is valid for Normal, SPL and SPL images
+
+  So, if neither CONFIG_SPL nor CONFIG_TPL is defined, the defconfig file
+  has no "<condition>:" part and therefore has the same form as in Linux.
+  From the example defconfig shown above, three separete configuration sets
+  are generated and used for creating .config, spl/.config and tpl/.config.
+
+  - Input for the default configuration of Normal
+     CONFIG_FOO=100
+     CONFIG_BAZ=y
+     CONFIG_QUX=y
+     CONFIG_QUUX=y
+
+  - Input for the default configuration of SPL
+     CONFIG_FOO=200
+     CONFIG_BAR=y
+     CONFIG_BAZ=y
+     CONFIG_QUUX=y
+
+  - Input for the default configuration of TPL
+     CONFIG_FOO=300
+     CONFIG_BAR=y
+     CONFIG_QUX=y
+     CONFIG_QUUX=y
+
+- savedefconfig
+
+  This is the reverse operation of "make defconfig".  If neither CONFIG_SPL
+  nor CONFIG_TPL is defined in the .config file, it works like "savedefconfig"
+  in Linux Kernel: creates the minimal set of config based on the .config
+  and saves it into the "defconfig" file.  If CONFIG_SPL (and CONFIG_TPL) is
+  defined, the common lines among .config, spl/.config (and tpl/.config) are
+  coalesced together with "<condition:>" prefix for each line as shown above.
+  This file can be used as an input of "defconfig" target.
+
+- <board>_config
+
+  This does not exist in Linux's Kconfig.
+  Prior to Kconfig, in U-Boot, "make <board>_config" was used for the
+  configuration.  It is still supported for backward compatibility and
+  its behavior is the same as "make <board>_defconfig".
+
+
+Migration steps to Kconfig
+--------------------------
+
+Prior to Kconfig, the C preprocessor based board configuration had been used
+in U-Boot.
+
+Although Kconfig was introduced and some configs have been moved to Kconfig,
+many of configs are still defined in C header files.  It will take a very
+long term to move all of them to Kconfig.  In the interim, the two different
+configuration infrastructures should coexist.
+The configuration files are generated by both Kconfig and the old preprocessor
+based configuration as follows:
+
+Configuration files for use in C sources
+  - include/generated/autoconf.h     (generated by Kconfig for Normal)
+  - spl/include/generated/autoconf.h (generated by Kconfig for SPL)
+  - tpl/include/generated/autoconf.h (generated by Kconfig for TPL)
+  - include/configs/<board>.h        (exists for all boards)
+
+Configuration file for use in makefiles
+  - include/config/auto.conf         (generated by Kconfig for Normal)
+  - spl/include/config/auto.conf     (generated by Kconfig for SPL)
+  - tpl/include/config/auto.conf     (generated by Kconfig for TPL)
+  - include/autoconf.mk              (generated by the old config for Normal)
+  - spl/include/autoconfig.mk        (generated by the old config for SPL)
+  - tpl/include/autoconfig.mk        (generated by the old config for TPL)
+
+When adding a new CONFIG macro, it is highly recommended to add it to Kconfig
+rather than to a header file.
+
+
+Conversion from boards.cfg to Kconfig
+-------------------------------------
+
+Prior to Kconfig, boards.cfg was a primary database that contained Arch, CPU,
+SoC, etc. of all the supported boards.  It was deleted when switching to
+Kconfig.  Each field of boards.cfg was converted as follows:
+
+ Status      ->  "S:" entry of MAINTAINERS
+ Arch        ->  CONFIG_SYS_ARCH defined by Kconfig
+ CPU         ->  CONFIG_SYS_CPU defined by Kconfig
+ SoC         ->  CONFIG_SYS_SOC defined by Kconfig
+ Vendor      ->  CONFIG_SYS_VENDOR defined by Kconfig
+ Board       ->  CONFIG_SYS_BOARD defined by Kconfig
+ Target      ->  File name of defconfig (configs/<target>_defconfig)
+ Options     ->  CONFIG_SYS_EXTRA_OPTIONS defined by Kconfig
+ Maintainers ->  "M:" entry of MAINTAINERS
+
+
+Tips to add/remove boards
+-------------------------
+
+When adding a new board, the following steps are generally needed:
+
+ [1] Add a header file include/configs/<target>.h
+ [2] Make sure to define necessary CONFIG_SYS_* in Kconfig:
+       Define CONFIG_SYS_CPU="cpu" to compile arch/<arch>/cpu/<cpu>
+       Define CONFIG_SYS_SOC="soc" to compile arch/<arch>/cpu/<cpu>/<soc>
+       Define CONFIG_SYS_VENDOR="vendor" to compile board/<vendor>/common/*
+         and board/<vendor>/<board>/*
+       Define CONFIG_SYS_BOARD="board" to compile board/<board>/*
+         (or board/<vendor>/<board>/* if CONFIG_SYS_VENDOR is defined)
+       Define CONFIG_SYS_CONFIG_NAME="target" to include
+         include/configs/<target>.h
+ [3] Add a new entry to the board select menu in Kconfig.
+     The board select menu is located in arch/<arch>/Kconfig or
+     arch/<arch>/*/Kconfig.
+ [4] Add a MAINTAINERS file
+     It is generally placed at board/<board>/MAINTAINERS or
+     board/<vendor>/<board>/MAINTAINERS
+ [5] Add configs/<target>_defconfig
+
+When removing an obsolete board, the following steps are generally needed:
+
+ [1] Remove configs/<target>_defconfig
+ [2] Remove include/configs/<target>.h if it is not used by any other boards
+ [3] Remove board/<vendor>/<board>/* or board/<board>/* if it is not used
+     by any other boards
+ [4] Update MAINTAINERS if necessary
+ [5] Remove the unused entry from the board select menu in Kconfig
+ [6] Add an entry to doc/README.scrapyard
+
+
+TODO
+----
+
+- The option field of boards.cfg, which was used for the pre-Kconfig
+  configuration, moved to CONFIG_SYS_EXTRA_OPTIONS verbatim now.
+  Board maintainers are expected to implement proper Kconfig options
+  and switch over to them.  Eventually CONFIG_SYS_EXTRA_OPTIONS will go away.
+  CONFIG_SYS_EXTRA_OPTIONS should not be used for new boards.
+
+- In the pre-Kconfig, a single board had multiple entries in the boards.cfg
+  file with differences in the option fields.  The correspoing defconfig files
+  were auto-generated when switching to Kconfig.  Now we have too many
+  defconfig files compared with the number of the supported boards.  It is
+  recommended to have only one defconfig per board and allow users to select
+  the config options.
+
+- Move the config macros in header files to Kconfig.  When we move at least
+  macros used in makefiles, we can drop include/autoconfig.mk, which makes
+  the build scripts much simpler.

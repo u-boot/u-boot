@@ -1,0 +1,18 @@
+if TARGET_BG0900
+
+config SYS_CPU
+	default "arm926ejs"
+
+config SYS_BOARD
+	default "bg0900"
+
+config SYS_VENDOR
+	default "ppcag"
+
+config SYS_SOC
+	default "mxs"
+
+config SYS_CONFIG_NAME
+	default "bg0900"
+
+endif

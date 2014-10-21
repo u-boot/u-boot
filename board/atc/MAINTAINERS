@@ -1,0 +1,6 @@
+ATC BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/atc/
+F:	include/configs/atc.h
+F:	configs/atc_defconfig

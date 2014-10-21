@@ -1,0 +1,9 @@
+if TARGET_MVBLUE
+
+config SYS_BOARD
+	default "mvblue"
+
+config SYS_CONFIG_NAME
+	default "MVBLUE"
+
+endif

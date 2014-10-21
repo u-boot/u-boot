@@ -1,0 +1,12 @@
+if TARGET_TK71
+
+config SYS_BOARD
+	default "tk71"
+
+config SYS_VENDOR
+	default "karo"
+
+config SYS_CONFIG_NAME
+	default "tk71"
+
+endif

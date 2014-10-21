@@ -1,0 +1,12 @@
+if TARGET_VOVPN_GW
+
+config SYS_BOARD
+	default "vovpn-gw"
+
+config SYS_VENDOR
+	default "funkwerk"
+
+config SYS_CONFIG_NAME
+	default "VoVPN-GW"
+
+endif

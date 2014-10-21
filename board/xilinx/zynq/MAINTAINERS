@@ -1,0 +1,7 @@
+ZYNQ BOARD
+M:	Michal Simek <monstr@monstr.eu>
+M:	Jagannadha Sutradharudu Teki <jaganna@xilinx.com>
+S:	Maintained
+F:	board/xilinx/zynq/
+F:	include/configs/zynq*.h
+F:	configs/zynq_*_defconfig

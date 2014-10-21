@@ -21,7 +21,8 @@
 int init_func_watchdog_reset(void);
 #endif
 
-#ifdef CONFIG_WATCHDOG
+#if defined(CONFIG_SYS_GENERIC_BOARD) && \
+	(defined(CONFIG_WATCHDOG) || defined(CONFIG_HW_WATCHDOG))
 #define INIT_FUNC_WATCHDOG_INIT	init_func_watchdog_init,
 #define INIT_FUNC_WATCHDOG_RESET	init_func_watchdog_reset,
 #else
@@ -94,5 +95,9 @@ int init_func_watchdog_reset(void);
 
 #if defined(CONFIG_HW_WATCHDOG) && !defined(__ASSEMBLY__)
 	void hw_watchdog_init(void);
+#endif
+
+#if defined(CONFIG_MPC85xx) && !defined(__ASSEMBLY__)
+	void init_85xx_watchdog(void);
 #endif
 #endif /* _WATCHDOG_H_ */

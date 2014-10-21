@@ -1,0 +1,14 @@
+EVM BOARD
+M:	Tom Rini <trini@ti.com>
+S:	Maintained
+F:	board/ti/evm/
+F:	include/configs/omap3_evm.h
+F:	configs/omap3_evm_defconfig
+
+OMAP3_EVM_QUICK_MMC BOARD
+#M:	-
+S:	Maintained
+F:	include/configs/omap3_evm_quick_mmc.h
+F:	configs/omap3_evm_quick_mmc_defconfig
+F:	include/configs/omap3_evm_quick_nand.h
+F:	configs/omap3_evm_quick_nand_defconfig

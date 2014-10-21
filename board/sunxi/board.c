@@ -12,10 +12,19 @@
  */
 
 #include <common.h>
+#ifdef CONFIG_AXP152_POWER
+#include <axp152.h>
+#endif
+#ifdef CONFIG_AXP209_POWER
+#include <axp209.h>
+#endif
 #include <asm/arch/clock.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/dram.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm/io.h>
+#include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -106,15 +115,73 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+void i2c_init_board(void)
+{
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUNXI_GPB0_TWI0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUNXI_GPB0_TWI0);
+	clock_twi_onoff(0, 1);
+}
+
 #ifdef CONFIG_SPL_BUILD
 void sunxi_board_init(void)
 {
+	int power_failed = 0;
 	unsigned long ramsize;
+
+#ifdef CONFIG_AXP152_POWER
+	power_failed = axp152_init();
+	power_failed |= axp152_set_dcdc2(1400);
+	power_failed |= axp152_set_dcdc3(1500);
+	power_failed |= axp152_set_dcdc4(1250);
+	power_failed |= axp152_set_ldo2(3000);
+#endif
+#ifdef CONFIG_AXP209_POWER
+	power_failed |= axp209_init();
+	power_failed |= axp209_set_dcdc2(1400);
+	power_failed |= axp209_set_dcdc3(1250);
+	power_failed |= axp209_set_ldo2(3000);
+	power_failed |= axp209_set_ldo3(2800);
+	power_failed |= axp209_set_ldo4(2800);
+#endif
 
 	printf("DRAM:");
 	ramsize = sunxi_dram_init();
 	printf(" %lu MiB\n", ramsize >> 20);
 	if (!ramsize)
 		hang();
+
+	/*
+	 * Only clock up the CPU to full speed if we are reasonably
+	 * assured it's being powered with suitable core voltage
+	 */
+	if (!power_failed)
+		clock_set_pll1(CONFIG_CLK_FULL_SPEED);
+	else
+		printf("Failed to set core voltage! Can't set CPU frequency\n");
+}
+#endif
+
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+	if (!getenv("ethaddr")) {
+		uint32_t reg_val = readl(SUNXI_SID_BASE);
+
+		if (reg_val) {
+			uint8_t mac_addr[6];
+
+			mac_addr[0] = 0x02; /* Non OUI / registered MAC address */
+			mac_addr[1] = (reg_val >>  0) & 0xff;
+			reg_val = readl(SUNXI_SID_BASE + 0x0c);
+			mac_addr[2] = (reg_val >> 24) & 0xff;
+			mac_addr[3] = (reg_val >> 16) & 0xff;
+			mac_addr[4] = (reg_val >>  8) & 0xff;
+			mac_addr[5] = (reg_val >>  0) & 0xff;
+
+			eth_setenv_enetaddr("ethaddr", mac_addr);
+		}
+	}
+
+	return 0;
 }
 #endif

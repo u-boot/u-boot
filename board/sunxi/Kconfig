@@ -1,0 +1,36 @@
+if TARGET_SUN4I
+
+config SYS_CONFIG_NAME
+	default "sun4i"
+
+endif
+
+if TARGET_SUN5I
+
+config SYS_CONFIG_NAME
+	default "sun5i"
+
+endif
+
+if TARGET_SUN7I
+
+config SYS_CONFIG_NAME
+	default "sun7i"
+
+endif
+
+if TARGET_SUN4I || TARGET_SUN5I || TARGET_SUN7I
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_BOARD
+	default "sunxi"
+
+config SYS_SOC
+	default "sunxi"
+
+config FDTFILE
+	string "Default fdtfile env setting for this board"
+
+endif

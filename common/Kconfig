@@ -1,0 +1,34 @@
+menu "Command line interface"
+	depends on !SPL_BUILD
+
+config CMD_BOOTM
+	bool "Enable bootm command"
+	default y
+	help
+	  Boot an application image from the memory.
+
+config CMD_CRC32
+	bool "Enable crc32 command"
+	default y
+	help
+	  Compute CRC32.
+
+config CMD_EXPORTENV
+	bool "Enable env export command"
+	default y
+	help
+	  Export environments.
+
+config CMD_IMPORTENV
+	bool "Enable env import command"
+	default y
+	help
+	  Import environments.
+
+config CMD_GO
+	bool "Enable go command"
+	default y
+	help
+	  Start an application at a given address.
+
+endmenu

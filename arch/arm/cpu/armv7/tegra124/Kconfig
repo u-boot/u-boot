@@ -1,0 +1,20 @@
+if TEGRA124
+
+choice
+	prompt "Tegra124 board select"
+
+config TARGET_JETSON_TK1
+	bool "NVIDIA Tegra124 Jetson TK1 board"
+
+config TARGET_VENICE2
+	bool "NVIDIA Tegra124 Venice2"
+
+endchoice
+
+config SYS_SOC
+	default "tegra124"
+
+source "board/nvidia/jetson-tk1/Kconfig"
+source "board/nvidia/venice2/Kconfig"
+
+endif

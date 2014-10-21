@@ -313,9 +313,12 @@ struct ipu_dmfc {
 
 #define IPU_STAT		((struct ipu_stat *)(IPU_CTRL_BASE_ADDR + \
 				IPU_STAT_REG_BASE))
+#define IPU_INT_STAT(n)		(&IPU_STAT->int_stat[(n) - 1])
 #define IPU_CHA_CUR_BUF(ch)	(&IPU_STAT->cur_buf[ch / 32])
 #define IPU_CHA_BUF0_RDY(ch)	(&IPU_STAT->ch_buf0_rdy[ch / 32])
 #define IPU_CHA_BUF1_RDY(ch)	(&IPU_STAT->ch_buf1_rdy[ch / 32])
+#define IPUIRQ_2_STATREG(irq)	(IPU_INT_STAT(1) + ((irq) / 32))
+#define IPUIRQ_2_MASK(irq)	(1UL << ((irq) & 0x1F))
 
 #define IPU_INT_CTRL(n)		(&IPU_CM_REG->int_ctrl[(n) - 1])
 

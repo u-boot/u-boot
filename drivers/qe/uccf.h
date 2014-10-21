@@ -12,7 +12,7 @@
 
 #include "common.h"
 #include "qe.h"
-#include "asm/immap_qe.h"
+#include "linux/immap_qe.h"
 
 /* Fast or Giga ethernet
 */

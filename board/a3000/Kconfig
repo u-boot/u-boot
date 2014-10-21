@@ -1,0 +1,9 @@
+if TARGET_A3000
+
+config SYS_BOARD
+	default "a3000"
+
+config SYS_CONFIG_NAME
+	default "A3000"
+
+endif

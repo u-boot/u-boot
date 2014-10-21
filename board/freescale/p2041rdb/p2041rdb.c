@@ -116,7 +116,7 @@ void board_config_lanes_mux(void)
 int board_early_init_r(void)
 {
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
-	const u8 flash_esel = find_tlb_idx((void *)flashbase, 1);
+	int flash_esel = find_tlb_idx((void *)flashbase, 1);
 
 	/*
 	 * Remap Boot flash + PROMJET region to caching-inhibited
@@ -127,8 +127,14 @@ int board_early_init_r(void)
 	flush_dcache();
 	invalidate_icache();
 
-	/* invalidate existing TLB entry for flash + promjet */
-	disable_tlb(flash_esel);
+	if (flash_esel == -1) {
+		/* very unlikely unless something is messed up */
+		puts("Error: Could not find TLB for FLASH BASE\n");
+		flash_esel = 2;	/* give our best effort to continue */
+	} else {
+		/* invalidate existing TLB entry for flash + promjet */
+		disable_tlb(flash_esel);
+	}
 
 	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,

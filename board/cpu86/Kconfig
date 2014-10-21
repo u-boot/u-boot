@@ -1,0 +1,9 @@
+if TARGET_CPU86
+
+config SYS_BOARD
+	default "cpu86"
+
+config SYS_CONFIG_NAME
+	default "CPU86"
+
+endif

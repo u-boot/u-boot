@@ -1,0 +1,6 @@
+OMAP3SOM BOARD
+M:	Peter Barada <peter.barada@logicpd.com>
+S:	Maintained
+F:	board/logicpd/omap3som/
+F:	include/configs/omap3_logic.h
+F:	configs/omap3_logic_defconfig

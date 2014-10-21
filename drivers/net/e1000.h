@@ -100,6 +100,7 @@ typedef enum {
 	e1000_82574,
 	e1000_80003es2lan,
 	e1000_ich8lan,
+	e1000_igb,
 	e1000_num_macs
 } e1000_mac_type;
 
@@ -118,6 +119,7 @@ typedef enum {
 	e1000_eeprom_flash,
 	e1000_eeprom_ich8,
 	e1000_eeprom_none, /* No NVM support */
+	e1000_eeprom_invm,
 	e1000_num_eeprom_types
 } e1000_eeprom_type;
 
@@ -212,6 +214,7 @@ typedef enum {
 	e1000_phy_gg82563,
 	e1000_phy_igp_3,
 	e1000_phy_ife,
+	e1000_phy_igb,
 	e1000_phy_bm,
 	e1000_phy_undefined = 0xFF
 } e1000_phy_type;
@@ -686,7 +689,9 @@ struct e1000_ffvt_entry {
 #define E1000_CTRL     0x00000	/* Device Control - RW */
 #define E1000_STATUS   0x00008	/* Device Status - RO */
 #define E1000_EECD     0x00010	/* EEPROM/Flash Control - RW */
+#define E1000_I210_EECD     0x12010	/* EEPROM/Flash Control - RW */
 #define E1000_EERD     0x00014	/* EEPROM Read - RW */
+#define E1000_I210_EERD     0x12014	/* EEPROM Read - RW */
 #define E1000_CTRL_EXT 0x00018	/* Extended Device Control - RW */
 #define E1000_MDIC     0x00020	/* MDI Control - RW */
 #define E1000_FCAL     0x00028	/* Flow Control Address Low - RW */
@@ -698,6 +703,7 @@ struct e1000_ffvt_entry {
 #define E1000_ICS      0x000C8	/* Interrupt Cause Set - WO */
 #define E1000_IMS      0x000D0	/* Interrupt Mask Set - RW */
 #define E1000_IMC      0x000D8	/* Interrupt Mask Clear - WO */
+#define E1000_I210_IAM      0x000E0	/* Interrupt Ack Auto Mask - RW */
 #define E1000_RCTL     0x00100	/* RX Control - RW */
 #define E1000_FCTTV    0x00170	/* Flow Control Transmit Timer Value - RW */
 #define E1000_TXCW     0x00178	/* TX Configuration Word - RW */
@@ -711,14 +717,17 @@ struct e1000_ffvt_entry {
 #define E1000_EXTCNF_CTRL  0x00F00  /* Extended Configuration Control */
 #define E1000_EXTCNF_SIZE  0x00F08  /* Extended Configuration Size */
 #define E1000_PHY_CTRL     0x00F10  /* PHY Control Register in CSR */
+#define E1000_I210_PHY_CTRL     0x00E14  /* PHY Control Register in CSR */
 #define FEXTNVM_SW_CONFIG  0x0001
 #define E1000_PBA      0x01000	/* Packet Buffer Allocation - RW */
 #define E1000_PBS      0x01008  /* Packet Buffer Size */
 #define E1000_EEMNGCTL 0x01010  /* MNG EEprom Control */
+#define E1000_I210_EEMNGCTL 0x12030  /* MNG EEprom Control */
 #define E1000_FLASH_UPDATES 1000
 #define E1000_EEARBC   0x01024  /* EEPROM Auto Read Bus Control */
 #define E1000_FLASHT   0x01028  /* FLASH Timer Register */
 #define E1000_EEWR     0x0102C  /* EEPROM Write Register - RW */
+#define E1000_I210_EEWR     0x12018  /* EEPROM Write Register - RW */
 #define E1000_FLSWCTL  0x01030  /* FLASH control register */
 #define E1000_FLSWDATA 0x01034  /* FLASH data register */
 #define E1000_FLSWCNT  0x01038  /* FLASH Access Counter */
@@ -1222,6 +1231,7 @@ struct e1000_hw {
 #define E1000_STATUS_BUS64	0x00001000	/* In 64 bit slot */
 #define E1000_STATUS_PCIX_MODE	0x00002000	/* PCI-X mode */
 #define E1000_STATUS_PCIX_SPEED 0x0000C000	/* PCI-X bus speed */
+#define E1000_STATUS_PF_RST_DONE 0x00200000	/* PCI-X bus speed */
 
 /* Constants used to intrepret the masked PCI-X bus speed. */
 #define E1000_STATUS_PCIX_SPEED_66  0x00000000	/* PCI-X bus speed  50-66 MHz */
@@ -2437,6 +2447,8 @@ struct e1000_hw {
 #define GG82563_E_PHY_ID   0x01410CA0
 
 #define BME1000_E_PHY_ID     0x01410CB0
+
+#define I210_I_PHY_ID		0x01410C00
 
 /* Miscellaneous PHY bit definitions. */
 #define PHY_PREAMBLE			0xFFFFFFFF

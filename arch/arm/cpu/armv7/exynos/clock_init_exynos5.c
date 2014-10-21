@@ -179,6 +179,10 @@ struct mem_timings mem_timings[] = {
 		.spll_mdiv = 0xc8,
 		.spll_pdiv = 0x3,
 		.spll_sdiv = 0x2,
+		/* RPLL @70.5Mhz */
+		.rpll_mdiv = 0x5E,
+		.rpll_pdiv = 0x2,
+		.rpll_sdiv = 0x4,
 
 		.direct_cmd_msr = {
 			0x00020018, 0x00030000, 0x00010046, 0x00000d70,
@@ -800,6 +804,7 @@ static void exynos5420_system_clock_init(void)
 	writel(mem->ipll_pdiv * PLL_LOCK_FACTOR, &clk->ipll_lock);
 	writel(mem->spll_pdiv * PLL_LOCK_FACTOR, &clk->spll_lock);
 	writel(mem->kpll_pdiv * PLL_LOCK_FACTOR, &clk->kpll_lock);
+	writel(mem->rpll_pdiv * PLL_X_LOCK_FACTOR, &clk->rpll_lock);
 
 	setbits_le32(&clk->src_cpu, MUX_HPM_SEL_MASK);
 
@@ -896,6 +901,14 @@ static void exynos5420_system_clock_init(void)
 	val = set_pll(mem->spll_mdiv, mem->spll_pdiv, mem->spll_sdiv);
 	writel(val, &clk->spll_con0);
 	while ((readl(&clk->spll_con0) & PLL_LOCKED) == 0)
+		;
+
+	/* Set RPLL */
+	writel(RPLL_CON2_VAL, &clk->rpll_con2);
+	writel(RPLL_CON1_VAL, &clk->rpll_con1);
+	val = set_pll(mem->rpll_mdiv, mem->rpll_pdiv, mem->rpll_sdiv);
+	writel(val, &clk->rpll_con0);
+	while ((readl(&clk->rpll_con0) & PLL_LOCKED) == 0)
 		;
 
 	writel(CLK_DIV_CDREX0_VAL, &clk->div_cdrex0);

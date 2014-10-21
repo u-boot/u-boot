@@ -1,0 +1,6 @@
+BF561-ACVILON BOARD
+M:	Valentin Yakovenkov <yakovenkov@niistt.ru>
+S:	Maintained
+F:	board/bf561-acvilon/
+F:	include/configs/bf561-acvilon.h
+F:	configs/bf561-acvilon_defconfig

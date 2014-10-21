@@ -1,0 +1,36 @@
+menu "MIPS architecture"
+	depends on MIPS
+
+config SYS_ARCH
+	default "mips"
+
+choice
+	prompt "Target select"
+
+config TARGET_QEMU_MIPS
+	bool "Support qemu-mips"
+
+config TARGET_MALTA
+	bool "Support malta"
+
+config TARGET_VCT
+	bool "Support vct"
+
+config TARGET_DBAU1X00
+	bool "Support dbau1x00"
+
+config TARGET_PB1X00
+	bool "Support pb1x00"
+
+config TARGET_QEMU_MIPS64
+	bool "Support qemu-mips64"
+
+endchoice
+
+source "board/dbau1x00/Kconfig"
+source "board/imgtec/malta/Kconfig"
+source "board/micronas/vct/Kconfig"
+source "board/pb1x00/Kconfig"
+source "board/qemu-mips/Kconfig"
+
+endmenu

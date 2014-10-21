@@ -1,0 +1,18 @@
+if TARGET_CPUAT91
+
+config SYS_CPU
+	default "arm920t"
+
+config SYS_BOARD
+	default "cpuat91"
+
+config SYS_VENDOR
+	default "eukrea"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "cpuat91"
+
+endif

@@ -78,7 +78,7 @@ extern u_long get_sclk1(void);
 extern u_long get_dclk(void);
 # define get_uart_clk get_sclk0
 # define get_i2c_clk get_sclk0
-# define get_spi_clk get_sclk0
+# define get_spi_clk get_sclk1
 #else
 # define get_uart_clk get_sclk
 # define get_i2c_clk get_sclk

@@ -1,0 +1,6 @@
+BEAGLE BOARD
+M:	Tom Rini <trini@ti.com>
+S:	Maintained
+F:	board/ti/beagle/
+F:	include/configs/omap3_beagle.h
+F:	configs/omap3_beagle_defconfig

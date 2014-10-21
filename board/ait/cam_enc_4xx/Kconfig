@@ -1,0 +1,12 @@
+if TARGET_CAM_ENC_4XX
+
+config SYS_BOARD
+	default "cam_enc_4xx"
+
+config SYS_VENDOR
+	default "ait"
+
+config SYS_CONFIG_NAME
+	default "cam_enc_4xx"
+
+endif

@@ -93,6 +93,7 @@ static void alpr_nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 	}
 }
 
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 static int alpr_nand_verify_buf(struct mtd_info *mtd, const u_char *buf, int len)
 {
 	int i;
@@ -103,6 +104,7 @@ static int alpr_nand_verify_buf(struct mtd_info *mtd, const u_char *buf, int len
 
 	return 0;
 }
+#endif
 
 static int alpr_nand_dev_ready(struct mtd_info *mtd)
 {
@@ -128,7 +130,9 @@ int board_nand_init(struct nand_chip *nand)
 	nand->read_byte  = alpr_nand_read_byte;
 	nand->write_buf  = alpr_nand_write_buf;
 	nand->read_buf   = alpr_nand_read_buf;
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 	nand->verify_buf = alpr_nand_verify_buf;
+#endif
 	nand->dev_ready  = alpr_nand_dev_ready;
 
 	return 0;

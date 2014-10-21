@@ -21,6 +21,8 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /***********************************************************
  * Note that it may also be a MIP405T board which is a subset of the
  * MIP405

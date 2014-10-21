@@ -1,0 +1,12 @@
+if TARGET_PALMLD
+
+config SYS_CPU
+	default "pxa"
+
+config SYS_BOARD
+	default "palmld"
+
+config SYS_CONFIG_NAME
+	default "palmld"
+
+endif

@@ -1,0 +1,18 @@
+if TARGET_MX6SLEVK
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_BOARD
+	default "mx6slevk"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "mx6slevk"
+
+endif

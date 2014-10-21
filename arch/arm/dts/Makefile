@@ -1,14 +1,17 @@
+dtb-$(CONFIG_S5PC100) += s5pc1xx-smdkc100.dtb
+dtb-$(CONFIG_S5PC110) += s5pc1xx-goni.dtb
 dtb-$(CONFIG_EXYNOS4) += exynos4210-origen.dtb \
+	exynos4210-smdkv310.dtb \
 	exynos4210-universal_c210.dtb \
 	exynos4210-trats.dtb \
-	exynos4412-trats2.dtb
+	exynos4412-trats2.dtb \
+	exynos4412-odroid.dtb
 
 dtb-$(CONFIG_EXYNOS5) += exynos5250-arndale.dtb \
 	exynos5250-snow.dtb \
 	exynos5250-smdk5250.dtb \
 	exynos5420-smdk5420.dtb \
 	exynos5420-peach-pit.dtb
-dtb-$(CONFIG_MX6) += imx6q-sabreauto.dtb
 dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
 	tegra20-paz00.dtb \
@@ -21,6 +24,7 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-colibri_t20_iris.dtb \
 	tegra30-beaver.dtb \
 	tegra30-cardhu.dtb \
+	tegra30-colibri.dtb \
 	tegra30-tec-ng.dtb \
 	tegra114-dalmore.dtb \
 	tegra124-jetson-tk1.dtb \

@@ -219,10 +219,6 @@ ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
 obj-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
-# environment
-obj-$(CONFIG_SPL_ENV_SUPPORT) += env_attr.o
-obj-$(CONFIG_SPL_ENV_SUPPORT) += env_flags.o
-obj-$(CONFIG_SPL_ENV_SUPPORT) += env_callback.o
 ifdef CONFIG_SPL_USB_HOST_SUPPORT
 obj-$(CONFIG_SPL_USB_SUPPORT) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
@@ -230,14 +226,16 @@ endif
 ifdef CONFIG_SPL_SATA_SUPPORT
 obj-$(CONFIG_CMD_SCSI) += cmd_scsi.o
 endif
-ifneq ($(CONFIG_SPL_NET_SUPPORT),y)
+# environment
+ifdef CONFIG_SPL_ENV_SUPPORT
+obj-$(CONFIG_SPL_ENV_SUPPORT) += env_attr.o
+obj-$(CONFIG_SPL_ENV_SUPPORT) += env_flags.o
+obj-$(CONFIG_SPL_ENV_SUPPORT) += env_callback.o
 obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
 obj-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
 obj-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
 obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env_sf.o
 obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
-else
-obj-y += env_nowhere.o
 endif
 endif
 # core command
@@ -245,13 +243,8 @@ obj-y += cmd_nvedit.o
 #environment
 obj-y += env_common.o
 #others
-ifdef CONFIG_DDR_SPD
-SPD := y
-endif
-ifdef CONFIG_SPD_EEPROM
-SPD := y
-endif
-obj-$(SPD) += ddr_spd.o
+obj-$(CONFIG_DDR_SPD) += ddr_spd.o
+obj-$(CONFIG_SPD_EEPROM) += ddr_spd.o
 obj-$(CONFIG_HWCONFIG) += hwconfig.o
 obj-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 obj-y += console.o
@@ -265,5 +258,11 @@ obj-$(CONFIG_FIT_SIGNATURE) += image-sig.o
 obj-$(CONFIG_IO_TRACE) += iotrace.o
 obj-y += memsize.o
 obj-y += stdio.o
+
+# This option is not just y/n - it can have a numeric value
+ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+obj-y += aboot.o
+obj-y += fb_mmc.o
+endif
 
 CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)

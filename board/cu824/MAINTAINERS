@@ -1,0 +1,6 @@
+CU824 BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/cu824/
+F:	include/configs/CU824.h
+F:	configs/CU824_defconfig

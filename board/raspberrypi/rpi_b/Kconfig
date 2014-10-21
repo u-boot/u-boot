@@ -1,0 +1,18 @@
+if TARGET_RPI_B
+
+config SYS_CPU
+	default "arm1176"
+
+config SYS_BOARD
+	default "rpi_b"
+
+config SYS_VENDOR
+	default "raspberrypi"
+
+config SYS_SOC
+	default "bcm2835"
+
+config SYS_CONFIG_NAME
+	default "rpi_b"
+
+endif

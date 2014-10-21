@@ -459,6 +459,7 @@ static void mpc5121_nfc_write_buf(struct mtd_info *mtd,
 	mpc5121_nfc_buf_copy(mtd, (u_char *) buf, len, 1);
 }
 
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 /* Compare buffer with NAND flash */
 static int mpc5121_nfc_verify_buf(struct mtd_info *mtd,
 				  const u_char * buf, int len)
@@ -479,6 +480,7 @@ static int mpc5121_nfc_verify_buf(struct mtd_info *mtd,
 
 	return 0;
 }
+#endif
 
 /* Read byte from NFC buffers */
 static u8 mpc5121_nfc_read_byte(struct mtd_info *mtd)
@@ -607,7 +609,9 @@ int board_nand_init(struct nand_chip *chip)
 	chip->read_word = mpc5121_nfc_read_word;
 	chip->read_buf = mpc5121_nfc_read_buf;
 	chip->write_buf = mpc5121_nfc_write_buf;
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 	chip->verify_buf = mpc5121_nfc_verify_buf;
+#endif
 	chip->select_chip = mpc5121_nfc_select_chip;
 	chip->bbt_options = NAND_BBT_USE_FLASH;
 	chip->ecc.mode = NAND_ECC_SOFT;

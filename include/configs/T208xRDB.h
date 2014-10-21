@@ -11,6 +11,8 @@
 #ifndef __T2080RDB_H
 #define __T2080RDB_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_T2080RDB
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 #define CONFIG_MMC
@@ -42,7 +44,6 @@
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t208xrdb/t2080_pbi.cfg
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xrdb/t2080_rcw.cfg
 
-#define CONFIG_SPL
 #define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
@@ -283,7 +284,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS2_FTIM1		(FTIM1_GPCM_TACO(0x0e) | \
 					FTIM1_GPCM_TRAD(0x1f))
 #define CONFIG_SYS_CS2_FTIM2		(FTIM2_GPCM_TCS(0x0e) | \
-					FTIM2_GPCM_TCH(0x0) | \
+					FTIM2_GPCM_TCH(0x8) | \
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS2_FTIM3		0x0
 

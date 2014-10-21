@@ -14,6 +14,7 @@
 
 #define CONFIG_VF610
 
+#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
@@ -43,6 +44,41 @@
 #define CONFIG_BAUDRATE			115200
 
 #undef CONFIG_CMD_IMLS
+
+/* NAND support */
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NAND_TRIMFFS
+
+#ifdef CONFIG_CMD_NAND
+#define CONFIG_NAND_VF610_NFC
+#define CONFIG_SYS_NAND_SELF_INIT
+#define CONFIG_USE_ARCH_MEMCPY
+#define CONFIG_SYS_NAND_BUSWIDTH_16BIT
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
+
+/* UBI */
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_RBTREE
+#define CONFIG_LZO
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+
+/* Dynamic MTD partition support */
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_MTD_DEVICE
+#define MTDIDS_DEFAULT			"nand0=fsl_nfc"
+#define MTDPARTS_DEFAULT		"mtdparts=fsl_nfc:"		\
+					"128k(vf-bcb)ro,"		\
+					"1408k(u-boot)ro,"		\
+					"512k(u-boot-env),"		\
+					"4m(kernel),"			\
+					"512k(fdt),"		\
+					"-(rootfs)"
+#endif
 
 #define CONFIG_MMC
 #define CONFIG_FSL_ESDHC
@@ -218,11 +254,19 @@
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
 
+#ifdef CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_IS_IN_MMC
 
 #define CONFIG_ENV_OFFSET		(12 * 64 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
+#endif
+
+#ifdef CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_SIZE			(64 * 2048)
+#define CONFIG_ENV_SECT_SIZE		(64 * 2048)
+#define CONFIG_ENV_RANGE		(512 * 1024)
+#define CONFIG_ENV_OFFSET		0x180000
+#endif
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ

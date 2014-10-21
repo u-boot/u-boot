@@ -1,0 +1,18 @@
+if TARGET_TNETV107X_EVM
+
+config SYS_CPU
+	default "arm1176"
+
+config SYS_BOARD
+	default "tnetv107xevm"
+
+config SYS_VENDOR
+	default "ti"
+
+config SYS_SOC
+	default "tnetv107x"
+
+config SYS_CONFIG_NAME
+	default "tnetv107x_evm"
+
+endif

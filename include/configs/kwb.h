@@ -89,7 +89,6 @@
 #undef	CONFIG_BOOTM_RTEMS
 #undef	CONFIG_GZIP
 #undef	CONFIG_ZLIB
-#undef CONFIG_CMD_CRC32
 
 /* USB configuration */
 #define CONFIG_USB_MUSB_DSPS

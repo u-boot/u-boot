@@ -41,18 +41,18 @@ static int dfu_write_medium_ram(struct dfu_entity *dfu, u64 offset,
 	return dfu_transfer_medium_ram(DFU_OP_WRITE, dfu, offset, buf, len);
 }
 
+long dfu_get_medium_size_ram(struct dfu_entity *dfu)
+{
+	return dfu->data.ram.size;
+}
+
 static int dfu_read_medium_ram(struct dfu_entity *dfu, u64 offset,
 			       void *buf, long *len)
 {
-	if (!*len) {
-		*len = dfu->data.ram.size;
-		return 0;
-	}
-
 	return dfu_transfer_medium_ram(DFU_OP_READ, dfu, offset, buf, len);
 }
 
-int dfu_fill_entity_ram(struct dfu_entity *dfu, char *s)
+int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr, char *s)
 {
 	char *st;
 
@@ -69,6 +69,7 @@ int dfu_fill_entity_ram(struct dfu_entity *dfu, char *s)
 	dfu->data.ram.size = simple_strtoul(s, &s, 16);
 
 	dfu->write_medium = dfu_write_medium_ram;
+	dfu->get_medium_size = dfu_get_medium_size_ram;
 	dfu->read_medium = dfu_read_medium_ram;
 
 	dfu->inited = 0;

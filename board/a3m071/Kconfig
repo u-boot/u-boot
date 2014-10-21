@@ -1,0 +1,9 @@
+if TARGET_A3M071
+
+config SYS_BOARD
+	default "a3m071"
+
+config SYS_CONFIG_NAME
+	default "a3m071"
+
+endif

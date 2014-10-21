@@ -1,0 +1,6 @@
+XPEDITE550X BOARD
+#M:	-
+S:	Maintained
+F:	board/xes/xpedite550x/
+F:	include/configs/xpedite550x.h
+F:	configs/xpedite550x_defconfig

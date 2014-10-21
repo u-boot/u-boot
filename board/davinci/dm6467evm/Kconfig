@@ -1,0 +1,12 @@
+if TARGET_DAVINCI_DM6467EVM
+
+config SYS_BOARD
+	default "dm6467evm"
+
+config SYS_VENDOR
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	default "davinci_dm6467evm"
+
+endif

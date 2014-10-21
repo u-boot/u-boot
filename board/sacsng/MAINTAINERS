@@ -1,0 +1,6 @@
+SACSNG BOARD
+#M:	Jerry Van Baren <gerald.vanbaren@smiths-aerospace.com>
+S:	Orphan (since 2014-06)
+F:	board/sacsng/
+F:	include/configs/sacsng.h
+F:	configs/sacsng_defconfig

@@ -37,7 +37,6 @@
 
 #define MAX_BANKS 8
 #define ERR_BYTE 0xFF /* Value returned for read bytes when read failed */
-#define FCM_TIMEOUT_MSECS 10 /* Maximum number of mSecs to wait for FCM */
 
 #define LTESR_NAND_MASK (LTESR_FCT | LTESR_PAR | LTESR_CC)
 
@@ -199,7 +198,8 @@ static int fsl_elbc_run_command(struct mtd_info *mtd)
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
 	fsl_lbc_t *lbc = ctrl->regs;
-	long long end_tick;
+	u32 timeo = (CONFIG_SYS_HZ * 10) / 1000;
+	u32 time_start;
 	u32 ltesr;
 
 	/* Setup the FMR[OP] to execute without write protection */
@@ -218,10 +218,10 @@ static int fsl_elbc_run_command(struct mtd_info *mtd)
 	out_be32(&lbc->lsor, priv->bank);
 
 	/* wait for FCM complete flag or timeout */
-	end_tick = usec2ticks(FCM_TIMEOUT_MSECS * 1000) + get_ticks();
+	time_start = get_timer(0);
 
 	ltesr = 0;
-	while (end_tick > get_ticks()) {
+	while (get_timer(time_start) < timeo) {
 		ltesr = in_be32(&lbc->ltesr);
 		if (ltesr & LTESR_CC)
 			break;
@@ -561,6 +561,7 @@ static void fsl_elbc_read_buf(struct mtd_info *mtd, u8 *buf, int len)
 		       len, avail);
 }
 
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 /*
  * Verify buffer against the FCM Controller Data Buffer
  */
@@ -593,6 +594,7 @@ static int fsl_elbc_verify_buf(struct mtd_info *mtd,
 	ctrl->index += len;
 	return i == len && ctrl->status == LTESR_CC ? 0 : -EIO;
 }
+#endif
 
 /* This function is called after Program and Erase Operations to
  * check for success or failure.
@@ -725,7 +727,9 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 	nand->read_byte = fsl_elbc_read_byte;
 	nand->write_buf = fsl_elbc_write_buf;
 	nand->read_buf = fsl_elbc_read_buf;
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 	nand->verify_buf = fsl_elbc_verify_buf;
+#endif
 	nand->select_chip = fsl_elbc_select_chip;
 	nand->cmdfunc = fsl_elbc_cmdfunc;
 	nand->waitfunc = fsl_elbc_wait;

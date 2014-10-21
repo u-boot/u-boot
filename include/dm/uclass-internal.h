@@ -82,4 +82,27 @@ struct uclass *uclass_find(enum uclass_id key);
  */
 int uclass_destroy(struct uclass *uc);
 
+/**
+ * uclass_find_device_by_seq() - Find uclass device based on ID and sequence
+ *
+ * This searches for a device with the given seq or req_seq.
+ *
+ * For seq, if an active device has this sequence it will be returned.
+ * If there is no such device then this will return -ENODEV.
+ *
+ * For req_seq, if a device (whether activated or not) has this req_seq
+ * value, that device will be returned. This is a strong indication that
+ * the device will receive that sequence when activated.
+ *
+ * The device is NOT probed, it is merely returned.
+ *
+ * @id: ID to look up
+ * @seq_or_req_seq: Sequence number to find (0=first)
+ * @find_req_seq: true to find req_seq, false to find seq
+ * @devp: Returns pointer to device (there is only one per for each seq)
+ * @return 0 if OK, -ve on error
+ */
+int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
+			      bool find_req_seq, struct udevice **devp);
+
 #endif

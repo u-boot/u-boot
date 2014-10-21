@@ -36,6 +36,35 @@ void enable_ocotp_clk(unsigned char enable)
 }
 #endif
 
+#ifdef CONFIG_NAND_MXS
+void setup_gpmi_io_clk(u32 cfg)
+{
+	/* Disable clocks per ERR007177 from MX6 errata */
+	clrbits_le32(&imx_ccm->CCGR4,
+		     MXC_CCM_CCGR4_RAWNAND_U_BCH_INPUT_APB_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_BCH_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_GPMI_IO_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_INPUT_APB_MASK |
+		     MXC_CCM_CCGR4_PL301_MX6QPER1_BCH_MASK);
+
+	clrbits_le32(&imx_ccm->CCGR2, MXC_CCM_CCGR2_IOMUX_IPT_CLK_IO_MASK);
+
+	clrsetbits_le32(&imx_ccm->cs2cdr,
+			MXC_CCM_CS2CDR_ENFC_CLK_PODF_MASK |
+			MXC_CCM_CS2CDR_ENFC_CLK_PRED_MASK |
+			MXC_CCM_CS2CDR_ENFC_CLK_SEL_MASK,
+			cfg);
+
+	setbits_le32(&imx_ccm->CCGR2, MXC_CCM_CCGR2_IOMUX_IPT_CLK_IO_MASK);
+	setbits_le32(&imx_ccm->CCGR4,
+		     MXC_CCM_CCGR4_RAWNAND_U_BCH_INPUT_APB_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_BCH_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_GPMI_IO_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_INPUT_APB_MASK |
+		     MXC_CCM_CCGR4_PL301_MX6QPER1_BCH_MASK);
+}
+#endif
+
 void enable_usboh3_clk(unsigned char enable)
 {
 	u32 reg;
@@ -48,6 +77,67 @@ void enable_usboh3_clk(unsigned char enable)
 	__raw_writel(reg, &imx_ccm->CCGR6);
 
 }
+
+#if defined(CONFIG_FEC_MXC) && !defined(CONFIG_MX6SX)
+void enable_enet_clk(unsigned char enable)
+{
+	u32 mask = MXC_CCM_CCGR1_ENET_CLK_ENABLE_MASK;
+
+	if (enable)
+		setbits_le32(&imx_ccm->CCGR1, mask);
+	else
+		clrbits_le32(&imx_ccm->CCGR1, mask);
+}
+#endif
+
+#ifdef CONFIG_MXC_UART
+void enable_uart_clk(unsigned char enable)
+{
+	u32 mask = MXC_CCM_CCGR5_UART_MASK | MXC_CCM_CCGR5_UART_SERIAL_MASK;
+
+	if (enable)
+		setbits_le32(&imx_ccm->CCGR5, mask);
+	else
+		clrbits_le32(&imx_ccm->CCGR5, mask);
+}
+#endif
+
+#ifdef CONFIG_SPI
+/* spi_num can be from 0 - 4 */
+int enable_cspi_clock(unsigned char enable, unsigned spi_num)
+{
+	u32 mask;
+
+	if (spi_num > 4)
+		return -EINVAL;
+
+	mask = MXC_CCM_CCGR_CG_MASK << (spi_num * 2);
+	if (enable)
+		setbits_le32(&imx_ccm->CCGR1, mask);
+	else
+		clrbits_le32(&imx_ccm->CCGR1, mask);
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_MMC
+int enable_usdhc_clk(unsigned char enable, unsigned bus_num)
+{
+	u32 mask;
+
+	if (bus_num > 3)
+		return -EINVAL;
+
+	mask = MXC_CCM_CCGR_CG_MASK << (bus_num * 2 + 2);
+	if (enable)
+		setbits_le32(&imx_ccm->CCGR6, mask);
+	else
+		clrbits_le32(&imx_ccm->CCGR6, mask);
+
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_SYS_I2C_MXC
 /* i2c_num can be from 0 - 2 */
@@ -71,6 +161,24 @@ int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 }
 #endif
 
+/* spi_num can be from 0 - SPI_MAX_NUM */
+int enable_spi_clk(unsigned char enable, unsigned spi_num)
+{
+	u32 reg;
+	u32 mask;
+
+	if (spi_num > SPI_MAX_NUM)
+		return -EINVAL;
+
+	mask = MXC_CCM_CCGR_CG_MASK << (spi_num << 1);
+	reg = __raw_readl(&imx_ccm->CCGR1);
+	if (enable)
+		reg |= mask;
+	else
+		reg &= ~mask;
+	__raw_writel(reg, &imx_ccm->CCGR1);
+	return 0;
+}
 static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 {
 	u32 div;
@@ -214,7 +322,7 @@ static u32 get_uart_clk(void)
 	u32 reg, uart_podf;
 	u32 freq = decode_pll(PLL_USBOTG, MXC_HCLK) / 6; /* static divider */
 	reg = __raw_readl(&imx_ccm->cscdr1);
-#ifdef CONFIG_MX6SL
+#if (defined(CONFIG_MX6SL) || defined(CONFIG_MX6SX))
 	if (reg & MXC_CCM_CSCDR1_UART_CLK_SEL)
 		freq = MXC_HCLK;
 #endif
@@ -282,7 +390,7 @@ static u32 get_emi_slow_clk(void)
 	return root_freq / (emi_slow_podf + 1);
 }
 
-#ifdef CONFIG_MX6SL
+#if (defined(CONFIG_MX6SL) || defined(CONFIG_MX6SX))
 static u32 get_mmdc_ch0_clk(void)
 {
 	u32 cbcmr = __raw_readl(&imx_ccm->cbcmr);
@@ -355,6 +463,27 @@ int enable_fec_anatop_clock(enum enet_freq freq)
 	reg &= ~BM_ANADIG_PLL_ENET_BYPASS;
 	writel(reg, &anatop->pll_enet);
 
+#ifdef CONFIG_MX6SX
+	/*
+	 * Set enet ahb clock to 200MHz
+	 * pll2_pfd2_396m-> ENET_PODF-> ENET_AHB
+	 */
+	reg = readl(&imx_ccm->chsccdr);
+	reg &= ~(MXC_CCM_CHSCCDR_ENET_PRE_CLK_SEL_MASK
+		 | MXC_CCM_CHSCCDR_ENET_PODF_MASK
+		 | MXC_CCM_CHSCCDR_ENET_CLK_SEL_MASK);
+	/* PLL2 PFD2 */
+	reg |= (4 << MXC_CCM_CHSCCDR_ENET_PRE_CLK_SEL_OFFSET);
+	/* Div = 2*/
+	reg |= (1 << MXC_CCM_CHSCCDR_ENET_PODF_OFFSET);
+	reg |= (0 << MXC_CCM_CHSCCDR_ENET_CLK_SEL_OFFSET);
+	writel(reg, &imx_ccm->chsccdr);
+
+	/* Enable enet system clock */
+	reg = readl(&imx_ccm->CCGR3);
+	reg |= MXC_CCM_CCGR3_ENET_MASK;
+	writel(reg, &imx_ccm->CCGR3);
+#endif
 	return 0;
 }
 #endif
@@ -437,6 +566,7 @@ static int enable_enet_pll(uint32_t en)
 	return 0;
 }
 
+#ifndef CONFIG_MX6SX
 static void ungate_sata_clock(void)
 {
 	struct mxc_ccm_reg *const imx_ccm =
@@ -445,6 +575,7 @@ static void ungate_sata_clock(void)
 	/* Enable SATA clock. */
 	setbits_le32(&imx_ccm->CCGR5, MXC_CCM_CCGR5_SATA_MASK);
 }
+#endif
 
 static void ungate_pcie_clock(void)
 {
@@ -455,17 +586,20 @@ static void ungate_pcie_clock(void)
 	setbits_le32(&imx_ccm->CCGR4, MXC_CCM_CCGR4_PCIE_MASK);
 }
 
+#ifndef CONFIG_MX6SX
 int enable_sata_clock(void)
 {
 	ungate_sata_clock();
 	return enable_enet_pll(BM_ANADIG_PLL_ENET_ENABLE_SATA);
 }
+#endif
 
 int enable_pcie_clock(void)
 {
 	struct anatop_regs *anatop_regs =
 		(struct anatop_regs *)ANATOP_BASE_ADDR;
 	struct mxc_ccm_reg *ccm_regs = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	u32 lvds1_clk_sel;
 
 	/*
 	 * Here be dragons!
@@ -475,28 +609,65 @@ int enable_pcie_clock(void)
 	 * marked as ANATOP_MISC1 is actually documented in the PMU section
 	 * of the datasheet as PMU_MISC1.
 	 *
-	 * Switch LVDS clock source to SATA (0xb), disable clock INPUT and
-	 * enable clock OUTPUT. This is important for PCI express link that
-	 * is clocked from the i.MX6.
+	 * Switch LVDS clock source to SATA (0xb) on mx6q/dl or PCI (0xa) on
+	 * mx6sx, disable clock INPUT and enable clock OUTPUT. This is important
+	 * for PCI express link that is clocked from the i.MX6.
 	 */
 #define ANADIG_ANA_MISC1_LVDSCLK1_IBEN		(1 << 12)
 #define ANADIG_ANA_MISC1_LVDSCLK1_OBEN		(1 << 10)
 #define ANADIG_ANA_MISC1_LVDS1_CLK_SEL_MASK	0x0000001F
+#define ANADIG_ANA_MISC1_LVDS1_CLK_SEL_PCIE_REF	0xa
+#define ANADIG_ANA_MISC1_LVDS1_CLK_SEL_SATA_REF	0xb
+
+	if (is_cpu_type(MXC_CPU_MX6SX))
+		lvds1_clk_sel = ANADIG_ANA_MISC1_LVDS1_CLK_SEL_PCIE_REF;
+	else
+		lvds1_clk_sel = ANADIG_ANA_MISC1_LVDS1_CLK_SEL_SATA_REF;
+
 	clrsetbits_le32(&anatop_regs->ana_misc1,
 			ANADIG_ANA_MISC1_LVDSCLK1_IBEN |
 			ANADIG_ANA_MISC1_LVDS1_CLK_SEL_MASK,
-			ANADIG_ANA_MISC1_LVDSCLK1_OBEN | 0xb);
+			ANADIG_ANA_MISC1_LVDSCLK1_OBEN | lvds1_clk_sel);
 
 	/* PCIe reference clock sourced from AXI. */
 	clrbits_le32(&ccm_regs->cbcmr, MXC_CCM_CBCMR_PCIE_AXI_CLK_SEL);
 
 	/* Party time! Ungate the clock to the PCIe. */
+#ifndef CONFIG_MX6SX
 	ungate_sata_clock();
+#endif
 	ungate_pcie_clock();
 
 	return enable_enet_pll(BM_ANADIG_PLL_ENET_ENABLE_SATA |
 			       BM_ANADIG_PLL_ENET_ENABLE_PCIE);
 }
+
+#ifdef CONFIG_SECURE_BOOT
+void hab_caam_clock_enable(unsigned char enable)
+{
+	u32 reg;
+
+	/* CG4 ~ CG6, CAAM clocks */
+	reg = __raw_readl(&imx_ccm->CCGR0);
+	if (enable)
+		reg |= (MXC_CCM_CCGR0_CAAM_WRAPPER_IPG_MASK |
+			MXC_CCM_CCGR0_CAAM_WRAPPER_ACLK_MASK |
+			MXC_CCM_CCGR0_CAAM_SECURE_MEM_MASK);
+	else
+		reg &= ~(MXC_CCM_CCGR0_CAAM_WRAPPER_IPG_MASK |
+			MXC_CCM_CCGR0_CAAM_WRAPPER_ACLK_MASK |
+			MXC_CCM_CCGR0_CAAM_SECURE_MEM_MASK);
+	__raw_writel(reg, &imx_ccm->CCGR0);
+
+	/* EMI slow clk */
+	reg = __raw_readl(&imx_ccm->CCGR6);
+	if (enable)
+		reg |= MXC_CCM_CCGR6_EMI_SLOW_MASK;
+	else
+		reg &= ~MXC_CCM_CCGR6_EMI_SLOW_MASK;
+	__raw_writel(reg, &imx_ccm->CCGR6);
+}
+#endif
 
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
@@ -573,6 +744,7 @@ int do_mx6_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+#ifndef CONFIG_MX6SX
 void enable_ipu_clock(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -581,6 +753,7 @@ void enable_ipu_clock(void)
 	reg |= MXC_CCM_CCGR3_IPU1_IPU_MASK;
 	writel(reg, &mxc_ccm->CCGR3);
 }
+#endif
 /***************************************************/
 
 U_BOOT_CMD(

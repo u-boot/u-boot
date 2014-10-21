@@ -1,0 +1,6 @@
+UC101 BOARD
+M:	Heiko Schocher <hs@denx.de>
+S:	Maintained
+F:	board/manroland/uc101/
+F:	include/configs/uc101.h
+F:	configs/uc101_defconfig

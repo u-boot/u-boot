@@ -35,7 +35,6 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_SHEEVA_88SV131	1	/* CPU Core subversion */
-#define CONFIG_KIRKWOOD		1	/* SOC Family Name */
 #define CONFIG_KW88F6281	1	/* SOC Name */
 #define CONFIG_MACH_OPENRD_BASE	/* Machine type */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
@@ -49,6 +48,7 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_MII
+#define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
@@ -76,6 +76,11 @@
 #define CONFIG_ENV_SIZE			0x20000	/* 128k */
 #define CONFIG_ENV_ADDR			0x60000
 #define CONFIG_ENV_OFFSET		0x60000	/* env starts here */
+/*
+ * Environment is right behind U-Boot in flash. Make sure U-Boot
+ * doesn't grow into the environment area.
+ */
+#define CONFIG_BOARD_SIZE_LIMIT		CONFIG_ENV_OFFSET
 
 /*
  * Default environment variables
@@ -122,5 +127,12 @@
 #define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
 #define CONFIG_SYS_ATA_IDE1_OFFSET	MV_SATA_PORT1_OFFSET
 #endif /*CONFIG_MVSATA_IDE*/
+
+#ifdef CONFIG_CMD_MMC
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_MVEBU_MMC
+#define CONFIG_SYS_MMC_BASE KW_SDIO_BASE
+#endif /* CONFIG_CMD_MMC */
 
 #endif /* _CONFIG_OPENRD_BASE_H */

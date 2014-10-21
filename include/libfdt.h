@@ -116,7 +116,12 @@
 	 * Should never be returned, if it is, it indicates a bug in
 	 * libfdt itself. */
 
-#define FDT_ERR_MAX		13
+/* Errors in device tree content */
+#define FDT_ERR_BADNCELLS	14
+	/* FDT_ERR_BADNCELLS: Device tree has a #address-cells, #size-cells
+	 * or similar property with a bad format or value */
+
+#define FDT_ERR_MAX		14
 
 /**********************************************************************/
 /* Low-level functions (you probably don't need these)                */
@@ -596,9 +601,9 @@ const char *fdt_get_alias_namelen(const void *fdt,
 				  const char *name, int namelen);
 
 /**
- * fdt_get_alias - retrieve the path referenced by a given alias
+ * fdt_get_alias - retreive the path referenced by a given alias
  * @fdt: pointer to the device tree blob
- * @name: name of the alias to look up
+ * @name: name of the alias th look up
  *
  * fdt_get_alias() retrieves the value of a given alias.  That is, the
  * value of the property named 'name' in the node /aliases.
@@ -731,7 +736,7 @@ int fdt_parent_offset(const void *fdt, int nodeoffset);
  *	offset = fdt_node_offset_by_prop_value(fdt, -1, propname,
  *					       propval, proplen);
  *	while (offset != -FDT_ERR_NOTFOUND) {
- *		... other code here ...
+ *		// other code here
  *		offset = fdt_node_offset_by_prop_value(fdt, offset, propname,
  *						       propval, proplen);
  *	}
@@ -816,7 +821,7 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
  * idiom can be used:
  *	offset = fdt_node_offset_by_compatible(fdt, -1, compatible);
  *	while (offset != -FDT_ERR_NOTFOUND) {
- *		... other code here ...
+ *		// other code here
  *		offset = fdt_node_offset_by_compatible(fdt, offset, compatible);
  *	}
  *
@@ -851,6 +856,63 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
  * @return: 1 if the string is found in the list, 0 not found, or invalid list
  */
 int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
+
+/**********************************************************************/
+/* Read-only functions (addressing related)                           */
+/**********************************************************************/
+
+/**
+ * FDT_MAX_NCELLS - maximum value for #address-cells and #size-cells
+ *
+ * This is the maximum value for #address-cells, #size-cells and
+ * similar properties that will be processed by libfdt.  IEE1275
+ * requires that OF implementations handle values up to 4.
+ * Implementations may support larger values, but in practice higher
+ * values aren't used.
+ */
+#define FDT_MAX_NCELLS		4
+
+/**
+ * fdt_address_cells - retrieve address size for a bus represented in the tree
+ * @fdt: pointer to the device tree blob
+ * @nodeoffset: offset of the node to find the address size for
+ *
+ * When the node has a valid #address-cells property, returns its value.
+ *
+ * returns:
+ *	0 <= n < FDT_MAX_NCELLS, on success
+ *      2, if the node has no #address-cells property
+ *      -FDT_ERR_BADNCELLS, if the node has a badly formatted or invalid
+ *		#address-cells property
+ *	-FDT_ERR_BADMAGIC,
+ *	-FDT_ERR_BADVERSION,
+ *	-FDT_ERR_BADSTATE,
+ *	-FDT_ERR_BADSTRUCTURE,
+ *	-FDT_ERR_TRUNCATED, standard meanings
+ */
+int fdt_address_cells(const void *fdt, int nodeoffset);
+
+/**
+ * fdt_size_cells - retrieve address range size for a bus represented in the
+ *                  tree
+ * @fdt: pointer to the device tree blob
+ * @nodeoffset: offset of the node to find the address range size for
+ *
+ * When the node has a valid #size-cells property, returns its value.
+ *
+ * returns:
+ *	0 <= n < FDT_MAX_NCELLS, on success
+ *      2, if the node has no #address-cells property
+ *      -FDT_ERR_BADNCELLS, if the node has a badly formatted or invalid
+ *		#size-cells property
+ *	-FDT_ERR_BADMAGIC,
+ *	-FDT_ERR_BADVERSION,
+ *	-FDT_ERR_BADSTATE,
+ *	-FDT_ERR_BADSTRUCTURE,
+ *	-FDT_ERR_TRUNCATED, standard meanings
+ */
+int fdt_size_cells(const void *fdt, int nodeoffset);
+
 
 /**********************************************************************/
 /* Write-in-place functions                                           */
@@ -1023,6 +1085,7 @@ int fdt_nop_node(void *fdt, int nodeoffset);
 /**********************************************************************/
 
 int fdt_create(void *buf, int bufsize);
+int fdt_resize(void *fdt, void *buf, int bufsize);
 int fdt_add_reservemap_entry(void *fdt, uint64_t addr, uint64_t size);
 int fdt_finish_reservemap(void *fdt);
 int fdt_begin_node(void *fdt, const char *name);

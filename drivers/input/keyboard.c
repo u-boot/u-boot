@@ -70,7 +70,7 @@ static void kbd_put_queue(char data)
 }
 
 /* test if a character is in the queue */
-static int kbd_testc(void)
+static int kbd_testc(struct stdio_dev *dev)
 {
 #if defined(CONFIG_MPC5xxx) || defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || defined(CONFIG_MPC8555)
 	/* no ISR is used, so received chars must be polled */
@@ -83,7 +83,7 @@ static int kbd_testc(void)
 }
 
 /* gets the character from the queue */
-static int kbd_getc(void)
+static int kbd_getc(struct stdio_dev *dev)
 {
 	char c;
 	while(in_pointer==out_pointer) {
@@ -275,8 +275,6 @@ int kbd_init (void)
 	memset (&kbddev, 0, sizeof(kbddev));
 	strcpy(kbddev.name, DEVNAME);
 	kbddev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-	kbddev.putc = NULL ;
-	kbddev.puts = NULL ;
 	kbddev.getc = kbd_getc ;
 	kbddev.tstc = kbd_testc ;
 

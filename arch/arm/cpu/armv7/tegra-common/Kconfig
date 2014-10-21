@@ -1,0 +1,29 @@
+if TEGRA
+
+choice
+	prompt "Tegra SoC select"
+
+config TEGRA20
+	bool "Tegra20 family"
+
+config TEGRA30
+	bool "Tegra30 family"
+
+config TEGRA114
+	bool "Tegra114 family"
+
+config TEGRA124
+	bool "Tegra124 family"
+
+endchoice
+
+config SYS_CPU
+	default "arm720t" if SPL_BUILD
+	default "armv7" if !SPL_BUILD
+
+source "arch/arm/cpu/armv7/tegra20/Kconfig"
+source "arch/arm/cpu/armv7/tegra30/Kconfig"
+source "arch/arm/cpu/armv7/tegra114/Kconfig"
+source "arch/arm/cpu/armv7/tegra124/Kconfig"
+
+endif

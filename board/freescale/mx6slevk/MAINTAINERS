@@ -1,0 +1,6 @@
+MX6SLEVK BOARD
+M:	Fabio Estevam <fabio.estevam@freescale.com>
+S:	Maintained
+F:	board/freescale/mx6slevk/
+F:	include/configs/mx6slevk.h
+F:	configs/mx6slevk_defconfig

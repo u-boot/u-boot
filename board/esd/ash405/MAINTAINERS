@@ -1,0 +1,6 @@
+ASH405 BOARD
+M:	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+S:	Maintained
+F:	board/esd/ash405/
+F:	include/configs/ASH405.h
+F:	configs/ASH405_defconfig

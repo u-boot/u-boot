@@ -1,0 +1,12 @@
+if TARGET_KUP4X
+
+config SYS_BOARD
+	default "kup4x"
+
+config SYS_VENDOR
+	default "kup"
+
+config SYS_CONFIG_NAME
+	default "KUP4X"
+
+endif

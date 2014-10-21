@@ -13,22 +13,6 @@
 #include <linux/compat.h>
 
 /* common */
-#define spin_lock_init(...)
-#define spin_lock(...)
-#define spin_lock_irqsave(lock, flags) do { debug("%lu\n", flags); } while (0)
-#define spin_unlock(...)
-#define spin_unlock_irqrestore(lock, flags) do {flags = 0; } while (0)
-#define disable_irq(...)
-#define enable_irq(...)
-
-#define mutex_init(...)
-#define mutex_lock(...)
-#define mutex_unlock(...)
-
-#define GFP_KERNEL	0
-
-#define IRQ_HANDLED	1
-
 #define ENOTSUPP	524	/* Operation is not supported */
 
 #define BITS_PER_BYTE				8

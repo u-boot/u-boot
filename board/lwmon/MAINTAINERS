@@ -1,0 +1,6 @@
+LWMON BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/lwmon/
+F:	include/configs/lwmon.h
+F:	configs/lwmon_defconfig

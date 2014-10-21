@@ -1,0 +1,9 @@
+if TARGET_UTX8245
+
+config SYS_BOARD
+	default "utx8245"
+
+config SYS_CONFIG_NAME
+	default "utx8245"
+
+endif

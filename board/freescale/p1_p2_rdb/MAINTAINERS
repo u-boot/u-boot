@@ -1,0 +1,37 @@
+P1_P2_RDB BOARD
+#M:	-
+S:	Maintained
+F:	board/freescale/p1_p2_rdb/
+F:	include/configs/P1_P2_RDB.h
+F:	configs/P1011RDB_defconfig
+F:	configs/P1011RDB_36BIT_defconfig
+F:	configs/P1011RDB_36BIT_SDCARD_defconfig
+F:	configs/P1011RDB_36BIT_SPIFLASH_defconfig
+F:	configs/P1011RDB_NAND_defconfig
+F:	configs/P1011RDB_SDCARD_defconfig
+F:	configs/P1011RDB_SPIFLASH_defconfig
+F:	configs/P1020RDB_defconfig
+F:	configs/P1020RDB_36BIT_defconfig
+F:	configs/P1020RDB_36BIT_SDCARD_defconfig
+F:	configs/P1020RDB_36BIT_SPIFLASH_defconfig
+F:	configs/P1020RDB_NAND_defconfig
+F:	configs/P1020RDB_SDCARD_defconfig
+F:	configs/P1020RDB_SPIFLASH_defconfig
+F:	configs/P2010RDB_defconfig
+F:	configs/P2010RDB_36BIT_defconfig
+F:	configs/P2010RDB_36BIT_SDCARD_defconfig
+F:	configs/P2010RDB_36BIT_SPIFLASH_defconfig
+F:	configs/P2010RDB_NAND_defconfig
+F:	configs/P2010RDB_SDCARD_defconfig
+F:	configs/P2010RDB_SPIFLASH_defconfig
+F:	configs/P2020RDB_36BIT_defconfig
+F:	configs/P2020RDB_36BIT_SDCARD_defconfig
+F:	configs/P2020RDB_36BIT_SPIFLASH_defconfig
+F:	configs/P2020RDB_NAND_defconfig
+F:	configs/P2020RDB_SDCARD_defconfig
+F:	configs/P2020RDB_SPIFLASH_defconfig
+
+P2020RDB BOARD
+M:	Poonam Aggrwal <poonam.aggrwal@freescale.com>
+S:	Maintained
+F:	configs/P2020RDB_defconfig

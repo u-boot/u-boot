@@ -1,0 +1,38 @@
+if TARGET_KM8360
+
+config SYS_BOARD
+	default "km83xx"
+
+config SYS_VENDOR
+	default "keymile"
+
+config SYS_CONFIG_NAME
+	default "km8360"
+
+endif
+
+if TARGET_SUVD3
+
+config SYS_BOARD
+	default "km83xx"
+
+config SYS_VENDOR
+	default "keymile"
+
+config SYS_CONFIG_NAME
+	default "suvd3"
+
+endif
+
+if TARGET_TUXX1
+
+config SYS_BOARD
+	default "km83xx"
+
+config SYS_VENDOR
+	default "keymile"
+
+config SYS_CONFIG_NAME
+	default "tuxx1"
+
+endif

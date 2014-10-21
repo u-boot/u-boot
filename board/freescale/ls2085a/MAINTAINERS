@@ -1,0 +1,9 @@
+LS2085A BOARD
+M:	York Sun <yorksun@freescale.com>
+S:	Maintained
+F:	board/freescale/ls2085a/
+F:	include/configs/ls2085a_emu.h
+F:	configs/ls2085a_emu_defconfig
+F:	configs/ls2085a_emu_D4_defconfig
+F:	include/configs/ls2085a_simu.h
+F:	configs/ls2085a_simu_defconfig

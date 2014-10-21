@@ -1,0 +1,6 @@
+GR_CPCI_AX2000 BOARD
+#M:	-
+S:	Maintained
+F:	board/gaisler/gr_cpci_ax2000/
+F:	include/configs/gr_cpci_ax2000.h
+F:	configs/gr_cpci_ax2000_defconfig

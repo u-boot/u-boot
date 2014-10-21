@@ -1,0 +1,9 @@
+if TARGET_CPC45
+
+config SYS_BOARD
+	default "cpc45"
+
+config SYS_CONFIG_NAME
+	default "CPC45"
+
+endif

@@ -1,0 +1,6 @@
+BF537-MINOTAUR BOARD
+M:	Martin Strubel <strubel@section5.ch>
+S:	Maintained
+F:	board/bf537-minotaur/
+F:	include/configs/bf537-minotaur.h
+F:	configs/bf537-minotaur_defconfig

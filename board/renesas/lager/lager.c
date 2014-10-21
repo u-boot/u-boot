@@ -29,15 +29,17 @@ void s_init(void)
 {
 	struct rcar_rwdt *rwdt = (struct rcar_rwdt *)RWDT_BASE;
 	struct rcar_swdt *swdt = (struct rcar_swdt *)SWDT_BASE;
-	u32 stc;
 
 	/* Watchdog init */
 	writel(0xA5A5A500, &rwdt->rwtcsra);
 	writel(0xA5A5A500, &swdt->swtcsra);
 
 	/* CPU frequency setting. Set to 1.4GHz */
-	stc = ((1500 / CLK2MHZ(CONFIG_SYS_CLK_FREQ)) - 1) << PLL0_STC_BIT;
-	clrsetbits_le32(PLL0CR, PLL0_STC_MASK, stc);
+	if (rmobile_get_cpu_rev_integer() >= R8A7790_CUT_ES2X) {
+		u32 stc = ((1400 / CLK2MHZ(CONFIG_SYS_CLK_FREQ)) - 1)
+			<< PLL0_STC_BIT;
+		clrsetbits_le32(PLL0CR, PLL0_STC_MASK, stc);
+	}
 
 	/* QoS(Quality-of-Service) Init */
 	qos_init();

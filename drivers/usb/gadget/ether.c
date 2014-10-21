@@ -25,14 +25,9 @@
 
 #define atomic_read
 extern struct platform_data brd;
-#define spin_lock(x)
-#define spin_unlock(x)
 
 
 unsigned packet_received, packet_sent;
-
-#define GFP_ATOMIC ((gfp_t) 0)
-#define GFP_KERNEL ((gfp_t) 0)
 
 /*
  * Ethernet gadget driver -- with CDC and non-CDC options

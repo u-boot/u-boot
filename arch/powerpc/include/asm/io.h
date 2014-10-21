@@ -123,6 +123,9 @@ static inline void isync(void)
 #define iobarrier_r()  eieio()
 #define iobarrier_w()  eieio()
 
+#define mb()	sync()
+#define isb()	isync()
+
 /*
  * Non ordered and non-swapping "raw" accessors
  */

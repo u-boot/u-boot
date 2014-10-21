@@ -1,0 +1,12 @@
+if TARGET_APC405
+
+config SYS_BOARD
+	default "apc405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "APC405"
+
+endif

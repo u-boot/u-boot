@@ -1,0 +1,15 @@
+if TARGET_ARISTAINETOS
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_BOARD
+	default "aristainetos"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "aristainetos"
+
+endif

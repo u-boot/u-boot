@@ -162,8 +162,19 @@ while true ; do
 		echo "Internal error!" >&2 ; exit 1 ;;
 	esac
 done
+
+GNU_MAKE=$(scripts/show-gnu-make) || {
+	echo "GNU Make not found" >&2
+	exit 1
+}
+
 # echo "Remaining arguments:"
 # for arg do echo '--> '"\`$arg'" ; done
+
+tools/genboardscfg.py || {
+	echo "Failed to generate boards.cfg" >&2
+	exit 1
+}
 
 FILTER="\$1 !~ /^#/"
 [ "$opt_a" ] && FILTER="${FILTER} && $opt_a"
@@ -506,9 +517,9 @@ get_target_location() {
 
 	set ${line}
 
-	CONFIG_NAME="${7%_config}"
+	CONFIG_NAME="${7%_defconfig}"
 
-	[ "${BOARD_NAME}" ] || BOARD_NAME="${7%_config}"
+	[ "${BOARD_NAME}" ] || BOARD_NAME="${7%_defconfig}"
 
 	if [ $# -gt 5 ]; then
 		if [ "$6" = "-" ] ; then
@@ -633,19 +644,21 @@ build_target() {
 	target_arch=$(get_target_arch ${target})
 	eval cross_toolchain=\$CROSS_COMPILE_`echo $target_arch | tr '[:lower:]' '[:upper:]'`
 	if [ "${cross_toolchain}" ] ; then
-	    MAKE="make CROSS_COMPILE=${cross_toolchain}"
+	    MAKE="$GNU_MAKE CROSS_COMPILE=${cross_toolchain}"
 	elif [ "${CROSS_COMPILE}" ] ; then
-	    MAKE="make CROSS_COMPILE=${CROSS_COMPILE}"
+	    MAKE="$GNU_MAKE CROSS_COMPILE=${CROSS_COMPILE}"
 	else
-	    MAKE=make
+	    MAKE=$GNU_MAKE
 	fi
 
 	if [  "${output_dir}" != "." ] ; then
 		MAKE="${MAKE} O=${output_dir}"
 	fi
 
-	${MAKE} distclean >/dev/null
-	${MAKE} -s ${target}_config
+	${MAKE} mrproper >/dev/null
+
+	echo "Building ${target} board..."
+	${MAKE} -s ${target}_defconfig >/dev/null
 
 	${MAKE} ${JOBS} ${CHECK} all \
 		>${LOG_DIR}/$target.MAKELOG 2> ${LOG_DIR}/$target.ERR

@@ -1,0 +1,57 @@
+menu "PowerPC architecture"
+	depends on PPC
+
+config SYS_ARCH
+	default "powerpc"
+
+choice
+	prompt "CPU select"
+
+config 74xx_7xx
+	bool "74xx"
+
+config MPC512X
+	bool "MPC512X"
+
+config 5xx
+	bool "MPC5xx"
+
+config MPC5xxx
+	bool "MPC5xxx"
+
+config MPC824X
+	bool "MPC824X"
+
+config MPC8260
+	bool "MPC8260"
+
+config MPC83xx
+	bool "MPC83xx"
+
+config MPC85xx
+	bool "MPC85xx"
+
+config MPC86xx
+	bool "MPC86xx"
+
+config 8xx
+	bool "MPC8xx"
+
+config 4xx
+	bool "PPC4xx"
+
+endchoice
+
+source "arch/powerpc/cpu/74xx_7xx/Kconfig"
+source "arch/powerpc/cpu/mpc512x/Kconfig"
+source "arch/powerpc/cpu/mpc5xx/Kconfig"
+source "arch/powerpc/cpu/mpc5xxx/Kconfig"
+source "arch/powerpc/cpu/mpc824x/Kconfig"
+source "arch/powerpc/cpu/mpc8260/Kconfig"
+source "arch/powerpc/cpu/mpc83xx/Kconfig"
+source "arch/powerpc/cpu/mpc85xx/Kconfig"
+source "arch/powerpc/cpu/mpc86xx/Kconfig"
+source "arch/powerpc/cpu/mpc8xx/Kconfig"
+source "arch/powerpc/cpu/ppc4xx/Kconfig"
+
+endmenu

@@ -1,0 +1,18 @@
+if TARGET_IMA3_MX53
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_BOARD
+	default "ima3-mx53"
+
+config SYS_VENDOR
+	default "esg"
+
+config SYS_SOC
+	default "mx5"
+
+config SYS_CONFIG_NAME
+	default "ima3-mx53"
+
+endif

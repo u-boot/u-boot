@@ -252,15 +252,15 @@ Selection of Processor Architecture and Board Type:
 ---------------------------------------------------
 
 For all supported boards there are ready-to-use default
-configurations available; just type "make <board_name>_config".
+configurations available; just type "make <board_name>_defconfig".
 
 Example: For a TQM823L module type:
 
 	cd u-boot
-	make TQM823L_config
+	make TQM823L_defconfig
 
 For the Cogent platform, you need to specify the CPU type as well;
-e.g. "make cogent_mpc8xx_config". And also configure the cogent
+e.g. "make cogent_mpc8xx_defconfig". And also configure the cogent
 directory according to the instructions in cogent/README.
 
 
@@ -272,7 +272,7 @@ board. This allows feature development which is not board- or architecture-
 specific to be undertaken on a native platform. The sandbox is also used to
 run some of U-Boot's tests.
 
-See board/sandbox/sandbox/README.sandbox for more details.
+See board/sandbox/README.sandbox for more details.
 
 
 Configuration Options:
@@ -537,6 +537,12 @@ The following options need to be configured:
 		DDR controller interleaving on 256-byte. This is a special
 		interleaving mode, handled by Dickens for Freescale layerscape
 		SoCs with ARM core.
+
+		CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS
+		Number of controllers used as main memory.
+
+		CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
+		Number of controllers used for other than main memory.
 
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
@@ -1153,6 +1159,7 @@ The following options need to be configured:
 		CONFIG_RTC_DS1307	- use Maxim, Inc. DS1307 RTC
 		CONFIG_RTC_DS1337	- use Maxim, Inc. DS1337 RTC
 		CONFIG_RTC_DS1338	- use Maxim, Inc. DS1338 RTC
+		CONFIG_RTC_DS1339	- use Maxim, Inc. DS1339 RTC
 		CONFIG_RTC_DS164x	- use Dallas DS164x RTC
 		CONFIG_RTC_ISL1208	- use Intersil ISL1208 RTC
 		CONFIG_RTC_MAX6900	- use Maxim, Inc. MAX6900 RTC
@@ -1377,6 +1384,10 @@ The following options need to be configured:
 
 			CONFIG_SH_ETHER_CACHE_WRITEBACK
 			If this option is set, the driver enables cache flush.
+
+- PWM Support:
+		CONFIG_PWM_IMX
+		Support for PWM modul on the imx6.
 
 - TPM Support:
 		CONFIG_TPM
@@ -1623,6 +1634,16 @@ The following options need to be configured:
 		The fastboot protocol requires a large memory buffer for
 		downloads. This buffer should be as large as possible for a
 		platform. Define this to the size available RAM for fastboot.
+
+		CONFIG_FASTBOOT_FLASH
+		The fastboot protocol includes a "flash" command for writing
+		the downloaded image to a non-volatile storage device. Define
+		this to enable the "fastboot flash" command.
+
+		CONFIG_FASTBOOT_FLASH_MMC_DEV
+		The fastboot "flash" command requires additional information
+		regarding the non-volatile storage device. Define this to
+		the eMMC device that fastboot should use to store the image.
 
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
@@ -2036,6 +2057,24 @@ CBFS (Coreboot Filesystem) support
 		3rd BOOTP request:	delay 0 ... 4 sec
 		4th and following
 		BOOTP requests:		delay 0 ... 8 sec
+
+		CONFIG_BOOTP_ID_CACHE_SIZE
+
+		BOOTP packets are uniquely identified using a 32-bit ID. The
+		server will copy the ID from client requests to responses and
+		U-Boot will use this to determine if it is the destination of
+		an incoming response. Some servers will check that addresses
+		aren't in use before handing them out (usually using an ARP
+		ping) and therefore take up to a few hundred milliseconds to
+		respond. Network congestion may also influence the time it
+		takes for a response to make it back to the client. If that
+		time is too long, U-Boot will retransmit requests. In order
+		to allow earlier responses to still be accepted after these
+		retransmissions, U-Boot's BOOTP client keeps a small cache of
+		IDs. The CONFIG_BOOTP_ID_CACHE_SIZE controls the size of this
+		cache. The default is to keep IDs for up to four outstanding
+		requests. Increasing this will allow U-Boot to accept offers
+		from a BOOTP client in networks with unusually high latency.
 
 - DHCP Advanced Options:
 		You can fine tune the DHCP functionality by defining
@@ -2598,6 +2637,10 @@ CBFS (Coreboot Filesystem) support
 		Enables the driver for the SPI controllers on i.MX and MXC
 		SoCs. Currently i.MX31/35/51 are supported.
 
+		CONFIG_SYS_SPI_MXC_WAIT
+		Timeout for waiting until spi transfer completed.
+		default: (CONFIG_SYS_HZ/100)     /* 10 ms */
+
 - FPGA Support: CONFIG_FPGA
 
 		Enables FPGA subsystem.
@@ -2926,6 +2969,17 @@ CBFS (Coreboot Filesystem) support
 		Define this option to use dual flash support where two flash
 		memories can be connected with a given cs line.
 		currently Xilinx Zynq qspi support these type of connections.
+
+		CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
+		enable the W#/Vpp signal to disable writing to the status
+		register on ST MICRON flashes like the N25Q128.
+		The status register write enable/disable bit, combined with
+		the W#/VPP signal provides hardware data protection for the
+		device as follows: When the enable/disable bit is set to 1,
+		and the W#/VPP signal is driven LOW, the status register
+		nonvolatile bits become read-only and the WRITE STATUS REGISTER
+		operation will not execute. The only way to exit this
+		hardware-protected mode is to drive W#/VPP HIGH.
 
 - SystemACE Support:
 		CONFIG_SYSTEMACE
@@ -3316,6 +3370,9 @@ FIT uImage format:
 		Adds the MTD partitioning infrastructure from the Linux
 		kernel. Needed for UBI support.
 
+		CONFIG_MTD_NAND_VERIFY_WRITE
+		verify if the written data is correct reread.
+
 - UBI support
 		CONFIG_CMD_UBI
 
@@ -3328,6 +3385,64 @@ FIT uImage format:
 
 		Make the verbose messages from UBI stop printing.  This leaves
 		warnings and errors enabled.
+
+
+		CONFIG_MTD_UBI_WL_THRESHOLD
+		This parameter defines the maximum difference between the highest
+		erase counter value and the lowest erase counter value of eraseblocks
+		of UBI devices. When this threshold is exceeded, UBI starts performing
+		wear leveling by means of moving data from eraseblock with low erase
+		counter to eraseblocks with high erase counter.
+
+		The default value should be OK for SLC NAND flashes, NOR flashes and
+		other flashes which have eraseblock life-cycle 100000 or more.
+		However, in case of MLC NAND flashes which typically have eraseblock
+		life-cycle less than 10000, the threshold should be lessened (e.g.,
+		to 128 or 256, although it does not have to be power of 2).
+
+		default: 4096
+		
+		CONFIG_MTD_UBI_BEB_LIMIT
+		This option specifies the maximum bad physical eraseblocks UBI
+		expects on the MTD device (per 1024 eraseblocks). If the
+		underlying flash does not admit of bad eraseblocks (e.g. NOR
+		flash), this value is ignored.
+
+		NAND datasheets often specify the minimum and maximum NVM
+		(Number of Valid Blocks) for the flashes' endurance lifetime.
+		The maximum expected bad eraseblocks per 1024 eraseblocks
+		then can be calculated as "1024 * (1 - MinNVB / MaxNVB)",
+		which gives 20 for most NANDs (MaxNVB is basically the total
+		count of eraseblocks on the chip).
+
+		To put it differently, if this value is 20, UBI will try to
+		reserve about 1.9% of physical eraseblocks for bad blocks
+		handling. And that will be 1.9% of eraseblocks on the entire
+		NAND chip, not just the MTD partition UBI attaches. This means
+		that if you have, say, a NAND flash chip admits maximum 40 bad
+		eraseblocks, and it is split on two MTD partitions of the same
+		size, UBI will reserve 40 eraseblocks when attaching a
+		partition.
+
+		default: 20
+
+		CONFIG_MTD_UBI_FASTMAP
+		Fastmap is a mechanism which allows attaching an UBI device
+		in nearly constant time. Instead of scanning the whole MTD device it
+		only has to locate a checkpoint (called fastmap) on the device.
+		The on-flash fastmap contains all information needed to attach
+		the device. Using fastmap makes only sense on large devices where
+		attaching by scanning takes long. UBI will not automatically install
+		a fastmap on old images, but you can set the UBI parameter
+		CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT to 1 if you want so. Please note
+		that fastmap-enabled images are still usable with UBI implementations
+		without	fastmap support. On typical flash devices the whole fastmap
+		fits into one PEB. UBI will reserve PEBs to hold two fastmaps.
+
+		CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT
+		Set this parameter to enable fastmap automatically on images
+		without a fastmap.
+		default: 0
 
 - UBIFS support
 		CONFIG_CMD_UBIFS
@@ -3736,6 +3851,22 @@ Configuration Settings:
 
 - CONFIG_SYS_MALLOC_LEN:
 		Size of DRAM reserved for malloc() use.
+
+- CONFIG_SYS_MALLOC_F_LEN
+		Size of the malloc() pool for use before relocation. If
+		this is defined, then a very simple malloc() implementation
+		will become available before relocation. The address is just
+		below the global data, and the stack is moved down to make
+		space.
+
+		This feature allocates regions with increasing addresses
+		within the region. calloc() is supported, but realloc()
+		is not available. free() is supported but does nothing.
+		The memory will be freed (or in fact just forgotton) when
+		U-Boot relocates itself.
+
+		Pre-relocation malloc() is only supported on ARM and sandbox
+		at present but is fairly easy to enable for other archs.
 
 - CONFIG_SYS_BOOTM_LEN:
 		Normally compressed uImages are limited to an
@@ -4348,6 +4479,11 @@ use the "saveenv" command to store a valid environment.
 		later, once stdio is running and output goes to the LCD, if
 		present.
 
+- CONFIG_BOARD_SIZE_LIMIT:
+		Maximum size of the U-Boot image. When defined, the
+		build system checks that the actual size does not
+		exceed it.
+
 Low Level (hardware related) configuration options:
 ---------------------------------------------------
 
@@ -4825,9 +4961,9 @@ U-Boot is intended to be simple to build. After installing the
 sources you must configure U-Boot for one specific board type. This
 is done by typing:
 
-	make NAME_config
+	make NAME_defconfig
 
-where "NAME_config" is the name of one of the existing configu-
+where "NAME_defconfig" is the name of one of the existing configu-
 rations; see boards.cfg for supported names.
 
 Note: for some board special configuration names may exist; check if
@@ -4836,10 +4972,10 @@ Note: for some board special configuration names may exist; check if
       or with LCD support. You can select such additional "features"
       when choosing the configuration, i. e.
 
-      make TQM823L_config
+      make TQM823L_defconfig
 	- will configure for a plain TQM823L, i. e. no LCD support
 
-      make TQM823L_LCD_config
+      make TQM823L_LCD_defconfig
 	- will configure for a TQM823L with U-Boot console on LCD
 
       etc.
@@ -4859,14 +4995,14 @@ this behavior and build U-Boot to some external directory:
 1. Add O= to the make command line invocations:
 
 	make O=/tmp/build distclean
-	make O=/tmp/build NAME_config
+	make O=/tmp/build NAME_defconfig
 	make O=/tmp/build all
 
 2. Set environment variable BUILD_DIR to point to the desired location:
 
 	export BUILD_DIR=/tmp/build
 	make distclean
-	make NAME_config
+	make NAME_defconfig
 	make all
 
 Note that the command line "O=" setting overrides the BUILD_DIR environment
@@ -4892,7 +5028,7 @@ steps:
     your board
 3.  If you're porting U-Boot to a new CPU, then also create a new
     directory to hold your CPU specific code. Add any files you need.
-4.  Run "make <board>_config" with your new name.
+4.  Run "make <board>_defconfig" with your new name.
 5.  Type "make", and you should get a working "u-boot.srec" file
     to be installed on your target system.
 6.  Debug and solve any problems that might arise.
@@ -5472,7 +5608,7 @@ which was introduced for our predecessor project PPCBoot and uses a
 
 Example:
 
-	make TQM850L_config
+	make TQM850L_defconfig
 	make oldconfig
 	make dep
 	make uImage

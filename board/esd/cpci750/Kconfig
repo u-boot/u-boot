@@ -1,0 +1,12 @@
+if TARGET_CPCI750
+
+config SYS_BOARD
+	default "cpci750"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "CPCI750"
+
+endif

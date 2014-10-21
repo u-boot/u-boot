@@ -1,0 +1,25 @@
+if TARGET_PEACH_PIT
+
+config SYS_BOARD
+	default "smdk5420"
+
+config SYS_VENDOR
+	default "samsung"
+
+config SYS_CONFIG_NAME
+	default "peach-pit"
+
+endif
+
+if TARGET_SMDK5420
+
+config SYS_BOARD
+	default "smdk5420"
+
+config SYS_VENDOR
+	default "samsung"
+
+config SYS_CONFIG_NAME
+	default "smdk5420"
+
+endif

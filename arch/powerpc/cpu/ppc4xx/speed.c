@@ -171,7 +171,7 @@ ulong get_PCI_freq (void)
 #elif defined(CONFIG_440)
 
 #if defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
-    defined(CONFIG_460SX) || defined(CONFIG_APM821XX)
+    defined(CONFIG_460SX)
 static u8 pll_fwdv_multi_bits[] = {
 	/* values for:  1 - 16 */
 	0x00, 0x01, 0x0f, 0x04, 0x09, 0x0a, 0x0d, 0x0e, 0x03, 0x0c,
@@ -232,78 +232,6 @@ u32 get_cpr0_fbdv(unsigned long cpr_reg_fbdv)
 	return 0;
 }
 
-#if defined(CONFIG_APM821XX)
-
-void get_sys_info(sys_info_t *sysInfo)
-{
-	unsigned long plld;
-	unsigned long temp;
-	unsigned long mul;
-	unsigned long cpudv;
-	unsigned long plb2dv;
-	unsigned long ddr2dv;
-
-	/* Calculate Forward divisor A and Feeback divisor */
-	mfcpr(CPR0_PLLD, plld);
-
-	temp = CPR0_PLLD_FWDVA(plld);
-	sysInfo->pllFwdDivA = get_cpr0_fwdv(temp);
-
-	temp = CPR0_PLLD_FDV(plld);
-	sysInfo->pllFbkDiv = get_cpr0_fbdv(temp);
-
-	/* Calculate OPB clock divisor */
-	mfcpr(CPR0_OPBD, temp);
-	temp = CPR0_OPBD_OPBDV(temp);
-	sysInfo->pllOpbDiv = temp ? temp : 4;
-
-	/* Calculate Peripheral clock divisor */
-	mfcpr(CPR0_PERD, temp);
-	temp = CPR0_PERD_PERDV(temp);
-	sysInfo->pllExtBusDiv = temp ? temp : 4;
-
-	/* Calculate CPU clock divisor */
-	mfcpr(CPR0_CPUD, temp);
-	temp = CPR0_CPUD_CPUDV(temp);
-	cpudv = temp ? temp : 8;
-
-	/* Calculate PLB2 clock divisor */
-	mfcpr(CPR0_PLB2D, temp);
-	temp = CPR0_PLB2D_PLB2DV(temp);
-	plb2dv = temp ? temp : 4;
-
-	/* Calculate DDR2 clock divisor */
-	mfcpr(CPR0_DDR2D, temp);
-	temp = CPR0_DDR2D_DDR2DV(temp);
-	ddr2dv = temp ? temp : 4;
-
-	/* Calculate 'M' based on feedback source */
-	mfcpr(CPR0_PLLC, temp);
-	temp = CPR0_PLLC_SEL(temp);
-	if (temp == 0) {
-		/* PLL internal feedback */
-		mul = sysInfo->pllFbkDiv;
-	} else {
-		/* PLL PerClk feedback */
-		mul = sysInfo->pllFwdDivA * sysInfo->pllFbkDiv * cpudv
-			* plb2dv * 2 * sysInfo->pllOpbDiv *
-			  sysInfo->pllExtBusDiv;
-	}
-
-	/* Now calculate the individual clocks */
-	sysInfo->freqVCOMhz = (mul * CONFIG_SYS_CLK_FREQ) + (mul >> 1);
-	sysInfo->freqProcessor = sysInfo->freqVCOMhz /
-		sysInfo->pllFwdDivA / cpudv;
-	sysInfo->freqPLB = sysInfo->freqVCOMhz /
-		sysInfo->pllFwdDivA / cpudv / plb2dv / 2;
-	sysInfo->freqOPB = sysInfo->freqPLB / sysInfo->pllOpbDiv;
-	sysInfo->freqEBC = sysInfo->freqOPB / sysInfo->pllExtBusDiv;
-	sysInfo->freqDDR = sysInfo->freqVCOMhz /
-		sysInfo->pllFwdDivA / cpudv / ddr2dv / 2;
-	sysInfo->freqUART = sysInfo->freqPLB;
-}
-
-#else
 /*
  * AMCC_TODO: verify this routine against latest EAS, cause stuff changed
  *            with latest EAS
@@ -361,7 +289,6 @@ void get_sys_info (sys_info_t * sysInfo)
 
 	return;
 }
-#endif
 
 #elif defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)

@@ -60,7 +60,7 @@ void env_callback_init(ENTRY *var_entry);
  */
 #ifdef CONFIG_SPL_BUILD
 #define U_BOOT_ENV_CALLBACK(name, callback) \
-	static inline void _u_boot_env_noop_##name(void) \
+	static inline __maybe_unused void _u_boot_env_noop_##name(void) \
 	{ \
 		(void)callback; \
 	}

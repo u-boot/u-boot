@@ -1,0 +1,6 @@
+JUPITER BOARD
+M:	Heiko Schocher <hs@denx.de>
+S:	Maintained
+F:	board/jupiter/
+F:	include/configs/jupiter.h
+F:	configs/jupiter_defconfig

@@ -1,0 +1,6 @@
+MOTIONPRO BOARD
+#M:	-
+S:	Maintained
+F:	board/motionpro/
+F:	include/configs/motionpro.h
+F:	configs/motionpro_defconfig

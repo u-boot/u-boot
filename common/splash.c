@@ -23,14 +23,10 @@
 #include <common.h>
 #include <splash.h>
 
-int __splash_screen_prepare(void)
+__weak int splash_screen_prepare(void)
 {
 	return 0;
 }
-
-int splash_screen_prepare(void)
-	__attribute__ ((weak, alias("__splash_screen_prepare")));
-
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 void splash_get_pos(int *x, int *y)

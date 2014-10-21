@@ -1,0 +1,18 @@
+if TARGET_ZMX25
+
+config SYS_CPU
+	default "arm926ejs"
+
+config SYS_BOARD
+	default "zmx25"
+
+config SYS_VENDOR
+	default "syteco"
+
+config SYS_SOC
+	default "mx25"
+
+config SYS_CONFIG_NAME
+	default "zmx25"
+
+endif

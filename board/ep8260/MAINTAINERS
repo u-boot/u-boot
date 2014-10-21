@@ -1,0 +1,6 @@
+EP8260 BOARD
+#M:	Frank Panno <fpanno@delphintech.com>
+S:	Orphan (since 2014-06)
+F:	board/ep8260/
+F:	include/configs/ep8260.h
+F:	configs/ep8260_defconfig

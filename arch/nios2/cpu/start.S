@@ -134,17 +134,43 @@ _reloc:
 	mov	fp, sp
 
 	/*
-	 * Call board_init -- never returns
+	 * Call board_init_f -- never returns
 	 */
-	movhi	r4, %hi(board_init@h)
-	ori	r4, r4, %lo(board_init@h)
-	callr	r4
+	mov	r4, r0
+	movhi	r2, %hi(board_init_f@h)
+	ori	r2, r2, %lo(board_init_f@h)
+	callr	r2
 
 	/* NEVER RETURNS -- but branch to the _start just
 	 * in case ;-)
 	 */
 	br	_start
 
+
+
+/*
+ * relocate_code -- Nios2 handles the relocation above. But
+ * the generic board code monkeys with the heap, stack, etc.
+ * (it makes some assumptions that may not be appropriate
+ * for Nios). Nevertheless, we capitulate here.
+ *
+ * We'll call the board_init_r from here since this isn't
+ * supposed to return.
+ *
+ * void relocate_code (ulong sp, gd_t *global_data,
+ *			ulong reloc_addr)
+ *			__attribute__ ((noreturn));
+ */
+	.text
+	.global relocate_code
+
+relocate_code:
+	mov	sp, r4		/* Set the new sp */
+	mov	r4, r5
+	movhi	r8, %hi(board_init_r@h)
+	ori	r8, r8, %lo(board_init_r@h)
+	callr	r8
+	ret
 
 /*
  * dly_clks -- Nios2 (like Nios1) doesn't have a timebase in

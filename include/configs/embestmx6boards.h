@@ -19,6 +19,8 @@
 #include "mx6_common.h"
 #include <linux/sizes.h>
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 #define CONFIG_CONSOLE_DEV		"ttymxc1"
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"
@@ -100,7 +102,7 @@
 #define CONFIG_SPI_FLASH_SST
 #define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		(0 | (IMX_GPIO_NR(2, 30) << 8))
+#define CONFIG_SF_DEFAULT_CS		0
 #define CONFIG_SF_DEFAULT_SPEED		20000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif

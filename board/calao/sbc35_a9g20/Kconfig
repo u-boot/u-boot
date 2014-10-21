@@ -1,0 +1,18 @@
+if TARGET_SBC35_A9G20
+
+config SYS_CPU
+	default "arm926ejs"
+
+config SYS_BOARD
+	default "sbc35_a9g20"
+
+config SYS_VENDOR
+	default "calao"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "sbc35_a9g20"
+
+endif

@@ -1,6 +1,16 @@
 /dts-v1/;
 
 / {
+	chosen {
+		stdout-path = "/serial";
+	};
+
+	/* Needs to be available prior to relocation */
+	uart0: serial {
+		compatible = "sandbox,serial";
+		sandbox,text-colour = "cyan";
+	};
+
 	triangle {
 		compatible = "demo-shape";
 		colour = "cyan";
@@ -111,6 +121,14 @@
 			0x07060016 0x07070036 0x07080019 0x07090018
 			/* UP      LEFT    */
 			0x070b0067 0x070c0069>;
+	};
+
+	gpio_a: gpios {
+		gpio-controller;
+		compatible = "sandbox,gpio";
+		#gpio-cells = <1>;
+		gpio-bank-name = "a";
+		num-gpios = <20>;
 	};
 
 };

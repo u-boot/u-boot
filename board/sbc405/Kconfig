@@ -1,0 +1,9 @@
+if TARGET_SBC405
+
+config SYS_BOARD
+	default "sbc405"
+
+config SYS_CONFIG_NAME
+	default "sbc405"
+
+endif

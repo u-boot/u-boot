@@ -1,0 +1,48 @@
+menu "mpc824x CPU"
+	depends on MPC824X
+
+config SYS_CPU
+	default "mpc824x"
+
+choice
+	prompt "Target select"
+
+config TARGET_A3000
+	bool "Support A3000"
+
+config TARGET_CPC45
+	bool "Support CPC45"
+
+config TARGET_CU824
+	bool "Support CU824"
+
+config TARGET_EXALION
+	bool "Support eXalion"
+
+config TARGET_MUSENKI
+	bool "Support MUSENKI"
+
+config TARGET_MVBLUE
+	bool "Support MVBLUE"
+
+config TARGET_SANDPOINT8240
+	bool "Support Sandpoint8240"
+
+config TARGET_SANDPOINT8245
+	bool "Support Sandpoint8245"
+
+config TARGET_UTX8245
+	bool "Support utx8245"
+
+endchoice
+
+source "board/a3000/Kconfig"
+source "board/cpc45/Kconfig"
+source "board/cu824/Kconfig"
+source "board/eXalion/Kconfig"
+source "board/musenki/Kconfig"
+source "board/mvblue/Kconfig"
+source "board/sandpoint/Kconfig"
+source "board/utx8245/Kconfig"
+
+endmenu

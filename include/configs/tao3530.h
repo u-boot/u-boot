@@ -18,10 +18,10 @@
  */
 #define CONFIG_ARMV7			/* This is an ARM V7 CPU core */
 #define CONFIG_OMAP			/* in a TI OMAP core */
-#define CONFIG_OMAP34XX			/* which is a 34XX */
 
 #define CONFIG_OMAP_GPIO
 #define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
 
 #define MACH_TYPE_OMAP3_TAO3530		2836
 
@@ -253,13 +253,8 @@
  */
 
 /* **** PISMO SUPPORT *** */
-
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-#define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
-
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
-#define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
+#define CONFIG_SYS_FLASH_BASE		NAND_BASE
 
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
@@ -305,7 +300,6 @@
 #define CONGIG_CMD_STORAGE
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 

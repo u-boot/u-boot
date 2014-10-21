@@ -1,0 +1,33 @@
+menu "mpc512x CPU"
+	depends on MPC512X
+
+config SYS_CPU
+	default "mpc512x"
+
+choice
+	prompt "Target select"
+
+config TARGET_PDM360NG
+	bool "Support pdm360ng"
+
+config TARGET_ARIA
+	bool "Support aria"
+
+config TARGET_MECP5123
+	bool "Support mecp5123"
+
+config TARGET_MPC5121ADS
+	bool "Support mpc5121ads"
+
+config TARGET_AC14XX
+	bool "Support ac14xx"
+
+endchoice
+
+source "board/davedenx/aria/Kconfig"
+source "board/esd/mecp5123/Kconfig"
+source "board/freescale/mpc5121ads/Kconfig"
+source "board/ifm/ac14xx/Kconfig"
+source "board/pdm360ng/Kconfig"
+
+endmenu

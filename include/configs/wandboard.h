@@ -110,6 +110,11 @@
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
+#define CONFIG_CMD_FUSE
+#ifdef CONFIG_CMD_FUSE
+#define CONFIG_MXC_OCOTP
+#endif
+
 #if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
 #define CONFIG_DEFAULT_FDT_FILE		"imx6dl-wandboard.dtb"
 #elif defined(CONFIG_MX6Q)

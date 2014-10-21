@@ -157,6 +157,7 @@ serial_initfunc(sh_serial_initialize);
 serial_initfunc(arm_dcc_initialize);
 serial_initfunc(mxs_auart_initialize);
 serial_initfunc(arc_serial_initialize);
+serial_initfunc(uniphier_serial_initialize);
 
 /**
  * serial_register() - Register serial driver with serial driver core
@@ -250,8 +251,51 @@ void serial_initialize(void)
 	arm_dcc_initialize();
 	mxs_auart_initialize();
 	arc_serial_initialize();
+	uniphier_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
+}
+
+int serial_stub_start(struct stdio_dev *sdev)
+{
+	struct serial_device *dev = sdev->priv;
+
+	return dev->start();
+}
+
+int serial_stub_stop(struct stdio_dev *sdev)
+{
+	struct serial_device *dev = sdev->priv;
+
+	return dev->stop();
+}
+
+void serial_stub_putc(struct stdio_dev *sdev, const char ch)
+{
+	struct serial_device *dev = sdev->priv;
+
+	dev->putc(ch);
+}
+
+void serial_stub_puts(struct stdio_dev *sdev, const char *str)
+{
+	struct serial_device *dev = sdev->priv;
+
+	dev->puts(str);
+}
+
+int serial_stub_getc(struct stdio_dev *sdev)
+{
+	struct serial_device *dev = sdev->priv;
+
+	return dev->getc();
+}
+
+int serial_stub_tstc(struct stdio_dev *sdev)
+{
+	struct serial_device *dev = sdev->priv;
+
+	return dev->tstc();
 }
 
 /**
@@ -272,12 +316,13 @@ void serial_stdio_init(void)
 		strcpy(dev.name, s->name);
 		dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 
-		dev.start = s->start;
-		dev.stop = s->stop;
-		dev.putc = s->putc;
-		dev.puts = s->puts;
-		dev.getc = s->getc;
-		dev.tstc = s->tstc;
+		dev.start = serial_stub_start;
+		dev.stop = serial_stub_stop;
+		dev.putc = serial_stub_putc;
+		dev.puts = serial_stub_puts;
+		dev.getc = serial_stub_getc;
+		dev.tstc = serial_stub_tstc;
+		dev.priv = s;
 
 		stdio_register(&dev);
 
@@ -376,6 +421,7 @@ static struct serial_device *get_current(void)
  */
 int serial_init(void)
 {
+	gd->flags |= GD_FLG_SERIAL_READY;
 	return get_current()->start();
 }
 

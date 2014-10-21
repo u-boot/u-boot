@@ -4,4 +4,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_DM)	:= device.o lists.o root.o uclass.o util.o
+obj-y := device.o lists.o root.o uclass.o util.o

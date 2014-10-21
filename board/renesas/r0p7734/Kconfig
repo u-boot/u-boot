@@ -1,0 +1,15 @@
+if TARGET_R0P7734
+
+config SYS_CPU
+	default "sh4"
+
+config SYS_BOARD
+	default "r0p7734"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "r0p7734"
+
+endif

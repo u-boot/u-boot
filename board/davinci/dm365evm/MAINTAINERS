@@ -1,0 +1,6 @@
+DM365EVM BOARD
+#M:	Sandeep Paulraj <s-paulraj@ti.com>
+S:	Orphan (since 2014-08)
+F:	board/davinci/dm365evm/
+F:	include/configs/davinci_dm365evm.h
+F:	configs/davinci_dm365evm_defconfig

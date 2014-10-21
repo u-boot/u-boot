@@ -633,8 +633,8 @@ U_BOOT_CMD(
 struct Image_header {
 	uint32_t	code0;		/* Executable code */
 	uint32_t	code1;		/* Executable code */
-	uint64_t	text_offset;	/* Image load offset */
-	uint64_t	res0;		/* reserved */
+	uint64_t	text_offset;	/* Image load offset, LE */
+	uint64_t	image_size;	/* Effective Image size, LE */
 	uint64_t	res1;		/* reserved */
 	uint64_t	res2;		/* reserved */
 	uint64_t	res3;		/* reserved */
@@ -644,8 +644,6 @@ struct Image_header {
 };
 
 #define LINUX_ARM64_IMAGE_MAGIC	0x644d5241
-/* XXX: Hack 16MB image size for now */
-#define HACK_ARM64_IMAGE_SIZE	(16 << 20)
 
 static int booti_setup(bootm_headers_t *images)
 {
@@ -654,16 +652,21 @@ static int booti_setup(bootm_headers_t *images)
 
 	ih = (struct Image_header *)map_sysmem(images->ep, 0);
 
-	if (ih->magic != LINUX_ARM64_IMAGE_MAGIC) {
+	if (ih->magic != le32_to_cpu(LINUX_ARM64_IMAGE_MAGIC)) {
 		puts("Bad Linux ARM64 Image magic!\n");
 		return 1;
+	}
+	
+	if (ih->image_size == 0) {
+		puts("Image lacks image_size field, assuming 16MiB\n");
+		ih->image_size = (16 << 20);
 	}
 
 	/*
 	 * If we are not at the correct run-time location, set the new
 	 * correct location and then move the image there.
 	 */
-	dst = gd->bd->bi_dram[0].start + ih->text_offset;
+	dst = gd->bd->bi_dram[0].start + le32_to_cpu(ih->text_offset);
 	if (images->ep != dst) {
 		void *src;
 
@@ -671,7 +674,7 @@ static int booti_setup(bootm_headers_t *images)
 
 		src = (void *)images->ep;
 		images->ep = dst;
-		memmove((void *)dst, src, HACK_ARM64_IMAGE_SIZE);
+		memmove((void *)dst, src, le32_to_cpu(ih->image_size));
 	}
 
 	return 0;
@@ -684,6 +687,7 @@ static int booti_start(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[], bootm_headers_t *images)
 {
 	int ret;
+	struct Image_header *ih;
 
 	ret = do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START,
 			      images, 1);
@@ -703,19 +707,16 @@ static int booti_start(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (ret != 0)
 		return 1;
 
-	lmb_reserve(&images->lmb, images->ep, HACK_ARM64_IMAGE_SIZE);
+	ih = (struct Image_header *)map_sysmem(images->ep, 0);
+
+	lmb_reserve(&images->lmb, images->ep, le32_to_cpu(ih->image_size));
 
 	/*
 	 * Handle the BOOTM_STATE_FINDOTHER state ourselves as we do not
 	 * have a header that provide this informaiton.
 	 */
-	if (bootm_find_ramdisk(flag, argc, argv))
+	if (bootm_find_ramdisk_fdt(flag, argc, argv))
 		return 1;
-
-#if defined(CONFIG_OF_LIBFDT)
-	if (bootm_find_fdt(flag, argc, argv))
-		return 1;
-#endif
 
 	return 0;
 }
@@ -751,9 +752,9 @@ static char booti_help_text[] =
 	"    - boot Linux Image stored in memory\n"
 	"\tThe argument 'initrd' is optional and specifies the address\n"
 	"\tof the initrd in memory. The optional argument ':size' allows\n"
-	"\tspecifying the size of RAW initrd."
+	"\tspecifying the size of RAW initrd.\n"
 #if defined(CONFIG_OF_LIBFDT)
-	"\n\tSince booting a Linux kernelrequires a flat device-tree\n"
+	"\tSince booting a Linux kernelrequires a flat device-tree\n"
 	"\ta third argument is required which is the address of the\n"
 	"\tdevice-tree blob. To boot that kernel without an initrd image,\n"
 	"\tuse a '-' for the second argument.\n"

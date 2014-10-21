@@ -1,0 +1,12 @@
+if TARGET_MIP405
+
+config SYS_BOARD
+	default "mip405"
+
+config SYS_VENDOR
+	default "mpl"
+
+config SYS_CONFIG_NAME
+	default "MIP405"
+
+endif

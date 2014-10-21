@@ -24,11 +24,6 @@
 /* VDD core PMIC */
 #define CONFIG_TEGRA_VDD_CORE_TPS62361B_SET3
 
-/* Enable fdt support for Cardhu. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra30-cardhu
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
-
 /* High-level configuration options */
 #define V_PROMPT		"Tegra30 (Cardhu) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Cardhu"

@@ -1,0 +1,7 @@
+MX51_EFIKAMX BOARD
+#M:	-
+S:	Maintained
+F:	board/genesi/mx51_efikamx/
+F:	include/configs/mx51_efikamx.h
+F:	configs/mx51_efikamx_defconfig
+F:	configs/mx51_efikasb_defconfig

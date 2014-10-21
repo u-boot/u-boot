@@ -24,6 +24,7 @@
  *    and some padding thus 'our' max size is really 0x00908000 - 0x00918000
  *    or 64KB
  */
+#define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/armv7/omap-common/u-boot-spl.lds"
 #define CONFIG_SPL_TEXT_BASE		0x00908000
 #define CONFIG_SPL_MAX_SIZE		(64 * 1024)

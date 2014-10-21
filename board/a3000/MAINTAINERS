@@ -1,0 +1,6 @@
+A3000 BOARD
+#M:	-
+S:	Maintained
+F:	board/a3000/
+F:	include/configs/A3000.h
+F:	configs/A3000_defconfig

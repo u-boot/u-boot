@@ -1,0 +1,6 @@
+SPD8XX BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/spd8xx/
+F:	include/configs/SPD823TS.h
+F:	configs/SPD823TS_defconfig

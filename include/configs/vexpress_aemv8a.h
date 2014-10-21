@@ -8,8 +8,6 @@
 #ifndef __VEXPRESS_AEMV8A_H
 #define __VEXPRESS_AEMV8A_H
 
-#define DEBUG
-
 #ifdef CONFIG_BASE_FVP
 #ifndef CONFIG_SEMIHOSTING
 #error CONFIG_BASE_FVP requires CONFIG_SEMIHOSTING
@@ -53,7 +51,6 @@
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_LIBFDT
 
-#define CONFIG_DEFAULT_DEVICE_TREE	vexpress64
 
 /* SMP Spin Table Definitions */
 #ifdef CONFIG_BASE_FVP
@@ -134,7 +131,7 @@
 #define CONFIG_SYS_MEMTEST_END		(V2M_BASE + 0x80000000)
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
 
 /* SMSC91C111 Ethernet Configuration */
 #define CONFIG_SMC91111			1
@@ -156,6 +153,8 @@
 /*#define CONFIG_MENU_SHOW*/
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_BDI
+#define CONFIG_CMD_BOOTI
+#define CONFIG_CMD_UNZIP
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PXE
 #define CONFIG_CMD_ENV
@@ -215,10 +214,9 @@
 #else
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-					"kernel_addr_r=0x200000\0"	\
-					"initrd_addr_r=0xa00000\0"	\
-					"initrd_size=0x2000000\0"	\
-					"fdt_addr_r=0x100000\0"		\
+					"kernel_addr_r=0x80000000\0"	\
+					"initrd_addr_r=0x88000000\0"	\
+					"fdt_addr_r=0x83000000\0"		\
 					"fdt_high=0xa0000000\0"
 
 #define CONFIG_BOOTARGS			"console=ttyAMA0 root=/dev/ram0"
@@ -239,7 +237,7 @@
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING		1
+#define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #endif /* __VEXPRESS_AEMV8A_H */

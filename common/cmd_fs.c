@@ -20,7 +20,21 @@
 #include <command.h>
 #include <fs.h>
 
-int do_load_wrapper(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_size_wrapper(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	return do_size(cmdtp, flag, argc, argv, FS_TYPE_ANY);
+}
+
+U_BOOT_CMD(
+	size,	4,	0,	do_size_wrapper,
+	"determine a file's size",
+	"<interface> <dev[:part]> <filename>\n"
+	"    - Find file 'filename' from 'dev' on 'interface'\n"
+	"      and determine its size."
+);
+
+static int do_load_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
+				char * const argv[])
 {
 	return do_load(cmdtp, flag, argc, argv, FS_TYPE_ANY);
 }
@@ -35,9 +49,10 @@ U_BOOT_CMD(
 	"      If 'bytes' is 0 or omitted, the file is read until the end.\n"
 	"      'pos' gives the file byte position to start reading from.\n"
 	"      If 'pos' is 0 or omitted, the file is read from the start."
-);
+)
 
-int do_ls_wrapper(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ls_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
+				char * const argv[])
 {
 	return do_ls(cmdtp, flag, argc, argv, FS_TYPE_ANY);
 }
@@ -48,4 +63,4 @@ U_BOOT_CMD(
 	"<interface> [<dev[:part]> [directory]]\n"
 	"    - List files in directory 'directory' of partition 'part' on\n"
 	"      device type 'interface' instance 'dev'."
-);
+)

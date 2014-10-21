@@ -274,7 +274,6 @@
 /*
  * SPL related defines
  */
-#define CONFIG_SPL
 #define CONFIG_SPL_TEXT_BASE	0xd2800b00
 #define	CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/spear"
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/spear/u-boot-spl.lds"

@@ -96,7 +96,7 @@ static uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 	else if (cmd->resp_type & MMC_RSP_PRESENT)
 		xfertyp |= XFERTYP_RSPTYP_48;
 
-#if defined(CONFIG_MX53) || defined(CONFIG_PPC_T4240)
+#if defined(CONFIG_MX53) || defined(CONFIG_PPC_T4240) || defined(CONFIG_LS102XA)
 	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
 		xfertyp |= XFERTYP_CMDTYP_ABORT;
 #endif
@@ -561,7 +561,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	memset(&cfg->cfg, 0, sizeof(cfg->cfg));
 
 	voltage_caps = 0;
-	caps = regs->hostcapblt;
+	caps = esdhc_read32(&regs->hostcapblt);
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC135
 	caps = caps & ~(ESDHC_HOSTCAPBLT_SRS |
@@ -610,7 +610,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 #endif
 
 	cfg->cfg.f_min = 400000;
-	cfg->cfg.f_max = MIN(gd->arch.sdhc_clk, 52000000);
+	cfg->cfg.f_max = min(gd->arch.sdhc_clk, 52000000);
 
 	cfg->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 

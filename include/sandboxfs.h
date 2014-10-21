@@ -26,6 +26,7 @@ long sandbox_fs_read_at(const char *filename, unsigned long pos,
 void sandbox_fs_close(void);
 int sandbox_fs_ls(const char *dirname);
 int sandbox_fs_exists(const char *filename);
+int sandbox_fs_size(const char *filename);
 int fs_read_sandbox(const char *filename, void *buf, int offset, int len);
 int fs_write_sandbox(const char *filename, void *buf, int offset, int len);
 

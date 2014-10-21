@@ -1,0 +1,15 @@
+if TARGET_SH7785LCR
+
+config SYS_CPU
+	default "sh4"
+
+config SYS_BOARD
+	default "sh7785lcr"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "sh7785lcr"
+
+endif

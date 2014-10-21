@@ -1,0 +1,9 @@
+if TARGET_BF537_MINOTAUR
+
+config SYS_BOARD
+	default "bf537-minotaur"
+
+config SYS_CONFIG_NAME
+	default "bf537-minotaur"
+
+endif

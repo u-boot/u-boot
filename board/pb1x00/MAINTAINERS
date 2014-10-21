@@ -1,0 +1,6 @@
+PB1X00 BOARD
+#M:	-
+S:	Maintained
+F:	board/pb1x00/
+F:	include/configs/pb1x00.h
+F:	configs/pb1000_defconfig

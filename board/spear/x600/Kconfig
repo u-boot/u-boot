@@ -1,0 +1,18 @@
+if TARGET_X600
+
+config SYS_CPU
+	default "arm926ejs"
+
+config SYS_BOARD
+	default "x600"
+
+config SYS_VENDOR
+	default "spear"
+
+config SYS_SOC
+	default "spear"
+
+config SYS_CONFIG_NAME
+	default "x600"
+
+endif

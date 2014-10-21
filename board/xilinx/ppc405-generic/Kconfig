@@ -1,0 +1,12 @@
+if TARGET_XILINX_PPC405_GENERIC
+
+config SYS_BOARD
+	default "ppc405-generic"
+
+config SYS_VENDOR
+	default "xilinx"
+
+config SYS_CONFIG_NAME
+	default "xilinx-ppc405-generic"
+
+endif

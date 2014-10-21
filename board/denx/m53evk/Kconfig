@@ -1,0 +1,18 @@
+if TARGET_M53EVK
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_BOARD
+	default "m53evk"
+
+config SYS_VENDOR
+	default "denx"
+
+config SYS_SOC
+	default "mx5"
+
+config SYS_CONFIG_NAME
+	default "m53evk"
+
+endif

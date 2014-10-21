@@ -1,0 +1,12 @@
+if TARGET_HMI1001
+
+config SYS_BOARD
+	default "hmi1001"
+
+config SYS_VENDOR
+	default "manroland"
+
+config SYS_CONFIG_NAME
+	default "hmi1001"
+
+endif

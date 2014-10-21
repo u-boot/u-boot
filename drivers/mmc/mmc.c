@@ -21,7 +21,7 @@
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
 
-int __weak board_mmc_getwp(struct mmc *mmc)
+__weak int board_mmc_getwp(struct mmc *mmc)
 {
 	return -1;
 }
@@ -42,12 +42,10 @@ int mmc_getwp(struct mmc *mmc)
 	return wp;
 }
 
-int __board_mmc_getcd(struct mmc *mmc) {
+__weak int board_mmc_getcd(struct mmc *mmc)
+{
 	return -1;
 }
-
-int board_mmc_getcd(struct mmc *mmc)__attribute__((weak,
-	alias("__board_mmc_getcd")));
 
 int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
@@ -377,7 +375,7 @@ static int mmc_send_op_cond_iter(struct mmc *mmc, struct mmc_cmd *cmd,
 	return 0;
 }
 
-int mmc_send_op_cond(struct mmc *mmc)
+static int mmc_send_op_cond(struct mmc *mmc)
 {
 	struct mmc_cmd cmd;
 	int err, i;
@@ -399,7 +397,7 @@ int mmc_send_op_cond(struct mmc *mmc)
 	return IN_PROGRESS;
 }
 
-int mmc_complete_op_cond(struct mmc *mmc)
+static int mmc_complete_op_cond(struct mmc *mmc)
 {
 	struct mmc_cmd cmd;
 	int timeout = 1000;
@@ -596,10 +594,15 @@ int mmc_switch_part(int dev_num, unsigned int part_num)
 	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
 			 (mmc->part_config & ~PART_ACCESS_MASK)
 			 | (part_num & PART_ACCESS_MASK));
-	if (ret)
-		return ret;
 
-	return mmc_set_capacity(mmc, part_num);
+	/*
+	 * Set the capacity if the switch succeeded or was intended
+	 * to return to representing the raw device.
+	 */
+	if ((ret == 0) || ((ret == -ENODEV) && (part_num == 0)))
+		ret = mmc_set_capacity(mmc, part_num);
+
+	return ret;
 }
 
 int mmc_getcd(struct mmc *mmc)
@@ -1012,6 +1015,8 @@ static int mmc_startup(struct mmc *mmc)
 
 			if (err)
 				return err;
+			else
+				ext_csd[EXT_CSD_ERASE_GROUP_DEF] = 1;
 
 			/* Read out group size from ext_csd */
 			mmc->erase_grp_size =
@@ -1129,10 +1134,11 @@ static int mmc_startup(struct mmc *mmc)
 			mmc_set_bus_width(mmc, widths[idx]);
 
 			err = mmc_send_ext_csd(mmc, test_csd);
+			/* Only compare read only fields */
 			if (!err && ext_csd[EXT_CSD_PARTITIONING_SUPPORT] \
 				    == test_csd[EXT_CSD_PARTITIONING_SUPPORT]
-				 && ext_csd[EXT_CSD_ERASE_GROUP_DEF] \
-				    == test_csd[EXT_CSD_ERASE_GROUP_DEF] \
+				 && ext_csd[EXT_CSD_HC_WP_GRP_SIZE] \
+				    == test_csd[EXT_CSD_HC_WP_GRP_SIZE] \
 				 && ext_csd[EXT_CSD_REV] \
 				    == test_csd[EXT_CSD_REV]
 				 && ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] \
@@ -1371,17 +1377,17 @@ int mmc_set_dsr(struct mmc *mmc, u16 val)
 	return 0;
 }
 
-/*
- * CPU and board-specific MMC initializations.  Aliased function
- * signals caller to move on
- */
-static int __def_mmc_init(bd_t *bis)
+/* CPU-specific MMC initializations */
+__weak int cpu_mmc_init(bd_t *bis)
 {
 	return -1;
 }
 
-int cpu_mmc_init(bd_t *bis) __attribute__((weak, alias("__def_mmc_init")));
-int board_mmc_init(bd_t *bis) __attribute__((weak, alias("__def_mmc_init")));
+/* board-specific MMC initializations. */
+__weak int board_mmc_init(bd_t *bis)
+{
+	return -1;
+}
 
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 

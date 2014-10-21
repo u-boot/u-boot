@@ -41,7 +41,6 @@
 #endif
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL
 #define CONFIG_SPL_INIT_MINIMAL
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
@@ -354,7 +353,7 @@ combinations. this should be removed later
 #define CONFIG_SYS_CS2_FTIM1		(FTIM1_GPCM_TACO(0x0e) | \
 					FTIM1_GPCM_TRAD(0x1f))
 #define CONFIG_SYS_CS2_FTIM2		(FTIM2_GPCM_TCS(0x0e) | \
-					FTIM2_GPCM_TCH(0x0) | \
+					FTIM2_GPCM_TCH(0x8) | \
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS2_FTIM3		0x0
 #endif

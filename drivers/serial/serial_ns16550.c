@@ -81,7 +81,8 @@ static NS16550_t serial_ports[6] = {
 	static int  eserial##port##_init(void) \
 	{ \
 		int clock_divisor; \
-		clock_divisor = calc_divisor(serial_ports[port-1]); \
+		clock_divisor = ns16550_calc_divisor(serial_ports[port-1], \
+				CONFIG_SYS_NS16550_CLK, gd->baudrate); \
 		NS16550_init(serial_ports[port-1], clock_divisor); \
 		return 0 ; \
 	} \
@@ -116,33 +117,6 @@ static NS16550_t serial_ports[6] = {
 	.tstc	= eserial##port##_tstc,		\
 	.putc	= eserial##port##_putc,		\
 	.puts	= eserial##port##_puts,		\
-}
-
-static int calc_divisor (NS16550_t port)
-{
-#ifdef CONFIG_OMAP1510
-	/* If can't cleanly clock 115200 set div to 1 */
-	if ((CONFIG_SYS_NS16550_CLK == 12000000) && (gd->baudrate == 115200)) {
-		port->osc_12m_sel = OSC_12M_SEL;	/* enable 6.5 * divisor */
-		return (1);				/* return 1 for base divisor */
-	}
-	port->osc_12m_sel = 0;			/* clear if previsouly set */
-#endif
-#ifdef CONFIG_OMAP1610
-	/* If can't cleanly clock 115200 set div to 1 */
-	if ((CONFIG_SYS_NS16550_CLK == 48000000) && (gd->baudrate == 115200)) {
-		return (26);		/* return 26 for base divisor */
-	}
-#endif
-
-#define MODE_X_DIV 16
-	/* Compute divisor value. Normally, we should simply return:
-	 *   CONFIG_SYS_NS16550_CLK) / MODE_X_DIV / gd->baudrate
-	 * but we need to round that value by adding 0.5.
-	 * Rounding is especially important at high baud rates.
-	 */
-	return (CONFIG_SYS_NS16550_CLK + (gd->baudrate * (MODE_X_DIV / 2))) /
-		(MODE_X_DIV * gd->baudrate);
 }
 
 void
@@ -186,7 +160,8 @@ _serial_setbrg (const int port)
 {
 	int clock_divisor;
 
-	clock_divisor = calc_divisor(PORT);
+	clock_divisor = ns16550_calc_divisor(PORT, CONFIG_SYS_NS16550_CLK,
+					     gd->baudrate);
 	NS16550_reinit(PORT, clock_divisor);
 }
 

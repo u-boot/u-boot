@@ -27,3 +27,16 @@ void flash_cmd_reset(flash_info_t *info)
 
 see also:
 http://www.mail-archive.com/u-boot@lists.denx.de/msg24368.html
+
+
+Config Option
+
+  CONFIG_SYS_MAX_FLASH_SECT: Number of sectors available on Flash device
+
+  CONFIG_SYS_FLASH_CFI_WIDTH: Data-width of the flash device
+
+  CONFIG_CMD_FLASH: Enables Flash command library
+
+  CONFIG_FLASH_CFI_DRIVER: Enables CFI Flash driver
+
+  CONFIG_FLASH_CFI_MTD: Enables MTD frame work for NOR Flash devices

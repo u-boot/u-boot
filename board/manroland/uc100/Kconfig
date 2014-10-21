@@ -1,0 +1,12 @@
+if TARGET_UC100
+
+config SYS_BOARD
+	default "uc100"
+
+config SYS_VENDOR
+	default "manroland"
+
+config SYS_CONFIG_NAME
+	default "uc100"
+
+endif

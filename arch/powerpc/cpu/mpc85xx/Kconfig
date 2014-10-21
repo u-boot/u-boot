@@ -1,0 +1,189 @@
+menu "mpc85xx CPU"
+	depends on MPC85xx
+
+config SYS_CPU
+	default "mpc85xx"
+
+choice
+	prompt "Target select"
+
+config TARGET_SBC8548
+	bool "Support sbc8548"
+
+config TARGET_SOCRATES
+	bool "Support socrates"
+
+config TARGET_HWW1U1A
+	bool "Support HWW1U1A"
+
+config TARGET_B4860QDS
+	bool "Support B4860QDS"
+
+config TARGET_BSC9131RDB
+	bool "Support BSC9131RDB"
+
+config TARGET_BSC9132QDS
+	bool "Support BSC9132QDS"
+
+config TARGET_C29XPCIE
+	bool "Support C29XPCIE"
+
+config TARGET_P3041DS
+	bool "Support P3041DS"
+
+config TARGET_P4080DS
+	bool "Support P4080DS"
+
+config TARGET_P5020DS
+	bool "Support P5020DS"
+
+config TARGET_P5040DS
+	bool "Support P5040DS"
+
+config TARGET_MPC8536DS
+	bool "Support MPC8536DS"
+
+config TARGET_MPC8540ADS
+	bool "Support MPC8540ADS"
+
+config TARGET_MPC8541CDS
+	bool "Support MPC8541CDS"
+
+config TARGET_MPC8544DS
+	bool "Support MPC8544DS"
+
+config TARGET_MPC8548CDS
+	bool "Support MPC8548CDS"
+
+config TARGET_MPC8555CDS
+	bool "Support MPC8555CDS"
+
+config TARGET_MPC8560ADS
+	bool "Support MPC8560ADS"
+
+config TARGET_MPC8568MDS
+	bool "Support MPC8568MDS"
+
+config TARGET_MPC8569MDS
+	bool "Support MPC8569MDS"
+
+config TARGET_MPC8572DS
+	bool "Support MPC8572DS"
+
+config TARGET_P1010RDB
+	bool "Support P1010RDB"
+
+config TARGET_P1022DS
+	bool "Support P1022DS"
+
+config TARGET_P1023RDB
+	bool "Support P1023RDB"
+
+config TARGET_P1_P2_RDB
+	bool "Support P1_P2_RDB"
+
+config TARGET_P1_P2_RDB_PC
+	bool "Support p1_p2_rdb_pc"
+
+config TARGET_P1_TWR
+	bool "Support p1_twr"
+
+config TARGET_P2020COME
+	bool "Support P2020COME"
+
+config TARGET_P2020DS
+	bool "Support P2020DS"
+
+config TARGET_P2041RDB
+	bool "Support P2041RDB"
+
+config TARGET_QEMU_PPCE500
+	bool "Support qemu-ppce500"
+
+config TARGET_T1040QDS
+	bool "Support T1040QDS"
+
+config TARGET_T104XRDB
+	bool "Support T104xRDB"
+
+config TARGET_T208XQDS
+	bool "Support T208xQDS"
+
+config TARGET_T208XRDB
+	bool "Support T208xRDB"
+
+config TARGET_T4240EMU
+	bool "Support T4240EMU"
+
+config TARGET_T4240QDS
+	bool "Support T4240QDS"
+
+config TARGET_T4240RDB
+	bool "Support T4240RDB"
+
+config TARGET_CONTROLCENTERD
+	bool "Support controlcenterd"
+
+config TARGET_KMP204X
+	bool "Support kmp204x"
+
+config TARGET_STXGP3
+	bool "Support stxgp3"
+
+config TARGET_STXSSA
+	bool "Support stxssa"
+
+config TARGET_XPEDITE520X
+	bool "Support xpedite520x"
+
+config TARGET_XPEDITE537X
+	bool "Support xpedite537x"
+
+config TARGET_XPEDITE550X
+	bool "Support xpedite550x"
+
+endchoice
+
+source "board/exmeritus/hww1u1a/Kconfig"
+source "board/freescale/b4860qds/Kconfig"
+source "board/freescale/bsc9131rdb/Kconfig"
+source "board/freescale/bsc9132qds/Kconfig"
+source "board/freescale/c29xpcie/Kconfig"
+source "board/freescale/corenet_ds/Kconfig"
+source "board/freescale/mpc8536ds/Kconfig"
+source "board/freescale/mpc8540ads/Kconfig"
+source "board/freescale/mpc8541cds/Kconfig"
+source "board/freescale/mpc8544ds/Kconfig"
+source "board/freescale/mpc8548cds/Kconfig"
+source "board/freescale/mpc8555cds/Kconfig"
+source "board/freescale/mpc8560ads/Kconfig"
+source "board/freescale/mpc8568mds/Kconfig"
+source "board/freescale/mpc8569mds/Kconfig"
+source "board/freescale/mpc8572ds/Kconfig"
+source "board/freescale/p1010rdb/Kconfig"
+source "board/freescale/p1022ds/Kconfig"
+source "board/freescale/p1023rdb/Kconfig"
+source "board/freescale/p1_p2_rdb/Kconfig"
+source "board/freescale/p1_p2_rdb_pc/Kconfig"
+source "board/freescale/p1_twr/Kconfig"
+source "board/freescale/p2020come/Kconfig"
+source "board/freescale/p2020ds/Kconfig"
+source "board/freescale/p2041rdb/Kconfig"
+source "board/freescale/qemu-ppce500/Kconfig"
+source "board/freescale/t1040qds/Kconfig"
+source "board/freescale/t104xrdb/Kconfig"
+source "board/freescale/t208xqds/Kconfig"
+source "board/freescale/t208xrdb/Kconfig"
+source "board/freescale/t4qds/Kconfig"
+source "board/freescale/t4rdb/Kconfig"
+source "board/gdsys/p1022/Kconfig"
+source "board/keymile/kmp204x/Kconfig"
+source "board/sbc8548/Kconfig"
+source "board/socrates/Kconfig"
+source "board/stx/stxgp3/Kconfig"
+source "board/stx/stxssa/Kconfig"
+source "board/xes/xpedite520x/Kconfig"
+source "board/xes/xpedite537x/Kconfig"
+source "board/xes/xpedite550x/Kconfig"
+
+endmenu

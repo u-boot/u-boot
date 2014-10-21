@@ -38,6 +38,7 @@
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
@@ -175,7 +176,7 @@
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_SPD_BUS_NUM		1 /* I2C2 */
+#define CONFIG_SYS_RTC_BUS_NUM		1 /* I2C2 */
 #endif
 
 /*
@@ -252,7 +253,6 @@
 /*
  * NAND SPL
  */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TARGET		"u-boot-with-nand-spl.imx"
 #define CONFIG_SPL_BOARD_INIT
@@ -306,7 +306,7 @@
 	"addargs=run addcons addmtd addmisc\0"				\
 	"mmcload="							\
 		"mmc rescan ; "						\
-		"ext4load mmc 0:1 ${kernel_addr_r} ${bootfile}\0"	\
+		"load mmc 0:1 ${kernel_addr_r} ${bootfile}\0"		\
 	"ubiload="							\
 		"ubi part UBI ; ubifsmount ubi0:rootfs ; "		\
 		"ubifsload ${kernel_addr_r} /boot/${bootfile}\0"	\
@@ -349,10 +349,12 @@
 		"bootm ${kernel_addr_r}\0"				\
 	"try_bootscript="						\
 		"mmc rescan;"						\
-		"if ext4load mmc 0:1 ${kernel_addr_r} ${bootscript};"	\
-		"then;"							\
-			"\techo Running bootscript...;"			\
-			"\tsource ${kernel_addr_r};"			\
+		"if test -e mmc 0:1 ${bootscript} ; then "		\
+		"if load mmc 0:1 ${kernel_addr_r} ${bootscript};"	\
+		"then ; "						\
+			"echo Running bootscript... ; "			\
+			"source ${kernel_addr_r} ; "			\
+		"fi ; "							\
 		"fi\0"
 
 #endif	/* __M53EVK_CONFIG_H__ */

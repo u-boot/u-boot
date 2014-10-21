@@ -1,0 +1,6 @@
+VOVPN-GW BOARD
+#M:	-
+S:	Maintained
+F:	board/funkwerk/vovpn-gw/
+F:	include/configs/VoVPN-GW.h
+F:	configs/VoVPN-GW_66MHz_defconfig

@@ -1,0 +1,6 @@
+DM355EVM BOARD
+#M:	Sandeep Paulraj <s-paulraj@ti.com>
+S:	Orphan (since 2014-08)
+F:	board/davinci/dm355evm/
+F:	include/configs/davinci_dm355evm.h
+F:	configs/davinci_dm355evm_defconfig

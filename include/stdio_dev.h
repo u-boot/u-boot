@@ -27,18 +27,21 @@ struct stdio_dev {
 
 /* GENERAL functions */
 
-	int (*start) (void);		/* To start the device			*/
-	int (*stop) (void);		/* To stop the device			*/
+	int (*start)(struct stdio_dev *dev);	/* To start the device */
+	int (*stop)(struct stdio_dev *dev);	/* To stop the device */
 
 /* OUTPUT functions */
 
-	void (*putc) (const char c);	/* To put a char			*/
-	void (*puts) (const char *s);	/* To put a string (accelerator)	*/
+	/* To put a char */
+	void (*putc)(struct stdio_dev *dev, const char c);
+	/* To put a string (accelerator) */
+	void (*puts)(struct stdio_dev *dev, const char *s);
 
 /* INPUT functions */
 
-	int (*tstc) (void);		/* To test if a char is ready...	*/
-	int (*getc) (void);		/* To get that char			*/
+	/* To test if a char is ready... */
+	int (*tstc)(struct stdio_dev *dev);
+	int (*getc)(struct stdio_dev *dev);	/* To get that char */
 
 /* Other functions */
 
@@ -74,10 +77,34 @@ extern char *stdio_names[MAX_FILES];
  * PROTOTYPES
  */
 int	stdio_register (struct stdio_dev * dev);
-int	stdio_init (void);
+int stdio_register_dev(struct stdio_dev *dev, struct stdio_dev **devp);
+
+/**
+ * stdio_init_tables() - set up stdio tables ready for devices
+ *
+ * This does not add any devices, but just prepares stdio for use.
+ */
+int stdio_init_tables(void);
+
+/**
+ * stdio_add_devices() - Add stdio devices to the table
+ *
+ * This makes calls to all the various subsystems that use stdio, to make
+ * them register with stdio.
+ */
+int stdio_add_devices(void);
+
+/**
+ * stdio_init() - Sets up stdio ready for use
+ *
+ * This calls stdio_init_tables() and stdio_add_devices()
+ */
+int stdio_init(void);
+
 void	stdio_print_current_devices(void);
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
-int	stdio_deregister(const char *devname);
+int stdio_deregister(const char *devname, int force);
+int stdio_deregister_dev(struct stdio_dev *dev, int force);
 #endif
 struct list_head* stdio_get_list(void);
 struct stdio_dev* stdio_get_by_name(const char* name);

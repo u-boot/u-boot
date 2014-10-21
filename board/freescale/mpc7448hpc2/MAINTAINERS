@@ -1,0 +1,6 @@
+MPC7448HPC2 BOARD
+M:	Roy Zang <tie-fei.zang@freescale.com>
+S:	Maintained
+F:	board/freescale/mpc7448hpc2/
+F:	include/configs/mpc7448hpc2.h
+F:	configs/mpc7448hpc2_defconfig

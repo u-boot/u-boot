@@ -1,0 +1,4 @@
+CONFIG_SPL=y
+CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/gateworks/gw_ventana/gw_ventana.cfg,MX6QDL"
++S:CONFIG_ARM=y
++S:CONFIG_TARGET_GW_VENTANA=y

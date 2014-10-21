@@ -48,6 +48,11 @@
 # include <machine/endian.h>
 typedef unsigned long ulong;
 #endif
+#ifdef __FreeBSD__
+# include <sys/endian.h> /* htole32 and friends */
+#endif
+
+#include <time.h>
 
 typedef uint8_t __u8;
 typedef uint16_t __u16;
@@ -127,9 +132,6 @@ typedef unsigned int uint;
 typedef unsigned long int uintptr_t;
 
 #endif /* USE_HOSTCC */
-
-/* compiler options */
-#define uninitialized_var(x)		x = x
 
 #define likely(x)	__builtin_expect(!!(x), 1)
 #define unlikely(x)	__builtin_expect(!!(x), 0)

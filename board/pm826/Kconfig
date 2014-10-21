@@ -1,0 +1,9 @@
+if TARGET_PM826
+
+config SYS_BOARD
+	default "pm826"
+
+config SYS_CONFIG_NAME
+	default "PM826"
+
+endif

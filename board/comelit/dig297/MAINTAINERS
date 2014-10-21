@@ -1,0 +1,6 @@
+DIG297 BOARD
+M:	Luca Ceresoli <luca.ceresoli@comelit.it>
+S:	Maintained
+F:	board/comelit/dig297/
+F:	include/configs/dig297.h
+F:	configs/dig297_defconfig

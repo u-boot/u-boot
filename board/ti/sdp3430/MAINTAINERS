@@ -1,0 +1,6 @@
+SDP3430 BOARD
+M:	Nishanth Menon <nm@ti.com>
+S:	Maintained
+F:	board/ti/sdp3430/
+F:	include/configs/omap3_sdp3430.h
+F:	configs/omap3_sdp3430_defconfig

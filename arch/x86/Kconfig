@@ -1,0 +1,17 @@
+menu "x86 architecture"
+	depends on X86
+
+config SYS_ARCH
+	default "x86"
+
+choice
+	prompt "Target select"
+
+config TARGET_COREBOOT
+	bool "Support coreboot"
+
+endchoice
+
+source "board/chromebook-x86/coreboot/Kconfig"
+
+endmenu

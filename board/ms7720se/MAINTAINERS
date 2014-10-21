@@ -1,0 +1,6 @@
+MS7720SE BOARD
+M:	Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+S:	Maintained
+F:	board/ms7720se/
+F:	include/configs/ms7720se.h
+F:	configs/ms7720se_defconfig

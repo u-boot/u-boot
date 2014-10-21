@@ -1,0 +1,9 @@
+if TARGET_SACSNG
+
+config SYS_BOARD
+	default "sacsng"
+
+config SYS_CONFIG_NAME
+	default "sacsng"
+
+endif

@@ -1,0 +1,20 @@
+PPCHAMELEONEVB BOARD
+#M:	-
+S:	Maintained
+F:	board/dave/PPChameleonEVB/
+F:	include/configs/CATcenter.h
+F:	configs/CATcenter_defconfig
+F:	configs/CATcenter_25_defconfig
+F:	configs/CATcenter_33_defconfig
+
+PPCHAMELEONEVB BOARD
+M:	Andrea "llandre" Marson <andrea.marson@dave-tech.it>
+S:	Maintained
+F:	include/configs/PPChameleonEVB.h
+F:	configs/PPChameleonEVB_defconfig
+F:	configs/PPChameleonEVB_BA_25_defconfig
+F:	configs/PPChameleonEVB_BA_33_defconfig
+F:	configs/PPChameleonEVB_HI_25_defconfig
+F:	configs/PPChameleonEVB_HI_33_defconfig
+F:	configs/PPChameleonEVB_ME_25_defconfig
+F:	configs/PPChameleonEVB_ME_33_defconfig

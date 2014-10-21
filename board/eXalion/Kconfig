@@ -1,0 +1,9 @@
+if TARGET_EXALION
+
+config SYS_BOARD
+	default "eXalion"
+
+config SYS_CONFIG_NAME
+	default "eXalion"
+
+endif

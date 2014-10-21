@@ -113,7 +113,7 @@ compute_ranksize(const struct ddr4_spd_eeprom_s *spd)
 #define spd_to_ps(mtb, ftb)	\
 	(mtb * pdimm->mtb_ps + (ftb * pdimm->ftb_10th_ps) / 10)
 /*
- * ddr_compute_dimm_parameters for DDR3 SPD
+ * ddr_compute_dimm_parameters for DDR4 SPD
  *
  * Compute DIMM parameters based upon the SPD information in spd.
  * Writes the results to the dimm_params_t structure pointed by pdimm.
@@ -165,17 +165,17 @@ ddr_compute_dimm_parameters(const generic_spd_eeprom_t *spd,
 			  + pdimm->ec_sdram_width;
 	pdimm->device_width = 1 << ((spd->organization & 0x7) + 2);
 
-	/* These are the types defined by the JEDEC DDR3 SPD spec */
+	/* These are the types defined by the JEDEC SPD spec */
 	pdimm->mirrored_dimm = 0;
 	pdimm->registered_dimm = 0;
-	switch (spd->module_type & DDR3_SPD_MODULETYPE_MASK) {
-	case DDR3_SPD_MODULETYPE_RDIMM:
+	switch (spd->module_type & DDR4_SPD_MODULETYPE_MASK) {
+	case DDR4_SPD_MODULETYPE_RDIMM:
 		/* Registered/buffered DIMMs */
 		pdimm->registered_dimm = 1;
 		break;
 
-	case DDR3_SPD_MODULETYPE_UDIMM:
-	case DDR3_SPD_MODULETYPE_SO_DIMM:
+	case DDR4_SPD_MODULETYPE_UDIMM:
+	case DDR4_SPD_MODULETYPE_SO_DIMM:
 		/* Unbuffered DIMMs */
 		if (spd->mod_section.unbuffered.addr_mapping & 0x1)
 			pdimm->mirrored_dimm = 1;

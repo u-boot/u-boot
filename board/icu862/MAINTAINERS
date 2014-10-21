@@ -1,0 +1,7 @@
+ICU862 BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/icu862/
+F:	include/configs/ICU862.h
+F:	configs/ICU862_defconfig
+F:	configs/ICU862_100MHz_defconfig

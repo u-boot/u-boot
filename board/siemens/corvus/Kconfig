@@ -1,0 +1,18 @@
+if TARGET_CORVUS
+
+config SYS_CPU
+	default "arm926ejs"
+
+config SYS_BOARD
+	default "corvus"
+
+config SYS_VENDOR
+	default "siemens"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "corvus"
+
+endif

@@ -1,0 +1,12 @@
+if TARGET_MPC8360EMDS
+
+config SYS_BOARD
+	default "mpc8360emds"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	default "MPC8360EMDS"
+
+endif

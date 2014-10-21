@@ -1,0 +1,9 @@
+if TARGET_ESTEEM192E
+
+config SYS_BOARD
+	default "esteem192e"
+
+config SYS_CONFIG_NAME
+	default "ESTEEM192E"
+
+endif

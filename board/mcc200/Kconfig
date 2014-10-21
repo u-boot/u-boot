@@ -1,0 +1,9 @@
+if TARGET_MCC200
+
+config SYS_BOARD
+	default "mcc200"
+
+config SYS_CONFIG_NAME
+	default "mcc200"
+
+endif

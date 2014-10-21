@@ -8,8 +8,8 @@
 #define __FM_H__
 
 #include <common.h>
+#include <phy.h>
 #include <fm_eth.h>
-#include <asm/fsl_enet.h>
 #include <asm/fsl_fman.h>
 
 /* Port ID */
@@ -143,6 +143,7 @@ struct fm_eth {
 #define MAX_RXBUF_LOG2		11
 #define MAX_RXBUF_LEN		(1 << MAX_RXBUF_LOG2)
 
-#define PORT_IS_ENABLED(port)	fm_info[fm_port_to_index(port)].enabled
+#define PORT_IS_ENABLED(port)	(fm_port_to_index(port) == -1 ? \
+	0 : fm_info[fm_port_to_index(port)].enabled)
 
 #endif /* __FM_H__ */

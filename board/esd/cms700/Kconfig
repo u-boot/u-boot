@@ -1,0 +1,12 @@
+if TARGET_CMS700
+
+config SYS_BOARD
+	default "cms700"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "CMS700"
+
+endif

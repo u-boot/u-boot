@@ -1,0 +1,12 @@
+if TARGET_TQM8260
+
+config SYS_BOARD
+	default "tqm8260"
+
+config SYS_VENDOR
+	default "tqc"
+
+config SYS_CONFIG_NAME
+	default "TQM8260"
+
+endif

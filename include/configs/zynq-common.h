@@ -12,7 +12,6 @@
 
 /* High Level configuration Options */
 #define CONFIG_ARMV7
-#define CONFIG_ZYNQ
 
 /* CPU clock */
 #ifndef CONFIG_CPU_FREQ_HZ
@@ -228,8 +227,6 @@
 #define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */
 
 /* FDT support */
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /* RSA support */
@@ -257,7 +254,6 @@
 #define CONFIG_CMD_TFTPPUT
 
 /* SPL part */
-#define CONFIG_SPL
 #define CONFIG_CMD_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
@@ -275,18 +271,13 @@
 #define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION    1
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
-#if defined(CONFIG_OF_CONTROL) && defined(CONFIG_OF_SEPARATE)
-# define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot-dtb.img"
-#else
-# define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot.img"
-#endif
+#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot-dtb.img"
 #endif
 
 /* Disable dcache for SPL just for sure */
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_DCACHE_OFF
 #undef CONFIG_FPGA
-#undef CONFIG_OF_CONTROL
 #endif
 
 /* Address in RAM where the parameters must be copied by SPL. */
@@ -305,9 +296,7 @@
 #define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
-#define CONFIG_SPL_SPI_BUS	0
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x100000
-#define CONFIG_SPL_SPI_CS	0
 #endif
 
 /* for booting directly linux */
@@ -338,5 +327,7 @@
 #define CONFIG_SPL_BSS_MAX_SIZE		0x100000
 
 #define CONFIG_SYS_UBOOT_START	CONFIG_SYS_TEXT_BASE
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */

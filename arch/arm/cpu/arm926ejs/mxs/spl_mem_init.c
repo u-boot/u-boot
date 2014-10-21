@@ -240,8 +240,13 @@ static void mx23_mem_setup_vddmem(void)
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 
+	/* We must wait before and after disabling the current limiter! */
+	early_delay(10000);
+
 	clrbits_le32(&power_regs->hw_power_vddmemctrl,
 		POWER_VDDMEMCTRL_ENABLE_ILIMIT);
+
+	early_delay(10000);
 
 }
 
@@ -269,7 +274,13 @@ static void mx23_mem_init(void)
 	setbits_le32(MXS_DRAM_BASE + 0x20, 1 << 16);
 
 	clrbits_le32(MXS_DRAM_BASE + 0x40, 1 << 17);
-	early_delay(20000);
+
+	/* Wait for EMI_STAT bit DRAM_HALTED */
+	for (;;) {
+		if (!(readl(MXS_EMI_BASE + 0x10) & (1 << 1)))
+			break;
+		early_delay(1000);
+	}
 
 	/* Adjust EMI port priority. */
 	clrsetbits_le32(0x80020000, 0x1f << 16, 0x2);

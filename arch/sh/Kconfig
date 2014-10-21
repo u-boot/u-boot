@@ -1,0 +1,97 @@
+menu "SuperH architecture"
+	depends on SH
+
+config SYS_ARCH
+	default "sh"
+
+choice
+	prompt "Target select"
+
+config TARGET_RSK7203
+	bool "Support rsk7203"
+
+config TARGET_RSK7264
+	bool "Support rsk7264"
+
+config TARGET_RSK7269
+	bool "Support rsk7269"
+
+config TARGET_MPR2
+	bool "Support mpr2"
+
+config TARGET_MS7720SE
+	bool "Support ms7720se"
+
+config TARGET_SHMIN
+	bool "Support shmin"
+
+config TARGET_ESPT
+	bool "Support espt"
+
+config TARGET_MS7722SE
+	bool "Support ms7722se"
+
+config TARGET_MS7750SE
+	bool "Support ms7750se"
+
+config TARGET_AP_SH4A_4A
+	bool "Support ap_sh4a_4a"
+
+config TARGET_AP325RXA
+	bool "Support ap325rxa"
+
+config TARGET_ECOVEC
+	bool "Support ecovec"
+
+config TARGET_MIGOR
+	bool "Support MigoR"
+
+config TARGET_R0P7734
+	bool "Support r0p7734"
+
+config TARGET_R2DPLUS
+	bool "Support r2dplus"
+
+config TARGET_R7780MP
+	bool "Support r7780mp"
+
+config TARGET_SH7752EVB
+	bool "Support sh7752evb"
+
+config TARGET_SH7753EVB
+	bool "Support sh7753evb"
+
+config TARGET_SH7757LCR
+	bool "Support sh7757lcr"
+
+config TARGET_SH7763RDP
+	bool "Support sh7763rdp"
+
+config TARGET_SH7785LCR
+	bool "Support sh7785lcr"
+
+endchoice
+
+source "board/alphaproject/ap_sh4a_4a/Kconfig"
+source "board/espt/Kconfig"
+source "board/mpr2/Kconfig"
+source "board/ms7720se/Kconfig"
+source "board/ms7722se/Kconfig"
+source "board/ms7750se/Kconfig"
+source "board/renesas/MigoR/Kconfig"
+source "board/renesas/ap325rxa/Kconfig"
+source "board/renesas/ecovec/Kconfig"
+source "board/renesas/r0p7734/Kconfig"
+source "board/renesas/r2dplus/Kconfig"
+source "board/renesas/r7780mp/Kconfig"
+source "board/renesas/rsk7203/Kconfig"
+source "board/renesas/rsk7264/Kconfig"
+source "board/renesas/rsk7269/Kconfig"
+source "board/renesas/sh7752evb/Kconfig"
+source "board/renesas/sh7753evb/Kconfig"
+source "board/renesas/sh7757lcr/Kconfig"
+source "board/renesas/sh7763rdp/Kconfig"
+source "board/renesas/sh7785lcr/Kconfig"
+source "board/shmin/Kconfig"
+
+endmenu

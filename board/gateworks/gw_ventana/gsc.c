@@ -57,7 +57,7 @@ int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 			break;
 		mdelay(10);
 	}
-	mdelay(1);
+	mdelay(100);
 	return ret;
 }
 
@@ -116,6 +116,10 @@ int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3, MINMAX(1375, 10));
 		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3, MINMAX(1375, 10));
 		read_hwmon("VDD_1P0",  GSC_HWMON_VDD_1P0, 3, MINMAX(1000, 10));
+		break;
+	case '5': /* GW55xx */
+		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3, MINMAX(1175, 10));
+		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3, MINMAX(1175, 10));
 		break;
 	}
 	return 0;

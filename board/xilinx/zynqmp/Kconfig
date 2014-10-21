@@ -1,0 +1,15 @@
+if TARGET_XILINX_ZYNQMP
+
+config SYS_BOARD
+	default "zynqmp"
+
+config SYS_VENDOR
+	default "xilinx"
+
+config SYS_SOC
+	default "zynqmp"
+
+config SYS_CONFIG_NAME
+	default "xilinx_zynqmp"
+
+endif

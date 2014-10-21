@@ -1,0 +1,6 @@
+CSB272 BOARD
+M:	Tolunay Orkun <torkun@nextio.com>
+S:	Maintained
+F:	board/csb272/
+F:	include/configs/csb272.h
+F:	configs/csb272_defconfig

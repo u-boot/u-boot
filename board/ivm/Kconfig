@@ -1,0 +1,19 @@
+if TARGET_IVML24
+
+config SYS_BOARD
+	default "ivm"
+
+config SYS_CONFIG_NAME
+	default "IVML24"
+
+endif
+
+if TARGET_IVMS8
+
+config SYS_BOARD
+	default "ivm"
+
+config SYS_CONFIG_NAME
+	default "IVMS8"
+
+endif

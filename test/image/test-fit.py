@@ -93,13 +93,13 @@ base_fdt = '''
 # then do the 'bootm' command, then save out memory from the places where
 # we expect 'bootm' to write things. Then quit.
 base_script = '''
-sb load host 0 %(fit_addr)x %(fit)s
+sb load hostfs 0 %(fit_addr)x %(fit)s
 fdt addr %(fit_addr)x
 bootm start %(fit_addr)x
 bootm loados
-sb save host 0 %(kernel_out)s %(kernel_addr)x %(kernel_size)x
-sb save host 0 %(fdt_out)s %(fdt_addr)x %(fdt_size)x
-sb save host 0 %(ramdisk_out)s %(ramdisk_addr)x %(ramdisk_size)x
+sb save hostfs 0 %(kernel_out)s %(kernel_addr)x %(kernel_size)x
+sb save hostfs 0 %(fdt_out)s %(fdt_addr)x %(fdt_size)x
+sb save hostfs 0 %(ramdisk_out)s %(ramdisk_addr)x %(ramdisk_size)x
 reset
 '''
 

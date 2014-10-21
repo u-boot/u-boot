@@ -23,12 +23,22 @@
 
 #define BOOTP_VENDOR_MAGIC	0x63825363	/* RFC1048 Magic Cookie */
 
-#define TIMEOUT		5000UL	/* Milliseconds before trying BOOTP again */
+/*
+ * The timeout for the initial BOOTP/DHCP request used to be described by a
+ * counter of fixed-length timeout periods. TIMEOUT_COUNT represents
+ * that counter
+ *
+ * Now that the timeout periods are variable (exponential backoff and retry)
+ * we convert the timeout count to the absolute time it would have take to
+ * execute that many retries, and keep sending retry packets until that time
+ * is reached.
+ */
 #ifndef CONFIG_NET_RETRY_COUNT
 # define TIMEOUT_COUNT	5		/* # of timeouts before giving up */
 #else
 # define TIMEOUT_COUNT	(CONFIG_NET_RETRY_COUNT)
 #endif
+#define TIMEOUT_MS	((3 + (TIMEOUT_COUNT * 5)) * 1000)
 
 #define PORT_BOOTPS	67		/* BOOTP server UDP port */
 #define PORT_BOOTPC	68		/* BOOTP client UDP port */
@@ -37,8 +47,15 @@
 #define CONFIG_DHCP_MIN_EXT_LEN 64
 #endif
 
-ulong		BootpID;
+#ifndef CONFIG_BOOTP_ID_CACHE_SIZE
+#define CONFIG_BOOTP_ID_CACHE_SIZE 4
+#endif
+
+ulong		bootp_ids[CONFIG_BOOTP_ID_CACHE_SIZE];
+unsigned int	bootp_num_ids;
 int		BootpTry;
+ulong		bootp_start;
+ulong		bootp_timeout;
 
 #if defined(CONFIG_CMD_DHCP)
 static dhcp_state_t dhcp_state = INIT;
@@ -65,6 +82,30 @@ static char *dhcpmsg2str(int type)
 #endif
 #endif
 
+static void bootp_add_id(ulong id)
+{
+	if (bootp_num_ids >= ARRAY_SIZE(bootp_ids)) {
+		size_t size = sizeof(bootp_ids) - sizeof(id);
+
+		memmove(bootp_ids, &bootp_ids[1], size);
+		bootp_ids[bootp_num_ids - 1] = id;
+	} else {
+		bootp_ids[bootp_num_ids] = id;
+		bootp_num_ids++;
+	}
+}
+
+static bool bootp_match_id(ulong id)
+{
+	unsigned int i;
+
+	for (i = 0; i < bootp_num_ids; i++)
+		if (bootp_ids[i] == id)
+			return true;
+
+	return false;
+}
+
 static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 {
 	struct Bootp_t *bp = (struct Bootp_t *) pkt;
@@ -84,7 +125,7 @@ static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 		retval = -4;
 	else if (bp->bp_hlen != HWL_ETHER)
 		retval = -5;
-	else if (NetReadLong((ulong *)&bp->bp_id) != BootpID)
+	else if (!bootp_match_id(NetReadLong((ulong *)&bp->bp_id)))
 		retval = -6;
 
 	debug("Filtering pkt = %d\n", retval);
@@ -327,16 +368,21 @@ BootpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 static void
 BootpTimeout(void)
 {
-	if (BootpTry >= TIMEOUT_COUNT) {
+	ulong time_taken = get_timer(bootp_start);
+
+	if (time_taken >= TIMEOUT_MS) {
 #ifdef CONFIG_BOOTP_MAY_FAIL
-		puts("\nRetry count exceeded\n");
+		puts("\nRetry time exceeded\n");
 		net_set_state(NETLOOP_FAIL);
 #else
-		puts("\nRetry count exceeded; starting again\n");
+		puts("\nRetry time exceeded; starting again\n");
 		NetStartAgain();
 #endif
 	} else {
-		NetSetTimeout(TIMEOUT, BootpTimeout);
+		bootp_timeout *= 2;
+		if (bootp_timeout > 2000)
+			bootp_timeout = 2000;
+		NetSetTimeout(bootp_timeout, BootpTimeout);
 		BootpRequest();
 	}
 }
@@ -597,6 +643,14 @@ static int BootpExtended(u8 *e)
 }
 #endif
 
+void BootpReset(void)
+{
+	bootp_num_ids = 0;
+	BootpTry = 0;
+	bootp_start = get_timer(0);
+	bootp_timeout = 250;
+}
+
 void
 BootpRequest(void)
 {
@@ -605,8 +659,9 @@ BootpRequest(void)
 	int extlen, pktlen, iplen;
 	int eth_hdr_size;
 #ifdef CONFIG_BOOTP_RANDOM_DELAY
-	ulong i, rand_ms;
+	ulong rand_ms;
 #endif
+	ulong BootpID;
 
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_START, "bootp_start");
 #if defined(CONFIG_CMD_DHCP)
@@ -623,8 +678,7 @@ BootpRequest(void)
 		rand_ms = rand() >> 19;
 
 	printf("Random delay: %ld ms...\n", rand_ms);
-	for (i = 0; i < rand_ms; i++)
-		udelay(1000); /*Wait 1ms*/
+	mdelay(rand_ms);
 
 #endif	/* CONFIG_BOOTP_RANDOM_DELAY */
 
@@ -676,7 +730,8 @@ BootpRequest(void)
 		| ((ulong)NetOurEther[4] << 8)
 		| (ulong)NetOurEther[5];
 	BootpID += get_timer(0);
-	BootpID	 = htonl(BootpID);
+	BootpID = htonl(BootpID);
+	bootp_add_id(BootpID);
 	NetCopyLong(&bp->bp_id, &BootpID);
 
 	/*
@@ -686,7 +741,7 @@ BootpRequest(void)
 	iplen = BOOTP_HDR_SIZE - OPT_FIELD_SIZE + extlen;
 	pktlen = eth_hdr_size + IP_UDP_HDR_SIZE + iplen;
 	net_set_udp_header(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
-	NetSetTimeout(SELECT_TIMEOUT, BootpTimeout);
+	NetSetTimeout(bootp_timeout, BootpTimeout);
 
 #if defined(CONFIG_CMD_DHCP)
 	dhcp_state = SELECTING;
@@ -919,7 +974,7 @@ DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 						htonl(BOOTP_VENDOR_MAGIC))
 				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
 
-			NetSetTimeout(TIMEOUT, BootpTimeout);
+			NetSetTimeout(5000, BootpTimeout);
 			DhcpSendRequestPkt(bp);
 #ifdef CONFIG_SYS_BOOTFILE_PREFIX
 		}
@@ -937,8 +992,8 @@ DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 			/* Store net params from reply */
 			BootpCopyNetParams(bp);
 			dhcp_state = BOUND;
-			printf("DHCP client bound to address %pI4\n",
-				&NetOurIP);
+			printf("DHCP client bound to address %pI4 (%lu ms)\n",
+				&NetOurIP, get_timer(bootp_start));
 			bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP,
 				"bootp_stop");
 

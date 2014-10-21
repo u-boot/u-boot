@@ -1,0 +1,18 @@
+if TARGET_PM9G45
+
+config SYS_CPU
+	default "arm926ejs"
+
+config SYS_BOARD
+	default "pm9g45"
+
+config SYS_VENDOR
+	default "ronetix"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "pm9g45"
+
+endif

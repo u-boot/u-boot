@@ -1,0 +1,12 @@
+if TARGET_P2020DS
+
+config SYS_BOARD
+	default "p2020ds"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	default "P2020DS"
+
+endif

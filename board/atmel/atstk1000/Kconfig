@@ -1,0 +1,63 @@
+if TARGET_ATSTK1002
+
+config SYS_BOARD
+	default "atstk1000"
+
+config SYS_VENDOR
+	default "atmel"
+
+config SYS_SOC
+	default "at32ap700x"
+
+config SYS_CONFIG_NAME
+	default "atstk1002"
+
+endif
+
+if TARGET_ATSTK1003
+
+config SYS_BOARD
+	default "atstk1000"
+
+config SYS_VENDOR
+	default "atmel"
+
+config SYS_SOC
+	default "at32ap700x"
+
+config SYS_CONFIG_NAME
+	default "atstk1003"
+
+endif
+
+if TARGET_ATSTK1004
+
+config SYS_BOARD
+	default "atstk1000"
+
+config SYS_VENDOR
+	default "atmel"
+
+config SYS_SOC
+	default "at32ap700x"
+
+config SYS_CONFIG_NAME
+	default "atstk1004"
+
+endif
+
+if TARGET_ATSTK1006
+
+config SYS_BOARD
+	default "atstk1000"
+
+config SYS_VENDOR
+	default "atmel"
+
+config SYS_SOC
+	default "at32ap700x"
+
+config SYS_CONFIG_NAME
+	default "atstk1006"
+
+endif

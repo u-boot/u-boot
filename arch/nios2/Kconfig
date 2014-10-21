@@ -1,0 +1,17 @@
+menu "Nios II architecture"
+	depends on NIOS2
+
+config SYS_ARCH
+	default "nios2"
+
+choice
+	prompt "Target select"
+
+config TARGET_NIOS2_GENERIC
+	bool "Support nios2-generic"
+
+endchoice
+
+source "board/altera/nios2-generic/Kconfig"
+
+endmenu

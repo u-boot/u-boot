@@ -1,0 +1,12 @@
+if NOMADIK_NHK8815
+
+config SYS_BOARD
+	default "nhk8815"
+
+config SYS_VENDOR
+	default "st"
+
+config SYS_CONFIG_NAME
+	default "nhk8815"
+
+endif

@@ -1,0 +1,38 @@
+if TARGET_OMAP3_EVM
+
+config SYS_BOARD
+	default "evm"
+
+config SYS_VENDOR
+	default "ti"
+
+config SYS_CONFIG_NAME
+	default "omap3_evm"
+
+endif
+
+if TARGET_OMAP3_EVM_QUICK_MMC
+
+config SYS_BOARD
+	default "evm"
+
+config SYS_VENDOR
+	default "ti"
+
+config SYS_CONFIG_NAME
+	default "omap3_evm_quick_mmc"
+
+endif
+
+if TARGET_OMAP3_EVM_QUICK_NAND
+
+config SYS_BOARD
+	default "evm"
+
+config SYS_VENDOR
+	default "ti"
+
+config SYS_CONFIG_NAME
+	default "omap3_evm_quick_nand"
+
+endif

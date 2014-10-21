@@ -1,0 +1,21 @@
+menu "mpc5xx CPU"
+	depends on 5xx
+
+config SYS_CPU
+	default "mpc5xx"
+
+choice
+	prompt "Target select"
+
+config TARGET_CMI_MPC5XX
+	bool "Support cmi_mpc5xx"
+
+config TARGET_PATI
+	bool "Support PATI"
+
+endchoice
+
+source "board/cmi/Kconfig"
+source "board/mpl/pati/Kconfig"
+
+endmenu

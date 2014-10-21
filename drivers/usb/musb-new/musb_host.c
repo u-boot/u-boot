@@ -33,7 +33,6 @@
  *
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/module.h>
 #include <linux/kernel.h>

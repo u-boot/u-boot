@@ -1,0 +1,15 @@
+if TARGET_AP325RXA
+
+config SYS_CPU
+	default "sh4"
+
+config SYS_BOARD
+	default "ap325rxa"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "ap325rxa"
+
+endif

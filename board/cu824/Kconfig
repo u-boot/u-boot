@@ -1,0 +1,9 @@
+if TARGET_CU824
+
+config SYS_BOARD
+	default "cu824"
+
+config SYS_CONFIG_NAME
+	default "CU824"
+
+endif

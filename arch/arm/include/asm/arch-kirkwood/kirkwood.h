@@ -39,6 +39,7 @@
 #define KW_EGIGA0_BASE			(KW_REGISTER(0x72000))
 #define KW_EGIGA1_BASE			(KW_REGISTER(0x76000))
 #define KW_SATA_BASE			(KW_REGISTER(0x80000))
+#define KW_SDIO_BASE			(KW_REGISTER(0x90000))
 
 /* Kirkwood Sata controller has two ports */
 #define KW_SATA_PORT0_OFFSET		0x2000

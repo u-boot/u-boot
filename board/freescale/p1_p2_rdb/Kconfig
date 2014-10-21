@@ -1,0 +1,12 @@
+if TARGET_P1_P2_RDB
+
+config SYS_BOARD
+	default "p1_p2_rdb"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	default "P1_P2_RDB"
+
+endif

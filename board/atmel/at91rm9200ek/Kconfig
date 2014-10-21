@@ -1,0 +1,18 @@
+if TARGET_AT91RM9200EK
+
+config SYS_CPU
+	default "arm920t"
+
+config SYS_BOARD
+	default "at91rm9200ek"
+
+config SYS_VENDOR
+	default "atmel"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "at91rm9200ek"
+
+endif

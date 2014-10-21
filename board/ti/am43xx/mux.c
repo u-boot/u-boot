@@ -73,7 +73,38 @@ static struct module_pin_mux gpio5_7_pin_mux[] = {
 	{-1},
 };
 
-static struct module_pin_mux qspi_pin_mux[] = {
+#ifdef CONFIG_NAND
+static struct module_pin_mux nand_pin_mux[] = {
+	{OFFSET(gpmc_ad0),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD0 */
+	{OFFSET(gpmc_ad1),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD1 */
+	{OFFSET(gpmc_ad2),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD2 */
+	{OFFSET(gpmc_ad3),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD3 */
+	{OFFSET(gpmc_ad4),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD4 */
+	{OFFSET(gpmc_ad5),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD5 */
+	{OFFSET(gpmc_ad6),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD6 */
+	{OFFSET(gpmc_ad7),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD7 */
+#ifdef CONFIG_SYS_NAND_BUSWIDTH_16BIT
+	{OFFSET(gpmc_ad8),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD8  */
+	{OFFSET(gpmc_ad9),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD9  */
+	{OFFSET(gpmc_ad10),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD10 */
+	{OFFSET(gpmc_ad11),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD11 */
+	{OFFSET(gpmc_ad12),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD12 */
+	{OFFSET(gpmc_ad13),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD13 */
+	{OFFSET(gpmc_ad14),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD14 */
+	{OFFSET(gpmc_ad15),	(MODE(0) | PULLUDDIS | RXACTIVE)}, /* AD15 */
+#endif
+	{OFFSET(gpmc_wait0),	(MODE(0) | RXACTIVE | PULLUP_EN)}, /* Wait */
+	{OFFSET(gpmc_wpn),	(MODE(7) | PULLUP_EN)},	/* Write Protect */
+	{OFFSET(gpmc_csn0),	(MODE(0) | PULLUP_EN)},	/* Chip-Select */
+	{OFFSET(gpmc_wen),	(MODE(0) | PULLDOWN_EN)}, /* Write Enable */
+	{OFFSET(gpmc_oen_ren),	(MODE(0) | PULLDOWN_EN)}, /* Read Enable */
+	{OFFSET(gpmc_advn_ale),	(MODE(0) | PULLDOWN_EN)}, /* Addr Latch Enable*/
+	{OFFSET(gpmc_be0n_cle),	(MODE(0) | PULLDOWN_EN)}, /* Byte Enable */
+	{-1},
+};
+#endif
+
+static __maybe_unused struct module_pin_mux qspi_pin_mux[] = {
 	{OFFSET(gpmc_csn0), (MODE(3) | PULLUP_EN | RXACTIVE)}, /* QSPI_CS0 */
 	{OFFSET(gpmc_csn3), (MODE(2) | PULLUP_EN | RXACTIVE)}, /* QSPI_CLK */
 	{OFFSET(gpmc_advn_ale), (MODE(3) | PULLUP_EN | RXACTIVE)}, /* QSPI_D0 */
@@ -97,12 +128,22 @@ void enable_board_pin_mux(void)
 	if (board_is_gpevm()) {
 		configure_module_pin_mux(gpio5_7_pin_mux);
 		configure_module_pin_mux(rgmii1_pin_mux);
+#if defined(CONFIG_NAND)
+		configure_module_pin_mux(nand_pin_mux);
+#endif
 	} else if (board_is_sk()) {
 		configure_module_pin_mux(rgmii1_pin_mux);
+#if defined(CONFIG_NAND)
+		printf("Error: NAND flash not present on this board\n");
+#endif
 		configure_module_pin_mux(qspi_pin_mux);
 	} else if (board_is_eposevm()) {
 		configure_module_pin_mux(rmii1_pin_mux);
+#if defined(CONFIG_NAND)
+		configure_module_pin_mux(nand_pin_mux);
+#else
 		configure_module_pin_mux(qspi_pin_mux);
+#endif
 	}
 }
 

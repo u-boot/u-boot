@@ -57,7 +57,7 @@ int cli_simple_parse_line(char *line, char *argv[])
 	return nargs;
 }
 
-static void process_macros(const char *input, char *output)
+void cli_simple_process_macros(const char *input, char *output)
 {
 	char c, prev;
 	const char *varname_start = NULL;
@@ -236,7 +236,7 @@ int cli_simple_run_command(const char *cmd, int flag)
 		debug_parser("token: \"%s\"\n", token);
 
 		/* find macros in this token and replace them */
-		process_macros(token, finaltoken);
+		cli_simple_process_macros(token, finaltoken);
 
 		/* Extract arguments */
 		argc = cli_simple_parse_line(finaltoken, argv);

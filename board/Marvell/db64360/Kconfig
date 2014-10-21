@@ -1,0 +1,12 @@
+if TARGET_DB64360
+
+config SYS_BOARD
+	default "db64360"
+
+config SYS_VENDOR
+	default "Marvell"
+
+config SYS_CONFIG_NAME
+	default "DB64360"
+
+endif

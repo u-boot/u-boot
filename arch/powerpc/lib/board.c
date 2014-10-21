@@ -226,6 +226,9 @@ static int init_func_spi(void)
 #if defined(CONFIG_WATCHDOG)
 int init_func_watchdog_init(void)
 {
+#if defined(CONFIG_MPC85xx)
+	init_85xx_watchdog();
+#endif
 	puts("       Watchdog enabled\n");
 	WATCHDOG_RESET();
 	return 0;
@@ -363,6 +366,8 @@ void board_init_f(ulong bootflag)
 	memset((void *) gd, 0, sizeof(gd_t));
 #endif
 
+	gd->flags = bootflag;
+
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr)
 		if ((*init_fnc_ptr) () != 0)
 			hang();
@@ -370,6 +375,11 @@ void board_init_f(ulong bootflag)
 #ifdef CONFIG_DEEP_SLEEP
 	/* Jump to kernel in deep sleep case */
 	if (in_be32(&gur->scrtsr[0]) & (1 << 3)) {
+		l2cache_init();
+#if defined(CONFIG_RAMBOOT_PBL)
+		disable_cpc_sram();
+#endif
+		enable_cpc();
 		start_addr = in_be32(&scfg->sparecr[1]);
 		kernel_resume = (func_t)start_addr;
 		kernel_resume();

@@ -1,0 +1,9 @@
+PM828 BOARD
+#M:	-
+S:	Maintained
+F:	board/pm828/
+F:	include/configs/PM828.h
+F:	configs/PM828_defconfig
+F:	configs/PM828_PCI_defconfig
+F:	configs/PM828_ROMBOOT_defconfig
+F:	configs/PM828_ROMBOOT_PCI_defconfig

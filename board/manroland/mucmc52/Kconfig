@@ -1,0 +1,12 @@
+if TARGET_MUCMC52
+
+config SYS_BOARD
+	default "mucmc52"
+
+config SYS_VENDOR
+	default "manroland"
+
+config SYS_CONFIG_NAME
+	default "mucmc52"
+
+endif

@@ -1,0 +1,6 @@
+BALLOON3 BOARD
+M:	Marek Vasut <marek.vasut@gmail.com>
+S:	Maintained
+F:	board/balloon3/
+F:	include/configs/balloon3.h
+F:	configs/balloon3_defconfig

@@ -79,6 +79,7 @@ struct pmic {
 };
 
 int pmic_init(unsigned char bus);
+int power_init_board(void);
 int pmic_dialog_init(unsigned char bus);
 int check_reg(struct pmic *p, u32 reg);
 struct pmic *pmic_alloc(void);

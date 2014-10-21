@@ -1,0 +1,9 @@
+if TARGET_ICU862
+
+config SYS_BOARD
+	default "icu862"
+
+config SYS_CONFIG_NAME
+	default "ICU862"
+
+endif

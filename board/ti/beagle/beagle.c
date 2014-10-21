@@ -317,9 +317,12 @@ int misc_init_r(void)
 	struct gpio *gpio6_base = (struct gpio *)OMAP34XX_GPIO6_BASE;
 	struct control_prog_io *prog_io_base = (struct control_prog_io *)OMAP34XX_CTRL_BASE;
 	bool generate_fake_mac = false;
+	u32 value;
 
 	/* Enable i2c2 pullup resisters */
-	writel(~(PRG_I2C2_PULLUPRESX), &prog_io_base->io1);
+	value = readl(&prog_io_base->io1);
+	value &= ~(PRG_I2C2_PULLUPRESX);
+	writel(value, &prog_io_base->io1);
 
 	switch (get_board_revision()) {
 	case REVISION_AXBX:

@@ -1,0 +1,7 @@
+MPC8555CDS BOARD
+#M:	Kumar Gala <kumar.gala@freescale.com>
+S:	Orphan (since 2014-06)
+F:	board/freescale/mpc8555cds/
+F:	include/configs/MPC8555CDS.h
+F:	configs/MPC8555CDS_defconfig
+F:	configs/MPC8555CDS_legacy_defconfig

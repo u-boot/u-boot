@@ -1,0 +1,7 @@
+MPC5121ADS BOARD
+#M:	-
+S:	Maintained
+F:	board/freescale/mpc5121ads/
+F:	include/configs/mpc5121ads.h
+F:	configs/mpc5121ads_defconfig
+F:	configs/mpc5121ads_rev2_defconfig

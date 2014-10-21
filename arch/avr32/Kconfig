@@ -1,0 +1,50 @@
+menu "AVR32 architecture"
+	depends on AVR32
+
+config SYS_ARCH
+	default "avr32"
+
+choice
+	prompt "Target select"
+
+config TARGET_ATNGW100
+	bool "Support atngw100"
+
+config TARGET_ATNGW100MKII
+	bool "Support atngw100mkii"
+
+config TARGET_ATSTK1002
+	bool "Support atstk1002"
+
+config TARGET_ATSTK1003
+	bool "Support atstk1003"
+
+config TARGET_ATSTK1004
+	bool "Support atstk1004"
+
+config TARGET_ATSTK1006
+	bool "Support atstk1006"
+
+config TARGET_FAVR_32_EZKIT
+	bool "Support favr-32-ezkit"
+
+config TARGET_GRASSHOPPER
+	bool "Support grasshopper"
+
+config TARGET_MIMC200
+	bool "Support mimc200"
+
+config TARGET_HAMMERHEAD
+	bool "Support hammerhead"
+
+endchoice
+
+source "board/atmel/atngw100/Kconfig"
+source "board/atmel/atngw100mkii/Kconfig"
+source "board/atmel/atstk1000/Kconfig"
+source "board/earthlcd/favr-32-ezkit/Kconfig"
+source "board/in-circuit/grasshopper/Kconfig"
+source "board/mimc/mimc200/Kconfig"
+source "board/miromico/hammerhead/Kconfig"
+
+endmenu

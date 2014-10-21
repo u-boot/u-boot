@@ -1,0 +1,23 @@
+if TARGET_OT1200
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "ot1200"
+
+config SYS_VENDOR
+	string
+	default "bachmann"
+
+config SYS_SOC
+	string
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	string
+	default "ot1200"
+
+endif

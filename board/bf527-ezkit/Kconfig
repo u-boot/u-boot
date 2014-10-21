@@ -1,0 +1,9 @@
+if TARGET_BF527_EZKIT
+
+config SYS_BOARD
+	default "bf527-ezkit"
+
+config SYS_CONFIG_NAME
+	default "bf527-ezkit"
+
+endif

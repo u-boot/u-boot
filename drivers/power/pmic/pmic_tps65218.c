@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <asm/errno.h>
+#include <power/pmic.h>
 #include <power/tps65218.h>
 
 /**
@@ -92,6 +94,26 @@ int tps65218_voltage_update(uchar dc_cntrl_reg, uchar volt_sel)
 	if (tps65218_reg_write(TPS65218_PROT_LEVEL_2, TPS65218_SLEW,
 			       TPS65218_DCDC_GO, TPS65218_DCDC_GO))
 		return 1;
+
+	return 0;
+}
+
+int power_tps65218_init(unsigned char bus)
+{
+	static const char name[] = "TPS65218_PMIC";
+	struct pmic *p = pmic_alloc();
+
+	if (!p) {
+		printf("%s: POWER allocation error!\n", __func__);
+		return -ENOMEM;
+	}
+
+	p->name = name;
+	p->interface = PMIC_I2C;
+	p->number_of_regs = TPS65218_PMIC_NUM_OF_REGS;
+	p->hw.i2c.addr = TPS65218_CHIP_PM;
+	p->hw.i2c.tx_num = 1;
+	p->bus = bus;
 
 	return 0;
 }

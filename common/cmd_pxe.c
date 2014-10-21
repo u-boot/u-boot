@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2011 Calxeda, Inc.
+ * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -14,6 +15,7 @@
 #include <fs.h>
 
 #include "menu.h"
+#include "cli.h"
 
 #define MAX_TFTP_PATH_LEN 127
 
@@ -577,8 +579,12 @@ static int label_localboot(struct pxe_label *label)
 	if (!localcmd)
 		return -ENOENT;
 
-	if (label->append)
-		setenv("bootargs", label->append);
+	if (label->append) {
+		char bootargs[CONFIG_SYS_CBSIZE];
+
+		cli_simple_process_macros(label->append, bootargs);
+		setenv("bootargs", bootargs);
+	}
 
 	debug("running: %s\n", localcmd);
 
@@ -606,9 +612,10 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	char initrd_str[22];
 	char mac_str[29] = "";
 	char ip_str[68] = "";
-	char *bootargs;
 	int bootm_argc = 3;
 	int len = 0;
+	ulong kernel_addr;
+	void *buf;
 
 	label_print(label);
 
@@ -651,7 +658,6 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		sprintf(ip_str, " ip=%s:%s:%s:%s",
 			getenv("ipaddr"), getenv("serverip"),
 			getenv("gatewayip"), getenv("netmask"));
-		len += strlen(ip_str);
 	}
 
 #ifdef CONFIG_CMD_NET
@@ -661,27 +667,30 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		err = format_mac_pxe(mac_str + 8, sizeof(mac_str) - 8);
 		if (err < 0)
 			mac_str[0] = '\0';
-		len += strlen(mac_str);
 	}
 #endif
 
-	if (label->append)
-		len += strlen(label->append);
+	if ((label->ipappend & 0x3) || label->append) {
+		char bootargs[CONFIG_SYS_CBSIZE] = "";
+		char finalbootargs[CONFIG_SYS_CBSIZE];
 
-	if (len) {
-		bootargs = malloc(len + 1);
-		if (!bootargs)
+		if (strlen(label->append ?: "") +
+		    strlen(ip_str) + strlen(mac_str) + 1 > sizeof(bootargs)) {
+			printf("bootarg overflow %zd+%zd+%zd+1 > %zd\n",
+			       strlen(label->append ?: ""),
+			       strlen(ip_str), strlen(mac_str),
+			       sizeof(bootargs));
 			return 1;
-		bootargs[0] = '\0';
+		}
+
 		if (label->append)
 			strcpy(bootargs, label->append);
 		strcat(bootargs, ip_str);
 		strcat(bootargs, mac_str);
 
-		setenv("bootargs", bootargs);
-		printf("append: %s\n", bootargs);
-
-		free(bootargs);
+		cli_simple_process_macros(bootargs, finalbootargs);
+		setenv("bootargs", finalbootargs);
+		printf("append: %s\n", finalbootargs);
 	}
 
 	bootm_argv[1] = getenv("kernel_addr_r");
@@ -771,11 +780,15 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	if (bootm_argv[3])
 		bootm_argc = 4;
 
-	do_bootm(cmdtp, 0, bootm_argc, bootm_argv);
-
+	kernel_addr = genimg_get_kernel_addr(bootm_argv[1]);
+	buf = map_sysmem(kernel_addr, 0);
+	/* Try bootm for legacy and FIT format image */
+	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID)
+		do_bootm(cmdtp, 0, bootm_argc, bootm_argv);
 #ifdef CONFIG_CMD_BOOTZ
-	/* Try booting a zImage if do_bootm returns */
-	do_bootz(cmdtp, 0, bootm_argc, bootm_argv);
+	/* Try booting a zImage */
+	else
+		do_bootz(cmdtp, 0, bootm_argc, bootm_argv);
 #endif
 	return 1;
 }
@@ -1554,6 +1567,8 @@ do_pxe_boot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	destroy_pxe_menu(cfg);
 
+	copy_filename(BootFile, "", sizeof(BootFile));
+
 	return 0;
 }
 
@@ -1562,7 +1577,7 @@ static cmd_tbl_t cmd_pxe_sub[] = {
 	U_BOOT_CMD_MKENT(boot, 2, 1, do_pxe_boot, "", "")
 };
 
-int do_pxe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_pxe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *cp;
 
@@ -1596,7 +1611,7 @@ U_BOOT_CMD(
  *
  * Returns 0 on success, 1 on error.
  */
-int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long pxefile_addr_r;
 	struct pxe_menu *cfg;

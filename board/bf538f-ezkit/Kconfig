@@ -1,0 +1,9 @@
+if TARGET_BF538F_EZKIT
+
+config SYS_BOARD
+	default "bf538f-ezkit"
+
+config SYS_CONFIG_NAME
+	default "bf538f-ezkit"
+
+endif

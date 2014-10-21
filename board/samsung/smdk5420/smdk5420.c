@@ -10,11 +10,14 @@
 #include <i2c.h>
 #include <lcd.h>
 #include <spi.h>
+#include <errno.h>
 #include <asm/arch/board.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch/system.h>
 #include <asm/arch/dp_info.h>
+#include <power/tps65090_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,95 +43,57 @@ int exynos_init(void)
 }
 
 #ifdef CONFIG_LCD
-void cfg_lcd_gpio(void)
+static int has_edp_bridge(void)
 {
-	/* For Backlight */
-	gpio_cfg_pin(EXYNOS5420_GPIO_B20, S5P_GPIO_OUTPUT);
-	gpio_set_value(EXYNOS5420_GPIO_B20, 1);
+	int node;
 
-	/* LCD power on */
-	gpio_cfg_pin(EXYNOS5420_GPIO_X15, S5P_GPIO_OUTPUT);
-	gpio_set_value(EXYNOS5420_GPIO_X15, 1);
+	node = fdtdec_next_compatible(gd->fdt_blob, 0, COMPAT_PARADE_PS8625);
 
-	/* Set Hotplug detect for DP */
-	gpio_cfg_pin(EXYNOS5420_GPIO_X07, S5P_GPIO_FUNC(0x3));
+	/* No node for bridge in device tree. */
+	if (node <= 0)
+		return 0;
+
+	/* Default is with bridge ic */
+	return 1;
 }
 
-vidinfo_t panel_info = {
-	.vl_freq	= 60,
-	.vl_col		= 2560,
-	.vl_row		= 1600,
-	.vl_width	= 2560,
-	.vl_height	= 1600,
-	.vl_clkp	= CONFIG_SYS_LOW,
-	.vl_hsp		= CONFIG_SYS_LOW,
-	.vl_vsp		= CONFIG_SYS_LOW,
-	.vl_dp		= CONFIG_SYS_LOW,
-	.vl_bpix	= 4,	/* LCD_BPP = 2^4, for output conosle on LCD */
-
-	/* wDP panel timing infomation */
-	.vl_hspw	= 32,
-	.vl_hbpd	= 80,
-	.vl_hfpd	= 48,
-
-	.vl_vspw	= 6,
-	.vl_vbpd	= 37,
-	.vl_vfpd	= 3,
-	.vl_cmd_allow_len = 0xf,
-
-	.win_id		= 3,
-	.cfg_gpio	= cfg_lcd_gpio,
-	.backlight_on	= NULL,
-	.lcd_power_on	= NULL,
-	.reset_lcd	= NULL,
-	.dual_lcd_enabled = 0,
-
-	.init_delay	= 0,
-	.power_on_delay = 0,
-	.reset_delay	= 0,
-	.interface_mode = FIMD_RGB_INTERFACE,
-	.dp_enabled	= 1,
-};
-
-static struct edp_device_info edp_info = {
-	.disp_info = {
-		.h_res = 2560,
-		.h_sync_width = 32,
-		.h_back_porch = 80,
-		.h_front_porch = 48,
-		.v_res = 1600,
-		.v_sync_width  = 6,
-		.v_back_porch = 37,
-		.v_front_porch = 3,
-		.v_sync_rate = 60,
-	},
-	.lt_info = {
-		.lt_status = DP_LT_NONE,
-	},
-	.video_info = {
-		.master_mode = 0,
-		.bist_mode = DP_DISABLE,
-		.bist_pattern = NO_PATTERN,
-		.h_sync_polarity = 0,
-		.v_sync_polarity = 0,
-		.interlaced = 0,
-		.color_space = COLOR_RGB,
-		.dynamic_range = VESA,
-		.ycbcr_coeff = COLOR_YCBCR601,
-		.color_depth = COLOR_8,
-	},
-};
-
-static struct exynos_dp_platform_data dp_platform_data = {
-	.phy_enable	= set_dp_phy_ctrl,
-	.edp_dev_info	= &edp_info,
-};
-
-void init_panel_info(vidinfo_t *vid)
+void exynos_lcd_power_on(void)
 {
-	vid->rgb_mode   = MODE_RGB_P;
+	int ret;
 
-	exynos_set_dp_platform_data(&dp_platform_data);
+#ifdef CONFIG_POWER_TPS65090
+	ret = tps65090_init();
+	if (ret < 0) {
+		printf("%s: tps65090_init() failed\n", __func__);
+		return;
+	}
+
+	tps65090_fet_enable(6);
+#endif
+
+	mdelay(5);
+
+	/* TODO(ajaykumar.rs@samsung.com): Use device tree */
+	gpio_direction_output(EXYNOS5420_GPIO_X35, 1);	/* EDP_SLP# */
+	mdelay(10);
+	gpio_direction_output(EXYNOS5420_GPIO_Y77, 1);	/* EDP_RST# */
+	gpio_direction_input(EXYNOS5420_GPIO_X26);	/* EDP_HPD */
+	gpio_set_pull(EXYNOS5420_GPIO_X26, S5P_GPIO_PULL_NONE);
+
+	if (has_edp_bridge())
+		if (parade_init(gd->fdt_blob))
+			printf("%s: ps8625_init() failed\n", __func__);
+}
+
+void exynos_backlight_on(unsigned int onoff)
+{
+	/* For PWM */
+	gpio_cfg_pin(EXYNOS5420_GPIO_B20, S5P_GPIO_FUNC(0x1));
+	gpio_set_value(EXYNOS5420_GPIO_B20, 1);
+
+#ifdef CONFIG_POWER_TPS65090
+	tps65090_fet_enable(1);
+#endif
 }
 #endif
 

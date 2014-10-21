@@ -17,9 +17,11 @@ enum uclass_id {
 	UCLASS_DEMO,
 	UCLASS_TEST,
 	UCLASS_TEST_FDT,
+	UCLASS_TEST_BUS,
 
 	/* U-Boot uclasses start here */
-	UCLASS_GPIO,
+	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */
+	UCLASS_SERIAL,		/* Serial UART */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,

@@ -463,6 +463,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		data += read_len;
 	}
 
+	free(cmd);
 	return ret;
 }
 

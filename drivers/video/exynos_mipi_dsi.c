@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <fdtdec.h>
 #include <libfdt.h>
+#include <linux/compat.h>
 #include <linux/err.h>
 #include <asm/arch/dsim.h>
 #include <asm/arch/mipi_dsim.h>

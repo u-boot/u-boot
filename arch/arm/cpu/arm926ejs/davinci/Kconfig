@@ -1,0 +1,77 @@
+if ARCH_DAVINCI
+
+choice
+	prompt "DaVinci board select"
+
+config TARGET_ENBW_CMC
+	bool "EnBW CMC board"
+
+config TARGET_IPAM390
+	bool "IPAM390 board"
+
+config TARGET_DA830EVM
+	bool "DA830 EVM board"
+
+config TARGET_DA850EVM
+	bool "DA850 EVM board"
+
+config TARGET_CAM_ENC_4XX
+	bool "CAM ENC 4xx board"
+
+config TARGET_HAWKBOARD
+	bool "Hawkboard"
+
+config TARGET_DAVINCI_DM355EVM
+	bool "DM355 EVM board"
+
+config TARGET_DAVINCI_DM355LEOPARD
+	bool "DM355 Leopard board"
+
+config TARGET_DAVINCI_DM365EVM
+	bool "DM365 EVM board"
+
+config TARGET_DAVINCI_DM6467EVM
+	bool "DM6467 EVM board"
+
+config TARGET_DAVINCI_DVEVM
+	bool "DVEVM board"
+
+config TARGET_EA20
+	bool "EA20 board"
+
+config TARGET_DAVINCI_SCHMOOGIE
+	bool "Schmoogie board"
+
+config TARGET_DAVINCI_SFFSDR
+	bool "SFFSDR board"
+
+config TARGET_DAVINCI_SONATA
+	bool "Sonata board"
+
+config TARGET_CALIMAIN
+	bool "Calimain board"
+
+endchoice
+
+config SYS_CPU
+	default "arm926ejs"
+
+config SYS_SOC
+	default "davinci"
+
+source "board/enbw/enbw_cmc/Kconfig"
+source "board/ait/cam_enc_4xx/Kconfig"
+source "board/Barix/ipam390/Kconfig"
+source "board/davinci/da8xxevm/Kconfig"
+source "board/davinci/dm355evm/Kconfig"
+source "board/davinci/dm355leopard/Kconfig"
+source "board/davinci/dm365evm/Kconfig"
+source "board/davinci/dm6467evm/Kconfig"
+source "board/davinci/dvevm/Kconfig"
+source "board/davinci/ea20/Kconfig"
+source "board/davinci/schmoogie/Kconfig"
+source "board/davinci/sffsdr/Kconfig"
+source "board/davinci/sonata/Kconfig"
+source "board/omicron/calimain/Kconfig"
+
+endif

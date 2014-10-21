@@ -1,0 +1,12 @@
+if TARGET_MHPC
+
+config SYS_BOARD
+	default "mhpc"
+
+config SYS_VENDOR
+	default "eltec"
+
+config SYS_CONFIG_NAME
+	default "MHPC"
+
+endif

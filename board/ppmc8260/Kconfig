@@ -1,0 +1,9 @@
+if TARGET_PPMC8260
+
+config SYS_BOARD
+	default "ppmc8260"
+
+config SYS_CONFIG_NAME
+	default "ppmc8260"
+
+endif

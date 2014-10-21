@@ -1,0 +1,31 @@
+if TARGET_LS2085A_EMU
+
+config SYS_BOARD
+	default "ls2085a"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "fsl-lsch3"
+
+config SYS_CONFIG_NAME
+	default "ls2085a_emu"
+
+endif
+
+if TARGET_LS2085A_SIMU
+
+config SYS_BOARD
+	default "ls2085a"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "fsl-lsch3"
+
+config SYS_CONFIG_NAME
+	default "ls2085a_simu"
+
+endif

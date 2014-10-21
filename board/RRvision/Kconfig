@@ -1,0 +1,9 @@
+if TARGET_RRVISION
+
+config SYS_BOARD
+	default "RRvision"
+
+config SYS_CONFIG_NAME
+	default "RRvision"
+
+endif

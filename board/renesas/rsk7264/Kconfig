@@ -1,0 +1,15 @@
+if TARGET_RSK7264
+
+config SYS_CPU
+	default "sh2"
+
+config SYS_BOARD
+	default "rsk7264"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "rsk7264"
+
+endif

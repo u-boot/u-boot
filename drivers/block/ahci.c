@@ -41,7 +41,7 @@ u16 *ataid[AHCI_MAX_PORTS];
 #define WAIT_MS_SPINUP	20000
 #define WAIT_MS_DATAIO	5000
 #define WAIT_MS_FLUSH	5000
-#define WAIT_MS_LINKUP	40
+#define WAIT_MS_LINKUP	200
 
 static inline u32 ahci_port_base(u32 base, u32 port)
 {
@@ -129,6 +129,14 @@ int __weak ahci_link_up(struct ahci_probe_ent *probe_ent, u8 port)
 	return 1;
 }
 
+#ifdef CONFIG_SUNXI_AHCI
+/* The sunxi AHCI controller requires this undocumented setup */
+static void sunxi_dma_init(volatile u8 *port_mmio)
+{
+	clrsetbits_le32(port_mmio + PORT_P0DMACR, 0x0000ff00, 0x00004400);
+}
+#endif
+
 static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 {
 #ifndef CONFIG_SCSI_AHCI_PLAT
@@ -213,11 +221,14 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 			msleep(500);
 		}
 
+#ifdef CONFIG_SUNXI_AHCI
+		sunxi_dma_init(port_mmio);
+#endif
+
 		/* Add the spinup command to whatever mode bits may
 		 * already be on in the command register.
 		 */
 		cmd = readl(port_mmio + PORT_CMD);
-		cmd |= PORT_CMD_FIS_RX;
 		cmd |= PORT_CMD_SPIN_UP;
 		writel_with_flush(cmd, port_mmio + PORT_CMD);
 
@@ -544,6 +555,10 @@ static int ahci_port_start(u8 port)
 	writel_with_flush((u32) pp->cmd_slot, port_mmio + PORT_LST_ADDR);
 
 	writel_with_flush(pp->rx_fis, port_mmio + PORT_FIS_ADDR);
+
+#ifdef CONFIG_SUNXI_AHCI
+	sunxi_dma_init(port_mmio);
+#endif
 
 	writel_with_flush(PORT_CMD_ICC_ACTIVE | PORT_CMD_FIS_RX |
 			  PORT_CMD_POWER_ON | PORT_CMD_SPIN_UP |

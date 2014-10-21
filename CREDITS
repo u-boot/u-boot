@@ -126,7 +126,7 @@ D: Palmtreo680 board, docg4 nand flash driver
 
 N: Dave Ellis
 E: DGE@sixnetio.com
-D: EEPROM Speedup, SXNI855T port
+D: EEPROM Speedup
 
 N: Daniel Engstr?m
 E: daniel@omicron.se

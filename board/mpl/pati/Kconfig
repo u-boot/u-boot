@@ -1,0 +1,12 @@
+if TARGET_PATI
+
+config SYS_BOARD
+	default "pati"
+
+config SYS_VENDOR
+	default "mpl"
+
+config SYS_CONFIG_NAME
+	default "PATI"
+
+endif

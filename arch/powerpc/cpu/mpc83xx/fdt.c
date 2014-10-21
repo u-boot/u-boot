@@ -18,7 +18,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_BOOTCOUNT_LIMIT) && \
 	(defined(CONFIG_QE) && !defined(CONFIG_MPC831x))
-#include <asm/immap_qe.h>
+#include <linux/immap_qe.h>
 
 void fdt_fixup_muram (void *blob)
 {

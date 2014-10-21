@@ -1,0 +1,15 @@
+if TARGET_MIMC200
+
+config SYS_BOARD
+	default "mimc200"
+
+config SYS_VENDOR
+	default "mimc"
+
+config SYS_SOC
+	default "at32ap700x"
+
+config SYS_CONFIG_NAME
+	default "mimc200"
+
+endif

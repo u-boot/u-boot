@@ -10,12 +10,10 @@
 #ifndef __CONFIG_UNIVERSAL_H
 #define __CONFIG_UNIVERSAL_H
 
-#include <configs/exynos4-dt.h>
+#include <configs/exynos4-common.h>
 
 #define CONFIG_SYS_PROMPT	"Universal # "	/* Monitor Command Prompt */
 
-#undef CONFIG_DEFAULT_DEVICE_TREE
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos4210-universal_c210
 
 #define CONFIG_TIZEN			/* TIZEN lib */
 
@@ -28,9 +26,6 @@
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
 
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
-
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL2
@@ -246,8 +241,5 @@ int universal_spi_read(void);
 #define CONFIG_LD9040
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 160 * 4) + 54)
-
-#define LCD_XRES	480
-#define LCD_YRES	800
 
 #endif	/* __CONFIG_H */

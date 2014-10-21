@@ -1,0 +1,10 @@
+P2020DS BOARD
+#M:	-
+S:	Maintained
+F:	board/freescale/p2020ds/
+F:	include/configs/P2020DS.h
+F:	configs/P2020DS_defconfig
+F:	configs/P2020DS_36BIT_defconfig
+F:	configs/P2020DS_DDR2_defconfig
+F:	configs/P2020DS_SDCARD_defconfig
+F:	configs/P2020DS_SPIFLASH_defconfig

@@ -1,0 +1,9 @@
+if TARGET_MUAS3001
+
+config SYS_BOARD
+	default "muas3001"
+
+config SYS_CONFIG_NAME
+	default "muas3001"
+
+endif

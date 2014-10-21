@@ -1,0 +1,9 @@
+if TARGET_SPD823TS
+
+config SYS_BOARD
+	default "spd8xx"
+
+config SYS_CONFIG_NAME
+	default "SPD823TS"
+
+endif

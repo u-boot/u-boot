@@ -1,0 +1,12 @@
+if TARGET_DIG297
+
+config SYS_BOARD
+	default "dig297"
+
+config SYS_VENDOR
+	default "comelit"
+
+config SYS_CONFIG_NAME
+	default "dig297"
+
+endif

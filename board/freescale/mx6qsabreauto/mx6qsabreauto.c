@@ -50,12 +50,12 @@ int dram_init(void)
 	return 0;
 }
 
-iomux_v3_cfg_t const uart4_pads[] = {
+static iomux_v3_cfg_t const uart4_pads[] = {
 	MX6_PAD_KEY_COL0__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-iomux_v3_cfg_t const enet_pads[] = {
+static iomux_v3_cfg_t const enet_pads[] = {
 	MX6_PAD_KEY_COL1__ENET_MDIO		| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_KEY_COL2__ENET_MDC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_RGMII_TXC__RGMII_TXC	| MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -74,7 +74,7 @@ iomux_v3_cfg_t const enet_pads[] = {
 };
 
 /* I2C2 PMIC, iPod, Tuner, Codec, Touch, HDMI EDID, MIPI CSI2 card */
-struct i2c_pads_info i2c_pad_info1 = {
+static struct i2c_pads_info i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = MX6_PAD_EIM_EB2__I2C2_SCL | PC,
 		.gpio_mode = MX6_PAD_EIM_EB2__GPIO2_IO30 | PC,
@@ -91,7 +91,7 @@ struct i2c_pads_info i2c_pad_info1 = {
  * I2C3 MLB, Port Expanders (A, B, C), Video ADC, Light Sensor,
  * Compass Sensor, Accelerometer, Res Touch
  */
-struct i2c_pads_info i2c_pad_info2 = {
+static struct i2c_pads_info i2c_pad_info2 = {
 	.scl = {
 		.i2c_mode = MX6_PAD_GPIO_3__I2C3_SCL | PC,
 		.gpio_mode = MX6_PAD_GPIO_3__GPIO1_IO03 | PC,
@@ -104,11 +104,11 @@ struct i2c_pads_info i2c_pad_info2 = {
 	}
 };
 
-iomux_v3_cfg_t const i2c3_pads[] = {
+static iomux_v3_cfg_t const i2c3_pads[] = {
 	MX6_PAD_EIM_A24__GPIO5_IO04		| MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-iomux_v3_cfg_t const port_exp[] = {
+static iomux_v3_cfg_t const port_exp[] = {
 	MX6_PAD_SD2_DAT0__GPIO1_IO15		| MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
@@ -117,7 +117,7 @@ static void setup_iomux_enet(void)
 	imx_iomux_v3_setup_multiple_pads(enet_pads, ARRAY_SIZE(enet_pads));
 }
 
-iomux_v3_cfg_t const usdhc3_pads[] = {
+static iomux_v3_cfg_t const usdhc3_pads[] = {
 	MX6_PAD_SD3_CLK__SD3_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD3_CMD__SD3_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD3_DAT0__SD3_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -138,7 +138,7 @@ static void setup_iomux_uart(void)
 }
 
 #ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg usdhc_cfg[1] = {
+static struct fsl_esdhc_cfg usdhc_cfg[1] = {
 	{USDHC3_BASE_ADDR},
 };
 
@@ -258,6 +258,13 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_MXC_SPI
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return (bus == 0 && cs == 0) ? (IMX_GPIO_NR(4, 9)) : -1;
+}
+#endif
 
 #ifdef CONFIG_CMD_BMODE
 static const struct boot_mode board_boot_modes[] = {

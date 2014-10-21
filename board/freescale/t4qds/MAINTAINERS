@@ -1,0 +1,26 @@
+T4QDS BOARD
+#M:	-
+S:	Maintained
+F:	board/freescale/t4qds/
+F:	include/configs/T4240QDS.h
+F:	configs/T4160QDS_defconfig
+F:	configs/T4160QDS_NAND_defconfig
+F:	configs/T4160QDS_SDCARD_defconfig
+F:	configs/T4160QDS_SPIFLASH_defconfig
+F:	configs/T4240QDS_defconfig
+F:	configs/T4240QDS_NAND_defconfig
+F:	configs/T4240QDS_SDCARD_defconfig
+F:	configs/T4240QDS_SPIFLASH_defconfig
+F:	configs/T4240QDS_SRIO_PCIE_BOOT_defconfig
+
+T4160QDS_SECURE_BOOT BOARD
+M:	Aneesh Bansal <aneesh.bansal@freescale.com>
+S:	Maintained
+F:	configs/T4160QDS_SECURE_BOOT_defconfig
+F:	configs/T4240QDS_SECURE_BOOT_defconfig
+
+T4240EMU BOARD
+M:	York Sun <yorksun@freescale.com>
+S:	Maintained
+F:	include/configs/T4240EMU.h
+F:	configs/T4240EMU_defconfig

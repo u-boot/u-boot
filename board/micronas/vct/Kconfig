@@ -1,0 +1,15 @@
+if TARGET_VCT
+
+config SYS_CPU
+	default "mips32"
+
+config SYS_BOARD
+	default "vct"
+
+config SYS_VENDOR
+	default "micronas"
+
+config SYS_CONFIG_NAME
+	default "vct"
+
+endif

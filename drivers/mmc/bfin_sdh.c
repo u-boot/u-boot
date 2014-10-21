@@ -138,9 +138,9 @@ static int sdh_setup_data(struct mmc *mmc, struct mmc_data *data)
 	if (data->flags & MMC_DATA_WRITE)
 		return UNUSABLE_ERR;
 #ifndef RSI_BLKSZ
-	data_ctl |= ((ffs(data_size) - 1) << 4);
+	data_ctl |= ((ffs(data->blocksize) - 1) << 4);
 #else
-	bfin_write_SDH_BLK_SIZE(data_size);
+	bfin_write_SDH_BLK_SIZE(data->blocksize);
 #endif
 	data_ctl |= DTX_DIR;
 	bfin_write_SDH_DATA_CTL(data_ctl);
@@ -189,7 +189,8 @@ static int bfin_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 		do {
 			udelay(1);
 			status = bfin_read_SDH_STATUS();
-		} while (!(status & (DAT_BLK_END | DAT_END | DAT_TIME_OUT | DAT_CRC_FAIL | RX_OVERRUN)));
+		} while (!(status & (DAT_END | DAT_TIME_OUT | DAT_CRC_FAIL |
+			 RX_OVERRUN)));
 
 		if (status & DAT_TIME_OUT) {
 			bfin_write_SDH_STATUS_CLR(DAT_TIMEOUT_STAT);

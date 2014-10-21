@@ -1,0 +1,12 @@
+if TARGET_BUBINGA
+
+config SYS_BOARD
+	default "bubinga"
+
+config SYS_VENDOR
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	default "bubinga"
+
+endif

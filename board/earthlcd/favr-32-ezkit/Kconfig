@@ -1,0 +1,15 @@
+if TARGET_FAVR_32_EZKIT
+
+config SYS_BOARD
+	default "favr-32-ezkit"
+
+config SYS_VENDOR
+	default "earthlcd"
+
+config SYS_SOC
+	default "at32ap700x"
+
+config SYS_CONFIG_NAME
+	default "favr-32-ezkit"
+
+endif

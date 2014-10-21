@@ -1,0 +1,6 @@
+HUMMINGBOARD BOARD
+M:	Jon Nettleton <jon.nettleton@gmail.com>
+S:	Maintained
+F:	board/solidrun/hummingboard/
+F:	include/configs/hummingboard.h
+F:	configs/hummingboard_solo_defconfig

@@ -1,0 +1,9 @@
+if TARGET_CPU87
+
+config SYS_BOARD
+	default "cpu87"
+
+config SYS_CONFIG_NAME
+	default "CPU87"
+
+endif

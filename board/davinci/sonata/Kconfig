@@ -1,0 +1,12 @@
+if TARGET_DAVINCI_SONATA
+
+config SYS_BOARD
+	default "sonata"
+
+config SYS_VENDOR
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	default "davinci_sonata"
+
+endif

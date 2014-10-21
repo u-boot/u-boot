@@ -1,0 +1,18 @@
+if TARGET_SNOWBALL
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_BOARD
+	default "snowball"
+
+config SYS_VENDOR
+	default "st-ericsson"
+
+config SYS_SOC
+	default "u8500"
+
+config SYS_CONFIG_NAME
+	default "snowball"
+
+endif

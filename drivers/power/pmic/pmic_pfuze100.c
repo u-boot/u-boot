@@ -13,7 +13,7 @@
 
 int power_pfuze100_init(unsigned char bus)
 {
-	static const char name[] = "PFUZE100_PMIC";
+	static const char name[] = "PFUZE100";
 	struct pmic *p = pmic_alloc();
 
 	if (!p) {

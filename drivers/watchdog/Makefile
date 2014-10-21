@@ -7,7 +7,7 @@
 
 obj-$(CONFIG_AT91SAM9_WATCHDOG) += at91sam9_wdt.o
 obj-$(CONFIG_FTWDT010_WATCHDOG) += ftwdt010_wdt.o
-ifneq (,$(filter $(SOC), mx31 mx35 mx5 mx6 vf610))
+ifneq (,$(filter $(SOC), mx31 mx35 mx5 mx6 vf610 ls102xa))
 obj-y += imx_watchdog.o
 endif
 obj-$(CONFIG_TNETV107X_WATCHDOG) += tnetv107x_wdt.o

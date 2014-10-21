@@ -1,0 +1,15 @@
+if TARGET_R7780MP
+
+config SYS_CPU
+	default "sh4"
+
+config SYS_BOARD
+	default "r7780mp"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "r7780mp"
+
+endif

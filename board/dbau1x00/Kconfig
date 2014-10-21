@@ -1,0 +1,15 @@
+if TARGET_DBAU1X00
+
+config SYS_CPU
+	default "mips32"
+
+config SYS_BOARD
+	default "dbau1x00"
+
+config SYS_SOC
+	default "au1x00"
+
+config SYS_CONFIG_NAME
+	default "dbau1x00"
+
+endif

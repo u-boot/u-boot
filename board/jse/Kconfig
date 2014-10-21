@@ -1,0 +1,9 @@
+if TARGET_JSE
+
+config SYS_BOARD
+	default "jse"
+
+config SYS_CONFIG_NAME
+	default "JSE"
+
+endif

@@ -84,7 +84,7 @@ static int ihs_i2c_address(uchar chip, uint addr, int alen, bool hold_bus)
 	int shift = (alen-1) * 8;
 
 	while (alen) {
-		int transfer = MIN(alen, 2);
+		int transfer = min(alen, 2);
 		uchar buf[2];
 		bool is_last = alen <= transfer;
 
@@ -113,7 +113,7 @@ static int ihs_i2c_access(struct i2c_adapter *adap, uchar chip, uint addr,
 		return 1;
 
 	while (len) {
-		int transfer = MIN(len, 2);
+		int transfer = min(len, 2);
 
 		if (ihs_i2c_transfer(chip, buffer, transfer, read,
 				     len <= transfer))

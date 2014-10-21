@@ -21,7 +21,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_OMAP	/* in a TI OMAP core */
-#define CONFIG_OMAP34XX	/* which is a 34XX */
 #define CONFIG_OMAP_GPIO
 #define CONFIG_CMD_GPIO
 #define CONFIG_CM_T3X	/* working with CM-T35 and CM-T3730 */
@@ -136,6 +135,7 @@
 #define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
+#define CONFIG_SYS_I2C_EEPROM_BUS	0
 #define CONFIG_I2C_MULTI_BUS
 
 /*
@@ -258,9 +258,6 @@
  */
 
 /* **** PISMO SUPPORT *** */
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
@@ -319,7 +316,6 @@
 #define CONFIG_OMAP3_SPI
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 

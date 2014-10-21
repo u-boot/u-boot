@@ -1,0 +1,6 @@
+MUCMC52 BOARD
+M:	Heiko Schocher <hs@denx.de>
+S:	Maintained
+F:	board/manroland/mucmc52/
+F:	include/configs/mucmc52.h
+F:	configs/mucmc52_defconfig

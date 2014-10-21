@@ -1,0 +1,6 @@
+ADP-AG102 BOARD
+M:	Andes <uboot@andestech.com>
+S:	Maintained
+F:	board/AndesTech/adp-ag102/
+F:	include/configs/adp-ag102.h
+F:	configs/adp-ag102_defconfig

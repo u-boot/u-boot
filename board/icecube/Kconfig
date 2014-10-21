@@ -1,0 +1,9 @@
+if TARGET_ICECUBE
+
+config SYS_BOARD
+	default "icecube"
+
+config SYS_CONFIG_NAME
+	default "IceCube"
+
+endif

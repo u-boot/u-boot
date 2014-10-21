@@ -1,0 +1,7 @@
+MPC837XEMDS BOARD
+M:	Dave Liu <daveliu@freescale.com>
+S:	Maintained
+F:	board/freescale/mpc837xemds/
+F:	include/configs/MPC837XEMDS.h
+F:	configs/MPC837XEMDS_defconfig
+F:	configs/MPC837XEMDS_HOST_defconfig

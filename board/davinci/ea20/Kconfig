@@ -1,0 +1,12 @@
+if TARGET_EA20
+
+config SYS_BOARD
+	default "ea20"
+
+config SYS_VENDOR
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	default "ea20"
+
+endif

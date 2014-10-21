@@ -23,13 +23,20 @@
 #define PCI_ACCESS_READ  0
 #define PCI_ACCESS_WRITE 1
 
+#ifdef CONFIG_MX6SX
+#define MX6_DBI_ADDR	0x08ffc000
+#define MX6_IO_ADDR	0x08000000
+#define MX6_MEM_ADDR	0x08100000
+#define MX6_ROOT_ADDR	0x08f00000
+#else
 #define MX6_DBI_ADDR	0x01ffc000
-#define MX6_DBI_SIZE	0x4000
 #define MX6_IO_ADDR	0x01000000
-#define MX6_IO_SIZE	0x100000
 #define MX6_MEM_ADDR	0x01100000
-#define MX6_MEM_SIZE	0xe00000
 #define MX6_ROOT_ADDR	0x01f00000
+#endif
+#define MX6_DBI_SIZE	0x4000
+#define MX6_IO_SIZE	0x100000
+#define MX6_MEM_SIZE	0xe00000
 #define MX6_ROOT_SIZE	0xfc000
 
 /* PCIe Port Logic registers (memory-mapped) */
@@ -56,6 +63,8 @@
 #define PHY_RX_OVRD_IN_LO 0x1005
 #define PHY_RX_OVRD_IN_LO_RX_DATA_EN (1 << 5)
 #define PHY_RX_OVRD_IN_LO_RX_PLL_EN (1 << 3)
+
+#define PCIE_PHY_PUP_REQ		(1 << 7)
 
 /* iATU registers */
 #define PCIE_ATU_VIEWPORT		0x900
@@ -421,9 +430,19 @@ static int imx_pcie_write_config(struct pci_controller *hose, pci_dev_t d,
 static int imx6_pcie_assert_core_reset(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+#if defined(CONFIG_MX6SX)
+	struct gpc *gpc_regs = (struct gpc *)GPC_BASE_ADDR;
 
+	/* SSP_EN is not used on MX6SX anymore */
+	setbits_le32(&iomuxc_regs->gpr[12], IOMUXC_GPR12_TEST_POWERDOWN);
+	/* Force PCIe PHY reset */
+	setbits_le32(&iomuxc_regs->gpr[5], IOMUXC_GPR5_PCIE_BTNRST);
+	/* Power up PCIe PHY */
+	setbits_le32(&gpc_regs->cntr, PCIE_PHY_PUP_REQ);
+#else
 	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_TEST_POWERDOWN);
 	clrbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_REF_SSP_EN);
+#endif
 
 	return 0;
 }
@@ -440,6 +459,12 @@ static int imx6_pcie_init_phy(void)
 	clrsetbits_le32(&iomuxc_regs->gpr[12],
 			IOMUXC_GPR12_LOS_LEVEL_MASK,
 			IOMUXC_GPR12_LOS_LEVEL_9);
+
+#ifdef CONFIG_MX6SX
+	clrsetbits_le32(&iomuxc_regs->gpr[12],
+			IOMUXC_GPR12_RX_EQ_MASK,
+			IOMUXC_GPR12_RX_EQ_2);
+#endif
 
 	writel((0x0 << IOMUXC_GPR8_PCS_TX_DEEMPH_GEN1_OFFSET) |
 	       (0x0 << IOMUXC_GPR8_PCS_TX_DEEMPH_GEN2_3P5DB_OFFSET) |
@@ -509,10 +534,6 @@ static int imx6_pcie_deassert_core_reset(void)
 
 	imx6_pcie_toggle_power();
 
-	/* Enable PCIe */
-	clrbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_TEST_POWERDOWN);
-	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_REF_SSP_EN);
-
 	enable_pcie_clock();
 
 	/*
@@ -520,6 +541,17 @@ static int imx6_pcie_deassert_core_reset(void)
 	 * from the CPU, we need about 30mS to settle.
 	 */
 	mdelay(50);
+
+#if defined(CONFIG_MX6SX)
+	/* SSP_EN is not used on MX6SX anymore */
+	clrbits_le32(&iomuxc_regs->gpr[12], IOMUXC_GPR12_TEST_POWERDOWN);
+	/* Clear PCIe PHY reset bit */
+	clrbits_le32(&iomuxc_regs->gpr[5], IOMUXC_GPR5_PCIE_BTNRST);
+#else
+	/* Enable PCIe */
+	clrbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_TEST_POWERDOWN);
+	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_REF_SSP_EN);
+#endif
 
 	imx6_pcie_toggle_reset();
 

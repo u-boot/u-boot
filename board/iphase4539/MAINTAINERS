@@ -1,0 +1,6 @@
+IPHASE4539 BOARD
+M:	Wolfgang Grandegger <wg@denx.de>
+S:	Maintained
+F:	board/iphase4539/
+F:	include/configs/IPHASE4539.h
+F:	configs/IPHASE4539_defconfig

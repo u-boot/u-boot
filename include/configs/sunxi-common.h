@@ -57,6 +57,18 @@
 #define PHYS_SDRAM_0			CONFIG_SYS_SDRAM_BASE
 #define PHYS_SDRAM_0_SIZE		0x80000000 /* 2 GiB */
 
+#ifdef CONFIG_AHCI
+#define CONFIG_LIBATA
+#define CONFIG_SCSI_AHCI
+#define CONFIG_SCSI_AHCI_PLAT
+#define CONFIG_SUNXI_AHCI
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
+#define CONFIG_SYS_SCSI_MAX_LUN		1
+#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+					 CONFIG_SYS_SCSI_MAX_LUN)
+#define CONFIG_CMD_SCSI
+#endif
+
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_SETEXPR
 
@@ -70,7 +82,6 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_MMC_SUNXI
 #define CONFIG_MMC_SUNXI_SLOT		0
-#define CONFIG_MMC_SUNXI_USE_DMA
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
 
@@ -89,10 +100,10 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_LOAD_ADDR		0x48000000 /* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
 
 /* standalone support */
-#define CONFIG_STANDALONE_LOAD_ADDR	0x48000000
+#define CONFIG_STANDALONE_LOAD_ADDR	0x42000000
 
 #define CONFIG_SYS_HZ			1000
 
@@ -112,12 +123,8 @@
 #define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"bootm_size=0x10000000\0"
-
-#define CONFIG_SYS_BOOT_GET_CMDLINE
-
 #include <config_cmd_default.h>
+#undef CONFIG_CMD_FPGA
 
 #define CONFIG_FAT_WRITE	/* enable write access */
 
@@ -128,7 +135,6 @@
 
 #ifdef CONFIG_SPL_FEL
 
-#define CONFIG_SPL
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl-fel.lds"
 #define CONFIG_SPL_START_S_PATH "arch/arm/cpu/armv7/sunxi"
 #define CONFIG_SPL_TEXT_BASE		0x2000
@@ -158,11 +164,31 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x4ff00000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000	/* 512 KiB */
 
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
+/* I2C */
+#define CONFIG_SPL_I2C_SUPPORT
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MVTWSI
+#define CONFIG_SYS_I2C_SPEED		400000
+#define CONFIG_SYS_I2C_SLAVE		0x7f
+#define CONFIG_CMD_I2C
 
+/* PMU */
+#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || defined CONFIG_AXP221_POWER
+#define CONFIG_SPL_POWER_SUPPORT
+#endif
+
+#ifndef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX              1       /* UART0 */
+#endif
+
+/* GPIO */
+#define CONFIG_SUNXI_GPIO
+#define CONFIG_CMD_GPIO
+
+/* Ethernet support */
+#ifdef CONFIG_SUNXI_EMAC
+#define CONFIG_MII			/* MII PHY management		*/
+#endif
 
 #ifdef CONFIG_SUNXI_GMAC
 #define CONFIG_DESIGNWARE_ETH		/* GMAC can use designware driver */
@@ -173,12 +199,10 @@
 #define CONFIG_PHYLIB
 #endif
 
-#ifdef CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
-#define CONFIG_CMD_DNS
-#define CONFIG_NETCONSOLE
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
+#ifdef CONFIG_USB_EHCI
+#define CONFIG_CMD_USB
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 1
+#define CONFIG_USB_STORAGE
 #endif
 
 #if !defined CONFIG_ENV_IS_IN_MMC && \
@@ -188,8 +212,44 @@
 #define CONFIG_ENV_IS_NOWHERE
 #endif
 
+#define CONFIG_MISC_INIT_R
+
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
+
+/* 256M RAM (minimum), 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
+ * 1M script, 1M pxe and the ramdisk at the end */
+#define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x10000000\0" \
+	"kernel_addr_r=0x42000000\0" \
+	"fdt_addr_r=0x43000000\0" \
+	"scriptaddr=0x43100000\0" \
+	"pxefile_addr_r=0x43200000\0" \
+	"ramdisk_addr_r=0x43300000\0"
+
+#ifdef CONFIG_AHCI
+#define BOOT_TARGET_DEVICES_SCSI(func) func(SCSI, scsi, 0)
+#else
+#define BOOT_TARGET_DEVICES_SCSI(func)
+#endif
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	BOOT_TARGET_DEVICES_SCSI(func) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	MEM_LAYOUT_ENV_SETTINGS \
+	"fdtfile=" CONFIG_FDTFILE "\0" \
+	"console=ttyS0,115200\0" \
+	BOOTENV
+
+#else /* ifndef CONFIG_SPL_BUILD */
+#define CONFIG_EXTRA_ENV_SETTINGS
 #endif
 
 #endif /* _SUNXI_COMMON_CONFIG_H */

@@ -1,0 +1,6 @@
+FAVR-32-EZKIT BOARD
+#M:	Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+S:	Orphan (since 2014-06)
+F:	board/earthlcd/favr-32-ezkit/
+F:	include/configs/favr-32-ezkit.h
+F:	configs/favr-32-ezkit_defconfig

@@ -1,0 +1,9 @@
+if TARGET_NETVIA
+
+config SYS_BOARD
+	default "netvia"
+
+config SYS_CONFIG_NAME
+	default "NETVIA"
+
+endif

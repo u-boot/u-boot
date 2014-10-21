@@ -185,6 +185,7 @@ enum dcache_option {
 	DCACHE_OFF = 0x12,
 	DCACHE_WRITETHROUGH = 0x1a,
 	DCACHE_WRITEBACK = 0x1e,
+	DCACHE_WRITEALLOC = 0x16,
 };
 
 /* Size of an MMU section */

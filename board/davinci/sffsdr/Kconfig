@@ -1,0 +1,12 @@
+if TARGET_DAVINCI_SFFSDR
+
+config SYS_BOARD
+	default "sffsdr"
+
+config SYS_VENDOR
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	default "davinci_sffsdr"
+
+endif

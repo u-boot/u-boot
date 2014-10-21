@@ -12,13 +12,7 @@
 #include "../board/xilinx/microblaze-generic/xparameters.h"
 
 /* MicroBlaze CPU */
-#define	CONFIG_MICROBLAZE	1
 #define	MICROBLAZE_V5		1
-
-/* Open Firmware DTS */
-#define CONFIG_OF_CONTROL	1
-#define CONFIG_OF_EMBED		1
-#define CONFIG_DEFAULT_DEVICE_TREE microblaze-generic
 
 /* linear and spi flash memory */
 #ifdef XILINX_FLASH_START
@@ -448,7 +442,6 @@
 #endif
 
 /* SPL part */
-#define CONFIG_SPL
 #define CONFIG_CMD_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LIBCOMMON_SUPPORT

@@ -14,6 +14,7 @@
 #include <linux/compiler.h>
 #include <version.h>
 #include <environment.h>
+#include <dm.h>
 #include <fdtdec.h>
 #include <fs.h>
 #if defined(CONFIG_CMD_IDE)
@@ -33,17 +34,18 @@
 #ifdef CONFIG_MPC5xxx
 #include <mpc5xxx.h>
 #endif
+#if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
+#include <asm/mp.h>
+#endif
 
 #include <os.h>
 #include <post.h>
 #include <spi.h>
+#include <status_led.h>
 #include <trace.h>
 #include <watchdog.h>
 #include <asm/errno.h>
 #include <asm/io.h>
-#ifdef CONFIG_MP
-#include <asm/mp.h>
-#endif
 #include <asm/sections.h>
 #ifdef CONFIG_X86
 #include <asm/init_helpers.h>
@@ -52,6 +54,7 @@
 #ifdef CONFIG_SANDBOX
 #include <asm/state.h>
 #endif
+#include <dm/root.h>
 #include <linux/compiler.h>
 
 /*
@@ -78,25 +81,15 @@ DECLARE_GLOBAL_DATA_PTR;
  ************************************************************************
  * May be supplied by boards if desired
  */
-inline void __coloured_LED_init(void) {}
-void coloured_LED_init(void)
-	__attribute__((weak, alias("__coloured_LED_init")));
-inline void __red_led_on(void) {}
-void red_led_on(void) __attribute__((weak, alias("__red_led_on")));
-inline void __red_led_off(void) {}
-void red_led_off(void) __attribute__((weak, alias("__red_led_off")));
-inline void __green_led_on(void) {}
-void green_led_on(void) __attribute__((weak, alias("__green_led_on")));
-inline void __green_led_off(void) {}
-void green_led_off(void) __attribute__((weak, alias("__green_led_off")));
-inline void __yellow_led_on(void) {}
-void yellow_led_on(void) __attribute__((weak, alias("__yellow_led_on")));
-inline void __yellow_led_off(void) {}
-void yellow_led_off(void) __attribute__((weak, alias("__yellow_led_off")));
-inline void __blue_led_on(void) {}
-void blue_led_on(void) __attribute__((weak, alias("__blue_led_on")));
-inline void __blue_led_off(void) {}
-void blue_led_off(void) __attribute__((weak, alias("__blue_led_off")));
+__weak void coloured_LED_init(void) {}
+__weak void red_led_on(void) {}
+__weak void red_led_off(void) {}
+__weak void green_led_on(void) {}
+__weak void green_led_off(void) {}
+__weak void yellow_led_on(void) {}
+__weak void yellow_led_off(void) {}
+__weak void blue_led_on(void) {}
+__weak void blue_led_off(void) {}
 
 /*
  * Why is gd allocated a register? Prior to reloc it might be better to
@@ -113,9 +106,14 @@ void blue_led_off(void) __attribute__((weak, alias("__blue_led_off")));
  * Could the CONFIG_SPL_BUILD infection become a flag in gd?
  */
 
-#if defined(CONFIG_WATCHDOG)
+#if defined(CONFIG_WATCHDOG) || defined(CONFIG_HW_WATCHDOG)
 static int init_func_watchdog_init(void)
 {
+# if defined(CONFIG_HW_WATCHDOG) && (defined(CONFIG_BLACKFIN) || \
+	defined(CONFIG_M68K) || defined(CONFIG_MICROBLAZE) || \
+	defined(CONFIG_SH))
+	hw_watchdog_init();
+# endif
 	puts("       Watchdog enabled\n");
 	WATCHDOG_RESET();
 
@@ -153,7 +151,11 @@ static int display_text_info(void)
 	bss_end = (ulong)&__bss_end;
 
 	debug("U-Boot code: %08X -> %08lX  BSS: -> %08lX\n",
+#ifdef CONFIG_SYS_TEXT_BASE
 	      CONFIG_SYS_TEXT_BASE, bss_start, bss_end);
+#else
+	      CONFIG_SYS_MONITOR_BASE, bss_start, bss_end);
+#endif
 #endif
 
 #ifdef CONFIG_MODEM_SUPPORT
@@ -268,6 +270,8 @@ static int setup_mon_len(void)
 	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
 #elif defined(CONFIG_SANDBOX)
 	gd->mon_len = (ulong)&_end - (ulong)_init;
+#elif defined(CONFIG_BLACKFIN) || defined(CONFIG_NIOS2)
+	gd->mon_len = CONFIG_SYS_MONITOR_LEN;
 #else
 	/* TODO: use (ulong)&__bss_end - (ulong)&__text_start; ? */
 	gd->mon_len = (ulong)&__bss_end - CONFIG_SYS_MONITOR_BASE;
@@ -337,21 +341,23 @@ static int setup_ram_buf(void)
 
 static int setup_fdt(void)
 {
-#ifdef CONFIG_OF_EMBED
+#ifdef CONFIG_OF_CONTROL
+# ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
 	gd->fdt_blob = __dtb_dt_begin;
-#elif defined CONFIG_OF_SEPARATE
+# elif defined CONFIG_OF_SEPARATE
 	/* FDT is at end of image */
 	gd->fdt_blob = (ulong *)&_end;
-#elif defined(CONFIG_OF_HOSTFILE)
+# elif defined(CONFIG_OF_HOSTFILE)
 	if (read_fdt_from_file()) {
 		puts("Failed to read control FDT\n");
 		return -1;
 	}
-#endif
+# endif
 	/* Allow the early environment to override the fdt address */
 	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
 						(uintptr_t)gd->fdt_blob);
+#endif
 	return 0;
 }
 
@@ -477,8 +483,9 @@ static int reserve_trace(void)
 	return 0;
 }
 
-#if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) \
-		&& !defined(CONFIG_ARM) && !defined(CONFIG_X86)
+#if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) && \
+		!defined(CONFIG_ARM) && !defined(CONFIG_X86) && \
+		!defined(CONFIG_BLACKFIN)
 static int reserve_video(void)
 {
 	/* reserve memory for video display (always full pages) */
@@ -523,11 +530,13 @@ static int reserve_malloc(void)
 /* (permanently) allocate a Board Info struct */
 static int reserve_board(void)
 {
-	gd->start_addr_sp -= sizeof(bd_t);
-	gd->bd = (bd_t *)map_sysmem(gd->start_addr_sp, sizeof(bd_t));
-	memset(gd->bd, '\0', sizeof(bd_t));
-	debug("Reserving %zu Bytes for Board Info at: %08lx\n",
-			sizeof(bd_t), gd->start_addr_sp);
+	if (!gd->bd) {
+		gd->start_addr_sp -= sizeof(bd_t);
+		gd->bd = (bd_t *)map_sysmem(gd->start_addr_sp, sizeof(bd_t));
+		memset(gd->bd, '\0', sizeof(bd_t));
+		debug("Reserving %zu Bytes for Board Info at: %08lx\n",
+		      sizeof(bd_t), gd->start_addr_sp);
+	}
 	return 0;
 }
 #endif
@@ -728,7 +737,9 @@ static int reloc_fdt(void)
 
 static int setup_reloc(void)
 {
+#ifdef CONFIG_SYS_TEXT_BASE
 	gd->reloc_off = gd->relocaddr - CONFIG_SYS_TEXT_BASE;
+#endif
 	memcpy(gd->new_gd, (char *)gd, sizeof(gd_t));
 
 	debug("Relocation Offset is: %08lx\n", gd->reloc_off);
@@ -776,6 +787,30 @@ static int mark_bootstage(void)
 	return 0;
 }
 
+static int initf_malloc(void)
+{
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	assert(gd->malloc_base);	/* Set up by crt0.S */
+	gd->malloc_limit = gd->malloc_base + CONFIG_SYS_MALLOC_F_LEN;
+	gd->malloc_ptr = 0;
+#endif
+
+	return 0;
+}
+
+static int initf_dm(void)
+{
+#if defined(CONFIG_DM) && defined(CONFIG_SYS_MALLOC_F_LEN)
+	int ret;
+
+	ret = dm_init_and_scan(true);
+	if (ret)
+		return ret;
+#endif
+
+	return 0;
+}
+
 static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_SANDBOX
 	setup_ram_buf,
@@ -798,6 +833,8 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_OF_CONTROL
 	fdtdec_check_fdt,
 #endif
+	initf_malloc,
+	initf_dm,
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
@@ -811,7 +848,7 @@ static init_fnc_t init_sequence_f[] = {
 	/* TODO: can we rename this to timer_init()? */
 	init_timebase,
 #endif
-#if defined(CONFIG_ARM) || defined(CONFIG_MIPS)
+#if defined(CONFIG_ARM) || defined(CONFIG_MIPS) || defined(CONFIG_BLACKFIN)
 	timer_init,		/* initialize timer */
 #endif
 #ifdef CONFIG_SYS_ALLOC_DPRAM
@@ -910,6 +947,10 @@ static init_fnc_t init_sequence_f[] = {
 	 *  - board info struct
 	 */
 	setup_dest_addr,
+#if defined(CONFIG_BLACKFIN) || defined(CONFIG_NIOS2)
+	/* Blackfin u-boot monitor should be on top of the ram */
+	reserve_uboot,
+#endif
 #if defined(CONFIG_LOGBUFFER) && !defined(CONFIG_ALT_LB_ADDR)
 	reserve_logbuffer,
 #endif
@@ -926,11 +967,14 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 	reserve_trace,
 	/* TODO: Why the dependency on CONFIG_8xx? */
-#if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) \
-		&& !defined(CONFIG_ARM) && !defined(CONFIG_X86)
+#if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) && \
+		!defined(CONFIG_ARM) && !defined(CONFIG_X86) && \
+		!defined(CONFIG_BLACKFIN)
 	reserve_video,
 #endif
+#if !defined(CONFIG_BLACKFIN) && !defined(CONFIG_NIOS2)
 	reserve_uboot,
+#endif
 #ifndef CONFIG_SPL_BUILD
 	reserve_malloc,
 	reserve_board,

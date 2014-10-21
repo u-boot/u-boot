@@ -1,0 +1,6 @@
+BCT-BRETTL2 BOARD
+M:	Peter Meerwald <devel@bct-electronic.com>
+S:	Maintained
+F:	board/bct-brettl2/
+F:	include/configs/bct-brettl2.h
+F:	configs/bct-brettl2_defconfig

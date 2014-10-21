@@ -1,0 +1,25 @@
+if TARGET_CATCENTER
+
+config SYS_BOARD
+	default "PPChameleonEVB"
+
+config SYS_VENDOR
+	default "dave"
+
+config SYS_CONFIG_NAME
+	default "CATcenter"
+
+endif
+
+if TARGET_PPCHAMELEONEVB
+
+config SYS_BOARD
+	default "PPChameleonEVB"
+
+config SYS_VENDOR
+	default "dave"
+
+config SYS_CONFIG_NAME
+	default "PPChameleonEVB"
+
+endif

@@ -1,0 +1,9 @@
+if TARGET_CMI_MPC5XX
+
+config SYS_BOARD
+	default "cmi"
+
+config SYS_CONFIG_NAME
+	default "cmi_mpc5xx"
+
+endif

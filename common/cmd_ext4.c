@@ -42,6 +42,12 @@
 #include <usb.h>
 #endif
 
+int do_ext4_size(cmd_tbl_t *cmdtp, int flag, int argc,
+						char *const argv[])
+{
+	return do_size(cmdtp, flag, argc, argv, FS_TYPE_EXT);
+}
+
 int do_ext4_load(cmd_tbl_t *cmdtp, int flag, int argc,
 						char *const argv[])
 {
@@ -113,6 +119,14 @@ U_BOOT_CMD(ext4write, 6, 1, do_ext4_write,
 
 #endif
 
+U_BOOT_CMD(
+	ext4size,	4,	0,	do_ext4_size,
+	"determine a file's size",
+	"<interface> <dev[:part]> <filename>\n"
+	"    - Find file 'filename' from 'dev' on 'interface'\n"
+	"      and determine its size."
+);
+
 U_BOOT_CMD(ext4ls, 4, 1, do_ext4_ls,
 	   "list files in a directory (default /)",
 	   "<interface> <dev[:part]> [directory]\n"
@@ -120,6 +134,6 @@ U_BOOT_CMD(ext4ls, 4, 1, do_ext4_ls,
 
 U_BOOT_CMD(ext4load, 6, 0, do_ext4_load,
 	   "load binary file from a Ext4 filesystem",
-	   "<interface> <dev[:part]> [addr] [filename] [bytes]\n"
+	   "<interface> [<dev[:part]> [addr [filename [bytes [pos]]]]]\n"
 	   "    - load binary file 'filename' from 'dev' on 'interface'\n"
 	   "      to address 'addr' from ext4 filesystem");

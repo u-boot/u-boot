@@ -1,0 +1,12 @@
+if TARGET_T208XQDS
+
+config SYS_BOARD
+	default "t208xqds"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	default "T208xQDS"
+
+endif

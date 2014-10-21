@@ -6,6 +6,7 @@
  *	Copyright 2000 Roland Borde
  *	Copyright 2000 Paolo Scaffardi
  *	Copyright 2000-2002 Wolfgang Denk, wd@denx.de
+ *	SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __PING_H__

@@ -1,0 +1,9 @@
+if TARGET_EP8260
+
+config SYS_BOARD
+	default "ep8260"
+
+config SYS_CONFIG_NAME
+	default "ep8260"
+
+endif

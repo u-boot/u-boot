@@ -13,7 +13,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_OMAP			/* in a TI OMAP core */
-#define CONFIG_OMAP34XX			/* which is a 34XX */
 #define CONFIG_OMAP3_MCX		/* working with mcx */
 #define CONFIG_OMAP_GPIO
 #define CONFIG_OMAP_COMMON
@@ -316,10 +315,6 @@
  */
 
 /* **** PISMO SUPPORT *** */
-
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_ENV_IS_IN_NAND
 #define SMNAND_ENV_OFFSET		0x180000 /* environment starts here */
@@ -348,7 +343,6 @@
 					 GENERATED_GBL_DATA_SIZE)
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_SIMPLE

@@ -8,8 +8,8 @@
 #define __FM_ETH_H__
 
 #include <common.h>
+#include <phy.h>
 #include <asm/types.h>
-#include <asm/fsl_enet.h>
 
 enum fm_port {
 	FM1_DTSEC1,

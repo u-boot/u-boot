@@ -152,6 +152,11 @@ static iomux_v3_cfg_t const efikamx_spi_pads[] = {
  * PMIC configuration
  */
 #ifdef CONFIG_MXC_SPI
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return (bus == 0 && cs == 1) ? 121 : -1;
+}
+
 static void power_init(void)
 {
 	unsigned int val;

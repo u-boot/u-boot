@@ -133,7 +133,7 @@ static int initr_reloc_global_data(void)
 {
 #ifdef __ARM__
 	monitor_flash_len = _end - __image_copy_start;
-#elif !defined(CONFIG_SANDBOX)
+#elif !defined(CONFIG_SANDBOX) && !defined(CONFIG_NIOS2)
 	monitor_flash_len = (ulong)&__init_end - gd->relocaddr;
 #endif
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
@@ -259,6 +259,10 @@ static int initr_malloc(void)
 {
 	ulong malloc_start;
 
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	debug("Pre-reloc malloc() used %#lx bytes (%ld KB)\n", gd->malloc_ptr,
+	      gd->malloc_ptr / 1024);
+#endif
 	/* The malloc area is immediately below the monitor copy in DRAM */
 	malloc_start = gd->relocaddr - TOTAL_MALLOC_LEN;
 	mem_malloc_init((ulong)map_sysmem(malloc_start, TOTAL_MALLOC_LEN),
@@ -269,27 +273,10 @@ static int initr_malloc(void)
 #ifdef CONFIG_DM
 static int initr_dm(void)
 {
-	int ret;
-
-	ret = dm_init();
-	if (ret) {
-		debug("dm_init() failed: %d\n", ret);
-		return ret;
-	}
-	ret = dm_scan_platdata();
-	if (ret) {
-		debug("dm_scan_platdata() failed: %d\n", ret);
-		return ret;
-	}
-#ifdef CONFIG_OF_CONTROL
-	ret = dm_scan_fdt(gd->fdt_blob);
-	if (ret) {
-		debug("dm_scan_fdt() failed: %d\n", ret);
-		return ret;
-	}
-#endif
-
-	return 0;
+	/* Save the pre-reloc driver model and start a new one */
+	gd->dm_root_f = gd->dm_root;
+	gd->dm_root = NULL;
+	return dm_init_and_scan(false);
 }
 #endif
 
@@ -588,21 +575,19 @@ static int initr_status_led(void)
 #if defined(CONFIG_CMD_SCSI)
 static int initr_scsi(void)
 {
-	/* Not supported properly on ARM yet */
-#ifndef CONFIG_ARM
 	puts("SCSI:  ");
 	scsi_init();
-#endif
 
 	return 0;
 }
-#endif /* CONFIG_CMD_NET */
+#endif
 
 #if defined(CONFIG_CMD_DOC)
 static int initr_doc(void)
 {
 	puts("DOC:   ");
 	doc_init();
+	return 0;
 }
 #endif
 
@@ -679,7 +664,7 @@ int initr_mem(void)
 	/* Also take the logbuffer into account (pram is in kB) */
 	pram += (LOGBUFF_LEN + LOGBUFF_OVERHEAD) / 1024;
 # endif
-	sprintf(memsz, "%ldk", (gd->ram_size / 1024) - pram);
+	sprintf(memsz, "%ldk", (long int) ((gd->ram_size / 1024) - pram));
 	setenv("mem", memsz);
 
 	return 0;
@@ -730,6 +715,18 @@ init_fnc_t init_sequence_r[] = {
 	/* TODO: could x86/PPC have this also perhaps? */
 #ifdef CONFIG_ARM
 	initr_caches,
+#endif
+	initr_reloc_global_data,
+#if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
+	initr_unlock_ram_in_cache,
+#endif
+	initr_barrier,
+	initr_malloc,
+	bootstage_relocate,
+#ifdef CONFIG_DM
+	initr_dm,
+#endif
+#ifdef CONFIG_ARM
 	board_init,	/* Setup chipselects */
 #endif
 	/*
@@ -741,7 +738,7 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_CLOCKS
 	set_cpu_clk_info, /* Setup clock information */
 #endif
-	initr_reloc_global_data,
+	stdio_init_tables,
 	initr_serial,
 	initr_announce,
 	INIT_FUNC_WATCHDOG_RESET
@@ -765,9 +762,6 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_SYS_DELAYED_ICACHE
 	initr_icache_enable,
 #endif
-#if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
-	initr_unlock_ram_in_cache,
-#endif
 #if defined(CONFIG_PCI) && defined(CONFIG_SYS_EARLY_PCI_INIT)
 	/*
 	 * Do early PCI configuration _before_ the flash gets initialised,
@@ -777,12 +771,6 @@ init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_WINBOND_83C553
 	initr_w83c553f,
-#endif
-	initr_barrier,
-	initr_malloc,
-	bootstage_relocate,
-#ifdef CONFIG_DM
-	initr_dm,
 #endif
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 	arch_early_init_r,
@@ -833,7 +821,7 @@ init_fnc_t init_sequence_r[] = {
 	 */
 	initr_pci,
 #endif
-	stdio_init,
+	stdio_add_devices,
 	initr_jumptable,
 #ifdef CONFIG_API
 	initr_api,
@@ -927,7 +915,7 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	int i;
 #endif
 
-#ifndef CONFIG_X86
+#if !defined(CONFIG_X86) && !defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
 	gd = new_gd;
 #endif
 

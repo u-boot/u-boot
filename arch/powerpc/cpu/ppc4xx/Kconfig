@@ -1,0 +1,305 @@
+menu "ppc4xx CPU"
+	depends on 4xx
+
+config SYS_CPU
+	default "ppc4xx"
+
+choice
+	prompt "Target select"
+
+config TARGET_CSB272
+	bool "Support csb272"
+
+config TARGET_CSB472
+	bool "Support csb472"
+
+config TARGET_G2000
+	bool "Support G2000"
+
+config TARGET_JSE
+	bool "Support JSE"
+
+config TARGET_KORAT
+	bool "Support korat"
+
+config TARGET_LWMON5
+	bool "Support lwmon5"
+
+config TARGET_PCS440EP
+	bool "Support pcs440ep"
+
+config TARGET_SBC405
+	bool "Support sbc405"
+
+config TARGET_SC3
+	bool "Support sc3"
+
+config TARGET_T3CORP
+	bool "Support t3corp"
+
+config TARGET_W7OLMC
+	bool "Support W7OLMC"
+
+config TARGET_W7OLMG
+	bool "Support W7OLMG"
+
+config TARGET_ZEUS
+	bool "Support zeus"
+
+config TARGET_ACADIA
+	bool "Support acadia"
+
+config TARGET_BAMBOO
+	bool "Support bamboo"
+
+config TARGET_BUBINGA
+	bool "Support bubinga"
+
+config TARGET_CANYONLANDS
+	bool "Support canyonlands"
+
+config TARGET_EBONY
+	bool "Support ebony"
+
+config TARGET_KATMAI
+	bool "Support katmai"
+
+config TARGET_KILAUEA
+	bool "Support kilauea"
+
+config TARGET_LUAN
+	bool "Support luan"
+
+config TARGET_MAKALU
+	bool "Support makalu"
+
+config TARGET_OCOTEA
+	bool "Support ocotea"
+
+config TARGET_REDWOOD
+	bool "Support redwood"
+
+config TARGET_SEQUOIA
+	bool "Support sequoia"
+
+config TARGET_TAIHU
+	bool "Support taihu"
+
+config TARGET_TAISHAN
+	bool "Support taishan"
+
+config TARGET_WALNUT
+	bool "Support walnut"
+
+config TARGET_YOSEMITE
+	bool "Support yosemite"
+
+config TARGET_YUCCA
+	bool "Support yucca"
+
+config TARGET_FX12MM
+	bool "Support fx12mm"
+
+config TARGET_V5FX30TEVAL
+	bool "Support v5fx30teval"
+
+config TARGET_CATCENTER
+	bool "Support CATcenter"
+
+config TARGET_PPCHAMELEONEVB
+	bool "Support PPChameleonEVB"
+
+config TARGET_APC405
+	bool "Support APC405"
+
+config TARGET_AR405
+	bool "Support AR405"
+
+config TARGET_ASH405
+	bool "Support ASH405"
+
+config TARGET_CMS700
+	bool "Support CMS700"
+
+config TARGET_CPCI2DP
+	bool "Support CPCI2DP"
+
+config TARGET_CPCI405
+	bool "Support CPCI405"
+
+config TARGET_CPCI4052
+	bool "Support CPCI4052"
+
+config TARGET_CPCI405AB
+	bool "Support CPCI405AB"
+
+config TARGET_CPCI405DT
+	bool "Support CPCI405DT"
+
+config TARGET_CPCIISER4
+	bool "Support CPCIISER4"
+
+config TARGET_DP405
+	bool "Support DP405"
+
+config TARGET_DU405
+	bool "Support DU405"
+
+config TARGET_DU440
+	bool "Support DU440"
+
+config TARGET_HH405
+	bool "Support HH405"
+
+config TARGET_HUB405
+	bool "Support HUB405"
+
+config TARGET_OCRTC
+	bool "Support OCRTC"
+
+config TARGET_PCI405
+	bool "Support PCI405"
+
+config TARGET_PLU405
+	bool "Support PLU405"
+
+config TARGET_PMC405
+	bool "Support PMC405"
+
+config TARGET_PMC405DE
+	bool "Support PMC405DE"
+
+config TARGET_PMC440
+	bool "Support PMC440"
+
+config TARGET_VOH405
+	bool "Support VOH405"
+
+config TARGET_VOM405
+	bool "Support VOM405"
+
+config TARGET_WUH405
+	bool "Support WUH405"
+
+config TARGET_DLVISION_10G
+	bool "Support dlvision-10g"
+
+config TARGET_IO
+	bool "Support io"
+
+config TARGET_IOCON
+	bool "Support iocon"
+
+config TARGET_NEO
+	bool "Support neo"
+
+config TARGET_IO64
+	bool "Support io64"
+
+config TARGET_DLVISION
+	bool "Support dlvision"
+
+config TARGET_GDPPC440ETX
+	bool "Support gdppc440etx"
+
+config TARGET_INTIP
+	bool "Support intip"
+
+config TARGET_ICON
+	bool "Support icon"
+
+config TARGET_MIP405
+	bool "Support MIP405"
+
+config TARGET_PIP405
+	bool "Support PIP405"
+
+config TARGET_ALPR
+	bool "Support alpr"
+
+config TARGET_P3P440
+	bool "Support p3p440"
+
+config TARGET_XPEDITE1000
+	bool "Support xpedite1000"
+
+config TARGET_ML507
+	bool "Support ml507"
+
+config TARGET_XILINX_PPC405_GENERIC
+	bool "Support xilinx-ppc405-generic"
+
+config TARGET_XILINX_PPC440_GENERIC
+	bool "Support xilinx-ppc440-generic"
+
+endchoice
+
+source "board/amcc/acadia/Kconfig"
+source "board/amcc/bamboo/Kconfig"
+source "board/amcc/bubinga/Kconfig"
+source "board/amcc/canyonlands/Kconfig"
+source "board/amcc/ebony/Kconfig"
+source "board/amcc/katmai/Kconfig"
+source "board/amcc/kilauea/Kconfig"
+source "board/amcc/luan/Kconfig"
+source "board/amcc/makalu/Kconfig"
+source "board/amcc/ocotea/Kconfig"
+source "board/amcc/redwood/Kconfig"
+source "board/amcc/sequoia/Kconfig"
+source "board/amcc/taihu/Kconfig"
+source "board/amcc/taishan/Kconfig"
+source "board/amcc/walnut/Kconfig"
+source "board/amcc/yosemite/Kconfig"
+source "board/amcc/yucca/Kconfig"
+source "board/avnet/fx12mm/Kconfig"
+source "board/avnet/v5fx30teval/Kconfig"
+source "board/csb272/Kconfig"
+source "board/csb472/Kconfig"
+source "board/dave/PPChameleonEVB/Kconfig"
+source "board/esd/apc405/Kconfig"
+source "board/esd/ar405/Kconfig"
+source "board/esd/ash405/Kconfig"
+source "board/esd/cms700/Kconfig"
+source "board/esd/cpci2dp/Kconfig"
+source "board/esd/cpci405/Kconfig"
+source "board/esd/cpciiser4/Kconfig"
+source "board/esd/dp405/Kconfig"
+source "board/esd/du405/Kconfig"
+source "board/esd/du440/Kconfig"
+source "board/esd/hh405/Kconfig"
+source "board/esd/hub405/Kconfig"
+source "board/esd/ocrtc/Kconfig"
+source "board/esd/pci405/Kconfig"
+source "board/esd/plu405/Kconfig"
+source "board/esd/pmc405/Kconfig"
+source "board/esd/pmc405de/Kconfig"
+source "board/esd/pmc440/Kconfig"
+source "board/esd/voh405/Kconfig"
+source "board/esd/vom405/Kconfig"
+source "board/esd/wuh405/Kconfig"
+source "board/g2000/Kconfig"
+source "board/gdsys/405ep/Kconfig"
+source "board/gdsys/405ex/Kconfig"
+source "board/gdsys/dlvision/Kconfig"
+source "board/gdsys/gdppc440etx/Kconfig"
+source "board/gdsys/intip/Kconfig"
+source "board/jse/Kconfig"
+source "board/korat/Kconfig"
+source "board/lwmon5/Kconfig"
+source "board/mosaixtech/icon/Kconfig"
+source "board/mpl/mip405/Kconfig"
+source "board/mpl/pip405/Kconfig"
+source "board/pcs440ep/Kconfig"
+source "board/prodrive/alpr/Kconfig"
+source "board/prodrive/p3p440/Kconfig"
+source "board/sbc405/Kconfig"
+source "board/sc3/Kconfig"
+source "board/t3corp/Kconfig"
+source "board/w7o/Kconfig"
+source "board/xes/xpedite1000/Kconfig"
+source "board/xilinx/ml507/Kconfig"
+source "board/xilinx/ppc405-generic/Kconfig"
+source "board/xilinx/ppc440-generic/Kconfig"
+source "board/zeus/Kconfig"
+
+endmenu

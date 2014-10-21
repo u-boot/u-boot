@@ -17,7 +17,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
-#define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3_DEVKIT8000	1	/* working with DevKit8000 */
 #define CONFIG_MACH_TYPE	MACH_TYPE_DEVKIT8000
 #define CONFIG_OMAP_GPIO
@@ -262,8 +261,6 @@
 #define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
 
 /* NAND and environment organization  */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #define CONFIG_ENV_IS_IN_NAND		1
@@ -283,7 +280,6 @@
 #define CONFIG_SYS_SRAM_SIZE               0x10000
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 

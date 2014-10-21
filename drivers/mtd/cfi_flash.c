@@ -593,7 +593,7 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 	case CFI_CMDSET_INTEL_PROG_REGIONS:
 	case CFI_CMDSET_INTEL_EXTENDED:
 	case CFI_CMDSET_INTEL_STANDARD:
-		if ((retcode != ERR_OK)
+		if ((retcode == ERR_OK)
 		    && !flash_isequal (info, sector, 0, FLASH_STATUS_DONE)) {
 			retcode = ERR_INVAL;
 			printf ("Flash %s error at address %lx\n", prompt,
@@ -2360,7 +2360,7 @@ unsigned long flash_init (void)
 #endif /* CONFIG_SYS_FLASH_QUIET_TEST */
 		}
 #ifdef CONFIG_SYS_FLASH_PROTECTION
-		else if ((s != NULL) && (strcmp(s, "yes") == 0)) {
+		else if (strcmp(s, "yes") == 0) {
 			/*
 			 * Only the U-Boot image and it's environment
 			 * is protected, all other sectors are

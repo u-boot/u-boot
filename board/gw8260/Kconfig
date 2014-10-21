@@ -1,0 +1,9 @@
+if TARGET_GW8260
+
+config SYS_BOARD
+	default "gw8260"
+
+config SYS_CONFIG_NAME
+	default "gw8260"
+
+endif

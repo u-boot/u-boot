@@ -1,0 +1,6 @@
+PALMTREO680 BOARD
+#M:	Mike Dunn <mikedunn@newsguy.com>
+S:	Orphan (since 2014-06)
+F:	board/palmtreo680/
+F:	include/configs/palmtreo680.h
+F:	configs/palmtreo680_defconfig

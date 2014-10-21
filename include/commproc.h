@@ -456,27 +456,6 @@ typedef struct scc_enet {
 #define SICR_ENET_CLKRT	((uint)0x00002c00)
 #endif	/* CONFIG_BSEIP */
 
-/***  BSEIP  **********************************************************/
-
-#ifdef CONFIG_FLAGADM
-/* Enet configuration for the FLAGADM */
-/* Enet on SCC2 */
-
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)
-#define PA_ENET_TXD	((ushort)0x0008)
-#define PA_ENET_TCLK	((ushort)0x0100)
-#define PA_ENET_RCLK	((ushort)0x0400)
-#define PB_ENET_TENA	((uint)0x00002000)
-#define PC_ENET_CLSN	((ushort)0x0040)
-#define PC_ENET_RENA	((ushort)0x0080)
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00003400)
-#endif	/* CONFIG_FLAGADM */
-
 /***  ELPT860 *********************************************************/
 
 #ifdef CONFIG_ELPT860
@@ -555,27 +534,6 @@ typedef struct scc_enet {
 #define SICR_ENET_MASK	((uint)0x0000ff00)
 #define SICR_ENET_CLKRT	((uint)0x00002600)
 #endif	/* CONFIG_FPS850L, CONFIG_FPS860L */
-
-/*** GEN860T **********************************************************/
-#if defined(CONFIG_GEN860T)
-#undef	SCC_ENET
-#define	FEC_ENET
-
-#define PD_MII_TXD1	((ushort)0x1000)	/* PD  3	*/
-#define PD_MII_TXD2	((ushort)0x0800)	/* PD  4	*/
-#define PD_MII_TXD3	((ushort)0x0400)	/* PD  5	*/
-#define PD_MII_RX_DV	((ushort)0x0200)	/* PD  6	*/
-#define PD_MII_RX_ERR	((ushort)0x0100)	/* PD  7	*/
-#define PD_MII_RX_CLK	((ushort)0x0080)	/* PD  8	*/
-#define PD_MII_TXD0	((ushort)0x0040)	/* PD  9	*/
-#define PD_MII_RXD0	((ushort)0x0020)	/* PD 10	*/
-#define PD_MII_TX_ERR	((ushort)0x0010)	/* PD 11	*/
-#define PD_MII_MDC	((ushort)0x0008)	/* PD 12	*/
-#define PD_MII_RXD1	((ushort)0x0004)	/* PD 13	*/
-#define PD_MII_RXD2	((ushort)0x0002)	/* PD 14	*/
-#define PD_MII_RXD3	((ushort)0x0001)	/* PD 15	*/
-#define PD_MII_MASK	((ushort)0x1FFF)	/* PD 3-15	*/
-#endif	/* CONFIG_GEN860T */
 
 /*** HERMES-PRO ******************************************************/
 
@@ -779,57 +737,6 @@ typedef struct scc_enet {
 
 /***  NETVIA  *******************************************************/
 
-/* SinoVee Microsystems SC8xx series FEL8xx-AT,SC823,SC850,SC855T,SC860T */
-#if ( defined CONFIG_SVM_SC8xx )
-# ifndef CONFIG_FEC_ENET
-
-#define PROFF_ENET      PROFF_SCC2
-#define CPM_CR_ENET     CPM_CR_CH_SCC2
-#define SCC_ENET        1
-
-	/* Bits in parallel I/O port registers that have to be set/cleared
-	 *  *  *  * to configure the pins for SCC2 use.
-	 *   *   *   */
-#define PA_ENET_RXD     ((ushort)0x0004)        /* PA 13 */
-#define PA_ENET_TXD     ((ushort)0x0008)        /* PA 12 */
-#define PA_ENET_RCLK    ((ushort)0x0400)        /* PA  5 */
-#define PA_ENET_TCLK    ((ushort)0x0800)        /* PA  4 */
-
-#define PB_ENET_TENA    ((uint)0x00002000)      /* PB 18 */
-
-#define PC_ENET_CLSN    ((ushort)0x0040)        /* PC  9 */
-#define PC_ENET_RENA    ((ushort)0x0080)        /* PC  8 */
-/* Control bits in the SICR to route TCLK (CLK3) and RCLK (CLK1) to
- *  *  *  * SCC2.  Also, make sure GR2 (bit 16) and SC2 (bit 17) are zero.
- *   *   *   */
-#define SICR_ENET_MASK  ((uint)0x0000ff00)
-#define SICR_ENET_CLKRT ((uint)0x00003700)
-
-# else                          /* Use FEC for Fast Ethernet */
-
-#undef  SCC_ENET
-#define FEC_ENET
-
-#define PD_MII_TXD1     ((ushort)0x1000)        /* PD  3 */
-#define PD_MII_TXD2     ((ushort)0x0800)        /* PD  4 */
-#define PD_MII_TXD3     ((ushort)0x0400)        /* PD  5 */
-#define PD_MII_RX_DV    ((ushort)0x0200)        /* PD  6 */
-#define PD_MII_RX_ERR   ((ushort)0x0100)        /* PD  7 */
-#define PD_MII_RX_CLK   ((ushort)0x0080)        /* PD  8 */
-#define PD_MII_TXD0     ((ushort)0x0040)        /* PD  9 */
-#define PD_MII_RXD0     ((ushort)0x0020)        /* PD 10 */
-#define PD_MII_TX_ERR   ((ushort)0x0010)        /* PD 11 */
-#define PD_MII_MDC      ((ushort)0x0008)        /* PD 12 */
-#define PD_MII_RXD1     ((ushort)0x0004)        /* PD 13 */
-#define PD_MII_RXD2     ((ushort)0x0002)        /* PD 14 */
-#define PD_MII_RXD3     ((ushort)0x0001)        /* PD 15 */
-
-#define PD_MII_MASK     ((ushort)0x1FFF)        /* PD 3...15 */
-
-# endif /* CONFIG_FEC_ENET */
-#endif  /* CONFIG_SVM_SC8xx */
-
-
 #if defined(CONFIG_NETVIA)
 /* Bits in parallel I/O port registers that have to be set/cleared
  * to configure the pins for SCC2 use.
@@ -915,16 +822,6 @@ typedef struct scc_enet {
 #define SICR_ENET_MASK	((uint)0x0000ff00)
 #define SICR_ENET_CLKRT	((uint)0x00002E00)
 #endif	/* CONFIG_SPD823TS */
-
-/***  SXNI855T  ******************************************************/
-
-#if defined(CONFIG_SXNI855T)
-
-#ifdef CONFIG_FEC_ENET
-#define	FEC_ENET	/* use FEC for Ethernet */
-#endif	/* CONFIG_FEC_ETHERNET */
-
-#endif	/* CONFIG_SXNI855T */
 
 /***  MVS1, TQM823L/M, TQM850L/M, TQM885D, R360MPI  **********/
 

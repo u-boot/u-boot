@@ -1,0 +1,37 @@
+if TARGET_DRACO
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_BOARD
+	default "draco"
+
+config SYS_VENDOR
+	default "siemens"
+
+config SYS_SOC
+	default "am33xx"
+
+config SYS_CONFIG_NAME
+	default "draco"
+
+endif
+
+if TARGET_DXR2
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_BOARD
+	default "draco"
+
+config SYS_VENDOR
+	default "siemens"
+
+config SYS_SOC
+	default "am33xx"
+
+config SYS_CONFIG_NAME
+	default "dxr2"
+
+endif

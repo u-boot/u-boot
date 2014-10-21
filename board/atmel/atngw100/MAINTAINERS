@@ -1,0 +1,6 @@
+ATNGW100 BOARD
+#M:	Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+S:	Orphan (since 2014-06)
+F:	board/atmel/atngw100/
+F:	include/configs/atngw100.h
+F:	configs/atngw100_defconfig

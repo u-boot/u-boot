@@ -32,6 +32,7 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
 #define CONFIG_MXC_GPIO
+#define CONFIG_CMD_GPIO
 #define CONFIG_CI_UDC
 #define CONFIG_USBD_HS
 #define CONFIG_USB_GADGET_DUALSPEED
@@ -53,7 +54,7 @@
 #define CONFIG_SPI_FLASH_SST
 #define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS  0
-#define CONFIG_SF_DEFAULT_CS   (0|(IMX_GPIO_NR(3, 19)<<8))
+#define CONFIG_SF_DEFAULT_CS   0
 #define CONFIG_SF_DEFAULT_SPEED 25000000
 #define CONFIG_SF_DEFAULT_MODE (SPI_MODE_0)
 #endif
@@ -63,6 +64,7 @@
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_I2C_EDID
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC
@@ -75,6 +77,8 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
 #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
@@ -122,6 +126,8 @@
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
 #define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS	0
+#define CONFIG_USB_KEYBOARD
+#define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
 
 /* Miscellaneous commands */
 #define CONFIG_CMD_BMODE
@@ -137,7 +143,6 @@
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_BMP_16BPP
-#define CONFIG_VIDEO_LOGO
 #define CONFIG_IPUV3_CLK 260000000
 #define CONFIG_CMD_HDMIDETECT
 #define CONFIG_CONSOLE_MUX
@@ -173,7 +178,14 @@
 #define CONFIG_DRIVE_MMC
 #endif
 
-#define CONFIG_DRIVE_TYPES CONFIG_DRIVE_SATA CONFIG_DRIVE_MMC
+#ifdef CONFIG_USB_STORAGE
+#define CONFIG_DRIVE_USB "usb "
+#else
+#define CONFIG_DRIVE_USB
+#endif
+
+#define CONFIG_DRIVE_TYPES CONFIG_DRIVE_SATA CONFIG_DRIVE_MMC CONFIG_DRIVE_USB
+#define CONFIG_UMSDEVS CONFIG_DRIVE_SATA CONFIG_DRIVE_MMC
 
 #if defined(CONFIG_SABRELITE)
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -186,17 +198,17 @@
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
-	"mmcdev=0\0" \
+	"mmcdevs=0 1\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
-		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
-	"loaduimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"loaduimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
+	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
@@ -238,47 +250,71 @@
 		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			   "if run loaduimage; then " \
-				   "run mmcboot; " \
-			   "else run netboot; " \
-			   "fi; " \
-		   "fi; " \
-	   "else run netboot; fi"
+	"for mmcdev in ${mmcdevs}; do " \
+		"mmc dev ${mmcdev}; " \
+		"if mmc rescan; then " \
+			"if run loadbootscript; then " \
+				"run bootscript; " \
+			"else " \
+				"if run loaduimage; then " \
+					"run mmcboot; " \
+				"fi; " \
+			"fi; " \
+		"fi; " \
+	"done; " \
+	"run netboot; "
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"bootdevs=" CONFIG_DRIVE_TYPES "\0" \
+	"umsdevs=" CONFIG_UMSDEVS "\0" \
 	"console=ttymxc1\0" \
 	"clearenv=if sf probe || sf probe || sf probe 1 ; then " \
 		"sf erase 0xc0000 0x2000 && " \
 		"echo restored environment to factory default ; fi\0" \
-	"bootcmd=for dtype in " CONFIG_DRIVE_TYPES \
+	"bootcmd=for dtype in ${bootdevs}" \
 		"; do " \
+			"if itest.s \"xusb\" == \"x${dtype}\" ; then " \
+				"usb start ;" \
+			"fi; " \
 			"for disk in 0 1 ; do ${dtype} dev ${disk} ;" \
-				"for fs in fat ext2 ; do " \
-					"${fs}load " \
-						"${dtype} ${disk}:1 " \
-						"10008000 " \
-						"/6x_bootscript" \
-						"&& source 10008000 ; " \
-				"done ; " \
+				"load " \
+					"${dtype} ${disk}:1 " \
+					"10008000 " \
+					"/6x_bootscript" \
+					"&& source 10008000 ; " \
 			"done ; " \
 		"done; " \
 		"setenv stdout serial,vga ; " \
 		"echo ; echo 6x_bootscript not found ; " \
 		"echo ; echo serial console at 115200, 8N1 ; echo ; " \
 		"echo details at http://boundarydevices.com/6q_bootscript ; " \
-		"setenv stdout serial\0" \
-	"upgradeu=for dtype in " CONFIG_DRIVE_TYPES \
+		"setenv stdout serial;" \
+		"setenv stdin serial,usbkbd;" \
+		"for dtype in ${umsdevs} ; do " \
+			"if itest.s sata == ${dtype}; then " \
+				"initcmd='sata init' ;" \
+			"else " \
+				"initcmd='mmc rescan' ;" \
+			"fi; " \
+			"for disk in 0 1 ; do " \
+				"if $initcmd && $dtype dev $disk ; then " \
+					"setenv stdout serial,vga; " \
+					"echo expose ${dtype} ${disk} " \
+						"over USB; " \
+					"ums 0 $dtype $disk ;" \
+				"fi; " \
+		"	done; " \
+		"done ;" \
+		"setenv stdout serial,vga; " \
+		"echo no block devices found;" \
+		"\0" \
+	"initrd_high=0xffffffff\0" \
+	"upgradeu=for dtype in ${bootdevs}" \
 		"; do " \
 		"for disk in 0 1 ; do ${dtype} dev ${disk} ;" \
-		     "for fs in fat ext2 ; do " \
-				"${fs}load ${dtype} ${disk}:1 10008000 " \
-					"/6x_upgrade " \
-					"&& source 10008000 ; " \
-			"done ; " \
+			"load ${dtype} ${disk}:1 10008000 " \
+				"/6x_upgrade " \
+				"&& source 10008000 ; " \
 		"done ; " \
 	"done\0" \
 
@@ -292,7 +328,7 @@
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS	       16
+#define CONFIG_SYS_MAXARGS	       48
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 
 #define CONFIG_SYS_MEMTEST_START       0x10000000
@@ -349,6 +385,7 @@
 #define CONFIG_CMD_BMP
 
 #define CONFIG_CMD_TIME
+#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_ALT_MEMTEST
 
 #define CONFIG_CMD_BOOTZ
@@ -364,5 +401,23 @@
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_PCIE_IMX
 #endif
+
+#define CONFIG_CMD_ELF
+
+#define CONFIG_USB_GADGET
+#define CONFIG_CMD_USB_MASS_STORAGE
+#define CONFIG_USB_GADGET_MASS_STORAGE
+#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
+
+/* Netchip IDs */
+#define CONFIG_G_DNL_VENDOR_NUM 0x0525
+#define CONFIG_G_DNL_PRODUCT_NUM 0xa4a5
+#define CONFIG_G_DNL_MANUFACTURER "Boundary"
+
+#define CONFIG_CMD_FASTBOOT
+#define CONFIG_ANDROID_BOOT_IMAGE
+#define CONFIG_USB_FASTBOOT_BUF_ADDR   CONFIG_SYS_LOAD_ADDR
+#define CONFIG_USB_FASTBOOT_BUF_SIZE   0x07000000
 
 #endif	       /* __CONFIG_H */

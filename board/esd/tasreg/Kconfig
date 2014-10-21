@@ -1,0 +1,15 @@
+if TARGET_TASREG
+
+config SYS_CPU
+	default "mcf52x2"
+
+config SYS_BOARD
+	default "tasreg"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "TASREG"
+
+endif

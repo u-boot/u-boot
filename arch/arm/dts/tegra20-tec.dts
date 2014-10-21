@@ -6,6 +6,10 @@
 	model = "Avionic Design Tamonten Evaluation Carrier";
 	compatible = "ad,tec", "nvidia,tegra20";
 
+	chosen {
+		stdout-path = &uartd;
+	};
+
 	aliases {
 		usb0 = "/usb@c5008000";
 		sdhci0 = "/sdhci@c8000600";

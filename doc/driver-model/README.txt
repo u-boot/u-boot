@@ -95,25 +95,36 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 12 driver model tests
+    Running 21 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
+    Test: dm_test_bus_children
+    Device 'd-test': seq 3 is in use by 'b-test'
+    Device 'c-test@0': seq 0 is in use by 'a-test'
+    Device 'c-test@1': seq 1 is in use by 'd-test'
+    Test: dm_test_bus_children_funcs
+    Test: dm_test_bus_parent_data
+    Test: dm_test_bus_parent_ops
     Test: dm_test_children
     Test: dm_test_fdt
+    Device 'd-test': seq 3 is in use by 'b-test'
+    Test: dm_test_fdt_offset
+    Test: dm_test_fdt_pre_reloc
+    Test: dm_test_fdt_uclass_seq
+    Device 'd-test': seq 3 is in use by 'b-test'
+    Device 'a-test': seq 0 is in use by 'd-test'
     Test: dm_test_gpio
     sandbox_gpio: sb_gpio_get_value: error: offset 4 not reserved
     Test: dm_test_leak
-    Warning: Please add '#define DEBUG' to the top of common/dlmalloc.c
-    Warning: Please add '#define DEBUG' to the top of common/dlmalloc.c
     Test: dm_test_lifecycle
     Test: dm_test_operations
     Test: dm_test_ordering
     Test: dm_test_platdata
+    Test: dm_test_pre_reloc
     Test: dm_test_remove
     Test: dm_test_uclass
+    Test: dm_test_uclass_before_ready
     Failures: 0
-
-(You can add '#define DEBUG' as suggested to check for memory leaks)
 
 
 What is going on?
@@ -341,6 +352,145 @@ numbering comes from include/dm/uclass.h. To add a new uclass, add to the
 end of the enum there, then declare your uclass as above.
 
 
+Device Sequence Numbers
+-----------------------
+
+U-Boot numbers devices from 0 in many situations, such as in the command
+line for I2C and SPI buses, and the device names for serial ports (serial0,
+serial1, ...). Driver model supports this numbering and permits devices
+to be locating by their 'sequence'.
+
+Sequence numbers start from 0 but gaps are permitted. For example, a board
+may have I2C buses 0, 1, 4, 5 but no 2 or 3. The choice of how devices are
+numbered is up to a particular board, and may be set by the SoC in some
+cases. While it might be tempting to automatically renumber the devices
+where there are gaps in the sequence, this can lead to confusion and is
+not the way that U-Boot works.
+
+Each device can request a sequence number. If none is required then the
+device will be automatically allocated the next available sequence number.
+
+To specify the sequence number in the device tree an alias is typically
+used.
+
+aliases {
+	serial2 = "/serial@22230000";
+};
+
+This indicates that in the uclass called "serial", the named node
+("/serial@22230000") will be given sequence number 2. Any command or driver
+which requests serial device 2 will obtain this device.
+
+Some devices represent buses where the devices on the bus are numbered or
+addressed. For example, SPI typically numbers its slaves from 0, and I2C
+uses a 7-bit address. In these cases the 'reg' property of the subnode is
+used, for example:
+
+{
+	aliases {
+		spi2 = "/spi@22300000";
+	};
+
+	spi@22300000 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-flash@0 {
+			reg = <0>;
+			...
+		}
+		eeprom@1 {
+			reg = <1>;
+		};
+	};
+
+In this case we have a SPI bus with two slaves at 0 and 1. The SPI bus
+itself is numbered 2. So we might access the SPI flash with:
+
+	sf probe 2:0
+
+and the eeprom with
+
+	sspi 2:1 32 ef
+
+These commands simply need to look up the 2nd device in the SPI uclass to
+find the right SPI bus. Then, they look at the children of that bus for the
+right sequence number (0 or 1 in this case).
+
+Typically the alias method is used for top-level nodes and the 'reg' method
+is used only for buses.
+
+Device sequence numbers are resolved when a device is probed. Before then
+the sequence number is only a request which may or may not be honoured,
+depending on what other devices have been probed. However the numbering is
+entirely under the control of the board author so a conflict is generally
+an error.
+
+
+Bus Drivers
+-----------
+
+A common use of driver model is to implement a bus, a device which provides
+access to other devices. Example of buses include SPI and I2C. Typically
+the bus provides some sort of transport or translation that makes it
+possible to talk to the devices on the bus.
+
+Driver model provides a few useful features to help with implementing
+buses. Firstly, a bus can request that its children store some 'parent
+data' which can be used to keep track of child state. Secondly, the bus can
+define methods which are called when a child is probed or removed. This is
+similar to the methods the uclass driver provides.
+
+Here an explanation of how a bus fits with a uclass may be useful. Consider
+a USB bus with several devices attached to it, each from a different (made
+up) uclass:
+
+   xhci_usb (UCLASS_USB)
+      eth (UCLASS_ETHERNET)
+      camera (UCLASS_CAMERA)
+      flash (UCLASS_FLASH_STORAGE)
+
+Each of the devices is connected to a different address on the USB bus.
+The bus device wants to store this address and some other information such
+as the bus speed for each device.
+
+To achieve this, the bus device can use dev->parent_priv in each of its
+three children. This can be auto-allocated if the bus driver has a non-zero
+value for per_child_auto_alloc_size. If not, then the bus device can
+allocate the space itself before the child device is probed.
+
+Also the bus driver can define the child_pre_probe() and child_post_remove()
+methods to allow it to do some processing before the child is activated or
+after it is deactivated.
+
+Note that the information that controls this behaviour is in the bus's
+driver, not the child's. In fact it is possible that child has no knowledge
+that it is connected to a bus. The same child device may even be used on two
+different bus types. As an example. the 'flash' device shown above may also
+be connected on a SATA bus or standalone with no bus:
+
+   xhci_usb (UCLASS_USB)
+      flash (UCLASS_FLASH_STORAGE)  - parent data/methods defined by USB bus
+
+   sata (UCLASS_SATA)
+      flash (UCLASS_FLASH_STORAGE)  - parent data/methods defined by SATA bus
+
+   flash (UCLASS_FLASH_STORAGE)  - no parent data/methods (not on a bus)
+
+Above you can see that the driver for xhci_usb/sata controls the child's
+bus methods. In the third example the device is not on a bus, and therefore
+will not have these methods at all. Consider the case where the flash
+device defines child methods. These would be used for *its* children, and
+would be quite separate from the methods defined by the driver for the bus
+that the flash device is connetced to. The act of attaching a device to a
+parent device which is a bus, causes the device to start behaving like a
+bus device, regardless of its own views on the matter.
+
+The uclass for the device can also contain data private to that uclass.
+But note that each device on the bus may be a memeber of a different
+uclass, and this data has nothing to do with the child data for each child
+on the bus.
+
+
 Driver Lifecycle
 ----------------
 
@@ -406,12 +556,23 @@ steps (see device_probe()):
    stored in the device, but it is uclass data. owned by the uclass driver.
    It is possible for the device to access it.
 
-   d. All parent devices are probed. It is not possible to activate a device
+   d. If the device's immediate parent specifies a per_child_auto_alloc_size
+   then this space is allocated. This is intended for use by the parent
+   device to keep track of things related to the child. For example a USB
+   flash stick attached to a USB host controller would likely use this
+   space. The controller can hold information about the USB state of each
+   of its children.
+
+   e. All parent devices are probed. It is not possible to activate a device
    unless its predecessors (all the way up to the root device) are activated.
    This means (for example) that an I2C driver will require that its bus
    be activated.
 
-   e. If the driver provides an ofdata_to_platdata() method, then this is
+   f. The device's sequence number is assigned, either the requested one
+   (assuming no conflicts) or the next available one if there is a conflict
+   or nothing particular is requested.
+
+   g. If the driver provides an ofdata_to_platdata() method, then this is
    called to convert the device tree data into platform data. This should
    do various calls like fdtdec_get_int(gd->fdt_blob, dev->of_offset, ...)
    to access the node and store the resulting information into dev->platdata.
@@ -427,7 +588,7 @@ steps (see device_probe()):
    data, one day it is possible that U-Boot will cache platformat data for
    devices which are regularly de/activated).
 
-   f. The device's probe() method is called. This should do anything that
+   h. The device's probe() method is called. This should do anything that
    is required by the device to get it going. This could include checking
    that the hardware is actually present, setting up clocks for the
    hardware and setting up hardware registers to initial values. The code
@@ -442,9 +603,9 @@ steps (see device_probe()):
    allocate the priv space here yourself. The same applies also to
    platdata_auto_alloc_size. Remember to free them in the remove() method.
 
-   g. The device is marked 'activated'
+   i. The device is marked 'activated'
 
-   h. The uclass's post_probe() method is called, if one exists. This may
+   j. The uclass's post_probe() method is called, if one exists. This may
    cause the uclass to do some housekeeping to record the device as
    activated and 'known' by the uclass.
 
@@ -475,7 +636,8 @@ remove it. This performs the probe steps in reverse:
    to be sure that no hardware is running, it should be enough to remove
    all devices.
 
-   d. The device memory is freed (platform data, private data, uclass data).
+   d. The device memory is freed (platform data, private data, uclass data,
+   parent data).
 
    Note: Because the platform data for a U_BOOT_DEVICE() is defined with a
    static pointer, it is not de-allocated during the remove() method. For
@@ -490,7 +652,14 @@ remove it. This performs the probe steps in reverse:
       or preferably ofdata_to_platdata()) and the deallocation in remove()
       are the responsibility of the driver author.
 
-   e. The device is marked inactive. Note that it is still bound, so the
+   e. The device sequence number is set to -1, meaning that it no longer
+   has an allocated sequence. If the device is later reactivated and that
+   sequence number is still free, it may well receive the name sequence
+   number again. But from this point, the sequence number previously used
+   by this device will no longer exist (think of SPI bus 2 being removed
+   and bus 2 is no longer available for use).
+
+   f. The device is marked inactive. Note that it is still bound, so the
    device structure itself is not freed at this point. Should the device be
    activated again, then the cycle starts again at step 2 above.
 
@@ -538,25 +707,34 @@ dealing with this might not be worth it.
 - Implemented a GPIO system, trying to keep it simple
 
 
+Pre-Relocation Support
+----------------------
+
+For pre-relocation we simply call the driver model init function. Only
+drivers marked with DM_FLAG_PRE_RELOC or the device tree
+'u-boot,dm-pre-reloc' flag are initialised prior to relocation. This helps
+to reduce the driver model overhead.
+
+Then post relocation we throw that away and re-init driver model again.
+For drivers which require some sort of continuity between pre- and
+post-relocation devices, we can provide access to the pre-relocation
+device pointers, but this is not currently implemented (the root device
+pointer is saved but not made available through the driver model API).
+
+
 Things to punt for later
 ------------------------
 
 - SPL support - this will have to be present before many drivers can be
 converted, but it seems like we can add it once we are happy with the
 core implementation.
-- Pre-relocation support - similar story
 
-That is not to say that no thinking has gone into these - in fact there
+That is not to say that no thinking has gone into this - in fact there
 is quite a lot there. However, getting these right is non-trivial and
 there is a high cost associated with going down the wrong path.
 
 For SPL, it may be possible to fit in a simplified driver model with only
 bind and probe methods, to reduce size.
-
-For pre-relocation we can simply call the driver model init function. Then
-post relocation we throw that away and re-init driver model again. For drivers
-which require some sort of continuity between pre- and post-relocation
-devices, we can provide access to the pre-relocation device pointers.
 
 Uclasses are statically numbered at compile time. It would be possible to
 change this to dynamic numbering, but then we would require some sort of

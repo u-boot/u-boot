@@ -1,0 +1,9 @@
+TOTAL5200 BOARD
+#M:	-
+S:	Maintained
+F:	board/total5200/
+F:	include/configs/Total5200.h
+F:	configs/Total5200_defconfig
+F:	configs/Total5200_lowboot_defconfig
+F:	configs/Total5200_Rev2_defconfig
+F:	configs/Total5200_Rev2_lowboot_defconfig

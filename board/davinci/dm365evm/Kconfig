@@ -1,0 +1,12 @@
+if TARGET_DAVINCI_DM365EVM
+
+config SYS_BOARD
+	default "dm365evm"
+
+config SYS_VENDOR
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	default "davinci_dm365evm"
+
+endif

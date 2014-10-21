@@ -1,0 +1,19 @@
+if TARGET_SANDPOINT8240
+
+config SYS_BOARD
+	default "sandpoint"
+
+config SYS_CONFIG_NAME
+	default "Sandpoint8240"
+
+endif
+
+if TARGET_SANDPOINT8245
+
+config SYS_BOARD
+	default "sandpoint"
+
+config SYS_CONFIG_NAME
+	default "Sandpoint8245"
+
+endif

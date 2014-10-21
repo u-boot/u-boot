@@ -1,0 +1,6 @@
+MV88F6281GTW_GE BOARD
+M:	Prafulla Wadaskar <prafulla@marvell.com>
+S:	Maintained
+F:	board/Marvell/mv88f6281gtw_ge/
+F:	include/configs/mv88f6281gtw_ge.h
+F:	configs/mv88f6281gtw_ge_defconfig

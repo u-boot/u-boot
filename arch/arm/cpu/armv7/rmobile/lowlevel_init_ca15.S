@@ -35,6 +35,13 @@ do_cpu_waiting:
  */
 	.align  4
 do_lowlevel_init:
+	ldr	r2, =0xFF000044		/* PRR */
+	ldr	r1, [r2]
+	and	r1, r1, #0x7F00
+	lsrs	r1, r1, #8
+	cmp	r1, #0x4C		/* 0x4C is ID of r8a7794 */
+	beq	_exit_init_l2_a15
+
 	/* surpress wfe if ca15 */
 	tst r4, #4
 	mrceq p15, 0, r0, c1, c0, 1	/* actlr */
@@ -42,11 +49,6 @@ do_lowlevel_init:
 	mcreq p15, 0, r0, c1, c0, 1
 
 	/* and set l2 latency */
-	mrceq p15, 1, r0, c9, c0, 2	/* l2ctlr */
-	orreq r0, r0, #0x00000800
-	orreq r0, r0, #0x00000003
-	mcreq p15, 1, r0, c9, c0, 2
-
 	mrc p15, 0, r0, c0, c0, 5	/* r0 = MPIDR */
 	and r0, r0, #0xf00
 	lsr r0, r0, #8
@@ -58,7 +60,15 @@ do_lowlevel_init:
 	cmp r1, #3			/* has already been set up */
 	bicne r0, r0, #0xe7
 	orrne r0, r0, #0x83		/* L2CTLR[7:6] + L2CTLR[2:0] */
-	orrne r0, r0, #0x20             /* L2CTLR[5] */
+
+	ldr	r2, =0xFF000044		/* PRR */
+	ldr	r1, [r2]
+	and	r1, r1, #0x7F00
+	lsrs	r1, r1, #8
+	cmp	r1, #0x45		/* 0x45 is ID of r8a7790 */
+	bne	L2CTLR_5_SKIP
+	orrne r0, r0, #0x20		/* L2CTLR[5] */
+L2CTLR_5_SKIP:
 	mcrne p15, 1, r0, c9, c0, 2
 
 _exit_init_l2_a15:

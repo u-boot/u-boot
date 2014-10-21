@@ -1,0 +1,18 @@
+if TARGET_MX23EVK
+
+config SYS_CPU
+	default "arm926ejs"
+
+config SYS_BOARD
+	default "mx23evk"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "mxs"
+
+config SYS_CONFIG_NAME
+	default "mx23evk"
+
+endif

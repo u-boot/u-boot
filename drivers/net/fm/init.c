@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
+#include <fsl_mdio.h>
 
 #include "fm.h"
 
@@ -147,6 +148,9 @@ void fm_disable_port(enum fm_port port)
 {
 	int i = fm_port_to_index(port);
 
+	if (i == -1)
+		return;
+
 	fm_info[i].enabled = 0;
 	fman_disable_port(port);
 }
@@ -154,6 +158,9 @@ void fm_disable_port(enum fm_port port)
 void fm_enable_port(enum fm_port port)
 {
 	int i = fm_port_to_index(port);
+
+	if (i == -1)
+		return;
 
 	fm_info[i].enabled = 1;
 	fman_enable_port(port);

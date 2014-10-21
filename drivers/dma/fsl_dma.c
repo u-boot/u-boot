@@ -96,7 +96,7 @@ int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t count) {
 	uint xfer_size;
 
 	while (count) {
-		xfer_size = MIN(FSL_DMA_MAX_SIZE, count);
+		xfer_size = min(FSL_DMA_MAX_SIZE, count);
 
 		out_dma32(&dma->dar, (u32) (dest & 0xFFFFFFFF));
 		out_dma32(&dma->sar, (u32) (src & 0xFFFFFFFF));

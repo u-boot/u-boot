@@ -1,0 +1,9 @@
+if TARGET_TCM_BF537
+
+config SYS_BOARD
+	default "tcm-bf537"
+
+config SYS_CONFIG_NAME
+	default "tcm-bf537"
+
+endif

@@ -1,0 +1,9 @@
+if TARGET_GALAXY5200
+
+config SYS_BOARD
+	default "galaxy5200"
+
+config SYS_CONFIG_NAME
+	default "galaxy5200"
+
+endif

@@ -621,7 +621,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	/* resize the fdt */
 	else if (strncmp(argv[1], "re", 2) == 0) {
-		fdt_resize(working_fdt);
+		fdt_shrink_to_minimum(working_fdt);
 	}
 	else {
 		/* Unrecognized command */

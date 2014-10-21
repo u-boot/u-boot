@@ -1,0 +1,105 @@
+if OMAP34XX
+
+choice
+	prompt "OMAP3 board select"
+
+config TARGET_AM3517_EVM
+	bool "AM3517 EVM"
+
+config TARGET_MT_VENTOUX
+	bool "TeeJet Mt.Ventoux"
+
+config TARGET_OMAP3_SDP3430
+	bool "TI OMAP3430 SDP"
+
+config TARGET_OMAP3_BEAGLE
+	bool "TI OMAP3 BeagleBoard"
+
+config TARGET_CM_T35
+	bool "CompuLab CM-T35"
+
+config TARGET_DEVKIT8000
+	bool "TimLL OMAP3 Devkit8000"
+
+config TARGET_OMAP3_EVM
+	bool "TI OMAP3 EVM"
+
+config TARGET_OMAP3_EVM_QUICK_MMC
+	bool "TI OMAP3 EVM Quick MMC"
+
+config TARGET_OMAP3_EVM_QUICK_NAND
+	bool "TI OMAP3 EVM Quick NAND"
+
+config TARGET_OMAP3_IGEP00X0
+	bool "IGEP"
+
+config TARGET_OMAP3_OVERO
+	bool "OMAP35xx Gumstix Overo"
+
+config TARGET_OMAP3_ZOOM1
+	bool "TI Zoom1"
+
+config TARGET_AM3517_CRANE
+	bool "am3517_crane"
+
+config TARGET_OMAP3_PANDORA
+	bool "OMAP3 Pandora"
+
+config TARGET_ECO5PK
+	bool "ECO5PK"
+
+config TARGET_DIG297
+	bool "DIG297"
+
+config TARGET_TRICORDER
+	bool "Tricorder"
+
+config TARGET_MCX
+	bool "MCX"
+
+config TARGET_OMAP3_LOGIC
+	bool "OMAP3 Logic"
+
+config TARGET_OMAP3_MVBLX
+	bool "OMAP3 MVBLX"
+
+config TARGET_NOKIA_RX51
+	bool "Nokia RX51"
+
+config TARGET_TAO3530
+	bool "TAO3530"
+
+config TARGET_TWISTER
+	bool "Twister"
+
+endchoice
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_SOC
+	default "omap3"
+
+source "board/logicpd/am3517evm/Kconfig"
+source "board/teejet/mt_ventoux/Kconfig"
+source "board/ti/sdp3430/Kconfig"
+source "board/ti/beagle/Kconfig"
+source "board/compulab/cm_t35/Kconfig"
+source "board/timll/devkit8000/Kconfig"
+source "board/ti/evm/Kconfig"
+source "board/isee/igep00x0/Kconfig"
+source "board/overo/Kconfig"
+source "board/logicpd/zoom1/Kconfig"
+source "board/ti/am3517crane/Kconfig"
+source "board/pandora/Kconfig"
+source "board/8dtech/eco5pk/Kconfig"
+source "board/comelit/dig297/Kconfig"
+source "board/corscience/tricorder/Kconfig"
+source "board/htkw/mcx/Kconfig"
+source "board/logicpd/omap3som/Kconfig"
+source "board/matrix_vision/mvblx/Kconfig"
+source "board/nokia/rx51/Kconfig"
+source "board/technexion/tao3530/Kconfig"
+source "board/technexion/twister/Kconfig"
+
+endif

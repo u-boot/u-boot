@@ -201,55 +201,79 @@ static struct mx6_ddr3_cfg mt41k128m16jt_125 = {
 	.trasmin = 3500,
 };
 
-/* GW54xx specific calibration */
-static struct mx6_mmdc_calibration gw54xxq_mmdc_calib = {
-	/* write leveling calibration determine */
-	.p0_mpwldectrl0 = 0x00190018,
-	.p0_mpwldectrl1 = 0x0021001D,
-	.p1_mpwldectrl0 = 0x00160027,
-	.p1_mpwldectrl1 = 0x0012001E,
-	/* Read DQS Gating calibration */
-	.p0_mpdgctrl0 = 0x43370346,
-	.p0_mpdgctrl1 = 0x032A0321,
-	.p1_mpdgctrl0 = 0x433A034D,
-	.p1_mpdgctrl1 = 0x032F0235,
-	/* Read Calibration: DQS delay relative to DQ read access */
-	.p0_mprddlctl = 0x3C313539,
-	.p1_mprddlctl = 0x37333140,
-	/* Write Calibration: DQ/DM delay relative to DQS write access */
-	.p0_mpwrdlctl = 0x37393C38,
-	.p1_mpwrdlctl = 0x42334538,
+/* MT41K256M16HA-125 */
+static struct mx6_ddr3_cfg mt41k256m16ha_125 = {
+	.mem_speed = 1600,
+	.density = 4,
+	.width = 16,
+	.banks = 8,
+	.rowaddr = 15,
+	.coladdr = 10,
+	.pagesz = 2,
+	.trcd = 1375,
+	.trcmin = 4875,
+	.trasmin = 3500,
 };
 
-/* GW53xx specific calibration */
-static struct mx6_mmdc_calibration gw53xxq_mmdc_calib = {
+/*
+ * calibration - these are the various CPU/DDR3 combinations we support
+ */
+
+static struct mx6_mmdc_calibration mx6dq_128x32_mmdc_calib = {
 	/* write leveling calibration determine */
-	.p0_mpwldectrl0 = 0x00160013,
-	.p0_mpwldectrl1 = 0x00090024,
-	.p1_mpwldectrl0 = 0x001F0018,
-	.p1_mpwldectrl1 = 0x000C001C,
+	.p0_mpwldectrl0 = 0x00190017,
+	.p0_mpwldectrl1 = 0x00140026,
 	/* Read DQS Gating calibration */
-	.p0_mpdgctrl0 = 0x433A034C,
-	.p0_mpdgctrl1 = 0x0336032F,
-	.p1_mpdgctrl0 = 0x4343034A,
-	.p1_mpdgctrl1 = 0x03370222,
+	.p0_mpdgctrl0 = 0x43380347,
+	.p0_mpdgctrl1 = 0x433C034D,
 	/* Read Calibration: DQS delay relative to DQ read access */
-	.p0_mprddlctl = 0x3F343638,
-	.p1_mprddlctl = 0x38373442,
+	.p0_mprddlctl = 0x3C313539,
 	/* Write Calibration: DQ/DM delay relative to DQS write access */
-	.p0_mpwrdlctl = 0x343A3E39,
-	.p1_mpwrdlctl = 0x44344239,
+	.p0_mpwrdlctl = 0x36393C39,
 };
-static struct mx6_mmdc_calibration gw53xxdl_mmdc_calib = {
+
+static struct mx6_mmdc_calibration mx6sdl_128x32_mmdc_calib = {
 	/* write leveling calibration determine */
 	.p0_mpwldectrl0 = 0x003C003C,
-	.p0_mpwldectrl1 = 0x00330038,
-	.p1_mpwldectrl0 = 0x001F002A,
+	.p0_mpwldectrl1 = 0x001F002A,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x42410244,
+	.p0_mpdgctrl1 = 0x4234023A,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x484A4C4B,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x33342B32,
+};
+
+static struct mx6_mmdc_calibration mx6dq_128x64_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x00190017,
+	.p0_mpwldectrl1 = 0x00140026,
+	.p1_mpwldectrl0 = 0x0021001C,
+	.p1_mpwldectrl1 = 0x0011001D,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x43380347,
+	.p0_mpdgctrl1 = 0x433C034D,
+	.p1_mpdgctrl0 = 0x032C0324,
+	.p1_mpdgctrl1 = 0x03310232,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x3C313539,
+	.p1_mprddlctl = 0x37343141,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x36393C39,
+	.p1_mpwrdlctl = 0x42344438,
+};
+
+static struct mx6_mmdc_calibration mx6sdl_128x64_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x003C003C,
+	.p0_mpwldectrl1 = 0x001F002A,
+	.p1_mpwldectrl0 = 0x00330038,
 	.p1_mpwldectrl1 = 0x0022003F,
 	/* Read DQS Gating calibration */
 	.p0_mpdgctrl0 = 0x42410244,
-	.p0_mpdgctrl1 = 0x022D022D,
-	.p1_mpdgctrl0 = 0x4234023A,
+	.p0_mpdgctrl1 = 0x4234023A,
+	.p1_mpdgctrl0 = 0x022D022D,
 	.p1_mpdgctrl1 = 0x021C0228,
 	/* Read Calibration: DQS delay relative to DQ read access */
 	.p0_mprddlctl = 0x484A4C4B,
@@ -259,51 +283,42 @@ static struct mx6_mmdc_calibration gw53xxdl_mmdc_calib = {
 	.p1_mpwrdlctl = 0x3933332B,
 };
 
-/* GW52xx specific calibration */
-static struct mx6_mmdc_calibration gw52xxdl_mmdc_calib = {
+static struct mx6_mmdc_calibration mx6dq_256x32_mmdc_calib = {
 	/* write leveling calibration determine */
-	.p0_mpwldectrl0 = 0x0040003F,
-	.p0_mpwldectrl1 = 0x00370037,
+	.p0_mpwldectrl0 = 0x001E001A,
+	.p0_mpwldectrl1 = 0x0026001F,
 	/* Read DQS Gating calibration */
-	.p0_mpdgctrl0 = 0x42420244,
-	.p0_mpdgctrl1 = 0x022F022F,
+	.p0_mpdgctrl0 = 0x43370349,
+	.p0_mpdgctrl1 = 0x032D0327,
 	/* Read Calibration: DQS delay relative to DQ read access */
-	.p0_mprddlctl = 0x49464B4A,
+	.p0_mprddlctl = 0x3D303639,
 	/* Write Calibration: DQ/DM delay relative to DQS write access */
-	.p0_mpwrdlctl = 0x32362C32,
+	.p0_mpwrdlctl = 0x32363934,
 };
 
-/* GW51xx specific calibration */
-static struct mx6_mmdc_calibration gw51xxq_mmdc_calib = {
+static struct mx6_mmdc_calibration mx6dq_256x64_mmdc_calib = {
 	/* write leveling calibration determine */
-	.p0_mpwldectrl0 = 0x00150016,
-	.p0_mpwldectrl1 = 0x001F0017,
+	.p0_mpwldectrl0 = 0X00220021,
+	.p0_mpwldectrl1 = 0X00200030,
+	.p1_mpwldectrl0 = 0X002D0027,
+	.p1_mpwldectrl1 = 0X00150026,
 	/* Read DQS Gating calibration */
-	.p0_mpdgctrl0 = 0x433D034D,
-	.p0_mpdgctrl1 = 0x033D032F,
+	.p0_mpdgctrl0 = 0x43330342,
+	.p0_mpdgctrl1 = 0x0339034A,
+	.p1_mpdgctrl0 = 0x032F0325,
+	.p1_mpdgctrl1 = 0x032F022E,
 	/* Read Calibration: DQS delay relative to DQ read access */
-	.p0_mprddlctl = 0x3F313639,
+	.p0_mprddlctl = 0X3A2E3437,
+	.p1_mprddlctl = 0X35312F3F,
 	/* Write Calibration: DQ/DM delay relative to DQS write access */
-	.p0_mpwrdlctl = 0x33393F36,
+	.p0_mpwrdlctl = 0X33363B37,
+	.p1_mpwrdlctl = 0X40304239,
 };
 
-static struct mx6_mmdc_calibration gw51xxdl_mmdc_calib = {
-	/* write leveling calibration determine */
-	.p0_mpwldectrl0 = 0x003D003F,
-	.p0_mpwldectrl1 = 0x002F0038,
-	/* Read DQS Gating calibration */
-	.p0_mpdgctrl0 = 0x423A023A,
-	.p0_mpdgctrl1 = 0x022A0228,
-	/* Read Calibration: DQS delay relative to DQ read access */
-	.p0_mprddlctl = 0x48494C4C,
-	/* Write Calibration: DQ/DM delay relative to DQS write access */
-	.p0_mpwrdlctl = 0x34352D31,
-};
-
-static void spl_dram_init(int width, int size, int board_model)
+static void spl_dram_init(int width, int size_mb, int board_model)
 {
-	struct mx6_ddr3_cfg *mem = &mt41k128m16jt_125;
-	struct mx6_mmdc_calibration *calib;
+	struct mx6_ddr3_cfg *mem = NULL;
+	struct mx6_mmdc_calibration *calib = NULL;
 	struct mx6_ddr_sysinfo sysinfo = {
 		/* width of data bus:0=16,1=32,2=64 */
 		.dsize = width/32,
@@ -329,29 +344,43 @@ static void spl_dram_init(int width, int size, int board_model)
 	/*
 	 * MMDC Calibration requires the following data:
 	 *   mx6_mmdc_calibration - board-specific calibration (routing delays)
+	 *      these calibration values depend on board routing, SoC, and DDR
 	 *   mx6_ddr_sysinfo - board-specific memory architecture (width/cs/etc)
 	 *   mx6_ddr_cfg - chip specific timing/layout details
 	 */
-	switch (board_model) {
-	default:
-	case GW51xx:
+	if (width == 32 && size_mb == 512) {
+		mem = &mt41k128m16jt_125;
 		if (is_cpu_type(MXC_CPU_MX6Q))
-			calib = &gw51xxq_mmdc_calib;
+			calib = &mx6dq_128x32_mmdc_calib;
 		else
-			calib = &gw51xxdl_mmdc_calib;
-		break;
-	case GW52xx:
-		calib = &gw52xxdl_mmdc_calib;
-		break;
-	case GW53xx:
+			calib = &mx6sdl_128x32_mmdc_calib;
+		debug("2gB density\n");
+	} else if (width == 64 && size_mb == 1024) {
+		mem = &mt41k128m16jt_125;
 		if (is_cpu_type(MXC_CPU_MX6Q))
-			calib = &gw53xxq_mmdc_calib;
+			calib = &mx6dq_128x64_mmdc_calib;
 		else
-			calib = &gw53xxdl_mmdc_calib;
-		break;
-	case GW54xx:
-		calib = &gw54xxq_mmdc_calib;
-		break;
+			calib = &mx6sdl_128x64_mmdc_calib;
+		debug("2gB density\n");
+	} else if (width == 32 && size_mb == 1024) {
+		mem = &mt41k256m16ha_125;
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			calib = &mx6dq_256x32_mmdc_calib;
+		debug("4gB density\n");
+	} else if (width == 64 && size_mb == 2048) {
+		mem = &mt41k256m16ha_125;
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			calib = &mx6dq_256x64_mmdc_calib;
+		debug("4gB density\n");
+	}
+
+	if (!mem) {
+		puts("Error: Invalid Memory Configuration\n");
+		hang();
+	}
+	if (!calib) {
+		puts("Error: Invalid Board Calibration Configuration\n");
+		hang();
 	}
 
 	if (is_cpu_type(MXC_CPU_MX6Q))
@@ -372,13 +401,6 @@ void board_init_f(ulong dummy)
 {
 	struct ventana_board_info ventana_info;
 	int board_model;
-
-	/*
-	 * Zero out global data:
-	 *  - this shoudl be done by crt0.S
-	 *  - failure to zero it will cause i2c_setup to fail
-	 */
-	memset((void *)gd, 0, sizeof(struct global_data));
 
 	/* setup AIPS and disable watchdog */
 	arch_cpu_init();

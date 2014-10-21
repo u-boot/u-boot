@@ -25,7 +25,7 @@ endif
 # Default to EB if no endianess is configured
 ENDIANNESS ?= -EB
 
-PLATFORM_CPPFLAGS += -DCONFIG_MIPS -D__MIPS__
+PLATFORM_CPPFLAGS += -D__MIPS__
 
 __HAVE_ARCH_GENERIC_BOARD := y
 

@@ -1,0 +1,6 @@
+MPC8349EMDS BOARD
+M:	Kim Phillips <kim.phillips@freescale.com>
+S:	Maintained
+F:	board/freescale/mpc8349emds/
+F:	include/configs/MPC8349EMDS.h
+F:	configs/MPC8349EMDS_defconfig

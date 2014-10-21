@@ -1,0 +1,18 @@
+if TARGET_DEVKIT3250
+
+config SYS_CPU
+	default "arm926ejs"
+
+config SYS_BOARD
+	default "devkit3250"
+
+config SYS_VENDOR
+	default "timll"
+
+config SYS_SOC
+	default "lpc32xx"
+
+config SYS_CONFIG_NAME
+	default "devkit3250"
+
+endif

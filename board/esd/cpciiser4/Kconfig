@@ -1,0 +1,12 @@
+if TARGET_CPCIISER4
+
+config SYS_BOARD
+	default "cpciiser4"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "CPCIISER4"
+
+endif

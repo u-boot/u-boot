@@ -1,0 +1,9 @@
+if TARGET_HERMES
+
+config SYS_BOARD
+	default "hermes"
+
+config SYS_CONFIG_NAME
+	default "hermes"
+
+endif

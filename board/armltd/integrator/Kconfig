@@ -1,0 +1,127 @@
+if TARGET_INTEGRATORAP_CM720T
+
+config SYS_CPU
+	default "arm720t"
+
+config SYS_BOARD
+	default "integrator"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	default "integratorap"
+
+endif
+
+if TARGET_INTEGRATORAP_CM920T
+
+config SYS_CPU
+	default "arm920t"
+
+config SYS_BOARD
+	default "integrator"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	default "integratorap"
+
+endif
+
+if TARGET_INTEGRATORCP_CM920T
+
+config SYS_CPU
+	default "arm920t"
+
+config SYS_BOARD
+	default "integrator"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	default "integratorcp"
+
+endif
+
+if TARGET_INTEGRATORAP_CM926EJS
+
+config SYS_CPU
+	default "arm926ejs"
+
+config SYS_BOARD
+	default "integrator"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	default "integratorap"
+
+endif
+
+if TARGET_INTEGRATORCP_CM926EJS
+
+config SYS_CPU
+	default "arm926ejs"
+
+config SYS_BOARD
+	default "integrator"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	default "integratorcp"
+
+endif
+
+if TARGET_INTEGRATORCP_CM1136
+
+config SYS_CPU
+	default "arm1136"
+
+config SYS_BOARD
+	default "integrator"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	default "integratorcp"
+
+endif
+
+if TARGET_INTEGRATORAP_CM946ES
+
+config SYS_CPU
+	default "arm946es"
+
+config SYS_BOARD
+	default "integrator"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	default "integratorap"
+
+endif
+
+if TARGET_INTEGRATORCP_CM946ES
+
+config SYS_CPU
+	default "arm946es"
+
+config SYS_BOARD
+	default "integrator"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	default "integratorcp"
+
+endif

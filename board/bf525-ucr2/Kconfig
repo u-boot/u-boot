@@ -1,0 +1,9 @@
+if TARGET_BF525_UCR2
+
+config SYS_BOARD
+	default "bf525-ucr2"
+
+config SYS_CONFIG_NAME
+	default "bf525-ucr2"
+
+endif

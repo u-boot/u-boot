@@ -56,10 +56,6 @@
 #include <asm/ppc460sx.h>
 #endif
 
-#if defined(CONFIG_APM821XX)
-#include <asm/apm821xx.h>
-#endif
-
 /*
  * Common registers for all SoC's
  */

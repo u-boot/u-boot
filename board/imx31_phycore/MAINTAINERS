@@ -1,0 +1,11 @@
+IMX31_PHYCORE BOARD
+#M:	-
+S:	Maintained
+F:	board/imx31_phycore/
+F:	include/configs/imx31_phycore.h
+F:	configs/imx31_phycore_defconfig
+
+IMX31_PHYCORE_EET BOARD
+#M:	(resigned) Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+S:	Orphan (since 2013-09)
+F:	configs/imx31_phycore_eet_defconfig

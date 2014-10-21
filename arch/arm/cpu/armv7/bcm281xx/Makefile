@@ -9,3 +9,4 @@ obj-y	+= clk-core.o
 obj-y	+= clk-bcm281xx.o
 obj-y	+= clk-sdio.o
 obj-y	+= clk-bsc.o
+obj-$(CONFIG_BCM_SF2_ETH) += clk-eth.o

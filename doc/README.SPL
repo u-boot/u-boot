@@ -13,34 +13,29 @@ can be reused. No code duplication or symlinking is necessary anymore.
 How it works
 ------------
 
-There is a new directory $(srctree)/spl which contains only a Makefile.
-The object files are built separately for SPL and placed in this directory.
+The object files for SPL are built separately and placed in the "spl" directory.
 The final binaries which are generated are u-boot-spl, u-boot-spl.bin and
 u-boot-spl.map.
 
-During the SPL build a variable named CONFIG_SPL_BUILD is exported
-in the make environment and also appended to CPPFLAGS with -DCONFIG_SPL_BUILD.
+A config option named CONFIG_SPL_BUILD is enabled by Kconfig for SPL.
 Source files can therefore be compiled for SPL with different settings.
-ARM-based boards have previously used the option CONFIG_PRELOADER for it.
 
 For example:
 
 ifeq ($(CONFIG_SPL_BUILD),y)
-COBJS-y += board_spl.o
+obj-y += board_spl.o
 else
-COBJS-y += board.o
+obj-y += board.o
 endif
 
-COBJS-$(CONFIG_SPL_BUILD) += foo.o
+obj-$(CONFIG_SPL_BUILD) += foo.o
 
 #ifdef CONFIG_SPL_BUILD
 	foo();
 #endif
 
 
-The building of SPL images can be with:
-
-#define CONFIG_SPL
+The building of SPL images can be enabled by CONFIG_SPL option in Kconfig.
 
 Because SPL images normally have a different text base, one has to be
 configured by defining CONFIG_SPL_TEXT_BASE. The linker script has to be
@@ -69,17 +64,6 @@ CONFIG_SPL_NAND_LOAD (drivers/mtd/nand/nand_spl_load.o)
 CONFIG_SPL_SPI_LOAD (drivers/mtd/spi/spi_spl_load.o)
 CONFIG_SPL_RAM_DEVICE (common/spl/spl.c)
 CONFIG_SPL_WATCHDOG_SUPPORT (drivers/watchdog/libwatchdog.o)
-
-Normally CPU is assumed to be the same between the SPL and normal
-u-boot build.  However it is possible to specify a different CPU for
-the SPL build for cases where the SPL is expected to run on a
-different CPU model from the main u-boot.  This is done by specifying
-an SPL CPU in boards.cfg as follows:
-
-	normal_cpu:spl_cpu
-
-This case CPU will be set to "normal_cpu" during the main u-boot
-build and "spl_cpu" during the SPL build.
 
 
 Debugging

@@ -11,9 +11,15 @@
 #ifndef _DM_PLATDATA_H
 #define _DM_PLATDATA_H
 
+/**
+ * struct driver_info - Information required to instantiate a device
+ *
+ * @name:	Device name
+ * @platdata:	Driver-specific platform data
+ */
 struct driver_info {
-	const char	*name;
-	const void	*platdata;
+	const char *name;
+	const void *platdata;
 };
 
 #define U_BOOT_DEVICE(__name)						\

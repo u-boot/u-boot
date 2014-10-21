@@ -1,0 +1,6 @@
+ARNDALE BOARD
+M:	Chander Kashyap <k.chander@samsung.com>
+S:	Maintained
+F:	board/samsung/arndale/
+F:	include/configs/arndale.h
+F:	configs/arndale_defconfig

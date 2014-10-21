@@ -1,0 +1,55 @@
+#
+# Device Tree Control
+#
+# TODO:
+#   This feature is not currently supported for SPL,
+#    but this restriction should be removed in the future.
+
+config SUPPORT_OF_CONTROL
+	bool
+
+menu "Device Tree Control"
+	depends on !SPL_BUILD
+	depends on SUPPORT_OF_CONTROL
+
+config OF_CONTROL
+	bool "Run-time configuration via Device Tree"
+	help
+	  This feature provides for run-time configuration of U-Boot
+	  via a flattened device tree.
+
+choice
+	prompt "Provider of DTB for DT control"
+	depends on OF_CONTROL
+
+config OF_SEPARATE
+	bool "Separate DTB for DT control"
+	depends on !SANDBOX
+	help
+	  If this option is enabled, the device tree will be built and
+	  placed as a separate u-boot.dtb file alongside the U-Boot image.
+
+config OF_EMBED
+	bool "Embedded DTB for DT control"
+	help
+	  If this option is enabled, the device tree will be picked up and
+	  built into the U-Boot image.
+
+config OF_HOSTFILE
+	bool "Host filed DTB for DT control"
+	depends on SANDBOX
+	help
+	  If this option is enabled, DTB will be read from a file on startup.
+	  This is only useful for Sandbox.  Use the -d flag to U-Boot to
+	  specify the file to read.
+
+endchoice
+
+config DEFAULT_DEVICE_TREE
+	string "Default Device Tree for DT control"
+	help
+	  This option specifies the default Device Tree used for DT control.
+	  It can be overrided from the command line:
+	  $ make DEVICE_TREE=<device-tree-name>
+
+endmenu

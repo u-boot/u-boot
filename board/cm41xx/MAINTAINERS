@@ -1,0 +1,6 @@
+CM41XX BOARD
+#M:	-
+S:	Maintained
+F:	board/cm41xx/
+F:	include/configs/cm41xx.h
+F:	configs/cm41xx_defconfig

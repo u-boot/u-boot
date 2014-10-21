@@ -51,7 +51,6 @@ typedef ddr2_spd_eeprom_t generic_spd_eeprom_t;
 #define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR2
 #endif
 #elif defined(CONFIG_SYS_FSL_DDR3)
-#define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(3)	/* FIXME */
 typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #ifndef CONFIG_FSL_SDRAM_TYPE
 #define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR3
@@ -281,6 +280,7 @@ typedef struct memctl_options_partial_s {
 #define DDR_DATA_BUS_WIDTH_64 0
 #define DDR_DATA_BUS_WIDTH_32 1
 #define DDR_DATA_BUS_WIDTH_16 2
+#define DDR_CSWL_CS0	0x04000001
 /*
  * Generalized parameters for memory controller configuration,
  * might be a little specific to the FSL memory controller
@@ -340,6 +340,7 @@ typedef struct memctl_options_s {
 	unsigned int cpo_override;
 	unsigned int write_data_delay;		/* DQS adjust */
 
+	unsigned int cswl_override;
 	unsigned int wrlvl_override;
 	unsigned int wrlvl_sample;		/* Write leveling */
 	unsigned int wrlvl_start;
@@ -350,7 +351,6 @@ typedef struct memctl_options_s {
 	unsigned int twot_en;
 	unsigned int threet_en;
 	unsigned int bstopre;
-	unsigned int tcke_clock_pulse_width_ps;	/* tCKE */
 	unsigned int tfaw_window_four_activates_ps;	/* tFAW --  FOUR_ACT */
 
 	/* Rtt impedance */
@@ -377,12 +377,20 @@ typedef struct memctl_options_s {
 	unsigned int trwt;			/* read-to-write turnaround */
 } memctl_options_t;
 
-extern phys_size_t fsl_ddr_sdram(void);
-extern phys_size_t fsl_ddr_sdram_size(void);
+phys_size_t fsl_ddr_sdram(void);
+phys_size_t fsl_ddr_sdram_size(void);
+phys_size_t fsl_other_ddr_sdram(unsigned long long base,
+				unsigned int first_ctrl,
+				unsigned int num_ctrls,
+				unsigned int dimm_slots_per_ctrl,
+				int (*board_need_reset)(void),
+				void (*board_reset)(void),
+				void (*board_de_reset)(void));
 extern int fsl_use_spd(void);
-extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-					unsigned int ctrl_num, int step);
+void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
+			     unsigned int ctrl_num, int step);
 u32 fsl_ddr_get_intl3r(void);
+void print_ddr_info(unsigned int start_ctrl);
 
 static void __board_assert_mem_reset(void)
 {

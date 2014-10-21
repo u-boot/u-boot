@@ -1,0 +1,6 @@
+HWW1U1A BOARD
+#M:	Kyle Moffett <Kyle.D.Moffett@boeing.com>
+S:	Orphan (since 2014-06)
+F:	board/exmeritus/hww1u1a/
+F:	include/configs/HWW1U1A.h
+F:	configs/HWW1U1A_defconfig

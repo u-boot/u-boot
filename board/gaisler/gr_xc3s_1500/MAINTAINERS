@@ -1,0 +1,6 @@
+GR_XC3S_1500 BOARD
+#M:	-
+S:	Maintained
+F:	board/gaisler/gr_xc3s_1500/
+F:	include/configs/gr_xc3s_1500.h
+F:	configs/gr_xc3s_1500_defconfig

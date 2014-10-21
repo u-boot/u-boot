@@ -1,0 +1,6 @@
+TT01 BOARD
+M:	Helmut Raiger <helmut.raiger@hale.at>
+S:	Maintained
+F:	board/hale/tt01/
+F:	include/configs/tt01.h
+F:	configs/tt01_defconfig

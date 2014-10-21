@@ -1,0 +1,7 @@
+MS7750SE BOARD
+M:	Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+S:	Maintained
+F:	board/ms7750se/
+F:	include/configs/ms7750se.h
+F:	configs/ms7750se_defconfig

@@ -25,7 +25,6 @@
 #define CONFIG_MARVELL		1
 #define CONFIG_ARM926EJS	1	/* Basic Architecture */
 #define CONFIG_FEROCEON		1	/* CPU Core subversion */
-#define CONFIG_ORION5X		1	/* SOC Family Name */
 #define CONFIG_88F5182		1	/* SOC Name */
 #define CONFIG_MACH_EDMINIV2	1	/* Machine type */
 
@@ -187,7 +186,8 @@
  * I2C related stuff
  */
 #ifdef CONFIG_CMD_I2C
-#define CONFIG_I2C_MVTWSI
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MVTWSI
 #define CONFIG_I2C_MVTWSI_BASE		ORION5X_TWSI_BASE
 #define CONFIG_SYS_I2C_SLAVE		0x0
 #define CONFIG_SYS_I2C_SPEED		100000

@@ -1,0 +1,7 @@
+SOCFPGA BOARD
+M:	Dinh Nguyen <dinguyen@altera.com>
+M:	Chin-Liang See <clsee@altera.com>
+S:	Maintained
+F:	board/altera/socfpga/
+F:	include/configs/socfpga_cyclone5.h
+F:	configs/socfpga_cyclone5_defconfig

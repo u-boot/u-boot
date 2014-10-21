@@ -1,0 +1,12 @@
+if TARGET_PLU405
+
+config SYS_BOARD
+	default "plu405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "PLU405"
+
+endif

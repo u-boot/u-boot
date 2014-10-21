@@ -351,7 +351,8 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #elif defined(CONFIG_ARM)
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
 {
 	int i;
 	bd_t *bd = gd->bd;

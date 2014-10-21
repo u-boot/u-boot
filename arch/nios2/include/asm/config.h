@@ -7,4 +7,7 @@
 #ifndef _ASM_CONFIG_H_
 #define _ASM_CONFIG_H_
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_SYS_GENERIC_GLOBAL_DATA
+
 #endif

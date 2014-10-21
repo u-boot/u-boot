@@ -8,9 +8,27 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/io.h>
-#include <nios2-io.h>
 #include <linux/compiler.h>
 #include <serial.h>
+
+typedef volatile struct {
+	unsigned	data;			/* Data register */
+	unsigned	control;		/* Control register */
+} nios_jtag_t;
+
+/* data register */
+#define NIOS_JTAG_RVALID	(1<<15)		/* Read valid */
+#define NIOS_JTAG_DATA(d)	((d)&0x0ff)	/* Read data */
+#define NIOS_JTAG_RAVAIL(d)	((d)>>16)	/* Read space avail */
+
+/* control register */
+#define NIOS_JTAG_RE		(1 << 0)	/* read intr enable */
+#define NIOS_JTAG_WE		(1 << 1)	/* write intr enable */
+#define NIOS_JTAG_RI		(1 << 8)	/* read intr pending */
+#define NIOS_JTAG_WI		(1 << 9)	/* write intr pending*/
+#define NIOS_JTAG_AC		(1 << 10)	/* activity indicator */
+#define NIOS_JTAG_RRDY		(1 << 12)	/* read available */
+#define NIOS_JTAG_WSPACE(d)	((d)>>16)	/* Write space avail */
 
 DECLARE_GLOBAL_DATA_PTR;
 

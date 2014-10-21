@@ -35,6 +35,12 @@ struct scu_regs {
 	u32	fpga_rev;
 };
 
+u32 get_nr_cpus(void)
+{
+	struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
+	return readl(&scu->config) & 3;
+}
+
 u32 get_cpu_rev(void)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
@@ -79,9 +85,15 @@ u32 __weak get_board_rev(void)
 void init_aips(void)
 {
 	struct aipstz_regs *aips1, *aips2;
+#ifdef CONFIG_MX6SX
+	struct aipstz_regs *aips3;
+#endif
 
 	aips1 = (struct aipstz_regs *)AIPS1_BASE_ADDR;
 	aips2 = (struct aipstz_regs *)AIPS2_BASE_ADDR;
+#ifdef CONFIG_MX6SX
+	aips3 = (struct aipstz_regs *)AIPS3_BASE_ADDR;
+#endif
 
 	/*
 	 * Set all MPROTx to be non-bufferable, trusted for R/W,
@@ -107,6 +119,26 @@ void init_aips(void)
 	writel(0x00000000, &aips2->opacr2);
 	writel(0x00000000, &aips2->opacr3);
 	writel(0x00000000, &aips2->opacr4);
+
+#ifdef CONFIG_MX6SX
+	/*
+	 * Set all MPROTx to be non-bufferable, trusted for R/W,
+	 * not forced to user-mode.
+	 */
+	writel(0x77777777, &aips3->mprot0);
+	writel(0x77777777, &aips3->mprot1);
+
+	/*
+	 * Set all OPACRx to be non-bufferable, not require
+	 * supervisor privilege level for access,allow for
+	 * write access and untrusted master access.
+	 */
+	writel(0x00000000, &aips3->opacr0);
+	writel(0x00000000, &aips3->opacr1);
+	writel(0x00000000, &aips3->opacr2);
+	writel(0x00000000, &aips3->opacr3);
+	writel(0x00000000, &aips3->opacr4);
+#endif
 }
 
 static void clear_ldo_ramp(void)
@@ -241,10 +273,25 @@ int board_postclk_init(void)
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
+#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
+	enum dcache_option option = DCACHE_WRITETHROUGH;
+#else
+	enum dcache_option option = DCACHE_WRITEBACK;
+#endif
+
 	/* Avoid random hang when download by usb */
 	invalidate_dcache_all();
+
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
+
+	/* Enable caching on OCRAM and ROM */
+	mmu_set_region_dcache_behaviour(ROMCP_ARB_BASE_ADDR,
+					ROMCP_ARB_END_ADDR,
+					option);
+	mmu_set_region_dcache_behaviour(IRAM_BASE_ADDR,
+					IRAM_SIZE,
+					option);
 }
 #endif
 
@@ -292,10 +339,10 @@ const struct boot_mode soc_boot_modes[] = {
 	/* reserved value should start rom usb */
 	{"usb",		MAKE_CFGVAL(0x01, 0x00, 0x00, 0x00)},
 	{"sata",	MAKE_CFGVAL(0x20, 0x00, 0x00, 0x00)},
-	{"escpi1:0",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x08)},
-	{"escpi1:1",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x18)},
-	{"escpi1:2",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x28)},
-	{"escpi1:3",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x38)},
+	{"ecspi1:0",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x08)},
+	{"ecspi1:1",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x18)},
+	{"ecspi1:2",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x28)},
+	{"ecspi1:3",	MAKE_CFGVAL(0x30, 0x00, 0x00, 0x38)},
 	/* 4 bit bus width */
 	{"esdhc1",	MAKE_CFGVAL(0x40, 0x20, 0x00, 0x00)},
 	{"esdhc2",	MAKE_CFGVAL(0x40, 0x28, 0x00, 0x00)},
@@ -307,9 +354,13 @@ const struct boot_mode soc_boot_modes[] = {
 void s_init(void)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
-	int is_6q = is_cpu_type(MXC_CPU_MX6Q);
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	u32 mask480;
 	u32 mask528;
+	u32 reg, periph1, periph2;
+
+	if (is_cpu_type(MXC_CPU_MX6SX))
+		return;
 
 	/* Due to hardware limitation, on MX6Q we need to gate/ungate all PFDs
 	 * to make sure PFD is working right, otherwise, PFDs may
@@ -321,15 +372,23 @@ void s_init(void)
 		ANATOP_PFD_CLKGATE_MASK(1) |
 		ANATOP_PFD_CLKGATE_MASK(2) |
 		ANATOP_PFD_CLKGATE_MASK(3);
-	mask528 = ANATOP_PFD_CLKGATE_MASK(0) |
-		ANATOP_PFD_CLKGATE_MASK(1) |
+	mask528 = ANATOP_PFD_CLKGATE_MASK(1) |
 		ANATOP_PFD_CLKGATE_MASK(3);
 
-	/*
-	 * Don't reset PFD2 on DL/S
-	 */
-	if (is_6q)
+	reg = readl(&ccm->cbcmr);
+	periph2 = ((reg & MXC_CCM_CBCMR_PRE_PERIPH2_CLK_SEL_MASK)
+		>> MXC_CCM_CBCMR_PRE_PERIPH2_CLK_SEL_OFFSET);
+	periph1 = ((reg & MXC_CCM_CBCMR_PRE_PERIPH_CLK_SEL_MASK)
+		>> MXC_CCM_CBCMR_PRE_PERIPH_CLK_SEL_OFFSET);
+
+	/* Checking if PLL2 PFD0 or PLL2 PFD2 is using for periph clock */
+	if ((periph2 != 0x2) && (periph1 != 0x2))
+		mask528 |= ANATOP_PFD_CLKGATE_MASK(0);
+
+	if ((periph2 != 0x1) && (periph1 != 0x1) &&
+		(periph2 != 0x3) && (periph1 != 0x3))
 		mask528 |= ANATOP_PFD_CLKGATE_MASK(2);
+
 	writel(mask480, &anatop->pfd_480_set);
 	writel(mask528, &anatop->pfd_528_set);
 	writel(mask480, &anatop->pfd_480_clr);
@@ -393,6 +452,9 @@ void v7_outer_cache_enable(void)
 		writel(val, &iomux->gpr[11]);
 	}
 #endif
+
+	/* Must disable the L2 before changing the latency parameters */
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 
 	writel(0x132, &pl310->pl310_tag_latency_ctrl);
 	writel(0x132, &pl310->pl310_data_latency_ctrl);

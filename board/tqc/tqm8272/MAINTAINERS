@@ -1,0 +1,6 @@
+TQM8272 BOARD
+#M:	-
+S:	Maintained
+F:	board/tqc/tqm8272/
+F:	include/configs/TQM8272.h
+F:	configs/TQM8272_defconfig

@@ -28,6 +28,8 @@
 
 #define CONFIG_SYS_TEXT_BASE	0x0
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_SYS_ARM_CACHE_WRITETHROUGH
 
 /* input clock of PLL (VCMA9 has 12MHz input clock) */
@@ -214,7 +216,6 @@
 
 /* File system */
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_JFFS2

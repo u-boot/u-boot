@@ -1,0 +1,5 @@
+CONFIG_SYS_FSL_ESDHC_LE means ESDHC IP is in little-endian mode.
+CONFIG_SYS_FSL_ESDHC_BE means ESDHC IP is in big-endian mode.
+
+Accessing ESDHC registers can be determined by ESDHC IP's endian
+mode or processor's endian mode.

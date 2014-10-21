@@ -16,6 +16,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text	:
 	{
+		*(.vectors)
 		arch/arm/cpu/armv7/start.o	(.text*)
 		*(.text*)
 	} >.sdram

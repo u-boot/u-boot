@@ -102,7 +102,8 @@ extern ssize_t hexport_r(struct hsearch_data *__htab,
  */
 extern int himport_r(struct hsearch_data *__htab,
 		     const char *__env, size_t __size, const char __sep,
-		     int __flag, int nvars, char * const vars[]);
+		     int __flag, int __crlf_is_lf, int nvars,
+		     char * const vars[]);
 
 /* Walk the whole table calling the callback on each element */
 extern int hwalk_r(struct hsearch_data *__htab, int (*callback)(ENTRY *));

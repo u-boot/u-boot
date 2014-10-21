@@ -1,0 +1,6 @@
+MVBLUE BOARD
+#M:	-
+S:	Maintained
+F:	board/mvblue/
+F:	include/configs/MVBLUE.h
+F:	configs/MVBLUE_defconfig

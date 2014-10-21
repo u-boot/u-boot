@@ -1,0 +1,9 @@
+if TARGET_EP82XXM
+
+config SYS_BOARD
+	default "ep82xxm"
+
+config SYS_CONFIG_NAME
+	default "ep82xxm"
+
+endif

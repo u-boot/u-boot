@@ -1,0 +1,12 @@
+if TARGET_BALLOON3
+
+config SYS_CPU
+	default "pxa"
+
+config SYS_BOARD
+	default "balloon3"
+
+config SYS_CONFIG_NAME
+	default "balloon3"
+
+endif

@@ -1,0 +1,9 @@
+if TARGET_PM828
+
+config SYS_BOARD
+	default "pm828"
+
+config SYS_CONFIG_NAME
+	default "PM828"
+
+endif

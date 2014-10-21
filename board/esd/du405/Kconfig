@@ -1,0 +1,12 @@
+if TARGET_DU405
+
+config SYS_BOARD
+	default "du405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "DU405"
+
+endif

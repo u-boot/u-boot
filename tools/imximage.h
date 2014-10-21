@@ -8,7 +8,7 @@
 #ifndef _IMXIMAGE_H_
 #define _IMXIMAGE_H_
 
-#define MAX_HW_CFG_SIZE_V2 121 /* Max number of registers imx can set for v2 */
+#define MAX_HW_CFG_SIZE_V2 220 /* Max number of registers imx can set for v2 */
 #define MAX_HW_CFG_SIZE_V1 60  /* Max number of registers imx can set for v1 */
 #define APP_CODE_BARKER	0xB1
 #define DCD_BARKER	0xB17219E9

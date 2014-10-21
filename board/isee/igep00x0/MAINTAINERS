@@ -1,0 +1,14 @@
+IGEP00X0 BOARD
+M:	Enric Balletbo i Serra <eballetbo@iseebcn.com>
+S:	Maintained
+F:	board/isee/igep00x0/
+F:	include/configs/omap3_igep00x0.h
+F:	configs/igep0020_defconfig
+F:	configs/igep0030_defconfig
+F:	configs/igep0032_defconfig
+
+IGEP0020_NAND BOARD
+#M:	-
+S:	Maintained
+F:	configs/igep0020_nand_defconfig
+F:	configs/igep0030_nand_defconfig

@@ -33,7 +33,7 @@ enum csc_type_t {
 
 struct dp_csc_param_t {
 	int mode;
-	void *coeff;
+	const int (*coeff)[5][3];
 };
 
 #define SYNC_WAVE 0
@@ -666,13 +666,16 @@ void ipu_dp_dc_disable(ipu_channel_t channel, unsigned char swap)
 	uint32_t csc;
 	uint32_t dc_chan = 0;
 	int timeout = 50;
+	int irq = 0;
 
 	dc_swap = swap;
 
 	if (channel == MEM_DC_SYNC) {
 		dc_chan = 1;
+		irq = IPU_IRQ_DC_FC_1;
 	} else if (channel == MEM_BG_SYNC) {
 		dc_chan = 5;
+		irq = IPU_IRQ_DP_SF_END;
 	} else if (channel == MEM_FG_SYNC) {
 		/* Disable FG channel */
 		dc_chan = 5;
@@ -723,25 +726,11 @@ void ipu_dp_dc_disable(ipu_channel_t channel, unsigned char swap)
 		reg ^= DC_WR_CH_CONF_PROG_DI_ID;
 		__raw_writel(reg, DC_WR_CH_CONF(dc_chan));
 	} else {
-		timeout = 50;
-
-		/* Wait for DC triple buffer to empty */
-		if (g_dc_di_assignment[dc_chan] == 0)
-			while ((__raw_readl(DC_STAT) & 0x00000002)
-				!= 0x00000002) {
-				udelay(2000);
-				timeout -= 2;
-				if (timeout <= 0)
-					break;
-			}
-		else if (g_dc_di_assignment[dc_chan] == 1)
-			while ((__raw_readl(DC_STAT) & 0x00000020)
-				!= 0x00000020) {
-				udelay(2000);
-				timeout -= 2;
-				if (timeout <= 0)
-					break;
-			}
+		/* Make sure that we leave at the irq starting edge */
+		__raw_writel(IPUIRQ_2_MASK(irq), IPUIRQ_2_STATREG(irq));
+		do {
+			reg = __raw_readl(IPUIRQ_2_STATREG(irq));
+		} while (!(reg & IPUIRQ_2_MASK(irq)));
 
 		reg = __raw_readl(DC_WR_CH_CONF(dc_chan));
 		reg &= ~DC_WR_CH_CONF_PROG_TYPE_MASK;

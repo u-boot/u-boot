@@ -84,41 +84,17 @@ static int read_eeprom(struct am335x_baseboard_id *header)
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 static const struct ddr_data ddr2_data = {
-	.datardsratio0 = ((MT47H128M16RT25E_RD_DQS<<30) |
-			  (MT47H128M16RT25E_RD_DQS<<20) |
-			  (MT47H128M16RT25E_RD_DQS<<10) |
-			  (MT47H128M16RT25E_RD_DQS<<0)),
-	.datawdsratio0 = ((MT47H128M16RT25E_WR_DQS<<30) |
-			  (MT47H128M16RT25E_WR_DQS<<20) |
-			  (MT47H128M16RT25E_WR_DQS<<10) |
-			  (MT47H128M16RT25E_WR_DQS<<0)),
-	.datawiratio0 = ((MT47H128M16RT25E_PHY_WRLVL<<30) |
-			 (MT47H128M16RT25E_PHY_WRLVL<<20) |
-			 (MT47H128M16RT25E_PHY_WRLVL<<10) |
-			 (MT47H128M16RT25E_PHY_WRLVL<<0)),
-	.datagiratio0 = ((MT47H128M16RT25E_PHY_GATELVL<<30) |
-			 (MT47H128M16RT25E_PHY_GATELVL<<20) |
-			 (MT47H128M16RT25E_PHY_GATELVL<<10) |
-			 (MT47H128M16RT25E_PHY_GATELVL<<0)),
-	.datafwsratio0 = ((MT47H128M16RT25E_PHY_FIFO_WE<<30) |
-			  (MT47H128M16RT25E_PHY_FIFO_WE<<20) |
-			  (MT47H128M16RT25E_PHY_FIFO_WE<<10) |
-			  (MT47H128M16RT25E_PHY_FIFO_WE<<0)),
-	.datawrsratio0 = ((MT47H128M16RT25E_PHY_WR_DATA<<30) |
-			  (MT47H128M16RT25E_PHY_WR_DATA<<20) |
-			  (MT47H128M16RT25E_PHY_WR_DATA<<10) |
-			  (MT47H128M16RT25E_PHY_WR_DATA<<0)),
+	.datardsratio0 = MT47H128M16RT25E_RD_DQS,
+	.datafwsratio0 = MT47H128M16RT25E_PHY_FIFO_WE,
+	.datawrsratio0 = MT47H128M16RT25E_PHY_WR_DATA,
 };
 
 static const struct cmd_control ddr2_cmd_ctrl_data = {
 	.cmd0csratio = MT47H128M16RT25E_RATIO,
-	.cmd0iclkout = MT47H128M16RT25E_INVERT_CLKOUT,
 
 	.cmd1csratio = MT47H128M16RT25E_RATIO,
-	.cmd1iclkout = MT47H128M16RT25E_INVERT_CLKOUT,
 
 	.cmd2csratio = MT47H128M16RT25E_RATIO,
-	.cmd2iclkout = MT47H128M16RT25E_INVERT_CLKOUT,
 };
 
 static const struct emif_regs ddr2_emif_reg_data = {
@@ -407,24 +383,19 @@ const struct dpll_params *get_dpll_ddr_params(void)
 
 void set_uart_mux_conf(void)
 {
-#ifdef CONFIG_SERIAL1
+#if CONFIG_CONS_INDEX == 1
 	enable_uart0_pin_mux();
-#endif /* CONFIG_SERIAL1 */
-#ifdef CONFIG_SERIAL2
+#elif CONFIG_CONS_INDEX == 2
 	enable_uart1_pin_mux();
-#endif /* CONFIG_SERIAL2 */
-#ifdef CONFIG_SERIAL3
+#elif CONFIG_CONS_INDEX == 3
 	enable_uart2_pin_mux();
-#endif /* CONFIG_SERIAL3 */
-#ifdef CONFIG_SERIAL4
+#elif CONFIG_CONS_INDEX == 4
 	enable_uart3_pin_mux();
-#endif /* CONFIG_SERIAL4 */
-#ifdef CONFIG_SERIAL5
+#elif CONFIG_CONS_INDEX == 5
 	enable_uart4_pin_mux();
-#endif /* CONFIG_SERIAL5 */
-#ifdef CONFIG_SERIAL6
+#elif CONFIG_CONS_INDEX == 6
 	enable_uart5_pin_mux();
-#endif /* CONFIG_SERIAL6 */
+#endif
 }
 
 void set_mux_conf_regs(void)

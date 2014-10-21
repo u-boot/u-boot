@@ -21,13 +21,16 @@ static u32 usb_base_address[CONFIG_USB_MAX_CONTROLLER_COUNT] = {
 	0xEE080000,	/* USB0 (EHCI) */
 	0xEE0A0000,	/* USB1 */
 	0xEE0C0000,	/* USB2 */
-	0xEE000000	/* USB3 (USB3.0 Host)*/
 };
 #elif defined(CONFIG_R8A7791)
 static u32 usb_base_address[CONFIG_USB_MAX_CONTROLLER_COUNT] = {
 	0xEE080000,	/* USB0 (EHCI) */
 	0xEE0C0000,	/* USB1 */
-	0xEE000000	/* USB3 (USB3.0 Host)*/
+};
+#elif defined(CONFIG_R8A7794)
+static u32 usb_base_address[CONFIG_USB_MAX_CONTROLLER_COUNT] = {
+	0xEE080000,	/* USB0 (EHCI) */
+	0xEE0C0000,	/* USB1 */
 };
 #else
 #error rmobile EHCI USB driver not supported on this platform

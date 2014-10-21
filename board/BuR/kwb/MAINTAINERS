@@ -1,0 +1,6 @@
+KWB BOARD
+M:	Hannes Petermaier <hannes.petermaier@br-automation.com>
+S:	Maintained
+F:	board/BuR/kwb/
+F:	include/configs/kwb.h
+F:	configs/kwb_defconfig

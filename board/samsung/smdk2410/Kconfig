@@ -1,0 +1,18 @@
+if TARGET_SMDK2410
+
+config SYS_CPU
+	default "arm920t"
+
+config SYS_BOARD
+	default "smdk2410"
+
+config SYS_VENDOR
+	default "samsung"
+
+config SYS_SOC
+	default "s3c24x0"
+
+config SYS_CONFIG_NAME
+	default "smdk2410"
+
+endif

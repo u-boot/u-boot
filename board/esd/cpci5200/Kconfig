@@ -1,0 +1,12 @@
+if TARGET_CPCI5200
+
+config SYS_BOARD
+	default "cpci5200"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "cpci5200"
+
+endif

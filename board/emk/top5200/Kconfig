@@ -1,0 +1,12 @@
+if TARGET_TOP5200
+
+config SYS_BOARD
+	default "top5200"
+
+config SYS_VENDOR
+	default "emk"
+
+config SYS_CONFIG_NAME
+	default "TOP5200"
+
+endif

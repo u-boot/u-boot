@@ -1,0 +1,6 @@
+STXGP3 BOARD
+#M:	Dan Malek <dan@embeddedalley.com>
+S:	Orphan (since 2014-06)
+F:	board/stx/stxgp3/
+F:	include/configs/stxgp3.h
+F:	configs/stxgp3_defconfig

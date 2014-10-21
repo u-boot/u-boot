@@ -1,0 +1,17 @@
+MCC200 BOARD
+#M:	-
+S:	Maintained
+F:	board/mcc200/
+F:	include/configs/mcc200.h
+F:	configs/mcc200_defconfig
+F:	configs/mcc200_COM12_defconfig
+F:	configs/mcc200_COM12_highboot_defconfig
+F:	configs/mcc200_COM12_highboot_SDRAM_defconfig
+F:	configs/mcc200_COM12_SDRAM_defconfig
+F:	configs/mcc200_highboot_defconfig
+F:	configs/mcc200_highboot_SDRAM_defconfig
+F:	configs/mcc200_SDRAM_defconfig
+F:	configs/prs200_defconfig
+F:	configs/prs200_DDR_defconfig
+F:	configs/prs200_highboot_defconfig
+F:	configs/prs200_highboot_DDR_defconfig

@@ -1,0 +1,12 @@
+if TARGET_XAENIAX
+
+config SYS_CPU
+	default "pxa"
+
+config SYS_BOARD
+	default "xaeniax"
+
+config SYS_CONFIG_NAME
+	default "xaeniax"
+
+endif

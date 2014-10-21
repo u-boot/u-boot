@@ -135,6 +135,8 @@ SECTIONS
 		*(COMMON)
 		. = ALIGN(4);
 	} >ram_data
-	__bss_vma = ADDR(.bss);
+	__bss_end = .;
+	__bss_start = ADDR(.bss);
 	__bss_len = SIZEOF(.bss);
+	__init_end = .;
 }

@@ -1,0 +1,9 @@
+if TARGET_MUSENKI
+
+config SYS_BOARD
+	default "musenki"
+
+config SYS_CONFIG_NAME
+	default "MUSENKI"
+
+endif

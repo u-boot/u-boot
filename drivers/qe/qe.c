@@ -11,7 +11,7 @@
 #include <command.h>
 #include "asm/errno.h"
 #include "asm/io.h"
-#include "asm/immap_qe.h"
+#include "linux/immap_qe.h"
 #include "qe.h"
 
 #define MPC85xx_DEVDISR_QE_DISABLE	0x1
@@ -333,7 +333,7 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 	/* Check the magic */
 	if ((hdr->magic[0] != 'Q') || (hdr->magic[1] != 'E') ||
 	    (hdr->magic[2] != 'F')) {
-		printf("Not a microcode\n");
+		printf("QE microcode not found\n");
 #ifdef CONFIG_DEEP_SLEEP
 		setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_QE_DISABLE);
 #endif

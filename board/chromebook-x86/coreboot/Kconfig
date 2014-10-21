@@ -1,0 +1,15 @@
+if TARGET_COREBOOT
+
+config SYS_BOARD
+	default "coreboot"
+
+config SYS_VENDOR
+	default "chromebook-x86"
+
+config SYS_SOC
+	default "coreboot"
+
+config SYS_CONFIG_NAME
+	default "coreboot"
+
+endif

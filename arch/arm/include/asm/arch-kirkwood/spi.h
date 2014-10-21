@@ -43,10 +43,10 @@ struct kwspi_registers {
 #define KWSPI_XFERLEN_2BYTE	(1 << 5)
 #define KWSPI_XFERLEN_MASK	(1 << 5)
 #define KWSPI_ADRLEN_1BYTE	0
-#define KWSPI_ADRLEN_2BYTE	1 << 8
-#define KWSPI_ADRLEN_3BYTE	2 << 8
-#define KWSPI_ADRLEN_4BYTE	3 << 8
-#define KWSPI_ADRLEN_MASK	3 << 8
+#define KWSPI_ADRLEN_2BYTE	(1 << 8)
+#define KWSPI_ADRLEN_3BYTE	(2 << 8)
+#define KWSPI_ADRLEN_4BYTE	(3 << 8)
+#define KWSPI_ADRLEN_MASK	(3 << 8)
 #define KWSPI_TIMEOUT		10000
 
 #endif /* __KW_SPI_H__ */

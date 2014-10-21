@@ -3,6 +3,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+(Please read 'How to change from MAKEALL' if you are used to that tool)
+
 What is this?
 =============
 
@@ -39,9 +41,10 @@ Theory of Operation
 
 Buildman is a builder. It is not make, although it runs make. It does not
 produce any useful output on the terminal while building, except for
-progress information. All the output (errors, warnings and binaries if you
-are ask for them) is stored in output directories, which you can look at
-while the build is progressing, or when it is finished.
+progress information (except with -v, see below). All the output (errors,
+warnings and binaries if you are ask for them) is stored in output
+directories, which you can look at while the build is progressing, or when
+it is finished.
 
 Buildman produces a concise summary of which boards succeeded and failed.
 It shows which commit introduced which board failure using a simple
@@ -71,16 +74,21 @@ directory. It clones this repository into a copy for each thread, and the
 threads do not affect the state of your git repository. Any checkouts done
 by the thread affect only the working directory for that thread.
 
-Buildman automatically selects the correct toolchain for each board. You
-must supply suitable toolchains, but buildman takes care of selecting the
+Buildman automatically selects the correct tool chain for each board. You
+must supply suitable tool chains, but buildman takes care of selecting the
 right one.
 
-Buildman always builds a branch, and always builds the upstream commit as
-well, for comparison. It cannot build individual commits at present, unless
-(maybe) you point it at an empty branch. Put all your commits in a branch,
-set the branch's upstream to a valid value, and all will be well. Otherwise
-buildman will perform random actions. Use -n to check what the random
-actions might be.
+Buildman generally builds a branch (with the -b flag), and in this case
+builds the upstream commit as well, for comparison. It cannot build
+individual commits at present, unless (maybe) you point it at an empty
+branch. Put all your commits in a branch, set the branch's upstream to a
+valid value, and all will be well. Otherwise buildman will perform random
+actions. Use -n to check what the random actions might be.
+
+If you just want to build the current source tree, leave off the -b flag.
+This will display results and errors as they happen. You can still look
+at them later using -s. Note that buildman will assume that the source
+has changed, and will build all specified boards in this case.
 
 Buildman is optimised for building many commits at once, for many boards.
 On multi-core machines, Buildman is fast because it uses most of the
@@ -99,6 +107,22 @@ behaviour is a superset of exact or substring matching. Examples are:
 * 'tegra'        All boards with any Tegra Soc (Tegra20, Tegra30, Tegra114...)
 * '^tegra[23]0$' All boards with either Tegra20 or Tegra30 SoC
 * 'powerpc'      All PowerPC boards
+
+While the default is to OR the terms together, you can also make use of
+the '&' operator to limit the selection:
+
+* 'freescale & arm sandbox'  All Freescale boards with ARM architecture,
+                             plus sandbox
+
+You can also use -x to specifically exclude some boards. For example:
+
+ buildmand arm -x nvidia,freescale,.*ball$
+
+means to build all arm boards except nvidia, freescale and anything ending
+with 'ball'.
+
+It is convenient to use the -n option to see whaat will be built based on
+the subset given.
 
 Buildman does not store intermediate object files. It optionally copies
 the binary output into a directory when a build is successful. Size
@@ -126,6 +150,8 @@ example:
 root: /
 rest: /toolchains/*
 eldk: /opt/eldk-4.2
+arm: /opt/linaro/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
+aarch64: /opt/linaro/gcc-linaro-aarch64-none-elf-4.8-2013.10_linux
 
 [toolchain-alias]
 x86: i386
@@ -287,7 +313,7 @@ If it can't detect the upstream branch, try checking out the branch, and
 doing something like 'git branch --set-upstream <branch> upstream/master'
 or something similar.
 
-As an exmmple:
+As an example:
 
 Dry run, so not doing much. But I would do this:
 
@@ -339,7 +365,7 @@ Building 18 commits for 1059 boards (4 threads, 1 job per thread)
   528   36  124 /19062  1:13:30  : SIMPC8313_SP
 
 This means that it is building 19062 board/commit combinations. So far it
-has managed to succesfully build 528. Another 36 have built with warnings,
+has managed to successfully build 528. Another 36 have built with warnings,
 and 124 more didn't build at all. Buildman expects to complete the process
 in an hour and 15 minutes. Use this time to buy a faster computer.
 
@@ -413,10 +439,14 @@ again.
 
 At commit 16, the error moves - you can see that the old error at line 120
 is fixed, but there is a new one at line 126. This is probably only because
-we added some code and moved the broken line futher down the file.
+we added some code and moved the broken line father down the file.
 
 If many boards have the same error, then -e will display the error only
-once. This makes the output as concise as possible.
+once. This makes the output as concise as possible. To see which boards have
+each error, use -l.
+
+Buildman tries to distinguish warnings from errors, and shows warning lines
+separately with a 'w' prefix.
 
 The full build output in this case is available in:
 
@@ -491,7 +521,7 @@ You can also use -d to see a detailed size breakdown for each board. This
 list is sorted in order from largest growth to largest reduction.
 
 It is possible to go a little further with the -B option (--bloat). This
-shows where U-Boot has bloted, breaking the size change down to the function
+shows where U-Boot has bloated, breaking the size change down to the function
 level. Example output is below:
 
 $ ./tools/buildman/buildman -b us-mem4 -sSdB
@@ -651,16 +681,134 @@ snapper9g45=${at91-boards} BUILD_TAG=443
 This will use 'make ENABLE_AT91_TEST=1 BUILD_TAG=442' for snapper9260
 and 'make ENABLE_AT91_TEST=1 BUILD_TAG=443' for snapper9g45. A special
 variable ${target} is available to access the target name (snapper9260 and
-snapper9g20 in this case). Variables are resolved recursively.
+snapper9g20 in this case). Variables are resolved recursively. Note that
+variables can only contain the characters A-Z, a-z, 0-9, hyphen (-) and
+underscore (_).
 
 It is expected that any variables added are dealt with in U-Boot's
 config.mk file and documented in the README.
+
+
+Quick Sanity Check
+==================
+
+If you have made changes and want to do a quick sanity check of the
+currently-checked-out source, run buildman without the -b flag. This will
+build the selected boards and display build status and errors as it runs
+(i.e. -v amd -e are enabled automatically).
 
 
 Other options
 =============
 
 Buildman has various other command line options. Try --help to see them.
+
+When doing builds, Buildman's return code will reflect the overall result:
+
+    0 (success)     No errors or warnings found
+    128             Errors found
+    129             Warnings found
+
+
+How to change from MAKEALL
+==========================
+
+Buildman includes most of the features of MAKEALL and is generally faster
+and easier to use. In particular it builds entire branches: if a particular
+commit introduces an error in a particular board, buildman can easily show
+you this, even if a later commit fixes that error.
+
+The reasons to deprecate MAKEALL are:
+- We don't want to maintain two build systems
+- Buildman is typically faster
+- Buildman has a lot more features
+
+But still, many people will be sad to lose MAKEALL. If you are used to
+MAKEALL, here are a few pointers.
+
+First you need to set up your tool chains - see the 'Setting up' section
+for details. Once you have your required toolchain(s) detected then you are
+ready to go.
+
+To build the current source tree, run buildman without a -b flag:
+
+   ./tools/buildman/buildman <list of things to build>
+
+This will build the current source tree for the given boards and display
+the results and errors.
+
+However buildman usually works on entire branches, and for that you must
+specify a board flag:
+
+   ./tools/buildman/buildman -b <branch_name> <list of things to build>
+
+followed by (afterwards, or perhaps concurrently in another terminal):
+
+   ./tools/buildman/buildman -b <branch_name> -s <list of things to build>
+
+to see the results of the build. Rather than showing you all the output,
+buildman just shows a summary, with red indicating that a commit introduced
+an error and green indicating that a commit fixed an error. Use the -e
+flag to see the full errors and -l to see which boards caused which errors.
+
+If you really want to see build results as they happen, use -v when doing a
+build (-e will be enabled automatically).
+
+You don't need to stick around on that branch while buildman is running. It
+checks out its own copy of the source code, so you can change branches,
+add commits, etc. without affecting the build in progress.
+
+The <list of things to build> can include board names, architectures or the
+like. There are no flags to disambiguate since ambiguities are rare. Using
+the examples from MAKEALL:
+
+Examples:
+  - build all Power Architecture boards:
+      MAKEALL -a powerpc
+      MAKEALL --arch powerpc
+      MAKEALL powerpc
+          ** buildman -b <branch> powerpc
+  - build all PowerPC boards manufactured by vendor "esd":
+      MAKEALL -a powerpc -v esd
+          ** buildman -b <branch> esd
+  - build all PowerPC boards manufactured either by "keymile" or "siemens":
+      MAKEALL -a powerpc -v keymile -v siemens
+          ** buildman -b <branch> keymile siemens
+  - build all Freescale boards with MPC83xx CPUs, plus all 4xx boards:
+      MAKEALL -c mpc83xx -v freescale 4xx
+          ** buildman -b <branch> mpc83xx freescale 4xx
+
+Buildman automatically tries to use all the CPUs in your machine. If you
+are building a lot of boards it will use one thread for every CPU core
+it detects in your machine. This is like MAKEALL's BUILD_NBUILDS option.
+You can use the -T flag to change the number of threads. If you are only
+building a few boards, buildman will automatically run make with the -j
+flag to increase the number of concurrent make tasks. It isn't normally
+that helpful to fiddle with this option, but if you use the BUILD_NCPUS
+option in MAKEALL then -j is the equivalent in buildman.
+
+Buildman puts its output in ../<branch_name> by default but you can change
+this with the -o option. Buildman normally does out-of-tree builds: use -i
+to disable that if you really want to. But be careful that once you have
+used -i you pollute buildman's copies of the source tree, and you will need
+to remove the build directory (normally ../<branch_name>) to run buildman
+in normal mode (without -i).
+
+Buildman doesn't keep the output result normally, but use the -k option to
+do this.
+
+Please read 'Theory of Operation' a few times as it will make a lot of
+things clearer.
+
+Some options you might like are:
+
+   -B shows which functions are growing/shrinking in which commit - great
+        for finding code bloat.
+   -S shows image sizes for each commit (just an overall summary)
+   -u shows boards that you haven't built yet
+   --step 0 will build just the upstream commit and the last commit of your
+        branch. This is often a quick sanity check that your branch doesn't
+        break anything. But note this does not check bisectability!
 
 
 TODO

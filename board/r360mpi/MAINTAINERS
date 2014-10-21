@@ -1,0 +1,6 @@
+R360MPI BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/r360mpi/
+F:	include/configs/R360MPI.h
+F:	configs/R360MPI_defconfig

@@ -1,0 +1,6 @@
+ALPR BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/prodrive/alpr/
+F:	include/configs/alpr.h
+F:	configs/alpr_defconfig

@@ -1,0 +1,12 @@
+if TARGET_MS7722SE
+
+config SYS_CPU
+	default "sh4"
+
+config SYS_BOARD
+	default "ms7722se"
+
+config SYS_CONFIG_NAME
+	default "ms7722se"
+
+endif

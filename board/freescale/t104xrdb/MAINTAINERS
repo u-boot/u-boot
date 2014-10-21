@@ -1,0 +1,23 @@
+T104XRDB BOARD
+M:	Priyanka Jain  <Priyanka.Jain@freescale.com>
+S:	Maintained
+F:	board/freescale/t104xrdb/
+F:	include/configs/T104xRDB.h
+F:	configs/T1040RDB_defconfig
+F:	configs/T1040RDB_NAND_defconfig
+F:	configs/T1040RDB_SPIFLASH_defconfig
+F:	configs/T1042RDB_defconfig
+F:	configs/T1042RDB_PI_defconfig
+F:	configs/T1042RDB_PI_NAND_defconfig
+F:	configs/T1042RDB_PI_SPIFLASH_defconfig
+
+T1040RDB_SDCARD BOARD
+#M:	-
+S:	Maintained
+F:	configs/T1040RDB_SDCARD_defconfig
+F:	configs/T1042RDB_PI_SDCARD_defconfig
+
+T1040RDB_SECURE_BOOT BOARD
+M:	Aneesh Bansal  <aneesh.bansal@freescale.com>
+S:	Maintained
+F:	configs/T1040RDB_SECURE_BOOT_defconfig

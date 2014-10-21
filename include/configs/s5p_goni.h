@@ -39,8 +39,9 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_CMDLINE_EDITING
 
-/* Size of malloc() pool.*/
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 80 * SZ_1M)
+/* Size of malloc() pool before and after relocation */
+#define CONFIG_SYS_MALLOC_F_LEN		(1 << 10)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 << 20))
 
 /*
  * select serial console configuration
@@ -53,6 +54,7 @@
 #define CONFIG_MMC
 #define CONFIG_SDHCI
 #define CONFIG_S5P_SDHCI
+#define SDHCI_MAX_HOSTS		4
 
 /* PWM */
 #define CONFIG_PWM			1
@@ -91,6 +93,8 @@
 #define CONFIG_G_DNL_PRODUCT_NUM 0x6601
 #define CONFIG_G_DNL_THOR_VENDOR_NUM CONFIG_G_DNL_VENDOR_NUM
 #define CONFIG_G_DNL_THOR_PRODUCT_NUM 0x685D
+#define CONFIG_G_DNL_UMS_VENDOR_NUM 0x0525
+#define CONFIG_G_DNL_UMS_PRODUCT_NUM 0xA4A5
 #define CONFIG_G_DNL_MANUFACTURER "Samsung"
 
 /* Actual modem binary size is 16MiB. Add 2MiB for bad block handling */
@@ -104,7 +108,6 @@
 				",12m(modem)"\
 				",60m(qboot)\0"
 
-#define CONFIG_BOOTDELAY		1
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
 /* partitions definitions */
@@ -280,5 +283,7 @@
 #define CONFIG_USB_GADGET_VBUS_DRAW 2
 #define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_GADGET_MASS_STORAGE
+
+#define CONFIG_OF_LIBFDT
 
 #endif	/* __CONFIG_H */

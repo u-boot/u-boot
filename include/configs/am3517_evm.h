@@ -17,7 +17,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
-#define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3_AM3517EVM	1	/* working with AM3517EVM */
 #define CONFIG_OMAP_COMMON
 
@@ -259,18 +258,13 @@
  */
 
 /* **** PISMO SUPPORT *** */
-
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-#define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
-
 #define CONFIG_SYS_MAX_FLASH_SECT	520	/* max number of sectors */
 						/* on one chip */
 #define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of flash banks */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #if defined(CONFIG_CMD_NAND)
-#define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
+#define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #endif
 
 /* Monitor at start of flash */
@@ -307,7 +301,6 @@
 					 GENERATED_GBL_DATA_SIZE)
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_SIMPLE

@@ -58,30 +58,61 @@ static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 	atmel_mci_t *mci = mmc->priv;
 	u32 bus_hz = get_mci_clk_rate();
 	u32 clkdiv = 255;
+	unsigned int version = atmel_mci_get_version(mci);
+	u32 clkodd = 0;
+	u32 mr;
 
 	debug("mci: bus_hz is %u, setting clock %u Hz, block size %u\n",
 		bus_hz, hz, blklen);
 	if (hz > 0) {
-		/* find lowest clkdiv yielding a rate <= than requested */
-		for (clkdiv=0; clkdiv<255; clkdiv++) {
-			if ((bus_hz / (clkdiv+1) / 2) <= hz)
-				break;
+		if (version >= 0x500) {
+			clkdiv = DIV_ROUND_UP(bus_hz, hz) - 2;
+			if (clkdiv > 511)
+				clkdiv = 511;
+
+			clkodd = clkdiv & 1;
+			clkdiv >>= 1;
+
+			printf("mci: setting clock %u Hz, block size %u\n",
+			       bus_hz / (clkdiv * 2 + clkodd + 2), blklen);
+		} else {
+			/* find clkdiv yielding a rate <= than requested */
+			for (clkdiv = 0; clkdiv < 255; clkdiv++) {
+				if ((bus_hz / (clkdiv + 1) / 2) <= hz)
+					break;
+			}
+			printf("mci: setting clock %u Hz, block size %u\n",
+			       (bus_hz / (clkdiv + 1)) / 2, blklen);
+
 		}
 	}
-	printf("mci: setting clock %u Hz, block size %u\n",
-		(bus_hz / (clkdiv+1)) / 2, blklen);
 
 	blklen &= 0xfffc;
-	/* On some platforms RDPROOF and WRPROOF are ignored */
-	writel((MMCI_BF(CLKDIV, clkdiv)
-		 | MMCI_BF(BLKLEN, blklen)
-		 | MMCI_BIT(RDPROOF)
-		 | MMCI_BIT(WRPROOF)), &mci->mr);
+
+	mr = MMCI_BF(CLKDIV, clkdiv);
+
+	/* MCI IP version >= 0x200 has R/WPROOF */
+	if (version >= 0x200)
+		mr |= MMCI_BIT(RDPROOF) | MMCI_BIT(WRPROOF);
+
 	/*
-	 * On some new platforms BLKLEN in mci->mr is ignored.
-	 * Should use the BLKLEN in the block register.
+	 * MCI IP version >= 0x500 use bit 16 as clkodd.
+	 * MCI IP version < 0x500 use upper 16 bits for blklen.
 	 */
-	writel(MMCI_BF(BLKLEN, blklen), &mci->blkr);
+	if (version >= 0x500)
+		mr |= MMCI_BF(CLKODD, clkodd);
+	else
+		mr |= MMCI_BF(BLKLEN, blklen);
+
+	writel(mr, &mci->mr);
+
+	/* MCI IP version >= 0x200 has blkr */
+	if (version >= 0x200)
+		writel(MMCI_BF(BLKLEN, blklen), &mci->blkr);
+
+	if (mmc->card_caps & mmc->cfg->host_caps & MMC_MODE_HS)
+		writel(MMCI_BIT(HSMODE), &mci->cfg);
+
 	initialized = 1;
 }
 
@@ -376,8 +407,10 @@ int atmel_mci_init(void *regs)
 	/* need to be able to pass these in on a board by board basis */
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	version = atmel_mci_get_version(mci);
-	if ((version & 0xf00) >= 0x300)
+	if ((version & 0xf00) >= 0x300) {
 		cfg->host_caps = MMC_MODE_8BIT;
+		cfg->host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz;
+	}
 
 	cfg->host_caps |= MMC_MODE_4BIT;
 

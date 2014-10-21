@@ -117,3 +117,13 @@ int checkboard(void)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_S5P_PA_SYSRAM
+void smp_set_core_boot_addr(unsigned long addr, int corenr)
+{
+	writel(addr, CONFIG_S5P_PA_SYSRAM);
+
+	/* make sure this write is really executed */
+	__asm__ volatile ("dsb\n");
+}
+#endif

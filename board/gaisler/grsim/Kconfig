@@ -1,0 +1,15 @@
+if TARGET_GRSIM
+
+config SYS_CPU
+	default "leon3"
+
+config SYS_BOARD
+	default "grsim"
+
+config SYS_VENDOR
+	default "gaisler"
+
+config SYS_CONFIG_NAME
+	default "grsim"
+
+endif

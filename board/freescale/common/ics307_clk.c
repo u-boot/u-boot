@@ -67,7 +67,7 @@ unsigned long ics307_sysclk_calculator(unsigned long out_freq)
 				continue;
 			/* Calculate the temp out frequency */
 			tmp_out = input_freq * 2 * vdw / (rdw * od * 1000);
-			diff = MAX(out_freq, tmp_out) - MIN(out_freq, tmp_out);
+			diff = max(out_freq, tmp_out) - min(out_freq, tmp_out);
 			/*
 			 * calculate the percent, the precision is 1/1000
 			 * If greater than 1/1000, continue

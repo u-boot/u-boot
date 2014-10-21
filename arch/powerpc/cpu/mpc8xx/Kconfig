@@ -1,0 +1,139 @@
+menu "mpc8xx CPU"
+	depends on 8xx
+
+config SYS_CPU
+	default "mpc8xx"
+
+choice
+	prompt "Target select"
+
+config TARGET_COGENT_MPC8XX
+	bool "Support cogent_mpc8xx"
+
+config TARGET_ESTEEM192E
+	bool "Support ESTEEM192E"
+
+config TARGET_HERMES
+	bool "Support hermes"
+
+config TARGET_ICU862
+	bool "Support ICU862"
+
+config TARGET_IP860
+	bool "Support IP860"
+
+config TARGET_IVML24
+	bool "Support IVML24"
+
+config TARGET_IVMS8
+	bool "Support IVMS8"
+
+config TARGET_LWMON
+	bool "Support lwmon"
+
+config TARGET_NETVIA
+	bool "Support NETVIA"
+
+config TARGET_R360MPI
+	bool "Support R360MPI"
+
+config TARGET_RRVISION
+	bool "Support RRvision"
+
+config TARGET_SPD823TS
+	bool "Support SPD823TS"
+
+config TARGET_MHPC
+	bool "Support MHPC"
+
+config TARGET_TOP860
+	bool "Support TOP860"
+
+config TARGET_KUP4K
+	bool "Support KUP4K"
+
+config TARGET_KUP4X
+	bool "Support KUP4X"
+
+config TARGET_ELPT860
+	bool "Support ELPT860"
+
+config TARGET_UC100
+	bool "Support uc100"
+
+config TARGET_FPS850L
+	bool "Support FPS850L"
+
+config TARGET_FPS860L
+	bool "Support FPS860L"
+
+config TARGET_NSCU
+	bool "Support NSCU"
+
+config TARGET_SM850
+	bool "Support SM850"
+
+config TARGET_TK885D
+	bool "Support TK885D"
+
+config TARGET_TQM823L
+	bool "Support TQM823L"
+
+config TARGET_TQM823M
+	bool "Support TQM823M"
+
+config TARGET_TQM850L
+	bool "Support TQM850L"
+
+config TARGET_TQM850M
+	bool "Support TQM850M"
+
+config TARGET_TQM855L
+	bool "Support TQM855L"
+
+config TARGET_TQM855M
+	bool "Support TQM855M"
+
+config TARGET_TQM860L
+	bool "Support TQM860L"
+
+config TARGET_TQM860M
+	bool "Support TQM860M"
+
+config TARGET_TQM862L
+	bool "Support TQM862L"
+
+config TARGET_TQM862M
+	bool "Support TQM862M"
+
+config TARGET_TQM866M
+	bool "Support TQM866M"
+
+config TARGET_TQM885D
+	bool "Support TQM885D"
+
+config TARGET_VIRTLAB2
+	bool "Support virtlab2"
+
+endchoice
+
+source "board/LEOX/elpt860/Kconfig"
+source "board/RRvision/Kconfig"
+source "board/cogent/Kconfig"
+source "board/eltec/mhpc/Kconfig"
+source "board/emk/top860/Kconfig"
+source "board/esteem192e/Kconfig"
+source "board/hermes/Kconfig"
+source "board/icu862/Kconfig"
+source "board/ip860/Kconfig"
+source "board/ivm/Kconfig"
+source "board/kup/kup4k/Kconfig"
+source "board/kup/kup4x/Kconfig"
+source "board/lwmon/Kconfig"
+source "board/manroland/uc100/Kconfig"
+source "board/netvia/Kconfig"
+source "board/r360mpi/Kconfig"
+source "board/spd8xx/Kconfig"
+source "board/tqc/tqm8xx/Kconfig"
+
+endmenu

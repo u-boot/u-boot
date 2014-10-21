@@ -1,0 +1,6 @@
+HMI1001 BOARD
+#M:	-
+S:	Maintained
+F:	board/manroland/hmi1001/
+F:	include/configs/hmi1001.h
+F:	configs/hmi1001_defconfig

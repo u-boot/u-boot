@@ -1,0 +1,29 @@
+menu "mpc86xx CPU"
+	depends on MPC86xx
+
+config SYS_CPU
+	default "mpc86xx"
+
+choice
+	prompt "Target select"
+
+config TARGET_SBC8641D
+	bool "Support sbc8641d"
+
+config TARGET_MPC8610HPCD
+	bool "Support MPC8610HPCD"
+
+config TARGET_MPC8641HPCN
+	bool "Support MPC8641HPCN"
+
+config TARGET_XPEDITE517X
+	bool "Support xpedite517x"
+
+endchoice
+
+source "board/freescale/mpc8610hpcd/Kconfig"
+source "board/freescale/mpc8641hpcn/Kconfig"
+source "board/sbc8641d/Kconfig"
+source "board/xes/xpedite517x/Kconfig"
+
+endmenu

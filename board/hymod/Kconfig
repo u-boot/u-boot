@@ -1,0 +1,9 @@
+if TARGET_HYMOD
+
+config SYS_BOARD
+	default "hymod"
+
+config SYS_CONFIG_NAME
+	default "hymod"
+
+endif

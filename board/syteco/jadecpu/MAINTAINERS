@@ -1,0 +1,6 @@
+JADECPU BOARD
+M:	Matthias Weisser <weisserm@arcor.de>
+S:	Maintained
+F:	board/syteco/jadecpu/
+F:	include/configs/jadecpu.h
+F:	configs/jadecpu_defconfig

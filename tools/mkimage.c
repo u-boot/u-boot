@@ -458,6 +458,7 @@ NXTARG:		;
 #if defined(_POSIX_SYNCHRONIZED_IO) && \
    !defined(__sun__) && \
    !defined(__FreeBSD__) && \
+   !defined(__OpenBSD__) && \
    !defined(__APPLE__)
 	(void) fdatasync (ifd);
 #else
@@ -501,6 +502,7 @@ NXTARG:		;
 #if defined(_POSIX_SYNCHRONIZED_IO) && \
    !defined(__sun__) && \
    !defined(__FreeBSD__) && \
+   !defined(__OpenBSD__) && \
    !defined(__APPLE__)
 	(void) fdatasync (ifd);
 #else
