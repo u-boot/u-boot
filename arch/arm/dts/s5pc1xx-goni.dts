@@ -9,6 +9,7 @@
 /dts-v1/;
 
 #include "skeleton.dtsi"
+#include "s5pc110-pinctrl.dtsi"
 
 / {
 	model = "Samsung Goni based on S5PC110";
@@ -17,6 +18,12 @@
 	aliases {
 		serial2 = "/serial@e2900800";
 		console = "/serial@e2900800";
+		pinctrl0 = &pinctrl0;
+	};
+
+	pinctrl0: pinctrl@e0200000 {
+		compatible = "samsung,s5pc110-pinctrl";
+		reg = <0xe0200000 0x1000>;
 	};
 
 	serial@e2900800 {
