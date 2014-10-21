@@ -9,6 +9,7 @@
 /dts-v1/;
 
 #include "skeleton.dtsi"
+#include "s5pc100-pinctrl.dtsi"
 
 / {
 	model = "Samsung SMDKC100 based on S5PC100";
@@ -17,6 +18,12 @@
 	aliases {
 		serial0 = "/serial@ec000000";
 		console = "/serial@ec000000";
+		pinctrl0 = &pinctrl0;
+	};
+
+	pinctrl0: pinctrl@e0300000 {
+		compatible = "samsung,s5pc100-pinctrl";
+		reg = <0xe0200000 0x1000>;
 	};
 
 	serial@ec000000 {
