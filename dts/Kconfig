@@ -49,7 +49,7 @@ config DEFAULT_DEVICE_TREE
 	string "Default Device Tree for DT control"
 	help
 	  This option specifies the default Device Tree used for DT control.
-	  It can be overrided from the command line:
+	  It can be overridden from the command line:
 	  $ make DEVICE_TREE=<device-tree-name>
 
 endmenu
