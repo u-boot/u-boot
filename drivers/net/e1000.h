@@ -2497,6 +2497,7 @@ struct e1000_hw {
 #define ICH_GFPREG_BASE_MASK       0x1FFF
 #define ICH_FLASH_LINEAR_ADDR_MASK 0x00FFFFFF
 
+#define E1000_I210_SW_FW_SYNC 0x5B50 /* Software-Firmware Synchronization - RW */
 #define E1000_SW_FW_SYNC 0x05B5C /* Software-Firmware Synchronization - RW */
 
 /* SPI EEPROM Status Register */
