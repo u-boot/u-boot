@@ -148,6 +148,12 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_MSMC_SEGMENT_QM_PDSP	10
 #define KS2_MSMC_SEGMENT_PCIE0		11
 
+/* MSMC segment size shift bits */
+#define KS2_MSMC_SEG_SIZE_SHIFT		12
+#define KS2_MSMC_MAP_SEG_NUM		(2 << (30 - KS2_MSMC_SEG_SIZE_SHIFT))
+#define KS2_MSMC_DST_SEG_BASE		(CONFIG_SYS_LPAE_SDRAM_BASE >> \
+					KS2_MSMC_SEG_SIZE_SHIFT)
+
 /* Device speed */
 #define KS2_REV1_DEVSPEED		(KS2_DEVICE_STATE_CTRL_BASE + 0xc98)
 #define KS2_EFUSE_BOOTROM		(KS2_DEVICE_STATE_CTRL_BASE + 0xc90)
