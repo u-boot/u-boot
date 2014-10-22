@@ -144,6 +144,9 @@ config KIRKWOOD
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
 
+config TARGET_MAXBCM
+	bool "Support maxbcm"
+
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
 
@@ -652,6 +655,7 @@ source "board/jornada/Kconfig"
 source "board/karo/tx25/Kconfig"
 source "board/logicpd/imx27lite/Kconfig"
 source "board/logicpd/imx31_litekit/Kconfig"
+source "board/maxbcm/Kconfig"
 source "board/mpl/vcma9/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
 source "board/palmld/Kconfig"

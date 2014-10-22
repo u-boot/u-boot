@@ -1,0 +1,19 @@
+if TARGET_MAXBCM
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "maxbcm"
+
+config SYS_SOC
+	string
+	default "armada-xp"
+
+config SYS_CONFIG_NAME
+	string
+	default "maxbcm"
+
+endif
