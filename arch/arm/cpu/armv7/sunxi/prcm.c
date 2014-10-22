@@ -21,13 +21,15 @@
 #include <asm/arch/prcm.h>
 #include <asm/arch/sys_proto.h>
 
-void prcm_init_apb0(void)
+/* APB0 clock gate and reset bit offsets are the same. */
+void prcm_apb0_enable(u32 flags)
 {
 	struct sunxi_prcm_reg *prcm =
 		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
 
-	setbits_le32(&prcm->apb0_gate, PRCM_APB0_GATE_P2WI |
-				       PRCM_APB0_GATE_PIO);
-	setbits_le32(&prcm->apb0_reset, PRCM_APB0_RESET_P2WI |
-					PRCM_APB0_RESET_PIO);
+	/* open the clock for module */
+	setbits_le32(&prcm->apb0_gate, flags);
+
+	/* deassert reset for module */
+	setbits_le32(&prcm->apb0_reset, flags);
 }

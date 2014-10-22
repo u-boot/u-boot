@@ -233,6 +233,6 @@ struct sunxi_prcm_reg {
 	u32 dram_tst;		/* 0x190 */
 };
 
-void prcm_init_apb0(void);
+void prcm_apb0_enable(u32 flags);
 #endif /* __ASSEMBLY__ */
 #endif /* _PRCM_H */
