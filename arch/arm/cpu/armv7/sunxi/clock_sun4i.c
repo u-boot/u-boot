@@ -180,6 +180,17 @@ void clock_set_pll1(unsigned int hz)
 }
 #endif
 
+unsigned int clock_get_pll5p(void)
+{
+	struct sunxi_ccm_reg *const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	uint32_t rval = readl(&ccm->pll5_cfg);
+	int n = ((rval & CCM_PLL5_CTRL_N_MASK) >> CCM_PLL5_CTRL_N_SHIFT);
+	int k = ((rval & CCM_PLL5_CTRL_K_MASK) >> CCM_PLL5_CTRL_K_SHIFT) + 1;
+	int p = ((rval & CCM_PLL5_CTRL_P_MASK) >> CCM_PLL5_CTRL_P_SHIFT);
+	return (24000000 * n * k) >> p;
+}
+
 unsigned int clock_get_pll6(void)
 {
 	struct sunxi_ccm_reg *const ccm =
