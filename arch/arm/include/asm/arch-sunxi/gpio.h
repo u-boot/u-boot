@@ -10,6 +10,7 @@
 #define _SUNXI_GPIO_H
 
 #include <linux/types.h>
+#include <asm/arch/cpu.h>
 
 /*
  * sunxi has 9 banks of gpio, they are:
@@ -27,7 +28,26 @@
 #define SUNXI_GPIO_G	6
 #define SUNXI_GPIO_H	7
 #define SUNXI_GPIO_I	8
+
+/*
+ * This defines the number of GPIO banks for the _main_ GPIO controller.
+ * You should fix up the padding in struct sunxi_gpio_reg below if you
+ * change this.
+ */
 #define SUNXI_GPIO_BANKS 9
+
+/*
+ * sun6i/sun8i and later SoCs have an additional GPIO controller (R_PIO)
+ * at a different register offset.
+ *
+ * sun6i has 2 banks:
+ * PL0 - PL8  | PM0 - PM7
+ *
+ * sun8i has 1 bank:
+ * PL0 - PL11
+ */
+#define SUNXI_GPIO_L	11
+#define SUNXI_GPIO_M	12
 
 struct sunxi_gpio {
 	u32 cfg[4];
@@ -50,8 +70,9 @@ struct sunxi_gpio_reg {
 	struct sunxi_gpio_int gpio_int;
 };
 
-#define BANK_TO_GPIO(bank) \
-	&((struct sunxi_gpio_reg *)SUNXI_PIO_BASE)->gpio_bank[bank]
+#define BANK_TO_GPIO(bank)	(((bank) < SUNXI_GPIO_L) ? \
+	&((struct sunxi_gpio_reg *)SUNXI_PIO_BASE)->gpio_bank[bank] : \
+	&((struct sunxi_gpio_reg *)SUNXI_R_PIO_BASE)->gpio_bank[(bank) - SUNXI_GPIO_L])
 
 #define GPIO_BANK(pin)		((pin) >> 5)
 #define GPIO_NUM(pin)		((pin) & 0x1f)
@@ -75,6 +96,8 @@ struct sunxi_gpio_reg {
 #define SUNXI_GPIO_G_NR		32
 #define SUNXI_GPIO_H_NR		32
 #define SUNXI_GPIO_I_NR		32
+#define SUNXI_GPIO_L_NR		32
+#define SUNXI_GPIO_M_NR		32
 
 #define SUNXI_GPIO_NEXT(__gpio) \
 	((__gpio##_START) + (__gpio##_NR) + 0)
@@ -89,6 +112,8 @@ enum sunxi_gpio_number {
 	SUNXI_GPIO_G_START = SUNXI_GPIO_NEXT(SUNXI_GPIO_F),
 	SUNXI_GPIO_H_START = SUNXI_GPIO_NEXT(SUNXI_GPIO_G),
 	SUNXI_GPIO_I_START = SUNXI_GPIO_NEXT(SUNXI_GPIO_H),
+	SUNXI_GPIO_L_START = 352,
+	SUNXI_GPIO_M_START = SUNXI_GPIO_NEXT(SUNXI_GPIO_L),
 };
 
 /* SUNXI GPIO number definitions */
@@ -101,6 +126,8 @@ enum sunxi_gpio_number {
 #define SUNXI_GPG(_nr)	(SUNXI_GPIO_G_START + (_nr))
 #define SUNXI_GPH(_nr)	(SUNXI_GPIO_H_START + (_nr))
 #define SUNXI_GPI(_nr)	(SUNXI_GPIO_I_START + (_nr))
+#define SUNXI_GPL(_nr)	(SUNXI_GPIO_L_START + (_nr))
+#define SUNXI_GPM(_nr)	(SUNXI_GPIO_M_START + (_nr))
 
 /* GPIO pin function config */
 #define SUNXI_GPIO_INPUT	0
