@@ -319,8 +319,4 @@
 #include <asm/arch/clock.h>
 #define CONFIG_SYS_HZ_CLOCK		clk_get_rate(KS2_CLK1_6)
 
-/* Maximum memory size for relocated U-boot at the end of the DDR3 memory
-   which is NOT applicable for DDR ECC test */
-#define CONFIG_MAX_UBOOT_MEM_SIZE	(4 << 20)	/* 4 MiB */
-
 #endif /* __CONFIG_KS2_EVM_H */
