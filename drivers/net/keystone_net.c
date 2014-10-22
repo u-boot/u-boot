@@ -554,7 +554,20 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 	return 0;
 }
 
+struct ks2_serdes ks2_serdes_sgmii_156p25mhz = {
+	.clk = SERDES_CLOCK_156P25M,
+	.rate = SERDES_RATE_5G,
+	.rate_mode = SERDES_QUARTER_RATE,
+	.intf = SERDES_PHY_SGMII,
+	.loopback = 0,
+};
+
 static void keystone2_net_serdes_setup(void)
 {
-	ks2_serdes_sgmii_156p25mhz_setup();
+	ks2_serdes_init(CONFIG_KSNET_SERDES_SGMII_BASE,
+			&ks2_serdes_sgmii_156p25mhz,
+			CONFIG_KSNET_SERDES_LANES_PER_SGMII);
+
+	/* wait till setup */
+	udelay(5000);
 }

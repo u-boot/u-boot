@@ -7,14 +7,44 @@
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
+#include <errno.h>
 #include <common.h>
+#include <asm/ti-common/keystone_serdes.h>
 
+#define SERDES_CMU_REGS(x)		(0x0000 + (0x0c00 * (x)))
 #define SERDES_LANE_REGS(x)		(0x0200 + (0x200 * (x)))
+#define SERDES_COMLANE_REGS		0x0a00
+#define SERDES_WIZ_REGS			0x1fc0
+
+#define SERDES_CMU_REG_000(x)		(SERDES_CMU_REGS(x) + 0x000)
+#define SERDES_CMU_REG_010(x)		(SERDES_CMU_REGS(x) + 0x010)
+#define SERDES_COMLANE_REG_000		(SERDES_COMLANE_REGS + 0x000)
+#define SERDES_LANE_REG_000(x)		(SERDES_LANE_REGS(x) + 0x000)
+#define SERDES_LANE_REG_028(x)		(SERDES_LANE_REGS(x) + 0x028)
+#define SERDES_LANE_CTL_STATUS_REG(x)	(SERDES_WIZ_REGS + 0x0020 + (4 * (x)))
+#define SERDES_PLL_CTL_REG		(SERDES_WIZ_REGS + 0x0034)
+
+#define SERDES_RESET			BIT(28)
+#define SERDES_LANE_RESET		BIT(29)
+#define SERDES_LANE_LOOPBACK		BIT(30)
+#define SERDES_LANE_EN_VAL(x, y, z)	(x[y] | (z << 26) | (z << 10))
 
 struct serdes_cfg {
 	u32 ofs;
 	u32 val;
 	u32 mask;
+};
+
+/* SERDES PHY lane enable configuration value, indexed by PHY interface */
+static u32 serdes_cfg_lane_enable[] = {
+	0xf000f0c0,     /* SGMII */
+	0xf0e9f038,     /* PCSR */
+};
+
+/* SERDES PHY PLL enable configuration value, indexed by PHY interface  */
+static u32 serdes_cfg_pll_enable[] = {
+	0xe0000000,     /* SGMII */
+	0xee000000,     /* PCSR */
 };
 
 static struct serdes_cfg cfg_cmu_156p25m_5g[] = {
@@ -91,39 +121,72 @@ static int ks2_serdes_init_156p25m_5g(u32 base, u32 num_lanes)
 	return 0;
 }
 
-void ks2_serdes_sgmii_156p25mhz_setup(void)
+static void ks2_serdes_cmu_comlane_enable(u32 base, struct ks2_serdes *serdes)
 {
-	unsigned int cnt;
+	/* Bring SerDes out of Reset */
+	ks2_serdes_rmw(base + SERDES_CMU_REG_010(0), 0x0, SERDES_RESET);
+	if (serdes->intf == SERDES_PHY_PCSR)
+		ks2_serdes_rmw(base + SERDES_CMU_REG_010(1), 0x0, SERDES_RESET);
 
-	ks2_serdes_init_156p25m_5g(CONFIG_KS2_SERDES_SGMII_BASE,
-				   CONFIG_KS2_SERDES_LANES_PER_SGMII);
+	/* Enable CMU and COMLANE */
+	ks2_serdes_rmw(base + SERDES_CMU_REG_000(0), 0x03, 0x000000ff);
+	if (serdes->intf == SERDES_PHY_PCSR)
+		ks2_serdes_rmw(base + SERDES_CMU_REG_000(1), 0x03, 0x000000ff);
 
-	/*Bring SerDes out of Reset if SerDes is Shutdown & is in Reset Mode*/
-	clrbits_le32(0x0232a010, 1 << 28);
+	ks2_serdes_rmw(base + SERDES_COMLANE_REG_000, 0x5f, 0x000000ff);
+}
 
-	/* Enable TX and RX via the LANExCTL_STS 0x0000 + x*4 */
-	clrbits_le32(0x0232a228, 1 << 29);
-	writel(0xF800F8C0, 0x0232bfe0);
-	clrbits_le32(0x0232a428, 1 << 29);
-	writel(0xF800F8C0, 0x0232bfe4);
-	clrbits_le32(0x0232a628, 1 << 29);
-	writel(0xF800F8C0, 0x0232bfe8);
-	clrbits_le32(0x0232a828, 1 << 29);
-	writel(0xF800F8C0, 0x0232bfec);
+static void ks2_serdes_pll_enable(u32 base, struct ks2_serdes *serdes)
+{
+	writel(serdes_cfg_pll_enable[serdes->intf],
+	       base + SERDES_PLL_CTL_REG);
+}
 
-	/*Enable pll via the pll_ctrl 0x0014*/
-	writel(0xe0000000, 0x0232bff4)
-		;
+static void ks2_serdes_lane_reset(u32 base, u32 reset, u32 lane)
+{
+	if (reset)
+		ks2_serdes_rmw(base + SERDES_LANE_REG_028(lane),
+			       0x1, SERDES_LANE_RESET);
+	else
+		ks2_serdes_rmw(base + SERDES_LANE_REG_028(lane),
+			       0x0, SERDES_LANE_RESET);
+}
 
-	/*Waiting for SGMII Serdes PLL lock.*/
-	for (cnt = 10000; cnt > 0 && ((readl(0x02090114) & 0x10) == 0); cnt--)
-		;
-	for (cnt = 10000; cnt > 0 && ((readl(0x02090214) & 0x10) == 0); cnt--)
-		;
-	for (cnt = 10000; cnt > 0 && ((readl(0x02090414) & 0x10) == 0); cnt--)
-		;
-	for (cnt = 10000; cnt > 0 && ((readl(0x02090514) & 0x10) == 0); cnt--)
-		;
+static void ks2_serdes_lane_enable(u32 base,
+				   struct ks2_serdes *serdes, u32 lane)
+{
+	/* Bring lane out of reset */
+	ks2_serdes_lane_reset(base, 0, lane);
 
-	udelay(45000);
+	writel(SERDES_LANE_EN_VAL(serdes_cfg_lane_enable, serdes->intf,
+				  serdes->rate_mode),
+	       base + SERDES_LANE_CTL_STATUS_REG(lane));
+
+	/* Set NES bit if Loopback Enabled */
+	if (serdes->loopback)
+		ks2_serdes_rmw(base + SERDES_LANE_REG_000(lane),
+			       0x1, SERDES_LANE_LOOPBACK);
+}
+
+int ks2_serdes_init(u32 base, struct ks2_serdes *serdes, u32 num_lanes)
+{
+	int i;
+	int ret = 0;
+
+	/* The driver currently supports 5GBaud rate with ref clock 156.25MHz */
+	if (serdes->clk == SERDES_CLOCK_156P25M)
+		if (serdes->rate == SERDES_RATE_5G)
+			ret = ks2_serdes_init_156p25m_5g(base, num_lanes);
+		else
+			return -EINVAL;
+	else
+		return -EINVAL;
+
+	ks2_serdes_cmu_comlane_enable(base, serdes);
+	for (i = 0; i < num_lanes; i++)
+		ks2_serdes_lane_enable(base, serdes, i);
+
+	ks2_serdes_pll_enable(base, serdes);
+
+	return ret;
 }
