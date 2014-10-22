@@ -13,12 +13,60 @@
 #include <asm/arch/msmc.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/psc_defs.h>
 
 void chip_configuration_unlock(void)
 {
 	__raw_writel(KS2_KICK0_MAGIC, KS2_KICK0);
 	__raw_writel(KS2_KICK1_MAGIC, KS2_KICK1);
 }
+
+#ifdef CONFIG_SOC_K2L
+void osr_init(void)
+{
+	u32 i;
+	u32 j;
+	u32 val;
+	u32 base = KS2_OSR_CFG_BASE;
+	u32 ecc_ctrl[KS2_OSR_NUM_RAM_BANKS];
+
+	/* Enable the OSR clock domain */
+	psc_enable_module(KS2_LPSC_OSR);
+
+	/* Disable OSR ECC check for all the ram banks */
+	for (i = 0; i < KS2_OSR_NUM_RAM_BANKS; i++) {
+		val = i | KS2_OSR_ECC_VEC_TRIG_RD |
+			(KS2_OSR_ECC_CTRL << KS2_OSR_ECC_VEC_RD_ADDR_SH);
+
+		writel(val , base + KS2_OSR_ECC_VEC);
+
+		/**
+		 * wait till read is done.
+		 * Print should be added after earlyprintk support is added.
+		 */
+		for (j = 0; j < 10000; j++) {
+			val = readl(base + KS2_OSR_ECC_VEC);
+			if (val & KS2_OSR_ECC_VEC_RD_DONE)
+				break;
+		}
+
+		ecc_ctrl[i] = readl(base + KS2_OSR_ECC_CTRL) ^
+						KS2_OSR_ECC_CTRL_CHK;
+
+		writel(ecc_ctrl[i], KS2_MSMC_DATA_BASE + i * 4);
+		writel(ecc_ctrl[i], base + KS2_OSR_ECC_CTRL);
+	}
+
+	/* Reset OSR memory to all zeros */
+	for (i = 0; i < KS2_OSR_SIZE; i += 4)
+		writel(0, KS2_OSR_DATA_BASE + i);
+
+	/* Enable OSR ECC check for all the ram banks */
+	for (i = 0; i < KS2_OSR_NUM_RAM_BANKS; i++)
+		writel(ecc_ctrl[i] |
+		       KS2_OSR_ECC_CTRL_CHK, base + KS2_OSR_ECC_CTRL);
+}
+#endif
 
 int arch_cpu_init(void)
 {
@@ -31,6 +79,9 @@ int arch_cpu_init(void)
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_PCIE0);
 #if defined(CONFIG_SOC_K2E) || defined(CONFIG_SOC_K2L)
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_PCIE1);
+#endif
+#ifdef CONFIG_SOC_K2L
+	osr_init();
 #endif
 
 	/*

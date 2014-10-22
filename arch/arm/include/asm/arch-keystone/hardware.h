@@ -142,6 +142,7 @@ typedef volatile unsigned int   *dv_reg_p;
 
 /* MSMC control */
 #define KS2_MSMC_CTRL_BASE		0x0bc00000
+#define KS2_MSMC_DATA_BASE		0x0c000000
 #define KS2_MSMC_SEGMENT_TETRIS		8
 #define KS2_MSMC_SEGMENT_NETCP		9
 #define KS2_MSMC_SEGMENT_QM_PDSP	10
