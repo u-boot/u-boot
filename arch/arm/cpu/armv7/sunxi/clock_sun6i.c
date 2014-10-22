@@ -13,6 +13,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/prcm.h>
 #include <asm/arch/sys_proto.h>
 
 void clock_init_uart(void)
@@ -20,6 +21,7 @@ void clock_init_uart(void)
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
+#if CONFIG_CONS_INDEX < 5
 	/* uart clock source is apb2 */
 	writel(APB2_CLK_SRC_OSC24M|
 	       APB2_CLK_RATE_N_1|
@@ -35,6 +37,10 @@ void clock_init_uart(void)
 	setbits_le32(&ccm->apb2_reset_cfg,
 		     1 << (APB2_RESET_UART_SHIFT +
 			   CONFIG_CONS_INDEX - 1));
+#else
+	/* enable R_PIO and R_UART clocks, and de-assert resets */
+	prcm_apb0_enable(PRCM_APB0_GATE_PIO | PRCM_APB0_GATE_UART);
+#endif
 
 	/* Dup with clock_init_safe(), drop once sun6i SPL support lands */
 	writel(PLL6_CFG_DEFAULT, &ccm->pll6_cfg);

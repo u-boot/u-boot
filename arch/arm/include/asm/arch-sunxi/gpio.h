@@ -172,6 +172,9 @@ enum sunxi_gpio_number {
 
 #define SUN4I_GPI4_SDC3		2
 
+#define SUN8I_GPL2_R_UART_TX	2
+#define SUN8I_GPL3_R_UART_RX	2
+
 /* GPIO pin pull-up/down config */
 #define SUNXI_GPIO_PULL_DISABLE	0
 #define SUNXI_GPIO_PULL_UP	1
