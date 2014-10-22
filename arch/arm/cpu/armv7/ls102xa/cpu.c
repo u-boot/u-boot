@@ -12,6 +12,8 @@
 #include <netdev.h>
 #include <fsl_esdhc.h>
 
+#include "fsl_epu.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
@@ -98,6 +100,20 @@ int cpu_eth_init(bd_t *bis)
 #ifdef CONFIG_TSEC_ENET
 	tsec_standard_init(bis);
 #endif
+
+	return 0;
+}
+
+int arch_cpu_init(void)
+{
+	void *epu_base = (void *)(CONFIG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
+
+	/*
+	 * After wakeup from deep sleep, Clear EPU registers
+	 * as early as possible to prevent from possible issue.
+	 * It's also safe to clear at normal boot.
+	 */
+	fsl_epu_clean(epu_base);
 
 	return 0;
 }
