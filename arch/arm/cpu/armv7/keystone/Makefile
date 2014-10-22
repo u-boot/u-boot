@@ -14,6 +14,5 @@ obj-$(CONFIG_SOC_K2L) += clock-k2l.o
 obj-y	+= cmd_clock.o
 obj-y	+= cmd_mon.o
 obj-y	+= msmc.o
-obj-$(CONFIG_SPL_BUILD)	+= spl.o
 obj-y	+= ddr3.o
 obj-y	+= keystone.o

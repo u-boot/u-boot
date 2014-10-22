@@ -15,5 +15,6 @@
 extern struct eth_priv_t eth_priv_cfg[];
 
 int get_num_eth_ports(void);
+void spl_init_keystone_plls(void);
 
 #endif

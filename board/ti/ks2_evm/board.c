@@ -9,6 +9,7 @@
 
 #include "board.h"
 #include <common.h>
+#include <spl.h>
 #include <exports.h>
 #include <fdt_support.h>
 #include <asm/arch/ddr3.h>
@@ -80,6 +81,24 @@ int board_eth_init(bd_t *bis)
 	}
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+void spl_board_init(void)
+{
+	spl_init_keystone_plls();
+	preloader_console_init();
+}
+
+u32 spl_boot_device(void)
+{
+#if defined(CONFIG_SPL_SPI_LOAD)
+	return BOOT_DEVICE_SPI;
+#else
+	puts("Unknown boot device\n");
+	hang();
+#endif
 }
 #endif
 

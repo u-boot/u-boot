@@ -52,3 +52,14 @@ int board_early_init_f(void)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_SPL_BUILD
+static struct pll_init_data spl_pll_config[] = {
+	CORE_PLL_800,
+};
+
+void spl_init_keystone_plls(void)
+{
+	init_plls(ARRAY_SIZE(spl_pll_config), spl_pll_config);
+}
+#endif
