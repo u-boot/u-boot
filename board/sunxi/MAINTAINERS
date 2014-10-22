@@ -50,3 +50,8 @@ COLOMBUS BOARD
 M:	Maxime Ripard <maxime.ripard@free-electrons.com>
 S:	Maintained
 F:	configs/Colombus_defconfig
+
+IPPO-Q8H-V5 BOARD
+M:	CHen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Ippo_q8h_v5_defconfig
