@@ -110,7 +110,8 @@ void reset_cpu(ulong addr)
 /* do some early init */
 void s_init(void)
 {
-#if !defined CONFIG_SPL_BUILD && (defined CONFIG_SUN7I || defined CONFIG_SUN6I)
+#if !defined CONFIG_SPL_BUILD && (defined CONFIG_SUN7I || \
+		defined CONFIG_SUN6I || defined CONFIG_SUN8I)
 	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
 	asm volatile(
 		"mrc p15, 0, r0, c1, c0, 1\n"
