@@ -20,6 +20,13 @@ config SYS_SOC
 config FDTFILE
 	string "Default fdtfile env setting for this board"
 
+config OLD_SUNXI_KERNEL_COMPAT
+	boolean "Enable workarounds for booting old kernels"
+	default n
+	---help---
+	Set this to enable various workarounds for old kernels, this results in
+	sub-optimal settings for newer kernels, only enable if needed.
+
 config MMC0_CD_PIN
 	string "Card detect pin for mmc0"
 	default ""

@@ -262,6 +262,10 @@ static void mctl_setup_dram_clock(u32 clk, u32 mbus_clk)
 	reg_val &= ~CCM_PLL5_CTRL_K_MASK;		/* set K to 0 (x1) */
 	reg_val &= ~CCM_PLL5_CTRL_N_MASK;		/* set N to 0 (x0) */
 	reg_val &= ~CCM_PLL5_CTRL_P_MASK;		/* set P to 0 (x1) */
+#ifdef CONFIG_OLD_SUNXI_KERNEL_COMPAT
+	/* Old kernels are hardcoded to P=1 (divide by 2) */
+	reg_val |= CCM_PLL5_CTRL_P(1);
+#endif
 	if (clk >= 540 && clk < 552) {
 		/* dram = 540MHz */
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(2));
