@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/sata.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/arch/crm_regs.h>
@@ -229,6 +230,10 @@ int board_init(void)
 
 	/* enable ecspi3 clocks */
 	enable_cspi_clock(1, 2);
+
+#ifdef CONFIG_CMD_SATA
+	setup_sata();
+#endif
 
 	return 0;
 }
