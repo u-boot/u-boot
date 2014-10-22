@@ -98,6 +98,11 @@ static void setup_iomux_spi(void)
 	imx_iomux_v3_setup_multiple_pads(ecspi1_pads, ARRAY_SIZE(ecspi1_pads));
 }
 
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return (bus == 2 && cs == 0) ? (IMX_GPIO_NR(1, 3)) : -1;
+}
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
