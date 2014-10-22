@@ -758,6 +758,11 @@ endif
 endif
 endif
 
+# Add optional build target if defined in board/cpu/soc headers
+ifneq ($(CONFIG_BUILD_TARGET),)
+ALL-y += $(CONFIG_BUILD_TARGET:"%"=%)
+endif
+
 LDFLAGS_u-boot += $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
 LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)

@@ -2722,6 +2722,14 @@ CBFS (Coreboot Filesystem) support
 		200 ms.
 
 - Configuration Management:
+		CONFIG_BUILD_TARGET
+
+		Some SoCs need special image types (e.g. U-Boot binary
+		with a special header) as build targets. By defining
+		CONFIG_BUILD_TARGET in the SoC / board header, this
+		special image will be automatically built upon calling
+		make / MAKEALL.
+
 		CONFIG_IDENT_STRING
 
 		If defined, this string will be added to the U-Boot
