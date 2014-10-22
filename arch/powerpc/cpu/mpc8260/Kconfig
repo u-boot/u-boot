@@ -55,9 +55,6 @@ config TARGET_VOVPN_GW
 config TARGET_KM82XX
 	bool "Support km82xx"
 
-config TARGET_TQM8260
-	bool "Support TQM8260"
-
 config TARGET_TQM8272
 	bool "Support TQM8272"
 
@@ -79,7 +76,6 @@ source "board/pm826/Kconfig"
 source "board/pm828/Kconfig"
 source "board/ppmc8260/Kconfig"
 source "board/sacsng/Kconfig"
-source "board/tqc/tqm8260/Kconfig"
 source "board/tqc/tqm8272/Kconfig"
 
 endmenu
