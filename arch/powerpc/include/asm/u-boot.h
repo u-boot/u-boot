@@ -77,9 +77,6 @@ typedef struct bd_info {
 	unsigned int	bi_pci_busfreq;	/* PCI Bus speed, in Hz */
 	unsigned char	bi_pci_enetaddr[6];	/* PCI Ethernet MAC address */
 #endif
-#if defined(CONFIG_HYMOD)
-	hymod_conf_t	bi_hymod_conf;	/* hymod configuration information */
-#endif
 
 #ifdef CONFIG_HAS_ETH1
 	unsigned char   bi_enet1addr[6];	/* OLD: see README.enetaddr */

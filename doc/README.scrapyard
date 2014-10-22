@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+hymod            powerpc     mpc8260        -           -           Murray Jensen <Murray.Jensen@csiro.au>
 MHPC             powerpc     mpc8xx         -           -           Frank Gottschling <fgottschling@eltec.de>
 ICU862           powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
 CPCI750		 powerpc     74xx_7xx	    -		-	    Reinhard Arlt <reinhard.arlt@esd-electronics.com>
