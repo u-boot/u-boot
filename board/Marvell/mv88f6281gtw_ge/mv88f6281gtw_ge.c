@@ -94,7 +94,7 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_MV88F6281GTW_GE;
 
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	return 0;
 }

@@ -104,7 +104,7 @@ int board_init(void)
 #endif
 
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 	return 0;
 }
 

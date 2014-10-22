@@ -168,7 +168,7 @@ static void set_led(int state)
 int board_init(void)
 {
 	/* address of boot parameters */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	set_led(LED_POWER_BLINKING);
 

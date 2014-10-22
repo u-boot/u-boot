@@ -90,7 +90,7 @@ int board_early_init_f(void)
 int board_init(void)
 {
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	return 0;
 }

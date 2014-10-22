@@ -77,7 +77,7 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_NET2BIG_V2;
 
 	/* Boot parameters address */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	return 0;
 }

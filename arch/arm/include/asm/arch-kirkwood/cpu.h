@@ -140,9 +140,9 @@ struct kwgpio_registers {
  * functions
  */
 unsigned char get_random_hex(void);
-unsigned int kw_sdram_bar(enum memory_bank bank);
-unsigned int kw_sdram_bs(enum memory_bank bank);
-void kw_sdram_size_adjust(enum memory_bank bank);
+unsigned int mvebu_sdram_bar(enum memory_bank bank);
+unsigned int mvebu_sdram_bs(enum memory_bank bank);
+void mvebu_sdram_size_adjust(enum memory_bank bank);
 int kw_config_adr_windows(void);
 void mvebu_config_gpio(unsigned int gpp0_oe_val, unsigned int gpp1_oe_val,
 		unsigned int gpp0_oe, unsigned int gpp1_oe);
