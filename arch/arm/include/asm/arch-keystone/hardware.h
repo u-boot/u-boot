@@ -177,6 +177,9 @@ typedef volatile unsigned int   *dv_reg_p;
 
 #define KS2_MAC_ID_BASE_ADDR		(KS2_DEVICE_STATE_CTRL_BASE + 0x110)
 
+/* SGMII SerDes */
+#define KS2_SGMII_SERDES_BASE		0x0232a000
+
 #ifdef CONFIG_SOC_K2HK
 #include <asm/arch/hardware-k2hk.h>
 #endif

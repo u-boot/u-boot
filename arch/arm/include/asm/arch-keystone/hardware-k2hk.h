@@ -79,6 +79,9 @@
 #define KS2_DDR3B_EMIF_DATA_BASE	0x60000000
 #define KS2_DDR3B_DDRPHYC		0x02328000
 
+/* SGMII SerDes */
+#define KS2_LANES_PER_SGMII_SERDES	4
+
 /* Number of DSP cores */
 #define KS2_NUM_DSPS			8
 
