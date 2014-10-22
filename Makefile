@@ -652,6 +652,10 @@ ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35 mxs vf610))
 libs-y += arch/$(ARCH)/imx-common/
 endif
 
+ifneq (,$(filter $(SOC), kirkwood))
+libs-y += arch/$(ARCH)/mvebu-common/
+endif
+
 libs-$(CONFIG_ARM) += arch/arm/cpu/
 libs-$(CONFIG_PPC) += arch/powerpc/cpu/
 

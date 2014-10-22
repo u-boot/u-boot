@@ -110,7 +110,13 @@ int dram_init(void)
 		if (gd->bd->bi_dram[i].start != gd->ram_size)
 			break;
 
-		gd->ram_size += gd->bd->bi_dram[i].size;
+		/*
+		 * Don't report more than 3GiB of SDRAM, otherwise there is no
+		 * address space left for the internal registers etc.
+		 */
+		if ((gd->ram_size + gd->bd->bi_dram[i].size != 0) &&
+		    (gd->ram_size + gd->bd->bi_dram[i].size <= (3 << 30)))
+			gd->ram_size += gd->bd->bi_dram[i].size;
 
 	}
 
