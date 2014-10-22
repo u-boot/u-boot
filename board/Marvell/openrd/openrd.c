@@ -27,9 +27,9 @@ int board_early_init_f(void)
 	 * There are maximum 64 gpios controlled through 2 sets of registers
 	 * the  below configuration configures mainly initial LED status
 	 */
-	kw_config_gpio(OPENRD_OE_VAL_LOW,
-			OPENRD_OE_VAL_HIGH,
-			OPENRD_OE_LOW, OPENRD_OE_HIGH);
+	mvebu_config_gpio(OPENRD_OE_VAL_LOW,
+			  OPENRD_OE_VAL_HIGH,
+			  OPENRD_OE_LOW, OPENRD_OE_HIGH);
 
 	/* Multi-Purpose Pins Functionality configuration */
 	static const u32 kwmpp_config[] = {

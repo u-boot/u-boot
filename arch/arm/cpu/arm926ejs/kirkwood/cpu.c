@@ -140,23 +140,6 @@ int kw_config_adr_windows(void)
 }
 
 /*
- * kw_config_gpio - GPIO configuration
- */
-void kw_config_gpio(u32 gpp0_oe_val, u32 gpp1_oe_val, u32 gpp0_oe, u32 gpp1_oe)
-{
-	struct kwgpio_registers *gpio0reg =
-		(struct kwgpio_registers *)KW_GPIO0_BASE;
-	struct kwgpio_registers *gpio1reg =
-		(struct kwgpio_registers *)KW_GPIO1_BASE;
-
-	/* Init GPIOS to default values as per board requirement */
-	writel(gpp0_oe_val, &gpio0reg->dout);
-	writel(gpp1_oe_val, &gpio1reg->dout);
-	writel(gpp0_oe, &gpio0reg->oe);
-	writel(gpp1_oe, &gpio1reg->oe);
-}
-
-/*
  * kw_config_mpp - Multi-Purpose Pins Functionality configuration
  *
  * Each MPP can be configured to different functionality through

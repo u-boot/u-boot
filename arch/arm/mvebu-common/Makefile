@@ -7,5 +7,6 @@
 #
 
 obj-y	= dram.o
+obj-y	+= gpio.o
 obj-$(CONFIG_ARMADA_XP) += mbus.o
 obj-y	+= timer.o

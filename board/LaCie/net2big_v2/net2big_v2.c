@@ -26,8 +26,8 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_early_init_f(void)
 {
 	/* GPIO configuration */
-	kw_config_gpio(NET2BIG_V2_OE_VAL_LOW, NET2BIG_V2_OE_VAL_HIGH,
-			NET2BIG_V2_OE_LOW, NET2BIG_V2_OE_HIGH);
+	mvebu_config_gpio(NET2BIG_V2_OE_VAL_LOW, NET2BIG_V2_OE_VAL_HIGH,
+			  NET2BIG_V2_OE_LOW, NET2BIG_V2_OE_HIGH);
 
 	/* Multi-Purpose Pins Functionality configuration */
 	static const u32 kwmpp_config[] = {

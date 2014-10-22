@@ -52,9 +52,9 @@ int board_early_init_f(void)
 	 * There are maximum 64 gpios controlled through 2 sets of registers
 	 * the below configuration configures mainly initial LED status
 	 */
-	kw_config_gpio(LSXL_OE_VAL_LOW,
-			LSXL_OE_VAL_HIGH,
-			LSXL_OE_LOW, LSXL_OE_HIGH);
+	mvebu_config_gpio(LSXL_OE_VAL_LOW,
+			  LSXL_OE_VAL_HIGH,
+			  LSXL_OE_LOW, LSXL_OE_HIGH);
 
 	/*
 	 * Multi-Purpose Pins Functionality configuration

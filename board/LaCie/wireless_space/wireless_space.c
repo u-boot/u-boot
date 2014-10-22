@@ -97,8 +97,8 @@ struct mv88e61xx_config swcfg = {
 int board_early_init_f(void)
 {
 	/* Gpio configuration */
-	kw_config_gpio(WIRELESS_SPACE_OE_VAL_LOW, WIRELESS_SPACE_OE_VAL_HIGH,
-			WIRELESS_SPACE_OE_LOW, WIRELESS_SPACE_OE_HIGH);
+	mvebu_config_gpio(WIRELESS_SPACE_OE_VAL_LOW, WIRELESS_SPACE_OE_VAL_HIGH,
+			  WIRELESS_SPACE_OE_LOW, WIRELESS_SPACE_OE_HIGH);
 
 	/* Multi-Purpose Pins Functionality configuration */
 	kirkwood_mpp_conf(kwmpp_config, NULL);

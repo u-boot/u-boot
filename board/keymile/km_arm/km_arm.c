@@ -222,8 +222,8 @@ int board_early_init_f(void)
 	u32 tmp;
 
 	/* set the 2 bitbang i2c pins as output gpios */
-	tmp = readl(KW_GPIO0_BASE + 4);
-	writel(tmp & (~KM_KIRKWOOD_SOFT_I2C_GPIOS) , KW_GPIO0_BASE + 4);
+	tmp = readl(MVEBU_GPIO0_BASE + 4);
+	writel(tmp & (~KM_KIRKWOOD_SOFT_I2C_GPIOS) , MVEBU_GPIO0_BASE + 4);
 #endif
 	/* adjust SDRAM size for bank 0 */
 	kw_sdram_size_adjust(0);

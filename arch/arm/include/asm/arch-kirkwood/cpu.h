@@ -144,7 +144,7 @@ unsigned int kw_sdram_bar(enum memory_bank bank);
 unsigned int kw_sdram_bs(enum memory_bank bank);
 void kw_sdram_size_adjust(enum memory_bank bank);
 int kw_config_adr_windows(void);
-void kw_config_gpio(unsigned int gpp0_oe_val, unsigned int gpp1_oe_val,
+void mvebu_config_gpio(unsigned int gpp0_oe_val, unsigned int gpp1_oe_val,
 		unsigned int gpp0_oe, unsigned int gpp1_oe);
 int kw_config_mpp(unsigned int mpp0_7, unsigned int mpp8_15,
 		unsigned int mpp16_23, unsigned int mpp24_31,

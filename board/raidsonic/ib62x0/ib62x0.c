@@ -24,9 +24,9 @@ int board_early_init_f(void)
 	 * There are maximum 64 gpios controlled through 2 sets of registers
 	 * the below configuration configures mainly initial LED status
 	 */
-	kw_config_gpio(IB62x0_OE_VAL_LOW,
-			IB62x0_OE_VAL_HIGH,
-			IB62x0_OE_LOW, IB62x0_OE_HIGH);
+	mvebu_config_gpio(IB62x0_OE_VAL_LOW,
+			  IB62x0_OE_VAL_HIGH,
+			  IB62x0_OE_LOW, IB62x0_OE_HIGH);
 
 	/* Set SATA activity LEDs to default off */
 	writel(MVSATAHC_LED_POLARITY_CTRL, MVSATAHC_LED_CONF_REG);
