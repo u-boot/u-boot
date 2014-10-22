@@ -652,7 +652,7 @@ ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35 mxs vf610))
 libs-y += arch/$(ARCH)/imx-common/
 endif
 
-ifneq (,$(filter $(SOC), kirkwood))
+ifneq (,$(filter $(SOC), armada-xp kirkwood))
 libs-y += arch/$(ARCH)/mvebu-common/
 endif
 
