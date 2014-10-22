@@ -12,6 +12,14 @@
 #include <malloc.h>
 #include <spi.h>
 
+#ifndef CONFIG_ALTERA_SPI_IDLE_VAL
+#define CONFIG_ALTERA_SPI_IDLE_VAL 0xff
+#endif
+
+#ifndef CONFIG_SYS_ALTERA_SPI_LIST
+#define CONFIG_SYS_ALTERA_SPI_LIST { CONFIG_SYS_SPI_BASE }
+#endif
+
 struct altera_spi_regs {
 	u32	rxdata;
 	u32	txdata;
@@ -34,10 +42,6 @@ struct altera_spi_regs {
 #define ALTERA_SPI_CONTROL_IRRDY_MSK	(1 << 7)
 #define ALTERA_SPI_CONTROL_IE_MSK	(1 << 8)
 #define ALTERA_SPI_CONTROL_SSO_MSK	(1 << 10)
-
-#ifndef CONFIG_SYS_ALTERA_SPI_LIST
-#define CONFIG_SYS_ALTERA_SPI_LIST { CONFIG_SYS_SPI_BASE }
-#endif
 
 static ulong altera_spi_base_list[] = CONFIG_SYS_ALTERA_SPI_LIST;
 
@@ -116,10 +120,6 @@ void spi_release_bus(struct spi_slave *slave)
 	debug("%s: bus:%i cs:%i\n", __func__, slave->bus, slave->cs);
 	writel(0, &altspi->regs->slave_sel);
 }
-
-#ifndef CONFIG_ALTERA_SPI_IDLE_VAL
-# define CONFIG_ALTERA_SPI_IDLE_VAL 0xff
-#endif
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	     void *din, unsigned long flags)
