@@ -18,7 +18,8 @@
 #endif
 #include <asm/arch-mvebu/spi.h>
 
-static struct kwspi_registers *spireg = (struct kwspi_registers *)KW_SPI_BASE;
+static struct kwspi_registers *spireg =
+	(struct kwspi_registers *)MVEBU_SPI_BASE;
 
 #ifdef CONFIG_KIRKWOOD
 static u32 cs_spi_mpp_back[2];
