@@ -77,6 +77,7 @@
 #define CONFIG_INITRD_TAG
 
 /* mmc config */
+#if !defined(CONFIG_UART0_PORT_F)
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_CMD_MMC
@@ -84,6 +85,7 @@
 #define CONFIG_MMC_SUNXI_SLOT		0
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
+#endif
 
 /* 4MB of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (4 << 20))
