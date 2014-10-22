@@ -16,9 +16,6 @@ config TARGET_ESTEEM192E
 config TARGET_HERMES
 	bool "Support hermes"
 
-config TARGET_ICU862
-	bool "Support ICU862"
-
 config TARGET_IP860
 	bool "Support IP860"
 
@@ -124,7 +121,6 @@ source "board/eltec/mhpc/Kconfig"
 source "board/emk/top860/Kconfig"
 source "board/esteem192e/Kconfig"
 source "board/hermes/Kconfig"
-source "board/icu862/Kconfig"
 source "board/ip860/Kconfig"
 source "board/ivm/Kconfig"
 source "board/kup/kup4k/Kconfig"

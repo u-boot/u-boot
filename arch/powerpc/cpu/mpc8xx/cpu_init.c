@@ -126,7 +126,6 @@ void cpu_init_f (volatile immap_t * immr)
 	 */
 
 #if defined(CONFIG_HERMES)	|| \
-    defined(CONFIG_ICU862)	|| \
     defined(CONFIG_IP860)	|| \
     defined(CONFIG_IVML24)	|| \
     defined(CONFIG_IVMS8)	|| \

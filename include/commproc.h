@@ -563,16 +563,6 @@ typedef struct scc_enet {
 
 #endif	/* CONFIG_HERMES */
 
-/*** ICU862  **********************************************************/
-
-#if defined(CONFIG_ICU862)
-
-#ifdef CONFIG_FEC_ENET
-#define FEC_ENET	/* use FEC for EThernet */
-#endif  /* CONFIG_FEC_ETHERNET */
-
-#endif /* CONFIG_ICU862 */
-
 /***  IP860  **********************************************************/
 
 #if defined(CONFIG_IP860)
