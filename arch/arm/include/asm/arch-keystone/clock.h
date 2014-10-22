@@ -24,6 +24,14 @@
 
 #include <asm/types.h>
 
+#define GENERATE_ENUM(NUM, ENUM) ENUM = NUM,
+#define GENERATE_INDX_STR(NUM, STRING) #NUM"\t- "#STRING"\n"
+#define CLOCK_INDEXES_LIST	CLK_LIST(GENERATE_INDX_STR)
+
+enum clk_e {
+	CLK_LIST(GENERATE_ENUM)
+};
+
 struct keystone_pll_regs {
 	u32 reg0;
 	u32 reg1;

@@ -58,20 +58,11 @@ pll_cmd_usage:
 	return cmd_usage(cmdtp);
 }
 
-#ifdef CONFIG_SOC_K2HK
-U_BOOT_CMD(
-	pllset,	5,	0,	do_pll_cmd,
-	"set pll multiplier and pre divider",
-	"<pa|arm|ddr3a|ddr3b> <mult> <div> <OD>\n"
-);
-#endif
-#ifdef CONFIG_SOC_K2E
 U_BOOT_CMD(
 	pllset, 5,      0,      do_pll_cmd,
 	"set pll multiplier and pre divider",
-	"<pa|ddr3> <mult> <div> <OD>\n"
+	PLLSET_CMD_LIST " <mult> <div> <OD>\n"
 );
-#endif
 
 int do_getclk_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -95,12 +86,8 @@ U_BOOT_CMD(
 	getclk,	2,	0,	do_getclk_cmd,
 	"get clock rate",
 	"<clk index>\n"
-#ifdef CONFIG_SOC_K2HK
-	"See the 'enum clk_e' in the clock-k2hk.h for clk indexes\n"
-#endif
-#ifdef CONFIG_SOC_K2E
-	"See the 'enum clk_e' in the clock-k2e.h for clk indexes\n"
-#endif
+	"The indexes for clocks:\n"
+	CLOCK_INDEXES_LIST
 );
 
 int do_psc_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -141,5 +128,8 @@ U_BOOT_CMD(
 	psc,	3,	0,	do_psc_cmd,
 	"<enable/disable psc module os disable domain>",
 	"<mod/domain index> <en|di|domain>\n"
-	"See the hardware.h for Power and Sleep Controller (PSC) Domains\n"
+	"Intended to control Power and Sleep Controller (PSC) domains and\n"
+	"modules. The module or domain index exectly corresponds to ones\n"
+	"listed in official TRM. For instance, to enable MSMC RAM clock\n"
+	"domain use command: psc 14 en.\n"
 );

@@ -28,29 +28,30 @@ enum ext_clk_e {
 
 extern unsigned int external_clk[ext_clk_count];
 
-enum clk_e {
-	core_pll_clk,
-	pass_pll_clk,
-	tetris_pll_clk,
-	ddr3a_pll_clk,
-	ddr3b_pll_clk,
-	sys_clk0_clk,
-	sys_clk0_1_clk,
-	sys_clk0_2_clk,
-	sys_clk0_3_clk,
-	sys_clk0_4_clk,
-	sys_clk0_6_clk,
-	sys_clk0_8_clk,
-	sys_clk0_12_clk,
-	sys_clk0_24_clk,
-	sys_clk1_clk,
-	sys_clk1_3_clk,
-	sys_clk1_4_clk,
-	sys_clk1_6_clk,
-	sys_clk1_12_clk,
-	sys_clk2_clk,
-	sys_clk3_clk
-};
+#define CLK_LIST(CLK)\
+	CLK(0, core_pll_clk)\
+	CLK(1, pass_pll_clk)\
+	CLK(2, tetris_pll_clk)\
+	CLK(3, ddr3a_pll_clk)\
+	CLK(4, ddr3b_pll_clk)\
+	CLK(5, sys_clk0_clk)\
+	CLK(6, sys_clk0_1_clk)\
+	CLK(7, sys_clk0_2_clk)\
+	CLK(8, sys_clk0_3_clk)\
+	CLK(9, sys_clk0_4_clk)\
+	CLK(10, sys_clk0_6_clk)\
+	CLK(11, sys_clk0_8_clk)\
+	CLK(12, sys_clk0_12_clk)\
+	CLK(13, sys_clk0_24_clk)\
+	CLK(14, sys_clk1_clk)\
+	CLK(15, sys_clk1_3_clk)\
+	CLK(16, sys_clk1_4_clk)\
+	CLK(17, sys_clk1_6_clk)\
+	CLK(18, sys_clk1_12_clk)\
+	CLK(19, sys_clk2_clk)\
+	CLK(20, sys_clk3_clk)
+
+#define PLLSET_CMD_LIST		"<pa|arm|ddr3a|ddr3b>"
 
 #define KS2_CLK1_6 sys_clk0_6_clk
 
