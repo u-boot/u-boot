@@ -141,6 +141,9 @@ config ARCH_DAVINCI
 config KIRKWOOD
 	bool "Marvell Kirkwood"
 
+config TARGET_DB_MV784MP_GP
+	bool "Support db-mv784mp-gp"
+
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
 
@@ -567,6 +570,7 @@ source "board/BuS/eb_cpux9k2/Kconfig"
 source "board/BuS/vl_ma2sc/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
+source "board/Marvell/db-mv784mp-gp/Kconfig"
 source "board/Marvell/dkb/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
 source "board/afeb9260/Kconfig"

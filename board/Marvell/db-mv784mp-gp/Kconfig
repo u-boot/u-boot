@@ -1,0 +1,23 @@
+if TARGET_DB_MV784MP_GP
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "db-mv784mp-gp"
+
+config SYS_VENDOR
+	string
+	default "Marvell"
+
+config SYS_SOC
+	string
+	default "armada-xp"
+
+config SYS_CONFIG_NAME
+	string
+	default "db-mv784mp-gp"
+
+endif
