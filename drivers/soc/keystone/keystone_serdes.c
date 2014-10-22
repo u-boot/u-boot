@@ -29,10 +29,22 @@
 #define SERDES_LANE_LOOPBACK		BIT(30)
 #define SERDES_LANE_EN_VAL(x, y, z)	(x[y] | (z << 26) | (z << 10))
 
+#define SERDES_CMU_CFG_NUM		5
+#define SERDES_COMLANE_CFG_NUM		10
+#define SERDES_LANE_CFG_NUM		10
+
 struct serdes_cfg {
 	u32 ofs;
 	u32 val;
 	u32 mask;
+};
+
+struct cfg_entry {
+	enum ks2_serdes_clock clk;
+	enum ks2_serdes_rate rate;
+	struct serdes_cfg cmu[SERDES_CMU_CFG_NUM];
+	struct serdes_cfg comlane[SERDES_COMLANE_CFG_NUM];
+	struct serdes_cfg lane[SERDES_LANE_CFG_NUM];
 };
 
 /* SERDES PHY lane enable configuration value, indexed by PHY interface */
@@ -47,39 +59,46 @@ static u32 serdes_cfg_pll_enable[] = {
 	0xee000000,     /* PCSR */
 };
 
-static struct serdes_cfg cfg_cmu_156p25m_5g[] = {
-	{0x0000, 0x00800000, 0xffff0000},
-	{0x0014, 0x00008282, 0x0000ffff},
-	{0x0060, 0x00142438, 0x00ffffff},
-	{0x0064, 0x00c3c700, 0x00ffff00},
-	{0x0078, 0x0000c000, 0x0000ff00}
-};
-
-static struct serdes_cfg cfg_comlane_156p25m_5g[] = {
-	{0x0a00, 0x00000800, 0x0000ff00},
-	{0x0a08, 0x38a20000, 0xffff0000},
-	{0x0a30, 0x008a8a00, 0x00ffff00},
-	{0x0a84, 0x00000600, 0x0000ff00},
-	{0x0a94, 0x10000000, 0xff000000},
-	{0x0aa0, 0x81000000, 0xff000000},
-	{0x0abc, 0xff000000, 0xff000000},
-	{0x0ac0, 0x0000008b, 0x000000ff},
-	{0x0b08, 0x583f0000, 0xffff0000},
-	{0x0b0c, 0x0000004e, 0x000000ff}
-};
-
-static struct serdes_cfg cfg_lane_156p25mhz_5g[] = {
-	{0x0004, 0x38000080, 0xff0000ff},
-	{0x0008, 0x00000000, 0x000000ff},
-	{0x000c, 0x02000000, 0xff000000},
-	{0x0010, 0x1b000000, 0xff000000},
-	{0x0014, 0x00006fb8, 0x0000ffff},
-	{0x0018, 0x758000e4, 0xffff00ff},
-	{0x00ac, 0x00004400, 0x0000ff00},
-	{0x002c, 0x00100800, 0x00ffff00},
-	{0x0080, 0x00820082, 0x00ff00ff},
-	{0x0084, 0x1d0f0385, 0xffffffff}
-
+/**
+ * Array to hold all possible serdes configurations.
+ * Combination for 5 clock settings and 6 baud rates.
+ */
+static struct cfg_entry cfgs[] = {
+	{
+		.clk = SERDES_CLOCK_156P25M,
+		.rate = SERDES_RATE_5G,
+		.cmu = {
+			{0x0000, 0x00800000, 0xffff0000},
+			{0x0014, 0x00008282, 0x0000ffff},
+			{0x0060, 0x00142438, 0x00ffffff},
+			{0x0064, 0x00c3c700, 0x00ffff00},
+			{0x0078, 0x0000c000, 0x0000ff00}
+		},
+		.comlane = {
+			{0x0a00, 0x00000800, 0x0000ff00},
+			{0x0a08, 0x38a20000, 0xffff0000},
+			{0x0a30, 0x008a8a00, 0x00ffff00},
+			{0x0a84, 0x00000600, 0x0000ff00},
+			{0x0a94, 0x10000000, 0xff000000},
+			{0x0aa0, 0x81000000, 0xff000000},
+			{0x0abc, 0xff000000, 0xff000000},
+			{0x0ac0, 0x0000008b, 0x000000ff},
+			{0x0b08, 0x583f0000, 0xffff0000},
+			{0x0b0c, 0x0000004e, 0x000000ff}
+		},
+		.lane = {
+			{0x0004, 0x38000080, 0xff0000ff},
+			{0x0008, 0x00000000, 0x000000ff},
+			{0x000c, 0x02000000, 0xff000000},
+			{0x0010, 0x1b000000, 0xff000000},
+			{0x0014, 0x00006fb8, 0x0000ffff},
+			{0x0018, 0x758000e4, 0xffff00ff},
+			{0x00ac, 0x00004400, 0x0000ff00},
+			{0x002c, 0x00100800, 0x00ffff00},
+			{0x0080, 0x00820082, 0x00ff00ff},
+			{0x0084, 0x1d0f0385, 0xffffffff}
+		},
+	},
 };
 
 static inline void ks2_serdes_rmw(u32 addr, u32 value, u32 mask)
@@ -105,18 +124,15 @@ static void ks2_serdes_lane_config(u32 base, struct serdes_cfg *cfg_lane,
 			       cfg_lane[i].val, cfg_lane[i].mask);
 }
 
-static int ks2_serdes_init_156p25m_5g(u32 base, u32 num_lanes)
+static int ks2_serdes_init_cfg(u32 base, struct cfg_entry *cfg, u32 num_lanes)
 {
 	u32 i;
 
-	ks2_serdes_cfg_setup(base, cfg_cmu_156p25m_5g,
-			     ARRAY_SIZE(cfg_cmu_156p25m_5g));
-	ks2_serdes_cfg_setup(base, cfg_comlane_156p25m_5g,
-			     ARRAY_SIZE(cfg_comlane_156p25m_5g));
+	ks2_serdes_cfg_setup(base, cfg->cmu, SERDES_CMU_CFG_NUM);
+	ks2_serdes_cfg_setup(base, cfg->comlane, SERDES_COMLANE_CFG_NUM);
 
 	for (i = 0; i < num_lanes; i++)
-		ks2_serdes_lane_config(base, cfg_lane_156p25mhz_5g,
-				       ARRAY_SIZE(cfg_lane_156p25mhz_5g), i);
+		ks2_serdes_lane_config(base, cfg->lane, SERDES_LANE_CFG_NUM, i);
 
 	return 0;
 }
@@ -173,14 +189,16 @@ int ks2_serdes_init(u32 base, struct ks2_serdes *serdes, u32 num_lanes)
 	int i;
 	int ret = 0;
 
-	/* The driver currently supports 5GBaud rate with ref clock 156.25MHz */
-	if (serdes->clk == SERDES_CLOCK_156P25M)
-		if (serdes->rate == SERDES_RATE_5G)
-			ret = ks2_serdes_init_156p25m_5g(base, num_lanes);
-		else
-			return -EINVAL;
-	else
+	for (i = 0; i < ARRAY_SIZE(cfgs); i++)
+		if (serdes->clk == cfgs[i].clk && serdes->rate == cfgs[i].rate)
+			break;
+
+	if (i >= ARRAY_SIZE(cfgs)) {
+		puts("Cannot find keystone SerDes configuration");
 		return -EINVAL;
+	}
+
+	ks2_serdes_init_cfg(base, &cfgs[i], num_lanes);
 
 	ks2_serdes_cmu_comlane_enable(base, serdes);
 	for (i = 0; i < num_lanes; i++)
