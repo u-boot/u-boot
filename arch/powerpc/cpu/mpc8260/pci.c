@@ -262,8 +262,6 @@ void pci_mpc8250_init (struct pci_controller *hose)
 				  | SIUMCR_CS10PC00
 				  | SIUMCR_BCTLC00
 				  | SIUMCR_MMR11;
-#elif defined(CONFIG_TQM8272)
-/* nothing to do for this Board here */
 #else
 	/*
 	 * Setting required to enable IRQ1-IRQ7 (SIUMCR [DPPC]),
