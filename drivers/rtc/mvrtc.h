@@ -12,7 +12,7 @@
 #ifndef _MVRTC_H_
 #define _MVRTC_H_
 
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <compiler.h>
 
 /* RTC registers */

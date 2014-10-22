@@ -16,7 +16,7 @@
 #include <common.h>
 #include <asm/bitops.h>
 #include <asm/io.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <asm/arch/gpio.h>
 
 static unsigned long gpio_valid_input[BITS_TO_LONGS(GPIO_MAX)];

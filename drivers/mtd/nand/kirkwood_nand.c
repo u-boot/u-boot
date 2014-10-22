@@ -8,7 +8,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <nand.h>
 
 /* NAND Flash Soc registers */

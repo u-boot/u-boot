@@ -23,7 +23,7 @@
 #error "SOC Name not defined"
 #endif /* CONFIG_KW88F6281 */
 
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #define CONFIG_ARM926EJS	1	/* Basic Architecture */
 #define CONFIG_SYS_CACHELINE_SIZE	32
 				/* default Dcache Line length for kirkwood */

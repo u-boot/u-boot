@@ -14,7 +14,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 #include <asm/arch/gpio.h>
 #include "dns325.h"

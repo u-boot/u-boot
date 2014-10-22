@@ -12,7 +12,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <asm/io.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <asm/arch/spi.h>
 #include <asm/arch/mpp.h>
 

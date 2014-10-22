@@ -12,7 +12,7 @@
 #include <u-boot/md5.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <mvebu_mmc.h>
 
 #define BUFLEN	16
