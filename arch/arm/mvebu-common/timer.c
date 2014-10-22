@@ -9,7 +9,37 @@
 #include <asm/io.h>
 #include <asm/arch/soc.h>
 
-#define UBOOT_CNTR	0	/* counter to use for uboot timer */
+#define UBOOT_CNTR	0	/* counter to use for U-Boot timer */
+
+/*
+ * ARM Timers Registers Map
+ */
+#define CNTMR_CTRL_REG			&tmr_regs->ctrl
+#define CNTMR_RELOAD_REG(tmrnum)	&tmr_regs->tmr[tmrnum].reload
+#define CNTMR_VAL_REG(tmrnum)		&tmr_regs->tmr[tmrnum].val
+
+/*
+ * ARM Timers Control Register
+ * CPU_TIMERS_CTRL_REG (CTCR)
+ */
+#define CTCR_ARM_TIMER_EN_OFFS(cntr)	(cntr * 2)
+#define CTCR_ARM_TIMER_EN(cntr)		(1 << CTCR_ARM_TIMER_EN_OFFS(cntr))
+
+#define CTCR_ARM_TIMER_AUTO_OFFS(cntr)	((cntr * 2) + 1)
+#define CTCR_ARM_TIMER_AUTO_EN(cntr)	(1 << CTCR_ARM_TIMER_AUTO_OFFS(cntr))
+
+/* Only Armada XP have the 25MHz enable bit (Kirkwood doesn't) */
+#if defined(CONFIG_ARMADA_XP)
+#define CTCR_ARM_TIMER_25MHZ_OFFS(cntr)	(cntr + 11)
+#define CTCR_ARM_TIMER_25MHZ(cntr)	(1 << CTCR_ARM_TIMER_25MHZ_OFFS(cntr))
+#else
+#define CTCR_ARM_TIMER_25MHZ(cntr)	0
+#endif
+
+#define TIMER_LOAD_VAL 			0xffffffff
+
+#define timestamp			gd->arch.tbl
+#define lastdec				gd->arch.lastinc
 
 /* Timer reload and current value registers */
 struct kwtmr_val {
@@ -21,61 +51,24 @@ struct kwtmr_val {
 struct kwtmr_registers {
 	u32 ctrl;	/* Timer control reg */
 	u32 pad[3];
-	struct kwtmr_val tmr[2];
+	struct kwtmr_val tmr[4];
 	u32 wdt_reload;
 	u32 wdt_val;
 };
 
-struct kwtmr_registers *kwtmr_regs = (struct kwtmr_registers *)KW_TIMER_BASE;
-
-/*
- * ARM Timers Registers Map
- */
-#define CNTMR_CTRL_REG			&kwtmr_regs->ctrl
-#define CNTMR_RELOAD_REG(tmrnum)	&kwtmr_regs->tmr[tmrnum].reload
-#define CNTMR_VAL_REG(tmrnum)		&kwtmr_regs->tmr[tmrnum].val
-
-/*
- * ARM Timers Control Register
- * CPU_TIMERS_CTRL_REG (CTCR)
- */
-#define CTCR_ARM_TIMER_EN_OFFS(cntr)	(cntr * 2)
-#define CTCR_ARM_TIMER_EN_MASK(cntr)	(1 << CTCR_ARM_TIMER_EN_OFFS)
-#define CTCR_ARM_TIMER_EN(cntr)		(1 << CTCR_ARM_TIMER_EN_OFFS(cntr))
-#define CTCR_ARM_TIMER_DIS(cntr)	(0 << CTCR_ARM_TIMER_EN_OFFS(cntr))
-
-#define CTCR_ARM_TIMER_AUTO_OFFS(cntr)	((cntr * 2) + 1)
-#define CTCR_ARM_TIMER_AUTO_MASK(cntr)	(1 << 1)
-#define CTCR_ARM_TIMER_AUTO_EN(cntr)	(1 << CTCR_ARM_TIMER_AUTO_OFFS(cntr))
-#define CTCR_ARM_TIMER_AUTO_DIS(cntr)	(0 << CTCR_ARM_TIMER_AUTO_OFFS(cntr))
-
-/*
- * ARM Timer\Watchdog Reload Register
- * CNTMR_RELOAD_REG (TRR)
- */
-#define TRG_ARM_TIMER_REL_OFFS		0
-#define TRG_ARM_TIMER_REL_MASK		0xffffffff
-
-/*
- * ARM Timer\Watchdog Register
- * CNTMR_VAL_REG (TVRG)
- */
-#define TVR_ARM_TIMER_OFFS		0
-#define TVR_ARM_TIMER_MASK		0xffffffff
-#define TVR_ARM_TIMER_MAX		0xffffffff
-#define TIMER_LOAD_VAL 			0xffffffff
-
-#define READ_TIMER			(readl(CNTMR_VAL_REG(UBOOT_CNTR)) /	\
-					 (CONFIG_SYS_TCLK / 1000))
-
 DECLARE_GLOBAL_DATA_PTR;
 
-#define timestamp gd->arch.tbl
-#define lastdec gd->arch.lastinc
+static struct kwtmr_registers *tmr_regs =
+	(struct kwtmr_registers *)MVEBU_TIMER_BASE;
+
+static inline ulong read_timer(void)
+{
+	return readl(CNTMR_VAL_REG(UBOOT_CNTR))	/ (CONFIG_SYS_TCLK / 1000);
+}
 
 ulong get_timer_masked(void)
 {
-	ulong now = READ_TIMER;
+	ulong now = read_timer();
 
 	if (lastdec >= now) {
 		/* normal mode */
@@ -119,20 +112,17 @@ void __udelay(unsigned long usec)
  */
 int timer_init(void)
 {
-	unsigned int cntmrctrl;
-
 	/* load value into timer */
 	writel(TIMER_LOAD_VAL, CNTMR_RELOAD_REG(UBOOT_CNTR));
 	writel(TIMER_LOAD_VAL, CNTMR_VAL_REG(UBOOT_CNTR));
 
 	/* enable timer in auto reload mode */
-	cntmrctrl = readl(CNTMR_CTRL_REG);
-	cntmrctrl |= CTCR_ARM_TIMER_EN(UBOOT_CNTR);
-	cntmrctrl |= CTCR_ARM_TIMER_AUTO_EN(UBOOT_CNTR);
-	writel(cntmrctrl, CNTMR_CTRL_REG);
+	clrsetbits_le32(CNTMR_CTRL_REG, CTCR_ARM_TIMER_25MHZ(UBOOT_CNTR),
+			CTCR_ARM_TIMER_EN(UBOOT_CNTR) |
+			CTCR_ARM_TIMER_AUTO_EN(UBOOT_CNTR));
 
 	/* init the timestamp and lastdec value */
-	lastdec = READ_TIMER;
+	lastdec = read_timer();
 	timestamp = 0;
 
 	return 0;
