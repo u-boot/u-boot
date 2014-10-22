@@ -11,9 +11,9 @@
 #include <lcd.h>
 #include <spi.h>
 #include <errno.h>
+#include <asm/gpio.h>
 #include <asm/arch/board.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/system.h>
 #include <asm/arch/dp_info.h>
@@ -74,9 +74,12 @@ void exynos_lcd_power_on(void)
 	mdelay(5);
 
 	/* TODO(ajaykumar.rs@samsung.com): Use device tree */
+	gpio_request(EXYNOS5420_GPIO_X35, "edp_slp#");
 	gpio_direction_output(EXYNOS5420_GPIO_X35, 1);	/* EDP_SLP# */
 	mdelay(10);
+	gpio_request(EXYNOS5420_GPIO_Y77, "edp_rst#");
 	gpio_direction_output(EXYNOS5420_GPIO_Y77, 1);	/* EDP_RST# */
+	gpio_request(EXYNOS5420_GPIO_X26, "edp_hpd");
 	gpio_direction_input(EXYNOS5420_GPIO_X26);	/* EDP_HPD */
 	gpio_set_pull(EXYNOS5420_GPIO_X26, S5P_GPIO_PULL_NONE);
 
@@ -88,6 +91,7 @@ void exynos_lcd_power_on(void)
 void exynos_backlight_on(unsigned int onoff)
 {
 	/* For PWM */
+	gpio_request(EXYNOS5420_GPIO_B20, "backlight_on");
 	gpio_cfg_pin(EXYNOS5420_GPIO_B20, S5P_GPIO_FUNC(0x1));
 	gpio_set_value(EXYNOS5420_GPIO_B20, 1);
 

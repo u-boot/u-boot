@@ -114,9 +114,8 @@ int board_init(void)
 	clock_init();
 	clock_verify();
 
-#ifdef CONFIG_FDT_SPI
+#ifdef CONFIG_TEGRA_SPI
 	pin_mux_spi();
-	spi_init();
 #endif
 
 #ifdef CONFIG_PWM_TEGRA

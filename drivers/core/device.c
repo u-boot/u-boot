@@ -232,7 +232,7 @@ static void device_free(struct udevice *dev)
 	}
 }
 
-int device_probe(struct udevice *dev)
+int device_probe_child(struct udevice *dev, void *parent_priv)
 {
 	struct driver *drv;
 	int size = 0;
@@ -282,6 +282,8 @@ int device_probe(struct udevice *dev)
 				ret = -ENOMEM;
 				goto fail;
 			}
+			if (parent_priv)
+				memcpy(dev->parent_priv, parent_priv, size);
 		}
 
 		ret = device_probe(dev->parent);
@@ -333,6 +335,11 @@ fail:
 	device_free(dev);
 
 	return ret;
+}
+
+int device_probe(struct udevice *dev)
+{
+	return device_probe_child(dev, NULL);
 }
 
 int device_remove(struct udevice *dev)
@@ -513,4 +520,31 @@ int device_get_child_by_of_offset(struct udevice *parent, int seq,
 	*devp = NULL;
 	ret = device_find_child_by_of_offset(parent, seq, &dev);
 	return device_get_device_tail(dev, ret, devp);
+}
+
+int device_find_first_child(struct udevice *parent, struct udevice **devp)
+{
+	if (list_empty(&parent->child_head)) {
+		*devp = NULL;
+	} else {
+		*devp = list_first_entry(&parent->child_head, struct udevice,
+					 sibling_node);
+	}
+
+	return 0;
+}
+
+int device_find_next_child(struct udevice **devp)
+{
+	struct udevice *dev = *devp;
+	struct udevice *parent = dev->parent;
+
+	if (list_is_last(&dev->sibling_node, &parent->child_head)) {
+		*devp = NULL;
+	} else {
+		*devp = list_entry(dev->sibling_node.next, struct udevice,
+				   sibling_node);
+	}
+
+	return 0;
 }

@@ -13,10 +13,10 @@
 #include <tmu.h>
 #include <netdev.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/board.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/dwmmc.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
@@ -87,9 +87,6 @@ int board_init(void)
 	boot_temp_check();
 #endif
 
-#ifdef CONFIG_EXYNOS_SPI
-	spi_init();
-#endif
 	return exynos_init();
 }
 

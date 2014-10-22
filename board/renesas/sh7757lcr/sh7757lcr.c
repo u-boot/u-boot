@@ -9,6 +9,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/mmc.h>
+#include <spi.h>
 #include <spi_flash.h>
 
 int checkboard(void)

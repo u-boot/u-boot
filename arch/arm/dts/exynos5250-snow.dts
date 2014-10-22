@@ -10,7 +10,7 @@
 */
 
 /dts-v1/;
-/include/ "exynos5250.dtsi"
+#include "exynos5250.dtsi"
 
 / {
 	model = "Google Snow";
@@ -50,6 +50,14 @@
 		power-regulator@48 {
 			compatible = "ti,tps65090";
 			reg = <0x48>;
+		};
+	};
+
+	spi@12d30000 {
+		spi-max-frequency = <50000000>;
+		firmware_storage_spi: flash@0 {
+			compatible = "spi-flash";
+			reg = <0>;
 		};
 	};
 

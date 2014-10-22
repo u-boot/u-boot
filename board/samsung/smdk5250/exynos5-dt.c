@@ -29,6 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static void board_enable_audio_codec(void)
 {
 	/* Enable MAX98095 Codec */
+	gpio_request(EXYNOS5_GPIO_X17, "max98095_enable");
 	gpio_direction_output(EXYNOS5_GPIO_X17, 1);
 	gpio_set_pull(EXYNOS5_GPIO_X17, S5P_GPIO_PULL_NONE);
 }
@@ -199,16 +200,19 @@ static int board_dp_bridge_setup(void)
 	/* Setup the GPIOs */
 
 	/* PD is ACTIVE_LOW, and initially de-asserted */
+	gpio_request(EXYNOS5_GPIO_Y25, "dp_bridge_pd");
 	gpio_set_pull(EXYNOS5_GPIO_Y25, S5P_GPIO_PULL_NONE);
 	gpio_direction_output(EXYNOS5_GPIO_Y25, 1);
 
 	/* Reset is ACTIVE_LOW */
+	gpio_request(EXYNOS5_GPIO_X15, "dp_bridge_reset");
 	gpio_set_pull(EXYNOS5_GPIO_X15, S5P_GPIO_PULL_NONE);
 	gpio_direction_output(EXYNOS5_GPIO_X15, 0);
 
 	udelay(10);
 	gpio_set_value(EXYNOS5_GPIO_X15, 1);
 
+	gpio_request(EXYNOS5_GPIO_X07, "dp_bridge_hpd");
 	gpio_direction_input(EXYNOS5_GPIO_X07);
 
 	/*
@@ -236,10 +240,12 @@ static int board_dp_bridge_setup(void)
 void exynos_cfg_lcd_gpio(void)
 {
 	/* For Backlight */
+	gpio_request(EXYNOS5_GPIO_B20, "lcd_backlight");
 	gpio_cfg_pin(EXYNOS5_GPIO_B20, S5P_GPIO_OUTPUT);
 	gpio_set_value(EXYNOS5_GPIO_B20, 1);
 
 	/* LCD power on */
+	gpio_request(EXYNOS5_GPIO_X15, "lcd_power");
 	gpio_cfg_pin(EXYNOS5_GPIO_X15, S5P_GPIO_OUTPUT);
 	gpio_set_value(EXYNOS5_GPIO_X15, 1);
 
@@ -276,6 +282,7 @@ void exynos_backlight_on(unsigned int on)
 	mdelay(10);
 
 	/* board_dp_backlight_en */
+	gpio_request(EXYNOS5_GPIO_X30, "board_dp_backlight_en");
 	gpio_direction_output(EXYNOS5_GPIO_X30, 1);
 #endif
 }

@@ -12,6 +12,7 @@
 		i2c2 = "/i2c@7000c700";
 		sdhci0 = "/sdhci@78000600";
 		sdhci1 = "/sdhci@78000200";
+		spi0 = "/spi@7000d400";
 		usb0 = "/usb@7d000000";
 		usb1 = "/usb@7d004000"; /* on module only, for ASIX */
 		usb2 = "/usb@7d008000";

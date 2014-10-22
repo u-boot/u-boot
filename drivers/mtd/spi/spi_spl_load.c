@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <spi.h>
 #include <spi_flash.h>
 #include <spl.h>
 

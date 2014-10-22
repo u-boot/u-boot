@@ -354,7 +354,7 @@ static int initr_flash(void)
 }
 #endif
 
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC) && !defined(CONFIG_DM_SPI)
 static int initr_spi(void)
 {
 	/* PPC does this here */

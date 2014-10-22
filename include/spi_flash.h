@@ -15,9 +15,8 @@
 #ifndef _SPI_FLASH_H_
 #define _SPI_FLASH_H_
 
-#include <spi.h>
+#include <dm.h>	/* Because we dereference struct udevice here */
 #include <linux/types.h>
-#include <linux/compiler.h>
 
 #ifndef CONFIG_SF_DEFAULT_SPEED
 # define CONFIG_SF_DEFAULT_SPEED	1000000
@@ -32,64 +31,19 @@
 # define CONFIG_SF_DEFAULT_BUS		0
 #endif
 
-/* sf param flags */
-#define SECT_4K		1 << 1
-#define SECT_32K	1 << 2
-#define E_FSR		1 << 3
-#define WR_QPP		1 << 4
-
-/* Enum list - Full read commands */
-enum spi_read_cmds {
-	ARRAY_SLOW = 1 << 0,
-	DUAL_OUTPUT_FAST = 1 << 1,
-	DUAL_IO_FAST = 1 << 2,
-	QUAD_OUTPUT_FAST = 1 << 3,
-	QUAD_IO_FAST = 1 << 4,
-};
-#define RD_EXTN		ARRAY_SLOW | DUAL_OUTPUT_FAST | DUAL_IO_FAST
-#define RD_FULL		RD_EXTN | QUAD_OUTPUT_FAST | QUAD_IO_FAST
-
-/* Dual SPI flash memories */
-enum spi_dual_flash {
-	SF_SINGLE_FLASH = 0,
-	SF_DUAL_STACKED_FLASH = 1 << 0,
-	SF_DUAL_PARALLEL_FLASH = 1 << 1,
-};
-
-/**
- * struct spi_flash_params - SPI/QSPI flash device params structure
- *
- * @name:		Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO])
- * @jedec:		Device jedec ID (0x[1byte_manuf_id][2byte_dev_id])
- * @ext_jedec:		Device ext_jedec ID
- * @sector_size:	Sector size of this device
- * @nr_sectors:		No.of sectors on this device
- * @e_rd_cmd:		Enum list for read commands
- * @flags:		Important param, for flash specific behaviour
- */
-struct spi_flash_params {
-	const char *name;
-	u32 jedec;
-	u16 ext_jedec;
-	u32 sector_size;
-	u32 nr_sectors;
-	u8 e_rd_cmd;
-	u16 flags;
-};
-
-extern const struct spi_flash_params spi_flash_params_table[];
+struct spi_slave;
 
 /**
  * struct spi_flash - SPI flash structure
  *
  * @spi:		SPI slave
  * @name:		Name of SPI flash
- * @dual_flash:		Indicates dual flash memories - dual stacked, parallel
+ * @dual_flash:	Indicates dual flash memories - dual stacked, parallel
  * @shift:		Flash shift useful in dual parallel
  * @size:		Total flash size
  * @page_size:		Write (page) size
  * @sector_size:	Sector size
- * @erase_size:		Erase size
+ * @erase_size:	Erase size
  * @bank_read_cmd:	Bank read cmd
  * @bank_write_cmd:	Bank write cmd
  * @bank_curr:		Current flash bank
@@ -97,8 +51,8 @@ extern const struct spi_flash_params spi_flash_params_table[];
  * @erase_cmd:		Erase cmd 4K, 32K, 64K
  * @read_cmd:		Read cmd - Array Fast, Extn read and quad read.
  * @write_cmd:		Write cmd - page and quad program.
- * @dummy_byte:		Dummy cycles for read operation.
- * @memory_map:		Address of read-only SPI flash access
+ * @dummy_byte:	Dummy cycles for read operation.
+ * @memory_map:	Address of read-only SPI flash access
  * @read:		Flash read ops: Read len bytes at offset into buf
  *			Supported cmds: Fast Array Read
  * @write:		Flash write ops: Write len bytes from buf into offset
@@ -108,7 +62,12 @@ extern const struct spi_flash_params spi_flash_params_table[];
  * return 0 - Success, 1 - Failure
  */
 struct spi_flash {
+#ifdef CONFIG_DM_SPI_FLASH
 	struct spi_slave *spi;
+	struct udevice *dev;
+#else
+	struct spi_slave *spi;
+#endif
 	const char *name;
 	u8 dual_flash;
 	u8 shift;
@@ -129,12 +88,75 @@ struct spi_flash {
 	u8 dummy_byte;
 
 	void *memory_map;
+#ifndef CONFIG_DM_SPI_FLASH
+	/*
+	 * These are not strictly needed for driver model, but keep them here
+	 * whilt the transition is in progress.
+	 *
+	 * Normally each driver would provide its own operations, but for
+	 * SPI flash most chips use the same algorithms. One approach is
+	 * to create a 'common' SPI flash device which knows how to talk
+	 * to most devices, and then allow other drivers to be used instead
+	 * if requird, perhaps with a way of scanning through the list to
+	 * find the driver that matches the device.
+	 */
 	int (*read)(struct spi_flash *flash, u32 offset, size_t len, void *buf);
 	int (*write)(struct spi_flash *flash, u32 offset, size_t len,
 			const void *buf);
 	int (*erase)(struct spi_flash *flash, u32 offset, size_t len);
+#endif
 };
 
+struct dm_spi_flash_ops {
+	int (*read)(struct udevice *dev, u32 offset, size_t len, void *buf);
+	int (*write)(struct udevice *dev, u32 offset, size_t len,
+		     const void *buf);
+	int (*erase)(struct udevice *dev, u32 offset, size_t len);
+};
+
+/* Access the serial operations for a device */
+#define sf_get_ops(dev) ((struct dm_spi_flash_ops *)(dev)->driver->ops)
+
+#ifdef CONFIG_DM_SPI_FLASH
+int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
+			   unsigned int max_hz, unsigned int spi_mode,
+			   struct udevice **devp);
+
+/* Compatibility function - this is the old U-Boot API */
+struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
+				  unsigned int max_hz, unsigned int spi_mode);
+
+/* Compatibility function - this is the old U-Boot API */
+void spi_flash_free(struct spi_flash *flash);
+
+int spi_flash_remove(struct udevice *flash);
+
+static inline int spi_flash_read(struct spi_flash *flash, u32 offset,
+		size_t len, void *buf)
+{
+	return sf_get_ops(flash->dev)->read(flash->dev, offset, len, buf);
+}
+
+static inline int spi_flash_write(struct spi_flash *flash, u32 offset,
+		size_t len, const void *buf)
+{
+	return sf_get_ops(flash->dev)->write(flash->dev, offset, len, buf);
+}
+
+static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
+		size_t len)
+{
+	return sf_get_ops(flash->dev)->erase(flash->dev, offset, len);
+}
+
+struct sandbox_state;
+
+int sandbox_sf_bind_emul(struct sandbox_state *state, int busnum, int cs,
+			 struct udevice *bus, int of_offset, const char *spec);
+
+void sandbox_sf_unbind_emul(struct sandbox_state *state, int busnum, int cs);
+
+#else
 struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int spi_mode);
 
@@ -169,6 +191,7 @@ static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
 {
 	return flash->erase(flash, offset, len);
 }
+#endif
 
 void spi_boot(void) __noreturn;
 void spi_spl_load_image(uint32_t offs, unsigned int size, void *vdst);

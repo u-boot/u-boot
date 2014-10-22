@@ -59,7 +59,7 @@
 	BOARD_EXTRA_ENV_SETTINGS
 
 #if defined(CONFIG_TEGRA20_SFLASH) || defined(CONFIG_TEGRA20_SLINK) || defined(CONFIG_TEGRA114_SPI)
-#define CONFIG_FDT_SPI
+#define CONFIG_TEGRA_SPI
 #endif
 
 /* overrides for SPL build here */

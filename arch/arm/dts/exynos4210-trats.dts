@@ -8,7 +8,7 @@
  */
 
 /dts-v1/;
-/include/ "exynos4.dtsi"
+#include "exynos4210.dtsi"
 
 / {
 	model = "Samsung Trats based on Exynos4210";

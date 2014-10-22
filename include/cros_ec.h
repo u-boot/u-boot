@@ -14,6 +14,7 @@
 #include <fdtdec.h>
 #include <cros_ec_message.h>
 
+#ifndef CONFIG_DM_CROS_EC
 /* Which interface is the device on? */
 enum cros_ec_interface_t {
 	CROS_EC_IF_NONE,
@@ -22,9 +23,13 @@ enum cros_ec_interface_t {
 	CROS_EC_IF_LPC,	/* Intel Low Pin Count interface */
 	CROS_EC_IF_SANDBOX,
 };
+#endif
 
 /* Our configuration information */
 struct cros_ec_dev {
+#ifdef CONFIG_DM_CROS_EC
+	struct udevice *dev;		/* Transport device */
+#else
 	enum cros_ec_interface_t interface;
 	struct spi_slave *spi;		/* Our SPI slave, if using SPI */
 	int node;                       /* Our node */
@@ -33,6 +38,7 @@ struct cros_ec_dev {
 	unsigned int addr;		/* Device address (for I2C) */
 	unsigned int bus_num;		/* Bus number (for I2C) */
 	unsigned int max_frequency;	/* Maximum interface frequency */
+#endif
 	struct fdt_gpio_state ec_int;	/* GPIO used as EC interrupt line */
 	int protocol_version;           /* Protocol version to use */
 	int optimise_flash_write;	/* Don't write erased flash blocks */
@@ -233,6 +239,22 @@ int cros_ec_flash_update_rw(struct cros_ec_dev *dev,
  */
 struct cros_ec_dev *board_get_cros_ec_dev(void);
 
+#ifdef CONFIG_DM_CROS_EC
+
+struct dm_cros_ec_ops {
+	int (*check_version)(struct udevice *dev);
+	int (*command)(struct udevice *dev, uint8_t cmd, int cmd_version,
+		       const uint8_t *dout, int dout_len,
+		       uint8_t **dinp, int din_len);
+	int (*packet)(struct udevice *dev, int out_bytes, int in_bytes);
+};
+
+#define dm_cros_ec_get_ops(dev) \
+		((struct dm_cros_ec_ops *)(dev)->driver->ops)
+
+int cros_ec_register(struct udevice *dev);
+
+#else /* !CONFIG_DM_CROS_EC */
 
 /* Internal interfaces */
 int cros_ec_i2c_init(struct cros_ec_dev *dev, const void *blob);
@@ -336,6 +358,7 @@ int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 int cros_ec_spi_packet(struct cros_ec_dev *dev, int out_bytes, int in_bytes);
 int cros_ec_sandbox_packet(struct cros_ec_dev *dev, int out_bytes,
 			   int in_bytes);
+#endif
 
 /**
  * Dump a block of data for a command.
@@ -489,9 +512,11 @@ int cros_ec_get_error(void);
  * Returns information from the FDT about the Chrome EC flash
  *
  * @param blob		FDT blob to use
+ * @param node		Node offset to read from
  * @param config	Structure to use to return information
  */
-int cros_ec_decode_ec_flash(const void *blob, struct fdt_cros_ec *config);
+int cros_ec_decode_ec_flash(const void *blob, int node,
+			    struct fdt_cros_ec *config);
 
 /**
  * Check the current keyboard state, in case recovery mode is requested.

@@ -11,6 +11,7 @@
 #define _DM_UCLASS_H
 
 #include <dm/uclass-id.h>
+#include <linker_lists.h>
 #include <linux/list.h>
 
 /**

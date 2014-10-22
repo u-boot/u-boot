@@ -52,8 +52,8 @@ struct i2c_pads_info {
 					&mx6q_##name : &mx6s_##name
 #endif
 
-void setup_i2c(unsigned i2c_index, int speed, int slave_addr,
-		struct i2c_pads_info *p);
+int setup_i2c(unsigned i2c_index, int speed, int slave_addr,
+	      struct i2c_pads_info *p);
 void bus_i2c_init(void *base, int speed, int slave_addr,
 		int (*idle_bus_fn)(void *p), void *p);
 int bus_i2c_read(void *base, uchar chip, uint addr, int alen, uchar *buf,

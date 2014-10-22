@@ -5,6 +5,7 @@
  */
 
 #ifndef __DM_UTIL_H
+#define __DM_UTIL_H
 
 void dm_warn(const char *fmt, ...);
 

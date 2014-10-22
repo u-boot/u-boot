@@ -60,10 +60,6 @@ static int uclass_add(enum uclass_id id, struct uclass **ucp)
 			id);
 		return -ENOENT;
 	}
-	if (uc_drv->ops) {
-		dm_warn("No ops for uclass id %d\n", id);
-		return -EINVAL;
-	}
 	uc = calloc(1, sizeof(*uc));
 	if (!uc)
 		return -ENOMEM;

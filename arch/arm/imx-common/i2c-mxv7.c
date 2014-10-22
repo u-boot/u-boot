@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <malloc.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/errno.h>
@@ -69,15 +70,53 @@ static void * const i2c_bases[] = {
 };
 
 /* i2c_index can be from 0 - 2 */
-void setup_i2c(unsigned i2c_index, int speed, int slave_addr,
-		struct i2c_pads_info *p)
+int setup_i2c(unsigned i2c_index, int speed, int slave_addr,
+	      struct i2c_pads_info *p)
 {
+	char *name1, *name2;
+	int ret;
+
 	if (i2c_index >= ARRAY_SIZE(i2c_bases))
-		return;
+		return -EINVAL;
+
+	name1 = malloc(9);
+	name2 = malloc(9);
+	if (!name1 || !name2)
+		return -ENOMEM;
+
+	sprintf(name1, "i2c_sda%d", i2c_index);
+	sprintf(name2, "i2c_scl%d", i2c_index);
+	ret = gpio_request(p->sda.gp, name1);
+	if (ret)
+		goto err_req1;
+
+	ret = gpio_request(p->scl.gp, name2);
+	if (ret)
+		goto err_req2;
+
 	/* Enable i2c clock */
-	enable_i2c_clk(1, i2c_index);
+	ret = enable_i2c_clk(1, i2c_index);
+	if (ret)
+		goto err_clk;
+
 	/* Make sure bus is idle */
-	force_idle_bus(p);
+	ret = force_idle_bus(p);
+	if (ret)
+		goto err_idle;
+
 	bus_i2c_init(i2c_bases[i2c_index], speed, slave_addr,
 			force_idle_bus, p);
+
+	return 0;
+
+err_idle:
+err_clk:
+	gpio_free(p->scl.gp);
+err_req2:
+	gpio_free(p->sda.gp);
+err_req1:
+	free(name1);
+	free(name2);
+
+	return ret;
 }

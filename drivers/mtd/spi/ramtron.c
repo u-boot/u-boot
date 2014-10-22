@@ -35,6 +35,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <spi.h>
 #include <spi_flash.h>
 #include "sf_internal.h"
 

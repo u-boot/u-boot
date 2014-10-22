@@ -95,7 +95,7 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 21 driver model tests
+    Running 22 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
     Test: dm_test_bus_children
@@ -103,6 +103,7 @@ You should see something like this:
     Device 'c-test@0': seq 0 is in use by 'a-test'
     Device 'c-test@1': seq 1 is in use by 'd-test'
     Test: dm_test_bus_children_funcs
+    Test: dm_test_bus_children_iterators
     Test: dm_test_bus_parent_data
     Test: dm_test_bus_parent_ops
     Test: dm_test_children
@@ -358,7 +359,9 @@ Device Sequence Numbers
 U-Boot numbers devices from 0 in many situations, such as in the command
 line for I2C and SPI buses, and the device names for serial ports (serial0,
 serial1, ...). Driver model supports this numbering and permits devices
-to be locating by their 'sequence'.
+to be locating by their 'sequence'. This numbering unique identifies a
+device in its uclass, so no two devices within a particular uclass can have
+the same sequence number.
 
 Sequence numbers start from 0 but gaps are permitted. For example, a board
 may have I2C buses 0, 1, 4, 5 but no 2 or 3. The choice of how devices are

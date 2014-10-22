@@ -13,11 +13,12 @@
 #include <malloc.h>
 #include <netdev.h>
 #include <miiphy.h>
+#include <spi.h>
+#include <spi_flash.h>
 #include <asm/arch/kirkwood.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/mpp.h>
 #include <asm/arch/gpio.h>
-#include <spi_flash.h>
 
 #include "lsxl.h"
 

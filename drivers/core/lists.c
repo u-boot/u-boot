@@ -24,19 +24,12 @@ struct driver *lists_driver_lookup_name(const char *name)
 		ll_entry_start(struct driver, driver);
 	const int n_ents = ll_entry_count(struct driver, driver);
 	struct driver *entry;
-	int len;
 
 	if (!drv || !n_ents)
 		return NULL;
 
-	len = strlen(name);
-
 	for (entry = drv; entry != drv + n_ents; entry++) {
-		if (strncmp(name, entry->name, len))
-			continue;
-
-		/* Full match */
-		if (len == strlen(entry->name))
+		if (!strcmp(name, entry->name))
 			return entry;
 	}
 

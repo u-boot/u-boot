@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <errno.h>
 #include <spi.h>
 
@@ -42,19 +43,38 @@ static uchar 		din[MAX_SPI_BYTES];
 static int do_spi_xfer(int bus, int cs)
 {
 	struct spi_slave *slave;
-	int rcode = 0;
+	int ret = 0;
 
+#ifdef CONFIG_DM_SPI
+	char name[30], *str;
+	struct udevice *dev;
+
+	snprintf(name, sizeof(name), "generic_%d:%d", bus, cs);
+	str = strdup(name);
+	ret = spi_get_bus_and_cs(bus, cs, 1000000, mode, "spi_generic_drv",
+				 str, &dev, &slave);
+	if (ret)
+		return ret;
+#else
 	slave = spi_setup_slave(bus, cs, 1000000, mode);
 	if (!slave) {
 		printf("Invalid device %d:%d\n", bus, cs);
 		return -EINVAL;
 	}
+#endif
 
-	spi_claim_bus(slave);
-	if (spi_xfer(slave, bitlen, dout, din,
-		     SPI_XFER_BEGIN | SPI_XFER_END) != 0) {
-		printf("Error during SPI transaction\n");
-		rcode = -EIO;
+	ret = spi_claim_bus(slave);
+	if (ret)
+		goto done;
+	ret = spi_xfer(slave, bitlen, dout, din,
+		       SPI_XFER_BEGIN | SPI_XFER_END);
+#ifndef CONFIG_DM_SPI
+	/* We don't get an error code in this case */
+	if (ret)
+		ret = -EIO;
+#endif
+	if (ret) {
+		printf("Error %d during SPI transaction\n", ret);
 	} else {
 		int j;
 
@@ -62,10 +82,13 @@ static int do_spi_xfer(int bus, int cs)
 			printf("%02X", din[j]);
 		printf("\n");
 	}
+done:
 	spi_release_bus(slave);
+#ifndef CONFIG_DM_SPI
 	spi_free_slave(slave);
+#endif
 
-	return rcode;
+	return ret;
 }
 
 /*

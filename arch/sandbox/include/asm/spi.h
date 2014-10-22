@@ -33,19 +33,6 @@ struct sandbox_spi_emu_ops {
 };
 
 /*
- * There are times when the data lines are allowed to tristate.  What
- * is actually sensed on the line depends on the hardware.  It could
- * always be 0xFF/0x00 (if there are pull ups/downs), or things could
- * float and so we'd get garbage back.  This func encapsulates that
- * scenario so we can worry about the details here.
- */
-static inline void sandbox_spi_tristate(u8 *buf, uint len)
-{
-	/* XXX: make this into a user config option ? */
-	memset(buf, 0xff, len);
-}
-
-/*
  * Extract the bus/cs from the spi spec and return the start of the spi
  * client spec.  If the bus/cs are invalid for the current config, then
  * it returns NULL.

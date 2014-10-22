@@ -16,14 +16,25 @@
 
 #include <common.h>
 #include <config.h>
+#include <dm.h>
 #include <fdt_support.h>
 #include <lcd.h>
 #include <mmc.h>
+#include <asm/gpio.h>
 #include <asm/arch/mbox.h>
 #include <asm/arch/sdhci.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static const struct bcm2835_gpio_platdata gpio_platdata = {
+	.base = BCM2835_GPIO_BASE,
+};
+
+U_BOOT_DEVICE(bcm2835_gpios) = {
+	.name = "gpio_bcm2835",
+	.platdata = &gpio_platdata,
+};
 
 struct msg_get_arm_mem {
 	struct bcm2835_mbox_hdr hdr;
