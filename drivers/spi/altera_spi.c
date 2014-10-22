@@ -47,22 +47,19 @@ struct altera_spi_slave {
 };
 #define to_altera_spi_slave(s) container_of(s, struct altera_spi_slave, slave)
 
-__attribute__((weak))
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+__weak int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	return bus < ARRAY_SIZE(altera_spi_base_list) && cs < 32;
 }
 
-__attribute__((weak))
-void spi_cs_activate(struct spi_slave *slave)
+__weak void spi_cs_activate(struct spi_slave *slave)
 {
 	struct altera_spi_slave *altspi = to_altera_spi_slave(slave);
 	writel(1 << slave->cs, &altspi->regs->slave_sel);
 	writel(ALTERA_SPI_CONTROL_SSO_MSK, &altspi->regs->control);
 }
 
-__attribute__((weak))
-void spi_cs_deactivate(struct spi_slave *slave)
+__weak void spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct altera_spi_slave *altspi = to_altera_spi_slave(slave);
 	writel(0, &altspi->regs->control);
@@ -91,8 +88,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 
 	altspi->regs = (struct altera_spi_regs *)altera_spi_base_list[bus];
-	debug("%s: bus:%i cs:%i base:%p\n", __func__,
-		bus, cs, altspi->regs);
+	debug("%s: bus:%i cs:%i base:%p\n", __func__, bus, cs, altspi->regs);
 
 	return &altspi->slave;
 }
@@ -135,7 +131,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	uchar *rxp = din;
 
 	debug("%s: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n", __func__,
-		slave->bus, slave->cs, bitlen, bytes, flags);
+	      slave->bus, slave->cs, bitlen, bytes, flags);
+
 	if (bitlen == 0)
 		goto done;
 
@@ -147,21 +144,27 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	/* empty read buffer */
 	if (readl(&altspi->regs->status) & ALTERA_SPI_STATUS_RRDY_MSK)
 		readl(&altspi->regs->rxdata);
+
 	if (flags & SPI_XFER_BEGIN)
 		spi_cs_activate(slave);
 
 	while (bytes--) {
 		uchar d = txp ? *txp++ : CONFIG_ALTERA_SPI_IDLE_VAL;
+
 		debug("%s: tx:%x ", __func__, d);
 		writel(d, &altspi->regs->txdata);
+
 		while (!(readl(&altspi->regs->status) & ALTERA_SPI_STATUS_RRDY_MSK))
 			;
+
 		d = readl(&altspi->regs->rxdata);
 		if (rxp)
 			*rxp++ = d;
+
 		debug("rx:%x\n", d);
 	}
- done:
+
+done:
 	if (flags & SPI_XFER_END)
 		spi_cs_deactivate(slave);
 
