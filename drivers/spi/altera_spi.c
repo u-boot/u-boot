@@ -129,6 +129,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	uint bytes = bitlen / 8;
 	const uchar *txp = dout;
 	uchar *rxp = din;
+	uint32_t reg, start;
 
 	debug("%s: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n", __func__,
 	      slave->bus, slave->cs, bitlen, bytes, flags);
@@ -154,8 +155,16 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		debug("%s: tx:%x ", __func__, d);
 		writel(d, &altspi->regs->txdata);
 
-		while (!(readl(&altspi->regs->status) & ALTERA_SPI_STATUS_RRDY_MSK))
-			;
+		start = get_timer(0);
+		while (1) {
+			reg = readl(&altspi->regs->status);
+			if (reg & ALTERA_SPI_STATUS_RRDY_MSK)
+				break;
+			if (get_timer(start) > (CONFIG_SYS_HZ / 1000)) {
+				printf("%s: Transmission timed out!\n", __func__);
+				goto done;
+			}
+		}
 
 		d = readl(&altspi->regs->rxdata);
 		if (rxp)
