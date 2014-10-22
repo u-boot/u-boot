@@ -10,8 +10,6 @@
 #ifndef __ASM_ARCH_HARDWARE_K2HK_H
 #define __ASM_ARCH_HARDWARE_K2HK_H
 
-#define KS2_MISC_CTRL			(KS2_DEVICE_STATE_CTRL_BASE + 0xc7c)
-
 #define KS2_ARM_PLL_EN			BIT(13)
 
 /* PA SS Registers */

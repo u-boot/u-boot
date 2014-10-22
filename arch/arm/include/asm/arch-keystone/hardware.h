@@ -143,6 +143,7 @@ typedef volatile unsigned int   *dv_reg_p;
 /* Device speed */
 #define KS2_REV1_DEVSPEED		(KS2_DEVICE_STATE_CTRL_BASE + 0xc98)
 #define KS2_EFUSE_BOOTROM		(KS2_DEVICE_STATE_CTRL_BASE + 0xc90)
+#define KS2_MISC_CTRL			(KS2_DEVICE_STATE_CTRL_BASE + 0xc7c)
 
 /* Queue manager */
 #define KS2_QM_BASE_ADDRESS		0x23a80000
@@ -177,6 +178,10 @@ typedef volatile unsigned int   *dv_reg_p;
 #include <asm/arch/hardware-k2e.h>
 #endif
 
+#ifdef CONFIG_SOC_K2L
+#include <asm/arch/hardware-k2l.h>
+#endif
+
 #ifndef __ASSEMBLY__
 static inline int cpu_is_k2hk(void)
 {
@@ -192,6 +197,14 @@ static inline int cpu_is_k2e(void)
 	unsigned int part_no    = (jtag_id >> 12) & 0xffff;
 
 	return (part_no == 0xb9a6) ? 1 : 0;
+}
+
+static inline int cpu_is_k2l(void)
+{
+	unsigned int jtag_id    = __raw_readl(KS2_JTAG_ID_REG);
+	unsigned int part_no    = (jtag_id >> 12) & 0xffff;
+
+	return (part_no == 0xb9a7) ? 1 : 0;
 }
 
 static inline int cpu_revision(void)
