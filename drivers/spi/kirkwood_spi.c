@@ -13,8 +13,8 @@
 #include <spi.h>
 #include <asm/io.h>
 #include <asm/arch/soc.h>
-#include <asm/arch/spi.h>
 #include <asm/arch/mpp.h>
+#include <asm/arch-mvebu/spi.h>
 
 static struct kwspi_registers *spireg = (struct kwspi_registers *)KW_SPI_BASE;
 
