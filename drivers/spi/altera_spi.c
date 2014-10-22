@@ -12,11 +12,14 @@
 #include <malloc.h>
 #include <spi.h>
 
-#define ALTERA_SPI_RXDATA	0
-#define ALTERA_SPI_TXDATA	4
-#define ALTERA_SPI_STATUS	8
-#define ALTERA_SPI_CONTROL	12
-#define ALTERA_SPI_SLAVE_SEL	20
+struct altera_spi_regs {
+	u32	rxdata;
+	u32	txdata;
+	u32	status;
+	u32	control;
+	u32	_reserved;
+	u32	slave_sel;
+};
 
 #define ALTERA_SPI_STATUS_ROE_MSK	(0x8)
 #define ALTERA_SPI_STATUS_TOE_MSK	(0x10)
@@ -39,8 +42,8 @@
 static ulong altera_spi_base_list[] = CONFIG_SYS_ALTERA_SPI_LIST;
 
 struct altera_spi_slave {
-	struct spi_slave slave;
-	ulong base;
+	struct spi_slave	slave;
+	struct altera_spi_regs	*regs;
 };
 #define to_altera_spi_slave(s) container_of(s, struct altera_spi_slave, slave)
 
@@ -54,16 +57,16 @@ __attribute__((weak))
 void spi_cs_activate(struct spi_slave *slave)
 {
 	struct altera_spi_slave *altspi = to_altera_spi_slave(slave);
-	writel(1 << slave->cs, altspi->base + ALTERA_SPI_SLAVE_SEL);
-	writel(ALTERA_SPI_CONTROL_SSO_MSK, altspi->base + ALTERA_SPI_CONTROL);
+	writel(1 << slave->cs, &altspi->regs->slave_sel);
+	writel(ALTERA_SPI_CONTROL_SSO_MSK, &altspi->regs->control);
 }
 
 __attribute__((weak))
 void spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct altera_spi_slave *altspi = to_altera_spi_slave(slave);
-	writel(0, altspi->base + ALTERA_SPI_CONTROL);
-	writel(0, altspi->base + ALTERA_SPI_SLAVE_SEL);
+	writel(0, &altspi->regs->control);
+	writel(0, &altspi->regs->slave_sel);
 }
 
 void spi_init(void)
@@ -87,9 +90,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!altspi)
 		return NULL;
 
-	altspi->base = altera_spi_base_list[bus];
-	debug("%s: bus:%i cs:%i base:%lx\n", __func__,
-		bus, cs, altspi->base);
+	altspi->regs = (struct altera_spi_regs *)altera_spi_base_list[bus];
+	debug("%s: bus:%i cs:%i base:%p\n", __func__,
+		bus, cs, altspi->regs);
 
 	return &altspi->slave;
 }
@@ -105,8 +108,8 @@ int spi_claim_bus(struct spi_slave *slave)
 	struct altera_spi_slave *altspi = to_altera_spi_slave(slave);
 
 	debug("%s: bus:%i cs:%i\n", __func__, slave->bus, slave->cs);
-	writel(0, altspi->base + ALTERA_SPI_CONTROL);
-	writel(0, altspi->base + ALTERA_SPI_SLAVE_SEL);
+	writel(0, &altspi->regs->control);
+	writel(0, &altspi->regs->slave_sel);
 	return 0;
 }
 
@@ -115,7 +118,7 @@ void spi_release_bus(struct spi_slave *slave)
 	struct altera_spi_slave *altspi = to_altera_spi_slave(slave);
 
 	debug("%s: bus:%i cs:%i\n", __func__, slave->bus, slave->cs);
-	writel(0, altspi->base + ALTERA_SPI_SLAVE_SEL);
+	writel(0, &altspi->regs->slave_sel);
 }
 
 #ifndef CONFIG_ALTERA_SPI_IDLE_VAL
@@ -142,20 +145,18 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	}
 
 	/* empty read buffer */
-	if (readl(altspi->base + ALTERA_SPI_STATUS) &
-	    ALTERA_SPI_STATUS_RRDY_MSK)
-		readl(altspi->base + ALTERA_SPI_RXDATA);
+	if (readl(&altspi->regs->status) & ALTERA_SPI_STATUS_RRDY_MSK)
+		readl(&altspi->regs->rxdata);
 	if (flags & SPI_XFER_BEGIN)
 		spi_cs_activate(slave);
 
 	while (bytes--) {
 		uchar d = txp ? *txp++ : CONFIG_ALTERA_SPI_IDLE_VAL;
 		debug("%s: tx:%x ", __func__, d);
-		writel(d, altspi->base + ALTERA_SPI_TXDATA);
-		while (!(readl(altspi->base + ALTERA_SPI_STATUS) &
-			 ALTERA_SPI_STATUS_RRDY_MSK))
+		writel(d, &altspi->regs->txdata);
+		while (!(readl(&altspi->regs->status) & ALTERA_SPI_STATUS_RRDY_MSK))
 			;
-		d = readl(altspi->base + ALTERA_SPI_RXDATA);
+		d = readl(&altspi->regs->rxdata);
 		if (rxp)
 			*rxp++ = d;
 		debug("rx:%x\n", d);
