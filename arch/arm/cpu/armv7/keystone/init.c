@@ -25,12 +25,12 @@ int arch_cpu_init(void)
 	chip_configuration_unlock();
 	icache_enable();
 
-	msmc_share_all_segments(8);  /* TETRIS */
-	msmc_share_all_segments(9);  /* NETCP */
-	msmc_share_all_segments(10); /* QM PDSP */
-	msmc_share_all_segments(11); /* PCIE 0 */
-#ifdef CONFIG_SOC_K2E
-	msmc_share_all_segments(13); /* PCIE 1 */
+	msmc_share_all_segments(KS2_MSMC_SEGMENT_TETRIS);
+	msmc_share_all_segments(KS2_MSMC_SEGMENT_NETCP);
+	msmc_share_all_segments(KS2_MSMC_SEGMENT_QM_PDSP);
+	msmc_share_all_segments(KS2_MSMC_SEGMENT_PCIE0);
+#if defined(CONFIG_SOC_K2E) || defined(CONFIG_SOC_K2L)
+	msmc_share_all_segments(KS2_MSMC_SEGMENT_PCIE1);
 #endif
 
 	/*
