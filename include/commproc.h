@@ -703,28 +703,6 @@ typedef struct scc_enet {
 #define SICR_ENET_CLKRT	((uint)0x00250000)
 #endif	/* CONFIG_KM8XX */
 
-
-/***  MHPC  ********************************************************/
-
-#if defined(CONFIG_MHPC)
-/* This ENET stuff is for the MHPC with ethernet on SCC2.
- * Note TENA is on Port B.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
-#define PA_ENET_RCLK	((ushort)0x0200)	/* PA 6 */
-#define PA_ENET_TCLK	((ushort)0x0400)	/* PA 5 */
-#define PB_ENET_TENA	((uint)0x00002000)	/* PB 18 */
-#define PC_ENET_CLSN	((ushort)0x0040)	/* PC 9 */
-#define PC_ENET_RENA	((ushort)0x0080)	/* PC 8 */
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002e00)	/* RCLK-CLK2, TCLK-CLK3 */
-#endif	/* CONFIG_MHPC */
-
 /***  NETVIA  *******************************************************/
 
 #if defined(CONFIG_NETVIA)

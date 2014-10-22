@@ -40,9 +40,6 @@ config TARGET_RRVISION
 config TARGET_SPD823TS
 	bool "Support SPD823TS"
 
-config TARGET_MHPC
-	bool "Support MHPC"
-
 config TARGET_TOP860
 	bool "Support TOP860"
 
@@ -117,7 +114,6 @@ endchoice
 source "board/LEOX/elpt860/Kconfig"
 source "board/RRvision/Kconfig"
 source "board/cogent/Kconfig"
-source "board/eltec/mhpc/Kconfig"
 source "board/emk/top860/Kconfig"
 source "board/esteem192e/Kconfig"
 source "board/hermes/Kconfig"
