@@ -20,6 +20,10 @@
 #include <asm/arch/clock-k2e.h>
 #endif
 
+#ifdef CONFIG_SOC_K2L
+#include <asm/arch/clock-k2l.h>
+#endif
+
 #define MAIN_PLL CORE_PLL
 
 #include <asm/types.h>
