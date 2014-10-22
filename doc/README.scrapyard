@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+IDS8247          powerpc     mpc8260        -           -           Heiko Schocher <hs@denx.de>
 HWW1U1A          powerpc     mpc85xx        -           -           Kyle Moffett <Kyle.D.Moffett@boeing.com>
 hymod            powerpc     mpc8260        -           -           Murray Jensen <Murray.Jensen@csiro.au>
 MHPC             powerpc     mpc8xx         -           -           Frank Gottschling <fgottschling@eltec.de>
