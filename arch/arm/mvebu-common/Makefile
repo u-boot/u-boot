@@ -7,4 +7,5 @@
 #
 
 obj-y	= dram.o
+obj-$(CONFIG_ARMADA_XP) += mbus.o
 obj-y	+= timer.o
