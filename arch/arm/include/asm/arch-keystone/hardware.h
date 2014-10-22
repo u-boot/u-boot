@@ -87,6 +87,52 @@ typedef volatile unsigned int   *dv_reg_p;
 
 #define KS2_DDR3_PLLCTRL_PHY_RESET	0x80000000
 
+/* DDR3 ECC */
+#define KS2_DDR3_ECC_INT_STATUS_OFFSET			0x0AC
+#define KS2_DDR3_ECC_INT_ENABLE_SET_SYS_OFFSET		0x0B4
+#define KS2_DDR3_ECC_CTRL_OFFSET			0x110
+#define KS2_DDR3_ECC_ADDR_RANGE1_OFFSET			0x114
+#define KS2_DDR3_ONE_BIT_ECC_ERR_CNT_OFFSET		0x130
+#define KS2_DDR3_ONE_BIT_ECC_ERR_ADDR_LOG_OFFSET	0x13C
+
+/* DDR3 ECC Interrupt Status register */
+#define KS2_DDR3_1B_ECC_ERR_SYS		BIT(5)
+#define KS2_DDR3_2B_ECC_ERR_SYS		BIT(4)
+#define KS2_DDR3_WR_ECC_ERR_SYS		BIT(3)
+
+/* DDR3 ECC Control register */
+#define KS2_DDR3_ECC_EN			BIT(31)
+#define KS2_DDR3_ECC_ADDR_RNG_PROT	BIT(30)
+#define KS2_DDR3_ECC_VERIFY_EN		BIT(29)
+#define KS2_DDR3_ECC_RMW_EN		BIT(28)
+#define KS2_DDR3_ECC_ADDR_RNG_1_EN	BIT(0)
+
+#define KS2_DDR3_ECC_ENABLE		(KS2_DDR3_ECC_EN | \
+					KS2_DDR3_ECC_ADDR_RNG_PROT | \
+					KS2_DDR3_ECC_VERIFY_EN)
+
+/* EDMA */
+#define KS2_EDMA0_BASE			0x02700000
+
+/* EDMA3 register offsets */
+#define KS2_EDMA_QCHMAP0		0x0200
+#define KS2_EDMA_IPR			0x1068
+#define KS2_EDMA_ICR			0x1070
+#define KS2_EDMA_QEECR			0x1088
+#define KS2_EDMA_QEESR			0x108c
+#define KS2_EDMA_PARAM_1(x)		(0x4020 + (4 * x))
+
+/* Chip Interrupt Controller */
+#define KS2_CIC2_BASE			0x02608000
+
+/* Chip Interrupt Controller register offsets */
+#define KS2_CIC_CTRL			0x04
+#define KS2_CIC_HOST_CTRL		0x0C
+#define KS2_CIC_GLOBAL_ENABLE		0x10
+#define KS2_CIC_SYS_ENABLE_IDX_SET	0x28
+#define KS2_CIC_HOST_ENABLE_IDX_SET	0x34
+#define KS2_CIC_CHAN_MAP(n)		(0x0400 + (n << 2))
+
 #define KS2_UART0_BASE                	0x02530c00
 #define KS2_UART1_BASE                	0x02531000
 

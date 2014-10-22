@@ -79,6 +79,10 @@
 #define KS2_DDR3B_EMIF_DATA_BASE	0x60000000
 #define KS2_DDR3B_DDRPHYC		0x02328000
 
+#define KS2_CIC2_DDR3_ECC_IRQ_NUM	0x0D3 /* DDR3 ECC system irq number */
+#define KS2_CIC2_DDR3_ECC_CHAN_NUM	0x01D /* DDR3 ECC int mapped to CIC2
+						 channel 29 */
+
 /* SGMII SerDes */
 #define KS2_LANES_PER_SGMII_SERDES	4
 

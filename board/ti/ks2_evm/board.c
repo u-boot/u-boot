@@ -40,6 +40,7 @@ int dram_init(void)
 	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 				    CONFIG_MAX_RAM_BANK_SIZE);
 	aemif_init(ARRAY_SIZE(aemif_configs), aemif_configs);
+	ddr3_init_ecc(KS2_DDR3A_EMIF_CTRL_BASE);
 	return 0;
 }
 
@@ -254,5 +255,7 @@ void ft_board_setup_ex(void *blob, bd_t *bd)
 			reserve_start += 2;
 		}
 	}
+
+	ddr3_check_ecc_int(KS2_DDR3A_EMIF_CTRL_BASE);
 }
 #endif
