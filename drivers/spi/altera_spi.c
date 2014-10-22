@@ -126,10 +126,10 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 {
 	struct altera_spi_slave *altspi = to_altera_spi_slave(slave);
 	/* assume spi core configured to do 8 bit transfers */
-	uint bytes = bitlen / 8;
-	const uchar *txp = dout;
-	uchar *rxp = din;
-	uint32_t reg, start;
+	unsigned int bytes = bitlen / 8;
+	const unsigned char *txp = dout;
+	unsigned char *rxp = din;
+	uint32_t reg, data, start;
 
 	debug("%s: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n", __func__,
 	      slave->bus, slave->cs, bitlen, bytes, flags);
@@ -150,10 +150,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		spi_cs_activate(slave);
 
 	while (bytes--) {
-		uchar d = txp ? *txp++ : CONFIG_ALTERA_SPI_IDLE_VAL;
+		if (txp)
+			data = *txp++;
+		else
+			data = CONFIG_ALTERA_SPI_IDLE_VAL;
 
-		debug("%s: tx:%x ", __func__, d);
-		writel(d, &altspi->regs->txdata);
+		debug("%s: tx:%x ", __func__, data);
+		writel(data, &altspi->regs->txdata);
 
 		start = get_timer(0);
 		while (1) {
@@ -166,11 +169,11 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 			}
 		}
 
-		d = readl(&altspi->regs->rxdata);
+		data = readl(&altspi->regs->rxdata);
 		if (rxp)
-			*rxp++ = d;
+			*rxp++ = data & 0xff;
 
-		debug("rx:%x\n", d);
+		debug("rx:%x\n", data);
 	}
 
 done:
