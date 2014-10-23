@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <asm/gpio.h>
+#include <linux/ctype.h>
 
 /**
  * gpio_to_device() - Convert global GPIO number to device, number
@@ -43,35 +44,47 @@ static int gpio_to_device(unsigned int gpio, struct udevice **devp,
 int gpio_lookup_name(const char *name, struct udevice **devp,
 		     unsigned int *offsetp, unsigned int *gpiop)
 {
-	struct gpio_dev_priv *uc_priv;
+	struct gpio_dev_priv *uc_priv = NULL;
 	struct udevice *dev;
+	ulong offset;
+	int numeric;
 	int ret;
 
 	if (devp)
 		*devp = NULL;
+	numeric = isdigit(*name) ? simple_strtoul(name, NULL, 10) : -1;
 	for (ret = uclass_first_device(UCLASS_GPIO, &dev);
 	     dev;
 	     ret = uclass_next_device(&dev)) {
-		ulong offset;
 		int len;
 
 		uc_priv = dev->uclass_priv;
+		if (numeric != -1) {
+			offset = numeric - uc_priv->gpio_base;
+			/* Allow GPIOs to be numbered from 0 */
+			if (offset >= 0 && offset < uc_priv->gpio_count)
+				break;
+		}
+
 		len = uc_priv->bank_name ? strlen(uc_priv->bank_name) : 0;
 
 		if (!strncasecmp(name, uc_priv->bank_name, len)) {
-			if (strict_strtoul(name + len, 10, &offset))
-				continue;
-			if (devp)
-				*devp = dev;
-			if (offsetp)
-				*offsetp = offset;
-			if (gpiop)
-				*gpiop = uc_priv->gpio_base + offset;
-			return 0;
+			if (!strict_strtoul(name + len, 10, &offset))
+				break;
 		}
 	}
 
-	return ret ? ret : -EINVAL;
+	if (!dev)
+		return ret ? ret : -EINVAL;
+
+	if (devp)
+		*devp = dev;
+	if (offsetp)
+		*offsetp = offset;
+	if (gpiop)
+		*gpiop = uc_priv->gpio_base + offset;
+
+	return 0;
 }
 
 /**
