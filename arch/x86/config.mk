@@ -28,6 +28,3 @@ PLATFORM_LDFLAGS += --emit-relocs -Bsymbolic -Bsymbolic-functions -m elf_i386
 LDFLAGS_FINAL += --gc-sections -pie
 LDFLAGS_FINAL += --wrap=__divdi3 --wrap=__udivdi3
 LDFLAGS_FINAL += --wrap=__moddi3 --wrap=__umoddi3
-
-export NORMAL_LIBGCC = $(shell $(CC) $(PLATFORM_CPPFLAGS) -print-libgcc-file-name)
-CONFIG_USE_PRIVATE_LIBGCC := arch/x86/lib

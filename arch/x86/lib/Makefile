@@ -20,9 +20,9 @@ obj-$(CONFIG_SYS_X86_TSC_TIMER)	+= tsc_timer.o
 obj-$(CONFIG_VIDEO_VGA)	+= video.o
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 
-LIBGCC := $(notdir $(NORMAL_LIBGCC))
-extra-y := $(LIBGCC)
+extra-$(CONFIG_USE_PRIVATE_LIBGCC) := lib.a
 
+NORMAL_LIBGCC = $(shell $(CC) $(PLATFORM_CPPFLAGS) -print-libgcc-file-name)
 OBJCOPYFLAGS := --prefix-symbols=__normal_
-$(obj)/$(LIBGCC): $(NORMAL_LIBGCC) FORCE
+$(obj)/lib.a: $(NORMAL_LIBGCC) FORCE
 	$(call if_changed,objcopy)
