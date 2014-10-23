@@ -67,10 +67,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
-/* remove devicetree support */
-#ifdef CONFIG_OF_CONTROL
-#endif
-
 /* remove I2C support */
 #ifdef CONFIG_SYS_I2C_TEGRA
 #undef CONFIG_SYS_I2C_TEGRA

@@ -26,8 +26,8 @@
  */
 
 /**
- * Request a gpio. This should be called before any of the other functions
- * are used on this gpio.
+ * Request a GPIO. This should be called before any of the other functions
+ * are used on this GPIO.
  *
  * @param gp	GPIO number
  * @param label	User label for this GPIO
@@ -102,7 +102,7 @@ struct udevice;
  * new DM GPIO API, this should be really easy to flip over to the Linux
  * GPIO API-alike interface.
  *
- * Akso it would be useful to standardise additional functions like
+ * Also it would be useful to standardise additional functions like
  * pullup, slew rate and drive strength.
  *
  * gpio_request)( and gpio_free() are optional - if NULL then they will
@@ -115,7 +115,7 @@ struct udevice;
  * SoCs there may be many banks and therefore many devices all referring
  * to the different IO addresses within the SoC.
  *
- * The uclass combines all GPIO devices togther to provide a consistent
+ * The uclass combines all GPIO devices together to provide a consistent
  * numbering from 0 to n-1, where n is the number of GPIOs in total across
  * all devices. Be careful not to confuse offset with gpio in the parameters.
  */
@@ -143,7 +143,7 @@ struct dm_gpio_ops {
  * struct gpio_dev_priv - information about a device used by the uclass
  *
  * The uclass combines all active GPIO devices into a unified numbering
- * scheme. To do this it maintains some private information aobut each
+ * scheme. To do this it maintains some private information about each
  * device.
  *
  * To implement driver model support in your GPIO driver, add a probe

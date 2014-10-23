@@ -292,7 +292,7 @@ static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 				/* Transfer Complete */
 				debug("r/w is done\n");
 				break;
-			} else if (get_timer(start) > 2000UL) {
+			} else if (get_timer(start) > 8000UL) {
 				writel(mask, &host->reg->norintsts);
 				printf("%s: MMC Timeout\n"
 				       "    Interrupt status        0x%08x\n"

@@ -22,6 +22,7 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-ventana.dtb \
 	tegra20-whistler.dtb \
 	tegra20-colibri_t20_iris.dtb \
+	tegra30-apalis.dtb \
 	tegra30-beaver.dtb \
 	tegra30-cardhu.dtb \
 	tegra30-colibri.dtb \

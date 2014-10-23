@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
+#include <asm/arch/mc.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/board.h>
 #include <asm/arch-tegra/pmc.h>
@@ -27,55 +28,6 @@ enum {
 	UART_COUNT = 5,
 };
 
-#if defined(CONFIG_TEGRA20) || defined(CONFIG_TEGRA30) || \
-	defined(CONFIG_TEGRA114)
-/*
- * Boot ROM initializes the odmdata in APBDEV_PMC_SCRATCH20_0,
- * so we are using this value to identify memory size.
- */
-unsigned int query_sdram_size(void)
-{
-	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
-	u32 reg;
-
-	reg = readl(&pmc->pmc_scratch20);
-	debug("pmc->pmc_scratch20 (ODMData) = 0x%08x\n", reg);
-
-#if defined(CONFIG_TEGRA20)
-	/* bits 30:28 in OdmData are used for RAM size on T20  */
-	reg &= 0x70000000;
-
-	switch ((reg) >> 28) {
-	case 1:
-		return 0x10000000;	/* 256 MB */
-	case 0:
-	case 2:
-	default:
-		return 0x20000000;	/* 512 MB */
-	case 3:
-		return 0x40000000;	/* 1GB */
-	}
-#else	/* Tegra30/Tegra114 */
-	/* bits 31:28 in OdmData are used for RAM size on T30  */
-	switch ((reg) >> 28) {
-	case 0:
-	case 1:
-	default:
-		return 0x10000000;	/* 256 MB */
-	case 2:
-		return 0x20000000;	/* 512 MB */
-	case 3:
-		return 0x30000000;	/* 768 MB */
-	case 4:
-		return 0x40000000;	/* 1GB */
-	case 8:
-		return 0x7ff00000;	/* 2GB - 1MB */
-	}
-#endif
-}
-#else
-#include <asm/arch/mc.h>
-
 /* Read the RAM size directly from the memory controller */
 unsigned int query_sdram_size(void)
 {
@@ -83,11 +35,21 @@ unsigned int query_sdram_size(void)
 	u32 size_mb;
 
 	size_mb = readl(&mc->mc_emem_cfg);
+#if defined(CONFIG_TEGRA20)
+	debug("mc->mc_emem_cfg (MEM_SIZE_KB) = 0x%08x\n", size_mb);
+	size_mb = get_ram_size((void *)PHYS_SDRAM_1, size_mb * 1024);
+#else
 	debug("mc->mc_emem_cfg (MEM_SIZE_MB) = 0x%08x\n", size_mb);
-
-	return size_mb * 1024 * 1024;
-}
+	size_mb = get_ram_size((void *)PHYS_SDRAM_1, size_mb * 1024 * 1024);
 #endif
+
+#if defined(CONFIG_TEGRA30) || defined(CONFIG_TEGRA114)
+	/* External memory limited to 2047 MB due to IROM/HI-VEC */
+	if (size_mb == SZ_2G) size_mb -= SZ_1M;
+#endif
+
+	return size_mb;
+}
 
 int dram_init(void)
 {

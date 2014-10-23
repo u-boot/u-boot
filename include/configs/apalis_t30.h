@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Stefan Agner
+ * Copyright (c) 2014 Marcel Ziswiler
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -11,15 +11,16 @@
 
 #include "tegra30-common.h"
 
-#define V_PROMPT			"Colibri T30 # "
-#define CONFIG_TEGRA_BOARD_STRING	"Toradex Colibri T30"
+/* High-level configuration options */
+#define V_PROMPT			"Apalis T30 # "
+#define CONFIG_TEGRA_BOARD_STRING	"Toradex Apalis T30"
 
-/* Board-specific config */
+/* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
-#define CONFIG_MACH_TYPE		MACH_TYPE_COLIBRI_T30
+#define CONFIG_MACH_TYPE		MACH_TYPE_APALIS_T30
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
@@ -52,6 +53,17 @@
 /* USB networking support */
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
+
+/* PCI host support */
+#undef CONFIG_PCI	/* just define once Tegra PCIe support got merged */
+#define CONFIG_PCI_TEGRA
+#define CONFIG_PCI_PNP
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PCI_ENUM
+
+/* PCI networking support */
+#define CONFIG_E1000
+#undef CONFIG_E1000_NO_NVM	/* just define once E1000 driver got fixed */
 
 /* General networking support */
 #define CONFIG_CMD_NET
