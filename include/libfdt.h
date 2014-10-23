@@ -163,6 +163,31 @@ int fdt_first_subnode(const void *fdt, int offset);
  */
 int fdt_next_subnode(const void *fdt, int offset);
 
+/**
+ * fdt_for_each_subnode - iterate over all subnodes of a parent
+ *
+ * This is actually a wrapper around a for loop and would be used like so:
+ *
+ *	fdt_for_each_subnode(fdt, node, parent) {
+ *		...
+ *		use node
+ *		...
+ *	}
+ *
+ * Note that this is implemented as a macro and node is used as iterator in
+ * the loop. It should therefore be a locally allocated variable. The parent
+ * variable on the other hand is never modified, so it can be constant or
+ * even a literal.
+ *
+ * @fdt:	FDT blob (const void *)
+ * @node:	child node (int)
+ * @parent:	parent node (int)
+ */
+#define fdt_for_each_subnode(fdt, node, parent)		\
+	for (node = fdt_first_subnode(fdt, parent);	\
+	     node >= 0;					\
+	     node = fdt_next_subnode(fdt, node))
+
 /**********************************************************************/
 /* General functions                                                  */
 /**********************************************************************/
@@ -856,6 +881,53 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
  * @return: 1 if the string is found in the list, 0 not found, or invalid list
  */
 int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
+
+/**
+ * fdt_count_strings - count the number of strings in a string list
+ * @fdt: pointer to the device tree blob
+ * @node: offset of the node
+ * @property: name of the property containing the string list
+ * @return: the number of strings in the given property
+ */
+int fdt_count_strings(const void *fdt, int node, const char *property);
+
+/**
+ * fdt_find_string - find a string in a string list and return its index
+ * @fdt: pointer to the device tree blob
+ * @node: offset of the node
+ * @property: name of the property containing the string list
+ * @string: string to look up in the string list
+ * @return: the index of the string or negative on error
+ */
+int fdt_find_string(const void *fdt, int node, const char *property,
+		    const char *string);
+
+/**
+ * fdt_get_string_index() - obtain the string at a given index in a string list
+ * @fdt: pointer to the device tree blob
+ * @node: offset of the node
+ * @property: name of the property containing the string list
+ * @index: index of the string to return
+ * @output: return location for the string
+ * @return: 0 if the string was found or a negative error code otherwise
+ */
+int fdt_get_string_index(const void *fdt, int node, const char *property,
+			 int index, const char **output);
+
+/**
+ * fdt_get_string() - obtain the string at a given index in a string list
+ * @fdt: pointer to the device tree blob
+ * @node: offset of the node
+ * @property: name of the property containing the string list
+ * @output: return location for the string
+ * @return: 0 if the string was found or a negative error code otherwise
+ *
+ * This is a shortcut for:
+ *
+ *	fdt_get_string_index(fdt, node, property, 0, output).
+ */
+int fdt_get_string(const void *fdt, int node, const char *property,
+		   const char **output);
 
 /**********************************************************************/
 /* Read-only functions (addressing related)                           */
