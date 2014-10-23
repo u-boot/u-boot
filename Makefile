@@ -674,12 +674,8 @@ u-boot-main := $(libs-y)
 
 
 # Add GCC lib
-ifdef CONFIG_USE_PRIVATE_LIBGCC
 ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
 PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
-else
-PLATFORM_LIBGCC = -L $(CONFIG_USE_PRIVATE_LIBGCC) -lgcc
-endif
 else
 PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(c_flags) -print-libgcc-file-name`) -lgcc
 endif
