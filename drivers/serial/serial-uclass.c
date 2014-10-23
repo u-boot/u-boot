@@ -11,8 +11,11 @@
 #include <os.h>
 #include <serial.h>
 #include <stdio_dev.h>
+#include <watchdog.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
+
+#include <ns16550.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -119,6 +122,8 @@ static int serial_getc_dev(struct udevice *dev)
 
 	do {
 		err = ops->getc(dev);
+		if (err == -EAGAIN)
+			WATCHDOG_RESET();
 	} while (err == -EAGAIN);
 
 	return err >= 0 ? err : 0;
