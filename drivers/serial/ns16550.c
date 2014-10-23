@@ -253,7 +253,7 @@ static int ns16550_serial_getc(struct udevice *dev)
 {
 	struct NS16550 *const com_port = dev_get_priv(dev);
 
-	if (!serial_in(&com_port->lsr) & UART_LSR_DR)
+	if (!(serial_in(&com_port->lsr) & UART_LSR_DR))
 		return -EAGAIN;
 
 	return serial_in(&com_port->rbr);
