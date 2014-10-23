@@ -157,7 +157,6 @@ serial_initfunc(sh_serial_initialize);
 serial_initfunc(arm_dcc_initialize);
 serial_initfunc(mxs_auart_initialize);
 serial_initfunc(arc_serial_initialize);
-serial_initfunc(uniphier_serial_initialize);
 
 /**
  * serial_register() - Register serial driver with serial driver core
@@ -251,7 +250,6 @@ void serial_initialize(void)
 	arm_dcc_initialize();
 	mxs_auart_initialize();
 	arc_serial_initialize();
-	uniphier_serial_initialize();
 
 	serial_assign(default_serial_console()->name);
 }
