@@ -4,6 +4,9 @@ menu "MIPS architecture"
 config SYS_ARCH
 	default "mips"
 
+config USE_PRIVATE_LIBGCC
+	default y
+
 choice
 	prompt "Target select"
 
