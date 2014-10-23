@@ -1010,7 +1010,8 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		image_multi_getimg(images->legacy_hdr_os, 1, &rd_data, &rd_len);
 	}
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
-	else if ((genimg_get_format(images) == IMAGE_FORMAT_ANDROID) &&
+	else if ((genimg_get_format((void *)images->os.start)
+			== IMAGE_FORMAT_ANDROID) &&
 		 (!android_image_get_ramdisk((void *)images->os.start,
 		 &rd_data, &rd_len))) {
 		/* empty */

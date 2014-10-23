@@ -154,11 +154,11 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 		images.os.type = IH_TYPE_KERNEL;
 		images.os.comp = IH_COMP_NONE;
 		images.os.os = IH_OS_LINUX;
-		images.ep = images.os.load;
-		ep_found = true;
 
 		images.os.end = android_image_get_end(os_hdr);
 		images.os.load = android_image_get_kload(os_hdr);
+		images.ep = images.os.load;
+		ep_found = true;
 		break;
 #endif
 	default:
