@@ -85,14 +85,14 @@ void serial_initialize(void)
 
 static void serial_putc_dev(struct udevice *dev, char ch)
 {
-	struct dm_serial_ops *ops = serial_get_ops(cur_dev);
+	struct dm_serial_ops *ops = serial_get_ops(dev);
 	int err;
 
 	do {
-		err = ops->putc(cur_dev, ch);
+		err = ops->putc(dev, ch);
 	} while (err == -EAGAIN);
 	if (ch == '\n')
-		serial_putc('\r');
+		serial_putc_dev(dev, '\r');
 }
 
 void serial_putc(char ch)
