@@ -41,6 +41,7 @@ obj-$(CONFIG_MXS_AUART) += mxs_auart.o
 obj-$(CONFIG_ARC_SERIAL) += serial_arc.o
 obj-$(CONFIG_TEGRA_SERIAL) += serial_tegra.o
 obj-$(CONFIG_UNIPHIER_SERIAL) += serial_uniphier.o
+obj-$(CONFIG_OMAP_SERIAL) += serial_omap.o
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_USB_TTY) += usbtty.o
