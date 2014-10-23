@@ -50,13 +50,22 @@ static void serial_find_console_or_panic(void)
 	}
 #endif
 	/*
+	 * Try to use CONFIG_CONS_INDEX if available (it is numbered from 1!).
+	 *
 	 * Failing that, get the device with sequence number 0, or in extremis
 	 * just the first serial device we can find. But we insist on having
 	 * a console (even if it is silent).
 	 */
-	if (uclass_get_device_by_seq(UCLASS_SERIAL, 0, &cur_dev) &&
+#ifdef CONFIG_CONS_INDEX
+#define INDEX (CONFIG_CONS_INDEX - 1)
+#else
+#define INDEX 0
+#endif
+	if (uclass_get_device_by_seq(UCLASS_SERIAL, INDEX, &cur_dev) &&
+	    uclass_get_device(UCLASS_SERIAL, INDEX, &cur_dev) &&
 	    (uclass_first_device(UCLASS_SERIAL, &cur_dev) || !cur_dev))
 		panic("No serial driver found");
+#undef INDEX
 }
 
 /* Called prior to relocation */
