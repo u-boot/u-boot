@@ -155,9 +155,10 @@ int board_mmc_getcd(struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	int ret;
 
-	if (cfg->esdhc_base == USDHC3_BASE_ADDR)
-		ret = 1;
-	else {
+	if (cfg->esdhc_base == USDHC3_BASE_ADDR) {
+		gpio_direction_input(IMX_GPIO_NR(4, 5));
+		ret = gpio_get_value(IMX_GPIO_NR(4, 5));
+	} else {
 		gpio_direction_input(IMX_GPIO_NR(1, 4));
 		ret = !gpio_get_value(IMX_GPIO_NR(1, 4));
 	}
