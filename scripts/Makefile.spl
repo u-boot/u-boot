@@ -216,13 +216,13 @@ $(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin
 endif
 
 quiet_cmd_u-boot-spl = LD      $@
-      cmd_u-boot-spl = cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
+      cmd_u-boot-spl = (cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
 		       $(patsubst $(obj)/%,%,$(u-boot-spl-init)) --start-group \
 		       $(patsubst $(obj)/%,%,$(u-boot-spl-main)) --end-group \
-		       $(PLATFORM_LIBS) -Map $(SPL_BIN).map -o $(SPL_BIN)
+		       $(PLATFORM_LIBS) -Map $(SPL_BIN).map -o $(SPL_BIN))
 
-$(obj)/$(SPL_BIN): $(u-boot-spl-init) $(u-boot-spl-main) $(obj)/u-boot-spl.lds
-	$(call cmd,u-boot-spl)
+$(obj)/$(SPL_BIN): $(u-boot-spl-init) $(u-boot-spl-main) $(obj)/u-boot-spl.lds FORCE
+	$(call if_changed,u-boot-spl)
 
 $(sort $(u-boot-spl-init) $(u-boot-spl-main)): $(u-boot-spl-dirs) ;
 
