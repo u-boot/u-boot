@@ -480,6 +480,9 @@ static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if ((count % (64 << 10)) == 0)
 			WATCHDOG_RESET();
 	}
+	unmap_sysmem(buf);
+	unmap_sysmem(src);
+
 	return 0;
 }
 
