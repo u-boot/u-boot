@@ -39,9 +39,14 @@ static void dtsec_configure_serdes(struct fm_eth *priv)
 	u32 value;
 	struct mii_dev bus;
 	bus.priv = priv->mac->phyregs;
+	bool sgmii_2500 = (priv->enet_if ==
+			PHY_INTERFACE_MODE_SGMII_2500) ? true : false;
 
-	/* SGMII IF mode + AN enable */
-	value = PHY_SGMII_IF_MODE_AN | PHY_SGMII_IF_MODE_SGMII;
+	/* SGMII IF mode + AN enable only for 1G SGMII, not for 2.5G */
+	value = PHY_SGMII_IF_MODE_SGMII;
+	if (!sgmii_2500)
+		value |= PHY_SGMII_IF_MODE_AN;
+
 	memac_mdio_write(&bus, 0, MDIO_DEVAD_NONE, 0x14, value);
 
 	/* Dev ability according to SGMII specification */
@@ -54,7 +59,9 @@ static void dtsec_configure_serdes(struct fm_eth *priv)
 	memac_mdio_write(&bus, 0, MDIO_DEVAD_NONE, 0x12, 0xd40);
 
 	/* Restart AN */
-	value = PHY_SGMII_CR_DEF_VAL | PHY_SGMII_CR_RESET_AN;
+	value = PHY_SGMII_CR_DEF_VAL;
+	if (!sgmii_2500)
+		value |= PHY_SGMII_CR_RESET_AN;
 	memac_mdio_write(&bus, 0, MDIO_DEVAD_NONE, 0, value);
 #else
 	struct dtsec *regs = priv->mac->base;
@@ -83,7 +90,8 @@ static void dtsec_init_phy(struct eth_device *dev)
 	out_be32(&regs->tbipa, CONFIG_SYS_TBIPA_VALUE);
 #endif
 
-	if (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII)
+	if (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII ||
+	    fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII_2500)
 		dtsec_configure_serdes(fm_eth);
 }
 
