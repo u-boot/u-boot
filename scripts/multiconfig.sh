@@ -297,9 +297,24 @@ do_others () {
 	else
 		objdir=${1%/*}
 		check_enabled_subimage $1 $objdir
+
+		if [ -f "$objdir/$KCONFIG_CONFIG" ]; then
+			timestamp_before=$(stat --printf="%Y" \
+						$objdir/$KCONFIG_CONFIG)
+		fi
 	fi
 
 	run_make_config $target $objdir
+
+	if [ "$timestamp_before" -a -f "$objdir/$KCONFIG_CONFIG" ]; then
+		timestamp_after=$(stat --printf="%Y" $objdir/$KCONFIG_CONFIG)
+
+		if [ "$timestamp_after" -gt "$timestamp_before" ]; then
+			# $objdir/.config has been updated.
+			# touch .config to invoke "make silentoldconfig"
+			touch $KCONFIG_CONFIG
+		fi
+	fi
 }
 
 progname=$(basename $0)
