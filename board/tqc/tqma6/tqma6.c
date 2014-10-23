@@ -138,8 +138,10 @@ static iomux_v3_cfg_t const tqma6_ecspi1_pads[] = {
 	NEW_PAD_CTRL(MX6_PAD_EIM_D18__ECSPI1_MOSI, SPI_PAD_CTRL),
 };
 
+#define TQMA6_SF_CS_GPIO IMX_GPIO_NR(3, 19)
+
 static unsigned const tqma6_ecspi1_cs[] = {
-	IMX_GPIO_NR(3, 19),
+	TQMA6_SF_CS_GPIO,
 };
 
 static void tqma6_iomuxc_spi(void)
@@ -150,6 +152,12 @@ static void tqma6_iomuxc_spi(void)
 		gpio_direction_output(tqma6_ecspi1_cs[i], 1);
 	imx_iomux_v3_setup_multiple_pads(tqma6_ecspi1_pads,
 					 ARRAY_SIZE(tqma6_ecspi1_pads));
+}
+
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return ((bus == CONFIG_SF_DEFAULT_BUS) &&
+		(cs == CONFIG_SF_DEFAULT_CS)) ? TQMA6_SF_CS_GPIO : -1;
 }
 
 static struct i2c_pads_info tqma6_i2c3_pads = {

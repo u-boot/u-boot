@@ -9,12 +9,25 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_MX6
+
+/* SPL */
+/* #if defined(CONFIG_SPL_BUILD) */
+
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_FAT_SUPPORT
+#define CONFIG_SPL_EXT_SUPPORT
+
+/* common IMX6 SPL configuration */
+#include "imx6_spl.h"
+
+/* #endif */
+
 #include "mx6_common.h"
 #include <asm/arch/imx-regs.h>
 #include <asm/imx-common/gpio.h>
 #include <linux/sizes.h>
-
-#define CONFIG_MX6
 
 #if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
 #define PHYS_SDRAM_SIZE			(512u * SZ_1M)
@@ -57,7 +70,7 @@
 
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_BUS	0
-#define CONFIG_SF_DEFAULT_CS	(0 | (IMX_GPIO_NR(3, 19) << 8))
+#define CONFIG_SF_DEFAULT_CS	0
 #define CONFIG_SF_DEFAULT_SPEED	50000000
 #define CONFIG_SF_DEFAULT_MODE	(SPI_MODE_0)
 
