@@ -149,9 +149,7 @@ void serial_stdio_init(void)
 
 static void serial_stub_putc(struct stdio_dev *sdev, const char ch)
 {
-	struct udevice *dev = sdev->priv;
-
-	serial_putc_dev(dev, ch);
+	serial_putc_dev(sdev->priv, ch);
 }
 
 void serial_stub_puts(struct stdio_dev *sdev, const char *str)
@@ -162,9 +160,7 @@ void serial_stub_puts(struct stdio_dev *sdev, const char *str)
 
 int serial_stub_getc(struct stdio_dev *sdev)
 {
-	struct udevice *dev = sdev->priv;
-
-	return serial_getc_dev(dev);
+	return serial_getc_dev(sdev->priv);
 }
 
 int serial_stub_tstc(struct stdio_dev *sdev)
