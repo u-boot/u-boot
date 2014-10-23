@@ -360,7 +360,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
-#define CONFIG_SYS_HZ			1000
 
 /*
  * Stack sizes

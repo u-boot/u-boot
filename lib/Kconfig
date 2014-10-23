@@ -8,4 +8,12 @@ config CC_OPTIMIZE_LIBS_FOR_SPEED
 
 	  If unsure, say N.
 
+config SYS_HZ
+	int
+	default 1000
+	help
+	  The frequency of the timer returned by get_timer().
+	  get_timer() must operate in milliseconds and this option must be
+	  set to 1000.
+
 endmenu

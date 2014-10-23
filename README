@@ -623,13 +623,6 @@ The following options need to be configured:
 		exists, unlike the similar options in the Linux kernel. Do not
 		set these options unless they apply!
 
-- CPU timer options:
-		CONFIG_SYS_HZ
-
-		The frequency of the timer returned by get_timer().
-		get_timer() must operate in milliseconds and this CONFIG
-		option must be set to 1000.
-
 - Linux Kernel Interface:
 		CONFIG_CLOCKS_IN_MHZ
 

@@ -105,8 +105,6 @@
 /* standalone support */
 #define CONFIG_STANDALONE_LOAD_ADDR	0x42000000
 
-#define CONFIG_SYS_HZ			1000
-
 /* baudrate */
 #define CONFIG_BAUDRATE			115200
 

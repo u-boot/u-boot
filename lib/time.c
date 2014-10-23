@@ -10,10 +10,6 @@
 #include <div64.h>
 #include <asm/io.h>
 
-#if CONFIG_SYS_HZ != 1000
-#warning "CONFIG_SYS_HZ must be 1000 and should not be defined by platforms"
-#endif
-
 #ifndef CONFIG_WD_PERIOD
 # define CONFIG_WD_PERIOD	(10 * 1000 * 1000)	/* 10 seconds default */
 #endif
