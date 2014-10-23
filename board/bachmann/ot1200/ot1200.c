@@ -104,10 +104,25 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 	return (bus == 2 && cs == 0) ? (IMX_GPIO_NR(1, 3)) : -1;
 }
 
+static iomux_v3_cfg_t const feature_pads[] = {
+	/* SD card detect */
+	MX6_PAD_GPIO_4__GPIO1_IO04 | MUX_PAD_CTRL(PAD_CTL_PUS_100K_DOWN),
+
+	/* eMMC soldered? */
+	MX6_PAD_GPIO_19__GPIO4_IO05 | MUX_PAD_CTRL(PAD_CTL_PUS_100K_UP),
+};
+
+static void setup_iomux_features(void)
+{
+	imx_iomux_v3_setup_multiple_pads(feature_pads,
+		ARRAY_SIZE(feature_pads));
+}
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
 	setup_iomux_spi();
+	setup_iomux_features();
 
 	return 0;
 }
