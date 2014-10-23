@@ -154,10 +154,6 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
 
-#ifdef CONFIG_SPL_BUILD
-# define CONFIG_USE_PRIVATE_LIBGCC
-#endif
-
 #define CONFIG_SYS_GENERIC_BOARD
 
 /* Misc utility code */

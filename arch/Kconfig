@@ -7,6 +7,7 @@ config ARC
 
 config ARM
 	bool "ARM architecture"
+	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
 
 config AVR32
@@ -24,6 +25,7 @@ config MICROBLAZE
 
 config MIPS
 	bool "MIPS architecture"
+	select HAVE_PRIVATE_LIBGCC
 
 config NDS32
 	bool "NDS32 architecture"
@@ -36,6 +38,7 @@ config OPENRISC
 
 config PPC
 	bool "PowerPC architecture"
+	select HAVE_PRIVATE_LIBGCC
 
 config SANDBOX
 	bool "Sandbox"
@@ -43,12 +46,14 @@ config SANDBOX
 
 config SH
 	bool "SuperH architecture"
+	select HAVE_PRIVATE_LIBGCC
 
 config SPARC
 	bool "SPARC architecture"
 
 config X86
 	bool "x86 architecture"
+	select HAVE_PRIVATE_LIBGCC
 	select SUPPORT_OF_CONTROL
 
 endchoice

@@ -8,6 +8,17 @@ config CC_OPTIMIZE_LIBS_FOR_SPEED
 
 	  If unsure, say N.
 
+config HAVE_PRIVATE_LIBGCC
+	bool
+
+config USE_PRIVATE_LIBGCC
+	bool "Use private libgcc"
+	depends on HAVE_PRIVATE_LIBGCC
+	help
+	  This option allows you to use the built-in libgcc implementation
+	  of U-boot instead of the one privided by the compiler.
+	  If unsure, say N.
+
 config SYS_HZ
 	int
 	default 1000

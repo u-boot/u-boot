@@ -4,6 +4,9 @@ menu "x86 architecture"
 config SYS_ARCH
 	default "x86"
 
+config USE_PRIVATE_LIBGCC
+	default y
+
 choice
 	prompt "Target select"
 
