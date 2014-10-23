@@ -1,0 +1,6 @@
+config DM
+	bool "Enable Driver Model"
+	depends on !SPL_BUILD
+	help
+	  This config option enables Driver Model.
+	  To use legacy drivers, say N.

@@ -1,0 +1,6 @@
+config DM_SPI
+	bool "Enable Driver Model for SPI drivers"
+	depends on DM
+	help
+	  If you want to use driver model for SPI drivers, say Y.
+	  To use legacy SPI drivers, say N.
