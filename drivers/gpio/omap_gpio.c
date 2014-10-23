@@ -26,11 +26,6 @@
 #define OMAP_GPIO_DIR_OUT	0
 #define OMAP_GPIO_DIR_IN	1
 
-static inline const struct gpio_bank *get_gpio_bank(int gpio)
-{
-	return &omap_gpio_bank[gpio >> 5];
-}
-
 static inline int get_gpio_index(int gpio)
 {
 	return gpio & 0x1f;
@@ -39,15 +34,6 @@ static inline int get_gpio_index(int gpio)
 int gpio_is_valid(int gpio)
 {
 	return (gpio >= 0) && (gpio < OMAP_MAX_GPIO);
-}
-
-static int check_gpio(int gpio)
-{
-	if (!gpio_is_valid(gpio)) {
-		printf("ERROR : check_gpio: invalid GPIO %d\n", gpio);
-		return -1;
-	}
-	return 0;
 }
 
 static void _set_gpio_direction(const struct gpio_bank *bank, int gpio,
@@ -118,6 +104,46 @@ static void _set_gpio_dataout(const struct gpio_bank *bank, int gpio,
 	__raw_writel(l, reg);
 }
 
+static int _get_gpio_value(const struct gpio_bank *bank, int gpio)
+{
+	void *reg = bank->base;
+	int input;
+
+	switch (bank->method) {
+	case METHOD_GPIO_24XX:
+		input = _get_gpio_direction(bank, gpio);
+		switch (input) {
+		case OMAP_GPIO_DIR_IN:
+			reg += OMAP_GPIO_DATAIN;
+			break;
+		case OMAP_GPIO_DIR_OUT:
+			reg += OMAP_GPIO_DATAOUT;
+			break;
+		default:
+			return -1;
+		}
+		break;
+	default:
+		return -1;
+	}
+
+	return (__raw_readl(reg) & (1 << gpio)) != 0;
+}
+
+static inline const struct gpio_bank *get_gpio_bank(int gpio)
+{
+	return &omap_gpio_bank[gpio >> 5];
+}
+
+static int check_gpio(int gpio)
+{
+	if (!gpio_is_valid(gpio)) {
+		printf("ERROR : check_gpio: invalid GPIO %d\n", gpio);
+		return -1;
+	}
+	return 0;
+}
+
 /**
  * Set value of the specified gpio
  */
@@ -139,32 +165,12 @@ int gpio_set_value(unsigned gpio, int value)
 int gpio_get_value(unsigned gpio)
 {
 	const struct gpio_bank *bank;
-	void *reg;
-	int input;
 
 	if (check_gpio(gpio) < 0)
 		return -1;
 	bank = get_gpio_bank(gpio);
-	reg = bank->base;
-	switch (bank->method) {
-	case METHOD_GPIO_24XX:
-		input = _get_gpio_direction(bank, get_gpio_index(gpio));
-		switch (input) {
-		case OMAP_GPIO_DIR_IN:
-			reg += OMAP_GPIO_DATAIN;
-			break;
-		case OMAP_GPIO_DIR_OUT:
-			reg += OMAP_GPIO_DATAOUT;
-			break;
-		default:
-			return -1;
-		}
-		break;
-	default:
-		return -1;
-	}
-	return (__raw_readl(reg)
-			& (1 << get_gpio_index(gpio))) != 0;
+
+	return _get_gpio_value(bank, get_gpio_index(gpio));
 }
 
 /**
