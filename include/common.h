@@ -636,13 +636,6 @@ struct stdio_dev;
 int serial_stub_getc(struct stdio_dev *sdev);
 int serial_stub_tstc(struct stdio_dev *sdev);
 
-void	_serial_setbrg (const int);
-void	_serial_putc   (const char, const int);
-void	_serial_putc_raw(const char, const int);
-void	_serial_puts   (const char *, const int);
-int	_serial_getc   (const int);
-int	_serial_tstc   (const int);
-
 /* $(CPU)/speed.c */
 int	get_clocks (void);
 int	get_clocks_866 (void);
