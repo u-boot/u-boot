@@ -29,6 +29,9 @@
 #define CONFIG_SYS_TEXT_BASE	0xFFF90000
 #endif
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 #define CONFIG_SYS_CLK_FREQ	33333400
 
 #if 0 /* temporary disabled because OS/9 does not like dcache on startup */
@@ -133,6 +136,7 @@
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_EEPROM
+#define CONFIG_I2C_ENV_EEPROM_BUS	0
 #define CONFIG_ENV_OFFSET		0	/* environment starts at the beginning of the EEPROM */
 #define CONFIG_ENV_SIZE		0x1000	/* 4096 bytes may be used for env vars */
 #endif
