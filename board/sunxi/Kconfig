@@ -1,4 +1,32 @@
-if TARGET_SUN4I || TARGET_SUN5I || TARGET_SUN6I || TARGET_SUN7I || TARGET_SUN8I
+if ARCH_SUNXI
+
+choice
+	prompt "Sunxi SoC Variant"
+
+config TARGET_SUN4I
+	bool "sun4i (Allwinner A10)"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_SUN5I
+	bool "sun5i (Allwinner A13)"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_SUN6I
+	bool "sun6i (Allwinner A31)"
+	select CPU_V7
+
+config TARGET_SUN7I
+	bool "sun7i (Allwinner A20)"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_SUN8I
+	bool "sun8i (Allwinner A23)"
+	select CPU_V7
+
+endchoice
 
 config SYS_CONFIG_NAME
 	string

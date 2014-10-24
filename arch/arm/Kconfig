@@ -663,30 +663,8 @@ config TARGET_SOCFPGA_CYCLONE5
 	select CPU_V7
 	select SUPPORT_SPL
 
-config TARGET_SUN4I
-	bool "Support sun4i"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_SUN5I
-	bool "Support sun5i"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_SUN6I
-	bool "Support sun6i"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_SUN7I
-	bool "Support sun7i"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_SUN8I
-	bool "Support sun8i"
-	select CPU_V7
-	select SUPPORT_SPL
+config ARCH_SUNXI
+	bool "Support sunxi (Allwinner) SoCs"
 
 config TARGET_SNOWBALL
 	bool "Support snowball"
