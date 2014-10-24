@@ -12,6 +12,7 @@
  */
 
 #include "imagetool.h"
+#include <limits.h>
 #include <image.h>
 #include <stdint.h>
 #include "kwbimage.h"
@@ -396,13 +397,20 @@ static size_t image_headersz_v1(struct image_tool_params *params,
 
 		ret = stat(binarye->binary.file, &s);
 		if (ret < 0) {
-			char *cwd = get_current_dir_name();
+			char cwd[PATH_MAX];
+			char *dir = cwd;
+
+			memset(cwd, 0, sizeof(cwd));
+			if (!getcwd(cwd, sizeof(cwd))) {
+				dir = "current working directory";
+				perror("getcwd() failed");
+			}
+
 			fprintf(stderr,
 				"Didn't find the file '%s' in '%s' which is mandatory to generate the image\n"
 				"This file generally contains the DDR3 training code, and should be extracted from an existing bootable\n"
 				"image for your board. See 'kwbimage -x' to extract it from an existing image.\n",
-				binarye->binary.file, cwd);
-			free(cwd);
+				binarye->binary.file, dir);
 			return 0;
 		}
 
