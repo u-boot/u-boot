@@ -677,4 +677,31 @@ int fdt_get_named_resource(const void *fdt, int node, const char *property,
  */
 int fdtdec_pci_get_bdf(const void *fdt, int node, int *bdf);
 
+/**
+ * Decode a named region within a memory bank of a given type.
+ *
+ * This function handles selection of a memory region. The region is
+ * specified as an offset/size within a particular type of memory.
+ *
+ * The properties used are:
+ *
+ *	<mem_type>-memory<suffix> for the name of the memory bank
+ *	<mem_type>-offset<suffix> for the offset in that bank
+ *
+ * The property value must have an offset and a size. The function checks
+ * that the region is entirely within the memory bank.5
+ *
+ * @param blob		FDT blob
+ * @param node		Node containing the properties (-1 for /config)
+ * @param mem_type	Type of memory to use, which is a name, such as
+ *			"u-boot" or "kernel".
+ * @param suffix	String to append to the memory/offset
+ *			property names
+ * @param basep		Returns base of region
+ * @param sizep		Returns size of region
+ * @return 0 if OK, -ive on error
+ */
+int fdtdec_decode_memory_region(const void *blob, int node,
+				const char *mem_type, const char *suffix,
+				fdt_addr_t *basep, fdt_size_t *sizep);
 #endif

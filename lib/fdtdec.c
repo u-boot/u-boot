@@ -793,4 +793,65 @@ int fdtdec_pci_get_bdf(const void *fdt, int node, int *bdf)
 
 	return 0;
 }
+
+int fdtdec_decode_memory_region(const void *blob, int config_node,
+				const char *mem_type, const char *suffix,
+				fdt_addr_t *basep, fdt_size_t *sizep)
+{
+	char prop_name[50];
+	const char *mem;
+	fdt_size_t size, offset_size;
+	fdt_addr_t base, offset;
+	int node;
+
+	if (config_node == -1) {
+		config_node = fdt_path_offset(blob, "/config");
+		if (config_node < 0) {
+			debug("%s: Cannot find /config node\n", __func__);
+			return -ENOENT;
+		}
+	}
+	if (!suffix)
+		suffix = "";
+
+	snprintf(prop_name, sizeof(prop_name), "%s-memory%s", mem_type,
+		 suffix);
+	mem = fdt_getprop(blob, config_node, prop_name, NULL);
+	if (!mem) {
+		debug("%s: No memory type for '%s', using /memory\n", __func__,
+		      prop_name);
+		mem = "/memory";
+	}
+
+	node = fdt_path_offset(blob, mem);
+	if (node < 0) {
+		debug("%s: Failed to find node '%s': %s\n", __func__, mem,
+		      fdt_strerror(node));
+		return -ENOENT;
+	}
+
+	/*
+	 * Not strictly correct - the memory may have multiple banks. We just
+	 * use the first
+	 */
+	if (fdtdec_decode_region(blob, node, "reg", &base, &size)) {
+		debug("%s: Failed to decode memory region %s\n", __func__,
+		      mem);
+		return -EINVAL;
+	}
+
+	snprintf(prop_name, sizeof(prop_name), "%s-offset%s", mem_type,
+		 suffix);
+	if (fdtdec_decode_region(blob, config_node, prop_name, &offset,
+				 &offset_size)) {
+		debug("%s: Failed to decode memory region '%s'\n", __func__,
+		      prop_name);
+		return -EINVAL;
+	}
+
+	*basep = base + offset;
+	*sizep = offset_size;
+
+	return 0;
+}
 #endif
