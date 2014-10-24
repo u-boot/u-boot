@@ -17,7 +17,7 @@
 #include <watchdog.h>
 #include <asm/io.h>
 #include <serial.h>
-#include <serial_pl01x.h>
+#include <dm/platform_data/serial_pl01x.h>
 #include <linux/compiler.h>
 #include "serial_pl01x_internal.h"
 
