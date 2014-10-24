@@ -24,6 +24,7 @@ config MACH_SUN7I
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select SUPPORT_SPL
+	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
 config MACH_SUN8I
 	bool "sun8i (Allwinner A23)"
