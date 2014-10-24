@@ -157,6 +157,21 @@
 #define CONFIG_BAUDRATE			115200
 
 /*
+ * USB
+ */
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_DWC2
+#define CONFIG_USB_STORAGE
+/*
+ * NOTE: User must define either of the following to select which
+ *       of the two USB controllers available on SoCFPGA to use.
+ *       The DWC2 driver doesn't support multiple USB controllers.
+ * #define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB0_ADDRESS
+ * #define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB1_ADDRESS
+ */
+#endif
+
+/*
  * U-Boot environment
  */
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
