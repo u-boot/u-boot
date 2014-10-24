@@ -70,6 +70,7 @@ int fdt_find_or_add_subnode(void *fdt, int parentoffset, const char *name);
  * Add board-specific data to the FDT before booting the OS.
  *
  * Use CONFIG_SYS_FDT_PAD to ensure there is sufficient space.
+ * This function is called if CONFIG_OF_BOARD_SETUP is defined
  *
  * @param blob		FDT blob to update
  * @param bd_t		Pointer to board data
