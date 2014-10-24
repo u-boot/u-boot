@@ -93,6 +93,16 @@ static int uniphier_serial_putc(struct udevice *dev, const char c)
 	return 0;
 }
 
+static int uniphier_serial_pending(struct udevice *dev, bool input)
+{
+	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
+
+	if (input)
+		return readb(&port->lsr) & UART_LSR_DR;
+	else
+		return !(readb(&port->lsr) & UART_LSR_THRE);
+}
+
 int uniphier_serial_probe(struct udevice *dev)
 {
 	struct uniphier_serial_private_data *priv = dev_get_priv(dev);
@@ -134,6 +144,7 @@ static const struct dm_serial_ops uniphier_serial_ops = {
 	.setbrg = uniphier_serial_setbrg,
 	.getc = uniphier_serial_getc,
 	.putc = uniphier_serial_putc,
+	.pending = uniphier_serial_pending,
 };
 
 U_BOOT_DRIVER(uniphier_serial) = {
