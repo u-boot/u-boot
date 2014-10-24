@@ -382,8 +382,8 @@ void do_fixup_by_compat_u32(void *fdt, const char *compat,
 /*
  * fdt_pack_reg - pack address and size array into the "reg"-suitable stream
  */
-static int fdt_pack_reg(const void *fdt, void *buf, uint64_t *address,
-			uint64_t *size, int n)
+static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
+			int n)
 {
 	int i;
 	int address_len = get_cells_len(fdt, "#address-cells");
