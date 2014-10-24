@@ -14,7 +14,7 @@
 	pinctrl_1: pinctrl@11000000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		gpy0: gpy0 {
+		gpx0: gpx0 {
 			reg = <0xc00>;
 		};
 	};
