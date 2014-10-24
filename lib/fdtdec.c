@@ -669,20 +669,25 @@ char *fdtdec_get_config_string(const void *blob, const char *prop_name)
 	return (char *)nodep;
 }
 
-int fdtdec_decode_region(const void *blob, int node,
-		const char *prop_name, void **ptrp, size_t *size)
+int fdtdec_decode_region(const void *blob, int node, const char *prop_name,
+			 fdt_addr_t *basep, fdt_size_t *sizep)
 {
 	const fdt_addr_t *cell;
 	int len;
 
-	debug("%s: %s\n", __func__, prop_name);
+	debug("%s: %s: %s\n", __func__, fdt_get_name(blob, node, NULL),
+	      prop_name);
 	cell = fdt_getprop(blob, node, prop_name, &len);
-	if (!cell || (len != sizeof(fdt_addr_t) * 2))
+	if (!cell || (len < sizeof(fdt_addr_t) * 2)) {
+		debug("cell=%p, len=%d\n", cell, len);
 		return -1;
+	}
 
-	*ptrp = map_sysmem(fdt_addr_to_cpu(*cell), *size);
-	*size = fdt_size_to_cpu(cell[1]);
-	debug("%s: size=%zx\n", __func__, *size);
+	*basep = fdt_addr_to_cpu(*cell);
+	*sizep = fdt_size_to_cpu(cell[1]);
+	debug("%s: base=%08lx, size=%lx\n", __func__, (ulong)*basep,
+	      (ulong)*sizep);
+
 	return 0;
 }
 
