@@ -199,7 +199,7 @@ int misc_init_r(void)
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
@@ -207,5 +207,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 	ft_cpu_setup(blob, bd);
 	fdt_fixup_dr_usb(blob, bd);
 	fdt_fixup_esdhc(blob, bd);
+
+	return 0;
 }
 #endif /* CONFIG_OF_BOARD_SETUP */

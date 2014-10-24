@@ -64,7 +64,17 @@ static inline void fdt_fixup_crypto_node(void *blob, int sec_rev) {}
 int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose);
 #endif
 
-void ft_board_setup(void *blob, bd_t *bd);
+/**
+ * Add board-specific data to the FDT before booting the OS.
+ *
+ * Use CONFIG_SYS_FDT_PAD to ensure there is sufficient space.
+ *
+ * @param blob		FDT blob to update
+ * @param bd_t		Pointer to board data
+ * @return 0 if ok, or -FDT_ERR_... on error
+ */
+int ft_board_setup(void *blob, bd_t *bd);
+
 /*
  * The keystone2 SOC requires all 32 bit aliased addresses to be converted
  * to their 36 physical format. This has to happen after all fdt nodes

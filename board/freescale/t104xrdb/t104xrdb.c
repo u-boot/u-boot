@@ -85,7 +85,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -110,6 +110,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_SYS_DPAA_FMAN
 	fdt_fixup_fman_ethernet(blob);
 #endif
+
+	return 0;
 }
 
 #ifdef CONFIG_DEEP_SLEEP

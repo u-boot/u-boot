@@ -218,8 +218,7 @@ int board_early_init_r (void)
 #endif /* CONFIG_BOARD_EARLY_INIT_R */
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-void
-ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	u32 val[12];
 	int rc, i = 0;
@@ -251,6 +250,8 @@ ft_board_setup(void *blob, bd_t *bd)
 	if (rc)
 		printf("Unable to update localbus ranges, err=%s\n",
 		       fdt_strerror(rc));
+
+	return 0;
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
 

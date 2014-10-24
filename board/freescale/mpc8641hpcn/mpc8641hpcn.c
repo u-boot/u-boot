@@ -119,8 +119,7 @@ void pci_init_board(void)
 
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-void
-ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	int off;
 	u64 *tmp;
@@ -152,6 +151,8 @@ ft_board_setup(void *blob, bd_t *bd)
 			       "in u-boot.  This means your .dts might "
 			       "be old.\n");
 	}
+
+	return 0;
 }
 #endif
 

@@ -261,7 +261,7 @@ void fdt_fixup_fman_mac_addresses(void *blob)
 }
 #endif
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -286,6 +286,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_fman_ethernet(blob);
 	fdt_fixup_fman_mac_addresses(blob);
 #endif
+
+	return 0;
 }
 
 #if defined(CONFIG_POST)

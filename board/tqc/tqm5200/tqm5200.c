@@ -863,12 +863,14 @@ int board_get_height (void)
 #endif /* CONFIG_VIDEO_SM501 */
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 #if defined(CONFIG_VIDEO)
 	fdt_add_edid(blob, "smi,sm501", edid_buf);
 #endif
+
+	return 0;
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
 

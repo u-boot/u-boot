@@ -154,7 +154,7 @@ int board_mmc_init(bd_t *bis)
 				  msg_clk->get_clock_rate.body.resp.rate_hz);
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	/*
 	 * For now, we simply always add the simplefb DT node. Later, we
@@ -162,4 +162,6 @@ void ft_board_setup(void *blob, bd_t *bd)
 	 * node exists for the "real" graphics driver.
 	 */
 	lcd_dt_simplefb_add_node(blob);
+
+	return 0;
 }

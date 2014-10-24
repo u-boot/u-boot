@@ -290,9 +290,11 @@ int misc_init_r(void)
 }
 #endif
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+
+	return 0;
 }
 
 u8 flash_read8(void *addr)

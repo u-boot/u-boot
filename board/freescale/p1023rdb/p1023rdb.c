@@ -130,7 +130,7 @@ int board_eth_init(bd_t *bis)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -147,5 +147,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 	fdt_fixup_fman_ethernet(blob);
+
+	return 0;
 }
 #endif

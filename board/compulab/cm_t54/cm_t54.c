@@ -121,7 +121,7 @@ int board_mmc_init(bd_t *bis)
 
 #ifdef CONFIG_USB_HOST_ETHER
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	uint8_t enetaddr[6];
 
@@ -130,6 +130,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 		fdt_find_and_setprop(blob, "/smsc95xx@0", "mac-address",
 				     enetaddr, 6, 1);
 	}
+
+	return 0;
 }
 
 static void generate_mac_addr(uint8_t *enetaddr)

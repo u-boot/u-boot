@@ -18,7 +18,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void __ft_board_setup(void *blob, bd_t *bd)
+int __ft_board_setup(void *blob, bd_t *bd)
 {
 	int rc;
 	int i;
@@ -60,8 +60,11 @@ void __ft_board_setup(void *blob, bd_t *bd)
 		printf("Unable to update property EBC mappings, err=%s\n",
 		       fdt_strerror(rc));
 	}
+
+	return 0;
 }
-void ft_board_setup(void *blob, bd_t *bd) __attribute__((weak, alias("__ft_board_setup")));
+int ft_board_setup(void *blob, bd_t *bd)
+		__attribute__((weak, alias("__ft_board_setup")));
 
 /*
  * Fixup all PCIe nodes by setting the device_type property

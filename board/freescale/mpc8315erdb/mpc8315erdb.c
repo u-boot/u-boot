@@ -188,7 +188,7 @@ void fdt_tsec1_fixup(void *fdt, bd_t *bd)
 	do_fixup_by_path(fdt, path, "status", disabled, sizeof(disabled), 1);
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI
@@ -196,6 +196,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 	fdt_fixup_dr_usb(blob, bd);
 	fdt_tsec1_fixup(blob, bd);
+
+	return 0;
 }
 #endif
 

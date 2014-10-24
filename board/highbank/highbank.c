@@ -94,7 +94,7 @@ void dram_init_banksize(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup(void *fdt, bd_t *bd)
+int ft_board_setup(void *fdt, bd_t *bd)
 {
 	static const char disabled[] = "disabled";
 	u32 reg = readl(HB_SREG_A9_PWRDOM_STAT);
@@ -106,6 +106,8 @@ void ft_board_setup(void *fdt, bd_t *bd)
 	if (!(reg & PWRDOM_STAT_EMMC))
 		do_fixup_by_compat(fdt, "calxeda,hb-sdhci", "status",
 			disabled, sizeof(disabled), 1);
+
+	return 0;
 }
 #endif
 

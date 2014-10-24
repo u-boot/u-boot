@@ -69,7 +69,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -83,4 +83,6 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_liodn(blob);
 	fdt_fixup_dr_usb(blob, bd);
+
+	return 0;
 }

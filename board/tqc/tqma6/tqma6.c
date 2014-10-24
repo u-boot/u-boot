@@ -259,12 +259,14 @@ int checkboard(void)
  * Device Tree Support
  */
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	/* bring in eMMC dsr settings */
 	do_fixup_by_path_u32(blob,
 			     "/soc/aips-bus@02100000/usdhc@02198000",
 			     "dsr", tqma6_emmc_dsr, 2);
 	tqma6_bb_ft_board_setup(blob, bd);
+
+	return 0;
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
