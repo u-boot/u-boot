@@ -479,6 +479,13 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 			goto err;
 		}
 	}
+	if (IMAGE_OF_SYSTEM_SETUP) {
+		if (ft_system_setup(blob, gd->bd)) {
+			printf("ERROR: system-specific fdt fixup failed: %s\n",
+			       fdt_strerror(fdt_ret));
+			goto err;
+		}
+	}
 	fdt_fixup_ethernet(blob);
 
 	/* Delete the old LMB reservation */

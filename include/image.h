@@ -119,6 +119,12 @@ struct lmb;
 # define IMAGE_OF_BOARD_SETUP		0
 #endif
 
+#ifdef CONFIG_OF_SYSTEM_SETUP
+# define IMAGE_OF_SYSTEM_SETUP	1
+#else
+# define IMAGE_OF_SYSTEM_SETUP	0
+#endif
+
 /*
  * Operating System Codes
  */

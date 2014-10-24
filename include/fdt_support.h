@@ -88,6 +88,18 @@ void ft_board_setup_ex(void *blob, bd_t *bd);
 void ft_cpu_setup(void *blob, bd_t *bd);
 void ft_pci_setup(void *blob, bd_t *bd);
 
+/**
+ * Add system-specific data to the FDT before booting the OS.
+ *
+ * Use CONFIG_SYS_FDT_PAD to ensure there is sufficient space.
+ * This function is called if CONFIG_OF_SYSTEM_SETUP is defined
+ *
+ * @param blob		FDT blob to update
+ * @param bd_t		Pointer to board data
+ * @return 0 if ok, or -FDT_ERR_... on error
+ */
+int ft_system_setup(void *blob, bd_t *bd);
+
 void set_working_fdt_addr(void *addr);
 int fdt_shrink_to_minimum(void *blob);
 int fdt_increase_size(void *fdt, int add_len);
