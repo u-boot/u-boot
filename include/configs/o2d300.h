@@ -44,8 +44,8 @@
 
 #define CONFIG_BOARD_NAME		"o2d300"
 #define CONFIG_BOARD_BOOTCMD		"run dhcp_boot"
-#define CONFIG_BOARD_MEM_LIMIT		xstr(126)
-#define BOARD_POST_CRC32_END		xstr(0x02000000)
+#define CONFIG_BOARD_MEM_LIMIT		__stringify(126)
+#define BOARD_POST_CRC32_END		__stringify(0x02000000)
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_IFM_DEFAULT_ENV_SETTINGS					\
@@ -63,7 +63,7 @@
 	"ramtop=fc57ffff\0"						\
 	"jffbot=fc580000\0"						\
 	"jfftop=fd39ffff\0"						\
-	"ubobot=" xstr(CONFIG_SYS_FLASH_BASE) "\0"			\
+	"ubobot=" __stringify(CONFIG_SYS_FLASH_BASE) "\0"		\
 	"ubotop=fc03ffff\0"						\
 	"halname="CONFIG_BOARD_NAME"/"CONFIG_BOARD_NAME"_halcon\0"	\
 	"halbot=fd3a0000\0"						\
