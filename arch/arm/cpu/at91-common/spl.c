@@ -76,10 +76,12 @@ void at91_mck_init(u32 mckr)
 	u32 tmp;
 
 	tmp = readl(&pmc->mckr);
-	tmp &= ~(AT91_PMC_MCKR_PRES_MASK |
+	tmp &= ~(AT91_PMC_MCKR_CSS_MASK |
+		 AT91_PMC_MCKR_PRES_MASK |
 		 AT91_PMC_MCKR_MDIV_MASK |
 		 AT91_PMC_MCKR_PLLADIV_2);
-	tmp |= mckr & (AT91_PMC_MCKR_PRES_MASK |
+	tmp |= mckr & (AT91_PMC_MCKR_CSS_MASK |
+		       AT91_PMC_MCKR_PRES_MASK |
 		       AT91_PMC_MCKR_MDIV_MASK |
 		       AT91_PMC_MCKR_PLLADIV_2);
 	writel(tmp, &pmc->mckr);
