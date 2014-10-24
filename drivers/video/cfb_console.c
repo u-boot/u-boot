@@ -1160,10 +1160,19 @@ static void video_putc(struct stdio_dev *dev, const char c)
 
 static void video_puts(struct stdio_dev *dev, const char *s)
 {
+	int flush = cfb_do_flush_cache;
 	int count = strlen(s);
+
+	/* temporarily disable cache flush */
+	cfb_do_flush_cache = 0;
 
 	while (count--)
 		video_putc(dev, *s++);
+
+	if (flush) {
+		cfb_do_flush_cache = flush;
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
+	}
 }
 
 /*
