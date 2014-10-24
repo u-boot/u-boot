@@ -566,8 +566,15 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #ifdef CONFIG_OF_BOARD_SETUP
 	/* Call the board-specific fixup routine */
-	else if (strncmp(argv[1], "boa", 3) == 0)
-		ft_board_setup(working_fdt, gd->bd);
+	else if (strncmp(argv[1], "boa", 3) == 0) {
+		int err = ft_board_setup(working_fdt, gd->bd);
+
+		if (err) {
+			printf("Failed to update board information in FDT: %s\n",
+			       fdt_strerror(err));
+			return CMD_RET_FAILURE;
+		}
+	}
 #endif
 	/* Create a chosen node */
 	else if (strncmp(argv[1], "cho", 3) == 0) {
