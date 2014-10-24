@@ -123,7 +123,7 @@ static int do_sdhci_init(struct sdhci_host *host)
 	if (fdt_gpio_isvalid(&host->cd_gpio)) {
 		sprintf(str, "sdhci%d_cd", host->index & 0xf);
 		gpio_request(host->cd_gpio.gpio, str);
-		gpio_direction_output(host->cd_gpio.gpio, 1);
+		gpio_direction_input(host->cd_gpio.gpio);
 		if (gpio_get_value(host->cd_gpio.gpio))
 			return -ENODEV;
 
