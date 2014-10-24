@@ -703,6 +703,7 @@ int fdtdec_decode_region(const void *blob, int node, const char *prop_name,
 int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
 			   struct fmap_entry *entry)
 {
+	const char *prop;
 	u32 reg[2];
 
 	if (fdtdec_get_int_array(blob, node, "reg", reg, 2)) {
@@ -711,6 +712,13 @@ int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
 	}
 	entry->offset = reg[0];
 	entry->length = reg[1];
+	entry->used = fdtdec_get_int(blob, node, "used", entry->length);
+	prop = fdt_getprop(blob, node, "compress", NULL);
+	entry->compress_algo = prop && !strcmp(prop, "lzo") ?
+		FMAP_COMPRESS_LZO : FMAP_COMPRESS_NONE;
+	prop = fdt_getprop(blob, node, "hash", &entry->hash_size);
+	entry->hash_algo = prop ? FMAP_HASH_SHA256 : FMAP_HASH_NONE;
+	entry->hash = (uint8_t *)prop;
 
 	return 0;
 }
