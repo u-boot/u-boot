@@ -42,6 +42,11 @@ config SYS_BOARD
 config SYS_SOC
 	default "sunxi"
 
+config SPL_FEL
+	bool "SPL/FEL mode support"
+	depends on SPL
+	default n
+
 config FDTFILE
 	string "Default fdtfile env setting for this board"
 
