@@ -51,7 +51,7 @@
 	sdhci@12530000 {
 		samsung,bus-width = <4>;
 		samsung,timing = <1 2 3>;
-		cd-gpios = <&gpio 0xC2 0>;
+		cd-gpios = <&gpio 122 0>;
 	};
 
 	sdhci@12540000 {
