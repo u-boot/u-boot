@@ -113,7 +113,8 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 }
 
 /**
- * fdt_find_or_add_subnode - find or possibly add a subnode of a given node
+ * fdt_find_or_add_subnode() - find or possibly add a subnode of a given node
+ *
  * @fdt: pointer to the device tree blob
  * @parentoffset: structure block offset of a node
  * @name: name of the subnode to locate
@@ -121,8 +122,7 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
  * fdt_subnode_offset() finds a subnode of the node with a given name.
  * If the subnode does not exist, it will be created.
  */
-static int fdt_find_or_add_subnode(void *fdt, int parentoffset,
-				   const char *name)
+int fdt_find_or_add_subnode(void *fdt, int parentoffset, const char *name)
 {
 	int offset;
 

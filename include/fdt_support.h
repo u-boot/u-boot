@@ -64,6 +64,8 @@ static inline void fdt_fixup_crypto_node(void *blob, int sec_rev) {}
 int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose);
 #endif
 
+int fdt_find_or_add_subnode(void *fdt, int parentoffset, const char *name);
+
 /**
  * Add board-specific data to the FDT before booting the OS.
  *
