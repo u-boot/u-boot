@@ -50,6 +50,10 @@ static void switch_to_main_crystal_osc(void)
 	while (!(readl(&pmc->sr) & AT91_PMC_IXR_MOSCSELS))
 		;
 
+	/* Wait until MAINRDY field is set to make sure main clock is stable */
+	while (!(readl(&pmc->mcfr) & AT91_PMC_MAINRDY))
+		;
+
 	tmp = readl(&pmc->mor);
 	tmp &= ~AT91_PMC_MOR_MOSCRCEN;
 	tmp &= ~AT91_PMC_MOR_KEY(0xff);
