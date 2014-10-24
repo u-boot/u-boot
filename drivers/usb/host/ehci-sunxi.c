@@ -105,7 +105,7 @@ static void sunxi_usb_phy_init(struct sunxi_ehci_hcd *sunxi_ehci)
 	usb_phy_write(sunxi_ehci, 0x20, 0x14, 5);
 
 	/* threshold adjustment disconnect */
-#ifdef CONFIG_SUN4I
+#ifdef CONFIG_MACH_SUN4I
 	usb_phy_write(sunxi_ehci, 0x2a, 3, 2);
 #else
 	usb_phy_write(sunxi_ehci, 0x2a, 2, 2);

@@ -12,7 +12,6 @@
 /*
  * A23 specific configuration
  */
-#define CONFIG_SUN8I		/* sun8i SoC generation */
 #define CONFIG_SYS_PROMPT	"sun8i# "
 
 /*

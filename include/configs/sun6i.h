@@ -14,7 +14,6 @@
 /*
  * A31 specific configuration
  */
-#define CONFIG_SUN6I		/* sun6i SoC generation */
 
 #define CONFIG_SYS_PROMPT		"sun6i# "
 

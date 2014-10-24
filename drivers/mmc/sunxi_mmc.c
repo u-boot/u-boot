@@ -75,7 +75,7 @@ static int mmc_clk_io_on(int sdc_no)
 	/* config ahb clock */
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
 
-#if defined(CONFIG_SUN6I) || defined(CONFIG_SUN8I)
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I)
 	/* unassert reset */
 	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
 #endif
@@ -385,7 +385,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
 	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-#if defined(CONFIG_SUN6I) || defined(CONFIG_SUN7I) || defined(CONFIG_SUN8I)
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || defined(CONFIG_MACH_SUN8I)
 	cfg->host_caps |= MMC_MODE_HC;
 #endif
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;

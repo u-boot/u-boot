@@ -13,9 +13,9 @@
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
-#ifdef CONFIG_SUN4I
+#ifdef CONFIG_MACH_SUN4I
 	puts("CPU:   Allwinner A10 (SUN4I)\n");
-#elif defined CONFIG_SUN5I
+#elif defined CONFIG_MACH_SUN5I
 	u32 val = readl(SUNXI_SID_BASE + 0x08);
 	switch ((val >> 12) & 0xf) {
 	case 0: puts("CPU:   Allwinner A12 (SUN5I)\n"); break;
@@ -23,11 +23,11 @@ int print_cpuinfo(void)
 	case 7: puts("CPU:   Allwinner A10s (SUN5I)\n"); break;
 	default: puts("CPU:   Allwinner A1X (SUN5I)\n");
 	}
-#elif defined CONFIG_SUN6I
+#elif defined CONFIG_MACH_SUN6I
 	puts("CPU:   Allwinner A31 (SUN6I)\n");
-#elif defined CONFIG_SUN7I
+#elif defined CONFIG_MACH_SUN7I
 	puts("CPU:   Allwinner A20 (SUN7I)\n");
-#elif defined CONFIG_SUN8I
+#elif defined CONFIG_MACH_SUN8I
 	puts("CPU:   Allwinner A23 (SUN8I)\n");
 #else
 #warning Please update cpu_info.c with correct CPU information

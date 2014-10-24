@@ -51,7 +51,7 @@ u32 spl_boot_mode(void)
 int gpio_init(void)
 {
 #if CONFIG_CONS_INDEX == 1 && defined(CONFIG_UART0_PORT_F)
-#if defined(CONFIG_SUN4I) || defined(CONFIG_SUN7I)
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
 	/* disable GPB22,23 as uart0 tx,rx to avoid conflict */
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(22), SUNXI_GPIO_INPUT);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(23), SUNXI_GPIO_INPUT);
@@ -59,23 +59,23 @@ int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPF(2), SUNXI_GPF2_UART0_TX);
 	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUNXI_GPF4_UART0_RX);
 	sunxi_gpio_set_pull(SUNXI_GPF(4), 1);
-#elif CONFIG_CONS_INDEX == 1 && (defined(CONFIG_SUN4I) || defined(CONFIG_SUN7I))
+#elif CONFIG_CONS_INDEX == 1 && (defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I))
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(22), SUN4I_GPB22_UART0_TX);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(23), SUN4I_GPB23_UART0_RX);
 	sunxi_gpio_set_pull(SUNXI_GPB(23), SUNXI_GPIO_PULL_UP);
-#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_SUN5I)
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN5I)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(19), SUN5I_GPB19_UART0_TX);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(20), SUN5I_GPB20_UART0_RX);
 	sunxi_gpio_set_pull(SUNXI_GPB(20), SUNXI_GPIO_PULL_UP);
-#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_SUN6I)
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN6I)
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(20), SUN6I_GPH20_UART0_TX);
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(21), SUN6I_GPH21_UART0_RX);
 	sunxi_gpio_set_pull(SUNXI_GPH(21), SUNXI_GPIO_PULL_UP);
-#elif CONFIG_CONS_INDEX == 2 && defined(CONFIG_SUN5I)
+#elif CONFIG_CONS_INDEX == 2 && defined(CONFIG_MACH_SUN5I)
 	sunxi_gpio_set_cfgpin(SUNXI_GPG(3), SUN5I_GPG3_UART1_TX);
 	sunxi_gpio_set_cfgpin(SUNXI_GPG(4), SUN5I_GPG4_UART1_RX);
 	sunxi_gpio_set_pull(SUNXI_GPG(4), SUNXI_GPIO_PULL_UP);
-#elif CONFIG_CONS_INDEX == 5 && defined(CONFIG_SUN8I)
+#elif CONFIG_CONS_INDEX == 5 && defined(CONFIG_MACH_SUN8I)
 	sunxi_gpio_set_cfgpin(SUNXI_GPL(2), SUN8I_GPL2_R_UART_TX);
 	sunxi_gpio_set_cfgpin(SUNXI_GPL(3), SUN8I_GPL3_R_UART_RX);
 	sunxi_gpio_set_pull(SUNXI_GPL(3), SUNXI_GPIO_PULL_UP);
@@ -88,7 +88,7 @@ int gpio_init(void)
 
 void reset_cpu(ulong addr)
 {
-#if defined(CONFIG_SUN4I) || defined(CONFIG_SUN5I) || defined(CONFIG_SUN7I)
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN5I) || defined(CONFIG_MACH_SUN7I)
 	static const struct sunxi_wdog *wdog =
 		 &((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
 
@@ -100,7 +100,7 @@ void reset_cpu(ulong addr)
 		/* sun5i sometimes gets stuck without this */
 		writel(WDT_MODE_RESET_EN | WDT_MODE_EN, &wdog->mode);
 	}
-#else /* CONFIG_SUN6I || CONFIG_SUN8I || .. */
+#else /* CONFIG_MACH_SUN6I || CONFIG_MACH_SUN8I || .. */
 	static const struct sunxi_wdog *wdog =
 		 ((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
 
@@ -114,8 +114,8 @@ void reset_cpu(ulong addr)
 /* do some early init */
 void s_init(void)
 {
-#if !defined CONFIG_SPL_BUILD && (defined CONFIG_SUN7I || \
-		defined CONFIG_SUN6I || defined CONFIG_SUN8I)
+#if !defined CONFIG_SPL_BUILD && (defined CONFIG_MACH_SUN7I || \
+		defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I)
 	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
 	asm volatile(
 		"mrc p15, 0, r0, c1, c0, 1\n"

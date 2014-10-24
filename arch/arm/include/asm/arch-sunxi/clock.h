@@ -15,7 +15,7 @@
 #define CLK_GATE_CLOSE			0x0
 
 /* clock control module regs definition */
-#if defined(CONFIG_SUN6I) || defined(CONFIG_SUN8I)
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I)
 #include <asm/arch/clock_sun6i.h>
 #else
 #include <asm/arch/clock_sun4i.h>
