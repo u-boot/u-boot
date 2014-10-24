@@ -554,13 +554,14 @@ static int image_create_config_parse_oneline(char *line,
 		el->version = atoi(value);
 	} else if (!strcmp(keyword, "BOOT_FROM")) {
 		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		el->type = IMAGE_CFG_BOOT_FROM;
-		el->bootfrom = image_boot_mode_id(value);
-		if (el->bootfrom < 0) {
+		int ret = image_boot_mode_id(value);
+		if (ret < 0) {
 			fprintf(stderr,
 				"Invalid boot media '%s'\n", value);
 			return -1;
 		}
+		el->type = IMAGE_CFG_BOOT_FROM;
+		el->bootfrom = ret;
 	} else if (!strcmp(keyword, "NAND_BLKSZ")) {
 		char *value = strtok_r(NULL, deliminiters, &saveptr);
 		el->type = IMAGE_CFG_NAND_BLKSZ;
@@ -572,13 +573,14 @@ static int image_create_config_parse_oneline(char *line,
 			strtoul(value, NULL, 16);
 	} else if (!strcmp(keyword, "NAND_ECC_MODE")) {
 		char *value = strtok_r(NULL, deliminiters, &saveptr);
-		el->type = IMAGE_CFG_NAND_ECC_MODE;
-		el->nandeccmode = image_nand_ecc_mode_id(value);
-		if (el->nandeccmode < 0) {
+		int ret = image_nand_ecc_mode_id(value);
+		if (ret < 0) {
 			fprintf(stderr,
 				"Invalid NAND ECC mode '%s'\n", value);
 			return -1;
 		}
+		el->type = IMAGE_CFG_NAND_ECC_MODE;
+		el->nandeccmode = ret;
 	} else if (!strcmp(keyword, "NAND_PAGE_SIZE")) {
 		char *value = strtok_r(NULL, deliminiters, &saveptr);
 		el->type = IMAGE_CFG_NAND_PAGESZ;
