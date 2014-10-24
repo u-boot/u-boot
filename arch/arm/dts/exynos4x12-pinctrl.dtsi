@@ -176,6 +176,41 @@
 			#interrupt-cells = <2>;
 		};
 
+		gpy0: gpy0 {
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		gpy1: gpy1 {
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		gpy2: gpy2 {
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		gpy3: gpy3 {
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		gpy4: gpy4 {
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		gpy5: gpy5 {
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		gpy6: gpy6 {
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
 		gpm0: gpm0 {
 			gpio-controller;
 			#gpio-cells = <2>;
@@ -214,41 +249,6 @@
 
 			interrupt-controller;
 			#interrupt-cells = <2>;
-		};
-
-		gpy0: gpy0 {
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		gpy1: gpy1 {
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		gpy2: gpy2 {
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		gpy3: gpy3 {
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		gpy4: gpy4 {
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		gpy5: gpy5 {
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
-
-		gpy6: gpy6 {
-			gpio-controller;
-			#gpio-cells = <2>;
 		};
 
 		gpx0: gpx0 {
