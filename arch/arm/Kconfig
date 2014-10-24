@@ -414,6 +414,9 @@ config TARGET_GW_VENTANA
 config TARGET_HUMMINGBOARD
 	bool "Support hummingboard"
 
+config TARGET_KOSAGI_NOVENA
+	bool "Support Kosagi Novena"
+
 config TARGET_TQMA6
 	bool "TQ Systems TQMa6 board"
 
@@ -646,6 +649,7 @@ source "board/imx31_phycore/Kconfig"
 source "board/isee/igep0033/Kconfig"
 source "board/jornada/Kconfig"
 source "board/karo/tx25/Kconfig"
+source "board/kosagi/novena/Kconfig"
 source "board/logicpd/imx27lite/Kconfig"
 source "board/logicpd/imx31_litekit/Kconfig"
 source "board/mpl/vcma9/Kconfig"
