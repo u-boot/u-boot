@@ -23,6 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_SYS_UBOOT_START	CONFIG_SYS_TEXT_BASE
 #endif
 #ifndef CONFIG_SYS_MONITOR_LEN
+/* Unknown U-Boot size, let's assume it will not be more than 200 KB */
 #define CONFIG_SYS_MONITOR_LEN	(200 * 1024)
 #endif
 
@@ -92,7 +93,6 @@ void spl_parse_image_header(const struct image_header *header)
 		/* Signature not found - assume u-boot.bin */
 		debug("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
-		/* Let's assume U-Boot will not be more than 200 KB */
 		spl_image.size = CONFIG_SYS_MONITOR_LEN;
 		spl_image.entry_point = CONFIG_SYS_UBOOT_START;
 		spl_image.load_addr = CONFIG_SYS_TEXT_BASE;
