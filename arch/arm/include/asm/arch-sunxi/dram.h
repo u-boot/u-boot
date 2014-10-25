@@ -15,7 +15,11 @@
 #include <linux/types.h>
 
 /* dram regs definition */
+#if defined(CONFIG_MACH_SUN6I)
+#include <asm/arch/dram_sun6i.h>
+#else
 #include <asm/arch/dram_sun4i.h>
+#endif
 
 unsigned long sunxi_dram_init(void);
 

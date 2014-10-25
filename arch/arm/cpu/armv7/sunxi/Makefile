@@ -30,6 +30,7 @@ endif
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_MACH_SUN4I)	+= dram_sun4i.o
 obj-$(CONFIG_MACH_SUN5I)	+= dram_sun4i.o
+obj-$(CONFIG_MACH_SUN6I)	+= dram_sun6i.o
 obj-$(CONFIG_MACH_SUN7I)	+= dram_sun4i.o
 ifdef CONFIG_SPL_FEL
 obj-y	+= start.o
