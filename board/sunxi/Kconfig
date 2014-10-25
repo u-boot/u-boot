@@ -16,6 +16,7 @@ config MACH_SUN5I
 config MACH_SUN6I
 	bool "sun6i (Allwinner A31)"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config MACH_SUN7I
 	bool "sun7i (Allwinner A20)"
