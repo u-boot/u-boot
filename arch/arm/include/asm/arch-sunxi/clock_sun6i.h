@@ -170,7 +170,17 @@ struct sunxi_ccm_reg {
 #define CPU_CLK_SRC_OSC24M		1
 #define CPU_CLK_SRC_PLL1		2
 
-#define PLL1_CFG_DEFAULT		0x90011b21
+#define CCM_PLL1_CTRL_M(n)		((((n) - 1) & 0x3) << 0)
+#define CCM_PLL1_CTRL_K(n)		((((n) - 1) & 0x3) << 4)
+#define CCM_PLL1_CTRL_N(n)		((((n) - 1) & 0x1f) << 8)
+#define CCM_PLL1_CTRL_MAGIC		(0x1 << 16)
+#define CCM_PLL1_CTRL_EN		(0x1 << 31)
+
+#define CCM_PLL5_CTRL_M(n)		((((n) - 1) & 0x3) << 0)
+#define CCM_PLL5_CTRL_K(n)		((((n) - 1) & 0x3) << 4)
+#define CCM_PLL5_CTRL_N(n)		((((n) - 1) & 0x1f) << 8)
+#define CCM_PLL5_CTRL_UPD		(0x1 << 20)
+#define CCM_PLL5_CTRL_EN		(0x1 << 31)
 
 #define PLL6_CFG_DEFAULT		0x90041811
 
@@ -179,6 +189,11 @@ struct sunxi_ccm_reg {
 #define CCM_PLL6_CTRL_K_SHIFT		4
 #define CCM_PLL6_CTRL_K_MASK		(0x3 << CCM_PLL6_CTRL_K_SHIFT)
 
+#define AHB1_ABP1_DIV_DEFAULT		0x00002020
+
+#define AXI_GATE_OFFSET_DRAM		0
+
+#define AHB_GATE_OFFSET_MCTL		14
 #define AHB_GATE_OFFSET_MMC3		11
 #define AHB_GATE_OFFSET_MMC2		10
 #define AHB_GATE_OFFSET_MMC1		9
@@ -190,6 +205,16 @@ struct sunxi_ccm_reg {
 
 #define CCM_MMC_CTRL_ENABLE (0x1 << 31)
 
+#define MDFS_CLK_DEFAULT		0x81000002 /* PLL6 / 3 */
+
+#define CCM_DRAMCLK_CFG_DIV0(x)		((x - 1) << 8)
+#define CCM_DRAMCLK_CFG_DIV0_MASK	(0xf << 8)
+#define CCM_DRAMCLK_CFG_UPD		(0x1 << 16)
+#define CCM_DRAMCLK_CFG_RST		(0x1 << 31)
+
+#define MBUS_CLK_DEFAULT		0x81000001 /* PLL6 / 2 */
+
+#define AHB_RESET_OFFSET_MCTL		14
 #define AHB_RESET_OFFSET_MMC3		11
 #define AHB_RESET_OFFSET_MMC2		10
 #define AHB_RESET_OFFSET_MMC1		9

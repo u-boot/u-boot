@@ -16,6 +16,33 @@
 #include <asm/arch/prcm.h>
 #include <asm/arch/sys_proto.h>
 
+#ifdef CONFIG_SPL_BUILD
+void clock_init_safe(void)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct sunxi_prcm_reg * const prcm =
+		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
+
+	/* Set PLL ldo voltage without this PLL6 does not work properly */
+	clrsetbits_le32(&prcm->pll_ctrl1, PRCM_PLL_CTRL_LDO_KEY_MASK,
+			PRCM_PLL_CTRL_LDO_KEY);
+	clrsetbits_le32(&prcm->pll_ctrl1, ~PRCM_PLL_CTRL_LDO_KEY_MASK,
+		PRCM_PLL_CTRL_LDO_DIGITAL_EN | PRCM_PLL_CTRL_LDO_ANALOG_EN |
+		PRCM_PLL_CTRL_EXT_OSC_EN | PRCM_PLL_CTRL_LDO_OUT_L(1140));
+	clrbits_le32(&prcm->pll_ctrl1, PRCM_PLL_CTRL_LDO_KEY_MASK);
+
+	clock_set_pll1(408000000);
+
+	writel(AHB1_ABP1_DIV_DEFAULT, &ccm->ahb1_apb1_div);
+
+	writel(PLL6_CFG_DEFAULT, &ccm->pll6_cfg);
+
+	writel(MBUS_CLK_DEFAULT, &ccm->mbus0_clk_cfg);
+	writel(MBUS_CLK_DEFAULT, &ccm->mbus1_clk_cfg);
+}
+#endif
+
 void clock_init_uart(void)
 {
 	struct sunxi_ccm_reg *const ccm =
@@ -63,6 +90,56 @@ int clock_twi_onoff(int port, int state)
 			     CLK_GATE_OPEN << (APB2_GATE_TWI_SHIFT+port));
 
 	return 0;
+}
+
+#ifdef CONFIG_SPL_BUILD
+void clock_set_pll1(unsigned int clk)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	int k = 1;
+	int m = 1;
+
+	if (clk > 1152000000) {
+		k = 2;
+	} else if (clk > 768000000) {
+		k = 3;
+		m = 2;
+	}
+
+	/* Switch to 24MHz clock while changing PLL1 */
+	writel(AXI_DIV_3 << AXI_DIV_SHIFT |
+	       ATB_DIV_2 << ATB_DIV_SHIFT |
+	       CPU_CLK_SRC_OSC24M << CPU_CLK_SRC_SHIFT,
+	       &ccm->cpu_axi_cfg);
+
+	/* PLL1 rate = 24000000 * n * k / m */
+	writel(CCM_PLL1_CTRL_EN | CCM_PLL1_CTRL_MAGIC |
+	       CCM_PLL1_CTRL_N(clk / (24000000 * k / m)) |
+	       CCM_PLL1_CTRL_K(k) | CCM_PLL1_CTRL_M(m), &ccm->pll1_cfg);
+	sdelay(200);
+
+	/* Switch CPU to PLL1 */
+	writel(AXI_DIV_3 << AXI_DIV_SHIFT |
+	       ATB_DIV_2 << ATB_DIV_SHIFT |
+	       CPU_CLK_SRC_PLL1 << CPU_CLK_SRC_SHIFT,
+	       &ccm->cpu_axi_cfg);
+}
+#endif
+
+void clock_set_pll5(unsigned int clk)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	const int k = 2;
+	const int m = 1;
+
+	/* PLL5 rate = 24000000 * n * k / m */
+	writel(CCM_PLL5_CTRL_EN | CCM_PLL5_CTRL_UPD |
+	       CCM_PLL5_CTRL_N(clk / (24000000 * k / m)) |
+	       CCM_PLL5_CTRL_K(k) | CCM_PLL5_CTRL_M(m), &ccm->pll5_cfg);
+
+	udelay(5500);
 }
 
 unsigned int clock_get_pll6(void)
