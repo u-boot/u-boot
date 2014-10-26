@@ -14,29 +14,41 @@ config TARGET_QEMU_MIPS
 	bool "Support qemu-mips"
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_LITTLE_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
 
 config TARGET_MALTA
 	bool "Support malta"
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_LITTLE_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
 
 config TARGET_VCT
 	bool "Support vct"
 	select SUPPORTS_BIG_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
 
 config TARGET_DBAU1X00
 	bool "Support dbau1x00"
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_LITTLE_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
 
 config TARGET_PB1X00
 	bool "Support pb1x00"
 	select SUPPORTS_LITTLE_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
 
 config TARGET_QEMU_MIPS64
 	bool "Support qemu-mips64"
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_LITTLE_ENDIAN
+	select SUPPORTS_CPU_MIPS64_R1
+	select SUPPORTS_CPU_MIPS64_R2
 
 endchoice
 
@@ -66,10 +78,66 @@ config SYS_LITTLE_ENDIAN
 
 endchoice
 
+choice
+	prompt "CPU selection"
+	default CPU_MIPS32_R2
+
+config CPU_MIPS32_R1
+	bool "MIPS32 Release 1"
+	depends on SUPPORTS_CPU_MIPS32_R1
+	select 32BIT
+	help
+	  Choose this option to build an U-Boot for release 1 or later of the
+	  MIPS32 architecture.
+
+config CPU_MIPS32_R2
+	bool "MIPS32 Release 2"
+	depends on SUPPORTS_CPU_MIPS32_R2
+	select 32BIT
+	help
+	  Choose this option to build an U-Boot for release 2 or later of the
+	  MIPS32 architecture.
+
+config CPU_MIPS64_R1
+	bool "MIPS64 Release 1"
+	depends on SUPPORTS_CPU_MIPS64_R1
+	select 64BIT
+	help
+	  Choose this option to build a kernel for release 1 or later of the
+	  MIPS64 architecture.
+
+config CPU_MIPS64_R2
+	bool "MIPS64 Release 2"
+	depends on SUPPORTS_CPU_MIPS64_R2
+	select 64BIT
+	help
+	  Choose this option to build a kernel for release 2 or later of the
+	  MIPS64 architecture.
+
+endchoice
+
 config SUPPORTS_BIG_ENDIAN
 	bool
 
 config SUPPORTS_LITTLE_ENDIAN
+	bool
+
+config SUPPORTS_CPU_MIPS32_R1
+	bool
+
+config SUPPORTS_CPU_MIPS32_R2
+	bool
+
+config SUPPORTS_CPU_MIPS64_R1
+	bool
+
+config SUPPORTS_CPU_MIPS64_R2
+	bool
+
+config 32BIT
+	bool
+
+config 64BIT
 	bool
 
 endif
