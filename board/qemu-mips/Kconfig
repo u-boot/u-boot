@@ -1,8 +1,5 @@
 if TARGET_QEMU_MIPS
 
-config SYS_CPU
-	default "mips32"
-
 config SYS_BOARD
 	default "qemu-mips"
 

@@ -1,8 +1,5 @@
 if TARGET_DBAU1X00
 
-config SYS_CPU
-	default "mips32"
-
 config SYS_BOARD
 	default "dbau1x00"
 

@@ -1,8 +1,5 @@
 if TARGET_VCT
 
-config SYS_CPU
-	default "mips32"
-
 config SYS_BOARD
 	default "vct"
 
