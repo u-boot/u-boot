@@ -67,14 +67,19 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 #ifdef OMAP_HSMMC_USE_GPIO
 static int omap_mmc_setup_gpio_in(int gpio, const char *label)
 {
+	int ret;
+
+#ifndef CONFIG_DM_GPIO
 	if (!gpio_is_valid(gpio))
 		return -1;
+#endif
+	ret = gpio_request(gpio, label);
+	if (ret)
+		return ret;
 
-	if (gpio_request(gpio, label) < 0)
-		return -1;
-
-	if (gpio_direction_input(gpio) < 0)
-		return -1;
+	ret = gpio_direction_input(gpio);
+	if (ret)
+		return ret;
 
 	return gpio;
 }

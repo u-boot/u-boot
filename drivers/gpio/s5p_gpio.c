@@ -33,8 +33,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define RATE_MASK(gpio)		(0x1 << (gpio + 16))
 #define RATE_SET(gpio)			(0x1 << (gpio + 16))
 
-#define GPIO_NAME_SIZE			20
-
 /* Platform data for each bank */
 struct exynos_gpio_platdata {
 	struct s5p_gpio_bank *bank;
@@ -43,7 +41,6 @@ struct exynos_gpio_platdata {
 
 /* Information about each bank at run-time */
 struct exynos_bank_info {
-	char label[GPIO_PER_BANK][GPIO_NAME_SIZE];
 	struct s5p_gpio_bank *bank;
 };
 
@@ -189,61 +186,10 @@ int s5p_gpio_get_pin(unsigned gpio)
 
 /* Driver model interface */
 #ifndef CONFIG_SPL_BUILD
-static int exynos_gpio_get_state(struct udevice *dev, unsigned int offset,
-				char *buf, int bufsize)
-{
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
-	struct exynos_bank_info *state = dev_get_priv(dev);
-	const char *label;
-	bool is_output;
-	int size;
-	int cfg;
-
-	label = state->label[offset];
-	cfg = s5p_gpio_get_cfg_pin(state->bank, offset);
-	is_output = cfg == S5P_GPIO_OUTPUT;
-	size = snprintf(buf, bufsize, "%s%d: ",
-			uc_priv->bank_name ? uc_priv->bank_name : "", offset);
-	buf += size;
-	bufsize -= size;
-	if (is_output || cfg == S5P_GPIO_INPUT) {
-		snprintf(buf, bufsize, "%s: %d [%c]%s%s",
-			 is_output ? "out" : " in",
-			 s5p_gpio_get_value(state->bank, offset),
-			 *label ? 'x' : ' ',
-			 *label ? " " : "",
-			 label);
-	} else {
-		snprintf(buf, bufsize, "sfpio");
-	}
-
-	return 0;
-}
-
-static int check_reserved(struct udevice *dev, unsigned offset,
-			  const char *func)
-{
-	struct exynos_bank_info *state = dev_get_priv(dev);
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
-
-	if (!*state->label[offset]) {
-		printf("exynos_gpio: %s: error: gpio %s%d not reserved\n",
-		       func, uc_priv->bank_name, offset);
-		return -EPERM;
-	}
-
-	return 0;
-}
-
 /* set GPIO pin 'gpio' as an input */
 static int exynos_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
 	struct exynos_bank_info *state = dev_get_priv(dev);
-	int ret;
-
-	ret = check_reserved(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	/* Configure GPIO direction as input. */
 	s5p_gpio_cfg_pin(state->bank, offset, S5P_GPIO_INPUT);
@@ -256,11 +202,6 @@ static int exynos_gpio_direction_output(struct udevice *dev, unsigned offset,
 				       int value)
 {
 	struct exynos_bank_info *state = dev_get_priv(dev);
-	int ret;
-
-	ret = check_reserved(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	/* Configure GPIO output value. */
 	s5p_gpio_set_value(state->bank, offset, value);
@@ -275,11 +216,6 @@ static int exynos_gpio_direction_output(struct udevice *dev, unsigned offset,
 static int exynos_gpio_get_value(struct udevice *dev, unsigned offset)
 {
 	struct exynos_bank_info *state = dev_get_priv(dev);
-	int ret;
-
-	ret = check_reserved(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	return s5p_gpio_get_value(state->bank, offset);
 }
@@ -289,40 +225,8 @@ static int exynos_gpio_set_value(struct udevice *dev, unsigned offset,
 				 int value)
 {
 	struct exynos_bank_info *state = dev_get_priv(dev);
-	int ret;
-
-	ret = check_reserved(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	s5p_gpio_set_value(state->bank, offset, value);
-
-	return 0;
-}
-
-static int exynos_gpio_request(struct udevice *dev, unsigned offset,
-			      const char *label)
-{
-	struct exynos_bank_info *state = dev_get_priv(dev);
-
-	if (*state->label[offset])
-		return -EBUSY;
-
-	strncpy(state->label[offset], label, GPIO_NAME_SIZE);
-	state->label[offset][GPIO_NAME_SIZE - 1] = '\0';
-
-	return 0;
-}
-
-static int exynos_gpio_free(struct udevice *dev, unsigned offset)
-{
-	struct exynos_bank_info *state = dev_get_priv(dev);
-	int ret;
-
-	ret = check_reserved(dev, offset, __func__);
-	if (ret)
-		return ret;
-	state->label[offset][0] = '\0';
 
 	return 0;
 }
@@ -362,8 +266,6 @@ static int exynos_gpio_get_function(struct udevice *dev, unsigned offset)
 	struct exynos_bank_info *state = dev_get_priv(dev);
 	int cfg;
 
-	if (!*state->label[offset])
-		return GPIOF_UNUSED;
 	cfg = s5p_gpio_get_cfg_pin(state->bank, offset);
 	if (cfg == S5P_GPIO_OUTPUT)
 		return GPIOF_OUTPUT;
@@ -374,14 +276,11 @@ static int exynos_gpio_get_function(struct udevice *dev, unsigned offset)
 }
 
 static const struct dm_gpio_ops gpio_exynos_ops = {
-	.request		= exynos_gpio_request,
-	.free			= exynos_gpio_free,
 	.direction_input	= exynos_gpio_direction_input,
 	.direction_output	= exynos_gpio_direction_output,
 	.get_value		= exynos_gpio_get_value,
 	.set_value		= exynos_gpio_set_value,
 	.get_function		= exynos_gpio_get_function,
-	.get_state		= exynos_gpio_get_state,
 };
 
 static int gpio_exynos_probe(struct udevice *dev)

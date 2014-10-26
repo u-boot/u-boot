@@ -29,6 +29,9 @@
  * Request a GPIO. This should be called before any of the other functions
  * are used on this GPIO.
  *
+ * Note: With driver model, the label is allocated so there is no need for
+ * the caller to preserve it.
+ *
  * @param gp	GPIO number
  * @param label	User label for this GPIO
  * @return 0 if ok, -1 on error
@@ -80,7 +83,7 @@ int gpio_get_value(unsigned gpio);
 int gpio_set_value(unsigned gpio, int value);
 
 /* State of a GPIO, as reported by get_function() */
-enum {
+enum gpio_func_t {
 	GPIOF_INPUT = 0,
 	GPIOF_OUTPUT,
 	GPIOF_UNUSED,		/* Not claimed */
@@ -91,6 +94,66 @@ enum {
 };
 
 struct udevice;
+
+/**
+ * gpio_get_status() - get the current GPIO status as a string
+ *
+ * Obtain the current GPIO status as a string which can be presented to the
+ * user. A typical string is:
+ *
+ * "b4:  in: 1 [x] sdmmc_cd"
+ *
+ * which means this is GPIO bank b, offset 4, currently set to input, current
+ * value 1, [x] means that it is requested and the owner is 'sdmmc_cd'
+ *
+ * @dev:	Device to check
+ * @offset:	Offset of device GPIO to check
+ * @buf:	Place to put string
+ * @buffsize:	Size of string including \0
+ */
+int gpio_get_status(struct udevice *dev, int offset, char *buf, int buffsize);
+
+/**
+ * gpio_get_function() - get the current function for a GPIO pin
+ *
+ * Note this returns GPIOF_UNUSED if the GPIO is not requested.
+ *
+ * @dev:	Device to check
+ * @offset:	Offset of device GPIO to check
+ * @namep:	If non-NULL, this is set to the nane given when the GPIO
+ *		was requested, or -1 if it has not been requested
+ * @return  -ENODATA if the driver returned an unknown function,
+ * -ENODEV if the device is not active, -EINVAL if the offset is invalid.
+ * GPIOF_UNUSED if the GPIO has not been requested. Otherwise returns the
+ * function from enum gpio_func_t.
+ */
+int gpio_get_function(struct udevice *dev, int offset, const char **namep);
+
+/**
+ * gpio_get_raw_function() - get the current raw function for a GPIO pin
+ *
+ * Note this does not return GPIOF_UNUSED - it will always return the GPIO
+ * driver's view of a pin function, even if it is not correctly set up.
+ *
+ * @dev:	Device to check
+ * @offset:	Offset of device GPIO to check
+ * @namep:	If non-NULL, this is set to the nane given when the GPIO
+ *		was requested, or -1 if it has not been requested
+ * @return  -ENODATA if the driver returned an unknown function,
+ * -ENODEV if the device is not active, -EINVAL if the offset is invalid.
+ * Otherwise returns the function from enum gpio_func_t.
+ */
+int gpio_get_raw_function(struct udevice *dev, int offset, const char **namep);
+
+/**
+ * gpio_requestf() - request a GPIO using a format string for the owner
+ *
+ * This is a helper function for gpio_request(). It allows you to provide
+ * a printf()-format string for the GPIO owner. It calls gpio_request() with
+ * the string that is created
+ */
+int gpio_requestf(unsigned gpio, const char *fmt, ...)
+		__attribute__ ((format (__printf__, 2, 3)));
 
 /**
  * struct struct dm_gpio_ops - Driver model GPIO operations
@@ -135,8 +198,6 @@ struct dm_gpio_ops {
 	 * @return current function - GPIOF_...
 	 */
 	int (*get_function)(struct udevice *dev, unsigned offset);
-	int (*get_state)(struct udevice *dev, unsigned offset, char *state,
-			 int maxlen);
 };
 
 /**
@@ -157,11 +218,14 @@ struct dm_gpio_ops {
  * @gpio_base: Base GPIO number for this device. For the first active device
  * this will be 0; the numbering for others will follow sequentially so that
  * @gpio_base for device 1 will equal the number of GPIOs in device 0.
+ * @name: Array of pointers to the name for each GPIO in this bank. The
+ * value of the pointer will be NULL if the GPIO has not been claimed.
  */
 struct gpio_dev_priv {
 	const char *bank_name;
 	unsigned gpio_count;
 	unsigned gpio_base;
+	char **name;
 };
 
 /* Access the GPIO operations for a device */

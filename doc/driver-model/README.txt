@@ -95,7 +95,7 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 22 driver model tests
+    Running 29 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
     Test: dm_test_bus_children
@@ -115,7 +115,12 @@ You should see something like this:
     Device 'd-test': seq 3 is in use by 'b-test'
     Device 'a-test': seq 0 is in use by 'd-test'
     Test: dm_test_gpio
-    sandbox_gpio: sb_gpio_get_value: error: offset 4 not reserved
+    extra-gpios: get_value: error: gpio b5 not reserved
+    Test: dm_test_gpio_anon
+    Test: dm_test_gpio_copy
+    Test: dm_test_gpio_leak
+    extra-gpios: get_value: error: gpio b5 not reserved
+    Test: dm_test_gpio_requestf
     Test: dm_test_leak
     Test: dm_test_lifecycle
     Test: dm_test_operations
@@ -123,6 +128,26 @@ You should see something like this:
     Test: dm_test_platdata
     Test: dm_test_pre_reloc
     Test: dm_test_remove
+    Test: dm_test_spi_find
+    Invalid chip select 0:0 (err=-19)
+    SF: Failed to get idcodes
+    Device 'name-emul': seq 0 is in use by 'name-emul'
+    SF: Detected M25P16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB
+    Test: dm_test_spi_flash
+    2097152 bytes written in 0 ms
+    SF: Detected M25P16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB
+    SPI flash test:
+    0 erase: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    1 check: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    2 write: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    3 read: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    Test passed
+    0 erase: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    1 check: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    2 write: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    3 read: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    Test: dm_test_spi_xfer
+    SF: Detected M25P16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB
     Test: dm_test_uclass
     Test: dm_test_uclass_before_ready
     Failures: 0

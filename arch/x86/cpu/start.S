@@ -85,11 +85,24 @@ car_init_ret:
 	/* Align global data to 16-byte boundary */
 	andl	$0xfffffff0, %esp
 
+	/* Zero the global data since it won't happen later */
+	xorl	%eax, %eax
+	movl	$GENERATED_GBL_DATA_SIZE, %ecx
+	movl	%esp, %edi
+	rep	stosb
+
 	/* Setup first parameter to setup_gdt */
 	movl	%esp, %eax
 
 	/* Reserve space for global descriptor table */
 	subl	$X86_GDT_SIZE, %esp
+
+#if defined(CONFIG_SYS_MALLOC_F_LEN)
+	subl	$CONFIG_SYS_MALLOC_F_LEN, %esp
+	movl	%eax, %edx
+	addl	$GD_MALLOC_BASE, %edx
+	movl	%esp, (%edx)
+#endif
 
 	/* Align temporary global descriptor table to 16-byte boundary */
 	andl	$0xfffffff0, %esp

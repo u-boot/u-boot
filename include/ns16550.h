@@ -53,7 +53,7 @@
  * @clock:		UART base clock speed in Hz
  */
 struct ns16550_platdata {
-	unsigned char *base;
+	unsigned long base;
 	int reg_shift;
 	int clock;
 };

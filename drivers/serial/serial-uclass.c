@@ -11,8 +11,11 @@
 #include <os.h>
 #include <serial.h>
 #include <stdio_dev.h>
+#include <watchdog.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
+
+#include <ns16550.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -47,13 +50,22 @@ static void serial_find_console_or_panic(void)
 	}
 #endif
 	/*
+	 * Try to use CONFIG_CONS_INDEX if available (it is numbered from 1!).
+	 *
 	 * Failing that, get the device with sequence number 0, or in extremis
 	 * just the first serial device we can find. But we insist on having
 	 * a console (even if it is silent).
 	 */
-	if (uclass_get_device_by_seq(UCLASS_SERIAL, 0, &cur_dev) &&
+#ifdef CONFIG_CONS_INDEX
+#define INDEX (CONFIG_CONS_INDEX - 1)
+#else
+#define INDEX 0
+#endif
+	if (uclass_get_device_by_seq(UCLASS_SERIAL, INDEX, &cur_dev) &&
+	    uclass_get_device(UCLASS_SERIAL, INDEX, &cur_dev) &&
 	    (uclass_first_device(UCLASS_SERIAL, &cur_dev) || !cur_dev))
 		panic("No serial driver found");
+#undef INDEX
 }
 
 /* Called prior to relocation */
@@ -71,21 +83,66 @@ void serial_initialize(void)
 	serial_find_console_or_panic();
 }
 
-static void serial_putc_dev(struct udevice *dev, char ch)
+static void _serial_putc(struct udevice *dev, char ch)
 {
-	struct dm_serial_ops *ops = serial_get_ops(cur_dev);
+	struct dm_serial_ops *ops = serial_get_ops(dev);
 	int err;
 
 	do {
-		err = ops->putc(cur_dev, ch);
+		err = ops->putc(dev, ch);
 	} while (err == -EAGAIN);
 	if (ch == '\n')
-		serial_putc('\r');
+		_serial_putc(dev, '\r');
+}
+
+static void _serial_puts(struct udevice *dev, const char *str)
+{
+	while (*str)
+		_serial_putc(dev, *str++);
+}
+
+static int _serial_getc(struct udevice *dev)
+{
+	struct dm_serial_ops *ops = serial_get_ops(dev);
+	int err;
+
+	do {
+		err = ops->getc(dev);
+		if (err == -EAGAIN)
+			WATCHDOG_RESET();
+	} while (err == -EAGAIN);
+
+	return err >= 0 ? err : 0;
+}
+
+static int _serial_tstc(struct udevice *dev)
+{
+	struct dm_serial_ops *ops = serial_get_ops(dev);
+
+	if (ops->pending)
+		return ops->pending(dev, true);
+
+	return 1;
 }
 
 void serial_putc(char ch)
 {
-	serial_putc_dev(cur_dev, ch);
+	_serial_putc(cur_dev, ch);
+}
+
+void serial_puts(const char *str)
+{
+	_serial_puts(cur_dev, str);
+}
+
+int serial_getc(void)
+{
+	return _serial_getc(cur_dev);
+}
+
+int serial_tstc(void)
+{
+	return _serial_tstc(cur_dev);
 }
 
 void serial_setbrg(void)
@@ -96,72 +153,28 @@ void serial_setbrg(void)
 		ops->setbrg(cur_dev, gd->baudrate);
 }
 
-void serial_puts(const char *str)
-{
-	while (*str)
-		serial_putc(*str++);
-}
-
-int serial_tstc(void)
-{
-	struct dm_serial_ops *ops = serial_get_ops(cur_dev);
-
-	if (ops->pending)
-		return ops->pending(cur_dev, true);
-
-	return 1;
-}
-
-static int serial_getc_dev(struct udevice *dev)
-{
-	struct dm_serial_ops *ops = serial_get_ops(dev);
-	int err;
-
-	do {
-		err = ops->getc(dev);
-	} while (err == -EAGAIN);
-
-	return err >= 0 ? err : 0;
-}
-
-int serial_getc(void)
-{
-	return serial_getc_dev(cur_dev);
-}
-
 void serial_stdio_init(void)
 {
 }
 
 static void serial_stub_putc(struct stdio_dev *sdev, const char ch)
 {
-	struct udevice *dev = sdev->priv;
-
-	serial_putc_dev(dev, ch);
+	_serial_putc(sdev->priv, ch);
 }
 
 void serial_stub_puts(struct stdio_dev *sdev, const char *str)
 {
-	while (*str)
-		serial_stub_putc(sdev, *str++);
+	_serial_puts(sdev->priv, str);
 }
 
 int serial_stub_getc(struct stdio_dev *sdev)
 {
-	struct udevice *dev = sdev->priv;
-
-	return serial_getc_dev(dev);
+	return _serial_getc(sdev->priv);
 }
 
 int serial_stub_tstc(struct stdio_dev *sdev)
 {
-	struct udevice *dev = sdev->priv;
-	struct dm_serial_ops *ops = serial_get_ops(dev);
-
-	if (ops->pending)
-		return ops->pending(dev, true);
-
-	return 1;
+	return _serial_tstc(sdev->priv);
 }
 
 static int serial_post_probe(struct udevice *dev)

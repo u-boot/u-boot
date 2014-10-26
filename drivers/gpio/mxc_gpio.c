@@ -20,7 +20,6 @@ enum mxc_gpio_direction {
 	MXC_GPIO_DIRECTION_OUT,
 };
 
-#define GPIO_NAME_SIZE			20
 #define GPIO_PER_BANK			32
 
 struct mxc_gpio_plat {
@@ -28,7 +27,6 @@ struct mxc_gpio_plat {
 };
 
 struct mxc_bank_info {
-	char label[GPIO_PER_BANK][GPIO_NAME_SIZE];
 	struct gpio_regs *regs;
 };
 
@@ -152,18 +150,6 @@ int gpio_direction_output(unsigned gpio, int value)
 #endif
 
 #ifdef CONFIG_DM_GPIO
-/**
- * gpio_is_requested() - check if a GPIO has been requested
- *
- * @bank:	Bank to check
- * @offset:	GPIO offset within bank to check
- * @return true if marked as requested, false if not
- */
-static inline bool gpio_is_requested(struct mxc_bank_info *bank, int offset)
-{
-	return *bank->label[offset] != '\0';
-}
-
 static int mxc_gpio_is_output(struct gpio_regs *regs, int offset)
 {
 	u32 val;
@@ -208,35 +194,10 @@ static int mxc_gpio_bank_get_value(struct gpio_regs *regs, int offset)
 	return (readl(&regs->gpio_psr) >> offset) & 0x01;
 }
 
-static int mxc_gpio_bank_get_output_value(struct gpio_regs *regs, int offset)
-{
-	return (readl(&regs->gpio_dr) >> offset) & 0x01;
-}
-
-static int check_requested(struct udevice *dev, unsigned offset,
-			   const char *func)
-{
-	struct mxc_bank_info *bank = dev_get_priv(dev);
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
-
-	if (!gpio_is_requested(bank, offset)) {
-		printf("mxc_gpio: %s: error: gpio %s%d not requested\n",
-		       func, uc_priv->bank_name, offset);
-		return -EPERM;
-	}
-
-	return 0;
-}
-
 /* set GPIO pin 'gpio' as an input */
 static int mxc_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
 	struct mxc_bank_info *bank = dev_get_priv(dev);
-	int ret;
-
-	ret = check_requested(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	/* Configure GPIO direction as input. */
 	mxc_gpio_bank_direction(bank->regs, offset, MXC_GPIO_DIRECTION_IN);
@@ -249,11 +210,6 @@ static int mxc_gpio_direction_output(struct udevice *dev, unsigned offset,
 				       int value)
 {
 	struct mxc_bank_info *bank = dev_get_priv(dev);
-	int ret;
-
-	ret = check_requested(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	/* Configure GPIO output value. */
 	mxc_gpio_bank_set_value(bank->regs, offset, value);
@@ -268,11 +224,6 @@ static int mxc_gpio_direction_output(struct udevice *dev, unsigned offset,
 static int mxc_gpio_get_value(struct udevice *dev, unsigned offset)
 {
 	struct mxc_bank_info *bank = dev_get_priv(dev);
-	int ret;
-
-	ret = check_requested(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	return mxc_gpio_bank_get_value(bank->regs, offset);
 }
@@ -282,69 +233,8 @@ static int mxc_gpio_set_value(struct udevice *dev, unsigned offset,
 				 int value)
 {
 	struct mxc_bank_info *bank = dev_get_priv(dev);
-	int ret;
-
-	ret = check_requested(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	mxc_gpio_bank_set_value(bank->regs, offset, value);
-
-	return 0;
-}
-
-static int mxc_gpio_get_state(struct udevice *dev, unsigned int offset,
-			      char *buf, int bufsize)
-{
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
-	struct mxc_bank_info *bank = dev_get_priv(dev);
-	const char *label;
-	bool requested;
-	bool is_output;
-	int size;
-
-	label = bank->label[offset];
-	is_output = mxc_gpio_is_output(bank->regs, offset);
-	size = snprintf(buf, bufsize, "%s%d: ",
-			uc_priv->bank_name ? uc_priv->bank_name : "", offset);
-	buf += size;
-	bufsize -= size;
-	requested = gpio_is_requested(bank, offset);
-	snprintf(buf, bufsize, "%s: %d [%c]%s%s",
-		 is_output ? "out" : " in",
-		 is_output ?
-			mxc_gpio_bank_get_output_value(bank->regs, offset) :
-			mxc_gpio_bank_get_value(bank->regs, offset),
-		 requested ? 'x' : ' ',
-		 requested ? " " : "",
-		 label);
-
-	return 0;
-}
-
-static int mxc_gpio_request(struct udevice *dev, unsigned offset,
-			      const char *label)
-{
-	struct mxc_bank_info *bank = dev_get_priv(dev);
-
-	if (gpio_is_requested(bank, offset))
-		return -EBUSY;
-
-	strncpy(bank->label[offset], label, GPIO_NAME_SIZE);
-	bank->label[offset][GPIO_NAME_SIZE - 1] = '\0';
-
-	return 0;
-}
-
-static int mxc_gpio_free(struct udevice *dev, unsigned offset)
-{
-	struct mxc_bank_info *bank = dev_get_priv(dev);
-	int ret;
-
-	ret = check_requested(dev, offset, __func__);
-	if (ret)
-		return ret;
-	bank->label[offset][0] = '\0';
 
 	return 0;
 }
@@ -352,9 +242,6 @@ static int mxc_gpio_free(struct udevice *dev, unsigned offset)
 static int mxc_gpio_get_function(struct udevice *dev, unsigned offset)
 {
 	struct mxc_bank_info *bank = dev_get_priv(dev);
-
-	if (!gpio_is_requested(bank, offset))
-		return GPIOF_UNUSED;
 
 	/* GPIOF_FUNC is not implemented yet */
 	if (mxc_gpio_is_output(bank->regs, offset))
@@ -364,14 +251,11 @@ static int mxc_gpio_get_function(struct udevice *dev, unsigned offset)
 }
 
 static const struct dm_gpio_ops gpio_mxc_ops = {
-	.request		= mxc_gpio_request,
-	.free			= mxc_gpio_free,
 	.direction_input	= mxc_gpio_direction_input,
 	.direction_output	= mxc_gpio_direction_output,
 	.get_value		= mxc_gpio_get_value,
 	.set_value		= mxc_gpio_set_value,
 	.get_function		= mxc_gpio_get_function,
-	.get_state		= mxc_gpio_get_state,
 };
 
 static const struct mxc_gpio_plat mxc_plat[] = {

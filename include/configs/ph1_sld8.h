@@ -28,13 +28,9 @@
  *   SoC UART     : enable CONFIG_UNIPHIER_SERIAL
  *   On-board UART: enable CONFIG_SYS_NS16550_SERIAL
  */
-#if 1
-#define CONFIG_UNIPHIER_SERIAL
-#else
+#if 0
 #define CONFIG_SYS_NS16550_SERIAL
 #endif
-
-#define CONFIG_SYS_UNIPHIER_UART_CLK    80000000
 
 #define CONFIG_SMC911X
 

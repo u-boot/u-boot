@@ -17,6 +17,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
 #include <mmc.h>
 #include <spl.h>
 #include <asm/io.h>
@@ -24,7 +25,7 @@
 #include <asm/arch/mem.h>
 #include <asm/cache.h>
 #include <asm/armv7.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <asm/omap_common.h>
 #include <asm/arch/mmc_host_def.h>
 #include <i2c.h>
@@ -39,6 +40,27 @@ static void omap3_setup_aux_cr(void);
 static void omap3_invalidate_l2_cache_secure(void);
 #endif
 
+#ifdef CONFIG_DM_GPIO
+static const struct omap_gpio_platdata omap34xx_gpio[] = {
+	{ 0, OMAP34XX_GPIO1_BASE, METHOD_GPIO_24XX },
+	{ 1, OMAP34XX_GPIO2_BASE, METHOD_GPIO_24XX },
+	{ 2, OMAP34XX_GPIO3_BASE, METHOD_GPIO_24XX },
+	{ 3, OMAP34XX_GPIO4_BASE, METHOD_GPIO_24XX },
+	{ 4, OMAP34XX_GPIO5_BASE, METHOD_GPIO_24XX },
+	{ 5, OMAP34XX_GPIO6_BASE, METHOD_GPIO_24XX },
+};
+
+U_BOOT_DEVICES(am33xx_gpios) = {
+	{ "gpio_omap", &omap34xx_gpio[0] },
+	{ "gpio_omap", &omap34xx_gpio[1] },
+	{ "gpio_omap", &omap34xx_gpio[2] },
+	{ "gpio_omap", &omap34xx_gpio[3] },
+	{ "gpio_omap", &omap34xx_gpio[4] },
+	{ "gpio_omap", &omap34xx_gpio[5] },
+};
+
+#else
+
 static const struct gpio_bank gpio_bank_34xx[6] = {
 	{ (void *)OMAP34XX_GPIO1_BASE, METHOD_GPIO_24XX },
 	{ (void *)OMAP34XX_GPIO2_BASE, METHOD_GPIO_24XX },
@@ -49,6 +71,8 @@ static const struct gpio_bank gpio_bank_34xx[6] = {
 };
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_34xx;
+
+#endif
 
 #ifdef CONFIG_SPL_BUILD
 /*
