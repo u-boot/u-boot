@@ -119,6 +119,20 @@ struct bcm2835_mbox_tag_hdr {
  * };
  */
 
+#define BCM2835_MBOX_TAG_GET_MAC_ADDRESS	0x00010003
+
+struct bcm2835_mbox_tag_get_mac_address {
+	struct bcm2835_mbox_tag_hdr tag_hdr;
+	union {
+		struct {
+		} req;
+		struct {
+			u8 mac[6];
+			u8 pad[2];
+		} resp;
+	} body;
+};
+
 #define BCM2835_MBOX_TAG_GET_ARM_MEMORY		0x00010005
 
 struct bcm2835_mbox_tag_get_arm_mem {

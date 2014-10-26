@@ -82,6 +82,16 @@
 #define CONFIG_MMC_SDHCI_IO_ACCESSORS
 #define CONFIG_BCM2835_SDHCI
 
+#define CONFIG_CMD_USB
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_DWC2
+#define CONFIG_USB_DWC2_REG_ADDR 0x20980000
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_SMSC95XX
+#define CONFIG_MISC_INIT_R
+#endif
+
 /* Console UART */
 #define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK		3000000
@@ -129,13 +139,7 @@
 
 /* Some things don't make sense on this HW or yet */
 #undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_SAVEENV
-#undef CONFIG_CMD_DHCP
-#undef CONFIG_CMD_MII
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_PING
 
 /* Environment */
 #define ENV_DEVICE_SETTINGS \
@@ -176,7 +180,10 @@
 	"ramdisk_addr_r=0x02100000\0" \
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0)
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
