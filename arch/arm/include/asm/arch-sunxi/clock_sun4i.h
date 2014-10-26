@@ -199,13 +199,16 @@ struct sunxi_ccm_reg {
 #define CCM_PLL5_CTRL_M1_MASK CCM_PLL5_CTRL_M1(0x3)
 #define CCM_PLL5_CTRL_M1_X(n) ((n) - 1)
 #define CCM_PLL5_CTRL_K(n) (((n) & 0x3) << 4)
+#define CCM_PLL5_CTRL_K_SHIFT 4
 #define CCM_PLL5_CTRL_K_MASK CCM_PLL5_CTRL_K(0x3)
 #define CCM_PLL5_CTRL_K_X(n) ((n) - 1)
 #define CCM_PLL5_CTRL_LDO (0x1 << 7)
 #define CCM_PLL5_CTRL_N(n) (((n) & 0x1f) << 8)
+#define CCM_PLL5_CTRL_N_SHIFT 8
 #define CCM_PLL5_CTRL_N_MASK CCM_PLL5_CTRL_N(0x1f)
 #define CCM_PLL5_CTRL_N_X(n) (n)
 #define CCM_PLL5_CTRL_P(n) (((n) & 0x3) << 16)
+#define CCM_PLL5_CTRL_P_SHIFT 16
 #define CCM_PLL5_CTRL_P_MASK CCM_PLL5_CTRL_P(0x3)
 #define CCM_PLL5_CTRL_P_X(n) ((n) - 1)
 #define CCM_PLL5_CTRL_BW (0x1 << 18)

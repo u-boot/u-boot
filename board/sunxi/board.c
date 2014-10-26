@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <mmc.h>
 #ifdef CONFIG_AXP152_POWER
 #include <axp152.h>
 #endif
@@ -70,9 +71,9 @@ static void mmc_pinmux_setup(int sdc)
 		break;
 
 	case 1:
-		/* CMD-PH22, CLK-PH23, D0~D3-PH24~27 : 5 */
-		for (pin = SUNXI_GPH(22); pin <= SUNXI_GPH(27); pin++) {
-			sunxi_gpio_set_cfgpin(pin, SUN4I_GPH22_SDC1);
+		/* CMD-PG3, CLK-PG4, D0~D3-PG5-8 */
+		for (pin = SUNXI_GPG(3); pin <= SUNXI_GPG(8); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUN5I_GPG3_SDC1);
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
@@ -104,11 +105,36 @@ static void mmc_pinmux_setup(int sdc)
 
 int board_mmc_init(bd_t *bis)
 {
+	__maybe_unused struct mmc *mmc0, *mmc1;
+	__maybe_unused char buf[512];
+
 	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT);
-	sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT);
-#if !defined (CONFIG_SPL_BUILD) && defined (CONFIG_MMC_SUNXI_SLOT_EXTRA)
+	mmc0 = sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT);
+	if (!mmc0)
+		return -1;
+
+#if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
 	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT_EXTRA);
-	sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT_EXTRA);
+	mmc1 = sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT_EXTRA);
+	if (!mmc1)
+		return -1;
+#endif
+
+#if CONFIG_MMC_SUNXI_SLOT == 0 && CONFIG_MMC_SUNXI_SLOT_EXTRA == 2
+	/*
+	 * Both mmc0 and mmc2 are bootable, figure out where we're booting
+	 * from. Try mmc0 first, just like the brom does.
+	 */
+	if (mmc_getcd(mmc0) && mmc_init(mmc0) == 0 &&
+	    mmc0->block_dev.block_read(0, 16, 1, buf) == 1) {
+		buf[12] = 0;
+		if (strcmp(&buf[4], "eGON.BT0") == 0)
+			return 0;
+	}
+
+	/* no bootable card in mmc0, so we must be booting from mmc2, swap */
+	mmc0->block_dev.dev = 1;
+	mmc1->block_dev.dev = 0;
 #endif
 
 	return 0;

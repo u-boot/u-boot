@@ -16,6 +16,7 @@ obj-$(CONFIG_A10S_OLINUXINO_M)	+= dram_a10s_olinuxino_m.o
 obj-$(CONFIG_A13_OLINUXINO)	+= dram_a13_olinuxino.o
 obj-$(CONFIG_A13_OLINUXINOM)	+= dram_a13_oli_micro.o
 obj-$(CONFIG_A20_OLINUXINO_L)	+= dram_a20_olinuxino_l.o
+obj-$(CONFIG_A20_OLINUXINO_L2)	+= dram_a20_olinuxino_l2.o
 obj-$(CONFIG_A20_OLINUXINO_M)	+= dram_sun7i_384_1024_iow16.o
 # This is not a typo, uses the same mem settings as the a10s-olinuxino-m
 obj-$(CONFIG_AUXTEK_T004)	+= dram_a10s_olinuxino_m.o
@@ -27,6 +28,7 @@ obj-$(CONFIG_CUBIETRUCK)	+= dram_cubietruck.o
 obj-$(CONFIG_I12_TVBOX)		+= dram_sun7i_384_1024_iow16.o
 obj-$(CONFIG_MELE_A1000)	+= dram_sun4i_360_512.o
 obj-$(CONFIG_MELE_A1000G)	+= dram_sun4i_360_1024_iow8.o
+obj-$(CONFIG_MELE_M3)		+= dram_sun7i_384_1024_iow16.o
 obj-$(CONFIG_MINI_X)		+= dram_sun4i_360_512.o
 obj-$(CONFIG_MINI_X_1GB)	+= dram_sun4i_360_1024_iow16.o
 obj-$(CONFIG_PCDUINO3)		+= dram_linksprite_pcduino3.o

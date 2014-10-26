@@ -450,8 +450,14 @@ config TARGET_SUN4I
 config TARGET_SUN5I
 	bool "Support sun5i"
 
+config TARGET_SUN6I
+	bool "Support sun6i"
+
 config TARGET_SUN7I
 	bool "Support sun7i"
+
+config TARGET_SUN8I
+	bool "Support sun8i"
 
 config TARGET_SNOWBALL
 	bool "Support snowball"

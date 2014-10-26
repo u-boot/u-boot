@@ -1,25 +1,12 @@
-if TARGET_SUN4I
+if TARGET_SUN4I || TARGET_SUN5I || TARGET_SUN6I || TARGET_SUN7I || TARGET_SUN8I
 
 config SYS_CONFIG_NAME
-	default "sun4i"
-
-endif
-
-if TARGET_SUN5I
-
-config SYS_CONFIG_NAME
-	default "sun5i"
-
-endif
-
-if TARGET_SUN7I
-
-config SYS_CONFIG_NAME
-	default "sun7i"
-
-endif
-
-if TARGET_SUN4I || TARGET_SUN5I || TARGET_SUN7I
+	string
+	default "sun4i" if TARGET_SUN4I
+	default "sun5i" if TARGET_SUN5I
+	default "sun6i" if TARGET_SUN6I
+	default "sun7i" if TARGET_SUN7I
+	default "sun8i" if TARGET_SUN8I
 
 config SYS_CPU
 	default "armv7"
@@ -32,5 +19,46 @@ config SYS_SOC
 
 config FDTFILE
 	string "Default fdtfile env setting for this board"
+
+config OLD_SUNXI_KERNEL_COMPAT
+	boolean "Enable workarounds for booting old kernels"
+	default n
+	---help---
+	Set this to enable various workarounds for old kernels, this results in
+	sub-optimal settings for newer kernels, only enable if needed.
+
+config MMC0_CD_PIN
+	string "Card detect pin for mmc0"
+	default ""
+	---help---
+	Set the card detect pin for mmc0, leave empty to not use cd. This
+	takes a string in the format understood by sunxi_name_to_gpio, e.g.
+	PH1 for pin 1 of port H.
+
+config MMC1_CD_PIN
+	string "Card detect pin for mmc1"
+	default ""
+	---help---
+	See MMC0_CD_PIN help text.
+
+config MMC2_CD_PIN
+	string "Card detect pin for mmc2"
+	default ""
+	---help---
+	See MMC0_CD_PIN help text.
+
+config MMC3_CD_PIN
+	string "Card detect pin for mmc3"
+	default ""
+	---help---
+	See MMC0_CD_PIN help text.
+
+config MMC_SUNXI_SLOT_EXTRA
+	int "mmc extra slot number"
+	default -1
+	---help---
+	sunxi builds always enable mmc0, some boards also have a second sdcard
+	slot or emmc on mmc1 - mmc3. Setting this to 1, 2 or 3 will enable
+	support for this.
 
 endif

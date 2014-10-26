@@ -23,8 +23,12 @@ int print_cpuinfo(void)
 	case 7: puts("CPU:   Allwinner A10s (SUN5I)\n"); break;
 	default: puts("CPU:   Allwinner A1X (SUN5I)\n");
 	}
+#elif defined CONFIG_SUN6I
+	puts("CPU:   Allwinner A31 (SUN6I)\n");
 #elif defined CONFIG_SUN7I
 	puts("CPU:   Allwinner A20 (SUN7I)\n");
+#elif defined CONFIG_SUN8I
+	puts("CPU:   Allwinner A23 (SUN8I)\n");
 #else
 #warning Please update cpu_info.c with correct CPU information
 	puts("CPU:   SUNXI Family\n");
