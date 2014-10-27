@@ -31,6 +31,7 @@ alias masahiro       Masahiro Yamada <yamada.m@jp.panasonic.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias panto          Pantelis Antoniou <panto@antoniou-consulting.com>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
+alias bobenstein     Przemyslaw Marczak <p.marczak@samsung.com>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
 alias rbohmer        Remy Bohmer <linux@bohmer.net>
 alias reinhardm      Reinhard Meyer <u-boot@emk-elektronik.de>
@@ -122,3 +123,4 @@ alias usb            uboot, marex
 alias video          uboot, ag
 alias patman         uboot, sjg
 alias buildman       uboot, sjg
+alias pmic           uboot, bobenstein
