@@ -51,7 +51,6 @@
 /*
  * Supported commands
  */
-#define CONFIG_CMD_AMBAPP	/* AMBA Plyg&Play information	*/
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_IRQ
@@ -261,9 +260,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
 
 /***** Gaisler GRLIB IP-Cores Config ********/
-
-/* AMBA Plug & Play info display on startup */
-/*#define CONFIG_SYS_AMBAPP_PRINT_ON_STARTUP*/
 
 #define CONFIG_SYS_GRLIB_SDRAM     0
 

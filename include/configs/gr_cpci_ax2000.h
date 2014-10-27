@@ -60,7 +60,6 @@
  * Supported commands
  */
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_AMBAPP
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_IRQ
@@ -310,9 +309,6 @@
 #define CONFIG_USB_CONFIG	0x00005000
 
 /***** Gaisler GRLIB IP-Cores Config ********/
-
-/* AMBA Plug & Play info display on startup */
-/*#define CONFIG_SYS_AMBAPP_PRINT_ON_STARTUP*/
 
 #define CONFIG_SYS_GRLIB_SDRAM    0
 
