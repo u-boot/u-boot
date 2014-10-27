@@ -176,8 +176,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DDR_SPD
 #ifndef CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_FSL_DDR3
-#define CONFIG_FSL_DDR_INTERACTIVE
 #endif
+#define CONFIG_FSL_DDR_INTERACTIVE
 
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
@@ -768,8 +768,7 @@ unsigned long get_board_ddr_clk(void);
 #define __USB_PHY_TYPE	utmi
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
-	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
-	"bank_intlv=cs0_cs1;"					\
+	"hwconfig=fsl_ddr:bank_intlv=auto;"			\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
 	"video-mode=fslfb:1024x768-32@60,monitor=dvi\0"		\
