@@ -42,13 +42,4 @@ SECTIONS
 		. = ALIGN(4);
 		__bss_end = .;
 	} >.sdram
-
-	. = ALIGN(8);
-	__malloc_start = .;
-	. = . + CONFIG_SPL_MALLOC_SIZE;
-	__malloc_end = .;
-
-	. = . + CONFIG_SPL_STACK_SIZE;
-	. = ALIGN(8);
-	__stack_start = .;
 }

@@ -176,7 +176,7 @@ static void socfpga_nic301_slave_ns(void)
 
 static uint32_t iswgrp_handoff[8];
 
-int misc_init_r(void)
+int arch_early_init_r(void)
 {
 	int i;
 	for (i = 0; i < 8; i++)	/* Cache initial SW setting regs */

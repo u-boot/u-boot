@@ -22,7 +22,7 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_MISC_INIT_R
+#define CONFIG_ARCH_EARLY_INIT_R
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_CLOCKS
 
@@ -157,6 +157,21 @@
 #define CONFIG_BAUDRATE			115200
 
 /*
+ * USB
+ */
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_DWC2
+#define CONFIG_USB_STORAGE
+/*
+ * NOTE: User must define either of the following to select which
+ *       of the two USB controllers available on SoCFPGA to use.
+ *       The DWC2 driver doesn't support multiple USB controllers.
+ * #define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB0_ADDRESS
+ * #define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB1_ADDRESS
+ */
+#endif
+
+/*
  * U-Boot environment
  */
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
@@ -167,16 +182,21 @@
 
 /*
  * SPL
+ *
+ * SRAM Memory layout:
+ *
+ * 0xFFFF_0000 ...... Start of SRAM
+ * 0xFFFF_xxxx ...... Top of stack (grows down)
+ * 0xFFFF_yyyy ...... Malloc area
+ * 0xFFFF_zzzz ...... Global Data
+ * 0xFFFF_FF00 ...... End of SRAM
  */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_RAM_DEVICE
-#define CONFIG_SPL_TEXT_BASE		0xFFFF0000
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
-#define CONFIG_SPL_STACK_SIZE		(4 * 1024)
-#define CONFIG_SPL_MALLOC_SIZE		(5 * 1024)	/* FIXME */
-#define CONFIG_SYS_SPL_MALLOC_START	((unsigned long) (&__malloc_start))
-#define CONFIG_SYS_SPL_MALLOC_SIZE	(&__malloc_end - &__malloc_start)
+#define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
+#define CONFIG_SYS_SPL_MALLOC_START	CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SYS_SPL_MALLOC_SIZE	(5 * 1024)
 
 #define CHUNKSZ_CRC32			(1 * 1024)	/* FIXME: ewww */
 #define CONFIG_CRC32_VERIFY
