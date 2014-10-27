@@ -37,6 +37,7 @@ void get_sys_info(sys_info_t *sys_info)
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 	int cc_group[12] = CONFIG_SYS_FSL_CLUSTER_CLOCKS;
 #endif
+	__maybe_unused u32 svr;
 
 	const u8 core_cplx_PLL[16] = {
 		[ 0] = 0,	/* CC1 PPL / 1 */
@@ -122,11 +123,27 @@ void get_sys_info(sys_info_t *sys_info)
 	/* T4240/T4160 Rev2.0 MEM_PLL_RAT uses a value which is half of
 	 * T4240/T4160 Rev1.0. eg. It's 12 in Rev1.0, however, for Rev2.0
 	 * it uses 6.
+	 * T2080 rev 1.1 and later also use half mem_pll comparing with rev 1.0
 	 */
 #if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160) || \
-	defined(CONFIG_PPC_T4080)
-	if (SVR_MAJ(get_svr()) >= 2)
-		mem_pll_rat *= 2;
+	defined(CONFIG_PPC_T4080) || defined(CONFIG_PPC_T2080)
+	svr = get_svr();
+	switch (SVR_SOC_VER(svr)) {
+	case SVR_T4240:
+	case SVR_T4160:
+	case SVR_T4120:
+	case SVR_T4080:
+		if (SVR_MAJ(svr) >= 2)
+			mem_pll_rat *= 2;
+		break;
+	case SVR_T2080:
+	case SVR_T2081:
+		if ((SVR_MAJ(svr) > 1) || (SVR_MIN(svr) >= 1))
+			mem_pll_rat *= 2;
+		break;
+	default:
+		break;
+	}
 #endif
 	if (mem_pll_rat > 2)
 		sys_info->freq_ddrbus *= mem_pll_rat;
