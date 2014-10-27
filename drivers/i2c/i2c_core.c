@@ -229,11 +229,9 @@ static void i2c_init_bus(unsigned int bus_no, int speed, int slaveaddr)
 }
 
 /* implement possible board specific board init */
-static void __def_i2c_init_board(void)
+__weak void i2c_init_board(void)
 {
 }
-void i2c_init_board(void)
-	__attribute__((weak, alias("__def_i2c_init_board")));
 
 /*
  * i2c_init_all():
@@ -395,9 +393,7 @@ void i2c_reg_write(uint8_t addr, uint8_t reg, uint8_t val)
 	i2c_write(addr, reg, 1, &val, 1);
 }
 
-void __i2c_init(int speed, int slaveaddr)
+__weak void i2c_init(int speed, int slaveaddr)
 {
 	i2c_init_bus(i2c_get_bus_num(), speed, slaveaddr);
 }
-void i2c_init(int speed, int slaveaddr)
-	__attribute__((weak, alias("__i2c_init")));
