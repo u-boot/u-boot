@@ -142,15 +142,7 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	immr->im_intctl.ic_sipnrh = 0xffffffff;
 	immr->im_intctl.ic_sipnrl = 0xffffffff;
 
-#ifdef CONFIG_HYMOD
-	/*
-	 * ensure all external interrupt sources default to trigger on
-	 * high-to-low transition (i.e. edge triggered active low)
-	 */
-	immr->im_intctl.ic_siexr = -1;
-#endif
-
-	return (0);
+	return 0;
 }
 
 /****************************************************************************/

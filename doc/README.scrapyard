@@ -12,14 +12,26 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-MVBC_P           powerpc     mpc5xxx        -           -           Andre Schwarz <andre.schwarz@matrix-vision.de>
-MVSMR            powerpc     mpc5xxx        -           -           Andre Schwarz <andre.schwarz@matrix-vision.de>
-MERGERBOX        powerpc     mpc83xx        -           -           Andre Schwarz <andre.schwarz@matrix-vision.de>
-MVBLM7           powerpc     mpc83xx        -           -           Andre Schwarz <andre.schwarz@matrix-vision.de>
-bluestone        powerpc     ppc4xx         -           -           Tirumala Marri <tmarri@apm.com>
-CRAYL1           powerpc     ppc4xx         -           -           David Updegraff <dave@cray.com>
-KAREF            powerpc     ppc4xx         -           -           Travis Sawyer <travis.sawyer@sandburst.com>
-METROBOX         powerpc     ppc4xx         -           -           Travis Sawyer <travis.sawyer@sandburst.com>
+TQM8272          powerpc     mpc8260        -           -           -
+TQM8260          powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
+IDS8247          powerpc     mpc8260        -           -           Heiko Schocher <hs@denx.de>
+HWW1U1A          powerpc     mpc85xx        -           -           Kyle Moffett <Kyle.D.Moffett@boeing.com>
+hymod            powerpc     mpc8260        -           -           Murray Jensen <Murray.Jensen@csiro.au>
+MHPC             powerpc     mpc8xx         -           -           Frank Gottschling <fgottschling@eltec.de>
+ICU862           powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+CPCI750		 powerpc     74xx_7xx	    -		-	    Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+DB64360		 powerpc     74xx_7xx	    -		-
+DB64460		 powerpc     74xx_7xx	    -		-
+p3m750		 powerpc     74xx_7xx	    -		-	    Stefan Roese <sr@denx.de>
+p3m7448		 powerpc     74xx_7xx	    -		-	    Stefan Roese <sr@denx.de>
+MVBC_P           powerpc     mpc5xxx        af55e35	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
+MVSMR            powerpc     mpc5xxx        af55e35	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
+MERGERBOX        powerpc     mpc83xx        e7a5656	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
+MVBLM7           powerpc     mpc83xx        e7a5656	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
+bluestone        powerpc     ppc4xx         9ed3246	2014-10-10  Tirumala Marri <tmarri@apm.com>
+CRAYL1           powerpc     ppc4xx         1521cdc	2014-10-10  David Updegraff <dave@cray.com>
+KAREF            powerpc     ppc4xx         dc9617e	2014-10-10  Travis Sawyer <travis.sawyer@sandburst.com>
+METROBOX         powerpc     ppc4xx         dc9617e	2014-10-10  Travis Sawyer <travis.sawyer@sandburst.com>
 PK1C20           nios2       -              70fbc461    2014-08-24  Scott McNutt <smcnutt@psyent.com>
 PCI5441          nios2       -              70fbc461    2014-08-24  Scott McNutt <smcnutt@psyent.com>
 flagadm          powerpc     mpc8xx         aec6f8c5    2014-08-22  Kári Davíðsson <kd@flaga.is>

@@ -13,9 +13,6 @@ config TARGET_SBC8548
 config TARGET_SOCRATES
 	bool "Support socrates"
 
-config TARGET_HWW1U1A
-	bool "Support HWW1U1A"
-
 config TARGET_B4860QDS
 	bool "Support B4860QDS"
 
@@ -144,7 +141,6 @@ config TARGET_XPEDITE550X
 
 endchoice
 
-source "board/exmeritus/hww1u1a/Kconfig"
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"
 source "board/freescale/bsc9132qds/Kconfig"

@@ -69,9 +69,6 @@ typedef volatile unsigned char	vu_char;
 #ifdef	CONFIG_4xx
 #include <asm/ppc4xx.h>
 #endif
-#ifdef CONFIG_HYMOD
-#include <board/hymod/hymod.h>
-#endif
 #ifdef CONFIG_ARM
 #define asmlinkage	/* nothing */
 #endif

@@ -16,9 +16,6 @@ config TARGET_ESTEEM192E
 config TARGET_HERMES
 	bool "Support hermes"
 
-config TARGET_ICU862
-	bool "Support ICU862"
-
 config TARGET_IP860
 	bool "Support IP860"
 
@@ -42,9 +39,6 @@ config TARGET_RRVISION
 
 config TARGET_SPD823TS
 	bool "Support SPD823TS"
-
-config TARGET_MHPC
-	bool "Support MHPC"
 
 config TARGET_TOP860
 	bool "Support TOP860"
@@ -120,11 +114,9 @@ endchoice
 source "board/LEOX/elpt860/Kconfig"
 source "board/RRvision/Kconfig"
 source "board/cogent/Kconfig"
-source "board/eltec/mhpc/Kconfig"
 source "board/emk/top860/Kconfig"
 source "board/esteem192e/Kconfig"
 source "board/hermes/Kconfig"
-source "board/icu862/Kconfig"
 source "board/ip860/Kconfig"
 source "board/ivm/Kconfig"
 source "board/kup/kup4k/Kconfig"

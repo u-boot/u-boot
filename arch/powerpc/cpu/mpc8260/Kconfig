@@ -28,9 +28,6 @@ config TARGET_EP82XXM
 config TARGET_GW8260
 	bool "Support gw8260"
 
-config TARGET_HYMOD
-	bool "Support hymod"
-
 config TARGET_IPHASE4539
 	bool "Support IPHASE4539"
 
@@ -55,17 +52,8 @@ config TARGET_MPC8266ADS
 config TARGET_VOVPN_GW
 	bool "Support VoVPN-GW"
 
-config TARGET_IDS8247
-	bool "Support IDS8247"
-
 config TARGET_KM82XX
 	bool "Support km82xx"
-
-config TARGET_TQM8260
-	bool "Support TQM8260"
-
-config TARGET_TQM8272
-	bool "Support TQM8272"
 
 endchoice
 
@@ -78,8 +66,6 @@ source "board/ep82xxm/Kconfig"
 source "board/freescale/mpc8266ads/Kconfig"
 source "board/funkwerk/vovpn-gw/Kconfig"
 source "board/gw8260/Kconfig"
-source "board/hymod/Kconfig"
-source "board/ids/ids8247/Kconfig"
 source "board/iphase4539/Kconfig"
 source "board/keymile/km82xx/Kconfig"
 source "board/muas3001/Kconfig"
@@ -87,7 +73,5 @@ source "board/pm826/Kconfig"
 source "board/pm828/Kconfig"
 source "board/ppmc8260/Kconfig"
 source "board/sacsng/Kconfig"
-source "board/tqc/tqm8260/Kconfig"
-source "board/tqc/tqm8272/Kconfig"
 
 endmenu
