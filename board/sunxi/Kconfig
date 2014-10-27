@@ -112,6 +112,10 @@ config TARGET_MELE_M3
 	bool "MELE_M3"
 	depends on MACH_SUN7I
 
+config TARGET_MELE_M9
+	bool "MELE_M9"
+	depends on MACH_SUN6I
+
 config TARGET_MINI_X_1GB
 	bool "MINI_X_1GB"
 	depends on MACH_SUN4I
