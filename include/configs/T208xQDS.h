@@ -234,7 +234,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_FSL_DDR3
-#undef CONFIG_FSL_DDR_INTERACTIVE
+#define CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define CONFIG_SYS_SDRAM_SIZE	2048	/* for fixed parameter use */
 #define SPD_EEPROM_ADDRESS1	0x51
