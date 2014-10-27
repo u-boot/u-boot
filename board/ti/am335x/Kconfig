@@ -22,4 +22,11 @@ config CONS_INDEX
 	  board you may want something other than UART0 as for example the IDK
 	  uses UART3 so enter 4 here.
 
+config NOR
+	bool "Support for NOR flash"
+	help
+	  The AM335x SoC supports having a NOR flash connected to the GPMC.
+	  In practice this is seen as a NOR flash module connected to the
+	  "memory cape" for the BeagleBone family.
+
 endif
