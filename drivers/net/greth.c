@@ -245,7 +245,7 @@ int greth_init_phy(greth_priv * dev, bd_t * bis)
 	debug("GRETH PHY ADDRESS: %d\n", phyaddr);
 
 	/* X msecs to ticks */
-	timeout = usec2ticks(GRETH_PHY_TIMEOUT_MS * 1000);
+	timeout = GRETH_PHY_TIMEOUT_MS * 1000;
 
 	/* Get system timer0 current value
 	 * Total timeout is 5s
