@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/sata.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/arch/crm_regs.h>
@@ -96,6 +97,11 @@ static iomux_v3_cfg_t const ecspi1_pads[] = {
 static void setup_iomux_spi(void)
 {
 	imx_iomux_v3_setup_multiple_pads(ecspi1_pads, ARRAY_SIZE(ecspi1_pads));
+}
+
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return (bus == 2 && cs == 0) ? (IMX_GPIO_NR(1, 3)) : -1;
 }
 
 int board_early_init_f(void)
@@ -224,6 +230,10 @@ int board_init(void)
 
 	/* enable ecspi3 clocks */
 	enable_cspi_clock(1, 2);
+
+#ifdef CONFIG_CMD_SATA
+	setup_sata();
+#endif
 
 	return 0;
 }

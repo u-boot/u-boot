@@ -11,6 +11,7 @@
 #include <common.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
+#include <asm/imx-common/spi.h>
 #include <fsl_esdhc.h>
 #include "common.h"
 

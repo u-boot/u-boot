@@ -13,6 +13,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/spi.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
 #include <common.h>

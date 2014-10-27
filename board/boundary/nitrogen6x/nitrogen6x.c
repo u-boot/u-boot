@@ -18,6 +18,7 @@
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/sata.h>
+#include <asm/imx-common/spi.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/video.h>
 #include <mmc.h>
