@@ -20,9 +20,21 @@
 #include <asm/arch/clock-k2e.h>
 #endif
 
+#ifdef CONFIG_SOC_K2L
+#include <asm/arch/clock-k2l.h>
+#endif
+
 #define MAIN_PLL CORE_PLL
 
 #include <asm/types.h>
+
+#define GENERATE_ENUM(NUM, ENUM) ENUM = NUM,
+#define GENERATE_INDX_STR(NUM, STRING) #NUM"\t- "#STRING"\n"
+#define CLOCK_INDEXES_LIST	CLK_LIST(GENERATE_INDX_STR)
+
+enum clk_e {
+	CLK_LIST(GENERATE_ENUM)
+};
 
 struct keystone_pll_regs {
 	u32 reg0;
@@ -46,6 +58,7 @@ void init_pll(const struct pll_init_data *data);
 unsigned long clk_get_rate(unsigned int clk);
 unsigned long clk_round_rate(unsigned int clk, unsigned long hz);
 int clk_set_rate(unsigned int clk, unsigned long hz);
+void pass_pll_pa_clk_enable(void);
 int get_max_dev_speed(void);
 int get_max_arm_speed(void);
 

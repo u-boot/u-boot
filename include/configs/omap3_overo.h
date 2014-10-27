@@ -35,6 +35,13 @@
 /* TWL4030 LED */
 #define CONFIG_TWL4030_LED
 
+/* USB EHCI */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_OMAP
+#define CONFIG_USB_STORAGE
+#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	183
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
+
 /* Initialize GPIOs by default */
 #define CONFIG_OMAP3_GPIO_2	/* GPIO32..63 is in GPIO Bank 2 */
 #define CONFIG_OMAP3_GPIO_3	/* GPIO64..95 is in GPIO Bank 3 */
@@ -44,6 +51,7 @@
 
 /* commands to include */
 #define CONFIG_CMD_CACHE
+#define CONFIG_CMD_USB
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #undef CONFIG_CMD_IMI		/* iminfo			*/
 #undef CONFIG_CMD_NFS		/* NFS support			*/
@@ -131,8 +139,9 @@
 		"bootz ${loadaddr} - ${fdtaddr}\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
-		"nand read ${loadaddr} linux; " \
-		"bootm ${loadaddr}\0" \
+		"if nand read ${loadaddr} linux; then " \
+			"bootm ${loadaddr};" \
+		"fi;\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \

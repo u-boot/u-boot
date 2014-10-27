@@ -13,10 +13,6 @@
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 
-enum soc_type_t {
-	k2hk
-};
-
 #define QM_OK                    0
 #define QM_ERR                  -1
 #define QM_DESC_TYPE_HOST        0
@@ -173,6 +169,8 @@ struct pktdma_cfg {
 	u32			rx_flow; /* flow that is used for RX */
 };
 
+extern struct pktdma_cfg netcp_pktdma;
+
 /*
  * packet dma user allocates memory for rx buffers
  * and describe it in the following structure
@@ -184,10 +182,10 @@ struct rx_buff_desc {
 	u32	rx_flow;
 };
 
-int netcp_close(void);
-int netcp_init(struct rx_buff_desc *rx_buffers);
-int netcp_send(u32 *pkt, int num_bytes, u32 swinfo2);
-void *netcp_recv(u32 **pkt, int *num_bytes);
-void netcp_release_rxhd(void *hd);
+int ksnav_close(struct pktdma_cfg *pktdma);
+int ksnav_init(struct pktdma_cfg *pktdma, struct rx_buff_desc *rx_buffers);
+int ksnav_send(struct pktdma_cfg *pktdma, u32 *pkt, int num_bytes, u32 swinfo2);
+void *ksnav_recv(struct pktdma_cfg *pktdma, u32 **pkt, int *num_bytes);
+void ksnav_release_rxhd(struct pktdma_cfg *pktdma, void *hd);
 
 #endif  /* _KEYSTONE_NAV_H_ */

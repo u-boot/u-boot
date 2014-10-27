@@ -185,10 +185,6 @@ void init_pll(const struct pll_init_data *data)
 		tmp &= ~(PLL_BWADJ_HI_MASK);
 		tmp |= ((bwadj >> 8) & PLL_BWADJ_HI_MASK);
 
-		/* set PLL Select (bit 13) for PASS PLL */
-		if (data->pll == PASS_PLL)
-			tmp |= PLLCTL_PAPLL;
-
 		__raw_writel(tmp, keystone_pll_regs[data->pll].reg1);
 
 		/* Reset bit: bit 14 for both DDR3 & PASS PLL */
@@ -261,3 +257,16 @@ inline int get_max_arm_speed(void)
 	return get_max_speed((read_efuse_bootrom() >> 16) & 0xffff, arm_speeds);
 }
 #endif
+
+void pass_pll_pa_clk_enable(void)
+{
+	u32 reg;
+
+	reg = readl(keystone_pll_regs[PASS_PLL].reg1);
+
+	reg |= PLLCTL_PAPLL;
+	writel(reg, keystone_pll_regs[PASS_PLL].reg1);
+
+	/* wait till clock is enabled */
+	sdelay(15000);
+}

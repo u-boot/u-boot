@@ -9,11 +9,13 @@
 
 #include "board.h"
 #include <common.h>
+#include <spl.h>
 #include <exports.h>
 #include <fdt_support.h>
 #include <asm/arch/ddr3.h>
-#include <asm/arch/emac_defs.h>
+#include <asm/arch/psc_defs.h>
 #include <asm/ti-common/ti-aemif.h>
+#include <asm/ti-common/keystone_net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,6 +40,7 @@ int dram_init(void)
 	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 				    CONFIG_MAX_RAM_BANK_SIZE);
 	aemif_init(ARRAY_SIZE(aemif_configs), aemif_configs);
+	ddr3_init_ecc(KS2_DDR3A_EMIF_CTRL_BASE);
 	return 0;
 }
 
@@ -68,6 +71,15 @@ int board_eth_init(bd_t *bis)
 	int port_num;
 	char link_type_name[32];
 
+	/* By default, select PA PLL clock as PA clock source */
+	if (psc_enable_module(KS2_LPSC_PA))
+		return -1;
+	if (psc_enable_module(KS2_LPSC_CPGMAC))
+		return -1;
+	if (psc_enable_module(KS2_LPSC_CRYPTO))
+		return -1;
+	pass_pll_pa_clk_enable();
+
 	port_num = get_num_eth_ports();
 
 	for (j = 0; j < port_num; j++) {
@@ -80,6 +92,24 @@ int board_eth_init(bd_t *bis)
 	}
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+void spl_board_init(void)
+{
+	spl_init_keystone_plls();
+	preloader_console_init();
+}
+
+u32 spl_boot_device(void)
+{
+#if defined(CONFIG_SPL_SPI_LOAD)
+	return BOOT_DEVICE_SPI;
+#else
+	puts("Unknown boot device\n");
+	hang();
+#endif
 }
 #endif
 
@@ -225,5 +255,7 @@ void ft_board_setup_ex(void *blob, bd_t *bd)
 			reserve_start += 2;
 		}
 	}
+
+	ddr3_check_ecc_int(KS2_DDR3A_EMIF_CTRL_BASE);
 }
 #endif

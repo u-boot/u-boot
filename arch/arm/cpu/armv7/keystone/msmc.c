@@ -66,3 +66,29 @@ void msmc_share_all_segments(int priv_id)
 		msmc->ses[priv_id][j].mpaxh &= 0xffffff7ful;
 	}
 }
+
+void msmc_map_ses_segment(int priv_id, int ses_pair,
+			  u32 src_pfn, u32 dst_pfn, enum mpax_seg_size size)
+{
+	struct msms_regs *msmc = (struct msms_regs *)KS2_MSMC_CTRL_BASE;
+
+	msmc->ses[priv_id][ses_pair].mpaxh = src_pfn << 12 |
+					     (size & 0x1f) | 0x80;
+	msmc->ses[priv_id][ses_pair].mpaxl = dst_pfn << 8 | 0x3f;
+}
+
+void msmc_get_ses_mpax(int priv_id, int ses_pair, u32 *mpax)
+{
+	struct msms_regs *msmc = (struct msms_regs *)KS2_MSMC_CTRL_BASE;
+
+	*mpax++ = msmc->ses[priv_id][ses_pair].mpaxl;
+	*mpax = msmc->ses[priv_id][ses_pair].mpaxh;
+}
+
+void msmc_set_ses_mpax(int priv_id, int ses_pair, u32 *mpax)
+{
+	struct msms_regs *msmc = (struct msms_regs *)KS2_MSMC_CTRL_BASE;
+
+	msmc->ses[priv_id][ses_pair].mpaxl = *mpax++;
+	msmc->ses[priv_id][ses_pair].mpaxh = *mpax;
+}

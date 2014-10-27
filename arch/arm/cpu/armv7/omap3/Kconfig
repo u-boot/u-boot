@@ -16,7 +16,7 @@ config TARGET_OMAP3_BEAGLE
 	bool "TI OMAP3 BeagleBoard"
 
 config TARGET_CM_T35
-	bool "CompuLab CM-T35"
+	bool "CompuLab CM-T3530 and CM-T3730 boards"
 
 config TARGET_DEVKIT8000
 	bool "TimLL OMAP3 Devkit8000"

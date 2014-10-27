@@ -9,6 +9,9 @@ config TARGET_K2HK_EVM
 config TARGET_K2E_EVM
 	bool "TI Keystone 2 Edison EVM"
 
+config TARGET_K2L_EVM
+	bool "TI Keystone 2 Lamar EVM"
+
 endchoice
 
 config SYS_CPU

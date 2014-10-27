@@ -648,7 +648,7 @@ static struct phy_device *get_phy_device_by_mask(struct mii_dev *bus,
 		if (phydev)
 			return phydev;
 	}
-	printf("Phy not found\n");
+	printf("Phy %d not found\n", ffs(phy_mask) - 1);
 	return phy_device_create(bus, ffs(phy_mask) - 1, 0xffffffff, interface);
 }
 

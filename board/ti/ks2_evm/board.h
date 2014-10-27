@@ -10,10 +10,11 @@
 #ifndef _KS2_BOARD
 #define _KS2_BOARD
 
-#include <asm/arch/emac_defs.h>
+#include <asm/ti-common/keystone_net.h>
 
 extern struct eth_priv_t eth_priv_cfg[];
 
 int get_num_eth_ports(void);
+void spl_init_keystone_plls(void);
 
 #endif

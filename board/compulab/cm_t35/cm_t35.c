@@ -53,16 +53,6 @@ static u32 gpmc_net_config[GPMC_MAX_REG] = {
 	0
 };
 
-static u32 gpmc_nand_config[GPMC_MAX_REG] = {
-	M_NAND_GPMC_CONFIG1,
-	M_NAND_GPMC_CONFIG2,
-	M_NAND_GPMC_CONFIG3,
-	M_NAND_GPMC_CONFIG4,
-	M_NAND_GPMC_CONFIG5,
-	M_NAND_GPMC_CONFIG6,
-	0,
-};
-
 #ifdef CONFIG_LCD
 #ifdef CONFIG_CMD_NAND
 static int splash_load_from_nand(u32 bmp_load_addr)
@@ -147,9 +137,6 @@ int splash_screen_prepare(void)
 int board_init(void)
 {
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
-
-	enable_gpmc_cs_config(gpmc_nand_config, &gpmc_cfg->cs[0],
-			      CONFIG_SYS_NAND_BASE, GPMC_SIZE_16M);
 
 	/* board id for Linux */
 	if (get_cpu_family() == CPU_OMAP34XX)
@@ -381,7 +368,7 @@ static void cm_t3x_set_common_muxconf(void)
 	MUX_VAL(CP(SYS_OFF_MODE),	(IEN  | PTD | DIS | M0)); /*OFF_MODE*/
 	MUX_VAL(CP(SYS_CLKOUT1),	(IEN  | PTD | DIS | M0)); /*CLKOUT1*/
 	MUX_VAL(CP(SYS_CLKOUT2),	(IDIS | PTU | DIS | M4)); /*green LED*/
-	MUX_VAL(CP(JTAG_nTRST),		(IEN  | PTD | DIS | M0)); /*JTAG_nTRST*/
+	MUX_VAL(CP(JTAG_NTRST),		(IEN  | PTD | DIS | M0)); /*JTAG_NTRST*/
 	MUX_VAL(CP(JTAG_TCK),		(IEN  | PTD | DIS | M0)); /*JTAG_TCK*/
 	MUX_VAL(CP(JTAG_TMS),		(IEN  | PTD | DIS | M0)); /*JTAG_TMS*/
 	MUX_VAL(CP(JTAG_TDI),		(IEN  | PTD | DIS | M0)); /*JTAG_TDI*/
@@ -457,6 +444,8 @@ void set_muxconf_regs(void)
 }
 
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
+#define SB_T35_WP_GPIO 59
+
 int board_mmc_getcd(struct mmc *mmc)
 {
 	u8 val;
@@ -469,7 +458,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0, 0, 0, -1, 59);
+	return omap_mmc_init(0, 0, 0, -1, SB_T35_WP_GPIO);
 }
 #endif
 

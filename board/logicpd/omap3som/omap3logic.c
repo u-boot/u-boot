@@ -230,6 +230,6 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(SYS_OFF_MODE),	(IEN  | PTD | DIS | M0));
 	MUX_VAL(CP(SYS_CLKOUT1),	(IEN  | PTD | DIS | M0));
 	MUX_VAL(CP(SYS_CLKOUT2),	(IEN  | PTU | EN  | M0));
-	MUX_VAL(CP(JTAG_nTRST),		(IEN  | PTD | DIS | M0));
+	MUX_VAL(CP(JTAG_NTRST),		(IEN  | PTD | DIS | M0));
 	MUX_VAL(CP(SDRC_CKE0),		(IDIS | PTU | EN  | M0));
 }
