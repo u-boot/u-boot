@@ -878,7 +878,7 @@ int sata_port_status(int dev, int port)
 	probe_ent = (struct ahci_probe_ent *)sata_dev_desc[dev].priv;
 	port_mmio = (struct sata_port_regs *)probe_ent->port[port].port_mmio;
 
-	return readl(&(port_mmio->ssts)) && SATA_PORT_SSTS_DET_MASK;
+	return readl(&(port_mmio->ssts)) & SATA_PORT_SSTS_DET_MASK;
 }
 
 /*
