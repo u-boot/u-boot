@@ -132,7 +132,7 @@ void zynq_slcr_devcfg_disable(void)
 	zynq_slcr_unlock();
 
 	/* Disable AXI interface by asserting FPGA resets */
-	writel(0xFFFFFFFF, &slcr_base->fpga_rst_ctrl);
+	writel(0xF, &slcr_base->fpga_rst_ctrl);
 
 	/* Set Level Shifters DT618760 */
 	writel(0xA, &slcr_base->lvl_shftr_en);
