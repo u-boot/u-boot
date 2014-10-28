@@ -12,18 +12,18 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-TQM8272          powerpc     mpc8260        -           -           -
-TQM8260          powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
-IDS8247          powerpc     mpc8260        -           -           Heiko Schocher <hs@denx.de>
-HWW1U1A          powerpc     mpc85xx        -           -           Kyle Moffett <Kyle.D.Moffett@boeing.com>
-hymod            powerpc     mpc8260        -           -           Murray Jensen <Murray.Jensen@csiro.au>
-MHPC             powerpc     mpc8xx         -           -           Frank Gottschling <fgottschling@eltec.de>
-ICU862           powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
-CPCI750		 powerpc     74xx_7xx	    -		-	    Reinhard Arlt <reinhard.arlt@esd-electronics.com>
-DB64360		 powerpc     74xx_7xx	    -		-
-DB64460		 powerpc     74xx_7xx	    -		-
-p3m750		 powerpc     74xx_7xx	    -		-	    Stefan Roese <sr@denx.de>
-p3m7448		 powerpc     74xx_7xx	    -		-	    Stefan Roese <sr@denx.de>
+TQM8272          powerpc     mpc8260        f06f9a1     2014-10-27  Wolfgang Denk <wd@denx.de>
+TQM8260          powerpc     mpc8260        ccc1950     2014-10-27  Wolfgang Denk <wd@denx.de>
+IDS8247          powerpc     mpc8260        6afb357     2014-10-27  Heiko Schocher <hs@denx.de>
+HWW1U1A          powerpc     mpc85xx        4109cb0     2014-10-27  Kyle Moffett <Kyle.D.Moffett@boeing.com>
+hymod            powerpc     mpc8260        5038d7f     2014-10-27  Murray Jensen <Murray.Jensen@csiro.au>
+MHPC             powerpc     mpc8xx         1655f9f     2014-10-27  Frank Gottschling <fgottschling@eltec.de>
+ICU862           powerpc     mpc8xx         4af5f0f     2014-10-27  Wolfgang Denk <wd@denx.de>
+CPCI750		 powerpc     74xx_7xx	    03b0040	2014-10-27  Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+DB64360		 powerpc     74xx_7xx	    03b0040	2014-10-27
+DB64460		 powerpc     74xx_7xx	    03b0040	2014-10-27
+p3m750		 powerpc     74xx_7xx	    03b0040	2014-10-27  Stefan Roese <sr@denx.de>
+p3m7448		 powerpc     74xx_7xx	    03b0040	2014-10-27  Stefan Roese <sr@denx.de>
 MVBC_P           powerpc     mpc5xxx        af55e35	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
 MVSMR            powerpc     mpc5xxx        af55e35	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
 MERGERBOX        powerpc     mpc83xx        e7a5656	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
