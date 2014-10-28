@@ -1,8 +1,5 @@
 if TARGET_PXA255_IDP
 
-config SYS_CPU
-	default "pxa"
-
 config SYS_BOARD
 	default "pxa255_idp"
 

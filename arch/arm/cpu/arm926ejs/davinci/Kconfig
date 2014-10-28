@@ -57,9 +57,6 @@ config TARGET_CALIMAIN
 
 endchoice
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_SOC
 	default "davinci"
 

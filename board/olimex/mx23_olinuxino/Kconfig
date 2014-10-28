@@ -1,8 +1,5 @@
 if TARGET_MX23_OLINUXINO
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "mx23_olinuxino"
 

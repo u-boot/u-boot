@@ -1,8 +1,5 @@
 if TARGET_H2200
 
-config SYS_CPU
-	default "pxa"
-
 config SYS_BOARD
 	default "h2200"
 

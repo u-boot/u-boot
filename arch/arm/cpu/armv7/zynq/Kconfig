@@ -17,9 +17,6 @@ config TARGET_ZYNQ_ZC770
 
 endchoice
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "zynq"
 

@@ -1,8 +1,5 @@
 if TARGET_WOODBURN
 
-config SYS_CPU
-	default "arm1136"
-
 config SYS_BOARD
 	default "woodburn"
 
@@ -15,9 +12,6 @@ config SYS_CONFIG_NAME
 endif
 
 if TARGET_WOODBURN_SD
-
-config SYS_CPU
-	default "arm1136"
 
 config SYS_BOARD
 	default "woodburn"

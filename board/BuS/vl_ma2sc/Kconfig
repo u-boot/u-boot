@@ -1,8 +1,5 @@
 if TARGET_VL_MA2SC
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "vl_ma2sc"
 

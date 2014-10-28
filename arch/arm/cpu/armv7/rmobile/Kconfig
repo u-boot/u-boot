@@ -20,9 +20,6 @@ config TARGET_ALT
 
 endchoice
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_SOC
 	default "rmobile"
 

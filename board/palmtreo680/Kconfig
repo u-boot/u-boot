@@ -1,8 +1,5 @@
 if TARGET_PALMTREO680
 
-config SYS_CPU
-	default "pxa"
-
 config SYS_BOARD
 	default "palmtreo680"
 

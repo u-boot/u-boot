@@ -1,8 +1,5 @@
 if TARGET_OT1200
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "ot1200"
 

@@ -1,8 +1,5 @@
 if TARGET_AM43XX_EVM
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "am43xx"
 

@@ -1,8 +1,5 @@
 if TARGET_RPI_B
 
-config SYS_CPU
-	default "arm1176"
-
 config SYS_BOARD
 	default "rpi_b"
 

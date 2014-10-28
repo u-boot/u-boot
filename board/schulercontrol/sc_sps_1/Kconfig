@@ -1,8 +1,5 @@
 if TARGET_SC_SPS_1
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "sc_sps_1"
 

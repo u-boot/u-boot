@@ -1,8 +1,5 @@
 if TARGET_BG0900
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "bg0900"
 

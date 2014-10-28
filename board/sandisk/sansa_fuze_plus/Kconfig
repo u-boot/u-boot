@@ -1,8 +1,5 @@
 if TARGET_SANSA_FUZE_PLUS
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "sansa_fuze_plus"
 

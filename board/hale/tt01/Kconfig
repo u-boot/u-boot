@@ -1,8 +1,5 @@
 if TARGET_TT01
 
-config SYS_CPU
-	default "arm1136"
-
 config SYS_BOARD
 	default "tt01"
 

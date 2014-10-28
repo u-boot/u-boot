@@ -1,8 +1,5 @@
 if TARGET_IMX27LITE
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "imx27lite"
 
@@ -18,9 +15,6 @@ config SYS_CONFIG_NAME
 endif
 
 if TARGET_MAGNESIUM
-
-config SYS_CPU
-	default "arm926ejs"
 
 config SYS_BOARD
 	default "imx27lite"

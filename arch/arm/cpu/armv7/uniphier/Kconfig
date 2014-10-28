@@ -1,16 +1,10 @@
 menu "Panasonic UniPhier platform"
 	depends on ARCH_UNIPHIER
 
-config SYS_CPU
-	string
-	default "armv7"
-
 config SYS_SOC
-	string
 	default "uniphier"
 
 config SYS_CONFIG_NAME
-	string
 	default "ph1_pro4" if MACH_PH1_PRO4
 	default "ph1_ld4" if MACH_PH1_LD4
 	default "ph1_sld8" if MACH_PH1_SLD8

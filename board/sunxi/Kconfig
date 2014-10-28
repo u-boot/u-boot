@@ -8,9 +8,6 @@ config SYS_CONFIG_NAME
 	default "sun7i" if TARGET_SUN7I
 	default "sun8i" if TARGET_SUN8I
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "sunxi"
 

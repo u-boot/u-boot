@@ -1,8 +1,5 @@
 if TARGET_TI816X_EVM
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "ti816x"
 

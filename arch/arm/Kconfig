@@ -7,139 +7,225 @@ config SYS_ARCH
 config ARM64
 	bool
 
+config HAS_VBAR
+        bool
+
+config CPU_ARM720T
+        bool
+
+config CPU_ARM920T
+        bool
+
+config CPU_ARM926EJS
+        bool
+
+config CPU_ARM946ES
+        bool
+
+config CPU_ARM1136
+        bool
+
+config CPU_ARM1176
+        bool
+        select HAS_VBAR
+
+config CPU_V7
+        bool
+        select HAS_VBAR
+
+config CPU_PXA
+        bool
+
+config CPU_SA1100
+        bool
+
+config SYS_CPU
+        default "arm720t" if CPU_ARM720T
+        default "arm920t" if CPU_ARM920T
+        default "arm926ejs" if CPU_ARM926EJS
+        default "arm946es" if CPU_ARM946ES
+        default "arm1136" if CPU_ARM1136
+        default "arm1176" if CPU_ARM1176
+        default "armv7" if CPU_V7
+        default "pxa" if CPU_PXA
+        default "sa1100" if CPU_SA1100
+
 choice
 	prompt "Target select"
 
 config TARGET_INTEGRATORAP_CM720T
 	bool "Support integratorap_cm720t"
+	select CPU_ARM720T
 
 config TARGET_INTEGRATORAP_CM920T
 	bool "Support integratorap_cm920t"
+	select CPU_ARM920T
 
 config TARGET_INTEGRATORCP_CM920T
 	bool "Support integratorcp_cm920t"
+	select CPU_ARM920T
 
 config TARGET_A320EVB
 	bool "Support a320evb"
+	select CPU_ARM920T
 
 config TARGET_AT91RM9200EK
 	bool "Support at91rm9200ek"
+	select CPU_ARM920T
 
 config TARGET_EB_CPUX9K2
 	bool "Support eb_cpux9k2"
+	select CPU_ARM920T
 
 config TARGET_CPUAT91
 	bool "Support cpuat91"
+	select CPU_ARM920T
 
 config TARGET_EDB93XX
 	bool "Support edb93xx"
+	select CPU_ARM920T
 
 config TARGET_SCB9328
 	bool "Support scb9328"
+	select CPU_ARM920T
 
 config TARGET_CM4008
 	bool "Support cm4008"
+	select CPU_ARM920T
 
 config TARGET_CM41XX
 	bool "Support cm41xx"
+	select CPU_ARM920T
 
 config TARGET_VCMA9
 	bool "Support VCMA9"
+	select CPU_ARM920T
 
 config TARGET_SMDK2410
 	bool "Support smdk2410"
+	select CPU_ARM920T
 
 config TARGET_INTEGRATORAP_CM926EJS
 	bool "Support integratorap_cm926ejs"
+	select CPU_ARM926EJS
 
 config TARGET_INTEGRATORCP_CM926EJS
 	bool "Support integratorcp_cm926ejs"
+	select CPU_ARM926EJS
 
 config TARGET_ASPENITE
 	bool "Support aspenite"
+	select CPU_ARM926EJS
 
 config TARGET_GPLUGD
 	bool "Support gplugd"
+	select CPU_ARM926EJS
 
 config TARGET_AFEB9260
 	bool "Support afeb9260"
+	select CPU_ARM926EJS
 
 config TARGET_AT91SAM9260EK
 	bool "Support at91sam9260ek"
+	select CPU_ARM926EJS
 
 config TARGET_AT91SAM9261EK
 	bool "Support at91sam9261ek"
+	select CPU_ARM926EJS
 
 config TARGET_AT91SAM9263EK
 	bool "Support at91sam9263ek"
+	select CPU_ARM926EJS
 
 config TARGET_AT91SAM9M10G45EK
 	bool "Support at91sam9m10g45ek"
+	select CPU_ARM926EJS
 
 config TARGET_AT91SAM9N12EK
 	bool "Support at91sam9n12ek"
+	select CPU_ARM926EJS
 
 config TARGET_AT91SAM9RLEK
 	bool "Support at91sam9rlek"
+	select CPU_ARM926EJS
 
 config TARGET_AT91SAM9X5EK
 	bool "Support at91sam9x5ek"
+	select CPU_ARM926EJS
 
 config TARGET_SNAPPER9260
 	bool "Support snapper9260"
+	select CPU_ARM926EJS
 
 config TARGET_VL_MA2SC
 	bool "Support vl_ma2sc"
+	select CPU_ARM926EJS
 
 config TARGET_SBC35_A9G20
 	bool "Support sbc35_a9g20"
+	select CPU_ARM926EJS
 
 config TARGET_TNY_A9260
 	bool "Support tny_a9260"
+	select CPU_ARM926EJS
 
 config TARGET_USB_A9263
 	bool "Support usb_a9263"
+	select CPU_ARM926EJS
 
 config TARGET_ETHERNUT5
 	bool "Support ethernut5"
+	select CPU_ARM926EJS
 
 config TARGET_TOP9000
 	bool "Support top9000"
+	select CPU_ARM926EJS
 
 config TARGET_MEESC
 	bool "Support meesc"
+	select CPU_ARM926EJS
 
 config TARGET_OTC570
 	bool "Support otc570"
+	select CPU_ARM926EJS
 
 config TARGET_CPU9260
 	bool "Support cpu9260"
+	select CPU_ARM926EJS
 
 config TARGET_PM9261
 	bool "Support pm9261"
+	select CPU_ARM926EJS
 
 config TARGET_PM9263
 	bool "Support pm9263"
+	select CPU_ARM926EJS
 
 config TARGET_PM9G45
 	bool "Support pm9g45"
+	select CPU_ARM926EJS
 
 config TARGET_CORVUS
 	bool "Support corvus"
+	select CPU_ARM926EJS
 
 config TARGET_TAURUS
 	bool "Support taurus"
+	select CPU_ARM926EJS
 
 config TARGET_STAMP9G20
 	bool "Support stamp9g20"
+	select CPU_ARM926EJS
 
 config ARCH_DAVINCI
 	bool "TI DaVinci"
+	select CPU_ARM926EJS
 	help
 	  Support for TI's DaVinci platform.
 
 config KIRKWOOD
 	bool "Marvell Kirkwood"
+	select CPU_ARM926EJS
 
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
@@ -149,370 +235,478 @@ config TARGET_MAXBCM
 
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
+	select CPU_ARM926EJS
 
 config TARGET_JADECPU
 	bool "Support jadecpu"
+	select CPU_ARM926EJS
 
 config TARGET_MX25PDK
 	bool "Support mx25pdk"
+	select CPU_ARM926EJS
 
 config TARGET_TX25
 	bool "Support tx25"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config TARGET_ZMX25
 	bool "Support zmx25"
+	select CPU_ARM926EJS
 
 config TARGET_APF27
 	bool "Support apf27"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config TARGET_IMX27LITE
 	bool "Support imx27lite"
+	select CPU_ARM926EJS
 
 config TARGET_MAGNESIUM
 	bool "Support magnesium"
+	select CPU_ARM926EJS
 
 config TARGET_APX4DEVKIT
 	bool "Support apx4devkit"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config TARGET_XFI3
 	bool "Support xfi3"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config TARGET_M28EVK
 	bool "Support m28evk"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config TARGET_MX23EVK
 	bool "Support mx23evk"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config TARGET_MX28EVK
 	bool "Support mx28evk"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config TARGET_MX23_OLINUXINO
 	bool "Support mx23_olinuxino"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config TARGET_BG0900
 	bool "Support bg0900"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config TARGET_SANSA_FUZE_PLUS
 	bool "Support sansa_fuze_plus"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config TARGET_SC_SPS_1
 	bool "Support sc_sps_1"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config ARCH_NOMADIK
 	bool "ST-Ericsson Nomadik"
+	select CPU_ARM926EJS
 
 config ORION5X
 	bool "Marvell Orion"
+	select CPU_ARM926EJS
 
 config TARGET_DKB
 	bool "Support dkb"
+	select CPU_ARM926EJS
 
 config TARGET_SPEAR300
 	bool "Support spear300"
+	select CPU_ARM926EJS
 
 config TARGET_SPEAR310
 	bool "Support spear310"
+	select CPU_ARM926EJS
 
 config TARGET_SPEAR320
 	bool "Support spear320"
+	select CPU_ARM926EJS
 
 config TARGET_SPEAR600
 	bool "Support spear600"
+	select CPU_ARM926EJS
 
 config TARGET_X600
 	bool "Support x600"
+	select CPU_ARM926EJS
 	select SUPPORT_SPL
 
 config ARCH_VERSATILE
 	bool "ARM Ltd. Versatile family"
+	select CPU_ARM926EJS
 
 config TARGET_INTEGRATORCP_CM1136
 	bool "Support integratorcp_cm1136"
+	select CPU_ARM1136
 
 config TARGET_IMX31_PHYCORE
 	bool "Support imx31_phycore"
+	select CPU_ARM1136
 
 config TARGET_QONG
 	bool "Support qong"
+	select CPU_ARM1136
 
 config TARGET_MX31ADS
 	bool "Support mx31ads"
+	select CPU_ARM1136
 
 config TARGET_MX31PDK
 	bool "Support mx31pdk"
+	select CPU_ARM1136
 	select SUPPORT_SPL
 
 config TARGET_TT01
 	bool "Support tt01"
+	select CPU_ARM1136
 
 config TARGET_IMX31_LITEKIT
 	bool "Support imx31_litekit"
+	select CPU_ARM1136
 
 config TARGET_WOODBURN
 	bool "Support woodburn"
+	select CPU_ARM1136
 
 config TARGET_WOODBURN_SD
 	bool "Support woodburn_sd"
+	select CPU_ARM1136
 	select SUPPORT_SPL
 
 config TARGET_FLEA3
 	bool "Support flea3"
+	select CPU_ARM1136
 
 config TARGET_MX35PDK
 	bool "Support mx35pdk"
+	select CPU_ARM1136
 
 config TARGET_RPI_B
 	bool "Support rpi_b"
+	select CPU_ARM1176
 
 config TARGET_TNETV107X_EVM
 	bool "Support tnetv107x_evm"
+	select CPU_ARM1176
 
 config TARGET_INTEGRATORAP_CM946ES
 	bool "Support integratorap_cm946es"
+	select CPU_ARM946ES
 
 config TARGET_INTEGRATORCP_CM946ES
 	bool "Support integratorcp_cm946es"
+	select CPU_ARM946ES
 
 config TARGET_VEXPRESS_CA15_TC2
 	bool "Support vexpress_ca15_tc2"
+	select CPU_V7
 
 config TARGET_VEXPRESS_CA5X2
 	bool "Support vexpress_ca5x2"
+	select CPU_V7
 
 config TARGET_VEXPRESS_CA9X4
 	bool "Support vexpress_ca9x4"
+	select CPU_V7
 
 config TARGET_KWB
 	bool "Support kwb"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_TSERIES
 	bool "Support tseries"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_CM_T335
 	bool "Support cm_t335"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_PEPPER
 	bool "Support pepper"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_AM335X_IGEP0033
 	bool "Support am335x_igep0033"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_PCM051
 	bool "Support pcm051"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_DRACO
 	bool "Support draco"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_DXR2
 	bool "Support dxr2"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_PXM2
 	bool "Support pxm2"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_RUT
 	bool "Support rut"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_PENGWYN
 	bool "Support pengwyn"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_AM335X_EVM
 	bool "Support am335x_evm"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_TI814X_EVM
 	bool "Support ti814x_evm"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_TI816X_EVM
 	bool "Support ti816x_evm"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_SAMA5D3_XPLAINED
 	bool "Support sama5d3_xplained"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_SAMA5D3XEK
 	bool "Support sama5d3xek"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_BCM28155_AP
 	bool "Support bcm28155_ap"
+	select CPU_V7
 
 config TARGET_BCM958300K
 	bool "Support bcm958300k"
+	select CPU_V7
 
 config TARGET_BCM958622HR
 	bool "Support bcm958622hr"
+	select CPU_V7
 
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
+	select CPU_V7
 
 config ARCH_S5PC1XX
 	bool "Samsung S5PC1XX"
+	select CPU_V7
 
 config ARCH_HIGHBANK
 	bool "Calxeda Highbank"
+	select CPU_V7
 
 config ARCH_KEYSTONE
 	bool "TI Keystone"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_M53EVK
 	bool "Support m53evk"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_IMA3_MX53
 	bool "Support ima3-mx53"
+	select CPU_V7
 
 config TARGET_MX51EVK
 	bool "Support mx51evk"
+	select CPU_V7
 
 config TARGET_MX53ARD
 	bool "Support mx53ard"
+	select CPU_V7
 
 config TARGET_MX53EVK
 	bool "Support mx53evk"
+	select CPU_V7
 
 config TARGET_MX53LOCO
 	bool "Support mx53loco"
+	select CPU_V7
 
 config TARGET_MX53SMD
 	bool "Support mx53smd"
+	select CPU_V7
 
 config TARGET_MX51_EFIKAMX
 	bool "Support mx51_efikamx"
+	select CPU_V7
 
 config TARGET_VISION2
 	bool "Support vision2"
+	select CPU_V7
 
 config TARGET_UDOO
 	bool "Support udoo"
+	select CPU_V7
 
 config TARGET_WANDBOARD
 	bool "Support wandboard"
+	select CPU_V7
 
 config TARGET_TITANIUM
 	bool "Support titanium"
+	select CPU_V7
 
 config TARGET_NITROGEN6X
 	bool "Support nitrogen6x"
+	select CPU_V7
 
 config TARGET_CGTQMX6EVAL
 	bool "Support cgtqmx6eval"
+	select CPU_V7
 
 config TARGET_EMBESTMX6BOARDS
 	bool "Support embestmx6boards"
+	select CPU_V7
 
 config TARGET_ARISTAINETOS
 	bool "Support aristainetos"
+	select CPU_V7
 
 config TARGET_MX6QARM2
 	bool "Support mx6qarm2"
+	select CPU_V7
 
 config TARGET_MX6QSABREAUTO
 	bool "Support mx6qsabreauto"
+	select CPU_V7
 
 config TARGET_MX6SABRESD
 	bool "Support mx6sabresd"
+	select CPU_V7
 
 config TARGET_MX6SLEVK
 	bool "Support mx6slevk"
+	select CPU_V7
 
 config TARGET_MX6SXSABRESD
 	bool "Support mx6sxsabresd"
+	select CPU_V7
 
 config TARGET_GW_VENTANA
 	bool "Support gw_ventana"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_HUMMINGBOARD
 	bool "Support hummingboard"
+	select CPU_V7
 
 config TARGET_TQMA6
 	bool "TQ Systems TQMa6 board"
+	select CPU_V7
 
 config TARGET_OT1200
 	bool "Bachmann OT1200"
+	select CPU_V7
 
 config OMAP34XX
 	bool "OMAP34XX SoC"
+	select CPU_V7
 
 config OMAP44XX
 	bool "OMAP44XX SoC"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config OMAP54XX
 	bool "OMAP54XX SoC"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config RMOBILE
 	bool "Renesas ARM SoCs"
+	select CPU_V7
 
 config TARGET_CM_FX6
 	bool "Support cm_fx6"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_SOCFPGA_CYCLONE5
 	bool "Support socfpga_cyclone5"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_SUN4I
 	bool "Support sun4i"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_SUN5I
 	bool "Support sun5i"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_SUN6I
 	bool "Support sun6i"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_SUN7I
 	bool "Support sun7i"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_SUN8I
 	bool "Support sun8i"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TARGET_SNOWBALL
 	bool "Support snowball"
+	select CPU_V7
 
 config TARGET_U8500_HREF
 	bool "Support u8500_href"
+	select CPU_V7
 
 config TARGET_VF610TWR
 	bool "Support vf610twr"
+	select CPU_V7
 
 config ZYNQ
 	bool "Xilinx Zynq Platform"
+	select CPU_V7
 	select SUPPORT_SPL
 
 config TEGRA
@@ -520,6 +714,8 @@ config TEGRA
 	select SUPPORT_SPL
 	select SPL
 	select OF_CONTROL if !SPL_BUILD
+	select CPU_ARM720T if SPL_BUILD
+	select CPU_V7 if !SPL_BUILD
 
 config TARGET_VEXPRESS_AEMV8A
 	bool "Support vexpress_aemv8a"
@@ -535,53 +731,69 @@ config TARGET_LS2085A_SIMU
 
 config TARGET_LS1021AQDS
 	bool "Support ls1021aqds_nor"
+	select CPU_V7
 
 config TARGET_LS1021ATWR
 	bool "Support ls1021atwr_nor"
+	select CPU_V7
 
 config TARGET_BALLOON3
 	bool "Support balloon3"
+	select CPU_PXA
 
 config TARGET_H2200
 	bool "Support h2200"
+	select CPU_PXA
 
 config TARGET_PALMLD
 	bool "Support palmld"
+	select CPU_PXA
 
 config TARGET_PALMTC
 	bool "Support palmtc"
+	select CPU_PXA
 
 config TARGET_PALMTREO680
 	bool "Support palmtreo680"
+	select CPU_PXA
 	select SUPPORT_SPL
 
 config TARGET_PXA255_IDP
 	bool "Support pxa255_idp"
+	select CPU_PXA
 
 config TARGET_TRIZEPSIV
 	bool "Support trizepsiv"
+	select CPU_PXA
 
 config TARGET_VPAC270
 	bool "Support vpac270"
+	select CPU_PXA
 	select SUPPORT_SPL
 
 config TARGET_XAENIAX
 	bool "Support xaeniax"
+	select CPU_PXA
 
 config TARGET_ZIPITZ2
 	bool "Support zipitz2"
+	select CPU_PXA
 
 config TARGET_LP8X4X
 	bool "Support lp8x4x"
+	select CPU_PXA
 
 config TARGET_COLIBRI_PXA270
 	bool "Support colibri_pxa270"
+	select CPU_PXA
 
 config TARGET_JORNADA
 	bool "Support jornada"
+	select CPU_SA1100
 
 config ARCH_UNIPHIER
 	bool "Panasonic UniPhier platform"
+	select CPU_V7
 	select SUPPORT_SPL
 
 endchoice

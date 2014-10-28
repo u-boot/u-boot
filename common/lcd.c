@@ -33,7 +33,6 @@
 
 #if defined(CONFIG_CPU_PXA25X) || defined(CONFIG_CPU_PXA27X) || \
 	defined(CONFIG_CPU_MONAHANS)
-#define CONFIG_CPU_PXA
 #include <asm/byteorder.h>
 #endif
 

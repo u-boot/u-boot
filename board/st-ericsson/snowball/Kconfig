@@ -1,8 +1,5 @@
 if TARGET_SNOWBALL
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "snowball"
 

@@ -90,9 +90,6 @@ config TARGET_TWISTER
 
 endchoice
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_SOC
 	default "omap3"
 

@@ -1,8 +1,5 @@
 if TARGET_TRIZEPSIV
 
-config SYS_CPU
-	default "pxa"
-
 config SYS_BOARD
 	default "trizepsiv"
 
