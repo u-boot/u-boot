@@ -328,6 +328,8 @@ void exynos_enable_ldo(unsigned int onoff)
 
 int exynos_init(void)
 {
+	char buf[16];
+
 	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
 
 	switch (get_hwrev()) {
@@ -351,6 +353,13 @@ int exynos_init(void)
 		gpio_direction_output(EXYNOS4_GPIO_E13, 1);
 		break;
 	}
+
+	/* Request soft I2C gpios */
+	sprintf(buf, "soft_i2c_scl");
+	gpio_request(CONFIG_SOFT_I2C_GPIO_SCL, buf);
+
+	sprintf(buf, "soft_i2c_sda");
+	gpio_request(CONFIG_SOFT_I2C_GPIO_SDA, buf);
 
 	check_hw_revision();
 	printf("HW Revision:\t0x%x\n", board_rev);

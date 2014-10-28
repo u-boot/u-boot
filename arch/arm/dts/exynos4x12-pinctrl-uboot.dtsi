@@ -9,7 +9,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		gpf0: gpf0 {
-			reg = <0xc180>;
+			reg = <0x180>;
 		};
 		gpj0: gpj0 {
 			reg = <0x240>;
@@ -24,9 +24,6 @@
 		};
 		gpm0: gpm0 {
 			reg = <0x260>;
-		};
-		gpy0: gpy0 {
-			reg = <0x120>;
 		};
 		gpx0: gpx0 {
 			reg = <0xc00>;
