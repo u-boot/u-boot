@@ -12,6 +12,9 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+TOP5200		 powerpc     mpc5200	    -		-	    Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
+TOP860		 powerpc     mpc860	    -		-	    Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
+TOP9000		 arm	     at91sam9xeXXX  -		-	    Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
 TQM8272          powerpc     mpc8260        f06f9a1     2014-10-27  Wolfgang Denk <wd@denx.de>
 TQM8260          powerpc     mpc8260        ccc1950     2014-10-27  Wolfgang Denk <wd@denx.de>
 IDS8247          powerpc     mpc8260        6afb357     2014-10-27  Heiko Schocher <hs@denx.de>
