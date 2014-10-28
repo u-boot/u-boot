@@ -83,8 +83,8 @@
 #define CONFIG_SPEAR_GPIO
 
 /* I2C config options */
-#define CONFIG_HARD_I2C
-#define CONFIG_DW_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_DW
 #define CONFIG_SYS_I2C_BASE			0xD0200000
 #define CONFIG_SYS_I2C_SPEED			400000
 #define CONFIG_SYS_I2C_SLAVE			0x02
