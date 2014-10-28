@@ -760,14 +760,25 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	}
 
 	version = image_get_version();
-	/* Fallback to version 0 is no version is provided in the cfg file */
-	if (version == -1)
-		version = 0;
-
-	if (version == 0)
+	switch (version) {
+		/*
+		 * Fallback to version 0 if no version is provided in the
+		 * cfg file
+		 */
+	case -1:
+	case 0:
 		image = image_create_v0(&headersz, params, sbuf->st_size);
-	else if (version == 1)
+		break;
+
+	case 1:
 		image = image_create_v1(&headersz, params, sbuf->st_size);
+		break;
+
+	default:
+		fprintf(stderr, "Unsupported version %d\n", version);
+		free(image_cfg);
+		exit(EXIT_FAILURE);
+	}
 
 	if (!image) {
 		fprintf(stderr, "Could not create image\n");
