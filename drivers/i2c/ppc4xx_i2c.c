@@ -158,8 +158,7 @@ static void ppc4xx_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
  *
  * Typical case is a Write of an addr followd by a Read. The
  * IBM FAQ does not cover this. On the last byte of the write
- * we don't set the creg CHT bit, and on the first bytes of the
- * read we set the RPST bit.
+ * we don't set the creg CHT bit but the RPST bit.
  *
  * It does not support address only transfers, there must be
  * a data part. If you want to write the address yourself, put
@@ -247,6 +246,10 @@ static int _i2c_transfer(struct i2c_adapter *adap,
 		if ((!cmd_type && (ptr == addr)) || ((tran + bc) != cnt))
 			creg |= IIC_CNTL_CHT;
 
+		/* last part of address, prepare for repeated start on read */
+		if (cmd_type && (ptr == addr) && ((tran + bc) == cnt))
+			creg |= IIC_CNTL_RPST;
+
 		if (reading) {
 			creg |= IIC_CNTL_READ;
 		} else {
@@ -314,8 +317,6 @@ static int _i2c_transfer(struct i2c_adapter *adap,
 			cnt = data_len;
 			tran = 0;
 			reading = cmd_type;
-			if (reading)
-				creg = IIC_CNTL_RPST;
 		}
 	}
 	return result;
