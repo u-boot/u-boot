@@ -3217,7 +3217,7 @@ static int parse_stream_outer(struct in_str *inp, int flag)
 		}
 		b_free(&temp);
 	/* loop on syntax errors, return on EOF */
-	} while (rcode != -1 && !(flag & FLAG_EXIT_FROM_LOOP) &&
+	} while (rcode != 1 && !(flag & FLAG_EXIT_FROM_LOOP) &&
 		(inp->peek != static_peek || b_peek(inp)));
 #ifndef __U_BOOT__
 	return 0;
