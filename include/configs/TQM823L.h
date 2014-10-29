@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2008
+ * (C) Copyright 2000-2014
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -19,6 +19,8 @@
 
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
 #define CONFIG_TQM823L		1	/* ...on a TQM8xxL module	*/
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define	CONFIG_SYS_TEXT_BASE	0x40000000
 
