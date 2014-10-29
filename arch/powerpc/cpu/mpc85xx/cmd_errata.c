@@ -315,7 +315,8 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_A008044) && \
 	defined(CONFIG_A008044_WORKAROUND)
-	puts("Work-around for Erratum A-008044 enabled\n");
+	if (IS_SVR_REV(svr, 1, 0))
+		puts("Work-around for Erratum A-008044 enabled\n");
 #endif
 	return 0;
 }
