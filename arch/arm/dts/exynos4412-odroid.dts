@@ -67,4 +67,15 @@
 		div = <0x3>;
 		index = <4>;
 	};
+
+	ehci@12580000 {
+		compatible = "samsung,exynos-ehci";
+		reg = <0x12580000 0x100>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		phy {
+			compatible = "samsung,exynos-usb-phy";
+			reg = <0x125B0000 0x100>;
+		};
+	};
 };

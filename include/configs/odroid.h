@@ -198,6 +198,19 @@
 
 #define CONFIG_CMD_GPIO
 
+/* USB */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_EXYNOS
+#define CONFIG_USB_STORAGE
+
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_SMSC95XX
+
 /*
  * Supported Odroid boards: X3, U3
  * TODO: Add Odroid X support

@@ -462,9 +462,41 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 	.usb_phy_ctrl	= EXYNOS4X12_USBPHY_CONTROL,
 	.usb_flags	= PHY0_SLEEP,
 };
+#endif
+
+#if defined(CONFIG_USB_GADGET) || defined(CONFIG_CMD_USB)
 
 int board_usb_init(int index, enum usb_init_type init)
 {
+#ifdef CONFIG_CMD_USB
+	struct pmic *p_pmic;
+
+	/* Set Ref freq 0 => 24MHz, 1 => 26MHz*/
+	/* Odroid Us have it at 24MHz, Odroid Xs at 26MHz */
+	if (gd->board_type == ODROID_TYPE_U3)
+		gpio_direction_output(EXYNOS4X12_GPIO_X30, 0);
+	else
+		gpio_direction_output(EXYNOS4X12_GPIO_X30, 1);
+
+	/* Disconnect, Reset, Connect */
+	gpio_direction_output(EXYNOS4X12_GPIO_X34, 0);
+	gpio_direction_output(EXYNOS4X12_GPIO_X35, 0);
+	gpio_direction_output(EXYNOS4X12_GPIO_X35, 1);
+	gpio_direction_output(EXYNOS4X12_GPIO_X34, 1);
+
+	/* Power off and on BUCK8 for LAN9730 */
+	debug("LAN9730 - Turning power buck 8 OFF and ON.\n");
+
+	p_pmic = pmic_get("MAX77686_PMIC");
+	if (p_pmic && !pmic_probe(p_pmic)) {
+		max77686_set_buck_mode(p_pmic, 8, OPMODE_OFF);
+		max77686_set_buck_voltage(p_pmic, 8, 750000);
+		max77686_set_buck_voltage(p_pmic, 8, 3300000);
+		max77686_set_buck_mode(p_pmic, 8, OPMODE_ON);
+	}
+
+#endif
+
 	debug("USB_udc_probe\n");
 	return s3c_udc_probe(&s5pc210_otg_data);
 }
