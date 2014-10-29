@@ -10,10 +10,12 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <fdt_support.h>
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/bootparam.h>
+#include <asm/cpu.h>
 #include <asm/byteorder.h>
 #include <asm/zimage.h>
 #ifdef CONFIG_SYS_COREBOOT
@@ -109,17 +111,17 @@ static int boot_prep_linux(bootm_headers_t *images)
 	}
 
 	if (is_zimage) {
-		void *load_address;
+		ulong load_address;
 		char *base_ptr;
 
 		base_ptr = (char *)load_zimage(data, len, &load_address);
-		images->os.load = (ulong)load_address;
+		images->os.load = load_address;
 		cmd_line_dest = base_ptr + COMMAND_LINE_OFFSET;
 		images->ep = (ulong)base_ptr;
 	} else if (images->ep) {
 		cmd_line_dest = (void *)images->ep + COMMAND_LINE_OFFSET;
 	} else {
-		printf("## Kernel loading failed (no setup) ...\n");
+		printf("## Kernel loading failed (missing x86 kernel setup) ...\n");
 		goto error;
 	}
 
@@ -139,16 +141,50 @@ error:
 	return 1;
 }
 
+int boot_linux_kernel(ulong setup_base, ulong load_address, bool image_64bit)
+{
+	bootm_announce_and_cleanup();
+
+#ifdef CONFIG_SYS_COREBOOT
+	timestamp_add_now(TS_U_BOOT_START_KERNEL);
+#endif
+	if (image_64bit) {
+		if (!cpu_has_64bit()) {
+			puts("Cannot boot 64-bit kernel on 32-bit machine\n");
+			return -EFAULT;
+		}
+		return cpu_jump_to_64bit(setup_base, load_address);
+	} else {
+		/*
+		* Set %ebx, %ebp, and %edi to 0, %esi to point to the
+		* boot_params structure, and then jump to the kernel. We
+		* assume that %cs is 0x10, 4GB flat, and read/execute, and
+		* the data segments are 0x18, 4GB flat, and read/write.
+		* U-boot is setting them up that way for itself in
+		* arch/i386/cpu/cpu.c.
+		*/
+		__asm__ __volatile__ (
+		"movl $0, %%ebp\n"
+		"cli\n"
+		"jmp *%[kernel_entry]\n"
+		:: [kernel_entry]"a"(load_address),
+		[boot_params] "S"(setup_base),
+		"b"(0), "D"(0)
+		);
+	}
+
+	/* We can't get to here */
+	return -EFAULT;
+}
+
 /* Subcommand: GO */
 static int boot_jump_linux(bootm_headers_t *images)
 {
 	debug("## Transferring control to Linux (at address %08lx, kernel %08lx) ...\n",
 	      images->ep, images->os.load);
 
-	boot_zimage((struct boot_params *)images->ep, (void *)images->os.load);
-	/* does not return */
-
-	return 1;
+	return boot_linux_kernel(images->ep, images->os.load,
+				 images->os.arch == IH_ARCH_X86_64);
 }
 
 int do_bootm_linux(int flag, int argc, char * const argv[],
@@ -161,10 +197,8 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	if (flag & BOOTM_STATE_OS_PREP)
 		return boot_prep_linux(images);
 
-	if (flag & BOOTM_STATE_OS_GO) {
-		boot_jump_linux(images);
-		return 0;
-	}
+	if (flag & BOOTM_STATE_OS_GO)
+		return boot_jump_linux(images);
 
 	return boot_jump_linux(images);
 }

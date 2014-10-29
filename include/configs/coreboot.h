@@ -26,6 +26,7 @@
 #define CONFIG_PHYSMEM
 #define CONFIG_SYS_EARLY_PCI_INIT
 #define CONFIG_DISPLAY_BOARDINFO_LATE
+#define CONFIG_DISPLAY_CPUINFO
 
 #define CONFIG_DM
 #define CONFIG_CMD_DM
@@ -48,6 +49,7 @@
 #define CONFIG_FIT
 #undef CONFIG_ZLIB
 #undef CONFIG_GZIP
+#define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
 /*-----------------------------------------------------------------------
  * Watchdog Configuration
@@ -221,7 +223,7 @@
 
 #define CONFIG_SYS_MEMTEST_START		0x00100000
 #define CONFIG_SYS_MEMTEST_END			0x01000000
-#define CONFIG_SYS_LOAD_ADDR			0x02000000
+#define CONFIG_SYS_LOAD_ADDR			0x20000000
 
 /*-----------------------------------------------------------------------
  * SDRAM Configuration

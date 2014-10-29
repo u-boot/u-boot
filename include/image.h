@@ -173,6 +173,7 @@ struct lmb;
 #define IH_ARCH_OPENRISC        21	/* OpenRISC 1000  */
 #define IH_ARCH_ARM64		22	/* ARM64	*/
 #define IH_ARCH_ARC		23	/* Synopsys DesignWare ARC */
+#define IH_ARCH_X86_64		24	/* AMD x86_64, Intel and Via */
 
 /*
  * Image Types

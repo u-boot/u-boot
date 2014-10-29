@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <physmem.h>
+#include <asm/cpu.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -112,41 +113,13 @@ static void x86_phys_enter_paging(void)
 		x86_phys_map_page(page_addr, page_addr, 0);
 	}
 
-	/* Turn on paging */
-	__asm__ __volatile__(
-		/* Load the page table address */
-		"movl	%0, %%cr3\n\t"
-		/* Enable pae */
-		"movl	%%cr4, %%eax\n\t"
-		"orl	$0x00000020, %%eax\n\t"
-		"movl	%%eax, %%cr4\n\t"
-		/* Enable paging */
-		"movl	%%cr0, %%eax\n\t"
-		"orl	$0x80000000, %%eax\n\t"
-		"movl	%%eax, %%cr0\n\t"
-		:
-		: "r" (pdpt)
-		: "eax"
-	);
+	cpu_enable_paging_pae((ulong)pdpt);
 }
 
 /* Disable paging and PAE mode. */
 static void x86_phys_exit_paging(void)
 {
-	/* Turn off paging */
-	__asm__ __volatile__ (
-		/* Disable paging */
-		"movl	%%cr0, %%eax\n\t"
-		"andl	$0x7fffffff, %%eax\n\t"
-		"movl	%%eax, %%cr0\n\t"
-		/* Disable pae */
-		"movl	%%cr4, %%eax\n\t"
-		"andl	$0xffffffdf, %%eax\n\t"
-		"movl	%%eax, %%cr4\n\t"
-		:
-		:
-		: "eax"
-	);
+	cpu_disable_paging_pae();
 }
 
 /*

@@ -18,7 +18,10 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
+#include <malloc.h>
 #include <asm/control_regs.h>
+#include <asm/cpu.h>
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <asm/interrupt.h>
@@ -239,4 +242,145 @@ void icache_disable(void)
 int icache_status(void)
 {
 	return 1;
+}
+
+void cpu_enable_paging_pae(ulong cr3)
+{
+	__asm__ __volatile__(
+		/* Load the page table address */
+		"movl	%0, %%cr3\n"
+		/* Enable pae */
+		"movl	%%cr4, %%eax\n"
+		"orl	$0x00000020, %%eax\n"
+		"movl	%%eax, %%cr4\n"
+		/* Enable paging */
+		"movl	%%cr0, %%eax\n"
+		"orl	$0x80000000, %%eax\n"
+		"movl	%%eax, %%cr0\n"
+		:
+		: "r" (cr3)
+		: "eax");
+}
+
+void cpu_disable_paging_pae(void)
+{
+	/* Turn off paging */
+	__asm__ __volatile__ (
+		/* Disable paging */
+		"movl	%%cr0, %%eax\n"
+		"andl	$0x7fffffff, %%eax\n"
+		"movl	%%eax, %%cr0\n"
+		/* Disable pae */
+		"movl	%%cr4, %%eax\n"
+		"andl	$0xffffffdf, %%eax\n"
+		"movl	%%eax, %%cr4\n"
+		:
+		:
+		: "eax");
+}
+
+static bool has_cpuid(void)
+{
+	unsigned long flag;
+
+	asm volatile("pushf\n" \
+		"pop %%eax\n"
+		"mov %%eax, %%ecx\n"	/* ecx = flags */
+		"xor %1, %%eax\n"
+		"push %%eax\n"
+		"popf\n"		/* flags ^= $2 */
+		"pushf\n"
+		"pop %%eax\n"		/* eax = flags */
+		"push %%ecx\n"
+		"popf\n"		/* flags = ecx */
+		"xor %%ecx, %%eax\n"
+		"mov %%eax, %0"
+		: "=r" (flag)
+		: "i" (1 << 21)
+		: "eax", "ecx", "memory");
+
+	return flag != 0;
+}
+
+static bool can_detect_long_mode(void)
+{
+	unsigned long flag;
+
+	asm volatile("mov $0x80000000, %%eax\n"
+		"cpuid\n"
+		"mov %%eax, %0"
+		: "=r" (flag)
+		:
+		: "eax", "ebx", "ecx", "edx", "memory");
+
+	return flag > 0x80000000UL;
+}
+
+static bool has_long_mode(void)
+{
+	unsigned long flag;
+
+	asm volatile("mov $0x80000001, %%eax\n"
+		"cpuid\n"
+		"mov %%edx, %0"
+		: "=r" (flag)
+		:
+		: "eax", "ebx", "ecx", "edx", "memory");
+
+	return flag & (1 << 29) ? true : false;
+}
+
+int cpu_has_64bit(void)
+{
+	return has_cpuid() && can_detect_long_mode() &&
+		has_long_mode();
+}
+
+int print_cpuinfo(void)
+{
+	printf("CPU:   %s\n", cpu_has_64bit() ? "x86_64" : "x86");
+
+	return 0;
+}
+
+#define PAGETABLE_SIZE		(6 * 4096)
+
+/**
+ * build_pagetable() - build a flat 4GiB page table structure for 64-bti mode
+ *
+ * @pgtable: Pointer to a 24iKB block of memory
+ */
+static void build_pagetable(uint32_t *pgtable)
+{
+	uint i;
+
+	memset(pgtable, '\0', PAGETABLE_SIZE);
+
+	/* Level 4 needs a single entry */
+	pgtable[0] = (uint32_t)&pgtable[1024] + 7;
+
+	/* Level 3 has one 64-bit entry for each GiB of memory */
+	for (i = 0; i < 4; i++) {
+		pgtable[1024 + i * 2] = (uint32_t)&pgtable[2048] +
+							0x1000 * i + 7;
+	}
+
+	/* Level 2 has 2048 64-bit entries, each repesenting 2MiB */
+	for (i = 0; i < 2048; i++)
+		pgtable[2048 + i * 2] = 0x183 + (i << 21UL);
+}
+
+int cpu_jump_to_64bit(ulong setup_base, ulong target)
+{
+	uint32_t *pgtable;
+
+	pgtable = memalign(4096, PAGETABLE_SIZE);
+	if (!pgtable)
+		return -ENOMEM;
+
+	build_pagetable(pgtable);
+	cpu_call64((ulong)pgtable, setup_base, target);
+	free(pgtable);
+
+	return -EFAULT;
 }
