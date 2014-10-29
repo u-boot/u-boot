@@ -61,6 +61,24 @@ SECTIONS
 		__rel_dyn_end = .;
 	}
 
+	.padding : {
+		/*
+		 * Workaround for a binutils feature (or bug?).
+		 *
+		 * The GNU ld from binutils puts the dynamic relocation
+		 * entries into the .rel.dyn section. Sometimes it
+		 * allocates more dynamic relocation entries than it needs
+		 * and the unused slots are set to R_MIPS_NONE entries.
+		 *
+		 * However the size of the .rel.dyn section in the ELF
+		 * section header does not cover the unused entries, so
+		 * objcopy removes those during stripping.
+		 *
+		 * Create a small section here to avoid that.
+		 */
+		LONG(0xFFFFFFFF)
+	}
+
 	_end = .;
 
 	.bss __rel_dyn_start (OVERLAY) : {
