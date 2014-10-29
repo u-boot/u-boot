@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91_common.h>
@@ -229,3 +230,16 @@ void at91_sdram_hw_init(void)
 	at91_set_a_periph(AT91_PIO_PORTC, 30, 0);
 	at91_set_a_periph(AT91_PIO_PORTC, 31, 0);
 }
+
+/* Platform data for the GPIOs */
+static const struct at91_port_platdata at91sam9260_plat[] = {
+	{ ATMEL_BASE_PIOA, "PA" },
+	{ ATMEL_BASE_PIOB, "PB" },
+	{ ATMEL_BASE_PIOC, "PC" },
+};
+
+U_BOOT_DEVICES(at91sam9260_gpios) = {
+	{ "gpio_at91", &at91sam9260_plat[0] },
+	{ "gpio_at91", &at91sam9260_plat[1] },
+	{ "gpio_at91", &at91sam9260_plat[2] },
+};
