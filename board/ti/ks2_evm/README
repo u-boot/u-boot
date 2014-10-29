@@ -3,10 +3,11 @@ U-Boot port for Texas Instruments Keystone II EVM boards
 
 Author: Murali Karicheri <m-karicheri2@ti.com>
 
-This README has information on the u-boot port for K2HK, K2E boards.
+This README has information on the u-boot port for K2HK, K2E, and K2L EVM boards.
 Documentation for this board can be found at
 http://www.advantech.com/Support/TI-EVM/EVMK2HX_sd.aspx
 https://www.einfochips.com/index.php/partnerships/texas-instruments/k2e-evm.html
+https://www.einfochips.com/index.php/partnerships/texas-instruments/k2l-evm.html
 
 The K2HK board is based on Texas Instruments Keystone2 family of SoCs: K2H, K2K.
 More details on these SoCs are available at company websites
@@ -14,7 +15,10 @@ More details on these SoCs are available at company websites
  K2H: http://www.ti.com/product/tci6638k2h
 
 The K2E SoC details are available at
- K2E http://www.ti.com/lit/ds/symlink/66ak2e05.pdf
+ http://www.ti.com/lit/ds/symlink/66ak2e05.pdf
+
+The K2L SoC details are available at
+ http://www.ti.com/lit/ds/symlink/tci6630k2l.pdf
 
 Board configuration:
 ====================
@@ -25,6 +29,7 @@ Some of the peripherals that are configured by u-boot
 +------+-------+-------+-----------+-----------+-------+-------+----+
 |K2HK  |2      |512MB  |6MB	   |4(2)       |2      |3      |3   |
 |K2E   |4      |512MB  |2MB	   |8(2)       |2      |3      |3   |
+|K2L   |2      |512MB  |2MB	   |4(2)       |4      |3      |3   |
 +------+-------+-------+-----------+-----------+-------+-------+----+
 
 There are only 2 eth port installed on the boards.
@@ -41,10 +46,13 @@ The port related files can be found at following folders
 Board configuration files:
 include/configs/k2hk_evm.h
 include/configs/k2e_evm.h
+include/configs/k2l_evm.h
+include/configs/k2l_evm.h
 
 As u-boot is migrating to Kconfig there is also board defconfig files
 configs/k2e_evm_defconfig
 configs/k2hk_evm_defconfig
+configs/k2l_evm_defconfig
 
 Supported boot modes:
  - SPI NOR boot
@@ -58,7 +66,7 @@ Supported image formats:
 
 Build instructions:
 ===================
-Examples for k2hk, for k2e just replace k2hk prefix accordingly.
+Examples for k2hk, for k2e and k2l just replace k2hk prefix accordingly.
 Don't forget to add ARCH=arm and CROSS_COMPILE.
 
 To build u-boot.bin
@@ -84,6 +92,8 @@ Use u-boot.bin from the build folder for loading and running u-boot binary
 on EVM. Follow instructions at
 K2HK http://processors.wiki.ti.com/index.php/EVMK2H_Hardware_Setup
 K2E  http://processors.wiki.ti.com/index.php/EVMK2E_Hardware_Setup
+K2L  http://processors.wiki.ti.com/index.php/TCIEVMK2L_Hardware_Setup
+
 to configure SW1 dip switch to use "No Boot/JTAG DSP Little Endian Boot Mode"
 and Power ON the EVM.  Follow instructions to connect serial port of EVM to
 PC and start TeraTerm or Hyper Terminal.
@@ -128,8 +138,8 @@ instructions:
 2. Suspend Target. Select Run -> Suspend from top level menu
    CortexA15_1 (Free Running)"
 3. Load u-boot-spi.gph binary from build folder on to DDR address 0x87000000
-   through CCS as described in step 2 of "Load and Run U-Boot on K2HK/K2E EVM
-   using CCS", but using address 0x87000000.
+   through CCS as described in step 2 of "Load and Run U-Boot on K2HK/K2E/K2L
+   EVM using CCS", but using address 0x87000000.
 4. Free Run the target as described earlier (step 4) to get u-boot prompt
 5. At the U-Boot console type following to setup u-boot environment variables.
    setenv addr_uboot 0x87000000
