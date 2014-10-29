@@ -315,7 +315,7 @@ int mac_sl_config(u_int16_t port, struct mac_sl_cfg *cfg)
 	writel(cfg->max_rx_len, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_MAXLEN);
 	writel(cfg->ctl, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_CTL);
 
-#ifdef CONFIG_K2E_EVM
+#if defined(CONFIG_SOC_K2E) || defined(CONFIG_SOC_K2L)
 	/* Map RX packet flow priority to 0 */
 	writel(0, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_RX_PRI_MAP);
 #endif
@@ -399,6 +399,9 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 		(eth_priv->sgmii_link_type == SGMII_LINK_MAC_PHY) ? 1 : 0;
 
 	keystone2_net_serdes_setup();
+
+	if (sys_has_mdio)
+		keystone2_mdio_reset(mdio_bus);
 
 	keystone_sgmii_config(phy_dev, eth_priv->slave_port - 1,
 			      eth_priv->sgmii_link_type);
