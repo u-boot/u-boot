@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <environment.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <os.h>
@@ -21,6 +22,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* The currently-selected console serial device */
 struct udevice *cur_dev __attribute__ ((section(".data")));
+
+/*
+ * Table with supported baudrates (defined in config_xyz.h)
+ */
+static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
 
 #ifndef CONFIG_SYS_MALLOC_F_LEN
 #error "Serial is required before relocation - define CONFIG_SYS_MALLOC_F_LEN to make this work"
@@ -176,6 +182,67 @@ int serial_stub_tstc(struct stdio_dev *sdev)
 {
 	return _serial_tstc(sdev->priv);
 }
+
+/**
+ * on_baudrate() - Update the actual baudrate when the env var changes
+ *
+ * This will check for a valid baudrate and only apply it if valid.
+ */
+static int on_baudrate(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	int i;
+	int baudrate;
+
+	switch (op) {
+	case env_op_create:
+	case env_op_overwrite:
+		/*
+		 * Switch to new baudrate if new baudrate is supported
+		 */
+		baudrate = simple_strtoul(value, NULL, 10);
+
+		/* Not actually changing */
+		if (gd->baudrate == baudrate)
+			return 0;
+
+		for (i = 0; i < ARRAY_SIZE(baudrate_table); ++i) {
+			if (baudrate == baudrate_table[i])
+				break;
+		}
+		if (i == ARRAY_SIZE(baudrate_table)) {
+			if ((flags & H_FORCE) == 0)
+				printf("## Baudrate %d bps not supported\n",
+				       baudrate);
+			return 1;
+		}
+		if ((flags & H_INTERACTIVE) != 0) {
+			printf("## Switch baudrate to %d bps and press ENTER ...\n",
+			       baudrate);
+			udelay(50000);
+		}
+
+		gd->baudrate = baudrate;
+
+		serial_setbrg();
+
+		udelay(50000);
+
+		if ((flags & H_INTERACTIVE) != 0)
+			while (1) {
+				if (getc() == '\r')
+					break;
+			}
+
+		return 0;
+	case env_op_delete:
+		printf("## Baudrate may not be deleted\n");
+		return 1;
+	default:
+		return 0;
+	}
+}
+U_BOOT_ENV_CALLBACK(baudrate, on_baudrate);
 
 static int serial_post_probe(struct udevice *dev)
 {
