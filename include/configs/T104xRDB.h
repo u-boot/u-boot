@@ -13,6 +13,9 @@
 #define CONFIG_T104xRDB
 #define CONFIG_PHYS_64BIT
 
+#define CONFIG_E500			/* BOOKE e500 family */
+#include <asm/config_mpc85xx.h>
+
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t104xrdb/t104x_pbi.cfg
 #ifdef CONFIG_T1040RDB
@@ -93,7 +96,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
-#define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_MP			/* support multiple processors */
@@ -384,6 +386,12 @@
 
 #if defined(CONFIG_RAMBOOT_PBL)
 #define CONFIG_SYS_RAMBOOT
+#endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008044
+#if defined(CONFIG_NAND)
+#define CONFIG_A008044_WORKAROUND
+#endif
 #endif
 
 #define CONFIG_BOARD_EARLY_INIT_R
