@@ -42,11 +42,30 @@ static unsigned int max77686_ldo_volt2hex(int ldo, ulong uV)
 	return 0;
 }
 
+static int max77686_buck_volt2hex(int buck, ulong uV)
+{
+	int hex = 0;
+
+	if (buck < 5 || buck > 9) {
+		debug("%s: buck %d is not supported\n", __func__, buck);
+		return -EINVAL;
+	}
+
+	hex = (uV - 750000) / 50000;
+
+	if (hex >= 0 && hex <= MAX77686_BUCK_VOLT_MAX_HEX)
+		return hex;
+
+	debug("%s: %ld is wrong voltage value for BUCK%d\n",
+	      __func__, uV, buck);
+	return -EINVAL;
+}
+
 int max77686_set_ldo_voltage(struct pmic *p, int ldo, ulong uV)
 {
 	unsigned int val, ret, hex, adr;
 
-	if (ldo < 1 && ldo > 26) {
+	if (ldo < 1 || ldo > 26) {
 		printf("%s: %d is wrong ldo number\n", __func__, ldo);
 		return -1;
 	}
@@ -68,11 +87,38 @@ int max77686_set_ldo_voltage(struct pmic *p, int ldo, ulong uV)
 	return ret;
 }
 
+int max77686_set_buck_voltage(struct pmic *p, int buck, ulong uV)
+{
+	unsigned int val, adr;
+	int hex, ret;
+
+	if (buck < 5 || buck > 9) {
+		printf("%s: %d is an unsupported bucket number\n",
+		       __func__, buck);
+		return -EINVAL;
+	}
+
+	adr = max77686_buck_addr[buck] + 1;
+	hex = max77686_buck_volt2hex(buck, uV);
+
+	if (hex < 0)
+		return hex;
+
+	ret = pmic_reg_read(p, adr, &val);
+	if (ret)
+		return ret;
+
+	val &= ~MAX77686_BUCK_VOLT_MASK;
+	ret |= pmic_reg_write(p, adr, val | hex);
+
+	return ret;
+}
+
 int max77686_set_ldo_mode(struct pmic *p, int ldo, char opmode)
 {
 	unsigned int val, ret, adr, mode;
 
-	if (ldo < 1 && 26 < ldo) {
+	if (ldo < 1 || 26 < ldo) {
 		printf("%s: %d is wrong ldo number\n", __func__, ldo);
 		return -1;
 	}
@@ -157,7 +203,7 @@ int max77686_set_buck_mode(struct pmic *p, int buck, char opmode)
 	/* mode */
 	switch (opmode) {
 	case OPMODE_OFF:
-		mode = MAX77686_BUCK_MODE_OFF;
+		mode = MAX77686_BUCK_MODE_OFF << mode_shift;
 		break;
 	case OPMODE_STANDBY:
 		switch (buck) {

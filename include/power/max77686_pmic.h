@@ -150,6 +150,7 @@ enum {
 
 int max77686_set_ldo_voltage(struct pmic *p, int ldo, ulong uV);
 int max77686_set_ldo_mode(struct pmic *p, int ldo, char opmode);
+int max77686_set_buck_voltage(struct pmic *p, int buck, ulong uV);
 int max77686_set_buck_mode(struct pmic *p, int buck, char opmode);
 
 #define MAX77686_LDO_VOLT_MAX_HEX	0x3f
@@ -159,6 +160,8 @@ int max77686_set_buck_mode(struct pmic *p, int buck, char opmode);
 #define MAX77686_LDO_MODE_STANDBY	(0x01 << 0x06)
 #define MAX77686_LDO_MODE_LPM		(0x02 << 0x06)
 #define MAX77686_LDO_MODE_ON		(0x03 << 0x06)
+#define MAX77686_BUCK_VOLT_MAX_HEX	0x3f
+#define MAX77686_BUCK_VOLT_MASK		0x3f
 #define MAX77686_BUCK_MODE_MASK		0x03
 #define MAX77686_BUCK_MODE_SHIFT_1	0x00
 #define MAX77686_BUCK_MODE_SHIFT_2	0x04
