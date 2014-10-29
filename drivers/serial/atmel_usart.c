@@ -19,9 +19,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void atmel_serial_setbrg(void)
+static void atmel_serial_setbrg_internal(atmel_usart3_t *usart, int id,
+					 int baudrate)
 {
-	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_USART_BASE;
 	unsigned long divisor;
 	unsigned long usart_hz;
 
@@ -30,15 +30,13 @@ static void atmel_serial_setbrg(void)
 	 * Baud Rate = --------------
 	 *                16 * CD
 	 */
-	usart_hz = get_usart_clk_rate(CONFIG_USART_ID);
-	divisor = (usart_hz / 16 + gd->baudrate / 2) / gd->baudrate;
+	usart_hz = get_usart_clk_rate(id);
+	divisor = (usart_hz / 16 + baudrate / 2) / baudrate;
 	writel(USART3_BF(CD, divisor), &usart->brgr);
 }
 
-static int atmel_serial_init(void)
+static void atmel_serial_init_internal(atmel_usart3_t *usart)
 {
-	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_USART_BASE;
-
 	/*
 	 * Just in case: drain transmitter register
 	 * 1000us is enough for baudrate >= 9600
@@ -47,9 +45,10 @@ static int atmel_serial_init(void)
 		__udelay(1000);
 
 	writel(USART3_BIT(RSTRX) | USART3_BIT(RSTTX), &usart->cr);
+}
 
-	serial_setbrg();
-
+static void atmel_serial_activate(atmel_usart3_t *usart)
+{
 	writel((USART3_BF(USART_MODE, USART3_USART_MODE_NORMAL)
 			   | USART3_BF(USCLKS, USART3_USCLKS_MCK)
 			   | USART3_BF(CHRL, USART3_CHRL_8)
@@ -59,6 +58,21 @@ static int atmel_serial_init(void)
 	writel(USART3_BIT(RXEN) | USART3_BIT(TXEN), &usart->cr);
 	/* 100us is enough for the new settings to be settled */
 	__udelay(100);
+}
+
+static void atmel_serial_setbrg(void)
+{
+	atmel_serial_setbrg_internal((atmel_usart3_t *)CONFIG_USART_BASE,
+				     CONFIG_USART_ID, gd->baudrate);
+}
+
+static int atmel_serial_init(void)
+{
+	atmel_usart3_t *usart = (atmel_usart3_t *)CONFIG_USART_BASE;
+
+	atmel_serial_init_internal(usart);
+	serial_setbrg();
+	atmel_serial_activate(usart);
 
 	return 0;
 }
