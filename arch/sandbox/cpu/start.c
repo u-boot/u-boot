@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <os.h>
+#include <cli.h>
 #include <asm/getopt.h>
 #include <asm/io.h>
 #include <asm/sections.h>
@@ -76,6 +77,8 @@ int sandbox_main_loop_init(void)
 
 	/* Execute command if required */
 	if (state->cmd) {
+		cli_init();
+
 		run_command_list(state->cmd, -1, 0);
 		if (!state->interactive)
 			os_exit(state->exit_type);
