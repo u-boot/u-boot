@@ -3236,8 +3236,10 @@ int parse_string_outer(const char *s, int flag)
 #ifdef __U_BOOT__
 	char *p = NULL;
 	int rcode;
-	if ( !s || !*s)
+	if (!s)
 		return 1;
+	if (!*s)
+		return 0;
 	if (!(p = strchr(s, '\n')) || *++p) {
 		p = xmalloc(strlen(s) + 2);
 		strcpy(p, s);

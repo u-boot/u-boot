@@ -188,6 +188,9 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 #endif
 
+	assert(run_command("", 0) == 0);
+	assert(run_command(" ", 0) == 0);
+
 	printf("%s: Everything went swimmingly\n", __func__);
 	return 0;
 }
