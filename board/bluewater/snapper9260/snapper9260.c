@@ -9,12 +9,15 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/gpio.h>
+#include <asm/arch/atmel_serial.h>
 #include <net.h>
 #include <netdev.h>
 #include <i2c.h>
@@ -95,10 +98,12 @@ static void nand_hw_init(void)
 	       &smc->cs[3].mode);
 
 	/* Configure RDY/BSY */
-	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
+	gpio_request(CONFIG_SYS_NAND_READY_PIN, "nand_rdy");
+	gpio_direction_input(CONFIG_SYS_NAND_READY_PIN);
 
 	/* Enable NandFlash */
-	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	gpio_request(CONFIG_SYS_NAND_ENABLE_PIN, "nand_ce");
+	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 
 int board_init(void)
@@ -140,3 +145,12 @@ int dram_init(void)
 void reset_phy(void)
 {
 }
+
+static struct atmel_serial_platdata at91sam9260_serial_plat = {
+	.base_addr = ATMEL_BASE_DBGU,
+};
+
+U_BOOT_DEVICE(at91sam9260_serial) = {
+	.name	= "serial_atmel",
+	.platdata = &at91sam9260_serial_plat,
+};
