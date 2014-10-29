@@ -235,10 +235,11 @@ static int cm_fx6_spl_dram_init(void)
 
 		spl_mx6s_dram_init(DDR_32BIT_1GB, false);
 		bank1_size = get_ram_size((long int *)PHYS_SDRAM_1, 0x80000000);
-		if (bank1_size == 0x40000000)
-			return 0;
-
+		bank2_size = get_ram_size((long int *)PHYS_SDRAM_2, 0x80000000);
 		if (bank1_size == 0x20000000) {
+			if (bank2_size == 0x20000000)
+				return 0;
+
 			spl_mx6s_dram_init(DDR_32BIT_512MB, true);
 			return 0;
 		}
