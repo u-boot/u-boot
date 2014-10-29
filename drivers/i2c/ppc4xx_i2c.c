@@ -289,6 +289,27 @@ static int _i2c_transfer(struct i2c_adapter *adap,
 			/* Transfer aborted? */
 			if (status & IIC_EXTSTS_XFRA)
 				result = IIC_NOK_XFRA;
+			/* Is bus free?
+			 * If error happened during combined xfer
+			 * IIC interface is usually stuck in some strange
+			 * state without a valid stop condition.
+			 * Brute, but working: generate stop, then soft reset.
+			 */
+			if ((status & IIC_EXTSTS_BCS_MASK)
+			    != IIC_EXTSTS_BCS_FREE){
+				u8 mdcntl = in_8(&i2c->mdcntl);
+
+				/* Generate valid stop condition */
+				out_8(&i2c->xtcntlss, IIC_XTCNTLSS_SRST);
+				out_8(&i2c->directcntl, IIC_DIRCNTL_SCC);
+				udelay(10);
+				out_8(&i2c->directcntl,
+				      IIC_DIRCNTL_SCC | IIC_DIRCNTL_SDAC);
+				out_8(&i2c->xtcntlss, 0);
+
+				ppc4xx_i2c_init(adap, (mdcntl & IIC_MDCNTL_FSM)
+						? 400000 : 100000, 0);
+			}
 		} else if ( status & IIC_STS_PT) {
 			result = IIC_NOK_TOUT;
 		}
