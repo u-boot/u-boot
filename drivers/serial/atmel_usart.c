@@ -7,11 +7,16 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
+#include <errno.h>
 #include <watchdog.h>
 #include <serial.h>
 #include <linux/compiler.h>
 
 #include <asm/io.h>
+#ifdef CONFIG_DM_SERIAL
+#include <asm/arch/atmel_serial.h>
+#endif
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
 
@@ -60,6 +65,7 @@ static void atmel_serial_activate(atmel_usart3_t *usart)
 	__udelay(100);
 }
 
+#ifndef CONFIG_DM_SERIAL
 static void atmel_serial_setbrg(void)
 {
 	atmel_serial_setbrg_internal((atmel_usart3_t *)CONFIG_USART_BASE,
@@ -123,3 +129,81 @@ __weak struct serial_device *default_serial_console(void)
 {
 	return &atmel_serial_drv;
 }
+#endif
+
+#ifdef CONFIG_DM_SERIAL
+
+struct atmel_serial_priv {
+	atmel_usart3_t *usart;
+};
+
+int atmel_serial_setbrg(struct udevice *dev, int baudrate)
+{
+	struct atmel_serial_priv *priv = dev_get_priv(dev);
+
+	atmel_serial_setbrg_internal(priv->usart, 0 /* ignored */, baudrate);
+	atmel_serial_activate(priv->usart);
+
+	return 0;
+}
+
+static int atmel_serial_getc(struct udevice *dev)
+{
+	struct atmel_serial_priv *priv = dev_get_priv(dev);
+
+	if (!(readl(&priv->usart->csr) & USART3_BIT(RXRDY)))
+		return -EAGAIN;
+
+	return readl(&priv->usart->rhr);
+}
+
+static int atmel_serial_putc(struct udevice *dev, const char ch)
+{
+	struct atmel_serial_priv *priv = dev_get_priv(dev);
+
+	if (!(readl(&priv->usart->csr) & USART3_BIT(TXRDY)))
+		return -EAGAIN;
+
+	writel(ch, &priv->usart->thr);
+
+	return 0;
+}
+
+static int atmel_serial_pending(struct udevice *dev, bool input)
+{
+	struct atmel_serial_priv *priv = dev_get_priv(dev);
+	uint32_t csr = readl(&priv->usart->csr);
+
+	if (input)
+		return csr & USART3_BIT(RXRDY) ? 1 : 0;
+	else
+		return csr & USART3_BIT(TXEMPTY) ? 0 : 1;
+}
+
+static const struct dm_serial_ops atmel_serial_ops = {
+	.putc = atmel_serial_putc,
+	.pending = atmel_serial_pending,
+	.getc = atmel_serial_getc,
+	.setbrg = atmel_serial_setbrg,
+};
+
+static int atmel_serial_probe(struct udevice *dev)
+{
+	struct atmel_serial_platdata *plat = dev->platdata;
+	struct atmel_serial_priv *priv = dev_get_priv(dev);
+
+	priv->usart = (atmel_usart3_t *)plat->base_addr;
+	atmel_serial_init_internal(priv->usart);
+
+	return 0;
+}
+
+U_BOOT_DRIVER(serial_atmel) = {
+	.name	= "serial_atmel",
+	.id	= UCLASS_SERIAL,
+	.probe = atmel_serial_probe,
+	.ops	= &atmel_serial_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+	.priv_auto_alloc_size	= sizeof(struct atmel_serial_priv),
+};
+#endif
