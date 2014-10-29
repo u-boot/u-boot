@@ -3162,7 +3162,7 @@ static int parse_stream_outer(struct in_str *inp, int flag)
 	o_string temp=NULL_O_STRING;
 	int rcode;
 #ifdef __U_BOOT__
-	int code = 0;
+	int code = 1;
 #endif
 	do {
 		ctx.type = flag;
