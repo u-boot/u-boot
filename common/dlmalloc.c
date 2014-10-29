@@ -2181,7 +2181,7 @@ Void_t* mALLOc(bytes) size_t bytes;
   INTERNAL_SIZE_T nb;
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
-	if (!(gd->flags & GD_FLG_RELOC)) {
+	if (gd && !(gd->flags & GD_FLG_RELOC)) {
 		ulong new_ptr;
 		void *ptr;
 
