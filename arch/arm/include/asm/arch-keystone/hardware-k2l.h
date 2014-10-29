@@ -84,6 +84,10 @@
 /* OSR memory size */
 #define KS2_OSR_SIZE			0x100000
 
+/* SGMII SerDes */
+#define KS2_SGMII_SERDES2_BASE		0x02320000
+#define KS2_LANES_PER_SGMII_SERDES	2
+
 /* Number of DSP cores */
 #define KS2_NUM_DSPS			4
 
