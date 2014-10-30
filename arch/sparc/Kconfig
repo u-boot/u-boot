@@ -5,22 +5,26 @@ config SYS_ARCH
 	default "sparc"
 
 choice
-	prompt "Target select"
+	prompt "Board select"
 
 config TARGET_GRSIM_LEON2
-	bool "Support grsim_leon2"
+	bool "GRSIM simulating a LEON2 board"
 
 config TARGET_GR_CPCI_AX2000
-	bool "Support gr_cpci_ax2000"
+	bool "Gaisler GR-CPCI-AX2000 board"
 
 config TARGET_GR_EP2S60
-	bool "Support gr_ep2s60"
+	bool "Gaisler Template design for Altera NIOS board with Stratix EP2S60"
+	help
+	  Gaisler Research AB's Template design (GPL Open Source SPARC/LEON3
+	  96MHz) for Altera NIOS Development board Stratix II edition,
+	  with the FPGA device EP2S60.
 
 config TARGET_GR_XC3S_1500
-	bool "Support gr_xc3s_1500"
+	bool "Gaisler GR-XC3S-1500 spartan board"
 
 config TARGET_GRSIM
-	bool "Support grsim"
+	bool "GRSIM simulating a LEON3 GR-XC3S-1500 board"
 
 endchoice
 
