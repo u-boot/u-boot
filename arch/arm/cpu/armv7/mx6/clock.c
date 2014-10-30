@@ -312,6 +312,10 @@ static u32 get_ipg_per_clk(void)
 	u32 reg, perclk_podf;
 
 	reg = __raw_readl(&imx_ccm->cscmr1);
+#if (defined(CONFIG_MX6SL) || defined(CONFIG_MX6SX))
+	if (reg & MXC_CCM_CSCMR1_PER_CLK_SEL_MASK)
+		return MXC_HCLK; /* OSC 24Mhz */
+#endif
 	perclk_podf = reg & MXC_CCM_CSCMR1_PERCLK_PODF_MASK;
 
 	return get_ipg_clk() / (perclk_podf + 1);
