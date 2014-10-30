@@ -1227,13 +1227,12 @@ include/license.h: tools/bin2header COPYING
 # make distclean Remove editor backup files, patch leftover files and the like
 
 # Directories & files removed with 'make clean'
-CLEAN_DIRS  += $(MODVERDIR)
-CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h
-
-# Directories & files removed with 'make clobber'
-CLOBBER_DIRS  += $(foreach d, spl tpl, $(patsubst %,$d/%, \
+CLEAN_DIRS  += $(MODVERDIR) \
+	       $(foreach d, spl tpl, $(patsubst %,$d/%, \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
-CLOBBER_FILES += u-boot* MLO* SPL System.map
+
+CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
+	       u-boot* MLO* SPL System.map
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \
@@ -1266,17 +1265,6 @@ clean: $(clean-dirs)
 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
 		-o -name '*.gcno' \) -type f -print | xargs rm -f
 
-# clobber
-#
-clobber: rm-dirs  := $(CLOBBER_DIRS)
-clobber: rm-files := $(CLOBBER_FILES)
-
-PHONY += clobber
-
-clobber: clean
-	$(call cmd,rmdirs)
-	$(call cmd,rmfiles)
-
 # mrproper - Delete all generated files, including .config
 #
 mrproper: rm-dirs  := $(wildcard $(MRPROPER_DIRS))
@@ -1287,7 +1275,7 @@ PHONY += $(mrproper-dirs) mrproper archmrproper
 $(mrproper-dirs):
 	$(Q)$(MAKE) $(clean)=$(patsubst _mrproper_%,%,$@)
 
-mrproper: clobber $(mrproper-dirs)
+mrproper: clean $(mrproper-dirs)
 	$(call cmd,rmdirs)
 	$(call cmd,rmfiles)
 	@rm -f arch/*/include/asm/arch
@@ -1311,9 +1299,7 @@ backup:
 
 help:
 	@echo  'Cleaning targets:'
-	@echo  '  clean		  - Remove most generated files but keep the config and'
-	@echo  '                    necessities for testing u-boot'
-	@echo  '  clobber	  - Remove most generated files but keep the config'
+	@echo  '  clean		  - Remove most generated files but keep the config'
 	@echo  '  mrproper	  - Remove all generated files + config + various backup files'
 	@echo  '  distclean	  - mrproper + remove editor backup and patch files'
 	@echo  ''
