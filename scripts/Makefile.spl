@@ -181,6 +181,10 @@ ALL-y	+= $(obj)/sunxi-spl.bin
 endif
 endif
 
+ifeq ($(CONFIG_SYS_SOC),"at91")
+ALL-y	+= boot.bin
+endif
+
 all:	$(ALL-y)
 
 ifdef CONFIG_SAMSUNG
