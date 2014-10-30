@@ -27,3 +27,27 @@ static inline bool has_erratum_a006379(void)
 }
 #endif
 #endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007186
+static inline bool has_erratum_a007186(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_T4240:
+		return IS_SVR_REV(svr, 2, 0);
+	case SVR_T4160:
+		return IS_SVR_REV(svr, 2, 0);
+	case SVR_B4860:
+		return IS_SVR_REV(svr, 2, 0);
+	case SVR_B4420:
+		return IS_SVR_REV(svr, 2, 0);
+	case SVR_T2081:
+	case SVR_T2080:
+		return IS_SVR_REV(svr, 1, 0);
+	}
+
+	return false;
+}
+#endif

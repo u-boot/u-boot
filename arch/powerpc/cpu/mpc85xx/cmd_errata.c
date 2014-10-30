@@ -271,7 +271,8 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	puts("Work-around for Erratum USB14 enabled\n");
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A007186
-	puts("Work-around for Erratum A007186 enabled\n");
+	if (has_erratum_a007186())
+		puts("Work-around for Erratum A007186 enabled\n");
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A006593
 	puts("Work-around for Erratum A006593 enabled\n");
