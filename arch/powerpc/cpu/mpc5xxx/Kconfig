@@ -56,9 +56,6 @@ config TARGET_TOTAL5200
 config TARGET_V38B
 	bool "Support v38b"
 
-config TARGET_TOP5200
-	bool "Support TOP5200"
-
 config TARGET_CPCI5200
 	bool "Support cpci5200"
 

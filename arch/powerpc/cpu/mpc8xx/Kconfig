@@ -40,9 +40,6 @@ config TARGET_RRVISION
 config TARGET_SPD823TS
 	bool "Support SPD823TS"
 
-config TARGET_TOP860
-	bool "Support TOP860"
-
 config TARGET_KUP4K
 	bool "Support KUP4K"
 

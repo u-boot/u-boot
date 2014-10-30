@@ -177,10 +177,6 @@ config TARGET_ETHERNUT5
 	bool "Support ethernut5"
 	select CPU_ARM926EJS
 
-config TARGET_TOP9000
-	bool "Support top9000"
-	select CPU_ARM926EJS
-
 config TARGET_MEESC
 	bool "Support meesc"
 	select CPU_ARM926EJS
