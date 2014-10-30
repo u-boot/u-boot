@@ -157,7 +157,7 @@ HOSTCFLAGS_sha256.o := -pedantic
 #HOSTCFLAGS_mpc86x_clk.o := -pedantic
 
 quiet_cmd_wrap = WRAP    $@
-cmd_wrap = echo "\#include <$(srctree)/$(patsubst $(obj)/%,%,$@)>" >$@
+cmd_wrap = echo "\#include <../$(patsubst $(obj)/%,%,$@)>" >$@
 
 $(obj)/lib/%.c $(obj)/common/%.c:
 	$(call cmd,wrap)
