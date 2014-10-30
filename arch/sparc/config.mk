@@ -15,3 +15,5 @@ CONFIG_STANDALONE_LOAD_ADDR ?= 0x00000000 -L $(gcclibdir) \
 			       -T $(srctree)/examples/standalone/sparc.lds
 
 PLATFORM_CPPFLAGS += -D__sparc__
+
+PLATFORM_RELFLAGS += -fPIC
