@@ -29,5 +29,6 @@
 #endif
 
 #define CONFIG_MP
+#define CONFIG_MXC_GPT_HCLK
 
 #endif
