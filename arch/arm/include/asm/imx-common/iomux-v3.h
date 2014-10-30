@@ -182,6 +182,11 @@ typedef u64 iomux_v3_cfg_t;
 void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad);
 void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
 				     unsigned count);
+/*
+* Set bits for general purpose registers
+*/
+void imx_iomux_set_gpr_register(int group, int start_bit,
+					 int num_bits, int value);
 
 /* macros for declaring and using pinmux array */
 #if defined(CONFIG_MX6QDL)
