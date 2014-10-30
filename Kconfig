@@ -107,6 +107,12 @@ config SYS_EXTRA_OPTIONS
 	  configuration to Kconfig. Since this option will be removed sometime,
 	  new boards should not use this option.
 
+config SYS_TEXT_BASE
+	depends on SPARC
+	hex "Text Base"
+	help
+	  TODO: Move CONFIG_SYS_TEXT_BASE for all the architecture
+
 endmenu		# Boot images
 
 source "arch/Kconfig"
