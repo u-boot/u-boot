@@ -1,9 +1,6 @@
 menu "SPARC architecture"
 	depends on SPARC
 
-config SYS_ARCH
-	default "sparc"
-
 config LEON
 	bool
 
@@ -43,6 +40,16 @@ config TARGET_GRSIM
 	select LEON3
 
 endchoice
+
+config SYS_ARCH
+	default "sparc"
+
+config SYS_CPU
+	default "leon2" if LEON2
+	default "leon3" if LEON3
+
+config SYS_VENDOR
+	default "gaisler"
 
 source "board/gaisler/gr_cpci_ax2000/Kconfig"
 source "board/gaisler/gr_ep2s60/Kconfig"
