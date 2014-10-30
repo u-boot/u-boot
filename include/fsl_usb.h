@@ -145,6 +145,25 @@ static inline bool has_erratum_a007798(void)
 	return SVR_SOC_VER(get_svr()) == SVR_T4240 &&
 		IS_SVR_REV(get_svr(), 2, 0);
 }
+
+static inline bool has_erratum_a007792(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_T4240:
+	case SVR_T4160:
+		return IS_SVR_REV(svr, 2, 0);
+	case SVR_T1040:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_T2080:
+	case SVR_T2081:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
+	}
+	return false;
+}
+
 #else
 static inline bool has_erratum_a006261(void)
 {
@@ -161,5 +180,9 @@ static inline bool has_erratum_a007798(void)
 	return false;
 }
 
+static inline bool has_erratum_a007792(void)
+{
+	return false;
+}
 #endif
 #endif /*_ASM_FSL_USB_H_ */

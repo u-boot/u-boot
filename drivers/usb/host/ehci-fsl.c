@@ -262,6 +262,7 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 	static const char * const phys[] = { "ulpi", "utmi" };
 	int usb_erratum_a006261_off = -1;
 	int usb_erratum_a007075_off = -1;
+	int usb_erratum_a007792_off = -1;
 	int usb_mode_off = -1;
 	int usb_phy_off = -1;
 	char str[5];
@@ -330,6 +331,14 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 						    "fsl,usb-erratum-a007075",
 						    usb_erratum_a007075_off);
 			if (usb_erratum_a007075_off < 0)
+				return;
+		}
+		if (has_erratum_a007792()) {
+			usb_erratum_a007792_off =  fdt_fixup_usb_erratum
+						   (blob,
+						    "fsl,usb-erratum-a007792",
+						    usb_erratum_a007792_off);
+			if (usb_erratum_a007792_off < 0)
 				return;
 		}
 	}
