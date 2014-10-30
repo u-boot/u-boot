@@ -228,6 +228,8 @@ struct mxc_ccm_reg {
 #ifdef CONFIG_MX6SX
 #define MXC_CCM_CSCMR1_QSPI1_CLK_SEL_MASK		(0x7 << 7)
 #define MXC_CCM_CSCMR1_QSPI1_CLK_SEL_OFFSET		7
+#endif
+#if (defined(CONFIG_MX6SL) || defined(CONFIG_MX6SX))
 #define MXC_CCM_CSCMR1_PER_CLK_SEL_MASK			(1 << 6)
 #define MXC_CCM_CSCMR1_PER_CLK_SEL_OFFSET		6
 #endif
