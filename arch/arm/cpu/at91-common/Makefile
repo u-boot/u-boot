@@ -9,4 +9,8 @@
 #
 
 obj-$(CONFIG_AT91_WANTS_COMMON_PHY) += phy.o
-obj-$(CONFIG_SPL_BUILD) += mpddrc.o spl.o
+ifneq ($(CONFIG_SPL_BUILD),)
+obj-$(CONFIG_AT91SAM9M10G45) += mpddrc.o
+obj-$(CONFIG_SAMA5D3) += mpddrc.o
+obj-y += spl.o
+endif
