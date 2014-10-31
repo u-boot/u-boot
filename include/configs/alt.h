@@ -32,6 +32,8 @@
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_USB
+#define CONFIG_CMD_FAT
+#define CONFIG_FAT_WRITE
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 
@@ -170,6 +172,10 @@
 #define CONFIG_SH_I2C_CLOCK		10000000
 
 #define CONFIG_SYS_I2C_POWERIC_ADDR 0x58 /* da9063 */
+
+/* Filesystems */
+#define CONFIG_DOS_PARTITION
+#define CONFIG_SUPPORT_VFAT
 
 /* USB */
 #define CONFIG_USB_STORAGE
