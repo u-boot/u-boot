@@ -946,7 +946,8 @@ u-boot-nand.gph: u-boot.bin FORCE
 ifneq ($(CONFIG_SUNXI),)
 OBJCOPYFLAGS_u-boot-sunxi-with-spl.bin = -I binary -O binary \
 				   --pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
-u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img FORCE
+u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin \
+			u-boot$(if $(CONFIG_OF_CONTROL),-dtb,).img FORCE
 	$(call if_changed,pad_cat)
 endif
 

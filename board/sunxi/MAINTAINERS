@@ -22,6 +22,7 @@ F:	configs/A20-OLinuXino_MICRO_defconfig
 F:	configs/Bananapi_defconfig
 F:	configs/i12-tvbox_defconfig
 F:	configs/Linksprite_pcDuino3_defconfig
+F:	configs/Linksprite_pcDuino3_fdt_defconfig
 F:	configs/qt840a_defconfig
 
 CUBIEBOARD2 BOARD
