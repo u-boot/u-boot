@@ -57,6 +57,7 @@ int ddr2_init(const unsigned int ram_address,
 #define ATMEL_MPDDRC_CR_DIC_DS			(0x1 << 8)
 #define ATMEL_MPDDRC_CR_DIS_DLL			(0x1 << 9)
 #define ATMEL_MPDDRC_CR_OCD_DEFAULT		(0x7 << 12)
+#define ATMEL_MPDDRC_CR_DQMS_SHARED		(0x1 << 16)
 #define ATMEL_MPDDRC_CR_ENRDM_ON		(0x1 << 17)
 #define ATMEL_MPDDRC_CR_NB_8BANKS		(0x1 << 20)
 #define ATMEL_MPDDRC_CR_NDQS_DISABLED		(0x1 << 21)
