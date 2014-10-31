@@ -26,7 +26,7 @@ int ddr2_init(const unsigned int ram_address,
 	/* Compute bank offset according to NC in configuration register */
 	ba_off = (mpddr_value->cr & ATMEL_MPDDRC_CR_NC_MASK) + 9;
 	if (!(mpddr_value->cr & ATMEL_MPDDRC_CR_DECOD_INTERLEAVED))
-		ba_off += ((mpddr->cr & ATMEL_MPDDRC_CR_NR_MASK) >> 2) + 11;
+		ba_off += ((mpddr_value->cr & ATMEL_MPDDRC_CR_NR_MASK) >> 2) + 11;
 
 	ba_off += (mpddr_value->md & ATMEL_MPDDRC_MD_DBW_MASK) ? 1 : 2;
 
