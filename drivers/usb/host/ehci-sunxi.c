@@ -163,10 +163,15 @@ int ehci_hcd_init(int index, enum usb_init_type init, struct ehci_hccr **hccr,
 {
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct sunxi_ehci_hcd *sunxi_ehci = &sunxi_echi_hcd[index];
+	int err;
 
 	/* enable common PHY only once */
 	if (index == 0)
 		setbits_le32(&ccm->usb_clk_cfg, CCM_USB_CTRL_PHYGATE);
+
+	err = gpio_request(sunxi_ehci->gpio_vbus, "ehci_vbus");
+	if (err)
+		return err;
 
 	sunxi_ehci_enable(sunxi_ehci);
 
@@ -188,8 +193,13 @@ int ehci_hcd_stop(int index)
 {
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct sunxi_ehci_hcd *sunxi_ehci = &sunxi_echi_hcd[index];
+	int err;
 
 	sunxi_ehci_disable(sunxi_ehci);
+
+	err = gpio_free(sunxi_ehci->gpio_vbus);
+	if (err)
+		return err;
 
 	/* disable common PHY only once, for the last enabled hcd */
 	if (enabled_hcd_count == 1)
