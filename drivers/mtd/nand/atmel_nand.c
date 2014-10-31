@@ -1188,7 +1188,7 @@ static int nand_command(int block, int page, uint32_t offs, u8 cmd)
 	void (*hwctrl)(struct mtd_info *mtd, int cmd,
 			unsigned int ctrl) = this->cmd_ctrl;
 
-	while (this->dev_ready(&mtd))
+	while (!this->dev_ready(&mtd))
 		;
 
 	if (cmd == NAND_CMD_READOOB) {
@@ -1213,7 +1213,7 @@ static int nand_command(int block, int page, uint32_t offs, u8 cmd)
 	hwctrl(&mtd, NAND_CMD_READSTART, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 	hwctrl(&mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
-	while (this->dev_ready(&mtd))
+	while (!this->dev_ready(&mtd))
 		;
 
 	return 0;
@@ -1353,7 +1353,7 @@ int at91_nand_wait_ready(struct mtd_info *mtd)
 
 	udelay(this->chip_delay);
 
-	return 0;
+	return 1;
 }
 
 int board_nand_init(struct nand_chip *nand)
