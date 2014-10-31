@@ -203,6 +203,7 @@ config TARGET_PM9G45
 	select CPU_ARM926EJS
 
 config TARGET_CORVUS
+	select SUPPORT_SPL
 	bool "Support corvus"
 	select CPU_ARM926EJS
 

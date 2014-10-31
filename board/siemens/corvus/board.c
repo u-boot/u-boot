@@ -31,12 +31,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_CMD_NAND
 static void corvus_nand_hw_init(void)
 {
 	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
 	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 	unsigned long csa;
 
 	/* Enable CS3 */
@@ -63,22 +61,111 @@ static void corvus_nand_hw_init(void)
 	       AT91_SMC_MODE_TDF_CYCLE(3),
 	       &smc->cs[3].mode);
 
-	writel(1 << ATMEL_ID_PIOC, &pmc->pcer);
-
-	/* Configure RDY/BSY */
-	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
+	at91_periph_clk_enable(ATMEL_ID_PIOC);
 
 	/* Enable NandFlash */
 	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+}
+
+#if defined(CONFIG_SPL_BUILD)
+#include <spl.h>
+#include <nand.h>
+
+void at91_spl_board_init(void)
+{
+	/*
+	 * For on the sam9m10g45ek board, the chip wm9711 stay in the test
+	 * mode, so it need do some action to exit mode.
+	 */
+	at91_set_gpio_output(AT91_PIN_PD7, 0);
+	at91_set_gpio_output(AT91_PIN_PD8, 0);
+	at91_set_pio_pullup(AT91_PIO_PORTD, 7, 1);
+	at91_set_pio_pullup(AT91_PIO_PORTD, 8, 1);
+	at91_set_pio_pullup(AT91_PIO_PORTA, 12, 1);
+	at91_set_pio_pullup(AT91_PIO_PORTA, 13, 1);
+	at91_set_pio_pullup(AT91_PIO_PORTA, 15, 1);
+
+	corvus_nand_hw_init();
+
+	/* Configure recovery button PINs */
+	at91_set_gpio_input(AT91_PIN_PB7, 1);
+
+	/* check if button is pressed */
+	if (at91_get_gpio_value(AT91_PIN_PB7) == 0) {
+		u32 boot_device;
+
+		debug("Recovery button pressed\n");
+		boot_device = spl_boot_device();
+		switch (boot_device) {
+#ifdef CONFIG_SPL_NAND_SUPPORT
+		case BOOT_DEVICE_NAND:
+			nand_init();
+			spl_nand_erase_one(0, 0);
+			break;
+#endif
+		}
+	}
+}
+
+#include <asm/arch/atmel_mpddrc.h>
+static void ddr2_conf(struct atmel_mpddr *ddr2)
+{
+	ddr2->md = (ATMEL_MPDDRC_MD_DBW_16_BITS | ATMEL_MPDDRC_MD_DDR2_SDRAM);
+
+	ddr2->cr = (ATMEL_MPDDRC_CR_NC_COL_10 |
+		    ATMEL_MPDDRC_CR_NR_ROW_14 |
+		    ATMEL_MPDDRC_CR_DIC_DS |
+		    ATMEL_MPDDRC_CR_DQMS_SHARED |
+		    ATMEL_MPDDRC_CR_CAS_DDR_CAS3);
+	ddr2->rtr = 0x24b;
+
+	ddr2->tpr0 = (6 << ATMEL_MPDDRC_TPR0_TRAS_OFFSET |/* 6*7.5 = 45 ns */
+		      2 << ATMEL_MPDDRC_TPR0_TRCD_OFFSET |/* 2*7.5 = 15 ns */
+		      2 << ATMEL_MPDDRC_TPR0_TWR_OFFSET | /* 2*7.5 = 15 ns */
+		      8 << ATMEL_MPDDRC_TPR0_TRC_OFFSET | /* 8*7.5 = 75 ns */
+		      2 << ATMEL_MPDDRC_TPR0_TRP_OFFSET | /* 2*7.5 = 15 ns */
+		      1 << ATMEL_MPDDRC_TPR0_TRRD_OFFSET | /* 1*7.5= 7.5 ns*/
+		      1 << ATMEL_MPDDRC_TPR0_TWTR_OFFSET | /* 1 clk cycle */
+		      2 << ATMEL_MPDDRC_TPR0_TMRD_OFFSET); /* 2 clk cycles */
+
+	ddr2->tpr1 = (2 << ATMEL_MPDDRC_TPR1_TXP_OFFSET | /* 2*7.5 = 15 ns */
+		      200 << ATMEL_MPDDRC_TPR1_TXSRD_OFFSET |
+		      16 << ATMEL_MPDDRC_TPR1_TXSNR_OFFSET |
+		      14 << ATMEL_MPDDRC_TPR1_TRFC_OFFSET);
+
+	ddr2->tpr2 = (1 << ATMEL_MPDDRC_TPR2_TRTP_OFFSET |
+		      0 << ATMEL_MPDDRC_TPR2_TRPA_OFFSET |
+		      7 << ATMEL_MPDDRC_TPR2_TXARDS_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR2_TXARD_OFFSET);
+}
+
+void mem_init(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	struct at91_matrix *mat = (struct at91_matrix *)ATMEL_BASE_MATRIX;
+	struct atmel_mpddr ddr2;
+	unsigned long csa;
+
+	ddr2_conf(&ddr2);
+
+	/* enable DDR2 clock */
+	writel(0x4, &pmc->scer);
+
+	/* Chip select 1 is for DDR2/SDRAM */
+	csa = readl(&mat->ebicsa);
+	csa |= AT91_MATRIX_EBI_CS1A_SDRAMC;
+	csa &= ~AT91_MATRIX_EBI_VDDIOMSEL_3_3V;
+	writel(csa, &mat->ebicsa);
+
+	/* DDRAM2 Controller initialize */
+	ddr2_init(ATMEL_BASE_CS6, &ddr2);
 }
 #endif
 
 #ifdef CONFIG_CMD_USB
 static void taurus_usb_hw_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
-	writel(1 << ATMEL_ID_PIODE, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_PIODE);
 
 	at91_set_gpio_output(AT91_PIN_PD1, 0);
 	at91_set_gpio_output(AT91_PIN_PD3, 0);
@@ -88,10 +175,8 @@ static void taurus_usb_hw_init(void)
 #ifdef CONFIG_MACB
 static void corvus_macb_hw_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
 	/* Enable clock */
-	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_EMAC);
 
 	/*
 	 * Disable pull-up on:
