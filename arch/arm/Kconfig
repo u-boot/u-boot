@@ -207,6 +207,7 @@ config TARGET_CORVUS
 	select CPU_ARM926EJS
 
 config TARGET_TAURUS
+	select SUPPORT_SPL
 	bool "Support taurus"
 	select CPU_ARM926EJS
 
