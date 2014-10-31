@@ -10,6 +10,7 @@
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
+#include <asm/pcie_layerscape.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
@@ -257,6 +258,10 @@ int board_init(void)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+
+#ifdef CONFIG_PCIE_LAYERSCAPE
+	ft_pcie_setup(blob, bd);
+#endif
 
 	return 0;
 }

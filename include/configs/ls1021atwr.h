@@ -236,6 +236,13 @@
 #define CONFIG_HAS_ETH2
 #endif
 
+/* PCIe */
+#define CONFIG_PCI		/* Enable PCI/PCIE */
+#define CONFIG_PCIE1		/* PCIE controler 1 */
+#define CONFIG_PCIE2		/* PCIE controler 2 */
+#define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
+#define FSL_PCIE_COMPAT "fsl,ls1021a-pcie"
+
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
