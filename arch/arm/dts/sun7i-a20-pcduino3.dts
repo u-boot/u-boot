@@ -20,6 +20,10 @@
 	model = "LinkSprite pcDuino3";
 	compatible = "linksprite,pcduino3", "allwinner,sun7i-a20";
 
+	chosen {
+		stdout-path = &uart0;
+	};
+
 	soc@01c00000 {
 		mmc0: mmc@01c0f000 {
 			pinctrl-names = "default";
