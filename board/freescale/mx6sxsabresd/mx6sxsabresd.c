@@ -243,7 +243,6 @@ int board_phy_config(struct phy_device *phydev)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
 
 	/* Enable PERI_3V3, which is used by SD2, ENET, LVDS, BT */
 	imx_iomux_v3_setup_multiple_pads(peri_3v3_pads,
@@ -276,6 +275,10 @@ int board_init(void)
 {
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+
+#ifdef CONFIG_SYS_I2C_MXC
+	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+#endif
 
 	return 0;
 }
