@@ -22,6 +22,8 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/at91sam9_sdramc.h>
 #include <atmel_mci.h>
+#include <asm/arch/at91_spi.h>
+#include <spi.h>
 
 #include <net.h>
 #include <netdev.h>
@@ -127,6 +129,21 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	return bus == 0 && cs == 0;
+}
+
+void spi_cs_activate(struct spi_slave *slave)
+{
+	at91_set_gpio_value(TAURUS_SPI_CS_PIN, 0);
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	at91_set_gpio_value(TAURUS_SPI_CS_PIN, 1);
+}
+
 int board_init(void)
 {
 	/* adress of boot parameters */
@@ -139,6 +156,7 @@ int board_init(void)
 #ifdef CONFIG_MACB
 	taurus_macb_hw_init();
 #endif
+	at91_spi0_hw_init(TAURUS_SPI_MASK);
 
 	return 0;
 }

@@ -127,6 +127,16 @@
 #define CONFIG_USB_STORAGE
 #endif
 
+/* SPI EEPROM */
+#define CONFIG_SPI
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH
+#define CONFIG_ATMEL_SPI
+#define CONFIG_SPI_FLASH_STMICRO
+#define TAURUS_SPI_MASK (1 << 4)
+#define TAURUS_SPI_CS_PIN	AT91_PIN_PA3
+
 /* load address */
 #define CONFIG_SYS_LOAD_ADDR			0x22000000
 
