@@ -25,7 +25,7 @@ config SYS_SOC
 
 config RMOBILE_EXTRAM_BOOT
 	bool "Enable boot from RAM"
-	depends on TARGET_LAGER || TARGET_KOELSCH
+	depends on TARGET_ALT || TARGET_KOELSCH || TARGET_LAGER
 	default n
 
 source "board/atmark-techno/armadillo-800eva/Kconfig"
