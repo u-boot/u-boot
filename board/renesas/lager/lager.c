@@ -36,9 +36,14 @@ void s_init(void)
 
 	/* CPU frequency setting. Set to 1.4GHz */
 	if (rmobile_get_cpu_rev_integer() >= R8A7790_CUT_ES2X) {
+		u32 stat = 0;
 		u32 stc = ((1400 / CLK2MHZ(CONFIG_SYS_CLK_FREQ)) - 1)
 			<< PLL0_STC_BIT;
 		clrsetbits_le32(PLL0CR, PLL0_STC_MASK, stc);
+
+		do {
+			stat = readl(PLLECR) & PLL0ST;
+		} while (stat == 0x0);
 	}
 
 	/* QoS(Quality-of-Service) Init */

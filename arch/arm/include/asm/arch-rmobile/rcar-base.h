@@ -385,6 +385,8 @@
 #define PLL0CR			0xE61500D8
 #define PLL0_STC_MASK		0x7F000000
 #define PLL0_STC_BIT		24
+#define PLLECR			0xE61500D0
+#define PLL0ST			0x100
 
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
