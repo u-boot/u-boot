@@ -165,7 +165,6 @@ int board_phy_config(struct phy_device *phydev)
 
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
 	return 0;
