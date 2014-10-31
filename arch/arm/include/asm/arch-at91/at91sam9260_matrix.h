@@ -61,5 +61,10 @@ struct at91_matrix {
 #define AT91_MATRIX_DBPUC		(1 << 8)
 #define AT91_MATRIX_VDDIOMSEL_1_8V	(0 << 16)
 #define AT91_MATRIX_VDDIOMSEL_3_3V	(1 << 16)
+#define AT91_MATRIX_EBI_IOSR_SEL	(1 << 17)
+
+/* Maximum Number of Allowed Cycles for a Burst */
+#define AT91_MATRIX_SLOT_CYCLE		(0xff << 0)
+#define AT91_MATRIX_SLOT_CYCLE_(x)	(x << 0)
 
 #endif

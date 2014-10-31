@@ -8,8 +8,10 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
+#include <asm/arch/at91sam9_sdramc.h>
 #include <asm/arch/gpio.h>
 
 /*
@@ -207,3 +209,23 @@ void at91_mci_hw_init(void)
 #endif
 }
 #endif
+
+void at91_sdram_hw_init(void)
+{
+	at91_set_a_periph(AT91_PIO_PORTC, 16, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 17, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 18, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 19, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 20, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 21, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 22, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 23, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 24, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 25, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 26, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 27, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 28, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 29, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 30, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 31, 0);
+}

@@ -111,6 +111,35 @@ int at91_clock_init(unsigned long main_clock)
 	return 0;
 }
 
+void at91_plla_init(u32 pllar)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+
+	writel(pllar, &pmc->pllar);
+	while (!(readl(&pmc->sr) & (AT91_PMC_LOCKA | AT91_PMC_MCKRDY)))
+		;
+}
+
+void at91_mck_init(u32 mckr)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	u32 tmp;
+
+	tmp = readl(&pmc->mckr);
+	tmp &= ~(AT91_PMC_MCKR_CSS_MASK  |
+		 AT91_PMC_MCKR_PRES_MASK |
+		 AT91_PMC_MCKR_MDIV_MASK |
+		 AT91_PMC_MCKR_PLLADIV_2);
+	tmp |= mckr & (AT91_PMC_MCKR_CSS_MASK  |
+		       AT91_PMC_MCKR_PRES_MASK |
+		       AT91_PMC_MCKR_MDIV_MASK |
+		       AT91_PMC_MCKR_PLLADIV_2);
+	writel(tmp, &pmc->mckr);
+
+	while (!(readl(&pmc->sr) & AT91_PMC_MCKRDY))
+		;
+}
+
 void at91_periph_clk_enable(int id)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
