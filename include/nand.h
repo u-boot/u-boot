@@ -167,3 +167,4 @@ __attribute__((noreturn)) void nand_boot(void);
 #define ENV_OFFSET_SIZE 8
 int get_nand_env_oob(nand_info_t *nand, unsigned long *result);
 #endif
+int spl_nand_erase_one(int block, int page);

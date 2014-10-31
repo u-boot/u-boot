@@ -1274,6 +1274,39 @@ static int nand_read_page(int block, int page, void *dst)
 
 	return 0;
 }
+
+int spl_nand_erase_one(int block, int page)
+{
+	struct nand_chip *this = mtd.priv;
+	void (*hwctrl)(struct mtd_info *mtd, int cmd,
+			unsigned int ctrl) = this->cmd_ctrl;
+	int page_addr;
+
+	if (nand_chip.select_chip)
+		nand_chip.select_chip(&mtd, 0);
+
+	page_addr = page + block * CONFIG_SYS_NAND_PAGE_COUNT;
+	hwctrl(&mtd, NAND_CMD_ERASE1, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	/* Row address */
+	hwctrl(&mtd, (page_addr & 0xff), NAND_CTRL_ALE | NAND_CTRL_CHANGE);
+	hwctrl(&mtd, ((page_addr >> 8) & 0xff),
+	       NAND_CTRL_ALE | NAND_CTRL_CHANGE);
+#ifdef CONFIG_SYS_NAND_5_ADDR_CYCLE
+	/* One more address cycle for devices > 128MiB */
+	hwctrl(&mtd, (page_addr >> 16) & 0x0f,
+	       NAND_CTRL_ALE | NAND_CTRL_CHANGE);
+#endif
+
+	hwctrl(&mtd, NAND_CMD_ERASE2, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	udelay(2000);
+
+	while (!this->dev_ready(&mtd))
+		;
+
+	nand_deselect();
+
+	return 0;
+}
 #else
 static int nand_read_page(int block, int page, void *dst)
 {
