@@ -3605,6 +3605,10 @@ FIT uImage format:
 		Support for the MTD subsystem within SPL.  Useful for
 		environment on NAND support within SPL.
 
+		CONFIG_SPL_NAND_RAW_ONLY
+		Support to boot only raw u-boot.bin images. Use this only
+		if you need to save space.
+
 		CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 		Set for the SPL on PPC mpc8xxx targets, support for
 		drivers/ddr/fsl/libddr.o in SPL binary.
