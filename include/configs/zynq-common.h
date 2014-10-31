@@ -113,9 +113,6 @@
 # define CONFIG_USB_GADGET_VBUS_DRAW	2
 # define CONFIG_G_DNL_VENDOR_NUM	0x03FD
 # define CONFIG_G_DNL_PRODUCT_NUM	0x0300
-/* used samsung ids below because of limitation in lthor on host side */
-# define CONFIG_G_DNL_THOR_VENDOR_NUM	0x04E8
-# define CONFIG_G_DNL_THOR_PRODUCT_NUM	0x685D
 # define CONFIG_G_DNL_MANUFACTURER	"Xilinx"
 # define CONFIG_USB_GADGET
 # define CONFIG_USB_CABLE_CHECK
