@@ -74,6 +74,7 @@ void scsi_init(void)
 {
 	printf("SUNXI SCSI INIT\n");
 #ifdef CONFIG_SATAPWR
+	gpio_request(CONFIG_SATAPWR, "satapwr");
 	gpio_direction_output(CONFIG_SATAPWR, 1);
 #endif
 
