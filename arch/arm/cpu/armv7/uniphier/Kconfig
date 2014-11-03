@@ -23,4 +23,13 @@ config MACH_PH1_SLD8
 
 endchoice
 
+config CMD_PINMON
+	bool "Enable boot mode pins monitor command"
+	depends on !SPL_BUILD
+	default y
+	help
+	  The command "pinmon" shows the state of the boot mode pins.
+	  The boot mode pins are latched when the system reset is deasserted
+	  and determine which device the system should load a boot image from.
+
 endmenu

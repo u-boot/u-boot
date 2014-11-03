@@ -12,7 +12,7 @@ obj-y += dram_init.o
 obj-$(CONFIG_DISPLAY_CPUINFO) += cpu_info.o
 obj-$(CONFIG_BOARD_LATE_INIT) += board_late_init.o
 obj-$(CONFIG_UNIPHIER_SMP) += smp.o
-obj-$(if $(CONFIG_SPL_BUILD),,y) += cmd_pinmon.o
+obj-$(CONFIG_CMD_PINMON) += cmd_pinmon.o
 
 obj-y += board_common.o
 obj-$(CONFIG_PFC_MICRO_SUPPORT_CARD) += support_card.o

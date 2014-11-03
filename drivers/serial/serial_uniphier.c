@@ -55,7 +55,7 @@ struct uniphier_serial_private_data {
 #define uniphier_serial_port(dev)	\
 	((struct uniphier_serial_private_data *)dev_get_priv(dev))->membase
 
-int uniphier_serial_setbrg(struct udevice *dev, int baudrate)
+static int uniphier_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct uniphier_serial_platform_data *plat = dev_get_platdata(dev);
 	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
@@ -93,7 +93,17 @@ static int uniphier_serial_putc(struct udevice *dev, const char c)
 	return 0;
 }
 
-int uniphier_serial_probe(struct udevice *dev)
+static int uniphier_serial_pending(struct udevice *dev, bool input)
+{
+	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
+
+	if (input)
+		return readb(&port->lsr) & UART_LSR_DR;
+	else
+		return !(readb(&port->lsr) & UART_LSR_THRE);
+}
+
+static int uniphier_serial_probe(struct udevice *dev)
 {
 	struct uniphier_serial_private_data *priv = dev_get_priv(dev);
 	struct uniphier_serial_platform_data *plat = dev_get_platdata(dev);
@@ -106,7 +116,7 @@ int uniphier_serial_probe(struct udevice *dev)
 	return 0;
 }
 
-int uniphier_serial_remove(struct udevice *dev)
+static int uniphier_serial_remove(struct udevice *dev)
 {
 	unmap_sysmem(uniphier_serial_port(dev));
 
@@ -134,6 +144,7 @@ static const struct dm_serial_ops uniphier_serial_ops = {
 	.setbrg = uniphier_serial_setbrg,
 	.getc = uniphier_serial_getc,
 	.putc = uniphier_serial_putc,
+	.pending = uniphier_serial_pending,
 };
 
 U_BOOT_DRIVER(uniphier_serial) = {
