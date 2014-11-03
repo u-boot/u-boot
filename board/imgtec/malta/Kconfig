@@ -1,8 +1,5 @@
 if TARGET_MALTA
 
-config SYS_CPU
-	default "mips32"
-
 config SYS_BOARD
 	default "malta"
 

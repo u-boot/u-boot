@@ -1,8 +1,5 @@
 if TARGET_VCT
 
-config SYS_CPU
-	default "mips32"
-
 config SYS_BOARD
 	default "vct"
 
@@ -11,5 +8,29 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "vct"
+
+menu "vct board options"
+
+choice
+	prompt "Board variant"
+
+config VCT_PLATINUM
+	bool "Enable VCT_PLATINUM"
+
+config VCT_PLATINUMAVC
+	bool "Enable VCT_PLATINUMAVC"
+
+config VCT_PREMIUM
+	bool "Enable VCT_PLATINUMAVC"
+
+endchoice
+
+config VCT_ONENAND
+	bool "Enable VCT_ONENAND"
+
+config VCT_SMALL_IMAGE
+	bool "Enable VCT_SMALL_IMAGE"
+
+endmenu
 
 endif
