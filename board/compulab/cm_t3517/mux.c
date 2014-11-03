@@ -83,6 +83,9 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(GPMC_D15),		(IEN  | PTU | EN  | M0));
 	MUX_VAL(CP(GPMC_NCS0),		(IDIS | PTU | EN  | M0));
 
+	/* SB-T35 Ethernet */
+	MUX_VAL(CP(GPMC_NCS4),		(IEN  | PTU | EN  | M0));
+
 	/* SB-T35 SD/MMC WP GPIO59 */
 	MUX_VAL(CP(GPMC_CLK),		(IEN  | PTU | EN  | M4)); /*GPIO_59*/
 	MUX_VAL(CP(GPMC_NWE),		(IDIS | PTD | DIS | M0));
@@ -93,12 +96,16 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(GPMC_NBE1),		(IDIS | PTU | EN  | M4)); /*GPIO_61*/
 	MUX_VAL(CP(GPMC_NWP),		(IEN  | PTD | DIS | M0));
 	MUX_VAL(CP(GPMC_WAIT0),		(IEN  | PTU | EN  | M0));
+	/* SB-T35 Ethernet IRQ GPIO65 */
+	MUX_VAL(CP(GPMC_WAIT3),		(IEN  | PTU | EN  | M4)); /*GPIO_65*/
 
 	/* UART3 Console */
 	MUX_VAL(CP(UART3_RX_IRRX),	(IEN  | PTD | DIS | M0));
 	MUX_VAL(CP(UART3_TX_IRTX),	(IDIS | PTD | DIS | M0));
 	/* RTC V3020 nCS GPIO163 */
 	MUX_VAL(CP(UART3_CTS_RCTX),	(IEN  | PTU | EN  | M4)); /*GPIO_163*/
+	/* SB-T35 Ethernet nRESET GPIO164 */
+	MUX_VAL(CP(UART3_RTS_SD),	(IDIS | PTU | EN  | M4)); /*GPIO_164*/
 
 	/* SB-T35 SD/MMC CD GPIO144 */
 	MUX_VAL(CP(UART2_CTS),		(IEN  | PTU | EN  | M4)); /*GPIO_144*/
@@ -127,6 +134,18 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(CCDC_WEN),		(IDIS | PTU | EN  | M4)); /*GPIO_98*/
 	/* CM-T3517 USB HUB Reset GPIO152 */
 	MUX_VAL(CP(MCBSP4_CLKX),	(IDIS | PTD | DIS | M4)); /*GPIO_152*/
+
+	/* RMII */
+	MUX_VAL(CP(RMII_MDIO_DATA),	(IEN  | PTU | EN  | M0));
+	MUX_VAL(CP(RMII_MDIO_CLK),	(M0));
+	MUX_VAL(CP(RMII_RXD0),		(IEN  | PTD | DIS | M0));
+	MUX_VAL(CP(RMII_RXD1),		(IEN  | PTD | DIS | M0));
+	MUX_VAL(CP(RMII_CRS_DV),	(IEN  | PTD | DIS | M0));
+	MUX_VAL(CP(RMII_RXER),		(IEN  | PTD | DIS | M0));
+	MUX_VAL(CP(RMII_TXD0),		(IDIS | M0));
+	MUX_VAL(CP(RMII_TXD1),		(IDIS | M0));
+	MUX_VAL(CP(RMII_TXEN),		(IDIS | M0));
+	MUX_VAL(CP(RMII_50MHZ_CLK),	(IEN  | PTU | DIS | M0));
 
 	/* Green LED GPIO186 */
 	MUX_VAL(CP(SYS_CLKOUT2),	(IDIS | PTU | DIS | M4)); /*GPIO_186*/

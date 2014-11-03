@@ -132,6 +132,8 @@
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
 #define CONFIG_CMD_GPIO
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
@@ -266,6 +268,15 @@
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
+
+#if defined(CONFIG_CMD_NET)
+#define CONFIG_DRIVER_TI_EMAC
+#define CONFIG_DRIVER_TI_EMAC_USE_RMII
+#define CONFIG_MII
+#define CONFIG_SMC911X
+#define CONFIG_SMC911X_32_BIT
+#define CONFIG_SMC911X_BASE	(0x2C000000 + (16 << 20))
+#endif /* CONFIG_CMD_NET */
 
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1

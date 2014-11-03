@@ -8,6 +8,8 @@
 
 #include <common.h>
 #include <status_led.h>
+#include <net.h>
+#include <netdev.h>
 #include <usb.h>
 #include <mmc.h>
 #include <linux/compiler.h>
@@ -23,6 +25,7 @@
 #include <asm/ehci-omap.h>
 
 #include "../common/common.h"
+#include "../common/eeprom.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -112,6 +115,92 @@ int board_mmc_init(bd_t *bis)
 	return omap_mmc_init(0, 0, 0, SB_T35_CD_GPIO, SB_T35_WP_GPIO);
 }
 #endif
+
+#ifdef CONFIG_DRIVER_TI_EMAC
+#define CONTROL_EFUSE_EMAC_LSB  0x48002380
+#define CONTROL_EFUSE_EMAC_MSB  0x48002384
+
+static int am3517_get_efuse_enetaddr(u8 *enetaddr)
+{
+	u32 lsb = __raw_readl(CONTROL_EFUSE_EMAC_LSB);
+	u32 msb = __raw_readl(CONTROL_EFUSE_EMAC_MSB);
+
+	enetaddr[0] = (u8)((msb >> 16) & 0xff);
+	enetaddr[1] = (u8)((msb >> 8)  & 0xff);
+	enetaddr[2] = (u8)(msb & 0xff);
+	enetaddr[3] = (u8)((lsb >> 16) & 0xff);
+	enetaddr[4] = (u8)((lsb >> 8)  & 0xff);
+	enetaddr[5] = (u8)(lsb & 0xff);
+
+	return is_valid_ether_addr(enetaddr);
+}
+
+static inline int cm_t3517_init_emac(bd_t *bis)
+{
+	int ret = cpu_eth_init(bis);
+
+	if (ret > 0)
+		return ret;
+
+	printf("Failed initializing EMAC! ");
+	return 0;
+}
+#else /* !CONFIG_DRIVER_TI_EMAC */
+static inline int am3517_get_efuse_enetaddr(u8 *enetaddr) { return 1; }
+static inline int cm_t3517_init_emac(bd_t *bis) { return 0; }
+#endif /* CONFIG_DRIVER_TI_EMAC */
+
+/*
+ * Routine: handle_mac_address
+ * Description: prepare MAC address for on-board Ethernet.
+ */
+static int cm_t3517_handle_mac_address(void)
+{
+	unsigned char enetaddr[6];
+	int ret;
+
+	ret = eth_getenv_enetaddr("ethaddr", enetaddr);
+	if (ret)
+		return 0;
+
+	ret = cl_eeprom_read_mac_addr(enetaddr);
+	if (ret) {
+		ret = am3517_get_efuse_enetaddr(enetaddr);
+		if (ret)
+			return ret;
+	}
+
+	if (!is_valid_ether_addr(enetaddr))
+		return -1;
+
+	return eth_setenv_enetaddr("ethaddr", enetaddr);
+}
+
+#define SB_T35_ETH_RST_GPIO 164
+
+/*
+ * Routine: board_eth_init
+ * Description: initialize module and base-board Ethernet chips
+ */
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0, rc1 = 0;
+
+	rc1 = cm_t3517_handle_mac_address();
+	if (rc1)
+		printf("No MAC address found! ");
+
+	rc1 = cm_t3517_init_emac(bis);
+	if (rc1 > 0)
+		rc++;
+
+	rc1 = cl_omap3_smc911x_init(0, 4, CONFIG_SMC911X_BASE,
+				    NULL, SB_T35_ETH_RST_GPIO);
+	if (rc1 > 0)
+		rc++;
+
+	return rc;
+}
 
 #ifdef CONFIG_USB_EHCI_OMAP
 static struct omap_usbhs_board_data cm_t3517_usbhs_bdata = {
