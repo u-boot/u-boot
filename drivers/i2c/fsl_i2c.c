@@ -38,7 +38,7 @@
  * generic value.
  */
 #ifndef CONFIG_I2C_TIMEOUT
-#define CONFIG_I2C_TIMEOUT	10000
+#define CONFIG_I2C_TIMEOUT	100000
 #endif
 
 #define I2C_READ_BIT  1
