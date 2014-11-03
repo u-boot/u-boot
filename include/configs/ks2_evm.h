@@ -245,7 +245,7 @@
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	"boot=ramfs\0"							\
+	"boot=ubi\0"							\
 	"tftp_root=/\0"							\
 	"nfs_root=/export\0"						\
 	"mem_lpae=1\0"							\
