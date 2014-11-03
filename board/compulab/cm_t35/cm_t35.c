@@ -457,16 +457,6 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-void __weak get_board_serial(struct tag_serialnr *serialnr)
-{
-	/*
-	 * This corresponds to what happens when we can communicate with the
-	 * eeprom but don't get a valid board serial value.
-	 */
-	serialnr->low = 0;
-	serialnr->high = 0;
-};
-
 #ifdef CONFIG_USB_EHCI_OMAP
 struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,

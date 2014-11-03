@@ -25,6 +25,18 @@ void cl_print_pcb_info(void)
 	printf("PCB:   %u.%u\n", rev_major, rev_minor);
 }
 
+#ifdef CONFIG_SERIAL_TAG
+void __weak get_board_serial(struct tag_serialnr *serialnr)
+{
+	/*
+	 * This corresponds to what happens when we can communicate with the
+	 * eeprom but don't get a valid board serial value.
+	 */
+	serialnr->low = 0;
+	serialnr->high = 0;
+};
+#endif
+
 #ifdef CONFIG_CMD_USB
 int cl_usb_hub_init(int gpio, const char *label)
 {
