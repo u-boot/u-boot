@@ -568,21 +568,12 @@ struct omap_usbhs_board_data usbhs_bdata = {
 
 #define SB_T35_USB_HUB_RESET_GPIO	167
 int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+		  struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	u8 val;
 	int offset;
 
-	if (gpio_request(SB_T35_USB_HUB_RESET_GPIO, "SB-T35 usb hub reset")) {
-		printf("Error: can't obtain GPIO %d for SB-T35 usb hub reset",
-				SB_T35_USB_HUB_RESET_GPIO);
-		return -1;
-	}
-
-	gpio_direction_output(SB_T35_USB_HUB_RESET_GPIO, 0);
-	udelay(10);
-	gpio_set_value(SB_T35_USB_HUB_RESET_GPIO, 1);
-	udelay(1000);
+	cl_usb_hub_init(SB_T35_USB_HUB_RESET_GPIO, "sb-t35 hub rst");
 
 	offset = TWL4030_BASEADD_GPIO + TWL4030_GPIO_GPIODATADIR1;
 	twl4030_i2c_read_u8(TWL4030_CHIP_GPIO, offset, &val);
@@ -599,6 +590,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 int ehci_hcd_stop(void)
 {
+	cl_usb_hub_deinit(SB_T35_USB_HUB_RESET_GPIO);
 	return omap_ehci_hcd_stop();
 }
 #endif /* CONFIG_USB_EHCI_OMAP */

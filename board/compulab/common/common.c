@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <asm/bootm.h>
+#include <asm/gpio.h>
 
 #include "common.h"
 #include "eeprom.h"
@@ -23,3 +24,24 @@ void cl_print_pcb_info(void)
 
 	printf("PCB:   %u.%u\n", rev_major, rev_minor);
 }
+
+#ifdef CONFIG_CMD_USB
+int cl_usb_hub_init(int gpio, const char *label)
+{
+	if (gpio_request(gpio, label)) {
+		printf("Error: can't obtain GPIO%d for %s", gpio, label);
+		return -1;
+	}
+
+	gpio_direction_output(gpio, 0);
+	udelay(10);
+	gpio_set_value(gpio, 1);
+	udelay(1000);
+	return 0;
+}
+
+void cl_usb_hub_deinit(int gpio)
+{
+	gpio_free(gpio);
+}
+#endif
