@@ -268,7 +268,7 @@
 	"run_kern=bootm ${addr_kern} - ${addr_fdt}\0"			\
 	"init_net=run args_all args_net\0"				\
 	"init_ubi=run args_all args_ubi; "				\
-		"ubi part ubifs; ubifsmount boot;"			\
+		"ubi part ubifs; ubifsmount ubi:boot;"			\
 		"ubifsload ${addr_secdb_key} securedb.key.bin;\0"       \
 	"get_fdt_net=dhcp ${addr_fdt} ${tftp_root}/${name_fdt}\0"	\
 	"get_fdt_ubi=ubifsload ${addr_fdt} ${name_fdt}\0"		\
