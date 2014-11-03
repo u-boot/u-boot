@@ -1,0 +1,6 @@
+TBS2910 BOARD
+M:	Soeren Moch <smoch@web.de>
+S:	Maintained
+F:	board/tbs/tbs2910/
+F:	configs/tbs2910_defconfig
+F:	include/configs/tbs2910.h
