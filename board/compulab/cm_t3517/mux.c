@@ -85,6 +85,10 @@ void set_muxconf_regs(void)
 
 	/* SB-T35 Ethernet */
 	MUX_VAL(CP(GPMC_NCS4),		(IEN  | PTU | EN  | M0));
+	/* DVI enable */
+	MUX_VAL(CP(GPMC_NCS3),		(IDIS | PTU | DIS  | M4));/*GPIO_54*/
+	/* DataImage backlight */
+	MUX_VAL(CP(GPMC_NCS7),		(IDIS | PTU | DIS  | M4));/*GPIO_58*/
 
 	/* SB-T35 SD/MMC WP GPIO59 */
 	MUX_VAL(CP(GPMC_CLK),		(IEN  | PTU | EN  | M4)); /*GPIO_59*/
@@ -124,6 +128,36 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(MMC1_DAT2),		(IEN  | PTU | EN  | M0));
 	MUX_VAL(CP(MMC1_DAT3),		(IEN  | PTU | EN  | M0));
 
+	/* DSS */
+	MUX_VAL(CP(DSS_PCLK),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_HSYNC),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_VSYNC),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_ACBIAS),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA0),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA1),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA2),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA3),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA4),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA5),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA6),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA7),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA8),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA9),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA10),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA11),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA12),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA13),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA14),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA15),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA16),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA17),		(IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA18),         (IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA19),         (IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA20),         (IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA21),         (IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA22),         (IDIS | PTD | DIS | M0));
+	MUX_VAL(CP(DSS_DATA23),         (IDIS | PTD | DIS | M0));
+
 	/* I2C */
 	MUX_VAL(CP(I2C1_SCL),		(IEN  | PTU | EN  | M0));
 	MUX_VAL(CP(I2C1_SDA),		(IEN  | PTU | EN  | M0));
@@ -150,8 +184,18 @@ void set_muxconf_regs(void)
 	/* Green LED GPIO186 */
 	MUX_VAL(CP(SYS_CLKOUT2),	(IDIS | PTU | DIS | M4)); /*GPIO_186*/
 
+	/* SPI */
+	MUX_VAL(CP(MCBSP1_CLKR),	(IEN | PTD | DIS | M1)); /*MCSPI4_CLK*/
+	MUX_VAL(CP(MCBSP1_DX),		(IEN | PTD | DIS | M1)); /*MCSPI4_SIMO*/
+	MUX_VAL(CP(MCBSP1_DR),		(IEN | PTD | DIS | M1)); /*MCSPI4_SOMI*/
+	MUX_VAL(CP(MCBSP1_FSX),		(IEN | PTU | EN  | M1)); /*MCSPI4_CS0*/
+	/* LCD reset GPIO157 */
+	MUX_VAL(CP(MCBSP1_FSR),		(IDIS | PTU | DIS | M4)); /*GPIO_157*/
+
 	/* RTC V3020 CS Enable GPIO160 */
 	MUX_VAL(CP(MCBSP_CLKS),		(IEN  | PTD | EN  | M4)); /*GPIO_160*/
+	/* SB-T35 LVDS Transmitter SHDN GPIO162 */
+	MUX_VAL(CP(MCBSP1_CLKX),	(IEN  | PTU | DIS | M4)); /*GPIO_162*/
 
 	/* USB0 - mUSB */
 	MUX_VAL(CP(USB0_DRVBUS),	(IEN  | PTD | EN  | M0));
