@@ -19,9 +19,7 @@
 #include <i2c.h>
 #include <usb.h>
 #include <mmc.h>
-#include <nand.h>
 #include <twl4030.h>
-#include <bmp_layout.h>
 #include <linux/compiler.h>
 
 #include <asm/io.h>
@@ -54,48 +52,6 @@ static u32 gpmc_net_config[GPMC_MAX_REG] = {
 	0
 };
 
-#ifdef CONFIG_LCD
-#ifdef CONFIG_CMD_NAND
-static int splash_load_from_nand(u32 bmp_load_addr)
-{
-	struct bmp_header *bmp_hdr;
-	int res, splash_screen_nand_offset = 0x100000;
-	size_t bmp_size, bmp_header_size = sizeof(struct bmp_header);
-
-	if (bmp_load_addr + bmp_header_size >= gd->start_addr_sp)
-		goto splash_address_too_high;
-
-	res = nand_read_skip_bad(&nand_info[nand_curr_device],
-			splash_screen_nand_offset, &bmp_header_size,
-			NULL, nand_info[nand_curr_device].size,
-			(u_char *)bmp_load_addr);
-	if (res < 0)
-		return res;
-
-	bmp_hdr = (struct bmp_header *)bmp_load_addr;
-	bmp_size = le32_to_cpu(bmp_hdr->file_size);
-
-	if (bmp_load_addr + bmp_size >= gd->start_addr_sp)
-		goto splash_address_too_high;
-
-	return nand_read_skip_bad(&nand_info[nand_curr_device],
-			splash_screen_nand_offset, &bmp_size,
-			NULL, nand_info[nand_curr_device].size,
-			(u_char *)bmp_load_addr);
-
-splash_address_too_high:
-	printf("Error: splashimage address too high. Data overwrites U-Boot "
-		"and/or placed beyond DRAM boundaries.\n");
-
-	return -1;
-}
-#else
-static inline int splash_load_from_nand(void)
-{
-	return -1;
-}
-#endif /* CONFIG_CMD_NAND */
-
 #ifdef CONFIG_SPL_BUILD
 /*
  * Routine: get_board_mem_timings
@@ -112,24 +68,12 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 }
 #endif
 
+#define CM_T35_SPLASH_NAND_OFFSET 0x100000
+
 int splash_screen_prepare(void)
 {
-	char *env_splashimage_value;
-	u32 bmp_load_addr;
-
-	env_splashimage_value = getenv("splashimage");
-	if (env_splashimage_value == NULL)
-		return -1;
-
-	bmp_load_addr = simple_strtoul(env_splashimage_value, 0, 16);
-	if (bmp_load_addr == 0) {
-		printf("Error: bad splashimage address specified\n");
-		return -1;
-	}
-
-	return splash_load_from_nand(bmp_load_addr);
+	return cl_splash_screen_prepare(CM_T35_SPLASH_NAND_OFFSET);
 }
-#endif /* CONFIG_LCD */
 
 /*
  * Routine: board_init
