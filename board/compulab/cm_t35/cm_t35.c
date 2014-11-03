@@ -23,6 +23,7 @@
 #include <linux/compiler.h>
 
 #include <asm/io.h>
+#include <asm/errno.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/mmc_host_def.h>
@@ -40,16 +41,6 @@ const omap3_sysinfo sysinfo = {
 	DDR_DISCRETE,
 	"CM-T3x board",
 	"NAND",
-};
-
-static u32 gpmc_net_config[GPMC_MAX_REG] = {
-	NET_GPMC_CONFIG1,
-	NET_GPMC_CONFIG2,
-	NET_GPMC_CONFIG3,
-	NET_GPMC_CONFIG4,
-	NET_GPMC_CONFIG5,
-	NET_GPMC_CONFIG6,
-	0
 };
 
 #ifdef CONFIG_SPL_BUILD
@@ -391,37 +382,12 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-/*
- * Routine: setup_net_chip_gmpc
- * Description: Setting up the configuration GPMC registers specific to the
- *		Ethernet hardware.
- */
-static void setup_net_chip_gmpc(void)
-{
-	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
-
-	enable_gpmc_cs_config(gpmc_net_config, &gpmc_cfg->cs[5],
-			      CM_T3X_SMC911X_BASE, GPMC_SIZE_16M);
-	enable_gpmc_cs_config(gpmc_net_config, &gpmc_cfg->cs[4],
-			      SB_T35_SMC911X_BASE, GPMC_SIZE_16M);
-
-	/* Enable off mode for NWE in PADCONF_GPMC_NWE register */
-	writew(readw(&ctrl_base->gpmc_nwe) | 0x0E00, &ctrl_base->gpmc_nwe);
-
-	/* Enable off mode for NOE in PADCONF_GPMC_NADV_ALE register */
-	writew(readw(&ctrl_base->gpmc_noe) | 0x0E00, &ctrl_base->gpmc_noe);
-
-	/* Enable off mode for ALE in PADCONF_GPMC_NADV_ALE register */
-	writew(readw(&ctrl_base->gpmc_nadv_ale) | 0x0E00,
-		&ctrl_base->gpmc_nadv_ale);
-}
-
 #ifdef CONFIG_SYS_I2C_OMAP34XX
 /*
  * Routine: reset_net_chip
  * Description: reset the Ethernet controller via TPS65930 GPIO
  */
-static void reset_net_chip(void)
+static int cm_t3x_reset_net_chip(int gpio)
 {
 	/* Set GPIO1 of TPS65930 as output */
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, TWL4030_BASEADD_GPIO + 0x03,
@@ -436,9 +402,10 @@ static void reset_net_chip(void)
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, TWL4030_BASEADD_GPIO + 0x0C,
 			     0x02);
 	mdelay(1);
+	return 0;
 }
 #else
-static inline void reset_net_chip(void) {}
+static inline int cm_t3x_reset_net_chip(int gpio) { return 0; }
 #endif
 
 #ifdef CONFIG_SMC911X
@@ -465,7 +432,6 @@ static int handle_mac_address(void)
 	return eth_setenv_enetaddr("ethaddr", enetaddr);
 }
 
-
 /*
  * Routine: board_eth_init
  * Description: initialize module and base-board Ethernet chips
@@ -474,18 +440,16 @@ int board_eth_init(bd_t *bis)
 {
 	int rc = 0, rc1 = 0;
 
-	setup_net_chip_gmpc();
-	reset_net_chip();
-
 	rc1 = handle_mac_address();
 	if (rc1)
 		printf("No MAC address found! ");
 
-	rc1 = smc911x_initialize(0, CM_T3X_SMC911X_BASE);
+	rc1 = cl_omap3_smc911x_init(0, 5, CM_T3X_SMC911X_BASE,
+				    cm_t3x_reset_net_chip, -EINVAL);
 	if (rc1 > 0)
 		rc++;
 
-	rc1 = smc911x_initialize(1, SB_T35_SMC911X_BASE);
+	rc1 = cl_omap3_smc911x_init(1, 4, SB_T35_SMC911X_BASE, NULL, -EINVAL);
 	if (rc1 > 0)
 		rc++;
 

@@ -33,4 +33,15 @@ static inline int cl_splash_screen_prepare(int nand_offset)
 }
 #endif /* CONFIG_SPLASH_SCREEN */
 
+#ifdef CONFIG_SMC911X
+int cl_omap3_smc911x_init(int id, int cs, u32 base_addr,
+			  int (*reset)(int), int rst_gpio);
+#else /* !CONFIG_SMC911X */
+static inline int cl_omap3_smc911x_init(int id, int cs, u32 base_addr,
+					int (*reset)(int), int rst_gpio)
+{
+	return -ENOSYS;
+}
+#endif /* CONFIG_SMC911X */
+
 #endif /* _CL_COMMON_ */
