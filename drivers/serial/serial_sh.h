@@ -305,7 +305,7 @@ struct uart_port {
 # define SCIF2_RFDC_MASK 0x001f
 # define SCIF2_TXROOM_MAX 16
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
-	defined(CONFIG_R8A7793)
+	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 # define SCIF_ERRORS (SCIF_PER | SCIF_FER | SCIF_ER | SCIF_BRK)
 # define SCIF_RFDC_MASK	0x003f
 #else
@@ -736,7 +736,7 @@ static inline int scbrr_calc(struct uart_port port, int bps, int clk)
 #elif defined(__H8300H__) || defined(__H8300S__)
 #define SCBRR_VALUE(bps, clk) (((clk*1000/32)/bps)-1)
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
-	defined(CONFIG_R8A7793)
+	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 #define DL_VALUE(bps, clk) (clk / bps / 16) /* External Clock */
 #define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1) /* Internal Clock */
 #else /* Generic SH */
