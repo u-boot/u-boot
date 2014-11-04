@@ -10,7 +10,7 @@
 #define __ASM_ARCH_RCAR_BASE_H
 
 /*
- * R-Car (R8A7790/R8A7791/R8A7794) I/O Addresses
+ * R-Car (R8A7790/R8A7791/R8A7793/R8A7794) I/O Addresses
  */
 #define RWDT_BASE		0xE6020000
 #define SWDT_BASE		0xE6030000
