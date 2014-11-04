@@ -2,9 +2,9 @@
  * sh_eth.c - Driver for Renesas ethernet controler.
  *
  * Copyright (C) 2008, 2011 Renesas Solutions Corp.
- * Copyright (c) 2008, 2011 Nobuhiro Iwamatsu
+ * Copyright (c) 2008, 2011, 2014 2014 Nobuhiro Iwamatsu
  * Copyright (c) 2007 Carlos Munoz <carlos@kenati.com>
- * Copyright (C) 2013  Renesas Electronics Corporation
+ * Copyright (C) 2013, 2014 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -83,6 +83,8 @@ int sh_eth_send(struct eth_device *dev, void *packet, int len)
 	else
 		port_info->tx_desc_cur->td0 = TD_TACT | TD_TFP;
 
+	flush_cache_wback(port_info->tx_desc_cur, sizeof(struct tx_desc_s));
+
 	/* Restart the transmitter if disabled */
 	if (!(sh_eth_read(eth, EDTRR) & EDTRR_TRNS))
 		sh_eth_write(eth, EDTRR_TRNS, EDTRR);
@@ -133,6 +135,10 @@ int sh_eth_recv(struct eth_device *dev)
 			port_info->rx_desc_cur->rd0 = RD_RACT | RD_RDLE;
 		else
 			port_info->rx_desc_cur->rd0 = RD_RACT;
+
+		flush_cache_wback(port_info->rx_desc_cur,
+				  sizeof(struct rx_desc_s));
+
 		/* Point to the next descriptor */
 		port_info->rx_desc_cur++;
 		if (port_info->rx_desc_cur >=
