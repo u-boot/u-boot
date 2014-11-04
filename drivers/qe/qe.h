@@ -275,7 +275,6 @@ void *qe_muram_addr(uint offset);
 int qe_get_snum(void);
 void qe_put_snum(u8 snum);
 void qe_init(uint qe_base);
-void u_qe_init(void);
 void qe_reset(void);
 void qe_assign_page(uint snum, uint para_ram_base);
 int qe_set_brg(uint brg, uint rate);
@@ -285,5 +284,10 @@ struct qe_firmware_info *qe_get_firmware_info(void);
 void ft_qe_setup(void *blob);
 void qe_init(uint qe_base);
 void qe_reset(void);
+
+#ifdef CONFIG_U_QE
+void u_qe_init(void);
+int u_qe_upload_firmware(const struct qe_firmware *firmware);
+#endif
 
 #endif /* __QE_H__ */
