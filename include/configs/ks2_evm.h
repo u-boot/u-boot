@@ -224,6 +224,8 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_USB
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_GENERIC_BOARD
