@@ -11,4 +11,5 @@ CONFIG_SYS_TEXT_BASE=0x00000000
 # CONFIG_CMD_MEMORY is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_SETEXPR is not set
+# CONFIG_CMD_NET is not set
 # CONFIG_CMD_NFS is not set
