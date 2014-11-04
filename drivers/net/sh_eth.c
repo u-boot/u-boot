@@ -2,9 +2,9 @@
  * sh_eth.c - Driver for Renesas ethernet controler.
  *
  * Copyright (C) 2008, 2011 Renesas Solutions Corp.
- * Copyright (c) 2008, 2011 Nobuhiro Iwamatsu
+ * Copyright (c) 2008, 2011, 2014 2014 Nobuhiro Iwamatsu
  * Copyright (c) 2007 Carlos Munoz <carlos@kenati.com>
- * Copyright (C) 2013  Renesas Electronics Corporation
+ * Copyright (C) 2013, 2014 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -83,6 +83,8 @@ int sh_eth_send(struct eth_device *dev, void *packet, int len)
 	else
 		port_info->tx_desc_cur->td0 = TD_TACT | TD_TFP;
 
+	flush_cache_wback(port_info->tx_desc_cur, sizeof(struct tx_desc_s));
+
 	/* Restart the transmitter if disabled */
 	if (!(sh_eth_read(eth, EDTRR) & EDTRR_TRNS))
 		sh_eth_write(eth, EDTRR_TRNS, EDTRR);
@@ -133,6 +135,10 @@ int sh_eth_recv(struct eth_device *dev)
 			port_info->rx_desc_cur->rd0 = RD_RACT | RD_RDLE;
 		else
 			port_info->rx_desc_cur->rd0 = RD_RACT;
+
+		flush_cache_wback(port_info->rx_desc_cur,
+				  sizeof(struct rx_desc_s));
+
 		/* Point to the next descriptor */
 		port_info->rx_desc_cur++;
 		if (port_info->rx_desc_cur >=
@@ -181,27 +187,27 @@ static int sh_eth_reset(struct sh_eth_dev *eth)
 static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 {
 	int port = eth->port, i, ret = 0;
-	u32 tmp_addr;
+	u32 alloc_desc_size = NUM_TX_DESC * sizeof(struct tx_desc_s);
 	struct sh_eth_info *port_info = &eth->port_info[port];
 	struct tx_desc_s *cur_tx_desc;
 
 	/*
-	 * Allocate tx descriptors. They must be TX_DESC_SIZE bytes aligned
+	 * Allocate rx descriptors. They must be aligned to size of struct
+	 * tx_desc_s.
 	 */
-	port_info->tx_desc_malloc = malloc(NUM_TX_DESC *
-						 sizeof(struct tx_desc_s) +
-						 TX_DESC_SIZE - 1);
-	if (!port_info->tx_desc_malloc) {
-		printf(SHETHER_NAME ": malloc failed\n");
+	port_info->tx_desc_alloc =
+		memalign(sizeof(struct tx_desc_s), alloc_desc_size);
+	if (!port_info->tx_desc_alloc) {
+		printf(SHETHER_NAME ": memalign failed\n");
 		ret = -ENOMEM;
 		goto err;
 	}
 
-	tmp_addr = (u32) (((int)port_info->tx_desc_malloc + TX_DESC_SIZE - 1) &
-			  ~(TX_DESC_SIZE - 1));
-	flush_cache_wback(tmp_addr, NUM_TX_DESC * sizeof(struct tx_desc_s));
+	flush_cache_wback((u32)port_info->tx_desc_alloc, alloc_desc_size);
+
 	/* Make sure we use a P2 address (non-cacheable) */
-	port_info->tx_desc_base = (struct tx_desc_s *)ADDR_TO_P2(tmp_addr);
+	port_info->tx_desc_base =
+		(struct tx_desc_s *)ADDR_TO_P2((u32)port_info->tx_desc_alloc);
 	port_info->tx_desc_cur = port_info->tx_desc_base;
 
 	/* Initialize all descriptors */
@@ -232,47 +238,44 @@ err:
 static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 {
 	int port = eth->port, i , ret = 0;
+	u32 alloc_desc_size = NUM_RX_DESC * sizeof(struct rx_desc_s);
 	struct sh_eth_info *port_info = &eth->port_info[port];
 	struct rx_desc_s *cur_rx_desc;
-	u32 tmp_addr;
 	u8 *rx_buf;
 
 	/*
-	 * Allocate rx descriptors. They must be RX_DESC_SIZE bytes aligned
+	 * Allocate rx descriptors. They must be aligned to size of struct
+	 * rx_desc_s.
 	 */
-	port_info->rx_desc_malloc = malloc(NUM_RX_DESC *
-						 sizeof(struct rx_desc_s) +
-						 RX_DESC_SIZE - 1);
-	if (!port_info->rx_desc_malloc) {
-		printf(SHETHER_NAME ": malloc failed\n");
+	port_info->rx_desc_alloc =
+		memalign(sizeof(struct rx_desc_s), alloc_desc_size);
+	if (!port_info->rx_desc_alloc) {
+		printf(SHETHER_NAME ": memalign failed\n");
 		ret = -ENOMEM;
 		goto err;
 	}
 
-	tmp_addr = (u32) (((int)port_info->rx_desc_malloc + RX_DESC_SIZE - 1) &
-			  ~(RX_DESC_SIZE - 1));
-	flush_cache_wback(tmp_addr, NUM_RX_DESC * sizeof(struct rx_desc_s));
+	flush_cache_wback(port_info->rx_desc_alloc, alloc_desc_size);
+
 	/* Make sure we use a P2 address (non-cacheable) */
-	port_info->rx_desc_base = (struct rx_desc_s *)ADDR_TO_P2(tmp_addr);
+	port_info->rx_desc_base =
+		(struct rx_desc_s *)ADDR_TO_P2((u32)port_info->rx_desc_alloc);
 
 	port_info->rx_desc_cur = port_info->rx_desc_base;
 
 	/*
-	 * Allocate rx data buffers. They must be 32 bytes aligned  and in
-	 * P2 area
+	 * Allocate rx data buffers. They must be RX_BUF_ALIGNE_SIZE bytes
+	 * aligned and in P2 area.
 	 */
-	port_info->rx_buf_malloc = malloc(
-		NUM_RX_DESC * MAX_BUF_SIZE + RX_BUF_ALIGNE_SIZE - 1);
-	if (!port_info->rx_buf_malloc) {
-		printf(SHETHER_NAME ": malloc failed\n");
+	port_info->rx_buf_alloc =
+		memalign(RX_BUF_ALIGNE_SIZE, NUM_RX_DESC * MAX_BUF_SIZE);
+	if (!port_info->rx_buf_alloc) {
+		printf(SHETHER_NAME ": alloc failed\n");
 		ret = -ENOMEM;
-		goto err_buf_malloc;
+		goto err_buf_alloc;
 	}
 
-	tmp_addr = (u32)(((int)port_info->rx_buf_malloc
-			  + (RX_BUF_ALIGNE_SIZE - 1)) &
-			  ~(RX_BUF_ALIGNE_SIZE - 1));
-	port_info->rx_buf_base = (u8 *)ADDR_TO_P2(tmp_addr);
+	port_info->rx_buf_base = (u8 *)ADDR_TO_P2((u32)port_info->rx_buf_alloc);
 
 	/* Initialize all descriptors */
 	for (cur_rx_desc = port_info->rx_desc_base,
@@ -297,9 +300,9 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 
 	return ret;
 
-err_buf_malloc:
-	free(port_info->rx_desc_malloc);
-	port_info->rx_desc_malloc = NULL;
+err_buf_alloc:
+	free(port_info->rx_desc_alloc);
+	port_info->rx_desc_alloc = NULL;
 
 err:
 	return ret;
@@ -310,9 +313,9 @@ static void sh_eth_tx_desc_free(struct sh_eth_dev *eth)
 	int port = eth->port;
 	struct sh_eth_info *port_info = &eth->port_info[port];
 
-	if (port_info->tx_desc_malloc) {
-		free(port_info->tx_desc_malloc);
-		port_info->tx_desc_malloc = NULL;
+	if (port_info->tx_desc_alloc) {
+		free(port_info->tx_desc_alloc);
+		port_info->tx_desc_alloc = NULL;
 	}
 }
 
@@ -321,14 +324,14 @@ static void sh_eth_rx_desc_free(struct sh_eth_dev *eth)
 	int port = eth->port;
 	struct sh_eth_info *port_info = &eth->port_info[port];
 
-	if (port_info->rx_desc_malloc) {
-		free(port_info->rx_desc_malloc);
-		port_info->rx_desc_malloc = NULL;
+	if (port_info->rx_desc_alloc) {
+		free(port_info->rx_desc_alloc);
+		port_info->rx_desc_alloc = NULL;
 	}
 
-	if (port_info->rx_buf_malloc) {
-		free(port_info->rx_buf_malloc);
-		port_info->rx_buf_malloc = NULL;
+	if (port_info->rx_buf_alloc) {
+		free(port_info->rx_buf_alloc);
+		port_info->rx_buf_alloc = NULL;
 	}
 }
 
@@ -414,7 +417,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 #if defined(CONFIG_CPU_SH7734) || defined(CONFIG_R8A7740)
 	sh_eth_write(eth, CONFIG_SH_ETHER_SH7734_MII, RMII_MII);
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
-	defined(CONFIG_R8A7794)
+	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 	sh_eth_write(eth, sh_eth_read(eth, RMIIMR) | 0x1, RMIIMR);
 #endif
 	/* Configure phy */
@@ -440,7 +443,8 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 #elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7752)
 		sh_eth_write(eth, 1, RTRATE);
 #elif defined(CONFIG_CPU_SH7724) || defined(CONFIG_R8A7790) || \
-		defined(CONFIG_R8A7791) || defined(CONFIG_R8A7794)
+		defined(CONFIG_R8A7791) || defined(CONFIG_R8A7793) || \
+		defined(CONFIG_R8A7794)
 		val = ECMR_RTM;
 #endif
 	} else if (phy->speed == 10) {
