@@ -245,6 +245,7 @@
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
 	"boot=ubi\0"							\
 	"tftp_root=/\0"							\
 	"nfs_root=/export\0"						\
@@ -252,18 +253,13 @@
 	"mem_reserve=512M\0"						\
 	"addr_fdt=0x87000000\0"						\
 	"addr_kern=0x88000000\0"					\
-	KS2_ADDR_MON							\
 	"addr_uboot=0x87000000\0"					\
 	"addr_fs=0x82000000\0"						\
 	"addr_ubi=0x82000000\0"						\
 	"addr_secdb_key=0xc000000\0"					\
 	"fdt_high=0xffffffff\0"						\
-	KS2_FDT_NAME							\
 	"name_fs=arago-console-image.cpio.gz\0"				\
 	"name_kern=uImage\0"						\
-	KS2_NAME_MON							\
-	NAME_UBOOT							\
-	NAME_UBI							\
 	"run_mon=mon_install ${addr_mon}\0"				\
 	"run_kern=bootm ${addr_kern} - ${addr_fdt}\0"			\
 	"init_net=run args_all args_net\0"				\
@@ -282,7 +278,6 @@
 	"burn_uboot_nand=nand erase 0 0x100000; "			\
 		"nand write ${addr_uboot} 0 ${filesize}\0"		\
 	"args_all=setenv bootargs console=ttyS0,115200n8 rootwait=1\0"	\
-	KS2_ARGS_UBI							\
 	"args_net=setenv bootargs ${bootargs} rootfstype=nfs "		\
 		"root=/dev/nfs rw nfsroot=${serverip}:${nfs_root},"	\
 		"${nfs_options} ip=dhcp\0"				\
