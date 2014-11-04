@@ -258,8 +258,7 @@
 	"addr_ubi=0x82000000\0"						\
 	"addr_secdb_key=0xc000000\0"					\
 	"fdt_high=0xffffffff\0"						\
-	"name_fs=arago-console-image.cpio.gz\0"				\
-	"name_kern=uImage\0"						\
+	"name_kern=uImage-keystone-evm.bin\0"				\
 	"run_mon=mon_install ${addr_mon}\0"				\
 	"run_kern=bootm ${addr_kern} - ${addr_fdt}\0"			\
 	"init_net=run args_all args_net\0"				\
