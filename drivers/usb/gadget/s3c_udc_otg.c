@@ -145,8 +145,6 @@ static struct usb_ep_ops s3c_ep_ops = {
 
 void __iomem		*regs_otg;
 struct s3c_usbotg_reg *reg;
-struct s3c_usbotg_phy *phy;
-static unsigned int usb_phy_ctrl;
 
 bool dfu_usb_get_reset(void)
 {
@@ -155,6 +153,10 @@ bool dfu_usb_get_reset(void)
 
 void otg_phy_init(struct s3c_udc *dev)
 {
+	unsigned int usb_phy_ctrl = dev->pdata->usb_phy_ctrl;
+	struct s3c_usbotg_phy *phy =
+		(struct s3c_usbotg_phy *)dev->pdata->regs_phy;
+
 	dev->pdata->phy_control(1);
 
 	/*USB PHY0 Enable */
@@ -189,6 +191,10 @@ void otg_phy_init(struct s3c_udc *dev)
 
 void otg_phy_off(struct s3c_udc *dev)
 {
+	unsigned int usb_phy_ctrl = dev->pdata->usb_phy_ctrl;
+	struct s3c_usbotg_phy *phy =
+		(struct s3c_usbotg_phy *)dev->pdata->regs_phy;
+
 	/* reset controller just in case */
 	writel(PHY_SW_RST0, &phy->rstcon);
 	udelay(20);
@@ -853,9 +859,7 @@ int s3c_udc_probe(struct s3c_plat_otg_data *pdata)
 
 	dev->pdata = pdata;
 
-	phy = (struct s3c_usbotg_phy *)pdata->regs_phy;
 	reg = (struct s3c_usbotg_reg *)pdata->regs_otg;
-	usb_phy_ctrl = pdata->usb_phy_ctrl;
 
 	/* regs_otg = (void *)pdata->regs_otg; */
 
