@@ -51,8 +51,6 @@
 /* The size of the tx descriptor is determined by how much padding is used.
    4, 20, or 52 bytes of padding can be used */
 #define TX_DESC_PADDING	(CONFIG_SH_ETHER_ALIGNE_SIZE - 12)
-/* same as CONFIG_SH_ETHER_ALIGNE_SIZE */
-#define TX_DESC_SIZE	(12 + TX_DESC_PADDING)
 
 /* Tx descriptor. We always use 3 bytes of padding */
 struct tx_desc_s {
@@ -68,8 +66,6 @@ struct tx_desc_s {
 /* The size of the rx descriptor is determined by how much padding is used.
    4, 20, or 52 bytes of padding can be used */
 #define RX_DESC_PADDING	(CONFIG_SH_ETHER_ALIGNE_SIZE - 12)
-/* same as CONFIG_SH_ETHER_ALIGNE_SIZE */
-#define RX_DESC_SIZE		(12 + RX_DESC_PADDING)
 /* aligned cache line size */
 #define RX_BUF_ALIGNE_SIZE	(CONFIG_SH_ETHER_ALIGNE_SIZE > 32 ? 64 : 32)
 

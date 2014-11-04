@@ -186,19 +186,21 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 	struct tx_desc_s *cur_tx_desc;
 
 	/*
-	 * Allocate tx descriptors. They must be TX_DESC_SIZE bytes aligned
+	 * Allocate rx descriptors. They must be aligned to size of struct
+	 * tx_desc_s.
 	 */
 	port_info->tx_desc_malloc = malloc(NUM_TX_DESC *
 						 sizeof(struct tx_desc_s) +
-						 TX_DESC_SIZE - 1);
+						 sizeof(struct tx_desc_s) - 1);
 	if (!port_info->tx_desc_malloc) {
 		printf(SHETHER_NAME ": malloc failed\n");
 		ret = -ENOMEM;
 		goto err;
 	}
 
-	tmp_addr = (u32) (((int)port_info->tx_desc_malloc + TX_DESC_SIZE - 1) &
-			  ~(TX_DESC_SIZE - 1));
+	tmp_addr = (u32) (((int)port_info->tx_desc_malloc +
+			  sizeof(struct tx_desc_s) - 1) &
+			  ~(sizeof(struct tx_desc_s) - 1));
 	flush_cache_wback(tmp_addr, NUM_TX_DESC * sizeof(struct tx_desc_s));
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->tx_desc_base = (struct tx_desc_s *)ADDR_TO_P2(tmp_addr);
@@ -238,19 +240,21 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 	u8 *rx_buf;
 
 	/*
-	 * Allocate rx descriptors. They must be RX_DESC_SIZE bytes aligned
+	 * Allocate rx descriptors. They must be aligned to size of struct
+	 * rx_desc_s.
 	 */
 	port_info->rx_desc_malloc = malloc(NUM_RX_DESC *
 						 sizeof(struct rx_desc_s) +
-						 RX_DESC_SIZE - 1);
+						 sizeof(struct rx_desc_s) - 1);
 	if (!port_info->rx_desc_malloc) {
 		printf(SHETHER_NAME ": malloc failed\n");
 		ret = -ENOMEM;
 		goto err;
 	}
 
-	tmp_addr = (u32) (((int)port_info->rx_desc_malloc + RX_DESC_SIZE - 1) &
-			  ~(RX_DESC_SIZE - 1));
+	tmp_addr = (u32) (((int)port_info->rx_desc_malloc +
+			  sizeof(struct rx_desc_s) - 1) &
+			  ~(sizeof(struct rx_desc_s) - 1));
 	flush_cache_wback(tmp_addr, NUM_RX_DESC * sizeof(struct rx_desc_s));
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->rx_desc_base = (struct rx_desc_s *)ADDR_TO_P2(tmp_addr);
