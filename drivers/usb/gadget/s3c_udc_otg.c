@@ -151,68 +151,8 @@ bool dfu_usb_get_reset(void)
 	return !!(readl(&reg->gintsts) & INT_RESET);
 }
 
-void otg_phy_init(struct s3c_udc *dev)
-{
-	unsigned int usb_phy_ctrl = dev->pdata->usb_phy_ctrl;
-	struct s3c_usbotg_phy *phy =
-		(struct s3c_usbotg_phy *)dev->pdata->regs_phy;
-
-	dev->pdata->phy_control(1);
-
-	/*USB PHY0 Enable */
-	printf("USB PHY0 Enable\n");
-
-	/* Enable PHY */
-	writel(readl(usb_phy_ctrl) | USB_PHY_CTRL_EN0, usb_phy_ctrl);
-
-	if (dev->pdata->usb_flags == PHY0_SLEEP) /* C210 Universal */
-		writel((readl(&phy->phypwr)
-			&~(PHY_0_SLEEP | OTG_DISABLE_0 | ANALOG_PWRDOWN)
-			&~FORCE_SUSPEND_0), &phy->phypwr);
-	else /* C110 GONI */
-		writel((readl(&phy->phypwr) &~(OTG_DISABLE_0 | ANALOG_PWRDOWN)
-			&~FORCE_SUSPEND_0), &phy->phypwr);
-
-	if (s5p_cpu_id == 0x4412)
-		writel((readl(&phy->phyclk) & ~(EXYNOS4X12_ID_PULLUP0 |
-			EXYNOS4X12_COMMON_ON_N0)) | EXYNOS4X12_CLK_SEL_24MHZ,
-		       &phy->phyclk); /* PLL 24Mhz */
-	else
-		writel((readl(&phy->phyclk) & ~(ID_PULLUP0 | COMMON_ON_N0)) |
-		       CLK_SEL_24MHZ, &phy->phyclk); /* PLL 24Mhz */
-
-	writel((readl(&phy->rstcon) &~(LINK_SW_RST | PHYLNK_SW_RST))
-	       | PHY_SW_RST0, &phy->rstcon);
-	udelay(10);
-	writel(readl(&phy->rstcon)
-	       &~(PHY_SW_RST0 | LINK_SW_RST | PHYLNK_SW_RST), &phy->rstcon);
-	udelay(10);
-}
-
-void otg_phy_off(struct s3c_udc *dev)
-{
-	unsigned int usb_phy_ctrl = dev->pdata->usb_phy_ctrl;
-	struct s3c_usbotg_phy *phy =
-		(struct s3c_usbotg_phy *)dev->pdata->regs_phy;
-
-	/* reset controller just in case */
-	writel(PHY_SW_RST0, &phy->rstcon);
-	udelay(20);
-	writel(readl(&phy->phypwr) &~PHY_SW_RST0, &phy->rstcon);
-	udelay(20);
-
-	writel(readl(&phy->phypwr) | OTG_DISABLE_0 | ANALOG_PWRDOWN
-	       | FORCE_SUSPEND_0, &phy->phypwr);
-
-	writel(readl(usb_phy_ctrl) &~USB_PHY_CTRL_EN0, usb_phy_ctrl);
-
-	writel((readl(&phy->phyclk) & ~(ID_PULLUP0 | COMMON_ON_N0)),
-	      &phy->phyclk);
-
-	udelay(10000);
-
-	dev->pdata->phy_control(0);
-}
+__weak void otg_phy_init(struct s3c_udc *dev) {}
+__weak void otg_phy_off(struct s3c_udc *dev) {}
 
 /***********************************************************/
 
