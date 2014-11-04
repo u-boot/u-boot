@@ -22,17 +22,8 @@ static u32 usb_base_address[CONFIG_USB_MAX_CONTROLLER_COUNT] = {
 	0xEE0A0000,	/* USB1 */
 	0xEE0C0000,	/* USB2 */
 };
-#elif defined(CONFIG_R8A7791)
-static u32 usb_base_address[CONFIG_USB_MAX_CONTROLLER_COUNT] = {
-	0xEE080000,	/* USB0 (EHCI) */
-	0xEE0C0000,	/* USB1 */
-};
-#elif defined(CONFIG_R8A7793)
-static u32 usb_base_address[CONFIG_USB_MAX_CONTROLLER_COUNT] = {
-	0xEE080000,	/* USB0 (EHCI) */
-	0xEE0C0000,	/* USB1 */
-};
-#elif defined(CONFIG_R8A7794)
+#elif defined(CONFIG_R8A7791) || defined(CONFIG_R8A7793) || \
+	defined(CONFIG_R8A7794)
 static u32 usb_base_address[CONFIG_USB_MAX_CONTROLLER_COUNT] = {
 	0xEE080000,	/* USB0 (EHCI) */
 	0xEE0C0000,	/* USB1 */
