@@ -130,7 +130,7 @@ flush:	bralid r15, flush_cache
 
 	/* enable instruction and data cache */
 	mfs	r12, rmsr
-	ori	r12, r12, 0xa0
+	ori	r12, r12, 0x1a0
 	mts	rmsr, r12
 
 clear_bss:
