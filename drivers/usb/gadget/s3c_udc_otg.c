@@ -31,7 +31,6 @@
 #include <asm/io.h>
 
 #include <asm/mach-types.h>
-#include <asm/arch/gpio.h>
 
 #include "regs-otg.h"
 #include <usb/lin_gadget_compat.h>
