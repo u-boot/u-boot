@@ -125,7 +125,7 @@ static int get_config (char *);
 #endif
 static inline ulong getenvsize (void)
 {
-	ulong rc = CUR_ENVSIZE - sizeof(long);
+	ulong rc = CUR_ENVSIZE - sizeof(uint32_t);
 
 	if (HaveRedundEnv)
 		rc -= sizeof (char);
