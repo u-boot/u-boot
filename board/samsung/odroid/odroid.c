@@ -356,21 +356,29 @@ static void board_clock_init(void)
 static void board_gpio_init(void)
 {
 	/* eMMC Reset Pin */
+	gpio_request(EXYNOS4X12_GPIO_K12, "eMMC Reset");
+
 	gpio_cfg_pin(EXYNOS4X12_GPIO_K12, S5P_GPIO_FUNC(0x1));
 	gpio_set_pull(EXYNOS4X12_GPIO_K12, S5P_GPIO_PULL_NONE);
 	gpio_set_drv(EXYNOS4X12_GPIO_K12, S5P_GPIO_DRV_4X);
 
 	/* Enable FAN (Odroid U3) */
+	gpio_request(EXYNOS4X12_GPIO_D00, "FAN Control");
+
 	gpio_set_pull(EXYNOS4X12_GPIO_D00, S5P_GPIO_PULL_UP);
 	gpio_set_drv(EXYNOS4X12_GPIO_D00, S5P_GPIO_DRV_4X);
 	gpio_direction_output(EXYNOS4X12_GPIO_D00, 1);
 
 	/* OTG Vbus output (Odroid U3+) */
+	gpio_request(EXYNOS4X12_GPIO_L20, "OTG Vbus");
+
 	gpio_set_pull(EXYNOS4X12_GPIO_L20, S5P_GPIO_PULL_NONE);
 	gpio_set_drv(EXYNOS4X12_GPIO_L20, S5P_GPIO_DRV_4X);
 	gpio_direction_output(EXYNOS4X12_GPIO_L20, 0);
 
 	/* OTG INT (Odroid U3+) */
+	gpio_request(EXYNOS4X12_GPIO_X31, "OTG INT");
+
 	gpio_set_pull(EXYNOS4X12_GPIO_X31, S5P_GPIO_PULL_UP);
 	gpio_set_drv(EXYNOS4X12_GPIO_X31, S5P_GPIO_DRV_4X);
 	gpio_direction_input(EXYNOS4X12_GPIO_X31);
@@ -403,7 +411,6 @@ static void board_init_i2c(void)
 int exynos_early_init_f(void)
 {
 	board_clock_init();
-	board_gpio_init();
 
 	return 0;
 }
@@ -413,6 +420,8 @@ int exynos_init(void)
 	/* The last MB of memory is reserved for secure firmware */
 	gd->ram_size -= SZ_1M;
 	gd->bd->bi_dram[CONFIG_NR_DRAM_BANKS - 1].size -= SZ_1M;
+
+	board_gpio_init();
 
 	return 0;
 }
