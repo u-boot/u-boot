@@ -181,7 +181,7 @@ static int sh_eth_reset(struct sh_eth_dev *eth)
 static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 {
 	int port = eth->port, i, ret = 0;
-	u32 tmp_addr;
+	u32 alloc_desc_size = NUM_TX_DESC * sizeof(struct tx_desc_s);
 	struct sh_eth_info *port_info = &eth->port_info[port];
 	struct tx_desc_s *cur_tx_desc;
 
@@ -189,21 +189,19 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 	 * Allocate rx descriptors. They must be aligned to size of struct
 	 * tx_desc_s.
 	 */
-	port_info->tx_desc_malloc = malloc(NUM_TX_DESC *
-						 sizeof(struct tx_desc_s) +
-						 sizeof(struct tx_desc_s) - 1);
-	if (!port_info->tx_desc_malloc) {
-		printf(SHETHER_NAME ": malloc failed\n");
+	port_info->tx_desc_alloc =
+		memalign(sizeof(struct tx_desc_s), alloc_desc_size);
+	if (!port_info->tx_desc_alloc) {
+		printf(SHETHER_NAME ": memalign failed\n");
 		ret = -ENOMEM;
 		goto err;
 	}
 
-	tmp_addr = (u32) (((int)port_info->tx_desc_malloc +
-			  sizeof(struct tx_desc_s) - 1) &
-			  ~(sizeof(struct tx_desc_s) - 1));
-	flush_cache_wback(tmp_addr, NUM_TX_DESC * sizeof(struct tx_desc_s));
+	flush_cache_wback((u32)port_info->tx_desc_alloc, alloc_desc_size);
+
 	/* Make sure we use a P2 address (non-cacheable) */
-	port_info->tx_desc_base = (struct tx_desc_s *)ADDR_TO_P2(tmp_addr);
+	port_info->tx_desc_base =
+		(struct tx_desc_s *)ADDR_TO_P2((u32)port_info->tx_desc_alloc);
 	port_info->tx_desc_cur = port_info->tx_desc_base;
 
 	/* Initialize all descriptors */
@@ -234,49 +232,44 @@ err:
 static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 {
 	int port = eth->port, i , ret = 0;
+	u32 alloc_desc_size = NUM_RX_DESC * sizeof(struct rx_desc_s);
 	struct sh_eth_info *port_info = &eth->port_info[port];
 	struct rx_desc_s *cur_rx_desc;
-	u32 tmp_addr;
 	u8 *rx_buf;
 
 	/*
 	 * Allocate rx descriptors. They must be aligned to size of struct
 	 * rx_desc_s.
 	 */
-	port_info->rx_desc_malloc = malloc(NUM_RX_DESC *
-						 sizeof(struct rx_desc_s) +
-						 sizeof(struct rx_desc_s) - 1);
-	if (!port_info->rx_desc_malloc) {
-		printf(SHETHER_NAME ": malloc failed\n");
+	port_info->rx_desc_alloc =
+		memalign(sizeof(struct rx_desc_s), alloc_desc_size);
+	if (!port_info->rx_desc_alloc) {
+		printf(SHETHER_NAME ": memalign failed\n");
 		ret = -ENOMEM;
 		goto err;
 	}
 
-	tmp_addr = (u32) (((int)port_info->rx_desc_malloc +
-			  sizeof(struct rx_desc_s) - 1) &
-			  ~(sizeof(struct rx_desc_s) - 1));
-	flush_cache_wback(tmp_addr, NUM_RX_DESC * sizeof(struct rx_desc_s));
+	flush_cache_wback(port_info->rx_desc_alloc, alloc_desc_size);
+
 	/* Make sure we use a P2 address (non-cacheable) */
-	port_info->rx_desc_base = (struct rx_desc_s *)ADDR_TO_P2(tmp_addr);
+	port_info->rx_desc_base =
+		(struct rx_desc_s *)ADDR_TO_P2((u32)port_info->rx_desc_alloc);
 
 	port_info->rx_desc_cur = port_info->rx_desc_base;
 
 	/*
-	 * Allocate rx data buffers. They must be 32 bytes aligned  and in
-	 * P2 area
+	 * Allocate rx data buffers. They must be RX_BUF_ALIGNE_SIZE bytes
+	 * aligned and in P2 area.
 	 */
-	port_info->rx_buf_malloc = malloc(
-		NUM_RX_DESC * MAX_BUF_SIZE + RX_BUF_ALIGNE_SIZE - 1);
-	if (!port_info->rx_buf_malloc) {
-		printf(SHETHER_NAME ": malloc failed\n");
+	port_info->rx_buf_alloc =
+		memalign(RX_BUF_ALIGNE_SIZE, NUM_RX_DESC * MAX_BUF_SIZE);
+	if (!port_info->rx_buf_alloc) {
+		printf(SHETHER_NAME ": alloc failed\n");
 		ret = -ENOMEM;
-		goto err_buf_malloc;
+		goto err_buf_alloc;
 	}
 
-	tmp_addr = (u32)(((int)port_info->rx_buf_malloc
-			  + (RX_BUF_ALIGNE_SIZE - 1)) &
-			  ~(RX_BUF_ALIGNE_SIZE - 1));
-	port_info->rx_buf_base = (u8 *)ADDR_TO_P2(tmp_addr);
+	port_info->rx_buf_base = (u8 *)ADDR_TO_P2((u32)port_info->rx_buf_alloc);
 
 	/* Initialize all descriptors */
 	for (cur_rx_desc = port_info->rx_desc_base,
@@ -301,9 +294,9 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 
 	return ret;
 
-err_buf_malloc:
-	free(port_info->rx_desc_malloc);
-	port_info->rx_desc_malloc = NULL;
+err_buf_alloc:
+	free(port_info->rx_desc_alloc);
+	port_info->rx_desc_alloc = NULL;
 
 err:
 	return ret;
@@ -314,9 +307,9 @@ static void sh_eth_tx_desc_free(struct sh_eth_dev *eth)
 	int port = eth->port;
 	struct sh_eth_info *port_info = &eth->port_info[port];
 
-	if (port_info->tx_desc_malloc) {
-		free(port_info->tx_desc_malloc);
-		port_info->tx_desc_malloc = NULL;
+	if (port_info->tx_desc_alloc) {
+		free(port_info->tx_desc_alloc);
+		port_info->tx_desc_alloc = NULL;
 	}
 }
 
@@ -325,14 +318,14 @@ static void sh_eth_rx_desc_free(struct sh_eth_dev *eth)
 	int port = eth->port;
 	struct sh_eth_info *port_info = &eth->port_info[port];
 
-	if (port_info->rx_desc_malloc) {
-		free(port_info->rx_desc_malloc);
-		port_info->rx_desc_malloc = NULL;
+	if (port_info->rx_desc_alloc) {
+		free(port_info->rx_desc_alloc);
+		port_info->rx_desc_alloc = NULL;
 	}
 
-	if (port_info->rx_buf_malloc) {
-		free(port_info->rx_buf_malloc);
-		port_info->rx_buf_malloc = NULL;
+	if (port_info->rx_buf_alloc) {
+		free(port_info->rx_buf_alloc);
+		port_info->rx_buf_alloc = NULL;
 	}
 }
 

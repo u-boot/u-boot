@@ -78,13 +78,13 @@ struct rx_desc_s {
 };
 
 struct sh_eth_info {
-	struct tx_desc_s *tx_desc_malloc;
+	struct tx_desc_s *tx_desc_alloc;
 	struct tx_desc_s *tx_desc_base;
 	struct tx_desc_s *tx_desc_cur;
-	struct rx_desc_s *rx_desc_malloc;
+	struct rx_desc_s *rx_desc_alloc;
 	struct rx_desc_s *rx_desc_base;
 	struct rx_desc_s *rx_desc_cur;
-	u8 *rx_buf_malloc;
+	u8 *rx_buf_alloc;
 	u8 *rx_buf_base;
 	u8 mac_addr[6];
 	u8 phy_addr;
