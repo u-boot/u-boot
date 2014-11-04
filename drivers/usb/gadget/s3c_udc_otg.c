@@ -104,7 +104,7 @@ static void stop_activity(struct s3c_udc *dev,
 			  struct usb_gadget_driver *driver);
 static int udc_enable(struct s3c_udc *dev);
 static void udc_set_address(struct s3c_udc *dev, unsigned char address);
-static void reconfig_usbd(void);
+static void reconfig_usbd(struct s3c_udc *dev);
 static void set_max_pktsize(struct s3c_udc *dev, enum usb_device_speed speed);
 static void nuke(struct s3c_ep *ep, int status);
 static int s3c_udc_set_halt(struct usb_ep *_ep, int value);
@@ -215,7 +215,7 @@ static int udc_enable(struct s3c_udc *dev)
 	debug_cond(DEBUG_SETUP != 0, "%s: %p\n", __func__, dev);
 
 	otg_phy_init(dev);
-	reconfig_usbd();
+	reconfig_usbd(dev);
 
 	debug_cond(DEBUG_SETUP != 0,
 		   "S3C USB 2.0 OTG Controller Core Initialized : 0x%x\n",
@@ -396,15 +396,17 @@ static void stop_activity(struct s3c_udc *dev,
 	udc_reinit(dev);
 }
 
-static void reconfig_usbd(void)
+static void reconfig_usbd(struct s3c_udc *dev)
 {
 	/* 2. Soft-reset OTG Core and then unreset again. */
 	int i;
 	unsigned int uTemp = writel(CORE_SOFT_RESET, &reg->grstctl);
+	uint32_t dflt_gusbcfg;
 
 	debug("Reseting OTG controller\n");
 
-	writel(0<<15		/* PHY Low Power Clock sel*/
+	dflt_gusbcfg =
+		0<<15		/* PHY Low Power Clock sel*/
 		|1<<14		/* Non-Periodic TxFIFO Rewind Enable*/
 		|0x5<<10	/* Turnaround time*/
 		|0<<9 | 0<<8	/* [0:HNP disable,1:HNP enable][ 0:SRP disable*/
@@ -413,8 +415,12 @@ static void reconfig_usbd(void)
 		|0<<6		/* 0: high speed utmi+, 1: full speed serial*/
 		|0<<4		/* 0: utmi+, 1:ulpi*/
 		|1<<3		/* phy i/f  0:8bit, 1:16bit*/
-		|0x7<<0,	/* HS/FS Timeout**/
-		&reg->gusbcfg);
+		|0x7<<0;	/* HS/FS Timeout**/
+
+	if (dev->pdata->usb_gusbcfg)
+		dflt_gusbcfg = dev->pdata->usb_gusbcfg;
+
+	writel(dflt_gusbcfg, &reg->gusbcfg);
 
 	/* 3. Put the OTG device core in the disconnected state.*/
 	uTemp = readl(&reg->dctl);
