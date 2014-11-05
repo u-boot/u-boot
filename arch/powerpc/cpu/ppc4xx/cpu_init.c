@@ -451,6 +451,9 @@ cpu_init_f (void)
 #endif /* CONFIG_440SP/SPE || CONFIG_460EX/GT || CONFIG_405EX */
 
 	gd = (gd_t *)(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
+
+	/* Clear initial global data */
+	memset((void *)gd, 0, sizeof(gd_t));
 }
 
 /*
