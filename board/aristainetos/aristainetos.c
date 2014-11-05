@@ -230,6 +230,12 @@ static iomux_v3_cfg_t const backlight_pads[] = {
 	MX6_PAD_GPIO_2__GPIO1_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return (bus == CONFIG_SF_DEFAULT_BUS && cs == CONFIG_SF_DEFAULT_CS)
+		? (IMX_GPIO_NR(3, 20)) : -1;
+}
+
 static void setup_spi(void)
 {
 	int i;

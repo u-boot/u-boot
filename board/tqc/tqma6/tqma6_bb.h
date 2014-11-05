@@ -6,7 +6,7 @@
  */
 
 #ifndef __TQMA6_BB__
-#define __TQMA6_BB
+#define __TQMA6_BB__
 
 #include <common.h>
 

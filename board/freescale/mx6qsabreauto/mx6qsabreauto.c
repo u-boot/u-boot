@@ -27,6 +27,7 @@
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/imx-common/video.h>
 #include <asm/arch/crm_regs.h>
+#include <pca953x.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -115,6 +116,44 @@ static iomux_v3_cfg_t const i2c3_pads[] = {
 static iomux_v3_cfg_t const port_exp[] = {
 	MX6_PAD_SD2_DAT0__GPIO1_IO15		| MUX_PAD_CTRL(NO_PAD_CTRL),
 };
+
+/*Define for building port exp gpio, pin starts from 0*/
+#define PORTEXP_IO_NR(chip, pin) \
+	((chip << 5) + pin)
+
+/*Get the chip addr from a ioexp gpio*/
+#define PORTEXP_IO_TO_CHIP(gpio_nr) \
+	(gpio_nr >> 5)
+
+/*Get the pin number from a ioexp gpio*/
+#define PORTEXP_IO_TO_PIN(gpio_nr) \
+	(gpio_nr & 0x1f)
+
+static int port_exp_direction_output(unsigned gpio, int value)
+{
+	int ret;
+
+	i2c_set_bus_num(2);
+	ret = i2c_probe(PORTEXP_IO_TO_CHIP(gpio));
+	if (ret)
+		return ret;
+
+	ret = pca953x_set_dir(PORTEXP_IO_TO_CHIP(gpio),
+		(1 << PORTEXP_IO_TO_PIN(gpio)),
+		(PCA953X_DIR_OUT << PORTEXP_IO_TO_PIN(gpio)));
+
+	if (ret)
+		return ret;
+
+	ret = pca953x_set_val(PORTEXP_IO_TO_CHIP(gpio),
+		(1 << PORTEXP_IO_TO_PIN(gpio)),
+		(value << PORTEXP_IO_TO_PIN(gpio)));
+
+	if (ret)
+		return ret;
+
+	return 0;
+}
 
 static void setup_iomux_enet(void)
 {
@@ -361,3 +400,57 @@ int checkboard(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_USB_EHCI_MX6
+#define USB_HOST1_PWR     PORTEXP_IO_NR(0x32, 7)
+#define USB_OTG_PWR       PORTEXP_IO_NR(0x34, 1)
+
+iomux_v3_cfg_t const usb_otg_pads[] = {
+	MX6_PAD_ENET_RX_ER__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+int board_ehci_hcd_init(int port)
+{
+	switch (port) {
+	case 0:
+		imx_iomux_v3_setup_multiple_pads(usb_otg_pads,
+			ARRAY_SIZE(usb_otg_pads));
+
+		/*
+		  * Set daisy chain for otg_pin_id on 6q.
+		 *  For 6dl, this bit is reserved.
+		 */
+		imx_iomux_set_gpr_register(1, 13, 1, 0);
+		break;
+	case 1:
+		break;
+	default:
+		printf("MXC USB port %d not yet supported\n", port);
+		return -EINVAL;
+	}
+	return 0;
+}
+
+int board_ehci_power(int port, int on)
+{
+	switch (port) {
+	case 0:
+		if (on)
+			port_exp_direction_output(USB_OTG_PWR, 1);
+		else
+			port_exp_direction_output(USB_OTG_PWR, 0);
+		break;
+	case 1:
+		if (on)
+			port_exp_direction_output(USB_HOST1_PWR, 1);
+		else
+			port_exp_direction_output(USB_HOST1_PWR, 0);
+		break;
+	default:
+		printf("MXC USB port %d not yet supported\n", port);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+#endif
