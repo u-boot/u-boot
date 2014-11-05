@@ -23,6 +23,11 @@ endchoice
 config SYS_SOC
 	default "rmobile"
 
+config RMOBILE_EXTRAM_BOOT
+	bool "Enable boot from RAM"
+	depends on TARGET_ALT || TARGET_KOELSCH || TARGET_LAGER
+	default n
+
 source "board/atmark-techno/armadillo-800eva/Kconfig"
 source "board/renesas/koelsch/Kconfig"
 source "board/renesas/lager/Kconfig"

@@ -43,7 +43,7 @@ void s_init(void)
 
 #define MSTPSR7		0xE61501C4
 #define SMSTPCR7	0xE615014C
-#define SCIF0_MSTP719	(1 << 19)
+#define SCIF2_MSTP719	(1 << 19)
 
 #define MSTPSR8		0xE61509A0
 #define SMSTPCR8	0xE6150990
@@ -63,8 +63,8 @@ int board_early_init_f(void)
 	/* TMU */
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
 
-	/* SCIF0 */
-	mstp_clrbits_le32(MSTPSR7, SMSTPCR7, SCIF0_MSTP719);
+	/* SCIF2 */
+	mstp_clrbits_le32(MSTPSR7, SMSTPCR7, SCIF2_MSTP719);
 
 	/* ETHER */
 	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHER_MSTP813);
@@ -140,7 +140,6 @@ int board_eth_init(bd_t *bis)
 
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
 	return 0;
