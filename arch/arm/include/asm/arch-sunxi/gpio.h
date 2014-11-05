@@ -155,7 +155,7 @@ enum sunxi_gpio_number {
 
 #define SUNXI_GPF2_SDC0		2
 
-#ifdef CONFIG_SUN8I
+#ifdef CONFIG_MACH_SUN8I
 #define SUNXI_GPF2_UART0_TX	3
 #define SUNXI_GPF4_UART0_RX	3
 #else
@@ -180,7 +180,9 @@ enum sunxi_gpio_number {
 #define SUNXI_GPIO_PULL_UP	1
 #define SUNXI_GPIO_PULL_DOWN	2
 
-int sunxi_gpio_set_cfgpin(u32 pin, u32 val);
+void sunxi_gpio_set_cfgbank(struct sunxi_gpio *pio, int bank_offset, u32 val);
+void sunxi_gpio_set_cfgpin(u32 pin, u32 val);
+int sunxi_gpio_get_cfgbank(struct sunxi_gpio *pio, int bank_offset);
 int sunxi_gpio_get_cfgpin(u32 pin);
 int sunxi_gpio_set_drv(u32 pin, u32 val);
 int sunxi_gpio_set_pull(u32 pin, u32 val);

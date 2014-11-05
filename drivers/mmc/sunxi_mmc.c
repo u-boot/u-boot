@@ -30,10 +30,22 @@ struct sunxi_mmc_host {
 /* support 4 mmc hosts */
 struct sunxi_mmc_host mmc_host[4];
 
+static int sunxi_mmc_getcd_gpio(int sdc_no)
+{
+	switch (sdc_no) {
+	case 0: return sunxi_name_to_gpio(CONFIG_MMC0_CD_PIN);
+	case 1: return sunxi_name_to_gpio(CONFIG_MMC1_CD_PIN);
+	case 2: return sunxi_name_to_gpio(CONFIG_MMC2_CD_PIN);
+	case 3: return sunxi_name_to_gpio(CONFIG_MMC3_CD_PIN);
+	}
+	return -1;
+}
+
 static int mmc_resource_init(int sdc_no)
 {
 	struct sunxi_mmc_host *mmchost = &mmc_host[sdc_no];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	int cd_pin, ret = 0;
 
 	debug("init mmc %d resource\n", sdc_no);
 
@@ -60,7 +72,11 @@ static int mmc_resource_init(int sdc_no)
 	}
 	mmchost->mmc_no = sdc_no;
 
-	return 0;
+	cd_pin = sunxi_mmc_getcd_gpio(sdc_no);
+	if (cd_pin != -1)
+		ret = gpio_request(cd_pin, "mmc_cd");
+
+	return ret;
 }
 
 static int mmc_clk_io_on(int sdc_no)
@@ -75,7 +91,7 @@ static int mmc_clk_io_on(int sdc_no)
 	/* config ahb clock */
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
 
-#if defined(CONFIG_SUN6I) || defined(CONFIG_SUN8I)
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I)
 	/* unassert reset */
 	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
 #endif
@@ -351,15 +367,9 @@ out:
 static int sunxi_mmc_getcd(struct mmc *mmc)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
-	int cd_pin = -1;
+	int cd_pin;
 
-	switch (mmchost->mmc_no) {
-	case 0: cd_pin = sunxi_name_to_gpio(CONFIG_MMC0_CD_PIN); break;
-	case 1: cd_pin = sunxi_name_to_gpio(CONFIG_MMC1_CD_PIN); break;
-	case 2: cd_pin = sunxi_name_to_gpio(CONFIG_MMC2_CD_PIN); break;
-	case 3: cd_pin = sunxi_name_to_gpio(CONFIG_MMC3_CD_PIN); break;
-	}
-
+	cd_pin = sunxi_mmc_getcd_gpio(mmchost->mmc_no);
 	if (cd_pin == -1)
 		return 1;
 
@@ -385,7 +395,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
 	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-#if defined(CONFIG_SUN6I) || defined(CONFIG_SUN7I) || defined(CONFIG_SUN8I)
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || defined(CONFIG_MACH_SUN8I)
 	cfg->host_caps |= MMC_MODE_HC;
 #endif
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
@@ -393,7 +403,9 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	cfg->f_min = 400000;
 	cfg->f_max = 52000000;
 
-	mmc_resource_init(sdc_no);
+	if (mmc_resource_init(sdc_no) != 0)
+		return NULL;
+
 	mmc_clk_io_on(sdc_no);
 
 	return mmc_create(cfg, &mmc_host[sdc_no]);

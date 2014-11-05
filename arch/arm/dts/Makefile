@@ -1,3 +1,4 @@
+dtb-$(CONFIG_MACH_SUN7I) +=  sun7i-a20-pcduino3.dtb
 dtb-$(CONFIG_S5PC100) += s5pc1xx-smdkc100.dtb
 dtb-$(CONFIG_S5PC110) += s5pc1xx-goni.dtb
 dtb-$(CONFIG_EXYNOS4) += exynos4210-origen.dtb \

@@ -1,18 +1,152 @@
-if TARGET_SUN4I || TARGET_SUN5I || TARGET_SUN6I || TARGET_SUN7I || TARGET_SUN8I
+if ARCH_SUNXI
+
+choice
+	prompt "Sunxi SoC Variant"
+
+config MACH_SUN4I
+	bool "sun4i (Allwinner A10)"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config MACH_SUN5I
+	bool "sun5i (Allwinner A13)"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config MACH_SUN6I
+	bool "sun6i (Allwinner A31)"
+	select CPU_V7
+
+config MACH_SUN7I
+	bool "sun7i (Allwinner A20)"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config MACH_SUN8I
+	bool "sun8i (Allwinner A23)"
+	select CPU_V7
+
+endchoice
 
 config SYS_CONFIG_NAME
 	string
-	default "sun4i" if TARGET_SUN4I
-	default "sun5i" if TARGET_SUN5I
-	default "sun6i" if TARGET_SUN6I
-	default "sun7i" if TARGET_SUN7I
-	default "sun8i" if TARGET_SUN8I
+	default "sun4i" if MACH_SUN4I
+	default "sun5i" if MACH_SUN5I
+	default "sun6i" if MACH_SUN6I
+	default "sun7i" if MACH_SUN7I
+	default "sun8i" if MACH_SUN8I
+
+choice
+	prompt "Board"
+
+config TARGET_A10_OLINUXINO_L
+	bool "A10_OLINUXINO_L"
+	depends on MACH_SUN4I
+
+config TARGET_A10S_OLINUXINO_M
+	bool "A10S_OLINUXINO_M"
+	depends on MACH_SUN5I
+
+config TARGET_A13_OLINUXINOM
+	bool "A13_OLINUXINOM"
+	depends on MACH_SUN5I
+
+config TARGET_A13_OLINUXINO
+	bool "A13_OLINUXINO"
+	depends on MACH_SUN5I
+
+config TARGET_A20_OLINUXINO_L2
+	bool "A20_OLINUXINO_L2"
+	depends on MACH_SUN7I
+
+config TARGET_A20_OLINUXINO_L
+	bool "A20_OLINUXINO_L"
+	depends on MACH_SUN7I
+
+config TARGET_A20_OLINUXINO_M
+	bool "A20_OLINUXINO_M"
+	depends on MACH_SUN7I
+
+config TARGET_AUXTEK_T004
+	bool "AUXTEK_T004"
+	depends on MACH_SUN5I
+
+config TARGET_BANANAPI
+	bool "BANANAPI"
+	depends on MACH_SUN7I
+
+config TARGET_COLOMBUS
+	bool "COLOMBUS"
+	depends on MACH_SUN6I
+
+config TARGET_CUBIEBOARD2
+	bool "CUBIEBOARD2"
+	depends on MACH_SUN7I
+
+config TARGET_CUBIEBOARD
+	bool "CUBIEBOARD"
+	depends on MACH_SUN4I
+
+config TARGET_CUBIETRUCK
+	bool "CUBIETRUCK"
+	depends on MACH_SUN7I
+
+config TARGET_IPPO_Q8H_V5
+	bool "IPPO_Q8H_V5"
+	depends on MACH_SUN8I
+
+config TARGET_PCDUINO3
+	bool "PCDUINO3"
+	depends on MACH_SUN7I
+
+config TARGET_MELE_A1000G
+	bool "MELE_A1000G"
+	depends on MACH_SUN4I
+
+config TARGET_MELE_A1000
+	bool "MELE_A1000"
+	depends on MACH_SUN4I
+
+config TARGET_MELE_M3
+	bool "MELE_M3"
+	depends on MACH_SUN7I
+
+config TARGET_MINI_X_1GB
+	bool "MINI_X_1GB"
+	depends on MACH_SUN4I
+
+config TARGET_MINI_X
+	bool "MINI_X"
+	depends on MACH_SUN4I
+
+config TARGET_BA10_TV_BOX
+	bool "BA10_TV_BOX"
+	depends on MACH_SUN4I
+
+config TARGET_I12_TVBOX
+	bool "I12_TVBOX"
+	depends on MACH_SUN7I
+
+config TARGET_QT840A
+	bool "QT840A"
+	depends on MACH_SUN7I
+
+config TARGET_R7DONGLE
+	bool "R7DONGLE"
+	depends on MACH_SUN5I
+
+endchoice
 
 config SYS_BOARD
 	default "sunxi"
 
 config SYS_SOC
 	default "sunxi"
+
+config SPL_FEL
+	bool "SPL/FEL mode support"
+	depends on SPL
+	default n
 
 config FDTFILE
 	string "Default fdtfile env setting for this board"

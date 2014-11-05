@@ -22,6 +22,7 @@ F:	configs/A20-OLinuXino_MICRO_defconfig
 F:	configs/Bananapi_defconfig
 F:	configs/i12-tvbox_defconfig
 F:	configs/Linksprite_pcDuino3_defconfig
+F:	configs/Linksprite_pcDuino3_fdt_defconfig
 F:	configs/qt840a_defconfig
 
 CUBIEBOARD2 BOARD
@@ -52,6 +53,6 @@ S:	Maintained
 F:	configs/Colombus_defconfig
 
 IPPO-Q8H-V5 BOARD
-M:	CHen-Yu Tsai <wens@csie.org>
+M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/Ippo_q8h_v5_defconfig
