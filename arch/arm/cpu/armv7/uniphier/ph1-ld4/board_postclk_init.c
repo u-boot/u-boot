@@ -24,6 +24,8 @@ int board_postclk_init(void)
 
 	sg_init();
 
+	uniphier_board_reset();
+
 	pll_init();
 
 	uniphier_board_init();
