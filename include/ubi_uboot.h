@@ -51,6 +51,14 @@
 
 #undef CONFIG_MTD_UBI_BLOCK
 
+/* ubi_init() disables returning error codes when built into the Linux
+ * kernel so that it doesn't hang the Linux kernel boot process.  Since
+ * the U-Boot driver code depends on getting valid error codes from this
+ * function we just tell the UBI layer that we are building as a module
+ * (which only enables the additional error reporting).
+ */
+#define CONFIG_MTD_UBI_MODULE
+
 #if !defined(CONFIG_MTD_UBI_BEB_LIMIT)
 #define CONFIG_MTD_UBI_BEB_LIMIT	20
 #endif
