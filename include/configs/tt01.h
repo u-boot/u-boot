@@ -13,7 +13,6 @@
 #include <asm/arch/imx-regs.h>
 
 /* High Level Configuration Options */
-#define CONFIG_ARM1136
 #define CONFIG_MX31
 
 #define CONFIG_DISPLAY_CPUINFO

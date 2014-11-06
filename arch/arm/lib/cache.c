@@ -11,7 +11,7 @@
 
 __weak void flush_cache(unsigned long start, unsigned long size)
 {
-#if defined(CONFIG_ARM1136)
+#if defined(CONFIG_CPU_ARM1136)
 
 #if !defined(CONFIG_SYS_ICACHE_OFF)
 	asm("mcr p15, 0, r1, c7, c5, 0"); /* invalidate I cache */
@@ -21,7 +21,7 @@ __weak void flush_cache(unsigned long start, unsigned long size)
 	asm("mcr p15, 0, r1, c7, c14, 0"); /* Clean+invalidate D cache */
 #endif
 
-#endif /* CONFIG_ARM1136 */
+#endif /* CONFIG_CPU_ARM1136 */
 
 #ifdef CONFIG_CPU_ARM926EJS
 	/* test and clean, page 2-23 of arm926ejs manual */
