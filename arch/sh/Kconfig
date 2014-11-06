@@ -59,7 +59,7 @@ config TARGET_MS7750SE
 
 config TARGET_AP_SH4A_4A
 	bool "ALPHAPROJECT AP-SH4A-4A"
-	select CPU_SH4
+	select CPU_SH4A
 
 config TARGET_AP325RXA
 	bool "Renesas AP-325RXA"
@@ -67,7 +67,7 @@ config TARGET_AP325RXA
 
 config TARGET_ECOVEC
 	bool "EcoVec"
-	select CPU_SH4
+	select CPU_SH4A
 
 config TARGET_MIGOR
 	bool "Migo-R"
@@ -75,7 +75,7 @@ config TARGET_MIGOR
 
 config TARGET_R0P7734
 	bool "Support r0p7734"
-	select CPU_SH4
+	select CPU_SH4A
 
 config TARGET_R2DPLUS
 	bool "Renesas R2D-PLUS"
@@ -83,11 +83,11 @@ config TARGET_R2DPLUS
 
 config TARGET_R7780MP
 	bool "R7780MP board"
-	select CPU_SH4
+	select CPU_SH4A
 
 config TARGET_SH7752EVB
 	bool "SH7752EVB"
-	select CPU_SH4
+	select CPU_SH4A
 
 config TARGET_SH7753EVB
 	bool "SH7753EVB"
@@ -95,7 +95,7 @@ config TARGET_SH7753EVB
 
 config TARGET_SH7757LCR
 	bool "SH7757LCR"
-	select CPU_SH4
+	select CPU_SH4A
 
 config TARGET_SH7763RDP
 	bool "SH7763RDP"
@@ -103,7 +103,7 @@ config TARGET_SH7763RDP
 
 config TARGET_SH7785LCR
 	bool "SH7785LCR"
-	select CPU_SH4
+	select CPU_SH4A
 
 endchoice
 
