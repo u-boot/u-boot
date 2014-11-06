@@ -15,7 +15,6 @@ PF_CPPFLAGS_X86   := $(call cc-option, -fno-toplevel-reorder, \
 		     $(call cc-option, -mpreferred-stack-boundary=2)
 PLATFORM_CPPFLAGS += $(PF_CPPFLAGS_X86)
 PLATFORM_CPPFLAGS += -fno-dwarf2-cfi-asm
-PLATFORM_CPPFLAGS += -DREALMODE_BASE=0x7c0
 PLATFORM_CPPFLAGS += -march=i386 -m32
 
 # Support generic board on x86
