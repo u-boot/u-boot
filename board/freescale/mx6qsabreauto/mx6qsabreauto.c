@@ -28,6 +28,8 @@
 #include <asm/imx-common/video.h>
 #include <asm/arch/crm_regs.h>
 #include <pca953x.h>
+#include <power/pmic.h>
+#include "../common/pfuze.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,6 +58,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define WEIM_NOR_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |          \
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
 	PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST)
+
+#define I2C_PMIC	1
 
 int dram_init(void)
 {
@@ -507,6 +511,17 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 	return (bus == 0 && cs == 0) ? (IMX_GPIO_NR(4, 9)) : -1;
 }
 #endif
+
+int power_init_board(void)
+{
+	struct pmic *p;
+
+	p = pfuze_common_init(I2C_PMIC);
+	if (!p)
+		return -ENODEV;
+
+	return 0;
+}
 
 #ifdef CONFIG_CMD_BMODE
 static const struct boot_mode board_boot_modes[] = {

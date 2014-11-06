@@ -74,4 +74,10 @@
 #define CONFIG_APBH_DMA_BURST
 #define CONFIG_APBH_DMA_BURST8
 
+/* PMIC */
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_PFUZE100
+#define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
+
 #endif                         /* __MX6QSABREAUTO_CONFIG_H */
