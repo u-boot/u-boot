@@ -4,71 +4,109 @@ menu "SuperH architecture"
 config SYS_ARCH
 	default "sh"
 
+config CPU_SH2
+	bool
+
+config CPU_SH2A
+	bool
+	select CPU_SH2
+
+config CPU_SH3
+	bool
+
+config CPU_SH4
+	bool
+
+config CPU_SH4A
+	bool
+	select CPU_SH4
+
 choice
 	prompt "Target select"
 
 config TARGET_RSK7203
 	bool "RSK+ 7203"
+	select CPU_SH2A
 
 config TARGET_RSK7264
 	bool "RSK2+SH7264"
+	select CPU_SH2A
 
 config TARGET_RSK7269
 	bool "RSK2+SH7269"
+	select CPU_SH2A
 
 config TARGET_MPR2
 	bool "Magic Panel Release 2 board"
+	select CPU_SH3
 
 config TARGET_MS7720SE
 	bool "Support ms7720se"
+	select CPU_SH3
 
 config TARGET_SHMIN
 	bool "SHMIN"
+	select CPU_SH3
 
 config TARGET_ESPT
 	bool "Data Technology ESPT-GIGA board"
+	select CPU_SH4
 
 config TARGET_MS7722SE
 	bool "SolutionEngine 7722"
+	select CPU_SH4
 
 config TARGET_MS7750SE
 	bool "SolutionEngine 7750"
+	select CPU_SH4
 
 config TARGET_AP_SH4A_4A
 	bool "ALPHAPROJECT AP-SH4A-4A"
+	select CPU_SH4
 
 config TARGET_AP325RXA
 	bool "Renesas AP-325RXA"
+	select CPU_SH4
 
 config TARGET_ECOVEC
 	bool "EcoVec"
+	select CPU_SH4
 
 config TARGET_MIGOR
 	bool "Migo-R"
+	select CPU_SH4
 
 config TARGET_R0P7734
 	bool "Support r0p7734"
+	select CPU_SH4
 
 config TARGET_R2DPLUS
 	bool "Renesas R2D-PLUS"
+	select CPU_SH4
 
 config TARGET_R7780MP
 	bool "R7780MP board"
+	select CPU_SH4
 
 config TARGET_SH7752EVB
 	bool "SH7752EVB"
+	select CPU_SH4
 
 config TARGET_SH7753EVB
 	bool "SH7753EVB"
+	select CPU_SH4
 
 config TARGET_SH7757LCR
 	bool "SH7757LCR"
+	select CPU_SH4
 
 config TARGET_SH7763RDP
 	bool "SH7763RDP"
+	select CPU_SH4
 
 config TARGET_SH7785LCR
 	bool "SH7785LCR"
+	select CPU_SH4
 
 endchoice
 
