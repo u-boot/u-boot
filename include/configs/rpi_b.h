@@ -21,7 +21,6 @@
 
 /* Architecture, CPU, etc.*/
 #define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_ARM1176
 #define CONFIG_BCM2835
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SYS_DCACHE_OFF
