@@ -12,7 +12,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define CONFIG_ARM926EJS			/* arm926ejs CPU core */
 #define CONFIG_MX25
 #define CONFIG_SYS_TEXT_BASE		0xA0000000
 

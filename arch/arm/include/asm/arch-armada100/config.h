@@ -16,7 +16,6 @@
 #define _ARMD1_CONFIG_H
 
 #include <asm/arch/armada100.h>
-#define CONFIG_ARM926EJS	1	/* Basic Architecture */
 /* default Dcache Line length for armada100 */
 #define CONFIG_SYS_CACHELINE_SIZE       32
 

@@ -15,7 +15,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* SoC Configuration */
-#define CONFIG_ARM926EJS				/* arm926ejs CPU */
 
 /* Clock rates detection */
 #ifndef __ASSEMBLY__

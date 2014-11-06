@@ -11,7 +11,6 @@
 
 #include <asm/arch/pantheon.h>
 
-#define CONFIG_ARM926EJS	1	/* Basic Architecture */
 /* default Dcache Line length for pantheon */
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
