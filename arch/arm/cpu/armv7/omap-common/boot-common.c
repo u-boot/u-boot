@@ -57,7 +57,7 @@ void save_omap_boot_params(void)
 		}
 	}
 
-#ifdef CONFIG_DRA7XX
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 	/*
 	 * We get different values for QSPI_1 and QSPI_4 being used, but
 	 * don't actually care about this difference.  Rather than

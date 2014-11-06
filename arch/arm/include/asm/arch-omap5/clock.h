@@ -314,7 +314,7 @@
  */
 #define CONFIG_DEFAULT_OMAP_RESET_TIME_MAX_USEC	31219
 
-#ifdef CONFIG_DRA7XX
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 #define V_OSCK			20000000	/* Clock output from T2 */
 #else
 #define V_OSCK			19200000	/* Clock output from T2 */
