@@ -37,6 +37,15 @@ int cpu_init_interrupts(void);
 /* board/.../... */
 int dram_init(void);
 
+int cleanup_before_linux(void);
+int x86_cleanup_before_linux(void);
+void x86_enable_caches(void);
+void x86_disable_caches(void);
+int x86_init_cache(void);
+void reset_cpu(ulong addr);
+ulong board_get_usable_ram_top(ulong total_size);
+void dram_init_banksize(void);
+
 void setup_pcat_compatibility(void);
 
 void isa_unmap_rom(u32 addr);

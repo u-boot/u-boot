@@ -14,6 +14,7 @@
 #include <asm/init_helpers.h>
 #include <asm/processor.h>
 #include <asm/sections.h>
+#include <asm/zimage.h>
 #include <asm/arch/sysinfo.h>
 #include <asm/arch/tables.h>
 
@@ -99,7 +100,7 @@ int dram_init(void)
 	return calculate_relocation_address();
 }
 
-int dram_init_banksize(void)
+void dram_init_banksize(void)
 {
 	int i, j;
 
@@ -116,5 +117,4 @@ int dram_init_banksize(void)
 			}
 		}
 	}
-	return 0;
 }

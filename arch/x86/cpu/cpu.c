@@ -197,14 +197,13 @@ asm(".globl generate_gpf\n"
 	"generate_gpf:\n"
 	"ljmp   $0x70, $0x47114711\n");
 
-void __reset_cpu(ulong addr)
+__weak void reset_cpu(ulong addr)
 {
 	printf("Resetting using x86 Triple Fault\n");
 	set_vector(13, generate_gpf);	/* general protection fault handler */
 	set_vector(8, generate_gpf);	/* double fault handler */
 	generate_gpf();			/* start the show */
 }
-void reset_cpu(ulong addr) __attribute__((weak, alias("__reset_cpu")));
 
 int dcache_status(void)
 {

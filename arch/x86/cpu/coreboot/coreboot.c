@@ -97,7 +97,7 @@ int board_eth_init(bd_t *bis)
 #define MTRRphysBase_MSR(reg) (0x200 + 2 * (reg))
 #define MTRRphysMask_MSR(reg) (0x200 + 2 * (reg) + 1)
 
-int board_final_cleanup(void)
+void board_final_cleanup(void)
 {
 	/* Un-cache the ROM so the kernel has one
 	 * more MTRR available.
@@ -119,8 +119,6 @@ int board_final_cleanup(void)
 	/* Issue SMI to Coreboot to lock down ME and registers */
 	printf("Finalizing Coreboot\n");
 	outb(0xcb, 0xb2);
-
-	return 0;
 }
 
 void panic_puts(const char *str)
