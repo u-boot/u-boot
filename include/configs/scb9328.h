@@ -10,8 +10,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_ARM920T		1     /* this is an ARM920T CPU	    */
-#define CONFIG_IMX		1     /* in a Motorola MC9328MXL Chip */
+#define CONFIG_IMX		1     /* This is a Motorola MC9328MXL Chip */
 #define CONFIG_SCB9328		1     /* on a scb9328tronix board */
 
 #define CONFIG_IMX_SERIAL

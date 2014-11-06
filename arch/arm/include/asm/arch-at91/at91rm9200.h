@@ -7,7 +7,6 @@
 #define __AT91RM9200_H__
 
 #define CONFIG_AT91FAMILY	/* it's a member of AT91 family */
-#define CONFIG_ARM920T		/* it's an ARM920T Core */
 #define CONFIG_ARCH_CPU_INIT	/* we need arch_cpu_init() for hw timers */
 #define CONFIG_AT91_GPIO	/* and require always gpio features */
 
