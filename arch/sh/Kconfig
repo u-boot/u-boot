@@ -8,67 +8,67 @@ choice
 	prompt "Target select"
 
 config TARGET_RSK7203
-	bool "Support rsk7203"
+	bool "RSK+ 7203"
 
 config TARGET_RSK7264
-	bool "Support rsk7264"
+	bool "RSK2+SH7264"
 
 config TARGET_RSK7269
-	bool "Support rsk7269"
+	bool "RSK2+SH7269"
 
 config TARGET_MPR2
-	bool "Support mpr2"
+	bool "Magic Panel Release 2 board"
 
 config TARGET_MS7720SE
 	bool "Support ms7720se"
 
 config TARGET_SHMIN
-	bool "Support shmin"
+	bool "SHMIN"
 
 config TARGET_ESPT
-	bool "Support espt"
+	bool "Data Technology ESPT-GIGA board"
 
 config TARGET_MS7722SE
-	bool "Support ms7722se"
+	bool "SolutionEngine 7722"
 
 config TARGET_MS7750SE
-	bool "Support ms7750se"
+	bool "SolutionEngine 7750"
 
 config TARGET_AP_SH4A_4A
-	bool "Support ap_sh4a_4a"
+	bool "ALPHAPROJECT AP-SH4A-4A"
 
 config TARGET_AP325RXA
-	bool "Support ap325rxa"
+	bool "Renesas AP-325RXA"
 
 config TARGET_ECOVEC
-	bool "Support ecovec"
+	bool "EcoVec"
 
 config TARGET_MIGOR
-	bool "Support MigoR"
+	bool "Migo-R"
 
 config TARGET_R0P7734
 	bool "Support r0p7734"
 
 config TARGET_R2DPLUS
-	bool "Support r2dplus"
+	bool "Renesas R2D-PLUS"
 
 config TARGET_R7780MP
-	bool "Support r7780mp"
+	bool "R7780MP board"
 
 config TARGET_SH7752EVB
-	bool "Support sh7752evb"
+	bool "SH7752EVB"
 
 config TARGET_SH7753EVB
-	bool "Support sh7753evb"
+	bool "SH7753EVB"
 
 config TARGET_SH7757LCR
-	bool "Support sh7757lcr"
+	bool "SH7757LCR"
 
 config TARGET_SH7763RDP
-	bool "Support sh7763rdp"
+	bool "SH7763RDP"
 
 config TARGET_SH7785LCR
-	bool "Support sh7785lcr"
+	bool "SH7785LCR"
 
 endchoice
 
