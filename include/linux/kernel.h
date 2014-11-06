@@ -61,8 +61,13 @@
 # define DIV_ROUND_UP_SECTOR_T(ll,d) DIV_ROUND_UP(ll,d)
 #endif
 
-#define roundup(x, y)		((((x) + ((y) - 1)) / (y)) * (y))
-
+/* The `const' in roundup() prevents gcc-3.3 from calling __divdi3 */
+#define roundup(x, y) (					\
+{							\
+	const typeof(y) __y = y;			\
+	(((x) + (__y - 1)) / __y) * __y;		\
+}							\
+)
 #define rounddown(x, y) (				\
 {							\
 	typeof(x) __x = (x);				\

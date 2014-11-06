@@ -967,7 +967,7 @@ static inline phys_addr_t map_to_sysmem(const void *ptr)
  * Usage of this macro shall be avoided or used with extreme care!
  */
 #define DEFINE_ALIGN_BUFFER(type, name, size, align)			\
-	static char __##name[roundup(size * sizeof(type), align)]	\
+	static char __##name[ALIGN(size * sizeof(type), align)]	\
 			__aligned(align);				\
 									\
 	static type *name = (type *)__##name
