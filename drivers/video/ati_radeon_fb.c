@@ -39,11 +39,6 @@
 #define DPRINT(x...) do{}while(0)
 #endif
 
-#ifndef min_t
-#define min_t(type,x,y) \
-	({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
-#endif
-
 #define MAX_MAPPED_VRAM	(2048*2048*4)
 #define MIN_MAPPED_VRAM	(1024*768*1)
 

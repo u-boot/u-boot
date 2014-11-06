@@ -25,9 +25,6 @@
 #include <div64.h>
 #define noinline __attribute__((noinline))
 
-/* some reluctance to put this into a new limits.h, so it is here */
-#define INT_MAX		((int)(~0U>>1))
-
 unsigned long simple_strtoul(const char *cp, char **endp,
 				unsigned int base)
 {

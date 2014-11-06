@@ -65,9 +65,6 @@
 #define OHCI_CONTROL_INIT \
 	(OHCI_CTRL_CBSR & 0x3) | OHCI_CTRL_IE | OHCI_CTRL_PLE
 
-#define min_t(type, x, y) \
-		    ({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
-
 #ifdef CONFIG_PCI_OHCI
 static struct pci_device_id ohci_pci_ids[] = {
 	{0x10b9, 0x5237},	/* ULI1575 PCI OHCI module ids */

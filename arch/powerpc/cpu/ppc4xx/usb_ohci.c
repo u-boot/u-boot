@@ -40,8 +40,6 @@
 #define readl(a) (*((volatile u32 *)(a)))
 #define writel(a, b) (*((volatile u32 *)(b)) = ((volatile u32)a))
 
-#define min_t(type,x,y) ({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
-
 #ifdef DEBUG
 #define dbg(format, arg...) printf("DEBUG: " format "\n", ## arg)
 #else
