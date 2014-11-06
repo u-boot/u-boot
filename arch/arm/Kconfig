@@ -225,9 +225,11 @@ config KIRKWOOD
 
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
+	select CPU_V7
 
 config TARGET_MAXBCM
 	bool "Support maxbcm"
+	select CPU_V7
 
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
@@ -629,6 +631,7 @@ config TARGET_HUMMINGBOARD
 
 config TARGET_KOSAGI_NOVENA
 	bool "Support Kosagi Novena"
+	select CPU_V7
 
 config TARGET_TQMA6
 	bool "TQ Systems TQMa6 board"

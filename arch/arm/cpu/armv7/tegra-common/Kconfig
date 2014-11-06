@@ -20,10 +20,6 @@ endchoice
 config USE_PRIVATE_LIBGCC
 	default y if SPL_BUILD
 
-config SYS_CPU
-	default "arm720t" if SPL_BUILD
-	default "armv7" if !SPL_BUILD
-
 source "arch/arm/cpu/armv7/tegra20/Kconfig"
 source "arch/arm/cpu/armv7/tegra30/Kconfig"
 source "arch/arm/cpu/armv7/tegra114/Kconfig"
