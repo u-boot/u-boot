@@ -1002,7 +1002,8 @@ static void mxs_power_set_vddx(const struct mxs_vddx_cfg *cfg,
 	uint32_t powered_by_linreg = 0;
 	int adjust_up, tmp;
 
-	new_brownout = DIV_ROUND(new_target - new_brownout, cfg->step_mV);
+	new_brownout = DIV_ROUND_CLOSEST(new_target - new_brownout,
+					 cfg->step_mV);
 
 	cur_target = readl(cfg->reg);
 	cur_target &= cfg->trg_mask;
