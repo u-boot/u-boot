@@ -102,8 +102,27 @@ unsigned long get_board_ddr_clk(void)
 	return 66666666;
 }
 
+int select_i2c_ch_pca9547(u8 ch)
+{
+	int ret;
+
+	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
+	if (ret) {
+		puts("PCA: failed to select proper channel\n");
+		return ret;
+	}
+
+	return 0;
+}
+
 int dram_init(void)
 {
+	/*
+	 * When resuming from deep sleep, the I2C channel may not be
+	 * in the default channel. So, switch to the default channel
+	 * before accessing DDR SPD.
+	 */
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 	gd->ram_size = initdram(0);
 
 	return 0;
@@ -121,19 +140,6 @@ int board_mmc_init(bd_t *bis)
 	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 }
 #endif
-
-int select_i2c_ch_pca9547(u8 ch)
-{
-	int ret;
-
-	ret = i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &ch, 1);
-	if (ret) {
-		puts("PCA: failed to select proper channel\n");
-		return ret;
-	}
-
-	return 0;
-}
 
 int board_early_init_f(void)
 {
