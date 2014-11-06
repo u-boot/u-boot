@@ -348,7 +348,7 @@ int mac_read_from_eeprom(void)
 
 	if (memcmp(&e.mac, "\0\0\0\0\0\0", 6) &&
 		memcmp(&e.mac, "\xFF\xFF\xFF\xFF\xFF\xFF", 6)) {
-		char ethaddr[9];
+		char ethaddr[18];
 
 		sprintf(ethaddr, "%02X:%02X:%02X:%02X:%02X:%02X",
 			e.mac[0],
