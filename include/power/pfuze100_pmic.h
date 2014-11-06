@@ -38,6 +38,86 @@ enum {
 };
 
 /*
+ * Buck Regulators
+ */
+
+/* SW1A/B/C Output Voltage Configuration */
+#define SW1x_0_300V 0
+#define SW1x_0_325V 1
+#define SW1x_0_350V 2
+#define SW1x_0_375V 3
+#define SW1x_0_400V 4
+#define SW1x_0_425V 5
+#define SW1x_0_450V 6
+#define SW1x_0_475V 7
+#define SW1x_0_500V 8
+#define SW1x_0_525V 9
+#define SW1x_0_550V 10
+#define SW1x_0_575V 11
+#define SW1x_0_600V 12
+#define SW1x_0_625V 13
+#define SW1x_0_650V 14
+#define SW1x_0_675V 15
+#define SW1x_0_700V 16
+#define SW1x_0_725V 17
+#define SW1x_0_750V 18
+#define SW1x_0_775V 19
+#define SW1x_0_800V 20
+#define SW1x_0_825V 21
+#define SW1x_0_850V 22
+#define SW1x_0_875V 23
+#define SW1x_0_900V 24
+#define SW1x_0_925V 25
+#define SW1x_0_950V 26
+#define SW1x_0_975V 27
+#define SW1x_1_000V 28
+#define SW1x_1_025V 29
+#define SW1x_1_050V 30
+#define SW1x_1_075V 31
+#define SW1x_1_100V 32
+#define SW1x_1_125V 33
+#define SW1x_1_150V 34
+#define SW1x_1_175V 35
+#define SW1x_1_200V 36
+#define SW1x_1_225V 37
+#define SW1x_1_250V 38
+#define SW1x_1_275V 39
+#define SW1x_1_300V 40
+#define SW1x_1_325V 41
+#define SW1x_1_350V 42
+#define SW1x_1_375V 43
+#define SW1x_1_400V 44
+#define SW1x_1_425V 45
+#define SW1x_1_450V 46
+#define SW1x_1_475V 47
+#define SW1x_1_500V 48
+#define SW1x_1_525V 49
+#define SW1x_1_550V 50
+#define SW1x_1_575V 51
+#define SW1x_1_600V 52
+#define SW1x_1_625V 53
+#define SW1x_1_650V 54
+#define SW1x_1_675V 55
+#define SW1x_1_700V 56
+#define SW1x_1_725V 57
+#define SW1x_1_750V 58
+#define SW1x_1_775V 59
+#define SW1x_1_800V 60
+#define SW1x_1_825V 61
+#define SW1x_1_850V 62
+#define SW1x_1_875V 63
+
+#define SW1x_NORMAL_MASK  0x3f
+#define SW1x_STBY_MASK    0x3f
+#define SW1x_OFF_MASK     0x3f
+
+#define SW1xCONF_DVSSPEED_MASK 0xc0
+#define SW1xCONF_DVSSPEED_2US  0x00
+#define SW1xCONF_DVSSPEED_4US  0x40
+#define SW1xCONF_DVSSPEED_8US  0x80
+#define SW1xCONF_DVSSPEED_16US 0xc0
+
+/*
  * LDO Configuration
  */
 
