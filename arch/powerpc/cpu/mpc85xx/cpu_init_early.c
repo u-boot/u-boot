@@ -161,9 +161,12 @@ void cpu_init_early_f(void *fdt)
 	setup_ifc_sram = (void *)SRAM_BASE_ADDR;
 	dst = (u32 *) SRAM_BASE_ADDR;
 	src = (u32 *) setup_ifc;
-	for (i = 0; i < 1024; i++)
+	for (i = 0; i < 1024; i++) {
+		/* cppcheck-suppress nullPointer */
 		*dst++ = *src++;
+	}
 
+	/* cppcheck-suppress nullPointer */
 	setup_ifc_sram();
 
 	/* CLEANUP */
