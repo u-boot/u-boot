@@ -593,7 +593,7 @@ const struct ctrl_ioregs ioregs_dra72x_es1 = {
 	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
 };
 
-void hw_data_init(void)
+void __weak hw_data_init(void)
 {
 	u32 omap_rev = omap_revision();
 
