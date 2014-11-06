@@ -5012,14 +5012,14 @@ this behavior and build U-Boot to some external directory:
 	make O=/tmp/build NAME_defconfig
 	make O=/tmp/build all
 
-2. Set environment variable BUILD_DIR to point to the desired location:
+2. Set environment variable KBUILD_OUTPUT to point to the desired location:
 
-	export BUILD_DIR=/tmp/build
+	export KBUILD_OUTPUT=/tmp/build
 	make distclean
 	make NAME_defconfig
 	make all
 
-Note that the command line "O=" setting overrides the BUILD_DIR environment
+Note that the command line "O=" setting overrides the KBUILD_OUTPUT environment
 variable.
 
 
