@@ -289,7 +289,7 @@ static int dfu_read_buffer_fill(struct dfu_entity *dfu, void *buf, int size)
 	readn = 0;
 	while (size > 0) {
 		/* get chunk that can be read */
-		chunk = min(size, dfu->b_left);
+		chunk = min((long)size, dfu->b_left);
 		/* consume */
 		if (chunk > 0) {
 			memcpy(buf, dfu->i_buf, chunk);

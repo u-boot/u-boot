@@ -106,7 +106,8 @@ static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 		i2c_write(SPD_SPA1_ADDRESS, 0, 1, &dummy, 1);
 		ret = i2c_read(i2c_address, 0, 1,
 			       (uchar *)((ulong)spd + 256),
-			       min(256, sizeof(generic_spd_eeprom_t) - 256));
+			       min(256,
+				   (int)sizeof(generic_spd_eeprom_t) - 256));
 	}
 #else
 	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd,

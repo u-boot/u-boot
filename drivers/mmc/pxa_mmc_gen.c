@@ -197,7 +197,7 @@ static int pxa_mmc_do_read_xfer(struct mmc *mmc, struct mmc_data *data)
 	while (len) {
 		/* The controller has data ready */
 		if (readl(&regs->i_reg) & MMC_I_REG_RXFIFO_RD_REQ) {
-			size = min(len, PXAMMC_FIFO_SIZE);
+			size = min(len, (uint32_t)PXAMMC_FIFO_SIZE);
 			len -= size;
 			size /= 4;
 
@@ -233,14 +233,14 @@ static int pxa_mmc_do_write_xfer(struct mmc *mmc, struct mmc_data *data)
 	while (len) {
 		/* The controller is ready to receive data */
 		if (readl(&regs->i_reg) & MMC_I_REG_TXFIFO_WR_REQ) {
-			size = min(len, PXAMMC_FIFO_SIZE);
+			size = min(len, (uint32_t)PXAMMC_FIFO_SIZE);
 			len -= size;
 			size /= 4;
 
 			while (size--)
 				writel(*buf++, &regs->txfifo);
 
-			if (min(len, PXAMMC_FIFO_SIZE) < 32)
+			if (min(len, (uint32_t)PXAMMC_FIFO_SIZE) < 32)
 				writel(MMC_PRTBUF_BUF_PART_FULL, &regs->prtbuf);
 		}
 

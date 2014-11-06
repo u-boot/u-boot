@@ -143,7 +143,7 @@ int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 		return -1;
 	}
 
-	len = min(p[1], din_len);
+	len = min((int)p[1], din_len);
 	cros_ec_dump_data("in", -1, p, len + 3);
 
 	/* Response code is first byte of message */

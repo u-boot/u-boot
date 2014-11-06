@@ -300,7 +300,7 @@ unsigned int setup_ddr_tlbs_phys(phys_addr_t p_addr,
 	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
 	u64 memsize = (u64)memsize_in_meg << 20;
 
-	memsize = min(memsize, CONFIG_MAX_MEM_MAPPED);
+	memsize = min(memsize, (u64)CONFIG_MAX_MEM_MAPPED);
 	memsize = tlb_map_range(ram_tlb_address, p_addr, memsize, TLB_MAP_RAM);
 
 	if (memsize)

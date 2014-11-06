@@ -746,7 +746,7 @@ static void splash_align_axis(int *axis, unsigned long panel_size,
 	else
 		return;
 
-	*axis = max(0, axis_alignment);
+	*axis = max(0, (int)axis_alignment);
 }
 #endif
 
@@ -1145,8 +1145,8 @@ U_BOOT_ENV_CALLBACK(splashimage, on_splashimage);
 
 void lcd_position_cursor(unsigned col, unsigned row)
 {
-	console_col = min(col, CONSOLE_COLS - 1);
-	console_row = min(row, CONSOLE_ROWS - 1);
+	console_col = min_t(short, col, CONSOLE_COLS - 1);
+	console_row = min_t(short, row, CONSOLE_ROWS - 1);
 }
 
 int lcd_get_pixel_width(void)

@@ -1422,8 +1422,8 @@ static int clock_calc_best_scalar(unsigned int main_scaler_bits,
 		return 1;
 
 	for (i = 1; i <= loops; i++) {
-		const unsigned int effective_div = max(min(input_rate / i /
-							target_rate, cap), 1);
+		const unsigned int effective_div =
+			max(min(input_rate / i / target_rate, cap), 1U);
 		const unsigned int effective_rate = input_rate / i /
 							effective_div;
 		const int error = target_rate - effective_rate;

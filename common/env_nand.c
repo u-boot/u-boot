@@ -132,7 +132,7 @@ static int writeenv(size_t offset, u_char *buf)
 	u_char *char_ptr;
 
 	blocksize = nand_info[0].erasesize;
-	len = min(blocksize, CONFIG_ENV_SIZE);
+	len = min(blocksize, (size_t)CONFIG_ENV_SIZE);
 
 	while (amount_saved < CONFIG_ENV_SIZE && offset < end) {
 		if (nand_block_isbad(&nand_info[0], offset)) {
@@ -244,7 +244,7 @@ static int readenv(size_t offset, u_char *buf)
 	if (!blocksize)
 		return 1;
 
-	len = min(blocksize, CONFIG_ENV_SIZE);
+	len = min(blocksize, (size_t)CONFIG_ENV_SIZE);
 
 	while (amount_loaded < CONFIG_ENV_SIZE && offset < end) {
 		if (nand_block_isbad(&nand_info[0], offset)) {

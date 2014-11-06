@@ -503,23 +503,23 @@ static int dwc_otg_submit_rh_msg_in_descriptor(struct usb_device *dev,
 	case 0:
 		switch (wValue & 0xff00) {
 		case 0x0100:	/* device descriptor */
-			len = min3(txlen, sizeof(root_hub_dev_des), wLength);
+			len = min3(txlen, (int)sizeof(root_hub_dev_des), (int)wLength);
 			memcpy(buffer, root_hub_dev_des, len);
 			break;
 		case 0x0200:	/* configuration descriptor */
-			len = min3(txlen, sizeof(root_hub_config_des), wLength);
+			len = min3(txlen, (int)sizeof(root_hub_config_des), (int)wLength);
 			memcpy(buffer, root_hub_config_des, len);
 			break;
 		case 0x0300:	/* string descriptors */
 			switch (wValue & 0xff) {
 			case 0x00:
-				len = min3(txlen, sizeof(root_hub_str_index0),
-					   wLength);
+				len = min3(txlen, (int)sizeof(root_hub_str_index0),
+					   (int)wLength);
 				memcpy(buffer, root_hub_str_index0, len);
 				break;
 			case 0x01:
-				len = min3(txlen, sizeof(root_hub_str_index1),
-					   wLength);
+				len = min3(txlen, (int)sizeof(root_hub_str_index1),
+					   (int)wLength);
 				memcpy(buffer, root_hub_str_index1, len);
 				break;
 			}
@@ -556,7 +556,7 @@ static int dwc_otg_submit_rh_msg_in_descriptor(struct usb_device *dev,
 			data[10] = data[9];
 		}
 
-		len = min3(txlen, data[0], wLength);
+		len = min3(txlen, (int)data[0], (int)wLength);
 		memcpy(buffer, data, len);
 		break;
 	default:

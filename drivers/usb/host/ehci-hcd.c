@@ -910,7 +910,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	}
 
 	mdelay(1);
-	len = min3(srclen, le16_to_cpu(req->length), length);
+	len = min3(srclen, (int)le16_to_cpu(req->length), length);
 	if (srcptr != NULL && len > 0)
 		memcpy(buffer, srcptr, len);
 	else

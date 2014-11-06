@@ -743,8 +743,8 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 			if (!gadget_is_dualspeed(gadget))
 				break;
 			device_qual(cdev);
-			value = min(w_length,
-				sizeof(struct usb_qualifier_descriptor));
+			value = min_t(int, w_length,
+				      sizeof(struct usb_qualifier_descriptor));
 			break;
 		case USB_DT_OTHER_SPEED_CONFIG:
 			if (!gadget_is_dualspeed(gadget))

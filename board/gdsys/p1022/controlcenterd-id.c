@@ -236,7 +236,7 @@ static int ccdm_mmc_read(struct mmc *mmc, u64 src, u8 *dst, int size)
 			tmp_buf);
 		if (!n)
 			goto failure;
-		result = min(size, blk_len - ofs);
+		result = min(size, (int)(blk_len - ofs));
 		memcpy(dst, tmp_buf + ofs, result);
 		dst += result;
 		size -= result;
@@ -736,7 +736,8 @@ do_bin_func:
 				src_buf = buf;
 				for (ptr = (uint8_t *)src_buf, i = 20; i > 0;
 					i -= data_size, ptr += data_size)
-					memcpy(ptr, data, min(i, data_size));
+					memcpy(ptr, data,
+					       min_t(size_t, i, data_size));
 			}
 		}
 		bin_func(dst_reg->digest, src_buf, 20);

@@ -127,7 +127,7 @@ static const struct {
 static unsigned int set_i2c_bus_speed(const struct fsl_i2c *dev,
 	unsigned int i2c_clk, unsigned int speed)
 {
-	unsigned short divider = min(i2c_clk / speed, (unsigned short) -1);
+	unsigned short divider = min(i2c_clk / speed, (unsigned int)USHRT_MAX);
 
 	/*
 	 * We want to choose an FDR/DFSR that generates an I2C bus speed that

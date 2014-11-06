@@ -39,7 +39,7 @@ int sandbox_early_getopt_check(void)
 
 	max_arg_len = 0;
 	for (i = 0; i < num_options; ++i)
-		max_arg_len = max(strlen(sb_opt[i]->flag), max_arg_len);
+		max_arg_len = max((int)strlen(sb_opt[i]->flag), max_arg_len);
 	max_noarg_len = max_arg_len + 7;
 
 	for (i = 0; i < num_options; ++i) {

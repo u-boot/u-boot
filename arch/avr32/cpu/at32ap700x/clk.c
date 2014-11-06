@@ -72,7 +72,7 @@ unsigned long __gclk_set_rate(unsigned int id, enum gclk_parent parent,
 		sm_writel(PM_GCCTRL(id), parent | SM_BIT(CEN));
 		rate = parent_rate;
 	} else {
-		divider = min(255, divider / 2 - 1);
+		divider = min(255UL, divider / 2 - 1);
 		sm_writel(PM_GCCTRL(id), parent | SM_BIT(CEN) | SM_BIT(DIVEN)
 				| SM_BF(DIV, divider));
 		rate = parent_rate / (2 * (divider + 1));

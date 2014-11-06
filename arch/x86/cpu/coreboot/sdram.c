@@ -22,7 +22,7 @@ unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
 {
 	int i;
 
-	unsigned num_entries = min(lib_sysinfo.n_memranges, max_entries);
+	unsigned num_entries = min((unsigned)lib_sysinfo.n_memranges, max_entries);
 	if (num_entries < lib_sysinfo.n_memranges) {
 		printf("Warning: Limiting e820 map to %d entries.\n",
 			num_entries);

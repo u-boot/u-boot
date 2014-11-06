@@ -73,6 +73,7 @@ int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf)
 	debug(" <" LBAFU ", %d, %d>\n", sector, byte_offset, byte_len);
 
 	if (byte_offset != 0) {
+		int readlen;
 		/* read first part which isn't aligned with start of sector */
 		if (ext4fs_block_dev_desc->
 		    block_read(ext4fs_block_dev_desc->dev,
@@ -81,13 +82,11 @@ int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf)
 			printf(" ** ext2fs_devread() read error **\n");
 			return 0;
 		}
-		memcpy(buf, sec_buf + byte_offset,
-			min(ext4fs_block_dev_desc->blksz
-			    - byte_offset, byte_len));
-		buf += min(ext4fs_block_dev_desc->blksz
-			   - byte_offset, byte_len);
-		byte_len -= min(ext4fs_block_dev_desc->blksz
-				- byte_offset, byte_len);
+		readlen = min((int)ext4fs_block_dev_desc->blksz - byte_offset,
+			      byte_len);
+		memcpy(buf, sec_buf + byte_offset, readlen);
+		buf += readlen;
+		byte_len -= readlen;
 		sector++;
 	}
 

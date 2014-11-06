@@ -151,7 +151,7 @@ static void exynos_spi_copy(unsigned int uboot_size, unsigned int uboot_addr)
 	}
 
 	for (upto = 0, i = 0; upto < uboot_size; upto += todo, i++) {
-		todo = min(uboot_size - upto, (1 << 15));
+		todo = min(uboot_size - upto, (unsigned int)(1 << 15));
 		spi_rx_tx(regs, todo, (void *)(uboot_addr),
 			  (void *)(SPI_FLASH_UBOOT_POS), i);
 	}

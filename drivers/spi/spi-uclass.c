@@ -57,7 +57,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	speed = slave->max_hz;
 	if (spi->max_hz) {
 		if (speed)
-			speed = min(speed, spi->max_hz);
+			speed = min(speed, (int)spi->max_hz);
 		else
 			speed = spi->max_hz;
 	}

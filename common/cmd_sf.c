@@ -18,7 +18,6 @@
 
 static struct spi_flash *flash;
 
-
 /*
  * This function computes the length argument for the erase command.
  * The length on which the command is to operate can be given in two forms:
@@ -71,9 +70,9 @@ static ulong bytes_per_second(unsigned int len, ulong start_ms)
 {
 	/* less accurate but avoids overflow */
 	if (len >= ((unsigned int) -1) / 1024)
-		return len / (max(get_timer(start_ms) / 1024, 1));
+		return len / (max(get_timer(start_ms) / 1024, 1UL));
 	else
-		return 1024 * len / max(get_timer(start_ms), 1);
+		return 1024 * len / max(get_timer(start_ms), 1UL);
 }
 
 static int do_spi_flash_probe(int argc, char * const argv[])
@@ -223,7 +222,7 @@ static int spi_flash_update(struct spi_flash *flash, u32 offset,
 		ulong last_update = get_timer(0);
 
 		for (; buf < end && !err_oper; buf += todo, offset += todo) {
-			todo = min(end - buf, flash->sector_size);
+			todo = min_t(size_t, end - buf, flash->sector_size);
 			if (get_timer(last_update) > 100) {
 				printf("   \rUpdating, %zu%% %lu B/s",
 				       100 - (end - buf) / scale,
@@ -421,7 +420,8 @@ static int spi_flash_test(struct spi_flash *flash, uint8_t *buf, ulong len,
 	for (i = 0; i < len; i++) {
 		if (vbuf[i] != 0xff) {
 			printf("Check failed at %d\n", i);
-			print_buffer(i, vbuf + i, 1, min(len - i, 0x40), 0);
+			print_buffer(i, vbuf + i, 1,
+				     min_t(uint, len - i, 0x40), 0);
 			return -1;
 		}
 	}
@@ -443,9 +443,11 @@ static int spi_flash_test(struct spi_flash *flash, uint8_t *buf, ulong len,
 	for (i = 0; i < len; i++) {
 		if (buf[i] != vbuf[i]) {
 			printf("Verify failed at %d, good data:\n", i);
-			print_buffer(i, buf + i, 1, min(len - i, 0x40), 0);
+			print_buffer(i, buf + i, 1,
+				     min_t(uint, len - i, 0x40), 0);
 			printf("Bad data:\n");
-			print_buffer(i, vbuf + i, 1, min(len - i, 0x40), 0);
+			print_buffer(i, vbuf + i, 1,
+				     min_t(uint, len - i, 0x40), 0);
 			return -1;
 		}
 	}

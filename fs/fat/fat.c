@@ -364,7 +364,7 @@ get_contents(fsdata *mydata, dir_entry *dentptr, unsigned long pos,
 
 	/* align to beginning of next cluster if any */
 	if (pos) {
-		actsize = min(filesize, bytesperclust);
+		actsize = min(filesize, (unsigned long)bytesperclust);
 		if (get_cluster(mydata, curclust, get_contents_vfatname_block,
 				(int)actsize) != 0) {
 			printf("Error reading cluster\n");

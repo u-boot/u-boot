@@ -313,10 +313,11 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 			return ret;
 #endif
 		byte_addr = offset % page_size;
-		chunk_len = min(len - actual, page_size - byte_addr);
+		chunk_len = min(len - actual, (size_t)(page_size - byte_addr));
 
 		if (flash->spi->max_write_size)
-			chunk_len = min(chunk_len, flash->spi->max_write_size);
+			chunk_len = min(chunk_len,
+					(size_t)flash->spi->max_write_size);
 
 		spi_flash_addr(write_addr, cmd);
 

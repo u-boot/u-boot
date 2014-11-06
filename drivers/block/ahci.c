@@ -730,7 +730,7 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 		u16 now_blocks; /* number of blocks per iteration */
 		u32 transfer_size; /* number of bytes per iteration */
 
-		now_blocks = min(MAX_SATA_BLOCKS_READ_WRITE, blocks);
+		now_blocks = min((u16)MAX_SATA_BLOCKS_READ_WRITE, blocks);
 
 		transfer_size = ATA_SECT_SIZE * now_blocks;
 		if (transfer_size > user_buffer_size) {

@@ -203,7 +203,7 @@ int nand_spl_load_image(uint32_t offs, unsigned int size, void *dst)
 			if (ret < 0)
 				return ret;
 
-			readlen = min(page_size - column, size);
+			readlen = min(page_size - column, (int)size);
 			memcpy(dst, page_buffer, readlen);
 
 			column = 0;

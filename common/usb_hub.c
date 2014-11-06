@@ -300,7 +300,8 @@ static int usb_hub_configure(struct usb_device *dev)
 	}
 	descriptor = (struct usb_hub_descriptor *)buffer;
 
-	length = min(descriptor->bLength, sizeof(struct usb_hub_descriptor));
+	length = min_t(int, descriptor->bLength,
+		       sizeof(struct usb_hub_descriptor));
 
 	if (usb_get_hub_descriptor(dev, buffer, length) < 0) {
 		debug("usb_hub_configure: failed to get hub " \

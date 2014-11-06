@@ -662,13 +662,15 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 #endif
 
 #ifdef CONFIG_PCI_PNP
-		sub_bus = max(pciauto_config_device(hose, dev), sub_bus);
+		sub_bus = max((unsigned int)pciauto_config_device(hose, dev),
+			      sub_bus);
 #else
 		cfg = pci_find_config(hose, class, vendor, device,
 				      PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev));
 		if (cfg) {
 			cfg->config_device(hose, dev, cfg);
-			sub_bus = max(sub_bus, hose->current_busno);
+			sub_bus = max(sub_bus,
+				      (unsigned int)hose->current_busno);
 		}
 #endif
 

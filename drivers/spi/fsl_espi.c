@@ -273,7 +273,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
 			spi_cs_deactivate(slave);
 			return 0;
 		}
-		buf_len = 2 * cmd_len + min(data_len, max_tran_len);
+		buf_len = 2 * cmd_len + min(data_len, (size_t)max_tran_len);
 		len = cmd_len + data_len;
 		rx_offset = cmd_len;
 		buffer = (unsigned char *)malloc(buf_len);
@@ -306,7 +306,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
 		if (data_in)
 			din = buffer + rx_offset;
 		dout = buffer;
-		tran_len = min(data_len , max_tran_len);
+		tran_len = min(data_len, (size_t)max_tran_len);
 		num_blks = DIV_ROUND_UP(tran_len + cmd_len, 4);
 		num_bytes = (tran_len + cmd_len) % 4;
 		fsl->data_len = tran_len + cmd_len;

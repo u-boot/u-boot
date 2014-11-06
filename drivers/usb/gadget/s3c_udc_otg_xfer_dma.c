@@ -97,8 +97,8 @@ static int setdma_rx(struct s3c_ep *ep, struct s3c_request *req)
 	u32 ep_num = ep_index(ep);
 
 	buf = req->req.buf + req->req.actual;
-	length = min(req->req.length - req->req.actual,
-		     ep_num ? DMA_BUFFER_SIZE : ep->ep.maxpacket);
+	length = min_t(u32, req->req.length - req->req.actual,
+		       ep_num ? DMA_BUFFER_SIZE : ep->ep.maxpacket);
 
 	ep->len = length;
 	ep->dma_buf = buf;

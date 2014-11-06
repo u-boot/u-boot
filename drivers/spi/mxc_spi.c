@@ -315,7 +315,7 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 		tmp = reg_read(&regs->rxdata);
 		data = cpu_to_be32(tmp);
 		debug("SPI Rx: 0x%x 0x%x\n", tmp, data);
-		cnt = min(nbytes, sizeof(data));
+		cnt = min_t(u32, nbytes, sizeof(data));
 		if (din) {
 			memcpy(din, &data, cnt);
 			din += cnt;

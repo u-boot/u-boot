@@ -20,7 +20,7 @@ static void config_pci_bridge(struct pci_controller *hose, pci_dev_t dev,
 {
 	u8 secondary;
 	hose->read_byte(hose, dev, PCI_SECONDARY_BUS, &secondary);
-	hose->last_busno = max(hose->last_busno, secondary);
+	hose->last_busno = max(hose->last_busno, (int)secondary);
 	pci_hose_scan_bus(hose, secondary);
 }
 

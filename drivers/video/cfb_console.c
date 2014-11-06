@@ -1541,14 +1541,14 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 	if (x == BMP_ALIGN_CENTER)
-		x = max(0, (VIDEO_VISIBLE_COLS - width) / 2);
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - width) / 2);
 	else if (x < 0)
-		x = max(0, VIDEO_VISIBLE_COLS - width + x + 1);
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - width + x + 1));
 
 	if (y == BMP_ALIGN_CENTER)
-		y = max(0, (VIDEO_VISIBLE_ROWS - height) / 2);
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - height) / 2);
 	else if (y < 0)
-		y = max(0, VIDEO_VISIBLE_ROWS - height + y + 1);
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - height + y + 1));
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
 	/*
@@ -1874,14 +1874,14 @@ static void plot_logo_or_black(void *screen, int width, int x, int y, int black)
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 	if (x == BMP_ALIGN_CENTER)
-		x = max(0, (VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH) / 2);
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH) / 2);
 	else if (x < 0)
-		x = max(0, VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH + x + 1);
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH + x + 1));
 
 	if (y == BMP_ALIGN_CENTER)
-		y = max(0, (VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT) / 2);
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT) / 2);
 	else if (y < 0)
-		y = max(0, VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT + y + 1);
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT + y + 1));
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
 	dest = (unsigned char *)screen + (y * width  + x) * VIDEO_PIXEL_SIZE;
@@ -2028,7 +2028,7 @@ static void *video_logo(void)
 		 * we need to adjust the logo height
 		 */
 		if (video_logo_ypos == BMP_ALIGN_CENTER)
-			video_logo_height += max(0, (VIDEO_VISIBLE_ROWS - \
+			video_logo_height += max(0, (int)(VIDEO_VISIBLE_ROWS -
 						     VIDEO_LOGO_HEIGHT) / 2);
 		else if (video_logo_ypos > 0)
 			video_logo_height += video_logo_ypos;

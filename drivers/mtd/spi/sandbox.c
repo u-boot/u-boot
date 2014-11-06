@@ -315,7 +315,7 @@ int sandbox_erase_part(struct sandbox_spi_flash *sbsf, int size)
 	int ret;
 
 	while (size > 0) {
-		todo = min(size, sizeof(sandbox_sf_0xff));
+		todo = min(size, (int)sizeof(sandbox_sf_0xff));
 		ret = os_write(sbsf->fd, sandbox_sf_0xff, todo);
 		if (ret != todo)
 			return ret;
