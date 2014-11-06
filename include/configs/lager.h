@@ -58,7 +58,6 @@
 #define	CONFIG_OF_LIBFDT
 
 /* #define CONFIG_OF_LIBFDT */
-#define BOARD_LATE_INIT
 
 #define CONFIG_BAUDRATE		38400
 #define CONFIG_BOOTDELAY	3

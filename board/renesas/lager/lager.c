@@ -180,11 +180,6 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[0].size = LAGER_SDRAM_SIZE;
 }
 
-int board_late_init(void)
-{
-	return 0;
-}
-
 void reset_cpu(ulong addr)
 {
 	u8 val;
