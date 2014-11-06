@@ -257,7 +257,7 @@ int board_mmc_getcd(struct mmc *mmc)
 int board_mmc_init(bd_t *bis)
 {
 #ifndef CONFIG_SPL_BUILD
-	s32 status = 0;
+	int ret;
 	int i;
 
 	/*
@@ -290,13 +290,15 @@ int board_mmc_init(bd_t *bis)
 			printf("Warning: you configured more USDHC controllers"
 			       "(%d) then supported by the board (%d)\n",
 			       i + 1, CONFIG_SYS_FSL_USDHC_NUM);
-			return status;
+			return -EINVAL;
 		}
 
-		status |= fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
+		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
+		if (ret)
+			return ret;
 	}
 
-	return status;
+	return 0;
 #else
 	unsigned reg = readl(BOOT_CFG) >> 11;
 	/*
