@@ -27,6 +27,7 @@
 #include <i2c.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
+#include "../common/pfuze.h"
 #include <asm/arch/mx6-ddr.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -559,59 +560,26 @@ int board_init(void)
 	return 0;
 }
 
-static int pfuze_init(void)
+int power_init_board(void)
 {
 	struct pmic *p;
-	int ret;
 	unsigned int reg;
 
-	ret = power_pfuze100_init(I2C_PMIC);
-	if (ret)
-		return ret;
-
-	p = pmic_get("PFUZE100");
-	ret = pmic_probe(p);
-	if (ret)
-		return ret;
-
-	pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
-	printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
+	p = pfuze_common_init(I2C_PMIC);
+	if (!p)
+		return -ENODEV;
 
 	/* Increase VGEN3 from 2.5 to 2.8V */
 	pmic_reg_read(p, PFUZE100_VGEN3VOL, &reg);
-	reg &= ~0xf;
-	reg |= 0xa;
+	reg &= ~LDO_VOL_MASK;
+	reg |= LDOB_2_80V;
 	pmic_reg_write(p, PFUZE100_VGEN3VOL, reg);
 
 	/* Increase VGEN5 from 2.8 to 3V */
 	pmic_reg_read(p, PFUZE100_VGEN5VOL, &reg);
-	reg &= ~0xf;
-	reg |= 0xc;
+	reg &= ~LDO_VOL_MASK;
+	reg |= LDOB_3_00V;
 	pmic_reg_write(p, PFUZE100_VGEN5VOL, reg);
-
-	/* Set SW1AB stanby volage to 0.975V */
-	pmic_reg_read(p, PFUZE100_SW1ABSTBY, &reg);
-	reg &= ~0x3f;
-	reg |= 0x1b;
-	pmic_reg_write(p, PFUZE100_SW1ABSTBY, reg);
-
-	/* Set SW1AB/VDDARM step ramp up time from 16us to 4us/25mV */
-	pmic_reg_read(p, PUZE_100_SW1ABCONF, &reg);
-	reg &= ~0xc0;
-	reg |= 0x40;
-	pmic_reg_write(p, PUZE_100_SW1ABCONF, reg);
-
-	/* Set SW1C standby voltage to 0.975V */
-	pmic_reg_read(p, PFUZE100_SW1CSTBY, &reg);
-	reg &= ~0x3f;
-	reg |= 0x1b;
-	pmic_reg_write(p, PFUZE100_SW1CSTBY, reg);
-
-	/* Set SW1C/VDDSOC step ramp up time from 16us to 4us/25mV */
-	pmic_reg_read(p, PFUZE100_SW1CCONF, &reg);
-	reg &= ~0xc0;
-	reg |= 0x40;
-	pmic_reg_write(p, PFUZE100_SW1CCONF, reg);
 
 	return 0;
 }
@@ -639,8 +607,6 @@ int board_late_init(void)
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
-	pfuze_init();
-
 	return 0;
 }
 
