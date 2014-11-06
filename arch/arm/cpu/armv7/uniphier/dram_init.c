@@ -16,7 +16,7 @@ int dram_init(void)
 	DECLARE_GLOBAL_DATA_PTR;
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+#ifdef CONFIG_DRAM_INIT
 	led_write(B, 4, , );
 
 	{

@@ -122,10 +122,6 @@ int umc_init(void)
 					CONFIG_SDRAM1_SIZE / 0x08000000);
 }
 
-#if CONFIG_DDR_FREQ != 1600
-#error Unsupported DDR frequency.
-#endif
-
 #if ((CONFIG_SDRAM0_SIZE == 0x20000000 && CONFIG_DDR_NUM_CH0 == 2) || \
      (CONFIG_SDRAM0_SIZE == 0x10000000 && CONFIG_DDR_NUM_CH0 == 1)) && \
     ((CONFIG_SDRAM1_SIZE == 0x20000000 && CONFIG_DDR_NUM_CH1 == 2) || \
