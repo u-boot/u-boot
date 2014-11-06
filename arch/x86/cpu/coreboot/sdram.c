@@ -11,6 +11,7 @@
 #include <asm/e820.h>
 #include <asm/u-boot-x86.h>
 #include <asm/global_data.h>
+#include <asm/init_helpers.h>
 #include <asm/processor.h>
 #include <asm/sections.h>
 #include <asm/arch/sysinfo.h>
@@ -79,7 +80,7 @@ ulong board_get_usable_ram_top(ulong total_size)
 	return (ulong)dest_addr;
 }
 
-int dram_init_f(void)
+int dram_init(void)
 {
 	int i;
 	phys_size_t ram_size = 0;
@@ -94,7 +95,8 @@ int dram_init_f(void)
 	gd->ram_size = ram_size;
 	if (ram_size == 0)
 		return -1;
-	return 0;
+
+	return calculate_relocation_address();
 }
 
 int dram_init_banksize(void)
@@ -115,9 +117,4 @@ int dram_init_banksize(void)
 		}
 	}
 	return 0;
-}
-
-int dram_init(void)
-{
-	return dram_init_banksize();
 }

@@ -27,8 +27,8 @@ unsigned long get_tbclk_mhz(void);
 void timer_set_base(uint64_t base);
 int pcat_timer_init(void);
 
-/* Architecture specific - can be in arch/x86/cpu/, arch/x86/lib/, or $(BOARD)/ */
-int dram_init_f(void);
+/* Architecture specific DRAM init */
+int dram_init(void);
 
 /* cpu/.../interrupts.c */
 int cpu_init_interrupts(void);
