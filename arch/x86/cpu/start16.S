@@ -24,15 +24,7 @@ start16:
 	/* Set the Cold Boot / Hard Reset flag */
 	movl	$GD_FLG_COLD_BOOT, %ebx
 
-	/*
-	 * First we let the BSP do some early initialization
-	 * this code have to map the flash to its final position
-	 */
-	jmp	board_init16
-.globl board_init16_ret
-board_init16_ret:
-
-	/* Turn of cache (this might require a 486-class CPU) */
+	/* Turn off cache (this might require a 486-class CPU) */
 	movl	%cr0, %eax
 	orl	$(X86_CR0_NW | X86_CR0_CD), %eax
 	movl	%eax, %cr0
