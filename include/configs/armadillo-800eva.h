@@ -10,7 +10,6 @@
 #define __ARMADILLO_800EVA_H
 
 #undef DEBUG
-#define CONFIG_ARMV7
 #define CONFIG_R8A7740
 #define CONFIG_RMOBILE_BOARD_STRING "Armadillo-800EVA Board\n"
 #define CONFIG_SH_GPIO_PFC

@@ -20,7 +20,6 @@
 #define CONFIG_SYS_THUMB_BUILD
 
 /* SoC Configuration */
-#define CONFIG_ARMV7
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SYS_ARCH_TIMER
 #define CONFIG_SYS_TEXT_BASE		0x0c001000

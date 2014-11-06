@@ -10,9 +10,6 @@
 #ifndef __CONFIG_ZYNQ_COMMON_H
 #define __CONFIG_ZYNQ_COMMON_H
 
-/* High Level configuration Options */
-#define CONFIG_ARMV7
-
 /* CPU clock */
 #ifndef CONFIG_CPU_FREQ_HZ
 # define CONFIG_CPU_FREQ_HZ	800000000

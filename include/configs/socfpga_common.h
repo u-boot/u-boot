@@ -11,7 +11,6 @@
 /* Virtual target or real hardware */
 #undef CONFIG_SOCFPGA_VIRTUAL_TARGET
 
-#define CONFIG_ARMV7
 #define CONFIG_SYS_THUMB_BUILD
 
 #define CONFIG_SOCFPGA
