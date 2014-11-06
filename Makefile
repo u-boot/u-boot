@@ -780,6 +780,13 @@ quiet_cmd_pad_cat = CAT     $@
 cmd_pad_cat = $(cmd_objcopy) && $(append) || rm -f $@
 
 all:		$(ALL-y)
+ifneq ($(CONFIG_SYS_GENERIC_BOARD),y)
+	@echo "===================== WARNING ======================"
+	@echo "Please convert this board to generic board."
+	@echo "Otherwise it will be removed by the end of 2014."
+	@echo "See doc/README.generic-board for further information"
+	@echo "===================================================="
+endif
 
 PHONY += dtbs
 dtbs dts/dt.dtb: checkdtc u-boot
