@@ -377,7 +377,7 @@ int do_auto_update(void)
 {
 	block_dev_desc_t *stor_dev = NULL;
 	long sz;
-	int i, res, cnt, old_ctrlc;
+	int i, res, old_ctrlc;
 	char buffer[32];
 	char str[80];
 	int n;
@@ -455,7 +455,6 @@ int do_auto_update(void)
 				clear_ctrlc ();
 				break;
 			}
-			cnt++;
 		} while (res < 0);
 	}
 
