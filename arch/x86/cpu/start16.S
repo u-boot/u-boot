@@ -21,6 +21,9 @@
 .code16
 .globl start16
 start16:
+	/* Save BIST */
+	movl	%eax, %ecx
+
 	/* Set the Cold Boot / Hard Reset flag */
 	movl	$GD_FLG_COLD_BOOT, %ebx
 
@@ -45,9 +48,11 @@ o32 cs	lgdt	gdt_ptr
 	/* Flush the prefetch queue */
 	jmp	ff
 ff:
-	/* Finally jump to the 32bit initialization code */
+
+	/* Finally restore BIST and jump to the 32bit initialization code */
 	movw	$code32start, %ax
 	movw	%ax, %bp
+	movl	%ecx, %eax
 o32 cs	ljmp	*(%bp)
 
 	/* 48-bit far pointer */

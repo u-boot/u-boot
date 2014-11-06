@@ -49,6 +49,8 @@ _start:
 	 */
 	movw	$GD_FLG_COLD_BOOT, %bx
 1:
+	/* Save BIST */
+	movl	%eax, %ebp
 
 	/* Load the segement registes to match the gdt loaded in start16.S */
 	movl	$(X86_GDT_ENTRY_32BIT_DS * X86_GDT_ENTRY_SIZE), %eax
@@ -117,9 +119,10 @@ car_init_ret:
 	addl	$GD_MALLOC_BASE, %edx
 	movl	%esp, (%edx)
 #endif
-
-	/* Align temporary global descriptor table to 16-byte boundary */
-	andl	$0xfffffff0, %esp
+	/* Store BIST */
+	movl	%eax, %edx
+	addl	$GD_BIST, %edx
+	movl	%ebp, (%edx)
 
 	/* Set second parameter to setup_gdt */
 	movl	%ecx, %edx
