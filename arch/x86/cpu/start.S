@@ -74,6 +74,16 @@ car_init_ret:
 	 * We now have CONFIG_SYS_CAR_SIZE bytes of Cache-As-RAM (or SRAM,
 	 * or fully initialised SDRAM - we really don't care which)
 	 * starting at CONFIG_SYS_CAR_ADDR to be used as a temporary stack
+	 * and early malloc area.
+	 *
+	 * Stack grows down from top of CAR. We have:
+	 *
+	 * top-> CONFIG_SYS_CAR_ADDR + CONFIG_SYS_CAR_SIZE
+	 *	global_data
+	 *	x86 global descriptor table
+	 *	early malloc area
+	 *	stack
+	 * bottom-> CONFIG_SYS_CAR_ADDR
 	 */
 
 	/* Stack grows down from top of CAR */
@@ -91,11 +101,15 @@ car_init_ret:
 	movl	%esp, %edi
 	rep	stosb
 
-	/* Setup first parameter to setup_gdt */
+	/* Setup first parameter to setup_gdt, pointer to global_data */
 	movl	%esp, %eax
 
 	/* Reserve space for global descriptor table */
 	subl	$X86_GDT_SIZE, %esp
+
+	/* Align temporary global descriptor table to 16-byte boundary */
+	andl	$0xfffffff0, %esp
+	movl	%esp, %ecx
 
 #if defined(CONFIG_SYS_MALLOC_F_LEN)
 	subl	$CONFIG_SYS_MALLOC_F_LEN, %esp
@@ -108,14 +122,13 @@ car_init_ret:
 	andl	$0xfffffff0, %esp
 
 	/* Set second parameter to setup_gdt */
-	movl	%esp, %edx
+	movl	%ecx, %edx
 
 	/* Setup global descriptor table so gd->xyz works */
 	call	setup_gdt
 
 	/* Set parameter to board_init_f() to boot flags */
 	xorl	%eax, %eax
-	movw	%bx, %ax
 
 	/* Enter, U-boot! */
 	call	board_init_f
