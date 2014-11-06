@@ -49,6 +49,7 @@ config SYS_CPU
         default "armv7" if CPU_V7
         default "pxa" if CPU_PXA
         default "sa1100" if CPU_SA1100
+	default "armv8" if ARM64
 
 choice
 	prompt "Target select"
@@ -777,8 +778,6 @@ config ARCH_UNIPHIER
 	select SUPPORT_SPL
 
 endchoice
-
-source "arch/arm/cpu/armv8/Kconfig"
 
 source "arch/arm/cpu/arm926ejs/davinci/Kconfig"
 
