@@ -1226,13 +1226,14 @@ void dmm_init(u32 base)
 			emif1_enabled = 1;
 			emif2_enabled = 1;
 			break;
-		} else if (valid == 1) {
-			emif1_enabled = 1;
-		} else if (valid == 2) {
-			emif2_enabled = 1;
 		}
-	}
 
+		if (valid == 1)
+			emif1_enabled = 1;
+
+		if (valid == 2)
+			emif2_enabled = 1;
+	}
 }
 
 static void do_bug0039_workaround(u32 base)
