@@ -20,18 +20,17 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * Miscellaneous platform dependent initializations
- */
-int cpu_init_f(void)
+int arch_cpu_init(void)
 {
 	int ret = get_coreboot_info(&lib_sysinfo);
-	if (ret != 0)
+	if (ret != 0) {
 		printf("Failed to parse coreboot tables.\n");
+		return ret;
+	}
 
 	timestamp_init();
 
-	return ret;
+	return x86_cpu_init_f();
 }
 
 int board_early_init_f(void)

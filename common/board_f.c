@@ -818,7 +818,6 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 	arch_cpu_init,		/* basic arch cpu dependent setup */
 #ifdef CONFIG_X86
-	cpu_init_f,		/* TODO(sjg@chromium.org): remove */
 # ifdef CONFIG_OF_CONTROL
 	find_fdt,		/* TODO(sjg@chromium.org): remove */
 # endif
