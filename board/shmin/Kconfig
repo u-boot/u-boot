@@ -1,8 +1,5 @@
 if TARGET_SHMIN
 
-config SYS_CPU
-	default "sh3"
-
 config SYS_BOARD
 	default "shmin"
 

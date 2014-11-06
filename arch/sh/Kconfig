@@ -1,9 +1,6 @@
 menu "SuperH architecture"
 	depends on SH
 
-config SYS_ARCH
-	default "sh"
-
 config CPU_SH2
 	bool
 
@@ -109,6 +106,14 @@ config TARGET_SH7785LCR
 	select CPU_SH4
 
 endchoice
+
+config SYS_ARCH
+	default "sh"
+
+config SYS_CPU
+	default "sh2" if CPU_SH2
+	default "sh3" if CPU_SH3
+	default "sh4" if CPU_SH4
 
 source "board/alphaproject/ap_sh4a_4a/Kconfig"
 source "board/espt/Kconfig"

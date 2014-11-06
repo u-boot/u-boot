@@ -1,8 +1,5 @@
 if TARGET_R7780MP
 
-config SYS_CPU
-	default "sh4"
-
 config SYS_BOARD
 	default "r7780mp"
 

@@ -1,8 +1,5 @@
 if TARGET_R2DPLUS
 
-config SYS_CPU
-	default "sh4"
-
 config SYS_BOARD
 	default "r2dplus"
 
