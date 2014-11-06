@@ -234,7 +234,7 @@ lcd_heartbeat(void)
 void board_show_activity (ulong timestamp)
 {
 #ifdef CONFIG_STATUS_LED
-	if ((timestamp % (CONFIG_SYS_HZ / 2) == 0)
+	if ((timestamp % (CONFIG_SYS_HZ / 2)) == 0)
 		lcd_heartbeat ();
 #endif
 }
