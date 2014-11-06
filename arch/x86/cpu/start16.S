@@ -24,6 +24,9 @@ start16:
 	/* Set the Cold Boot / Hard Reset flag */
 	movl	$GD_FLG_COLD_BOOT, %ebx
 
+	xorl	%eax, %eax
+	movl	%eax, %cr3    /* Invalidate TLB */
+
 	/* Turn off cache (this might require a 486-class CPU) */
 	movl	%cr0, %eax
 	orl	$(X86_CR0_NW | X86_CR0_CD), %eax
