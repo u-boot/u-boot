@@ -243,14 +243,11 @@ phys_size_t initdram (int board_type)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8260_t *memctl = &immap->im_memctl;
 	long psize;
-#ifndef CONFIG_SYS_RAMBOOT
 	long sizelittle, sizebig;
-#endif
 
 	memctl->memc_psrt = CONFIG_SYS_PSRT;
 	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 
-#ifndef CONFIG_SYS_RAMBOOT
 	/* 60x SDRAM setup:
 	 */
 	sizelittle = try_init (memctl, CONFIG_SYS_PSDMR_LITTLE, CONFIG_SYS_OR1_LITTLE,
@@ -263,7 +260,6 @@ phys_size_t initdram (int board_type)
 		psize = try_init (memctl, CONFIG_SYS_PSDMR_LITTLE, CONFIG_SYS_OR1_LITTLE,
 						  (uchar *) CONFIG_SYS_SDRAM_BASE);
 	}
-#endif /* CONFIG_SYS_RAMBOOT */
 
 	icache_enable ();
 
