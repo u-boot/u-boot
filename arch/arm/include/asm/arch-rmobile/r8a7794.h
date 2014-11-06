@@ -11,4 +11,7 @@
 
 #include "rcar-base.h"
 
+/* SH-I2C */
+#define CONFIG_SYS_I2C_SH_BASE2	0xE60B0000
+
 #endif /* __ASM_ARCH_R8A7794_H */

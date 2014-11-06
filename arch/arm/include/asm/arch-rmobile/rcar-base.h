@@ -29,6 +29,14 @@
 #define SCIF4_BASE		0xE6EE0000
 #define SCIF5_BASE		0xE6EE8000
 
+/*
+ * SH-I2C
+ * Ch2 and ch3 are different address. These are defined
+ * in the header of each SoCs.
+ */
+#define CONFIG_SYS_I2C_SH_BASE0	0xE6500000
+#define CONFIG_SYS_I2C_SH_BASE1	0xE6510000
+
 #define S3C_BASE		0xE6784000
 #define S3C_INT_BASE		0xE6784A00
 #define S3C_MEDIA_BASE		0xE6784B00
