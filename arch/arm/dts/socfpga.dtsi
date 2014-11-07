@@ -643,6 +643,34 @@
 			status = "disabled";
 		};
 
+		spi0: spi@fff00000 {
+			compatible = "snps,dw-spi-mmio";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xfff00000 0x1000>;
+			interrupts = <0 154 4>;
+			num-chipselect = <4>;
+			bus-num = <0>;
+			tx-dma-channel = <&pdma 16>;
+			rx-dma-channel = <&pdma 17>;
+			clocks = <&per_base_clk>;
+			status = "disabled";
+		};
+
+		spi1: spi@fff01000 {
+			compatible = "snps,dw-spi-mmio";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xfff01000 0x1000>;
+			interrupts = <0 156 4>;
+			num-chipselect = <4>;
+			bus-num = <1>;
+			tx-dma-channel = <&pdma 20>;
+			rx-dma-channel = <&pdma 21>;
+			clocks = <&per_base_clk>;
+			status = "disabled";
+		};
+
 		/* Local timer */
 		timer@fffec600 {
 			compatible = "arm,cortex-a9-twd-timer";
