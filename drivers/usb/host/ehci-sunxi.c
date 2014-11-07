@@ -39,7 +39,6 @@ static struct sunxi_ehci_hcd {
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY1_RST,
 		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0,
-		.gpio_vbus = CONFIG_SUNXI_USB_VBUS0_GPIO,
 		.csr = (void *)SUNXI_USB_CSR,
 		.irq = 39,
 		.id = 1,
@@ -48,7 +47,6 @@ static struct sunxi_ehci_hcd {
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY2_RST,
 		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB_EHCI1,
-		.gpio_vbus = CONFIG_SUNXI_USB_VBUS1_GPIO,
 		.csr = (void *)SUNXI_USB_CSR,
 		.irq = 40,
 		.id = 2,
@@ -66,6 +64,15 @@ static void *get_io_base(int hcd_id)
 		return (void *)SUNXI_USB2_IO_BASE;
 	else
 		return NULL;
+}
+
+static int get_vbus_gpio(int hcd_id)
+{
+	switch (hcd_id) {
+	case 1: return sunxi_name_to_gpio(CONFIG_USB1_VBUS_PIN);
+	case 2: return sunxi_name_to_gpio(CONFIG_USB2_VBUS_PIN);
+	}
+	return -1;
 }
 
 static void usb_phy_write(struct sunxi_ehci_hcd *sunxi_ehci, int addr,
@@ -143,14 +150,16 @@ static void sunxi_ehci_enable(struct sunxi_ehci_hcd *sunxi_ehci)
 
 	sunxi_usb_passby(sunxi_ehci, SUNXI_USB_PASSBY_EN);
 
-	gpio_direction_output(sunxi_ehci->gpio_vbus, 1);
+	if (sunxi_ehci->gpio_vbus != -1)
+		gpio_direction_output(sunxi_ehci->gpio_vbus, 1);
 }
 
 static void sunxi_ehci_disable(struct sunxi_ehci_hcd *sunxi_ehci)
 {
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-	gpio_direction_output(sunxi_ehci->gpio_vbus, 0);
+	if (sunxi_ehci->gpio_vbus != -1)
+		gpio_direction_output(sunxi_ehci->gpio_vbus, 0);
 
 	sunxi_usb_passby(sunxi_ehci, !SUNXI_USB_PASSBY_EN);
 
@@ -165,13 +174,17 @@ int ehci_hcd_init(int index, enum usb_init_type init, struct ehci_hccr **hccr,
 	struct sunxi_ehci_hcd *sunxi_ehci = &sunxi_echi_hcd[index];
 	int err;
 
+	sunxi_ehci->gpio_vbus = get_vbus_gpio(sunxi_ehci->id);
+
 	/* enable common PHY only once */
 	if (index == 0)
 		setbits_le32(&ccm->usb_clk_cfg, CCM_USB_CTRL_PHYGATE);
 
-	err = gpio_request(sunxi_ehci->gpio_vbus, "ehci_vbus");
-	if (err)
-		return err;
+	if (sunxi_ehci->gpio_vbus != -1) {
+		err = gpio_request(sunxi_ehci->gpio_vbus, "ehci_vbus");
+		if (err)
+			return err;
+	}
 
 	sunxi_ehci_enable(sunxi_ehci);
 
@@ -197,9 +210,11 @@ int ehci_hcd_stop(int index)
 
 	sunxi_ehci_disable(sunxi_ehci);
 
-	err = gpio_free(sunxi_ehci->gpio_vbus);
-	if (err)
-		return err;
+	if (sunxi_ehci->gpio_vbus != -1) {
+		err = gpio_free(sunxi_ehci->gpio_vbus);
+		if (err)
+			return err;
+	}
 
 	/* disable common PHY only once, for the last enabled hcd */
 	if (enabled_hcd_count == 1)
