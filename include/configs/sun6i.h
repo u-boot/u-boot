@@ -18,6 +18,11 @@
 
 #define CONFIG_SYS_PROMPT		"sun6i# "
 
+#ifdef CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_SUNXI
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+#endif
+
 /*
  * Include common sunxi configuration where most the settings are
  */

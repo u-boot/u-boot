@@ -200,6 +200,7 @@ config MMC_SUNXI_SLOT_EXTRA
 config USB1_VBUS_PIN
 	string "Vbus enable pin for usb1 (ehci0)"
 	default "PH6" if MACH_SUN4I || MACH_SUN7I
+	default "PH27" if MACH_SUN6I
 	---help---
 	Set the Vbus enable pin for usb1 (ehci0, usb0 is the otg). This takes
 	a string in the format understood by sunxi_name_to_gpio, e.g.
@@ -208,6 +209,7 @@ config USB1_VBUS_PIN
 config USB2_VBUS_PIN
 	string "Vbus enable pin for usb2 (ehci1)"
 	default "PH3" if MACH_SUN4I || MACH_SUN7I
+	default "PH24" if MACH_SUN6I
 	---help---
 	See USB1_VBUS_PIN help text.
 

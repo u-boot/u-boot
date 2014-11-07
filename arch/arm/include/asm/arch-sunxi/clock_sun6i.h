@@ -193,6 +193,10 @@ struct sunxi_ccm_reg {
 
 #define AXI_GATE_OFFSET_DRAM		0
 
+#define AHB_GATE_OFFSET_USB_OHCI1	30
+#define AHB_GATE_OFFSET_USB_OHCI0	29
+#define AHB_GATE_OFFSET_USB_EHCI1	27
+#define AHB_GATE_OFFSET_USB_EHCI0	26
 #define AHB_GATE_OFFSET_MCTL		14
 #define AHB_GATE_OFFSET_MMC3		11
 #define AHB_GATE_OFFSET_MMC2		10
@@ -204,6 +208,13 @@ struct sunxi_ccm_reg {
 #define CCM_MMC_CTRL_PLL6   (0x1 << 24)
 
 #define CCM_MMC_CTRL_ENABLE (0x1 << 31)
+
+#define CCM_USB_CTRL_PHY1_RST (0x1 << 1)
+#define CCM_USB_CTRL_PHY2_RST (0x1 << 2)
+/* There is no global phy clk gate on sun6i, define as 0 */
+#define CCM_USB_CTRL_PHYGATE 0
+#define CCM_USB_CTRL_PHY1_CLK (0x1 << 9)
+#define CCM_USB_CTRL_PHY2_CLK (0x1 << 10)
 
 #define MDFS_CLK_DEFAULT		0x81000002 /* PLL6 / 3 */
 

@@ -10,16 +10,14 @@
  */
 
 #include <asm/arch/clock.h>
+#include <asm/arch/cpu.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <common.h>
 #include "ehci.h"
 
-#define SUNXI_USB1_IO_BASE		0x01c14000
-#define SUNXI_USB2_IO_BASE		0x01c1c000
-
 #define SUNXI_USB_PMU_IRQ_ENABLE	0x800
-#define SUNXI_USB_CSR			0x01c13404
+#define SUNXI_USB_CSR			0x404
 #define SUNXI_USB_PASSBY_EN		1
 
 #define SUNXI_EHCI_AHB_ICHR8_EN		(1 << 10)
@@ -32,23 +30,28 @@ static struct sunxi_ehci_hcd {
 	int usb_rst_mask;
 	int ahb_clk_mask;
 	int gpio_vbus;
-	void *csr;
 	int irq;
 	int id;
 } sunxi_echi_hcd[] = {
 	{
-		.usb_rst_mask = CCM_USB_CTRL_PHY1_RST,
+		.usb_rst_mask = CCM_USB_CTRL_PHY1_RST | CCM_USB_CTRL_PHY1_CLK,
 		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0,
-		.csr = (void *)SUNXI_USB_CSR,
+#ifndef CONFIG_MACH_SUN6I
 		.irq = 39,
+#else
+		.irq = 72,
+#endif
 		.id = 1,
 	},
 #if (CONFIG_USB_MAX_CONTROLLER_COUNT > 1)
 	{
-		.usb_rst_mask = CCM_USB_CTRL_PHY2_RST,
+		.usb_rst_mask = CCM_USB_CTRL_PHY2_RST | CCM_USB_CTRL_PHY2_CLK,
 		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB_EHCI1,
-		.csr = (void *)SUNXI_USB_CSR,
+#ifndef CONFIG_MACH_SUN6I
 		.irq = 40,
+#else
+		.irq = 74,
+#endif
 		.id = 2,
 	}
 #endif
@@ -58,12 +61,16 @@ static int enabled_hcd_count;
 
 static void *get_io_base(int hcd_id)
 {
-	if (hcd_id == 1)
-		return (void *)SUNXI_USB1_IO_BASE;
-	else if (hcd_id == 2)
-		return (void *)SUNXI_USB2_IO_BASE;
-	else
+	switch (hcd_id) {
+	case 0:
+		return (void *)SUNXI_USB0_BASE;
+	case 1:
+		return (void *)SUNXI_USB1_BASE;
+	case 2:
+		return (void *)SUNXI_USB2_BASE;
+	default:
 		return NULL;
+	}
 }
 
 static int get_vbus_gpio(int hcd_id)
@@ -79,7 +86,7 @@ static void usb_phy_write(struct sunxi_ehci_hcd *sunxi_ehci, int addr,
 			  int data, int len)
 {
 	int j = 0, usbc_bit = 0;
-	void *dest = sunxi_ehci->csr;
+	void *dest = get_io_base(0) + SUNXI_USB_CSR;
 
 	usbc_bit = 1 << (sunxi_ehci->id * 2);
 	for (j = 0; j < len; j++) {
@@ -112,7 +119,7 @@ static void sunxi_usb_phy_init(struct sunxi_ehci_hcd *sunxi_ehci)
 	usb_phy_write(sunxi_ehci, 0x20, 0x14, 5);
 
 	/* threshold adjustment disconnect */
-#ifdef CONFIG_MACH_SUN4I
+#if defined CONFIG_MACH_SUN4I || defined CONFIG_MACH_SUN6I
 	usb_phy_write(sunxi_ehci, 0x2a, 3, 2);
 #else
 	usb_phy_write(sunxi_ehci, 0x2a, 2, 2);
@@ -145,6 +152,9 @@ static void sunxi_ehci_enable(struct sunxi_ehci_hcd *sunxi_ehci)
 
 	setbits_le32(&ccm->usb_clk_cfg, sunxi_ehci->usb_rst_mask);
 	setbits_le32(&ccm->ahb_gate0, sunxi_ehci->ahb_clk_mask);
+#ifdef CONFIG_MACH_SUN6I
+	setbits_le32(&ccm->ahb_reset0_cfg, sunxi_ehci->ahb_clk_mask);
+#endif
 
 	sunxi_usb_phy_init(sunxi_ehci);
 
@@ -163,6 +173,9 @@ static void sunxi_ehci_disable(struct sunxi_ehci_hcd *sunxi_ehci)
 
 	sunxi_usb_passby(sunxi_ehci, !SUNXI_USB_PASSBY_EN);
 
+#ifdef CONFIG_MACH_SUN6I
+	clrbits_le32(&ccm->ahb_reset0_cfg, sunxi_ehci->ahb_clk_mask);
+#endif
 	clrbits_le32(&ccm->ahb_gate0, sunxi_ehci->ahb_clk_mask);
 	clrbits_le32(&ccm->usb_clk_cfg, sunxi_ehci->usb_rst_mask);
 }
