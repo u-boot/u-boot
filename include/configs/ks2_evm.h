@@ -105,6 +105,7 @@
 #define CONFIG_SYS_SGMII_RATESCALE	2
 
 /* Keyston Navigator Configuration */
+#define CONFIG_TI_KSNAV
 #define CONFIG_KSNAV_QM_BASE_ADDRESS		KS2_QM_BASE_ADDRESS
 #define CONFIG_KSNAV_QM_CONF_BASE		KS2_QM_CONF_BASE
 #define CONFIG_KSNAV_QM_DESC_SETUP_BASE		KS2_QM_DESC_SETUP_BASE
@@ -121,6 +122,7 @@
 #define CONFIG_KSNAV_QM_QPOOL_NUM		KS2_QM_QPOOL_NUM
 
 /* NETCP pktdma */
+#define CONFIG_KSNAV_PKTDMA_NETCP
 #define CONFIG_KSNAV_NETCP_PDMA_CTRL_BASE	KS2_NETCP_PDMA_CTRL_BASE
 #define CONFIG_KSNAV_NETCP_PDMA_TX_BASE		KS2_NETCP_PDMA_TX_BASE
 #define CONFIG_KSNAV_NETCP_PDMA_TX_CH_NUM	KS2_NETCP_PDMA_TX_CH_NUM
@@ -134,11 +136,15 @@
 #define CONFIG_KSNAV_NETCP_PDMA_TX_SND_QUEUE	KS2_NETCP_PDMA_TX_SND_QUEUE
 
 /* Keystone net */
+#define CONFIG_DRIVER_TI_KEYSTONE_NET
 #define CONFIG_KSNET_MAC_ID_BASE		KS2_MAC_ID_BASE_ADDR
 #define CONFIG_KSNET_NETCP_BASE			KS2_NETCP_BASE
 #define CONFIG_KSNET_SERDES_SGMII_BASE		KS2_SGMII_SERDES_BASE
 #define CONFIG_KSNET_SERDES_SGMII2_BASE		KS2_SGMII_SERDES2_BASE
 #define CONFIG_KSNET_SERDES_LANES_PER_SGMII	KS2_LANES_PER_SGMII_SERDES
+
+/* SerDes */
+#define CONFIG_TI_KEYSTONE_SERDES
 
 /* AEMIF */
 #define CONFIG_TI_AEMIF
@@ -218,6 +224,8 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_USB
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_GENERIC_BOARD
@@ -239,30 +247,25 @@
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	"boot=ramfs\0"							\
+	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
+	"boot=ubi\0"							\
 	"tftp_root=/\0"							\
 	"nfs_root=/export\0"						\
 	"mem_lpae=1\0"							\
 	"mem_reserve=512M\0"						\
 	"addr_fdt=0x87000000\0"						\
 	"addr_kern=0x88000000\0"					\
-	KS2_ADDR_MON							\
 	"addr_uboot=0x87000000\0"					\
 	"addr_fs=0x82000000\0"						\
 	"addr_ubi=0x82000000\0"						\
 	"addr_secdb_key=0xc000000\0"					\
 	"fdt_high=0xffffffff\0"						\
-	KS2_FDT_NAME							\
-	"name_fs=arago-console-image.cpio.gz\0"				\
-	"name_kern=uImage\0"						\
-	KS2_NAME_MON							\
-	NAME_UBOOT							\
-	NAME_UBI							\
+	"name_kern=uImage-keystone-evm.bin\0"				\
 	"run_mon=mon_install ${addr_mon}\0"				\
 	"run_kern=bootm ${addr_kern} - ${addr_fdt}\0"			\
 	"init_net=run args_all args_net\0"				\
 	"init_ubi=run args_all args_ubi; "				\
-		"ubi part ubifs; ubifsmount boot;"			\
+		"ubi part ubifs; ubifsmount ubi:boot;"			\
 		"ubifsload ${addr_secdb_key} securedb.key.bin;\0"       \
 	"get_fdt_net=dhcp ${addr_fdt} ${tftp_root}/${name_fdt}\0"	\
 	"get_fdt_ubi=ubifsload ${addr_fdt} ${name_fdt}\0"		\
@@ -276,7 +279,6 @@
 	"burn_uboot_nand=nand erase 0 0x100000; "			\
 		"nand write ${addr_uboot} 0 ${filesize}\0"		\
 	"args_all=setenv bootargs console=ttyS0,115200n8 rootwait=1\0"	\
-	KS2_ARGS_UBI							\
 	"args_net=setenv bootargs ${bootargs} rootfstype=nfs "		\
 		"root=/dev/nfs rw nfsroot=${serverip}:${nfs_root},"	\
 		"${nfs_options} ip=dhcp\0"				\

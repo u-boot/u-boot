@@ -174,6 +174,7 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
 
 /*
  * Common filesystems support.  When we have removable storage we

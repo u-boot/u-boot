@@ -122,7 +122,6 @@ void ft_board_setup(void *blob, bd_t *bd)
 	int nbanks;
 	u64 size[2];
 	u64 start[2];
-	char name[32];
 	int nodeoffset;
 	u32 ddr3a_size;
 	int unitrd_fixup = 0;
@@ -158,15 +157,13 @@ void ft_board_setup(void *blob, bd_t *bd)
 	}
 
 	/* reserve memory at start of bank */
-	sprintf(name, "mem_reserve_head");
-	env = getenv(name);
+	env = getenv("mem_reserve_head");
 	if (env) {
 		start[0] += ustrtoul(env, &endp, 0);
 		size[0] -= ustrtoul(env, &endp, 0);
 	}
 
-	sprintf(name, "mem_reserve");
-	env = getenv(name);
+	env = getenv("mem_reserve");
 	if (env)
 		size[0] -= ustrtoul(env, &endp, 0);
 

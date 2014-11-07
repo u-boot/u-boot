@@ -229,7 +229,7 @@ int board_eth_init(bd_t *bis)
 #endif /* #ifdef CONFIG_FACTORYSET */
 
 	/* Set rgmii mode and enable rmii clock to be sourced from chip */
-	writel(RGMII_MODE_ENABLE , &cdev->miisel);
+	writel(RGMII_MODE_ENABLE  | RGMII_INT_DELAY, &cdev->miisel);
 
 	rv = cpsw_register(&cpsw_data);
 	if (rv < 0)

@@ -611,7 +611,8 @@ static int omap_hsmmc_getcd(struct mmc *mmc)
 	if (cd_gpio < 0)
 		return 1;
 
-	return gpio_get_value(cd_gpio);
+	/* NOTE: assumes card detect signal is active-low */
+	return !gpio_get_value(cd_gpio);
 }
 
 static int omap_hsmmc_getwp(struct mmc *mmc)
@@ -624,6 +625,7 @@ static int omap_hsmmc_getwp(struct mmc *mmc)
 	if (wp_gpio < 0)
 		return 0;
 
+	/* NOTE: assumes write protect signal is active-high */
 	return gpio_get_value(wp_gpio);
 }
 #endif

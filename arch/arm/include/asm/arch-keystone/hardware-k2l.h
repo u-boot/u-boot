@@ -84,6 +84,10 @@
 /* OSR memory size */
 #define KS2_OSR_SIZE			0x100000
 
+/* SGMII SerDes */
+#define KS2_SGMII_SERDES2_BASE		0x02320000
+#define KS2_LANES_PER_SGMII_SERDES	2
+
 /* Number of DSP cores */
 #define KS2_NUM_DSPS			4
 
@@ -97,5 +101,8 @@
 #define KS2_NETCP_PDMA_RX_FLOW_BASE	0x26189000
 #define KS2_NETCP_PDMA_RX_FLOW_NUM	96
 #define KS2_NETCP_PDMA_TX_SND_QUEUE	896
+
+/* NETCP */
+#define KS2_NETCP_BASE			0x26000000
 
 #endif /* __ASM_ARCH_HARDWARE_K2L_H */

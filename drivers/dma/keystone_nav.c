@@ -81,9 +81,6 @@ void qm_close(void)
 {
 	u32	j;
 
-	if (qm_cfg == NULL)
-		return;
-
 	queue_close(qm_cfg->qpool_num);
 
 	qm_cfg->mngr_cfg->link_ram_base0	= 0;
@@ -105,9 +102,6 @@ void qm_push(struct qm_host_desc *hd, u32 qnum)
 {
 	u32 regd;
 
-	if (!qm_cfg)
-		return;
-
 	cpu_to_bus((u32 *)hd, sizeof(struct qm_host_desc)/4);
 	regd = (u32)hd | ((sizeof(struct qm_host_desc) >> 4) - 1);
 	writel(regd, &qm_cfg->queue[qnum].ptr_size_thresh);
@@ -127,9 +121,6 @@ struct qm_host_desc *qm_pop(u32 qnum)
 {
 	u32 uhd;
 
-	if (!qm_cfg)
-		return NULL;
-
 	uhd = readl(&qm_cfg->queue[qnum].ptr_size_thresh) & ~0xf;
 	if (uhd)
 		cpu_to_bus((u32 *)uhd, sizeof(struct qm_host_desc)/4);
@@ -139,9 +130,6 @@ struct qm_host_desc *qm_pop(u32 qnum)
 
 struct qm_host_desc *qm_pop_from_free_pool(void)
 {
-	if (!qm_cfg)
-		return NULL;
-
 	return qm_pop(qm_cfg->qpool_num);
 }
 

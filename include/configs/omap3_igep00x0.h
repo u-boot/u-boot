@@ -29,8 +29,6 @@
 
 #define CONFIG_REVISION_TAG		1
 
-#define CONFIG_SUPPORT_RAW_INITRD
-
 /* define to enable boot progress via leds */
 #if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020) || \
     (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
