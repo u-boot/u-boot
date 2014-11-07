@@ -628,6 +628,21 @@
 			clock-names = "biu", "ciu";
 		};
 
+		qspi: spi@ff705000 {
+			compatible = "cadence,qspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xff705000 0x1000>,
+				<0xffa00000 0x1000>;
+			interrupts = <0 151 4>;
+			clocks = <&qspi_clk>;
+			ext-decoder = <0>;  /* external decoder */
+			num-chipselect = <4>;
+			fifo-depth = <128>;
+			bus-num = <2>;
+			status = "disabled";
+		};
+
 		/* Local timer */
 		timer@fffec600 {
 			compatible = "arm,cortex-a9-twd-timer";
