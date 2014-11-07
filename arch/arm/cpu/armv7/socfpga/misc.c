@@ -202,6 +202,12 @@ int arch_early_init_r(void)
 
 	/* Add device descriptor to FPGA device table */
 	socfpga_fpga_add();
+
+#ifdef CONFIG_DESIGNWARE_SPI
+	/* Get Designware SPI controller out of reset */
+	socfpga_spim_enable();
+#endif
+
 	return 0;
 }
 
