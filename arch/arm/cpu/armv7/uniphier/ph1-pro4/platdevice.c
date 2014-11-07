@@ -13,3 +13,13 @@ SERIAL_DEVICE(0, 0x54006800, UART_MASTER_CLK)
 SERIAL_DEVICE(1, 0x54006900, UART_MASTER_CLK)
 SERIAL_DEVICE(2, 0x54006a00, UART_MASTER_CLK)
 SERIAL_DEVICE(3, 0x54006b00, UART_MASTER_CLK)
+
+/* USB : TODO for Masahiro Yamada: move base address to Device Tree */
+struct uniphier_ehci_platform_data uniphier_ehci_platdata[] = {
+	{
+		.base = 0x5a800100,
+	},
+	{
+		.base = 0x5a810100,
+	},
+};

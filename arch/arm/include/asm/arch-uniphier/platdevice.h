@@ -21,4 +21,6 @@ U_BOOT_DEVICE(serial##n) = {						\
 	.platdata = &serial_device##n					\
 };
 
+#include <asm/arch/ehci-uniphier.h>
+
 #endif /* ARCH_PLATDEVICE_H */
