@@ -14,6 +14,10 @@
 		bootargs = "console=ttyS0,115200";
 	};
 
+ 	aliases {
+		spi0 = "/spi@ff705000";		/* QSPI */
+ 	};
+
 	memory {
 		name = "memory";
 		device_type = "memory";
