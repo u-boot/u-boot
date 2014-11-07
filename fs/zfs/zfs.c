@@ -736,7 +736,7 @@ zap_hash(uint64_t salt, const char *name)
 	uint64_t crc = salt;
 
 	if (table[128] == 0) {
-		uint64_t *ct;
+		uint64_t *ct = NULL;
 		int i, j;
 		for (i = 0; i < 256; i++) {
 			for (ct = table + i, *ct = i, j = 8; j > 0; j--)
@@ -1060,6 +1060,7 @@ zap_lookup(dnode_end_t *zap_dnode, char *name, uint64_t *val,
 	}
 
 	printf("unknown ZAP type\n");
+	free(zapbuf);
 	return ZFS_ERR_BAD_FS;
 }
 
@@ -1094,6 +1095,7 @@ zap_iterate(dnode_end_t *zap_dnode,
 		return ret;
 	}
 	printf("unknown ZAP type\n");
+	free(zapbuf);
 	return 0;
 }
 
@@ -1865,6 +1867,7 @@ zfs_mount(device_t dev)
 
 	ubbest = malloc(sizeof(*ubbest));
 	if (!ubbest) {
+		free(ub_array);
 		zfs_unmount(data);
 		return 0;
 	}
@@ -1953,6 +1956,7 @@ zfs_mount(device_t dev)
 	if (err) {
 		printf("couldn't zio_read object directory\n");
 		zfs_unmount(data);
+		free(osp);
 		free(ubbest);
 		return 0;
 	}
@@ -2052,6 +2056,9 @@ zfs_open(struct zfs_file *file, const char *fsfilename)
 
 		hdrsize = SA_HDR_SIZE(((sa_hdr_phys_t *) sahdrp));
 		file->size = *(uint64_t *) ((char *) sahdrp + hdrsize + SA_SIZE_OFFSET);
+		if ((data->dnode.dn.dn_bonuslen == 0) &&
+			(data->dnode.dn.dn_flags & DNODE_FLAG_SPILL_BLKPTR))
+			free(sahdrp);
 	} else {
 		file->size = zfs_to_cpu64(((znode_phys_t *) DN_BONUS(&data->dnode.dn))->zp_size, data->dnode.endian);
 	}
