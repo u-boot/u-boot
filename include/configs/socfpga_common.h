@@ -159,7 +159,7 @@
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	256	/* FIXME -- SPL only? */
 #endif
 
- /*
+/*
  * I2C support
  */
 #define CONFIG_SYS_I2C
@@ -185,6 +185,29 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 #define IC_CLK				(cm_get_l4_sp_clk_hz() / 1000000)
 #endif
 #define CONFIG_CMD_I2C
+
+/*
+ * QSPI support
+ */
+#ifdef CONFIG_OF_CONTROL	/* QSPI is controlled via DT */
+#define CONFIG_CMD_DM
+#define CONFIG_DM
+#define CONFIG_DM_SPI
+#define CONFIG_DM_SPI_FLASH
+#define CONFIG_CADENCE_QSPI
+/* Enable multiple SPI NOR flash manufacturers */
+#define CONFIG_SPI_FLASH		/* SPI flash subsystem */
+#define CONFIG_SPI_FLASH_STMICRO	/* Micron/Numonyx flash */
+#define CONFIG_SPI_FLASH_SPANSION	/* Spansion flash */
+#define CONFIG_SPI_FLASH_MTD
+/* QSPI reference clock */
+#ifndef __ASSEMBLY__
+unsigned int cm_get_qspi_controller_clk_hz(void);
+#define CONFIG_CQSPI_REF_CLK		cm_get_qspi_controller_clk_hz()
+#endif
+#define CONFIG_CQSPI_DECODER		0
+#define CONFIG_CMD_SF
+#endif
 
 /*
  * Serial Driver
