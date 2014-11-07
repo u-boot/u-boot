@@ -27,6 +27,7 @@ obj-$(CONFIG_CADENCE_QSPI) += cadence_qspi.o cadence_qspi_apb.o
 obj-$(CONFIG_CF_SPI) += cf_spi.o
 obj-$(CONFIG_CF_QSPI) += cf_qspi.o
 obj-$(CONFIG_DAVINCI_SPI) += davinci_spi.o
+obj-$(CONFIG_DESIGNWARE_SPI) += designware_spi.o
 obj-$(CONFIG_EXYNOS_SPI) += exynos_spi.o
 obj-$(CONFIG_FTSSP010_SPI) += ftssp010_spi.o
 obj-$(CONFIG_ICH_SPI) +=  ich.o
