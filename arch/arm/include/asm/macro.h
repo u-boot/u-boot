@@ -193,7 +193,7 @@ lr	.req	x30
 0 :	wfi
 	ldr     \wreg2, [\xreg1, GICC_AIAR]
 	str     \wreg2, [\xreg1, GICC_AEOIR]
-	and	\wreg2, \wreg2, #3ff
+	and	\wreg2, \wreg2, #0x3ff
 	cbnz    \wreg2, 0b
 .endm
 #endif
