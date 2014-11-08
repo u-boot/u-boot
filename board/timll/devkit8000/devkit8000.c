@@ -124,6 +124,13 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+#if defined(CONFIG_GENERIC_MMC)
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
+}
+#endif
+
 #if defined(CONFIG_DRIVER_DM9000) & !defined(CONFIG_SPL_BUILD)
 /*
  * Routine: board_eth_init

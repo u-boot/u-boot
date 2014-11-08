@@ -150,6 +150,13 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+#if defined(CONFIG_GENERIC_MMC)
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
+}
+#endif
+
 void set_fdt(void)
 {
 	switch (gd->bd->bi_arch_number) {

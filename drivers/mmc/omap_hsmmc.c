@@ -135,12 +135,7 @@ static unsigned char mmc_board_init(struct mmc *mmc)
 	pbias_lite = readl(&t2_base->pbias_lite);
 	pbias_lite &= ~(PBIASLITEPWRDNZ1 | PBIASLITEPWRDNZ0);
 	writel(pbias_lite, &t2_base->pbias_lite);
-#endif
-#if defined(CONFIG_TWL4030_POWER)
-	twl4030_power_mmc_init(0);
-	twl4030_power_mmc_init(1);
-#endif
-#if defined(CONFIG_OMAP34XX)
+
 	writel(pbias_lite | PBIASLITEPWRDNZ1 |
 		PBIASSPEEDCTRL0 | PBIASLITEPWRDNZ0,
 		&t2_base->pbias_lite);
