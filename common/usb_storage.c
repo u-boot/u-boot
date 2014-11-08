@@ -1351,8 +1351,11 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 	perq = usb_stor_buf[0];
 	modi = usb_stor_buf[1];
 
-	if ((perq & 0x1f) == 0x1f) {
-		/* skip unknown devices */
+	/*
+	 * Skip unknown devices (0x1f) and enclosure service devices (0x0d),
+	 * they would not respond to test_unit_ready .
+	 */
+	if (((perq & 0x1f) == 0x1f) || ((perq & 0x1f) == 0x0d)) {
 		return 0;
 	}
 	if ((modi&0x80) == 0x80) {
