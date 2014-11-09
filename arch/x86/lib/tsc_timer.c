@@ -293,6 +293,9 @@ unsigned __attribute__((no_instrument_function)) long get_tbclk_mhz(void)
 {
 	unsigned long fast_calibrate;
 
+	if (gd->arch.tsc_mhz)
+		return gd->arch.tsc_mhz;
+
 	fast_calibrate = try_msr_calibrate_tsc();
 	if (fast_calibrate)
 		return fast_calibrate;
@@ -301,6 +304,7 @@ unsigned __attribute__((no_instrument_function)) long get_tbclk_mhz(void)
 	if (!fast_calibrate)
 		panic("TSC frequency is ZERO");
 
+	gd->arch.tsc_mhz = fast_calibrate;
 	return fast_calibrate;
 }
 
