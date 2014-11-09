@@ -47,14 +47,6 @@
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_CONSOLE_MUX
 
-#define EXYNOS_DEVICE_SETTINGS \
-		"stdin=serial\0" \
-		"stdout=serial\0" \
-		"stderr=serial\0"
-
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	EXYNOS_DEVICE_SETTINGS
-
 #define CONFIG_CMD_HASH
 
 /* Thermal Management Unit */
@@ -191,5 +183,42 @@
 /* Enable FIT support and comparison */
 #define CONFIG_FIT
 #define CONFIG_FIT_BEST_MATCH
+
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
+
+#ifndef MEM_LAYOUT_ENV_SETTINGS
+/* 2GB RAM, bootm size of 256M, load scripts after that */
+#define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x10000000\0" \
+	"kernel_addr_r=0x42000000\0" \
+	"fdt_addr_r=0x43000000\0" \
+	"ramdisk_addr_r=0x43300000\0" \
+	"scriptaddr=0x50000000\0" \
+	"pxefile_addr_r=0x51000000\0"
+#endif
+
+#ifndef EXYNOS_DEVICE_SETTINGS
+#define EXYNOS_DEVICE_SETTINGS \
+	"stdin=serial\0" \
+	"stdout=serial\0" \
+	"stderr=serial\0"
+#endif
+
+#ifndef EXYNOS_FDTFILE_SETTING
+#define EXYNOS_FDTFILE_SETTING
+#endif
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	EXYNOS_DEVICE_SETTINGS \
+	EXYNOS_FDTFILE_SETTING \
+	MEM_LAYOUT_ENV_SETTINGS \
+	BOOTENV
 
 #endif	/* __CONFIG_EXYNOS5_COMMON_H */
