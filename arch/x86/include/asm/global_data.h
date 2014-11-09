@@ -13,6 +13,11 @@
 /* Architecture-specific global data */
 struct arch_global_data {
 	struct global_data *gd_addr;		/* Location of Global Data */
+	uint8_t  x86;			/* CPU family */
+	uint8_t  x86_vendor;		/* CPU vendor */
+	uint8_t  x86_model;
+	uint8_t  x86_mask;
+	uint32_t x86_device;
 	uint64_t tsc_base;		/* Initial value returned by rdtsc() */
 	uint32_t tsc_base_kclocks;	/* Initial tsc as a kclocks value */
 	uint32_t tsc_prev;		/* For show_boot_progress() */

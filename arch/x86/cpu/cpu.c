@@ -13,6 +13,9 @@
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Alex Zuepke <azu@sysgo.de>
  *
+ * Part of this file is adapted from coreboot
+ * src/arch/x86/lib/cpu.c
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -26,6 +29,8 @@
 #include <asm/processor-flags.h>
 #include <asm/interrupt.h>
 #include <linux/compiler.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Constructor for a conventional segment GDT (or LDT) entry
@@ -42,6 +47,52 @@ struct gdt_ptr {
 	u16 len;
 	u32 ptr;
 } __packed;
+
+struct cpu_device_id {
+	unsigned vendor;
+	unsigned device;
+};
+
+struct cpuinfo_x86 {
+	uint8_t x86;            /* CPU family */
+	uint8_t x86_vendor;     /* CPU vendor */
+	uint8_t x86_model;
+	uint8_t x86_mask;
+};
+
+/*
+ * List of cpu vendor strings along with their normalized
+ * id values.
+ */
+static struct {
+	int vendor;
+	const char *name;
+} x86_vendors[] = {
+	{ X86_VENDOR_INTEL,     "GenuineIntel", },
+	{ X86_VENDOR_CYRIX,     "CyrixInstead", },
+	{ X86_VENDOR_AMD,       "AuthenticAMD", },
+	{ X86_VENDOR_UMC,       "UMC UMC UMC ", },
+	{ X86_VENDOR_NEXGEN,    "NexGenDriven", },
+	{ X86_VENDOR_CENTAUR,   "CentaurHauls", },
+	{ X86_VENDOR_RISE,      "RiseRiseRise", },
+	{ X86_VENDOR_TRANSMETA, "GenuineTMx86", },
+	{ X86_VENDOR_TRANSMETA, "TransmetaCPU", },
+	{ X86_VENDOR_NSC,       "Geode by NSC", },
+	{ X86_VENDOR_SIS,       "SiS SiS SiS ", },
+};
+
+static const char *const x86_vendor_name[] = {
+	[X86_VENDOR_INTEL]     = "Intel",
+	[X86_VENDOR_CYRIX]     = "Cyrix",
+	[X86_VENDOR_AMD]       = "AMD",
+	[X86_VENDOR_UMC]       = "UMC",
+	[X86_VENDOR_NEXGEN]    = "NexGen",
+	[X86_VENDOR_CENTAUR]   = "Centaur",
+	[X86_VENDOR_RISE]      = "Rise",
+	[X86_VENDOR_TRANSMETA] = "Transmeta",
+	[X86_VENDOR_NSC]       = "NSC",
+	[X86_VENDOR_SIS]       = "SiS",
+};
 
 static void load_ds(u32 segment)
 {
@@ -115,6 +166,128 @@ int __weak x86_cleanup_before_linux(void)
 	return 0;
 }
 
+/*
+ * Cyrix CPUs without cpuid or with cpuid not yet enabled can be detected
+ * by the fact that they preserve the flags across the division of 5/2.
+ * PII and PPro exhibit this behavior too, but they have cpuid available.
+ */
+
+/*
+ * Perform the Cyrix 5/2 test. A Cyrix won't change
+ * the flags, while other 486 chips will.
+ */
+static inline int test_cyrix_52div(void)
+{
+	unsigned int test;
+
+	__asm__ __volatile__(
+	     "sahf\n\t"		/* clear flags (%eax = 0x0005) */
+	     "div %b2\n\t"	/* divide 5 by 2 */
+	     "lahf"		/* store flags into %ah */
+	     : "=a" (test)
+	     : "0" (5), "q" (2)
+	     : "cc");
+
+	/* AH is 0x02 on Cyrix after the divide.. */
+	return (unsigned char) (test >> 8) == 0x02;
+}
+
+/*
+ *	Detect a NexGen CPU running without BIOS hypercode new enough
+ *	to have CPUID. (Thanks to Herbert Oppmann)
+ */
+
+static int deep_magic_nexgen_probe(void)
+{
+	int ret;
+
+	__asm__ __volatile__ (
+		"	movw	$0x5555, %%ax\n"
+		"	xorw	%%dx,%%dx\n"
+		"	movw	$2, %%cx\n"
+		"	divw	%%cx\n"
+		"	movl	$0, %%eax\n"
+		"	jnz	1f\n"
+		"	movl	$1, %%eax\n"
+		"1:\n"
+		: "=a" (ret) : : "cx", "dx");
+	return  ret;
+}
+
+static bool has_cpuid(void)
+{
+	return flag_is_changeable_p(X86_EFLAGS_ID);
+}
+
+static int build_vendor_name(char *vendor_name)
+{
+	struct cpuid_result result;
+	result = cpuid(0x00000000);
+	unsigned int *name_as_ints = (unsigned int *)vendor_name;
+
+	name_as_ints[0] = result.ebx;
+	name_as_ints[1] = result.edx;
+	name_as_ints[2] = result.ecx;
+
+	return result.eax;
+}
+
+static void identify_cpu(struct cpu_device_id *cpu)
+{
+	char vendor_name[16];
+	int i;
+
+	vendor_name[0] = '\0'; /* Unset */
+
+	/* Find the id and vendor_name */
+	if (!has_cpuid()) {
+		/* Its a 486 if we can modify the AC flag */
+		if (flag_is_changeable_p(X86_EFLAGS_AC))
+			cpu->device = 0x00000400; /* 486 */
+		else
+			cpu->device = 0x00000300; /* 386 */
+		if ((cpu->device == 0x00000400) && test_cyrix_52div()) {
+			memcpy(vendor_name, "CyrixInstead", 13);
+			/* If we ever care we can enable cpuid here */
+		}
+		/* Detect NexGen with old hypercode */
+		else if (deep_magic_nexgen_probe())
+			memcpy(vendor_name, "NexGenDriven", 13);
+	}
+	if (has_cpuid()) {
+		int  cpuid_level;
+
+		cpuid_level = build_vendor_name(vendor_name);
+		vendor_name[12] = '\0';
+
+		/* Intel-defined flags: level 0x00000001 */
+		if (cpuid_level >= 0x00000001) {
+			cpu->device = cpuid_eax(0x00000001);
+		} else {
+			/* Have CPUID level 0 only unheard of */
+			cpu->device = 0x00000400;
+		}
+	}
+	cpu->vendor = X86_VENDOR_UNKNOWN;
+	for (i = 0; i < ARRAY_SIZE(x86_vendors); i++) {
+		if (memcmp(vendor_name, x86_vendors[i].name, 12) == 0) {
+			cpu->vendor = x86_vendors[i].vendor;
+			break;
+		}
+	}
+}
+
+static inline void get_fms(struct cpuinfo_x86 *c, uint32_t tfms)
+{
+	c->x86 = (tfms >> 8) & 0xf;
+	c->x86_model = (tfms >> 4) & 0xf;
+	c->x86_mask = tfms & 0xf;
+	if (c->x86 == 0xf)
+		c->x86 += (tfms >> 20) & 0xff;
+	if (c->x86 >= 0x6)
+		c->x86_model += ((tfms >> 16) & 0xF) << 4;
+}
+
 int x86_cpu_init_f(void)
 {
 	const u32 em_rst = ~X86_CR0_EM;
@@ -127,6 +300,20 @@ int x86_cpu_init_f(void)
 	     "orl  %1, %%eax\n" \
 	     "movl %%eax, %%cr0\n" \
 	     : : "i" (em_rst), "i" (mp_ne_set) : "eax");
+
+	/* identify CPU via cpuid and store the decoded info into gd->arch */
+	if (has_cpuid()) {
+		struct cpu_device_id cpu;
+		struct cpuinfo_x86 c;
+
+		identify_cpu(&cpu);
+		get_fms(&c, cpu.device);
+		gd->arch.x86 = c.x86;
+		gd->arch.x86_vendor = cpu.vendor;
+		gd->arch.x86_model = c.x86_model;
+		gd->arch.x86_mask = c.x86_mask;
+		gd->arch.x86_device = cpu.device;
+	}
 
 	return 0;
 }
@@ -277,55 +464,14 @@ void cpu_disable_paging_pae(void)
 		: "eax");
 }
 
-static bool has_cpuid(void)
-{
-	unsigned long flag;
-
-	asm volatile("pushf\n" \
-		"pop %%eax\n"
-		"mov %%eax, %%ecx\n"	/* ecx = flags */
-		"xor %1, %%eax\n"
-		"push %%eax\n"
-		"popf\n"		/* flags ^= $2 */
-		"pushf\n"
-		"pop %%eax\n"		/* eax = flags */
-		"push %%ecx\n"
-		"popf\n"		/* flags = ecx */
-		"xor %%ecx, %%eax\n"
-		"mov %%eax, %0"
-		: "=r" (flag)
-		: "i" (1 << 21)
-		: "eax", "ecx", "memory");
-
-	return flag != 0;
-}
-
 static bool can_detect_long_mode(void)
 {
-	unsigned long flag;
-
-	asm volatile("mov $0x80000000, %%eax\n"
-		"cpuid\n"
-		"mov %%eax, %0"
-		: "=r" (flag)
-		:
-		: "eax", "ebx", "ecx", "edx", "memory");
-
-	return flag > 0x80000000UL;
+	return cpuid_eax(0x80000000) > 0x80000000UL;
 }
 
 static bool has_long_mode(void)
 {
-	unsigned long flag;
-
-	asm volatile("mov $0x80000001, %%eax\n"
-		"cpuid\n"
-		"mov %%edx, %0"
-		: "=r" (flag)
-		:
-		: "eax", "ebx", "ecx", "edx", "memory");
-
-	return flag & (1 << 29) ? true : false;
+	return cpuid_edx(0x80000001) & (1 << 29) ? true : false;
 }
 
 int cpu_has_64bit(void)
@@ -334,9 +480,49 @@ int cpu_has_64bit(void)
 		has_long_mode();
 }
 
+const char *cpu_vendor_name(int vendor)
+{
+	const char *name;
+	name = "<invalid cpu vendor>";
+	if ((vendor < (ARRAY_SIZE(x86_vendor_name))) &&
+	    (x86_vendor_name[vendor] != 0))
+		name = x86_vendor_name[vendor];
+
+	return name;
+}
+
+void fill_processor_name(char *processor_name)
+{
+	struct cpuid_result regs;
+	char temp_processor_name[49];
+	char *processor_name_start;
+	unsigned int *name_as_ints = (unsigned int *)temp_processor_name;
+	int i;
+
+	for (i = 0; i < 3; i++) {
+		regs = cpuid(0x80000002 + i);
+		name_as_ints[i * 4 + 0] = regs.eax;
+		name_as_ints[i * 4 + 1] = regs.ebx;
+		name_as_ints[i * 4 + 2] = regs.ecx;
+		name_as_ints[i * 4 + 3] = regs.edx;
+	}
+
+	temp_processor_name[48] = 0;
+
+	/* Skip leading spaces. */
+	processor_name_start = temp_processor_name;
+	while (*processor_name_start == ' ')
+		processor_name_start++;
+
+	memset(processor_name, 0, 49);
+	strcpy(processor_name, processor_name_start);
+}
+
 int print_cpuinfo(void)
 {
-	printf("CPU:   %s\n", cpu_has_64bit() ? "x86_64" : "x86");
+	printf("CPU: %s, vendor %s, device %xh\n",
+	       cpu_has_64bit() ? "x86_64" : "x86",
+	       cpu_vendor_name(gd->arch.x86_vendor), gd->arch.x86_device);
 
 	return 0;
 }
