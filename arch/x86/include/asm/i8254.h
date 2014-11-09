@@ -36,4 +36,7 @@
 #define PIT_CMD_MODE4	0x08		/* Select mode 4 */
 #define PIT_CMD_MODE5	0x0A		/* Select mode 5 */
 
+/* The clock frequency of the i8253/i8254 PIT */
+#define PIT_TICK_RATE	1193182ul
+
 #endif
