@@ -55,9 +55,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	EXYNOS_DEVICE_SETTINGS
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_ELF
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_HASH
 
 /* Thermal Management Unit */
@@ -174,12 +171,6 @@
 #define CONFIG_ENV_SROM_BANK		1
 #endif /*CONFIG_CMD_NET*/
 
-/* Enable PXE Support */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_CMD_PXE
-#define CONFIG_MENU
-#endif
-
 /* SHA hashing */
 #define CONFIG_CMD_HASH
 #define CONFIG_HASH_VERIFY
@@ -188,8 +179,6 @@
 
 /* Enable Time Command */
 #define CONFIG_CMD_TIME
-
-#define CONFIG_CMD_BOOTZ
 
 #define CONFIG_CMD_GPIO
 
