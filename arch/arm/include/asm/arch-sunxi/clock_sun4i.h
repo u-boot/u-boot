@@ -62,7 +62,7 @@ struct sunxi_ccm_reg {
 	u32 gps_clk_cfg;	/* 0xd0 */
 	u32 spi3_clk_cfg;	/* 0xd4 */
 	u8 res5[0x28];
-	u32 dram_clk_cfg;	/* 0x100 */
+	u32 dram_clk_gate;	/* 0x100 */
 	u32 be0_clk_cfg;	/* 0x104 */
 	u32 be1_clk_cfg;	/* 0x108 */
 	u32 fe0_clk_cfg;	/* 0x10c */

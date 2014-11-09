@@ -428,9 +428,9 @@ static void dramc_clock_output_en(u32 on)
 #ifdef CONFIG_MACH_SUN4I
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	if (on)
-		setbits_le32(&ccm->dram_clk_cfg, CCM_DRAM_CTRL_DCLK_OUT);
+		setbits_le32(&ccm->dram_clk_gate, CCM_DRAM_CTRL_DCLK_OUT);
 	else
-		clrbits_le32(&ccm->dram_clk_cfg, CCM_DRAM_CTRL_DCLK_OUT);
+		clrbits_le32(&ccm->dram_clk_gate, CCM_DRAM_CTRL_DCLK_OUT);
 #endif
 }
 
