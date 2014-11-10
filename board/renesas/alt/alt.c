@@ -167,7 +167,6 @@ void reset_cpu(ulong addr)
 	u8 val;
 
 	i2c_set_bus_num(1); /* PowerIC connected to ch1 */
-	i2c_init(400000, 0);
 	i2c_read(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
 	val |= 0x02;
 	i2c_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
