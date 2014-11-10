@@ -93,7 +93,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = LAGER_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	/* Init PFC controller */
 	r8a7790_pinmux_init();
@@ -173,12 +173,6 @@ int dram_init(void)
 const struct rmobile_sysinfo sysinfo = {
 	CONFIG_RMOBILE_BOARD_STRING
 };
-
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = LAGER_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = LAGER_SDRAM_SIZE;
-}
 
 void reset_cpu(ulong addr)
 {
