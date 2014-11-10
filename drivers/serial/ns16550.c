@@ -132,11 +132,12 @@ static void NS16550_setbrg(NS16550_t com_port, int baud_divisor)
 
 void NS16550_init(NS16550_t com_port, int baud_divisor)
 {
-#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_OMAP34XX))
+#if (defined(CONFIG_SPL_BUILD) && \
+		(defined(CONFIG_OMAP34XX) || defined(CONFIG_OMAP44XX)))
 	/*
-	 * On some OMAP3 devices when UART3 is configured for boot mode before
-	 * SPL starts only THRE bit is set. We have to empty the transmitter
-	 * before initialization starts.
+	 * On some OMAP3/OMAP4 devices when UART3 is configured for boot mode
+	 * before SPL starts only THRE bit is set. We have to empty the
+	 * transmitter before initialization starts.
 	 */
 	if ((serial_in(&com_port->lsr) & (UART_LSR_TEMT | UART_LSR_THRE))
 	     == UART_LSR_THRE) {
