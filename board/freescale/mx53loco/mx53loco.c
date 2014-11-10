@@ -242,6 +242,8 @@ static int power_init(void)
 		if (!p)
 			return -ENODEV;
 
+		setenv("fdt_file", "imx53-qsb.dtb");
+
 		/* Set VDDA to 1.25V */
 		val = DA9052_BUCKCORE_BCOREEN | DA_BUCKCORE_VBCORE_1_250V;
 		ret = pmic_reg_write(p, DA9053_BUCKCORE_REG, val);
@@ -282,6 +284,8 @@ static int power_init(void)
 		p = pmic_get("FSL_PMIC");
 		if (!p)
 			return -ENODEV;
+
+		setenv("fdt_file", "imx53-qsrb.dtb");
 
 		/* Set VDDGP to 1.25V for 1GHz on SW1 */
 		pmic_reg_read(p, REG_SW_0, &val);
