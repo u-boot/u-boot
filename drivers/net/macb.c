@@ -566,7 +566,13 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	macb_writel(macb, TBQP, macb->tx_ring_dma);
 
 	if (macb_is_gem(macb)) {
-#ifdef CONFIG_RGMII
+		/*
+		 * When the GMAC IP with GE feature, this bit is used to
+		 * select interface between RGMII and GMII.
+		 * When the GMAC IP without GE feature, this bit is used
+		 * to select interface between RMII and MII.
+		 */
+#if defined(CONFIG_RGMII) || defined(CONFIG_RMII)
 		gem_writel(macb, UR, GEM_BIT(RGMII));
 #else
 		gem_writel(macb, UR, 0);
