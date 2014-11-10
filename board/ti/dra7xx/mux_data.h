@@ -130,8 +130,8 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{GPMC_A13, (IEN | PDIS | M1)},  /* QSPI1_RTCLK */
 	{GPMC_A14, (IEN | PDIS | M1)},  /* QSPI1_D[3] */
 	{GPMC_A15, (IEN | PDIS | M1)},  /* QSPI1_D[2] */
-	{GPMC_A16, (IEN | PDIS | M1)},  /* QSPI1_D[1] */
-	{GPMC_A17, (IEN | PDIS | M1)},  /* QSPI1_D[0] */
+	{GPMC_A16, (IEN | PDIS | M1)},  /* QSPI1_D[0] */
+	{GPMC_A17, (IEN | PDIS | M1)},  /* QSPI1_D[1] */
 	{GPMC_A18, (M1)},  /* QSPI1_SCLK */
 	{GPMC_A3, (IEN | PDIS | M1)},   /* QSPI1_CS2 */
 	{GPMC_A4, (IEN | PDIS | M1)},   /* QSPI1_CS3 */
