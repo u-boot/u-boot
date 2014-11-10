@@ -158,8 +158,7 @@ static void ppc4xx_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
  *
  * Typical case is a Write of an addr followd by a Read. The
  * IBM FAQ does not cover this. On the last byte of the write
- * we don't set the creg CHT bit, and on the first bytes of the
- * read we set the RPST bit.
+ * we don't set the creg CHT bit but the RPST bit.
  *
  * It does not support address only transfers, there must be
  * a data part. If you want to write the address yourself, put
@@ -247,6 +246,10 @@ static int _i2c_transfer(struct i2c_adapter *adap,
 		if ((!cmd_type && (ptr == addr)) || ((tran + bc) != cnt))
 			creg |= IIC_CNTL_CHT;
 
+		/* last part of address, prepare for repeated start on read */
+		if (cmd_type && (ptr == addr) && ((tran + bc) == cnt))
+			creg |= IIC_CNTL_RPST;
+
 		if (reading) {
 			creg |= IIC_CNTL_READ;
 		} else {
@@ -286,6 +289,27 @@ static int _i2c_transfer(struct i2c_adapter *adap,
 			/* Transfer aborted? */
 			if (status & IIC_EXTSTS_XFRA)
 				result = IIC_NOK_XFRA;
+			/* Is bus free?
+			 * If error happened during combined xfer
+			 * IIC interface is usually stuck in some strange
+			 * state without a valid stop condition.
+			 * Brute, but working: generate stop, then soft reset.
+			 */
+			if ((status & IIC_EXTSTS_BCS_MASK)
+			    != IIC_EXTSTS_BCS_FREE){
+				u8 mdcntl = in_8(&i2c->mdcntl);
+
+				/* Generate valid stop condition */
+				out_8(&i2c->xtcntlss, IIC_XTCNTLSS_SRST);
+				out_8(&i2c->directcntl, IIC_DIRCNTL_SCC);
+				udelay(10);
+				out_8(&i2c->directcntl,
+				      IIC_DIRCNTL_SCC | IIC_DIRCNTL_SDAC);
+				out_8(&i2c->xtcntlss, 0);
+
+				ppc4xx_i2c_init(adap, (mdcntl & IIC_MDCNTL_FSM)
+						? 400000 : 100000, 0);
+			}
 		} else if ( status & IIC_STS_PT) {
 			result = IIC_NOK_TOUT;
 		}
@@ -314,8 +338,6 @@ static int _i2c_transfer(struct i2c_adapter *adap,
 			cnt = data_len;
 			tran = 0;
 			reading = cmd_type;
-			if (reading)
-				creg = IIC_CNTL_RPST;
 		}
 	}
 	return result;
