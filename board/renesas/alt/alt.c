@@ -88,7 +88,7 @@ void arch_preboot_os(void)
 int board_init(void)
 {
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = ALT_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	/* Init PFC controller */
 	r8a7794_pinmux_init();
@@ -155,12 +155,6 @@ int dram_init(void)
 const struct rmobile_sysinfo sysinfo = {
 	CONFIG_RMOBILE_BOARD_STRING
 };
-
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = ALT_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = ALT_SDRAM_SIZE;
-}
 
 void reset_cpu(ulong addr)
 {
