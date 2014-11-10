@@ -509,6 +509,10 @@ config TARGET_SAMA5D3XEK
 	select CPU_V7
 	select SUPPORT_SPL
 
+config TARGET_SAMA5D4EK
+	bool "Support sama5d4ek"
+	select CPU_V7
+
 config TARGET_BCM28155_AP
 	bool "Support bcm28155_ap"
 	select CPU_V7
@@ -844,6 +848,7 @@ source "board/atmel/at91sam9rlek/Kconfig"
 source "board/atmel/at91sam9x5ek/Kconfig"
 source "board/atmel/sama5d3_xplained/Kconfig"
 source "board/atmel/sama5d3xek/Kconfig"
+source "board/atmel/sama5d4ek/Kconfig"
 source "board/bachmann/ot1200/Kconfig"
 source "board/balloon3/Kconfig"
 source "board/barco/titanium/Kconfig"
