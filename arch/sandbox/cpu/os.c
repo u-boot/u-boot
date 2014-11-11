@@ -367,6 +367,7 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 
 done:
 	closedir(dir);
+	free(fname);
 	return ret;
 }
 

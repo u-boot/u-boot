@@ -130,7 +130,8 @@ static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 	state->write_ram_buf = true;
 	state->ram_buf_fname = arg;
 
-	if (os_read_ram_buf(arg)) {
+	err = os_read_ram_buf(arg);
+	if (err) {
 		printf("Failed to read RAM buffer\n");
 		return err;
 	}
