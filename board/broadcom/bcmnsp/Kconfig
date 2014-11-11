@@ -1,4 +1,4 @@
-if TARGET_BCM958622HR
+if TARGET_BCMNSP
 
 config SYS_BOARD
 	default "bcm_ep"

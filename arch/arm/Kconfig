@@ -521,12 +521,12 @@ config TARGET_BCM28155_AP
 	bool "Support bcm28155_ap"
 	select CPU_V7
 
-config TARGET_BCM958300K
-	bool "Support bcm958300k"
+config TARGET_BCMCYGNUS
+	bool "Support bcmcygnus"
 	select CPU_V7
 
-config TARGET_BCM958622HR
-	bool "Support bcm958622hr"
+config TARGET_BCMNSP
+	bool "Support bcmnsp"
 	select CPU_V7
 
 config ARCH_EXYNOS
@@ -861,8 +861,8 @@ source "board/bluegiga/apx4devkit/Kconfig"
 source "board/bluewater/snapper9260/Kconfig"
 source "board/boundary/nitrogen6x/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
-source "board/broadcom/bcm958300k/Kconfig"
-source "board/broadcom/bcm958622hr/Kconfig"
+source "board/broadcom/bcmcygnus/Kconfig"
+source "board/broadcom/bcmnsp/Kconfig"
 source "board/calao/sbc35_a9g20/Kconfig"
 source "board/calao/tny_a9260/Kconfig"
 source "board/calao/usb_a9263/Kconfig"
