@@ -83,28 +83,33 @@ int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only)
  *
  * @param blob:		Device tree pointer
  * @param offset:	Offset of node in device tree
- * @param of_matchL	List of compatible strings to match
+ * @param of_match:	List of compatible strings to match
+ * @param of_idp:	Returns the match that was found
  * @return 0 if there is a match, -ENOENT if no match, -ENODEV if the node
  * does not have a compatible string, other error <0 if there is a device
  * tree error
  */
 static int driver_check_compatible(const void *blob, int offset,
-				   const struct udevice_id *of_match)
+				   const struct udevice_id *of_match,
+				   const struct udevice_id **of_idp)
 {
 	int ret;
 
+	*of_idp = NULL;
 	if (!of_match)
 		return -ENOENT;
 
 	while (of_match->compatible) {
 		ret = fdt_node_check_compatible(blob, offset,
 						of_match->compatible);
-		if (!ret)
+		if (!ret) {
+			*of_idp = of_match;
 			return 0;
-		else if (ret == -FDT_ERR_NOTFOUND)
+		} else if (ret == -FDT_ERR_NOTFOUND) {
 			return -ENODEV;
-		else if (ret < 0)
+		} else if (ret < 0) {
 			return -EINVAL;
+		}
 		of_match++;
 	}
 
@@ -116,6 +121,7 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 {
 	struct driver *driver = ll_entry_start(struct driver, driver);
 	const int n_ents = ll_entry_count(struct driver, driver);
+	const struct udevice_id *id;
 	struct driver *entry;
 	struct udevice *dev;
 	bool found = false;
@@ -127,7 +133,8 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 	if (devp)
 		*devp = NULL;
 	for (entry = driver; entry != driver + n_ents; entry++) {
-		ret = driver_check_compatible(blob, offset, entry->of_match);
+		ret = driver_check_compatible(blob, offset, entry->of_match,
+					      &id);
 		name = fdt_get_name(blob, offset, NULL);
 		if (ret == -ENOENT) {
 			continue;
@@ -147,6 +154,7 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 			dm_warn("Error binding driver '%s'\n", entry->name);
 			return ret;
 		} else {
+			dev->of_id = id;
 			found = true;
 			if (devp)
 				*devp = dev;

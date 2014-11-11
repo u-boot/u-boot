@@ -380,3 +380,8 @@ int device_find_next_child(struct udevice **devp)
 
 	return 0;
 }
+
+ulong dev_get_of_data(struct udevice *dev)
+{
+	return dev->of_id->data;
+}
