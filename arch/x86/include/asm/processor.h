@@ -30,4 +30,23 @@ enum {
 
 #define X86_GDT_SIZE		(X86_GDT_NUM_ENTRIES * X86_GDT_ENTRY_SIZE)
 
+#ifndef __ASSEMBLY__
+
+static inline __attribute__((always_inline)) void cpu_hlt(void)
+{
+	asm("hlt");
+}
+
+static inline ulong cpu_get_sp(void)
+{
+	ulong result;
+
+	asm volatile(
+		"mov %%esp, %%eax"
+		: "=a" (result));
+	return result;
+}
+
+#endif /* __ASSEMBLY__ */
+
 #endif
