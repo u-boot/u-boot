@@ -602,7 +602,7 @@ static int sandbox_sf_bind_bus_cs(struct sandbox_state *state, int busnum,
 		       spec, ret);
 		return ret;
 	}
-	ret = device_find_child_by_seq(bus, cs, true, &slave);
+	ret = spi_find_chip_select(bus, cs, &slave);
 	if (!ret) {
 		printf("Chip select %d already exists for spec '%s'\n", cs,
 		       spec);

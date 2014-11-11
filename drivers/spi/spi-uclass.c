@@ -115,16 +115,7 @@ int spi_chip_select(struct udevice *dev)
 	return slave ? slave->cs : -ENOENT;
 }
 
-/**
- * spi_find_chip_select() - Find the slave attached to chip select
- *
- * @bus:	SPI bus to search
- * @cs:		Chip select to look for
- * @devp:	Returns the slave device if found
- * @return 0 if found, -ENODEV on error
- */
-static int spi_find_chip_select(struct udevice *bus, int cs,
-				struct udevice **devp)
+int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp)
 {
 	struct udevice *dev;
 
