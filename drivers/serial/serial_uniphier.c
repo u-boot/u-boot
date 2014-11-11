@@ -5,7 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
+#include <linux/serial_reg.h>
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <dm/device.h>
@@ -37,17 +37,6 @@ struct uniphier_serial {
 
 #define thr rbr
 
-/*
- * These are the definitions for the Line Control Register
- */
-#define UART_LCR_WLS_8	0x03		/* 8 bit character length */
-
-/*
- * These are the definitions for the Line Status Register
- */
-#define UART_LSR_DR	0x01		/* Data ready */
-#define UART_LSR_THRE	0x20		/* Xmit holding register empty */
-
 struct uniphier_serial_private_data {
 	struct uniphier_serial __iomem *membase;
 };
@@ -62,7 +51,7 @@ static int uniphier_serial_setbrg(struct udevice *dev, int baudrate)
 	const unsigned int mode_x_div = 16;
 	unsigned int divisor;
 
-	writeb(UART_LCR_WLS_8, &port->lcr);
+	writeb(UART_LCR_WLEN8, &port->lcr);
 
 	divisor = DIV_ROUND_CLOSEST(plat->uartclk, mode_x_div * baudrate);
 

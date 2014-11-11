@@ -37,8 +37,6 @@
 #define CONFIG_DDR_NUM_CH0 1
 #define CONFIG_DDR_NUM_CH1 1
 
-#define CONFIG_DDR_FREQ 1600
-
 /*
  * Memory Size & Mapping
  */

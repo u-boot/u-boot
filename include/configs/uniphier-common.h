@@ -43,7 +43,7 @@ are defined. Select only one of them."
 #define CONFIG_SMC911X_BASE		CONFIG_SUPPORT_CARD_ETHER_BASE
 #define CONFIG_SMC911X_32_BIT
 
-#define CONFIG_SYS_MALLOC_F_LEN  0x7000
+#define CONFIG_SYS_MALLOC_F_LEN  0x2000
 
 /*-----------------------------------------------------------------------
  * MMU and Cache Setting
@@ -166,6 +166,13 @@ are defined. Select only one of them."
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS			0
 
+/* USB */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_MAX_CONTROLLER_COUNT		2
+#define CONFIG_CMD_FAT
+#define CONFIG_FAT_WRITE
+#define CONFIG_DOS_PARTITION
+
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x01000000)
@@ -241,9 +248,9 @@ are defined. Select only one of them."
 
 #define CONFIG_SYS_TEXT_BASE		0x84000000
 
-#if defined(CONFIG_SPL_BUILD)
 #define CONFIG_BOARD_POSTCLK_INIT
-#else
+
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 

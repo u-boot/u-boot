@@ -32,4 +32,31 @@ config CMD_PINMON
 	  The boot mode pins are latched when the system reset is deasserted
 	  and determine which device the system should load a boot image from.
 
+config SOC_INIT
+	bool
+	default SPL_BUILD
+
+config DRAM_INIT
+	bool
+	default SPL_BUILD
+
+choice
+	prompt "DDR3 Frequency select"
+	depends on DRAM_INIT
+
+config DDR_FREQ_1600
+	bool "DDR3 1600"
+	depends on MACH_PH1_PRO4 || MACH_PH1_LD4
+
+config DDR_FREQ_1333
+	bool "DDR3 1333"
+	depends on MACH_PH1_LD4 || MACH_PH1_SLD8
+
+endchoice
+
+config DDR_FREQ
+	int
+	default 1333 if DDR_FREQ_1333
+	default 1600 if DDR_FREQ_1600
+
 endmenu

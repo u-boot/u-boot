@@ -8,13 +8,10 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/sc-regs.h>
-#include <asm/arch/board.h>
 
 void reset_cpu(unsigned long ignored)
 {
 	u32 tmp;
-
-	uniphier_board_reset();
 
 	writel(5, SC_IRQTIMSET); /* default value */
 
