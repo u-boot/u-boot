@@ -198,6 +198,19 @@ static uint get_alen(char *arg)
 	return alen;
 }
 
+enum i2c_err_op {
+	I2C_ERR_READ,
+	I2C_ERR_WRITE,
+};
+
+static int i2c_report_err(int ret, enum i2c_err_op op)
+{
+	printf("Error %s the chip: %d\n",
+	       op == I2C_ERR_READ ? "reading" : "writing", ret);
+
+	return CMD_RET_FAILURE;
+}
+
 /**
  * do_i2c_read() - Handle the "i2c read" command-line command
  * @cmdtp:	Command data struct pointer
@@ -245,7 +258,7 @@ static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	memaddr = (u_char *)simple_strtoul(argv[4], NULL, 16);
 
 	if (i2c_read(chip, devaddr, alen, memaddr, length) != 0) {
-		puts ("Error reading the chip.\n");
+		i2c_report_err(-1, I2C_ERR_READ);
 		return 1;
 	}
 	return 0;
@@ -286,8 +299,7 @@ static int do_i2c_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 
 	while (length-- > 0) {
 		if (i2c_write(chip, devaddr++, alen, memaddr++, 1) != 0) {
-			puts("Error writing to the chip.\n");
-			return 1;
+			return i2c_report_err(-1, I2C_ERR_WRITE);
 		}
 /*
  * No write delay with FRAM devices.
@@ -370,7 +382,7 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		linebytes = (nbytes > DISP_LINE_LEN) ? DISP_LINE_LEN : nbytes;
 
 		if (i2c_read(chip, addr, alen, linebuf, linebytes) != 0)
-			puts ("Error reading the chip.\n");
+			i2c_report_err(-1, I2C_ERR_READ);
 		else {
 			printf("%04x:", addr);
 			cp = linebuf;
@@ -452,7 +464,7 @@ static int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 
 	while (count-- > 0) {
 		if (i2c_write(chip, addr++, alen, &byte, 1) != 0)
-			puts ("Error writing the chip.\n");
+			i2c_report_err(-1, I2C_ERR_WRITE);
 		/*
 		 * Wait for the write to complete.  The write can take
 		 * up to 10mSec (we allow a little more time).
@@ -528,7 +540,7 @@ static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		addr++;
 	}
 	if (err > 0)
-		puts ("Error reading the chip,\n");
+		i2c_report_err(-1, I2C_ERR_READ);
 	else
 		printf ("%08lx\n", crc);
 
@@ -601,7 +613,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 	do {
 		printf("%08lx:", addr);
 		if (i2c_read(chip, addr, alen, (uchar *)&data, size) != 0)
-			puts ("\nError reading the chip,\n");
+			i2c_report_err(-1, I2C_ERR_READ);
 		else {
 			data = cpu_to_be32(data);
 			if (size == 1)
@@ -644,7 +656,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 				 */
 				bootretry_reset_cmd_timeout();
 				if (i2c_write(chip, addr, alen, (uchar *)&data, size) != 0)
-					puts ("Error writing the chip.\n");
+					i2c_report_err(-1, I2C_ERR_WRITE);
 #ifdef CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS
 				udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 #endif
@@ -783,7 +795,7 @@ static int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	 */
 	while (1) {
 		if (i2c_read(chip, addr, alen, bytes, length) != 0)
-			puts ("Error reading the chip.\n");
+			i2c_report_err(-1, I2C_ERR_READ);
 		udelay(delay);
 	}
 
@@ -1341,7 +1353,7 @@ int do_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 	chip = simple_strtoul(argv[1], NULL, 16);
 	if (i2c_read(chip, 0, 1, (uchar *)&edid, sizeof(edid)) != 0) {
-		puts("Error reading EDID content.\n");
+		i2c_report_err(-1, I2C_ERR_READ);
 		return 1;
 	}
 
