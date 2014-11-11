@@ -381,6 +381,11 @@ int device_find_next_child(struct udevice **devp)
 	return 0;
 }
 
+struct udevice *dev_get_parent(struct udevice *child)
+{
+	return child->parent;
+}
+
 ulong dev_get_of_data(struct udevice *dev)
 {
 	return dev->of_id->data;
