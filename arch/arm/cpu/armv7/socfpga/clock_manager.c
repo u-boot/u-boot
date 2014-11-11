@@ -507,6 +507,19 @@ unsigned int cm_get_qspi_controller_clk_hz(void)
 	return clock;
 }
 
+unsigned int cm_get_spi_controller_clk_hz(void)
+{
+	uint32_t reg, clock = 0;
+
+	clock = cm_get_per_vco_clk_hz();
+
+	/* get the clock prior L4 SP divider (periph_base_clk) */
+	reg = readl(&clock_manager_base->per_pll.perbaseclk);
+	clock /= (reg + 1);
+
+	return clock;
+}
+
 static void cm_print_clock_quick_summary(void)
 {
 	printf("MPU       %10ld kHz\n", cm_get_mpu_clk_hz() / 1000);
@@ -518,6 +531,7 @@ static void cm_print_clock_quick_summary(void)
 	printf("MMC         %8d kHz\n", cm_get_mmc_controller_clk_hz() / 1000);
 	printf("QSPI        %8d kHz\n", cm_get_qspi_controller_clk_hz() / 1000);
 	printf("UART        %8d kHz\n", cm_get_l4_sp_clk_hz() / 1000);
+	printf("SPI         %8d kHz\n", cm_get_spi_controller_clk_hz() / 1000);
 }
 
 int set_cpu_clk_info(void)

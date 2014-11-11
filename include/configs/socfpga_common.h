@@ -79,6 +79,25 @@
 #define CONFIG_SYS_PL310_BASE		SOCFPGA_MPUL2_ADDRESS
 
 /*
+ * EPCS/EPCQx1 Serial Flash Controller
+ */
+#ifdef CONFIG_ALTERA_SPI
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_SF_DEFAULT_SPEED		30000000
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_BAR
+/*
+ * The base address is configurable in QSys, each board must specify the
+ * base address based on it's particular FPGA configuration. Please note
+ * that the address here is incremented by  0x400  from the Base address
+ * selected in QSys, since the SPI registers are at offset +0x400.
+ * #define CONFIG_SYS_SPI_BASE		0xff240400
+ */
+#endif
+
+/*
  * Ethernet on SoC (EMAC)
  */
 #if defined(CONFIG_CMD_NET) && !defined(CONFIG_SOCFPGA_VIRTUAL_TARGET)
@@ -140,6 +159,33 @@
 /* using smaller max blk cnt to avoid flooding the limited stack we have */
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	256	/* FIXME -- SPL only? */
 #endif
+
+ /*
+ * I2C support
+ */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_DW
+#define CONFIG_SYS_I2C_BUS_MAX		4
+#define CONFIG_SYS_I2C_BASE		SOCFPGA_I2C0_ADDRESS
+#define CONFIG_SYS_I2C_BASE1		SOCFPGA_I2C1_ADDRESS
+#define CONFIG_SYS_I2C_BASE2		SOCFPGA_I2C2_ADDRESS
+#define CONFIG_SYS_I2C_BASE3		SOCFPGA_I2C3_ADDRESS
+/* Using standard mode which the speed up to 100Kb/s */
+#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C_SPEED1		100000
+#define CONFIG_SYS_I2C_SPEED2		100000
+#define CONFIG_SYS_I2C_SPEED3		100000
+/* Address of device when used as slave */
+#define CONFIG_SYS_I2C_SLAVE		0x02
+#define CONFIG_SYS_I2C_SLAVE1		0x02
+#define CONFIG_SYS_I2C_SLAVE2		0x02
+#define CONFIG_SYS_I2C_SLAVE3		0x02
+#ifndef __ASSEMBLY__
+/* Clock supplied to I2C controller in unit of MHz */
+unsigned int cm_get_l4_sp_clk_hz(void);
+#define IC_CLK				(cm_get_l4_sp_clk_hz() / 1000000)
+#endif
+#define CONFIG_CMD_I2C
 
 /*
  * Serial Driver

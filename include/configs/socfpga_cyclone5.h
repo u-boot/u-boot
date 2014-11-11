@@ -42,7 +42,7 @@
 /* Booting Linux */
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"zImage"
-#define CONFIG_BOOTARGS		"console=ttyS0" __stringify(CONFIG_BAUDRATE)
+#define CONFIG_BOOTARGS		"console=ttyS0," __stringify(CONFIG_BAUDRATE)
 #ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
 #define CONFIG_BOOTCOMMAND	"run ramboot"
 #else
