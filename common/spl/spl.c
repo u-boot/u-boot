@@ -7,6 +7,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <nand.h>
@@ -15,6 +16,7 @@
 #include <i2c.h>
 #include <image.h>
 #include <malloc.h>
+#include <dm/root.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -146,6 +148,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 #elif defined(CONFIG_SYS_MALLOC_F_LEN)
 	gd->malloc_limit = gd->malloc_base + CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
+#endif
+#ifdef CONFIG_SPL_DM
+	dm_init_and_scan(true);
 #endif
 
 #ifndef CONFIG_PPC
