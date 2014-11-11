@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <ns16550.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
@@ -42,6 +43,13 @@
 #include "emc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SPL_BUILD
+/* TODO(sjg@chromium.org): Remove once SPL supports device tree */
+U_BOOT_DEVICE(tegra_gpios) = {
+	"gpio_tegra"
+};
+#endif
 
 const struct tegra_sysinfo sysinfo = {
 	CONFIG_TEGRA_BOARD_STRING
