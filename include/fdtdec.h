@@ -445,6 +445,22 @@ int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
 		u32 *array, int count);
 
 /**
+ * Look up a property in a node and return its contents in an integer
+ * array of given length. The property must exist but may have less data that
+ * expected (4*count bytes). It may have more, but this will be ignored.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param prop_name	name of property to find
+ * @param array		array to fill with data
+ * @param count		number of array elements
+ * @return number of array elements if ok, or -FDT_ERR_NOTFOUND if the
+ *		property is not found
+ */
+int fdtdec_get_int_array_count(const void *blob, int node,
+			       const char *prop_name, u32 *array, int count);
+
+/**
  * Look up a property in a node and return a pointer to its contents as a
  * unsigned int array of given length. The property must have at least enough
  * data for the array ('count' cells). It may have more, but this will be

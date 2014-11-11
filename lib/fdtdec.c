@@ -485,6 +485,26 @@ int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
 	return err;
 }
 
+int fdtdec_get_int_array_count(const void *blob, int node,
+			       const char *prop_name, u32 *array, int count)
+{
+	const u32 *cell;
+	int len, elems;
+	int i;
+
+	debug("%s: %s\n", __func__, prop_name);
+	cell = fdt_getprop(blob, node, prop_name, &len);
+	if (!cell)
+		return -FDT_ERR_NOTFOUND;
+	elems = len / sizeof(u32);
+	if (count > elems)
+		count = elems;
+	for (i = 0; i < count; i++)
+		array[i] = fdt32_to_cpu(cell[i]);
+
+	return count;
+}
+
 const u32 *fdtdec_locate_array(const void *blob, int node,
 			       const char *prop_name, int count)
 {
