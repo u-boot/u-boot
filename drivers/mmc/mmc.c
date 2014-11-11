@@ -1408,8 +1408,11 @@ void print_mmc_devices(char separator)
 
 		printf("%s: %d", m->cfg->name, m->block_dev.dev);
 
-		if (entry->next != &mmc_devices)
-			printf("%c ", separator);
+		if (entry->next != &mmc_devices) {
+			printf("%c", separator);
+			if (separator != '\n')
+				puts (" ");
+		}
 	}
 
 	printf("\n");
