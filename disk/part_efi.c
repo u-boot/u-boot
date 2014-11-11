@@ -14,6 +14,7 @@
 #include <common.h>
 #include <command.h>
 #include <ide.h>
+#include <inttypes.h>
 #include <malloc.h>
 #include <part_efi.h>
 #include <linux/ctype.h>
@@ -553,28 +554,28 @@ static int is_gpt_valid(block_dev_desc_t *dev_desc, u64 lba,
 
 	/* Check that the my_lba entry points to the LBA that contains the GPT */
 	if (le64_to_cpu(pgpt_head->my_lba) != lba) {
-		printf("GPT: my_lba incorrect: %llX != %llX\n",
-			le64_to_cpu(pgpt_head->my_lba),
-			lba);
+		printf("GPT: my_lba incorrect: %llX != %" PRIX64 "\n",
+		       le64_to_cpu(pgpt_head->my_lba),
+		       lba);
 		return 0;
 	}
 
 	/* Check the first_usable_lba and last_usable_lba are within the disk. */
 	lastlba = (u64)dev_desc->lba;
 	if (le64_to_cpu(pgpt_head->first_usable_lba) > lastlba) {
-		printf("GPT: first_usable_lba incorrect: %llX > %llX\n",
-			le64_to_cpu(pgpt_head->first_usable_lba), lastlba);
+		printf("GPT: first_usable_lba incorrect: %llX > %" PRIX64 "\n",
+		       le64_to_cpu(pgpt_head->first_usable_lba), lastlba);
 		return 0;
 	}
 	if (le64_to_cpu(pgpt_head->last_usable_lba) > lastlba) {
-		printf("GPT: last_usable_lba incorrect: %llX > %llX\n",
-			le64_to_cpu(pgpt_head->last_usable_lba), lastlba);
+		printf("GPT: last_usable_lba incorrect: %llX > %" PRIX64 "\n",
+		       le64_to_cpu(pgpt_head->last_usable_lba), lastlba);
 		return 0;
 	}
 
-	debug("GPT: first_usable_lba: %llX last_usable_lba %llX last lba %llX\n",
-		le64_to_cpu(pgpt_head->first_usable_lba),
-		le64_to_cpu(pgpt_head->last_usable_lba), lastlba);
+	debug("GPT: first_usable_lba: %llX last_usable_lba %llX last lba %"
+	      PRIX64 "\n", le64_to_cpu(pgpt_head->first_usable_lba),
+	      le64_to_cpu(pgpt_head->last_usable_lba), lastlba);
 
 	/* Read and allocate Partition Table Entries */
 	*pgpt_pte = alloc_read_gpt_entries(dev_desc, pgpt_head);
