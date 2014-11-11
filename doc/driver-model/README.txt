@@ -750,19 +750,43 @@ device pointers, but this is not currently implemented (the root device
 pointer is saved but not made available through the driver model API).
 
 
+SPL Support
+-----------
+
+Driver model can operate in SPL. Its efficient implementation and small code
+size provide for a small overhead which is acceptable for all but the most
+constrained systems.
+
+To enable driver model in SPL, define CONFIG_SPL_DM. You might want to
+consider the following option also. See the main README for more details.
+
+   - CONFIG_SYS_MALLOC_SIMPLE
+   - CONFIG_DM_WARN
+   - CONFIG_DM_DEVICE_REMOVE
+   - CONFIG_DM_STDIO
+
+
+Enabling Driver Model
+---------------------
+
+Driver model is being brought into U-Boot gradually. As each subsystems gets
+support, a uclass is created and a CONFIG to enable use of driver model for
+that subsystem.
+
+For example CONFIG_DM_SERIAL enables driver model for serial. With that
+defined, the old serial support is not enabled, and your serial driver must
+conform to driver model. With that undefined, the old serial support is
+enabled and driver model is not available for serial. This means that when
+you convert a driver, you must either convert all its boards, or provide for
+the driver to be compiled both with and without driver model (generally this
+is not very hard).
+
+See the main README for full details of the available driver model CONFIG
+options.
+
+
 Things to punt for later
 ------------------------
-
-- SPL support - this will have to be present before many drivers can be
-converted, but it seems like we can add it once we are happy with the
-core implementation.
-
-That is not to say that no thinking has gone into this - in fact there
-is quite a lot there. However, getting these right is non-trivial and
-there is a high cost associated with going down the wrong path.
-
-For SPL, it may be possible to fit in a simplified driver model with only
-bind and probe methods, to reduce size.
 
 Uclasses are statically numbered at compile time. It would be possible to
 change this to dynamic numbering, but then we would require some sort of
