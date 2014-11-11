@@ -99,7 +99,8 @@ static int initr_trace(void)
 
 static int initr_reloc(void)
 {
-	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
+	/* tell others: relocation done */
+	gd->flags |= GD_FLG_RELOC | GD_FLG_FULL_MALLOC_INIT;
 	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_R, "board_init_r");
 
 	return 0;
