@@ -257,6 +257,15 @@ const char *gpio_get_bank_info(struct udevice *dev, int *offset_count);
 int gpio_lookup_name(const char *name, struct udevice **devp,
 		     unsigned int *offsetp, unsigned int *gpiop);
 
-int name_to_gpio(const char *name);
+/**
+ * get_gpios() - Turn the values of a list of GPIOs into an integer
+ *
+ * This puts the value of the first GPIO into bit 0, the second into bit 1,
+ * etc. then returns the resulting integer.
+ *
+ * @gpio_list: List of GPIOs to collect
+ * @return resulting integer value
+ */
+unsigned gpio_get_values_as_int(const int *gpio_list);
 
 #endif	/* _ASM_GENERIC_GPIO_H_ */

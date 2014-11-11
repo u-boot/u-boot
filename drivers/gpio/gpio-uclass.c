@@ -390,6 +390,25 @@ int gpio_get_status(struct udevice *dev, int offset, char *buf, int buffsize)
 	return 0;
 }
 
+/*
+ * get a number comprised of multiple GPIO values. gpio_num_array points to
+ * the array of gpio pin numbers to scan, terminated by -1.
+ */
+unsigned gpio_get_values_as_int(const int *gpio_num_array)
+{
+	int gpio;
+	unsigned bitmask = 1;
+	unsigned vector = 0;
+
+	while (bitmask &&
+	       ((gpio = *gpio_num_array++) != -1)) {
+		if (gpio_get_value(gpio))
+			vector |= bitmask;
+		bitmask <<= 1;
+	}
+	return vector;
+}
+
 /* We need to renumber the GPIOs when any driver is probed/removed */
 static int gpio_renumber(struct udevice *removed_dev)
 {
