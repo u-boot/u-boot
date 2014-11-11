@@ -11,6 +11,8 @@
 
 #include <usb_defs.h>
 #include <linux/usb/ch9.h>
+#include <asm/cache.h>
+#include <part.h>
 
 /*
  * The EHCI spec says that we must align to at least 32 bytes.  However,
