@@ -60,4 +60,17 @@ int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only);
 int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 		   struct udevice **devp);
 
+/**
+ * device_bind_driver() - bind a device to a driver
+ *
+ * This binds a new device to a driver.
+ *
+ * @parent:	Parent device
+ * @drv_name:	Name of driver to attach to this parent
+ * @dev_name:	Name of the new device thus created
+ * @devp:	Returns the newly bound device
+ */
+int device_bind_driver(struct udevice *parent, const char *drv_name,
+		       const char *dev_name, struct udevice **devp);
+
 #endif
