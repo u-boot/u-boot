@@ -15,7 +15,6 @@
 #include <common.h>
 #include <command.h>
 #include <image.h>
-#include <vxworks.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
 #include <libfdt.h>
