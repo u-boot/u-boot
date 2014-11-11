@@ -881,7 +881,7 @@ static void lcd_display_rle8_bitmap(bmp_image_t *bmp, ushort *cmap, uchar *fb,
 }
 #endif
 
-#if defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
+#if defined(CONFIG_MPC823)
 #define FB_PUT_BYTE(fb, from) *(fb)++ = (255 - *(from)++)
 #else
 #define FB_PUT_BYTE(fb, from) *(fb)++ = *(from)++
@@ -906,9 +906,7 @@ static inline void fb_put_word(uchar **fb, uchar **from)
 
 int lcd_display_bitmap(ulong bmp_image, int x, int y)
 {
-#if !defined(CONFIG_MCC200)
 	ushort *cmap = NULL;
-#endif
 	ushort *cmap_base = NULL;
 	ushort i, j;
 	uchar *fb;
@@ -956,8 +954,6 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	debug("Display-bmp: %d x %d  with %d colors\n",
 		(int)width, (int)height, (int)colors);
 
-#if !defined(CONFIG_MCC200)
-	/* MCC200 LCD doesn't need CMAP, supports 1bpp b&w only */
 	if (bmp_bpix == 8) {
 		cmap = configuration_get_cmap();
 		cmap_base = cmap;
@@ -985,24 +981,6 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 #endif
 		}
 	}
-#endif
-	/*
-	 *  BMP format for Monochrome assumes that the state of a
-	 * pixel is described on a per Bit basis, not per Byte.
-	 *  So, in case of Monochrome BMP we should align widths
-	 * on a byte boundary and convert them from Bit to Byte
-	 * units.
-	 *  Probably, PXA250 and MPC823 process 1bpp BMP images in
-	 * their own ways, so make the converting to be MCC200
-	 * specific.
-	 */
-#if defined(CONFIG_MCC200)
-	if (bpix == 1) {
-		width = ((width + 7) & ~7) >> 3;
-		x     = ((x + 7) & ~7) >> 3;
-		pwidth= ((pwidth + 7) & ~7) >> 3;
-	}
-#endif
 
 	padded_width = (width & 0x3 ? (width & ~0x3) + 4 : width);
 

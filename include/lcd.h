@@ -250,7 +250,7 @@ typedef struct vidinfo {
 	void	*priv;		/* Pointer to driver-specific data */
 } vidinfo_t;
 
-#endif /* CONFIG_MPC823, CONFIG_CPU_PXA25X, CONFIG_MCC200, CONFIG_ATMEL_LCD */
+#endif /* CONFIG_MPC823, CONFIG_CPU_PXA25X, CONFIG_ATMEL_LCD */
 
 extern vidinfo_t panel_info;
 

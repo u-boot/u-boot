@@ -38,9 +38,6 @@ config TARGET_IPEK01
 config TARGET_JUPITER
 	bool "Support jupiter"
 
-config TARGET_MCC200
-	bool "Support mcc200"
-
 config TARGET_MOTIONPRO
 	bool "Support motionpro"
 
@@ -130,7 +127,6 @@ source "board/jupiter/Kconfig"
 source "board/manroland/hmi1001/Kconfig"
 source "board/manroland/mucmc52/Kconfig"
 source "board/manroland/uc101/Kconfig"
-source "board/mcc200/Kconfig"
 source "board/motionpro/Kconfig"
 source "board/munices/Kconfig"
 source "board/phytec/pcm030/Kconfig"
