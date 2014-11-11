@@ -221,7 +221,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		break;
 #endif
 	default:
-		debug("SPL: Un-supported Boot Device\n");
+#if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+		printf("SPL: Unsupported Boot Device %d\n", boot_device);
+#endif
 		hang();
 	}
 
