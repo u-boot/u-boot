@@ -91,6 +91,7 @@ typedef struct global_data {
 	unsigned long malloc_limit;	/* limit address */
 	unsigned long malloc_ptr;	/* current address */
 #endif
+	struct udevice *cur_serial_dev;	/* current serial device */
 	struct arch_global_data arch;	/* architecture-specific data */
 } gd_t;
 #endif
