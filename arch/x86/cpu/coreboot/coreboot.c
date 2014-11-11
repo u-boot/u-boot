@@ -72,6 +72,11 @@ void show_boot_progress(int val)
 	outb(val, 0x80);
 }
 
+int print_cpuinfo(void)
+{
+	return default_print_cpuinfo();
+}
+
 int last_stage_init(void)
 {
 	if (gd->flags & GD_FLG_COLD_BOOT)

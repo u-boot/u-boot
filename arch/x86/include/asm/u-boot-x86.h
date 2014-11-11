@@ -45,6 +45,7 @@ int x86_init_cache(void);
 void reset_cpu(ulong addr);
 ulong board_get_usable_ram_top(ulong total_size);
 void dram_init_banksize(void);
+int default_print_cpuinfo(void);
 
 void setup_pcat_compatibility(void);
 

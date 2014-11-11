@@ -179,12 +179,17 @@ int cpu_has_64bit(void);
  */
 const char *cpu_vendor_name(int vendor);
 
+#define CPU_MAX_NAME_LEN	49
+
 /**
- * fill_processor_name() - Get processor name
+ * cpu_get_name() - Get the name of the current cpu
  *
- * @processor_name:	Address to hold the processor name string
+ * @name: Place to put name, which must be CPU_MAX_NAME_LEN bytes including
+ * @return pointer to name, which will likely be a few bytes after the start
+ * of @name
+ * \0 terminator
  */
-void fill_processor_name(char *processor_name);
+char *cpu_get_name(char *name);
 
 /**
  * cpu_call64() - Jump to a 64-bit Linux kernel (internal function)

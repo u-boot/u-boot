@@ -492,14 +492,14 @@ const char *cpu_vendor_name(int vendor)
 	return name;
 }
 
-void fill_processor_name(char *processor_name)
+char *cpu_get_name(char *name)
 {
+	unsigned int *name_as_ints = (unsigned int *)name;
 	struct cpuid_result regs;
-	char temp_processor_name[49];
-	char *processor_name_start;
-	unsigned int *name_as_ints = (unsigned int *)temp_processor_name;
+	char *ptr;
 	int i;
 
+	/* This bit adds up to 48 bytes */
 	for (i = 0; i < 3; i++) {
 		regs = cpuid(0x80000002 + i);
 		name_as_ints[i * 4 + 0] = regs.eax;
@@ -507,19 +507,17 @@ void fill_processor_name(char *processor_name)
 		name_as_ints[i * 4 + 2] = regs.ecx;
 		name_as_ints[i * 4 + 3] = regs.edx;
 	}
-
-	temp_processor_name[48] = 0;
+	name[CPU_MAX_NAME_LEN - 1] = '\0';
 
 	/* Skip leading spaces. */
-	processor_name_start = temp_processor_name;
-	while (*processor_name_start == ' ')
-		processor_name_start++;
+	ptr = name;
+	while (*ptr == ' ')
+		ptr++;
 
-	memset(processor_name, 0, 49);
-	strcpy(processor_name, processor_name_start);
+	return ptr;
 }
 
-int print_cpuinfo(void)
+int default_print_cpuinfo(void)
 {
 	printf("CPU: %s, vendor %s, device %xh\n",
 	       cpu_has_64bit() ? "x86_64" : "x86",
