@@ -355,9 +355,9 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 		slash = strrchr(prop, '/');
 		if (strcmp(slash + 1, find_name))
 			continue;
-		for (p = name; *p; p++) {
-			if (isdigit(*p)) {
-				*seqp = simple_strtoul(p, NULL, 10);
+		for (p = name + strlen(name) - 1; p > name; p--) {
+			if (!isdigit(*p)) {
+				*seqp = simple_strtoul(p + 1, NULL, 10);
 				debug("Found seq %d\n", *seqp);
 				return 0;
 			}
