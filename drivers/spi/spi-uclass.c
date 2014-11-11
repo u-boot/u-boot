@@ -188,27 +188,6 @@ int spi_cs_info(struct udevice *bus, uint cs, struct spi_cs_info *info)
 	return -ENODEV;
 }
 
-int spi_bind_device(struct udevice *bus, int cs, const char *drv_name,
-		    const char *dev_name, struct udevice **devp)
-{
-	struct driver *drv;
-	int ret;
-
-	drv = lists_driver_lookup_name(drv_name);
-	if (!drv) {
-		printf("Cannot find driver '%s'\n", drv_name);
-		return -ENOENT;
-	}
-	ret = device_bind(bus, drv, dev_name, NULL, -1, devp);
-	if (ret) {
-		printf("Cannot create device named '%s' (err=%d)\n",
-		       dev_name, ret);
-		return ret;
-	}
-
-	return 0;
-}
-
 int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
 			struct udevice **devp)
 {
@@ -255,7 +234,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 	if (ret == -ENODEV && drv_name) {
 		debug("%s: Binding new device '%s', busnum=%d, cs=%d, driver=%s\n",
 		      __func__, dev_name, busnum, cs, drv_name);
-		ret = spi_bind_device(bus, cs, drv_name, dev_name, &dev);
+		ret = device_bind_driver(bus, drv_name, dev_name, &dev);
 		if (ret)
 			return ret;
 		created = true;
