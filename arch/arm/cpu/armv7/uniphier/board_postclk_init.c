@@ -20,6 +20,7 @@ void clkrst_init(void);
 
 int board_postclk_init(void)
 {
+#ifdef CONFIG_SOC_INIT
 	bcu_init();
 
 	sbc_init();
@@ -37,7 +38,7 @@ int board_postclk_init(void)
 	clkrst_init();
 
 	led_write(B, 2, , );
-
+#endif
 	pin_init();
 
 	led_write(B, 3, , );

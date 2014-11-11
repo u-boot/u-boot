@@ -32,6 +32,10 @@ config CMD_PINMON
 	  The boot mode pins are latched when the system reset is deasserted
 	  and determine which device the system should load a boot image from.
 
+config SOC_INIT
+	bool
+	default SPL_BUILD
+
 config DRAM_INIT
 	bool
 	default SPL_BUILD

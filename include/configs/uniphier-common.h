@@ -248,9 +248,9 @@ are defined. Select only one of them."
 
 #define CONFIG_SYS_TEXT_BASE		0x84000000
 
-#if defined(CONFIG_SPL_BUILD)
 #define CONFIG_BOARD_POSTCLK_INIT
-#else
+
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
