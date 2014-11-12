@@ -27,7 +27,11 @@
 #include <i2c.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
+#include <asm/arch/mx6-ddr.h>
+
 DECLARE_GLOBAL_DATA_PTR;
+
+#define BOOT_CFG	0x020D8004
 
 #define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |			\
@@ -55,8 +59,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
-
+	gd->ram_size = imx_ddr_size();
 	return 0;
 }
 
@@ -253,6 +256,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
+#ifndef CONFIG_SPL_BUILD
 	s32 status = 0;
 	int i;
 
@@ -293,6 +297,43 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	return status;
+#else
+	unsigned reg = readl(BOOT_CFG) >> 11;
+	/*
+	 * Upon reading BOOT_CFG register the following map is done:
+	 * Bit 11 and 12 of BOOT_CFG register can determine the current
+	 * mmc port
+	 * 0x1                  SD1
+	 * 0x2                  SD2
+	 * 0x3                  SD4
+	 */
+
+	switch (reg & 0x3) {
+	case 0x1:
+		imx_iomux_v3_setup_multiple_pads(
+			usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
+		usdhc_cfg[0].esdhc_base = USDHC2_BASE_ADDR;
+		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+		gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
+		break;
+	case 0x2:
+		imx_iomux_v3_setup_multiple_pads(
+			usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
+		usdhc_cfg[0].esdhc_base = USDHC3_BASE_ADDR;
+		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+		gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
+		break;
+	case 0x3:
+		imx_iomux_v3_setup_multiple_pads(
+			usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
+		usdhc_cfg[0].esdhc_base = USDHC4_BASE_ADDR;
+		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
+		gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
+		break;
+	}
+
+	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+#endif
 }
 #endif
 
@@ -607,3 +648,144 @@ int checkboard(void)
 	puts("Board: MX6-SabreSD\n");
 	return 0;
 }
+
+#ifdef CONFIG_SPL_BUILD
+#include <spl.h>
+#include <libfdt.h>
+
+const struct mx6dq_iomux_ddr_regs mx6_ddr_ioregs = {
+	.dram_sdclk_0 =  0x00020030,
+	.dram_sdclk_1 =  0x00020030,
+	.dram_cas =  0x00020030,
+	.dram_ras =  0x00020030,
+	.dram_reset =  0x00020030,
+	.dram_sdcke0 =  0x00003000,
+	.dram_sdcke1 =  0x00003000,
+	.dram_sdba2 =  0x00000000,
+	.dram_sdodt0 =  0x00003030,
+	.dram_sdodt1 =  0x00003030,
+	.dram_sdqs0 =  0x00000030,
+	.dram_sdqs1 =  0x00000030,
+	.dram_sdqs2 =  0x00000030,
+	.dram_sdqs3 =  0x00000030,
+	.dram_sdqs4 =  0x00000030,
+	.dram_sdqs5 =  0x00000030,
+	.dram_sdqs6 =  0x00000030,
+	.dram_sdqs7 =  0x00000030,
+	.dram_dqm0 =  0x00020030,
+	.dram_dqm1 =  0x00020030,
+	.dram_dqm2 =  0x00020030,
+	.dram_dqm3 =  0x00020030,
+	.dram_dqm4 =  0x00020030,
+	.dram_dqm5 =  0x00020030,
+	.dram_dqm6 =  0x00020030,
+	.dram_dqm7 =  0x00020030,
+};
+
+const struct mx6dq_iomux_grp_regs mx6_grp_ioregs = {
+	.grp_ddr_type =  0x000C0000,
+	.grp_ddrmode_ctl =  0x00020000,
+	.grp_ddrpke =  0x00000000,
+	.grp_addds =  0x00000030,
+	.grp_ctlds =  0x00000030,
+	.grp_ddrmode =  0x00020000,
+	.grp_b0ds =  0x00000030,
+	.grp_b1ds =  0x00000030,
+	.grp_b2ds =  0x00000030,
+	.grp_b3ds =  0x00000030,
+	.grp_b4ds =  0x00000030,
+	.grp_b5ds =  0x00000030,
+	.grp_b6ds =  0x00000030,
+	.grp_b7ds =  0x00000030,
+};
+
+const struct mx6_mmdc_calibration mx6_mmcd_calib = {
+	.p0_mpwldectrl0 =  0x001F001F,
+	.p0_mpwldectrl1 =  0x001F001F,
+	.p1_mpwldectrl0 =  0x00440044,
+	.p1_mpwldectrl1 =  0x00440044,
+	.p0_mpdgctrl0 =  0x434B0350,
+	.p0_mpdgctrl1 =  0x034C0359,
+	.p1_mpdgctrl0 =  0x434B0350,
+	.p1_mpdgctrl1 =  0x03650348,
+	.p0_mprddlctl =  0x4436383B,
+	.p1_mprddlctl =  0x39393341,
+	.p0_mpwrdlctl =  0x35373933,
+	.p1_mpwrdlctl =  0x48254A36,
+};
+
+static struct mx6_ddr3_cfg mem_ddr = {
+	.mem_speed = 1600,
+	.density = 4,
+	.width = 64,
+	.banks = 8,
+	.rowaddr = 14,
+	.coladdr = 10,
+	.pagesz = 2,
+	.trcd = 1375,
+	.trcmin = 4875,
+	.trasmin = 3500,
+};
+
+/*
+ * This section require the differentiation
+ * between iMX6 Sabre Families.
+ * But for now, it will configure only for
+ * SabreSD.
+ */
+static void spl_dram_init(void)
+{
+	struct mx6_ddr_sysinfo sysinfo = {
+		/* width of data bus:0=16,1=32,2=64 */
+		.dsize = mem_ddr.width/32,
+		/* config for full 4GB range so that get_mem_size() works */
+		.cs_density = 32, /* 32Gb per CS */
+		/* single chip select */
+		.ncs = 1,
+		.cs1_mirror = 0,
+		.rtt_wr = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Wr = RZQ/4 */
+#ifdef RTT_NOM_120OHM
+		.rtt_nom = 2 /*DDR3_RTT_120_OHM*/,	/* RTT_Nom = RZQ/2 */
+#else
+		.rtt_nom = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Nom = RZQ/4 */
+#endif
+		.walat = 1,	/* Write additional latency */
+		.ralat = 5,	/* Read additional latency */
+		.mif3_mode = 3,	/* Command prediction working mode */
+		.bi_on = 1,	/* Bank interleaving enabled */
+		.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
+		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
+	};
+
+	mx6dq_dram_iocfg(mem_ddr.width, &mx6_ddr_ioregs, &mx6_grp_ioregs);
+	mx6_dram_cfg(&sysinfo, &mx6_mmcd_calib, &mem_ddr);
+}
+
+void board_init_f(ulong dummy)
+{
+	/* setup AIPS and disable watchdog */
+	arch_cpu_init();
+
+	/* iomux and setup of i2c */
+	board_early_init_f();
+
+	/* setup GP timer */
+	timer_init();
+
+	/* UART clocks enabled and gd valid - init serial console */
+	preloader_console_init();
+
+	/* DDR initialization */
+	spl_dram_init();
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	/* load/boot image from boot device */
+	board_init_r(NULL, 0);
+}
+
+void reset_cpu(ulong addr)
+{
+}
+#endif
