@@ -33,8 +33,19 @@ void save_omap_boot_params(void)
 	 * used. But it not correct to assume that romcode structure
 	 * encoding would be same as u-boot. So use the defined offsets.
 	 */
-	gd->arch.omap_boot_params.omap_bootdevice = boot_device =
-				   *((u8 *)(rom_params + BOOT_DEVICE_OFFSET));
+	boot_device = *((u8 *)(rom_params + BOOT_DEVICE_OFFSET));
+
+#if defined(BOOT_DEVICE_NAND_I2C)
+	/*
+	 * Re-map NAND&I2C boot-device to the "normal" NAND boot-device.
+	 * Otherwise the SPL boot IF can't handle this device correctly.
+	 * Somehow booting with Hynix 4GBit NAND H27U4G8 on Siemens
+	 * Draco leads to this boot-device passed to SPL from the BootROM.
+	 */
+	if (boot_device == BOOT_DEVICE_NAND_I2C)
+		boot_device = BOOT_DEVICE_NAND;
+#endif
+	gd->arch.omap_boot_params.omap_bootdevice = boot_device;
 
 	gd->arch.omap_boot_params.ch_flags =
 				*((u8 *)(rom_params + CH_FLAGS_OFFSET));
