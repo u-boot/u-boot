@@ -915,6 +915,14 @@ int board_early_init_r(void)
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
 	int flash_esel = find_tlb_idx((void *)flashbase, 1);
 	int ret;
+	u32 svr = SVR_SOC_VER(get_svr());
+
+	/* Create law for MAPLE only for personalities having MAPLE */
+	if ((svr == SVR_B4860) || (svr == SVR_B4440) ||
+	    (svr == SVR_B4420) || (svr == SVR_B4220)) {
+		set_next_law(CONFIG_SYS_MAPLE_MEM_PHYS, LAW_SIZE_16M,
+			     LAW_TRGT_IF_MAPLE);
+	}
 
 	/*
 	 * Remap Boot flash + PROMJET region to caching-inhibited
