@@ -385,15 +385,18 @@ int configure_vsc3316_3308(void)
 		}
 		break;
 
+	case 0x01:
 	case 0x02:
 	case 0x04:
 	case 0x05:
 	case 0x06:
+	case 0x07:
 	case 0x08:
 	case 0x09:
 	case 0x0A:
 	case 0x0B:
 	case 0x0C:
+	case 0x2F:
 	case 0x30:
 	case 0x32:
 	case 0x33:
@@ -494,10 +497,14 @@ int configure_vsc3316_3308(void)
 	case 0x9E:
 	case 0x9A:
 	case 0x98:
+	case 0xb1:
 	case 0xb2:
+	case 0x48:
 	case 0x49:
 	case 0x4E:
+	case 0x8C:
 	case 0x8D:
+	case 0x79:
 	case 0x7A:
 		num_vsc08_con = NUM_CON_VSC3308;
 		/* Configure VSC3308 crossbar switch */
@@ -730,19 +737,23 @@ int config_serdes1_refclks(void)
 	 * to 122.88MHz
 	 */
 	switch (serdes1_prtcl) {
+	case 0x29:
 	case 0x2A:
 	case 0x2C:
 	case 0x2D:
 	case 0x2E:
+	case 0x01:
 	case 0x02:
 	case 0x04:
 	case 0x05:
 	case 0x06:
+	case 0x07:
 	case 0x08:
 	case 0x09:
 	case 0x0A:
 	case 0x0B:
 	case 0x0C:
+	case 0x2F:
 	case 0x30:
 	case 0x32:
 	case 0x33:
@@ -860,6 +871,8 @@ int config_serdes2_refclks(void)
 #endif
 	case 0x9E:
 	case 0x9A:
+		/* fallthrough */
+	case 0xb1:
 	case 0xb2:
 		debug("Configuring IDT for PCIe SATA for srds_prctl:%x\n",
 			serdes2_prtcl);
