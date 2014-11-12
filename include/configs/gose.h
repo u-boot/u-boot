@@ -98,4 +98,10 @@
 /* SCIF0 */
 #define CONFIG_SMSTP7_ENA	0x00200000
 
+/* SDHI */
+#define CONFIG_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_SH_SDHI_FREQ		97500000
+
 #endif	/* __GOSE_H */

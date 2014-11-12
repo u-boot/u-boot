@@ -18,6 +18,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/rmobile.h>
 #include <asm/arch/rcar-mstp.h>
+#include <asm/arch/sh_sdhi.h>
 #include <netdev.h>
 #include <miiphy.h>
 #include <i2c.h>
@@ -48,6 +49,14 @@ void s_init(void)
 #define SCIF0_MSTP721	(1 << 21)
 #define ETHER_MSTP813	(1 << 13)
 
+#define SDHI0_MSTP314	(1 << 14)
+#define SDHI1_MSTP312	(1 << 12)
+#define SDHI2_MSTP311	(1 << 11)
+
+#define SD1CKCR		0xE6150078
+#define SD2CKCR		0xE615026C
+#define SD_97500KHZ	0x7
+
 int board_early_init_f(void)
 {
 	/* TMU0 */
@@ -58,6 +67,12 @@ int board_early_init_f(void)
 
 	/* ETHER */
 	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHER_MSTP813);
+
+	/* SDHI */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3,
+			  SDHI0_MSTP314 | SDHI1_MSTP312 | SDHI2_MSTP311);
+	writel(SD_97500KHZ, SD1CKCR);
+	writel(SD_97500KHZ, SD2CKCR);
 
 	return 0;
 }
@@ -123,6 +138,58 @@ int board_eth_init(bd_t *bis)
 	writel(val, CXR25);
 #endif
 
+	return ret;
+}
+
+int board_mmc_init(bd_t *bis)
+{
+	int ret = -ENODEV;
+
+#ifdef CONFIG_SH_SDHI
+	gpio_request(GPIO_FN_SD0_DATA0, NULL);
+	gpio_request(GPIO_FN_SD0_DATA1, NULL);
+	gpio_request(GPIO_FN_SD0_DATA2, NULL);
+	gpio_request(GPIO_FN_SD0_DATA3, NULL);
+	gpio_request(GPIO_FN_SD0_CLK, NULL);
+	gpio_request(GPIO_FN_SD0_CMD, NULL);
+	gpio_request(GPIO_FN_SD0_CD, NULL);
+	gpio_request(GPIO_FN_SD2_DATA0, NULL);
+	gpio_request(GPIO_FN_SD2_DATA1, NULL);
+	gpio_request(GPIO_FN_SD2_DATA2, NULL);
+	gpio_request(GPIO_FN_SD2_DATA3, NULL);
+	gpio_request(GPIO_FN_SD2_CLK, NULL);
+	gpio_request(GPIO_FN_SD2_CMD, NULL);
+	gpio_request(GPIO_FN_SD2_CD, NULL);
+
+	/* SDHI 0 */
+	gpio_request(GPIO_GP_7_17, NULL);
+	gpio_request(GPIO_GP_2_12, NULL);
+	gpio_direction_output(GPIO_GP_7_17, 1); /* power on */
+	gpio_direction_output(GPIO_GP_2_12, 1); /* 1: 3.3V, 0: 1.8V */
+
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI0_BASE, 0,
+			   SH_SDHI_QUIRK_16BIT_BUF);
+	if (ret)
+		return ret;
+
+	/* SDHI 1 */
+	gpio_request(GPIO_GP_7_18, NULL);
+	gpio_request(GPIO_GP_2_13, NULL);
+	gpio_direction_output(GPIO_GP_7_18, 1); /* power on */
+	gpio_direction_output(GPIO_GP_2_13, 1); /* 1: 3.3V, 0: 1.8V */
+
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI1_BASE, 1, 0);
+	if (ret)
+		return ret;
+
+	/* SDHI 2 */
+	gpio_request(GPIO_GP_7_19, NULL);
+	gpio_request(GPIO_GP_2_26, NULL);
+	gpio_direction_output(GPIO_GP_7_19, 1); /* power on */
+	gpio_direction_output(GPIO_GP_2_26, 1); /* 1: 3.3V, 0: 1.8V */
+
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 2, 0);
+#endif
 	return ret;
 }
 
