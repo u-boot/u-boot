@@ -989,6 +989,7 @@ The following options need to be configured:
 		CONFIG_CMD_EXT4		* ext4 command support
 		CONFIG_CMD_FS_GENERIC	* filesystem commands (e.g. load, ls)
 					  that work for multiple fs types
+		CONFIG_CMD_FS_UUID	* Look up a filesystem UUID
 		CONFIG_CMD_SAVEENV	  saveenv
 		CONFIG_CMD_FDC		* Floppy Disk Support
 		CONFIG_CMD_FAT		* FAT command support

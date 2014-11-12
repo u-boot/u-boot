@@ -15,6 +15,7 @@
  */
 
 #include <config.h>
+#include <errno.h>
 #include <common.h>
 #include <part.h>
 #include <ext4fs.h>
@@ -67,6 +68,11 @@ static inline void fs_close_unsupported(void)
 {
 }
 
+static inline int fs_uuid_unsupported(char *uuid_str)
+{
+	return -1;
+}
+
 struct fstype_info {
 	int fstype;
 	/*
@@ -86,6 +92,7 @@ struct fstype_info {
 	int (*read)(const char *filename, void *buf, int offset, int len);
 	int (*write)(const char *filename, void *buf, int offset, int len);
 	void (*close)(void);
+	int (*uuid)(char *uuid_str);
 };
 
 static struct fstype_info fstypes[] = {
@@ -100,6 +107,7 @@ static struct fstype_info fstypes[] = {
 		.size = fat_size,
 		.read = fat_read_file,
 		.write = fs_write_unsupported,
+		.uuid = fs_uuid_unsupported,
 	},
 #endif
 #ifdef CONFIG_FS_EXT4
@@ -113,6 +121,7 @@ static struct fstype_info fstypes[] = {
 		.size = ext4fs_size,
 		.read = ext4_read_file,
 		.write = fs_write_unsupported,
+		.uuid = ext4fs_uuid,
 	},
 #endif
 #ifdef CONFIG_SANDBOX
@@ -126,6 +135,7 @@ static struct fstype_info fstypes[] = {
 		.size = sandbox_fs_size,
 		.read = fs_read_sandbox,
 		.write = fs_write_sandbox,
+		.uuid = fs_uuid_unsupported,
 	},
 #endif
 	{
@@ -138,6 +148,7 @@ static struct fstype_info fstypes[] = {
 		.size = fs_size_unsupported,
 		.read = fs_read_unsupported,
 		.write = fs_write_unsupported,
+		.uuid = fs_uuid_unsupported,
 	},
 };
 
@@ -204,6 +215,13 @@ static void fs_close(void)
 	info->close();
 
 	fs_type = FS_TYPE_ANY;
+}
+
+int fs_uuid(char *uuid_str)
+{
+	struct fstype_info *info = fs_get_info(fs_type);
+
+	return info->uuid(uuid_str);
 }
 
 int fs_ls(const char *dirname)
@@ -442,4 +460,29 @@ int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	puts("\n");
 
 	return 0;
+}
+
+int do_fs_uuid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+		int fstype)
+{
+	int ret;
+	char uuid[37];
+	memset(uuid, 0, sizeof(uuid));
+
+	if (argc < 3 || argc > 4)
+		return CMD_RET_USAGE;
+
+	if (fs_set_blk_dev(argv[1], argv[2], fstype))
+		return 1;
+
+	ret = fs_uuid(uuid);
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	if (argc == 4)
+		setenv(argv[3], uuid);
+	else
+		printf("%s\n", uuid);
+
+	return CMD_RET_SUCCESS;
 }
