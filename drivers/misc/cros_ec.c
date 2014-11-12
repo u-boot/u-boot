@@ -701,6 +701,7 @@ static int cros_ec_check_version(struct cros_ec_dev *dev)
 
 	/* Try sending a version 3 packet */
 	dev->protocol_version = 3;
+	req.in_data = 0;
 	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
 			     (uint8_t **)&resp, sizeof(*resp)) > 0) {
 		return 0;
