@@ -89,7 +89,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_USB_STORAGE
 
-
 /* Module stop status bits */
 /* INTC-RT */
 #define CONFIG_SMSTP0_ENA	0x00400000
@@ -99,5 +98,11 @@
 #define CONFIG_SMSTP4_ENA	0x00000180
 /* SCIF0 */
 #define CONFIG_SMSTP7_ENA	0x00200000
+
+/* SD */
+#define CONFIG_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_SH_SDHI_FREQ	97500000
 
 #endif	/* __KOELSCH_H */
