@@ -1,0 +1,5 @@
+CONFIG_SPL=y
+CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx6sabresd/mx6sabresd_spl.cfg,SPL,MX6Q"
++S:CONFIG_ARM=y
++S:CONFIG_TARGET_MX6SABRESD=y
+
