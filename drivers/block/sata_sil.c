@@ -519,7 +519,7 @@ int init_sata(int dev)
 	u16 word;
 
 	if (init_done == 1 && dev < sata_info.maxport)
-		return 1;
+		return 0;
 
 	init_done = 1;
 
