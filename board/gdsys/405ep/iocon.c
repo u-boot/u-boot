@@ -369,10 +369,11 @@ int last_stage_init(void)
 	unsigned char mclink_controllers[] = { 0x24, 0x25, 0x26 };
 	int legacy = get_fpga_state(0) & FPGA_STATE_PLATFORM;
 	u16 fpga_features;
-	int feature_carrier_speed = fpga_features & (1<<4);
+	int feature_carrier_speed;
 	bool ch0_rgmii2_present = false;
 
 	FPGA_GET_REG(0, fpga_features, &fpga_features);
+	feature_carrier_speed = fpga_features & (1<<4);
 
 	if (!legacy) {
 		/* Turn on Parade DP501 */
