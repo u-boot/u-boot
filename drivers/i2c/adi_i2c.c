@@ -13,6 +13,8 @@
 #include <asm/twi.h>
 #include <asm/io.h>
 
+static struct twi_regs *i2c_get_base(struct i2c_adapter *adap);
+
 /* Every register is 32bit aligned, but only 16bits in size */
 #define ureg(name) u16 name; u16 __pad_##name;
 struct twi_regs {
@@ -36,25 +38,12 @@ struct twi_regs {
 };
 #undef ureg
 
-/* U-Boot I2C framework allows only one active device at a time.  */
 #ifdef TWI_CLKDIV
 #define TWI0_CLKDIV TWI_CLKDIV
-#endif
-static struct twi_regs *twi = (void *)TWI0_CLKDIV;
-
-#ifdef DEBUG
-# define dmemset(s, c, n) memset(s, c, n)
-#else
-# define dmemset(s, c, n)
-#endif
-#define debugi(fmt, args...) \
-	debug( \
-		"MSTAT:0x%03x FSTAT:0x%x ISTAT:0x%02x\t%-20s:%-3i: " fmt "\n", \
-		twi->master_stat, twi->fifo_stat, twi->int_stat, \
-		__func__, __LINE__, ## args)
-
-#ifdef CONFIG_TWICLK_KHZ
-# error do not define CONFIG_TWICLK_KHZ ... use CONFIG_SYS_I2C_SPEED
+# ifdef CONFIG_SYS_MAX_I2C_BUS
+# undef CONFIG_SYS_MAX_I2C_BUS
+# endif
+#define CONFIG_SYS_MAX_I2C_BUS 1
 #endif
 
 /*
@@ -70,7 +59,7 @@ static struct twi_regs *twi = (void *)TWI0_CLKDIV;
 #define SYS_I2C_DUTY              I2C_SPEED_TO_DUTY(CONFIG_SYS_I2C_SPEED)
 /* Note: duty is inverse of speed, so the comparisons below are correct */
 #if SYS_I2C_DUTY < I2C_DUTY_MAX || SYS_I2C_DUTY > I2C_DUTY_MIN
-# error "The Blackfin I2C hardware can only operate 20KHz - 400KHz"
+# error "The I2C hardware can only operate 20KHz - 400KHz"
 #endif
 
 /* All transfers are described by this data structure */
@@ -92,7 +81,7 @@ struct i2c_msg {
  * wait_for_completion - manage the actual i2c transfer
  *	@msg: the i2c msg
  */
-static int wait_for_completion(struct i2c_msg *msg)
+static int wait_for_completion(struct twi_regs *twi, struct i2c_msg *msg)
 {
 	u16 int_stat, ctl;
 	ulong timebase = get_timer(0);
@@ -101,7 +90,6 @@ static int wait_for_completion(struct i2c_msg *msg)
 		int_stat = readw(&twi->int_stat);
 
 		if (int_stat & XMTSERV) {
-			debugi("processing XMTSERV");
 			writew(XMTSERV, &twi->int_stat);
 			if (msg->alen) {
 				writew(*(msg->abuf++), &twi->xmt_data8);
@@ -119,7 +107,6 @@ static int wait_for_completion(struct i2c_msg *msg)
 			}
 		}
 		if (int_stat & RCVSERV) {
-			debugi("processing RCVSERV");
 			writew(RCVSERV, &twi->int_stat);
 			if (msg->len) {
 				*(msg->buf++) = readw(&twi->rcv_data8);
@@ -130,12 +117,10 @@ static int wait_for_completion(struct i2c_msg *msg)
 			}
 		}
 		if (int_stat & MERR) {
-			debugi("processing MERR");
 			writew(MERR, &twi->int_stat);
 			return msg->len;
 		}
 		if (int_stat & MCOMP) {
-			debugi("processing MCOMP");
 			writew(MCOMP, &twi->int_stat);
 			if (msg->flags & I2C_M_COMBO && msg->len) {
 				ctl = readw(&twi->master_ctl);
@@ -155,16 +140,10 @@ static int wait_for_completion(struct i2c_msg *msg)
 	return msg->len;
 }
 
-/**
- * i2c_transfer - setup an i2c transfer
- *	@return: 0 if things worked, non-0 if things failed
- *
- *	Here we just get the i2c stuff all prepped and ready, and then tail off
- *	into wait_for_completion() for all the bits to go.
- */
-static int i2c_transfer(uchar chip, uint addr, int alen, uchar *buffer,
-			int len, u8 flags)
+static int i2c_transfer(struct i2c_adapter *adap, uint8_t chip, uint addr,
+			int alen, uint8_t *buffer, int len, uint8_t flags)
 {
+	struct twi_regs *twi = i2c_get_base(adap);
 	int ret;
 	u16 ctl;
 	uchar addr_buffer[] = {
@@ -179,12 +158,6 @@ static int i2c_transfer(uchar chip, uint addr, int alen, uchar *buffer,
 		.abuf  = addr_buffer,
 		.alen  = alen,
 	};
-
-	dmemset(buffer, 0xff, len);
-	debugi("chip=0x%x addr=0x%02x alen=%i buf[0]=0x%02x len=%i ",
-		chip, addr, alen, buffer[0], len);
-	debugi("flags=0x%02x[%s] ", flags,
-		(flags & I2C_M_READ ? "rd" : "wr"));
 
 	/* wait for things to settle */
 	while (readw(&twi->master_stat) & BUSBUSY)
@@ -201,11 +174,9 @@ static int i2c_transfer(uchar chip, uint addr, int alen, uchar *buffer,
 	/* prime the pump */
 	if (msg.alen) {
 		len = (msg.flags & I2C_M_COMBO) ? msg.alen : msg.alen + len;
-		debugi("first byte=0x%02x", *msg.abuf);
 		writew(*(msg.abuf++), &twi->xmt_data8);
 		--msg.alen;
 	} else if (!(msg.flags & I2C_M_READ) && msg.len) {
-		debugi("first byte=0x%02x", *msg.buf);
 		writew(*(msg.buf++), &twi->xmt_data8);
 		--msg.len;
 	}
@@ -222,8 +193,7 @@ static int i2c_transfer(uchar chip, uint addr, int alen, uchar *buffer,
 	writew(ctl, &twi->master_ctl);
 
 	/* process the rest */
-	ret = wait_for_completion(&msg);
-	debugi("ret=%d", ret);
+	ret = wait_for_completion(twi, &msg);
 
 	if (ret) {
 		ctl = readw(&twi->master_ctl) & ~MEN;
@@ -237,12 +207,9 @@ static int i2c_transfer(uchar chip, uint addr, int alen, uchar *buffer,
 	return ret;
 }
 
-/**
- * i2c_set_bus_speed - set i2c bus speed
- *	@speed: bus speed (in HZ)
- */
-int i2c_set_bus_speed(unsigned int speed)
+static uint adi_i2c_setspeed(struct i2c_adapter *adap, uint speed)
 {
+	struct twi_regs *twi = i2c_get_base(adap);
 	u16 clkdiv = I2C_SPEED_TO_DUTY(speed);
 
 	/* Set TWI interface clock */
@@ -257,28 +224,10 @@ int i2c_set_bus_speed(unsigned int speed)
 	return 0;
 }
 
-/**
- * i2c_get_bus_speed - get i2c bus speed
- *	@speed: bus speed (in HZ)
- */
-unsigned int i2c_get_bus_speed(void)
+static void adi_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
-	u16 clkdiv = readw(&twi->clkdiv) & 0xff;
-	/* 10 MHz / (2 * CLKDIV) -> 5 MHz / CLKDIV */
-	return 5000000 / clkdiv;
-}
-
-/**
- * i2c_init - initialize the i2c bus
- *	@speed: bus speed (in HZ)
- *	@slaveaddr: address of device in slave mode (0 - not slave)
- *
- *	Slave mode isn't actually implemented.  It'll stay that way until
- *	we get a real request for it.
- */
-void i2c_init(int speed, int slaveaddr)
-{
-	uint8_t prescale = ((get_i2c_clk() / 1000 / 1000 + 5) / 10) & 0x7F;
+	struct twi_regs *twi = i2c_get_base(adap);
+	u16 prescale = ((get_i2c_clk() / 1000 / 1000 + 5) / 10) & 0x7F;
 
 	/* Set TWI internal clock as 10MHz */
 	writew(prescale, &twi->control);
@@ -288,100 +237,69 @@ void i2c_init(int speed, int slaveaddr)
 
 	/* Enable it */
 	writew(TWI_ENA | prescale, &twi->control);
-
-	debugi("CONTROL:0x%04x CLKDIV:0x%04x", readw(&twi->control),
-		readw(&twi->clkdiv));
-
-#if CONFIG_SYS_I2C_SLAVE
-# error I2C slave support not tested/supported
-#endif
 }
 
-/**
- * i2c_probe - test if a chip exists at a given i2c address
- *	@chip: i2c chip addr to search for
- *	@return: 0 if found, non-0 if not found
- */
-int i2c_probe(uchar chip)
+static int adi_i2c_read(struct i2c_adapter *adap, uint8_t chip,
+			uint addr, int alen, uint8_t *buffer, int len)
+{
+	return i2c_transfer(adap, chip, addr, alen, buffer,
+			len, alen ? I2C_M_COMBO : I2C_M_READ);
+}
+
+static int adi_i2c_write(struct i2c_adapter *adap, uint8_t chip,
+			uint addr, int alen, uint8_t *buffer, int len)
+{
+	return i2c_transfer(adap, chip, addr, alen, buffer, len, 0);
+}
+
+static int adi_i2c_probe(struct i2c_adapter *adap, uint8_t chip)
 {
 	u8 byte;
-	return i2c_read(chip, 0, 0, &byte, 1);
+	return adi_i2c_read(adap, chip, 0, 0, &byte, 1);
 }
 
-/**
- * i2c_read - read data from an i2c device
- *	@chip: i2c chip addr
- *	@addr: memory (register) address in the chip
- *	@alen: byte size of address
- *	@buffer: buffer to store data read from chip
- *	@len: how many bytes to read
- *	@return: 0 on success, non-0 on failure
- */
-int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
+static struct twi_regs *i2c_get_base(struct i2c_adapter *adap)
 {
-	return i2c_transfer(chip, addr, alen, buffer,
-			len, (alen ? I2C_M_COMBO : I2C_M_READ));
-}
-
-/**
- * i2c_write - write data to an i2c device
- *	@chip: i2c chip addr
- *	@addr: memory (register) address in the chip
- *	@alen: byte size of address
- *	@buffer: buffer holding data to write to chip
- *	@len: how many bytes to write
- *	@return: 0 on success, non-0 on failure
- */
-int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
-{
-	return i2c_transfer(chip, addr, alen, buffer, len, 0);
-}
-
-/**
- * i2c_set_bus_num - change active I2C bus
- *	@bus: bus index, zero based
- *	@returns: 0 on success, non-0 on failure
- */
-int i2c_set_bus_num(unsigned int bus)
-{
-	switch (bus) {
-#if CONFIG_SYS_MAX_I2C_BUS > 0
-	case 0:
-		twi = (void *)TWI0_CLKDIV;
-		return 0;
+	switch (adap->hwadapnr) {
+#if CONFIG_SYS_MAX_I2C_BUS > 2
+	case 2:
+		return (struct twi_regs *)TWI2_CLKDIV;
 #endif
 #if CONFIG_SYS_MAX_I2C_BUS > 1
 	case 1:
-		twi = (void *)TWI1_CLKDIV;
-		return 0;
+		return (struct twi_regs *)TWI1_CLKDIV;
 #endif
-#if CONFIG_SYS_MAX_I2C_BUS > 2
-	case 2:
-		twi = (void *)TWI2_CLKDIV;
-		return 0;
-#endif
-	default: return -1;
+	case 0:
+		return (struct twi_regs *)TWI0_CLKDIV;
+
+	default:
+		printf("wrong hwadapnr: %d\n", adap->hwadapnr);
 	}
+
+	return NULL;
 }
 
-/**
- * i2c_get_bus_num - returns index of active I2C bus
- */
-unsigned int i2c_get_bus_num(void)
-{
-	switch ((unsigned long)twi) {
-#if CONFIG_SYS_MAX_I2C_BUS > 0
-	case TWI0_CLKDIV:
-		return 0;
-#endif
+U_BOOT_I2C_ADAP_COMPLETE(adi_i2c0, adi_i2c_init, adi_i2c_probe,
+			 adi_i2c_read, adi_i2c_write,
+			 adi_i2c_setspeed,
+			 CONFIG_SYS_I2C_SPEED,
+			 0,
+			 0)
+
 #if CONFIG_SYS_MAX_I2C_BUS > 1
-	case TWI1_CLKDIV:
-		return 1;
+U_BOOT_I2C_ADAP_COMPLETE(adi_i2c1, adi_i2c_init, adi_i2c_probe,
+			 adi_i2c_read, adi_i2c_write,
+			 adi_i2c_setspeed,
+			 CONFIG_SYS_I2C_SPEED,
+			 0,
+			 1)
 #endif
+
 #if CONFIG_SYS_MAX_I2C_BUS > 2
-	case TWI2_CLKDIV:
-		return 2;
+U_BOOT_I2C_ADAP_COMPLETE(adi_i2c2, adi_i2c_init, adi_i2c_probe,
+			 adi_i2c_read, adi_i2c_write,
+			 adi_i2c_setspeed,
+			 CONFIG_SYS_I2C_SPEED,
+			 0,
+			 2)
 #endif
-	default: return -1;
-	}
-}

@@ -81,8 +81,8 @@
 #define CONFIG_PHYLIB
 
 /* i2c Settings */
+#define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_ADI
-#define CONFIG_HARD_I2C
 
 /*
  * Flash Settings
