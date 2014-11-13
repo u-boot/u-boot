@@ -85,7 +85,7 @@ config X86_RAMTEST
 
 source "arch/x86/cpu/ivybridge/Kconfig"
 
-source "board/chromebook-x86/coreboot/Kconfig"
+source "board/coreboot/coreboot/Kconfig"
 
 source "board/google/chromebook_link/Kconfig"
 

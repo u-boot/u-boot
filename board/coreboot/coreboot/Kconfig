@@ -4,7 +4,7 @@ config SYS_BOARD
 	default "coreboot"
 
 config SYS_VENDOR
-	default "chromebook-x86"
+	default "coreboot"
 
 config SYS_SOC
 	default "coreboot"
