@@ -924,7 +924,7 @@ int main(int argc, char *argv[])
 
 	if ((mode_dump + mode_extract + mode_inject + mode_spifreq +
 	     mode_em100 + mode_locked + mode_unlocked + mode_write +
-	     mode_write_descriptor) == 0) {
+	     mode_write_descriptor) == 0 && !create) {
 		fprintf(stderr, "You need to specify a mode.\n\n");
 		print_usage(argv[0]);
 		exit(EXIT_FAILURE);
