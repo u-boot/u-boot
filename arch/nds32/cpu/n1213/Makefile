@@ -13,3 +13,5 @@
 obj- := __dummy__.o
 
 extra-y	= start.o
+
+obj-y += $(if $(SOC),$(SOC)/)

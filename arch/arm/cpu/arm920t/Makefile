@@ -9,3 +9,5 @@ extra-y	= start.o
 
 obj-y	+= cpu.o
 obj-$(CONFIG_USE_IRQ)	+= interrupts.o
+
+obj-y += $(if $(SOC),$(SOC)/)

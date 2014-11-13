@@ -610,9 +610,6 @@ HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makef
 libs-y += lib/
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 libs-y += $(CPUDIR)/
-ifdef SOC
-libs-y += $(CPUDIR)/$(SOC)/
-endif
 libs-$(CONFIG_OF_EMBED) += dts/
 libs-y += arch/$(ARCH)/lib/
 libs-y += fs/

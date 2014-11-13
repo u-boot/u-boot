@@ -14,3 +14,5 @@ obj-y	+= exceptions.o
 obj-y	+= cache.o
 obj-y	+= tlb.o
 obj-y	+= transition.o
+
+obj-y += $(if $(SOC),$(SOC)/)

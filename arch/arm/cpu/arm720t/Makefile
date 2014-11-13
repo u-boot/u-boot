@@ -9,3 +9,5 @@ extra-y	= start.o
 obj-y	= interrupts.o cpu.o
 
 obj-$(CONFIG_TEGRA) += tegra-common/
+
+obj-y += $(if $(SOC),$(SOC)/)

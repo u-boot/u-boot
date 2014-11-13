@@ -13,3 +13,5 @@ ifdef	CONFIG_SPL_NO_CPU_SUPPORT_CODE
 extra-y	:=
 endif
 endif
+
+obj-y += $(if $(SOC),$(SOC)/)
