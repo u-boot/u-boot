@@ -74,8 +74,8 @@ fixnext:
 	ldr	r0, [r9, #GD_RELOCADDR]	/* r0 = gd->relocaddr */
 	mrc	p15, 0, r2, c1, c0, 0	/* V bit (bit[13]) in CP15 c1 */
 	ands	r2, r2, #(1 << 13)
-	ldreq	r1, =0x00000000 	/* If V=0 */
-	ldrne	r1, =0xFFFF0000 	/* If V=1 */
+	ldreq	r1, =0x00000000		/* If V=0 */
+	ldrne	r1, =0xFFFF0000		/* If V=1 */
 	ldmia	r0!, {r2-r8,r10}
 	stmia	r1!, {r2-r8,r10}
 	ldmia	r0!, {r2-r8,r10}
@@ -96,9 +96,9 @@ relocate_done:
 	/* ARMv4- don't know bx lr but the assembler fails to see that */
 
 #ifdef __ARM_ARCH_4__
-	mov        pc, lr
+	mov	pc, lr
 #else
-	bx        lr
+	bx	lr
 #endif
 
 ENDPROC(relocate_code)
