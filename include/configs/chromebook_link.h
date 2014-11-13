@@ -19,6 +19,7 @@
 #define CONFIG_SYS_CAR_SIZE			(128 * 1024)
 #define CONFIG_SYS_MONITOR_LEN			(1 << 20)
 #define CONFIG_SYS_X86_START16			0xfffff800
+#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 
 #define CONFIG_X86_RESET_VECTOR
@@ -40,9 +41,6 @@
  * follow-on patches in this series. Add undefs here to avoid every patch
  * having to put things back into x86-common.h
  */
-#undef CONFIG_INTEL_ICH6_GPIO
-#undef CONFIG_DM_GPIO
-#undef CONFIG_CMD_GPIO
 #undef CONFIG_VIDEO
 #undef CONFIG_CFB_CONSOLE
 #undef CONFIG_ICH_SPI
