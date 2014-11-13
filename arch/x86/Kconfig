@@ -34,6 +34,19 @@ config TARGET_CHROMEBOOK_LINK
 
 endchoice
 
+config ROM_SIZE
+	hex
+	default 0x800000
+
+config HAVE_INTEL_ME
+	bool "Platform requires Intel Management Engine"
+	help
+	  Newer higher-end devices have an Intel Management Engine (ME)
+	  which is a very large binary blob (typically 1.5MB) which is
+	  required for the platform to work. This enforces a particular
+	  SPI flash format. You will need to supply the me.bin file in
+	  your board directory.
+
 source "arch/x86/cpu/ivybridge/Kconfig"
 
 source "board/chromebook-x86/coreboot/Kconfig"
