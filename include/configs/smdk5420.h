@@ -23,4 +23,8 @@
 #define CONFIG_IDENT_STRING	" for SMDK5420"
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
+/* DRAM Memory Banks */
+#define CONFIG_NR_DRAM_BANKS	7
+#define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */
+
 #endif	/* __CONFIG_SMDK5420_H */

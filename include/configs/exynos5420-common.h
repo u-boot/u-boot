@@ -57,10 +57,6 @@
  */
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_IRAM_TOP - 0x800)
 
-/* DRAM Memory Banks */
-#define CONFIG_NR_DRAM_BANKS	7
-#define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */
-
 /* Miscellaneous configurable options */
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 

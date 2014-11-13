@@ -43,4 +43,8 @@
 #define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_EXYNOS
 
+/* DRAM Memory Banks */
+#define CONFIG_NR_DRAM_BANKS	4
+#define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */
+
 #endif	/* __CONFIG_PEACH_PIT_H */
