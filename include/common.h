@@ -97,15 +97,19 @@ typedef volatile unsigned char	vu_char;
 #define _DEBUG	0
 #endif
 
+#ifndef pr_fmt
+#define pr_fmt(fmt) fmt
+#endif
+
 /*
  * Output a debug text when condition "cond" is met. The "cond" should be
  * computed by a preprocessor in the best case, allowing for the best
  * optimization.
  */
-#define debug_cond(cond, fmt, args...)		\
-	do {					\
-		if (cond)			\
-			printf(fmt, ##args);	\
+#define debug_cond(cond, fmt, args...)			\
+	do {						\
+		if (cond)				\
+			printf(pr_fmt(fmt), ##args);	\
 	} while (0)
 
 #define debug(fmt, args...)			\
@@ -127,7 +131,7 @@ void __assert_fail(const char *assertion, const char *file, unsigned line,
 		__assert_fail(#x, __FILE__, __LINE__, __func__); })
 
 #define error(fmt, args...) do {					\
-		printf("ERROR: " fmt "\nat %s:%d/%s()\n",		\
+		printf("ERROR: " pr_fmt(fmt) "\nat %s:%d/%s()\n",	\
 			##args, __FILE__, __LINE__, __func__);		\
 } while (0)
 
