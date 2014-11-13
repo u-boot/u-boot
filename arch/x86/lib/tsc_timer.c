@@ -36,7 +36,8 @@ DECLARE_GLOBAL_DATA_PTR;
 struct freq_desc {
 	u8 x86_family;	/* CPU family */
 	u8 x86_model;	/* model */
-	u8 msr_plat;	/* 1: use MSR_PLATFORM_INFO, 0: MSR_IA32_PERF_STATUS */
+	/* 2: use 100MHz, 1: use MSR_PLATFORM_INFO, 0: MSR_IA32_PERF_STATUS */
+	u8 msr_plat;
 	u32 freqs[MAX_NUM_FREQS];
 };
 
@@ -49,6 +50,8 @@ static struct freq_desc freq_desc_tables[] = {
 	{ 6, 0x4a, 1, { 0, FREQ_100, FREQ_133, 0, 0, 0, 0, 0 } },
 	/* VLV2 */
 	{ 6, 0x37, 1, { FREQ_83, FREQ_100, FREQ_133, FREQ_166, 0, 0, 0, 0 } },
+	/* Ivybridge */
+	{ 6, 0x3a, 2, { 0, 0, 0, 0, 0, 0, 0, 0 } },
 	/* ANN */
 	{ 6, 0x5a, 1, { FREQ_83, FREQ_100, FREQ_133, FREQ_100, 0, 0, 0, 0 } },
 };
@@ -97,11 +100,18 @@ static unsigned long try_msr_calibrate_tsc(void)
 	if (!ratio)
 		goto fail;
 
-	/* Get FSB FREQ ID */
-	rdmsr(MSR_FSB_FREQ, lo, hi);
-	freq_id = lo & 0x7;
-	freq = id_to_freq(cpu_index, freq_id);
-	debug("Resolved frequency ID: %u, frequency: %u KHz\n", freq_id, freq);
+	if (freq_desc_tables[cpu_index].msr_plat == 2) {
+		/* TODO: Figure out how best to deal with this */
+		freq = FREQ_100;
+		debug("Using frequency: %u KHz\n", freq);
+	} else {
+		/* Get FSB FREQ ID */
+		rdmsr(MSR_FSB_FREQ, lo, hi);
+		freq_id = lo & 0x7;
+		freq = id_to_freq(cpu_index, freq_id);
+		debug("Resolved frequency ID: %u, frequency: %u KHz\n",
+		      freq_id, freq);
+	}
 	if (!freq)
 		goto fail;
 
@@ -297,12 +307,12 @@ unsigned __attribute__((no_instrument_function)) long get_tbclk_mhz(void)
 		return gd->arch.tsc_mhz;
 
 	fast_calibrate = try_msr_calibrate_tsc();
-	if (fast_calibrate)
-		return fast_calibrate;
+	if (!fast_calibrate) {
 
-	fast_calibrate = quick_pit_calibrate();
-	if (!fast_calibrate)
-		panic("TSC frequency is ZERO");
+		fast_calibrate = quick_pit_calibrate();
+		if (!fast_calibrate)
+			panic("TSC frequency is ZERO");
+	}
 
 	gd->arch.tsc_mhz = fast_calibrate;
 	return fast_calibrate;
