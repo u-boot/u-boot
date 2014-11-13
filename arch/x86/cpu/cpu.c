@@ -238,6 +238,7 @@ static void identify_cpu(struct cpu_device_id *cpu)
 	int i;
 
 	vendor_name[0] = '\0'; /* Unset */
+	cpu->device = 0; /* fix gcc 4.4.4 warning */
 
 	/* Find the id and vendor_name */
 	if (!has_cpuid()) {
