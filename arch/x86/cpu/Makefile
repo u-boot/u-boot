@@ -11,3 +11,4 @@
 extra-y	= start.o
 obj-$(CONFIG_X86_RESET_VECTOR) += resetvec.o start16.o
 obj-y	+= interrupts.o cpu.o call64.o
+obj-$(CONFIG_PCI) += pci.o
