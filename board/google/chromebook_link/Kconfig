@@ -1,0 +1,15 @@
+if TARGET_CHROMEBOOK_LINK
+
+config SYS_BOARD
+	default "chromebook_link"
+
+config SYS_VENDOR
+	default "google"
+
+config SYS_SOC
+	default "ivybridge"
+
+config SYS_CONFIG_NAME
+	default "chromebook_link"
+
+endif
