@@ -4,6 +4,7 @@
  * Graeme Russ, graeme.russ@gmail.com.
  *
  * Some portions from coreboot src/mainboard/google/link/romstage.c
+ * and src/cpu/intel/model_206ax/bootblock.c
  * Copyright (C) 2007-2010 coresystems GmbH
  * Copyright (C) 2011 Google Inc.
  *
@@ -23,6 +24,7 @@
 #include <asm/arch/model_206ax.h>
 #include <asm/arch/microcode.h>
 #include <asm/arch/pch.h>
+#include <asm/arch/sandybridge.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -180,6 +182,83 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+static int enable_smbus(void)
+{
+	pci_dev_t dev;
+	uint16_t value;
+
+	/* Set the SMBus device statically. */
+	dev = PCI_BDF(0x0, 0x1f, 0x3);
+
+	/* Check to make sure we've got the right device. */
+	value = pci_read_config16(dev, 0x0);
+	if (value != 0x8086) {
+		printf("SMBus controller not found\n");
+		return -ENOSYS;
+	}
+
+	/* Set SMBus I/O base. */
+	pci_write_config32(dev, SMB_BASE,
+			   SMBUS_IO_BASE | PCI_BASE_ADDRESS_SPACE_IO);
+
+	/* Set SMBus enable. */
+	pci_write_config8(dev, HOSTC, HST_EN);
+
+	/* Set SMBus I/O space enable. */
+	pci_write_config16(dev, PCI_COMMAND, PCI_COMMAND_IO);
+
+	/* Disable interrupt generation. */
+	outb(0, SMBUS_IO_BASE + SMBHSTCTL);
+
+	/* Clear any lingering errors, so transactions can run. */
+	outb(inb(SMBUS_IO_BASE + SMBHSTSTAT), SMBUS_IO_BASE + SMBHSTSTAT);
+	debug("SMBus controller enabled\n");
+
+	return 0;
+}
+
+#define PCH_EHCI0_TEMP_BAR0 0xe8000000
+#define PCH_EHCI1_TEMP_BAR0 0xe8000400
+#define PCH_XHCI_TEMP_BAR0  0xe8001000
+
+/*
+ * Setup USB controller MMIO BAR to prevent the reference code from
+ * resetting the controller.
+ *
+ * The BAR will be re-assigned during device enumeration so these are only
+ * temporary.
+ *
+ * This is used to speed up the resume path.
+ */
+static void enable_usb_bar(void)
+{
+	pci_dev_t usb0 = PCH_EHCI1_DEV;
+	pci_dev_t usb1 = PCH_EHCI2_DEV;
+	pci_dev_t usb3 = PCH_XHCI_DEV;
+	u32 cmd;
+
+	/* USB Controller 1 */
+	pci_write_config32(usb0, PCI_BASE_ADDRESS_0,
+			   PCH_EHCI0_TEMP_BAR0);
+	cmd = pci_read_config32(usb0, PCI_COMMAND);
+	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
+	pci_write_config32(usb0, PCI_COMMAND, cmd);
+
+	/* USB Controller 1 */
+	pci_write_config32(usb1, PCI_BASE_ADDRESS_0,
+			   PCH_EHCI1_TEMP_BAR0);
+	cmd = pci_read_config32(usb1, PCI_COMMAND);
+	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
+	pci_write_config32(usb1, PCI_COMMAND, cmd);
+
+	/* USB3 Controller */
+	pci_write_config32(usb3, PCI_BASE_ADDRESS_0,
+			   PCH_XHCI_TEMP_BAR0);
+	cmd = pci_read_config32(usb3, PCI_COMMAND);
+	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
+	pci_write_config32(usb3, PCI_COMMAND, cmd);
+}
+
 static int report_bist_failure(void)
 {
 	if (gd->arch.bist != 0) {
@@ -192,8 +271,11 @@ static int report_bist_failure(void)
 
 int print_cpuinfo(void)
 {
+	enum pei_boot_mode_t boot_mode = PEI_BOOT_NONE;
 	char processor_name[CPU_MAX_NAME_LEN];
 	const char *name;
+	uint32_t pm1_cnt;
+	uint16_t pm1_sts;
 	int ret;
 
 	/* Halt if there was a built in self test failure */
@@ -205,9 +287,68 @@ int print_cpuinfo(void)
 	if (ret && ret != -ENOENT && ret != -EEXIST)
 		return ret;
 
+	/* Enable upper 128bytes of CMOS */
+	writel(1 << 2, RCB_REG(RC));
+
+	/* TODO: cmos_post_init() */
+	if (readl(MCHBAR_REG(SSKPD)) == 0xCAFE) {
+		debug("soft reset detected\n");
+		boot_mode = PEI_BOOT_SOFT_RESET;
+
+		/* System is not happy after keyboard reset... */
+		debug("Issuing CF9 warm reset\n");
+		outb(0x6, 0xcf9);
+		cpu_hlt();
+	}
+
+	/* Early chipset init required before RAM init can work */
+	sandybridge_early_init(SANDYBRIDGE_MOBILE);
+
+	/* Check PM1_STS[15] to see if we are waking from Sx */
+	pm1_sts = inw(DEFAULT_PMBASE + PM1_STS);
+
+	/* Read PM1_CNT[12:10] to determine which Sx state */
+	pm1_cnt = inl(DEFAULT_PMBASE + PM1_CNT);
+
+	if ((pm1_sts & WAK_STS) && ((pm1_cnt >> 10) & 7) == 5) {
+#if CONFIG_HAVE_ACPI_RESUME
+		debug("Resume from S3 detected.\n");
+		boot_mode = PEI_BOOT_RESUME;
+		/* Clear SLP_TYPE. This will break stage2 but
+		 * we care for that when we get there.
+		 */
+		outl(pm1_cnt & ~(7 << 10), DEFAULT_PMBASE + PM1_CNT);
+#else
+		debug("Resume from S3 detected, but disabled.\n");
+#endif
+	} else {
+		/*
+		 * TODO: An indication of life might be possible here (e.g.
+		 * keyboard light)
+		 */
+	}
+	post_code(POST_EARLY_INIT);
+
+	/* Enable SPD ROMs and DDR-III DRAM */
+	ret = enable_smbus();
+	if (ret)
+		return ret;
+
+	/* Prepare USB controller early in S3 resume */
+	if (boot_mode == PEI_BOOT_RESUME)
+		enable_usb_bar();
+
+	gd->arch.pei_boot_mode = boot_mode;
+
+	/* TODO: Move this to the board or driver */
+	pci_write_config32(PCH_LPC_DEV, GPIO_BASE, DEFAULT_GPIOBASE | 1);
+	pci_write_config32(PCH_LPC_DEV, GPIO_CNTL, 0x10);
+
 	/* Print processor name */
 	name = cpu_get_name(processor_name);
 	printf("CPU:   %s\n", name);
+
+	post_code(POST_CPU_INFO);
 
 	return 0;
 }

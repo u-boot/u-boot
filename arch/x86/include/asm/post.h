@@ -25,6 +25,8 @@
 #define POST_START_STACK	0x29
 #define POST_START_DONE		0x2a
 #define POST_CPU_INIT		0x2b
+#define POST_EARLY_INIT		0x2c
+#define POST_CPU_INFO		0x2d
 
 /* Output a post code using al - value must be 0 to 0xff */
 #ifdef __ASSEMBLY__

@@ -10,6 +10,13 @@
 
 #ifndef __ASSEMBLY__
 
+enum pei_boot_mode_t {
+	PEI_BOOT_NONE = 0,
+	PEI_BOOT_SOFT_RESET,
+	PEI_BOOT_RESUME,
+
+};
+
 /* Architecture-specific global data */
 struct arch_global_data {
 	struct global_data *gd_addr;		/* Location of Global Data */
@@ -25,6 +32,7 @@ struct arch_global_data {
 	void *new_fdt;			/* Relocated FDT */
 	uint32_t bist;			/* Built-in self test value */
 	struct pci_controller *hose;	/* PCI hose for early use */
+	enum pei_boot_mode_t pei_boot_mode;
 };
 
 #endif

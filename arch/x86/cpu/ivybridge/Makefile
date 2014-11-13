@@ -6,6 +6,7 @@
 
 obj-y += car.o
 obj-y += cpu.o
+obj-y += early_init.o
 obj-y += lpc.o
 obj-y += microcode_intel.o
 obj-y += pci.o
