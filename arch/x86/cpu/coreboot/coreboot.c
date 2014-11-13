@@ -15,6 +15,7 @@
 #include <asm/cache.h>
 #include <asm/cpu.h>
 #include <asm/io.h>
+#include <asm/post.h>
 #include <asm/arch-coreboot/tables.h>
 #include <asm/arch-coreboot/sysinfo.h>
 #include <asm/arch/timestamp.h>
@@ -70,7 +71,7 @@ void show_boot_progress(int val)
 		gd->arch.tsc_prev = now;
 	}
 #endif
-	outb(val, 0x80);
+	outb(val, POST_PORT);
 }
 
 int print_cpuinfo(void)

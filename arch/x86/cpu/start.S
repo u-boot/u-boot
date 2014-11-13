@@ -13,6 +13,7 @@
 #include <config.h>
 #include <version.h>
 #include <asm/global_data.h>
+#include <asm/post.h>
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <generated/generic-asm-offsets.h>
@@ -67,6 +68,7 @@ _start:
 	jmp	early_board_init
 .globl early_board_init_ret
 early_board_init_ret:
+	post_code(POST_START)
 
 	/* Initialise Cache-As-RAM */
 	jmp	car_init
@@ -96,6 +98,7 @@ car_init_ret:
 
 	/* Align global data to 16-byte boundary */
 	andl	$0xfffffff0, %esp
+	post_code(POST_START_STACK)
 
 	/* Zero the global data since it won't happen later */
 	xorl	%eax, %eax
@@ -131,6 +134,7 @@ car_init_ret:
 	call	setup_gdt
 
 	/* Set parameter to board_init_f() to boot flags */
+	post_code(POST_START_DONE)
 	xorl	%eax, %eax
 
 	/* Enter, U-boot! */

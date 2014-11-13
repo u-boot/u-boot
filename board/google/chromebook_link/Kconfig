@@ -12,4 +12,8 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "chromebook_link"
 
+config EARLY_POST_CROS_EC
+	bool "Enable early post to Chrome OS EC"
+	default y
+
 endif
