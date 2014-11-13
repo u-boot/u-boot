@@ -19,6 +19,7 @@
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
+#include <hwconfig.h>
 
 #include "../common/qixis.h"
 #include "../common/vsc3316_3308.h"
@@ -333,6 +334,8 @@ int configure_vsc3316_3308(void)
 	unsigned int num_vsc16_con, num_vsc08_con;
 	u32 serdes1_prtcl, serdes2_prtcl;
 	int ret;
+	char buffer[HWCONFIG_BUFFER_SIZE];
+	char *buf = NULL;
 
 	serdes1_prtcl = in_be32(&gur->rcwsr[4]) &
 			FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
@@ -536,14 +539,36 @@ int configure_vsc3316_3308(void)
 	case 0xb1:
 	case 0xb2:
 		if (!ret) {
-			ret = vsc3308_config(VSC3308_TX_ADDRESS,
-					vsc08_tx_sfp, num_vsc08_con);
-			if (ret)
-				return ret;
-			ret = vsc3308_config(VSC3308_RX_ADDRESS,
-					vsc08_rx_sfp, num_vsc08_con);
-			if (ret)
-				return ret;
+			/*
+			 * Extract hwconfig from environment since environment
+			 * is not setup properly yet
+			 */
+			getenv_f("hwconfig", buffer, sizeof(buffer));
+			buf = buffer;
+
+			if (hwconfig_subarg_cmp_f("fsl_b4860_serdes2",
+						  "sfp_amc", "sfp", buf)) {
+				ret = vsc3308_config(VSC3308_TX_ADDRESS,
+						vsc08_tx_sfp, num_vsc08_con);
+				if (ret)
+					return ret;
+
+				ret = vsc3308_config(VSC3308_RX_ADDRESS,
+						vsc08_rx_sfp, num_vsc08_con);
+				if (ret)
+					return ret;
+			} else {
+				ret = vsc3308_config(VSC3308_TX_ADDRESS,
+						vsc08_tx_amc, num_vsc08_con);
+				if (ret)
+					return ret;
+
+				ret = vsc3308_config(VSC3308_RX_ADDRESS,
+						vsc08_rx_amc, num_vsc08_con);
+				if (ret)
+					return ret;
+			}
+
 		} else {
 			return ret;
 		}
