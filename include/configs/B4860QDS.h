@@ -731,6 +731,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
 
+#define CONFIG_SYS_FSL_B4860QDS_XFI_ERR
+
 /*
  * Environment
  */

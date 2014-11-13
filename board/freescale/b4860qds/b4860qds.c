@@ -548,6 +548,18 @@ int configure_vsc3316_3308(void)
 
 			if (hwconfig_subarg_cmp_f("fsl_b4860_serdes2",
 						  "sfp_amc", "sfp", buf)) {
+#ifdef CONFIG_SYS_FSL_B4860QDS_XFI_ERR
+				/* change default VSC3308 for XFI erratum */
+				ret = vsc3308_config_adjust(VSC3308_TX_ADDRESS,
+						vsc08_tx_sfp, num_vsc08_con);
+				if (ret)
+					return ret;
+
+				ret = vsc3308_config_adjust(VSC3308_RX_ADDRESS,
+						vsc08_rx_sfp, num_vsc08_con);
+				if (ret)
+					return ret;
+#else
 				ret = vsc3308_config(VSC3308_TX_ADDRESS,
 						vsc08_tx_sfp, num_vsc08_con);
 				if (ret)
@@ -557,6 +569,7 @@ int configure_vsc3316_3308(void)
 						vsc08_rx_sfp, num_vsc08_con);
 				if (ret)
 					return ret;
+#endif
 			} else {
 				ret = vsc3308_config(VSC3308_TX_ADDRESS,
 						vsc08_tx_amc, num_vsc08_con);

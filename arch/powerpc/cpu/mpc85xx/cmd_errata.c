@@ -319,6 +319,10 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (IS_SVR_REV(svr, 1, 0))
 		puts("Work-around for Erratum A-008044 enabled\n");
 #endif
+#if defined(CONFIG_SYS_FSL_B4860QDS_XFI_ERR) && defined(CONFIG_B4860QDS)
+	puts("Work-around for Erratum XFI on B4860QDS enabled\n");
+#endif
+
 	return 0;
 }
 
