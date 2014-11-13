@@ -119,6 +119,7 @@
 #define PRCM_PLL_CTRL_LDO_OUT_HV(n) \
 	__PRCM_PLL_CTRL_VDD_LDO_OUT((((n) & 0x7) * 30) + 1160)
 #define PRCM_PLL_CTRL_LDO_KEY (0xa7 << 24)
+#define PRCM_PLL_CTRL_LDO_KEY_MASK (0xff << 24)
 
 #define PRCM_CLK_1WIRE_GATE (0x1 << 31)
 

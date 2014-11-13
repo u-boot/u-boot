@@ -19,6 +19,9 @@
 #ifdef CONFIG_AXP209_POWER
 #include <axp209.h>
 #endif
+#ifdef CONFIG_AXP221_POWER
+#include <axp221.h>
+#endif
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/dram.h>
@@ -168,6 +171,29 @@ void sunxi_board_init(void)
 	power_failed |= axp209_set_ldo2(3000);
 	power_failed |= axp209_set_ldo3(2800);
 	power_failed |= axp209_set_ldo4(2800);
+#endif
+#ifdef CONFIG_AXP221_POWER
+	power_failed = axp221_init();
+	power_failed |= axp221_set_dcdc1(3000);
+	power_failed |= axp221_set_dcdc2(1200);
+	power_failed |= axp221_set_dcdc3(1200);
+	power_failed |= axp221_set_dcdc4(1200);
+	power_failed |= axp221_set_dcdc5(1500);
+#if CONFIG_AXP221_DLDO1_VOLT != -1
+	power_failed |= axp221_set_dldo1(CONFIG_AXP221_DLDO1_VOLT);
+#endif
+#if CONFIG_AXP221_DLDO4_VOLT != -1
+	power_failed |= axp221_set_dldo4(CONFIG_AXP221_DLDO4_VOLT);
+#endif
+#if CONFIG_AXP221_ALDO1_VOLT != -1
+	power_failed |= axp221_set_aldo1(CONFIG_AXP221_ALDO1_VOLT);
+#endif
+#if CONFIG_AXP221_ALDO2_VOLT != -1
+	power_failed |= axp221_set_aldo2(CONFIG_AXP221_ALDO2_VOLT);
+#endif
+#if CONFIG_AXP221_ALDO3_VOLT != -1
+	power_failed |= axp221_set_aldo3(CONFIG_AXP221_ALDO3_VOLT);
+#endif
 #endif
 
 	printf("DRAM:");

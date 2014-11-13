@@ -13,6 +13,7 @@ obj-y	+= clock.o
 obj-y	+= pinmux.o
 obj-$(CONFIG_MACH_SUN6I)	+= prcm.o
 obj-$(CONFIG_MACH_SUN8I)	+= prcm.o
+obj-$(CONFIG_MACH_SUN6I)	+= p2wi.o
 obj-$(CONFIG_MACH_SUN4I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN5I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN6I)	+= clock_sun6i.o
@@ -27,9 +28,10 @@ endif
 endif
 
 ifdef CONFIG_SPL_BUILD
-obj-$(CONFIG_MACH_SUN4I)	+= dram.o
-obj-$(CONFIG_MACH_SUN5I)	+= dram.o
-obj-$(CONFIG_MACH_SUN7I)	+= dram.o
+obj-$(CONFIG_MACH_SUN4I)	+= dram_sun4i.o
+obj-$(CONFIG_MACH_SUN5I)	+= dram_sun4i.o
+obj-$(CONFIG_MACH_SUN6I)	+= dram_sun6i.o
+obj-$(CONFIG_MACH_SUN7I)	+= dram_sun4i.o
 ifdef CONFIG_SPL_FEL
 obj-y	+= start.o
 endif

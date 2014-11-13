@@ -9,6 +9,7 @@ F:	configs/Cubieboard_defconfig
 F:	configs/Mele_A1000_defconfig
 F:	configs/Mele_A1000G_defconfig
 F:	configs/Mele_M3_defconfig
+F:	configs/Mele_M9_defconfig
 F:	configs/Mini-X_defconfig
 F:	configs/Mini-X-1Gb_defconfig
 F:	include/configs/sun5i.h
