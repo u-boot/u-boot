@@ -73,14 +73,11 @@ static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 		writeb(cmd, this->IO_ADDR_W);
 }
 
-#ifdef CONFIG_SPL_BUILD
 /* Check wait pin as dev ready indicator */
-static int omap_spl_dev_ready(struct mtd_info *mtd)
+static int omap_dev_ready(struct mtd_info *mtd)
 {
 	return gpmc_cfg->status & (1 << 8);
 }
-#endif
-
 
 /*
  * gen_true_ecc - This function will generate true ECC value, which
@@ -887,7 +884,9 @@ int board_nand_init(struct nand_chip *nand)
 		nand->read_buf = nand_read_buf16;
 	else
 		nand->read_buf = nand_read_buf;
-	nand->dev_ready = omap_spl_dev_ready;
 #endif
+
+	nand->dev_ready = omap_dev_ready;
+
 	return 0;
 }
