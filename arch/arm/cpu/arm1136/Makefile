@@ -8,4 +8,5 @@
 extra-y	= start.o
 obj-y	= cpu.o
 
-obj-y += $(if $(SOC),$(SOC)/)
+obj-$(CONFIG_MX31) += mx31/
+obj-$(CONFIG_MX35) += mx35/
