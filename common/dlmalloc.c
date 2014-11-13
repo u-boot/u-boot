@@ -1533,6 +1533,9 @@ void mem_malloc_init(ulong start, ulong size)
 	mem_malloc_end = start + size;
 	mem_malloc_brk = start;
 
+	debug("using memory %#lx-%#lx for malloc()\n", mem_malloc_start,
+	      mem_malloc_end);
+
 	memset((void *)mem_malloc_start, 0, size);
 
 	malloc_bin_reloc();
