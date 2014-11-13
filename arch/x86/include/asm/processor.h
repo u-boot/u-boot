@@ -32,6 +32,8 @@ enum {
 
 #ifndef __ASSEMBLY__
 
+#define PORT_RESET		0xcf9
+
 static inline __attribute__((always_inline)) void cpu_hlt(void)
 {
 	asm("hlt");
