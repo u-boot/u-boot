@@ -1,0 +1,23 @@
+Intel LPC Device Binding
+========================
+
+The device tree node which describes the operation of the Intel Low Pin
+Count device is as follows:
+
+Required properties :
+- compatible = "intel,lpc"
+- gen-dec : Specifies the values for the gen-dec registers. Up to four cell
+   pairs can be provided - the first of each pair is the base address and
+   the second is the size. These are written into the GENx_DEC registers of
+   the LPC device
+
+
+Example
+-------
+
+lpc {
+	compatible = "intel,lpc";
+	#address-cells = <1>;
+	#size-cells = <1>;
+	gen-dec = <0x800 0xfc 0x900 0xfc>;
+};

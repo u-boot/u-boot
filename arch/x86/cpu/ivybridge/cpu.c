@@ -11,16 +11,21 @@
  */
 
 #include <common.h>
+#include <errno.h>
+#include <fdtdec.h>
 #include <asm/cpu.h>
 #include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/processor.h>
+#include <asm/arch/pch.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int arch_cpu_init(void)
 {
+	const void *blob = gd->fdt_blob;
 	struct pci_controller *hose;
+	int node;
 	int ret;
 
 	post_code(POST_CPU_INIT);
@@ -31,6 +36,13 @@ int arch_cpu_init(void)
 		return ret;
 
 	ret = pci_early_init_hose(&hose);
+	if (ret)
+		return ret;
+
+	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_LPC);
+	if (node < 0)
+		return -ENOENT;
+	ret = lpc_early_init(gd->fdt_blob, node, PCH_LPC_DEV);
 	if (ret)
 		return ret;
 

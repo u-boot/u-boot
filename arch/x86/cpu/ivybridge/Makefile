@@ -6,5 +6,6 @@
 
 obj-y += car.o
 obj-y += cpu.o
+obj-y += lpc.o
 obj-y += pci.o
 obj-y += sdram.o
