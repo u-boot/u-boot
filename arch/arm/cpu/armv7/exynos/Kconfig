@@ -44,8 +44,13 @@ config TARGET_SMDK5420
 	select SUPPORT_SPL
 	select OF_CONTROL if !SPL_BUILD
 
-config TARGET_PEACH_PIT
+config TARGET_PEACH_PI
 	bool "Peach Pi board"
+	select SUPPORT_SPL
+	select OF_CONTROL if !SPL_BUILD
+
+config TARGET_PEACH_PIT
+	bool "Peach Pit board"
 	select SUPPORT_SPL
 	select OF_CONTROL if !SPL_BUILD
 

@@ -6,3 +6,5 @@ F:	include/configs/peach-pit.h
 F:	configs/peach-pit_defconfig
 F:	include/configs/smdk5420.h
 F:	configs/smdk5420_defconfig
+F:	include/configs/peach-pi.h
+F:	configs/peach-pi_defconfig

@@ -1,13 +1,13 @@
 /*
- * Copyright (C) 2013 Samsung Electronics
+ * Copyright (C) 2014 Samsung Electronics
  *
- * Configuration settings for the SAMSUNG/GOOGLE PEACH-PIT board.
+ * Configuration settings for the SAMSUNG/GOOGLE PEACH-PI board.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_PEACH_PIT_H
-#define __CONFIG_PEACH_PIT_H
+#ifndef __CONFIG_PEACH_PI_H
+#define __CONFIG_PEACH_PI_H
 
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SPI_FLASH
@@ -23,8 +23,8 @@
 /* select serial console configuration */
 #define CONFIG_SERIAL3		/* use SERIAL 3 */
 
-#define CONFIG_SYS_PROMPT	"Peach-Pit # "
-#define CONFIG_IDENT_STRING	" for Peach-Pit"
+#define CONFIG_SYS_PROMPT	"Peach-Pi # "
+#define CONFIG_IDENT_STRING	" for Peach-Pi"
 
 #define CONFIG_VIDEO_PARADE
 
@@ -43,4 +43,4 @@
 #define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_EXYNOS
 
-#endif	/* __CONFIG_PEACH_PIT_H */
+#endif	/* __CONFIG_PEACH_PI_H */
