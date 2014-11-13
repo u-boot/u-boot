@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <asm/cpu.h>
+#include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/processor.h>
 
@@ -19,12 +20,17 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int arch_cpu_init(void)
 {
+	struct pci_controller *hose;
 	int ret;
 
 	post_code(POST_CPU_INIT);
 	timer_set_base(rdtsc());
 
 	ret = x86_cpu_init_f();
+	if (ret)
+		return ret;
+
+	ret = pci_early_init_hose(&hose);
 	if (ret)
 		return ret;
 
