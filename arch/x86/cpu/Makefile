@@ -12,4 +12,4 @@ extra-y	= start.o
 obj-$(CONFIG_X86_RESET_VECTOR) += resetvec.o start16.o
 obj-y	+= interrupts.o cpu.o call64.o
 
-obj-y += $(if $(SOC),$(SOC)/)
+obj-$(CONFIG_SYS_COREBOOT) += coreboot/
