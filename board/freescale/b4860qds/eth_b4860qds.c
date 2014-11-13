@@ -407,6 +407,25 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 			fdt_setprop(fdt, offset, "fixed-link", &f_link,
 				    sizeof(f_link));
 			break;
+		case 0x98: /* XAUI interface */
+			sprintf(alias, "phy_xaui_slot1");
+			fdt_status_okay_by_alias(fdt, alias);
+
+			sprintf(alias, "phy_xaui_slot2");
+			fdt_status_okay_by_alias(fdt, alias);
+			break;
+		case 0x9e: /* XAUI interface */
+		case 0x9a:
+		case 0x93:
+		case 0x91:
+			sprintf(alias, "phy_xaui_slot1");
+			fdt_status_okay_by_alias(fdt, alias);
+			break;
+		case 0x97: /* XAUI interface */
+		case 0xc3:
+			sprintf(alias, "phy_xaui_slot2");
+			fdt_status_okay_by_alias(fdt, alias);
+			break;
 		default:
 			break;
 		}
