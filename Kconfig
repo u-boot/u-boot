@@ -93,6 +93,28 @@ config TPL
 	help
 	  If you want to build TPL as well as the normal image and SPL, say Y.
 
+config FIT
+	bool "Support Flattened Image Tree"
+	depends on !SPL_BUILD
+	help
+	  This option allows to boot the new uImage structrure,
+	  Flattened Image Tree.  FIT is formally a FDT, which can include
+	  images of various types (kernel, FDT blob, ramdisk, etc.)
+	  in a single blob.  To boot this new uImage structure,
+	  pass the the address of the blob to the "bootm" command.
+
+config FIT_VERBOSE
+	bool "Display verbose messages on FIT boot"
+	depends on FIT
+
+config FIT_SIGNATURE
+	bool "Enabel signature verification of FIT uImages"
+	depends on FIT
+	help
+	  This option enables signature verification of FIT uImages,
+	  using a hash signed and verified using RSA.
+	  See doc/uImage.FIT/signature.txt for more details.
+
 config SYS_EXTRA_OPTIONS
 	string "Extra Options (DEPRECATED)"
 	depends on !SPL_BUILD
