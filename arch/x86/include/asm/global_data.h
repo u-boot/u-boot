@@ -24,6 +24,7 @@ struct arch_global_data {
 	uint32_t tsc_mhz;		/* TSC frequency in MHz */
 	void *new_fdt;			/* Relocated FDT */
 	uint32_t bist;			/* Built-in self test value */
+	struct pci_controller *hose;	/* PCI hose for early use */
 };
 
 #endif
