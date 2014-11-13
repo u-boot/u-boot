@@ -1,6 +1,23 @@
 menu "Command line interface"
 	depends on !SPL_BUILD
 
+config HUSH_PARSER
+	bool "Use hush shell"
+	select SYS_HUSH_PARSER
+	help
+	  This option enables the "hush" shell (from Busybox) as command line
+	  interpreter, thus enabling powerful command line syntax like
+	  if...then...else...fi conditionals or `&&' and '||'
+	  constructs ("shell scripts").
+
+	  If disabled, you get the old, much simpler behaviour with a somewhat
+	  smaller memory footprint.
+
+config SYS_HUSH_PARSER
+	bool
+	help
+	  Backward compatibility.
+
 config CMD_BOOTM
 	bool "Enable bootm command"
 	default y

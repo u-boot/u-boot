@@ -2835,18 +2835,6 @@ CBFS (Coreboot Filesystem) support
 
 		Enable auto completion of commands using TAB.
 
-		CONFIG_SYS_HUSH_PARSER
-
-		Define this variable to enable the "hush" shell (from
-		Busybox) as command line interpreter, thus enabling
-		powerful command line syntax like
-		if...then...else...fi conditionals or `&&' and '||'
-		constructs ("shell scripts").
-
-		If undefined, you get the old, much simpler behaviour
-		with a somewhat smaller memory footprint.
-
-
 		CONFIG_SYS_PROMPT_HUSH_PS2
 
 		This defines the secondary prompt string, which is
