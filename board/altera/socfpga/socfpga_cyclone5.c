@@ -12,7 +12,9 @@
 #include <usb/s3c_udc.h>
 #include <usb_mass_storage.h>
 
+#include <micrel.h>
 #include <netdev.h>
+#include <phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -42,6 +44,20 @@ int board_init(void)
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	return 0;
+}
+
+int board_phy_config(struct phy_device *phydev)
+{
+	/*
+	 * These skew settings for the KSZ9021 ethernet phy is required for ethernet
+	 * to work reliably on most flavors of cyclone5 boards.
+	 */
+	ksz9021_phy_extended_write(phydev, MII_KSZ9021_EXT_RGMII_RX_DATA_SKEW,
+				   0x0);
+	ksz9021_phy_extended_write(phydev, MII_KSZ9021_EXT_RGMII_TX_DATA_SKEW,
+				   0x0);
+	ksz9021_phy_extended_write(phydev, MII_KSZ9021_EXT_RGMII_CLOCK_SKEW,
+				   0xf0f0);
 }
 
 #ifdef CONFIG_USB_GADGET
