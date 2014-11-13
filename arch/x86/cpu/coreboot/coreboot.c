@@ -16,8 +16,8 @@
 #include <asm/cpu.h>
 #include <asm/io.h>
 #include <asm/post.h>
-#include <asm/arch-coreboot/tables.h>
-#include <asm/arch-coreboot/sysinfo.h>
+#include <asm/arch/tables.h>
+#include <asm/arch/sysinfo.h>
 #include <asm/arch/timestamp.h>
 
 DECLARE_GLOBAL_DATA_PTR;
