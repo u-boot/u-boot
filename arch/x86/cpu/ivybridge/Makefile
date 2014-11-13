@@ -7,5 +7,6 @@
 obj-y += car.o
 obj-y += cpu.o
 obj-y += lpc.o
+obj-y += microcode_intel.o
 obj-y += pci.o
 obj-y += sdram.o

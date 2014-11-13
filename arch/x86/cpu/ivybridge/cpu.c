@@ -21,6 +21,7 @@
 #include <asm/post.h>
 #include <asm/processor.h>
 #include <asm/arch/model_206ax.h>
+#include <asm/arch/microcode.h>
 #include <asm/arch/pch.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -198,6 +199,10 @@ int print_cpuinfo(void)
 	/* Halt if there was a built in self test failure */
 	ret = report_bist_failure();
 	if (ret)
+		return ret;
+
+	ret = microcode_update_intel();
+	if (ret && ret != -ENOENT && ret != -EEXIST)
 		return ret;
 
 	/* Print processor name */
