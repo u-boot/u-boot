@@ -15,6 +15,7 @@ obj-$(CONFIG_SYS_PCAT_TIMER) += pcat_timer.o
 obj-$(CONFIG_PCI) += pci_type1.o
 obj-y	+= relocate.o
 obj-y += physmem.o
+obj-$(CONFIG_X86_RAMTEST) += ramtest.o
 obj-y	+= string.o
 obj-$(CONFIG_SYS_X86_TSC_TIMER)	+= tsc_timer.o
 obj-$(CONFIG_VIDEO_VGA)	+= video.o

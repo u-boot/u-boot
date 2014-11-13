@@ -129,6 +129,7 @@ config CPU_SPECIFIC_OPTIONS
 	select CPU_MICROCODE_IN_CBFS
 	select TSC_SYNC_MFENCE
 	select HAVE_INTEL_ME
+	select X86_RAMTEST
 
 config SMM_TSEG_SIZE
 	hex

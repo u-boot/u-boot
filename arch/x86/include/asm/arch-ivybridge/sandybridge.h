@@ -102,6 +102,8 @@
 #define SSKPD		0x5d14	/* 16bit (scratchpad) */
 #define BIOS_RESET_CPL	0x5da8	/* 8bit */
 
+void report_platform_info(void);
+
 void sandybridge_early_init(int chipset_type);
 
 #endif

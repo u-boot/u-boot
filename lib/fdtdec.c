@@ -74,6 +74,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(PARADE_PS8625, "parade,ps8625"),
 	COMPAT(COMPAT_INTEL_LPC, "intel,lpc"),
 	COMPAT(INTEL_MICROCODE, "intel,microcode"),
+	COMPAT(MEMORY_SPD, "memory-spd"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)

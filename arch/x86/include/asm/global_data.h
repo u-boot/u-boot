@@ -17,6 +17,18 @@ enum pei_boot_mode_t {
 
 };
 
+struct memory_area {
+	uint64_t start;
+	uint64_t size;
+};
+
+struct memory_info {
+	int num_areas;
+	uint64_t total_memory;
+	uint64_t total_32bit_memory;
+	struct memory_area area[CONFIG_NR_DRAM_BANKS];
+};
+
 /* Architecture-specific global data */
 struct arch_global_data {
 	struct global_data *gd_addr;		/* Location of Global Data */
@@ -34,6 +46,7 @@ struct arch_global_data {
 	struct pci_controller *hose;	/* PCI hose for early use */
 	enum pei_boot_mode_t pei_boot_mode;
 	const struct pch_gpio_map *gpio_map;	/* board GPIO map */
+	struct memory_info meminfo;	/* Memory information */
 };
 
 #endif

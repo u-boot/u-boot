@@ -50,6 +50,17 @@ config CPU_ADDR_BITS
 	int
 	default 36
 
+config HPET_ADDRESS
+	hex
+	default 0xfed00000 if !HPET_ADDRESS_OVERRIDE
+
+config SMM_TSEG
+	bool
+	default n
+
+config SMM_TSEG_SIZE
+	hex
+
 config ROM_SIZE
 	hex
 	default 0x800000
@@ -62,6 +73,15 @@ config HAVE_INTEL_ME
 	  required for the platform to work. This enforces a particular
 	  SPI flash format. You will need to supply the me.bin file in
 	  your board directory.
+
+config X86_RAMTEST
+	bool "Perform a simple RAM test after SDRAM initialisation"
+	help
+	  If there is something wrong with SDRAM then the platform will
+	  often crash within U-Boot or the kernel. This option enables a
+	  very simple RAM test that quickly checks whether the SDRAM seems
+	  to work correctly. It is not exhaustive but can save time by
+	  detecting obvious failures.
 
 source "arch/x86/cpu/ivybridge/Kconfig"
 
