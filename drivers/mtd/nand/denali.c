@@ -1209,6 +1209,17 @@ static int denali_init(struct denali_nand_info *denali)
 	nand_oob.eccbytes = denali->nand.ecc.bytes;
 	denali->nand.ecc.layout = &nand_oob;
 
+	writel(denali->mtd->erasesize / denali->mtd->writesize,
+	       denali->flash_reg + PAGES_PER_BLOCK);
+	writel(denali->nand.options & NAND_BUSWIDTH_16 ? 1 : 0,
+	       denali->flash_reg + DEVICE_WIDTH);
+	writel(denali->mtd->writesize,
+	       denali->flash_reg + DEVICE_MAIN_AREA_SIZE);
+	writel(denali->mtd->oobsize,
+	       denali->flash_reg + DEVICE_SPARE_AREA_SIZE);
+	if (readl(denali->flash_reg + DEVICES_CONNECTED) == 0)
+		writel(1, denali->flash_reg + DEVICES_CONNECTED);
+
 	/* override the default operations */
 	denali->nand.ecc.read_page = denali_read_page;
 	denali->nand.ecc.read_page_raw = denali_read_page_raw;
