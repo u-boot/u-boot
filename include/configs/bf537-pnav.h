@@ -142,7 +142,7 @@
 /*
  * I2C settings
  */
-#define CONFIG_BFIN_TWI_I2C	1
+#define CONFIG_SYS_I2C_ADI
 #define CONFIG_HARD_I2C		1
 
 

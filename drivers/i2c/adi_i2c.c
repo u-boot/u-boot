@@ -1,7 +1,7 @@
 /*
- * i2c.c - driver for Blackfin on-chip TWI/I2C
+ * i2c.c - driver for ADI TWI/I2C
  *
- * Copyright (c) 2006-2010 Analog Devices Inc.
+ * Copyright (c) 2006-2014 Analog Devices Inc.
  *
  * Licensed under the GPL-2 or later.
  */
@@ -9,9 +9,8 @@
 #include <common.h>
 #include <i2c.h>
 
-#include <asm/blackfin.h>
 #include <asm/clock.h>
-#include <asm/mach-common/bits/twi.h>
+#include <asm/twi.h>
 
 /* Every register is 32bit aligned, but only 16bits in size */
 #define ureg(name) u16 name; u16 __pad_##name;
