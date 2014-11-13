@@ -464,6 +464,16 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 							+ DMC_OFFSET);
 	pmu = (struct exynos5_power *)EXYNOS5420_POWER_BASE;
 
+	if (CONFIG_NR_DRAM_BANKS > 4) {
+		/* Need both controllers. */
+		mem->memcontrol |= DMC_MEMCONTROL_NUM_CHIP_2;
+		mem->chips_per_channel = 2;
+		mem->chips_to_configure = 2;
+	} else {
+		/* 2GB requires a single controller */
+		mem->memcontrol |= DMC_MEMCONTROL_NUM_CHIP_1;
+	}
+
 	/* Enable PAUSE for DREX */
 	setbits_le32(&clk->pause, ENABLE_BIT);
 
