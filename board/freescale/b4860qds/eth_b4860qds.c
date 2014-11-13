@@ -365,6 +365,11 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 {
 	int phy;
 	char alias[32];
+	struct fixed_link f_link;
+	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 prtcl2 = in_be32(&gur->rcwsr[4]) & FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
+
+	prtcl2 >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
 
 	if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_SGMII) {
 		phy = fm_info_get_phy_address(port);
@@ -372,6 +377,39 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 		sprintf(alias, "phy_sgmii_%x", phy);
 		fdt_set_phy_handle(fdt, compat, addr, alias);
 		fdt_status_okay_by_alias(fdt, alias);
+	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_XGMII) {
+		/* check if it's XFI interface for 10g */
+		switch (prtcl2) {
+		case 0x80:
+		case 0x81:
+		case 0x82:
+		case 0x83:
+		case 0x84:
+		case 0x85:
+		case 0x86:
+		case 0x87:
+		case 0x88:
+		case 0x89:
+		case 0x8a:
+		case 0x8b:
+		case 0x8c:
+		case 0x8d:
+		case 0x8e:
+		case 0xb1:
+		case 0xb2:
+			f_link.phy_id = port;
+			f_link.duplex = 1;
+			f_link.link_speed = 10000;
+			f_link.pause = 0;
+			f_link.asym_pause = 0;
+
+			fdt_delprop(fdt, offset, "phy-handle");
+			fdt_setprop(fdt, offset, "fixed-link", &f_link,
+				    sizeof(f_link));
+			break;
+		default:
+			break;
+		}
 	}
 }
 
