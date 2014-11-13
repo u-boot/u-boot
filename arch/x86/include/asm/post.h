@@ -13,9 +13,18 @@
 /* post codes which represent various stages of init */
 #define POST_START		0x1e
 #define POST_CAR_START		0x1f
-
+#define POST_CAR_SIPI		0x20
+#define POST_CAR_MTRR		0x21
+#define POST_CAR_UNCACHEABLE	0x22
+#define POST_CAR_BASE_ADDRESS	0x23
+#define POST_CAR_MASK		0x24
+#define POST_CAR_FILL		0x25
+#define POST_CAR_ROM_CACHE	0x26
+#define POST_CAR_MRC_CACHE	0x27
+#define POST_CAR_CPU_CACHE	0x28
 #define POST_START_STACK	0x29
 #define POST_START_DONE		0x2a
+#define POST_CPU_INIT		0x2b
 
 /* Output a post code using al - value must be 0 to 0xff */
 #ifdef __ASSEMBLY__
@@ -23,6 +32,8 @@
 	movb	$value, %al; \
 	outb	%al, $POST_PORT
 #else
+#include <asm/io.h>
+
 static inline void post_code(int code)
 {
 	outb(code, POST_PORT);

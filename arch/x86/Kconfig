@@ -34,6 +34,22 @@ config TARGET_CHROMEBOOK_LINK
 
 endchoice
 
+config RAMBASE
+	hex
+	default 0x100000
+
+config RAMTOP
+	hex
+	default 0x200000
+
+config XIP_ROM_SIZE
+	hex
+	default 0x10000
+
+config CPU_ADDR_BITS
+	int
+	default 36
+
 config ROM_SIZE
 	hex
 	default 0x800000
