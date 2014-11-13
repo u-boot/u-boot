@@ -46,3 +46,53 @@ void pci_init_board(void)
 
 	hose->last_busno = pci_hose_scan(hose);
 }
+
+static struct pci_controller *get_hose(void)
+{
+	if (gd->arch.hose)
+		return gd->arch.hose;
+
+	return pci_bus_to_hose(0);
+}
+
+unsigned int pci_read_config8(pci_dev_t dev, unsigned where)
+{
+	uint8_t value;
+
+	pci_hose_read_config_byte(get_hose(), dev, where, &value);
+
+	return value;
+}
+
+unsigned int pci_read_config16(pci_dev_t dev, unsigned where)
+{
+	uint16_t value;
+
+	pci_hose_read_config_word(get_hose(), dev, where, &value);
+
+	return value;
+}
+
+unsigned int pci_read_config32(pci_dev_t dev, unsigned where)
+{
+	uint32_t value;
+
+	pci_hose_read_config_dword(get_hose(), dev, where, &value);
+
+	return value;
+}
+
+void pci_write_config8(pci_dev_t dev, unsigned where, unsigned value)
+{
+	pci_hose_write_config_byte(get_hose(), dev, where, value);
+}
+
+void pci_write_config16(pci_dev_t dev, unsigned where, unsigned value)
+{
+	pci_hose_write_config_word(get_hose(), dev, where, value);
+}
+
+void pci_write_config32(pci_dev_t dev, unsigned where, unsigned value)
+{
+	pci_hose_write_config_dword(get_hose(), dev, where, value);
+}

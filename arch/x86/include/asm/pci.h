@@ -33,4 +33,17 @@ void board_pci_setup_hose(struct pci_controller *hose);
  * later use, but will become invalid one DRAM is available.
  */
 int pci_early_init_hose(struct pci_controller **hosep);
+
+/*
+ * Simple PCI access routines - these work from either the early PCI hose
+ * or the 'real' one, created after U-Boot has memory available
+ */
+unsigned int pci_read_config8(pci_dev_t dev, unsigned where);
+unsigned int pci_read_config16(pci_dev_t dev, unsigned where);
+unsigned int pci_read_config32(pci_dev_t dev, unsigned where);
+
+void pci_write_config8(pci_dev_t dev, unsigned where, unsigned value);
+void pci_write_config16(pci_dev_t dev, unsigned where, unsigned value);
+void pci_write_config32(pci_dev_t dev, unsigned where, unsigned value);
+
 #endif
