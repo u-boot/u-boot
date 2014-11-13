@@ -1,35 +1,37 @@
 /*
- * (C) Copyright 2010
+ * (C) Copyright 2014
  * Dirk Eibach,  Guntermann & Drunck GmbH, eibach@gdsys.de
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <command.h>
-#include <errno.h>
-#include <asm/processor.h>
+#include <hwconfig.h>
+#include <i2c.h>
+#include <spi.h>
+#include <libfdt.h>
+#include <fdt_support.h>
+#include <pci.h>
+#include <mpc83xx.h>
+#include <fsl_esdhc.h>
 #include <asm/io.h>
-#include <asm/ppc4xx-gpio.h>
+#include <asm/fsl_serdes.h>
+#include <asm/fsl_mpc83xx_serdes.h>
 
-#include "405ep.h"
+#include "mpc8308.h"
+
 #include <gdsys_fpga.h>
 
 #include "../common/osd.h"
 #include "../common/mclink.h"
 #include "../common/phy.h"
 
-#include <i2c.h>
 #include <pca953x.h>
 #include <pca9698.h>
 
 #include <miiphy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define LATCH0_BASE (CONFIG_SYS_LATCH_BASE)
-#define LATCH1_BASE (CONFIG_SYS_LATCH_BASE + 0x100)
-#define LATCH2_BASE (CONFIG_SYS_LATCH_BASE + 0x200)
 
 #define MAX_MUX_CHANNELS 2
 
@@ -41,14 +43,15 @@ enum {
 };
 
 enum {
+	UNITTYPEPCB_DVI = 0,
+	UNITTYPEPCB_DP_165 = 1,
+	UNITTYPEPCB_DP_300 = 2,
+	UNITTYPEPCB_HDMI = 3,
+};
+
+enum {
 	HWVER_100 = 0,
-	HWVER_104 = 1,
-	HWVER_110 = 2,
-	HWVER_120 = 3,
-	HWVER_200 = 4,
-	HWVER_210 = 5,
-	HWVER_220 = 6,
-	HWVER_230 = 7,
+	HWVER_110 = 1,
 };
 
 enum {
@@ -142,16 +145,14 @@ int fpga_get_reg(u32 fpga, u16 *reg, off_t regoff, u16 *data)
 	return 0;
 }
 
-/*
- * Check Board Identity:
- */
 int checkboard(void)
 {
 	char *s = getenv("serial#");
+	bool hw_type_cat = pca9698_get_value(0x20, 20);
 
 	puts("Board: ");
 
-	puts("IoCon");
+	printf("HRCon %s", hw_type_cat ? "CAT" : "Fiber");
 
 	if (s != NULL) {
 		puts(", serial# ");
@@ -169,6 +170,7 @@ static void print_fpga_info(unsigned int fpga, bool rgmii2_present)
 	u16 fpga_version;
 	u16 fpga_features;
 	unsigned unit_type;
+	unsigned unit_type_pcb_video;
 	unsigned hardware_version;
 	unsigned feature_compression;
 	unsigned feature_osd;
@@ -179,13 +181,12 @@ static void print_fpga_info(unsigned int fpga, bool rgmii2_present)
 	unsigned feature_carriers;
 	unsigned feature_video_channels;
 
-	int legacy = get_fpga_state(fpga) & FPGA_STATE_PLATFORM;
-
 	FPGA_GET_REG(fpga, versions, &versions);
 	FPGA_GET_REG(fpga, fpga_version, &fpga_version);
 	FPGA_GET_REG(fpga, fpga_features, &fpga_features);
 
 	unit_type = (versions & 0xf000) >> 12;
+	unit_type_pcb_video = (versions & 0x01c0) >> 6;
 	feature_compression = (fpga_features & 0xe000) >> 13;
 	feature_osd = fpga_features & (1<<11);
 	feature_audio = (fpga_features & 0x0600) >> 9;
@@ -194,9 +195,6 @@ static void print_fpga_info(unsigned int fpga, bool rgmii2_present)
 	feature_carrier_speed = fpga_features & (1<<4);
 	feature_carriers = (fpga_features & 0x000c) >> 2;
 	feature_video_channels = fpga_features & 0x0003;
-
-	if (legacy)
-		printf("legacy ");
 
 	switch (unit_type) {
 	case UNITTYPE_MAIN_USER:
@@ -213,46 +211,19 @@ static void print_fpga_info(unsigned int fpga, bool rgmii2_present)
 	}
 
 	if (unit_type == UNITTYPE_MAIN_USER) {
-		if (legacy)
-			hardware_version =
-				(in_le16((void *)LATCH2_BASE)>>8) & 0x0f;
-		else
-			hardware_version =
-				  (!!pca9698_get_value(0x20, 24) << 0)
-				| (!!pca9698_get_value(0x20, 25) << 1)
-				| (!!pca9698_get_value(0x20, 26) << 2)
-				| (!!pca9698_get_value(0x20, 27) << 3);
+		hardware_version =
+			  (!!pca9698_get_value(0x20, 24) << 0)
+			| (!!pca9698_get_value(0x20, 25) << 1)
+			| (!!pca9698_get_value(0x20, 26) << 2)
+			| (!!pca9698_get_value(0x20, 27) << 3)
+			| (!!pca9698_get_value(0x20, 28) << 4);
 		switch (hardware_version) {
 		case HWVER_100:
 			printf(" HW-Ver 1.00,");
 			break;
 
-		case HWVER_104:
-			printf(" HW-Ver 1.04,");
-			break;
-
 		case HWVER_110:
 			printf(" HW-Ver 1.10,");
-			break;
-
-		case HWVER_120:
-			printf(" HW-Ver 1.20-1.21,");
-			break;
-
-		case HWVER_200:
-			printf(" HW-Ver 2.00,");
-			break;
-
-		case HWVER_210:
-			printf(" HW-Ver 2.10,");
-			break;
-
-		case HWVER_220:
-			printf(" HW-Ver 2.20,");
-			break;
-
-		case HWVER_230:
-			printf(" HW-Ver 2.30,");
 			break;
 
 		default:
@@ -280,6 +251,24 @@ static void print_fpga_info(unsigned int fpga, bool rgmii2_present)
 			       hardware_version);
 			break;
 		}
+	}
+
+	switch (unit_type_pcb_video) {
+	case UNITTYPEPCB_DVI:
+		printf(" DVI,");
+		break;
+
+	case UNITTYPEPCB_DP_165:
+		printf(" DP 165MPix/s,");
+		break;
+
+	case UNITTYPEPCB_DP_300:
+		printf(" DP 300MPix/s,");
+		break;
+
+	case UNITTYPEPCB_HDMI:
+		printf(" HDMI,");
+		break;
 	}
 
 	printf(" FPGA V %d.%02d\n       features:",
@@ -366,20 +355,16 @@ int last_stage_init(void)
 	unsigned int k;
 	unsigned int mux_ch;
 	unsigned char mclink_controllers[] = { 0x24, 0x25, 0x26 };
-	int legacy = get_fpga_state(0) & FPGA_STATE_PLATFORM;
 	u16 fpga_features;
-	int feature_carrier_speed;
+	bool hw_type_cat = pca9698_get_value(0x20, 20);
 	bool ch0_rgmii2_present = false;
 
 	FPGA_GET_REG(0, fpga_features, &fpga_features);
-	feature_carrier_speed = fpga_features & (1<<4);
 
-	if (!legacy) {
-		/* Turn on Parade DP501 */
-		pca9698_direction_output(0x20, 9, 1);
+	/* Turn on Parade DP501 */
+	pca9698_direction_output(0x20, 10, 1);
 
-		ch0_rgmii2_present = !pca9698_get_value(0x20, 30);
-	}
+	ch0_rgmii2_present = !pca9698_get_value(0x20, 30);
 
 	/* wait for FPGA done */
 	for (k = 0; k < ARRAY_SIZE(mclink_controllers); ++k) {
@@ -398,14 +383,14 @@ int last_stage_init(void)
 		}
 	}
 
-	if (!legacy && (feature_carrier_speed == CARRIER_SPEED_1G)) {
+	if (hw_type_cat) {
 		miiphy_register(bb_miiphy_buses[0].name, bb_miiphy_read,
 				bb_miiphy_write);
 		for (mux_ch = 0; mux_ch < MAX_MUX_CHANNELS; ++mux_ch) {
 			if ((mux_ch == 1) && !ch0_rgmii2_present)
 				continue;
 
-			setup_88e1518(bb_miiphy_buses[0].name, mux_ch);
+			setup_88e1514(bb_miiphy_buses[0].name, mux_ch);
 		}
 	}
 
@@ -426,14 +411,13 @@ int last_stage_init(void)
 
 	for (k = 1; k <= slaves; ++k) {
 		FPGA_GET_REG(k, fpga_features, &fpga_features);
-		feature_carrier_speed = fpga_features & (1<<4);
 
 		print_fpga_info(k, false);
 		osd_probe(k);
-		if (feature_carrier_speed == CARRIER_SPEED_1G) {
+		if (hw_type_cat) {
 			miiphy_register(bb_miiphy_buses[k].name,
 					bb_miiphy_read, bb_miiphy_write);
-			setup_88e1518(bb_miiphy_buses[k].name, 0);
+			setup_88e1514(bb_miiphy_buses[k].name, 0);
 		}
 	}
 
@@ -463,54 +447,97 @@ int fpga_gpio_get(unsigned int bus, int pin)
 	return val & pin;
 }
 
-void gd405ep_init(void)
+void mpc8308_init(void)
 {
-	unsigned int k;
-
-	if (i2c_probe(0x20)) { /* i2c_probe returns 0 on success */
-		for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k)
-			gd->arch.fpga_state[k] |= FPGA_STATE_PLATFORM;
-	} else {
-		pca9698_direction_output(0x20, 4, 1);
-	}
+	pca9698_direction_output(0x20, 4, 1);
 }
 
-void gd405ep_set_fpga_reset(unsigned state)
+void mpc8308_set_fpga_reset(unsigned state)
 {
-	int legacy = get_fpga_state(0) & FPGA_STATE_PLATFORM;
-
-	if (legacy) {
-		if (state) {
-			out_le16((void *)LATCH0_BASE, CONFIG_SYS_LATCH0_RESET);
-			out_le16((void *)LATCH1_BASE, CONFIG_SYS_LATCH1_RESET);
-		} else {
-			out_le16((void *)LATCH0_BASE, CONFIG_SYS_LATCH0_BOOT);
-			out_le16((void *)LATCH1_BASE, CONFIG_SYS_LATCH1_BOOT);
-		}
-	} else {
-		pca9698_set_value(0x20, 4, state ? 0 : 1);
-	}
+	pca9698_set_value(0x20, 4, state ? 0 : 1);
 }
 
-void gd405ep_setup_hw(void)
+void mpc8308_setup_hw(void)
 {
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+
 	/*
 	 * set "startup-finished"-gpios
 	 */
-	gpio_write_bit(21, 0);
-	gpio_write_bit(22, 1);
+	setbits_be32(&immr->gpio[0].dir, (1 << (31-11)) | (1 << (31-12)));
+	setbits_be32(&immr->gpio[0].dat, 1 << (31-12));
 }
 
-int gd405ep_get_fpga_done(unsigned fpga)
+int mpc8308_get_fpga_done(unsigned fpga)
 {
-	int legacy = get_fpga_state(0) & FPGA_STATE_PLATFORM;
-
-	if (legacy)
-		return in_le16((void *)LATCH2_BASE)
-		       & CONFIG_SYS_FPGA_DONE(fpga);
-	else
-		return pca9698_get_value(0x20, 20);
+	return pca9698_get_value(0x20, 19);
 }
+
+#ifdef CONFIG_FSL_ESDHC
+int board_mmc_init(bd_t *bd)
+{
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+	sysconf83xx_t *sysconf = &immr->sysconf;
+
+	/* Enable cache snooping in eSDHC system configuration register */
+	out_be32(&sysconf->sdhccr, 0x02000000);
+
+	return fsl_esdhc_mmc_init(bd);
+}
+#endif
+
+static struct pci_region pcie_regions_0[] = {
+	{
+		.bus_start = CONFIG_SYS_PCIE1_MEM_BASE,
+		.phys_start = CONFIG_SYS_PCIE1_MEM_PHYS,
+		.size = CONFIG_SYS_PCIE1_MEM_SIZE,
+		.flags = PCI_REGION_MEM,
+	},
+	{
+		.bus_start = CONFIG_SYS_PCIE1_IO_BASE,
+		.phys_start = CONFIG_SYS_PCIE1_IO_PHYS,
+		.size = CONFIG_SYS_PCIE1_IO_SIZE,
+		.flags = PCI_REGION_IO,
+	},
+};
+
+void pci_init_board(void)
+{
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+	sysconf83xx_t *sysconf = &immr->sysconf;
+	law83xx_t *pcie_law = sysconf->pcielaw;
+	struct pci_region *pcie_reg[] = { pcie_regions_0 };
+
+	fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_PEX,
+			 FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
+
+	/* Deassert the resets in the control register */
+	out_be32(&sysconf->pecr1, 0xE0008000);
+	udelay(2000);
+
+	/* Configure PCI Express Local Access Windows */
+	out_be32(&pcie_law[0].bar, CONFIG_SYS_PCIE1_BASE & LAWBAR_BAR);
+	out_be32(&pcie_law[0].ar, LBLAWAR_EN | LBLAWAR_512MB);
+
+	mpc83xx_pcie_init(1, pcie_reg);
+}
+
+ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
+{
+	info->portwidth = FLASH_CFI_16BIT;
+	info->chipwidth = FLASH_CFI_BY16;
+	info->interface = FLASH_CFI_X16;
+	return 1;
+}
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+	fdt_fixup_dr_usb(blob, bd);
+	fdt_fixup_esdhc(blob, bd);
+}
+#endif
 
 /*
  * FPGA MII bitbang implementation

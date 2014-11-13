@@ -1,0 +1,6 @@
+MPC8308 BOARD
+M:	Dirk Eibach <eibach@gdsys.de>
+S:	Maintained
+F:	board/gdsys/mpc8308/
+F:	include/configs/hrcon.h
+F:	configs/hrcon_defconfig
