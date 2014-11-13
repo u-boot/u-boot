@@ -71,6 +71,9 @@ void pciinfo(int BusNum, int ShortPCIListing)
 
 			dev = PCI_BDF(BusNum, Device, Function);
 
+			if (pci_skip_dev(hose, dev))
+				continue;
+
 			pci_read_config_word(dev, PCI_VENDOR_ID, &VendorID);
 			if ((VendorID == 0xFFFF) || (VendorID == 0x0000))
 				continue;
