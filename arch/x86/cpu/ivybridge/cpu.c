@@ -16,6 +16,7 @@
 #include <fdtdec.h>
 #include <asm/cpu.h>
 #include <asm/io.h>
+#include <asm/lapic.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
 #include <asm/pci.h>
@@ -282,6 +283,8 @@ int print_cpuinfo(void)
 	ret = report_bist_failure();
 	if (ret)
 		return ret;
+
+	enable_lapic();
 
 	ret = microcode_update_intel();
 	if (ret && ret != -ENOENT && ret != -EEXIST)
