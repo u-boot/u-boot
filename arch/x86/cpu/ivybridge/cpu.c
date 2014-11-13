@@ -179,10 +179,26 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+static int report_bist_failure(void)
+{
+	if (gd->arch.bist != 0) {
+		printf("BIST failed: %08x\n", gd->arch.bist);
+		return -EFAULT;
+	}
+
+	return 0;
+}
+
 int print_cpuinfo(void)
 {
 	char processor_name[CPU_MAX_NAME_LEN];
 	const char *name;
+	int ret;
+
+	/* Halt if there was a built in self test failure */
+	ret = report_bist_failure();
+	if (ret)
+		return ret;
 
 	/* Print processor name */
 	name = cpu_get_name(processor_name);
