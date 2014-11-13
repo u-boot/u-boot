@@ -180,11 +180,11 @@ static void print_fpga_info(unsigned int fpga, bool rgmii2_present)
 	unsigned feature_carriers;
 	unsigned feature_video_channels;
 
-	int legacy = get_fpga_state(0) & FPGA_STATE_PLATFORM;
+	int legacy = get_fpga_state(fpga) & FPGA_STATE_PLATFORM;
 
-	FPGA_GET_REG(0, versions, &versions);
-	FPGA_GET_REG(0, fpga_version, &fpga_version);
-	FPGA_GET_REG(0, fpga_features, &fpga_features);
+	FPGA_GET_REG(fpga, versions, &versions);
+	FPGA_GET_REG(fpga, fpga_version, &fpga_version);
+	FPGA_GET_REG(fpga, fpga_features, &fpga_features);
 
 	unit_type = (versions & 0xf000) >> 12;
 	feature_compression = (fpga_features & 0xe000) >> 13;
