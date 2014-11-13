@@ -289,7 +289,6 @@ int osd_probe(unsigned screen)
 {
 	u16 version;
 	u16 features;
-	u8 value;
 	int old_bus = i2c_get_bus_num();
 	bool pixclock_present = false;
 	bool output_driver_present = false;
@@ -330,7 +329,8 @@ int osd_probe(unsigned screen)
 #ifdef CONFIG_SYS_CH7301_I2C
 	i2c_set_bus_num(ch7301_i2c[screen]);
 	if (!i2c_probe(CH7301_I2C_ADDR)) {
-		value = i2c_reg_read(CH7301_I2C_ADDR, CH7301_DID);
+		u8 value = i2c_reg_read(CH7301_I2C_ADDR, CH7301_DID);
+
 		if (value == 0x17) {
 			i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPCP, 0x08);
 			i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPD, 0x16);
@@ -345,8 +345,7 @@ int osd_probe(unsigned screen)
 #ifdef CONFIG_SYS_SIL1178_I2C
 	i2c_set_bus_num(sil1178_i2c[screen]);
 	if (!i2c_probe(SIL1178_SLAVE_I2C_ADDRESS)) {
-		value = i2c_reg_read(SIL1178_SLAVE_I2C_ADDRESS, 0x02);
-		if (value == 0x06) {
+		if (i2c_reg_read(SIL1178_SLAVE_I2C_ADDRESS, 0x02) == 0x06) {
 			/*
 			 * magic initialization sequence,
 			 * adapted from datasheet
