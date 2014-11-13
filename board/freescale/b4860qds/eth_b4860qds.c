@@ -268,6 +268,12 @@ int board_eth_init(bd_t *bis)
 				CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC4,
 				CONFIG_SYS_FM1_DTSEC2_RISER_PHY_ADDR);
+		/*
+		 * XFI does not need a PHY to work, but to make U-boot
+		 * happy, assign a fake PHY address for a XFI port.
+		 */
+		fm_info_set_phy_address(FM1_10GEC1, 0);
+		fm_info_set_phy_address(FM1_10GEC2, 1);
 		break;
 	case 0x98:
 		/* XAUI in Slot1 and Slot2 */
