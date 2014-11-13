@@ -118,7 +118,8 @@ static int exynos_get_pll_clk(int pllreg, unsigned int r, unsigned int k)
 			div = PLL_DIV_1024;
 		else if (proid_is_exynos4412())
 			div = PLL_DIV_65535;
-		else if (proid_is_exynos5250() || proid_is_exynos5420())
+		else if (proid_is_exynos5250() || proid_is_exynos5420()
+			 || proid_is_exynos5800())
 			div = PLL_DIV_65536;
 		else
 			return 0;
@@ -1581,7 +1582,7 @@ static unsigned long exynos4_get_i2c_clk(void)
 unsigned long get_pll_clk(int pllreg)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_get_pll_clk(pllreg);
 		return exynos5_get_pll_clk(pllreg);
 	} else {
@@ -1617,7 +1618,7 @@ unsigned long get_i2c_clk(void)
 unsigned long get_pwm_clk(void)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_get_pwm_clk();
 		return clock_get_periph_rate(PERIPH_ID_PWM0);
 	} else {
@@ -1630,7 +1631,7 @@ unsigned long get_pwm_clk(void)
 unsigned long get_uart_clk(int dev_index)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_get_uart_clk(dev_index);
 		return exynos5_get_uart_clk(dev_index);
 	} else {
@@ -1643,7 +1644,7 @@ unsigned long get_uart_clk(int dev_index)
 unsigned long get_mmc_clk(int dev_index)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_get_mmc_clk(dev_index);
 		return exynos5_get_mmc_clk(dev_index);
 	} else {
@@ -1654,7 +1655,7 @@ unsigned long get_mmc_clk(int dev_index)
 void set_mmc_clk(int dev_index, unsigned int div)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			exynos5420_set_mmc_clk(dev_index, div);
 		else
 			exynos5_set_mmc_clk(dev_index, div);
@@ -1668,7 +1669,7 @@ unsigned long get_lcd_clk(void)
 	if (cpu_is_exynos4())
 		return exynos4_get_lcd_clk();
 	else {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_get_lcd_clk();
 		else
 			return exynos5_get_lcd_clk();
@@ -1682,7 +1683,7 @@ void set_lcd_clk(void)
 	else {
 		if (proid_is_exynos5250())
 			exynos5_set_lcd_clk();
-		else if (proid_is_exynos5420())
+		else if (proid_is_exynos5420() || proid_is_exynos5800())
 			exynos5420_set_lcd_clk();
 	}
 }
@@ -1696,7 +1697,7 @@ void set_mipi_clk(void)
 int set_spi_clk(int periph_id, unsigned int rate)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_set_spi_clk(periph_id, rate);
 		return exynos5_set_spi_clk(periph_id, rate);
 	} else {
