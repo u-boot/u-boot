@@ -21,7 +21,6 @@
 
 #define CONFIG_ZYNQ_SDHCI0
 #define CONFIG_ZYNQ_BOOT_FREEBSD
-#define CONFIG_DEFAULT_DEVICE_TREE	zynq-zybo
 
 /* Define ZYBO PS Clock Frequency to 50MHz */
 #define CONFIG_ZYNQ_PS_CLK_FREQ	50000000UL
