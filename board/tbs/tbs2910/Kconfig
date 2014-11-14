@@ -1,0 +1,23 @@
+if TARGET_TBS2910
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "tbs2910"
+
+config SYS_VENDOR
+	string
+	default "tbs"
+
+config SYS_SOC
+	string
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	string
+	default "tbs2910"
+
+endif

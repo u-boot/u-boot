@@ -612,6 +612,7 @@ config TARGET_MX6QSABREAUTO
 config TARGET_MX6SABRESD
 	bool "Support mx6sabresd"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_MX6SLEVK
 	bool "Support mx6slevk"
@@ -634,6 +635,9 @@ config TARGET_KOSAGI_NOVENA
 	bool "Support Kosagi Novena"
 	select CPU_V7
 	select SUPPORT_SPL
+
+config TARGET_TBS2910
+	bool "Support tbs2910"
 
 config TARGET_TQMA6
 	bool "TQ Systems TQMa6 board"
@@ -936,6 +940,7 @@ source "board/sunxi/Kconfig"
 source "board/syteco/jadecpu/Kconfig"
 source "board/syteco/zmx25/Kconfig"
 source "board/taskit/stamp9g20/Kconfig"
+source "board/tbs/tbs2910/Kconfig"
 source "board/ti/am335x/Kconfig"
 source "board/ti/am43xx/Kconfig"
 source "board/ti/ti814x/Kconfig"

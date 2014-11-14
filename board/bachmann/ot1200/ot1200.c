@@ -159,8 +159,8 @@ int board_mmc_getcd(struct mmc *mmc)
 		gpio_direction_input(IMX_GPIO_NR(4, 5));
 		ret = gpio_get_value(IMX_GPIO_NR(4, 5));
 	} else {
-		gpio_direction_input(IMX_GPIO_NR(1, 4));
-		ret = !gpio_get_value(IMX_GPIO_NR(1, 4));
+		gpio_direction_input(IMX_GPIO_NR(1, 5));
+		ret = !gpio_get_value(IMX_GPIO_NR(1, 5));
 	}
 
 	return ret;

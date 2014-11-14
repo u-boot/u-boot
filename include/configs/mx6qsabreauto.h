@@ -48,4 +48,20 @@
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		100000
 
+/* NAND flash command */
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NAND_TRIMFFS
+
+/* NAND stuff */
+#define CONFIG_NAND_MXS
+#define CONFIG_SYS_MAX_NAND_DEVICE     1
+#define CONFIG_SYS_NAND_BASE           0x40000000
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+
+/* DMA stuff, needed for GPMI/MXS NAND support */
+#define CONFIG_APBH_DMA
+#define CONFIG_APBH_DMA_BURST
+#define CONFIG_APBH_DMA_BURST8
+
 #endif                         /* __MX6QSABREAUTO_CONFIG_H */

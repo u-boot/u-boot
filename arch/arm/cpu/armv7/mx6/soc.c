@@ -350,8 +350,8 @@ void boot_mode_apply(unsigned cfg_val)
 /*
  * cfg_val will be used for
  * Boot_cfg4[7:0]:Boot_cfg3[7:0]:Boot_cfg2[7:0]:Boot_cfg1[7:0]
- * After reset, if GPR10[28] is 1, ROM will copy GPR9[25:0]
- * to SBMR1, which will determine the boot device.
+ * After reset, if GPR10[28] is 1, ROM will use GPR9[25:0]
+ * instead of SBMR1 to determine the boot device.
  */
 const struct boot_mode soc_boot_modes[] = {
 	{"normal",	MAKE_CFGVAL(0x00, 0x00, 0x00, 0x00)},
