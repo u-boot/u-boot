@@ -38,6 +38,9 @@ static int sunxi_hdmi_hpd_detect(void)
 			CCM_HDMI_CTRL_PLL3);
 
 	/* Set ahb gating to pass */
+#ifdef CONFIG_MACH_SUN6I
+	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI);
+#endif
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_HDMI);
 
 	/* Clock on */
@@ -55,6 +58,9 @@ static int sunxi_hdmi_hpd_detect(void)
 	clrbits_le32(&hdmi->ctrl, SUNXI_HDMI_CTRL_ENABLE);
 	clrbits_le32(&ccm->hdmi_clk_cfg, CCM_HDMI_CTRL_GATE);
 	clrbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_HDMI);
+#ifdef CONFIG_MACH_SUN6I
+	clrbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI);
+#endif
 	clock_set_pll3(0);
 
 	return 0;
@@ -71,6 +77,11 @@ static void sunxi_composer_init(void)
 	struct sunxi_de_be_reg * const de_be =
 		(struct sunxi_de_be_reg *)SUNXI_DE_BE0_BASE;
 	int i;
+
+#ifdef CONFIG_MACH_SUN6I
+	/* Reset off */
+	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DE_BE0);
+#endif
 
 	/* Clocks on */
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_DE_BE0);
@@ -171,7 +182,11 @@ static void sunxi_lcdc_init(void)
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
 
 	/* Reset off */
+#ifdef CONFIG_MACH_SUN6I
+	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_LCD0);
+#else
 	setbits_le32(&ccm->lcd0_ch0_clk_cfg, CCM_LCD_CH0_CTRL_RST);
+#endif
 
 	/* Clock on */
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_LCD0);
@@ -226,6 +241,18 @@ static void sunxi_lcdc_mode_set(struct fb_videomode *mode,
 	sunxi_lcdc_pll_set(mode->pixclock, clk_div, clk_double);
 }
 
+#ifdef CONFIG_MACH_SUN6I
+static void sunxi_drc_init(void)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	/* On sun6i the drc must be clocked even when in pass-through mode */
+	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DRC0);
+	clock_set_de_mod_clock(&ccm->iep_drc0_clk_cfg, 300000000);
+}
+#endif
+
 static void sunxi_hdmi_mode_set(struct fb_videomode *mode,
 				int clk_div, int clk_double)
 {
@@ -276,6 +303,9 @@ static void sunxi_engines_init(void)
 {
 	sunxi_composer_init();
 	sunxi_lcdc_init();
+#ifdef CONFIG_MACH_SUN6I
+	sunxi_drc_init();
+#endif
 }
 
 static void sunxi_mode_set(struct fb_videomode *mode, unsigned int address)
