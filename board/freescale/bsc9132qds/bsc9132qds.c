@@ -21,6 +21,9 @@
 #include <hwconfig.h>
 #include <i2c.h>
 #include <fsl_ddr_sdram.h>
+#include <jffs2/load_kernel.h>
+#include <mtd_node.h>
+#include <flash.h>
 
 #ifdef CONFIG_PCI
 #include <pci.h>
@@ -354,6 +357,12 @@ void fdt_del_node_compat(void *blob, const char *compatible)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_FDT_FIXUP_PARTITIONS
+struct node_info nodes[] = {
+	{ "cfi-flash",			MTD_DEV_TYPE_NOR,  },
+	{ "fsl,ifc-nand",		MTD_DEV_TYPE_NAND, },
+};
+#endif
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
@@ -369,6 +378,9 @@ void ft_board_setup(void *blob, bd_t *bd)
 	#endif
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
+#ifdef CONFIG_FDT_FIXUP_PARTITIONS
+	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+#endif
 
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	u32 porbmsr = in_be32(&gur->porbmsr);

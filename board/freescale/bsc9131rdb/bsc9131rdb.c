@@ -15,6 +15,9 @@
 #include <fdt_support.h>
 #include <fsl_mdio.h>
 #include <tsec.h>
+#include <jffs2/load_kernel.h>
+#include <mtd_node.h>
+#include <flash.h>
 #include <netdev.h>
 
 
@@ -50,6 +53,11 @@ int checkboard(void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_FDT_FIXUP_PARTITIONS
+struct node_info nodes[] = {
+	{ "fsl,ifc-nand",		MTD_DEV_TYPE_NAND, },
+};
+#endif
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
@@ -61,6 +69,9 @@ void ft_board_setup(void *blob, bd_t *bd)
 	size = getenv_bootm_size();
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
+#ifdef CONFIG_FDT_FIXUP_PARTITIONS
+	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+#endif
 
 	fdt_fixup_dr_usb(blob, bd);
 }

@@ -5,6 +5,7 @@
 #
 
 obj-$(CONFIG_T4240RDB) += t4240rdb.o
+obj-y	+= cpld.o
 obj-y	+= ddr.o
 obj-y	+= eth.o
 obj-$(CONFIG_PCI)	+= pci.o

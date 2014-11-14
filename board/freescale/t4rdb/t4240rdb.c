@@ -20,14 +20,26 @@
 #include <fm_eth.h>
 
 #include "t4rdb.h"
+#include "cpld.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int checkboard(void)
 {
 	struct cpu_type *cpu = gd->arch.cpu;
+	u8 sw;
 
 	printf("Board: %sRDB, ", cpu->name);
+	printf("Board rev: 0x%02x CPLD ver: 0x%02x%02x, ",
+	       CPLD_READ(hw_ver), CPLD_READ(sw_maj_ver), CPLD_READ(sw_min_ver));
+
+	sw = CPLD_READ(vbank);
+	sw = sw & CPLD_BANK_SEL_MASK;
+
+	if (sw <= 7)
+		printf("vBank: %d\n", sw);
+	else
+		printf("Unsupported Bank=%x\n", sw);
 
 	puts("SERDES Reference Clocks:\n");
 	printf("       SERDES1=100MHz SERDES2=156.25MHz\n"
