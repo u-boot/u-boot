@@ -125,12 +125,12 @@ static int console_setfile(int file, struct stdio_dev * dev)
 		 */
 		switch (file) {
 		case stdin:
-			gd->jt[XF_getc] = dev->getc;
-			gd->jt[XF_tstc] = dev->tstc;
+			gd->jt[XF_getc] = getc;
+			gd->jt[XF_tstc] = tstc;
 			break;
 		case stdout:
-			gd->jt[XF_putc] = dev->putc;
-			gd->jt[XF_puts] = dev->puts;
+			gd->jt[XF_putc] = putc;
+			gd->jt[XF_puts] = puts;
 			gd->jt[XF_printf] = printf;
 			break;
 		}
