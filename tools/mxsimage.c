@@ -1416,7 +1416,7 @@ static int sb_parse_line(struct sb_image_ctx *ictx, struct sb_cmd_list *cmd)
 {
 	char *tok;
 	char *line = cmd->cmd;
-	char *rptr;
+	char *rptr = NULL;
 	int ret;
 
 	/* Analyze the identifier on this line first. */
