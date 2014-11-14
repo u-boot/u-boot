@@ -26,6 +26,8 @@ config TARGET_ODROID
 
 config TARGET_ARNDALE
 	bool "Exynos5250 Arndale board"
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
 	select SUPPORT_SPL
 	select OF_CONTROL if !SPL_BUILD
 
