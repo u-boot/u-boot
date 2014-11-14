@@ -729,6 +729,30 @@ static struct mx6_ddr3_cfg mem_ddr = {
 	.trasmin = 3500,
 };
 
+static void ccgr_init(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	writel(0x00C03F3F, &ccm->CCGR0);
+	writel(0x0030FC03, &ccm->CCGR1);
+	writel(0x0FFFC000, &ccm->CCGR2);
+	writel(0x3FF00000, &ccm->CCGR3);
+	writel(0x00FFF300, &ccm->CCGR4);
+	writel(0x0F0000C3, &ccm->CCGR5);
+	writel(0x000003FF, &ccm->CCGR6);
+}
+
+static void gpr_init(void)
+{
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	/* enable AXI cache for VDOA/VPU/IPU */
+	writel(0xF00000CF, &iomux->gpr[4]);
+	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
+	writel(0x007F007F, &iomux->gpr[6]);
+	writel(0x007F007F, &iomux->gpr[7]);
+}
+
 /*
  * This section require the differentiation
  * between iMX6 Sabre Families.
@@ -767,6 +791,9 @@ void board_init_f(ulong dummy)
 {
 	/* setup AIPS and disable watchdog */
 	arch_cpu_init();
+
+	ccgr_init();
+	gpr_init();
 
 	/* iomux and setup of i2c */
 	board_early_init_f();
