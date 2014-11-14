@@ -13,6 +13,17 @@ config ARMV7_NONSEC
 	---help---
 	Say Y here to enable support for booting in non-secure / SVC mode.
 
+config ARMV7_BOOT_SEC_DEFAULT
+	boolean "Boot in secure mode by default" if EXPERT
+	depends on ARMV7_NONSEC
+	default n
+	---help---
+	Say Y here to boot in secure mode by default even if non-secure mode
+	is supported. This option is useful to boot kernels which do not
+	suppport booting in non-secure mode. Only set this if you need it.
+	This can be overriden at run-time by setting the bootm_boot_mode env.
+	variable to "sec" or "nonsec".
+
 config ARMV7_VIRT
 	boolean "Enable support for hardware virtualization" if EXPERT
 	depends on CPU_V7_HAS_VIRT && ARMV7_NONSEC
