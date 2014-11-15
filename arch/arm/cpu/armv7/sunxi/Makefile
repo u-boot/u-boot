@@ -10,6 +10,7 @@
 obj-y	+= timer.o
 obj-y	+= board.o
 obj-y	+= clock.o
+obj-y	+= cpu_info.o
 obj-y	+= pinmux.o
 obj-$(CONFIG_MACH_SUN6I)	+= prcm.o
 obj-$(CONFIG_MACH_SUN8I)	+= prcm.o
@@ -21,7 +22,6 @@ obj-$(CONFIG_MACH_SUN7I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN8I)	+= clock_sun6i.o
 
 ifndef CONFIG_SPL_BUILD
-obj-y	+= cpu_info.o
 ifdef CONFIG_ARMV7_PSCI
 obj-y	+= psci.o
 endif

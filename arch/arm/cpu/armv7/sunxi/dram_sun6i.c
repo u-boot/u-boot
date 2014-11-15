@@ -369,18 +369,26 @@ unsigned long sunxi_dram_init(void)
 		.rows = 16,
 	};
 
+	/* A31s only has one channel */
+	if (sunxi_get_ss_bonding_id() == SUNXI_SS_BOND_ID_A31S)
+		para.chan = 1;
+
 	mctl_sys_init();
 
 	mctl_dll_init(0, &para);
-	mctl_dll_init(1, &para);
+	setbits_le32(&mctl_com->ccr, MCTL_CCR_CH0_CLK_EN);
 
-	setbits_le32(&mctl_com->ccr,
-		     MCTL_CCR_MASTER_CLK_EN |
-		     MCTL_CCR_CH0_CLK_EN |
-		     MCTL_CCR_CH1_CLK_EN);
+	if (para.chan == 2) {
+		mctl_dll_init(1, &para);
+		setbits_le32(&mctl_com->ccr, MCTL_CCR_CH1_CLK_EN);
+	}
+
+	setbits_le32(&mctl_com->ccr, MCTL_CCR_MASTER_CLK_EN);
 
 	mctl_channel_init(0, &para);
-	mctl_channel_init(1, &para);
+	if (para.chan == 2)
+		mctl_channel_init(1, &para);
+
 	mctl_com_init(&para);
 	mctl_port_cfg();
 
