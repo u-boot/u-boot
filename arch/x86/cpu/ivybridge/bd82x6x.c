@@ -88,18 +88,38 @@ void bd82x6x_pci_bus_enable_resources(pci_dev_t dev)
 
 int bd82x6x_init_pci_devices(void)
 {
+	const void *blob = gd->fdt_blob;
 	struct pci_controller *hose;
+	int sata_node;
 
 	hose = pci_bus_to_hose(0);
 	lpc_enable(PCH_LPC_DEV);
 	lpc_init(hose, PCH_LPC_DEV);
+	sata_node = fdtdec_next_compatible(blob, 0,
+					   COMPAT_INTEL_PANTHERPOINT_AHCI);
+	if (sata_node < 0) {
+		debug("%s: Cannot find SATA node\n", __func__);
+		return -EINVAL;
+	}
+	bd82x6x_sata_init(PCH_SATA_DEV, blob, sata_node);
 
 	return 0;
 }
 
 int bd82x6x_init(void)
 {
+	const void *blob = gd->fdt_blob;
+	int sata_node;
+
+	sata_node = fdtdec_next_compatible(blob, 0,
+					   COMPAT_INTEL_PANTHERPOINT_AHCI);
+	if (sata_node < 0) {
+		debug("%s: Cannot find SATA node\n", __func__);
+		return -EINVAL;
+	}
+
 	bd82x6x_pci_init(PCH_DEV);
+	bd82x6x_sata_enable(PCH_SATA_DEV, blob, sata_node);
 
 	return 0;
 }
