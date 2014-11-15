@@ -754,10 +754,8 @@ static void gpr_init(void)
 }
 
 /*
- * This section require the differentiation
- * between iMX6 Sabre Families.
- * But for now, it will configure only for
- * SabreSD.
+ * This section requires the differentiation between iMX6 Sabre boards, but
+ * for now, it will configure only for the mx6q variant.
  */
 static void spl_dram_init(void)
 {
