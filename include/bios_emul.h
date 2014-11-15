@@ -9,6 +9,7 @@
 
 /* Include the register header directly here */
 #include "../drivers/bios_emulator/include/x86emu/regs.h"
+#include <pci.h>
 
 /****************************************************************************
 REMARKS:
@@ -39,5 +40,19 @@ typedef struct {
 struct vbe_mode_info;
 
 int BootVideoCardBIOS(pci_dev_t pcidev, BE_VGAInfo **pVGAInfo, int cleanUp);
+
+/* Run a BIOS ROM natively (only supported on x86 machines) */
+void bios_run_on_x86(pci_dev_t pcidev, unsigned long addr, int vesa_mode,
+		     struct vbe_mode_info *mode_info);
+
+/**
+ * bios_set_interrupt_handler() - Install an interrupt handler for the BIOS
+ *
+ * This installs an interrupt handler that the BIOS will call when needed.
+ *
+ * @intnum:		Interrupt number to install a handler for
+ * @int_handler_func:	Function to call to handle interrupt
+ */
+void bios_set_interrupt_handler(int intnum, int (*int_handler_func)(void));
 
 #endif
