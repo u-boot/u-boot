@@ -34,6 +34,9 @@ void board_pci_setup_hose(struct pci_controller *hose);
  */
 int pci_early_init_hose(struct pci_controller **hosep);
 
+int board_pci_pre_scan(struct pci_controller *hose);
+int board_pci_post_scan(struct pci_controller *hose);
+
 /*
  * Simple PCI access routines - these work from either the early PCI hose
  * or the 'real' one, created after U-Boot has memory available
