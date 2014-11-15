@@ -73,6 +73,9 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_ARM
 #define asmlinkage	/* nothing */
 #endif
+#ifdef CONFIG_X86
+#define asmlinkage __attribute__((regparm(0)))
+#endif
 #ifdef CONFIG_BLACKFIN
 #include <asm/blackfin.h>
 #endif
