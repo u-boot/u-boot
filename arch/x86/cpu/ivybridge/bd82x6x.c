@@ -91,7 +91,8 @@ int bd82x6x_init_pci_devices(void)
 	const void *blob = gd->fdt_blob;
 	struct pci_controller *hose;
 	struct x86_cpu_priv *cpu;
-	int sata_node;
+	int sata_node, gma_node;
+	int ret;
 
 	hose = pci_bus_to_hose(0);
 	lpc_enable(PCH_LPC_DEV);
@@ -110,6 +111,16 @@ int bd82x6x_init_pci_devices(void)
 	if (!cpu)
 		return -ENOMEM;
 	model_206ax_init(cpu);
+
+	gma_node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_GMA);
+	if (gma_node < 0) {
+		debug("%s: Cannot find GMA node\n", __func__);
+		return -EINVAL;
+	}
+	ret = gma_func0_init(PCH_VIDEO_DEV, pci_bus_to_hose(0), blob,
+			     gma_node);
+	if (ret)
+		return ret;
 
 	return 0;
 }
