@@ -39,13 +39,9 @@
 	{PCI_VENDOR_ID_INTEL,		\
 			PCI_DEVICE_ID_INTEL_PANTHERPOINT_AHCI_MOBILE}
 
-/*
- * These common x86 features are not yet supported, but are added in
- * follow-on patches in this series. Add undefs here to avoid every patch
- * having to put things back into x86-common.h
- */
-#undef CONFIG_VIDEO
-#undef CONFIG_CFB_CONSOLE
+#define CONFIG_X86_OPTION_ROM_FILENAME		pci8086,0166.bin
+#define CONFIG_X86_OPTION_ROM_ADDR		0xfff90000
+#define CONFIG_VIDEO_X86
 
 #define CONFIG_PCI_MEM_BUS	0xe0000000
 #define CONFIG_PCI_MEM_PHYS	CONFIG_PCI_MEM_BUS
