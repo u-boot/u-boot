@@ -54,7 +54,7 @@
 
 /*------------------------- Global Variables ------------------------------*/
 
-#ifndef __i386__
+#ifndef CONFIG_X86EMU_RAW_IO
 static char *BE_biosDate = "08/14/99";
 static u8 BE_model = 0xFC;
 static u8 BE_submodel = 0x00;
@@ -80,16 +80,18 @@ static u8 *BE_memaddr(u32 addr)
 	if (addr >= 0xC0000 && addr <= _BE_env.biosmem_limit) {
 		return (u8*)(_BE_env.biosmem_base + addr - 0xC0000);
 	} else if (addr > _BE_env.biosmem_limit && addr < 0xD0000) {
-		DB(printf("BE_memaddr: address %#lx may be invalid!\n", addr);)
-		return M.mem_base;
+		DB(printf("BE_memaddr: address %#lx may be invalid!\n",
+			  (ulong)addr);)
+		return (u8 *)M.mem_base;
 	} else if (addr >= 0xA0000 && addr <= 0xBFFFF) {
 		return (u8*)(_BE_env.busmem_base + addr - 0xA0000);
 	}
-#ifdef __i386__
+#ifdef CONFIG_X86EMU_RAW_IO
 	else if (addr >= 0xD0000 && addr <= 0xFFFFF) {
 		/* We map the real System BIOS directly on real PC's */
-		DB(printf("BE_memaddr: System BIOS address %#lx\n", addr);)
-		    return _BE_env.busmem_base + addr - 0xA0000;
+		DB(printf("BE_memaddr: System BIOS address %#lx\n",
+			  (ulong)addr);)
+		    return (u8 *)_BE_env.busmem_base + addr - 0xA0000;
 	}
 #else
 	else if (addr >= 0xFFFF5 && addr < 0xFFFFE) {
@@ -108,10 +110,10 @@ static u8 *BE_memaddr(u32 addr)
 #endif
 	else if (addr > M.mem_size - 1) {
 		HALT_SYS();
-		return M.mem_base;
+		return (u8 *)M.mem_base;
 	}
 
-	return M.mem_base + addr;
+	return (u8 *)(M.mem_base + addr);
 }
 
 /****************************************************************************
@@ -230,7 +232,7 @@ void X86API BE_wrl(u32 addr, u32 val)
 	}
 }
 
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 
 /* For Non-Intel machines we may need to emulate some I/O port accesses that
  * the BIOS may try to access, such as the PCI config registers.
@@ -560,7 +562,7 @@ u8 X86API BE_inb(X86EMU_pioAddr port)
 {
 	u8 val = 0;
 
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 	if (IS_VGA_PORT(port)){
 		/*seems reading port 0x3c3 return the high 16 bit of io port*/
 		if(port == 0x3c3)
@@ -601,7 +603,7 @@ u16 X86API BE_inw(X86EMU_pioAddr port)
 {
 	u16 val = 0;
 
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 	if (IS_PCI_PORT(port))
 		val = PCI_inp(port, REG_READ_WORD);
 	else if (port < 0x100) {
@@ -629,7 +631,7 @@ u32 X86API BE_inl(X86EMU_pioAddr port)
 {
 	u32 val = 0;
 
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 	if (IS_PCI_PORT(port))
 		val = PCI_inp(port, REG_READ_DWORD);
 	else if (port < 0x100) {
@@ -652,7 +654,7 @@ through to the real hardware if we don't need to special case it.
 ****************************************************************************/
 void X86API BE_outb(X86EMU_pioAddr port, u8 val)
 {
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 	if (IS_VGA_PORT(port))
 		VGA_outpb(port, val);
 	else if (IS_TIMER_PORT(port))
@@ -683,7 +685,7 @@ through to the real hardware if we don't need to special case it.
 ****************************************************************************/
 void X86API BE_outw(X86EMU_pioAddr port, u16 val)
 {
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 		if (IS_VGA_PORT(port)) {
 			VGA_outpb(port, val);
 			VGA_outpb(port + 1, val >> 8);
@@ -710,7 +712,7 @@ through to the real hardware if we don't need to special case it.
 ****************************************************************************/
 void X86API BE_outl(X86EMU_pioAddr port, u32 val)
 {
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 	if (IS_PCI_PORT(port))
 		PCI_outp(port, val, REG_WRITE_DWORD);
 	else if (port < 0x100) {
