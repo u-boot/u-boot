@@ -44,7 +44,9 @@ SECTIONS
 
 	. = ALIGN(4);
 	__rel_dyn_start = .;
-	.rel.dyn : { *(.rel.dyn) }
+	.rel.dyn : {
+		*(.rel*)
+	}
 	__rel_dyn_end = .;
 	. = ALIGN(4);
 	_end = .;
