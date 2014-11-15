@@ -12,11 +12,6 @@ int arch_early_init_r(void)
 	return 0;
 }
 
-int board_early_init_r(void)
-{
-	return 0;
-}
-
 static const struct pch_gpio_set1 pch_gpio_set1_mode = {
 	.gpio0 = GPIO_MODE_GPIO,  /* NMI_DBG# */
 	.gpio3 = GPIO_MODE_GPIO,  /* ALS_INT# */

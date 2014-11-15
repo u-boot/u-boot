@@ -838,9 +838,6 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_CMD_KGDB
 	initr_kgdb,
 #endif
-#ifdef CONFIG_X86
-	board_early_init_r,
-#endif
 	interrupt_init,
 #if defined(CONFIG_ARM) || defined(CONFIG_x86)
 	initr_enable_interrupts,
