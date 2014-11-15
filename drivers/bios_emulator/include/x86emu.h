@@ -153,6 +153,7 @@ extern "C" {			/* Use "C" linkage when in C++ mode */
 	void X86EMU_setupMemFuncs(X86EMU_memFuncs * funcs);
 	void X86EMU_setupPioFuncs(X86EMU_pioFuncs * funcs);
 	void X86EMU_setupIntrFuncs(X86EMU_intrFuncs funcs[]);
+	void X86EMU_setupIntrFunc(int intnum, X86EMU_intrFuncs func);
 	void X86EMU_prepareForInt(int num);
 
 /* decode.c */
