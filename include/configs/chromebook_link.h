@@ -66,6 +66,9 @@
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0xefff
 
+#define CONFIG_SYS_EARLY_PCI_INIT
+#define CONFIG_PCI_PNP
+
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,vga,serial\0" \
 					"stdout=vga,serial\0" \
 					"stderr=vga,serial\0"
