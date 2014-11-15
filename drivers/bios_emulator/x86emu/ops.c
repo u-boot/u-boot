@@ -179,7 +179,7 @@ void x86emuOp_illegal_op(
 {
     START_OF_INSTR();
     if (M.x86.R_SP != 0) {
-	DECODE_PRINTF("ILLEGAL X86 OPCODE\n");
+	ERR_PRINTF("ILLEGAL X86 OPCODE\n");
 	TRACE_REGS();
 	DB( printk("%04x:%04x: %02X ILLEGAL X86 OPCODE!\n",
 	    M.x86.R_CS, M.x86.R_IP-1,op1));
@@ -2148,7 +2148,7 @@ void x86emuOp_pop_RM(u8 X86EMU_UNUSED(op1))
     DECODE_PRINTF("POP\t");
     FETCH_DECODE_MODRM(mod, rh, rl);
     if (rh != 0) {
-	DECODE_PRINTF("ILLEGAL DECODE OF OPCODE 8F\n");
+	ERR_PRINTF("ILLEGAL DECODE OF OPCODE 8F\n");
 	HALT_SYS();
     }
     if (mod < 3) {
@@ -3347,7 +3347,7 @@ void x86emuOp_mov_byte_RM_IMM(u8 X86EMU_UNUSED(op1))
     DECODE_PRINTF("MOV\t");
     FETCH_DECODE_MODRM(mod, rh, rl);
     if (rh != 0) {
-	DECODE_PRINTF("ILLEGAL DECODE OF OPCODE c6\n");
+	ERR_PRINTF("ILLEGAL DECODE OF OPCODE c6\n");
 	HALT_SYS();
     }
     if (mod < 3) {
@@ -3381,7 +3381,7 @@ void x86emuOp_mov_word_RM_IMM(u8 X86EMU_UNUSED(op1))
     DECODE_PRINTF("MOV\t");
     FETCH_DECODE_MODRM(mod, rh, rl);
     if (rh != 0) {
-	DECODE_PRINTF("ILLEGAL DECODE OF OPCODE 8F\n");
+	ERR_PRINTF("ILLEGAL DECODE OF OPCODE 8F\n");
 	HALT_SYS();
     }
     if (mod < 3) {
@@ -3968,7 +3968,7 @@ void x86emuOp_aam(u8 X86EMU_UNUSED(op1))
     DECODE_PRINTF("AAM\n");
     a = fetch_byte_imm();      /* this is a stupid encoding. */
     if (a != 10) {
-	DECODE_PRINTF("ERROR DECODING AAM\n");
+	ERR_PRINTF("ERROR DECODING AAM\n");
 	TRACE_REGS();
 	HALT_SYS();
     }
@@ -4443,7 +4443,7 @@ void x86emuOp_opcF6_byte_RM(u8 X86EMU_UNUSED(op1))
 	    test_byte(destval, srcval);
 	    break;
 	case 1:
-	    DECODE_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F6\n");
+	    ERR_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F6\n");
 	    HALT_SYS();
 	    break;
 	case 2:
@@ -4490,7 +4490,7 @@ void x86emuOp_opcF6_byte_RM(u8 X86EMU_UNUSED(op1))
 	    test_byte(*destreg, srcval);
 	    break;
 	case 1:
-	    DECODE_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F6\n");
+	    ERR_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F6\n");
 	    HALT_SYS();
 	    break;
 	case 2:
@@ -4559,7 +4559,7 @@ void x86emuOp_opcF7_word_RM(u8 X86EMU_UNUSED(op1))
 		test_long(destval, srcval);
 		break;
 	    case 1:
-		DECODE_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F7\n");
+		ERR_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F7\n");
 		HALT_SYS();
 		break;
 	    case 2:
@@ -4611,7 +4611,7 @@ void x86emuOp_opcF7_word_RM(u8 X86EMU_UNUSED(op1))
 		test_word(destval, srcval);
 		break;
 	    case 1:
-		DECODE_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F7\n");
+		ERR_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F7\n");
 		HALT_SYS();
 		break;
 	    case 2:
@@ -4666,7 +4666,7 @@ void x86emuOp_opcF7_word_RM(u8 X86EMU_UNUSED(op1))
 		test_long(*destreg, srcval);
 		break;
 	    case 1:
-		DECODE_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F6\n");
+		ERR_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F6\n");
 		HALT_SYS();
 		break;
 	    case 2:
@@ -4715,7 +4715,7 @@ void x86emuOp_opcF7_word_RM(u8 X86EMU_UNUSED(op1))
 		test_word(*destreg, srcval);
 		break;
 	    case 1:
-		DECODE_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F6\n");
+		ERR_PRINTF("ILLEGAL OP MOD=00 RH=01 OP=F6\n");
 		HALT_SYS();
 		break;
 	    case 2:
@@ -4879,7 +4879,7 @@ void x86emuOp_opcFE_byte_RM(u8 X86EMU_UNUSED(op1))
 	case 5:
 	case 6:
 	case 7:
-	    DECODE_PRINTF2("ILLEGAL OP MAJOR OP 0xFE MINOR OP %x \n", mod);
+	    ERR_PRINTF2("ILLEGAL OP MAJOR OP 0xFE MINOR OP %x\n", mod);
 	    HALT_SYS();
 	    break;
 	}
@@ -4961,7 +4961,7 @@ void x86emuOp_opcFF_word_RM(u8 X86EMU_UNUSED(op1))
 	    DECODE_PRINTF("PUSH\t");
 	    break;
 	case 7:
-	    DECODE_PRINTF("ILLEGAL DECODING OF OPCODE FF\t");
+	    ERR_PRINTF("ILLEGAL DECODING OF OPCODE FF\t");
 	    HALT_SYS();
 	    break;
 	}
@@ -5092,7 +5092,7 @@ void x86emuOp_opcFF_word_RM(u8 X86EMU_UNUSED(op1))
 	    M.x86.R_IP = *destreg;
 	    break;
 	case 3:		/* jmp far ptr ... */
-	    DECODE_PRINTF("OPERATION UNDEFINED 0XFF \n");
+	    ERR_PRINTF("OPERATION UNDEFINED 0XFF\n");
 	    TRACE_AND_STEP();
 	    HALT_SYS();
 	    break;
@@ -5104,7 +5104,7 @@ void x86emuOp_opcFF_word_RM(u8 X86EMU_UNUSED(op1))
 	    M.x86.R_IP = (u16) (*destreg);
 	    break;
 	case 5:		/* jmp far ptr ... */
-	    DECODE_PRINTF("OPERATION UNDEFINED 0XFF \n");
+	    ERR_PRINTF("OPERATION UNDEFINED 0XFF\n");
 	    TRACE_AND_STEP();
 	    HALT_SYS();
 	    break;

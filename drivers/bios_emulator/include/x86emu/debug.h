@@ -99,7 +99,11 @@
 # define DEBUG_DECODE_NOPRINT() 0
 #endif
 
-#ifdef CONFIG_X86EMU_DEBUG
+# define ERR_PRINTF(x)		printf(x)
+# define ERR_PRINTF2(x, y)	printf(x, y)
+
+#ifdef CONFIG_X86EMU_DEBUG103
+
 
 # define DECODE_PRINTF(x)	if (DEBUG_DECODE()) \
 				    x86emu_decode_printf(x)
