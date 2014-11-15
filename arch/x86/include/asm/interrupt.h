@@ -27,4 +27,15 @@ void specific_eoi(int irq);
 
 extern char exception_stack[];
 
+/**
+ * configure_irq_trigger() - Configure IRQ triggering
+ *
+ * Switch the given interrupt to be level / edge triggered
+ *
+ * @param int_num legacy interrupt number (3-7, 9-15)
+ * @param is_level_triggered true for level triggered interrupt, false for
+ *	edge triggered interrupt
+ */
+void configure_irq_trigger(int int_num, bool is_level_triggered);
+
 #endif

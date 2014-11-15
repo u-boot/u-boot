@@ -62,6 +62,9 @@ int interrupt_init(void)
 	 */
 	unmask_irq(2);
 
+	/* Interrupt 9 should be level triggered (SCI). The OS might do this */
+	configure_irq_trigger(9, true);
+
 	enable_interrupts();
 
 	return 0;
@@ -113,4 +116,39 @@ void specific_eoi(int irq)
 	}
 
 	outb(OCW2_SEOI | irq, MASTER_PIC + OCW2);
+}
+
+#define ELCR1			0x4d0
+#define ELCR2			0x4d1
+
+void configure_irq_trigger(int int_num, bool is_level_triggered)
+{
+	u16 int_bits = inb(ELCR1) | (((u16)inb(ELCR2)) << 8);
+
+	debug("%s: current interrupts are 0x%x\n", __func__, int_bits);
+	if (is_level_triggered)
+		int_bits |= (1 << int_num);
+	else
+		int_bits &= ~(1 << int_num);
+
+	/* Write new values */
+	debug("%s: try to set interrupts 0x%x\n", __func__, int_bits);
+	outb((u8)(int_bits & 0xff), ELCR1);
+	outb((u8)(int_bits >> 8), ELCR2);
+
+#ifdef PARANOID_IRQ_TRIGGERS
+	/*
+	 * Try reading back the new values. This seems like an error but is
+	 * not
+	 */
+	if (inb(ELCR1) != (int_bits & 0xff)) {
+		printf("%s: lower order bits are wrong: want 0x%x, got 0x%x\n",
+		       __func__, (int_bits & 0xff), inb(ELCR1));
+	}
+
+	if (inb(ELCR2) != (int_bits >> 8)) {
+		printf("%s: higher order bits are wrong: want 0x%x, got 0x%x\n",
+		       __func__, (int_bits>>8), inb(ELCR2));
+	}
+#endif
 }
