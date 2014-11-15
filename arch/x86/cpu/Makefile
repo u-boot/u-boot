@@ -16,3 +16,4 @@ obj-$(CONFIG_SYS_COREBOOT) += coreboot/
 obj-$(CONFIG_NORTHBRIDGE_INTEL_SANDYBRIDGE) += ivybridge/
 obj-$(CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE) += ivybridge/
 obj-$(CONFIG_PCI) += pci.o
+obj-y += turbo.o
