@@ -210,6 +210,7 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_MMC1		9
 #define AHB_GATE_OFFSET_MMC0		8
 #define AHB_GATE_OFFSET_MMC(n)		(AHB_GATE_OFFSET_MMC0 + (n))
+#define AHB_GATE_OFFSET_SS		5
 
 /* ahb_gate1 offsets */
 #define AHB_GATE_OFFSET_DRC0		25
@@ -278,8 +279,9 @@ struct sunxi_ccm_reg {
 #define AHB_RESET_OFFSET_MMC1		9
 #define AHB_RESET_OFFSET_MMC0		8
 #define AHB_RESET_OFFSET_MMC(n)		(AHB_RESET_OFFSET_MMC0 + (n))
+#define AHB_RESET_OFFSET_SS		5
 
-/* ahb_reset0 offsets */
+/* ahb_reset1 offsets */
 #define AHB_RESET_OFFSET_DRC0		25
 #define AHB_RESET_OFFSET_DE_BE0		12
 #define AHB_RESET_OFFSET_HDMI		11
