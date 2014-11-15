@@ -62,6 +62,11 @@
 #define VIDEO_IO_OFFSET				0
 #define CONFIG_X86EMU_RAW_IO
 
+#define CONFIG_CROS_EC
+#define CONFIG_CROS_EC_LPC
+#define CONFIG_CMD_CROS_EC
+#define CONFIG_ARCH_EARLY_INIT_R
+
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,vga,serial\0" \
 					"stdout=vga,serial\0" \
 					"stderr=vga,serial\0"
