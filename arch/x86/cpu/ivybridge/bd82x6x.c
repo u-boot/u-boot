@@ -102,6 +102,8 @@ int bd82x6x_init_pci_devices(void)
 		return -EINVAL;
 	}
 	bd82x6x_sata_init(PCH_SATA_DEV, blob, sata_node);
+	bd82x6x_usb_ehci_init(PCH_EHCI1_DEV);
+	bd82x6x_usb_ehci_init(PCH_EHCI2_DEV);
 
 	return 0;
 }
