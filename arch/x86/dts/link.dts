@@ -171,6 +171,19 @@
 			intel,sata-port0-gen3-tx = <0x00880a7f>;
 		};
 
+		gma {
+			compatible = "intel,gma";
+			intel,dp_hotplug = <0 0 0x06>;
+			intel,panel-port-select = <1>;
+			intel,panel-power-cycle-delay = <6>;
+			intel,panel-power-up-delay = <2000>;
+			intel,panel-power-down-delay = <500>;
+			intel,panel-power-backlight-on-delay = <2000>;
+			intel,panel-power-backlight-off-delay = <2000>;
+			intel,cpu-backlight = <0x00000200>;
+			intel,pch-backlight = <0x04000000>;
+		};
+
 		lpc {
 			compatible = "intel,lpc";
 			#address-cells = <1>;
