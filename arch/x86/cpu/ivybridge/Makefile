@@ -18,3 +18,4 @@ obj-y += report_platform.o
 obj-y += sata.o
 obj-y += sdram.o
 obj-y += usb_ehci.o
+obj-y += usb_xhci.o
