@@ -713,9 +713,9 @@ through to the real hardware if we don't need to special case it.
 void X86API BE_outl(X86EMU_pioAddr port, u32 val)
 {
 #if !defined(CONFIG_X86EMU_RAW_IO)
-	if (IS_PCI_PORT(port))
+	if (IS_PCI_PORT(port)) {
 		PCI_outp(port, val, REG_WRITE_DWORD);
-	else if (port < 0x100) {
+	} else if (port < 0x100) {
 		DB(printf("WARN: INVALID outl.%04X <- %08X\n", (u16) port,val);)
 		LOG_outpd(port, val);
 	} else

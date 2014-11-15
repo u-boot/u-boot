@@ -55,4 +55,12 @@ void bios_run_on_x86(pci_dev_t pcidev, unsigned long addr, int vesa_mode,
  */
 void bios_set_interrupt_handler(int intnum, int (*int_handler_func)(void));
 
+void biosemu_set_interrupt_handler(int intnum, int (*int_func)(void));
+
+int biosemu_setup(pci_dev_t pcidev, BE_VGAInfo **pVGAInfo);
+
+int biosemu_run(pci_dev_t pcidev, uchar *bios_rom, int bios_len,
+		BE_VGAInfo *vga_info, int clean_up, int vesa_mode,
+		struct vbe_mode_info *mode_info);
+
 #endif
