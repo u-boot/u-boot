@@ -88,6 +88,12 @@ void bd82x6x_pci_bus_enable_resources(pci_dev_t dev)
 
 int bd82x6x_init_pci_devices(void)
 {
+	struct pci_controller *hose;
+
+	hose = pci_bus_to_hose(0);
+	lpc_enable(PCH_LPC_DEV);
+	lpc_init(hose, PCH_LPC_DEV);
+
 	return 0;
 }
 
