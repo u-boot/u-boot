@@ -14,10 +14,30 @@
 
 #include <pci.h>
 
+/* PCH types */
+#define PCH_TYPE_CPT	0x1c /* CougarPoint */
+#define PCH_TYPE_PPT	0x1e /* IvyBridge */
+
+/* PCH stepping values for LPC device */
+#define PCH_STEP_A0	0
+#define PCH_STEP_A1	1
+#define PCH_STEP_B0	2
+#define PCH_STEP_B1	3
+#define PCH_STEP_B2	4
+#define PCH_STEP_B3	5
 #define DEFAULT_GPIOBASE	0x0480
 #define DEFAULT_PMBASE		0x0500
 
 #define SMBUS_IO_BASE		0x0400
+
+int pch_silicon_revision(void);
+int pch_silicon_type(void);
+int pch_silicon_supported(int type, int rev);
+void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
+
+#define MAINBOARD_POWER_OFF	0
+#define MAINBOARD_POWER_ON	1
+#define MAINBOARD_POWER_KEEP	2
 
 /* PCI Configuration Space (D30:F0): PCI2PCI */
 #define PSTS	0x06
@@ -40,6 +60,35 @@
 
 /* PCI Configuration Space (D31:F0): LPC */
 #define PCH_LPC_DEV		PCI_BDF(0, 0x1f, 0)
+#define SERIRQ_CNTL		0x64
+
+#define GEN_PMCON_1		0xa0
+#define GEN_PMCON_2		0xa2
+#define GEN_PMCON_3		0xa4
+#define ETR3			0xac
+#define  ETR3_CWORWRE		(1 << 18)
+#define  ETR3_CF9GR		(1 << 20)
+
+/* GEN_PMCON_3 bits */
+#define RTC_BATTERY_DEAD	(1 << 2)
+#define RTC_POWER_FAILED	(1 << 1)
+#define SLEEP_AFTER_POWER_FAIL	(1 << 0)
+
+#define PMBASE			0x40
+#define ACPI_CNTL		0x44
+#define BIOS_CNTL		0xDC
+#define GPIO_BASE		0x48 /* LPC GPIO Base Address Register */
+#define GPIO_CNTL		0x4C /* LPC GPIO Control Register */
+#define GPIO_ROUT		0xb8
+
+#define PIRQA_ROUT		0x60
+#define PIRQB_ROUT		0x61
+#define PIRQC_ROUT		0x62
+#define PIRQD_ROUT		0x63
+#define PIRQE_ROUT		0x68
+#define PIRQF_ROUT		0x69
+#define PIRQG_ROUT		0x6A
+#define PIRQH_ROUT		0x6B
 
 #define GEN_PMCON_1		0xa0
 #define GEN_PMCON_2		0xa2

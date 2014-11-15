@@ -12,6 +12,7 @@ obj-y += early_me.o
 obj-y += lpc.o
 obj-y += me_status.o
 obj-y += microcode_intel.o
+obj-y += pch.o
 obj-y += pci.o
 obj-y += report_platform.o
 obj-y += sdram.o
