@@ -17,9 +17,7 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/prcm.h>
 
-/* DRAM clk & zq defaults, maybe turn these into Kconfig options ? */
-#define DRAM_CLK_DEFAULT 312000000
-#define DRAM_ZQ_DEFAULT 0x78
+#define DRAM_CLK (CONFIG_DRAM_CLK * 1000000)
 
 struct dram_sun6i_para {
 	u8 bus_width;
@@ -48,7 +46,7 @@ static void mctl_sys_init(void)
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	const int dram_clk_div = 2;
 
-	clock_set_pll5(DRAM_CLK_DEFAULT * dram_clk_div);
+	clock_set_pll5(DRAM_CLK * dram_clk_div);
 
 	clrsetbits_le32(&ccm->dram_clk_cfg, CCM_DRAMCLK_CFG_DIV0_MASK,
 		CCM_DRAMCLK_CFG_DIV0(dram_clk_div) | CCM_DRAMCLK_CFG_RST |
@@ -170,7 +168,7 @@ static void mctl_channel_init(int ch_index, struct dram_sun6i_para *para)
 
 	await_completion(&mctl_phy->pgsr, 0x03, 0x03);
 
-	writel(DRAM_ZQ_DEFAULT, &mctl_phy->zq0cr1);
+	writel(CONFIG_DRAM_ZQ, &mctl_phy->zq0cr1);
 
 	setbits_le32(&mctl_phy->pir, MCTL_PIR_CLEAR_STATUS);
 	writel(MCTL_PIR_STEP1, &mctl_phy->pir);
@@ -216,9 +214,9 @@ static void mctl_channel_init(int ch_index, struct dram_sun6i_para *para)
 	await_completion(&mctl_ctl->sstat, 0x07, 0x01);
 
 	/* Set number of clks per micro-second */
-	writel(DRAM_CLK_DEFAULT / 1000000, &mctl_ctl->togcnt1u);
+	writel(DRAM_CLK / 1000000, &mctl_ctl->togcnt1u);
 	/* Set number of clks per 100 nano-seconds */
-	writel(DRAM_CLK_DEFAULT / 10000000, &mctl_ctl->togcnt100n);
+	writel(DRAM_CLK / 10000000, &mctl_ctl->togcnt100n);
 	/* Set memory timing registers */
 	writel(MCTL_TREFI, &mctl_ctl->trefi);
 	writel(MCTL_TMRD, &mctl_ctl->tmrd);

@@ -32,6 +32,23 @@ config MACH_SUN8I
 
 endchoice
 
+if MACH_SUN6I
+
+config DRAM_CLK
+	int "sun6i dram clock speed"
+	default 312
+	---help---
+	Set the dram clock speed, valid range 240 - 480, must be a multiple
+	of 24.
+
+config DRAM_ZQ
+	int "sun6i dram zq value"
+	default 123
+	---help---
+	Set the dram zq value.
+
+endif
+
 config SYS_CONFIG_NAME
 	default "sun4i" if MACH_SUN4I
 	default "sun5i" if MACH_SUN5I
