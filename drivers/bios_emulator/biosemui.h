@@ -48,7 +48,7 @@
 #include <asm/io.h>
 /*---------------------- Macros and type definitions ----------------------*/
 
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
 #define DB(x)	x
 #else
 #define DB(x)	do{}while(0);

@@ -303,7 +303,7 @@ NOTE: Do not inline this function as (*sys_rdX) is already inline!
 u8 fetch_data_byte(
     uint offset)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access((u16)get_data_segment(), offset);
 #endif
@@ -322,7 +322,7 @@ NOTE: Do not inline this function as (*sys_rdX) is already inline!
 u16 fetch_data_word(
     uint offset)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access((u16)get_data_segment(), offset);
 #endif
@@ -341,7 +341,7 @@ NOTE: Do not inline this function as (*sys_rdX) is already inline!
 u32 fetch_data_long(
     uint offset)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access((u16)get_data_segment(), offset);
 #endif
@@ -362,7 +362,7 @@ u8 fetch_data_byte_abs(
     uint segment,
     uint offset)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access(segment, offset);
 #endif
@@ -383,7 +383,7 @@ u16 fetch_data_word_abs(
     uint segment,
     uint offset)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access(segment, offset);
 #endif
@@ -404,7 +404,7 @@ u32 fetch_data_long_abs(
     uint segment,
     uint offset)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access(segment, offset);
 #endif
@@ -426,7 +426,7 @@ void store_data_byte(
     uint offset,
     u8 val)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access((u16)get_data_segment(), offset);
 #endif
@@ -448,7 +448,7 @@ void store_data_word(
     uint offset,
     u16 val)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access((u16)get_data_segment(), offset);
 #endif
@@ -470,7 +470,7 @@ void store_data_long(
     uint offset,
     u32 val)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access((u16)get_data_segment(), offset);
 #endif
@@ -493,7 +493,7 @@ void store_data_byte_abs(
     uint offset,
     u8 val)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access(segment, offset);
 #endif
@@ -516,7 +516,7 @@ void store_data_word_abs(
     uint offset,
     u16 val)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access(segment, offset);
 #endif
@@ -539,7 +539,7 @@ void store_data_long_abs(
     uint offset,
     u32 val)
 {
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
     if (CHECK_DATA_ACCESS())
 	x86emu_check_data_access(segment, offset);
 #endif

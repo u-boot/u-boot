@@ -161,7 +161,7 @@ extern "C" {			/* Use "C" linkage when in C++ mode */
 	void X86EMU_exec(void);
 	void X86EMU_halt_sys(void);
 
-#ifdef  DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
 #define HALT_SYS()  \
     printf("halt_sys: file %s, line %d\n", __FILE__, __LINE__), \
     X86EMU_halt_sys()

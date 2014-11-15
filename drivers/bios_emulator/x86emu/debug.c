@@ -44,7 +44,7 @@
 
 /*----------------------------- Implementation ----------------------------*/
 
-#ifdef DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
 
 static void print_encoded_bytes(u16 s, u16 o);
 static void print_decoded_instruction(void);
