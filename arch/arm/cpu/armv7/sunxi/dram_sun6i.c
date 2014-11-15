@@ -142,9 +142,6 @@ static void mctl_channel_init(int ch_index, struct dram_sun6i_para *para)
 
 	writel((MCTL_TITMSRST << 18) | (MCTL_TDLLLOCK << 6) | MCTL_TDLLSRST,
 	       &mctl_phy->ptr0);
-	/* Unknown magic performed by boot0 */
-	if ((readl(SUNXI_RTC_BASE + 0x20c) & 3) == 2)
-		setbits_le32(&mctl_phy->ptr0, 1 << 18);
 
 	writel((MCTL_TDINIT1 << 19) | MCTL_TDINIT0, &mctl_phy->ptr1);
 	writel((MCTL_TDINIT3 << 17) | MCTL_TDINIT2, &mctl_phy->ptr2);
