@@ -4,6 +4,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-y += bd82x6x.o
 obj-y += car.o
 obj-y += cpu.o
 obj-y += early_init.o

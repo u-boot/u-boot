@@ -19,6 +19,16 @@
 
 #define SMBUS_IO_BASE		0x0400
 
+/* PCI Configuration Space (D30:F0): PCI2PCI */
+#define PSTS	0x06
+#define SMLT	0x1b
+#define SECSTS	0x1e
+#define INTR	0x3c
+#define BCTRL	0x3e
+#define   SBR	(1 << 6)
+#define   SEE	(1 << 1)
+#define   PERE	(1 << 0)
+
 #define PCH_EHCI1_DEV		PCI_BDF(0, 0x1d, 0)
 #define PCH_EHCI2_DEV		PCI_BDF(0, 0x1a, 0)
 #define PCH_XHCI_DEV		PCI_BDF(0, 0x14, 0)
@@ -342,6 +352,9 @@
 #define TCO1_STS	0x64
 #define   DMISCI_STS	(1 << 9)
 #define TCO2_STS	0x66
+
+int lpc_init(struct pci_controller *hose, pci_dev_t dev);
+void lpc_enable(pci_dev_t dev);
 
 /**
  * lpc_early_init() - set up LPC serial ports and other early things
