@@ -142,17 +142,19 @@ static int init_baud_rate(void)
 static int display_text_info(void)
 {
 #ifndef CONFIG_SANDBOX
-	ulong bss_start, bss_end;
+	ulong bss_start, bss_end, text_base;
 
 	bss_start = (ulong)&__bss_start;
 	bss_end = (ulong)&__bss_end;
 
-	debug("U-Boot code: %08X -> %08lX  BSS: -> %08lX\n",
 #ifdef CONFIG_SYS_TEXT_BASE
-	      CONFIG_SYS_TEXT_BASE, bss_start, bss_end);
+	text_base = CONFIG_SYS_TEXT_BASE;
 #else
-	      CONFIG_SYS_MONITOR_BASE, bss_start, bss_end);
+	text_base = CONFIG_SYS_MONITOR_BASE;
 #endif
+
+	debug("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
+		text_base, bss_start, bss_end);
 #endif
 
 #ifdef CONFIG_MODEM_SUPPORT
