@@ -14,6 +14,7 @@
 #include <common.h>
 #include <command.h>
 #include <rtc.h>
+#include <version.h>
 
 #if defined(__I386__) || defined(CONFIG_MALTA)
 #include <asm/io.h>
@@ -22,6 +23,9 @@
 #endif
 
 #if defined(CONFIG_CMD_DATE)
+
+/* Set this to 1 to clear the CMOS RAM */
+#define CLEAR_CMOS 0
 
 static uchar rtc_read  (uchar reg);
 static void  rtc_write (uchar reg, uchar val);
@@ -41,7 +45,14 @@ static void  rtc_write (uchar reg, uchar val);
 #define RTC_CONFIG_B		0x0B
 #define RTC_CONFIG_C		0x0C
 #define RTC_CONFIG_D		0x0D
+#define RTC_REG_SIZE		0x80
 
+#define RTC_CONFIG_A_REF_CLCK_32KHZ	(1 << 5)
+#define RTC_CONFIG_A_RATE_1024HZ	6
+
+#define RTC_CONFIG_B_24H		(1 << 1)
+
+#define RTC_CONFIG_D_VALID_RAM_AND_TIME	0x80
 
 /* ------------------------------------------------------------------------- */
 
@@ -128,25 +139,49 @@ void rtc_reset (void)
  */
 static uchar rtc_read (uchar reg)
 {
-	return(in8(CONFIG_SYS_RTC_REG_BASE_ADDR+reg));
+	return in8(CONFIG_SYS_RTC_REG_BASE_ADDR + reg);
 }
 
 static void rtc_write (uchar reg, uchar val)
 {
-	out8(CONFIG_SYS_RTC_REG_BASE_ADDR+reg, val);
+	out8(CONFIG_SYS_RTC_REG_BASE_ADDR + reg, val);
 }
 #else
 static uchar rtc_read (uchar reg)
 {
 	out8(RTC_PORT_MC146818,reg);
-	return(in8(RTC_PORT_MC146818+1));
+	return in8(RTC_PORT_MC146818 + 1);
 }
 
 static void rtc_write (uchar reg, uchar val)
 {
 	out8(RTC_PORT_MC146818,reg);
-	out8(RTC_PORT_MC146818+1,val);
+	out8(RTC_PORT_MC146818+1, val);
 }
 #endif
 
+void rtc_init(void)
+{
+#if CLEAR_CMOS
+	int i;
+
+	rtc_write(RTC_SECONDS_ALARM, 0);
+	rtc_write(RTC_MINUTES_ALARM, 0);
+	rtc_write(RTC_HOURS_ALARM, 0);
+	for (i = RTC_CONFIG_A; i < RTC_REG_SIZE; i++)
+		rtc_write(i, 0);
+	printf("RTC: zeroing CMOS RAM\n");
+#endif
+
+	/* Setup the real time clock */
+	rtc_write(RTC_CONFIG_B, RTC_CONFIG_B_24H);
+	/* Setup the frequency it operates at */
+	rtc_write(RTC_CONFIG_A, RTC_CONFIG_A_REF_CLCK_32KHZ |
+		  RTC_CONFIG_A_RATE_1024HZ);
+	/* Ensure all reserved bits are 0 in register D */
+	rtc_write(RTC_CONFIG_D, RTC_CONFIG_D_VALID_RAM_AND_TIME);
+
+	/* Clear any pending interrupts */
+	rtc_read(RTC_CONFIG_C);
+}
 #endif
