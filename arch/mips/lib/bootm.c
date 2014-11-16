@@ -6,10 +6,7 @@
  */
 
 #include <common.h>
-#include <command.h>
 #include <image.h>
-#include <u-boot/zlib.h>
-#include <asm/byteorder.h>
 #include <asm/addrspace.h>
 
 DECLARE_GLOBAL_DATA_PTR;
