@@ -214,10 +214,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_DM
 #define CONFIG_DM_SPI
 #define CONFIG_DESIGNWARE_SPI
-#ifndef __ASSEMBLY__
-unsigned int cm_get_spi_controller_clk_hz(void);
-#define CONFIG_DW_SPI_REF_CLK		cm_get_spi_controller_clk_hz()
-#endif
 #define CONFIG_CMD_SPI
 #endif
 
