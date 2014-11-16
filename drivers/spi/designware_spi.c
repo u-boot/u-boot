@@ -3,7 +3,8 @@
  *
  * Copyright (C) 2014 Stefan Roese <sr@denx.de>
  *
- * Very loosly based on the Linux driver version which is:
+ * Very loosely based on the Linux driver:
+ * drivers/spi/spi-dw.c, which is:
  * Copyright (c) 2009, Intel Corporation.
  *
  * SPDX-License-Identifier:	GPL-2.0
@@ -17,6 +18,7 @@
 #include <fdtdec.h>
 #include <linux/compat.h>
 #include <asm/io.h>
+#include <asm/arch/clock_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -81,7 +83,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SR_TX_ERR			(1 << 5)
 #define SR_DCOL				(1 << 6)
 
-#define RX_TIMEOUT			1000
+#define RX_TIMEOUT			1000		/* timeout in ms */
 
 struct dw_spi_platdata {
 	s32 frequency;		/* Default clock frequency, -1 for none */
@@ -95,7 +97,6 @@ struct dw_spi_priv {
 
 	int bits_per_word;
 	u8 cs;			/* chip select pin */
-	u8 n_bytes;		/* current is a 1/2/4 byte op */
 	u8 tmode;		/* TR/TO/RO/EEPROM */
 	u8 type;		/* SPI/SSP/MicroWire */
 	int len;
@@ -185,7 +186,6 @@ static int dw_spi_probe(struct udevice *bus)
 
 	/* Currently only bits_per_word == 8 supported */
 	priv->bits_per_word = 8;
-	priv->n_bytes = 1;
 
 	priv->tmode = 0; /* Tx & Rx */
 
@@ -200,19 +200,19 @@ static inline u32 tx_max(struct dw_spi_priv *priv)
 {
 	u32 tx_left, tx_room, rxtx_gap;
 
-	tx_left = (priv->tx_end - priv->tx) / priv->n_bytes;
+	tx_left = (priv->tx_end - priv->tx) / (priv->bits_per_word >> 3);
 	tx_room = priv->fifo_len - dw_readw(priv, DW_SPI_TXFLR);
 
 	/*
 	 * Another concern is about the tx/rx mismatch, we
-	 * though to use (priv->fifo_len - rxflr - txflr) as
+	 * thought about using (priv->fifo_len - rxflr - txflr) as
 	 * one maximum value for tx, but it doesn't cover the
 	 * data which is out of tx/rx fifo and inside the
 	 * shift registers. So a control from sw point of
 	 * view is taken.
 	 */
 	rxtx_gap = ((priv->rx_end - priv->rx) - (priv->tx_end - priv->tx)) /
-		priv->n_bytes;
+		(priv->bits_per_word >> 3);
 
 	return min3(tx_left, tx_room, (u32)(priv->fifo_len - rxtx_gap));
 }
@@ -220,7 +220,7 @@ static inline u32 tx_max(struct dw_spi_priv *priv)
 /* Return the max entries we should read out of rx fifo */
 static inline u32 rx_max(struct dw_spi_priv *priv)
 {
-	u32 rx_left = (priv->rx_end - priv->rx) / priv->n_bytes;
+	u32 rx_left = (priv->rx_end - priv->rx) / (priv->bits_per_word >> 3);
 
 	return min_t(u32, rx_left, dw_readw(priv, DW_SPI_RXFLR));
 }
@@ -233,14 +233,14 @@ static void dw_writer(struct dw_spi_priv *priv)
 	while (max--) {
 		/* Set the tx word if the transfer's original "tx" is not null */
 		if (priv->tx_end - priv->len) {
-			if (priv->n_bytes == 1)
+			if (priv->bits_per_word == 8)
 				txw = *(u8 *)(priv->tx);
 			else
 				txw = *(u16 *)(priv->tx);
 		}
 		dw_writew(priv, DW_SPI_DR, txw);
 		debug("%s: tx=0x%02x\n", __func__, txw);
-		priv->tx += priv->n_bytes;
+		priv->tx += priv->bits_per_word >> 3;
 	}
 }
 
@@ -261,14 +261,18 @@ static int dw_reader(struct dw_spi_priv *priv)
 	while (max--) {
 		rxw = dw_readw(priv, DW_SPI_DR);
 		debug("%s: rx=0x%02x\n", __func__, rxw);
-		/* Care rx only if the transfer's original "rx" is not null */
+
+		/*
+		 * Care about rx only if the transfer's original "rx" is
+		 * not null
+		 */
 		if (priv->rx_end - priv->len) {
-			if (priv->n_bytes == 1)
+			if (priv->bits_per_word == 8)
 				*(u8 *)(priv->rx) = rxw;
 			else
 				*(u16 *)(priv->rx) = rxw;
 		}
-		priv->rx += priv->n_bytes;
+		priv->rx += priv->bits_per_word >> 3;
 	}
 
 	return 0;
@@ -297,7 +301,6 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	u8 *rx = din;
 	int ret = 0;
 	u32 cr0 = 0;
-	u8 bits = 0;
 	u32 cs;
 
 	/* spi core configured to do 8 bit transfers */
@@ -306,9 +309,7 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		return -1;
 	}
 
-	bits = priv->bits_per_word;
-	priv->n_bytes = bits >> 3;
-	cr0 = (bits - 1) | (priv->type << SPI_FRF_OFFSET) |
+	cr0 = (priv->bits_per_word - 1) | (priv->type << SPI_FRF_OFFSET) |
 		(priv->mode << SPI_MODE_OFFSET) |
 		(priv->tmode << SPI_TMOD_OFFSET);
 
@@ -322,7 +323,7 @@ static int dw_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	cr0 &= ~SPI_TMOD_MASK;
 	cr0 |= (priv->tmode << SPI_TMOD_OFFSET);
 
-	priv->len = bitlen / 8;
+	priv->len = bitlen >> 3;
 	debug("%s: rx=%p tx=%p len=%d [bytes]\n", __func__, rx, tx, priv->len);
 
 	priv->tx = (void *)tx;
@@ -368,7 +369,7 @@ static int dw_spi_set_speed(struct udevice *bus, uint speed)
 	spi_enable_chip(priv, 0);
 
 	/* clk_div doesn't support odd number */
-	clk_div = CONFIG_DW_SPI_REF_CLK / speed;
+	clk_div = cm_get_spi_controller_clk_hz() / speed;
 	clk_div = (clk_div + 1) & 0xfffe;
 	dw_writel(priv, DW_SPI_BAUDR, clk_div);
 
