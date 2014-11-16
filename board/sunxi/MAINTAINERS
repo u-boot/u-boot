@@ -9,7 +9,6 @@ F:	configs/Cubieboard_defconfig
 F:	configs/Mele_A1000_defconfig
 F:	configs/Mele_A1000G_defconfig
 F:	configs/Mele_M3_defconfig
-F:	configs/Mele_M9_defconfig
 F:	configs/Mini-X_defconfig
 F:	configs/Mini-X-1Gb_defconfig
 F:	include/configs/sun5i.h
@@ -18,6 +17,9 @@ F:	configs/A13-OLinuXino_defconfig
 F:	configs/A13-OLinuXinoM_defconfig
 F:	configs/Auxtek-T004_defconfig
 F:	configs/r7-tv-dongle_defconfig
+F:	include/configs/sun6i.h
+F:	configs/CSQ_CS908_defconfig
+F:	configs/Mele_M9_defconfig
 F:	include/configs/sun7i.h
 F:	configs/A20-OLinuXino_MICRO_defconfig
 F:	configs/Bananapi_defconfig
