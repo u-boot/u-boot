@@ -230,16 +230,11 @@ int board_eth_init(bd_t *bis)
 static int setup_fec(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	int ret;
 
 	/* clear gpr1[14], gpr1[18:17] to select anatop clock */
 	clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC_MASK, 0);
 
-	ret = enable_fec_anatop_clock(ENET_50MHz);
-	if (ret)
-		return ret;
-
-	return 0;
+	return enable_fec_anatop_clock(ENET_50MHz);
 }
 #endif
 
