@@ -385,7 +385,7 @@ const char *os_dirent_get_typename(enum os_dirent_t type)
 	return os_dirent_typename[OS_FILET_UNKNOWN];
 }
 
-ssize_t os_get_filesize(const char *fname)
+int os_get_filesize(const char *fname, loff_t *size)
 {
 	struct stat buf;
 	int ret;
@@ -393,7 +393,8 @@ ssize_t os_get_filesize(const char *fname)
 	ret = stat(fname, &buf);
 	if (ret)
 		return ret;
-	return buf.st_size;
+	*size = buf.st_size;
+	return 0;
 }
 
 void os_putc(int ch)
@@ -427,11 +428,11 @@ int os_read_ram_buf(const char *fname)
 {
 	struct sandbox_state *state = state_get_current();
 	int fd, ret;
-	int size;
+	loff_t size;
 
-	size = os_get_filesize(fname);
-	if (size < 0)
-		return -ENOENT;
+	ret = os_get_filesize(fname, &size);
+	if (ret < 0)
+		return ret;
 	if (size != state->ram_size)
 		return -ENOSPC;
 	fd = open(fname, O_RDONLY);

@@ -287,7 +287,7 @@ static int read_fdt_from_file(void)
 	struct sandbox_state *state = state_get_current();
 	const char *fname = state->fdt_fname;
 	void *blob;
-	ssize_t size;
+	loff_t size;
 	int err;
 	int fd;
 
@@ -300,10 +300,10 @@ static int read_fdt_from_file(void)
 		return -EINVAL;
 	}
 
-	size = os_get_filesize(fname);
-	if (size < 0) {
+	err = os_get_filesize(fname, &size);
+	if (err < 0) {
 		printf("Failed to file FDT file '%s'\n", fname);
-		return -ENOENT;
+		return err;
 	}
 	fd = os_open(fname, OS_O_RDONLY);
 	if (fd < 0) {

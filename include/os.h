@@ -217,9 +217,10 @@ const char *os_dirent_get_typename(enum os_dirent_t type);
  * Get the size of a file
  *
  * @param fname		Filename to check
- * @return size of file, or -1 if an error ocurred
+ * @param size		size of file is returned if no error
+ * @return 0 on success or -1 if an error ocurred
  */
-ssize_t os_get_filesize(const char *fname);
+int os_get_filesize(const char *fname, loff_t *size);
 
 /**
  * Write a character to the controlling OS terminal

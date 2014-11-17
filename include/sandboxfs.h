@@ -20,8 +20,10 @@
 
 int sandbox_fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info);
 
-long sandbox_fs_read_at(const char *filename, unsigned long pos,
-			     void *buffer, unsigned long maxsize);
+int sandbox_fs_read_at(const char *filename, loff_t pos, void *buffer,
+		       loff_t maxsize, loff_t *actread);
+int sandbox_fs_write_at(const char *filename, loff_t pos, void *buffer,
+			loff_t maxsize, loff_t *actwrite);
 
 void sandbox_fs_close(void);
 int sandbox_fs_ls(const char *dirname);
