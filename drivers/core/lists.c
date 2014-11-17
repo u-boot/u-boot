@@ -164,8 +164,7 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 			break;
 		} else if (ret) {
 			dm_warn("Device tree error at offset %d\n", offset);
-			if (!result || ret != -ENOENT)
-				result = ret;
+			result = ret;
 			break;
 		}
 
