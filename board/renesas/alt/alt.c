@@ -49,6 +49,10 @@ void s_init(void)
 #define SMSTPCR8	0xE6150990
 #define ETHER_MSTP813	(1 << 13)
 
+#define MSTPSR3		0xE6150048
+#define SMSTPCR3	0xE615013C
+#define IIC1_MSTP323	(1 << 23)
+
 #define mstp_setbits(type, addr, saddr, set) \
 	out_##type((saddr), in_##type(addr) | (set))
 #define mstp_clrbits(type, addr, saddr, clear) \
@@ -69,6 +73,9 @@ int board_early_init_f(void)
 	/* ETHER */
 	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHER_MSTP813);
 
+	/* IIC1 / sh-i2c ch1 */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, IIC1_MSTP323);
+
 	return 0;
 }
 
@@ -81,7 +88,7 @@ void arch_preboot_os(void)
 int board_init(void)
 {
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = ALT_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	/* Init PFC controller */
 	r8a7794_pinmux_init();
@@ -149,23 +156,11 @@ const struct rmobile_sysinfo sysinfo = {
 	CONFIG_RMOBILE_BOARD_STRING
 };
 
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = ALT_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = ALT_SDRAM_SIZE;
-}
-
-int board_late_init(void)
-{
-	return 0;
-}
-
 void reset_cpu(ulong addr)
 {
 	u8 val;
 
-	i2c_set_bus_num(1); /* PowerIC connected to ch3 */
-	i2c_init(400000, 0);
+	i2c_set_bus_num(1); /* PowerIC connected to ch1 */
 	i2c_read(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
 	val |= 0x02;
 	i2c_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);

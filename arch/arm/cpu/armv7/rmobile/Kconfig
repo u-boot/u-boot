@@ -6,6 +6,9 @@ choice
 config TARGET_ARMADILLO_800EVA
 	bool "armadillo 800 eva board"
 
+config TARGET_GOSE
+	bool "Gose board"
+
 config TARGET_KOELSCH
 	bool "Koelsch board"
 
@@ -29,6 +32,7 @@ config RMOBILE_EXTRAM_BOOT
 	default n
 
 source "board/atmark-techno/armadillo-800eva/Kconfig"
+source "board/renesas/gose/Kconfig"
 source "board/renesas/koelsch/Kconfig"
 source "board/renesas/lager/Kconfig"
 source "board/kmc/kzm9g/Kconfig"

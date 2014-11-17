@@ -10,7 +10,7 @@
 #define __ASM_ARCH_RCAR_BASE_H
 
 /*
- * R-Car (R8A7790/R8A7791/R8A7794) I/O Addresses
+ * R-Car (R8A7790/R8A7791/R8A7793/R8A7794) I/O Addresses
  */
 #define RWDT_BASE		0xE6020000
 #define SWDT_BASE		0xE6030000
@@ -28,6 +28,20 @@
 #define SCIF3_BASE		0xE6EA8000
 #define SCIF4_BASE		0xE6EE0000
 #define SCIF5_BASE		0xE6EE8000
+
+/*
+ * SH-I2C
+ * Ch2 and ch3 are different address. These are defined
+ * in the header of each SoCs.
+ */
+#define CONFIG_SYS_I2C_SH_BASE0	0xE6500000
+#define CONFIG_SYS_I2C_SH_BASE1	0xE6510000
+
+/* RCAR-I2C */
+#define CONFIG_SYS_RCAR_I2C0_BASE	0xE6508000
+#define CONFIG_SYS_RCAR_I2C1_BASE	0xE6518000
+#define CONFIG_SYS_RCAR_I2C2_BASE	0xE6530000
+#define CONFIG_SYS_RCAR_I2C3_BASE	0xE6540000
 
 #define S3C_BASE		0xE6784000
 #define S3C_INT_BASE		0xE6784A00

@@ -1,10 +1,9 @@
 /*
- * board/renesas/koelsch/koelsch.c
+ * board/renesas/gose/gose.c
  *
- * Copyright (C) 2013 Renesas Electronics Corporation
+ * Copyright (C) 2014 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier: GPL-2.0
- *
  */
 
 #include <common.h>
@@ -19,7 +18,6 @@
 #include <netdev.h>
 #include <miiphy.h>
 #include <i2c.h>
-#include <div64.h>
 #include "qos.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -61,11 +59,12 @@ void s_init(void)
 	out_##type((saddr), in_##type(addr) & ~(clear))
 #define mstp_setbits_le32(addr, saddr, set) \
 	mstp_setbits(le32, addr, saddr, set)
-#define mstp_clrbits_le32(addr, saddr, clear)   \
+#define mstp_clrbits_le32(addr, saddr, clear) \
 	mstp_clrbits(le32, addr, saddr, clear)
 
 int board_early_init_f(void)
 {
+	/* TMU0 */
 	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
 
 	/* SCIF0 */
@@ -77,23 +76,27 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#define TSTR0		0x04
+#define TSTR0_STR0	0x01
 void arch_preboot_os(void)
 {
+	/* stop TMU0 */
+	mstp_clrbits_le32(TMU_BASE + TSTR0, TMU_BASE + TSTR0, TSTR0_STR0);
 	/* Disable TMU0 */
 	mstp_setbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
 }
 
-/* LSI pin pull-up control */
-#define PUPR5 0xe6060114
-#define PUPR5_ETH 0x3FFC0000
+#define PUPR5		0xE6060114
+#define PUPR5_ETH	0x3FFC0000
 #define PUPR5_ETH_MAGIC	(1 << 27)
+
 int board_init(void)
 {
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	/* Init PFC controller */
-	r8a7791_pinmux_init();
+	r8a7793_pinmux_init();
 
 	/* ETHER Enable */
 	gpio_request(GPIO_FN_ETH_CRS_DV, NULL);
@@ -123,48 +126,33 @@ int board_init(void)
 
 #define CXR24 0xEE7003C0 /* MAC address high register */
 #define CXR25 0xEE7003C8 /* MAC address low register */
+
 int board_eth_init(bd_t *bis)
 {
-#ifdef CONFIG_SH_ETHER
 	int ret = -ENODEV;
 	u32 val;
 	unsigned char enetaddr[6];
 
+#ifdef CONFIG_SH_ETHER
 	ret = sh_eth_initialize(bis);
 	if (!eth_getenv_enetaddr("ethaddr", enetaddr))
 		return ret;
 
 	/* Set Mac address */
 	val = enetaddr[0] << 24 | enetaddr[1] << 16 |
-		enetaddr[2] << 8 | enetaddr[3];
+	    enetaddr[2] << 8 | enetaddr[3];
 	writel(val, CXR24);
 
 	val = enetaddr[4] << 8 | enetaddr[5];
 	writel(val, CXR25);
+#endif
 
 	return ret;
-#else
-	return 0;
-#endif
 }
 
 int dram_init(void)
 {
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
-
-	return 0;
-}
-
-/* koelsch has KSZ8041NL/RNL */
-#define PHY_CONTROL1	0x1E
-#define PHY_LED_MODE	0xC0000
-#define PHY_LED_MODE_ACK	0x4000
-int board_phy_config(struct phy_device *phydev)
-{
-	int ret = phy_read(phydev, MDIO_DEVAD_NONE, PHY_CONTROL1);
-	ret &= ~PHY_LED_MODE;
-	ret |= PHY_LED_MODE_ACK;
-	ret = phy_write(phydev, MDIO_DEVAD_NONE, PHY_CONTROL1, (u16)ret);
 
 	return 0;
 }

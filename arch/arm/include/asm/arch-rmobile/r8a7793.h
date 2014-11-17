@@ -1,17 +1,18 @@
 /*
- * arch/arm/include/asm/arch-rmobile/r8a7791.h
+ * arch/arm/include/asm/arch-rmobile/r8a7793.h
  *
- * Copyright (C) 2013,2014 Renesas Electronics Corporation
+ * Copyright (C) 2014 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier: GPL-2.0
-*/
+ */
 
-#ifndef __ASM_ARCH_R8A7791_H
-#define __ASM_ARCH_R8A7791_H
+#ifndef __ASM_ARCH_R8A7793_H
+#define __ASM_ARCH_R8A7793_H
 
 #include "rcar-base.h"
+
 /*
- * R-Car (R8A7791) I/O Addresses
+ * R8A7793 I/O Addresses
  */
 
 /* SH-I2C */
@@ -49,10 +50,14 @@
 #define DBSC3_1_QOS_W13_BASE	0xE67A2D00
 #define DBSC3_1_QOS_W14_BASE	0xE67A2E00
 #define DBSC3_1_QOS_W15_BASE	0xE67A2F00
+
 #define DBSC3_1_DBADJ2		0xE67A00C8
 
-#define R8A7791_CUT_ES2X	2
-#define IS_R8A7791_ES2()	\
-	(rmobile_get_cpu_rev_integer() == R8A7791_CUT_ES2X)
+/*
+ * R8A7793 I/O Product Information
+ */
+#define R8A7793_CUT_ES2X	2
+#define IS_R8A7793_ES2() \
+	(rmobile_get_cpu_rev_integer() == R8A7793_CUT_ES2X)
 
-#endif /* __ASM_ARCH_R8A7791_H */
+#endif /* __ASM_ARCH_R8A7793_H */
