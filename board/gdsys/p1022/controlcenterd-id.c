@@ -932,11 +932,12 @@ static struct key_program *load_key_chunk(const char *ifname,
 	struct key_program header;
 	uint32_t crc;
 	uint8_t buf[12];
-	int i;
+	loff_t i;
 
 	if (fs_set_blk_dev(ifname, dev_part_str, fs_type))
 		goto failure;
-	i = fs_read(path, (ulong)buf, 0, 12);
+	if (fs_read(path, (ulong)buf, 0, 12, &i) < 0)
+		goto failure;
 	if (i < 12)
 		goto failure;
 	header.magic = get_unaligned_be32(buf);
@@ -951,8 +952,9 @@ static struct key_program *load_key_chunk(const char *ifname,
 		goto failure;
 	if (fs_set_blk_dev(ifname, dev_part_str, fs_type))
 		goto failure;
-	i = fs_read(path, (ulong)result, 0,
-		sizeof(struct key_program) + header.code_size);
+	if (fs_read(path, (ulong)result, 0,
+		    sizeof(struct key_program) + header.code_size, &i) < 0)
+		goto failure;
 	if (i <= 0)
 		goto failure;
 	*result = header;
@@ -1043,7 +1045,7 @@ static int second_stage_init(void)
 	const char *image_path = "/ccdm.itb";
 	char *mac_path = NULL;
 	ulong image_addr;
-	size_t image_size;
+	loff_t image_size;
 	uint32_t err;
 
 	printf("CCDM S2\n");
@@ -1085,10 +1087,11 @@ static int second_stage_init(void)
 	image_addr = (ulong)get_image_location();
 	if (fs_set_blk_dev("mmc", mmcdev, FS_TYPE_EXT))
 		goto failure;
-	image_size = fs_read(image_path, image_addr, 0, 0);
+	if (fs_read(image_path, image_addr, 0, 0, &image_size) < 0)
+		goto failure;
 	if (image_size <= 0)
 		goto failure;
-	printf("CCDM image found on %s, %d bytes\n", mmcdev, image_size);
+	printf("CCDM image found on %s, %lld bytes\n", mmcdev, image_size);
 
 	hmac_blob = load_key_chunk("mmc", mmcdev, FS_TYPE_EXT, mac_path);
 	if (!hmac_blob) {

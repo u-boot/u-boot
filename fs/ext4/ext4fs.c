@@ -184,16 +184,9 @@ int ext4fs_exists(const char *filename)
 	return ret == 0;
 }
 
-int ext4fs_size(const char *filename)
+int ext4fs_size(const char *filename, loff_t *size)
 {
-	loff_t	size;
-	int ret;
-
-	ret = ext4fs_open(filename, &size);
-	if (ret)
-		return ret;
-	else
-		return size;
+	return ext4fs_open(filename, size);
 }
 
 int ext4fs_read(char *buf, loff_t len, loff_t *actread)
@@ -217,10 +210,10 @@ int ext4fs_probe(block_dev_desc_t *fs_dev_desc,
 	return 0;
 }
 
-int ext4_read_file(const char *filename, void *buf, int offset, int len)
+int ext4_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
+		   loff_t *len_read)
 {
 	loff_t file_len;
-	loff_t len_read;
 	int ret;
 
 	if (offset != 0) {
@@ -237,12 +230,7 @@ int ext4_read_file(const char *filename, void *buf, int offset, int len)
 	if (len == 0)
 		len = file_len;
 
-	ret = ext4fs_read(buf, len, &len_read);
-
-	if (ret)
-		return ret;
-	else
-		return len_read;
+	return ext4fs_read(buf, len, len_read);
 }
 
 int ext4fs_uuid(char *uuid_str)

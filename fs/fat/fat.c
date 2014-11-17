@@ -1248,16 +1248,9 @@ int fat_exists(const char *filename)
 	return ret == 0;
 }
 
-int fat_size(const char *filename)
+int fat_size(const char *filename, loff_t *size)
 {
-	loff_t size;
-	int ret;
-
-	ret = do_fat_read_at(filename, 0, NULL, 0, LS_NO, 1, &size);
-	if (ret)
-		return ret;
-	else
-		return size;
+	return do_fat_read_at(filename, 0, NULL, 0, LS_NO, 1, size);
 }
 
 int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
@@ -1280,18 +1273,16 @@ int file_fat_read(const char *filename, void *buffer, int maxsize)
 		return actread;
 }
 
-int fat_read_file(const char *filename, void *buf, int offset, int len)
+int fat_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
+		  loff_t *actread)
 {
 	int ret;
-	loff_t actread;
 
-	ret = file_fat_read_at(filename, offset, buf, len, &actread);
-	if (ret) {
+	ret = file_fat_read_at(filename, offset, buf, len, actread);
+	if (ret)
 		printf("** Unable to read file %s **\n", filename);
-		return ret;
-	}
 
-	return actread;
+	return ret;
 }
 
 void fat_close(void)

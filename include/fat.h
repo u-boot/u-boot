@@ -198,7 +198,7 @@ int file_cd(const char *path);
 int file_fat_detectfs(void);
 int file_fat_ls(const char *dir);
 int fat_exists(const char *filename);
-int fat_size(const char *filename);
+int fat_size(const char *filename, loff_t *size);
 int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
 		     loff_t maxsize, loff_t *actread);
 int file_fat_read(const char *filename, void *buffer, int maxsize);
@@ -208,6 +208,7 @@ int fat_register_device(block_dev_desc_t *dev_desc, int part_no);
 
 int file_fat_write(const char *filename, void *buf, loff_t offset, loff_t len,
 		   loff_t *actwrite);
-int fat_read_file(const char *filename, void *buf, int offset, int len);
+int fat_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
+		  loff_t *actread);
 void fat_close(void);
 #endif /* _FAT_H_ */

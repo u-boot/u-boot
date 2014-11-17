@@ -103,46 +103,35 @@ int sandbox_fs_exists(const char *filename)
 	return ret == 0;
 }
 
-int sandbox_fs_size(const char *filename)
+int sandbox_fs_size(const char *filename, loff_t *size)
 {
-	loff_t size;
-	int ret;
-
-	ret = os_get_filesize(filename, &size);
-	if (ret)
-		return ret;
-	else
-		return size;
+	return os_get_filesize(filename, size);
 }
 
 void sandbox_fs_close(void)
 {
 }
 
-int fs_read_sandbox(const char *filename, void *buf, int offset, int len)
+int fs_read_sandbox(const char *filename, void *buf, loff_t offset, loff_t len,
+		    loff_t *actread)
 {
 	int ret;
-	loff_t actread;
 
-	ret = sandbox_fs_read_at(filename, offset, buf, len, &actread);
-	if (ret) {
+	ret = sandbox_fs_read_at(filename, offset, buf, len, actread);
+	if (ret)
 		printf("** Unable to read file %s **\n", filename);
-		return ret;
-	}
 
-	return actread;
+	return ret;
 }
 
-int fs_write_sandbox(const char *filename, void *buf, int offset, int len)
+int fs_write_sandbox(const char *filename, void *buf, loff_t offset,
+		     loff_t len, loff_t *actwrite)
 {
 	int ret;
-	loff_t actwrite;
 
-	ret = sandbox_fs_write_at(filename, offset, buf, len, &actwrite);
-	if (ret) {
+	ret = sandbox_fs_write_at(filename, offset, buf, len, actwrite);
+	if (ret)
 		printf("** Unable to write file %s **\n", filename);
-		return ret;
-	}
 
-	return actwrite;
+	return ret;
 }
