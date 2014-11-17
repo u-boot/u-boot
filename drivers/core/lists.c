@@ -41,9 +41,6 @@ struct uclass_driver *lists_uclass_lookup(enum uclass_id id)
 	const int n_ents = ll_entry_count(struct uclass_driver, uclass);
 	struct uclass_driver *entry;
 
-	if ((id == UCLASS_INVALID) || !uclass)
-		return NULL;
-
 	for (entry = uclass; entry != uclass + n_ents; entry++) {
 		if (entry->id == id)
 			return entry;
