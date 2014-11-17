@@ -25,7 +25,7 @@
 
 #include <asm/types.h>
 
-#if defined(CONFIG_SH3)
+#if defined(CONFIG_CPU_SH3)
 struct tmu_regs {
 	u8	tocr;
 	u8	reserved0;
@@ -45,9 +45,9 @@ struct tmu_regs {
 	u16	reserved4;
 	u32	tcpr2;
 };
-#endif /* CONFIG_SH3 */
+#endif /* CONFIG_CPU_SH3 */
 
-#if defined(CONFIG_SH4) || defined(CONFIG_RMOBILE)
+#if defined(CONFIG_CPU_SH4) || defined(CONFIG_RMOBILE)
 struct tmu_regs {
 	u32 reserved;
 	u8  tstr;
@@ -65,7 +65,7 @@ struct tmu_regs {
 	u16 tcr2;
 	u16 reserved5;
 };
-#endif /* CONFIG_SH4 */
+#endif /* CONFIG_CPU_SH4 */
 
 static inline unsigned long get_tmu0_clk_rate(void)
 {

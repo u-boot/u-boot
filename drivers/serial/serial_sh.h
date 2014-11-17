@@ -433,7 +433,7 @@ static inline void sci_##name##_out(struct uart_port *port,\
 		SCI_OUT(sci_size, sci_offset, value);\
 	}
 
-#if defined(CONFIG_SH3) || \
+#if defined(CONFIG_CPU_SH3) || \
 	defined(CONFIG_ARCH_SH7367) || \
 	defined(CONFIG_ARCH_SH7377) || \
 	defined(CONFIG_ARCH_SH7372) || \

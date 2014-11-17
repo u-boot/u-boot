@@ -1,8 +1,5 @@
 if TARGET_RSK7264
 
-config SYS_CPU
-	default "sh2"
-
 config SYS_BOARD
 	default "rsk7264"
 

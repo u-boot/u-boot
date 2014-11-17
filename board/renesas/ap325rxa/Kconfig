@@ -1,8 +1,5 @@
 if TARGET_AP325RXA
 
-config SYS_CPU
-	default "sh4"
-
 config SYS_BOARD
 	default "ap325rxa"
 

@@ -1,8 +1,5 @@
 if TARGET_SH7752EVB
 
-config SYS_CPU
-	default "sh4"
-
 config SYS_BOARD
 	default "sh7752evb"
 
