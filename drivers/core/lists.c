@@ -25,9 +25,6 @@ struct driver *lists_driver_lookup_name(const char *name)
 	const int n_ents = ll_entry_count(struct driver, driver);
 	struct driver *entry;
 
-	if (!drv || !n_ents)
-		return NULL;
-
 	for (entry = drv; entry != drv + n_ents; entry++) {
 		if (!strcmp(name, entry->name))
 			return entry;
