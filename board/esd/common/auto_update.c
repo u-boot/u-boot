@@ -31,9 +31,6 @@ extern int N_AU_IMAGES;
 #define MAX_LOADSZ 0x1c00000
 
 /* externals */
-extern int fat_register_device(block_dev_desc_t *, int);
-extern int file_fat_detectfs(void);
-extern long file_fat_read(const char *, void *, unsigned long);
 long do_fat_read (const char *filename, void *buffer,
 		  unsigned long maxsize, int dols);
 

@@ -41,6 +41,7 @@ int saveenv(void)
 	disk_partition_t info;
 	int dev, part;
 	int err;
+	loff_t size;
 
 	err = env_export(&env_new);
 	if (err)
@@ -59,7 +60,8 @@ int saveenv(void)
 		return 1;
 	}
 
-	err = file_fat_write(FAT_ENV_FILE, (void *)&env_new, sizeof(env_t));
+	err = file_fat_write(FAT_ENV_FILE, (void *)&env_new, 0, sizeof(env_t),
+			     &size);
 	if (err == -1) {
 		printf("\n** Unable to write \"%s\" from %s%d:%d **\n",
 			FAT_ENV_FILE, FAT_ENV_INTERFACE, dev, part);
