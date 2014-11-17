@@ -1524,3 +1524,65 @@ int fdt_read_range(void *fdt, int node, int n, uint64_t *child_addr,
 
 	return 0;
 }
+
+/**
+ * fdt_setup_simplefb_node - Fill and enable a simplefb node
+ *
+ * @fdt: ptr to device tree
+ * @node: offset of the simplefb node
+ * @base_address: framebuffer base address
+ * @width: width in pixels
+ * @height: height in pixels
+ * @stride: bytes per line
+ * @format: pixel format string
+ *
+ * Convenience function to fill and enable a simplefb node.
+ */
+int fdt_setup_simplefb_node(void *fdt, int node, u64 base_address, u32 width,
+			    u32 height, u32 stride, const char *format)
+{
+	char name[32];
+	fdt32_t cells[4];
+	int i, addrc, sizec, ret;
+
+	of_bus_default_count_cells(fdt, fdt_parent_offset(fdt, node),
+				   &addrc, &sizec);
+	i = 0;
+	if (addrc == 2)
+		cells[i++] = cpu_to_fdt32(base_address >> 32);
+	cells[i++] = cpu_to_fdt32(base_address);
+	if (sizec == 2)
+		cells[i++] = 0;
+	cells[i++] = cpu_to_fdt32(height * stride);
+
+	ret = fdt_setprop(fdt, node, "reg", cells, sizeof(cells[0]) * i);
+	if (ret < 0)
+		return ret;
+
+	snprintf(name, sizeof(name), "framebuffer@%llx", base_address);
+	ret = fdt_set_name(fdt, node, name);
+	if (ret < 0)
+		return ret;
+
+	ret = fdt_setprop_u32(fdt, node, "width", width);
+	if (ret < 0)
+		return ret;
+
+	ret = fdt_setprop_u32(fdt, node, "height", height);
+	if (ret < 0)
+		return ret;
+
+	ret = fdt_setprop_u32(fdt, node, "stride", stride);
+	if (ret < 0)
+		return ret;
+
+	ret = fdt_setprop_string(fdt, node, "format", format);
+	if (ret < 0)
+		return ret;
+
+	ret = fdt_setprop_string(fdt, node, "status", "okay");
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
