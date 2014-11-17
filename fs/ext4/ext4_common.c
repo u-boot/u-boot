@@ -1892,6 +1892,7 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 {
 	unsigned int fpos = 0;
 	int status;
+	loff_t actread;
 	struct ext2fs_node *diro = (struct ext2fs_node *) dir;
 
 #ifdef DEBUG
@@ -1909,8 +1910,8 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 
 		status = ext4fs_read_file(diro, fpos,
 					   sizeof(struct ext2_dirent),
-					   (char *) &dirent);
-		if (status < 1)
+					   (char *)&dirent, &actread);
+		if (status < 0)
 			return 0;
 
 		if (dirent.namelen != 0) {
@@ -1921,8 +1922,9 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 			status = ext4fs_read_file(diro,
 						  fpos +
 						  sizeof(struct ext2_dirent),
-						  dirent.namelen, filename);
-			if (status < 1)
+						  dirent.namelen, filename,
+						  &actread);
+			if (status < 0)
 				return 0;
 
 			fdiro = zalloc(sizeof(struct ext2fs_node));
@@ -2004,8 +2006,8 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 					printf("< ? > ");
 					break;
 				}
-				printf("%10d %s\n",
-					__le32_to_cpu(fdiro->inode.size),
+				printf("%10u %s\n",
+				       __le32_to_cpu(fdiro->inode.size),
 					filename);
 			}
 			free(fdiro);
@@ -2020,6 +2022,7 @@ static char *ext4fs_read_symlink(struct ext2fs_node *node)
 	char *symlink;
 	struct ext2fs_node *diro = node;
 	int status;
+	loff_t actread;
 
 	if (!diro->inode_read) {
 		status = ext4fs_read_inode(diro->data, diro->ino, &diro->inode);
@@ -2036,7 +2039,7 @@ static char *ext4fs_read_symlink(struct ext2fs_node *node)
 	} else {
 		status = ext4fs_read_file(diro, 0,
 					   __le32_to_cpu(diro->inode.size),
-					   symlink);
+					   symlink, &actread);
 		if (status == 0) {
 			free(symlink);
 			return 0;
@@ -2170,11 +2173,10 @@ int ext4fs_find_file(const char *path, struct ext2fs_node *rootnode,
 	return 1;
 }
 
-int ext4fs_open(const char *filename)
+int ext4fs_open(const char *filename, loff_t *len)
 {
 	struct ext2fs_node *fdiro = NULL;
 	int status;
-	int len;
 
 	if (ext4fs_root == NULL)
 		return -1;
@@ -2191,10 +2193,10 @@ int ext4fs_open(const char *filename)
 		if (status == 0)
 			goto fail;
 	}
-	len = __le32_to_cpu(fdiro->inode.size);
+	*len = __le32_to_cpu(fdiro->inode.size);
 	ext4fs_file = fdiro;
 
-	return len;
+	return 0;
 fail:
 	ext4fs_free_node(fdiro, &ext4fs_root->diropen);
 

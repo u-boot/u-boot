@@ -15,7 +15,7 @@ int spl_load_image_ext(block_dev_desc_t *block_dev,
 {
 	s32 err;
 	struct image_header *header;
-	int filelen;
+	loff_t filelen, actlen;
 	disk_partition_t part_info = {};
 
 	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
@@ -37,12 +37,12 @@ int spl_load_image_ext(block_dev_desc_t *block_dev,
 		goto end;
 	}
 
-	filelen = err = ext4fs_open(filename);
+	err = ext4fs_open(filename, &filelen);
 	if (err < 0) {
 		puts("spl: ext4fs_open failed\n");
 		goto end;
 	}
-	err = ext4fs_read((char *)header, sizeof(struct image_header));
+	err = ext4fs_read((char *)header, sizeof(struct image_header), &actlen);
 	if (err <= 0) {
 		puts("spl: ext4fs_read failed\n");
 		goto end;
@@ -50,7 +50,7 @@ int spl_load_image_ext(block_dev_desc_t *block_dev,
 
 	spl_parse_image_header(header);
 
-	err = ext4fs_read((char *)spl_image.load_addr, filelen);
+	err = ext4fs_read((char *)spl_image.load_addr, filelen, &actlen);
 
 end:
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
@@ -66,7 +66,7 @@ end:
 int spl_load_image_ext_os(block_dev_desc_t *block_dev, int partition)
 {
 	int err;
-	int filelen;
+	__maybe_unused loff_t filelen, actlen;
 	disk_partition_t part_info = {};
 	__maybe_unused char *file;
 
@@ -89,12 +89,12 @@ int spl_load_image_ext_os(block_dev_desc_t *block_dev, int partition)
 #if defined(CONFIG_SPL_ENV_SUPPORT) && defined(CONFIG_SPL_OS_BOOT)
 	file = getenv("falcon_args_file");
 	if (file) {
-		filelen = err = ext4fs_open(file);
+		err = ext4fs_open(file, &filelen);
 		if (err < 0) {
 			puts("spl: ext4fs_open failed\n");
 			goto defaults;
 		}
-		err = ext4fs_read((void *)CONFIG_SYS_SPL_ARGS_ADDR, filelen);
+		err = ext4fs_read((void *)CONFIG_SYS_SPL_ARGS_ADDR, filelen, &actlen);
 		if (err <= 0) {
 			printf("spl: error reading image %s, err - %d, falling back to default\n",
 			       file, err);
@@ -119,11 +119,11 @@ int spl_load_image_ext_os(block_dev_desc_t *block_dev, int partition)
 defaults:
 #endif
 
-	filelen = err = ext4fs_open(CONFIG_SPL_FS_LOAD_ARGS_NAME);
+	err = ext4fs_open(CONFIG_SPL_FS_LOAD_ARGS_NAME, &filelen);
 	if (err < 0)
 		puts("spl: ext4fs_open failed\n");
 
-	err = ext4fs_read((void *)CONFIG_SYS_SPL_ARGS_ADDR, filelen);
+	err = ext4fs_read((void *)CONFIG_SYS_SPL_ARGS_ADDR, filelen, &actlen);
 	if (err <= 0) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: error reading image %s, err - %d\n",

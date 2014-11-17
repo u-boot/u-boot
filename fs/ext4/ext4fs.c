@@ -45,8 +45,8 @@ void ext4fs_free_node(struct ext2fs_node *node, struct ext2fs_node *currroot)
  * Optimized read file API : collects and defers contiguous sector
  * reads into one potentially more efficient larger sequential read action
  */
-int ext4fs_read_file(struct ext2fs_node *node, int pos,
-		unsigned int len, char *buf)
+int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
+		loff_t len, char *buf, loff_t *actread)
 {
 	struct ext_filesystem *fs = get_fs();
 	int i;
@@ -150,7 +150,8 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 		previous_block_number = -1;
 	}
 
-	return len;
+	*actread  = len;
+	return 0;
 }
 
 int ext4fs_ls(const char *dirname)
@@ -176,23 +177,31 @@ int ext4fs_ls(const char *dirname)
 
 int ext4fs_exists(const char *filename)
 {
-	int file_len;
+	loff_t file_len;
+	int ret;
 
-	file_len = ext4fs_open(filename);
-	return file_len >= 0;
+	ret = ext4fs_open(filename, &file_len);
+	return ret == 0;
 }
 
 int ext4fs_size(const char *filename)
 {
-	return ext4fs_open(filename);
+	loff_t	size;
+	int ret;
+
+	ret = ext4fs_open(filename, &size);
+	if (ret)
+		return ret;
+	else
+		return size;
 }
 
-int ext4fs_read(char *buf, unsigned len)
+int ext4fs_read(char *buf, loff_t len, loff_t *actread)
 {
 	if (ext4fs_root == NULL || ext4fs_file == NULL)
 		return 0;
 
-	return ext4fs_read_file(ext4fs_file, 0, len, buf);
+	return ext4fs_read_file(ext4fs_file, 0, len, buf, actread);
 }
 
 int ext4fs_probe(block_dev_desc_t *fs_dev_desc,
@@ -210,16 +219,17 @@ int ext4fs_probe(block_dev_desc_t *fs_dev_desc,
 
 int ext4_read_file(const char *filename, void *buf, int offset, int len)
 {
-	int file_len;
-	int len_read;
+	loff_t file_len;
+	loff_t len_read;
+	int ret;
 
 	if (offset != 0) {
 		printf("** Cannot support non-zero offset **\n");
 		return -1;
 	}
 
-	file_len = ext4fs_open(filename);
-	if (file_len < 0) {
+	ret = ext4fs_open(filename, &file_len);
+	if (ret < 0) {
 		printf("** File not found %s **\n", filename);
 		return -1;
 	}
@@ -227,9 +237,12 @@ int ext4_read_file(const char *filename, void *buf, int offset, int len)
 	if (len == 0)
 		len = file_len;
 
-	len_read = ext4fs_read(buf, len);
+	ret = ext4fs_read(buf, len, &len_read);
 
-	return len_read;
+	if (ret)
+		return ret;
+	else
+		return len_read;
 }
 
 int ext4fs_uuid(char *uuid_str)
