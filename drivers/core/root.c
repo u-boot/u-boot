@@ -73,10 +73,8 @@ int dm_scan_platdata(bool pre_reloc_only)
 		dm_warn("Some drivers were not found\n");
 		ret = 0;
 	}
-	if (ret)
-		return ret;
 
-	return 0;
+	return ret;
 }
 
 #ifdef CONFIG_OF_CONTROL
