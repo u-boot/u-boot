@@ -119,7 +119,6 @@ static int setup_fec(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
-	int ret;
 	int reg;
 
 	/* Use 125MHz anatop loopback REF_CLK1 for ENET1 */
@@ -140,11 +139,7 @@ static int setup_fec(void)
 	reg |= BM_ANADIG_PLL_ENET_REF_25M_ENABLE;
 	writel(reg, &anatop->pll_enet);
 
-	ret = enable_fec_anatop_clock(ENET_125MHz);
-	if (ret)
-		return ret;
-
-	return 0;
+	return enable_fec_anatop_clock(ENET_125MHz);
 }
 
 int board_eth_init(bd_t *bis)
