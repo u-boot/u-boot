@@ -119,6 +119,7 @@ alias mmc            uboot, panto
 alias nand           uboot, scottwood
 alias net            uboot, jhersh
 alias spi	     uboot, jagan
+alias ubi            uboot, hs
 alias usb            uboot, marex
 alias video          uboot, ag
 alias patman         uboot, sjg
