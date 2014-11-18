@@ -145,8 +145,6 @@ static void BootpCopyNetParams(struct Bootp_t *bp)
 	if (tmp_ip != 0)
 		NetCopyIP(&NetServerIP, &bp->bp_siaddr);
 	memcpy(NetServerEther, ((struct ethernet_hdr *)NetRxPacket)->et_src, 6);
-#endif
-	NetCopyIP(&NetOurIP, &bp->bp_yiaddr);
 	if (strlen(bp->bp_file) > 0)
 		copy_filename(BootFile, bp->bp_file, sizeof(BootFile));
 
@@ -158,6 +156,8 @@ static void BootpCopyNetParams(struct Bootp_t *bp)
 	 */
 	if (*BootFile)
 		setenv("bootfile", BootFile);
+#endif
+	NetCopyIP(&NetOurIP, &bp->bp_yiaddr);
 }
 
 static int truncate_sz(const char *name, int maxlen, int curlen)
