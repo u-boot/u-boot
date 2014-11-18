@@ -17,6 +17,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/imx-common/mxc_i2c.h>
+#include <asm/imx-common/spi.h>
 #include <common.h>
 #include <fsl_esdhc.h>
 #include <libfdt.h>
