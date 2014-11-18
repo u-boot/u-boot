@@ -86,6 +86,7 @@ int get_factory_record_val(unsigned char *eeprom_buf, int size,	uchar *record,
 	int i, nxt = 0;
 	int c;
 	unsigned char end = 0xff;
+	unsigned char tmp;
 
 	for (i = 0; fact_get_char(i) != end; i = nxt) {
 		nxt = i + 1;
@@ -93,6 +94,7 @@ int get_factory_record_val(unsigned char *eeprom_buf, int size,	uchar *record,
 			int pos;
 			int endpos;
 			int z;
+			int level = 0;
 
 			c = strncmp((char *)&eeprom_buf[i + 1], (char *)record,
 				    strlen((char *)record));
@@ -103,22 +105,30 @@ int get_factory_record_val(unsigned char *eeprom_buf, int size,	uchar *record,
 				/* search for "<" */
 				c = -1;
 				for (z = pos; fact_get_char(z) != end; z++) {
-					if ((fact_get_char(z) == '<')  ||
-					    (fact_get_char(z) == '>')) {
-						endpos = z;
-						nxt = endpos;
-						c = 0;
-						break;
+					if (fact_get_char(z) == '<') {
+						if (level == 0) {
+							endpos = z;
+							nxt = endpos;
+							c = 0;
+							break;
+						} else {
+							level--;
+						}
 					}
+					if (fact_get_char(z) == '>')
+						level++;
 				}
+			} else {
+				continue;
 			}
 			if (c == 0) {
 				/* end found -> call get_factory_val */
+				tmp = eeprom_buf[endpos];
 				eeprom_buf[endpos] = end;
 				ret = get_factory_val(&eeprom_buf[pos],
-					size - pos, name, buf, len);
+					endpos - pos, name, buf, len);
 				/* fix buffer */
-				eeprom_buf[endpos] = '<';
+				eeprom_buf[endpos] = tmp;
 				debug("%s: %s.%s = %s\n",
 				      __func__, record, name, buf);
 				return ret;
