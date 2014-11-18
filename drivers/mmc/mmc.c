@@ -1022,6 +1022,21 @@ static int mmc_startup(struct mmc *mmc)
 			mmc->erase_grp_size =
 				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] *
 					MMC_MAX_BLOCK_LEN * 1024;
+			/*
+			 * if high capacity and partition setting completed
+			 * SEC_COUNT is valid even if it is smaller than 2 GiB
+			 * JEDEC Standard JESD84-B45, 6.2.4
+			 */
+			if (mmc->high_capacity &&
+			    (ext_csd[EXT_CSD_PARTITION_SETTING] &
+			     EXT_CSD_PARTITION_SETTING_COMPLETED)) {
+				capacity = (ext_csd[EXT_CSD_SEC_CNT]) |
+					(ext_csd[EXT_CSD_SEC_CNT + 1] << 8) |
+					(ext_csd[EXT_CSD_SEC_CNT + 2] << 16) |
+					(ext_csd[EXT_CSD_SEC_CNT + 3] << 24);
+				capacity *= MMC_MAX_BLOCK_LEN;
+				mmc->capacity_user = capacity;
+			}
 		} else {
 			/* Calculate the group size from the csd value. */
 			int erase_gsz, erase_gmul;
