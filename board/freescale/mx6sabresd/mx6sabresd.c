@@ -31,8 +31,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define BOOT_CFG	0x020D8004
-
 #define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |			\
 	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
@@ -300,7 +298,8 @@ int board_mmc_init(bd_t *bis)
 
 	return 0;
 #else
-	unsigned reg = readl(BOOT_CFG) >> 11;
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned reg = readl(&psrc->sbmr1) >> 11;
 	/*
 	 * Upon reading BOOT_CFG register the following map is done:
 	 * Bit 11 and 12 of BOOT_CFG register can determine the current
