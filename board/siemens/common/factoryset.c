@@ -220,15 +220,6 @@ int factoryset_read_eeprom(int i2c_addr)
 	printf("DFU USB: VID = 0x%4x, PID = 0x%4x\n", factory_dat.usb_vendor_id,
 	       factory_dat.usb_product_id);
 #endif
-	if (0 <= get_factory_record_val(cp, size, (uchar *)"DEV",
-					(uchar *)"id", buf,
-					MAX_STRING_LENGTH)) {
-		if (strncmp((const char *)buf, "PXM50", 5) == 0)
-			factory_dat.pxm50 = 1;
-		else
-			factory_dat.pxm50 = 0;
-	}
-	debug("PXM50: %d\n", factory_dat.pxm50);
 #if defined(CONFIG_VIDEO)
 	if (0 <= get_factory_record_val(cp, size, (uchar *)"DISP1",
 					(uchar *)"name", factory_dat.disp_name,
@@ -248,7 +239,14 @@ int factoryset_read_eeprom(int i2c_addr)
 							    NULL, 16);
 		debug("version number: %d\n", factory_dat.version);
 	}
-
+	/* Get ASN from factory set if available */
+	if (0 <= get_factory_record_val(cp, size, (uchar *)"DEV",
+					(uchar *)"id", factory_dat.asn,
+					MAX_STRING_LENGTH)) {
+		debug("factoryset asn: %s\n", factory_dat.asn);
+	} else {
+		factory_dat.asn[0] = 0;
+	}
 	/* Get COMP/ver from factory set if available */
 	if (0 <= get_factory_record_val(cp, size, (uchar *)"COMP",
 					(uchar *)"ver",
