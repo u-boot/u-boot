@@ -123,7 +123,8 @@ void spl_mmc_load_image(void)
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 #endif
 #if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
-	} else if (boot_mode == MMCSD_MODE_FS) {
+	}
+	if (err || boot_mode == MMCSD_MODE_FS) {
 		debug("boot mode - FS\n");
 #ifdef CONFIG_SPL_FAT_SUPPORT
 #ifdef CONFIG_SPL_OS_BOOT
