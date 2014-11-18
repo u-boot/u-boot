@@ -8,7 +8,6 @@
 #ifndef __CONFIG_STV0991_H
 #define __CONFIG_STV0991_H
 #define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
 #define CONFIG_BOARD_EARLY_INIT_F
 
@@ -40,7 +39,7 @@
 
 /* user interface */
 #define CONFIG_SYS_PROMPT			"STV0991> "
-#define CONFIG_SYS_CBSIZE			256/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE			1024
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE \
 						+sizeof(CONFIG_SYS_PROMPT) + 16)
 
@@ -67,5 +66,23 @@
 /* Command support defines */
 #define CONFIG_CMD_PING
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
+
+#include "config_cmd_default.h"
+#undef CONFIG_CMD_SAVEENV
+
+#define CONFIG_SYS_MEMTEST_START               0x0000
+#define CONFIG_SYS_MEMTEST_END                 1024*1024
+#define CONFIG_CMD_MEMTEST
+
+/* Misc configuration */
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_CMDLINE_EDITING
+
+#define CONFIG_BOOTDELAY                       3
+#define CONFIG_BOOTCOMMAND                     "go 0x40040000"
+#define CONFIG_AUTOBOOT_KEYED
+#define CONFIG_AUTOBOOT_STOP_STR               " "
+#define CONFIG_AUTOBOOT_PROMPT                 \
+	"Hit SPACE in %d seconds to stop autoboot.\n", bootdelay
 
 #endif /* __CONFIG_H */
