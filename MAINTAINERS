@@ -128,6 +128,12 @@ T:	git git://git.denx.de/u-boot-stm.git
 F:	arch/arm/cpu/arm926ejs/spear/
 F:	arch/arm/include/asm/arch-spear/
 
+ARM STM STV0991
+M:	Vikas Manocha <vikas.manocha@st.com>
+S:	Maintained
+F:	arch/arm/cpu/armv7/stv0991/
+F:	arch/arm/include/asm/arch-stv0991/
+
 ARM SUNXI
 M:	Ian Campbell <ijc@hellion.org.uk>
 M:	Hans De Goede <hdegoede@redhat.com>

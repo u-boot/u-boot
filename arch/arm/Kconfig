@@ -341,6 +341,10 @@ config TARGET_SPEAR600
 	bool "Support spear600"
 	select CPU_ARM926EJS
 
+config TARGET_STV0991
+	bool "Support stv0991"
+	select CPU_V7
+
 config TARGET_X600
 	bool "Support x600"
 	select CPU_ARM926EJS
@@ -953,6 +957,7 @@ source "board/spear/spear600/Kconfig"
 source "board/spear/x600/Kconfig"
 source "board/st-ericsson/snowball/Kconfig"
 source "board/st-ericsson/u8500/Kconfig"
+source "board/st/stv0991/Kconfig"
 source "board/sunxi/Kconfig"
 source "board/syteco/jadecpu/Kconfig"
 source "board/syteco/zmx25/Kconfig"

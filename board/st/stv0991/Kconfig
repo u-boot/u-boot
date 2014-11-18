@@ -1,0 +1,23 @@
+if TARGET_STV0991
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "stv0991"
+
+config SYS_VENDOR
+	string
+	default "st"
+
+config SYS_SOC
+	string
+	default "stv0991"
+
+config SYS_CONFIG_NAME
+	string
+	default "stv0991"
+
+endif
