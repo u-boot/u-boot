@@ -249,6 +249,16 @@ int factoryset_read_eeprom(int i2c_addr)
 		debug("version number: %d\n", factory_dat.version);
 	}
 
+	/* Get COMP/ver from factory set if available */
+	if (0 <= get_factory_record_val(cp, size, (uchar *)"COMP",
+					(uchar *)"ver",
+					factory_dat.comp_version,
+					MAX_STRING_LENGTH)) {
+		debug("factoryset COMP/ver: %s\n", factory_dat.comp_version);
+	} else {
+		strcpy((char *)factory_dat.comp_version, "1.0");
+	}
+
 	return 0;
 
 err:
