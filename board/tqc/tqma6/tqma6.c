@@ -181,8 +181,14 @@ static struct i2c_pads_info tqma6_i2c3_pads = {
 
 static void tqma6_setup_i2c(void)
 {
-	/* use logical index for bus, e.g. I2C1 -> 0 */
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &tqma6_i2c3_pads);
+	int ret;
+	/*
+	 * use logical index for bus, e.g. I2C1 -> 0
+	 * warn on error
+	 */
+	ret = setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &tqma6_i2c3_pads);
+	if (ret)
+		printf("setup I2C3 failed: %d\n", ret);
 }
 
 int board_early_init_f(void)
