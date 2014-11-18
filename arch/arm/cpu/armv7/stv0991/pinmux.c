@@ -41,6 +41,20 @@ int stv0991_pinmux_config(int peripheral)
 				CFG_GPIOB_16_UART_TX,
 				&stv0991_creg->mux7);
 		break;
+	case ETH_GPIOB_10_31_C_0_4:
+		writel(readl(&stv0991_creg->mux6) & 0x000000FF,
+				&stv0991_creg->mux6);
+		writel(0x00000000, &stv0991_creg->mux7);
+		writel(0x00000000, &stv0991_creg->mux8);
+		writel(readl(&stv0991_creg->mux9) & 0xFFF00000,
+				&stv0991_creg->mux9);
+		/* Ethernet Voltage configuration to 1.8V*/
+		writel((readl(&stv0991_creg->vdd_pad1) & VDD_ETH_PS_MASK) |
+				ETH_VDD_CFG, &stv0991_creg->vdd_pad1);
+		writel((readl(&stv0991_creg->vdd_pad1) & VDD_ETH_PS_MASK) |
+				ETH_M_VDD_CFG, &stv0991_creg->vdd_pad1);
+
+		break;
 	default:
 		break;
 	}

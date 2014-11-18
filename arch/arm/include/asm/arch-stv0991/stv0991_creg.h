@@ -79,4 +79,17 @@ struct stv0991_creg {
 #define CFG_GPIOC_30_MODE_LOW	(0 << GPIOC_30_MODE_SHIFT)
 #define CFG_GPIOC_30_MODE_HIGH	(1 << GPIOC_30_MODE_SHIFT)
 
+/* CREG Ethernet pad config */
+
+#define VDD_ETH_PS_1V8		0
+#define VDD_ETH_PS_2V5		2
+#define VDD_ETH_PS_3V3		3
+#define VDD_ETH_PS_MASK		0x3
+
+#define VDD_ETH_PS_SHIFT	12
+#define ETH_VDD_CFG		(VDD_ETH_PS_1V8 << VDD_ETH_PS_SHIFT)
+
+#define VDD_ETH_M_PS_SHIFT	28
+#define ETH_M_VDD_CFG		(VDD_ETH_PS_1V8 << VDD_ETH_M_PS_SHIFT)
+
 #endif

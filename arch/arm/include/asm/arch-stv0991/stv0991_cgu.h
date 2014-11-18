@@ -77,4 +77,40 @@ struct stv0991_cgu_regs {
 #define UART_CLK_CFG			(4 << DIV_SHIFT_UART \
 					| 1 << MDIV_SHIFT_UART | CLK_UART_MCLK)
 
+/* CGU Ethernet clock config */
+#define CLK_ETH_MCLK			0
+#define CLK_ETH_PLL1			1
+#define CLK_ETH_PLL2			2
+
+#define MDIV_SHIFT_ETH			3
+#define DIV_SHIFT_ETH			6
+#define DIV_ETH_125			9
+#define DIV_ETH_50			12
+#define DIV_ETH_P2P			15
+
+#define ETH_CLK_CFG			(4 << DIV_ETH_P2P | 4 << DIV_ETH_50 \
+					| 1 << DIV_ETH_125 \
+					| 0 << DIV_SHIFT_ETH \
+					| 3 << MDIV_SHIFT_ETH | CLK_ETH_PLL1)
+ /* CGU Ethernet control */
+
+#define ETH_CLK_TX_EXT_PHY		0
+#define ETH_CLK_TX_125M			1
+#define ETH_CLK_TX_25M			2
+#define ETH_CLK_TX_2M5			3
+#define ETH_CLK_TX_DIS			7
+
+#define ETH_CLK_RX_EXT_PHY		0
+#define ETH_CLK_RX_25M			1
+#define ETH_CLK_RX_2M5			2
+#define ETH_CLK_RX_DIS			3
+#define RX_CLK_SHIFT			3
+#define ETH_CLK_MASK			~(0x1F)
+
+#define ETH_PHY_MODE_GMII		0
+#define ETH_PHY_MODE_RMII		1
+#define ETH_PHY_CLK_DIS			1
+
+#define ETH_CLK_CTRL			(ETH_CLK_RX_EXT_PHY << RX_CLK_SHIFT \
+					| ETH_CLK_TX_EXT_PHY)
 #endif
