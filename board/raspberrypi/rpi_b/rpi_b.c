@@ -42,6 +42,12 @@ struct msg_get_arm_mem {
 	u32 end_tag;
 };
 
+struct msg_get_board_rev {
+	struct bcm2835_mbox_hdr hdr;
+	struct bcm2835_mbox_tag_get_board_rev get_board_rev;
+	u32 end_tag;
+};
+
 struct msg_get_mac_address {
 	struct bcm2835_mbox_hdr hdr;
 	struct bcm2835_mbox_tag_get_mac_address get_mac_address;
@@ -59,6 +65,67 @@ struct msg_get_clock_rate {
 	struct bcm2835_mbox_tag_get_clock_rate get_clock_rate;
 	u32 end_tag;
 };
+
+/* See comments in mbox.h for data source */
+static const struct {
+	const char *name;
+	const char *fdtfile;
+} models[] = {
+	[BCM2835_BOARD_REV_B_I2C0_2] = {
+		"Model B (no P5)",
+		"bcm2835-rpi-b-i2c0.dtb",
+	},
+	[BCM2835_BOARD_REV_B_I2C0_3] = {
+		"Model B (no P5)",
+		"bcm2835-rpi-b-i2c0.dtb",
+	},
+	[BCM2835_BOARD_REV_B_I2C1_4] = {
+		"Model B",
+		"bcm2835-rpi-b.dtb",
+	},
+	[BCM2835_BOARD_REV_B_I2C1_5] = {
+		"Model B",
+		"bcm2835-rpi-b.dtb",
+	},
+	[BCM2835_BOARD_REV_B_I2C1_6] = {
+		"Model B",
+		"bcm2835-rpi-b.dtb",
+	},
+	[BCM2835_BOARD_REV_A_7] = {
+		"Model A",
+		"bcm2835-rpi-a.dtb",
+	},
+	[BCM2835_BOARD_REV_A_8] = {
+		"Model A",
+		"bcm2835-rpi-a.dtb",
+	},
+	[BCM2835_BOARD_REV_A_9] = {
+		"Model A",
+		"bcm2835-rpi-a.dtb",
+	},
+	[BCM2835_BOARD_REV_B_REV2_d] = {
+		"Model B rev2",
+		"bcm2835-rpi-b-rev2.dtb",
+	},
+	[BCM2835_BOARD_REV_B_REV2_e] = {
+		"Model B rev2",
+		"bcm2835-rpi-b-rev2.dtb",
+	},
+	[BCM2835_BOARD_REV_B_REV2_f] = {
+		"Model B rev2",
+		"bcm2835-rpi-b-rev2.dtb",
+	},
+	[BCM2835_BOARD_REV_B_PLUS] = {
+		"Model B+",
+		"bcm2835-rpi-b-plus.dtb",
+	},
+	[BCM2835_BOARD_REV_CM] = {
+		"Compute Module",
+		"bcm2835-rpi-cm.dtb",
+	},
+};
+
+u32 rpi_board_rev = 0;
 
 int dram_init(void)
 {
@@ -79,13 +146,27 @@ int dram_init(void)
 	return 0;
 }
 
-int misc_init_r(void)
+static void set_fdtfile(void)
+{
+	const char *fdtfile;
+
+	if (getenv("fdtfile"))
+		return;
+
+	fdtfile = models[rpi_board_rev].fdtfile;
+	if (!fdtfile)
+		fdtfile = "bcm2835-rpi-other.dtb";
+
+	setenv("fdtfile", fdtfile);
+}
+
+static void set_usbethaddr(void)
 {
 	ALLOC_ALIGN_BUFFER(struct msg_get_mac_address, msg, 1, 16);
 	int ret;
 
 	if (getenv("usbethaddr"))
-		return 0;
+		return;
 
 	BCM2835_MBOX_INIT_HDR(msg);
 	BCM2835_MBOX_INIT_TAG(&msg->get_mac_address, GET_MAC_ADDRESS);
@@ -94,11 +175,18 @@ int misc_init_r(void)
 	if (ret) {
 		printf("bcm2835: Could not query MAC address\n");
 		/* Ignore error; not critical */
-		return 0;
+		return;
 	}
 
 	eth_setenv_enetaddr("usbethaddr", msg->get_mac_address.body.resp.mac);
 
+	return;
+}
+
+int misc_init_r(void)
+{
+	set_fdtfile();
+	set_usbethaddr();
 	return 0;
 }
 
@@ -126,8 +214,36 @@ static int power_on_module(u32 module)
 	return 0;
 }
 
+static void get_board_rev(void)
+{
+	ALLOC_ALIGN_BUFFER(struct msg_get_board_rev, msg, 1, 16);
+	int ret;
+	const char *name;
+
+	BCM2835_MBOX_INIT_HDR(msg);
+	BCM2835_MBOX_INIT_TAG(&msg->get_board_rev, GET_BOARD_REV);
+
+	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg->hdr);
+	if (ret) {
+		printf("bcm2835: Could not query board revision\n");
+		/* Ignore error; not critical */
+		return;
+	}
+
+	rpi_board_rev = msg->get_board_rev.body.resp.rev;
+	if (rpi_board_rev >= ARRAY_SIZE(models))
+		rpi_board_rev = 0;
+
+	name = models[rpi_board_rev].name;
+	if (!name)
+		name = "Unknown model";
+	printf("RPI model: %s\n", name);
+}
+
 int board_init(void)
 {
+	get_board_rev();
+
 	gd->bd->bi_boot_params = 0x100;
 
 	return power_on_module(BCM2835_MBOX_POWER_DEVID_USB_HCD);
