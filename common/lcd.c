@@ -30,6 +30,7 @@
 #include <splash.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>
+#include <fdt_support.h>
 
 #if defined(CONFIG_CPU_PXA25X) || defined(CONFIG_CPU_PXA27X) || \
 	defined(CONFIG_CPU_MONAHANS)
@@ -1172,51 +1173,13 @@ int lcd_get_screen_columns(void)
 #if defined(CONFIG_LCD_DT_SIMPLEFB)
 static int lcd_dt_simplefb_configure_node(void *blob, int off)
 {
-	u32 stride;
-	fdt32_t cells[2];
-	int ret;
-	static const char format[] =
 #if LCD_BPP == LCD_COLOR16
-		"r5g6b5";
+	return fdt_setup_simplefb_node(blob, off, gd->fb_base,
+				       panel_info.vl_col, panel_info.vl_row,
+				       panel_info.vl_col * 2, "r5g6b5");
 #else
-		"";
+	return -1;
 #endif
-
-	if (!format[0])
-		return -1;
-
-	stride = panel_info.vl_col * 2;
-
-	cells[0] = cpu_to_fdt32(gd->fb_base);
-	cells[1] = cpu_to_fdt32(stride * panel_info.vl_row);
-	ret = fdt_setprop(blob, off, "reg", cells, sizeof(cells[0]) * 2);
-	if (ret < 0)
-		return -1;
-
-	cells[0] = cpu_to_fdt32(panel_info.vl_col);
-	ret = fdt_setprop(blob, off, "width", cells, sizeof(cells[0]));
-	if (ret < 0)
-		return -1;
-
-	cells[0] = cpu_to_fdt32(panel_info.vl_row);
-	ret = fdt_setprop(blob, off, "height", cells, sizeof(cells[0]));
-	if (ret < 0)
-		return -1;
-
-	cells[0] = cpu_to_fdt32(stride);
-	ret = fdt_setprop(blob, off, "stride", cells, sizeof(cells[0]));
-	if (ret < 0)
-		return -1;
-
-	ret = fdt_setprop(blob, off, "format", format, strlen(format) + 1);
-	if (ret < 0)
-		return -1;
-
-	ret = fdt_delprop(blob, off, "status");
-	if (ret < 0)
-		return -1;
-
-	return 0;
 }
 
 int lcd_dt_simplefb_add_node(void *blob)
