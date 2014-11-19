@@ -111,4 +111,7 @@
 /* SCIF2 */
 #define CONFIG_SMSTP7_ENA	0x00080000
 
+/* SDHI */
+#define CONFIG_SH_SDHI_FREQ		97500000
+
 #endif /* __ALT_H */
