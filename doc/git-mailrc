@@ -16,6 +16,7 @@ alias afleming       Andy Fleming <afleming@gmail.com>
 alias ag             Anatolij Gustschin <agust@denx.de>
 alias alisonwang     Alison Wang <alison.wang@freescale.com>
 alias angelo_ts      Angelo Dureghello <angelo@sysam.it>
+alias danielschwierzeck Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
 alias galak          Kumar Gala <galak@kernel.crashing.org>
 alias gruss          Graeme Russ <graeme.russ@gmail.com>
 alias hs             Heiko Schocher <hs@denx.de>
@@ -80,7 +81,7 @@ alias coldfire       m68k
 alias microblaze     uboot, monstr
 alias mb             microblaze
 
-alias mips           uboot, Shinya Kuribayashi <skuribay@pobox.com>
+alias mips           uboot, danielschwierzeck
 
 alias nds32          uboot, macpaul
 
