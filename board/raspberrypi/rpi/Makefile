@@ -12,4 +12,4 @@
 # GNU General Public License for more details.
 #
 
-obj-y	:= rpi_b.o
+obj-y	:= rpi.o

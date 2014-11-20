@@ -396,8 +396,8 @@ config TARGET_MX35PDK
 	bool "Support mx35pdk"
 	select CPU_ARM1136
 
-config TARGET_RPI_B
-	bool "Support rpi_b"
+config TARGET_RPI
+	bool "Support rpi"
 	select CPU_ARM1176
 
 config TARGET_TNETV107X_EVM
@@ -931,7 +931,7 @@ source "board/palmtreo680/Kconfig"
 source "board/phytec/pcm051/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
 source "board/pxa255_idp/Kconfig"
-source "board/raspberrypi/rpi_b/Kconfig"
+source "board/raspberrypi/rpi/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"
 source "board/ronetix/pm9g45/Kconfig"

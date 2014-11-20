@@ -530,7 +530,7 @@ static int lcd_init(void *lcdbase)
 	lcd_ctrl_init(lcdbase);
 
 	/*
-	 * lcd_ctrl_init() of some drivers (i.e. bcm2835 on rpi_b) ignores
+	 * lcd_ctrl_init() of some drivers (i.e. bcm2835 on rpi) ignores
 	 * the 'lcdbase' argument and uses custom lcd base address
 	 * by setting up gd->fb_base. Check for this condition and fixup
 	 * 'lcd_base' address.

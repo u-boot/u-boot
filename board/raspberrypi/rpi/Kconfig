@@ -1,7 +1,7 @@
-if TARGET_RPI_B
+if TARGET_RPI
 
 config SYS_BOARD
-	default "rpi_b"
+	default "rpi"
 
 config SYS_VENDOR
 	default "raspberrypi"
@@ -10,6 +10,6 @@ config SYS_SOC
 	default "bcm2835"
 
 config SYS_CONFIG_NAME
-	default "rpi_b"
+	default "rpi"
 
 endif
