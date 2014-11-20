@@ -19,6 +19,8 @@
 #define CONFIG_MPC5200		1	/* This is a MPC5200 CPU */
 #define CONFIG_A4M072		1	/* ... on A4M072 board */
 #define CONFIG_MPC5200_DDR	1	/* ... use DDR RAM */
+#define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_SYS_TEXT_BASE	0xFE000000
 
