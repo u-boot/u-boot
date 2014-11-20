@@ -22,6 +22,8 @@
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/bootm.h>
+#include <dm.h>
+#include <imx_thermal.h>
 
 enum ldo_reg {
 	LDO_ARM,
@@ -36,6 +38,19 @@ struct scu_regs {
 	u32	invalidate;
 	u32	fpga_rev;
 };
+
+#if defined(CONFIG_IMX6_THERMAL)
+static const struct imx_thermal_plat imx6_thermal_plat = {
+	.regs = (void *)ANATOP_BASE_ADDR,
+	.fuse_bank = 1,
+	.fuse_word = 6,
+};
+
+U_BOOT_DEVICE(imx6_thermal) = {
+	.name = "imx_thermal",
+	.platdata = &imx6_thermal_plat,
+};
+#endif
 
 u32 get_nr_cpus(void)
 {

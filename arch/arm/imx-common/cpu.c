@@ -17,6 +17,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
 #include <ipu_pixfmt.h>
+#include <thermal.h>
 
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
@@ -134,6 +135,11 @@ int print_cpuinfo(void)
 {
 	u32 cpurev;
 
+#if defined(CONFIG_MX6) && defined(CONFIG_IMX6_THERMAL)
+	struct udevice *thermal_dev;
+	int cpu_tmp, ret;
+#endif
+
 	cpurev = get_cpu_rev();
 
 	printf("CPU:   Freescale i.MX%s rev%d.%d at %d MHz\n",
@@ -141,6 +147,21 @@ int print_cpuinfo(void)
 		(cpurev & 0x000F0) >> 4,
 		(cpurev & 0x0000F) >> 0,
 		mxc_get_clock(MXC_ARM_CLK) / 1000000);
+
+#if defined(CONFIG_MX6) && defined(CONFIG_IMX6_THERMAL)
+	ret = uclass_get_device(UCLASS_THERMAL, 0, &thermal_dev);
+	if (!ret) {
+		ret = thermal_get_temp(thermal_dev, &cpu_tmp);
+
+		if (!ret)
+			printf("CPU:   Temperature %d C\n", cpu_tmp);
+		else
+			printf("CPU:   Temperature: invalid sensor data\n");
+	} else {
+		printf("CPU:   Temperature: Can't find sensor device\n");
+	}
+#endif
+
 	printf("Reset cause: %s\n", get_reset_cause());
 	return 0;
 }
