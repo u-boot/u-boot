@@ -839,7 +839,7 @@ init_fnc_t init_sequence_r[] = {
 	initr_kgdb,
 #endif
 	interrupt_init,
-#if defined(CONFIG_ARM) || defined(CONFIG_x86)
+#if defined(CONFIG_ARM)
 	initr_enable_interrupts,
 #endif
 #ifdef CONFIG_X86
