@@ -50,8 +50,8 @@ struct liodn_id_table liodn_tbl[] = {
 	SET_PCI_LIODN(CONFIG_SYS_FSL_PCIE_COMPAT, 2, 194),
 	SET_PCI_LIODN(CONFIG_SYS_FSL_PCIE_COMPAT, 3, 195),
 
-	SET_DMA_LIODN(1, 197),
-	SET_DMA_LIODN(2, 198),
+	SET_DMA_LIODN(1, "fsl,eloplus-dma", 197),
+	SET_DMA_LIODN(2, "fsl,eloplus-dma", 198),
 
 	SET_GUTS_LIODN("fsl,rapidio-delta", 199, rio1liodnr, 0),
 	SET_GUTS_LIODN(NULL, 200, rio2liodnr, 0),
