@@ -673,6 +673,36 @@ void hab_caam_clock_enable(unsigned char enable)
 }
 #endif
 
+static void enable_pll3(void)
+{
+	struct anatop_regs __iomem *anatop =
+		(struct anatop_regs __iomem *)ANATOP_BASE_ADDR;
+
+	/* make sure pll3 is enabled */
+	if ((readl(&anatop->usb1_pll_480_ctrl) &
+			BM_ANADIG_USB1_PLL_480_CTRL_LOCK) == 0) {
+		/* enable pll's power */
+		writel(BM_ANADIG_USB1_PLL_480_CTRL_POWER,
+		       &anatop->usb1_pll_480_ctrl_set);
+		writel(0x80, &anatop->ana_misc2_clr);
+		/* wait for pll lock */
+		while ((readl(&anatop->usb1_pll_480_ctrl) &
+			BM_ANADIG_USB1_PLL_480_CTRL_LOCK) == 0)
+			;
+		/* disable bypass */
+		writel(BM_ANADIG_USB1_PLL_480_CTRL_BYPASS,
+		       &anatop->usb1_pll_480_ctrl_clr);
+		/* enable pll output */
+		writel(BM_ANADIG_USB1_PLL_480_CTRL_ENABLE,
+		       &anatop->usb1_pll_480_ctrl_set);
+	}
+}
+
+void enable_thermal_clk(void)
+{
+	enable_pll3();
+}
+
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {

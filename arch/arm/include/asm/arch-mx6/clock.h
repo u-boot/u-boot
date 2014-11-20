@@ -66,4 +66,5 @@ int enable_spi_clk(unsigned char enable, unsigned spi_num);
 void enable_ipu_clock(void);
 int enable_fec_anatop_clock(enum enet_freq freq);
 void enable_enet_clk(unsigned char enable);
+void enable_thermal_clk(void);
 #endif /* __ASM_ARCH_CLOCK_H */
