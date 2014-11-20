@@ -219,15 +219,13 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
-	s32 status = 0;
-	int i;
-
 	/*
 	 * (U-boot device node)    (Physical Port)
 	 * mmc0                    SD2
 	 * mmc1                    SD3
 	 * mmc2                    eMMC
 	 */
+	int i, ret;
 	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
 		switch (i) {
 		case 0:
@@ -251,12 +249,13 @@ int board_mmc_init(bd_t *bis)
 			printf("Warning: you configured more USDHC controllers"
 			       "(%d) then supported by the board (%d)\n",
 			       i + 1, CONFIG_SYS_FSL_USDHC_NUM);
-			return status;
+			return -EINVAL;
 		}
-
-		status |= fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
+		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
+		if (ret)
+			return ret;
 	}
-	return status;
+	return 0;
 }
 #endif /* CONFIG_FSL_ESDHC */
 
