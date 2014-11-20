@@ -136,10 +136,11 @@ reset:
 
 	/* Set up temporary stack */
 	li	sp, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
+	move	fp, sp
 
 	la	t9, board_init_f
 	jr	t9
-	 nop
+	 move	ra, zero
 
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
@@ -155,6 +156,7 @@ reset:
 	.ent	relocate_code
 relocate_code:
 	move	sp, a0			# set new stack pointer
+	move	fp, sp
 
 	move	s0, a1			# save gd in s0
 	move	s2, a2			# save destination address in s2
@@ -260,8 +262,9 @@ in_ram:
 	 addi	t1, 4
 
 	move	a0, s0			# a0 <-- gd
+	move	a1, s2
 	la	t9, board_init_r
 	jr	t9
-	 move	a1, s2
+	 move	ra, zero
 
 	.end	relocate_code
