@@ -65,6 +65,9 @@ int interrupt_init(void)
 	/* Interrupt 9 should be level triggered (SCI). The OS might do this */
 	configure_irq_trigger(9, true);
 
+	/* Initialize core interrupt and exception functionality of CPU */
+	cpu_init_interrupts();
+
 	enable_interrupts();
 
 	return 0;

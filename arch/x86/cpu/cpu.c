@@ -322,8 +322,6 @@ int x86_cpu_init_f(void)
 
 int x86_cpu_init_r(void)
 {
-	/* Initialize core interrupt and exception functionality of CPU */
-	cpu_init_interrupts();
 	return 0;
 }
 int cpu_init_r(void) __attribute__((weak, alias("x86_cpu_init_r")));
