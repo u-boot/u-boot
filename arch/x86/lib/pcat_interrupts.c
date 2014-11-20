@@ -24,11 +24,9 @@
 #error "CONFIG_SYS_NUM_IRQS must equal 16 if CONFIG_SYS_NUM_IRQS is defined"
 #endif
 
-int interrupt_init(void)
+int i8259_init(void)
 {
 	u8 i;
-
-	disable_interrupts();
 
 	/* Mask all interrupts */
 	outb(0xff, MASTER_PIC + IMR);
@@ -64,11 +62,6 @@ int interrupt_init(void)
 
 	/* Interrupt 9 should be level triggered (SCI). The OS might do this */
 	configure_irq_trigger(9, true);
-
-	/* Initialize core interrupt and exception functionality of CPU */
-	cpu_init_interrupts();
-
-	enable_interrupts();
 
 	return 0;
 }

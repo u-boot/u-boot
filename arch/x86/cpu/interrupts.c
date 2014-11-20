@@ -20,6 +20,7 @@
 #include <linux/compiler.h>
 #include <asm/msr.h>
 #include <asm/u-boot-x86.h>
+#include <asm/i8259.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -128,9 +129,6 @@ int cpu_init_interrupts(void)
 	int irq_entry_size = irq_1 - irq_0;
 	void *irq_entry = (void *)irq_0;
 
-	/* Just in case... */
-	disable_interrupts();
-
 	/* Setup the IDT */
 	for (i = 0; i < 256; i++) {
 		idt[i].access = 0x8e;
@@ -145,9 +143,6 @@ int cpu_init_interrupts(void)
 	idt_ptr.segment = 0x18;
 
 	load_idt(&idt_ptr);
-
-	/* It is now safe to enable interrupts */
-	enable_interrupts();
 
 	return 0;
 }
@@ -170,6 +165,25 @@ int disable_interrupts(void)
 	asm volatile ("pushfl ; popl %0 ; cli\n" : "=g" (flags) : );
 
 	return flags & X86_EFLAGS_IF;
+}
+
+int interrupt_init(void)
+{
+	/* Just in case... */
+	disable_interrupts();
+
+#ifdef CONFIG_SYS_PCAT_INTERRUPTS
+	/* Initialize the master/slave i8259 pic */
+	i8259_init();
+#endif
+
+	/* Initialize core interrupt and exception functionality of CPU */
+	cpu_init_interrupts();
+
+	/* It is now safe to enable interrupts */
+	enable_interrupts();
+
+	return 0;
 }
 
 /* IRQ Low-Level Service Routine */
