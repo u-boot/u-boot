@@ -18,6 +18,7 @@
 #include <asm/arch/crm_regs.h>
 #include <ipu_pixfmt.h>
 #include <thermal.h>
+#include <sata.h>
 
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
@@ -201,13 +202,16 @@ u32 get_ahb_clk(void)
 	return get_periph_clk() / (ahb_podf + 1);
 }
 
-#if defined(CONFIG_VIDEO_IPUV3)
 void arch_preboot_os(void)
 {
+#if defined(CONFIG_CMD_SATA)
+	sata_stop();
+#endif
+#if defined(CONFIG_VIDEO_IPUV3)
 	/* disable video before launching O/S */
 	ipuv3_fb_shutdown();
-}
 #endif
+}
 
 void set_chipselect_size(int const cs_size)
 {
