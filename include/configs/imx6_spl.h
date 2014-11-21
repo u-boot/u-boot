@@ -28,7 +28,6 @@
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/armv7/omap-common/u-boot-spl.lds"
 #define CONFIG_SPL_TEXT_BASE		0x00908000
 #define CONFIG_SPL_MAX_SIZE		0x10000
-#define CONFIG_SPL_START_S_PATH		"arch/arm/cpu/armv7"
 #define CONFIG_SPL_STACK		0x0091FFB8
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
