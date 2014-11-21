@@ -223,11 +223,8 @@ static int mxs_ocotp_write_fuse(uint32_t addr, uint32_t mask)
 
 fail:
 	mxs_ocotp_scale_vddio(0, &vddio_val);
-	ret = mxs_ocotp_scale_hclk(0, &hclk_val);
-	if (ret) {
+	if (mxs_ocotp_scale_hclk(0, &hclk_val))
 		puts("Failed scaling up the HCLK!\n");
-		return ret;
-	}
 
 	return ret;
 }
