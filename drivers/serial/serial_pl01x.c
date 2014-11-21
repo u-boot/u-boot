@@ -122,6 +122,7 @@ static int pl01x_generic_serial_init(struct pl01x_regs *regs,
 static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 				int clock, int baudrate)
 {
+	unsigned int lcr;
 	switch (type) {
 	case TYPE_PL010: {
 		unsigned int divisor;
@@ -174,6 +175,13 @@ static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 
 		writel(divider, &regs->pl011_ibrd);
 		writel(fraction, &regs->pl011_fbrd);
+
+		/*
+		 * Internal update of baud rate register require line
+		 * control register write
+		 */
+		lcr = UART_PL011_LCRH_WLEN_8 | UART_PL011_LCRH_FEN;
+		writel(lcr, &regs->pl011_lcrh);
 
 		/* Finally, enable the UART */
 		writel(UART_PL011_CR_UARTEN | UART_PL011_CR_TXE |
