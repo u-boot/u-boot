@@ -34,6 +34,7 @@ SPL_BIN := u-boot-spl
 endif
 
 include $(srctree)/config.mk
+include $(srctree)/arch/$(ARCH)/Makefile
 
 # Enable garbage collection of un-used sections for SPL
 KBUILD_CFLAGS += -ffunction-sections -fdata-sections
@@ -44,21 +45,6 @@ cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
 							$(NOSTDINC_FLAGS)
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
-
-ifdef	CONFIG_SPL_START_S_PATH
-START_PATH := $(CONFIG_SPL_START_S_PATH:"%"=%)
-else
-START_PATH := $(CPUDIR)
-endif
-
-head-y := $(START_PATH)/start.o
-head-$(CONFIG_X86) += $(START_PATH)/start16.o $(START_PATH)/resetvec.o
-head-$(CONFIG_4xx) += $(START_PATH)/resetvec.o
-head-$(CONFIG_MPC85xx) += $(START_PATH)/resetvec.o
-
-libs-y += arch/$(ARCH)/lib/
-
-libs-y += $(CPUDIR)/
 
 libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
@@ -93,13 +79,6 @@ libs-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/
 libs-$(CONFIG_SPL_USB_HOST_SUPPORT) += drivers/usb/host/
 libs-$(CONFIG_OMAP_USB_PHY) += drivers/usb/phy/
 libs-$(CONFIG_SPL_SATA_SUPPORT) += drivers/block/
-
-ifneq (,$(CONFIG_MX23)$(CONFIG_MX35)$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
-libs-y += arch/$(ARCH)/imx-common/
-endif
-
-libs-$(CONFIG_ARM) += arch/arm/cpu/
-libs-$(CONFIG_PPC) += arch/powerpc/cpu/
 
 head-y		:= $(addprefix $(obj)/,$(head-y))
 libs-y		:= $(addprefix $(obj)/,$(libs-y))
