@@ -352,6 +352,8 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
+#define CONFIG_LS102XA_STREAM_ID
+
 /*
  * Stack sizes
  * The stack sizes are set up in start.S using the settings below
