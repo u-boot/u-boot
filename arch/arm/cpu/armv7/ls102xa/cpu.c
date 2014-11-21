@@ -117,3 +117,21 @@ int arch_cpu_init(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+/* Set the address at which the secondary core starts from.*/
+void smp_set_core_boot_addr(unsigned long addr, int corenr)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+
+	out_be32(&gur->scratchrw[0], addr);
+}
+
+/* Release the secondary core from holdoff state and kick it */
+void smp_kick_all_cpus(void)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+
+	out_be32(&gur->brrl, 0x2);
+}
+#endif
