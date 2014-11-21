@@ -72,8 +72,6 @@ static int pl01x_tstc(struct pl01x_regs *regs)
 static int pl01x_generic_serial_init(struct pl01x_regs *regs,
 				     enum pl01x_type type)
 {
-	unsigned int lcr;
-
 #ifdef CONFIG_PL011_SERIAL_FLUSH_ON_INIT
 	if (type == TYPE_PL011) {
 		/* Empty RX fifo if necessary */
@@ -87,15 +85,28 @@ static int pl01x_generic_serial_init(struct pl01x_regs *regs,
 	/* First, disable everything */
 	writel(0, &regs->pl010_cr);
 
-	/* Set the UART to be 8 bits, 1 stop bit, no parity, fifo enabled */
-	lcr = UART_PL011_LCRH_WLEN_8 | UART_PL011_LCRH_FEN;
-	writel(lcr, &regs->pl011_lcrh);
-
 	switch (type) {
 	case TYPE_PL010:
 		break;
-	case TYPE_PL011: {
+	case TYPE_PL011:
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int set_line_control(struct pl01x_regs *regs)
+{
+	unsigned int lcr;
+	/*
+	 * Internal update of baud rate register require line
+	 * control register write
+	 */
+	lcr = UART_PL011_LCRH_WLEN_8 | UART_PL011_LCRH_FEN;
 #ifdef CONFIG_PL011_SERIAL_RLCR
+	{
 		int i;
 
 		/*
@@ -107,22 +118,15 @@ static int pl01x_generic_serial_init(struct pl01x_regs *regs,
 			writel(lcr, &regs->fr);
 
 		writel(lcr, &regs->pl011_rlcr);
-		/* lcrh needs to be set again for change to be effective */
-		writel(lcr, &regs->pl011_lcrh);
+	}
 #endif
-		break;
-	}
-	default:
-		return -EINVAL;
-	}
-
+	writel(lcr, &regs->pl011_lcrh);
 	return 0;
 }
 
 static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 				int clock, int baudrate)
 {
-	unsigned int lcr;
 	switch (type) {
 	case TYPE_PL010: {
 		unsigned int divisor;
@@ -176,13 +180,7 @@ static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 		writel(divider, &regs->pl011_ibrd);
 		writel(fraction, &regs->pl011_fbrd);
 
-		/*
-		 * Internal update of baud rate register require line
-		 * control register write
-		 */
-		lcr = UART_PL011_LCRH_WLEN_8 | UART_PL011_LCRH_FEN;
-		writel(lcr, &regs->pl011_lcrh);
-
+		set_line_control(regs);
 		/* Finally, enable the UART */
 		writel(UART_PL011_CR_UARTEN | UART_PL011_CR_TXE |
 		       UART_PL011_CR_RXE | UART_PL011_CR_RTS, &regs->pl011_cr);
