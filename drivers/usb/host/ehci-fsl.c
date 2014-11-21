@@ -138,6 +138,16 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	if (has_erratum_a007798())
 		set_txfifothresh(ehci, TXFIFOTHRESH);
 
+	if (has_erratum_a004477()) {
+		/*
+		 * When reset is issued while any ULPI transaction is ongoing
+		 * then it may result to corruption of ULPI Function Control
+		 * Register which eventually causes phy clock to enter low
+		 * power mode which stops the clock. Thus delay is required
+		 * before reset to let ongoing ULPI transaction complete.
+		 */
+		udelay(1);
+	}
 	return 0;
 }
 
