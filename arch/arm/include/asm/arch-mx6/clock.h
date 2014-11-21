@@ -60,6 +60,7 @@ void enable_uart_clk(unsigned char enable);
 int enable_cspi_clock(unsigned char enable, unsigned spi_num);
 int enable_usdhc_clk(unsigned char enable, unsigned bus_num);
 int enable_sata_clock(void);
+void disable_sata_clock(void);
 int enable_pcie_clock(void);
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num);
 int enable_spi_clk(unsigned char enable, unsigned spi_num);
