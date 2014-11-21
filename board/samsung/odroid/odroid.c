@@ -382,6 +382,17 @@ static void board_gpio_init(void)
 	gpio_set_pull(EXYNOS4X12_GPIO_X31, S5P_GPIO_PULL_UP);
 	gpio_set_drv(EXYNOS4X12_GPIO_X31, S5P_GPIO_DRV_4X);
 	gpio_direction_input(EXYNOS4X12_GPIO_X31);
+
+#ifdef CONFIG_CMD_USB
+	/* USB3503A Reference frequency */
+	gpio_request(EXYNOS4X12_GPIO_X30, "USB3503A RefFreq");
+
+	/* USB3503A Connect */
+	gpio_request(EXYNOS4X12_GPIO_X34, "USB3503A Connect");
+
+	/* USB3503A Reset */
+	gpio_request(EXYNOS4X12_GPIO_X35, "USB3503A Reset");
+#endif
 }
 
 static int pmic_init_max77686(void)
@@ -489,10 +500,8 @@ int board_usb_init(int index, enum usb_init_type init)
 
 	p_pmic = pmic_get("MAX77686_PMIC");
 	if (p_pmic && !pmic_probe(p_pmic)) {
-		max77686_set_buck_mode(p_pmic, 8, OPMODE_OFF);
 		max77686_set_buck_voltage(p_pmic, 8, 750000);
 		max77686_set_buck_voltage(p_pmic, 8, 3300000);
-		max77686_set_buck_mode(p_pmic, 8, OPMODE_ON);
 	}
 
 #endif
