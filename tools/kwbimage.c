@@ -728,7 +728,7 @@ static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	FILE *fcfg;
 	void *image = NULL;
 	int version;
-	size_t headersz;
+	size_t headersz = 0;
 	uint32_t checksum;
 	int ret;
 	int size;
