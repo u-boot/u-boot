@@ -37,6 +37,12 @@ endif
 
 obj-$(CONFIG_FSL_DIU_CH7301)	+= diu_ch7301.o
 
+ifdef CONFIG_ARM
+obj-$(CONFIG_DEEP_SLEEP)		+= arm_sleep.o
+else
+obj-$(CONFIG_DEEP_SLEEP)		+= mpc85xx_sleep.o
+endif
+
 obj-$(CONFIG_FSL_DCU_SII9022A)    += dcu_sii9022a.o
 
 obj-$(CONFIG_MPC8541CDS)	+= cds_pci_ft.o

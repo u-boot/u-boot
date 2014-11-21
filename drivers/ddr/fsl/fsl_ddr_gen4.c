@@ -103,7 +103,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	ddr_out32(&ddr->dq_map_1, regs->dq_map_1);
 	ddr_out32(&ddr->dq_map_2, regs->dq_map_2);
 	ddr_out32(&ddr->dq_map_3, regs->dq_map_3);
-	ddr_out32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
 	ddr_out32(&ddr->sdram_cfg_3, regs->ddr_sdram_cfg_3);
 	ddr_out32(&ddr->sdram_mode, regs->ddr_sdram_mode);
 	ddr_out32(&ddr->sdram_mode_2, regs->ddr_sdram_mode_2);
@@ -124,8 +123,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	ddr_out32(&ddr->sdram_md_cntl, regs->ddr_sdram_md_cntl);
 	ddr_out32(&ddr->sdram_interval, regs->ddr_sdram_interval);
 	ddr_out32(&ddr->sdram_data_init, regs->ddr_data_init);
-	ddr_out32(&ddr->init_addr, regs->ddr_init_addr);
-	ddr_out32(&ddr->init_ext_addr, regs->ddr_init_ext_addr);
 	ddr_out32(&ddr->ddr_wrlvl_cntl, regs->ddr_wrlvl_cntl);
 #ifndef CONFIG_SYS_FSL_DDR_EMU
 	/*
@@ -147,7 +144,24 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	ddr_out32(&ddr->ddr_sdram_rcw_5, regs->ddr_sdram_rcw_5);
 	ddr_out32(&ddr->ddr_sdram_rcw_6, regs->ddr_sdram_rcw_6);
 	ddr_out32(&ddr->ddr_cdr1, regs->ddr_cdr1);
-	ddr_out32(&ddr->ddr_cdr2, regs->ddr_cdr2);
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot()) {
+		ddr_out32(&ddr->sdram_cfg_2,
+			  regs->ddr_sdram_cfg_2 & ~SDRAM_CFG2_D_INIT);
+		ddr_out32(&ddr->init_addr, CONFIG_SYS_SDRAM_BASE);
+		ddr_out32(&ddr->init_ext_addr, DDR_INIT_ADDR_EXT_UIA);
+
+		/* DRAM VRef will not be trained */
+		ddr_out32(&ddr->ddr_cdr2,
+			  regs->ddr_cdr2 & ~DDR_CDR2_VREF_TRAIN_EN);
+	} else
+#endif
+	{
+		ddr_out32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
+		ddr_out32(&ddr->init_addr, regs->ddr_init_addr);
+		ddr_out32(&ddr->init_ext_addr, regs->ddr_init_ext_addr);
+		ddr_out32(&ddr->ddr_cdr2, regs->ddr_cdr2);
+	}
 	ddr_out32(&ddr->err_disable, regs->err_disable);
 	ddr_out32(&ddr->err_int_en, regs->err_int_en);
 	for (i = 0; i < 32; i++) {
@@ -187,8 +201,20 @@ step2:
 	mb();
 	isb();
 
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot()) {
+		/* enter self-refresh */
+		temp_sdram_cfg = ddr_in32(&ddr->sdram_cfg_2);
+		temp_sdram_cfg |= SDRAM_CFG2_FRC_SR;
+		ddr_out32(&ddr->sdram_cfg_2, temp_sdram_cfg);
+		/* do board specific memory setup */
+		board_mem_sleep_setup();
+
+		temp_sdram_cfg = (ddr_in32(&ddr->sdram_cfg) | SDRAM_CFG_BI);
+	} else
+#endif
+		temp_sdram_cfg = ddr_in32(&ddr->sdram_cfg) & ~SDRAM_CFG_BI;
 	/* Let the controller go */
-	temp_sdram_cfg = ddr_in32(&ddr->sdram_cfg) & ~SDRAM_CFG_BI;
 	ddr_out32(&ddr->sdram_cfg, temp_sdram_cfg | SDRAM_CFG_MEM_EN);
 	mb();
 	isb();
@@ -233,4 +259,12 @@ step2:
 
 	if (timeout <= 0)
 		printf("Waiting for D_INIT timeout. Memory may not work.\n");
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot()) {
+		/* exit self-refresh */
+		temp_sdram_cfg = ddr_in32(&ddr->sdram_cfg_2);
+		temp_sdram_cfg &= ~SDRAM_CFG2_FRC_SR;
+		ddr_out32(&ddr->sdram_cfg_2, temp_sdram_cfg);
+	}
+#endif
 }
