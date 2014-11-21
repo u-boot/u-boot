@@ -418,8 +418,6 @@
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NOR_SUPPORT
 #define CONFIG_SPL_TEXT_BASE	0xfc000000
-#define	CONFIG_SPL_START_S_PATH	"arch/powerpc/cpu/mpc5xxx"
-#define CONFIG_SPL_LDSCRIPT	"arch/powerpc/cpu/mpc5xxx/u-boot-spl.lds"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* image.c */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT	/* string.c */
 #define CONFIG_SPL_SERIAL_SUPPORT
