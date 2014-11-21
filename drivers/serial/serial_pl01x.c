@@ -82,13 +82,14 @@ static int pl01x_generic_serial_init(struct pl01x_regs *regs,
 	}
 #endif
 
-	/* First, disable everything */
-	writel(0, &regs->pl010_cr);
-
 	switch (type) {
 	case TYPE_PL010:
+		/* disable everything */
+		writel(0, &regs->pl010_cr);
 		break;
 	case TYPE_PL011:
+		/* disable everything */
+		writel(0, &regs->pl011_cr);
 		break;
 	default:
 		return -EINVAL;
