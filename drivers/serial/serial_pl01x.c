@@ -201,7 +201,7 @@ static void pl01x_serial_init_baud(int baudrate)
 	base_regs = (struct pl01x_regs *)port[CONFIG_CONS_INDEX];
 
 	pl01x_generic_serial_init(base_regs, pl01x_type);
-	pl01x_generic_setbrg(base_regs, TYPE_PL010, clock, baudrate);
+	pl01x_generic_setbrg(base_regs, pl01x_type, clock, baudrate);
 }
 
 /*
