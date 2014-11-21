@@ -571,6 +571,11 @@ int init_sata(int dev)
 	return 0;
 }
 
+int reset_sata(int dev)
+{
+	return 0;
+}
+
 /*
  * SATA interface between low level driver and command layer
  */

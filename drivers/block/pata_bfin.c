@@ -1009,6 +1009,11 @@ int init_sata(int dev)
 	return res;
 }
 
+int reset_sata(int dev)
+{
+	return 0;
+}
+
 /* Read up to 255 sectors
  *
  * Returns sectors read
