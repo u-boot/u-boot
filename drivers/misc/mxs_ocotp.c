@@ -187,6 +187,8 @@ static int mxs_ocotp_write_fuse(uint32_t addr, uint32_t mask)
 	uint32_t hclk_val, vddio_val;
 	int ret;
 
+	mxs_ocotp_clear_error();
+
 	/* Make sure the banks are closed for reading. */
 	ret = mxs_ocotp_read_bank_open(0);
 	if (ret) {
