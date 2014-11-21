@@ -204,6 +204,7 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_USB_EHCI1	27
 #define AHB_GATE_OFFSET_USB_EHCI0	26
 #define AHB_GATE_OFFSET_MCTL		14
+#define AHB_GATE_OFFSET_GMAC		17
 #define AHB_GATE_OFFSET_MMC3		11
 #define AHB_GATE_OFFSET_MMC2		10
 #define AHB_GATE_OFFSET_MMC1		9
@@ -228,6 +229,12 @@ struct sunxi_ccm_reg {
 #define CCM_USB_CTRL_PHYGATE 0
 #define CCM_USB_CTRL_PHY1_CLK (0x1 << 9)
 #define CCM_USB_CTRL_PHY2_CLK (0x1 << 10)
+
+#define CCM_GMAC_CTRL_TX_CLK_SRC_MII	0x0
+#define CCM_GMAC_CTRL_TX_CLK_SRC_EXT_RGMII 0x1
+#define CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII 0x2
+#define CCM_GMAC_CTRL_GPIT_MII		(0x0 << 2)
+#define CCM_GMAC_CTRL_GPIT_RGMII	(0x1 << 2)
 
 #define MDFS_CLK_DEFAULT		0x81000002 /* PLL6 / 3 */
 
@@ -264,6 +271,7 @@ struct sunxi_ccm_reg {
 #define MBUS_CLK_DEFAULT		0x81000001 /* PLL6 / 2 */
 
 /* ahb_reset0 offsets */
+#define AHB_RESET_OFFSET_GMAC		17
 #define AHB_RESET_OFFSET_MCTL		14
 #define AHB_RESET_OFFSET_MMC3		11
 #define AHB_RESET_OFFSET_MMC2		10
