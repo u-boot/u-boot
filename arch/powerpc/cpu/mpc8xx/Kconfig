@@ -13,9 +13,6 @@ config TARGET_COGENT_MPC8XX
 config TARGET_ESTEEM192E
 	bool "Support ESTEEM192E"
 
-config TARGET_HERMES
-	bool "Support hermes"
-
 config TARGET_IP860
 	bool "Support IP860"
 
@@ -112,7 +109,6 @@ source "board/LEOX/elpt860/Kconfig"
 source "board/RRvision/Kconfig"
 source "board/cogent/Kconfig"
 source "board/esteem192e/Kconfig"
-source "board/hermes/Kconfig"
 source "board/ip860/Kconfig"
 source "board/ivm/Kconfig"
 source "board/kup/kup4k/Kconfig"

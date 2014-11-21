@@ -454,24 +454,6 @@ static int initr_env(void)
 	return 0;
 }
 
-#ifdef	CONFIG_HERMES
-static int initr_hermes(void)
-{
-	if ((gd->board_type >> 16) == 2)
-		gd->bd->bi_ethspeed = gd->board_type & 0xFFFF;
-	else
-		gd->bd->bi_ethspeed = 0xFFFF;
-	return 0;
-}
-
-static int initr_hermes_start(void)
-{
-	if (gd->bd->bi_ethspeed != 0xFFFF)
-		hermes_start_lxt980((int) gd->bd->bi_ethspeed);
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_SC3
 /* TODO: with new initcalls, move this into the driver */
 extern void sc3_read_eeprom(void);
@@ -803,9 +785,6 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_SC3
 	initr_sc3_read_eeprom,
 #endif
-#ifdef	CONFIG_HERMES
-	initr_hermes,
-#endif
 #if defined(CONFIG_ID_EEPROM) || defined(CONFIG_SYS_I2C_MAC_OFFSET)
 	mac_read_from_eeprom,
 #endif
@@ -830,9 +809,6 @@ init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_MISC_INIT_R
 	misc_init_r,		/* miscellaneous platform-dependent init */
-#endif
-#ifdef CONFIG_HERMES
-	initr_hermes_start,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 #ifdef CONFIG_CMD_KGDB

@@ -445,11 +445,6 @@ extern ssize_t spi_read	 (uchar *, int, uchar *, int);
 extern ssize_t spi_write (uchar *, int, uchar *, int);
 #endif
 
-#ifdef CONFIG_HERMES
-/* $(BOARD)/hermes.c */
-void hermes_start_lxt980 (int speed);
-#endif
-
 #ifdef CONFIG_EVB64260
 void  evb64260_init(void);
 void  debug_led(int, int);

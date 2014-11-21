@@ -125,8 +125,7 @@ void cpu_init_f (volatile immap_t * immr)
 	 *  I owe him a free beer. - wd]
 	 */
 
-#if defined(CONFIG_HERMES)	|| \
-    defined(CONFIG_IP860)	|| \
+#if defined(CONFIG_IP860)	|| \
     defined(CONFIG_IVML24)	|| \
     defined(CONFIG_IVMS8)	|| \
     defined(CONFIG_LWMON)	|| \

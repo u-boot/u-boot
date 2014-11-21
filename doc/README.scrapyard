@@ -12,8 +12,9 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-PRS200		 powerpc     mpc5200	    -		-
-MCC200		 powerpc     mpc5200	    -		-
+hermes           powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+PRS200		 powerpc     mpc5200	    ecfdcee	2014-11-12
+MCC200		 powerpc     mpc5200	    ecfdcee     2014-11-12
 TOP5200		 powerpc     mpc5200	    d58a945	2014-10-28  Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
 TOP860		 powerpc     mpc860	    d58a945	2014-10-28  Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
 TOP9000		 arm	     at91sam9xeXXX  d58a945	2014-10-28  Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
