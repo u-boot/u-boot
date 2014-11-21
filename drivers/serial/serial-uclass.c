@@ -39,7 +39,7 @@ static void serial_find_console_or_panic(void)
 	/* Check for a chosen console */
 	node = fdtdec_get_chosen_node(gd->fdt_blob, "stdout-path");
 	if (node < 0)
-		node = fdtdec_get_alias_node(gd->fdt_blob, "console");
+		node = fdt_path_offset(gd->fdt_blob, "console");
 	if (!uclass_get_device_by_of_offset(UCLASS_SERIAL, node, &dev)) {
 		gd->cur_serial_dev = dev;
 		return;
