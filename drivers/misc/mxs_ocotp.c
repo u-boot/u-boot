@@ -221,6 +221,13 @@ static int mxs_ocotp_write_fuse(uint32_t addr, uint32_t mask)
 		goto fail;
 	}
 
+	/* Check for errors */
+	if (readl(&ocotp_regs->hw_ocotp_ctrl) & OCOTP_CTRL_ERROR) {
+		puts("Failed writing fuses!\n");
+		ret = -EPERM;
+		goto fail;
+	}
+
 fail:
 	mxs_ocotp_scale_vddio(0, &vddio_val);
 	if (mxs_ocotp_scale_hclk(0, &hclk_val))
