@@ -12,6 +12,7 @@
 #include <image.h>
 #include <asm/byteorder.h>
 #include <fat.h>
+#include <flash.h>
 #include <part.h>
 
 #include "auto_update.h"
@@ -35,9 +36,6 @@ extern int file_fat_detectfs(void);
 extern long file_fat_read(const char *, void *, unsigned long);
 long do_fat_read (const char *filename, void *buffer,
 		  unsigned long maxsize, int dols);
-extern int flash_sect_erase(ulong, ulong);
-extern int flash_sect_protect (int, ulong, ulong);
-extern int flash_write (char *, ulong, ulong);
 
 extern block_dev_desc_t ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 
