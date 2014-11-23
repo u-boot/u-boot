@@ -746,10 +746,11 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	case MXC_SATA_CLK:
 		return get_ahb_clk();
 	default:
+		printf("Unsupported MXC CLK: %d\n", clk);
 		break;
 	}
 
-	return -1;
+	return 0;
 }
 
 /*
