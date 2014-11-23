@@ -14,5 +14,7 @@ CONFIG_FDTFILE="sun6i-a31-m9.dtb"
 # HDMI power ?
 +S:CONFIG_AXP221_ALDO2_VOLT=1800
 +S:CONFIG_AXP221_ALDO3_VOLT=3000
-# No Vbus gpio for usb1
-+S:CONFIG_USB1_VBUS_PIN=""
+# Vbus gpio for usb1
++S:CONFIG_USB1_VBUS_PIN="PC27"
+# No Vbus gpio for usb2
++S:CONFIG_USB2_VBUS_PIN=""
