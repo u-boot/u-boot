@@ -246,6 +246,15 @@ void edid_print_info(struct edid1_info *edid_info);
 int edid_check_info(struct edid1_info *info);
 
 /**
+ * Check checksum of a 128 bytes EDID data block
+ *
+ * @param edid_block	EDID block data
+ *
+ * @return 0 on success, or a negative errno on error
+ */
+int edid_check_checksum(u8 *edid_block);
+
+/**
  * Get the horizontal and vertical rate ranges of the monitor.
  *
  * @param edid	The EDID info
