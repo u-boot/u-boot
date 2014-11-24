@@ -196,7 +196,8 @@ F:	drivers/mtd/cfi_flash.c
 F:	drivers/mtd/jedec_flash.c
 
 COLDFIRE
-M:	Jason Jin <jason.jin@freescale.com>
+M:	Huan Wang <alison.wang@freescale.com>
+M:	Angelo Dureghello <angelo@sysam.it>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-coldfire.git
 F:	arch/m68k/
