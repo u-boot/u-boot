@@ -252,11 +252,12 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 		return;
 	}
 
-	if (mux == BRDCFG1_EMI1_SEL_RGMII) {
+	if (mux == (BRDCFG1_EMI1_SEL_RGMII | BRDCFG1_EMI1_EN)) {
 		/* RGMII */
 		/* The RGMII PHY is identified by the MAC connected to it */
 		sprintf(phy, "phy_rgmii_%u", port == FM1_DTSEC4 ? 0 : 1);
 		fdt_set_phy_handle(fdt, compat, addr, phy);
+		return;
 	}
 
 	/* If it's not RGMII or XGMII, it must be SGMII */
