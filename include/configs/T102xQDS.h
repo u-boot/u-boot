@@ -555,11 +555,14 @@ unsigned long get_board_ddr_clk(void);
 
 #define I2C_MUX_PCA_ADDR		0x77
 #define I2C_MUX_PCA_ADDR_PRI		0x77 /* Primary Mux*/
-
+#define I2C_MUX_PCA_ADDR_SEC            0x76 /* Secondary multiplexer */
+#define I2C_RETIMER_ADDR		0x18
 
 /* I2C bus multiplexer */
 #define I2C_MUX_CH_DEFAULT      0x8
 #define I2C_MUX_CH_DIU		0xC
+#define I2C_MUX_CH5		0xD
+#define I2C_MUX_CH7		0xF
 
 /* LDI/DVI Encoder for display */
 #define CONFIG_SYS_I2C_LDI_ADDR	 0x38

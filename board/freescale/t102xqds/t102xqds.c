@@ -186,6 +186,62 @@ static void board_mux_setup(void)
 }
 #endif
 
+void board_retimer_ds125df111_init(void)
+{
+	u8 reg;
+
+	/* Retimer DS125DF111 is connected to I2C1_CH7_CH5 */
+	reg = I2C_MUX_CH7;
+	i2c_write(I2C_MUX_PCA_ADDR_PRI, 0, 1, &reg, 1);
+	reg = I2C_MUX_CH5;
+	i2c_write(I2C_MUX_PCA_ADDR_SEC, 0, 1, &reg, 1);
+
+	/* Access to Control/Shared register */
+	reg = 0x0;
+	i2c_write(I2C_RETIMER_ADDR, 0xff, 1, &reg, 1);
+
+	/* Read device revision and ID */
+	i2c_read(I2C_RETIMER_ADDR, 1, 1, &reg, 1);
+	debug("Retimer version id = 0x%x\n", reg);
+
+	/* Enable Broadcast */
+	reg = 0x0c;
+	i2c_write(I2C_RETIMER_ADDR, 0xff, 1, &reg, 1);
+
+	/* Reset Channel Registers */
+	i2c_read(I2C_RETIMER_ADDR, 0, 1, &reg, 1);
+	reg |= 0x4;
+	i2c_write(I2C_RETIMER_ADDR, 0, 1, &reg, 1);
+
+	/* Enable override divider select and Enable Override Output Mux */
+	i2c_read(I2C_RETIMER_ADDR, 9, 1, &reg, 1);
+	reg |= 0x24;
+	i2c_write(I2C_RETIMER_ADDR, 9, 1, &reg, 1);
+
+	/* Select VCO Divider to full rate (000) */
+	i2c_read(I2C_RETIMER_ADDR, 0x18, 1, &reg, 1);
+	reg &= 0x8f;
+	i2c_write(I2C_RETIMER_ADDR, 0x18, 1, &reg, 1);
+
+	/* Select active PFD MUX input as re-timed data (001) */
+	i2c_read(I2C_RETIMER_ADDR, 0x1e, 1, &reg, 1);
+	reg &= 0x3f;
+	reg |= 0x20;
+	i2c_write(I2C_RETIMER_ADDR, 0x1e, 1, &reg, 1);
+
+	/* Set data rate as 10.3125 Gbps */
+	reg = 0x0;
+	i2c_write(I2C_RETIMER_ADDR, 0x60, 1, &reg, 1);
+	reg = 0xb2;
+	i2c_write(I2C_RETIMER_ADDR, 0x61, 1, &reg, 1);
+	reg = 0x90;
+	i2c_write(I2C_RETIMER_ADDR, 0x62, 1, &reg, 1);
+	reg = 0xb3;
+	i2c_write(I2C_RETIMER_ADDR, 0x63, 1, &reg, 1);
+	reg = 0xcd;
+	i2c_write(I2C_RETIMER_ADDR, 0x64, 1, &reg, 1);
+}
+
 int board_early_init_r(void)
 {
 #ifdef CONFIG_SYS_FLASH_BASE
@@ -220,6 +276,7 @@ int board_early_init_r(void)
 #endif
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 	board_mux_lane_to_slot();
+	board_retimer_ds125df111_init();
 
 	/* Increase IO drive strength to address FCS error on RGMII */
 	out_be32((unsigned *)CONFIG_SYS_FSL_SCFG_IODSECR1_ADDR, 0xbfdb7800);
