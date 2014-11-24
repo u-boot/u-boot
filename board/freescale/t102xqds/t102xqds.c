@@ -165,6 +165,8 @@ static void board_mux_setup(void)
 		/* Route QE_TDM multiplexed signals to TDM Riser slot */
 		QIXIS_WRITE(brdcfg[15], brdcfg15 | BRDCFG15_DIUSEL_TDM);
 		QIXIS_WRITE(brdcfg[13], BRDCFG13_TDM_INTERFACE << 2);
+		QIXIS_WRITE(brdcfg[5], (QIXIS_READ(brdcfg[5]) &
+			    ~BRDCFG5_SPIRTE_MASK) | BRDCFG5_SPIRTE_TDM);
 	} else if (hwconfig_arg_cmp("pin_mux", "ucc")) {
 		/* to UCC (ProfiBus) interface */
 		QIXIS_WRITE(brdcfg[15], brdcfg15 | BRDCFG15_DIUSEL_UCC);
@@ -176,6 +178,11 @@ static void board_mux_setup(void)
 		QIXIS_WRITE(brdcfg[15], brdcfg15 | BRDCFG15_LCDFM |
 			    BRDCFG15_LCDPD | BRDCFG15_DIUSEL_LCD);
 	}
+
+	if (hwconfig_arg_cmp("adaptor", "sdxc"))
+		/* Route SPI_CS multiplexed signals to SD slot */
+		QIXIS_WRITE(brdcfg[5], (QIXIS_READ(brdcfg[5]) &
+			    ~BRDCFG5_SPIRTE_MASK) | BRDCFG5_SPIRTE_SDHC);
 }
 #endif
 
@@ -265,6 +272,24 @@ int misc_init_r(void)
 	return 0;
 }
 
+void fdt_fixup_spi_mux(void *blob)
+{
+	int nodeoff = 0;
+
+	if (hwconfig_arg_cmp("pin_mux", "tdm")) {
+		while ((nodeoff = fdt_node_offset_by_compatible(blob, 0,
+			"eon,en25s64")) >= 0) {
+			fdt_del_node(blob, nodeoff);
+		}
+	} else {
+		/* remove tdm node */
+		while ((nodeoff = fdt_node_offset_by_compatible(blob, 0,
+			"maxim,ds26522")) >= 0) {
+			fdt_del_node(blob, nodeoff);
+		}
+	}
+}
+
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
@@ -291,6 +316,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_fman_ethernet(blob);
 	fdt_fixup_board_enet(blob);
 #endif
+	fdt_fixup_spi_mux(blob);
 
 	return 0;
 }
