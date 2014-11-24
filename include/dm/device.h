@@ -47,6 +47,7 @@ struct driver_info;
  * @name: Name of device, typically the FDT node name
  * @platdata: Configuration data for this device
  * @of_offset: Device tree node offset for this device (- for none)
+ * @of_id: Pointer to the udevice_id structure which created the device
  * @parent: Parent of this device, or NULL for the top level device
  * @priv: Private data for this device
  * @uclass: Pointer to uclass for this device
@@ -65,6 +66,7 @@ struct udevice {
 	const char *name;
 	void *platdata;
 	int of_offset;
+	const struct udevice_id *of_id;
 	struct udevice *parent;
 	void *priv;
 	struct uclass *uclass;
@@ -204,6 +206,23 @@ void *dev_get_parentdata(struct udevice *dev);
  * @return private data, or NULL if none
  */
 void *dev_get_priv(struct udevice *dev);
+
+/**
+ * struct dev_get_parent() - Get the parent of a device
+ *
+ * @child:	Child to check
+ * @return parent of child, or NULL if this is the root device
+ */
+struct udevice *dev_get_parent(struct udevice *child);
+
+/**
+ * dev_get_of_data() - get the device tree data used to bind a device
+ *
+ * When a device is bound using a device tree node, it matches a
+ * particular compatible string as in struct udevice_id. This function
+ * returns the associated data value for that compatible string
+ */
+ulong dev_get_of_data(struct udevice *dev);
 
 /**
  * device_get_child() - Get the child of a device by index

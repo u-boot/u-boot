@@ -253,4 +253,10 @@ static inline unsigned at91_gpio_to_pin(unsigned gpio)
 	return gpio % 32;
 }
 
+/* Platform data for each GPIO port */
+struct at91_port_platdata {
+	uint32_t base_addr;
+	const char *bank_name;
+};
+
 #endif /* __ASM_ARCH_AT91_GPIO_H */

@@ -252,6 +252,9 @@ obj-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 obj-y += console.o
 obj-$(CONFIG_CROS_EC) += cros_ec.o
 obj-y += dlmalloc.o
+ifdef CONFIG_SYS_MALLOC_F_LEN
+obj-y += malloc_simple.o
+endif
 obj-y += image.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
 obj-$(CONFIG_OF_LIBFDT) += image-fdt.o

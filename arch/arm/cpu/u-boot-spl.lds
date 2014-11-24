@@ -34,6 +34,13 @@ SECTIONS
 	. = ALIGN(4);
 
 	. = .;
+#ifdef CONFIG_SPL_DM
+	.u_boot_list : {
+		KEEP(*(SORT(.u_boot_list_*_driver_*)));
+		KEEP(*(SORT(.u_boot_list_*_uclass_*)));
+	}
+#endif
+	. = ALIGN(4);
 
 	__image_copy_end = .;
 

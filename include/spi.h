@@ -534,18 +534,14 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 int spi_chip_select(struct udevice *slave);
 
 /**
- * spi_bind_device() - bind a device to a bus's chip select
- *
- * This binds a new device to an given chip select (which must be unused).
+ * spi_find_chip_select() - Find the slave attached to chip select
  *
  * @bus:	SPI bus to search
- * @cs:		Chip select to attach to
- * @drv_name:	Name of driver to attach to this chip select
- * @dev_name:	Name of the new device thus created
- * @devp:	Returns the newly bound device
+ * @cs:		Chip select to look for
+ * @devp:	Returns the slave device if found
+ * @return 0 if found, -ENODEV on error
  */
-int spi_bind_device(struct udevice *bus, int cs, const char *drv_name,
-		    const char *dev_name, struct udevice **devp);
+int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp);
 
 /**
  * spi_ofdata_to_platdata() - decode standard SPI platform data

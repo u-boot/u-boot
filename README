@@ -623,6 +623,120 @@ The following options need to be configured:
 		exists, unlike the similar options in the Linux kernel. Do not
 		set these options unless they apply!
 
+- Driver Model
+		Driver model is a new framework for devices in U-Boot
+		introduced in early 2014. U-Boot is being progressively
+		moved over to this. It offers a consistent device structure,
+		supports grouping devices into classes and has built-in
+		handling of platform data and device tree.
+
+		To enable transition to driver model in a relatively
+		painful fashion, each subsystem can be independently
+		switched between the legacy/ad-hoc approach and the new
+		driver model using the options below. Also, many uclass
+		interfaces include compatibility features which may be
+		removed once the conversion of that subsystem is complete.
+		As a result, the API provided by the subsystem may in fact
+		not change with driver model.
+
+		See doc/driver-model/README.txt for more information.
+
+		CONFIG_DM
+
+		Enable driver model. This brings in the core support,
+		including scanning of platform data on start-up. If
+		CONFIG_OF_CONTROL is enabled, the device tree will be
+		scanned also when available.
+
+		CONFIG_CMD_DM
+
+		Enable driver model test commands. These allow you to print
+		out the driver model tree and the uclasses.
+
+		CONFIG_DM_DEMO
+
+		Enable some demo devices and the 'demo' command. These are
+		really only useful for playing around while trying to
+		understand driver model in sandbox.
+
+		CONFIG_SPL_DM
+
+		Enable driver model in SPL. You will need to provide a
+		suitable malloc() implementation. If you are not using the
+		full malloc() enabled by CONFIG_SYS_SPL_MALLOC_START,
+		consider using CONFIG_SYS_MALLOC_SIMPLE. In that case you
+		must provide CONFIG_SYS_MALLOC_F_LEN to set the size.
+		In most cases driver model will only allocate a few uclasses
+		and devices in SPL, so 1KB should be enable. See
+		CONFIG_SYS_MALLOC_F_LEN for more details on how to enable
+		it.
+
+		CONFIG_DM_SERIAL
+
+		Enable driver model for serial. This replaces
+		drivers/serial/serial.c with the serial uclass, which
+		implements serial_putc() etc. The uclass interface is
+		defined in include/serial.h.
+
+		CONFIG_DM_GPIO
+
+		Enable driver model for GPIO access. The standard GPIO
+		interface (gpio_get_value(), etc.) is then implemented by
+		the GPIO uclass. Drivers provide methods to query the
+		particular GPIOs that they provide. The uclass interface
+		is defined in include/asm-generic/gpio.h.
+
+		CONFIG_DM_SPI
+
+		Enable driver model for SPI. The SPI slave interface
+		(spi_setup_slave(), spi_xfer(), etc.) is then implemented by
+		the SPI uclass. Drivers provide methods to access the SPI
+		buses that they control. The uclass interface is defined in
+		include/spi.h. The existing spi_slave structure is attached
+		as 'parent data' to every slave on each bus. Slaves
+		typically use driver-private data instead of extending the
+		spi_slave structure.
+
+		CONFIG_DM_SPI_FLASH
+
+		Enable driver model for SPI flash. This SPI flash interface
+		(spi_flash_probe(), spi_flash_write(), etc.) is then
+		implemented by the SPI flash uclass. There is one standard
+		SPI flash driver which knows how to probe most chips
+		supported by U-Boot. The uclass interface is defined in
+		include/spi_flash.h, but is currently fully compatible
+		with the old interface to avoid confusion and duplication
+		during the transition parent. SPI and SPI flash must be
+		enabled together (it is not possible to use driver model
+		for one and not the other).
+
+		CONFIG_DM_CROS_EC
+
+		Enable driver model for the Chrome OS EC interface. This
+		allows the cros_ec SPI driver to operate with CONFIG_DM_SPI
+		but otherwise makes few changes. Since cros_ec also supports
+		I2C and LPC (which don't support driver model yet), a full
+		conversion is not yet possible.
+
+
+		** Code size options: The following options are enabled by
+		default except in SPL. Enable them explicitly to get these
+		features in SPL.
+
+		CONFIG_DM_WARN
+
+		Enable the dm_warn() function. This can use up quite a bit
+		of space for its strings.
+
+		CONFIG_DM_STDIO
+
+		Enable registering a serial device with the stdio library.
+
+		CONFIG_DM_DEVICE_REMOVE
+
+		Enable removing of devices.
+
+
 - Linux Kernel Interface:
 		CONFIG_CLOCKS_IN_MHZ
 
@@ -3869,6 +3983,11 @@ Configuration Settings:
 
 		Pre-relocation malloc() is only supported on ARM and sandbox
 		at present but is fairly easy to enable for other archs.
+
+- CONFIG_SYS_MALLOC_SIMPLE
+		Provides a simple and small malloc() and calloc() for those
+		boards which do not use the full malloc in SPL (which is
+		enabled with CONFIG_SYS_SPL_MALLOC_START).
 
 - CONFIG_SYS_BOOTM_LEN:
 		Normally compressed uImages are limited to an
