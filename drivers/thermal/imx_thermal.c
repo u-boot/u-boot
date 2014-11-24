@@ -156,8 +156,6 @@ static int imx_thermal_probe(struct udevice *dev)
 	if (fuse == 0 || fuse == ~0) {
 		printf("CPU:   Thermal invalid data, fuse: 0x%x\n", fuse);
 		return -EPERM;
-	} else {
-		printf("CPU:   Thermal calibration data: 0x%x\n", fuse);
 	}
 
 	*priv = fuse;
