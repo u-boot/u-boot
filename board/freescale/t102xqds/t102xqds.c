@@ -220,6 +220,10 @@ int board_early_init_r(void)
 #endif
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 	board_mux_lane_to_slot();
+
+	/* Increase IO drive strength to address FCS error on RGMII */
+	out_be32((unsigned *)CONFIG_SYS_FSL_SCFG_IODSECR1_ADDR, 0xbfdb7800);
+
 	return 0;
 }
 
