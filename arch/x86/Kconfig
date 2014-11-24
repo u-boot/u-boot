@@ -12,9 +12,81 @@ choice
 
 config TARGET_COREBOOT
 	bool "Support coreboot"
+	help
+	  This target is used for running U-Boot on top of Coreboot. In
+	  this case Coreboot does the early inititalisation, and U-Boot
+	  takes over once the RAM, video and CPU are fully running.
+	  U-Boot is loaded as a fallback payload from Coreboot, in
+	  Coreboot terminology. This method was used for the Chromebook
+	  Pixel when launched.
+
+config TARGET_CHROMEBOOK_LINK
+	bool "Support Chromebook link"
+	help
+	  This is the Chromebook Pixel released in 2013. It uses an Intel
+	  i5 Ivybridge which is a die-shrink of Sandybridge, with 4GB of
+	  SDRAM. It has a Panther Point platform controller hub, PCIe
+	  WiFi and Bluetooth. It also includes a 720p webcam, USB SD
+	  reader, microphone and speakers, display port and 32GB SATA
+	  solid state drive. There is a Chrome OS EC connected on LPC,
+	  and it provides a 2560x1700 high resolution touch-enabled LCD
+	  display.
 
 endchoice
 
-source "board/chromebook-x86/coreboot/Kconfig"
+config RAMBASE
+	hex
+	default 0x100000
+
+config RAMTOP
+	hex
+	default 0x200000
+
+config XIP_ROM_SIZE
+	hex
+	default 0x10000
+
+config CPU_ADDR_BITS
+	int
+	default 36
+
+config HPET_ADDRESS
+	hex
+	default 0xfed00000 if !HPET_ADDRESS_OVERRIDE
+
+config SMM_TSEG
+	bool
+	default n
+
+config SMM_TSEG_SIZE
+	hex
+
+config ROM_SIZE
+	hex
+	default 0x800000
+
+config HAVE_INTEL_ME
+	bool "Platform requires Intel Management Engine"
+	help
+	  Newer higher-end devices have an Intel Management Engine (ME)
+	  which is a very large binary blob (typically 1.5MB) which is
+	  required for the platform to work. This enforces a particular
+	  SPI flash format. You will need to supply the me.bin file in
+	  your board directory.
+
+config X86_RAMTEST
+	bool "Perform a simple RAM test after SDRAM initialisation"
+	help
+	  If there is something wrong with SDRAM then the platform will
+	  often crash within U-Boot or the kernel. This option enables a
+	  very simple RAM test that quickly checks whether the SDRAM seems
+	  to work correctly. It is not exhaustive but can save time by
+	  detecting obvious failures.
+
+source "arch/x86/cpu/ivybridge/Kconfig"
+
+source "board/coreboot/coreboot/Kconfig"
+
+source "board/google/chromebook_link/Kconfig"
 
 endmenu

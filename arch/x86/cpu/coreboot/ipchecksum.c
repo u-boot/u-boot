@@ -30,7 +30,7 @@
  */
 
 #include <compiler.h>
-#include <asm/arch-coreboot/ipchecksum.h>
+#include <asm/arch/ipchecksum.h>
 
 unsigned short ipchksum(const void *vptr, unsigned long nbytes)
 {

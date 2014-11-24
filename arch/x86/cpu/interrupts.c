@@ -31,7 +31,7 @@ DECLARE_GLOBAL_DATA_PTR;
 	"pushl $"#x"\n" \
 	"jmp irq_common_entry\n"
 
-void dump_regs(struct irq_regs *regs)
+static void dump_regs(struct irq_regs *regs)
 {
 	unsigned long cr0 = 0L, cr2 = 0L, cr3 = 0L, cr4 = 0L;
 	unsigned long d0, d1, d2, d3, d6, d7;

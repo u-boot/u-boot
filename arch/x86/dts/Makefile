@@ -1,4 +1,5 @@
 dtb-y += link.dtb \
+	chromebook_link.dtb \
 	alex.dtb
 
 targets += $(dtb-y)

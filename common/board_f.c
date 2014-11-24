@@ -820,22 +820,16 @@ static init_fnc_t init_sequence_f[] = {
 	setup_mon_len,
 	setup_fdt,
 	trace_early_init,
+	initf_malloc,
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	/* TODO: can this go into arch_cpu_init()? */
 	probecpu,
 #endif
 	arch_cpu_init,		/* basic arch cpu dependent setup */
-#ifdef CONFIG_X86
-	cpu_init_f,		/* TODO(sjg@chromium.org): remove */
-# ifdef CONFIG_OF_CONTROL
-	find_fdt,		/* TODO(sjg@chromium.org): remove */
-# endif
-#endif
 	mark_bootstage,
 #ifdef CONFIG_OF_CONTROL
 	fdtdec_check_fdt,
 #endif
-	initf_malloc,
 	initf_dm,
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
@@ -911,13 +905,9 @@ static init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_HARD_SPI)
 	init_func_spi,
 #endif
-#ifdef CONFIG_X86
-	dram_init_f,		/* configure available RAM banks */
-	calculate_relocation_address,
-#endif
 	announce_dram_init,
 	/* TODO: unify all these dram functions? */
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_X86)
 	dram_init,		/* configure available RAM banks */
 #endif
 #if defined(CONFIG_MIPS) || defined(CONFIG_PPC)

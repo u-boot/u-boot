@@ -87,30 +87,3 @@ int init_func_spi(void)
 	puts("ready\n");
 	return 0;
 }
-
-int find_fdt(void)
-{
-#ifdef CONFIG_OF_EMBED
-	/* Get a pointer to the FDT */
-	gd->fdt_blob = __dtb_dt_begin;
-#elif defined CONFIG_OF_SEPARATE
-	/* FDT is at end of image */
-	gd->fdt_blob = (ulong *)&_end;
-#endif
-	/* Allow the early environment to override the fdt address */
-	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
-						(uintptr_t)gd->fdt_blob);
-
-	return 0;
-}
-
-int prepare_fdt(void)
-{
-	/* For now, put this check after the console is ready */
-	if (fdtdec_prepare_fdt()) {
-		panic("** CONFIG_OF_CONTROL defined but no FDT - please see "
-			"doc/README.fdt-control");
-	}
-
-	return 0;
-}

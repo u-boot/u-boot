@@ -73,6 +73,8 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SAMSUNG_EXYNOS_SYSMMU, "samsung,sysmmu-v3.3"),
 	COMPAT(PARADE_PS8625, "parade,ps8625"),
 	COMPAT(COMPAT_INTEL_LPC, "intel,lpc"),
+	COMPAT(INTEL_MICROCODE, "intel,microcode"),
+	COMPAT(MEMORY_SPD, "memory-spd"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
@@ -483,6 +485,26 @@ int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
 			array[i] = fdt32_to_cpu(cell[i]);
 	}
 	return err;
+}
+
+int fdtdec_get_int_array_count(const void *blob, int node,
+			       const char *prop_name, u32 *array, int count)
+{
+	const u32 *cell;
+	int len, elems;
+	int i;
+
+	debug("%s: %s\n", __func__, prop_name);
+	cell = fdt_getprop(blob, node, prop_name, &len);
+	if (!cell)
+		return -FDT_ERR_NOTFOUND;
+	elems = len / sizeof(u32);
+	if (count > elems)
+		count = elems;
+	for (i = 0; i < count; i++)
+		array[i] = fdt32_to_cpu(cell[i]);
+
+	return count;
 }
 
 const u32 *fdtdec_locate_array(const void *blob, int node,

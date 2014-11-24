@@ -1,0 +1,172 @@
+#
+# From Coreboot src/northbridge/intel/sandybridge/Kconfig
+#
+# Copyright (C) 2010 Google Inc.
+#
+# SPDX-License-Identifier:	GPL-2.0
+
+
+config NORTHBRIDGE_INTEL_SANDYBRIDGE
+	bool
+	select CACHE_MRC_BIN
+	select CPU_INTEL_MODEL_206AX
+
+config NORTHBRIDGE_INTEL_IVYBRIDGE
+	bool
+	select CACHE_MRC_BIN
+	select CPU_INTEL_MODEL_306AX
+
+if NORTHBRIDGE_INTEL_SANDYBRIDGE
+
+config VGA_BIOS_ID
+	string
+	default "8086,0106"
+
+config CACHE_MRC_SIZE_KB
+	int
+	default 256
+
+config MRC_CACHE_BASE
+	hex
+	default 0xff800000
+
+config MRC_CACHE_LOCATION
+	hex
+	depends on !CHROMEOS
+	default 0x1ec000
+
+config MRC_CACHE_SIZE
+	hex
+	depends on !CHROMEOS
+	default 0x10000
+
+config DCACHE_RAM_BASE
+	hex
+	default 0xff7f0000
+
+config DCACHE_RAM_SIZE
+	hex
+	default 0x10000
+
+endif
+
+if NORTHBRIDGE_INTEL_IVYBRIDGE
+
+config VGA_BIOS_ID
+	string
+	default "8086,0166"
+
+config EXTERNAL_MRC_BLOB
+	bool
+	default n
+
+config CACHE_MRC_SIZE_KB
+	int
+	default 512
+
+config MRC_CACHE_BASE
+	hex
+	default 0xff800000
+
+config MRC_CACHE_LOCATION
+	hex
+	depends on !CHROMEOS
+	default 0x370000
+
+config MRC_CACHE_SIZE
+	hex
+	depends on !CHROMEOS
+	default 0x10000
+
+config DCACHE_RAM_BASE
+	hex
+	default 0xff7e0000
+
+config DCACHE_RAM_SIZE
+	hex
+	default 0x20000
+
+endif
+
+if NORTHBRIDGE_INTEL_SANDYBRIDGE || NORTHBRIDGE_INTEL_IVYBRIDGE
+
+config HAVE_MRC
+        bool "Add a System Agent binary"
+        help
+          Select this option to add a System Agent binary to
+          the resulting U-Boot image. MRC stands for Memory Reference Code.
+          It is a binary blob which U-Boot uses to set up SDRAM.
+
+          Note: Without this binary U-Boot will not be able to set up its
+          SDRAM so will not boot.
+
+config DCACHE_RAM_MRC_VAR_SIZE
+	hex
+	default 0x4000
+	help
+	  This is the amount of CAR (Cache as RAM) reserved for use by the
+	  memory reference code. This should be set to 16KB (0x4000 hex)
+	  so that MRC has enough space to run.
+
+config MRC_FILE
+	string "Intel System Agent path and filename"
+	depends on HAVE_MRC
+	default "systemagent-ivybridge.bin" if NORTHBRIDGE_INTEL_IVYBRIDGE
+	default "systemagent-sandybridge.bin" if NORTHBRIDGE_INTEL_SANDYBRIDGE
+	help
+	  The path and filename of the file to use as System Agent
+	  binary.
+
+config CPU_SPECIFIC_OPTIONS
+	def_bool y
+	select SMM_TSEG
+	select ARCH_BOOTBLOCK_X86_32
+	select ARCH_ROMSTAGE_X86_32
+	select ARCH_RAMSTAGE_X86_32
+	select SMP
+	select SSE2
+	select UDELAY_LAPIC
+	select CPU_MICROCODE_IN_CBFS
+	select TSC_SYNC_MFENCE
+	select HAVE_INTEL_ME
+	select X86_RAMTEST
+
+config SMM_TSEG_SIZE
+	hex
+	default 0x800000
+
+config ENABLE_VMX
+	bool "Enable VMX for virtualization"
+	default n
+	help
+	  Virtual Machine Extensions are provided in many x86 CPUs. These
+	  provide various facilities for allowing a host OS to provide an
+	  environment where potentially several guest OSes have only
+	  limited access to the underlying hardware. This is achieved
+	  without resorting to software trapping and/or instruction set
+	  emulation (which would be very slow).
+
+	  Intel's implementation of this is called VT-x. This option enables
+	  VT-x this so that the OS that is booted by U-Boot can make use of
+	  these facilities. If this option is not enabled, then the host OS
+	  will be unable to support virtualisation, or it will run very
+	  slowly.
+
+endif
+
+config CPU_INTEL_SOCKET_RPGA989
+	bool
+
+if CPU_INTEL_SOCKET_RPGA989
+
+config SOCKET_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select MMX
+	select SSE
+	select CACHE_AS_RAM
+
+config CACHE_MRC_BIN
+	bool
+	default n
+
+endif

@@ -175,6 +175,25 @@ static inline int wrmsr_safe_regs(u32 regs[8])
 	return native_wrmsr_safe_regs(regs);
 }
 
+typedef struct msr_t {
+	uint32_t lo;
+	uint32_t hi;
+} msr_t;
+
+static inline struct msr_t msr_read(unsigned msr_num)
+{
+	struct msr_t msr;
+
+	rdmsr(msr_num, msr.lo, msr.hi);
+
+	return msr;
+}
+
+static inline void msr_write(unsigned msr_num, msr_t msr)
+{
+	wrmsr(msr_num, msr.lo, msr.hi);
+}
+
 #define rdtscl(low)						\
 	((low) = (u32)__native_read_tsc())
 
