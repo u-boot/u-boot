@@ -611,6 +611,9 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 		vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CONFIG_16BIT);
 	}
 
+	/* Disable subpage writes as we do not provide ecc->hwctl */
+	chip->options |= NAND_NO_SUBPAGE_WRITE;
+
 	chip->dev_ready = vf610_nfc_dev_ready;
 	chip->cmdfunc = vf610_nfc_command;
 	chip->read_byte = vf610_nfc_read_byte;
