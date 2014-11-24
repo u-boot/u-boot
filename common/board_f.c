@@ -581,7 +581,7 @@ static int reserve_stacks(void)
 	gd->irq_sp = gd->start_addr_sp;
 # endif
 #else
-# if defined(CONFIG_PPC) || defined(CONFIG_MIPS)
+# ifdef CONFIG_PPC
 	ulong *s;
 # endif
 
@@ -611,12 +611,6 @@ static int reserve_stacks(void)
 	s = (ulong *) gd->start_addr_sp;
 	*s = 0; /* Terminate back chain */
 	*++s = 0; /* NULL return address */
-# elif defined(CONFIG_MIPS)
-	/* Clear initial stack frame */
-	s = (ulong *) gd->start_addr_sp;
-	*s-- = 0;
-	*s-- = 0;
-	gd->start_addr_sp = (ulong) s;
 # endif /* Architecture specific code */
 
 	return 0;
