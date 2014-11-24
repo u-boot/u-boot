@@ -58,6 +58,14 @@ config CC_OPTIMIZE_FOR_SIZE
 
 endmenu		# General setup
 
+menuconfig EXPERT
+        bool "Configure standard U-Boot features (expert users)"
+        help
+          This option allows certain base U-Boot options and settings
+          to be disabled or tweaked. This is for specialized
+          environments which can tolerate a "non-standard" U-Boot.
+          Only use this if you really know what you are doing.
+
 menu "Boot images"
 
 config SPL_BUILD

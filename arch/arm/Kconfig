@@ -415,6 +415,8 @@ config TARGET_INTEGRATORCP_CM946ES
 config TARGET_VEXPRESS_CA15_TC2
 	bool "Support vexpress_ca15_tc2"
 	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
 
 config TARGET_VEXPRESS_CA5X2
 	bool "Support vexpress_ca5x2"
@@ -825,6 +827,8 @@ source "arch/arm/cpu/armv7/uniphier/Kconfig"
 source "arch/arm/cpu/arm926ejs/versatile/Kconfig"
 
 source "arch/arm/cpu/armv7/zynq/Kconfig"
+
+source "arch/arm/cpu/armv7/Kconfig"
 
 source "board/aristainetos/Kconfig"
 source "board/BuR/kwb/Kconfig"
