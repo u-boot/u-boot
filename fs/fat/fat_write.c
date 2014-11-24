@@ -13,6 +13,8 @@
 #include <asm/byteorder.h>
 #include <part.h>
 #include <linux/ctype.h>
+#include <div64.h>
+#include <linux/math64.h>
 #include "fat.c"
 
 static void uppercase(char *str, int len)
@@ -770,7 +772,7 @@ static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
  */
 static int check_overflow(fsdata *mydata, __u32 clustnum, loff_t size)
 {
-	__u32 startsect, sect_num;
+	__u32 startsect, sect_num, offset;
 
 	if (clustnum > 0) {
 		startsect = mydata->data_begin +
@@ -779,13 +781,13 @@ static int check_overflow(fsdata *mydata, __u32 clustnum, loff_t size)
 		startsect = mydata->rootdir_sect;
 	}
 
-	sect_num = size / mydata->sect_size;
-	if (size % mydata->sect_size)
+	sect_num = div_u64_rem(size, mydata->sect_size, &offset);
+
+	if (offset != 0)
 		sect_num++;
 
 	if (startsect + sect_num > cur_part_info.start + total_sector)
 		return -1;
-
 	return 0;
 }
 

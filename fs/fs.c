@@ -23,6 +23,8 @@
 #include <fs.h>
 #include <sandboxfs.h>
 #include <asm/io.h>
+#include <div64.h>
+#include <linux/math64.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -399,7 +401,7 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	printf("%llu bytes read in %lu ms", len_read, time);
 	if (time > 0) {
 		puts(" (");
-		print_size(len_read / time * 1000, "/s");
+		print_size(div_u64(len_read, time) * 1000, "/s");
 		puts(")");
 	}
 	puts("\n");
@@ -469,7 +471,7 @@ int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	printf("%llu bytes written in %lu ms", len, time);
 	if (time > 0) {
 		puts(" (");
-		print_size(len / time * 1000, "/s");
+		print_size(div_u64(len, time) * 1000, "/s");
 		puts(")");
 	}
 	puts("\n");

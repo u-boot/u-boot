@@ -25,6 +25,7 @@
 #include <ext_common.h>
 #include <ext4fs.h>
 #include "ext4_common.h"
+#include <div64.h>
 
 int ext4fs_symlinknest;
 struct ext_filesystem ext_fs;
@@ -67,11 +68,11 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 	if (len > filesize)
 		len = filesize;
 
-	blockcnt = ((len + pos) + blocksize - 1) / blocksize;
+	blockcnt = lldiv(((len + pos) + blocksize - 1), blocksize);
 
-	for (i = pos / blocksize; i < blockcnt; i++) {
+	for (i = lldiv(pos, blocksize); i < blockcnt; i++) {
 		lbaint_t blknr;
-		int blockoff = pos % blocksize;
+		int blockoff = pos - (blocksize * i);
 		int blockend = blocksize;
 		int skipfirst = 0;
 		blknr = read_allocated_block(&(node->inode), i);
@@ -82,7 +83,7 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 
 		/* Last block.  */
 		if (i == blockcnt - 1) {
-			blockend = (len + pos) % blocksize;
+			blockend = (len + pos) - (blocksize * i);
 
 			/* The last portion is exactly blocksize. */
 			if (!blockend)
@@ -90,7 +91,7 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 		}
 
 		/* First block. */
-		if (i == pos / blocksize) {
+		if (i == lldiv(pos, blocksize)) {
 			skipfirst = blockoff;
 			blockend -= skipfirst;
 		}
