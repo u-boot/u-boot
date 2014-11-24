@@ -383,6 +383,11 @@ static void board_gpio_init(void)
 	gpio_set_drv(EXYNOS4X12_GPIO_X31, S5P_GPIO_DRV_4X);
 	gpio_direction_input(EXYNOS4X12_GPIO_X31);
 
+	/* Blue LED (Odroid X2/U2/U3) */
+	gpio_request(EXYNOS4X12_GPIO_C10, "Blue LED");
+
+	gpio_direction_output(EXYNOS4X12_GPIO_C10, 0);
+
 #ifdef CONFIG_CMD_USB
 	/* USB3503A Reference frequency */
 	gpio_request(EXYNOS4X12_GPIO_X30, "USB3503A RefFreq");
