@@ -68,6 +68,8 @@
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 
+#define TQMA6_SPI_FLASH_SECTOR_SIZE	SZ_64K
+
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_BUS	0
 #define CONFIG_SF_DEFAULT_CS	0
@@ -275,12 +277,10 @@
 
 #elif defined(CONFIG_TQMA6X_SPI_BOOT)
 
-#define CONFIG_FLASH_SECTOR_SIZE	0x10000
-
 #define TQMA6_UBOOT_OFFSET		0x400
 #define TQMA6_UBOOT_SECTOR_START	0x0
 /* max u-boot size: 512k */
-#define TQMA6_UBOOT_SECTOR_SIZE		CONFIG_FLASH_SECTOR_SIZE
+#define TQMA6_UBOOT_SECTOR_SIZE		TQMA6_SPI_FLASH_SECTOR_SIZE
 #define TQMA6_UBOOT_SECTOR_COUNT	0x8
 #define TQMA6_UBOOT_SIZE		(TQMA6_UBOOT_SECTOR_SIZE * \
 					 TQMA6_UBOOT_SECTOR_COUNT)
@@ -288,7 +288,7 @@
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_OFFSET		(TQMA6_UBOOT_SIZE)
-#define CONFIG_ENV_SECT_SIZE		CONFIG_FLASH_SECTOR_SIZE
+#define CONFIG_ENV_SECT_SIZE		TQMA6_SPI_FLASH_SECTOR_SIZE
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
 					 CONFIG_ENV_SECT_SIZE)
 
@@ -299,7 +299,7 @@
 
 #define TQMA6_FDT_OFFSET		(CONFIG_ENV_OFFSET_REDUND + \
 					 CONFIG_ENV_SECT_SIZE)
-#define TQMA6_FDT_SECT_SIZE		(CONFIG_FLASH_SECTOR_SIZE)
+#define TQMA6_FDT_SECT_SIZE		(TQMA6_SPI_FLASH_SECTOR_SIZE)
 
 #define TQMA6_FDT_SECTOR_START		0x0a /* 8 Sector u-boot, 2 Sector env */
 #define TQMA6_FDT_SECTOR_COUNT		0x01
@@ -320,7 +320,7 @@
 			"setexpr blkc ${filesize} + "                          \
 				__stringify(TQMA6_UBOOT_OFFSET) "; "           \
 			"setexpr size ${uboot_sectors} * "                     \
-				__stringify(CONFIG_FLASH_SECTOR_SIZE)"; "      \
+				__stringify(TQMA6_SPI_FLASH_SECTOR_SIZE)"; "   \
 			"if itest ${blkc} <= ${size}; then "                   \
 				"sf probe; "                                   \
 				"sf erase 0 ${size}; "                         \
@@ -332,9 +332,9 @@
 	"update_kernel=run kernel_name; if tftp ${kernel}; then "              \
 		"if itest ${filesize} > 0; then "                              \
 			"setexpr size ${kernel_sectors} * "                    \
-				__stringify(CONFIG_FLASH_SECTOR_SIZE)"; "      \
+				__stringify(TQMA6_SPI_FLASH_SECTOR_SIZE)"; "   \
 			"setexpr offset ${kernel_start} * "                    \
-				__stringify(CONFIG_FLASH_SECTOR_SIZE)"; "      \
+				__stringify(TQMA6_SPI_FLASH_SECTOR_SIZE)"; "   \
 			"if itest ${filesize} <= ${size}; then "               \
 				"sf probe; "                                   \
 				"sf erase ${offset} ${size}; "                 \
@@ -346,9 +346,9 @@
 	"update_fdt=if tftp ${fdt_file}; then "                                \
 		"if itest ${filesize} > 0; then "                              \
 			"setexpr size ${fdt_sectors} * "                       \
-				__stringify(CONFIG_FLASH_SECTOR_SIZE)"; "      \
+				__stringify(TQMA6_SPI_FLASH_SECTOR_SIZE)"; "   \
 			"setexpr offset ${fdt_start} * "                       \
-				__stringify(CONFIG_FLASH_SECTOR_SIZE)"; "      \
+				__stringify(TQMA6_SPI_FLASH_SECTOR_SIZE)"; "   \
 			"if itest ${filesize} <= ${size}; then "               \
 				"sf probe; "                                   \
 				"sf erase ${offset} ${size}; "                 \
@@ -359,16 +359,16 @@
 		"setenv filesize 0; setenv size ; setenv offset\0"             \
 	"loadimage=sf probe; "                                                 \
 		"setexpr size ${kernel_sectors} * "                            \
-			__stringify(CONFIG_FLASH_SECTOR_SIZE)"; "              \
+			__stringify(TQMA6_SPI_FLASH_SECTOR_SIZE)"; "           \
 		"setexpr offset ${kernel_start} * "                            \
-			__stringify(CONFIG_FLASH_SECTOR_SIZE)"; "              \
+			__stringify(TQMA6_SPI_FLASH_SECTOR_SIZE)"; "           \
 		"sf read ${loadaddr} ${offset} ${size}; "                      \
 		"setenv size ; setenv offset\0"                                \
 	"loadfdt=sf probe; "                                                   \
 		"setexpr size ${fdt_sectors} * "                               \
-			__stringify(CONFIG_FLASH_SECTOR_SIZE)"; "              \
+			__stringify(TQMA6_SPI_FLASH_SECTOR_SIZE)"; "           \
 		"setexpr offset ${fdt_start} * "                               \
-			__stringify(CONFIG_FLASH_SECTOR_SIZE)"; "              \
+			__stringify(TQMA6_SPI_FLASH_SECTOR_SIZE)"; "           \
 		"sf read ${${fdt_addr}} ${offset} ${size}; "                   \
 		"setenv size ; setenv offset\0"                                \
 

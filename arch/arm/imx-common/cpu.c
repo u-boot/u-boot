@@ -17,6 +17,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
 #include <ipu_pixfmt.h>
+#include <thermal.h>
+#include <sata.h>
 
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
@@ -134,6 +136,11 @@ int print_cpuinfo(void)
 {
 	u32 cpurev;
 
+#if defined(CONFIG_MX6) && defined(CONFIG_IMX6_THERMAL)
+	struct udevice *thermal_dev;
+	int cpu_tmp, ret;
+#endif
+
 	cpurev = get_cpu_rev();
 
 	printf("CPU:   Freescale i.MX%s rev%d.%d at %d MHz\n",
@@ -141,6 +148,21 @@ int print_cpuinfo(void)
 		(cpurev & 0x000F0) >> 4,
 		(cpurev & 0x0000F) >> 0,
 		mxc_get_clock(MXC_ARM_CLK) / 1000000);
+
+#if defined(CONFIG_MX6) && defined(CONFIG_IMX6_THERMAL)
+	ret = uclass_get_device(UCLASS_THERMAL, 0, &thermal_dev);
+	if (!ret) {
+		ret = thermal_get_temp(thermal_dev, &cpu_tmp);
+
+		if (!ret)
+			printf("CPU:   Temperature %d C\n", cpu_tmp);
+		else
+			printf("CPU:   Temperature: invalid sensor data\n");
+	} else {
+		printf("CPU:   Temperature: Can't find sensor device\n");
+	}
+#endif
+
 	printf("Reset cause: %s\n", get_reset_cause());
 	return 0;
 }
@@ -180,10 +202,44 @@ u32 get_ahb_clk(void)
 	return get_periph_clk() / (ahb_podf + 1);
 }
 
-#if defined(CONFIG_VIDEO_IPUV3)
 void arch_preboot_os(void)
 {
+#if defined(CONFIG_CMD_SATA)
+	sata_stop();
+#endif
+#if defined(CONFIG_VIDEO_IPUV3)
 	/* disable video before launching O/S */
 	ipuv3_fb_shutdown();
-}
 #endif
+}
+
+void set_chipselect_size(int const cs_size)
+{
+	unsigned int reg;
+	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	reg = readl(&iomuxc_regs->gpr[1]);
+
+	switch (cs_size) {
+	case CS0_128:
+		reg &= ~0x7;	/* CS0=128MB, CS1=0, CS2=0, CS3=0 */
+		reg |= 0x5;
+		break;
+	case CS0_64M_CS1_64M:
+		reg &= ~0x3F;	/* CS0=64MB, CS1=64MB, CS2=0, CS3=0 */
+		reg |= 0x1B;
+		break;
+	case CS0_64M_CS1_32M_CS2_32M:
+		reg &= ~0x1FF;	/* CS0=64MB, CS1=32MB, CS2=32MB, CS3=0 */
+		reg |= 0x4B;
+		break;
+	case CS0_32M_CS1_32M_CS2_32M_CS3_32M:
+		reg &= ~0xFFF;  /* CS0=32MB, CS1=32MB, CS2=32MB, CS3=32MB */
+		reg |= 0x249;
+		break;
+	default:
+		printf("Unknown chip select size: %d\n", cs_size);
+		break;
+	}
+
+	writel(reg, &iomuxc_regs->gpr[1]);
+}

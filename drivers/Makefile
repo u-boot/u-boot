@@ -21,3 +21,4 @@ obj-y += pwm/
 obj-y += input/
 # SOC specific infrastructure drivers.
 obj-y += soc/
+obj-y += thermal/

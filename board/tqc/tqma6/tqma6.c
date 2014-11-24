@@ -17,6 +17,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/imx-common/mxc_i2c.h>
+#include <asm/imx-common/spi.h>
 #include <common.h>
 #include <fsl_esdhc.h>
 #include <libfdt.h>
@@ -50,7 +51,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }
@@ -180,8 +181,14 @@ static struct i2c_pads_info tqma6_i2c3_pads = {
 
 static void tqma6_setup_i2c(void)
 {
-	/* use logical index for bus, e.g. I2C1 -> 0 */
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &tqma6_i2c3_pads);
+	int ret;
+	/*
+	 * use logical index for bus, e.g. I2C1 -> 0
+	 * warn on error
+	 */
+	ret = setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &tqma6_i2c3_pads);
+	if (ret)
+		printf("setup I2C3 failed: %d\n", ret);
 }
 
 int board_early_init_f(void)

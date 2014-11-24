@@ -28,6 +28,7 @@ enum uclass_id {
 	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
 	UCLASS_SPI_FLASH,	/* SPI flash */
 	UCLASS_CROS_EC,	/* Chrome OS EC */
+	UCLASS_THERMAL,		/* Thermal sensor */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,

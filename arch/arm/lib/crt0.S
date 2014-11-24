@@ -104,6 +104,11 @@ clr_gd:
 	ldr	r0, [r9, #GD_RELOCADDR]		/* r0 = gd->relocaddr */
 	b	relocate_code
 here:
+/*
+ * now relocate vectors
+ */
+
+	bl	relocate_vectors
 
 /* Set up final (full) environment */
 

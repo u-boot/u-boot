@@ -27,7 +27,7 @@ These semantics and rules will be outlined now.
 - Each line of the configuration file contains exactly one instruction.
 - Every numeric value must be encoded in hexadecimal and in format 0xabcdef12 .
 - The configuration file is a concatenation of blocks called "sections" and
-  optionally "DCD blocks" (see below).
+  optionally "DCD blocks" (see below), and optional flags lines.
   - Each "section" is started by the "SECTION" instruction.
   - The "SECTION" instruction has the following semantics:
 
@@ -139,9 +139,14 @@ These semantics and rules will be outlined now.
 	NOOP
 	- This instruction does nothing.
 
-- If the verbose output from the BootROM is enabled, the BootROM will produce a
-  letter on the Debug UART for each instruction it started processing. Here is a
-  mapping between the above instructions and the BootROM verbose output:
+  - An optional flags lines can be one of the following:
+
+	DISPLAYPROGRESS
+	- Enable boot progress output form the BootROM.
+
+- If the boot progress output from the BootROM is enabled, the BootROM will
+  produce a letter on the Debug UART for each instruction it started processing.
+  Here is a mapping between the above instructions and the BootROM output:
 
    H -- SB Image header loaded
    T -- TAG instruction

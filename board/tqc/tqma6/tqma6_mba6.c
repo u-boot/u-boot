@@ -224,8 +224,14 @@ static struct i2c_pads_info mba6_i2c1_pads = {
 
 static void mba6_setup_i2c(void)
 {
-	/* use logical index for bus, e.g. I2C1 -> 0 */
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mba6_i2c1_pads);
+	int ret;
+	/*
+	 * use logical index for bus, e.g. I2C1 -> 0
+	 * warn on error
+	 */
+	ret = setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mba6_i2c1_pads);
+	if (ret)
+		printf("setup I2C1 failed: %d\n", ret);
 }
 
 

@@ -27,11 +27,10 @@
 #include <i2c.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
+#include "../common/pfuze.h"
 #include <asm/arch/mx6-ddr.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define BOOT_CFG	0x020D8004
 
 #define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |			\
@@ -300,7 +299,8 @@ int board_mmc_init(bd_t *bis)
 
 	return 0;
 #else
-	unsigned reg = readl(BOOT_CFG) >> 11;
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned reg = readl(&psrc->sbmr1) >> 11;
 	/*
 	 * Upon reading BOOT_CFG register the following map is done:
 	 * Bit 11 and 12 of BOOT_CFG register can determine the current
@@ -560,59 +560,26 @@ int board_init(void)
 	return 0;
 }
 
-static int pfuze_init(void)
+int power_init_board(void)
 {
 	struct pmic *p;
-	int ret;
 	unsigned int reg;
 
-	ret = power_pfuze100_init(I2C_PMIC);
-	if (ret)
-		return ret;
-
-	p = pmic_get("PFUZE100");
-	ret = pmic_probe(p);
-	if (ret)
-		return ret;
-
-	pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
-	printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
+	p = pfuze_common_init(I2C_PMIC);
+	if (!p)
+		return -ENODEV;
 
 	/* Increase VGEN3 from 2.5 to 2.8V */
 	pmic_reg_read(p, PFUZE100_VGEN3VOL, &reg);
-	reg &= ~0xf;
-	reg |= 0xa;
+	reg &= ~LDO_VOL_MASK;
+	reg |= LDOB_2_80V;
 	pmic_reg_write(p, PFUZE100_VGEN3VOL, reg);
 
 	/* Increase VGEN5 from 2.8 to 3V */
 	pmic_reg_read(p, PFUZE100_VGEN5VOL, &reg);
-	reg &= ~0xf;
-	reg |= 0xc;
+	reg &= ~LDO_VOL_MASK;
+	reg |= LDOB_3_00V;
 	pmic_reg_write(p, PFUZE100_VGEN5VOL, reg);
-
-	/* Set SW1AB stanby volage to 0.975V */
-	pmic_reg_read(p, PFUZE100_SW1ABSTBY, &reg);
-	reg &= ~0x3f;
-	reg |= 0x1b;
-	pmic_reg_write(p, PFUZE100_SW1ABSTBY, reg);
-
-	/* Set SW1AB/VDDARM step ramp up time from 16us to 4us/25mV */
-	pmic_reg_read(p, PUZE_100_SW1ABCONF, &reg);
-	reg &= ~0xc0;
-	reg |= 0x40;
-	pmic_reg_write(p, PUZE_100_SW1ABCONF, reg);
-
-	/* Set SW1C standby voltage to 0.975V */
-	pmic_reg_read(p, PFUZE100_SW1CSTBY, &reg);
-	reg &= ~0x3f;
-	reg |= 0x1b;
-	pmic_reg_write(p, PFUZE100_SW1CSTBY, reg);
-
-	/* Set SW1C/VDDSOC step ramp up time from 16us to 4us/25mV */
-	pmic_reg_read(p, PFUZE100_SW1CCONF, &reg);
-	reg &= ~0xc0;
-	reg |= 0x40;
-	pmic_reg_write(p, PFUZE100_SW1CCONF, reg);
 
 	return 0;
 }
@@ -640,8 +607,6 @@ int board_late_init(void)
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
-	pfuze_init();
-
 	return 0;
 }
 
@@ -729,11 +694,33 @@ static struct mx6_ddr3_cfg mem_ddr = {
 	.trasmin = 3500,
 };
 
+static void ccgr_init(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	writel(0x00C03F3F, &ccm->CCGR0);
+	writel(0x0030FC03, &ccm->CCGR1);
+	writel(0x0FFFC000, &ccm->CCGR2);
+	writel(0x3FF00000, &ccm->CCGR3);
+	writel(0x00FFF300, &ccm->CCGR4);
+	writel(0x0F0000C3, &ccm->CCGR5);
+	writel(0x000003FF, &ccm->CCGR6);
+}
+
+static void gpr_init(void)
+{
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	/* enable AXI cache for VDOA/VPU/IPU */
+	writel(0xF00000CF, &iomux->gpr[4]);
+	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
+	writel(0x007F007F, &iomux->gpr[6]);
+	writel(0x007F007F, &iomux->gpr[7]);
+}
+
 /*
- * This section require the differentiation
- * between iMX6 Sabre Families.
- * But for now, it will configure only for
- * SabreSD.
+ * This section requires the differentiation between iMX6 Sabre boards, but
+ * for now, it will configure only for the mx6q variant.
  */
 static void spl_dram_init(void)
 {
@@ -767,6 +754,9 @@ void board_init_f(ulong dummy)
 {
 	/* setup AIPS and disable watchdog */
 	arch_cpu_init();
+
+	ccgr_init();
+	gpr_init();
 
 	/* iomux and setup of i2c */
 	board_early_init_f();

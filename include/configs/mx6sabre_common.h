@@ -25,6 +25,11 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
+#define CONFIG_DM
+#define CONFIG_DM_THERMAL
+#define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
+#define CONFIG_IMX6_THERMAL
+
 #define CONFIG_SYS_GENERIC_BOARD
 
 /* Size of malloc() pool */
@@ -37,7 +42,7 @@
 #define CONFIG_MXC_UART
 
 #define CONFIG_CMD_FUSE
-#ifdef CONFIG_CMD_FUSE
+#if defined(CONFIG_CMD_FUSE) || defined(CONFIG_IMX6_THERMAL)
 #define CONFIG_MXC_OCOTP
 #endif
 
