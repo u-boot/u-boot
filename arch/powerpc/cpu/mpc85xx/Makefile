@@ -51,6 +51,8 @@ obj-$(CONFIG_PPC_T1040) += t1040_ids.o
 obj-$(CONFIG_PPC_T1042)	+= t1040_ids.o
 obj-$(CONFIG_PPC_T1020)	+= t1040_ids.o
 obj-$(CONFIG_PPC_T1022)	+= t1040_ids.o
+obj-$(CONFIG_PPC_T1023) += t1024_ids.o
+obj-$(CONFIG_PPC_T1024) += t1024_ids.o
 obj-$(CONFIG_PPC_T2080) += t2080_ids.o
 obj-$(CONFIG_PPC_T2081) += t2080_ids.o
 
@@ -97,6 +99,8 @@ obj-$(CONFIG_PPC_T1040) += t1040_serdes.o
 obj-$(CONFIG_PPC_T1042)	+= t1040_serdes.o
 obj-$(CONFIG_PPC_T1020)	+= t1040_serdes.o
 obj-$(CONFIG_PPC_T1022)	+= t1040_serdes.o
+obj-$(CONFIG_PPC_T1023) += t1024_serdes.o
+obj-$(CONFIG_PPC_T1024) += t1024_serdes.o
 obj-$(CONFIG_PPC_T2080) += t2080_serdes.o
 obj-$(CONFIG_PPC_T2081) += t2080_serdes.o
 
