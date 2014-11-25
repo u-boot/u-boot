@@ -79,4 +79,8 @@
 #define PSS_LATENCY_TRANSITION		10
 #define PSS_LATENCY_BUSMASTER		10
 
+/* Configure power limits for turbo mode */
+void set_power_limits(u8 power_limit_1_time);
+int cpu_config_tdp_levels(void);
+
 #endif

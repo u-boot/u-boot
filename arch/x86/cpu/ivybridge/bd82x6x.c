@@ -128,6 +128,8 @@ int bd82x6x_init(void)
 
 	bd82x6x_pci_init(PCH_DEV);
 	bd82x6x_sata_enable(PCH_SATA_DEV, blob, sata_node);
+	northbridge_enable(PCH_DEV);
+	northbridge_init(PCH_DEV);
 
 	return 0;
 }

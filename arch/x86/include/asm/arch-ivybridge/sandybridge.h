@@ -97,10 +97,21 @@
 /*
  * MCHBAR
  */
-#define MCHBAR_REG(reg)		(DEFAULT_RCBA + (reg))
+#define MCHBAR_REG(reg)		(DEFAULT_MCHBAR + (reg))
 
 #define SSKPD		0x5d14	/* 16bit (scratchpad) */
 #define BIOS_RESET_CPL	0x5da8	/* 8bit */
+
+/*
+ * DMIBAR
+ */
+
+#define DMIBAR_REG(x)	(DEFAULT_DMIBAR + x)
+
+int bridge_silicon_revision(void);
+
+void northbridge_enable(pci_dev_t dev);
+void northbridge_init(pci_dev_t dev);
 
 void report_platform_info(void);
 
