@@ -24,6 +24,7 @@
 #endif
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
+#include <asm/arch/display.h>
 #include <asm/arch/dram.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
@@ -237,3 +238,12 @@ int misc_init_r(void)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_OF_BOARD_SETUP
+int ft_board_setup(void *blob, bd_t *bd)
+{
+#ifdef CONFIG_VIDEO_DT_SIMPLEFB
+	return sunxi_simplefb_setup(blob);
+#endif
+}
+#endif /* CONFIG_OF_BOARD_SETUP */

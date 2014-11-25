@@ -176,13 +176,18 @@ struct sunxi_ccm_reg {
 #define CCM_PLL1_CTRL_MAGIC		(0x1 << 16)
 #define CCM_PLL1_CTRL_EN		(0x1 << 31)
 
+#define CCM_PLL3_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+#define CCM_PLL3_CTRL_N(n)		((((n) - 1) & 0x7f) << 8)
+#define CCM_PLL3_CTRL_INTEGER_MODE	(0x1 << 24)
+#define CCM_PLL3_CTRL_EN		(0x1 << 31)
+
 #define CCM_PLL5_CTRL_M(n)		((((n) - 1) & 0x3) << 0)
 #define CCM_PLL5_CTRL_K(n)		((((n) - 1) & 0x3) << 4)
 #define CCM_PLL5_CTRL_N(n)		((((n) - 1) & 0x1f) << 8)
 #define CCM_PLL5_CTRL_UPD		(0x1 << 20)
 #define CCM_PLL5_CTRL_EN		(0x1 << 31)
 
-#define PLL6_CFG_DEFAULT		0x90041811
+#define PLL6_CFG_DEFAULT		0x90041811 /* 600 MHz */
 
 #define CCM_PLL6_CTRL_N_SHIFT		8
 #define CCM_PLL6_CTRL_N_MASK		(0x1f << CCM_PLL6_CTRL_N_SHIFT)
@@ -193,16 +198,25 @@ struct sunxi_ccm_reg {
 
 #define AXI_GATE_OFFSET_DRAM		0
 
+/* ahb_gate0 offsets */
 #define AHB_GATE_OFFSET_USB_OHCI1	30
 #define AHB_GATE_OFFSET_USB_OHCI0	29
 #define AHB_GATE_OFFSET_USB_EHCI1	27
 #define AHB_GATE_OFFSET_USB_EHCI0	26
 #define AHB_GATE_OFFSET_MCTL		14
+#define AHB_GATE_OFFSET_GMAC		17
 #define AHB_GATE_OFFSET_MMC3		11
 #define AHB_GATE_OFFSET_MMC2		10
 #define AHB_GATE_OFFSET_MMC1		9
 #define AHB_GATE_OFFSET_MMC0		8
 #define AHB_GATE_OFFSET_MMC(n)		(AHB_GATE_OFFSET_MMC0 + (n))
+
+/* ahb_gate1 offsets */
+#define AHB_GATE_OFFSET_DRC0		25
+#define AHB_GATE_OFFSET_DE_BE0		12
+#define AHB_GATE_OFFSET_HDMI		11
+#define AHB_GATE_OFFSET_LCD1		5
+#define AHB_GATE_OFFSET_LCD0		4
 
 #define CCM_MMC_CTRL_OSCM24 (0x0 << 24)
 #define CCM_MMC_CTRL_PLL6   (0x1 << 24)
@@ -216,6 +230,12 @@ struct sunxi_ccm_reg {
 #define CCM_USB_CTRL_PHY1_CLK (0x1 << 9)
 #define CCM_USB_CTRL_PHY2_CLK (0x1 << 10)
 
+#define CCM_GMAC_CTRL_TX_CLK_SRC_MII	0x0
+#define CCM_GMAC_CTRL_TX_CLK_SRC_EXT_RGMII 0x1
+#define CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII 0x2
+#define CCM_GMAC_CTRL_GPIT_MII		(0x0 << 2)
+#define CCM_GMAC_CTRL_GPIT_RGMII	(0x1 << 2)
+
 #define MDFS_CLK_DEFAULT		0x81000002 /* PLL6 / 3 */
 
 #define CCM_DRAMCLK_CFG_DIV0(x)		((x - 1) << 8)
@@ -223,8 +243,35 @@ struct sunxi_ccm_reg {
 #define CCM_DRAMCLK_CFG_UPD		(0x1 << 16)
 #define CCM_DRAMCLK_CFG_RST		(0x1 << 31)
 
+#define CCM_DRAM_GATE_OFFSET_DE_BE0	26
+
+#define CCM_LCD_CH0_CTRL_PLL3		(0 << 24)
+#define CCM_LCD_CH0_CTRL_PLL7		(1 << 24)
+#define CCM_LCD_CH0_CTRL_PLL3_2X	(2 << 24)
+#define CCM_LCD_CH0_CTRL_PLL7_2X	(3 << 24)
+#define CCM_LCD_CH0_CTRL_MIPI_PLL	(4 << 24)
+#define CCM_LCD_CH0_CTRL_GATE		(0x1 << 31)
+
+#define CCM_LCD_CH1_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+#define CCM_LCD_CH1_CTRL_PLL3		(0 << 24)
+#define CCM_LCD_CH1_CTRL_PLL7		(1 << 24)
+#define CCM_LCD_CH1_CTRL_PLL3_2X	(2 << 24)
+#define CCM_LCD_CH1_CTRL_PLL7_2X	(3 << 24)
+#define CCM_LCD_CH1_CTRL_GATE		(0x1 << 31)
+
+#define CCM_HDMI_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+#define CCM_HDMI_CTRL_PLL_MASK		(3 << 24)
+#define CCM_HDMI_CTRL_PLL3		(0 << 24)
+#define CCM_HDMI_CTRL_PLL7		(1 << 24)
+#define CCM_HDMI_CTRL_PLL3_2X		(2 << 24)
+#define CCM_HDMI_CTRL_PLL7_2X		(3 << 24)
+#define CCM_HDMI_CTRL_DDC_GATE		(0x1 << 30)
+#define CCM_HDMI_CTRL_GATE		(0x1 << 31)
+
 #define MBUS_CLK_DEFAULT		0x81000001 /* PLL6 / 2 */
 
+/* ahb_reset0 offsets */
+#define AHB_RESET_OFFSET_GMAC		17
 #define AHB_RESET_OFFSET_MCTL		14
 #define AHB_RESET_OFFSET_MMC3		11
 #define AHB_RESET_OFFSET_MMC2		10
@@ -232,10 +279,28 @@ struct sunxi_ccm_reg {
 #define AHB_RESET_OFFSET_MMC0		8
 #define AHB_RESET_OFFSET_MMC(n)		(AHB_RESET_OFFSET_MMC0 + (n))
 
+/* ahb_reset0 offsets */
+#define AHB_RESET_OFFSET_DRC0		25
+#define AHB_RESET_OFFSET_DE_BE0		12
+#define AHB_RESET_OFFSET_HDMI		11
+#define AHB_RESET_OFFSET_LCD1		5
+#define AHB_RESET_OFFSET_LCD0		4
+
 /* apb2 reset */
 #define APB2_RESET_UART_SHIFT		(16)
 #define APB2_RESET_UART_MASK		(0xff << APB2_RESET_UART_SHIFT)
 #define APB2_RESET_TWI_SHIFT		(0)
 #define APB2_RESET_TWI_MASK		(0xf << APB2_RESET_TWI_SHIFT)
+
+/* CCM bits common to all Display Engine (and IEP) clock ctrl regs */
+#define CCM_DE_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
+#define CCM_DE_CTRL_PLL_MASK		(0xf << 24)
+#define CCM_DE_CTRL_PLL3		(0 << 24)
+#define CCM_DE_CTRL_PLL7		(1 << 24)
+#define CCM_DE_CTRL_PLL6_2X		(2 << 24)
+#define CCM_DE_CTRL_PLL8		(3 << 24)
+#define CCM_DE_CTRL_PLL9		(4 << 24)
+#define CCM_DE_CTRL_PLL10		(5 << 24)
+#define CCM_DE_CTRL_GATE		(1 << 31)
 
 #endif /* _SUNXI_CLOCK_SUN6I_H */

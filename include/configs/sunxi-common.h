@@ -197,6 +197,36 @@
 #define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_CMD_GPIO
 
+#ifdef CONFIG_VIDEO
+/*
+ * The amount of RAM that is reserved for the FB. This will not show up as
+ * RAM to the kernel, but will be reclaimed by a KMS driver in future.
+ */
+#define CONFIG_SUNXI_FB_SIZE (8 << 20)
+
+/* Do we want to initialize a simple FB? */
+#define CONFIG_VIDEO_DT_SIMPLEFB
+
+#define CONFIG_VIDEO_SUNXI
+
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VIDEO_LOGO
+
+/* allow both serial and cfb console. */
+#define CONFIG_CONSOLE_MUX
+/* stop x86 thinking in cfbconsole from trying to init a pc keyboard */
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+
+#define CONFIG_SYS_MEM_TOP_HIDE ((CONFIG_SUNXI_FB_SIZE + 0xFFF) & ~0xFFF)
+
+/* To be able to hook simplefb into dt */
+#ifdef CONFIG_VIDEO_DT_SIMPLEFB
+#define CONFIG_OF_BOARD_SETUP
+#endif
+
+#endif /* CONFIG_VIDEO */
+
 /* Ethernet support */
 #ifdef CONFIG_SUNXI_EMAC
 #define CONFIG_MII			/* MII PHY management		*/
@@ -217,6 +247,13 @@
 #define CONFIG_USB_STORAGE
 #endif
 
+#ifdef CONFIG_USB_KEYBOARD
+#define CONFIG_CONSOLE_MUX
+#define CONFIG_PREBOOT
+#define CONFIG_SYS_STDIO_DEREGISTER
+#define CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
+#endif
+
 #if !defined CONFIG_ENV_IS_IN_MMC && \
     !defined CONFIG_ENV_IS_IN_NAND && \
     !defined CONFIG_ENV_IS_IN_FAT && \
@@ -225,6 +262,7 @@
 #endif
 
 #define CONFIG_MISC_INIT_R
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
@@ -266,7 +304,31 @@
 
 #include <config_distro_bootcmd.h>
 
+#ifdef CONFIG_USB_KEYBOARD
+#define CONSOLE_STDIN_SETTINGS \
+	"preboot=usb start\0" \
+	"stdin=serial,usbkbd\0"
+#else
+#define CONSOLE_STDIN_SETTINGS \
+	"stdin=serial\0"
+#endif
+
+#ifdef CONFIG_VIDEO
+#define CONSOLE_STDOUT_SETTINGS \
+	"stdout=serial,vga\0" \
+	"stderr=serial,vga\0"
+#else
+#define CONSOLE_STDOUT_SETTINGS \
+	"stdout=serial\0" \
+	"stderr=serial\0"
+#endif
+
+#define CONSOLE_ENV_SETTINGS \
+	CONSOLE_STDIN_SETTINGS \
+	CONSOLE_STDOUT_SETTINGS
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	CONSOLE_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"fdtfile=" CONFIG_FDTFILE "\0" \
 	"console=ttyS0,115200\0" \

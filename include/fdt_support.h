@@ -172,6 +172,9 @@ void of_bus_default_count_cells(void *blob, int parentoffset,
 int ft_verify_fdt(void *fdt);
 int arch_fixup_memory_node(void *blob);
 
+int fdt_setup_simplefb_node(void *fdt, int node, u64 base_address, u32 width,
+			    u32 height, u32 stride, const char *format);
+
 #endif /* ifdef CONFIG_OF_LIBFDT */
 
 #ifdef USE_HOSTCC

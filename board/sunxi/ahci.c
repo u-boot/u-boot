@@ -76,6 +76,8 @@ void scsi_init(void)
 #ifdef CONFIG_SATAPWR
 	gpio_request(CONFIG_SATAPWR, "satapwr");
 	gpio_direction_output(CONFIG_SATAPWR, 1);
+	/* Give attached sata device time to power-up to avoid link timeouts */
+	mdelay(500);
 #endif
 
 	if (sunxi_ahci_phy_init(SUNXI_SATA_BASE) < 0)

@@ -24,6 +24,7 @@ config MACH_SUN7I
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select SUPPORT_SPL
+	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
 config MACH_SUN8I
 	bool "sun8i (Allwinner A23)"
@@ -214,5 +215,19 @@ config USB2_VBUS_PIN
 	default "PH24" if MACH_SUN6I
 	---help---
 	See USB1_VBUS_PIN help text.
+
+config VIDEO
+	boolean "Enable graphical uboot console on HDMI"
+	default y
+	---help---
+	Say Y here to add support for using a cfb console on the HDMI output
+	found on most sunxi devices.
+
+config USB_KEYBOARD
+	boolean "Enable USB keyboard support"
+	default y
+	---help---
+	Say Y here to add support for using a USB keyboard (typically used
+	in combination with a graphical console on HDMI).
 
 endif
