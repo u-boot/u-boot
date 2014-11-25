@@ -43,7 +43,7 @@ int spl_load_image_ext(block_dev_desc_t *block_dev,
 		goto end;
 	}
 	err = ext4fs_read((char *)header, sizeof(struct image_header), &actlen);
-	if (err <= 0) {
+	if (err < 0) {
 		puts("spl: ext4fs_read failed\n");
 		goto end;
 	}
@@ -54,12 +54,12 @@ int spl_load_image_ext(block_dev_desc_t *block_dev,
 
 end:
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-	if (err <= 0)
+	if (err < 0)
 		printf("%s: error reading image %s, err - %d\n",
 		       __func__, filename, err);
 #endif
 
-	return err <= 0;
+	return err < 0;
 }
 
 #ifdef CONFIG_SPL_OS_BOOT
@@ -95,7 +95,7 @@ int spl_load_image_ext_os(block_dev_desc_t *block_dev, int partition)
 			goto defaults;
 		}
 		err = ext4fs_read((void *)CONFIG_SYS_SPL_ARGS_ADDR, filelen, &actlen);
-		if (err <= 0) {
+		if (err < 0) {
 			printf("spl: error reading image %s, err - %d, falling back to default\n",
 			       file, err);
 			goto defaults;
@@ -124,7 +124,7 @@ defaults:
 		puts("spl: ext4fs_open failed\n");
 
 	err = ext4fs_read((void *)CONFIG_SYS_SPL_ARGS_ADDR, filelen, &actlen);
-	if (err <= 0) {
+	if (err < 0) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("%s: error reading image %s, err - %d\n",
 		       __func__, CONFIG_SPL_FS_LOAD_ARGS_NAME, err);
