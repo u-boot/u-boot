@@ -81,8 +81,6 @@ static int finish_access(struct ocotp_regs *regs, const char *caller)
 	err = !!(readl(&regs->ctrl) & BM_CTRL_ERROR);
 	clear_error(regs);
 
-	enable_ocotp_clk(0);
-
 	if (err) {
 		printf("mxc_ocotp %s(): Access protect error\n", caller);
 		return -EIO;
