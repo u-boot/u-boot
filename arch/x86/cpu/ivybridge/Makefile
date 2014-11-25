@@ -11,6 +11,7 @@ obj-y += early_init.o
 obj-y += early_me.o
 obj-y += lpc.o
 obj-y += me_status.o
+obj-y += model_206ax.o
 obj-y += microcode_intel.o
 obj-y += pch.o
 obj-y += pci.o

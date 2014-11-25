@@ -121,6 +121,7 @@ enum fdt_compat_id {
 	COMPAT_INTEL_MICROCODE,		/* Intel microcode update */
 	COMPAT_MEMORY_SPD,		/* Memory SPD information */
 	COMPAT_INTEL_PANTHERPOINT_AHCI,	/* Intel Pantherpoint AHCI */
+	COMPAT_INTEL_MODEL_206AX,	/* Intel Model 206AX CPU */
 
 	COMPAT_COUNT,
 };

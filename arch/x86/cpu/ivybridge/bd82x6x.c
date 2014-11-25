@@ -90,6 +90,7 @@ int bd82x6x_init_pci_devices(void)
 {
 	const void *blob = gd->fdt_blob;
 	struct pci_controller *hose;
+	struct x86_cpu_priv *cpu;
 	int sata_node;
 
 	hose = pci_bus_to_hose(0);
@@ -104,6 +105,11 @@ int bd82x6x_init_pci_devices(void)
 	bd82x6x_sata_init(PCH_SATA_DEV, blob, sata_node);
 	bd82x6x_usb_ehci_init(PCH_EHCI1_DEV);
 	bd82x6x_usb_ehci_init(PCH_EHCI2_DEV);
+
+	cpu = calloc(1, sizeof(*cpu));
+	if (!cpu)
+		return -ENOMEM;
+	model_206ax_init(cpu);
 
 	return 0;
 }

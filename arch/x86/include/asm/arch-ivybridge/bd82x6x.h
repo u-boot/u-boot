@@ -15,4 +15,7 @@ void bd82x6x_usb_xhci_init(pci_dev_t dev);
 int bd82x6x_init_pci_devices(void);
 int bd82x6x_init(void);
 
+struct x86_cpu_priv;
+int model_206ax_init(struct x86_cpu_priv *cpu);
+
 #endif
