@@ -85,14 +85,9 @@ static int exynos_usb_parse_dt(const void *blob, struct exynos_ehci *exynos)
 }
 #endif
 
-/* Setup the EHCI host controller. */
-static void setup_usb_phy(struct exynos_usb_phy *usb)
+static void exynos5_setup_usb_phy(struct exynos_usb_phy *usb)
 {
 	u32 hsic_ctrl;
-
-	set_usbhost_mode(USB20_PHY_CFG_HOST_LINK_EN);
-
-	set_usbhost_phy_ctrl(POWER_USB_HOST_PHY_CTRL_EN);
 
 	clrbits_le32(&usb->usbphyctrl0,
 			HOST_CTRL0_FSEL_MASK |
@@ -150,8 +145,34 @@ static void setup_usb_phy(struct exynos_usb_phy *usb)
 			EHCICTRL_ENAINCR16);
 }
 
-/* Reset the EHCI host controller. */
-static void reset_usb_phy(struct exynos_usb_phy *usb)
+static void exynos4412_setup_usb_phy(struct exynos4412_usb_phy *usb)
+{
+	writel(CLK_24MHZ, &usb->usbphyclk);
+
+	clrbits_le32(&usb->usbphyctrl, (PHYPWR_NORMAL_MASK_HSIC0 |
+		PHYPWR_NORMAL_MASK_HSIC1 | PHYPWR_NORMAL_MASK_PHY1 |
+		PHYPWR_NORMAL_MASK_PHY0));
+
+	setbits_le32(&usb->usbphyrstcon, (RSTCON_HOSTPHY_SWRST | RSTCON_SWRST));
+	udelay(10);
+	clrbits_le32(&usb->usbphyrstcon, (RSTCON_HOSTPHY_SWRST | RSTCON_SWRST));
+}
+
+static void setup_usb_phy(struct exynos_usb_phy *usb)
+{
+	set_usbhost_mode(USB20_PHY_CFG_HOST_LINK_EN);
+
+	set_usbhost_phy_ctrl(POWER_USB_HOST_PHY_CTRL_EN);
+
+	if (cpu_is_exynos5())
+		exynos5_setup_usb_phy(usb);
+	else if (cpu_is_exynos4())
+		if (proid_is_exynos4412())
+			exynos4412_setup_usb_phy((struct exynos4412_usb_phy *)
+						 usb);
+}
+
+static void exynos5_reset_usb_phy(struct exynos_usb_phy *usb)
 {
 	u32 hsic_ctrl;
 
@@ -171,6 +192,24 @@ static void reset_usb_phy(struct exynos_usb_phy *usb)
 
 	setbits_le32(&usb->hsicphyctrl1, hsic_ctrl);
 	setbits_le32(&usb->hsicphyctrl2, hsic_ctrl);
+}
+
+static void exynos4412_reset_usb_phy(struct exynos4412_usb_phy *usb)
+{
+	setbits_le32(&usb->usbphyctrl, (PHYPWR_NORMAL_MASK_HSIC0 |
+		PHYPWR_NORMAL_MASK_HSIC1 | PHYPWR_NORMAL_MASK_PHY1 |
+		PHYPWR_NORMAL_MASK_PHY0));
+}
+
+/* Reset the EHCI host controller. */
+static void reset_usb_phy(struct exynos_usb_phy *usb)
+{
+	if (cpu_is_exynos5())
+		exynos5_reset_usb_phy(usb);
+	else if (cpu_is_exynos4())
+		if (proid_is_exynos4412())
+			exynos4412_reset_usb_phy((struct exynos4412_usb_phy *)
+						 usb);
 
 	set_usbhost_phy_ctrl(POWER_USB_HOST_PHY_CTRL_DISABLE);
 }

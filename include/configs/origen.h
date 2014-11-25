@@ -56,6 +56,10 @@
 #undef CONFIG_CMD_PING
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FS_GENERIC
+#define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 
@@ -63,7 +67,36 @@
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 #define CONFIG_SPL_TEXT_BASE	0x02021410
 
-#define CONFIG_BOOTCOMMAND	"fatload mmc 0 40007000 uImage; bootm 40007000"
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"loadaddr=0x40007000\0" \
+	"rdaddr=0x48000000\0" \
+	"kerneladdr=0x40007000\0" \
+	"ramdiskaddr=0x48000000\0" \
+	"console=ttySAC2,115200n8\0" \
+	"mmcdev=0\0" \
+	"bootenv=uEnv.txt\0" \
+	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
+	"importbootenv=echo Importing environment from mmc ...; " \
+		"env import -t $loadaddr $filesize\0" \
+        "loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
+        "bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
+                "source ${loadaddr}\0"
+#define CONFIG_BOOTCOMMAND \
+	"if mmc rescan; then " \
+		"echo SD/MMC found on device ${mmcdev};" \
+		"if run loadbootenv; then " \
+			"echo Loaded environment from ${bootenv};" \
+			"run importbootenv;" \
+		"fi;" \
+		"if test -n $uenvcmd; then " \
+			"echo Running uenvcmd ...;" \
+			"run uenvcmd;" \
+		"fi;" \
+		"if run loadbootscript; then " \
+			"run bootscript; " \
+		"fi; " \
+	"fi;" \
+	"load mmc ${mmcdev} ${loadaddr} uImage; bootm ${loadaddr} "
 
 #define CONFIG_IDENT_STRING		" for ORIGEN"
 

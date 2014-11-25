@@ -210,6 +210,13 @@ struct exynos4_power {
 	unsigned int	gps_alive_option;
 };
 
+struct exynos4412_power {
+	unsigned char	res1[0x0704];
+	unsigned int	usbhost_phy_control;
+	unsigned int	hsic1_phy_control;
+	unsigned int	hsic2_phy_control;
+};
+
 struct exynos5_power {
 	unsigned int	om_stat;
 	unsigned char	res1[0x18];

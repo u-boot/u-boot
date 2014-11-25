@@ -10,6 +10,8 @@
 #define __CONFIG_EXYNOS5420_H
 
 #define CONFIG_EXYNOS5420
+/* A variant of Exynos5420 (Exynos5 Family) */
+#define CONFIG_EXYNOS5800
 
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SPI_FLASH
@@ -38,13 +40,12 @@
 
 #define CONFIG_SPL_MAX_FOOTPRINT	(30 * 1024)
 
-#define CONFIG_DEVICE_TREE_LIST "exynos5420-peach-pit exynos5420-smdk5420"
+#define CONFIG_DEVICE_TREE_LIST "exynos5800-peach-pi"	\
+				"exynos5420-peach-pit exynos5420-smdk5420"
 
 #define CONFIG_MAX_I2C_NUM	11
 
 #define CONFIG_BOARD_REV_GPIO_COUNT	2
-
-#define CONFIG_BOOTCOMMAND	"mmc read 20007000 451 2000; bootm 20007000"
 
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 
@@ -53,10 +54,6 @@
  * SPL marker. This value is arbitrary, but gd_t is placed starting here.
  */
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_IRAM_TOP - 0x800)
-
-/* DRAM Memory Banks */
-#define CONFIG_NR_DRAM_BANKS	7
-#define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */
 
 /* Miscellaneous configurable options */
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"

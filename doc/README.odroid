@@ -141,3 +141,172 @@ And the boot sequence is:
 - boot_fit - if "Image.itb" exists
 - boot_zimg - if "zImage" exists
 - boot_uimg - if "uImage" exists
+
+11. USB host support
+====================
+
+The ethernet can be accessed after starting the USB subsystem in U-Boot.
+The adapter does not come with a preconfigured MAC address, and hence it needs
+to be set before starting USB.
+setenv usbethaddr 02:DE:AD:BE:EF:FF
+
+Note that in this example a locally managed MAC address is chosen. Care should
+be taken to make these MAC addresses unique within the same subnet.
+
+Start the USB subsystem:
+Odroid # setenv usbethaddr 02:DE:AD:BE:EF:FF
+Odroid # usb start
+(Re)start USB...
+USB0:   USB EHCI 1.00
+scanning bus 0 for devices... 4 USB Device(s) found
+       scanning usb for storage devices... 1 Storage Device(s) found
+       scanning usb for ethernet devices... 1 Ethernet Device(s) found
+Odroid #
+
+Automatic IP assignment:
+------------------------
+If the ethernet is connected to a DHCP server (router maybe with DHCP enabled),
+then the below will automatically assign an ip address through DHCP.
+setenv autoload no
+dhcp
+
+Odroid # setenv autoload no
+Odroid # dhcp
+Waiting for Ethernet connection... done.
+BOOTP broadcast 1
+DHCP client bound to address 192.168.1.10 (524 ms)
+Odroid #
+
+Note that this automatically sets the many IP address related variables in
+U-Boot that is obtained from the DHCP server.
+
+Odroid # printenv ipaddr netmask gatewayip dnsip
+ipaddr=192.168.1.10
+netmask=255.255.255.0
+gatewayip=192.168.1.1
+dnsip=192.168.1.1
+
+Ping example:
+The ping command can be used a test to check connectivity. In this example,
+192.168.1.27 is a pingable server in the network.
+Odroid # ping 192.168.1.27
+Waiting for Ethernet connection... done.
+Using sms0 device
+host 192.168.1.27 is alive
+Odroid #
+
+Static IP assignment:
+---------------------
+In the case where there are no DHCP servers in the network, or you want to
+set the IP address statically, it can be done by:
+Odroid # setenv ipaddr 192.168.1.10
+Odroid # ping 192.168.1.27
+Waiting for Ethernet connection... done.
+Using sms0 device
+host 192.168.1.27 is alive
+
+TFTP booting:
+-------------
+Say there exists a tftp server in the network with address 192.168.1.27 and
+it serves a kernel image (zImage.3.17) and a DTB blob (exynos4412-odroidu3.dtb)
+that needs to be loaded and booted. It can be accomplished as below:
+(Assumes that you have setenv usbethaddr, and have not set autoload to no)
+
+Odroid # setenv serverip 192.168.1.27
+Odroid # tftpboot 0x40080000 zImage.3.17
+Waiting for Ethernet connection... done.
+Using sms0 device
+TFTP from server 192.168.1.27; our IP address is 192.168.1.10
+Filename 'zImage.3.17'.
+Load address: 0x40080000
+Loading: #################################################################
+	 #################################################################
+	 #################################################################
+	 #######################
+	 52.7 KiB/s
+done
+Bytes transferred = 3194200 (30bd58 hex)
+Odroid # tftpboot 0x42000000 exynos4412-odroidu3.dtb
+Waiting for Ethernet connection... done.
+Using sms0 device
+TFTP from server 192.168.1.27; our IP address is 192.168.1.10
+Filename 'exynos4412-odroidu3.dtb'.
+Load address: 0x42000000
+Loading: ####
+	 40 KiB/s
+done
+Bytes transferred = 46935 (b757 hex)
+Odroid # printenv bootargs
+bootargs=Please use defined boot
+Odroid # setenv bootargs console=ttySAC1,115200n8 root=/dev/mmcblk0p2 rootwait
+Odroid # bootz 40080000 - 42000000
+Kernel image @ 0x40080000 [ 0x000000 - 0x30bd58 ]
+## Flattened Device Tree blob at 42000000
+   Booting using the fdt blob at 0x42000000
+   Loading Device Tree to 4fff1000, end 4ffff756 ... OK
+
+Starting kernel ...
+
+[    0.000000] Booting Linux on physical CPU 0xa00
+... etc ...
+
+In the above example you can substitute 'dhcp' for 'tftpboot' as well.
+
+USB Storage booting:
+--------------------
+Similarly we can use the USB storage to load the kernel image/initrd/fdt etc
+and boot. For this example, there is a USB drive plugged in. It has a FAT
+1st partition and an EXT 2nd partition. Using the generic FS (ls/load) makes
+it even easier to work with FAT/EXT file systems.
+For this example the second EXT partition is used for booting and as rootfs.
+The boot files - kernel and the dtb are present in the /boot directory of the
+second partition.
+
+Odroid # usb start
+(Re)start USB...
+USB0:   USB EHCI 1.00
+scanning bus 0 for devices... 4 USB Device(s) found
+       scanning usb for storage devices... 1 Storage Device(s) found
+       scanning usb for ethernet devices...
+Error: sms0 address not set.		<----- Note the error as usbethaddr
+Warning: failed to set MAC address	<----- is not set.
+1 Ethernet Device(s) found
+Odroid # usb part 0
+
+Partition Map for USB device 0  --   Partition Type: DOS
+
+Part	Start Sector	Num Sectors	UUID		Type
+  1	3072      	263168    	000c4046-01	06
+  2	266240    	13457408  	000c4046-02	83
+
+Odroid # ls usb 0:2 /boot
+<DIR>       4096 .
+<DIR>       4096 ..
+             353 boot.scr
+             281 boot.txt
+          101420 config-3.8.13.23
+         2127254 initrd.img-3.8.13.23
+         2194825 uInitrd
+         2194825 uInitrd-3.8.13.23
+         2453112 zImage
+          101448 config-3.8.13.26
+         2127670 uInitrd-3.8.13.26
+         2127606 initrd.img-3.8.13.26
+         3194200 zImage.3.17                    <--- Kernel
+           46935 exynos4412-odroidu3.dtb        <--- DTB
+Odroid # load usb 0:2 40080000 /boot/zImage.3.17
+3194200 bytes read in 471 ms (6.5 MiB/s)
+Odroid # load usb 0:2 42000000 /boot/exynos4412-odroidu3.dtb
+46935 bytes read in 233 ms (196.3 KiB/s)
+Odroid # setenv bootargs console=ttySAC1,115200n8 root=/dev/sda2 rootwait
+Odroid # bootz 40080000 - 42000000
+Kernel image @ 0x40080000 [ 0x000000 - 0x30bd58 ]
+## Flattened Device Tree blob at 42000000
+   Booting using the fdt blob at 0x42000000
+   Loading Device Tree to 4fff1000, end 4ffff756 ... OK
+
+Starting kernel ...
+
+[    0.000000] Booting Linux on physical CPU 0xa00
+
+Please refer to README.usb for additional information.

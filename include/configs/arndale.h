@@ -9,6 +9,9 @@
 #ifndef __CONFIG_ARNDALE_H
 #define __CONFIG_ARNDALE_H
 
+#define EXYNOS_FDTFILE_SETTING \
+	"fdtfile=exynos5250-arndale.dtb\0"
+
 #include "exynos5250-common.h"
 
 /* SD/MMC configuration */
@@ -16,8 +19,6 @@
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-
-#define CONFIG_CMD_EXT2
 
 /* USB */
 #define CONFIG_USB_EHCI
