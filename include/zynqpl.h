@@ -26,6 +26,7 @@ extern struct xilinx_fpga_op zynq_op;
 #define XILINX_ZYNQ_7015	0x1b
 #define XILINX_ZYNQ_7020	0x7
 #define XILINX_ZYNQ_7030	0xc
+#define XILINX_ZYNQ_7035	0x12
 #define XILINX_ZYNQ_7045	0x11
 #define XILINX_ZYNQ_7100	0x16
 
@@ -34,6 +35,7 @@ extern struct xilinx_fpga_op zynq_op;
 #define XILINX_XC7Z015_SIZE	28085344/8
 #define XILINX_XC7Z020_SIZE	32364512/8
 #define XILINX_XC7Z030_SIZE	47839328/8
+#define XILINX_XC7Z035_SIZE	106571232/8
 #define XILINX_XC7Z045_SIZE	106571232/8
 #define XILINX_XC7Z100_SIZE	139330784/8
 
@@ -53,6 +55,10 @@ extern struct xilinx_fpga_op zynq_op;
 #define XILINX_XC7Z030_DESC(cookie) \
 { xilinx_zynq, devcfg, XILINX_XC7Z030_SIZE, NULL, cookie, FPGA_ZYNQPL_OPS, \
 	"7z030" }
+
+#define XILINX_XC7Z035_DESC(cookie) \
+{ xilinx_zynq, devcfg, XILINX_XC7Z035_SIZE, NULL, cookie, FPGA_ZYNQPL_OPS, \
+	"7z035" }
 
 #define XILINX_XC7Z045_DESC(cookie) \
 { xilinx_zynq, devcfg, XILINX_XC7Z045_SIZE, NULL, cookie, FPGA_ZYNQPL_OPS, \
