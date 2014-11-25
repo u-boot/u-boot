@@ -147,6 +147,7 @@
 void sunxi_board_init(void);
 void sunxi_reset(void);
 int sunxi_get_ss_bonding_id(void);
+int sunxi_get_sid(unsigned int *sid);
 #endif /* __ASSEMBLY__ */
 
 #endif /* _CPU_H */

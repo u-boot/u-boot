@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
+#include <axp221.h>
 
 #ifdef CONFIG_MACH_SUN6I
 int sunxi_get_ss_bonding_id(void)
@@ -72,3 +73,21 @@ int print_cpuinfo(void)
 	return 0;
 }
 #endif
+
+int sunxi_get_sid(unsigned int *sid)
+{
+#ifdef CONFIG_MACH_SUN6I
+#ifdef CONFIG_AXP221_POWER
+	return axp221_get_sid(sid);
+#else
+	return -ENODEV;
+#endif
+#else
+	int i;
+
+	for (i = 0; i< 4; i++)
+		sid[i] = readl(SUNXI_SID_BASE + 4 * i);
+
+	return 0;
+#endif
+}

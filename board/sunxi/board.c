@@ -217,22 +217,20 @@ void sunxi_board_init(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-	if (!getenv("ethaddr")) {
-		uint32_t reg_val = readl(SUNXI_SID_BASE);
+	unsigned int sid[4];
 
-		if (reg_val) {
-			uint8_t mac_addr[6];
+	if (!getenv("ethaddr") && sunxi_get_sid(sid) == 0 &&
+			sid[0] != 0 && sid[3] != 0) {
+		uint8_t mac_addr[6];
 
-			mac_addr[0] = 0x02; /* Non OUI / registered MAC address */
-			mac_addr[1] = (reg_val >>  0) & 0xff;
-			reg_val = readl(SUNXI_SID_BASE + 0x0c);
-			mac_addr[2] = (reg_val >> 24) & 0xff;
-			mac_addr[3] = (reg_val >> 16) & 0xff;
-			mac_addr[4] = (reg_val >>  8) & 0xff;
-			mac_addr[5] = (reg_val >>  0) & 0xff;
+		mac_addr[0] = 0x02; /* Non OUI / registered MAC address */
+		mac_addr[1] = (sid[0] >>  0) & 0xff;
+		mac_addr[2] = (sid[3] >> 24) & 0xff;
+		mac_addr[3] = (sid[3] >> 16) & 0xff;
+		mac_addr[4] = (sid[3] >>  8) & 0xff;
+		mac_addr[5] = (sid[3] >>  0) & 0xff;
 
-			eth_setenv_enetaddr("ethaddr", mac_addr);
-		}
+		eth_setenv_enetaddr("ethaddr", mac_addr);
 	}
 
 	return 0;
