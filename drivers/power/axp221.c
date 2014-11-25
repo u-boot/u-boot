@@ -184,3 +184,30 @@ int axp221_init(void)
 
 	return 0;
 }
+
+int axp221_get_sid(unsigned int *sid)
+{
+	u8 *dest = (u8 *)sid;
+	int i, ret;
+
+	ret = axp221_init();
+	if (ret)
+		return ret;
+
+	ret = p2wi_write(AXP221_PAGE, 1);
+	if (ret)
+		return ret;
+
+	for (i = 0; i < 16; i++) {
+		ret = p2wi_read(AXP221_SID + i, &dest[i]);
+		if (ret)
+			return ret;
+	}
+
+	p2wi_write(AXP221_PAGE, 0);
+
+	for (i = 0; i < 4; i++)
+		sid[i] = be32_to_cpu(sid[i]);
+
+	return 0;
+}

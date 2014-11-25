@@ -10,6 +10,7 @@
 #define AXP221_CTRL_ADDR 0x3e
 #define AXP221_INIT_DATA 0x3e
 
+/* Page 0 addresses */
 #define AXP221_CHIP_ID		0x03
 #define AXP221_OUTPUT_CTRL1	0x10
 #define AXP221_OUTPUT_CTRL1_ALDO1_EN	(1 << 6)
@@ -34,6 +35,10 @@
 #define AXP221_ALDO1_CTRL	0x28
 #define AXP221_ALDO2_CTRL	0x29
 #define AXP221_ALDO3_CTRL	0x2a
+#define AXP221_PAGE		0xff
+
+/* Page 1 addresses */
+#define AXP221_SID		0x20
 
 int axp221_set_dcdc1(unsigned int mvolt);
 int axp221_set_dcdc2(unsigned int mvolt);
@@ -48,3 +53,4 @@ int axp221_set_aldo1(unsigned int mvolt);
 int axp221_set_aldo2(unsigned int mvolt);
 int axp221_set_aldo3(unsigned int mvolt);
 int axp221_init(void);
+int axp221_get_sid(unsigned int *sid);
