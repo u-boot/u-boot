@@ -15,5 +15,6 @@ obj-y	+= interrupts.o cpu.o call64.o
 obj-$(CONFIG_SYS_COREBOOT) += coreboot/
 obj-$(CONFIG_NORTHBRIDGE_INTEL_SANDYBRIDGE) += ivybridge/
 obj-$(CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE) += ivybridge/
+obj-y += lapic.o
 obj-$(CONFIG_PCI) += pci.o
 obj-y += turbo.o
