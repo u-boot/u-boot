@@ -90,7 +90,7 @@ static void show_eeprom(void)
 	/* EEPROM tag ID, either CCID or NXID */
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
 	printf("ID: %c%c%c%c v%u\n", e.id[0], e.id[1], e.id[2], e.id[3],
-		be32_to_cpu(e.version));
+	       e.version);
 #else
 	printf("ID: %c%c%c%c\n", e.id[0], e.id[1], e.id[2], e.id[3]);
 #endif
@@ -485,7 +485,7 @@ int mac_read_from_eeprom(void)
 
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
 	printf("%c%c%c%c v%u\n", e.id[0], e.id[1], e.id[2], e.id[3],
-		be32_to_cpu(e.version));
+	       e.version);
 #else
 	printf("%c%c%c%c\n", e.id[0], e.id[1], e.id[2], e.id[3]);
 #endif

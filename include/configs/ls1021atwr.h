@@ -50,6 +50,10 @@
 
 #define CONFIG_FSL_CAAM			/* Enable CAAM */
 
+#if !defined(CONFIG_SDCARD) && !defined(CONFIG_NAND) && !defined(CONFIG_SPI)
+#define CONFIG_U_QE
+#endif
+
 /*
  * IFC Definitions
  */
@@ -95,6 +99,7 @@
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE_PHYS }
 
 #define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
+#define CONFIG_SYS_WRITE_SWAPPED_DATA
 
 /* CPLD */
 
@@ -155,6 +160,17 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+
+/* EEPROM */
+#ifndef CONFIG_SD_BOOT
+#define CONFIG_ID_EEPROM
+#define CONFIG_SYS_I2C_EEPROM_NXID
+#define CONFIG_SYS_EEPROM_BUS_NUM		1
+#define CONFIG_SYS_I2C_EEPROM_ADDR		0x53
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
+#endif
 
 /*
  * MMC
@@ -273,6 +289,8 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 #define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE    /* start of monitor */
+
+#define CONFIG_SYS_QE_FW_ADDR     0x67f40000
 
 /*
  * Environment

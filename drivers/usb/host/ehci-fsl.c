@@ -14,7 +14,7 @@
 #include <asm/io.h>
 #include <usb/ehci-fsl.h>
 #include <hwconfig.h>
-#include <asm/fsl_errata.h>
+#include <fsl_usb.h>
 
 #include "ehci.h"
 
@@ -130,8 +130,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 	in_le32(&ehci->usbmode);
 
-	if (SVR_SOC_VER(get_svr()) == SVR_T4240 &&
-	    IS_SVR_REV(get_svr(), 2, 0))
+	if (has_erratum_a007798())
 		set_txfifothresh(ehci, TXFIFOTHRESH);
 
 	return 0;

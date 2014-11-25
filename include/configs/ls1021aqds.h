@@ -70,6 +70,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_HAS_SERDES
 
 #define CONFIG_FSL_CAAM			/* Enable CAAM */
+
+#if !defined(CONFIG_SDCARD) && !defined(CONFIG_NAND) && !defined(CONFIG_SPI)
+#define CONFIG_U_QE
+#endif
+
 /*
  * IFC Definitions
  */
@@ -110,6 +115,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45
 #define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
+#define CONFIG_SYS_WRITE_SWAPPED_DATA
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	2	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	1024	/* sectors per device */
@@ -274,6 +280,23 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_GENERIC_MMC
 
 /*
+ * USB
+ */
+#define CONFIG_HAS_FSL_DR_USB
+
+#ifdef CONFIG_HAS_FSL_DR_USB
+#define CONFIG_USB_EHCI
+
+#ifdef CONFIG_USB_EHCI
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_EHCI_FSL
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#define CONFIG_CMD_EXT2
+#endif
+#endif
+
+/*
  * eTSEC
  */
 #define CONFIG_TSEC_ENET
@@ -331,6 +354,8 @@ unsigned long get_board_ddr_clk(void);
 #define HWCONFIG_BUFFER_SIZE		128
 
 #define CONFIG_BOOTDELAY		3
+
+#define CONFIG_SYS_QE_FW_ADDR     0x67f40000
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0" \

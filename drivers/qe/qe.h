@@ -285,4 +285,9 @@ void ft_qe_setup(void *blob);
 void qe_init(uint qe_base);
 void qe_reset(void);
 
+#ifdef CONFIG_U_QE
+void u_qe_init(void);
+int u_qe_upload_firmware(const struct qe_firmware *firmware);
+#endif
+
 #endif /* __QE_H__ */

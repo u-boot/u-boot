@@ -17,6 +17,9 @@
 
 #include "../common/qixis.h"
 #include "ls1021aqds_qixis.h"
+#ifdef CONFIG_U_QE
+#include "../../../drivers/qe/qe.h"
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -137,9 +140,8 @@ int board_early_init_f(void)
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
 
 #ifdef CONFIG_TSEC_ENET
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_REV);
 	out_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_NOREV);
+	out_be32(&scfg->etsecmcr, SCFG_ETSECCMCR_GE2_CLK125);
 #endif
 
 #ifdef CONFIG_FSL_IFC
@@ -230,6 +232,13 @@ int board_init(void)
 	/* Set CCI-400 control override register to
 	 * enable barrier transaction */
 	out_le32(&cci->ctrl_ord, CCI400_CTRLORD_EN_BARRIER);
+	/*
+	 * Set CCI-400 Slave interface S0, S1, S2 Shareable Override Register
+	 * All transactions are treated as non-shareable
+	 */
+	out_le32(&cci->slave[0].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[1].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
 
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 
@@ -237,6 +246,11 @@ int board_init(void)
 	fsl_serdes_init();
 	config_serdes_mux();
 #endif
+
+#ifdef CONFIG_U_QE
+	u_qe_init();
+#endif
+
 	return 0;
 }
 

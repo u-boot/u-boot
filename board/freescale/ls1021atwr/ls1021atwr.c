@@ -17,6 +17,10 @@
 #include <fsl_mdio.h>
 #include <tsec.h>
 #include <fsl_sec.h>
+#ifdef CONFIG_U_QE
+#include "../../../drivers/qe/qe.h"
+#endif
+
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -251,11 +255,8 @@ int board_early_init_f(void)
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 
 #ifdef CONFIG_TSEC_ENET
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_REV);
 	out_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
 	out_be32(&scfg->etsecmcr, SCFG_ETSECCMCR_GE2_CLK125);
-	udelay(10);
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_NOREV);
 #endif
 
 #ifdef CONFIG_FSL_IFC
@@ -263,9 +264,7 @@ int board_early_init_f(void)
 #endif
 
 #ifdef CONFIG_FSL_DCU_FB
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_REV);
 	out_be32(&scfg->pixclkcr, SCFG_PIXCLKCR_PXCKEN);
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_NOREV);
 #endif
 
 	return 0;
@@ -273,9 +272,23 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
+
+	/*
+	 * Set CCI-400 Slave interface S0, S1, S2 Shareable Override Register
+	 * All transactions are treated as non-shareable
+	 */
+	out_le32(&cci->slave[0].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[1].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	fsl_serdes_init();
 	config_serdes_mux();
+#endif
+
+#ifdef CONFIG_U_QE
+	u_qe_init();
 #endif
 
 	return 0;
