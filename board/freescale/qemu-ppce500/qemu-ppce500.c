@@ -235,9 +235,11 @@ int board_eth_init(bd_t *bis)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	FT_FSL_PCI_SETUP;
+
+	return 0;
 }
 #endif
 

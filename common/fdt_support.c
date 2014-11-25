@@ -16,22 +16,6 @@
 #include <fdt_support.h>
 #include <exports.h>
 
-/*
- * Get cells len in bytes
- *     if #NNNN-cells property is 2 then len is 8
- *     otherwise len is 4
- */
-static int get_cells_len(const void *fdt, const char *nr_cells_name)
-{
-	const fdt32_t *cell;
-
-	cell = fdt_getprop(fdt, 0, nr_cells_name, NULL);
-	if (cell && fdt32_to_cpu(*cell) == 2)
-		return 8;
-
-	return 4;
-}
-
 /**
  * fdt_getprop_u32_default_node - Return a node's property or a default
  *
@@ -113,7 +97,8 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 }
 
 /**
- * fdt_find_or_add_subnode - find or possibly add a subnode of a given node
+ * fdt_find_or_add_subnode() - find or possibly add a subnode of a given node
+ *
  * @fdt: pointer to the device tree blob
  * @parentoffset: structure block offset of a node
  * @name: name of the subnode to locate
@@ -121,8 +106,7 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
  * fdt_subnode_offset() finds a subnode of the node with a given name.
  * If the subnode does not exist, it will be created.
  */
-static int fdt_find_or_add_subnode(void *fdt, int parentoffset,
-				   const char *name)
+int fdt_find_or_add_subnode(void *fdt, int parentoffset, const char *name)
 {
 	int offset;
 
@@ -246,7 +230,7 @@ int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end)
 		return err;
 	}
 
-	is_u64 = (get_cells_len(fdt, "#address-cells") == 8);
+	is_u64 = (fdt_address_cells(fdt, 0) == 2);
 
 	err = fdt_setprop_uxx(fdt, nodeoffset, "linux,initrd-start",
 			      (uint64_t)initrd_start, is_u64);
@@ -382,22 +366,22 @@ void do_fixup_by_compat_u32(void *fdt, const char *compat,
 /*
  * fdt_pack_reg - pack address and size array into the "reg"-suitable stream
  */
-static int fdt_pack_reg(const void *fdt, void *buf, uint64_t *address,
-			uint64_t *size, int n)
+static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
+			int n)
 {
 	int i;
-	int address_len = get_cells_len(fdt, "#address-cells");
-	int size_len = get_cells_len(fdt, "#size-cells");
+	int address_len = fdt_address_cells(fdt, 0);
+	int size_len = fdt_size_cells(fdt, 0);
 	char *p = buf;
 
 	for (i = 0; i < n; i++) {
-		if (address_len == 8)
+		if (address_len == 2)
 			*(fdt64_t *)p = cpu_to_fdt64(address[i]);
 		else
 			*(fdt32_t *)p = cpu_to_fdt32(address[i]);
 		p += address_len;
 
-		if (size_len == 8)
+		if (size_len == 2)
 			*(fdt64_t *)p = cpu_to_fdt64(size[i]);
 		else
 			*(fdt32_t *)p = cpu_to_fdt32(size[i]);
@@ -968,13 +952,8 @@ void of_bus_default_count_cells(void *blob, int parentoffset,
 {
 	const fdt32_t *prop;
 
-	if (addrc) {
-		prop = fdt_getprop(blob, parentoffset, "#address-cells", NULL);
-		if (prop)
-			*addrc = be32_to_cpup(prop);
-		else
-			*addrc = 2;
-	}
+	if (addrc)
+		*addrc = fdt_address_cells(blob, parentoffset);
 
 	if (sizec) {
 		prop = fdt_getprop(blob, parentoffset, "#size-cells", NULL);
@@ -1420,11 +1399,7 @@ u64 fdt_get_base_address(void *fdt, int node)
 	u32 naddr;
 	const fdt32_t *prop;
 
-	prop = fdt_getprop(fdt, node, "#address-cells", &size);
-	if (prop && size == 4)
-		naddr = be32_to_cpup(prop);
-	else
-		naddr = 2;
+	naddr = fdt_address_cells(fdt, node);
 
 	prop = fdt_getprop(fdt, node, "ranges", &size);
 

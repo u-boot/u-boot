@@ -114,7 +114,7 @@ u32 spl_boot_device(void)
 #endif
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	int lpae;
 	char *env;
@@ -217,6 +217,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 			}
 		}
 	}
+
+	return 0;
 }
 
 void ft_board_setup_ex(void *blob, bd_t *bd)

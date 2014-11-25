@@ -613,17 +613,33 @@ const u8 *fdtdec_locate_byte_array(const void *blob, int node,
  * @param blob		FDT blob
  * @param node		node to examine
  * @param prop_name	name of property to find
- * @param ptrp		returns pointer to region, or NULL if no address
- * @param size		returns size of region
- * @return 0 if ok, -1 on error (propery not found)
+ * @param basep		Returns base address of region
+ * @param size		Returns size of region
+ * @return 0 if ok, -1 on error (property not found)
  */
-int fdtdec_decode_region(const void *blob, int node,
-		const char *prop_name, void **ptrp, size_t *size);
+int fdtdec_decode_region(const void *blob, int node, const char *prop_name,
+			 fdt_addr_t *basep, fdt_size_t *sizep);
+
+enum fmap_compress_t {
+	FMAP_COMPRESS_NONE,
+	FMAP_COMPRESS_LZO,
+};
+
+enum fmap_hash_t {
+	FMAP_HASH_NONE,
+	FMAP_HASH_SHA1,
+	FMAP_HASH_SHA256,
+};
 
 /* A flash map entry, containing an offset and length */
 struct fmap_entry {
 	uint32_t offset;
 	uint32_t length;
+	uint32_t used;			/* Number of bytes used in region */
+	enum fmap_compress_t compress_algo;	/* Compression type */
+	enum fmap_hash_t hash_algo;		/* Hash algorithm */
+	const uint8_t *hash;			/* Hash value */
+	int hash_size;				/* Hash size */
 };
 
 /**
@@ -679,4 +695,31 @@ int fdt_get_named_resource(const void *fdt, int node, const char *property,
  */
 int fdtdec_pci_get_bdf(const void *fdt, int node, int *bdf);
 
+/**
+ * Decode a named region within a memory bank of a given type.
+ *
+ * This function handles selection of a memory region. The region is
+ * specified as an offset/size within a particular type of memory.
+ *
+ * The properties used are:
+ *
+ *	<mem_type>-memory<suffix> for the name of the memory bank
+ *	<mem_type>-offset<suffix> for the offset in that bank
+ *
+ * The property value must have an offset and a size. The function checks
+ * that the region is entirely within the memory bank.5
+ *
+ * @param blob		FDT blob
+ * @param node		Node containing the properties (-1 for /config)
+ * @param mem_type	Type of memory to use, which is a name, such as
+ *			"u-boot" or "kernel".
+ * @param suffix	String to append to the memory/offset
+ *			property names
+ * @param basep		Returns base of region
+ * @param sizep		Returns size of region
+ * @return 0 if OK, -ive on error
+ */
+int fdtdec_decode_memory_region(const void *blob, int node,
+				const char *mem_type, const char *suffix,
+				fdt_addr_t *basep, fdt_size_t *sizep);
 #endif

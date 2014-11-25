@@ -783,6 +783,13 @@ The following options need to be configured:
 		Board code has addition modification that it wants to make
 		to the flat device tree before handing it off to the kernel
 
+		CONFIG_OF_SYSTEM_SETUP
+
+		Other code has addition modification that it wants to make
+		to the flat device tree before handing it off to the kernel.
+		This causes ft_system_setup() to be called before booting
+		the kernel.
+
 		CONFIG_OF_BOOT_CPU
 
 		This define fills in the correct boot CPU in the boot
@@ -3510,7 +3517,7 @@ FIT uImage format:
 		to 128 or 256, although it does not have to be power of 2).
 
 		default: 4096
-		
+
 		CONFIG_MTD_UBI_BEB_LIMIT
 		This option specifies the maximum bad physical eraseblocks UBI
 		expects on the MTD device (per 1024 eraseblocks). If the

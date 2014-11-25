@@ -236,7 +236,7 @@ int board_eth_init(bd_t *bis)
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -257,5 +257,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_FSL_SGMII_RISER
 	fsl_sgmii_riser_fdt_fixup(blob);
 #endif
+
+	return 0;
 }
 #endif

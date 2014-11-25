@@ -691,20 +691,25 @@ char *fdtdec_get_config_string(const void *blob, const char *prop_name)
 	return (char *)nodep;
 }
 
-int fdtdec_decode_region(const void *blob, int node,
-		const char *prop_name, void **ptrp, size_t *size)
+int fdtdec_decode_region(const void *blob, int node, const char *prop_name,
+			 fdt_addr_t *basep, fdt_size_t *sizep)
 {
 	const fdt_addr_t *cell;
 	int len;
 
-	debug("%s: %s\n", __func__, prop_name);
+	debug("%s: %s: %s\n", __func__, fdt_get_name(blob, node, NULL),
+	      prop_name);
 	cell = fdt_getprop(blob, node, prop_name, &len);
-	if (!cell || (len != sizeof(fdt_addr_t) * 2))
+	if (!cell || (len < sizeof(fdt_addr_t) * 2)) {
+		debug("cell=%p, len=%d\n", cell, len);
 		return -1;
+	}
 
-	*ptrp = map_sysmem(fdt_addr_to_cpu(*cell), *size);
-	*size = fdt_size_to_cpu(cell[1]);
-	debug("%s: size=%zx\n", __func__, *size);
+	*basep = fdt_addr_to_cpu(*cell);
+	*sizep = fdt_size_to_cpu(cell[1]);
+	debug("%s: base=%08lx, size=%lx\n", __func__, (ulong)*basep,
+	      (ulong)*sizep);
+
 	return 0;
 }
 
@@ -720,6 +725,7 @@ int fdtdec_decode_region(const void *blob, int node,
 int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
 			   struct fmap_entry *entry)
 {
+	const char *prop;
 	u32 reg[2];
 
 	if (fdtdec_get_int_array(blob, node, "reg", reg, 2)) {
@@ -728,6 +734,13 @@ int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
 	}
 	entry->offset = reg[0];
 	entry->length = reg[1];
+	entry->used = fdtdec_get_int(blob, node, "used", entry->length);
+	prop = fdt_getprop(blob, node, "compress", NULL);
+	entry->compress_algo = prop && !strcmp(prop, "lzo") ?
+		FMAP_COMPRESS_LZO : FMAP_COMPRESS_NONE;
+	prop = fdt_getprop(blob, node, "hash", &entry->hash_size);
+	entry->hash_algo = prop ? FMAP_HASH_SHA256 : FMAP_HASH_NONE;
+	entry->hash = (uint8_t *)prop;
 
 	return 0;
 }
@@ -799,6 +812,67 @@ int fdtdec_pci_get_bdf(const void *fdt, int node, int *bdf)
 		return len;
 
 	*bdf = fdt32_to_cpu(*prop) & 0xffffff;
+
+	return 0;
+}
+
+int fdtdec_decode_memory_region(const void *blob, int config_node,
+				const char *mem_type, const char *suffix,
+				fdt_addr_t *basep, fdt_size_t *sizep)
+{
+	char prop_name[50];
+	const char *mem;
+	fdt_size_t size, offset_size;
+	fdt_addr_t base, offset;
+	int node;
+
+	if (config_node == -1) {
+		config_node = fdt_path_offset(blob, "/config");
+		if (config_node < 0) {
+			debug("%s: Cannot find /config node\n", __func__);
+			return -ENOENT;
+		}
+	}
+	if (!suffix)
+		suffix = "";
+
+	snprintf(prop_name, sizeof(prop_name), "%s-memory%s", mem_type,
+		 suffix);
+	mem = fdt_getprop(blob, config_node, prop_name, NULL);
+	if (!mem) {
+		debug("%s: No memory type for '%s', using /memory\n", __func__,
+		      prop_name);
+		mem = "/memory";
+	}
+
+	node = fdt_path_offset(blob, mem);
+	if (node < 0) {
+		debug("%s: Failed to find node '%s': %s\n", __func__, mem,
+		      fdt_strerror(node));
+		return -ENOENT;
+	}
+
+	/*
+	 * Not strictly correct - the memory may have multiple banks. We just
+	 * use the first
+	 */
+	if (fdtdec_decode_region(blob, node, "reg", &base, &size)) {
+		debug("%s: Failed to decode memory region %s\n", __func__,
+		      mem);
+		return -EINVAL;
+	}
+
+	snprintf(prop_name, sizeof(prop_name), "%s-offset%s", mem_type,
+		 suffix);
+	if (fdtdec_decode_region(blob, config_node, prop_name, &offset,
+				 &offset_size)) {
+		debug("%s: Failed to decode memory region '%s'\n", __func__,
+		      prop_name);
+		return -EINVAL;
+	}
+
+	*basep = base + offset;
+	*sizep = offset_size;
 
 	return 0;
 }

@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <asm/ppc4xx.h>
@@ -363,7 +364,7 @@ void board_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
  * On NAND-booting sequoia, we need to patch the chips select numbers
  * in the dtb (CS0 - NAND, CS3 - NOR)
  */
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	int rc;
 	int len;
@@ -381,15 +382,14 @@ void ft_board_setup(void *blob, bd_t *bd)
 	prop = fdt_get_property_w(blob, nodeoffset, "reg", &len);
 	if (prop == NULL) {
 		printf("Unable to update NOR chip select for NAND booting\n");
-		return;
+		return -FDT_ERR_NOTFOUND;
 	}
 	reg = (u32 *)&prop->data[0];
 	reg[0] = 3;
 	rc = fdt_find_and_setprop(blob, path, "reg", reg, 3 * sizeof(u32), 1);
 	if (rc) {
-		printf("Unable to update property NOR mappings, err=%s\n",
-		       fdt_strerror(rc));
-		return;
+		printf("Unable to update property NOR mappings\n");
+		return rc;
 	}
 
 	/* And now configure NAND chip select to 0 instead of 3 */
@@ -398,15 +398,16 @@ void ft_board_setup(void *blob, bd_t *bd)
 	prop = fdt_get_property_w(blob, nodeoffset, "reg", &len);
 	if (prop == NULL) {
 		printf("Unable to update NDFC chip select for NAND booting\n");
-		return;
+		return len;
 	}
 	reg = (u32 *)&prop->data[0];
 	reg[0] = 0;
 	rc = fdt_find_and_setprop(blob, path, "reg", reg, 3 * sizeof(u32), 1);
 	if (rc) {
-		printf("Unable to update property NDFC mappings, err=%s\n",
-		       fdt_strerror(rc));
-		return;
+		printf("Unable to update property NDFC mapping\n");
+		return rc;
 	}
+
+	return 0;
 }
 #endif /* CONFIG_SYS_RAMBOOT */

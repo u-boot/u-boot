@@ -458,7 +458,7 @@ int cm_fx6_setup_ecspi(void) { return 0; }
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	uint8_t enetaddr[6];
 
@@ -467,6 +467,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 		fdt_find_and_setprop(blob, "/fec", "local-mac-address",
 				     enetaddr, 6, 1);
 	}
+
+	return 0;
 }
 #endif
 

@@ -328,7 +328,7 @@ static void ft_pci_fixup(void *blob, bd_t *bd)
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 	ft_tsec_fixup(blob, bd);
@@ -340,5 +340,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 		ft_pci_fixup(blob, bd);
 	ft_pcie_fixup(blob, bd);
 #endif
+
+	return 0;
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
