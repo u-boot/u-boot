@@ -617,31 +617,3 @@ asm(".globl irq_common_entry\n" \
 	DECLARE_INTERRUPT(253) \
 	DECLARE_INTERRUPT(254) \
 	DECLARE_INTERRUPT(255));
-
-#if defined(CONFIG_INTEL_CORE_ARCH)
-/*
- * Get the number of CPU time counter ticks since it was read first time after
- * restart. This yields a free running counter guaranteed to take almost 6
- * years to wrap around even at 100GHz clock rate.
- */
-u64 get_ticks(void)
-{
-	u64 now_tick = rdtsc();
-
-	if (!gd->arch.tsc_base)
-		gd->arch.tsc_base = now_tick;
-
-	return now_tick - gd->arch.tsc_base;
-}
-
-#define PLATFORM_INFO_MSR 0xce
-
-unsigned long get_tbclk(void)
-{
-	u32 ratio;
-	u64 platform_info = native_read_msr(PLATFORM_INFO_MSR);
-
-	ratio = (platform_info >> 8) & 0xff;
-	return 100 * 1000 * 1000 * ratio; /* 100MHz times Max Non Turbo ratio */
-}
-#endif
