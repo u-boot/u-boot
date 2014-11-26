@@ -11,6 +11,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/pcie_layerscape.h>
+#include <hwconfig.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
@@ -23,9 +24,22 @@
 #include "../../../drivers/qe/qe.h"
 #endif
 
+#define PIN_MUX_SEL_CAN		0x03
+#define PIN_MUX_SEL_IIC2	0xa0
+#define PIN_MUX_SEL_RGMII	0x00
+#define PIN_MUX_SEL_SAI		0x0c
+#define PIN_MUX_SEL_SDHC	0x00
+
+#define SET_SDHC_MUX_SEL(reg, value)	((reg & 0x0f) | value)
+#define SET_EC_MUX_SEL(reg, value)	((reg & 0xf0) | value)
 DECLARE_GLOBAL_DATA_PTR;
 
 enum {
+	MUX_TYPE_CAN,
+	MUX_TYPE_IIC2,
+	MUX_TYPE_RGMII,
+	MUX_TYPE_SAI,
+	MUX_TYPE_SDHC,
 	MUX_TYPE_SD_PCI4,
 	MUX_TYPE_SD_PC_SA_SG_SG,
 	MUX_TYPE_SD_PC_SA_PC_SG,
@@ -230,11 +244,27 @@ void board_init_f(ulong dummy)
 
 int config_board_mux(int ctrl_type)
 {
-	u8 reg12;
+	u8 reg12, reg14;
 
 	reg12 = QIXIS_READ(brdcfg[12]);
+	reg14 = QIXIS_READ(brdcfg[14]);
 
 	switch (ctrl_type) {
+	case MUX_TYPE_CAN:
+		reg14 = SET_EC_MUX_SEL(reg14, PIN_MUX_SEL_CAN);
+		break;
+	case MUX_TYPE_IIC2:
+		reg14 = SET_SDHC_MUX_SEL(reg14, PIN_MUX_SEL_IIC2);
+		break;
+	case MUX_TYPE_RGMII:
+		reg14 = SET_EC_MUX_SEL(reg14, PIN_MUX_SEL_RGMII);
+		break;
+	case MUX_TYPE_SAI:
+		reg14 = SET_EC_MUX_SEL(reg14, PIN_MUX_SEL_SAI);
+		break;
+	case MUX_TYPE_SDHC:
+		reg14 = SET_SDHC_MUX_SEL(reg14, PIN_MUX_SEL_SDHC);
+		break;
 	case MUX_TYPE_SD_PCI4:
 		reg12 = 0x38;
 		break;
@@ -253,6 +283,7 @@ int config_board_mux(int ctrl_type)
 	}
 
 	QIXIS_WRITE(brdcfg[12], reg12);
+	QIXIS_WRITE(brdcfg[14], reg14);
 
 	return 0;
 }
@@ -286,14 +317,50 @@ int config_serdes_mux(void)
 	return 0;
 }
 
-#if defined(CONFIG_MISC_INIT_R)
 int misc_init_r(void)
 {
+	int conflict_flag;
+
+	/* some signals can not enable simultaneous*/
+	conflict_flag = 0;
+	if (hwconfig("sdhc"))
+		conflict_flag++;
+	if (hwconfig("iic2"))
+		conflict_flag++;
+	if (conflict_flag > 1) {
+		printf("WARNING: pin conflict !\n");
+		return 0;
+	}
+
+	conflict_flag = 0;
+	if (hwconfig("rgmii"))
+		conflict_flag++;
+	if (hwconfig("can"))
+		conflict_flag++;
+	if (hwconfig("sai"))
+		conflict_flag++;
+	if (conflict_flag > 1) {
+		printf("WARNING: pin conflict !\n");
+		return 0;
+	}
+
+	if (hwconfig("can"))
+		config_board_mux(MUX_TYPE_CAN);
+	else if (hwconfig("rgmii"))
+		config_board_mux(MUX_TYPE_RGMII);
+	else if (hwconfig("sai"))
+		config_board_mux(MUX_TYPE_SAI);
+
+	if (hwconfig("iic2"))
+		config_board_mux(MUX_TYPE_IIC2);
+	else if (hwconfig("sdhc"))
+		config_board_mux(MUX_TYPE_SDHC);
+
 #ifdef CONFIG_FSL_CAAM
 	return sec_init();
 #endif
+	return 0;
 }
-#endif
 
 int board_init(void)
 {
