@@ -6,3 +6,5 @@ F:	include/configs/C29XPCIE.h
 F:	configs/C29XPCIE_defconfig
 F:	configs/C29XPCIE_NAND_defconfig
 F:	configs/C29XPCIE_SPIFLASH_defconfig
+F:	configs/C29XPCIE_NOR_SECBOOT_defconfig
+F:	configs/C29XPCIE_SPIFLASH_SECBOOT_defconfig

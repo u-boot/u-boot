@@ -581,4 +581,6 @@
 
 #define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
 
+#include <asm/fsl_secure_boot.h>
+
 #endif	/* __CONFIG_H */
