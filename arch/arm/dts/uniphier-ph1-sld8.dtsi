@@ -28,5 +28,33 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
+
+		uart0: serial@54006800 {
+			compatible = "panasonic,uniphier-uart";
+			status = "disabled";
+			reg = <0x54006800 0x20>;
+			clock-frequency = <80000000>;
+		};
+
+		uart1: serial@54006900 {
+			compatible = "panasonic,uniphier-uart";
+			status = "disabled";
+			reg = <0x54006900 0x20>;
+			clock-frequency = <80000000>;
+		};
+
+		uart2: serial@54006a00 {
+			compatible = "panasonic,uniphier-uart";
+			status = "disabled";
+			reg = <0x54006a00 0x20>;
+			clock-frequency = <80000000>;
+		};
+
+		uart3: serial@54006b00 {
+			compatible = "panasonic,uniphier-uart";
+			status = "disabled";
+			reg = <0x54006b00 0x20>;
+			clock-frequency = <80000000>;
+		};
 	};
 };

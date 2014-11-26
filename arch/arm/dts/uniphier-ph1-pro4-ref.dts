@@ -21,5 +21,14 @@
 
 	chosen {
 		bootargs = "console=ttyPS0,115200 earlyprintk";
+		stdout-path = &uart0;
 	};
+};
+
+&uart0 {
+       status = "okay";
+};
+
+&uart1 {
+       status = "okay";
 };
