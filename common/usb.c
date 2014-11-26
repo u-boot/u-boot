@@ -33,7 +33,6 @@
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
-#include <compiler.h>
 #include <errno.h>
 #include <usb.h>
 #ifdef CONFIG_4xx

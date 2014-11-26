@@ -9,7 +9,7 @@
 #ifndef _COREBOOT_TABLES_H
 #define _COREBOOT_TABLES_H
 
-#include <compiler.h>
+#include <linux/compiler.h>
 
 struct cbuint64 {
 	u32 lo;

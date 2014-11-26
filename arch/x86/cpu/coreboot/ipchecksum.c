@@ -29,7 +29,8 @@
  * SUCH DAMAGE.
  */
 
-#include <compiler.h>
+#include <linux/types.h>
+#include <linux/compiler.h>
 #include <asm/arch/ipchecksum.h>
 
 unsigned short ipchksum(const void *vptr, unsigned long nbytes)

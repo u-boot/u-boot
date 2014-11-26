@@ -13,7 +13,7 @@
 #define _MVRTC_H_
 
 #include <asm/arch/soc.h>
-#include <compiler.h>
+#include <linux/compiler.h>
 
 /* RTC registers */
 struct mvrtc_registers {

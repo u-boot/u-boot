@@ -8,7 +8,7 @@
 #include <asm/unaligned-sh4a.h>
 #else
 /* Otherwise, SH can't handle unaligned accesses. */
-#include <compiler.h>
+#include <linux/compiler.h>
 #if defined(__BIG_ENDIAN__)
 #define get_unaligned   __get_unaligned_be
 #define put_unaligned   __put_unaligned_be
