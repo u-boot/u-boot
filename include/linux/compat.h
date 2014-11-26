@@ -215,13 +215,11 @@ typedef int	wait_queue_head_t;
 #define cond_resched()			do { } while (0)
 #define yield()				do { } while (0)
 
-#define __user
 #define __init
 #define __exit
 #define __devinit
 #define __devinitdata
 #define __devinitconst
-#define __iomem
 
 #define kthread_create(...)	__builtin_return_address(0)
 #define kthread_stop(...)	do { } while (0)
@@ -251,8 +249,6 @@ struct cdev {
 #define cdev_init(...)		do { } while (0)
 #define cdev_add(...)		0
 #define cdev_del(...)		do { } while (0)
-
-#define MAX_ERRNO		4095
 
 #define prandom_u32(...)	0
 
