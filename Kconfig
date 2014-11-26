@@ -56,8 +56,6 @@ config CC_OPTIMIZE_FOR_SIZE
 
 	  This option is enabled by default for U-Boot.
 
-endmenu		# General setup
-
 menuconfig EXPERT
         bool "Configure standard U-Boot features (expert users)"
         help
@@ -65,6 +63,8 @@ menuconfig EXPERT
           to be disabled or tweaked. This is for specialized
           environments which can tolerate a "non-standard" U-Boot.
           Only use this if you really know what you are doing.
+
+endmenu		# General setup
 
 menu "Boot images"
 
