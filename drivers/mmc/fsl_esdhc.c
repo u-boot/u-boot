@@ -618,7 +618,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 #endif
 
 	cfg->cfg.f_min = 400000;
-	cfg->cfg.f_max = min(gd->arch.sdhc_clk, (u32)52000000);
+	cfg->cfg.f_max = min(cfg->sdhc_clk, (u32)52000000);
 
 	cfg->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
