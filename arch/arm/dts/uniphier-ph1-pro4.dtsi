@@ -62,5 +62,17 @@
 			reg = <0x54006b00 0x20>;
 			clock-frequency = <73728000>;
 		};
+
+		usb0: usb@5a800100 {
+			compatible = "panasonic,uniphier-ehci", "usb-ehci";
+			status = "disabled";
+			reg = <0x5a800100 0x100>;
+		};
+
+		usb1: usb@5a810100 {
+			compatible = "panasonic,uniphier-ehci", "usb-ehci";
+			status = "disabled";
+			reg = <0x5a810100 0x100>;
+		};
 	};
 };
