@@ -38,8 +38,7 @@ void sys_mgr_frzctrl_freeze_req(void)
 	/* Freeze channel 0 to 2 */
 	for (channel_id = 0; channel_id <= 2; channel_id++) {
 		ioctrl_reg_offset = (u32)(
-			&freeze_controller_base->vioctrl +
-			(channel_id << SYSMGR_FRZCTRL_VIOCTRL_SHIFT));
+			&freeze_controller_base->vioctrl + channel_id);
 
 		/*
 		 * Assert active low enrnsl, plniotri
@@ -120,8 +119,7 @@ void sys_mgr_frzctrl_thaw_req(void)
 	/* Thaw channel 0 to 2 */
 	for (channel_id = 0; channel_id <= 2; channel_id++) {
 		ioctrl_reg_offset
-			= (u32)(&freeze_controller_base->vioctrl
-				+ (channel_id << SYSMGR_FRZCTRL_VIOCTRL_SHIFT));
+			= (u32)(&freeze_controller_base->vioctrl + channel_id);
 
 		/*
 		 * Assert active low bhniotri signal and
