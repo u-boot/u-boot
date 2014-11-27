@@ -237,6 +237,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	int		fdt_noffset;
 #endif
 	const char *select = NULL;
+	int		ok_no_fdt = 0;
 
 	*of_flat_tree = NULL;
 	*of_size = 0;
@@ -309,7 +310,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			       fdt_addr);
 			fdt_hdr = image_get_fdt(fdt_addr);
 			if (!fdt_hdr)
-				goto error;
+				goto no_fdt;
 
 			/*
 			 * move image data to the load address,
@@ -379,7 +380,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			break;
 		default:
 			puts("ERROR: Did not find a cmdline Flattened Device Tree\n");
-			goto error;
+			goto no_fdt;
 		}
 
 		printf("   Booting using the fdt blob at %#08lx\n", fdt_addr);
@@ -413,11 +414,11 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			}
 		} else {
 			debug("## No Flattened Device Tree\n");
-			return 0;
+			goto no_fdt;
 		}
 	} else {
 		debug("## No Flattened Device Tree\n");
-		return 0;
+		goto no_fdt;
 	}
 
 	*of_flat_tree = fdt_blob;
@@ -427,9 +428,15 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 
 	return 0;
 
+no_fdt:
+	ok_no_fdt = 1;
 error:
 	*of_flat_tree = NULL;
 	*of_size = 0;
+	if (!select && ok_no_fdt) {
+		debug("Continuing to boot without FDT\n");
+		return 0;
+	}
 	return 1;
 }
 
