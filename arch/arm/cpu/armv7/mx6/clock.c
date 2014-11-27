@@ -443,7 +443,7 @@ int enable_fec_anatop_clock(enum enet_freq freq)
 	struct anatop_regs __iomem *anatop =
 		(struct anatop_regs __iomem *)ANATOP_BASE_ADDR;
 
-	if (freq < ENET_25MHz || freq > ENET_125MHz)
+	if (freq < ENET_25MHZ || freq > ENET_125MHZ)
 		return -EINVAL;
 
 	reg = readl(&anatop->pll_enet);

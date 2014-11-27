@@ -43,10 +43,10 @@ enum mxc_clock {
 };
 
 enum enet_freq {
-	ENET_25MHz,
-	ENET_50MHz,
-	ENET_100MHz,
-	ENET_125MHz,
+	ENET_25MHZ,
+	ENET_50MHZ,
+	ENET_100MHZ,
+	ENET_125MHZ,
 };
 
 u32 imx_get_uartclk(void);

@@ -301,7 +301,7 @@ int board_eth_init(bd_t *bis)
 	/* clear gpr1[14], gpr1[18:17] to select anatop clock */
 	clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC_MASK, 0);
 
-	ret = enable_fec_anatop_clock(ENET_50MHz);
+	ret = enable_fec_anatop_clock(ENET_50MHZ);
 	if (ret)
 		return ret;
 
