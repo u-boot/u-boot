@@ -112,7 +112,6 @@ are defined. Select only one of them."
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -143,15 +142,6 @@ are defined. Select only one of them."
  */
 #define CONFIG_ARP_TIMEOUT	500UL  /* 0.5 msec */
 
-/*
- * Command line configuration.
- */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_TIME
-#define CONFIG_CMD_NAND		/* NAND flash suppport */
-
 #define CONFIG_SYS_MAX_NAND_DEVICE			1
 #define CONFIG_SYS_NAND_MAX_CHIPS			2
 #define CONFIG_SYS_NAND_ONFI_DETECTION
@@ -167,7 +157,6 @@ are defined. Select only one of them."
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS			0
 
 /* USB */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 #define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
@@ -224,10 +213,6 @@ are defined. Select only one of them."
 		"bootm\0"						\
 	"add_default_bootargs=setenv bootargs $bootargs"		\
 		" console=ttyS0,$baudrate\0"				\
-
-/* FIT support */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
 /* Open Firmware flat tree */
 #define CONFIG_OF_LIBFDT

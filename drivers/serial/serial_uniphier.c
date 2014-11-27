@@ -11,6 +11,7 @@
 #include <dm/device.h>
 #include <dm/platform_data/serial-uniphier.h>
 #include <serial.h>
+#include <fdtdec.h>
 
 #define UART_REG(x)					\
 	u8 x;						\
@@ -113,19 +114,21 @@ static int uniphier_serial_remove(struct udevice *dev)
 }
 
 #ifdef CONFIG_OF_CONTROL
-static const struct udevice_id uniphier_uart_of_match = {
-	{ .compatible = "panasonic,uniphier-uart"},
+static const struct udevice_id uniphier_uart_of_match[] = {
+	{ .compatible = "panasonic,uniphier-uart" },
 	{},
 };
 
 static int uniphier_serial_ofdata_to_platdata(struct udevice *dev)
 {
-	/*
-	 * TODO: Masahiro Yamada (yamada.m@jp.panasonic.com)
-	 *
-	 * Implement conversion code from DTB to platform data
-	 * when supporting CONFIG_OF_CONTROL on UniPhir platform.
-	 */
+	struct uniphier_serial_platform_data *plat = dev_get_platdata(dev);
+	DECLARE_GLOBAL_DATA_PTR;
+
+	plat->base = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+	plat->uartclk = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+				       "clock-frequency", 0);
+
+	return 0;
 }
 #endif
 

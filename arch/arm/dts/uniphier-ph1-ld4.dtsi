@@ -1,0 +1,78 @@
+/*
+ * Device Tree Source for UniPhier PH1-LD4 SoC
+ *
+ * Copyright (C) 2014 Panasonic Corporation
+ *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/include/ "skeleton.dtsi"
+
+/ {
+	compatible = "panasonic,ph1-ld4";
+
+	cpus {
+		#size-cells = <0>;
+		#address-cells = <1>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a9";
+			reg = <0>;
+		};
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		uart0: serial@54006800 {
+			compatible = "panasonic,uniphier-uart";
+			status = "disabled";
+			reg = <0x54006800 0x20>;
+			clock-frequency = <36864000>;
+		};
+
+		uart1: serial@54006900 {
+			compatible = "panasonic,uniphier-uart";
+			status = "disabled";
+			reg = <0x54006900 0x20>;
+			clock-frequency = <36864000>;
+		};
+
+		uart2: serial@54006a00 {
+			compatible = "panasonic,uniphier-uart";
+			status = "disabled";
+			reg = <0x54006a00 0x20>;
+			clock-frequency = <36864000>;
+		};
+
+		uart3: serial@54006b00 {
+			compatible = "panasonic,uniphier-uart";
+			status = "disabled";
+			reg = <0x54006b00 0x20>;
+			clock-frequency = <36864000>;
+		};
+
+		usb0: usb@5a800100 {
+			compatible = "panasonic,uniphier-ehci", "usb-ehci";
+			status = "disabled";
+			reg = <0x5a800100 0x100>;
+		};
+
+		usb1: usb@5a810100 {
+			compatible = "panasonic,uniphier-ehci", "usb-ehci";
+			status = "disabled";
+			reg = <0x5a810100 0x100>;
+		};
+
+		usb2: usb@5a820100 {
+			compatible = "panasonic,uniphier-ehci", "usb-ehci";
+			status = "disabled";
+			reg = <0x5a820100 0x100>;
+		};
+	};
+};
