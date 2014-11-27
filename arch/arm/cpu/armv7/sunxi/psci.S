@@ -68,7 +68,7 @@ psci_arch_init:
 
 	mrc	p15, 0, r4, c0, c0, 5	@ MPIDR
 	and	r4, r4, #3		@ cpu number in cluster
-	mov	r5, #400		@ 1kB of stack per CPU
+	mov	r5, #0x400		@ 1kB of stack per CPU
 	mul	r4, r4, r5
 
 	adr	r5, text_end		@ end of text
