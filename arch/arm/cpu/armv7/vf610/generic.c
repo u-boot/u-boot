@@ -265,20 +265,21 @@ static char *get_reset_cause(void)
 
 	cause = readl(&src_regs->srsr);
 	writel(cause, &src_regs->srsr);
-	cause &= 0xff;
 
-	switch (cause) {
-	case 0x08:
-		return "WDOG";
-	case 0x20:
+	if (cause & SRC_SRSR_POR_RST)
+		return "POWER ON RESET";
+	else if (cause & SRC_SRSR_WDOG_A5)
+		return "WDOG A5";
+	else if (cause & SRC_SRSR_WDOG_M4)
+		return "WDOG M4";
+	else if (cause & SRC_SRSR_JTAG_RST)
 		return "JTAG HIGH-Z";
-	case 0x80:
+	else if (cause & SRC_SRSR_SW_RST)
+		return "SW RESET";
+	else if (cause & SRC_SRSR_RESETB)
 		return "EXTERNAL RESET";
-	case 0xfd:
-		return "POR";
-	default:
+	else
 		return "unknown reset";
-	}
 }
 
 int print_cpuinfo(void)
