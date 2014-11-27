@@ -25,11 +25,6 @@ unsigned long get_uart_clk(int dev_id)
 	return 133000000;
 }
 
-unsigned long get_ttc_clk(int dev_id)
-{
-	return get_uart_clk(dev_id);
-}
-
 #ifdef CONFIG_CLOCKS
 /**
  * set_cpu_clk_info() - Initialize clock framework
