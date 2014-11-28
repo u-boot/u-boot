@@ -17,15 +17,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 unsigned int zynqmp_get_silicon_version(void)
 {
-#if 0
-	unsigned int ver;
-
-	ver = (readl(&csu_base->version) & ZYNQ_SILICON_VER_MASK) >>
-	       ZYNQ_SILICON_VER_SHIFT;
-
-	return ver;
-#endif
-
 	switch (gd->cpu_clk) {
 	case 400000:
 		return ZYNQMP_CSU_VERSION_VELOCE;
