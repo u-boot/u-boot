@@ -79,7 +79,7 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_CMD_MMC
 int board_mmc_init(bd_t *bd)
 {
-        int ret = 0;
+	int ret = 0;
 
 #if defined(CONFIG_ZYNQ_SDHCI)
 # if defined(CONFIG_ZYNQ_SDHCI0)
