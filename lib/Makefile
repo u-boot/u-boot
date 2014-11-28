@@ -13,7 +13,8 @@ obj-$(CONFIG_LZO) += lzo/
 obj-$(CONFIG_ZLIB) += zlib/
 obj-$(CONFIG_BZIP2) += bzip2/
 obj-$(CONFIG_TIZEN) += tizen/
-obj-y += libfdt/
+obj-$(CONFIG_OF_LIBFDT) += libfdt/
+obj-$(CONFIG_FIT) += libfdt/
 
 obj-$(CONFIG_AES) += aes.o
 obj-$(CONFIG_USB_TTY) += circbuf.o
