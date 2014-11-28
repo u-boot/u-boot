@@ -11,14 +11,10 @@ obj-$(CONFIG_RSA) += rsa/
 obj-$(CONFIG_LZMA) += lzma/
 obj-$(CONFIG_LZO) += lzo/
 obj-$(CONFIG_ZLIB) += zlib/
+obj-$(CONFIG_BZIP2) += bzip2/
 obj-$(CONFIG_TIZEN) += tizen/
 
 obj-$(CONFIG_AES) += aes.o
-obj-$(CONFIG_BZIP2) += bzlib.o
-obj-$(CONFIG_BZIP2) += bzlib_crctable.o
-obj-$(CONFIG_BZIP2) += bzlib_decompress.o
-obj-$(CONFIG_BZIP2) += bzlib_randtable.o
-obj-$(CONFIG_BZIP2) += bzlib_huffman.o
 obj-$(CONFIG_USB_TTY) += circbuf.o
 obj-y += crc7.o
 obj-y += crc8.o
