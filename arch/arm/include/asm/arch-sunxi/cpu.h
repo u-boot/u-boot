@@ -129,6 +129,7 @@
 #define SUNXI_R_UART_BASE		0x01f02800
 #define SUNXI_R_PIO_BASE		0x01f02c00
 #define SUN6I_P2WI_BASE			0x01f03400
+#define SUNXI_RSB_BASE			0x01f03400
 
 /* CoreSight Debug Module */
 #define SUNXI_CSDM_BASE			0x3f500000

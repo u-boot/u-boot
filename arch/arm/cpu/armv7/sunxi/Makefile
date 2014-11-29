@@ -15,6 +15,7 @@ obj-y	+= pinmux.o
 obj-$(CONFIG_MACH_SUN6I)	+= prcm.o
 obj-$(CONFIG_MACH_SUN8I)	+= prcm.o
 obj-$(CONFIG_MACH_SUN6I)	+= p2wi.o
+obj-$(CONFIG_MACH_SUN8I)	+= rsb.o
 obj-$(CONFIG_MACH_SUN4I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN5I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN6I)	+= clock_sun6i.o

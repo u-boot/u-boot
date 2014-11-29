@@ -50,7 +50,8 @@
 #define PRCM_APB0_GATE_PIO (0x1 << 0)
 #define PRCM_APB0_GATE_IR (0x1 << 1)
 #define PRCM_APB0_GATE_TIMER01 (0x1 << 2)
-#define PRCM_APB0_GATE_P2WI (0x1 << 3)
+#define PRCM_APB0_GATE_P2WI (0x1 << 3)		/* sun6i */
+#define PRCM_APB0_GATE_RSB (0x1 << 3)		/* sun8i */
 #define PRCM_APB0_GATE_UART (0x1 << 4)
 #define PRCM_APB0_GATE_1WIRE (0x1 << 5)
 #define PRCM_APB0_GATE_I2C (0x1 << 6)
