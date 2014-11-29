@@ -1,10 +1,10 @@
 config AXP221_POWER
-	boolean "axp221 pmic support"
-	depends on MACH_SUN6I
+	boolean "axp221 / axp223 pmic support"
+	depends on MACH_SUN6I || MACH_SUN8I
 	default y
 	---help---
-	Say y here to enable support for the axp221 pmic found on most sun6i
-	(A31) boards.
+	Say y here to enable support for the axp221 / axp223 pmic found on most
+	sun6i (A31) / sun8i (A23) boards.
 
 config AXP221_DLDO1_VOLT
 	int "axp221 dldo1 voltage"

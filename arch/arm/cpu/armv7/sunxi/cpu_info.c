@@ -76,7 +76,7 @@ int print_cpuinfo(void)
 
 int sunxi_get_sid(unsigned int *sid)
 {
-#ifdef CONFIG_MACH_SUN6I
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
 #ifdef CONFIG_AXP221_POWER
 	return axp221_get_sid(sid);
 #else
