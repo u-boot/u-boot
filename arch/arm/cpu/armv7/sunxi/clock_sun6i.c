@@ -144,15 +144,20 @@ void clock_set_pll3(unsigned int clk)
 	       &ccm->pll3_cfg);
 }
 
-void clock_set_pll5(unsigned int clk)
+void clock_set_pll5(unsigned int clk, bool sigma_delta_enable)
 {
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	const int k = 2;
 	const int m = 1;
 
+	if (sigma_delta_enable)
+		writel(CCM_PLL5_PATTERN, &ccm->pll5_pattern_cfg);
+
 	/* PLL5 rate = 24000000 * n * k / m */
-	writel(CCM_PLL5_CTRL_EN | CCM_PLL5_CTRL_UPD |
+	writel(CCM_PLL5_CTRL_EN |
+	       (sigma_delta_enable ? CCM_PLL5_CTRL_SIGMA_DELTA_EN : 0) |
+	       CCM_PLL5_CTRL_UPD |
 	       CCM_PLL5_CTRL_N(clk / (24000000 * k / m)) |
 	       CCM_PLL5_CTRL_K(k) | CCM_PLL5_CTRL_M(m), &ccm->pll5_cfg);
 

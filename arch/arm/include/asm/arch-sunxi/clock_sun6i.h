@@ -185,6 +185,7 @@ struct sunxi_ccm_reg {
 #define CCM_PLL5_CTRL_K(n)		((((n) - 1) & 0x3) << 4)
 #define CCM_PLL5_CTRL_N(n)		((((n) - 1) & 0x1f) << 8)
 #define CCM_PLL5_CTRL_UPD		(0x1 << 20)
+#define CCM_PLL5_CTRL_SIGMA_DELTA_EN	(0x1 << 24)
 #define CCM_PLL5_CTRL_EN		(0x1 << 31)
 
 #define PLL6_CFG_DEFAULT		0x90041811 /* 600 MHz */
@@ -274,6 +275,8 @@ struct sunxi_ccm_reg {
 
 #define MBUS_CLK_DEFAULT		0x81000001 /* PLL6 / 2 */
 
+#define CCM_PLL5_PATTERN		0xd1303333
+
 /* ahb_reset0 offsets */
 #define AHB_RESET_OFFSET_GMAC		17
 #define AHB_RESET_OFFSET_MCTL		14
@@ -307,5 +310,7 @@ struct sunxi_ccm_reg {
 #define CCM_DE_CTRL_PLL9		(4 << 24)
 #define CCM_DE_CTRL_PLL10		(5 << 24)
 #define CCM_DE_CTRL_GATE		(1 << 31)
+
+void clock_set_pll5(unsigned int clk, bool sigma_delta_enable);
 
 #endif /* _SUNXI_CLOCK_SUN6I_H */
