@@ -370,22 +370,22 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
 			int n)
 {
 	int i;
-	int address_len = fdt_address_cells(fdt, 0);
-	int size_len = fdt_size_cells(fdt, 0);
+	int address_cells = fdt_address_cells(fdt, 0);
+	int size_cells = fdt_size_cells(fdt, 0);
 	char *p = buf;
 
 	for (i = 0; i < n; i++) {
-		if (address_len == 2)
+		if (address_cells == 2)
 			*(fdt64_t *)p = cpu_to_fdt64(address[i]);
 		else
 			*(fdt32_t *)p = cpu_to_fdt32(address[i]);
-		p += address_len;
+		p += 4 * address_cells;
 
-		if (size_len == 2)
+		if (size_cells == 2)
 			*(fdt64_t *)p = cpu_to_fdt64(size[i]);
 		else
 			*(fdt32_t *)p = cpu_to_fdt32(size[i]);
-		p += size_len;
+		p += 4 * size_cells;
 	}
 
 	return p - (char *)buf;
