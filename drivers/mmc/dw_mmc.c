@@ -318,7 +318,7 @@ static void dwmci_set_ios(struct mmc *mmc)
 	dwmci_writel(host, DWMCI_CTYPE, ctype);
 
 	regs = dwmci_readl(host, DWMCI_UHS_REG);
-	if (mmc->card_caps & MMC_MODE_DDR_52MHz)
+	if (mmc->ddr_mode)
 		regs |= DWMCI_DDR_MODE;
 	else
 		regs &= DWMCI_DDR_MODE;
