@@ -178,7 +178,7 @@ static int i2c_mux_disconnet_all(void)
 {
 	struct	i2c_bus_hose *i2c_bus_tmp = &i2c_bus[I2C_BUS];
 	int	i;
-	uint8_t	buf;
+	uint8_t	buf = 0;
 
 	if (I2C_ADAP->init_done == 0)
 		return 0;
