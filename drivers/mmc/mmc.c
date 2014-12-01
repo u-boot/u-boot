@@ -1188,6 +1188,12 @@ static int mmc_startup(struct mmc *mmc)
 
 	mmc_set_clock(mmc, mmc->tran_speed);
 
+	/* Fix the block length for DDR mode */
+	if (mmc->ddr_mode) {
+		mmc->read_bl_len = MMC_MAX_BLOCK_LEN;
+		mmc->write_bl_len = MMC_MAX_BLOCK_LEN;
+	}
+
 	/* fill in device description */
 	mmc->block_dev.lun = 0;
 	mmc->block_dev.type = 0;
