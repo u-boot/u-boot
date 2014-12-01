@@ -76,6 +76,9 @@ int do_elf_reloc_fixups(void)
 	/* The size of the region of u-boot that runs out of RAM. */
 	uintptr_t size = (uintptr_t)&__bss_end - (uintptr_t)&__text_start;
 
+	if (re_src == re_end)
+		panic("No relocation data");
+
 	do {
 		/* Get the location from the relocation entry */
 		offset_ptr_rom = (Elf32_Addr *)re_src->r_offset;

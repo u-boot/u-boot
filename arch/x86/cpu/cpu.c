@@ -124,7 +124,7 @@ static void load_gdt(const u64 *boot_gdt, u16 num_entries)
 {
 	struct gdt_ptr gdt;
 
-	gdt.len = (num_entries * 8) - 1;
+	gdt.len = (num_entries * X86_GDT_ENTRY_SIZE) - 1;
 	gdt.ptr = (u32)boot_gdt;
 
 	asm volatile("lgdtl %0\n" : : "m" (gdt));
@@ -144,10 +144,13 @@ void setup_gdt(gd_t *id, u64 *gdt_addr)
 		     (ulong)&id->arch.gd_addr, 0xfffff);
 
 	/* 16-bit CS: code, read/execute, 64 kB, base 0 */
-	gdt_addr[X86_GDT_ENTRY_16BIT_CS] = GDT_ENTRY(0x109b, 0, 0x0ffff);
+	gdt_addr[X86_GDT_ENTRY_16BIT_CS] = GDT_ENTRY(0x009b, 0, 0x0ffff);
 
 	/* 16-bit DS: data, read/write, 64 kB, base 0 */
-	gdt_addr[X86_GDT_ENTRY_16BIT_DS] = GDT_ENTRY(0x1093, 0, 0x0ffff);
+	gdt_addr[X86_GDT_ENTRY_16BIT_DS] = GDT_ENTRY(0x0093, 0, 0x0ffff);
+
+	gdt_addr[X86_GDT_ENTRY_16BIT_FLAT_CS] = GDT_ENTRY(0x809b, 0, 0xfffff);
+	gdt_addr[X86_GDT_ENTRY_16BIT_FLAT_DS] = GDT_ENTRY(0x8093, 0, 0xfffff);
 
 	load_gdt(gdt_addr, X86_GDT_NUM_ENTRIES);
 	load_ds(X86_GDT_ENTRY_32BIT_DS);
@@ -319,14 +322,6 @@ int x86_cpu_init_f(void)
 
 	return 0;
 }
-
-int x86_cpu_init_r(void)
-{
-	/* Initialize core interrupt and exception functionality of CPU */
-	cpu_init_interrupts();
-	return 0;
-}
-int cpu_init_r(void) __attribute__((weak, alias("x86_cpu_init_r")));
 
 void x86_enable_caches(void)
 {

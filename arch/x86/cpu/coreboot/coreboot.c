@@ -39,17 +39,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int board_early_init_r(void)
-{
-	/* CPU Speed to 100MHz */
-	gd->cpu_clk = 100000000;
-
-	/* Crystal is 33.000MHz */
-	gd->bus_clk = 33000000;
-
-	return 0;
-}
-
 int print_cpuinfo(void)
 {
 	return default_print_cpuinfo();

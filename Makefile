@@ -980,6 +980,9 @@ u-boot.rom: u-boot-x86-16bit.bin u-boot-dtb.bin \
 	$(objtree)/tools/ifdtool -w \
 		$(CONFIG_SYS_X86_START16):$(objtree)/u-boot-x86-16bit.bin \
 		u-boot.tmp
+	$(objtree)/tools/ifdtool -w \
+		$(CONFIG_X86_OPTION_ROM_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_X86_OPTION_ROM_FILENAME) \
+		u-boot.tmp
 	mv u-boot.tmp $@
 
 OBJCOPYFLAGS_u-boot-x86-16bit.bin := -O binary -j .start16 -j .resetvec

@@ -273,6 +273,11 @@ void X86EMU_setupPioFuncs(X86EMU_pioFuncs * funcs)
 	sys_outl = funcs->outl;
 }
 
+void X86EMU_setupIntrFunc(int intnum, X86EMU_intrFuncs func)
+{
+	_X86EMU_intrTab[intnum] = func;
+}
+
 /****************************************************************************
 PARAMETERS:
 funcs   - New interrupt vector table to make active

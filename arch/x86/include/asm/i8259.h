@@ -69,4 +69,6 @@
 #define	ICW4_AEOI	0x02	/* Automatic EOI Mode */
 #define ICW4_PM		0x01	/* Microprocessor Mode */
 
+int i8259_init(void);
+
 #endif

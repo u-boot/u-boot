@@ -775,7 +775,7 @@ init_fnc_t init_sequence_r[] = {
 	initr_flash,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#if defined(CONFIG_PPC) || defined(CONFIG_X86)
+#if defined(CONFIG_PPC)
 	/* initialize higher level parts of CPU like time base and timers */
 	cpu_init_r,
 #endif
@@ -838,11 +838,8 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_CMD_KGDB
 	initr_kgdb,
 #endif
-#ifdef CONFIG_X86
-	board_early_init_r,
-#endif
 	interrupt_init,
-#if defined(CONFIG_ARM) || defined(CONFIG_x86)
+#if defined(CONFIG_ARM)
 	initr_enable_interrupts,
 #endif
 #ifdef CONFIG_X86

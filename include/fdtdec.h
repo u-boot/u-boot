@@ -120,6 +120,9 @@ enum fdt_compat_id {
 	COMPAT_INTEL_LPC,		/* Intel Low Pin Count I/F */
 	COMPAT_INTEL_MICROCODE,		/* Intel microcode update */
 	COMPAT_MEMORY_SPD,		/* Memory SPD information */
+	COMPAT_INTEL_PANTHERPOINT_AHCI,	/* Intel Pantherpoint AHCI */
+	COMPAT_INTEL_MODEL_206AX,	/* Intel Model 206AX CPU */
+	COMPAT_INTEL_GMA,		/* Intel Graphics Media Accelerator */
 
 	COMPAT_COUNT,
 };

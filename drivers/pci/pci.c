@@ -366,9 +366,27 @@ phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
 	return phys_addr;
 }
 
-/*
- *
- */
+void pci_write_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum,
+		     u32 addr_and_ctrl)
+{
+	int bar;
+
+	bar = PCI_BASE_ADDRESS_0 + barnum * 4;
+	pci_hose_write_config_dword(hose, dev, bar, addr_and_ctrl);
+}
+
+u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum)
+{
+	u32 addr;
+	int bar;
+
+	bar = PCI_BASE_ADDRESS_0 + barnum * 4;
+	pci_hose_read_config_dword(hose, dev, bar, &addr);
+	if (addr & PCI_BASE_ADDRESS_SPACE_IO)
+		return addr & PCI_BASE_ADDRESS_IO_MASK;
+	else
+		return addr & PCI_BASE_ADDRESS_MEM_MASK;
+}
 
 int pci_hose_config_device(struct pci_controller *hose,
 			   pci_dev_t dev,

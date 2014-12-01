@@ -33,6 +33,16 @@ int pci_early_init_hose(struct pci_controller **hosep)
 	return 0;
 }
 
+__weak int board_pci_pre_scan(struct pci_controller *hose)
+{
+	return 0;
+}
+
+__weak int board_pci_post_scan(struct pci_controller *hose)
+{
+	return 0;
+}
+
 void pci_init_board(void)
 {
 	struct pci_controller *hose = &x86_hose;
@@ -44,7 +54,9 @@ void pci_init_board(void)
 	pci_setup_type1(hose);
 	pci_register_hose(hose);
 
+	board_pci_pre_scan(hose);
 	hose->last_busno = pci_hose_scan(hose);
+	board_pci_post_scan(hose);
 }
 
 static struct pci_controller *get_hose(void)

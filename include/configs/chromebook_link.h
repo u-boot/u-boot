@@ -21,7 +21,6 @@
 #define CONFIG_DCACHE_RAM_MRC_VAR_SIZE		0x4000
 #define CONFIG_SYS_X86_START16			0xfffff800
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_DISPLAY_CPUINFO
 
 #define CONFIG_X86_RESET_VECTOR
@@ -40,20 +39,9 @@
 	{PCI_VENDOR_ID_INTEL,		\
 			PCI_DEVICE_ID_INTEL_PANTHERPOINT_AHCI_MOBILE}
 
-/*
- * These common x86 features are not yet supported, but are added in
- * follow-on patches in this series. Add undefs here to avoid every patch
- * having to put things back into x86-common.h
- */
-#undef CONFIG_VIDEO
-#undef CONFIG_CFB_CONSOLE
-#undef CONFIG_ICH_SPI
-#undef CONFIG_SPI
-#undef CONFIG_CMD_SPI
-#undef CONFIG_CMD_SF
-#undef CONFIG_USB_EHCI
-#undef CONFIG_CMD_USB
-#undef CONFIG_CMD_SCSI
+#define CONFIG_X86_OPTION_ROM_FILENAME		pci8086,0166.bin
+#define CONFIG_X86_OPTION_ROM_ADDR		0xfff90000
+#define CONFIG_VIDEO_X86
 
 #define CONFIG_PCI_MEM_BUS	0xe0000000
 #define CONFIG_PCI_MEM_PHYS	CONFIG_PCI_MEM_BUS
@@ -66,6 +54,18 @@
 #define CONFIG_PCI_IO_BUS	0x1000
 #define CONFIG_PCI_IO_PHYS	CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE	0xefff
+
+#define CONFIG_SYS_EARLY_PCI_INIT
+#define CONFIG_PCI_PNP
+
+#define CONFIG_BIOSEMU
+#define VIDEO_IO_OFFSET				0
+#define CONFIG_X86EMU_RAW_IO
+
+#define CONFIG_CROS_EC
+#define CONFIG_CROS_EC_LPC
+#define CONFIG_CMD_CROS_EC
+#define CONFIG_ARCH_EARLY_INIT_R
 
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,vga,serial\0" \
 					"stdout=vga,serial\0" \

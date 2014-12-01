@@ -19,6 +19,7 @@
 #include <common.h>
 
 #include <command.h>
+#include <bios_emul.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/errno.h>
@@ -544,7 +545,6 @@ void radeon_setmode_9200(int vesa_idx, int bpp)
 }
 
 #include "../bios_emulator/include/biosemu.h"
-extern int BootVideoCardBIOS(pci_dev_t pcidev, BE_VGAInfo ** pVGAInfo, int cleanUp);
 
 int radeon_probe(struct radeonfb_info *rinfo)
 {

@@ -14,10 +14,40 @@
 
 #include <pci.h>
 
+/* PCH types */
+#define PCH_TYPE_CPT	0x1c /* CougarPoint */
+#define PCH_TYPE_PPT	0x1e /* IvyBridge */
+
+/* PCH stepping values for LPC device */
+#define PCH_STEP_A0	0
+#define PCH_STEP_A1	1
+#define PCH_STEP_B0	2
+#define PCH_STEP_B1	3
+#define PCH_STEP_B2	4
+#define PCH_STEP_B3	5
 #define DEFAULT_GPIOBASE	0x0480
 #define DEFAULT_PMBASE		0x0500
 
 #define SMBUS_IO_BASE		0x0400
+
+int pch_silicon_revision(void);
+int pch_silicon_type(void);
+int pch_silicon_supported(int type, int rev);
+void pch_iobp_update(u32 address, u32 andvalue, u32 orvalue);
+
+#define MAINBOARD_POWER_OFF	0
+#define MAINBOARD_POWER_ON	1
+#define MAINBOARD_POWER_KEEP	2
+
+/* PCI Configuration Space (D30:F0): PCI2PCI */
+#define PSTS	0x06
+#define SMLT	0x1b
+#define SECSTS	0x1e
+#define INTR	0x3c
+#define BCTRL	0x3e
+#define   SBR	(1 << 6)
+#define   SEE	(1 << 1)
+#define   PERE	(1 << 0)
 
 #define PCH_EHCI1_DEV		PCI_BDF(0, 0x1d, 0)
 #define PCH_EHCI2_DEV		PCI_BDF(0, 0x1a, 0)
@@ -30,6 +60,35 @@
 
 /* PCI Configuration Space (D31:F0): LPC */
 #define PCH_LPC_DEV		PCI_BDF(0, 0x1f, 0)
+#define SERIRQ_CNTL		0x64
+
+#define GEN_PMCON_1		0xa0
+#define GEN_PMCON_2		0xa2
+#define GEN_PMCON_3		0xa4
+#define ETR3			0xac
+#define  ETR3_CWORWRE		(1 << 18)
+#define  ETR3_CF9GR		(1 << 20)
+
+/* GEN_PMCON_3 bits */
+#define RTC_BATTERY_DEAD	(1 << 2)
+#define RTC_POWER_FAILED	(1 << 1)
+#define SLEEP_AFTER_POWER_FAIL	(1 << 0)
+
+#define PMBASE			0x40
+#define ACPI_CNTL		0x44
+#define BIOS_CNTL		0xDC
+#define GPIO_BASE		0x48 /* LPC GPIO Base Address Register */
+#define GPIO_CNTL		0x4C /* LPC GPIO Control Register */
+#define GPIO_ROUT		0xb8
+
+#define PIRQA_ROUT		0x60
+#define PIRQB_ROUT		0x61
+#define PIRQC_ROUT		0x62
+#define PIRQD_ROUT		0x63
+#define PIRQE_ROUT		0x68
+#define PIRQF_ROUT		0x69
+#define PIRQG_ROUT		0x6A
+#define PIRQH_ROUT		0x6B
 
 #define GEN_PMCON_1		0xa0
 #define GEN_PMCON_2		0xa2
@@ -62,6 +121,64 @@
 #define LPC_GEN3_DEC		0x8c /* LPC IF Generic Decode Range 3 */
 #define LPC_GEN4_DEC		0x90 /* LPC IF Generic Decode Range 4 */
 #define LPC_GENX_DEC(x)		(0x84 + 4 * (x))
+
+/* PCI Configuration Space (D31:F1): IDE */
+#define PCH_IDE_DEV		PCI_BDF(0, 0x1f, 1)
+#define PCH_SATA_DEV		PCI_BDF(0, 0x1f, 2)
+#define PCH_SATA2_DEV		PCI_BDF(0, 0x1f, 5)
+
+#define INTR_LN			0x3c
+#define IDE_TIM_PRI		0x40	/* IDE timings, primary */
+#define   IDE_DECODE_ENABLE	(1 << 15)
+#define   IDE_SITRE		(1 << 14)
+#define   IDE_ISP_5_CLOCKS	(0 << 12)
+#define   IDE_ISP_4_CLOCKS	(1 << 12)
+#define   IDE_ISP_3_CLOCKS	(2 << 12)
+#define   IDE_RCT_4_CLOCKS	(0 <<  8)
+#define   IDE_RCT_3_CLOCKS	(1 <<  8)
+#define   IDE_RCT_2_CLOCKS	(2 <<  8)
+#define   IDE_RCT_1_CLOCKS	(3 <<  8)
+#define   IDE_DTE1		(1 <<  7)
+#define   IDE_PPE1		(1 <<  6)
+#define   IDE_IE1		(1 <<  5)
+#define   IDE_TIME1		(1 <<  4)
+#define   IDE_DTE0		(1 <<  3)
+#define   IDE_PPE0		(1 <<  2)
+#define   IDE_IE0		(1 <<  1)
+#define   IDE_TIME0		(1 <<  0)
+#define IDE_TIM_SEC		0x42	/* IDE timings, secondary */
+
+#define IDE_SDMA_CNT		0x48	/* Synchronous DMA control */
+#define   IDE_SSDE1		(1 <<  3)
+#define   IDE_SSDE0		(1 <<  2)
+#define   IDE_PSDE1		(1 <<  1)
+#define   IDE_PSDE0		(1 <<  0)
+
+#define IDE_SDMA_TIM		0x4a
+
+#define IDE_CONFIG		0x54	/* IDE I/O Configuration Register */
+#define   SIG_MODE_SEC_NORMAL	(0 << 18)
+#define   SIG_MODE_SEC_TRISTATE	(1 << 18)
+#define   SIG_MODE_SEC_DRIVELOW	(2 << 18)
+#define   SIG_MODE_PRI_NORMAL	(0 << 16)
+#define   SIG_MODE_PRI_TRISTATE	(1 << 16)
+#define   SIG_MODE_PRI_DRIVELOW	(2 << 16)
+#define   FAST_SCB1		(1 << 15)
+#define   FAST_SCB0		(1 << 14)
+#define   FAST_PCB1		(1 << 13)
+#define   FAST_PCB0		(1 << 12)
+#define   SCB1			(1 <<  3)
+#define   SCB0			(1 <<  2)
+#define   PCB1			(1 <<  1)
+#define   PCB0			(1 <<  0)
+
+#define SATA_SIRI		0xa0 /* SATA Indexed Register Index */
+#define SATA_SIRD		0xa4 /* SATA Indexed Register Data */
+#define SATA_SP			0xd0 /* Scratchpad */
+
+/* SATA IOBP Registers */
+#define SATA_IOBP_SP0G3IR	0xea000151
+#define SATA_IOBP_SP1G3IR	0xea000051
 
 /* PCI Configuration Space (D31:F3): SMBus */
 #define PCH_SMBUS_DEV		PCI_BDF(0, 0x1f, 3)
@@ -342,6 +459,9 @@
 #define TCO1_STS	0x64
 #define   DMISCI_STS	(1 << 9)
 #define TCO2_STS	0x66
+
+int lpc_init(struct pci_controller *hose, pci_dev_t dev);
+void lpc_enable(pci_dev_t dev);
 
 /**
  * lpc_early_init() - set up LPC serial ports and other early things

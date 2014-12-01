@@ -163,21 +163,51 @@
 		};
 	};
 
-	lpc {
-		compatible = "intel,lpc";
-		#address-cells = <1>;
-		#size-cells = <1>;
-		gen-dec = <0x800 0xfc 0x900 0xfc>;
-		cros-ec@200 {
-			compatible = "google,cros-ec";
-			reg = <0x204 1 0x200 1 0x880 0x80>;
+	pci {
+		sata {
+			compatible = "intel,pantherpoint-ahci";
+			intel,sata-mode = "ahci";
+			intel,sata-port-map = <1>;
+			intel,sata-port0-gen3-tx = <0x00880a7f>;
+		};
 
-			/* This describes the flash memory within the EC */
+		gma {
+			compatible = "intel,gma";
+			intel,dp_hotplug = <0 0 0x06>;
+			intel,panel-port-select = <1>;
+			intel,panel-power-cycle-delay = <6>;
+			intel,panel-power-up-delay = <2000>;
+			intel,panel-power-down-delay = <500>;
+			intel,panel-power-backlight-on-delay = <2000>;
+			intel,panel-power-backlight-off-delay = <2000>;
+			intel,cpu-backlight = <0x00000200>;
+			intel,pch-backlight = <0x04000000>;
+		};
+
+		lpc {
+			compatible = "intel,lpc";
 			#address-cells = <1>;
 			#size-cells = <1>;
-			flash@8000000 {
-				reg = <0x08000000 0x20000>;
-				erase-value = <0xff>;
+			gen-dec = <0x800 0xfc 0x900 0xfc>;
+			intel,gen-dec = <0x800 0xfc 0x900 0xfc>;
+			intel,pirq-routing = <0x8b 0x8a 0x8b 0x8b
+						0x80 0x80 0x80 0x80>;
+			intel,gpi-routing = <0 0 0 0 0 0 0 2
+						1 0 0 0 0 0 0 0>;
+			/* Enable EC SMI source */
+			intel,alt-gp-smi-enable = <0x0100>;
+
+			cros-ec@200 {
+				compatible = "google,cros-ec";
+				reg = <0x204 1 0x200 1 0x880 0x80>;
+
+				/* Describes the flash memory within the EC */
+				#address-cells = <1>;
+				#size-cells = <1>;
+				flash@8000000 {
+					reg = <0x08000000 0x20000>;
+					erase-value = <0xff>;
+				};
 			};
 		};
 	};

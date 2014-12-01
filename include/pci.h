@@ -678,5 +678,28 @@ extern void pci_mpc824x_init (struct pci_controller *hose);
 extern void pci_mpc85xx_init (struct pci_controller *hose);
 #endif
 
+/**
+ * pci_write_bar32() - Write the address of a BAR including control bits
+ *
+ * This writes a raw address (with control bits) to a bar
+ *
+ * @hose:	PCI hose to use
+ * @dev:	PCI device to update
+ * @barnum:	BAR number (0-5)
+ * @addr:	BAR address with control bits
+ */
+void pci_write_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum,
+		     u32 addr_and_ctrl);
+
+/**
+ * pci_read_bar32() - read the address of a bar
+ *
+ * @hose:	PCI hose to use
+ * @dev:	PCI device to inspect
+ * @barnum:	BAR number (0-5)
+ * @return address of the bar, masking out any control bits
+ * */
+u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
+
 #endif /* __ASSEMBLY__ */
 #endif /* _PCI_H */
