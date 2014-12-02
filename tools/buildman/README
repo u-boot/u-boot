@@ -310,8 +310,9 @@ branch with a valid upstream)
 $ ./tools/buildman/buildman -b <branch> -n
 
 If it can't detect the upstream branch, try checking out the branch, and
-doing something like 'git branch --set-upstream <branch> upstream/master'
-or something similar.
+doing something like 'git branch --set-upstream-to upstream/master'
+or something similar. Buildman will try to guess a suitable upstream branch
+if it can't find one (you will see a message like" Guessing upstream as ...).
 
 As an example:
 

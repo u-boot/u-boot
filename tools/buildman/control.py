@@ -127,12 +127,12 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         if not options.branch:
             count = 1
         else:
-            count = gitutil.CountCommitsInBranch(options.git_dir,
-                                                 options.branch)
+            count, msg = gitutil.CountCommitsInBranch(options.git_dir,
+                                                      options.branch)
             if count is None:
-                str = ("Branch '%s' not found or has no upstream" %
-                       options.branch)
-                sys.exit(col.Color(col.RED, str))
+                sys.exit(col.Color(col.RED, msg))
+            if msg:
+                print col.Color(col.YELLOW, msg)
             count += 1   # Build upstream commit also
 
     if not count:
