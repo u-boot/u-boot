@@ -171,7 +171,16 @@ The toolchain-alias section indicates that the i386 toolchain should be used
 to build x86 commits.
 
 
-2. Check the available toolchains
+3. Make sure you have the require Python pre-requisites
+
+Buildman uses multiprocessing, Queue, shutil, StringIO and ConfigParser.
+These should normally be available, but if you get an error like this then
+you will need to obtain those modules:
+
+    ImportError: No module named multiprocessing
+
+
+4. Check the available toolchains
 
 Run this check to make sure that you have a toolchain for every architecture.
 
