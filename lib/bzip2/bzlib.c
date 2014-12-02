@@ -1350,11 +1350,11 @@ int BZ_API(BZ2_bzBuffToBuffDecompress)
    strm.avail_out = *destLen;
 
    ret = BZ2_bzDecompress ( &strm );
+   *destLen -= strm.avail_out;
    if (ret == BZ_OK) goto output_overflow_or_eof;
    if (ret != BZ_STREAM_END) goto errhandler;
 
    /* normal termination */
-   *destLen -= strm.avail_out;
    BZ2_bzDecompressEnd ( &strm );
    return BZ_OK;
 
