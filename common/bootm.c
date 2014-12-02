@@ -266,13 +266,25 @@ static int bootm_find_other(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif /* USE_HOSTC */
 
-#if defined(CONFIG_GZIP) || defined(CONFIG_GZIP) || defined(CONFIG_BZIP2) || \
-	defined(CONFIG_LZMA) || defined(CONFIG_LZO)
-static void print_decomp_msg(const char *type_name)
+/**
+ * print_decomp_msg() - Print a suitable decompression/loading message
+ *
+ * @type:	OS type (IH_OS_...)
+ * @comp_type:	Compression type being used (IH_COMP_...)
+ * @is_xip:	true if the load address matches the image start
+ */
+static void print_decomp_msg(int comp_type, int type, bool is_xip)
 {
-	printf("   Uncompressing %s ... ", type_name);
+	const char *name = genimg_get_type_name(type);
+
+	if (comp_type == IH_COMP_NONE)
+		printf("   %s %s ... ", is_xip ? "XIP" : "Loading", name);
+	else
+		printf("   Uncompressing %s ... ", name);
 }
 
+#if defined(CONFIG_GZIP) || defined(CONFIG_GZIP) || defined(CONFIG_BZIP2) || \
+	defined(CONFIG_LZMA) || defined(CONFIG_LZO)
 static int handle_decomp_error(const char *algo, size_t size, size_t unc_len,
 			       int ret)
 {
@@ -293,24 +305,18 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 		       void *load_buf, void *image_buf, ulong image_len,
 		       uint unc_len, ulong *load_end)
 {
-	const char *type_name = genimg_get_type_name(type);
-
 	*load_end = load;
+	print_decomp_msg(comp, type, load == image_start);
 	switch (comp) {
 	case IH_COMP_NONE:
-		if (load == image_start) {
-			printf("   XIP %s ... ", type_name);
-		} else {
-			printf("   Loading %s ... ", type_name);
+		if (load != image_start)
 			memmove_wd(load_buf, image_buf, image_len, CHUNKSZ);
-		}
 		*load_end = load + image_len;
 		break;
 #ifdef CONFIG_GZIP
 	case IH_COMP_GZIP: {
 		int ret;
 
-		print_decomp_msg(type_name);
 		ret = gunzip(load_buf, unc_len, image_buf, &image_len);
 		if (ret != 0) {
 			return handle_decomp_error("GUNZIP", image_len,
@@ -325,7 +331,6 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 	case IH_COMP_BZIP2: {
 		size_t size = unc_len;
 
-		print_decomp_msg(type_name);
 		/*
 		 * If we've got less than 4 MB of malloc() space,
 		 * use slower decompression algorithm which requires
@@ -348,7 +353,6 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 		SizeT lzma_len = unc_len;
 		int ret;
 
-		print_decomp_msg(type_name);
 		ret = lzmaBuffToBuffDecompress(load_buf, &lzma_len,
 					       image_buf, image_len);
 		if (ret != SZ_OK) {
@@ -364,8 +368,6 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
 	case IH_COMP_LZO: {
 		size_t size = unc_len;
 		int ret;
-
-		print_decomp_msg(type_name);
 
 		ret = lzop_decompress(image_buf, image_len, load_buf, &size);
 		if (ret != LZO_E_OK)
