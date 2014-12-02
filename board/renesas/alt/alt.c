@@ -37,20 +37,9 @@ void s_init(void)
 	qos_init();
 }
 
-#define MSTPSR1		0xE6150038
-#define SMSTPCR1	0xE6150134
 #define TMU0_MSTP125	(1 << 25)
-
-#define MSTPSR7		0xE61501C4
-#define SMSTPCR7	0xE615014C
 #define SCIF2_MSTP719	(1 << 19)
-
-#define MSTPSR8		0xE61509A0
-#define SMSTPCR8	0xE6150990
 #define ETHER_MSTP813	(1 << 13)
-
-#define MSTPSR3		0xE6150048
-#define SMSTPCR3	0xE615013C
 #define IIC1_MSTP323	(1 << 23)
 
 #define mstp_setbits(type, addr, saddr, set) \
