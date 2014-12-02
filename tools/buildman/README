@@ -699,6 +699,17 @@ build the selected boards and display build status as it runs (i.e. -v is
 enabled automatically). Use -e to see errors/warnings as well.
 
 
+Building Ranges
+===============
+
+You can build a range of commits by specifying a range instead of a branch
+when using the -b flag. For example:
+
+    upstream/master..us-buildman
+
+will build commits in us-buildman that are not in upstream/master.
+
+
 Other options
 =============
 

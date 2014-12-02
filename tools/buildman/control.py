@@ -123,14 +123,22 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     # problems introduced by the first commit on the branch.
     col = terminal.Color()
     count = options.count
+    has_range = options.branch and '..' in options.branch
     if count == -1:
         if not options.branch:
             count = 1
         else:
-            count, msg = gitutil.CountCommitsInBranch(options.git_dir,
-                                                      options.branch)
+            if has_range:
+                count, msg = gitutil.CountCommitsInRange(options.git_dir,
+                                                         options.branch)
+            else:
+                count, msg = gitutil.CountCommitsInBranch(options.git_dir,
+                                                          options.branch)
             if count is None:
                 sys.exit(col.Color(col.RED, msg))
+            elif count == 0:
+                sys.exit(col.Color(col.RED, "Range '%s' has no commits" %
+                                   options.branch))
             if msg:
                 print col.Color(col.YELLOW, msg)
             count += 1   # Build upstream commit also
@@ -172,8 +180,11 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     # to overwrite earlier ones by setting allow_overwrite=True
     if options.branch:
         if count == -1:
-            range_expr = gitutil.GetRangeInBranch(options.git_dir,
-                                                  options.branch)
+            if has_range:
+                range_expr = options.branch
+            else:
+                range_expr = gitutil.GetRangeInBranch(options.git_dir,
+                                                      options.branch)
             upstream_commit = gitutil.GetUpstream(options.git_dir,
                                                   options.branch)
             series = patchstream.GetMetaDataForList(upstream_commit,

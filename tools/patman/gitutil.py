@@ -154,6 +154,24 @@ def GetRangeInBranch(git_dir, branch, include_upstream=False):
     rstr = '%s%s..%s' % (upstream, '~' if include_upstream else '', branch)
     return rstr, msg
 
+def CountCommitsInRange(git_dir, range_expr):
+    """Returns the number of commits in the given range.
+
+    Args:
+        git_dir: Directory containing git repo
+        range_expr: Range to check
+    Return:
+        Number of patches that exist in the supplied rangem or None if none
+        were found
+    """
+    pipe = [LogCmd(range_expr, git_dir=git_dir, oneline=True)]
+    result = command.RunPipe(pipe, capture=True, capture_stderr=True,
+                             raise_on_error=False)
+    if result.return_code:
+        return None, "Range '%s' not found or is invalid" % range_expr
+    patch_count = len(result.stdout.splitlines())
+    return patch_count, None
+
 def CountCommitsInBranch(git_dir, branch, include_upstream=False):
     """Returns the number of commits in the given branch.
 
@@ -167,11 +185,7 @@ def CountCommitsInBranch(git_dir, branch, include_upstream=False):
     range_expr, msg = GetRangeInBranch(git_dir, branch, include_upstream)
     if not range_expr:
         return None, msg
-    pipe = [LogCmd(range_expr, git_dir=git_dir, oneline=True),
-            ['wc', '-l']]
-    result = command.RunPipe(pipe, capture=True, oneline=True)
-    patch_count = int(result.stdout)
-    return patch_count, msg
+    return CountCommitsInRange(git_dir, range_expr)
 
 def CountCommits(commit_range):
     """Returns the number of commits in the given range.
