@@ -91,4 +91,14 @@
 #define CONFIG_USB_EHCI_RMOBILE
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 
+/* Module stop status bits */
+/* INTC-RT */
+#define CONFIG_SMSTP0_ENA	0x00400000
+/* MSIF */
+#define CONFIG_SMSTP2_ENA	0x00002000
+/* INTC-SYS, IRQC */
+#define CONFIG_SMSTP4_ENA	0x00000180
+/* SCIF0 */
+#define CONFIG_SMSTP7_ENA	0x00200000
+
 #endif	/* __GOSE_H */
