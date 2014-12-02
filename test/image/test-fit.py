@@ -97,9 +97,9 @@ sb load hostfs 0 %(fit_addr)x %(fit)s
 fdt addr %(fit_addr)x
 bootm start %(fit_addr)x
 bootm loados
-sb save hostfs 0 %(kernel_out)s %(kernel_addr)x %(kernel_size)x
-sb save hostfs 0 %(fdt_out)s %(fdt_addr)x %(fdt_size)x
-sb save hostfs 0 %(ramdisk_out)s %(ramdisk_addr)x %(ramdisk_size)x
+sb save hostfs 0 %(kernel_addr)x %(kernel_out)s %(kernel_size)x
+sb save hostfs 0 %(fdt_addr)x %(fdt_out)s %(fdt_size)x
+sb save hostfs 0 %(ramdisk_addr)x %(ramdisk_out)s %(ramdisk_size)x
 reset
 '''
 

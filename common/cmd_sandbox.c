@@ -117,7 +117,7 @@ U_BOOT_CMD(
 	"load hostfs - <addr> <filename> [<bytes> <offset>]  - "
 		"load a file from host\n"
 	"sb ls hostfs - <filename>                    - list files on host\n"
-	"sb save hostfs - <filename> <addr> <bytes> [<offset>] - "
+	"sb save hostfs - <addr> <filename> <bytes> [<offset>] - "
 		"save a file to host\n"
 	"sb bind <dev> [<filename>] - bind \"host\" device to file\n"
 	"sb info [<dev>]            - show device binding & info\n"
