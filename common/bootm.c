@@ -264,7 +264,30 @@ static int bootm_find_other(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	return 0;
 }
-#endif /* USE_HOSTCC */
+#endif /* USE_HOSTC */
+
+#if defined(CONFIG_GZIP) || defined(CONFIG_GZIP) || defined(CONFIG_BZIP2) || \
+	defined(CONFIG_LZMA) || defined(CONFIG_LZO)
+static void print_decomp_msg(const char *type_name)
+{
+	printf("   Uncompressing %s ... ", type_name);
+}
+
+static int handle_decomp_error(const char *algo, size_t size, size_t unc_len,
+			       int ret)
+{
+	if (size >= unc_len)
+		puts("Image too large: increase CONFIG_SYS_BOOTM_LEN\n");
+	else
+		printf("%s: uncompress or overwrite error %d\n", algo, ret);
+	puts("Must RESET board to recover\n");
+#ifndef USE_HOSTCC
+	bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
+#endif
+
+	return BOOTM_ERR_RESET;
+}
+#endif
 
 /**
  * decomp_image() - decompress the operating system
@@ -296,19 +319,25 @@ static int decomp_image(int comp, ulong load, ulong image_start, int type,
 		*load_end = load + image_len;
 		break;
 #ifdef CONFIG_GZIP
-	case IH_COMP_GZIP:
-		printf("   Uncompressing %s ... ", type_name);
-		if (gunzip(load_buf, unc_len, image_buf, &image_len) != 0) {
-			puts("GUNZIP: uncompress, out-of-mem or overwrite error - must RESET board to recover\n");
-			return BOOTM_ERR_RESET;
+	case IH_COMP_GZIP: {
+		int ret;
+
+		print_decomp_msg(type_name);
+		ret = gunzip(load_buf, unc_len, image_buf, &image_len);
+		if (ret != 0) {
+			return handle_decomp_error("GUNZIP", image_len,
+						   unc_len, ret);
 		}
 
 		*load_end = load + image_len;
 		break;
+	}
 #endif /* CONFIG_GZIP */
 #ifdef CONFIG_BZIP2
-	case IH_COMP_BZIP2:
-		printf("   Uncompressing %s ... ", type_name);
+	case IH_COMP_BZIP2: {
+		size_t size = unc_len;
+
+		print_decomp_msg(type_name);
 		/*
 		 * If we've got less than 4 MB of malloc() space,
 		 * use slower decompression algorithm which requires
@@ -318,30 +347,27 @@ static int decomp_image(int comp, ulong load, ulong image_start, int type,
 			image_buf, image_len,
 			CONFIG_SYS_MALLOC_LEN < (4096 * 1024), 0);
 		if (i != BZ_OK) {
-			printf("BUNZIP2: uncompress or overwrite error %d - must RESET board to recover\n",
-			       i);
-			return BOOTM_ERR_RESET;
+			return handle_decomp_error("BUNZIP2", size, unc_len,
+						   i);
 		}
 
 		*load_end = load + unc_len;
 		break;
+	}
 #endif /* CONFIG_BZIP2 */
 #ifdef CONFIG_LZMA
 	case IH_COMP_LZMA: {
 		SizeT lzma_len = unc_len;
 		int ret;
 
-		printf("   Uncompressing %s ... ", type_name);
-
+		print_decomp_msg(type_name);
 		ret = lzmaBuffToBuffDecompress(load_buf, &lzma_len,
 					       image_buf, image_len);
-		unc_len = lzma_len;
 		if (ret != SZ_OK) {
-			printf("LZMA: uncompress or overwrite error %d - must RESET board to recover\n",
-			       ret);
-			bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
-			return BOOTM_ERR_RESET;
+			return handle_decomp_error("LZMA", lzma_len, unc_len,
+						   ret);
 		}
+		unc_len = lzma_len;
 		*load_end = load + unc_len;
 		break;
 	}
@@ -351,14 +377,11 @@ static int decomp_image(int comp, ulong load, ulong image_start, int type,
 		size_t size = unc_len;
 		int ret;
 
-		printf("   Uncompressing %s ... ", type_name);
+		print_decomp_msg(type_name);
 
 		ret = lzop_decompress(image_buf, image_len, load_buf, &size);
-		if (ret != LZO_E_OK) {
-			printf("LZO: uncompress or overwrite error %d - must RESET board to recover\n",
-			       ret);
-			return BOOTM_ERR_RESET;
-		}
+		if (ret != LZO_E_OK)
+			return handle_decomp_error("LZO", size, unc_len, ret);
 
 		*load_end = load + size;
 		break;
