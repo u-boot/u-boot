@@ -60,12 +60,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-void arch_preboot_os(void)
-{
-	/* Disable TMU0 */
-	mstp_setbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
-}
-
 int board_init(void)
 {
 	/* adress of boot parameters */

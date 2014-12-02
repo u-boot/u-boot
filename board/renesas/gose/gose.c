@@ -60,16 +60,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#define TSTR0		0x04
-#define TSTR0_STR0	0x01
-void arch_preboot_os(void)
-{
-	/* stop TMU0 */
-	mstp_clrbits_le32(TMU_BASE + TSTR0, TMU_BASE + TSTR0, TSTR0_STR0);
-	/* Disable TMU0 */
-	mstp_setbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
-}
-
 #define PUPR5		0xE6060114
 #define PUPR5_ETH	0x3FFC0000
 #define PUPR5_ETH_MAGIC	(1 << 27)
