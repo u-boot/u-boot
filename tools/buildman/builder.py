@@ -1115,6 +1115,8 @@ class Builder:
         create. Having left over directories is confusing when the user wants
         to check the output manually.
         """
+        if not self.commits:
+            return
         dir_list = []
         for commit_upto in range(self.commit_count):
             dir_list.append(self._GetOutputDir(commit_upto))
