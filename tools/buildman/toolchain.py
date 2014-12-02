@@ -89,7 +89,7 @@ class Toolchain:
         """
         env = dict(os.environ)
         env['CROSS_COMPILE'] = self.cross
-        env['PATH'] += (':' + self.path)
+        env['PATH'] = self.path + ':' + env['PATH']
         return env
 
 
