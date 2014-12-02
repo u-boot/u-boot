@@ -174,7 +174,8 @@ class Builder:
             self.func_sizes = func_sizes
 
     def __init__(self, toolchains, base_dir, git_dir, num_threads, num_jobs,
-                 gnu_make='make', checkout=True, show_unknown=True, step=1):
+                 gnu_make='make', checkout=True, show_unknown=True, step=1,
+                 no_subdirs=False):
         """Create a new Builder object
 
         Args:
@@ -213,6 +214,7 @@ class Builder:
         self._step = step
         self.in_tree = False
         self._error_lines = 0
+        self.no_subdirs = no_subdirs
 
         self.col = terminal.Color()
 
@@ -392,15 +394,17 @@ class Builder:
         Args:
             commit_upto: Commit number to use (0..self.count-1)
         """
+        commit_dir = None
         if self.commits:
             commit = self.commits[commit_upto]
             subject = commit.subject.translate(trans_valid_chars)
             commit_dir = ('%02d_of_%02d_g%s_%s' % (commit_upto + 1,
                     self.commit_count, commit.hash, subject[:20]))
-        else:
+        elif not self.no_subdirs:
             commit_dir = 'current'
-        output_dir = os.path.join(self.base_dir, commit_dir)
-        return output_dir
+        if not commit_dir:
+            return self.base_dir
+        return os.path.join(self.base_dir, commit_dir)
 
     def GetBuildDir(self, commit_upto, target):
         """Get the name of the build directory for a commit number

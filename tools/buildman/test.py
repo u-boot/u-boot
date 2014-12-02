@@ -373,5 +373,13 @@ class TestBuild(unittest.TestCase):
         build.commit_count = 0
         self.CheckDirs(build, '/current')
 
+    def testOutputDirNoSubdirs(self):
+        build = builder.Builder(self.toolchains, BASE_DIR, None, 1, 2,
+                                checkout=False, show_unknown=False,
+                                no_subdirs=True)
+        build.commits = None
+        build.commit_count = 0
+        self.CheckDirs(build, '')
+
 if __name__ == "__main__":
     unittest.main()

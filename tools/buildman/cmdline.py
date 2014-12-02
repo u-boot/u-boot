@@ -55,6 +55,8 @@ def ParseArgs():
           help='List available tool chains')
     parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
           default=False, help="Do a dry run (describe actions, but do nothing)")
+    parser.add_option('-N', '--no-subdirs', action='store_true', dest='no_subdirs',
+          default=False, help="Don't create subdirectories when building current source for a single board")
     parser.add_option('-o', '--output-dir', type='string',
           dest='output_dir', default='..',
           help='Directory where all builds happen and buildman has its workspace (default is ../)')
