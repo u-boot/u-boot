@@ -62,6 +62,8 @@ def ParseArgs():
           help='Directory where all builds happen and buildman has its workspace (default is ../)')
     parser.add_option('-Q', '--quick', action='store_true',
           default=False, help='Do a rough build, with limited warning resolution')
+    parser.add_option('-p', '--full-path', action='store_true',
+          default=False, help="Use full toolchain path in CROSS_COMPILE")
     parser.add_option('-s', '--summary', action='store_true',
           default=False, help='Show a build summary')
     parser.add_option('-S', '--show-sizes', action='store_true',

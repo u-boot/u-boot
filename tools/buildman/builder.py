@@ -175,7 +175,7 @@ class Builder:
 
     def __init__(self, toolchains, base_dir, git_dir, num_threads, num_jobs,
                  gnu_make='make', checkout=True, show_unknown=True, step=1,
-                 no_subdirs=False):
+                 no_subdirs=False, full_path=False):
         """Create a new Builder object
 
         Args:
@@ -189,6 +189,10 @@ class Builder:
                 This is used for testing.
             show_unknown: Show unknown boards (those not built) in summary
             step: 1 to process every commit, n to process every nth commit
+            no_subdirs: Don't create subdirectories when building current
+                source for a single board
+            full_path: Return the full path in CROSS_COMPILE and don't set
+                PATH
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
@@ -215,6 +219,7 @@ class Builder:
         self.in_tree = False
         self._error_lines = 0
         self.no_subdirs = no_subdirs
+        self.full_path = full_path
 
         self.col = terminal.Color()
 

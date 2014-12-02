@@ -177,7 +177,7 @@ class BuilderThread(threading.Thread):
                     commit = 'current'
 
                 # Set up the environment and command line
-                env = self.toolchain.MakeEnvironment()
+                env = self.toolchain.MakeEnvironment(self.builder.full_path)
                 Mkdir(out_dir)
                 args = []
                 cwd = work_dir
@@ -284,7 +284,7 @@ class BuilderThread(threading.Thread):
                 print >>fd, 'path', result.toolchain.path
 
             # Write out the image and function size information and an objdump
-            env = result.toolchain.MakeEnvironment()
+            env = result.toolchain.MakeEnvironment(self.builder.full_path)
             lines = []
             for fname in ['u-boot', 'spl/u-boot-spl']:
                 cmd = ['%snm' % self.toolchain.cross, '--size-sort', fname]

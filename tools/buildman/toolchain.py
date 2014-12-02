@@ -41,7 +41,7 @@ class Toolchain:
         pos = self.cross.find('-')
         self.arch = self.cross[:pos] if pos != -1 else 'sandbox'
 
-        env = self.MakeEnvironment()
+        env = self.MakeEnvironment(False)
 
         # As a basic sanity check, run the C compiler with --version
         cmd = [fname, '--version']
@@ -81,15 +81,23 @@ class Toolchain:
                 return prio
         return prio
 
-    def MakeEnvironment(self):
+    def MakeEnvironment(self, full_path):
         """Returns an environment for using the toolchain.
 
-        Thie takes the current environment, adds CROSS_COMPILE and
-        augments PATH so that the toolchain will operate correctly.
+        Thie takes the current environment and adds CROSS_COMPILE so that
+        the tool chain will operate correctly.
+
+        Args:
+            full_path: Return the full path in CROSS_COMPILE and don't set
+                PATH
         """
         env = dict(os.environ)
-        env['CROSS_COMPILE'] = self.cross
-        env['PATH'] = self.path + ':' + env['PATH']
+        if full_path:
+            env['CROSS_COMPILE'] = os.path.join(self.path, self.cross)
+        else:
+            env['CROSS_COMPILE'] = self.cross
+            env['PATH'] = self.path + ':' + env['PATH']
+
         return env
 
 
