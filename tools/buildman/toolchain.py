@@ -30,7 +30,14 @@ class Toolchain:
         """
         self.gcc = fname
         self.path = os.path.dirname(fname)
-        self.cross = os.path.basename(fname)[:-3]
+
+        # Find the CROSS_COMPILE prefix to use for U-Boot. For example,
+        # 'arm-linux-gnueabihf-gcc' turns into 'arm-linux-gnueabihf-'.
+        basename = os.path.basename(fname)
+        pos = basename.rfind('-')
+        self.cross = basename[:pos + 1] if pos != -1 else ''
+
+        # The architecture is the first part of the name
         pos = self.cross.find('-')
         self.arch = self.cross[:pos] if pos != -1 else 'sandbox'
 
