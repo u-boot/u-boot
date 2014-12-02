@@ -40,7 +40,6 @@ def GetItems(section):
     try:
         return settings.items(section)
     except ConfigParser.NoSectionError as e:
-        print e
         return []
     except:
         raise
