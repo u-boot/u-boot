@@ -313,9 +313,8 @@ out:
 	return ret;
 }
 
-
-static int do_test_compression(cmd_tbl_t *cmdtp, int flag, int argc,
-			       char * const argv[])
+static int do_ut_compression(cmd_tbl_t *cmdtp, int flag, int argc,
+			     char *const argv[])
 {
 	int err = 0;
 
@@ -324,12 +323,12 @@ static int do_test_compression(cmd_tbl_t *cmdtp, int flag, int argc,
 	err += run_test("lzma", compress_using_lzma, uncompress_using_lzma);
 	err += run_test("lzo", compress_using_lzo, uncompress_using_lzo);
 
-	printf("test_compression %s\n", err == 0 ? "ok" : "FAILED");
+	printf("ut_compression %s\n", err == 0 ? "ok" : "FAILED");
 
 	return err;
 }
 
 U_BOOT_CMD(
-	test_compression,	5,	1,	do_test_compression,
+	ut_compression,	5,	1,	do_ut_compression,
 	"Basic test of compressors: gzip bzip2 lzma lzo", ""
 );
