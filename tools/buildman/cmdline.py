@@ -36,6 +36,10 @@ def ParseArgs():
     parser.add_option('-F', '--force-build-failures', dest='force_build_failures',
           action='store_true', default=False,
           help='Force build of previously-failed build')
+    parser.add_option('--fetch-arch', type='string',
+          help="Fetch a toolchain for architecture FETCH_ARCH ('list' to list)."
+              ' You can also fetch several toolchains separate by comma, or'
+              " 'all' to download all")
     parser.add_option('-g', '--git', type='string',
           help='Git repo containing branch to build', default='.')
     parser.add_option('-G', '--config-file', type='string',

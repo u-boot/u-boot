@@ -118,6 +118,22 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         print
         return 0
 
+    if options.fetch_arch:
+        if options.fetch_arch == 'list':
+            sorted_list = toolchains.ListArchs()
+            print 'Available architectures: %s\n' % ' '.join(sorted_list)
+            return 0
+        else:
+            fetch_arch = options.fetch_arch
+            if fetch_arch == 'all':
+                fetch_arch = ','.join(toolchains.ListArchs())
+                print 'Downloading toolchains: %s\n' % fetch_arch
+            for arch in fetch_arch.split(','):
+                ret = toolchains.FetchAndInstall(arch)
+                if ret:
+                    return ret
+            return 0
+
     # Work out how many commits to build. We want to build everything on the
     # branch. We also build the upstream commit as a control so we can see
     # problems introduced by the first commit on the branch.

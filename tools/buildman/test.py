@@ -409,5 +409,11 @@ class TestBuild(unittest.TestCase):
         self.toolchains.Add('i386-linux-gcc', test=False)
         self.assertTrue(self.toolchains.Select('x86') != None)
 
+    def testToolchainDownload(self):
+        """Test that we can download toolchains"""
+        self.assertEqual('https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.3/x86_64-gcc-4.6.3-nolibc_arm-unknown-linux-gnueabi.tar.xz',
+            self.toolchains.LocateArchUrl('arm'))
+
+
 if __name__ == "__main__":
     unittest.main()

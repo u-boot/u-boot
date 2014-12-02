@@ -173,9 +173,9 @@ to build x86 commits.
 
 3. Make sure you have the require Python pre-requisites
 
-Buildman uses multiprocessing, Queue, shutil, StringIO and ConfigParser.
-These should normally be available, but if you get an error like this then
-you will need to obtain those modules:
+Buildman uses multiprocessing, Queue, shutil, StringIO, ConfigParser and
+urllib2. These should normally be available, but if you get an error like
+this then you will need to obtain those modules:
 
     ImportError: No module named multiprocessing
 
@@ -308,6 +308,47 @@ x86_64    : /usr/bin/x86_64-linux-gnu-gcc
 
 You can see that everything is covered, even some strange ones that won't
 be used (c88 and c99). This is a feature.
+
+
+5. Install new toolchains if needed
+
+You can download toolchains and update the [toolchain] section of the
+settings file to find them.
+
+To make this easier, buildman can automatically download and install
+toolchains from kernel.org. First list the available architectures:
+
+$ ./tools/buildman/buildman sandbox --fetch-arch list
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.3/
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.2/
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.5.1/
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.2.4/
+Available architectures: alpha am33_2.0 arm avr32 bfin cris crisv32 frv h8300
+hppa hppa64 i386 ia64 m32r m68k mips mips64 or32 powerpc powerpc64 s390x sh4
+sparc sparc64 tilegx x86_64 xtensa
+
+Then pick one and download it:
+
+$ ./tools/buildman/buildman sandbox --fetch-arch or32
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.3/
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.2/
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.5.1/
+Downloading: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.5.1//x86_64-gcc-4.5.1-nolibc_or32-linux.tar.xz
+Unpacking to: /home/sjg/.buildman-toolchains
+Testing
+      - looking in '/home/sjg/.buildman-toolchains/gcc-4.5.1-nolibc/or32-linux/.'
+      - looking in '/home/sjg/.buildman-toolchains/gcc-4.5.1-nolibc/or32-linux/bin'
+         - found '/home/sjg/.buildman-toolchains/gcc-4.5.1-nolibc/or32-linux/bin/or32-linux-gcc'
+Tool chain test:  OK
+
+Buildman should now be set up to use your new toolchain.
+
+At the time of writing, U-Boot has these architectures:
+
+   arc, arm, avr32, blackfin, m68k, microblaze, mips, nds32, nios2, openrisc
+   powerpc, sandbox, sh, sparc, x86
+
+Of these, only arc, microblaze and nds32 are not available at kernel.org..
 
 
 How to run it
