@@ -289,23 +289,11 @@ static int handle_decomp_error(const char *algo, size_t size, size_t unc_len,
 }
 #endif
 
-/**
- * decomp_image() - decompress the operating system
- *
- * @comp:	Compression algorithm that is used (IH_COMP_...)
- * @load:	Destination load address in U-Boot memory
- * @image_start Image start address (where we are decompressing from)
- * @type:	OS type (IH_OS_...)
- * @load_bug:	Place to decompress to
- * @image_buf:	Address to decompress from
- * @return 0 if OK, -ve on error (BOOTM_ERR_...)
- */
-static int decomp_image(int comp, ulong load, ulong image_start, int type,
-			void *load_buf, void *image_buf, ulong image_len,
-			ulong *load_end)
+int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
+		       void *load_buf, void *image_buf, ulong image_len,
+		       uint unc_len, ulong *load_end)
 {
 	const char *type_name = genimg_get_type_name(type);
-	__attribute__((unused)) uint unc_len = CONFIG_SYS_BOOTM_LEN;
 
 	*load_end = load;
 	switch (comp) {
@@ -413,8 +401,9 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 
 	load_buf = map_sysmem(load, 0);
 	image_buf = map_sysmem(os.image_start, image_len);
-	err = decomp_image(os.comp, load, os.image_start, os.type, load_buf,
-			   image_buf, image_len, load_end);
+	err = bootm_decomp_image(os.comp, load, os.image_start, os.type,
+				 load_buf, image_buf, image_len,
+				 CONFIG_SYS_BOOTM_LEN, load_end);
 	if (err) {
 		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 		return err;
@@ -905,9 +894,11 @@ static int bootm_host_load_image(const void *fit, int req_image_type)
 
 	/* Allow the image to expand by a factor of 4, should be safe */
 	load_buf = malloc((1 << 20) + len * 4);
-	ret = decomp_image(imape_comp, 0, data, image_type, load_buf,
-			   (void *)data, len, &load_end);
+	ret = bootm_decomp_image(imape_comp, 0, data, image_type, load_buf,
+				 (void *)data, len, CONFIG_SYS_BOOTM_LEN,
+				 &load_end);
 	free(load_buf);
+
 	if (ret && ret != BOOTM_ERR_UNIMPLEMENTED)
 		return ret;
 
