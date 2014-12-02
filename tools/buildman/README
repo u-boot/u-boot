@@ -141,8 +141,8 @@ $ git clone git://git.denx.de/u-boot.git .
 $ git checkout -b my-branch origin/master
 $ # Add some commits to the branch, reading for testing
 
-2. Create ~/.buildman to tell buildman where to find tool chains. As an
-example:
+2. Create ~/.buildman to tell buildman where to find tool chains (see 'The
+.buildman file' later for details). As an example:
 
 # Buildman settings file
 
@@ -675,28 +675,61 @@ It is common when refactoring code for the rodata to decrease as the text size
 increases, and vice versa.
 
 
-Providing 'make' flags
-======================
+The .buildman file
+==================
 
-U-Boot's build system supports a few flags (such as BUILD_TAG) which affect
-the build product. These flags can be specified in the buildman settings
-file. They can also be useful when building U-Boot against other open source
-software.
+The .buildman file provides information about the available toolchains and
+also allows build flags to be passed to 'make'. It consists of several
+sections, with the section name in square brackets. Within each section are
+a set of (tag, value) pairs.
 
-[make-flags]
-at91-boards=ENABLE_AT91_TEST=1
-snapper9260=${at91-boards} BUILD_TAG=442
-snapper9g45=${at91-boards} BUILD_TAG=443
+'[toolchain]' section
 
-This will use 'make ENABLE_AT91_TEST=1 BUILD_TAG=442' for snapper9260
-and 'make ENABLE_AT91_TEST=1 BUILD_TAG=443' for snapper9g45. A special
-variable ${target} is available to access the target name (snapper9260 and
-snapper9g20 in this case). Variables are resolved recursively. Note that
-variables can only contain the characters A-Z, a-z, 0-9, hyphen (-) and
-underscore (_).
+    This lists the available toolchains. The tag here doesn't matter, but
+    make sure it is unique. The value is the path to the toolchain. Buildman
+    will look in that path for a file ending in 'gcc'. It will then execute
+    it to check that it is a C compiler, passing only the --version flag to
+    it. If the return code is 0, buildman assumes that it is a valid C
+    compiler. It uses the first part of the name as the architecture and
+    strips off the last part when setting the CROSS_COMPILE environment
+    variable (parts are delimited with a hyphen).
 
-It is expected that any variables added are dealt with in U-Boot's
-config.mk file and documented in the README.
+    For example powerpc-linux-gcc will be noted as a toolchain for 'powerpc'
+    and CROSS_COMPILE will be set to powerpc-linux- when using it.
+
+'[toolchain-alias]' section
+
+    This converts toolchain architecture names to U-Boot names. For example,
+    if an x86 toolchains is called i386-linux-gcc it will not normally be
+    used for architecture 'x86'. Adding 'x86: i386' to this section will
+    tell buildman that the i386 toolchain can be used for x86.
+
+'[make-flags]' section
+
+    U-Boot's build system supports a few flags (such as BUILD_TAG) which
+    affect the build product. These flags can be specified in the buildman
+    settings file. They can also be useful when building U-Boot against other
+    open source software.
+
+    [make-flags]
+    at91-boards=ENABLE_AT91_TEST=1
+    snapper9260=${at91-boards} BUILD_TAG=442
+    snapper9g45=${at91-boards} BUILD_TAG=443
+
+    This will use 'make ENABLE_AT91_TEST=1 BUILD_TAG=442' for snapper9260
+    and 'make ENABLE_AT91_TEST=1 BUILD_TAG=443' for snapper9g45. A special
+    variable ${target} is available to access the target name (snapper9260
+    and snapper9g20 in this case). Variables are resolved recursively. Note
+    that variables can only contain the characters A-Z, a-z, 0-9, hyphen (-)
+    and underscore (_).
+
+    It is expected that any variables added are dealt with in U-Boot's
+    config.mk file and documented in the README.
+
+    Note that you can pass ad-hoc options to the build using environment
+    variables, for example:
+
+       SOME_OPTION=1234 ./tools/buildman/buildman my_board
 
 
 Quick Sanity Check
