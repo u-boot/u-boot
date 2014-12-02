@@ -197,7 +197,8 @@ class BuilderThread(threading.Thread):
                         src_dir = os.getcwd()
                     else:
                         args.append('O=build')
-                args.append('-s')
+                if not self.builder.verbose_build:
+                    args.append('-s')
                 if self.builder.num_jobs is not None:
                     args.extend(['-j', str(self.builder.num_jobs)])
                 config_args = ['%s_defconfig' % brd.target]

@@ -248,7 +248,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     builder = Builder(toolchains, output_dir, options.git_dir,
             options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
             show_unknown=options.show_unknown, step=options.step,
-            no_subdirs=options.no_subdirs, full_path=options.full_path)
+            no_subdirs=options.no_subdirs, full_path=options.full_path,
+            verbose_build=options.verbose_build)
     builder.force_config_on_failure = not options.quick
     if make_func:
         builder.do_make = make_func

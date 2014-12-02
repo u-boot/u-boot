@@ -175,7 +175,7 @@ class Builder:
 
     def __init__(self, toolchains, base_dir, git_dir, num_threads, num_jobs,
                  gnu_make='make', checkout=True, show_unknown=True, step=1,
-                 no_subdirs=False, full_path=False):
+                 no_subdirs=False, full_path=False, verbose_build=False):
         """Create a new Builder object
 
         Args:
@@ -193,6 +193,7 @@ class Builder:
                 source for a single board
             full_path: Return the full path in CROSS_COMPILE and don't set
                 PATH
+            verbose_build: Run build with V=1 and don't use 'make -s'
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
@@ -220,6 +221,7 @@ class Builder:
         self._error_lines = 0
         self.no_subdirs = no_subdirs
         self.full_path = full_path
+        self.verbose_build = verbose_build
 
         self.col = terminal.Color()
 
