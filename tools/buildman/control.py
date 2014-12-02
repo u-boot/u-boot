@@ -207,12 +207,11 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     if not gnu_make:
         sys.exit('GNU Make not found')
 
-    # Create a new builder with the selected options
+    # Create a new builder with the selected options.
+    output_dir = options.output_dir
     if options.branch:
         dirname = options.branch.replace('/', '_')
-    else:
-        dirname = 'current'
-    output_dir = os.path.join(options.output_dir, dirname)
+        output_dir = os.path.join(options.output_dir, dirname)
     if clean_dir and os.path.exists(output_dir):
         shutil.rmtree(output_dir)
     builder = Builder(toolchains, output_dir, options.git_dir,
