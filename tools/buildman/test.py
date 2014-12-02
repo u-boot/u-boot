@@ -24,6 +24,16 @@ import commit
 import terminal
 import toolchain
 
+settings_data = '''
+# Buildman settings file
+
+[toolchain]
+main: /usr/sbin
+
+[toolchain-alias]
+x86: i386 x86_64
+'''
+
 errors = [
     '''main.c: In function 'main_loop':
 main.c:260:6: warning: unused variable 'joe' [-Wunused-variable]
@@ -113,8 +123,11 @@ class TestBuild(unittest.TestCase):
             self.boards.AddBoard(board.Board(*brd))
         self.boards.SelectBoards([])
 
+        # Add some test settings
+        bsettings.Setup(None)
+        bsettings.AddFile(settings_data)
+
         # Set up the toolchains
-        bsettings.Setup()
         self.toolchains = toolchain.Toolchains()
         self.toolchains.Add('arm-linux-gcc', test=False)
         self.toolchains.Add('sparc-linux-gcc', test=False)
