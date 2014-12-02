@@ -215,7 +215,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         # output directory itself rather than any subdirectory.
         if not options.no_subdirs:
             output_dir = os.path.join(options.output_dir, dirname)
-    if clean_dir and os.path.exists(output_dir):
+    if (clean_dir and output_dir != options.output_dir and
+            os.path.exists(output_dir)):
         shutil.rmtree(output_dir)
     builder = Builder(toolchains, output_dir, options.git_dir,
             options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
