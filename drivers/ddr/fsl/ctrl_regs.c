@@ -324,6 +324,7 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 #elif defined(CONFIG_SYS_FSL_DDR3)
 	unsigned int data_rate = get_ddr_freq(0);
 	int txp;
+	unsigned int ip_rev;
 	int odt_overlap;
 	/*
 	 * (tXARD and tXARDS). Empirical?
@@ -336,7 +337,25 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 	 */
 	txp = max((int)mclk_ps * 3, (mclk_ps > 1540 ? 7500 : 6000));
 
-	tmrd_mclk = 4;
+	ip_rev = fsl_ddr_get_version();
+	if (ip_rev >= 0x40700) {
+		/*
+		 * MRS_CYC = max(tMRD, tMOD)
+		 * tMRD = 4nCK (8nCK for RDIMM)
+		 * tMOD = max(12nCK, 15ns)
+		 */
+		tmrd_mclk = max((unsigned int)12, picos_to_mclk(15000));
+	} else {
+		/*
+		 * MRS_CYC = tMRD
+		 * tMRD = 4nCK (8nCK for RDIMM)
+		 */
+		if (popts->registered_dimm_en)
+			tmrd_mclk = 8;
+		else
+			tmrd_mclk = 4;
+	}
+
 	/* set the turnaround time */
 
 	/*
