@@ -185,9 +185,11 @@ class Toolchains:
         returns:
             toolchain object, or None if none found
         """
-        for name, value in bsettings.GetItems('toolchain-alias'):
-            if arch == name:
-                arch = value
+        for tag, value in bsettings.GetItems('toolchain-alias'):
+            if arch == tag:
+                for alias in value.split():
+                    if alias in self.toolchains:
+                        return self.toolchains[alias]
 
         if not arch in self.toolchains:
             raise ValueError, ("No tool chain found for arch '%s'" % arch)

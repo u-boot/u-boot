@@ -701,8 +701,9 @@ a set of (tag, value) pairs.
 
     This converts toolchain architecture names to U-Boot names. For example,
     if an x86 toolchains is called i386-linux-gcc it will not normally be
-    used for architecture 'x86'. Adding 'x86: i386' to this section will
-    tell buildman that the i386 toolchain can be used for x86.
+    used for architecture 'x86'. Adding 'x86: i386 x86_64' to this section
+    will tell buildman that the i386 and x86_64 toolchains can be used for
+    the x86 architecture.
 
 '[make-flags]' section
 

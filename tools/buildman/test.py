@@ -394,5 +394,20 @@ class TestBuild(unittest.TestCase):
         build.commit_count = 0
         self.CheckDirs(build, '')
 
+    def testToolchainAliases(self):
+        self.assertTrue(self.toolchains.Select('arm') != None)
+        with self.assertRaises(ValueError):
+            self.toolchains.Select('no-arch')
+        with self.assertRaises(ValueError):
+            self.toolchains.Select('x86')
+
+        self.toolchains = toolchain.Toolchains()
+        self.toolchains.Add('x86_64-linux-gcc', test=False)
+        self.assertTrue(self.toolchains.Select('x86') != None)
+
+        self.toolchains = toolchain.Toolchains()
+        self.toolchains.Add('i386-linux-gcc', test=False)
+        self.assertTrue(self.toolchains.Select('x86') != None)
+
 if __name__ == "__main__":
     unittest.main()
