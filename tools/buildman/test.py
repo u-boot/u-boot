@@ -83,6 +83,8 @@ boards = [
     ['Active', 'sandbox', 'sandbox', '', 'Tester', 'Sandbox board', 'board4', ''],
 ]
 
+BASE_DIR = 'base'
+
 class Options:
     """Class that holds build options"""
     pass
@@ -341,6 +343,35 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(self.boards.SelectBoards(['sandbox sandbox',
                                                    'sandbox']),
                          {'all': 1, 'sandbox': 1})
+    def CheckDirs(self, build, dirname):
+        self.assertEqual('base%s' % dirname, build._GetOutputDir(1))
+        self.assertEqual('base%s/fred' % dirname,
+                         build.GetBuildDir(1, 'fred'))
+        self.assertEqual('base%s/fred/done' % dirname,
+                         build.GetDoneFile(1, 'fred'))
+        self.assertEqual('base%s/fred/u-boot.sizes' % dirname,
+                         build.GetFuncSizesFile(1, 'fred', 'u-boot'))
+        self.assertEqual('base%s/fred/u-boot.objdump' % dirname,
+                         build.GetObjdumpFile(1, 'fred', 'u-boot'))
+        self.assertEqual('base%s/fred/err' % dirname,
+                         build.GetErrFile(1, 'fred'))
+
+    def testOutputDir(self):
+        build = builder.Builder(self.toolchains, BASE_DIR, None, 1, 2,
+                                checkout=False, show_unknown=False)
+        build.commits = self.commits
+        build.commit_count = len(self.commits)
+        subject = self.commits[1].subject.translate(builder.trans_valid_chars)
+        dirname ='/%02d_of_%02d_g%s_%s' % (2, build.commit_count, commits[1][0],
+                                           subject[:20])
+        self.CheckDirs(build, dirname)
+
+    def testOutputDirCurrent(self):
+        build = builder.Builder(self.toolchains, BASE_DIR, None, 1, 2,
+                                checkout=False, show_unknown=False)
+        build.commits = None
+        build.commit_count = 0
+        self.CheckDirs(build, '/current')
 
 if __name__ == "__main__":
     unittest.main()
