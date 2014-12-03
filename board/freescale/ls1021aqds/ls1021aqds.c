@@ -15,6 +15,7 @@
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
 #include <fsl_sec.h>
+#include <spl.h>
 
 #include "../common/qixis.h"
 #include "ls1021aqds_qixis.h"
@@ -34,10 +35,17 @@ enum {
 int checkboard(void)
 {
 	char buf[64];
+#if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_QSPI_BOOT)
 	u8 sw;
+#endif
 
 	puts("Board: LS1021AQDS\n");
 
+#ifdef CONFIG_SD_BOOT
+	puts("SD\n");
+#elif CONFIG_QSPI_BOOT
+	puts("QSPI\n");
+#else
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
 
@@ -51,6 +59,7 @@ int checkboard(void)
 		printf("IFCCard\n");
 	else
 		printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
+#endif
 
 	printf("Sys ID:0x%02x, Sys Ver: 0x%02x\n",
 	       QIXIS_READ(id), QIXIS_READ(arch));
@@ -164,6 +173,36 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SPL_BUILD
+void board_init_f(ulong dummy)
+{
+	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
+
+	/* Set global data pointer */
+	gd = &gdata;
+
+	/* Clear the BSS */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+#ifdef CONFIG_FSL_IFC
+	init_early_memctl_regs();
+#endif
+
+	get_clocks();
+
+	preloader_console_init();
+
+#ifdef CONFIG_SPL_I2C_SUPPORT
+	i2c_init_all();
+#endif
+	out_le32(&cci->ctrl_ord, CCI400_CTRLORD_TERM_BARRIER);
+
+	dram_init();
+
+	board_init_r(NULL, 0);
+}
+#endif
 
 int config_board_mux(int ctrl_type)
 {
