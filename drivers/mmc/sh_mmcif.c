@@ -579,8 +579,6 @@ static struct mmc_config sh_mmcif_cfg = {
 	.host_caps	= MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_4BIT |
 			  MMC_MODE_8BIT | MMC_MODE_HC,
 	.voltages	= MMC_VDD_32_33 | MMC_VDD_33_34,
-	.f_min		= CLKDEV_MMC_INIT,
-	.f_max		= CLKDEV_EMMC_DATA,
 	.b_max		= CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
 
@@ -596,6 +594,9 @@ int mmcif_mmc_init(void)
 
 	host->regs = (struct sh_mmcif_regs *)CONFIG_SH_MMCIF_ADDR;
 	host->clk = CONFIG_SH_MMCIF_CLK;
+
+	sh_mmcif_cfg.f_min = MMC_CLK_DIV_MIN(host->clk);
+	sh_mmcif_cfg.f_max = MMC_CLK_DIV_MAX;
 
 	mmc = mmc_create(&sh_mmcif_cfg, host);
 	if (mmc == NULL) {
