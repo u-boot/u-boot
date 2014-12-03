@@ -16,6 +16,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/rmobile.h>
 #include <asm/arch/rcar-mstp.h>
+#include <asm/arch/mmc.h>
 #include <netdev.h>
 #include <miiphy.h>
 #include <i2c.h>
@@ -42,6 +43,7 @@ void s_init(void)
 #define SCIF2_MSTP719	(1 << 19)
 #define ETHER_MSTP813	(1 << 13)
 #define IIC1_MSTP323	(1 << 23)
+#define MMC0_MSTP315	(1 << 15)
 
 int board_early_init_f(void)
 {
@@ -57,6 +59,10 @@ int board_early_init_f(void)
 	/* IIC1 / sh-i2c ch1 */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, IIC1_MSTP323);
 
+#ifdef CONFIG_SH_MMCIF
+	/* MMC */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, MMC0_MSTP315);
+#endif
 	return 0;
 }
 
@@ -118,6 +124,19 @@ int board_eth_init(bd_t *bis)
 #else
 	return 0;
 #endif
+}
+
+int board_mmc_init(bd_t *bis)
+{
+	int ret = 0;
+
+#ifdef CONFIG_SH_MMCIF
+	gpio_request(GPIO_GP_4_31, NULL);
+	gpio_set_value(GPIO_GP_4_31, 1);
+
+	ret = mmcif_mmc_init();
+#endif
+	return ret;
 }
 
 int dram_init(void)
