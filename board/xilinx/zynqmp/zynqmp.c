@@ -80,15 +80,19 @@ int board_eth_init(bd_t *bis)
 int board_mmc_init(bd_t *bd)
 {
 	int ret = 0;
+	u32 ver = zynqmp_get_silicon_version();
 
+	if (ver != ZYNQMP_CSU_VERSION_VELOCE) {
 #if defined(CONFIG_ZYNQ_SDHCI)
 # if defined(CONFIG_ZYNQ_SDHCI0)
-        ret = zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR0);
+		ret = zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR0);
 # endif
 # if defined(CONFIG_ZYNQ_SDHCI1)
-        ret |= zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR1);
+		ret |= zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR1);
 # endif
 #endif
+	}
+
         return ret;
 }
 #endif
@@ -106,6 +110,8 @@ int board_late_init(void)
 
 	switch (ver) {
 	case ZYNQMP_CSU_VERSION_VELOCE:
+		setenv("baudrate", "9600");
+		setenv("bootcmd", "run veloce");
 	case ZYNQMP_CSU_VERSION_EP108:
 		setenv("serverip", "10.10.70.101");
 		setenv("ipaddr", "10.10.71.100");

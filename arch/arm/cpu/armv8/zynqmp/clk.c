@@ -17,7 +17,7 @@ unsigned long get_uart_clk(int dev_id)
 
 	switch (ver) {
 	case ZYNQMP_CSU_VERSION_VELOCE:
-		return 400000;
+		return 96000;
 	case ZYNQMP_CSU_VERSION_EP108:
 		return 25000000;
 	}
@@ -38,7 +38,12 @@ int set_cpu_clk_info(void)
 {
 	gd->cpu_clk = get_tbclk();
 
-	gd->bd->bi_arm_freq = gd->cpu_clk / 1000000;
+	/* Support Veloce to show at least 1MHz via bdi */
+	if (gd->cpu_clk > 1000000)
+		gd->bd->bi_arm_freq = gd->cpu_clk / 1000000;
+	else
+		gd->bd->bi_arm_freq = 1;
+
 	gd->bd->bi_dsp_freq = 0;
 
 	return 0;

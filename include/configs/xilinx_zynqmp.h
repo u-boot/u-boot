@@ -136,6 +136,10 @@
 	"initrd_size=0x2000000\0"	\
 	"fdt_addr=0x100000\0"		\
 	"fdt_high=0x10000000\0"		\
+	"veloce=fdt addr f000000 && fdt set /amba/misc_clk clock-frequency <96000> && "\
+	"fdt set /amba_apu/timer clock-frequency <480000> && " \
+	"fdt set /amba/i2c_clk clock-frequency <480000> && " \
+	"booti 80000 - f000000\0"	\
 	"netboot=tftpboot 80000 Image && tftpboot f000000 system.dtb && booti 80000 - f000000\0"	\
 	"qspiboot=sf probe 0 && sf read f000000 100000 40000 && "	\
 		  "sf read 80000 140000 1800000 && booti 80000 - f000000\0"	\
@@ -143,8 +147,9 @@
 		"fatload mmc 0:0 f000000 Image && booti 80000 - f000000\0"	\
 	"jtagboot=tftpboot 10000000 image.ub && bootm\0"
 
-#define CONFIG_BOOTARGS		"console=ttyPS0,115200 earlycon=cdns,mmio,0xff000000,115200n8"
-#define CONFIG_BOOTCOMMAND	"echo Hello Xilinx ZynqMP; run $modeboot"
+#define CONFIG_BOOTARGS		"setenv bootargs console=ttyPS0,${baudrate} earlycon=cdns,mmio,0xff000000,${baudrate}n8"
+#define CONFIG_PREBOOT		"echo Hello Xilinx ZynqMP; run bootargs"
+#define CONFIG_BOOTCOMMAND	"run $modeboot"
 #define CONFIG_BOOTDELAY	5
 
 #define CONFIG_BOARD_LATE_INIT
