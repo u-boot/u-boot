@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Freescale Semiconductor, Inc.
+ * Copyright 2012-2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -7,6 +7,10 @@
 #include <image.h>
 #include "pblimage.h"
 #include "pbl_crc32.h"
+
+#define roundup(x, y)		((((x) + ((y) - 1)) / (y)) * (y))
+#define PBL_ACS_CONT_CMD	0x81000000
+#define PBL_ADDR_24BIT_MASK	0x00ffffff
 
 /*
  * Initialize to an invalid value.
@@ -22,6 +26,13 @@ static int pbl_size;
 static char *fname = "Unknown";
 static int lineno = -1;
 static struct pbl_header pblimage_header;
+static int uboot_size;
+static int arch_flag;
+
+static uint32_t pbl_cmd_initaddr;
+static uint32_t pbi_crc_cmd1;
+static uint32_t pbi_crc_cmd2;
+static uint32_t pbl_end_cmd[4];
 
 static union
 {
@@ -38,20 +49,6 @@ static union
  * start offset by subtracting the size of the u-boot image from the
  * top of the allowable 24-bit range.
  */
-static void init_next_pbl_cmd(FILE *fp_uboot)
-{
-	struct stat st;
-	int fd = fileno(fp_uboot);
-
-	if (fstat(fd, &st) == -1) {
-		printf("Error: Could not determine u-boot image size. %s\n",
-			strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-
-	next_pbl_cmd = 0x82000000 - st.st_size;
-}
-
 static void generate_pbl_cmd(void)
 {
 	uint32_t val = next_pbl_cmd;
@@ -66,11 +63,15 @@ static void generate_pbl_cmd(void)
 
 static void pbl_fget(size_t size, FILE *stream)
 {
-	unsigned char c;
+	unsigned char c = 0xff;
 	int c_temp;
 
-	while (size && (c_temp = fgetc(stream)) != EOF) {
-		c = (unsigned char)c_temp;
+	while (size) {
+		c_temp = fgetc(stream);
+		if (c_temp != EOF)
+			c = (unsigned char)c_temp;
+		else if ((c_temp == EOF) && (arch_flag == IH_ARCH_ARM))
+			c = 0xff;
 		*pmem_buf++ = c;
 		pbl_size++;
 		size--;
@@ -80,8 +81,8 @@ static void pbl_fget(size_t size, FILE *stream)
 /* load split u-boot with PBI command 81xxxxxx. */
 static void load_uboot(FILE *fp_uboot)
 {
-	init_next_pbl_cmd(fp_uboot);
-	while (next_pbl_cmd < 0x82000000) {
+	next_pbl_cmd = pbl_cmd_initaddr - uboot_size;
+	while (next_pbl_cmd < pbl_cmd_initaddr) {
 		generate_pbl_cmd();
 		pbl_fget(64, fp_uboot);
 	}
@@ -154,8 +155,6 @@ static uint32_t reverse_byte(uint32_t val)
 /* write end command and crc command to memory. */
 static void add_end_cmd(void)
 {
-	uint32_t pbl_end_cmd[4] = {0x09138000, 0x00000000,
-		0x091380c0, 0x00000000};
 	uint32_t crc32_pbl;
 	int i;
 	unsigned char *p = (unsigned char *)&pbl_end_cmd;
@@ -172,8 +171,8 @@ static void add_end_cmd(void)
 
 	/* Add PBI CRC command. */
 	*pmem_buf++ = 0x08;
-	*pmem_buf++ = 0x13;
-	*pmem_buf++ = 0x80;
+	*pmem_buf++ = pbi_crc_cmd1;
+	*pmem_buf++ = pbi_crc_cmd2;
 	*pmem_buf++ = 0x40;
 	pbl_size += 4;
 
@@ -184,17 +183,6 @@ static void add_end_cmd(void)
 	*pmem_buf++ = (crc32_pbl >> 8) & 0xff;
 	*pmem_buf++ = (crc32_pbl) & 0xff;
 	pbl_size += 4;
-
-	if ((pbl_size % 16) != 0) {
-		for (i = 0; i < 8; i++) {
-			*pmem_buf++ = 0x0;
-			pbl_size++;
-		}
-	}
-	if ((pbl_size % 16 != 0)) {
-		printf("Error: Bad size of image file\n");
-		exit(EXIT_FAILURE);
-	}
 }
 
 void pbl_load_uboot(int ifd, struct image_tool_params *params)
@@ -268,12 +256,64 @@ static void pblimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	/*nothing need to do, pbl_load_uboot takes care of whole file. */
 }
 
+int pblimage_check_params(struct image_tool_params *params)
+{
+	FILE *fp_uboot;
+	int fd;
+	struct stat st;
+
+	if (!params)
+		return EXIT_FAILURE;
+
+	fp_uboot = fopen(params->datafile, "r");
+	if (fp_uboot == NULL) {
+		printf("Error: %s open failed\n", params->datafile);
+		exit(EXIT_FAILURE);
+	}
+	fd = fileno(fp_uboot);
+
+	if (fstat(fd, &st) == -1) {
+		printf("Error: Could not determine u-boot image size. %s\n",
+		       strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	/* For the variable size, we need to pad it to 64 byte boundary */
+	uboot_size = roundup(st.st_size, 64);
+
+	if (params->arch == IH_ARCH_ARM) {
+		arch_flag = IH_ARCH_ARM;
+		pbi_crc_cmd1 = 0x61;
+		pbi_crc_cmd2 = 0;
+		pbl_cmd_initaddr = params->addr & PBL_ADDR_24BIT_MASK;
+		pbl_cmd_initaddr |= PBL_ACS_CONT_CMD;
+		pbl_cmd_initaddr |= uboot_size;
+		pbl_end_cmd[0] = 0x09610000;
+		pbl_end_cmd[1] = 0x00000000;
+		pbl_end_cmd[2] = 0x096100c0;
+		pbl_end_cmd[3] = 0x00000000;
+	} else if (params->arch == IH_ARCH_PPC) {
+		arch_flag = IH_ARCH_PPC;
+		pbi_crc_cmd1 = 0x13;
+		pbi_crc_cmd2 = 0x80;
+		pbl_cmd_initaddr = 0x82000000;
+		pbl_end_cmd[0] = 0x09138000;
+		pbl_end_cmd[1] = 0x00000000;
+		pbl_end_cmd[2] = 0x091380c0;
+		pbl_end_cmd[3] = 0x00000000;
+	}
+
+	next_pbl_cmd = pbl_cmd_initaddr;
+	return 0;
+};
+
 /* pblimage parameters */
 static struct image_type_params pblimage_params = {
 	.name		= "Freescale PBL Boot Image support",
 	.header_size	= sizeof(struct pbl_header),
 	.hdr		= (void *)&pblimage_header,
 	.check_image_type = pblimage_check_image_types,
+	.check_params	= pblimage_check_params,
 	.verify_header	= pblimage_verify_header,
 	.print_header	= pblimage_print_header,
 	.set_header	= pblimage_set_header,

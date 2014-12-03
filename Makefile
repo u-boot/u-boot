@@ -999,7 +999,8 @@ u-boot-img.bin: spl/u-boot-spl.bin u-boot.img FORCE
 #concatenated with u-boot binary. It is need by PowerPC SoC having
 #internal SRAM <= 512KB.
 MKIMAGEFLAGS_u-boot-spl.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
-		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
+		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage \
+		-A $(ARCH) -a $(CONFIG_SPL_TEXT_BASE)
 
 spl/u-boot-spl.pbl: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
