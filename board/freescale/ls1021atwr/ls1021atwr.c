@@ -18,6 +18,7 @@
 #include <fsl_mdio.h>
 #include <tsec.h>
 #include <fsl_sec.h>
+#include <spl.h>
 #ifdef CONFIG_U_QE
 #include "../../../drivers/qe/qe.h"
 #endif
@@ -270,6 +271,25 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SPL_BUILD
+void board_init_f(ulong dummy)
+{
+	/* Set global data pointer */
+	gd = &gdata;
+
+	/* Clear the BSS */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	get_clocks();
+
+	preloader_console_init();
+
+	dram_init();
+
+	board_init_r(NULL, 0);
+}
+#endif
 
 int board_init(void)
 {
