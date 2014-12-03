@@ -413,11 +413,11 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			}
 		} else {
 			debug("## No Flattened Device Tree\n");
-			goto error;
+			return 0;
 		}
 	} else {
 		debug("## No Flattened Device Tree\n");
-		goto error;
+		return 0;
 	}
 
 	*of_flat_tree = fdt_blob;
