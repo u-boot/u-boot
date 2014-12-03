@@ -9,6 +9,7 @@
 #include <common.h>
 #include <bios_emul.h>
 #include <vbe.h>
+#include <linux/linkage.h>
 #include <asm/cache.h>
 #include <asm/processor.h>
 #include <asm/i8259.h>

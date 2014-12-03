@@ -7,6 +7,8 @@
 #ifndef ASM_ARCH_PEI_DATA_H
 #define ASM_ARCH_PEI_DATA_H
 
+#include <linux/linkage.h>
+
 struct pch_usb3_controller_settings {
 	/* 0: Disable, 1: Enable, 2: Auto, 3: Smart Auto */
 	uint16_t mode;
