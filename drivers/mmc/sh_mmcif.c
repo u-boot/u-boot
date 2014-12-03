@@ -596,7 +596,7 @@ int mmcif_mmc_init(void)
 	host->clk = CONFIG_SH_MMCIF_CLK;
 
 	sh_mmcif_cfg.f_min = MMC_CLK_DIV_MIN(host->clk);
-	sh_mmcif_cfg.f_max = MMC_CLK_DIV_MAX;
+	sh_mmcif_cfg.f_max = MMC_CLK_DIV_MAX(host->clk);
 
 	mmc = mmc_create(&sh_mmcif_cfg, host);
 	if (mmc == NULL) {
