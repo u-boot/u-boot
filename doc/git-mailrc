@@ -75,7 +75,7 @@ alias avr32          uboot, abiessmann
 alias bfin           uboot, vapier, sonic
 alias blackfin       bfin
 
-alias m68k           uboot, jasonjin
+alias m68k           uboot, alisonwang, angelo_ts
 alias coldfire       m68k
 
 alias microblaze     uboot, monstr
