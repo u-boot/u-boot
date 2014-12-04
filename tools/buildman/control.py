@@ -70,7 +70,7 @@ def ShowActions(series, why_selected, boards_selected, builder, options):
     if commits:
         for upto in range(0, len(series.commits), options.step):
             commit = series.commits[upto]
-            print '   ', col.Color(col.YELLOW, commit.hash, bright=False),
+            print '   ', col.Color(col.YELLOW, commit.hash[:8], bright=False),
             print commit.subject
     print
     for arg in why_selected:
@@ -188,7 +188,6 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     else:
         series = None
         options.verbose = True
-        options.show_errors = True
 
     # By default we have one thread per CPU. But if there are not enough jobs
     # we can have fewer threads and use a high '-j' value for make.

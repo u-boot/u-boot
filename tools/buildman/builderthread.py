@@ -332,7 +332,7 @@ class BuilderThread(threading.Thread):
 
         # Now write the actual build output
         if keep_outputs:
-            patterns = ['u-boot', '*.bin', 'u-boot.dtb', '*.map',
+            patterns = ['u-boot', '*.bin', 'u-boot.dtb', '*.map', '*.img',
                         'include/autoconf.mk', 'spl/u-boot-spl',
                         'spl/u-boot-spl.bin']
             for pattern in patterns:

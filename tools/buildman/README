@@ -85,10 +85,10 @@ branch. Put all your commits in a branch, set the branch's upstream to a
 valid value, and all will be well. Otherwise buildman will perform random
 actions. Use -n to check what the random actions might be.
 
-If you just want to build the current source tree, leave off the -b flag.
-This will display results and errors as they happen. You can still look
-at them later using -s. Note that buildman will assume that the source
-has changed, and will build all specified boards in this case.
+If you just want to build the current source tree, leave off the -b flag
+and add -e. This will display results and errors as they happen. You can
+still look at them later using -se. Note that buildman will assume that the
+source has changed, and will build all specified boards in this case.
 
 Buildman is optimised for building many commits at once, for many boards.
 On multi-core machines, Buildman is fast because it uses most of the
@@ -693,9 +693,9 @@ Quick Sanity Check
 ==================
 
 If you have made changes and want to do a quick sanity check of the
-currently-checked-out source, run buildman without the -b flag. This will
-build the selected boards and display build status and errors as it runs
-(i.e. -v amd -e are enabled automatically).
+currently checked-out source, run buildman without the -b flag. This will
+build the selected boards and display build status as it runs (i.e. -v is
+enabled automatically). Use -e to see errors/warnings as well.
 
 
 Other options
@@ -752,7 +752,7 @@ an error and green indicating that a commit fixed an error. Use the -e
 flag to see the full errors and -l to see which boards caused which errors.
 
 If you really want to see build results as they happen, use -v when doing a
-build (-e will be enabled automatically).
+build (and -e to see the errors/warnings too).
 
 You don't need to stick around on that branch while buildman is running. It
 checks out its own copy of the source code, so you can change branches,
@@ -816,11 +816,10 @@ TODO
 
 This has mostly be written in my spare time as a response to my difficulties
 in testing large series of patches. Apart from tidying up there is quite a
-bit of scope for improvement. Things like better error diffs, easier access
-to log files, error display while building. Also it would be nice it buildman
-could 'hunt' for problems, perhaps by building a few boards for each arch,
-or checking commits for changed files and building only boards which use
-those files.
+bit of scope for improvement. Things like better error diffs and easier
+access to log files. Also it would be nice it buildman could 'hunt' for
+problems, perhaps by building a few boards for each arch, or checking
+commits for changed files and building only boards which use those files.
 
 
 Credits

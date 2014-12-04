@@ -918,7 +918,8 @@ class Builder:
             if self._list_error_boards:
                 names = []
                 for board in line_boards[line]:
-                    names.append(board.target)
+                    if not board.target in names:
+                        names.append(board.target)
                 names_str = '(%s) ' % ','.join(names)
             else:
                 names_str = ''
