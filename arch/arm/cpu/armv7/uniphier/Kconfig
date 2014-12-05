@@ -9,11 +9,15 @@ config SYS_CONFIG_NAME
 	default "ph1_ld4" if MACH_PH1_LD4
 	default "ph1_sld8" if MACH_PH1_SLD8
 
+config UNIPHIER_SMP
+	bool
+
 choice
 	prompt "UniPhier SoC select"
 
 config MACH_PH1_PRO4
 	bool "PH1-Pro4"
+	select UNIPHIER_SMP
 
 config MACH_PH1_LD4
 	bool "PH1-LD4"

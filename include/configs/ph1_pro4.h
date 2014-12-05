@@ -37,8 +37,6 @@
 #define CONFIG_DDR_NUM_CH0 2
 #define CONFIG_DDR_NUM_CH1 2
 
-#define CONFIG_UNIPHIER_SMP
-
 /*
  * Memory Size & Mapping
  */
