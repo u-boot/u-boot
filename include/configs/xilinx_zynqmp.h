@@ -23,8 +23,8 @@
 
 /* Generic Interrupt Controller Definitions */
 #define CONFIG_GICV2
-#define GICD_BASE	0xF9001000
-#define GICC_BASE	0xF9002000
+#define GICD_BASE	0xF9010000
+#define GICC_BASE	0xF9020000
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
