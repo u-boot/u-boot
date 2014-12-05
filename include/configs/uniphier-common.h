@@ -10,12 +10,6 @@
 #ifndef __CONFIG_UNIPHIER_COMMON_H__
 #define __CONFIG_UNIPHIER_COMMON_H__
 
-#if defined(CONFIG_PFC_MICRO_SUPPORT_CARD) &&	\
-				defined(CONFIG_DCC_MICRO_SUPPORT_CARD)
-# error "Both CONFIG_PFC_MICRO_SUPPORT_CARD and CONFIG_DCC_MICRO_SUPPORT_CARD \
-are defined. Select only one of them."
-#endif
-
 /*
  * Support card address map
  */

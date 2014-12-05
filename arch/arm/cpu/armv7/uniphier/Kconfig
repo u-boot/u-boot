@@ -27,6 +27,29 @@ config MACH_PH1_SLD8
 
 endchoice
 
+choice
+	prompt "UniPhier Support Card select"
+	optional
+
+config PFC_MICRO_SUPPORT_CARD
+	bool "Support card with PFC CPLD"
+	help
+	  This option provides support for the expansion board with PFC
+	  original address mapping.
+
+	  Say Y to use the on-board UART, Ether, LED devices.
+
+config DCC_MICRO_SUPPORT_CARD
+	bool "Support card with DCC CPLD"
+	help
+	  This option provides support for the expansion board with DCC-
+	  arranged address mapping that is compatible with legacy UniPhier
+	  reference boards.
+
+	  Say Y to use the on-board UART, Ether, LED devices.
+
+endchoice
+
 config CMD_PINMON
 	bool "Enable boot mode pins monitor command"
 	depends on !SPL_BUILD

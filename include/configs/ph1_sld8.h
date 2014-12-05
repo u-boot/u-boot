@@ -9,21 +9,6 @@
 #define __PH1_XXX_H
 
 /*
- * Support Card Select
- *
- *  CONFIG_PFC_MICRO_SUPPORT_CARD - Original Micro Support Card made by PFC.
- *  CONFIG_DCC_MICRO_SUPPORT_CARD - DCC version Micro Support Card.
- *                       CPLD is re-programmed for ARIMA board compatibility.
- *  No define                     - No support card.
- */
-
-#if 0
-#define CONFIG_PFC_MICRO_SUPPORT_CARD
-#else
-#define CONFIG_DCC_MICRO_SUPPORT_CARD
-#endif
-
-/*
  * Serial Configuration
  *   SoC UART     : enable CONFIG_UNIPHIER_SERIAL
  *   On-board UART: enable CONFIG_SYS_NS16550_SERIAL
