@@ -10,6 +10,39 @@
 #ifndef __CONFIG_UNIPHIER_COMMON_H__
 #define __CONFIG_UNIPHIER_COMMON_H__
 
+#if defined(CONFIG_MACH_PH1_PRO4)
+#define CONFIG_DDR_NUM_CH0 2
+#define CONFIG_DDR_NUM_CH1 2
+
+/* Physical start address of SDRAM */
+#define CONFIG_SDRAM0_BASE	0x80000000
+#define CONFIG_SDRAM0_SIZE	0x20000000
+#define CONFIG_SDRAM1_BASE	0xa0000000
+#define CONFIG_SDRAM1_SIZE	0x20000000
+#endif
+
+#if defined(CONFIG_MACH_PH1_LD4)
+#define CONFIG_DDR_NUM_CH0 1
+#define CONFIG_DDR_NUM_CH1 1
+
+/* Physical start address of SDRAM */
+#define CONFIG_SDRAM0_BASE	0x80000000
+#define CONFIG_SDRAM0_SIZE	0x10000000
+#define CONFIG_SDRAM1_BASE	0x90000000
+#define CONFIG_SDRAM1_SIZE	0x10000000
+#endif
+
+#if defined(CONFIG_MACH_PH1_SLD8)
+#define CONFIG_DDR_NUM_CH0 1
+#define CONFIG_DDR_NUM_CH1 1
+
+/* Physical start address of SDRAM */
+#define CONFIG_SDRAM0_BASE	0x80000000
+#define CONFIG_SDRAM0_SIZE	0x10000000
+#define CONFIG_SDRAM1_BASE	0x90000000
+#define CONFIG_SDRAM1_SIZE	0x10000000
+#endif
+
 /*
  * Support card address map
  */
@@ -33,6 +66,13 @@
 #define CONFIG_SYS_NS16550_CLK		12288000
 #define CONFIG_SYS_NS16550_REG_SIZE	-2
 #endif
+
+/* TODO: move to Kconfig and device tree */
+#if 0
+#define CONFIG_SYS_NS16550_SERIAL
+#endif
+
+#define CONFIG_SMC911X
 
 #define CONFIG_SMC911X_BASE		CONFIG_SUPPORT_CARD_ETHER_BASE
 #define CONFIG_SMC911X_32_BIT
@@ -225,6 +265,13 @@
 #endif
 
 #define CONFIG_SYS_TEXT_BASE		0x84000000
+
+#if defined(CONFIG_MACH_PH1_LD4) || defined(CONFIG_MACH_PH1_SLD8)
+#define CONFIG_SPL_TEXT_BASE		0x00040000
+#endif
+#if defined(CONFIG_MACH_PH1_PRO4)
+#define CONFIG_SPL_TEXT_BASE		0x00100000
+#endif
 
 #define CONFIG_BOARD_POSTCLK_INIT
 

@@ -5,9 +5,7 @@ config SYS_SOC
 	default "uniphier"
 
 config SYS_CONFIG_NAME
-	default "ph1_pro4" if MACH_PH1_PRO4
-	default "ph1_ld4" if MACH_PH1_LD4
-	default "ph1_sld8" if MACH_PH1_SLD8
+	default "uniphier"
 
 config UNIPHIER_SMP
 	bool
