@@ -35,8 +35,8 @@ struct crlapb_regs {
 #define crlapb_base ((struct crlapb_regs *)ZYNQMP_CRL_APB_BASEADDR)
 
 #define ZYNQMP_IOU_SCNTR	0xFF250000
-#define ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN	0x2
-#define ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_HDBG	0x1
+#define ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN	0x1
+#define ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_HDBG	0x2
 
 struct iou_scntr {
 	u32 counter_control_register;
