@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <i2c.h>
 #include <lcd.h>
+#include <parade.h>
 #include <spi.h>
 #include <errno.h>
 #include <asm/gpio.h>
