@@ -31,6 +31,10 @@
 			0xb0000000 0xea00000>;
 	};
 
+	ehci@12110000 {
+		samsung,vbus-gpio = <&gpio 0x66 0>; /* X26 */
+	};
+
 	serial@12C20000 {
 		status="okay";
 	};
