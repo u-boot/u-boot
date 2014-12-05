@@ -205,7 +205,6 @@ are defined. Select only one of them."
 	"image_offset=0x00080000\0"		\
 	"image_size=0x00f00000\0"		\
 	"verify=n\0"				\
-	"autostart=yes\0"			\
 	"norboot=run add_default_bootargs;"				\
 		"bootm $image_offset\0"					\
 	"nandboot=run add_default_bootargs;"				\
