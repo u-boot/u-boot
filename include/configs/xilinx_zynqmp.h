@@ -70,7 +70,6 @@
 /* Command line configuration */
 #define CONFIG_CMD_BDI
 #define CONFIG_CMD_BOOTD
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_EXT2
