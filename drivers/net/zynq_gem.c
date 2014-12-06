@@ -20,6 +20,7 @@
 #include <phy.h>
 #include <miiphy.h>
 #include <watchdog.h>
+#include <asm/system.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
@@ -408,6 +409,11 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	addr &= ~(ARCH_DMA_MINALIGN - 1);
 	size = roundup(len, ARCH_DMA_MINALIGN);
 	flush_dcache_range(addr, addr + size);
+
+	addr = (u32)priv->rxbuffers;
+	addr &= ~(ARCH_DMA_MINALIGN - 1);
+	size = roundup((RX_BUF * PKTSIZE_ALIGN), ARCH_DMA_MINALIGN);
+	flush_dcache_range(addr, addr + size);
 	barrier();
 
 	/* Start transmit */
@@ -443,8 +449,6 @@ static int zynq_gem_recv(struct eth_device *dev)
 	if (frame_len) {
 		u32 addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
 		addr &= ~(ARCH_DMA_MINALIGN - 1);
-		u32 size = roundup(frame_len, ARCH_DMA_MINALIGN);
-		invalidate_dcache_range(addr, addr + size);
 
 		net_process_received_packet((u8 *)addr, frame_len);
 
@@ -518,7 +522,7 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 	priv->rxbuffers = memalign(ARCH_DMA_MINALIGN, RX_BUF * PKTSIZE_ALIGN);
 	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
 
-	/* Align bd_space to 1MB */
+	/* Align bd_space to MMU_SECTION_SHIFT */
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
 	mmu_set_region_dcache_behaviour((phys_addr_t)bd_space,
 					BD_SPACE, DCACHE_OFF);
