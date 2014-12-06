@@ -348,6 +348,9 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		priv->init++;
 	}
 
+#ifdef XILINX_ZYNQMP
+	if (!priv->init) {
+#endif
 	phy_detection(dev);
 
 	/* interface - look at tsec */
@@ -381,6 +384,9 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		clk_rate = ZYNQ_GEM_FREQUENCY_10;
 		break;
 	}
+#ifdef XILINX_ZYNQMP
+	}
+#endif
 
 #ifndef XILINX_ZYNQMP
 	/* Change the rclk and clk only not using EMIO interface */
