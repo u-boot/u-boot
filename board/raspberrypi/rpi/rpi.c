@@ -82,58 +82,72 @@ struct msg_get_clock_rate {
 static const struct {
 	const char *name;
 	const char *fdtfile;
+	bool has_onboard_eth;
 } models[] = {
 	[BCM2835_BOARD_REV_B_I2C0_2] = {
 		"Model B (no P5)",
 		"bcm2835-rpi-b-i2c0.dtb",
+		true,
 	},
 	[BCM2835_BOARD_REV_B_I2C0_3] = {
 		"Model B (no P5)",
 		"bcm2835-rpi-b-i2c0.dtb",
+		true,
 	},
 	[BCM2835_BOARD_REV_B_I2C1_4] = {
 		"Model B",
 		"bcm2835-rpi-b.dtb",
+		true,
 	},
 	[BCM2835_BOARD_REV_B_I2C1_5] = {
 		"Model B",
 		"bcm2835-rpi-b.dtb",
+		true,
 	},
 	[BCM2835_BOARD_REV_B_I2C1_6] = {
 		"Model B",
 		"bcm2835-rpi-b.dtb",
+		true,
 	},
 	[BCM2835_BOARD_REV_A_7] = {
 		"Model A",
 		"bcm2835-rpi-a.dtb",
+		false,
 	},
 	[BCM2835_BOARD_REV_A_8] = {
 		"Model A",
 		"bcm2835-rpi-a.dtb",
+		false,
 	},
 	[BCM2835_BOARD_REV_A_9] = {
 		"Model A",
 		"bcm2835-rpi-a.dtb",
+		false,
 	},
 	[BCM2835_BOARD_REV_B_REV2_d] = {
 		"Model B rev2",
 		"bcm2835-rpi-b-rev2.dtb",
+		true,
 	},
 	[BCM2835_BOARD_REV_B_REV2_e] = {
 		"Model B rev2",
 		"bcm2835-rpi-b-rev2.dtb",
+		true,
 	},
 	[BCM2835_BOARD_REV_B_REV2_f] = {
 		"Model B rev2",
 		"bcm2835-rpi-b-rev2.dtb",
+		true,
 	},
 	[BCM2835_BOARD_REV_B_PLUS] = {
 		"Model B+",
 		"bcm2835-rpi-b-plus.dtb",
+		true,
 	},
 	[BCM2835_BOARD_REV_CM] = {
 		"Compute Module",
 		"bcm2835-rpi-cm.dtb",
+		false,
 	},
 };
 
@@ -176,6 +190,9 @@ static void set_usbethaddr(void)
 {
 	ALLOC_ALIGN_BUFFER(struct msg_get_mac_address, msg, 1, 16);
 	int ret;
+
+	if (!models[rpi_board_rev].has_onboard_eth)
+		return;
 
 	if (getenv("usbethaddr"))
 		return;
