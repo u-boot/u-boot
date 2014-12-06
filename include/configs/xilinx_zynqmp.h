@@ -38,7 +38,7 @@
 #define CPU_RELEASE_ADDR	0xFFFFFF0
 
 /* Cache Definitions */
-#define CONFIG_SYS_DCACHE_OFF
+#define CONFIG_SYS_CACHELINE_SIZE	64
 
 #define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
 #define CONFIG_BOOTP_VCI_STRING		"U-boot.armv8.Xilinx_ZynqMP"
