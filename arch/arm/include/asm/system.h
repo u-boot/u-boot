@@ -15,8 +15,14 @@
 #define CR_EE		(1 << 25)	/* Exception (Big) Endian	*/
 
 #define PGTABLE_SIZE	(0x10000)
+/* 2M granularity */
+#define MMU_SECTION_SHIFT	21
 
 #ifndef __ASSEMBLY__
+
+enum dcache_option {
+	DCACHE_OFF = 0x3,
+};
 
 #define isb()				\
 	({asm volatile(			\
@@ -195,16 +201,6 @@ enum {
 };
 
 /**
- * Change the cache settings for a region.
- *
- * \param start		start address of memory region to change
- * \param size		size of memory region to change
- * \param option	dcache option to select
- */
-void mmu_set_region_dcache_behaviour(u32 start, int size,
-				     enum dcache_option option);
-
-/**
  * Register an update to the page tables, and flush the TLB
  *
  * \param start		start address of update in page table
@@ -219,5 +215,17 @@ void mmu_page_table_flush(unsigned long start, unsigned long stop);
 #endif /* __KERNEL__ */
 
 #endif /* CONFIG_ARM64 */
+
+#ifndef __ASSEMBLY__
+/**
+ * Change the cache settings for a region.
+ *
+ * \param start		start address of memory region to change
+ * \param size		size of memory region to change
+ * \param option	dcache option to select
+ */
+void mmu_set_region_dcache_behaviour(u32 start, int size,
+				     enum dcache_option option);
+#endif /* __ASSEMBLY__ */
 
 #endif

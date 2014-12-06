@@ -135,6 +135,24 @@ int dcache_status(void)
 	return (get_sctlr() & CR_C) != 0;
 }
 
+void mmu_set_region_dcache_behaviour(u32 start, int size,
+				     enum dcache_option option)
+{
+	/* get the level2_table0 start address */
+	u64 *page_table = (u64 *)(gd->arch.tlb_addr + 0x3000);
+	u64 upto, end;
+
+	end = ALIGN(start + size, (1 << MMU_SECTION_SHIFT)) >>
+	      MMU_SECTION_SHIFT;
+	start = start >> MMU_SECTION_SHIFT;
+	for (upto = start; upto < end; upto++) {
+		page_table[upto] &= ~PMD_ATTRINDX_MASK;
+		page_table[upto] |= PMD_ATTRINDX(option);
+	}
+
+	flush_dcache_range(page_table[start], page_table[end]);
+	__asm_invalidate_tlb_all();
+}
 #else	/* CONFIG_SYS_DCACHE_OFF */
 
 void invalidate_dcache_all(void)
@@ -164,6 +182,11 @@ void dcache_disable(void)
 int dcache_status(void)
 {
 	return 0;
+}
+
+void mmu_set_region_dcache_behaviour(u32 start, int size,
+				     enum dcache_option option)
+{
 }
 
 #endif	/* CONFIG_SYS_DCACHE_OFF */
