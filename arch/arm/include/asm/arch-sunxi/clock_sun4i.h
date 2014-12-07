@@ -255,11 +255,14 @@ struct sunxi_ccm_reg {
 #define CCM_MBUS_CTRL_CLK_SRC_PLL5 0x2
 #define CCM_MBUS_CTRL_GATE (0x1 << 31)
 
-#define CCM_MMC_CTRL_OSCM24 (0x0 << 24)
-#define CCM_MMC_CTRL_PLL6   (0x1 << 24)
-#define CCM_MMC_CTRL_PLL5   (0x2 << 24)
-
-#define CCM_MMC_CTRL_ENABLE (0x1 << 31)
+#define CCM_MMC_CTRL_M(x)		((x) - 1)
+#define CCM_MMC_CTRL_OCLK_DLY(x)	((x) << 8)
+#define CCM_MMC_CTRL_N(x)		((x) << 16)
+#define CCM_MMC_CTRL_SCLK_DLY(x)	((x) << 20)
+#define CCM_MMC_CTRL_OSCM24		(0x0 << 24)
+#define CCM_MMC_CTRL_PLL6		(0x1 << 24)
+#define CCM_MMC_CTRL_PLL5		(0x2 << 24)
+#define CCM_MMC_CTRL_ENABLE		(0x1 << 31)
 
 #define CCM_DRAM_GATE_OFFSET_DE_BE0	26
 

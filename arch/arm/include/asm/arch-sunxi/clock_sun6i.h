@@ -219,10 +219,13 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_LCD1		5
 #define AHB_GATE_OFFSET_LCD0		4
 
-#define CCM_MMC_CTRL_OSCM24 (0x0 << 24)
-#define CCM_MMC_CTRL_PLL6   (0x1 << 24)
-
-#define CCM_MMC_CTRL_ENABLE (0x1 << 31)
+#define CCM_MMC_CTRL_M(x)		((x) - 1)
+#define CCM_MMC_CTRL_OCLK_DLY(x)	((x) << 8)
+#define CCM_MMC_CTRL_N(x)		((x) << 16)
+#define CCM_MMC_CTRL_SCLK_DLY(x)	((x) << 20)
+#define CCM_MMC_CTRL_OSCM24		(0x0 << 24)
+#define CCM_MMC_CTRL_PLL6		(0x1 << 24)
+#define CCM_MMC_CTRL_ENABLE		(0x1 << 31)
 
 #define CCM_USB_CTRL_PHY1_RST (0x1 << 1)
 #define CCM_USB_CTRL_PHY2_RST (0x1 << 2)
