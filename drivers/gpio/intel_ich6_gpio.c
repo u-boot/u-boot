@@ -251,6 +251,8 @@ static int ich6_gpio_direction_output(struct udevice *dev, unsigned offset,
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
 	u32 tmplong;
 
+	gpio_set_value(offset, value);
+
 	tmplong = inl(bank->io_sel);
 	tmplong &= ~(1UL << offset);
 	outl(bank->io_sel, tmplong);
