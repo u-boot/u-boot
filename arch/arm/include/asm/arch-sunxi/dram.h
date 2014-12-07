@@ -18,6 +18,8 @@
 /* dram regs definition */
 #if defined(CONFIG_MACH_SUN6I)
 #include <asm/arch/dram_sun6i.h>
+#elif defined(CONFIG_MACH_SUN8I)
+#include <asm/arch/dram_sun8i.h>
 #else
 #include <asm/arch/dram_sun4i.h>
 #endif

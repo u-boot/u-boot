@@ -273,7 +273,11 @@ struct sunxi_ccm_reg {
 #define CCM_HDMI_CTRL_DDC_GATE		(0x1 << 30)
 #define CCM_HDMI_CTRL_GATE		(0x1 << 31)
 
+#ifndef CONFIG_MACH_SUN8I
 #define MBUS_CLK_DEFAULT		0x81000001 /* PLL6 / 2 */
+#else
+#define MBUS_CLK_DEFAULT		0x81000003 /* PLL6 / 4 */
+#endif
 
 #define CCM_PLL5_PATTERN		0xd1303333
 

@@ -29,10 +29,11 @@ config MACH_SUN7I
 config MACH_SUN8I
 	bool "sun8i (Allwinner A23)"
 	select CPU_V7
+	select SUPPORT_SPL
 
 endchoice
 
-if MACH_SUN6I
+if MACH_SUN6I || MACH_SUN8I
 
 config DRAM_CLK
 	int "sun6i dram clock speed"

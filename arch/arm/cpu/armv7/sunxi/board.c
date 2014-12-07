@@ -114,7 +114,8 @@ void reset_cpu(ulong addr)
 /* do some early init */
 void s_init(void)
 {
-#if defined CONFIG_SPL_BUILD && defined CONFIG_MACH_SUN6I
+#if defined CONFIG_SPL_BUILD && \
+		(defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I)
 	/* Magic (undocmented) value taken from boot0, without this DRAM
 	 * access gets messed up (seems cache related) */
 	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
