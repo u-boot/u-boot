@@ -685,11 +685,7 @@ void bitmap_plot(int x, int y)
 			*(cmap + BMP_LOGO_OFFSET) = lut_entry;
 			cmap++;
 #else /* !CONFIG_ATMEL_LCD */
-#ifdef  CONFIG_SYS_INVERT_COLORS
-			*cmap++ = 0xffff - colreg;
-#else
 			*cmap++ = colreg;
-#endif
 #endif /* CONFIG_ATMEL_LCD */
 		}
 
@@ -967,11 +963,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 				( ((cte.red)   << 8) & 0xf800) |
 				( ((cte.green) << 3) & 0x07e0) |
 				( ((cte.blue)  >> 3) & 0x001f) ;
-#ifdef CONFIG_SYS_INVERT_COLORS
-			*cmap = 0xffff - colreg;
-#else
 			*cmap = colreg;
-#endif
 #if defined(CONFIG_MPC823)
 			cmap--;
 #else

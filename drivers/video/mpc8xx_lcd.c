@@ -373,9 +373,7 @@ lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue)
 	colreg = ((red   & 0x0F) << 8) |
 		 ((green & 0x0F) << 4) |
 		  (blue  & 0x0F) ;
-#ifdef	CONFIG_SYS_INVERT_COLORS
-	colreg ^= 0x0FFF;
-#endif
+
 	*cmap_ptr = colreg;
 
 	debug ("setcolreg: reg %2d @ %p: R=%02X G=%02X B=%02X => %02X%02X\n",
