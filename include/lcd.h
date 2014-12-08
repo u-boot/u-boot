@@ -12,6 +12,7 @@
 
 #ifndef _LCD_H_
 #define _LCD_H_
+#include <lcd_console.h>
 
 extern char lcd_is_enabled;
 
