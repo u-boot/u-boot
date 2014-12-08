@@ -81,20 +81,12 @@
 /************************************************************************/
 /* ** CONSOLE DEFINITIONS & FUNCTIONS					*/
 /************************************************************************/
-#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
-# define CONSOLE_ROWS		((panel_info.vl_row-BMP_LOGO_HEIGHT) \
-					/ VIDEO_FONT_HEIGHT)
-#else
-# define CONSOLE_ROWS		(panel_info.vl_row / VIDEO_FONT_HEIGHT)
-#endif
-
-#define CONSOLE_COLS		(panel_info.vl_col / VIDEO_FONT_WIDTH)
 #define CONSOLE_ROW_SIZE	(VIDEO_FONT_HEIGHT * lcd_line_length)
 #define CONSOLE_ROW_FIRST	lcd_console_address
 #define CONSOLE_ROW_SECOND	(lcd_console_address + CONSOLE_ROW_SIZE)
 #define CONSOLE_ROW_LAST	(lcd_console_address + CONSOLE_SIZE \
 					- CONSOLE_ROW_SIZE)
-#define CONSOLE_SIZE		(CONSOLE_ROW_SIZE * CONSOLE_ROWS)
+#define CONSOLE_SIZE		(CONSOLE_ROW_SIZE * console_rows)
 #define CONSOLE_SCROLL_SIZE	(CONSOLE_SIZE - CONSOLE_ROW_SIZE)
 
 #if (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16) || \
@@ -124,6 +116,8 @@ char lcd_is_enabled = 0;
 
 static short console_curr_col;
 static short console_curr_row;
+static short console_cols;
+static short console_rows;
 
 static void *lcd_console_address;
 static void *lcd_base;			/* Start of framebuffer memory	*/
@@ -196,7 +190,7 @@ static void console_scrollup(void)
 static inline void console_back(void)
 {
 	if (--console_curr_col < 0) {
-		console_curr_col = CONSOLE_COLS-1;
+		console_curr_col = console_cols - 1;
 		if (--console_curr_row < 0)
 			console_curr_row = 0;
 	}
@@ -212,7 +206,7 @@ static inline void console_newline(void)
 	console_curr_col = 0;
 
 	/* Check if we need to scroll the terminal */
-	if (++console_curr_row >= CONSOLE_ROWS)
+	if (++console_curr_row >= console_rows)
 		console_scrollup();
 	else
 		lcd_sync();
@@ -246,7 +240,7 @@ void lcd_putc(const char c)
 		console_curr_col +=  8;
 		console_curr_col &= ~7;
 
-		if (console_curr_col >= CONSOLE_COLS)
+		if (console_curr_col >= console_cols)
 			console_newline();
 
 		return;
@@ -257,7 +251,7 @@ void lcd_putc(const char c)
 	default:
 		lcd_putc_xy(console_curr_col * VIDEO_FONT_WIDTH,
 			    console_curr_row * VIDEO_FONT_HEIGHT, c);
-		if (++console_curr_col >= CONSOLE_COLS)
+		if (++console_curr_col >= console_cols)
 			console_newline();
 	}
 }
@@ -464,6 +458,13 @@ void lcd_clear(void)
 	debug("[LCD] Drawing the logo...\n");
 	lcd_console_address = lcd_logo();
 
+#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
+	console_rows = (panel_info.vl_row - BMP_LOGO_HEIGHT);
+	console_rows /= VIDEO_FONT_HEIGHT;
+#else
+	console_rows = panel_info.vl_row / VIDEO_FONT_HEIGHT;
+#endif
+	console_cols = panel_info.vl_col / VIDEO_FONT_WIDTH;
 	console_curr_col = 0;
 	console_curr_row = 0;
 	lcd_sync();
@@ -1100,8 +1101,8 @@ U_BOOT_ENV_CALLBACK(splashimage, on_splashimage);
 
 void lcd_position_cursor(unsigned col, unsigned row)
 {
-	console_curr_col = min_t(short, col, CONSOLE_COLS - 1);
-	console_curr_row = min_t(short, row, CONSOLE_ROWS - 1);
+	console_curr_col = min_t(short, col, console_cols - 1);
+	console_curr_row = min_t(short, row, console_rows - 1);
 }
 
 int lcd_get_pixel_width(void)
@@ -1116,12 +1117,12 @@ int lcd_get_pixel_height(void)
 
 int lcd_get_screen_rows(void)
 {
-	return CONSOLE_ROWS;
+	return console_rows;
 }
 
 int lcd_get_screen_columns(void)
 {
-	return CONSOLE_COLS;
+	return console_cols;
 }
 
 #if defined(CONFIG_LCD_DT_SIMPLEFB)
