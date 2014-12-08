@@ -174,11 +174,11 @@ static int i2c_mux_set_all(void)
 	return 0;
 }
 
-static int i2c_mux_disconnet_all(void)
+static int i2c_mux_disconnect_all(void)
 {
 	struct	i2c_bus_hose *i2c_bus_tmp = &i2c_bus[I2C_BUS];
 	int	i;
-	uint8_t	buf;
+	uint8_t	buf = 0;
 
 	if (I2C_ADAP->init_done == 0)
 		return 0;
@@ -197,7 +197,7 @@ static int i2c_mux_disconnet_all(void)
 
 			ret = I2C_ADAP->write(I2C_ADAP, chip, 0, 0, &buf, 1);
 			if (ret != 0) {
-				printf("i2c: mux diconnect error\n");
+				printf("i2c: mux disconnect error\n");
 				return ret;
 			}
 		} while (i > 0);
@@ -293,7 +293,7 @@ int i2c_set_bus_num(unsigned int bus)
 	}
 
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
-	i2c_mux_disconnet_all();
+	i2c_mux_disconnect_all();
 #endif
 
 	gd->cur_i2c_bus = bus;
