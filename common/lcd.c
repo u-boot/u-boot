@@ -318,11 +318,8 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 	ushort row;
 	int fg_color, bg_color;
 
-#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
-	y += BMP_LOGO_HEIGHT;
-#endif
-
-	dest = (uchar *)(lcd_base + y * lcd_line_length + x * NBITS(LCD_BPP)/8);
+	dest = (uchar *)(lcd_console_address +
+			y * lcd_line_length + x * NBITS(LCD_BPP) / 8);
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; ++row, dest += lcd_line_length) {
 		uchar *s = str;
