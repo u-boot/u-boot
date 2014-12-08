@@ -50,6 +50,7 @@
 #define CONFIG_EFI_PARTITION
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART
+#define CONFIG_HSMMC2_8BIT
 
 /* CPSW Ethernet */
 #define CONFIG_CMD_NET			/* 'bootp' and 'tftp' */

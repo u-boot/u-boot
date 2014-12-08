@@ -16,7 +16,6 @@
 
 #include <configs/ti_omap5_common.h>
 
-#undef CONFIG_MISC_INIT_R
 #undef CONFIG_SPL_OS_BOOT
 
 /* Enable Generic board */

@@ -376,6 +376,7 @@ struct omap_sys_ctrl_regs const omap5_ctrl = {
 
 struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_status				= 0x4A002134,
+	.control_phy_power_usb			= 0x4A002370,
 	.control_phy_power_sata			= 0x4A002374,
 	.control_core_mac_id_0_lo		= 0x4A002514,
 	.control_core_mac_id_0_hi		= 0x4A002518,
@@ -800,6 +801,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_clkmode_dpll_dsp			= 0x4a005234,
 	.cm_shadow_freq_config1			= 0x4a005260,
 	.cm_clkmode_dpll_gmac			= 0x4a0052a8,
+	.cm_coreaon_usb_phy_core_clkctrl	= 0x4a008640,
 	.cm_coreaon_usb_phy2_core_clkctrl = 0x4a008688,
 
 	/* cm1.mpu */
@@ -906,6 +908,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_gmac_gmac_clkctrl			= 0x4a0093d0,
 	.cm_l3init_ocp2scp1_clkctrl		= 0x4a0093e0,
 	.cm_l3init_ocp2scp3_clkctrl		= 0x4a0093e8,
+	.cm_l3init_usb_otg_ss_clkctrl		= 0x4a0093f0,
 
 	/* cm2.l4per */
 	.cm_l4per_clkstctrl			= 0x4a009700,

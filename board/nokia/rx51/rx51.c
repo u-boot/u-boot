@@ -659,3 +659,9 @@ int board_mmc_init(bd_t *bis)
 	omap_mmc_init(1, 0, 0, -1, -1);
 	return 0;
 }
+
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
+	twl4030_power_mmc_init(1);
+}

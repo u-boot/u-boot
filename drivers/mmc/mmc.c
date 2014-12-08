@@ -1277,6 +1277,11 @@ block_dev_desc_t *mmc_get_dev(int dev)
 }
 #endif
 
+/* board-specific MMC power initializations. */
+__weak void board_mmc_power_init(void)
+{
+}
+
 int mmc_start_init(struct mmc *mmc)
 {
 	int err;
@@ -1292,6 +1297,8 @@ int mmc_start_init(struct mmc *mmc)
 
 	if (mmc->has_init)
 		return 0;
+
+	board_mmc_power_init();
 
 	/* made sure it's not NULL earlier */
 	err = mmc->cfg->ops->init(mmc);

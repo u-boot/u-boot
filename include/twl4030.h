@@ -651,7 +651,7 @@ void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val,
 /* For initializing power device */
 void twl4030_power_init(void);
 /* For initializing mmc power */
-void twl4030_power_mmc_init(void);
+void twl4030_power_mmc_init(int dev_index);
 
 /*
  * LED

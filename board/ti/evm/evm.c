@@ -20,6 +20,7 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/gpio.h>
 #include <i2c.h>
+#include <twl4030.h>
 #include <asm/mach-types.h>
 #include <linux/mtd/nand.h>
 #include "evm.h"
@@ -262,5 +263,12 @@ int board_eth_init(bd_t *bis)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
+}
+#endif
+
+#if defined(CONFIG_GENERIC_MMC)
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
 }
 #endif

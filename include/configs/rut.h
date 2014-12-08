@@ -154,4 +154,8 @@
 #define CONFIG_SYS_CONSOLE_FG_COL	0x00
 #endif
 
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_FIT
+#endif
+
 #endif	/* ! __CONFIG_RUT_H */

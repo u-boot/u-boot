@@ -540,12 +540,15 @@ extern struct prcm_regs const omap5_es2_prcm;
 extern struct prcm_regs const omap4_prcm;
 extern struct prcm_regs const dra7xx_prcm;
 extern struct dplls const **dplls_data;
+extern struct dplls dra7xx_dplls;
 extern struct vcores_data const **omap_vcores;
 extern const u32 sys_clk_array[8];
 extern struct omap_sys_ctrl_regs const **ctrl;
 extern struct omap_sys_ctrl_regs const omap4_ctrl;
 extern struct omap_sys_ctrl_regs const omap5_ctrl;
 extern struct omap_sys_ctrl_regs const dra7xx_ctrl;
+
+extern struct pmic_data tps659038;
 
 void hw_data_init(void);
 

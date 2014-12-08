@@ -96,18 +96,6 @@ int board_late_init(void)
 	return 0;
 }
 
-/**
- * @brief misc_init_r - Configure EVM board specific configurations
- * such as power configurations, ethernet initialization as phase2 of
- * boot sequence
- *
- * @return 0
- */
-int misc_init_r(void)
-{
-	return 0;
-}
-
 static void do_set_mux32(u32 base,
 			 struct pad_conf_entry const *array, int size)
 {
