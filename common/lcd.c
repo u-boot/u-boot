@@ -89,10 +89,8 @@
 #define CONSOLE_SIZE		(CONSOLE_ROW_SIZE * console_rows)
 #define CONSOLE_SCROLL_SIZE	(CONSOLE_SIZE - CONSOLE_ROW_SIZE)
 
-#if (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16) || \
-	(LCD_BPP == LCD_COLOR32)
-# define COLOR_MASK(c)		(c)
-#else
+#if (LCD_BPP != LCD_COLOR8) && (LCD_BPP != LCD_COLOR16) && \
+	(LCD_BPP != LCD_COLOR32)
 # error Unsupported LCD BPP.
 #endif
 
@@ -188,7 +186,7 @@ static void console_scrollup(void)
 	/* Clear the last rows */
 #if (LCD_BPP != LCD_COLOR32)
 	memset(lcd_console_address + CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows,
-		COLOR_MASK(lcd_color_bg),
+		lcd_color_bg,
 		CONSOLE_ROW_SIZE * rows);
 #else
 	u32 *ppix = lcd_console_address +
@@ -197,7 +195,7 @@ static void console_scrollup(void)
 	for (i = 0;
 	    i < (CONSOLE_ROW_SIZE * rows) / NBYTES(panel_info.vl_bpix);
 	    i++) {
-		*ppix++ = COLOR_MASK(lcd_color_bg);
+		*ppix++ = lcd_color_bg;
 	}
 #endif
 	lcd_sync();
@@ -462,7 +460,7 @@ void lcd_clear(void)
 	/* set framebuffer to background color */
 #if (LCD_BPP != LCD_COLOR32)
 	memset((char *)lcd_base,
-		COLOR_MASK(lcd_color_bg),
+		lcd_color_bg,
 		lcd_line_length * panel_info.vl_row);
 #else
 	u32 *ppix = lcd_base;
@@ -470,7 +468,7 @@ void lcd_clear(void)
 	for (i = 0;
 	   i < (lcd_line_length * panel_info.vl_row)/NBYTES(panel_info.vl_bpix);
 	   i++) {
-		*ppix++ = COLOR_MASK(lcd_color_bg);
+		*ppix++ = lcd_color_bg;
 	}
 #endif
 #endif
