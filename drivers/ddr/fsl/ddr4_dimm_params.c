@@ -126,6 +126,12 @@ ddr_compute_dimm_parameters(const generic_spd_eeprom_t *spd,
 {
 	unsigned int retval;
 	int i;
+	const u8 udimm_rc_e_dq[18] = {
+		0x0c, 0x2c, 0x15, 0x35, 0x15, 0x35, 0x0b, 0x2c, 0x15,
+		0x35, 0x0b, 0x35, 0x0b, 0x2c, 0x0b, 0x35, 0x15, 0x36
+	};
+	int spd_error = 0;
+	u8 *ptr;
 
 	if (spd->mem_type) {
 		if (spd->mem_type != SPD_MEMTYPE_DDR4) {
@@ -179,6 +185,22 @@ ddr_compute_dimm_parameters(const generic_spd_eeprom_t *spd,
 		/* Unbuffered DIMMs */
 		if (spd->mod_section.unbuffered.addr_mapping & 0x1)
 			pdimm->mirrored_dimm = 1;
+		if ((spd->mod_section.unbuffered.mod_height & 0xe0) == 0 &&
+		    (spd->mod_section.unbuffered.ref_raw_card == 0x04)) {
+			/* Fix SPD error found on DIMMs with raw card E0 */
+			for (i = 0; i < 18; i++) {
+				if (spd->mapping[i] == udimm_rc_e_dq[i])
+					continue;
+				spd_error = 1;
+				debug("SPD byte %d: 0x%x, should be 0x%x\n",
+				      60 + i, spd->mapping[i],
+				      udimm_rc_e_dq[i]);
+				ptr = (u8 *)&spd->mapping[i];
+				*ptr = udimm_rc_e_dq[i];
+			}
+			if (spd_error)
+				puts("SPD DQ mapping error fixed\n");
+		}
 		break;
 
 	default:

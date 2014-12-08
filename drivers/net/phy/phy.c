@@ -448,6 +448,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_BROADCOM
 	phy_broadcom_init();
 #endif
+#ifdef CONFIG_PHY_CORTINA
+	phy_cortina_init();
+#endif
 #ifdef CONFIG_PHY_DAVICOM
 	phy_davicom_init();
 #endif

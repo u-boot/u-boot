@@ -75,6 +75,20 @@ enum fm_eth_type {
 				offsetof(struct ccsr_fman, memac[n-1]),\
 }
 
+#ifdef CONFIG_FSL_FM_10GEC_REGULAR_NOTATION
+#define FM_TGEC_INFO_INITIALIZER(idx, n) \
+{									\
+	FM_ETH_INFO_INITIALIZER(idx, CONFIG_SYS_FM1_TGEC_MDIO_ADDR)	\
+	.index		= idx,						\
+	.num		= n - 1,					\
+	.type		= FM_ETH_10G_E,					\
+	.port		= FM##idx##_10GEC##n,				\
+	.rx_port_id	= RX_PORT_10G_BASE2 + n - 1,			\
+	.tx_port_id	= TX_PORT_10G_BASE2 + n - 1,			\
+	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
+				 offsetof(struct ccsr_fman, memac[n-1]),\
+}
+#else
 #define FM_TGEC_INFO_INITIALIZER(idx, n) \
 {									\
 	FM_ETH_INFO_INITIALIZER(idx, CONFIG_SYS_FM2_TGEC_MDIO_ADDR)	\
@@ -87,6 +101,7 @@ enum fm_eth_type {
 	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
 				offsetof(struct ccsr_fman, memac[n-1+8]),\
 }
+#endif
 
 #if (CONFIG_SYS_NUM_FM1_10GEC >= 3)
 #define FM_TGEC_INFO_INITIALIZER2(idx, n) \

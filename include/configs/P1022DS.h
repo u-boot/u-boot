@@ -11,6 +11,9 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 #ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT
 #endif

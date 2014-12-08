@@ -713,8 +713,8 @@ unsigned long get_board_ddr_clk(void);
 #endif	/* CONFIG_PCI */
 
 #ifdef CONFIG_FMAN_ENET
-#define CONFIG_SYS_FM1_DTSEC5_PHY_ADDR	0x10
-#define CONFIG_SYS_FM1_DTSEC6_PHY_ADDR	0x11
+#define CONFIG_SYS_FM1_ONBOARD_PHY1_ADDR 0x10
+#define CONFIG_SYS_FM1_ONBOARD_PHY2_ADDR 0x11
 
 /*B4860 QDS AMC2PEX-2S default PHY_ADDR */
 #define CONFIG_SYS_FM1_10GEC1_PHY_ADDR 0x7	 /*SLOT 1*/
@@ -730,6 +730,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ETHPRIME		"FM1@DTSEC1"
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
+
+#define CONFIG_SYS_FSL_B4860QDS_XFI_ERR
 
 /*
  * Environment

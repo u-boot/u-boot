@@ -565,9 +565,11 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 	num = fm_eth->num;
 
 #ifdef CONFIG_SYS_FMAN_V3
+#ifndef CONFIG_FSL_FM_10GEC_REGULAR_NOTATION
 	if (fm_eth->type == FM_ETH_10G_E) {
-		/* 10GEC1/10GEC2 use mEMAC9/mEMAC10
-		 * 10GEC3/10GEC4 use mEMAC1/mEMAC2
+		/* 10GEC1/10GEC2 use mEMAC9/mEMAC10 on T2080/T4240.
+		 * 10GEC3/10GEC4 use mEMAC1/mEMAC2 on T2080.
+		 * 10GEC1 uses mEMAC1 on T1024.
 		 * so it needs to change the num.
 		 */
 		if (fm_eth->num >= 2)
@@ -575,6 +577,7 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 		else
 			num += 8;
 	}
+#endif
 	base = &reg->memac[num].fm_memac;
 	phyregs = &reg->memac[num].fm_memac_mdio;
 #else

@@ -110,6 +110,14 @@ config TARGET_P2041RDB
 config TARGET_QEMU_PPCE500
 	bool "Support qemu-ppce500"
 
+config TARGET_T102XQDS
+	bool "Support T102xQDS"
+	select SUPPORT_SPL
+
+config TARGET_T102XRDB
+	bool "Support T102xRDB"
+	select SUPPORT_SPL
+
 config TARGET_T1040QDS
 	bool "Support T1040QDS"
 
@@ -183,6 +191,8 @@ source "board/freescale/p2020come/Kconfig"
 source "board/freescale/p2020ds/Kconfig"
 source "board/freescale/p2041rdb/Kconfig"
 source "board/freescale/qemu-ppce500/Kconfig"
+source "board/freescale/t102xqds/Kconfig"
+source "board/freescale/t102xrdb/Kconfig"
 source "board/freescale/t1040qds/Kconfig"
 source "board/freescale/t104xrdb/Kconfig"
 source "board/freescale/t208xqds/Kconfig"

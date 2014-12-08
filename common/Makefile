@@ -8,21 +8,11 @@
 # core
 ifndef CONFIG_SPL_BUILD
 obj-y += main.o
-obj-y += command.o
 obj-y += exports.o
 obj-y += hash.o
 ifdef CONFIG_SYS_HUSH_PARSER
 obj-y += cli_hush.o
 endif
-
-# We always have this since drivers/ddr/fs/interactive.c needs it
-obj-y += cli_simple.o
-
-obj-y += cli.o
-obj-y += cli_readline.o
-obj-y += s_record.o
-obj-y += xyzModem.o
-obj-y += cmd_disk.o
 
 # This option is not just y/n - it can have a numeric value
 ifdef CONFIG_BOOTDELAY
@@ -271,5 +261,15 @@ obj-y += fb_mmc.o
 endif
 
 obj-$(CONFIG_CMD_BLOB) += cmd_blob.o
+
+# We always have this since drivers/ddr/fs/interactive.c needs it
+obj-y += cli_simple.o
+
+obj-y += cli.o
+obj-y += cli_readline.o
+obj-y += command.o
+obj-y += s_record.o
+obj-y += xyzModem.o
+obj-y += cmd_disk.o
 
 CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)

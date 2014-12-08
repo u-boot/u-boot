@@ -42,8 +42,8 @@ struct liodn_id_table liodn_tbl[] = {
 	SET_PCI_LIODN_BASE(CONFIG_SYS_FSL_PCIE_COMPAT, 2, 196),
 	SET_PCI_LIODN_BASE(CONFIG_SYS_FSL_PCIE_COMPAT, 3, 197),
 
-	SET_DMA_LIODN(1, 193),
-	SET_DMA_LIODN(2, 194),
+	SET_DMA_LIODN(1, "fsl,eloplus-dma", 193),
+	SET_DMA_LIODN(2, "fsl,eloplus-dma", 194),
 };
 int liodn_tbl_sz = ARRAY_SIZE(liodn_tbl);
 

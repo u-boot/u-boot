@@ -1,8 +1,8 @@
 /*
  * Vitesse PHY drivers
  *
- * Copyright 2010-2012 Freescale Semiconductor, Inc.
- * Author: Andy Fleming
+ * Copyright 2010-2014 Freescale Semiconductor, Inc.
+ * Original Author: Andy Fleming
  * Add vsc8662 phy support - Priyanka Jain
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -50,6 +50,7 @@
 #define MIIM_VSC8574_18G_CMDSTAT	0x8000
 
 /* Vitesse VSC8514 control register */
+#define MIIM_VSC8514_MAC_SERDES_CON     0x10
 #define MIIM_VSC8514_GENERAL18		0x12
 #define MIIM_VSC8514_GENERAL19		0x13
 #define MIIM_VSC8514_GENERAL23		0x17
@@ -245,6 +246,14 @@ static int vsc8514_config(struct phy_device *phydev)
 	/* set bits 10:8 to '000' */
 	val = (val & 0xf8ff);
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_VSC8514_GENERAL23, val);
+
+	/* Enable Serdes Auto-negotiation */
+	phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS,
+		  PHY_EXT_PAGE_ACCESS_EXTENDED3);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_VSC8514_MAC_SERDES_CON);
+	val = val | MIIM_VSC8574_MAC_SERDES_ANEG;
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_VSC8514_MAC_SERDES_CON, val);
+	phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS, 0);
 
 	genphy_config_aneg(phydev);
 

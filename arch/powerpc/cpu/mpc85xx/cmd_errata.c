@@ -271,7 +271,8 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	puts("Work-around for Erratum USB14 enabled\n");
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A007186
-	puts("Work-around for Erratum A007186 enabled\n");
+	if (has_erratum_a007186())
+		puts("Work-around for Erratum A007186 enabled\n");
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A006593
 	puts("Work-around for Erratum A006593 enabled\n");
@@ -312,6 +313,14 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A005434
 	puts("Work-around for Erratum A-005434 enabled\n");
+#endif
+#if defined(CONFIG_SYS_FSL_ERRATUM_A008044) && \
+	defined(CONFIG_A008044_WORKAROUND)
+	if (IS_SVR_REV(svr, 1, 0))
+		puts("Work-around for Erratum A-008044 enabled\n");
+#endif
+#if defined(CONFIG_SYS_FSL_B4860QDS_XFI_ERR) && defined(CONFIG_B4860QDS)
+	puts("Work-around for Erratum XFI on B4860QDS enabled\n");
 #endif
 
 	return 0;

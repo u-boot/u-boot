@@ -254,8 +254,10 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	 */
 	if (((info->port == FM1_DTSEC9) && (PORT_IS_ENABLED(FM1_10GEC1)))  ||
 	    ((info->port == FM1_DTSEC10) && (PORT_IS_ENABLED(FM1_10GEC2))) ||
+	    ((info->port == FM1_DTSEC1) && (PORT_IS_ENABLED(FM1_10GEC1)))  ||
 	    ((info->port == FM1_DTSEC1) && (PORT_IS_ENABLED(FM1_10GEC3)))  ||
 	    ((info->port == FM1_DTSEC2) && (PORT_IS_ENABLED(FM1_10GEC4)))  ||
+	    ((info->port == FM1_10GEC1) && (PORT_IS_ENABLED(FM1_DTSEC1)))  ||
 	    ((info->port == FM1_10GEC1) && (PORT_IS_ENABLED(FM1_DTSEC9)))  ||
 	    ((info->port == FM1_10GEC2) && (PORT_IS_ENABLED(FM1_DTSEC10))) ||
 	    ((info->port == FM1_10GEC3) && (PORT_IS_ENABLED(FM1_DTSEC1)))  ||
