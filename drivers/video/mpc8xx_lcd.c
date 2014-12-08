@@ -34,11 +34,6 @@
 #define CONFIG_LCD_INFO		/* Display Logo, (C) and system info	*/
 #endif
 
-#if defined(CONFIG_EDT32F10)
-#undef CONFIG_LCD_LOGO
-#undef CONFIG_LCD_INFO
-#endif
-
 /*----------------------------------------------------------------------*/
 #ifdef CONFIG_KYOCERA_KCS057QV1AJ
 /*
@@ -224,20 +219,6 @@ vidinfo_t panel_info = {
 };
 #endif /* CONFIG_OPTREX_BW */
 
-/*-----------------------------------------------------------------*/
-#ifdef CONFIG_EDT32F10
-/*
- * Emerging Display Technologies 320x240. Passive, monochrome, single scan.
- */
-#define LCD_BPP		LCD_MONOCHROME
-#define LCD_DF		10
-
-vidinfo_t panel_info = {
-    320, 240, 0, 0, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_HIGH, CONFIG_SYS_LOW,
-    LCD_BPP,  0, 0, 0, 0, 33, 0, 0, 0
-};
-#endif
-
 /************************************************************************/
 /* ----------------- chipset specific functions ----------------------- */
 /************************************************************************/
@@ -305,7 +286,6 @@ void lcd_ctrl_init (void *lcdbase)
 	immr->im_clkrst.car_sccr &= ~0x1F;
 	immr->im_clkrst.car_sccr |= LCD_DF;	/* was 8 */
 
-#if !defined(CONFIG_EDT32F10)
 	/* Enable LCD on port D.
 	 */
 	immr->im_ioport.iop_pdpar |= 0x1FFF;
@@ -315,14 +295,6 @@ void lcd_ctrl_init (void *lcdbase)
 	 */
 	immr->im_cpm.cp_pbpar |= 0x00005001;
 	immr->im_cpm.cp_pbdir |= 0x00005001;
-#else
-	/* Enable LCD on port D.
-	 */
-	immr->im_ioport.iop_pdpar |= 0x1DFF;
-	immr->im_ioport.iop_pdpar &= ~0x0200;
-	immr->im_ioport.iop_pddir |= 0x1FFF;
-	immr->im_ioport.iop_pddat |= 0x0200;
-#endif
 
 	/* Load the physical address of the linear frame buffer
 	 * into the LCD controller.
