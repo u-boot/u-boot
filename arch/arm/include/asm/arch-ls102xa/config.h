@@ -97,6 +97,7 @@
 #define CONFIG_SYS_FSL_DDR_VER			FSL_DDR_VER_5_0
 #define CONFIG_SYS_FSL_SEC_COMPAT		5
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		1
+#define CONFIG_SYS_FSL_ERRATUM_A008378
 #else
 #error SoC not defined
 #endif

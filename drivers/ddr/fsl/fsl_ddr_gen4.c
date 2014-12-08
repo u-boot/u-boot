@@ -171,6 +171,14 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			ddr_out32(&ddr->debug[i], regs->debug[i]);
 		}
 	}
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008378
+	/* Erratum applies when accumulated ECC is used, or DBI is enabled */
+#define IS_ACC_ECC_EN(v) ((v) & 0x4)
+#define IS_DBI(v) ((((v) >> 12) & 0x3) == 0x2)
+	if (IS_ACC_ECC_EN(regs->ddr_sdram_cfg) ||
+	    IS_DBI(regs->ddr_sdram_cfg_3))
+		ddr_setbits32(ddr->debug[28], 0x9 << 20);
+#endif
 
 	/*
 	 * For RDIMMs, JEDEC spec requires clocks to be stable before reset is
