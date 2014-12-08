@@ -155,6 +155,25 @@ void lcd_set_flush_dcache(int flush)
 	lcd_flush_dcache = (flush != 0);
 }
 
+void lcd_init_console(void *address, int rows, int cols)
+{
+	console_curr_col = 0;
+	console_curr_row = 0;
+	console_cols = cols;
+	console_rows = rows;
+	lcd_console_address = address;
+}
+
+void lcd_set_col(short col)
+{
+	console_curr_col = col;
+}
+
+void lcd_set_row(short row)
+{
+	console_curr_row = row;
+}
+
 /*----------------------------------------------------------------------*/
 
 static void console_scrollup(void)
@@ -415,6 +434,7 @@ int drv_lcd_init(void)
 /*----------------------------------------------------------------------*/
 void lcd_clear(void)
 {
+	short console_rows, console_cols;
 #if LCD_BPP == LCD_COLOR8
 	/* Setting the palette */
 	lcd_setcolreg(CONSOLE_COLOR_BLACK, 0, 0, 0);
@@ -456,8 +476,6 @@ void lcd_clear(void)
 #endif
 	/* Paint the logo and retrieve LCD base address */
 	debug("[LCD] Drawing the logo...\n");
-	lcd_console_address = lcd_logo();
-
 #if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
 	console_rows = (panel_info.vl_row - BMP_LOGO_HEIGHT);
 	console_rows /= VIDEO_FONT_HEIGHT;
@@ -465,8 +483,7 @@ void lcd_clear(void)
 	console_rows = panel_info.vl_row / VIDEO_FONT_HEIGHT;
 #endif
 	console_cols = panel_info.vl_col / VIDEO_FONT_WIDTH;
-	console_curr_col = 0;
-	console_curr_row = 0;
+	lcd_init_console(lcd_logo(), console_rows, console_cols);
 	lcd_sync();
 }
 
@@ -509,11 +526,11 @@ static int lcd_init(void *lcdbase)
 	lcd_enable();
 
 	/* Initialize the console */
-	console_curr_col = 0;
+	lcd_set_col(0);
 #ifdef CONFIG_LCD_INFO_BELOW_LOGO
-	console_curr_row = 7 + BMP_LOGO_HEIGHT / VIDEO_FONT_HEIGHT;
+	lcd_set_row(7 + BMP_LOGO_HEIGHT / VIDEO_FONT_HEIGHT);
 #else
-	console_curr_row = 1;	/* leave 1 blank line below logo */
+	lcd_set_row(1);	/* leave 1 blank line below logo */
 #endif
 
 	return 0;
@@ -1063,8 +1080,8 @@ static void *lcd_logo(void)
 	bitmap_plot(0, 0);
 
 #ifdef CONFIG_LCD_INFO
-	console_curr_col = LCD_INFO_X / VIDEO_FONT_WIDTH;
-	console_curr_row = LCD_INFO_Y / VIDEO_FONT_HEIGHT;
+	lcd_set_col(LCD_INFO_X / VIDEO_FONT_WIDTH);
+	lcd_set_row(LCD_INFO_Y / VIDEO_FONT_HEIGHT);
 	lcd_show_board_info();
 #endif /* CONFIG_LCD_INFO */
 
