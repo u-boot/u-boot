@@ -177,6 +177,7 @@ void lcd_set_row(short row)
 static void console_scrollup(void)
 {
 	const int rows = CONFIG_CONSOLE_SCROLL_LINES;
+	int bg_color = lcd_getbgcolor();
 
 	/* Copy up rows ignoring those that will be overwritten */
 	memcpy(CONSOLE_ROW_FIRST,
@@ -186,8 +187,7 @@ static void console_scrollup(void)
 	/* Clear the last rows */
 #if (LCD_BPP != LCD_COLOR32)
 	memset(lcd_console_address + CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows,
-		lcd_color_bg,
-		CONSOLE_ROW_SIZE * rows);
+	       bg_color, CONSOLE_ROW_SIZE * rows);
 #else
 	u32 *ppix = lcd_console_address +
 		    CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows;
@@ -195,7 +195,7 @@ static void console_scrollup(void)
 	for (i = 0;
 	    i < (CONSOLE_ROW_SIZE * rows) / NBYTES(panel_info.vl_bpix);
 	    i++) {
-		*ppix++ = lcd_color_bg;
+		*ppix++ = bg_color;
 	}
 #endif
 	lcd_sync();
@@ -316,6 +316,7 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 {
 	uchar *dest;
 	ushort row;
+	int fg_color, bg_color;
 
 #if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
 	y += BMP_LOGO_HEIGHT;
@@ -334,6 +335,8 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 		uchar *d = dest;
 #endif
 
+		fg_color = lcd_getfgcolor();
+		bg_color = lcd_getbgcolor();
 		for (i = 0; i < count; ++i) {
 			uchar c, bits;
 
@@ -341,8 +344,7 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 			bits = video_fontdata[c * VIDEO_FONT_HEIGHT + row];
 
 			for (c = 0; c < 8; ++c) {
-				*d++ = (bits & 0x80) ?
-						lcd_color_fg : lcd_color_bg;
+				*d++ = (bits & 0x80) ? fg_color : bg_color;
 				bits <<= 1;
 			}
 		}
@@ -433,6 +435,7 @@ int drv_lcd_init(void)
 void lcd_clear(void)
 {
 	short console_rows, console_cols;
+	int bg_color;
 #if LCD_BPP == LCD_COLOR8
 	/* Setting the palette */
 	lcd_setcolreg(CONSOLE_COLOR_BLACK, 0, 0, 0);
@@ -449,9 +452,11 @@ void lcd_clear(void)
 #ifndef CONFIG_SYS_WHITE_ON_BLACK
 	lcd_setfgcolor(CONSOLE_COLOR_BLACK);
 	lcd_setbgcolor(CONSOLE_COLOR_WHITE);
+	bg_color = CONSOLE_COLOR_WHITE;
 #else
 	lcd_setfgcolor(CONSOLE_COLOR_WHITE);
 	lcd_setbgcolor(CONSOLE_COLOR_BLACK);
+	bg_color = CONSOLE_COLOR_BLACK;
 #endif	/* CONFIG_SYS_WHITE_ON_BLACK */
 
 #ifdef	LCD_TEST_PATTERN
@@ -459,16 +464,14 @@ void lcd_clear(void)
 #else
 	/* set framebuffer to background color */
 #if (LCD_BPP != LCD_COLOR32)
-	memset((char *)lcd_base,
-		lcd_color_bg,
-		lcd_line_length * panel_info.vl_row);
+	memset((char *)lcd_base, bg_color, lcd_line_length * panel_info.vl_row);
 #else
 	u32 *ppix = lcd_base;
 	u32 i;
 	for (i = 0;
 	   i < (lcd_line_length * panel_info.vl_row)/NBYTES(panel_info.vl_bpix);
 	   i++) {
-		*ppix++ = lcd_color_bg;
+		*ppix++ = bg_color;
 	}
 #endif
 #endif
@@ -575,11 +578,21 @@ static void lcd_setfgcolor(int color)
 	lcd_color_fg = color;
 }
 
+int lcd_getfgcolor(void)
+{
+	return lcd_color_fg;
+}
+
 /*----------------------------------------------------------------------*/
 
 static void lcd_setbgcolor(int color)
 {
 	lcd_color_bg = color;
+}
+
+int lcd_getbgcolor(void)
+{
+	return lcd_color_bg;
 }
 
 /************************************************************************/

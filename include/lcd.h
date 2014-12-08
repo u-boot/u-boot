@@ -291,6 +291,20 @@ int lcd_get_screen_rows(void);
 int lcd_get_screen_columns(void);
 
 /**
+ * Get the background color of the LCD
+ *
+ * @return background color value
+ */
+int lcd_getbgcolor(void);
+
+/**
+ * Get the foreground color of the LCD
+ *
+ * @return foreground color value
+ */
+int lcd_getfgcolor(void);
+
+/**
  * Set the position of the text cursor
  *
  * @param col	Column to place cursor (0 = left side)
