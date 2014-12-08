@@ -359,15 +359,7 @@ void lcd_sync(void);
 /************************************************************************/
 /* ** CONSOLE CONSTANTS							*/
 /************************************************************************/
-#if LCD_BPP == LCD_MONOCHROME
-
-/*
- * Simple black/white definitions
- */
-# define CONSOLE_COLOR_BLACK	0
-# define CONSOLE_COLOR_WHITE	1	/* Must remain last / highest	*/
-
-#elif LCD_BPP == LCD_COLOR8
+#if LCD_BPP == LCD_COLOR8
 
 /*
  * 8bpp color definitions

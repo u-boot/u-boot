@@ -357,23 +357,6 @@ lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue)
 
 /*----------------------------------------------------------------------*/
 
-#if LCD_BPP == LCD_MONOCHROME
-static
-void lcd_initcolregs (void)
-{
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile cpm8xx_t *cp = &(immr->im_cpm);
-	ushort regno;
-
-	for (regno = 0; regno < 16; regno++) {
-		cp->lcd_cmap[regno * 2] = 0;
-		cp->lcd_cmap[(regno * 2) + 1] = regno & 0x0f;
-	}
-}
-#endif
-
-/*----------------------------------------------------------------------*/
-
 void lcd_enable (void)
 {
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;

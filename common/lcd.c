@@ -97,10 +97,7 @@
 #define CONSOLE_SIZE		(CONSOLE_ROW_SIZE * CONSOLE_ROWS)
 #define CONSOLE_SCROLL_SIZE	(CONSOLE_SIZE - CONSOLE_ROW_SIZE)
 
-#if LCD_BPP == LCD_MONOCHROME
-# define COLOR_MASK(c)		((c)	  | (c) << 1 | (c) << 2 | (c) << 3 | \
-				 (c) << 4 | (c) << 5 | (c) << 6 | (c) << 7)
-#elif (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16) || \
+#if (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16) || \
 	(LCD_BPP == LCD_COLOR32)
 # define COLOR_MASK(c)		(c)
 #else
@@ -313,10 +310,6 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 	y += BMP_LOGO_HEIGHT;
 #endif
 
-#if LCD_BPP == LCD_MONOCHROME
-	ushort off  = x * (1 << LCD_BPP) % 8;
-#endif
-
 	dest = (uchar *)(lcd_base + y * lcd_line_length + x * NBITS(LCD_BPP)/8);
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; ++row, dest += lcd_line_length) {
@@ -330,33 +323,18 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 		uchar *d = dest;
 #endif
 
-#if LCD_BPP == LCD_MONOCHROME
-		uchar rest = *d & -(1 << (8 - off));
-		uchar sym;
-#endif
 		for (i = 0; i < count; ++i) {
 			uchar c, bits;
 
 			c = *s++;
 			bits = video_fontdata[c * VIDEO_FONT_HEIGHT + row];
 
-#if LCD_BPP == LCD_MONOCHROME
-			sym  = (COLOR_MASK(lcd_color_fg) & bits) |
-				(COLOR_MASK(lcd_color_bg) & ~bits);
-
-			*d++ = rest | (sym >> off);
-			rest = sym << (8-off);
-#else /* LCD_BPP == LCD_COLOR8 or LCD_COLOR16 or LCD_COLOR32 */
 			for (c = 0; c < 8; ++c) {
 				*d++ = (bits & 0x80) ?
 						lcd_color_fg : lcd_color_bg;
 				bits <<= 1;
 			}
-#endif
 		}
-#if LCD_BPP == LCD_MONOCHROME
-		*d  = rest | (*d & ((1 << (8 - off)) - 1));
-#endif
 	}
 }
 
@@ -443,11 +421,7 @@ int drv_lcd_init(void)
 /*----------------------------------------------------------------------*/
 void lcd_clear(void)
 {
-#if LCD_BPP == LCD_MONOCHROME
-	/* Setting the palette */
-	lcd_initcolregs();
-
-#elif LCD_BPP == LCD_COLOR8
+#if LCD_BPP == LCD_COLOR8
 	/* Setting the palette */
 	lcd_setcolreg(CONSOLE_COLOR_BLACK, 0, 0, 0);
 	lcd_setcolreg(CONSOLE_COLOR_RED, 0xFF, 0, 0);
