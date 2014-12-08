@@ -55,15 +55,9 @@ static inline void mctl_mem_fill(void)
  */
 static inline bool mctl_mem_matches(u32 offset)
 {
-	int i, matches = 0;
-
-	for (i = 0; i < MCTL_MEM_FILL_MATCH_COUNT; i++) {
-		if (readl(CONFIG_SYS_SDRAM_BASE + i * 4) ==
-		    readl(CONFIG_SYS_SDRAM_BASE + offset + i * 4))
-			matches++;
-	}
-
-	return matches == MCTL_MEM_FILL_MATCH_COUNT;
+	return memcmp((u32 *)CONFIG_SYS_SDRAM_BASE,
+		      (u32 *)(CONFIG_SYS_SDRAM_BASE + offset),
+		      MCTL_MEM_FILL_MATCH_COUNT * 4) == 0;
 }
 
 #endif /* _SUNXI_DRAM_H */
