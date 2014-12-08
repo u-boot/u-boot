@@ -291,26 +291,14 @@ static int initr_flash(void)
 {
 	ulong flash_size = 0;
 	bd_t *bd = gd->bd;
-	int ok;
 
 	puts("Flash: ");
 
-	if (board_flash_wp_on()) {
+	if (board_flash_wp_on())
 		printf("Uninitialized - Write Protect On\n");
-		/* Since WP is on, we can't find real size.  Set to 0 */
-		ok = 1;
-	} else {
+	else
 		flash_size = flash_init();
-		ok = flash_size > 0;
-	}
-	if (!ok) {
-		puts("*** failed ***\n");
-#ifdef CONFIG_PPC
-		/* Why does PPC do this? */
-		hang();
-#endif
-		return -1;
-	}
+
 	print_size(flash_size, "");
 #ifdef CONFIG_SYS_FLASH_CHECKSUM
 	/*

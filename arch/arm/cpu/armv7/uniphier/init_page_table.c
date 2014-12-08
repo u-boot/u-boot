@@ -28,7 +28,12 @@
 #define IS_SSC(x)		((IS_SPL_TEXT_AREA(x)) || \
 					(IS_INIT_STACK_AREA(x)))
 #define IS_EXT(x)		((x) < 0x100)
-#define IS_REG(x)		(0x500 <= (x) && (x) < 0x700)
+
+/* 0x20000000-0x2fffffff, 0xf0000000-0xffffffff are only used by PH1-sLD3 */
+#define IS_REG(x)		(0x200 <= (x) && (x) < 0x300) || \
+				(0x500 <= (x) && (x) < 0x700) || \
+				(0xf00 <= (x))
+
 #define IS_DDR(x)		(0x800 <= (x) && (x) < 0xf00)
 
 #define MMU_FLAGS(x)		(IS_SSC(x)) ? SSC : \

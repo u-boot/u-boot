@@ -1,5 +1,5 @@
 /*
- * Device Tree Source for UniPhier PH1-sLD8 SoC
+ * Device Tree Source for UniPhier PH1-sLD3 SoC
  *
  * Copyright (C) 2014 Panasonic Corporation
  *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
@@ -10,7 +10,7 @@
 /include/ "skeleton.dtsi"
 
 / {
-	compatible = "panasonic,ph1-sld8";
+	compatible = "panasonic,ph1-sld3";
 
 	cpus {
 		#address-cells = <1>;
@@ -20,6 +20,12 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a9";
 			reg = <0>;
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a9";
+			reg = <1>;
 		};
 	};
 
@@ -33,28 +39,21 @@
 			compatible = "panasonic,uniphier-uart";
 			status = "disabled";
 			reg = <0x54006800 0x20>;
-			clock-frequency = <80000000>;
+			clock-frequency = <36864000>;
 		};
 
 		uart1: serial@54006900 {
 			compatible = "panasonic,uniphier-uart";
 			status = "disabled";
 			reg = <0x54006900 0x20>;
-			clock-frequency = <80000000>;
+			clock-frequency = <36864000>;
 		};
 
 		uart2: serial@54006a00 {
 			compatible = "panasonic,uniphier-uart";
 			status = "disabled";
 			reg = <0x54006a00 0x20>;
-			clock-frequency = <80000000>;
-		};
-
-		uart3: serial@54006b00 {
-			compatible = "panasonic,uniphier-uart";
-			status = "disabled";
-			reg = <0x54006b00 0x20>;
-			clock-frequency = <80000000>;
+			clock-frequency = <36864000>;
 		};
 
 		i2c0: i2c@58400000 {
@@ -111,9 +110,15 @@
 			reg = <0x5a820100 0x100>;
 		};
 
-		nand: nand@68000000 {
+		usb3: usb@5a830100 {
+			compatible = "panasonic,uniphier-ehci", "usb-ehci";
+			status = "disabled";
+			reg = <0x5a830100 0x100>;
+		};
+
+		nand: nand@f8000000 {
 			compatible = "denali,denali-nand-dt";
-			reg = <0x68000000 0x20>, <0x68100000 0x1000>;
+			reg = <0xf8000000 0x20>, <0xf8100000 0x1000>;
 			reg-names = "nand_data", "denali_reg";
 		};
 	};

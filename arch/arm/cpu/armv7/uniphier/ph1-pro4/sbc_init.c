@@ -22,16 +22,7 @@ void sbc_init(void)
 	writel(SBCTRL2_SAVEPIN_PERI_VALUE, SBCTRL12);
 	writel(SBCTRL4_SAVEPIN_PERI_VALUE, SBCTRL14);
 
-	if (readl(SBBASE0) & 0x1) {
-		/*
-		 * Boot Swap Off: boot from mask ROM
-		 * 0x00000000-0x01ffffff: mask ROM
-		 * 0x02000000-0x3effffff: memory bank (31MB)
-		 * 0x03f00000-0x3fffffff: peripherals (1MB)
-		 */
-		writel(0x0000be01, SBBASE0); /* dummy */
-		writel(0x0200be01, SBBASE1);
-	} else {
+	if (boot_is_swapped()) {
 		/*
 		 * Boot Swap On: boot from external NOR/SRAM
 		 * 0x02000000-0x03ffffff is a mirror of 0x00000000-0x01ffffff.
@@ -40,6 +31,15 @@ void sbc_init(void)
 		 * 0x01f00000-0x01ffffff, 0x03f00000-0x03ffffff: peripherals
 		 */
 		writel(0x0000bc01, SBBASE0);
+	} else {
+		/*
+		 * Boot Swap Off: boot from mask ROM
+		 * 0x00000000-0x01ffffff: mask ROM
+		 * 0x02000000-0x3effffff: memory bank (31MB)
+		 * 0x03f00000-0x3fffffff: peripherals (1MB)
+		 */
+		writel(0x0000be01, SBBASE0); /* dummy */
+		writel(0x0200be01, SBBASE1);
 	}
 #elif defined(CONFIG_DCC_MICRO_SUPPORT_CARD)
 #if !defined(CONFIG_SPL_BUILD)

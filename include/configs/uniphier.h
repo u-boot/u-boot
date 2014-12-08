@@ -10,10 +10,37 @@
 #ifndef __CONFIG_UNIPHIER_COMMON_H__
 #define __CONFIG_UNIPHIER_COMMON_H__
 
-#if defined(CONFIG_PFC_MICRO_SUPPORT_CARD) &&	\
-				defined(CONFIG_DCC_MICRO_SUPPORT_CARD)
-# error "Both CONFIG_PFC_MICRO_SUPPORT_CARD and CONFIG_DCC_MICRO_SUPPORT_CARD \
-are defined. Select only one of them."
+#if defined(CONFIG_MACH_PH1_PRO4)
+#define CONFIG_DDR_NUM_CH0 2
+#define CONFIG_DDR_NUM_CH1 2
+
+/* Physical start address of SDRAM */
+#define CONFIG_SDRAM0_BASE	0x80000000
+#define CONFIG_SDRAM0_SIZE	0x20000000
+#define CONFIG_SDRAM1_BASE	0xa0000000
+#define CONFIG_SDRAM1_SIZE	0x20000000
+#endif
+
+#if defined(CONFIG_MACH_PH1_LD4)
+#define CONFIG_DDR_NUM_CH0 1
+#define CONFIG_DDR_NUM_CH1 1
+
+/* Physical start address of SDRAM */
+#define CONFIG_SDRAM0_BASE	0x80000000
+#define CONFIG_SDRAM0_SIZE	0x10000000
+#define CONFIG_SDRAM1_BASE	0x90000000
+#define CONFIG_SDRAM1_SIZE	0x10000000
+#endif
+
+#if defined(CONFIG_MACH_PH1_SLD8)
+#define CONFIG_DDR_NUM_CH0 1
+#define CONFIG_DDR_NUM_CH1 1
+
+/* Physical start address of SDRAM */
+#define CONFIG_SDRAM0_BASE	0x80000000
+#define CONFIG_SDRAM0_SIZE	0x10000000
+#define CONFIG_SDRAM1_BASE	0x90000000
+#define CONFIG_SDRAM1_SIZE	0x10000000
 #endif
 
 /*
@@ -40,6 +67,13 @@ are defined. Select only one of them."
 #define CONFIG_SYS_NS16550_REG_SIZE	-2
 #endif
 
+/* TODO: move to Kconfig and device tree */
+#if 0
+#define CONFIG_SYS_NS16550_SERIAL
+#endif
+
+#define CONFIG_SMC911X
+
 #define CONFIG_SMC911X_BASE		CONFIG_SUPPORT_CARD_ETHER_BASE
 #define CONFIG_SMC911X_32_BIT
 
@@ -58,6 +92,7 @@ are defined. Select only one of them."
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_BOARD_LATE_INIT
 
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
@@ -87,17 +122,7 @@ are defined. Select only one of them."
 
 #define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
-#if defined(CONFIG_PFC_MICRO_SUPPORT_CARD)
-# define CONFIG_SYS_MAX_FLASH_BANKS	1
-# define CONFIG_SYS_FLASH_BANKS_LIST	{0x00000000}
-# define CONFIG_SYS_FLASH_BANKS_SIZES	{0x02000000}
-#endif
-
-#if defined(CONFIG_DCC_MICRO_SUPPORT_CARD)
-# define CONFIG_SYS_MAX_FLASH_BANKS	1
-# define CONFIG_SYS_FLASH_BANKS_LIST	{0x04000000}
-# define CONFIG_SYS_FLASH_BANKS_SIZES	{0x04000000}
-#endif
+#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 2
 
 /* serial console configuration */
 #define CONFIG_BAUDRATE			115200
@@ -205,7 +230,6 @@ are defined. Select only one of them."
 	"image_offset=0x00080000\0"		\
 	"image_size=0x00f00000\0"		\
 	"verify=n\0"				\
-	"autostart=yes\0"			\
 	"norboot=run add_default_bootargs;"				\
 		"bootm $image_offset\0"					\
 	"nandboot=run add_default_bootargs;"				\
@@ -232,6 +256,13 @@ are defined. Select only one of them."
 #endif
 
 #define CONFIG_SYS_TEXT_BASE		0x84000000
+
+#if defined(CONFIG_MACH_PH1_LD4) || defined(CONFIG_MACH_PH1_SLD8)
+#define CONFIG_SPL_TEXT_BASE		0x00040000
+#endif
+#if defined(CONFIG_MACH_PH1_PRO4)
+#define CONFIG_SPL_TEXT_BASE		0x00100000
+#endif
 
 #define CONFIG_BOARD_POSTCLK_INIT
 

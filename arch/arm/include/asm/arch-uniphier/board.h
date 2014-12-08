@@ -12,10 +12,12 @@
 	defined(CONFIG_DCC_MICRO_SUPPORT_CARD)
 void support_card_reset(void);
 void support_card_init(void);
+void support_card_late_init(void);
 int check_support_card(void);
 #else
 #define support_card_reset() do {} while (0)
 #define support_card_init()  do {} while (0)
+#define support_card_late_init()  do {} while (0)
 static inline int check_support_card(void)
 {
 	return 0;
@@ -30,6 +32,11 @@ static inline void uniphier_board_reset(void)
 static inline void uniphier_board_init(void)
 {
 	support_card_init();
+}
+
+static inline void uniphier_board_late_init(void)
+{
+	support_card_late_init();
 }
 
 #endif /* ARCH_BOARD_H */
