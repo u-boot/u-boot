@@ -27,6 +27,8 @@ F:	configs/i12-tvbox_defconfig
 F:	configs/Linksprite_pcDuino3_defconfig
 F:	configs/Linksprite_pcDuino3_fdt_defconfig
 F:	configs/qt840a_defconfig
+F:	include/configs/sun8i.h
+F:	configs/Ippo_q8h_v1_2_defconfig
 
 CUBIEBOARD2 BOARD
 M:	Ian Campbell <ijc@hellion.org.uk>
