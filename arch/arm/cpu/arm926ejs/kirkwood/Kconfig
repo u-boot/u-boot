@@ -57,6 +57,9 @@ config TARGET_DOCKSTAR
 config TARGET_GOFLEXHOME
 	bool "GoFlex Home Board"
 
+config TARGET_NAS220
+	bool "BlackArmor NAS220"
+
 endchoice
 
 config SYS_SOC
@@ -80,5 +83,6 @@ source "board/LaCie/wireless_space/Kconfig"
 source "board/raidsonic/ib62x0/Kconfig"
 source "board/Seagate/dockstar/Kconfig"
 source "board/Seagate/goflexhome/Kconfig"
+source "board/Seagate/nas220/Kconfig"
 
 endif
