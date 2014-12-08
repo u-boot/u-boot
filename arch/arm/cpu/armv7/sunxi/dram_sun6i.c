@@ -27,19 +27,6 @@ struct dram_sun6i_para {
 	u16 page_size;
 };
 
-/*
- * Wait up to 1s for value to be set in given part of reg.
- */
-static void await_completion(u32 *reg, u32 mask, u32 val)
-{
-	unsigned long tmo = timer_get_us() + 1000000;
-
-	while ((readl(reg) & mask) != val) {
-		if (timer_get_us() > tmo)
-			panic("Timeout initialising DRAM\n");
-	}
-}
-
 static void mctl_sys_init(void)
 {
 	struct sunxi_ccm_reg * const ccm =
@@ -51,7 +38,7 @@ static void mctl_sys_init(void)
 	clrsetbits_le32(&ccm->dram_clk_cfg, CCM_DRAMCLK_CFG_DIV0_MASK,
 		CCM_DRAMCLK_CFG_DIV0(dram_clk_div) | CCM_DRAMCLK_CFG_RST |
 		CCM_DRAMCLK_CFG_UPD);
-	await_completion(&ccm->dram_clk_cfg, CCM_DRAMCLK_CFG_UPD, 0);
+	mctl_await_completion(&ccm->dram_clk_cfg, CCM_DRAMCLK_CFG_UPD, 0);
 
 	writel(MDFS_CLK_DEFAULT, &ccm->mdfs_clk_cfg);
 
@@ -107,8 +94,8 @@ static bool mctl_rank_detect(u32 *gsr0, int rank)
 	const u32 done = MCTL_DX_GSR0_RANK0_TRAIN_DONE << rank;
 	const u32 err = MCTL_DX_GSR0_RANK0_TRAIN_ERR << rank;
 
-	await_completion(gsr0, done, done);
-	await_completion(gsr0 + 0x10, done, done);
+	mctl_await_completion(gsr0, done, done);
+	mctl_await_completion(gsr0 + 0x10, done, done);
 
 	return !(readl(gsr0) & err) && !(readl(gsr0 + 0x10) & err);
 }
@@ -129,7 +116,7 @@ static void mctl_channel_init(int ch_index, struct dram_sun6i_para *para)
 	}
 
 	writel(MCTL_MCMD_NOP, &mctl_ctl->mcmd);
-	await_completion(&mctl_ctl->mcmd, MCTL_MCMD_BUSY, 0);
+	mctl_await_completion(&mctl_ctl->mcmd, MCTL_MCMD_BUSY, 0);
 
 	/* PHY initialization */
 	writel(MCTL_PGCR, &mctl_phy->pgcr);
@@ -166,14 +153,14 @@ static void mctl_channel_init(int ch_index, struct dram_sun6i_para *para)
 	writel(MCTL_DX_GCR | MCTL_DX_GCR_EN, &mctl_phy->dx2gcr);
 	writel(MCTL_DX_GCR | MCTL_DX_GCR_EN, &mctl_phy->dx3gcr);
 
-	await_completion(&mctl_phy->pgsr, 0x03, 0x03);
+	mctl_await_completion(&mctl_phy->pgsr, 0x03, 0x03);
 
 	writel(CONFIG_DRAM_ZQ, &mctl_phy->zq0cr1);
 
 	setbits_le32(&mctl_phy->pir, MCTL_PIR_CLEAR_STATUS);
 	writel(MCTL_PIR_STEP1, &mctl_phy->pir);
 	udelay(10);
-	await_completion(&mctl_phy->pgsr, 0x1f, 0x1f);
+	mctl_await_completion(&mctl_phy->pgsr, 0x1f, 0x1f);
 
 	/* rank detect */
 	if (!mctl_rank_detect(&mctl_phy->dx0gsr0, 1)) {
@@ -204,14 +191,14 @@ static void mctl_channel_init(int ch_index, struct dram_sun6i_para *para)
 	setbits_le32(&mctl_phy->pir, MCTL_PIR_CLEAR_STATUS);
 	writel(MCTL_PIR_STEP2, &mctl_phy->pir);
 	udelay(10);
-	await_completion(&mctl_phy->pgsr, 0x11, 0x11);
+	mctl_await_completion(&mctl_phy->pgsr, 0x11, 0x11);
 
 	if (readl(&mctl_phy->pgsr) & MCTL_PGSR_TRAIN_ERR_MASK)
 		panic("Training error initialising DRAM\n");
 
 	/* Move to configure state */
 	writel(MCTL_SCTL_CONFIG, &mctl_ctl->sctl);
-	await_completion(&mctl_ctl->sstat, 0x07, 0x01);
+	mctl_await_completion(&mctl_ctl->sstat, 0x07, 0x01);
 
 	/* Set number of clks per micro-second */
 	writel(DRAM_CLK / 1000000, &mctl_ctl->togcnt1u);
@@ -270,7 +257,7 @@ static void mctl_channel_init(int ch_index, struct dram_sun6i_para *para)
 
 	/* Move to access state */
 	writel(MCTL_SCTL_ACCESS, &mctl_ctl->sctl);
-	await_completion(&mctl_ctl->sstat, 0x07, 0x03);
+	mctl_await_completion(&mctl_ctl->sstat, 0x07, 0x03);
 }
 
 static void mctl_com_init(struct dram_sun6i_para *para)

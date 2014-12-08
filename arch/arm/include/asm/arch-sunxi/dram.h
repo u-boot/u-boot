@@ -12,6 +12,7 @@
 #ifndef _SUNXI_DRAM_H
 #define _SUNXI_DRAM_H
 
+#include <asm/io.h>
 #include <linux/types.h>
 
 /* dram regs definition */
@@ -22,5 +23,18 @@
 #endif
 
 unsigned long sunxi_dram_init(void);
+
+/*
+ * Wait up to 1s for value to be set in given part of reg.
+ */
+static inline void mctl_await_completion(u32 *reg, u32 mask, u32 val)
+{
+	unsigned long tmo = timer_get_us() + 1000000;
+
+	while ((readl(reg) & mask) != val) {
+		if (timer_get_us() > tmo)
+			panic("Timeout initialising DRAM\n");
+	}
+}
 
 #endif /* _SUNXI_DRAM_H */
