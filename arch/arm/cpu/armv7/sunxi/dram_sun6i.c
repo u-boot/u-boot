@@ -326,20 +326,6 @@ static void mctl_port_cfg(void)
 	writel(0x00000307, &mctl_com->mbagcr[5]);
 }
 
-static bool mctl_mem_matches(u32 offset)
-{
-	const int match_count = 64;
-	int i, matches = 0;
-
-	for (i = 0; i < match_count; i++) {
-		if (readl(CONFIG_SYS_SDRAM_BASE + i * 4) ==
-		    readl(CONFIG_SYS_SDRAM_BASE + offset + i * 4))
-			matches++;
-	}
-
-	return matches == match_count;
-}
-
 unsigned long sunxi_dram_init(void)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
@@ -391,6 +377,7 @@ unsigned long sunxi_dram_init(void)
 		    MCTL_CR_BANK(1) | MCTL_CR_RANK(1));
 
 	/* Detect and set page size */
+	mctl_mem_fill();
 	for (columns = 7; columns < 20; columns++) {
 		if (mctl_mem_matches(1 << columns))
 			break;
