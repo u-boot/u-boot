@@ -346,19 +346,7 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 
 			*d++ = rest | (sym >> off);
 			rest = sym << (8-off);
-#elif LCD_BPP == LCD_COLOR8
-			for (c = 0; c < 8; ++c) {
-				*d++ = (bits & 0x80) ?
-						lcd_color_fg : lcd_color_bg;
-				bits <<= 1;
-			}
-#elif LCD_BPP == LCD_COLOR16
-			for (c = 0; c < 8; ++c) {
-				*d++ = (bits & 0x80) ?
-						lcd_color_fg : lcd_color_bg;
-				bits <<= 1;
-			}
-#elif LCD_BPP == LCD_COLOR32
+#else /* LCD_BPP == LCD_COLOR8 or LCD_COLOR16 or LCD_COLOR32 */
 			for (c = 0; c < 8; ++c) {
 				*d++ = (bits & 0x80) ?
 						lcd_color_fg : lcd_color_bg;
