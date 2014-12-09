@@ -82,7 +82,8 @@
 
 #define CONFIG_FSL_CAAM			/* Enable CAAM */
 
-#if !defined(CONFIG_SDCARD) && !defined(CONFIG_NAND) && !defined(CONFIG_SPI)
+#if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_NAND_BOOT) && \
+	!defined(CONFIG_QSPI_BOOT)
 #define CONFIG_U_QE
 #endif
 
