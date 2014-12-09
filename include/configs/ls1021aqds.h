@@ -312,6 +312,9 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FSL_ESDHC
 #define CONFIG_GENERIC_MMC
 
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+
 /*
  * USB
  */
