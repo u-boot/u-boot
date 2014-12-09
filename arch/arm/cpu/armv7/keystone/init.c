@@ -15,6 +15,16 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/psc_defs.h>
 
+#define MAX_PCI_PORTS		2
+enum pci_mode	{
+	ENDPOINT,
+	LEGACY_ENDPOINT,
+	ROOTCOMPLEX,
+};
+
+#define DEVCFG_MODE_MASK		(BIT(2) | BIT(1))
+#define DEVCFG_MODE_SHIFT		1
+
 void chip_configuration_unlock(void)
 {
 	__raw_writel(KS2_KICK0_MAGIC, KS2_KICK0);
@@ -68,6 +78,24 @@ void osr_init(void)
 }
 #endif
 
+/* Function to set up PCIe mode */
+static void config_pcie_mode(int pcie_port,  enum pci_mode mode)
+{
+	u32 val = __raw_readl(KS2_DEVCFG);
+
+	if (pcie_port >= MAX_PCI_PORTS)
+		return;
+
+	/**
+	 * each pci port has two bits for mode and it starts at
+	 * bit 1. So use port number to get the right bit position.
+	 */
+	pcie_port <<= 1;
+	val &= ~(DEVCFG_MODE_MASK << pcie_port);
+	val |= ((mode << DEVCFG_MODE_SHIFT) << pcie_port);
+	__raw_writel(val, KS2_DEVCFG);
+}
+
 int arch_cpu_init(void)
 {
 	chip_configuration_unlock();
@@ -77,8 +105,13 @@ int arch_cpu_init(void)
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_NETCP);
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_QM_PDSP);
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_PCIE0);
+
+	/* Initialize the PCIe-0 to work as Root Complex */
+	config_pcie_mode(0, ROOTCOMPLEX);
 #if defined(CONFIG_SOC_K2E) || defined(CONFIG_SOC_K2L)
 	msmc_share_all_segments(KS2_MSMC_SEGMENT_PCIE1);
+	/* Initialize the PCIe-1 to work as Root Complex */
+	config_pcie_mode(1, ROOTCOMPLEX);
 #endif
 #ifdef CONFIG_SOC_K2L
 	osr_init();

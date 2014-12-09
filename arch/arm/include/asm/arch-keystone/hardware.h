@@ -144,6 +144,7 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_DEVICE_STATE_CTRL_BASE	0x02620000
 #define KS2_JTAG_ID_REG			(KS2_DEVICE_STATE_CTRL_BASE + 0x18)
 #define KS2_DEVSTAT			(KS2_DEVICE_STATE_CTRL_BASE + 0x20)
+#define KS2_DEVCFG			(KS2_DEVICE_STATE_CTRL_BASE + 0x14c)
 
 /* PSC */
 #define KS2_PSC_BASE			0x02350000
