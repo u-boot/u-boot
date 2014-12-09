@@ -8,6 +8,8 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <dm.h>
+#include <dm/platform_data/serial_sh.h>
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>
@@ -144,3 +146,15 @@ void reset_cpu(ulong addr)
 	val |= 0x02;
 	i2c_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
 }
+
+static const struct sh_serial_platdata serial_platdata = {
+	.base = SCIF0_BASE,
+	.type = PORT_SCIF,
+	.clk = 14745600,
+	.clk_mode = EXT_CLK,
+};
+
+U_BOOT_DEVICE(gose_serials) = {
+	.name = "serial_sh",
+	.platdata = &serial_platdata,
+};
