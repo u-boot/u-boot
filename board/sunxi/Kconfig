@@ -111,6 +111,10 @@ config TARGET_CUBIETRUCK
 	bool "CUBIETRUCK"
 	depends on MACH_SUN7I
 
+config TARGET_HUMMINGBIRD_A31
+	bool "HUMMINGBIRD_A31"
+	depends on MACH_SUN6I
+
 config TARGET_IPPO_Q8H_V5
 	bool "IPPO_Q8H_V5"
 	depends on MACH_SUN8I
