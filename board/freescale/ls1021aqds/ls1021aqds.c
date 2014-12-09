@@ -48,6 +48,12 @@ enum {
 	MUX_TYPE_SD_PC_SG_SG,
 };
 
+enum {
+	GE0_CLK125,
+	GE2_CLK125,
+	GE1_CLK125,
+};
+
 int checkboard(void)
 {
 #ifndef CONFIG_QSPI_BOOT
@@ -177,7 +183,6 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_TSEC_ENET
 	out_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
-	out_be32(&scfg->etsecmcr, SCFG_ETSECCMCR_GE2_CLK125);
 #endif
 
 #ifdef CONFIG_FSL_IFC
@@ -241,6 +246,32 @@ void board_init_f(ulong dummy)
 }
 #endif
 
+void config_etseccm_source(int etsec_gtx_125_mux)
+{
+	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+
+	switch (etsec_gtx_125_mux) {
+	case GE0_CLK125:
+		out_be32(&scfg->etsecmcr, SCFG_ETSECCMCR_GE0_CLK125);
+		debug("etseccm set to GE0_CLK125\n");
+		break;
+
+	case GE2_CLK125:
+		out_be32(&scfg->etsecmcr, SCFG_ETSECCMCR_GE2_CLK125);
+		debug("etseccm set to GE2_CLK125\n");
+		break;
+
+	case GE1_CLK125:
+		out_be32(&scfg->etsecmcr, SCFG_ETSECCMCR_GE1_CLK125);
+		debug("etseccm set to GE1_CLK125\n");
+		break;
+
+	default:
+		printf("Error! trying to set etseccm to invalid value\n");
+		break;
+	}
+}
+
 int config_board_mux(int ctrl_type)
 {
 	u8 reg12, reg14;
@@ -250,6 +281,7 @@ int config_board_mux(int ctrl_type)
 
 	switch (ctrl_type) {
 	case MUX_TYPE_CAN:
+		config_etseccm_source(GE2_CLK125);
 		reg14 = SET_EC_MUX_SEL(reg14, PIN_MUX_SEL_CAN);
 		break;
 	case MUX_TYPE_IIC2:
@@ -259,6 +291,7 @@ int config_board_mux(int ctrl_type)
 		reg14 = SET_EC_MUX_SEL(reg14, PIN_MUX_SEL_RGMII);
 		break;
 	case MUX_TYPE_SAI:
+		config_etseccm_source(GE2_CLK125);
 		reg14 = SET_EC_MUX_SEL(reg14, PIN_MUX_SEL_SAI);
 		break;
 	case MUX_TYPE_SDHC:
