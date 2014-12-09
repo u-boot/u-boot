@@ -37,8 +37,14 @@ unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);
 #endif
 
+#ifdef CONFIG_QSPI_BOOT
+#define CONFIG_SYS_CLK_FREQ		100000000
+#define CONFIG_DDR_CLK_FREQ		100000000
+#define CONFIG_QIXIS_I2C_ACCESS
+#else
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 #define CONFIG_DDR_CLK_FREQ		get_board_ddr_clk()
+#endif
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI	board/freescale/ls1021aqds/ls102xa_pbi.cfg
@@ -71,6 +77,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 #define CONFIG_SYS_MONITOR_LEN		0x80000
+#endif
+
+#ifdef CONFIG_QSPI_BOOT
+#define CONFIG_SYS_TEXT_BASE		0x40010000
+#define CONFIG_SYS_NO_FLASH
 #endif
 
 #ifndef CONFIG_SYS_TEXT_BASE
@@ -112,6 +123,7 @@ unsigned long get_board_ddr_clk(void);
 /*
  * IFC Definitions
  */
+#ifndef CONFIG_QSPI_BOOT
 #define CONFIG_FSL_IFC
 #define CONFIG_SYS_FLASH_BASE		0x60000000
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
@@ -204,6 +216,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#endif
 
 /*
  * QIXIS Definitions
@@ -316,6 +329,18 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
+/* QSPI */
+#ifdef CONFIG_QSPI_BOOT
+#define CONFIG_FSL_QSPI
+#define QSPI0_AMBA_BASE			0x40000000
+#define FSL_QSPI_FLASH_SIZE		(1 << 24)
+#define FSL_QSPI_FLASH_NUM		2
+
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_SPANSION
+#endif
+
 /*
  * USB
  */
@@ -394,7 +419,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
 
+#ifdef CONFIG_QSPI_BOOT
+#undef CONFIG_CMD_IMLS
+#else
 #define CONFIG_CMD_IMLS
+#endif
 
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
@@ -458,6 +487,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			0x2000
+#elif defined(CONFIG_QSPI_BOOT)
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SIZE			0x2000          /* 8KB */
+#define CONFIG_ENV_OFFSET		0x100000        /* 1MB */
+#define CONFIG_ENV_SECT_SIZE		0x10000
 #else
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)

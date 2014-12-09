@@ -98,6 +98,7 @@ struct ccsr_gur {
 #define SCFG_ETSECDMAMCR_LE_BD_FR	0xf8001a0f
 #define SCFG_ETSECCMCR_GE2_CLK125	0x04000000
 #define SCFG_PIXCLKCR_PXCKEN		0x80000000
+#define SCFG_QSPI_CLKSEL		0xc0100000
 
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {

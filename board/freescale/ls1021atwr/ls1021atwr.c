@@ -72,6 +72,7 @@ struct cpld_data {
 	u8 rev2;		/* Reserved */
 };
 
+#ifndef CONFIG_QSPI_BOOT
 static void convert_serdes_mux(int type, int need_reset);
 
 void cpld_show(void)
@@ -107,11 +108,14 @@ void cpld_show(void)
 	       in_8(&cpld_data->serdes_mux));
 #endif
 }
+#endif
 
 int checkboard(void)
 {
 	puts("Board: LS1021ATWR\n");
+#ifndef CONFIG_QSPI_BOOT
 	cpld_show();
+#endif
 
 	return 0;
 }
@@ -220,6 +224,7 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
+#ifndef CONFIG_QSPI_BOOT
 int config_serdes_mux(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
@@ -251,6 +256,7 @@ int config_serdes_mux(void)
 
 	return 0;
 }
+#endif
 
 int board_early_init_f(void)
 {
@@ -267,6 +273,10 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_FSL_DCU_FB
 	out_be32(&scfg->pixclkcr, SCFG_PIXCLKCR_PXCKEN);
+#endif
+
+#ifdef CONFIG_FSL_QSPI
+	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
 #endif
 
 	return 0;
@@ -305,7 +315,9 @@ int board_init(void)
 
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	fsl_serdes_init();
+#ifndef CONFIG_QSPI_BOOT
 	config_serdes_mux();
+#endif
 #endif
 
 #ifdef CONFIG_U_QE
@@ -354,6 +366,7 @@ u16 flash_read16(void *addr)
 	return (((val) >> 8) & 0x00ff) | (((val) << 8) & 0xff00);
 }
 
+#ifndef CONFIG_QSPI_BOOT
 static void convert_flash_bank(char bank)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
@@ -536,3 +549,4 @@ U_BOOT_CMD(
 	"	-change lane C & lane D to PCIeX2\n"
 	"\nWARNING: If you aren't familiar with the setting of serdes, don't try to change anything!\n"
 );
+#endif

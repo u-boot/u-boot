@@ -34,7 +34,9 @@ enum {
 
 int checkboard(void)
 {
+#ifndef CONFIG_QSPI_BOOT
 	char buf[64];
+#endif
 #if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_QSPI_BOOT)
 	u8 sw;
 #endif
@@ -61,12 +63,14 @@ int checkboard(void)
 		printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
 #endif
 
+#ifndef CONFIG_QSPI_BOOT
 	printf("Sys ID:0x%02x, Sys Ver: 0x%02x\n",
 	       QIXIS_READ(id), QIXIS_READ(arch));
 
 	printf("FPGA:  v%d (%s), build %d\n",
 	       (int)QIXIS_READ(scver), qixis_read_tag(buf),
 	       (int)qixis_read_minor());
+#endif
 
 	return 0;
 }
@@ -162,6 +166,10 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_FSL_IFC
 	init_early_memctl_regs();
+#endif
+
+#ifdef CONFIG_FSL_QSPI
+	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
 #endif
 
 	/* Workaround for the issue that DDR could not respond to
