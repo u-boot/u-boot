@@ -29,6 +29,11 @@
 #define ARCH_TIMER_CTRL_ENABLE		(1 << 0)
 #define SYS_COUNTER_CTRL_ENABLE		(1 << 24)
 
+#define DCFG_CCSR_PORSR1_RCW_MASK	0xff800000
+#define DCFG_CCSR_PORSR1_RCW_SRC_I2C	0x24800000
+
+#define DCFG_DCSR_PORCR1		0
+
 struct sys_info {
 	unsigned long freq_processor[CONFIG_MAX_CPUS];
 	unsigned long freq_systembus;
