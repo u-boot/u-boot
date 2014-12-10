@@ -485,12 +485,22 @@ void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
 		return;
 
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	if (to > from) {
+		from += len;
+		to += len;
+	}
 	while (len > 0) {
 		size_t tail = (len > chunksz) ? chunksz : len;
 		WATCHDOG_RESET();
+		if (to > from) {
+			to -= tail;
+			from -= tail;
+		}
 		memmove(to, from, tail);
-		to += tail;
-		from += tail;
+		if (to < from) {
+			to += tail;
+			from += tail;
+		}
 		len -= tail;
 	}
 #else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
