@@ -89,6 +89,18 @@ void ut_failf(struct dm_test_state *dms, const char *fname, int line,
 	}								\
 }
 
+/* Assert that a pointer is not NULL */
+#define ut_assertnonnull(expr) {					\
+	const void *val = (expr);					\
+									\
+	if (val == NULL) {						\
+		ut_failf(dms, __FILE__, __LINE__, __func__,		\
+			 #expr " = NULL",				\
+			 "Expected non-null, got NULL");		\
+		return -1;						\
+	}								\
+}
+
 /* Assert that an operation succeeds (returns 0) */
 #define ut_assertok(cond)	ut_asserteq(0, cond)
 
