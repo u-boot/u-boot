@@ -277,23 +277,41 @@ struct RxDesc {
 	u32 buf_Haddr;
 };
 
-/* Define the TX Descriptor */
-static u8 tx_ring[NUM_TX_DESC * sizeof(struct TxDesc) + 256];
-/*	__attribute__ ((aligned(256))); */
+#define RTL8169_DESC_SIZE 16
 
-/* Create a static buffer of size RX_BUF_SZ for each
-TX Descriptor.	All descriptors point to a
-part of this buffer */
-static unsigned char txb[NUM_TX_DESC * RX_BUF_SIZE];
+#if ARCH_DMA_MINALIGN > 256
+#  define RTL8169_ALIGN ARCH_DMA_MINALIGN
+#else
+#  define RTL8169_ALIGN 256
+#endif
+
+/*
+ * Warn if the cache-line size is larger than the descriptor size. In such
+ * cases the driver will likely fail because the CPU needs to flush the cache
+ * when requeuing RX buffers, therefore descriptors written by the hardware
+ * may be discarded.
+ */
+#if RTL8169_DESC_SIZE < ARCH_DMA_MINALIGN
+#warning cache-line size is larger than descriptor size
+#endif
+
+/* Define the TX Descriptor */
+DEFINE_ALIGN_BUFFER(struct TxDesc, tx_ring, NUM_TX_DESC, RTL8169_ALIGN);
 
 /* Define the RX Descriptor */
-static u8 rx_ring[NUM_RX_DESC * sizeof(struct TxDesc) + 256];
-  /*  __attribute__ ((aligned(256))); */
+DEFINE_ALIGN_BUFFER(struct RxDesc, rx_ring, NUM_RX_DESC, RTL8169_ALIGN);
 
-/* Create a static buffer of size RX_BUF_SZ for each
-RX Descriptor	All descriptors point to a
-part of this buffer */
-static unsigned char rxb[NUM_RX_DESC * RX_BUF_SIZE];
+/*
+ * Create a static buffer of size RX_BUF_SZ for each TX Descriptor. All
+ * descriptors point to a part of this buffer.
+ */
+DEFINE_ALIGN_BUFFER(u8, txb, NUM_TX_DESC * RX_BUF_SIZE, RTL8169_ALIGN);
+
+/*
+ * Create a static buffer of size RX_BUF_SZ for each RX Descriptor. All
+ * descriptors point to a part of this buffer.
+ */
+DEFINE_ALIGN_BUFFER(u8, rxb, NUM_RX_DESC * RX_BUF_SIZE, RTL8169_ALIGN);
 
 struct rtl8169_private {
 	void *mmio_addr;	/* memory map physical address */
@@ -301,8 +319,6 @@ struct rtl8169_private {
 	unsigned long cur_rx;	/* Index into the Rx descriptor buffer of next Rx pkt. */
 	unsigned long cur_tx;	/* Index into the Tx descriptor buffer of next Rx pkt. */
 	unsigned long dirty_tx;
-	unsigned char *TxDescArrays;	/* Index of Tx Descriptor buffer */
-	unsigned char *RxDescArrays;	/* Index of Rx Descriptor buffer */
 	struct TxDesc *TxDescArray;	/* Index of 256-alignment Tx Descriptor buffer */
 	struct RxDesc *RxDescArray;	/* Index of 256-alignment Rx Descriptor buffer */
 	unsigned char *RxBufferRings;	/* Index of Rx Buffer  */
@@ -711,16 +727,6 @@ static int rtl_reset(struct eth_device *dev, bd_t *bis)
 	printf ("%s\n", __FUNCTION__);
 #endif
 
-	tpc->TxDescArrays = tx_ring;
-	/* Tx Desscriptor needs 256 bytes alignment; */
-	tpc->TxDescArray = (struct TxDesc *) ((unsigned long)(tpc->TxDescArrays +
-							      255) & ~255);
-
-	tpc->RxDescArrays = rx_ring;
-	/* Rx Desscriptor needs 256 bytes alignment; */
-	tpc->RxDescArray = (struct RxDesc *) ((unsigned long)(tpc->RxDescArrays +
-							      255) & ~255);
-
 	rtl8169_init_ring(dev);
 	rtl8169_hw_start(dev);
 	/* Construct a perfect filter frame with the mac address as first match
@@ -762,10 +768,6 @@ static void rtl_halt(struct eth_device *dev)
 
 	RTL_W32(RxMissed, 0);
 
-	tpc->TxDescArrays = NULL;
-	tpc->RxDescArrays = NULL;
-	tpc->TxDescArray = NULL;
-	tpc->RxDescArray = NULL;
 	for (i = 0; i < NUM_RX_DESC; i++) {
 		tpc->RxBufferRing[i] = NULL;
 	}
@@ -909,6 +911,9 @@ static int rtl_init(struct eth_device *dev, bd_t *bis)
 		     (RTL_R32(TBICSR) & TBILinkOK) ? "OK" : "Failed");
 #endif
 	}
+
+	tpc->TxDescArray = tx_ring;
+	tpc->RxDescArray = rx_ring;
 
 	return 1;
 }
