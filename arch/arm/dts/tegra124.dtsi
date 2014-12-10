@@ -2,6 +2,7 @@
 #include <dt-bindings/gpio/tegra-gpio.h>
 #include <dt-bindings/pinctrl/pinctrl-tegra.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/pinctrl/pinctrl-tegra-xusb.h>
 
 #include "skeleton.dtsi"
 
@@ -267,6 +268,15 @@
 		#size-cells = <0>;
 		status = "disabled";
 		clocks = <&tegra_car 105>;
+	};
+
+	padctl: padctl@7009f000 {
+		compatible = "nvidia,tegra124-xusb-padctl";
+		reg = <0x7009f000 0x1000>;
+		resets = <&tegra_car 142>;
+		reset-names = "padctl";
+
+		#phy-cells = <1>;
 	};
 
 	sdhci@700b0000 {
