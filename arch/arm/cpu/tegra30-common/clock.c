@@ -564,6 +564,7 @@ enum periph_id clk_id_to_periph_id(int clk_id)
 	case PERIPH_ID_RESERVED43:
 	case PERIPH_ID_RESERVED45:
 	case PERIPH_ID_RESERVED56:
+	case PERIPH_ID_PCIEXCLK:
 	case PERIPH_ID_RESERVED76:
 	case PERIPH_ID_RESERVED77:
 	case PERIPH_ID_RESERVED78:
