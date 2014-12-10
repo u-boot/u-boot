@@ -27,6 +27,7 @@ obj-$(CONFIG_SYS_I2C_OMAP34XX) += omap24xx_i2c.o
 obj-$(CONFIG_SYS_I2C_PPC4XX) += ppc4xx_i2c.o
 obj-$(CONFIG_SYS_I2C_RCAR) += rcar_i2c.o
 obj-$(CONFIG_SYS_I2C_S3C24X0) += s3c24x0_i2c.o
+obj-$(CONFIG_SYS_I2C_SANDBOX) += i2c-emul-uclass.o
 obj-$(CONFIG_SYS_I2C_SH) += sh_i2c.o
 obj-$(CONFIG_SYS_I2C_SOFT) += soft_i2c.o
 obj-$(CONFIG_SYS_I2C_TEGRA) += tegra_i2c.o
