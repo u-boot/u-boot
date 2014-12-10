@@ -20,6 +20,9 @@ obj-$(CONFIG_MXC_OCOTP) += mxc_ocotp.o
 obj-$(CONFIG_MXS_OCOTP) += mxs_ocotp.o
 obj-$(CONFIG_NS87308) += ns87308.o
 obj-$(CONFIG_PDSP188x) += pdsp188x.o
+ifdef CONFIG_DM_I2C
+obj-$(CONFIG_SANDBOX) += i2c_eeprom_emul.o
+endif
 obj-$(CONFIG_STATUS_LED) += status_led.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
 obj-$(CONFIG_FSL_IFC) += fsl_ifc.o
