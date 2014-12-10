@@ -41,6 +41,7 @@
  * Modified to use le32_to_cpu and cpu_to_le32 properly
  */
 #include <common.h>
+#include <errno.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
@@ -290,16 +291,15 @@ struct RxDesc {
  * cases the driver will likely fail because the CPU needs to flush the cache
  * when requeuing RX buffers, therefore descriptors written by the hardware
  * may be discarded.
+ *
+ * This can be fixed by defining CONFIG_SYS_NONCACHED_MEMORY which will cause
+ * the driver to allocate descriptors from a pool of non-cached memory.
  */
 #if RTL8169_DESC_SIZE < ARCH_DMA_MINALIGN
+#if !defined(CONFIG_SYS_NONCACHED_MEMORY) && !defined(CONFIG_SYS_DCACHE_OFF)
 #warning cache-line size is larger than descriptor size
 #endif
-
-/* Define the TX Descriptor */
-DEFINE_ALIGN_BUFFER(struct TxDesc, tx_ring, NUM_TX_DESC, RTL8169_ALIGN);
-
-/* Define the RX Descriptor */
-DEFINE_ALIGN_BUFFER(struct RxDesc, rx_ring, NUM_RX_DESC, RTL8169_ALIGN);
+#endif
 
 /*
  * Create a static buffer of size RX_BUF_SZ for each TX Descriptor. All
@@ -418,34 +418,71 @@ match:
 }
 
 /*
+ * TX and RX descriptors are 16 bytes. This causes problems with the cache
+ * maintenance on CPUs where the cache-line size exceeds the size of these
+ * descriptors. What will happen is that when the driver receives a packet
+ * it will be immediately requeued for the hardware to reuse. The CPU will
+ * therefore need to flush the cache-line containing the descriptor, which
+ * will cause all other descriptors in the same cache-line to be flushed
+ * along with it. If one of those descriptors had been written to by the
+ * device those changes (and the associated packet) will be lost.
+ *
+ * To work around this, we make use of non-cached memory if available. If
+ * descriptors are mapped uncached there's no need to manually flush them
+ * or invalidate them.
+ *
+ * Note that this only applies to descriptors. The packet data buffers do
+ * not have the same constraints since they are 1536 bytes large, so they
+ * are unlikely to share cache-lines.
+ */
+static void *rtl_alloc_descs(unsigned int num)
+{
+	size_t size = num * RTL8169_DESC_SIZE;
+
+#ifdef CONFIG_SYS_NONCACHED_MEMORY
+	return (void *)noncached_alloc(size, RTL8169_ALIGN);
+#else
+	return memalign(RTL8169_ALIGN, size);
+#endif
+}
+
+/*
  * Cache maintenance functions. These are simple wrappers around the more
  * general purpose flush_cache() and invalidate_dcache_range() functions.
  */
 
 static void rtl_inval_rx_desc(struct RxDesc *desc)
 {
+#ifndef CONFIG_SYS_NONCACHED_MEMORY
 	unsigned long start = (unsigned long)desc & ~(ARCH_DMA_MINALIGN - 1);
 	unsigned long end = ALIGN(start + sizeof(*desc), ARCH_DMA_MINALIGN);
 
 	invalidate_dcache_range(start, end);
+#endif
 }
 
 static void rtl_flush_rx_desc(struct RxDesc *desc)
 {
+#ifndef CONFIG_SYS_NONCACHED_MEMORY
 	flush_cache((unsigned long)desc, sizeof(*desc));
+#endif
 }
 
 static void rtl_inval_tx_desc(struct TxDesc *desc)
 {
+#ifndef CONFIG_SYS_NONCACHED_MEMORY
 	unsigned long start = (unsigned long)desc & ~(ARCH_DMA_MINALIGN - 1);
 	unsigned long end = ALIGN(start + sizeof(*desc), ARCH_DMA_MINALIGN);
 
 	invalidate_dcache_range(start, end);
+#endif
 }
 
 static void rtl_flush_tx_desc(struct TxDesc *desc)
 {
+#ifndef CONFIG_SYS_NONCACHED_MEMORY
 	flush_cache((unsigned long)desc, sizeof(*desc));
+#endif
 }
 
 static void rtl_inval_buffer(void *buf, size_t size)
@@ -912,10 +949,16 @@ static int rtl_init(struct eth_device *dev, bd_t *bis)
 #endif
 	}
 
-	tpc->TxDescArray = tx_ring;
-	tpc->RxDescArray = rx_ring;
 
-	return 1;
+	tpc->RxDescArray = rtl_alloc_descs(NUM_RX_DESC);
+	if (!tpc->RxDescArray)
+		return -ENOMEM;
+
+	tpc->TxDescArray = rtl_alloc_descs(NUM_TX_DESC);
+	if (!tpc->TxDescArray)
+		return -ENOMEM;
+
+	return 0;
 }
 
 int rtl8169_initialize(bd_t *bis)
@@ -929,6 +972,7 @@ int rtl8169_initialize(bd_t *bis)
 	while(1){
 		unsigned int region;
 		u16 device;
+		int err;
 
 		/* Find RTL8169 */
 		if ((devno = pci_find_devices(supported, idx++)) < 0)
@@ -967,9 +1011,14 @@ int rtl8169_initialize(bd_t *bis)
 		dev->send = rtl_send;
 		dev->recv = rtl_recv;
 
-		eth_register (dev);
+		err = rtl_init(dev, bis);
+		if (err < 0) {
+			printf(pr_fmt("failed to initialize card: %d\n"), err);
+			free(dev);
+			continue;
+		}
 
-		rtl_init(dev, bis);
+		eth_register (dev);
 
 		card_number++;
 	}
