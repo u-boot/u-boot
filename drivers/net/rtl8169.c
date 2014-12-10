@@ -79,7 +79,11 @@ static int media[MAX_UNITS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 #define InterFrameGap	0x03	/* 3 means InterFrameGap = the shortest one */
 
 #define NUM_TX_DESC	1	/* Number of Tx descriptor registers */
-#define NUM_RX_DESC	4	/* Number of Rx descriptor registers */
+#ifdef CONFIG_SYS_RX_ETH_BUFFER
+  #define NUM_RX_DESC	CONFIG_SYS_RX_ETH_BUFFER
+#else
+  #define NUM_RX_DESC	4	/* Number of Rx descriptor registers */
+#endif
 #define RX_BUF_SIZE	1536	/* Rx Buffer size */
 #define RX_BUF_LEN	8192
 
