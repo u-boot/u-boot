@@ -38,10 +38,10 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	int controller_index = simple_strtoul(usb_controller, NULL, 0);
 	board_usb_init(controller_index, USB_INIT_DEVICE);
-	dfu_clear_detach();
+	g_dnl_clear_detach();
 	g_dnl_register("usb_dnl_dfu");
 	while (1) {
-		if (dfu_detach()) {
+		if (g_dnl_detach()) {
 			/*
 			 * Check if USB bus reset is performed after detach,
 			 * which indicates that -R switch has been passed to
@@ -74,7 +74,7 @@ done:
 	if (dfu_reset)
 		run_command("reset", 0);
 
-	dfu_clear_detach();
+	g_dnl_clear_detach();
 
 	return ret;
 }
