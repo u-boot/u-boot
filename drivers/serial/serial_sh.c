@@ -69,7 +69,7 @@ sh_serial_setbrg_generic(struct uart_port *port, int clk, int baudrate)
 	if (port->clk_mode == EXT_CLK) {
 		unsigned short dl = DL_VALUE(baudrate, clk);
 		sci_out(port, DL, dl);
-		/* Need wait: Clock * 1/dl × 1/16 */
+		/* Need wait: Clock * 1/dl * 1/16 */
 		udelay((1000000 * dl * 16 / clk) * 1000 + 1);
 	} else {
 		sci_out(port, SCBRR, SCBRR_VALUE(baudrate, clk));
