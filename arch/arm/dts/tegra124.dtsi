@@ -8,6 +8,19 @@
 
 / {
 	compatible = "nvidia,tegra124";
+	interrupt-parent = <&gic>;
+
+	gic: interrupt-controller@50041000 {
+		compatible = "arm,cortex-a15-gic";
+		#interrupt-cells = <3>;
+		interrupt-controller;
+		reg = <0x50041000 0x1000>,
+		      <0x50042000 0x2000>,
+		      <0x50044000 0x2000>,
+		      <0x50046000 0x2000>;
+		interrupts = <GIC_PPI 9
+			(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+	};
 
 	tegra_car: clock@60006000 {
 		compatible = "nvidia,tegra124-car";
