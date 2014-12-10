@@ -32,6 +32,7 @@ enum uclass_id {
 	UCLASS_THERMAL,		/* Thermal sensor */
 	UCLASS_I2C,		/* I2C bus */
 	UCLASS_I2C_GENERIC,	/* Generic I2C device */
+	UCLASS_I2C_EEPROM,	/* I2C EEPROM device */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
