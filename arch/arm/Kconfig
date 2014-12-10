@@ -664,6 +664,16 @@ config TARGET_OT1200
 	bool "Bachmann OT1200"
 	select CPU_V7
 
+config TARGET_PLATINUM_PICON
+	bool "Support platinum-picon"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_PLATINUM_TITANIUM
+	bool "Support platinum-titanium"
+	select CPU_V7
+	select SUPPORT_SPL
+
 config OMAP34XX
 	bool "OMAP34XX SoC"
 	select CPU_V7
@@ -869,6 +879,7 @@ source "board/atmel/sama5d4_xplained/Kconfig"
 source "board/atmel/sama5d4ek/Kconfig"
 source "board/bachmann/ot1200/Kconfig"
 source "board/balloon3/Kconfig"
+source "board/barco/platinum/Kconfig"
 source "board/barco/titanium/Kconfig"
 source "board/bluegiga/apx4devkit/Kconfig"
 source "board/bluewater/snapper9260/Kconfig"
