@@ -654,6 +654,7 @@ config TARGET_KOSAGI_NOVENA
 
 config TARGET_TBS2910
 	bool "Support tbs2910"
+	select CPU_V7
 
 config TARGET_TQMA6
 	bool "TQ Systems TQMa6 board"

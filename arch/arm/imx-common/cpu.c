@@ -206,6 +206,9 @@ void arch_preboot_os(void)
 {
 #if defined(CONFIG_CMD_SATA)
 	sata_stop();
+#if defined(CONFIG_MX6)
+	disable_sata_clock();
+#endif
 #endif
 #if defined(CONFIG_VIDEO_IPUV3)
 	/* disable video before launching O/S */
