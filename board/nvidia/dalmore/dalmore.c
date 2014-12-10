@@ -15,6 +15,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/gp_padctrl.h>
 #include "pinmux-config-dalmore.h"
@@ -50,18 +51,21 @@ void pinmux_init(void)
  */
 void board_sdmmc_voltage_init(void)
 {
+	struct udevice *dev;
 	uchar reg, data_buffer[1];
 	int ret;
 
-	ret = i2c_set_bus_num(0);/* PMU is on bus 0 */
-	if (ret)
-		printf("%s: i2c_set_bus_num returned %d\n", __func__, ret);
+	ret = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, &dev);
+	if (ret) {
+		debug("%s: Cannot find PMIC I2C chip\n", __func__);
+		return;
+	}
 
 	/* TPS65913: LDO9_VOLTAGE = 3.3V */
 	data_buffer[0] = 0x31;
 	reg = 0x61;
 
-	ret = i2c_write(PMU_I2C_ADDRESS, reg, 1, data_buffer, 1);
+	ret = i2c_write(dev, reg, data_buffer, 1);
 	if (ret)
 		printf("%s: PMU i2c_write %02X<-%02X returned %d\n",
 			__func__, reg, data_buffer[0], ret);
@@ -70,7 +74,7 @@ void board_sdmmc_voltage_init(void)
 	data_buffer[0] = 0x01;
 	reg = 0x60;
 
-	ret = i2c_write(PMU_I2C_ADDRESS, reg, 1, data_buffer, 1);
+	ret = i2c_write(dev, reg, data_buffer, 1);
 	if (ret)
 		printf("%s: PMU i2c_write %02X<-%02X returned %d\n",
 			__func__, reg, data_buffer[0], ret);
@@ -79,7 +83,12 @@ void board_sdmmc_voltage_init(void)
 	data_buffer[0] = 0x03;
 	reg = 0x14;
 
-	ret = i2c_write(BAT_I2C_ADDRESS, reg, 1, data_buffer, 1);
+	ret = i2c_get_chip_for_busnum(0, BAT_I2C_ADDRESS, &dev);
+	if (ret) {
+		debug("%s: Cannot find charger I2C chip\n", __func__);
+		return;
+	}
+	ret = i2c_write(dev, reg, data_buffer, 1);
 	if (ret)
 		printf("%s: BAT i2c_write %02X<-%02X returned %d\n",
 			__func__, reg, data_buffer[0], ret);

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/gp_padctrl.h>
 #include "pinmux-config-cardhu.h"
@@ -37,17 +38,23 @@ void pinmux_init(void)
  */
 void board_sdmmc_voltage_init(void)
 {
+	struct udevice *dev;
 	uchar reg, data_buffer[1];
+	int ret;
 	int i;
 
-	i2c_set_bus_num(0);	/* PMU is on bus 0 */
+	ret = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, &dev);
+	if (ret) {
+		debug("%s: Cannot find PMIC I2C chip\n", __func__);
+		return;
+	}
 
 	/* TPS659110: LDO5_REG = 3.3v, ACTIVE to SDMMC1 */
 	data_buffer[0] = 0x65;
 	reg = 0x32;
 
 	for (i = 0; i < MAX_I2C_RETRY; ++i) {
-		if (i2c_write(PMU_I2C_ADDRESS, reg, 1, data_buffer, 1))
+		if (i2c_write(dev, reg, data_buffer, 1))
 			udelay(100);
 	}
 
@@ -56,7 +63,7 @@ void board_sdmmc_voltage_init(void)
 	reg = 0x67;
 
 	for (i = 0; i < MAX_I2C_RETRY; ++i) {
-		if (i2c_write(PMU_I2C_ADDRESS, reg, 1, data_buffer, 1))
+		if (i2c_write(dev, reg, data_buffer, 1))
 			udelay(100);
 	}
 }

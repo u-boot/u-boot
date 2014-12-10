@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <i2c.h>
 #include <tps6586x.h>
 #include <asm/io.h>
 #include <asm/arch/tegra.h>
@@ -23,9 +24,13 @@
 #define VDD_TRANSITION_STEP	0x06	/* 150mv */
 #define VDD_TRANSITION_RATE	0x06	/* 3.52mv/us */
 
+#define PMI_I2C_ADDRESS	0x34	/* chip requires this address */
+
 int pmu_set_nominal(void)
 {
-	int core, cpu, bus;
+	struct udevice *bus, *dev;
+	int core, cpu;
+	int ret;
 
 	/* by default, the table has been filled with T25 settings */
 	switch (tegra_get_chip_sku()) {
@@ -42,12 +47,18 @@ int pmu_set_nominal(void)
 		return -1;
 	}
 
-	bus = tegra_i2c_get_dvc_bus_num();
-	if (bus == -1) {
+	ret = tegra_i2c_get_dvc_bus(&bus);
+	if (ret) {
 		debug("%s: Cannot find DVC I2C bus\n", __func__);
-		return -1;
+		return ret;
 	}
-	tps6586x_init(bus);
+	ret = i2c_get_chip(bus, PMI_I2C_ADDRESS, &dev);
+	if (ret) {
+		debug("%s: Cannot find DVC I2C chip\n", __func__);
+		return ret;
+	}
+
+	tps6586x_init(dev);
 	tps6586x_set_pwm_mode(TPS6586X_PWM_SM1);
 	return tps6586x_adjust_sm0_sm1(core, cpu, VDD_TRANSITION_STEP,
 				VDD_TRANSITION_RATE, VDD_RELATION);
