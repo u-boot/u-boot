@@ -8,6 +8,7 @@
 /* for now: just dummy functions to satisfy the linker */
 
 #include <common.h>
+#include <malloc.h>
 
 __weak void flush_cache(unsigned long start, unsigned long size)
 {
@@ -49,3 +50,46 @@ __weak void enable_caches(void)
 {
 	puts("WARNING: Caches not enabled\n");
 }
+
+#ifdef CONFIG_SYS_NONCACHED_MEMORY
+/*
+ * Reserve one MMU section worth of address space below the malloc() area that
+ * will be mapped uncached.
+ */
+static unsigned long noncached_start;
+static unsigned long noncached_end;
+static unsigned long noncached_next;
+
+void noncached_init(void)
+{
+	phys_addr_t start, end;
+	size_t size;
+
+	end = ALIGN(mem_malloc_start, MMU_SECTION_SIZE) - MMU_SECTION_SIZE;
+	size = ALIGN(CONFIG_SYS_NONCACHED_MEMORY, MMU_SECTION_SIZE);
+	start = end - size;
+
+	debug("mapping memory %pa-%pa non-cached\n", &start, &end);
+
+	noncached_start = start;
+	noncached_end = end;
+	noncached_next = start;
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+	mmu_set_region_dcache_behaviour(noncached_start, size, DCACHE_OFF);
+#endif
+}
+
+phys_addr_t noncached_alloc(size_t size, size_t align)
+{
+	phys_addr_t next = ALIGN(noncached_next, align);
+
+	if (next >= noncached_end || (noncached_end - next) < size)
+		return 0;
+
+	debug("allocated %zu bytes of uncached memory @%pa\n", size, &next);
+	noncached_next = next + size;
+
+	return next;
+}
+#endif /* CONFIG_SYS_NONCACHED_MEMORY */

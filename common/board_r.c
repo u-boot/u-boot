@@ -265,6 +265,14 @@ static int initr_malloc(void)
 	return 0;
 }
 
+#ifdef CONFIG_SYS_NONCACHED_MEMORY
+static int initr_noncached(void)
+{
+	noncached_init();
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_DM
 static int initr_dm(void)
 {
@@ -687,6 +695,9 @@ init_fnc_t init_sequence_r[] = {
 #endif
 	initr_barrier,
 	initr_malloc,
+#ifdef CONFIG_SYS_NONCACHED_MEMORY
+	initr_noncached,
+#endif
 	bootstage_relocate,
 #ifdef CONFIG_DM
 	initr_dm,
