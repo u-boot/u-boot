@@ -56,6 +56,20 @@
 /*
  * R8A7793 I/O Product Information
  */
+
+/* Module stop control/status register bits */
+#define MSTP0_BITS	0x00640801
+#define MSTP1_BITS	0x9B6C9B5A
+#define MSTP2_BITS	0x100D21FC
+#define MSTP3_BITS	0xF08CD810
+#define MSTP4_BITS	0x800001C4
+#define MSTP5_BITS	0x44C00046
+#define MSTP7_BITS	0x05BFE618
+#define MSTP8_BITS	0x40C0FE85
+#define MSTP9_BITS	0xFF979FFF
+#define MSTP10_BITS	0xFFFEFFE0
+#define MSTP11_BITS	0x000001C0
+
 #define R8A7793_CUT_ES2X	2
 #define IS_R8A7793_ES2() \
 	(rmobile_get_cpu_rev_integer() == R8A7793_CUT_ES2X)

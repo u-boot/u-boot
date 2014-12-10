@@ -15,6 +15,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/arch/rmobile.h>
+#include <asm/arch/rcar-mstp.h>
+#include <asm/arch/mmc.h>
 #include <netdev.h>
 #include <miiphy.h>
 #include <i2c.h>
@@ -37,30 +39,11 @@ void s_init(void)
 	qos_init();
 }
 
-#define MSTPSR1		0xE6150038
-#define SMSTPCR1	0xE6150134
 #define TMU0_MSTP125	(1 << 25)
-
-#define MSTPSR7		0xE61501C4
-#define SMSTPCR7	0xE615014C
 #define SCIF2_MSTP719	(1 << 19)
-
-#define MSTPSR8		0xE61509A0
-#define SMSTPCR8	0xE6150990
 #define ETHER_MSTP813	(1 << 13)
-
-#define MSTPSR3		0xE6150048
-#define SMSTPCR3	0xE615013C
 #define IIC1_MSTP323	(1 << 23)
-
-#define mstp_setbits(type, addr, saddr, set) \
-	out_##type((saddr), in_##type(addr) | (set))
-#define mstp_clrbits(type, addr, saddr, clear) \
-	out_##type((saddr), in_##type(addr) & ~(clear))
-#define mstp_setbits_le32(addr, saddr, set) \
-	mstp_setbits(le32, addr, saddr, set)
-#define mstp_clrbits_le32(addr, saddr, clear)   \
-	mstp_clrbits(le32, addr, saddr, clear)
+#define MMC0_MSTP315	(1 << 15)
 
 int board_early_init_f(void)
 {
@@ -76,13 +59,11 @@ int board_early_init_f(void)
 	/* IIC1 / sh-i2c ch1 */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, IIC1_MSTP323);
 
+#ifdef CONFIG_SH_MMCIF
+	/* MMC */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, MMC0_MSTP315);
+#endif
 	return 0;
-}
-
-void arch_preboot_os(void)
-{
-	/* Disable TMU0 */
-	mstp_setbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
 }
 
 int board_init(void)
@@ -143,6 +124,19 @@ int board_eth_init(bd_t *bis)
 #else
 	return 0;
 #endif
+}
+
+int board_mmc_init(bd_t *bis)
+{
+	int ret = 0;
+
+#ifdef CONFIG_SH_MMCIF
+	gpio_request(GPIO_GP_4_31, NULL);
+	gpio_set_value(GPIO_GP_4_31, 1);
+
+	ret = mmcif_mmc_init();
+#endif
+	return ret;
 }
 
 int dram_init(void)
