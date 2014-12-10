@@ -483,8 +483,6 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	struct spi_trans *trans = &ich->trans;
 	unsigned type = flags & (SPI_XFER_BEGIN | SPI_XFER_END);
 	int using_cmd = 0;
-	/* Align read transactions to 64-byte boundaries */
-	char buff[ctlr.databytes];
 
 	/* Ee don't support writing partial bytes. */
 	if (bitlen % 8) {
@@ -632,14 +630,9 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	 */
 	while (trans->bytesout || trans->bytesin) {
 		uint32_t data_length;
-		uint32_t aligned_offset;
-		uint32_t diff;
-
-		aligned_offset = trans->offset & ~(ctlr.databytes - 1);
-		diff = trans->offset - aligned_offset;
 
 		/* SPI addresses are 24 bit only */
-		ich_writel(aligned_offset & 0x00FFFFFF, ctlr.addr);
+		ich_writel(trans->offset & 0x00FFFFFF, ctlr.addr);
 
 		if (trans->bytesout)
 			data_length = min(trans->bytesout, ctlr.databytes);
@@ -673,13 +666,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		}
 
 		if (trans->bytesin) {
-			if (diff) {
-				data_length -= diff;
-				read_reg(ctlr.data, buff, ctlr.databytes);
-				memcpy(trans->in, buff + diff, data_length);
-			} else {
-				read_reg(ctlr.data, trans->in, data_length);
-			}
+			read_reg(ctlr.data, trans->in, data_length);
 			spi_use_in(trans, data_length);
 			if (with_address)
 				trans->offset += data_length;
