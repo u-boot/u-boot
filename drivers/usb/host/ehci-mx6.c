@@ -160,7 +160,7 @@ static int usb_phy_enable(int index, struct usb_ehci *ehci)
 	val |= (USBPHY_CTRL_ENUTMILEVEL2 | USBPHY_CTRL_ENUTMILEVEL3);
 	__raw_writel(val, phy_ctrl);
 
-	return val & USBPHY_CTRL_OTG_ID;
+	return 0;
 }
 
 /* Base address for this IP block is 0x02184800 */
@@ -193,6 +193,28 @@ static void usb_oc_config(int index)
 	__raw_writel(val, ctrl);
 }
 
+int usb_phy_mode(int port)
+{
+	void __iomem *phy_reg;
+	void __iomem *phy_ctrl;
+	u32 val;
+
+	phy_reg = (void __iomem *)phy_bases[port];
+	phy_ctrl = (void __iomem *)(phy_reg + USBPHY_CTRL);
+
+	val = __raw_readl(phy_ctrl);
+
+	if (val & USBPHY_CTRL_OTG_ID)
+		return USB_INIT_DEVICE;
+	else
+		return USB_INIT_HOST;
+}
+
+int __weak board_usb_phy_mode(int port)
+{
+	return usb_phy_mode(port);
+}
+
 int __weak board_ehci_hcd_init(int port)
 {
 	return 0;
@@ -221,7 +243,8 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	usb_power_config(index);
 	usb_oc_config(index);
 	usb_internal_phy_clock_gate(index, 1);
-	type = usb_phy_enable(index, ehci) ? USB_INIT_DEVICE : USB_INIT_HOST;
+	usb_phy_enable(index, ehci);
+	type = board_usb_phy_mode(index);
 
 	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
 	*hcor = (struct ehci_hcor *)((uint32_t)*hccr +

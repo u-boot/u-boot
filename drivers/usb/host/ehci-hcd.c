@@ -971,7 +971,6 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	qh_list->qh_link = cpu_to_hc32((uint32_t)qh_list | QH_LINK_TYPE_QH);
 	qh_list->qh_endpt1 = cpu_to_hc32(QH_ENDPT1_H(1) |
 						QH_ENDPT1_EPS(USB_SPEED_HIGH));
-	qh_list->qh_curtd = cpu_to_hc32(QT_NEXT_TERMINATE);
 	qh_list->qh_overlay.qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 	qh_list->qh_overlay.qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
 	qh_list->qh_overlay.qt_token =

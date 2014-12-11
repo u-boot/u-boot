@@ -280,7 +280,9 @@ struct usb_ehci {
 #define MXC_EHCI_IPPUE_DOWN		(1 << 10)
 #define MXC_EHCI_IPPUE_UP		(1 << 11)
 
+int usb_phy_mode(int port);
 /* Board-specific initialization */
 int board_ehci_hcd_init(int port);
+int board_usb_phy_mode(int port);
 
 #endif /* _EHCI_FSL_H */

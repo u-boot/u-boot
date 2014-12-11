@@ -544,10 +544,35 @@ struct dfu_entity *dfu_get_entity(int alt)
 int dfu_get_alt(char *name)
 {
 	struct dfu_entity *dfu;
+	char *str;
 
 	list_for_each_entry(dfu, &dfu_list, list) {
-		if (!strncmp(dfu->name, name, strlen(dfu->name)))
-			return dfu->alt;
+		if (dfu->name[0] != '/') {
+			if (!strncmp(dfu->name, name, strlen(dfu->name)))
+				return dfu->alt;
+		} else {
+			/*
+			 * One must also consider absolute path
+			 * (/boot/bin/uImage) available at dfu->name when
+			 * compared "plain" file name (uImage)
+			 *
+			 * It is the case for e.g. thor gadget where lthor SW
+			 * sends only the file name, so only the very last part
+			 * of path must be checked for equality
+			 */
+
+			str = strstr(dfu->name, name);
+			if (!str)
+				continue;
+
+			/*
+			 * Check if matching substring is the last element of
+			 * dfu->name (uImage)
+			 */
+			if (strlen(dfu->name) ==
+			    ((str - dfu->name) + strlen(name)))
+				return dfu->alt;
+		}
 	}
 
 	return -ENODEV;

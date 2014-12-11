@@ -11,6 +11,7 @@ clear
 
 COLOUR_RED="\33[31m"
 COLOUR_GREEN="\33[32m"
+COLOUR_ORANGE="\33[33m"
 COLOUR_DEFAULT="\33[0m"
 
 DIR=./
@@ -59,8 +60,15 @@ ums_test_file () {
     fi
 
     cp ./$1 $MNT_DIR
-    umount $MNT_DIR
 
+    while true; do
+	umount $MNT_DIR > /dev/null 2>&1
+	if [ $? -eq 0 ]; then
+	    break
+	fi
+	printf "$COLOUR_ORANGE\tSleeping to wait for umount...$COLOUR_DEFAULT\n"
+	sleep 1
+    done
 
     echo -n "TX: "
     calculate_md5sum $1
