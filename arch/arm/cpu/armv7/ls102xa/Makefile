@@ -7,6 +7,8 @@
 obj-y	+= cpu.o
 obj-y	+= clock.o
 obj-y	+= timer.o
+obj-y	+= fsl_epu.o
 
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 obj-$(CONFIG_SYS_HAS_SERDES) += fsl_ls1_serdes.o ls102xa_serdes.o
+obj-$(CONFIG_SPL) += spl.o

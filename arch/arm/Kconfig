@@ -733,12 +733,14 @@ config TARGET_LS2085A_SIMU
 	select ARM64
 
 config TARGET_LS1021AQDS
-	bool "Support ls1021aqds_nor"
+	bool "Support ls1021aqds"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_LS1021ATWR
-	bool "Support ls1021atwr_nor"
+	bool "Support ls1021atwr"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_BALLOON3
 	bool "Support balloon3"

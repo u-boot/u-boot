@@ -91,7 +91,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	}
 
 	do_fixup_by_prop_u32(blob, "device_type", "soc",
-			     4, "bus-frequency", busclk / 2, 1);
+			     4, "bus-frequency", busclk, 1);
 
 	ft_fixup_enet_phy_connect_type(blob);
 

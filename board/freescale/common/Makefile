@@ -37,6 +37,12 @@ endif
 
 obj-$(CONFIG_FSL_DIU_CH7301)	+= diu_ch7301.o
 
+ifdef CONFIG_ARM
+obj-$(CONFIG_DEEP_SLEEP)		+= arm_sleep.o
+else
+obj-$(CONFIG_DEEP_SLEEP)		+= mpc85xx_sleep.o
+endif
+
 obj-$(CONFIG_FSL_DCU_SII9022A)    += dcu_sii9022a.o
 
 obj-$(CONFIG_MPC8541CDS)	+= cds_pci_ft.o
@@ -56,10 +62,14 @@ obj-$(CONFIG_IDT8T49N222A)	+= idt8t49n222a_serdes_clk.o
 obj-$(CONFIG_ZM7300)		+= zm7300.o
 obj-$(CONFIG_POWER_PFUZE100)	+= pfuze.o
 
+obj-$(CONFIG_LS102XA_STREAM_ID)	+= ls102xa_stream_id.o
+
 # deal with common files for P-series corenet based devices
 obj-$(CONFIG_P2041RDB)	+= p_corenet/
 obj-$(CONFIG_P3041DS)	+= p_corenet/
 obj-$(CONFIG_P4080DS)	+= p_corenet/
 obj-$(CONFIG_P5020DS)	+= p_corenet/
 obj-$(CONFIG_P5040DS)	+= p_corenet/
+
+obj-$(CONFIG_LS102XA_NS_ACCESS)	+= ns_access.o
 endif

@@ -999,15 +999,22 @@ u-boot-img.bin: spl/u-boot-spl.bin u-boot.img FORCE
 #concatenated with u-boot binary. It is need by PowerPC SoC having
 #internal SRAM <= 512KB.
 MKIMAGEFLAGS_u-boot-spl.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
-		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
+		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage \
+		-A $(ARCH) -a $(CONFIG_SPL_TEXT_BASE)
 
 spl/u-boot-spl.pbl: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 
+ifeq ($(ARCH),arm)
+UBOOT_BINLOAD := u-boot.img
+else
+UBOOT_BINLOAD := u-boot.bin
+endif
+
 OBJCOPYFLAGS_u-boot-with-spl-pbl.bin = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
 			  --gap-fill=0xff
 
-u-boot-with-spl-pbl.bin: spl/u-boot-spl.pbl u-boot.bin FORCE
+u-boot-with-spl-pbl.bin: spl/u-boot-spl.pbl $(UBOOT_BINLOAD) FORCE
 	$(call if_changed,pad_cat)
 
 # PPC4xx needs the SPL at the end of the image, since the reset vector
