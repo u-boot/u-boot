@@ -46,19 +46,41 @@ int board_init(void)
 	return 0;
 }
 
+/*
+ * PHY configuration
+ */
+#ifdef CONFIG_PHY_MICREL_KSZ9021
 int board_phy_config(struct phy_device *phydev)
 {
+	int ret;
 	/*
 	 * These skew settings for the KSZ9021 ethernet phy is required for ethernet
 	 * to work reliably on most flavors of cyclone5 boards.
 	 */
-	ksz9021_phy_extended_write(phydev, MII_KSZ9021_EXT_RGMII_RX_DATA_SKEW,
-				   0x0);
-	ksz9021_phy_extended_write(phydev, MII_KSZ9021_EXT_RGMII_TX_DATA_SKEW,
-				   0x0);
-	ksz9021_phy_extended_write(phydev, MII_KSZ9021_EXT_RGMII_CLOCK_SKEW,
-				   0xf0f0);
+	ret = ksz9021_phy_extended_write(phydev,
+					 MII_KSZ9021_EXT_RGMII_RX_DATA_SKEW,
+					 0x0);
+	if (ret)
+		return ret;
+
+	ret = ksz9021_phy_extended_write(phydev,
+					 MII_KSZ9021_EXT_RGMII_TX_DATA_SKEW,
+					 0x0);
+	if (ret)
+		return ret;
+
+	ret = ksz9021_phy_extended_write(phydev,
+					 MII_KSZ9021_EXT_RGMII_CLOCK_SKEW,
+					 0xf0f0);
+	if (ret)
+		return ret;
+
+	if (phydev->drv->config)
+		return phydev->drv->config(phydev);
+
+	return 0;
 }
+#endif
 
 #ifdef CONFIG_USB_GADGET
 struct s3c_plat_otg_data socfpga_otg_data = {
