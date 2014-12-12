@@ -113,10 +113,6 @@ int board_init(void)
 	power_det_init();
 
 #ifdef CONFIG_SYS_I2C_TEGRA
-#ifndef CONFIG_SYS_I2C_INIT_BOARD
-#error "You must define CONFIG_SYS_I2C_INIT_BOARD to use i2c on Nvidia boards"
-#endif
-	i2c_init_board();
 # ifdef CONFIG_TEGRA_PMU
 	if (pmu_set_nominal())
 		debug("Failed to select nominal voltages\n");

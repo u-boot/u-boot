@@ -134,6 +134,23 @@
 		num-gpios = <20>;
 	};
 
+	i2c@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+		compatible = "sandbox,i2c";
+		clock-frequency = <400000>;
+		eeprom@2c {
+			reg = <0x2c>;
+			compatible = "i2c-eeprom";
+			emul {
+				compatible = "sandbox,i2c-eeprom";
+				sandbox,filename = "i2c.bin";
+				sandbox,size = <128>;
+			};
+		};
+	};
+
 	spi@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;

@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-
+#include <dm.h>
 #include <asm/arch/gp_padctrl.h>
 #include <asm/arch/pinmux.h>
 #include <asm/gpio.h>
@@ -38,23 +38,20 @@ void pinmux_init(void)
 #ifdef CONFIG_PCI_TEGRA
 int tegra_pcie_board_init(void)
 {
-	unsigned int old_bus;
+	struct udevice *dev;
 	u8 addr, data[1];
 	int err;
 
-	old_bus = i2c_get_bus_num();
-
-	err = i2c_set_bus_num(0);
+	err = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, &dev);
 	if (err) {
-		debug("failed to set I2C bus\n");
+		debug("%s: Cannot find PMIC I2C chip\n", __func__);
 		return err;
 	}
-
 	/* TPS659110: VDD2_OP_REG = 1.05V */
 	data[0] = 0x27;
 	addr = 0x25;
 
-	err = i2c_write(PMU_I2C_ADDRESS, addr, 1, data, 1);
+	err = i2c_write(dev, addr, data, 1);
 	if (err) {
 		debug("failed to set VDD supply\n");
 		return err;
@@ -64,7 +61,7 @@ int tegra_pcie_board_init(void)
 	data[0] = 0x0D;
 	addr = 0x24;
 
-	err = i2c_write(PMU_I2C_ADDRESS, addr, 1, data, 1);
+	err = i2c_write(dev, addr, data, 1);
 	if (err) {
 		debug("failed to enable VDD supply\n");
 		return err;
@@ -74,13 +71,11 @@ int tegra_pcie_board_init(void)
 	data[0] = 0x0D;
 	addr = 0x35;
 
-	err = i2c_write(PMU_I2C_ADDRESS, addr, 1, data, 1);
+	err = i2c_write(dev, addr, data, 1);
 	if (err) {
 		debug("failed to set AVDD supply\n");
 		return err;
 	}
-
-	i2c_set_bus_num(old_bus);
 
 	return 0;
 }

@@ -167,6 +167,6 @@ struct i2c_ctlr {
  *
  * @return number of bus, or -1 if there is no DVC active
  */
-int tegra_i2c_get_dvc_bus_num(void);
+int tegra_i2c_get_dvc_bus(struct udevice **busp);
 
 #endif	/* _TEGRA_I2C_H_ */

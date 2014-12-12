@@ -112,6 +112,12 @@
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_WINBOND
 
+#define CONFIG_DM_I2C
+#define CONFIG_CMD_I2C
+#define CONFIG_SYS_I2C_SANDBOX
+#define CONFIG_I2C_EDID
+#define CONFIG_I2C_EEPROM
+
 /* Memory things - we don't really want a memory test */
 #define CONFIG_SYS_LOAD_ADDR		0x00000000
 #define CONFIG_SYS_MEMTEST_START	0x00100000
