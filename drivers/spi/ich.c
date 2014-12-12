@@ -167,7 +167,8 @@ void spi_free_slave(struct spi_slave *slave)
  */
 static int get_ich_version(uint16_t device_id)
 {
-	if (device_id == PCI_DEVICE_ID_INTEL_TGP_LPC)
+	if (device_id == PCI_DEVICE_ID_INTEL_TGP_LPC ||
+	    device_id == PCI_DEVICE_ID_INTEL_ITC_LPC)
 		return 7;
 
 	if ((device_id >= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN &&
