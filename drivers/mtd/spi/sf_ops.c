@@ -517,4 +517,35 @@ int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
 	spi_release_bus(flash->spi);
 	return ret;
 }
+
+int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
+		const void *buf)
+{
+	size_t actual;
+	int ret;
+
+	ret = spi_claim_bus(flash->spi);
+	if (ret) {
+		debug("SF: Unable to claim SPI bus\n");
+		return ret;
+	}
+
+	for (actual = 0; actual < len; actual++) {
+		ret = sst_byte_write(flash, offset, buf + actual);
+		if (ret) {
+			debug("SF: sst byte program failed\n");
+			break;
+		}
+		offset++;
+	}
+
+	if (!ret)
+		ret = spi_flash_cmd_write_disable(flash);
+
+	debug("SF: sst: program %s %zu bytes @ 0x%zx\n",
+	      ret ? "failure" : "success", len, offset - actual);
+
+	spi_release_bus(flash->spi);
+	return ret;
+}
 #endif
