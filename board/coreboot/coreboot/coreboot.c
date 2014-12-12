@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cros_ec.h>
+#include <asm/gpio.h>
 
 int arch_early_init_r(void)
 {
@@ -13,4 +14,9 @@ int arch_early_init_r(void)
 		return -1;
 
 	return 0;
+}
+
+void setup_pch_gpios(u32 gpiobase, const struct pch_gpio_map *gpio)
+{
+	return;
 }

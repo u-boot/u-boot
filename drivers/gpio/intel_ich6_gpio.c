@@ -34,15 +34,8 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/pci.h>
-#ifdef CONFIG_X86_RESET_VECTOR
-#include <asm/arch/pch.h>
-#define SUPPORT_GPIO_SETUP
-#endif
 
 #define GPIO_PER_BANK	32
-
-/* Where in config space is the register that points to the GPIO registers? */
-#define PCI_CFG_GPIOBASE 0x48
 
 struct ich6_bank_priv {
 	/* These are I/O addresses */
@@ -51,52 +44,11 @@ struct ich6_bank_priv {
 	uint32_t lvl;
 };
 
-#ifdef SUPPORT_GPIO_SETUP
-static void setup_pch_gpios(const struct pch_gpio_map *gpio)
-{
-	u16 gpiobase = pci_read_config16(PCH_LPC_DEV, GPIO_BASE) & 0xfffc;
-
-	/* GPIO Set 1 */
-	if (gpio->set1.level)
-		outl(*((u32 *)gpio->set1.level), gpiobase + GP_LVL);
-	if (gpio->set1.mode)
-		outl(*((u32 *)gpio->set1.mode), gpiobase + GPIO_USE_SEL);
-	if (gpio->set1.direction)
-		outl(*((u32 *)gpio->set1.direction), gpiobase + GP_IO_SEL);
-	if (gpio->set1.reset)
-		outl(*((u32 *)gpio->set1.reset), gpiobase + GP_RST_SEL1);
-	if (gpio->set1.invert)
-		outl(*((u32 *)gpio->set1.invert), gpiobase + GPI_INV);
-	if (gpio->set1.blink)
-		outl(*((u32 *)gpio->set1.blink), gpiobase + GPO_BLINK);
-
-	/* GPIO Set 2 */
-	if (gpio->set2.level)
-		outl(*((u32 *)gpio->set2.level), gpiobase + GP_LVL2);
-	if (gpio->set2.mode)
-		outl(*((u32 *)gpio->set2.mode), gpiobase + GPIO_USE_SEL2);
-	if (gpio->set2.direction)
-		outl(*((u32 *)gpio->set2.direction), gpiobase + GP_IO_SEL2);
-	if (gpio->set2.reset)
-		outl(*((u32 *)gpio->set2.reset), gpiobase + GP_RST_SEL2);
-
-	/* GPIO Set 3 */
-	if (gpio->set3.level)
-		outl(*((u32 *)gpio->set3.level), gpiobase + GP_LVL3);
-	if (gpio->set3.mode)
-		outl(*((u32 *)gpio->set3.mode), gpiobase + GPIO_USE_SEL3);
-	if (gpio->set3.direction)
-		outl(*((u32 *)gpio->set3.direction), gpiobase + GP_IO_SEL3);
-	if (gpio->set3.reset)
-		outl(*((u32 *)gpio->set3.reset), gpiobase + GP_RST_SEL3);
-}
-
 /* TODO: Move this to device tree, or platform data */
 void ich_gpio_set_gpio_map(const struct pch_gpio_map *map)
 {
 	gd->arch.gpio_map = map;
 }
-#endif /* SUPPORT_GPIO_SETUP */
 
 static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 {
@@ -198,12 +150,11 @@ static int ich6_gpio_probe(struct udevice *dev)
 	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
 
-#ifdef SUPPORT_GPIO_SETUP
 	if (gd->arch.gpio_map) {
-		setup_pch_gpios(gd->arch.gpio_map);
+		setup_pch_gpios(plat->base_addr, gd->arch.gpio_map);
 		gd->arch.gpio_map = NULL;
 	}
-#endif
+
 	uc_priv->gpio_count = GPIO_PER_BANK;
 	uc_priv->bank_name = plat->bank_name;
 	bank->use_sel = plat->base_addr;
