@@ -141,6 +141,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	ich->slave.max_write_size = ctlr.databytes;
 	ich->speed = max_hz;
 
+	/* ICH 7 SPI controller only supports array read command */
+	if (ctlr.ich_version == 7)
+		ich->slave.op_mode_rx = SPI_OPM_RX_AS;
+
 	return &ich->slave;
 }
 
