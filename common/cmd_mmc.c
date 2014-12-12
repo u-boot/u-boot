@@ -90,7 +90,8 @@ static void print_mmcinfo(struct mmc *mmc)
 	puts("Capacity: ");
 	print_size(mmc->capacity, "\n");
 
-	printf("Bus Width: %d-bit\n", mmc->bus_width);
+	printf("Bus Width: %d-bit%s\n", mmc->bus_width,
+			mmc->ddr_mode ? " DDR" : "");
 }
 static struct mmc *init_mmc_device(int dev, bool force_init)
 {
