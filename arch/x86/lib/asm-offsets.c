@@ -18,5 +18,8 @@
 int main(void)
 {
 	DEFINE(GD_BIST, offsetof(gd_t, arch.bist));
+#ifdef CONFIG_HAVE_FSP
+	DEFINE(GD_HOB_LIST, offsetof(gd_t, arch.hob_list));
+#endif
 	return 0;
 }
