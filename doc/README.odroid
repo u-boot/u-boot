@@ -1,27 +1,38 @@
- U-boot for Odroid X2/U3
+ U-boot for Odroid X2/U3/XU3
 ========================
 
 1. Summary
 ==========
-This is a quick instruction for setup Odroid boards based on Exynos4412.
-Board config: odroid_config
+This is a quick instruction for setup Odroid boards.
+Board config: odroid_config for X2/U3
+Board config: odroid-xu3_config for XU3
 
 2. Supported devices
 ====================
-This U-BOOT config can be used on two boards:
+This U-BOOT config can be used on three boards:
 - Odroid U3
 - Odroid X2
 with CPU Exynos 4412 rev 2.0 and 2GB of RAM
+- Odroid XU3
+with CPU Exynos5422 and 2GB of RAM
 
 3. Boot sequence
 ================
 iROM->BL1->(BL2 + TrustZone)->U-BOOT
 
-This version of U-BOOT doesn't implement SPL but it is required(BL2)
-and can be found in "boot.tar.gz" from here:
+This version of U-BOOT doesn't implement SPL. So, BL1, BL2, and TrustZone
+binaries are needed to boot up.
+
+<< X2/U3 >>
+It can be found in "boot.tar.gz" from here:
 http://dev.odroid.com/projects/4412boot/wiki/FrontPage?action=download&value=boot.tar.gz
 or here:
 http://odroid.in/guides/ubuntu-lfs/boot.tar.gz
+
+<< XU3 >>
+It can be downloaded from:
+https://github.com/hardkernel/u-boot/tree/odroidxu3-v2012.07/sd_fuse/hardkernel
+
 
 4. Boot media layout
 ====================
@@ -35,18 +46,20 @@ The block offset is starting from 0 and the block size is 512B.
 | Bl2       | 31   | 30   |  1 (boot) |
 | U-boot    | 63   | 62   |  1 (boot) |
 | Tzsw      | 2111 | 2110 |  1 (boot) |
-| Uboot Env | 2500 | 2500 |  0 (user) |
+| Uboot Env | 2560 | 2560 |  0 (user) |
  -------------------------------------
 
 5. Prepare the SD boot card - with SD card reader
 =================================================
 To prepare bootable media you need boot binaries provided by hardkernel.
-File "boot.tar.gz" (link in point 3.) contains:
-- E4412_S.bl1.HardKernel.bin
-- E4412_S.tzsw.signed.bin
-- bl2.signed.bin
+From the downloaded files, You can find:
+- bl1.bin
+- tzsw.bin
+- bl2.bin
 - sd_fusing.sh
 - u-boot.bin
+(The file names can be slightly different, but you can distinguish what they are
+without problem)
 
 This is all you need to boot this board. But if you want to use your custom
 u-boot then you need to change u-boot.bin with your own u-boot binary*
@@ -56,7 +69,7 @@ and run the script "sd_fusing.sh" - this script is valid only for SD card.
 The proper binary file of current U-boot is u-boot-dtb.bin.
 
 quick steps for Linux:
-- extract boot.tar.gz
+- Download all files from the link at point 3 and extract it if needed.
 - put any SD card into the SD reader
 - check the device with "dmesg"
 - run ./sd_fusing.sh /dev/sdX - where X is SD card device (but not a partition)
@@ -66,7 +79,7 @@ Check if Hardkernel U-boot is booting, and next do the same with your U-boot.
    with a eMMC card reader (boot from eMMC card slot)
 =====================================================
 To boot the device from the eMMC slot you should use a special card reader
-which supports eMMC partiion switch. All of the boot binaries are stored
+which supports eMMC partition switch. All of the boot binaries are stored
 on the eMMC boot partition which is normally hidden.
 
 The "sd_fusing.sh" script can be used after updating offsets of binaries
@@ -81,8 +94,8 @@ But then the device can boot only from the SD card slot.
 
 8. Prepare the boot media using Hardkernel U-boot
 =================================================
-You can update the U-boot to the custom one if you have an working bootloader
-delivered with the board on a eMMC/SD card. Then follow the steps:
+You can update the U-boot to the custom one if you have a working bootloader
+delivered with the board on the eMMC/SD card. Then follow the steps:
 - install the android fastboot tool
 - connect a micro usb cable to the board
 - on the U-boot prompt, run command: fastboot (as a root)
@@ -91,7 +104,7 @@ delivered with the board on a eMMC/SD card. Then follow the steps:
 
 9. Partition layout
 ====================
-Default U-boot environment is setup for fixed partiion layout.
+Default U-boot environment is setup for fixed partition layout.
 
 Partition table: MSDOS. Disk layout and files as listed in the table below.
  ----- ------ ------ ------ -------- ---------------------------------
@@ -106,6 +119,7 @@ Partition table: MSDOS. Disk layout and files as listed in the table below.
 Supported fdt files are:
 - exynos4412-odroidx2.dtb
 - exynos4412-odroidu3.dtb
+- exynos5422-odroidxu3.dtb
 
 Supported kernel files are:
 - Image.itb
@@ -144,6 +158,7 @@ And the boot sequence is:
 
 11. USB host support
 ====================
+NOTE: This section is only for Odroid X2/U3.
 
 The ethernet can be accessed after starting the USB subsystem in U-Boot.
 The adapter does not come with a preconfigured MAC address, and hence it needs
