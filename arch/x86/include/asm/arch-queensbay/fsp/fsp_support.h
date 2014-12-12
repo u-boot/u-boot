@@ -26,7 +26,7 @@ struct shared_data_t {
 
 void asm_continuation(void);
 
-void bl_main_continue(void *hob_list, struct shared_data_t *shared_data);
+void fsp_init_done(void *hob_list);
 
 /**
  * FSP Continuation function

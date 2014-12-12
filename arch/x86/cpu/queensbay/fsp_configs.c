@@ -5,9 +5,8 @@
  * SPDX-License-Identifier:	Intel
  */
 
-#include <types.h>
-#include <string.h>
-#include "fsp_support.h"
+#include <common.h>
+#include <asm/arch/fsp/fsp_support.h>
 
 void update_fsp_upd(struct upd_region_t *fsp_upd)
 {

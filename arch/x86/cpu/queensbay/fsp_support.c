@@ -5,9 +5,9 @@
  * SPDX-License-Identifier:	Intel
  */
 
-#include <types.h>
-#include <string.h>
-#include "fsp_support.h"
+#include <common.h>
+#include <asm/arch/fsp/fsp_support.h>
+#include <asm/post.h>
 
 /**
  * Reads a 64-bit value from memory that may be unaligned.
@@ -99,12 +99,13 @@ u32 __attribute__((optimize("O0"))) find_fsp_header(void)
 	return (u32)fsp;
 }
 
-#ifdef __PRE_RAM__
 void fsp_continue(struct shared_data_t *shared_data, u32 status, void *hob_list)
 {
 	u32 stack_len;
 	u32 stack_base;
 	u32 stack_top;
+
+	post_code(POST_MRC);
 
 	ASSERT(status == 0);
 
@@ -121,7 +122,7 @@ void fsp_continue(struct shared_data_t *shared_data, u32 status, void *hob_list)
 			((u32)shared_data - *(u32 *)stack_top));
 
 	/* The boot loader main function entry */
-	bl_main_continue(hob_list, shared_data);
+	fsp_init_done(hob_list);
 }
 
 void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
@@ -178,6 +179,8 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	shared_data.fsp_hdr = fsp_hdr;
 	shared_data.stack_top = (u32 *)stack_top;
 
+	post_code(POST_PRE_MRC);
+
 	/*
 	 * Use ASM code to ensure the register value in EAX & ECX
 	 * will be passed into BlContinuationFunc
@@ -187,11 +190,11 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 		"call	*%%eax;"
 		".global asm_continuation;"
 		"asm_continuation:;"
-		"popl	%%eax;"	/* pop out return address */
-		"pushl	%%ecx;"	/* push shared_data pointer */
-		"pushl	%%eax;"	/* push back return address */
+		"movl	%%ebx, %%eax;"		/* shared_data */
+		"movl	4(%%esp), %%edx;"	/* status */
+		"movl	8(%%esp), %%ecx;"	/* hob_list */
 		"jmp	fsp_continue;"
-		: : "m"(params_ptr), "a"(init), "c"(&shared_data)
+		: : "m"(params_ptr), "a"(init), "b"(&shared_data)
 	);
 
 	/*
@@ -209,12 +212,11 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	ASSERT(FALSE);
 }
 
-#else
-
 u32 fsp_notify(struct fsp_header_t *fsp_hdr, u32 phase)
 {
 	fsp_notify_f notify;
 	struct fsp_notify_params_t params;
+	struct fsp_notify_params_t *params_ptr;
 	u32 status;
 
 	if (!fsp_hdr)
@@ -227,12 +229,21 @@ u32 fsp_notify(struct fsp_header_t *fsp_hdr, u32 phase)
 
 	notify = (fsp_notify_f)(fsp_hdr->img_base + fsp_hdr->fsp_notify);
 	params.phase = phase;
-	status = notify(&params);
+	params_ptr = &params;
+
+	/*
+	 * Use ASM code to ensure correct parameter is on the stack for
+	 * FspNotify as U-Boot is using different ABI from FSP
+	 */
+	asm volatile (
+		"pushl	%1;"		/* push notify phase */
+		"call	*%%eax;"	/* call FspNotify */
+		"addl	$4, %%esp;"	/* clean up the stack */
+		: "=a"(status) : "m"(params_ptr), "a"(notify), "m"(*params_ptr)
+	);
 
 	return status;
 }
-
-#endif  /* __PRE_RAM__ */
 
 u32 get_usable_lowmem_top(const void *hob_list)
 {
