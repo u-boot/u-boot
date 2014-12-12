@@ -14,6 +14,8 @@
 
 #define IFDTOOL_VERSION "1.1-U-Boot"
 
+#define WRITE_MAX	16
+
 enum spi_frequency {
 	SPI_FREQUENCY_20MHZ = 0,
 	SPI_FREQUENCY_33MHZ = 1,
