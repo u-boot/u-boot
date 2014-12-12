@@ -31,9 +31,6 @@ int main(void)
 #ifdef CONFIG_SYS_MALLOC_F_LEN
 	DEFINE(GD_MALLOC_BASE, offsetof(struct global_data, malloc_base));
 #endif
-#ifdef CONFIG_X86
-	DEFINE(GD_BIST, offsetof(struct global_data, arch.bist));
-#endif
 
 #if defined(CONFIG_ARM)
 

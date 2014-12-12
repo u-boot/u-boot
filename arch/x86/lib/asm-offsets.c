@@ -17,6 +17,6 @@
 
 int main(void)
 {
-	DEFINE(GENERATED_GD_RELOC_OFF, offsetof(gd_t, reloc_off));
+	DEFINE(GD_BIST, offsetof(gd_t, arch.bist));
 	return 0;
 }

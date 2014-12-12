@@ -1,5 +1,5 @@
 /*
- *  U-boot - x86 Startup Code
+ *  U-Boot - x86 Startup Code
  *
  * (C) Copyright 2008-2011
  * Graeme Russ, <graeme.russ@gmail.com>
@@ -17,6 +17,7 @@
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <generated/generic-asm-offsets.h>
+#include <generated/asm-offsets.h>
 
 .section .text
 .code32
