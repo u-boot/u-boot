@@ -40,9 +40,12 @@ enum {
 	SECT_4K		= 1 << 0,
 	SECT_32K	= 1 << 1,
 	E_FSR		= 1 << 2,
-	WR_QPP		= 1 << 3,
+	SST_BP		= 1 << 3,
 	SST_WP		= 1 << 4,
+	WR_QPP		= 1 << 5,
 };
+
+#define SST_WR		(SST_BP | SST_WP)
 
 #define SPI_FLASH_3B_ADDR_LEN		3
 #define SPI_FLASH_CMD_LEN		(1 + SPI_FLASH_3B_ADDR_LEN)
