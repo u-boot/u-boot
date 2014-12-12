@@ -161,6 +161,8 @@ static void prepare_backup_gpt_header(gpt_header *gpt_h)
 	val = le64_to_cpu(gpt_h->my_lba);
 	gpt_h->my_lba = gpt_h->alternate_lba;
 	gpt_h->alternate_lba = cpu_to_le64(val);
+	gpt_h->partition_entry_lba =
+			cpu_to_le64(le64_to_cpu(gpt_h->last_usable_lba) + 1);
 	gpt_h->header_crc32 = 0;
 
 	calc_crc32 = efi_crc32((const unsigned char *)gpt_h,
@@ -544,6 +546,97 @@ err:
 	free(gpt_e);
 	free(gpt_h);
 	return ret;
+}
+
+int is_valid_gpt_buf(block_dev_desc_t *dev_desc, void *buf)
+{
+	gpt_header *gpt_h;
+	gpt_entry *gpt_e;
+
+	/* determine start of GPT Header in the buffer */
+	gpt_h = buf + (GPT_PRIMARY_PARTITION_TABLE_LBA *
+		       dev_desc->blksz);
+	if (validate_gpt_header(gpt_h, GPT_PRIMARY_PARTITION_TABLE_LBA,
+				dev_desc->lba))
+		return -1;
+
+	/* determine start of GPT Entries in the buffer */
+	gpt_e = buf + (le64_to_cpu(gpt_h->partition_entry_lba) *
+		       dev_desc->blksz);
+	if (validate_gpt_entries(gpt_h, gpt_e))
+		return -1;
+
+	return 0;
+}
+
+int write_mbr_and_gpt_partitions(block_dev_desc_t *dev_desc, void *buf)
+{
+	gpt_header *gpt_h;
+	gpt_entry *gpt_e;
+	int gpt_e_blk_cnt;
+	lbaint_t lba;
+	int cnt;
+
+	if (is_valid_gpt_buf(dev_desc, buf))
+		return -1;
+
+	/* determine start of GPT Header in the buffer */
+	gpt_h = buf + (GPT_PRIMARY_PARTITION_TABLE_LBA *
+		       dev_desc->blksz);
+
+	/* determine start of GPT Entries in the buffer */
+	gpt_e = buf + (le64_to_cpu(gpt_h->partition_entry_lba) *
+		       dev_desc->blksz);
+	gpt_e_blk_cnt = BLOCK_CNT((le32_to_cpu(gpt_h->num_partition_entries) *
+				   le32_to_cpu(gpt_h->sizeof_partition_entry)),
+				  dev_desc);
+
+	/* write MBR */
+	lba = 0;	/* MBR is always at 0 */
+	cnt = 1;	/* MBR (1 block) */
+	if (dev_desc->block_write(dev_desc->dev, lba, cnt, buf) != cnt) {
+		printf("%s: failed writing '%s' (%d blks at 0x" LBAF ")\n",
+		       __func__, "MBR", cnt, lba);
+		return 1;
+	}
+
+	/* write Primary GPT */
+	lba = GPT_PRIMARY_PARTITION_TABLE_LBA;
+	cnt = 1;	/* GPT Header (1 block) */
+	if (dev_desc->block_write(dev_desc->dev, lba, cnt, gpt_h) != cnt) {
+		printf("%s: failed writing '%s' (%d blks at 0x" LBAF ")\n",
+		       __func__, "Primary GPT Header", cnt, lba);
+		return 1;
+	}
+
+	lba = le64_to_cpu(gpt_h->partition_entry_lba);
+	cnt = gpt_e_blk_cnt;
+	if (dev_desc->block_write(dev_desc->dev, lba, cnt, gpt_e) != cnt) {
+		printf("%s: failed writing '%s' (%d blks at 0x" LBAF ")\n",
+		       __func__, "Primary GPT Entries", cnt, lba);
+		return 1;
+	}
+
+	prepare_backup_gpt_header(gpt_h);
+
+	/* write Backup GPT */
+	lba = le64_to_cpu(gpt_h->partition_entry_lba);
+	cnt = gpt_e_blk_cnt;
+	if (dev_desc->block_write(dev_desc->dev, lba, cnt, gpt_e) != cnt) {
+		printf("%s: failed writing '%s' (%d blks at 0x" LBAF ")\n",
+		       __func__, "Backup GPT Entries", cnt, lba);
+		return 1;
+	}
+
+	lba = le64_to_cpu(gpt_h->my_lba);
+	cnt = 1;	/* GPT Header (1 block) */
+	if (dev_desc->block_write(dev_desc->dev, lba, cnt, gpt_h) != cnt) {
+		printf("%s: failed writing '%s' (%d blks at 0x" LBAF ")\n",
+		       __func__, "Backup GPT Header", cnt, lba);
+		return 1;
+	}
+
+	return 0;
 }
 #endif
 
