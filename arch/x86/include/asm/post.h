@@ -33,6 +33,8 @@
 #define POST_LAPIC		0x30
 
 #define POST_RAM_FAILURE	0xea
+#define POST_BIST_FAILURE	0xeb
+#define POST_CAR_FAILURE	0xec
 
 /* Output a post code using al - value must be 0 to 0xff */
 #ifdef __ASSEMBLY__
