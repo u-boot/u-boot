@@ -12,7 +12,9 @@ config AXP221_DLDO1_VOLT
 	default -1
 	---help---
 	Set the voltage (mV) to program the axp221 dldo1 at, set to -1 to
-	disable dldo1.
+	disable dldo1. On sun6i (A31) boards with ethernet this is often used
+	to power the ethernet phy. On sun8i (A23) boards this is often used to
+	power the wifi.
 
 config AXP221_DLDO4_VOLT
 	int "axp221 dldo4 voltage"
@@ -28,20 +30,26 @@ config AXP221_ALDO1_VOLT
 	default -1
 	---help---
 	Set the voltage (mV) to program the axp221 aldo1 at, set to -1 to
-	disable aldo1.
+	disable aldo1. On sun6i (A31) boards which have a wifi module this is
+	often used to power the wifi module.
 
 config AXP221_ALDO2_VOLT
 	int "axp221 aldo2 voltage"
 	depends on AXP221_POWER
-	default -1
+	default 1800 if MACH_SUN6I
+	default 2500 if MACH_SUN8I
 	---help---
 	Set the voltage (mV) to program the axp221 aldo2 at, set to -1 to
-	disable aldo2.
+	disable aldo2. On sun6i (A31) boards this is typically connected to
+	VCC-PM, which powers the port M gpios, and should be set to 1.8V.
+	On sun8i (A23) this is typically connected to VDD-DLL and must be
+	set to 2.5V.
 
 config AXP221_ALDO3_VOLT
 	int "axp221 aldo3 voltage"
 	depends on AXP221_POWER
-	default -1
+	default 3000
 	---help---
 	Set the voltage (mV) to program the axp221 aldo3 at, set to -1 to
-	disable aldo3.
+	disable aldo3. This is typically connected to VCC-PLL and AVCC and
+	must be set to 3V.
