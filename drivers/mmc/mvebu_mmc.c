@@ -403,8 +403,6 @@ static int mvebu_mmc_initialize(struct mmc *mmc)
 	/* SW reset */
 	mvebu_mmc_write(SDIO_SW_RESET, SDIO_SW_RESET_NOW);
 
-	udelay(10*1000);
-
 	return 0;
 }
 
