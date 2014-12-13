@@ -26,13 +26,13 @@
 
 void p2wi_init(void)
 {
-	struct sunxi_p2wi_reg *p2wi = (struct sunxi_p2wi_reg *)SUNXI_P2WI_BASE;
+	struct sunxi_p2wi_reg *p2wi = (struct sunxi_p2wi_reg *)SUN6I_P2WI_BASE;
 
 	/* Enable p2wi and PIO clk, and de-assert their resets */
 	prcm_apb0_enable(PRCM_APB0_GATE_PIO | PRCM_APB0_GATE_P2WI);
 
-	sunxi_gpio_set_cfgpin(SUNXI_GPL(0), SUNXI_GPL0_R_P2WI_SCK);
-	sunxi_gpio_set_cfgpin(SUNXI_GPL(1), SUNXI_GPL1_R_P2WI_SDA);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(0), SUN6I_GPL0_R_P2WI_SCK);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(1), SUN6I_GPL1_R_P2WI_SDA);
 
 	/* Reset p2wi controller and set clock to CLKIN(12)/8 = 1.5 MHz */
 	writel(P2WI_CTRL_RESET, &p2wi->ctrl);
@@ -43,7 +43,7 @@ void p2wi_init(void)
 
 int p2wi_change_to_p2wi_mode(u8 slave_addr, u8 ctrl_reg, u8 init_data)
 {
-	struct sunxi_p2wi_reg *p2wi = (struct sunxi_p2wi_reg *)SUNXI_P2WI_BASE;
+	struct sunxi_p2wi_reg *p2wi = (struct sunxi_p2wi_reg *)SUN6I_P2WI_BASE;
 	unsigned long tmo = timer_get_us() + 1000000;
 
 	writel(P2WI_PM_DEV_ADDR(slave_addr) |
@@ -62,7 +62,7 @@ int p2wi_change_to_p2wi_mode(u8 slave_addr, u8 ctrl_reg, u8 init_data)
 
 static int p2wi_await_trans(void)
 {
-	struct sunxi_p2wi_reg *p2wi = (struct sunxi_p2wi_reg *)SUNXI_P2WI_BASE;
+	struct sunxi_p2wi_reg *p2wi = (struct sunxi_p2wi_reg *)SUN6I_P2WI_BASE;
 	unsigned long tmo = timer_get_us() + 1000000;
 	int ret;
 	u8 reg;
@@ -88,7 +88,7 @@ static int p2wi_await_trans(void)
 
 int p2wi_read(const u8 addr, u8 *data)
 {
-	struct sunxi_p2wi_reg *p2wi = (struct sunxi_p2wi_reg *)SUNXI_P2WI_BASE;
+	struct sunxi_p2wi_reg *p2wi = (struct sunxi_p2wi_reg *)SUN6I_P2WI_BASE;
 	int ret;
 
 	writel(P2WI_DATADDR_BYTE_1(addr), &p2wi->dataddr0);
@@ -105,7 +105,7 @@ int p2wi_read(const u8 addr, u8 *data)
 
 int p2wi_write(const u8 addr, u8 data)
 {
-	struct sunxi_p2wi_reg *p2wi = (struct sunxi_p2wi_reg *)SUNXI_P2WI_BASE;
+	struct sunxi_p2wi_reg *p2wi = (struct sunxi_p2wi_reg *)SUN6I_P2WI_BASE;
 
 	writel(P2WI_DATADDR_BYTE_1(addr), &p2wi->dataddr0);
 	writel(P2WI_DATA_BYTE_1(data), &p2wi->data0);
