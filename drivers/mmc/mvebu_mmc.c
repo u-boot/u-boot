@@ -103,16 +103,9 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		      DRIVER_NAME, hw_state, count, (get_timer(0) - (start)));
 	}
 
-	/* Set up for a data transfer if we have one */
-	if (data) {
-		int err = mvebu_mmc_setup_data(data);
-
-		if (err) {
-			debug("%s: command DATA error :%x\n",
-			      DRIVER_NAME, err);
-			return err;
-		}
-	}
+	/* Clear status */
+	mvebu_mmc_write(SDIO_NOR_INTR_STATUS, SDIO_POLL_MASK);
+	mvebu_mmc_write(SDIO_ERR_INTR_STATUS, SDIO_POLL_MASK);
 
 	resptype = SDIO_CMD_INDEX(cmd->cmdidx);
 
@@ -138,6 +131,14 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	}
 
 	if (data) {
+		int err = mvebu_mmc_setup_data(data);
+
+		if (err) {
+			debug("%s: command DATA error :%x\n",
+			      DRIVER_NAME, err);
+			return err;
+		}
+
 		resptype |= SDIO_CMD_DATA_PRESENT | SDIO_CMD_CHECK_DATACRC16;
 		xfertype |= SDIO_XFER_MODE_HW_WR_DATA_EN;
 		if (data->flags & MMC_DATA_READ) {
@@ -157,14 +158,8 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	/* Setting Xfer mode */
 	mvebu_mmc_write(SDIO_XFER_MODE, xfertype);
 
-	mvebu_mmc_write(SDIO_NOR_INTR_STATUS, ~SDIO_NOR_CARD_INT);
-	mvebu_mmc_write(SDIO_ERR_INTR_STATUS, SDIO_POLL_MASK);
-
 	/* Sending command */
 	mvebu_mmc_write(SDIO_CMD, resptype);
-
-	mvebu_mmc_write(SDIO_NOR_INTR_EN, SDIO_POLL_MASK);
-	mvebu_mmc_write(SDIO_ERR_INTR_EN, SDIO_POLL_MASK);
 
 	start = get_timer(0);
 
@@ -188,10 +183,6 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			return TIMEOUT;
 		}
 	}
-
-	if (mvebu_mmc_read(SDIO_ERR_INTR_STATUS) &
-		(SDIO_ERR_CMD_TIMEOUT | SDIO_ERR_DATA_TIMEOUT))
-		return TIMEOUT;
 
 	/* Handling response */
 	if (cmd->resp_type & MMC_RSP_136) {
@@ -225,6 +216,11 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		cmd->response[1] =	((response[0] & 0xfc00) >> 10);
 		cmd->response[2] =	0;
 		cmd->response[3] =	0;
+	} else {
+		cmd->response[0] =	0;
+		cmd->response[1] =	0;
+		cmd->response[2] =	0;
+		cmd->response[3] =	0;
 	}
 
 	debug("%s: resp[0x%x] ", DRIVER_NAME, cmd->resp_type);
@@ -233,6 +229,10 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	debug("[0x%x] ", cmd->response[2]);
 	debug("[0x%x] ", cmd->response[3]);
 	debug("\n");
+
+	if (mvebu_mmc_read(SDIO_ERR_INTR_STATUS) &
+		(SDIO_ERR_CMD_TIMEOUT | SDIO_ERR_DATA_TIMEOUT))
+		return TIMEOUT;
 
 	return 0;
 }
