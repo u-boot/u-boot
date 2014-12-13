@@ -6,6 +6,16 @@ config AXP221_POWER
 	Say y here to enable support for the axp221 / axp223 pmic found on most
 	sun6i (A31) / sun8i (A23) boards.
 
+config AXP221_DCDC1_VOLT
+	int "axp221 dcdc1 voltage"
+	depends on AXP221_POWER
+	default 3000
+	---help---
+	Set the voltage (mV) to program the axp221 dcdc1 at, set to 0 to
+	disable dcdc1. This is typically used as generic 3.3V IO voltage for
+	things like GPIO-s, sdcard interfaces, etc. On most boards this is
+	undervolted to 3.0V to safe battery.
+
 config AXP221_DLDO1_VOLT
 	int "axp221 dldo1 voltage"
 	depends on AXP221_POWER

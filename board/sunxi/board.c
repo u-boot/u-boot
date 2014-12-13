@@ -175,7 +175,7 @@ void sunxi_board_init(void)
 #endif
 #ifdef CONFIG_AXP221_POWER
 	power_failed = axp221_init();
-	power_failed |= axp221_set_dcdc1(3000);
+	power_failed |= axp221_set_dcdc1(CONFIG_AXP221_DCDC1_VOLT);
 	power_failed |= axp221_set_dcdc2(1200);
 	power_failed |= axp221_set_dcdc3(1200);
 	power_failed |= axp221_set_dcdc4(1200);
