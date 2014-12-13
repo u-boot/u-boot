@@ -180,21 +180,11 @@ void sunxi_board_init(void)
 	power_failed |= axp221_set_dcdc3(1200);
 	power_failed |= axp221_set_dcdc4(1200);
 	power_failed |= axp221_set_dcdc5(1500);
-#if CONFIG_AXP221_DLDO1_VOLT != -1
 	power_failed |= axp221_set_dldo1(CONFIG_AXP221_DLDO1_VOLT);
-#endif
-#if CONFIG_AXP221_DLDO4_VOLT != -1
 	power_failed |= axp221_set_dldo4(CONFIG_AXP221_DLDO4_VOLT);
-#endif
-#if CONFIG_AXP221_ALDO1_VOLT != -1
 	power_failed |= axp221_set_aldo1(CONFIG_AXP221_ALDO1_VOLT);
-#endif
-#if CONFIG_AXP221_ALDO2_VOLT != -1
 	power_failed |= axp221_set_aldo2(CONFIG_AXP221_ALDO2_VOLT);
-#endif
-#if CONFIG_AXP221_ALDO3_VOLT != -1
 	power_failed |= axp221_set_aldo3(CONFIG_AXP221_ALDO3_VOLT);
-#endif
 #endif
 
 	printf("DRAM:");
