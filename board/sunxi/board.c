@@ -176,10 +176,14 @@ void sunxi_board_init(void)
 #ifdef CONFIG_AXP221_POWER
 	power_failed = axp221_init();
 	power_failed |= axp221_set_dcdc1(CONFIG_AXP221_DCDC1_VOLT);
-	power_failed |= axp221_set_dcdc2(1200);
-	power_failed |= axp221_set_dcdc3(1200);
-	power_failed |= axp221_set_dcdc4(1200);
-	power_failed |= axp221_set_dcdc5(1500);
+	power_failed |= axp221_set_dcdc2(1200); /* A31:VDD-GPU, A23:VDD-SYS */
+	power_failed |= axp221_set_dcdc3(1200); /* VDD-CPU */
+#ifdef CONFIG_MACH_SUN6I
+	power_failed |= axp221_set_dcdc4(1200); /* A31:VDD-SYS */
+#else
+	power_failed |= axp221_set_dcdc4(0);    /* A23:unused */
+#endif
+	power_failed |= axp221_set_dcdc5(1500); /* VCC-DRAM */
 	power_failed |= axp221_set_dldo1(CONFIG_AXP221_DLDO1_VOLT);
 	power_failed |= axp221_set_dldo4(CONFIG_AXP221_DLDO4_VOLT);
 	power_failed |= axp221_set_aldo1(CONFIG_AXP221_ALDO1_VOLT);
