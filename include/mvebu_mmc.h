@@ -79,6 +79,7 @@
 #define CMD_INHIBIT				(1 << 0)
 #define CMD_TXACTIVE				(1 << 8)
 #define CMD_RXACTIVE				(1 << 9)
+#define CMD_FIFO_EMPTY				(1 << 13)
 #define CMD_AUTOCMD12ACTIVE			(1 << 14)
 #define CMD_BUS_BUSY				(CMD_AUTOCMD12ACTIVE |	\
 						CMD_RXACTIVE |	\

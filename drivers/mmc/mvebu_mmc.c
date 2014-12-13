@@ -23,6 +23,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define MVEBU_TARGET_DRAM 0
 
+#define TIMEOUT_DELAY	5*CONFIG_SYS_HZ		/* wait 5 seconds */
+
 static void mvebu_mmc_write(u32 offs, u32 val)
 {
 	writel(val, CONFIG_SYS_MMC_BASE + (offs));
@@ -63,7 +65,7 @@ static int mvebu_mmc_setup_data(struct mmc_data *data)
 static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			      struct mmc_data *data)
 {
-	int timeout = 10;
+	ulong start;
 	ushort waittype = 0;
 	ushort resptype = 0;
 	ushort xfertype = 0;
@@ -72,19 +74,33 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	debug("cmdidx [0x%x] resp_type[0x%x] cmdarg[0x%x]\n",
 	      cmd->cmdidx, cmd->resp_type, cmd->cmdarg);
 
-	udelay(10*1000);
-
 	debug("%s: cmd %d (hw state 0x%04x)\n", DRIVER_NAME,
 	      cmd->cmdidx, mvebu_mmc_read(SDIO_HW_STATE));
 
-	/* Checking if card is busy */
-	while ((mvebu_mmc_read(SDIO_HW_STATE) & CARD_BUSY)) {
-		if (timeout == 0) {
-			printf("%s: card busy!\n", DRIVER_NAME);
-			return -1;
-		}
-		timeout--;
-		udelay(1000);
+	/*
+	 * Hardware weirdness.  The FIFO_EMPTY bit of the HW_STATE
+	 * register is sometimes not set before a while when some
+	 * "unusual" data block sizes are used (such as with the SWITCH
+	 * command), even despite the fact that the XFER_DONE interrupt
+	 * was raised.  And if another data transfer starts before
+	 * this bit comes to good sense (which eventually happens by
+	 * itself) then the new transfer simply fails with a timeout.
+	 */
+	if (!(mvebu_mmc_read(SDIO_HW_STATE) & CMD_FIFO_EMPTY)) {
+		ushort hw_state, count = 0;
+
+		start = get_timer(0);
+		do {
+			hw_state = mvebu_mmc_read(SDIO_HW_STATE);
+			if ((get_timer(0) - start) > TIMEOUT_DELAY) {
+				printf("%s : FIFO_EMPTY bit missing\n",
+				       DRIVER_NAME);
+				break;
+			}
+			count++;
+		} while (!(hw_state & CMD_FIFO_EMPTY));
+		debug("%s *** wait for FIFO_EMPTY bit (hw=0x%04x, count=%d, jiffies=%ld)\n",
+		      DRIVER_NAME, hw_state, count, (get_timer(0) - (start)));
 	}
 
 	/* Set up for a data transfer if we have one */
@@ -147,8 +163,7 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	mvebu_mmc_write(SDIO_NOR_INTR_EN, SDIO_POLL_MASK);
 	mvebu_mmc_write(SDIO_ERR_INTR_EN, SDIO_POLL_MASK);
 
-	/* Waiting for completion */
-	timeout = 1000000;
+	start = get_timer(0);
 
 	while (!((mvebu_mmc_read(SDIO_NOR_INTR_STATUS)) & waittype)) {
 		if (mvebu_mmc_read(SDIO_NOR_INTR_STATUS) & SDIO_NOR_ERROR) {
@@ -161,13 +176,12 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			return COMM_ERR;
 		}
 
-		timeout--;
-		udelay(1);
-		if (timeout <= 0) {
-			printf("%s: command timed out\n", DRIVER_NAME);
+		if ((get_timer(0) - start) > TIMEOUT_DELAY) {
+			debug("%s: command timed out\n", DRIVER_NAME);
 			return TIMEOUT;
 		}
 	}
+
 	if (mvebu_mmc_read(SDIO_ERR_INTR_STATUS) &
 		(SDIO_ERR_CMD_TIMEOUT | SDIO_ERR_DATA_TIMEOUT))
 		return TIMEOUT;
