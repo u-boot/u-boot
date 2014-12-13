@@ -274,8 +274,6 @@ static void mvebu_mmc_set_clk(unsigned int clock)
 		mvebu_mmc_write(SDIO_CLK_DIV, m & MVEBU_MMC_BASE_DIV_MAX);
 		debug("%s: clock (%d) div : %d\n", DRIVER_NAME, clock, m);
 	}
-
-	udelay(10*1000);
 }
 
 static void mvebu_mmc_set_bus(unsigned int bus)
@@ -315,7 +313,6 @@ static void mvebu_mmc_set_bus(unsigned int bus)
 	      "high-speed" : "");
 
 	mvebu_mmc_write(SDIO_HOST_CTRL, ctrl_reg);
-	udelay(10*1000);
 }
 
 static void mvebu_mmc_set_ios(struct mmc *mmc)
