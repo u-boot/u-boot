@@ -71,8 +71,8 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	ushort xfertype = 0;
 	ushort resp_indx = 0;
 
-	debug("cmdidx [0x%x] resp_type[0x%x] cmdarg[0x%x]\n",
-	      cmd->cmdidx, cmd->resp_type, cmd->cmdarg);
+	debug("%s: cmdidx [0x%x] resp_type[0x%x] cmdarg[0x%x]\n",
+	      DRIVER_NAME, cmd->cmdidx, cmd->resp_type, cmd->cmdarg);
 
 	debug("%s: cmd %d (hw state 0x%04x)\n", DRIVER_NAME,
 	      cmd->cmdidx, mvebu_mmc_read(SDIO_HW_STATE));
@@ -107,8 +107,11 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (data) {
 		int err = mvebu_mmc_setup_data(data);
 
-		if (err)
+		if (err) {
+			debug("%s: command DATA error :%x\n",
+			      DRIVER_NAME, err);
 			return err;
+		}
 	}
 
 	resptype = SDIO_CMD_INDEX(cmd->cmdidx);
@@ -171,8 +174,12 @@ static int mvebu_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			      DRIVER_NAME, cmd->cmdidx,
 			      mvebu_mmc_read(SDIO_ERR_INTR_STATUS));
 			if (mvebu_mmc_read(SDIO_ERR_INTR_STATUS) &
-				(SDIO_ERR_CMD_TIMEOUT | SDIO_ERR_DATA_TIMEOUT))
+			    (SDIO_ERR_CMD_TIMEOUT | SDIO_ERR_DATA_TIMEOUT)) {
+				debug("%s: command READ timed out\n",
+				      DRIVER_NAME);
 				return TIMEOUT;
+			}
+			debug("%s: command READ error\n", DRIVER_NAME);
 			return COMM_ERR;
 		}
 
@@ -265,6 +272,7 @@ static void mvebu_mmc_set_clk(unsigned int clock)
 		if (m > MVEBU_MMC_BASE_DIV_MAX)
 			m = MVEBU_MMC_BASE_DIV_MAX;
 		mvebu_mmc_write(SDIO_CLK_DIV, m & MVEBU_MMC_BASE_DIV_MAX);
+		debug("%s: clock (%d) div : %d\n", DRIVER_NAME, clock, m);
 	}
 
 	udelay(10*1000);
@@ -369,7 +377,7 @@ static void mvebu_window_setup(void)
 
 static int mvebu_mmc_initialize(struct mmc *mmc)
 {
-	debug("%s: mvebu_mmc_initialize", DRIVER_NAME);
+	debug("%s: mvebu_mmc_initialize\n", DRIVER_NAME);
 
 	/*
 	 * Setting host parameters
