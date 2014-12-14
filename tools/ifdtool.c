@@ -779,8 +779,8 @@ int main(int argc, char *argv[])
 	int mode_spifreq = 0, mode_em100 = 0, mode_locked = 0;
 	int mode_unlocked = 0, mode_write = 0, mode_write_descriptor = 0;
 	int create = 0;
-	char *region_type_string = NULL, *src_fname = NULL;
-	char *addr_str = NULL;
+	char *region_type_string = NULL, *inject_fname = NULL;
+	char *desc_fname = NULL, *addr_str = NULL;
 	int region_type = -1, inputfreq = 0;
 	enum spi_frequency spifreq = SPI_FREQUENCY_20MHZ;
 	unsigned int addr[WRITE_MAX];
@@ -823,14 +823,14 @@ int main(int argc, char *argv[])
 			break;
 		case 'D':
 			mode_write_descriptor = 1;
-			src_fname = optarg;
+			desc_fname = optarg;
 			break;
 		case 'e':
 			mode_em100 = 1;
 			break;
 		case 'i':
 			if (get_two_words(optarg, &region_type_string,
-					  &src_fname)) {
+					  &inject_fname)) {
 				print_usage(argv[0]);
 				exit(EXIT_FAILURE);
 			}
@@ -1008,10 +1008,10 @@ int main(int argc, char *argv[])
 	}
 
 	if (mode_write_descriptor)
-		ret = write_data(image, size, -size, src_fname);
+		ret = write_data(image, size, -size, desc_fname);
 
 	if (mode_inject)
-		ret = inject_region(image, size, region_type, src_fname);
+		ret = inject_region(image, size, region_type, inject_fname);
 
 	if (mode_write) {
 		for (wr_idx = 0; wr_idx < wr_num; wr_idx++) {
