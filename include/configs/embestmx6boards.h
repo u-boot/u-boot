@@ -78,14 +78,7 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -114,13 +107,11 @@
 
 /* Command definition */
 #include <config_cmd_default.h>
+#undef CONFIG_CMD_FPGA
 
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_SETEXPR
 #undef CONFIG_CMD_IMLS
-
-#define CONFIG_BOOTDELAY               1
 
 #define CONFIG_LOADADDR                        0x12000000
 #define CONFIG_SYS_TEXT_BASE           0x17800000
@@ -255,10 +246,7 @@
 #define CONFIG_ARP_TIMEOUT     200UL
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE              256
 
 /* Print Buffer Size */
@@ -272,7 +260,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
 
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_STACKSIZE               (128 * 1024)
 
 /* Physical Memory Map */
@@ -312,8 +299,6 @@
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #endif
 
-#define CONFIG_OF_LIBFDT
-
 #ifndef CONFIG_SYS_DCACHE_OFF
 #define CONFIG_CMD_CACHE
 #endif
@@ -334,5 +319,7 @@
 #define CONFIG_IPUV3_CLK 260000000
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+
+#include <config_distro_defaults.h>
 
 #endif                         /* __RIOTBOARD_CONFIG_H */
