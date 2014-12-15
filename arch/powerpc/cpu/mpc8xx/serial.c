@@ -416,18 +416,13 @@ static int scc_init (void)
 	cp->cp_pbdir &= ~0x06;
 	cp->cp_pbodr &= ~0x06;
 
-#elif (SCC_INDEX < 2) || !defined(CONFIG_IP860)
+#elif (SCC_INDEX < 2)
 	/*
 	 * Standard configuration for SCC's is on Part A
 	 */
 	ip->iop_papar |=  ((3 << (2 * SCC_INDEX)));
 	ip->iop_padir &= ~((3 << (2 * SCC_INDEX)));
 	ip->iop_paodr &= ~((3 << (2 * SCC_INDEX)));
-#else
-	/*
-	 * The IP860 has SCC3 and SCC4 on Port D
-	 */
-	ip->iop_pdpar |=  ((3 << (2 * SCC_INDEX)));
 #endif
 
 	/* Allocate space for two buffer descriptors in the DP ram. */

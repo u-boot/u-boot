@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+IP860            powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
 IVML24           powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
 IVMS8            powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
 lwmon            powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
