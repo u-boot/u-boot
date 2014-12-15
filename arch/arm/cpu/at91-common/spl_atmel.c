@@ -58,6 +58,11 @@ static void switch_to_main_crystal_osc(void)
 	writel(tmp, &pmc->mor);
 }
 
+__weak void matrix_init(void)
+{
+	/* This only be used for sama5d4 soc now */
+}
+
 void s_init(void)
 {
 	switch_to_main_crystal_osc();
@@ -69,6 +74,8 @@ void s_init(void)
 	at91_pmc_init();
 
 	at91_clock_init(CONFIG_SYS_AT91_MAIN_CLOCK);
+
+	matrix_init();
 
 	timer_init();
 
