@@ -137,6 +137,33 @@ static void sunxi_dma_init(volatile u8 *port_mmio)
 }
 #endif
 
+int ahci_reset(u32 base)
+{
+	int i = 1000;
+	u32 host_ctl_reg = base + HOST_CTL;
+	u32 tmp = readl(host_ctl_reg); /* global controller reset */
+
+	if ((tmp & HOST_RESET) == 0)
+		writel_with_flush(tmp | HOST_RESET, host_ctl_reg);
+
+	/*
+	 * reset must complete within 1 second, or
+	 * the hardware should be considered fried.
+	 */
+	do {
+		udelay(1000);
+		tmp = readl(host_ctl_reg);
+		i--;
+	} while ((i > 0) && (tmp & HOST_RESET));
+
+	if (i == 0) {
+		printf("controller reset failed (0x%x)\n", tmp);
+		return -1;
+	}
+
+	return 0;
+}
+
 static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 {
 #ifndef CONFIG_SCSI_AHCI_PLAT
@@ -156,23 +183,9 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	cap_save &= ((1 << 28) | (1 << 17));
 	cap_save |= (1 << 27);  /* Staggered Spin-up. Not needed. */
 
-	/* global controller reset */
-	tmp = readl(mmio + HOST_CTL);
-	if ((tmp & HOST_RESET) == 0)
-		writel_with_flush(tmp | HOST_RESET, mmio + HOST_CTL);
-
-	/* reset must complete within 1 second, or
-	 * the hardware should be considered fried.
-	 */
-	i = 1000;
-	do {
-		udelay(1000);
-		tmp = readl(mmio + HOST_CTL);
-		if (!i--) {
-			debug("controller reset failed (0x%x)\n", tmp);
-			return -1;
-		}
-	} while (tmp & HOST_RESET);
+	ret = ahci_reset(probe_ent->mmio_base);
+	if (ret)
+		return ret;
 
 	writel_with_flush(HOST_AHCI_EN, mmio + HOST_CTL);
 	writel(cap_save, mmio + HOST_CAP);
