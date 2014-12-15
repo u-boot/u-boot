@@ -63,6 +63,11 @@ __weak void matrix_init(void)
 	/* This only be used for sama5d4 soc now */
 }
 
+__weak void redirect_int_from_saic_to_aic(void)
+{
+	/* This only be used for sama5d4 soc now */
+}
+
 void s_init(void)
 {
 	switch_to_main_crystal_osc();
@@ -76,6 +81,8 @@ void s_init(void)
 	at91_clock_init(CONFIG_SYS_AT91_MAIN_CLOCK);
 
 	matrix_init();
+
+	redirect_int_from_saic_to_aic();
 
 	timer_init();
 
