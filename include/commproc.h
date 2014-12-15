@@ -456,34 +456,6 @@ typedef struct scc_enet {
 #define SICR_ENET_CLKRT	((uint)0x00002c00)
 #endif	/* CONFIG_BSEIP */
 
-/***  ESTEEM 192E  **************************************************/
-#ifdef CONFIG_ESTEEM192E
-/* ESTEEM192E
- * This ENET stuff is for the MPC850 with ethernet on SCC2. This
- * is very similar to the RPX-Lite configuration.
- * Note TENA , LOOPBACK , FDPLEX_DIS on Port B.
- */
-
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-
-#define PA_ENET_RXD	((ushort)0x0004)
-#define PA_ENET_TXD	((ushort)0x0008)
-#define PA_ENET_TCLK	((ushort)0x0200)
-#define PA_ENET_RCLK	((ushort)0x0800)
-#define PB_ENET_TENA	((uint)0x00002000)
-#define PC_ENET_CLSN	((ushort)0x0040)
-#define PC_ENET_RENA	((ushort)0x0080)
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00003d00)
-
-#define PB_ENET_LOOPBACK ((uint)0x00004000)
-#define PB_ENET_FDPLEX_DIS ((uint)0x00008000)
-
-#endif
-
 /***  KM8XX  *********************************************************/
 
 /* The KM8XX Service Module uses SCC3 for Ethernet */

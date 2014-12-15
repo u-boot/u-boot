@@ -10,9 +10,6 @@ choice
 config TARGET_COGENT_MPC8XX
 	bool "Support cogent_mpc8xx"
 
-config TARGET_ESTEEM192E
-	bool "Support ESTEEM192E"
-
 config TARGET_TQM823L
 	bool "Support TQM823L"
 
@@ -52,7 +49,6 @@ config TARGET_TQM885D
 endchoice
 
 source "board/cogent/Kconfig"
-source "board/esteem192e/Kconfig"
 source "board/tqc/tqm8xx/Kconfig"
 
 endmenu
