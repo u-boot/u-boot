@@ -54,7 +54,8 @@ static struct fdbar_t *find_fd(char *image, int size)
 		return NULL;
 	}
 
-	debug("Found Flash Descriptor signature at 0x%08x\n", i);
+	debug("Found Flash Descriptor signature at 0x%08lx\n",
+	      (char *)ptr - image);
 
 	return (struct fdbar_t *)ptr;
 }
