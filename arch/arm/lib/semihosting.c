@@ -23,11 +23,6 @@
 #define MODE_READ	0x0
 #define MODE_READBIN	0x1
 
-static long smh_read(long fd, void *memp, size_t len);
-static long smh_open(const char *fname, char *modestr);
-static long smh_close(long fd);
-static long smh_len_fd(long fd);
-
 /*
  * Call the handler
  */
@@ -41,6 +36,112 @@ static long smh_trap(unsigned int sysnum, void *addr)
 	asm volatile ("svc #0x123456" : "=r" (result) : "0"(sysnum), "r"(addr));
 #endif
 	return result;
+}
+
+/*
+ * Open a file on the host. Mode is "r" or "rb" currently. Returns a file
+ * descriptor or -1 on error.
+ */
+static long smh_open(const char *fname, char *modestr)
+{
+	long fd;
+	unsigned long mode;
+	struct smh_open_s {
+		const char *fname;
+		unsigned long mode;
+		size_t len;
+	} open;
+
+	debug("%s: file \'%s\', mode \'%s\'\n", __func__, fname, modestr);
+
+	/* Check the file mode */
+	if (!(strcmp(modestr, "r"))) {
+		mode = MODE_READ;
+	} else if (!(strcmp(modestr, "rb"))) {
+		mode = MODE_READBIN;
+	} else {
+		printf("%s: ERROR mode \'%s\' not supported\n", __func__,
+		       modestr);
+		return -1;
+	}
+
+	open.fname = fname;
+	open.len = strlen(fname);
+	open.mode = mode;
+
+	/* Open the file on the host */
+	fd = smh_trap(SYSOPEN, &open);
+	if (fd == -1)
+		printf("%s: ERROR fd %ld for file \'%s\'\n", __func__, fd,
+		       fname);
+
+	return fd;
+}
+
+/*
+ * Read 'len' bytes of file into 'memp'. Returns 0 on success, else failure
+ */
+static long smh_read(long fd, void *memp, size_t len)
+{
+	long ret;
+	struct smh_read_s {
+		long fd;
+		void *memp;
+		size_t len;
+	} read;
+
+	debug("%s: fd %ld, memp %p, len %lu\n", __func__, fd, memp, len);
+
+	read.fd = fd;
+	read.memp = memp;
+	read.len = len;
+
+	ret = smh_trap(SYSREAD, &read);
+	if (ret < 0) {
+		/*
+		 * The ARM handler allows for returning partial lengths,
+		 * but in practice this never happens so rather than create
+		 * hard to maintain partial read loops and such, just fail
+		 * with an error message.
+		 */
+		printf("%s: ERROR ret %ld, fd %ld, len %lu memp %p\n",
+		       __func__, ret, fd, len, memp);
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
+ * Close the file using the file descriptor
+ */
+static long smh_close(long fd)
+{
+	long ret;
+
+	debug("%s: fd %ld\n", __func__, fd);
+
+	ret = smh_trap(SYSCLOSE, &fd);
+	if (ret == -1)
+		printf("%s: ERROR fd %ld\n", __func__, fd);
+
+	return ret;
+}
+
+/*
+ * Get the file length from the file descriptor
+ */
+static long smh_len_fd(long fd)
+{
+	long ret;
+
+	debug("%s: fd %ld\n", __func__, fd);
+
+	ret = smh_trap(SYSFLEN, &fd);
+	if (ret == -1)
+		printf("%s: ERROR ret %ld, fd %ld\n", __func__, ret, fd);
+
+	return ret;
 }
 
 /*
@@ -96,112 +197,6 @@ int smh_load(const char *fname, void *memp, int avail, int verbose)
 
 	/* Close the file */
 	smh_close(fd);
-
-	return ret;
-}
-
-/*
- * Read 'len' bytes of file into 'memp'. Returns 0 on success, else failure
- */
-static long smh_read(long fd, void *memp, size_t len)
-{
-	long ret;
-	struct smh_read_s {
-		long fd;
-		void *memp;
-		size_t len;
-	} read;
-
-	debug("%s: fd %ld, memp %p, len %lu\n", __func__, fd, memp, len);
-
-	read.fd = fd;
-	read.memp = memp;
-	read.len = len;
-
-	ret = smh_trap(SYSREAD, &read);
-	if (ret < 0) {
-		/*
-		 * The ARM handler allows for returning partial lengths,
-		 * but in practice this never happens so rather than create
-		 * hard to maintain partial read loops and such, just fail
-		 * with an error message.
-		 */
-		printf("%s: ERROR ret %ld, fd %ld, len %lu memp %p\n",
-		       __func__, ret, fd, len, memp);
-		return -1;
-	}
-
-	return 0;
-}
-
-/*
- * Open a file on the host. Mode is "r" or "rb" currently. Returns a file
- * descriptor or -1 on error.
- */
-static long smh_open(const char *fname, char *modestr)
-{
-	long fd;
-	unsigned long mode;
-	struct smh_open_s {
-		const char *fname;
-		unsigned long mode;
-		size_t len;
-	} open;
-
-	debug("%s: file \'%s\', mode \'%s\'\n", __func__, fname, modestr);
-
-	/* Check the file mode */
-	if (!(strcmp(modestr, "r"))) {
-		mode = MODE_READ;
-	} else if (!(strcmp(modestr, "rb"))) {
-		mode = MODE_READBIN;
-	} else {
-		printf("%s: ERROR mode \'%s\' not supported\n", __func__,
-		       modestr);
-		return -1;
-	}
-
-	open.fname = fname;
-	open.len = strlen(fname);
-	open.mode = mode;
-
-	/* Open the file on the host */
-	fd = smh_trap(SYSOPEN, &open);
-	if (fd == -1)
-		printf("%s: ERROR fd %ld for file \'%s\'\n", __func__, fd,
-		       fname);
-
-	return fd;
-}
-
-/*
- * Close the file using the file descriptor
- */
-static long smh_close(long fd)
-{
-	long ret;
-
-	debug("%s: fd %ld\n", __func__, fd);
-
-	ret = smh_trap(SYSCLOSE, &fd);
-	if (ret == -1)
-		printf("%s: ERROR fd %ld\n", __func__, fd);
-
-	return ret;
-}
-
-/*
- * Get the file length from the file descriptor
- */
-static long smh_len_fd(long fd)
-{
-	long ret;
-
-	debug("%s: fd %ld\n", __func__, fd);
-
-	ret = smh_trap(SYSFLEN, &fd);
-	if (ret == -1)
-		printf("%s: ERROR ret %ld, fd %ld\n", __func__, ret, fd);
 
 	return ret;
 }
