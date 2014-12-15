@@ -95,8 +95,12 @@ unsigned char *dfu_get_buf(struct dfu_entity *dfu)
 		return dfu_buf;
 
 	s = getenv("dfu_bufsiz");
-	dfu_buf_size = s ? (unsigned long)simple_strtol(s, NULL, 16) :
-			CONFIG_SYS_DFU_DATA_BUF_SIZE;
+	if (s)
+		dfu_buf_size = (unsigned long)simple_strtol(s, NULL, 0);
+
+	if (!s || !dfu_buf_size)
+		dfu_buf_size = CONFIG_SYS_DFU_DATA_BUF_SIZE;
+
 	if (dfu->max_buf_size && dfu_buf_size > dfu->max_buf_size)
 		dfu_buf_size = dfu->max_buf_size;
 
