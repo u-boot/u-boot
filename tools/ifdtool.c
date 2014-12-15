@@ -32,6 +32,16 @@
 #define FLREG_BASE(reg)		((reg & 0x00000fff) << 12);
 #define FLREG_LIMIT(reg)	(((reg & 0x0fff0000) >> 4) | 0xfff);
 
+enum input_file_type_t {
+	IF_normal,
+};
+
+struct input_file {
+	char *fname;
+	unsigned int addr;
+	enum input_file_type_t type;
+};
+
 /**
  * find_fd() - Find the flash description in the ROM image
  *
@@ -790,8 +800,7 @@ int main(int argc, char *argv[])
 	char *desc_fname = NULL, *addr_str = NULL;
 	int region_type = -1, inputfreq = 0;
 	enum spi_frequency spifreq = SPI_FREQUENCY_20MHZ;
-	unsigned int addr[WRITE_MAX];
-	char *wr_fname[WRITE_MAX];
+	struct input_file input_file[WRITE_MAX], *ifile;
 	unsigned char wr_idx, wr_num = 0;
 	int rom_size = -1;
 	bool write_it;
@@ -895,14 +904,16 @@ int main(int argc, char *argv[])
 			exit(EXIT_SUCCESS);
 			break;
 		case 'w':
+			ifile = &input_file[wr_num];
 			mode_write = 1;
 			if (wr_num < WRITE_MAX) {
 				if (get_two_words(optarg, &addr_str,
-						  &wr_fname[wr_num])) {
+						  &ifile->fname)) {
 					print_usage(argv[0]);
 					exit(EXIT_FAILURE);
 				}
-				addr[wr_num] = strtol(optarg, NULL, 0);
+				ifile->addr = strtol(optarg, NULL, 0);
+				ifile->type = IF_normal;
 				wr_num++;
 			} else {
 				fprintf(stderr,
@@ -1022,8 +1033,9 @@ int main(int argc, char *argv[])
 
 	if (mode_write) {
 		for (wr_idx = 0; wr_idx < wr_num; wr_idx++) {
-			ret = write_data(image, size,
-					 addr[wr_idx], wr_fname[wr_idx]);
+			ifile = &input_file[wr_idx];
+			ret = write_data(image, size, ifile->addr,
+					 ifile->fname);
 			if (ret)
 				break;
 		}
