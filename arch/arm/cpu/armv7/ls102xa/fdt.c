@@ -15,6 +15,8 @@
 #include <fsl_esdhc.h>
 #endif
 #include <tsec.h>
+#include <asm/arch/immap_ls102xa.h>
+#include <fsl_sec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -77,8 +79,23 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	int off;
 	int val;
 	const char *sysclk_path;
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	unsigned int svr;
+	svr = in_be32(&gur->svr);
 
 	unsigned long busclk = get_bus_freq(0);
+
+	/* delete crypto node if not on an E-processor */
+	if (!IS_E_PROCESSOR(svr))
+		fdt_fixup_crypto_node(blob, 0);
+#if CONFIG_SYS_FSL_SEC_COMPAT >= 4
+	else {
+		ccsr_sec_t __iomem *sec;
+
+		sec = (void __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
+		fdt_fixup_crypto_node(blob, sec_in32(&sec->secvid_ms));
+	}
+#endif
 
 	fdt_fixup_ethernet(blob);
 
