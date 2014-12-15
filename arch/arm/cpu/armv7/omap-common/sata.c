@@ -85,3 +85,9 @@ void scsi_init(void)
 	init_sata(0);
 	scsi_scan(1);
 }
+
+void scsi_bus_reset(void)
+{
+	ahci_reset(DWC_AHSATA_BASE);
+	ahci_init(DWC_AHSATA_BASE);
+}
