@@ -1010,11 +1010,10 @@ static int ata_io_flush(u8 port)
 }
 
 
-void scsi_bus_reset(void)
+__weak void scsi_bus_reset(void)
 {
 	/*Not implement*/
 }
-
 
 void scsi_print_error(ccb * pccb)
 {
