@@ -23,6 +23,11 @@
 #define MODE_READ	0x0
 #define MODE_READBIN	0x1
 
+static int smh_read(int fd, void *memp, int len);
+static int smh_open(const char *fname, char *modestr);
+static int smh_close(int fd);
+static int smh_len_fd(int fd);
+
 /*
  * Call the handler
  */
@@ -96,7 +101,7 @@ int smh_load(const char *fname, void *memp, int avail, int verbose)
 /*
  * Read 'len' bytes of file into 'memp'. Returns 0 on success, else failure
  */
-int smh_read(int fd, void *memp, int len)
+static int smh_read(int fd, void *memp, int len)
 {
 	int ret;
 	struct smh_read_s {
@@ -131,7 +136,7 @@ int smh_read(int fd, void *memp, int len)
  * Open a file on the host. Mode is "r" or "rb" currently. Returns a file
  * descriptor or -1 on error.
  */
-int smh_open(const char *fname, char *modestr)
+static int smh_open(const char *fname, char *modestr)
 {
 	int ret, fd, mode;
 	struct smh_open_s {
@@ -171,7 +176,7 @@ int smh_open(const char *fname, char *modestr)
 /*
  * Close the file using the file descriptor
  */
-int smh_close(int fd)
+static int smh_close(int fd)
 {
 	int ret;
 	long fdlong;
@@ -189,7 +194,7 @@ int smh_close(int fd)
 /*
  * Get the file length from the file descriptor
  */
-int smh_len_fd(int fd)
+static int smh_len_fd(int fd)
 {
 	int ret;
 	long fdlong;
