@@ -12,6 +12,15 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+A3000            powerpc     mpc824x        -           -
+CPC45            powerpc     mpc824x        -           -           Josef Wagner <Wagner@Microsys.de>
+CU824            powerpc     mpc824x        -           -           Wolfgang Denk <wd@denx.de>
+eXalion          powerpc     mpc824x        -           -           Torsten Demke <torsten.demke@fci.com>
+MVBLUE           powerpc     mpc824x        -           -
+MUSENKI          powerpc     mpc824x        -           -           Jim Thompson <jim@musenki.com>
+Sandpoint8240    powerpc     mpc824x        -           -           Wolfgang Denk <wd@denx.de>
+Sandpoint8245    powerpc     mpc824x        -           -           Jim Thompson <jim@musenki.com>
+utx8245          powerpc     mpc824x        -           -           Greg Allen <gallen@arlut.utexas.edu>
 atc              powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
 CPU86            powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
 CPU87            powerpc     mpc8260        -           -

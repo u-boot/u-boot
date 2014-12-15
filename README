@@ -186,7 +186,6 @@ Directory Hierarchy:
       /mpc5xx		Files specific to Freescale MPC5xx CPUs
       /mpc5xxx		Files specific to Freescale MPC5xxx CPUs
       /mpc8xx		Files specific to Freescale MPC8xx CPUs
-      /mpc824x		Files specific to Freescale MPC824x CPUs
       /mpc8260		Files specific to Freescale MPC8260 CPUs
       /mpc85xx		Files specific to Freescale MPC85xx CPUs
       /ppc4xx		Files specific to AMCC PowerPC 4xx CPUs
@@ -325,10 +324,6 @@ The following options need to be configured:
 		CONFIG_SYS_MVFS		- define it if you want to enable
 					  multiple fs option at one time
 					  for marvell soc family
-
-- MPC824X Family Member (if CONFIG_MPC824X is defined)
-		Define exactly one of
-		CONFIG_MPC8240, CONFIG_MPC8245
 
 - 8xx CPU Options: (if using an MPC8xx CPU)
 		CONFIG_8xx_GCLK_FREQ	- deprecated: CPU clock if

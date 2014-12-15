@@ -19,9 +19,6 @@ config 5xx
 config MPC5xxx
 	bool "MPC5xxx"
 
-config MPC824X
-	bool "MPC824X"
-
 config MPC8260
 	bool "MPC8260"
 
@@ -46,7 +43,6 @@ source "arch/powerpc/cpu/74xx_7xx/Kconfig"
 source "arch/powerpc/cpu/mpc512x/Kconfig"
 source "arch/powerpc/cpu/mpc5xx/Kconfig"
 source "arch/powerpc/cpu/mpc5xxx/Kconfig"
-source "arch/powerpc/cpu/mpc824x/Kconfig"
 source "arch/powerpc/cpu/mpc8260/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/Kconfig"
 source "arch/powerpc/cpu/mpc85xx/Kconfig"

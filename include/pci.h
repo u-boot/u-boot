@@ -670,10 +670,6 @@ extern void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
 const char * pci_class_str(u8 class);
 int pci_last_busno(void);
 
-#ifdef CONFIG_MPC824X
-extern void pci_mpc824x_init (struct pci_controller *hose);
-#endif
-
 #ifdef CONFIG_MPC85xx
 extern void pci_mpc85xx_init (struct pci_controller *hose);
 #endif

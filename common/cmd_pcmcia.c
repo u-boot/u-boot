@@ -331,11 +331,8 @@ int check_ide_device (int slot)
 
 	ide_devices_found |= (1 << slot);
 
-#if CONFIG_CPC45
-#else
 	/* set I/O area in config reg -> only valid for ARGOSY D5!!! */
 	*((uchar *)(addr + config_base)) = 1;
-#endif
 #if 0
 	printf("\n## Config_base = %04x ###\n", config_base);
 	printf("Configuration Option Register: %02x @ %x\n", readb(addr + config_base), addr + config_base);
