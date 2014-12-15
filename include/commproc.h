@@ -630,7 +630,6 @@ typedef struct scc_enet {
 /***  MVS1, TQM823L/M, TQM850L/M, TQM885D, R360MPI  **********/
 
 #if (defined(CONFIG_MVS) && CONFIG_MVS < 2) || \
-    defined(CONFIG_R360MPI) || \
     defined(CONFIG_TQM823L) || \
     defined(CONFIG_TQM823M) || defined(CONFIG_TQM850L) || \
     defined(CONFIG_TQM850M) || defined(CONFIG_TQM885D)
@@ -650,9 +649,6 @@ typedef struct scc_enet {
 
 #define PC_ENET_CLSN	((ushort)0x0040)	/* PC  9 */
 #define PC_ENET_RENA	((ushort)0x0080)	/* PC  8 */
-#if defined(CONFIG_R360MPI)
-#define PC_ENET_LBK	((ushort)0x0008)	/* PC 12 */
-#endif   /* CONFIG_R360MPI */
 
 /* Control bits in the SICR to route TCLK (CLK3) and RCLK (CLK1) to
  * SCC2.  Also, make sure GR2 (bit 16) and SC2 (bit 17) are zero.

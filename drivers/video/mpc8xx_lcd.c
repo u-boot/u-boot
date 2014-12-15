@@ -423,31 +423,6 @@ void lcd_enable (void)
 	pic_write (0x60, c);
     }
 #endif /* CONFIG_LWMON */
-
-#if defined(CONFIG_R360MPI)
-    {
-	extern void r360_i2c_lcd_write (uchar data0, uchar data1);
-	unsigned long bgi, ctr;
-	char *p;
-
-	if ((p = getenv("lcdbgi")) != NULL) {
-		bgi = simple_strtoul (p, 0, 10) & 0xFFF;
-	} else {
-		bgi = 0xFFF;
-	}
-
-	if ((p = getenv("lcdctr")) != NULL) {
-		ctr = simple_strtoul (p, 0, 10) & 0xFFF;
-	} else {
-		ctr=0x7FF;
-	}
-
-	r360_i2c_lcd_write(0x10, 0x01);
-	r360_i2c_lcd_write(0x20, 0x01);
-	r360_i2c_lcd_write(0x30 | ((bgi>>8) & 0xF), bgi & 0xFF);
-	r360_i2c_lcd_write(0x40 | ((ctr>>8) & 0xF), ctr & 0xFF);
-    }
-#endif /* CONFIG_R360MPI */
 }
 
 /************************************************************************/

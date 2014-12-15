@@ -28,9 +28,6 @@ config TARGET_LWMON
 config TARGET_NETVIA
 	bool "Support NETVIA"
 
-config TARGET_R360MPI
-	bool "Support R360MPI"
-
 config TARGET_TQM823L
 	bool "Support TQM823L"
 
@@ -75,7 +72,6 @@ source "board/ip860/Kconfig"
 source "board/ivm/Kconfig"
 source "board/lwmon/Kconfig"
 source "board/netvia/Kconfig"
-source "board/r360mpi/Kconfig"
 source "board/tqc/tqm8xx/Kconfig"
 
 endmenu
