@@ -37,9 +37,6 @@ config TARGET_PM828
 config TARGET_MPC8266ADS
 	bool "Support MPC8266ADS"
 
-config TARGET_VOVPN_GW
-	bool "Support VoVPN-GW"
-
 config TARGET_KM82XX
 	bool "Support km82xx"
 
@@ -50,7 +47,6 @@ source "board/cpu86/Kconfig"
 source "board/cpu87/Kconfig"
 source "board/ep82xxm/Kconfig"
 source "board/freescale/mpc8266ads/Kconfig"
-source "board/funkwerk/vovpn-gw/Kconfig"
 source "board/gw8260/Kconfig"
 source "board/iphase4539/Kconfig"
 source "board/keymile/km82xx/Kconfig"
