@@ -40,9 +40,6 @@ config TARGET_PM828
 config TARGET_PPMC8260
 	bool "Support ppmc8260"
 
-config TARGET_SACSNG
-	bool "Support sacsng"
-
 config TARGET_MPC8266ADS
 	bool "Support MPC8266ADS"
 
@@ -68,6 +65,5 @@ source "board/muas3001/Kconfig"
 source "board/pm826/Kconfig"
 source "board/pm828/Kconfig"
 source "board/ppmc8260/Kconfig"
-source "board/sacsng/Kconfig"
 
 endmenu
