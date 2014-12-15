@@ -9,12 +9,14 @@
  */
 
 #include <common.h>
+#include <ahci.h>
 #include <spl.h>
 #include <asm/omap_common.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <watchdog.h>
+#include <scsi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -141,5 +143,12 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	debug("image entry point: 0x%X\n", spl_image->entry_point);
 	/* Pass the saved boot_params from rom code */
 	image_entry((u32 *)&gd->arch.omap_boot_params);
+}
+#endif
+
+#ifdef CONFIG_SCSI_AHCI_PLAT
+void arch_preboot_os(void)
+{
+	ahci_reset(DWC_AHSATA_BASE);
 }
 #endif
