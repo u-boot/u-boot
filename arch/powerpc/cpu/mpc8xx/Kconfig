@@ -43,9 +43,6 @@ config TARGET_KUP4K
 config TARGET_KUP4X
 	bool "Support KUP4X"
 
-config TARGET_ELPT860
-	bool "Support ELPT860"
-
 config TARGET_TQM823L
 	bool "Support TQM823L"
 
@@ -84,7 +81,6 @@ config TARGET_TQM885D
 
 endchoice
 
-source "board/LEOX/elpt860/Kconfig"
 source "board/RRvision/Kconfig"
 source "board/cogent/Kconfig"
 source "board/esteem192e/Kconfig"
