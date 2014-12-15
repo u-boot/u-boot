@@ -28,12 +28,6 @@ config TARGET_IPHASE4539
 config TARGET_MUAS3001
 	bool "Support muas3001"
 
-config TARGET_PM826
-	bool "Support PM826"
-
-config TARGET_PM828
-	bool "Support PM828"
-
 config TARGET_KM82XX
 	bool "Support km82xx"
 
@@ -47,7 +41,5 @@ source "board/gw8260/Kconfig"
 source "board/iphase4539/Kconfig"
 source "board/keymile/km82xx/Kconfig"
 source "board/muas3001/Kconfig"
-source "board/pm826/Kconfig"
-source "board/pm828/Kconfig"
 
 endmenu

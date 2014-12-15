@@ -12,6 +12,9 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+PM825            powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
+PM826            powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
+PM828            powerpc     mpc8260        -           -
 MPC8266ADS       powerpc     mpc8260        -           -           Rune Torgersen <runet@innovsys.com>
 VoVPN-GW         powerpc     mpc8260        -           -
 ep8260           powerpc     mpc8260        -           -           Frank Panno <fpanno@delphintech.com>

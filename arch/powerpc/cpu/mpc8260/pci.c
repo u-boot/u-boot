@@ -22,10 +22,6 @@
 #include <fdt_support.h>
 #endif
 
-#if defined CONFIG_PM826
-DECLARE_GLOBAL_DATA_PTR;
-#endif
-
 /*
  *   Local->PCI map (from CPU)				   controlled by
  *   MPC826x master window
@@ -342,17 +338,10 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	hose->last_busno = 0xff;
 
 	/* System memory space */
-#if defined CONFIG_PM826
-	pci_set_region (hose->regions + 0,
-			PCI_SLV_MEM_BUS,
-			PCI_SLV_MEM_LOCAL,
-			gd->ram_size, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-#else
 	pci_set_region (hose->regions + 0,
 			CONFIG_SYS_SDRAM_BASE,
 			CONFIG_SYS_SDRAM_BASE,
 			0x4000000, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-#endif
 
 	/* PCI memory space */
 	pci_set_region (hose->regions + 1,
