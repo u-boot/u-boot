@@ -83,15 +83,6 @@ config TARGET_O3DNT
 config TARGET_DIGSY_MTC
 	bool "Support digsy_mtc"
 
-config TARGET_HMI1001
-	bool "Support hmi1001"
-
-config TARGET_MUCMC52
-	bool "Support mucmc52"
-
-config TARGET_UC101
-	bool "Support uc101"
-
 config TARGET_PCM030
 	bool "Support pcm030"
 
@@ -124,9 +115,6 @@ source "board/inka4x0/Kconfig"
 source "board/intercontrol/digsy_mtc/Kconfig"
 source "board/ipek01/Kconfig"
 source "board/jupiter/Kconfig"
-source "board/manroland/hmi1001/Kconfig"
-source "board/manroland/mucmc52/Kconfig"
-source "board/manroland/uc101/Kconfig"
 source "board/motionpro/Kconfig"
 source "board/munices/Kconfig"
 source "board/phytec/pcm030/Kconfig"
