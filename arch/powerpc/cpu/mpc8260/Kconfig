@@ -10,20 +10,12 @@ choice
 config TARGET_ATC
 	bool "Support atc"
 
-config TARGET_CPU86
-	bool "Support CPU86"
-
-config TARGET_CPU87
-	bool "Support CPU87"
-
 config TARGET_KM82XX
 	bool "Support km82xx"
 
 endchoice
 
 source "board/atc/Kconfig"
-source "board/cpu86/Kconfig"
-source "board/cpu87/Kconfig"
 source "board/keymile/km82xx/Kconfig"
 
 endmenu
