@@ -12,6 +12,6 @@
  * code for more information.
  */
 int smh_load(const char *fname, void *memp, int avail, int verbose);
-int smh_len(const char *fname);
+long smh_len(const char *fname);
 
 #endif /* __SEMIHOSTING_H__ */
