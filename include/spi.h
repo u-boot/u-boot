@@ -34,6 +34,7 @@
 
 /* SPI TX operation modes */
 #define SPI_OPM_TX_QPP		(1 << 0)
+#define SPI_OPM_TX_BP		(1 << 1)
 
 /* SPI RX operation modes */
 #define SPI_OPM_RX_AS		(1 << 0)

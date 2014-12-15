@@ -17,7 +17,9 @@
 #define CPP_ASMLINKAGE
 #endif
 
+#ifndef asmlinkage
 #define asmlinkage CPP_ASMLINKAGE
+#endif
 
 #define SYMBOL_NAME_STR(X)	#X
 #define SYMBOL_NAME(X)		X

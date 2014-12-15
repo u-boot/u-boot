@@ -147,6 +147,7 @@ struct pch_gpio_map {
 	} set3;
 };
 
+void setup_pch_gpios(u32 gpiobase, const struct pch_gpio_map *gpio);
 void ich_gpio_set_gpio_map(const struct pch_gpio_map *map);
 
 #endif /* _X86_GPIO_H_ */

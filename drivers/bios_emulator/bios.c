@@ -42,8 +42,8 @@
 ****************************************************************************/
 
 #define __io
-#include <asm/io.h>
 #include <common.h>
+#include <asm/io.h>
 #include "biosemui.h"
 
 /*----------------------------- Implementation ----------------------------*/

@@ -141,6 +141,15 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	ich->slave.max_write_size = ctlr.databytes;
 	ich->speed = max_hz;
 
+	/*
+	 * ICH 7 SPI controller only supports array read command
+	 * and byte program command for SST flash
+	 */
+	if (ctlr.ich_version == 7) {
+		ich->slave.op_mode_rx = SPI_OPM_RX_AS;
+		ich->slave.op_mode_tx = SPI_OPM_TX_BP;
+	}
+
 	return &ich->slave;
 }
 
@@ -158,7 +167,8 @@ void spi_free_slave(struct spi_slave *slave)
  */
 static int get_ich_version(uint16_t device_id)
 {
-	if (device_id == PCI_DEVICE_ID_INTEL_TGP_LPC)
+	if (device_id == PCI_DEVICE_ID_INTEL_TGP_LPC ||
+	    device_id == PCI_DEVICE_ID_INTEL_ITC_LPC)
 		return 7;
 
 	if ((device_id >= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN &&
@@ -483,8 +493,6 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	struct spi_trans *trans = &ich->trans;
 	unsigned type = flags & (SPI_XFER_BEGIN | SPI_XFER_END);
 	int using_cmd = 0;
-	/* Align read transactions to 64-byte boundaries */
-	char buff[ctlr.databytes];
 
 	/* Ee don't support writing partial bytes. */
 	if (bitlen % 8) {
@@ -632,14 +640,9 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	 */
 	while (trans->bytesout || trans->bytesin) {
 		uint32_t data_length;
-		uint32_t aligned_offset;
-		uint32_t diff;
-
-		aligned_offset = trans->offset & ~(ctlr.databytes - 1);
-		diff = trans->offset - aligned_offset;
 
 		/* SPI addresses are 24 bit only */
-		ich_writel(aligned_offset & 0x00FFFFFF, ctlr.addr);
+		ich_writel(trans->offset & 0x00FFFFFF, ctlr.addr);
 
 		if (trans->bytesout)
 			data_length = min(trans->bytesout, ctlr.databytes);
@@ -673,13 +676,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		}
 
 		if (trans->bytesin) {
-			if (diff) {
-				data_length -= diff;
-				read_reg(ctlr.data, buff, ctlr.databytes);
-				memcpy(trans->in, buff + diff, data_length);
-			} else {
-				read_reg(ctlr.data, trans->in, data_length);
-			}
+			read_reg(ctlr.data, trans->in, data_length);
 			spi_use_in(trans, data_length);
 			if (with_address)
 				trans->offset += data_length;

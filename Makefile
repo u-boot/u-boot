@@ -946,27 +946,33 @@ u-boot-nand.gph: u-boot.bin FORCE
 ifneq ($(CONFIG_X86_RESET_VECTOR),)
 rom: u-boot.rom FORCE
 
-u-boot.rom: u-boot-x86-16bit.bin u-boot-dtb.bin \
-		$(srctree)/board/$(BOARDDIR)/mrc.bin
-	$(objtree)/tools/ifdtool -c -r $(CONFIG_ROM_SIZE) u-boot.tmp
-	if [ -n "$(CONFIG_HAVE_INTEL_ME)" ]; then \
-		$(objtree)/tools/ifdtool -D \
-			$(srctree)/board/$(BOARDDIR)/descriptor.bin u-boot.tmp; \
-		$(objtree)/tools/ifdtool \
-			-i ME:$(srctree)/board/$(BOARDDIR)/me.bin u-boot.tmp; \
-	fi
-	$(objtree)/tools/ifdtool -w \
-		$(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot-dtb.bin u-boot.tmp
-	$(objtree)/tools/ifdtool -w \
-		$(CONFIG_X86_MRC_START):$(srctree)/board/$(BOARDDIR)/mrc.bin \
-		u-boot.tmp
-	$(objtree)/tools/ifdtool -w \
-		$(CONFIG_SYS_X86_START16):$(objtree)/u-boot-x86-16bit.bin \
-		u-boot.tmp
-	$(objtree)/tools/ifdtool -w \
-		$(CONFIG_X86_OPTION_ROM_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_X86_OPTION_ROM_FILENAME) \
-		u-boot.tmp
-	mv u-boot.tmp $@
+IFDTOOL=$(objtree)/tools/ifdtool
+IFDTOOL_FLAGS  = -w $(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot-dtb.bin
+IFDTOOL_FLAGS += -w $(CONFIG_SYS_X86_START16):$(objtree)/u-boot-x86-16bit.bin
+
+ifneq ($(CONFIG_HAVE_INTEL_ME),)
+IFDTOOL_ME_FLAGS  = -D $(srctree)/board/$(BOARDDIR)/descriptor.bin
+IFDTOOL_ME_FLAGS += -i ME:$(srctree)/board/$(BOARDDIR)/me.bin
+endif
+
+ifneq ($(CONFIG_HAVE_MRC),)
+IFDTOOL_FLAGS += -w $(CONFIG_X86_MRC_START):$(srctree)/board/$(BOARDDIR)/mrc.bin
+endif
+
+ifneq ($(CONFIG_X86_OPTION_ROM_ADDR),)
+IFDTOOL_FLAGS += -w $(CONFIG_X86_OPTION_ROM_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_X86_OPTION_ROM_FILENAME)
+endif
+
+quiet_cmd_ifdtool = IFDTOOL $@
+cmd_ifdtool  = $(IFDTOOL) -c -r $(CONFIG_ROM_SIZE) u-boot.tmp;
+ifneq ($(CONFIG_HAVE_INTEL_ME),)
+cmd_ifdtool += $(IFDTOOL) $(IFDTOOL_ME_FLAGS) u-boot.tmp;
+endif
+cmd_ifdtool += $(IFDTOOL) $(IFDTOOL_FLAGS) u-boot.tmp;
+cmd_ifdtool += mv u-boot.tmp $@
+
+u-boot.rom: u-boot-x86-16bit.bin u-boot-dtb.bin
+	$(call if_changed,ifdtool)
 
 OBJCOPYFLAGS_u-boot-x86-16bit.bin := -O binary -j .start16 -j .resetvec
 u-boot-x86-16bit.bin: u-boot FORCE

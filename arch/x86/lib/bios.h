@@ -10,6 +10,8 @@
 #ifndef _X86_LIB_BIOS_H
 #define _X86_LIB_BIOS_H
 
+#include <linux/linkage.h>
+
 #define REALMODE_BASE		0x600
 
 #ifdef __ASSEMBLY__

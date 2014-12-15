@@ -23,13 +23,16 @@ enum spi_dual_flash {
 /* Enum list - Full read commands */
 enum spi_read_cmds {
 	ARRAY_SLOW		= 1 << 0,
-	DUAL_OUTPUT_FAST	= 1 << 1,
-	DUAL_IO_FAST		= 1 << 2,
-	QUAD_OUTPUT_FAST	= 1 << 3,
-	QUAD_IO_FAST		= 1 << 4,
+	ARRAY_FAST		= 1 << 1,
+	DUAL_OUTPUT_FAST	= 1 << 2,
+	DUAL_IO_FAST		= 1 << 3,
+	QUAD_OUTPUT_FAST	= 1 << 4,
+	QUAD_IO_FAST		= 1 << 5,
 };
 
-#define RD_EXTN	(ARRAY_SLOW | DUAL_OUTPUT_FAST | DUAL_IO_FAST)
+/* Normal - Extended - Full command set */
+#define RD_NORM	(ARRAY_SLOW | ARRAY_FAST)
+#define RD_EXTN	(RD_NORM | DUAL_OUTPUT_FAST | DUAL_IO_FAST)
 #define RD_FULL	(RD_EXTN | QUAD_OUTPUT_FAST | QUAD_IO_FAST)
 
 /* sf param flags */
@@ -37,8 +40,12 @@ enum {
 	SECT_4K		= 1 << 0,
 	SECT_32K	= 1 << 1,
 	E_FSR		= 1 << 2,
-	WR_QPP		= 1 << 3,
+	SST_BP		= 1 << 3,
+	SST_WP		= 1 << 4,
+	WR_QPP		= 1 << 5,
 };
+
+#define SST_WR		(SST_BP | SST_WP)
 
 #define SPI_FLASH_3B_ADDR_LEN		3
 #define SPI_FLASH_CMD_LEN		(1 + SPI_FLASH_3B_ADDR_LEN)
@@ -101,11 +108,12 @@ enum {
 
 /* SST specific */
 #ifdef CONFIG_SPI_FLASH_SST
-# define SST_WP		0x01	/* Supports AAI word program */
 # define CMD_SST_BP		0x02    /* Byte Program */
 # define CMD_SST_AAI_WP	0xAD	/* Auto Address Incr Word Program */
 
 int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
+		const void *buf);
+int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 		const void *buf);
 #endif
 

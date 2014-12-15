@@ -61,9 +61,85 @@ config SMM_TSEG
 config SMM_TSEG_SIZE
 	hex
 
+config BOARD_ROMSIZE_KB_512
+	bool
+config BOARD_ROMSIZE_KB_1024
+	bool
+config BOARD_ROMSIZE_KB_2048
+	bool
+config BOARD_ROMSIZE_KB_4096
+	bool
+config BOARD_ROMSIZE_KB_8192
+	bool
+config BOARD_ROMSIZE_KB_16384
+	bool
+
+choice
+	prompt "ROM chip size"
+	default UBOOT_ROMSIZE_KB_512 if BOARD_ROMSIZE_KB_512
+	default UBOOT_ROMSIZE_KB_1024 if BOARD_ROMSIZE_KB_1024
+	default UBOOT_ROMSIZE_KB_2048 if BOARD_ROMSIZE_KB_2048
+	default UBOOT_ROMSIZE_KB_4096 if BOARD_ROMSIZE_KB_4096
+	default UBOOT_ROMSIZE_KB_8192 if BOARD_ROMSIZE_KB_8192
+	default UBOOT_ROMSIZE_KB_16384 if BOARD_ROMSIZE_KB_16384
+	help
+	  Select the size of the ROM chip you intend to flash U-Boot on.
+
+	  The build system will take care of creating a u-boot.rom file
+	  of the matching size.
+
+config UBOOT_ROMSIZE_KB_512
+	bool "512 KB"
+	help
+	  Choose this option if you have a 512 KB ROM chip.
+
+config UBOOT_ROMSIZE_KB_1024
+	bool "1024 KB (1 MB)"
+	help
+	  Choose this option if you have a 1024 KB (1 MB) ROM chip.
+
+config UBOOT_ROMSIZE_KB_2048
+	bool "2048 KB (2 MB)"
+	help
+	  Choose this option if you have a 2048 KB (2 MB) ROM chip.
+
+config UBOOT_ROMSIZE_KB_4096
+	bool "4096 KB (4 MB)"
+	help
+	  Choose this option if you have a 4096 KB (4 MB) ROM chip.
+
+config UBOOT_ROMSIZE_KB_8192
+	bool "8192 KB (8 MB)"
+	help
+	  Choose this option if you have a 8192 KB (8 MB) ROM chip.
+
+config UBOOT_ROMSIZE_KB_16384
+	bool "16384 KB (16 MB)"
+	help
+	  Choose this option if you have a 16384 KB (16 MB) ROM chip.
+
+endchoice
+
+# Map the config names to an integer (KB).
+config UBOOT_ROMSIZE_KB
+	int
+	default 512 if UBOOT_ROMSIZE_KB_512
+	default 1024 if UBOOT_ROMSIZE_KB_1024
+	default 2048 if UBOOT_ROMSIZE_KB_2048
+	default 4096 if UBOOT_ROMSIZE_KB_4096
+	default 8192 if UBOOT_ROMSIZE_KB_8192
+	default 16384 if UBOOT_ROMSIZE_KB_16384
+
+# Map the config names to a hex value (bytes).
 config ROM_SIZE
 	hex
-	default 0x800000
+	default 0x80000 if UBOOT_ROMSIZE_KB_512
+	default 0x100000 if UBOOT_ROMSIZE_KB_1024
+	default 0x200000 if UBOOT_ROMSIZE_KB_2048
+	default 0x400000 if UBOOT_ROMSIZE_KB_4096
+	default 0x800000 if UBOOT_ROMSIZE_KB_8192
+	default 0xc00000 if UBOOT_ROMSIZE_KB_12288
+	default 0x1000000 if UBOOT_ROMSIZE_KB_16384
 
 config HAVE_INTEL_ME
 	bool "Platform requires Intel Management Engine"

@@ -732,6 +732,7 @@ static void print_usage(const char *name)
 	       "   -x | --extract:                   extract intel fd modules\n"
 	       "   -i | --inject <region>:<module>   inject file <module> into region <region>\n"
 	       "   -w | --write <addr>:<file>        write file to appear at memory address <addr>\n"
+	       "                                     multiple files can be written simultaneously\n"
 	       "   -s | --spifreq <20|33|50>         set the SPI frequency\n"
 	       "   -e | --em100                      set SPI frequency to 20MHz and disable\n"
 	       "                                     Dual Output Fast Read Support\n"
@@ -778,11 +779,13 @@ int main(int argc, char *argv[])
 	int mode_spifreq = 0, mode_em100 = 0, mode_locked = 0;
 	int mode_unlocked = 0, mode_write = 0, mode_write_descriptor = 0;
 	int create = 0;
-	char *region_type_string = NULL, *src_fname = NULL;
-	char *addr_str = NULL;
+	char *region_type_string = NULL, *inject_fname = NULL;
+	char *desc_fname = NULL, *addr_str = NULL;
 	int region_type = -1, inputfreq = 0;
 	enum spi_frequency spifreq = SPI_FREQUENCY_20MHZ;
-	unsigned int addr = 0;
+	unsigned int addr[WRITE_MAX];
+	char *wr_fname[WRITE_MAX];
+	unsigned char wr_idx, wr_num = 0;
 	int rom_size = -1;
 	bool write_it;
 	char *filename;
@@ -820,14 +823,14 @@ int main(int argc, char *argv[])
 			break;
 		case 'D':
 			mode_write_descriptor = 1;
-			src_fname = optarg;
+			desc_fname = optarg;
 			break;
 		case 'e':
 			mode_em100 = 1;
 			break;
 		case 'i':
 			if (get_two_words(optarg, &region_type_string,
-					  &src_fname)) {
+					  &inject_fname)) {
 				print_usage(argv[0]);
 				exit(EXIT_FAILURE);
 			}
@@ -886,11 +889,19 @@ int main(int argc, char *argv[])
 			break;
 		case 'w':
 			mode_write = 1;
-			if (get_two_words(optarg, &addr_str, &src_fname)) {
-				print_usage(argv[0]);
-				exit(EXIT_FAILURE);
+			if (wr_num < WRITE_MAX) {
+				if (get_two_words(optarg, &addr_str,
+						  &wr_fname[wr_num])) {
+					print_usage(argv[0]);
+					exit(EXIT_FAILURE);
+				}
+				addr[wr_num] = strtol(optarg, NULL, 0);
+				wr_num++;
+			} else {
+				fprintf(stderr,
+					"The number of files to write simultaneously exceeds the limitation (%d)\n",
+					WRITE_MAX);
 			}
-			addr = strtol(optarg, NULL, 0);
 			break;
 		case 'x':
 			mode_extract = 1;
@@ -997,13 +1008,19 @@ int main(int argc, char *argv[])
 	}
 
 	if (mode_write_descriptor)
-		ret = write_data(image, size, -size, src_fname);
+		ret = write_data(image, size, -size, desc_fname);
 
 	if (mode_inject)
-		ret = inject_region(image, size, region_type, src_fname);
+		ret = inject_region(image, size, region_type, inject_fname);
 
-	if (mode_write)
-		ret = write_data(image, size, addr, src_fname);
+	if (mode_write) {
+		for (wr_idx = 0; wr_idx < wr_num; wr_idx++) {
+			ret = write_data(image, size,
+					 addr[wr_idx], wr_fname[wr_idx]);
+			if (ret)
+				break;
+		}
+	}
 
 	if (mode_spifreq)
 		set_spi_frequency(image, size, spifreq);

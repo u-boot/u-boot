@@ -24,6 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Read commands array */
 static u8 spi_read_cmds_array[] = {
 	CMD_READ_ARRAY_SLOW,
+	CMD_READ_ARRAY_FAST,
 	CMD_READ_DUAL_OUTPUT_FAST,
 	CMD_READ_DUAL_IO_FAST,
 	CMD_READ_QUAD_OUTPUT_FAST,
@@ -135,8 +136,12 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 #ifndef CONFIG_DM_SPI_FLASH
 	flash->write = spi_flash_cmd_write_ops;
 #if defined(CONFIG_SPI_FLASH_SST)
-	if (params->flags & SST_WP)
-		flash->write = sst_write_wp;
+	if (params->flags & SST_WR) {
+		if (flash->spi->op_mode_tx & SPI_OPM_TX_BP)
+			flash->write = sst_write_bp;
+		else
+			flash->write = sst_write_wp;
+	}
 #endif
 	flash->erase = spi_flash_cmd_erase_ops;
 	flash->read = spi_flash_cmd_read_ops;

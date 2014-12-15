@@ -1,5 +1,5 @@
 /*
- *  U-boot - x86 Startup Code
+ *  U-Boot - x86 Startup Code
  *
  * (C) Copyright 2008-2011
  * Graeme Russ, <graeme.russ@gmail.com>
@@ -17,6 +17,7 @@
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <generated/generic-asm-offsets.h>
+#include <generated/asm-offsets.h>
 
 .section .text
 .code32
@@ -74,6 +75,7 @@ early_board_init_ret:
 	jmp	car_init
 .globl car_init_ret
 car_init_ret:
+#ifndef CONFIG_HAVE_FSP
 	/*
 	 * We now have CONFIG_SYS_CAR_SIZE bytes of Cache-As-RAM (or SRAM,
 	 * or fully initialised SDRAM - we really don't care which)
@@ -94,6 +96,12 @@ car_init_ret:
 #ifdef CONFIG_DCACHE_RAM_MRC_VAR_SIZE
 	subl	$CONFIG_DCACHE_RAM_MRC_VAR_SIZE, %esp
 #endif
+#else
+	/*
+	 * When we get here after car_init, esp points to a temporary stack
+	 * and esi holds the HOB list address returned by the FSP.
+	 */
+#endif
 
 	/* Reserve space on stack for global data */
 	subl	$GENERATED_GBL_DATA_SIZE, %esp
@@ -107,6 +115,13 @@ car_init_ret:
 	movl	$GENERATED_GBL_DATA_SIZE, %ecx
 	movl	%esp, %edi
 	rep	stosb
+
+#ifdef CONFIG_HAVE_FSP
+	/* Store HOB list */
+	movl	%esp, %edx
+	addl	$GD_HOB_LIST, %edx
+	movl	%esi, (%edx)
+#endif
 
 	/* Setup first parameter to setup_gdt, pointer to global_data */
 	movl	%esp, %eax

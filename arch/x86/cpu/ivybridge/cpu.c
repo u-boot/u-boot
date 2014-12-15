@@ -263,6 +263,7 @@ static void enable_usb_bar(void)
 static int report_bist_failure(void)
 {
 	if (gd->arch.bist != 0) {
+		post_code(POST_BIST_FAILURE);
 		printf("BIST failed: %08x\n", gd->arch.bist);
 		return -EFAULT;
 	}

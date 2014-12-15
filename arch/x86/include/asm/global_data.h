@@ -47,6 +47,9 @@ struct arch_global_data {
 	enum pei_boot_mode_t pei_boot_mode;
 	const struct pch_gpio_map *gpio_map;	/* board GPIO map */
 	struct memory_info meminfo;	/* Memory information */
+#ifdef CONFIG_HAVE_FSP
+	void	*hob_list;		/* FSP HOB list */
+#endif
 };
 
 #endif
