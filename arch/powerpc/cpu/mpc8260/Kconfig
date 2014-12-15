@@ -16,9 +16,6 @@ config TARGET_CPU86
 config TARGET_CPU87
 	bool "Support CPU87"
 
-config TARGET_EP8260
-	bool "Support ep8260"
-
 config TARGET_EP82XXM
 	bool "Support ep82xxm"
 
@@ -51,7 +48,6 @@ endchoice
 source "board/atc/Kconfig"
 source "board/cpu86/Kconfig"
 source "board/cpu87/Kconfig"
-source "board/ep8260/Kconfig"
 source "board/ep82xxm/Kconfig"
 source "board/freescale/mpc8266ads/Kconfig"
 source "board/funkwerk/vovpn-gw/Kconfig"

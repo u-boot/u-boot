@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+ep8260           powerpc     mpc8260        -           -           Frank Panno <fpanno@delphintech.com>
 ppmc8260         powerpc     mpc8260        -           -           Brad Kemp <Brad.Kemp@seranoa.com>
 sacsng           powerpc     mpc8260        -           -           Jerry Van Baren <gerald.vanbaren@smiths-aerospace.com>
 cogent_mpc8260   powerpc     mpc8260        -           -           Murray Jensen <Murray.Jensen@csiro.au>
