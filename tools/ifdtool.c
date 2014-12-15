@@ -465,6 +465,16 @@ static int write_regions(char *image, int size)
 	return ret;
 }
 
+static int perror_fname(const char *fmt, const char *fname)
+{
+	char msg[strlen(fmt) + strlen(fname) + 1];
+
+	sprintf(msg, fmt, fname);
+	perror(msg);
+
+	return -1;
+}
+
 /**
  * write_image() - Write the image to a file
  *
@@ -481,10 +491,10 @@ static int write_image(char *filename, char *image, int size)
 
 	new_fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR |
 		      S_IWUSR | S_IRGRP | S_IROTH);
-	if (write(new_fd, image, size) != size) {
-		perror("Error while writing");
-		return -1;
-	}
+	if (new_fd < 0)
+		return perror_fname("Could not open file '%s'", filename);
+	if (write(new_fd, image, size) != size)
+		return perror_fname("Could not write file '%s'", filename);
 	close(new_fd);
 
 	return 0;
@@ -586,14 +596,10 @@ int open_for_read(const char *fname, int *sizep)
 	int fd = open(fname, O_RDONLY);
 	struct stat buf;
 
-	if (fd == -1) {
-		perror("Could not open file");
-		return -1;
-	}
-	if (fstat(fd, &buf) == -1) {
-		perror("Could not stat file");
-		return -1;
-	}
+	if (fd == -1)
+		return perror_fname("Could not open file '%s'", fname);
+	if (fstat(fd, &buf) == -1)
+		return perror_fname("Could not stat file '%s'", fname);
 	*sizep = buf.st_size;
 	debug("File %s is %d bytes\n", fname, *sizep);
 
