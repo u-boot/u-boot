@@ -25,9 +25,6 @@ config TARGET_GW8260
 config TARGET_IPHASE4539
 	bool "Support IPHASE4539"
 
-config TARGET_MUAS3001
-	bool "Support muas3001"
-
 config TARGET_KM82XX
 	bool "Support km82xx"
 
@@ -40,6 +37,5 @@ source "board/ep82xxm/Kconfig"
 source "board/gw8260/Kconfig"
 source "board/iphase4539/Kconfig"
 source "board/keymile/km82xx/Kconfig"
-source "board/muas3001/Kconfig"
 
 endmenu
