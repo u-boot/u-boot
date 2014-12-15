@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+MPC8266ADS       powerpc     mpc8260        -           -           Rune Torgersen <runet@innovsys.com>
 VoVPN-GW         powerpc     mpc8260        -           -
 ep8260           powerpc     mpc8260        -           -           Frank Panno <fpanno@delphintech.com>
 ppmc8260         powerpc     mpc8260        -           -           Brad Kemp <Brad.Kemp@seranoa.com>
