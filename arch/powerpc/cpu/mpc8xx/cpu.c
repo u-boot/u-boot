@@ -598,17 +598,6 @@ void reset_8xx_watchdog (volatile immap_t * immr)
 	immr->im_ioport.iop_paodr &= ~(WATCHDOG_BIT);	/* active output */
 
 	immr->im_ioport.iop_padat ^= WATCHDOG_BIT;	/* Toggle WDI   */
-# elif defined(CONFIG_KUP4K) || defined(CONFIG_KUP4X)
-	/*
-	 * The KUP4 boards uses a TPS3705 Watchdog
-	 * with the trigger pin connected to port PA.5
-	 */
-# define WATCHDOG_BIT	0x0400
-	immr->im_ioport.iop_papar &= ~(WATCHDOG_BIT);	/* GPIO     */
-	immr->im_ioport.iop_padir |= WATCHDOG_BIT;	/* Output   */
-	immr->im_ioport.iop_paodr &= ~(WATCHDOG_BIT);	/* active output */
-
-	immr->im_ioport.iop_padat ^= WATCHDOG_BIT;	/* Toggle WDI   */
 # else
 	/*
 	 * All other boards use the MPC8xx Internal Watchdog

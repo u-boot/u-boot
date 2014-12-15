@@ -37,12 +37,6 @@ config TARGET_RRVISION
 config TARGET_SPD823TS
 	bool "Support SPD823TS"
 
-config TARGET_KUP4K
-	bool "Support KUP4K"
-
-config TARGET_KUP4X
-	bool "Support KUP4X"
-
 config TARGET_TQM823L
 	bool "Support TQM823L"
 
@@ -86,8 +80,6 @@ source "board/cogent/Kconfig"
 source "board/esteem192e/Kconfig"
 source "board/ip860/Kconfig"
 source "board/ivm/Kconfig"
-source "board/kup/kup4k/Kconfig"
-source "board/kup/kup4x/Kconfig"
 source "board/lwmon/Kconfig"
 source "board/netvia/Kconfig"
 source "board/r360mpi/Kconfig"

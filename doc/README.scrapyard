@@ -12,6 +12,8 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+KUP4K            powerpc     mpc8xx         -           -           Klaus Heydeck <heydeck@kieback-peter.de>
+KUP4X            powerpc     mpc8xx         -           -           Klaus Heydeck <heydeck@kieback-peter.de>
 ELPT860          powerpc     mpc8xx         -           -           The LEOX team <team@leox.org>
 hmi1001          powerpc     mpc5xxx        -           -
 mucmc52          powerpc     mpc5xxx        -           -           Heiko Schocher <hs@denx.de>
