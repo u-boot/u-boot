@@ -25,9 +25,6 @@ config TARGET_IVMS8
 config TARGET_LWMON
 	bool "Support lwmon"
 
-config TARGET_NETVIA
-	bool "Support NETVIA"
-
 config TARGET_TQM823L
 	bool "Support TQM823L"
 
@@ -71,7 +68,6 @@ source "board/esteem192e/Kconfig"
 source "board/ip860/Kconfig"
 source "board/ivm/Kconfig"
 source "board/lwmon/Kconfig"
-source "board/netvia/Kconfig"
 source "board/tqc/tqm8xx/Kconfig"
 
 endmenu

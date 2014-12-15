@@ -122,29 +122,6 @@ void status_led_set  (int led, int state);
    * filling this file up with lots of custom board stuff.
    */
 
-/*****  NetVia   ********************************************************/
-#elif defined(CONFIG_NETVIA)
-
-#if !defined(CONFIG_NETVIA_VERSION) || CONFIG_NETVIA_VERSION == 1
-
-#define STATUS_LED_PAR		im_ioport.iop_pdpar
-#define STATUS_LED_DIR		im_ioport.iop_pddir
-#undef  STATUS_LED_ODR
-#define STATUS_LED_DAT		im_ioport.iop_pddat
-
-# define STATUS_LED_BIT		0x0080			/* PD.8 */
-# define STATUS_LED_PERIOD	(CONFIG_SYS_HZ / 2)
-# define STATUS_LED_STATE	STATUS_LED_BLINKING
-
-# define STATUS_LED_BIT1	0x0040			/* PD.9 */
-# define STATUS_LED_PERIOD1	(CONFIG_SYS_HZ / 2)
-# define STATUS_LED_STATE1	STATUS_LED_OFF
-
-# define STATUS_LED_ACTIVE	0		/* LED on for bit == 0	*/
-# define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
-
-#endif
-
 /*****  CMI   ********************************************************/
 #elif defined(CONFIG_CMI)
 # define STATUS_LED_DIR		im_mios.mios_mpiosm32ddr

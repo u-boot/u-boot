@@ -448,26 +448,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 #error Configuration Error: exactly ONE of PB_ENET_TENA, PC_ENET_TENA must be defined
 #endif
 
-#if defined(CONFIG_NETVIA)
-#if defined(PA_ENET_PDN)
-	immr->im_ioport.iop_papar &= ~PA_ENET_PDN;
-	immr->im_ioport.iop_padir |= PA_ENET_PDN;
-	immr->im_ioport.iop_padat |= PA_ENET_PDN;
-#elif defined(PB_ENET_PDN)
-	immr->im_cpm.cp_pbpar &= ~PB_ENET_PDN;
-	immr->im_cpm.cp_pbdir |= PB_ENET_PDN;
-	immr->im_cpm.cp_pbdat |= PB_ENET_PDN;
-#elif defined(PC_ENET_PDN)
-	immr->im_ioport.iop_pcpar &= ~PC_ENET_PDN;
-	immr->im_ioport.iop_pcdir |= PC_ENET_PDN;
-	immr->im_ioport.iop_pcdat |= PC_ENET_PDN;
-#elif defined(PD_ENET_PDN)
-	immr->im_ioport.iop_pdpar &= ~PD_ENET_PDN;
-	immr->im_ioport.iop_pddir |= PD_ENET_PDN;
-	immr->im_ioport.iop_pddat |= PD_ENET_PDN;
-#endif
-#endif
-
 	/*
 	 * Set the ENT/ENR bits in the GSMR Low -- Enable Transmit/Receive
 	 */
