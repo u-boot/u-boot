@@ -12,7 +12,13 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-hermes           powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+FPS850L          powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+FPS860L          powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+NSCU             powerpc     mpc8xx         -           -
+SM850            powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+TK885D           powerpc     mpc8xx         -           -
+virtlab2         powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+hermes           powerpc     mpc8xx         36da51e     2014-12-08  Wolfgang Denk <wd@denx.de>
 PRS200		 powerpc     mpc5200	    ecfdcee	2014-11-12
 MCC200		 powerpc     mpc5200	    ecfdcee     2014-11-12
 TOP5200		 powerpc     mpc5200	    d58a945	2014-10-28  Reinhard Meyer <reinhard.meyer@emk-elektronik.de>

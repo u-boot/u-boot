@@ -58,7 +58,7 @@ static const u_int m8xx_size_to_gray[M8XX_SIZES_NO] =
 
 /* -------------------------------------------------------------------- */
 
-#if	defined(CONFIG_LWMON) || defined(CONFIG_NSCU)
+#if	defined(CONFIG_LWMON)
 #define	CONFIG_SYS_PCMCIA_TIMING	(	PCMCIA_SHT(9)	\
 				|	PCMCIA_SST(3)	\
 				|	PCMCIA_SL(12))

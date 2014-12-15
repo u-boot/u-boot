@@ -510,31 +510,6 @@ typedef struct scc_enet {
 
 #endif
 
-/***  FPS850L, FPS860L  ************************************************/
-
-#if defined(CONFIG_FPS850L) || defined(CONFIG_FPS860L)
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC2 use.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
-#define PA_ENET_RCLK	((ushort)0x0100)	/* PA  7 */
-#define PA_ENET_TCLK	((ushort)0x0400)	/* PA  5 */
-
-#define PC_ENET_TENA	((ushort)0x0002)	/* PC 14 */
-#define PC_ENET_CLSN	((ushort)0x0040)	/* PC  9 */
-#define PC_ENET_RENA	((ushort)0x0080)	/* PC  8 */
-
-/* Control bits in the SICR to route TCLK (CLK2) and RCLK (CLK4) to
- * SCC2.  Also, make sure GR2 (bit 16) and SC2 (bit 17) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002600)
-#endif	/* CONFIG_FPS850L, CONFIG_FPS860L */
-
 /***  IP860  **********************************************************/
 
 #if defined(CONFIG_IP860)
@@ -708,32 +683,6 @@ typedef struct scc_enet {
 
 #endif	/* CONFIG_NETVIA */
 
-/***  SM850  *********************************************************/
-
-/* The SM850 Service Module uses SCC2 for IrDA and SCC3 for Ethernet */
-
-#ifdef CONFIG_SM850
-#define PROFF_ENET	PROFF_SCC3		/* Ethernet on SCC3 */
-#define CPM_CR_ENET	CPM_CR_CH_SCC3
-#define SCC_ENET	2
-#define PB_ENET_RXD	((uint)0x00000004)	/* PB 29 */
-#define PB_ENET_TXD	((uint)0x00000002)	/* PB 30 */
-#define PA_ENET_RCLK	((ushort)0x0100)	/* PA  7 */
-#define PA_ENET_TCLK	((ushort)0x0400)	/* PA  5 */
-
-#define PC_ENET_LBK	((ushort)0x0008)	/* PC 12 */
-#define PC_ENET_TENA	((ushort)0x0004)	/* PC 13 */
-
-#define PC_ENET_RENA	((ushort)0x0800)	/* PC  4 */
-#define PC_ENET_CLSN	((ushort)0x0400)	/* PC  5 */
-
-/* Control bits in the SICR to route TCLK (CLK3) and RCLK (CLK1) to
- * SCC3.  Also, make sure GR3 (bit 8) and SC3 (bit 9) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x00FF0000)
-#define SICR_ENET_CLKRT	((uint)0x00260000)
-#endif	/* CONFIG_SM850 */
-
 /***  SPD823TS  ******************************************************/
 
 #ifdef CONFIG_SPD823TS
@@ -770,16 +719,14 @@ typedef struct scc_enet {
     defined(CONFIG_RRVISION)|| defined(CONFIG_TQM823L) || \
     defined(CONFIG_TQM823M) || defined(CONFIG_TQM850L) || \
     defined(CONFIG_TQM850M) || defined(CONFIG_TQM885D) || \
-    defined(CONFIG_RRVISION)|| defined(CONFIG_VIRTLAB2)
+    defined(CONFIG_RRVISION)
 
 /* Bits in parallel I/O port registers that have to be set/cleared
  * to configure the pins for SCC2 use.
  */
 #define	PROFF_ENET	PROFF_SCC2
 #define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#if (!defined(CONFIG_TK885D))	/* TK885D does not use SCC Ethernet */
 #define	SCC_ENET	1
-#endif
 #define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
 #define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
 #define PA_ENET_RCLK	((ushort)0x0100)	/* PA  7 */

@@ -22,50 +22,9 @@
 #if	defined(CONFIG_PCMCIA)	\
 	&& defined(CONFIG_TQM8xxL)
 
-#if	defined(CONFIG_VIRTLAB2)
-#define	PCMCIA_BOARD_MSG	"Virtlab2"
-#elif	defined(CONFIG_TQM8xxL)
+#if	defined(CONFIG_TQM8xxL)
 #define	PCMCIA_BOARD_MSG	"TQM8xxL"
 #endif
-
-#if	defined(CONFIG_NSCU)
-
-static inline void power_config(int slot) {}
-static inline void power_off(int slot) {}
-static inline void power_on_5_0(int slot) {}
-static inline void power_on_3_3(int slot) {}
-
-#elif	defined(CONFIG_VIRTLAB2)
-
-static inline void power_config(int slot) {}
-
-static inline void power_off(int slot)
-{
-	volatile unsigned __iomem *addr;
-	addr = (volatile unsigned __iomem *)PCMCIA_CTRL;
-
-	out_be32(addr, 0);
-}
-
-static inline void power_on_5_0(int slot)
-{
-	volatile unsigned __iomem *addr;
-	addr = (volatile unsigned __iomem *)PCMCIA_CTRL;
-
-	/* Enable 5V Vccout */
-	out_be32(addr, 2);
-}
-
-static inline void power_on_3_3(int slot)
-{
-	volatile unsigned __iomem *addr;
-	addr = (volatile unsigned __iomem *)PCMCIA_CTRL;
-
-	/* Enable 3.3V Vccout */
-	out_be32(addr, 1);
-}
-
-#else
 
 static inline void power_config(int slot)
 {
@@ -98,8 +57,6 @@ static inline void power_on_3_3(int slot)
 	setbits_be16(&immap->im_ioport.iop_pcdir, 0x0002 | 0x0004);
 }
 
-#endif
-
 /*
  * Function to retrieve the PIPR register, used for debuging purposes.
  */
@@ -121,11 +78,7 @@ static inline int check_card_is_absent(int slot)
 	return pipr & (0x18000000 >> (slot << 4));
 }
 
-#ifdef	NSCU_OE_INV
-#define	NSCU_GCRX_CXOE	0
-#else
 #define	NSCU_GCRX_CXOE	__MY_PCMCIA_GCRX_CXOE
-#endif
 
 int pcmcia_hardware_enable(int slot)
 {
@@ -243,7 +196,6 @@ int pcmcia_hardware_disable(int slot)
 
 int pcmcia_voltage_set(int slot, int vcc, int vpp)
 {
-#ifndef CONFIG_NSCU
 	u_long reg;
 	uint32_t pipr = 0;
 
@@ -296,7 +248,6 @@ done:
 	udelay(500);
 
 	debug("voltage_set: " PCMCIA_BOARD_MSG " Slot %c, DONE\n", slot+'A');
-#endif	/* CONFIG_NSCU */
 	return 0;
 }
 
