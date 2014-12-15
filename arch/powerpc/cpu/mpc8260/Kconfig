@@ -37,9 +37,6 @@ config TARGET_PM826
 config TARGET_PM828
 	bool "Support PM828"
 
-config TARGET_PPMC8260
-	bool "Support ppmc8260"
-
 config TARGET_MPC8266ADS
 	bool "Support MPC8266ADS"
 
@@ -64,6 +61,5 @@ source "board/keymile/km82xx/Kconfig"
 source "board/muas3001/Kconfig"
 source "board/pm826/Kconfig"
 source "board/pm828/Kconfig"
-source "board/ppmc8260/Kconfig"
 
 endmenu
