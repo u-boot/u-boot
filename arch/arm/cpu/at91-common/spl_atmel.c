@@ -51,11 +51,13 @@ static void switch_to_main_crystal_osc(void)
 	while (!(readl(&pmc->mcfr) & AT91_PMC_MAINRDY))
 		;
 
+#ifndef CONFIG_SAMA5D4
 	tmp = readl(&pmc->mor);
 	tmp &= ~AT91_PMC_MOR_MOSCRCEN;
 	tmp &= ~AT91_PMC_MOR_KEY(0xff);
 	tmp |= AT91_PMC_MOR_KEY(0x37);
 	writel(tmp, &pmc->mor);
+#endif
 }
 
 __weak void matrix_init(void)
