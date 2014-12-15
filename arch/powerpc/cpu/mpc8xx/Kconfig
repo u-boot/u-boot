@@ -16,12 +16,6 @@ config TARGET_ESTEEM192E
 config TARGET_IP860
 	bool "Support IP860"
 
-config TARGET_IVML24
-	bool "Support IVML24"
-
-config TARGET_IVMS8
-	bool "Support IVMS8"
-
 config TARGET_TQM823L
 	bool "Support TQM823L"
 
@@ -63,7 +57,6 @@ endchoice
 source "board/cogent/Kconfig"
 source "board/esteem192e/Kconfig"
 source "board/ip860/Kconfig"
-source "board/ivm/Kconfig"
 source "board/tqc/tqm8xx/Kconfig"
 
 endmenu

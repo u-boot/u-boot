@@ -126,8 +126,6 @@ void cpu_init_f (volatile immap_t * immr)
 	 */
 
 #if defined(CONFIG_IP860)	|| \
-    defined(CONFIG_IVML24)	|| \
-    defined(CONFIG_IVMS8)	|| \
     defined(CONFIG_RMU)
 
 	memctl->memc_br0 = CONFIG_SYS_BR0_PRELIM;

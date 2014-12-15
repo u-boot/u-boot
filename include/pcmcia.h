@@ -23,8 +23,6 @@
 
 #if defined(CONFIG_TQM8xxL)
 # define	CONFIG_PCMCIA_SLOT_B	/* The TQM8xxL use SLOT_B	*/
-#elif defined(CONFIG_IVMS8) || defined(CONFIG_IVML24)	/* The IVM* use SLOT_A	*/
-# define CONFIG_PCMCIA_SLOT_A
 #elif defined(CONFIG_ATC)		/* The ATC use SLOT_A	*/
 # define CONFIG_PCMCIA_SLOT_A
 #else
