@@ -193,10 +193,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 
-#if defined(CONFIG_LWMON)
-	reset_phy();
-#endif
-
 	pram_ptr = (scc_enet_t *) & (immr->im_cpm.cp_dparam[PROFF_ENET]);
 
 	rxIdx = 0;

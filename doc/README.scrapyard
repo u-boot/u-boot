@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+lwmon            powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
 NETVIA           powerpc     mpc8xx         -           -           Pantelis Antoniou <panto@intracom.gr>
 R360MPI          powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
 RRvision         powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>

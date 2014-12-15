@@ -31,25 +31,6 @@
 */
 #define TEST_FLASH_ADDR	0x40100000
 
-/* Define GPIO ports to signal start of burst transfers and errors */
-#ifdef CONFIG_LWMON
-/* Use PD.8 to signal start of burst transfers */
-#define GPIO1_DAT	(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat)
-#define GPIO1_BIT	0x0080
-/* Configure PD.8 as general purpose output */
-#define GPIO1_INIT \
-	((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pdpar &= ~GPIO1_BIT; \
-	((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddir |=  GPIO1_BIT;
-/* Use PD.9 to signal error */
-#define GPIO2_DAT	(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddat)
-#define GPIO2_BIT	0x0040
-/* Configure PD.9 as general purpose output */
-#define GPIO2_INIT \
-	((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pdpar &= ~GPIO2_BIT; \
-	((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pddir |=  GPIO2_BIT;
-#endif /* CONFIG_LWMON */
-
-
 static void test_prepare (void);
 static int test_burst_start (unsigned long size, unsigned long pattern);
 static void test_map_8M (unsigned long paddr, unsigned long vaddr, int cached);

@@ -405,22 +405,6 @@ static int scc_init (void)
 	sp = (scc_t *) &(cp->cp_scc[SCC_INDEX]);
 	up = (scc_uart_t *) &cp->cp_dparam[PROFF_SCC];
 
-#if defined(CONFIG_LWMON) && defined(CONFIG_8xx_CONS_SCC2)
-    {	/* Disable Ethernet, enable Serial */
-	uchar c;
-
-	c = pic_read  (0x61);
-	c &= ~0x40;	/* enable COM3 */
-	c |=  0x80;	/* disable Ethernet */
-	pic_write (0x61, c);
-
-	/* enable RTS2 */
-	cp->cp_pbpar |=  0x2000;
-	cp->cp_pbdat |=  0x2000;
-	cp->cp_pbdir |=  0x2000;
-    }
-#endif	/* CONFIG_LWMON */
-
 	/* Disable transmitter/receiver. */
 	sp->scc_gsmrl &= ~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
 

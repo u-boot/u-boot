@@ -412,17 +412,6 @@ void lcd_enable (void)
 	/* Enable the LCD panel */
 	immr->im_siu_conf.sc_sdcr |= (1 << (31 - 25));		/* LAM = 1 */
 	lcdp->lcd_lccr |= LCCR_PON;
-
-#if defined(CONFIG_LWMON)
-    {	uchar c = pic_read (0x60);
-#if defined(CONFIG_LCD) && defined(CONFIG_LWMON) && (CONFIG_POST & CONFIG_SYS_POST_SYSMON)
-	/* Enable LCD later in sysmon test, only if temperature is OK */
-#else
-	c |= 0x07;	/* Power on CCFL, Enable CCFL, Chip Enable LCD */
-#endif
-	pic_write (0x60, c);
-    }
-#endif /* CONFIG_LWMON */
 }
 
 /************************************************************************/

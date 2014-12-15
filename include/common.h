@@ -415,10 +415,6 @@ int  eeprom_probe (unsigned dev_addr, unsigned offset);
 #endif
 int  eeprom_read  (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt);
 int  eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt);
-#ifdef CONFIG_LWMON
-extern uchar pic_read  (uchar reg);
-extern void  pic_write (uchar reg, uchar val);
-#endif
 
 /*
  * Set this up regardless of board
