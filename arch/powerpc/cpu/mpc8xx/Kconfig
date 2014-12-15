@@ -7,9 +7,6 @@ config SYS_CPU
 choice
 	prompt "Target select"
 
-config TARGET_COGENT_MPC8XX
-	bool "Support cogent_mpc8xx"
-
 config TARGET_TQM823L
 	bool "Support TQM823L"
 
@@ -48,7 +45,6 @@ config TARGET_TQM885D
 
 endchoice
 
-source "board/cogent/Kconfig"
 source "board/tqc/tqm8xx/Kconfig"
 
 endmenu

@@ -12,6 +12,8 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+cogent_mpc8260   powerpc     mpc8260        -           -           Murray Jensen <Murray.Jensen@csiro.au>
+cogent_8xx       powerpc     mpc8xx         -           -           Murray Jensen <Murray.Jensen@csiro.au>
 ESTEEM192E       powerpc     mpc8xx         -           -           Conn Clark <clark@esteem.com>
 IP860            powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
 IVML24           powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>

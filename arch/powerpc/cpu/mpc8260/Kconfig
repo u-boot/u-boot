@@ -10,9 +10,6 @@ choice
 config TARGET_ATC
 	bool "Support atc"
 
-config TARGET_COGENT_MPC8260
-	bool "Support cogent_mpc8260"
-
 config TARGET_CPU86
 	bool "Support CPU86"
 
@@ -58,7 +55,6 @@ config TARGET_KM82XX
 endchoice
 
 source "board/atc/Kconfig"
-source "board/cogent/Kconfig"
 source "board/cpu86/Kconfig"
 source "board/cpu87/Kconfig"
 source "board/ep8260/Kconfig"
