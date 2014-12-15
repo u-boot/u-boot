@@ -11,6 +11,7 @@
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/sama5_matrix.h>
+#include <asm/arch/sama5_sfr.h>
 #include <asm/arch/sama5d4.h>
 
 char *get_cpu_name()
@@ -77,5 +78,16 @@ void matrix_init(void)
 	/* Enable the write protect */
 	writel(ATMEL_MATRIX_WPMR_WPKEY | ATMEL_MATRIX_WPMR_WPEN, &h64mx->wpmr);
 	writel(ATMEL_MATRIX_WPMR_WPKEY | ATMEL_MATRIX_WPMR_WPEN, &h32mx->wpmr);
+}
+
+void redirect_int_from_saic_to_aic(void)
+{
+	struct atmel_sfr *sfr = (struct atmel_sfr *)ATMEL_BASE_SFR;
+	u32 key32;
+
+	if (!(readl(&sfr->aicredir) & ATMEL_SFR_AICREDIR_NSAIC)) {
+		key32 = readl(&sfr->sn1) ^ ATMEL_SFR_AICREDIR_KEY;
+		writel((key32 | ATMEL_SFR_AICREDIR_NSAIC), &sfr->aicredir);
+	}
 }
 #endif
