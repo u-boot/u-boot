@@ -34,9 +34,6 @@ config TARGET_R360MPI
 config TARGET_RRVISION
 	bool "Support RRvision"
 
-config TARGET_SPD823TS
-	bool "Support SPD823TS"
-
 config TARGET_TQM823L
 	bool "Support TQM823L"
 
@@ -83,7 +80,6 @@ source "board/ivm/Kconfig"
 source "board/lwmon/Kconfig"
 source "board/netvia/Kconfig"
 source "board/r360mpi/Kconfig"
-source "board/spd8xx/Kconfig"
 source "board/tqc/tqm8xx/Kconfig"
 
 endmenu

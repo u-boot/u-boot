@@ -627,35 +627,6 @@ typedef struct scc_enet {
 
 #endif	/* CONFIG_NETVIA */
 
-/***  SPD823TS  ******************************************************/
-
-#ifdef CONFIG_SPD823TS
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC2 use.
- */
-#define	PROFF_ENET	PROFF_SCC2		/* Ethernet on SCC2 */
-#define CPM_CR_ENET     CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_MDC	((ushort)0x0001)	/* PA 15 !!! */
-#define PA_ENET_MDIO	((ushort)0x0002)	/* PA 14 !!! */
-#define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
-#define PA_ENET_RCLK	((ushort)0x0200)	/* PA  6 */
-#define PA_ENET_TCLK	((ushort)0x0400)	/* PA  5 */
-
-#define PB_ENET_TENA	((uint)0x00002000)	/* PB 18 */
-
-#define PC_ENET_CLSN	((ushort)0x0040)	/* PC  9 */
-#define PC_ENET_RENA	((ushort)0x0080)	/* PC  8 */
-#define	PC_ENET_RESET	((ushort)0x0100)	/* PC  7 !!! */
-
-/* Control bits in the SICR to route TCLK (CLK3) and RCLK (CLK2) to
- * SCC2.  Also, make sure GR2 (bit 16) and SC2 (bit 17) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002E00)
-#endif	/* CONFIG_SPD823TS */
-
 /***  MVS1, TQM823L/M, TQM850L/M, TQM885D, R360MPI  **********/
 
 #if (defined(CONFIG_MVS) && CONFIG_MVS < 2) || \
