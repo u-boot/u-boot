@@ -525,6 +525,7 @@ config TARGET_SAMA5D3XEK
 config TARGET_SAMA5D4_XPLAINED
 	bool "Support sama5d4_xplained"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_SAMA5D4EK
 	bool "Support sama5d4ek"
