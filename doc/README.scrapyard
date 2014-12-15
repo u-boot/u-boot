@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+ep82xxm          powerpc     mpc8260        -           -
 gw8260           powerpc     mpc8260        -           -           Oliver Brown <obrown@adventnetworks.com>
 IPHASE4539       powerpc     mpc8260        -           -           Wolfgang Grandegger <wg@denx.de>
 muas3001         powerpc     mpc8260        -           -           Heiko Schocher <hs@denx.de>
