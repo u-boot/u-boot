@@ -7,15 +7,11 @@ config SYS_CPU
 choice
 	prompt "Target select"
 
-config TARGET_ATC
-	bool "Support atc"
-
 config TARGET_KM82XX
 	bool "Support km82xx"
 
 endchoice
 
-source "board/atc/Kconfig"
 source "board/keymile/km82xx/Kconfig"
 
 endmenu

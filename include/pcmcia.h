@@ -23,8 +23,6 @@
 
 #if defined(CONFIG_TQM8xxL)
 # define	CONFIG_PCMCIA_SLOT_B	/* The TQM8xxL use SLOT_B	*/
-#elif defined(CONFIG_ATC)		/* The ATC use SLOT_A	*/
-# define CONFIG_PCMCIA_SLOT_A
 #else
 # error "PCMCIA Slot not configured"
 #endif

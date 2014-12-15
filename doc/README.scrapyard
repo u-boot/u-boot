@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+atc              powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
 CPU86            powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
 CPU87            powerpc     mpc8260        -           -
 ep82xxm          powerpc     mpc8260        -           -
