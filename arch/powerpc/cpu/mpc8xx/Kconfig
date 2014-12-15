@@ -31,9 +31,6 @@ config TARGET_NETVIA
 config TARGET_R360MPI
 	bool "Support R360MPI"
 
-config TARGET_RRVISION
-	bool "Support RRvision"
-
 config TARGET_TQM823L
 	bool "Support TQM823L"
 
@@ -72,7 +69,6 @@ config TARGET_TQM885D
 
 endchoice
 
-source "board/RRvision/Kconfig"
 source "board/cogent/Kconfig"
 source "board/esteem192e/Kconfig"
 source "board/ip860/Kconfig"

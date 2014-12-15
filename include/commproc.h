@@ -631,10 +631,9 @@ typedef struct scc_enet {
 
 #if (defined(CONFIG_MVS) && CONFIG_MVS < 2) || \
     defined(CONFIG_R360MPI) || \
-    defined(CONFIG_RRVISION)|| defined(CONFIG_TQM823L) || \
+    defined(CONFIG_TQM823L) || \
     defined(CONFIG_TQM823M) || defined(CONFIG_TQM850L) || \
-    defined(CONFIG_TQM850M) || defined(CONFIG_TQM885D) || \
-    defined(CONFIG_RRVISION)
+    defined(CONFIG_TQM850M) || defined(CONFIG_TQM885D)
 
 /* Bits in parallel I/O port registers that have to be set/cleared
  * to configure the pins for SCC2 use.

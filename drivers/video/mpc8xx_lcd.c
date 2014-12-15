@@ -448,23 +448,6 @@ void lcd_enable (void)
 	r360_i2c_lcd_write(0x40 | ((ctr>>8) & 0xF), ctr & 0xFF);
     }
 #endif /* CONFIG_R360MPI */
-#ifdef CONFIG_RRVISION
-	debug ("PC4->Output(1): enable LVDS\n");
-	debug ("PC5->Output(0): disable PAL clock\n");
-	immr->im_ioport.iop_pddir |=  0x1000;
-	immr->im_ioport.iop_pcpar &= ~(0x0C00);
-	immr->im_ioport.iop_pcdir |=   0x0C00 ;
-	immr->im_ioport.iop_pcdat |=   0x0800 ;
-	immr->im_ioport.iop_pcdat &= ~(0x0400);
-	debug ("PDPAR=0x%04X PDDIR=0x%04X PDDAT=0x%04X\n",
-	       immr->im_ioport.iop_pdpar,
-	       immr->im_ioport.iop_pddir,
-	       immr->im_ioport.iop_pddat);
-	debug ("PCPAR=0x%04X PCDIR=0x%04X PCDAT=0x%04X\n",
-	       immr->im_ioport.iop_pcpar,
-	       immr->im_ioport.iop_pcdir,
-	       immr->im_ioport.iop_pcdat);
-#endif
 }
 
 /************************************************************************/
