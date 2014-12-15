@@ -19,9 +19,6 @@ config TARGET_CPU87
 config TARGET_EP82XXM
 	bool "Support ep82xxm"
 
-config TARGET_GW8260
-	bool "Support gw8260"
-
 config TARGET_KM82XX
 	bool "Support km82xx"
 
@@ -31,7 +28,6 @@ source "board/atc/Kconfig"
 source "board/cpu86/Kconfig"
 source "board/cpu87/Kconfig"
 source "board/ep82xxm/Kconfig"
-source "board/gw8260/Kconfig"
 source "board/keymile/km82xx/Kconfig"
 
 endmenu
