@@ -172,11 +172,24 @@ void spl_mmc_load_image(void)
 		err = mmc_load_image_raw_sector(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 #endif
-	} else {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		puts("spl: wrong MMC boot mode\n");
+	}
+
+	switch(boot_mode){
+		case MMCSD_MODE_RAW:
+#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+		case MMCSD_MODE_FS:
 #endif
-		hang();
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+		case MMCSD_MODE_EMMCBOOT:
+#endif
+			/* Boot mode is ok. Nothing to do. */
+			break;
+		case MMCSD_MODE_UNDEFINED:
+		default:
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+			puts("spl: wrong MMC boot mode\n");
+#endif
+			hang();
 	}
 
 	if (err)
