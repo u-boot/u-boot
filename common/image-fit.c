@@ -1518,6 +1518,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	size_t size;
 	int type_ok, os_ok;
 	ulong load, data, len;
+	uint8_t os;
 	const char *prop_name;
 	int ret;
 
@@ -1612,10 +1613,15 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		(image_type == IH_TYPE_KERNEL &&
 			fit_image_check_type(fit, noffset,
 					     IH_TYPE_KERNEL_NOLOAD));
+
 	os_ok = image_type == IH_TYPE_FLATDT ||
-		fit_image_check_os(fit, noffset, IH_OS_LINUX);
+		fit_image_check_os(fit, noffset, IH_OS_LINUX) ||
+		fit_image_check_os(fit, noffset, IH_OS_OPENRTOS);
 	if (!type_ok || !os_ok) {
-		printf("No Linux %s %s Image\n", genimg_get_arch_name(arch),
+		fit_image_get_os(fit, noffset, &os);
+		printf("No %s %s %s Image\n",
+		       genimg_get_os_name(os),
+		       genimg_get_arch_name(arch),
 		       genimg_get_type_name(image_type));
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_CHECK_ALL);
 		return -EIO;
