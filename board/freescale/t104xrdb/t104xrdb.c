@@ -17,8 +17,7 @@
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
-#include <asm/mpc85xx_gpio.h>
-
+#include "../common/sleep.h"
 #include "t104xrdb.h"
 #include "cpld.h"
 
@@ -40,6 +39,16 @@ int checkboard(void)
 		printf("vBank: %d\n", sw);
 	else
 		printf("Unsupported Bank=%x\n", sw);
+
+	return 0;
+}
+
+int board_early_init_f(void)
+{
+#if defined(CONFIG_DEEP_SLEEP)
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
 
 	return 0;
 }
@@ -113,14 +122,3 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
-
-#ifdef CONFIG_DEEP_SLEEP
-void board_mem_sleep_setup(void)
-{
-	/* does not provide HW signals for power management */
-	CPLD_WRITE(misc_ctl_status, (CPLD_READ(misc_ctl_status) & ~0x40));
-	/* Disable MCKE isolation */
-	gpio_set_value(2, 0);
-	udelay(1);
-}
-#endif

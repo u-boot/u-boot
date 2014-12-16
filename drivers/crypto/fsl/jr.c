@@ -246,7 +246,7 @@ int run_descriptor_jr(uint32_t *desc)
 	struct result op;
 	int ret = 0;
 
-	memset(&op, sizeof(op), 0);
+	memset(&op, 0, sizeof(op));
 
 	ret = jr_enqueue(desc, desc_done, &op);
 	if (ret) {

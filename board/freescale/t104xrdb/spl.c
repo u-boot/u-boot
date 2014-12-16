@@ -11,7 +11,7 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <spi_flash.h>
-#include <asm/mpc85xx_gpio.h>
+#include "../common/sleep.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -64,8 +64,8 @@ void board_init_f(ulong bootflag)
 
 #ifdef CONFIG_DEEP_SLEEP
 	/* disable the console if boot from deep sleep */
-	if (in_be32(&gur->scrtsr[0]) & (1 << 3))
-		gd->flags |= GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
+	if (is_warm_boot())
+		fsl_dp_disable_console();
 #endif
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("" : : : "memory");
@@ -132,16 +132,3 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	nand_boot();
 #endif
 }
-
-#ifdef CONFIG_DEEP_SLEEP
-void board_mem_sleep_setup(void)
-{
-	void __iomem *cpld_base = (void *)CONFIG_SYS_CPLD_BASE;
-
-	/* does not provide HW signals for power management */
-	clrbits_8(cpld_base + 0x17, 0x40);
-	/* Disable MCKE isolation */
-	gpio_set_value(2, 0);
-	udelay(1);
-}
-#endif
