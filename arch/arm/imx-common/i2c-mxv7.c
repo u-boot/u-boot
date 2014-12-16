@@ -73,26 +73,21 @@ static void * const i2c_bases[] = {
 int setup_i2c(unsigned i2c_index, int speed, int slave_addr,
 	      struct i2c_pads_info *p)
 {
-	char *name1, *name2;
+	char name[9];
 	int ret;
 
 	if (i2c_index >= ARRAY_SIZE(i2c_bases))
 		return -EINVAL;
 
-	name1 = malloc(9);
-	name2 = malloc(9);
-	if (!name1 || !name2)
-		return -ENOMEM;
-
-	sprintf(name1, "i2c_sda%d", i2c_index);
-	sprintf(name2, "i2c_scl%d", i2c_index);
-	ret = gpio_request(p->sda.gp, name1);
+	snprintf(name, sizeof(name), "i2c_sda%01d", i2c_index);
+	ret = gpio_request(p->sda.gp, name);
 	if (ret)
-		goto err_req1;
+		return ret;
 
-	ret = gpio_request(p->scl.gp, name2);
+	snprintf(name, sizeof(name), "i2c_scl%01d", i2c_index);
+	ret = gpio_request(p->scl.gp, name);
 	if (ret)
-		goto err_req2;
+		goto err_req;
 
 	/* Enable i2c clock */
 	ret = enable_i2c_clk(1, i2c_index);
@@ -112,11 +107,8 @@ int setup_i2c(unsigned i2c_index, int speed, int slave_addr,
 err_idle:
 err_clk:
 	gpio_free(p->scl.gp);
-err_req2:
+err_req:
 	gpio_free(p->sda.gp);
-err_req1:
-	free(name1);
-	free(name2);
 
 	return ret;
 }
