@@ -120,6 +120,10 @@ static const table_entry_t uimage_os[] = {
 	{	IH_OS_SOLARIS,	"solaris",	"Solaris",		},
 	{	IH_OS_SVR4,	"svr4",		"SVR4",			},
 #endif
+#if defined(CONFIG_BOOTM_OPENRTOS) || defined(USE_HOSTCC)
+	{	IH_OS_OPENRTOS,	"openrtos",	"OpenRTOS",		},
+#endif
+
 	{	-1,		"",		"",			},
 };
 
