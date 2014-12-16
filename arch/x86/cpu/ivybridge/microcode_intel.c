@@ -40,6 +40,8 @@ static int microcode_decode_node(const void *blob, int node,
 	update->data = fdt_getprop(blob, node, "data", &update->size);
 	if (!update->data)
 		return -EINVAL;
+	update->data += 48;
+	update->size -= 48;
 
 	update->header_version = fdtdec_get_int(blob, node,
 						"intel,header-version", 0);

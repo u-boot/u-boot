@@ -214,10 +214,10 @@
 
 	microcode {
 		update@0 {
-#include "microcode/m12206a7_00000028.dtsi"
+#include "microcode/m12206a7_00000029.dtsi"
 		};
 		update@1 {
-#include "microcode/m12306a9_00000017.dtsi"
+#include "microcode/m12306a9_0000001b.dtsi"
 		};
 	};
 
