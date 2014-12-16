@@ -42,7 +42,6 @@ typedef enum {
 #define SYSMGR_FRZCTRL_HWCTRL_VIO1REQ_MASK 0x00000001
 #define SYSMGR_FRZCTRL_HWCTRL_VIO1STATE_ENUM_FROZEN 0x2
 #define SYSMGR_FRZCTRL_HWCTRL_VIO1STATE_ENUM_THAWED 0x1
-#define SYSMGR_FRZCTRL_VIOCTRL_SHIFT 0x2
 
 void sys_mgr_frzctrl_freeze_req(void);
 void sys_mgr_frzctrl_thaw_req(void);
