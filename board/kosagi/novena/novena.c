@@ -36,11 +36,9 @@
 #include <power/pfuze100_pmic.h>
 #include <stdio_dev.h>
 
-DECLARE_GLOBAL_DATA_PTR;
+#include "novena.h"
 
-#define NOVENA_BUTTON_GPIO	IMX_GPIO_NR(4, 14)
-#define NOVENA_SD_WP		IMX_GPIO_NR(1, 2)
-#define NOVENA_SD_CD		IMX_GPIO_NR(1, 4)
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * GPIO button
