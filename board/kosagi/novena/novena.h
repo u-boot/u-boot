@@ -20,4 +20,6 @@
 #define NOVENA_SD_CD			IMX_GPIO_NR(1, 4)
 #define NOVENA_SD_WP			IMX_GPIO_NR(1, 2)
 
+void setup_display_clock(void);
+
 #endif	/* __BOARD_KOSAGI_NOVENA_NOVENA_H__ */
