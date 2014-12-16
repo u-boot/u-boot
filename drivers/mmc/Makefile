@@ -30,6 +30,7 @@ obj-$(CONFIG_S3C_SDI) += s3c_sdi.o
 obj-$(CONFIG_S5P_SDHCI) += s5p_sdhci.o
 obj-$(CONFIG_SDHCI) += sdhci.o
 obj-$(CONFIG_SH_MMCIF) += sh_mmcif.o
+obj-$(CONFIG_SH_SDHI) += sh_sdhi.o
 obj-$(CONFIG_SOCFPGA_DWMMC) += socfpga_dw_mmc.o
 obj-$(CONFIG_SPEAR_SDHCI) += spear_sdhci.o
 obj-$(CONFIG_TEGRA_MMC) += tegra_mmc.o
