@@ -50,17 +50,17 @@ static int microcode_decode_node(const void *blob, int node,
 	update->date_code = fdtdec_get_int(blob, node,
 					   "intel,date-code", 0);
 	update->processor_signature = fdtdec_get_int(blob, node,
-					"intel.processor-signature", 0);
+					"intel,processor-signature", 0);
 	update->checksum = fdtdec_get_int(blob, node, "intel,checksum", 0);
 	update->loader_revision = fdtdec_get_int(blob, node,
-						 "loader-revision", 0);
+						 "intel,loader-revision", 0);
 	update->processor_flags = fdtdec_get_int(blob, node,
-						 "processor-flags", 0);
+						 "intel,processor-flags", 0);
 
 	return 0;
 }
 
-static uint32_t microcode_read_rev(void)
+static inline uint32_t microcode_read_rev(void)
 {
 	/*
 	 * Some Intel CPUs can be very finicky about the CPUID sequence used.
@@ -116,6 +116,7 @@ int microcode_update_intel(void)
 {
 	struct microcode_update cpu, update;
 	const void *blob = gd->fdt_blob;
+	int skipped;
 	int count;
 	int node;
 	int ret;
@@ -123,12 +124,13 @@ int microcode_update_intel(void)
 	microcode_read_cpu(&cpu);
 	node = 0;
 	count = 0;
+	skipped = 0;
 	do {
 		node = fdtdec_next_compatible(blob, node,
 					      COMPAT_INTEL_MICROCODE);
 		if (node < 0) {
 			debug("%s: Found %d updates\n", __func__, count);
-			return count ? 0 : -ENOENT;
+			return count ? 0 : skipped ? -EEXIST : -ENOENT;
 		}
 
 		ret = microcode_decode_node(blob, node, &update);
@@ -137,12 +139,15 @@ int microcode_update_intel(void)
 			      ret);
 			return ret;
 		}
-		if (update.processor_signature == cpu.processor_signature &&
-		    (update.processor_flags & cpu.processor_flags)) {
-			debug("%s: Update already exists\n", __func__);
-			return -EEXIST;
+		if (!(update.processor_signature == cpu.processor_signature &&
+		      (update.processor_flags & cpu.processor_flags))) {
+			debug("%s: Skipping non-matching update, sig=%x, pf=%x\n",
+			      __func__, update.processor_signature,
+			      update.processor_flags);
+			skipped++;
+			continue;
 		}
-
+		ret = microcode_read_rev();
 		wrmsr(0x79, (ulong)update.data, 0);
 		debug("microcode: updated to revision 0x%x date=%04x-%02x-%02x\n",
 		      microcode_read_rev(), update.date_code & 0xffff,
