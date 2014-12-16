@@ -173,6 +173,14 @@ int board_init(void)
 	return 0;
 }
 
+int board_late_init(void)
+{
+#if defined(CONFIG_VIDEO_IPUV3)
+	setup_display_lvds();
+#endif
+	return 0;
+}
+
 int checkboard(void)
 {
 	puts("Board: Novena 4x\n");

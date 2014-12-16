@@ -386,6 +386,13 @@ static void novena_spl_setup_iomux_uart(void)
 static iomux_v3_cfg_t hdmi_pads[] = {
 	/* "Ghost HPD" pin */
 	MX6_PAD_EIM_A24__GPIO5_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
+
+	/* LCD_PWR_CTL */
+	MX6_PAD_CSI0_DAT10__GPIO5_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	/* LCD_BL_ON */
+	MX6_PAD_KEY_ROW4__GPIO4_IO15 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	/* GPIO_PWM1 */
+	MX6_PAD_DISP0_DAT8__GPIO4_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 static void novena_spl_setup_iomux_video(void)
