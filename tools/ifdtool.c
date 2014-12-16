@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <libfdt.h>
 #include "ifdtool.h"
 
 #undef DEBUG
@@ -34,6 +35,8 @@
 
 enum input_file_type_t {
 	IF_normal,
+	IF_fdt,
+	IF_uboot,
 };
 
 struct input_file {
@@ -703,7 +706,7 @@ int inject_region(char *image, int size, int region_type, char *region_fname)
  *			0xffffffff so use an address relative to that. For an
  *			8MB ROM the start address is 0xfff80000.
  * @write_fname:	Filename to add to the image
- * @return 0 if OK, -ve on error
+ * @return number of bytes written if OK, -ve on error
  */
 static int write_data(char *image, int size, unsigned int addr,
 		      const char *write_fname)
@@ -715,7 +718,7 @@ static int write_data(char *image, int size, unsigned int addr,
 	if (write_fd < 0)
 		return write_fd;
 
-	offset = addr + size;
+	offset = (uint32_t)(addr + size);
 	debug("Writing %s to offset %#x\n", write_fname, offset);
 
 	if (offset < 0 || offset + write_size > size) {
@@ -730,6 +733,68 @@ static int write_data(char *image, int size, unsigned int addr,
 	}
 
 	close(write_fd);
+
+	return write_size;
+}
+
+/**
+ * write_uboot() - Write U-Boot, device tree and microcode pointer
+ *
+ * This writes U-Boot into a place in the flash, followed by its device tree.
+ * The microcode pointer is written so that U-Boot can find the microcode in
+ * the device tree very early in boot.
+ *
+ * @image:	Pointer to image
+ * @size:	Size of image in bytes
+ * @uboot:	Input file information for u-boot.bin
+ * @fdt:	Input file information for u-boot.dtb
+ * @ucode_ptr:	Address in U-Boot where the microcode pointer should be placed
+ * @return 0 if OK, -ve on error
+ */
+static int write_uboot(char *image, int size, struct input_file *uboot,
+		       struct input_file *fdt, unsigned int ucode_ptr)
+{
+	const void *blob;
+	const char *data;
+	int uboot_size;
+	uint32_t *ptr;
+	int data_size;
+	int offset;
+	int node;
+	int ret;
+
+	uboot_size = write_data(image, size, uboot->addr, uboot->fname);
+	if (uboot_size < 0)
+		return uboot_size;
+	fdt->addr = uboot->addr + uboot_size;
+	debug("U-Boot size %#x, FDT at %#x\n", uboot_size, fdt->addr);
+	ret = write_data(image, size, fdt->addr, fdt->fname);
+	if (ret < 0)
+		return ret;
+
+	if (ucode_ptr) {
+		blob = (void *)image + (uint32_t)(fdt->addr + size);
+		debug("DTB at %lx\n", (char *)blob - image);
+		node = fdt_node_offset_by_compatible(blob, 0,
+						     "intel,microcode");
+		if (node < 0) {
+			debug("No microcode found in FDT: %s\n",
+			      fdt_strerror(node));
+			return -ENOENT;
+		}
+		data = fdt_getprop(blob, node, "data", &data_size);
+		if (!data) {
+			debug("No microcode data found in FDT: %s\n",
+			      fdt_strerror(data_size));
+			return -ENOENT;
+		}
+		offset = ucode_ptr - uboot->addr;
+		ptr = (void *)image + offset;
+		ptr[0] = uboot->addr + (data - image);
+		ptr[1] = data_size;
+		debug("Wrote microcode pointer at %x: addr=%x, size=%x\n",
+		      ucode_ptr, ptr[0], ptr[1]);
+	}
 
 	return 0;
 }
@@ -800,7 +865,7 @@ int main(int argc, char *argv[])
 	char *desc_fname = NULL, *addr_str = NULL;
 	int region_type = -1, inputfreq = 0;
 	enum spi_frequency spifreq = SPI_FREQUENCY_20MHZ;
-	struct input_file input_file[WRITE_MAX], *ifile;
+	struct input_file input_file[WRITE_MAX], *ifile, *fdt = NULL;
 	unsigned char wr_idx, wr_num = 0;
 	int rom_size = -1;
 	bool write_it;
@@ -808,6 +873,8 @@ int main(int argc, char *argv[])
 	char *outfile = NULL;
 	struct stat buf;
 	int size = 0;
+	unsigned int ucode_ptr = 0;
+	bool have_uboot = false;
 	int bios_fd;
 	char *image;
 	int ret;
@@ -817,18 +884,21 @@ int main(int argc, char *argv[])
 		{"descriptor", 1, NULL, 'D'},
 		{"em100", 0, NULL, 'e'},
 		{"extract", 0, NULL, 'x'},
+		{"fdt", 1, NULL, 'f'},
 		{"inject", 1, NULL, 'i'},
 		{"lock", 0, NULL, 'l'},
+		{"microcode", 1, NULL, 'm'},
 		{"romsize", 1, NULL, 'r'},
 		{"spifreq", 1, NULL, 's'},
 		{"unlock", 0, NULL, 'u'},
+		{"uboot", 1, NULL, 'U'},
 		{"write", 1, NULL, 'w'},
 		{"version", 0, NULL, 'v'},
 		{"help", 0, NULL, 'h'},
 		{0, 0, 0, 0}
 	};
 
-	while ((opt = getopt_long(argc, argv, "cdD:ehi:lr:s:uvw:x?",
+	while ((opt = getopt_long(argc, argv, "cdD:ef:hi:lm:r:s:uU:vw:x?",
 				  long_options, &option_index)) != EOF) {
 		switch (opt) {
 		case 'c':
@@ -871,6 +941,9 @@ int main(int argc, char *argv[])
 		case 'l':
 			mode_locked = 1;
 			break;
+		case 'm':
+			ucode_ptr = strtoul(optarg, NULL, 0);
+			break;
 		case 'r':
 			rom_size = strtol(optarg, NULL, 0);
 			debug("ROM size %d\n", rom_size);
@@ -904,6 +977,8 @@ int main(int argc, char *argv[])
 			exit(EXIT_SUCCESS);
 			break;
 		case 'w':
+		case 'U':
+		case 'f':
 			ifile = &input_file[wr_num];
 			mode_write = 1;
 			if (wr_num < WRITE_MAX) {
@@ -913,7 +988,12 @@ int main(int argc, char *argv[])
 					exit(EXIT_FAILURE);
 				}
 				ifile->addr = strtol(optarg, NULL, 0);
-				ifile->type = IF_normal;
+				ifile->type = opt == 'f' ? IF_fdt :
+					opt == 'U' ? IF_uboot : IF_normal;
+				if (ifile->type == IF_fdt)
+					fdt = ifile;
+				else if (ifile->type == IF_uboot)
+					have_uboot = true;
 				wr_num++;
 			} else {
 				fprintf(stderr,
@@ -966,6 +1046,13 @@ int main(int argc, char *argv[])
 
 	if (optind + 1 != argc) {
 		fprintf(stderr, "You need to specify a file.\n\n");
+		print_usage(argv[0]);
+		exit(EXIT_FAILURE);
+	}
+
+	if (have_uboot && !fdt) {
+		fprintf(stderr,
+			"You must supply a device tree file for U-Boot\n\n");
 		print_usage(argv[0]);
 		exit(EXIT_FAILURE);
 	}
@@ -1034,9 +1121,16 @@ int main(int argc, char *argv[])
 	if (mode_write) {
 		for (wr_idx = 0; wr_idx < wr_num; wr_idx++) {
 			ifile = &input_file[wr_idx];
-			ret = write_data(image, size, ifile->addr,
+			if (ifile->type == IF_fdt) {
+				continue;
+			} else if (ifile->type == IF_uboot) {
+				ret = write_uboot(image, size, ifile, fdt,
+						  ucode_ptr);
+			} else {
+				ret = write_data(image, size, ifile->addr,
 					 ifile->fname);
-			if (ret)
+			}
+			if (ret < 0)
 				break;
 		}
 	}
@@ -1071,5 +1165,5 @@ int main(int argc, char *argv[])
 	free(image);
 	close(bios_fd);
 
-	return ret ? 1 : 0;
+	return ret < 0 ? 1 : 0;
 }
