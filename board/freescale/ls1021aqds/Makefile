@@ -7,3 +7,4 @@
 obj-y += ls1021aqds.o
 obj-y += ddr.o
 obj-y += eth.o
+obj-$(CONFIG_FSL_DCU_FB) += dcu.o

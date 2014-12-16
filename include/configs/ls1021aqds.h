@@ -385,6 +385,7 @@ unsigned long get_board_ddr_clk(void);
  */
 #define I2C_MUX_PCA_ADDR_PRI		0x77
 #define I2C_MUX_CH_DEFAULT		0x8
+#define I2C_MUX_CH_CH7301		0xC
 
 /*
  * MMC
@@ -424,6 +425,25 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_CMD_EXT2
 #endif
+#endif
+
+/*
+ * Video
+ */
+#define CONFIG_FSL_DCU_FB
+
+#ifdef CONFIG_FSL_DCU_FB
+#define CONFIG_VIDEO
+#define CONFIG_CMD_BMP
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+
+#define CONFIG_FSL_DIU_CH7301
+#define CONFIG_SYS_I2C_DVI_BUS_NUM	0
+#define CONFIG_SYS_I2C_QIXIS_ADDR	0x66
+#define CONFIG_SYS_I2C_DVI_ADDR		0x75
 #endif
 
 /*
