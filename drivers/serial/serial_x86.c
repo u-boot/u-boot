@@ -9,12 +9,12 @@
 #include <ns16550.h>
 #include <serial.h>
 
-static const struct udevice_id coreboot_serial_ids[] = {
-	{ .compatible = "coreboot-uart" },
+static const struct udevice_id x86_serial_ids[] = {
+	{ .compatible = "x86-uart" },
 	{ }
 };
 
-static int coreboot_serial_ofdata_to_platdata(struct udevice *dev)
+static int x86_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ns16550_platdata *plat = dev_get_platdata(dev);
 	int ret;
@@ -27,10 +27,10 @@ static int coreboot_serial_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 U_BOOT_DRIVER(serial_ns16550) = {
-	.name	= "serial_coreboot",
+	.name	= "serial_x86",
 	.id	= UCLASS_SERIAL,
-	.of_match = coreboot_serial_ids,
-	.ofdata_to_platdata = coreboot_serial_ofdata_to_platdata,
+	.of_match = x86_serial_ids,
+	.ofdata_to_platdata = x86_serial_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct ns16550_platdata),
 	.priv_auto_alloc_size = sizeof(struct NS16550),
 	.probe = ns16550_serial_probe,

@@ -49,7 +49,7 @@
 	{PCI_VENDOR_ID_INTEL,		\
 			PCI_DEVICE_ID_INTEL_PANTHERPOINT_AHCI_MOBILE}
 
-#define CONFIG_COREBOOT_SERIAL
+#define CONFIG_X86_SERIAL
 
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,vga,serial\0" \
 					"stdout=vga,serial,cbmem\0" \
