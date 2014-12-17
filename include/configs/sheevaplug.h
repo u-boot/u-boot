@@ -33,6 +33,11 @@
 #define CONFIG_LZO
 
 /*
+ * Enable device tree support
+ */
+#define CONFIG_OF_LIBFDT
+
+/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
