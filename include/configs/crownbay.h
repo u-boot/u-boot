@@ -45,6 +45,8 @@
 #define CONFIG_SCSI_DEV_LIST            \
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TCF_SATA}
 
+#define CONFIG_SPI_FLASH_SST
+
 /* Video is not supported */
 #undef CONFIG_VIDEO
 #undef CONFIG_CFB_CONSOLE
