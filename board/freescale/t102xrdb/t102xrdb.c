@@ -16,10 +16,10 @@
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
-#include <asm/mpc85xx_gpio.h>
 #include <fm_eth.h>
 #include "t102xrdb.h"
 #include "cpld.h"
+#include "../common/sleep.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,6 +51,16 @@ int checkboard(void)
 
 	puts("SERDES Reference Clocks:\n");
 	printf("SD1_CLK1=%s, SD1_CLK2=%s\n", freq[2], freq[0]);
+
+	return 0;
+}
+
+int board_early_init_f(void)
+{
+#if defined(CONFIG_DEEP_SLEEP)
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
 
 	return 0;
 }
@@ -131,14 +141,3 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
-
-#ifdef CONFIG_DEEP_SLEEP
-void board_mem_sleep_setup(void)
-{
-	/* does not provide HW signals for power management */
-	CPLD_WRITE(misc_ctl_status, (CPLD_READ(misc_ctl_status) & ~0x40));
-	/* Disable MCKE isolation */
-	gpio_set_value(2, 0);
-	udelay(1);
-}
-#endif
