@@ -11,7 +11,7 @@
 #include <asm-generic/gpio.h>
 
 struct ich6_bank_platdata {
-	uint32_t base_addr;
+	uint16_t base_addr;
 	const char *bank_name;
 };
 
@@ -147,7 +147,7 @@ struct pch_gpio_map {
 	} set3;
 };
 
-void setup_pch_gpios(u32 gpiobase, const struct pch_gpio_map *gpio);
+void setup_pch_gpios(u16 gpiobase, const struct pch_gpio_map *gpio);
 void ich_gpio_set_gpio_map(const struct pch_gpio_map *map);
 
 #endif /* _X86_GPIO_H_ */

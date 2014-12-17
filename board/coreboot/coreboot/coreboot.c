@@ -16,7 +16,7 @@ int arch_early_init_r(void)
 	return 0;
 }
 
-void setup_pch_gpios(u32 gpiobase, const struct pch_gpio_map *gpio)
+void setup_pch_gpios(u16 gpiobase, const struct pch_gpio_map *gpio)
 {
 	return;
 }
