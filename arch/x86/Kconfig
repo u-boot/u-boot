@@ -32,6 +32,15 @@ config TARGET_CHROMEBOOK_LINK
 	  and it provides a 2560x1700 high resolution touch-enabled LCD
 	  display.
 
+config TARGET_CROWNBAY
+	bool "Support Intel Crown Bay CRB"
+	help
+	  This is the Intel Crown Bay Customer Reference Board. It contains
+	  the Intel Atom Processor E6xx populated on the COM Express module
+	  with 1GB DDR2 soldered down memory and a carrier board with the
+	  Intel Platform Controller Hub EG20T, other system components and
+	  peripheral connectors for PCIe/SATA/USB/LAN/SD/UART/Audio/LVDS.
+
 endchoice
 
 config RAMBASE
@@ -310,8 +319,12 @@ endmenu
 
 source "arch/x86/cpu/ivybridge/Kconfig"
 
+source "arch/x86/cpu/queensbay/Kconfig"
+
 source "board/coreboot/coreboot/Kconfig"
 
 source "board/google/chromebook_link/Kconfig"
+
+source "board/intel/crownbay/Kconfig"
 
 endmenu
