@@ -15,8 +15,6 @@
 #include <asm/io.h>
 #include <asm/secure.h>
 
-unsigned long gic_dist_addr;
-
 static unsigned int read_id_pfr1(void)
 {
 	unsigned int reg;
@@ -68,6 +66,12 @@ static void kick_secondary_cpus_gic(unsigned long gicdaddr)
 
 void __weak smp_kick_all_cpus(void)
 {
+	unsigned long gic_dist_addr;
+
+	gic_dist_addr = get_gicd_base_address();
+	if (gic_dist_addr == -1)
+		return;
+
 	kick_secondary_cpus_gic(gic_dist_addr);
 }
 
@@ -75,6 +79,7 @@ int armv7_init_nonsec(void)
 {
 	unsigned int reg;
 	unsigned itlinesnr, i;
+	unsigned long gic_dist_addr;
 
 	/* check whether the CPU supports the security extensions */
 	reg = read_id_pfr1();
