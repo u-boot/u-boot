@@ -157,7 +157,7 @@
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8000
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x30000
+#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
 #endif
 
 /*
@@ -251,7 +251,7 @@
 #undef CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE			(64 << 10)
-#define CONFIG_ENV_OFFSET		(256 << 10)
+#define CONFIG_ENV_OFFSET		(512 << 10)
 #define CONFIG_ENV_SECT_SIZE		(64 << 10)
 #define CONFIG_SYS_NO_FLASH
 #endif
@@ -259,6 +259,7 @@
 /*
  * U-Boot general configuration
  */
+#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOOTFILE		"uImage" /* Boot file name */
@@ -275,6 +276,7 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
+#define CONFIG_OF_LIBFDT
 
 /*
  * Linux Information
