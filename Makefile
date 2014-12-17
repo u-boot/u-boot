@@ -947,7 +947,9 @@ ifneq ($(CONFIG_X86_RESET_VECTOR),)
 rom: u-boot.rom FORCE
 
 IFDTOOL=$(objtree)/tools/ifdtool
-IFDTOOL_FLAGS  = -w $(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot-dtb.bin
+IFDTOOL_FLAGS  = -f 0:$(objtree)/u-boot.dtb
+IFDTOOL_FLAGS += -m 0x$(shell $(NM) u-boot |grep _dt_ucode_base_size |cut -d' ' -f1)
+IFDTOOL_FLAGS += -U $(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot.bin
 IFDTOOL_FLAGS += -w $(CONFIG_SYS_X86_START16):$(objtree)/u-boot-x86-16bit.bin
 
 ifneq ($(CONFIG_HAVE_INTEL_ME),)

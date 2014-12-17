@@ -116,12 +116,9 @@ temp_ram_init_romstack:
 	.long	temp_ram_init_ret
 	.long	temp_ram_init_params
 temp_ram_init_params:
-	.long	ucode_start		/* microcode base */
-	.long	ucode_size		/* microcode size */
+_dt_ucode_base_size:
+	/* These next two fields are filled in by ifdtool */
+	.long	0			/* microcode base */
+	.long	0			/* microcode size */
 	.long	CONFIG_SYS_MONITOR_BASE	/* code region base */
 	.long	CONFIG_SYS_MONITOR_LEN	/* code region size */
-
-	.balign	4
-ucode_start:
-	.include "arch/x86/cpu/queensbay/M0220661105.inc"
-ucode_size = ( . - ucode_start)

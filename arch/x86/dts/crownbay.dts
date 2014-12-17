@@ -50,4 +50,11 @@
 			memory-map = <0xffe00000 0x00200000>;
 		};
 	};
+
+	microcode {
+		update@0 {
+#include "microcode/m0220661105_cv.dtsi"
+		};
+	};
+
 };
