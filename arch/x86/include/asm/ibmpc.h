@@ -18,4 +18,7 @@
 #define SYSCTLA         0x92
 #define SLAVE_PIC       0xa0
 
+#define UART0_BASE	0x3f8
+#define UART1_BASE	0x2f8
+
 #endif
