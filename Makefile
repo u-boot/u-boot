@@ -961,8 +961,16 @@ ifneq ($(CONFIG_HAVE_MRC),)
 IFDTOOL_FLAGS += -w $(CONFIG_X86_MRC_ADDR):$(srctree)/board/$(BOARDDIR)/mrc.bin
 endif
 
+ifneq ($(CONFIG_HAVE_FSP),)
+IFDTOOL_FLAGS += -w $(CONFIG_FSP_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_FSP_FILE)
+endif
+
+ifneq ($(CONFIG_HAVE_CMC),)
+IFDTOOL_FLAGS += -w $(CONFIG_CMC_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_CMC_FILE)
+endif
+
 ifneq ($(CONFIG_X86_OPTION_ROM_ADDR),)
-IFDTOOL_FLAGS += -w $(CONFIG_X86_OPTION_ROM_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_X86_OPTION_ROM_FILENAME)
+IFDTOOL_FLAGS += -w $(CONFIG_X86_OPTION_ROM_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_X86_OPTION_ROM_FILE)
 endif
 
 quiet_cmd_ifdtool = IFDTOOL $@
