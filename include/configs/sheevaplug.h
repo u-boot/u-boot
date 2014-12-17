@@ -51,6 +51,7 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
+
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
