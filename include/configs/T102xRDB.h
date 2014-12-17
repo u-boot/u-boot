@@ -762,8 +762,10 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FMAN_ENET
 #define CONFIG_PHYLIB_10G
 #define CONFIG_PHY_REALTEK
+#define CONFIG_PHY_AQUANTIA
 #define RGMII_PHY1_ADDR		0x2
 #define RGMII_PHY2_ADDR		0x6
+#define SGMII_PHY1_ADDR		0x2
 #define FM1_10GEC1_PHY_ADDR	0x1
 #endif
 

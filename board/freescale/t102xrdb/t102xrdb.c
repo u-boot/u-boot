@@ -27,6 +27,11 @@ int checkboard(void)
 {
 	struct cpu_type *cpu = gd->arch.cpu;
 	static const char *freq[3] = {"100.00MHZ", "125.00MHz", "156.25MHZ"};
+	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 srds_s1;
+
+	srds_s1 = in_be32(&gur->rcwsr[4]) & FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
+	srds_s1 >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
 
 	printf("Board: %sRDB, ", cpu->name);
 	printf("Board rev: 0x%02x CPLD ver: 0x%02x, boot from ",
@@ -50,9 +55,32 @@ int checkboard(void)
 #endif
 
 	puts("SERDES Reference Clocks:\n");
-	printf("SD1_CLK1=%s, SD1_CLK2=%s\n", freq[2], freq[0]);
+	if (srds_s1 == 0x95)
+		printf("SD1_CLK1=%s, SD1_CLK2=%s\n", freq[2], freq[0]);
+	else
+		printf("SD1_CLK1=%s, SD1_CLK2=%s\n", freq[0], freq[0]);
 
 	return 0;
+}
+
+static void board_mux_lane(void)
+{
+	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 srds_prtcl_s1;
+	u8 reg = CPLD_READ(misc_ctl_status);
+
+	srds_prtcl_s1 = in_be32(&gur->rcwsr[4]) &
+				FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
+	srds_prtcl_s1 >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
+
+	if (srds_prtcl_s1 == 0x95) {
+		/* Route Lane B to PCIE */
+		CPLD_WRITE(misc_ctl_status, reg & ~CPLD_PCIE_SGMII_MUX);
+	} else {
+		/* Route Lane B to SGMII */
+		CPLD_WRITE(misc_ctl_status, reg | CPLD_PCIE_SGMII_MUX);
+	}
+	CPLD_WRITE(boot_override, CPLD_OVERRIDE_MUX_EN);
 }
 
 int board_early_init_f(void)
@@ -96,6 +124,7 @@ int board_early_init_r(void)
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	setup_portals();
 #endif
+	board_mux_lane();
 
 	return 0;
 }
