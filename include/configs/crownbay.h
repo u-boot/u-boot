@@ -48,6 +48,12 @@
 
 #define CONFIG_SPI_FLASH_SST
 
+#define CONFIG_MMC
+#define CONFIG_SDHCI
+#define CONFIG_GENERIC_MMC
+#define CONFIG_MMC_SDMA
+#define CONFIG_CMD_MMC
+
 /* Video is not supported */
 #undef CONFIG_VIDEO
 #undef CONFIG_CFB_CONSOLE
