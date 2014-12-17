@@ -20,6 +20,7 @@
 #include <fsl_sec.h>
 #include <spl.h>
 
+#include "../common/sleep.h"
 #include "../common/qixis.h"
 #include "ls1021aqds_qixis.h"
 #ifdef CONFIG_U_QE
@@ -218,6 +219,11 @@ int board_early_init_f(void)
 	 * allow barrier transaction to DDR again */
 	out_le32(&cci->ctrl_ord, CCI400_CTRLORD_TERM_BARRIER);
 
+#if defined(CONFIG_DEEP_SLEEP)
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
+
 	return 0;
 }
 
@@ -250,6 +256,11 @@ void board_init_f(ulong dummy)
 #endif
 
 	get_clocks();
+
+#if defined(CONFIG_DEEP_SLEEP)
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
 
 	preloader_console_init();
 
@@ -543,6 +554,21 @@ int board_init(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_DEEP_SLEEP)
+void board_sleep_prepare(void)
+{
+	struct ccsr_cci400 __iomem *cci = (void *)CONFIG_SYS_CCI400_ADDR;
+
+	/* Set CCI-400 control override register to
+	 * enable barrier transaction */
+	out_le32(&cci->ctrl_ord, CCI400_CTRLORD_EN_BARRIER);
+
+#ifdef CONFIG_LS102XA_NS_ACCESS
+	enable_devices_ns_access(ns_dev, ARRAY_SIZE(ns_dev));
+#endif
+}
+#endif
 
 int ft_board_setup(void *blob, bd_t *bd)
 {

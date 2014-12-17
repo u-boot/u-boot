@@ -124,6 +124,25 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_compat_u32(blob, "fsl,qoriq-sysclk-2.0",
 			       "clock-frequency", CONFIG_SYS_CLK_FREQ, 1);
 
+#if defined(CONFIG_DEEP_SLEEP) && defined(CONFIG_SD_BOOT)
+#define UBOOT_HEAD_LEN	0x1000
+	/*
+	 * Reserved memory in SD boot deep sleep case.
+	 * Second stage uboot binary and malloc space should be reserved.
+	 * If the memory they occupied has not been reserved, then this
+	 * space would be used by kernel and overwritten in uboot when
+	 * deep sleep resume, which cause deep sleep failed.
+	 * Since second uboot binary has a head, that space need to be
+	 * reserved either(assuming its size is less than 0x1000).
+	 */
+	off = fdt_add_mem_rsv(blob, CONFIG_SYS_TEXT_BASE - UBOOT_HEAD_LEN,
+			CONFIG_SYS_MONITOR_LEN + CONFIG_SYS_SPL_MALLOC_SIZE +
+			UBOOT_HEAD_LEN);
+	if (off < 0)
+		printf("Failed to reserve memory for SD boot deep sleep: %s\n",
+		       fdt_strerror(off));
+#endif
+
 #if defined(CONFIG_FSL_ESDHC)
 	fdt_fixup_esdhc(blob, bd);
 #endif
