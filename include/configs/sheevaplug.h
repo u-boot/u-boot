@@ -142,6 +142,5 @@
 #define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_CMD_MTDPARTS
-#define CONFIG_LZO
 
 #endif /* _CONFIG_SHEEVAPLUG_H */
