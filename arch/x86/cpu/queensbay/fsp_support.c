@@ -10,67 +10,48 @@
 #include <asm/post.h>
 
 /**
- * Reads a 64-bit value from memory that may be unaligned.
- *
- * This function returns the 64-bit value pointed to by buf. The function
- * guarantees that the read operation does not produce an alignment fault.
- *
- * If the buf is NULL, then ASSERT().
- *
- * @buf: Pointer to a 64-bit value that may be unaligned.
- *
- * @return: The 64-bit value read from buf.
- */
-static u64 read_unaligned64(const u64 *buf)
-{
-	ASSERT(buf != NULL);
-
-	return *buf;
-}
-
-/**
  * Compares two GUIDs
  *
- * If the GUIDs are identical then TRUE is returned.
- * If there are any bit differences in the two GUIDs, then FALSE is returned.
- *
- * If guid1 is NULL, then ASSERT().
- * If guid2 is NULL, then ASSERT().
+ * If the GUIDs are identical then true is returned.
+ * If there are any bit differences in the two GUIDs, then false is returned.
  *
  * @guid1:        A pointer to a 128 bit GUID.
  * @guid2:        A pointer to a 128 bit GUID.
  *
- * @retval TRUE:  guid1 and guid2 are identical.
- * @retval FALSE: guid1 and guid2 are not identical.
+ * @retval true:  guid1 and guid2 are identical.
+ * @retval false: guid1 and guid2 are not identical.
  */
-static unsigned char compare_guid(const struct efi_guid_t *guid1,
-				  const struct efi_guid_t *guid2)
+static bool compare_guid(const struct efi_guid *guid1,
+			 const struct efi_guid *guid2)
 {
-	u64 guid1_low;
-	u64 guid2_low;
-	u64 guid1_high;
-	u64 guid2_high;
-
-	guid1_low  = read_unaligned64((const u64 *)guid1);
-	guid2_low  = read_unaligned64((const u64 *)guid2);
-	guid1_high = read_unaligned64((const u64 *)guid1 + 1);
-	guid2_high = read_unaligned64((const u64 *)guid2 + 1);
-
-	return (unsigned char)(guid1_low == guid2_low && guid1_high == guid2_high);
+	if (memcmp(guid1, guid2, sizeof(struct efi_guid)) == 0)
+		return true;
+	else
+		return false;
 }
 
 u32 __attribute__((optimize("O0"))) find_fsp_header(void)
 {
+	/*
+	 * This function may be called before the a stack is established,
+	 * so special care must be taken. First, it cannot declare any local
+	 * variable using stack. Only register variable can be used here.
+	 * Secondly, some compiler version will add prolog or epilog code
+	 * for the C function. If so the function call may not work before
+	 * stack is ready.
+	 *
+	 * GCC 4.8.1 has been verified to be working for the following codes.
+	 */
 	volatile register u8 *fsp asm("eax");
 
 	/* Initalize the FSP base */
 	fsp = (u8 *)CONFIG_FSP_ADDR;
 
 	/* Check the FV signature, _FVH */
-	if (((struct fv_header_t *)fsp)->sign == 0x4856465F) {
+	if (((struct fv_header *)fsp)->sign == EFI_FVH_SIGNATURE) {
 		/* Go to the end of the FV header and align the address */
-		fsp += ((struct fv_header_t *)fsp)->ext_hdr_off;
-		fsp += ((struct fv_ext_header_t *)fsp)->ext_hdr_size;
+		fsp += ((struct fv_header *)fsp)->ext_hdr_off;
+		fsp += ((struct fv_ext_header *)fsp)->ext_hdr_size;
 		fsp  = (u8 *)(((u32)fsp + 7) & 0xFFFFFFF8);
 	} else {
 		fsp  = 0;
@@ -78,20 +59,27 @@ u32 __attribute__((optimize("O0"))) find_fsp_header(void)
 
 	/* Check the FFS GUID */
 	if (fsp &&
-	    (((u32 *)&(((struct ffs_file_header_t *)fsp)->name))[0] == 0x912740BE) &&
-	    (((u32 *)&(((struct ffs_file_header_t *)fsp)->name))[1] == 0x47342284) &&
-	    (((u32 *)&(((struct ffs_file_header_t *)fsp)->name))[2] == 0xB08471B9) &&
-	    (((u32 *)&(((struct ffs_file_header_t *)fsp)->name))[3] == 0x0C3F3527)) {
+	    ((struct ffs_file_header *)fsp)->name.data1 == FSP_GUID_DATA1 &&
+	    ((struct ffs_file_header *)fsp)->name.data2 == FSP_GUID_DATA2 &&
+	    ((struct ffs_file_header *)fsp)->name.data3 == FSP_GUID_DATA3 &&
+	    ((struct ffs_file_header *)fsp)->name.data4[0] == FSP_GUID_DATA4_0 &&
+	    ((struct ffs_file_header *)fsp)->name.data4[1] == FSP_GUID_DATA4_1 &&
+	    ((struct ffs_file_header *)fsp)->name.data4[2] == FSP_GUID_DATA4_2 &&
+	    ((struct ffs_file_header *)fsp)->name.data4[3] == FSP_GUID_DATA4_3 &&
+	    ((struct ffs_file_header *)fsp)->name.data4[4] == FSP_GUID_DATA4_4 &&
+	    ((struct ffs_file_header *)fsp)->name.data4[5] == FSP_GUID_DATA4_5 &&
+	    ((struct ffs_file_header *)fsp)->name.data4[6] == FSP_GUID_DATA4_6 &&
+	    ((struct ffs_file_header *)fsp)->name.data4[7] == FSP_GUID_DATA4_7) {
 		/* Add the FFS header size to find the raw section header */
-		fsp += sizeof(struct ffs_file_header_t);
+		fsp += sizeof(struct ffs_file_header);
 	} else {
 		fsp = 0;
 	}
 
 	if (fsp &&
-	    ((struct raw_section_t *)fsp)->type == EFI_SECTION_RAW) {
+	    ((struct raw_section *)fsp)->type == EFI_SECTION_RAW) {
 		/* Add the raw section header size to find the FSP header */
-		fsp += sizeof(struct raw_section_t);
+		fsp += sizeof(struct raw_section);
 	} else {
 		fsp = 0;
 	}
@@ -99,7 +87,7 @@ u32 __attribute__((optimize("O0"))) find_fsp_header(void)
 	return (u32)fsp;
 }
 
-void fsp_continue(struct shared_data_t *shared_data, u32 status, void *hob_list)
+void fsp_continue(struct shared_data *shared_data, u32 status, void *hob_list)
 {
 	u32 stack_len;
 	u32 stack_base;
@@ -107,18 +95,18 @@ void fsp_continue(struct shared_data_t *shared_data, u32 status, void *hob_list)
 
 	post_code(POST_MRC);
 
-	ASSERT(status == 0);
+	assert(status == 0);
 
 	/* Get the migrated stack in normal memory */
-	stack_base = (u32)get_bootloader_tmp_mem(hob_list, &stack_len);
-	ASSERT(stack_base != 0);
+	stack_base = (u32)fsp_get_bootloader_tmp_mem(hob_list, &stack_len);
+	assert(stack_base != 0);
 	stack_top  = stack_base + stack_len - sizeof(u32);
 
 	/*
 	 * Old stack base is stored at the very end of the stack top,
 	 * use it to calculate the migrated shared data base
 	 */
-	shared_data = (struct shared_data_t *)(stack_base +
+	shared_data = (struct shared_data *)(stack_base +
 			((u32)shared_data - *(u32 *)stack_top));
 
 	/* The boot loader main function entry */
@@ -127,50 +115,50 @@ void fsp_continue(struct shared_data_t *shared_data, u32 status, void *hob_list)
 
 void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 {
-	struct shared_data_t shared_data;
+	struct shared_data shared_data;
 	fsp_init_f init;
-	struct fsp_init_params_t params;
-	struct fspinit_rtbuf_t rt_buf;
-	struct vpd_region_t *fsp_vpd;
-	struct fsp_header_t *fsp_hdr;
-	struct fsp_init_params_t *params_ptr;
-	struct upd_region_t *fsp_upd;
+	struct fsp_init_params params;
+	struct fspinit_rtbuf rt_buf;
+	struct vpd_region *fsp_vpd;
+	struct fsp_header *fsp_hdr;
+	struct fsp_init_params *params_ptr;
+	struct upd_region *fsp_upd;
 
-	fsp_hdr = (struct fsp_header_t *)find_fsp_header();
+	fsp_hdr = (struct fsp_header *)find_fsp_header();
 	if (fsp_hdr == NULL) {
 		/* No valid FSP info header was found */
-		ASSERT(FALSE);
+		panic("Invalid FSP header");
 	}
 
-	fsp_upd = (struct upd_region_t *)&shared_data.fsp_upd;
-	memset((void *)&rt_buf, 0, sizeof(struct fspinit_rtbuf_t));
+	fsp_upd = (struct upd_region *)&shared_data.fsp_upd;
+	memset(&rt_buf, 0, sizeof(struct fspinit_rtbuf));
 
 	/* Reserve a gap in stack top */
 	rt_buf.common.stack_top = (u32 *)stack_top - 32;
 	rt_buf.common.boot_mode = boot_mode;
-	rt_buf.common.upd_data = (struct upd_region_t *)fsp_upd;
+	rt_buf.common.upd_data = (struct upd_region *)fsp_upd;
 
 	/* Get VPD region start */
-	fsp_vpd = (struct vpd_region_t *)(fsp_hdr->img_base +
+	fsp_vpd = (struct vpd_region *)(fsp_hdr->img_base +
 			fsp_hdr->cfg_region_off);
 
 	/* Verifify the VPD data region is valid */
-	ASSERT((fsp_vpd->img_rev == VPD_IMAGE_REV) &&
+	assert((fsp_vpd->img_rev == VPD_IMAGE_REV) &&
 	       (fsp_vpd->sign == VPD_IMAGE_ID));
 
 	/* Copy default data from Flash */
 	memcpy(fsp_upd, (void *)(fsp_hdr->img_base + fsp_vpd->upd_offset),
-	       sizeof(struct upd_region_t));
+	       sizeof(struct upd_region));
 
 	/* Verifify the UPD data region is valid */
-	ASSERT(fsp_upd->terminator == 0x55AA);
+	assert(fsp_upd->terminator == UPD_TERMINATOR);
 
 	/* Override any UPD setting if required */
 	update_fsp_upd(fsp_upd);
 
-	memset((void *)&params, 0, sizeof(struct fsp_init_params_t));
+	memset(&params, 0, sizeof(struct fsp_init_params));
 	params.nvs_buf = nvs_buf;
-	params.rt_buf = (struct fspinit_rtbuf_t *)&rt_buf;
+	params.rt_buf = (struct fspinit_rtbuf *)&rt_buf;
 	params.continuation = (fsp_continuation_f)asm_continuation;
 
 	init = (fsp_init_f)(fsp_hdr->img_base + fsp_hdr->fsp_init);
@@ -199,32 +187,28 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 
 	/*
 	 * Should never get here.
-	 * Control will continue from romstage_main_continue_asm.
+	 * Control will continue from fsp_continue.
 	 * This line below is to prevent the compiler from optimizing
 	 * structure intialization.
+	 *
+	 * DO NOT REMOVE!
 	 */
 	init(&params);
-
-	/*
-	 * Should never return.
-	 * Control will continue from ContinuationFunc
-	 */
-	ASSERT(FALSE);
 }
 
-u32 fsp_notify(struct fsp_header_t *fsp_hdr, u32 phase)
+u32 fsp_notify(struct fsp_header *fsp_hdr, u32 phase)
 {
 	fsp_notify_f notify;
-	struct fsp_notify_params_t params;
-	struct fsp_notify_params_t *params_ptr;
+	struct fsp_notify_params params;
+	struct fsp_notify_params *params_ptr;
 	u32 status;
 
 	if (!fsp_hdr)
-		fsp_hdr = (struct fsp_header_t *)find_fsp_header();
+		fsp_hdr = (struct fsp_header *)find_fsp_header();
 
 	if (fsp_hdr == NULL) {
 		/* No valid FSP info header */
-		ASSERT(FALSE);
+		panic("Invalid FSP header");
 	}
 
 	notify = (fsp_notify_f)(fsp_hdr->img_base + fsp_hdr->fsp_notify);
@@ -245,9 +229,9 @@ u32 fsp_notify(struct fsp_header_t *fsp_hdr, u32 phase)
 	return status;
 }
 
-u32 get_usable_lowmem_top(const void *hob_list)
+u32 fsp_get_usable_lowmem_top(const void *hob_list)
 {
-	union hob_pointers_t hob;
+	union hob_pointers hob;
 	phys_addr_t phys_start;
 	u32 top;
 
@@ -255,26 +239,26 @@ u32 get_usable_lowmem_top(const void *hob_list)
 	hob.raw = (void *)hob_list;
 
 	/* * Collect memory ranges */
-	top = 0x100000;
-	while (!END_OF_HOB(hob)) {
-		if (hob.hdr->type == HOB_TYPE_RES_DESC) {
+	top = FSP_LOWMEM_BASE;
+	while (!end_of_hob(hob)) {
+		if (get_hob_type(hob) == HOB_TYPE_RES_DESC) {
 			if (hob.res_desc->type == RES_SYS_MEM) {
 				phys_start = hob.res_desc->phys_start;
 				/* Need memory above 1MB to be collected here */
-				if (phys_start >= 0x100000 &&
-				    phys_start < (phys_addr_t)0x100000000)
+				if (phys_start >= FSP_LOWMEM_BASE &&
+				    phys_start < (phys_addr_t)FSP_HIGHMEM_BASE)
 					top += (u32)(hob.res_desc->len);
 			}
 		}
-		hob.raw = GET_NEXT_HOB(hob);
+		hob.raw = get_next_hob(hob);
 	}
 
 	return top;
 }
 
-u64 get_usable_highmem_top(const void *hob_list)
+u64 fsp_get_usable_highmem_top(const void *hob_list)
 {
-	union hob_pointers_t hob;
+	union hob_pointers hob;
 	phys_addr_t phys_start;
 	u64 top;
 
@@ -282,33 +266,33 @@ u64 get_usable_highmem_top(const void *hob_list)
 	hob.raw = (void *)hob_list;
 
 	/* Collect memory ranges */
-	top = 0x100000000;
-	while (!END_OF_HOB(hob)) {
-		if (hob.hdr->type == HOB_TYPE_RES_DESC) {
+	top = FSP_HIGHMEM_BASE;
+	while (!end_of_hob(hob)) {
+		if (get_hob_type(hob) == HOB_TYPE_RES_DESC) {
 			if (hob.res_desc->type == RES_SYS_MEM) {
 				phys_start = hob.res_desc->phys_start;
 				/* Need memory above 1MB to be collected here */
-				if (phys_start >= (phys_addr_t)0x100000000)
+				if (phys_start >= (phys_addr_t)FSP_HIGHMEM_BASE)
 					top += (u32)(hob.res_desc->len);
 			}
 		}
-		hob.raw = GET_NEXT_HOB(hob);
+		hob.raw = get_next_hob(hob);
 	}
 
 	return top;
 }
 
-u64 get_fsp_reserved_mem_from_guid(const void *hob_list, u64 *len,
-				   struct efi_guid_t *guid)
+u64 fsp_get_reserved_mem_from_guid(const void *hob_list, u64 *len,
+				   struct efi_guid *guid)
 {
-	union hob_pointers_t hob;
+	union hob_pointers hob;
 
 	/* Get the HOB list for processing */
 	hob.raw = (void *)hob_list;
 
 	/* Collect memory ranges */
-	while (!END_OF_HOB(hob)) {
-		if (hob.hdr->type == HOB_TYPE_RES_DESC) {
+	while (!end_of_hob(hob)) {
+		if (get_hob_type(hob) == HOB_TYPE_RES_DESC) {
 			if (hob.res_desc->type == RES_MEM_RESERVED) {
 				if (compare_guid(&hob.res_desc->owner, guid)) {
 					if (len)
@@ -318,99 +302,100 @@ u64 get_fsp_reserved_mem_from_guid(const void *hob_list, u64 *len,
 				}
 			}
 		}
-		hob.raw = GET_NEXT_HOB(hob);
+		hob.raw = get_next_hob(hob);
 	}
 
 	return 0;
 }
 
-u32 get_fsp_reserved_mem(const void *hob_list, u32 *len)
+u32 fsp_get_fsp_reserved_mem(const void *hob_list, u32 *len)
 {
-	const struct efi_guid_t guid = FSP_HOB_RESOURCE_OWNER_FSP_GUID;
+	const struct efi_guid guid = FSP_HOB_RESOURCE_OWNER_FSP_GUID;
 	u64 length;
 	u32 base;
 
-	base = (u32)get_fsp_reserved_mem_from_guid(hob_list,
-			&length, (struct efi_guid_t *)&guid);
+	base = (u32)fsp_get_reserved_mem_from_guid(hob_list,
+			&length, (struct efi_guid *)&guid);
 	if ((len != 0) && (base != 0))
 		*len = (u32)length;
 
 	return base;
 }
 
-u32 get_tseg_reserved_mem(const void *hob_list, u32 *len)
+u32 fsp_get_tseg_reserved_mem(const void *hob_list, u32 *len)
 {
-	const struct efi_guid_t guid = FSP_HOB_RESOURCE_OWNER_TSEG_GUID;
+	const struct efi_guid guid = FSP_HOB_RESOURCE_OWNER_TSEG_GUID;
 	u64 length;
 	u32 base;
 
-	base = (u32)get_fsp_reserved_mem_from_guid(hob_list,
-			&length, (struct efi_guid_t *)&guid);
+	base = (u32)fsp_get_reserved_mem_from_guid(hob_list,
+			&length, (struct efi_guid *)&guid);
 	if ((len != 0) && (base != 0))
 		*len = (u32)length;
 
 	return base;
 }
 
-void *get_next_hob(u16 type, const void *hob_list)
+void *fsp_get_next_hob(u16 type, const void *hob_list)
 {
-	union hob_pointers_t hob;
+	union hob_pointers hob;
 
-	ASSERT(hob_list != NULL);
+	assert(hob_list != NULL);
 
 	hob.raw = (u8 *)hob_list;
 
 	/* Parse the HOB list until end of list or matching type is found */
-	while (!END_OF_HOB(hob)) {
-		if (hob.hdr->type == type)
+	while (!end_of_hob(hob)) {
+		if (get_hob_type(hob) == type)
 			return hob.raw;
 
-		hob.raw = GET_NEXT_HOB(hob);
+		hob.raw = get_next_hob(hob);
 	}
 
 	return NULL;
 }
 
-void *get_next_guid_hob(const struct efi_guid_t *guid, const void *hob_list)
+void *fsp_get_next_guid_hob(const struct efi_guid *guid, const void *hob_list)
 {
-	union hob_pointers_t hob;
+	union hob_pointers hob;
 
 	hob.raw = (u8 *)hob_list;
-	while ((hob.raw = get_next_hob(HOB_TYPE_GUID_EXT,
+	while ((hob.raw = fsp_get_next_hob(HOB_TYPE_GUID_EXT,
 			hob.raw)) != NULL) {
 		if (compare_guid(guid, &hob.guid->name))
 			break;
-		hob.raw = GET_NEXT_HOB(hob);
+		hob.raw = get_next_hob(hob);
 	}
 
 	return hob.raw;
 }
 
-void *get_guid_hob_data(const void *hob_list, u32 *len, struct efi_guid_t *guid)
+void *fsp_get_guid_hob_data(const void *hob_list, u32 *len,
+			    struct efi_guid *guid)
 {
 	u8 *guid_hob;
 
-	guid_hob = get_next_guid_hob(guid, hob_list);
+	guid_hob = fsp_get_next_guid_hob(guid, hob_list);
 	if (guid_hob == NULL) {
 		return NULL;
 	} else {
 		if (len)
-			*len = GET_GUID_HOB_DATA_SIZE(guid_hob);
+			*len = get_guid_hob_data_size(guid_hob);
 
-		return GET_GUID_HOB_DATA(guid_hob);
+		return get_guid_hob_data(guid_hob);
 	}
 }
 
-void *get_fsp_nvs_data(const void *hob_list, u32 *len)
+void *fsp_get_nvs_data(const void *hob_list, u32 *len)
 {
-	const struct efi_guid_t guid = FSP_NON_VOLATILE_STORAGE_HOB_GUID;
+	const struct efi_guid guid = FSP_NON_VOLATILE_STORAGE_HOB_GUID;
 
-	return get_guid_hob_data(hob_list, len, (struct efi_guid_t *)&guid);
+	return fsp_get_guid_hob_data(hob_list, len, (struct efi_guid *)&guid);
 }
 
-void *get_bootloader_tmp_mem(const void *hob_list, u32 *len)
+void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len)
 {
-	const struct efi_guid_t guid = FSP_BOOTLOADER_TEMP_MEM_HOB_GUID;
+	const struct efi_guid guid = FSP_BOOTLOADER_TEMP_MEM_HOB_GUID;
 
-	return get_guid_hob_data(hob_list, len, (struct efi_guid_t *)&guid);
+	return fsp_get_guid_hob_data(hob_list, len, (struct efi_guid *)&guid);
 }

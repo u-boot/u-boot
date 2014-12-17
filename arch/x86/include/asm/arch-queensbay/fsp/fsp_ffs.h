@@ -8,10 +8,8 @@
 #ifndef __FSP_FFS_H__
 #define __FSP_FFS_H__
 
-#pragma pack(1)
-
 /* Used to verify the integrity of the file */
-union ffs_integrity_t {
+union __packed ffs_integrity {
 	struct {
 		/*
 		 * The IntegrityCheck.checksum.header field is an 8-bit
@@ -43,14 +41,14 @@ union ffs_integrity_t {
  * Each file begins with the header that describe the
  * contents and state of the files.
  */
-struct ffs_file_header_t {
+struct __packed ffs_file_header {
 	/*
 	 * This GUID is the file name.
 	 * It is used to uniquely identify the file.
 	 */
-	struct efi_guid_t	name;
+	struct efi_guid		name;
 	/* Used to verify the integrity of the file */
-	union ffs_integrity_t	integrity;
+	union ffs_integrity	integrity;
 	/* Identifies the type of file */
 	u8			type;
 	/* Declares various file attribute bits */
@@ -64,16 +62,16 @@ struct ffs_file_header_t {
 	u8			state;
 };
 
-struct ffs_file_header2_t {
+struct __packed ffs_file_header2 {
 	/*
 	 * This GUID is the file name. It is used to uniquely identify the file.
 	 * There may be only one instance of a file with the file name GUID of
 	 * Name in any given firmware volume, except if the file type is
 	 * EFI_FV_FILE_TYPE_FFS_PAD.
 	 */
-	struct efi_guid_t	name;
+	struct efi_guid		name;
 	/* Used to verify the integrity of the file */
-	union ffs_integrity_t	integrity;
+	union ffs_integrity	integrity;
 	/* Identifies the type of file */
 	u8			type;
 	/* Declares various file attribute bits */
@@ -81,9 +79,9 @@ struct ffs_file_header2_t {
 	/*
 	 * The length of the file in bytes, including the FFS header.
 	 * The length of the file data is either
-	 * (size - sizeof(struct ffs_file_header_t)). This calculation means a
+	 * (size - sizeof(struct ffs_file_header)). This calculation means a
 	 * zero-length file has a size of 24 bytes, which is
-	 * sizeof(struct ffs_file_header_t). Size is not required to be a
+	 * sizeof(struct ffs_file_header). Size is not required to be a
 	 * multiple of 8 bytes. Given a file F, the next file header is located
 	 * at the next 8-byte aligned firmware volume offset following the last
 	 * byte of the file F.
@@ -98,7 +96,7 @@ struct ffs_file_header2_t {
 	 * If FFS_ATTRIB_LARGE_FILE is set in attr, then ext_size exists
 	 * and size must be set to zero.
 	 * If FFS_ATTRIB_LARGE_FILE is not set then
-	 * struct ffs_file_header_t is used.
+	 * struct ffs_file_header is used.
 	 */
 	u32			ext_size;
 };
@@ -129,7 +127,7 @@ struct ffs_file_header2_t {
 #define EFI_SECTION_SMM_DEPEX			0x1C
 
 /* Common section header */
-struct raw_section_t {
+struct __packed raw_section {
 	/*
 	 * A 24-bit unsigned integer that contains the total size of
 	 * the section in bytes, including the EFI_COMMON_SECTION_HEADER.
@@ -138,7 +136,7 @@ struct raw_section_t {
 	u8	type;
 };
 
-struct raw_section2_t {
+struct __packed raw_section2 {
 	/*
 	 * A 24-bit unsigned integer that contains the total size of
 	 * the section in bytes, including the EFI_COMMON_SECTION_HEADER.
@@ -152,7 +150,5 @@ struct raw_section2_t {
 	 */
 	u32	ext_size;
 };
-
-#pragma pack()
 
 #endif
