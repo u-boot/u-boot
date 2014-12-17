@@ -64,7 +64,7 @@ u32 __attribute__((optimize("O0"))) find_fsp_header(void)
 	volatile register u8 *fsp asm("eax");
 
 	/* Initalize the FSP base */
-	fsp = (u8 *)CONFIG_FSP_LOCATION;
+	fsp = (u8 *)CONFIG_FSP_ADDR;
 
 	/* Check the FV signature, _FVH */
 	if (((struct fv_header_t *)fsp)->sign == 0x4856465F) {

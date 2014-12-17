@@ -958,7 +958,7 @@ IFDTOOL_ME_FLAGS += -i ME:$(srctree)/board/$(BOARDDIR)/me.bin
 endif
 
 ifneq ($(CONFIG_HAVE_MRC),)
-IFDTOOL_FLAGS += -w $(CONFIG_X86_MRC_START):$(srctree)/board/$(BOARDDIR)/mrc.bin
+IFDTOOL_FLAGS += -w $(CONFIG_X86_MRC_ADDR):$(srctree)/board/$(BOARDDIR)/mrc.bin
 endif
 
 ifneq ($(CONFIG_X86_OPTION_ROM_ADDR),)

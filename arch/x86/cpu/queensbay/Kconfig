@@ -29,7 +29,7 @@ config FSP_FILE
 	  The filename of the file to use as Firmware Support Package binary
 	  in the board directory.
 
-config FSP_LOCATION
+config FSP_ADDR
 	hex "Firmware Support Package binary location"
 	depends on HAVE_FSP
 	default 0xfffc0000
@@ -65,7 +65,7 @@ config CMC_FILE
 	  The filename of the file to use as Chipset Micro Code state machine
 	  binary in the board directory.
 
-config CMC_LOCATION
+config CMC_ADDR
 	hex "Chipset Micro Code state machine binary location"
 	depends on HAVE_CMC
 	default 0xfffb0000

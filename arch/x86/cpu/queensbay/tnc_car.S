@@ -29,7 +29,7 @@ find_fsp_header_ret:
 	mov	%eax, %ebp
 
 	/* sanity test */
-	cmp	$CONFIG_FSP_LOCATION, %eax
+	cmp	$CONFIG_FSP_ADDR, %eax
 	jb	die
 
 	/* calculate TempRamInitEntry address */
