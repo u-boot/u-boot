@@ -22,6 +22,9 @@ extern const struct emif_regs emif_regs_elpida_200_mhz_2cs;
 extern const struct emif_regs emif_regs_elpida_380_mhz_1cs;
 extern const struct emif_regs emif_regs_elpida_400_mhz_1cs;
 extern const struct emif_regs emif_regs_elpida_400_mhz_2cs;
+extern const struct dmm_lisa_map_regs lisa_map_2G_x_1_x_2;
+extern const struct dmm_lisa_map_regs lisa_map_2G_x_2_x_2;
+extern const struct dmm_lisa_map_regs ma_lisa_map_2G_x_2_x_2;
 struct omap_sysinfo {
 	char *board_string;
 };
