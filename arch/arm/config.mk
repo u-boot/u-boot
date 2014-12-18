@@ -26,7 +26,9 @@ PLATFORM_CPPFLAGS += -D__ARM__
 
 # Choose between ARM/Thumb instruction sets
 ifeq ($(CONFIG_SYS_THUMB_BUILD),y)
-PF_CPPFLAGS_ARM := $(call cc-option, -mthumb -mthumb-interwork,\
+AFLAGS_IMPLICIT_IT	:= $(call as-option,-Wa$(comma)-mimplicit-it=always)
+PF_CPPFLAGS_ARM		:= $(AFLAGS_IMPLICIT_IT) \
+			$(call cc-option, -mthumb -mthumb-interwork,\
 			$(call cc-option,-marm,)\
 			$(call cc-option,-mno-thumb-interwork,)\
 		)
