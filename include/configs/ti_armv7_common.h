@@ -187,6 +187,8 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FS_GENERIC
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
 #endif
 
 /*
