@@ -823,8 +823,11 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 	int ret = -1;
 	int firsttime;
 	__u32 root_cluster = 0;
+	__u32 read_blk;
 	int rootdir_size = 0;
-	int j;
+	int buffer_blk_cnt;
+	int do_read;
+	__u8 *dir_ptr;
 
 	if (read_bootsectandvi(&bs, &volinfo, &mydata->fatsize)) {
 		debug("Error: reading boot sector\n");
@@ -909,24 +912,54 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 		isdir = 1;
 	}
 
-	j = 0;
+	buffer_blk_cnt = 0;
+	firsttime = 1;
 	while (1) {
 		int i;
 
-		if (j == 0) {
-			debug("FAT read sect=%d, clust_size=%d, DIRENTSPERBLOCK=%zd\n",
-				cursect, mydata->clust_size, DIRENTSPERBLOCK);
+		if (mydata->fatsize == 32 || firsttime) {
+			dir_ptr = do_fat_read_at_block;
+			firsttime = 0;
+		} else {
+			/**
+			 * FAT16 sector buffer modification:
+			 * Each loop, the second buffered block is moved to
+			 * the buffer begin, and two next sectors are read
+			 * next to the previously moved one. So the sector
+			 * buffer keeps always 3 sectors for fat16.
+			 * And the current sector is the buffer second sector
+			 * beside the "firsttime" read, when it is the first one.
+			 *
+			 * PREFETCH_BLOCKS is 2 for FAT16 == loop[0:1]
+			 * n = computed root dir sector
+			 * loop |  cursect-1  | cursect    | cursect+1  |
+			 *   0  |  sector n+0 | sector n+1 | none       |
+			 *   1  |  none       | sector n+0 | sector n+1 |
+			 *   0  |  sector n+1 | sector n+2 | sector n+3 |
+			 *   1  |  sector n+3 | ...
+			*/
+			dir_ptr = (do_fat_read_at_block + mydata->sect_size);
+			memcpy(do_fat_read_at_block, dir_ptr, mydata->sect_size);
+		}
 
-			if (disk_read(cursect,
-					(mydata->fatsize == 32) ?
-					(mydata->clust_size) :
-					PREFETCH_BLOCKS,
-					do_fat_read_at_block) < 0) {
+		do_read = 1;
+
+		if (mydata->fatsize == 32 && buffer_blk_cnt)
+			do_read = 0;
+
+		if (do_read) {
+			read_blk = (mydata->fatsize == 32) ?
+				    mydata->clust_size : PREFETCH_BLOCKS;
+
+			debug("FAT read(sect=%d, cnt:%d), clust_size=%d, DIRENTSPERBLOCK=%zd\n",
+				cursect, read_blk, mydata->clust_size, DIRENTSPERBLOCK);
+
+			if (disk_read(cursect, read_blk, dir_ptr) < 0) {
 				debug("Error: reading rootdir block\n");
 				goto exit;
 			}
 
-			dentptr = (dir_entry *) do_fat_read_at_block;
+			dentptr = (dir_entry *)dir_ptr;
 		}
 
 		for (i = 0; i < DIRENTSPERBLOCK; i++) {
@@ -951,7 +984,7 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 
 					get_vfatname(mydata,
 						     root_cluster,
-						     do_fat_read_at_block,
+						     dir_ptr,
 						     dentptr, l_name);
 
 					if (dols == LS_ROOT) {
@@ -1062,7 +1095,7 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 
 			goto rootdir_done;	/* We got a match */
 		}
-		debug("END LOOP: j=%d   clust_size=%d\n", j,
+		debug("END LOOP: buffer_blk_cnt=%d   clust_size=%d\n", buffer_blk_cnt,
 		       mydata->clust_size);
 
 		/*
@@ -1070,10 +1103,10 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 		 * root directory clusters when a cluster has been
 		 * completely processed.
 		 */
-		++j;
+		++buffer_blk_cnt;
 		int rootdir_end = 0;
 		if (mydata->fatsize == 32) {
-			if (j == mydata->clust_size) {
+			if (buffer_blk_cnt == mydata->clust_size) {
 				int nxtsect = 0;
 				int nxt_clust = 0;
 
@@ -1086,11 +1119,11 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 				root_cluster = nxt_clust;
 
 				cursect = nxtsect;
-				j = 0;
+				buffer_blk_cnt = 0;
 			}
 		} else {
-			if (j == PREFETCH_BLOCKS)
-				j = 0;
+			if (buffer_blk_cnt == PREFETCH_BLOCKS)
+				buffer_blk_cnt = 0;
 
 			rootdir_end = (++cursect - mydata->rootdir_sect >=
 				       rootdir_size);
