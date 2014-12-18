@@ -25,10 +25,10 @@
 	};
 
 	aliases {
-		uart0 = &uart0;
-		uart1 = &uart1;
-		uart2 = &uart2;
-		uart3 = &uart3;
+		serial0 = &uart0;
+		serial1 = &uart1;
+		serial2 = &uart2;
+		serial3 = &uart3;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		i2c2 = &i2c2;
