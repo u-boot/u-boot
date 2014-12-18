@@ -17,11 +17,7 @@
 #define REG	DEVICE	/* IO Register: Device */
 #define DDR	DEVICE	/* DDR SDRAM: Device */
 
-#ifdef CONFIG_SPL_BUILD
 #define IS_SPL_TEXT_AREA(x)	((x) == ((CONFIG_SPL_TEXT_BASE) >> 20))
-#else
-#define IS_SPL_TEXT_AREA(x)	((x) == ((CONFIG_SYS_TEXT_BASE) >> 20))
-#endif
 
 #define IS_INIT_STACK_AREA(x)	((x) == ((CONFIG_SYS_INIT_SP_ADDR) >> 20))
 
