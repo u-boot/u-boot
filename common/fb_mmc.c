@@ -4,11 +4,16 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <config.h>
 #include <common.h>
 #include <fb_mmc.h>
 #include <part.h>
 #include <aboot.h>
 #include <sparse_format.h>
+
+#ifndef CONFIG_FASTBOOT_GPT_NAME
+#define CONFIG_FASTBOOT_GPT_NAME GPT_ENTRY_NAME
+#endif
 
 /* The 64 defined bytes plus the '\0' */
 #define RESPONSE_LEN	(64 + 1)
@@ -62,7 +67,6 @@ static void write_raw_image(block_dev_desc_t *dev_desc, disk_partition_t *info,
 void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 			unsigned int download_bytes, char *response)
 {
-	int ret;
 	block_dev_desc_t *dev_desc;
 	disk_partition_t info;
 
@@ -76,8 +80,24 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 		return;
 	}
 
-	ret = get_partition_info_efi_by_name(dev_desc, cmd, &info);
-	if (ret) {
+	if (strcmp(cmd, CONFIG_FASTBOOT_GPT_NAME) == 0) {
+		printf("%s: updating MBR, Primary and Backup GPT(s)\n",
+		       __func__);
+		if (is_valid_gpt_buf(dev_desc, download_buffer)) {
+			printf("%s: invalid GPT - refusing to write to flash\n",
+			       __func__);
+			fastboot_fail("invalid GPT partition");
+			return;
+		}
+		if (write_mbr_and_gpt_partitions(dev_desc, download_buffer)) {
+			printf("%s: writing GPT partitions failed\n", __func__);
+			fastboot_fail("writing GPT partitions failed");
+			return;
+		}
+		printf("........ success\n");
+		fastboot_okay("");
+		return;
+	} else if (get_partition_info_efi_by_name(dev_desc, cmd, &info)) {
 		error("cannot find partition: '%s'\n", cmd);
 		fastboot_fail("cannot find partition");
 		return;

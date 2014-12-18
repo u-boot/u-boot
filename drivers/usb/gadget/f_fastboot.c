@@ -480,6 +480,17 @@ static void cb_boot(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write_str("OKAY");
 }
 
+static void do_exit_on_complete(struct usb_ep *ep, struct usb_request *req)
+{
+	g_dnl_trigger_detach();
+}
+
+static void cb_continue(struct usb_ep *ep, struct usb_request *req)
+{
+	fastboot_func->in_req->complete = do_exit_on_complete;
+	fastboot_tx_write_str("OKAY");
+}
+
 #ifdef CONFIG_FASTBOOT_FLASH
 static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 {
@@ -520,6 +531,9 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 	}, {
 		.cmd = "boot",
 		.cb = cb_boot,
+	}, {
+		.cmd = "continue",
+		.cb = cb_continue,
 	},
 #ifdef CONFIG_FASTBOOT_FLASH
 	{

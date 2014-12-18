@@ -163,6 +163,23 @@ __weak int g_dnl_board_usb_cable_connected(void)
 	return -EOPNOTSUPP;
 }
 
+static bool g_dnl_detach_request;
+
+bool g_dnl_detach(void)
+{
+	return g_dnl_detach_request;
+}
+
+void g_dnl_trigger_detach(void)
+{
+	g_dnl_detach_request = true;
+}
+
+void g_dnl_clear_detach(void)
+{
+	g_dnl_detach_request = false;
+}
+
 static int g_dnl_get_bcd_device_number(struct usb_composite_dev *cdev)
 {
 	struct usb_gadget *gadget = cdev->gadget;

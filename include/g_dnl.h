@@ -39,4 +39,8 @@ int g_dnl_register(const char *s);
 void g_dnl_unregister(void);
 void g_dnl_set_serialnumber(char *);
 
+bool g_dnl_detach(void);
+void g_dnl_trigger_detach(void);
+void g_dnl_clear_detach(void);
+
 #endif /* __G_DOWNLOAD_H_ */
