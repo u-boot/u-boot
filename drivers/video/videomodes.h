@@ -64,7 +64,11 @@ struct ctfb_vesa_modes {
 #define RES_MODE_960_720	3
 #define RES_MODE_1152x864	4
 #define RES_MODE_1280x1024	5
-#define RES_MODES_COUNT		6
+#define RES_MODE_1280x720	6
+#define RES_MODE_1360x768	7
+#define RES_MODE_1920x1080	8
+#define RES_MODE_1920x1200	9
+#define RES_MODES_COUNT		10
 
 #define VESA_MODES_COUNT 19
 
