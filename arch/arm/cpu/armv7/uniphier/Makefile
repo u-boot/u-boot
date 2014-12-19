@@ -16,6 +16,7 @@ obj-$(CONFIG_BOARD_EARLY_INIT_R) += board_early_init_r.o
 obj-$(CONFIG_BOARD_LATE_INIT) += board_late_init.o
 obj-$(CONFIG_UNIPHIER_SMP) += smp.o
 obj-$(CONFIG_CMD_PINMON) += cmd_pinmon.o
+obj-$(CONFIG_CMD_DDRPHY_DUMP) += cmd_ddrphy.o
 
 obj-y += board_common.o
 obj-$(CONFIG_PFC_MICRO_SUPPORT_CARD) += support_card.o
