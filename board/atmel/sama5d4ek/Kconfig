@@ -1,8 +1,5 @@
 if TARGET_SAMA5D4EK
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "sama5d4ek"
 

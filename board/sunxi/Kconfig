@@ -33,7 +33,6 @@ config MACH_SUN8I
 endchoice
 
 config SYS_CONFIG_NAME
-	string
 	default "sun4i" if MACH_SUN4I
 	default "sun5i" if MACH_SUN5I
 	default "sun6i" if MACH_SUN6I
