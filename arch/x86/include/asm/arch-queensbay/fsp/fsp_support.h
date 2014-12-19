@@ -18,14 +18,30 @@
 #include "fsp_bootmode.h"
 #include "fsp_vpd.h"
 
-struct shared_data_t {
-	struct fsp_header_t	*fsp_hdr;
+struct shared_data {
+	struct fsp_header	*fsp_hdr;
 	u32			*stack_top;
-	struct upd_region_t	fsp_upd;
+	struct upd_region	fsp_upd;
 };
 
+#define FSP_LOWMEM_BASE		0x100000UL
+#define FSP_HIGHMEM_BASE	0x100000000ULL
+
+/**
+ * FSP Continuation assembly helper routine
+ *
+ * This routine jumps to the C version of FSP continuation function
+ */
 void asm_continuation(void);
 
+/**
+ * FSP initialization complete
+ *
+ * This is the function that indicates FSP initialization is complete and jumps
+ * back to the bootloader with HOB list pointer as the parameter.
+ *
+ * @hob_list:    HOB list pointer
+ */
 void fsp_init_done(void *hob_list);
 
 /**
@@ -37,18 +53,11 @@ void fsp_init_done(void *hob_list);
  *
  * @retval:      Never returns
  */
-void fsp_continue(struct shared_data_t *shared_data, u32 status,
+void fsp_continue(struct shared_data *shared_data, u32 status,
 		  void *hob_list);
 
 /**
  * Find FSP header offset in FSP image
- *
- * If this function is called before the a stack is established, special care
- * must be taken. First, it cannot declare any local variable using stack.
- * Only register variable can be used here. Secondly, some compiler version
- * will add prolog or epilog code for the C function. If so the function call
- * may not work before stack is ready. GCC 4.8.1 has been verified to be
- * working for the following code.
  *
  * @retval: the offset of FSP header. If signature is invalid, returns 0.
  */
@@ -67,11 +76,11 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf);
  * FSP notification wrapper function
  *
  * @fsp_hdr: Pointer to FSP information header
- * @phase:   FSP initialization phase defined in enum fsp_phase_t
+ * @phase:   FSP initialization phase defined in enum fsp_phase
  *
  * @retval:  compatible status code with EFI_STATUS defined in PI spec
  */
-u32 fsp_notify(struct fsp_header_t *fsp_hdr, u32 phase);
+u32 fsp_notify(struct fsp_header *fsp_hdr, u32 phase);
 
 /**
  * This function retrieves the top of usable low memory.
@@ -80,7 +89,7 @@ u32 fsp_notify(struct fsp_header_t *fsp_hdr, u32 phase);
  *
  * @retval:   Usable low memory top.
  */
-u32 get_usable_lowmem_top(const void *hob_list);
+u32 fsp_get_usable_lowmem_top(const void *hob_list);
 
 /**
  * This function retrieves the top of usable high memory.
@@ -89,7 +98,7 @@ u32 get_usable_lowmem_top(const void *hob_list);
  *
  * @retval:   Usable high memory top.
  */
-u64 get_usable_highmem_top(const void *hob_list);
+u64 fsp_get_usable_highmem_top(const void *hob_list);
 
 /**
  * This function retrieves a special reserved memory region.
@@ -102,8 +111,8 @@ u64 get_usable_highmem_top(const void *hob_list);
  * @retval:   Reserved region start address.
  *            0 if this region does not exist.
  */
-u64 get_fsp_reserved_mem_from_guid(const void *hob_list,
-				   u64 *len, struct efi_guid_t *guid);
+u64 fsp_get_reserved_mem_from_guid(const void *hob_list,
+				   u64 *len, struct efi_guid *guid);
 
 /**
  * This function retrieves the FSP reserved normal memory.
@@ -114,7 +123,7 @@ u64 get_fsp_reserved_mem_from_guid(const void *hob_list,
  * @retval:   FSP reserved memory base
  *            0 if this region does not exist.
  */
-u32 get_fsp_reserved_mem(const void *hob_list, u32 *len);
+u32 fsp_get_fsp_reserved_mem(const void *hob_list, u32 *len);
 
 /**
  * This function retrieves the TSEG reserved normal memory.
@@ -126,7 +135,7 @@ u32 get_fsp_reserved_mem(const void *hob_list, u32 *len);
  * @retval NULL:   Failed to find the TSEG reserved memory.
  * @retval others: TSEG reserved memory base.
  */
-u32 get_tseg_reserved_mem(const void *hob_list, u32 *len);
+u32 fsp_get_tseg_reserved_mem(const void *hob_list, u32 *len);
 
 /**
  * Returns the next instance of a HOB type from the starting HOB.
@@ -136,7 +145,7 @@ u32 get_tseg_reserved_mem(const void *hob_list, u32 *len);
  *
  * @retval:   A HOB object with matching type; Otherwise NULL.
  */
-void *get_next_hob(u16 type, const void *hob_list);
+void *fsp_get_next_hob(u16 type, const void *hob_list);
 
 /**
  * Returns the next instance of the matched GUID HOB from the starting HOB.
@@ -146,7 +155,7 @@ void *get_next_hob(u16 type, const void *hob_list);
  *
  * @retval:   A HOB object with matching GUID; Otherwise NULL.
  */
-void *get_next_guid_hob(const struct efi_guid_t *guid, const void *hob_list);
+void *fsp_get_next_guid_hob(const struct efi_guid *guid, const void *hob_list);
 
 /**
  * This function retrieves a GUID HOB data buffer and size.
@@ -159,8 +168,8 @@ void *get_next_guid_hob(const struct efi_guid_t *guid, const void *hob_list);
  * @retval NULL:   Failed to find the GUID HOB.
  * @retval others: GUID HOB data buffer pointer.
  */
-void *get_guid_hob_data(const void *hob_list, u32 *len,
-			struct efi_guid_t *guid);
+void *fsp_get_guid_hob_data(const void *hob_list, u32 *len,
+			    struct efi_guid *guid);
 
 /**
  * This function retrieves FSP Non-volatile Storage HOB buffer and size.
@@ -172,7 +181,7 @@ void *get_guid_hob_data(const void *hob_list, u32 *len,
  * @retval NULL:   Failed to find the NVS HOB.
  * @retval others: FSP NVS data buffer pointer.
  */
-void *get_fsp_nvs_data(const void *hob_list, u32 *len);
+void *fsp_get_nvs_data(const void *hob_list, u32 *len);
 
 /**
  * This function retrieves Bootloader temporary stack buffer and size.
@@ -184,15 +193,15 @@ void *get_fsp_nvs_data(const void *hob_list, u32 *len);
  * @retval NULL:   Failed to find the bootloader temporary stack HOB.
  * @retval others: Bootloader temporary stackbuffer pointer.
  */
-void *get_bootloader_tmp_mem(const void *hob_list, u32 *len);
+void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len);
 
 /**
  * This function overrides the default configurations in the UPD data region.
  *
- * @fsp_upd: A pointer to the upd_region_t data strcture
+ * @fsp_upd: A pointer to the upd_region data strcture
  *
  * @return:  None
  */
-void update_fsp_upd(struct upd_region_t *fsp_upd);
+void update_fsp_upd(struct upd_region *fsp_upd);
 
 #endif

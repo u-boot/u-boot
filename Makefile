@@ -947,7 +947,9 @@ ifneq ($(CONFIG_X86_RESET_VECTOR),)
 rom: u-boot.rom FORCE
 
 IFDTOOL=$(objtree)/tools/ifdtool
-IFDTOOL_FLAGS  = -w $(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot-dtb.bin
+IFDTOOL_FLAGS  = -f 0:$(objtree)/u-boot.dtb
+IFDTOOL_FLAGS += -m 0x$(shell $(NM) u-boot |grep _dt_ucode_base_size |cut -d' ' -f1)
+IFDTOOL_FLAGS += -U $(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot.bin
 IFDTOOL_FLAGS += -w $(CONFIG_SYS_X86_START16):$(objtree)/u-boot-x86-16bit.bin
 
 ifneq ($(CONFIG_HAVE_INTEL_ME),)
@@ -956,11 +958,19 @@ IFDTOOL_ME_FLAGS += -i ME:$(srctree)/board/$(BOARDDIR)/me.bin
 endif
 
 ifneq ($(CONFIG_HAVE_MRC),)
-IFDTOOL_FLAGS += -w $(CONFIG_X86_MRC_START):$(srctree)/board/$(BOARDDIR)/mrc.bin
+IFDTOOL_FLAGS += -w $(CONFIG_X86_MRC_ADDR):$(srctree)/board/$(BOARDDIR)/mrc.bin
+endif
+
+ifneq ($(CONFIG_HAVE_FSP),)
+IFDTOOL_FLAGS += -w $(CONFIG_FSP_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_FSP_FILE)
+endif
+
+ifneq ($(CONFIG_HAVE_CMC),)
+IFDTOOL_FLAGS += -w $(CONFIG_CMC_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_CMC_FILE)
 endif
 
 ifneq ($(CONFIG_X86_OPTION_ROM_ADDR),)
-IFDTOOL_FLAGS += -w $(CONFIG_X86_OPTION_ROM_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_X86_OPTION_ROM_FILENAME)
+IFDTOOL_FLAGS += -w $(CONFIG_X86_OPTION_ROM_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_X86_OPTION_ROM_FILE)
 endif
 
 quiet_cmd_ifdtool = IFDTOOL $@

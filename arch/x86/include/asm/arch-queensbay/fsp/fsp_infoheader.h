@@ -10,9 +10,7 @@
 
 #define FSP_HEADER_OFF	0x94	/* Fixed FSP header offset in the FSP image */
 
-#pragma pack(1)
-
-struct fsp_header_t {
+struct __packed fsp_header {
 	u32	sign;			/* 'FSPH' */
 	u32	hdr_len;		/* header length */
 	u8	reserved1[3];
@@ -30,7 +28,5 @@ struct fsp_header_t {
 	u32	fsp_notify;		/* fsp_notify offset */
 	u32	reserved2;
 };
-
-#pragma pack()
 
 #endif

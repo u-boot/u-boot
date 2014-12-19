@@ -17,18 +17,18 @@ static char *hob_type[] = {
 	"Memory Allocation",
 	"Resource Descriptor",
 	"GUID Extension",
-	"Firmware Volumn",
+	"Firmware Volume",
 	"CPU",
 	"Memory Pool",
 	"reserved",
-	"Firmware Volumn 2",
+	"Firmware Volume 2",
 	"Load PEIM Unused",
 	"UEFI Capsule",
 };
 
 int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	union hob_pointers_t hob;
+	union hob_pointers hob;
 	u16 type;
 	char *desc;
 	int i = 0;
@@ -39,29 +39,27 @@ int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	printf("No. | Address  | Type                | Length in Bytes\n");
 	printf("----|----------|---------------------|----------------\n");
-	while (!END_OF_HOB(hob)) {
+	while (!end_of_hob(hob)) {
 		printf("%-3d | %08x | ", i, (unsigned int)hob.raw);
-		type = hob.hdr->type;
+		type = get_hob_type(hob);
 		if (type == HOB_TYPE_UNUSED)
 			desc = "*Unused*";
 		else if (type == HOB_TYPE_EOH)
-			desc = "**END OF HOB**";
+			desc = "*END OF HOB*";
 		else if (type >= 0 && type <= ARRAY_SIZE(hob_type))
 			desc = hob_type[type];
 		else
-			desc = "!!!Invalid Type!!!";
-		printf("%-19s | %-15d\n", desc, hob.hdr->len);
-		hob.raw = GET_NEXT_HOB(hob);
+			desc = "*Invalid Type*";
+		printf("%-19s | %-15d\n", desc, get_hob_length(hob));
+		hob.raw = get_next_hob(hob);
 		i++;
 	}
 
 	return 0;
 }
 
-/* -------------------------------------------------------------------- */
-
 U_BOOT_CMD(
 	hob,	1,	1,	do_hob,
-	"print FSP Hand-Off Block information",
+	"print Firmware Support Package (FSP) Hand-Off Block information",
 	""
 );

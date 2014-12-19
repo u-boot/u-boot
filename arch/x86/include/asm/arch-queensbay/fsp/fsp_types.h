@@ -8,20 +8,8 @@
 #ifndef __FSP_TYPES_H__
 #define __FSP_TYPES_H__
 
-/*
- * Boolean true value.  UEFI Specification defines this value to be 1,
- * but this form is more portable.
- */
-#define TRUE			((unsigned char)(1 == 1))
-
-/*
- * Boolean false value.  UEFI Specification defines this value to be 0,
- * but this form is more portable.
- */
-#define FALSE			((unsigned char)(0 == 1))
-
 /* 128 bit buffer containing a unique identifier value */
-struct efi_guid_t {
+struct efi_guid {
 	u32	data1;
 	u16	data2;
 	u16	data3;
@@ -79,9 +67,6 @@ struct efi_guid_t {
  */
 #define SIGNATURE_64(A, B, C, D, E, F, G, H)	\
 	(SIGNATURE_32(A, B, C, D) | ((u64)(SIGNATURE_32(E, F, G, H)) << 32))
-
-/* Assertion for debug */
-#define ASSERT(exp)	do { if (!(exp)) for (;;); } while (FALSE)
 
 /*
  * Define FSP API return status code.
