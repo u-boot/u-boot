@@ -817,9 +817,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	qspi->slave.dio = is_dio;
 	qspi->slave.op_mode_rx = SPI_OPM_RX_QOF;
 	qspi->slave.op_mode_tx = SPI_OPM_TX_QPP;
-	qspi->qspi.master.speed_hz = qspi->qspi.master.input_clk_hz / 2;
-	qspi->qspi.max_speed_hz = (max_hz < qspi->qspi.master.speed_hz) ?
-								max_hz : qspi->qspi.master.speed_hz;
+	lqspi_frequency = qspi->qspi.master.input_clk_hz / 2;
+	qspi->qspi.max_speed_hz = min(max_hz, lqspi_frequency);
 	qspi->qspi.master.is_dio = is_dio;
 	qspi->qspi.master.is_dual = is_dual;
 	qspi->qspi.mode = mode;
