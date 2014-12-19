@@ -205,7 +205,7 @@
  * The amount of RAM that is reserved for the FB. This will not show up as
  * RAM to the kernel, but will be reclaimed by a KMS driver in future.
  */
-#define CONFIG_SUNXI_FB_SIZE (8 << 20)
+#define CONFIG_SUNXI_FB_SIZE (9 << 20)
 
 /* Do we want to initialize a simple FB? */
 #define CONFIG_VIDEO_DT_SIMPLEFB

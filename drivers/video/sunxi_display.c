@@ -358,7 +358,9 @@ retry:
 void *video_hw_init(void)
 {
 	static GraphicDevice *graphic_device = &sunxi_display.graphic_device;
-	const struct ctfb_res_modes *mode = &res_mode_init[RES_MODE_1024x768];
+	const struct ctfb_res_modes *mode;
+	const char *options;
+	unsigned int depth;
 	int ret;
 
 	memset(&sunxi_display, 0, sizeof(struct sunxi_display));
@@ -367,14 +369,22 @@ void *video_hw_init(void)
 	       CONFIG_SUNXI_FB_SIZE >> 10);
 	gd->fb_base = gd->ram_top;
 
+	video_get_ctfb_res_modes(RES_MODE_1024x768, 24, &mode, &depth, &options);
+
 	ret = sunxi_hdmi_hpd_detect();
 	if (!ret)
 		return NULL;
 
 	printf("HDMI connected.\n");
-	sunxi_display.enabled = true;
 
-	printf("Setting up a %dx%d console.\n", mode->xres, mode->yres);
+	if (mode->vmode != FB_VMODE_NONINTERLACED) {
+		printf("Only non-interlaced modes supported, falling back to 1024x768\n");
+		mode = &res_mode_init[RES_MODE_1024x768];
+	} else {
+		printf("Setting up a %dx%d console\n", mode->xres, mode->yres);
+	}
+
+	sunxi_display.enabled = true;
 	sunxi_engines_init();
 	sunxi_mode_set(mode, gd->fb_base - CONFIG_SYS_SDRAM_BASE);
 
