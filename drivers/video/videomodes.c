@@ -85,12 +85,21 @@ const struct ctfb_vesa_modes vesa_modes[VESA_MODES_COUNT] = {
 };
 const struct ctfb_res_modes res_mode_init[RES_MODES_COUNT] = {
 	/*  x     y  hz  pixclk ps/kHz   le   ri  up  lo   hs vs  s  vmode */
+#ifndef CONFIG_VIDEO_STD_TIMINGS
 	{ 640,  480, 60, 39721,  25180,  40,  24, 32, 11,  96, 2, 0, FB_VMODE_NONINTERLACED},
 	{ 800,  600, 60, 27778,  36000,  64,  24, 22,  1,  72, 2, 0, FB_VMODE_NONINTERLACED},
 	{1024,  768, 60, 15384,  65000, 168,   8, 29,  3, 144, 4, 0, FB_VMODE_NONINTERLACED},
 	{ 960,  720, 80, 13100,  76335, 160,  40, 32,  8,  80, 4, 0, FB_VMODE_NONINTERLACED},
 	{1152,  864, 60, 12004,  83300, 200,  64, 32, 16,  80, 4, 0, FB_VMODE_NONINTERLACED},
 	{1280, 1024, 60,  9090, 110000, 200,  48, 26,  1, 184, 3, 0, FB_VMODE_NONINTERLACED},
+#else
+	{ 640,  480, 60, 39683,  25200,  48,  16, 33, 10,  96, 2, 0, FB_VMODE_NONINTERLACED},
+	{ 800,  600, 60, 25000,  40000,  88,  40, 23,  1, 128, 4, FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED},
+	{1024,  768, 60, 15384,  65000, 160,  24, 29,  3, 136, 6, 0, FB_VMODE_NONINTERLACED},
+	{ 960,  720, 75, 13468,  74250, 176,  72, 27,  1, 112, 2, 0, FB_VMODE_NONINTERLACED},
+	{1152,  864, 75,  9259, 108000, 256,  64, 32,  1, 128, 3, FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED},
+	{1280, 1024, 60,  9259, 108000, 248,  48, 38,  1, 112, 3, FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED},
+#endif
 };
 
 /************************************************************************
