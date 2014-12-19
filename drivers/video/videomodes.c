@@ -275,3 +275,43 @@ int video_get_video_mode(unsigned int *xres, unsigned int *yres,
 
 	return 1;
 }
+
+/*
+ * Parse the 'video-mode' environment variable using video_get_video_mode()
+ * and lookup the matching ctfb_res_modes in res_mode_init.
+ *
+ * @default_mode: RES_MODE_##x## define for the mode to store in mode_ret
+ *   when 'video-mode' is not set or does not contain a valid mode
+ * @default_depth: depth to set when 'video-mode' is not set
+ * @mode_ret: pointer where the mode will be stored
+ * @depth_ret: pointer where the depth will be stored
+ * @options: pointer to any remaining options, or NULL
+ */
+void video_get_ctfb_res_modes(int default_mode, unsigned int default_depth,
+			      const struct ctfb_res_modes **mode_ret,
+			      unsigned int *depth_ret,
+			      const char **options)
+{
+	unsigned int i, xres, yres, depth, refresh;
+
+	*mode_ret = &res_mode_init[default_mode];
+	*depth_ret = default_depth;
+	*options = NULL;
+
+	if (!video_get_video_mode(&xres, &yres, &depth, &refresh, options))
+		return;
+
+	for (i = 0; i < RES_MODES_COUNT; i++) {
+		if (res_mode_init[i].xres == xres &&
+		    res_mode_init[i].yres == yres &&
+		    res_mode_init[i].refresh == refresh) {
+			*mode_ret = &res_mode_init[i];
+			*depth_ret = depth;
+			return;
+		}
+	}
+
+	printf("video-mode %dx%d-%d@%d not available, falling back to %dx%d-%d@%d\n",
+	       xres, yres, depth, refresh, (*mode_ret)->xres,
+	       (*mode_ret)->yres, *depth_ret, (*mode_ret)->refresh);
+}

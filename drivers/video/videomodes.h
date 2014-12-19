@@ -79,3 +79,8 @@ int video_get_params (struct ctfb_res_modes *pPar, char *penv);
 
 int video_get_video_mode(unsigned int *xres, unsigned int *yres,
 	unsigned int *depth, unsigned int *freq, const char **options);
+
+void video_get_ctfb_res_modes(int default_mode, unsigned int default_depth,
+			      const struct ctfb_res_modes **mode_ret,
+			      unsigned int *depth_ret,
+			      const char **options);
