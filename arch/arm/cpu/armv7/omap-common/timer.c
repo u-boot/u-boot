@@ -41,11 +41,6 @@ int timer_init(void)
 	writel((CONFIG_SYS_PTV << 2) | TCLR_PRE | TCLR_AR | TCLR_ST,
 		&timer_base->tclr);
 
-	/* reset time, capture current incrementer value time */
-	gd->arch.lastinc = readl(&timer_base->tcrr) /
-					(TIMER_CLOCK / CONFIG_SYS_HZ);
-	gd->arch.tbl = 0;	/* start "advancing" time stamp from 0 */
-
 	return 0;
 }
 
