@@ -58,6 +58,8 @@
 ****************************************************************************/
 
 #include <common.h>
+#include <edid.h>
+#include <errno.h>
 #include <linux/ctype.h>
 
 #include "videomodes.h"
@@ -372,4 +374,74 @@ int video_get_option_int(const char *options, const char *name, int def)
 			p++;	/* skip ',' */
 	}
 	return def;
+}
+
+/**
+ * Convert an EDID detailed timing to a struct ctfb_res_modes
+ *
+ * @param t		The EDID detailed timing to be converted
+ * @param mode		Returns the converted timing
+ *
+ * @return 0 on success, or a negative errno on error
+ */
+int video_edid_dtd_to_ctfb_res_modes(struct edid_detailed_timing *t,
+				     struct ctfb_res_modes *mode)
+{
+	int margin, h_total, v_total;
+
+	/* Check all timings are non 0 */
+	if (EDID_DETAILED_TIMING_PIXEL_CLOCK(*t) == 0 ||
+	    EDID_DETAILED_TIMING_HORIZONTAL_ACTIVE(*t) == 0 ||
+	    EDID_DETAILED_TIMING_HORIZONTAL_BLANKING(*t) == 0 ||
+	    EDID_DETAILED_TIMING_VERTICAL_ACTIVE(*t) == 0 ||
+	    EDID_DETAILED_TIMING_VERTICAL_BLANKING(*t) == 0 ||
+	    EDID_DETAILED_TIMING_HSYNC_OFFSET(*t) == 0 ||
+	    EDID_DETAILED_TIMING_HSYNC_PULSE_WIDTH(*t) == 0 ||
+	    EDID_DETAILED_TIMING_VSYNC_OFFSET(*t) == 0 ||
+	    EDID_DETAILED_TIMING_VSYNC_PULSE_WIDTH(*t) == 0 ||
+	    /* 3d formats are not supported*/
+	    EDID_DETAILED_TIMING_FLAG_STEREO(*t) != 0)
+		return -EINVAL;
+
+	mode->xres = EDID_DETAILED_TIMING_HORIZONTAL_ACTIVE(*t);
+	mode->yres = EDID_DETAILED_TIMING_VERTICAL_ACTIVE(*t);
+
+	h_total = mode->xres + EDID_DETAILED_TIMING_HORIZONTAL_BLANKING(*t);
+	v_total = mode->yres + EDID_DETAILED_TIMING_VERTICAL_BLANKING(*t);
+	mode->refresh = EDID_DETAILED_TIMING_PIXEL_CLOCK(*t) /
+			(h_total * v_total);
+
+	mode->pixclock_khz = EDID_DETAILED_TIMING_PIXEL_CLOCK(*t) / 1000;
+	mode->pixclock = 1000000000L / mode->pixclock_khz;
+
+	mode->right_margin = EDID_DETAILED_TIMING_HSYNC_OFFSET(*t);
+	mode->hsync_len = EDID_DETAILED_TIMING_HSYNC_PULSE_WIDTH(*t);
+	margin = EDID_DETAILED_TIMING_HORIZONTAL_BLANKING(*t) -
+			(mode->right_margin + mode->hsync_len);
+	if (margin <= 0)
+		return -EINVAL;
+
+	mode->left_margin = margin;
+
+	mode->lower_margin = EDID_DETAILED_TIMING_VSYNC_OFFSET(*t);
+	mode->vsync_len = EDID_DETAILED_TIMING_VSYNC_PULSE_WIDTH(*t);
+	margin = EDID_DETAILED_TIMING_VERTICAL_BLANKING(*t) -
+			(mode->lower_margin + mode->vsync_len);
+	if (margin <= 0)
+		return -EINVAL;
+
+	mode->upper_margin = margin;
+
+	mode->sync = 0;
+	if (EDID_DETAILED_TIMING_FLAG_HSYNC_POLARITY(*t))
+		mode->sync |= FB_SYNC_HOR_HIGH_ACT;
+	if (EDID_DETAILED_TIMING_FLAG_VSYNC_POLARITY(*t))
+		mode->sync |= FB_SYNC_VERT_HIGH_ACT;
+
+	if (EDID_DETAILED_TIMING_FLAG_INTERLACED(*t))
+		mode->vmode = FB_VMODE_INTERLACED;
+	else
+		mode->vmode = FB_VMODE_NONINTERLACED;
+
+	return 0;
 }

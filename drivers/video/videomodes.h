@@ -5,6 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <edid.h>
 
 #ifndef CONFIG_SYS_DEFAULT_VIDEO_MODE
 #define CONFIG_SYS_DEFAULT_VIDEO_MODE	0x301
@@ -89,3 +90,6 @@ void video_get_option_string(const char *options, const char *name,
 			     char *dest, int dest_len, const char *def);
 
 int video_get_option_int(const char *options, const char *name, int def);
+
+int video_edid_dtd_to_ctfb_res_modes(struct edid_detailed_timing *t,
+				     struct ctfb_res_modes *mode);

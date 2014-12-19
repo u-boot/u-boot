@@ -86,6 +86,10 @@ struct edid_detailed_timing {
 	GET_BITS((_x).flags, 4, 3)
 #define EDID_DETAILED_TIMING_FLAG_POLARITY(_x) \
 	GET_BITS((_x).flags, 2, 1)
+#define EDID_DETAILED_TIMING_FLAG_VSYNC_POLARITY(_x) \
+	GET_BIT((_x).flags, 2)
+#define EDID_DETAILED_TIMING_FLAG_HSYNC_POLARITY(_x) \
+	GET_BIT((_x).flags, 1)
 #define EDID_DETAILED_TIMING_FLAG_INTERLEAVED(_x) \
 	GET_BIT((_x).flags, 0)
 } __attribute__ ((__packed__));
