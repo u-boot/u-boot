@@ -1,0 +1,6 @@
+BEAGLE X15
+M:	Felipe Balbi <balbi@ti.com>
+S:	Maintained
+F:	board/ti/beagle_x15/
+F:	include/configs/beagle_x15.h
+F:	configs/beagle_x15_defconfig
