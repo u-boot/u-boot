@@ -15,8 +15,8 @@
 #include <asm/io.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
-#include <linux/fb.h>
 #include <video_fb.h>
+#include "videomodes.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -97,7 +97,7 @@ static void sunxi_composer_init(void)
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_ENABLE);
 }
 
-static void sunxi_composer_mode_set(struct fb_videomode *mode,
+static void sunxi_composer_mode_set(const struct ctfb_res_modes *mode,
 				    unsigned int address)
 {
 	struct sunxi_de_be_reg * const de_be =
@@ -205,7 +205,7 @@ static void sunxi_lcdc_init(void)
 	writel(0xffffffff, &lcdc->tcon1_io_tristate);
 }
 
-static void sunxi_lcdc_mode_set(struct fb_videomode *mode,
+static void sunxi_lcdc_mode_set(const struct ctfb_res_modes *mode,
 				int *clk_div, int *clk_double)
 {
 	struct sunxi_lcdc_reg * const lcdc =
@@ -240,7 +240,7 @@ static void sunxi_lcdc_mode_set(struct fb_videomode *mode,
 	writel(SUNXI_LCDC_X(mode->hsync_len) | SUNXI_LCDC_Y(mode->vsync_len),
 	       &lcdc->tcon1_timing_sync);
 
-	sunxi_lcdc_pll_set(mode->pixclock, clk_div, clk_double);
+	sunxi_lcdc_pll_set(mode->pixclock_khz, clk_div, clk_double);
 }
 
 #ifdef CONFIG_MACH_SUN6I
@@ -255,7 +255,7 @@ static void sunxi_drc_init(void)
 }
 #endif
 
-static void sunxi_hdmi_mode_set(struct fb_videomode *mode,
+static void sunxi_hdmi_mode_set(const struct ctfb_res_modes *mode,
 				int clk_div, int clk_double)
 {
 	struct sunxi_hdmi_reg * const hdmi =
@@ -310,7 +310,7 @@ static void sunxi_engines_init(void)
 #endif
 }
 
-static void sunxi_mode_set(struct fb_videomode *mode, unsigned int address)
+static void sunxi_mode_set(const struct ctfb_res_modes *mode, unsigned int address)
 {
 	struct sunxi_de_be_reg * const de_be =
 		(struct sunxi_de_be_reg *)SUNXI_DE_BE0_BASE;
@@ -358,26 +358,7 @@ retry:
 void *video_hw_init(void)
 {
 	static GraphicDevice *graphic_device = &sunxi_display.graphic_device;
-	/*
-	 * Vesa standard 1024x768@60
-	 * 65.0  1024 1048 1184 1344  768 771 777 806  -hsync -vsync
-	 */
-	struct fb_videomode mode = {
-		.name = "1024x768",
-		.refresh = 60,
-		.xres = 1024,
-		.yres = 768,
-		.pixclock = 65000,
-		.left_margin = 160,
-		.right_margin = 24,
-		.upper_margin = 29,
-		.lower_margin = 3,
-		.hsync_len = 136,
-		.vsync_len = 6,
-		.sync = 0,
-		.vmode = 0,
-		.flag = 0,
-	};
+	const struct ctfb_res_modes *mode = &res_mode_init[RES_MODE_1024x768];
 	int ret;
 
 	memset(&sunxi_display, 0, sizeof(struct sunxi_display));
@@ -393,9 +374,9 @@ void *video_hw_init(void)
 	printf("HDMI connected.\n");
 	sunxi_display.enabled = true;
 
-	printf("Setting up a %s console.\n", mode.name);
+	printf("Setting up a %dx%d console.\n", mode->xres, mode->yres);
 	sunxi_engines_init();
-	sunxi_mode_set(&mode, gd->fb_base - CONFIG_SYS_SDRAM_BASE);
+	sunxi_mode_set(mode, gd->fb_base - CONFIG_SYS_SDRAM_BASE);
 
 	/*
 	 * These are the only members of this structure that are used. All the
@@ -405,8 +386,8 @@ void *video_hw_init(void)
 	graphic_device->frameAdrs = gd->fb_base;
 	graphic_device->gdfIndex = GDF_32BIT_X888RGB;
 	graphic_device->gdfBytesPP = 4;
-	graphic_device->winSizeX = mode.xres;
-	graphic_device->winSizeY = mode.yres;
+	graphic_device->winSizeX = mode->xres;
+	graphic_device->winSizeY = mode->yres;
 
 	return graphic_device;
 }
