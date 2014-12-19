@@ -35,8 +35,10 @@
 struct ctfb_res_modes {
 	int xres;		/* visible resolution		*/
 	int yres;
+	int refresh;		/* vertical refresh rate in hz  */
 	/* Timing: All values in pixclocks, except pixclock (of course) */
 	int pixclock;		/* pixel clock in ps (pico seconds) */
+	int pixclock_khz;	/* pixel clock in kHz           */
 	int left_margin;	/* time from sync to picture	*/
 	int right_margin;	/* time from picture to sync	*/
 	int upper_margin;	/* time from sync to picture	*/

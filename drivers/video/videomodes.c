@@ -84,13 +84,13 @@ const struct ctfb_vesa_modes vesa_modes[VESA_MODES_COUNT] = {
 	{0x31B, RES_MODE_1280x1024, 24},
 };
 const struct ctfb_res_modes res_mode_init[RES_MODES_COUNT] = {
-	/* x	 y pixclk   le	ri  up	lo   hs vs  s  vmode */
-	{640, 480, 39721, 40, 24, 32, 11, 96, 2, 0, FB_VMODE_NONINTERLACED},
-	{800, 600, 27778, 64, 24, 22, 1, 72, 2, 0, FB_VMODE_NONINTERLACED},
-	{1024, 768, 15384, 168, 8, 29, 3, 144, 4, 0, FB_VMODE_NONINTERLACED},
-	{960, 720, 13100, 160, 40, 32, 8, 80, 4, 0, FB_VMODE_NONINTERLACED},
-	{1152, 864, 12004, 200, 64, 32, 16, 80, 4, 0, FB_VMODE_NONINTERLACED},
-	{1280, 1024, 9090, 200, 48, 26, 1, 184, 3, 0, FB_VMODE_NONINTERLACED},
+	/*  x     y  hz  pixclk ps/kHz   le   ri  up  lo   hs vs  s  vmode */
+	{ 640,  480, 60, 39721,  25180,  40,  24, 32, 11,  96, 2, 0, FB_VMODE_NONINTERLACED},
+	{ 800,  600, 60, 27778,  36000,  64,  24, 22,  1,  72, 2, 0, FB_VMODE_NONINTERLACED},
+	{1024,  768, 60, 15384,  65000, 168,   8, 29,  3, 144, 4, 0, FB_VMODE_NONINTERLACED},
+	{ 960,  720, 80, 13100,  76335, 160,  40, 32,  8,  80, 4, 0, FB_VMODE_NONINTERLACED},
+	{1152,  864, 60, 12004,  83300, 200,  64, 32, 16,  80, 4, 0, FB_VMODE_NONINTERLACED},
+	{1280, 1024, 60,  9090, 110000, 200,  48, 26,  1, 184, 3, 0, FB_VMODE_NONINTERLACED},
 };
 
 /************************************************************************
@@ -183,6 +183,7 @@ int video_get_params (struct ctfb_res_modes *pPar, char *penv)
 	while ((i = video_get_param_len (p, ',')) != 0) {
 		GET_OPTION ("x:", pPar->xres)
 			GET_OPTION ("y:", pPar->yres)
+			GET_OPTION ("refresh:", pPar->refresh)
 			GET_OPTION ("le:", pPar->left_margin)
 			GET_OPTION ("ri:", pPar->right_margin)
 			GET_OPTION ("up:", pPar->upper_margin)
@@ -192,6 +193,7 @@ int video_get_params (struct ctfb_res_modes *pPar, char *penv)
 			GET_OPTION ("sync:", pPar->sync)
 			GET_OPTION ("vmode:", pPar->vmode)
 			GET_OPTION ("pclk:", pPar->pixclock)
+			GET_OPTION ("pclk_khz:", pPar->pixclock_khz)
 			GET_OPTION ("depth:", bpp)
 			p += i;
 		if (*p != 0)
