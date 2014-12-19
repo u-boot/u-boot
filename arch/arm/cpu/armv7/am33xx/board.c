@@ -294,7 +294,6 @@ void s_init(void)
 	save_omap_boot_params();
 #endif
 	watchdog_disable();
-	timer_init();
 	set_uart_mux_conf();
 	setup_clocks_for_console();
 	uart_soft_reset();
