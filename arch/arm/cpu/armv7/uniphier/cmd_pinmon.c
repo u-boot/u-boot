@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <asm/arch/boot-device.h>
+#include <asm/arch/sbc-regs.h>
 
 static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -14,6 +15,8 @@ static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	u32 mode_sel, n = 0;
 
 	mode_sel = get_boot_mode_sel();
+
+	printf("Boot Swap: %s\n\n", boot_is_swapped() ? "ON" : "OFF");
 
 	puts("Boot Mode Pin:\n");
 
