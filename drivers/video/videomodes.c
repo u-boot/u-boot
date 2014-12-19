@@ -113,7 +113,7 @@ const struct ctfb_res_modes res_mode_init[RES_MODES_COUNT] = {
  * returns the length to the next seperator
  */
 static int
-video_get_param_len (char *start, char sep)
+video_get_param_len(const char *start, char sep)
 {
 	int i = 0;
 	while ((*start != 0) && (*start != sep)) {
@@ -314,4 +314,62 @@ void video_get_ctfb_res_modes(int default_mode, unsigned int default_depth,
 	printf("video-mode %dx%d-%d@%d not available, falling back to %dx%d-%d@%d\n",
 	       xres, yres, depth, refresh, (*mode_ret)->xres,
 	       (*mode_ret)->yres, *depth_ret, (*mode_ret)->refresh);
+}
+
+/*
+ * Find the named string option within the ',' separated options string, and
+ * store its value in dest.
+ *
+ * @options: ',' separated options string
+ * @name: name of the option to look for
+ * @dest: destination buffer to store the value of the option in
+ * @dest_len: length of dest
+ * @def: value to store in dest if the option is not present in options
+ */
+void video_get_option_string(const char *options, const char *name,
+			     char *dest, int dest_len, const char *def)
+{
+	const char *p = options;
+	const int name_len = strlen(name);
+	int i, len;
+
+	while (p && (i = video_get_param_len(p, ',')) != 0) {
+		if (strncmp(p, name, name_len) == 0 && p[name_len] == '=') {
+			len = i - (name_len + 1);
+			if (len >= dest_len)
+				len = dest_len - 1;
+			memcpy(dest, &p[name_len + 1], len);
+			dest[len] = 0;
+			return;
+		}
+		p += i;
+		if (*p != 0)
+			p++;	/* skip ',' */
+	}
+	strcpy(dest, def);
+}
+
+/*
+ * Find the named integer option within the ',' separated options string, and
+ * return its value.
+ *
+ * @options: ',' separated options string
+ * @name: name of the option to look for
+ * @def: value to return if the option is not present in options
+ */
+int video_get_option_int(const char *options, const char *name, int def)
+{
+	const char *p = options;
+	const int name_len = strlen(name);
+	int i;
+
+	while (p && (i = video_get_param_len(p, ',')) != 0) {
+		if (strncmp(p, name, name_len) == 0 && p[name_len] == '=')
+			return simple_strtoul(&p[name_len + 1], NULL, 10);
+
+		p += i;
+		if (*p != 0)
+			p++;	/* skip ',' */
+	}
+	return def;
 }

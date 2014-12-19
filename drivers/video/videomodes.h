@@ -84,3 +84,8 @@ void video_get_ctfb_res_modes(int default_mode, unsigned int default_depth,
 			      const struct ctfb_res_modes **mode_ret,
 			      unsigned int *depth_ret,
 			      const char **options);
+
+void video_get_option_string(const char *options, const char *name,
+			     char *dest, int dest_len, const char *def);
+
+int video_get_option_int(const char *options, const char *name, int def);
