@@ -9,6 +9,7 @@
 #include <altera.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <watchdog.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
 #include <asm/arch/dwmmc.h>
@@ -150,14 +151,23 @@ static inline void socfpga_fpga_add(void) {}
 
 int arch_cpu_init(void)
 {
+#ifdef CONFIG_HW_WATCHDOG
+	/*
+	 * In case the watchdog is enabled, make sure to (re-)configure it
+	 * so that the defined timeout is valid. Otherwise the SPL (Perloader)
+	 * timeout value is still active which might too short for Linux
+	 * booting.
+	 */
+	hw_watchdog_init();
+#else
 	/*
 	 * If the HW watchdog is NOT enabled, make sure it is not running,
 	 * for example because it was enabled in the preloader. This might
 	 * trigger a watchdog-triggered reboot of Linux kernel later.
 	 */
-#ifndef CONFIG_HW_WATCHDOG
 	socfpga_watchdog_reset();
 #endif
+
 	return 0;
 }
 
