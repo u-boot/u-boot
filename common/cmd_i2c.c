@@ -83,12 +83,12 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Display values from last command.
  * Memory modify remembered values are different from display memory.
  */
-static uchar	i2c_dp_last_chip;
+static uint	i2c_dp_last_chip;
 static uint	i2c_dp_last_addr;
 static uint	i2c_dp_last_alen;
 static uint	i2c_dp_last_length = 0x10;
 
-static uchar	i2c_mm_last_chip;
+static uint	i2c_mm_last_chip;
 static uint	i2c_mm_last_addr;
 static uint	i2c_mm_last_alen;
 
@@ -282,7 +282,7 @@ static int i2c_report_err(int ret, enum i2c_err_op op)
  */
 static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	u_char	chip;
+	uint	chip;
 	uint	devaddr, length;
 	int alen;
 	u_char  *memaddr;
@@ -335,7 +335,7 @@ static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 static int do_i2c_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	u_char	chip;
+	uint	chip;
 	uint	devaddr, length;
 	int alen;
 	u_char  *memaddr;
@@ -444,7 +444,7 @@ static int do_i2c_flags(cmd_tbl_t *cmdtp, int flag, int argc,
  */
 static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	u_char	chip;
+	uint	chip;
 	uint	addr, length;
 	int alen;
 	int	j, nbytes, linebytes;
@@ -563,7 +563,7 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
  */
 static int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	uchar	chip;
+	uint	chip;
 	ulong	addr;
 	int	alen;
 	uchar	byte;
@@ -649,7 +649,7 @@ static int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
  */
 static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	uchar	chip;
+	uint	chip;
 	ulong	addr;
 	int	alen;
 	int	count;
@@ -734,7 +734,7 @@ static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 static int
 mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 {
-	uchar	chip;
+	uint	chip;
 	ulong	addr;
 	int	alen;
 	ulong	data;
@@ -957,7 +957,7 @@ static int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
  */
 static int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	u_char	chip;
+	uint	chip;
 	int alen;
 	uint	addr;
 	uint	length;
@@ -1085,7 +1085,7 @@ static int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	enum { unknown, EDO, SDRAM, DDR2 } type;
 
-	u_char	chip;
+	uint	chip;
 	u_char	data[128];
 	u_char	cksum;
 	int	j;
@@ -1563,7 +1563,7 @@ static int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_I2C_EDID)
 int do_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	u_char chip;
+	uint chip;
 	struct edid1_info edid;
 	int ret;
 #ifdef CONFIG_DM_I2C
