@@ -13,6 +13,7 @@
 #include <asm/arch/display.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <errno.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <video_fb.h>
@@ -24,6 +25,22 @@ struct sunxi_display {
 	GraphicDevice graphic_device;
 	bool enabled;
 } sunxi_display;
+
+/*
+ * Wait up to 200ms for value to be set in given part of reg.
+ */
+static int await_completion(u32 *reg, u32 mask, u32 val)
+{
+	unsigned long tmo = timer_get_us() + 200000;
+
+	while ((readl(reg) & mask) != val) {
+		if (timer_get_us() > tmo) {
+			printf("DDC: timeout reading EDID\n");
+			return -ETIME;
+		}
+	}
+	return 0;
+}
 
 static int sunxi_hdmi_hpd_detect(void)
 {
@@ -70,6 +87,133 @@ static void sunxi_hdmi_shutdown(void)
 	clrbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI);
 #endif
 	clock_set_pll3(0);
+}
+
+static int sunxi_hdmi_ddc_do_command(u32 cmnd, int offset, int n)
+{
+	struct sunxi_hdmi_reg * const hdmi =
+		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
+
+	setbits_le32(&hdmi->ddc_fifo_ctrl, SUNXI_HDMI_DDC_FIFO_CTRL_CLEAR);
+	writel(SUNXI_HMDI_DDC_ADDR_EDDC_SEGMENT(offset >> 8) |
+	       SUNXI_HMDI_DDC_ADDR_EDDC_ADDR |
+	       SUNXI_HMDI_DDC_ADDR_OFFSET(offset) |
+	       SUNXI_HMDI_DDC_ADDR_SLAVE_ADDR, &hdmi->ddc_addr);
+#ifndef CONFIG_MACH_SUN6I
+	writel(n, &hdmi->ddc_byte_count);
+	writel(cmnd, &hdmi->ddc_cmnd);
+#else
+	writel(n << 16 | cmnd, &hdmi->ddc_cmnd);
+#endif
+	setbits_le32(&hdmi->ddc_ctrl, SUNXI_HMDI_DDC_CTRL_START);
+
+	return await_completion(&hdmi->ddc_ctrl, SUNXI_HMDI_DDC_CTRL_START, 0);
+}
+
+static int sunxi_hdmi_ddc_read(int offset, u8 *buf, int count)
+{
+	struct sunxi_hdmi_reg * const hdmi =
+		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
+	int i, n;
+
+	while (count > 0) {
+		if (count > 16)
+			n = 16;
+		else
+			n = count;
+
+		if (sunxi_hdmi_ddc_do_command(
+				SUNXI_HDMI_DDC_CMND_EXPLICIT_EDDC_READ,
+				offset, n))
+			return -ETIME;
+
+		for (i = 0; i < n; i++)
+			*buf++ = readb(&hdmi->ddc_fifo_data);
+
+		offset += n;
+		count -= n;
+	}
+
+	return 0;
+}
+
+static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
+{
+	struct edid1_info edid1;
+	struct edid_detailed_timing *t =
+		(struct edid_detailed_timing *)edid1.monitor_details.timing;
+	struct sunxi_hdmi_reg * const hdmi =
+		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	int i, r, retries = 2;
+
+	/* SUNXI_HDMI_CTRL_ENABLE & PAD_CTRL0 are already set by hpd_detect */
+	writel(SUNXI_HDMI_PAD_CTRL1 | SUNXI_HDMI_PAD_CTRL1_HALVE,
+	       &hdmi->pad_ctrl1);
+	writel(SUNXI_HDMI_PLL_CTRL | SUNXI_HDMI_PLL_CTRL_DIV(15),
+	       &hdmi->pll_ctrl);
+	writel(SUNXI_HDMI_PLL_DBG0_PLL3, &hdmi->pll_dbg0);
+
+	/* Reset i2c controller */
+	setbits_le32(&ccm->hdmi_clk_cfg, CCM_HDMI_CTRL_DDC_GATE);
+	writel(SUNXI_HMDI_DDC_CTRL_ENABLE |
+	       SUNXI_HMDI_DDC_CTRL_SDA_ENABLE |
+	       SUNXI_HMDI_DDC_CTRL_SCL_ENABLE |
+	       SUNXI_HMDI_DDC_CTRL_RESET, &hdmi->ddc_ctrl);
+	if (await_completion(&hdmi->ddc_ctrl, SUNXI_HMDI_DDC_CTRL_RESET, 0))
+		return -EIO;
+
+	writel(SUNXI_HDMI_DDC_CLOCK, &hdmi->ddc_clock);
+#ifndef CONFIG_MACH_SUN6I
+	writel(SUNXI_HMDI_DDC_LINE_CTRL_SDA_ENABLE |
+	       SUNXI_HMDI_DDC_LINE_CTRL_SCL_ENABLE, &hdmi->ddc_line_ctrl);
+#endif
+
+	do {
+		r = sunxi_hdmi_ddc_read(0, (u8 *)&edid1, 128);
+		if (r)
+			continue;
+		r = edid_check_checksum((u8 *)&edid1);
+		if (r) {
+			printf("EDID: checksum error%s\n",
+			       retries ? ", retrying" : "");
+		}
+	} while (r && retries--);
+
+	/* Disable DDC engine, no longer needed */
+	clrbits_le32(&hdmi->ddc_ctrl, SUNXI_HMDI_DDC_CTRL_ENABLE);
+	clrbits_le32(&ccm->hdmi_clk_cfg, CCM_HDMI_CTRL_DDC_GATE);
+
+	if (r)
+		return r;
+
+	r = edid_check_info(&edid1);
+	if (r) {
+		printf("EDID: invalid EDID data\n");
+		return -EINVAL;
+	}
+
+	/* We want version 1.3 or 1.2 with detailed timing info */
+	if (edid1.version != 1 || (edid1.revision < 3 &&
+			!EDID1_INFO_FEATURE_PREFERRED_TIMING_MODE(edid1))) {
+		printf("EDID: unsupported version %d.%d\n",
+		       edid1.version, edid1.revision);
+		return -EINVAL;
+	}
+
+	/* Take the first usable detailed timing */
+	for (i = 0; i < 4; i++, t++) {
+		r = video_edid_dtd_to_ctfb_res_modes(t, mode);
+		if (r == 0)
+			break;
+	}
+	if (i == 4) {
+		printf("EDID: no usable detailed timing found\n");
+		return -ENOENT;
+	}
+
+	return 0;
 }
 
 /*
@@ -363,9 +507,10 @@ void *video_hw_init(void)
 {
 	static GraphicDevice *graphic_device = &sunxi_display.graphic_device;
 	const struct ctfb_res_modes *mode;
+	struct ctfb_res_modes edid_mode;
 	const char *options;
 	unsigned int depth;
-	int ret, hpd;
+	int ret, hpd, edid;
 
 	memset(&sunxi_display, 0, sizeof(struct sunxi_display));
 
@@ -375,6 +520,7 @@ void *video_hw_init(void)
 
 	video_get_ctfb_res_modes(RES_MODE_1024x768, 24, &mode, &depth, &options);
 	hpd = video_get_option_int(options, "hpd", 1);
+	edid = video_get_option_int(options, "edid", 1);
 
 	/* Always call hdp_detect, as it also enables various clocks, etc. */
 	ret = sunxi_hdmi_hpd_detect();
@@ -384,6 +530,12 @@ void *video_hw_init(void)
 	}
 	if (ret)
 		printf("HDMI connected: ");
+
+	/* Check edid if requested and we've a cable plugged in */
+	if (edid && ret) {
+		if (sunxi_hdmi_edid_get_mode(&edid_mode) == 0)
+			mode = &edid_mode;
+	}
 
 	if (mode->vmode != FB_VMODE_NONINTERLACED) {
 		printf("Only non-interlaced modes supported, falling back to 1024x768\n");

@@ -107,6 +107,48 @@ struct sunxi_hdmi_reg {
 	u32 pad_ctrl1;			/* 0x204 */
 	u32 pll_ctrl;			/* 0x208 */
 	u32 pll_dbg0;			/* 0x20c */
+	u32 pll_dbg1;			/* 0x210 */
+	u32 hpd_cec;			/* 0x214 */
+	u8 res1[0x28];			/* 0x218 */
+	u32 spd_pkt;			/* 0x240 */
+	u8 res2[0xac];			/* 0x244 */
+	u32 pkt_ctrl0;			/* 0x2f0 */
+	u32 pkt_ctrl1;			/* 0x2f4 */
+	u8 res3[0x18];			/* 0x2f8 */
+	u32 audio_sample_count;		/* 0x310 */
+	u8 res4[0xec];			/* 0x314 */
+	u32 audio_tx_fifo;		/* 0x400 */
+	u8 res5[0xfc];			/* 0x404 */
+#ifndef CONFIG_MACH_SUN6I
+	u32 ddc_ctrl;			/* 0x500 */
+	u32 ddc_addr;			/* 0x504 */
+	u32 ddc_int_mask;		/* 0x508 */
+	u32 ddc_int_status;		/* 0x50c */
+	u32 ddc_fifo_ctrl;		/* 0x510 */
+	u32 ddc_fifo_status;		/* 0x514 */
+	u32 ddc_fifo_data;		/* 0x518 */
+	u32 ddc_byte_count;		/* 0x51c */
+	u32 ddc_cmnd;			/* 0x520 */
+	u32 ddc_exreg;			/* 0x524 */
+	u32 ddc_clock;			/* 0x528 */
+	u8 res6[0x14];			/* 0x52c */
+	u32 ddc_line_ctrl;		/* 0x540 */
+#else
+	u32 ddc_ctrl;			/* 0x500 */
+	u32 ddc_exreg;			/* 0x504 */
+	u32 ddc_cmnd;			/* 0x508 */
+	u32 ddc_addr;			/* 0x50c */
+	u32 ddc_int_mask;		/* 0x510 */
+	u32 ddc_int_status;		/* 0x514 */
+	u32 ddc_fifo_ctrl;		/* 0x518 */
+	u32 ddc_fifo_status;		/* 0x51c */
+	u32 ddc_clock;			/* 0x520 */
+	u32 ddc_timeout;		/* 0x524 */
+	u8 res6[0x18];			/* 0x528 */
+	u32 ddc_dbg;			/* 0x540 */
+	u8 res7[0x3c];			/* 0x544 */
+	u32 ddc_fifo_data;		/* 0x580 */
+#endif
 };
 
 /*
@@ -181,6 +223,49 @@ struct sunxi_hdmi_reg {
 
 #define SUNXI_HDMI_PLL_DBG0_PLL3		(0 << 21)
 #define SUNXI_HDMI_PLL_DBG0_PLL7		(1 << 21)
+
+#ifdef CONFIG_MACH_SUN6I
+#define SUNXI_HMDI_DDC_CTRL_ENABLE		(1 << 0)
+#define SUNXI_HMDI_DDC_CTRL_SCL_ENABLE		(1 << 4)
+#define SUNXI_HMDI_DDC_CTRL_SDA_ENABLE		(1 << 6)
+#define SUNXI_HMDI_DDC_CTRL_START		(1 << 27)
+#define SUNXI_HMDI_DDC_CTRL_RESET		(1 << 31)
+#else
+#define SUNXI_HMDI_DDC_CTRL_RESET		(1 << 0)
+/* sun4i / sun5i / sun7i do not have a separate line_ctrl reg */
+#define SUNXI_HMDI_DDC_CTRL_SDA_ENABLE		0
+#define SUNXI_HMDI_DDC_CTRL_SCL_ENABLE		0
+#define SUNXI_HMDI_DDC_CTRL_START		(1 << 30)
+#define SUNXI_HMDI_DDC_CTRL_ENABLE		(1 << 31)
+#endif
+
+#ifdef CONFIG_MACH_SUN6I
+#define SUNXI_HMDI_DDC_ADDR_SLAVE_ADDR		(0xa0 << 0)
+#else
+#define SUNXI_HMDI_DDC_ADDR_SLAVE_ADDR		(0x50 << 0)
+#endif
+#define SUNXI_HMDI_DDC_ADDR_OFFSET(n)		(((n) & 0xff) << 8)
+#define SUNXI_HMDI_DDC_ADDR_EDDC_ADDR		(0x60 << 16)
+#define SUNXI_HMDI_DDC_ADDR_EDDC_SEGMENT(n)	((n) << 24)
+
+#ifdef CONFIG_MACH_SUN6I
+#define SUNXI_HDMI_DDC_FIFO_CTRL_CLEAR		(1 << 15)
+#else
+#define SUNXI_HDMI_DDC_FIFO_CTRL_CLEAR		(1 << 31)
+#endif
+
+#define SUNXI_HDMI_DDC_CMND_EXPLICIT_EDDC_READ	6
+#define SUNXI_HDMI_DDC_CMND_IMPLICIT_EDDC_READ	7
+
+#ifdef CONFIG_MACH_SUN6I
+#define SUNXI_HDMI_DDC_CLOCK			0x61
+#else
+/* N = 5,M=1 Fscl= Ftmds/2/10/2^N/(M+1) */
+#define SUNXI_HDMI_DDC_CLOCK			0x0d
+#endif
+
+#define SUNXI_HMDI_DDC_LINE_CTRL_SCL_ENABLE	(1 << 8)
+#define SUNXI_HMDI_DDC_LINE_CTRL_SDA_ENABLE	(1 << 9)
 
 int sunxi_simplefb_setup(void *blob);
 

@@ -216,6 +216,7 @@
 #define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_STD_TIMINGS
+#define CONFIG_I2C_EDID
 
 /* allow both serial and cfb console. */
 #define CONFIG_CONSOLE_MUX
