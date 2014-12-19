@@ -53,10 +53,16 @@ static int sunxi_hdmi_hpd_detect(void)
 
 	udelay(1000);
 
-	if (readl(&hdmi->hpd) & SUNXI_HDMI_HPD_DETECT)
-		return 1;
+	return (readl(&hdmi->hpd) & SUNXI_HDMI_HPD_DETECT) ? 1 : 0;
+}
 
-	/* No need to keep these running */
+static void sunxi_hdmi_shutdown(void)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct sunxi_hdmi_reg * const hdmi =
+		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
+
 	clrbits_le32(&hdmi->ctrl, SUNXI_HDMI_CTRL_ENABLE);
 	clrbits_le32(&ccm->hdmi_clk_cfg, CCM_HDMI_CTRL_GATE);
 	clrbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_HDMI);
@@ -64,8 +70,6 @@ static int sunxi_hdmi_hpd_detect(void)
 	clrbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI);
 #endif
 	clock_set_pll3(0);
-
-	return 0;
 }
 
 /*
@@ -361,7 +365,7 @@ void *video_hw_init(void)
 	const struct ctfb_res_modes *mode;
 	const char *options;
 	unsigned int depth;
-	int ret;
+	int ret, hpd;
 
 	memset(&sunxi_display, 0, sizeof(struct sunxi_display));
 
@@ -370,12 +374,16 @@ void *video_hw_init(void)
 	gd->fb_base = gd->ram_top;
 
 	video_get_ctfb_res_modes(RES_MODE_1024x768, 24, &mode, &depth, &options);
+	hpd = video_get_option_int(options, "hpd", 1);
 
+	/* Always call hdp_detect, as it also enables various clocks, etc. */
 	ret = sunxi_hdmi_hpd_detect();
-	if (!ret)
+	if (hpd && !ret) {
+		sunxi_hdmi_shutdown();
 		return NULL;
-
-	printf("HDMI connected.\n");
+	}
+	if (ret)
+		printf("HDMI connected: ");
 
 	if (mode->vmode != FB_VMODE_NONINTERLACED) {
 		printf("Only non-interlaced modes supported, falling back to 1024x768\n");
