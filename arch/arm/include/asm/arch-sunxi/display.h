@@ -102,23 +102,30 @@ struct sunxi_hdmi_reg {
 	u32 video_fp;			/* 0x01c */
 	u32 video_spw;			/* 0x020 */
 	u32 video_polarity;		/* 0x024 */
-	u8 res0[0x1d8];			/* 0x028 */
+	u8 res0[0x58];			/* 0x028 */
+	u8 avi_info_frame[0x14];	/* 0x080 */
+	u8 res1[0x4c];			/* 0x094 */
+	u32 qcp_packet0;		/* 0x0e0 */
+	u32 qcp_packet1;		/* 0x0e4 */
+	u8 res2[0x118];			/* 0x0e8 */
 	u32 pad_ctrl0;			/* 0x200 */
 	u32 pad_ctrl1;			/* 0x204 */
 	u32 pll_ctrl;			/* 0x208 */
 	u32 pll_dbg0;			/* 0x20c */
 	u32 pll_dbg1;			/* 0x210 */
 	u32 hpd_cec;			/* 0x214 */
-	u8 res1[0x28];			/* 0x218 */
-	u32 spd_pkt;			/* 0x240 */
-	u8 res2[0xac];			/* 0x244 */
+	u8 res3[0x28];			/* 0x218 */
+	u8 vendor_info_frame[0x14];	/* 0x240 */
+	u8 res4[0x9c];			/* 0x254 */
 	u32 pkt_ctrl0;			/* 0x2f0 */
 	u32 pkt_ctrl1;			/* 0x2f4 */
-	u8 res3[0x18];			/* 0x2f8 */
+	u8 res5[0x8];			/* 0x2f8 */
+	u32 unknown;			/* 0x300 */
+	u8 res6[0xc];			/* 0x304 */
 	u32 audio_sample_count;		/* 0x310 */
-	u8 res4[0xec];			/* 0x314 */
+	u8 res7[0xec];			/* 0x314 */
 	u32 audio_tx_fifo;		/* 0x400 */
-	u8 res5[0xfc];			/* 0x404 */
+	u8 res8[0xfc];			/* 0x404 */
 #ifndef CONFIG_MACH_SUN6I
 	u32 ddc_ctrl;			/* 0x500 */
 	u32 ddc_addr;			/* 0x504 */
@@ -131,7 +138,7 @@ struct sunxi_hdmi_reg {
 	u32 ddc_cmnd;			/* 0x520 */
 	u32 ddc_exreg;			/* 0x524 */
 	u32 ddc_clock;			/* 0x528 */
-	u8 res6[0x14];			/* 0x52c */
+	u8 res9[0x14];			/* 0x52c */
 	u32 ddc_line_ctrl;		/* 0x540 */
 #else
 	u32 ddc_ctrl;			/* 0x500 */
@@ -144,9 +151,9 @@ struct sunxi_hdmi_reg {
 	u32 ddc_fifo_status;		/* 0x51c */
 	u32 ddc_clock;			/* 0x520 */
 	u32 ddc_timeout;		/* 0x524 */
-	u8 res6[0x18];			/* 0x528 */
+	u8 res9[0x18];			/* 0x528 */
 	u32 ddc_dbg;			/* 0x540 */
-	u8 res7[0x3c];			/* 0x544 */
+	u8 res10[0x3c];			/* 0x544 */
 	u32 ddc_fifo_data;		/* 0x580 */
 #endif
 };
@@ -191,9 +198,12 @@ struct sunxi_hdmi_reg {
 #define SUNXI_HDMI_IRQ_STATUS_BITS		0x73
 #define SUNXI_HDMI_HPD_DETECT			(1 << 0)
 #define SUNXI_HDMI_VIDEO_CTRL_ENABLE		(1 << 31)
+#define SUNXI_HDMI_VIDEO_CTRL_HDMI		(1 << 30)
 #define SUNXI_HDMI_VIDEO_POL_HOR		(1 << 0)
 #define SUNXI_HDMI_VIDEO_POL_VER		(1 << 1)
 #define SUNXI_HDMI_VIDEO_POL_TX_CLK		(0x3e0 << 16)
+#define SUNXI_HDMI_QCP_PACKET0			3
+#define SUNXI_HDMI_QCP_PACKET1			0
 
 #ifdef CONFIG_MACH_SUN6I
 #define SUNXI_HDMI_PAD_CTRL0_HDP		0x7e80000f
@@ -223,6 +233,9 @@ struct sunxi_hdmi_reg {
 
 #define SUNXI_HDMI_PLL_DBG0_PLL3		(0 << 21)
 #define SUNXI_HDMI_PLL_DBG0_PLL7		(1 << 21)
+
+#define SUNXI_HDMI_PKT_CTRL0			0x00000f21
+#define SUNXI_HDMI_PKT_CTRL1			0x0000000f
 
 #ifdef CONFIG_MACH_SUN6I
 #define SUNXI_HMDI_DDC_CTRL_ENABLE		(1 << 0)

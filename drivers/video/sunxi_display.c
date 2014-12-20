@@ -403,8 +403,55 @@ static void sunxi_drc_init(void)
 }
 #endif
 
+static void sunxi_hdmi_setup_info_frames(const struct ctfb_res_modes *mode)
+{
+	struct sunxi_hdmi_reg * const hdmi =
+		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
+	u8 checksum = 0;
+	u8 avi_info_frame[17] = {
+		0x82, 0x02, 0x0d, 0x00, 0x12, 0x00, 0x88, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00
+	};
+	u8 vendor_info_frame[19] = {
+		0x81, 0x01, 0x06, 0x29, 0x03, 0x0c, 0x00, 0x40,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00
+	};
+	int i;
+
+	if (mode->pixclock_khz <= 27000)
+		avi_info_frame[5] = 0x40; /* SD-modes, ITU601 colorspace */
+	else
+		avi_info_frame[5] = 0x80; /* HD-modes, ITU709 colorspace */
+
+	if (mode->xres * 100 / mode->yres < 156)
+		avi_info_frame[5] |= 0x18; /* 4 : 3 */
+	else
+		avi_info_frame[5] |= 0x28; /* 16 : 9 */
+
+	for (i = 0; i < ARRAY_SIZE(avi_info_frame); i++)
+		checksum += avi_info_frame[i];
+
+	avi_info_frame[3] = 0x100 - checksum;
+
+	for (i = 0; i < ARRAY_SIZE(avi_info_frame); i++)
+		writeb(avi_info_frame[i], &hdmi->avi_info_frame[i]);
+
+	writel(SUNXI_HDMI_QCP_PACKET0, &hdmi->qcp_packet0);
+	writel(SUNXI_HDMI_QCP_PACKET1, &hdmi->qcp_packet1);
+
+	for (i = 0; i < ARRAY_SIZE(vendor_info_frame); i++)
+		writeb(vendor_info_frame[i], &hdmi->vendor_info_frame[i]);
+
+	writel(SUNXI_HDMI_PKT_CTRL0, &hdmi->pkt_ctrl0);
+	writel(SUNXI_HDMI_PKT_CTRL1, &hdmi->pkt_ctrl1);
+
+	setbits_le32(&hdmi->video_ctrl, SUNXI_HDMI_VIDEO_CTRL_HDMI);
+}
+
 static void sunxi_hdmi_mode_set(const struct ctfb_res_modes *mode,
-				int clk_div, int clk_double)
+				bool hdmi_mode, int clk_div, int clk_double)
 {
 	struct sunxi_hdmi_reg * const hdmi =
 		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
@@ -412,6 +459,9 @@ static void sunxi_hdmi_mode_set(const struct ctfb_res_modes *mode,
 
 	/* Write clear interrupt status bits */
 	writel(SUNXI_HDMI_IRQ_STATUS_BITS, &hdmi->irq);
+
+	if (hdmi_mode)
+		sunxi_hdmi_setup_info_frames(mode);
 
 	/* Init various registers, select pll3 as clock source */
 	writel(SUNXI_HDMI_VIDEO_POL_TX_CLK, &hdmi->video_polarity);
@@ -458,7 +508,8 @@ static void sunxi_engines_init(void)
 #endif
 }
 
-static void sunxi_mode_set(const struct ctfb_res_modes *mode, unsigned int address)
+static void sunxi_mode_set(const struct ctfb_res_modes *mode, char *monitor,
+			   unsigned int address)
 {
 	struct sunxi_de_be_reg * const de_be =
 		(struct sunxi_de_be_reg *)SUNXI_DE_BE0_BASE;
@@ -468,6 +519,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode, unsigned int addre
 		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
 	int clk_div, clk_double;
 	int retries = 3;
+	bool hdmi_mode = strcmp(monitor, "hdmi") == 0;
 
 retry:
 	clrbits_le32(&hdmi->video_ctrl, SUNXI_HDMI_VIDEO_CTRL_ENABLE);
@@ -476,7 +528,7 @@ retry:
 
 	sunxi_composer_mode_set(mode, address);
 	sunxi_lcdc_mode_set(mode, &clk_div, &clk_double);
-	sunxi_hdmi_mode_set(mode, clk_div, clk_double);
+	sunxi_hdmi_mode_set(mode, hdmi_mode, clk_div, clk_double);
 
 	setbits_le32(&de_be->reg_ctrl, SUNXI_DE_BE_REG_CTRL_LOAD_REGS);
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_START);
@@ -511,6 +563,7 @@ void *video_hw_init(void)
 	const char *options;
 	unsigned int depth;
 	int ret, hpd, edid;
+	char monitor[16];
 
 	memset(&sunxi_display, 0, sizeof(struct sunxi_display));
 
@@ -521,6 +574,8 @@ void *video_hw_init(void)
 	video_get_ctfb_res_modes(RES_MODE_1024x768, 24, &mode, &depth, &options);
 	hpd = video_get_option_int(options, "hpd", 1);
 	edid = video_get_option_int(options, "edid", 1);
+	video_get_option_string(options, "monitor", monitor, sizeof(monitor),
+				"dvi");
 
 	/* Always call hdp_detect, as it also enables various clocks, etc. */
 	ret = sunxi_hdmi_hpd_detect();
@@ -541,12 +596,13 @@ void *video_hw_init(void)
 		printf("Only non-interlaced modes supported, falling back to 1024x768\n");
 		mode = &res_mode_init[RES_MODE_1024x768];
 	} else {
-		printf("Setting up a %dx%d console\n", mode->xres, mode->yres);
+		printf("Setting up a %dx%d %s console\n",
+		       mode->xres, mode->yres, monitor);
 	}
 
 	sunxi_display.enabled = true;
 	sunxi_engines_init();
-	sunxi_mode_set(mode, gd->fb_base - CONFIG_SYS_SDRAM_BASE);
+	sunxi_mode_set(mode, monitor, gd->fb_base - CONFIG_SYS_SDRAM_BASE);
 
 	/*
 	 * These are the only members of this structure that are used. All the
