@@ -72,8 +72,11 @@ static int mmc_resource_init(int sdc_no)
 	mmchost->mmc_no = sdc_no;
 
 	cd_pin = sunxi_mmc_getcd_gpio(sdc_no);
-	if (cd_pin != -1)
+	if (cd_pin != -1) {
 		ret = gpio_request(cd_pin, "mmc_cd");
+		if (!ret)
+			ret = gpio_direction_input(cd_pin);
+	}
 
 	return ret;
 }
@@ -414,7 +417,7 @@ static int sunxi_mmc_getcd(struct mmc *mmc)
 	if (cd_pin == -1)
 		return 1;
 
-	return !gpio_direction_input(cd_pin);
+	return !gpio_get_value(cd_pin);
 }
 
 static const struct mmc_ops sunxi_mmc_ops = {
