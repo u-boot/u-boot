@@ -155,16 +155,17 @@ static int sunxi_hdmi_edid_get_block(int block, u8 *buf)
 	return r;
 }
 
-static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
+static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode, char *monitor)
 {
 	struct edid1_info edid1;
+	struct edid_cea861_info cea681[4];
 	struct edid_detailed_timing *t =
 		(struct edid_detailed_timing *)edid1.monitor_details.timing;
 	struct sunxi_hdmi_reg * const hdmi =
 		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-	int i, r;
+	int i, r, ext_blocks = 0;
 
 	/* SUNXI_HDMI_CTRL_ENABLE & PAD_CTRL0 are already set by hpd_detect */
 	writel(SUNXI_HDMI_PAD_CTRL1 | SUNXI_HDMI_PAD_CTRL1_HALVE,
@@ -189,6 +190,25 @@ static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 #endif
 
 	r = sunxi_hdmi_edid_get_block(0, (u8 *)&edid1);
+	if (r == 0) {
+		r = edid_check_info(&edid1);
+		if (r) {
+			printf("EDID: invalid EDID data\n");
+			r = -EINVAL;
+		}
+	}
+	if (r == 0) {
+		ext_blocks = edid1.extension_flag;
+		if (ext_blocks > 4)
+			ext_blocks = 4;
+		for (i = 0; i < ext_blocks; i++) {
+			if (sunxi_hdmi_edid_get_block(1 + i,
+						(u8 *)&cea681[i]) != 0) {
+				ext_blocks = i;
+				break;
+			}
+		}
+	}
 
 	/* Disable DDC engine, no longer needed */
 	clrbits_le32(&hdmi->ddc_ctrl, SUNXI_HMDI_DDC_CTRL_ENABLE);
@@ -196,12 +216,6 @@ static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 
 	if (r)
 		return r;
-
-	r = edid_check_info(&edid1);
-	if (r) {
-		printf("EDID: invalid EDID data\n");
-		return -EINVAL;
-	}
 
 	/* We want version 1.3 or 1.2 with detailed timing info */
 	if (edid1.version != 1 || (edid1.revision < 3 &&
@@ -220,6 +234,17 @@ static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 	if (i == 4) {
 		printf("EDID: no usable detailed timing found\n");
 		return -ENOENT;
+	}
+
+	/* Check for basic audio support, if found enable hdmi output */
+	strcpy(monitor, "dvi");
+	for (i = 0; i < ext_blocks; i++) {
+		if (cea681[i].extension_tag != EDID_CEA861_EXTENSION_TAG ||
+		    cea681[i].revision < 2)
+			continue;
+
+		if (EDID_CEA861_SUPPORTS_BASIC_AUDIO(cea681[i]))
+			strcpy(monitor, "hdmi");
 	}
 
 	return 0;
@@ -597,7 +622,7 @@ void *video_hw_init(void)
 
 	/* Check edid if requested and we've a cable plugged in */
 	if (edid && ret) {
-		if (sunxi_hdmi_edid_get_mode(&edid_mode) == 0)
+		if (sunxi_hdmi_edid_get_mode(&edid_mode, monitor) == 0)
 			mode = &edid_mode;
 	}
 
