@@ -230,6 +230,25 @@ struct edid1_info {
 	unsigned char checksum;
 } __attribute__ ((__packed__));
 
+struct edid_cea861_info {
+	unsigned char extension_tag;
+#define EDID_CEA861_EXTENSION_TAG	0x02
+	unsigned char revision;
+	unsigned char dtd_offset;
+	unsigned char dtd_count;
+#define EDID_CEA861_SUPPORTS_UNDERSCAN(_x) \
+	GET_BIT(((_x).dtd_count), 7)
+#define EDID_CEA861_SUPPORTS_BASIC_AUDIO(_x) \
+	GET_BIT(((_x).dtd_count), 6)
+#define EDID_CEA861_SUPPORTS_YUV444(_x) \
+	GET_BIT(((_x).dtd_count), 5)
+#define EDID_CEA861_SUPPORTS_YUV422(_x) \
+	GET_BIT(((_x).dtd_count), 4)
+#define EDID_CEA861_DTD_COUNT(_x) \
+	GET_BITS(((_x).dtd_count), 3, 0)
+	unsigned char data[124];
+} __attribute__ ((__packed__));
+
 /**
  * Print the EDID info.
  *
