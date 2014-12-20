@@ -48,6 +48,7 @@ static int sunxi_hdmi_hpd_detect(void)
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct sunxi_hdmi_reg * const hdmi =
 		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
+	unsigned long tmo = timer_get_us() + 300000;
 
 	/* Set pll3 to 300MHz */
 	clock_set_pll3(300000000);
@@ -68,9 +69,12 @@ static int sunxi_hdmi_hpd_detect(void)
 	writel(SUNXI_HDMI_CTRL_ENABLE, &hdmi->ctrl);
 	writel(SUNXI_HDMI_PAD_CTRL0_HDP, &hdmi->pad_ctrl0);
 
-	udelay(1000);
+	while (timer_get_us() < tmo) {
+		if (readl(&hdmi->hpd) & SUNXI_HDMI_HPD_DETECT)
+			return 1;
+	}
 
-	return (readl(&hdmi->hpd) & SUNXI_HDMI_HPD_DETECT) ? 1 : 0;
+	return 0;
 }
 
 static void sunxi_hdmi_shutdown(void)
