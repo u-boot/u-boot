@@ -137,6 +137,24 @@ static int sunxi_hdmi_ddc_read(int offset, u8 *buf, int count)
 	return 0;
 }
 
+static int sunxi_hdmi_edid_get_block(int block, u8 *buf)
+{
+	int r, retries = 2;
+
+	do {
+		r = sunxi_hdmi_ddc_read(block * 128, buf, 128);
+		if (r)
+			continue;
+		r = edid_check_checksum(buf);
+		if (r) {
+			printf("EDID block %d: checksum error%s\n",
+			       block, retries ? ", retrying" : "");
+		}
+	} while (r && retries--);
+
+	return r;
+}
+
 static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 {
 	struct edid1_info edid1;
@@ -146,7 +164,7 @@ static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-	int i, r, retries = 2;
+	int i, r;
 
 	/* SUNXI_HDMI_CTRL_ENABLE & PAD_CTRL0 are already set by hpd_detect */
 	writel(SUNXI_HDMI_PAD_CTRL1 | SUNXI_HDMI_PAD_CTRL1_HALVE,
@@ -170,16 +188,7 @@ static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 	       SUNXI_HMDI_DDC_LINE_CTRL_SCL_ENABLE, &hdmi->ddc_line_ctrl);
 #endif
 
-	do {
-		r = sunxi_hdmi_ddc_read(0, (u8 *)&edid1, 128);
-		if (r)
-			continue;
-		r = edid_check_checksum((u8 *)&edid1);
-		if (r) {
-			printf("EDID: checksum error%s\n",
-			       retries ? ", retrying" : "");
-		}
-	} while (r && retries--);
+	r = sunxi_hdmi_edid_get_block(0, (u8 *)&edid1);
 
 	/* Disable DDC engine, no longer needed */
 	clrbits_le32(&hdmi->ddc_ctrl, SUNXI_HMDI_DDC_CTRL_ENABLE);
