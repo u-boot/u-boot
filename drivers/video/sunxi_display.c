@@ -501,6 +501,9 @@ static void sunxi_hdmi_mode_set(const struct ctfb_res_modes *mode,
 	if (hdmi_mode)
 		sunxi_hdmi_setup_info_frames(mode);
 
+	/* Set input sync enable */
+	writel(SUNXI_HDMI_UNKNOWN_INPUT_SYNC, &hdmi->unknown);
+
 	/* Init various registers, select pll3 as clock source */
 	writel(SUNXI_HDMI_VIDEO_POL_TX_CLK, &hdmi->video_polarity);
 	writel(SUNXI_HDMI_PAD_CTRL0_RUN, &hdmi->pad_ctrl0);
@@ -556,13 +559,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode, char *monitor,
 	struct sunxi_hdmi_reg * const hdmi =
 		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
 	int clk_div, clk_double;
-	int retries = 3;
 	bool hdmi_mode = strcmp(monitor, "hdmi") == 0;
-
-retry:
-	clrbits_le32(&hdmi->video_ctrl, SUNXI_HDMI_VIDEO_CTRL_ENABLE);
-	clrbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_TCON_ENABLE);
-	clrbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_START);
 
 	sunxi_composer_mode_set(mode, address);
 	sunxi_lcdc_mode_set(mode, &clk_div, &clk_double);
@@ -570,27 +567,11 @@ retry:
 
 	setbits_le32(&de_be->reg_ctrl, SUNXI_DE_BE_REG_CTRL_LOAD_REGS);
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_START);
-
-	udelay(1000000 / mode->refresh + 500);
-
 	setbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_TCON_ENABLE);
 
-	udelay(1000000 / mode->refresh + 500);
+	udelay(100);
 
 	setbits_le32(&hdmi->video_ctrl, SUNXI_HDMI_VIDEO_CTRL_ENABLE);
-
-	udelay(1000000 / mode->refresh + 500);
-
-	/*
-	 * Sometimes the display pipeline does not sync up properly, if
-	 * this happens the hdmi fifo underrun or overrun bits are set.
-	 */
-	if (readl(&hdmi->irq) &
-	    (SUNXI_HDMI_IRQ_STATUS_FIFO_UF | SUNXI_HDMI_IRQ_STATUS_FIFO_OF)) {
-		if (retries--)
-			goto retry;
-		printf("HDMI fifo under or overrun\n");
-	}
 }
 
 void *video_hw_init(void)
