@@ -311,6 +311,15 @@ static void sunxi_composer_mode_set(const struct ctfb_res_modes *mode,
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_LAYER0_ENABLE);
 }
 
+static void sunxi_composer_enable(void)
+{
+	struct sunxi_de_be_reg * const de_be =
+		(struct sunxi_de_be_reg *)SUNXI_DE_BE0_BASE;
+
+	setbits_le32(&de_be->reg_ctrl, SUNXI_DE_BE_REG_CTRL_LOAD_REGS);
+	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_START);
+}
+
 /*
  * LCDC, what allwinner calls a CRTC, so timing controller and serializer.
  */
@@ -401,8 +410,16 @@ static void sunxi_lcdc_init(void)
 	writel(0xffffffff, &lcdc->tcon1_io_tristate);
 }
 
-static void sunxi_lcdc_mode_set(const struct ctfb_res_modes *mode,
-				int *clk_div, int *clk_double)
+static void sunxi_lcdc_enable(void)
+{
+	struct sunxi_lcdc_reg * const lcdc =
+		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
+
+	setbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_TCON_ENABLE);
+}
+
+static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
+				      int *clk_div, int *clk_double)
 {
 	struct sunxi_lcdc_reg * const lcdc =
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
@@ -550,6 +567,15 @@ static void sunxi_hdmi_mode_set(const struct ctfb_res_modes *mode,
 		setbits_le32(&hdmi->video_polarity, SUNXI_HDMI_VIDEO_POL_VER);
 }
 
+static void sunxi_hdmi_enable(void)
+{
+	struct sunxi_hdmi_reg * const hdmi =
+		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
+
+	udelay(100);
+	setbits_le32(&hdmi->video_ctrl, SUNXI_HDMI_VIDEO_CTRL_ENABLE);
+}
+
 static void sunxi_engines_init(void)
 {
 	sunxi_composer_init();
@@ -562,25 +588,26 @@ static void sunxi_engines_init(void)
 static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 			   unsigned int address)
 {
-	struct sunxi_de_be_reg * const de_be =
-		(struct sunxi_de_be_reg *)SUNXI_DE_BE0_BASE;
-	struct sunxi_lcdc_reg * const lcdc =
-		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
-	struct sunxi_hdmi_reg * const hdmi =
-		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
-	int clk_div, clk_double;
-
-	sunxi_composer_mode_set(mode, address);
-	sunxi_lcdc_mode_set(mode, &clk_div, &clk_double);
-	sunxi_hdmi_mode_set(mode, clk_div, clk_double);
-
-	setbits_le32(&de_be->reg_ctrl, SUNXI_DE_BE_REG_CTRL_LOAD_REGS);
-	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_START);
-	setbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_TCON_ENABLE);
-
-	udelay(100);
-
-	setbits_le32(&hdmi->video_ctrl, SUNXI_HDMI_VIDEO_CTRL_ENABLE);
+	switch (sunxi_display.monitor) {
+	case sunxi_monitor_none:
+		break;
+	case sunxi_monitor_dvi:
+	case sunxi_monitor_hdmi: {
+		int clk_div, clk_double;
+		sunxi_composer_mode_set(mode, address);
+		sunxi_lcdc_tcon1_mode_set(mode, &clk_div, &clk_double);
+		sunxi_hdmi_mode_set(mode, clk_div, clk_double);
+		sunxi_composer_enable();
+		sunxi_lcdc_enable();
+		sunxi_hdmi_enable();
+		}
+		break;
+	case sunxi_monitor_lcd:
+		/* TODO */
+		break;
+	case sunxi_monitor_vga:
+		break;
+	}
 }
 
 static const char *sunxi_get_mon_desc(enum sunxi_monitor monitor)
@@ -627,19 +654,30 @@ void *video_hw_init(void)
 		printf("Unknown monitor: '%s', falling back to '%s'\n",
 		       mon, sunxi_get_mon_desc(sunxi_display.monitor));
 
-	/* Always call hdp_detect, as it also enables various clocks, etc. */
-	ret = sunxi_hdmi_hpd_detect();
-	if (hpd && !ret) {
+	switch (sunxi_display.monitor) {
+	case sunxi_monitor_none:
+		return NULL;
+	case sunxi_monitor_dvi:
+	case sunxi_monitor_hdmi:
+		/* Always call hdp_detect, as it also enables clocks, etc. */
+		ret = sunxi_hdmi_hpd_detect();
+		if (ret) {
+			printf("HDMI connected: ");
+			if (edid && sunxi_hdmi_edid_get_mode(&edid_mode) == 0)
+				mode = &edid_mode;
+			break;
+		}
+		if (!hpd)
+			break; /* User has requested to ignore hpd */
+
 		sunxi_hdmi_shutdown();
 		return NULL;
-	}
-	if (ret)
-		printf("HDMI connected: ");
-
-	/* Check edid if requested and we've a cable plugged in */
-	if (edid && ret) {
-		if (sunxi_hdmi_edid_get_mode(&edid_mode) == 0)
-			mode = &edid_mode;
+	case sunxi_monitor_lcd:
+		printf("LCD not supported on this board\n");
+		return NULL;
+	case sunxi_monitor_vga:
+		printf("VGA not supported on this board\n");
+		return NULL;
 	}
 
 	if (mode->vmode != FB_VMODE_NONINTERLACED) {
