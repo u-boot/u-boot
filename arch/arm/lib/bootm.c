@@ -238,7 +238,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 }
 
 #if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
-static bool boot_nonsec(void)
+bool armv7_boot_nonsec(void)
 {
 	char *s = getenv("bootm_boot_mode");
 #ifdef CONFIG_ARMV7_BOOT_SEC_DEFAULT
@@ -305,7 +305,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 
 	if (!fake) {
 #if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
-		if (boot_nonsec()) {
+		if (armv7_boot_nonsec()) {
 			armv7_init_nonsec();
 			secure_ram_addr(_do_nonsec_entry)(kernel_entry,
 							  0, machid, r2);
