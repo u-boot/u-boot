@@ -123,7 +123,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (control)
 			gd->fdt_blob = blob;
 		else
-			set_working_fdt_addr(blob);
+			set_working_fdt_addr((void *)blob);
 
 		if (argc >= 2) {
 			int  len;
