@@ -21,9 +21,19 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+enum sunxi_monitor {
+	sunxi_monitor_none,
+	sunxi_monitor_dvi,
+	sunxi_monitor_hdmi,
+	sunxi_monitor_lcd,
+	sunxi_monitor_vga,
+};
+#define SUNXI_MONITOR_LAST sunxi_monitor_vga
+
 struct sunxi_display {
 	GraphicDevice graphic_device;
 	bool enabled;
+	enum sunxi_monitor monitor;
 } sunxi_display;
 
 /*
@@ -159,7 +169,7 @@ static int sunxi_hdmi_edid_get_block(int block, u8 *buf)
 	return r;
 }
 
-static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode, char *monitor)
+static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 {
 	struct edid1_info edid1;
 	struct edid_cea861_info cea681[4];
@@ -241,14 +251,14 @@ static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode, char *monitor)
 	}
 
 	/* Check for basic audio support, if found enable hdmi output */
-	strcpy(monitor, "dvi");
+	sunxi_display.monitor = sunxi_monitor_dvi;
 	for (i = 0; i < ext_blocks; i++) {
 		if (cea681[i].extension_tag != EDID_CEA861_EXTENSION_TAG ||
 		    cea681[i].revision < 2)
 			continue;
 
 		if (EDID_CEA861_SUPPORTS_BASIC_AUDIO(cea681[i]))
-			strcpy(monitor, "hdmi");
+			sunxi_display.monitor = sunxi_monitor_hdmi;
 	}
 
 	return 0;
@@ -489,7 +499,7 @@ static void sunxi_hdmi_setup_info_frames(const struct ctfb_res_modes *mode)
 }
 
 static void sunxi_hdmi_mode_set(const struct ctfb_res_modes *mode,
-				bool hdmi_mode, int clk_div, int clk_double)
+				int clk_div, int clk_double)
 {
 	struct sunxi_hdmi_reg * const hdmi =
 		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
@@ -498,7 +508,7 @@ static void sunxi_hdmi_mode_set(const struct ctfb_res_modes *mode,
 	/* Write clear interrupt status bits */
 	writel(SUNXI_HDMI_IRQ_STATUS_BITS, &hdmi->irq);
 
-	if (hdmi_mode)
+	if (sunxi_display.monitor == sunxi_monitor_hdmi)
 		sunxi_hdmi_setup_info_frames(mode);
 
 	/* Set input sync enable */
@@ -549,7 +559,7 @@ static void sunxi_engines_init(void)
 #endif
 }
 
-static void sunxi_mode_set(const struct ctfb_res_modes *mode, char *monitor,
+static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 			   unsigned int address)
 {
 	struct sunxi_de_be_reg * const de_be =
@@ -559,11 +569,10 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode, char *monitor,
 	struct sunxi_hdmi_reg * const hdmi =
 		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
 	int clk_div, clk_double;
-	bool hdmi_mode = strcmp(monitor, "hdmi") == 0;
 
 	sunxi_composer_mode_set(mode, address);
 	sunxi_lcdc_mode_set(mode, &clk_div, &clk_double);
-	sunxi_hdmi_mode_set(mode, hdmi_mode, clk_div, clk_double);
+	sunxi_hdmi_mode_set(mode, clk_div, clk_double);
 
 	setbits_le32(&de_be->reg_ctrl, SUNXI_DE_BE_REG_CTRL_LOAD_REGS);
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_START);
@@ -574,6 +583,18 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode, char *monitor,
 	setbits_le32(&hdmi->video_ctrl, SUNXI_HDMI_VIDEO_CTRL_ENABLE);
 }
 
+static const char *sunxi_get_mon_desc(enum sunxi_monitor monitor)
+{
+	switch (monitor) {
+	case sunxi_monitor_none:	return "none";
+	case sunxi_monitor_dvi:		return "dvi";
+	case sunxi_monitor_hdmi:	return "hdmi";
+	case sunxi_monitor_lcd:		return "lcd";
+	case sunxi_monitor_vga:		return "vga";
+	}
+	return NULL; /* never reached */
+}
+
 void *video_hw_init(void)
 {
 	static GraphicDevice *graphic_device = &sunxi_display.graphic_device;
@@ -581,8 +602,8 @@ void *video_hw_init(void)
 	struct ctfb_res_modes edid_mode;
 	const char *options;
 	unsigned int depth;
-	int ret, hpd, edid;
-	char monitor[16];
+	int i, ret, hpd, edid;
+	char mon[16];
 
 	memset(&sunxi_display, 0, sizeof(struct sunxi_display));
 
@@ -593,8 +614,18 @@ void *video_hw_init(void)
 	video_get_ctfb_res_modes(RES_MODE_1024x768, 24, &mode, &depth, &options);
 	hpd = video_get_option_int(options, "hpd", 1);
 	edid = video_get_option_int(options, "edid", 1);
-	video_get_option_string(options, "monitor", monitor, sizeof(monitor),
-				"dvi");
+	sunxi_display.monitor = sunxi_monitor_dvi;
+	video_get_option_string(options, "monitor", mon, sizeof(mon),
+				sunxi_get_mon_desc(sunxi_display.monitor));
+	for (i = 0; i <= SUNXI_MONITOR_LAST; i++) {
+		if (strcmp(mon, sunxi_get_mon_desc(i)) == 0) {
+			sunxi_display.monitor = i;
+			break;
+		}
+	}
+	if (i > SUNXI_MONITOR_LAST)
+		printf("Unknown monitor: '%s', falling back to '%s'\n",
+		       mon, sunxi_get_mon_desc(sunxi_display.monitor));
 
 	/* Always call hdp_detect, as it also enables various clocks, etc. */
 	ret = sunxi_hdmi_hpd_detect();
@@ -607,7 +638,7 @@ void *video_hw_init(void)
 
 	/* Check edid if requested and we've a cable plugged in */
 	if (edid && ret) {
-		if (sunxi_hdmi_edid_get_mode(&edid_mode, monitor) == 0)
+		if (sunxi_hdmi_edid_get_mode(&edid_mode) == 0)
 			mode = &edid_mode;
 	}
 
@@ -615,13 +646,13 @@ void *video_hw_init(void)
 		printf("Only non-interlaced modes supported, falling back to 1024x768\n");
 		mode = &res_mode_init[RES_MODE_1024x768];
 	} else {
-		printf("Setting up a %dx%d %s console\n",
-		       mode->xres, mode->yres, monitor);
+		printf("Setting up a %dx%d %s console\n", mode->xres,
+		       mode->yres, sunxi_get_mon_desc(sunxi_display.monitor));
 	}
 
 	sunxi_display.enabled = true;
 	sunxi_engines_init();
-	sunxi_mode_set(mode, monitor, gd->fb_base - CONFIG_SYS_SDRAM_BASE);
+	sunxi_mode_set(mode, gd->fb_base - CONFIG_SYS_SDRAM_BASE);
 
 	/*
 	 * These are the only members of this structure that are used. All the
