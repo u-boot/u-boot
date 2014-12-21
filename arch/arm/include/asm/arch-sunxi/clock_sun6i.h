@@ -255,6 +255,8 @@ struct sunxi_ccm_reg {
 #define CCM_LCD_CH0_CTRL_PLL3_2X	(2 << 24)
 #define CCM_LCD_CH0_CTRL_PLL7_2X	(3 << 24)
 #define CCM_LCD_CH0_CTRL_MIPI_PLL	(4 << 24)
+/* No reset bit in ch0_clk_cfg (reset is controlled through ahb_reset1) */
+#define CCM_LCD_CH0_CTRL_RST		0
 #define CCM_LCD_CH0_CTRL_GATE		(0x1 << 31)
 
 #define CCM_LCD_CH1_CTRL_M(n)		((((n) - 1) & 0xf) << 0)

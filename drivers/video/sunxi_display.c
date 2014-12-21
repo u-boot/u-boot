@@ -323,20 +323,29 @@ static void sunxi_composer_enable(void)
 /*
  * LCDC, what allwinner calls a CRTC, so timing controller and serializer.
  */
-static void sunxi_lcdc_pll_set(int dotclock, int *clk_div, int *clk_double)
+static void sunxi_lcdc_pll_set(int tcon, int dotclock,
+			       int *clk_div, int *clk_double)
 {
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-	int value, n, m, diff;
+	int value, n, m, min_m, max_m, diff;
 	int best_n = 0, best_m = 0, best_diff = 0x0FFFFFFF;
 	int best_double = 0;
+
+	if (tcon == 0) {
+		min_m = 6;
+		max_m = 127;
+	} else {
+		min_m = 1;
+		max_m = 15;
+	}
 
 	/*
 	 * Find the lowest divider resulting in a matching clock, if there
 	 * is no match, pick the closest lower clock, as monitors tend to
 	 * not sync to higher frequencies.
 	 */
-	for (m = 15; m > 0; m--) {
+	for (m = min_m; m <= max_m; m++) {
 		n = (m * dotclock) / 3000;
 
 		if ((n >= 9) && (n <= 127)) {
@@ -373,9 +382,17 @@ static void sunxi_lcdc_pll_set(int dotclock, int *clk_div, int *clk_double)
 
 	clock_set_pll3(best_n * 3000000);
 
-	writel(CCM_LCD_CH1_CTRL_GATE |
-	    (best_double ? CCM_LCD_CH1_CTRL_PLL3_2X : CCM_LCD_CH1_CTRL_PLL3) |
-	    CCM_LCD_CH1_CTRL_M(best_m), &ccm->lcd0_ch1_clk_cfg);
+	if (tcon == 0) {
+		writel(CCM_LCD_CH0_CTRL_GATE | CCM_LCD_CH0_CTRL_RST |
+		       (best_double ? CCM_LCD_CH0_CTRL_PLL3_2X :
+				      CCM_LCD_CH0_CTRL_PLL3),
+		       &ccm->lcd0_ch0_clk_cfg);
+	} else {
+		writel(CCM_LCD_CH1_CTRL_GATE |
+		       (best_double ? CCM_LCD_CH1_CTRL_PLL3_2X :
+				      CCM_LCD_CH1_CTRL_PLL3) |
+		       CCM_LCD_CH1_CTRL_M(best_m), &ccm->lcd0_ch1_clk_cfg);
+	}
 
 	*clk_div = best_m;
 	*clk_double = best_double;
@@ -453,7 +470,7 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 	writel(SUNXI_LCDC_X(mode->hsync_len) | SUNXI_LCDC_Y(mode->vsync_len),
 	       &lcdc->tcon1_timing_sync);
 
-	sunxi_lcdc_pll_set(mode->pixclock_khz, clk_div, clk_double);
+	sunxi_lcdc_pll_set(1, mode->pixclock_khz, clk_div, clk_double);
 }
 
 #ifdef CONFIG_MACH_SUN6I
