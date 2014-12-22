@@ -385,8 +385,17 @@ void scale_vcores(void)
 	case 1000:
 		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1330MV;
 		break;
+	case 800:
+		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1260MV;
+		break;
+	case 720:
+		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1200MV;
+		break;
 	case 600:
 		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1100MV;
+		break;
+	case 300:
+		mpu_vdd = TPS65218_DCDC_VOLT_SEL_0950MV;
 		break;
 	default:
 		puts("Unknown MPU clock, not scaling\n");
