@@ -848,6 +848,8 @@ static unsigned long exynos5420_get_mmc_clk(int dev_index)
 
 	if (sel == 0x3)
 		sclk = get_pll_clk(MPLL);
+	else if (sel == 0x4)
+		sclk = get_pll_clk(SPLL);
 	else if (sel == 0x6)
 		sclk = get_pll_clk(EPLL);
 	else
