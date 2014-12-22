@@ -381,11 +381,14 @@ void scale_vcores(void)
 	if (i2c_probe(TPS65218_CHIP_PM))
 		return;
 
-	if (mpu_params->m == 1000) {
+	switch (mpu_params->m) {
+	case 1000:
 		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1330MV;
-	} else if (mpu_params->m == 600) {
+		break;
+	case 600:
 		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1100MV;
-	} else {
+		break;
+	default:
 		puts("Unknown MPU clock, not scaling\n");
 		return;
 	}
