@@ -124,7 +124,7 @@ const struct dpll_params dpll_core[NUM_CRYSTAL_FREQ] = {
 const struct dpll_params dpll_per[NUM_CRYSTAL_FREQ] = {
 		{400, 7, 5, -1, -1, -1, -1},	/* 19.2 MHz */
 		{400, 9, 5, -1, -1, -1, -1},	/* 24 MHz */
-		{32, 0, 8, -1, -1, -1, -1},	/* 25 MHz */
+		{384, 9, 5, -1, -1, -1, -1},	/* 25 MHz */
 		{480, 12, 5, -1, -1, -1, -1}	/* 26 MHz */
 };
 
