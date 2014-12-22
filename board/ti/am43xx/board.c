@@ -81,12 +81,12 @@ static int read_eeprom(struct am43xx_board_id *header)
 
 const struct dpll_params dpll_mpu[NUM_CRYSTAL_FREQ][NUM_OPPS] = {
 	{	/* 19.2 MHz */
-		{-1, -1, -1, -1, -1, -1, -1},	/* OPP 50 */
+		{125, 3, 2, -1, -1, -1, -1},	/* OPP 50 */
 		{-1, -1, -1, -1, -1, -1, -1},	/* OPP RESERVED	*/
-		{-1, -1, -1, -1, -1, -1, -1},	/* OPP 100 */
-		{-1, -1, -1, -1, -1, -1, -1},	/* OPP 120 */
-		{-1, -1, -1, -1, -1, -1, -1},	/* OPP TB */
-		{-1, -1, -1, -1, -1, -1, -1}	/* OPP NT */
+		{125, 3, 1, -1, -1, -1, -1},	/* OPP 100 */
+		{150, 3, 1, -1, -1, -1, -1},	/* OPP 120 */
+		{125, 2, 1, -1, -1, -1, -1},	/* OPP TB */
+		{625, 11, 1, -1, -1, -1, -1}	/* OPP NT */
 	},
 	{	/* 24 MHz */
 		{300, 23, 1, -1, -1, -1, -1},	/* OPP 50 */
@@ -115,24 +115,28 @@ const struct dpll_params dpll_mpu[NUM_CRYSTAL_FREQ][NUM_OPPS] = {
 };
 
 const struct dpll_params dpll_core[NUM_CRYSTAL_FREQ] = {
-		{-1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+		{625, 11, -1, -1, 10, 8, 4},	/* 19.2 MHz */
 		{1000, 23, -1, -1, 10, 8, 4},	/* 24 MHz */
 		{1000, 24, -1, -1, 10, 8, 4},	/* 25 MHz */
 		{1000, 25, -1, -1, 10, 8, 4}	/* 26 MHz */
 };
 
 const struct dpll_params dpll_per[NUM_CRYSTAL_FREQ] = {
-		{-1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-		{960, 23, 5, -1, -1, -1, -1},	/* 24 MHz */
-		{960, 24, 5, -1, -1, -1, -1},	/* 25 MHz */
-		{960, 25, 5, -1, -1, -1, -1}	/* 26 MHz */
+		{400, 7, 5, -1, -1, -1, -1},	/* 19.2 MHz */
+		{400, 9, 5, -1, -1, -1, -1},	/* 24 MHz */
+		{32, 0, 8, -1, -1, -1, -1},	/* 25 MHz */
+		{480, 12, 5, -1, -1, -1, -1}	/* 26 MHz */
 };
 
-const struct dpll_params epos_evm_dpll_ddr = {
-		266, 24, 1, -1, 1, -1, -1};
+const struct dpll_params epos_evm_dpll_ddr[NUM_CRYSTAL_FREQ] = {
+		{665, 47, 1, -1, 4, -1, -1}, /*19.2*/
+		{133, 11, 1, -1, 4, -1, -1}, /* 24 MHz */
+		{266, 24, 1, -1, 4, -1, -1}, /* 25 MHz */
+		{133, 12, 1, -1, 4, -1, -1}  /* 26 MHz */
+};
 
 const struct dpll_params gp_evm_dpll_ddr = {
-		400, 23, 1, -1, 1, -1, -1};
+		50, 2, 1, -1, 2, -1, -1};
 
 const struct ctrl_ioregs ioregs_lpddr2 = {
 	.cm0ioctl		= LPDDR2_ADDRCTRL_IOCTRL_VALUE,
@@ -157,7 +161,7 @@ const struct emif_regs emif_regs_lpddr2 = {
 	.emif_rd_wr_lvl_rmp_win		= 0x0,
 	.emif_rd_wr_lvl_rmp_ctl		= 0x0,
 	.emif_rd_wr_lvl_ctl		= 0x0,
-	.emif_ddr_phy_ctlr_1		= 0x0E084006,
+	.emif_ddr_phy_ctlr_1		= 0x0E284006,
 	.emif_rd_wr_exec_thresh		= 0x80000405,
 	.emif_ddr_ext_phy_ctrl_1	= 0x04010040,
 	.emif_ddr_ext_phy_ctrl_2	= 0x00500050,
@@ -201,7 +205,7 @@ const struct ctrl_ioregs ioregs_ddr3 = {
 	.dt1ioctl		= DDR3_DATA0_IOCTRL_VALUE,
 	.dt2ioctrl		= DDR3_DATA0_IOCTRL_VALUE,
 	.dt3ioctrl		= DDR3_DATA0_IOCTRL_VALUE,
-	.emif_sdram_config_ext	= 0x0143,
+	.emif_sdram_config_ext	= 0xc163,
 };
 
 const struct emif_regs ddr3_emif_regs_400Mhz = {
@@ -434,17 +438,6 @@ void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
 	return;
 }
 
-const struct dpll_params *get_dpll_ddr_params(void)
-{
-	if (board_is_eposevm())
-		return &epos_evm_dpll_ddr;
-	else if (board_is_gpevm() || board_is_sk())
-		return &gp_evm_dpll_ddr;
-
-	printf(" Board '%s' not supported\n", am43xx_board_name);
-	return NULL;
-}
-
 /*
  * get_sys_clk_index : returns the index of the sys_clk read from
  *			ctrl status register. This value is either
@@ -463,6 +456,20 @@ static u32 get_sys_clk_index(void)
 		return ((ind & CTRL_SYSBOOT_15_14_MASK) >>
 			CTRL_SYSBOOT_15_14_SHIFT);
 }
+
+const struct dpll_params *get_dpll_ddr_params(void)
+{
+	int ind = get_sys_clk_index();
+
+	if (board_is_eposevm())
+		return &epos_evm_dpll_ddr[ind];
+	else if (board_is_gpevm() || board_is_sk())
+		return &gp_evm_dpll_ddr;
+
+	printf(" Board '%s' not supported\n", am43xx_board_name);
+	return NULL;
+}
+
 
 /*
  * get_opp_offset:
