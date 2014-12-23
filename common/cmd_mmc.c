@@ -480,6 +480,91 @@ static int do_mmc_list(cmd_tbl_t *cmdtp, int flag,
 	print_mmc_devices('\n');
 	return CMD_RET_SUCCESS;
 }
+
+static int do_mmc_hwpartition(cmd_tbl_t *cmdtp, int flag,
+			      int argc, char * const argv[])
+{
+	struct mmc *mmc;
+	struct mmc_hwpart_conf pconf = { };
+	enum mmc_hwpart_conf_mode mode = MMC_HWPART_CONF_CHECK;
+	int i, pidx;
+
+	mmc = init_mmc_device(curr_device, false);
+	if (!mmc)
+		return CMD_RET_FAILURE;
+
+	if (argc < 1)
+		return CMD_RET_USAGE;
+	i = 1;
+	while (i < argc) {
+		if (!strcmp(argv[i], "userenh")) {
+			if (i + 2 >= argc)
+				return CMD_RET_USAGE;
+			memset(&pconf.user, 0, sizeof(pconf.user));
+			pconf.user.enh_start =
+				simple_strtoul(argv[i+1], NULL, 10);
+			pconf.user.enh_size =
+				simple_strtoul(argv[i+2], NULL, 10);
+			i += 3;
+		} else if (!strncmp(argv[i], "gp", 2) &&
+			   strlen(argv[i]) == 3 &&
+			   argv[i][2] >= '1' && argv[i][2] <= '4') {
+			if (i + 1 >= argc)
+				return CMD_RET_USAGE;
+			pidx = argv[i][2] - '1';
+			memset(&pconf.gp_part[pidx], 0,
+			       sizeof(pconf.gp_part[pidx]));
+			pconf.gp_part[pidx].size =
+				simple_strtoul(argv[i+1], NULL, 10);
+			i += 2;
+			if (i < argc && !strcmp(argv[i], "enh")) {
+				pconf.gp_part[pidx].enhanced = 1;
+				i++;
+			}
+		} else if (!strcmp(argv[i], "check")) {
+			mode = MMC_HWPART_CONF_CHECK;
+			i++;
+		} else if (!strcmp(argv[i], "set")) {
+			mode = MMC_HWPART_CONF_SET;
+			i++;
+		} else if (!strcmp(argv[i], "complete")) {
+			mode = MMC_HWPART_CONF_COMPLETE;
+			i++;
+		} else {
+			return CMD_RET_USAGE;
+		}
+	}
+
+	puts("Partition configuration:\n");
+	if (pconf.user.enh_size) {
+		puts("\tUser Enhanced Start: ");
+		print_size(((u64)pconf.user.enh_start) << 9, "\n");
+		puts("\tUser Enhanced Size: ");
+		print_size(((u64)pconf.user.enh_size) << 9, "\n");
+	} else {
+		puts("\tNo enhanced user data area\n");
+	}
+	for (pidx = 0; pidx < 4; pidx++) {
+		if (pconf.gp_part[pidx].size) {
+			printf("\tGP%i Capacity: ", pidx+1);
+			print_size(((u64)pconf.gp_part[pidx].size) << 9,
+				   pconf.gp_part[pidx].enhanced ?
+				   " ENH\n" : "\n");
+		} else {
+			printf("\tNo GP%i partition\n", pidx+1);
+		}
+	}
+
+	if (!mmc_hwpart_config(mmc, &pconf, mode)) {
+		if (mode == MMC_HWPART_CONF_COMPLETE)
+			puts("Partitioning successful, "
+			     "power-cycle to make effective\n");
+		return CMD_RET_SUCCESS;
+	} else {
+		return CMD_RET_FAILURE;
+	}
+}
+
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 static int do_mmc_bootbus(cmd_tbl_t *cmdtp, int flag,
 			  int argc, char * const argv[])
@@ -637,6 +722,7 @@ static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(part, 1, 1, do_mmc_part, "", ""),
 	U_BOOT_CMD_MKENT(dev, 3, 0, do_mmc_dev, "", ""),
 	U_BOOT_CMD_MKENT(list, 1, 1, do_mmc_list, "", ""),
+	U_BOOT_CMD_MKENT(hwpartition, 17, 0, do_mmc_hwpartition, "", ""),
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	U_BOOT_CMD_MKENT(bootbus, 5, 0, do_mmc_bootbus, "", ""),
 	U_BOOT_CMD_MKENT(bootpart-resize, 4, 0, do_mmc_boot_resize, "", ""),
@@ -676,7 +762,7 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	mmc, 7, 1, do_mmcops,
+	mmc, 18, 1, do_mmcops,
 	"MMC sub system",
 	"info - display info of the current MMC device\n"
 	"mmc read addr blk# cnt\n"
@@ -686,6 +772,11 @@ U_BOOT_CMD(
 	"mmc part - lists available partition on current mmc device\n"
 	"mmc dev [dev] [part] - show or set current mmc device [partition]\n"
 	"mmc list - lists available devices\n"
+	"mmc hwpartition [args...] - does hardware partitioning\n"
+	"  arguments (sizes in 512-byte blocks):\n"
+	"    [userenh start cnt] - sets enhanced user data area\n"
+	"    [gp1|gp2|gp3|gp4 cnt [enh]] - general purpose partition\n"
+	"    [check|set|complete] - mode, complete set partitioning completed\n"
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	"mmc bootbus dev boot_bus_width reset_boot_bus_width boot_mode\n"
 	" - Set the BOOT_BUS_WIDTH field of the specified device\n"
