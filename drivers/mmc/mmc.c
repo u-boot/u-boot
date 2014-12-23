@@ -1031,6 +1031,21 @@ static int mmc_startup(struct mmc *mmc)
 				has_parts = true;
 		}
 
+		mmc->enh_user_size =
+			(ext_csd[EXT_CSD_ENH_SIZE_MULT+2] << 16) +
+			(ext_csd[EXT_CSD_ENH_SIZE_MULT+1] << 8) +
+			ext_csd[EXT_CSD_ENH_SIZE_MULT];
+		mmc->enh_user_size *= ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
+		mmc->enh_user_size *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
+		mmc->enh_user_size <<= 19;
+		mmc->enh_user_start =
+			(ext_csd[EXT_CSD_ENH_START_ADDR+3] << 24) +
+			(ext_csd[EXT_CSD_ENH_START_ADDR+2] << 16) +
+			(ext_csd[EXT_CSD_ENH_START_ADDR+1] << 8) +
+			ext_csd[EXT_CSD_ENH_START_ADDR];
+		if (mmc->high_capacity)
+			mmc->enh_user_start <<= 9;
+
 		/*
 		 * Host needs to enable ERASE_GRP_DEF bit if device is
 		 * partitioned. This bit will be lost every time after a reset

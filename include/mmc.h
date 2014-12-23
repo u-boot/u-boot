@@ -147,6 +147,8 @@
 /*
  * EXT_CSD fields
  */
+#define EXT_CSD_ENH_START_ADDR		136	/* R/W */
+#define EXT_CSD_ENH_SIZE_MULT		140	/* R/W */
 #define EXT_CSD_GP_SIZE_MULT		143	/* R/W */
 #define EXT_CSD_PARTITION_SETTING	155	/* R/W */
 #define EXT_CSD_PARTITIONS_ATTRIBUTE	156	/* R/W */
@@ -319,6 +321,8 @@ struct mmc {
 	u64 capacity_boot;
 	u64 capacity_rpmb;
 	u64 capacity_gp[4];
+	u64 enh_user_start;
+	u64 enh_user_size;
 	block_dev_desc_t block_dev;
 	char op_cond_pending;	/* 1 if we are waiting on an op_cond command */
 	char init_in_progress;	/* 1 if we have done mmc_start_init() */
