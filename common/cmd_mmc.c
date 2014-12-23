@@ -109,7 +109,7 @@ static void print_mmcinfo(struct mmc *mmc)
 			bool is_enh = has_enh &&
 				(mmc->part_attr & EXT_CSD_ENH_GP(i));
 			if (mmc->capacity_gp[i]) {
-				printf("GP%i Capacity: ", i);
+				printf("GP%i Capacity: ", i+1);
 				print_size(mmc->capacity_gp[i],
 					   is_enh ? " ENH\n" : "\n");
 			}
