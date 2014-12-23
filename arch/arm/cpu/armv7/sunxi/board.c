@@ -46,9 +46,8 @@ u32 spl_boot_mode(void)
 {
 	return MMCSD_MODE_RAW;
 }
-#endif
 
-int gpio_init(void)
+static int gpio_init(void)
 {
 #if CONFIG_CONS_INDEX == 1 && defined(CONFIG_UART0_PORT_F)
 #if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
@@ -86,6 +85,42 @@ int gpio_init(void)
 	return 0;
 }
 
+void board_init_f(ulong dummy)
+{
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+	/* Magic (undocmented) value taken from boot0, without this DRAM
+	 * access gets messed up (seems cache related) */
+	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
+#endif
+#if !defined CONFIG_SPL_BUILD && (defined CONFIG_MACH_SUN7I || \
+		defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I)
+	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
+	asm volatile(
+		"mrc p15, 0, r0, c1, c0, 1\n"
+		"orr r0, r0, #1 << 6\n"
+		"mcr p15, 0, r0, c1, c0, 1\n");
+#endif
+
+	clock_init();
+	timer_init();
+	gpio_init();
+	i2c_init_board();
+
+	preloader_console_init();
+
+#ifdef CONFIG_SPL_I2C_SUPPORT
+	/* Needed early by sunxi_board_init if PMU is enabled */
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
+	sunxi_board_init();
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	board_init_r(NULL, 0);
+}
+#endif
+
 void reset_cpu(ulong addr)
 {
 #if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN5I) || defined(CONFIG_MACH_SUN7I)
@@ -114,36 +149,6 @@ void reset_cpu(ulong addr)
 /* do some early init */
 void s_init(void)
 {
-#if defined CONFIG_SPL_BUILD && \
-		(defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I)
-	/* Magic (undocmented) value taken from boot0, without this DRAM
-	 * access gets messed up (seems cache related) */
-	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
-#endif
-#if !defined CONFIG_SPL_BUILD && (defined CONFIG_MACH_SUN7I || \
-		defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I)
-	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
-	asm volatile(
-		"mrc p15, 0, r0, c1, c0, 1\n"
-		"orr r0, r0, #1 << 6\n"
-		"mcr p15, 0, r0, c1, c0, 1\n");
-#endif
-
-	clock_init();
-	timer_init();
-	gpio_init();
-	i2c_init_board();
-
-#ifdef CONFIG_SPL_BUILD
-	gd = &gdata;
-	preloader_console_init();
-
-#ifdef CONFIG_SPL_I2C_SUPPORT
-	/* Needed early by sunxi_board_init if PMU is enabled */
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-#endif
-	sunxi_board_init();
-#endif
 }
 
 #ifndef CONFIG_SYS_DCACHE_OFF
