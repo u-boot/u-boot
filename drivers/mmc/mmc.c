@@ -972,7 +972,9 @@ static int mmc_startup(struct mmc *mmc)
 	if (!IS_SD(mmc) && (mmc->version >= MMC_VERSION_4)) {
 		/* check  ext_csd version and capacity */
 		err = mmc_send_ext_csd(mmc, ext_csd);
-		if (!err && (ext_csd[EXT_CSD_REV] >= 2)) {
+		if (err)
+			return err;
+		if (ext_csd[EXT_CSD_REV] >= 2) {
 			/*
 			 * According to the JEDEC Standard, the value of
 			 * ext_csd's capacity is valid if the value is more
