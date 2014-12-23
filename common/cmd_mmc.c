@@ -95,9 +95,16 @@ static void print_mmcinfo(struct mmc *mmc)
 	printf("Bus Width: %d-bit%s\n", mmc->bus_width,
 			mmc->ddr_mode ? " DDR" : "");
 
+	puts("Erase Group Size: ");
+	print_size(((u64)mmc->erase_grp_size) << 9, "\n");
+
 	if (!IS_SD(mmc) && mmc->version >= MMC_VERSION_4_41) {
 		bool has_enh = (mmc->part_support & ENHNCD_SUPPORT) != 0;
 		bool usr_enh = has_enh && (mmc->part_attr & EXT_CSD_ENH_USR);
+
+		puts("HC WP Group Size: ");
+		print_size(((u64)mmc->hc_wp_grp_size) << 9, "\n");
+
 		puts("User Capacity: ");
 		print_size(mmc->capacity_user, usr_enh ? " ENH\n" : "\n");
 		if (usr_enh) {
@@ -110,6 +117,7 @@ static void print_mmcinfo(struct mmc *mmc)
 		print_size(mmc->capacity_boot, has_enh ? " ENH\n" : "\n");
 		puts("RPMB Capacity: ");
 		print_size(mmc->capacity_rpmb, has_enh ? " ENH\n" : "\n");
+
 		for (i = 0; i < ARRAY_SIZE(mmc->capacity_gp); i++) {
 			bool is_enh = has_enh &&
 				(mmc->part_attr & EXT_CSD_ENH_GP(i));
