@@ -1026,6 +1026,7 @@ static int mmc_startup(struct mmc *mmc)
 			mmc->capacity_gp[i] *=
 				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
 			mmc->capacity_gp[i] *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
+			mmc->capacity_gp[i] <<= 19;
 			if (mmc->capacity_gp[i])
 				has_parts = true;
 		}
