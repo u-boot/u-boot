@@ -287,9 +287,6 @@ int board_early_init_f(void)
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong dummy)
 {
-	/* Set global data pointer */
-	gd = &gdata;
-
 	/* Clear the BSS */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 

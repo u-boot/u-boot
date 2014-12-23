@@ -219,9 +219,6 @@ void board_init_f(ulong dummy)
 		 pinctl);
 #endif
 
-	/* Set global data pointer */
-	gd = &gdata;
-
 	/* Clear the BSS */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
