@@ -318,6 +318,7 @@ struct mmc {
 	ushort rca;
 	u8 part_support;
 	u8 part_attr;
+	u8 wr_rel_set;
 	char part_config;
 	char part_num;
 	uint tran_speed;

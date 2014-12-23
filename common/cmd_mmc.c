@@ -106,7 +106,11 @@ static void print_mmcinfo(struct mmc *mmc)
 		print_size(((u64)mmc->hc_wp_grp_size) << 9, "\n");
 
 		puts("User Capacity: ");
-		print_size(mmc->capacity_user, usr_enh ? " ENH\n" : "\n");
+		print_size(mmc->capacity_user, usr_enh ? " ENH" : "");
+		if (mmc->wr_rel_set & EXT_CSD_WR_DATA_REL_USR)
+			puts(" WRREL\n");
+		else
+			putc('\n');
 		if (usr_enh) {
 			puts("User Enhanced Start: ");
 			print_size(mmc->enh_user_start, "\n");
@@ -124,7 +128,11 @@ static void print_mmcinfo(struct mmc *mmc)
 			if (mmc->capacity_gp[i]) {
 				printf("GP%i Capacity: ", i+1);
 				print_size(mmc->capacity_gp[i],
-					   is_enh ? " ENH\n" : "\n");
+					   is_enh ? " ENH" : "");
+				if (mmc->wr_rel_set & EXT_CSD_WR_DATA_REL_GP(i))
+					puts(" WRREL\n");
+				else
+					putc('\n');
 			}
 		}
 	}
