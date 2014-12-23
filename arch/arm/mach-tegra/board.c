@@ -32,23 +32,24 @@ enum {
 unsigned int query_sdram_size(void)
 {
 	struct mc_ctlr *const mc = (struct mc_ctlr *)NV_PA_MC_BASE;
-	u32 size_mb;
+	u32 emem_cfg, size_bytes;
 
-	size_mb = readl(&mc->mc_emem_cfg);
+	emem_cfg = readl(&mc->mc_emem_cfg);
 #if defined(CONFIG_TEGRA20)
-	debug("mc->mc_emem_cfg (MEM_SIZE_KB) = 0x%08x\n", size_mb);
-	size_mb = get_ram_size((void *)PHYS_SDRAM_1, size_mb * 1024);
+	debug("mc->mc_emem_cfg (MEM_SIZE_KB) = 0x%08x\n", emem_cfg);
+	size_bytes = get_ram_size((void *)PHYS_SDRAM_1, emem_cfg * 1024);
 #else
-	debug("mc->mc_emem_cfg (MEM_SIZE_MB) = 0x%08x\n", size_mb);
-	size_mb = get_ram_size((void *)PHYS_SDRAM_1, size_mb * 1024 * 1024);
+	debug("mc->mc_emem_cfg (MEM_SIZE_MB) = 0x%08x\n", emem_cfg);
+	size_bytes = get_ram_size((void *)PHYS_SDRAM_1, emem_cfg * 1024 * 1024);
 #endif
 
 #if defined(CONFIG_TEGRA30) || defined(CONFIG_TEGRA114)
 	/* External memory limited to 2047 MB due to IROM/HI-VEC */
-	if (size_mb == SZ_2G) size_mb -= SZ_1M;
+	if (size_bytes == SZ_2G)
+		size_bytes -= SZ_1M;
 #endif
 
-	return size_mb;
+	return size_bytes;
 }
 
 int dram_init(void)
