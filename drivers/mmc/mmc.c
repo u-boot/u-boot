@@ -819,6 +819,7 @@ static int mmc_startup(struct mmc *mmc)
 	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, MMC_MAX_BLOCK_LEN);
 	int timeout = 1000;
 	bool has_parts = false;
+	bool part_completed;
 
 #ifdef CONFIG_MMC_SPI_CRC_ON
 	if (mmc_host_is_spi(mmc)) { /* enable CRC check for spi */
@@ -1007,12 +1008,21 @@ static int mmc_startup(struct mmc *mmc)
 			break;
 		}
 
+		/* The partition data may be non-zero but it is only
+		 * effective if PARTITION_SETTING_COMPLETED is set in
+		 * EXT_CSD, so ignore any data if this bit is not set,
+		 * except for enabling the high-capacity group size
+		 * definition (see below). */
+		part_completed = !!(ext_csd[EXT_CSD_PARTITION_SETTING] &
+				    EXT_CSD_PARTITION_SETTING_COMPLETED);
+
 		/* store the partition info of emmc */
 		mmc->part_support = ext_csd[EXT_CSD_PARTITIONING_SUPPORT];
 		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) ||
 		    ext_csd[EXT_CSD_BOOT_MULT])
 			mmc->part_config = ext_csd[EXT_CSD_PART_CONF];
-		if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & ENHNCD_SUPPORT)
+		if (part_completed &&
+		    (ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & ENHNCD_SUPPORT))
 			mmc->part_attr = ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE];
 
 		mmc->capacity_boot = ext_csd[EXT_CSD_BOOT_MULT] << 17;
@@ -1021,38 +1031,42 @@ static int mmc_startup(struct mmc *mmc)
 
 		for (i = 0; i < 4; i++) {
 			int idx = EXT_CSD_GP_SIZE_MULT + i * 3;
-			mmc->capacity_gp[i] = (ext_csd[idx + 2] << 16) +
+			uint mult = (ext_csd[idx + 2] << 16) +
 				(ext_csd[idx + 1] << 8) + ext_csd[idx];
+			if (mult)
+				has_parts = true;
+			if (!part_completed)
+				continue;
+			mmc->capacity_gp[i] = mult;
 			mmc->capacity_gp[i] *=
 				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
 			mmc->capacity_gp[i] *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
 			mmc->capacity_gp[i] <<= 19;
-			if (mmc->capacity_gp[i])
-				has_parts = true;
 		}
 
-		mmc->enh_user_size =
-			(ext_csd[EXT_CSD_ENH_SIZE_MULT+2] << 16) +
-			(ext_csd[EXT_CSD_ENH_SIZE_MULT+1] << 8) +
-			ext_csd[EXT_CSD_ENH_SIZE_MULT];
-		mmc->enh_user_size *= ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
-		mmc->enh_user_size *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
-		mmc->enh_user_size <<= 19;
-		mmc->enh_user_start =
-			(ext_csd[EXT_CSD_ENH_START_ADDR+3] << 24) +
-			(ext_csd[EXT_CSD_ENH_START_ADDR+2] << 16) +
-			(ext_csd[EXT_CSD_ENH_START_ADDR+1] << 8) +
-			ext_csd[EXT_CSD_ENH_START_ADDR];
-		if (mmc->high_capacity)
-			mmc->enh_user_start <<= 9;
+		if (part_completed) {
+			mmc->enh_user_size =
+				(ext_csd[EXT_CSD_ENH_SIZE_MULT+2] << 16) +
+				(ext_csd[EXT_CSD_ENH_SIZE_MULT+1] << 8) +
+				ext_csd[EXT_CSD_ENH_SIZE_MULT];
+			mmc->enh_user_size *= ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
+			mmc->enh_user_size *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
+			mmc->enh_user_size <<= 19;
+			mmc->enh_user_start =
+				(ext_csd[EXT_CSD_ENH_START_ADDR+3] << 24) +
+				(ext_csd[EXT_CSD_ENH_START_ADDR+2] << 16) +
+				(ext_csd[EXT_CSD_ENH_START_ADDR+1] << 8) +
+				ext_csd[EXT_CSD_ENH_START_ADDR];
+			if (mmc->high_capacity)
+				mmc->enh_user_start <<= 9;
+		}
 
 		/*
 		 * Host needs to enable ERASE_GRP_DEF bit if device is
 		 * partitioned. This bit will be lost every time after a reset
 		 * or power off. This will affect erase size.
 		 */
-		if (ext_csd[EXT_CSD_PARTITION_SETTING] &
-		    EXT_CSD_PARTITION_SETTING_COMPLETED)
+		if (part_completed)
 			has_parts = true;
 		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) &&
 		    (ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE] & PART_ENH_ATTRIB))
@@ -1076,9 +1090,7 @@ static int mmc_startup(struct mmc *mmc)
 			 * SEC_COUNT is valid even if it is smaller than 2 GiB
 			 * JEDEC Standard JESD84-B45, 6.2.4
 			 */
-			if (mmc->high_capacity &&
-			    (ext_csd[EXT_CSD_PARTITION_SETTING] &
-			     EXT_CSD_PARTITION_SETTING_COMPLETED)) {
+			if (mmc->high_capacity && part_completed) {
 				capacity = (ext_csd[EXT_CSD_SEC_CNT]) |
 					(ext_csd[EXT_CSD_SEC_CNT + 1] << 8) |
 					(ext_csd[EXT_CSD_SEC_CNT + 2] << 16) |
