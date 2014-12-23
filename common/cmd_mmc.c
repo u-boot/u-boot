@@ -73,6 +73,8 @@ U_BOOT_CMD(
 
 static void print_mmcinfo(struct mmc *mmc)
 {
+	int i;
+
 	printf("Device: %s\n", mmc->cfg->name);
 	printf("Manufacturer ID: %x\n", mmc->cid[0] >> 24);
 	printf("OEM: %x\n", (mmc->cid[0] >> 8) & 0xffff);
@@ -92,6 +94,21 @@ static void print_mmcinfo(struct mmc *mmc)
 
 	printf("Bus Width: %d-bit%s\n", mmc->bus_width,
 			mmc->ddr_mode ? " DDR" : "");
+
+	if (!IS_SD(mmc) && mmc->version >= MMC_VERSION_4) {
+		puts("User Capacity: ");
+		print_size(mmc->capacity_user, "\n");
+		puts("Boot Capacity: ");
+		print_size(mmc->capacity_boot, "\n");
+		puts("RPMB Capacity: ");
+		print_size(mmc->capacity_rpmb, "\n");
+		for (i = 0; i < ARRAY_SIZE(mmc->capacity_gp); i++) {
+			if (mmc->capacity_gp[i]) {
+				printf("GP%i Capacity: ", i);
+				print_size(mmc->capacity_gp[i], "\n");
+			}
+		}
+	}
 }
 static struct mmc *init_mmc_device(int dev, bool force_init)
 {
