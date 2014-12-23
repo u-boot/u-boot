@@ -1065,7 +1065,9 @@ static int mmc_startup(struct mmc *mmc)
 				return err;
 			else
 				ext_csd[EXT_CSD_ERASE_GROUP_DEF] = 1;
+		}
 
+		if (ext_csd[EXT_CSD_ERASE_GROUP_DEF] & 0x01) {
 			/* Read out group size from ext_csd */
 			mmc->erase_grp_size =
 				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] * 1024;
@@ -1092,6 +1094,10 @@ static int mmc_startup(struct mmc *mmc)
 			mmc->erase_grp_size = (erase_gsz + 1)
 				* (erase_gmul + 1);
 		}
+
+		mmc->hc_wp_grp_size = 1024
+			* ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
+			* ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
 	}
 
 	err = mmc_set_capacity(mmc, mmc->part_num);

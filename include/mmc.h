@@ -316,6 +316,7 @@ struct mmc {
 	uint read_bl_len;
 	uint write_bl_len;
 	uint erase_grp_size;	/* in 512-byte sectors */
+	uint hc_wp_grp_size;	/* in 512-byte sectors */
 	u64 capacity;
 	u64 capacity_user;
 	u64 capacity_boot;
