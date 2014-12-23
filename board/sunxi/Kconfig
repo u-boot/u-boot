@@ -287,6 +287,13 @@ config VIDEO
 	or VGA output found on most sunxi devices. See doc/README.video for
 	info on how to select the video output and mode.
 
+config VIDEO_HDMI
+	boolean "HDMI output support"
+	depends on VIDEO && !MACH_SUN8I
+	default y
+	---help---
+	Say Y here to add support for outputting video over HDMI.
+
 config VIDEO_LCD_MODE
 	string "LCD panel timing details"
 	depends on VIDEO

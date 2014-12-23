@@ -39,6 +39,8 @@ struct sunxi_display {
 	unsigned int depth;
 } sunxi_display;
 
+#ifdef CONFIG_VIDEO_HDMI
+
 /*
  * Wait up to 200ms for value to be set in given part of reg.
  */
@@ -267,6 +269,8 @@ static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 	return 0;
 }
 
+#endif /* CONFIG_VIDEO_HDMI */
+
 /*
  * This is the entity that mixes and matches the different layers and inputs.
  * Allwinner calls it the back-end, but i like composer better.
@@ -279,7 +283,7 @@ static void sunxi_composer_init(void)
 		(struct sunxi_de_be_reg *)SUNXI_DE_BE0_BASE;
 	int i;
 
-#ifdef CONFIG_MACH_SUN6I
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
 	/* Reset off */
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DE_BE0);
 #endif
@@ -409,7 +413,7 @@ static void sunxi_lcdc_init(void)
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
 
 	/* Reset off */
-#ifdef CONFIG_MACH_SUN6I
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_LCD0);
 #else
 	setbits_le32(&ccm->lcd0_ch0_clk_cfg, CCM_LCD_CH0_CTRL_RST);
@@ -566,6 +570,8 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
 	writel(0, &lcdc->tcon0_io_tristate);
 }
 
+#ifdef CONFIG_VIDEO_HDMI
+
 static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 				      int *clk_div, int *clk_double)
 {
@@ -712,9 +718,11 @@ static void sunxi_hdmi_enable(void)
 	setbits_le32(&hdmi->video_ctrl, SUNXI_HDMI_VIDEO_CTRL_ENABLE);
 }
 
+#endif /* CONFIG_VIDEO_HDMI */
+
 static void sunxi_drc_init(void)
 {
-#ifdef CONFIG_MACH_SUN6I
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
@@ -739,6 +747,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		break;
 	case sunxi_monitor_dvi:
 	case sunxi_monitor_hdmi: {
+#ifdef CONFIG_VIDEO_HDMI
 		int clk_div, clk_double;
 		sunxi_composer_mode_set(mode, address);
 		sunxi_lcdc_tcon1_mode_set(mode, &clk_div, &clk_double);
@@ -746,6 +755,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_composer_enable();
 		sunxi_lcdc_enable();
 		sunxi_hdmi_enable();
+#endif
 		}
 		break;
 	case sunxi_monitor_lcd:
@@ -779,9 +789,12 @@ void *video_hw_init(void)
 	const struct ctfb_res_modes *mode;
 	struct ctfb_res_modes custom;
 	const char *options;
-	int i, ret, hpd, edid;
+#ifdef CONFIG_VIDEO_HDMI
+	int ret, hpd, edid;
+#endif
 	char mon[16];
 	char *lcd_mode = CONFIG_VIDEO_LCD_MODE;
+	int i;
 
 	memset(&sunxi_display, 0, sizeof(struct sunxi_display));
 
@@ -791,9 +804,13 @@ void *video_hw_init(void)
 
 	video_get_ctfb_res_modes(RES_MODE_1024x768, 24, &mode,
 				 &sunxi_display.depth, &options);
+#ifdef CONFIG_VIDEO_HDMI
 	hpd = video_get_option_int(options, "hpd", 1);
 	edid = video_get_option_int(options, "edid", 1);
 	sunxi_display.monitor = sunxi_monitor_dvi;
+#else
+	sunxi_display.monitor = sunxi_monitor_lcd;
+#endif
 	video_get_option_string(options, "monitor", mon, sizeof(mon),
 				sunxi_get_mon_desc(sunxi_display.monitor));
 	for (i = 0; i <= SUNXI_MONITOR_LAST; i++) {
@@ -811,6 +828,10 @@ void *video_hw_init(void)
 		return NULL;
 	case sunxi_monitor_dvi:
 	case sunxi_monitor_hdmi:
+#ifndef CONFIG_VIDEO_HDMI
+		printf("HDMI/DVI not supported on this board\n");
+		return NULL;
+#else
 		/* Always call hdp_detect, as it also enables clocks, etc. */
 		ret = sunxi_hdmi_hpd_detect();
 		if (ret) {
@@ -829,6 +850,7 @@ void *video_hw_init(void)
 
 		/* Fall back / through to LCD */
 		sunxi_display.monitor = sunxi_monitor_lcd;
+#endif
 	case sunxi_monitor_lcd:
 		if (lcd_mode[0]) {
 			sunxi_display.depth = video_get_params(&custom, lcd_mode);
