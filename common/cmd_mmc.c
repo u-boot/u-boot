@@ -95,7 +95,7 @@ static void print_mmcinfo(struct mmc *mmc)
 	printf("Bus Width: %d-bit%s\n", mmc->bus_width,
 			mmc->ddr_mode ? " DDR" : "");
 
-	if (!IS_SD(mmc) && mmc->version >= MMC_VERSION_4) {
+	if (!IS_SD(mmc) && mmc->version >= MMC_VERSION_4_41) {
 		bool has_enh = (mmc->part_support & ENHNCD_SUPPORT) != 0;
 		puts("User Capacity: ");
 		print_size(mmc->capacity_user,
