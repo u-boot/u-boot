@@ -109,6 +109,7 @@
 #define CONFIG_SYS_PBSIZE	1024	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 #define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE

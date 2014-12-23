@@ -146,11 +146,6 @@ void reset_cpu(ulong addr)
 #endif
 }
 
-/* do some early init */
-void s_init(void)
-{
-}
-
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
