@@ -97,10 +97,15 @@ static void print_mmcinfo(struct mmc *mmc)
 
 	if (!IS_SD(mmc) && mmc->version >= MMC_VERSION_4_41) {
 		bool has_enh = (mmc->part_support & ENHNCD_SUPPORT) != 0;
+		bool usr_enh = has_enh && (mmc->part_attr & EXT_CSD_ENH_USR);
 		puts("User Capacity: ");
-		print_size(mmc->capacity_user,
-			   has_enh && (mmc->part_attr & EXT_CSD_ENH_USR) ?
-			   " ENH\n" : "\n");
+		print_size(mmc->capacity_user, usr_enh ? " ENH\n" : "\n");
+		if (usr_enh) {
+			puts("User Enhanced Start: ");
+			print_size(mmc->enh_user_start, "\n");
+			puts("User Enhanced Size: ");
+			print_size(mmc->enh_user_size, "\n");
+		}
 		puts("Boot Capacity: ");
 		print_size(mmc->capacity_boot, has_enh ? " ENH\n" : "\n");
 		puts("RPMB Capacity: ");
