@@ -818,6 +818,7 @@ static int mmc_startup(struct mmc *mmc)
 	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
 	ALLOC_CACHE_ALIGN_BUFFER(u8, test_csd, MMC_MAX_BLOCK_LEN);
 	int timeout = 1000;
+	bool has_parts = false;
 
 #ifdef CONFIG_MMC_SPI_CRC_ON
 	if (mmc_host_is_spi(mmc)) { /* enable CRC check for spi */
@@ -1006,13 +1007,41 @@ static int mmc_startup(struct mmc *mmc)
 			break;
 		}
 
+		/* store the partition info of emmc */
+		mmc->part_support = ext_csd[EXT_CSD_PARTITIONING_SUPPORT];
+		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) ||
+		    ext_csd[EXT_CSD_BOOT_MULT])
+			mmc->part_config = ext_csd[EXT_CSD_PART_CONF];
+		if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & ENHNCD_SUPPORT)
+			mmc->part_attr = ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE];
+
+		mmc->capacity_boot = ext_csd[EXT_CSD_BOOT_MULT] << 17;
+
+		mmc->capacity_rpmb = ext_csd[EXT_CSD_RPMB_MULT] << 17;
+
+		for (i = 0; i < 4; i++) {
+			int idx = EXT_CSD_GP_SIZE_MULT + i * 3;
+			mmc->capacity_gp[i] = (ext_csd[idx + 2] << 16) +
+				(ext_csd[idx + 1] << 8) + ext_csd[idx];
+			mmc->capacity_gp[i] *=
+				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
+			mmc->capacity_gp[i] *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
+			if (mmc->capacity_gp[i])
+				has_parts = true;
+		}
+
 		/*
 		 * Host needs to enable ERASE_GRP_DEF bit if device is
 		 * partitioned. This bit will be lost every time after a reset
 		 * or power off. This will affect erase size.
 		 */
+		if (ext_csd[EXT_CSD_PARTITION_SETTING] &
+		    EXT_CSD_PARTITION_SETTING_COMPLETED)
+			has_parts = true;
 		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) &&
-		    (ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE] & PART_ENH_ATTRIB)) {
+		    (ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE] & PART_ENH_ATTRIB))
+			has_parts = true;
+		if (has_parts) {
 			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
 				EXT_CSD_ERASE_GROUP_DEF, 1);
 
@@ -1047,27 +1076,6 @@ static int mmc_startup(struct mmc *mmc)
 			erase_gmul = (mmc->csd[2] & 0x000003e0) >> 5;
 			mmc->erase_grp_size = (erase_gsz + 1)
 				* (erase_gmul + 1);
-		}
-
-		/* store the partition info of emmc */
-		mmc->part_support = ext_csd[EXT_CSD_PARTITIONING_SUPPORT];
-		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) ||
-		    ext_csd[EXT_CSD_BOOT_MULT])
-			mmc->part_config = ext_csd[EXT_CSD_PART_CONF];
-		if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & ENHNCD_SUPPORT)
-			mmc->part_attr = ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE];
-
-		mmc->capacity_boot = ext_csd[EXT_CSD_BOOT_MULT] << 17;
-
-		mmc->capacity_rpmb = ext_csd[EXT_CSD_RPMB_MULT] << 17;
-
-		for (i = 0; i < 4; i++) {
-			int idx = EXT_CSD_GP_SIZE_MULT + i * 3;
-			mmc->capacity_gp[i] = (ext_csd[idx + 2] << 16) +
-				(ext_csd[idx + 1] << 8) + ext_csd[idx];
-			mmc->capacity_gp[i] *=
-				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE];
-			mmc->capacity_gp[i] *= ext_csd[EXT_CSD_HC_WP_GRP_SIZE];
 		}
 	}
 
