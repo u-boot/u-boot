@@ -96,16 +96,22 @@ static void print_mmcinfo(struct mmc *mmc)
 			mmc->ddr_mode ? " DDR" : "");
 
 	if (!IS_SD(mmc) && mmc->version >= MMC_VERSION_4) {
+		bool has_enh = (mmc->part_support & ENHNCD_SUPPORT) != 0;
 		puts("User Capacity: ");
-		print_size(mmc->capacity_user, "\n");
+		print_size(mmc->capacity_user,
+			   has_enh && (mmc->part_attr & EXT_CSD_ENH_USR) ?
+			   " ENH\n" : "\n");
 		puts("Boot Capacity: ");
-		print_size(mmc->capacity_boot, "\n");
+		print_size(mmc->capacity_boot, has_enh ? " ENH\n" : "\n");
 		puts("RPMB Capacity: ");
-		print_size(mmc->capacity_rpmb, "\n");
+		print_size(mmc->capacity_rpmb, has_enh ? " ENH\n" : "\n");
 		for (i = 0; i < ARRAY_SIZE(mmc->capacity_gp); i++) {
+			bool is_enh = has_enh &&
+				(mmc->part_attr & EXT_CSD_ENH_GP(i));
 			if (mmc->capacity_gp[i]) {
 				printf("GP%i Capacity: ", i);
-				print_size(mmc->capacity_gp[i], "\n");
+				print_size(mmc->capacity_gp[i],
+					   is_enh ? " ENH\n" : "\n");
 			}
 		}
 	}

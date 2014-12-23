@@ -201,6 +201,9 @@
 
 #define EXT_CSD_PARTITION_SETTING_COMPLETED	(1 << 0)
 
+#define EXT_CSD_ENH_USR		(1 << 0)	/* user data area is enhanced */
+#define EXT_CSD_ENH_GP(x)	(1 << ((x)+1))	/* GP part (x+1) is enhanced */
+
 #define R1_ILLEGAL_COMMAND		(1 << 22)
 #define R1_APP_CMD			(1 << 5)
 
@@ -224,6 +227,7 @@
 #define MMCPART_NOAVAILABLE	(0xff)
 #define PART_ACCESS_MASK	(0x7)
 #define PART_SUPPORT		(0x1)
+#define ENHNCD_SUPPORT		(0x2)
 #define PART_ENH_ATTRIB		(0x1f)
 
 /* Maximum block size for MMC */
@@ -302,6 +306,8 @@ struct mmc {
 	uint csd[4];
 	uint cid[4];
 	ushort rca;
+	u8 part_support;
+	u8 part_attr;
 	char part_config;
 	char part_num;
 	uint tran_speed;

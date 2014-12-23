@@ -1050,9 +1050,12 @@ static int mmc_startup(struct mmc *mmc)
 		}
 
 		/* store the partition info of emmc */
+		mmc->part_support = ext_csd[EXT_CSD_PARTITIONING_SUPPORT];
 		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) ||
 		    ext_csd[EXT_CSD_BOOT_MULT])
 			mmc->part_config = ext_csd[EXT_CSD_PART_CONF];
+		if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & ENHNCD_SUPPORT)
+			mmc->part_attr = ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE];
 
 		mmc->capacity_boot = ext_csd[EXT_CSD_BOOT_MULT] << 17;
 
