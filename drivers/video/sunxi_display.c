@@ -473,18 +473,6 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 	sunxi_lcdc_pll_set(1, mode->pixclock_khz, clk_div, clk_double);
 }
 
-#ifdef CONFIG_MACH_SUN6I
-static void sunxi_drc_init(void)
-{
-	struct sunxi_ccm_reg * const ccm =
-		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-
-	/* On sun6i the drc must be clocked even when in pass-through mode */
-	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DRC0);
-	clock_set_de_mod_clock(&ccm->iep_drc0_clk_cfg, 300000000);
-}
-#endif
-
 static void sunxi_hdmi_setup_info_frames(const struct ctfb_res_modes *mode)
 {
 	struct sunxi_hdmi_reg * const hdmi =
@@ -593,13 +581,23 @@ static void sunxi_hdmi_enable(void)
 	setbits_le32(&hdmi->video_ctrl, SUNXI_HDMI_VIDEO_CTRL_ENABLE);
 }
 
+static void sunxi_drc_init(void)
+{
+#ifdef CONFIG_MACH_SUN6I
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	/* On sun6i the drc must be clocked even when in pass-through mode */
+	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DRC0);
+	clock_set_de_mod_clock(&ccm->iep_drc0_clk_cfg, 300000000);
+#endif
+}
+
 static void sunxi_engines_init(void)
 {
 	sunxi_composer_init();
 	sunxi_lcdc_init();
-#ifdef CONFIG_MACH_SUN6I
 	sunxi_drc_init();
-#endif
 }
 
 static void sunxi_mode_set(const struct ctfb_res_modes *mode,
