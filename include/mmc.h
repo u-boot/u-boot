@@ -155,6 +155,8 @@
 #define EXT_CSD_MAX_ENH_SIZE_MULT	157	/* R */
 #define EXT_CSD_PARTITIONING_SUPPORT	160	/* RO */
 #define EXT_CSD_RST_N_FUNCTION		162	/* R/W */
+#define EXT_CSD_WR_REL_PARAM		166	/* R */
+#define EXT_CSD_WR_REL_SET		167	/* R/W */
 #define EXT_CSD_RPMB_MULT		168	/* RO */
 #define EXT_CSD_ERASE_GROUP_DEF		175	/* R/W */
 #define EXT_CSD_BOOT_BUS_WIDTH		177
@@ -206,6 +208,11 @@
 
 #define EXT_CSD_ENH_USR		(1 << 0)	/* user data area is enhanced */
 #define EXT_CSD_ENH_GP(x)	(1 << ((x)+1))	/* GP part (x+1) is enhanced */
+
+#define EXT_CSD_HS_CTRL_REL	(1 << 0)	/* host controlled WR_REL_SET */
+
+#define EXT_CSD_WR_DATA_REL_USR		(1 << 0)	/* user data area WR_REL */
+#define EXT_CSD_WR_DATA_REL_GP(x)	(1 << ((x)+1))	/* GP part (x+1) WR_REL */
 
 #define R1_ILLEGAL_COMMAND		(1 << 22)
 #define R1_APP_CMD			(1 << 5)
@@ -337,10 +344,14 @@ struct mmc_hwpart_conf {
 	struct {
 		uint enh_start;	/* in 512-byte sectors */
 		uint enh_size;	/* in 512-byte sectors, if 0 no enh area */
+		unsigned wr_rel_change : 1;
+		unsigned wr_rel_set : 1;
 	} user;
 	struct {
 		uint size;	/* in 512-byte sectors */
-		int enhanced;
+		unsigned enhanced : 1;
+		unsigned wr_rel_change : 1;
+		unsigned wr_rel_set : 1;
 	} gp_part[4];
 };
 

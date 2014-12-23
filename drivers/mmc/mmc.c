@@ -615,6 +615,7 @@ int mmc_hwpart_config(struct mmc *mmc,
 	u32 gp_size_mult[4];
 	u32 max_enh_size_mult;
 	u32 tot_enh_size_mult = 0;
+	u8 wr_rel_set;
 	int i, pidx, err;
 	ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN);
 
@@ -689,6 +690,33 @@ int mmc_hwpart_config(struct mmc *mmc,
 		return -EMEDIUMTYPE;
 	}
 
+	/* The default value of EXT_CSD_WR_REL_SET is device
+	 * dependent, the values can only be changed if the
+	 * EXT_CSD_HS_CTRL_REL bit is set. The values can be
+	 * changed only once and before partitioning is completed. */
+	wr_rel_set = ext_csd[EXT_CSD_WR_REL_SET];
+	if (conf->user.wr_rel_change) {
+		if (conf->user.wr_rel_set)
+			wr_rel_set |= EXT_CSD_WR_DATA_REL_USR;
+		else
+			wr_rel_set &= ~EXT_CSD_WR_DATA_REL_USR;
+	}
+	for (pidx = 0; pidx < 4; pidx++) {
+		if (conf->gp_part[pidx].wr_rel_change) {
+			if (conf->gp_part[pidx].wr_rel_set)
+				wr_rel_set |= EXT_CSD_WR_DATA_REL_GP(pidx);
+			else
+				wr_rel_set &= ~EXT_CSD_WR_DATA_REL_GP(pidx);
+		}
+	}
+
+	if (wr_rel_set != ext_csd[EXT_CSD_WR_REL_SET] &&
+	    !(ext_csd[EXT_CSD_WR_REL_PARAM] & EXT_CSD_HS_CTRL_REL)) {
+		puts("Card does not support host controlled partition write "
+		     "reliability settings\n");
+		return -EMEDIUMTYPE;
+	}
+
 	if (ext_csd[EXT_CSD_PARTITION_SETTING] &
 	    EXT_CSD_PARTITION_SETTING_COMPLETED) {
 		printf("Card already partitioned\n");
@@ -745,6 +773,17 @@ int mmc_hwpart_config(struct mmc *mmc,
 
 	if (mode == MMC_HWPART_CONF_SET)
 		return 0;
+
+	/* The WR_REL_SET is a write-once register but shall be
+	 * written before setting PART_SETTING_COMPLETED. As it is
+	 * write-once we can only write it when completing the
+	 * partitioning. */
+	if (wr_rel_set != ext_csd[EXT_CSD_WR_REL_SET]) {
+		err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+				 EXT_CSD_WR_REL_SET, wr_rel_set);
+		if (err)
+			return err;
+	}
 
 	/* Setting PART_SETTING_COMPLETED confirms the partition
 	 * configuration but it only becomes effective after power
