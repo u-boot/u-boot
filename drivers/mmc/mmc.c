@@ -1068,8 +1068,7 @@ static int mmc_startup(struct mmc *mmc)
 
 			/* Read out group size from ext_csd */
 			mmc->erase_grp_size =
-				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] *
-					MMC_MAX_BLOCK_LEN * 1024;
+				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] * 1024;
 			/*
 			 * if high capacity and partition setting completed
 			 * SEC_COUNT is valid even if it is smaller than 2 GiB
