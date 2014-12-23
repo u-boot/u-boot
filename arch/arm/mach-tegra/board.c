@@ -40,7 +40,27 @@ unsigned int query_sdram_size(void)
 	size_bytes = get_ram_size((void *)PHYS_SDRAM_1, emem_cfg * 1024);
 #else
 	debug("mc->mc_emem_cfg (MEM_SIZE_MB) = 0x%08x\n", emem_cfg);
-	size_bytes = get_ram_size((void *)PHYS_SDRAM_1, emem_cfg * 1024 * 1024);
+	/*
+	 * If >=4GB RAM is present, the byte RAM size won't fit into 32-bits
+	 * and will wrap. Clip the reported size to the maximum that a 32-bit
+	 * variable can represent (rounded to a page).
+	 */
+	if (emem_cfg >= 4096) {
+		size_bytes = U32_MAX & ~(0x1000 - 1);
+	} else {
+		/* RAM size EMC is programmed to. */
+		size_bytes = emem_cfg * 1024 * 1024;
+		/*
+		 * If all RAM fits within 32-bits, it can be accessed without
+		 * LPAE, so go test the RAM size. Otherwise, we can't access
+		 * all the RAM, and get_ram_size() would get confused, so
+		 * avoid using it. There's no reason we should need this
+		 * validation step anyway.
+		 */
+		if (emem_cfg <= (0 - PHYS_SDRAM_1) / (1024 * 1024))
+			size_bytes = get_ram_size((void *)PHYS_SDRAM_1,
+						  size_bytes);
+	}
 #endif
 
 #if defined(CONFIG_TEGRA30) || defined(CONFIG_TEGRA114)
