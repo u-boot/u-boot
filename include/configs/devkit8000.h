@@ -21,6 +21,7 @@
 #define CONFIG_MACH_TYPE	MACH_TYPE_DEVKIT8000
 #define CONFIG_OMAP_GPIO
 #define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
