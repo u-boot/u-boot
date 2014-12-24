@@ -23,7 +23,7 @@ int interrupt_init(void)
 int disable_interrupts(void)
 {
 	int status = read_aux_reg(ARC_AUX_STATUS32);
-	int state = (status | E1_MASK | E2_MASK) ? 1 : 0;
+	int state = (status & (E1_MASK | E2_MASK)) ? 1 : 0;
 
 	status &= ~(E1_MASK | E2_MASK);
 	/* STATUS32 register is updated indirectly with "FLAG" instruction */
