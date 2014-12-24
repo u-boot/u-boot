@@ -377,7 +377,6 @@ unsigned long sunxi_dram_init(void)
 		    MCTL_CR_BANK(1) | MCTL_CR_RANK(1));
 
 	/* Detect and set page size */
-	mctl_mem_fill();
 	for (columns = 7; columns < 20; columns++) {
 		if (mctl_mem_matches(1 << columns))
 			break;

@@ -289,7 +289,6 @@ unsigned long sunxi_dram_init(void)
 		writel(0x000310f4 | MCTL_CR_PAGE_SIZE(page_size),
 		       &mctl_com->cr);
 		setbits_le32(&mctl_com->swonr, 0x0003ffff);
-		mctl_mem_fill();
 		for (rows = 11; rows < 16; rows++) {
 			offset = 1 << (rows + columns + bus);
 			if (mctl_mem_matches(offset))
