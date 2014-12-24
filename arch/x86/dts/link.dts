@@ -1,10 +1,9 @@
 /dts-v1/;
 
+/include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
 
 / {
-	#address-cells = <1>;
-	#size-cells = <1>;
 	model = "Google Link";
 	compatible = "google,link", "intel,celeron-ivybridge";
 
@@ -33,13 +32,9 @@
 		bank-name = "C";
 	};
 
-	serial {
-		reg = <0x3f8 8>;
-		clock-frequency = <115200>;
+	chosen {
+		stdout-path = "/serial";
 	};
-
-	chosen { };
-	memory { device_type = "memory"; reg = <0 0>; };
 
 	spd {
 		compatible = "memory-spd";
