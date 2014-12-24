@@ -44,7 +44,7 @@ int do_elf_reloc_fixups(void)
 #ifdef __LITTLE_ENDIAN__
 			/* If location in ".text" section swap value */
 			if ((unsigned int)offset_ptr_rom <
-			    (unsigned int)&__text_end)
+			    (unsigned int)&__ivt_end)
 				val = (val << 16) | (val >> 16);
 #endif
 
@@ -55,7 +55,7 @@ int do_elf_reloc_fixups(void)
 #ifdef __LITTLE_ENDIAN__
 				/* If location in ".text" section swap value */
 				if ((unsigned int)offset_ptr_rom <
-				    (unsigned int)&__text_end)
+				    (unsigned int)&__ivt_end)
 					val = (val << 16) | (val >> 16);
 #endif
 				memcpy(offset_ptr_ram, &val, sizeof(int));

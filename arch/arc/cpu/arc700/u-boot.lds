@@ -13,7 +13,6 @@ SECTIONS
 	.text :	{
 		*(.__text_start)
 		*(.__image_copy_start)
-		CPUDIR/start.o (.text*)
 		*(.text*)
 	}
 
@@ -21,6 +20,20 @@ SECTIONS
 	.text_end :
 	{
 		*(.__text_end)
+	}
+
+	. = ALIGN(1024);
+	.ivt_start : {
+		*(.__ivt_start)
+	}
+
+	.ivt :
+	{
+		*(.ivt)
+	}
+
+	.ivt_end : {
+		*(.__ivt_end)
 	}
 
 	. = ALIGN(4);

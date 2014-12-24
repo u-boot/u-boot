@@ -88,11 +88,11 @@
 #endif
 .endm
 
+.section .ivt, "ax",@progbits
 .align 4
-.globl _start
-_start:
+_ivt:
 	/* Critical system events */
-	j	reset			/* 0 - 0x000 */
+	j	_start			/* 0 - 0x000 */
 	j	memory_error		/* 1 - 0x008 */
 	j	instruction_error	/* 2 - 0x010 */
 
@@ -109,6 +109,28 @@ _start:
 	j	EV_PrivilegeV		/* 0x120, Privilege Violation  (0x24) */
 	j	EV_Trap			/* 0x128, Trap exception       (0x25) */
 	j	EV_Extension		/* 0x130, Extn Intruction Excp (0x26) */
+
+.text
+.globl _start
+_start:
+	/* Setup interrupt vector base that matches "__text_start" */
+	sr	__ivt_start, [ARC_AUX_INTR_VEC_BASE]
+
+	/* Setup stack pointer */
+	mov	%sp, CONFIG_SYS_INIT_SP_ADDR
+	mov	%fp, %sp
+
+	/* Clear bss */
+	mov	%r0, __bss_start
+	mov	%r1, __bss_end
+
+clear_bss:
+	st.ab	0, [%r0, 4]
+	brlt	%r0, %r1, clear_bss
+
+	/* Zero the one and only argument of "board_init_f" */
+	mov_s	%r0, 0
+	j	board_init_f
 
 memory_error:
 	SAVE_ALL_SYS
@@ -163,27 +185,6 @@ EV_Extension:
 	SAVE_ALL_SYS
 	mov	%r0, %sp
 	j	do_extension
-
-
-reset:
-	/* Setup interrupt vector base that matches "__text_start" */
-	sr	__text_start, [ARC_AUX_INTR_VEC_BASE]
-
-	/* Setup stack pointer */
-	mov	%sp, CONFIG_SYS_INIT_SP_ADDR
-	mov	%fp, %sp
-
-	/* Clear bss */
-	mov	%r0, __bss_start
-	mov	%r1, __bss_end
-
-clear_bss:
-	st.ab	0, [%r0, 4]
-	brlt	%r0, %r1, clear_bss
-
-	/* Zero the one and only argument of "board_init_f" */
-	mov_s	%r0, 0
-	j	board_init_f
 
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
