@@ -24,6 +24,7 @@
 #if (CONFIG_ARC_MMU_VER > 2)
 #define ARC_AUX_IC_PTAG		0x1E
 #endif
+#define ARC_BCR_IC_BUILD	0x77
 
 /* Timer related auxiliary registers */
 #define ARC_AUX_TIMER0_CNT	0x21	/* Timer 0 count */
@@ -42,6 +43,7 @@
 #if (CONFIG_ARC_MMU_VER > 2)
 #define ARC_AUX_DC_PTAG		0x5C
 #endif
+#define ARC_BCR_DC_BUILD	0x72
 
 #ifndef __ASSEMBLY__
 /* Accessors for auxiliary registers */

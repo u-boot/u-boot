@@ -14,21 +14,34 @@
 #define DC_CTRL_CACHE_DISABLE	(1 << 0)
 #define DC_CTRL_INV_MODE_FLUSH	(1 << 6)
 #define DC_CTRL_FLUSH_STATUS	(1 << 8)
+#define CACHE_VER_NUM_MASK	0xF
 
 int icache_status(void)
 {
+	/* If no cache in CPU exit immediately */
+	if (!(read_aux_reg(ARC_BCR_IC_BUILD) & CACHE_VER_NUM_MASK))
+		return 0;
+
 	return (read_aux_reg(ARC_AUX_IC_CTRL) & IC_CTRL_CACHE_DISABLE) !=
 	       IC_CTRL_CACHE_DISABLE;
 }
 
 void icache_enable(void)
 {
+	/* If no cache in CPU exit immediately */
+	if (!(read_aux_reg(ARC_BCR_IC_BUILD) & CACHE_VER_NUM_MASK))
+		return;
+
 	write_aux_reg(ARC_AUX_IC_CTRL, read_aux_reg(ARC_AUX_IC_CTRL) &
 		      ~IC_CTRL_CACHE_DISABLE);
 }
 
 void icache_disable(void)
 {
+	/* If no cache in CPU exit immediately */
+	if (!(read_aux_reg(ARC_BCR_IC_BUILD) & CACHE_VER_NUM_MASK))
+		return;
+
 	write_aux_reg(ARC_AUX_IC_CTRL, read_aux_reg(ARC_AUX_IC_CTRL) |
 		      IC_CTRL_CACHE_DISABLE);
 }
@@ -43,24 +56,40 @@ void invalidate_icache_all(void)
 
 int dcache_status(void)
 {
+	/* If no cache in CPU exit immediately */
+	if (!(read_aux_reg(ARC_BCR_DC_BUILD) & CACHE_VER_NUM_MASK))
+		return 0;
+
 	return (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_CACHE_DISABLE) !=
 		DC_CTRL_CACHE_DISABLE;
 }
 
 void dcache_enable(void)
 {
+	/* If no cache in CPU exit immediately */
+	if (!(read_aux_reg(ARC_BCR_DC_BUILD) & CACHE_VER_NUM_MASK))
+		return;
+
 	write_aux_reg(ARC_AUX_DC_CTRL, read_aux_reg(ARC_AUX_DC_CTRL) &
 		      ~(DC_CTRL_INV_MODE_FLUSH | DC_CTRL_CACHE_DISABLE));
 }
 
 void dcache_disable(void)
 {
+	/* If no cache in CPU exit immediately */
+	if (!(read_aux_reg(ARC_BCR_DC_BUILD) & CACHE_VER_NUM_MASK))
+		return;
+
 	write_aux_reg(ARC_AUX_DC_CTRL, read_aux_reg(ARC_AUX_DC_CTRL) |
 		      DC_CTRL_CACHE_DISABLE);
 }
 
 void flush_dcache_all(void)
 {
+	/* If no cache in CPU exit immediately */
+	if (!(read_aux_reg(ARC_BCR_DC_BUILD) & CACHE_VER_NUM_MASK))
+		return;
+
 	/* Do flush of entire cache */
 	write_aux_reg(ARC_AUX_DC_FLSH, 1);
 
