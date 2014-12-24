@@ -1,6 +1,6 @@
 /dts-v1/;
 
-/include/ "coreboot.dtsi"
+/include/ "serial.dtsi"
 
 / {
 	#address-cells = <1>;
