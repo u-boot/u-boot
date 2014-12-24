@@ -21,6 +21,10 @@ ifeq ($(CROSS_COMPILE),)
 CROSS_COMPILE := $(ARC_CROSS_COMPILE)
 endif
 
+ifdef CONFIG_ARC_MMU_VER
+CONFIG_MMU = 1
+endif
+
 PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -gdwarf-2
 
 # Needed for relocation

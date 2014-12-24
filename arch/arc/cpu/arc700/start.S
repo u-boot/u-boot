@@ -78,6 +78,16 @@
 	PUSHAX	%erbta
 .endm
 
+.macro SAVE_EXCEPTION_SOURCE
+#ifdef CONFIG_MMU
+	/* If MMU exists exception faulting address is loaded in EFA reg */
+	lr	%r0, [%efa]
+#else
+	/* Otherwise in ERET (exception return) reg */
+	lr	%r0, [%eret]
+#endif
+.endm
+
 .align 4
 .globl _start
 _start:
@@ -102,13 +112,13 @@ _start:
 
 memory_error:
 	SAVE_ALL_SYS
-	lr	%r0, [%efa]
+	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_memory_error
 
 instruction_error:
 	SAVE_ALL_SYS
-	lr	%r0, [%efa]
+	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_instruction_error
 
@@ -119,7 +129,7 @@ interrupt_handler:
 
 EV_MachineCheck:
 	SAVE_ALL_SYS
-	lr	%r0, [%efa]
+	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_machine_check_fault
 
@@ -135,7 +145,7 @@ EV_TLBMissD:
 
 EV_TLBProtV:
 	SAVE_ALL_SYS
-	lr	%r0, [%efa]
+	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_tlb_prot_violation
 
