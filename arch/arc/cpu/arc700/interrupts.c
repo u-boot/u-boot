@@ -61,6 +61,7 @@ static void print_reg_file(long *reg_rev, int start_num)
 
 void show_regs(struct pt_regs *regs)
 {
+	printf("ECR:\t0x%08lx\n", regs->ecr);
 	printf("RET:\t0x%08lx\nBLINK:\t0x%08lx\nSTAT32:\t0x%08lx\n",
 	       regs->ret, regs->blink, regs->status32);
 	printf("GP: 0x%08lx\t r25: 0x%08lx\t\n", regs->r26, regs->r25);

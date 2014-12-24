@@ -57,11 +57,13 @@
 .endm
 
 .macro SAVE_ALL_SYS
-
+	/* saving %r0 to reg->r0 in advance since we read %ecr into it */
+	st	%r0, [%sp, -8]
+	lr	%r0, [%ecr]	/* all stack addressing is manual so far */
 	st	%r0, [%sp]
-	lr	%r0, [%ecr]
-	st	%r0, [%sp, 8]	/* ECR */
-	st	%sp, [%sp, 4]
+	st	%sp, [%sp, -4]
+	/* now move %sp to reg->r0 position so we can do "push" automatically */
+	sub	%sp, %sp, 8
 
 	SAVE_R1_TO_R24
 	PUSH	%r25
