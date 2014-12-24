@@ -84,6 +84,11 @@ static const struct {
 	const char *fdtfile;
 	bool has_onboard_eth;
 } models[] = {
+	[0] = {
+		"Unknown model",
+		"bcm2835-rpi-other.dtb",
+		false,
+	},
 	[BCM2835_BOARD_REV_B_I2C0_2] = {
 		"Model B (no P5)",
 		"bcm2835-rpi-b-i2c0.dtb",
@@ -185,9 +190,6 @@ static void set_fdtfile(void)
 		return;
 
 	fdtfile = models[rpi_board_rev].fdtfile;
-	if (!fdtfile)
-		fdtfile = "bcm2835-rpi-other.dtb";
-
 	setenv("fdtfile", fdtfile);
 }
 
@@ -270,12 +272,12 @@ static void get_board_rev(void)
 		       rpi_board_rev);
 		rpi_board_rev = 0;
 	}
+	if (!models[rpi_board_rev].name) {
+		printf("RPI: Board rev %u unknown\n", rpi_board_rev);
+		rpi_board_rev = 0;
+	}
 
 	name = models[rpi_board_rev].name;
-	if (!name) {
-		printf("RPI: Board rev %u unknown\n", rpi_board_rev);
-		name = "Unknown model";
-	}
 	printf("RPI model: %s\n", name);
 }
 
