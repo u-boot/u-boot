@@ -576,15 +576,15 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 {
 	struct sunxi_lcdc_reg * const lcdc =
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
-	int bp, total;
+	int bp, clk_delay, total;
 
 	/* Use tcon1 */
 	clrsetbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_IO_MAP_MASK,
 			SUNXI_LCDC_CTRL_IO_MAP_TCON1);
 
-	/* Enabled, 0x1e start delay */
+	clk_delay = sunxi_lcdc_get_clk_delay(mode);
 	writel(SUNXI_LCDC_TCON1_CTRL_ENABLE |
-	       SUNXI_LCDC_TCON1_CTRL_CLK_DELAY(0x1e), &lcdc->tcon1_ctrl);
+	       SUNXI_LCDC_TCON1_CTRL_CLK_DELAY(clk_delay), &lcdc->tcon1_ctrl);
 
 	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(mode->yres),
 	       &lcdc->tcon1_timing_source);
