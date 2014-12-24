@@ -149,6 +149,11 @@ static const struct {
 		"bcm2835-rpi-cm.dtb",
 		false,
 	},
+	[BCM2835_BOARD_REV_A_PLUS] = {
+		"Model A+",
+		"bcm2835-rpi-a-plus.dtb",
+		false,
+	},
 };
 
 u32 rpi_board_rev = 0;
@@ -260,12 +265,17 @@ static void get_board_rev(void)
 	}
 
 	rpi_board_rev = msg->get_board_rev.body.resp.rev;
-	if (rpi_board_rev >= ARRAY_SIZE(models))
+	if (rpi_board_rev >= ARRAY_SIZE(models)) {
+		printf("RPI: Board rev %u outside known range\n",
+		       rpi_board_rev);
 		rpi_board_rev = 0;
+	}
 
 	name = models[rpi_board_rev].name;
-	if (!name)
+	if (!name) {
+		printf("RPI: Board rev %u unknown\n", rpi_board_rev);
 		name = "Unknown model";
+	}
 	printf("RPI model: %s\n", name);
 }
 
