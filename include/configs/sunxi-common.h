@@ -272,10 +272,13 @@
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
 
-/* 256M RAM (minimum), 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
- * 1M script, 1M pxe and the ramdisk at the end */
+/*
+ * 240M RAM (256M minimum minus space for the framebuffer),
+ * 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
+ * 1M script, 1M pxe and the ramdisk at the end.
+ */
 #define MEM_LAYOUT_ENV_SETTINGS \
-	"bootm_size=0x10000000\0" \
+	"bootm_size=0xf000000\0" \
 	"kernel_addr_r=0x42000000\0" \
 	"fdt_addr_r=0x43000000\0" \
 	"scriptaddr=0x43100000\0" \
