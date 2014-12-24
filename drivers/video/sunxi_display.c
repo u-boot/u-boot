@@ -767,6 +767,12 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_lcdc_backlight_enable();
 		break;
 	case sunxi_monitor_vga:
+#ifdef CONFIG_VIDEO_VGA_VIA_LCD
+		sunxi_composer_mode_set(mode, address);
+		sunxi_lcdc_tcon0_mode_set(mode);
+		sunxi_composer_enable();
+		sunxi_lcdc_enable();
+#endif
 		break;
 	}
 }
@@ -808,6 +814,8 @@ void *video_hw_init(void)
 	hpd = video_get_option_int(options, "hpd", 1);
 	edid = video_get_option_int(options, "edid", 1);
 	sunxi_display.monitor = sunxi_monitor_dvi;
+#elif defined CONFIG_VIDEO_VGA_VIA_LCD
+	sunxi_display.monitor = sunxi_monitor_vga;
 #else
 	sunxi_display.monitor = sunxi_monitor_lcd;
 #endif
@@ -860,8 +868,13 @@ void *video_hw_init(void)
 		printf("LCD not supported on this board\n");
 		return NULL;
 	case sunxi_monitor_vga:
+#ifdef CONFIG_VIDEO_VGA_VIA_LCD
+		sunxi_display.depth = 18;
+		break;
+#else
 		printf("VGA not supported on this board\n");
 		return NULL;
+#endif
 	}
 
 	if (mode->vmode != FB_VMODE_NONINTERLACED) {
@@ -914,6 +927,7 @@ int sunxi_simplefb_setup(void *blob)
 		pipeline = "de_be0-lcd0";
 		break;
 	case sunxi_monitor_vga:
+		pipeline = "de_be0-lcd0";
 		break;
 	}
 

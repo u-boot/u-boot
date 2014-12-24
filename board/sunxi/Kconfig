@@ -294,6 +294,15 @@ config VIDEO_HDMI
 	---help---
 	Say Y here to add support for outputting video over HDMI.
 
+config VIDEO_VGA_VIA_LCD
+	boolean "VGA via LCD controller support"
+	depends on VIDEO
+	default n
+	---help---
+	Say Y here to add support for external DACs connected to the parallel
+	LCD interface driving a VGA connector, such as found on the
+	Olimex A13 boards.
+
 config VIDEO_LCD_MODE
 	string "LCD panel timing details"
 	depends on VIDEO
