@@ -34,7 +34,6 @@ enum sunxi_monitor {
 
 struct sunxi_display {
 	GraphicDevice graphic_device;
-	bool enabled;
 	enum sunxi_monitor monitor;
 	unsigned int depth;
 } sunxi_display;
@@ -838,6 +837,7 @@ void *video_hw_init(void)
 	case sunxi_monitor_hdmi:
 #ifndef CONFIG_VIDEO_HDMI
 		printf("HDMI/DVI not supported on this board\n");
+		sunxi_display.monitor = sunxi_monitor_none;
 		return NULL;
 #else
 		/* Always call hdp_detect, as it also enables clocks, etc. */
@@ -853,8 +853,10 @@ void *video_hw_init(void)
 
 		sunxi_hdmi_shutdown();
 
-		if (lcd_mode[0] == 0)
+		if (lcd_mode[0] == 0) {
+			sunxi_display.monitor = sunxi_monitor_none;
 			return NULL; /* No LCD, bail */
+		}
 
 		/* Fall back / through to LCD */
 		sunxi_display.monitor = sunxi_monitor_lcd;
@@ -866,6 +868,7 @@ void *video_hw_init(void)
 			break;
 		}
 		printf("LCD not supported on this board\n");
+		sunxi_display.monitor = sunxi_monitor_none;
 		return NULL;
 	case sunxi_monitor_vga:
 #ifdef CONFIG_VIDEO_VGA_VIA_LCD
@@ -873,6 +876,7 @@ void *video_hw_init(void)
 		break;
 #else
 		printf("VGA not supported on this board\n");
+		sunxi_display.monitor = sunxi_monitor_none;
 		return NULL;
 #endif
 	}
@@ -885,7 +889,6 @@ void *video_hw_init(void)
 		       mode->yres, sunxi_get_mon_desc(sunxi_display.monitor));
 	}
 
-	sunxi_display.enabled = true;
 	sunxi_engines_init();
 	sunxi_mode_set(mode, gd->fb_base - CONFIG_SYS_SDRAM_BASE);
 
@@ -912,9 +915,6 @@ int sunxi_simplefb_setup(void *blob)
 	static GraphicDevice *graphic_device = &sunxi_display.graphic_device;
 	int offset, ret;
 	const char *pipeline = NULL;
-
-	if (!sunxi_display.enabled)
-		return 0;
 
 	switch (sunxi_display.monitor) {
 	case sunxi_monitor_none:
