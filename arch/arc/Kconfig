@@ -5,7 +5,7 @@ config SYS_ARCH
 	default "arc"
 
 config SYS_CPU
-	default "arc700"
+	default "arcv1"
 
 choice
 	prompt "Target select"
