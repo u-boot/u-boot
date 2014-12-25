@@ -1381,6 +1381,18 @@ static int mmc_startup(struct mmc *mmc)
 			unsigned int caps = ext_to_hostcaps[extw];
 
 			/*
+			 * If the bus width is still not changed,
+			 * don't try to set the default again.
+			 * Otherwise, recover from switch attempts
+			 * by switching to 1-bit bus width.
+			 */
+			if (extw == EXT_CSD_BUS_WIDTH_1 &&
+					mmc->bus_width == 1) {
+				err = 0;
+				break;
+			}
+
+			/*
 			 * Check to make sure the card and controller support
 			 * these capabilities
 			 */
