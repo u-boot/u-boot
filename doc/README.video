@@ -50,8 +50,7 @@ The sunxi u-boot driver supports the following video-mode options:
 
 - hpd=[0|1] - Enable use of the hdmi HotPlug Detect feature
  0: Disabled. Configure dvi/hdmi output even if no cable is detected
- 1: Enabled. If a LCD has been configured fallback to the LCD when no cable is
-    detected, if no LCD is configured, disable video ouput.
+ 1: Enabled.  Fallback to the lcd / vga / none in that order (if available)
  Defaults to hpd=1.
 
 - edid=[0|1] - Enable use of DDC + EDID to get monitor info

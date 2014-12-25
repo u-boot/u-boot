@@ -846,36 +846,43 @@ void *video_hw_init(void)
 		printf("Unknown monitor: '%s', falling back to '%s'\n",
 		       mon, sunxi_get_mon_desc(sunxi_display.monitor));
 
-	switch (sunxi_display.monitor) {
-	case sunxi_monitor_none:
-		return NULL;
-	case sunxi_monitor_dvi:
-	case sunxi_monitor_hdmi:
-#ifndef CONFIG_VIDEO_HDMI
-		printf("HDMI/DVI not supported on this board\n");
-		sunxi_display.monitor = sunxi_monitor_none;
-		return NULL;
-#else
+#ifdef CONFIG_VIDEO_HDMI
+	/* If HDMI/DVI is selected do HPD & EDID, and handle fallback */
+	if (sunxi_display.monitor == sunxi_monitor_dvi ||
+	    sunxi_display.monitor == sunxi_monitor_hdmi) {
 		/* Always call hdp_detect, as it also enables clocks, etc. */
 		ret = sunxi_hdmi_hpd_detect();
 		if (ret) {
 			printf("HDMI connected: ");
 			if (edid && sunxi_hdmi_edid_get_mode(&custom) == 0)
 				mode = &custom;
-			break;
-		}
-		if (!hpd)
-			break; /* User has requested to ignore hpd */
+		} else if (hpd) {
+			sunxi_hdmi_shutdown();
+			/* Fallback to lcd / vga / none */
+			if (lcd_mode[0]) {
+				sunxi_display.monitor = sunxi_monitor_lcd;
+			} else {
+#ifdef CONFIG_VIDEO_VGA_VIA_LCD
+				sunxi_display.monitor = sunxi_monitor_vga;
+#else
+				sunxi_display.monitor = sunxi_monitor_none;
+#endif
+			}
+		} /* else continue with hdmi/dvi without a cable connected */
+	}
+#endif
 
-		sunxi_hdmi_shutdown();
-
-		if (lcd_mode[0] == 0) {
-			sunxi_display.monitor = sunxi_monitor_none;
-			return NULL; /* No LCD, bail */
-		}
-
-		/* Fall back / through to LCD */
-		sunxi_display.monitor = sunxi_monitor_lcd;
+	switch (sunxi_display.monitor) {
+	case sunxi_monitor_none:
+		return NULL;
+	case sunxi_monitor_dvi:
+	case sunxi_monitor_hdmi:
+#ifdef CONFIG_VIDEO_HDMI
+		break;
+#else
+		printf("HDMI/DVI not supported on this board\n");
+		sunxi_display.monitor = sunxi_monitor_none;
+		return NULL;
 #endif
 	case sunxi_monitor_lcd:
 		if (lcd_mode[0]) {
