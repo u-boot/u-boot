@@ -160,7 +160,10 @@
 #define CONFIG_SPL_MAX_SIZE		0x5fe0		/* 24KB on sun4i/sun7i */
 
 #define CONFIG_SPL_LIBDISK_SUPPORT
+
+#if !defined(CONFIG_UART0_PORT_F)
 #define CONFIG_SPL_MMC_SUPPORT
+#endif
 
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl.lds"
 

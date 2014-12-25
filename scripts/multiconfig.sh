@@ -168,7 +168,7 @@ do_board_felconfig () {
 	echo "$progname: Cannot felconfig a non-sunxi or non-SPL platform" >&2
 	exit 1
     fi
-    sed -i -e 's/\# CONFIG_SPL_FEL is not set/CONFIG_SPL_FEL=y/g' \
+    sed -i -e 's/\# CONFIG_SPL_FEL is not set/CONFIG_SPL_FEL=y\nCONFIG_UART0_PORT_F=n/g' \
 	.config spl/.config
 }
 

@@ -177,6 +177,18 @@ config SPL_FEL
 	depends on SPL
 	default n
 
+config UART0_PORT_F
+	bool "UART0 on MicroSD breakout board"
+	depends on SPL_FEL
+	default n
+	---help---
+	Repurpose the SD card slot for getting access to the UART0 serial
+	console. Primarily useful only for low level u-boot debugging on
+	tablets, where normal UART0 is difficult to access and requires
+	device disassembly and/or soldering. As the SD card can't be used
+	at the same time, the system can be only booted in the FEL mode.
+	Only enable this if you really know what you are doing.
+
 config FDTFILE
 	string "Default fdtfile env setting for this board"
 
