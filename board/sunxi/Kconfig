@@ -294,9 +294,16 @@ config VIDEO_HDMI
 	---help---
 	Say Y here to add support for outputting video over HDMI.
 
+config VIDEO_VGA
+	boolean "VGA output support"
+	depends on VIDEO && (MACH_SUN4I || MACH_SUN7I)
+	default n
+	---help---
+	Say Y here to add support for outputting video over VGA.
+
 config VIDEO_VGA_VIA_LCD
 	boolean "VGA via LCD controller support"
-	depends on VIDEO
+	depends on VIDEO && MACH_SUN5I
 	default n
 	---help---
 	Say Y here to add support for external DACs connected to the parallel

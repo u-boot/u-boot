@@ -569,8 +569,7 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
 	writel(0, &lcdc->tcon0_io_tristate);
 }
 
-#ifdef CONFIG_VIDEO_HDMI
-
+#if defined CONFIG_VIDEO_HDMI || defined CONFIG_VIDEO_VGA
 static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 				      int *clk_div, int *clk_double,
 				      bool use_portd_hvsync)
@@ -624,6 +623,9 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 	}
 	sunxi_lcdc_pll_set(1, mode->pixclock_khz, clk_div, clk_double);
 }
+#endif /* CONFIG_VIDEO_HDMI || defined CONFIG_VIDEO_VGA */
+
+#ifdef CONFIG_VIDEO_HDMI
 
 static void sunxi_hdmi_setup_info_frames(const struct ctfb_res_modes *mode)
 {
@@ -735,6 +737,37 @@ static void sunxi_hdmi_enable(void)
 
 #endif /* CONFIG_VIDEO_HDMI */
 
+#ifdef CONFIG_VIDEO_VGA
+
+static void sunxi_vga_mode_set(void)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct sunxi_tve_reg * const tve =
+		(struct sunxi_tve_reg *)SUNXI_TVE0_BASE;
+
+	/* Clock on */
+	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_TVE0);
+
+	/* Set TVE in VGA mode */
+	writel(SUNXI_TVE_GCTRL_DAC_INPUT(0, 1) |
+	       SUNXI_TVE_GCTRL_DAC_INPUT(1, 2) |
+	       SUNXI_TVE_GCTRL_DAC_INPUT(2, 3), &tve->gctrl);
+	writel(SUNXI_TVE_GCTRL_CFG0_VGA, &tve->cfg0);
+	writel(SUNXI_TVE_GCTRL_DAC_CFG0_VGA, &tve->dac_cfg0);
+	writel(SUNXI_TVE_GCTRL_UNKNOWN1_VGA, &tve->unknown1);
+}
+
+static void sunxi_vga_enable(void)
+{
+	struct sunxi_tve_reg * const tve =
+		(struct sunxi_tve_reg *)SUNXI_TVE0_BASE;
+
+	setbits_le32(&tve->gctrl, SUNXI_TVE_GCTRL_ENABLE);
+}
+
+#endif /* CONFIG_VIDEO_VGA */
+
 static void sunxi_drc_init(void)
 {
 #if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
@@ -757,13 +790,14 @@ static void sunxi_engines_init(void)
 static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 			   unsigned int address)
 {
+	int __maybe_unused clk_div, clk_double;
+
 	switch (sunxi_display.monitor) {
 	case sunxi_monitor_none:
 		break;
 	case sunxi_monitor_dvi:
-	case sunxi_monitor_hdmi: {
+	case sunxi_monitor_hdmi:
 #ifdef CONFIG_VIDEO_HDMI
-		int clk_div, clk_double;
 		sunxi_composer_mode_set(mode, address);
 		sunxi_lcdc_tcon1_mode_set(mode, &clk_div, &clk_double, 0);
 		sunxi_hdmi_mode_set(mode, clk_div, clk_double);
@@ -771,7 +805,6 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_lcdc_enable();
 		sunxi_hdmi_enable();
 #endif
-		}
 		break;
 	case sunxi_monitor_lcd:
 		sunxi_lcdc_panel_enable();
@@ -782,7 +815,14 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_lcdc_backlight_enable();
 		break;
 	case sunxi_monitor_vga:
-#ifdef CONFIG_VIDEO_VGA_VIA_LCD
+#ifdef CONFIG_VIDEO_VGA
+		sunxi_composer_mode_set(mode, address);
+		sunxi_lcdc_tcon1_mode_set(mode, &clk_div, &clk_double, 1);
+		sunxi_vga_mode_set();
+		sunxi_composer_enable();
+		sunxi_lcdc_enable();
+		sunxi_vga_enable();
+#elif defined CONFIG_VIDEO_VGA_VIA_LCD
 		sunxi_composer_mode_set(mode, address);
 		sunxi_lcdc_tcon0_mode_set(mode);
 		sunxi_composer_enable();
@@ -862,7 +902,7 @@ void *video_hw_init(void)
 			if (lcd_mode[0]) {
 				sunxi_display.monitor = sunxi_monitor_lcd;
 			} else {
-#ifdef CONFIG_VIDEO_VGA_VIA_LCD
+#if defined CONFIG_VIDEO_VGA_VIA_LCD || defined CONFIG_VIDEO_VGA
 				sunxi_display.monitor = sunxi_monitor_vga;
 #else
 				sunxi_display.monitor = sunxi_monitor_none;
@@ -894,7 +934,7 @@ void *video_hw_init(void)
 		sunxi_display.monitor = sunxi_monitor_none;
 		return NULL;
 	case sunxi_monitor_vga:
-#ifdef CONFIG_VIDEO_VGA_VIA_LCD
+#if defined CONFIG_VIDEO_VGA_VIA_LCD || defined CONFIG_VIDEO_VGA
 		sunxi_display.depth = 18;
 		break;
 #else
@@ -950,7 +990,11 @@ int sunxi_simplefb_setup(void *blob)
 		pipeline = "de_be0-lcd0";
 		break;
 	case sunxi_monitor_vga:
+#ifdef CONFIG_VIDEO_VGA
+		pipeline = "de_be0-lcd0-tve0";
+#elif defined CONFIG_VIDEO_VGA_VIA_LCD
 		pipeline = "de_be0-lcd0";
+#endif
 		break;
 	}
 

@@ -161,6 +161,52 @@ struct sunxi_hdmi_reg {
 };
 
 /*
+ * This is based on the A10s User Manual, and the A10s only supports
+ * composite video and not vga like the A10 / A20 does, still other
+ * than the removed vga out capability the tvencoder seems to be the same.
+ * "unknown#" registers are registers which are used in the A10 kernel code,
+ * but not documented in the A10s User Manual.
+ */
+struct sunxi_tve_reg {
+	u32 gctrl;			/* 0x000 */
+	u32 cfg0;			/* 0x004 */
+	u32 dac_cfg0;			/* 0x008 */
+	u32 filter;			/* 0x00c */
+	u32 chroma_freq;		/* 0x010 */
+	u32 porch_num;			/* 0x014 */
+	u32 unknown0;			/* 0x018 */
+	u32 line_num;			/* 0x01c */
+	u32 blank_black_level;		/* 0x020 */
+	u32 unknown1;			/* 0x024, seems to be 1 byte per dac */
+	u8 res0[0x08];			/* 0x028 */
+	u32 auto_detect_en;		/* 0x030 */
+	u32 auto_detect_int_status;	/* 0x034 */
+	u32 auto_detect_status;		/* 0x038 */
+	u32 auto_detect_debounce;	/* 0x03c */
+	u32 csc_reg0;			/* 0x040 */
+	u32 csc_reg1;			/* 0x044 */
+	u32 csc_reg2;			/* 0x048 */
+	u32 csc_reg3;			/* 0x04c */
+	u8 res1[0xb0];			/* 0x050 */
+	u32 color_burst;		/* 0x100 */
+	u32 vsync_num;			/* 0x104 */
+	u32 notch_freq;			/* 0x108 */
+	u32 cbr_level;			/* 0x10c */
+	u32 burst_phase;		/* 0x110 */
+	u32 burst_width;		/* 0x114 */
+	u8 res2[0x04];			/* 0x118 */
+	u32 sync_vbi_level;		/* 0x11c */
+	u32 white_level;		/* 0x120 */
+	u32 active_num;			/* 0x124 */
+	u32 chroma_bw_gain;		/* 0x128 */
+	u32 notch_width;		/* 0x12c */
+	u32 resync_num;			/* 0x130 */
+	u32 slave_para;			/* 0x134 */
+	u32 cfg1;			/* 0x138 */
+	u32 cfg2;			/* 0x13c */
+};
+
+/*
  * DE-BE register constants.
  */
 #define SUNXI_DE_BE_WIDTH(x)			(((x) - 1) << 0)
@@ -298,6 +344,36 @@ struct sunxi_hdmi_reg {
 
 #define SUNXI_HMDI_DDC_LINE_CTRL_SCL_ENABLE	(1 << 8)
 #define SUNXI_HMDI_DDC_LINE_CTRL_SDA_ENABLE	(1 << 9)
+
+/*
+ * TVE register constants.
+ */
+#define SUNXI_TVE_GCTRL_ENABLE			(1 << 0)
+/*
+ * Select input 0 to disable dac, 1 - 4 to feed dac from tve0, 5 - 8 to feed
+ * dac from tve1. When using tve1 the mux value must be written to both tve0's
+ * and tve1's gctrl reg.
+ */
+#define SUNXI_TVE_GCTRL_DAC_INPUT_MASK(dac)	(0xf << (((dac) + 1) * 4))
+#define SUNXI_TVE_GCTRL_DAC_INPUT(dac, sel)	((sel) << (((dac) + 1) * 4))
+#define SUNXI_TVE_GCTRL_CFG0_VGA		0x20000000
+#define SUNXI_TVE_GCTRL_DAC_CFG0_VGA		0x403e1ac7
+#define SUNXI_TVE_GCTRL_UNKNOWN1_VGA		0x00000000
+#define SUNXI_TVE_AUTO_DETECT_EN_DET_EN(dac)	(1 << ((dac) + 0))
+#define SUNXI_TVE_AUTO_DETECT_EN_INT_EN(dac)	(1 << ((dac) + 16))
+#define SUNXI_TVE_AUTO_DETECT_INT_STATUS(dac)	(1 << ((dac) + 0))
+#define SUNXI_TVE_AUTO_DETECT_STATUS_SHIFT(dac)	((dac) * 8)
+#define SUNXI_TVE_AUTO_DETECT_STATUS_MASK(dac)	(3 << ((dac) * 8))
+#define SUNXI_TVE_AUTO_DETECT_STATUS_NONE	0
+#define SUNXI_TVE_AUTO_DETECT_STATUS_CONNECTED	1
+#define SUNXI_TVE_AUTO_DETECT_STATUS_SHORT_GND	3
+#define SUNXI_TVE_AUTO_DETECT_DEBOUNCE_SHIFT(d)	((d) * 8)
+#define SUNXI_TVE_AUTO_DETECT_DEBOUNCE_MASK(d)	(0xf << ((d) * 8))
+#define SUNXI_TVE_CSC_REG0_ENABLE		(1 << 31)
+#define SUNXI_TVE_CSC_REG0			0x08440832
+#define SUNXI_TVE_CSC_REG1			0x3b6dace1
+#define SUNXI_TVE_CSC_REG2			0x0e1d13dc
+#define SUNXI_TVE_CSC_REG3			0x00108080
 
 int sunxi_simplefb_setup(void *blob);
 

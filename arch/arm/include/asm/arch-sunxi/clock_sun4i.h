@@ -190,6 +190,8 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_HDMI		11
 #define AHB_GATE_OFFSET_LCD1		5
 #define AHB_GATE_OFFSET_LCD0		4
+#define AHB_GATE_OFFSET_TVE1		3
+#define AHB_GATE_OFFSET_TVE0		2
 
 #define CCM_AHB_GATE_GPS (0x1 << 26)
 #define CCM_AHB_GATE_SDRAM (0x1 << 14)
