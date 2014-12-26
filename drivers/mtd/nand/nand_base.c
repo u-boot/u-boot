@@ -635,8 +635,8 @@ static int nand_block_checkbad(struct mtd_info *mtd, loff_t ofs, int getchip,
 	struct nand_chip *chip = mtd->priv;
 
 	if (!(chip->options & NAND_BBT_SCANNED)) {
-		chip->scan_bbt(mtd);
 		chip->options |= NAND_BBT_SCANNED;
+		chip->scan_bbt(mtd);
 	}
 
 	if (!chip->bbt)
