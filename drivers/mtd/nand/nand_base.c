@@ -634,7 +634,8 @@ static int nand_block_checkbad(struct mtd_info *mtd, loff_t ofs, int getchip,
 {
 	struct nand_chip *chip = mtd->priv;
 
-	if (!(chip->options & NAND_BBT_SCANNED)) {
+	if (!(chip->options & NAND_SKIP_BBTSCAN) &&
+	    !(chip->options & NAND_BBT_SCANNED)) {
 		chip->options |= NAND_BBT_SCANNED;
 		chip->scan_bbt(mtd);
 	}
@@ -4324,10 +4325,6 @@ int nand_scan_tail(struct mtd_info *mtd)
 	 */
 	if (!mtd->bitflip_threshold)
 		mtd->bitflip_threshold = mtd->ecc_strength;
-
-	/* Check, if we should skip the bad block table scan */
-	if (chip->options & NAND_SKIP_BBTSCAN)
-		chip->options |= NAND_BBT_SCANNED;
 
 	return 0;
 }
