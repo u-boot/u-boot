@@ -150,4 +150,17 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 	do_fixup_by_compat_u32(blob, "fsl, ls1021a-flexcan",
 			       "clock-frequency", busclk / 2, 1);
+
+#ifdef CONFIG_QSPI_BOOT
+	off = fdt_node_offset_by_compat_reg(blob, FSL_IFC_COMPAT,
+					    CONFIG_SYS_IFC_ADDR);
+	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
+#else
+	off = fdt_node_offset_by_compat_reg(blob, FSL_QSPI_COMPAT,
+					    QSPI0_BASE_ADDR);
+	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
+	off = fdt_node_offset_by_compat_reg(blob, FSL_DSPI_COMPAT,
+					    DSPI1_BASE_ADDR);
+	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
+#endif
 }

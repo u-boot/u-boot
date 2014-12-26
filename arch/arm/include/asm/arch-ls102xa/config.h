@@ -102,4 +102,8 @@
 #error SoC not defined
 #endif
 
+#define FSL_IFC_COMPAT		"fsl,ifc"
+#define FSL_QSPI_COMPAT		"fsl,ls1-qspi"
+#define FSL_DSPI_COMPAT		"fsl,vf610-dspi"
+
 #endif /* _ASM_ARMV7_LS102XA_CONFIG_ */
