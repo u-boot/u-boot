@@ -97,6 +97,7 @@ void clock_set_pll1(unsigned int clk)
 {
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	const int p = 0;
 	int k = 1;
 	int m = 1;
 
@@ -113,8 +114,11 @@ void clock_set_pll1(unsigned int clk)
 	       CPU_CLK_SRC_OSC24M << CPU_CLK_SRC_SHIFT,
 	       &ccm->cpu_axi_cfg);
 
-	/* PLL1 rate = 24000000 * n * k / m */
-	writel(CCM_PLL1_CTRL_EN | CCM_PLL1_CTRL_MAGIC |
+	/*
+	 * sun6i: PLL1 rate = ((24000000 * n * k) >> 0) / m   (p is ignored)
+	 * sun8i: PLL1 rate = ((24000000 * n * k) >> p) / m
+	 */
+	writel(CCM_PLL1_CTRL_EN | CCM_PLL1_CTRL_P(p) |
 	       CCM_PLL1_CTRL_N(clk / (24000000 * k / m)) |
 	       CCM_PLL1_CTRL_K(k) | CCM_PLL1_CTRL_M(m), &ccm->pll1_cfg);
 	sdelay(200);
