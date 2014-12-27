@@ -572,11 +572,12 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
 #ifdef CONFIG_VIDEO_HDMI
 
 static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
-				      int *clk_div, int *clk_double)
+				      int *clk_div, int *clk_double,
+				      bool use_portd_hvsync)
 {
 	struct sunxi_lcdc_reg * const lcdc =
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
-	int bp, clk_delay, total;
+	int bp, clk_delay, total, val;
 
 	/* Use tcon1 */
 	clrsetbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_IO_MAP_MASK,
@@ -606,6 +607,21 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 	writel(SUNXI_LCDC_X(mode->hsync_len) | SUNXI_LCDC_Y(mode->vsync_len),
 	       &lcdc->tcon1_timing_sync);
 
+	if (use_portd_hvsync) {
+		sunxi_gpio_set_cfgpin(SUNXI_GPD(26), SUNXI_GPD0_LCD0);
+		sunxi_gpio_set_cfgpin(SUNXI_GPD(27), SUNXI_GPD0_LCD0);
+
+		val = 0;
+		if (mode->sync & FB_SYNC_HOR_HIGH_ACT)
+			val |= SUNXI_LCDC_TCON_HSYNC_MASK;
+		if (mode->sync & FB_SYNC_VERT_HIGH_ACT)
+			val |= SUNXI_LCDC_TCON_VSYNC_MASK;
+		writel(val, &lcdc->tcon1_io_polarity);
+
+		clrbits_le32(&lcdc->tcon1_io_tristate,
+			     SUNXI_LCDC_TCON_VSYNC_MASK |
+			     SUNXI_LCDC_TCON_HSYNC_MASK);
+	}
 	sunxi_lcdc_pll_set(1, mode->pixclock_khz, clk_div, clk_double);
 }
 
@@ -749,7 +765,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 #ifdef CONFIG_VIDEO_HDMI
 		int clk_div, clk_double;
 		sunxi_composer_mode_set(mode, address);
-		sunxi_lcdc_tcon1_mode_set(mode, &clk_div, &clk_double);
+		sunxi_lcdc_tcon1_mode_set(mode, &clk_div, &clk_double, 0);
 		sunxi_hdmi_mode_set(mode, clk_div, clk_double);
 		sunxi_composer_enable();
 		sunxi_lcdc_enable();
