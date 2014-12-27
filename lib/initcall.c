@@ -19,7 +19,11 @@ int initcall_run_list(const init_fnc_t init_sequence[])
 
 		if (gd->flags & GD_FLG_RELOC)
 			reloc_ofs = gd->reloc_off;
-		debug("initcall: %p\n", (char *)*init_fnc_ptr - reloc_ofs);
+		debug("initcall: %p", (char *)*init_fnc_ptr - reloc_ofs);
+		if (gd->flags & GD_FLG_RELOC)
+			debug(" (relocated to %p)\n", (char *)*init_fnc_ptr);
+		else
+			debug("\n");
 		ret = (*init_fnc_ptr)();
 		if (ret) {
 			printf("initcall sequence %p failed at call %p (err=%d)\n",
