@@ -66,3 +66,8 @@ IPPO-Q8H-V5 BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/Ippo_q8h_v5_defconfig
+
+MSI-PRIMO81 BOARD
+M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
+S:	Maintained
+F:	configs/MSI_Primo81_defconfig
