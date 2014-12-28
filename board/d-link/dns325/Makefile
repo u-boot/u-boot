@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2011
-# Stefan Herbrechtsmeier <stefan@code.herbrechtsmeier.net>
+# Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
 #
 # Based on Kirkwood support:
 # (C) Copyright 2009
