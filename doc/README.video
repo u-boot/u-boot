@@ -53,6 +53,12 @@ The sunxi u-boot driver supports the following video-mode options:
  1: Enabled.  Fallback to the lcd / vga / none in that order (if available)
  Defaults to hpd=1.
 
+- hpd_delay=<int> - How long to wait for the hdmi HPD signal in milliseconds
+ When the monitor and the board power up at the same time, it may take some
+ time for the monitor to assert the HPD signal. This configures how long to
+ wait for the HPD signal before assuming no cable is connected.
+ Defaults to hpd_delay=500.
+
 - edid=[0|1] - Enable use of DDC + EDID to get monitor info
  0: Disabled.
  1: Enabled. If valid EDID info was read from the monitor the EDID info will
@@ -61,4 +67,4 @@ The sunxi u-boot driver supports the following video-mode options:
 
 For example to always use the hdmi connector, even if no cable is inserted,
 using edid info when available and otherwise initalizing it at 1024x768@60Hz,
-use: video-mode=sunxi:1024x768-24@60,monitor=dvi,hpd=0,edid=1 .
+use: "setenv video-mode sunxi:1024x768-24@60,monitor=dvi,hpd=0,edid=1".

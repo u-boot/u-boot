@@ -56,13 +56,13 @@ static int await_completion(u32 *reg, u32 mask, u32 val)
 	return 0;
 }
 
-static int sunxi_hdmi_hpd_detect(void)
+static int sunxi_hdmi_hpd_detect(int hpd_delay)
 {
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct sunxi_hdmi_reg * const hdmi =
 		(struct sunxi_hdmi_reg *)SUNXI_HDMI_BASE;
-	unsigned long tmo = timer_get_us() + 300000;
+	unsigned long tmo = timer_get_us() + hpd_delay * 1000;
 
 	/* Set pll3 to 300MHz */
 	clock_set_pll3(300000000);
@@ -851,7 +851,7 @@ void *video_hw_init(void)
 	struct ctfb_res_modes custom;
 	const char *options;
 #ifdef CONFIG_VIDEO_HDMI
-	int ret, hpd, edid;
+	int ret, hpd, hpd_delay, edid;
 #endif
 	char mon[16];
 	char *lcd_mode = CONFIG_VIDEO_LCD_MODE;
@@ -867,6 +867,7 @@ void *video_hw_init(void)
 				 &sunxi_display.depth, &options);
 #ifdef CONFIG_VIDEO_HDMI
 	hpd = video_get_option_int(options, "hpd", 1);
+	hpd_delay = video_get_option_int(options, "hpd_delay", 500);
 	edid = video_get_option_int(options, "edid", 1);
 	sunxi_display.monitor = sunxi_monitor_dvi;
 #elif defined CONFIG_VIDEO_VGA_VIA_LCD
@@ -891,7 +892,7 @@ void *video_hw_init(void)
 	if (sunxi_display.monitor == sunxi_monitor_dvi ||
 	    sunxi_display.monitor == sunxi_monitor_hdmi) {
 		/* Always call hdp_detect, as it also enables clocks, etc. */
-		ret = sunxi_hdmi_hpd_detect();
+		ret = sunxi_hdmi_hpd_detect(hpd_delay);
 		if (ret) {
 			printf("HDMI connected: ");
 			if (edid && sunxi_hdmi_edid_get_mode(&custom) == 0)
