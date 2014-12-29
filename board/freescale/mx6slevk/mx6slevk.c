@@ -308,11 +308,6 @@ int board_init(void)
 	return 0;
 }
 
-u32 get_board_rev(void)
-{
-	return get_cpu_rev();
-}
-
 int checkboard(void)
 {
 	puts("Board: MX6SLEVK\n");
