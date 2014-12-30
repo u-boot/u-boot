@@ -30,7 +30,7 @@ int pci_early_init_hose(struct pci_controller **hosep)
 	board_pci_setup_hose(hose);
 	pci_setup_type1(hose);
 	hose->last_busno = pci_hose_scan(hose);
-	gd->arch.hose = hose;
+	gd->hose = hose;
 	*hosep = hose;
 
 	return 0;
@@ -51,7 +51,7 @@ void pci_init_board(void)
 	struct pci_controller *hose = &x86_hose;
 
 	/* Stop using the early hose */
-	gd->arch.hose = NULL;
+	gd->hose = NULL;
 
 	board_pci_setup_hose(hose);
 	pci_setup_type1(hose);
@@ -64,8 +64,8 @@ void pci_init_board(void)
 
 static struct pci_controller *get_hose(void)
 {
-	if (gd->arch.hose)
-		return gd->arch.hose;
+	if (gd->hose)
+		return gd->hose;
 
 	return pci_bus_to_hose(0);
 }

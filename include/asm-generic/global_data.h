@@ -91,6 +91,12 @@ typedef struct global_data {
 	unsigned long malloc_limit;	/* limit address */
 	unsigned long malloc_ptr;	/* current address */
 #endif
+#ifdef CONFIG_PCI
+	struct pci_controller *hose;	/* PCI hose for early use */
+#endif
+#ifdef CONFIG_PCI_BOOTDELAY
+	int pcidelay_done;
+#endif
 	struct udevice *cur_serial_dev;	/* current serial device */
 	struct arch_global_data arch;	/* architecture-specific data */
 } gd_t;
