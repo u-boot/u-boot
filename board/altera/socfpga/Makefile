@@ -6,5 +6,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= socfpga_cyclone5.o
+obj-y	:= socfpga.o
 obj-$(CONFIG_SPL_BUILD) += pinmux_config.o iocsr_config.o
