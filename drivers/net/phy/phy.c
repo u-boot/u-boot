@@ -442,6 +442,9 @@ static LIST_HEAD(phy_drivers);
 
 int phy_init(void)
 {
+#ifdef CONFIG_PHY_AQUANTIA
+	phy_aquantia_init();
+#endif
 #ifdef CONFIG_PHY_ATHEROS
 	phy_atheros_init();
 #endif
