@@ -28,20 +28,20 @@ static char *hob_type[] = {
 
 int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	union hob_pointers hob;
+	const struct hob_header *hdr;
 	u16 type;
 	char *desc;
 	int i = 0;
 
-	hob.raw = (u8 *)gd->arch.hob_list;
+	hdr = gd->arch.hob_list;
 
-	printf("HOB list address: 0x%08x\n\n", (unsigned int)hob.raw);
+	printf("HOB list address: 0x%08x\n\n", (unsigned int)hdr);
 
 	printf("No. | Address  | Type                | Length in Bytes\n");
 	printf("----|----------|---------------------|----------------\n");
-	while (!end_of_hob(hob)) {
-		printf("%-3d | %08x | ", i, (unsigned int)hob.raw);
-		type = get_hob_type(hob);
+	while (!end_of_hob(hdr)) {
+		printf("%-3d | %08x | ", i, (unsigned int)hdr);
+		type = get_hob_type(hdr);
 		if (type == HOB_TYPE_UNUSED)
 			desc = "*Unused*";
 		else if (type == HOB_TYPE_EOH)
@@ -50,8 +50,8 @@ int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			desc = hob_type[type];
 		else
 			desc = "*Invalid Type*";
-		printf("%-19s | %-15d\n", desc, get_hob_length(hob));
-		hob.raw = get_next_hob(hob);
+		printf("%-19s | %-15d\n", desc, get_hob_length(hdr));
+		hdr = get_next_hob(hdr);
 		i++;
 	}
 

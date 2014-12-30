@@ -182,15 +182,6 @@ struct hob_guid {
 	/* GUID specific data goes here */
 };
 
-/* Union of all the possible HOB Types */
-union hob_pointers {
-	struct hob_header	*hdr;
-	struct hob_mem_alloc	*mem_alloc;
-	struct hob_res_desc	*res_desc;
-	struct hob_guid		*guid;
-	u8			*raw;
-};
-
 /**
  * get_hob_type() - return the type of a HOB
  *
@@ -201,9 +192,9 @@ union hob_pointers {
  *
  * @return: HOB type.
  */
-static inline u16 get_hob_type(union hob_pointers hob)
+static inline u16 get_hob_type(const struct hob_header *hdr)
 {
-	return hob.hdr->type;
+	return hdr->type;
 }
 
 /**
@@ -216,9 +207,9 @@ static inline u16 get_hob_type(union hob_pointers hob)
  *
  * @return: HOB length.
  */
-static inline u16 get_hob_length(union hob_pointers hob)
+static inline u16 get_hob_length(const struct hob_header *hdr)
 {
-	return hob.hdr->len;
+	return hdr->len;
 }
 
 /**
@@ -227,13 +218,13 @@ static inline u16 get_hob_length(union hob_pointers hob)
  * This macro returns a pointer to HOB that follows the HOB specified by hob
  * in the HOB List.
  *
- * @hob:    A pointer to a HOB.
+ * @hdr:    A pointer to a HOB.
  *
  * @return: A pointer to the next HOB in the HOB list.
  */
-static inline void *get_next_hob(union hob_pointers hob)
+static inline const struct hob_header *get_next_hob(const struct hob_header *hdr)
 {
-	return (void *)(*(u8 **)&(hob) + get_hob_length(hob));
+	return (const struct hob_header *)((u32)hdr + get_hob_length(hdr));
 }
 
 /**
@@ -243,14 +234,14 @@ static inline void *get_next_hob(union hob_pointers hob)
  * HOB list.  If hob is last HOB in the HOB list, then true is returned.
  * Otherwise, false is returned.
  *
- * @hob:          A pointer to a HOB.
+ * @hdr:          A pointer to a HOB.
  *
- * @retval true:  The HOB specified by hob is the last HOB in the HOB list.
- * @retval false: The HOB specified by hob is not the last HOB in the HOB list.
+ * @retval true:  The HOB specified by hdr is the last HOB in the HOB list.
+ * @retval false: The HOB specified by hdr is not the last HOB in the HOB list.
  */
-static inline bool end_of_hob(union hob_pointers hob)
+static inline bool end_of_hob(const struct hob_header *hdr)
 {
-	return get_hob_type(hob) == HOB_TYPE_EOH;
+	return get_hob_type(hdr) == HOB_TYPE_EOH;
 }
 
 /**
@@ -260,13 +251,13 @@ static inline bool end_of_hob(union hob_pointers hob)
  * This macro returns a pointer to the data buffer in a HOB specified by hob.
  * hob is assumed to be a HOB of type HOB_TYPE_GUID_EXT.
  *
- * @hob:    A pointer to a HOB.
+ * @hdr:    A pointer to a HOB.
  *
  * @return: A pointer to the data buffer in a HOB.
  */
-static inline void *get_guid_hob_data(u8 *hob)
+static inline void *get_guid_hob_data(const struct hob_header *hdr)
 {
-	return (void *)(hob + sizeof(struct hob_guid));
+	return (void *)((u32)hdr + sizeof(struct hob_guid));
 }
 
 /**
@@ -276,14 +267,13 @@ static inline void *get_guid_hob_data(u8 *hob)
  * This macro returns the size, in bytes, of the data buffer in a HOB
  * specified by hob. hob is assumed to be a HOB of type HOB_TYPE_GUID_EXT.
  *
- * @hob:    A pointer to a HOB.
+ * @hdr:    A pointer to a HOB.
  *
  * @return: The size of the data buffer.
  */
-static inline u16 get_guid_hob_data_size(u8 *hob)
+static inline u16 get_guid_hob_data_size(const struct hob_header *hdr)
 {
-	union hob_pointers hob_p = *(union hob_pointers *)hob;
-	return get_hob_length(hob_p) - sizeof(struct hob_guid);
+	return get_hob_length(hdr) - sizeof(struct hob_guid);
 }
 
 /* FSP specific GUID HOB definitions */

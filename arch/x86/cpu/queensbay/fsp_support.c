@@ -231,26 +231,28 @@ u32 fsp_notify(struct fsp_header *fsp_hdr, u32 phase)
 
 u32 fsp_get_usable_lowmem_top(const void *hob_list)
 {
-	union hob_pointers hob;
+	const struct hob_header *hdr;
+	struct hob_res_desc *res_desc;
 	phys_addr_t phys_start;
 	u32 top;
 
 	/* Get the HOB list for processing */
-	hob.raw = (void *)hob_list;
+	hdr = hob_list;
 
 	/* * Collect memory ranges */
 	top = FSP_LOWMEM_BASE;
-	while (!end_of_hob(hob)) {
-		if (get_hob_type(hob) == HOB_TYPE_RES_DESC) {
-			if (hob.res_desc->type == RES_SYS_MEM) {
-				phys_start = hob.res_desc->phys_start;
+	while (!end_of_hob(hdr)) {
+		if (get_hob_type(hdr) == HOB_TYPE_RES_DESC) {
+			res_desc = (struct hob_res_desc *)hdr;
+			if (res_desc->type == RES_SYS_MEM) {
+				phys_start = res_desc->phys_start;
 				/* Need memory above 1MB to be collected here */
 				if (phys_start >= FSP_LOWMEM_BASE &&
 				    phys_start < (phys_addr_t)FSP_HIGHMEM_BASE)
-					top += (u32)(hob.res_desc->len);
+					top += (u32)(res_desc->len);
 			}
 		}
-		hob.raw = get_next_hob(hob);
+		hdr = get_next_hob(hdr);
 	}
 
 	return top;
@@ -258,25 +260,27 @@ u32 fsp_get_usable_lowmem_top(const void *hob_list)
 
 u64 fsp_get_usable_highmem_top(const void *hob_list)
 {
-	union hob_pointers hob;
+	const struct hob_header *hdr;
+	struct hob_res_desc *res_desc;
 	phys_addr_t phys_start;
 	u64 top;
 
 	/* Get the HOB list for processing */
-	hob.raw = (void *)hob_list;
+	hdr = hob_list;
 
 	/* Collect memory ranges */
 	top = FSP_HIGHMEM_BASE;
-	while (!end_of_hob(hob)) {
-		if (get_hob_type(hob) == HOB_TYPE_RES_DESC) {
-			if (hob.res_desc->type == RES_SYS_MEM) {
-				phys_start = hob.res_desc->phys_start;
+	while (!end_of_hob(hdr)) {
+		if (get_hob_type(hdr) == HOB_TYPE_RES_DESC) {
+			res_desc = (struct hob_res_desc *)hdr;
+			if (res_desc->type == RES_SYS_MEM) {
+				phys_start = res_desc->phys_start;
 				/* Need memory above 1MB to be collected here */
 				if (phys_start >= (phys_addr_t)FSP_HIGHMEM_BASE)
-					top += (u32)(hob.res_desc->len);
+					top += (u32)(res_desc->len);
 			}
 		}
-		hob.raw = get_next_hob(hob);
+		hdr = get_next_hob(hdr);
 	}
 
 	return top;
@@ -285,24 +289,26 @@ u64 fsp_get_usable_highmem_top(const void *hob_list)
 u64 fsp_get_reserved_mem_from_guid(const void *hob_list, u64 *len,
 				   struct efi_guid *guid)
 {
-	union hob_pointers hob;
+	const struct hob_header *hdr;
+	struct hob_res_desc *res_desc;
 
 	/* Get the HOB list for processing */
-	hob.raw = (void *)hob_list;
+	hdr = hob_list;
 
 	/* Collect memory ranges */
-	while (!end_of_hob(hob)) {
-		if (get_hob_type(hob) == HOB_TYPE_RES_DESC) {
-			if (hob.res_desc->type == RES_MEM_RESERVED) {
-				if (compare_guid(&hob.res_desc->owner, guid)) {
+	while (!end_of_hob(hdr)) {
+		if (get_hob_type(hdr) == HOB_TYPE_RES_DESC) {
+			res_desc = (struct hob_res_desc *)hdr;
+			if (res_desc->type == RES_MEM_RESERVED) {
+				if (compare_guid(&res_desc->owner, guid)) {
 					if (len)
-						*len = (u32)(hob.res_desc->len);
+						*len = (u32)(res_desc->len);
 
-					return (u64)(hob.res_desc->phys_start);
+					return (u64)(res_desc->phys_start);
 				}
 			}
 		}
-		hob.raw = get_next_hob(hob);
+		hdr = get_next_hob(hdr);
 	}
 
 	return 0;
@@ -336,44 +342,45 @@ u32 fsp_get_tseg_reserved_mem(const void *hob_list, u32 *len)
 	return base;
 }
 
-void *fsp_get_next_hob(u16 type, const void *hob_list)
+const struct hob_header *fsp_get_next_hob(u16 type, const void *hob_list)
 {
-	union hob_pointers hob;
+	const struct hob_header *hdr;
 
-	assert(hob_list != NULL);
-
-	hob.raw = (u8 *)hob_list;
+	hdr = hob_list;
 
 	/* Parse the HOB list until end of list or matching type is found */
-	while (!end_of_hob(hob)) {
-		if (get_hob_type(hob) == type)
-			return hob.raw;
+	while (!end_of_hob(hdr)) {
+		if (get_hob_type(hdr) == type)
+			return hdr;
 
-		hob.raw = get_next_hob(hob);
+		hdr = get_next_hob(hdr);
 	}
 
 	return NULL;
 }
 
-void *fsp_get_next_guid_hob(const struct efi_guid *guid, const void *hob_list)
+const struct hob_header *fsp_get_next_guid_hob(const struct efi_guid *guid,
+					       const void *hob_list)
 {
-	union hob_pointers hob;
+	const struct hob_header *hdr;
+	struct hob_guid *guid_hob;
 
-	hob.raw = (u8 *)hob_list;
-	while ((hob.raw = fsp_get_next_hob(HOB_TYPE_GUID_EXT,
-			hob.raw)) != NULL) {
-		if (compare_guid(guid, &hob.guid->name))
+	hdr = hob_list;
+	while ((hdr = fsp_get_next_hob(HOB_TYPE_GUID_EXT,
+			hdr)) != NULL) {
+		guid_hob = (struct hob_guid *)hdr;
+		if (compare_guid(guid, &(guid_hob->name)))
 			break;
-		hob.raw = get_next_hob(hob);
+		hdr = get_next_hob(hdr);
 	}
 
-	return hob.raw;
+	return hdr;
 }
 
 void *fsp_get_guid_hob_data(const void *hob_list, u32 *len,
 			    struct efi_guid *guid)
 {
-	u8 *guid_hob;
+	const struct hob_header *guid_hob;
 
 	guid_hob = fsp_get_next_guid_hob(guid, hob_list);
 	if (guid_hob == NULL) {
