@@ -25,6 +25,8 @@
 
 #include <asm/arch/mx6-ddr.h>
 
+#include "novena.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL						\
@@ -67,14 +69,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
 
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-
-#define NOVENA_AUDIO_PWRON		IMX_GPIO_NR(5, 17)
-#define NOVENA_FPGA_RESET_N_GPIO	IMX_GPIO_NR(5, 7)
-#define NOVENA_HDMI_GHOST_HPD		IMX_GPIO_NR(5, 4)
-#define NOVENA_PCIE_RESET_GPIO		IMX_GPIO_NR(3, 29)
-#define NOVENA_PCIE_POWER_ON_GPIO	IMX_GPIO_NR(7, 12)
-#define NOVENA_PCIE_WAKE_UP_GPIO	IMX_GPIO_NR(3, 22)
-#define NOVENA_PCIE_DISABLE_GPIO	IMX_GPIO_NR(2, 16)
 
 /*
  * Audio
@@ -392,6 +386,13 @@ static void novena_spl_setup_iomux_uart(void)
 static iomux_v3_cfg_t hdmi_pads[] = {
 	/* "Ghost HPD" pin */
 	MX6_PAD_EIM_A24__GPIO5_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
+
+	/* LCD_PWR_CTL */
+	MX6_PAD_CSI0_DAT10__GPIO5_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	/* LCD_BL_ON */
+	MX6_PAD_KEY_ROW4__GPIO4_IO15 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	/* GPIO_PWM1 */
+	MX6_PAD_DISP0_DAT8__GPIO4_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 static void novena_spl_setup_iomux_video(void)

@@ -112,7 +112,7 @@ static void setup_iomux_spi(void)
 #ifdef CONFIG_USB_EHCI_MX5
 #define MX51EVK_USBH1_HUB_RST	IMX_GPIO_NR(1, 7)
 #define MX51EVK_USBH1_STP	IMX_GPIO_NR(1, 27)
-#define MX51EVK_USB_CLK_EN_B	IMX_GPIO_NR(2, 2)
+#define MX51EVK_USB_CLK_EN_B	IMX_GPIO_NR(2, 1)
 #define MX51EVK_USB_PHY_RESET	IMX_GPIO_NR(2, 5)
 
 static void setup_usb_h1(void)

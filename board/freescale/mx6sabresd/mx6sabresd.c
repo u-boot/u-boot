@@ -29,6 +29,7 @@
 #include <power/pfuze100_pmic.h>
 #include "../common/pfuze.h"
 #include <asm/arch/mx6-ddr.h>
+#include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -537,6 +538,69 @@ int board_eth_init(bd_t *bis)
 	return cpu_eth_init(bis);
 }
 
+#ifdef CONFIG_USB_EHCI_MX6
+#define USB_OTHERREGS_OFFSET	0x800
+#define UCTRL_PWR_POL		(1 << 9)
+
+static iomux_v3_cfg_t const usb_otg_pads[] = {
+	MX6_PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_ENET_RX_ER__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t const usb_hc1_pads[] = {
+	MX6_PAD_ENET_TXD1__GPIO1_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+static void setup_usb(void)
+{
+	imx_iomux_v3_setup_multiple_pads(usb_otg_pads,
+					 ARRAY_SIZE(usb_otg_pads));
+
+	/*
+	 * set daisy chain for otg_pin_id on 6q.
+	 * for 6dl, this bit is reserved
+	 */
+	imx_iomux_set_gpr_register(1, 13, 1, 0);
+
+	imx_iomux_v3_setup_multiple_pads(usb_hc1_pads,
+					 ARRAY_SIZE(usb_hc1_pads));
+}
+
+int board_ehci_hcd_init(int port)
+{
+	u32 *usbnc_usb_ctrl;
+
+	if (port > 1)
+		return -EINVAL;
+
+	usbnc_usb_ctrl = (u32 *)(USB_BASE_ADDR + USB_OTHERREGS_OFFSET +
+				 port * 4);
+
+	setbits_le32(usbnc_usb_ctrl, UCTRL_PWR_POL);
+
+	return 0;
+}
+
+int board_ehci_power(int port, int on)
+{
+	switch (port) {
+	case 0:
+		break;
+	case 1:
+		if (on)
+			gpio_direction_output(IMX_GPIO_NR(1, 29), 1);
+		else
+			gpio_direction_output(IMX_GPIO_NR(1, 29), 0);
+		break;
+	default:
+		printf("MXC USB port %d not yet supported\n", port);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+#endif
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -556,6 +620,10 @@ int board_init(void)
 	setup_spi();
 #endif
 	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+
+#ifdef CONFIG_USB_EHCI_MX6
+	setup_usb();
+#endif
 
 	return 0;
 }
