@@ -65,6 +65,13 @@ config DRAM_INIT
 	bool
 	default SPL_BUILD
 
+config CMD_DDRPHY_DUMP
+	bool "Enable dump command of DDR PHY parameters"
+	depends on !SPL_BUILD
+	help
+	  The command "ddrphy" shows the resulting parameters of DDR PHY
+	  training; it is useful for the evaluation of DDR PHY training.
+
 choice
 	prompt "DDR3 Frequency select"
 	depends on DRAM_INIT
