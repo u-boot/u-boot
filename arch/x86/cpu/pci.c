@@ -29,6 +29,7 @@ int pci_early_init_hose(struct pci_controller **hosep)
 
 	board_pci_setup_hose(hose);
 	pci_setup_type1(hose);
+	hose->last_busno = pci_hose_scan(hose);
 	gd->arch.hose = hose;
 	*hosep = hose;
 
