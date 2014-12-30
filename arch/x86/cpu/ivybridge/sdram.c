@@ -177,7 +177,7 @@ int sdram_initialise(struct pei_data *pei_data)
 
 	debug("PEI data at %p, size %x:\n", pei_data, sizeof(*pei_data));
 
-	data = (char *)CONFIG_X86_MRC_START;
+	data = (char *)CONFIG_X86_MRC_ADDR;
 	if (data) {
 		int rv;
 		int (*func)(struct pei_data *);

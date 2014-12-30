@@ -209,6 +209,10 @@ static struct peri_clk_data sdio4_sleep_data = {
 	.gate		= SW_ONLY_GATE(0x0360, 20, 4),
 };
 
+static struct bus_clk_data usb_otg_ahb_data = {
+	.gate		= HW_SW_GATE_AUTO(0x0348, 16, 0, 1),
+};
+
 static struct bus_clk_data sdio1_ahb_data = {
 	.gate		= HW_SW_GATE_AUTO(0x0358, 16, 0, 1),
 };
@@ -331,6 +335,17 @@ static struct ccu_clock esub_ccu_clk = {
  */
 
 /* KPM bus clocks */
+static struct bus_clock usb_otg_ahb_clk = {
+	.clk = {
+		.name = "usb_otg_ahb_clk",
+		.parent = &kpm_ccu_clk.clk,
+		.ops = &bus_clk_ops,
+		.ccu_clk_mgr_base = KONA_MST_CLK_BASE_ADDR,
+	},
+	.freq_tbl = master_ahb_freq_tbl,
+	.data = &usb_otg_ahb_data,
+};
+
 static struct bus_clock sdio1_ahb_clk = {
 	.clk = {
 		.name = "sdio1_ahb_clk",
@@ -541,6 +556,7 @@ struct clk_lookup arch_clk_tbl[] = {
 	CLK_LK(bsc2),
 	CLK_LK(bsc3),
 	/* Bus clocks */
+	CLK_LK(usb_otg_ahb),
 	CLK_LK(sdio1_ahb),
 	CLK_LK(sdio2_ahb),
 	CLK_LK(sdio3_ahb),

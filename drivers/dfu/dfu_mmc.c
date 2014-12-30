@@ -40,9 +40,15 @@ static int mmc_access_part(struct dfu_entity *dfu, struct mmc *mmc, int part)
 static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len)
 {
-	struct mmc *mmc = find_mmc_device(dfu->data.mmc.dev_num);
+	struct mmc *mmc;
 	u32 blk_start, blk_count, n = 0;
 	int ret, part_num_bkp = 0;
+
+	mmc = find_mmc_device(dfu->data.mmc.dev_num);
+	if (!mmc) {
+		error("Device MMC %d - not found!", dfu->data.mmc.dev_num);
+		return -ENODEV;
+	}
 
 	/*
 	 * We must ensure that we work in lba_blk_size chunks, so ALIGN

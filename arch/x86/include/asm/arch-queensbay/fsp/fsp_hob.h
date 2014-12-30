@@ -19,14 +19,14 @@
  * Describes the format and size of the data inside the HOB.
  * All HOBs must contain this generic HOB header.
  */
-struct hob_header_t {
+struct hob_header {
 	u16	type;		/* HOB type */
 	u16	len;		/* HOB length */
 	u32	reserved;	/* always zero */
 };
 
 /* Enumeration of memory types introduced in UEFI */
-enum efi_mem_type_t {
+enum efi_mem_type {
 	EFI_RESERVED_MEMORY_TYPE,
 	/*
 	 * The code portions of a loaded application.
@@ -87,16 +87,16 @@ enum efi_mem_type_t {
  * exist outside the HOB list. This HOB type describes how memory is used,
  * not the physical attributes of memory.
  */
-struct hob_mem_alloc_t {
-	struct hob_header_t	hdr;
+struct hob_mem_alloc {
+	struct hob_header	hdr;
 	/*
 	 * A GUID that defines the memory allocation region's type and purpose,
 	 * as well as other fields within the memory allocation HOB. This GUID
 	 * is used to define the additional data within the HOB that may be
-	 * present for the memory allocation HOB. Type efi_guid_t is defined in
+	 * present for the memory allocation HOB. Type efi_guid is defined in
 	 * InstallProtocolInterface() in the UEFI 2.0 specification.
 	 */
-	struct efi_guid_t	name;
+	struct efi_guid		name;
 	/*
 	 * The base address of memory allocated by this HOB.
 	 * Type phys_addr_t is defined in AllocatePages() in the UEFI 2.0
@@ -111,7 +111,7 @@ struct hob_mem_alloc_t {
 	 * Type EFI_MEMORY_TYPE is defined in AllocatePages() in the UEFI 2.0
 	 * specification.
 	 */
-	enum efi_mem_type_t	mem_type;
+	enum efi_mem_type	mem_type;
 	/* padding */
 	u8			reserved[4];
 };
@@ -155,14 +155,14 @@ struct hob_mem_alloc_t {
  * Describes the resource properties of all fixed, nonrelocatable resource
  * ranges found on the processor host bus during the HOB producer phase.
  */
-struct hob_res_desc_t {
-	struct hob_header_t	hdr;
+struct hob_res_desc {
+	struct hob_header	hdr;
 	/*
 	 * A GUID representing the owner of the resource. This GUID is
 	 * used by HOB consumer phase components to correlate device
 	 * ownership of a resource.
 	 */
-	struct efi_guid_t	owner;
+	struct efi_guid		owner;
 	u32			type;
 	u32			attr;
 	/* The physical start address of the resource region */
@@ -175,24 +175,24 @@ struct hob_res_desc_t {
  * Allows writers of executable content in the HOB producer phase to
  * maintain and manage HOBs with specific GUID.
  */
-struct hob_guid_t {
-	struct hob_header_t	hdr;
+struct hob_guid {
+	struct hob_header	hdr;
 	/* A GUID that defines the contents of this HOB */
-	struct efi_guid_t	name;
+	struct efi_guid		name;
 	/* GUID specific data goes here */
 };
 
 /* Union of all the possible HOB Types */
-union hob_pointers_t {
-	struct hob_header_t	*hdr;
-	struct hob_mem_alloc_t	*mem_alloc;
-	struct hob_res_desc_t	*res_desc;
-	struct hob_guid_t	*guid;
+union hob_pointers {
+	struct hob_header	*hdr;
+	struct hob_mem_alloc	*mem_alloc;
+	struct hob_res_desc	*res_desc;
+	struct hob_guid		*guid;
 	u8			*raw;
 };
 
 /**
- * Returns the type of a HOB.
+ * get_hob_type() - return the type of a HOB
  *
  * This macro returns the type field from the HOB header for the
  * HOB specified by hob.
@@ -201,11 +201,13 @@ union hob_pointers_t {
  *
  * @return: HOB type.
  */
-#define GET_HOB_TYPE(hob) \
-	((*(struct hob_header_t **)&(hob))->type)
+static inline u16 get_hob_type(union hob_pointers hob)
+{
+	return hob.hdr->type;
+}
 
 /**
- * Returns the length, in bytes, of a HOB.
+ * get_hob_length() - return the length, in bytes, of a HOB
  *
  * This macro returns the len field from the HOB header for the
  * HOB specified by hob.
@@ -214,11 +216,13 @@ union hob_pointers_t {
  *
  * @return: HOB length.
  */
-#define GET_HOB_LENGTH(hob) \
-	((*(struct hob_header_t **)&(hob))->len)
+static inline u16 get_hob_length(union hob_pointers hob)
+{
+	return hob.hdr->len;
+}
 
 /**
- * Returns a pointer to the next HOB in the HOB list.
+ * get_next_hob() - return a pointer to the next HOB in the HOB list
  *
  * This macro returns a pointer to HOB that follows the HOB specified by hob
  * in the HOB List.
@@ -227,25 +231,31 @@ union hob_pointers_t {
  *
  * @return: A pointer to the next HOB in the HOB list.
  */
-#define GET_NEXT_HOB(hob)	\
-	(void *)(*(u8 **)&(hob) + GET_HOB_LENGTH(hob))
+static inline void *get_next_hob(union hob_pointers hob)
+{
+	return (void *)(*(u8 **)&(hob) + get_hob_length(hob));
+}
 
 /**
- * Determines if a HOB is the last HOB in the HOB list.
+ * end_of_hob() - determine if a HOB is the last HOB in the HOB list
  *
  * This macro determine if the HOB specified by hob is the last HOB in the
- * HOB list.  If hob is last HOB in the HOB list, then TRUE is returned.
- * Otherwise, FALSE is returned.
+ * HOB list.  If hob is last HOB in the HOB list, then true is returned.
+ * Otherwise, false is returned.
  *
  * @hob:          A pointer to a HOB.
  *
- * @retval TRUE:  The HOB specified by hob is the last HOB in the HOB list.
- * @retval FALSE: The HOB specified by hob is not the last HOB in the HOB list.
+ * @retval true:  The HOB specified by hob is the last HOB in the HOB list.
+ * @retval false: The HOB specified by hob is not the last HOB in the HOB list.
  */
-#define END_OF_HOB(hob)	(GET_HOB_TYPE(hob) == (u16)HOB_TYPE_EOH)
+static inline bool end_of_hob(union hob_pointers hob)
+{
+	return get_hob_type(hob) == HOB_TYPE_EOH;
+}
 
 /**
- * Returns a pointer to data buffer from a HOB of type HOB_TYPE_GUID_EXT.
+ * get_guid_hob_data() - return a pointer to data buffer from a HOB of
+ *                       type HOB_TYPE_GUID_EXT
  *
  * This macro returns a pointer to the data buffer in a HOB specified by hob.
  * hob is assumed to be a HOB of type HOB_TYPE_GUID_EXT.
@@ -254,11 +264,14 @@ union hob_pointers_t {
  *
  * @return: A pointer to the data buffer in a HOB.
  */
-#define GET_GUID_HOB_DATA(hob)	\
-	(void *)(*(u8 **)&(hob) + sizeof(struct hob_guid_t))
+static inline void *get_guid_hob_data(u8 *hob)
+{
+	return (void *)(hob + sizeof(struct hob_guid));
+}
 
 /**
- * Returns the size of the data buffer from a HOB of type HOB_TYPE_GUID_EXT.
+ * get_guid_hob_data_size() - return the size of the data buffer from a HOB
+ *                            of type HOB_TYPE_GUID_EXT
  *
  * This macro returns the size, in bytes, of the data buffer in a HOB
  * specified by hob. hob is assumed to be a HOB of type HOB_TYPE_GUID_EXT.
@@ -267,14 +280,31 @@ union hob_pointers_t {
  *
  * @return: The size of the data buffer.
  */
-#define GET_GUID_HOB_DATA_SIZE(hob)	\
-	(u16)(GET_HOB_LENGTH(hob) - sizeof(struct hob_guid_t))
+static inline u16 get_guid_hob_data_size(u8 *hob)
+{
+	union hob_pointers hob_p = *(union hob_pointers *)hob;
+	return get_hob_length(hob_p) - sizeof(struct hob_guid);
+}
 
 /* FSP specific GUID HOB definitions */
+#define FSP_GUID_DATA1		0x912740be
+#define FSP_GUID_DATA2		0x2284
+#define FSP_GUID_DATA3		0x4734
+#define FSP_GUID_DATA4_0	0xb9
+#define FSP_GUID_DATA4_1	0x71
+#define FSP_GUID_DATA4_2	0x84
+#define FSP_GUID_DATA4_3	0xb0
+#define FSP_GUID_DATA4_4	0x27
+#define FSP_GUID_DATA4_5	0x35
+#define FSP_GUID_DATA4_6	0x3f
+#define FSP_GUID_DATA4_7	0x0c
+
 #define FSP_HEADER_GUID \
 	{ \
-	0x912740be, 0x2284, 0x4734, \
-	{0xb9, 0x71, 0x84, 0xb0, 0x27, 0x35, 0x3f, 0x0c} \
+	FSP_GUID_DATA1, FSP_GUID_DATA2, FSP_GUID_DATA3, \
+	{ FSP_GUID_DATA4_0, FSP_GUID_DATA4_1, FSP_GUID_DATA4_2, \
+	  FSP_GUID_DATA4_3, FSP_GUID_DATA4_4, FSP_GUID_DATA4_5, \
+	  FSP_GUID_DATA4_6, FSP_GUID_DATA4_7 } \
 	}
 
 #define FSP_NON_VOLATILE_STORAGE_HOB_GUID \

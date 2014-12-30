@@ -63,7 +63,7 @@
 #define EFI_FVB2_ALIGNMENT_1G		0x001E0000
 #define EFI_FVB2_ALIGNMENT_2G		0x001F0000
 
-struct fv_blkmap_entry_t {
+struct fv_blkmap_entry {
 	/* The number of sequential blocks which are of the same size */
 	u32	num_blocks;
 	/* The size of the blocks */
@@ -71,7 +71,7 @@ struct fv_blkmap_entry_t {
 };
 
 /* Describes the features and layout of the firmware volume */
-struct fv_header_t {
+struct fv_header {
 	/*
 	 * The first 16 bytes are reserved to allow for the reset vector of
 	 * processors whose reset vector is at address 0.
@@ -81,7 +81,7 @@ struct fv_header_t {
 	 * Declares the file system with which the firmware volume
 	 * is formatted.
 	 */
-	struct efi_guid_t	fs_guid;
+	struct efi_guid		fs_guid;
 	/*
 	 * Length in bytes of the complete firmware volume, including
 	 * the header.
@@ -118,18 +118,18 @@ struct fv_header_t {
 	 * An array of run-length encoded FvBlockMapEntry structures.
 	 * The array is terminated with an entry of {0,0}.
 	 */
-	struct fv_blkmap_entry_t	block_map[1];
+	struct fv_blkmap_entry	block_map[1];
 };
 
-#define EFI_FVH_SIGNATURE SIGNATURE_32('_', 'F', 'V', 'H')
+#define EFI_FVH_SIGNATURE	SIGNATURE_32('_', 'F', 'V', 'H')
 
 /* Firmware Volume Header Revision definition */
 #define EFI_FVH_REVISION	0x02
 
 /* Extension header pointed by ExtHeaderOffset of volume header */
-struct fv_ext_header_t {
+struct fv_ext_header {
 	/* firmware volume name */
-	struct efi_guid_t	fv_name;
+	struct efi_guid		fv_name;
 	/* Size of the rest of the extension header including this structure */
 	u32			ext_hdr_size;
 };

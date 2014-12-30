@@ -17,7 +17,6 @@
 #include <linux/list.h>
 #include <linux/compiler.h>
 
-static bool dfu_detach_request;
 static LIST_HEAD(dfu_list);
 static int dfu_alt_num;
 static int alt_num_cnt;
@@ -37,21 +36,6 @@ static struct hash_algo *dfu_hash_algo;
 __weak bool dfu_usb_get_reset(void)
 {
 	return true;
-}
-
-bool dfu_detach(void)
-{
-	return dfu_detach_request;
-}
-
-void dfu_trigger_detach(void)
-{
-	dfu_detach_request = true;
-}
-
-void dfu_clear_detach(void)
-{
-	dfu_detach_request = false;
 }
 
 static int dfu_find_alt_num(const char *s)
@@ -111,8 +95,12 @@ unsigned char *dfu_get_buf(struct dfu_entity *dfu)
 		return dfu_buf;
 
 	s = getenv("dfu_bufsiz");
-	dfu_buf_size = s ? (unsigned long)simple_strtol(s, NULL, 16) :
-			CONFIG_SYS_DFU_DATA_BUF_SIZE;
+	if (s)
+		dfu_buf_size = (unsigned long)simple_strtol(s, NULL, 0);
+
+	if (!s || !dfu_buf_size)
+		dfu_buf_size = CONFIG_SYS_DFU_DATA_BUF_SIZE;
+
 	if (dfu->max_buf_size && dfu_buf_size > dfu->max_buf_size)
 		dfu_buf_size = dfu->max_buf_size;
 

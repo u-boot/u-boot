@@ -10,9 +10,9 @@
 #ifndef __VPDHEADER_H__
 #define __VPDHEADER_H__
 
-#pragma pack(1)
+#define UPD_TERMINATOR	0x55AA
 
-struct upd_region_t {
+struct __packed upd_region {
 	u64	sign;			/* Offset 0x0000 */
 	u64	reserved;		/* Offset 0x0008 */
 	u8	dummy[240];		/* Offset 0x0010 */
@@ -39,7 +39,7 @@ struct upd_region_t {
 #define VPD_IMAGE_ID	0x445056574F4E4E4D	/* 'MNNOWVPD' */
 #define VPD_IMAGE_REV	0x00000301
 
-struct vpd_region_t {
+struct __packed vpd_region {
 	u64	sign;			/* Offset 0x0000 */
 	u32	img_rev;		/* Offset 0x0008 */
 	u32	upd_offset;		/* Offset 0x000C */
@@ -52,7 +52,5 @@ struct vpd_region_t {
 	u8	legacy_seg_decode;	/* Offset 0x0028 */
 	u8	pcie_port_ioh;		/* Offset 0x0029 */
 };
-
-#pragma pack()
 
 #endif

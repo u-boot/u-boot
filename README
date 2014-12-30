@@ -1773,6 +1773,15 @@ The following options need to be configured:
 		regarding the non-volatile storage device. Define this to
 		the eMMC device that fastboot should use to store the image.
 
+		CONFIG_FASTBOOT_GPT_NAME
+		The fastboot "flash" command supports writing the downloaded
+		image to the Protective MBR and the Primary GUID Partition
+		Table. (Additionally, this downloaded image is post-processed
+		to generate and write the Backup GUID Partition Table.)
+		This occurs when the specified "partition name" on the
+		"fastboot flash" command line matches this value.
+		Default is GPT_ENTRY_NAME (currently "gpt") if undefined.
+
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
 		CONFIG_JFFS2_NAND_DEV

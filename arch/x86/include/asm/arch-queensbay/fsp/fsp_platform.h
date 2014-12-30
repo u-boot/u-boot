@@ -8,12 +8,8 @@
 #ifndef __FSP_PLATFORM_H__
 #define __FSP_PLATFORM_H__
 
-#pragma pack(1)
-
-struct fspinit_rtbuf_t {
-	struct common_buf_t	common;	/* FSP common runtime data structure */
+struct fspinit_rtbuf {
+	struct common_buf	common;	/* FSP common runtime data structure */
 };
-
-#pragma pack()
 
 #endif

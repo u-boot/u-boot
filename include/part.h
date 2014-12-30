@@ -244,6 +244,26 @@ int gpt_fill_header(block_dev_desc_t *dev_desc, gpt_header *gpt_h,
  */
 int gpt_restore(block_dev_desc_t *dev_desc, char *str_disk_guid,
 		disk_partition_t *partitions, const int parts_count);
+
+/**
+ * is_valid_gpt_buf() - Ensure that the Primary GPT information is valid
+ *
+ * @param dev_desc - block device descriptor
+ * @param buf - buffer which contains the MBR and Primary GPT info
+ *
+ * @return - '0' on success, otherwise error
+ */
+int is_valid_gpt_buf(block_dev_desc_t *dev_desc, void *buf);
+
+/**
+ * write_mbr_and_gpt_partitions() - write MBR, Primary GPT and Backup GPT
+ *
+ * @param dev_desc - block device descriptor
+ * @param buf - buffer which contains the MBR and Primary GPT info
+ *
+ * @return - '0' on success, otherwise error
+ */
+int write_mbr_and_gpt_partitions(block_dev_desc_t *dev_desc, void *buf);
 #endif
 
 #endif /* _PART_H */

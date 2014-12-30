@@ -126,6 +126,7 @@ hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl
 hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl
 HOSTCFLAGS_mkexynosspl.o := -pedantic
 
+ifdtool-objs := $(LIBFDT_OBJS) ifdtool.o
 hostprogs-$(CONFIG_X86) += ifdtool
 
 hostprogs-$(CONFIG_MX23) += mxsboot

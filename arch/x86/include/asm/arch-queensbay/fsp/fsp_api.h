@@ -14,9 +14,7 @@
  */
 typedef void (*fsp_continuation_f)(u32 status, void *hob_list);
 
-#pragma pack(1)
-
-struct fsp_init_params_t {
+struct fsp_init_params {
 	/* Non-volatile storage buffer pointer */
 	void			*nvs_buf;
 	/* Runtime buffer pointer */
@@ -25,7 +23,7 @@ struct fsp_init_params_t {
 	fsp_continuation_f	continuation;
 };
 
-struct common_buf_t {
+struct common_buf {
 	/*
 	 * Stack top pointer used by the bootloader. The new stack frame will be
 	 * set up at this location after FspInit API call.
@@ -36,24 +34,22 @@ struct common_buf_t {
 	u32	reserved[7];	/* Reserved */
 };
 
-enum fsp_phase_t {
+enum fsp_phase {
 	/* Notification code for post PCI enuermation */
 	INIT_PHASE_PCI	= 0x20,
 	/* Notification code before transfering control to the payload */
 	INIT_PHASE_BOOT	= 0x40
 };
 
-struct fsp_notify_params_t {
+struct fsp_notify_params {
 	/* Notification phase used for NotifyPhase API */
-	enum fsp_phase_t	phase;
+	enum fsp_phase	phase;
 };
 
-#pragma pack()
-
 /* FspInit API function prototype */
-typedef u32 (*fsp_init_f)(struct fsp_init_params_t *param);
+typedef u32 (*fsp_init_f)(struct fsp_init_params *params);
 
 /* FspNotify API function prototype */
-typedef u32 (*fsp_notify_f)(struct fsp_notify_params_t *param);
+typedef u32 (*fsp_notify_f)(struct fsp_notify_params *params);
 
 #endif

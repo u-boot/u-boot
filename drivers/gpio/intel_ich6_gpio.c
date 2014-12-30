@@ -39,9 +39,9 @@
 
 struct ich6_bank_priv {
 	/* These are I/O addresses */
-	uint32_t use_sel;
-	uint32_t io_sel;
-	uint32_t lvl;
+	uint16_t use_sel;
+	uint16_t io_sel;
+	uint16_t lvl;
 };
 
 /* TODO: Move this to device tree, or platform data */
@@ -57,7 +57,7 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 	u8 tmpbyte;
 	u16 tmpword;
 	u32 tmplong;
-	u32 gpiobase;
+	u16 gpiobase;
 	int offset;
 
 	/* Where should it be? */
@@ -116,11 +116,15 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 	/*
 	 * GPIOBASE moved to its current offset with ICH6, but prior to
 	 * that it was unused (or undocumented). Check that it looks
-	 * okay: not all ones or zeros, and mapped to I/O space (bit 0).
+	 * okay: not all ones or zeros.
+	 *
+	 * Note we don't need check bit0 here, because the Tunnel Creek
+	 * GPIO base address register bit0 is reserved (read returns 0),
+	 * while on the Ivybridge the bit0 is used to indicate it is an
+	 * I/O space.
 	 */
 	tmplong = pci_read_config32(pci_dev, PCI_CFG_GPIOBASE);
-	if (tmplong == 0x00000000 || tmplong == 0xffffffff ||
-	    !(tmplong & 0x00000001)) {
+	if (tmplong == 0x00000000 || tmplong == 0xffffffff) {
 		debug("%s: unexpected GPIOBASE value\n", __func__);
 		return -ENODEV;
 	}
@@ -131,7 +135,7 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 	 * at the offset that we just read. Bit 0 indicates that it's
 	 * an I/O address, not a memory address, so mask that off.
 	 */
-	gpiobase = tmplong & 0xfffffffe;
+	gpiobase = tmplong & 0xfffe;
 	offset = fdtdec_get_int(gd->fdt_blob, dev->of_offset, "reg", -1);
 	if (offset == -1) {
 		debug("%s: Invalid register offset %d\n", __func__, offset);
