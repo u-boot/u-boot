@@ -19,14 +19,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
- * Initialization function which happen at early stage of c code
- */
-int board_early_init_f(void)
-{
-	return 0;
-}
-
-/*
  * Miscellaneous platform dependent initialisations
  */
 int board_init(void)
