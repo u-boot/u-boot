@@ -70,4 +70,6 @@ uint64_t timer_get_tsc(void);
 
 void quick_ram_check(void);
 
+#define PCI_VGA_RAM_IMAGE_START		0xc0000
+
 #endif	/* _U_BOOT_I386_H_ */

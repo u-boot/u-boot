@@ -157,7 +157,13 @@ int pci_rom_load(uint16_t class, struct pci_rom_header *rom_header,
 
 	rom_size = rom_header->size * 512;
 
+#ifdef PCI_VGA_RAM_IMAGE_START
 	target = (void *)PCI_VGA_RAM_IMAGE_START;
+#else
+	target = (void *)malloc(rom_size);
+	if (!target)
+		return -ENOMEM;
+#endif
 	if (target != rom_header) {
 		ulong start = get_timer(0);
 
