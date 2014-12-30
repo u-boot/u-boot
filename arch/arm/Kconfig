@@ -567,6 +567,11 @@ config TARGET_CM_FX6
 	select CPU_V7
 	select SUPPORT_SPL
 
+config TARGET_SOCFPGA_ARRIA5
+	bool "Support socfpga_arria5"
+	select CPU_V7
+	select SUPPORT_SPL
+
 config TARGET_SOCFPGA_CYCLONE5
 	bool "Support socfpga_cyclone5"
 	select CPU_V7
