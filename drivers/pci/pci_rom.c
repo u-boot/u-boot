@@ -66,6 +66,7 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 	struct pci_rom_header *rom_header;
 	struct pci_rom_data *rom_data;
 	u16 vendor, device;
+	u16 rom_vendor, rom_device;
 	u32 vendev;
 	u32 mapped_vendev;
 	u32 rom_address;
@@ -95,25 +96,27 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 	rom_header = (struct pci_rom_header *)rom_address;
 
 	debug("PCI expansion ROM, signature %#04x, INIT size %#04x, data ptr %#04x\n",
-	      le32_to_cpu(rom_header->signature),
-	      rom_header->size * 512, le32_to_cpu(rom_header->data));
+	      le16_to_cpu(rom_header->signature),
+	      rom_header->size * 512, le16_to_cpu(rom_header->data));
 
-	if (le32_to_cpu(rom_header->signature) != PCI_ROM_HDR) {
+	if (le16_to_cpu(rom_header->signature) != PCI_ROM_HDR) {
 		printf("Incorrect expansion ROM header signature %04x\n",
-		       le32_to_cpu(rom_header->signature));
+		       le16_to_cpu(rom_header->signature));
 		return -EINVAL;
 	}
 
-	rom_data = (((void *)rom_header) + le32_to_cpu(rom_header->data));
+	rom_data = (((void *)rom_header) + le16_to_cpu(rom_header->data));
+	rom_vendor = le16_to_cpu(rom_data->vendor);
+	rom_device = le16_to_cpu(rom_data->device);
 
 	debug("PCI ROM image, vendor ID %04x, device ID %04x,\n",
-	      rom_data->vendor, rom_data->device);
+	      rom_vendor, rom_device);
 
 	/* If the device id is mapped, a mismatch is expected */
-	if ((vendor != rom_data->vendor || device != rom_data->device) &&
+	if ((vendor != rom_vendor || device != rom_device) &&
 	    (vendev == mapped_vendev)) {
 		printf("ID mismatch: vendor ID %04x, device ID %04x\n",
-		       rom_data->vendor, rom_data->device);
+		       rom_vendor, rom_device);
 		return -EPERM;
 	}
 
@@ -144,10 +147,10 @@ int pci_rom_load(uint16_t class, struct pci_rom_header *rom_header,
 							    image_size);
 
 		rom_data = (struct pci_rom_data *)((void *)rom_header +
-				le32_to_cpu(rom_header->data));
+				le16_to_cpu(rom_header->data));
 
-		image_size = le32_to_cpu(rom_data->ilen) * 512;
-	} while ((rom_data->type != 0) && (rom_data->indicator != 0));
+		image_size = le16_to_cpu(rom_data->ilen) * 512;
+	} while ((rom_data->type != 0) && (rom_data->indicator == 0));
 
 	if (rom_data->type != 0)
 		return -EACCES;
