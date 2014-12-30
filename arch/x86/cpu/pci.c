@@ -15,6 +15,8 @@
 #include <pci.h>
 #include <asm/pci.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static struct pci_controller x86_hose;
 
 int pci_early_init_hose(struct pci_controller **hosep)
