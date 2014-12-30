@@ -35,10 +35,14 @@ struct __packed screen_info_input {
 struct __packed vbe_info {
 	char signature[4];
 	u16 version;
-	u8 *oem_string_ptr;
+	u32 oem_string_ptr;
 	u32 capabilities;
-	u16 video_mode_list[256];
+	u32 modes_ptr;
 	u16 total_memory;
+	u16 oem_version;
+	u32 vendor_name_ptr;
+	u32 product_name_ptr;
+	u32 product_rev_ptr;
 };
 
 struct __packed vesa_mode_info {
@@ -96,6 +100,7 @@ struct vbe_ddc_info {
 #define VESA_GET_INFO		0x4f00
 #define VESA_GET_MODE_INFO	0x4f01
 #define VESA_SET_MODE		0x4f02
+#define VESA_GET_CUR_MODE	0x4f03
 
 struct graphic_device;
 int vbe_get_video_info(struct graphic_device *gdev);
