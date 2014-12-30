@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <i2c.h>
 #include <lcd.h>
+#include <parade.h>
 #include <spi.h>
 #include <errno.h>
 #include <asm/gpio.h>
@@ -21,24 +22,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_USB_EHCI_EXYNOS
-static int board_usb_vbus_init(void)
-{
-	/* Enable VBUS power switch */
-	gpio_direction_output(EXYNOS5420_GPIO_X26, 1);
-
-	/* VBUS turn ON time */
-	mdelay(3);
-
-	return 0;
-}
-#endif
-
 int exynos_init(void)
 {
-#ifdef CONFIG_USB_EHCI_EXYNOS
-	board_usb_vbus_init();
-#endif
 	return 0;
 }
 

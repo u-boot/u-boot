@@ -63,11 +63,6 @@
 	              reg = <0x20>;
 	              compatible = "maxim,max98090-codec";
 	       };
-
-	        edp-lvds-bridge@48 {
-	                compatible = "parade,ps8625";
-	                reg = <0x48>;
-	        };
 	};
 
         sound@3830000 {

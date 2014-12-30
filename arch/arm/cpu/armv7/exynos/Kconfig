@@ -24,6 +24,10 @@ config TARGET_TRATS2
 config TARGET_ODROID
 	bool "Exynos4412 Odroid board"
 
+config TARGET_ODROID_XU3
+	bool "Exynos5422 Odroid board"
+	select OF_CONTROL
+
 config TARGET_ARNDALE
 	bool "Exynos5250 Arndale board"
 	select CPU_V7_HAS_NONSEC
