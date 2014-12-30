@@ -117,7 +117,7 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 	    (vendev == mapped_vendev)) {
 		printf("ID mismatch: vendor ID %04x, device ID %04x\n",
 		       rom_vendor, rom_device);
-		return -EPERM;
+		/* Continue anyway */
 	}
 
 	debug("PCI ROM image, Class Code %04x%02x, Code Type %02x\n",
