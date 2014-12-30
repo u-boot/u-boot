@@ -4,100 +4,100 @@
 
 /* pin mux configuration data */
 unsigned long sys_mgr_init_table[CONFIG_HPS_PINMUX_NUM] = {
-	0, /* EMACIO0 - Unused */
-	2, /* EMACIO1 - USB */
-	2, /* EMACIO2 - USB */
-	2, /* EMACIO3 - USB */
-	2, /* EMACIO4 - USB */
-	2, /* EMACIO5 - USB */
-	2, /* EMACIO6 - USB */
-	2, /* EMACIO7 - USB */
-	2, /* EMACIO8 - USB */
-	0, /* EMACIO9 - Unused */
-	2, /* EMACIO10 - USB */
-	2, /* EMACIO11 - USB */
-	2, /* EMACIO12 - USB */
-	2, /* EMACIO13 - USB */
-	0, /* EMACIO14 - N/A */
-	0, /* EMACIO15 - N/A */
-	0, /* EMACIO16 - N/A */
-	0, /* EMACIO17 - N/A */
-	0, /* EMACIO18 - N/A */
-	0, /* EMACIO19 - N/A */
-	3, /* FLASHIO0 - SDMMC */
-	3, /* FLASHIO1 - SDMMC */
-	3, /* FLASHIO2 - SDMMC */
-	3, /* FLASHIO3 - SDMMC */
-	0, /* FLASHIO4 - SDMMC */
-	0, /* FLASHIO5 - SDMMC */
-	0, /* FLASHIO6 - SDMMC */
-	0, /* FLASHIO7 - SDMMC */
-	0, /* FLASHIO8 - SDMMC */
-	3, /* FLASHIO9 - SDMMC */
-	3, /* FLASHIO10 - SDMMC */
-	3, /* FLASHIO11 - SDMMC */
-	3, /* GENERALIO0 - TRACE */
-	3, /* GENERALIO1 - TRACE */
-	3, /* GENERALIO2 - TRACE */
-	3, /* GENERALIO3 - TRACE  */
-	3, /* GENERALIO4 - TRACE  */
-	3, /* GENERALIO5 - TRACE  */
-	3, /* GENERALIO6 - TRACE  */
-	3, /* GENERALIO7 - TRACE  */
-	3, /* GENERALIO8 - TRACE  */
-	3, /* GENERALIO9 - SPIM0 */
-	3, /* GENERALIO10 - SPIM0 */
-	3, /* GENERALIO11 - SPIM0 */
-	3, /* GENERALIO12 - SPIM0 */
-	2, /* GENERALIO13 - CAN0 */
-	2, /* GENERALIO14 - CAN0 */
-	3, /* GENERALIO15 - I2C0 */
-	3, /* GENERALIO16 - I2C0 */
-	2, /* GENERALIO17 - UART0 */
-	2, /* GENERALIO18 - UART0 */
-	0, /* GENERALIO19 - N/A */
-	0, /* GENERALIO20 - N/A */
-	0, /* GENERALIO21 - N/A */
-	0, /* GENERALIO22 - N/A */
-	0, /* GENERALIO23 - N/A */
-	0, /* GENERALIO24 - N/A */
-	0, /* GENERALIO25 - N/A */
-	0, /* GENERALIO26 - N/A */
-	0, /* GENERALIO27 - N/A */
-	0, /* GENERALIO28 - N/A */
-	0, /* GENERALIO29 - N/A */
-	0, /* GENERALIO30 - N/A */
-	0, /* GENERALIO31 - N/A */
-	2, /* MIXED1IO0 - EMAC */
-	2, /* MIXED1IO1 - EMAC */
-	2, /* MIXED1IO2 - EMAC */
-	2, /* MIXED1IO3 - EMAC */
-	2, /* MIXED1IO4 - EMAC */
-	2, /* MIXED1IO5 - EMAC */
-	2, /* MIXED1IO6 - EMAC */
-	2, /* MIXED1IO7 - EMAC */
-	2, /* MIXED1IO8 - EMAC */
-	2, /* MIXED1IO9 - EMAC */
-	2, /* MIXED1IO10 - EMAC */
-	2, /* MIXED1IO11 - EMAC */
-	2, /* MIXED1IO12 - EMAC */
-	2, /* MIXED1IO13 - EMAC */
-	0, /* MIXED1IO14 - Unused */
-	3, /* MIXED1IO15 - QSPI */
-	3, /* MIXED1IO16 - QSPI */
-	3, /* MIXED1IO17 - QSPI */
-	3, /* MIXED1IO18 - QSPI */
-	3, /* MIXED1IO19 - QSPI */
-	3, /* MIXED1IO20 - QSPI */
-	0, /* MIXED1IO21 - GPIO */
-	0, /* MIXED2IO0 - N/A */
-	0, /* MIXED2IO1 - N/A */
-	0, /* MIXED2IO2 - N/A */
-	0, /* MIXED2IO3 - N/A */
-	0, /* MIXED2IO4 - N/A */
-	0, /* MIXED2IO5 - N/A */
-	0, /* MIXED2IO6 - N/A */
-	0, /* MIXED2IO7 - N/A */
+	3, /* EMACIO0 */
+	3, /* EMACIO1 */
+	3, /* EMACIO2 */
+	3, /* EMACIO3 */
+	3, /* EMACIO4 */
+	3, /* EMACIO5 */
+	3, /* EMACIO6 */
+	3, /* EMACIO7 */
+	3, /* EMACIO8 */
+	3, /* EMACIO9 */
+	3, /* EMACIO10 */
+	3, /* EMACIO11 */
+	3, /* EMACIO12 */
+	3, /* EMACIO13 */
+	0, /* EMACIO14 */
+	0, /* EMACIO15 */
+	0, /* EMACIO16 */
+	0, /* EMACIO17 */
+	0, /* EMACIO18 */
+	0, /* EMACIO19 */
+	3, /* FLASHIO0 */
+	0, /* FLASHIO1 */
+	3, /* FLASHIO2 */
+	3, /* FLASHIO3 */
+	3, /* FLASHIO4 */
+	3, /* FLASHIO5 */
+	3, /* FLASHIO6 */
+	3, /* FLASHIO7 */
+	0, /* FLASHIO8 */
+	3, /* FLASHIO9 */
+	3, /* FLASHIO10 */
+	3, /* FLASHIO11 */
+	0, /* GENERALIO0 */
+	1, /* GENERALIO1 */
+	1, /* GENERALIO2 */
+	0, /* GENERALIO3 */
+	0, /* GENERALIO4 */
+	1, /* GENERALIO5 */
+	1, /* GENERALIO6 */
+	1, /* GENERALIO7 */
+	1, /* GENERALIO8 */
+	0, /* GENERALIO9 */
+	0, /* GENERALIO10 */
+	0, /* GENERALIO11 */
+	0, /* GENERALIO12 */
+	2, /* GENERALIO13 */
+	2, /* GENERALIO14 */
+	0, /* GENERALIO15 */
+	0, /* GENERALIO16 */
+	0, /* GENERALIO17 */
+	0, /* GENERALIO18 */
+	0, /* GENERALIO19 */
+	0, /* GENERALIO20 */
+	0, /* GENERALIO21 */
+	0, /* GENERALIO22 */
+	0, /* GENERALIO23 */
+	0, /* GENERALIO24 */
+	0, /* GENERALIO25 */
+	0, /* GENERALIO26 */
+	0, /* GENERALIO27 */
+	0, /* GENERALIO28 */
+	0, /* GENERALIO29 */
+	0, /* GENERALIO30 */
+	0, /* GENERALIO31 */
+	0, /* MIXED1IO0 */
+	1, /* MIXED1IO1 */
+	1, /* MIXED1IO2 */
+	1, /* MIXED1IO3 */
+	1, /* MIXED1IO4 */
+	0, /* MIXED1IO5 */
+	0, /* MIXED1IO6 */
+	0, /* MIXED1IO7 */
+	1, /* MIXED1IO8 */
+	1, /* MIXED1IO9 */
+	1, /* MIXED1IO10 */
+	1, /* MIXED1IO11 */
+	0, /* MIXED1IO12 */
+	0, /* MIXED1IO13 */
+	0, /* MIXED1IO14 */
+	1, /* MIXED1IO15 */
+	1, /* MIXED1IO16 */
+	1, /* MIXED1IO17 */
+	1, /* MIXED1IO18 */
+	0, /* MIXED1IO19 */
+	0, /* MIXED1IO20 */
+	0, /* MIXED1IO21 */
+	0, /* MIXED2IO0 */
+	0, /* MIXED2IO1 */
+	0, /* MIXED2IO2 */
+	0, /* MIXED2IO3 */
+	0, /* MIXED2IO4 */
+	0, /* MIXED2IO5 */
+	0, /* MIXED2IO6 */
+	0, /* MIXED2IO7 */
 	0, /* GPLINMUX48 */
 	0, /* GPLINMUX49 */
 	0, /* GPLINMUX50 */
