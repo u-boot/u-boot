@@ -3,8 +3,7 @@
 		compatible = "x86-uart";
 		reg = <0x3f8 8>;
 		reg-shift = <0>;
-		io-mapped = <1>;
-		multiplier = <1>;
-		baudrate = <115200>;
+		clock-frequency = <1843200>;
+		current-speed = <115200>;
 	};
 };
