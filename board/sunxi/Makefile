@@ -22,6 +22,7 @@ obj-$(CONFIG_TARGET_A20_OLINUXINO_M)	+= dram_sun7i_384_1024_iow16.o
 obj-$(CONFIG_TARGET_AUXTEK_T004)	+= dram_a10s_olinuxino_m.o
 obj-$(CONFIG_TARGET_BA10_TV_BOX)	+= dram_sun4i_384_1024_iow8.o
 obj-$(CONFIG_TARGET_BANANAPI)		+= dram_bananapi.o
+obj-$(CONFIG_TARGET_BANANAPRO)		+= dram_bananapi.o
 obj-$(CONFIG_TARGET_CUBIEBOARD)		+= dram_cubieboard.o
 obj-$(CONFIG_TARGET_CUBIEBOARD2)	+= dram_cubieboard2.o
 obj-$(CONFIG_TARGET_CUBIETRUCK)		+= dram_cubietruck.o

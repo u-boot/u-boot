@@ -23,6 +23,7 @@ F:	configs/Mele_M9_defconfig
 F:	include/configs/sun7i.h
 F:	configs/A20-OLinuXino_MICRO_defconfig
 F:	configs/Bananapi_defconfig
+F:	configs/Bananapro_defconfig
 F:	configs/i12-tvbox_defconfig
 F:	configs/Linksprite_pcDuino3_defconfig
 F:	configs/Linksprite_pcDuino3_fdt_defconfig

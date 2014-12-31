@@ -34,7 +34,7 @@ int sunxi_gmac_initialize(bd_t *bis)
 	 * need to set bits 10-12 GTXDC "GMAC Transmit Clock Delay Chain"
 	 * of the GMAC clk register to 3.
 	 */
-#ifdef CONFIG_TARGET_BANANAPI
+#if defined CONFIG_TARGET_BANANAPI || defined CONFIG_TARGET_BANANAPRO
 	setbits_le32(&ccm->gmac_clk_cfg, 0x3 << 10);
 #endif
 
