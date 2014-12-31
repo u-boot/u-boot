@@ -29,19 +29,19 @@
 #define SEQID_PP		6
 #define SEQID_RDID		7
 
-/* Flash opcodes */
-#define OPCODE_PP		0x02	/* Page program (up to 256 bytes) */
-#define OPCODE_RDSR		0x05	/* Read status register */
-#define OPCODE_WREN		0x06	/* Write enable */
-#define OPCODE_FAST_READ	0x0b	/* Read data bytes (high frequency) */
-#define OPCODE_CHIP_ERASE	0xc7	/* Erase whole flash chip */
-#define OPCODE_SE		0xd8	/* Sector erase (usually 64KiB) */
-#define OPCODE_RDID		0x9f	/* Read JEDEC ID */
+/* QSPI CMD */
+#define QSPI_CMD_PP		0x02	/* Page program (up to 256 bytes) */
+#define QSPI_CMD_RDSR		0x05	/* Read status register */
+#define QSPI_CMD_WREN		0x06	/* Write enable */
+#define QSPI_CMD_FAST_READ	0x0b	/* Read data bytes (high frequency) */
+#define QSPI_CMD_CHIP_ERASE	0xc7	/* Erase whole flash chip */
+#define QSPI_CMD_SE		0xd8	/* Sector erase (usually 64KiB) */
+#define QSPI_CMD_RDID		0x9f	/* Read JEDEC ID */
 
-/* 4-byte address opcodes - used on Spansion and some Macronix flashes */
-#define OPCODE_FAST_READ_4B	0x0c    /* Read data bytes (high frequency) */
-#define OPCODE_PP_4B		0x12    /* Page program (up to 256 bytes) */
-#define OPCODE_SE_4B		0xdc    /* Sector erase (usually 64KiB) */
+/* 4-byte address QSPI CMD - used on Spansion and some Macronix flashes */
+#define QSPI_CMD_FAST_READ_4B	0x0c    /* Read data bytes (high frequency) */
+#define QSPI_CMD_PP_4B		0x12    /* Page program (up to 256 bytes) */
+#define QSPI_CMD_SE_4B		0xdc    /* Sector erase (usually 64KiB) */
 
 #ifdef CONFIG_SYS_FSL_QSPI_LE
 #define qspi_read32		in_le32
@@ -94,7 +94,7 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 
 	/* Write Enable */
 	lut_base = SEQID_WREN * 4;
-	qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_WREN) |
+	qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_WREN) |
 		PAD0(LUT_PAD1) | INSTR0(LUT_CMD));
 	qspi_write32(&regs->lut[lut_base + 1], 0);
 	qspi_write32(&regs->lut[lut_base + 2], 0);
@@ -103,13 +103,15 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 	/* Fast Read */
 	lut_base = SEQID_FAST_READ * 4;
 	if (FSL_QSPI_FLASH_SIZE  <= SZ_16M)
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_FAST_READ) |
+		qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_FAST_READ) |
 			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR24BIT) |
 			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 	else
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_FAST_READ_4B) |
-			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR32BIT) |
-			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
+		qspi_write32(&regs->lut[lut_base],
+			     OPRND0(QSPI_CMD_FAST_READ_4B) |
+			     PAD0(LUT_PAD1) | INSTR0(LUT_CMD) |
+			     OPRND1(ADDR32BIT) | PAD1(LUT_PAD1) |
+			     INSTR1(LUT_ADDR));
 	qspi_write32(&regs->lut[lut_base + 1], OPRND0(8) | PAD0(LUT_PAD1) |
 		INSTR0(LUT_DUMMY) | OPRND1(RX_BUFFER_SIZE) | PAD1(LUT_PAD1) |
 		INSTR1(LUT_READ));
@@ -118,7 +120,7 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 
 	/* Read Status */
 	lut_base = SEQID_RDSR * 4;
-	qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_RDSR) |
+	qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_RDSR) |
 		PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(1) |
 		PAD1(LUT_PAD1) | INSTR1(LUT_READ));
 	qspi_write32(&regs->lut[lut_base + 1], 0);
@@ -128,11 +130,11 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 	/* Erase a sector */
 	lut_base = SEQID_SE * 4;
 	if (FSL_QSPI_FLASH_SIZE  <= SZ_16M)
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_SE) |
+		qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_SE) |
 			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR24BIT) |
 			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 	else
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_SE_4B) |
+		qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_SE_4B) |
 			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR32BIT) |
 			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 	qspi_write32(&regs->lut[lut_base + 1], 0);
@@ -141,7 +143,7 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 
 	/* Erase the whole chip */
 	lut_base = SEQID_CHIP_ERASE * 4;
-	qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_CHIP_ERASE) |
+	qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_CHIP_ERASE) |
 		PAD0(LUT_PAD1) | INSTR0(LUT_CMD));
 	qspi_write32(&regs->lut[lut_base + 1], 0);
 	qspi_write32(&regs->lut[lut_base + 2], 0);
@@ -150,11 +152,11 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 	/* Page Program */
 	lut_base = SEQID_PP * 4;
 	if (FSL_QSPI_FLASH_SIZE  <= SZ_16M)
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_PP) |
+		qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_PP) |
 			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR24BIT) |
 			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 	else
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_PP_4B) |
+		qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_PP_4B) |
 			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR32BIT) |
 			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 	qspi_write32(&regs->lut[lut_base + 1], OPRND0(TX_BUFFER_SIZE) |
@@ -164,7 +166,7 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 
 	/* READ ID */
 	lut_base = SEQID_RDID * 4;
-	qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_RDID) |
+	qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_RDID) |
 		PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(8) |
 		PAD1(LUT_PAD1) | INSTR1(LUT_READ));
 	qspi_write32(&regs->lut[lut_base + 1], 0);
@@ -454,22 +456,22 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 			return 0;
 		}
 
-		if (qspi->cur_seqid == OPCODE_FAST_READ) {
+		if (qspi->cur_seqid == QSPI_CMD_FAST_READ) {
 			qspi->sf_addr = swab32(txbuf) & OFFSET_BITS_MASK;
-		} else if (qspi->cur_seqid == OPCODE_SE) {
+		} else if (qspi->cur_seqid == QSPI_CMD_SE) {
 			qspi->sf_addr = swab32(txbuf) & OFFSET_BITS_MASK;
 			qspi_op_se(qspi);
-		} else if (qspi->cur_seqid == OPCODE_PP) {
+		} else if (qspi->cur_seqid == QSPI_CMD_PP) {
 			pp_sfaddr = swab32(txbuf) & OFFSET_BITS_MASK;
 		}
 	}
 
 	if (din) {
-		if (qspi->cur_seqid == OPCODE_FAST_READ)
+		if (qspi->cur_seqid == QSPI_CMD_FAST_READ)
 			qspi_op_read(qspi, din, bytes);
-		else if (qspi->cur_seqid == OPCODE_RDID)
+		else if (qspi->cur_seqid == QSPI_CMD_RDID)
 			qspi_op_rdid(qspi, din, bytes);
-		else if (qspi->cur_seqid == OPCODE_RDSR)
+		else if (qspi->cur_seqid == QSPI_CMD_RDSR)
 			qspi_op_rdsr(qspi, din);
 	}
 
