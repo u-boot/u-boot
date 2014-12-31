@@ -194,12 +194,22 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (bus >= ARRAY_SIZE(spi_bases))
 		return NULL;
 
+	if (cs >= FSL_QSPI_FLASH_NUM)
+		return NULL;
+
 	qspi = spi_alloc_slave(struct fsl_qspi, bus, cs);
 	if (!qspi)
 		return NULL;
 
 	qspi->reg_base = spi_bases[bus];
-	qspi->amba_base = amba_bases[bus];
+	/*
+	 * According cs, use different amba_base to choose the
+	 * corresponding flash devices.
+	 *
+	 * If not, only one flash device is used even if passing
+	 * different cs using `sf probe`
+	 */
+	qspi->amba_base = amba_bases[bus] + cs * FSL_QSPI_FLASH_SIZE;
 
 	qspi->slave.max_write_size = TX_BUFFER_SIZE;
 
@@ -212,10 +222,20 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	qspi_write32(&regs->mcr, QSPI_MCR_RESERVED_MASK);
 
 	total_size = FSL_QSPI_FLASH_SIZE * FSL_QSPI_FLASH_NUM;
-	qspi_write32(&regs->sfa1ad, FSL_QSPI_FLASH_SIZE | qspi->amba_base);
-	qspi_write32(&regs->sfa2ad, FSL_QSPI_FLASH_SIZE | qspi->amba_base);
-	qspi_write32(&regs->sfb1ad, total_size | qspi->amba_base);
-	qspi_write32(&regs->sfb2ad, total_size | qspi->amba_base);
+	/*
+	 * Any read access to non-implemented addresses will provide
+	 * undefined results.
+	 *
+	 * In case single die flash devices, TOP_ADDR_MEMA2 and
+	 * TOP_ADDR_MEMB2 should be initialized/programmed to
+	 * TOP_ADDR_MEMA1 and TOP_ADDR_MEMB1 respectively - in effect,
+	 * setting the size of these devices to 0.  This would ensure
+	 * that the complete memory map is assigned to only one flash device.
+	 */
+	qspi_write32(&regs->sfa1ad, FSL_QSPI_FLASH_SIZE | amba_bases[bus]);
+	qspi_write32(&regs->sfa2ad, FSL_QSPI_FLASH_SIZE | amba_bases[bus]);
+	qspi_write32(&regs->sfb1ad, total_size | amba_bases[bus]);
+	qspi_write32(&regs->sfb2ad, total_size | amba_bases[bus]);
 
 	qspi_set_lut(qspi);
 
