@@ -25,6 +25,7 @@
 #define CONFIG_CMD_GPIO
 #define CONFIG_CM_T3X	/* working with CM-T35 and CM-T3730 */
 #define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
