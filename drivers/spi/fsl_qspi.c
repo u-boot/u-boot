@@ -32,12 +32,14 @@
 #define SEQID_CHIP_ERASE	5
 #define SEQID_PP		6
 #define SEQID_RDID		7
+#define SEQID_BE_4K		8
 
 /* QSPI CMD */
 #define QSPI_CMD_PP		0x02	/* Page program (up to 256 bytes) */
 #define QSPI_CMD_RDSR		0x05	/* Read status register */
 #define QSPI_CMD_WREN		0x06	/* Write enable */
 #define QSPI_CMD_FAST_READ	0x0b	/* Read data bytes (high frequency) */
+#define QSPI_CMD_BE_4K		0x20    /* 4K erase */
 #define QSPI_CMD_CHIP_ERASE	0xc7	/* Erase whole flash chip */
 #define QSPI_CMD_SE		0xd8	/* Sector erase (usually 64KiB) */
 #define QSPI_CMD_RDID		0x9f	/* Read JEDEC ID */
@@ -191,6 +193,12 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 	qspi_write32(&regs->lut[lut_base + 1], 0);
 	qspi_write32(&regs->lut[lut_base + 2], 0);
 	qspi_write32(&regs->lut[lut_base + 3], 0);
+
+	/* SUB SECTOR 4K ERASE */
+	lut_base = SEQID_BE_4K * 4;
+	qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_BE_4K) |
+		     PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR24BIT) |
+		     PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 
 	/* Lock the LUT */
 	qspi_write32(&regs->lutkey, LUT_KEY_VALUE);
@@ -450,7 +458,7 @@ static void qspi_op_rdsr(struct fsl_qspi *qspi, u32 *rxbuf)
 	qspi_write32(&regs->mcr, mcr_reg);
 }
 
-static void qspi_op_se(struct fsl_qspi *qspi)
+static void qspi_op_erase(struct fsl_qspi *qspi)
 {
 	struct fsl_qspi_regs *regs = (struct fsl_qspi_regs *)qspi->reg_base;
 	u32 mcr_reg;
@@ -469,8 +477,13 @@ static void qspi_op_se(struct fsl_qspi *qspi)
 	while (qspi_read32(&regs->sr) & QSPI_SR_BUSY_MASK)
 		;
 
-	qspi_write32(&regs->ipcr,
-		(SEQID_SE << QSPI_IPCR_SEQID_SHIFT) | 0);
+	if (qspi->cur_seqid == QSPI_CMD_SE) {
+		qspi_write32(&regs->ipcr,
+			     (SEQID_SE << QSPI_IPCR_SEQID_SHIFT) | 0);
+	} else if (qspi->cur_seqid == QSPI_CMD_BE_4K) {
+		qspi_write32(&regs->ipcr,
+			     (SEQID_BE_4K << QSPI_IPCR_SEQID_SHIFT) | 0);
+	}
 	while (qspi_read32(&regs->sr) & QSPI_SR_BUSY_MASK)
 		;
 
@@ -497,9 +510,10 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 
 		if (qspi->cur_seqid == QSPI_CMD_FAST_READ) {
 			qspi->sf_addr = swab32(txbuf) & OFFSET_BITS_MASK;
-		} else if (qspi->cur_seqid == QSPI_CMD_SE) {
+		} else if ((qspi->cur_seqid == QSPI_CMD_SE) ||
+			   (qspi->cur_seqid == QSPI_CMD_BE_4K)) {
 			qspi->sf_addr = swab32(txbuf) & OFFSET_BITS_MASK;
-			qspi_op_se(qspi);
+			qspi_op_erase(qspi);
 		} else if (qspi->cur_seqid == QSPI_CMD_PP) {
 			pp_sfaddr = swab32(txbuf) & OFFSET_BITS_MASK;
 		}
