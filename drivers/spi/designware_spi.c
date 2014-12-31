@@ -409,7 +409,7 @@ static const struct dm_spi_ops dw_spi_ops = {
 };
 
 static const struct udevice_id dw_spi_ids[] = {
-	{ .compatible = "snps,dw-spi-mmio" },
+	{ .compatible = "snps,dw-apb-ssi" },
 	{ }
 };
 
