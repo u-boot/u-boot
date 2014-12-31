@@ -371,6 +371,42 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
+#ifdef CONFIG_FSL_QSPI
+
+#define QSPI_PAD_CTRL1	\
+	(PAD_CTL_SRE_FAST | PAD_CTL_SPEED_HIGH | \
+	 PAD_CTL_PKE | PAD_CTL_PUE | PAD_CTL_PUS_47K_UP | PAD_CTL_DSE_40ohm)
+
+static iomux_v3_cfg_t const quadspi_pads[] = {
+	MX6_PAD_NAND_WP_B__QSPI2_A_DATA_0	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_READY_B__QSPI2_A_DATA_1	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_CE0_B__QSPI2_A_DATA_2	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_CE1_B__QSPI2_A_DATA_3	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_ALE__QSPI2_A_SS0_B		| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_CLE__QSPI2_A_SCLK		| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_DATA07__QSPI2_A_DQS	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_DATA01__QSPI2_B_DATA_0	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_DATA00__QSPI2_B_DATA_1	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_WE_B__QSPI2_B_DATA_2	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_RE_B__QSPI2_B_DATA_3	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_DATA03__QSPI2_B_SS0_B	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_DATA02__QSPI2_B_SCLK	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+	MX6_PAD_NAND_DATA05__QSPI2_B_DQS	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
+};
+
+int board_qspi_init(void)
+{
+	/* Set the iomux */
+	imx_iomux_v3_setup_multiple_pads(quadspi_pads,
+					 ARRAY_SIZE(quadspi_pads));
+
+	/* Set the clock */
+	enable_qspi_clk(1);
+
+	return 0;
+}
+#endif
+
 int board_init(void)
 {
 	/* Address of boot parameters */
@@ -378,6 +414,10 @@ int board_init(void)
 
 #ifdef CONFIG_SYS_I2C_MXC
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+#endif
+
+#ifdef CONFIG_FSL_QSPI
+	board_qspi_init();
 #endif
 
 	return 0;

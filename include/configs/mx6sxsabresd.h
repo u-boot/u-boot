@@ -235,6 +235,18 @@
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
 
+#define CONFIG_FSL_QSPI
+
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SYS_FSL_QSPI_LE
+#define FSL_QSPI_FLASH_SIZE		SZ_16M
+#define FSL_QSPI_FLASH_NUM		2
+#endif
+
 #define CONFIG_ENV_OFFSET		(6 * SZ_64K)
 #define CONFIG_ENV_SIZE			SZ_8K
 #define CONFIG_ENV_IS_IN_MMC
