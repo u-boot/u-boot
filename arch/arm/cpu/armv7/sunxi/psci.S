@@ -62,46 +62,6 @@
 	isb
 .endm
 
-.globl	psci_arch_init
-psci_arch_init:
-	movw	r4, #(GICD_BASE & 0xffff)
-	movt	r4, #(GICD_BASE >> 16)
-
-	ldr	r5, [r4, #GICD_IGROUPRn]
-	bic	r5, r5, #(1 << 15) 	@ SGI15 as Group-0
-	str	r5, [r4, #GICD_IGROUPRn]
-
-	mov	r5, #0			@ Set SGI15 priority to 0
-	strb	r5, [r4, #(GICD_IPRIORITYRn + 15)]
-
-	add	r4, r4, #0x1000		@ GICC address
-
-	mov	r5, #0xff
-	str	r5, [r4, #GICC_PMR]	@ Be cool with non-secure
-
-	ldr	r5, [r4, #GICC_CTLR]
-	orr	r5, r5, #(1 << 3)	@ Switch FIQEn on
-	str	r5, [r4, #GICC_CTLR]
-
-	mrc	p15, 0, r5, c1, c1, 0	@ Read SCR
-	orr	r5, r5, #4		@ Enable FIQ in monitor mode
-	bic	r5, r5, #1		@ Secure mode
-	mcr	p15, 0, r5, c1, c1, 0	@ Write SCR
-	isb
-
-	mrc	p15, 0, r4, c0, c0, 5	@ MPIDR
-	and	r4, r4, #3		@ cpu number in cluster
-	mov	r5, #0x400		@ 1kB of stack per CPU
-	mul	r4, r4, r5
-
-	adr	r5, text_end		@ end of text
-	add	r5, r5, #0x2000		@ Skip two pages
-	lsr	r5, r5, #12		@ Align to start of page
-	lsl	r5, r5, #12
-	sub	sp, r5, r4		@ here's our stack!
-
-	bx	lr
-
 .globl	psci_fiq_enter
 psci_fiq_enter:
 	push	{r0-r12}
@@ -328,6 +288,46 @@ psci_cpu_off:
 
 1:	wfi
 	b	1b
+
+.globl	psci_arch_init
+psci_arch_init:
+	movw	r4, #(GICD_BASE & 0xffff)
+	movt	r4, #(GICD_BASE >> 16)
+
+	ldr	r5, [r4, #GICD_IGROUPRn]
+	bic	r5, r5, #(1 << 15) 	@ SGI15 as Group-0
+	str	r5, [r4, #GICD_IGROUPRn]
+
+	mov	r5, #0			@ Set SGI15 priority to 0
+	strb	r5, [r4, #(GICD_IPRIORITYRn + 15)]
+
+	add	r4, r4, #0x1000		@ GICC address
+
+	mov	r5, #0xff
+	str	r5, [r4, #GICC_PMR]	@ Be cool with non-secure
+
+	ldr	r5, [r4, #GICC_CTLR]
+	orr	r5, r5, #(1 << 3)	@ Switch FIQEn on
+	str	r5, [r4, #GICC_CTLR]
+
+	mrc	p15, 0, r5, c1, c1, 0	@ Read SCR
+	orr	r5, r5, #4		@ Enable FIQ in monitor mode
+	bic	r5, r5, #1		@ Secure mode
+	mcr	p15, 0, r5, c1, c1, 0	@ Write SCR
+	isb
+
+	mrc	p15, 0, r4, c0, c0, 5	@ MPIDR
+	and	r4, r4, #3		@ cpu number in cluster
+	mov	r5, #0x400		@ 1kB of stack per CPU
+	mul	r4, r4, r5
+
+	adr	r5, text_end		@ end of text
+	add	r5, r5, #0x2000		@ Skip two pages
+	lsr	r5, r5, #12		@ Align to start of page
+	lsl	r5, r5, #12
+	sub	sp, r5, r4		@ here's our stack!
+
+	bx	lr
 
 text_end:
 	.popsection
