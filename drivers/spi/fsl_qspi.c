@@ -14,7 +14,11 @@
 #include "fsl_qspi.h"
 
 #define RX_BUFFER_SIZE		0x80
+#ifdef CONFIG_MX6SX
+#define TX_BUFFER_SIZE		0x200
+#else
 #define TX_BUFFER_SIZE		0x40
+#endif
 
 #define OFFSET_BITS_MASK	0x00ffffff
 
@@ -53,10 +57,16 @@
 
 static unsigned long spi_bases[] = {
 	QSPI0_BASE_ADDR,
+#ifdef CONFIG_MX6SX
+	QSPI1_BASE_ADDR,
+#endif
 };
 
 static unsigned long amba_bases[] = {
 	QSPI0_AMBA_BASE,
+#ifdef CONFIG_MX6SX
+	QSPI1_AMBA_BASE,
+#endif
 };
 
 struct fsl_qspi {
@@ -159,8 +169,17 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 		qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_PP_4B) |
 			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR32BIT) |
 			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
+#ifdef CONFIG_MX6SX
+	/*
+	 * To MX6SX, OPRND0(TX_BUFFER_SIZE) can not work correctly.
+	 * So, Use IDATSZ in IPCR to determine the size and here set 0.
+	 */
+	qspi_write32(&regs->lut[lut_base + 1], OPRND0(0) |
+		     PAD0(LUT_PAD1) | INSTR0(LUT_WRITE));
+#else
 	qspi_write32(&regs->lut[lut_base + 1], OPRND0(TX_BUFFER_SIZE) |
 		PAD0(LUT_PAD1) | INSTR0(LUT_WRITE));
+#endif
 	qspi_write32(&regs->lut[lut_base + 2], 0);
 	qspi_write32(&regs->lut[lut_base + 3], 0);
 

@@ -92,10 +92,10 @@
 #define AIPS3_END_ADDR			0x022FFFFF
 #define WEIM_ARB_BASE_ADDR              0x50000000
 #define WEIM_ARB_END_ADDR               0x57FFFFFF
-#define QSPI1_ARB_BASE_ADDR             0x60000000
-#define QSPI1_ARB_END_ADDR              0x6FFFFFFF
-#define QSPI2_ARB_BASE_ADDR             0x70000000
-#define QSPI2_ARB_END_ADDR              0x7FFFFFFF
+#define QSPI0_AMBA_BASE                0x60000000
+#define QSPI0_AMBA_END                 0x6FFFFFFF
+#define QSPI1_AMBA_BASE                0x70000000
+#define QSPI1_AMBA_END                 0x7FFFFFFF
 #else
 #define SATA_ARB_BASE_ADDR              0x02200000
 #define SATA_ARB_END_ADDR               0x02203FFF
@@ -262,8 +262,8 @@
 #define AUDMUX_BASE_ADDR            (AIPS2_OFF_BASE_ADDR + 0x58000)
 #ifdef CONFIG_MX6SX
 #define SAI2_BASE_ADDR              (AIPS2_OFF_BASE_ADDR + 0x5C000)
-#define QSPI1_BASE_ADDR             (AIPS2_OFF_BASE_ADDR + 0x60000)
-#define QSPI2_BASE_ADDR             (AIPS2_OFF_BASE_ADDR + 0x64000)
+#define QSPI0_BASE_ADDR             (AIPS2_OFF_BASE_ADDR + 0x60000)
+#define QSPI1_BASE_ADDR             (AIPS2_OFF_BASE_ADDR + 0x64000)
 #else
 #define MIPI_CSI2_BASE_ADDR         (AIPS2_OFF_BASE_ADDR + 0x5C000)
 #define MIPI_DSI_BASE_ADDR          (AIPS2_OFF_BASE_ADDR + 0x60000)
