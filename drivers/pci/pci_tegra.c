@@ -458,6 +458,7 @@ static int tegra_pcie_parse_port_info(const void *fdt, int node,
 				      unsigned int *index,
 				      unsigned int *lanes)
 {
+	struct fdt_pci_addr addr;
 	pci_dev_t bdf;
 	int err;
 
@@ -469,7 +470,7 @@ static int tegra_pcie_parse_port_info(const void *fdt, int node,
 
 	*lanes = err;
 
-	err = fdtdec_pci_get_bdf(fdt, node, &bdf);
+	err = fdtdec_get_pci_bdf(fdt, node, &addr, &bdf);
 	if (err < 0) {
 		error("failed to parse \"reg\" property");
 		return err;
