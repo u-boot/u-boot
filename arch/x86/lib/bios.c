@@ -207,12 +207,14 @@ static u8 vbe_get_mode_info(struct vbe_mode_info *mi)
 
 static u8 vbe_set_mode(struct vbe_mode_info *mi)
 {
-	debug("VBE: Setting VESA mode %#04x\n", mi->video_mode);
+	int video_mode = mi->video_mode;
+
+	debug("VBE: Setting VESA mode %#04x\n", video_mode);
 	/* request linear framebuffer mode */
-	mi->video_mode |= (1 << 14);
+	video_mode |= (1 << 14);
 	/* don't clear the framebuffer, we do that later */
-	mi->video_mode |= (1 << 15);
-	realmode_interrupt(0x10, VESA_SET_MODE, mi->video_mode,
+	video_mode |= (1 << 15);
+	realmode_interrupt(0x10, VESA_SET_MODE, video_mode,
 			   0x0000, 0x0000, 0x0000, 0x0000);
 
 	return 0;
@@ -236,6 +238,7 @@ static void vbe_set_graphics(int vesa_mode, struct vbe_mode_info *mode_info)
 		return;
 	}
 
+	mode_info->video_mode &= 0x3ff;
 	vbe_set_mode(mode_info);
 }
 
