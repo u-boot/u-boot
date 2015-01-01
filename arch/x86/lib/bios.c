@@ -210,8 +210,8 @@ static u8 vbe_set_mode(struct vbe_mode_info *mi)
 	debug("VBE: Setting VESA mode %#04x\n", mi->video_mode);
 	/* request linear framebuffer mode */
 	mi->video_mode |= (1 << 14);
-	/* request clearing of framebuffer */
-	mi->video_mode &= ~(1 << 15);
+	/* don't clear the framebuffer, we do that later */
+	mi->video_mode |= (1 << 15);
 	realmode_interrupt(0x10, VESA_SET_MODE, mi->video_mode,
 			   0x0000, 0x0000, 0x0000, 0x0000);
 
@@ -262,7 +262,6 @@ void bios_run_on_x86(pci_dev_t pcidev, unsigned long addr, int vesa_mode,
 	/* Make sure the code is placed. */
 	setup_realmode_code();
 
-	disable_caches();
 	debug("Calling Option ROM at %lx, pci device %#x...", addr, num_dev);
 
 	/* Option ROM entry point is at OPROM start + 3 */
