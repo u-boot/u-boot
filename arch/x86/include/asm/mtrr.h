@@ -100,10 +100,6 @@ static inline long x86_mtrr_rom_cache_var_index(void) { return -1; }
 
 #endif
 
-#if !defined(CONFIG_RAMTOP)
-# error "CONFIG_RAMTOP not defined"
-#endif
-
 #if ((CONFIG_XIP_ROM_SIZE & (CONFIG_XIP_ROM_SIZE - 1)) != 0)
 # error "CONFIG_XIP_ROM_SIZE is not a power of 2"
 #endif
@@ -113,9 +109,5 @@ static inline long x86_mtrr_rom_cache_var_index(void) { return -1; }
 #endif
 
 #define CACHE_ROM_BASE	(((1 << 20) - (CONFIG_CACHE_ROM_SIZE >> 12)) << 12)
-
-#if (CONFIG_RAMTOP & (CONFIG_RAMTOP - 1)) != 0
-# error "CONFIG_RAMTOP must be a power of 2"
-#endif
 
 #endif

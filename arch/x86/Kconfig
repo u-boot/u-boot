@@ -47,10 +47,6 @@ config RAMBASE
 	hex
 	default 0x100000
 
-config RAMTOP
-	hex
-	default 0x200000
-
 config XIP_ROM_SIZE
 	hex
 	default ROM_SIZE
