@@ -12,9 +12,11 @@
  */
 
 #include <common.h>
+#include <asm/msr-index.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>
 #include <asm/processor-flags.h>
+#include <asm/arch/microcode.h>
 
 #define MTRR_PHYS_BASE_MSR(reg) (0x200 + 2 * (reg))
 #define MTRR_PHYS_MASK_MSR(reg) (0x200 + 2 * (reg) + 1)
@@ -44,6 +46,14 @@ car_init:
 	movl	$0x000C4500, %eax
 	movl	$0xFEE00300, %esi
 	movl	%eax, (%esi)
+
+	/* TODO: Load microcode later - the 'no eviction' mode breaks this */
+	movl	$MSR_IA32_UCODE_WRITE, %ecx
+	xorl	%edx, %edx
+	movl	$_dt_ucode_base_size, %eax
+	movl	(%eax), %eax
+	addl	$UCODE_HEADER_LEN, %eax
+	wrmsr
 
 	post_code(POST_CAR_SIPI)
 	/* Zero out all fixed range and variable range MTRRs */
@@ -222,3 +232,9 @@ mtrr_table:
 	.word 0x20C, 0x20D, 0x20E, 0x20F
 	.word 0x210, 0x211, 0x212, 0x213
 mtrr_table_end:
+
+	.align 4
+_dt_ucode_base_size:
+	/* These next two fields are filled in by ifdtool */
+	.long	0			/* microcode base */
+	.long	0			/* microcode size */

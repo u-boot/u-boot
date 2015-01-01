@@ -263,7 +263,7 @@ int print_cpuinfo(void)
 	enable_lapic();
 
 	ret = microcode_update_intel();
-	if (ret && ret != -ENOENT && ret != -EEXIST)
+	if (ret)
 		return ret;
 
 	/* Enable upper 128bytes of CMOS */
