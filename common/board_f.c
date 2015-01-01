@@ -985,6 +985,11 @@ static init_fnc_t init_sequence_f[] = {
 	INIT_FUNC_WATCHDOG_RESET
 	reloc_fdt,
 	setup_reloc,
+#ifdef CONFIG_X86
+	copy_uboot_to_ram,
+	clear_bss,
+	do_elf_reloc_fixups,
+#endif
 #if !defined(CONFIG_ARM) && !defined(CONFIG_SANDBOX)
 	jump_to_copy,
 #endif
@@ -1044,9 +1049,6 @@ void board_init_f(ulong boot_flags)
  */
 static init_fnc_t init_sequence_f_r[] = {
 	init_cache_f_r,
-	copy_uboot_to_ram,
-	clear_bss,
-	do_elf_reloc_fixups,
 
 	NULL,
 };
