@@ -284,6 +284,8 @@ struct sunxi_ccm_reg {
 /* Enable / disable both ch1 sclk1 and sclk2 at the same time */
 #define CCM_LCD_CH1_CTRL_GATE		(0x1 << 31 | 0x1 << 15)
 
+#define CCM_LVDS_CTRL_RST		(1 << 0)
+
 #define CCM_HDMI_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
 #define CCM_HDMI_CTRL_PLL_MASK		(3 << 24)
 #define CCM_HDMI_CTRL_PLL3		(0 << 24)

@@ -348,6 +348,33 @@ config VIDEO_LCD_BL_PWM
 	Set the backlight pwm pin for the LCD panel. This takes a string in the
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
+
+# Note only one of these may be selected at a time! But hidden choices are
+# not supported by Kconfig
+config VIDEO_LCD_IF_PARALLEL
+	bool
+
+config VIDEO_LCD_IF_LVDS
+	bool
+
+
+choice
+	prompt "LCD panel support"
+	depends on VIDEO
+	---help---
+	Select which type of LCD panel to support.
+
+config VIDEO_LCD_PANEL_PARALLEL
+	bool "Generic parallel interface LCD panel"
+	select VIDEO_LCD_IF_PARALLEL
+
+config VIDEO_LCD_PANEL_LVDS
+	bool "Generic lvds interface LCD panel"
+	select VIDEO_LCD_IF_LVDS
+
+endchoice
+
+
 config USB_KEYBOARD
 	boolean "Enable USB keyboard support"
 	default y

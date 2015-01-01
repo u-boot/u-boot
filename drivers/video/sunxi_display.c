@@ -339,8 +339,13 @@ static void sunxi_lcdc_pll_set(int tcon, int dotclock,
 	int best_double = 0;
 
 	if (tcon == 0) {
+#ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
 		min_m = 6;
 		max_m = 127;
+#endif
+#ifdef CONFIG_VIDEO_LCD_IF_LVDS
+		min_m = max_m = 7;
+#endif
 	} else {
 		min_m = 1;
 		max_m = 15;
@@ -420,6 +425,9 @@ static void sunxi_lcdc_init(void)
 
 	/* Clock on */
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_LCD0);
+#ifdef CONFIG_VIDEO_LCD_IF_LVDS
+	setbits_le32(&ccm->lvds_clk_cfg, CCM_LVDS_CTRL_RST);
+#endif
 
 	/* Init lcdc */
 	writel(0, &lcdc->ctrl); /* Disable tcon */
@@ -439,6 +447,16 @@ static void sunxi_lcdc_enable(void)
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
 
 	setbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_TCON_ENABLE);
+#ifdef CONFIG_VIDEO_LCD_IF_LVDS
+	setbits_le32(&lcdc->tcon0_lvds_intf, SUNXI_LCDC_TCON0_LVDS_INTF_ENABLE);
+	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0);
+	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_UPDATE);
+	udelay(2); /* delay at least 1200 ns */
+	setbits_le32(&lcdc->lvds_ana1, SUNXI_LCDC_LVDS_ANA1_INIT1);
+	udelay(1); /* delay at least 120 ns */
+	setbits_le32(&lcdc->lvds_ana1, SUNXI_LCDC_LVDS_ANA1_INIT2);
+	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_UPDATE);
+#endif
 }
 
 static void sunxi_lcdc_panel_enable(void)
@@ -507,7 +525,12 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
 	int bp, clk_delay, clk_div, clk_double, pin, total, val;
 
 	for (pin = SUNXI_GPD(0); pin <= SUNXI_GPD(27); pin++)
+#ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
 		sunxi_gpio_set_cfgpin(pin, SUNXI_GPD0_LCD0);
+#endif
+#ifdef CONFIG_VIDEO_LCD_IF_LVDS
+		sunxi_gpio_set_cfgpin(pin, SUNXI_GPD0_LVDS0);
+#endif
 
 	sunxi_lcdc_pll_set(0, mode->pixclock_khz, &clk_div, &clk_double);
 
@@ -535,12 +558,17 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
 	writel(SUNXI_LCDC_TCON0_TIMING_V_TOTAL(total) |
 	       SUNXI_LCDC_TCON0_TIMING_V_BP(bp), &lcdc->tcon0_timing_v);
 
+#ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
 	writel(SUNXI_LCDC_X(mode->hsync_len) | SUNXI_LCDC_Y(mode->vsync_len),
 	       &lcdc->tcon0_timing_sync);
 
-	/* We only support hv-sync parallel lcd-s for now */
 	writel(0, &lcdc->tcon0_hv_intf);
 	writel(0, &lcdc->tcon0_cpu_intf);
+#endif
+#ifdef CONFIG_VIDEO_LCD_IF_LVDS
+	val = (sunxi_display.depth == 18) ? 1 : 0;
+	writel(SUNXI_LCDC_TCON0_LVDS_INTF_BITWIDTH(val), &lcdc->tcon0_lvds_intf);
+#endif
 
 	if (sunxi_display.depth == 18 || sunxi_display.depth == 16) {
 		writel(SUNXI_LCDC_TCON0_FRM_SEED, &lcdc->tcon0_frm_seed[0]);
@@ -559,7 +587,12 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
 		       &lcdc->tcon0_frm_ctrl);
 	}
 
-	val = 0;
+#ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
+	val = SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE0;
+#endif
+#ifdef CONFIG_VIDEO_LCD_IF_LVDS
+	val = SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE60;
+#endif
 	if (!(mode->sync & FB_SYNC_HOR_HIGH_ACT))
 		val |= SUNXI_LCDC_TCON_HSYNC_MASK;
 	if (!(mode->sync & FB_SYNC_VERT_HIGH_ACT))

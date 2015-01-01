@@ -151,6 +151,7 @@ enum sunxi_gpio_number {
 #define SUNXI_GPC6_SDC2		3
 
 #define SUNXI_GPD0_LCD0		2
+#define SUNXI_GPD0_LVDS0	3
 
 #define SUNXI_GPF0_SDC0		2
 

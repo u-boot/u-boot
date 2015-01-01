@@ -91,6 +91,9 @@ struct sunxi_lcdc_reg {
 	u8 res3[0x44];			/* 0xac */
 	u32 tcon1_io_polarity;		/* 0xf0 */
 	u32 tcon1_io_tristate;		/* 0xf4 */
+	u8 res4[0x128];			/* 0xf8 */
+	u32 lvds_ana0;			/* 0x220 */
+	u32 lvds_ana1;			/* 0x224 */
 };
 
 struct sunxi_hdmi_reg {
@@ -244,12 +247,21 @@ struct sunxi_tve_reg {
 #define SUNXI_LCDC_TCON0_TIMING_H_TOTAL(n)	(((n) - 1) << 16)
 #define SUNXI_LCDC_TCON0_TIMING_V_BP(n)		(((n) - 1) << 0)
 #define SUNXI_LCDC_TCON0_TIMING_V_TOTAL(n)	(((n) * 2) << 16)
+#define SUNXI_LCDC_TCON0_LVDS_INTF_BITWIDTH(n)	((n) << 26)
+#define SUNXI_LCDC_TCON0_LVDS_INTF_ENABLE	(1 << 31)
+#define SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE0	(0 << 28)
+#define SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE60	(1 << 28)
+#define SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE120	(2 << 28)
 #define SUNXI_LCDC_TCON1_CTRL_CLK_DELAY(n)	(((n) & 0x1f) << 4)
 #define SUNXI_LCDC_TCON1_CTRL_ENABLE		(1 << 31)
 #define SUNXI_LCDC_TCON1_TIMING_H_BP(n)		(((n) - 1) << 0)
 #define SUNXI_LCDC_TCON1_TIMING_H_TOTAL(n)	(((n) - 1) << 16)
 #define SUNXI_LCDC_TCON1_TIMING_V_BP(n)		(((n) - 1) << 0)
 #define SUNXI_LCDC_TCON1_TIMING_V_TOTAL(n)	(((n) * 2) << 16)
+#define SUNXI_LCDC_LVDS_ANA0			0x3f310000
+#define SUNXI_LCDC_LVDS_ANA0_UPDATE		(1 << 22)
+#define SUNXI_LCDC_LVDS_ANA1_INIT1		(0x1f << 26 | 0x1f << 10)
+#define SUNXI_LCDC_LVDS_ANA1_INIT2		(0x1f << 16 | 0x1f << 00)
 
 /*
  * HDMI register constants.
