@@ -156,6 +156,8 @@ int pci_rom_load(uint16_t class, struct pci_rom_header *rom_header,
 
 	target = (void *)PCI_VGA_RAM_IMAGE_START;
 	if (target != rom_header) {
+		ulong start = get_timer(0);
+
 		debug("Copying VGA ROM Image from %p to %p, 0x%x bytes\n",
 		      rom_header, target, rom_size);
 		memcpy(target, rom_header, rom_size);
@@ -163,6 +165,7 @@ int pci_rom_load(uint16_t class, struct pci_rom_header *rom_header,
 			printf("VGA ROM copy failed\n");
 			return -EFAULT;
 		}
+		debug("Copy took %lums\n", get_timer(start));
 	}
 	*ram_headerp = target;
 
