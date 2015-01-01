@@ -205,6 +205,14 @@ board_init_f_r_trampoline:
 	/* Setup global descriptor table so gd->xyz works */
 	call	setup_gdt
 
+	/* Set if we need to disable CAR */
+.weak	car_uninit
+	movl	$car_uninit, %eax
+	cmpl	$0, %eax
+	jz	1f
+
+	call	car_uninit
+1:
 	/* Re-enter U-Boot by calling board_init_f_r */
 	call	board_init_f_r
 
