@@ -205,7 +205,7 @@ int vbe_get_video_info(struct graphic_device *gdev)
 	gdev->vprBase = vesa->phys_base_ptr;
 	gdev->cprBase = vesa->phys_base_ptr;
 
-	return 0;
+	return gdev->winSizeX ? 0 : -ENOSYS;
 #else
 	return -ENOSYS;
 #endif
