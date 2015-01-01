@@ -247,7 +247,7 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
 		defined(CONFIG_FRAMEBUFFER_VESA_MODE)
 	vesa_mode = CONFIG_FRAMEBUFFER_VESA_MODE;
 #endif
-	debug("Selected vesa mode %d\b", vesa_mode);
+	debug("Selected vesa mode %#x\n", vesa_mode);
 	if (emulate) {
 #ifdef CONFIG_BIOSEMU
 		BE_VGAInfo *info;
@@ -275,7 +275,7 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
 		return -ENOSYS;
 #endif
 	}
-	debug("Final vesa mode %d\n", mode_info.video_mode);
+	debug("Final vesa mode %#x\n", mode_info.video_mode);
 
 	return 0;
 }
