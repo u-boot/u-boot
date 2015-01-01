@@ -110,9 +110,25 @@ be turned on. Not every device on the board is configured via devie tree, but
 more and more devices will be added as time goes by. Check out the directory
 arch/x86/dts/ for these device tree source files.
 
+Useful Commands
+---------------
+
+In keeping with the U-Boot philosophy of providing functions to check and
+adjust internal settings, there are several x86-specific commands that may be
+useful:
+
+hob  - Display information about Firmware Support Package (FSP) Hand-off
+	 Block. This is only available on platforms which use FSP, mostly
+	 Atom.
+iod  - Display I/O memory
+iow  - Write I/O memory
+mtrr - List and set the Memory Type Range Registers (MTRR). These are used to
+	 tell the CPU whether memory is cacheable and if so the cache write
+	 mode to use. U-Boot sets up some reasonable values but you can
+	 adjust then with this command.
+
 TODO List
 ---------
-- MTRR support (for performance)
 - Audio
 - Chrome OS verified boot
 - SMI and ACPI support, to provide platform info and facilities to Linux
