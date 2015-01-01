@@ -12,6 +12,7 @@
 #include <fdtdec.h>
 #include <pci_rom.h>
 #include <asm/io.h>
+#include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
@@ -735,6 +736,7 @@ int gma_func0_init(pci_dev_t dev, struct pci_controller *hose,
 	ulong start;
 #endif
 	void *gtt_bar;
+	ulong base;
 	u32 reg32;
 	int ret;
 
@@ -742,6 +744,11 @@ int gma_func0_init(pci_dev_t dev, struct pci_controller *hose,
 	reg32 = pci_read_config32(dev, PCI_COMMAND);
 	reg32 |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY | PCI_COMMAND_IO;
 	pci_write_config32(dev, PCI_COMMAND, reg32);
+
+	/* Use write-combining for the graphics memory, 256MB */
+	base = pci_read_bar32(hose, dev, 2);
+	mtrr_add_request(MTRR_TYPE_WRCOMB, base, 256 << 20);
+	mtrr_commit(true);
 
 	gtt_bar = (void *)pci_read_bar32(pci_bus_to_hose(0), dev, 0);
 	debug("GT bar %p\n", gtt_bar);
