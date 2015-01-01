@@ -25,4 +25,6 @@
 #define OSC_FREQ_SHIFT          28
 #define OSC_FREQ_MASK           (0xF << OSC_FREQ_SHIFT)
 
+int tegra_plle_enable(void);
+
 #endif	/* _TEGRA30_CLOCK_H_ */

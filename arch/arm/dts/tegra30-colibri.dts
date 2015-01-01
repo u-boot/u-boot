@@ -27,8 +27,10 @@
 		reg = <0x80000000 0x40000000>;
 	};
 
-	/* GEN1_I2C: I2C_SDA/SCL on SODIMM pin 194/196 (e.g. RTC on carrier
-	   board) */
+	/*
+	 * GEN1_I2C: I2C_SDA/SCL on SODIMM pin 194/196 (e.g. RTC on carrier
+	 * board)
+	 */
 	i2c@7000c000 {
 		status = "okay";
 		clock-frequency = <100000>;
@@ -44,8 +46,10 @@
 		clock-frequency = <100000>;
 	};
 
-	/* PWR_I2C: power I2C to audio codec, PMIC, temperature sensor and
-	   touch screen controller */
+	/*
+	 * PWR_I2C: power I2C to audio codec, PMIC, temperature sensor and
+	 * touch screen controller
+	 */
 	i2c@7000d000 {
 		status = "okay";
 		clock-frequency = <100000>;

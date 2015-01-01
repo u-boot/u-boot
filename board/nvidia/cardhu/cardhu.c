@@ -9,8 +9,11 @@
 #include <dm.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/gp_padctrl.h>
+#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include "pinmux-config-cardhu.h"
 #include <i2c.h>
+#include <netdev.h>
 
 #define PMU_I2C_ADDRESS		0x2D
 #define MAX_I2C_RETRY		3
@@ -83,3 +86,52 @@ void pin_mux_mmc(void)
 	board_sdmmc_voltage_init();
 }
 #endif	/* MMC */
+
+#ifdef CONFIG_PCI_TEGRA
+int tegra_pcie_board_init(void)
+{
+	struct udevice *dev;
+	u8 addr, data[1];
+	int err;
+
+	err = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, &dev);
+	if (err) {
+		debug("failed to find PMU bus\n");
+		return err;
+	}
+
+	/* TPS659110: LDO1_REG = 1.05V, ACTIVE */
+	data[0] = 0x15;
+	addr = 0x30;
+
+	err = i2c_write(dev, addr, data, 1);
+	if (err) {
+		debug("failed to set VDD supply\n");
+		return err;
+	}
+
+	/* GPIO: PEX = 3.3V */
+	err = gpio_request(GPIO_PL7, "PEX");
+	if (err < 0)
+		return err;
+
+	gpio_direction_output(GPIO_PL7, 1);
+
+	/* TPS659110: LDO2_REG = 1.05V, ACTIVE */
+	data[0] = 0x15;
+	addr = 0x31;
+
+	err = i2c_write(dev, addr, data, 1);
+	if (err) {
+		debug("failed to set AVDD supply\n");
+		return err;
+	}
+
+	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}
+#endif /* PCI */

@@ -41,6 +41,10 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(NVIDIA_TEGRA20_SFLASH, "nvidia,tegra20-sflash"),
 	COMPAT(NVIDIA_TEGRA20_SLINK, "nvidia,tegra20-slink"),
 	COMPAT(NVIDIA_TEGRA114_SPI, "nvidia,tegra114-spi"),
+	COMPAT(NVIDIA_TEGRA124_PCIE, "nvidia,tegra124-pcie"),
+	COMPAT(NVIDIA_TEGRA30_PCIE, "nvidia,tegra30-pcie"),
+	COMPAT(NVIDIA_TEGRA20_PCIE, "nvidia,tegra20-pcie"),
+	COMPAT(NVIDIA_TEGRA124_XUSB_PADCTL, "nvidia,tegra124-xusb-padctl"),
 	COMPAT(SMSC_LAN9215, "smsc,lan9215"),
 	COMPAT(SAMSUNG_EXYNOS5_SROMC, "samsung,exynos-sromc"),
 	COMPAT(SAMSUNG_S3C2440_I2C, "samsung,s3c2440-i2c"),
@@ -78,6 +82,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(INTEL_PANTHERPOINT_AHCI, "intel,pantherpoint-ahci"),
 	COMPAT(INTEL_MODEL_206AX, "intel,model-206ax"),
 	COMPAT(INTEL_GMA, "intel,gma"),
+	COMPAT(AMS_AS3722, "ams,as3722"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)

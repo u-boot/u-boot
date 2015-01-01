@@ -4016,6 +4016,25 @@ Configuration Settings:
 		boards which do not use the full malloc in SPL (which is
 		enabled with CONFIG_SYS_SPL_MALLOC_START).
 
+- CONFIG_SYS_NONCACHED_MEMORY:
+		Size of non-cached memory area. This area of memory will be
+		typically located right below the malloc() area and mapped
+		uncached in the MMU. This is useful for drivers that would
+		otherwise require a lot of explicit cache maintenance. For
+		some drivers it's also impossible to properly maintain the
+		cache. For example if the regions that need to be flushed
+		are not a multiple of the cache-line size, *and* padding
+		cannot be allocated between the regions to align them (i.e.
+		if the HW requires a contiguous array of regions, and the
+		size of each region is not cache-aligned), then a flush of
+		one region may result in overwriting data that hardware has
+		written to another region in the same cache-line. This can
+		happen for example in network drivers where descriptors for
+		buffers are typically smaller than the CPU cache-line (e.g.
+		16 bytes vs. 32 or 64 bytes).
+
+		Non-cached memory is only supported on 32-bit ARM at present.
+
 - CONFIG_SYS_BOOTM_LEN:
 		Normally compressed uImages are limited to an
 		uncompressed size of 8 MBytes. If this is not enough,
