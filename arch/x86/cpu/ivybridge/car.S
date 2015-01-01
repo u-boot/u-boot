@@ -61,7 +61,7 @@ clear_mtrrs:
 
 	post_code(POST_CAR_MTRR)
 	/* Configure the default memory type to uncacheable */
-	movl	$MTRRdefType_MSR, %ecx
+	movl	$MTRR_DEF_TYPE_MSR, %ecx
 	rdmsr
 	andl	$(~0x00000cff), %eax
 	wrmsr
@@ -76,16 +76,16 @@ clear_mtrrs:
 	post_code(POST_CAR_BASE_ADDRESS)
 	/* Set Cache-as-RAM mask */
 	movl	$(MTRR_PHYS_MASK_MSR(0)), %ecx
-	movl	$(~(CACHE_AS_RAM_SIZE - 1) | MTRRphysMaskValid), %eax
+	movl	$(~(CACHE_AS_RAM_SIZE - 1) | MTRR_PHYS_MASK_VALID), %eax
 	movl	$CPU_PHYSMASK_HI, %edx
 	wrmsr
 
 	post_code(POST_CAR_MASK)
 
 	/* Enable MTRR */
-	movl	$MTRRdefType_MSR, %ecx
+	movl	$MTRR_DEF_TYPE_MSR, %ecx
 	rdmsr
-	orl	$MTRRdefTypeEn, %eax
+	orl	$MTRR_DEF_TYPE_EN, %eax
 	wrmsr
 
 	/* Enable cache (CR0.CD = 0, CR0.NW = 0) */
@@ -130,7 +130,7 @@ clear_mtrrs:
 
 	movl	$MTRR_PHYS_MASK_MSR(1), %ecx
 	movl	$CPU_PHYSMASK_HI, %edx
-	movl	$(~(CONFIG_XIP_ROM_SIZE - 1) | MTRRphysMaskValid), %eax
+	movl	$(~(CONFIG_XIP_ROM_SIZE - 1) | MTRR_PHYS_MASK_VALID), %eax
 	wrmsr
 
 	post_code(POST_CAR_ROM_CACHE)
@@ -141,7 +141,7 @@ clear_mtrrs:
 	xorl	%edx, %edx
 	wrmsr
 	movl	$MTRR_PHYS_MASK_MSR(2), %ecx
-	movl	$(CACHE_MRC_MASK | MTRRphysMaskValid), %eax
+	movl	$(CACHE_MRC_MASK | MTRR_PHYS_MASK_VALID), %eax
 	movl	$CPU_PHYSMASK_HI, %edx
 	wrmsr
 #endif

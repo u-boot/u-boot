@@ -29,6 +29,19 @@ struct memory_info {
 	struct memory_area area[CONFIG_NR_DRAM_BANKS];
 };
 
+#define MAX_MTRR_REQUESTS	8
+
+/**
+ * A request for a memory region to be set up in a particular way. These
+ * requests are processed before board_init_r() is called. They are generally
+ * optional and can be ignored with some performance impact.
+ */
+struct mtrr_request {
+	int type;		/* MTRR_TYPE_... */
+	uint64_t start;
+	uint64_t size;
+};
+
 /* Architecture-specific global data */
 struct arch_global_data {
 	struct global_data *gd_addr;		/* Location of Global Data */
@@ -49,6 +62,8 @@ struct arch_global_data {
 #ifdef CONFIG_HAVE_FSP
 	void	*hob_list;		/* FSP HOB list */
 #endif
+	struct mtrr_request mtrr_req[MAX_MTRR_REQUESTS];
+	int mtrr_req_count;
 };
 
 #endif
