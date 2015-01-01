@@ -17,6 +17,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
+#include <ns16550.h>
 #include <twl4030.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
@@ -41,6 +43,17 @@ static u32 gpmc_net_config[GPMC_MAX_REG] = {
 	NET_GPMC_CONFIG5,
 	NET_GPMC_CONFIG6,
 	0
+};
+
+static const struct ns16550_platdata devkit8000_serial = {
+	OMAP34XX_UART3,
+	2,
+	V_NS16550_CLK
+};
+
+U_BOOT_DEVICE(devkit8000_uart) = {
+	"serial_omap",
+	&devkit8000_serial
 };
 
 /*

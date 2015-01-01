@@ -33,29 +33,16 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
 
-#include <asm/arch/cpu.h>		/* get chip and board defs */
-#include <asm/arch/omap3.h>
-
-#define CONFIG_SDRC	/* The chip has SDRC controller */
 #define CONFIG_NAND
-#define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
-							/* to access nand at */
-							/* CS0 */
 
 /*  Physical Memory Map  */
 #define CONFIG_NR_DRAM_BANKS		2 /* CS1 may or may not be populated */
-#define PHYS_SDRAM_1			OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
 
-#include <configs/ti_armv7_common.h>
+#include <configs/ti_omap3_common.h>
 
 /* Display CPU and Board information */
 #define CONFIG_DISPLAY_CPUINFO		1
 #define CONFIG_DISPLAY_BOARDINFO	1
-
-/* Clock Defines */
-#define V_OSCK				26000000	/* Clock output from T2 */
-#define V_SCLK				(V_OSCK >> 1)
 
 #define CONFIG_MISC_INIT_R
 
@@ -78,19 +65,6 @@
 #define CONFIG_DM9000_NO_SROM		1
 #undef	CONFIG_DM9000_DEBUG
 
-/* NS16550 Configuration */
-#define CONFIG_SYS_NS16550
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		48000000 /* 48MHz (APLL96/2) */
-
-/* select serial console configuration */
-#define CONFIG_CONS_INDEX		3
-#define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
-#define CONFIG_SERIAL3			3
-#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
-					115200}
-
 /* SPI */
 #undef CONFIG_SPI
 #undef CONFIG_OMAP3_SPI
@@ -100,7 +74,6 @@
 #define CONFIG_SYS_I2C_OMAP34XX
 
 /* TWL4030 */
-#define CONFIG_TWL4030_POWER		1
 #define CONFIG_TWL4030_LED		1
 
 /* Board NAND Info */
@@ -225,16 +198,7 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
 					0x01000000) /* 16MB */
 
-/*
- * OMAP3 has 12 GP timers, they can be driven by the system clock
- * (12/13/16.8/19.2/38.4MHz) or by 32KHz clock. We use 13MHz (V_SCLK).
- * This rate is divided by a local divisor.
- */
-#define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
-
 /* NAND and environment organization  */
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
-
 #define CONFIG_ENV_IS_IN_NAND		1
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
@@ -245,14 +209,10 @@
 #define CONFIG_SYS_SRAM_SIZE               0x10000
 
 /* Defines for SPL */
-#define CONFIG_SPL_NAND_SIMPLE
-
-#define CONFIG_SPL_POWER_SUPPORT
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 #undef CONFIG_SPL_MTD_SUPPORT
 
+#undef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
-#define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
 #undef CONFIG_SPL_STACK
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
@@ -287,6 +247,7 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x8   /* address 0x1000 */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	8     /* 4KB */
 
+#undef CONFIG_SYS_SPL_ARGS_ADDR
 #define CONFIG_SYS_SPL_ARGS_ADDR        (PHYS_SDRAM_1 + 0x100)
 
 #endif /* __CONFIG_H */
