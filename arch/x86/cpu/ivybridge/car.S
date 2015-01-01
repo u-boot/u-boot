@@ -163,6 +163,52 @@ wait_for_sipi:
 	/* return */
 	jmp	car_init_ret
 
+.globl car_uninit
+car_uninit:
+	/* Disable cache */
+	movl	%cr0, %eax
+	orl	$X86_CR0_CD, %eax
+	movl	%eax, %cr0
+
+	/* Disable MTRRs */
+	movl	$MTRR_DEF_TYPE_MSR, %ecx
+	rdmsr
+	andl	$(~MTRR_DEF_TYPE_EN), %eax
+	wrmsr
+
+	/* Disable the no-eviction run state */
+	movl    NOEVICTMOD_MSR, %ecx
+	rdmsr
+	andl    $~2, %eax
+	wrmsr
+
+	invd
+
+	/* Disable the no-eviction mode */
+	rdmsr
+	andl    $~1, %eax
+	wrmsr
+
+#ifdef CONFIG_CACHE_MRC_BIN
+	/* Clear the MTRR that was used to cache MRC */
+	xorl	%eax, %eax
+	xorl	%edx, %edx
+	movl	$MTRR_PHYS_BASE_MSR(2), %ecx
+	wrmsr
+	movl	$MTRR_PHYS_MASK_MSR(2), %ecx
+	wrmsr
+#endif
+
+	/* Enable MTRRs */
+	movl	$MTRR_DEF_TYPE_MSR, %ecx
+	rdmsr
+	orl	$MTRR_DEF_TYPE_EN, %eax
+	wrmsr
+
+	invd
+
+	ret
+
 mtrr_table:
 	/* Fixed MTRRs */
 	.word 0x250, 0x258, 0x259
