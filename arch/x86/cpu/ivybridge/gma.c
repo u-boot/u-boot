@@ -15,6 +15,7 @@
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
+#include <linux/kconfig.h>
 
 struct gt_powermeter {
 	u16 reg;
@@ -730,6 +731,9 @@ static int int15_handler(void)
 int gma_func0_init(pci_dev_t dev, struct pci_controller *hose,
 		   const void *blob, int node)
 {
+#ifdef CONFIG_VIDEO
+	ulong start;
+#endif
 	void *gtt_bar;
 	u32 reg32;
 	int ret;
@@ -745,8 +749,11 @@ int gma_func0_init(pci_dev_t dev, struct pci_controller *hose,
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_VIDEO
+	start = get_timer(0);
 	ret = pci_run_vga_bios(dev, int15_handler, false);
-
+	debug("BIOS ran in %lums\n", get_timer(start));
+#endif
 	/* Post VBIOS init */
 	ret = gma_pm_init_post_vbios(gtt_bar, blob, node);
 	if (ret)
