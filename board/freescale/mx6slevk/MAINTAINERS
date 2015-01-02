@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/freescale/mx6slevk/
 F:	include/configs/mx6slevk.h
 F:	configs/mx6slevk_defconfig
+F:	configs/mx6slevk_spinor_defconfig

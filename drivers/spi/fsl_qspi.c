@@ -14,7 +14,11 @@
 #include "fsl_qspi.h"
 
 #define RX_BUFFER_SIZE		0x80
+#ifdef CONFIG_MX6SX
+#define TX_BUFFER_SIZE		0x200
+#else
 #define TX_BUFFER_SIZE		0x40
+#endif
 
 #define OFFSET_BITS_MASK	0x00ffffff
 
@@ -28,20 +32,22 @@
 #define SEQID_CHIP_ERASE	5
 #define SEQID_PP		6
 #define SEQID_RDID		7
+#define SEQID_BE_4K		8
 
-/* Flash opcodes */
-#define OPCODE_PP		0x02	/* Page program (up to 256 bytes) */
-#define OPCODE_RDSR		0x05	/* Read status register */
-#define OPCODE_WREN		0x06	/* Write enable */
-#define OPCODE_FAST_READ	0x0b	/* Read data bytes (high frequency) */
-#define OPCODE_CHIP_ERASE	0xc7	/* Erase whole flash chip */
-#define OPCODE_SE		0xd8	/* Sector erase (usually 64KiB) */
-#define OPCODE_RDID		0x9f	/* Read JEDEC ID */
+/* QSPI CMD */
+#define QSPI_CMD_PP		0x02	/* Page program (up to 256 bytes) */
+#define QSPI_CMD_RDSR		0x05	/* Read status register */
+#define QSPI_CMD_WREN		0x06	/* Write enable */
+#define QSPI_CMD_FAST_READ	0x0b	/* Read data bytes (high frequency) */
+#define QSPI_CMD_BE_4K		0x20    /* 4K erase */
+#define QSPI_CMD_CHIP_ERASE	0xc7	/* Erase whole flash chip */
+#define QSPI_CMD_SE		0xd8	/* Sector erase (usually 64KiB) */
+#define QSPI_CMD_RDID		0x9f	/* Read JEDEC ID */
 
-/* 4-byte address opcodes - used on Spansion and some Macronix flashes */
-#define OPCODE_FAST_READ_4B	0x0c    /* Read data bytes (high frequency) */
-#define OPCODE_PP_4B		0x12    /* Page program (up to 256 bytes) */
-#define OPCODE_SE_4B		0xdc    /* Sector erase (usually 64KiB) */
+/* 4-byte address QSPI CMD - used on Spansion and some Macronix flashes */
+#define QSPI_CMD_FAST_READ_4B	0x0c    /* Read data bytes (high frequency) */
+#define QSPI_CMD_PP_4B		0x12    /* Page program (up to 256 bytes) */
+#define QSPI_CMD_SE_4B		0xdc    /* Sector erase (usually 64KiB) */
 
 #ifdef CONFIG_SYS_FSL_QSPI_LE
 #define qspi_read32		in_le32
@@ -53,10 +59,16 @@
 
 static unsigned long spi_bases[] = {
 	QSPI0_BASE_ADDR,
+#ifdef CONFIG_MX6SX
+	QSPI1_BASE_ADDR,
+#endif
 };
 
 static unsigned long amba_bases[] = {
 	QSPI0_AMBA_BASE,
+#ifdef CONFIG_MX6SX
+	QSPI1_AMBA_BASE,
+#endif
 };
 
 struct fsl_qspi {
@@ -94,7 +106,7 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 
 	/* Write Enable */
 	lut_base = SEQID_WREN * 4;
-	qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_WREN) |
+	qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_WREN) |
 		PAD0(LUT_PAD1) | INSTR0(LUT_CMD));
 	qspi_write32(&regs->lut[lut_base + 1], 0);
 	qspi_write32(&regs->lut[lut_base + 2], 0);
@@ -103,13 +115,15 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 	/* Fast Read */
 	lut_base = SEQID_FAST_READ * 4;
 	if (FSL_QSPI_FLASH_SIZE  <= SZ_16M)
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_FAST_READ) |
+		qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_FAST_READ) |
 			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR24BIT) |
 			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 	else
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_FAST_READ_4B) |
-			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR32BIT) |
-			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
+		qspi_write32(&regs->lut[lut_base],
+			     OPRND0(QSPI_CMD_FAST_READ_4B) |
+			     PAD0(LUT_PAD1) | INSTR0(LUT_CMD) |
+			     OPRND1(ADDR32BIT) | PAD1(LUT_PAD1) |
+			     INSTR1(LUT_ADDR));
 	qspi_write32(&regs->lut[lut_base + 1], OPRND0(8) | PAD0(LUT_PAD1) |
 		INSTR0(LUT_DUMMY) | OPRND1(RX_BUFFER_SIZE) | PAD1(LUT_PAD1) |
 		INSTR1(LUT_READ));
@@ -118,7 +132,7 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 
 	/* Read Status */
 	lut_base = SEQID_RDSR * 4;
-	qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_RDSR) |
+	qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_RDSR) |
 		PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(1) |
 		PAD1(LUT_PAD1) | INSTR1(LUT_READ));
 	qspi_write32(&regs->lut[lut_base + 1], 0);
@@ -128,11 +142,11 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 	/* Erase a sector */
 	lut_base = SEQID_SE * 4;
 	if (FSL_QSPI_FLASH_SIZE  <= SZ_16M)
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_SE) |
+		qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_SE) |
 			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR24BIT) |
 			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 	else
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_SE_4B) |
+		qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_SE_4B) |
 			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR32BIT) |
 			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 	qspi_write32(&regs->lut[lut_base + 1], 0);
@@ -141,7 +155,7 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 
 	/* Erase the whole chip */
 	lut_base = SEQID_CHIP_ERASE * 4;
-	qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_CHIP_ERASE) |
+	qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_CHIP_ERASE) |
 		PAD0(LUT_PAD1) | INSTR0(LUT_CMD));
 	qspi_write32(&regs->lut[lut_base + 1], 0);
 	qspi_write32(&regs->lut[lut_base + 2], 0);
@@ -150,26 +164,41 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 	/* Page Program */
 	lut_base = SEQID_PP * 4;
 	if (FSL_QSPI_FLASH_SIZE  <= SZ_16M)
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_PP) |
+		qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_PP) |
 			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR24BIT) |
 			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 	else
-		qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_PP_4B) |
+		qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_PP_4B) |
 			PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR32BIT) |
 			PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
+#ifdef CONFIG_MX6SX
+	/*
+	 * To MX6SX, OPRND0(TX_BUFFER_SIZE) can not work correctly.
+	 * So, Use IDATSZ in IPCR to determine the size and here set 0.
+	 */
+	qspi_write32(&regs->lut[lut_base + 1], OPRND0(0) |
+		     PAD0(LUT_PAD1) | INSTR0(LUT_WRITE));
+#else
 	qspi_write32(&regs->lut[lut_base + 1], OPRND0(TX_BUFFER_SIZE) |
 		PAD0(LUT_PAD1) | INSTR0(LUT_WRITE));
+#endif
 	qspi_write32(&regs->lut[lut_base + 2], 0);
 	qspi_write32(&regs->lut[lut_base + 3], 0);
 
 	/* READ ID */
 	lut_base = SEQID_RDID * 4;
-	qspi_write32(&regs->lut[lut_base], OPRND0(OPCODE_RDID) |
+	qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_RDID) |
 		PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(8) |
 		PAD1(LUT_PAD1) | INSTR1(LUT_READ));
 	qspi_write32(&regs->lut[lut_base + 1], 0);
 	qspi_write32(&regs->lut[lut_base + 2], 0);
 	qspi_write32(&regs->lut[lut_base + 3], 0);
+
+	/* SUB SECTOR 4K ERASE */
+	lut_base = SEQID_BE_4K * 4;
+	qspi_write32(&regs->lut[lut_base], OPRND0(QSPI_CMD_BE_4K) |
+		     PAD0(LUT_PAD1) | INSTR0(LUT_CMD) | OPRND1(ADDR24BIT) |
+		     PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 
 	/* Lock the LUT */
 	qspi_write32(&regs->lutkey, LUT_KEY_VALUE);
@@ -192,12 +221,22 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (bus >= ARRAY_SIZE(spi_bases))
 		return NULL;
 
+	if (cs >= FSL_QSPI_FLASH_NUM)
+		return NULL;
+
 	qspi = spi_alloc_slave(struct fsl_qspi, bus, cs);
 	if (!qspi)
 		return NULL;
 
 	qspi->reg_base = spi_bases[bus];
-	qspi->amba_base = amba_bases[bus];
+	/*
+	 * According cs, use different amba_base to choose the
+	 * corresponding flash devices.
+	 *
+	 * If not, only one flash device is used even if passing
+	 * different cs using `sf probe`
+	 */
+	qspi->amba_base = amba_bases[bus] + cs * FSL_QSPI_FLASH_SIZE;
 
 	qspi->slave.max_write_size = TX_BUFFER_SIZE;
 
@@ -210,10 +249,20 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	qspi_write32(&regs->mcr, QSPI_MCR_RESERVED_MASK);
 
 	total_size = FSL_QSPI_FLASH_SIZE * FSL_QSPI_FLASH_NUM;
-	qspi_write32(&regs->sfa1ad, FSL_QSPI_FLASH_SIZE | qspi->amba_base);
-	qspi_write32(&regs->sfa2ad, FSL_QSPI_FLASH_SIZE | qspi->amba_base);
-	qspi_write32(&regs->sfb1ad, total_size | qspi->amba_base);
-	qspi_write32(&regs->sfb2ad, total_size | qspi->amba_base);
+	/*
+	 * Any read access to non-implemented addresses will provide
+	 * undefined results.
+	 *
+	 * In case single die flash devices, TOP_ADDR_MEMA2 and
+	 * TOP_ADDR_MEMB2 should be initialized/programmed to
+	 * TOP_ADDR_MEMA1 and TOP_ADDR_MEMB1 respectively - in effect,
+	 * setting the size of these devices to 0.  This would ensure
+	 * that the complete memory map is assigned to only one flash device.
+	 */
+	qspi_write32(&regs->sfa1ad, FSL_QSPI_FLASH_SIZE | amba_bases[bus]);
+	qspi_write32(&regs->sfa2ad, FSL_QSPI_FLASH_SIZE | amba_bases[bus]);
+	qspi_write32(&regs->sfb1ad, total_size | amba_bases[bus]);
+	qspi_write32(&regs->sfb2ad, total_size | amba_bases[bus]);
 
 	qspi_set_lut(qspi);
 
@@ -409,7 +458,7 @@ static void qspi_op_rdsr(struct fsl_qspi *qspi, u32 *rxbuf)
 	qspi_write32(&regs->mcr, mcr_reg);
 }
 
-static void qspi_op_se(struct fsl_qspi *qspi)
+static void qspi_op_erase(struct fsl_qspi *qspi)
 {
 	struct fsl_qspi_regs *regs = (struct fsl_qspi_regs *)qspi->reg_base;
 	u32 mcr_reg;
@@ -428,8 +477,13 @@ static void qspi_op_se(struct fsl_qspi *qspi)
 	while (qspi_read32(&regs->sr) & QSPI_SR_BUSY_MASK)
 		;
 
-	qspi_write32(&regs->ipcr,
-		(SEQID_SE << QSPI_IPCR_SEQID_SHIFT) | 0);
+	if (qspi->cur_seqid == QSPI_CMD_SE) {
+		qspi_write32(&regs->ipcr,
+			     (SEQID_SE << QSPI_IPCR_SEQID_SHIFT) | 0);
+	} else if (qspi->cur_seqid == QSPI_CMD_BE_4K) {
+		qspi_write32(&regs->ipcr,
+			     (SEQID_BE_4K << QSPI_IPCR_SEQID_SHIFT) | 0);
+	}
 	while (qspi_read32(&regs->sr) & QSPI_SR_BUSY_MASK)
 		;
 
@@ -454,22 +508,23 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 			return 0;
 		}
 
-		if (qspi->cur_seqid == OPCODE_FAST_READ) {
+		if (qspi->cur_seqid == QSPI_CMD_FAST_READ) {
 			qspi->sf_addr = swab32(txbuf) & OFFSET_BITS_MASK;
-		} else if (qspi->cur_seqid == OPCODE_SE) {
+		} else if ((qspi->cur_seqid == QSPI_CMD_SE) ||
+			   (qspi->cur_seqid == QSPI_CMD_BE_4K)) {
 			qspi->sf_addr = swab32(txbuf) & OFFSET_BITS_MASK;
-			qspi_op_se(qspi);
-		} else if (qspi->cur_seqid == OPCODE_PP) {
+			qspi_op_erase(qspi);
+		} else if (qspi->cur_seqid == QSPI_CMD_PP) {
 			pp_sfaddr = swab32(txbuf) & OFFSET_BITS_MASK;
 		}
 	}
 
 	if (din) {
-		if (qspi->cur_seqid == OPCODE_FAST_READ)
+		if (qspi->cur_seqid == QSPI_CMD_FAST_READ)
 			qspi_op_read(qspi, din, bytes);
-		else if (qspi->cur_seqid == OPCODE_RDID)
+		else if (qspi->cur_seqid == QSPI_CMD_RDID)
 			qspi_op_rdid(qspi, din, bytes);
-		else if (qspi->cur_seqid == OPCODE_RDSR)
+		else if (qspi->cur_seqid == QSPI_CMD_RDSR)
 			qspi_op_rdsr(qspi, din);
 	}
 
