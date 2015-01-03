@@ -46,14 +46,14 @@ config AXP221_ALDO1_VOLT
 config AXP221_ALDO2_VOLT
 	int "axp221 aldo2 voltage"
 	depends on AXP221_POWER
-	default 1800 if MACH_SUN6I
+	default 0 if MACH_SUN6I
 	default 2500 if MACH_SUN8I
 	---help---
 	Set the voltage (mV) to program the axp221 aldo2 at, set to 0 to
-	disable aldo2. On sun6i (A31) boards this is typically connected to
-	VCC-PM, which powers the port M gpios, and should be set to 1.8V.
-	On sun8i (A23) this is typically connected to VDD-DLL and must be
-	set to 2.5V.
+	disable aldo2. On sun6i (A31) boards this is typically unused and
+	should be disabled, if it is used for LPDDR2 it should be set to 1.8V.
+	On sun8i (A23) this is typically connected to VDD-DLL and must be set
+	to 2.5V.
 
 config AXP221_ALDO3_VOLT
 	int "axp221 aldo3 voltage"
