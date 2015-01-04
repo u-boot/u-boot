@@ -365,11 +365,16 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Serial Port
  */
+#ifdef CONFIG_LPUART
+#define CONFIG_FSL_LPUART
+#define CONFIG_LPUART_32B_REG
+#else
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#endif
 
 #define CONFIG_BAUDRATE			115200
 
@@ -528,11 +533,19 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_SYS_QE_FW_ADDR     0x67f40000
 
+#ifdef CONFIG_LPUART
+#define CONFIG_EXTRA_ENV_SETTINGS       \
+	"bootargs=root=/dev/ram0 rw console=ttyLP0,115200\0" \
+	"fdt_high=0xcfffffff\0"         \
+	"initrd_high=0xcfffffff\0"      \
+	"hwconfig=fsl_ddr:ctlr_intlv=null,bank_intlv=null\0"
+#else
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0" \
 	"fdt_high=0xcfffffff\0"		\
 	"initrd_high=0xcfffffff\0"      \
 	"hwconfig=fsl_ddr:ctlr_intlv=null,bank_intlv=null\0"
+#endif
 
 /*
  * Miscellaneous configurable options
