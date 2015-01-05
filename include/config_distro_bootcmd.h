@@ -202,9 +202,13 @@
 	\
 	BOOT_TARGET_DEVICES(BOOTENV_DEV)                                  \
 	\
-	"bootcmd=" BOOTENV_SET_SCSI_NEED_INIT                             \
+	"distro_bootcmd=" BOOTENV_SET_SCSI_NEED_INIT                      \
 		"for target in ${boot_targets}; do "                      \
 			"run bootcmd_${target}; "                         \
 		"done\0"
+
+#ifndef CONFIG_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd"
+#endif
 
 #endif  /* _CONFIG_CMD_DISTRO_BOOTCMD_H */
