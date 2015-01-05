@@ -32,7 +32,7 @@
 #define AXP221_DCDC4_CTRL	0x24
 #define AXP221_DCDC5_CTRL	0x25
 #define AXP221_ALDO1_CTRL	0x28
-#define AXP221_ALDO2_CTRL	0x28
+#define AXP221_ALDO2_CTRL	0x29
 #define AXP221_ALDO3_CTRL	0x2a
 
 int axp221_set_dcdc1(unsigned int mvolt);
