@@ -402,11 +402,11 @@ The following options need to be configured:
 
 		CONFIG_A003399_NOR_WORKAROUND
 		Enables a workaround for IFC erratum A003399. It is only
-		requred during NOR boot.
+		required during NOR boot.
 
 		CONFIG_A008044_WORKAROUND
 		Enables a workaround for T1040/T1042 erratum A008044. It is only
-		requred during NAND boot and valid for Rev 1.0 SoC revision
+		required during NAND boot and valid for Rev 1.0 SoC revision
 
 		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
 
@@ -438,7 +438,7 @@ The following options need to be configured:
 		time of U-boot entry and is required to be re-initialized.
 
 		CONFIG_DEEP_SLEEP
-		Inidcates this SoC supports deep sleep feature. If deep sleep is
+		Indicates this SoC supports deep sleep feature. If deep sleep is
 		supported, core will start to execute uboot when wakes up.
 
 - Generic CPU options:
@@ -752,7 +752,7 @@ The following options need to be configured:
 
 		CONFIG_MEMSIZE_IN_BYTES		[relevant for MIPS only]
 
-		When transferring memsize parameter to linux, some versions
+		When transferring memsize parameter to Linux, some versions
 		expect it to be in bytes, others in MB.
 		Define CONFIG_MEMSIZE_IN_BYTES to make it in bytes.
 
@@ -1962,7 +1962,7 @@ CBFS (Coreboot Filesystem) support
 
 		CONFIG_LCD_ALIGNMENT
 
-		Normally the LCD is page-aligned (tyically 4KB). If this is
+		Normally the LCD is page-aligned (typically 4KB). If this is
 		defined then the LCD will be aligned to this value instead.
 		For ARM it is sometimes useful to use MMU_SECTION_SIZE
 		here, since it is cheaper to change data cache settings on
@@ -2038,7 +2038,7 @@ CBFS (Coreboot Filesystem) support
 		can be displayed via the splashscreen support or the
 		bmp command.
 
-- Do compresssing for memory range:
+- Do compressing for memory range:
 		CONFIG_CMD_ZIP
 
 		If this option is set, it would use zlib deflate method
@@ -2401,7 +2401,7 @@ CBFS (Coreboot Filesystem) support
 		  - define slave for bus 2 with CONFIG_SYS_MXC_I2C2_SLAVE
 		  - define speed for bus 3 with CONFIG_SYS_MXC_I2C3_SPEED
 		  - define slave for bus 3 with CONFIG_SYS_MXC_I2C3_SLAVE
-		If thoses defines are not set, default value is 100000
+		If those defines are not set, default value is 100000
 		for speed, and 0 for slave.
 
 		- drivers/i2c/rcar_i2c.c:
@@ -2434,7 +2434,7 @@ CBFS (Coreboot Filesystem) support
 		  - CONFIG_SYS_I2C_SH_SPEED4 for for the speed channel 4
 		  - CONFIG_SYS_I2C_SH_BASE5 for setting the register channel 5
 		  - CONFIG_SYS_I2C_SH_SPEED5 for for the speed channel 5
-		  - CONFIF_SYS_I2C_SH_NUM_CONTROLLERS for nummber of i2c buses
+		  - CONFIG_SYS_I2C_SH_NUM_CONTROLLERS for number of i2c buses
 
 		- drivers/i2c/omap24xx_i2c.c
 		  - activate this driver with CONFIG_SYS_I2C_OMAP24XX
@@ -2478,7 +2478,7 @@ CBFS (Coreboot Filesystem) support
 		additional defines:
 
 		CONFIG_SYS_NUM_I2C_BUSES
-		Hold the number of i2c busses you want to use. If you
+		Hold the number of i2c buses you want to use. If you
 		don't use/have i2c muxes on your i2c bus, this
 		is equal to CONFIG_SYS_NUM_I2C_ADAPTERS, and you can
 		omit this define.
@@ -2494,7 +2494,7 @@ CBFS (Coreboot Filesystem) support
 		define.
 
 		CONFIG_SYS_I2C_BUSES
-		hold a list of busses you want to use, only used if
+		hold a list of buses you want to use, only used if
 		CONFIG_SYS_I2C_DIRECT_BUS is not defined, for example
 		a board with CONFIG_SYS_I2C_MAX_HOPS = 1 and
 		CONFIG_SYS_NUM_I2C_BUSES = 9:
@@ -2832,14 +2832,14 @@ CBFS (Coreboot Filesystem) support
 
 		CONFIG_SYS_FPGA_WAIT_INIT
 
-		Maximum time to wait for the INIT_B line to deassert
-		after PROB_B has been deasserted during a Virtex II
+		Maximum time to wait for the INIT_B line to de-assert
+		after PROB_B has been de-asserted during a Virtex II
 		FPGA configuration sequence. The default time is 500
 		ms.
 
 		CONFIG_SYS_FPGA_WAIT_BUSY
 
-		Maximum time to wait for BUSY to deassert during
+		Maximum time to wait for BUSY to de-assert during
 		Virtex II FPGA configuration. The default is 5 ms.
 
 		CONFIG_SYS_FPGA_WAIT_CONFIG
@@ -2991,11 +2991,11 @@ CBFS (Coreboot Filesystem) support
 		of the backslashes before semicolons and special
 		symbols.
 
-- Commandline Editing and History:
+- Command Line Editing and History:
 		CONFIG_CMDLINE_EDITING
 
 		Enable editing and History functions for interactive
-		commandline input operations
+		command line input operations
 
 - Default Environment:
 		CONFIG_EXTRA_ENV_SETTINGS
@@ -3046,7 +3046,7 @@ CBFS (Coreboot Filesystem) support
 		CONFIG_DELAY_ENVIRONMENT
 
 		Normally the environment is loaded when the board is
-		intialised so that it is available to U-Boot. This inhibits
+		initialised so that it is available to U-Boot. This inhibits
 		that so that the environment is not available until
 		explicitly loaded later by U-Boot code. With CONFIG_OF_CONTROL
 		this is instead controlled by the value of
@@ -3092,7 +3092,7 @@ CBFS (Coreboot Filesystem) support
 
 		Define this option to use dual flash support where two flash
 		memories can be connected with a given cs line.
-		currently Xilinx Zynq qspi support these type of connections.
+		Currently Xilinx Zynq qspi supports these type of connections.
 
 		CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
 		enable the W#/Vpp signal to disable writing to the status
@@ -3767,7 +3767,7 @@ FIT uImage format:
 
 		CONFIG_SYS_NAND_HW_ECC_OOBFIRST
 		Define this if you need to first read the OOB and then the
-		data. This is used for example on davinci plattforms.
+		data. This is used, for example, on davinci platforms.
 
 		CONFIG_SPL_OMAP3_ID_NAND
 		Support for an OMAP3-specific set of functions to return the
@@ -4000,7 +4000,7 @@ Configuration Settings:
 		This feature allocates regions with increasing addresses
 		within the region. calloc() is supported, but realloc()
 		is not available. free() is supported but does nothing.
-		The memory will be freed (or in fact just forgotton) when
+		The memory will be freed (or in fact just forgotten) when
 		U-Boot relocates itself.
 
 		Pre-relocation malloc() is only supported on ARM and sandbox
@@ -4161,8 +4161,8 @@ Configuration Settings:
 
 	The format of the list is:
 		type_attribute = [s|d|x|b|i|m]
-		access_atribute = [a|r|o|c]
-		attributes = type_attribute[access_atribute]
+		access_attribute = [a|r|o|c]
+		attributes = type_attribute[access_attribute]
 		entry = variable_name[:attributes]
 		list = entry[,list]
 
@@ -4182,7 +4182,7 @@ Configuration Settings:
 
 	- CONFIG_ENV_FLAGS_LIST_DEFAULT
 		Define this to a list (string) to define the ".flags"
-		envirnoment variable in the default or embedded environment.
+		environment variable in the default or embedded environment.
 
 	- CONFIG_ENV_FLAGS_LIST_STATIC
 		Define this to a list (string) to define validation that
@@ -4208,7 +4208,7 @@ Configuration Settings:
 - CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC (OMAP only)
 	This is set by OMAP boards for the max time that reset should
 	be asserted. See doc/README.omap-reset-time for details on how
-	the value can be calulated on a given board.
+	the value can be calculated on a given board.
 
 - CONFIG_USE_STDINT
 	If stdint.h is available with your toolchain you can define this
@@ -4309,7 +4309,7 @@ accordingly!
 	  provision.
 
 BE CAREFUL! The first access to the environment happens quite early
-in U-Boot initalization (when we try to get the setting of for the
+in U-Boot initialization (when we try to get the setting of for the
 console baudrate). You *MUST* have mapped your NVRAM area then, or
 U-Boot will hang.
 
@@ -4532,16 +4532,16 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
                               table, or the whole device D if has no partition
                               table.
                - "D:auto": first partition in device D with bootable flag set.
-                           If none, first valid paratition in device D. If no
+                           If none, first valid partition in device D. If no
                            partition table then means device D.
 
        - FAT_ENV_FILE:
 
          It's a string of the FAT file name. This file use to store the
-         envrionment.
+         environment.
 
        - CONFIG_FAT_WRITE:
-         This should be defined. Otherwise it cannot save the envrionment file.
+         This should be defined. Otherwise it cannot save the environment file.
 
 - CONFIG_ENV_IS_IN_MMC:
 
@@ -4724,7 +4724,7 @@ Low Level (hardware related) configuration options:
 		if CONFIG_SYS_FDC_HW_INIT is defined, then the function
 		fdc_hw_init() is called at the beginning of the FDC
 		setup. fdc_hw_init() must be provided by the board
-		source code. It is used to make hardware dependant
+		source code. It is used to make hardware-dependent
 		initializations.
 
 - CONFIG_IDE_AHB:
@@ -4733,7 +4733,7 @@ Low Level (hardware related) configuration options:
 		When software is doing ATA command and data transfer to
 		IDE devices through IDE-AHB controller, some additional
 		registers accessing to these kind of IDE-AHB controller
-		is requierd.
+		is required.
 
 - CONFIG_SYS_IMMR:	Physical address of the Internal Memory.
 		DO NOT CHANGE unless you know exactly what you're
@@ -4846,7 +4846,7 @@ Low Level (hardware related) configuration options:
 		required.
 
 - CONFIG_PCI_ENUM_ONLY
-		Only scan through and get the devices on the busses.
+		Only scan through and get the devices on the buses.
 		Don't do any setup work, presumably because someone or
 		something has already done it, and we don't need to do it
 		a second time.	Useful for platforms that are pre-booted
@@ -5468,7 +5468,7 @@ List of environment variables (most likely not complete):
 
   npe_ucode	- set load address for the NPE microcode
 
-  silent_linux  - If set then linux will be told to boot silently, by
+  silent_linux  - If set then Linux will be told to boot silently, by
 		  changing the console to be empty. If "yes" it will be
 		  made silent. If "no" it will not be made silent. If
 		  unset, then it will be made silent if the U-Boot console
@@ -5555,7 +5555,7 @@ Callback functions for environment variables:
 ---------------------------------------------
 
 For some environment variables, the behavior of u-boot needs to change
-when their values are changed.  This functionailty allows functions to
+when their values are changed.  This functionality allows functions to
 be associated with arbitrary variables.  On creation, overwrite, or
 deletion, the callback will provide the opportunity for some side
 effect to happen or for the change to be rejected.
@@ -5578,7 +5578,7 @@ Callbacks can also be associated by defining the ".callbacks" variable
 with the same list format above.  Any association in ".callbacks" will
 override any association in the static list. You can define
 CONFIG_ENV_CALLBACK_LIST_DEFAULT to a list (string) to define the
-".callbacks" envirnoment variable in the default or embedded environment.
+".callbacks" environment variable in the default or embedded environment.
 
 
 Command Line Parsing:
@@ -6343,7 +6343,7 @@ code for the initialization procedures:
 * Initialized global data (data segment) is read-only. Do not attempt
   to write it.
 
-* Do not use any uninitialized global data (or implicitely initialized
+* Do not use any uninitialized global data (or implicitly initialized
   as zero data - BSS segment) at all - this is undefined, initiali-
   zation is performed later (when relocating to RAM).
 
@@ -6351,7 +6351,7 @@ code for the initialization procedures:
   that.
 
 Having only the stack as writable memory limits means we cannot use
-normal global data to share information beween the code. But it
+normal global data to share information between the code. But it
 turned out that the implementation of U-Boot can be greatly
 simplified by making a global data structure (gd_t) available to all
 functions. We could pass a pointer to this data as argument to _all_
@@ -6482,7 +6482,7 @@ System Initialization:
 
 In the reset configuration, U-Boot starts at the reset entry point
 (on most PowerPC systems at address 0x00000100). Because of the reset
-configuration for CS0# this is a mirror of the onboard Flash memory.
+configuration for CS0# this is a mirror of the on board Flash memory.
 To be able to re-map memory U-Boot then jumps to its link address.
 To be able to implement the initialization code in C, a (small!)
 initial stack is set up in the internal Dual Ported RAM (in case CPUs
@@ -6598,7 +6598,7 @@ coding style; see the file "Documentation/CodingStyle" and the script
 
 Source files originating from a different project (for example the
 MTD subsystem) are generally exempt from these guidelines and are not
-reformated to ease subsequent migration to newer versions of those
+reformatted to ease subsequent migration to newer versions of those
 sources.
 
 Please note that U-Boot is implemented in C (and to some small parts in
