@@ -13,7 +13,7 @@
 #define BOOTENV_SHARED_BLKDEV_BODY(devtypel) \
 		"if " #devtypel " dev ${devnum}; then " \
 			"setenv devtype " #devtypel "; " \
-			"run scan_dev_for_boot; " \
+			"run scan_dev_for_boot_part; " \
 		"fi\0"
 
 #define BOOTENV_SHARED_BLKDEV(devtypel) \
@@ -155,7 +155,6 @@
 	"boot_prefixes=/ /boot/\0" \
 	"boot_scripts=boot.scr.uimg boot.scr\0" \
 	BOOTENV_BOOT_TARGETS \
-	"bootpart=1\0" \
 	\
 	"boot_extlinux="                                                  \
 		"sysboot ${devtype} ${devnum}:${bootpart} any "           \
@@ -186,10 +185,19 @@
 		"done\0"                                                  \
 	\
 	"scan_dev_for_boot="                                              \
-		"echo Scanning ${devtype} ${devnum}...; "                 \
+		"echo Scanning ${devtype} ${devnum}:${bootpart}...; "     \
 		"for prefix in ${boot_prefixes}; do "                     \
 			"run scan_dev_for_extlinux; "                     \
 			"run scan_dev_for_scripts; "                      \
+		"done\0"                                                  \
+	\
+	"scan_dev_for_boot_part="                                         \
+		"part list ${devtype} ${devnum} devplist; "               \
+		"for bootpart in ${devplist}; do "                        \
+			"if fstype ${devtype} ${devnum}:${bootpart} "     \
+					"bootfstype; then "               \
+				"run scan_dev_for_boot; "                 \
+			"fi; "                                            \
 		"done\0"                                                  \
 	\
 	BOOT_TARGET_DEVICES(BOOTENV_DEV)                                  \
