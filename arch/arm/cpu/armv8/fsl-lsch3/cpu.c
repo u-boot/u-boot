@@ -243,59 +243,6 @@ int arch_cpu_init(void)
 }
 
 /*
- * flush_l3_cache
- * Dickens L3 cache can be flushed by transitioning from FAM to SFONLY power
- * state, by writing to HP-F P-state request register.
- * Fixme: This function should moved to a common file if other SoCs also use
- * the same Dickens.
- */
-#define HNF0_PSTATE_REQ 0x04200010
-#define HNF1_PSTATE_REQ 0x04210010
-#define HNF2_PSTATE_REQ 0x04220010
-#define HNF3_PSTATE_REQ 0x04230010
-#define HNF4_PSTATE_REQ 0x04240010
-#define HNF5_PSTATE_REQ 0x04250010
-#define HNF6_PSTATE_REQ 0x04260010
-#define HNF7_PSTATE_REQ 0x04270010
-#define HNFPSTAT_MASK (0xFFFFFFFFFFFFFFFC)
-#define HNFPSTAT_FAM	0x3
-#define HNFPSTAT_SFONLY 0x01
-
-static void hnf_pstate_req(u64 *ptr, u64 state)
-{
-	int timeout = 1000;
-	out_le64(ptr, (in_le64(ptr) & HNFPSTAT_MASK) | (state & 0x3));
-	ptr++;
-	/* checking if the transition is completed */
-	while (timeout > 0) {
-		if (((in_le64(ptr) & 0x0c) >> 2) == (state & 0x3))
-			break;
-		udelay(100);
-		timeout--;
-	}
-}
-
-void flush_l3_cache(void)
-{
-	hnf_pstate_req((u64 *)HNF0_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF1_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF2_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF3_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF4_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF5_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF6_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF7_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF0_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF1_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF2_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF3_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF4_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF5_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF6_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF7_PSTATE_REQ, HNFPSTAT_FAM);
-}
-
-/*
  * This function is called from lib/board.c.
  * It recreates MMU table in main memory. MMU and d-cache are enabled earlier.
  * There is no need to disable d-cache for this operation.

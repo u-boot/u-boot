@@ -73,17 +73,21 @@ void invalidate_dcache_all(void)
 	__asm_invalidate_dcache_all();
 }
 
-void __weak flush_l3_cache(void)
-{
-}
-
 /*
- * Performs a clean & invalidation of the entire data cache at all levels
+ * Performs a clean & invalidation of the entire data cache at all levels.
+ * This function needs to be inline to avoid using stack.
+ * __asm_flush_l3_cache return status of timeout
  */
-void flush_dcache_all(void)
+inline void flush_dcache_all(void)
 {
+	int ret;
+
 	__asm_flush_dcache_all();
-	flush_l3_cache();
+	ret = __asm_flush_l3_cache();
+	if (ret)
+		debug("flushing dcache returns 0x%x\n", ret);
+	else
+		debug("flushing dcache successfully.\n");
 }
 
 /*

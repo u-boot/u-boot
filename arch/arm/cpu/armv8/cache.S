@@ -155,3 +155,9 @@ ENTRY(__asm_invalidate_icache_all)
 	isb	sy
 	ret
 ENDPROC(__asm_invalidate_icache_all)
+
+ENTRY(__asm_flush_l3_cache)
+	mov	x0, #0			/* return status as success */
+	ret
+ENDPROC(__asm_flush_l3_cache)
+	.weak	__asm_flush_l3_cache

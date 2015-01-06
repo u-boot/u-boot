@@ -70,6 +70,7 @@ void __asm_invalidate_dcache_all(void);
 void __asm_flush_dcache_range(u64 start, u64 end);
 void __asm_invalidate_tlb_all(void);
 void __asm_invalidate_icache_all(void);
+int __asm_flush_l3_cache(void);
 
 void armv8_switch_to_el2(void);
 void armv8_switch_to_el1(void);
