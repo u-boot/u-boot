@@ -231,39 +231,6 @@ int fdtdec_parse_phandle_with_args(const void *blob, int src_node,
 				   int cell_count, int index,
 				   struct fdtdec_phandle_args *out_args);
 
-/* GPIOs are numbered from 0 */
-enum {
-	FDT_GPIO_NONE = -1U,	/* an invalid GPIO used to end our list */
-
-	FDT_GPIO_ACTIVE_LOW = 1 << 0,	/* input is active low (else high) */
-};
-
-/* This is the state of a GPIO pin as defined by the fdt */
-struct fdt_gpio_state {
-	const char *name;	/* name of the fdt property defining this */
-	uint gpio;		/* GPIO number, or FDT_GPIO_NONE if none */
-	u8 flags;		/* FDT_GPIO_... flags */
-};
-
-/* This tells us whether a fdt_gpio_state record is valid or not */
-#define fdt_gpio_isvalid(x) ((x)->gpio != FDT_GPIO_NONE)
-
-/**
- * Read the GPIO taking into account the polarity of the pin.
- *
- * @param gpio		pointer to the decoded gpio
- * @return value of the gpio if successful, < 0 if unsuccessful
- */
-int fdtdec_get_gpio(struct fdt_gpio_state *gpio);
-
-/**
- * Write the GPIO taking into account the polarity of the pin.
- *
- * @param gpio		pointer to the decoded gpio
- * @return 0 if successful
- */
-int fdtdec_set_gpio(struct fdt_gpio_state *gpio, int val);
-
 /**
  * Find the next numbered alias for a peripheral. This is used to enumerate
  * all the peripherals of a certain type.
@@ -643,50 +610,6 @@ const u32 *fdtdec_locate_array(const void *blob, int node,
  * @return 1 if the properly is present; 0 if it isn't present
  */
 int fdtdec_get_bool(const void *blob, int node, const char *prop_name);
-
-/**
- * Decode a single GPIOs from an FDT.
- *
- * If the property is not found, then the GPIO structure will still be
- * initialised, with gpio set to FDT_GPIO_NONE. This makes it easy to
- * provide optional GPIOs.
- *
- * @param blob		FDT blob to use
- * @param node		Node to look at
- * @param prop_name	Node property name
- * @param gpio		gpio elements to fill from FDT
- * @return 0 if ok, -FDT_ERR_NOTFOUND if the property is missing.
- */
-int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
-		struct fdt_gpio_state *gpio);
-
-/**
- * Decode a list of GPIOs from an FDT. This creates a list of GPIOs with no
- * terminating item.
- *
- * @param blob         FDT blob to use
- * @param node         Node to look at
- * @param prop_name    Node property name
- * @param gpio         Array of gpio elements to fill from FDT. This will be
- *                     untouched if either 0 or an error is returned
- * @param max_count    Maximum number of elements allowed
- * @return number of GPIOs read if ok, -FDT_ERR_BADLAYOUT if max_count would
- * be exceeded, or -FDT_ERR_NOTFOUND if the property is missing.
- */
-int fdtdec_decode_gpios(const void *blob, int node, const char *prop_name,
-		struct fdt_gpio_state *gpio, int max_count);
-
-/**
- * Set up a GPIO pin according to the provided gpio information. At present this
- * just requests the GPIO.
- *
- * If the gpio is FDT_GPIO_NONE, no action is taken. This makes it easy to
- * deal with optional GPIOs.
- *
- * @param gpio		GPIO info to use for set up
- * @return 0 if all ok or gpio was FDT_GPIO_NONE; -1 on error
- */
-int fdtdec_setup_gpio(struct fdt_gpio_state *gpio);
 
 /**
  * Look in the FDT for a config item with the given name and return its value
