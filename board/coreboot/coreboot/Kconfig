@@ -9,7 +9,20 @@ config SYS_VENDOR
 config SYS_SOC
 	default "coreboot"
 
+comment "coreboot-specific options"
+
 config SYS_CONFIG_NAME
+	string "Board configuration file"
 	default "coreboot"
+	help
+	  This option selects the board configuration file in include/configs/
+	  directory to be used to build U-Boot for coreboot.
+
+config DEFAULT_DEVICE_TREE
+	string "Board Device Tree Source (dts) file"
+	default "link"
+	help
+	  This option selects the board Device Tree Source (dts) file in
+	  arch/x86/dts/ directory to be used to build U-Boot for coreboot.
 
 endif
