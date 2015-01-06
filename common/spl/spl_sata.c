@@ -13,6 +13,7 @@
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <sata.h>
+#include <scsi.h>
 #include <fat.h>
 #include <version.h>
 #include <image.h>
