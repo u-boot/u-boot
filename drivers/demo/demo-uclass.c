@@ -43,6 +43,26 @@ int demo_status(struct udevice *dev, int *status)
 	return ops->status(dev, status);
 }
 
+int demo_get_light(struct udevice *dev)
+{
+	const struct demo_ops *ops = device_get_ops(dev);
+
+	if (!ops->get_light)
+		return -ENOSYS;
+
+	return ops->get_light(dev);
+}
+
+int demo_set_light(struct udevice *dev, int light)
+{
+	const struct demo_ops *ops = device_get_ops(dev);
+
+	if (!ops->set_light)
+		return -ENOSYS;
+
+	return ops->set_light(dev, light);
+}
+
 int demo_parse_dt(struct udevice *dev)
 {
 	struct dm_demo_pdata *pdata = dev_get_platdata(dev);
