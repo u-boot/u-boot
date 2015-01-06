@@ -101,4 +101,8 @@
 #error SoC not defined
 #endif
 
+#ifdef CONFIG_LS2085A
+#define CONFIG_SYS_FSL_ERRATUM_A008336
+#endif
+
 #endif /* _ASM_ARMV8_FSL_LSCH3_CONFIG_ */
