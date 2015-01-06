@@ -171,6 +171,8 @@ int gpio_get_raw_function(struct udevice *dev, int offset, const char **namep);
 int gpio_requestf(unsigned gpio, const char *fmt, ...)
 		__attribute__ ((format (__printf__, 2, 3)));
 
+struct fdtdec_phandle_args;
+
 /**
  * struct struct dm_gpio_ops - Driver model GPIO operations
  *
@@ -214,6 +216,33 @@ struct dm_gpio_ops {
 	 * @return current function - GPIOF_...
 	 */
 	int (*get_function)(struct udevice *dev, unsigned offset);
+
+	/**
+	 * xlate() - Translate phandle arguments into a GPIO description
+	 *
+	 * This function should set up the fields in desc according to the
+	 * information in the arguments. The uclass will have set up:
+	 *
+	 *   @desc->dev to @dev
+	 *   @desc->flags to 0
+	 *   @desc->offset to the value of the first argument in args, if any,
+	 *		otherwise -1 (which is invalid)
+	 *
+	 * This method is optional so if the above defaults suit it can be
+	 * omitted. Typical behaviour is to set up the GPIOD_ACTIVE_LOW flag
+	 * in desc->flags.
+	 *
+	 * Note that @dev is passed in as a parameter to follow driver model
+	 * uclass conventions, even though it is already available as
+	 * desc->dev.
+	 *
+	 * @dev:	GPIO device
+	 * @desc:	Place to put GPIO description
+	 * @args:	Arguments provided in descripion
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*xlate)(struct udevice *dev, struct gpio_desc *desc,
+		     struct fdtdec_phandle_args *args);
 };
 
 /**

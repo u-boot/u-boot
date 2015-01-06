@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <fdtdec.h>
 #include <malloc.h>
 #include <asm/gpio.h>
 #include <linux/ctype.h>
@@ -89,6 +90,21 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 		*gpiop = uc_priv->gpio_base + offset;
 
 	return 0;
+}
+
+int gpio_find_and_xlate(struct gpio_desc *desc,
+			struct fdtdec_phandle_args *args)
+{
+	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
+
+	/* Use the first argument as the offset by default */
+	if (args->args_count > 0)
+		desc->offset = args->args[0];
+	else
+		desc->offset = -1;
+	desc->flags = 0;
+
+	return ops->xlate ? ops->xlate(desc->dev, desc, args) : 0;
 }
 
 static int dm_gpio_request(struct gpio_desc *desc, const char *label)
