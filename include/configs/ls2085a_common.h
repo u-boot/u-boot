@@ -274,10 +274,10 @@
 	"kernel_size=0x1000000\0"		\
 	"console=ttyAMA0,38400n8\0"
 
-#define CONFIG_BOOTARGS			"console=ttyS1,115200 root=/dev/ram0 " \
-					"earlyprintk=uart8250-8bit,0x21c0600 " \
-					"default_hugepagesz=2m hugepagesz=2m " \
-					"hugepages=16"
+#define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
+				"earlycon=uart8250,mmio,0x21c0600,115200 " \
+				"default_hugepagesz=2m hugepagesz=2m " \
+				"hugepages=16"
 #define CONFIG_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
 					"$kernel_size && bootm $kernel_load"
 #define CONFIG_BOOTDELAY		1
