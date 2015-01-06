@@ -10,6 +10,7 @@
 #define __TEGRA_MMC_H_
 
 #include <fdtdec.h>
+#include <asm/gpio.h>
 
 /* for mmc_config definition */
 #include <mmc.h>
@@ -134,9 +135,9 @@ struct mmc_host {
 	int enabled;		/* 1 to enable, 0 to disable */
 	int width;		/* Bus Width, 1, 4 or 8 */
 	enum periph_id mmc_id;	/* Peripheral ID: PERIPH_ID_... */
-	struct fdt_gpio_state cd_gpio;		/* Change Detect GPIO */
-	struct fdt_gpio_state pwr_gpio;		/* Power GPIO */
-	struct fdt_gpio_state wp_gpio;		/* Write Protect GPIO */
+	struct gpio_desc cd_gpio;	/* Change Detect GPIO */
+	struct gpio_desc pwr_gpio;	/* Power GPIO */
+	struct gpio_desc wp_gpio;	/* Write Protect GPIO */
 	unsigned int version;	/* SDHCI spec. version */
 	unsigned int clock;	/* Current clock (MHz) */
 	struct mmc_config cfg;	/* mmc configuration */
