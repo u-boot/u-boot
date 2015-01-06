@@ -10,6 +10,15 @@
 /*
  * Generic GPIO API for U-Boot
  *
+ * --
+ * NB: This is deprecated. Please use the driver model functions instead:
+ *
+ *    - gpio_request_by_name()
+ *    - dm_gpio_get_value() etc.
+ *
+ * For now we need a dm_ prefix on some functions to avoid name collision.
+ * --
+ *
  * GPIOs are numbered from 0 to GPIO_COUNT-1 which value is defined
  * by the SOC/architecture.
  *
@@ -26,6 +35,7 @@
  */
 
 /**
+ * @deprecated	Please use driver model instead
  * Request a GPIO. This should be called before any of the other functions
  * are used on this GPIO.
  *
@@ -39,6 +49,7 @@
 int gpio_request(unsigned gpio, const char *label);
 
 /**
+ * @deprecated	Please use driver model instead
  * Stop using the GPIO.  This function should not alter pin configuration.
  *
  * @param gpio	GPIO number
@@ -47,6 +58,7 @@ int gpio_request(unsigned gpio, const char *label);
 int gpio_free(unsigned gpio);
 
 /**
+ * @deprecated	Please use driver model instead
  * Make a GPIO an input.
  *
  * @param gpio	GPIO number
@@ -55,6 +67,7 @@ int gpio_free(unsigned gpio);
 int gpio_direction_input(unsigned gpio);
 
 /**
+ * @deprecated	Please use driver model instead
  * Make a GPIO an output, and set its value.
  *
  * @param gpio	GPIO number
@@ -64,6 +77,7 @@ int gpio_direction_input(unsigned gpio);
 int gpio_direction_output(unsigned gpio, int value);
 
 /**
+ * @deprecated	Please use driver model instead
  * Get a GPIO's value. This will work whether the GPIO is an input
  * or an output.
  *
@@ -73,6 +87,7 @@ int gpio_direction_output(unsigned gpio, int value);
 int gpio_get_value(unsigned gpio);
 
 /**
+ * @deprecated	Please use driver model instead
  * Set an output GPIO's value. The GPIO must already be an output or
  * this function may have no effect.
  *
@@ -134,6 +149,8 @@ static inline bool dm_gpio_is_valid(struct gpio_desc *desc)
  * which means this is GPIO bank b, offset 4, currently set to input, current
  * value 1, [x] means that it is requested and the owner is 'sdmmc_cd'
  *
+ * TODO(sjg@chromium.org): This should use struct gpio_desc
+ *
  * @dev:	Device to check
  * @offset:	Offset of device GPIO to check
  * @buf:	Place to put string
@@ -145,6 +162,8 @@ int gpio_get_status(struct udevice *dev, int offset, char *buf, int buffsize);
  * gpio_get_function() - get the current function for a GPIO pin
  *
  * Note this returns GPIOF_UNUSED if the GPIO is not requested.
+ *
+ * TODO(sjg@chromium.org): This should use struct gpio_desc
  *
  * @dev:	Device to check
  * @offset:	Offset of device GPIO to check
@@ -162,6 +181,8 @@ int gpio_get_function(struct udevice *dev, int offset, const char **namep);
  *
  * Note this does not return GPIOF_UNUSED - it will always return the GPIO
  * driver's view of a pin function, even if it is not correctly set up.
+ *
+ * TODO(sjg@chromium.org): This should use struct gpio_desc
  *
  * @dev:	Device to check
  * @offset:	Offset of device GPIO to check
