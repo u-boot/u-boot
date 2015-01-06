@@ -32,6 +32,21 @@ on other architectures, like below:
 $ make coreboot-x86_defconfig
 $ make all
 
+Note this default configuration will build a U-Boot payload for the Link board.
+To build a coreboot payload against another board, you can change the build
+configuration during the 'make menuconfig' process.
+
+x86 architecture  --->
+	...
+	(chromebook_link) Board configuration file
+	(chromebook_link) Board Device Tree Source (dts) file
+	(0x19200000) Board specific Cache-As-RAM (CAR) address
+	(0x4000) Board specific Cache-As-RAM (CAR) size
+
+Change the 'Board configuration file' and 'Board Device Tree Source (dts) file'
+to point to a new board. You can also change the Cache-As-RAM (CAR) related
+settings here if the default values do not fit your new board.
+
 Building ROM version of U-Boot (hereafter referred to as u-boot.rom) is a
 little bit tricky, as generally it requires several binary blobs which are not
 shipped in the U-Boot source tree. Due to this reason, the u-boot.rom build is
@@ -88,10 +103,30 @@ in this FSP package too.
 Rename the first one to fsp.bin and second one to cmc.bin and put them in the
 board directory.
 
-Now you can build U-Boot and obtaim u-boot.rom
+Now you can build U-Boot and obtain u-boot.rom
 
 $ make crownbay_defconfig
 $ make all
+
+Test with coreboot
+------------------
+For testing U-Boot as the coreboot payload, there are things that need be paid
+attention to. coreboot supports loading an ELF executable and a 32-bit plain
+binary, as well as other supported payloads. With the default configuration,
+U-Boot is set up to use a separate Device Tree Blob (dtb). As of today, the
+generated u-boot-dtb.bin needs to be packaged by the cbfstool utility (a tool
+provided by coreboot) manually as coreboot's 'make menuconfig' does not provide
+this capability yet. The command is as follows:
+
+# in the coreboot root directory
+$ ./build/util/cbfstool/cbfstool build/coreboot.rom add-flat-binary \
+  -f u-boot-dtb.bin -n fallback/payload -c lzma -l 0x1110000 -e 0x1110015
+
+Make sure 0x1110000 matches CONFIG_SYS_TEXT_BASE and 0x1110015 matches the
+symbol address of _start (in arch/x86/cpu/start.S).
+
+If you want to use ELF as the coreboot payload, change U-Boot configuration to
+use CONFIG_OF_EMBED.
 
 CPU Microcode
 -------------
@@ -106,7 +141,7 @@ x86 has been converted to use driver model for serial and GPIO.
 Device Tree
 -----------
 x86 uses device tree to configure the board thus requires CONFIG_OF_CONTROL to
-be turned on. Not every device on the board is configured via devie tree, but
+be turned on. Not every device on the board is configured via device tree, but
 more and more devices will be added as time goes by. Check out the directory
 arch/x86/dts/ for these device tree source files.
 
