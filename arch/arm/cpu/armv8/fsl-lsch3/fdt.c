@@ -60,4 +60,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_MP
 	ft_fixup_cpu(blob);
 #endif
+
+#ifdef CONFIG_SYS_NS16550
+	do_fixup_by_compat_u32(blob, "ns16550",
+			       "clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
+#endif
 }
