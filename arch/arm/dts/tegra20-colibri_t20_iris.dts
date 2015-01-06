@@ -22,16 +22,16 @@
 	};
 
 	usb@c5004000 {
-		nvidia,phy-reset-gpio = <&gpio 169 0>; /* PV1 */
-		nvidia,vbus-gpio = <&gpio 217 0>; /* PBB1 */
+		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1) GPIO_ACTIVE_HIGH>;
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(BB, 1) GPIO_ACTIVE_HIGH>;
 	};
 
 	usb@c5008000 {
-		nvidia,vbus-gpio = <&gpio 178 1>; /* PW2 low-active */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(W, 2) GPIO_ACTIVE_LOW>;
 	};
 
 	nand-controller@70008000 {
-		nvidia,wp-gpios = <&gpio 144 0>; /* PS0 */
+		nvidia,wp-gpios = <&gpio TEGRA_GPIO(S, 0) GPIO_ACTIVE_HIGH>;
 		nvidia,width = <8>;
 		nvidia,timing = <15 100 25 80 25 10 15 10 100>;
 
@@ -43,7 +43,7 @@
 
 	sdhci@c8000600 {
 		status = "okay";
-		cd-gpios = <&gpio 23 1>; /* gpio PC7 */
+		cd-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>;
 		bus-width = <4>;
 	};
 };

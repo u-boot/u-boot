@@ -73,9 +73,12 @@
 
 		nvidia,bits-per-pixel = <16>;
 		nvidia,pwm = <&pwm 0 500000>;
-		nvidia,backlight-enable-gpios = <&gpio 13 0>; /* PB5 */
-		nvidia,backlight-vdd-gpios = <&gpio 176 0>; /* PW0 */
-		nvidia,lvds-shutdown-gpios = <&gpio 10 0>; /* PB2 */
+		nvidia,backlight-enable-gpios = <&gpio TEGRA_GPIO(B, 5)
+							GPIO_ACTIVE_HIGH>;
+		nvidia,lvds-shutdown-gpios = <&gpio TEGRA_GPIO(B, 2)
+							GPIO_ACTIVE_HIGH>;
+		nvidia,backlight-vdd-gpios = <&gpio TEGRA_GPIO(W, 0)
+							GPIO_ACTIVE_HIGH>;
 		nvidia,panel-timings = <0 0 0 0>;
 	};
 };
