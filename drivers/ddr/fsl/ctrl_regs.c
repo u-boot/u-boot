@@ -1928,7 +1928,7 @@ static void set_timing_cfg_8(const unsigned int ctrl_num,
 		wwt_bg = tccdl - 4;
 	} else {
 		rrt_bg = tccdl - 2;
-		wwt_bg = tccdl - 4;
+		wwt_bg = tccdl - 2;
 	}
 
 	acttoact_bg = picos_to_mclk(ctrl_num, common_dimm->trrdl_ps);
