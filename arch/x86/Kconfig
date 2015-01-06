@@ -66,6 +66,15 @@ config SMM_TSEG
 config SMM_TSEG_SIZE
 	hex
 
+config X86_RESET_VECTOR
+	bool
+	default n
+
+config SYS_X86_START16
+	hex
+	depends on X86_RESET_VECTOR
+	default 0xfffff800
+
 config BOARD_ROMSIZE_KB_512
 	bool
 config BOARD_ROMSIZE_KB_1024

@@ -14,10 +14,8 @@
 #include <configs/x86-common.h>
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
-#define CONFIG_SYS_X86_START16		0xfffff800
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_X86_RESET_VECTOR
 #define CONFIG_NR_DRAM_BANKS		1
 
 #define CONFIG_X86_SERIAL
