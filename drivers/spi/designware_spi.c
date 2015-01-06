@@ -164,13 +164,13 @@ static void spi_hw_init(struct dw_spi_priv *priv)
 	if (!priv->fifo_len) {
 		u32 fifo;
 
-		for (fifo = 2; fifo <= 257; fifo++) {
+		for (fifo = 2; fifo <= 256; fifo++) {
 			dw_writew(priv, DW_SPI_TXFLTR, fifo);
 			if (fifo != dw_readw(priv, DW_SPI_TXFLTR))
 				break;
 		}
 
-		priv->fifo_len = (fifo == 257) ? 0 : fifo;
+		priv->fifo_len = (fifo == 2) ? 0 : fifo - 1;
 		dw_writew(priv, DW_SPI_TXFLTR, 0);
 	}
 	debug("%s: fifo_len=%d\n", __func__, priv->fifo_len);
