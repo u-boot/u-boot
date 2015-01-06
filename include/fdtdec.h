@@ -178,6 +178,59 @@ enum fdt_compat_id {
 	COMPAT_COUNT,
 };
 
+#define MAX_PHANDLE_ARGS 16
+struct fdtdec_phandle_args {
+	int node;
+	int args_count;
+	uint32_t args[MAX_PHANDLE_ARGS];
+};
+
+/**
+ * fdtdec_parse_phandle_with_args() - Find a node pointed by phandle in a list
+ *
+ * This function is useful to parse lists of phandles and their arguments.
+ *
+ * Example:
+ *
+ * phandle1: node1 {
+ *	#list-cells = <2>;
+ * }
+ *
+ * phandle2: node2 {
+ *	#list-cells = <1>;
+ * }
+ *
+ * node3 {
+ *	list = <&phandle1 1 2 &phandle2 3>;
+ * }
+ *
+ * To get a device_node of the `node2' node you may call this:
+ * fdtdec_parse_phandle_with_args(blob, node3, "list", "#list-cells", 0, 1,
+ *				  &args);
+ *
+ * (This function is a modified version of __of_parse_phandle_with_args() from
+ * Linux 3.18)
+ *
+ * @blob:	Pointer to device tree
+ * @src_node:	Offset of device tree node containing a list
+ * @list_name:	property name that contains a list
+ * @cells_name:	property name that specifies the phandles' arguments count,
+ *		or NULL to use @cells_count
+ * @cells_count: Cell count to use if @cells_name is NULL
+ * @index:	index of a phandle to parse out
+ * @out_args:	optional pointer to output arguments structure (will be filled)
+ * @return 0 on success (with @out_args filled out if not NULL), -ENOENT if
+ *	@list_name does not exist, a phandle was not found, @cells_name
+ *	could not be found, the arguments were truncated or there were too
+ *	many arguments.
+ *
+ */
+int fdtdec_parse_phandle_with_args(const void *blob, int src_node,
+				   const char *list_name,
+				   const char *cells_name,
+				   int cell_count, int index,
+				   struct fdtdec_phandle_args *out_args);
+
 /* GPIOs are numbered from 0 */
 enum {
 	FDT_GPIO_NONE = -1U,	/* an invalid GPIO used to end our list */

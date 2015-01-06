@@ -679,6 +679,130 @@ int fdtdec_get_bool(const void *blob, int node, const char *prop_name)
 	return cell != NULL;
 }
 
+int fdtdec_parse_phandle_with_args(const void *blob, int src_node,
+				   const char *list_name,
+				   const char *cells_name,
+				   int cell_count, int index,
+				   struct fdtdec_phandle_args *out_args)
+{
+	const __be32 *list, *list_end;
+	int rc = 0, size, cur_index = 0;
+	uint32_t count = 0;
+	int node = -1;
+	int phandle;
+
+	/* Retrieve the phandle list property */
+	list = fdt_getprop(blob, src_node, list_name, &size);
+	if (!list)
+		return -ENOENT;
+	list_end = list + size / sizeof(*list);
+
+	/* Loop over the phandles until all the requested entry is found */
+	while (list < list_end) {
+		rc = -EINVAL;
+		count = 0;
+
+		/*
+		 * If phandle is 0, then it is an empty entry with no
+		 * arguments.  Skip forward to the next entry.
+		 */
+		phandle = be32_to_cpup(list++);
+		if (phandle) {
+			/*
+			 * Find the provider node and parse the #*-cells
+			 * property to determine the argument length.
+			 *
+			 * This is not needed if the cell count is hard-coded
+			 * (i.e. cells_name not set, but cell_count is set),
+			 * except when we're going to return the found node
+			 * below.
+			 */
+			if (cells_name || cur_index == index) {
+				node = fdt_node_offset_by_phandle(blob,
+								  phandle);
+				if (!node) {
+					debug("%s: could not find phandle\n",
+					      fdt_get_name(blob, src_node,
+							   NULL));
+					goto err;
+				}
+			}
+
+			if (cells_name) {
+				count = fdtdec_get_int(blob, node, cells_name,
+						       -1);
+				if (count == -1) {
+					debug("%s: could not get %s for %s\n",
+					      fdt_get_name(blob, src_node,
+							   NULL),
+					      cells_name,
+					      fdt_get_name(blob, node,
+							   NULL));
+					goto err;
+				}
+			} else {
+				count = cell_count;
+			}
+
+			/*
+			 * Make sure that the arguments actually fit in the
+			 * remaining property data length
+			 */
+			if (list + count > list_end) {
+				debug("%s: arguments longer than property\n",
+				      fdt_get_name(blob, src_node, NULL));
+				goto err;
+			}
+		}
+
+		/*
+		 * All of the error cases above bail out of the loop, so at
+		 * this point, the parsing is successful. If the requested
+		 * index matches, then fill the out_args structure and return,
+		 * or return -ENOENT for an empty entry.
+		 */
+		rc = -ENOENT;
+		if (cur_index == index) {
+			if (!phandle)
+				goto err;
+
+			if (out_args) {
+				int i;
+
+				if (count > MAX_PHANDLE_ARGS) {
+					debug("%s: too many arguments %d\n",
+					      fdt_get_name(blob, src_node,
+							   NULL), count);
+					count = MAX_PHANDLE_ARGS;
+				}
+				out_args->node = node;
+				out_args->args_count = count;
+				for (i = 0; i < count; i++) {
+					out_args->args[i] =
+							be32_to_cpup(list++);
+				}
+			}
+
+			/* Found it! return success */
+			return 0;
+		}
+
+		node = -1;
+		list += count;
+		cur_index++;
+	}
+
+	/*
+	 * Result will be one of:
+	 * -ENOENT : index is for empty phandle
+	 * -EINVAL : parsing error on data
+	 * [1..n]  : Number of phandle (count mode; when index = -1)
+	 */
+	rc = index < 0 ? cur_index : -ENOENT;
+ err:
+	return rc;
+}
+
 /**
  * Decode a list of GPIOs from an FDT. This creates a list of GPIOs with no
  * terminating item.
