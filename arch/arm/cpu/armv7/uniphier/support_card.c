@@ -160,12 +160,12 @@ static const struct memory_bank memory_banks_boot_swap_on[] = {
 
 #if defined(CONFIG_DCC_MICRO_SUPPORT_CARD)
 static const struct memory_bank memory_banks_boot_swap_off[] = {
-	{0x04000000, 0x04000000},
+	{0x04000000, 0x02000000},
 };
 
 static const struct memory_bank memory_banks_boot_swap_on[] = {
-	{0x00000000, 0x04000000},
-	{0x04000000, 0x04000000},
+	{0x00000000, 0x02000000},
+	{0x04000000, 0x02000000},
 };
 #endif
 
