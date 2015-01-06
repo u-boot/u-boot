@@ -19,7 +19,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_SYS_COREBOOT
 #define CONFIG_LAST_STAGE_INIT
 #define CONFIG_SYS_EARLY_PCI_INIT
 
@@ -54,10 +53,6 @@
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,vga,serial\0" \
 					"stdout=vga,serial,cbmem\0" \
 					"stderr=vga,serial,cbmem\0"
-
-#define CONFIG_CBMEM_CONSOLE
-
-#define CONFIG_VIDEO_COREBOOT
 
 #define CONFIG_NR_DRAM_BANKS			4
 

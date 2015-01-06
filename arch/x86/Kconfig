@@ -344,6 +344,8 @@ config TSC_FREQ_IN_MHZ
 	help
 	  The running frequency in MHz of Time-Stamp Counter (TSC).
 
+source "arch/x86/cpu/coreboot/Kconfig"
+
 source "arch/x86/cpu/ivybridge/Kconfig"
 
 source "arch/x86/cpu/queensbay/Kconfig"
