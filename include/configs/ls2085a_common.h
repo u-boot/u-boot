@@ -207,12 +207,10 @@
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE	(512UL * 1024 * 1024)
 #define CONFIG_SYS_LS_MC_FW_IN_NOR
 #define CONFIG_SYS_LS_MC_FW_ADDR	0x580200000ULL
-/* TODO Actual FW length needs to be determined at runtime from FW header */
-#define CONFIG_SYS_LS_MC_FW_LENGTH	(4U * 1024 * 1024)
 #define CONFIG_SYS_LS_MC_DPL_IN_NOR
 #define CONFIG_SYS_LS_MC_DPL_ADDR	0x5806C0000ULL
 /* TODO Actual DPL max length needs to be confirmed with the MC FW team */
-#define CONFIG_SYS_LS_MC_DPL_LENGTH	4096
+#define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH	(256 * 1024)
 #define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET    0xe00000
 
 /* Carve the MC private DRAM block from the end of DRAM */

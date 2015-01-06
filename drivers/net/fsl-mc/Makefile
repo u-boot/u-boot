@@ -5,4 +5,6 @@
 #
 
 # Layerscape MC driver
-obj-y += mc.o
+obj-y += mc.o \
+	mc_sys.o \
+	dpmng.o

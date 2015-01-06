@@ -12,7 +12,7 @@
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <libfdt.h>
-#include <fsl_mc.h>
+#include <fsl-mc/fsl_mc.h>
 #include <environment.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -98,7 +98,21 @@ void fdt_fixup_board_enet(void *fdt)
 {
 	int offset;
 
-	offset = fdt_path_offset(fdt, "/fsl,dprc@0");
+	offset = fdt_path_offset(fdt, "/fsl-mc");
+
+	/*
+	 * TODO: Remove this when backward compatibility
+	 * with old DT node (fsl,dprc@0) is no longer needed.
+	 */
+	if (offset < 0)
+		offset = fdt_path_offset(fdt, "/fsl,dprc@0");
+
+	if (offset < 0) {
+		printf("%s: ERROR: fsl-mc node not found in device tree (error %d)\n",
+		       __func__, offset);
+		return;
+	}
+
 	if (get_mc_boot_status() == 0)
 		fdt_status_okay(fdt, offset);
 	else
