@@ -83,6 +83,14 @@ int is_core_valid(unsigned int core)
 	return !!((1 << core) & cpu_mask());
 }
 
+int is_core_online(u64 cpu_id)
+{
+	u64 *table;
+	int pos = id_to_core(cpu_id);
+	table = (u64 *)get_spin_tbl_addr() + pos * WORDS_PER_SPIN_TABLE_ENTRY;
+	return table[SPIN_TABLE_ELEM_STATUS_IDX] == 1;
+}
+
 int cpu_reset(int nr)
 {
 	puts("Feature is not implemented.\n");
