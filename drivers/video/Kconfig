@@ -1,0 +1,8 @@
+config VIDEO_X86
+	bool "Enable x86 video driver support"
+	depends on X86
+	default n
+	help
+	  Turn on this option to enable a very simple driver which uses vesa
+	  to discover the video mode and then provides a frame buffer for use
+	  by U-Boot.

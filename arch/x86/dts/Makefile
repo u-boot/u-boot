@@ -1,5 +1,4 @@
-dtb-y += link.dtb \
-	chromebook_link.dtb \
+dtb-y += chromebook_link.dtb \
 	crownbay.dtb
 
 targets += $(dtb-y)
