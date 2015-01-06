@@ -150,7 +150,7 @@ static inline void final_mmu_setup(void)
 	 * set level 2 table 0 to cache-inhibit, covering 0 to 1GB
 	 */
 	section_l1t0 = 0;
-	section_l1t1 = BLOCK_SIZE_L0;
+	section_l1t1 = BLOCK_SIZE_L0 | PMD_SECT_OUTER_SHARE;
 	section_l2 = 0;
 	for (i = 0; i < 512; i++) {
 		set_pgtable_section(level1_table_0, i, section_l1t0,
@@ -168,10 +168,10 @@ static inline void final_mmu_setup(void)
 		(u64)level2_table_0 | PMD_TYPE_TABLE;
 	level1_table_0[2] =
 		0x80000000 | PMD_SECT_AF | PMD_TYPE_SECT |
-		PMD_ATTRINDX(MT_NORMAL);
+		PMD_SECT_OUTER_SHARE | PMD_ATTRINDX(MT_NORMAL);
 	level1_table_0[3] =
 		0xc0000000 | PMD_SECT_AF | PMD_TYPE_SECT |
-		PMD_ATTRINDX(MT_NORMAL);
+		PMD_SECT_OUTER_SHARE | PMD_ATTRINDX(MT_NORMAL);
 
 	/* Rewrite table to enable cache */
 	set_pgtable_section(level2_table_0,
