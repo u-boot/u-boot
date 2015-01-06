@@ -112,6 +112,18 @@ struct gpio_desc {
 };
 
 /**
+ * dm_gpio_is_valid() - Check if a GPIO is gpio_is_valie
+ *
+ * @desc:	GPIO description containing device, offset and flags,
+ *		previously returned by gpio_request_by_name()
+ * @return true if valid, false if not
+ */
+static inline bool dm_gpio_is_valid(struct gpio_desc *desc)
+{
+	return desc->dev != NULL;
+}
+
+/**
  * gpio_get_status() - get the current GPIO status as a string
  *
  * Obtain the current GPIO status as a string which can be presented to the
@@ -312,5 +324,192 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
  * @return resulting integer value
  */
 unsigned gpio_get_values_as_int(const int *gpio_list);
+
+/**
+ * gpio_request_by_name() - Locate and request a GPIO by name
+ *
+ * This operates by looking up the given list name in the device (device
+ * tree property) and requesting the GPIO for use. The property must exist
+ * in @dev's node.
+ *
+ * Use @flags to specify whether the GPIO should be an input or output. In
+ * principle this can also come from the device tree binding but most
+ * bindings don't provide this information. Specifically, when the GPIO uclass
+ * calls the xlate() method, it can return default flags, which are then
+ * ORed with this @flags.
+ *
+ * If we find that requesting the GPIO is not always needed we could add a
+ * new function or a new GPIOD_NO_REQUEST flag.
+ *
+ * At present driver model has no reference counting so if one device
+ * requests a GPIO which subsequently is unbound, the @desc->dev pointer
+ * will be invalid. However this will only happen if the GPIO device is
+ * unbound, not if it is removed, so this seems like a reasonable limitation
+ * for now. There is no real use case for unbinding drivers in normal
+ * operation.
+ *
+ * The device tree binding is doc/device-tree-bindings/gpio/gpio.txt in
+ * generate terms and each specific device may add additional details in
+ * a binding file in the same directory.
+ *
+ * @dev:	Device requesting the GPIO
+ * @list_name:	Name of GPIO list (e.g. "board-id-gpios")
+ * @index:	Index number of the GPIO in that list use request (0=first)
+ * @desc:	Returns GPIO description information. If there is no such
+ *		GPIO, dev->dev will be NULL.
+ * @flags:	Indicates the GPIO input/output settings (GPIOD_...)
+ * @return 0 if OK, -ENOENT if the GPIO does not exist, -EINVAL if there is
+ * something wrong with the list, or other -ve for another error (e.g.
+ * -EBUSY if a GPIO was already requested)
+ */
+int gpio_request_by_name(struct udevice *dev, const char *list_name,
+			 int index, struct gpio_desc *desc, int flags);
+
+/**
+ * gpio_request_list_by_name() - Request a list of GPIOs
+ *
+ * Reads all the GPIOs from a list and requetss them. See
+ * gpio_request_by_name() for additional details. Lists should not be
+ * misused to hold unrelated or optional GPIOs. They should only be used
+ * for things like parallel data lines. A zero phandle terminates the list
+ * the list.
+ *
+ * This function will either succeed, and request all GPIOs in the list, or
+ * fail and request none (it will free already-requested GPIOs in case of
+ * an error part-way through).
+ *
+ * @dev:	Device requesting the GPIO
+ * @list_name:	Name of GPIO list (e.g. "board-id-gpios")
+ * @desc_list:	Returns a list of GPIO description information
+ * @max_count:	Maximum number of GPIOs to return (@desc_list must be at least
+ *		this big)
+ * @flags:	Indicates the GPIO input/output settings (GPIOD_...)
+ * @return number of GPIOs requested, or -ve on error
+ */
+int gpio_request_list_by_name(struct udevice *dev, const char *list_name,
+			      struct gpio_desc *desc_list, int max_count,
+			      int flags);
+
+/**
+ * gpio_get_list_count() - Returns the number of GPIOs in a list
+ *
+ * Counts the GPIOs in a list. See gpio_request_by_name() for additional
+ * details.
+ *
+ * @dev:	Device requesting the GPIO
+ * @list_name:	Name of GPIO list (e.g. "board-id-gpios")
+ * @return number of GPIOs (0 for an empty property) or -ENOENT if the list
+ * does not exist
+ */
+int gpio_get_list_count(struct udevice *dev, const char *list_name);
+
+/**
+ * gpio_request_by_name_nodev() - request GPIOs without a device
+ *
+ * This is a version of gpio_request_list_by_name() that does not use a
+ * device. Avoid it unless the caller is not yet using driver model
+ */
+int gpio_request_by_name_nodev(const void *blob, int node,
+			       const char *list_name,
+			       int index, struct gpio_desc *desc, int flags);
+
+/**
+ * gpio_request_list_by_name_nodev() - request GPIOs without a device
+ *
+ * This is a version of gpio_request_list_by_name() that does not use a
+ * device. Avoid it unless the caller is not yet using driver model
+ */
+int gpio_request_list_by_name_nodev(const void *blob, int node,
+				    const char *list_name,
+				    struct gpio_desc *desc_list, int max_count,
+				    int flags);
+
+/**
+ * dm_gpio_free() - Free a single GPIO
+ *
+ * This frees a single GPIOs previously returned from gpio_request_by_name().
+ *
+ * @dev:	Device which requested the GPIO
+ * @desc:	GPIO to free
+ * @return 0 if OK, -ve on error
+ */
+int dm_gpio_free(struct udevice *dev, struct gpio_desc *desc);
+
+/**
+ * gpio_free_list() - Free a list of GPIOs
+ *
+ * This frees a list of GPIOs previously returned from
+ * gpio_request_list_by_name().
+ *
+ * @dev:	Device which requested the GPIOs
+ * @desc:	List of GPIOs to free
+ * @count:	Number of GPIOs in the list
+ * @return 0 if OK, -ve on error
+ */
+int gpio_free_list(struct udevice *dev, struct gpio_desc *desc, int count);
+
+/**
+ * gpio_free_list_nodev() - free GPIOs without a device
+ *
+ * This is a version of gpio_free_list() that does not use a
+ * device. Avoid it unless the caller is not yet using driver model
+ */
+int gpio_free_list_nodev(struct gpio_desc *desc, int count);
+
+/**
+ * dm_gpio_get_value() - Get the value of a GPIO
+ *
+ * This is the driver model version of the existing gpio_get_value() function
+ * and should be used instead of that.
+ *
+ * For now, these functions have a dm_ prefix since they conflict with
+ * existing names.
+ *
+ * @desc:	GPIO description containing device, offset and flags,
+ *		previously returned by gpio_request_by_name()
+ * @return GPIO value (0 for inactive, 1 for active) or -ve on error
+ */
+int dm_gpio_get_value(struct gpio_desc *desc);
+
+int dm_gpio_set_value(struct gpio_desc *desc, int value);
+
+/**
+ * dm_gpio_set_dir() - Set the direction for a GPIO
+ *
+ * This sets up the direction according tot the provided flags. It will do
+ * nothing unless the direction is actually specified.
+ *
+ * @desc:	GPIO description containing device, offset and flags,
+ *		previously returned by gpio_request_by_name()
+ * @return 0 if OK, -ve on error
+ */
+int dm_gpio_set_dir(struct gpio_desc *desc);
+
+/**
+ * dm_gpio_set_dir_flags() - Set direction using specific flags
+ *
+ * This is like dm_gpio_set_dir() except that the flags value is provided
+ * instead of being used from desc->flags. This is needed because in many
+ * cases the GPIO description does not include direction information.
+ * Note that desc->flags is updated by this function.
+ *
+ * @desc:	GPIO description containing device, offset and flags,
+ *		previously returned by gpio_request_by_name()
+ * @flags:	New flags to use
+ * @return 0 if OK, -ve on error, in which case desc->flags is not updated
+ */
+int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags);
+
+/**
+ * gpio_get_number() - Get the global GPIO number of a GPIO
+ *
+ * This should only be used for debugging or interest. It returns the nummber
+ * that should be used for gpio_get_value() etc. to access this GPIO.
+ *
+ * @desc:	GPIO description containing device, offset and flags,
+ *		previously returned by gpio_request_by_name()
+ * @return GPIO number, or -ve if not found
+ */
+int gpio_get_number(struct gpio_desc *desc);
 
 #endif	/* _ASM_GENERIC_GPIO_H_ */
