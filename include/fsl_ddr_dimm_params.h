@@ -112,7 +112,7 @@ typedef struct dimm_params_s {
 #endif
 } dimm_params_t;
 
-extern unsigned int ddr_compute_dimm_parameters(
+unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 					 const generic_spd_eeprom_t *spd,
 					 dimm_params_t *pdimm,
 					 unsigned int dimm_number);

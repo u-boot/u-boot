@@ -43,9 +43,9 @@ u32 fsl_ddr_get_version(void)
  * propagation, compute a suitably rounded mclk_ps to compute
  * a working memory controller configuration.
  */
-unsigned int get_memory_clk_period_ps(void)
+unsigned int get_memory_clk_period_ps(const unsigned int ctrl_num)
 {
-	unsigned int data_rate = get_ddr_freq(0);
+	unsigned int data_rate = get_ddr_freq(ctrl_num);
 	unsigned int result;
 
 	/* Round to nearest 10ps, being careful about 64-bit multiply/divide */
@@ -59,10 +59,10 @@ unsigned int get_memory_clk_period_ps(void)
 }
 
 /* Convert picoseconds into DRAM clock cycles (rounding up if needed). */
-unsigned int picos_to_mclk(unsigned int picos)
+unsigned int picos_to_mclk(const unsigned int ctrl_num, unsigned int picos)
 {
 	unsigned long long clks, clks_rem;
-	unsigned long data_rate = get_ddr_freq(0);
+	unsigned long data_rate = get_ddr_freq(ctrl_num);
 
 	/* Short circuit for zero picos */
 	if (!picos)
@@ -88,9 +88,9 @@ unsigned int picos_to_mclk(unsigned int picos)
 	return (unsigned int) clks;
 }
 
-unsigned int mclk_to_picos(unsigned int mclk)
+unsigned int mclk_to_picos(const unsigned int ctrl_num, unsigned int mclk)
 {
-	return get_memory_clk_period_ps() * mclk;
+	return get_memory_clk_period_ps(ctrl_num) * mclk;
 }
 
 #ifdef CONFIG_PPC

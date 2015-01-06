@@ -287,7 +287,7 @@ step2:
 	bus_width = 3 - ((ddr_in32(&ddr->sdram_cfg) & SDRAM_CFG_DBW_MASK)
 			>> SDRAM_CFG_DBW_SHIFT);
 	timeout = ((total_gb_size_per_controller << (6 - bus_width)) * 100 /
-		(get_ddr_freq(0) >> 20)) << 2;
+		(get_ddr_freq(ctrl_num) >> 20)) << 2;
 	total_gb_size_per_controller >>= 4;	/* shift down to gb size */
 	debug("total %d GB\n", total_gb_size_per_controller);
 	debug("Need to wait up to %d * 10ms\n", timeout);

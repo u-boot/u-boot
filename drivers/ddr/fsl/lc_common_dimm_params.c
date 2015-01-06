@@ -13,7 +13,8 @@
 
 #if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 static unsigned int
-compute_cas_latency(const dimm_params_t *dimm_params,
+compute_cas_latency(const unsigned int ctrl_num,
+		    const dimm_params_t *dimm_params,
 		    common_timing_params_t *outpdimm,
 		    unsigned int number_of_dimms)
 {
@@ -22,7 +23,7 @@ compute_cas_latency(const dimm_params_t *dimm_params,
 	unsigned int caslat_actual;
 	unsigned int retry = 16;
 	unsigned int tmp;
-	const unsigned int mclk_ps = get_memory_clk_period_ps();
+	const unsigned int mclk_ps = get_memory_clk_period_ps(ctrl_num);
 #ifdef CONFIG_SYS_FSL_DDR3
 	const unsigned int taamax = 20000;
 #else
@@ -72,12 +73,13 @@ compute_cas_latency(const dimm_params_t *dimm_params,
 }
 #else	/* for DDR1 and DDR2 */
 static unsigned int
-compute_cas_latency(const dimm_params_t *dimm_params,
+compute_cas_latency(const unsigned int ctrl_num,
+		    const dimm_params_t *dimm_params,
 		    common_timing_params_t *outpdimm,
 		    unsigned int number_of_dimms)
 {
 	int i;
-	const unsigned int mclk_ps = get_memory_clk_period_ps();
+	const unsigned int mclk_ps = get_memory_clk_period_ps(ctrl_num);
 	unsigned int lowest_good_caslat;
 	unsigned int not_ok;
 	unsigned int temp1, temp2;
@@ -212,7 +214,8 @@ compute_cas_latency(const dimm_params_t *dimm_params,
  * by dimm_params.
  */
 unsigned int
-compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
+compute_lowest_common_dimm_parameters(const unsigned int ctrl_num,
+				      const dimm_params_t *dimm_params,
 				      common_timing_params_t *outpdimm,
 				      const unsigned int number_of_dimms)
 {
@@ -442,7 +445,8 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		printf("ERROR: Mix different RDIMM detected!\n");
 
 	/* calculate cas latency for all DDR types */
-	if (compute_cas_latency(dimm_params, outpdimm, number_of_dimms))
+	if (compute_cas_latency(ctrl_num, dimm_params,
+				outpdimm, number_of_dimms))
 		return 1;
 
 	/* Determine if all DIMMs ECC capable. */
@@ -518,11 +522,12 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 
 #if defined(CONFIG_SYS_FSL_DDR2)
 	if ((outpdimm->lowest_common_spd_caslat < 4) &&
-	    (picos_to_mclk(trcd_ps) > outpdimm->lowest_common_spd_caslat)) {
-		additive_latency = picos_to_mclk(trcd_ps) -
+	    (picos_to_mclk(ctrl_num, trcd_ps) >
+	     outpdimm->lowest_common_spd_caslat)) {
+		additive_latency = picos_to_mclk(ctrl_num, trcd_ps) -
 				   outpdimm->lowest_common_spd_caslat;
-		if (mclk_to_picos(additive_latency) > trcd_ps) {
-			additive_latency = picos_to_mclk(trcd_ps);
+		if (mclk_to_picos(ctrl_num, additive_latency) > trcd_ps) {
+			additive_latency = picos_to_mclk(ctrl_num, trcd_ps);
 			debug("setting additive_latency to %u because it was "
 				" greater than tRCD_ps\n", additive_latency);
 		}
@@ -534,7 +539,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	 *
 	 * AL <= tRCD(min)
 	 */
-	if (mclk_to_picos(additive_latency) > trcd_ps) {
+	if (mclk_to_picos(ctrl_num, additive_latency) > trcd_ps) {
 		printf("Error: invalid additive latency exceeds tRCD(min).\n");
 		return 1;
 	}
