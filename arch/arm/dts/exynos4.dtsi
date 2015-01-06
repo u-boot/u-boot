@@ -143,11 +143,4 @@
 		interrupts = <0 131 0>;
 	};
 
-	gpio: gpio {
-		gpio-controller;
-		#gpio-cells = <2>;
-
-		interrupt-controller;
-		#interrupt-cells = <2>;
-	};
 };
