@@ -2372,7 +2372,11 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 #ifdef CONFIG_SYS_FSL_DDR_EMU
 	/* disble DDR training for emulator */
 	ddr->debug[2] = 0x00000400;
-	ddr->debug[4] = 0xff800000;
+	ddr->debug[4] = 0xff800800;
+	ddr->debug[5] = 0x08000800;
+	ddr->debug[6] = 0x08000800;
+	ddr->debug[7] = 0x08000800;
+	ddr->debug[8] = 0x08000800;
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004508
 	if ((ip_rev >= 0x40000) && (ip_rev < 0x40400))
