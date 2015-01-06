@@ -249,7 +249,8 @@
 /* Physical Memory Map */
 /* fixme: these need to be checked against the board */
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
-#define CONFIG_SYS_CLK_FREQ	133333333
+#define CONFIG_SYS_CLK_FREQ	100000000
+#define CONFIG_DDR_CLK_FREQ	133333333
 
 
 #define CONFIG_NR_DRAM_BANKS		3
