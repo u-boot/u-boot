@@ -30,4 +30,12 @@ config EARLY_POST_CROS_EC
 	bool "Enable early post to Chrome OS EC"
 	default y
 
+config SYS_CAR_ADDR
+	hex
+	default 0xff7e0000
+
+config SYS_CAR_SIZE
+	hex
+	default 0x20000
+
 endif

@@ -15,9 +15,9 @@
 
 #include <configs/x86-common.h>
 
-#define CONFIG_SYS_CAR_ADDR			0xff7e0000
-#define CONFIG_SYS_CAR_SIZE			(128 * 1024)
+
 #define CONFIG_SYS_MONITOR_LEN			(1 << 20)
+
 #define CONFIG_DCACHE_RAM_MRC_VAR_SIZE		0x4000
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_DISPLAY_CPUINFO
