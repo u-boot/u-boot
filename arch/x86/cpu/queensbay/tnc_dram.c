@@ -19,7 +19,7 @@ int dram_init(void)
 
 	hdr = gd->arch.hob_list;
 	while (!end_of_hob(hdr)) {
-		if (get_hob_type(hdr) == HOB_TYPE_RES_DESC) {
+		if (hdr->type == HOB_TYPE_RES_DESC) {
 			res_desc = (struct hob_res_desc *)hdr;
 			if (res_desc->type == RES_SYS_MEM ||
 			    res_desc->type == RES_MEM_RESERVED) {
@@ -63,7 +63,7 @@ unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
 	hdr = gd->arch.hob_list;
 
 	while (!end_of_hob(hdr)) {
-		if (get_hob_type(hdr) == HOB_TYPE_RES_DESC) {
+		if (hdr->type == HOB_TYPE_RES_DESC) {
 			res_desc = (struct hob_res_desc *)hdr;
 			entries[num_entries].addr = res_desc->phys_start;
 			entries[num_entries].size = res_desc->len;

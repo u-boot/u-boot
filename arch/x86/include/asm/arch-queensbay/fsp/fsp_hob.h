@@ -183,36 +183,6 @@ struct hob_guid {
 };
 
 /**
- * get_hob_type() - return the type of a HOB
- *
- * This macro returns the type field from the HOB header for the
- * HOB specified by hob.
- *
- * @hob:    A pointer to a HOB.
- *
- * @return: HOB type.
- */
-static inline u16 get_hob_type(const struct hob_header *hdr)
-{
-	return hdr->type;
-}
-
-/**
- * get_hob_length() - return the length, in bytes, of a HOB
- *
- * This macro returns the len field from the HOB header for the
- * HOB specified by hob.
- *
- * @hob:    A pointer to a HOB.
- *
- * @return: HOB length.
- */
-static inline u16 get_hob_length(const struct hob_header *hdr)
-{
-	return hdr->len;
-}
-
-/**
  * get_next_hob() - return a pointer to the next HOB in the HOB list
  *
  * This macro returns a pointer to HOB that follows the HOB specified by hob
@@ -224,7 +194,7 @@ static inline u16 get_hob_length(const struct hob_header *hdr)
  */
 static inline const struct hob_header *get_next_hob(const struct hob_header *hdr)
 {
-	return (const struct hob_header *)((u32)hdr + get_hob_length(hdr));
+	return (const struct hob_header *)((u32)hdr + hdr->len);
 }
 
 /**
@@ -241,7 +211,7 @@ static inline const struct hob_header *get_next_hob(const struct hob_header *hdr
  */
 static inline bool end_of_hob(const struct hob_header *hdr)
 {
-	return get_hob_type(hdr) == HOB_TYPE_EOH;
+	return hdr->type == HOB_TYPE_EOH;
 }
 
 /**
@@ -273,7 +243,7 @@ static inline void *get_guid_hob_data(const struct hob_header *hdr)
  */
 static inline u16 get_guid_hob_data_size(const struct hob_header *hdr)
 {
-	return get_hob_length(hdr) - sizeof(struct hob_guid);
+	return hdr->len - sizeof(struct hob_guid);
 }
 
 /* FSP specific GUID HOB definitions */

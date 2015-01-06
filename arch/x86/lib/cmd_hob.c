@@ -29,7 +29,7 @@ static char *hob_type[] = {
 int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	const struct hob_header *hdr;
-	u16 type;
+	uint type;
 	char *desc;
 	int i = 0;
 
@@ -41,7 +41,7 @@ int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("----|----------|---------------------|----------------\n");
 	while (!end_of_hob(hdr)) {
 		printf("%-3d | %08x | ", i, (unsigned int)hdr);
-		type = get_hob_type(hdr);
+		type = hdr->type;
 		if (type == HOB_TYPE_UNUSED)
 			desc = "*Unused*";
 		else if (type == HOB_TYPE_EOH)
@@ -50,7 +50,7 @@ int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			desc = hob_type[type];
 		else
 			desc = "*Invalid Type*";
-		printf("%-19s | %-15d\n", desc, get_hob_length(hdr));
+		printf("%-19s | %-15d\n", desc, hdr->len);
 		hdr = get_next_hob(hdr);
 		i++;
 	}

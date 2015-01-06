@@ -242,7 +242,7 @@ u32 fsp_get_usable_lowmem_top(const void *hob_list)
 	/* * Collect memory ranges */
 	top = FSP_LOWMEM_BASE;
 	while (!end_of_hob(hdr)) {
-		if (get_hob_type(hdr) == HOB_TYPE_RES_DESC) {
+		if (hdr->type == HOB_TYPE_RES_DESC) {
 			res_desc = (struct hob_res_desc *)hdr;
 			if (res_desc->type == RES_SYS_MEM) {
 				phys_start = res_desc->phys_start;
@@ -271,7 +271,7 @@ u64 fsp_get_usable_highmem_top(const void *hob_list)
 	/* Collect memory ranges */
 	top = FSP_HIGHMEM_BASE;
 	while (!end_of_hob(hdr)) {
-		if (get_hob_type(hdr) == HOB_TYPE_RES_DESC) {
+		if (hdr->type == HOB_TYPE_RES_DESC) {
 			res_desc = (struct hob_res_desc *)hdr;
 			if (res_desc->type == RES_SYS_MEM) {
 				phys_start = res_desc->phys_start;
@@ -297,7 +297,7 @@ u64 fsp_get_reserved_mem_from_guid(const void *hob_list, u64 *len,
 
 	/* Collect memory ranges */
 	while (!end_of_hob(hdr)) {
-		if (get_hob_type(hdr) == HOB_TYPE_RES_DESC) {
+		if (hdr->type == HOB_TYPE_RES_DESC) {
 			res_desc = (struct hob_res_desc *)hdr;
 			if (res_desc->type == RES_MEM_RESERVED) {
 				if (compare_guid(&res_desc->owner, guid)) {
@@ -342,7 +342,7 @@ u32 fsp_get_tseg_reserved_mem(const void *hob_list, u32 *len)
 	return base;
 }
 
-const struct hob_header *fsp_get_next_hob(u16 type, const void *hob_list)
+const struct hob_header *fsp_get_next_hob(uint type, const void *hob_list)
 {
 	const struct hob_header *hdr;
 
@@ -350,7 +350,7 @@ const struct hob_header *fsp_get_next_hob(u16 type, const void *hob_list)
 
 	/* Parse the HOB list until end of list or matching type is found */
 	while (!end_of_hob(hdr)) {
-		if (get_hob_type(hdr) == type)
+		if (hdr->type == type)
 			return hdr;
 
 		hdr = get_next_hob(hdr);
