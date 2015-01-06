@@ -35,6 +35,34 @@
 #define I2C3_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01020000)
 #define I2C4_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01030000)
 
+/* TZ Protection Controller Definitions */
+#define TZPC_BASE				0x02200000
+#define TZPCR0SIZE_BASE				(TZPC_BASE)
+#define TZPCDECPROT_0_STAT_BASE			(TZPC_BASE + 0x800)
+#define TZPCDECPROT_0_SET_BASE			(TZPC_BASE + 0x804)
+#define TZPCDECPROT_0_CLR_BASE			(TZPC_BASE + 0x808)
+#define TZPCDECPROT_1_STAT_BASE			(TZPC_BASE + 0x80C)
+#define TZPCDECPROT_1_SET_BASE			(TZPC_BASE + 0x810)
+#define TZPCDECPROT_1_CLR_BASE			(TZPC_BASE + 0x814)
+#define TZPCDECPROT_2_STAT_BASE			(TZPC_BASE + 0x818)
+#define TZPCDECPROT_2_SET_BASE			(TZPC_BASE + 0x81C)
+#define TZPCDECPROT_2_CLR_BASE			(TZPC_BASE + 0x820)
+
+/* TZ Address Space Controller Definitions */
+#define TZASC1_BASE			0x01100000	/* as per CCSR map. */
+#define TZASC2_BASE			0x01110000	/* as per CCSR map. */
+#define TZASC3_BASE			0x01120000	/* as per CCSR map. */
+#define TZASC4_BASE			0x01130000	/* as per CCSR map. */
+#define TZASC_BUILD_CONFIG_REG(x)	((TZASC1_BASE + (x * 0x10000)))
+#define TZASC_ACTION_REG(x)		((TZASC1_BASE + (x * 0x10000)) + 0x004)
+#define TZASC_GATE_KEEPER(x)		((TZASC1_BASE + (x * 0x10000)) + 0x008)
+#define TZASC_REGION_BASE_LOW_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x100)
+#define TZASC_REGION_BASE_HIGH_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x104)
+#define TZASC_REGION_TOP_LOW_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x108)
+#define TZASC_REGION_TOP_HIGH_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x10C)
+#define TZASC_REGION_ATTRIBUTES_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x110)
+#define TZASC_REGION_ID_ACCESS_0(x)	((TZASC1_BASE + (x * 0x10000)) + 0x114)
+
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE		0x06000000
 #define GICR_BASE		0x06100000

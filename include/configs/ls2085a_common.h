@@ -13,6 +13,7 @@
 #define CONFIG_FSL_LSCH3
 #define CONFIG_LS2085A
 #define CONFIG_GICV3
+#define CONFIG_FSL_TZPC_BP147
 
 /* Link Definitions */
 #define CONFIG_SYS_TEXT_BASE		0x30001000
