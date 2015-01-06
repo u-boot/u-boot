@@ -118,6 +118,8 @@ void fsl_ddr_set_lawbar(
 		const common_timing_params_t *memctl_common_params,
 		unsigned int memctl_interleaved,
 		unsigned int ctrl_num);
+void fsl_ddr_sync_memctl_refresh(unsigned int first_ctrl,
+				 unsigned int last_ctrl);
 
 int fsl_ddr_interactive_env_var_exists(void);
 unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set);

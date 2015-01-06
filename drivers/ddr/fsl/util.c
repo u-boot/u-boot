@@ -308,3 +308,58 @@ void board_add_ram_info(int use_default)
 {
 	detail_board_ddr_info();
 }
+
+#ifdef CONFIG_FSL_DDR_SYNC_REFRESH
+#define DDRC_DEBUG20_INIT_DONE	0x80000000
+#define DDRC_DEBUG2_RF		0x00000040
+void fsl_ddr_sync_memctl_refresh(unsigned int first_ctrl,
+				 unsigned int last_ctrl)
+{
+	unsigned int i;
+	u32 ddrc_debug20;
+	u32 ddrc_debug2[CONFIG_NUM_DDR_CONTROLLERS] = {};
+	u32 *ddrc_debug2_p[CONFIG_NUM_DDR_CONTROLLERS] = {};
+	struct ccsr_ddr __iomem *ddr;
+
+	for (i = first_ctrl; i <= last_ctrl; i++) {
+		switch (i) {
+		case 0:
+			ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+			break;
+#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
+		case 1:
+			ddr = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
+			break;
+#endif
+#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
+		case 2:
+			ddr = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
+			break;
+#endif
+#if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
+		case 3:
+			ddr = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
+			break;
+#endif
+		default:
+			printf("%s unexpected ctrl = %u\n", __func__, i);
+			return;
+		}
+		ddrc_debug20 = ddr_in32(&ddr->debug[19]);
+		ddrc_debug2_p[i] = &ddr->debug[1];
+		while (!(ddrc_debug20 & DDRC_DEBUG20_INIT_DONE)) {
+			/* keep polling until DDRC init is done */
+			udelay(100);
+			ddrc_debug20 = ddr_in32(&ddr->debug[19]);
+		}
+		ddrc_debug2[i] = ddr_in32(&ddr->debug[1]) | DDRC_DEBUG2_RF;
+	}
+	/*
+	 * Sync refresh
+	 * This is put together to make sure the refresh reqeusts are sent
+	 * closely to each other.
+	 */
+	for (i = first_ctrl; i <= last_ctrl; i++)
+		ddr_out32(ddrc_debug2_p[i], ddrc_debug2[i]);
+}
+#endif /* CONFIG_FSL_DDR_SYNC_REFRESH */

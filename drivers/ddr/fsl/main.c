@@ -692,6 +692,10 @@ phys_size_t __fsl_ddr_sdram(fsl_ddr_info_t *pinfo)
 		}
 	}
 
+#ifdef CONFIG_FSL_DDR_SYNC_REFRESH
+	fsl_ddr_sync_memctl_refresh(first_ctrl, last_ctrl);
+#endif
+
 #ifdef CONFIG_PPC
 	/* program LAWs */
 	for (i = first_ctrl; i <= last_ctrl; i++) {
