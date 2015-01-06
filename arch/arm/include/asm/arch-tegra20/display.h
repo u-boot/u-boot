@@ -10,6 +10,7 @@
 
 #include <asm/arch/dc.h>
 #include <fdtdec.h>
+#include <asm/gpio.h>
 
 /* This holds information about a window which can be displayed */
 struct disp_ctl_win {
@@ -72,10 +73,10 @@ struct fdt_panel_config {
 	int pwm_channel;		/* PWM channel to use for backlight */
 	enum lcd_cache_t cache_type;
 
-	struct fdt_gpio_state backlight_en;	/* GPIO for backlight enable */
-	struct fdt_gpio_state lvds_shutdown;	/* GPIO for lvds shutdown */
-	struct fdt_gpio_state backlight_vdd;	/* GPIO for backlight vdd */
-	struct fdt_gpio_state panel_vdd;	/* GPIO for panel vdd */
+	struct gpio_desc backlight_en;	/* GPIO for backlight enable */
+	struct gpio_desc lvds_shutdown;	/* GPIO for lvds shutdown */
+	struct gpio_desc backlight_vdd;	/* GPIO for backlight vdd */
+	struct gpio_desc panel_vdd;	/* GPIO for panel vdd */
 	/*
 	 * Panel required timings
 	 * Timing 1: delay between panel_vdd-rise and data-rise
