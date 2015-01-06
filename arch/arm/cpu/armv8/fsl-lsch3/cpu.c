@@ -367,6 +367,7 @@ int print_cpuinfo(void)
 	printf("\n       Bus:      %-4s MHz  ",
 	       strmhz(buf, sysinfo.freq_systembus));
 	printf("DDR:      %-4s MHz", strmhz(buf, sysinfo.freq_ddrbus));
+	printf("     DP-DDR:   %-4s MHz", strmhz(buf, sysinfo.freq_ddrbus2));
 	puts("\n");
 
 	return 0;

@@ -77,8 +77,10 @@ void get_sys_info(struct sys_info *sys_info)
 	sys_info->freq_systembus = sysclk;
 #ifdef CONFIG_DDR_CLK_FREQ
 	sys_info->freq_ddrbus = CONFIG_DDR_CLK_FREQ;
+	sys_info->freq_ddrbus2 = CONFIG_DDR_CLK_FREQ;
 #else
 	sys_info->freq_ddrbus = sysclk;
+	sys_info->freq_ddrbus2 = sysclk;
 #endif
 
 	sys_info->freq_systembus *= (in_le32(&gur->rcwsr[0]) >>
@@ -87,6 +89,9 @@ void get_sys_info(struct sys_info *sys_info)
 	sys_info->freq_ddrbus *= (in_le32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_MASK;
+	sys_info->freq_ddrbus2 *= (in_le32(&gur->rcwsr[0]) >>
+			FSL_CHASSIS3_RCWSR0_MEM2_PLL_RAT_SHIFT) &
+			FSL_CHASSIS3_RCWSR0_MEM2_PLL_RAT_MASK;
 
 	for (i = 0; i < CONFIG_SYS_FSL_NUM_CC_PLLS; i++) {
 		/*
@@ -129,7 +134,7 @@ int get_clocks(void)
 	gd->cpu_clk = sys_info.freq_processor[0];
 	gd->bus_clk = sys_info.freq_systembus;
 	gd->mem_clk = sys_info.freq_ddrbus;
-
+	gd->arch.mem2_clk = sys_info.freq_ddrbus2;
 #if defined(CONFIG_FSL_ESDHC)
 	gd->arch.sdhc_clk = gd->bus_clk / 2;
 #endif /* defined(CONFIG_FSL_ESDHC) */
@@ -156,10 +161,17 @@ ulong get_bus_freq(ulong dummy)
  * get_ddr_freq
  * return ddr bus freq in Hz
  *********************************************/
-ulong get_ddr_freq(ulong dummy)
+ulong get_ddr_freq(ulong ctrl_num)
 {
 	if (!gd->mem_clk)
 		get_clocks();
+
+	/*
+	 * DDR controller 0 & 1 are on memory complex 0
+	 * DDR controler 2 is on memory complext 1
+	 */
+	if (ctrl_num >= 2)
+		return gd->arch.mem2_clk;
 
 	return gd->mem_clk;
 }

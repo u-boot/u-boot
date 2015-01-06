@@ -48,6 +48,9 @@ struct arch_global_data {
 #ifdef CONFIG_OMAP
 	struct omap_boot_parameters omap_boot_params;
 #endif
+#ifdef CONFIG_FSL_LSCH3
+	unsigned long mem2_clk;
+#endif
 };
 
 #include <asm-generic/global_data.h>
