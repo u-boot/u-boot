@@ -36,9 +36,9 @@ How to try it
 
 Build U-Boot sandbox and run it:
 
-   make sandbox_config
+   make sandbox_defconfig
    make
-   ./u-boot
+   ./u-boot -d u-boot.dtb
 
    (type 'reset' to exit U-Boot)
 

@@ -96,7 +96,7 @@
 	spi@12d40000 { /* spi2 */
 		spi-max-frequency = <4000000>;
 		spi-deactivate-delay = <200>;
-		cros-ec@0 {
+		cros_ec: cros-ec@0 {
 			reg = <0>;
 			compatible = "google,cros-ec";
 			spi-half-duplex;
@@ -150,3 +150,5 @@
 		samsung,dual-lcd-enabled = <0>;
 	};
 };
+
+#include "cros-ec-keyboard.dtsi"

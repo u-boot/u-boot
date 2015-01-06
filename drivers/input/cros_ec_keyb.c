@@ -18,6 +18,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 enum {
 	KBC_MAX_KEYS		= 8,	/* Maximum keys held down at once */
+	KBC_REPEAT_RATE_MS	= 30,
+	KBC_REPEAT_DELAY_MS	= 240,
 };
 
 static struct keyb {
@@ -26,8 +28,6 @@ static struct keyb {
 	struct key_matrix matrix;	/* The key matrix layer */
 	int key_rows;			/* Number of keyboard rows */
 	int key_cols;			/* Number of keyboard columns */
-	unsigned int repeat_delay_ms;	/* Time before autorepeat starts */
-	unsigned int repeat_rate_ms;	/* Autorepeat rate in ms */
 	int ghost_filter;		/* 1 to enable ghost filter, else 0 */
 	int inited;			/* 1 if keyboard is ready */
 } config;
@@ -188,8 +188,8 @@ static int cros_ec_keyb_decode_fdt(const void *blob, int node,
 	 * Get keyboard rows and columns - at present we are limited to
 	 * 8 columns by the protocol (one byte per row scan)
 	 */
-	config->key_rows = fdtdec_get_int(blob, node, "google,key-rows", 0);
-	config->key_cols = fdtdec_get_int(blob, node, "google,key-columns", 0);
+	config->key_rows = fdtdec_get_int(blob, node, "keypad,num-rows", 0);
+	config->key_cols = fdtdec_get_int(blob, node, "keypad,num-columns", 0);
 	if (!config->key_rows || !config->key_cols ||
 			config->key_rows * config->key_cols / 8
 				> CROS_EC_KEYSCAN_COLS) {
@@ -197,10 +197,6 @@ static int cros_ec_keyb_decode_fdt(const void *blob, int node,
 		      config->key_rows, config->key_cols);
 		return -1;
 	}
-	config->repeat_delay_ms = fdtdec_get_int(blob, node,
-						 "google,repeat-delay-ms", 0);
-	config->repeat_rate_ms = fdtdec_get_int(blob, node,
-						"google,repeat-rate-ms", 0);
 	config->ghost_filter = fdtdec_get_bool(blob, node,
 					       "google,ghost-filter");
 	return 0;
@@ -232,8 +228,8 @@ static int cros_ec_init_keyboard(struct stdio_dev *dev)
 	}
 	if (cros_ec_keyb_decode_fdt(blob, node, &config))
 		return -1;
-	input_set_delays(&config.input, config.repeat_delay_ms,
-			 config.repeat_rate_ms);
+	input_set_delays(&config.input, KBC_REPEAT_DELAY_MS,
+			 KBC_REPEAT_RATE_MS);
 	if (key_matrix_init(&config.matrix, config.key_rows,
 			config.key_cols, config.ghost_filter)) {
 		debug("%s: cannot init key matrix\n", __func__);

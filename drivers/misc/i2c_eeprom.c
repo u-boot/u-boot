@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <linux/err.h>
 #include <dm.h>
 #include <i2c.h>
 #include <i2c_eeprom.h>

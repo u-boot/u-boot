@@ -1,45 +1,38 @@
-CROS_EC Keyboard
+ChromeOS EC Keyboard
 
-The CROS_EC (Matrix Keyboard Protocol) allows communcation with a secondary
-micro used for keyboard, and possible other features.
+Google's ChromeOS EC Keyboard is a simple matrix keyboard implemented on
+a separate EC (Embedded Controller) device. It provides a message for reading
+key scans from the EC. These are then converted into keycodes for processing
+by the kernel.
 
-The CROS_EC keyboard uses this protocol to receive key scans and produce input
-in U-Boot.
+This binding is based on matrix-keymap.txt and extends/modifies it as follows:
 
-Required properties :
-- compatible : "google,cros-ec-keyb"
-- google,key-rows : Number of key rows
-- google,key-columns : Number of key columns
+Required properties:
+- compatible: "google,cros-ec-keyb"
 
-Optional properties, in addition to those specified by the shared
-matrix-keyboard bindings:
+Optional properties:
+- google,needs-ghost-filter: True to enable a ghost filter for the matrix
+keyboard. This is recommended if the EC does not have its own logic or
+hardware for this.
 
-- linux,fn-keymap: a second keymap, same specification as the
-  matrix-keyboard-controller spec but to be used when the KEY_FN modifier
-  key is pressed.
-- google,repeat-delay-ms : delay in milliseconds before repeat starts
-- google,repeat-rate-ms : delay between each subsequent key press
-- google,ghost-filter : enable ghost filtering for this device
 
-Example, taken from daisy:
+Example:
 
 cros-ec-keyb {
 	compatible = "google,cros-ec-keyb";
-	google,key-rows = <8>;
-	google,key-columns = <13>;
-	google,ghost-filter;
-	google,repeat-delay-ms = <240>;
-	google,repeat-rate-ms = <30>;
+	keypad,num-rows = <8>;
+	keypad,num-columns = <13>;
+	google,needs-ghost-filter;
 	/*
-		* Keymap entries take the form of 0xRRCCKKKK where
-		* RR=Row CC=Column KKKK=Key Code
-		* The values below are for a US keyboard layout and
-		* are taken from the Linux driver. Note that the
-		* 102ND key is not used for US keyboards.
-		*/
+	 * Keymap entries take the form of 0xRRCCKKKK where
+	 * RR=Row CC=Column KKKK=Key Code
+	 * The values below are for a US keyboard layout and
+	 * are taken from the Linux driver. Note that the
+	 * 102ND key is not used for US keyboards.
+	 */
 	linux,keymap = <
 		/* CAPSLCK F1         B          F10     */
-		0x0001003a 0x0002003c 0x00030030 0x00040044
+		0x0001003a 0x0002003b 0x00030030 0x00040044
 		/* N       =          R_ALT      ESC     */
 		0x00060031 0x0008000d 0x000a0064 0x01010001
 		/* F4      G          F7         H       */
