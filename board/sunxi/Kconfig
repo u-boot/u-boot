@@ -124,6 +124,10 @@ config TARGET_IPPO_Q8H_V5
 	bool "IPPO_Q8H_V5"
 	depends on MACH_SUN8I
 
+config TARGET_PCDUINO
+	bool "PCDUINO"
+	depends on MACH_SUN4I
+
 config TARGET_PCDUINO3
 	bool "PCDUINO3"
 	depends on MACH_SUN7I

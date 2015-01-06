@@ -77,3 +77,8 @@ MSI-PRIMO81 BOARD
 M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
+
+LINKSPRITE-PCDUINO BOARD
+M:	Zoltan Herpai <wigyori@uid0.hu>
+S:	Maintained
+F:	configs/Linksprite_pcDuino_defconfig
