@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2011 The ChromiumOS Authors.  All rights reserved.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 2 of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA, 02110-1301 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -38,9 +27,27 @@ static struct timestamp_table *ts_table  __attribute__((section(".data")));
 
 void timestamp_init(void)
 {
+#ifdef CONFIG_SYS_X86_TSC_TIMER
+	uint64_t base_time;
+#endif
+
 	ts_table = lib_sysinfo.tstamp_table;
 #ifdef CONFIG_SYS_X86_TSC_TIMER
-	timer_set_base(ts_table->base_time);
+	/*
+	 * If coreboot is built with CONFIG_COLLECT_TIMESTAMPS, use the value
+	 * of base_time in coreboot's timestamp table as our timer base,
+	 * otherwise TSC counter value will be used.
+	 *
+	 * Sometimes even coreboot is built with CONFIG_COLLECT_TIMESTAMPS,
+	 * the value of base_time in the timestamp table is still zero, so
+	 * we must exclude this case too (this is currently seen on booting
+	 * coreboot in qemu)
+	 */
+	if (ts_table && ts_table->base_time)
+		base_time = ts_table->base_time;
+	else
+		base_time = rdtsc();
+	timer_set_base(base_time);
 #endif
 	timestamp_add_now(TS_U_BOOT_INITTED);
 }
