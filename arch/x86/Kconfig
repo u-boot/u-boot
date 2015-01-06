@@ -49,6 +49,7 @@ config RAMBASE
 
 config XIP_ROM_SIZE
 	hex
+	depends on X86_RESET_VECTOR
 	default ROM_SIZE
 
 config CPU_ADDR_BITS
@@ -90,6 +91,7 @@ config BOARD_ROMSIZE_KB_16384
 
 choice
 	prompt "ROM chip size"
+	depends on X86_RESET_VECTOR
 	default UBOOT_ROMSIZE_KB_512 if BOARD_ROMSIZE_KB_512
 	default UBOOT_ROMSIZE_KB_1024 if BOARD_ROMSIZE_KB_1024
 	default UBOOT_ROMSIZE_KB_2048 if BOARD_ROMSIZE_KB_2048
