@@ -12,6 +12,13 @@
 
 void sbc_init(void)
 {
+	u32 tmp;
+
+	/* system bus output enable */
+	tmp = readl(PC0CTRL);
+	tmp &= 0xfffffcff;
+	writel(tmp, PC0CTRL);
+
 	/* XECS1: sub/boot memory (boot swap = off/on) */
 	writel(SBCTRL0_SAVEPIN_MEM_VALUE, SBCTRL10);
 	writel(SBCTRL1_SAVEPIN_MEM_VALUE, SBCTRL11);

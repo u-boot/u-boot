@@ -12,6 +12,13 @@
 
 void sbc_init(void)
 {
+	u32 tmp;
+
+	/* system bus output enable */
+	tmp = readl(PC0CTRL);
+	tmp &= 0xfffffcff;
+	writel(tmp, PC0CTRL);
+
 #if !defined(CONFIG_SPL_BUILD)
 	/* XECS0 : dummy */
 	writel(SBCTRL0_SAVEPIN_MEM_VALUE, SBCTRL00);
