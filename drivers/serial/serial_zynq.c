@@ -27,14 +27,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_UART_MR_PARITY_NONE	0x00000020  /* No parity mode */
 
 struct uart_zynq {
-	u32 control; /* Control Register [8:0] */
-	u32 mode; /* Mode Register [10:0] */
+	u32 control; /* 0x0 - Control Register [8:0] */
+	u32 mode; /* 0x4 - Mode Register [10:0] */
 	u32 reserved1[4];
-	u32 baud_rate_gen; /* Baud Rate Generator [15:0] */
+	u32 baud_rate_gen; /* 0x18 - Baud Rate Generator [15:0] */
 	u32 reserved2[4];
-	u32 channel_sts; /* Channel Status [11:0] */
-	u32 tx_rx_fifo; /* FIFO [15:0] or [7:0] */
-	u32 baud_rate_divider; /* Baud Rate Divider [7:0] */
+	u32 channel_sts; /* 0x2c - Channel Status [11:0] */
+	u32 tx_rx_fifo; /* 0x30 - FIFO [15:0] or [7:0] */
+	u32 baud_rate_divider; /* 0x34 - Baud Rate Divider [7:0] */
 };
 
 static struct uart_zynq *uart_zynq_ports[2] = {
