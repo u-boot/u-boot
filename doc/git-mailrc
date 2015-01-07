@@ -27,6 +27,7 @@ alias jasonjin       Jason Jin <jason.jin@freescale.com>
 alias jhersh         Joe Hershberger <joe.hershberger@gmail.com>
 alias jwrdegoede     Hans de Goede <hdegoede@redhat.com>
 alias kimphill       Kim Phillips <kim.phillips@freescale.com>
+alias luka           Luka Perkov <luka.perkov@sartura.hr>
 alias lukma          Lukasz Majewski <l.majewski@samsung.com>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
@@ -56,7 +57,7 @@ alias arm            uboot, aaribaud
 alias at91           uboot, abiessmann
 alias davinci        ti
 alias imx            uboot, sbabic
-alias kirkwood       uboot, prafulla
+alias kirkwood       uboot, prafulla, luka
 alias omap           ti
 alias pxa            uboot, marex
 alias rmobile        uboot, iwamatsu
