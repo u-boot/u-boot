@@ -182,7 +182,7 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_USB_EHCI1	3
 #define AHB_GATE_OFFSET_USB_OHCI0	2
 #define AHB_GATE_OFFSET_USB_EHCI0	1
-#define AHB_GATE_OFFSET_USB		0
+#define AHB_GATE_OFFSET_USB0		0
 
 /* ahb clock gate bit offset (second register) */
 #define AHB_GATE_OFFSET_GMAC		17
