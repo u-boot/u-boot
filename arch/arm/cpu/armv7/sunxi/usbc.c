@@ -36,6 +36,16 @@ static struct sunxi_usbc_hcd {
 	int id;
 } sunxi_usbc_hcd[] = {
 	{
+		.usb_rst_mask = CCM_USB_CTRL_PHY0_RST | CCM_USB_CTRL_PHY0_CLK,
+		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB0,
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+		.irq = 71,
+#else
+		.irq = 38,
+#endif
+		.id = 0,
+	},
+	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY1_RST | CCM_USB_CTRL_PHY1_CLK,
 		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0,
 #if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
@@ -78,6 +88,7 @@ void *sunxi_usbc_get_io_base(int index)
 static int get_vbus_gpio(int index)
 {
 	switch (index) {
+	case 0: return sunxi_name_to_gpio(CONFIG_USB0_VBUS_PIN);
 	case 1: return sunxi_name_to_gpio(CONFIG_USB1_VBUS_PIN);
 	case 2: return sunxi_name_to_gpio(CONFIG_USB2_VBUS_PIN);
 	}
@@ -117,6 +128,10 @@ static void sunxi_usb_phy_init(struct sunxi_usbc_hcd *sunxi_usbc)
 	 * translated from Chinese, you have been warned!
 	 */
 
+	/* Regulation 45 ohms */
+	if (sunxi_usbc->id == 0)
+		usb_phy_write(sunxi_usbc, 0x0c, 0x01, 1);
+
 	/* adjust PHY's magnitude and rate */
 	usb_phy_write(sunxi_usbc, 0x20, 0x14, 5);
 
@@ -151,7 +166,7 @@ static void sunxi_usb_passby(struct sunxi_usbc_hcd *sunxi_usbc, int enable)
 
 int sunxi_usbc_request_resources(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index - 1];
+	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 
 	sunxi_usbc->gpio_vbus = get_vbus_gpio(index);
 	if (sunxi_usbc->gpio_vbus != -1)
@@ -162,7 +177,7 @@ int sunxi_usbc_request_resources(int index)
 
 int sunxi_usbc_free_resources(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index - 1];
+	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 
 	if (sunxi_usbc->gpio_vbus != -1)
 		return gpio_free(sunxi_usbc->gpio_vbus);
@@ -172,7 +187,7 @@ int sunxi_usbc_free_resources(int index)
 
 void sunxi_usbc_enable(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index - 1];
+	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	/* enable common PHY only once */
@@ -187,17 +202,19 @@ void sunxi_usbc_enable(int index)
 
 	sunxi_usb_phy_init(sunxi_usbc);
 
-	sunxi_usb_passby(sunxi_usbc, SUNXI_USB_PASSBY_EN);
+	if (sunxi_usbc->id != 0)
+		sunxi_usb_passby(sunxi_usbc, SUNXI_USB_PASSBY_EN);
 
 	enabled_hcd_count++;
 }
 
 void sunxi_usbc_disable(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index - 1];
+	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-	sunxi_usb_passby(sunxi_usbc, !SUNXI_USB_PASSBY_EN);
+	if (sunxi_usbc->id != 0)
+		sunxi_usb_passby(sunxi_usbc, !SUNXI_USB_PASSBY_EN);
 
 #if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
 	clrbits_le32(&ccm->ahb_reset0_cfg, sunxi_usbc->ahb_clk_mask);
@@ -214,7 +231,7 @@ void sunxi_usbc_disable(int index)
 
 void sunxi_usbc_vbus_enable(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index - 1];
+	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 
 	if (sunxi_usbc->gpio_vbus != -1)
 		gpio_direction_output(sunxi_usbc->gpio_vbus, 1);
@@ -222,7 +239,7 @@ void sunxi_usbc_vbus_enable(int index)
 
 void sunxi_usbc_vbus_disable(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index - 1];
+	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 
 	if (sunxi_usbc->gpio_vbus != -1)
 		gpio_direction_output(sunxi_usbc->gpio_vbus, 0);

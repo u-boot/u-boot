@@ -267,6 +267,13 @@ config MMC_SUNXI_SLOT_EXTRA
 	slot or emmc on mmc1 - mmc3. Setting this to 1, 2 or 3 will enable
 	support for this.
 
+config USB0_VBUS_PIN
+	string "Vbus enable pin for usb0 (otg)"
+	default ""
+	---help---
+	Set the Vbus enable pin for usb0 (otg). This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
 config USB1_VBUS_PIN
 	string "Vbus enable pin for usb1 (ehci0)"
 	default "PH6" if MACH_SUN4I || MACH_SUN7I
