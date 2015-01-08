@@ -169,61 +169,49 @@ static int get_spi_gpio(int bus, struct ftssp010_gpio *chip)
 static int ftssp010_wait(struct ftssp010_spi *chip)
 {
 	struct ftssp010_regs *regs = chip->regs;
-	int ret = -1;
 	ulong t;
 
 	/* wait until device idle */
 	for (t = get_timer(0); get_timer(t) < CONFIG_FTSSP010_TIMEOUT; ) {
-		if (readl(&regs->sr) & SR_BUSY)
-			continue;
-		ret = 0;
-		break;
+		if (!(readl(&regs->sr) & SR_BUSY))
+			return 0;
 	}
 
-	if (ret)
-		puts("ftspi010: busy timeout\n");
+	puts("ftspi010: busy timeout\n");
 
-	return ret;
+	return -1;
 }
 
 static int ftssp010_wait_tx(struct ftssp010_spi *chip)
 {
 	struct ftssp010_regs *regs = chip->regs;
-	int ret = -1;
 	ulong t;
 
 	/* wait until tx fifo not full */
 	for (t = get_timer(0); get_timer(t) < CONFIG_FTSSP010_TIMEOUT; ) {
-		if (!(readl(&regs->sr) & SR_TFNF))
-			continue;
-		ret = 0;
-		break;
+		if (readl(&regs->sr) & SR_TFNF)
+			return 0;
 	}
 
-	if (ret)
-		puts("ftssp010: tx timeout\n");
+	puts("ftssp010: tx timeout\n");
 
-	return ret;
+	return -1;
 }
 
 static int ftssp010_wait_rx(struct ftssp010_spi *chip)
 {
 	struct ftssp010_regs *regs = chip->regs;
-	int ret = -1;
 	ulong t;
 
 	/* wait until rx fifo not empty */
 	for (t = get_timer(0); get_timer(t) < CONFIG_FTSSP010_TIMEOUT; ) {
-		if (!SR_RFVE(readl(&regs->sr)))
-			continue;
-		ret = 0;
-		break;
+		if (SR_RFVE(readl(&regs->sr)))
+			return 0;
 	}
 
-	if (ret)
-		puts("ftssp010: rx timeout\n");
+	puts("ftssp010: rx timeout\n");
 
-	return ret;
+	return -1;
 }
 
 static int ftssp010_spi_work_transfer_v2(struct ftssp010_spi *chip,
