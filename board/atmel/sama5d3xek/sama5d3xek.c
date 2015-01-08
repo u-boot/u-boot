@@ -15,7 +15,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
 #include <lcd.h>
-#include <atmel_lcdc.h>
+#include <atmel_hlcdc.h>
 #include <atmel_mci.h>
 #include <phy.h>
 #include <micrel.h>
@@ -146,7 +146,6 @@ vidinfo_t panel_info = {
 	.vl_col = 800,
 	.vl_row = 480,
 	.vl_clk = 24000000,
-	.vl_sync = ATMEL_LCDC_INVLINE_NORMAL | ATMEL_LCDC_INVFRAME_NORMAL,
 	.vl_bpix = LCD_BPP,
 	.vl_tft = 1,
 	.vl_hsync_len = 128,
