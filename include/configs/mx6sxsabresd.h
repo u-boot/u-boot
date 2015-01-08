@@ -235,15 +235,23 @@
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
 
+#define CONFIG_CMD_TIME
+
 #define CONFIG_FSL_QSPI
 
 #ifdef CONFIG_FSL_QSPI
 #define CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_BAR
 #define CONFIG_SPI_FLASH_SPANSION
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SYS_FSL_QSPI_LE
+#define CONFIG_SYS_FSL_QSPI_AHB
+#ifdef CONFIG_MX6SX_SABRESD_REVA
 #define FSL_QSPI_FLASH_SIZE		SZ_16M
+#else
+#define FSL_QSPI_FLASH_SIZE		SZ_32M
+#endif
 #define FSL_QSPI_FLASH_NUM		2
 #endif
 

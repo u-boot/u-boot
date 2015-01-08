@@ -297,7 +297,7 @@ static int cadence_spi_ofdata_to_platdata(struct udevice *bus)
 
 	/* All other paramters are embedded in the child node */
 	subnode = fdt_first_subnode(blob, node);
-	if (!subnode) {
+	if (subnode < 0) {
 		printf("Error: subnode with SPI flash config missing!\n");
 		return -ENODEV;
 	}
