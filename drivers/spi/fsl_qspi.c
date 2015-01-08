@@ -263,6 +263,110 @@ static void qspi_set_lut(struct fsl_qspi *qspi)
 	qspi_write32(&regs->lckcr, QSPI_LCKCR_LOCK);
 }
 
+#if defined(CONFIG_SYS_FSL_QSPI_AHB)
+/*
+ * If we have changed the content of the flash by writing or erasing,
+ * we need to invalidate the AHB buffer. If we do not do so, we may read out
+ * the wrong data. The spec tells us reset the AHB domain and Serial Flash
+ * domain at the same time.
+ */
+static inline void qspi_ahb_invalid(struct fsl_qspi *q)
+{
+	struct fsl_qspi_regs *regs = (struct fsl_qspi_regs *)q->reg_base;
+	u32 reg;
+
+	reg = qspi_read32(&regs->mcr);
+	reg |= QSPI_MCR_SWRSTHD_MASK | QSPI_MCR_SWRSTSD_MASK;
+	qspi_write32(&regs->mcr, reg);
+
+	/*
+	 * The minimum delay : 1 AHB + 2 SFCK clocks.
+	 * Delay 1 us is enough.
+	 */
+	udelay(1);
+
+	reg &= ~(QSPI_MCR_SWRSTHD_MASK | QSPI_MCR_SWRSTSD_MASK);
+	qspi_write32(&regs->mcr, reg);
+}
+
+/* Read out the data from the AHB buffer. */
+static inline void qspi_ahb_read(struct fsl_qspi *q, u8 *rxbuf, int len)
+{
+	struct fsl_qspi_regs *regs = (struct fsl_qspi_regs *)q->reg_base;
+	u32 mcr_reg;
+
+	mcr_reg = qspi_read32(&regs->mcr);
+
+	qspi_write32(&regs->mcr, QSPI_MCR_CLR_RXF_MASK | QSPI_MCR_CLR_TXF_MASK |
+		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_END_CFD_LE);
+
+	/* Read out the data directly from the AHB buffer. */
+	memcpy(rxbuf, (u8 *)(q->amba_base + q->sf_addr), len);
+
+	qspi_write32(&regs->mcr, mcr_reg);
+}
+
+static void qspi_enable_ddr_mode(struct fsl_qspi_regs *regs)
+{
+	u32 reg, reg2;
+
+	reg = qspi_read32(&regs->mcr);
+	/* Disable the module */
+	qspi_write32(&regs->mcr, reg | QSPI_MCR_MDIS_MASK);
+
+	/* Set the Sampling Register for DDR */
+	reg2 = qspi_read32(&regs->smpr);
+	reg2 &= ~QSPI_SMPR_DDRSMP_MASK;
+	reg2 |= (2 << QSPI_SMPR_DDRSMP_SHIFT);
+	qspi_write32(&regs->smpr, reg2);
+
+	/* Enable the module again (enable the DDR too) */
+	reg |= QSPI_MCR_DDR_EN_MASK;
+	/* Enable bit 29 for imx6sx */
+	reg |= (1 << 29);
+
+	qspi_write32(&regs->mcr, reg);
+}
+
+/*
+ * There are two different ways to read out the data from the flash:
+ *  the "IP Command Read" and the "AHB Command Read".
+ *
+ * The IC guy suggests we use the "AHB Command Read" which is faster
+ * then the "IP Command Read". (What's more is that there is a bug in
+ * the "IP Command Read" in the Vybrid.)
+ *
+ * After we set up the registers for the "AHB Command Read", we can use
+ * the memcpy to read the data directly. A "missed" access to the buffer
+ * causes the controller to clear the buffer, and use the sequence pointed
+ * by the QUADSPI_BFGENCR[SEQID] to initiate a read from the flash.
+ */
+static void qspi_init_ahb_read(struct fsl_qspi_regs *regs)
+{
+	/* AHB configuration for access buffer 0/1/2 .*/
+	qspi_write32(&regs->buf0cr, QSPI_BUFXCR_INVALID_MSTRID);
+	qspi_write32(&regs->buf1cr, QSPI_BUFXCR_INVALID_MSTRID);
+	qspi_write32(&regs->buf2cr, QSPI_BUFXCR_INVALID_MSTRID);
+	qspi_write32(&regs->buf3cr, QSPI_BUF3CR_ALLMST_MASK |
+		     (0x80 << QSPI_BUF3CR_ADATSZ_SHIFT));
+
+	/* We only use the buffer3 */
+	qspi_write32(&regs->buf0ind, 0);
+	qspi_write32(&regs->buf1ind, 0);
+	qspi_write32(&regs->buf2ind, 0);
+
+	/*
+	 * Set the default lut sequence for AHB Read.
+	 * Parallel mode is disabled.
+	 */
+	qspi_write32(&regs->bfgencr,
+		     SEQID_FAST_READ << QSPI_BFGENCR_SEQID_SHIFT);
+
+	/*Enable DDR Mode*/
+	qspi_enable_ddr_mode(regs);
+}
+#endif
+
 void spi_init()
 {
 	/* do nothing */
@@ -273,8 +377,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 {
 	struct fsl_qspi *qspi;
 	struct fsl_qspi_regs *regs;
-	u32 reg_val, smpr_val;
-	u32 total_size, seq_id;
+	u32 smpr_val;
+	u32 total_size;
 
 	if (bus >= ARRAY_SIZE(spi_bases))
 		return NULL;
@@ -329,13 +433,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	qspi_write32(&regs->smpr, smpr_val);
 	qspi_write32(&regs->mcr, QSPI_MCR_RESERVED_MASK);
 
-	seq_id = 0;
-	reg_val = qspi_read32(&regs->bfgencr);
-	reg_val &= ~QSPI_BFGENCR_SEQID_MASK;
-	reg_val |= (seq_id << QSPI_BFGENCR_SEQID_SHIFT);
-	reg_val &= ~QSPI_BFGENCR_PAR_EN_MASK;
-	qspi_write32(&regs->bfgencr, reg_val);
-
+#ifdef CONFIG_SYS_FSL_QSPI_AHB
+	qspi_init_ahb_read(regs);
+#endif
 	return &qspi->slave;
 }
 
@@ -426,6 +526,8 @@ static void qspi_op_rdid(struct fsl_qspi *qspi, u32 *rxbuf, u32 len)
 	qspi_write32(&regs->mcr, mcr_reg);
 }
 
+#ifndef CONFIG_SYS_FSL_QSPI_AHB
+/* If not use AHB read, read data from ip interface */
 static void qspi_op_read(struct fsl_qspi *qspi, u32 *rxbuf, u32 len)
 {
 	struct fsl_qspi_regs *regs = (struct fsl_qspi_regs *)qspi->reg_base;
@@ -469,6 +571,7 @@ static void qspi_op_read(struct fsl_qspi *qspi, u32 *rxbuf, u32 len)
 
 	qspi_write32(&regs->mcr, mcr_reg);
 }
+#endif
 
 static void qspi_op_write(struct fsl_qspi *qspi, u8 *txbuf, u32 len)
 {
@@ -643,8 +746,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	}
 
 	if (din) {
-		if (qspi->cur_seqid == QSPI_CMD_FAST_READ)
+		if (qspi->cur_seqid == QSPI_CMD_FAST_READ) {
+#ifdef CONFIG_SYS_FSL_QSPI_AHB
+			qspi_ahb_read(qspi, din, bytes);
+#else
 			qspi_op_read(qspi, din, bytes);
+#endif
+		}
 		else if (qspi->cur_seqid == QSPI_CMD_RDID)
 			qspi_op_rdid(qspi, din, bytes);
 		else if (qspi->cur_seqid == QSPI_CMD_RDSR)
@@ -657,6 +765,15 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		}
 #endif
 	}
+
+#ifdef CONFIG_SYS_FSL_QSPI_AHB
+	if ((qspi->cur_seqid == QSPI_CMD_SE) ||
+	    (qspi->cur_seqid == QSPI_CMD_PP) ||
+	    (qspi->cur_seqid == QSPI_CMD_BE_4K) ||
+	    (qspi->cur_seqid == QSPI_CMD_WREAR) ||
+	    (qspi->cur_seqid == QSPI_CMD_BRWR))
+		qspi_ahb_invalid(qspi);
+#endif
 
 	return 0;
 }
