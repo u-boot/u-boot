@@ -199,6 +199,20 @@ static void console_putc(int file, const char c)
 	}
 }
 
+#ifdef CONFIG_PRE_CONSOLE_BUFFER
+static void console_putc_noserial(int file, const char c)
+{
+	int i;
+	struct stdio_dev *dev;
+
+	for (i = 0; i < cd_count[file]; i++) {
+		dev = console_devices[file][i];
+		if (dev->putc != NULL && strcmp(dev->name, "serial") != 0)
+			dev->putc(dev, c);
+	}
+}
+#endif
+
 static void console_puts(int file, const char *s)
 {
 	int i;
@@ -235,6 +249,14 @@ static inline void console_putc(int file, const char c)
 {
 	stdio_devices[file]->putc(stdio_devices[file], c);
 }
+
+#ifdef CONFIG_PRE_CONSOLE_BUFFER
+static inline void console_putc_noserial(int file, const char c)
+{
+	if (strcmp(stdio_devices[file]->name, "serial") != 0)
+		stdio_devices[file]->putc(stdio_devices[file], c);
+}
+#endif
 
 static inline void console_puts(int file, const char *s)
 {
@@ -382,6 +404,9 @@ int tstc(void)
 	return serial_tstc();
 }
 
+#define PRE_CONSOLE_FLUSHPOINT1_SERIAL			0
+#define PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL	1
+
 #ifdef CONFIG_PRE_CONSOLE_BUFFER
 #define CIRC_BUF_IDX(idx) ((idx) % (unsigned long)CONFIG_PRE_CON_BUF_SZ)
 
@@ -398,7 +423,7 @@ static void pre_console_puts(const char *s)
 		pre_console_putc(*s++);
 }
 
-static void print_pre_console_buffer(void)
+static void print_pre_console_buffer(int flushpoint)
 {
 	unsigned long i = 0;
 	char *buffer = (char *)CONFIG_PRE_CON_BUF_ADDR;
@@ -407,12 +432,20 @@ static void print_pre_console_buffer(void)
 		i = gd->precon_buf_idx - CONFIG_PRE_CON_BUF_SZ;
 
 	while (i < gd->precon_buf_idx)
-		putc(buffer[CIRC_BUF_IDX(i++)]);
+		switch (flushpoint) {
+		case PRE_CONSOLE_FLUSHPOINT1_SERIAL:
+			putc(buffer[CIRC_BUF_IDX(i++)]);
+			break;
+		case PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL:
+			console_putc_noserial(stdout,
+					      buffer[CIRC_BUF_IDX(i++)]);
+			break;
+		}
 }
 #else
 static inline void pre_console_putc(const char c) {}
 static inline void pre_console_puts(const char *s) {}
-static inline void print_pre_console_buffer(void) {}
+static inline void print_pre_console_buffer(int flushpoint) {}
 #endif
 
 void putc(const char c)
@@ -441,6 +474,7 @@ void putc(const char c)
 		fputc(stdout, c);
 	} else {
 		/* Send directly to the handler */
+		pre_console_putc(c);
 		serial_putc(c);
 	}
 }
@@ -472,6 +506,7 @@ void puts(const char *s)
 		fputs(stdout, s);
 	} else {
 		/* Send directly to the handler */
+		pre_console_puts(s);
 		serial_puts(s);
 	}
 }
@@ -679,7 +714,7 @@ int console_init_f(void)
 		gd->flags |= GD_FLG_SILENT;
 #endif
 
-	print_pre_console_buffer();
+	print_pre_console_buffer(PRE_CONSOLE_FLUSHPOINT1_SERIAL);
 
 	return 0;
 }
@@ -794,6 +829,7 @@ done:
 	if ((stdio_devices[stdin] == NULL) && (stdio_devices[stdout] == NULL))
 		return 0;
 #endif
+	print_pre_console_buffer(PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL);
 	return 0;
 }
 
@@ -869,7 +905,7 @@ int console_init_r(void)
 	if ((stdio_devices[stdin] == NULL) && (stdio_devices[stdout] == NULL))
 		return 0;
 #endif
-
+	print_pre_console_buffer(PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL);
 	return 0;
 }
 
