@@ -94,7 +94,7 @@ skip:
 	b.gt	loop_level
 
 	mov	x0, #0
-	msr	csselr_el1, x0		/* resotre csselr_el1 */
+	msr	csselr_el1, x0		/* restore csselr_el1 */
 	dsb	sy
 	isb
 	mov	lr, x15
