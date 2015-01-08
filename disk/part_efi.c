@@ -342,7 +342,7 @@ static int set_protective_mbr(block_dev_desc_t *dev_desc)
 	p_mbr->signature = MSDOS_MBR_SIGNATURE;
 	p_mbr->partition_record[0].sys_ind = EFI_PMBR_OSTYPE_EFI_GPT;
 	p_mbr->partition_record[0].start_sect = 1;
-	p_mbr->partition_record[0].nr_sects = (u32) dev_desc->lba;
+	p_mbr->partition_record[0].nr_sects = (u32) dev_desc->lba - 1;
 
 	/* Write MBR sector to the MMC device */
 	if (dev_desc->block_write(dev_desc->dev, 0, 1, p_mbr) != 1) {
