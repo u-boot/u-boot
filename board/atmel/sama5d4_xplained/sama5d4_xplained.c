@@ -14,7 +14,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/sama5d3_smc.h>
 #include <asm/arch/sama5d4.h>
-#include <atmel_lcdc.h>
+#include <atmel_hlcdc.h>
 #include <atmel_mci.h>
 #include <lcd.h>
 #include <mmc.h>
@@ -109,10 +109,8 @@ static void sama5d4_xplained_usb_hw_init(void)
 vidinfo_t panel_info = {
 	.vl_col = 480,
 	.vl_row = 272,
-	.vl_clk = 9000,
-	.vl_sync = ATMEL_LCDC_INVLINE_NORMAL | ATMEL_LCDC_INVFRAME_NORMAL,
+	.vl_clk = 9000000,
 	.vl_bpix = LCD_BPP,
-	.vl_bpox = LCD_OUTPUT_BPP,
 	.vl_tft = 1,
 	.vl_hsync_len = 41,
 	.vl_left_margin = 2,
