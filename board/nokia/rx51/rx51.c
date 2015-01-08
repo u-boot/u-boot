@@ -422,8 +422,12 @@ int misc_init_r(void)
 	/*
 	 * Cortex-A8(r1p0..r1p2) errata 430973 workaround
 	 * Set IBE bit in Auxiliary Control Register
+	 *
+	 * Call this routine only on real secure device
+	 * Qemu does not implement secure PPA and crash
 	 */
-	omap3_update_aux_cr_secure_rx51(1 << 6, 0);
+	if (get_device_type() == HS_DEVICE)
+		omap3_update_aux_cr_secure_rx51(1 << 6, 0);
 
 	return 0;
 }
