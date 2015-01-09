@@ -624,12 +624,16 @@ struct fuse_bank0_regs {
 	u32	rsvd1[3];
 	u32	uid_high;
 	u32	rsvd2[3];
-	u32	rsvd3[4];
-	u32	rsvd4[4];
-	u32	rsvd5[4];
+	u32	cfg2;
+	u32	rsvd3[3];
+	u32	cfg3;
+	u32	rsvd4[3];
+	u32	cfg4;
+	u32	rsvd5[3];
 	u32	cfg5;
 	u32	rsvd6[3];
-	u32	rsvd7[4];
+	u32	cfg6;
+	u32	rsvd7[3];
 };
 
 #ifdef CONFIG_MX6SX
