@@ -97,14 +97,9 @@ int board_mmc_init(bd_t *bd)
 }
 #endif
 
-#ifndef CONFIG_LINUX_CMDLINE_SIZE
-# define CONFIG_LINUX_CMDLINE_SIZE	120
-#endif
-
 int board_late_init(void)
 {
 	u32 reg = 0;
-	char args[CONFIG_LINUX_CMDLINE_SIZE];
 	u8 bootmode;
 	u32 ver = zynqmp_get_silicon_version();
 
@@ -118,10 +113,6 @@ int board_late_init(void)
 		break;
 	case ZYNQMP_CSU_VERSION_QEMU:
 	default:
-		strcpy(args, getenv("bootargs"));
-		strncat(args, " maxcpus=2", CONFIG_LINUX_CMDLINE_SIZE);
-		setenv("bootargs", args);
-
 		setenv("serverip", "10.0.2.2");
 		setenv("ipaddr", "10.0.2.15");
 	}
