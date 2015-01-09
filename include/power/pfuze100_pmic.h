@@ -41,6 +41,8 @@ enum {
  * Buck Regulators
  */
 
+#define PFUZE100_SW1ABC_SETP(x)	((x - 3000) / 250)
+
 /* SW1A/B/C Output Voltage Configuration */
 #define SW1x_0_300V 0
 #define SW1x_0_325V 1
