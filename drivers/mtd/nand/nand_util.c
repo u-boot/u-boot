@@ -91,6 +91,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 			kfree(chip->bbt);
 		}
 		chip->bbt = NULL;
+		chip->options &= ~NAND_BBT_SCANNED;
 	}
 
 	for (erased_length = 0;
@@ -178,9 +179,6 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	}
 	if (!opts->quiet)
 		printf("\n");
-
-	if (opts->scrub)
-		chip->scan_bbt(meminfo);
 
 	return 0;
 }
