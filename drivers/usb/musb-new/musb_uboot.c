@@ -74,7 +74,7 @@ static int submit_urb(struct usb_hcd *hcd, struct urb *urb)
 		if (ctrlc())
 			return -EIO;
 		host->isr(0, host);
-	} while ((urb->dev->status & USB_ST_NOT_PROC) &&
+	} while (urb->status == -EINPROGRESS &&
 		 get_timer(0) < timeout);
 
 	return urb->status;
