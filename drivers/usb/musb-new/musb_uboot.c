@@ -57,13 +57,11 @@ static struct urb *construct_urb(struct usb_device *dev, int endpoint_type,
 	return &urb;
 }
 
-#define MUSB_HOST_TIMEOUT	0x3ffffff
-
 static int submit_urb(struct usb_hcd *hcd, struct urb *urb)
 {
 	struct musb *host = hcd->hcd_priv;
 	int ret;
-	int timeout;
+	unsigned long timeout;
 
 	ret = musb_urb_enqueue(hcd, urb, 0);
 	if (ret < 0) {
@@ -71,12 +69,13 @@ static int submit_urb(struct usb_hcd *hcd, struct urb *urb)
 		return ret;
 	}
 
-	timeout = MUSB_HOST_TIMEOUT;
+	timeout = get_timer(0) + USB_TIMEOUT_MS(urb->pipe);
 	do {
 		if (ctrlc())
 			return -EIO;
 		host->isr(0, host);
-	} while ((urb->dev->status & USB_ST_NOT_PROC) && --timeout);
+	} while ((urb->dev->status & USB_ST_NOT_PROC) &&
+		 get_timer(0) < timeout);
 
 	return urb->status;
 }
@@ -115,7 +114,8 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
 	u8 power;
 	void *mbase;
-	int timeout = MUSB_HOST_TIMEOUT;
+	/* USB spec says it may take up to 1 second for a device to connect */
+	unsigned long timeout = get_timer(0) + 1000;
 
 	if (!host) {
 		printf("MUSB host is not registered\n");
@@ -127,8 +127,8 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	do {
 		if (musb_readb(mbase, MUSB_DEVCTL) & MUSB_DEVCTL_HM)
 			break;
-	} while (--timeout);
-	if (!timeout)
+	} while (get_timer(0) < timeout);
+	if (get_timer(0) >= timeout)
 		return -ENODEV;
 
 	power = musb_readb(mbase, MUSB_POWER);
