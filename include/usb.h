@@ -169,7 +169,7 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 #ifdef CONFIG_USB_EHCI /* Only the ehci code has pollable int support */
 struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
-	int queuesize, int elementsize, void *buffer);
+	int queuesize, int elementsize, void *buffer, int interval);
 int destroy_int_queue(struct usb_device *dev, struct int_queue *queue);
 void *poll_int_queue(struct usb_device *dev, struct int_queue *queue);
 #endif
