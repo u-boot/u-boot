@@ -11,6 +11,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+extern const struct musb_platform_ops sunxi_musb_ops;
+
 void *sunxi_usbc_get_io_base(int index);
 int sunxi_usbc_request_resources(int index);
 int sunxi_usbc_free_resources(int index);
