@@ -353,3 +353,39 @@ int axp221_get_sid(unsigned int *sid)
 
 	return 0;
 }
+
+static int axp_drivebus_setup(void)
+{
+	int ret;
+
+	ret = axp221_init();
+	if (ret)
+		return ret;
+
+	/* Set N_VBUSEN pin to output / DRIVEBUS function */
+	return axp221_clrbits(AXP221_MISC_CTRL, AXP221_MISC_CTRL_N_VBUSEN_FUNC);
+}
+
+int axp_drivebus_enable(void)
+{
+	int ret;
+
+	ret = axp_drivebus_setup();
+	if (ret)
+		return ret;
+
+	/* Set DRIVEBUS high */
+	return axp221_setbits(AXP221_VBUS_IPSOUT, AXP221_VBUS_IPSOUT_DRIVEBUS);
+}
+
+int axp_drivebus_disable(void)
+{
+	int ret;
+
+	ret = axp_drivebus_setup();
+	if (ret)
+		return ret;
+
+	/* Set DRIVEBUS low */
+	return axp221_clrbits(AXP221_VBUS_IPSOUT, AXP221_VBUS_IPSOUT_DRIVEBUS);
+}

@@ -45,10 +45,17 @@
 #define AXP221_ALDO1_CTRL	0x28
 #define AXP221_ALDO2_CTRL	0x29
 #define AXP221_ALDO3_CTRL	0x2a
+#define AXP221_VBUS_IPSOUT	0x30
+#define AXP221_VBUS_IPSOUT_DRIVEBUS	(1 << 2)
+#define AXP221_MISC_CTRL	0x8f
+#define AXP221_MISC_CTRL_N_VBUSEN_FUNC	(1 << 4)
 #define AXP221_PAGE		0xff
 
 /* Page 1 addresses */
 #define AXP221_SID		0x20
+
+/* We support drivebus control */
+#define AXP_DRIVEBUS
 
 int axp221_set_dcdc1(unsigned int mvolt);
 int axp221_set_dcdc2(unsigned int mvolt);
@@ -64,3 +71,5 @@ int axp221_set_aldo2(unsigned int mvolt);
 int axp221_set_aldo3(unsigned int mvolt);
 int axp221_init(void);
 int axp221_get_sid(unsigned int *sid);
+int axp_drivebus_enable(void);
+int axp_drivebus_disable(void);
