@@ -544,6 +544,10 @@ int usb_kbd_deregister(int force)
 		data = usb_kbd_dev->privptr;
 		if (stdio_deregister_dev(dev, force) != 0)
 			return 1;
+#ifdef CONFIG_CONSOLE_MUX
+		if (iomux_doenv(stdin, getenv("stdin")) != 0)
+			return 1;
+#endif
 #ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
 		destroy_int_queue(usb_kbd_dev, data->intq);
 #endif
