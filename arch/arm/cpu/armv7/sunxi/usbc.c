@@ -17,6 +17,15 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <common.h>
+#ifdef CONFIG_AXP152_POWER
+#include <axp152.h>
+#endif
+#ifdef CONFIG_AXP209_POWER
+#include <axp209.h>
+#endif
+#ifdef CONFIG_AXP221_POWER
+#include <axp221.h>
+#endif
 
 #define SUNXI_USB_PMU_IRQ_ENABLE	0x800
 #define SUNXI_USB_CSR			0x404
@@ -71,6 +80,12 @@ static struct sunxi_usbc_hcd {
 
 static int enabled_hcd_count;
 
+static bool use_axp_drivebus(int index)
+{
+	return index == 0 &&
+	       strcmp(CONFIG_USB0_VBUS_PIN, "axp_drivebus") == 0;
+}
+
 void *sunxi_usbc_get_io_base(int index)
 {
 	switch (index) {
@@ -87,6 +102,9 @@ void *sunxi_usbc_get_io_base(int index)
 
 static int get_vbus_gpio(int index)
 {
+	if (use_axp_drivebus(index))
+		return -1;
+
 	switch (index) {
 	case 0: return sunxi_name_to_gpio(CONFIG_USB0_VBUS_PIN);
 	case 1: return sunxi_name_to_gpio(CONFIG_USB1_VBUS_PIN);
@@ -233,6 +251,10 @@ void sunxi_usbc_vbus_enable(int index)
 {
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 
+#ifdef AXP_DRIVEBUS
+	if (use_axp_drivebus(index))
+		axp_drivebus_enable();
+#endif
 	if (sunxi_usbc->gpio_vbus != -1)
 		gpio_direction_output(sunxi_usbc->gpio_vbus, 1);
 }
@@ -241,6 +263,10 @@ void sunxi_usbc_vbus_disable(int index)
 {
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 
+#ifdef AXP_DRIVEBUS
+	if (use_axp_drivebus(index))
+		axp_drivebus_disable();
+#endif
 	if (sunxi_usbc->gpio_vbus != -1)
 		gpio_direction_output(sunxi_usbc->gpio_vbus, 0);
 }
