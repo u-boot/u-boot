@@ -25,36 +25,35 @@ static void musb_host_complete_urb(struct urb *urb)
 static struct usb_host_endpoint hep;
 static struct urb urb;
 
-static struct urb *construct_urb(struct usb_device *dev, int endpoint_type,
-				unsigned long pipe, void *buffer, int len,
-				struct devrequest *setup, int interval)
+static void construct_urb(struct urb *urb, struct usb_host_endpoint *hep,
+			  struct usb_device *dev, int endpoint_type,
+			  unsigned long pipe, void *buffer, int len,
+			  struct devrequest *setup, int interval)
 {
 	int epnum = usb_pipeendpoint(pipe);
 	int is_in = usb_pipein(pipe);
 
-	memset(&urb, 0, sizeof(struct urb));
-	memset(&hep, 0, sizeof(struct usb_host_endpoint));
-	INIT_LIST_HEAD(&hep.urb_list);
-	INIT_LIST_HEAD(&urb.urb_list);
-	urb.ep = &hep;
-	urb.complete = musb_host_complete_urb;
-	urb.status = -EINPROGRESS;
-	urb.dev = dev;
-	urb.pipe = pipe;
-	urb.transfer_buffer = buffer;
-	urb.transfer_dma = (unsigned long)buffer;
-	urb.transfer_buffer_length = len;
-	urb.setup_packet = (unsigned char *)setup;
+	memset(urb, 0, sizeof(struct urb));
+	memset(hep, 0, sizeof(struct usb_host_endpoint));
+	INIT_LIST_HEAD(&hep->urb_list);
+	INIT_LIST_HEAD(&urb->urb_list);
+	urb->ep = hep;
+	urb->complete = musb_host_complete_urb;
+	urb->status = -EINPROGRESS;
+	urb->dev = dev;
+	urb->pipe = pipe;
+	urb->transfer_buffer = buffer;
+	urb->transfer_dma = (unsigned long)buffer;
+	urb->transfer_buffer_length = len;
+	urb->setup_packet = (unsigned char *)setup;
 
-	urb.ep->desc.wMaxPacketSize =
+	urb->ep->desc.wMaxPacketSize =
 		__cpu_to_le16(is_in ? dev->epmaxpacketin[epnum] :
 				dev->epmaxpacketout[epnum]);
-	urb.ep->desc.bmAttributes = endpoint_type;
-	urb.ep->desc.bEndpointAddress =
+	urb->ep->desc.bmAttributes = endpoint_type;
+	urb->ep->desc.bEndpointAddress =
 		(is_in ? USB_DIR_IN : USB_DIR_OUT) | epnum;
-	urb.ep->desc.bInterval = interval;
-
-	return &urb;
+	urb->ep->desc.bInterval = interval;
 }
 
 static int submit_urb(struct usb_hcd *hcd, struct urb *urb)
@@ -86,31 +85,31 @@ static int submit_urb(struct usb_hcd *hcd, struct urb *urb)
 int submit_control_msg(struct usb_device *dev, unsigned long pipe,
 			void *buffer, int len, struct devrequest *setup)
 {
-	struct urb *urb = construct_urb(dev, USB_ENDPOINT_XFER_CONTROL, pipe,
-					buffer, len, setup, 0);
+	construct_urb(&urb, &hep, dev, USB_ENDPOINT_XFER_CONTROL, pipe,
+		      buffer, len, setup, 0);
 
 	/* Fix speed for non hub-attached devices */
 	if (!dev->parent)
 		dev->speed = host_speed;
 
-	return submit_urb(&hcd, urb);
+	return submit_urb(&hcd, &urb);
 }
 
 
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 					void *buffer, int len)
 {
-	struct urb *urb = construct_urb(dev, USB_ENDPOINT_XFER_BULK, pipe,
-					buffer, len, NULL, 0);
-	return submit_urb(&hcd, urb);
+	construct_urb(&urb, &hep, dev, USB_ENDPOINT_XFER_BULK, pipe,
+		      buffer, len, NULL, 0);
+	return submit_urb(&hcd, &urb);
 }
 
 int submit_int_msg(struct usb_device *dev, unsigned long pipe,
 				void *buffer, int len, int interval)
 {
-	struct urb *urb = construct_urb(dev, USB_ENDPOINT_XFER_INT, pipe,
-					buffer, len, NULL, interval);
-	return submit_urb(&hcd, urb);
+	construct_urb(&urb, &hep, dev, USB_ENDPOINT_XFER_INT, pipe,
+		      buffer, len, NULL, interval);
+	return submit_urb(&hcd, &urb);
 }
 
 void usb_reset_root_port(void)
