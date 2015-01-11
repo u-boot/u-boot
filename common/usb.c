@@ -970,6 +970,8 @@ int usb_new_device(struct usb_device *dev)
 			printf("\n     Couldn't reset port %i\n", dev->portnr);
 			return 1;
 		}
+	} else {
+		usb_reset_root_port();
 	}
 #endif
 

@@ -159,6 +159,11 @@ enum usb_init_type {
 
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller);
 int usb_lowlevel_stop(int index);
+#ifdef CONFIG_MUSB_HOST
+void usb_reset_root_port(void);
+#else
+#define usb_reset_root_port()
+#endif
 
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 			void *buffer, int transfer_len);

@@ -110,9 +110,27 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe,
 	return submit_urb(&hcd, urb);
 }
 
+void usb_reset_root_port(void)
+{
+	void *mbase = host->mregs;
+	u8 power;
+
+	power = musb_readb(mbase, MUSB_POWER);
+	power &= 0xf0;
+	musb_writeb(mbase, MUSB_POWER, MUSB_POWER_RESET | power);
+	mdelay(50);
+	power = musb_readb(mbase, MUSB_POWER);
+	musb_writeb(mbase, MUSB_POWER, ~MUSB_POWER_RESET & power);
+	host->isr(0, host);
+	host_speed = (musb_readb(mbase, MUSB_POWER) & MUSB_POWER_HSMODE) ?
+			USB_SPEED_HIGH :
+			(musb_readb(mbase, MUSB_DEVCTL) & MUSB_DEVCTL_FSDEV) ?
+			USB_SPEED_FULL : USB_SPEED_LOW;
+	mdelay((host_speed == USB_SPEED_LOW) ? 200 : 50);
+}
+
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
-	u8 power;
 	void *mbase;
 	/* USB spec says it may take up to 1 second for a device to connect */
 	unsigned long timeout = get_timer(0) + 1000;
@@ -131,16 +149,7 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	if (get_timer(0) >= timeout)
 		return -ENODEV;
 
-	power = musb_readb(mbase, MUSB_POWER);
-	musb_writeb(mbase, MUSB_POWER, MUSB_POWER_RESET | power);
-	udelay(30000);
-	power = musb_readb(mbase, MUSB_POWER);
-	musb_writeb(mbase, MUSB_POWER, ~MUSB_POWER_RESET & power);
-	host->isr(0, host);
-	host_speed = (musb_readb(mbase, MUSB_POWER) & MUSB_POWER_HSMODE) ?
-			USB_SPEED_HIGH :
-			(musb_readb(mbase, MUSB_DEVCTL) & MUSB_DEVCTL_FSDEV) ?
-			USB_SPEED_FULL : USB_SPEED_LOW;
+	usb_reset_root_port();
 	host->is_active = 1;
 	hcd.hcd_priv = host;
 
