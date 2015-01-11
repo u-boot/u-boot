@@ -48,6 +48,7 @@ struct urb {
 	list_add_tail(&urb->urb_list, &urb->ep->urb_list);	\
 	ret; })
 #define usb_hcd_unlink_urb_from_ep(hcd, urb)	list_del_init(&urb->urb_list)
+#define usb_hcd_check_unlink_urb(hdc, urb, status)	0
 
 static inline void usb_hcd_giveback_urb(struct usb_hcd *hcd,
 					struct urb *urb,

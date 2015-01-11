@@ -77,6 +77,9 @@ static int submit_urb(struct usb_hcd *hcd, struct urb *urb)
 	} while (urb->status == -EINPROGRESS &&
 		 get_timer(0) < timeout);
 
+	if (urb->status == -EINPROGRESS)
+		musb_urb_dequeue(hcd, urb, -ETIME);
+
 	return urb->status;
 }
 
