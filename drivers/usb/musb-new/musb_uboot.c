@@ -12,6 +12,11 @@
 #include "musb_gadget.h"
 
 #ifdef CONFIG_MUSB_HOST
+struct int_queue {
+	struct usb_host_endpoint hep;
+	struct urb urb;
+};
+
 static struct musb *host;
 static struct usb_hcd hcd;
 static enum usb_device_speed host_speed;
@@ -110,6 +115,66 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe,
 	construct_urb(&urb, &hep, dev, USB_ENDPOINT_XFER_INT, pipe,
 		      buffer, len, NULL, interval);
 	return submit_urb(&hcd, &urb);
+}
+
+struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
+	int queuesize, int elementsize, void *buffer, int interval)
+{
+	struct int_queue *queue;
+	int ret, index = usb_pipein(pipe) * 16 + usb_pipeendpoint(pipe);
+
+	if (queuesize != 1) {
+		printf("ERROR musb int-queues only support queuesize 1\n");
+		return NULL;
+	}
+
+	if (dev->int_pending & (1 << index)) {
+		printf("ERROR int-urb is already pending on pipe %lx\n", pipe);
+		return NULL;
+	}
+
+	queue = malloc(sizeof(*queue));
+	if (!queue)
+		return NULL;
+
+	construct_urb(&queue->urb, &queue->hep, dev, USB_ENDPOINT_XFER_INT,
+		      pipe, buffer, elementsize, NULL, interval);
+
+	ret = musb_urb_enqueue(&hcd, &queue->urb, 0);
+	if (ret < 0) {
+		printf("Failed to enqueue URB to controller\n");
+		free(queue);
+		return NULL;
+	}
+
+	dev->int_pending |= 1 << index;
+	return queue;
+}
+
+int destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
+{
+	int index = usb_pipein(queue->urb.pipe) * 16 + 
+		    usb_pipeendpoint(queue->urb.pipe);
+
+	if (queue->urb.status == -EINPROGRESS)
+		musb_urb_dequeue(&hcd, &queue->urb, -ETIME);
+
+	dev->int_pending &= ~(1 << index);
+	free(queue);
+	return 0;
+}
+
+void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
+{
+	if (queue->urb.status != -EINPROGRESS)
+		return NULL; /* URB has already completed in a prev. poll */
+
+	host->isr(0, host);
+
+	if (queue->urb.status != -EINPROGRESS)
+		return queue->urb.transfer_buffer; /* Done */
+
+	return NULL; /* URB still pending */
 }
 
 void usb_reset_root_port(void)
