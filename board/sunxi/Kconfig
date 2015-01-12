@@ -307,7 +307,7 @@ config VIDEO_VGA
 
 config VIDEO_VGA_VIA_LCD
 	boolean "VGA via LCD controller support"
-	depends on VIDEO && MACH_SUN5I
+	depends on VIDEO && (MACH_SUN5I || MACH_SUN6I || MACH_SUN8I)
 	default n
 	---help---
 	Say Y here to add support for external DACs connected to the parallel
