@@ -19,9 +19,6 @@ config TARGET_COBRA5272
 config TARGET_EB_CPU5282
 	bool "Support eb_cpu5282"
 
-config TARGET_TASREG
-	bool "Support TASREG"
-
 config TARGET_M5208EVBE
 	bool "Support M5208EVBE"
 
@@ -75,7 +72,6 @@ endchoice
 source "board/BuS/eb_cpu5282/Kconfig"
 source "board/astro/mcf5373l/Kconfig"
 source "board/cobra5272/Kconfig"
-source "board/esd/tasreg/Kconfig"
 source "board/freescale/m5208evbe/Kconfig"
 source "board/freescale/m52277evb/Kconfig"
 source "board/freescale/m5235evb/Kconfig"
