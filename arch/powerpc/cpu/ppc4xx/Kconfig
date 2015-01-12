@@ -128,9 +128,6 @@ config TARGET_CPCI405DT
 config TARGET_PLU405
 	bool "Support PLU405"
 
-config TARGET_PMC405
-	bool "Support PMC405"
-
 config TARGET_PMC405DE
 	bool "Support PMC405DE"
 
@@ -224,7 +221,6 @@ source "board/dave/PPChameleonEVB/Kconfig"
 source "board/esd/cpci2dp/Kconfig"
 source "board/esd/cpci405/Kconfig"
 source "board/esd/plu405/Kconfig"
-source "board/esd/pmc405/Kconfig"
 source "board/esd/pmc405de/Kconfig"
 source "board/esd/pmc440/Kconfig"
 source "board/esd/voh405/Kconfig"
