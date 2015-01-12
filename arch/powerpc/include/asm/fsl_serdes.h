@@ -87,6 +87,7 @@ enum srds_prtcl {
 	SGMII_2500_FM2_DTSEC6,
 	SGMII_2500_FM2_DTSEC9,
 	SGMII_2500_FM2_DTSEC10,
+	SERDES_PRCTL_COUNT	/* Keep this item the last one */
 };
 
 enum srds {
