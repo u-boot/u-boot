@@ -72,8 +72,13 @@ int board_eth_init(bd_t *bis)
 			fm_info_set_phy_address(i, 0);
 			break;
 		}
-		fm_info_set_mdio(i,
-				 miiphy_get_dev_by_name(DEFAULT_FM_MDIO_NAME));
+		if (fm_info_get_enet_if(i) == PHY_INTERFACE_MODE_QSGMII ||
+		    fm_info_get_enet_if(i) == PHY_INTERFACE_MODE_NONE)
+			fm_info_set_mdio(i, NULL);
+		else
+			fm_info_set_mdio(i,
+					 miiphy_get_dev_by_name(
+							DEFAULT_FM_MDIO_NAME));
 	}
 
 	cpu_eth_init(bis);
