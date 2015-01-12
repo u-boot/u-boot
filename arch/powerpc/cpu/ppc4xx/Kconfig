@@ -110,9 +110,6 @@ config TARGET_CATCENTER
 config TARGET_PPCHAMELEONEVB
 	bool "Support PPChameleonEVB"
 
-config TARGET_APC405
-	bool "Support APC405"
-
 config TARGET_AR405
 	bool "Support AR405"
 
@@ -257,7 +254,6 @@ source "board/avnet/v5fx30teval/Kconfig"
 source "board/csb272/Kconfig"
 source "board/csb472/Kconfig"
 source "board/dave/PPChameleonEVB/Kconfig"
-source "board/esd/apc405/Kconfig"
 source "board/esd/ar405/Kconfig"
 source "board/esd/ash405/Kconfig"
 source "board/esd/cms700/Kconfig"

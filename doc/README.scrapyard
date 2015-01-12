@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+APC405           ppc4xx      405gpr         -           -           Matthias Fuchs <matthias.fuchs@esd.eu>
 TASREG           m68k        mcf52x2        -           -           Matthias Fuchs <matthias.fuchs@esd.eu>
 A3000            powerpc     mpc824x        -           -
 CPC45            powerpc     mpc824x        -           -           Josef Wagner <Wagner@Microsys.de>
