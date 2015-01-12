@@ -13,9 +13,6 @@ config TARGET_CSB272
 config TARGET_CSB472
 	bool "Support csb472"
 
-config TARGET_G2000
-	bool "Support G2000"
-
 config TARGET_JSE
 	bool "Support JSE"
 
@@ -218,7 +215,6 @@ source "board/esd/plu405/Kconfig"
 source "board/esd/pmc405de/Kconfig"
 source "board/esd/pmc440/Kconfig"
 source "board/esd/vom405/Kconfig"
-source "board/g2000/Kconfig"
 source "board/gdsys/405ep/Kconfig"
 source "board/gdsys/405ex/Kconfig"
 source "board/gdsys/dlvision/Kconfig"
