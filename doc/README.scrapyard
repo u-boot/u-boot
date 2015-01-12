@@ -12,6 +12,9 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+CPCI405          ppc4xx      405gp          -           -           Matthias Fuchs <matthias.fuchs@esd.eu>
+CPCI405DT        ppc4xx      405gpr         -           -           Matthias Fuchs <matthias.fuchs@esd.eu>
+CPCI405AB        ppc4xx      405gpr         -           -           Matthias Fuchs <matthias.fuchs@esd.eu>
 G2000            ppc4xx      405ep          -           -           Matthias Fuchs <matthias.fuchs@esd.eu>
 WUH405           ppc4xx      405ep          -           -           Matthias Fuchs <matthias.fuchs@esd.eu>
 VOH405           ppc4xx      405ep          -           -           Matthias Fuchs <matthias.fuchs@esd.eu>

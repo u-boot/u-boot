@@ -110,17 +110,8 @@ config TARGET_PPCHAMELEONEVB
 config TARGET_CPCI2DP
 	bool "Support CPCI2DP"
 
-config TARGET_CPCI405
-	bool "Support CPCI405"
-
 config TARGET_CPCI4052
 	bool "Support CPCI4052"
-
-config TARGET_CPCI405AB
-	bool "Support CPCI405AB"
-
-config TARGET_CPCI405DT
-	bool "Support CPCI405DT"
 
 config TARGET_PLU405
 	bool "Support PLU405"
