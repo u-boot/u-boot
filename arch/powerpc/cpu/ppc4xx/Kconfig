@@ -137,9 +137,6 @@ config TARGET_PMC440
 config TARGET_VOM405
 	bool "Support VOM405"
 
-config TARGET_WUH405
-	bool "Support WUH405"
-
 config TARGET_DLVISION_10G
 	bool "Support dlvision-10g"
 
@@ -221,7 +218,6 @@ source "board/esd/plu405/Kconfig"
 source "board/esd/pmc405de/Kconfig"
 source "board/esd/pmc440/Kconfig"
 source "board/esd/vom405/Kconfig"
-source "board/esd/wuh405/Kconfig"
 source "board/g2000/Kconfig"
 source "board/gdsys/405ep/Kconfig"
 source "board/gdsys/405ex/Kconfig"
