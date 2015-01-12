@@ -813,6 +813,19 @@ static void sunxi_drc_init(void)
 #endif
 }
 
+#ifdef CONFIG_VIDEO_VGA_VIA_LCD
+static void sunxi_vga_external_dac_enable(void)
+{
+	int pin;
+
+	pin = sunxi_name_to_gpio(CONFIG_VIDEO_VGA_EXTERNAL_DAC_EN);
+	if (pin != -1) {
+		gpio_request(pin, "vga_enable");
+		gpio_direction_output(pin, 1);
+	}
+}
+#endif /* CONFIG_VIDEO_VGA_VIA_LCD */
+
 static void sunxi_engines_init(void)
 {
 	sunxi_composer_init();
@@ -860,6 +873,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_lcdc_tcon0_mode_set(mode);
 		sunxi_composer_enable();
 		sunxi_lcdc_enable();
+		sunxi_vga_external_dac_enable();
 #endif
 		break;
 	}

@@ -314,6 +314,14 @@ config VIDEO_VGA_VIA_LCD
 	LCD interface driving a VGA connector, such as found on the
 	Olimex A13 boards.
 
+config VIDEO_VGA_EXTERNAL_DAC_EN
+	string "LCD panel power enable pin"
+	depends on VIDEO_VGA_VIA_LCD
+	default ""
+	---help---
+	Set the enable pin for the external VGA DAC. This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
 config VIDEO_LCD_MODE
 	string "LCD panel timing details"
 	depends on VIDEO
