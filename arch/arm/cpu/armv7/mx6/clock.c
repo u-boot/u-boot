@@ -47,6 +47,17 @@ void setup_gpmi_io_clk(u32 cfg)
 		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_INPUT_APB_MASK |
 		     MXC_CCM_CCGR4_PL301_MX6QPER1_BCH_MASK);
 
+#if defined(CONFIG_MX6SX)
+	clrbits_le32(&imx_ccm->CCGR4, MXC_CCM_CCGR4_QSPI2_ENFC_MASK);
+
+	clrsetbits_le32(&imx_ccm->cs2cdr,
+			MXC_CCM_CS2CDR_QSPI2_CLK_PODF_MASK |
+			MXC_CCM_CS2CDR_QSPI2_CLK_PRED_MASK |
+			MXC_CCM_CS2CDR_QSPI2_CLK_SEL_MASK,
+			cfg);
+
+	setbits_le32(&imx_ccm->CCGR4, MXC_CCM_CCGR4_QSPI2_ENFC_MASK);
+#else
 	clrbits_le32(&imx_ccm->CCGR2, MXC_CCM_CCGR2_IOMUX_IPT_CLK_IO_MASK);
 
 	clrsetbits_le32(&imx_ccm->cs2cdr,
@@ -56,6 +67,7 @@ void setup_gpmi_io_clk(u32 cfg)
 			cfg);
 
 	setbits_le32(&imx_ccm->CCGR2, MXC_CCM_CCGR2_IOMUX_IPT_CLK_IO_MASK);
+#endif
 	setbits_le32(&imx_ccm->CCGR4,
 		     MXC_CCM_CCGR4_RAWNAND_U_BCH_INPUT_APB_MASK |
 		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_BCH_MASK |
