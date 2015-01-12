@@ -410,10 +410,15 @@ static int fm_eth_open(struct eth_device *dev, bd_t *bd)
 	fmc_tx_port_graceful_stop_disable(fm_eth);
 
 #ifdef CONFIG_PHYLIB
-	ret = phy_startup(fm_eth->phydev);
-	if (ret) {
-		printf("%s: Could not initialize\n", fm_eth->phydev->dev->name);
-		return ret;
+	if (fm_eth->phydev) {
+		ret = phy_startup(fm_eth->phydev);
+		if (ret) {
+			printf("%s: Could not initialize\n",
+			       fm_eth->phydev->dev->name);
+			return ret;
+		}
+	} else {
+		return 0;
 	}
 #else
 	fm_eth->phydev->speed = SPEED_1000;
@@ -447,7 +452,8 @@ static void fm_eth_halt(struct eth_device *dev)
 	/* disable bmi Rx port */
 	bmi_rx_port_disable(fm_eth->rx_port);
 
-	phy_shutdown(fm_eth->phydev);
+	if (fm_eth->phydev)
+		phy_shutdown(fm_eth->phydev);
 }
 
 static int fm_eth_send(struct eth_device *dev, void *buf, int len)
@@ -625,11 +631,12 @@ static int init_phy(struct eth_device *dev)
 	if (fm_eth->bus) {
 		phydev = phy_connect(fm_eth->bus, fm_eth->phyaddr, dev,
 					fm_eth->enet_if);
-	}
-
-	if (!phydev) {
-		printf("Failed to connect\n");
-		return -1;
+		if (!phydev) {
+			printf("Failed to connect\n");
+			return -1;
+		}
+	} else {
+		return 0;
 	}
 
 	if (fm_eth->type == FM_ETH_1G_E) {
@@ -711,8 +718,7 @@ int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info)
 	if (!fm_eth_startup(fm_eth))
 		return 0;
 
-	if (init_phy(dev))
-		return 0;
+	init_phy(dev);
 
 	/* clear the ethernet address */
 	for (i = 0; i < 6; i++)
