@@ -110,9 +110,6 @@ config TARGET_CATCENTER
 config TARGET_PPCHAMELEONEVB
 	bool "Support PPChameleonEVB"
 
-config TARGET_CMS700
-	bool "Support CMS700"
-
 config TARGET_CPCI2DP
 	bool "Support CPCI2DP"
 
@@ -248,7 +245,6 @@ source "board/avnet/v5fx30teval/Kconfig"
 source "board/csb272/Kconfig"
 source "board/csb472/Kconfig"
 source "board/dave/PPChameleonEVB/Kconfig"
-source "board/esd/cms700/Kconfig"
 source "board/esd/cpci2dp/Kconfig"
 source "board/esd/cpci405/Kconfig"
 source "board/esd/cpciiser4/Kconfig"
