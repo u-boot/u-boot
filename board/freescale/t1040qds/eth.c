@@ -478,6 +478,7 @@ int board_eth_init(bd_t *bis)
 	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CONFIG_SYS_NUM_FM1_DTSEC; i++) {
 		switch (fm_info_get_enet_if(i)) {
 		case PHY_INTERFACE_MODE_QSGMII:
+			fm_info_set_mdio(i, NULL);
 			break;
 		case PHY_INTERFACE_MODE_SGMII:
 			t1040_handle_phy_interface_sgmii(i);
