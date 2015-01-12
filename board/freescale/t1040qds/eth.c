@@ -216,6 +216,7 @@ static void initialize_lane_to_slot(void)
 		lane_to_slot[1] = 7;
 		lane_to_slot[2] = 7;
 		lane_to_slot[3] = 7;
+		lane_to_slot[6] = 7;
 		lane_to_slot[7] = 7;
 		break;
 	case 0x8d:
