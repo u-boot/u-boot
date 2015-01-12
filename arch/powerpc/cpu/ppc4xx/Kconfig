@@ -134,9 +134,6 @@ config TARGET_PMC405DE
 config TARGET_PMC440
 	bool "Support PMC440"
 
-config TARGET_VOH405
-	bool "Support VOH405"
-
 config TARGET_VOM405
 	bool "Support VOM405"
 
@@ -223,7 +220,6 @@ source "board/esd/cpci405/Kconfig"
 source "board/esd/plu405/Kconfig"
 source "board/esd/pmc405de/Kconfig"
 source "board/esd/pmc440/Kconfig"
-source "board/esd/voh405/Kconfig"
 source "board/esd/vom405/Kconfig"
 source "board/esd/wuh405/Kconfig"
 source "board/g2000/Kconfig"
