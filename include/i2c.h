@@ -184,6 +184,65 @@ int i2c_set_chip_offset_len(struct udevice *dev, uint offset_len);
  */
 int i2c_deblock(struct udevice *bus);
 
+#ifdef CONFIG_DM_I2C_COMPAT
+/**
+ * i2c_probe() - Compatibility function for driver model
+ *
+ * Calls dm_i2c_probe() on the current bus
+ */
+int i2c_probe(uint8_t chip_addr);
+
+/**
+ * i2c_read() - Compatibility function for driver model
+ *
+ * Calls dm_i2c_read() with the device corresponding to @chip_addr, and offset
+ * set to @addr. @alen must match the current setting for the device.
+ */
+int i2c_read(uint8_t chip_addr, unsigned int addr, int alen, uint8_t *buffer,
+	     int len);
+
+/**
+ * i2c_write() - Compatibility function for driver model
+ *
+ * Calls dm_i2c_write() with the device corresponding to @chip_addr, and offset
+ * set to @addr. @alen must match the current setting for the device.
+ */
+int i2c_write(uint8_t chip_addr, unsigned int addr, int alen, uint8_t *buffer,
+	      int len);
+
+/**
+ * i2c_get_bus_num_fdt() - Compatibility function for driver model
+ *
+ * @return the bus number associated with the given device tree node
+ */
+int i2c_get_bus_num_fdt(int node);
+
+/**
+ * i2c_get_bus_num() - Compatibility function for driver model
+ *
+ * @return the 'current' bus number
+ */
+unsigned int i2c_get_bus_num(void);
+
+/**
+ * i2c_set_bus_num(): Compatibility function for driver model
+ *
+ * Sets the 'current' bus
+ */
+int i2c_set_bus_num(unsigned int bus);
+
+static inline void I2C_SET_BUS(unsigned int bus)
+{
+	i2c_set_bus_num(bus);
+}
+
+static inline unsigned int I2C_GET_BUS(void)
+{
+	return i2c_get_bus_num();
+}
+
+#endif
+
 /*
  * Not all of these flags are implemented in the U-Boot API
  */
