@@ -113,7 +113,7 @@ compute_ranksize(const struct ddr4_spd_eeprom_s *spd)
 #define spd_to_ps(mtb, ftb)	\
 	(mtb * pdimm->mtb_ps + (ftb * pdimm->ftb_10th_ps) / 10)
 /*
- * ddr_compute_dimm_parameters for DDR3 SPD
+ * ddr_compute_dimm_parameters for DDR4 SPD
  *
  * Compute DIMM parameters based upon the SPD information in spd.
  * Writes the results to the dimm_params_t structure pointed by pdimm.
@@ -126,6 +126,12 @@ ddr_compute_dimm_parameters(const generic_spd_eeprom_t *spd,
 {
 	unsigned int retval;
 	int i;
+	const u8 udimm_rc_e_dq[18] = {
+		0x0c, 0x2c, 0x15, 0x35, 0x15, 0x35, 0x0b, 0x2c, 0x15,
+		0x35, 0x0b, 0x35, 0x0b, 0x2c, 0x0b, 0x35, 0x15, 0x36
+	};
+	int spd_error = 0;
+	u8 *ptr;
 
 	if (spd->mem_type) {
 		if (spd->mem_type != SPD_MEMTYPE_DDR4) {
@@ -165,20 +171,36 @@ ddr_compute_dimm_parameters(const generic_spd_eeprom_t *spd,
 			  + pdimm->ec_sdram_width;
 	pdimm->device_width = 1 << ((spd->organization & 0x7) + 2);
 
-	/* These are the types defined by the JEDEC DDR3 SPD spec */
+	/* These are the types defined by the JEDEC SPD spec */
 	pdimm->mirrored_dimm = 0;
 	pdimm->registered_dimm = 0;
-	switch (spd->module_type & DDR3_SPD_MODULETYPE_MASK) {
-	case DDR3_SPD_MODULETYPE_RDIMM:
+	switch (spd->module_type & DDR4_SPD_MODULETYPE_MASK) {
+	case DDR4_SPD_MODULETYPE_RDIMM:
 		/* Registered/buffered DIMMs */
 		pdimm->registered_dimm = 1;
 		break;
 
-	case DDR3_SPD_MODULETYPE_UDIMM:
-	case DDR3_SPD_MODULETYPE_SO_DIMM:
+	case DDR4_SPD_MODULETYPE_UDIMM:
+	case DDR4_SPD_MODULETYPE_SO_DIMM:
 		/* Unbuffered DIMMs */
 		if (spd->mod_section.unbuffered.addr_mapping & 0x1)
 			pdimm->mirrored_dimm = 1;
+		if ((spd->mod_section.unbuffered.mod_height & 0xe0) == 0 &&
+		    (spd->mod_section.unbuffered.ref_raw_card == 0x04)) {
+			/* Fix SPD error found on DIMMs with raw card E0 */
+			for (i = 0; i < 18; i++) {
+				if (spd->mapping[i] == udimm_rc_e_dq[i])
+					continue;
+				spd_error = 1;
+				debug("SPD byte %d: 0x%x, should be 0x%x\n",
+				      60 + i, spd->mapping[i],
+				      udimm_rc_e_dq[i]);
+				ptr = (u8 *)&spd->mapping[i];
+				*ptr = udimm_rc_e_dq[i];
+			}
+			if (spd_error)
+				puts("SPD DQ mapping error fixed\n");
+		}
 		break;
 
 	default:

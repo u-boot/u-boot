@@ -12,6 +12,7 @@ NORMAL_DRIVERS=y
 endif
 
 obj-$(CONFIG_SPL_NAND_AM33XX_BCH) += am335x_spl_bch.o
+obj-$(CONFIG_SPL_NAND_DENALI) += denali_spl.o
 obj-$(CONFIG_SPL_NAND_DOCG4) += docg4_spl.o
 obj-$(CONFIG_SPL_NAND_SIMPLE) += nand_spl_simple.o
 obj-$(CONFIG_SPL_NAND_LOAD) += nand_spl_load.o
@@ -42,6 +43,7 @@ obj-$(CONFIG_NAND_ECC_BCH) += nand_bch.o
 obj-$(CONFIG_NAND_ATMEL) += atmel_nand.o
 obj-$(CONFIG_DRIVER_NAND_BFIN) += bfin_nand.o
 obj-$(CONFIG_NAND_DAVINCI) += davinci_nand.o
+obj-$(CONFIG_NAND_DENALI) += denali.o
 obj-$(CONFIG_NAND_FSL_ELBC) += fsl_elbc_nand.o
 obj-$(CONFIG_NAND_FSL_IFC) += fsl_ifc_nand.o
 obj-$(CONFIG_NAND_FSL_UPM) += fsl_upm.o
@@ -51,6 +53,7 @@ obj-$(CONFIG_NAND_KB9202) += kb9202_nand.o
 obj-$(CONFIG_NAND_KIRKWOOD) += kirkwood_nand.o
 obj-$(CONFIG_NAND_KMETER1) += kmeter1_nand.o
 obj-$(CONFIG_NAND_MPC5121_NFC) += mpc5121_nfc.o
+obj-$(CONFIG_NAND_VF610_NFC) += vf610_nfc.o
 obj-$(CONFIG_NAND_MXC) += mxc_nand.o
 obj-$(CONFIG_NAND_MXS) += mxs_nand.o
 obj-$(CONFIG_NAND_NDFC) += ndfc.o

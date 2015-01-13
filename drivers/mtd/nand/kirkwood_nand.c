@@ -8,7 +8,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <nand.h>
 
 /* NAND Flash Soc registers */
@@ -58,6 +58,9 @@ void kw_nand_select_chip(struct mtd_info *mtd, int chip)
 int board_nand_init(struct nand_chip *nand)
 {
 	nand->options = NAND_COPYBACK | NAND_CACHEPRG | NAND_NO_PADDING;
+#if defined(CONFIG_SYS_NAND_NO_SUBPAGE_WRITE)
+	nand->options |= NAND_NO_SUBPAGE_WRITE;
+#endif
 #if defined(CONFIG_NAND_ECC_BCH)
 	nand->ecc.mode = NAND_ECC_SOFT_BCH;
 #else

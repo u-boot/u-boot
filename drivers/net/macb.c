@@ -479,31 +479,22 @@ static int macb_phy_init(struct macb_device *macb)
 	/* First check for GMAC */
 	if (macb_is_gem(macb)) {
 		lpa = macb_mdio_read(macb, MII_STAT1000);
-		if (lpa & (1 << 11)) {
-			speed = 1000;
-			duplex = 1;
-		} else {
-		       if (lpa & (1 << 10)) {
-				speed = 1000;
-				duplex = 1;
-			} else {
-				speed = 0;
-			}
-		}
 
-		if (speed == 1000) {
-			printf("%s: link up, %dMbps %s-duplex (lpa: 0x%04x)\n",
+		if (lpa & (LPA_1000FULL | LPA_1000HALF)) {
+			duplex = ((lpa & LPA_1000FULL) ? 1 : 0);
+
+			printf("%s: link up, 1000Mbps %s-duplex (lpa: 0x%04x)\n",
 			       netdev->name,
-			       speed,
 			       duplex ? "full" : "half",
 			       lpa);
 
 			ncfgr = macb_readl(macb, NCFGR);
-			ncfgr &= ~(GEM_BIT(GBE) | MACB_BIT(SPD) | MACB_BIT(FD));
-			if (speed)
-				ncfgr |= GEM_BIT(GBE);
+			ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD));
+			ncfgr |= GEM_BIT(GBE);
+
 			if (duplex)
 				ncfgr |= MACB_BIT(FD);
+
 			macb_writel(macb, NCFGR, ncfgr);
 
 			return 1;
@@ -534,6 +525,7 @@ static int macb_phy_init(struct macb_device *macb)
 	return 1;
 }
 
+static int macb_write_hwaddr(struct eth_device *dev);
 static int macb_init(struct eth_device *netdev, bd_t *bd)
 {
 	struct macb_device *macb = to_macb(netdev);
@@ -574,7 +566,13 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	macb_writel(macb, TBQP, macb->tx_ring_dma);
 
 	if (macb_is_gem(macb)) {
-#ifdef CONFIG_RGMII
+		/*
+		 * When the GMAC IP with GE feature, this bit is used to
+		 * select interface between RGMII and GMII.
+		 * When the GMAC IP without GE feature, this bit is used
+		 * to select interface between RMII and MII.
+		 */
+#if defined(CONFIG_RGMII) || defined(CONFIG_RMII)
 		gem_writel(macb, UR, GEM_BIT(RGMII));
 #else
 		gem_writel(macb, UR, 0);
@@ -594,6 +592,14 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	macb_writel(macb, USRIO, MACB_BIT(MII));
 #endif
 #endif /* CONFIG_RMII */
+	}
+
+	/* update the ethaddr */
+	if (is_valid_ether_addr(netdev->enetaddr)) {
+		macb_write_hwaddr(netdev);
+	} else {
+		printf("%s: mac address is not valid\n", netdev->name);
+		return -1;
 	}
 
 	if (!macb_phy_init(macb))

@@ -1,0 +1,9 @@
+if TARGET_MS7750SE
+
+config SYS_BOARD
+	default "ms7750se"
+
+config SYS_CONFIG_NAME
+	default "ms7750se"
+
+endif

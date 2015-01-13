@@ -45,6 +45,8 @@
 #define CONFIG_CONTROLCENTERD
 #define CONFIG_MP			/* support multiple processors */
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENABLE_36BIT_PHYS
 #define CONFIG_FSL_LAW			/* Use common FSL init code */
@@ -432,7 +434,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_LAST_STAGE_INIT
-#undef CONFIG_CMD_BOOTM
 
 #endif /* CONFIG_TRAILBLAZER */
 

@@ -19,6 +19,7 @@
 #include <onenand_uboot.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
+#include <linux/err.h>
 #include <ubi_uboot.h>
 #include <asm/errno.h>
 #include <jffs2/load_kernel.h>
@@ -49,33 +50,6 @@ static struct selected_dev ubi_dev;
 int ubifs_is_mounted(void);
 void cmd_ubifs_umount(void);
 #endif
-
-static void ubi_dump_vol_info(const struct ubi_volume *vol)
-{
-	ubi_msg("volume information dump:");
-	ubi_msg("vol_id          %d", vol->vol_id);
-	ubi_msg("reserved_pebs   %d", vol->reserved_pebs);
-	ubi_msg("alignment       %d", vol->alignment);
-	ubi_msg("data_pad        %d", vol->data_pad);
-	ubi_msg("vol_type        %d", vol->vol_type);
-	ubi_msg("name_len        %d", vol->name_len);
-	ubi_msg("usable_leb_size %d", vol->usable_leb_size);
-	ubi_msg("used_ebs        %d", vol->used_ebs);
-	ubi_msg("used_bytes      %lld", vol->used_bytes);
-	ubi_msg("last_eb_bytes   %d", vol->last_eb_bytes);
-	ubi_msg("corrupted       %d", vol->corrupted);
-	ubi_msg("upd_marker      %d", vol->upd_marker);
-
-	if (vol->name_len <= UBI_VOL_NAME_MAX &&
-		strnlen(vol->name, vol->name_len + 1) == vol->name_len) {
-		ubi_msg("name            %s", vol->name);
-	} else {
-		ubi_msg("the 1st 5 characters of the name: %c%c%c%c%c",
-				vol->name[0], vol->name[1], vol->name[2],
-				vol->name[3], vol->name[4]);
-	}
-	printf("\n");
-}
 
 static void display_volume_info(struct ubi_device *ubi)
 {
@@ -287,7 +261,7 @@ out_err:
 	return err;
 }
 
-int ubi_volume_continue_write(char *volume, void *buf, size_t size)
+static int ubi_volume_continue_write(char *volume, void *buf, size_t size)
 {
 	int err = 1;
 	struct ubi_volume *vol;

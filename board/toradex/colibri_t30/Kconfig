@@ -1,0 +1,12 @@
+if TARGET_COLIBRI_T30
+
+config SYS_BOARD
+	default "colibri_t30"
+
+config SYS_VENDOR
+	default "toradex"
+
+config SYS_CONFIG_NAME
+	default "colibri_t30"
+
+endif

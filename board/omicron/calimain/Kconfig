@@ -1,0 +1,12 @@
+if TARGET_CALIMAIN
+
+config SYS_BOARD
+	default "calimain"
+
+config SYS_VENDOR
+	default "omicron"
+
+config SYS_CONFIG_NAME
+	default "calimain"
+
+endif

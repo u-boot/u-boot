@@ -153,11 +153,60 @@ static uint omap24_i2c_setspeed(struct i2c_adapter *adap, uint speed)
 
 	return 0;
 }
+
+static void omap24_i2c_deblock(struct i2c_adapter *adap)
+{
+	struct i2c *i2c_base = omap24_get_base(adap);
+	int i;
+	u16 systest;
+	u16 orgsystest;
+
+	/* set test mode ST_EN = 1 */
+	orgsystest = readw(&i2c_base->systest);
+	systest = orgsystest;
+	/* enable testmode */
+	systest |= I2C_SYSTEST_ST_EN;
+	writew(systest, &i2c_base->systest);
+	systest &= ~I2C_SYSTEST_TMODE_MASK;
+	systest |= 3 << I2C_SYSTEST_TMODE_SHIFT;
+	writew(systest, &i2c_base->systest);
+
+	/* set SCL, SDA  = 1 */
+	systest |= I2C_SYSTEST_SCL_O | I2C_SYSTEST_SDA_O;
+	writew(systest, &i2c_base->systest);
+	udelay(10);
+
+	/* toggle scl 9 clocks */
+	for (i = 0; i < 9; i++) {
+		/* SCL = 0 */
+		systest &= ~I2C_SYSTEST_SCL_O;
+		writew(systest, &i2c_base->systest);
+		udelay(10);
+		/* SCL = 1 */
+		systest |= I2C_SYSTEST_SCL_O;
+		writew(systest, &i2c_base->systest);
+		udelay(10);
+	}
+
+	/* send stop */
+	systest &= ~I2C_SYSTEST_SDA_O;
+	writew(systest, &i2c_base->systest);
+	udelay(10);
+	systest |= I2C_SYSTEST_SCL_O | I2C_SYSTEST_SDA_O;
+	writew(systest, &i2c_base->systest);
+	udelay(10);
+
+	/* restore original mode */
+	writew(orgsystest, &i2c_base->systest);
+}
+
 static void omap24_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 {
 	struct i2c *i2c_base = omap24_get_base(adap);
 	int timeout = I2C_TIMEOUT;
+	int deblock = 1;
 
+retry:
 	if (readw(&i2c_base->con) & I2C_CON_EN) {
 		writew(0, &i2c_base->con);
 		udelay(50000);
@@ -194,6 +243,14 @@ static void omap24_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 	udelay(1000);
 	flush_fifo(adap);
 	writew(0xFFFF, &i2c_base->stat);
+
+	/* Handle possible failed I2C state */
+	if (wait_for_bb(adap))
+		if (deblock == 1) {
+			omap24_i2c_deblock(adap);
+			deblock = 0;
+			goto retry;
+		}
 }
 
 static void flush_fifo(struct i2c_adapter *adap)

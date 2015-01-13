@@ -1,0 +1,31 @@
+if TARGET_IMX27LITE
+
+config SYS_BOARD
+	default "imx27lite"
+
+config SYS_VENDOR
+	default "logicpd"
+
+config SYS_SOC
+	default "mx27"
+
+config SYS_CONFIG_NAME
+	default "imx27lite"
+
+endif
+
+if TARGET_MAGNESIUM
+
+config SYS_BOARD
+	default "imx27lite"
+
+config SYS_VENDOR
+	default "logicpd"
+
+config SYS_SOC
+	default "mx27"
+
+config SYS_CONFIG_NAME
+	default "magnesium"
+
+endif

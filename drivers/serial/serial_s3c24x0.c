@@ -69,7 +69,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static int hwflow;
 #endif
 
-void _serial_setbrg(const int dev_index)
+static void _serial_setbrg(const int dev_index)
 {
 	struct s3c24x0_uart *uart = s3c24x0_get_base_uart(dev_index);
 	unsigned int reg = 0;
@@ -131,7 +131,7 @@ static int serial_init_dev(const int dev_index)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int _serial_getc(const int dev_index)
+static int _serial_getc(const int dev_index)
 {
 	struct s3c24x0_uart *uart = s3c24x0_get_base_uart(dev_index);
 
@@ -181,7 +181,7 @@ void enable_putc(void)
 /*
  * Output a single byte to the serial port.
  */
-void _serial_putc(const char c, const int dev_index)
+static void _serial_putc(const char c, const int dev_index)
 {
 	struct s3c24x0_uart *uart = s3c24x0_get_base_uart(dev_index);
 #ifdef CONFIG_MODEM_SUPPORT
@@ -212,7 +212,7 @@ static inline void serial_putc_dev(unsigned int dev_index, const char c)
 /*
  * Test whether a character is in the RX buffer
  */
-int _serial_tstc(const int dev_index)
+static int _serial_tstc(const int dev_index)
 {
 	struct s3c24x0_uart *uart = s3c24x0_get_base_uart(dev_index);
 
@@ -224,7 +224,7 @@ static inline int serial_tstc_dev(unsigned int dev_index)
 	return _serial_tstc(dev_index);
 }
 
-void _serial_puts(const char *s, const int dev_index)
+static void _serial_puts(const char *s, const int dev_index)
 {
 	while (*s) {
 		_serial_putc(*s++, dev_index);

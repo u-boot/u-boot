@@ -11,6 +11,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 #ifdef CONFIG_BSC9132QDS
 #define CONFIG_BSC9132
 #endif
@@ -41,7 +44,6 @@
 #endif
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL
 #define CONFIG_SPL_INIT_MINIMAL
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
@@ -79,6 +81,7 @@
 #define CONFIG_BOOKE			/* BOOKE */
 #define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_SYS_HAS_SERDES		/* common SERDES init code */
 
 #define CONFIG_PCI			/* Enable PCI/PCIE */
@@ -354,7 +357,7 @@ combinations. this should be removed later
 #define CONFIG_SYS_CS2_FTIM1		(FTIM1_GPCM_TACO(0x0e) | \
 					FTIM1_GPCM_TRAD(0x1f))
 #define CONFIG_SYS_CS2_FTIM2		(FTIM2_GPCM_TCS(0x0e) | \
-					FTIM2_GPCM_TCH(0x0) | \
+					FTIM2_GPCM_TCH(0x8) | \
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS2_FTIM3		0x0
 #endif
@@ -599,6 +602,12 @@ combinations. this should be removed later
 #define CONFIG_DOS_PARTITION
 #endif
 
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
+
 /*
  * Miscellaneous configurable options
  */
@@ -628,6 +637,27 @@ combinations. this should be removed later
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
+#endif
+
+/*
+ * Dynamic MTD Partition support with mtdparts
+ */
+#ifndef CONFIG_SYS_NO_FLASH
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_FLASH_CFI_MTD
+#define MTDIDS_DEFAULT "nor0=88000000.nor,nand0=ff800000.flash,"
+#define MTDPARTS_DEFAULT "mtdparts=88000000.nor:256k(dtb),7m(kernel)," \
+			"55m(fs),1m(uboot);ff800000.flash:1m(uboot)," \
+			"8m(kernel),512k(dtb),-(fs)"
+#endif
+/*
+ * Override partitions in device tree using info
+ * in "mtdparts" environment variable
+ */
+#ifdef CONFIG_CMD_MTDPARTS
+#define CONFIG_FDT_FIXUP_PARTITIONS
 #endif
 
 /*
@@ -704,5 +734,9 @@ combinations. this should be removed later
 #define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
+
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_CMD_BLOB
+#endif
 
 #endif	/* __CONFIG_H */

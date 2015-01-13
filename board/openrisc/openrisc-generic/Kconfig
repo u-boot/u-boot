@@ -1,0 +1,12 @@
+if TARGET_OPENRISC_GENERIC
+
+config SYS_BOARD
+	default "openrisc-generic"
+
+config SYS_VENDOR
+	default "openrisc"
+
+config SYS_CONFIG_NAME
+	default "openrisc-generic"
+
+endif

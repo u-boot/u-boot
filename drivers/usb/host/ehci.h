@@ -47,9 +47,9 @@ struct ehci_hcor {
 	uint32_t or_usbcmd;
 #define CMD_PARK	(1 << 11)		/* enable "park" */
 #define CMD_PARK_CNT(c)	(((c) >> 8) & 3)	/* how many transfers to park */
-#define CMD_ASE		(1 << 5)		/* async schedule enable */
 #define CMD_LRESET	(1 << 7)		/* partial reset */
-#define CMD_IAAD	(1 << 5)		/* "doorbell" interrupt */
+#define CMD_IAAD	(1 << 6)		/* "doorbell" interrupt */
+#define CMD_ASE		(1 << 5)		/* async schedule enable */
 #define CMD_PSE		(1 << 4)		/* periodic schedule enable */
 #define CMD_RESET	(1 << 1)		/* reset HC not bus */
 #define CMD_RUN		(1 << 0)		/* start/stop HC */
@@ -246,6 +246,7 @@ struct ehci_ctrl {
 	struct QH qh_list __aligned(USB_DMA_MINALIGN);
 	struct QH periodic_queue __aligned(USB_DMA_MINALIGN);
 	uint32_t *periodic_list;
+	int periodic_schedules;
 	int ntds;
 };
 

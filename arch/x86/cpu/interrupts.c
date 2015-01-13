@@ -20,6 +20,7 @@
 #include <linux/compiler.h>
 #include <asm/msr.h>
 #include <asm/u-boot-x86.h>
+#include <asm/i8259.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,7 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 	"pushl $"#x"\n" \
 	"jmp irq_common_entry\n"
 
-void dump_regs(struct irq_regs *regs)
+static void dump_regs(struct irq_regs *regs)
 {
 	unsigned long cr0 = 0L, cr2 = 0L, cr3 = 0L, cr4 = 0L;
 	unsigned long d0, d1, d2, d3, d6, d7;
@@ -128,9 +129,6 @@ int cpu_init_interrupts(void)
 	int irq_entry_size = irq_1 - irq_0;
 	void *irq_entry = (void *)irq_0;
 
-	/* Just in case... */
-	disable_interrupts();
-
 	/* Setup the IDT */
 	for (i = 0; i < 256; i++) {
 		idt[i].access = 0x8e;
@@ -145,9 +143,6 @@ int cpu_init_interrupts(void)
 	idt_ptr.segment = 0x18;
 
 	load_idt(&idt_ptr);
-
-	/* It is now safe to enable interrupts */
-	enable_interrupts();
 
 	return 0;
 }
@@ -170,6 +165,25 @@ int disable_interrupts(void)
 	asm volatile ("pushfl ; popl %0 ; cli\n" : "=g" (flags) : );
 
 	return flags & X86_EFLAGS_IF;
+}
+
+int interrupt_init(void)
+{
+	/* Just in case... */
+	disable_interrupts();
+
+#ifdef CONFIG_SYS_PCAT_INTERRUPTS
+	/* Initialize the master/slave i8259 pic */
+	i8259_init();
+#endif
+
+	/* Initialize core interrupt and exception functionality of CPU */
+	cpu_init_interrupts();
+
+	/* It is now safe to enable interrupts */
+	enable_interrupts();
+
+	return 0;
 }
 
 /* IRQ Low-Level Service Routine */
@@ -603,31 +617,3 @@ asm(".globl irq_common_entry\n" \
 	DECLARE_INTERRUPT(253) \
 	DECLARE_INTERRUPT(254) \
 	DECLARE_INTERRUPT(255));
-
-#if defined(CONFIG_INTEL_CORE_ARCH)
-/*
- * Get the number of CPU time counter ticks since it was read first time after
- * restart. This yields a free running counter guaranteed to take almost 6
- * years to wrap around even at 100GHz clock rate.
- */
-u64 get_ticks(void)
-{
-	u64 now_tick = rdtsc();
-
-	if (!gd->arch.tsc_base)
-		gd->arch.tsc_base = now_tick;
-
-	return now_tick - gd->arch.tsc_base;
-}
-
-#define PLATFORM_INFO_MSR 0xce
-
-unsigned long get_tbclk(void)
-{
-	u32 ratio;
-	u64 platform_info = native_read_msr(PLATFORM_INFO_MSR);
-
-	ratio = (platform_info >> 8) & 0xff;
-	return 100 * 1000 * 1000 * ratio; /* 100MHz times Max Non Turbo ratio */
-}
-#endif

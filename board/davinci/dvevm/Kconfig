@@ -1,0 +1,12 @@
+if TARGET_DAVINCI_DVEVM
+
+config SYS_BOARD
+	default "dvevm"
+
+config SYS_VENDOR
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	default "davinci_dvevm"
+
+endif

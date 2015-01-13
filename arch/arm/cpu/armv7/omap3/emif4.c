@@ -61,7 +61,7 @@ u32 get_sdr_cs_offset(u32 cs)
  *  - Init the emif4 module for DDR access
  *  - Early init routines, called from flash or SRAM.
  */
-void do_emif4_init(void)
+static void do_emif4_init(void)
 {
 	unsigned int regval;
 	/* Set the DDR PHY parameters in PHY ctrl registers */

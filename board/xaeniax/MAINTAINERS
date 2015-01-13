@@ -1,0 +1,6 @@
+XAENIAX BOARD
+#M:	-
+S:	Maintained
+F:	board/xaeniax/
+F:	include/configs/xaeniax.h
+F:	configs/xaeniax_defconfig

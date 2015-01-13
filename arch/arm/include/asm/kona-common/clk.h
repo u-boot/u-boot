@@ -25,5 +25,6 @@ int clk_set_parent(struct clk *clk, struct clk *parent);
 struct clk *clk_get_parent(struct clk *clk);
 int clk_sdio_enable(void *base, u32 rate, u32 *actual_ratep);
 int clk_bsc_enable(void *base);
+int clk_usb_otg_enable(void *base);
 
 #endif

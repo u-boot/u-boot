@@ -42,11 +42,15 @@ void pci_header_show_brief(pci_dev_t dev);
  */
 void pciinfo(int BusNum, int ShortPCIListing)
 {
+	struct pci_controller *hose = pci_bus_to_hose(BusNum);
 	int Device;
 	int Function;
 	unsigned char HeaderType;
 	unsigned short VendorID;
 	pci_dev_t dev;
+
+	if (!hose)
+		return;
 
 	printf("Scanning PCI devices on bus %d\n", BusNum);
 
@@ -66,6 +70,9 @@ void pciinfo(int BusNum, int ShortPCIListing)
 				break;
 
 			dev = PCI_BDF(BusNum, Device, Function);
+
+			if (pci_skip_dev(hose, dev))
+				continue;
 
 			pci_read_config_word(dev, PCI_VENDOR_ID, &VendorID);
 			if ((VendorID == 0xFFFF) || (VendorID == 0x0000))

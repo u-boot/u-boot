@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/errno.h>
+#include <nand.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/partitions.h>
@@ -484,15 +485,15 @@ static int zynq_nand_read_page_raw_nooob(struct mtd_info *mtd,
 }
 
 static int zynq_nand_read_subpage_raw(struct mtd_info *mtd,
-				    struct nand_chip *chip, u32 data_offs,
-				    u32 readlen, u8 *buf)
+				    struct nand_chip *chip, uint32_t offs,
+				    uint32_t len, uint8_t *buf, int page)
 {
-	if (data_offs != 0) {
-		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, data_offs, -1);
-		buf += data_offs;
+	if (offs != 0) {
+		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, offs, -1);
+		buf += offs;
 	}
 
-	chip->read_buf(mtd, buf, readlen);
+	chip->read_buf(mtd, buf, len);
 	return 0;
 }
 
@@ -1235,7 +1236,6 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 
 	return 0;
 fail:
-	nand_release(mtd);
 free:
 	kfree(xnand);
 	return err;

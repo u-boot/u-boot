@@ -8,6 +8,7 @@
 #define __DM_TEST_H
 
 #include <dm.h>
+#include <malloc.h>
 
 /**
  * struct dm_test_cdata - configuration data for test instance
@@ -82,6 +83,17 @@ struct dm_test_uclass_priv {
 	int total_add;
 };
 
+/**
+ * struct dm_test_parent_data - parent's information on each child
+ *
+ * @sum: Test value used to check parent data works correctly
+ * @flag: Used to track calling of parent operations
+ */
+struct dm_test_parent_data {
+	int sum;
+	int flag;
+};
+
 /*
  * Operation counts for the test driver, used to check that each method is
  * called correctly
@@ -100,6 +112,7 @@ extern struct dm_test_state global_test_state;
  * @fail_count: Number of tests that failed
  * @force_fail_alloc: Force all memory allocs to fail
  * @skip_post_probe: Skip uclass post-probe processing
+ * @removed: Used to keep track of a device that was removed
  */
 struct dm_test_state {
 	struct udevice *root;
@@ -107,6 +120,8 @@ struct dm_test_state {
 	int fail_count;
 	int force_fail_alloc;
 	int skip_post_probe;
+	struct udevice *removed;
+	struct mallinfo start;
 };
 
 /* Test flags for each test */
@@ -154,6 +169,36 @@ int testfdt_ping(struct udevice *dev, int pingval, int *pingret);
  */
 int dm_check_operations(struct dm_test_state *dms, struct udevice *dev,
 			uint32_t base, struct dm_test_priv *priv);
+
+/**
+ * dm_check_devices() - check the devices respond to operations correctly
+ *
+ * @dms: Overall test state
+ * @num_devices: Number of test devices to check
+ * @return 0 if OK, -ve on error
+ */
+int dm_check_devices(struct dm_test_state *dms, int num_devices);
+
+/**
+ * dm_leak_check_start() - Prepare to check for a memory leak
+ *
+ * Call this before allocating memory to record the amount of memory being
+ * used.
+ *
+ * @dms: Overall test state
+ */
+void dm_leak_check_start(struct dm_test_state *dms);
+
+/**
+ * dm_leak_check_end() - Check that no memory has leaked
+ *
+ * Call this after dm_leak_check_start() and after you have hopefuilly freed
+ * all the memory that was allocated. This function will print an error if
+ * it sees a different amount of total memory allocated than before.
+ *
+ * @dms: Overall test state
+ */int dm_leak_check_end(struct dm_test_state *dms);
+
 
 /**
  * dm_test_main() - Run all the tests

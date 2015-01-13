@@ -102,7 +102,6 @@
  * Misc Settings
  */
 #define CONFIG_UART_CONSOLE	0
-#define CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED
 
 /*
  * Run core 1 from L1 SRAM start address when init uboot on core 0

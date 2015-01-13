@@ -1,0 +1,6 @@
+LP8X4X BOARD
+M:	Sergey Yanovich <ynvich@gmail.com>
+S:	Maintained
+F:	board/icpdas/lp8x4x/
+F:	include/configs/lp8x4x.h
+F:	configs/lp8x4x_defconfig

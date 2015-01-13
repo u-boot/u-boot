@@ -15,6 +15,7 @@
 #define VPLL	4
 #define BPLL	5
 #define RPLL	6
+#define SPLL	7
 
 #define MASK_PRE_RATIO(x)	(0xff << ((x << 4) + 8))
 #define MASK_RATIO(x)		(0xf << (x << 4))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2012 Freescale Semiconductor, Inc.
+ * Copyright 2009-2014 Freescale Semiconductor, Inc.
  *
  * This file is derived from arch/powerpc/cpu/mpc85xx/cpu.c and
  * arch/powerpc/cpu/mpc86xx/cpu.c. Basically this file contains
@@ -72,112 +72,6 @@ void ft_fixup_num_cores(void *blob) {
 								del_cores);
 }
 #endif /* defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) */
-
-#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
-static int fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
-				const char *phy_type, int start_offset)
-{
-	const char *compat_dr = "fsl-usb2-dr";
-	const char *compat_mph = "fsl-usb2-mph";
-	const char *prop_mode = "dr_mode";
-	const char *prop_type = "phy_type";
-	const char *node_type = NULL;
-	int node_offset;
-	int err;
-
-	node_offset = fdt_node_offset_by_compatible(blob,
-			start_offset, compat_mph);
-	if (node_offset < 0) {
-		node_offset = fdt_node_offset_by_compatible(blob,
-			start_offset, compat_dr);
-		if (node_offset < 0) {
-			printf("WARNING: could not find compatible"
-				" node %s or %s: %s.\n", compat_mph,
-				compat_dr, fdt_strerror(node_offset));
-			return -1;
-		} else
-			node_type = compat_dr;
-	} else
-		node_type = compat_mph;
-
-	if (mode) {
-		err = fdt_setprop(blob, node_offset, prop_mode, mode,
-				  strlen(mode) + 1);
-		if (err < 0)
-			printf("WARNING: could not set %s for %s: %s.\n",
-			       prop_mode, node_type, fdt_strerror(err));
-	}
-
-	if (phy_type) {
-		err = fdt_setprop(blob, node_offset, prop_type, phy_type,
-				  strlen(phy_type) + 1);
-		if (err < 0)
-			printf("WARNING: could not set %s for %s: %s.\n",
-			       prop_type, node_type, fdt_strerror(err));
-	}
-
-	return node_offset;
-}
-
-void fdt_fixup_dr_usb(void *blob, bd_t *bd)
-{
-	const char *modes[] = { "host", "peripheral", "otg" };
-	const char *phys[] = { "ulpi", "utmi" };
-	const char *dr_mode_type = NULL;
-	const char *dr_phy_type = NULL;
-	int usb_mode_off = -1;
-	int usb_phy_off = -1;
-	char str[5];
-	int i, j;
-
-	for (i = 1; i <= CONFIG_USB_MAX_CONTROLLER_COUNT; i++) {
-		int mode_idx = -1, phy_idx = -1;
-		snprintf(str, 5, "%s%d", "usb", i);
-		if (hwconfig(str)) {
-			for (j = 0; j < ARRAY_SIZE(modes); j++) {
-				if (hwconfig_subarg_cmp(str, "dr_mode",
-						modes[j])) {
-					mode_idx = j;
-					break;
-				}
-			}
-
-			for (j = 0; j < ARRAY_SIZE(phys); j++) {
-				if (hwconfig_subarg_cmp(str, "phy_type",
-						phys[j])) {
-					phy_idx = j;
-					break;
-				}
-			}
-
-			if (mode_idx < 0 || phy_idx < 0) {
-				puts("ERROR: wrong usb mode/phy defined!!\n");
-				return;
-			}
-
-			dr_mode_type = modes[mode_idx];
-			dr_phy_type = phys[phy_idx];
-
-			if (mode_idx < 0 && phy_idx < 0) {
-				printf("WARNING: invalid phy or mode\n");
-				return;
-			}
-		}
-
-		usb_mode_off = fdt_fixup_usb_mode_phy_type(blob,
-			dr_mode_type, NULL, usb_mode_off);
-
-		if (usb_mode_off < 0)
-			return;
-
-		usb_phy_off = fdt_fixup_usb_mode_phy_type(blob,
-			NULL, dr_phy_type, usb_phy_off);
-
-		if (usb_phy_off < 0)
-			return;
-	}
-}
-#endif /* defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB) */
 
 /*
  * update crypto node properties to a specified revision of the SEC
@@ -289,8 +183,8 @@ static u8 caam_get_era(void)
 	};
 
 	ccsr_sec_t __iomem *sec = (void __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
-	u32 secvid_ms = in_be32(&sec->secvid_ms);
-	u32 ccbvid = in_be32(&sec->ccbvid);
+	u32 secvid_ms = sec_in32(&sec->secvid_ms);
+	u32 ccbvid = sec_in32(&sec->ccbvid);
 	u16 ip_id = (secvid_ms & SEC_SECVID_MS_IPID_MASK) >>
 				SEC_SECVID_MS_IPID_SHIFT;
 	u8 maj_rev = (secvid_ms & SEC_SECVID_MS_MAJ_REV_MASK) >>

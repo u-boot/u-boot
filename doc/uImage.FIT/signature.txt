@@ -66,7 +66,8 @@ Creating an RSA key and certificate
 -----------------------------------
 To create a new public key, size 2048 bits:
 
-$ openssl genrsa -F4 -out keys/dev.key 2048
+$ openssl genpkey -algorithm RSA -out keys/dev.key \
+    -pkeyopt rsa_keygen_bits:2048 -pkeyopt rsa_keygen_pubexp:65537
 
 To create a certificate for this:
 
@@ -159,6 +160,7 @@ For RSA the following are mandatory:
 
 - rsa,num-bits: Number of key bits (e.g. 2048)
 - rsa,modulus: Modulus (N) as a big-endian multi-word integer
+- rsa,exponent: Public exponent (E) as a 64 bit unsigned integer
 - rsa,r-squared: (2^num-bits)^2 as a big-endian multi-word integer
 - rsa,n0-inverse: -1 / modulus[0] mod 2^32
 

@@ -66,12 +66,12 @@ static void setup_sec_liodn_base(void)
 		return;
 
 	/* QILCR[QSLOM] */
-	out_be32(&sec->qilcr_ms, 0x3ff<<16);
+	sec_out32(&sec->qilcr_ms, 0x3ff<<16);
 
 	base = (liodn_bases[FSL_HW_PORTAL_SEC].id[0] << 16) |
 		liodn_bases[FSL_HW_PORTAL_SEC].id[1];
 
-	out_be32(&sec->qilcr_ls, base);
+	sec_out32(&sec->qilcr_ls, base);
 }
 
 #ifdef CONFIG_SYS_DPAA_FMAN

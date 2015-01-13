@@ -423,6 +423,11 @@ int init_sata(int dev)
 	return rc;
 }
 
+int reset_sata(int dev)
+{
+	return 0;
+}
+
 static u8 ata_check_altstatus(struct ata_port *ap)
 {
 	u8 val = 0;

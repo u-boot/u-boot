@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2006-2008 Nokia Corporation
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 as published by
- * the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * Authors: Adrian Hunter
  *          Artem Bityutskiy (Битюцкий Артём)
@@ -23,13 +12,36 @@
 /*
  * This file implements functions needed to recover from unclean un-mounts.
  * When UBIFS is mounted, it checks a flag on the master node to determine if
- * an un-mount was completed sucessfully. If not, the process of mounting
- * incorparates additional checking and fixing of on-flash data structures.
+ * an un-mount was completed successfully. If not, the process of mounting
+ * incorporates additional checking and fixing of on-flash data structures.
  * UBIFS always cleans away all remnants of an unclean un-mount, so that
  * errors do not accumulate. However UBIFS defers recovery if it is mounted
  * read-only, and the flash is not modified in that case.
+ *
+ * The general UBIFS approach to the recovery is that it recovers from
+ * corruptions which could be caused by power cuts, but it refuses to recover
+ * from corruption caused by other reasons. And UBIFS tries to distinguish
+ * between these 2 reasons of corruptions and silently recover in the former
+ * case and loudly complain in the latter case.
+ *
+ * UBIFS writes only to erased LEBs, so it writes only to the flash space
+ * containing only 0xFFs. UBIFS also always writes strictly from the beginning
+ * of the LEB to the end. And UBIFS assumes that the underlying flash media
+ * writes in @c->max_write_size bytes at a time.
+ *
+ * Hence, if UBIFS finds a corrupted node at offset X, it expects only the min.
+ * I/O unit corresponding to offset X to contain corrupted data, all the
+ * following min. I/O units have to contain empty space (all 0xFFs). If this is
+ * not true, the corruption cannot be the result of a power cut, and UBIFS
+ * refuses to mount.
  */
 
+#ifndef __UBOOT__
+#include <linux/crc32.h>
+#include <linux/slab.h>
+#else
+#include <linux/err.h>
+#endif
 #include "ubifs.h"
 
 /**
@@ -49,6 +61,25 @@ static int is_empty(void *buf, int len)
 		if (*p++ != 0xff)
 			return 0;
 	return 1;
+}
+
+/**
+ * first_non_ff - find offset of the first non-0xff byte.
+ * @buf: buffer to search in
+ * @len: length of buffer
+ *
+ * This function returns offset of the first non-0xff byte in @buf or %-1 if
+ * the buffer contains only 0xff bytes.
+ */
+static int first_non_ff(void *buf, int len)
+{
+	uint8_t *p = buf;
+	int i;
+
+	for (i = 0; i < len; i++)
+		if (*p++ != 0xff)
+			return i;
+	return -1;
 }
 
 /**
@@ -79,7 +110,7 @@ static int get_master_node(const struct ubifs_info *c, int lnum, void **pbuf,
 	if (!sbuf)
 		return -ENOMEM;
 
-	err = ubi_read(c->ubi, lnum, sbuf, 0, c->leb_size);
+	err = ubifs_leb_read(c, lnum, sbuf, 0, c->leb_size, 0);
 	if (err && err != -EBADMSG)
 		goto out_free;
 
@@ -175,10 +206,10 @@ static int write_rcvrd_mst_node(struct ubifs_info *c,
 	mst->flags |= cpu_to_le32(UBIFS_MST_RCVRY);
 
 	ubifs_prepare_node(c, mst, UBIFS_MST_NODE_SZ, 1);
-	err = ubi_leb_change(c->ubi, lnum, mst, sz, UBI_SHORTTERM);
+	err = ubifs_leb_change(c, lnum, mst, sz);
 	if (err)
 		goto out;
-	err = ubi_leb_change(c->ubi, lnum + 1, mst, sz, UBI_SHORTTERM);
+	err = ubifs_leb_change(c, lnum + 1, mst, sz);
 	if (err)
 		goto out;
 out:
@@ -236,7 +267,8 @@ int ubifs_recover_master_node(struct ubifs_info *c)
 				if (cor1)
 					goto out_err;
 				mst = mst1;
-			} else if (offs1 == 0 && offs2 + sz >= c->leb_size) {
+			} else if (offs1 == 0 &&
+				   c->leb_size - offs2 - sz < sz) {
 				/* 1st LEB was unmapped and written, 2nd not */
 				if (cor1)
 					goto out_err;
@@ -266,12 +298,12 @@ int ubifs_recover_master_node(struct ubifs_info *c)
 		mst = mst2;
 	}
 
-	dbg_rcvry("recovered master node from LEB %d",
+	ubifs_msg("recovered master node from LEB %d",
 		  (mst == mst1 ? UBIFS_MST_LNUM : UBIFS_MST_LNUM + 1));
 
 	memcpy(c->mst_node, mst, UBIFS_MST_NODE_SZ);
 
-	if ((c->vfs_sb->s_flags & MS_RDONLY)) {
+	if (c->ro_mount) {
 		/* Read-only mode. Keep a copy for switching to rw mode */
 		c->rcvrd_mst_node = kmalloc(sz, GFP_KERNEL);
 		if (!c->rcvrd_mst_node) {
@@ -279,6 +311,40 @@ int ubifs_recover_master_node(struct ubifs_info *c)
 			goto out_free;
 		}
 		memcpy(c->rcvrd_mst_node, c->mst_node, UBIFS_MST_NODE_SZ);
+
+		/*
+		 * We had to recover the master node, which means there was an
+		 * unclean reboot. However, it is possible that the master node
+		 * is clean at this point, i.e., %UBIFS_MST_DIRTY is not set.
+		 * E.g., consider the following chain of events:
+		 *
+		 * 1. UBIFS was cleanly unmounted, so the master node is clean
+		 * 2. UBIFS is being mounted R/W and starts changing the master
+		 *    node in the first (%UBIFS_MST_LNUM). A power cut happens,
+		 *    so this LEB ends up with some amount of garbage at the
+		 *    end.
+		 * 3. UBIFS is being mounted R/O. We reach this place and
+		 *    recover the master node from the second LEB
+		 *    (%UBIFS_MST_LNUM + 1). But we cannot update the media
+		 *    because we are being mounted R/O. We have to defer the
+		 *    operation.
+		 * 4. However, this master node (@c->mst_node) is marked as
+		 *    clean (since the step 1). And if we just return, the
+		 *    mount code will be confused and won't recover the master
+		 *    node when it is re-mounter R/W later.
+		 *
+		 *    Thus, to force the recovery by marking the master node as
+		 *    dirty.
+		 */
+		c->mst_node->flags |= cpu_to_le32(UBIFS_MST_DIRTY);
+#ifndef __UBOOT__
+	} else {
+		/* Write the recovered master node */
+		c->max_sqnum = le64_to_cpu(mst->ch.sqnum) - 1;
+		err = write_rcvrd_mst_node(c, c->mst_node);
+		if (err)
+			goto out_free;
+#endif
 	}
 
 	vfree(buf2);
@@ -291,12 +357,12 @@ out_err:
 out_free:
 	ubifs_err("failed to recover master node");
 	if (mst1) {
-		dbg_err("dumping first master node");
-		dbg_dump_node(c, mst1);
+		ubifs_err("dumping first master node");
+		ubifs_dump_node(c, mst1);
 	}
 	if (mst2) {
-		dbg_err("dumping second master node");
-		dbg_dump_node(c, mst2);
+		ubifs_err("dumping second master node");
+		ubifs_dump_node(c, mst2);
 	}
 	vfree(buf2);
 	vfree(buf1);
@@ -335,44 +401,23 @@ int ubifs_write_rcvrd_mst_node(struct ubifs_info *c)
  * @offs: offset to check
  *
  * This function returns %1 if @offs was in the last write to the LEB whose data
- * is in @buf, otherwise %0 is returned.  The determination is made by checking
- * for subsequent empty space starting from the next min_io_size boundary (or a
- * bit less than the common header size if min_io_size is one).
+ * is in @buf, otherwise %0 is returned. The determination is made by checking
+ * for subsequent empty space starting from the next @c->max_write_size
+ * boundary.
  */
 static int is_last_write(const struct ubifs_info *c, void *buf, int offs)
 {
-	int empty_offs;
-	int check_len;
+	int empty_offs, check_len;
 	uint8_t *p;
 
-	if (c->min_io_size == 1) {
-		check_len = c->leb_size - offs;
-		p = buf + check_len;
-		for (; check_len > 0; check_len--)
-			if (*--p != 0xff)
-				break;
-		/*
-		 * 'check_len' is the size of the corruption which cannot be
-		 * more than the size of 1 node if it was caused by an unclean
-		 * unmount.
-		 */
-		if (check_len > UBIFS_MAX_NODE_SZ)
-			return 0;
-		return 1;
-	}
-
 	/*
-	 * Round up to the next c->min_io_size boundary i.e. 'offs' is in the
-	 * last wbuf written. After that should be empty space.
+	 * Round up to the next @c->max_write_size boundary i.e. @offs is in
+	 * the last wbuf written. After that should be empty space.
 	 */
-	empty_offs = ALIGN(offs + 1, c->min_io_size);
+	empty_offs = ALIGN(offs + 1, c->max_write_size);
 	check_len = c->leb_size - empty_offs;
 	p = buf + empty_offs - offs;
-
-	for (; check_len > 0; check_len--)
-		if (*p++ != 0xff)
-			return 0;
-	return 1;
+	return is_empty(p, check_len);
 }
 
 /**
@@ -385,7 +430,7 @@ static int is_last_write(const struct ubifs_info *c, void *buf, int offs)
  *
  * This function pads up to the next min_io_size boundary (if there is one) and
  * sets empty space to all 0xff. @buf, @offs and @len are updated to the next
- * min_io_size boundary (if there is one).
+ * @c->min_io_size boundary.
  */
 static void clean_buf(const struct ubifs_info *c, void **buf, int lnum,
 		      int *offs, int *len)
@@ -394,11 +439,6 @@ static void clean_buf(const struct ubifs_info *c, void **buf, int lnum,
 
 	lnum = lnum;
 	dbg_rcvry("cleaning corruption at %d:%d", lnum, *offs);
-
-	if (c->min_io_size == 1) {
-		memset(*buf, 0xff, c->leb_size - *offs);
-		return;
-	}
 
 	ubifs_assert(!(*offs & 7));
 	empty_offs = ALIGN(*offs, c->min_io_size);
@@ -429,7 +469,7 @@ static int no_more_nodes(const struct ubifs_info *c, void *buf, int len,
 	int skip, dlen = le32_to_cpu(ch->len);
 
 	/* Check for empty space after the corrupt node's common header */
-	skip = ALIGN(offs + UBIFS_CH_SZ, c->min_io_size) - offs;
+	skip = ALIGN(offs + UBIFS_CH_SZ, c->max_write_size) - offs;
 	if (is_empty(buf + skip, len - skip))
 		return 1;
 	/*
@@ -441,7 +481,7 @@ static int no_more_nodes(const struct ubifs_info *c, void *buf, int len,
 		return 0;
 	}
 	/* Now we know the corrupt node's length we can skip over it */
-	skip = ALIGN(offs + dlen, c->min_io_size) - offs;
+	skip = ALIGN(offs + dlen, c->max_write_size) - offs;
 	/* After which there should be empty space */
 	if (is_empty(buf + skip, len - skip))
 		return 1;
@@ -469,7 +509,7 @@ static int fix_unclean_leb(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
 		endpt = snod->offs + snod->len;
 	}
 
-	if ((c->vfs_sb->s_flags & MS_RDONLY) && !c->remounting_rw) {
+	if (c->ro_mount && !c->remounting_rw) {
 		/* Add to recovery list */
 		struct ubifs_unclean_leb *ucleb;
 
@@ -481,21 +521,55 @@ static int fix_unclean_leb(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
 		ucleb->lnum = lnum;
 		ucleb->endpt = endpt;
 		list_add_tail(&ucleb->list, &c->unclean_leb_list);
+#ifndef __UBOOT__
+	} else {
+		/* Write the fixed LEB back to flash */
+		int err;
+
+		dbg_rcvry("fixing LEB %d start %d endpt %d",
+			  lnum, start, sleb->endpt);
+		if (endpt == 0) {
+			err = ubifs_leb_unmap(c, lnum);
+			if (err)
+				return err;
+		} else {
+			int len = ALIGN(endpt, c->min_io_size);
+
+			if (start) {
+				err = ubifs_leb_read(c, lnum, sleb->buf, 0,
+						     start, 1);
+				if (err)
+					return err;
+			}
+			/* Pad to min_io_size */
+			if (len > endpt) {
+				int pad_len = len - ALIGN(endpt, 8);
+
+				if (pad_len > 0) {
+					void *buf = sleb->buf + len - pad_len;
+
+					ubifs_pad(c, buf, pad_len);
+				}
+			}
+			err = ubifs_leb_change(c, lnum, sleb->buf, len);
+			if (err)
+				return err;
+		}
+#endif
 	}
 	return 0;
 }
 
 /**
- * drop_incomplete_group - drop nodes from an incomplete group.
+ * drop_last_group - drop the last group of nodes.
  * @sleb: scanned LEB information
  * @offs: offset of dropped nodes is returned here
  *
- * This function returns %1 if nodes are dropped and %0 otherwise.
+ * This is a helper function for 'ubifs_recover_leb()' which drops the last
+ * group of nodes of the scanned LEB.
  */
-static int drop_incomplete_group(struct ubifs_scan_leb *sleb, int *offs)
+static void drop_last_group(struct ubifs_scan_leb *sleb, int *offs)
 {
-	int dropped = 0;
-
 	while (!list_empty(&sleb->nodes)) {
 		struct ubifs_scan_node *snod;
 		struct ubifs_ch *ch;
@@ -504,15 +578,41 @@ static int drop_incomplete_group(struct ubifs_scan_leb *sleb, int *offs)
 				  list);
 		ch = snod->node;
 		if (ch->group_type != UBIFS_IN_NODE_GROUP)
-			return dropped;
-		dbg_rcvry("dropping node at %d:%d", sleb->lnum, snod->offs);
+			break;
+
+		dbg_rcvry("dropping grouped node at %d:%d",
+			  sleb->lnum, snod->offs);
 		*offs = snod->offs;
 		list_del(&snod->list);
 		kfree(snod);
 		sleb->nodes_cnt -= 1;
-		dropped = 1;
 	}
-	return dropped;
+}
+
+/**
+ * drop_last_node - drop the last node.
+ * @sleb: scanned LEB information
+ * @offs: offset of dropped nodes is returned here
+ * @grouped: non-zero if whole group of nodes have to be dropped
+ *
+ * This is a helper function for 'ubifs_recover_leb()' which drops the last
+ * node of the scanned LEB.
+ */
+static void drop_last_node(struct ubifs_scan_leb *sleb, int *offs)
+{
+	struct ubifs_scan_node *snod;
+
+	if (!list_empty(&sleb->nodes)) {
+		snod = list_entry(sleb->nodes.prev, struct ubifs_scan_node,
+				  list);
+
+		dbg_rcvry("dropping last node at %d:%d",
+			  sleb->lnum, snod->offs);
+		*offs = snod->offs;
+		list_del(&snod->list);
+		kfree(snod);
+		sleb->nodes_cnt -= 1;
+	}
 }
 
 /**
@@ -521,33 +621,30 @@ static int drop_incomplete_group(struct ubifs_scan_leb *sleb, int *offs)
  * @lnum: LEB number
  * @offs: offset
  * @sbuf: LEB-sized buffer to use
- * @grouped: nodes may be grouped for recovery
+ * @jhead: journal head number this LEB belongs to (%-1 if the LEB does not
+ *         belong to any journal head)
  *
  * This function does a scan of a LEB, but caters for errors that might have
  * been caused by the unclean unmount from which we are attempting to recover.
- *
- * This function returns %0 on success and a negative error code on failure.
+ * Returns %0 in case of success, %-EUCLEAN if an unrecoverable corruption is
+ * found, and a negative error code in case of failure.
  */
 struct ubifs_scan_leb *ubifs_recover_leb(struct ubifs_info *c, int lnum,
-					 int offs, void *sbuf, int grouped)
+					 int offs, void *sbuf, int jhead)
 {
-	int err, len = c->leb_size - offs, need_clean = 0, quiet = 1;
-	int empty_chkd = 0, start = offs;
+	int ret = 0, err, len = c->leb_size - offs, start = offs, min_io_unit;
+	int grouped = jhead == -1 ? 0 : c->jheads[jhead].grouped;
 	struct ubifs_scan_leb *sleb;
 	void *buf = sbuf + offs;
 
-	dbg_rcvry("%d:%d", lnum, offs);
+	dbg_rcvry("%d:%d, jhead %d, grouped %d", lnum, offs, jhead, grouped);
 
 	sleb = ubifs_start_scan(c, lnum, offs, sbuf);
 	if (IS_ERR(sleb))
 		return sleb;
 
-	if (sleb->ecc)
-		need_clean = 1;
-
+	ubifs_assert(len >= 8);
 	while (len >= 8) {
-		int ret;
-
 		dbg_scan("look at LEB %d:%d (%d bytes left)",
 			 lnum, offs, len);
 
@@ -557,8 +654,7 @@ struct ubifs_scan_leb *ubifs_recover_leb(struct ubifs_info *c, int lnum,
 		 * Scan quietly until there is an error from which we cannot
 		 * recover
 		 */
-		ret = ubifs_scan_a_node(c, buf, len, lnum, offs, quiet);
-
+		ret = ubifs_scan_a_node(c, buf, len, lnum, offs, 1);
 		if (ret == SCANNED_A_NODE) {
 			/* A valid node, and not a padding node */
 			struct ubifs_ch *ch = buf;
@@ -571,98 +667,127 @@ struct ubifs_scan_leb *ubifs_recover_leb(struct ubifs_info *c, int lnum,
 			offs += node_len;
 			buf += node_len;
 			len -= node_len;
-			continue;
-		}
-
-		if (ret > 0) {
+		} else if (ret > 0) {
 			/* Padding bytes or a valid padding node */
 			offs += ret;
 			buf += ret;
 			len -= ret;
-			continue;
-		}
-
-		if (ret == SCANNED_EMPTY_SPACE) {
-			if (!is_empty(buf, len)) {
-				if (!is_last_write(c, buf, offs))
-					break;
-				clean_buf(c, &buf, lnum, &offs, &len);
-				need_clean = 1;
-			}
-			empty_chkd = 1;
+		} else if (ret == SCANNED_EMPTY_SPACE ||
+			   ret == SCANNED_GARBAGE     ||
+			   ret == SCANNED_A_BAD_PAD_NODE ||
+			   ret == SCANNED_A_CORRUPT_NODE) {
+			dbg_rcvry("found corruption (%d) at %d:%d",
+				  ret, lnum, offs);
 			break;
-		}
-
-		if (ret == SCANNED_GARBAGE || ret == SCANNED_A_BAD_PAD_NODE)
-			if (is_last_write(c, buf, offs)) {
-				clean_buf(c, &buf, lnum, &offs, &len);
-				need_clean = 1;
-				empty_chkd = 1;
-				break;
-			}
-
-		if (ret == SCANNED_A_CORRUPT_NODE)
-			if (no_more_nodes(c, buf, len, lnum, offs)) {
-				clean_buf(c, &buf, lnum, &offs, &len);
-				need_clean = 1;
-				empty_chkd = 1;
-				break;
-			}
-
-		if (quiet) {
-			/* Redo the last scan but noisily */
-			quiet = 0;
-			continue;
-		}
-
-		switch (ret) {
-		case SCANNED_GARBAGE:
-			dbg_err("garbage");
-			goto corrupted;
-		case SCANNED_A_CORRUPT_NODE:
-		case SCANNED_A_BAD_PAD_NODE:
-			dbg_err("bad node");
-			goto corrupted;
-		default:
-			dbg_err("unknown");
-			goto corrupted;
-		}
-	}
-
-	if (!empty_chkd && !is_empty(buf, len)) {
-		if (is_last_write(c, buf, offs)) {
-			clean_buf(c, &buf, lnum, &offs, &len);
-			need_clean = 1;
 		} else {
-			ubifs_err("corrupt empty space at LEB %d:%d",
-				  lnum, offs);
+			ubifs_err("unexpected return value %d", ret);
+			err = -EINVAL;
+			goto error;
+		}
+	}
+
+	if (ret == SCANNED_GARBAGE || ret == SCANNED_A_BAD_PAD_NODE) {
+		if (!is_last_write(c, buf, offs))
+			goto corrupted_rescan;
+	} else if (ret == SCANNED_A_CORRUPT_NODE) {
+		if (!no_more_nodes(c, buf, len, lnum, offs))
+			goto corrupted_rescan;
+	} else if (!is_empty(buf, len)) {
+		if (!is_last_write(c, buf, offs)) {
+			int corruption = first_non_ff(buf, len);
+
+			/*
+			 * See header comment for this file for more
+			 * explanations about the reasons we have this check.
+			 */
+			ubifs_err("corrupt empty space LEB %d:%d, corruption starts at %d",
+				  lnum, offs, corruption);
+			/* Make sure we dump interesting non-0xFF data */
+			offs += corruption;
+			buf += corruption;
 			goto corrupted;
 		}
 	}
 
-	/* Drop nodes from incomplete group */
-	if (grouped && drop_incomplete_group(sleb, &offs)) {
-		buf = sbuf + offs;
-		len = c->leb_size - offs;
-		clean_buf(c, &buf, lnum, &offs, &len);
-		need_clean = 1;
+	min_io_unit = round_down(offs, c->min_io_size);
+	if (grouped)
+		/*
+		 * If nodes are grouped, always drop the incomplete group at
+		 * the end.
+		 */
+		drop_last_group(sleb, &offs);
+
+	if (jhead == GCHD) {
+		/*
+		 * If this LEB belongs to the GC head then while we are in the
+		 * middle of the same min. I/O unit keep dropping nodes. So
+		 * basically, what we want is to make sure that the last min.
+		 * I/O unit where we saw the corruption is dropped completely
+		 * with all the uncorrupted nodes which may possibly sit there.
+		 *
+		 * In other words, let's name the min. I/O unit where the
+		 * corruption starts B, and the previous min. I/O unit A. The
+		 * below code tries to deal with a situation when half of B
+		 * contains valid nodes or the end of a valid node, and the
+		 * second half of B contains corrupted data or garbage. This
+		 * means that UBIFS had been writing to B just before the power
+		 * cut happened. I do not know how realistic is this scenario
+		 * that half of the min. I/O unit had been written successfully
+		 * and the other half not, but this is possible in our 'failure
+		 * mode emulation' infrastructure at least.
+		 *
+		 * So what is the problem, why we need to drop those nodes? Why
+		 * can't we just clean-up the second half of B by putting a
+		 * padding node there? We can, and this works fine with one
+		 * exception which was reproduced with power cut emulation
+		 * testing and happens extremely rarely.
+		 *
+		 * Imagine the file-system is full, we run GC which starts
+		 * moving valid nodes from LEB X to LEB Y (obviously, LEB Y is
+		 * the current GC head LEB). The @c->gc_lnum is -1, which means
+		 * that GC will retain LEB X and will try to continue. Imagine
+		 * that LEB X is currently the dirtiest LEB, and the amount of
+		 * used space in LEB Y is exactly the same as amount of free
+		 * space in LEB X.
+		 *
+		 * And a power cut happens when nodes are moved from LEB X to
+		 * LEB Y. We are here trying to recover LEB Y which is the GC
+		 * head LEB. We find the min. I/O unit B as described above.
+		 * Then we clean-up LEB Y by padding min. I/O unit. And later
+		 * 'ubifs_rcvry_gc_commit()' function fails, because it cannot
+		 * find a dirty LEB which could be GC'd into LEB Y! Even LEB X
+		 * does not match because the amount of valid nodes there does
+		 * not fit the free space in LEB Y any more! And this is
+		 * because of the padding node which we added to LEB Y. The
+		 * user-visible effect of this which I once observed and
+		 * analysed is that we cannot mount the file-system with
+		 * -ENOSPC error.
+		 *
+		 * So obviously, to make sure that situation does not happen we
+		 * should free min. I/O unit B in LEB Y completely and the last
+		 * used min. I/O unit in LEB Y should be A. This is basically
+		 * what the below code tries to do.
+		 */
+		while (offs > min_io_unit)
+			drop_last_node(sleb, &offs);
 	}
 
-	if (offs % c->min_io_size) {
-		clean_buf(c, &buf, lnum, &offs, &len);
-		need_clean = 1;
-	}
+	buf = sbuf + offs;
+	len = c->leb_size - offs;
 
+	clean_buf(c, &buf, lnum, &offs, &len);
 	ubifs_end_scan(c, sleb, lnum, offs);
 
-	if (need_clean) {
-		err = fix_unclean_leb(c, sleb, start);
-		if (err)
-			goto error;
-	}
+	err = fix_unclean_leb(c, sleb, start);
+	if (err)
+		goto error;
 
 	return sleb;
 
+corrupted_rescan:
+	/* Re-scan the corrupted data with verbose messages */
+	ubifs_err("corruption %d", ret);
+	ubifs_scan_a_node(c, buf, len, lnum, offs, 1);
 corrupted:
 	ubifs_scanned_corruption(c, lnum, offs, buf);
 	err = -EUCLEAN;
@@ -693,22 +818,23 @@ static int get_cs_sqnum(struct ubifs_info *c, int lnum, int offs,
 		return -ENOMEM;
 	if (c->leb_size - offs < UBIFS_CS_NODE_SZ)
 		goto out_err;
-	err = ubi_read(c->ubi, lnum, (void *)cs_node, offs, UBIFS_CS_NODE_SZ);
+	err = ubifs_leb_read(c, lnum, (void *)cs_node, offs,
+			     UBIFS_CS_NODE_SZ, 0);
 	if (err && err != -EBADMSG)
 		goto out_free;
 	ret = ubifs_scan_a_node(c, cs_node, UBIFS_CS_NODE_SZ, lnum, offs, 0);
 	if (ret != SCANNED_A_NODE) {
-		dbg_err("Not a valid node");
+		ubifs_err("Not a valid node");
 		goto out_err;
 	}
 	if (cs_node->ch.node_type != UBIFS_CS_NODE) {
-		dbg_err("Node a CS node, type is %d", cs_node->ch.node_type);
+		ubifs_err("Node a CS node, type is %d", cs_node->ch.node_type);
 		goto out_err;
 	}
 	if (le64_to_cpu(cs_node->cmt_no) != c->cmt_no) {
-		dbg_err("CS node cmt_no %llu != current cmt_no %llu",
-			(unsigned long long)le64_to_cpu(cs_node->cmt_no),
-			c->cmt_no);
+		ubifs_err("CS node cmt_no %llu != current cmt_no %llu",
+			  (unsigned long long)le64_to_cpu(cs_node->cmt_no),
+			  c->cmt_no);
 		goto out_err;
 	}
 	*cs_sqnum = le64_to_cpu(cs_node->ch.sqnum);
@@ -732,7 +858,8 @@ out_free:
  * @sbuf: LEB-sized buffer to use
  *
  * This function does a scan of a LEB, but caters for errors that might have
- * been caused by the unclean unmount from which we are attempting to recover.
+ * been caused by unclean reboots from which we are attempting to recover
+ * (assume that only the last log LEB can be corrupted by an unclean reboot).
  *
  * This function returns %0 on success and a negative error code on failure.
  */
@@ -751,7 +878,7 @@ struct ubifs_scan_leb *ubifs_recover_log_leb(struct ubifs_info *c, int lnum,
 		 * We can only recover at the end of the log, so check that the
 		 * next log LEB is empty or out of date.
 		 */
-		sleb = ubifs_scan(c, next_lnum, 0, sbuf);
+		sleb = ubifs_scan(c, next_lnum, 0, sbuf, 0);
 		if (IS_ERR(sleb))
 			return sleb;
 		if (sleb->nodes_cnt) {
@@ -770,15 +897,15 @@ struct ubifs_scan_leb *ubifs_recover_log_leb(struct ubifs_info *c, int lnum,
 				}
 			}
 			if (snod->sqnum > cs_sqnum) {
-				ubifs_err("unrecoverable log corruption "
-					  "in LEB %d", lnum);
+				ubifs_err("unrecoverable log corruption in LEB %d",
+					  lnum);
 				ubifs_scan_destroy(sleb);
 				return ERR_PTR(-EUCLEAN);
 			}
 		}
 		ubifs_scan_destroy(sleb);
 	}
-	return ubifs_recover_leb(c, lnum, offs, sbuf, 0);
+	return ubifs_recover_leb(c, lnum, offs, sbuf, -1);
 }
 
 /**
@@ -792,15 +919,10 @@ struct ubifs_scan_leb *ubifs_recover_log_leb(struct ubifs_info *c, int lnum,
  *
  * This function returns %0 on success and a negative error code on failure.
  */
-static int recover_head(const struct ubifs_info *c, int lnum, int offs,
-			void *sbuf)
+static int recover_head(struct ubifs_info *c, int lnum, int offs, void *sbuf)
 {
-	int len, err, need_clean = 0;
+	int len = c->max_write_size, err;
 
-	if (c->min_io_size > 1)
-		len = c->min_io_size;
-	else
-		len = 512;
 	if (offs + len > c->leb_size)
 		len = c->leb_size - offs;
 
@@ -808,27 +930,15 @@ static int recover_head(const struct ubifs_info *c, int lnum, int offs,
 		return 0;
 
 	/* Read at the head location and check it is empty flash */
-	err = ubi_read(c->ubi, lnum, sbuf, offs, len);
-	if (err)
-		need_clean = 1;
-	else {
-		uint8_t *p = sbuf;
-
-		while (len--)
-			if (*p++ != 0xff) {
-				need_clean = 1;
-				break;
-			}
-	}
-
-	if (need_clean) {
+	err = ubifs_leb_read(c, lnum, sbuf, offs, len, 1);
+	if (err || !is_empty(sbuf, len)) {
 		dbg_rcvry("cleaning head at %d:%d", lnum, offs);
 		if (offs == 0)
 			return ubifs_leb_unmap(c, lnum);
-		err = ubi_read(c->ubi, lnum, sbuf, 0, offs);
+		err = ubifs_leb_read(c, lnum, sbuf, 0, offs, 1);
 		if (err)
 			return err;
-		return ubi_leb_change(c->ubi, lnum, sbuf, offs, UBI_UNKNOWN);
+		return ubifs_leb_change(c, lnum, sbuf, offs);
 	}
 
 	return 0;
@@ -851,11 +961,11 @@ static int recover_head(const struct ubifs_info *c, int lnum, int offs,
  *
  * This function returns %0 on success and a negative error code on failure.
  */
-int ubifs_recover_inl_heads(const struct ubifs_info *c, void *sbuf)
+int ubifs_recover_inl_heads(struct ubifs_info *c, void *sbuf)
 {
 	int err;
 
-	ubifs_assert(!(c->vfs_sb->s_flags & MS_RDONLY) || c->remounting_rw);
+	ubifs_assert(!c->ro_mount || c->remounting_rw);
 
 	dbg_rcvry("checking index head at %d:%d", c->ihead_lnum, c->ihead_offs);
 	err = recover_head(c, c->ihead_lnum, c->ihead_offs, sbuf);
@@ -871,7 +981,7 @@ int ubifs_recover_inl_heads(const struct ubifs_info *c, void *sbuf)
 }
 
 /**
- *  clean_an_unclean_leb - read and write a LEB to remove corruption.
+ * clean_an_unclean_leb - read and write a LEB to remove corruption.
  * @c: UBIFS file-system description object
  * @ucleb: unclean LEB information
  * @sbuf: LEB-sized buffer to use
@@ -882,7 +992,7 @@ int ubifs_recover_inl_heads(const struct ubifs_info *c, void *sbuf)
  *
  * This function returns %0 on success and a negative error code on failure.
  */
-static int clean_an_unclean_leb(const struct ubifs_info *c,
+static int clean_an_unclean_leb(struct ubifs_info *c,
 				struct ubifs_unclean_leb *ucleb, void *sbuf)
 {
 	int err, lnum = ucleb->lnum, offs = 0, len = ucleb->endpt, quiet = 1;
@@ -898,7 +1008,7 @@ static int clean_an_unclean_leb(const struct ubifs_info *c,
 		return 0;
 	}
 
-	err = ubi_read(c->ubi, lnum, buf, offs, len);
+	err = ubifs_leb_read(c, lnum, buf, offs, len, 0);
 	if (err && err != -EBADMSG)
 		return err;
 
@@ -958,7 +1068,7 @@ static int clean_an_unclean_leb(const struct ubifs_info *c,
 	}
 
 	/* Write back the LEB atomically */
-	err = ubi_leb_change(c->ubi, lnum, sbuf, len, UBI_UNKNOWN);
+	err = ubifs_leb_change(c, lnum, sbuf, len);
 	if (err)
 		return err;
 
@@ -978,7 +1088,7 @@ static int clean_an_unclean_leb(const struct ubifs_info *c,
  *
  * This function returns %0 on success and a negative error code on failure.
  */
-int ubifs_clean_lebs(const struct ubifs_info *c, void *sbuf)
+int ubifs_clean_lebs(struct ubifs_info *c, void *sbuf)
 {
 	dbg_rcvry("recovery");
 	while (!list_empty(&c->unclean_leb_list)) {
@@ -995,6 +1105,140 @@ int ubifs_clean_lebs(const struct ubifs_info *c, void *sbuf)
 	}
 	return 0;
 }
+
+#ifndef __UBOOT__
+/**
+ * grab_empty_leb - grab an empty LEB to use as GC LEB and run commit.
+ * @c: UBIFS file-system description object
+ *
+ * This is a helper function for 'ubifs_rcvry_gc_commit()' which grabs an empty
+ * LEB to be used as GC LEB (@c->gc_lnum), and then runs the commit. Returns
+ * zero in case of success and a negative error code in case of failure.
+ */
+static int grab_empty_leb(struct ubifs_info *c)
+{
+	int lnum, err;
+
+	/*
+	 * Note, it is very important to first search for an empty LEB and then
+	 * run the commit, not vice-versa. The reason is that there might be
+	 * only one empty LEB at the moment, the one which has been the
+	 * @c->gc_lnum just before the power cut happened. During the regular
+	 * UBIFS operation (not now) @c->gc_lnum is marked as "taken", so no
+	 * one but GC can grab it. But at this moment this single empty LEB is
+	 * not marked as taken, so if we run commit - what happens? Right, the
+	 * commit will grab it and write the index there. Remember that the
+	 * index always expands as long as there is free space, and it only
+	 * starts consolidating when we run out of space.
+	 *
+	 * IOW, if we run commit now, we might not be able to find a free LEB
+	 * after this.
+	 */
+	lnum = ubifs_find_free_leb_for_idx(c);
+	if (lnum < 0) {
+		ubifs_err("could not find an empty LEB");
+		ubifs_dump_lprops(c);
+		ubifs_dump_budg(c, &c->bi);
+		return lnum;
+	}
+
+	/* Reset the index flag */
+	err = ubifs_change_one_lp(c, lnum, LPROPS_NC, LPROPS_NC, 0,
+				  LPROPS_INDEX, 0);
+	if (err)
+		return err;
+
+	c->gc_lnum = lnum;
+	dbg_rcvry("found empty LEB %d, run commit", lnum);
+
+	return ubifs_run_commit(c);
+}
+
+/**
+ * ubifs_rcvry_gc_commit - recover the GC LEB number and run the commit.
+ * @c: UBIFS file-system description object
+ *
+ * Out-of-place garbage collection requires always one empty LEB with which to
+ * start garbage collection. The LEB number is recorded in c->gc_lnum and is
+ * written to the master node on unmounting. In the case of an unclean unmount
+ * the value of gc_lnum recorded in the master node is out of date and cannot
+ * be used. Instead, recovery must allocate an empty LEB for this purpose.
+ * However, there may not be enough empty space, in which case it must be
+ * possible to GC the dirtiest LEB into the GC head LEB.
+ *
+ * This function also runs the commit which causes the TNC updates from
+ * size-recovery and orphans to be written to the flash. That is important to
+ * ensure correct replay order for subsequent mounts.
+ *
+ * This function returns %0 on success and a negative error code on failure.
+ */
+int ubifs_rcvry_gc_commit(struct ubifs_info *c)
+{
+	struct ubifs_wbuf *wbuf = &c->jheads[GCHD].wbuf;
+	struct ubifs_lprops lp;
+	int err;
+
+	dbg_rcvry("GC head LEB %d, offs %d", wbuf->lnum, wbuf->offs);
+
+	c->gc_lnum = -1;
+	if (wbuf->lnum == -1 || wbuf->offs == c->leb_size)
+		return grab_empty_leb(c);
+
+	err = ubifs_find_dirty_leb(c, &lp, wbuf->offs, 2);
+	if (err) {
+		if (err != -ENOSPC)
+			return err;
+
+		dbg_rcvry("could not find a dirty LEB");
+		return grab_empty_leb(c);
+	}
+
+	ubifs_assert(!(lp.flags & LPROPS_INDEX));
+	ubifs_assert(lp.free + lp.dirty >= wbuf->offs);
+
+	/*
+	 * We run the commit before garbage collection otherwise subsequent
+	 * mounts will see the GC and orphan deletion in a different order.
+	 */
+	dbg_rcvry("committing");
+	err = ubifs_run_commit(c);
+	if (err)
+		return err;
+
+	dbg_rcvry("GC'ing LEB %d", lp.lnum);
+	mutex_lock_nested(&wbuf->io_mutex, wbuf->jhead);
+	err = ubifs_garbage_collect_leb(c, &lp);
+	if (err >= 0) {
+		int err2 = ubifs_wbuf_sync_nolock(wbuf);
+
+		if (err2)
+			err = err2;
+	}
+	mutex_unlock(&wbuf->io_mutex);
+	if (err < 0) {
+		ubifs_err("GC failed, error %d", err);
+		if (err == -EAGAIN)
+			err = -EINVAL;
+		return err;
+	}
+
+	ubifs_assert(err == LEB_RETAINED);
+	if (err != LEB_RETAINED)
+		return -EINVAL;
+
+	err = ubifs_leb_unmap(c, c->gc_lnum);
+	if (err)
+		return err;
+
+	dbg_rcvry("allocated LEB %d for GC", lp.lnum);
+	return 0;
+}
+#else
+int ubifs_rcvry_gc_commit(struct ubifs_info *c)
+{
+	return 0;
+}
+#endif
 
 /**
  * struct size_entry - inode size information for recovery.
@@ -1090,6 +1334,23 @@ static void remove_ino(struct ubifs_info *c, ino_t inum)
 }
 
 /**
+ * ubifs_destroy_size_tree - free resources related to the size tree.
+ * @c: UBIFS file-system description object
+ */
+void ubifs_destroy_size_tree(struct ubifs_info *c)
+{
+	struct size_entry *e, *n;
+
+	rbtree_postorder_for_each_entry_safe(e, n, &c->size_tree, rb) {
+		if (e->inode)
+			iput(e->inode);
+		kfree(e);
+	}
+
+	c->size_tree = RB_ROOT;
+}
+
+/**
  * ubifs_recover_size_accum - accumulate inode sizes for recovery.
  * @c: UBIFS file-system description object
  * @key: node key
@@ -1157,6 +1418,64 @@ int ubifs_recover_size_accum(struct ubifs_info *c, union ubifs_key *key,
 	return 0;
 }
 
+#ifndef __UBOOT__
+/**
+ * fix_size_in_place - fix inode size in place on flash.
+ * @c: UBIFS file-system description object
+ * @e: inode size information for recovery
+ */
+static int fix_size_in_place(struct ubifs_info *c, struct size_entry *e)
+{
+	struct ubifs_ino_node *ino = c->sbuf;
+	unsigned char *p;
+	union ubifs_key key;
+	int err, lnum, offs, len;
+	loff_t i_size;
+	uint32_t crc;
+
+	/* Locate the inode node LEB number and offset */
+	ino_key_init(c, &key, e->inum);
+	err = ubifs_tnc_locate(c, &key, ino, &lnum, &offs);
+	if (err)
+		goto out;
+	/*
+	 * If the size recorded on the inode node is greater than the size that
+	 * was calculated from nodes in the journal then don't change the inode.
+	 */
+	i_size = le64_to_cpu(ino->size);
+	if (i_size >= e->d_size)
+		return 0;
+	/* Read the LEB */
+	err = ubifs_leb_read(c, lnum, c->sbuf, 0, c->leb_size, 1);
+	if (err)
+		goto out;
+	/* Change the size field and recalculate the CRC */
+	ino = c->sbuf + offs;
+	ino->size = cpu_to_le64(e->d_size);
+	len = le32_to_cpu(ino->ch.len);
+	crc = crc32(UBIFS_CRC32_INIT, (void *)ino + 8, len - 8);
+	ino->ch.crc = cpu_to_le32(crc);
+	/* Work out where data in the LEB ends and free space begins */
+	p = c->sbuf;
+	len = c->leb_size - 1;
+	while (p[len] == 0xff)
+		len -= 1;
+	len = ALIGN(len + 1, c->min_io_size);
+	/* Atomically write the fixed LEB back again */
+	err = ubifs_leb_change(c, lnum, c->sbuf, len);
+	if (err)
+		goto out;
+	dbg_rcvry("inode %lu at %d:%d size %lld -> %lld",
+		  (unsigned long)e->inum, lnum, offs, i_size, e->d_size);
+	return 0;
+
+out:
+	ubifs_warn("inode %lu failed to fix size %lld -> %lld error %d",
+		   (unsigned long)e->inum, e->i_size, e->d_size, err);
+	return err;
+}
+#endif
+
 /**
  * ubifs_recover_size - recover inode size.
  * @c: UBIFS file-system description object
@@ -1196,30 +1515,48 @@ int ubifs_recover_size(struct ubifs_info *c)
 				e->i_size = le64_to_cpu(ino->size);
 			}
 		}
+
 		if (e->exists && e->i_size < e->d_size) {
-			if (!e->inode && (c->vfs_sb->s_flags & MS_RDONLY)) {
+			if (c->ro_mount) {
 				/* Fix the inode size and pin it in memory */
 				struct inode *inode;
+				struct ubifs_inode *ui;
+
+				ubifs_assert(!e->inode);
 
 				inode = ubifs_iget(c->vfs_sb, e->inum);
 				if (IS_ERR(inode))
 					return PTR_ERR(inode);
+
+				ui = ubifs_inode(inode);
 				if (inode->i_size < e->d_size) {
 					dbg_rcvry("ino %lu size %lld -> %lld",
 						  (unsigned long)e->inum,
-						  e->d_size, inode->i_size);
+						  inode->i_size, e->d_size);
 					inode->i_size = e->d_size;
-					ubifs_inode(inode)->ui_size = e->d_size;
+					ui->ui_size = e->d_size;
+					ui->synced_i_size = e->d_size;
 					e->inode = inode;
 					this = rb_next(this);
 					continue;
 				}
 				iput(inode);
+#ifndef __UBOOT__
+			} else {
+				/* Fix the size in place */
+				err = fix_size_in_place(c, e);
+				if (err)
+					return err;
+				if (e->inode)
+					iput(e->inode);
+#endif
 			}
 		}
+
 		this = rb_next(this);
 		rb_erase(&e->rb, &c->size_tree);
 		kfree(e);
 	}
+
 	return 0;
 }

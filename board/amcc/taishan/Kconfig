@@ -1,0 +1,12 @@
+if TARGET_TAISHAN
+
+config SYS_BOARD
+	default "taishan"
+
+config SYS_VENDOR
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	default "taishan"
+
+endif

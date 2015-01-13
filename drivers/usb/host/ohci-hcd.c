@@ -47,7 +47,7 @@
 #include <asm/arch/hardware.h>	/* needed for AT91_USB_HOST_BASE */
 #endif
 
-#if defined(CONFIG_ARM920T) || \
+#if defined(CONFIG_CPU_ARM920T) || \
     defined(CONFIG_S3C24X0) || \
     defined(CONFIG_440EP) || \
     defined(CONFIG_PCI_OHCI) || \
@@ -64,9 +64,6 @@
 /* For initializing controller (mask in an HCFS mode too) */
 #define OHCI_CONTROL_INIT \
 	(OHCI_CTRL_CBSR & 0x3) | OHCI_CTRL_IE | OHCI_CTRL_PLE
-
-#define min_t(type, x, y) \
-		    ({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
 
 #ifdef CONFIG_PCI_OHCI
 static struct pci_device_id ohci_pci_ids[] = {

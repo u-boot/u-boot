@@ -1,0 +1,15 @@
+if TARGET_CPU9260
+
+config SYS_BOARD
+	default "cpu9260"
+
+config SYS_VENDOR
+	default "eukrea"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "cpu9260"
+
+endif

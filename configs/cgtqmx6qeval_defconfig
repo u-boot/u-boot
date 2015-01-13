@@ -1,0 +1,3 @@
+CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/congatec/cgtqmx6eval/imximage.cfg,MX6Q"
+CONFIG_ARM=y
+CONFIG_TARGET_CGTQMX6EVAL=y

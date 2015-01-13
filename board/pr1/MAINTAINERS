@@ -1,0 +1,6 @@
+PR1 BOARD
+M:	Dimitar Penev <dpn@switchfin.org>
+S:	Maintained
+F:	board/pr1/
+F:	include/configs/pr1.h
+F:	configs/pr1_defconfig

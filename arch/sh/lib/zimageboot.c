@@ -45,6 +45,7 @@ int do_sh_zimageboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bootargs = getenv("bootargs");
 
 	/* Clear zero page */
+	/* cppcheck-suppress nullPointer */
 	memset(param, 0, 0x1000);
 
 	/* Set commandline */

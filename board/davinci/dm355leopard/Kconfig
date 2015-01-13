@@ -1,0 +1,12 @@
+if TARGET_DAVINCI_DM355LEOPARD
+
+config SYS_BOARD
+	default "dm355leopard"
+
+config SYS_VENDOR
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	default "davinci_dm355leopard"
+
+endif

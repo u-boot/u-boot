@@ -1,0 +1,9 @@
+if TARGET_GRSIM_LEON2
+
+config SYS_BOARD
+	default "grsim_leon2"
+
+config SYS_CONFIG_NAME
+	default "grsim_leon2"
+
+endif

@@ -126,7 +126,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 #endif
 
 	size = min(bootm_size, get_effective_memsize());
-	size = min(size, CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE);
+	size = min(size, (ulong)CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE);
 
 	if (size < bootm_size) {
 		ulong base = bootmap_base + size;

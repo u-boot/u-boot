@@ -65,6 +65,7 @@ extern int	BootpTry;
 
 
 /* Send a BOOTP request */
+extern void BootpReset(void);
 extern void BootpRequest(void);
 
 /****************** DHCP Support *********************/
@@ -87,8 +88,6 @@ typedef enum { INIT,
 #define DHCP_ACK      5
 #define DHCP_NAK      6
 #define DHCP_RELEASE  7
-
-#define SELECT_TIMEOUT 3000UL	/* Milliseconds to wait for offers */
 
 /**********************************************************************/
 

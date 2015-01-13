@@ -1,0 +1,9 @@
+if TARGET_A4M072
+
+config SYS_BOARD
+	default "a4m072"
+
+config SYS_CONFIG_NAME
+	default "a4m072"
+
+endif

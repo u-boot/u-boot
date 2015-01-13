@@ -8,7 +8,7 @@
  */
 
 /dts-v1/;
-/include/ "exynos54xx.dtsi"
+#include "exynos54xx.dtsi"
 
 / {
 	model = "Samsung/Google Peach Pit board based on Exynos5420";
@@ -32,7 +32,7 @@
 		mem-manuf = "samsung";
 		mem-type = "ddr3";
 		clock-frequency = <800000000>;
-		arm-frequency = <1700000000>;
+		arm-frequency = <900000000>;
 	};
 
 	tmu@10060000 {
@@ -63,6 +63,11 @@
 	              reg = <0x20>;
 	              compatible = "maxim,max98090-codec";
 	       };
+
+	        edp-lvds-bridge@48 {
+	                compatible = "parade,ps8625";
+	                reg = <0x48>;
+	        };
 	};
 
         sound@3830000 {
@@ -80,6 +85,7 @@
 	spi@12d30000 { /* spi1 */
 		spi-max-frequency = <50000000>;
 		firmware_storage_spi: flash@0 {
+			compatible = "spi-flash";
 			reg = <0>;
 
 			/*
@@ -96,7 +102,7 @@
 	spi@12d40000 { /* spi2 */
 		spi-max-frequency = <4000000>;
 		spi-deactivate-delay = <200>;
-		cros-ec@0 {
+		cros_ec: cros-ec@0 {
 			reg = <0>;
 			compatible = "google,cros-ec";
 			spi-half-duplex;
@@ -124,4 +130,31 @@
 	xhci@12400000 {
 		samsung,vbus-gpio = <&gpio 0x41 0>; /* H01 */
 	};
+
+	fimd@14400000 {
+		samsung,vl-freq = <60>;
+		samsung,vl-col = <1366>;
+		samsung,vl-row = <768>;
+		samsung,vl-width = <1366>;
+		samsung,vl-height = <768>;
+
+		samsung,vl-clkp;
+		samsung,vl-dp;
+		samsung,vl-bpix = <4>;
+
+		samsung,vl-hspw = <32>;
+		samsung,vl-hbpd = <40>;
+		samsung,vl-hfpd = <40>;
+		samsung,vl-vspw = <6>;
+		samsung,vl-vbpd = <10>;
+		samsung,vl-vfpd = <12>;
+		samsung,vl-cmd-allow-len = <0xf>;
+
+		samsung,winid = <3>;
+		samsung,interface-mode = <1>;
+		samsung,dp-enabled = <1>;
+		samsung,dual-lcd-enabled = <0>;
+	};
 };
+
+#include "cros-ec-keyboard.dtsi"

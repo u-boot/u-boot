@@ -25,6 +25,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 #define CPU_CLOCK_RATE			324000000 /* Clock for the MIPS core */
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_CLOCK_RATE / 2)
 
@@ -296,7 +299,6 @@ int vct_gpio_get(int pin);
 #undef CONFIG_CMD_BEDBUG
 #undef CONFIG_CMD_CACHE
 #undef CONFIG_CMD_CONSOLE
-#undef CONFIG_CMD_CRC32
 #undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_EEPROM

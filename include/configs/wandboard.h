@@ -78,6 +78,15 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
+/* USB Configs */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_MX6
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CONFIG_MXC_USB_FLAGS		0
+
 /* Ethernet Configuration */
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
@@ -109,6 +118,11 @@
 #define CONFIG_CMD_HDMIDETECT
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+
+#define CONFIG_CMD_FUSE
+#ifdef CONFIG_CMD_FUSE
+#define CONFIG_MXC_OCOTP
+#endif
 
 #if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
 #define CONFIG_DEFAULT_FDT_FILE		"imx6dl-wandboard.dtb"

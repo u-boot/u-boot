@@ -1,0 +1,7 @@
+R0P7734 BOARD
+M:	Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+S:	Maintained
+F:	board/renesas/r0p7734/
+F:	include/configs/r0p7734.h
+F:	configs/r0p7734_defconfig

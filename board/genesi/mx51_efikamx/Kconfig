@@ -1,0 +1,15 @@
+if TARGET_MX51_EFIKAMX
+
+config SYS_BOARD
+	default "mx51_efikamx"
+
+config SYS_VENDOR
+	default "genesi"
+
+config SYS_SOC
+	default "mx5"
+
+config SYS_CONFIG_NAME
+	default "mx51_efikamx"
+
+endif

@@ -55,7 +55,7 @@ FIT is formally a flattened device tree (in the libfdt meaning), which
 conforms to bindings defined in this document.
 
 .its	- image tree source
-.itb	- image tree blob
+.fit	- flattened image tree blob
 
 c) Image building procedure
 
@@ -101,15 +101,15 @@ Root node of the uImage Tree should have the following layout:
     |
     o images
     | |
-    | o img@1 {...}
-    | o img@2 {...}
+    | o image@1 {...}
+    | o image@2 {...}
     | ...
     |
     o configurations
-      |- default = "cfg@1"
+      |- default = "conf@1"
       |
-      o cfg@1 {...}
-      o cfg@2 {...}
+      o conf@1 {...}
+      o conf@2 {...}
       ...
 
 
@@ -159,7 +159,7 @@ the '/images' node should have the following layout:
   - description : Textual description of the component sub-image
   - type : Name of component sub-image type, supported types are:
     "standalone", "kernel", "ramdisk", "firmware", "script", "filesystem",
-    "flat_dt".
+    "flat_dt" and others (see uimage_type in common/images.c).
   - data : Path to the external file which contains this node's binary data.
   - compression : Compression used by included data. Supported compressions
     are "gzip" and "bzip2". If no compression is used compression property
@@ -173,7 +173,8 @@ the '/images' node should have the following layout:
   - arch : Architecture name, mandatory for types: "standalone", "kernel",
     "firmware", "ramdisk" and "fdt". Valid architecture names are: "alpha",
     "arm", "i386", "ia64", "mips", "mips64", "ppc", "s390", "sh", "sparc",
-    "sparc64", "m68k", "microblaze", "nios2", "blackfin", "avr32", "st200".
+    "sparc64", "m68k", "microblaze", "nios2", "blackfin", "avr32", "st200",
+    "sandbox".
   - entry : entry point address, address size is determined by
     '#address-cells' property of the root node. Mandatory for for types:
     "standalone" and "kernel".
@@ -246,6 +247,8 @@ o config@1
     node of a "ramdisk" type).
   - fdt : Unit name of the corresponding fdt blob (component image node of a
     "fdt type").
+  - setup : Unit name of the corresponding setup binary (used for booting
+    an x86 kernel). This contains the setup.bin file built by the kernel.
 
 The FDT blob is required to properly boot FDT based kernel, so the minimal
 configuration for 2.6 FDT kernel is (kernel, fdt) pair.

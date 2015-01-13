@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef CONFIG_SANDBOX
+#define DEBUG
+#endif
+
 #if 0	/* Moved to malloc.h */
 /* ---------- To make a malloc.h, start cutting here ------------ */
 
@@ -220,7 +224,7 @@
 
 */
 
-
+
 
 /* Preliminaries */
 
@@ -930,6 +934,8 @@ struct mallinfo mALLINFo();
 #endif	/* 0 */			/* Moved to malloc.h */
 
 #include <malloc.h>
+#include <asm/io.h>
+
 #ifdef DEBUG
 #if __STD_C
 static void malloc_update_mallinfo (void);
@@ -1132,7 +1138,7 @@ gAllocatedSize))
 
 #endif
 
-
+
 
 /*
   Type declarations
@@ -1272,7 +1278,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
        serviced via calls to mmap, and then later released via munmap.
 
 */
-
+
 /*  sizes, alignments */
 
 #define SIZE_SZ                (sizeof(INTERNAL_SIZE_T))
@@ -1297,7 +1303,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define aligned_OK(m)    (((unsigned long)((m)) & (MALLOC_ALIGN_MASK)) == 0)
 
 
-
+
 
 /*
   Physical chunk operations
@@ -1332,7 +1338,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define chunk_at_offset(p, s)  ((mchunkptr)(((char*)(p)) + (s)))
 
 
-
+
 
 /*
   Dealing with use bits
@@ -1371,7 +1377,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  (((mchunkptr)(((char*)(p)) + (s)))->size &= ~(PREV_INUSE))
 
 
-
+
 
 /*
   Dealing with size fields
@@ -1394,7 +1400,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define set_foot(p, s)   (((mchunkptr)((char*)(p) + (s)))->prev_size = (s))
 
 
-
+
 
 
 /*
@@ -1527,6 +1533,9 @@ void mem_malloc_init(ulong start, ulong size)
 	mem_malloc_end = start + size;
 	mem_malloc_brk = start;
 
+	debug("using memory %#lx-%#lx for malloc()\n", mem_malloc_start,
+	      mem_malloc_end);
+
 	memset((void *)mem_malloc_start, 0, size);
 
 	malloc_bin_reloc();
@@ -1566,7 +1575,7 @@ void mem_malloc_init(ulong start, ulong size)
 
 #define is_small_request(nb) (nb < MAX_SMALLBIN_SIZE - SMALLBIN_WIDTH)
 
-
+
 
 /*
     To help compensate for the large number of bins, a one-level index
@@ -1590,7 +1599,7 @@ void mem_malloc_init(ulong start, ulong size)
 #define clear_binblock(ii)  (binblocks_w = (mbinptr)(binblocks_r & ~(idx2binblock(ii))))
 
 
-
+
 
 
 /*  Other static bookkeeping data */
@@ -1628,7 +1637,7 @@ static unsigned int max_n_mmaps = 0;
 static unsigned long max_mmapped_mem = 0;
 #endif
 
-
+
 
 /*
   Debugging support
@@ -1769,7 +1778,7 @@ static void do_check_malloced_chunk(p, s) mchunkptr p; INTERNAL_SIZE_T s;
 #define check_malloced_chunk(P,N)
 #endif
 
-
+
 
 /*
   Macro-based internal utilities
@@ -1841,7 +1850,7 @@ static void do_check_malloced_chunk(p, s) mchunkptr p; INTERNAL_SIZE_T s;
   (last_remainder->fd = last_remainder->bk = last_remainder)
 
 
-
+
 
 
 /* Routines dealing with mmap(). */
@@ -1972,7 +1981,7 @@ static mchunkptr mremap_chunk(p, new_size) mchunkptr p; size_t new_size;
 #endif /* HAVE_MMAP */
 
 
-
+
 
 /*
   Extend the top-most chunk by obtaining memory from system.
@@ -2089,7 +2098,7 @@ static void malloc_extend_top(nb) INTERNAL_SIZE_T nb;
 }
 
 
-
+
 
 /* Main public routines */
 
@@ -2173,6 +2182,11 @@ Void_t* mALLOc(bytes) size_t bytes;
   mbinptr q;                         /* misc temp */
 
   INTERNAL_SIZE_T nb;
+
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	if (gd && !(gd->flags & GD_FLG_FULL_MALLOC_INIT))
+		return malloc_simple(bytes);
+#endif
 
   /* check if mem_malloc_init() was run */
   if ((mem_malloc_start == 0) && (mem_malloc_end == 0)) {
@@ -2396,7 +2410,7 @@ Void_t* mALLOc(bytes) size_t bytes;
 }
 
 
-
+
 
 /*
 
@@ -2436,6 +2450,12 @@ void fREe(mem) Void_t* mem;
   mchunkptr bck;       /* misc temp for linking */
   mchunkptr fwd;       /* misc temp for linking */
   int       islr;      /* track whether merging with last_remainder */
+
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	/* free() is a no-op - all the memory will be freed on relocation */
+	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT))
+		return;
+#endif
 
   if (mem == NULL)                              /* free(0) has no effect */
     return;
@@ -2513,7 +2533,7 @@ void fREe(mem) Void_t* mem;
 }
 
 
-
+
 
 
 /*
@@ -2587,6 +2607,13 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 
   /* realloc of null is supposed to be same as malloc */
   if (oldmem == NULL) return mALLOc(bytes);
+
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
+		/* This is harder to support and should not be needed */
+		panic("pre-reloc realloc() is not supported");
+	}
+#endif
 
   newp    = oldp    = mem2chunk(oldmem);
   newsize = oldsize = chunksize(oldp);
@@ -2750,7 +2777,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 }
 
 
-
+
 
 /*
 
@@ -2868,7 +2895,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 
 }
 
-
+
 
 
 /*
@@ -2933,6 +2960,12 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
     return NULL;
   else
   {
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
+		MALLOC_ZERO(mem, sz);
+		return mem;
+	}
+#endif
     p = mem2chunk(mem);
 
     /* Two optional cases in which clearing not necessary */
@@ -2975,7 +3008,7 @@ void cfree(mem) Void_t *mem;
 }
 #endif
 
-
+
 
 /*
 
@@ -3056,7 +3089,7 @@ int malloc_trim(pad) size_t pad;
   }
 }
 
-
+
 
 /*
   malloc_usable_size:
@@ -3092,7 +3125,7 @@ size_t malloc_usable_size(mem) Void_t* mem;
 }
 
 
-
+
 
 /* Utility to update current_mallinfo for malloc_stats and mallinfo() */
 
@@ -3136,7 +3169,7 @@ static void malloc_update_mallinfo()
 }
 #endif	/* DEBUG */
 
-
+
 
 /*
 
@@ -3183,7 +3216,7 @@ struct mallinfo mALLINFo()
 #endif	/* DEBUG */
 
 
-
+
 
 /*
   mallopt:

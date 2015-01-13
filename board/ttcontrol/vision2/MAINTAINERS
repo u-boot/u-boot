@@ -1,0 +1,6 @@
+VISION2 BOARD
+M:	Stefano Babic <sbabic@denx.de>
+S:	Maintained
+F:	board/ttcontrol/vision2/
+F:	include/configs/vision2.h
+F:	configs/vision2_defconfig

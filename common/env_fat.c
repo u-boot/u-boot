@@ -41,6 +41,7 @@ int saveenv(void)
 	disk_partition_t info;
 	int dev, part;
 	int err;
+	loff_t size;
 
 	err = env_export(&env_new);
 	if (err)
@@ -59,7 +60,8 @@ int saveenv(void)
 		return 1;
 	}
 
-	err = file_fat_write(FAT_ENV_FILE, (void *)&env_new, sizeof(env_t));
+	err = file_fat_write(FAT_ENV_FILE, (void *)&env_new, 0, sizeof(env_t),
+			     &size);
 	if (err == -1) {
 		printf("\n** Unable to write \"%s\" from %s%d:%d **\n",
 			FAT_ENV_FILE, FAT_ENV_INTERFACE, dev, part);
@@ -73,7 +75,7 @@ int saveenv(void)
 
 void env_relocate_spec(void)
 {
-	char buf[CONFIG_ENV_SIZE];
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	block_dev_desc_t *dev_desc = NULL;
 	disk_partition_t info;
 	int dev, part;
@@ -92,7 +94,7 @@ void env_relocate_spec(void)
 		goto err_env_relocate;
 	}
 
-	err = file_fat_read(FAT_ENV_FILE, (uchar *)&buf, CONFIG_ENV_SIZE);
+	err = file_fat_read(FAT_ENV_FILE, buf, CONFIG_ENV_SIZE);
 	if (err == -1) {
 		printf("\n** Unable to read \"%s\" from %s%d:%d **\n",
 			FAT_ENV_FILE, FAT_ENV_INTERFACE, dev, part);

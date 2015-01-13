@@ -41,7 +41,8 @@
 #define DWC3_REG_OFFSET				0xC100
 
 struct g_event_buffer {
-	u64 g_evntadr;
+	u32 g_evntadrlo;
+	u32 g_evntadrhi;
 	u32 g_evntsiz;
 	u32 g_evntcount;
 };
@@ -184,5 +185,10 @@ struct dwc3 {					/* offset: 0xC100 */
 /* Global TX Fifo Size Register */
 #define DWC3_GTXFIFOSIZ_TXFDEF(n)		((n) & 0xffff)
 #define DWC3_GTXFIFOSIZ_TXFSTADDR(n)		((n) & 0xffff0000)
+
+/* Device Control Register */
+#define DWC3_DCTL_RUN_STOP			(1 << 31)
+#define DWC3_DCTL_CSFTRST			(1 << 30)
+#define DWC3_DCTL_LSFTRST			(1 << 29)
 
 #endif /* __DWC3_H_ */

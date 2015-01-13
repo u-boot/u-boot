@@ -20,10 +20,14 @@
 #include <net.h>
 #include <config.h>
 #include <phy.h>
-#include <asm/fsl_enet.h>
 
+#ifdef CONFIG_LS102XA
+#define TSEC_SIZE		0x40000
+#define TSEC_MDIO_OFFSET	0x40000
+#else
 #define TSEC_SIZE 		0x01000
 #define TSEC_MDIO_OFFSET	0x01000
+#endif
 
 #define CONFIG_SYS_MDIO_BASE_ADDR (MDIO_BASE_ADDR + 0x520)
 
@@ -125,9 +129,14 @@
 
 #define MINFLR_INIT_SETTINGS	0x00000040
 
+#ifdef CONFIG_LS102XA
+#define DMACTRL_INIT_SETTINGS	0x00000003
+#else
 #define DMACTRL_INIT_SETTINGS	0x000000c3
+#endif
 #define DMACTRL_GRS		0x00000010
 #define DMACTRL_GTS		0x00000008
+#define DMACTRL_LE		0x00008000
 
 #define TSTAT_CLEAR_THALT	0x80000000
 #define RSTAT_CLEAR_RHALT	0x00800000

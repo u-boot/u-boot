@@ -73,10 +73,6 @@ struct clk {
 
 struct refclk *refclk_str_to_clk(const char *name);
 
-#define U8_MAX	((u8)~0U)
-#define U32_MAX	((u32)~0U)
-#define U64_MAX	((u64)~0U)
-
 /* The common clock framework uses u8 to represent a parent index */
 #define PARENT_COUNT_MAX	((u32)U8_MAX)
 

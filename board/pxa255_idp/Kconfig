@@ -1,0 +1,9 @@
+if TARGET_PXA255_IDP
+
+config SYS_BOARD
+	default "pxa255_idp"
+
+config SYS_CONFIG_NAME
+	default "pxa255_idp"
+
+endif

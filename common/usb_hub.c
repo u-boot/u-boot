@@ -86,49 +86,10 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	int i;
 	struct usb_device *dev;
 	unsigned pgood_delay = hub->desc.bPwrOn2PwrGood * 2;
-	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
-	unsigned short portstatus;
-	int ret;
 
 	dev = hub->pusb_dev;
 
-	/*
-	 * Enable power to the ports:
-	 * Here we Power-cycle the ports: aka,
-	 * turning them off and turning on again.
-	 */
 	debug("enabling power on all ports\n");
-	for (i = 0; i < dev->maxchild; i++) {
-		usb_clear_port_feature(dev, i + 1, USB_PORT_FEAT_POWER);
-		debug("port %d returns %lX\n", i + 1, dev->status);
-	}
-
-	/* Wait at least 2*bPwrOn2PwrGood for PP to change */
-	mdelay(pgood_delay);
-
-	for (i = 0; i < dev->maxchild; i++) {
-		ret = usb_get_port_status(dev, i + 1, portsts);
-		if (ret < 0) {
-			debug("port %d: get_port_status failed\n", i + 1);
-			continue;
-		}
-
-		/*
-		 * Check to confirm the state of Port Power:
-		 * xHCI says "After modifying PP, s/w shall read
-		 * PP and confirm that it has reached the desired state
-		 * before modifying it again, undefined behavior may occur
-		 * if this procedure is not followed".
-		 * EHCI doesn't say anything like this, but no harm in keeping
-		 * this.
-		 */
-		portstatus = le16_to_cpu(portsts->wPortStatus);
-		if (portstatus & (USB_PORT_STAT_POWER << 1)) {
-			debug("port %d: Port power change failed\n", i + 1);
-			continue;
-		}
-	}
-
 	for (i = 0; i < dev->maxchild; i++) {
 		usb_set_port_feature(dev, i + 1, USB_PORT_FEAT_POWER);
 		debug("port %d returns %lX\n", i + 1, dev->status);
@@ -209,9 +170,22 @@ int hub_port_reset(struct usb_device *dev, int port,
 		      (portstatus & USB_PORT_STAT_CONNECTION) ? 1 : 0,
 		      (portstatus & USB_PORT_STAT_ENABLE) ? 1 : 0);
 
-		if ((portchange & USB_PORT_STAT_C_CONNECTION) ||
-		    !(portstatus & USB_PORT_STAT_CONNECTION))
-			return -1;
+		/*
+		 * Perhaps we should check for the following here:
+		 * - C_CONNECTION hasn't been set.
+		 * - CONNECTION is still set.
+		 *
+		 * Doing so would ensure that the device is still connected
+		 * to the bus, and hasn't been unplugged or replaced while the
+		 * USB bus reset was going on.
+		 *
+		 * However, if we do that, then (at least) a San Disk Ultra
+		 * USB 3.0 16GB device fails to reset on (at least) an NVIDIA
+		 * Tegra Jetson TK1 board. For some reason, the device appears
+		 * to briefly drop off the bus when this second bus reset is
+		 * executed, yet if we retry this loop, it'll eventually come
+		 * back after another reset or two.
+		 */
 
 		if (portstatus & USB_PORT_STAT_ENABLE)
 			break;
@@ -326,7 +300,8 @@ static int usb_hub_configure(struct usb_device *dev)
 	}
 	descriptor = (struct usb_hub_descriptor *)buffer;
 
-	length = min(descriptor->bLength, sizeof(struct usb_hub_descriptor));
+	length = min_t(int, descriptor->bLength,
+		       sizeof(struct usb_hub_descriptor));
 
 	if (usb_get_hub_descriptor(dev, buffer, length) < 0) {
 		debug("usb_hub_configure: failed to get hub " \

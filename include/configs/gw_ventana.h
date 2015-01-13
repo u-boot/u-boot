@@ -39,6 +39,7 @@
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_F_LEN		(1 << 10)
 
 /* Init Functions */
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -61,7 +62,7 @@
   #define CONFIG_SPI_FLASH_BAR
   #define CONFIG_SPI_FLASH_WINBOND
   #define CONFIG_SF_DEFAULT_BUS              0
-  #define CONFIG_SF_DEFAULT_CS               (0|(IMX_GPIO_NR(3, 19)<<8))
+  #define CONFIG_SF_DEFAULT_CS               0
 					     /* GPIO 3-19 (21248) */
   #define CONFIG_SF_DEFAULT_SPEED            30000000
   #define CONFIG_SF_DEFAULT_MODE             (SPI_MODE_0)
@@ -95,7 +96,9 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_SPEED		  100000
+#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_I2C_GSC			0
+#define CONFIG_I2C_PMIC			1
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC
@@ -139,6 +142,7 @@
 #define CONFIG_PCI
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_PCI_FIXUP_DEV
 #define CONFIG_PCIE_IMX
 #endif
 
@@ -164,6 +168,7 @@
 #define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_GSC
+#define CONFIG_CMD_EECONFIG      /* Gateworks EEPROM config cmd */
 #define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
 #define CONFIG_LZO

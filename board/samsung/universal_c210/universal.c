@@ -12,7 +12,6 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/adc.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/watchdog.h>
 #include <ld9040.h>
@@ -202,53 +201,6 @@ int exynos_early_init_f(void)
 	return 0;
 }
 
-#ifdef CONFIG_SOFT_SPI
-static void soft_spi_init(void)
-{
-	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_SCLK,
-		CONFIG_SOFT_SPI_MODE & SPI_CPOL);
-	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_MOSI, 1);
-	gpio_direction_input(CONFIG_SOFT_SPI_GPIO_MISO);
-	gpio_direction_output(CONFIG_SOFT_SPI_GPIO_CS,
-		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
-		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
-	SPI_SCL(1);
-	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
-		CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH);
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	gpio_set_value(CONFIG_SOFT_SPI_GPIO_CS,
-		!(CONFIG_SOFT_SPI_MODE & SPI_CS_HIGH));
-}
-
-int  spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && cs == 0;
-}
-
-void universal_spi_scl(int bit)
-{
-	gpio_set_value(CONFIG_SOFT_SPI_GPIO_SCLK, bit);
-}
-
-void universal_spi_sda(int bit)
-{
-	gpio_set_value(CONFIG_SOFT_SPI_GPIO_MOSI, bit);
-}
-
-int universal_spi_read(void)
-{
-	return gpio_get_value(CONFIG_SOFT_SPI_GPIO_MISO);
-}
-#endif
-
 static void init_pmic_lcd(void)
 {
 	unsigned char val;
@@ -331,9 +283,8 @@ void exynos_cfg_lcd_gpio(void)
 	}
 
 	/* gpio pad configuration for LCD reset. */
+	gpio_request(EXYNOS4_GPIO_Y45, "lcd_reset");
 	gpio_cfg_pin(EXYNOS4_GPIO_Y45, S5P_GPIO_OUTPUT);
-
-	spi_init();
 }
 
 int mipi_power(void)
@@ -377,6 +328,8 @@ void exynos_enable_ldo(unsigned int onoff)
 
 int exynos_init(void)
 {
+	char buf[16];
+
 	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
 
 	switch (get_hwrev()) {
@@ -387,6 +340,7 @@ int exynos_init(void)
 		 * you should set it HIGH since it removes the inverter
 		 */
 		/* MASSMEMORY_EN: XMDMDATA_6: GPE3[6] */
+		gpio_request(EXYNOS4_GPIO_E36, "ldo_en");
 		gpio_direction_output(EXYNOS4_GPIO_E36, 0);
 		break;
 	default:
@@ -395,13 +349,18 @@ int exynos_init(void)
 		 * But set it as HIGH to ensure
 		 */
 		/* MASSMEMORY_EN: XMDMADDR_3: GPE1[3] */
+		gpio_request(EXYNOS4_GPIO_E13, "massmemory_en");
 		gpio_direction_output(EXYNOS4_GPIO_E13, 1);
 		break;
 	}
 
-#ifdef CONFIG_SOFT_SPI
-	soft_spi_init();
-#endif
+	/* Request soft I2C gpios */
+	sprintf(buf, "soft_i2c_scl");
+	gpio_request(CONFIG_SOFT_I2C_GPIO_SCL, buf);
+
+	sprintf(buf, "soft_i2c_sda");
+	gpio_request(CONFIG_SOFT_I2C_GPIO_SDA, buf);
+
 	check_hw_revision();
 	printf("HW Revision:\t0x%x\n", board_rev);
 

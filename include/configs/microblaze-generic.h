@@ -11,8 +11,6 @@
 
 #include "../board/xilinx/microblaze-generic/xparameters.h"
 
-
-#define	CONFIG_MICROBLAZE	1	/* MicroBlaze CPU */
 #define	MICROBLAZE_V5		1
 
 /* Memory test handling */
@@ -322,7 +320,6 @@
 #endif
 
 /* SPL part */
-#define CONFIG_SPL
 #define CONFIG_CMD_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LIBCOMMON_SUPPORT

@@ -13,6 +13,7 @@ struct socfpga_scan_manager {
 	u32	padding[2];
 	u32	fifo_single_byte;
 	u32	fifo_double_byte;
+	u32	fifo_triple_byte;
 	u32	fifo_quad_byte;
 };
 
@@ -86,5 +87,7 @@ extern const uint32_t iocsr_scan_chain2_table[
 	((CONFIG_HPS_IOCSR_SCANCHAIN2_LENGTH / 32) + 1)];
 extern const uint32_t iocsr_scan_chain3_table[
 	((CONFIG_HPS_IOCSR_SCANCHAIN3_LENGTH / 32) + 1)];
+
+int scan_mgr_configure_iocsr(void);
 
 #endif /* _SCAN_MANAGER_H_ */

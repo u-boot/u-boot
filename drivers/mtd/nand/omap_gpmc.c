@@ -27,8 +27,20 @@
 static u8  bch8_polynomial[] = {0xef, 0x51, 0x2e, 0x09, 0xed, 0x93, 0x9a, 0xc2,
 				0x97, 0x79, 0xe5, 0x24, 0xb5};
 #endif
-static uint8_t cs;
+static uint8_t cs_next;
 static __maybe_unused struct nand_ecclayout omap_ecclayout;
+
+/*
+ * Driver configurations
+ */
+struct omap_nand_info {
+	struct bch_control *control;
+	enum omap_ecc ecc_scheme;
+	int cs;
+};
+
+/* We are wasting a bit of memory but al least we are safe */
+static struct omap_nand_info omap_nand_info[GPMC_MAX_CS];
 
 /*
  * omap_nand_hwcontrol - Set the address pointers corretly for the
@@ -38,6 +50,8 @@ static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 				uint32_t ctrl)
 {
 	register struct nand_chip *this = mtd->priv;
+	struct omap_nand_info *info = this->priv;
+	int cs = info->cs;
 
 	/*
 	 * Point the IO_ADDR to DATA and ADDRESS registers instead
@@ -59,14 +73,11 @@ static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 		writeb(cmd, this->IO_ADDR_W);
 }
 
-#ifdef CONFIG_SPL_BUILD
 /* Check wait pin as dev ready indicator */
-int omap_spl_dev_ready(struct mtd_info *mtd)
+static int omap_dev_ready(struct mtd_info *mtd)
 {
 	return gpmc_cfg->status & (1 << 8);
 }
-#endif
-
 
 /*
  * gen_true_ecc - This function will generate true ECC value, which
@@ -148,41 +159,6 @@ static int __maybe_unused omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
 }
 
 /*
- * Driver configurations
- */
-struct omap_nand_info {
-	struct bch_control *control;
-	enum omap_ecc ecc_scheme;
-};
-
-/*
- * This can be a single instance cause all current users have only one NAND
- * with nearly the same setup (BCH8, some with ELM and others with sw BCH
- * library).
- * When some users with other BCH strength will exists this have to change!
- */
-static __maybe_unused struct omap_nand_info omap_nand_info = {
-	.control = NULL
-};
-
-/*
- * omap_reverse_list - re-orders list elements in reverse order [internal]
- * @list:	pointer to start of list
- * @length:	length of list
-*/
-void omap_reverse_list(u8 *list, unsigned int length)
-{
-	unsigned int i, j;
-	unsigned int half_length = length / 2;
-	u8 tmp;
-	for (i = 0, j = length - 1; i < half_length; i++, j--) {
-		tmp = list[i];
-		list[i] = list[j];
-		list[j] = tmp;
-	}
-}
-
-/*
  * omap_enable_hwecc - configures GPMC as per ECC scheme before read/write
  * @mtd:	MTD device structure
  * @mode:	Read/Write mode
@@ -198,6 +174,7 @@ static void omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
 	unsigned int eccsize1 = 0x00, eccsize0 = 0x00, bch_wrapmode = 0x00;
 	u32 ecc_size_config_val = 0;
 	u32 ecc_config_val = 0;
+	int cs = info->cs;
 
 	/* configure GPMC for specific ecc-scheme */
 	switch (info->ecc_scheme) {
@@ -354,6 +331,23 @@ static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
 
 #ifdef CONFIG_NAND_OMAP_ELM
 /*
+ * omap_reverse_list - re-orders list elements in reverse order [internal]
+ * @list:	pointer to start of list
+ * @length:	length of list
+*/
+static void omap_reverse_list(u8 *list, unsigned int length)
+{
+	unsigned int i, j;
+	unsigned int half_length = length / 2;
+	u8 tmp;
+	for (i = 0, j = length - 1; i < half_length; i++, j--) {
+		tmp = list[i];
+		list[i] = list[j];
+		list[j] = tmp;
+	}
+}
+
+/*
  * omap_correct_data_bch - Compares the ecc read from nand spare area
  * with ECC registers values and corrects one bit error if it has occured
  *
@@ -374,8 +368,9 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	uint32_t error_loc[ELM_MAX_ERROR_COUNT];
 	enum bch_level bch_type;
 	uint32_t i, ecc_flag = 0;
-	uint8_t count, err = 0;
+	uint8_t count;
 	uint32_t byte_pos, bit_pos;
+	int err = 0;
 
 	/* check calculated ecc */
 	for (i = 0; i < ecc->bytes && !ecc_flag; i++) {
@@ -478,11 +473,11 @@ static int omap_read_page_bch(struct mtd_info *mtd, struct nand_chip *chip,
 				oob += eccbytes) {
 		chip->ecc.hwctl(mtd, NAND_ECC_READ);
 		/* read data */
-		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, data_pos, page);
+		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, data_pos, -1);
 		chip->read_buf(mtd, p, eccsize);
 
 		/* read respective ecc from oob area */
-		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, oob_pos, page);
+		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, oob_pos, -1);
 		chip->read_buf(mtd, oob, eccbytes);
 		/* read syndrome */
 		chip->ecc.calculate(mtd, p, &ecc_calc[i]);
@@ -826,7 +821,7 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 int board_nand_init(struct nand_chip *nand)
 {
 	int32_t gpmc_config = 0;
-	cs = 0;
+	int cs = cs_next++;
 	int err = 0;
 	/*
 	 * xloader/Uboot's gpmc configuration would have configured GPMC for
@@ -856,7 +851,9 @@ int board_nand_init(struct nand_chip *nand)
 
 	nand->IO_ADDR_R = (void __iomem *)&gpmc_cfg->cs[cs].nand_dat;
 	nand->IO_ADDR_W = (void __iomem *)&gpmc_cfg->cs[cs].nand_cmd;
-	nand->priv	= &omap_nand_info;
+	omap_nand_info[cs].control = NULL;
+	omap_nand_info[cs].cs = cs;
+	nand->priv	= &omap_nand_info[cs];
 	nand->cmd_ctrl	= omap_nand_hwcontrol;
 	nand->options	|= NAND_NO_PADDING | NAND_CACHEPRG;
 	nand->chip_delay = 100;
@@ -888,8 +885,9 @@ int board_nand_init(struct nand_chip *nand)
 		nand->read_buf = nand_read_buf16;
 	else
 		nand->read_buf = nand_read_buf;
-	nand->dev_ready = omap_spl_dev_ready;
 #endif
+
+	nand->dev_ready = omap_dev_ready;
 
 	return 0;
 }

@@ -1,0 +1,6 @@
+CPCI2DP BOARD
+M:	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+S:	Maintained
+F:	board/esd/cpci2dp/
+F:	include/configs/CPCI2DP.h
+F:	configs/CPCI2DP_defconfig

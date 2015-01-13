@@ -57,7 +57,7 @@ static const struct block_drvr block_drvr[] = {
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef HAVE_BLOCK_DEVICE
-block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
+static block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	const struct block_drvr *drvr = block_drvr;
 	block_dev_desc_t* (*reloc_get_dev)(int dev);
@@ -133,7 +133,7 @@ typedef lbaint_t lba512_t;
  * Overflowless variant of (block_count * mul_by / div_by)
  * when div_by > mul_by
  */
-static lba512_t lba512_muldiv (lba512_t block_count, lba512_t mul_by, lba512_t div_by)
+static lba512_t lba512_muldiv(lba512_t block_count, lba512_t mul_by, lba512_t div_by)
 {
 	lba512_t bc_quot, bc_rem;
 
@@ -215,7 +215,8 @@ void dev_print (block_dev_desc_t *dev_desc)
 
 		lba512 = (lba * (dev_desc->blksz/512));
 		/* round to 1 digit */
-		mb = lba512_muldiv(lba512, 10, 2048);	/* 2048 = (1024 * 1024) / 512 MB */
+		/* 2048 = (1024 * 1024) / 512 MB */
+		mb = lba512_muldiv(lba512, 10, 2048);
 
 		mb_quot	= mb / 10;
 		mb_rem	= mb - (10 * mb_quot);
@@ -248,7 +249,7 @@ void dev_print (block_dev_desc_t *dev_desc)
 
 #ifdef HAVE_BLOCK_DEVICE
 
-void init_part (block_dev_desc_t * dev_desc)
+void init_part(block_dev_desc_t *dev_desc)
 {
 #ifdef CONFIG_ISO_PARTITION
 	if (test_part_iso(dev_desc) == 0) {
@@ -295,7 +296,7 @@ void init_part (block_dev_desc_t * dev_desc)
 	defined(CONFIG_AMIGA_PARTITION) || \
 	defined(CONFIG_EFI_PARTITION)
 
-static void print_part_header (const char *type, block_dev_desc_t * dev_desc)
+static void print_part_header(const char *type, block_dev_desc_t *dev_desc)
 {
 	puts ("\nPartition Map for ");
 	switch (dev_desc->if_type) {
@@ -333,7 +334,7 @@ static void print_part_header (const char *type, block_dev_desc_t * dev_desc)
 
 #endif /* any CONFIG_..._PARTITION */
 
-void print_part (block_dev_desc_t * dev_desc)
+void print_part(block_dev_desc_t * dev_desc)
 {
 
 		switch (dev_desc->part_type) {
@@ -381,8 +382,8 @@ void print_part (block_dev_desc_t * dev_desc)
 
 #endif /* HAVE_BLOCK_DEVICE */
 
-int get_partition_info(block_dev_desc_t *dev_desc, int part
-					, disk_partition_t *info)
+int get_partition_info(block_dev_desc_t *dev_desc, int part,
+		       disk_partition_t *info)
 {
 #ifdef HAVE_BLOCK_DEVICE
 
@@ -511,7 +512,7 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	disk_partition_t tmpinfo;
 
 	/*
-	 * Special-case a psuedo block device "hostfs", to allow access to the
+	 * Special-case a pseudo block device "hostfs", to allow access to the
 	 * host's own filesystem.
 	 */
 	if (0 == strcmp(ifname, "hostfs")) {

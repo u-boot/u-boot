@@ -131,9 +131,6 @@ static char SMI_PCR [] = {
 };
 static char SMI_MCR[] = {
 	0x60, 0x01, 0x61, 0x00,
-#ifdef CONFIG_HMI1001
-	0x62, 0x74, /* Memory type is not configured by pins on HMI1001 */
-#endif
 };
 
 static char SMI_HCR[] = {

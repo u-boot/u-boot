@@ -28,13 +28,6 @@
 #include <asm/mmu.h>
 #include <asm/u-boot.h>
 
-#if !defined(CONFIG_DB64360) && \
-    !defined(CONFIG_DB64460) && \
-    !defined(CONFIG_CPCI750) && \
-    !defined(CONFIG_P3Mx)
-#include <galileo/gt64260R.h>
-#endif
-
 /* We don't want the  MMU yet.
 */
 #undef	MSR_KERNEL
@@ -712,11 +705,7 @@ in_ram:
 	bne	5b
 6:
 	mr	r3, r10		/* Destination Address		*/
-#if defined(CONFIG_DB64360)	|| \
-    defined(CONFIG_DB64460)     || \
-    defined(CONFIG_CPCI750)	|| \
-    defined(CONFIG_PPMC7XX)     || \
-    defined(CONFIG_P3Mx)
+#if defined(CONFIG_PPMC7XX)
 	mr	r4, r9		/* Use RAM copy of the global data */
 #endif
 	bl	after_reloc

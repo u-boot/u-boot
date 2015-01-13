@@ -115,7 +115,7 @@ FIT image.
 .TP
 .BI "\-F"
 Indicates that an existing FIT image should be modified. No dtc
-compilation is performed and the -f flag should not be given.
+compilation is performed and the \-f flag should not be given.
 This can be used to sign images with additional keys after initial image
 creation.
 
@@ -163,7 +163,8 @@ Create FIT image with compressed kernel and sign it with keys in the
 skipping those for which keys cannot be found. Also add a comment.
 .nf
 .B mkimage -f kernel.its -k /public/signing-keys -K u-boot.dtb \\\\
--c "Kernel 3.8 image for production devices" kernel.itb
+.br
+.B -c "Kernel 3.8 image for production devices" kernel.itb
 .fi
 
 .P
@@ -173,7 +174,8 @@ with keys that are available in the new directory. Images that request signing
 with unavailable keys are skipped.
 .nf
 .B mkimage -F -k /secret/signing-keys -K u-boot.dtb \\\\
--c "Kernel 3.8 image for production devices" kernel.itb
+.br
+.B -c "Kernel 3.8 image for production devices" kernel.itb
 .fi
 
 .SH HOMEPAGE

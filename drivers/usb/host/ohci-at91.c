@@ -38,8 +38,8 @@ int usb_cpu_init(void)
 #endif
 
 	/* Enable USB host clock. */
-#ifdef CONFIG_SAMA5D3
-	writel(1 << (ATMEL_ID_UHP - 32), &pmc->pcer1);
+#ifdef CPU_HAS_PCR
+	at91_periph_clk_enable(ATMEL_ID_UHP);
 #else
 	writel(1 << ATMEL_ID_UHP, &pmc->pcer);
 #endif
@@ -58,8 +58,8 @@ int usb_cpu_stop(void)
 	at91_pmc_t *pmc	= (at91_pmc_t *)ATMEL_BASE_PMC;
 
 	/* Disable USB host clock. */
-#ifdef CONFIG_SAMA5D3
-	writel(1 << (ATMEL_ID_UHP - 32), &pmc->pcdr1);
+#ifdef CPU_HAS_PCR
+	at91_periph_clk_disable(ATMEL_ID_UHP);
 #else
 	writel(1 << ATMEL_ID_UHP, &pmc->pcdr);
 #endif

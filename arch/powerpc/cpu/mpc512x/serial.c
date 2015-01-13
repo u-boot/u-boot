@@ -384,7 +384,7 @@ struct stdio_dev *open_port(int num, int baudrate)
 		sprintf(env_val, "%d", baudrate);
 		setenv(env_var, env_val);
 
-		if (port->start())
+		if (port->start(port))
 			return NULL;
 
 		set_bit(num, &initialized);
@@ -407,7 +407,7 @@ int close_port(int num)
 	if (!port)
 		return -1;
 
-	ret = port->stop();
+	ret = port->stop(port);
 	clear_bit(num, &initialized);
 
 	return ret;
@@ -418,7 +418,7 @@ int write_port(struct stdio_dev *port, char *buf)
 	if (!port || !buf)
 		return -1;
 
-	port->puts(buf);
+	port->puts(port, buf);
 
 	return 0;
 }
@@ -433,8 +433,8 @@ int read_port(struct stdio_dev *port, char *buf, int size)
 	if (!size)
 		return 0;
 
-	while (port->tstc()) {
-		buf[cnt++] = port->getc();
+	while (port->tstc(port)) {
+		buf[cnt++] = port->getc(port);
 		if (cnt > size)
 			break;
 	}

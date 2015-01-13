@@ -206,7 +206,7 @@ int misc_init_r(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 extern void __ft_board_setup(void *blob, bd_t *bd);
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	__ft_board_setup(blob, bd);
 
@@ -215,5 +215,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_find_and_setprop(blob, "/plb/sata@bffd1000", "status",
 			     "disabled", sizeof("disabled"), 1);
+
+	return 0;
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

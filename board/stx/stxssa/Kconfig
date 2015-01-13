@@ -1,0 +1,12 @@
+if TARGET_STXSSA
+
+config SYS_BOARD
+	default "stxssa"
+
+config SYS_VENDOR
+	default "stx"
+
+config SYS_CONFIG_NAME
+	default "stxssa"
+
+endif

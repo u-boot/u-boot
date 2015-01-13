@@ -1,0 +1,149 @@
+menu "Blackfin architecture"
+	depends on BLACKFIN
+
+config SYS_ARCH
+	default "blackfin"
+
+choice
+	prompt "Target select"
+
+config TARGET_BCT_BRETTL2
+	bool "Support bct-brettl2"
+
+config TARGET_BF506F_EZKIT
+	bool "Support bf506f-ezkit"
+
+config TARGET_BF518F_EZBRD
+	bool "Support bf518f-ezbrd"
+
+config TARGET_BF525_UCR2
+	bool "Support bf525-ucr2"
+
+config TARGET_BF526_EZBRD
+	bool "Support bf526-ezbrd"
+
+config TARGET_BF527_AD7160_EVAL
+	bool "Support bf527-ad7160-eval"
+
+config TARGET_BF527_EZKIT
+	bool "Support bf527-ezkit"
+
+config TARGET_BF527_SDP
+	bool "Support bf527-sdp"
+
+config TARGET_BF533_EZKIT
+	bool "Support bf533-ezkit"
+
+config TARGET_BF533_STAMP
+	bool "Support bf533-stamp"
+
+config TARGET_BF537_MINOTAUR
+	bool "Support bf537-minotaur"
+
+config TARGET_BF537_PNAV
+	bool "Support bf537-pnav"
+
+config TARGET_BF537_SRV1
+	bool "Support bf537-srv1"
+
+config TARGET_BF537_STAMP
+	bool "Support bf537-stamp"
+
+config TARGET_BF538F_EZKIT
+	bool "Support bf538f-ezkit"
+
+config TARGET_BF548_EZKIT
+	bool "Support bf548-ezkit"
+
+config TARGET_BF561_ACVILON
+	bool "Support bf561-acvilon"
+
+config TARGET_BF561_EZKIT
+	bool "Support bf561-ezkit"
+
+config TARGET_BF609_EZKIT
+	bool "Support bf609-ezkit"
+
+config TARGET_BLACKSTAMP
+	bool "Support blackstamp"
+
+config TARGET_BLACKVME
+	bool "Support blackvme"
+
+config TARGET_BR4
+	bool "Support br4"
+
+config TARGET_CM_BF527
+	bool "Support cm-bf527"
+
+config TARGET_CM_BF533
+	bool "Support cm-bf533"
+
+config TARGET_CM_BF537E
+	bool "Support cm-bf537e"
+
+config TARGET_CM_BF537U
+	bool "Support cm-bf537u"
+
+config TARGET_CM_BF548
+	bool "Support cm-bf548"
+
+config TARGET_CM_BF561
+	bool "Support cm-bf561"
+
+config TARGET_DNP5370
+	bool "Support dnp5370"
+
+config TARGET_IBF_DSP561
+	bool "Support ibf-dsp561"
+
+config TARGET_IP04
+	bool "Support ip04"
+
+config TARGET_PR1
+	bool "Support pr1"
+
+config TARGET_TCM_BF518
+	bool "Support tcm-bf518"
+
+config TARGET_TCM_BF537
+	bool "Support tcm-bf537"
+
+endchoice
+
+source "board/bct-brettl2/Kconfig"
+source "board/bf506f-ezkit/Kconfig"
+source "board/bf518f-ezbrd/Kconfig"
+source "board/bf525-ucr2/Kconfig"
+source "board/bf526-ezbrd/Kconfig"
+source "board/bf527-ad7160-eval/Kconfig"
+source "board/bf527-ezkit/Kconfig"
+source "board/bf527-sdp/Kconfig"
+source "board/bf533-ezkit/Kconfig"
+source "board/bf533-stamp/Kconfig"
+source "board/bf537-minotaur/Kconfig"
+source "board/bf537-pnav/Kconfig"
+source "board/bf537-srv1/Kconfig"
+source "board/bf537-stamp/Kconfig"
+source "board/bf538f-ezkit/Kconfig"
+source "board/bf548-ezkit/Kconfig"
+source "board/bf561-acvilon/Kconfig"
+source "board/bf561-ezkit/Kconfig"
+source "board/bf609-ezkit/Kconfig"
+source "board/blackstamp/Kconfig"
+source "board/blackvme/Kconfig"
+source "board/br4/Kconfig"
+source "board/cm-bf527/Kconfig"
+source "board/cm-bf533/Kconfig"
+source "board/cm-bf537e/Kconfig"
+source "board/cm-bf537u/Kconfig"
+source "board/cm-bf548/Kconfig"
+source "board/cm-bf561/Kconfig"
+source "board/dnp5370/Kconfig"
+source "board/ibf-dsp561/Kconfig"
+source "board/ip04/Kconfig"
+source "board/pr1/Kconfig"
+source "board/tcm-bf518/Kconfig"
+source "board/tcm-bf537/Kconfig"
+
+endmenu

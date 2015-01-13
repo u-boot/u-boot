@@ -1,0 +1,12 @@
+config DM_SERIAL
+	bool "Enable Driver Model for serial drivers"
+	depends on DM
+	help
+	  If you want to use driver model for serial drivers, say Y.
+	  To use legacy serial drivers, say N.
+
+config UNIPHIER_SERIAL
+	bool "UniPhier on-chip UART support"
+	depends on ARCH_UNIPHIER && DM_SERIAL
+	help
+	  Support for the on-chip UARTs on the Panasonic UniPhier platform.

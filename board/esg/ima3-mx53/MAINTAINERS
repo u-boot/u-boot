@@ -1,0 +1,6 @@
+IMA3-MX53 BOARD
+#M:	-
+S:	Maintained
+F:	board/esg/ima3-mx53/
+F:	include/configs/ima3-mx53.h
+F:	configs/ima3-mx53_defconfig

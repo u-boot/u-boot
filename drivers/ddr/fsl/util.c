@@ -149,7 +149,7 @@ u32 fsl_ddr_get_intl3r(void)
 	return val;
 }
 
-void board_add_ram_info(int use_default)
+void print_ddr_info(unsigned int start_ctrl)
 {
 	struct ccsr_ddr __iomem *ddr =
 		(struct ccsr_ddr __iomem *)(CONFIG_SYS_FSL_DDR_ADDR);
@@ -164,17 +164,25 @@ void board_add_ram_info(int use_default)
 	int cas_lat;
 
 #if CONFIG_NUM_DDR_CONTROLLERS >= 2
-	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
+	if ((!(sdram_cfg & SDRAM_CFG_MEM_EN)) ||
+	    (start_ctrl == 1)) {
 		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR2_ADDR;
 		sdram_cfg = ddr_in32(&ddr->sdram_cfg);
 	}
 #endif
 #if CONFIG_NUM_DDR_CONTROLLERS >= 3
-	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
+	if ((!(sdram_cfg & SDRAM_CFG_MEM_EN)) ||
+	    (start_ctrl == 2)) {
 		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR3_ADDR;
 		sdram_cfg = ddr_in32(&ddr->sdram_cfg);
 	}
 #endif
+
+	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
+		puts(" (DDR not enabled)\n");
+		return;
+	}
+
 	puts(" (DDR");
 	switch ((sdram_cfg & SDRAM_CFG_SDRAM_TYPE_MASK) >>
 		SDRAM_CFG_SDRAM_TYPE_SHIFT) {
@@ -241,7 +249,7 @@ void board_add_ram_info(int use_default)
 #endif
 #endif
 #if (CONFIG_NUM_DDR_CONTROLLERS >= 2)
-	if (cs0_config & 0x20000000) {
+	if ((cs0_config & 0x20000000) && (start_ctrl == 0)) {
 		puts("\n");
 		puts("       DDR Controller Interleaving Mode: ");
 
@@ -289,4 +297,14 @@ void board_add_ram_info(int use_default)
 			break;
 		}
 	}
+}
+
+void __weak detail_board_ddr_info(void)
+{
+	print_ddr_info(0);
+}
+
+void board_add_ram_info(int use_default)
+{
+	detail_board_ddr_info();
 }

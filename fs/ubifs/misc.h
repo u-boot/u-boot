@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2006-2008 Nokia Corporation
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 as published by
- * the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
@@ -36,6 +25,29 @@
 static inline int ubifs_zn_dirty(const struct ubifs_znode *znode)
 {
 	return !!test_bit(DIRTY_ZNODE, &znode->flags);
+}
+
+/**
+ * ubifs_zn_obsolete - check if znode is obsolete.
+ * @znode: znode to check
+ *
+ * This helper function returns %1 if @znode is obsolete and %0 otherwise.
+ */
+static inline int ubifs_zn_obsolete(const struct ubifs_znode *znode)
+{
+	return !!test_bit(OBSOLETE_ZNODE, &znode->flags);
+}
+
+/**
+ * ubifs_zn_cow - check if znode has to be copied on write.
+ * @znode: znode to check
+ *
+ * This helper function returns %1 if @znode is has COW flag set and %0
+ * otherwise.
+ */
+static inline int ubifs_zn_cow(const struct ubifs_znode *znode)
+{
+	return !!test_bit(COW_ZNODE, &znode->flags);
 }
 
 /**
@@ -121,82 +133,27 @@ static inline int ubifs_wbuf_sync(struct ubifs_wbuf *wbuf)
 	return err;
 }
 
+#ifndef __UBOOT__
 /**
- * ubifs_leb_unmap - unmap an LEB.
- * @c: UBIFS file-system description object
- * @lnum: LEB number to unmap
+ * ubifs_encode_dev - encode device node IDs.
+ * @dev: UBIFS device node information
+ * @rdev: device IDs to encode
  *
- * This function returns %0 on success and a negative error code on failure.
+ * This is a helper function which encodes major/minor numbers of a device node
+ * into UBIFS device node description. We use standard Linux "new" and "huge"
+ * encodings.
  */
-static inline int ubifs_leb_unmap(const struct ubifs_info *c, int lnum)
+static inline int ubifs_encode_dev(union ubifs_dev_desc *dev, dev_t rdev)
 {
-	int err;
-
-	if (c->ro_media)
-		return -EROFS;
-	err = ubi_leb_unmap(c->ubi, lnum);
-	if (err) {
-		ubifs_err("unmap LEB %d failed, error %d", lnum, err);
-		return err;
+	if (new_valid_dev(rdev)) {
+		dev->new = cpu_to_le32(new_encode_dev(rdev));
+		return sizeof(dev->new);
+	} else {
+		dev->huge = cpu_to_le64(huge_encode_dev(rdev));
+		return sizeof(dev->huge);
 	}
-
-	return 0;
 }
-
-/**
- * ubifs_leb_write - write to a LEB.
- * @c: UBIFS file-system description object
- * @lnum: LEB number to write
- * @buf: buffer to write from
- * @offs: offset within LEB to write to
- * @len: length to write
- * @dtype: data type
- *
- * This function returns %0 on success and a negative error code on failure.
- */
-static inline int ubifs_leb_write(const struct ubifs_info *c, int lnum,
-				  const void *buf, int offs, int len, int dtype)
-{
-	int err;
-
-	if (c->ro_media)
-		return -EROFS;
-	err = ubi_leb_write(c->ubi, lnum, buf, offs, len, dtype);
-	if (err) {
-		ubifs_err("writing %d bytes at %d:%d, error %d",
-			  len, lnum, offs, err);
-		return err;
-	}
-
-	return 0;
-}
-
-/**
- * ubifs_leb_change - atomic LEB change.
- * @c: UBIFS file-system description object
- * @lnum: LEB number to write
- * @buf: buffer to write from
- * @len: length to write
- * @dtype: data type
- *
- * This function returns %0 on success and a negative error code on failure.
- */
-static inline int ubifs_leb_change(const struct ubifs_info *c, int lnum,
-				   const void *buf, int len, int dtype)
-{
-	int err;
-
-	if (c->ro_media)
-		return -EROFS;
-	err = ubi_leb_change(c->ubi, lnum, buf, len, dtype);
-	if (err) {
-		ubifs_err("changing %d bytes in LEB %d, error %d",
-			  len, lnum, err);
-		return err;
-	}
-
-	return 0;
-}
+#endif
 
 /**
  * ubifs_add_dirt - add dirty space to LEB properties.
@@ -260,8 +217,24 @@ struct ubifs_branch *ubifs_idx_branch(const struct ubifs_info *c,
 static inline void *ubifs_idx_key(const struct ubifs_info *c,
 				  const struct ubifs_idx_node *idx)
 {
-	const __u8 *branch = idx->branches;
-	return (void *)((struct ubifs_branch *)branch)->key;
+#ifndef __UBOOT__
+	return (void *)((struct ubifs_branch *)idx->branches)->key;
+#else
+	struct ubifs_branch *tmp;
+
+	tmp = (struct ubifs_branch *)idx->branches;
+	return (void *)tmp->key;
+#endif
+}
+
+/**
+ * ubifs_current_time - round current time to time granularity.
+ * @inode: inode
+ */
+static inline struct timespec ubifs_current_time(struct inode *inode)
+{
+	return (inode->i_sb->s_time_gran < NSEC_PER_SEC) ?
+		current_fs_time(inode->i_sb) : CURRENT_TIME_SEC;
 }
 
 /**
@@ -306,6 +279,23 @@ static inline void ubifs_release_lprops(struct ubifs_info *c)
 	ubifs_assert(c->lst.empty_lebs >= 0 &&
 		     c->lst.empty_lebs <= c->main_lebs);
 	mutex_unlock(&c->lp_mutex);
+}
+
+/**
+ * ubifs_next_log_lnum - switch to the next log LEB.
+ * @c: UBIFS file-system description object
+ * @lnum: current log LEB
+ *
+ * This helper function returns the log LEB number which goes next after LEB
+ * 'lnum'.
+ */
+static inline int ubifs_next_log_lnum(const struct ubifs_info *c, int lnum)
+{
+	lnum += 1;
+	if (lnum > c->log_last)
+		lnum = UBIFS_LOG_LNUM;
+
+	return lnum;
 }
 
 #endif /* __UBIFS_MISC_H__ */

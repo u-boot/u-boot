@@ -1,0 +1,40 @@
+if TARGET_AM335X_EVM
+
+config SYS_BOARD
+	default "am335x"
+
+config SYS_VENDOR
+	default "ti"
+
+config SYS_SOC
+	default "am33xx"
+
+config SYS_CONFIG_NAME
+	default "am335x_evm"
+
+config CONS_INDEX
+	int "UART used for console"
+	range 1 6
+	default 1
+	help
+	  The AM335x SoC has a total of 6 UARTs (UART0 to UART5 as referenced
+	  in documentation, etc) available to it.  Depending on your specific
+	  board you may want something other than UART0 as for example the IDK
+	  uses UART3 so enter 4 here.
+
+config NOR
+	bool "Support for NOR flash"
+	help
+	  The AM335x SoC supports having a NOR flash connected to the GPMC.
+	  In practice this is seen as a NOR flash module connected to the
+	  "memory cape" for the BeagleBone family.
+
+config NOR_BOOT
+	bool "Support for booting from NOR flash"
+	depends on NOR
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via NOR.  In this case we will enable certain pinmux early
+	  as the ROM only partially sets up pinmux.  We also default to using
+	  NOR for environment.
+endif

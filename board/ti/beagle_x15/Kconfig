@@ -1,0 +1,12 @@
+if TARGET_BEAGLE_X15
+
+config SYS_BOARD
+	default "beagle_x15"
+
+config SYS_VENDOR
+	default "ti"
+
+config SYS_CONFIG_NAME
+	default "beagle_x15"
+
+endif

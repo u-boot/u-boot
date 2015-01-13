@@ -1,0 +1,9 @@
+if TARGET_BC3450
+
+config SYS_BOARD
+	default "bc3450"
+
+config SYS_CONFIG_NAME
+	default "BC3450"
+
+endif

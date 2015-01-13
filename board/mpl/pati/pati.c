@@ -311,6 +311,11 @@ void user_led1(int led_on)
 	sysconf->sc_sgpiodt2=reg; /* Data register */
 }
 
+int board_early_init_f(void)
+{
+	spi_init_f();
+	return 0;
+}
 
 /****************************************************************
  * Last Stage Init
@@ -445,7 +450,7 @@ void pci_con_put_it(const char c)
 	PCICON_SET_REG(PCICON_DBELL_REG,PCIMSG_CON_DATA);
 }
 
-void pci_con_putc(const char c)
+void pci_con_putc(struct stdio_dev *dev, const char c)
 {
 	pci_con_put_it(c);
 	if(c == '\n')
@@ -453,7 +458,7 @@ void pci_con_putc(const char c)
 }
 
 
-int pci_con_getc(void)
+int pci_con_getc(struct stdio_dev *dev)
 {
 	int res;
 	int diff;
@@ -473,14 +478,14 @@ int pci_con_getc(void)
 	return res;
 }
 
-int pci_con_tstc(void)
+int pci_con_tstc(struct stdio_dev *dev)
 {
 	if(r_ptr==(volatile int)w_ptr)
 		return 0;
 	return 1;
 }
 
-void pci_con_puts (const char *s)
+void pci_con_puts(struct stdio_dev *dev, const char *s)
 {
 	while (*s) {
 		pci_con_putc(*s);

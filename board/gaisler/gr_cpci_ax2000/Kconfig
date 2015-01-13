@@ -1,0 +1,9 @@
+if TARGET_GR_CPCI_AX2000
+
+config SYS_BOARD
+	default "gr_cpci_ax2000"
+
+config SYS_CONFIG_NAME
+	default "gr_cpci_ax2000"
+
+endif

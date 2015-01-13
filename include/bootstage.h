@@ -159,6 +159,9 @@ enum bootstage_id {
 	/* Next 10 IDs used by BOOTSTAGE_SUB_... */
 	BOOTSTAGE_ID_FIT_RD_START = 120,	/* Ramdisk stages */
 
+	/* Next 10 IDs used by BOOTSTAGE_SUB_... */
+	BOOTSTAGE_ID_FIT_SETUP_START = 130,	/* x86 setup stages */
+
 	BOOTSTAGE_ID_IDE_FIT_READ = 140,
 	BOOTSTAGE_ID_IDE_FIT_READ_OK,
 

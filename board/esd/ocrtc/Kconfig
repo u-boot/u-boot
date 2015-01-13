@@ -1,0 +1,12 @@
+if TARGET_OCRTC
+
+config SYS_BOARD
+	default "ocrtc"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "OCRTC"
+
+endif

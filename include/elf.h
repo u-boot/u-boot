@@ -570,4 +570,6 @@ unsigned long elf_hash(const unsigned char *name);
    that may still be in object files.  */
 #define R_PPC_TOC16             255
 
+int valid_elf_image(unsigned long addr);
+
 #endif /* _ELF_H */

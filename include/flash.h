@@ -158,6 +158,7 @@ extern flash_info_t *flash_get_info(ulong base);
 #define EXCEL_MANUFACT	0x004A004A	/* Excel Semiconductor			*/
 #define AMIC_MANUFACT	0x00370037	/* AMIC    manuf. ID in D23..D16, D7..D0 */
 #define WINB_MANUFACT	0x00DA00DA	/* Winbond manuf. ID in D23..D16, D7..D0 */
+#define EON_ALT_MANU	0x001C001C	/* EON     manuf. ID in D23..D16, D7..D0 */
 
 /* Manufacturers inside bank 1 have ids like 0x01xx01xx */
 #define EON_MANUFACT	0x011C011C	/* EON     manuf. ID in D23..D16, D7..D0 */

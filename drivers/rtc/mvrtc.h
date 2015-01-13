@@ -12,8 +12,8 @@
 #ifndef _MVRTC_H_
 #define _MVRTC_H_
 
-#include <asm/arch/kirkwood.h>
-#include <compiler.h>
+#include <asm/arch/soc.h>
+#include <linux/compiler.h>
 
 /* RTC registers */
 struct mvrtc_registers {

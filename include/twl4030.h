@@ -390,11 +390,15 @@
 
 /* Voltage Selection in PM Receiver Module */
 #define TWL4030_PM_RECEIVER_VAUX2_VSEL_18		0x05
+#define TWL4030_PM_RECEIVER_VAUX2_VSEL_28		0x09
+#define TWL4030_PM_RECEIVER_VAUX3_VSEL_18		0x01
 #define TWL4030_PM_RECEIVER_VAUX3_VSEL_28		0x03
 #define TWL4030_PM_RECEIVER_VPLL2_VSEL_18		0x05
 #define TWL4030_PM_RECEIVER_VDAC_VSEL_18		0x03
 #define TWL4030_PM_RECEIVER_VMMC1_VSEL_30		0x02
 #define TWL4030_PM_RECEIVER_VMMC1_VSEL_32		0x03
+#define TWL4030_PM_RECEIVER_VMMC2_VSEL_30		0x0B
+#define TWL4030_PM_RECEIVER_VMMC2_VSEL_32		0x0C
 #define TWL4030_PM_RECEIVER_VSIM_VSEL_18		0x03
 
 /* Device Selection in PM Receiver Module */
@@ -647,7 +651,7 @@ void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val,
 /* For initializing power device */
 void twl4030_power_init(void);
 /* For initializing mmc power */
-void twl4030_power_mmc_init(void);
+void twl4030_power_mmc_init(int dev_index);
 
 /*
  * LED

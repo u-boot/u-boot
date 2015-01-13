@@ -1,0 +1,15 @@
+if TARGET_TQMA6
+
+config SYS_BOARD
+	default "tqma6"
+
+config SYS_VENDOR
+	default "tqc"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "tqma6"
+
+endif

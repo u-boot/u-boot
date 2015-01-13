@@ -256,7 +256,7 @@ static int parse_verify_sum(struct hash_algo *algo, char *verify_str,
 			env_var = 1;
 	}
 
-	if (env_var) {
+	if (!env_var) {
 		ulong addr;
 		void *buf;
 
@@ -347,7 +347,7 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 {
 	ulong addr, len;
 
-	if (argc < 2)
+	if ((argc < 2) || ((flags & HASH_FLAG_VERIFY) && (argc < 3)))
 		return CMD_RET_USAGE;
 
 	addr = simple_strtoul(*argv++, NULL, 16);
@@ -380,8 +380,6 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 #else
 		if (0) {
 #endif
-			if (!argc)
-				return CMD_RET_USAGE;
 			if (parse_verify_sum(algo, *argv, vsum,
 					flags & HASH_FLAG_ENV)) {
 				printf("ERROR: %s does not contain a valid "

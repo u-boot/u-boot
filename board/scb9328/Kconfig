@@ -1,0 +1,12 @@
+if TARGET_SCB9328
+
+config SYS_BOARD
+	default "scb9328"
+
+config SYS_SOC
+	default "imx"
+
+config SYS_CONFIG_NAME
+	default "scb9328"
+
+endif

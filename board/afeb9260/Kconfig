@@ -1,0 +1,12 @@
+if TARGET_AFEB9260
+
+config SYS_BOARD
+	default "afeb9260"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "afeb9260"
+
+endif

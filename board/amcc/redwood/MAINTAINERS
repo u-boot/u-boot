@@ -1,0 +1,6 @@
+REDWOOD BOARD
+M:	Feng Kan <fkan@amcc.com>
+S:	Maintained
+F:	board/amcc/redwood/
+F:	include/configs/redwood.h
+F:	configs/redwood_defconfig

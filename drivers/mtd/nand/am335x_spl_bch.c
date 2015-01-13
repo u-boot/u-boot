@@ -64,14 +64,18 @@ static int nand_command(int block, int page, uint32_t offs,
 		       NAND_CTRL_ALE | NAND_CTRL_CHANGE); /* A[7:0] */
 	hwctrl(&nand_info[0], (offs >> 8) & 0xff, NAND_CTRL_ALE); /* A[11:9] */
 	/* Row address */
-	hwctrl(&nand_info[0], (page_addr & 0xff), NAND_CTRL_ALE); /* A[19:12] */
-	hwctrl(&nand_info[0], ((page_addr >> 8) & 0xff),
+	if (cmd != NAND_CMD_RNDOUT) {
+		hwctrl(&nand_info[0], (page_addr & 0xff),
+		       NAND_CTRL_ALE); /* A[19:12] */
+		hwctrl(&nand_info[0], ((page_addr >> 8) & 0xff),
 		       NAND_CTRL_ALE); /* A[27:20] */
 #ifdef CONFIG_SYS_NAND_5_ADDR_CYCLE
-	/* One more address cycle for devices > 128MiB */
-	hwctrl(&nand_info[0], (page_addr >> 16) & 0x0f,
+		/* One more address cycle for devices > 128MiB */
+		hwctrl(&nand_info[0], (page_addr >> 16) & 0x0f,
 		       NAND_CTRL_ALE); /* A[31:28] */
 #endif
+	}
+
 	hwctrl(&nand_info[0], NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
 	if (cmd == NAND_CMD_READ0) {

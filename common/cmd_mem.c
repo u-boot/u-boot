@@ -19,6 +19,7 @@
 #include <dataflash.h>
 #endif
 #include <hash.h>
+#include <inttypes.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
@@ -215,7 +216,7 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 #ifdef CONFIG_MX_CYCLIC
-int do_mem_mdc ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_mdc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	ulong count;
@@ -242,7 +243,7 @@ int do_mem_mdc ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int do_mem_mwc ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_mwc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	ulong count;
@@ -338,7 +339,8 @@ static int do_mem_cmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (word1 != word2) {
 			ulong offset = buf1 - base;
 #ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
-			printf("%s at 0x%p (%#0*llx) != %s at 0x%p (%#0*llx)\n",
+			printf("%s at 0x%p (%#0*"PRIx64") != %s at 0x%p (%#0*"
+			       PRIx64 ")\n",
 			       type, (void *)(addr1 + offset), size, word1,
 			       type, (void *)(addr2 + offset), size, word2);
 #else
@@ -480,6 +482,9 @@ static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if ((count % (64 << 10)) == 0)
 			WATCHDOG_RESET();
 	}
+	unmap_sysmem(buf);
+	unmap_sysmem(src);
+
 	return 0;
 }
 
@@ -595,7 +600,8 @@ static int do_mem_loop(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 #ifdef CONFIG_LOOPW
-int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_loopw(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
 {
 	ulong	addr, length, i, bytes;
 	int	size;
@@ -1142,7 +1148,7 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 			printf(" %08x", *((u32 *)ptr));
 #ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
 		else if (size == 8)
-			printf(" %016llx", *((u64 *)ptr));
+			printf(" %016" PRIx64, *((u64 *)ptr));
 #endif
 		else if (size == 2)
 			printf(" %04x", *((u16 *)ptr));

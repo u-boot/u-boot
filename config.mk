@@ -18,7 +18,19 @@ PLATFORM_LDFLAGS :=
 LDFLAGS :=
 LDFLAGS_FINAL :=
 OBJCOPYFLAGS :=
+# clear VENDOR for tcsh
+VENDOR :=
 #########################################################################
+
+ARCH := $(CONFIG_SYS_ARCH:"%"=%)
+CPU := $(CONFIG_SYS_CPU:"%"=%)
+BOARD := $(CONFIG_SYS_BOARD:"%"=%)
+ifneq ($(CONFIG_SYS_VENDOR),)
+VENDOR := $(CONFIG_SYS_VENDOR:"%"=%)
+endif
+ifneq ($(CONFIG_SYS_SOC),)
+SOC := $(CONFIG_SYS_SOC:"%"=%)
+endif
 
 # Some architecture config.mk files need to know what CPUDIR is set to,
 # so calculate CPUDIR before including ARCH/SOC/CPU config.mk files.
@@ -41,6 +53,15 @@ endif
 endif
 ifdef	BOARD
 sinclude $(srctree)/board/$(BOARDDIR)/config.mk	# include board specific rules
+endif
+
+ifdef FTRACE
+PLATFORM_CPPFLAGS += -finstrument-functions -DFTRACE
+endif
+
+# Allow use of stdint.h if available
+ifneq ($(USE_STDINT),)
+PLATFORM_CPPFLAGS += -DCONFIG_USE_STDINT
 endif
 
 #########################################################################

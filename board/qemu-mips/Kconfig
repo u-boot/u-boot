@@ -1,0 +1,10 @@
+if TARGET_QEMU_MIPS
+
+config SYS_BOARD
+	default "qemu-mips"
+
+config SYS_CONFIG_NAME
+	default "qemu-mips" if 32BIT
+	default "qemu-mips64" if 64BIT
+
+endif

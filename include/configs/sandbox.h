@@ -31,22 +31,24 @@
 #define CONFIG_DM_DEMO_SHAPE
 #define CONFIG_DM_GPIO
 #define CONFIG_DM_TEST
+#define CONFIG_DM_SERIAL
+#define CONFIG_DM_CROS_EC
+
+#define CONFIG_SYS_STDIO_DEREGISTER
 
 /* Number of bits in a C 'long' on this architecture */
 #define CONFIG_SANDBOX_BITS_PER_LONG	64
 
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_HOSTFILE
 #define CONFIG_OF_LIBFDT
 #define CONFIG_LMB
 #define CONFIG_FIT
 #define CONFIG_FIT_SIGNATURE
 #define CONFIG_RSA
 #define CONFIG_CMD_FDT
-#define CONFIG_DEFAULT_DEVICE_TREE	sandbox
 #define CONFIG_ANDROID_BOOT_IMAGE
 
 #define CONFIG_FS_FAT
+#define CONFIG_FAT_WRITE
 #define CONFIG_FS_EXT4
 #define CONFIG_EXT4_WRITE
 #define CONFIG_CMD_FAT
@@ -56,6 +58,7 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_HOST_MAX_DEVICES 4
 #define CONFIG_CMD_FS_GENERIC
+#define CONFIG_CMD_MD5SUM
 
 #define CONFIG_SYS_VSNPRINTF
 
@@ -68,8 +71,10 @@
 #define CONFIG_EFI_PARTITION
 
 /*
- * Size of malloc() pool, although we don't actually use this yet.
+ * Size of malloc() pool, before and after relocation
  */
+#define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
+#define CONFIG_MALLOC_F_ADDR		0x0010000
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)	/* 32MB  */
 
 #define CONFIG_SYS_HUSH_PARSER
@@ -89,17 +94,29 @@
 #define CONFIG_ENV_SIZE		8192
 #define CONFIG_ENV_IS_NOWHERE
 
-/* SPI */
+/* SPI - enable all SPI flash types for testing purposes */
 #define CONFIG_SANDBOX_SPI
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SF_TEST
 #define CONFIG_CMD_SPI
 #define CONFIG_SPI_FLASH
-#define CONFIG_OF_SPI
-#define CONFIG_OF_SPI_FLASH
+#define CONFIG_DM_SPI
+#define CONFIG_DM_SPI_FLASH
+#define CONFIG_SPI_FLASH_ATMEL
+#define CONFIG_SPI_FLASH_EON
+#define CONFIG_SPI_FLASH_GIGADEVICE
+#define CONFIG_SPI_FLASH_MACRONIX
 #define CONFIG_SPI_FLASH_SANDBOX
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_SPI_FLASH_SST
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_WINBOND
+
+#define CONFIG_DM_I2C
+#define CONFIG_CMD_I2C
+#define CONFIG_SYS_I2C_SANDBOX
+#define CONFIG_I2C_EDID
+#define CONFIG_I2C_EEPROM
 
 /* Memory things - we don't really want a memory test */
 #define CONFIG_SYS_LOAD_ADDR		0x00000000
@@ -164,6 +181,7 @@
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define LCD_BPP			LCD_COLOR16
+#define CONFIG_LCD_BMP_RLE8
 
 #define CONFIG_CROS_EC_KEYB
 #define CONFIG_KEYBOARD

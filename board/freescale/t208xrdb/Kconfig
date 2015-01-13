@@ -1,0 +1,12 @@
+if TARGET_T208XRDB
+
+config SYS_BOARD
+	default "t208xrdb"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	default "T208xRDB"
+
+endif

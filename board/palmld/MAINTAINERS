@@ -1,0 +1,6 @@
+PALMLD BOARD
+M:	Marek Vasut <marek.vasut@gmail.com>
+S:	Maintained
+F:	board/palmld/
+F:	include/configs/palmld.h
+F:	configs/palmld_defconfig

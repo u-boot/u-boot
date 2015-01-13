@@ -1,0 +1,6 @@
+CMS700 BOARD
+M:	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+S:	Maintained
+F:	board/esd/cms700/
+F:	include/configs/CMS700.h
+F:	configs/CMS700_defconfig

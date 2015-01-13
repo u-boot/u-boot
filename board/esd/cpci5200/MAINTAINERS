@@ -1,0 +1,6 @@
+CPCI5200 BOARD
+M:	Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+S:	Maintained
+F:	board/esd/cpci5200/
+F:	include/configs/cpci5200.h
+F:	configs/cpci5200_defconfig

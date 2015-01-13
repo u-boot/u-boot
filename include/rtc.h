@@ -50,4 +50,9 @@ void to_tm (int, struct rtc_time *);
 unsigned long mktime (unsigned int, unsigned int, unsigned int,
 		      unsigned int, unsigned int, unsigned int);
 
+/**
+ * rtc_init() - Set up the real time clock ready for use
+ */
+void rtc_init(void);
+
 #endif	/* _RTC_H_ */

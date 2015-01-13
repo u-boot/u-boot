@@ -1,0 +1,15 @@
+if TARGET_STAMP9G20
+
+config SYS_BOARD
+	default "stamp9g20"
+
+config SYS_VENDOR
+	default "taskit"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "stamp9g20"
+
+endif

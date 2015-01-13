@@ -422,8 +422,12 @@ int misc_init_r(void)
 	/*
 	 * Cortex-A8(r1p0..r1p2) errata 430973 workaround
 	 * Set IBE bit in Auxiliary Control Register
+	 *
+	 * Call this routine only on real secure device
+	 * Qemu does not implement secure PPA and crash
 	 */
-	omap3_update_aux_cr_secure_rx51(1 << 6, 0);
+	if (get_device_type() == HS_DEVICE)
+		omap3_update_aux_cr_secure_rx51(1 << 6, 0);
 
 	return 0;
 }
@@ -585,7 +589,7 @@ static void rx51_kp_fill(u8 k, u8 mods)
  * Routine: rx51_kp_tstc
  * Description: Test if key was pressed (from buffer).
  */
-int rx51_kp_tstc(void)
+int rx51_kp_tstc(struct stdio_dev *sdev)
 {
 	u8 c, r, dk, i;
 	u8 intr;
@@ -641,10 +645,10 @@ int rx51_kp_tstc(void)
  * Routine: rx51_kp_getc
  * Description: Get last pressed key (from buffer).
  */
-int rx51_kp_getc(void)
+int rx51_kp_getc(struct stdio_dev *sdev)
 {
 	keybuf_head %= KEYBUF_SIZE;
-	while (!rx51_kp_tstc())
+	while (!rx51_kp_tstc(sdev))
 		WATCHDOG_RESET();
 	return keybuf[keybuf_head++];
 }
@@ -658,4 +662,10 @@ int board_mmc_init(bd_t *bis)
 	omap_mmc_init(0, 0, 0, -1, -1);
 	omap_mmc_init(1, 0, 0, -1, -1);
 	return 0;
+}
+
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
+	twl4030_power_mmc_init(1);
 }

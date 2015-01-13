@@ -519,7 +519,7 @@ int init_sata(int dev)
 	u16 word;
 
 	if (init_done == 1 && dev < sata_info.maxport)
-		return 1;
+		return 0;
 
 	init_done = 1;
 
@@ -568,6 +568,11 @@ int init_sata(int dev)
 	/* clear global reset & mask interrupts during initialization */
 	writel(0, (void *)(sata_info.iobase[0] + HOST_CTRL));
 
+	return 0;
+}
+
+int reset_sata(int dev)
+{
 	return 0;
 }
 

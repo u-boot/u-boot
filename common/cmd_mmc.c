@@ -90,7 +90,8 @@ static void print_mmcinfo(struct mmc *mmc)
 	puts("Capacity: ");
 	print_size(mmc->capacity, "\n");
 
-	printf("Bus Width: %d-bit\n", mmc->bus_width);
+	printf("Bus Width: %d-bit%s\n", mmc->bus_width,
+			mmc->ddr_mode ? " DDR" : "");
 }
 static struct mmc *init_mmc_device(int dev, bool force_init)
 {
@@ -602,7 +603,7 @@ static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(list, 1, 1, do_mmc_list, "", ""),
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	U_BOOT_CMD_MKENT(bootbus, 5, 0, do_mmc_bootbus, "", ""),
-	U_BOOT_CMD_MKENT(bootpart-resize, 3, 0, do_mmc_boot_resize, "", ""),
+	U_BOOT_CMD_MKENT(bootpart-resize, 4, 0, do_mmc_boot_resize, "", ""),
 	U_BOOT_CMD_MKENT(partconf, 5, 0, do_mmc_partconf, "", ""),
 	U_BOOT_CMD_MKENT(rst-function, 3, 0, do_mmc_rst_func, "", ""),
 #endif

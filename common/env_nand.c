@@ -124,7 +124,7 @@ int env_init(void)
  * The legacy NAND code saved the environment in the first NAND device i.e.,
  * nand_dev_desc + 0. This is also the behaviour using the new NAND code.
  */
-int writeenv(size_t offset, u_char *buf)
+static int writeenv(size_t offset, u_char *buf)
 {
 	size_t end = offset + CONFIG_ENV_RANGE;
 	size_t amount_saved = 0;
@@ -132,7 +132,7 @@ int writeenv(size_t offset, u_char *buf)
 	u_char *char_ptr;
 
 	blocksize = nand_info[0].erasesize;
-	len = min(blocksize, CONFIG_ENV_SIZE);
+	len = min(blocksize, (size_t)CONFIG_ENV_SIZE);
 
 	while (amount_saved < CONFIG_ENV_SIZE && offset < end) {
 		if (nand_block_isbad(&nand_info[0], offset)) {
@@ -233,7 +233,7 @@ int saveenv(void)
 }
 #endif /* CMD_SAVEENV */
 
-int readenv(size_t offset, u_char *buf)
+static int readenv(size_t offset, u_char *buf)
 {
 	size_t end = offset + CONFIG_ENV_RANGE;
 	size_t amount_loaded = 0;
@@ -244,7 +244,7 @@ int readenv(size_t offset, u_char *buf)
 	if (!blocksize)
 		return 1;
 
-	len = min(blocksize, CONFIG_ENV_SIZE);
+	len = min(blocksize, (size_t)CONFIG_ENV_SIZE);
 
 	while (amount_loaded < CONFIG_ENV_SIZE && offset < end) {
 		if (nand_block_isbad(&nand_info[0], offset)) {

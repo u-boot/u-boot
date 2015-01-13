@@ -1,0 +1,12 @@
+if TARGET_OMAP3_SDP3430
+
+config SYS_BOARD
+	default "sdp3430"
+
+config SYS_VENDOR
+	default "ti"
+
+config SYS_CONFIG_NAME
+	default "omap3_sdp3430"
+
+endif

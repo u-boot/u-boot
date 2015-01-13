@@ -12,6 +12,11 @@
  */
 #define CONFIG_T104xRDB
 #define CONFIG_PHYS_64BIT
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
+#define CONFIG_E500			/* BOOKE e500 family */
+#include <asm/config_mpc85xx.h>
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t104xrdb/t104x_pbi.cfg
@@ -19,10 +24,12 @@
 #define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t104xrdb/t1040_rcw.cfg
 #endif
 #ifdef CONFIG_T1042RDB_PI
+#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t104xrdb/t1042_pi_rcw.cfg
+#endif
+#ifdef CONFIG_T1042RDB
 #define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t104xrdb/t1042_rcw.cfg
 #endif
 
-#define CONFIG_SPL
 #define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
@@ -33,7 +40,7 @@
 #define CONFIG_SPL_I2C_SUPPORT
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 #define CONFIG_FSL_LAW                 /* Use common FSL init code */
-#define CONFIG_SYS_TEXT_BASE		0x00201000
+#define CONFIG_SYS_TEXT_BASE		0x30001000
 #define CONFIG_SPL_TEXT_BASE		0xFFFD8000
 #define CONFIG_SPL_PAD_TO		0x40000
 #define CONFIG_SPL_MAX_SIZE		0x28000
@@ -49,21 +56,21 @@
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
-#define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
-#define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
+#define CONFIG_SYS_NAND_U_BOOT_DST	0x30000000
+#define CONFIG_SYS_NAND_U_BOOT_START	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #define CONFIG_SPL_NAND_BOOT
 #endif
 
 #ifdef CONFIG_SPIFLASH
-#define	CONFIG_RESET_VECTOR_ADDRESS		0x200FFC
+#define	CONFIG_RESET_VECTOR_ADDRESS		0x30000FFC
 #define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_FLASH_MINIMAL
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_SIZE	(768 << 10)
-#define CONFIG_SYS_SPI_FLASH_U_BOOT_DST		(0x00200000)
-#define CONFIG_SYS_SPI_FLASH_U_BOOT_START	(0x00200000)
+#define CONFIG_SYS_SPI_FLASH_U_BOOT_DST		(0x30000000)
+#define CONFIG_SYS_SPI_FLASH_U_BOOT_START	(0x30000000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_OFFS	(256 << 10)
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifndef CONFIG_SPL_BUILD
@@ -73,12 +80,12 @@
 #endif
 
 #ifdef CONFIG_SDCARD
-#define	CONFIG_RESET_VECTOR_ADDRESS		0x200FFC
+#define	CONFIG_RESET_VECTOR_ADDRESS		0x30000FFC
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_MMC_MINIMAL
 #define CONFIG_SYS_MMC_U_BOOT_SIZE	(768 << 10)
-#define CONFIG_SYS_MMC_U_BOOT_DST	(0x00200000)
-#define CONFIG_SYS_MMC_U_BOOT_START	(0x00200000)
+#define CONFIG_SYS_MMC_U_BOOT_DST	(0x30000000)
+#define CONFIG_SYS_MMC_U_BOOT_START	(0x30000000)
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(260 << 10)
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifndef CONFIG_SPL_BUILD
@@ -91,14 +98,16 @@
 
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
-#define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_MP			/* support multiple processors */
 
 /* support deep sleep */
 #define CONFIG_DEEP_SLEEP
+#if defined(CONFIG_DEEP_SLEEP)
+#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_SILENT_CONSOLE
+#endif
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xeff40000
@@ -111,6 +120,7 @@
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCIE1			/* PCIE controler 1 */
@@ -269,6 +279,9 @@
 #define CPLD_LBMAP_DFLTBANK		0x40 /* BANK OR | BANK0 */
 #define CPLD_LBMAP_RESET		0xFF
 #define CPLD_LBMAP_SHIFT		0x03
+#ifdef CONFIG_T1042RDB_PI
+#define CPLD_DIU_SEL_DFP		0x80
+#endif
 
 #define CONFIG_SYS_CPLD_BASE	0xffdf0000
 #define CONFIG_SYS_CPLD_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_CPLD_BASE)
@@ -286,7 +299,7 @@
 #define CONFIG_SYS_CS2_FTIM1		(FTIM1_GPCM_TACO(0x0e) | \
 					FTIM1_GPCM_TRAD(0x1f))
 #define CONFIG_SYS_CS2_FTIM2		(FTIM2_GPCM_TCS(0x0e) | \
-					FTIM2_GPCM_TCH(0x0) | \
+					FTIM2_GPCM_TCH(0x8) | \
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS2_FTIM3		0x0
 
@@ -380,6 +393,12 @@
 #define CONFIG_SYS_RAMBOOT
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008044
+#if defined(CONFIG_NAND)
+#define CONFIG_A008044_WORKAROUND
+#endif
+#endif
+
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_MISC_INIT_R
 
@@ -430,6 +449,24 @@
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
+#ifdef CONFIG_T1042RDB_PI
+/* Video */
+#define CONFIG_FSL_DIU_FB
+
+#ifdef CONFIG_FSL_DIU_FB
+#define CONFIG_FSL_DIU_CH7301
+#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
+#define CONFIG_VIDEO
+#define CONFIG_CMD_BMP
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_CFB_CONSOLE_ANSI
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+#endif
+#endif
+
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
@@ -443,19 +480,29 @@
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
 #define CONFIG_SYS_FSL_I2C_SPEED	400000	/* I2C speed in Hz */
+#define CONFIG_SYS_FSL_I2C2_SPEED	400000
+#define CONFIG_SYS_FSL_I2C3_SPEED	400000
+#define CONFIG_SYS_FSL_I2C4_SPEED	400000
 #define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_SPEED	400000	/* I2C speed in Hz */
 #define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C3_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C4_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
-#define CONFIG_SYS_FSL_I2C2_OFFSET	0x119000
+#define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
+#define CONFIG_SYS_FSL_I2C3_OFFSET	0x119000
+#define CONFIG_SYS_FSL_I2C4_OFFSET	0x119100
 
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR                0x70
-#ifdef CONFIG_T1040RDB
+#if defined(CONFIG_T1040RDB) || defined(CONFIG_T1042RDB)
 #define I2C_MUX_CH_DEFAULT      0x8
 #endif
 
 #ifdef CONFIG_T1042RDB_PI
+/* LDI/DVI Encoder for display */
+#define CONFIG_SYS_I2C_LDI_ADDR		0x38
+#define CONFIG_SYS_I2C_DVI_ADDR		0x75
+
 /*
  * RTC configuration
  */
@@ -473,6 +520,7 @@
 #define CONFIG_FSL_ESPI
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_BAR
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         10000000
 #define CONFIG_SF_DEFAULT_MODE          0
@@ -591,19 +639,35 @@
 /* Qman/Bman */
 #ifndef CONFIG_NOBQFMAN
 #define CONFIG_SYS_DPAA_QBMAN		/* Support Q/Bman */
-#define CONFIG_SYS_BMAN_NUM_PORTALS	25
+#define CONFIG_SYS_BMAN_NUM_PORTALS	10
 #define CONFIG_SYS_BMAN_MEM_BASE	0xf4000000
 #define CONFIG_SYS_BMAN_MEM_PHYS	0xff4000000ull
 #define CONFIG_SYS_BMAN_MEM_SIZE	0x02000000
-#define CONFIG_SYS_QMAN_NUM_PORTALS	25
+#define CONFIG_SYS_BMAN_SP_CENA_SIZE    0x4000
+#define CONFIG_SYS_BMAN_SP_CINH_SIZE    0x1000
+#define CONFIG_SYS_BMAN_CENA_BASE       CONFIG_SYS_BMAN_MEM_BASE
+#define CONFIG_SYS_BMAN_CENA_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_CINH_BASE       (CONFIG_SYS_BMAN_MEM_BASE + \
+					CONFIG_SYS_BMAN_CENA_SIZE)
+#define CONFIG_SYS_BMAN_CINH_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_SWP_ISDR_REG	0xE08
+#define CONFIG_SYS_QMAN_NUM_PORTALS	10
 #define CONFIG_SYS_QMAN_MEM_BASE	0xf6000000
 #define CONFIG_SYS_QMAN_MEM_PHYS	0xff6000000ull
 #define CONFIG_SYS_QMAN_MEM_SIZE	0x02000000
+#define CONFIG_SYS_QMAN_SP_CENA_SIZE    0x4000
+#define CONFIG_SYS_QMAN_SP_CINH_SIZE    0x1000
+#define CONFIG_SYS_QMAN_CENA_BASE       CONFIG_SYS_QMAN_MEM_BASE
+#define CONFIG_SYS_QMAN_CENA_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_CINH_BASE       (CONFIG_SYS_QMAN_MEM_BASE + \
+					CONFIG_SYS_QMAN_CENA_SIZE)
+#define CONFIG_SYS_QMAN_CINH_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_SWP_ISDR_REG	0xE08
 
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
 
-#ifdef CONFIG_T1040RDB
+#if defined(CONFIG_T1040RDB) || defined(CONFIG_T1042RDB)
 #define CONFIG_QE
 #define CONFIG_U_QE
 #endif
@@ -632,7 +696,7 @@
 #define CONFIG_SYS_FMAN_FW_ADDR		0xEFF00000
 #endif
 
-#ifdef CONFIG_T1040RDB
+#if defined(CONFIG_T1040RDB) || defined(CONFIG_T1042RDB)
 #if defined(CONFIG_SPIFLASH)
 #define CONFIG_SYS_QE_FW_ADDR		0x130000
 #elif defined(CONFIG_SDCARD)
@@ -656,7 +720,7 @@
 #endif
 
 #ifdef CONFIG_FMAN_ENET
-#ifdef CONFIG_T1040RDB
+#if defined(CONFIG_T1040RDB) || defined(CONFIG_T1042RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR		0x03
 #endif
 #define CONFIG_SYS_RGMII1_PHY_ADDR		0x01
@@ -697,6 +761,12 @@
 #define CONFIG_CMD_NET
 #endif
 
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
+
 /*
  * Miscellaneous configurable options
  */
@@ -704,7 +774,6 @@
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
@@ -758,13 +827,20 @@
 #define CONFIG_BAUDRATE	115200
 
 #define __USB_PHY_TYPE	utmi
+#define RAMDISKFILE	"t104xrdb/ramdisk.uboot"
 
 #ifdef CONFIG_T1040RDB
 #define FDTFILE		"t1040rdb/t1040rdb.dtb"
-#define RAMDISKFILE	"t1040rdb/ramdisk.uboot"
-#elif CONFIG_T1042RDB_PI
-#define FDTFILE		"t1040rdb_pi/t1040rdb_pi.dtb"
-#define RAMDISKFILE	"t1040rdb_pi/ramdisk.uboot"
+#elif defined(CONFIG_T1042RDB_PI)
+#define FDTFILE		"t1042rdb_pi/t1042rdb_pi.dtb"
+#elif defined(CONFIG_T1042RDB)
+#define FDTFILE		"t1042rdb/t1042rdb.dtb"
+#endif
+
+#ifdef CONFIG_FSL_DIU_FB
+#define DIU_ENVIRONMENT "video-mode=fslfb:1024x768-32@60,monitor=dvi"
+#else
+#define DIU_ENVIRONMENT
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
@@ -772,6 +848,7 @@
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) ";"\
 	"usb2:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
+	"video-mode=" __stringify(DIU_ENVIRONMENT) "\0"		\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
 	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\
@@ -823,6 +900,7 @@
 
 #ifdef CONFIG_SECURE_BOOT
 #include <asm/fsl_secure_boot.h>
+#define CONFIG_CMD_BLOB
 #endif
 
 #endif	/* __CONFIG_H */

@@ -226,6 +226,9 @@ static int init_func_spi(void)
 #if defined(CONFIG_WATCHDOG)
 int init_func_watchdog_init(void)
 {
+#if defined(CONFIG_MPC85xx)
+	init_85xx_watchdog();
+#endif
 	puts("       Watchdog enabled\n");
 	WATCHDOG_RESET();
 	return 0;
@@ -363,6 +366,8 @@ void board_init_f(ulong bootflag)
 	memset((void *) gd, 0, sizeof(gd_t));
 #endif
 
+	gd->flags = bootflag;
+
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr)
 		if ((*init_fnc_ptr) () != 0)
 			hang();
@@ -370,6 +375,11 @@ void board_init_f(ulong bootflag)
 #ifdef CONFIG_DEEP_SLEEP
 	/* Jump to kernel in deep sleep case */
 	if (in_be32(&gur->scrtsr[0]) & (1 << 3)) {
+		l2cache_init();
+#if defined(CONFIG_RAMBOOT_PBL)
+		disable_cpc_sram();
+#endif
+		enable_cpc();
 		start_addr = in_be32(&scfg->sparecr[1]);
 		kernel_resume = (func_t)start_addr;
 		kernel_resume();
@@ -810,13 +820,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	mac_read_from_eeprom();
 #endif
 
-#ifdef	CONFIG_HERMES
-	if ((gd->board_type >> 16) == 2)
-		bd->bi_ethspeed = gd->board_type & 0xFFFF;
-	else
-		bd->bi_ethspeed = 0xFFFF;
-#endif
-
 #ifdef CONFIG_CMD_NET
 	/* kept around for legacy kernels only ... ignore the next section */
 	eth_getenv_enetaddr("ethaddr", bd->bi_enetaddr);
@@ -864,11 +867,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */
 	misc_init_r();
-#endif
-
-#ifdef	CONFIG_HERMES
-	if (bd->bi_ethspeed != 0xFFFF)
-		hermes_start_lxt980((int) bd->bi_ethspeed);
 #endif
 
 #if defined(CONFIG_CMD_KGDB)

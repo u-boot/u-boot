@@ -284,7 +284,7 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(SYS_CLKOUT1),    (IEN  | PTD | DIS | M4))/*GPIO_10 TP*/\
 	MUX_VAL(CP(SYS_CLKOUT2),	(IEN  | PTU | EN  | M0))\
 	/*JTAG*/\
-	MUX_VAL(CP(JTAG_nTRST),	(IEN  | PTD | DIS | M0))\
+	MUX_VAL(CP(JTAG_NTRST),	(IEN  | PTD | DIS | M0))\
 	MUX_VAL(CP(JTAG_TCK),   (IEN  | PTD | DIS | M0))\
 	MUX_VAL(CP(JTAG_TMS),   (IEN  | PTD | DIS | M0))\
 	MUX_VAL(CP(JTAG_TDI),	(IEN  | PTD | DIS | M0))\

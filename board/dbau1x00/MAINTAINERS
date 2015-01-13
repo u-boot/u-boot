@@ -1,0 +1,10 @@
+DBAU1X00 BOARD
+M:	Thomas Lange <thomas@corelatus.se>
+S:	Maintained
+F:	board/dbau1x00/
+F:	include/configs/dbau1x00.h
+F:	configs/dbau1000_defconfig
+F:	configs/dbau1100_defconfig
+F:	configs/dbau1500_defconfig
+F:	configs/dbau1550_defconfig
+F:	configs/dbau1550_el_defconfig

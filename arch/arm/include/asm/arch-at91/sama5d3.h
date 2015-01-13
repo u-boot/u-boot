@@ -16,7 +16,6 @@
 /*
  * defines to be used in other places
  */
-#define CONFIG_ARMV7		/* ARM A5 Core */
 #define CONFIG_AT91FAMILY	/* it's a member of AT91 */
 
 /*
@@ -188,6 +187,7 @@
 #define ATMEL_PIO_PORTS		5
 #define CPU_HAS_PIO3
 #define PIO_SCDR_DIV		0x3fff
+#define CPU_HAS_PCR
 
 /*
  * PMECC table in ROM

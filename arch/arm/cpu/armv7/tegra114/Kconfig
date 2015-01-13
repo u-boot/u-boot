@@ -1,0 +1,16 @@
+if TEGRA114
+
+choice
+	prompt "Tegra114 board select"
+
+config TARGET_DALMORE
+	bool "NVIDIA Tegra114 Dalmore evaluation board"
+
+endchoice
+
+config SYS_SOC
+	default "tegra114"
+
+source "board/nvidia/dalmore/Kconfig"
+
+endif

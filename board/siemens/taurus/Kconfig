@@ -1,0 +1,15 @@
+if TARGET_TAURUS
+
+config SYS_BOARD
+	default "taurus"
+
+config SYS_VENDOR
+	default "siemens"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "taurus"
+
+endif

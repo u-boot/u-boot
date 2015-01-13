@@ -22,6 +22,7 @@ SECTIONS
 	.text      :
 	{
 		__start = .;
+		*(.vectors)
 		arch/arm/cpu/armv7/start.o	(.text)
 		*(.text*)
 	} >.sram

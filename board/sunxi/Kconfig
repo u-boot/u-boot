@@ -1,0 +1,232 @@
+if ARCH_SUNXI
+
+choice
+	prompt "Sunxi SoC Variant"
+
+config MACH_SUN4I
+	bool "sun4i (Allwinner A10)"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config MACH_SUN5I
+	bool "sun5i (Allwinner A13)"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config MACH_SUN6I
+	bool "sun6i (Allwinner A31)"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config MACH_SUN7I
+	bool "sun7i (Allwinner A20)"
+	select CPU_V7
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select SUPPORT_SPL
+	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+
+config MACH_SUN8I
+	bool "sun8i (Allwinner A23)"
+	select CPU_V7
+
+endchoice
+
+config SYS_CONFIG_NAME
+	default "sun4i" if MACH_SUN4I
+	default "sun5i" if MACH_SUN5I
+	default "sun6i" if MACH_SUN6I
+	default "sun7i" if MACH_SUN7I
+	default "sun8i" if MACH_SUN8I
+
+choice
+	prompt "Board"
+
+config TARGET_A10_OLINUXINO_L
+	bool "A10_OLINUXINO_L"
+	depends on MACH_SUN4I
+
+config TARGET_A10S_OLINUXINO_M
+	bool "A10S_OLINUXINO_M"
+	depends on MACH_SUN5I
+
+config TARGET_A13_OLINUXINOM
+	bool "A13_OLINUXINOM"
+	depends on MACH_SUN5I
+
+config TARGET_A13_OLINUXINO
+	bool "A13_OLINUXINO"
+	depends on MACH_SUN5I
+
+config TARGET_A20_OLINUXINO_L2
+	bool "A20_OLINUXINO_L2"
+	depends on MACH_SUN7I
+
+config TARGET_A20_OLINUXINO_L
+	bool "A20_OLINUXINO_L"
+	depends on MACH_SUN7I
+
+config TARGET_A20_OLINUXINO_M
+	bool "A20_OLINUXINO_M"
+	depends on MACH_SUN7I
+
+config TARGET_AUXTEK_T004
+	bool "AUXTEK_T004"
+	depends on MACH_SUN5I
+
+config TARGET_BANANAPI
+	bool "BANANAPI"
+	depends on MACH_SUN7I
+
+config TARGET_COLOMBUS
+	bool "COLOMBUS"
+	depends on MACH_SUN6I
+
+config TARGET_CUBIEBOARD2
+	bool "CUBIEBOARD2"
+	depends on MACH_SUN7I
+
+config TARGET_CUBIEBOARD
+	bool "CUBIEBOARD"
+	depends on MACH_SUN4I
+
+config TARGET_CUBIETRUCK
+	bool "CUBIETRUCK"
+	depends on MACH_SUN7I
+
+config TARGET_IPPO_Q8H_V5
+	bool "IPPO_Q8H_V5"
+	depends on MACH_SUN8I
+
+config TARGET_PCDUINO3
+	bool "PCDUINO3"
+	depends on MACH_SUN7I
+
+config TARGET_MELE_A1000G
+	bool "MELE_A1000G"
+	depends on MACH_SUN4I
+
+config TARGET_MELE_A1000
+	bool "MELE_A1000"
+	depends on MACH_SUN4I
+
+config TARGET_MELE_M3
+	bool "MELE_M3"
+	depends on MACH_SUN7I
+
+config TARGET_MELE_M9
+	bool "MELE_M9"
+	depends on MACH_SUN6I
+
+config TARGET_MINI_X_1GB
+	bool "MINI_X_1GB"
+	depends on MACH_SUN4I
+
+config TARGET_MINI_X
+	bool "MINI_X"
+	depends on MACH_SUN4I
+
+config TARGET_BA10_TV_BOX
+	bool "BA10_TV_BOX"
+	depends on MACH_SUN4I
+
+config TARGET_I12_TVBOX
+	bool "I12_TVBOX"
+	depends on MACH_SUN7I
+
+config TARGET_QT840A
+	bool "QT840A"
+	depends on MACH_SUN7I
+
+config TARGET_R7DONGLE
+	bool "R7DONGLE"
+	depends on MACH_SUN5I
+
+endchoice
+
+config SYS_BOARD
+	default "sunxi"
+
+config SYS_SOC
+	default "sunxi"
+
+config SPL_FEL
+	bool "SPL/FEL mode support"
+	depends on SPL
+	default n
+
+config FDTFILE
+	string "Default fdtfile env setting for this board"
+
+config OLD_SUNXI_KERNEL_COMPAT
+	boolean "Enable workarounds for booting old kernels"
+	default n
+	---help---
+	Set this to enable various workarounds for old kernels, this results in
+	sub-optimal settings for newer kernels, only enable if needed.
+
+config MMC0_CD_PIN
+	string "Card detect pin for mmc0"
+	default ""
+	---help---
+	Set the card detect pin for mmc0, leave empty to not use cd. This
+	takes a string in the format understood by sunxi_name_to_gpio, e.g.
+	PH1 for pin 1 of port H.
+
+config MMC1_CD_PIN
+	string "Card detect pin for mmc1"
+	default ""
+	---help---
+	See MMC0_CD_PIN help text.
+
+config MMC2_CD_PIN
+	string "Card detect pin for mmc2"
+	default ""
+	---help---
+	See MMC0_CD_PIN help text.
+
+config MMC3_CD_PIN
+	string "Card detect pin for mmc3"
+	default ""
+	---help---
+	See MMC0_CD_PIN help text.
+
+config MMC_SUNXI_SLOT_EXTRA
+	int "mmc extra slot number"
+	default -1
+	---help---
+	sunxi builds always enable mmc0, some boards also have a second sdcard
+	slot or emmc on mmc1 - mmc3. Setting this to 1, 2 or 3 will enable
+	support for this.
+
+config USB1_VBUS_PIN
+	string "Vbus enable pin for usb1 (ehci0)"
+	default "PH6" if MACH_SUN4I || MACH_SUN7I
+	default "PH27" if MACH_SUN6I
+	---help---
+	Set the Vbus enable pin for usb1 (ehci0, usb0 is the otg). This takes
+	a string in the format understood by sunxi_name_to_gpio, e.g.
+	PH1 for pin 1 of port H.
+
+config USB2_VBUS_PIN
+	string "Vbus enable pin for usb2 (ehci1)"
+	default "PH3" if MACH_SUN4I || MACH_SUN7I
+	default "PH24" if MACH_SUN6I
+	---help---
+	See USB1_VBUS_PIN help text.
+
+config VIDEO
+	boolean "Enable graphical uboot console on HDMI"
+	default y
+	---help---
+	Say Y here to add support for using a cfb console on the HDMI output
+	found on most sunxi devices.
+
+config USB_KEYBOARD
+	boolean "Enable USB keyboard support"
+	default y
+	---help---
+	Say Y here to add support for using a USB keyboard (typically used
+	in combination with a graphical console on HDMI).
+
+endif

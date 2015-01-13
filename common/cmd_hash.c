@@ -18,9 +18,9 @@
 static int do_hash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *s;
-#ifdef CONFIG_HASH_VERIFY
 	int flags = HASH_FLAG_ENV;
 
+#ifdef CONFIG_HASH_VERIFY
 	if (argc < 4)
 		return CMD_RET_USAGE;
 	if (!strcmp(argv[1], "-v")) {
@@ -28,8 +28,6 @@ static int do_hash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		argc--;
 		argv++;
 	}
-#else
-	const int flags = HASH_FLAG_ENV;
 #endif
 	/* Move forward to 'algorithm' parameter */
 	argc--;
@@ -40,19 +38,19 @@ static int do_hash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 #ifdef CONFIG_HASH_VERIFY
-U_BOOT_CMD(
-	hash,	6,	1,	do_hash,
-	"compute hash message digest",
-	"algorithm address count [[*]sum_dest]\n"
-		"    - compute message digest [save to env var / *address]\n"
-	"hash -v algorithm address count [*]sum\n"
-		"    - verify hash of memory area with env var / *address"
-);
+#define HARGS 6
 #else
-U_BOOT_CMD(
-	hash,	5,	1,	do_hash,
-	"compute message digest",
-	"algorithm address count [[*]sum_dest]\n"
-		"    - compute message digest [save to env var / *address]"
-);
+#define HARGS 5
 #endif
+
+U_BOOT_CMD(
+	hash,	HARGS,	1,	do_hash,
+	"compute hash message digest",
+	"algorithm address count [[*]hash_dest]\n"
+		"    - compute message digest [save to env var / *address]"
+#ifdef CONFIG_HASH_VERIFY
+	"\nhash -v algorithm address count [*]hash\n"
+		"    - verify message digest of memory area to immediate value, \n"
+		"      env var or *address"
+#endif
+);

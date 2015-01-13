@@ -1,0 +1,7 @@
+KORAT BOARD
+M:	Larry Johnson <lrj@acm.org>
+S:	Maintained
+F:	board/korat/
+F:	include/configs/korat.h
+F:	configs/korat_defconfig
+F:	configs/korat_perm_defconfig

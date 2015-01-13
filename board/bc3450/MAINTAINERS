@@ -1,0 +1,6 @@
+BC3450 BOARD
+#M:	-
+S:	Maintained
+F:	board/bc3450/
+F:	include/configs/BC3450.h
+F:	configs/BC3450_defconfig

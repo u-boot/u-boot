@@ -19,7 +19,7 @@ create unit tests which we can run to test this upper level code.
 CONFIG_SANDBOX is defined when building a native board.
 
 The chosen vendor and board names are also 'sandbox', so there is a single
-board in board/sandbox/sandbox.
+board in board/sandbox.
 
 CONFIG_SANDBOX_BIG_ENDIAN should be defined when running on big-endian
 machines.
@@ -32,7 +32,7 @@ Basic Operation
 
 To run sandbox U-Boot use something like:
 
-   make sandbox_config all
+   make sandbox_defconfig all
    ./u-boot
 
 Note:
@@ -41,7 +41,7 @@ Note:
    build sandbox without SDL (i.e. no display/keyboard support) by removing
    the CONFIG_SANDBOX_SDL line in include/configs/sandbox.h or using:
 
-      make sandbox_config all NO_SDL=1
+      make sandbox_defconfig all NO_SDL=1
       ./u-boot
 
 

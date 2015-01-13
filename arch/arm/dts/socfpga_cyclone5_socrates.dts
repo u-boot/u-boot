@@ -1,0 +1,65 @@
+/*
+ *  Copyright (C) 2014 Steffen Trumtrar <s.trumtrar@pengutronix.de>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#include "socfpga_cyclone5.dtsi"
+
+/ {
+	model = "EBV SOCrates";
+	compatible = "ebv,socrates", "altr,socfpga-cyclone5", "altr,socfpga";
+
+	chosen {
+		bootargs = "console=ttyS0,115200";
+	};
+
+ 	aliases {
+		spi0 = "/spi@ff705000";		/* QSPI */
+		spi1 = "/spi@fff00000";
+		spi2 = "/spi@fff01000";
+ 	};
+
+	memory {
+		name = "memory";
+		device_type = "memory";
+		reg = <0x0 0x40000000>; /* 1GB */
+	};
+};
+
+&gmac1 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+
+	rtc: rtc@68 {
+		compatible = "stm,m41t82";
+		reg = <0x68>;
+	};
+};
+
+&mmc {
+	status = "okay";
+};
+
+&qspi {
+	status = "okay";
+
+	flash0: n25q00@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "n25q00";
+		reg = <0>;      /* chip select */
+		spi-max-frequency = <50000000>;
+		m25p,fast-read;
+		page-size = <256>;
+		block-size = <16>; /* 2^16, 64KB */
+		read-delay = <4>;  /* delay value in read data capture register */
+		tshsl-ns = <50>;
+		tsd2d-ns = <50>;
+		tchsh-ns = <4>;
+		tslch-ns = <4>;
+	};
+};

@@ -102,8 +102,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_BFIN_TWI_I2C
-#define CONFIG_HARD_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_ADI
 
 
 /*
@@ -135,7 +135,6 @@
 #define CONFIG_BOOTCOMMAND	"run nandboot"
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_LOADADDR		0x2000000
-#define CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED
 
 /*
  * Pull in common ADI header for remaining command/environment setup

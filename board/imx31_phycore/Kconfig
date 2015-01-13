@@ -1,0 +1,12 @@
+if TARGET_IMX31_PHYCORE
+
+config SYS_BOARD
+	default "imx31_phycore"
+
+config SYS_SOC
+	default "mx31"
+
+config SYS_CONFIG_NAME
+	default "imx31_phycore"
+
+endif

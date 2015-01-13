@@ -18,7 +18,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_OMAP			/* in a TI OMAP core */
-#define CONFIG_OMAP34XX			/* which is a 34XX */
 #define CONFIG_OMAP_COMMON
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRICORDER
@@ -34,6 +33,8 @@
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap3.h>
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* Display CPU and Board information */
 #define CONFIG_DISPLAY_CPUINFO
@@ -315,8 +316,6 @@
 #define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
 
 /* NAND and environment organization  */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
@@ -331,7 +330,6 @@
 #define CONFIG_SYS_SRAM_SIZE		0x10000
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 
@@ -350,8 +348,8 @@
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME        "u-boot.img"
-#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION    1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME        "u-boot.img"
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x300 /* address 0x60000 */
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/

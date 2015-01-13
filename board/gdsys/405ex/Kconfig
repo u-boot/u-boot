@@ -1,0 +1,12 @@
+if TARGET_IO64
+
+config SYS_BOARD
+	default "405ex"
+
+config SYS_VENDOR
+	default "gdsys"
+
+config SYS_CONFIG_NAME
+	default "io64"
+
+endif

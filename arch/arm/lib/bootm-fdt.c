@@ -17,10 +17,11 @@
 
 #include <common.h>
 #include <fdt_support.h>
+#include <asm/armv7.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int arch_fixup_memory_node(void *blob)
+int arch_fixup_fdt(void *blob)
 {
 	return 0;
 }

@@ -1,0 +1,15 @@
+if TARGET_DKB
+
+config SYS_BOARD
+	default "dkb"
+
+config SYS_VENDOR
+	default "Marvell"
+
+config SYS_SOC
+	default "pantheon"
+
+config SYS_CONFIG_NAME
+	default "dkb"
+
+endif

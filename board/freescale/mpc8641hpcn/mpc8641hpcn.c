@@ -119,12 +119,11 @@ void pci_init_board(void)
 
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-void
-ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	int off;
 	u64 *tmp;
-	u32 *addrcells;
+	int addrcells;
 
 	ft_cpu_setup(blob, bd);
 
@@ -136,12 +135,13 @@ ft_board_setup(void *blob, bd_t *bd)
 	 * which is defined by the "reg" property in the soc node.
 	 */
 	off = fdt_path_offset(blob, "/soc8641");
-	addrcells = (u32 *)fdt_getprop(blob, 0, "#address-cells", NULL);
+	addrcells = fdt_address_cells(blob, 0);
 	tmp = (u64 *)fdt_getprop(blob, off, "reg", NULL);
 
 	if (tmp) {
 		u64 addr;
-		if (addrcells && (*addrcells == 1))
+
+		if (addrcells == 1)
 			addr = *(u32 *)tmp;
 		else
 			addr = *tmp;
@@ -152,6 +152,8 @@ ft_board_setup(void *blob, bd_t *bd)
 			       "in u-boot.  This means your .dts might "
 			       "be old.\n");
 	}
+
+	return 0;
 }
 #endif
 

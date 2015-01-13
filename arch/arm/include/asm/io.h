@@ -77,7 +77,7 @@ static inline phys_addr_t virt_to_phys(void * vaddr)
 #define __arch_putl(v,a)		(*(volatile unsigned int *)(a) = (v))
 #define __arch_putq(v,a)		(*(volatile unsigned long long *)(a) = (v))
 
-extern inline void __raw_writesb(unsigned long addr, const void *data,
+static inline void __raw_writesb(unsigned long addr, const void *data,
 				 int bytelen)
 {
 	uint8_t *buf = (uint8_t *)data;
@@ -85,7 +85,7 @@ extern inline void __raw_writesb(unsigned long addr, const void *data,
 		__arch_putb(*buf++, addr);
 }
 
-extern inline void __raw_writesw(unsigned long addr, const void *data,
+static inline void __raw_writesw(unsigned long addr, const void *data,
 				 int wordlen)
 {
 	uint16_t *buf = (uint16_t *)data;
@@ -93,7 +93,7 @@ extern inline void __raw_writesw(unsigned long addr, const void *data,
 		__arch_putw(*buf++, addr);
 }
 
-extern inline void __raw_writesl(unsigned long addr, const void *data,
+static inline void __raw_writesl(unsigned long addr, const void *data,
 				 int longlen)
 {
 	uint32_t *buf = (uint32_t *)data;
@@ -101,21 +101,21 @@ extern inline void __raw_writesl(unsigned long addr, const void *data,
 		__arch_putl(*buf++, addr);
 }
 
-extern inline void __raw_readsb(unsigned long addr, void *data, int bytelen)
+static inline void __raw_readsb(unsigned long addr, void *data, int bytelen)
 {
 	uint8_t *buf = (uint8_t *)data;
 	while(bytelen--)
 		*buf++ = __arch_getb(addr);
 }
 
-extern inline void __raw_readsw(unsigned long addr, void *data, int wordlen)
+static inline void __raw_readsw(unsigned long addr, void *data, int wordlen)
 {
 	uint16_t *buf = (uint16_t *)data;
 	while(wordlen--)
 		*buf++ = __arch_getw(addr);
 }
 
-extern inline void __raw_readsl(unsigned long addr, void *data, int longlen)
+static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 {
 	uint32_t *buf = (uint32_t *)data;
 	while(longlen--)
@@ -136,6 +136,7 @@ extern inline void __raw_readsl(unsigned long addr, void *data, int longlen)
  * TODO: The kernel offers some more advanced versions of barriers, it might
  * have some advantages to use them instead of the simple one here.
  */
+#define mb()		asm volatile("dsb sy" : : : "memory")
 #define dmb()		__asm__ __volatile__ ("" : : : "memory")
 #define __iormb()	dmb()
 #define __iowmb()	dmb()
@@ -375,7 +376,12 @@ out:
 	return retval;
 }
 
-#elif !defined(readb)
+#else
+#define memset_io(a, b, c)		memset((void *)(a), (b), (c))
+#define memcpy_fromio(a, b, c)		memcpy((a), (void *)(b), (c))
+#define memcpy_toio(a, b, c)		memcpy((void *)(a), (b), (c))
+
+#if !defined(readb)
 
 #define readb(addr)			(__readwrite_bug("readb"),0)
 #define readw(addr)			(__readwrite_bug("readw"),0)
@@ -388,6 +394,7 @@ out:
 
 #define check_signature(io,sig,len)	(0)
 
+#endif
 #endif	/* __mem_pci */
 
 /*

@@ -10,6 +10,18 @@
 #include <asm/io.h>
 #include <nand.h>
 
+#if defined(CONFIG_SPL_NAND_RAW_ONLY)
+void spl_nand_load_image(void)
+{
+	nand_init();
+
+	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
+			    CONFIG_SYS_NAND_U_BOOT_SIZE,
+			    (void *)CONFIG_SYS_NAND_U_BOOT_DST);
+	spl_set_header_raw_uboot();
+	nand_deselect();
+}
+#else
 void spl_nand_load_image(void)
 {
 	struct image_header *header;
@@ -44,7 +56,7 @@ void spl_nand_load_image(void)
 
 		/* load linux */
 		nand_spl_load_image(CONFIG_SYS_NAND_SPL_KERNEL_OFFS,
-			CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
+			sizeof(*header), (void *)header);
 		spl_parse_image_header(header);
 		if (header->ih_os == IH_OS_LINUX) {
 			/* happy - was a linux */
@@ -62,13 +74,13 @@ void spl_nand_load_image(void)
 #endif
 #ifdef CONFIG_NAND_ENV_DST
 	nand_spl_load_image(CONFIG_ENV_OFFSET,
-		CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
+		sizeof(*header), (void *)header);
 	spl_parse_image_header(header);
 	nand_spl_load_image(CONFIG_ENV_OFFSET, spl_image.size,
 		(void *)spl_image.load_addr);
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND,
-		CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
+		sizeof(*header), (void *)header);
 	spl_parse_image_header(header);
 	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND, spl_image.size,
 		(void *)spl_image.load_addr);
@@ -82,3 +94,4 @@ void spl_nand_load_image(void)
 		spl_image.size, (void *)spl_image.load_addr);
 	nand_deselect();
 }
+#endif

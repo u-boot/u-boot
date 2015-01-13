@@ -27,7 +27,7 @@ static int mmc_access_part(struct dfu_entity *dfu, struct mmc *mmc, int part)
 	if (part == mmc->part_num)
 		return 0;
 
-	ret = mmc_switch_part(dfu->dev_num, part);
+	ret = mmc_switch_part(dfu->data.mmc.dev_num, part);
 	if (ret) {
 		error("Cannot switch to partition %d\n", part);
 		return ret;
@@ -40,9 +40,15 @@ static int mmc_access_part(struct dfu_entity *dfu, struct mmc *mmc, int part)
 static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len)
 {
-	struct mmc *mmc = find_mmc_device(dfu->dev_num);
+	struct mmc *mmc;
 	u32 blk_start, blk_count, n = 0;
 	int ret, part_num_bkp = 0;
+
+	mmc = find_mmc_device(dfu->data.mmc.dev_num);
+	if (!mmc) {
+		error("Device MMC %d - not found!", dfu->data.mmc.dev_num);
+		return -ENODEV;
+	}
 
 	/*
 	 * We must ensure that we work in lba_blk_size chunks, so ALIGN
@@ -67,15 +73,15 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 	}
 
 	debug("%s: %s dev: %d start: %d cnt: %d buf: 0x%p\n", __func__,
-	      op == DFU_OP_READ ? "MMC READ" : "MMC WRITE", dfu->dev_num,
-	      blk_start, blk_count, buf);
+	      op == DFU_OP_READ ? "MMC READ" : "MMC WRITE",
+	      dfu->data.mmc.dev_num, blk_start, blk_count, buf);
 	switch (op) {
 	case DFU_OP_READ:
-		n = mmc->block_dev.block_read(dfu->dev_num, blk_start,
+		n = mmc->block_dev.block_read(dfu->data.mmc.dev_num, blk_start,
 					      blk_count, buf);
 		break;
 	case DFU_OP_WRITE:
-		n = mmc->block_dev.block_write(dfu->dev_num, blk_start,
+		n = mmc->block_dev.block_write(dfu->data.mmc.dev_num, blk_start,
 					       blk_count, buf);
 		break;
 	default:
@@ -270,7 +276,7 @@ int dfu_read_medium_mmc(struct dfu_entity *dfu, u64 offset, void *buf,
  *	4th (optional):
  *		mmcpart <num> (access to HW eMMC partitions)
  */
-int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
+int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 {
 	const char *entity_type;
 	size_t second_arg;
@@ -280,6 +286,8 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 
 	const char *argv[3];
 	const char **parg = argv;
+
+	dfu->data.mmc.dev_num = simple_strtoul(devstr, NULL, 10);
 
 	for (; parg < argv + sizeof(argv) / sizeof(*argv); ++parg) {
 		*parg = strsep(&s, " ");
@@ -297,9 +305,10 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 	second_arg = simple_strtoul(argv[1], NULL, 0);
 	third_arg = simple_strtoul(argv[2], NULL, 0);
 
-	mmc = find_mmc_device(dfu->dev_num);
+	mmc = find_mmc_device(dfu->data.mmc.dev_num);
 	if (mmc == NULL) {
-		error("Couldn't find MMC device no. %d.\n", dfu->dev_num);
+		error("Couldn't find MMC device no. %d.\n",
+		      dfu->data.mmc.dev_num);
 		return -ENODEV;
 	}
 

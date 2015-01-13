@@ -18,14 +18,7 @@
 #define SYSCTLA         0x92
 #define SLAVE_PIC       0xa0
 
-#if 1
-#define UART0_BASE     0x3f8
-#define UART1_BASE     0x2f8
-#else
-/* FixMe: uarts swapped */
-#define UART0_BASE     0x2f8
-#define UART1_BASE     0x3f8
-#endif
-
+#define UART0_BASE	0x3f8
+#define UART1_BASE	0x2f8
 
 #endif

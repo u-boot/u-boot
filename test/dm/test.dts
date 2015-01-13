@@ -6,10 +6,22 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
+	aliases {
+		console = &uart0;
+		testfdt6 = "/e-test";
+	};
+
+	uart0: serial {
+		compatible = "sandbox,serial";
+		u-boot,dm-pre-reloc;
+	};
+
 	a-test {
 		reg = <0>;
 		compatible = "denx,u-boot-fdt-test";
+		ping-expect = <0>;
 		ping-add = <0>;
+		u-boot,dm-pre-reloc;
 	};
 
 	junk {
@@ -24,28 +36,52 @@
 	b-test {
 		reg = <3>;
 		compatible = "denx,u-boot-fdt-test";
+		ping-expect = <3>;
 		ping-add = <3>;
 	};
 
 	some-bus {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <4>;
+		compatible = "denx,u-boot-test-bus";
+		reg = <3>;
+		ping-expect = <4>;
 		ping-add = <4>;
-		c-test {
+		c-test@5 {
 			compatible = "denx,u-boot-fdt-test";
 			reg = <5>;
+			ping-expect = <5>;
 			ping-add = <5>;
+		};
+		c-test@0 {
+			compatible = "denx,u-boot-fdt-test";
+			reg = <0>;
+			ping-expect = <6>;
+			ping-add = <6>;
+		};
+		c-test@1 {
+			compatible = "denx,u-boot-fdt-test";
+			reg = <1>;
+			ping-expect = <7>;
+			ping-add = <7>;
 		};
 	};
 
 	d-test {
-		reg = <6>;
+		reg = <3>;
+		ping-expect = <6>;
 		ping-add = <6>;
 		compatible = "google,another-fdt-test";
 	};
 
-	base-gpios {
+	e-test {
+		reg = <3>;
+		ping-expect = <6>;
+		ping-add = <6>;
+		compatible = "google,another-fdt-test";
+	};
+
+	gpio_a: base-gpios {
 		compatible = "sandbox,gpio";
 		gpio-bank-name = "a";
 		num-gpios = <20>;
@@ -56,4 +92,36 @@
 		gpio-bank-name = "b";
 		num-gpios = <10>;
 	};
+
+	i2c@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+		compatible = "sandbox,i2c";
+		clock-frequency = <100000>;
+		eeprom@2c {
+			reg = <0x2c>;
+			compatible = "i2c-eeprom";
+			emul {
+				compatible = "sandbox,i2c-eeprom";
+				sandbox,filename = "i2c.bin";
+				sandbox,size = <256>;
+			};
+		};
+	};
+
+	spi@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+		compatible = "sandbox,spi";
+		cs-gpios = <0>, <&gpio_a 0>;
+		spi.bin@0 {
+			reg = <0>;
+			compatible = "spansion,m25p16", "spi-flash";
+			spi-max-frequency = <40000000>;
+			sandbox,filename = "spi.bin";
+		};
+	};
+
 };

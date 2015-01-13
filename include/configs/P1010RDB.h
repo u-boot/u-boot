@@ -14,6 +14,8 @@
 #ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT
 #endif
+#define	CONFIG_SYS_GENERIC_BOARD
+#define	CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_P1010
 #define CONFIG_E500			/* BOOKE e500 family */
@@ -21,7 +23,6 @@
 #define CONFIG_NAND_FSL_IFC
 
 #ifdef CONFIG_SDCARD
-#define CONFIG_SPL
 #define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT
@@ -54,9 +55,8 @@
 #ifdef CONFIG_SECURE_BOOT
 #define CONFIG_RAMBOOT_SPIFLASH
 #define CONFIG_SYS_TEXT_BASE		0x11000000
-#define CONFIG_RESET_VECTOR_ADDRESS	0x1107fffc
+#define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #else
-#define CONFIG_SPL
 #define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT
@@ -88,7 +88,6 @@
 #endif
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL
 #ifdef CONFIG_SECURE_BOOT
 #define CONFIG_SPL_INIT_MINIMAL
 #define CONFIG_SPL_SERIAL_SUPPORT
@@ -108,7 +107,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #else
-#define CONFIG_TPL
 #ifdef CONFIG_TPL_BUILD
 #define CONFIG_SPL_NAND_BOOT
 #define CONFIG_SPL_FLUSH_IMAGE
@@ -174,6 +172,7 @@
 #define CONFIG_BOOKE			/* BOOKE */
 #define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_SYS_HAS_SERDES		/* common SERDES init code */
 
 #define CONFIG_PCI			/* Enable PCI/PCIE */
@@ -537,7 +536,7 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_CS3_FTIM1		(FTIM1_GPCM_TACO(0x0e) | \
 					FTIM1_GPCM_TRAD(0x1f))
 #define CONFIG_SYS_CS3_FTIM2		(FTIM2_GPCM_TCS(0x0e) | \
-					FTIM2_GPCM_TCH(0x0) | \
+					FTIM2_GPCM_TCH(0x8) | \
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 
@@ -836,6 +835,12 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_DOS_PARTITION
 #endif
 
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
+
 /*
  * Miscellaneous configurable options
  */
@@ -959,5 +964,9 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
 
 #include <asm/fsl_secure_boot.h>
+
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_CMD_BLOB
+#endif
 
 #endif	/* __CONFIG_H */

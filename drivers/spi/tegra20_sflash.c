@@ -7,15 +7,16 @@
  */
 
 #include <common.h>
-#include <malloc.h>
+#include <dm.h>
+#include <errno.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch-tegra/clk_rst.h>
-#include <asm/arch-tegra20/tegra20_sflash.h>
 #include <spi.h>
 #include <fdtdec.h>
+#include "tegra_spi.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -64,129 +65,75 @@ struct spi_regs {
 	u32 rx_fifo;	/* SPI_RX_FIFO_0 register */
 };
 
-struct tegra_spi_ctrl {
+struct tegra20_sflash_priv {
 	struct spi_regs *regs;
 	unsigned int freq;
 	unsigned int mode;
 	int periph_id;
 	int valid;
+	int last_transaction_us;
 };
 
-struct tegra_spi_slave {
-	struct spi_slave slave;
-	struct tegra_spi_ctrl *ctrl;
-};
-
-/* tegra20 only supports one SFLASH controller */
-static struct tegra_spi_ctrl spi_ctrls[1];
-
-static inline struct tegra_spi_slave *to_tegra_spi(struct spi_slave *slave)
-{
-	return container_of(slave, struct tegra_spi_slave, slave);
-}
-
-int tegra20_spi_cs_is_valid(unsigned int bus, unsigned int cs)
+int tegra20_sflash_cs_info(struct udevice *bus, unsigned int cs,
+			   struct spi_cs_info *info)
 {
 	/* Tegra20 SPI-Flash - only 1 device ('bus/cs') */
-	if (bus != 0 || cs != 0)
-		return 0;
+	if (cs != 0)
+		return -ENODEV;
 	else
-		return 1;
+		return 0;
 }
 
-struct spi_slave *tegra20_spi_setup_slave(unsigned int bus, unsigned int cs,
-				  unsigned int max_hz, unsigned int mode)
+static int tegra20_sflash_ofdata_to_platdata(struct udevice *bus)
 {
-	struct tegra_spi_slave *spi;
+	struct tegra_spi_platdata *plat = bus->platdata;
+	const void *blob = gd->fdt_blob;
+	int node = bus->of_offset;
 
-	if (!spi_cs_is_valid(bus, cs)) {
-		printf("SPI error: unsupported bus %d / chip select %d\n",
-		       bus, cs);
-		return NULL;
+	plat->base = fdtdec_get_addr(blob, node, "reg");
+	plat->periph_id = clock_decode_periph_id(blob, node);
+
+	if (plat->periph_id == PERIPH_ID_NONE) {
+		debug("%s: could not decode periph id %d\n", __func__,
+		      plat->periph_id);
+		return -FDT_ERR_NOTFOUND;
 	}
 
-	if (max_hz > TEGRA_SPI_MAX_FREQ) {
-		printf("SPI error: unsupported frequency %d Hz. Max frequency"
-			" is %d Hz\n", max_hz, TEGRA_SPI_MAX_FREQ);
-		return NULL;
-	}
+	/* Use 500KHz as a suitable default */
+	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
+					500000);
+	plat->deactivate_delay_us = fdtdec_get_int(blob, node,
+					"spi-deactivate-delay", 0);
+	debug("%s: base=%#08lx, periph_id=%d, max-frequency=%d, deactivate_delay=%d\n",
+	      __func__, plat->base, plat->periph_id, plat->frequency,
+	      plat->deactivate_delay_us);
 
-	spi = spi_alloc_slave(struct tegra_spi_slave, bus, cs);
-	if (!spi) {
-		printf("SPI error: malloc of SPI structure failed\n");
-		return NULL;
-	}
-	spi->ctrl = &spi_ctrls[bus];
-	if (!spi->ctrl) {
-		printf("SPI error: could not find controller for bus %d\n",
-		       bus);
-		return NULL;
-	}
-
-	if (max_hz < spi->ctrl->freq) {
-		debug("%s: limiting frequency from %u to %u\n", __func__,
-		      spi->ctrl->freq, max_hz);
-		spi->ctrl->freq = max_hz;
-	}
-	spi->ctrl->mode = mode;
-
-	return &spi->slave;
+	return 0;
 }
 
-void tegra20_spi_free_slave(struct spi_slave *slave)
+static int tegra20_sflash_probe(struct udevice *bus)
 {
-	struct tegra_spi_slave *spi = to_tegra_spi(slave);
+	struct tegra_spi_platdata *plat = dev_get_platdata(bus);
+	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
 
-	free(spi);
+	priv->regs = (struct spi_regs *)plat->base;
+
+	priv->last_transaction_us = timer_get_us();
+	priv->freq = plat->frequency;
+	priv->periph_id = plat->periph_id;
+
+	return 0;
 }
 
-int tegra20_spi_init(int *node_list, int count)
+static int tegra20_sflash_claim_bus(struct udevice *bus)
 {
-	struct tegra_spi_ctrl *ctrl;
-	int i;
-	int node = 0;
-	int found = 0;
-
-	for (i = 0; i < count; i++) {
-		ctrl = &spi_ctrls[i];
-		node = node_list[i];
-
-		ctrl->regs = (struct spi_regs *)fdtdec_get_addr(gd->fdt_blob,
-								node, "reg");
-		if ((fdt_addr_t)ctrl->regs == FDT_ADDR_T_NONE) {
-			debug("%s: no slink register found\n", __func__);
-			continue;
-		}
-		ctrl->freq = fdtdec_get_int(gd->fdt_blob, node,
-					    "spi-max-frequency", 0);
-		if (!ctrl->freq) {
-			debug("%s: no slink max frequency found\n", __func__);
-			continue;
-		}
-
-		ctrl->periph_id = clock_decode_periph_id(gd->fdt_blob, node);
-		if (ctrl->periph_id == PERIPH_ID_NONE) {
-			debug("%s: could not decode periph id\n", __func__);
-			continue;
-		}
-		ctrl->valid = 1;
-		found = 1;
-
-		debug("%s: found controller at %p, freq = %u, periph_id = %d\n",
-		      __func__, ctrl->regs, ctrl->freq, ctrl->periph_id);
-	}
-	return !found;
-}
-
-int tegra20_spi_claim_bus(struct spi_slave *slave)
-{
-	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct spi_regs *regs = spi->ctrl->regs;
+	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
+	struct spi_regs *regs = priv->regs;
 	u32 reg;
 
 	/* Change SPI clock to correct frequency, PLLP_OUT0 source */
-	clock_start_periph_pll(spi->ctrl->periph_id, CLOCK_ID_PERIPH,
-			       spi->ctrl->freq);
+	clock_start_periph_pll(priv->periph_id, CLOCK_ID_PERIPH,
+			       priv->freq);
 
 	/* Clear stale status here */
 	reg = SPI_STAT_RDY | SPI_STAT_RXF_FLUSH | SPI_STAT_TXF_FLUSH | \
@@ -197,8 +144,8 @@ int tegra20_spi_claim_bus(struct spi_slave *slave)
 	/*
 	 * Use sw-controlled CS, so we can clock in data after ReadID, etc.
 	 */
-	reg = (spi->ctrl->mode & 1) << SPI_CMD_ACTIVE_SDA_SHIFT;
-	if (spi->ctrl->mode & 2)
+	reg = (priv->mode & 1) << SPI_CMD_ACTIVE_SDA_SHIFT;
+	if (priv->mode & 2)
 		reg |= 1 << SPI_CMD_ACTIVE_SCLK_SHIFT;
 	clrsetbits_le32(&regs->command, SPI_CMD_ACTIVE_SCLK_MASK |
 		SPI_CMD_ACTIVE_SDA_MASK, SPI_CMD_CS_SOFT | reg);
@@ -215,37 +162,54 @@ int tegra20_spi_claim_bus(struct spi_slave *slave)
 	return 0;
 }
 
-void tegra20_spi_cs_activate(struct spi_slave *slave)
+static void spi_cs_activate(struct udevice *dev)
 {
-	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct spi_regs *regs = spi->ctrl->regs;
+	struct udevice *bus = dev->parent;
+	struct tegra_spi_platdata *pdata = dev_get_platdata(bus);
+	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
+
+	/* If it's too soon to do another transaction, wait */
+	if (pdata->deactivate_delay_us &&
+	    priv->last_transaction_us) {
+		ulong delay_us;		/* The delay completed so far */
+		delay_us = timer_get_us() - priv->last_transaction_us;
+		if (delay_us < pdata->deactivate_delay_us)
+			udelay(pdata->deactivate_delay_us - delay_us);
+	}
 
 	/* CS is negated on Tegra, so drive a 1 to get a 0 */
-	setbits_le32(&regs->command, SPI_CMD_CS_VAL);
+	setbits_le32(&priv->regs->command, SPI_CMD_CS_VAL);
 }
 
-void tegra20_spi_cs_deactivate(struct spi_slave *slave)
+static void spi_cs_deactivate(struct udevice *dev)
 {
-	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct spi_regs *regs = spi->ctrl->regs;
+	struct udevice *bus = dev->parent;
+	struct tegra_spi_platdata *pdata = dev_get_platdata(bus);
+	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
 
 	/* CS is negated on Tegra, so drive a 0 to get a 1 */
-	clrbits_le32(&regs->command, SPI_CMD_CS_VAL);
+	clrbits_le32(&priv->regs->command, SPI_CMD_CS_VAL);
+
+	/* Remember time of this transaction so we can honour the bus delay */
+	if (pdata->deactivate_delay_us)
+		priv->last_transaction_us = timer_get_us();
 }
 
-int tegra20_spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-		const void *data_out, void *data_in, unsigned long flags)
+static int tegra20_sflash_xfer(struct udevice *dev, unsigned int bitlen,
+			     const void *data_out, void *data_in,
+			     unsigned long flags)
 {
-	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct spi_regs *regs = spi->ctrl->regs;
+	struct udevice *bus = dev->parent;
+	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
+	struct spi_regs *regs = priv->regs;
 	u32 reg, tmpdout, tmpdin = 0;
 	const u8 *dout = data_out;
 	u8 *din = data_in;
 	int num_bytes;
 	int ret;
 
-	debug("spi_xfer: slave %u:%u dout %08X din %08X bitlen %u\n",
-	      slave->bus, slave->cs, *(u8 *)dout, *(u8 *)din, bitlen);
+	debug("%s: slave %u:%u dout %p din %p bitlen %u\n",
+	      __func__, bus->seq, spi_chip_select(dev), dout, din, bitlen);
 	if (bitlen % 8)
 		return -1;
 	num_bytes = bitlen / 8;
@@ -262,7 +226,7 @@ int tegra20_spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	debug("spi_xfer: COMMAND = %08x\n", readl(&regs->command));
 
 	if (flags & SPI_XFER_BEGIN)
-		spi_cs_activate(slave);
+		spi_cs_activate(dev);
 
 	/* handle data in 32-bit chunks */
 	while (num_bytes > 0) {
@@ -327,7 +291,7 @@ int tegra20_spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	}
 
 	if (flags & SPI_XFER_END)
-		spi_cs_deactivate(slave);
+		spi_cs_deactivate(dev);
 
 	debug("spi_xfer: transfer ended. Value=%08x, status = %08x\n",
 		tmpdin, readl(&regs->status));
@@ -339,3 +303,51 @@ int tegra20_spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 
 	return 0;
 }
+
+static int tegra20_sflash_set_speed(struct udevice *bus, uint speed)
+{
+	struct tegra_spi_platdata *plat = bus->platdata;
+	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
+
+	if (speed > plat->frequency)
+		speed = plat->frequency;
+	priv->freq = speed;
+	debug("%s: regs=%p, speed=%d\n", __func__, priv->regs, priv->freq);
+
+	return 0;
+}
+
+static int tegra20_sflash_set_mode(struct udevice *bus, uint mode)
+{
+	struct tegra20_sflash_priv *priv = dev_get_priv(bus);
+
+	priv->mode = mode;
+	debug("%s: regs=%p, mode=%d\n", __func__, priv->regs, priv->mode);
+
+	return 0;
+}
+
+static const struct dm_spi_ops tegra20_sflash_ops = {
+	.claim_bus	= tegra20_sflash_claim_bus,
+	.xfer		= tegra20_sflash_xfer,
+	.set_speed	= tegra20_sflash_set_speed,
+	.set_mode	= tegra20_sflash_set_mode,
+	.cs_info	= tegra20_sflash_cs_info,
+};
+
+static const struct udevice_id tegra20_sflash_ids[] = {
+	{ .compatible = "nvidia,tegra20-sflash" },
+	{ }
+};
+
+U_BOOT_DRIVER(tegra20_sflash) = {
+	.name	= "tegra20_sflash",
+	.id	= UCLASS_SPI,
+	.of_match = tegra20_sflash_ids,
+	.ops	= &tegra20_sflash_ops,
+	.ofdata_to_platdata = tegra20_sflash_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct tegra_spi_platdata),
+	.priv_auto_alloc_size = sizeof(struct tegra20_sflash_priv),
+	.per_child_auto_alloc_size	= sizeof(struct spi_slave),
+	.probe	= tegra20_sflash_probe,
+};

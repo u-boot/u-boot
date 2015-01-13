@@ -11,12 +11,14 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 #ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT
 #endif
 
 #ifdef CONFIG_SDCARD
-#define CONFIG_SPL
 #define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
@@ -45,7 +47,6 @@
 #endif
 
 #ifdef CONFIG_SPIFLASH
-#define CONFIG_SPL
 #define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
@@ -79,8 +80,6 @@
 #define CONFIG_SYS_NAND_MAX_OOBFREE	5
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL
-#define CONFIG_TPL
 #ifdef CONFIG_TPL_BUILD
 #define CONFIG_SPL_NAND_BOOT
 #define CONFIG_SPL_FLUSH_IMAGE
@@ -617,6 +616,25 @@
 #define CONFIG_ETHPRIME		"eTSEC1"
 
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
+#endif
+
+/*
+ * Dynamic MTD Partition support with mtdparts
+ */
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_FLASH_CFI_MTD
+#ifdef CONFIG_PHYS_64BIT
+#define MTDIDS_DEFAULT "nor0=fe8000000.nor"
+#define MTDPARTS_DEFAULT "mtdparts=fe8000000.nor:48m(ramdisk)," \
+			"14m(diagnostic),2m(dink),6m(kernel),58112k(fs)," \
+			"512k(dtb),768k(u-boot)"
+#else
+#define MTDIDS_DEFAULT "nor0=e8000000.nor"
+#define MTDPARTS_DEFAULT "mtdparts=e8000000.nor:48m(ramdisk)," \
+			"14m(diagnostic),2m(dink),6m(kernel),58112k(fs)," \
+			"512k(dtb),768k(u-boot)"
 #endif
 
 /*

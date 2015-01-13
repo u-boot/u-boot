@@ -50,7 +50,6 @@
 #define CONFIG_ARCH_MISC_INIT
 
 /* SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_NO_CPU_SUPPORT_CODE
 #define CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/mxs"
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds"
@@ -94,8 +93,6 @@
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_LONGHELP
-#ifndef CONFIG_SYS_PROMPT
-#endif
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
 #define CONFIG_SYS_PBSIZE	\
 	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -151,7 +148,8 @@
 
 /* I2C */
 #ifdef CONFIG_CMD_I2C
-#define CONFIG_I2C_MXS
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXS
 #define CONFIG_HARD_I2C
 #ifndef CONFIG_SYS_I2C_SPEED
 #define CONFIG_SYS_I2C_SPEED		400000

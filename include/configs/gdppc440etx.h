@@ -32,6 +32,7 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* call board_early_init_f*/
 #define CONFIG_MISC_INIT_R		1	/* call misc_init_r()     */
+#define CONFIG_SYS_GENERIC_BOARD
 
 #undef CONFIG_ZERO_BOOTDELAY_CHECK     /* ignore keypress on bootdelay==0 */
 #define CONFIG_AUTOBOOT_KEYED          /* use key strings to stop autoboot */

@@ -227,6 +227,16 @@ static const struct dpll_params usb_dpll_params_1920mhz[NUM_SYS_CLKS] = {
 	{400, 15, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 38.4 MHz */
 };
 
+static const struct dpll_params ddr_dpll_params_2664mhz[NUM_SYS_CLKS] = {
+	{111, 0, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
+	{333, 4, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 20 MHz   */
+	{555, 6, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 16.8 MHz */
+	{555, 7, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 19.2 MHz */
+	{666, 12, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{555, 15, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 38.4 MHz */
+};
+
 static const struct dpll_params ddr_dpll_params_2128mhz[NUM_SYS_CLKS] = {
 	{266, 2, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
 	{266, 4, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 20 MHz   */
@@ -283,6 +293,17 @@ struct dplls dra7xx_dplls = {
 	.iva = iva_dpll_params_2330mhz_dra7xx,
 	.usb = usb_dpll_params_1920mhz,
 	.ddr = ddr_dpll_params_2128mhz,
+	.gmac = gmac_dpll_params_2000mhz,
+};
+
+struct dplls dra72x_dplls = {
+	.mpu = mpu_dpll_params_1ghz,
+	.core = core_dpll_params_2128mhz_dra7xx,
+	.per = per_dpll_params_768mhz_dra7xx,
+	.abe = abe_dpll_params_sysclk2_361267khz,
+	.iva = iva_dpll_params_2330mhz_dra7xx,
+	.usb = usb_dpll_params_1920mhz,
+	.ddr =	ddr_dpll_params_2664mhz,
 	.gmac = gmac_dpll_params_2000mhz,
 };
 
@@ -344,31 +365,31 @@ struct vcores_data dra752_volts = {
 	.mpu.value	= VDD_MPU_DRA752,
 	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU_NOM,
 	.mpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
-	.mpu.addr	= TPS659038_REG_ADDR_SMPS12_MPU,
+	.mpu.addr	= TPS659038_REG_ADDR_SMPS12,
 	.mpu.pmic	= &tps659038,
 
 	.eve.value	= VDD_EVE_DRA752,
 	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
 	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
-	.eve.addr	= TPS659038_REG_ADDR_SMPS45_EVE,
+	.eve.addr	= TPS659038_REG_ADDR_SMPS45,
 	.eve.pmic	= &tps659038,
 
 	.gpu.value	= VDD_GPU_DRA752,
 	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU_NOM,
 	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
-	.gpu.addr	= TPS659038_REG_ADDR_SMPS6_GPU,
+	.gpu.addr	= TPS659038_REG_ADDR_SMPS6,
 	.gpu.pmic	= &tps659038,
 
 	.core.value	= VDD_CORE_DRA752,
 	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE_NOM,
 	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
-	.core.addr	= TPS659038_REG_ADDR_SMPS7_CORE,
+	.core.addr	= TPS659038_REG_ADDR_SMPS7,
 	.core.pmic	= &tps659038,
 
 	.iva.value	= VDD_IVA_DRA752,
 	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA_NOM,
 	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
-	.iva.addr	= TPS659038_REG_ADDR_SMPS8_IVA,
+	.iva.addr	= TPS659038_REG_ADDR_SMPS8,
 	.iva.pmic	= &tps659038,
 };
 
@@ -556,11 +577,23 @@ const struct ctrl_ioregs ioregs_dra7xx_es1 = {
 	.ctrl_ddrio_1 = 0x84210840,
 	.ctrl_ddrio_2 = 0x84210000,
 	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
-	.ctrl_emif_sdram_config_ext_final = 0x000101A7,
+	.ctrl_emif_sdram_config_ext_final = 0x0001C1A7,
 	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
 };
 
-void hw_data_init(void)
+const struct ctrl_ioregs ioregs_dra72x_es1 = {
+	.ctrl_ddrch = 0x40404040,
+	.ctrl_lpddr2ch = 0x40404040,
+	.ctrl_ddr3ch = 0x60606080,
+	.ctrl_ddrio_0 = 0xA2084210,
+	.ctrl_ddrio_1 = 0x84210840,
+	.ctrl_ddrio_2 = 0x84210000,
+	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
+	.ctrl_emif_sdram_config_ext_final = 0x0001C1A7,
+	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
+};
+
+void __weak hw_data_init(void)
 {
 	u32 omap_rev = omap_revision();
 
@@ -592,7 +625,7 @@ void hw_data_init(void)
 
 	case DRA722_ES1_0:
 	*prcm = &dra7xx_prcm;
-	*dplls_data = &dra7xx_dplls;
+	*dplls_data = &dra72x_dplls;
 	*omap_vcores = &dra722_volts;
 	*ctrl = &dra7xx_ctrl;
 	break;
@@ -619,8 +652,10 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 		break;
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
-	case DRA722_ES1_0:
 		*regs = &ioregs_dra7xx_es1;
+		break;
+	case DRA722_ES1_0:
+		*regs = &ioregs_dra72x_es1;
 		break;
 
 	default:

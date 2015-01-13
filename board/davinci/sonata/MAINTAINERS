@@ -1,0 +1,6 @@
+SONATA BOARD
+#M:	-
+S:	Maintained
+F:	board/davinci/sonata/
+F:	include/configs/davinci_sonata.h
+F:	configs/davinci_sonata_defconfig

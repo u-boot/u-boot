@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <lcd.h>
+#include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
 #include <asm/arch/mipi_dsim.h>
@@ -32,6 +33,7 @@ static inline u32 get_model_rev(void);
 static void check_hw_revision(void)
 {
 	int modelrev = 0;
+	char str[12];
 	int i;
 
 	/*
@@ -40,13 +42,22 @@ static void check_hw_revision(void)
 	 * TRM say that it may cause unexcepted state and leakage current.
 	 * and pull-none is only for output function.
 	 */
-	for (i = EXYNOS4X12_GPIO_M10; i < EXYNOS4X12_GPIO_M12; i++)
-		gpio_cfg_pin(i, S5P_GPIO_INPUT);
+	for (i = 0; i < 2; i++) {
+		int pin = i + EXYNOS4X12_GPIO_M10;
+
+		sprintf(str, "model_rev%d", i);
+		gpio_request(pin, str);
+		gpio_cfg_pin(pin, S5P_GPIO_INPUT);
+	}
 
 	/* GPM1[5:2]: HW_REV[3:0] */
-	for (i = EXYNOS4X12_GPIO_M12; i < EXYNOS4X12_GPIO_M16; i++) {
-		gpio_cfg_pin(i, S5P_GPIO_INPUT);
-		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
+	for (i = 0; i < 4; i++) {
+		int pin = i + EXYNOS4X12_GPIO_M12;
+
+		sprintf(str, "hw_rev%d", i);
+		gpio_request(pin, str);
+		gpio_cfg_pin(pin, S5P_GPIO_INPUT);
+		gpio_set_pull(pin, S5P_GPIO_PULL_NONE);
 	}
 
 	/* GPM1[1:0]: MODEL_REV[1:0] */
@@ -102,10 +113,14 @@ static void board_init_i2c(void)
 	}
 
 	/* I2C_8 */
+	gpio_request(EXYNOS4X12_GPIO_F14, "i2c8_clk");
+	gpio_request(EXYNOS4X12_GPIO_F15, "i2c8_data");
 	gpio_direction_output(EXYNOS4X12_GPIO_F14, 1);
 	gpio_direction_output(EXYNOS4X12_GPIO_F15, 1);
 
 	/* I2C_9 */
+	gpio_request(EXYNOS4X12_GPIO_M21, "i2c9_clk");
+	gpio_request(EXYNOS4X12_GPIO_M20, "i2c9_data");
 	gpio_direction_output(EXYNOS4X12_GPIO_M21, 1);
 	gpio_direction_output(EXYNOS4X12_GPIO_M20, 1);
 }
@@ -387,6 +402,7 @@ void exynos_lcd_power_on(void)
 	struct pmic *p = pmic_get("MAX77686_PMIC");
 
 	/* LCD_2.2V_EN: GPC0[1] */
+	gpio_request(EXYNOS4X12_GPIO_C01, "lcd_2v2_en");
 	gpio_set_pull(EXYNOS4X12_GPIO_C01, S5P_GPIO_PULL_UP);
 	gpio_direction_output(EXYNOS4X12_GPIO_C01, 1);
 
@@ -399,6 +415,7 @@ void exynos_lcd_power_on(void)
 void exynos_reset_lcd(void)
 {
 	/* reset lcd */
+	gpio_request(EXYNOS4X12_GPIO_F21, "lcd_reset");
 	gpio_direction_output(EXYNOS4X12_GPIO_F21, 0);
 	udelay(10);
 	gpio_set_value(EXYNOS4X12_GPIO_F21, 1);

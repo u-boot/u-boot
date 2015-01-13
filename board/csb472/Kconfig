@@ -1,0 +1,9 @@
+if TARGET_CSB472
+
+config SYS_BOARD
+	default "csb472"
+
+config SYS_CONFIG_NAME
+	default "csb472"
+
+endif

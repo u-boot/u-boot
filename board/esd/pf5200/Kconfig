@@ -1,0 +1,12 @@
+if TARGET_PF5200
+
+config SYS_BOARD
+	default "pf5200"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "pf5200"
+
+endif

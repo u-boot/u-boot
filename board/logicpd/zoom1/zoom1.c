@@ -15,6 +15,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
+#include <ns16550.h>
 #include <netdev.h>
 #include <twl4030.h>
 #include <asm/io.h>
@@ -39,6 +41,17 @@ static const u32 gpmc_lab_enet[] = {
 	ZOOM1_ENET_GPMC_CONF5,
 	ZOOM1_ENET_GPMC_CONF6,
 	/*CONF7- computed as params */
+};
+
+static const struct ns16550_platdata zoom1_serial = {
+	OMAP34XX_UART3,
+	2,
+	V_NS16550_CLK
+};
+
+U_BOOT_DEVICE(zoom1_uart) = {
+	"serial_omap",
+	&zoom1_serial
 };
 
 /*
@@ -95,6 +108,11 @@ void set_muxconf_regs(void)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
+}
+
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
 }
 #endif
 

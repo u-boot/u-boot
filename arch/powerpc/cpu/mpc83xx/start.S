@@ -283,6 +283,7 @@ in_flash:
 	bl	cpu_init_f
 
 	/* run 1st part of board init code (in Flash)*/
+	li	r3, 0		/* clear boot_flag for calling board_init_f */
 	bl	board_init_f
 
 	/* NOTREACHED - board_init_f() does not return */
@@ -958,18 +959,7 @@ clear_bss:
 	 * Now clear BSS segment
 	 */
 	lwz	r3,GOT(__bss_start)
-#if defined(CONFIG_HYMOD)
-	/*
-	 * For HYMOD - the environment is the very last item in flash.
-	 * The real .bss stops just before environment starts, so only
-	 * clear up to that point.
-	 *
-	 * taken from mods for FADS board
-	 */
-	lwz	r4,GOT(environment)
-#else
 	lwz	r4,GOT(__bss_end)
-#endif
 
 	cmplw	0, r3, r4
 	beq	6f

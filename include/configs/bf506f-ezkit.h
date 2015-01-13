@@ -56,7 +56,7 @@
 /*
  * Flash Settings
  */
-
+/*
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_BASE		0x20000000
 #define CONFIG_SYS_FLASH_CFI
@@ -64,9 +64,8 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	71
 #define CONFIG_CMD_FLASH
 #define CONFIG_MONITOR_IS_IN_RAM
-/*
-#define CONFIG_SYS_NO_FLASH
 */
+#define CONFIG_SYS_NO_FLASH
 
 /*
  * SPI Settings
@@ -86,8 +85,6 @@
  */
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE 0x400
-#undef CONFIG_CMD_EXPORTENV
-#undef CONFIG_CMD_IMPORTENV
 
 
 /*
@@ -103,7 +100,6 @@
 #define CONFIG_CMD_MEMORY
 #undef CONFIG_GZIP
 #undef CONFIG_ZLIB
-#undef CONFIG_CMD_BOOTM
 #undef CONFIG_BOOTM_RTEMS
 #undef CONFIG_BOOTM_LINUX
 

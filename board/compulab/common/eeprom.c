@@ -15,6 +15,10 @@
 # define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 #endif
 
+#ifndef CONFIG_SYS_I2C_EEPROM_BUS
+#define CONFIG_SYS_I2C_EEPROM_BUS	0
+#endif
+
 #define EEPROM_LAYOUT_VER_OFFSET	44
 #define BOARD_SERIAL_OFFSET		20
 #define BOARD_SERIAL_OFFSET_LEGACY	8
@@ -31,8 +35,19 @@ static int cl_eeprom_layout; /* Implicitly LAYOUT_INVALID */
 
 static int cl_eeprom_read(uint offset, uchar *buf, int len)
 {
-	return i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, offset,
+	int res;
+	unsigned int current_i2c_bus = i2c_get_bus_num();
+
+	res = i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
+	if (res < 0)
+		return res;
+
+	res = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, offset,
 			CONFIG_SYS_I2C_EEPROM_ADDR_LEN, buf, len);
+
+	i2c_set_bus_num(current_i2c_bus);
+
+	return res;
 }
 
 static int cl_eeprom_setup_layout(void)
@@ -94,15 +109,19 @@ int cl_eeprom_read_mac_addr(uchar *buf)
 	return cl_eeprom_read(offset, buf, 6);
 }
 
+static u32 board_rev;
+
 /*
  * Routine: cl_eeprom_get_board_rev
  * Description: read system revision from eeprom
  */
 u32 cl_eeprom_get_board_rev(void)
 {
-	u32 rev = 0;
 	char str[5]; /* Legacy representation can contain at most 4 digits */
 	uint offset = BOARD_REV_OFFSET_LEGACY;
+
+	if (board_rev)
+		return board_rev;
 
 	if (cl_eeprom_setup_layout())
 		return 0;
@@ -110,7 +129,7 @@ u32 cl_eeprom_get_board_rev(void)
 	if (cl_eeprom_layout != LAYOUT_LEGACY)
 		offset = BOARD_REV_OFFSET;
 
-	if (cl_eeprom_read(offset, (uchar *)&rev, BOARD_REV_SIZE))
+	if (cl_eeprom_read(offset, (uchar *)&board_rev, BOARD_REV_SIZE))
 		return 0;
 
 	/*
@@ -118,9 +137,9 @@ u32 cl_eeprom_get_board_rev(void)
 	 * representation. i.e. for rev 1.00: 0x100 --> 0x64
 	 */
 	if (cl_eeprom_layout == LAYOUT_LEGACY) {
-		sprintf(str, "%x", rev);
-		rev = simple_strtoul(str, NULL, 10);
+		sprintf(str, "%x", board_rev);
+		board_rev = simple_strtoul(str, NULL, 10);
 	}
 
-	return rev;
+	return board_rev;
 };

@@ -1,0 +1,13 @@
+menu "Sandbox architecture"
+	depends on SANDBOX
+
+config SYS_ARCH
+	default "sandbox"
+
+config SYS_BOARD
+	default "sandbox"
+
+config SYS_CONFIG_NAME
+	default "sandbox"
+
+endmenu

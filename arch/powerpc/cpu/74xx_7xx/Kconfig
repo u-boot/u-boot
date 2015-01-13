@@ -1,0 +1,32 @@
+menu "74xx_7xx CPU"
+	depends on 74xx_7xx
+
+config SYS_CPU
+	default "74xx_7xx"
+
+choice
+	prompt "Target select"
+
+config TARGET_P3G4
+	bool "Support P3G4"
+
+config TARGET_ZUMA
+	bool "Support ZUMA"
+
+config TARGET_PPMC7XX
+	bool "Support ppmc7xx"
+
+config TARGET_ELPPC
+	bool "Support ELPPC"
+
+config TARGET_MPC7448HPC2
+	bool "Support mpc7448hpc2"
+
+endchoice
+
+source "board/eltec/elppc/Kconfig"
+source "board/evb64260/Kconfig"
+source "board/freescale/mpc7448hpc2/Kconfig"
+source "board/ppmc7xx/Kconfig"
+
+endmenu

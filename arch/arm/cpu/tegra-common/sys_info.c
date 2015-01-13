@@ -8,7 +8,7 @@
 #include <common.h>
 #include <linux/ctype.h>
 
-void upstring(char *s)
+static void upstring(char *s)
 {
 	while (*s) {
 		*s = toupper(*s);

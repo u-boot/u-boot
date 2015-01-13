@@ -1,0 +1,12 @@
+if TARGET_MECP5200
+
+config SYS_BOARD
+	default "mecp5200"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "mecp5200"
+
+endif

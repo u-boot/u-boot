@@ -17,6 +17,6 @@ CONFIG_STANDALONE_LOAD_ADDR = 0x300000 \
 
 PLATFORM_RELFLAGS	+= -fno-strict-aliasing -fno-common -mrelax
 PLATFORM_RELFLAGS	+= -gdwarf-2
-PLATFORM_CPPFLAGS	+= -DCONFIG_NDS32 -D__nds32__ -G0 -ffixed-10 -fpie
+PLATFORM_CPPFLAGS	+= -D__nds32__ -G0 -ffixed-10 -fpie
 
 LDFLAGS_u-boot		= --gc-sections --relax

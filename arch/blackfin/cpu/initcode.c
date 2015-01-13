@@ -955,6 +955,7 @@ check_hibernation(ADI_BOOT_DATA *bs, u16 vr_ctl, bool put_into_srfs)
 		uint32_t *hibernate_magic = 0;
 
 		SSYNC();
+		/* cppcheck-suppress nullPointer */
 		if (hibernate_magic[0] == 0xDEADBEEF) {
 			serial_putc('c');
 			bfin_write_EVT15(hibernate_magic[1]);

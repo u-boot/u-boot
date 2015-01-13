@@ -19,20 +19,17 @@
 
 int yaffs_skip_verification(struct yaffs_dev *dev)
 {
-	dev = dev;
 	return !(yaffs_trace_mask &
 		 (YAFFS_TRACE_VERIFY | YAFFS_TRACE_VERIFY_FULL));
 }
 
 static int yaffs_skip_full_verification(struct yaffs_dev *dev)
 {
-	dev = dev;
 	return !(yaffs_trace_mask & (YAFFS_TRACE_VERIFY_FULL));
 }
 
 static int yaffs_skip_nand_verification(struct yaffs_dev *dev)
 {
-	dev = dev;
 	return !(yaffs_trace_mask & (YAFFS_TRACE_VERIFY_NAND));
 }
 
@@ -521,6 +518,5 @@ void yaffs_verify_free_chunks(struct yaffs_dev *dev)
 
 int yaffs_verify_file_sane(struct yaffs_obj *in)
 {
-	in = in;
 	return YAFFS_OK;
 }

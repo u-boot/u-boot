@@ -1,0 +1,6 @@
+PXA255_IDP BOARD
+M:	Cliff Brake <cliff.brake@gmail.com>
+S:	Maintained
+F:	board/pxa255_idp/
+F:	include/configs/pxa255_idp.h
+F:	configs/pxa255_idp_defconfig

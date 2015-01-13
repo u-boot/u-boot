@@ -38,7 +38,7 @@ int arch_cpu_init(void)
 #if defined(CONFIG_DW_UDC)
 	periph1_clken |= MISC_USBDENB;
 #endif
-#if defined(CONFIG_DW_I2C)
+#if defined(CONFIG_SYS_I2C_DW)
 	periph1_clken |= MISC_I2CENB;
 #endif
 #if defined(CONFIG_ST_SMI)

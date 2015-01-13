@@ -20,7 +20,6 @@
 /*
  * SPL
  */
-#define	CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define	CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm1136/u-boot-spl.lds"
 #define	CONFIG_SPL_LIBCOMMON_SUPPORT

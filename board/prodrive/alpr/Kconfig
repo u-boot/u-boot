@@ -1,0 +1,12 @@
+if TARGET_ALPR
+
+config SYS_BOARD
+	default "alpr"
+
+config SYS_VENDOR
+	default "prodrive"
+
+config SYS_CONFIG_NAME
+	default "alpr"
+
+endif

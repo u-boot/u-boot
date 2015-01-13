@@ -1,0 +1,12 @@
+if TARGET_GDPPC440ETX
+
+config SYS_BOARD
+	default "gdppc440etx"
+
+config SYS_VENDOR
+	default "gdsys"
+
+config SYS_CONFIG_NAME
+	default "gdppc440etx"
+
+endif

@@ -40,7 +40,7 @@
 /* Export Graphic Driver Control                                              */
 /******************************************************************************/
 
-typedef struct {
+typedef struct graphic_device {
     unsigned int isaBase;
     unsigned int pciBase;
     unsigned int dprBase;

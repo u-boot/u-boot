@@ -23,6 +23,7 @@ extern ulong ide_bus_offset[];
 #define LED_IDE2	0x02
 #define	DEVICE_LED(d)	((d & 2) | ((d & 2) == 0)) /* depends on bit positions! */
 
+void ide_led(uchar led, uchar status);
 #endif /* CONFIG_IDE_LED */
 
 #ifdef CONFIG_SYS_64BIT_LBA
@@ -66,11 +67,15 @@ void ide_write_data(int dev, const ulong *sect_buf, int words);
 /*
  * I/O function overrides
  */
+unsigned char ide_inb(int dev, int port);
+void ide_outb(int dev, int port, unsigned char val);
 void ide_input_swap_data(int dev, ulong *sect_buf, int words);
 void ide_input_data(int dev, ulong *sect_buf, int words);
 void ide_output_data(int dev, const ulong *sect_buf, int words);
 void ide_input_data_shorts(int dev, ushort *sect_buf, int shorts);
 void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts);
+
+void ide_led(uchar led, uchar status);
 
 /**
  * board_start_ide() - Start up the board IDE interfac

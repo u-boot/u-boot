@@ -1,0 +1,94 @@
+menu "Panasonic UniPhier platform"
+	depends on ARCH_UNIPHIER
+
+config SYS_SOC
+	default "uniphier"
+
+config SYS_CONFIG_NAME
+	default "uniphier"
+
+config UNIPHIER_SMP
+	bool
+
+choice
+	prompt "UniPhier SoC select"
+
+config MACH_PH1_PRO4
+	bool "PH1-Pro4"
+	select UNIPHIER_SMP
+
+config MACH_PH1_LD4
+	bool "PH1-LD4"
+
+config MACH_PH1_SLD8
+	bool "PH1-sLD8"
+
+endchoice
+
+choice
+	prompt "UniPhier Support Card select"
+	optional
+
+config PFC_MICRO_SUPPORT_CARD
+	bool "Support card with PFC CPLD"
+	help
+	  This option provides support for the expansion board with PFC
+	  original address mapping.
+
+	  Say Y to use the on-board UART, Ether, LED devices.
+
+config DCC_MICRO_SUPPORT_CARD
+	bool "Support card with DCC CPLD"
+	help
+	  This option provides support for the expansion board with DCC-
+	  arranged address mapping that is compatible with legacy UniPhier
+	  reference boards.
+
+	  Say Y to use the on-board UART, Ether, LED devices.
+
+endchoice
+
+config CMD_PINMON
+	bool "Enable boot mode pins monitor command"
+	depends on !SPL_BUILD
+	default y
+	help
+	  The command "pinmon" shows the state of the boot mode pins.
+	  The boot mode pins are latched when the system reset is deasserted
+	  and determine which device the system should load a boot image from.
+
+config SOC_INIT
+	bool
+	default SPL_BUILD
+
+config DRAM_INIT
+	bool
+	default SPL_BUILD
+
+config CMD_DDRPHY_DUMP
+	bool "Enable dump command of DDR PHY parameters"
+	depends on !SPL_BUILD
+	help
+	  The command "ddrphy" shows the resulting parameters of DDR PHY
+	  training; it is useful for the evaluation of DDR PHY training.
+
+choice
+	prompt "DDR3 Frequency select"
+	depends on DRAM_INIT
+
+config DDR_FREQ_1600
+	bool "DDR3 1600"
+	depends on MACH_PH1_PRO4 || MACH_PH1_LD4
+
+config DDR_FREQ_1333
+	bool "DDR3 1333"
+	depends on MACH_PH1_LD4 || MACH_PH1_SLD8
+
+endchoice
+
+config DDR_FREQ
+	int
+	default 1333 if DDR_FREQ_1333
+	default 1600 if DDR_FREQ_1600
+
+endmenu

@@ -55,6 +55,12 @@ Board(panel specific):
 	samsung,pclk-name: parent clock identifier: 1(MPLL), 2(EPLL), 3(VPLL)
 	samsung,sclk-div: parent_clock/source_clock ratio
 	samsung,dual-lcd-enabled: 1 if you support two LCD, else 0
+	samsung,disable-sysmmu: Define this if you want to disable FIMD sysmmu.
+				(needed for Exynos5420 and newer versions)
+				Add the required FIMD sysmmu nodes to be
+				disabled with compatible string
+				"samsung,sysmmu-v3.3", with a "reg" property
+				holding the register address of FIMD sysmmu.
 
 Example:
 SOC specific part:

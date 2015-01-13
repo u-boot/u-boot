@@ -1,0 +1,12 @@
+if TARGET_MV88F6281GTW_GE
+
+config SYS_BOARD
+	default "mv88f6281gtw_ge"
+
+config SYS_VENDOR
+	default "Marvell"
+
+config SYS_CONFIG_NAME
+	default "mv88f6281gtw_ge"
+
+endif

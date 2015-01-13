@@ -97,8 +97,8 @@ static int setdma_rx(struct s3c_ep *ep, struct s3c_request *req)
 	u32 ep_num = ep_index(ep);
 
 	buf = req->req.buf + req->req.actual;
-	length = min(req->req.length - req->req.actual,
-		     ep_num ? DMA_BUFFER_SIZE : ep->ep.maxpacket);
+	length = min_t(u32, req->req.length - req->req.actual,
+		       ep_num ? DMA_BUFFER_SIZE : ep->ep.maxpacket);
 
 	ep->len = length;
 	ep->dma_buf = buf;
@@ -466,7 +466,7 @@ static int s3c_udc_irq(int irq, void *_dev)
 	struct s3c_udc *dev = _dev;
 	u32 intr_status;
 	u32 usb_status, gintmsk;
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	spin_lock_irqsave(&dev->lock, flags);
 
@@ -551,7 +551,7 @@ static int s3c_udc_irq(int irq, void *_dev)
 				debug_cond(DEBUG_ISR,
 					"\t\tOTG core got reset (%d)!!\n",
 					reset_available);
-				reconfig_usbd();
+				reconfig_usbd(dev);
 				dev->ep0state = WAIT_FOR_SETUP;
 				reset_available = 0;
 				s3c_udc_pre_setup();
@@ -585,7 +585,7 @@ static int s3c_queue(struct usb_ep *_ep, struct usb_request *_req,
 	struct s3c_request *req;
 	struct s3c_ep *ep;
 	struct s3c_udc *dev;
-	unsigned long flags;
+	unsigned long flags = 0;
 	u32 ep_num, gintsts;
 
 	req = container_of(_req, struct s3c_request, req);
@@ -1033,7 +1033,7 @@ static int s3c_udc_set_halt(struct usb_ep *_ep, int value)
 {
 	struct s3c_ep	*ep;
 	struct s3c_udc	*dev;
-	unsigned long	flags;
+	unsigned long	flags = 0;
 	u8		ep_num;
 
 	ep = container_of(_ep, struct s3c_ep, ep);

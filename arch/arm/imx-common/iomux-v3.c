@@ -77,3 +77,18 @@ void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
 		p += stride;
 	}
 }
+
+void imx_iomux_set_gpr_register(int group, int start_bit,
+					int num_bits, int value)
+{
+	int i = 0;
+	u32 reg;
+	reg = readl(base + group * 4);
+	while (num_bits) {
+		reg &= ~(1<<(start_bit + i));
+		i++;
+		num_bits--;
+	}
+	reg |= (value << start_bit);
+	writel(reg, base + group * 4);
+}

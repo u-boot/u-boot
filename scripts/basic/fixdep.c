@@ -221,7 +221,11 @@ static void use_config(const char *m, int slen)
 
 	define_config(m, slen, hash);
 
-	printf("    $(wildcard include/config/");
+	/* printf("    $(wildcard include/config/"); */
+	/* modified for U-Boot */
+	printf("    $(wildcard %sinclude/config/",
+	       strncmp(depfile, "spl/", 4) ?
+	       (strncmp(depfile, "tpl/", 4) ? "" : "tpl/") : "spl/");
 	for (i = 0; i < slen; i++) {
 		c = m[i];
 		if (c == '_')

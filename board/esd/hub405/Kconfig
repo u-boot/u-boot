@@ -1,0 +1,12 @@
+if TARGET_HUB405
+
+config SYS_BOARD
+	default "hub405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "HUB405"
+
+endif

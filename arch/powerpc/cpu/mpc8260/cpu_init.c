@@ -88,9 +88,7 @@ static void config_8260_ioports (volatile immap_t * immr)
  */
 void cpu_init_f (volatile immap_t * immr)
 {
-#if !defined(CONFIG_COGENT)		/* done in start.S for the cogent */
 	uint sccr;
-#endif
 #if defined(CONFIG_BOARD_GET_CPU_CLK_F)
 	unsigned long cpu_clk;
 #endif
@@ -141,13 +139,11 @@ void cpu_init_f (volatile immap_t * immr)
 	/* initialize the PIT (4-42) */
 	immr->im_sit.sit_piscr = CONFIG_SYS_PISCR;
 
-#if !defined(CONFIG_COGENT)		/* done in start.S for the cogent */
 	/* System clock control register (9-8) */
 	sccr = immr->im_clkrst.car_sccr &
 		(SCCR_PCI_MODE | SCCR_PCI_MODCK | SCCR_PCIDF_MSK);
 	immr->im_clkrst.car_sccr = sccr |
 		(CONFIG_SYS_SCCR & ~(SCCR_PCI_MODE | SCCR_PCI_MODCK | SCCR_PCIDF_MSK) );
-#endif /* !CONFIG_COGENT */
 
 	/*
 	 * Memory Controller:

@@ -10,6 +10,10 @@
 		bootargs = "vmalloc=192M video=tegrafb console=ttyS0,115200n8 root=/dev/mmcblk1p3 rw rootwait";
 	};
 
+	chosen {
+		stdout-path = &uartd;
+	};
+
 	aliases {
 		/* This defines the order of our ports */
 		usb0 = "/usb@c5008000";

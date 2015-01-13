@@ -1,0 +1,60 @@
+/*
+ * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+/include/ "coreboot.dtsi"
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	model = "Intel Crown Bay";
+	compatible = "intel,crownbay", "intel,queensbay";
+
+	config {
+		silent_console = <0>;
+	};
+
+	gpioa {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0 0x20>;
+		bank-name = "A";
+	};
+
+	gpiob {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x20 0x20>;
+		bank-name = "B";
+	};
+
+	serial {
+		reg = <0x3f8 8>;
+		clock-frequency = <115200>;
+	};
+
+	chosen { };
+	memory { device_type = "memory"; reg = <0 0>; };
+
+	spi {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "intel,ich7";
+		spi-flash@0 {
+			reg = <0>;
+			compatible = "sst,25vf016b", "spi-flash";
+			memory-map = <0xffe00000 0x00200000>;
+		};
+	};
+
+	microcode {
+		update@0 {
+#include "microcode/m0220661105_cv.dtsi"
+		};
+	};
+
+};

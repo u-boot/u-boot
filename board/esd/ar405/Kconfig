@@ -1,0 +1,12 @@
+if TARGET_AR405
+
+config SYS_BOARD
+	default "ar405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "AR405"
+
+endif

@@ -7,7 +7,5 @@
 #
 
 obj-y	= cpu.o
-obj-y	+= dram.o
-obj-y	+= mpp.o
-obj-y	+= timer.o
 obj-y	+= cache.o
+obj-y	+= mpp.o

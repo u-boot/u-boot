@@ -1,0 +1,6 @@
+SFFSDR BOARD
+#M:	-
+S:	Maintained
+F:	board/davinci/sffsdr/
+F:	include/configs/davinci_sffsdr.h
+F:	configs/davinci_sffsdr_defconfig

@@ -10,7 +10,7 @@
 #define _COREBOOT_SYSINFO_H
 
 #include <common.h>
-#include <compiler.h>
+#include <linux/compiler.h>
 #include <libfdt.h>
 #include <asm/arch/tables.h>
 

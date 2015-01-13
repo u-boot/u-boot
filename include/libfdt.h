@@ -116,7 +116,12 @@
 	 * Should never be returned, if it is, it indicates a bug in
 	 * libfdt itself. */
 
-#define FDT_ERR_MAX		13
+/* Errors in device tree content */
+#define FDT_ERR_BADNCELLS	14
+	/* FDT_ERR_BADNCELLS: Device tree has a #address-cells, #size-cells
+	 * or similar property with a bad format or value */
+
+#define FDT_ERR_MAX		14
 
 /**********************************************************************/
 /* Low-level functions (you probably don't need these)                */
@@ -157,6 +162,31 @@ int fdt_first_subnode(const void *fdt, int offset);
  * subnodes
  */
 int fdt_next_subnode(const void *fdt, int offset);
+
+/**
+ * fdt_for_each_subnode - iterate over all subnodes of a parent
+ *
+ * This is actually a wrapper around a for loop and would be used like so:
+ *
+ *	fdt_for_each_subnode(fdt, node, parent) {
+ *		...
+ *		use node
+ *		...
+ *	}
+ *
+ * Note that this is implemented as a macro and node is used as iterator in
+ * the loop. It should therefore be a locally allocated variable. The parent
+ * variable on the other hand is never modified, so it can be constant or
+ * even a literal.
+ *
+ * @fdt:	FDT blob (const void *)
+ * @node:	child node (int)
+ * @parent:	parent node (int)
+ */
+#define fdt_for_each_subnode(fdt, node, parent)		\
+	for (node = fdt_first_subnode(fdt, parent);	\
+	     node >= 0;					\
+	     node = fdt_next_subnode(fdt, node))
 
 /**********************************************************************/
 /* General functions                                                  */
@@ -596,9 +626,9 @@ const char *fdt_get_alias_namelen(const void *fdt,
 				  const char *name, int namelen);
 
 /**
- * fdt_get_alias - retrieve the path referenced by a given alias
+ * fdt_get_alias - retreive the path referenced by a given alias
  * @fdt: pointer to the device tree blob
- * @name: name of the alias to look up
+ * @name: name of the alias th look up
  *
  * fdt_get_alias() retrieves the value of a given alias.  That is, the
  * value of the property named 'name' in the node /aliases.
@@ -731,7 +761,7 @@ int fdt_parent_offset(const void *fdt, int nodeoffset);
  *	offset = fdt_node_offset_by_prop_value(fdt, -1, propname,
  *					       propval, proplen);
  *	while (offset != -FDT_ERR_NOTFOUND) {
- *		... other code here ...
+ *		// other code here
  *		offset = fdt_node_offset_by_prop_value(fdt, offset, propname,
  *						       propval, proplen);
  *	}
@@ -816,7 +846,7 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
  * idiom can be used:
  *	offset = fdt_node_offset_by_compatible(fdt, -1, compatible);
  *	while (offset != -FDT_ERR_NOTFOUND) {
- *		... other code here ...
+ *		// other code here
  *		offset = fdt_node_offset_by_compatible(fdt, offset, compatible);
  *	}
  *
@@ -851,6 +881,110 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
  * @return: 1 if the string is found in the list, 0 not found, or invalid list
  */
 int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
+
+/**
+ * fdt_count_strings - count the number of strings in a string list
+ * @fdt: pointer to the device tree blob
+ * @node: offset of the node
+ * @property: name of the property containing the string list
+ * @return: the number of strings in the given property
+ */
+int fdt_count_strings(const void *fdt, int node, const char *property);
+
+/**
+ * fdt_find_string - find a string in a string list and return its index
+ * @fdt: pointer to the device tree blob
+ * @node: offset of the node
+ * @property: name of the property containing the string list
+ * @string: string to look up in the string list
+ * @return: the index of the string or negative on error
+ */
+int fdt_find_string(const void *fdt, int node, const char *property,
+		    const char *string);
+
+/**
+ * fdt_get_string_index() - obtain the string at a given index in a string list
+ * @fdt: pointer to the device tree blob
+ * @node: offset of the node
+ * @property: name of the property containing the string list
+ * @index: index of the string to return
+ * @output: return location for the string
+ * @return: 0 if the string was found or a negative error code otherwise
+ */
+int fdt_get_string_index(const void *fdt, int node, const char *property,
+			 int index, const char **output);
+
+/**
+ * fdt_get_string() - obtain the string at a given index in a string list
+ * @fdt: pointer to the device tree blob
+ * @node: offset of the node
+ * @property: name of the property containing the string list
+ * @output: return location for the string
+ * @return: 0 if the string was found or a negative error code otherwise
+ *
+ * This is a shortcut for:
+ *
+ *	fdt_get_string_index(fdt, node, property, 0, output).
+ */
+int fdt_get_string(const void *fdt, int node, const char *property,
+		   const char **output);
+
+/**********************************************************************/
+/* Read-only functions (addressing related)                           */
+/**********************************************************************/
+
+/**
+ * FDT_MAX_NCELLS - maximum value for #address-cells and #size-cells
+ *
+ * This is the maximum value for #address-cells, #size-cells and
+ * similar properties that will be processed by libfdt.  IEE1275
+ * requires that OF implementations handle values up to 4.
+ * Implementations may support larger values, but in practice higher
+ * values aren't used.
+ */
+#define FDT_MAX_NCELLS		4
+
+/**
+ * fdt_address_cells - retrieve address size for a bus represented in the tree
+ * @fdt: pointer to the device tree blob
+ * @nodeoffset: offset of the node to find the address size for
+ *
+ * When the node has a valid #address-cells property, returns its value.
+ *
+ * returns:
+ *	0 <= n < FDT_MAX_NCELLS, on success
+ *      2, if the node has no #address-cells property
+ *      -FDT_ERR_BADNCELLS, if the node has a badly formatted or invalid
+ *		#address-cells property
+ *	-FDT_ERR_BADMAGIC,
+ *	-FDT_ERR_BADVERSION,
+ *	-FDT_ERR_BADSTATE,
+ *	-FDT_ERR_BADSTRUCTURE,
+ *	-FDT_ERR_TRUNCATED, standard meanings
+ */
+int fdt_address_cells(const void *fdt, int nodeoffset);
+
+/**
+ * fdt_size_cells - retrieve address range size for a bus represented in the
+ *                  tree
+ * @fdt: pointer to the device tree blob
+ * @nodeoffset: offset of the node to find the address range size for
+ *
+ * When the node has a valid #size-cells property, returns its value.
+ *
+ * returns:
+ *	0 <= n < FDT_MAX_NCELLS, on success
+ *      2, if the node has no #address-cells property
+ *      -FDT_ERR_BADNCELLS, if the node has a badly formatted or invalid
+ *		#size-cells property
+ *	-FDT_ERR_BADMAGIC,
+ *	-FDT_ERR_BADVERSION,
+ *	-FDT_ERR_BADSTATE,
+ *	-FDT_ERR_BADSTRUCTURE,
+ *	-FDT_ERR_TRUNCATED, standard meanings
+ */
+int fdt_size_cells(const void *fdt, int nodeoffset);
+
 
 /**********************************************************************/
 /* Write-in-place functions                                           */
@@ -1023,6 +1157,7 @@ int fdt_nop_node(void *fdt, int nodeoffset);
 /**********************************************************************/
 
 int fdt_create(void *buf, int bufsize);
+int fdt_resize(void *fdt, void *buf, int bufsize);
 int fdt_add_reservemap_entry(void *fdt, uint64_t addr, uint64_t size);
 int fdt_finish_reservemap(void *fdt);
 int fdt_begin_node(void *fdt, const char *name);

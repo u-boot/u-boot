@@ -89,7 +89,6 @@
  * Most of the conditional compilation will (someday) vanish.
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -943,9 +942,7 @@ void musb_start(struct musb *musb)
 
 	/* put into basic highspeed mode and start session */
 	musb_writeb(regs, MUSB_POWER, MUSB_POWER_ISOUPDATE
-#ifdef CONFIG_USB_GADGET_DUALSPEED
 						| MUSB_POWER_HSENAB
-#endif
 						/* ENSUSPEND wedges tusb */
 						/* | MUSB_POWER_ENSUSPEND */
 						);

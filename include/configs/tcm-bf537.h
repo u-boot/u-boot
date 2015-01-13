@@ -122,8 +122,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_BFIN_TWI_I2C	1
-#define CONFIG_HARD_I2C		1
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_ADI
 
 
 /*
@@ -145,7 +145,6 @@
 	"flashboot=flread 20040000 1000000 300000;" \
 	"bootm 0x1000000\0"
 #define CONFIG_BOARD_SIZE_LIMIT $$((384 * 1024))
-#define CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED
 
 /*
  * Pull in common ADI header for remaining command/environment setup

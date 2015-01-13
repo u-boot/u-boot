@@ -86,9 +86,9 @@ Step-3: Set BOOTSEL pin to select NAND boot, and POR the device.
 NOR
 ===
 
-The Beaglebone White can be equiped with a "memory cape" that in turn can
+The Beaglebone White can be equipped with a "memory cape" that in turn can
 have a NOR module plugged into it.  In this case it is then possible to
-program and boot from NOR.  Note that due to how U-Boot is architectured we
+program and boot from NOR.  Note that due to how U-Boot is designed we
 must build a specific version of U-Boot that knows we have NOR flash.  This
 build is named 'am335x_evm_nor'.  Further, we have a 'am335x_evm_norboot'
 build that will assume that the environment is on NOR rather than NAND.  In
@@ -193,7 +193,7 @@ Falcon Mode: NAND
 
 In this case the additional data is written to another partition of the
 NAND.  In this example we assume that the uImage and device tree to be are
-already located on the NAND somewhere (such as fileystem or mtd partition)
+already located on the NAND somewhere (such as filesystem or mtd partition)
 along with a Falcon Mode aware MLO written to the correct locations for
 booting and mtdparts have been configured correctly for the board:
 

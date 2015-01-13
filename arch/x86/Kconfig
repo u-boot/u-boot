@@ -1,0 +1,330 @@
+menu "x86 architecture"
+	depends on X86
+
+config SYS_ARCH
+	default "x86"
+
+config USE_PRIVATE_LIBGCC
+	default y
+
+choice
+	prompt "Target select"
+
+config TARGET_COREBOOT
+	bool "Support coreboot"
+	help
+	  This target is used for running U-Boot on top of Coreboot. In
+	  this case Coreboot does the early inititalisation, and U-Boot
+	  takes over once the RAM, video and CPU are fully running.
+	  U-Boot is loaded as a fallback payload from Coreboot, in
+	  Coreboot terminology. This method was used for the Chromebook
+	  Pixel when launched.
+
+config TARGET_CHROMEBOOK_LINK
+	bool "Support Chromebook link"
+	help
+	  This is the Chromebook Pixel released in 2013. It uses an Intel
+	  i5 Ivybridge which is a die-shrink of Sandybridge, with 4GB of
+	  SDRAM. It has a Panther Point platform controller hub, PCIe
+	  WiFi and Bluetooth. It also includes a 720p webcam, USB SD
+	  reader, microphone and speakers, display port and 32GB SATA
+	  solid state drive. There is a Chrome OS EC connected on LPC,
+	  and it provides a 2560x1700 high resolution touch-enabled LCD
+	  display.
+
+config TARGET_CROWNBAY
+	bool "Support Intel Crown Bay CRB"
+	help
+	  This is the Intel Crown Bay Customer Reference Board. It contains
+	  the Intel Atom Processor E6xx populated on the COM Express module
+	  with 1GB DDR2 soldered down memory and a carrier board with the
+	  Intel Platform Controller Hub EG20T, other system components and
+	  peripheral connectors for PCIe/SATA/USB/LAN/SD/UART/Audio/LVDS.
+
+endchoice
+
+config RAMBASE
+	hex
+	default 0x100000
+
+config RAMTOP
+	hex
+	default 0x200000
+
+config XIP_ROM_SIZE
+	hex
+	default 0x10000
+
+config CPU_ADDR_BITS
+	int
+	default 36
+
+config HPET_ADDRESS
+	hex
+	default 0xfed00000 if !HPET_ADDRESS_OVERRIDE
+
+config SMM_TSEG
+	bool
+	default n
+
+config SMM_TSEG_SIZE
+	hex
+
+config BOARD_ROMSIZE_KB_512
+	bool
+config BOARD_ROMSIZE_KB_1024
+	bool
+config BOARD_ROMSIZE_KB_2048
+	bool
+config BOARD_ROMSIZE_KB_4096
+	bool
+config BOARD_ROMSIZE_KB_8192
+	bool
+config BOARD_ROMSIZE_KB_16384
+	bool
+
+choice
+	prompt "ROM chip size"
+	default UBOOT_ROMSIZE_KB_512 if BOARD_ROMSIZE_KB_512
+	default UBOOT_ROMSIZE_KB_1024 if BOARD_ROMSIZE_KB_1024
+	default UBOOT_ROMSIZE_KB_2048 if BOARD_ROMSIZE_KB_2048
+	default UBOOT_ROMSIZE_KB_4096 if BOARD_ROMSIZE_KB_4096
+	default UBOOT_ROMSIZE_KB_8192 if BOARD_ROMSIZE_KB_8192
+	default UBOOT_ROMSIZE_KB_16384 if BOARD_ROMSIZE_KB_16384
+	help
+	  Select the size of the ROM chip you intend to flash U-Boot on.
+
+	  The build system will take care of creating a u-boot.rom file
+	  of the matching size.
+
+config UBOOT_ROMSIZE_KB_512
+	bool "512 KB"
+	help
+	  Choose this option if you have a 512 KB ROM chip.
+
+config UBOOT_ROMSIZE_KB_1024
+	bool "1024 KB (1 MB)"
+	help
+	  Choose this option if you have a 1024 KB (1 MB) ROM chip.
+
+config UBOOT_ROMSIZE_KB_2048
+	bool "2048 KB (2 MB)"
+	help
+	  Choose this option if you have a 2048 KB (2 MB) ROM chip.
+
+config UBOOT_ROMSIZE_KB_4096
+	bool "4096 KB (4 MB)"
+	help
+	  Choose this option if you have a 4096 KB (4 MB) ROM chip.
+
+config UBOOT_ROMSIZE_KB_8192
+	bool "8192 KB (8 MB)"
+	help
+	  Choose this option if you have a 8192 KB (8 MB) ROM chip.
+
+config UBOOT_ROMSIZE_KB_16384
+	bool "16384 KB (16 MB)"
+	help
+	  Choose this option if you have a 16384 KB (16 MB) ROM chip.
+
+endchoice
+
+# Map the config names to an integer (KB).
+config UBOOT_ROMSIZE_KB
+	int
+	default 512 if UBOOT_ROMSIZE_KB_512
+	default 1024 if UBOOT_ROMSIZE_KB_1024
+	default 2048 if UBOOT_ROMSIZE_KB_2048
+	default 4096 if UBOOT_ROMSIZE_KB_4096
+	default 8192 if UBOOT_ROMSIZE_KB_8192
+	default 16384 if UBOOT_ROMSIZE_KB_16384
+
+# Map the config names to a hex value (bytes).
+config ROM_SIZE
+	hex
+	default 0x80000 if UBOOT_ROMSIZE_KB_512
+	default 0x100000 if UBOOT_ROMSIZE_KB_1024
+	default 0x200000 if UBOOT_ROMSIZE_KB_2048
+	default 0x400000 if UBOOT_ROMSIZE_KB_4096
+	default 0x800000 if UBOOT_ROMSIZE_KB_8192
+	default 0xc00000 if UBOOT_ROMSIZE_KB_12288
+	default 0x1000000 if UBOOT_ROMSIZE_KB_16384
+
+config HAVE_INTEL_ME
+	bool "Platform requires Intel Management Engine"
+	help
+	  Newer higher-end devices have an Intel Management Engine (ME)
+	  which is a very large binary blob (typically 1.5MB) which is
+	  required for the platform to work. This enforces a particular
+	  SPI flash format. You will need to supply the me.bin file in
+	  your board directory.
+
+config X86_RAMTEST
+	bool "Perform a simple RAM test after SDRAM initialisation"
+	help
+	  If there is something wrong with SDRAM then the platform will
+	  often crash within U-Boot or the kernel. This option enables a
+	  very simple RAM test that quickly checks whether the SDRAM seems
+	  to work correctly. It is not exhaustive but can save time by
+	  detecting obvious failures.
+
+config MARK_GRAPHICS_MEM_WRCOMB
+	bool "Mark graphics memory as write-combining."
+	default n
+	help
+	 The graphics performance may increase if the graphics
+	 memory is set as write-combining cache type. This option
+	 enables marking the graphics memory as write-combining.
+
+menu "Display"
+
+config FRAMEBUFFER_SET_VESA_MODE
+	prompt "Set framebuffer graphics resolution"
+	bool
+	help
+	  Set VESA/native framebuffer mode (needed for bootsplash and graphical framebuffer console)
+
+choice
+	prompt "framebuffer graphics resolution"
+	default FRAMEBUFFER_VESA_MODE_117
+	depends on FRAMEBUFFER_SET_VESA_MODE
+	help
+	  This option sets the resolution used for the coreboot framebuffer (and
+	  bootsplash screen).
+
+config FRAMEBUFFER_VESA_MODE_100
+	bool "640x400 256-color"
+
+config FRAMEBUFFER_VESA_MODE_101
+	bool "640x480 256-color"
+
+config FRAMEBUFFER_VESA_MODE_102
+	bool "800x600 16-color"
+
+config FRAMEBUFFER_VESA_MODE_103
+	bool "800x600 256-color"
+
+config FRAMEBUFFER_VESA_MODE_104
+	bool "1024x768 16-color"
+
+config FRAMEBUFFER_VESA_MODE_105
+	bool "1024x7686 256-color"
+
+config FRAMEBUFFER_VESA_MODE_106
+	bool "1280x1024 16-color"
+
+config FRAMEBUFFER_VESA_MODE_107
+	bool "1280x1024 256-color"
+
+config FRAMEBUFFER_VESA_MODE_108
+	bool "80x60 text"
+
+config FRAMEBUFFER_VESA_MODE_109
+	bool "132x25 text"
+
+config FRAMEBUFFER_VESA_MODE_10A
+	bool "132x43 text"
+
+config FRAMEBUFFER_VESA_MODE_10B
+	bool "132x50 text"
+
+config FRAMEBUFFER_VESA_MODE_10C
+	bool "132x60 text"
+
+config FRAMEBUFFER_VESA_MODE_10D
+	bool "320x200 32k-color (1:5:5:5)"
+
+config FRAMEBUFFER_VESA_MODE_10E
+	bool "320x200 64k-color (5:6:5)"
+
+config FRAMEBUFFER_VESA_MODE_10F
+	bool "320x200 16.8M-color (8:8:8)"
+
+config FRAMEBUFFER_VESA_MODE_110
+	bool "640x480 32k-color (1:5:5:5)"
+
+config FRAMEBUFFER_VESA_MODE_111
+	bool "640x480 64k-color (5:6:5)"
+
+config FRAMEBUFFER_VESA_MODE_112
+	bool "640x480 16.8M-color (8:8:8)"
+
+config FRAMEBUFFER_VESA_MODE_113
+	bool "800x600 32k-color (1:5:5:5)"
+
+config FRAMEBUFFER_VESA_MODE_114
+	bool "800x600 64k-color (5:6:5)"
+
+config FRAMEBUFFER_VESA_MODE_115
+	bool "800x600 16.8M-color (8:8:8)"
+
+config FRAMEBUFFER_VESA_MODE_116
+	bool "1024x768 32k-color (1:5:5:5)"
+
+config FRAMEBUFFER_VESA_MODE_117
+	bool "1024x768 64k-color (5:6:5)"
+
+config FRAMEBUFFER_VESA_MODE_118
+	bool "1024x768 16.8M-color (8:8:8)"
+
+config FRAMEBUFFER_VESA_MODE_119
+	bool "1280x1024 32k-color (1:5:5:5)"
+
+config FRAMEBUFFER_VESA_MODE_11A
+	bool "1280x1024 64k-color (5:6:5)"
+
+config FRAMEBUFFER_VESA_MODE_11B
+	bool "1280x1024 16.8M-color (8:8:8)"
+
+config FRAMEBUFFER_VESA_MODE_USER
+	bool "Manually select VESA mode"
+
+endchoice
+
+# Map the config names to an integer (KB).
+config FRAMEBUFFER_VESA_MODE
+	prompt "VESA mode" if FRAMEBUFFER_VESA_MODE_USER
+	hex
+	default 0x100 if FRAMEBUFFER_VESA_MODE_100
+	default 0x101 if FRAMEBUFFER_VESA_MODE_101
+	default 0x102 if FRAMEBUFFER_VESA_MODE_102
+	default 0x103 if FRAMEBUFFER_VESA_MODE_103
+	default 0x104 if FRAMEBUFFER_VESA_MODE_104
+	default 0x105 if FRAMEBUFFER_VESA_MODE_105
+	default 0x106 if FRAMEBUFFER_VESA_MODE_106
+	default 0x107 if FRAMEBUFFER_VESA_MODE_107
+	default 0x108 if FRAMEBUFFER_VESA_MODE_108
+	default 0x109 if FRAMEBUFFER_VESA_MODE_109
+	default 0x10A if FRAMEBUFFER_VESA_MODE_10A
+	default 0x10B if FRAMEBUFFER_VESA_MODE_10B
+	default 0x10C if FRAMEBUFFER_VESA_MODE_10C
+	default 0x10D if FRAMEBUFFER_VESA_MODE_10D
+	default 0x10E if FRAMEBUFFER_VESA_MODE_10E
+	default 0x10F if FRAMEBUFFER_VESA_MODE_10F
+	default 0x110 if FRAMEBUFFER_VESA_MODE_110
+	default 0x111 if FRAMEBUFFER_VESA_MODE_111
+	default 0x112 if FRAMEBUFFER_VESA_MODE_112
+	default 0x113 if FRAMEBUFFER_VESA_MODE_113
+	default 0x114 if FRAMEBUFFER_VESA_MODE_114
+	default 0x115 if FRAMEBUFFER_VESA_MODE_115
+	default 0x116 if FRAMEBUFFER_VESA_MODE_116
+	default 0x117 if FRAMEBUFFER_VESA_MODE_117
+	default 0x118 if FRAMEBUFFER_VESA_MODE_118
+	default 0x119 if FRAMEBUFFER_VESA_MODE_119
+	default 0x11A if FRAMEBUFFER_VESA_MODE_11A
+	default 0x11B if FRAMEBUFFER_VESA_MODE_11B
+	default 0x117 if FRAMEBUFFER_VESA_MODE_USER
+
+endmenu
+
+source "arch/x86/cpu/ivybridge/Kconfig"
+
+source "arch/x86/cpu/queensbay/Kconfig"
+
+source "board/coreboot/coreboot/Kconfig"
+
+source "board/google/chromebook_link/Kconfig"
+
+source "board/intel/crownbay/Kconfig"
+
+endmenu

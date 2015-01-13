@@ -1,0 +1,49 @@
+/*
+ * Odroid XU3 device tree source
+ *
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+#include "exynos54xx.dtsi"
+
+/ {
+	model = "Odroid XU3 based on EXYNOS5422";
+	compatible = "samsung,odroidxu3", "samsung,exynos5";
+
+	aliases {
+		serial0 = "/serial@12C00000";
+		console = "/serial@12C20000";
+	};
+
+	memory {
+		device_type = "memory";
+		reg =  <0x40000000 0x10000000
+			0x50000000 0x10000000
+			0x60000000 0x10000000
+			0x70000000 0x10000000
+			0x80000000 0x10000000
+			0x90000000 0x10000000
+			0xa0000000 0x10000000
+			0xb0000000 0xea00000>;
+	};
+
+	ehci@12110000 {
+		samsung,vbus-gpio = <&gpio 0x66 0>; /* X26 */
+	};
+
+	serial@12C20000 {
+		status="okay";
+	};
+
+	mmc@12200000 {
+		fifoth_val = <0x201f0020>;
+	};
+
+	mmc@12220000 {
+		fifoth_val = <0x201f0020>;
+	};
+};

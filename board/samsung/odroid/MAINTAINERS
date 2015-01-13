@@ -1,0 +1,6 @@
+ODROID BOARD
+M:	Przemyslaw Marczak <p.marczak@samsung.com>
+S:	Maintained
+F:	board/samsung/odroid/
+F:	include/configs/odroid.h
+F:	configs/odroid_defconfig

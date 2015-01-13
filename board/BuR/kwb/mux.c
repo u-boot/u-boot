@@ -105,6 +105,8 @@ static struct module_pin_mux i2c0_pin_mux[] = {
 };
 
 static struct module_pin_mux mii1_pin_mux[] = {
+	{OFFSET(mii1_crs), MODE(0) | RXACTIVE},		/* MII1_CRS */
+	{OFFSET(mii1_col), MODE(0) | RXACTIVE},		/* MII1_COL */
 	{OFFSET(mii1_rxerr), MODE(0) | RXACTIVE},	/* MII1_RXERR */
 	{OFFSET(mii1_txen), MODE(0)},			/* MII1_TXEN */
 	{OFFSET(mii1_rxdv), MODE(0) | RXACTIVE},	/* MII1_RXDV */

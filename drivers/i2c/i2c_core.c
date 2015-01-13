@@ -174,11 +174,11 @@ static int i2c_mux_set_all(void)
 	return 0;
 }
 
-static int i2c_mux_disconnet_all(void)
+static int i2c_mux_disconnect_all(void)
 {
 	struct	i2c_bus_hose *i2c_bus_tmp = &i2c_bus[I2C_BUS];
 	int	i;
-	uint8_t	buf;
+	uint8_t	buf = 0;
 
 	if (I2C_ADAP->init_done == 0)
 		return 0;
@@ -197,7 +197,7 @@ static int i2c_mux_disconnet_all(void)
 
 			ret = I2C_ADAP->write(I2C_ADAP, chip, 0, 0, &buf, 1);
 			if (ret != 0) {
-				printf("i2c: mux diconnect error\n");
+				printf("i2c: mux disconnect error\n");
 				return ret;
 			}
 		} while (i > 0);
@@ -229,11 +229,9 @@ static void i2c_init_bus(unsigned int bus_no, int speed, int slaveaddr)
 }
 
 /* implement possible board specific board init */
-static void __def_i2c_init_board(void)
+__weak void i2c_init_board(void)
 {
 }
-void i2c_init_board(void)
-	__attribute__((weak, alias("__def_i2c_init_board")));
 
 /*
  * i2c_init_all():
@@ -295,7 +293,7 @@ int i2c_set_bus_num(unsigned int bus)
 	}
 
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
-	i2c_mux_disconnet_all();
+	i2c_mux_disconnect_all();
 #endif
 
 	gd->cur_i2c_bus = bus;
@@ -395,9 +393,7 @@ void i2c_reg_write(uint8_t addr, uint8_t reg, uint8_t val)
 	i2c_write(addr, reg, 1, &val, 1);
 }
 
-void __i2c_init(int speed, int slaveaddr)
+__weak void i2c_init(int speed, int slaveaddr)
 {
 	i2c_init_bus(i2c_get_bus_num(), speed, slaveaddr);
 }
-void i2c_init(int speed, int slaveaddr)
-	__attribute__((weak, alias("__i2c_init")));

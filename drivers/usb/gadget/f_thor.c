@@ -146,7 +146,8 @@ static long long int download_head(unsigned long long total,
 				   int *cnt)
 {
 	long long int rcv_cnt = 0, left_to_rcv, ret_rcv;
-	void *transfer_buffer = dfu_get_buf();
+	struct dfu_entity *dfu_entity = dfu_get_entity(alt_setting_num);
+	void *transfer_buffer = dfu_get_buf(dfu_entity);
 	void *buf = transfer_buffer;
 	int usb_pkt_cnt = 0, ret;
 
@@ -208,11 +209,23 @@ static long long int download_head(unsigned long long total,
 
 static int download_tail(long long int left, int cnt)
 {
-	struct dfu_entity *dfu_entity = dfu_get_entity(alt_setting_num);
-	void *transfer_buffer = dfu_get_buf();
+	struct dfu_entity *dfu_entity;
+	void *transfer_buffer;
 	int ret;
 
 	debug("%s: left: %llu cnt: %d\n", __func__, left, cnt);
+
+	dfu_entity = dfu_get_entity(alt_setting_num);
+	if (!dfu_entity) {
+		error("Alt setting: %d entity not found!\n", alt_setting_num);
+		return -ENOENT;
+	}
+
+	transfer_buffer = dfu_get_buf(dfu_entity);
+	if (!transfer_buffer) {
+		error("Transfer buffer not allocated!");
+		return -ENXIO;
+	}
 
 	if (left) {
 		ret = dfu_write(dfu_entity, transfer_buffer, left, cnt++);
@@ -459,16 +472,6 @@ static struct usb_endpoint_descriptor hs_int_desc = {
 	.wMaxPacketSize = __constant_cpu_to_le16(16),
 
 	.bInterval = 0x9,
-};
-
-static struct usb_qualifier_descriptor dev_qualifier = {
-	.bLength =		sizeof(dev_qualifier),
-	.bDescriptorType =	USB_DT_DEVICE_QUALIFIER,
-
-	.bcdUSB =		__constant_cpu_to_le16(0x0200),
-	.bDeviceClass =	USB_CLASS_VENDOR_SPEC,
-
-	.bNumConfigurations =	2,
 };
 
 /*

@@ -1,0 +1,28 @@
+menu "ARC architecture"
+	depends on ARC
+
+config SYS_ARCH
+	default "arc"
+
+choice
+	prompt "Target select"
+
+config TARGET_TB100
+	bool "Support tb100"
+
+config TARGET_ARCANGEL4
+	bool "Support arcangel4"
+
+config TARGET_ARCANGEL4_BE
+	bool "Support arcangel4-be"
+
+config TARGET_AXS101
+	bool "Support axs101"
+
+endchoice
+
+source "board/abilis/tb100/Kconfig"
+source "board/synopsys/Kconfig"
+source "board/synopsys/axs101/Kconfig"
+
+endmenu

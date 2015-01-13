@@ -40,6 +40,7 @@
 #include <malloc.h>
 #include <sdhci.h>
 #include <asm/arch/timer.h>
+#include <asm/arch-bcm2835/sdhci.h>
 
 /* 400KHz is max freq for card ID etc. Use that as min */
 #define MIN_FREQ 400000
@@ -179,7 +180,7 @@ int bcm2835_sdhci_init(u32 regbase, u32 emmc_freq)
 	host->name = "bcm2835_sdhci";
 	host->ioaddr = (void *)regbase;
 	host->quirks = SDHCI_QUIRK_BROKEN_VOLTAGE | SDHCI_QUIRK_BROKEN_R1B |
-		SDHCI_QUIRK_WAIT_SEND_CMD;
+		SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_NO_HISPD_BIT;
 	host->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	host->ops = &bcm2835_ops;
 

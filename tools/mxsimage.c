@@ -125,7 +125,7 @@ struct sb_image_ctx {
 	unsigned int			in_section:1;
 	unsigned int			in_dcd:1;
 	/* Image configuration */
-	unsigned int			verbose_boot:1;
+	unsigned int			display_progress:1;
 	unsigned int			silent_dump:1;
 	char				*input_filename;
 	char				*output_filename;
@@ -1308,8 +1308,8 @@ static int sb_prefill_image_header(struct sb_image_ctx *ictx)
 		sizeof(struct sb_sections_header) / SB_BLOCK_SIZE;
 	hdr->timestamp_us = sb_get_timestamp() * 1000000;
 
-	/* FIXME -- add proper config option */
-	hdr->flags = ictx->verbose_boot ? SB_IMAGE_FLAG_VERBOSE : 0,
+	hdr->flags = ictx->display_progress ?
+		SB_IMAGE_FLAG_DISPLAY_PROGRESS : 0;
 
 	/* FIXME -- We support only default key */
 	hdr->key_count = 1;
@@ -1416,7 +1416,7 @@ static int sb_parse_line(struct sb_image_ctx *ictx, struct sb_cmd_list *cmd)
 {
 	char *tok;
 	char *line = cmd->cmd;
-	char *rptr;
+	char *rptr = NULL;
 	int ret;
 
 	/* Analyze the identifier on this line first. */
@@ -1427,6 +1427,12 @@ static int sb_parse_line(struct sb_image_ctx *ictx, struct sb_cmd_list *cmd)
 	}
 
 	cmd->cmd = rptr;
+
+	/* set DISPLAY_PROGRESS flag */
+	if (!strcmp(tok, "DISPLAYPROGRESS")) {
+		ictx->display_progress = 1;
+		return 0;
+	}
 
 	/* DCD */
 	if (!strcmp(tok, "DCD")) {
@@ -1681,10 +1687,11 @@ static int sb_verify_image_header(struct sb_image_ctx *ictx,
 		 ntohs(hdr->component_version.minor),
 		 ntohs(hdr->component_version.revision));
 
-	if (hdr->flags & ~SB_IMAGE_FLAG_VERBOSE)
+	if (hdr->flags & ~SB_IMAGE_FLAGS_MASK)
 		ret = -EINVAL;
 	soprintf(ictx, "%s Image flags:                  %s\n", stat[!!ret],
-		 hdr->flags & SB_IMAGE_FLAG_VERBOSE ? "Verbose_boot" : "");
+		 hdr->flags & SB_IMAGE_FLAG_DISPLAY_PROGRESS ?
+		 "Display_progress" : "");
 	if (ret)
 		return ret;
 
@@ -2287,7 +2294,6 @@ static int mxsimage_generate(struct image_tool_params *params,
 
 	ctx.cfg_filename = params->imagename;
 	ctx.output_filename = params->imagefile;
-	ctx.verbose_boot = 1;
 
 	ret = sb_build_tree_from_cfg(&ctx);
 	if (ret)

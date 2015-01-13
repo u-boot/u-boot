@@ -1,0 +1,7 @@
+GALAXY5200 BOARD
+#M:	Eric Millbrandt <emillbrandt@dekaresearch.com>
+S:	Orphan (since 2014-06)
+F:	board/galaxy5200/
+F:	include/configs/galaxy5200.h
+F:	configs/galaxy5200_defconfig
+F:	configs/galaxy5200_LOWBOOT_defconfig

@@ -24,12 +24,6 @@ struct qportal_info qp_info[CONFIG_SYS_QMAN_NUM_PORTALS] = {
 };
 #endif
 
-struct srio_liodn_id_table srio_liodn_tbl[] = {
-	SET_SRIO_LIODN_1(1, 307),
-	SET_SRIO_LIODN_1(2, 387),
-};
-int srio_liodn_tbl_sz = ARRAY_SIZE(srio_liodn_tbl);
-
 struct liodn_id_table liodn_tbl[] = {
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	SET_QMAN_LIODN(62),
@@ -38,12 +32,21 @@ struct liodn_id_table liodn_tbl[] = {
 
 	SET_SDHC_LIODN(1, 552),
 
+	SET_PME_LIODN(117),
+
 	SET_USB_LIODN(1, "fsl-usb2-mph", 553),
+	SET_USB_LIODN(2, "fsl-usb2-dr", 554),
 
-	SET_PCI_LIODN("fsl,qoriq-pcie-v2.2", 1, 148),
+	SET_SATA_LIODN(1, 555),
+	SET_SATA_LIODN(2, 556),
 
-	SET_DMA_LIODN(1, 147),
-	SET_DMA_LIODN(2, 227),
+	SET_PCI_LIODN_BASE(CONFIG_SYS_FSL_PCIE_COMPAT, 1, 148),
+	SET_PCI_LIODN_BASE(CONFIG_SYS_FSL_PCIE_COMPAT, 2, 228),
+	SET_PCI_LIODN_BASE(CONFIG_SYS_FSL_PCIE_COMPAT, 3, 308),
+	SET_PCI_LIODN_BASE(CONFIG_SYS_FSL_PCIE_COMPAT, 4, 388),
+
+	SET_DMA_LIODN(1, "fsl,elo3-dma", 147),
+	SET_DMA_LIODN(2, "fsl,elo3-dma", 227),
 
 	/* SET_NEXUS_LIODN(557), -- not yet implemented */
 	SET_QE_LIODN(559),
@@ -74,6 +77,12 @@ struct liodn_id_table sec_liodn_tbl[] = {
 	SET_SEC_RTIC_LIODN_ENTRY(d, 551),
 	SET_SEC_DECO_LIODN_ENTRY(0, 541, 610),
 	SET_SEC_DECO_LIODN_ENTRY(1, 542, 611),
+	SET_SEC_DECO_LIODN_ENTRY(2, 543, 612),
+	SET_SEC_DECO_LIODN_ENTRY(3, 544, 613),
+	SET_SEC_DECO_LIODN_ENTRY(4, 545, 614),
+	SET_SEC_DECO_LIODN_ENTRY(5, 546, 615),
+	SET_SEC_DECO_LIODN_ENTRY(6, 547, 616),
+	SET_SEC_DECO_LIODN_ENTRY(7, 548, 617),
 };
 int sec_liodn_tbl_sz = ARRAY_SIZE(sec_liodn_tbl);
 
@@ -81,5 +90,8 @@ struct liodn_id_table liodn_bases[] = {
 	[FSL_HW_PORTAL_SEC]  = SET_LIODN_BASE_2(462, 558),
 #ifdef CONFIG_SYS_DPAA_FMAN
 	[FSL_HW_PORTAL_FMAN1] = SET_LIODN_BASE_1(973),
+#endif
+#ifdef CONFIG_SYS_DPAA_PME
+	[FSL_HW_PORTAL_PME]   = SET_LIODN_BASE_2(770, 846),
 #endif
 };

@@ -1,0 +1,6 @@
+P3P440 BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/prodrive/p3p440/
+F:	include/configs/p3p440.h
+F:	configs/p3p440_defconfig

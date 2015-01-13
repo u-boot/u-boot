@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/gp_padctrl.h>
 #include <asm/arch/gpio.h>
@@ -51,8 +52,15 @@ void gpio_early_init(void)
 
 void pmu_write(uchar reg, uchar data)
 {
-	i2c_set_bus_num(4);	/* PMU is on bus 4 */
-	i2c_write(PMU_I2C_ADDRESS, reg, 1, &data, 1);
+	struct udevice *dev;
+	int ret;
+
+	ret = i2c_get_chip_for_busnum(4, PMU_I2C_ADDRESS, &dev);
+	if (ret) {
+		debug("%s: Cannot find PMIC I2C chip\n", __func__);
+		return;
+	}
+	i2c_write(dev, reg, &data, 1);
 }
 
 /*

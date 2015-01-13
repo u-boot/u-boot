@@ -1,0 +1,6 @@
+IMX31_LITEKIT BOARD
+#M:	-
+S:	Maintained
+F:	board/logicpd/imx31_litekit/
+F:	include/configs/imx31_litekit.h
+F:	configs/imx31_litekit_defconfig

@@ -1,0 +1,60 @@
+menu "SPARC architecture"
+	depends on SPARC
+
+config LEON
+	bool
+
+config LEON2
+	bool
+	select LEON
+
+config LEON3
+	bool
+	select LEON
+
+choice
+	prompt "Board select"
+
+config TARGET_GRSIM_LEON2
+	bool "GRSIM simulating a LEON2 board"
+	select LEON2
+
+config TARGET_GR_CPCI_AX2000
+	bool "Gaisler GR-CPCI-AX2000 board"
+	select LEON3
+
+config TARGET_GR_EP2S60
+	bool "Gaisler Template design for Altera NIOS board with Stratix EP2S60"
+	select LEON3
+	help
+	  Gaisler Research AB's Template design (GPL Open Source SPARC/LEON3
+	  96MHz) for Altera NIOS Development board Stratix II edition,
+	  with the FPGA device EP2S60.
+
+config TARGET_GR_XC3S_1500
+	bool "Gaisler GR-XC3S-1500 spartan board"
+	select LEON3
+
+config TARGET_GRSIM
+	bool "GRSIM simulating a LEON3 GR-XC3S-1500 board"
+	select LEON3
+
+endchoice
+
+config SYS_ARCH
+	default "sparc"
+
+config SYS_CPU
+	default "leon2" if LEON2
+	default "leon3" if LEON3
+
+config SYS_VENDOR
+	default "gaisler"
+
+source "board/gaisler/gr_cpci_ax2000/Kconfig"
+source "board/gaisler/gr_ep2s60/Kconfig"
+source "board/gaisler/gr_xc3s_1500/Kconfig"
+source "board/gaisler/grsim/Kconfig"
+source "board/gaisler/grsim_leon2/Kconfig"
+
+endmenu

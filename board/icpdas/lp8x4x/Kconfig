@@ -1,0 +1,12 @@
+if TARGET_LP8X4X
+
+config SYS_BOARD
+	default "lp8x4x"
+
+config SYS_VENDOR
+	default "icpdas"
+
+config SYS_CONFIG_NAME
+	default "lp8x4x"
+
+endif

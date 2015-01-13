@@ -69,12 +69,6 @@ int board_init(void)
 	return 0;
 }
 
-int board_late_init(void)
-{
-	init_sata(0);
-	return 0;
-}
-
 int board_eth_init(bd_t *bis)
 {
 	return 0;

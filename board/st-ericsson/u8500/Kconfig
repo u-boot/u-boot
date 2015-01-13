@@ -1,0 +1,15 @@
+if TARGET_U8500_HREF
+
+config SYS_BOARD
+	default "u8500"
+
+config SYS_VENDOR
+	default "st-ericsson"
+
+config SYS_SOC
+	default "u8500"
+
+config SYS_CONFIG_NAME
+	default "u8500_href"
+
+endif

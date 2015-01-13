@@ -26,7 +26,7 @@
 #error CONFIG_PARTITION_UUIDS must be enabled for CONFIG_CMD_PART to be enabled
 #endif
 
-int do_part_uuid(int argc, char * const argv[])
+static int do_part_uuid(int argc, char * const argv[])
 {
 	int part;
 	block_dev_desc_t *dev_desc;
@@ -49,7 +49,7 @@ int do_part_uuid(int argc, char * const argv[])
 	return 0;
 }
 
-int do_part_list(int argc, char * const argv[])
+static int do_part_list(int argc, char * const argv[])
 {
 	int ret;
 	block_dev_desc_t *desc;
@@ -66,7 +66,7 @@ int do_part_list(int argc, char * const argv[])
 	return 0;
 }
 
-int do_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
 		return CMD_RET_USAGE;

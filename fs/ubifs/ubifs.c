@@ -26,6 +26,9 @@
 #include "ubifs.h"
 #include <u-boot/zlib.h>
 
+#include <linux/err.h>
+#include <linux/lzo.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /* compress.c */
@@ -44,20 +47,27 @@ static int gzip_decompress(const unsigned char *in, size_t in_len,
 /* Fake description object for the "none" compressor */
 static struct ubifs_compressor none_compr = {
 	.compr_type = UBIFS_COMPR_NONE,
-	.name = "no compression",
+	.name = "none",
 	.capi_name = "",
 	.decompress = NULL,
 };
 
 static struct ubifs_compressor lzo_compr = {
 	.compr_type = UBIFS_COMPR_LZO,
-	.name = "LZO",
+#ifndef __UBOOT__
+	.comp_mutex = &lzo_mutex,
+#endif
+	.name = "lzo",
 	.capi_name = "lzo",
 	.decompress = lzo1x_decompress_safe,
 };
 
 static struct ubifs_compressor zlib_compr = {
 	.compr_type = UBIFS_COMPR_ZLIB,
+#ifndef __UBOOT__
+	.comp_mutex = &deflate_mutex,
+	.decomp_mutex = &inflate_mutex,
+#endif
 	.name = "zlib",
 	.capi_name = "deflate",
 	.decompress = gzip_decompress,
@@ -65,6 +75,82 @@ static struct ubifs_compressor zlib_compr = {
 
 /* All UBIFS compressors */
 struct ubifs_compressor *ubifs_compressors[UBIFS_COMPR_TYPES_CNT];
+
+
+#ifdef __UBOOT__
+/* from mm/util.c */
+
+/**
+ * kmemdup - duplicate region of memory
+ *
+ * @src: memory region to duplicate
+ * @len: memory region length
+ * @gfp: GFP mask to use
+ */
+void *kmemdup(const void *src, size_t len, gfp_t gfp)
+{
+	void *p;
+
+	p = kmalloc(len, gfp);
+	if (p)
+		memcpy(p, src, len);
+	return p;
+}
+
+struct crypto_comp {
+	int compressor;
+};
+
+static inline struct crypto_comp *crypto_alloc_comp(const char *alg_name,
+						u32 type, u32 mask)
+{
+	struct ubifs_compressor *comp;
+	struct crypto_comp *ptr;
+	int i = 0;
+
+	ptr = malloc(sizeof(struct crypto_comp));
+	while (i < UBIFS_COMPR_TYPES_CNT) {
+		comp = ubifs_compressors[i];
+		if (!comp) {
+			i++;
+			continue;
+		}
+		if (strncmp(alg_name, comp->capi_name, strlen(alg_name)) == 0) {
+			ptr->compressor = i;
+			return ptr;
+		}
+		i++;
+	}
+	if (i >= UBIFS_COMPR_TYPES_CNT) {
+		ubifs_err("invalid compression type %s", alg_name);
+		free (ptr);
+		return NULL;
+	}
+	return ptr;
+}
+static inline int crypto_comp_decompress(struct crypto_comp *tfm,
+				const u8 *src, unsigned int slen,
+				u8 *dst, unsigned int *dlen)
+{
+	struct ubifs_compressor *compr = ubifs_compressors[tfm->compressor];
+	int err;
+
+	if (compr->compr_type == UBIFS_COMPR_NONE) {
+		memcpy(dst, src, slen);
+		*dlen = slen;
+		return 0;
+	}
+
+	err = compr->decompress(src, slen, dst, (size_t *)dlen);
+	if (err)
+		ubifs_err("cannot decompress %d bytes, compressor %s, "
+			  "error %d", slen, compr->name, err);
+
+	return err;
+
+	return 0;
+}
+#endif
 
 /**
  * ubifs_decompress - decompress data.
@@ -102,10 +188,15 @@ int ubifs_decompress(const void *in_buf, int in_len, void *out_buf,
 		return 0;
 	}
 
-	err = compr->decompress(in_buf, in_len, out_buf, (size_t *)out_len);
+	if (compr->decomp_mutex)
+		mutex_lock(compr->decomp_mutex);
+	err = crypto_comp_decompress(compr->cc, in_buf, in_len, out_buf,
+				     (unsigned int *)out_len);
+	if (compr->decomp_mutex)
+		mutex_unlock(compr->decomp_mutex);
 	if (err)
-		ubifs_err("cannot decompress %d bytes, compressor %s, "
-			  "error %d", in_len, compr->name, err);
+		ubifs_err("cannot decompress %d bytes, compressor %s, error %d",
+			  in_len, compr->name, err);
 
 	return err;
 }
@@ -126,6 +217,15 @@ static int __init compr_init(struct ubifs_compressor *compr)
 	ubifs_compressors[compr->compr_type]->capi_name += gd->reloc_off;
 	ubifs_compressors[compr->compr_type]->decompress += gd->reloc_off;
 #endif
+
+	if (compr->capi_name) {
+		compr->cc = crypto_alloc_comp(compr->capi_name, 0, 0);
+		if (IS_ERR(compr->cc)) {
+			ubifs_err("cannot initialize compressor %s, error %ld",
+				  compr->name, PTR_ERR(compr->cc));
+			return PTR_ERR(compr->cc);
+		}
+	}
 
 	return 0;
 }
@@ -188,7 +288,9 @@ static int filldir(struct ubifs_info *c, const char *name, int namlen,
 	}
 	ctime_r((time_t *)&inode->i_mtime, filetime);
 	printf("%9lld  %24.24s  ", inode->i_size, filetime);
+#ifndef __UBOOT__
 	ubifs_iput(inode);
+#endif
 
 	printf("%s\n", name);
 
@@ -562,7 +664,7 @@ static int read_block(struct inode *inode, void *addr, unsigned int block,
 dump:
 	ubifs_err("bad data node (block %u, inode %lu)",
 		  block, inode->i_ino);
-	dbg_dump_node(c, dn);
+	ubifs_dump_node(c, dn);
 	return -EINVAL;
 }
 

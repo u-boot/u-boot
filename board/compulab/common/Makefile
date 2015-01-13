@@ -6,5 +6,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_SYS_I2C) += eeprom.o
-obj-$(CONFIG_LCD) += omap3_display.o
+obj-y				+= common.o
+obj-$(CONFIG_SYS_I2C)		+= eeprom.o
+obj-$(CONFIG_LCD)		+= omap3_display.o
+obj-$(CONFIG_SPLASH_SCREEN)	+= splash.o
+obj-$(CONFIG_SMC911X)		+= omap3_smc911x.o

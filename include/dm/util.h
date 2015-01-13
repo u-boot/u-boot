@@ -5,8 +5,15 @@
  */
 
 #ifndef __DM_UTIL_H
+#define __DM_UTIL_H
 
+#ifdef CONFIG_DM_WARN
 void dm_warn(const char *fmt, ...);
+#else
+static inline void dm_warn(const char *fmt, ...)
+{
+}
+#endif
 
 #ifdef DEBUG
 void dm_dbg(const char *fmt, ...);

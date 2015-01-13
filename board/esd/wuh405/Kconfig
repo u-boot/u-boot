@@ -1,0 +1,12 @@
+if TARGET_WUH405
+
+config SYS_BOARD
+	default "wuh405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "WUH405"
+
+endif

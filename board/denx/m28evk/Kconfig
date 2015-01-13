@@ -1,0 +1,15 @@
+if TARGET_M28EVK
+
+config SYS_BOARD
+	default "m28evk"
+
+config SYS_VENDOR
+	default "denx"
+
+config SYS_SOC
+	default "mxs"
+
+config SYS_CONFIG_NAME
+	default "m28evk"
+
+endif

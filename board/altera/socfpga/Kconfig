@@ -1,0 +1,15 @@
+if TARGET_SOCFPGA_CYCLONE5
+
+config SYS_BOARD
+	default "socfpga"
+
+config SYS_VENDOR
+	default "altera"
+
+config SYS_SOC
+	default "socfpga"
+
+config SYS_CONFIG_NAME
+	default "socfpga_cyclone5"
+
+endif

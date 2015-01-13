@@ -120,8 +120,12 @@ typedef u64 iomux_v3_cfg_t;
 
 #define PAD_MUX_MODE_SHIFT	20
 
+#define PAD_CTL_INPUT_DIFFERENTIAL (1 << 16)
+
 #define PAD_CTL_SPEED_MED	(1 << 12)
 #define PAD_CTL_SPEED_HIGH	(3 << 12)
+
+#define PAD_CTL_SRE		(1 << 11)
 
 #define PAD_CTL_DSE_150ohm	(1 << 6)
 #define PAD_CTL_DSE_50ohm	(3 << 6)
@@ -135,6 +139,8 @@ typedef u64 iomux_v3_cfg_t;
 #define PAD_CTL_PUE		(1 << 2 | PAD_CTL_PKE)
 
 #define PAD_CTL_OBE_IBE_ENABLE	(3 << 0)
+#define PAD_CTL_OBE_ENABLE	(1 << 1)
+#define PAD_CTL_IBE_ENABLE	(1 << 0)
 
 #else
 
@@ -176,6 +182,11 @@ typedef u64 iomux_v3_cfg_t;
 void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad);
 void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
 				     unsigned count);
+/*
+* Set bits for general purpose registers
+*/
+void imx_iomux_set_gpr_register(int group, int start_bit,
+					 int num_bits, int value);
 
 /* macros for declaring and using pinmux array */
 #if defined(CONFIG_MX6QDL)

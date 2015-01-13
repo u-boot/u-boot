@@ -173,11 +173,13 @@ void pci_init_board(void)
 
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup (void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 
 	FT_FSL_PCI_SETUP;
+
+	return 0;
 }
 #endif
 

@@ -37,8 +37,8 @@
 
 #define CONFIG_BOARD_NAME		"o2i"
 #define CONFIG_BOARD_BOOTCMD		"run dhcp_boot"
-#define CONFIG_BOARD_MEM_LIMIT		xstr(62)
-#define BOARD_POST_CRC32_END		xstr(0x01000000)
+#define CONFIG_BOARD_MEM_LIMIT		__stringify(62)
+#define BOARD_POST_CRC32_END		__stringify(0x01000000)
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_IFM_DEFAULT_ENV_SETTINGS					\
@@ -52,7 +52,7 @@
 	"jfftop=ffebffff\0"						\
 	"kernel_addr=0xff060000\0"					\
 	"ramdisk_addr=0xff160000\0"					\
-	"ubobot=" xstr(CONFIG_SYS_FLASH_BASE) "\0"			\
+	"ubobot=" __stringify(CONFIG_SYS_FLASH_BASE) "\0"		\
 	"ubotop=ff03ffff\0"						\
 	"autoload=no\0"							\
 	"dhcp_boot=run dhcpcmd; run flash_mtd\0"			\

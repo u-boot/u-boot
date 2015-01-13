@@ -1,0 +1,7 @@
+BF525-UCR2 BOARD
+M:	Haitao Zhang <hzhang@ucrobotics.com>
+M:	Chong Huang <chuang@ucrobotics.com>
+S:	Maintained
+F:	board/bf525-ucr2/
+F:	include/configs/bf525-ucr2.h
+F:	configs/bf525-ucr2_defconfig

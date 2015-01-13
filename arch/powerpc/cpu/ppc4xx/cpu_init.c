@@ -12,9 +12,7 @@
 #include <asm/ppc4xx-gpio.h>
 #include <asm/ppc4xx.h>
 
-#if defined(CONFIG_405GP)  || defined(CONFIG_405EP)
 DECLARE_GLOBAL_DATA_PTR;
-#endif
 
 #ifndef CONFIG_SYS_PLL_RECONFIG
 #define CONFIG_SYS_PLL_RECONFIG	0
@@ -286,7 +284,7 @@ cpu_init_f (void)
 	reconfigure_pll(CONFIG_SYS_PLL_RECONFIG);
 
 #if (defined(CONFIG_405EP) || defined (CONFIG_405EX)) && \
-    !defined(CONFIG_APM821XX) &&!defined(CONFIG_SYS_4xx_GPIO_TABLE)
+    !defined(CONFIG_SYS_4xx_GPIO_TABLE)
 	/*
 	 * GPIO0 setup (select GPIO or alternate function)
 	 */
@@ -442,7 +440,7 @@ cpu_init_f (void)
 #if defined(CONFIG_405EX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)  || \
-    defined(CONFIG_460SX) || defined(CONFIG_APM821XX)
+    defined(CONFIG_460SX)
 	/*
 	 * Set PLB4 arbiter (Segment 0 and 1) to 4 deep pipeline read
 	 */
@@ -451,6 +449,11 @@ cpu_init_f (void)
 	mtdcr(PLB4A1_ACR, (mfdcr(PLB4A1_ACR) & ~PLB4Ax_ACR_RDP_MASK) |
 	      PLB4Ax_ACR_RDP_4DEEP);
 #endif /* CONFIG_440SP/SPE || CONFIG_460EX/GT || CONFIG_405EX */
+
+	gd = (gd_t *)(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
+
+	/* Clear initial global data */
+	memset((void *)gd, 0, sizeof(gd_t));
 }
 
 /*

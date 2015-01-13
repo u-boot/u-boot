@@ -11,6 +11,7 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <spi_flash.h>
+#include "../common/sleep.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -33,20 +34,26 @@ unsigned long get_board_ddr_clk(void)
 void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio, sys_clk, uart_clk;
-#ifdef CONFIG_SPL_NAND_BOOT
+#if defined(CONFIG_SPL_NAND_BOOT) && defined(CONFIG_A008044_WORKAROUND)
 	u32 porsr1, pinctl;
+	u32 svr = get_svr();
 #endif
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 
-#ifdef CONFIG_SPL_NAND_BOOT
-	/*
-	 * There is T1040 SoC issue where NOR, FPGA are inaccessible during
-	 * NAND boot because IFC signals > IFC_AD7 are not enabled.
-	 * This workaround changes RCW source to make all signals enabled.
-	 */
-	porsr1 = in_be32(&gur->porsr1);
-	pinctl = ((porsr1 & ~(FSL_CORENET_CCSR_PORSR1_RCW_MASK)) | 0x24800000);
-	out_be32((unsigned int *)(CONFIG_SYS_DCSRBAR + 0x20000), pinctl);
+#if defined(CONFIG_SPL_NAND_BOOT) && defined(CONFIG_A008044_WORKAROUND)
+	if (IS_SVR_REV(svr, 1, 0)) {
+		/*
+		 * There is T1040 SoC issue where NOR, FPGA are inaccessible
+		 * during NAND boot because IFC signals > IFC_AD7 are not
+		 * enabled. This workaround changes RCW source to make all
+		 * signals enabled.
+		 */
+		porsr1 = in_be32(&gur->porsr1);
+		pinctl = ((porsr1 & ~(FSL_CORENET_CCSR_PORSR1_RCW_MASK))
+			  | 0x24800000);
+		out_be32((unsigned int *)(CONFIG_SYS_DCSRBAR + 0x20000),
+			 pinctl);
+	}
 #endif
 
 	/* Memcpy existing GD at CONFIG_SPL_GD_ADDR */
@@ -55,6 +62,11 @@ void board_init_f(ulong bootflag)
 	/* Update GD pointer */
 	gd = (gd_t *)(CONFIG_SPL_GD_ADDR);
 
+#ifdef CONFIG_DEEP_SLEEP
+	/* disable the console if boot from deep sleep */
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("" : : : "memory");
 

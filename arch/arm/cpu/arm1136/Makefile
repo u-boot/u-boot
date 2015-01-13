@@ -7,3 +7,6 @@
 
 extra-y	= start.o
 obj-y	= cpu.o
+
+obj-$(CONFIG_MX31) += mx31/
+obj-$(CONFIG_MX35) += mx35/

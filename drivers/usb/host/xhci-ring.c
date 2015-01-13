@@ -511,7 +511,7 @@ static void record_transfer_result(struct usb_device *udev,
 				   union xhci_trb *event, int length)
 {
 	udev->act_len = min(length, length -
-		EVENT_TRB_LEN(le32_to_cpu(event->trans_event.transfer_len)));
+		(int)EVENT_TRB_LEN(le32_to_cpu(event->trans_event.transfer_len)));
 
 	switch (GET_COMP_CODE(le32_to_cpu(event->trans_event.transfer_len))) {
 	case COMP_SUCCESS:

@@ -181,7 +181,7 @@ int print_cpuinfo(void)
 		(cpurev & 0xF0) >> 4, (cpurev & 0x0F),
 		((cpurev & 0x8000) ? " unknown" : ""),
 		strmhz(buf, imx_get_armclk()));
-	printf("Reset cause: %s\n\n", get_reset_cause());
+	printf("Reset cause: %s\n", get_reset_cause());
 	return 0;
 }
 #endif

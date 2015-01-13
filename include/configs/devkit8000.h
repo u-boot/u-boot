@@ -17,11 +17,11 @@
 
 /* High Level Configuration Options */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
-#define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3_DEVKIT8000	1	/* working with DevKit8000 */
 #define CONFIG_MACH_TYPE	MACH_TYPE_DEVKIT8000
 #define CONFIG_OMAP_GPIO
 #define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
@@ -262,8 +262,6 @@
 #define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
 
 /* NAND and environment organization  */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #define CONFIG_ENV_IS_IN_NAND		1
@@ -283,7 +281,6 @@
 #define CONFIG_SYS_SRAM_SIZE               0x10000
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 
@@ -302,8 +299,8 @@
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME        "u-boot.img"
-#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION    1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME        "u-boot.img"
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x300 /* address 0x60000 */
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
@@ -345,8 +342,8 @@
 					0x400000)
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x280000
 
-#define CONFIG_SPL_FAT_LOAD_KERNEL_NAME		"uImage"
-#define CONFIG_SPL_FAT_LOAD_ARGS_NAME		"args"
+#define CONFIG_SPL_FS_LOAD_KERNEL_NAME		"uImage"
+#define CONFIG_SPL_FS_LOAD_ARGS_NAME		"args"
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x500 /* address 0xa0000 */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x8   /* address 0x1000 */

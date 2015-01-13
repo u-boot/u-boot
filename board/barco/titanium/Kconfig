@@ -1,0 +1,15 @@
+if TARGET_TITANIUM
+
+config SYS_BOARD
+	default "titanium"
+
+config SYS_VENDOR
+	default "barco"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "titanium"
+
+endif

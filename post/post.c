@@ -52,7 +52,7 @@ int post_init_f(void)
  * Boards with hotkey support can override this weak default function
  * by defining one in their board specific code.
  */
-int __post_hotkeys_pressed(void)
+__weak int post_hotkeys_pressed(void)
 {
 #ifdef CONFIG_SYS_POST_HOTKEYS_GPIO
 	int ret;
@@ -73,9 +73,6 @@ int __post_hotkeys_pressed(void)
 
 	return 0;	/* No hotkeys supported */
 }
-int post_hotkeys_pressed(void)
-	__attribute__((weak, alias("__post_hotkeys_pressed")));
-
 
 void post_bootmode_init(void)
 {
@@ -236,11 +233,9 @@ static void post_get_flags(int *test_flags)
 			test_flags[j] |= POST_SLOWTEST;
 }
 
-void __show_post_progress(unsigned int test_num, int before, int result)
+__weak void show_post_progress(unsigned int test_num, int before, int result)
 {
 }
-void show_post_progress(unsigned int, int, int)
-			__attribute__((weak, alias("__show_post_progress")));
 
 static int post_run_single(struct post_test *test,
 				int test_flags, int flags, unsigned int i)

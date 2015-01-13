@@ -1,0 +1,16 @@
+if ORION5X
+
+choice
+	prompt "Marvell Orion board select"
+
+config TARGET_EDMINIV2
+	bool "LaCie Ethernet Disk mini V2"
+
+endchoice
+
+config SYS_SOC
+	default "orion5x"
+
+source "board/LaCie/edminiv2/Kconfig"
+
+endif

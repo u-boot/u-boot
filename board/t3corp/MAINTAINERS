@@ -1,0 +1,6 @@
+T3CORP BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/t3corp/
+F:	include/configs/t3corp.h
+F:	configs/t3corp_defconfig

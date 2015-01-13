@@ -85,6 +85,7 @@ static const table_entry_t uimage_arch[] = {
 	{	IH_ARCH_SANDBOX,	"sandbox",	"Sandbox",	},
 	{	IH_ARCH_ARM64,		"arm64",	"AArch64",	},
 	{	IH_ARCH_ARC,		"arc",		"ARC",		},
+	{	IH_ARCH_X86_64,		"x86_64",	"AMD x86_64",	},
 	{	-1,			"",		"",		},
 };
 
@@ -138,10 +139,12 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_PBLIMAGE,   "pblimage",   "Freescale PBL Boot Image",},
 	{	IH_TYPE_RAMDISK,    "ramdisk",	  "RAMDisk Image",	},
 	{	IH_TYPE_SCRIPT,     "script",	  "Script",		},
+	{	IH_TYPE_SOCFPGAIMAGE, "socfpgaimage", "Altera SOCFPGA preloader",},
 	{	IH_TYPE_STANDALONE, "standalone", "Standalone Program", },
 	{	IH_TYPE_UBLIMAGE,   "ublimage",   "Davinci UBL image",},
 	{	IH_TYPE_MXSIMAGE,   "mxsimage",   "Freescale MXS Boot Image",},
 	{	IH_TYPE_ATMELIMAGE, "atmelimage", "ATMEL ROM-Boot Image",},
+	{	IH_TYPE_X86_SETUP,  "x86_setup",  "x86 setup.bin",    },
 	{	-1,		    "",		  "",			},
 };
 
@@ -482,12 +485,22 @@ void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
 		return;
 
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+	if (to > from) {
+		from += len;
+		to += len;
+	}
 	while (len > 0) {
 		size_t tail = (len > chunksz) ? chunksz : len;
 		WATCHDOG_RESET();
+		if (to > from) {
+			to -= tail;
+			from -= tail;
+		}
 		memmove(to, from, tail);
-		to += tail;
-		from += tail;
+		if (to < from) {
+			to += tail;
+			from += tail;
+		}
 		len -= tail;
 	}
 #else	/* !(CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG) */
@@ -642,6 +655,64 @@ int genimg_get_comp_id(const char *name)
 }
 
 #ifndef USE_HOSTCC
+/**
+ * genimg_get_kernel_addr_fit - get the real kernel address and return 2
+ *                              FIT strings
+ * @img_addr: a string might contain real image address
+ * @fit_uname_config: double pointer to a char, will hold pointer to a
+ *                    configuration unit name
+ * @fit_uname_kernel: double pointer to a char, will hold pointer to a subimage
+ *                    name
+ *
+ * genimg_get_kernel_addr_fit get the real kernel start address from a string
+ * which is normally the first argv of bootm/bootz
+ *
+ * returns:
+ *     kernel start address
+ */
+ulong genimg_get_kernel_addr_fit(char * const img_addr,
+			     const char **fit_uname_config,
+			     const char **fit_uname_kernel)
+{
+	ulong kernel_addr;
+
+	/* find out kernel image address */
+	if (!img_addr) {
+		kernel_addr = load_addr;
+		debug("*  kernel: default image load address = 0x%08lx\n",
+		      load_addr);
+#if defined(CONFIG_FIT)
+	} else if (fit_parse_conf(img_addr, load_addr, &kernel_addr,
+				  fit_uname_config)) {
+		debug("*  kernel: config '%s' from image at 0x%08lx\n",
+		      *fit_uname_config, kernel_addr);
+	} else if (fit_parse_subimage(img_addr, load_addr, &kernel_addr,
+				     fit_uname_kernel)) {
+		debug("*  kernel: subimage '%s' from image at 0x%08lx\n",
+		      *fit_uname_kernel, kernel_addr);
+#endif
+	} else {
+		kernel_addr = simple_strtoul(img_addr, NULL, 16);
+		debug("*  kernel: cmdline image address = 0x%08lx\n",
+		      kernel_addr);
+	}
+
+	return kernel_addr;
+}
+
+/**
+ * genimg_get_kernel_addr() is the simple version of
+ * genimg_get_kernel_addr_fit(). It ignores those return FIT strings
+ */
+ulong genimg_get_kernel_addr(char * const img_addr)
+{
+	const char *fit_uname_config = NULL;
+	const char *fit_uname_kernel = NULL;
+
+	return genimg_get_kernel_addr_fit(img_addr, &fit_uname_config,
+					  &fit_uname_kernel);
+}
+
 /**
  * genimg_get_format - get image format type
  * @img_addr: image start address
@@ -908,7 +979,8 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 					&fit_uname_config, arch,
 					IH_TYPE_RAMDISK,
 					BOOTSTAGE_ID_FIT_RD_START,
-					FIT_LOAD_IGNORED, &rd_data, &rd_len);
+					FIT_LOAD_OPTIONAL_NON_ZERO,
+					&rd_data, &rd_len);
 			if (rd_noffset < 0)
 				return 1;
 
@@ -949,7 +1021,8 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		image_multi_getimg(images->legacy_hdr_os, 1, &rd_data, &rd_len);
 	}
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
-	else if ((genimg_get_format(images) == IMAGE_FORMAT_ANDROID) &&
+	else if ((genimg_get_format((void *)images->os.start)
+			== IMAGE_FORMAT_ANDROID) &&
 		 (!android_image_get_ramdisk((void *)images->os.start,
 		 &rd_data, &rd_len))) {
 		/* empty */
@@ -1075,6 +1148,16 @@ error:
 	return -1;
 }
 #endif /* CONFIG_SYS_BOOT_RAMDISK_HIGH */
+
+int boot_get_setup(bootm_headers_t *images, uint8_t arch,
+		   ulong *setup_start, ulong *setup_len)
+{
+#if defined(CONFIG_FIT)
+	return boot_get_setup_fit(images, arch, setup_start, setup_len);
+#else
+	return -ENOENT;
+#endif
+}
 
 #ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 /**

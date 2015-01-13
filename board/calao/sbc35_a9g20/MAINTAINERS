@@ -1,0 +1,7 @@
+SBC35_A9G20 BOARD
+#M:	Albin Tonnerre <albin.tonnerre@free-electrons.com>
+S:	Orphan (since 2014-06)
+F:	board/calao/sbc35_a9g20/
+F:	include/configs/sbc35_a9g20.h
+F:	configs/sbc35_a9g20_eeprom_defconfig
+F:	configs/sbc35_a9g20_nandflash_defconfig

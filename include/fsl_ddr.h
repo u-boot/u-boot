@@ -15,6 +15,11 @@
 
 #include <common_timing_params.h>
 
+#ifndef CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS
+/* All controllers are for main memory */
+#define CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS	CONFIG_NUM_DDR_CONTROLLERS
+#endif
+
 #ifdef CONFIG_SYS_FSL_DDR_LE
 #define ddr_in32(a)	in_le32(a)
 #define ddr_out32(a, v)	out_le32(a, v)
@@ -57,6 +62,13 @@ typedef struct {
 	memctl_options_t memctl_opts[CONFIG_SYS_NUM_DDR_CTLRS];
 	common_timing_params_t common_timing_params[CONFIG_SYS_NUM_DDR_CTLRS];
 	fsl_ddr_cfg_regs_t fsl_ddr_config_reg[CONFIG_SYS_NUM_DDR_CTLRS];
+	unsigned int first_ctrl;
+	unsigned int num_ctrls;
+	unsigned long long mem_base;
+	unsigned int dimm_slots_per_ctrl;
+	int (*board_need_mem_reset)(void);
+	void (*board_mem_reset)(void);
+	void (*board_mem_de_reset)(void);
 } fsl_ddr_info_t;
 
 /* Compute steps */
@@ -72,7 +84,6 @@ typedef struct {
 unsigned long long
 fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 				       unsigned int size_only);
-
 const char *step_to_string(unsigned int step);
 
 unsigned int compute_fsl_memctl_config_regs(const memctl_options_t *popts,
@@ -102,7 +113,7 @@ void fsl_ddr_set_lawbar(
 int fsl_ddr_interactive_env_var_exists(void);
 unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set);
 void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
-			   unsigned int ctrl_num);
+		     unsigned int ctrl_num, unsigned int dimm_slots_per_ctrl);
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 unsigned int check_fsl_memctl_config_regs(const fsl_ddr_cfg_regs_t *ddr);

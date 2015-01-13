@@ -1,0 +1,30 @@
+if TEGRA124
+
+choice
+	prompt "Tegra124 board select"
+
+config TARGET_JETSON_TK1
+	bool "NVIDIA Tegra124 Jetson TK1 board"
+
+config TARGET_NYAN_BIG
+	bool "Google/NVIDIA Nyan-big Chrombook"
+	help
+	  Nyan Big is a Tegra124 clamshell board that is very similar
+	  to venice2, but it has a different panel, the sdcard CD and WP
+	  sense are flipped, and it has a different revision of the AS3722
+	  PMIC. The retail name is the Acer Chromebook 13 CB5-311-T7NN
+	  (13.3-inch HD, NVIDIA Tegra K1, 2GB).
+
+config TARGET_VENICE2
+	bool "NVIDIA Tegra124 Venice2"
+
+endchoice
+
+config SYS_SOC
+	default "tegra124"
+
+source "board/nvidia/jetson-tk1/Kconfig"
+source "board/nvidia/nyan-big/Kconfig"
+source "board/nvidia/venice2/Kconfig"
+
+endif

@@ -8,9 +8,9 @@
 
 /* From glibc-2.14, sysdeps/i386/memset.c */
 
-#include <compiler.h>
-#include <asm/string.h>
 #include <linux/types.h>
+#include <linux/compiler.h>
+#include <asm/string.h>
 
 typedef uint32_t op_t;
 

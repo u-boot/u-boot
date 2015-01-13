@@ -14,7 +14,6 @@
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 
 /* SoC Configuration */
-#define CONFIG_ARM926EJS				/* arm926ejs CPU */
 #define CONFIG_SYS_TIMERBASE		0x01c21400	/* use timer 0 */
 #define CONFIG_SYS_HZ_CLOCK		24000000	/* timer0 freq */
 #define CONFIG_SOC_DM365
@@ -199,7 +198,6 @@
 #define CONFIG_SYS_NAND_BLOCK_SIZE	0x20000
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT

@@ -205,11 +205,7 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 
 	j = 0;
 	while ((rtx->txbd[txIdx].cbd_sc & BD_ENET_TX_READY) && (j<TOUT_LOOP)) {
-#if defined(CONFIG_ICU862)
-		udelay(10);
-#else
 		udelay(1);
-#endif
 		j++;
 	}
 	if (j>=TOUT_LOOP) {
@@ -424,7 +420,7 @@ static void fec_pin_init(int fecidx)
 
 #endif /* !CONFIG_RMII */
 
-#elif !defined(CONFIG_ICU862)
+#else
 		/*
 		 * Configure all of port D for MII.
 		 */
@@ -437,41 +433,7 @@ static void fec_pin_init(int fecidx)
 			immr->im_ioport.iop_pddir = 0x1c58;	/* Pre rev. D */
 		else
 			immr->im_ioport.iop_pddir = 0x1fff;	/* Rev. D and later */
-#else
-		/*
-		 * Configure port A for MII.
-		 */
-
-#if defined(CONFIG_ICU862) && defined(CONFIG_SYS_DISCOVER_PHY)
-
-		/*
-		 * On the ICU862 board the MII-MDC pin is routed to PD8 pin
-		 * * of CPU, so for this board we need to configure Utopia and
-		 * * enable PD8 to MII-MDC function
-		 */
-		immr->im_ioport.iop_pdpar |= 0x4080;
 #endif
-
-		/*
-		 * Has Utopia been configured?
-		 */
-		if (immr->im_ioport.iop_pdpar & (0x8000 >> 1)) {
-			/*
-			 * YES - Use MUXED mode for UTOPIA bus.
-			 * This frees Port A for use by MII (see 862UM table 41-6).
-			 */
-			immr->im_ioport.utmode &= ~0x80;
-		} else {
-			/*
-			 * NO - set SPLIT mode for UTOPIA bus.
-			 *
-			 * This doesn't really effect UTOPIA (which isn't
-			 * enabled anyway) but just tells the 862
-			 * to use port A for MII (see 862UM table 41-6).
-			 */
-			immr->im_ioport.utmode |= 0x80;
-		}
-#endif				/* !defined(CONFIG_ICU862) */
 
 #endif	/* CONFIG_ETHER_ON_FEC1 */
 	} else if (fecidx == 1) {

@@ -12,7 +12,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 
 static u32 kirkwood_variant(void)

@@ -10,6 +10,8 @@
 #ifndef __SYS_PROTO_H__
 #define __SYS_PROTO_H__
 
+#include <asm/imx-common/regs-common.h>
+
 int mxs_reset_block(struct mxs_register_32 *reg);
 int mxs_wait_mask_set(struct mxs_register_32 *reg,
 		       uint32_t mask,

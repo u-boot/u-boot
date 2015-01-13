@@ -1,0 +1,9 @@
+if TARGET_SHMIN
+
+config SYS_BOARD
+	default "shmin"
+
+config SYS_CONFIG_NAME
+	default "shmin"
+
+endif

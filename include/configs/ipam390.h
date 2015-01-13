@@ -25,7 +25,6 @@
  * SoC Configuration
  */
 #define CONFIG_MACH_DAVINCI_DA850_EVM
-#define CONFIG_ARM926EJS		/* arm926ejs CPU core */
 #define CONFIG_SOC_DA8XX		/* TI DA8xx SoC */
 #define CONFIG_SOC_DA850		/* TI DA850 SoC */
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
@@ -298,7 +297,6 @@
 					"-(rootfs)"
 
 /* defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE - \

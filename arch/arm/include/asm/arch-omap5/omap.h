@@ -27,7 +27,7 @@
 #define CONTROL_CORE_ID_CODE	0x4A002204
 #define CONTROL_WKUP_ID_CODE	0x4AE0C204
 
-#ifdef CONFIG_DRA7XX
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 #define CONTROL_ID_CODE		CONTROL_WKUP_ID_CODE
 #else
 #define CONTROL_ID_CODE		CONTROL_CORE_ID_CODE
@@ -163,7 +163,7 @@ struct s32ktimer {
  * much larger) and do not, at this time, make use of the additional
  * space.
  */
-#ifdef CONFIG_DRA7XX
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 #define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40380000	/* Not inclusive */
 #else

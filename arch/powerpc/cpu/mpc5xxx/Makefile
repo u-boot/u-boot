@@ -7,6 +7,7 @@
 
 extra-y	= start.o
 extra-y += traps.o
+obj-y  += cache.o
 obj-y  += io.o
 obj-y  += firmware_sc_task_bestcomm.impl.o
 obj-y += i2c.o

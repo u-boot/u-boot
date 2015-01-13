@@ -1,0 +1,56 @@
+The biggest problem when trying to compile U-boot with clang is that
+almost all archs rely on storing gd in a global register and clang user
+manual states: "clang does not support global register variables; this
+is unlikely to be implemented soon because it requires additional LLVM
+backend support."
+
+Since version 3.4 the ARM backend can be instructed to leave r9 alone.
+Global registers themselves are not supported so some inline assembly is
+used to get its value. This does lead to larger code then strictly
+necessary, but at least works.
+
+NOTE: target compilation only work for _some_ ARM boards at the moment.
+Also Aarch64 is not supported: Most notably boards which aren't using
+the generic board will fail to compile, but since those are expected
+to be converted this will solve itself. Boards which reassign gd in c
+will also fail to compile, but there is in no strict reason to do so
+in the ARM world, since crt0.S takes care of this. These assignments
+can be avoided by changing the init calls but this is not in mainline yet.
+
+NOTE: without the -mllvm -arm-use-movt=0 flags u-boot will compile
+fine, but llvm might hardcode addresses in movw / movt pairs, which
+cannot be relocated and u-boot will fail at runtime.
+
+Debian (based)
+--------------
+Binary packages can be installed as usual, e.g.:
+sudo apt-get install clang
+
+To compile U-Boot with clang on linux without IAS use e.g.:
+export TRIPLET=arm-linux-gnueabi && export CROSS_COMPILE="$TRIPLET-"
+make HOSTCC=clang CC="clang -target $TRIPLET -mllvm -arm-use-movt=0 -no-integrated-as" rpi_defconfig
+make HOSTCC=clang CC="clang -target $TRIPLET -mllvm -arm-use-movt=0 -no-integrated-as" all V=1 -j8
+
+FreeBSD 11 (Current):
+--------------------
+Since llvm 3.4 is currently in the base system, the integrated as is
+incapable of building U-Boot. Therefore gas from devel/arm-gnueabi-binutils
+is used instead. It needs a symlinks to be picked up correctly though:
+
+ln -s /usr/local/bin/arm-gnueabi-freebsd-as /usr/bin/arm-freebsd-eabi-as
+
+# The following commands compile U-Boot using the clang xdev toolchain.
+# NOTE: CROSS_COMPILE and target differ on purpose!
+export CROSS_COMPILE=arm-gnueabi-freebsd-
+gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0" rpi_defconfig
+gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0" -j8
+
+Given that u-boot will default to gcc, above commands can be
+simplified with a simple wrapper script, listed below.
+
+/usr/local/bin/arm-gnueabi-freebsd-gcc
+---
+#!/bin/sh
+
+exec clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0 "$@"
+

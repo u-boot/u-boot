@@ -9,7 +9,9 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
+#include <ns16550.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/hardware.h>
@@ -36,6 +38,63 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_DM_GPIO
+static const struct omap_gpio_platdata am33xx_gpio[] = {
+	{ 0, AM33XX_GPIO0_BASE, METHOD_GPIO_24XX },
+	{ 1, AM33XX_GPIO1_BASE, METHOD_GPIO_24XX },
+	{ 2, AM33XX_GPIO2_BASE, METHOD_GPIO_24XX },
+	{ 3, AM33XX_GPIO3_BASE, METHOD_GPIO_24XX },
+#ifdef CONFIG_AM43XX
+	{ 4, AM33XX_GPIO4_BASE, METHOD_GPIO_24XX },
+	{ 5, AM33XX_GPIO5_BASE, METHOD_GPIO_24XX },
+#endif
+};
+
+U_BOOT_DEVICES(am33xx_gpios) = {
+	{ "gpio_omap", &am33xx_gpio[0] },
+	{ "gpio_omap", &am33xx_gpio[1] },
+	{ "gpio_omap", &am33xx_gpio[2] },
+	{ "gpio_omap", &am33xx_gpio[3] },
+#ifdef CONFIG_AM43XX
+	{ "gpio_omap", &am33xx_gpio[4] },
+	{ "gpio_omap", &am33xx_gpio[5] },
+#endif
+};
+
+# ifndef CONFIG_OF_CONTROL
+/*
+ * TODO(sjg@chromium.org): When we can move SPL serial to DM, we can remove
+ * the CONFIGs. At the same time, we should move this to the board files.
+ */
+static const struct ns16550_platdata am33xx_serial[] = {
+	{ CONFIG_SYS_NS16550_COM1, 2, CONFIG_SYS_NS16550_CLK },
+#  ifdef CONFIG_SYS_NS16550_COM2
+	{ CONFIG_SYS_NS16550_COM2, 2, CONFIG_SYS_NS16550_CLK },
+#   ifdef CONFIG_SYS_NS16550_COM3
+	{ CONFIG_SYS_NS16550_COM3, 2, CONFIG_SYS_NS16550_CLK },
+	{ CONFIG_SYS_NS16550_COM4, 2, CONFIG_SYS_NS16550_CLK },
+	{ CONFIG_SYS_NS16550_COM5, 2, CONFIG_SYS_NS16550_CLK },
+	{ CONFIG_SYS_NS16550_COM6, 2, CONFIG_SYS_NS16550_CLK },
+#   endif
+#  endif
+};
+
+U_BOOT_DEVICES(am33xx_uarts) = {
+	{ "serial_omap", &am33xx_serial[0] },
+#  ifdef CONFIG_SYS_NS16550_COM2
+	{ "serial_omap", &am33xx_serial[1] },
+#   ifdef CONFIG_SYS_NS16550_COM3
+	{ "serial_omap", &am33xx_serial[2] },
+	{ "serial_omap", &am33xx_serial[3] },
+	{ "serial_omap", &am33xx_serial[4] },
+	{ "serial_omap", &am33xx_serial[5] },
+#   endif
+#  endif
+};
+# endif
+
+#else
+
 static const struct gpio_bank gpio_bank_am33xx[] = {
 	{ (void *)AM33XX_GPIO0_BASE, METHOD_GPIO_24XX },
 	{ (void *)AM33XX_GPIO1_BASE, METHOD_GPIO_24XX },
@@ -48,6 +107,8 @@ static const struct gpio_bank gpio_bank_am33xx[] = {
 };
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_am33xx;
+
+#endif
 
 #if defined(CONFIG_OMAP_HSMMC) && !defined(CONFIG_SPL_BUILD)
 int cpu_mmc_init(bd_t *bis)
@@ -233,7 +294,6 @@ void s_init(void)
 	save_omap_boot_params();
 #endif
 	watchdog_disable();
-	timer_init();
 	set_uart_mux_conf();
 	setup_clocks_for_console();
 	uart_soft_reset();

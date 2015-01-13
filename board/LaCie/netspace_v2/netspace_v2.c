@@ -12,7 +12,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 #include <asm/arch/gpio.h>
 
@@ -24,8 +24,8 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_early_init_f(void)
 {
 	/* Gpio configuration */
-	kw_config_gpio(NETSPACE_V2_OE_VAL_LOW, NETSPACE_V2_OE_VAL_HIGH,
-			NETSPACE_V2_OE_LOW, NETSPACE_V2_OE_HIGH);
+	mvebu_config_gpio(NETSPACE_V2_OE_VAL_LOW, NETSPACE_V2_OE_VAL_HIGH,
+			  NETSPACE_V2_OE_LOW, NETSPACE_V2_OE_HIGH);
 
 	/* Multi-Purpose Pins Functionality configuration */
 	static const u32 kwmpp_config[] = {
@@ -73,7 +73,7 @@ int board_init(void)
 	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
 
 	/* Boot parameters address */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	return 0;
 }

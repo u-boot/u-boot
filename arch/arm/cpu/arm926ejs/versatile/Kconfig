@@ -1,0 +1,15 @@
+if ARCH_VERSATILE
+
+config SYS_BOARD
+	default "versatile"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_SOC
+	default "versatile"
+
+config SYS_CONFIG_NAME
+	default "versatile"
+
+endif

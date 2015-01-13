@@ -1,0 +1,6 @@
+BF537-SRV1 BOARD
+M:	Martin Strubel <strubel@section5.ch>
+S:	Maintained
+F:	board/bf537-srv1/
+F:	include/configs/bf537-srv1.h
+F:	configs/bf537-srv1_defconfig

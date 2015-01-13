@@ -11,14 +11,12 @@ obj-$(CONFIG_RSA) += rsa/
 obj-$(CONFIG_LZMA) += lzma/
 obj-$(CONFIG_LZO) += lzo/
 obj-$(CONFIG_ZLIB) += zlib/
+obj-$(CONFIG_BZIP2) += bzip2/
 obj-$(CONFIG_TIZEN) += tizen/
+obj-$(CONFIG_OF_LIBFDT) += libfdt/
+obj-$(CONFIG_FIT) += libfdt/
 
 obj-$(CONFIG_AES) += aes.o
-obj-$(CONFIG_BZIP2) += bzlib.o
-obj-$(CONFIG_BZIP2) += bzlib_crctable.o
-obj-$(CONFIG_BZIP2) += bzlib_decompress.o
-obj-$(CONFIG_BZIP2) += bzlib_randtable.o
-obj-$(CONFIG_BZIP2) += bzlib_huffman.o
 obj-$(CONFIG_USB_TTY) += circbuf.o
 obj-y += crc7.o
 obj-y += crc8.o
@@ -43,6 +41,7 @@ obj-y	+= strmhz.o
 obj-$(CONFIG_TPM) += tpm.o
 obj-$(CONFIG_RBTREE)	+= rbtree.o
 obj-$(CONFIG_BITREVERSE) += bitrev.o
+obj-y += list_sort.o
 endif
 
 ifdef CONFIG_SPL_BUILD
@@ -52,12 +51,14 @@ endif
 obj-$(CONFIG_ADDR_MAP) += addr_map.o
 obj-y += hashtable.o
 obj-y += errno.o
+obj-$(CONFIG_ERRNO_STR) += errno_str.o
 obj-y += display_options.o
 obj-$(CONFIG_BCH) += bch.o
 obj-y += crc32.o
 obj-y += ctype.o
 obj-y += div64.o
 obj-y += hang.o
+obj-y += linux_compat.o
 obj-y += linux_string.o
 obj-$(CONFIG_REGEX) += slre.o
 obj-y += string.o

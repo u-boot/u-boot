@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <physmem.h>
+#include <asm/cpu.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -112,41 +113,13 @@ static void x86_phys_enter_paging(void)
 		x86_phys_map_page(page_addr, page_addr, 0);
 	}
 
-	/* Turn on paging */
-	__asm__ __volatile__(
-		/* Load the page table address */
-		"movl	%0, %%cr3\n\t"
-		/* Enable pae */
-		"movl	%%cr4, %%eax\n\t"
-		"orl	$0x00000020, %%eax\n\t"
-		"movl	%%eax, %%cr4\n\t"
-		/* Enable paging */
-		"movl	%%cr0, %%eax\n\t"
-		"orl	$0x80000000, %%eax\n\t"
-		"movl	%%eax, %%cr0\n\t"
-		:
-		: "r" (pdpt)
-		: "eax"
-	);
+	cpu_enable_paging_pae((ulong)pdpt);
 }
 
 /* Disable paging and PAE mode. */
 static void x86_phys_exit_paging(void)
 {
-	/* Turn off paging */
-	__asm__ __volatile__ (
-		/* Disable paging */
-		"movl	%%cr0, %%eax\n\t"
-		"andl	$0x7fffffff, %%eax\n\t"
-		"movl	%%eax, %%cr0\n\t"
-		/* Disable pae */
-		"movl	%%cr4, %%eax\n\t"
-		"andl	$0xffffffdf, %%eax\n\t"
-		"movl	%%eax, %%cr4\n\t"
-		:
-		:
-		: "eax"
-	);
+	cpu_disable_paging_pae();
 }
 
 /*
@@ -189,7 +162,7 @@ phys_addr_t arch_phys_memset(phys_addr_t start, int c, phys_size_t size)
 
 	/* Handle memory below 4GB. */
 	if (start <= max_addr) {
-		phys_size_t low_size = MIN(max_addr + 1 - start, size);
+		phys_size_t low_size = min(max_addr + 1 - start, size);
 		void *start_ptr = (void *)(uintptr_t)start;
 
 		assert(((phys_addr_t)(uintptr_t)start) == start);
@@ -208,7 +181,7 @@ phys_addr_t arch_phys_memset(phys_addr_t start, int c, phys_size_t size)
 		/* Handle the first partial page. */
 		if (offset) {
 			phys_addr_t end =
-				MIN(map_addr + LARGE_PAGE_SIZE, start + size);
+				min(map_addr + LARGE_PAGE_SIZE, start + size);
 			phys_size_t cur_size = end - start;
 			x86_phys_memset_page(map_addr, offset, c, cur_size);
 			size -= cur_size;

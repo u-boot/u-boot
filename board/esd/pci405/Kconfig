@@ -1,0 +1,12 @@
+if TARGET_PCI405
+
+config SYS_BOARD
+	default "pci405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "PCI405"
+
+endif

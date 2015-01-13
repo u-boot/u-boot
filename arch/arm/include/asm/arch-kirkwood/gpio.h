@@ -21,14 +21,14 @@
 
 #define GPIO_MAX		50
 #define GPIO_OFF(pin)		(((pin) >> 5) ? 0x0040 : 0x0000)
-#define GPIO_OUT(pin)		(KW_GPIO0_BASE + GPIO_OFF(pin) + 0x00)
-#define GPIO_IO_CONF(pin)	(KW_GPIO0_BASE + GPIO_OFF(pin) + 0x04)
-#define GPIO_BLINK_EN(pin)	(KW_GPIO0_BASE + GPIO_OFF(pin) + 0x08)
-#define GPIO_IN_POL(pin)	(KW_GPIO0_BASE + GPIO_OFF(pin) + 0x0c)
-#define GPIO_DATA_IN(pin)	(KW_GPIO0_BASE + GPIO_OFF(pin) + 0x10)
-#define GPIO_EDGE_CAUSE(pin)	(KW_GPIO0_BASE + GPIO_OFF(pin) + 0x14)
-#define GPIO_EDGE_MASK(pin)	(KW_GPIO0_BASE + GPIO_OFF(pin) + 0x18)
-#define GPIO_LEVEL_MASK(pin)	(KW_GPIO0_BASE + GPIO_OFF(pin) + 0x1c)
+#define GPIO_OUT(pin)		(MVEBU_GPIO0_BASE + GPIO_OFF(pin) + 0x00)
+#define GPIO_IO_CONF(pin)	(MVEBU_GPIO0_BASE + GPIO_OFF(pin) + 0x04)
+#define GPIO_BLINK_EN(pin)	(MVEBU_GPIO0_BASE + GPIO_OFF(pin) + 0x08)
+#define GPIO_IN_POL(pin)	(MVEBU_GPIO0_BASE + GPIO_OFF(pin) + 0x0c)
+#define GPIO_DATA_IN(pin)	(MVEBU_GPIO0_BASE + GPIO_OFF(pin) + 0x10)
+#define GPIO_EDGE_CAUSE(pin)	(MVEBU_GPIO0_BASE + GPIO_OFF(pin) + 0x14)
+#define GPIO_EDGE_MASK(pin)	(MVEBU_GPIO0_BASE + GPIO_OFF(pin) + 0x18)
+#define GPIO_LEVEL_MASK(pin)	(MVEBU_GPIO0_BASE + GPIO_OFF(pin) + 0x1c)
 
 /*
  * Kirkwood-specific GPIO API

@@ -10,6 +10,12 @@
 void reset_cpu(ulong addr);
 void reset_deassert_peripherals_handoff(void);
 
+void socfpga_bridges_reset(int enable);
+
+void socfpga_emac_reset(int enable);
+void socfpga_watchdog_reset(void);
+void socfpga_spim_enable(void);
+
 struct socfpga_reset_manager {
 	u32	status;
 	u32	ctrl;
@@ -26,5 +32,11 @@ struct socfpga_reset_manager {
 #else
 #define RSTMGR_CTRL_SWWARMRSTREQ_LSB 1
 #endif
+
+#define RSTMGR_PERMODRST_EMAC0_LSB	0
+#define RSTMGR_PERMODRST_EMAC1_LSB	1
+#define RSTMGR_PERMODRST_L4WD0_LSB	6
+#define RSTMGR_PERMODRST_SPIM0_LSB	18
+#define RSTMGR_PERMODRST_SPIM1_LSB	19
 
 #endif /* _RESET_MANAGER_H_ */

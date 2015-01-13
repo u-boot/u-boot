@@ -1,0 +1,15 @@
+if TARGET_HAMMERHEAD
+
+config SYS_BOARD
+	default "hammerhead"
+
+config SYS_VENDOR
+	default "miromico"
+
+config SYS_SOC
+	default "at32ap700x"
+
+config SYS_CONFIG_NAME
+	default "hammerhead"
+
+endif

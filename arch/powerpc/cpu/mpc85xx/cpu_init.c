@@ -27,6 +27,9 @@
 #include <hwconfig.h>
 #include <linux/compiler.h>
 #include "mp.h"
+#ifdef CONFIG_FSL_CAAM
+#include <fsl_sec.h>
+#endif
 #ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #include <nand.h>
 #include <errno.h>
@@ -200,7 +203,7 @@ void config_8560_ioports (volatile ccsr_cpm_t * cpm)
 
 #ifdef CONFIG_SYS_FSL_CPC
 #if defined(CONFIG_RAMBOOT_PBL) || defined(CONFIG_SYS_CPC_REINIT_F)
-static void disable_cpc_sram(void)
+void disable_cpc_sram(void)
 {
 	int i;
 
@@ -251,15 +254,39 @@ static void enable_tdm_law(void)
 }
 #endif
 
-static void enable_cpc(void)
+void enable_cpc(void)
 {
 	int i;
+	int ret;
 	u32 size = 0;
-
+	u32 cpccfg0;
+	char buffer[HWCONFIG_BUFFER_SIZE];
+	char cpc_subarg[16];
+	bool have_hwconfig = false;
+	int cpc_args = 0;
 	cpc_corenet_t *cpc = (cpc_corenet_t *)CONFIG_SYS_FSL_CPC_ADDR;
 
+	/* Extract hwconfig from environment */
+	ret = getenv_f("hwconfig", buffer, sizeof(buffer));
+	if (ret > 0) {
+		/*
+		 * If "en_cpc" is not defined in hwconfig then by default all
+		 * cpcs are enable. If this config is defined then individual
+		 * cpcs which have to be enabled should also be defined.
+		 * e.g en_cpc:cpc1,cpc2;
+		 */
+		if (hwconfig_f("en_cpc", buffer))
+			have_hwconfig = true;
+	}
+
 	for (i = 0; i < CONFIG_SYS_NUM_CPC; i++, cpc++) {
-		u32 cpccfg0 = in_be32(&cpc->cpccfg0);
+		if (have_hwconfig) {
+			sprintf(cpc_subarg, "cpc%u", i + 1);
+			cpc_args = hwconfig_sub_f("en_cpc", cpc_subarg, buffer);
+			if (cpc_args == 0)
+				continue;
+		}
+		cpccfg0 = in_be32(&cpc->cpccfg0);
 		size += CPC_CFG0_SZ_K(cpccfg0);
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A002
@@ -306,6 +333,7 @@ static void invalidate_cpc(void)
 #else
 #define enable_cpc()
 #define invalidate_cpc()
+#define disable_cpc_sram()
 #endif /* CONFIG_SYS_FSL_CPC */
 
 /*
@@ -398,7 +426,8 @@ ulong cpu_init_f(void)
 {
 	ulong flag = 0;
 	extern void m8560_cpm_reset (void);
-#ifdef CONFIG_SYS_DCSRBAR_PHYS
+#if defined(CONFIG_SYS_DCSRBAR_PHYS) || \
+	(defined(CONFIG_SECURE_BOOT) && defined(CONFIG_FSL_CORENET))
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 #if defined(CONFIG_SECURE_BOOT)
@@ -430,6 +459,12 @@ ulong cpu_init_f(void)
 #if defined(CONFIG_SYS_CPC_REINIT_F)
 	disable_cpc_sram();
 #endif
+
+#if defined(CONFIG_FSL_CORENET)
+	/* Put PAMU in bypass mode */
+	out_be32(&gur->pamubypenr, FSL_CORENET_PAMU_BYPASS);
+#endif
+
 #endif
 
 #ifdef CONFIG_CPM2
@@ -520,7 +555,8 @@ int enable_cluster_l2(void)
 			u32 idx = (cluster >> (j*8)) & TP_CLUSTER_INIT_MASK;
 			u32 type = in_be32(&gur->tp_ityp[idx]);
 
-			if (type & TP_ITYP_AV)
+			if ((type & TP_ITYP_AV) &&
+			    TP_ITYP_TYPE(type) == TP_ITYP_TYPE_PPC)
 				cluster_valid = 1;
 		}
 
@@ -545,87 +581,14 @@ int enable_cluster_l2(void)
 
 /*
  * Initialize L2 as cache.
- *
- * The newer 8548, etc, parts have twice as much cache, but
- * use the same bit-encoding as the older 8555, etc, parts.
- *
  */
-int cpu_init_r(void)
+int l2cache_init(void)
 {
 	__maybe_unused u32 svr = get_svr();
-#ifdef CONFIG_SYS_LBC_LCRR
-	fsl_lbc_t *lbc = (void __iomem *)LBC_BASE_ADDR;
-#endif
 #ifdef CONFIG_L2_CACHE
 	ccsr_l2cache_t *l2cache = (void __iomem *)CONFIG_SYS_MPC85xx_L2_ADDR;
 #elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
 	struct ccsr_cluster_l2 * l2cache = (void __iomem *)CONFIG_SYS_FSL_CLUSTER_1_L2;
-#endif
-#if defined(CONFIG_PPC_SPINTABLE_COMPATIBLE) && defined(CONFIG_MP)
-	extern int spin_table_compat;
-	const char *spin;
-#endif
-#ifdef CONFIG_SYS_FSL_ERRATUM_SEC_A003571
-	ccsr_sec_t __iomem *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
-#endif
-#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
-	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
-	/*
-	 * CPU22 and NMG_CPU_A011 share the same workaround.
-	 * CPU22 applies to P4080 rev 1.0, 2.0, fixed in 3.0
-	 * NMG_CPU_A011 applies to P4080 rev 1.0, 2.0, fixed in 3.0
-	 * also applies to P3041 rev 1.0, 1.1, P2041 rev 1.0, 1.1, both
-	 * fixed in 2.0. NMG_CPU_A011 is activated by default and can
-	 * be disabled by hwconfig with syntax:
-	 *
-	 * fsl_cpu_a011:disable
-	 */
-	extern int enable_cpu_a011_workaround;
-#ifdef CONFIG_SYS_P4080_ERRATUM_CPU22
-	enable_cpu_a011_workaround = (SVR_MAJ(svr) < 3);
-#else
-	char buffer[HWCONFIG_BUFFER_SIZE];
-	char *buf = NULL;
-	int n, res;
-
-	n = getenv_f("hwconfig", buffer, sizeof(buffer));
-	if (n > 0)
-		buf = buffer;
-
-	res = hwconfig_arg_cmp_f("fsl_cpu_a011", "disable", buf);
-	if (res > 0)
-		enable_cpu_a011_workaround = 0;
-	else {
-		if (n >= HWCONFIG_BUFFER_SIZE) {
-			printf("fsl_cpu_a011 was not found. hwconfig variable "
-				"may be too long\n");
-		}
-		enable_cpu_a011_workaround =
-			(SVR_SOC_VER(svr) == SVR_P4080 && SVR_MAJ(svr) < 3) ||
-			(SVR_SOC_VER(svr) != SVR_P4080 && SVR_MAJ(svr) < 2);
-	}
-#endif
-	if (enable_cpu_a011_workaround) {
-		flush_dcache();
-		mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
-		sync();
-	}
-#endif
-#ifdef CONFIG_SYS_FSL_ERRATUM_A005812
-	/*
-	 * A-005812 workaround sets bit 32 of SPR 976 for SoCs running
-	 * in write shadow mode. Checking DCWS before setting SPR 976.
-	 */
-	if (mfspr(L1CSR2) & L1CSR2_DCWS)
-		mtspr(SPRN_HDBCR0, (mfspr(SPRN_HDBCR0) | 0x80000000));
-#endif
-
-#if defined(CONFIG_PPC_SPINTABLE_COMPATIBLE) && defined(CONFIG_MP)
-	spin = getenv("spin_table_compat");
-	if (spin && (*spin == 'n'))
-		spin_table_compat = 0;
-	else
-		spin_table_compat = 1;
 #endif
 
 	puts ("L2:    ");
@@ -751,6 +714,89 @@ skip_l2:
 	puts("disabled\n");
 #endif
 
+	return 0;
+}
+
+/*
+ *
+ * The newer 8548, etc, parts have twice as much cache, but
+ * use the same bit-encoding as the older 8555, etc, parts.
+ *
+ */
+int cpu_init_r(void)
+{
+	__maybe_unused u32 svr = get_svr();
+#ifdef CONFIG_SYS_LBC_LCRR
+	fsl_lbc_t *lbc = (void __iomem *)LBC_BASE_ADDR;
+#endif
+#if defined(CONFIG_PPC_SPINTABLE_COMPATIBLE) && defined(CONFIG_MP)
+	extern int spin_table_compat;
+	const char *spin;
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_SEC_A003571
+	ccsr_sec_t __iomem *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+#endif
+#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
+	/*
+	 * CPU22 and NMG_CPU_A011 share the same workaround.
+	 * CPU22 applies to P4080 rev 1.0, 2.0, fixed in 3.0
+	 * NMG_CPU_A011 applies to P4080 rev 1.0, 2.0, fixed in 3.0
+	 * also applies to P3041 rev 1.0, 1.1, P2041 rev 1.0, 1.1, both
+	 * fixed in 2.0. NMG_CPU_A011 is activated by default and can
+	 * be disabled by hwconfig with syntax:
+	 *
+	 * fsl_cpu_a011:disable
+	 */
+	extern int enable_cpu_a011_workaround;
+#ifdef CONFIG_SYS_P4080_ERRATUM_CPU22
+	enable_cpu_a011_workaround = (SVR_MAJ(svr) < 3);
+#else
+	char buffer[HWCONFIG_BUFFER_SIZE];
+	char *buf = NULL;
+	int n, res;
+
+	n = getenv_f("hwconfig", buffer, sizeof(buffer));
+	if (n > 0)
+		buf = buffer;
+
+	res = hwconfig_arg_cmp_f("fsl_cpu_a011", "disable", buf);
+	if (res > 0) {
+		enable_cpu_a011_workaround = 0;
+	} else {
+		if (n >= HWCONFIG_BUFFER_SIZE) {
+			printf("fsl_cpu_a011 was not found. hwconfig variable "
+				"may be too long\n");
+		}
+		enable_cpu_a011_workaround =
+			(SVR_SOC_VER(svr) == SVR_P4080 && SVR_MAJ(svr) < 3) ||
+			(SVR_SOC_VER(svr) != SVR_P4080 && SVR_MAJ(svr) < 2);
+	}
+#endif
+	if (enable_cpu_a011_workaround) {
+		flush_dcache();
+		mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
+		sync();
+	}
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A005812
+	/*
+	 * A-005812 workaround sets bit 32 of SPR 976 for SoCs running
+	 * in write shadow mode. Checking DCWS before setting SPR 976.
+	 */
+	if (mfspr(L1CSR2) & L1CSR2_DCWS)
+		mtspr(SPRN_HDBCR0, (mfspr(SPRN_HDBCR0) | 0x80000000));
+#endif
+
+#if defined(CONFIG_PPC_SPINTABLE_COMPATIBLE) && defined(CONFIG_MP)
+	spin = getenv("spin_table_compat");
+	if (spin && (*spin == 'n'))
+		spin_table_compat = 0;
+	else
+		spin_table_compat = 1;
+#endif
+
+	l2cache_init();
 #if defined(CONFIG_RAMBOOT_PBL)
 	disable_cpc_sram();
 #endif
@@ -767,7 +813,7 @@ skip_l2:
 #ifdef CONFIG_SYS_FSL_ERRATUM_SEC_A003571
 #define MCFGR_AXIPIPE 0x000000f0
 	if (IS_SVR_REV(svr, 1, 0))
-		clrbits_be32(&sec->mcfgr, MCFGR_AXIPIPE);
+		sec_clrbits32(&sec->mcfgr, MCFGR_AXIPIPE);
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A005871
@@ -900,6 +946,10 @@ skip_l2:
 
 #ifdef CONFIG_FMAN_ENET
 	fman_enet_init();
+#endif
+
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
 #endif
 
 #if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_FSL_SATA_ERRATUM_A001)

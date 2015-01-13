@@ -19,8 +19,7 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_ARM926EJS	1	/* This is an arm926ejs CPU core */
-#define CONFIG_VERSATILE	1	/* in Versatile Platform Board	*/
+#define CONFIG_VERSATILE	1	/* This is Versatile Platform Board	*/
 #define CONFIG_ARCH_VERSATILE	1	/* Specifically, a Versatile	*/
 
 #define CONFIG_SYS_MEMTEST_START	0x100000

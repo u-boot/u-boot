@@ -1,0 +1,19 @@
+if TARGET_W7OLMC
+
+config SYS_BOARD
+	default "w7o"
+
+config SYS_CONFIG_NAME
+	default "W7OLMC"
+
+endif
+
+if TARGET_W7OLMG
+
+config SYS_BOARD
+	default "w7o"
+
+config SYS_CONFIG_NAME
+	default "W7OLMG"
+
+endif

@@ -13,6 +13,8 @@
 #define __CONFIG_H
 
 #define CONFIG_PDM360NG 1
+#define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Memory map for the PDM360NG board:

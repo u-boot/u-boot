@@ -1,0 +1,12 @@
+if TARGET_CM41XX
+
+config SYS_BOARD
+	default "cm41xx"
+
+config SYS_SOC
+	default "ks8695"
+
+config SYS_CONFIG_NAME
+	default "cm41xx"
+
+endif

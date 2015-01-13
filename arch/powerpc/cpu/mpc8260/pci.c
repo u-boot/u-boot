@@ -22,10 +22,6 @@
 #include <fdt_support.h>
 #endif
 
-#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272 || defined CONFIG_PM826
-DECLARE_GLOBAL_DATA_PTR;
-#endif
-
 /*
  *   Local->PCI map (from CPU)				   controlled by
  *   MPC826x master window
@@ -236,36 +232,6 @@ void pci_mpc8250_init (struct pci_controller *hose)
 			    CONFIG_SYS_IMMR + PCI_CFG_DATA_REG);
 
 	/*
-	 * Setting required to enable local bus for PCI (SIUMCR [LBPC]).
-	 */
-#ifdef CONFIG_MPC8266ADS
-	immap->im_siu_conf.sc_siumcr =
-		(immap->im_siu_conf.sc_siumcr & ~SIUMCR_LBPC11)
-		| SIUMCR_LBPC01;
-#elif defined CONFIG_MPC8272
-	immap->im_siu_conf.sc_siumcr = (immap->im_siu_conf.sc_siumcr &
-				  ~SIUMCR_BBD &
-				  ~SIUMCR_ESE &
-				  ~SIUMCR_PBSE &
-				  ~SIUMCR_CDIS &
-				  ~SIUMCR_DPPC11 &
-				  ~SIUMCR_L2CPC11 &
-				  ~SIUMCR_LBPC11 &
-				  ~SIUMCR_APPC11 &
-				  ~SIUMCR_CS10PC11 &
-				  ~SIUMCR_BCTLC11 &
-				  ~SIUMCR_MMR11)
-				  | SIUMCR_DPPC11
-				  | SIUMCR_L2CPC01
-				  | SIUMCR_LBPC00
-				  | SIUMCR_APPC10
-				  | SIUMCR_CS10PC00
-				  | SIUMCR_BCTLC00
-				  | SIUMCR_MMR11;
-#elif defined(CONFIG_TQM8272)
-/* nothing to do for this Board here */
-#else
-	/*
 	 * Setting required to enable IRQ1-IRQ7 (SIUMCR [DPPC]),
 	 * and local bus for PCI (SIUMCR [LBPC]).
 	 */
@@ -276,7 +242,6 @@ void pci_mpc8250_init (struct pci_controller *hose)
 					SIUMCR_LBPC01 |
 					SIUMCR_CS10PC01 |
 					SIUMCR_APPC10;
-#endif
 
 	/* Make PCI lowest priority */
 	/* Each 4 bits is a device bus request	and the MS 4bits
@@ -306,24 +271,11 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	immap->im_memctl.memc_pcimsk0 = PCIMSK0_MASK;
 	immap->im_memctl.memc_pcibr0 = PCI_MSTR0_LOCAL | PCIBR_ENABLE;
 
-#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
-	immap->im_memctl.memc_pcimsk1 = PCIMSK1_MASK;
-	immap->im_memctl.memc_pcibr1 = PCI_MSTR1_LOCAL | PCIBR_ENABLE;
-#endif
-
 	/* Release PCI RST (by default the PCI RST signal is held low)	*/
 	immap->im_pci.pci_gcr = cpu_to_le32 (PCIGCR_PCI_BUS_EN);
 
 	/* give it some time */
 	{
-#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
-		/* Give the PCI cards more time to initialize before query
-		   This might be good for other boards also
-		 */
-		int i;
-
-		for (i = 0; i < 1000; ++i)
-#endif
 			udelay (1000);
 	}
 
@@ -360,11 +312,7 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	immap->im_pci.pci_picmr0 = cpu_to_le32 (PICMR0_MASK_ATTRIB);	/* Size & attribute */
 
 	/* See above for description - puts PCI request as highest priority */
-#ifdef CONFIG_MPC8272
-	immap->im_siu_conf.sc_ppc_alrh = 0x01236745;
-#else
 	immap->im_siu_conf.sc_ppc_alrh = 0x03124567;
-#endif
 
 	/* Park the bus on the PCI */
 	immap->im_siu_conf.sc_ppc_acr = PPC_ACR_BUS_PARK_PCI;
@@ -390,30 +338,16 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	hose->last_busno = 0xff;
 
 	/* System memory space */
-#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272 || defined CONFIG_PM826
-	pci_set_region (hose->regions + 0,
-			PCI_SLV_MEM_BUS,
-			PCI_SLV_MEM_LOCAL,
-			gd->ram_size, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-#else
 	pci_set_region (hose->regions + 0,
 			CONFIG_SYS_SDRAM_BASE,
 			CONFIG_SYS_SDRAM_BASE,
 			0x4000000, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-#endif
 
 	/* PCI memory space */
-#if defined CONFIG_MPC8266ADS || defined CONFIG_MPC8272
-	pci_set_region (hose->regions + 1,
-			PCI_MSTR_MEMIO_BUS,
-			PCI_MSTR_MEMIO_LOCAL,
-			PCI_MSTR_MEMIO_SIZE, PCI_REGION_MEM);
-#else
 	pci_set_region (hose->regions + 1,
 			PCI_MSTR_MEM_BUS,
 			PCI_MSTR_MEM_LOCAL,
 			PCI_MSTR_MEM_SIZE, PCI_REGION_MEM);
-#endif
 
 	/* PCI I/O space */
 	pci_set_region (hose->regions + 2,

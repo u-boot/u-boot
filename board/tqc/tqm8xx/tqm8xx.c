@@ -118,9 +118,7 @@ int checkboard (void)
 			break;
 		putc (buf[i]);
 	}
-#ifdef CONFIG_VIRTLAB2
-	puts (" (Virtlab2)");
-#endif
+
 	putc ('\n');
 
 	return (0);
@@ -512,14 +510,6 @@ int misc_init_r (void)
 	immap->im_ioport.iop_padat &= ~0x0001;	/* turn it off */
 # endif
 
-#ifdef CONFIG_NSCU
-	/* wake up ethernet module */
-	immap->im_ioport.iop_pcpar &= ~0x0004;	/* GPIO pin      */
-	immap->im_ioport.iop_pcdir |= 0x0004;	/* output        */
-	immap->im_ioport.iop_pcso &= ~0x0004;	/* for clarity   */
-	immap->im_ioport.iop_pcdat |= 0x0004;	/* enable        */
-#endif /* CONFIG_NSCU */
-
 	return (0);
 }
 #endif	/* CONFIG_MISC_INIT_R */
@@ -674,55 +664,11 @@ void ft_blob_update (void *blob, bd_t *bd)
 	}
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 	ft_blob_update(blob, bd);
-}
-#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
-
-/* ---------------------------------------------------------------------------- */
-/* TK885D specific initializaion						*/
-/* ---------------------------------------------------------------------------- */
-#ifdef CONFIG_TK885D
-#include <miiphy.h>
-int last_stage_init(void)
-{
-	const unsigned char phy[] = {CONFIG_FEC1_PHY, CONFIG_FEC2_PHY};
-	unsigned short reg;
-	int ret, i = 100;
-	char *s;
-
-	mii_init();
-	/* Without this delay 0xff is read from the UART buffer later in
-	 * abortboot() and autoboot is aborted */
-	udelay(10000);
-	while (tstc() && i--)
-		(void)getc();
-
-	/* Check if auto-negotiation is prohibited */
-	s = getenv("phy_auto_nego");
-
-	if (!s || !strcmp(s, "on"))
-		/* Nothing to do - autonegotiation by default */
-		return 0;
-
-	for (i = 0; i < 2; i++) {
-		ret = miiphy_read("FEC", phy[i], MII_BMCR, &reg);
-		if (ret) {
-			printf("Cannot read BMCR on PHY %d\n", phy[i]);
-			return 0;
-		}
-		/* Auto-negotiation off, hard set full duplex, 100Mbps */
-		ret = miiphy_write("FEC", phy[i],
-				   MII_BMCR, (reg | BMCR_SPEED100 |
-					      BMCR_FULLDPLX) & ~BMCR_ANENABLE);
-		if (ret) {
-			printf("Cannot write BMCR on PHY %d\n", phy[i]);
-			return 0;
-		}
-	}
 
 	return 0;
 }
-#endif
+#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */

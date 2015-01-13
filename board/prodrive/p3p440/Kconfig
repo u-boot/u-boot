@@ -1,0 +1,12 @@
+if TARGET_P3P440
+
+config SYS_BOARD
+	default "p3p440"
+
+config SYS_VENDOR
+	default "prodrive"
+
+config SYS_CONFIG_NAME
+	default "p3p440"
+
+endif

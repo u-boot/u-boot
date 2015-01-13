@@ -106,6 +106,11 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 16, BOOKE_PAGESZ_64K, 1),
 #endif
+#ifdef CONFIG_SYS_CPLD_BASE
+	SET_TLB_ENTRY(1, CONFIG_SYS_CPLD_BASE, CONFIG_SYS_CPLD_BASE_PHYS,
+		      MAS3_SW|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 17, BOOKE_PAGESZ_4K, 1),
+#endif
 };
 
 int num_tlb_entries = ARRAY_SIZE(tlb_table);

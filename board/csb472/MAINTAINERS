@@ -1,0 +1,6 @@
+CSB472 BOARD
+M:	Tolunay Orkun <torkun@nextio.com>
+S:	Maintained
+F:	board/csb472/
+F:	include/configs/csb472.h
+F:	configs/csb472_defconfig

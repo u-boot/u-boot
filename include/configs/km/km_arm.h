@@ -20,6 +20,8 @@
 #ifndef _CONFIG_KM_ARM_H
 #define _CONFIG_KM_ARM_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /* We got removed from Linux mach-types.h */
 #define MACH_TYPE_KM_KIRKWOOD          2255
 
@@ -28,7 +30,6 @@
  */
 #define CONFIG_MARVELL
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KIRKWOOD			/* SOC Family Name */
 #define CONFIG_KW88F6281		/* SOC Name */
 #define CONFIG_MACH_KM_KIRKWOOD		/* Machine type */
 

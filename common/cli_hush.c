@@ -3162,7 +3162,7 @@ static int parse_stream_outer(struct in_str *inp, int flag)
 	o_string temp=NULL_O_STRING;
 	int rcode;
 #ifdef __U_BOOT__
-	int code = 0;
+	int code = 1;
 #endif
 	do {
 		ctx.type = flag;
@@ -3170,7 +3170,8 @@ static int parse_stream_outer(struct in_str *inp, int flag)
 		update_ifs_map();
 		if (!(flag & FLAG_PARSE_SEMICOLON) || (flag & FLAG_REPARSING)) mapset((uchar *)";$&|", 0);
 		inp->promptmode=1;
-		rcode = parse_stream(&temp, &ctx, inp, '\n');
+		rcode = parse_stream(&temp, &ctx, inp,
+				     flag & FLAG_CONT_ON_NEWLINE ? -1 : '\n');
 #ifdef __U_BOOT__
 		if (rcode == 1) flag_repeat = 0;
 #endif
@@ -3235,8 +3236,10 @@ int parse_string_outer(const char *s, int flag)
 #ifdef __U_BOOT__
 	char *p = NULL;
 	int rcode;
-	if ( !s || !*s)
+	if (!s)
 		return 1;
+	if (!*s)
+		return 0;
 	if (!(p = strchr(s, '\n')) || *++p) {
 		p = xmalloc(strlen(s) + 2);
 		strcpy(p, s);

@@ -13,7 +13,6 @@
 /*
  * SoC Configuration
  */
-#define CONFIG_ARM926EJS			/* arm926ejs CPU core */
 #define CONFIG_MX27
 #define CONFIG_MX27_CLK32	32768		/* OSC32K frequency */
 

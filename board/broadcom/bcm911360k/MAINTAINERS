@@ -1,0 +1,6 @@
+BCM911360K BOARD
+M:	Steve Rae <srae@broadcom.com>
+S:	Maintained
+F:	board/broadcom/bcmcygnus/
+F:	include/configs/bcm_ep_board.h
+F:	configs/bcm911360k_defconfig

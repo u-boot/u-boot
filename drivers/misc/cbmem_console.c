@@ -31,7 +31,7 @@ struct cbmem_console {
 
 static struct cbmem_console *cbmem_console_p;
 
-void cbmemc_putc(char data)
+void cbmemc_putc(struct stdio_dev *dev, char data)
 {
 	int cursor;
 
@@ -40,12 +40,12 @@ void cbmemc_putc(char data)
 		cbmem_console_p->buffer_body[cursor] = data;
 }
 
-void cbmemc_puts(const char *str)
+void cbmemc_puts(struct stdio_dev *dev, const char *str)
 {
 	char c;
 
 	while ((c = *str++) != 0)
-		cbmemc_putc(c);
+		cbmemc_putc(dev, c);
 }
 
 int cbmemc_init(void)

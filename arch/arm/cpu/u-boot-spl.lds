@@ -32,8 +32,18 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
+	.u_boot_list : {
+		KEEP(*(SORT(.u_boot_list*_i2c_*)));
+	}
 
 	. = .;
+#ifdef CONFIG_SPL_DM
+	.u_boot_list : {
+		KEEP(*(SORT(.u_boot_list_*_driver_*)));
+		KEEP(*(SORT(.u_boot_list_*_uclass_*)));
+	}
+#endif
+	. = ALIGN(4);
 
 	__image_copy_end = .;
 

@@ -402,17 +402,6 @@ int bus_i2c_write(void *base, uchar chip, uint addr, int alen,
 	return ret;
 }
 
-struct i2c_parms {
-	void *base;
-	void *idle_bus_data;
-	int (*idle_bus_fn)(void *p);
-};
-
-struct sram_data {
-	unsigned curr_i2c_bus;
-	struct i2c_parms i2c_data[3];
-};
-
 static void * const i2c_bases[] = {
 #if defined(CONFIG_MX25)
 	(void *)IMX_I2C_BASE,
@@ -423,7 +412,7 @@ static void * const i2c_bases[] = {
 	(void *)IMX_I2C2_BASE
 #elif defined(CONFIG_MX31) || defined(CONFIG_MX35) || \
 	defined(CONFIG_MX51) || defined(CONFIG_MX53) ||	\
-	defined(CONFIG_MX6)
+	defined(CONFIG_MX6) || defined(CONFIG_LS102XA)
 	(void *)I2C1_BASE_ADDR,
 	(void *)I2C2_BASE_ADDR,
 	(void *)I2C3_BASE_ADDR
@@ -437,6 +426,17 @@ static void * const i2c_bases[] = {
 #else
 #error "architecture not supported"
 #endif
+};
+
+struct i2c_parms {
+	void *base;
+	void *idle_bus_data;
+	int (*idle_bus_fn)(void *p);
+};
+
+struct sram_data {
+	unsigned curr_i2c_bus;
+	struct i2c_parms i2c_data[ARRAY_SIZE(i2c_bases)];
 };
 
 void *i2c_get_base(struct i2c_adapter *adap)
@@ -545,7 +545,7 @@ U_BOOT_I2C_ADAP_COMPLETE(mxc1, mxc_i2c_init, mxc_i2c_probe,
 			 CONFIG_SYS_MXC_I2C2_SLAVE, 1)
 #if defined(CONFIG_MX31) || defined(CONFIG_MX35) ||\
 	defined(CONFIG_MX51) || defined(CONFIG_MX53) ||\
-	defined(CONFIG_MX6)
+	defined(CONFIG_MX6) || defined(CONFIG_LS102XA)
 U_BOOT_I2C_ADAP_COMPLETE(mxc2, mxc_i2c_init, mxc_i2c_probe,
 			 mxc_i2c_read, mxc_i2c_write,
 			 mxc_i2c_set_bus_speed,

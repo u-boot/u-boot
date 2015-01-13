@@ -14,7 +14,10 @@ if [ ${#gas} -eq 0 ]; then
 	exit 1
 fi
 
-MAJOR=$($gas --version | head -1 | awk '{print $NF}' | cut -d . -f 1)
-MINOR=$($gas --version | head -1 | awk '{print $NF}' | cut -d . -f 2)
+version_string=$($gas --version | head -1 | \
+	sed -e 's/(.*)//; s/[^0-9.]*\([0-9.]*\).*/\1/')
+
+MAJOR=$(echo $version_string | cut -d . -f 1)
+MINOR=$(echo $version_string | cut -d . -f 2)
 
 printf "%02d%02d\\n" $MAJOR $MINOR

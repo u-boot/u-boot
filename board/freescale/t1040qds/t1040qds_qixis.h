@@ -17,6 +17,10 @@
 #define BRDCFG5_IMX_MASK		0xC0
 #define BRDCFG5_IMX_DIU			0x80
 
+/* BRDCFG9[2] controls EPHY2 Clock */
+#define BRDCFG9_EPHY2_MASK              0x20
+#define BRDCFG9_EPHY2_VAL               0x00
+
 /* BRDCFG15[3] controls LCD Panel Powerdown*/
 #define BRDCFG15_LCDPD_MASK		0x10
 #define BRDCFG15_LCDPD_ENABLED		0x00

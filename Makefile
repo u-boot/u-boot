@@ -1,12 +1,5 @@
-#
-# (C) Copyright 2000-2013
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
-
-VERSION = 2014
-PATCHLEVEL = 07
+VERSION = 2015
+PATCHLEVEL = 01
 SUBLEVEL =
 EXTRAVERSION =
 NAME =
@@ -17,17 +10,18 @@ NAME =
 # Comments in this file are targeted only to the developer, do not
 # expect to learn how to build the kernel reading this file.
 
-# Do not:
-# o  use make's built-in rules and variables
-#    (this increases performance and avoids hard-to-debug behaviour);
-# o  print "Entering directory ...";
-MAKEFLAGS += -rR --no-print-directory
+# Do not use make's built-in rules and variables
+# (this increases performance and avoids hard-to-debug behaviour);
+MAKEFLAGS += -rR
 
 # Avoid funny character set dependencies
 unexport LC_ALL
 LC_COLLATE=C
 LC_NUMERIC=C
 export LC_COLLATE LC_NUMERIC
+
+# Avoid interference with shell env settings
+unexport GREP_OPTIONS
 
 # We are using a recursive build, so we need to do a little thinking
 # to get the ordering right.
@@ -45,6 +39,29 @@ export LC_COLLATE LC_NUMERIC
 # descending is started. They are now explicitly listed as the
 # prepare rule.
 
+# Beautify output
+# ---------------------------------------------------------------------------
+#
+# Normally, we echo the whole command before executing it. By making
+# that echo $($(quiet)$(cmd)), we now have the possibility to set
+# $(quiet) to choose other forms of output instead, e.g.
+#
+#         quiet_cmd_cc_o_c = Compiling $(RELDIR)/$@
+#         cmd_cc_o_c       = $(CC) $(c_flags) -c -o $@ $<
+#
+# If $(quiet) is empty, the whole command will be printed.
+# If it is set to "quiet_", only the short version will be printed.
+# If it is set to "silent_", nothing will be printed at all, since
+# the variable $(silent_cmd_cc_o_c) doesn't exist.
+#
+# A simple variant is to prefix commands with $(Q) - that's useful
+# for commands that shall be hidden in non-verbose mode.
+#
+#	$(Q)ln $@ :<
+#
+# If KBUILD_VERBOSE equals 0 then the above command will be hidden.
+# If KBUILD_VERBOSE equals 1 then the above command is displayed.
+#
 # To put more focus on warnings, be less verbose as default
 # Use 'make V=1' to see the full commands
 
@@ -54,6 +71,92 @@ endif
 ifndef KBUILD_VERBOSE
   KBUILD_VERBOSE = 0
 endif
+
+ifeq ($(KBUILD_VERBOSE),1)
+  quiet =
+  Q =
+else
+  quiet=quiet_
+  Q = @
+endif
+
+# If the user is running make -s (silent mode), suppress echoing of
+# commands
+
+ifneq ($(filter 4.%,$(MAKE_VERSION)),)	# make-4
+ifneq ($(filter %s ,$(firstword x$(MAKEFLAGS))),)
+  quiet=silent_
+endif
+else					# make-3.8x
+ifneq ($(filter s% -s%,$(MAKEFLAGS)),)
+  quiet=silent_
+endif
+endif
+
+export quiet Q KBUILD_VERBOSE
+
+# kbuild supports saving output files in a separate directory.
+# To locate output files in a separate directory two syntaxes are supported.
+# In both cases the working directory must be the root of the kernel src.
+# 1) O=
+# Use "make O=dir/to/store/output/files/"
+#
+# 2) Set KBUILD_OUTPUT
+# Set the environment variable KBUILD_OUTPUT to point to the directory
+# where the output files shall be placed.
+# export KBUILD_OUTPUT=dir/to/store/output/files/
+# make
+#
+# The O= assignment takes precedence over the KBUILD_OUTPUT environment
+# variable.
+
+# KBUILD_SRC is set on invocation of make in OBJ directory
+# KBUILD_SRC is not intended to be used by the regular user (for now)
+ifeq ($(KBUILD_SRC),)
+
+# OK, Make called in directory where kernel src resides
+# Do we want to locate output files in a separate directory?
+ifeq ("$(origin O)", "command line")
+  KBUILD_OUTPUT := $(O)
+endif
+
+# That's our default target when none is given on the command line
+PHONY := _all
+_all:
+
+# Cancel implicit rules on top Makefile
+$(CURDIR)/Makefile Makefile: ;
+
+ifneq ($(KBUILD_OUTPUT),)
+# Invoke a second make in the output directory, passing relevant variables
+# check that the output directory actually exists
+saved-output := $(KBUILD_OUTPUT)
+KBUILD_OUTPUT := $(shell mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) \
+								&& /bin/pwd)
+$(if $(KBUILD_OUTPUT),, \
+     $(error failed to create output directory "$(saved-output)"))
+
+PHONY += $(MAKECMDGOALS) sub-make
+
+$(filter-out _all sub-make $(CURDIR)/Makefile, $(MAKECMDGOALS)) _all: sub-make
+	@:
+
+sub-make: FORCE
+	$(Q)$(MAKE) -C $(KBUILD_OUTPUT) KBUILD_SRC=$(CURDIR) \
+	-f $(CURDIR)/Makefile $(filter-out _all sub-make,$(MAKECMDGOALS))
+
+# Leave processing to above invocation of make
+skip-makefile := 1
+endif # ifneq ($(KBUILD_OUTPUT),)
+endif # ifeq ($(KBUILD_SRC),)
+
+# We process the rest of the Makefile if this is the final invocation of make
+ifeq ($(skip-makefile),)
+
+# Do not print "Entering directory ...",
+# but we want to display it when entering to the output directory
+# so that IDEs/editors are able to understand relative filenames.
+MAKEFLAGS += --no-print-directory
 
 # Call a source code checker (by default, "sparse") as part of the
 # C compilation.
@@ -83,71 +186,6 @@ ifeq ("$(origin M)", "command line")
   KBUILD_EXTMOD := $(M)
 endif
 
-# kbuild supports saving output files in a separate directory.
-# To locate output files in a separate directory two syntaxes are supported.
-# In both cases the working directory must be the root of the kernel src.
-# 1) O=
-# Use "make O=dir/to/store/output/files/"
-#
-# 2) Set KBUILD_OUTPUT
-# Set the environment variable KBUILD_OUTPUT to point to the directory
-# where the output files shall be placed.
-# export KBUILD_OUTPUT=dir/to/store/output/files/
-# make
-#
-# The O= assignment takes precedence over the KBUILD_OUTPUT environment
-# variable.
-
-
-# KBUILD_SRC is set on invocation of make in OBJ directory
-# KBUILD_SRC is not intended to be used by the regular user (for now)
-ifeq ($(KBUILD_SRC),)
-
-# OK, Make called in directory where kernel src resides
-# Do we want to locate output files in a separate directory?
-ifeq ("$(origin O)", "command line")
-  KBUILD_OUTPUT := $(O)
-endif
-
-ifeq ("$(origin W)", "command line")
-  export KBUILD_ENABLE_EXTRA_GCC_CHECKS := $(W)
-endif
-
-# That's our default target when none is given on the command line
-PHONY := _all
-_all:
-
-# Cancel implicit rules on top Makefile
-$(CURDIR)/Makefile Makefile: ;
-
-ifneq ($(KBUILD_OUTPUT),)
-# Invoke a second make in the output directory, passing relevant variables
-# check that the output directory actually exists
-saved-output := $(KBUILD_OUTPUT)
-KBUILD_OUTPUT := $(shell mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) \
-								&& /bin/pwd)
-$(if $(KBUILD_OUTPUT),, \
-     $(error failed to create output directory "$(saved-output)"))
-
-PHONY += $(MAKECMDGOALS) sub-make
-
-$(filter-out _all sub-make $(CURDIR)/Makefile, $(MAKECMDGOALS)) _all: sub-make
-	@:
-
-sub-make: FORCE
-	$(if $(KBUILD_VERBOSE:1=),@)$(MAKE) -C $(KBUILD_OUTPUT) \
-	KBUILD_SRC=$(CURDIR) \
-	KBUILD_EXTMOD="$(KBUILD_EXTMOD)" -f $(CURDIR)/Makefile \
-	$(filter-out _all sub-make,$(MAKECMDGOALS))
-
-# Leave processing to above invocation of make
-skip-makefile := 1
-endif # ifneq ($(KBUILD_OUTPUT),)
-endif # ifeq ($(KBUILD_SRC),)
-
-# We process the rest of the Makefile if this is the final invocation of make
-ifeq ($(skip-makefile),)
-
 # If building an external module we do not care about the all: rule
 # but instead _all depend on modules
 PHONY += all
@@ -157,17 +195,24 @@ else
 _all: modules
 endif
 
-srctree		:= $(if $(KBUILD_SRC),$(KBUILD_SRC),$(CURDIR))
-objtree		:= $(CURDIR)
+ifeq ($(KBUILD_SRC),)
+        # building in the source tree
+        srctree := .
+else
+        ifeq ($(KBUILD_SRC)/,$(dir $(CURDIR)))
+                # building in a subdirectory of the source tree
+                srctree := ..
+        else
+                srctree := $(KBUILD_SRC)
+        endif
+endif
+objtree		:= .
 src		:= $(srctree)
 obj		:= $(objtree)
 
 VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
 
 export srctree objtree VPATH
-
-MKCONFIG	:= $(srctree)/mkconfig
-export MKCONFIG
 
 # Make sure CDPATH settings don't interfere
 unexport CDPATH
@@ -189,9 +234,6 @@ HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
 
 export	HOSTARCH HOSTOS
 
-# Deal with colliding definitions from tcsh etc.
-VENDOR=
-
 #########################################################################
 
 # set default to nothing for native builds
@@ -199,13 +241,16 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
+KCONFIG_CONFIG	?= .config
+export KCONFIG_CONFIG
+
 # SHELL used by kbuild
 CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
-HOSTCC       = gcc
-HOSTCXX      = g++
+HOSTCC       = cc
+HOSTCXX      = c++
 HOSTCFLAGS   = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
 HOSTCXXFLAGS = -O2
 
@@ -269,52 +314,6 @@ endif
 export KBUILD_MODULES KBUILD_BUILTIN
 export KBUILD_CHECKSRC KBUILD_SRC KBUILD_EXTMOD
 
-# Beautify output
-# ---------------------------------------------------------------------------
-#
-# Normally, we echo the whole command before executing it. By making
-# that echo $($(quiet)$(cmd)), we now have the possibility to set
-# $(quiet) to choose other forms of output instead, e.g.
-#
-#         quiet_cmd_cc_o_c = Compiling $(RELDIR)/$@
-#         cmd_cc_o_c       = $(CC) $(c_flags) -c -o $@ $<
-#
-# If $(quiet) is empty, the whole command will be printed.
-# If it is set to "quiet_", only the short version will be printed.
-# If it is set to "silent_", nothing will be printed at all, since
-# the variable $(silent_cmd_cc_o_c) doesn't exist.
-#
-# A simple variant is to prefix commands with $(Q) - that's useful
-# for commands that shall be hidden in non-verbose mode.
-#
-#	$(Q)ln $@ :<
-#
-# If KBUILD_VERBOSE equals 0 then the above command will be hidden.
-# If KBUILD_VERBOSE equals 1 then the above command is displayed.
-
-ifeq ($(KBUILD_VERBOSE),1)
-  quiet =
-  Q =
-else
-  quiet=quiet_
-  Q = @
-endif
-
-# If the user is running make -s (silent mode), suppress echoing of
-# commands
-
-ifneq ($(filter 4.%,$(MAKE_VERSION)),)	# make-4
-ifneq ($(filter %s ,$(firstword x$(MAKEFLAGS))),)
-  quiet=silent_
-endif
-else					# make-3.8x
-ifneq ($(filter s% -s%,$(MAKEFLAGS)),)
-  quiet=silent_
-endif
-endif
-
-export quiet Q KBUILD_VERBOSE
-
 # Look for make include files relative to root of kernel src
 MAKEFLAGS += --include-dir=$(srctree)
 
@@ -341,13 +340,14 @@ OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
 AWK		= awk
 PERL		= perl
+PYTHON		= python
 DTC		= dtc
 CHECK		= sparse
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void -D__CHECK_ENDIAN__ $(CF)
 
-KBUILD_CPPFLAGS := -D__KERNEL__
+KBUILD_CPPFLAGS := -D__KERNEL__ -D__UBOOT__
 
 KBUILD_CFLAGS   := -Wall -Wstrict-prototypes \
 		   -Wno-format-security \
@@ -362,7 +362,7 @@ export VERSION PATCHLEVEL SUBLEVEL UBOOTRELEASE UBOOTVERSION
 export ARCH CPU BOARD VENDOR SOC CPUDIR BOARDDIR
 export CONFIG_SHELL HOSTCC HOSTCFLAGS HOSTLDFLAGS CROSS_COMPILE AS LD CC
 export CPP AR NM LDR STRIP OBJCOPY OBJDUMP
-export MAKE AWK PERL
+export MAKE AWK PERL PYTHON
 export HOSTCXX HOSTCXXFLAGS DTC CHECK CHECKFLAGS
 
 export KBUILD_CPPFLAGS NOSTDINC_FLAGS UBOOTINCLUDE OBJCOPYFLAGS LDFLAGS
@@ -417,7 +417,7 @@ timestamp_h := include/generated/timestamp_autogenerated.h
 
 no-dot-config-targets := clean clobber mrproper distclean \
 			 help %docs check% coccicheck \
-			 ubootversion backup tools-only
+			 ubootversion backup
 
 config-targets := 0
 mixed-targets  := 0
@@ -443,12 +443,12 @@ ifeq ($(mixed-targets),1)
 # We're called with mixed targets (*config and build targets).
 # Handle them one by one.
 
-PHONY += $(MAKECMDGOALS) build-one-by-one
+PHONY += $(MAKECMDGOALS) __build_one_by_one
 
-$(MAKECMDGOALS): build-one-by-one
+$(filter-out __build_one_by_one, $(MAKECMDGOALS)): __build_one_by_one
 	@:
 
-build-one-by-one:
+__build_one_by_one:
 	$(Q)set -e; \
 	for i in $(MAKECMDGOALS); do \
 		$(MAKE) -f $(srctree)/Makefile $$i; \
@@ -460,31 +460,50 @@ ifeq ($(config-targets),1)
 # *config targets only - make sure prerequisites are updated, and descend
 # in scripts/kconfig to make the *config target
 
-# Read arch specific Makefile to set KBUILD_DEFCONFIG as needed.
-# KBUILD_DEFCONFIG may point out an alternative default configuration
-# used for 'make defconfig'
+KBUILD_DEFCONFIG := sandbox_defconfig
+export KBUILD_DEFCONFIG KBUILD_KCONFIG
 
-%_config:: outputmakefile
-	@$(MKCONFIG) -A $(@:_config=)
+config: scripts_basic outputmakefile FORCE
+	+$(Q)$(CONFIG_SHELL) $(srctree)/scripts/multiconfig.sh $@
+
+%config: scripts_basic outputmakefile FORCE
+	+$(Q)$(CONFIG_SHELL) $(srctree)/scripts/multiconfig.sh $@
 
 else
 # ===========================================================================
 # Build targets only - this includes vmlinux, arch specific targets, clean
 # targets and others. In general all targets except *config targets.
 
-# load ARCH, BOARD, and CPU configuration
--include include/config.mk
-
 ifeq ($(dot-config),1)
 # Read in config
+-include include/config/auto.conf
+
+# Read in dependencies to all Kconfig* files, make sure to run
+# oldconfig if changes are detected.
+-include include/config/auto.conf.cmd
+
+# To avoid any implicit rule to kick in, define an empty command
+$(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
+
+# If .config is newer than include/config/auto.conf, someone tinkered
+# with it and forgot to run make oldconfig.
+# if auto.conf.cmd is missing then we are probably in a cleaned tree so
+# we execute the config step to be sure to catch updated Kconfig files
+include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
+	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+
 -include include/autoconf.mk
 -include include/autoconf.mk.dep
 
-# load other configuration
+# We want to include arch/$(ARCH)/config.mk only when include/config/auto.conf
+# is up-to-date. When we switch to a different board configuration, old CONFIG
+# macros are still remaining in include/config/auto.conf. Without the following
+# gimmick, wrong config.mk would be included leading nasty warnings/errors.
+autoconf_is_current := $(if $(wildcard $(KCONFIG_CONFIG)),$(shell find . \
+		-path ./include/config/auto.conf -newer $(KCONFIG_CONFIG)))
+ifneq ($(autoconf_is_current),)
 include $(srctree)/config.mk
-
-ifeq ($(wildcard include/config.mk),)
-$(error "System not configured - see README")
+include $(srctree)/arch/$(ARCH)/Makefile
 endif
 
 # If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
@@ -513,11 +532,15 @@ ifndef LDSCRIPT
 endif
 
 else
-
-
+# Dummy target needed, because used as prerequisite
+include/config/auto.conf: ;
 endif # $(dot-config)
 
-KBUILD_CFLAGS += -Os #-fomit-frame-pointer
+ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+KBUILD_CFLAGS	+= -Os
+else
+KBUILD_CFLAGS	+= -O2
+endif
 
 ifdef BUILD_TAG
 KBUILD_CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
@@ -553,6 +576,8 @@ endif
 
 export CONFIG_SYS_TEXT_BASE
 
+include $(srctree)/scripts/Makefile.extrawarn
+
 # Add user supplied CPPFLAGS, AFLAGS and CFLAGS as the last assignments
 KBUILD_CPPFLAGS += $(KCPPFLAGS)
 KBUILD_AFLAGS += $(KAFLAGS)
@@ -563,7 +588,8 @@ KBUILD_CFLAGS += $(KCFLAGS)
 UBOOTINCLUDE    := \
 		-Iinclude \
 		$(if $(KBUILD_SRC), -I$(srctree)/include) \
-		-I$(srctree)/arch/$(ARCH)/include
+		-I$(srctree)/arch/$(ARCH)/include \
+		-include $(srctree)/include/linux/kconfig.h
 
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
 CHECKFLAGS     += $(NOSTDINC_FLAGS)
@@ -576,29 +602,18 @@ c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
 
-head-y := $(CPUDIR)/start.o
-head-$(CONFIG_4xx) += arch/powerpc/cpu/ppc4xx/resetvec.o
-head-$(CONFIG_MPC85xx) += arch/powerpc/cpu/mpc85xx/resetvec.o
-
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
 
 libs-y += lib/
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
-libs-y += $(CPUDIR)/
-ifdef SOC
-libs-y += $(CPUDIR)/$(SOC)/
-endif
 libs-$(CONFIG_OF_EMBED) += dts/
-libs-y += arch/$(ARCH)/lib/
 libs-y += fs/
 libs-y += net/
 libs-y += disk/
 libs-y += drivers/
-libs-$(CONFIG_DM) += drivers/core/
 libs-y += drivers/dma/
 libs-y += drivers/gpio/
 libs-y += drivers/i2c/
-libs-y += drivers/input/
 libs-y += drivers/mmc/
 libs-y += drivers/mtd/
 libs-$(CONFIG_CMD_NAND) += drivers/mtd/nand/
@@ -625,19 +640,10 @@ libs-y += drivers/usb/musb-new/
 libs-y += drivers/usb/phy/
 libs-y += drivers/usb/ulpi/
 libs-y += common/
-libs-y += lib/libfdt/
 libs-$(CONFIG_API) += api/
 libs-$(CONFIG_HAS_POST) += post/
 libs-y += test/
 libs-y += test/dm/
-libs-$(CONFIG_DM_DEMO) += drivers/demo/
-
-ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35 mxs vf610))
-libs-y += arch/$(ARCH)/imx-common/
-endif
-
-libs-$(CONFIG_ARM) += arch/arm/cpu/
-libs-$(CONFIG_PPC) += arch/powerpc/cpu/
 
 libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 
@@ -654,12 +660,8 @@ u-boot-main := $(libs-y)
 
 
 # Add GCC lib
-ifdef CONFIG_USE_PRIVATE_LIBGCC
 ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
 PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
-else
-PLATFORM_LIBGCC = -L $(CONFIG_USE_PRIVATE_LIBGCC) -lgcc
-endif
 else
 PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(c_flags) -print-libgcc-file-name`) -lgcc
 endif
@@ -727,6 +729,9 @@ ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
 ALL-$(CONFIG_REMAKE_ELF) += u-boot.elf
 
+# We can't do this yet due to the need for binary blobs
+# ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
+
 # enable combined SPL/u-boot/dtb rules for tegra
 ifneq ($(CONFIG_TEGRA),)
 ifeq ($(CONFIG_SPL),y)
@@ -742,6 +747,11 @@ ifneq ($(CONFIG_ZYNQ),)
 ifeq ($(CONFIG_SPL),y)
 ALL-y += boot.bin
 endif
+endif
+
+# Add optional build target if defined in board/cpu/soc headers
+ifneq ($(CONFIG_BUILD_TARGET),)
+ALL-y += $(CONFIG_BUILD_TARGET:"%"=%)
 endif
 
 LDFLAGS_u-boot += $(LDFLAGS_FINAL)
@@ -765,6 +775,13 @@ quiet_cmd_pad_cat = CAT     $@
 cmd_pad_cat = $(cmd_objcopy) && $(append) || rm -f $@
 
 all:		$(ALL-y)
+ifneq ($(CONFIG_SYS_GENERIC_BOARD),y)
+	@echo "===================== WARNING ======================"
+	@echo "Please convert this board to generic board."
+	@echo "Otherwise it will be removed by the end of 2014."
+	@echo "See doc/README.generic-board for further information"
+	@echo "===================================================="
+endif
 
 PHONY += dtbs
 dtbs dts/dt.dtb: checkdtc u-boot
@@ -789,16 +806,18 @@ OBJCOPYFLAGS_u-boot.srec := -O srec
 u-boot.hex u-boot.srec: u-boot FORCE
 	$(call if_changed,objcopy)
 
-OBJCOPYFLAGS_u-boot.bin := -O binary
+OBJCOPYFLAGS_u-boot.bin := -O binary \
+		$(if $(CONFIG_X86_RESET_VECTOR),-R .start16 -R .resetvec)
 
-binary_size_check: u-boot.bin System.map FORCE
-	@file_size=`stat -c %s u-boot.bin` ; \
-	map_size=$(shell cat System.map | \
+binary_size_check: u-boot.bin FORCE
+	@file_size=$(shell wc -c u-boot.bin | awk '{print $$1}') ; \
+	map_size=$(shell cat u-boot.map | \
 		awk '/_image_copy_start/ {start = $$1} /_image_binary_end/ {end = $$1} END {if (start != "" && end != "") print "ibase=16; " toupper(end) " - " toupper(start)}' \
+		| sed 's/0X//g' \
 		| bc); \
 	if [ "" != "$$map_size" ]; then \
 		if test $$map_size -ne $$file_size; then \
-			echo "System.map shows a binary size of $$map_size" >&2 ; \
+			echo "u-boot.map shows a binary size of $$map_size" >&2 ; \
 			echo "  but u-boot.bin shows $$file_size" >&2 ; \
 			exit 1; \
 		fi \
@@ -811,7 +830,7 @@ u-boot.bin: u-boot FORCE
 
 u-boot.ldr:	u-boot
 		$(CREATE_LDR_ENV)
-		$(LDR) -T $(CONFIG_BFIN_CPU) -c $@ $< $(LDR_FLAGS)
+		$(LDR) -T $(CONFIG_CPU) -c $@ $< $(LDR_FLAGS)
 		$(BOARD_SIZE_CHECK)
 
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
@@ -921,10 +940,66 @@ OBJCOPYFLAGS_u-boot-spi.gph = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) 
 u-boot-spi.gph: spl/u-boot-spl.gph u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
+MKIMAGEFLAGS_u-boot-nand.gph = -A $(ARCH) -T gpimage -C none \
+	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) -n U-Boot
+u-boot-nand.gph: u-boot.bin FORCE
+	$(call if_changed,mkimage)
+	@dd if=/dev/zero bs=8 count=1 2>/dev/null >> $@
+
+# x86 uses a large ROM. We fill it with 0xff, put the 16-bit stuff (including
+# reset vector) at the top, Intel ME descriptor at the bottom, and U-Boot in
+# the middle.
+ifneq ($(CONFIG_X86_RESET_VECTOR),)
+rom: u-boot.rom FORCE
+
+IFDTOOL=$(objtree)/tools/ifdtool
+IFDTOOL_FLAGS  = -f 0:$(objtree)/u-boot.dtb
+IFDTOOL_FLAGS += -m 0x$(shell $(NM) u-boot |grep _dt_ucode_base_size |cut -d' ' -f1)
+IFDTOOL_FLAGS += -U $(CONFIG_SYS_TEXT_BASE):$(objtree)/u-boot.bin
+IFDTOOL_FLAGS += -w $(CONFIG_SYS_X86_START16):$(objtree)/u-boot-x86-16bit.bin
+
+ifneq ($(CONFIG_HAVE_INTEL_ME),)
+IFDTOOL_ME_FLAGS  = -D $(srctree)/board/$(BOARDDIR)/descriptor.bin
+IFDTOOL_ME_FLAGS += -i ME:$(srctree)/board/$(BOARDDIR)/me.bin
+endif
+
+ifneq ($(CONFIG_HAVE_MRC),)
+IFDTOOL_FLAGS += -w $(CONFIG_X86_MRC_ADDR):$(srctree)/board/$(BOARDDIR)/mrc.bin
+endif
+
+ifneq ($(CONFIG_HAVE_FSP),)
+IFDTOOL_FLAGS += -w $(CONFIG_FSP_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_FSP_FILE)
+endif
+
+ifneq ($(CONFIG_HAVE_CMC),)
+IFDTOOL_FLAGS += -w $(CONFIG_CMC_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_CMC_FILE)
+endif
+
+ifneq ($(CONFIG_X86_OPTION_ROM_ADDR),)
+IFDTOOL_FLAGS += -w $(CONFIG_X86_OPTION_ROM_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_X86_OPTION_ROM_FILE)
+endif
+
+quiet_cmd_ifdtool = IFDTOOL $@
+cmd_ifdtool  = $(IFDTOOL) -c -r $(CONFIG_ROM_SIZE) u-boot.tmp;
+ifneq ($(CONFIG_HAVE_INTEL_ME),)
+cmd_ifdtool += $(IFDTOOL) $(IFDTOOL_ME_FLAGS) u-boot.tmp;
+endif
+cmd_ifdtool += $(IFDTOOL) $(IFDTOOL_FLAGS) u-boot.tmp;
+cmd_ifdtool += mv u-boot.tmp $@
+
+u-boot.rom: u-boot-x86-16bit.bin u-boot-dtb.bin
+	$(call if_changed,ifdtool)
+
+OBJCOPYFLAGS_u-boot-x86-16bit.bin := -O binary -j .start16 -j .resetvec
+u-boot-x86-16bit.bin: u-boot FORCE
+	$(call if_changed,objcopy)
+endif
+
 ifneq ($(CONFIG_SUNXI),)
 OBJCOPYFLAGS_u-boot-sunxi-with-spl.bin = -I binary -O binary \
 				   --pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
-u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img FORCE
+u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin \
+			u-boot$(if $(CONFIG_OF_CONTROL),-dtb,).img FORCE
 	$(call if_changed,pad_cat)
 endif
 
@@ -949,15 +1024,22 @@ boot.bin: spl/u-boot-spl.bin
 #concatenated with u-boot binary. It is need by PowerPC SoC having
 #internal SRAM <= 512KB.
 MKIMAGEFLAGS_u-boot-spl.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
-		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
+		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage \
+		-A $(ARCH) -a $(CONFIG_SPL_TEXT_BASE)
 
 spl/u-boot-spl.pbl: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 
+ifeq ($(ARCH),arm)
+UBOOT_BINLOAD := u-boot.img
+else
+UBOOT_BINLOAD := u-boot.bin
+endif
+
 OBJCOPYFLAGS_u-boot-with-spl-pbl.bin = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
 			  --gap-fill=0xff
 
-u-boot-with-spl-pbl.bin: spl/u-boot-spl.pbl u-boot.bin FORCE
+u-boot-with-spl-pbl.bin: spl/u-boot-spl.pbl $(UBOOT_BINLOAD) FORCE
 	$(call if_changed,pad_cat)
 
 # PPC4xx needs the SPL at the end of the image, since the reset vector
@@ -991,13 +1073,17 @@ quiet_cmd_u-boot__ ?= LD      $@
       --start-group $(u-boot-main) --end-group                 \
       $(PLATFORM_LIBS) -Map u-boot.map
 
-u-boot:	$(u-boot-init) $(u-boot-main) u-boot.lds
-	$(call if_changed,u-boot__)
-ifeq ($(CONFIG_KALLSYMS),y)
+quiet_cmd_smap = GEN     common/system_map.o
+cmd_smap = \
 	smap=`$(call SYSTEM_MAP,u-boot) | \
 		awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\\\000"}'` ; \
 	$(CC) $(c_flags) -DSYSTEM_MAP="\"$${smap}\"" \
 		-c $(srctree)/common/system_map.c -o common/system_map.o
+
+u-boot:	$(u-boot-init) $(u-boot-main) u-boot.lds
+	$(call if_changed,u-boot__)
+ifeq ($(CONFIG_KALLSYMS),y)
+	$(call cmd,smap)
 	$(call cmd,u-boot__) common/system_map.o
 endif
 
@@ -1027,7 +1113,7 @@ define filechk_uboot.release
 endef
 
 # Store (new) UBOOTRELEASE string in include/config/uboot.release
-include/config/uboot.release: Makefile FORCE
+include/config/uboot.release: include/config/auto.conf FORCE
 	$(call filechk,uboot.release)
 
 
@@ -1045,8 +1131,8 @@ PHONY += prepare archprepare prepare0 prepare1 prepare2 prepare3
 # 1) Check that make has not been executed in the kernel src $(srctree)
 prepare3: include/config/uboot.release
 ifneq ($(KBUILD_SRC),)
-	@$(kecho) '  Using $(srctree) as source for u-boot'
-	$(Q)if [ -f $(srctree)/include/config.mk ]; then \
+	@$(kecho) '  Using $(srctree) as source for U-Boot'
+	$(Q)if [ -f $(srctree)/.config -o -d $(srctree)/include/config ]; then \
 		echo >&2 "  $(srctree) is not clean, please run 'make mrproper'"; \
 		echo >&2 "  in the '$(srctree)' directory.";\
 		/bin/false; \
@@ -1056,7 +1142,8 @@ endif
 # prepare2 creates a makefile if using a separate output directory
 prepare2: prepare3 outputmakefile
 
-prepare1: prepare2 $(version_h) $(timestamp_h)
+prepare1: prepare2 $(version_h) $(timestamp_h) \
+                   include/config/auto.conf
 ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
 ifeq ($(CONFIG_SYS_GENERIC_BOARD),y)
 	@echo >&2 "  Your architecture does not support generic board."
@@ -1098,29 +1185,6 @@ $(version_h): include/config/uboot.release FORCE
 $(timestamp_h): $(srctree)/Makefile FORCE
 	$(call filechk,timestamp.h)
 
-#
-# Auto-generate the autoconf.mk file (which is included by all makefiles)
-#
-# This target actually generates 2 files; autoconf.mk and autoconf.mk.dep.
-# the dep file is only include in this top level makefile to determine when
-# to regenerate the autoconf.mk file.
-
-quiet_cmd_autoconf_dep = GEN     $@
-      cmd_autoconf_dep = $(CC) -x c -DDO_DEPS_ONLY -M $(c_flags) \
-	-MQ include/autoconf.mk $(srctree)/include/common.h > $@ || rm $@
-
-include/autoconf.mk.dep: include/config.h include/common.h
-	$(call cmd,autoconf_dep)
-
-quiet_cmd_autoconf = GEN     $@
-      cmd_autoconf = \
-	$(CPP) $(c_flags) -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
-	sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
-	rm $@.tmp
-
-include/autoconf.mk: include/config.h
-	$(call cmd,autoconf)
-
 # ---------------------------------------------------------------------------
 
 PHONY += depend dep
@@ -1144,9 +1208,9 @@ spl/sunxi-spl.bin: spl/u-boot-spl
 	@:
 
 tpl/u-boot-tpl.bin: tools prepare
-	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all CONFIG_TPL_BUILD=y
+	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all
 
-TAG_SUBDIRS := $(u-boot-dirs) include
+TAG_SUBDIRS := $(patsubst %,$(srctree)/%,$(u-boot-dirs) include)
 
 FIND := find
 FINDFLAGS := -L
@@ -1156,7 +1220,7 @@ tags ctags:
 						-name '*.[chS]' -print`
 
 etags:
-		etags -a -o $(obj)etags `$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) \
+		etags -a -o etags `$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) \
 						-name '*.[chS]' -print`
 cscope:
 		$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) -name '*.[chS]' -print > \
@@ -1218,21 +1282,18 @@ include/license.h: tools/bin2header COPYING
 # make distclean Remove editor backup files, patch leftover files and the like
 
 # Directories & files removed with 'make clean'
-CLEAN_DIRS  += $(MODVERDIR)
-CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h \
-	       include/autoconf.mk* include/spl-autoconf.mk \
-	       include/tpl-autoconf.mk
+CLEAN_DIRS  += $(MODVERDIR) \
+	       $(foreach d, spl tpl, $(patsubst %,$d/%, \
+			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
-# Directories & files removed with 'make clobber'
-CLOBBER_DIRS  += spl tpl
-CLOBBER_FILES += u-boot* MLO* SPL System.map
+CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
+	       u-boot* MLO* SPL System.map
 
 # Directories & files removed with 'make mrproper'
-MRPROPER_DIRS  += include/config include/generated          \
+MRPROPER_DIRS  += include/config include/generated spl tpl \
 		  .tmp_objdiff
-MRPROPER_FILES += .config .config.old \
-		  tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
-		  include/config.h include/config.mk
+MRPROPER_FILES += .config .config.old include/autoconf.mk* include/config.h \
+		  ctags etags TAGS cscope* GPATH GTAGS GRTAGS GSYMS
 
 # clean - Delete most, but leave enough to build external modules
 #
@@ -1259,17 +1320,6 @@ clean: $(clean-dirs)
 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
 		-o -name '*.gcno' \) -type f -print | xargs rm -f
 
-# clobber
-#
-clobber: rm-dirs  := $(CLOBBER_DIRS)
-clobber: rm-files := $(CLOBBER_FILES)
-
-PHONY += clobber
-
-clobber: clean
-	$(call cmd,rmdirs)
-	$(call cmd,rmfiles)
-
 # mrproper - Delete all generated files, including .config
 #
 mrproper: rm-dirs  := $(wildcard $(MRPROPER_DIRS))
@@ -1280,7 +1330,7 @@ PHONY += $(mrproper-dirs) mrproper archmrproper
 $(mrproper-dirs):
 	$(Q)$(MAKE) $(clean)=$(patsubst _mrproper_%,%,$@)
 
-mrproper: clobber $(mrproper-dirs)
+mrproper: clean $(mrproper-dirs)
 	$(call cmd,rmdirs)
 	$(call cmd,rmfiles)
 	@rm -f arch/*/include/asm/arch
@@ -1296,6 +1346,7 @@ distclean: mrproper
 		-o -name '.*.rej' -o -name '*%' -o -name 'core' \
 		-o -name '*.pyc' \) \
 		-type f -print | xargs rm -f
+	@rm -f boards.cfg
 
 backup:
 	F=`basename $(srctree)` ; cd .. ; \
@@ -1303,27 +1354,25 @@ backup:
 
 help:
 	@echo  'Cleaning targets:'
-	@echo  '  clean		  - Remove most generated files but keep the config and'
-	@echo  '                    necessities for testing u-boot'
-	@echo  '  clobber	  - Remove most generated files but keep the config'
+	@echo  '  clean		  - Remove most generated files but keep the config'
 	@echo  '  mrproper	  - Remove all generated files + config + various backup files'
 	@echo  '  distclean	  - mrproper + remove editor backup and patch files'
 	@echo  ''
-# uncomment after adding Kconfig feature
-#	@echo  'Configuration targets:'
-#	@$(MAKE) -f $(srctree)/scripts/kconfig/Makefile help
-#	@echo  ''
+	@echo  'Configuration targets:'
+	@$(MAKE) -f $(srctree)/scripts/kconfig/Makefile help
+	@echo  ''
 	@echo  'Other generic targets:'
 	@echo  '  all		  - Build all necessary images depending on configuration'
-	@echo  '  u-boot	  - Build the bare u-boot'
+	@echo  '* u-boot	  - Build the bare u-boot'
 	@echo  '  dir/            - Build all files in dir and below'
 	@echo  '  dir/file.[oisS] - Build specified target only'
 	@echo  '  dir/file.lst    - Build specified mixed source/assembly target only'
 	@echo  '                    (requires a recent binutils and recent build (System.map))'
-	@echo  '  tags/TAGS	  - Generate tags file for editors'
+	@echo  '  tags/ctags	  - Generate ctags file for editors'
+	@echo  '  etags		  - Generate etags file for editors'
 	@echo  '  cscope	  - Generate cscope index'
-	@echo  '  ubootrelease	  - Output the release version string'
-	@echo  '  ubootversion	  - Output the version stored in Makefile'
+	@echo  '  ubootrelease	  - Output the release version string (use with make -s)'
+	@echo  '  ubootversion	  - Output the version stored in Makefile (use with make -s)'
 	@echo  ''
 	@echo  'Static analysers'
 	@echo  '  checkstack      - Generate a list of stack hogs'
@@ -1444,7 +1493,7 @@ endif
 # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.clean obj=dir
 # Usage:
 # $(Q)$(MAKE) $(clean)=dir
-clean := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.clean obj
+clean := -f $(srctree)/scripts/Makefile.clean obj
 
 endif	# skip-makefile
 

@@ -379,7 +379,7 @@ static struct clk pixel_clk[] = {
 /*
  * This function resets IPU
  */
-void ipu_reset(void)
+static void ipu_reset(void)
 {
 	u32 *reg;
 	u32 value;

@@ -59,8 +59,9 @@
 #define CONFIG_KM_PHRAM		0x100000
 /* resereved pram area at the end of memroy [hex] */
 #define CONFIG_KM_RESERVED_PRAM	0x0
-/* enable protected RAM */
-#define CONFIG_PRAM		0
+/* set the default PRAM value to at least PNVRAM + PHRAM when pram env variable
+ * is not valid yet, which is the case for when u-boot copies itself to RAM */
+#define CONFIG_PRAM		((CONFIG_KM_PNVRAM + CONFIG_KM_PHRAM)>>10)
 
 #define CONFIG_KM_CRAMFS_ADDR	0x800000
 #define CONFIG_KM_KERNEL_ADDR	0x400000	/* 3968Kbytes */

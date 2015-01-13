@@ -16,8 +16,10 @@
 
 #include <configs/ti_omap5_common.h>
 
-#undef CONFIG_MISC_INIT_R
 #undef CONFIG_SPL_OS_BOOT
+
+/* Enable Generic board */
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* Device Tree defines */
 #define CONFIG_OF_LIBFDT
@@ -27,6 +29,7 @@
 #define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
+#define CONFIG_SYS_I2C_EEPROM_BUS	0
 
 /* Enable SD/MMC CD and WP GPIOs */
 #define OMAP_HSMMC_USE_GPIO
@@ -60,6 +63,19 @@
 #define CONFIG_HSMMC2_8BIT
 #define CONFIG_SUPPORT_EMMC_BOOT
 
+/* SATA Boot related defines */
+#define CONFIG_SPL_SATA_SUPPORT
+#define CONFIG_SPL_SATA_BOOT_DEVICE		0
+#define CONFIG_SYS_SATA_FAT_BOOT_PARTITION	1
+
+#define CONFIG_CMD_SCSI
+#define CONFIG_LIBATA
+#define CONFIG_SCSI_AHCI
+#define CONFIG_SCSI_AHCI_PLAT
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
+#define CONFIG_SYS_SCSI_MAX_LUN		1
+#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+						CONFIG_SYS_SCSI_MAX_LUN)
 /* USB UHH support options */
 #define CONFIG_CMD_USB
 #define CONFIG_USB_HOST

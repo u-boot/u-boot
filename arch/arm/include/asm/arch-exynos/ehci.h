@@ -12,6 +12,13 @@
 
 #define CLK_24MHZ		5
 
+#define PHYPWR_NORMAL_MASK_PHY0                 (0x39 << 0)
+#define PHYPWR_NORMAL_MASK_PHY1                 (0x7 << 6)
+#define PHYPWR_NORMAL_MASK_HSIC0                (0x7 << 9)
+#define PHYPWR_NORMAL_MASK_HSIC1                (0x7 << 12)
+#define RSTCON_HOSTPHY_SWRST                    (0xf << 3)
+#define RSTCON_SWRST                            (0x1 << 0)
+
 #define HOST_CTRL0_PHYSWRSTALL			(1 << 31)
 #define HOST_CTRL0_COMMONON_N			(1 << 9)
 #define HOST_CTRL0_SIDDQ			(1 << 6)
@@ -59,6 +66,12 @@ struct exynos_usb_phy {
 	unsigned int usbotgsys;
 	unsigned int reserved4;
 	unsigned int usbotgtune;
+};
+
+struct exynos4412_usb_phy {
+	unsigned int usbphyctrl;
+	unsigned int usbphyclk;
+	unsigned int usbphyrstcon;
 };
 
 /* Switch on the VBUS power. */

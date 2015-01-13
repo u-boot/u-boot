@@ -36,8 +36,11 @@ int run_command(const char *cmd, int flag)
 
 	return 0;
 #else
-	return parse_string_outer(cmd,
-			FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
+	int hush_flags = FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP;
+
+	if (flag & CMD_FLAG_ENV)
+		hush_flags |= FLAG_CONT_ON_NEWLINE;
+	return parse_string_outer(cmd, hush_flags);
 #endif
 }
 
@@ -125,7 +128,7 @@ int do_run(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return 1;
 		}
 
-		if (run_command(arg, flag) != 0)
+		if (run_command(arg, flag | CMD_FLAG_ENV) != 0)
 			return 1;
 	}
 	return 0;

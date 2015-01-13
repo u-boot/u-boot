@@ -1,0 +1,12 @@
+if TARGET_WANDBOARD
+
+config SYS_BOARD
+	default "wandboard"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "wandboard"
+
+endif

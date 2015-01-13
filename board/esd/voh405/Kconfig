@@ -1,0 +1,12 @@
+if TARGET_VOH405
+
+config SYS_BOARD
+	default "voh405"
+
+config SYS_VENDOR
+	default "esd"
+
+config SYS_CONFIG_NAME
+	default "VOH405"
+
+endif

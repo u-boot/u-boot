@@ -34,9 +34,8 @@ def FindCheckPatch():
             return fname
         path = os.path.dirname(path)
 
-    print >> sys.stderr, ('Cannot find checkpatch.pl - please put it in your ' +
-                '~/bin directory or use --no-check')
-    sys.exit(1)
+    sys.exit('Cannot find checkpatch.pl - please put it in your ' +
+             '~/bin directory or use --no-check')
 
 def CheckPatch(fname, verbose=False):
     """Run checkpatch.pl on a file.

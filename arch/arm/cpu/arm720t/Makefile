@@ -9,3 +9,7 @@ extra-y	= start.o
 obj-y	= interrupts.o cpu.o
 
 obj-$(CONFIG_TEGRA) += tegra-common/
+obj-$(CONFIG_TEGRA20) += tegra20/
+obj-$(CONFIG_TEGRA30) += tegra30/
+obj-$(CONFIG_TEGRA114) += tegra114/
+obj-$(CONFIG_TEGRA124) += tegra124/

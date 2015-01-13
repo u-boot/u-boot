@@ -310,6 +310,14 @@ __weak unsigned long get_tbclk (void)
 
 
 #if defined(CONFIG_WATCHDOG)
+#define WATCHDOG_MASK (TCR_WP(63) | TCR_WRC(3) | TCR_WIE)
+void
+init_85xx_watchdog(void)
+{
+	mtspr(SPRN_TCR, (mfspr(SPRN_TCR) & ~WATCHDOG_MASK) |
+	      TCR_WP(CONFIG_WATCHDOG_PRESC) | TCR_WRC(CONFIG_WATCHDOG_RC));
+}
+
 void
 reset_85xx_watchdog(void)
 {
@@ -433,7 +441,7 @@ phys_size_t initdram(int board_type)
 
 /* Board-specific functions defined in each board's ddr.c */
 void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
-	unsigned int ctrl_num);
+	unsigned int ctrl_num, unsigned int dimm_slots_per_ctrl);
 void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 		       phys_addr_t *rpn);
 unsigned int
@@ -451,7 +459,7 @@ static void dump_spd_ddr_reg(void)
 		spd[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR];
 
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
-		fsl_ddr_get_spd(spd[i], i);
+		fsl_ddr_get_spd(spd[i], i, CONFIG_DIMM_SLOTS_PER_CTLR);
 
 	puts("SPD data of all dimms (zero vaule is omitted)...\n");
 	puts("Byte (hex)  ");

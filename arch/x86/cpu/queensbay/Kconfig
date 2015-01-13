@@ -1,0 +1,79 @@
+#
+# Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
+config INTEL_QUEENSBAY
+	bool
+	select HAVE_FSP
+	select HAVE_CMC
+
+if INTEL_QUEENSBAY
+
+config HAVE_FSP
+	bool "Add an Firmware Support Package binary"
+	help
+	  Select this option to add an Firmware Support Package binary to
+	  the resulting U-Boot image. It is a binary blob which U-Boot uses
+	  to set up SDRAM and other chipset specific initialization.
+
+	  Note: Without this binary U-Boot will not be able to set up its
+	  SDRAM so will not boot.
+
+config FSP_FILE
+	string "Firmware Support Package binary filename"
+	depends on HAVE_FSP
+	default "fsp.bin"
+	help
+	  The filename of the file to use as Firmware Support Package binary
+	  in the board directory.
+
+config FSP_ADDR
+	hex "Firmware Support Package binary location"
+	depends on HAVE_FSP
+	default 0xfffc0000
+	help
+	  FSP is not Position Independent Code (PIC) and the whole FSP has to
+	  be rebased if it is placed at a location which is different from the
+	  perferred base address specified during the FSP build. Use Intel's
+	  Binary Configuration Tool (BCT) to do the rebase.
+
+	  The default base address of 0xfffc0000 indicates that the binary must
+	  be located at offset 0xc0000 from the beginning of a 1MB flash device.
+
+config FSP_TEMP_RAM_ADDR
+	hex
+	default 0x2000000
+	help
+	  Stack top address which is used in FspInit after DRAM is ready and
+	  CAR is disabled.
+
+config HAVE_CMC
+	bool "Add a Chipset Micro Code state machine binary"
+	help
+	  Select this option to add a Chipset Micro Code state machine binary
+	  to the resulting U-Boot image. It is a 64K data block of machine
+	  specific code which must be put in the flash for the processor to
+	  access when powered up before system BIOS is executed.
+
+config CMC_FILE
+	string "Chipset Micro Code state machine filename"
+	depends on HAVE_CMC
+	default "cmc.bin"
+	help
+	  The filename of the file to use as Chipset Micro Code state machine
+	  binary in the board directory.
+
+config CMC_ADDR
+	hex "Chipset Micro Code state machine binary location"
+	depends on HAVE_CMC
+	default 0xfffb0000
+	help
+	  The location of the CMC binary is determined by a strap. It must be
+	  put in flash at a location matching the strap-determined base address.
+
+	  The default base address of 0xfffb0000 indicates that the binary must
+	  be located at offset 0xb0000 from the beginning of a 1MB flash device.
+
+endif

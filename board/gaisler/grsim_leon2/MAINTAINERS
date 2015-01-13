@@ -1,0 +1,6 @@
+GRSIM_LEON2 BOARD
+#M:	-
+S:	Maintained
+F:	board/gaisler/grsim_leon2/
+F:	include/configs/grsim_leon2.h
+F:	configs/grsim_leon2_defconfig

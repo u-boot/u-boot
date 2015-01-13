@@ -1,0 +1,6 @@
+QONG BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/davedenx/qong/
+F:	include/configs/qong.h
+F:	configs/qong_defconfig

@@ -1,0 +1,12 @@
+if TARGET_MPC8540ADS
+
+config SYS_BOARD
+	default "mpc8540ads"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	default "MPC8540ADS"
+
+endif

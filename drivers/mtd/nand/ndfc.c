@@ -118,6 +118,7 @@ static void ndfc_write_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len
 		out_be32((u32 *)(base + NDFC_DATA), *p++);
 }
 
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 static int ndfc_verify_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len)
 {
 	struct nand_chip *this = mtdinfo->priv;
@@ -130,6 +131,7 @@ static int ndfc_verify_buf(struct mtd_info *mtdinfo, const uint8_t *buf, int len
 
 	return 0;
 }
+#endif
 
 /*
  * Read a byte from the NDFC.
@@ -205,7 +207,9 @@ int board_nand_init(struct nand_chip *nand)
 #endif
 
 	nand->write_buf  = ndfc_write_buf;
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 	nand->verify_buf = ndfc_verify_buf;
+#endif
 	nand->read_byte = ndfc_read_byte;
 
 	chip++;

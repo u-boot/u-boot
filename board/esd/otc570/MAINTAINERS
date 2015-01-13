@@ -1,0 +1,7 @@
+OTC570 BOARD
+M:	Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
+S:	Maintained
+F:	board/esd/otc570/
+F:	include/configs/otc570.h
+F:	configs/otc570_defconfig
+F:	configs/otc570_dataflash_defconfig

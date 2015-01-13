@@ -14,7 +14,6 @@
 #include <asm/arch/imx-regs.h>
 
  /* High Level Configuration Options */
-#define CONFIG_ARM1136	/* This is an arm1136 CPU core */
 #define CONFIG_MX35
 #define CONFIG_MX35_HCLK_FREQ	24000000
 
@@ -242,8 +241,6 @@
  * Default environment and default scripts
  * to update uboot and load kernel
  */
-#define xstr(s)	str(s)
-#define str(s)	#s
 
 #define CONFIG_HOSTNAME woodburn
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
@@ -263,9 +260,9 @@
 	"addmisc=setenv bootargs ${bootargs} ${misc}\0"			\
 	"loadaddr=80800000\0"						\
 	"kernel_addr_r=80800000\0"					\
-	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
-	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
-	"ramdisk_file=" xstr(CONFIG_HOSTNAME) "/uRamdisk\0"		\
+	"hostname=" __stringify(CONFIG_HOSTNAME) "\0"			\
+	"bootfile=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
+	"ramdisk_file=" __stringify(CONFIG_HOSTNAME) "/uRamdisk\0"	\
 	"flash_self=run ramargs addip addtty addmtd addmisc;"		\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"flash_nfs=run nfsargs addip addtty addmtd addmisc;"		\
@@ -279,9 +276,9 @@
 		"run ramargs addip addtty addmtd addmisc;"		\
 		"bootm ${kernel_addr_r} ${ramdisk_addr_r};"		\
 		"else echo Images not loades;fi\0"			\
-	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"			\
+	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.bin\0"		\
 	"load=tftp ${loadaddr} ${u-boot}\0"				\
-	"uboot_addr=" xstr(CONFIG_SYS_MONITOR_BASE) "\0"		\
+	"uboot_addr=" __stringify(CONFIG_SYS_MONITOR_BASE) "\0"		\
 	"update=protect off ${uboot_addr} +80000;"			\
 		"erase ${uboot_addr} +80000;"				\
 		"cp.b ${loadaddr} ${uboot_addr} ${filesize}\0"		\

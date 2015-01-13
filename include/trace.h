@@ -89,14 +89,7 @@ int trace_list_calls(void *buff, int buff_size, unsigned int *needed);
  */
 void trace_set_enabled(int enabled);
 
-#ifdef CONFIG_TRACE_EARLY
 int trace_early_init(void);
-#else
-static inline int trace_early_init(void)
-{
-	return 0;
-}
-#endif
 
 /**
  * Init the trace system

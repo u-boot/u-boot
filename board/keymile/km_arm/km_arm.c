@@ -20,7 +20,7 @@
 #include <spi.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 
 #include "../common/common.h"
@@ -222,11 +222,11 @@ int board_early_init_f(void)
 	u32 tmp;
 
 	/* set the 2 bitbang i2c pins as output gpios */
-	tmp = readl(KW_GPIO0_BASE + 4);
-	writel(tmp & (~KM_KIRKWOOD_SOFT_I2C_GPIOS) , KW_GPIO0_BASE + 4);
+	tmp = readl(MVEBU_GPIO0_BASE + 4);
+	writel(tmp & (~KM_KIRKWOOD_SOFT_I2C_GPIOS) , MVEBU_GPIO0_BASE + 4);
 #endif
 	/* adjust SDRAM size for bank 0 */
-	kw_sdram_size_adjust(0);
+	mvebu_sdram_size_adjust(0);
 	kirkwood_mpp_conf(kwmpp_config, NULL);
 	return 0;
 }
@@ -234,7 +234,7 @@ int board_early_init_f(void)
 int board_init(void)
 {
 	/* address of boot parameters */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	/*
 	 * The KM_FLASH_GPIO_PIN switches between using a

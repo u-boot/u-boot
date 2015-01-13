@@ -1,0 +1,6 @@
+YUCCA BOARD
+#M:	-
+S:	Maintained
+F:	board/amcc/yucca/
+F:	include/configs/yucca.h
+F:	configs/yucca_defconfig

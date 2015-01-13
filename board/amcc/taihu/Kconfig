@@ -1,0 +1,12 @@
+if TARGET_TAIHU
+
+config SYS_BOARD
+	default "taihu"
+
+config SYS_VENDOR
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	default "taihu"
+
+endif

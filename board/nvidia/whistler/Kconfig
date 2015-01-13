@@ -1,0 +1,12 @@
+if TARGET_WHISTLER
+
+config SYS_BOARD
+	default "whistler"
+
+config SYS_VENDOR
+	default "nvidia"
+
+config SYS_CONFIG_NAME
+	default "whistler"
+
+endif

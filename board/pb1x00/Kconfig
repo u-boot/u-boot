@@ -1,0 +1,12 @@
+if TARGET_PB1X00
+
+config SYS_BOARD
+	default "pb1x00"
+
+config SYS_SOC
+	default "au1x00"
+
+config SYS_CONFIG_NAME
+	default "pb1x00"
+
+endif

@@ -280,4 +280,13 @@ U_BOOT_CMD(
 #endif /* #if defined(CONFIG_DRIVER_TI_CPSW) */
 #endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) */
 
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	omap_nand_switch_ecc(1, 8);
+
+	return 0;
+}
+#endif
+
 #include "../common/board.c"

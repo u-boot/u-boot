@@ -1,0 +1,15 @@
+if TARGET_IMX31_LITEKIT
+
+config SYS_BOARD
+	default "imx31_litekit"
+
+config SYS_VENDOR
+	default "logicpd"
+
+config SYS_SOC
+	default "mx31"
+
+config SYS_CONFIG_NAME
+	default "imx31_litekit"
+
+endif

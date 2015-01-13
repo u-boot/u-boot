@@ -1,0 +1,12 @@
+if TARGET_STXGP3
+
+config SYS_BOARD
+	default "stxgp3"
+
+config SYS_VENDOR
+	default "stx"
+
+config SYS_CONFIG_NAME
+	default "stxgp3"
+
+endif

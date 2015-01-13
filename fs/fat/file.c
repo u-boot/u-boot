@@ -162,8 +162,7 @@ file_ls(const char *dir)
 	return filesystems[current_filesystem].ls(arg);
 }
 
-long
-file_read(const char *filename, void *buffer, unsigned long maxsize)
+int file_read(const char *filename, void *buffer, int maxsize)
 {
 	char fullpath[1024];
 	const char *arg;

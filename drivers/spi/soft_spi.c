@@ -1,4 +1,6 @@
 /*
+ * Copyright (c) 2014 Google, Inc
+ *
  * (C) Copyright 2002
  * Gerald Van Baren, Custom IDEAS, vanbaren@cideas.com.
  *
@@ -9,94 +11,81 @@
  */
 
 #include <common.h>
-#include <spi.h>
-
+#include <dm.h>
+#include <errno.h>
+#include <fdtdec.h>
 #include <malloc.h>
+#include <spi.h>
+#include <asm/gpio.h>
 
-/*-----------------------------------------------------------------------
- * Definitions
- */
+DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef DEBUG_SPI
-#define PRINTD(fmt,args...)	printf (fmt ,##args)
-#else
-#define PRINTD(fmt,args...)
-#endif
+struct soft_spi_platdata {
+	struct fdt_gpio_state cs;
+	struct fdt_gpio_state sclk;
+	struct fdt_gpio_state mosi;
+	struct fdt_gpio_state miso;
+	int spi_delay_us;
+};
 
-struct soft_spi_slave {
-	struct spi_slave slave;
+struct soft_spi_priv {
 	unsigned int mode;
 };
 
-static inline struct soft_spi_slave *to_soft_spi(struct spi_slave *slave)
+static int soft_spi_scl(struct udevice *dev, int bit)
 {
-	return container_of(slave, struct soft_spi_slave, slave);
-}
+	struct soft_spi_platdata *plat = dev->platdata;
+	struct soft_spi_priv *priv = dev_get_priv(dev);
 
-/*=====================================================================*/
-/*                         Public Functions                            */
-/*=====================================================================*/
-
-/*-----------------------------------------------------------------------
- * Initialization
- */
-void spi_init (void)
-{
-#ifdef	SPI_INIT
-	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
-
-	SPI_INIT;
-#endif
-}
-
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
-{
-	struct soft_spi_slave *ss;
-
-	if (!spi_cs_is_valid(bus, cs))
-		return NULL;
-
-	ss = spi_alloc_slave(struct soft_spi_slave, bus, cs);
-	if (!ss)
-		return NULL;
-
-	ss->mode = mode;
-
-	/* TODO: Use max_hz to limit the SCK rate */
-
-	return &ss->slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct soft_spi_slave *ss = to_soft_spi(slave);
-
-	free(ss);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-#ifdef CONFIG_SYS_IMMR
-	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
-#endif
-	struct soft_spi_slave *ss = to_soft_spi(slave);
-
-	/*
-	 * Make sure the SPI clock is in idle state as defined for
-	 * this slave.
-	 */
-	if (ss->mode & SPI_CPOL)
-		SPI_SCL(1);
-	else
-		SPI_SCL(0);
+	gpio_set_value(plat->sclk.gpio, priv->mode & SPI_CPOL ? bit : !bit);
 
 	return 0;
 }
 
-void spi_release_bus(struct spi_slave *slave)
+static int soft_spi_sda(struct udevice *dev, int bit)
+{
+	struct soft_spi_platdata *plat = dev->platdata;
+
+	gpio_set_value(plat->mosi.gpio, bit);
+
+	return 0;
+}
+
+static int soft_spi_cs_activate(struct udevice *dev)
+{
+	struct soft_spi_platdata *plat = dev->platdata;
+	struct soft_spi_priv *priv = dev_get_priv(dev);
+
+	gpio_set_value(plat->cs.gpio, !(priv->mode & SPI_CS_HIGH));
+	gpio_set_value(plat->sclk.gpio, priv->mode & SPI_CPOL);
+	gpio_set_value(plat->cs.gpio, priv->mode & SPI_CS_HIGH);
+
+	return 0;
+}
+
+static int soft_spi_cs_deactivate(struct udevice *dev)
+{
+	struct soft_spi_platdata *plat = dev->platdata;
+	struct soft_spi_priv *priv = dev_get_priv(dev);
+
+	gpio_set_value(plat->cs.gpio, !(priv->mode & SPI_CS_HIGH));
+
+	return 0;
+}
+
+static int soft_spi_claim_bus(struct udevice *dev)
+{
+	/*
+	 * Make sure the SPI clock is in idle state as defined for
+	 * this slave.
+	 */
+	return soft_spi_scl(dev, 0);
+}
+
+static int soft_spi_release_bus(struct udevice *dev)
 {
 	/* Nothing to do */
+	return 0;
 }
 
 /*-----------------------------------------------------------------------
@@ -111,28 +100,27 @@ void spi_release_bus(struct spi_slave *slave)
  * input data overwrites the output data (since both are buffered by
  * temporary variables, this is OK).
  */
-int  spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-		const void *dout, void *din, unsigned long flags)
+static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
+			 const void *dout, void *din, unsigned long flags)
 {
-#ifdef CONFIG_SYS_IMMR
-	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
-#endif
-	struct soft_spi_slave *ss = to_soft_spi(slave);
+	struct soft_spi_priv *priv = dev_get_priv(dev);
+	struct soft_spi_platdata *plat = dev->platdata;
 	uchar		tmpdin  = 0;
 	uchar		tmpdout = 0;
 	const u8	*txd = dout;
 	u8		*rxd = din;
-	int		cpol = ss->mode & SPI_CPOL;
-	int		cpha = ss->mode & SPI_CPHA;
+	int		cpol = priv->mode & SPI_CPOL;
+	int		cpha = priv->mode & SPI_CPHA;
 	unsigned int	j;
 
-	PRINTD("spi_xfer: slave %u:%u dout %08X din %08X bitlen %u\n",
-		slave->bus, slave->cs, *(uint *)txd, *(uint *)rxd, bitlen);
+	debug("spi_xfer: slave %s:%s dout %08X din %08X bitlen %u\n",
+	      dev->parent->name, dev->name, *(uint *)txd, *(uint *)rxd,
+	      bitlen);
 
 	if (flags & SPI_XFER_BEGIN)
-		spi_cs_activate(slave);
+		soft_spi_cs_activate(dev);
 
-	for(j = 0; j < bitlen; j++) {
+	for (j = 0; j < bitlen; j++) {
 		/*
 		 * Check if it is time to work on a new byte.
 		 */
@@ -141,7 +129,7 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 				tmpdout = *txd++;
 			else
 				tmpdout = 0;
-			if(j != 0) {
+			if (j != 0) {
 				if (rxd)
 					*rxd++ = tmpdin;
 			}
@@ -149,19 +137,19 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		}
 
 		if (!cpha)
-			SPI_SCL(!cpol);
-		SPI_SDA(tmpdout & 0x80);
-		SPI_DELAY;
+			soft_spi_scl(dev, !cpol);
+		soft_spi_sda(dev, tmpdout & 0x80);
+		udelay(plat->spi_delay_us);
 		if (cpha)
-			SPI_SCL(!cpol);
+			soft_spi_scl(dev, !cpol);
 		else
-			SPI_SCL(cpol);
+			soft_spi_scl(dev, cpol);
 		tmpdin	<<= 1;
-		tmpdin	|= SPI_READ;
+		tmpdin	|= gpio_get_value(plat->miso.gpio);
 		tmpdout	<<= 1;
-		SPI_DELAY;
+		udelay(plat->spi_delay_us);
 		if (cpha)
-			SPI_SCL(cpol);
+			soft_spi_scl(dev, cpol);
 	}
 	/*
 	 * If the number of bits isn't a multiple of 8, shift the last
@@ -175,7 +163,90 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	}
 
 	if (flags & SPI_XFER_END)
-		spi_cs_deactivate(slave);
+		soft_spi_cs_deactivate(dev);
 
-	return(0);
+	return 0;
 }
+
+static int soft_spi_set_speed(struct udevice *dev, unsigned int speed)
+{
+	/* Accept any speed */
+	return 0;
+}
+
+static int soft_spi_set_mode(struct udevice *dev, unsigned int mode)
+{
+	struct soft_spi_priv *priv = dev_get_priv(dev);
+
+	priv->mode = mode;
+
+	return 0;
+}
+
+static int soft_spi_child_pre_probe(struct udevice *dev)
+{
+	struct spi_slave *slave = dev_get_parentdata(dev);
+
+	slave->dev = dev;
+	return spi_ofdata_to_platdata(gd->fdt_blob, dev->of_offset, slave);
+}
+
+static const struct dm_spi_ops soft_spi_ops = {
+	.claim_bus	= soft_spi_claim_bus,
+	.release_bus	= soft_spi_release_bus,
+	.xfer		= soft_spi_xfer,
+	.set_speed	= soft_spi_set_speed,
+	.set_mode	= soft_spi_set_mode,
+};
+
+static int soft_spi_ofdata_to_platdata(struct udevice *dev)
+{
+	struct soft_spi_platdata *plat = dev->platdata;
+	const void *blob = gd->fdt_blob;
+	int node = dev->of_offset;
+
+	if (fdtdec_decode_gpio(blob, node, "cs-gpio", &plat->cs) ||
+	    fdtdec_decode_gpio(blob, node, "sclk-gpio", &plat->sclk) ||
+	    fdtdec_decode_gpio(blob, node, "mosi-gpio", &plat->mosi) ||
+	    fdtdec_decode_gpio(blob, node, "miso-gpio", &plat->miso))
+		return -EINVAL;
+	plat->spi_delay_us = fdtdec_get_int(blob, node, "spi-delay-us", 0);
+
+	return 0;
+}
+
+static int soft_spi_probe(struct udevice *dev)
+{
+	struct spi_slave *slave = dev_get_parentdata(dev);
+	struct soft_spi_platdata *plat = dev->platdata;
+
+	gpio_request(plat->cs.gpio, "soft_spi_cs");
+	gpio_request(plat->sclk.gpio, "soft_spi_sclk");
+	gpio_request(plat->mosi.gpio, "soft_spi_mosi");
+	gpio_request(plat->miso.gpio, "soft_spi_miso");
+
+	gpio_direction_output(plat->sclk.gpio, slave->mode & SPI_CPOL);
+	gpio_direction_output(plat->mosi.gpio, 1);
+	gpio_direction_input(plat->miso.gpio);
+	gpio_direction_output(plat->cs.gpio, !(slave->mode & SPI_CS_HIGH));
+
+	return 0;
+}
+
+static const struct udevice_id soft_spi_ids[] = {
+	{ .compatible = "u-boot,soft-spi" },
+	{ }
+};
+
+U_BOOT_DRIVER(soft_spi) = {
+	.name	= "soft_spi",
+	.id	= UCLASS_SPI,
+	.of_match = soft_spi_ids,
+	.ops	= &soft_spi_ops,
+	.ofdata_to_platdata = soft_spi_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct soft_spi_platdata),
+	.priv_auto_alloc_size = sizeof(struct soft_spi_priv),
+	.per_child_auto_alloc_size	= sizeof(struct spi_slave),
+	.probe	= soft_spi_probe,
+	.child_pre_probe	= soft_spi_child_pre_probe,
+};

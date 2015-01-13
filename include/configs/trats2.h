@@ -11,12 +11,10 @@
 #ifndef __CONFIG_TRATS2_H
 #define __CONFIG_TRATS2_H
 
-#include <configs/exynos4-dt.h>
+#include <configs/exynos4-common.h>
 
 #define CONFIG_SYS_PROMPT	"Trats2 # "	/* Monitor Command Prompt */
 
-#undef CONFIG_DEFAULT_DEVICE_TREE
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos4412-trats2
 
 #define CONFIG_TIZEN			/* TIZEN lib */
 
@@ -37,10 +35,6 @@
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x3E00000)
 
 #define CONFIG_SYS_TEXT_BASE		0x43e00000
-
-#include <linux/sizes.h>
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL2
@@ -92,9 +86,9 @@
 
 #define CONFIG_DFU_ALT \
 	"u-boot raw 0x80 0x800;" \
-	"uImage ext4 0 2;" \
-	"modem.bin ext4 0 2;" \
-	"exynos4412-trats2.dtb ext4 0 2;" \
+	"/uImage ext4 0 2;" \
+	"/modem.bin ext4 0 2;" \
+	"/exynos4412-trats2.dtb ext4 0 2;" \
 	""PARTS_CSA" part 0 1;" \
 	""PARTS_BOOT" part 0 2;" \
 	""PARTS_QBOOT" part 0 3;" \
@@ -240,8 +234,5 @@ int get_soft_i2c_sda_pin(void);
 #define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 160 * 4) + 54)
-
-#define LCD_XRES	720
-#define LCD_YRES	1280
 
 #endif	/* __CONFIG_H */

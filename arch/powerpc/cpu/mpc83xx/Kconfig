@@ -1,0 +1,96 @@
+menu "mpc83xx CPU"
+	depends on MPC83xx
+
+config SYS_CPU
+	default "mpc83xx"
+
+choice
+	prompt "Target select"
+
+config TARGET_MPC8308_P1M
+	bool "Support mpc8308_p1m"
+
+config TARGET_SBC8349
+	bool "Support sbc8349"
+
+config TARGET_VE8313
+	bool "Support ve8313"
+
+config TARGET_VME8349
+	bool "Support vme8349"
+
+config TARGET_MPC8308RDB
+	bool "Support MPC8308RDB"
+
+config TARGET_MPC8313ERDB
+	bool "Support MPC8313ERDB"
+	select SUPPORT_SPL
+
+config TARGET_MPC8315ERDB
+	bool "Support MPC8315ERDB"
+
+config TARGET_MPC8323ERDB
+	bool "Support MPC8323ERDB"
+
+config TARGET_MPC832XEMDS
+	bool "Support MPC832XEMDS"
+
+config TARGET_MPC8349EMDS
+	bool "Support MPC8349EMDS"
+
+config TARGET_MPC8349ITX
+	bool "Support MPC8349ITX"
+
+config TARGET_MPC8360EMDS
+	bool "Support MPC8360EMDS"
+
+config TARGET_MPC8360ERDK
+	bool "Support MPC8360ERDK"
+
+config TARGET_MPC837XEMDS
+	bool "Support MPC837XEMDS"
+
+config TARGET_MPC837XERDB
+	bool "Support MPC837XERDB"
+
+config TARGET_IDS8313
+	bool "Support ids8313"
+
+config TARGET_KM8360
+	bool "Support km8360"
+
+config TARGET_SUVD3
+	bool "Support suvd3"
+
+config TARGET_TUXX1
+	bool "Support tuxx1"
+
+config TARGET_TQM834X
+	bool "Support TQM834x"
+
+config TARGET_HRCON
+	bool "Support hrcon"
+
+endchoice
+
+source "board/esd/vme8349/Kconfig"
+source "board/freescale/mpc8308rdb/Kconfig"
+source "board/freescale/mpc8313erdb/Kconfig"
+source "board/freescale/mpc8315erdb/Kconfig"
+source "board/freescale/mpc8323erdb/Kconfig"
+source "board/freescale/mpc832xemds/Kconfig"
+source "board/freescale/mpc8349emds/Kconfig"
+source "board/freescale/mpc8349itx/Kconfig"
+source "board/freescale/mpc8360emds/Kconfig"
+source "board/freescale/mpc8360erdk/Kconfig"
+source "board/freescale/mpc837xemds/Kconfig"
+source "board/freescale/mpc837xerdb/Kconfig"
+source "board/ids/ids8313/Kconfig"
+source "board/keymile/km83xx/Kconfig"
+source "board/mpc8308_p1m/Kconfig"
+source "board/sbc8349/Kconfig"
+source "board/tqc/tqm834x/Kconfig"
+source "board/ve8313/Kconfig"
+source "board/gdsys/mpc8308/Kconfig"
+
+endmenu

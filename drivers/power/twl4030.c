@@ -91,11 +91,23 @@ void twl4030_power_init(void)
 				TWL4030_PM_RECEIVER_DEV_GRP_P1);
 }
 
-void twl4030_power_mmc_init(void)
+void twl4030_power_mmc_init(int dev_index)
 {
-	/* Set VMMC1 to 3.15 Volts */
-	twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VMMC1_DEDICATED,
-				TWL4030_PM_RECEIVER_VMMC1_VSEL_32,
-				TWL4030_PM_RECEIVER_VMMC1_DEV_GRP,
-				TWL4030_PM_RECEIVER_DEV_GRP_P1);
+	if (dev_index == 0) {
+		/* Set VMMC1 to 3.15 Volts */
+		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VMMC1_DEDICATED,
+					TWL4030_PM_RECEIVER_VMMC1_VSEL_32,
+					TWL4030_PM_RECEIVER_VMMC1_DEV_GRP,
+					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+
+		mdelay(100);	/* ramp-up delay from Linux code */
+	} else if (dev_index == 1) {
+		/* Set VMMC2 to 3.15 Volts */
+		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VMMC2_DEDICATED,
+					TWL4030_PM_RECEIVER_VMMC2_VSEL_32,
+					TWL4030_PM_RECEIVER_VMMC2_DEV_GRP,
+					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+
+		mdelay(100);	/* ramp-up delay from Linux code */
+	}
 }

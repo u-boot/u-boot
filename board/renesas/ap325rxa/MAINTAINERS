@@ -1,0 +1,7 @@
+AP325RXA BOARD
+M:	Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+S:	Maintained
+F:	board/renesas/ap325rxa/
+F:	include/configs/ap325rxa.h
+F:	configs/ap325rxa_defconfig

@@ -14,8 +14,6 @@
 #include <asm/ti-common/sys_proto.h>
 #include <asm/arch/cpu.h>
 
-#define BOARD_REV_ID	0x0
-
 u32 get_cpu_rev(void);
 u32 get_sysboot_value(void);
 

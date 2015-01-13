@@ -1,0 +1,12 @@
+if TARGET_DLVISION
+
+config SYS_BOARD
+	default "dlvision"
+
+config SYS_VENDOR
+	default "gdsys"
+
+config SYS_CONFIG_NAME
+	default "dlvision"
+
+endif

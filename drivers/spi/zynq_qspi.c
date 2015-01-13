@@ -15,6 +15,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clk.h>
+#include "../mtd/spi/sf_internal.h"
 
 /* QSPI Transmit Data Register */
 #define ZYNQ_QSPI_TXD_00_00_OFFSET	0x1C /* Transmit 4-byte inst, WO */

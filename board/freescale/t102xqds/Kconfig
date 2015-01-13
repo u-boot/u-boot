@@ -1,0 +1,12 @@
+if TARGET_T102XQDS
+
+config SYS_BOARD
+	default "t102xqds"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	default "T102xQDS"
+
+endif

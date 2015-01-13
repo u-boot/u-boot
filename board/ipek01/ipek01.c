@@ -196,10 +196,12 @@ void pci_init_board (void)
 #endif
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup (void *blob, bd_t * bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup (blob, bd);
 	fdt_fixup_memory (blob, (u64) bd->bi_memstart, (u64) bd->bi_memsize);
+
+	return 0;
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
 

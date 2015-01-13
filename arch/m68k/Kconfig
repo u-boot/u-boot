@@ -1,0 +1,97 @@
+menu "M68000 architecture"
+	depends on M68K
+
+config SYS_ARCH
+	default "m68k"
+
+choice
+	prompt "Target select"
+
+config TARGET_M52277EVB
+	bool "Support M52277EVB"
+
+config TARGET_M5235EVB
+	bool "Support M5235EVB"
+
+config TARGET_COBRA5272
+	bool "Support cobra5272"
+
+config TARGET_EB_CPU5282
+	bool "Support eb_cpu5282"
+
+config TARGET_TASREG
+	bool "Support TASREG"
+
+config TARGET_M5208EVBE
+	bool "Support M5208EVBE"
+
+config TARGET_M5249EVB
+	bool "Support M5249EVB"
+
+config TARGET_M5253DEMO
+	bool "Support M5253DEMO"
+
+config TARGET_M5253EVBE
+	bool "Support M5253EVBE"
+
+config TARGET_M5272C3
+	bool "Support M5272C3"
+
+config TARGET_M5275EVB
+	bool "Support M5275EVB"
+
+config TARGET_M5282EVB
+	bool "Support M5282EVB"
+
+config TARGET_ASTRO_MCF5373L
+	bool "Support astro_mcf5373l"
+
+config TARGET_M53017EVB
+	bool "Support M53017EVB"
+
+config TARGET_M5329EVB
+	bool "Support M5329EVB"
+
+config TARGET_M5373EVB
+	bool "Support M5373EVB"
+
+config TARGET_M54418TWR
+	bool "Support M54418TWR"
+
+config TARGET_M54451EVB
+	bool "Support M54451EVB"
+
+config TARGET_M54455EVB
+	bool "Support M54455EVB"
+
+config TARGET_M5475EVB
+	bool "Support M5475EVB"
+
+config TARGET_M5485EVB
+	bool "Support M5485EVB"
+
+endchoice
+
+source "board/BuS/eb_cpu5282/Kconfig"
+source "board/astro/mcf5373l/Kconfig"
+source "board/cobra5272/Kconfig"
+source "board/esd/tasreg/Kconfig"
+source "board/freescale/m5208evbe/Kconfig"
+source "board/freescale/m52277evb/Kconfig"
+source "board/freescale/m5235evb/Kconfig"
+source "board/freescale/m5249evb/Kconfig"
+source "board/freescale/m5253demo/Kconfig"
+source "board/freescale/m5253evbe/Kconfig"
+source "board/freescale/m5272c3/Kconfig"
+source "board/freescale/m5275evb/Kconfig"
+source "board/freescale/m5282evb/Kconfig"
+source "board/freescale/m53017evb/Kconfig"
+source "board/freescale/m5329evb/Kconfig"
+source "board/freescale/m5373evb/Kconfig"
+source "board/freescale/m54418twr/Kconfig"
+source "board/freescale/m54451evb/Kconfig"
+source "board/freescale/m54455evb/Kconfig"
+source "board/freescale/m547xevb/Kconfig"
+source "board/freescale/m548xevb/Kconfig"
+
+endmenu

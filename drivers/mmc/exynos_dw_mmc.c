@@ -101,7 +101,7 @@ static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 	host->get_mmc_clk = exynos_dwmci_get_clk;
 	/* Add the mmc channel to be registered with mmc core */
 	if (add_dwmci(host, DWMMC_MAX_FREQ, DWMMC_MIN_FREQ)) {
-		debug("dwmmc%d registration failed\n", index);
+		printf("DWMMC%d registration failed\n", index);
 		return -1;
 	}
 	return 0;
@@ -146,7 +146,7 @@ static int do_dwmci_init(struct dwmci_host *host)
 	flag = host->buswidth == 8 ? PINMUX_FLAG_8BIT_MODE : PINMUX_FLAG_NONE;
 	err = exynos_pinmux_config(host->dev_id, flag);
 	if (err) {
-		debug("DWMMC not configure\n");
+		printf("DWMMC%d not configure\n", index);
 		return err;
 	}
 
@@ -162,21 +162,22 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 	/* Extract device id for each mmc channel */
 	host->dev_id = pinmux_decode_periph_id(blob, node);
 
-	/* Get the bus width from the device node */
-	host->buswidth = fdtdec_get_int(blob, node, "samsung,bus-width", 0);
-	if (host->buswidth <= 0) {
-		debug("DWMMC: Can't get bus-width\n");
-		return -EINVAL;
-	}
-
 	host->dev_index = fdtdec_get_int(blob, node, "index", host->dev_id);
 	if (host->dev_index == host->dev_id)
 		host->dev_index = host->dev_id - PERIPH_ID_SDMMC0;
 
+
+	/* Get the bus width from the device node */
+	host->buswidth = fdtdec_get_int(blob, node, "samsung,bus-width", 0);
+	if (host->buswidth <= 0) {
+		printf("DWMMC%d: Can't get bus-width\n", host->dev_index);
+		return -EINVAL;
+	}
+
 	/* Set the base address from the device node */
 	base = fdtdec_get_addr(blob, node, "reg");
 	if (!base) {
-		debug("DWMMC: Can't get base address\n");
+		printf("DWMMC%d: Can't get base address\n", host->dev_index);
 		return -EINVAL;
 	}
 	host->ioaddr = (void *)base;
@@ -184,7 +185,8 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 	/* Extract the timing info from the node */
 	err =  fdtdec_get_int_array(blob, node, "samsung,timing", timing, 3);
 	if (err) {
-		debug("Can't get sdr-timings for devider\n");
+		printf("DWMMC%d: Can't get sdr-timings for devider\n",
+				host->dev_index);
 		return -EINVAL;
 	}
 
@@ -214,7 +216,7 @@ static int exynos_dwmci_process_node(const void *blob,
 		host = &dwmci_host[i];
 		err = exynos_dwmci_get_config(blob, node, host);
 		if (err) {
-			debug("%s: failed to decode dev %d\n", __func__, i);
+			printf("%s: failed to decode dev %d\n", __func__, i);
 			return err;
 		}
 

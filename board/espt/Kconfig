@@ -1,0 +1,9 @@
+if TARGET_ESPT
+
+config SYS_BOARD
+	default "espt"
+
+config SYS_CONFIG_NAME
+	default "espt"
+
+endif

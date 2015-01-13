@@ -864,6 +864,11 @@ static int ci_pullup(struct usb_gadget *gadget, int is_on)
 		/* select DEVICE mode */
 		writel(USBMODE_DEVICE, &udc->usbmode);
 
+#if !defined(CONFIG_USB_GADGET_DUALSPEED)
+		/* Port force Full-Speed Connect */
+		setbits_le32(&udc->portsc, PFSC);
+#endif
+
 		writel(0xffffffff, &udc->epflush);
 
 		/* Turn on the USB connection by enabling the pullup resistor */
@@ -1015,4 +1020,11 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 	free(controller.epts);
 
 	return 0;
+}
+
+bool dfu_usb_get_reset(void)
+{
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
+
+	return !!(readl(&udc->usbsts) & STS_URI);
 }

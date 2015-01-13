@@ -241,6 +241,8 @@ static void initialize_lane_to_slot(void)
 		break;
 	case 0xA7:
 		lane_to_slot[1] = 7;
+		lane_to_slot[2] = 6;
+		lane_to_slot[3] = 5;
 		lane_to_slot[7] = 7;
 		break;
 	case 0xAA:
@@ -355,7 +357,9 @@ static void set_brdcfg9_for_gtx_clk(void)
 {
 	u8 brdcfg9;
 	brdcfg9 = QIXIS_READ(brdcfg[9]);
-	brdcfg9 |= (1 << 5);
+/* Initializing EPHY2 clock to RGMII mode */
+	brdcfg9 &= ~(BRDCFG9_EPHY2_MASK);
+	brdcfg9 |= (BRDCFG9_EPHY2_VAL);
 	QIXIS_WRITE(brdcfg[9], brdcfg9);
 }
 
@@ -408,6 +412,8 @@ void t1040_handle_phy_interface_sgmii(int i)
 			fm_info_set_phy_address(i, riser_phy_addr[1]);
 		if (FM1_DTSEC3 == i)
 			fm_info_set_phy_address(i, riser_phy_addr[2]);
+		if (FM1_DTSEC5 == i)
+			fm_info_set_phy_address(i, riser_phy_addr[3]);
 
 		mdio_mux[i] = EMI1_SLOT7;
 		fm_info_set_mdio(i, mii_dev_for_muxval(mdio_mux[i]));

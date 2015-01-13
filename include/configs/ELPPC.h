@@ -234,8 +234,8 @@
 #define CONFIG_VIDEO
 #define CONFIG_CFB_CONSOLE
 #define VIDEO_KBD_INIT_FCT    (simple_strtol (getenv("console"), NULL, 10))
-#define VIDEO_TSTC_FCT        serial_tstc
-#define VIDEO_GETC_FCT        serial_getc
+#define VIDEO_TSTC_FCT		serial_stub_tstc
+#define VIDEO_GETC_FCT		serial_stub_getc
 
 #define CONFIG_VIDEO_SMI_LYNXEM
 #define CONFIG_VIDEO_LOGO

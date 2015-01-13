@@ -1,0 +1,6 @@
+DLVISION BOARD
+M:	Dirk Eibach <eibach@gdsys.de>
+S:	Maintained
+F:	board/gdsys/dlvision/
+F:	include/configs/dlvision.h
+F:	configs/dlvision_defconfig

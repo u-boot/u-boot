@@ -1,0 +1,6 @@
+TX25 BOARD
+M:	John Rigby <jcrigby@gmail.com>
+S:	Maintained
+F:	board/karo/tx25/
+F:	include/configs/tx25.h
+F:	configs/tx25_defconfig

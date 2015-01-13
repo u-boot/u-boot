@@ -16,7 +16,7 @@
 #define BIT(x)			(1 << (x))
 
 #define MAX_PREDIV		64
-#define MAX_POSTDIV		8
+#define MAX_POSTDIV		8UL
 #define MAX_MULT		512
 #define MAX_DIV			(MAX_PREDIV * MAX_POSTDIV)
 
@@ -362,7 +362,7 @@ static void init_pll(const struct pll_init_data *data)
 	pllctl_reg_write(data->pll, ctl, tmp);
 
 	mult = data->pll_freq / fpll;
-	for (mult = MAX(mult, 1); mult <= MAX_MULT; mult++) {
+	for (mult = max(mult, 1UL); mult <= MAX_MULT; mult++) {
 		div = (fpll * mult) / data->pll_freq;
 		if (div < 1 || div > MAX_DIV)
 			continue;

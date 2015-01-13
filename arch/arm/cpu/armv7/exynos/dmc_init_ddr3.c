@@ -464,6 +464,16 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 							+ DMC_OFFSET);
 	pmu = (struct exynos5_power *)EXYNOS5420_POWER_BASE;
 
+	if (CONFIG_NR_DRAM_BANKS > 4) {
+		/* Need both controllers. */
+		mem->memcontrol |= DMC_MEMCONTROL_NUM_CHIP_2;
+		mem->chips_per_channel = 2;
+		mem->chips_to_configure = 2;
+	} else {
+		/* 2GB requires a single controller */
+		mem->memcontrol |= DMC_MEMCONTROL_NUM_CHIP_1;
+	}
+
 	/* Enable PAUSE for DREX */
 	setbits_le32(&clk->pause, ENABLE_BIT);
 
@@ -831,6 +841,25 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 	 */
 	setbits_le32(&drex0->cgcontrol, DMC_INTERNAL_CG);
 	setbits_le32(&drex1->cgcontrol, DMC_INTERNAL_CG);
+
+	/*
+	 * As per Exynos5800 UM ver 0.00 section 17.13.2.1
+	 * CONCONTROL register bit 3 [update_mode], Exynos5800 does not
+	 * support the PHY initiated update. And it is recommended to set
+	 * this field to 1'b1 during initialization
+	 *
+	 * When we apply PHY-initiated mode, DLL lock value is determined
+	 * once at DMC init time and not updated later when we change the MIF
+	 * voltage based on ASV group in kernel. Applying MC-initiated mode
+	 * makes sure that DLL tracing is ON so that silicon is able to
+	 * compensate the voltage variation.
+	 */
+	val = readl(&drex0->concontrol);
+	val |= CONCONTROL_UPDATE_MODE;
+	writel(val , &drex0->concontrol);
+	val = readl(&drex1->concontrol);
+	val |= CONCONTROL_UPDATE_MODE;
+	writel(val , &drex1->concontrol);
 
 	return 0;
 }

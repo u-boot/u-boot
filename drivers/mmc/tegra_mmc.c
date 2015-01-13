@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/mmc.h>
 #include <asm/arch-tegra/tegra_mmc.h>
 #include <mmc.h>
 
@@ -292,7 +293,7 @@ static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 				/* Transfer Complete */
 				debug("r/w is done\n");
 				break;
-			} else if (get_timer(start) > 2000UL) {
+			} else if (get_timer(start) > 8000UL) {
 				writel(mask, &host->reg->norintsts);
 				printf("%s: MMC Timeout\n"
 				       "    Interrupt status        0x%08x\n"
@@ -508,7 +509,7 @@ static int tegra_mmc_core_init(struct mmc *mmc)
 	return 0;
 }
 
-int tegra_mmc_getcd(struct mmc *mmc)
+static int tegra_mmc_getcd(struct mmc *mmc)
 {
 	struct mmc_host *host = mmc->priv;
 

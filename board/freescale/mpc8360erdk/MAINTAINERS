@@ -1,0 +1,7 @@
+MPC8360ERDK BOARD
+#M:	Anton Vorontsov <avorontsov@ru.mvista.com>
+S:	Orphan (since 2014-03)
+F:	board/freescale/mpc8360erdk/
+F:	include/configs/MPC8360ERDK.h
+F:	configs/MPC8360ERDK_defconfig
+F:	configs/MPC8360ERDK_33_defconfig

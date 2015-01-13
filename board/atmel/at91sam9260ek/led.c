@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
+#include <status_led.h>
 
 void coloured_LED_init(void)
 {

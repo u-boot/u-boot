@@ -13,11 +13,12 @@
 #include <malloc.h>
 #include <netdev.h>
 #include <miiphy.h>
-#include <asm/arch/kirkwood.h>
+#include <spi.h>
+#include <spi_flash.h>
+#include <asm/arch/soc.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/mpp.h>
 #include <asm/arch/gpio.h>
-#include <spi_flash.h>
 
 #include "lsxl.h"
 
@@ -51,9 +52,9 @@ int board_early_init_f(void)
 	 * There are maximum 64 gpios controlled through 2 sets of registers
 	 * the below configuration configures mainly initial LED status
 	 */
-	kw_config_gpio(LSXL_OE_VAL_LOW,
-			LSXL_OE_VAL_HIGH,
-			LSXL_OE_LOW, LSXL_OE_HIGH);
+	mvebu_config_gpio(LSXL_OE_VAL_LOW,
+			  LSXL_OE_VAL_HIGH,
+			  LSXL_OE_LOW, LSXL_OE_HIGH);
 
 	/*
 	 * Multi-Purpose Pins Functionality configuration
@@ -167,7 +168,7 @@ static void set_led(int state)
 int board_init(void)
 {
 	/* address of boot parameters */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	set_led(LED_POWER_BLINKING);
 

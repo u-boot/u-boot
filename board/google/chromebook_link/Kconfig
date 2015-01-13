@@ -1,0 +1,32 @@
+if TARGET_CHROMEBOOK_LINK
+
+config SYS_BOARD
+	default "chromebook_link"
+
+config SYS_VENDOR
+	default "google"
+
+config SYS_SOC
+	default "ivybridge"
+
+config SYS_CONFIG_NAME
+	default "chromebook_link"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select CPU_INTEL_SOCKET_RPGA989
+	select NORTHBRIDGE_INTEL_IVYBRIDGE
+	select SOUTHBRIDGE_INTEL_C216
+	select HAVE_ACPI_RESUME
+	select MARK_GRAPHICS_MEM_WRCOMB
+	select BOARD_ROMSIZE_KB_8192
+
+config MMCONF_BASE_ADDRESS
+	hex
+	default 0xf0000000
+
+config EARLY_POST_CROS_EC
+	bool "Enable early post to Chrome OS EC"
+	default y
+
+endif

@@ -35,6 +35,13 @@
 /* TWL4030 LED */
 #define CONFIG_TWL4030_LED
 
+/* USB EHCI */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_OMAP
+#define CONFIG_USB_STORAGE
+#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	183
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
+
 /* Initialize GPIOs by default */
 #define CONFIG_OMAP3_GPIO_2	/* GPIO32..63 is in GPIO Bank 2 */
 #define CONFIG_OMAP3_GPIO_3	/* GPIO64..95 is in GPIO Bank 3 */
@@ -44,6 +51,7 @@
 
 /* commands to include */
 #define CONFIG_CMD_CACHE
+#define CONFIG_CMD_USB
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #undef CONFIG_CMD_IMI		/* iminfo			*/
 #undef CONFIG_CMD_NFS		/* NFS support			*/
@@ -131,8 +139,9 @@
 		"bootz ${loadaddr} - ${fdtaddr}\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
-		"nand read ${loadaddr} linux; " \
-		"bootm ${loadaddr}\0" \
+		"if nand read ${loadaddr} linux; then " \
+			"bootm ${loadaddr};" \
+		"fi;\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
@@ -151,7 +160,7 @@
 			"run mmcboot;" \
 		"fi;" \
 		"if run loadzimage; then " \
-			"if test $fdtfile; then " \
+			"if test -z \"${fdtfile}\"; then " \
 				"setenv fdtfile omap3-${boardname}-${expansionname}.dtb;" \
 			"fi;" \
 			"if run loadfdt; then " \
@@ -173,12 +182,8 @@
 					0x01F00000) /* 31MB */
 
 /* FLASH and environment organization */
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-#define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
-
 #if defined(CONFIG_NAND)
-#define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
+#define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #endif
 
 /* Monitor at start of flash */
@@ -220,5 +225,11 @@
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_HW
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+/* NAND: SPL falcon mode configs */
+#ifdef CONFIG_SPL_OS_BOOT
+#define CONFIG_CMD_SPL_NAND_OFS		0x240000
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x280000
+#define CONFIG_CMD_SPL_WRITE_SIZE	0x2000
+#endif
 
 #endif				/* __CONFIG_H */

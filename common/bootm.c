@@ -9,6 +9,7 @@
 #include <common.h>
 #include <bootstage.h>
 #include <bzlib.h>
+#include <errno.h>
 #include <fdt_support.h>
 #include <lmb.h>
 #include <malloc.h>
@@ -83,6 +84,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	const void *os_hdr;
 	bool ep_found = false;
+	int ret;
 
 	/* get kernel image header, start address and length */
 	os_hdr = boot_get_kernel(cmdtp, flag, argc, argv,
@@ -102,6 +104,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		images.os.end = image_get_image_end(os_hdr);
 		images.os.load = image_get_load(os_hdr);
+		images.os.arch = image_get_arch(os_hdr);
 		break;
 #endif
 #if defined(CONFIG_FIT)
@@ -129,6 +132,13 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 			return 1;
 		}
 
+		if (fit_image_get_arch(images.fit_hdr_os,
+				       images.fit_noffset_os,
+				       &images.os.arch)) {
+			puts("Can't get image ARCH!\n");
+			return 1;
+		}
+
 		images.os.end = fit_get_end(images.fit_hdr_os);
 
 		if (fit_image_get_load(images.fit_hdr_os, images.fit_noffset_os,
@@ -144,11 +154,11 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 		images.os.type = IH_TYPE_KERNEL;
 		images.os.comp = IH_COMP_NONE;
 		images.os.os = IH_OS_LINUX;
-		images.ep = images.os.load;
-		ep_found = true;
 
 		images.os.end = android_image_get_end(os_hdr);
 		images.os.load = android_image_get_kload(os_hdr);
+		images.ep = images.os.load;
+		ep_found = true;
 		break;
 #endif
 	default:
@@ -156,8 +166,18 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 		return 1;
 	}
 
-	/* find kernel entry point */
-	if (images.legacy_hdr_valid) {
+	/* If we have a valid setup.bin, we will use that for entry (x86) */
+	if (images.os.arch == IH_ARCH_I386 ||
+	    images.os.arch == IH_ARCH_X86_64) {
+		ulong len;
+
+		ret = boot_get_setup(&images, IH_ARCH_I386, &images.ep, &len);
+		if (ret < 0 && ret != -ENOENT) {
+			puts("Could not find a valid setup.bin for x86\n");
+			return 1;
+		}
+		/* Kernel entry point is the setup.bin */
+	} else if (images.legacy_hdr_valid) {
 		images.ep = image_get_ep(&images.legacy_hdr_os_copy);
 #if defined(CONFIG_FIT)
 	} else if (images.fit_uname_os) {
@@ -725,32 +745,15 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 	ulong		img_addr;
 	const void *buf;
-#if defined(CONFIG_FIT)
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_kernel = NULL;
+#if defined(CONFIG_FIT)
 	int		os_noffset;
 #endif
 
-	/* find out kernel image address */
-	if (argc < 1) {
-		img_addr = load_addr;
-		debug("*  kernel: default image load address = 0x%08lx\n",
-		      load_addr);
-#if defined(CONFIG_FIT)
-	} else if (fit_parse_conf(argv[0], load_addr, &img_addr,
-				  &fit_uname_config)) {
-		debug("*  kernel: config '%s' from image at 0x%08lx\n",
-		      fit_uname_config, img_addr);
-	} else if (fit_parse_subimage(argv[0], load_addr, &img_addr,
-				     &fit_uname_kernel)) {
-		debug("*  kernel: subimage '%s' from image at 0x%08lx\n",
-		      fit_uname_kernel, img_addr);
-#endif
-	} else {
-		img_addr = simple_strtoul(argv[0], NULL, 16);
-		debug("*  kernel: cmdline image address = 0x%08lx\n",
-		      img_addr);
-	}
+	img_addr = genimg_get_kernel_addr_fit(argc < 1 ? NULL : argv[0],
+					      &fit_uname_config,
+					      &fit_uname_kernel);
 
 	bootstage_mark(BOOTSTAGE_ID_CHECK_MAGIC);
 

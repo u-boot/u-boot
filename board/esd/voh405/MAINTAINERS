@@ -1,0 +1,6 @@
+VOH405 BOARD
+M:	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+S:	Maintained
+F:	board/esd/voh405/
+F:	include/configs/VOH405.h
+F:	configs/VOH405_defconfig

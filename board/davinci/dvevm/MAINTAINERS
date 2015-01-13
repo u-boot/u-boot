@@ -1,0 +1,6 @@
+DVEVM BOARD
+#M:	-
+S:	Maintained
+F:	board/davinci/dvevm/
+F:	include/configs/davinci_dvevm.h
+F:	configs/davinci_dvevm_defconfig

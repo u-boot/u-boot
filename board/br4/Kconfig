@@ -1,0 +1,9 @@
+if TARGET_BR4
+
+config SYS_BOARD
+	default "br4"
+
+config SYS_CONFIG_NAME
+	default "br4"
+
+endif

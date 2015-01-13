@@ -1,0 +1,6 @@
+COLIBRI_T20_IRIS BOARD
+M:	Lucas Stach <dev@lynxeye.de>
+S:	Maintained
+F:	board/toradex/colibri_t20_iris/
+F:	include/configs/colibri_t20_iris.h
+F:	configs/colibri_t20_iris_defconfig

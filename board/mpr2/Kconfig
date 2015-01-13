@@ -1,0 +1,9 @@
+if TARGET_MPR2
+
+config SYS_BOARD
+	default "mpr2"
+
+config SYS_CONFIG_NAME
+	default "mpr2"
+
+endif

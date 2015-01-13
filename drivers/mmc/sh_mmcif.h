@@ -199,7 +199,13 @@ struct sh_mmcif_regs {
 #define SOFT_RST_OFF		(0 << 31)
 
 #define CLKDEV_EMMC_DATA	52000000	/* 52MHz */
-#define	CLKDEV_MMC_INIT		400000		/* 100 - 400 KHz */
+#ifdef CONFIG_RMOBILE
+#define MMC_CLK_DIV_MIN(clk)	(clk / (1 << 9))
+#define MMC_CLK_DIV_MAX(clk)	(clk / (1 << 1))
+#else
+#define MMC_CLK_DIV_MIN(clk)	(clk / (1 << 8))
+#define MMC_CLK_DIV_MAX(clk)	CLKDEV_EMMC_DATA
+#endif
 
 #define MMC_BUS_WIDTH_1		0
 #define MMC_BUS_WIDTH_4		2

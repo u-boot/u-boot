@@ -31,6 +31,14 @@ void cli_simple_loop(void);
 int cli_simple_run_command(const char *cmd, int flag);
 
 /**
+ * cli_simple_process_macros() - Expand $() and ${} format env. variables
+ *
+ * @param input		Input string possible containing $() / ${} vars
+ * @param output	Output string with $() / ${} vars expanded
+ */
+void cli_simple_process_macros(const char *input, char *output);
+
+/**
  * cli_simple_run_command_list() - Execute a list of command
  *
  * The commands should be separated by ; or \n and will be executed

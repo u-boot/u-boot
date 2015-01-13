@@ -299,12 +299,16 @@ unsigned int setup_ddr_tlbs_phys(phys_addr_t p_addr,
 {
 	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
 	u64 memsize = (u64)memsize_in_meg << 20;
+	u64 size;
 
-	memsize = min(memsize, CONFIG_MAX_MEM_MAPPED);
-	memsize = tlb_map_range(ram_tlb_address, p_addr, memsize, TLB_MAP_RAM);
+	size = min(memsize, (u64)CONFIG_MAX_MEM_MAPPED);
+	size = tlb_map_range(ram_tlb_address, p_addr, size, TLB_MAP_RAM);
 
-	if (memsize)
-		print_size(memsize, " left unmapped\n");
+	if (size || memsize > CONFIG_MAX_MEM_MAPPED) {
+		print_size(memsize > CONFIG_MAX_MEM_MAPPED ?
+			   memsize - CONFIG_MAX_MEM_MAPPED + size : size,
+			   " left unmapped\n");
+	}
 
 	return memsize_in_meg;
 }

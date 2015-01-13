@@ -9,7 +9,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-# necessary to create built-in.o
-obj- := __dummy__.o
-
 extra-y	= start.o
+
+obj-$(if $(filter ag101,$(SOC)),y) += ag101/
+obj-$(if $(filter ag102,$(SOC)),y) += ag102/

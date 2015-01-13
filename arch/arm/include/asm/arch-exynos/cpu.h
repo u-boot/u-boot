@@ -29,6 +29,8 @@
 #define EXYNOS4_MIU_BASE		0x10600000
 #define EXYNOS4_ACE_SFR_BASE		0x10830000
 #define EXYNOS4_GPIO_PART2_BASE		0x11000000
+#define EXYNOS4_GPIO_PART2_0		0x11000000 /* GPJ0 */
+#define EXYNOS4_GPIO_PART2_1		0x11000c00 /* GPX0 */
 #define EXYNOS4_GPIO_PART1_BASE		0x11400000
 #define EXYNOS4_FIMD_BASE		0x11C00000
 #define EXYNOS4_MIPI_DSIM_BASE		0x11C80000
@@ -70,7 +72,14 @@
 #define EXYNOS4X12_GPIO_PART4_BASE	0x106E0000
 #define EXYNOS4X12_ACE_SFR_BASE		0x10830000
 #define EXYNOS4X12_GPIO_PART2_BASE	0x11000000
+#define EXYNOS4X12_GPIO_PART2_0		0x11000000
+#define EXYNOS4X12_GPIO_PART2_1		0x11000040 /* GPK0 */
+#define EXYNOS4X12_GPIO_PART2_2		0x11000260 /* GPM0 */
+#define EXYNOS4X12_GPIO_PART2_3		0x11000c00 /* GPX0 */
 #define EXYNOS4X12_GPIO_PART1_BASE	0x11400000
+#define EXYNOS4X12_GPIO_PART1_0		0x11400000 /* GPA0 */
+#define EXYNOS4X12_GPIO_PART1_1		0x11400180 /* GPF0 */
+#define EXYNOS4X12_GPIO_PART1_2		0x11400240 /* GPJ0 */
 #define EXYNOS4X12_FIMD_BASE		0x11C00000
 #define EXYNOS4X12_MIPI_DSIM_BASE	0x11C80000
 #define EXYNOS4X12_USBOTG_BASE		0x12480000
@@ -218,6 +227,13 @@ static inline void s5p_set_cpu_id(void)
 		/* Exynos5420 */
 		s5p_cpu_id = 0x5420;
 		break;
+	case 0x422:
+		/*
+		 * Exynos5800 is a variant of Exynos5420
+		 * and has product id 0x5422
+		 */
+		s5p_cpu_id = 0x5800;
+		break;
 	}
 }
 
@@ -246,6 +262,7 @@ IS_EXYNOS_TYPE(exynos4210, 0x4210)
 IS_EXYNOS_TYPE(exynos4412, 0x4412)
 IS_EXYNOS_TYPE(exynos5250, 0x5250)
 IS_EXYNOS_TYPE(exynos5420, 0x5420)
+IS_EXYNOS_TYPE(exynos5800, 0x5800)
 
 #define SAMSUNG_BASE(device, base)				\
 static inline unsigned int __attribute__((no_instrument_function)) \
@@ -256,7 +273,7 @@ static inline unsigned int __attribute__((no_instrument_function)) \
 			return EXYNOS4X12_##base;		\
 		return EXYNOS4_##base;				\
 	} else if (cpu_is_exynos5()) {				\
-		if (proid_is_exynos5420())			\
+		if (proid_is_exynos5420() || proid_is_exynos5800())	\
 			return EXYNOS5420_##base;		\
 		return EXYNOS5_##base;				\
 	}							\

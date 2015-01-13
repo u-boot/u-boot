@@ -118,7 +118,6 @@ void usb_phy_power(int on)
 void omap_usb3_phy_init(struct omap_usb3_phy *phy_regs)
 {
 	omap_usb_dpll_lock(phy_regs);
-
 	usb3_phy_partial_powerup(phy_regs);
 	/*
 	 * Give enough time for the PHY to partially power-up before
@@ -126,7 +125,6 @@ void omap_usb3_phy_init(struct omap_usb3_phy *phy_regs)
 	 * team.
 	 */
 	mdelay(100);
-	usb3_phy_power(1);
 }
 
 static void omap_enable_usb3_phy(struct omap_xhci *omap)

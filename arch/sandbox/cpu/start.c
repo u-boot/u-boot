@@ -5,7 +5,9 @@
 
 #include <common.h>
 #include <os.h>
+#include <cli.h>
 #include <asm/getopt.h>
+#include <asm/io.h>
 #include <asm/sections.h>
 #include <asm/state.h>
 
@@ -37,7 +39,7 @@ int sandbox_early_getopt_check(void)
 
 	max_arg_len = 0;
 	for (i = 0; i < num_options; ++i)
-		max_arg_len = max(strlen(sb_opt[i]->flag), max_arg_len);
+		max_arg_len = max((int)strlen(sb_opt[i]->flag), max_arg_len);
 	max_noarg_len = max_arg_len + 7;
 
 	for (i = 0; i < num_options; ++i) {
@@ -75,6 +77,8 @@ int sandbox_main_loop_init(void)
 
 	/* Execute command if required */
 	if (state->cmd) {
+		cli_init();
+
 		run_command_list(state->cmd, -1, 0);
 		if (!state->interactive)
 			os_exit(state->exit_type);
@@ -126,7 +130,8 @@ static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 	state->write_ram_buf = true;
 	state->ram_buf_fname = arg;
 
-	if (os_read_ram_buf(arg)) {
+	err = os_read_ram_buf(arg);
+	if (err) {
 		printf("Failed to read RAM buffer\n");
 		return err;
 	}
@@ -218,6 +223,7 @@ SANDBOX_CMDLINE_OPT_SHORT(terminal, 't', 1,
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;
+	gd_t data;
 	int ret;
 
 	ret = state_init();
@@ -235,6 +241,12 @@ int main(int argc, char *argv[])
 	/* Remove old memory file if required */
 	if (state->ram_buf_rm && state->ram_buf_fname)
 		os_unlink(state->ram_buf_fname);
+
+	memset(&data, '\0', sizeof(data));
+	gd = &data;
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
+#endif
 
 	/* Do pre- and post-relocation init */
 	board_init_f(0);

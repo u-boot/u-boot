@@ -1,0 +1,25 @@
+menu "NDS32 architecture"
+	depends on NDS32
+
+config SYS_ARCH
+	default "nds32"
+
+choice
+	prompt "Target select"
+
+config TARGET_ADP_AG101
+	bool "Support adp-ag101"
+
+config TARGET_ADP_AG101P
+	bool "Support adp-ag101p"
+
+config TARGET_ADP_AG102
+	bool "Support adp-ag102"
+
+endchoice
+
+source "board/AndesTech/adp-ag101/Kconfig"
+source "board/AndesTech/adp-ag101p/Kconfig"
+source "board/AndesTech/adp-ag102/Kconfig"
+
+endmenu

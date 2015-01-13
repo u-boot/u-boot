@@ -40,7 +40,7 @@ struct mxc_ccm_reg {
 	u32 cs1cdr;
 	u32 cs2cdr;
 	u32 cdcdr;	/* 0x0030 */
-	u32 chscdr;
+	u32 chsccdr;
 	u32 cscdr2;
 	u32 cscdr3;
 	u32 cscdr4;	/* 0x0040 */

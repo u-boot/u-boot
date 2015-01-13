@@ -1,0 +1,12 @@
+if TARGET_WIRELESS_SPACE
+
+config SYS_BOARD
+	default "wireless_space"
+
+config SYS_VENDOR
+	default "LaCie"
+
+config SYS_CONFIG_NAME
+	default "wireless_space"
+
+endif

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011
- * Stefan Herbrechtsmeier <stefan@code.herbrechtsmeier.net>
+ * Stefan Herbrechtsmeier <stefan@herbrechtsmeier.net>
  *
  * Based on Kirkwood support:
  * (C) Copyright 2009
@@ -24,9 +24,9 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KIRKWOOD			/* SOC Family Name */
 #define CONFIG_KW88F6281		/* SOC Name */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Commands configuration

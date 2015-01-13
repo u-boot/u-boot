@@ -1,0 +1,6 @@
+COREBOOT BOARD
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	board/coreboot/coreboot/
+F:	include/configs/coreboot.h
+F:	configs/coreboot-x86_defconfig

@@ -1,0 +1,7 @@
+STXSSA BOARD
+#M:	Dan Malek <dan@embeddedalley.com>
+S:	Orphan (since 2014-06)
+F:	board/stx/stxssa/
+F:	include/configs/stxssa.h
+F:	configs/stxssa_defconfig
+F:	configs/stxssa_4M_defconfig

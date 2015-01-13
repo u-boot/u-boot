@@ -12,11 +12,6 @@
 
 #include "tegra20-common.h"
 
-/* Enable fdt support for TEC. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-tec
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
-
 /* High-level configuration options */
 #define V_PROMPT			"Tegra20 (TEC) # "
 #define CONFIG_TEGRA_BOARD_STRING	"Avionic Design Tamonten Evaluation Carrier"

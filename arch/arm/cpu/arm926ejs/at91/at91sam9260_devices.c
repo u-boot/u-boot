@@ -7,9 +7,12 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
+#include <asm/arch/at91sam9260_matrix.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
+#include <asm/arch/at91sam9_sdramc.h>
 #include <asm/arch/gpio.h>
 
 /*
@@ -207,3 +210,36 @@ void at91_mci_hw_init(void)
 #endif
 }
 #endif
+
+void at91_sdram_hw_init(void)
+{
+	at91_set_a_periph(AT91_PIO_PORTC, 16, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 17, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 18, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 19, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 20, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 21, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 22, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 23, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 24, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 25, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 26, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 27, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 28, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 29, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 30, 0);
+	at91_set_a_periph(AT91_PIO_PORTC, 31, 0);
+}
+
+/* Platform data for the GPIOs */
+static const struct at91_port_platdata at91sam9260_plat[] = {
+	{ ATMEL_BASE_PIOA, "PA" },
+	{ ATMEL_BASE_PIOB, "PB" },
+	{ ATMEL_BASE_PIOC, "PC" },
+};
+
+U_BOOT_DEVICES(at91sam9260_gpios) = {
+	{ "gpio_at91", &at91sam9260_plat[0] },
+	{ "gpio_at91", &at91sam9260_plat[1] },
+	{ "gpio_at91", &at91sam9260_plat[2] },
+};

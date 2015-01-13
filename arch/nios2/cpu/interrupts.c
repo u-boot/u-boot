@@ -9,8 +9,7 @@
  */
 
 
-#include <nios2.h>
-#include <nios2-io.h>
+#include <asm/nios2.h>
 #include <asm/types.h>
 #include <asm/io.h>
 #include <asm/ptrace.h>
@@ -20,6 +19,25 @@
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #endif
+
+typedef volatile struct {
+	unsigned	status;			/* Timer status reg */
+	unsigned	control;		/* Timer control reg */
+	unsigned	periodl;		/* Timeout period low */
+	unsigned	periodh;		/* Timeout period high */
+	unsigned	snapl;			/* Snapshot low */
+	unsigned	snaph;			/* Snapshot high */
+} nios_timer_t;
+
+/* status register */
+#define NIOS_TIMER_TO		(1 << 0)	/* Timeout */
+#define NIOS_TIMER_RUN		(1 << 1)	/* Timer running */
+
+/* control register */
+#define NIOS_TIMER_ITO		(1 << 0)	/* Timeout int ena */
+#define NIOS_TIMER_CONT		(1 << 1)	/* Continuous mode */
+#define NIOS_TIMER_START	(1 << 2)	/* Start timer */
+#define NIOS_TIMER_STOP		(1 << 3)	/* Stop timer */
 
 #if defined(CONFIG_SYS_NIOS_TMRBASE) && !defined(CONFIG_SYS_NIOS_TMRIRQ)
 #error CONFIG_SYS_NIOS_TMRIRQ not defined (see documentation)

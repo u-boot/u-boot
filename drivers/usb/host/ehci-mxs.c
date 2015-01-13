@@ -77,6 +77,16 @@ static int ehci_mxs_toggle_clock(const struct ehci_mxs_port *port, int enable)
 	return 0;
 }
 
+int __weak board_ehci_hcd_init(int port)
+{
+	return 0;
+}
+
+int __weak board_ehci_hcd_exit(int port)
+{
+	return 0;
+}
+
 int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
@@ -89,6 +99,10 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		printf("Invalid port index (index = %d)!\n", index);
 		return -EINVAL;
 	}
+
+	ret = board_ehci_hcd_init(index);
+	if (ret)
+		return ret;
 
 	port = &mxs_port[index];
 
@@ -153,6 +167,8 @@ int ehci_hcd_stop(int index)
 
 	/* Disable USB clock */
 	ret = ehci_mxs_toggle_clock(port, 0);
+
+	board_ehci_hcd_exit(index);
 
 	return ret;
 }

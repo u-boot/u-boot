@@ -11,13 +11,13 @@
 #include <i2c.h>
 #include <miiphy.h>
 #include <phy.h>
+#include <fsl_mdio.h>
 #if defined(CONFIG_PCI)
 #include <pci.h>
 #endif
 #include <spd_sdram.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
-#include <asm/fsl_enet.h>
 #include <asm/mmu.h>
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
@@ -402,7 +402,7 @@ static void ft_board_fixup_qe_usb(void *blob, bd_t *bd)
 			   "peripheral", sizeof("peripheral"), 1);
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI
@@ -447,5 +447,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 		}
 	}
+
+	return 0;
 }
 #endif

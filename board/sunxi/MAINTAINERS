@@ -1,0 +1,59 @@
+SUNXI BOARD
+M:	Hans de Goede <hdegoede@redhat.com>
+S:	Maintained
+F:	board/sunxi/
+F:	include/configs/sun4i.h
+F:	configs/A10-OLinuXino-Lime_defconfig
+F:	configs/ba10_tv_box_defconfig
+F:	configs/Cubieboard_defconfig
+F:	configs/Mele_A1000_defconfig
+F:	configs/Mele_A1000G_defconfig
+F:	configs/Mele_M3_defconfig
+F:	configs/Mele_M9_defconfig
+F:	configs/Mini-X_defconfig
+F:	configs/Mini-X-1Gb_defconfig
+F:	include/configs/sun5i.h
+F:	configs/A10s-OLinuXino-M_defconfig
+F:	configs/A13-OLinuXino_defconfig
+F:	configs/A13-OLinuXinoM_defconfig
+F:	configs/Auxtek-T004_defconfig
+F:	configs/r7-tv-dongle_defconfig
+F:	include/configs/sun7i.h
+F:	configs/A20-OLinuXino_MICRO_defconfig
+F:	configs/Bananapi_defconfig
+F:	configs/i12-tvbox_defconfig
+F:	configs/Linksprite_pcDuino3_defconfig
+F:	configs/Linksprite_pcDuino3_fdt_defconfig
+F:	configs/qt840a_defconfig
+
+CUBIEBOARD2 BOARD
+M:	Ian Campbell <ijc@hellion.org.uk>
+M:	Hans de Goede <hdegoede@redhat.com>
+S:	Maintained
+F:	include/configs/sun7i.h
+F:	configs/Cubieboard2_defconfig
+F:	configs/Cubieboard2_FEL_defconfig
+F:	configs/Cubietruck_defconfig
+F:	configs/Cubietruck_FEL_defconfig
+
+A20-OLINUXINO-LIME BOARD
+M:	FUKAUMI Naoki <naobsd@gmail.com>
+S:	Maintained
+F:	board/sunxi/dram_a20_olinuxino_l.c
+F:	configs/A20-OLinuXino-Lime_defconfig
+
+A20-OLINUXINO-LIME2 BOARD
+M:	Iain Paton <ipaton0@gmail.com>
+S:	Maintained
+F:	board/sunxi/dram_a20_olinuxino_l2.c
+F:	configs/A20-OLinuXino-Lime2_defconfig
+
+COLOMBUS BOARD
+M:	Maxime Ripard <maxime.ripard@free-electrons.com>
+S:	Maintained
+F:	configs/Colombus_defconfig
+
+IPPO-Q8H-V5 BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Ippo_q8h_v5_defconfig

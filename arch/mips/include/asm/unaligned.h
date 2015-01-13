@@ -8,7 +8,7 @@
 #ifndef _ASM_MIPS_UNALIGNED_H
 #define _ASM_MIPS_UNALIGNED_H
 
-#include <compiler.h>
+#include <linux/compiler.h>
 #if defined(__MIPSEB__)
 #define get_unaligned	__get_unaligned_be
 #define put_unaligned	__put_unaligned_be

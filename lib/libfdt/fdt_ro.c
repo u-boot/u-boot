@@ -491,6 +491,82 @@ int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
 	return 0;
 }
 
+int fdt_count_strings(const void *fdt, int node, const char *property)
+{
+	int length, i, count = 0;
+	const char *list;
+
+	list = fdt_getprop(fdt, node, property, &length);
+	if (!list)
+		return -length;
+
+	for (i = 0; i < length; i++) {
+		int len = strlen(list);
+
+		list += len + 1;
+		i += len;
+		count++;
+	}
+
+	return count;
+}
+
+int fdt_find_string(const void *fdt, int node, const char *property,
+		    const char *string)
+{
+	const char *list, *end;
+	int len, index = 0;
+
+	list = fdt_getprop(fdt, node, property, &len);
+	if (!list)
+		return len;
+
+	end = list + len;
+	len = strlen(string);
+
+	while (list < end) {
+		int l = strlen(list);
+
+		if (l == len && memcmp(list, string, len) == 0)
+			return index;
+
+		list += l + 1;
+		index++;
+	}
+
+	return -FDT_ERR_NOTFOUND;
+}
+
+int fdt_get_string_index(const void *fdt, int node, const char *property,
+			 int index, const char **output)
+{
+	const char *list;
+	int length, i;
+
+	list = fdt_getprop(fdt, node, property, &length);
+
+	for (i = 0; i < length; i++) {
+		int len = strlen(list);
+
+		if (index == 0) {
+			*output = list;
+			return 0;
+		}
+
+		list += len + 1;
+		i += len;
+		index--;
+	}
+
+	return FDT_ERR_NOTFOUND;
+}
+
+int fdt_get_string(const void *fdt, int node, const char *property,
+		   const char **output)
+{
+	return fdt_get_string_index(fdt, node, property, 0, output);
+}
+
 int fdt_node_check_compatible(const void *fdt, int nodeoffset,
 			      const char *compatible)
 {

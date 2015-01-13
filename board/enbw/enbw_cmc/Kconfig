@@ -1,0 +1,12 @@
+if TARGET_ENBW_CMC
+
+config SYS_BOARD
+	default "enbw_cmc"
+
+config SYS_VENDOR
+	default "enbw"
+
+config SYS_CONFIG_NAME
+	default "enbw_cmc"
+
+endif

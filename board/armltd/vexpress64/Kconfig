@@ -1,0 +1,12 @@
+if TARGET_VEXPRESS_AEMV8A
+
+config SYS_BOARD
+	default "vexpress64"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	default "vexpress_aemv8a"
+
+endif

@@ -1,0 +1,9 @@
+if TARGET_PALMTREO680
+
+config SYS_BOARD
+	default "palmtreo680"
+
+config SYS_CONFIG_NAME
+	default "palmtreo680"
+
+endif

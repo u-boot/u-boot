@@ -1,0 +1,9 @@
+if TARGET_PPMC7XX
+
+config SYS_BOARD
+	default "ppmc7xx"
+
+config SYS_CONFIG_NAME
+	default "ppmc7xx"
+
+endif

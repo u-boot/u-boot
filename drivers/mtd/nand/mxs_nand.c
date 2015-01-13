@@ -146,8 +146,13 @@ static uint32_t mxs_nand_aux_status_offset(void)
 static inline uint32_t mxs_nand_get_ecc_strength(uint32_t page_data_size,
 						uint32_t page_oob_size)
 {
-	if (page_data_size == 2048)
-		return 8;
+	if (page_data_size == 2048) {
+		if (page_oob_size == 64)
+			return 8;
+
+		if (page_oob_size == 112)
+			return 14;
+	}
 
 	if (page_data_size == 4096) {
 		if (page_oob_size == 128)

@@ -1,0 +1,6 @@
+MPC8560ADS BOARD
+#M:	Kumar Gala <kumar.gala@freescale.com>
+S:	Orphan (since 2014-06)
+F:	board/freescale/mpc8560ads/
+F:	include/configs/MPC8560ADS.h
+F:	configs/MPC8560ADS_defconfig

@@ -1,0 +1,15 @@
+if TARGET_TX25
+
+config SYS_BOARD
+	default "tx25"
+
+config SYS_VENDOR
+	default "karo"
+
+config SYS_SOC
+	default "mx25"
+
+config SYS_CONFIG_NAME
+	default "tx25"
+
+endif

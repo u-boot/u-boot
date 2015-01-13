@@ -1,2 +1,0 @@
-#! /bin/bash
-tr -d "\r" <$1 >/dev/tts/1

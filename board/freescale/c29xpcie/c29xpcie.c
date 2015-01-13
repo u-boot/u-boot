@@ -49,7 +49,7 @@ int board_early_init_f(void)
 int board_early_init_r(void)
 {
 	const unsigned long flashbase = CONFIG_SYS_FLASH_BASE;
-	const u8 flash_esel = find_tlb_idx((void *)flashbase, 1);
+	int flash_esel = find_tlb_idx((void *)flashbase, 1);
 
 	/*
 	 * Remap Boot flash region to caching-inhibited
@@ -60,8 +60,14 @@ int board_early_init_r(void)
 	flush_dcache();
 	invalidate_icache();
 
-	/* invalidate existing TLB entry for flash */
-	disable_tlb(flash_esel);
+	if (flash_esel == -1) {
+		/* very unlikely unless something is messed up */
+		puts("Error: Could not find TLB for FLASH BASE\n");
+		flash_esel = 1;	/* give our best effort to continue */
+	} else {
+		/* invalidate existing TLB entry for flash */
+		disable_tlb(flash_esel);
+	}
 
 	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,
 			MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
@@ -122,7 +128,7 @@ void fdt_del_sec(void *blob, int offset)
 	}
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -144,5 +150,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 		fdt_del_sec(blob, 1);
 	else if (cpu->soc_ver == SVR_C292)
 		fdt_del_sec(blob, 2);
+
+	return 0;
 }
 #endif

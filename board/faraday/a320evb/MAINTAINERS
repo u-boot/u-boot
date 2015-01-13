@@ -1,0 +1,6 @@
+A320EVB BOARD
+M:	Po-Yu Chuang <ratbert@faraday-tech.com>
+S:	Maintained
+F:	board/faraday/a320evb/
+F:	include/configs/a320evb.h
+F:	configs/a320evb_defconfig

@@ -1,0 +1,15 @@
+if TARGET_CM_FX6
+
+config SYS_BOARD
+	default "cm_fx6"
+
+config SYS_VENDOR
+	default "compulab"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "cm_fx6"
+
+endif

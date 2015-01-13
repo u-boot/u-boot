@@ -21,7 +21,6 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
-#define CONFIG_KIRKWOOD			/* SoC Family Name */
 /* SoC name */
 #define CONFIG_KW88F6281
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */

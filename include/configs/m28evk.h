@@ -32,6 +32,7 @@
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_I2C
@@ -170,6 +171,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"consdev=ttyAMA0\0"						\
 	"baudrate=115200\0"						\
+	"bootscript=boot.scr\0"						\
 	"bootdev=/dev/mmcblk0p2\0"					\
 	"rootdev=/dev/mmcblk0p3\0"					\
 	"netdev=eth0\0"							\
@@ -236,7 +238,7 @@
 	"addargs=run addcons addmtd addmisc\0"				\
 	"mmcload="							\
 		"mmc rescan ; "						\
-		"ext4load mmc 0:2 ${kernel_addr_r} ${bootfile}\0"	\
+		"load mmc 0:2 ${kernel_addr_r} ${bootfile}\0"		\
 	"ubiload="							\
 		"ubi part UBI ; ubifsmount ubi0:rootfs ; "		\
 		"ubifsload ${kernel_addr_r} /boot/${bootfile}\0"	\
@@ -279,10 +281,12 @@
 		"bootm ${kernel_addr_r}\0"				\
 	"try_bootscript="						\
 		"mmc rescan;"						\
-		"if ext4load mmc 0:2 ${kernel_addr_r} ${bootscript};"	\
-		"then;"							\
-			"\techo Running bootscript...;"			\
-			"\tsource ${kernel_addr_r};"			\
+		"if test -e mmc 0:2 ${bootscript} ; then "		\
+		"if load mmc 0:2 ${kernel_addr_r} ${bootscript};"	\
+		"then ; "						\
+			"echo Running bootscript... ; "			\
+			"source ${kernel_addr_r} ; "			\
+		"fi ; "							\
 		"fi\0"
 
 /* The rest of the configuration is shared */

@@ -1,0 +1,12 @@
+if TARGET_PIP405
+
+config SYS_BOARD
+	default "pip405"
+
+config SYS_VENDOR
+	default "mpl"
+
+config SYS_CONFIG_NAME
+	default "PIP405"
+
+endif

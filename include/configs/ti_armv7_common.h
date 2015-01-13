@@ -174,6 +174,7 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
 
 /*
  * Common filesystems support.  When we have removable storage we
@@ -186,6 +187,8 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FS_GENERIC
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
 #endif
 
 /*
@@ -198,20 +201,22 @@
  */
 #if !defined(CONFIG_NOR_BOOT) && \
 	!(defined(CONFIG_QSPI_BOOT) && defined(CONFIG_AM43XX))
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_OS_BOOT
 
 /*
- * Place the image at the start of the ROM defined image space.
- * We limit our size to the ROM-defined downloaded image area, and use the
- * rest of the space for stack.  We load U-Boot itself into memory at
- * 0x80800000 for legacy reasons (to not conflict with older SPLs).  We
- * have our BSS be placed 1MiB after this, to allow for the default
- * Linux kernel address of 0x80008000 to work, in the Falcon Mode case.
- * We have the SPL malloc pool at the end of the BSS area.
+ * Place the image at the start of the ROM defined image space (per
+ * CONFIG_SPL_TEXT_BASE and we limit our size to the ROM-defined
+ * downloaded image area.  We initalize DRAM as soon as we can so that
+ * we can place stack, malloc and BSS there.  We load U-Boot itself into
+ * memory at 0x80800000 for legacy reasons (to not conflict with older
+ * SPLs).  We have our BSS be placed 2MiB after this, to allow for the
+ * default Linux kernel address of 0x80008000 to work with most sized
+ * kernels, in the Falcon Mode case.  We have the SPL malloc pool at the
+ * end of the BSS area.  We place our stack at 32MiB after the start of
+ * DRAM to allow room for all of the above.
  */
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SPL_STACK		(CONFIG_SYS_SDRAM_BASE + (32 << 20))
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		0x80800000
 #endif
@@ -230,25 +235,18 @@
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
 
 /* FAT sd card locations. */
-#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION	1
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
 #ifdef CONFIG_SPL_OS_BOOT
 /* FAT */
-#define CONFIG_SPL_FAT_LOAD_KERNEL_NAME		"uImage"
-#define CONFIG_SPL_FAT_LOAD_ARGS_NAME		"args"
+#define CONFIG_SPL_FS_LOAD_KERNEL_NAME		"uImage"
+#define CONFIG_SPL_FS_LOAD_ARGS_NAME		"args"
 
 /* RAW SD card / eMMC */
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x900	/* address 0x120000 */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x80	/* address 0x10000 */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0x80	/* 64KiB */
-
-/* NAND */
-#ifdef CONFIG_NAND
-#define CONFIG_CMD_SPL_NAND_OFS			0x240000 /* end of u-boot */
-#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS		0x280000
-#define CONFIG_CMD_SPL_WRITE_SIZE		0x2000
-#endif
 
 /* spl export command */
 #define CONFIG_CMD_SPL
@@ -275,7 +273,6 @@
 #define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_MTD_SUPPORT
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #endif
 #endif /* !CONFIG_NOR_BOOT */
 

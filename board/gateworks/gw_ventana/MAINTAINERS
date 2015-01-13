@@ -1,0 +1,6 @@
+GW_VENTANA BOARD
+M:	Tim Harvey <tharvey@gateworks.com>
+S:	Maintained
+F:	board/gateworks/gw_ventana/
+F:	include/configs/gw_ventana.h
+F:	configs/gwventana_defconfig

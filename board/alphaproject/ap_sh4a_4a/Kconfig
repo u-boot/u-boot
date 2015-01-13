@@ -1,0 +1,12 @@
+if TARGET_AP_SH4A_4A
+
+config SYS_BOARD
+	default "ap_sh4a_4a"
+
+config SYS_VENDOR
+	default "alphaproject"
+
+config SYS_CONFIG_NAME
+	default "ap_sh4a_4a"
+
+endif

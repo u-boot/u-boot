@@ -112,7 +112,10 @@ static void initialize_lane_to_slot(void)
 		 * Lanes: A,B,C,D: PCI
 		 * Lanes: E,F,G,H: XAUI2
 		 */
+	case 0xb1:
 	case 0xb2:
+	case 0x8c:
+	case 0x8d:
 		/*
 		 * Configuration:
 		 * SERDES: 2
@@ -195,34 +198,34 @@ int board_eth_init(bd_t *bis)
 	 * all SGMII. RGMII is not supported on this board. Setting SGMII 5 and
 	 * 6 to on board SGMII phys
 	 */
-	fm_info_set_phy_address(FM1_DTSEC5, CONFIG_SYS_FM1_DTSEC5_PHY_ADDR);
-	fm_info_set_phy_address(FM1_DTSEC6, CONFIG_SYS_FM1_DTSEC6_PHY_ADDR);
+	fm_info_set_phy_address(FM1_DTSEC5, CONFIG_SYS_FM1_ONBOARD_PHY1_ADDR);
+	fm_info_set_phy_address(FM1_DTSEC6, CONFIG_SYS_FM1_ONBOARD_PHY2_ADDR);
 
 	switch (serdes1_prtcl) {
 	case 0x29:
 	case 0x2a:
 		/* Serdes 1: A-B SGMII, Configuring DTSEC 5 and 6 */
-		debug("Setting phy addresses for FM1_DTSEC5: %x and"
-			"FM1_DTSEC6: %x\n", CONFIG_SYS_FM1_DTSEC5_PHY_ADDR,
-			CONFIG_SYS_FM1_DTSEC6_PHY_ADDR);
+		debug("Set phy addresses for FM1_DTSEC5:%x, FM1_DTSEC6:%x\n",
+		      CONFIG_SYS_FM1_ONBOARD_PHY1_ADDR,
+		      CONFIG_SYS_FM1_ONBOARD_PHY2_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC5,
-				CONFIG_SYS_FM1_DTSEC5_PHY_ADDR);
+				CONFIG_SYS_FM1_ONBOARD_PHY1_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC6,
-				CONFIG_SYS_FM1_DTSEC6_PHY_ADDR);
+				CONFIG_SYS_FM1_ONBOARD_PHY2_ADDR);
 		break;
 #ifdef CONFIG_PPC_B4420
 	case 0x17:
 	case 0x18:
 		/* Serdes 1: A-D SGMII, Configuring on board dual SGMII Phy */
-		debug("Setting phy addresses for FM1_DTSEC3: %x and"
-			"FM1_DTSEC4: %x\n", CONFIG_SYS_FM1_DTSEC5_PHY_ADDR,
-			CONFIG_SYS_FM1_DTSEC6_PHY_ADDR);
+		debug("Set phy addresses for FM1_DTSEC3:%x, FM1_DTSEC4:%x\n",
+		      CONFIG_SYS_FM1_ONBOARD_PHY1_ADDR,
+		      CONFIG_SYS_FM1_ONBOARD_PHY2_ADDR);
 		/* Fixing Serdes clock by programming FPGA register */
 		QIXIS_WRITE(brdcfg[4], QIXIS_SRDS1CLK_125);
 		fm_info_set_phy_address(FM1_DTSEC3,
-				CONFIG_SYS_FM1_DTSEC5_PHY_ADDR);
+				CONFIG_SYS_FM1_ONBOARD_PHY1_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC4,
-				CONFIG_SYS_FM1_DTSEC6_PHY_ADDR);
+				CONFIG_SYS_FM1_ONBOARD_PHY2_ADDR);
 		break;
 #endif
 	default:
@@ -233,8 +236,8 @@ int board_eth_init(bd_t *bis)
 	switch (serdes2_prtcl) {
 	case 0x17:
 	case 0x18:
-		debug("Setting phy addresses on SGMII Riser card for"
-				"FM1_DTSEC ports: \n");
+		debug("Set phy address on SGMII Riser for FM1_DTSEC1:%x\n",
+		      CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC1,
 				CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC2,
@@ -246,8 +249,8 @@ int board_eth_init(bd_t *bis)
 		break;
 	case 0x48:
 	case 0x49:
-		debug("Setting phy addresses on SGMII Riser card for"
-				"FM1_DTSEC ports: \n");
+		debug("Set phy address on SGMII Riser for FM1_DTSEC1:%x\n",
+		      CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC1,
 				CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC2,
@@ -255,29 +258,37 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_DTSEC3,
 				CONFIG_SYS_FM1_DTSEC3_RISER_PHY_ADDR);
 		break;
-	case 0x8d:
+	case 0xb1:
 	case 0xb2:
-		debug("Setting phy addresses on SGMII Riser card for"
-				"FM1_DTSEC ports: \n");
+	case 0x8c:
+	case 0x8d:
+		debug("Set phy addresses on SGMII Riser for FM1_DTSEC1:%x\n",
+		      CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC3,
 				CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC4,
 				CONFIG_SYS_FM1_DTSEC2_RISER_PHY_ADDR);
+		/*
+		 * XFI does not need a PHY to work, but to make U-boot
+		 * happy, assign a fake PHY address for a XFI port.
+		 */
+		fm_info_set_phy_address(FM1_10GEC1, 0);
+		fm_info_set_phy_address(FM1_10GEC2, 1);
 		break;
 	case 0x98:
 		/* XAUI in Slot1 and Slot2 */
-		debug("Setting phy addresses on B4860 QDS AMC2PEX-2S for FM1_10GEC1: %x\n",
+		debug("Set phy address of AMC2PEX-2S for FM1_10GEC1:%x\n",
 		      CONFIG_SYS_FM1_10GEC1_PHY_ADDR);
 		fm_info_set_phy_address(FM1_10GEC1,
 					CONFIG_SYS_FM1_10GEC1_PHY_ADDR);
-		debug("Setting phy addresses on B4860 QDS AMC2PEX-2S for FM1_10GEC2: %x\n",
+		debug("Set phy address of AMC2PEX-2S for FM1_10GEC2:%x\n",
 		      CONFIG_SYS_FM1_10GEC2_PHY_ADDR);
 		fm_info_set_phy_address(FM1_10GEC2,
 					CONFIG_SYS_FM1_10GEC2_PHY_ADDR);
 		break;
 	case 0x9E:
 		/* XAUI in Slot2 */
-		debug("Setting phy addresses on B4860 QDS AMC2PEX-2S for FM1_10GEC2: %x\n",
+		debug("Sett phy address of AMC2PEX-2S for FM1_10GEC2:%x\n",
 		      CONFIG_SYS_FM1_10GEC2_PHY_ADDR);
 		fm_info_set_phy_address(FM1_10GEC2,
 					CONFIG_SYS_FM1_10GEC2_PHY_ADDR);
@@ -329,16 +340,19 @@ int board_eth_init(bd_t *bis)
 		switch (fm_info_get_enet_if(i)) {
 		case PHY_INTERFACE_MODE_XGMII:
 			fm_info_set_mdio(i,
-					 miiphy_get_dev_by_name(DEFAULT_FM_TGEC_MDIO_NAME));
+					 miiphy_get_dev_by_name
+					 (DEFAULT_FM_TGEC_MDIO_NAME));
+			break;
+		case PHY_INTERFACE_MODE_NONE:
+			fm_info_set_phy_address(i, 0);
 			break;
 		default:
-			printf("Fman1: 10GSEC%u set to unknown interface %i\n",
+			printf("Fman1: TGEC%u set to unknown interface %i\n",
 			       idx + 1, fm_info_get_enet_if(i));
 			fm_info_set_phy_address(i, 0);
 			break;
 		}
 	}
-
 
 	cpu_eth_init(bis);
 #endif
@@ -351,21 +365,82 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 {
 	int phy;
 	char alias[32];
+	struct fixed_link f_link;
+	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 prtcl2 = in_be32(&gur->rcwsr[4]) & FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
+
+	prtcl2 >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
 
 	if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_SGMII) {
 		phy = fm_info_get_phy_address(port);
 
 		sprintf(alias, "phy_sgmii_%x", phy);
 		fdt_set_phy_handle(fdt, compat, addr, alias);
+		fdt_status_okay_by_alias(fdt, alias);
+	} else if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_XGMII) {
+		/* check if it's XFI interface for 10g */
+		switch (prtcl2) {
+		case 0x80:
+		case 0x81:
+		case 0x82:
+		case 0x83:
+		case 0x84:
+		case 0x85:
+		case 0x86:
+		case 0x87:
+		case 0x88:
+		case 0x89:
+		case 0x8a:
+		case 0x8b:
+		case 0x8c:
+		case 0x8d:
+		case 0x8e:
+		case 0xb1:
+		case 0xb2:
+			f_link.phy_id = port;
+			f_link.duplex = 1;
+			f_link.link_speed = 10000;
+			f_link.pause = 0;
+			f_link.asym_pause = 0;
+
+			fdt_delprop(fdt, offset, "phy-handle");
+			fdt_setprop(fdt, offset, "fixed-link", &f_link,
+				    sizeof(f_link));
+			break;
+		case 0x98: /* XAUI interface */
+			sprintf(alias, "phy_xaui_slot1");
+			fdt_status_okay_by_alias(fdt, alias);
+
+			sprintf(alias, "phy_xaui_slot2");
+			fdt_status_okay_by_alias(fdt, alias);
+			break;
+		case 0x9e: /* XAUI interface */
+		case 0x9a:
+		case 0x93:
+		case 0x91:
+			sprintf(alias, "phy_xaui_slot1");
+			fdt_status_okay_by_alias(fdt, alias);
+			break;
+		case 0x97: /* XAUI interface */
+		case 0xc3:
+			sprintf(alias, "phy_xaui_slot2");
+			fdt_status_okay_by_alias(fdt, alias);
+			break;
+		default:
+			break;
+		}
 	}
 }
 
+/*
+ * Set status to disabled for unused ethernet node
+ */
 void fdt_fixup_board_enet(void *fdt)
 {
 	int i;
 	char alias[32];
 
-	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CONFIG_SYS_NUM_FM1_DTSEC; i++) {
+	for (i = FM1_DTSEC1; i <= FM1_10GEC2; i++) {
 		switch (fm_info_get_enet_if(i)) {
 		case PHY_INTERFACE_MODE_NONE:
 			sprintf(alias, "ethernet%u", i);

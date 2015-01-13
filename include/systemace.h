@@ -6,7 +6,6 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-#ident "$Id:$"
 
 #ifdef CONFIG_SYSTEMACE
 

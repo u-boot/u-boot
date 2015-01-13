@@ -1,0 +1,9 @@
+if TARGET_CM_BF561
+
+config SYS_BOARD
+	default "cm-bf561"
+
+config SYS_CONFIG_NAME
+	default "cm-bf561"
+
+endif

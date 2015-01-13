@@ -1,0 +1,9 @@
+if TARGET_PALMTC
+
+config SYS_BOARD
+	default "palmtc"
+
+config SYS_CONFIG_NAME
+	default "palmtc"
+
+endif

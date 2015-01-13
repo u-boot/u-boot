@@ -1,0 +1,12 @@
+if TARGET_OCOTEA
+
+config SYS_BOARD
+	default "ocotea"
+
+config SYS_VENDOR
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	default "ocotea"
+
+endif

@@ -1,0 +1,15 @@
+if TARGET_EB_CPUX9K2
+
+config SYS_BOARD
+	default "eb_cpux9k2"
+
+config SYS_VENDOR
+	default "BuS"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "eb_cpux9k2"
+
+endif

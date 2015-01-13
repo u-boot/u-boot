@@ -1,0 +1,9 @@
+if TARGET_PCS440EP
+
+config SYS_BOARD
+	default "pcs440ep"
+
+config SYS_CONFIG_NAME
+	default "pcs440ep"
+
+endif

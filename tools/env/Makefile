@@ -11,7 +11,7 @@
 HOSTCC = $(CC)
 
 # Compile for a hosted environment on the target
-HOST_EXTRACFLAGS  = $(patsubst -I%,-idirafter%, $(UBOOTINCLUDE)) \
+HOST_EXTRACFLAGS  = $(patsubst -I%,-idirafter%, $(filter -I%, $(UBOOTINCLUDE))) \
 		-idirafter $(srctree)/tools/env \
 		-DUSE_HOSTCC \
 		-DTEXT_BASE=$(TEXT_BASE)
@@ -21,14 +21,16 @@ HOST_EXTRACFLAGS += -DMTD_OLD
 endif
 
 always := fw_printenv
-hostprogs-y := fw_printenv_unstripped
+hostprogs-y := fw_printenv
 
-fw_printenv_unstripped-objs := fw_env.o fw_env_main.o \
+fw_printenv-objs := fw_env.o fw_env_main.o \
 	crc32.o ctype.o linux_string.o \
 	env_attr.o env_flags.o aes.o
 
-quiet_cmd_strip = STRIP   $@
-      cmd_strip = $(STRIP) -o $@ $<
+quiet_cmd_crosstools_strip = STRIP   $^
+      cmd_crosstools_strip = $(STRIP) $^; touch $@
 
-$(obj)/fw_printenv: $(obj)/fw_printenv_unstripped FORCE
-	$(call if_changed,strip)
+$(obj)/.strip: $(obj)/fw_printenv
+	$(call cmd,crosstools_strip)
+
+always += .strip

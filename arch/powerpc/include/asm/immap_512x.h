@@ -59,6 +59,7 @@ typedef struct sysconf512x {
 	u8 res2[0x28];
 	law512x_t ddrlaw;	/* DDR Local Access Window */
 	u8 res3[0x18];
+	u32 mbxbar;		/* MBX Base Address */
 	u32 srambar;		/* SRAM Base Address */
 	u32 nfcbar;		/* NFC Base Address */
 	u8 res4[0x34];

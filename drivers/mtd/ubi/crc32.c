@@ -20,7 +20,7 @@
  * Version 2.  See the file COPYING for more details.
  */
 
-#ifdef UBI_LINUX
+#ifndef __UBOOT__
 #include <linux/crc32.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -30,7 +30,7 @@
 
 #include <asm/byteorder.h>
 
-#ifdef UBI_LINUX
+#ifndef __UBOOT__
 #include <linux/slab.h>
 #include <linux/init.h>
 #include <asm/atomic.h>
@@ -46,7 +46,7 @@
 #define tobe(x) (x)
 #endif
 #include "crc32table.h"
-#ifdef UBI_LINUX
+#ifndef __UBOOT__
 MODULE_AUTHOR("Matt Domsch <Matt_Domsch@dell.com>");
 MODULE_DESCRIPTION("Ethernet CRC32 calculations");
 MODULE_LICENSE("GPL");
@@ -146,7 +146,7 @@ u32 crc32_le(u32 crc, unsigned char const *p, size_t len)
 # endif
 }
 #endif
-#ifdef UBI_LINUX
+#ifndef __UBOOT__
 /**
  * crc32_be() - Calculate bitwise big-endian Ethernet AUTODIN II CRC32
  * @crc: seed value for computation.  ~0 for Ethernet, sometimes 0 for
@@ -379,7 +379,7 @@ EXPORT_SYMBOL(crc32_be);
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifdef UBI_LINUX				/*Not used at present */
+#ifndef __UBOOT__
 static void
 buf_dump(char const *prefix, unsigned char const *buf, size_t len)
 {
@@ -405,7 +405,7 @@ static void random_garbage(unsigned char *buf, size_t len)
 		*buf++ = (unsigned char) random();
 }
 
-#ifdef UBI_LINUX				/* Not used at present */
+#ifndef __UBOOT__
 static void store_le(u32 x, unsigned char *buf)
 {
 	buf[0] = (unsigned char) x;

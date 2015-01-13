@@ -1,0 +1,9 @@
+if TARGET_SC3
+
+config SYS_BOARD
+	default "sc3"
+
+config SYS_CONFIG_NAME
+	default "sc3"
+
+endif

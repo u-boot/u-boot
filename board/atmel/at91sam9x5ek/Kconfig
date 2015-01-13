@@ -1,0 +1,15 @@
+if TARGET_AT91SAM9X5EK
+
+config SYS_BOARD
+	default "at91sam9x5ek"
+
+config SYS_VENDOR
+	default "atmel"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "at91sam9x5ek"
+
+endif

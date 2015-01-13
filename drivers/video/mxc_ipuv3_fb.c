@@ -36,7 +36,7 @@ static struct fb_videomode const *gmode;
 static uint8_t gdisp;
 static uint32_t gpixfmt;
 
-void fb_videomode_to_var(struct fb_var_screeninfo *var,
+static void fb_videomode_to_var(struct fb_var_screeninfo *var,
 			 const struct fb_videomode *mode)
 {
 	var->xres = mode->xres;
@@ -258,8 +258,7 @@ static int mxcfb_set_par(struct fb_info *fbi)
 	if (fbi->var.sync & FB_SYNC_CLK_IDLE_EN)
 		sig_cfg.clkidle_en = 1;
 
-	debug("pixclock = %ul Hz\n",
-		(u32) (PICOS2KHZ(fbi->var.pixclock) * 1000UL));
+	debug("pixclock = %lu Hz\n", PICOS2KHZ(fbi->var.pixclock) * 1000UL);
 
 	if (ipu_init_sync_panel(mxc_fbi->ipu_di,
 				(PICOS2KHZ(fbi->var.pixclock)) * 1000UL,
@@ -486,7 +485,7 @@ static struct fb_info *mxcfb_init_fbinfo(void)
 
 /*
  * Probe routine for the framebuffer driver. It is called during the
- * driver binding process.      The following functions are performed in
+ * driver binding process. The following functions are performed in
  * this routine: Framebuffer initialization, Memory allocation and
  * mapping, Framebuffer registration, IPU initialization.
  *
@@ -542,7 +541,7 @@ static int mxcfb_probe(u32 interface_pix_fmt, uint8_t disp,
 
 	mxcfb_set_fix(fbi);
 
-	/* alocate fb first */
+	/* allocate fb first */
 	if (mxcfb_map_video_memory(fbi) < 0)
 		return -ENOMEM;
 

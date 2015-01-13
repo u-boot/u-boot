@@ -121,8 +121,6 @@ static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
 		*regs = &emif_regs_elpida_380_mhz_1cs;
 	else if (omap4_rev == OMAP4430_ES2_0)
 		*regs = &emif_regs_elpida_200_mhz_2cs;
-	else if (omap4_rev == OMAP4430_ES2_3)
-		*regs = &emif_regs_elpida_400_mhz_1cs;
 	else if (omap4_rev < OMAP4470_ES1_0)
 		*regs = &emif_regs_elpida_400_mhz_2cs;
 	else
@@ -138,8 +136,6 @@ static void emif_get_dmm_regs_sdp(const struct dmm_lisa_map_regs
 
 	if (omap_rev == OMAP4430_ES1_0)
 		*dmm_lisa_regs = &lisa_map_2G_x_1_x_2;
-	else if (omap_rev == OMAP4430_ES2_3)
-		*dmm_lisa_regs = &lisa_map_2G_x_2_x_2;
 	else if (omap_rev < OMAP4460_ES1_0)
 		*dmm_lisa_regs = &lisa_map_2G_x_2_x_2;
 	else

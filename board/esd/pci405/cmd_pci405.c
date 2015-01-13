@@ -23,7 +23,7 @@
  */
 int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	unsigned int *ptr = 0;
+	unsigned int *ptr;
 	int count = 0;
 	int count2 = 0;
 	int i;
@@ -35,12 +35,14 @@ int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * Mark sync address
 	 */
 	ptr = 0;
+	/* cppcheck-suppress nullPointer */
 	*ptr = 0xffffffff;
 	puts("\nWaiting for image from pci host -");
 
 	/*
 	 * Wait for host to write the start address
 	 */
+	/* cppcheck-suppress nullPointer */
 	while (*ptr == 0xffffffff) {
 		count++;
 		if (!(count % 100)) {

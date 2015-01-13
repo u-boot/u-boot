@@ -81,8 +81,6 @@ static int finish_access(struct ocotp_regs *regs, const char *caller)
 	err = !!(readl(&regs->ctrl) & BM_CTRL_ERROR);
 	clear_error(regs);
 
-	enable_ocotp_clk(0);
-
 	if (err) {
 		printf("mxc_ocotp %s(): Access protect error\n", caller);
 		return -EIO;
@@ -122,8 +120,8 @@ static void set_timing(struct ocotp_regs *regs)
 	relax = DIV_ROUND_UP(ipg_clk * BV_TIMING_RELAX_NS, 1000000000) - 1;
 	strobe_read = DIV_ROUND_UP(ipg_clk * BV_TIMING_STROBE_READ_NS,
 					1000000000) + 2 * (relax + 1) - 1;
-	strobe_prog = DIV_ROUND(ipg_clk * BV_TIMING_STROBE_PROG_US, 1000000) +
-			2 * (relax + 1) - 1;
+	strobe_prog = DIV_ROUND_CLOSEST(ipg_clk * BV_TIMING_STROBE_PROG_US,
+						1000000) + 2 * (relax + 1) - 1;
 
 	timing = BF(strobe_read, TIMING_STROBE_READ) |
 			BF(relax, TIMING_RELAX) |

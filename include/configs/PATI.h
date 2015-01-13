@@ -21,6 +21,8 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /* Serial Console Configuration */
 #define	CONFIG_5xx_CONS_SCI1
 #undef	CONFIG_5xx_CONS_SCI2
@@ -96,6 +98,7 @@
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 1250000 }
 
+#define CONFIG_BOARD_EARLY_INIT_F
 
 /***********************************************************************
  * Last Stage Init

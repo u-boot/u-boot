@@ -550,9 +550,6 @@ static int check_usb_device_connecting(struct r8a66597 *r8a66597)
 	return -1;	/* fail */
 }
 
-/* based on usb_ohci.c */
-#define min_t(type, x, y) \
-		({ type __x = (x); type __y = (y); __x < __y ? __x : __y; })
 /*-------------------------------------------------------------------------*
  * Virtual Root Hub
  *-------------------------------------------------------------------------*/

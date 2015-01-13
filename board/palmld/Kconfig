@@ -1,0 +1,9 @@
+if TARGET_PALMLD
+
+config SYS_BOARD
+	default "palmld"
+
+config SYS_CONFIG_NAME
+	default "palmld"
+
+endif

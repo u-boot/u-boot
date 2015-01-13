@@ -10,7 +10,18 @@
 
 #include <net.h>
 #include <miiphy.h>
-#include <asm/fsl_enet.h>
+
+struct tsec_mii_mng {
+	u32 miimcfg;		/* MII management configuration reg */
+	u32 miimcom;		/* MII management command reg */
+	u32 miimadd;		/* MII management address reg */
+	u32 miimcon;		/* MII management control reg */
+	u32 miimstat;		/* MII management status reg  */
+	u32 miimind;		/* MII management indication reg */
+	u32 ifstat;		/* Interface Status Register */
+};
+
+int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc);
 
 /* PHY register offsets */
 #define PHY_EXT_PAGE_ACCESS	0x1f

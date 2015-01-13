@@ -1,0 +1,6 @@
+ZEUS BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/zeus/
+F:	include/configs/zeus.h
+F:	configs/zeus_defconfig

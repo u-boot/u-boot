@@ -14,9 +14,6 @@
 #define ZYNQ_SILICON_VER_MASK	0xF0000000
 #define ZYNQ_SILICON_VER_SHIFT	28
 
-#define ZYNQ_SILICON_VER_MASK	0xF0000000
-#define ZYNQ_SILICON_VER_SHIFT	28
-
 int arch_cpu_init(void)
 {
 	zynq_slcr_unlock();

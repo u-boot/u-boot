@@ -1,0 +1,6 @@
+SBC405 BOARD
+#M:	-
+S:	Maintained
+F:	board/sbc405/
+F:	include/configs/sbc405.h
+F:	configs/sbc405_defconfig

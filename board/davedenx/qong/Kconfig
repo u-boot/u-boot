@@ -1,0 +1,15 @@
+if TARGET_QONG
+
+config SYS_BOARD
+	default "qong"
+
+config SYS_VENDOR
+	default "davedenx"
+
+config SYS_SOC
+	default "mx31"
+
+config SYS_CONFIG_NAME
+	default "qong"
+
+endif

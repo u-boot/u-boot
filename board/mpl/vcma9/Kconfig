@@ -1,0 +1,15 @@
+if TARGET_VCMA9
+
+config SYS_BOARD
+	default "vcma9"
+
+config SYS_VENDOR
+	default "mpl"
+
+config SYS_SOC
+	default "s3c24x0"
+
+config SYS_CONFIG_NAME
+	default "VCMA9"
+
+endif

@@ -1,0 +1,12 @@
+if TARGET_RSK7203
+
+config SYS_BOARD
+	default "rsk7203"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "rsk7203"
+
+endif

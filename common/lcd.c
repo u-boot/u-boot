@@ -30,10 +30,10 @@
 #include <splash.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>
+#include <fdt_support.h>
 
 #if defined(CONFIG_CPU_PXA25X) || defined(CONFIG_CPU_PXA27X) || \
 	defined(CONFIG_CPU_MONAHANS)
-#define CONFIG_CPU_PXA
 #include <asm/byteorder.h>
 #endif
 
@@ -100,7 +100,8 @@
 #if LCD_BPP == LCD_MONOCHROME
 # define COLOR_MASK(c)		((c)	  | (c) << 1 | (c) << 2 | (c) << 3 | \
 				 (c) << 4 | (c) << 5 | (c) << 6 | (c) << 7)
-#elif (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16)
+#elif (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16) || \
+	(LCD_BPP == LCD_COLOR32)
 # define COLOR_MASK(c)		(c)
 #else
 # error Unsupported LCD BPP.
@@ -109,14 +110,12 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static void lcd_drawchars(ushort x, ushort y, uchar *str, int count);
-static inline void lcd_puts_xy(ushort x, ushort y, uchar *s);
 static inline void lcd_putc_xy(ushort x, ushort y, uchar  c);
 
 static int lcd_init(void *lcdbase);
 
 static void *lcd_logo(void);
 
-static int lcd_getbgcolor(void);
 static void lcd_setfgcolor(int color);
 static void lcd_setbgcolor(int color);
 
@@ -177,10 +176,20 @@ static void console_scrollup(void)
 	       CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows);
 
 	/* Clear the last rows */
+#if (LCD_BPP != LCD_COLOR32)
 	memset(lcd_console_address + CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows,
 		COLOR_MASK(lcd_color_bg),
 		CONSOLE_ROW_SIZE * rows);
-
+#else
+	u32 *ppix = lcd_console_address +
+		    CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows;
+	u32 i;
+	for (i = 0;
+	    i < (CONSOLE_ROW_SIZE * rows) / NBYTES(panel_info.vl_bpix);
+	    i++) {
+		*ppix++ = COLOR_MASK(lcd_color_bg);
+	}
+#endif
 	lcd_sync();
 	console_row -= rows;
 }
@@ -213,6 +222,11 @@ static inline void console_newline(void)
 }
 
 /*----------------------------------------------------------------------*/
+
+static void lcd_stub_putc(struct stdio_dev *dev, const char c)
+{
+	lcd_putc(c);
+}
 
 void lcd_putc(const char c)
 {
@@ -252,6 +266,11 @@ void lcd_putc(const char c)
 }
 
 /*----------------------------------------------------------------------*/
+
+static void lcd_stub_puts(struct stdio_dev *dev, const char *s)
+{
+	lcd_puts(s);
+}
 
 void lcd_puts(const char *s)
 {
@@ -298,13 +317,15 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 	ushort off  = x * (1 << LCD_BPP) % 8;
 #endif
 
-	dest = (uchar *)(lcd_base + y * lcd_line_length + x * (1 << LCD_BPP) / 8);
+	dest = (uchar *)(lcd_base + y * lcd_line_length + x * NBITS(LCD_BPP)/8);
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; ++row, dest += lcd_line_length) {
 		uchar *s = str;
 		int i;
 #if LCD_BPP == LCD_COLOR16
 		ushort *d = (ushort *)dest;
+#elif LCD_BPP == LCD_COLOR32
+		u32 *d = (u32 *)dest;
 #else
 		uchar *d = dest;
 #endif
@@ -337,6 +358,12 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 						lcd_color_fg : lcd_color_bg;
 				bits <<= 1;
 			}
+#elif LCD_BPP == LCD_COLOR32
+			for (c = 0; c < 8; ++c) {
+				*d++ = (bits & 0x80) ?
+						lcd_color_fg : lcd_color_bg;
+				bits <<= 1;
+			}
 #endif
 		}
 #if LCD_BPP == LCD_MONOCHROME
@@ -344,15 +371,6 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 #endif
 	}
 }
-
-/*----------------------------------------------------------------------*/
-
-static inline void lcd_puts_xy(ushort x, ushort y, uchar *s)
-{
-	lcd_drawchars(x, y, s, strlen((char *)s));
-}
-
-/*----------------------------------------------------------------------*/
 
 static inline void lcd_putc_xy(ushort x, ushort y, uchar c)
 {
@@ -426,8 +444,8 @@ int drv_lcd_init(void)
 	strcpy(lcddev.name, "lcd");
 	lcddev.ext   = 0;			/* No extensions */
 	lcddev.flags = DEV_FLAGS_OUTPUT;	/* Output only */
-	lcddev.putc  = lcd_putc;		/* 'putc' function */
-	lcddev.puts  = lcd_puts;		/* 'puts' function */
+	lcddev.putc  = lcd_stub_putc;		/* 'putc' function */
+	lcddev.puts  = lcd_stub_puts;		/* 'puts' function */
 
 	rc = stdio_register(&lcddev);
 
@@ -466,9 +484,19 @@ void lcd_clear(void)
 	test_pattern();
 #else
 	/* set framebuffer to background color */
+#if (LCD_BPP != LCD_COLOR32)
 	memset((char *)lcd_base,
-		COLOR_MASK(lcd_getbgcolor()),
+		COLOR_MASK(lcd_color_bg),
 		lcd_line_length * panel_info.vl_row);
+#else
+	u32 *ppix = lcd_base;
+	u32 i;
+	for (i = 0;
+	   i < (lcd_line_length * panel_info.vl_row)/NBYTES(panel_info.vl_bpix);
+	   i++) {
+		*ppix++ = COLOR_MASK(lcd_color_bg);
+	}
+#endif
 #endif
 	/* Paint the logo and retrieve LCD base address */
 	debug("[LCD] Drawing the logo...\n");
@@ -502,7 +530,7 @@ static int lcd_init(void *lcdbase)
 	lcd_ctrl_init(lcdbase);
 
 	/*
-	 * lcd_ctrl_init() of some drivers (i.e. bcm2835 on rpi_b) ignores
+	 * lcd_ctrl_init() of some drivers (i.e. bcm2835 on rpi) ignores
 	 * the 'lcdbase' argument and uses custom lcd base address
 	 * by setting up gd->fb_base. Check for this condition and fixup
 	 * 'lcd_base' address.
@@ -574,20 +602,6 @@ static void lcd_setfgcolor(int color)
 static void lcd_setbgcolor(int color)
 {
 	lcd_color_bg = color;
-}
-
-/*----------------------------------------------------------------------*/
-
-int lcd_getfgcolor(void)
-{
-	return lcd_color_fg;
-}
-
-/*----------------------------------------------------------------------*/
-
-static int lcd_getbgcolor(void)
-{
-	return lcd_color_bg;
 }
 
 /************************************************************************/
@@ -733,7 +747,7 @@ static void splash_align_axis(int *axis, unsigned long panel_size,
 	else
 		return;
 
-	*axis = max(0, axis_alignment);
+	*axis = max(0, (int)axis_alignment);
 }
 #endif
 
@@ -868,7 +882,7 @@ static void lcd_display_rle8_bitmap(bmp_image_t *bmp, ushort *cmap, uchar *fb,
 }
 #endif
 
-#if defined(CONFIG_MPC823) || defined(CONFIG_MCC200)
+#if defined(CONFIG_MPC823)
 #define FB_PUT_BYTE(fb, from) *(fb)++ = (255 - *(from)++)
 #else
 #define FB_PUT_BYTE(fb, from) *(fb)++ = *(from)++
@@ -893,9 +907,7 @@ static inline void fb_put_word(uchar **fb, uchar **from)
 
 int lcd_display_bitmap(ulong bmp_image, int x, int y)
 {
-#if !defined(CONFIG_MCC200)
 	ushort *cmap = NULL;
-#endif
 	ushort *cmap_base = NULL;
 	ushort i, j;
 	uchar *fb;
@@ -928,8 +940,13 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		return 1;
 	}
 
-	/* We support displaying 8bpp BMPs on 16bpp LCDs */
-	if (bpix != bmp_bpix && !(bmp_bpix == 8 && bpix == 16)) {
+	/*
+	 * We support displaying 8bpp BMPs on 16bpp LCDs
+	 * and displaying 24bpp BMPs on 32bpp LCDs
+	 * */
+	if (bpix != bmp_bpix &&
+	    !(bmp_bpix == 8 && bpix == 16) &&
+	    !(bmp_bpix == 24 && bpix == 32)) {
 		printf ("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
 			bpix, get_unaligned_le16(&bmp->header.bit_count));
 		return 1;
@@ -938,8 +955,6 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	debug("Display-bmp: %d x %d  with %d colors\n",
 		(int)width, (int)height, (int)colors);
 
-#if !defined(CONFIG_MCC200)
-	/* MCC200 LCD doesn't need CMAP, supports 1bpp b&w only */
 	if (bmp_bpix == 8) {
 		cmap = configuration_get_cmap();
 		cmap_base = cmap;
@@ -967,24 +982,6 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 #endif
 		}
 	}
-#endif
-	/*
-	 *  BMP format for Monochrome assumes that the state of a
-	 * pixel is described on a per Bit basis, not per Byte.
-	 *  So, in case of Monochrome BMP we should align widths
-	 * on a byte boundary and convert them from Bit to Byte
-	 * units.
-	 *  Probably, PXA250 and MPC823 process 1bpp BMP images in
-	 * their own ways, so make the converting to be MCC200
-	 * specific.
-	 */
-#if defined(CONFIG_MCC200)
-	if (bpix == 1) {
-		width = ((width + 7) & ~7) >> 3;
-		x     = ((x + 7) & ~7) >> 3;
-		pwidth= ((pwidth + 7) & ~7) >> 3;
-	}
-#endif
 
 	padded_width = (width & 0x3 ? (width & ~0x3) + 4 : width);
 
@@ -1004,7 +1001,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 
 	switch (bmp_bpix) {
 	case 1: /* pass through */
-	case 8:
+	case 8: {
 #ifdef CONFIG_LCD_BMP_RLE8
 		u32 compression = get_unaligned_le32(&bmp->header.compression);
 		if (compression == BMP_BI_RLE8) {
@@ -1037,7 +1034,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 			fb -= byte_width + lcd_line_length;
 		}
 		break;
-
+	}
 #if defined(CONFIG_BMP_16BPP)
 	case 16:
 		for (i = 0; i < height; ++i) {
@@ -1050,7 +1047,19 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		}
 		break;
 #endif /* CONFIG_BMP_16BPP */
-
+#if defined(CONFIG_BMP_24BMP)
+	case 24:
+		for (i = 0; i < height; ++i) {
+			for (j = 0; j < width; j++) {
+				*(fb++) = *(bmap++);
+				*(fb++) = *(bmap++);
+				*(fb++) = *(bmap++);
+				*(fb++) = 0;
+			}
+			fb -= lcd_line_length + width * (bpix / 8);
+		}
+		break;
+#endif /* CONFIG_BMP_24BMP */
 #if defined(CONFIG_BMP_32BPP)
 	case 32:
 		for (i = 0; i < height; ++i) {
@@ -1137,8 +1146,8 @@ U_BOOT_ENV_CALLBACK(splashimage, on_splashimage);
 
 void lcd_position_cursor(unsigned col, unsigned row)
 {
-	console_col = min(col, CONSOLE_COLS - 1);
-	console_row = min(row, CONSOLE_ROWS - 1);
+	console_col = min_t(short, col, CONSOLE_COLS - 1);
+	console_row = min_t(short, row, CONSOLE_ROWS - 1);
 }
 
 int lcd_get_pixel_width(void)
@@ -1164,51 +1173,13 @@ int lcd_get_screen_columns(void)
 #if defined(CONFIG_LCD_DT_SIMPLEFB)
 static int lcd_dt_simplefb_configure_node(void *blob, int off)
 {
-	u32 stride;
-	fdt32_t cells[2];
-	int ret;
-	static const char format[] =
 #if LCD_BPP == LCD_COLOR16
-		"r5g6b5";
+	return fdt_setup_simplefb_node(blob, off, gd->fb_base,
+				       panel_info.vl_col, panel_info.vl_row,
+				       panel_info.vl_col * 2, "r5g6b5");
 #else
-		"";
+	return -1;
 #endif
-
-	if (!format[0])
-		return -1;
-
-	stride = panel_info.vl_col * 2;
-
-	cells[0] = cpu_to_fdt32(gd->fb_base);
-	cells[1] = cpu_to_fdt32(stride * panel_info.vl_row);
-	ret = fdt_setprop(blob, off, "reg", cells, sizeof(cells[0]) * 2);
-	if (ret < 0)
-		return -1;
-
-	cells[0] = cpu_to_fdt32(panel_info.vl_col);
-	ret = fdt_setprop(blob, off, "width", cells, sizeof(cells[0]));
-	if (ret < 0)
-		return -1;
-
-	cells[0] = cpu_to_fdt32(panel_info.vl_row);
-	ret = fdt_setprop(blob, off, "height", cells, sizeof(cells[0]));
-	if (ret < 0)
-		return -1;
-
-	cells[0] = cpu_to_fdt32(stride);
-	ret = fdt_setprop(blob, off, "stride", cells, sizeof(cells[0]));
-	if (ret < 0)
-		return -1;
-
-	ret = fdt_setprop(blob, off, "format", format, strlen(format) + 1);
-	if (ret < 0)
-		return -1;
-
-	ret = fdt_delprop(blob, off, "status");
-	if (ret < 0)
-		return -1;
-
-	return 0;
 }
 
 int lcd_dt_simplefb_add_node(void *blob)

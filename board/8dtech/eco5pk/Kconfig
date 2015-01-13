@@ -1,0 +1,12 @@
+if TARGET_ECO5PK
+
+config SYS_BOARD
+	default "eco5pk"
+
+config SYS_VENDOR
+	default "8dtech"
+
+config SYS_CONFIG_NAME
+	default "eco5pk"
+
+endif

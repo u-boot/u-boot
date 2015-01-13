@@ -1,0 +1,12 @@
+if TARGET_DAVINCI_SCHMOOGIE
+
+config SYS_BOARD
+	default "schmoogie"
+
+config SYS_VENDOR
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	default "davinci_schmoogie"
+
+endif

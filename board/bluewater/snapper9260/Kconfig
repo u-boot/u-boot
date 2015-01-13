@@ -1,0 +1,15 @@
+if TARGET_SNAPPER9260
+
+config SYS_BOARD
+	default "snapper9260"
+
+config SYS_VENDOR
+	default "bluewater"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "snapper9260"
+
+endif

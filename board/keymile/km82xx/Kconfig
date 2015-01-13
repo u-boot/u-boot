@@ -1,0 +1,12 @@
+if TARGET_KM82XX
+
+config SYS_BOARD
+	default "km82xx"
+
+config SYS_VENDOR
+	default "keymile"
+
+config SYS_CONFIG_NAME
+	default "km82xx"
+
+endif

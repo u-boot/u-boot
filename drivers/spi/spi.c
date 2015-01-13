@@ -53,6 +53,8 @@ struct spi_slave *spi_base_setup_slave_fdt(const void *blob, int busnum,
 		mode |= SPI_CPHA;
 	if (fdtdec_get_bool(blob, node, "spi-cs-high"))
 		mode |= SPI_CS_HIGH;
+	if (fdtdec_get_bool(blob, node, "spi-half-duplex"))
+		mode |= SPI_PREAMBLE;
 	return spi_setup_slave(busnum, cs, max_hz, mode);
 }
 #endif

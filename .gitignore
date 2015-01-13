@@ -34,6 +34,7 @@
 /SPL
 /System.map
 /u-boot*
+/boards.cfg
 
 #
 # git files that we don't want to ignore even it they are dot-files
@@ -44,11 +45,7 @@
 #
 # Generated files
 #
-
 /LOG
-/errlog
-/reloc_off
-
 /spl/
 /tpl/
 
@@ -57,8 +54,6 @@
 #
 /include/config/
 /include/generated/
-/include/spl-autoconf.mk
-/include/tpl-autoconf.mk
 
 # stgit generated dirs
 patches-*

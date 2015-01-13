@@ -22,6 +22,8 @@
 #define CONFIG_SYS_FORM_PMC_XMC	1
 #define CONFIG_PRPMC_PCI_ALIAS	"pci0"	/* Processor PMC interface on pci0 */
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xfff80000

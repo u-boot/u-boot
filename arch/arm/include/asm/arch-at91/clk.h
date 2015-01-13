@@ -10,6 +10,7 @@
 #define __ASM_ARM_ARCH_CLK_H__
 
 #include <asm/arch/hardware.h>
+#include <asm/arch/at91_pmc.h>
 #include <asm/global_data.h>
 
 static inline unsigned long get_cpu_clk_rate(void)
@@ -48,14 +49,34 @@ static inline u32 get_pllb_init(void)
 	return gd->arch.at91_pllb_usb_init;
 }
 
+#ifdef CPU_HAS_H32MXDIV
+static inline unsigned int get_h32mxdiv(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+
+	return readl(&pmc->mckr) & AT91_PMC_MCKR_H32MXDIV;
+}
+#else
+static inline unsigned int get_h32mxdiv(void)
+{
+	return 0;
+}
+#endif
+
 static inline unsigned long get_macb_pclk_rate(unsigned int dev_id)
 {
-	return get_mck_clk_rate();
+	if (get_h32mxdiv())
+		return get_mck_clk_rate() / 2;
+	else
+		return get_mck_clk_rate();
 }
 
 static inline unsigned long get_usart_clk_rate(unsigned int dev_id)
 {
-	return get_mck_clk_rate();
+	if (get_h32mxdiv())
+		return get_mck_clk_rate() / 2;
+	else
+		return get_mck_clk_rate();
 }
 
 static inline unsigned long get_lcdc_clk_rate(unsigned int dev_id)
@@ -65,19 +86,37 @@ static inline unsigned long get_lcdc_clk_rate(unsigned int dev_id)
 
 static inline unsigned long get_spi_clk_rate(unsigned int dev_id)
 {
-	return get_mck_clk_rate();
+	if (get_h32mxdiv())
+		return get_mck_clk_rate() / 2;
+	else
+		return get_mck_clk_rate();
 }
 
 static inline unsigned long get_twi_clk_rate(unsigned int dev_id)
 {
-	return get_mck_clk_rate();
+	if (get_h32mxdiv())
+		return get_mck_clk_rate() / 2;
+	else
+		return get_mck_clk_rate();
 }
 
 static inline unsigned long get_mci_clk_rate(void)
 {
-	return get_mck_clk_rate();
+	if (get_h32mxdiv())
+		return get_mck_clk_rate() / 2;
+	else
+		return get_mck_clk_rate();
+}
+
+static inline unsigned long get_pit_clk_rate(void)
+{
+	if (get_h32mxdiv())
+		return get_mck_clk_rate() / 2;
+	else
+		return get_mck_clk_rate();
 }
 
 int at91_clock_init(unsigned long main_clock);
 void at91_periph_clk_enable(int id);
+void at91_periph_clk_disable(int id);
 #endif /* __ASM_ARM_ARCH_CLK_H__ */

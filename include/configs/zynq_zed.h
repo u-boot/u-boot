@@ -23,7 +23,6 @@
 #define CONFIG_ZYNQ_QSPI
 
 #define CONFIG_ZYNQ_BOOT_FREEBSD
-#define CONFIG_DEFAULT_DEVICE_TREE	zynq-zed
 
 #include <configs/zynq-common.h>
 

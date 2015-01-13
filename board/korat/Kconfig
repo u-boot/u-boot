@@ -1,0 +1,9 @@
+if TARGET_KORAT
+
+config SYS_BOARD
+	default "korat"
+
+config SYS_CONFIG_NAME
+	default "korat"
+
+endif

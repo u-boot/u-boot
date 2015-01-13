@@ -76,6 +76,21 @@ _start:
 	 * been done in the SPL u-boot version.
 	 */
 	GET_GOT			/* initialize GOT access		*/
+
+	/*
+	 * The GD (global data) struct needs to get cleared. Lets do
+	 * this by calling memset().
+	 * This function is called when the platform is build with SPL
+	 * support from the main (full-blown) U-Boot. And the GD needs
+	 * to get cleared (again) so that the following generic
+	 * board support code, defined via CONFIG_SYS_GENERIC_BOARD,
+	 * initializes all variables correctly.
+	 */
+	mr	r3, r2		/* parameter 1:	 GD pointer		*/
+	li	r4,0		/* parameter 2:	 value to fill		*/
+	li	r5,GD_SIZE	/* parameter 3:	 count			*/
+	bl	memset
+
 	bl	board_init_f	/* run 1st part of board init code (in Flash)*/
 	/* NOTREACHED - board_init_f() does not return */
 #else

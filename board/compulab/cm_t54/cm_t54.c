@@ -43,7 +43,7 @@ const struct omap_sysinfo sysinfo = {
  */
 int board_init(void)
 {
-	gd->bd->bi_boot_params = (CONFIG_SYS_SDRAM_BASE + 0x100); /* boot param addr */
+	gd->bd->bi_boot_params = (CONFIG_SYS_SDRAM_BASE + 0x100);
 
 	return 0;
 }
@@ -89,7 +89,7 @@ uint mmc_get_env_part(struct mmc *mmc)
 	 * If booted from eMMC boot partition then force eMMC
 	 * FIRST boot partition to be env storage
 	 */
-	if (bootmode == BOOT_DEVICE_MMC2_2)
+	if (bootmode == BOOT_DEVICE_MMC2)
 		bootpart = 1;
 
 	return bootpart;
@@ -100,16 +100,11 @@ uint mmc_get_env_part(struct mmc *mmc)
 #define SB_T54_CD_GPIO 228
 #define SB_T54_WP_GPIO 229
 
-int board_mmc_getcd(struct mmc *mmc)
-{
-	return !gpio_get_value(SB_T54_CD_GPIO);
-}
-
 int board_mmc_init(bd_t *bis)
 {
 	int ret0, ret1;
 
-	ret0 = omap_mmc_init(0, 0, 0, -1, SB_T54_WP_GPIO);
+	ret0 = omap_mmc_init(0, 0, 0, SB_T54_CD_GPIO, SB_T54_WP_GPIO);
 	if (ret0)
 		printf("cm_t54: failed to initialize mmc0\n");
 
@@ -126,7 +121,7 @@ int board_mmc_init(bd_t *bis)
 
 #ifdef CONFIG_USB_HOST_ETHER
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	uint8_t enetaddr[6];
 
@@ -135,6 +130,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 		fdt_find_and_setprop(blob, "/smsc95xx@0", "mac-address",
 				     enetaddr, 6, 1);
 	}
+
+	return 0;
 }
 
 static void generate_mac_addr(uint8_t *enetaddr)
@@ -169,7 +166,7 @@ static int handle_mac_address(void)
 		return 0;
 
 	ret = cl_eeprom_read_mac_addr(enetaddr);
-	if (!ret || !is_valid_ether_addr(enetaddr))
+	if (ret || !is_valid_ether_addr(enetaddr))
 		generate_mac_addr(enetaddr);
 
 	if (!is_valid_ether_addr(enetaddr))

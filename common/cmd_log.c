@@ -33,8 +33,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Local prototypes */
-static void logbuff_putc(const char c);
-static void logbuff_puts(const char *s);
+static void logbuff_putc(struct stdio_dev *dev, const char c);
+static void logbuff_puts(struct stdio_dev *dev, const char *s);
 static int logbuff_printk(const char *line);
 
 static char buf[1024];
@@ -143,7 +143,7 @@ int drv_logbuff_init(void)
 	return (rc == 0) ? 1 : rc;
 }
 
-static void logbuff_putc(const char c)
+static void logbuff_putc(struct stdio_dev *dev, const char c)
 {
 	char buf[2];
 	buf[0] = c;
@@ -151,7 +151,7 @@ static void logbuff_putc(const char c)
 	logbuff_printk(buf);
 }
 
-static void logbuff_puts(const char *s)
+static void logbuff_puts(struct stdio_dev *dev, const char *s)
 {
 	logbuff_printk (s);
 }
@@ -181,6 +181,7 @@ void logbuff_log(char *msg)
  */
 int do_log(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	struct stdio_dev *sdev = NULL;
 	char *s;
 	unsigned long i, start, size;
 
@@ -188,7 +189,7 @@ int do_log(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* Log concatenation of all arguments separated by spaces */
 		for (i = 2; i < argc; i++) {
 			logbuff_printk(argv[i]);
-			logbuff_putc((i < argc - 1) ? ' ' : '\n');
+			logbuff_putc(sdev, (i < argc - 1) ? ' ' : '\n');
 		}
 		return 0;
 	}

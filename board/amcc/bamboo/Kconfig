@@ -1,0 +1,12 @@
+if TARGET_BAMBOO
+
+config SYS_BOARD
+	default "bamboo"
+
+config SYS_VENDOR
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	default "bamboo"
+
+endif

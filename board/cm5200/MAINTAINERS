@@ -1,0 +1,6 @@
+CM5200 BOARD
+#M:	-
+S:	Maintained
+F:	board/cm5200/
+F:	include/configs/cm5200.h
+F:	configs/cm5200_defconfig

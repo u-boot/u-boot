@@ -1,0 +1,7 @@
+YOSEMITE BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/amcc/yosemite/
+F:	include/configs/yosemite.h
+F:	configs/yellowstone_defconfig
+F:	configs/yosemite_defconfig

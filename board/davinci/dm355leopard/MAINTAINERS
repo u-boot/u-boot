@@ -1,0 +1,6 @@
+DM355LEOPARD BOARD
+#M:	Sandeep Paulraj <s-paulraj@ti.com>
+S:	Orphan (since 2014-08)
+F:	board/davinci/dm355leopard/
+F:	include/configs/davinci_dm355leopard.h
+F:	configs/davinci_dm355leopard_defconfig

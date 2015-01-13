@@ -1,0 +1,9 @@
+if TARGET_TRIZEPSIV
+
+config SYS_BOARD
+	default "trizepsiv"
+
+config SYS_CONFIG_NAME
+	default "trizepsiv"
+
+endif

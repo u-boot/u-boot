@@ -829,7 +829,7 @@ static int xhci_submit_root(struct usb_device *udev, unsigned long pipe,
 	debug("scrlen = %d\n req->length = %d\n",
 		srclen, le16_to_cpu(req->length));
 
-	len = min(srclen, le16_to_cpu(req->length));
+	len = min(srclen, (int)le16_to_cpu(req->length));
 
 	if (srcptr != NULL && len > 0)
 		memcpy(buffer, srcptr, len);

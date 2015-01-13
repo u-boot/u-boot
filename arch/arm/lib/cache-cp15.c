@@ -47,15 +47,15 @@ __weak void mmu_page_table_flush(unsigned long start, unsigned long stop)
 	debug("%s: Warning: not implemented\n", __func__);
 }
 
-void mmu_set_region_dcache_behaviour(u32 start, int size,
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option)
 {
 	u32 *page_table = (u32 *)gd->arch.tlb_addr;
-	u32 upto, end;
+	unsigned long upto, end;
 
 	end = ALIGN(start + size, MMU_SECTION_SIZE) >> MMU_SECTION_SHIFT;
 	start = start >> MMU_SECTION_SHIFT;
-	debug("%s: start=%x, size=%x, option=%d\n", __func__, start, size,
+	debug("%s: start=%pa, size=%zu, option=%d\n", __func__, &start, size,
 	      option);
 	for (upto = start; upto < end; upto++)
 		set_section_dcache(upto, option);
@@ -69,10 +69,12 @@ __weak void dram_bank_mmu_setup(int bank)
 
 	debug("%s: bank: %d\n", __func__, bank);
 	for (i = bd->bi_dram[bank].start >> 20;
-	     i < (bd->bi_dram[bank].start + bd->bi_dram[bank].size) >> 20;
+	     i < (bd->bi_dram[bank].start >> 20) + (bd->bi_dram[bank].size >> 20);
 	     i++) {
 #if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
 		set_section_dcache(i, DCACHE_WRITETHROUGH);
+#elif defined(CONFIG_SYS_ARM_CACHE_WRITEALLOC)
+		set_section_dcache(i, DCACHE_WRITEALLOC);
 #else
 		set_section_dcache(i, DCACHE_WRITEBACK);
 #endif

@@ -1,0 +1,15 @@
+if TARGET_VL_MA2SC
+
+config SYS_BOARD
+	default "vl_ma2sc"
+
+config SYS_VENDOR
+	default "BuS"
+
+config SYS_SOC
+	default "at91"
+
+config SYS_CONFIG_NAME
+	default "vl_ma2sc"
+
+endif

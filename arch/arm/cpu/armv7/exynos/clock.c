@@ -82,7 +82,8 @@ static int exynos_get_pll_clk(int pllreg, unsigned int r, unsigned int k)
 	 * VPLL_CON: MIDV [24:16]
 	 * BPLL_CON: MIDV [25:16]: Exynos5
 	 */
-	if (pllreg == APLL || pllreg == MPLL || pllreg == BPLL)
+	if (pllreg == APLL || pllreg == MPLL || pllreg == BPLL ||
+	    pllreg == SPLL)
 		mask = 0x3ff;
 	else
 		mask = 0x1ff;
@@ -117,7 +118,8 @@ static int exynos_get_pll_clk(int pllreg, unsigned int r, unsigned int k)
 			div = PLL_DIV_1024;
 		else if (proid_is_exynos4412())
 			div = PLL_DIV_65535;
-		else if (proid_is_exynos5250() || proid_is_exynos5420())
+		else if (proid_is_exynos5250() || proid_is_exynos5420()
+			 || proid_is_exynos5800())
 			div = PLL_DIV_65536;
 		else
 			return 0;
@@ -390,6 +392,9 @@ static unsigned long exynos5420_get_pll_clk(int pllreg)
 	case RPLL:
 		r = readl(&clk->rpll_con0);
 		k = readl(&clk->rpll_con1);
+		break;
+	case SPLL:
+		r = readl(&clk->spll_con0);
 		break;
 	default:
 		printf("Unsupported PLL (%d)\n", pllreg);
@@ -843,6 +848,8 @@ static unsigned long exynos5420_get_mmc_clk(int dev_index)
 
 	if (sel == 0x3)
 		sclk = get_pll_clk(MPLL);
+	else if (sel == 0x4)
+		sclk = get_pll_clk(SPLL);
 	else if (sel == 0x6)
 		sclk = get_pll_clk(EPLL);
 	else
@@ -1027,6 +1034,40 @@ static unsigned long exynos5_get_lcd_clk(void)
 	return pclk;
 }
 
+static unsigned long exynos5420_get_lcd_clk(void)
+{
+	struct exynos5420_clock *clk =
+		(struct exynos5420_clock *)samsung_get_base_clock();
+	unsigned long pclk, sclk;
+	unsigned int sel;
+	unsigned int ratio;
+
+	/*
+	 * CLK_SRC_DISP10
+	 * FIMD1_SEL [4]
+	 * 0: SCLK_RPLL
+	 * 1: SCLK_SPLL
+	 */
+	sel = readl(&clk->src_disp10);
+	sel &= (1 << 4);
+
+	if (sel)
+		sclk = get_pll_clk(SPLL);
+	else
+		sclk = get_pll_clk(RPLL);
+
+	/*
+	 * CLK_DIV_DISP10
+	 * FIMD1_RATIO [3:0]
+	 */
+	ratio = readl(&clk->div_disp10);
+	ratio = ratio & 0xf;
+
+	pclk = sclk / (ratio + 1);
+
+	return pclk;
+}
+
 void exynos4_set_lcd_clk(void)
 {
 	struct exynos4_clock *clk =
@@ -1129,6 +1170,33 @@ void exynos5_set_lcd_clk(void)
 	 * set fimd ratio
 	 */
 	clrsetbits_le32(&clk->div_disp1_0, 0xf, 0x0);
+}
+
+void exynos5420_set_lcd_clk(void)
+{
+	struct exynos5420_clock *clk =
+		(struct exynos5420_clock *)samsung_get_base_clock();
+	unsigned int cfg;
+
+	/*
+	 * CLK_SRC_DISP10
+	 * FIMD1_SEL [4]
+	 * 0: SCLK_RPLL
+	 * 1: SCLK_SPLL
+	 */
+	cfg = readl(&clk->src_disp10);
+	cfg &= ~(0x1 << 4);
+	cfg |= (0 << 4);
+	writel(cfg, &clk->src_disp10);
+
+	/*
+	 * CLK_DIV_DISP10
+	 * FIMD1_RATIO		[3:0]
+	 */
+	cfg = readl(&clk->div_disp10);
+	cfg &= ~(0xf << 0);
+	cfg |= (0 << 0);
+	writel(cfg, &clk->div_disp10);
 }
 
 void exynos4_set_mipi_clk(void)
@@ -1357,8 +1425,8 @@ static int clock_calc_best_scalar(unsigned int main_scaler_bits,
 		return 1;
 
 	for (i = 1; i <= loops; i++) {
-		const unsigned int effective_div = max(min(input_rate / i /
-							target_rate, cap), 1);
+		const unsigned int effective_div =
+			max(min(input_rate / i / target_rate, cap), 1U);
 		const unsigned int effective_rate = input_rate / i /
 							effective_div;
 		const int error = target_rate - effective_rate;
@@ -1516,7 +1584,7 @@ static unsigned long exynos4_get_i2c_clk(void)
 unsigned long get_pll_clk(int pllreg)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_get_pll_clk(pllreg);
 		return exynos5_get_pll_clk(pllreg);
 	} else {
@@ -1552,7 +1620,7 @@ unsigned long get_i2c_clk(void)
 unsigned long get_pwm_clk(void)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_get_pwm_clk();
 		return clock_get_periph_rate(PERIPH_ID_PWM0);
 	} else {
@@ -1565,7 +1633,7 @@ unsigned long get_pwm_clk(void)
 unsigned long get_uart_clk(int dev_index)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_get_uart_clk(dev_index);
 		return exynos5_get_uart_clk(dev_index);
 	} else {
@@ -1578,7 +1646,7 @@ unsigned long get_uart_clk(int dev_index)
 unsigned long get_mmc_clk(int dev_index)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_get_mmc_clk(dev_index);
 		return exynos5_get_mmc_clk(dev_index);
 	} else {
@@ -1589,7 +1657,7 @@ unsigned long get_mmc_clk(int dev_index)
 void set_mmc_clk(int dev_index, unsigned int div)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			exynos5420_set_mmc_clk(dev_index, div);
 		else
 			exynos5_set_mmc_clk(dev_index, div);
@@ -1602,16 +1670,24 @@ unsigned long get_lcd_clk(void)
 {
 	if (cpu_is_exynos4())
 		return exynos4_get_lcd_clk();
-	else
-		return exynos5_get_lcd_clk();
+	else {
+		if (proid_is_exynos5420() || proid_is_exynos5800())
+			return exynos5420_get_lcd_clk();
+		else
+			return exynos5_get_lcd_clk();
+	}
 }
 
 void set_lcd_clk(void)
 {
 	if (cpu_is_exynos4())
 		exynos4_set_lcd_clk();
-	else
-		exynos5_set_lcd_clk();
+	else {
+		if (proid_is_exynos5250())
+			exynos5_set_lcd_clk();
+		else if (proid_is_exynos5420() || proid_is_exynos5800())
+			exynos5420_set_lcd_clk();
+	}
 }
 
 void set_mipi_clk(void)
@@ -1623,7 +1699,7 @@ void set_mipi_clk(void)
 int set_spi_clk(int periph_id, unsigned int rate)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_set_spi_clk(periph_id, rate);
 		return exynos5_set_spi_clk(periph_id, rate);
 	} else {
