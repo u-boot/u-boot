@@ -59,6 +59,11 @@ config MACH_SUN8I_A33
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
+config MACH_SUN9I
+	bool "sun9i (Allwinner A80)"
+	select CPU_V7
+	select SUNXI_GEN_SUN6I
+
 endchoice
 
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
@@ -187,6 +192,7 @@ config SYS_CONFIG_NAME
 	default "sun6i" if MACH_SUN6I
 	default "sun7i" if MACH_SUN7I
 	default "sun8i" if MACH_SUN8I
+	default "sun9i" if MACH_SUN9I
 
 config SYS_BOARD
 	default "sunxi"
