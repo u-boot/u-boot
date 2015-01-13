@@ -338,6 +338,13 @@ config VIDEO_LCD_MODE
 	This is in drivers/video/videomodes.c: video_get_params() format, e.g.
 	x:800,y:480,depth:18,pclk_khz:33000,le:16,ri:209,up:22,lo:22,hs:30,vs:1,sync:0,vmode:0
 
+config VIDEO_LCD_DCLK_PHASE
+	int "LCD panel display clock phase"
+	depends on VIDEO
+	default 1
+	---help---
+	Select LCD panel display clock phase shift, range 0-3.
+
 config VIDEO_LCD_POWER
 	string "LCD panel power enable pin"
 	depends on VIDEO

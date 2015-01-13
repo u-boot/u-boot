@@ -587,12 +587,7 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
 		       &lcdc->tcon0_frm_ctrl);
 	}
 
-#ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
-	val = SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE0;
-#endif
-#ifdef CONFIG_VIDEO_LCD_IF_LVDS
-	val = SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE60;
-#endif
+	val = SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE(CONFIG_VIDEO_LCD_DCLK_PHASE);
 	if (!(mode->sync & FB_SYNC_HOR_HIGH_ACT))
 		val |= SUNXI_LCDC_TCON_HSYNC_MASK;
 	if (!(mode->sync & FB_SYNC_VERT_HIGH_ACT))
