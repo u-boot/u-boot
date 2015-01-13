@@ -212,7 +212,7 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
 		if (spi_flash_set_qeb(flash, idcode[0])) {
 			debug("SF: Fail to set QEB for %02x\n", idcode[0]);
-			return NULL;
+			return 0;
 		}
 #ifdef CONFIG_SF_DUAL_FLASH
 		if (flash->dual_flash & SF_DUAL_STACKED_FLASH) {
@@ -220,7 +220,7 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 			if (spi_flash_set_qeb(flash, idcode[0])) {
 				debug("SF: Fail to set QEB Upper Flash %02x\n",
 				      idcode[0]);
-				return NULL;
+				return 0;
 			}
 			flash->spi->flags &= ~SPI_XFER_U_PAGE;
 		}
