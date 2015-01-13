@@ -154,7 +154,7 @@
 # define DFU_ALT_INFO
 #endif
 
-#if defined (CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQ_USB)
+#if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQ_USB)
 # define CONFIG_SUPPORT_VFAT
 # define CONFIG_CMD_FAT
 # define CONFIG_CMD_EXT2
