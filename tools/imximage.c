@@ -38,6 +38,7 @@ static table_entry_t imximage_boot_offset[] = {
 	{FLASH_OFFSET_SATA,	"sata",		"SATA Disk",	},
 	{FLASH_OFFSET_SD,	"sd",		"SD Card",	},
 	{FLASH_OFFSET_SPI,	"spi",		"SPI Flash",	},
+	{FLASH_OFFSET_QSPI,	"qspi",		"QSPI NOR Flash",},
 	{-1,			"",		"Invalid",	},
 };
 
@@ -52,6 +53,7 @@ static table_entry_t imximage_boot_loadsize[] = {
 	{FLASH_LOADSIZE_SATA,		"sata",		"SATA Disk",	},
 	{FLASH_LOADSIZE_SD,		"sd",		"SD Card",	},
 	{FLASH_LOADSIZE_SPI,		"spi",		"SPI Flash",	},
+	{FLASH_LOADSIZE_QSPI,		"qspi",		"QSPI NOR Flash",},
 	{-1,				"",		"Invalid",	},
 };
 
