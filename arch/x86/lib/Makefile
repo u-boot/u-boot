@@ -14,6 +14,7 @@ obj-$(CONFIG_HAVE_FSP) += cmd_hob.o
 obj-y	+= gcc.o
 obj-y	+= init_helpers.o
 obj-y	+= interrupts.o
+obj-y += cmd_mtrr.o
 obj-$(CONFIG_SYS_PCAT_INTERRUPTS) += pcat_interrupts.o
 obj-$(CONFIG_SYS_PCAT_TIMER) += pcat_timer.o
 obj-$(CONFIG_PCI) += pci_type1.o

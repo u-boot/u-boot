@@ -17,6 +17,7 @@
 #include <asm/processor.h>
 #include <asm/gpio.h>
 #include <asm/global_data.h>
+#include <asm/mtrr.h>
 #include <asm/pci.h>
 #include <asm/arch/me.h>
 #include <asm/arch/pei_data.h>
@@ -430,6 +431,15 @@ static int sdram_find(pci_dev_t dev)
 	add_memory_area(info, (2 << 28) + (2 << 20), 4 << 28);
 	add_memory_area(info, (4 << 28) + (2 << 20), tseg_base);
 	add_memory_area(info, 1ULL << 32, touud);
+
+	/* Add MTRRs for memory */
+	mtrr_add_request(MTRR_TYPE_WRBACK, 0, 2ULL << 30);
+	mtrr_add_request(MTRR_TYPE_WRBACK, 2ULL << 30, 512 << 20);
+	mtrr_add_request(MTRR_TYPE_WRBACK, 0xaULL << 28, 256 << 20);
+	mtrr_add_request(MTRR_TYPE_UNCACHEABLE, tseg_base, 16 << 20);
+	mtrr_add_request(MTRR_TYPE_UNCACHEABLE, tseg_base + (16 << 20),
+			 32 << 20);
+
 	/*
 	 * If >= 4GB installed then memory from TOLUD to 4GB
 	 * is remapped above TOM, TOUUD will account for both

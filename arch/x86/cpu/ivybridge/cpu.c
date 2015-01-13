@@ -49,27 +49,6 @@ static void enable_spi_prefetch(struct pci_controller *hose, pci_dev_t dev)
 	pci_hose_write_config_byte(hose, dev, 0xdc, reg8);
 }
 
-static void set_var_mtrr(
-	unsigned reg, unsigned base, unsigned size, unsigned type)
-
-{
-	/* Bit Bit 32-35 of MTRRphysMask should be set to 1 */
-	/* FIXME: It only support 4G less range */
-	wrmsr(MTRRphysBase_MSR(reg), base | type, 0);
-	wrmsr(MTRRphysMask_MSR(reg), ~(size - 1) | MTRRphysMaskValid,
-	      (1 << (CONFIG_CPU_ADDR_BITS - 32)) - 1);
-}
-
-static void enable_rom_caching(void)
-{
-	disable_caches();
-	set_var_mtrr(1, 0xffc00000, 4 << 20, MTRR_TYPE_WRPROT);
-	enable_caches();
-
-	/* Enable Variable MTRRs */
-	wrmsr(MTRRdefType_MSR, 0x800, 0);
-}
-
 static int set_flex_ratio_to_tdp_nominal(void)
 {
 	msr_t flex_ratio, msr;
@@ -164,10 +143,6 @@ int arch_cpu_init(void)
 
 	/* This is already done in start.S, but let's do it in C */
 	enable_port80_on_lpc(hose, PCH_LPC_DEV);
-
-	/* already done in car.S */
-	if (false)
-		enable_rom_caching();
 
 	set_spi_speed();
 
@@ -288,7 +263,7 @@ int print_cpuinfo(void)
 	enable_lapic();
 
 	ret = microcode_update_intel();
-	if (ret && ret != -ENOENT && ret != -EEXIST)
+	if (ret)
 		return ret;
 
 	/* Enable upper 128bytes of CMOS */

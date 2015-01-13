@@ -12,9 +12,11 @@
  */
 
 #include <common.h>
+#include <asm/msr-index.h>
 #include <asm/mtrr.h>
 #include <asm/post.h>
 #include <asm/processor-flags.h>
+#include <asm/arch/microcode.h>
 
 #define MTRR_PHYS_BASE_MSR(reg) (0x200 + 2 * (reg))
 #define MTRR_PHYS_MASK_MSR(reg) (0x200 + 2 * (reg) + 1)
@@ -45,6 +47,14 @@ car_init:
 	movl	$0xFEE00300, %esi
 	movl	%eax, (%esi)
 
+	/* TODO: Load microcode later - the 'no eviction' mode breaks this */
+	movl	$MSR_IA32_UCODE_WRITE, %ecx
+	xorl	%edx, %edx
+	movl	$_dt_ucode_base_size, %eax
+	movl	(%eax), %eax
+	addl	$UCODE_HEADER_LEN, %eax
+	wrmsr
+
 	post_code(POST_CAR_SIPI)
 	/* Zero out all fixed range and variable range MTRRs */
 	movl	$mtrr_table, %esi
@@ -61,7 +71,7 @@ clear_mtrrs:
 
 	post_code(POST_CAR_MTRR)
 	/* Configure the default memory type to uncacheable */
-	movl	$MTRRdefType_MSR, %ecx
+	movl	$MTRR_DEF_TYPE_MSR, %ecx
 	rdmsr
 	andl	$(~0x00000cff), %eax
 	wrmsr
@@ -76,16 +86,16 @@ clear_mtrrs:
 	post_code(POST_CAR_BASE_ADDRESS)
 	/* Set Cache-as-RAM mask */
 	movl	$(MTRR_PHYS_MASK_MSR(0)), %ecx
-	movl	$(~(CACHE_AS_RAM_SIZE - 1) | MTRRphysMaskValid), %eax
+	movl	$(~(CACHE_AS_RAM_SIZE - 1) | MTRR_PHYS_MASK_VALID), %eax
 	movl	$CPU_PHYSMASK_HI, %edx
 	wrmsr
 
 	post_code(POST_CAR_MASK)
 
 	/* Enable MTRR */
-	movl	$MTRRdefType_MSR, %ecx
+	movl	$MTRR_DEF_TYPE_MSR, %ecx
 	rdmsr
-	orl	$MTRRdefTypeEn, %eax
+	orl	$MTRR_DEF_TYPE_EN, %eax
 	wrmsr
 
 	/* Enable cache (CR0.CD = 0, CR0.NW = 0) */
@@ -130,7 +140,7 @@ clear_mtrrs:
 
 	movl	$MTRR_PHYS_MASK_MSR(1), %ecx
 	movl	$CPU_PHYSMASK_HI, %edx
-	movl	$(~(CONFIG_XIP_ROM_SIZE - 1) | MTRRphysMaskValid), %eax
+	movl	$(~(CONFIG_XIP_ROM_SIZE - 1) | MTRR_PHYS_MASK_VALID), %eax
 	wrmsr
 
 	post_code(POST_CAR_ROM_CACHE)
@@ -141,7 +151,7 @@ clear_mtrrs:
 	xorl	%edx, %edx
 	wrmsr
 	movl	$MTRR_PHYS_MASK_MSR(2), %ecx
-	movl	$(CACHE_MRC_MASK | MTRRphysMaskValid), %eax
+	movl	$(CACHE_MRC_MASK | MTRR_PHYS_MASK_VALID), %eax
 	movl	$CPU_PHYSMASK_HI, %edx
 	wrmsr
 #endif
@@ -163,6 +173,52 @@ wait_for_sipi:
 	/* return */
 	jmp	car_init_ret
 
+.globl car_uninit
+car_uninit:
+	/* Disable cache */
+	movl	%cr0, %eax
+	orl	$X86_CR0_CD, %eax
+	movl	%eax, %cr0
+
+	/* Disable MTRRs */
+	movl	$MTRR_DEF_TYPE_MSR, %ecx
+	rdmsr
+	andl	$(~MTRR_DEF_TYPE_EN), %eax
+	wrmsr
+
+	/* Disable the no-eviction run state */
+	movl    NOEVICTMOD_MSR, %ecx
+	rdmsr
+	andl    $~2, %eax
+	wrmsr
+
+	invd
+
+	/* Disable the no-eviction mode */
+	rdmsr
+	andl    $~1, %eax
+	wrmsr
+
+#ifdef CONFIG_CACHE_MRC_BIN
+	/* Clear the MTRR that was used to cache MRC */
+	xorl	%eax, %eax
+	xorl	%edx, %edx
+	movl	$MTRR_PHYS_BASE_MSR(2), %ecx
+	wrmsr
+	movl	$MTRR_PHYS_MASK_MSR(2), %ecx
+	wrmsr
+#endif
+
+	/* Enable MTRRs */
+	movl	$MTRR_DEF_TYPE_MSR, %ecx
+	rdmsr
+	orl	$MTRR_DEF_TYPE_EN, %eax
+	wrmsr
+
+	invd
+
+	ret
+
 mtrr_table:
 	/* Fixed MTRRs */
 	.word 0x250, 0x258, 0x259
@@ -176,3 +232,9 @@ mtrr_table:
 	.word 0x20C, 0x20D, 0x20E, 0x20F
 	.word 0x210, 0x211, 0x212, 0x213
 mtrr_table_end:
+
+	.align 4
+_dt_ucode_base_size:
+	/* These next two fields are filled in by ifdtool */
+	.long	0			/* microcode base */
+	.long	0			/* microcode size */

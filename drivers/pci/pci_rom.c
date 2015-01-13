@@ -156,6 +156,8 @@ int pci_rom_load(uint16_t class, struct pci_rom_header *rom_header,
 
 	target = (void *)PCI_VGA_RAM_IMAGE_START;
 	if (target != rom_header) {
+		ulong start = get_timer(0);
+
 		debug("Copying VGA ROM Image from %p to %p, 0x%x bytes\n",
 		      rom_header, target, rom_size);
 		memcpy(target, rom_header, rom_size);
@@ -163,6 +165,7 @@ int pci_rom_load(uint16_t class, struct pci_rom_header *rom_header,
 			printf("VGA ROM copy failed\n");
 			return -EFAULT;
 		}
+		debug("Copy took %lums\n", get_timer(start));
 	}
 	*ram_headerp = target;
 
@@ -205,7 +208,7 @@ int vbe_get_video_info(struct graphic_device *gdev)
 	gdev->vprBase = vesa->phys_base_ptr;
 	gdev->cprBase = vesa->phys_base_ptr;
 
-	return 0;
+	return gdev->winSizeX ? 0 : -ENOSYS;
 #else
 	return -ENOSYS;
 #endif
@@ -244,7 +247,7 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
 		defined(CONFIG_FRAMEBUFFER_VESA_MODE)
 	vesa_mode = CONFIG_FRAMEBUFFER_VESA_MODE;
 #endif
-	debug("Selected vesa mode %d\b", vesa_mode);
+	debug("Selected vesa mode %#x\n", vesa_mode);
 	if (emulate) {
 #ifdef CONFIG_BIOSEMU
 		BE_VGAInfo *info;
@@ -272,7 +275,7 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
 		return -ENOSYS;
 #endif
 	}
-	debug("Final vesa mode %d\n", mode_info.video_mode);
+	debug("Final vesa mode %#x\n", mode_info.video_mode);
 
 	return 0;
 }

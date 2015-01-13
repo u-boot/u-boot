@@ -788,9 +788,9 @@ static int write_uboot(char *image, int size, struct input_file *uboot,
 			      fdt_strerror(data_size));
 			return -ENOENT;
 		}
-		offset = ucode_ptr - uboot->addr;
+		offset = (uint32_t)(ucode_ptr + size);
 		ptr = (void *)image + offset;
-		ptr[0] = uboot->addr + (data - image);
+		ptr[0] = (data - image) - size;
 		ptr[1] = data_size;
 		debug("Wrote microcode pointer at %x: addr=%x, size=%x\n",
 		      ucode_ptr, ptr[0], ptr[1]);

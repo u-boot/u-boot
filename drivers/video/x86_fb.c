@@ -32,6 +32,7 @@ void *video_hw_init(void)
 	sprintf(gdev->modeIdent, "%dx%dx%d", gdev->winSizeX, gdev->winSizeY,
 		bits_per_pixel);
 	printf("%s\n", gdev->modeIdent);
+	debug("Frame buffer at %x\n", gdev->frameAdrs);
 
 	return (void *)gdev;
 }

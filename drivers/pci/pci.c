@@ -19,6 +19,8 @@
 #include <asm/io.h>
 #include <pci.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define PCI_HOSE_OP(rw, size, type)					\
 int pci_hose_##rw##_config_##size(struct pci_controller *hose,		\
 				  pci_dev_t dev,			\
@@ -123,6 +125,14 @@ void *pci_map_bar(pci_dev_t pdev, int bar, int flags)
 
 static struct pci_controller* hose_head;
 
+struct pci_controller *pci_get_hose_head(void)
+{
+	if (gd->hose)
+		return gd->hose;
+
+	return hose_head;
+}
+
 void pci_register_hose(struct pci_controller* hose)
 {
 	struct pci_controller **phose = &hose_head;
@@ -139,7 +149,7 @@ struct pci_controller *pci_bus_to_hose(int bus)
 {
 	struct pci_controller *hose;
 
-	for (hose = hose_head; hose; hose = hose->next) {
+	for (hose = pci_get_hose_head(); hose; hose = hose->next) {
 		if (bus >= hose->first_busno && bus <= hose->last_busno)
 			return hose;
 	}
@@ -152,7 +162,7 @@ struct pci_controller *find_hose_by_cfg_addr(void *cfg_addr)
 {
 	struct pci_controller *hose;
 
-	for (hose = hose_head; hose; hose = hose->next) {
+	for (hose = pci_get_hose_head(); hose; hose = hose->next) {
 		if (hose->cfg_addr == cfg_addr)
 			return hose;
 	}
@@ -162,7 +172,7 @@ struct pci_controller *find_hose_by_cfg_addr(void *cfg_addr)
 
 int pci_last_busno(void)
 {
-	struct pci_controller *hose = hose_head;
+	struct pci_controller *hose = pci_get_hose_head();
 
 	if (!hose)
 		return -1;
@@ -181,7 +191,7 @@ pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 	pci_dev_t bdf;
 	int i, bus, found_multi = 0;
 
-	for (hose = hose_head; hose; hose = hose->next) {
+	for (hose = pci_get_hose_head(); hose; hose = hose->next) {
 #ifdef CONFIG_SYS_SCSI_SCAN_BUS_REVERSE
 		for (bus = hose->last_busno; bus >= hose->first_busno; bus--)
 #else
@@ -233,7 +243,7 @@ pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 
 pci_dev_t pci_find_device(unsigned int vendor, unsigned int device, int index)
 {
-	static struct pci_device_id ids[2] = {{}, {0, 0}};
+	struct pci_device_id ids[2] = { {}, {0, 0} };
 
 	ids[0].vendor = vendor;
 	ids[0].device = device;
@@ -709,11 +719,10 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 int pci_hose_scan(struct pci_controller *hose)
 {
 #if defined(CONFIG_PCI_BOOTDELAY)
-	static int pcidelay_done;
 	char *s;
 	int i;
 
-	if (!pcidelay_done) {
+	if (!gd->pcidelay_done) {
 		/* wait "pcidelay" ms (if defined)... */
 		s = getenv("pcidelay");
 		if (s) {
@@ -721,7 +730,7 @@ int pci_hose_scan(struct pci_controller *hose)
 			for (i = 0; i < val; i++)
 				udelay(1000);
 		}
-		pcidelay_done = 1;
+		gd->pcidelay_done = 1;
 	}
 #endif /* CONFIG_PCI_BOOTDELAY */
 

@@ -126,6 +126,163 @@ fdt_addr_t fdtdec_get_addr(const void *blob, int node,
 	return fdtdec_get_addr_size(blob, node, prop_name, NULL);
 }
 
+#ifdef CONFIG_PCI
+int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
+		const char *prop_name, struct fdt_pci_addr *addr)
+{
+	const u32 *cell;
+	int len;
+	int ret = -ENOENT;
+
+	debug("%s: %s: ", __func__, prop_name);
+
+	/*
+	 * If we follow the pci bus bindings strictly, we should check
+	 * the value of the node's parent node's #address-cells and
+	 * #size-cells. They need to be 3 and 2 accordingly. However,
+	 * for simplicity we skip the check here.
+	 */
+	cell = fdt_getprop(blob, node, prop_name, &len);
+	if (!cell)
+		goto fail;
+
+	if ((len % FDT_PCI_REG_SIZE) == 0) {
+		int num = len / FDT_PCI_REG_SIZE;
+		int i;
+
+		for (i = 0; i < num; i++) {
+			debug("pci address #%d: %08lx %08lx %08lx\n", i,
+			      (ulong)fdt_addr_to_cpu(cell[0]),
+			      (ulong)fdt_addr_to_cpu(cell[1]),
+			      (ulong)fdt_addr_to_cpu(cell[2]));
+			if ((fdt_addr_to_cpu(*cell) & type) == type) {
+				addr->phys_hi = fdt_addr_to_cpu(cell[0]);
+				addr->phys_mid = fdt_addr_to_cpu(cell[1]);
+				addr->phys_lo = fdt_addr_to_cpu(cell[2]);
+				break;
+			} else {
+				cell += (FDT_PCI_ADDR_CELLS +
+					 FDT_PCI_SIZE_CELLS);
+			}
+		}
+
+		if (i == num)
+			goto fail;
+
+		return 0;
+	} else {
+		ret = -EINVAL;
+	}
+
+fail:
+	debug("(not found)\n");
+	return ret;
+}
+
+int fdtdec_get_pci_vendev(const void *blob, int node, u16 *vendor, u16 *device)
+{
+	const char *list, *end;
+	int len;
+
+	list = fdt_getprop(blob, node, "compatible", &len);
+	if (!list)
+		return -ENOENT;
+
+	end = list + len;
+	while (list < end) {
+		char *s;
+
+		len = strlen(list);
+		if (len >= strlen("pciVVVV,DDDD")) {
+			s = strstr(list, "pci");
+
+			/*
+			 * check if the string is something like pciVVVV,DDDD.RR
+			 * or just pciVVVV,DDDD
+			 */
+			if (s && s[7] == ',' &&
+			    (s[12] == '.' || s[12] == 0)) {
+				s += 3;
+				*vendor = simple_strtol(s, NULL, 16);
+
+				s += 5;
+				*device = simple_strtol(s, NULL, 16);
+
+				return 0;
+			}
+		} else {
+			list += (len + 1);
+		}
+	}
+
+	return -ENOENT;
+}
+
+int fdtdec_get_pci_bdf(const void *blob, int node,
+		struct fdt_pci_addr *addr, pci_dev_t *bdf)
+{
+	u16 dt_vendor, dt_device, vendor, device;
+	int ret;
+
+	/* get vendor id & device id from the compatible string */
+	ret = fdtdec_get_pci_vendev(blob, node, &dt_vendor, &dt_device);
+	if (ret)
+		return ret;
+
+	/* extract the bdf from fdt_pci_addr */
+	*bdf = addr->phys_hi & 0xffff00;
+
+	/* read vendor id & device id based on bdf */
+	pci_read_config_word(*bdf, PCI_VENDOR_ID, &vendor);
+	pci_read_config_word(*bdf, PCI_DEVICE_ID, &device);
+
+	/*
+	 * Note there are two places in the device tree to fully describe
+	 * a pci device: one is via compatible string with a format of
+	 * "pciVVVV,DDDD" and the other one is the bdf numbers encoded in
+	 * the device node's reg address property. We read the vendor id
+	 * and device id based on bdf and compare the values with the
+	 * "VVVV,DDDD". If they are the same, then we are good to use bdf
+	 * to read device's bar. But if they are different, we have to rely
+	 * on the vendor id and device id extracted from the compatible
+	 * string and locate the real bdf by pci_find_device(). This is
+	 * because normally we may only know device's device number and
+	 * function number when writing device tree. The bus number is
+	 * dynamically assigned during the pci enumeration process.
+	 */
+	if ((dt_vendor != vendor) || (dt_device != device)) {
+		*bdf = pci_find_device(dt_vendor, dt_device, 0);
+		if (*bdf == -1)
+			return -ENODEV;
+	}
+
+	return 0;
+}
+
+int fdtdec_get_pci_bar32(const void *blob, int node,
+		struct fdt_pci_addr *addr, u32 *bar)
+{
+	pci_dev_t bdf;
+	int barnum;
+	int ret;
+
+	/* get pci devices's bdf */
+	ret = fdtdec_get_pci_bdf(blob, node, addr, &bdf);
+	if (ret)
+		return ret;
+
+	/* extract the bar number from fdt_pci_addr */
+	barnum = addr->phys_hi & 0xff;
+	if ((barnum < PCI_BASE_ADDRESS_0) || (barnum > PCI_CARDBUS_CIS))
+		return -EINVAL;
+
+	barnum = (barnum - PCI_BASE_ADDRESS_0) / 4;
+	*bar = pci_read_bar32(pci_bus_to_hose(PCI_BUS(bdf)), bdf, barnum);
+
+	return 0;
+}
+#endif
+
 uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,
 		uint64_t default_val)
 {
@@ -793,20 +950,6 @@ int fdt_get_named_resource(const void *fdt, int node, const char *property,
 		return index;
 
 	return fdt_get_resource(fdt, node, property, index, res);
-}
-
-int fdtdec_pci_get_bdf(const void *fdt, int node, int *bdf)
-{
-	const fdt32_t *prop;
-	int len;
-
-	prop = fdt_getprop(fdt, node, "reg", &len);
-	if (!prop)
-		return len;
-
-	*bdf = fdt32_to_cpu(*prop) & 0xffffff;
-
-	return 0;
 }
 
 int fdtdec_decode_memory_region(const void *blob, int config_node,

@@ -7,6 +7,7 @@
 #include <common.h>
 #include <fdtdec.h>
 #include <spi.h>
+#include <asm/mtrr.h>
 #include <asm/sections.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -66,6 +67,13 @@ int calculate_relocation_address(void)
 
 int init_cache_f_r(void)
 {
+#if defined(CONFIG_X86_RESET_VECTOR) & !defined(CONFIG_HAVE_FSP)
+	int ret;
+
+	ret = mtrr_commit(false);
+	if (ret)
+		return ret;
+#endif
 	/* Initialise the CPU cache(s) */
 	return init_cache();
 }

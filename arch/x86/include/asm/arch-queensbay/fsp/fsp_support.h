@@ -145,7 +145,7 @@ u32 fsp_get_tseg_reserved_mem(const void *hob_list, u32 *len);
  *
  * @retval:   A HOB object with matching type; Otherwise NULL.
  */
-void *fsp_get_next_hob(u16 type, const void *hob_list);
+const struct hob_header *fsp_get_next_hob(uint type, const void *hob_list);
 
 /**
  * Returns the next instance of the matched GUID HOB from the starting HOB.
@@ -155,7 +155,8 @@ void *fsp_get_next_hob(u16 type, const void *hob_list);
  *
  * @retval:   A HOB object with matching GUID; Otherwise NULL.
  */
-void *fsp_get_next_guid_hob(const struct efi_guid *guid, const void *hob_list);
+const struct hob_header *fsp_get_next_guid_hob(const struct efi_guid *guid,
+					       const void *hob_list);
 
 /**
  * This function retrieves a GUID HOB data buffer and size.

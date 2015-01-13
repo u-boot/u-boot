@@ -17,5 +17,6 @@ obj-$(CONFIG_NORTHBRIDGE_INTEL_SANDYBRIDGE) += ivybridge/
 obj-$(CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE) += ivybridge/
 obj-$(CONFIG_INTEL_QUEENSBAY) += queensbay/
 obj-y += lapic.o
+obj-y += mtrr.o
 obj-$(CONFIG_PCI) += pci.o
 obj-y += turbo.o

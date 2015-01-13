@@ -47,13 +47,10 @@ config RAMBASE
 	hex
 	default 0x100000
 
-config RAMTOP
-	hex
-	default 0x200000
-
 config XIP_ROM_SIZE
 	hex
-	default 0x10000
+	depends on X86_RESET_VECTOR
+	default ROM_SIZE
 
 config CPU_ADDR_BITS
 	int
@@ -70,6 +67,15 @@ config SMM_TSEG
 config SMM_TSEG_SIZE
 	hex
 
+config X86_RESET_VECTOR
+	bool
+	default n
+
+config SYS_X86_START16
+	hex
+	depends on X86_RESET_VECTOR
+	default 0xfffff800
+
 config BOARD_ROMSIZE_KB_512
 	bool
 config BOARD_ROMSIZE_KB_1024
@@ -85,6 +91,7 @@ config BOARD_ROMSIZE_KB_16384
 
 choice
 	prompt "ROM chip size"
+	depends on X86_RESET_VECTOR
 	default UBOOT_ROMSIZE_KB_512 if BOARD_ROMSIZE_KB_512
 	default UBOOT_ROMSIZE_KB_1024 if BOARD_ROMSIZE_KB_1024
 	default UBOOT_ROMSIZE_KB_2048 if BOARD_ROMSIZE_KB_2048
@@ -316,6 +323,28 @@ config FRAMEBUFFER_VESA_MODE
 	default 0x117 if FRAMEBUFFER_VESA_MODE_USER
 
 endmenu
+
+config TSC_CALIBRATION_BYPASS
+	bool "Bypass Time-Stamp Counter (TSC) calibration"
+	default n
+	help
+	  By default U-Boot automatically calibrates Time-Stamp Counter (TSC)
+	  running frequency via Model-Specific Register (MSR) and Programmable
+	  Interval Timer (PIT). If the calibration does not work on your board,
+	  select this option and provide a hardcoded TSC running frequency with
+	  CONFIG_TSC_FREQ_IN_MHZ below.
+
+	  Normally this option should be turned on in a simulation environment
+	  like qemu.
+
+config TSC_FREQ_IN_MHZ
+	int "Time-Stamp Counter (TSC) running frequency in MHz"
+	depends on TSC_CALIBRATION_BYPASS
+	default 1000
+	help
+	  The running frequency in MHz of Time-Stamp Counter (TSC).
+
+source "arch/x86/cpu/coreboot/Kconfig"
 
 source "arch/x86/cpu/ivybridge/Kconfig"
 

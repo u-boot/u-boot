@@ -15,6 +15,7 @@
  */
 
 #include <libfdt.h>
+#include <pci.h>
 
 /*
  * A typedef for a physical address. Note that fdt data is always big
@@ -48,6 +49,49 @@ struct fdt_memory {
 struct fdt_resource {
 	fdt_addr_t start;
 	fdt_addr_t end;
+};
+
+enum fdt_pci_space {
+	FDT_PCI_SPACE_CONFIG = 0,
+	FDT_PCI_SPACE_IO = 0x01000000,
+	FDT_PCI_SPACE_MEM32 = 0x02000000,
+	FDT_PCI_SPACE_MEM64 = 0x03000000,
+	FDT_PCI_SPACE_MEM32_PREF = 0x42000000,
+	FDT_PCI_SPACE_MEM64_PREF = 0x43000000,
+};
+
+#define FDT_PCI_ADDR_CELLS	3
+#define FDT_PCI_SIZE_CELLS	2
+#define FDT_PCI_REG_SIZE	\
+	((FDT_PCI_ADDR_CELLS + FDT_PCI_SIZE_CELLS) * sizeof(u32))
+
+/*
+ * The Open Firmware spec defines PCI physical address as follows:
+ *
+ *          bits# 31 .... 24 23 .... 16 15 .... 08 07 .... 00
+ *
+ * phys.hi  cell:  npt000ss   bbbbbbbb   dddddfff   rrrrrrrr
+ * phys.mid cell:  hhhhhhhh   hhhhhhhh   hhhhhhhh   hhhhhhhh
+ * phys.lo  cell:  llllllll   llllllll   llllllll   llllllll
+ *
+ * where:
+ *
+ * n:        is 0 if the address is relocatable, 1 otherwise
+ * p:        is 1 if addressable region is prefetchable, 0 otherwise
+ * t:        is 1 if the address is aliased (for non-relocatable I/O) below 1MB
+ *           (for Memory), or below 64KB (for relocatable I/O)
+ * ss:       is the space code, denoting the address space
+ * bbbbbbbb: is the 8-bit Bus Number
+ * ddddd:    is the 5-bit Device Number
+ * fff:      is the 3-bit Function Number
+ * rrrrrrrr: is the 8-bit Register Number
+ * hhhhhhhh: is a 32-bit unsigned number
+ * llllllll: is a 32-bit unsigned number
+ */
+struct fdt_pci_addr {
+	u32	phys_hi;
+	u32	phys_mid;
+	u32	phys_lo;
 };
 
 /**
@@ -256,6 +300,60 @@ fdt_addr_t fdtdec_get_addr(const void *blob, int node,
  */
 fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
 		const char *prop_name, fdt_size_t *sizep);
+
+/**
+ * Look at an address property in a node and return the pci address which
+ * corresponds to the given type in the form of fdt_pci_addr.
+ * The property must hold one fdt_pci_addr with a lengh.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param type		pci address type (FDT_PCI_SPACE_xxx)
+ * @param prop_name	name of property to find
+ * @param addr		returns pci address in the form of fdt_pci_addr
+ * @return 0 if ok, negative on error
+ */
+int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
+		const char *prop_name, struct fdt_pci_addr *addr);
+
+/**
+ * Look at the compatible property of a device node that represents a PCI
+ * device and extract pci vendor id and device id from it.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param vendor	vendor id of the pci device
+ * @param device	device id of the pci device
+ * @return 0 if ok, negative on error
+ */
+int fdtdec_get_pci_vendev(const void *blob, int node,
+		u16 *vendor, u16 *device);
+
+/**
+ * Look at the pci address of a device node that represents a PCI device
+ * and parse the bus, device and function number from it.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param addr		pci address in the form of fdt_pci_addr
+ * @param bdf		returns bus, device, function triplet
+ * @return 0 if ok, negative on error
+ */
+int fdtdec_get_pci_bdf(const void *blob, int node,
+		struct fdt_pci_addr *addr, pci_dev_t *bdf);
+
+/**
+ * Look at the pci address of a device node that represents a PCI device
+ * and return base address of the pci device's registers.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param addr		pci address in the form of fdt_pci_addr
+ * @param bar		returns base address of the pci device's registers
+ * @return 0 if ok, negative on error
+ */
+int fdtdec_get_pci_bar32(const void *blob, int node,
+		struct fdt_pci_addr *addr, u32 *bar);
 
 /**
  * Look up a 32-bit integer property in a node and return it. The property
@@ -681,17 +779,6 @@ int fdt_get_resource(const void *fdt, int node, const char *property,
 int fdt_get_named_resource(const void *fdt, int node, const char *property,
 			   const char *prop_names, const char *name,
 			   struct fdt_resource *res);
-
-/**
- * Look at the reg property of a device node that represents a PCI device
- * and parse the bus, device and function number from it.
- *
- * @param fdt		FDT blob
- * @param node		node to examine
- * @param bdf		returns bus, device, function triplet
- * @return 0 if ok, negative on error
- */
-int fdtdec_pci_get_bdf(const void *fdt, int node, int *bdf);
 
 /**
  * Decode a named region within a memory bank of a given type.

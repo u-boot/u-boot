@@ -14,17 +14,19 @@ DECLARE_GLOBAL_DATA_PTR;
 int dram_init(void)
 {
 	phys_size_t ram_size = 0;
-	union hob_pointers hob;
+	const struct hob_header *hdr;
+	struct hob_res_desc *res_desc;
 
-	hob.raw = gd->arch.hob_list;
-	while (!end_of_hob(hob)) {
-		if (get_hob_type(hob) == HOB_TYPE_RES_DESC) {
-			if (hob.res_desc->type == RES_SYS_MEM ||
-			    hob.res_desc->type == RES_MEM_RESERVED) {
-				ram_size += hob.res_desc->len;
+	hdr = gd->arch.hob_list;
+	while (!end_of_hob(hdr)) {
+		if (hdr->type == HOB_TYPE_RES_DESC) {
+			res_desc = (struct hob_res_desc *)hdr;
+			if (res_desc->type == RES_SYS_MEM ||
+			    res_desc->type == RES_MEM_RESERVED) {
+				ram_size += res_desc->len;
 			}
 		}
-		hob.raw = get_next_hob(hob);
+		hdr = get_next_hob(hdr);
 	}
 
 	gd->ram_size = ram_size;
@@ -55,22 +57,23 @@ ulong board_get_usable_ram_top(ulong total_size)
 unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
 {
 	unsigned num_entries = 0;
+	const struct hob_header *hdr;
+	struct hob_res_desc *res_desc;
 
-	union hob_pointers hob;
+	hdr = gd->arch.hob_list;
 
-	hob.raw = gd->arch.hob_list;
+	while (!end_of_hob(hdr)) {
+		if (hdr->type == HOB_TYPE_RES_DESC) {
+			res_desc = (struct hob_res_desc *)hdr;
+			entries[num_entries].addr = res_desc->phys_start;
+			entries[num_entries].size = res_desc->len;
 
-	while (!end_of_hob(hob)) {
-		if (get_hob_type(hob) == HOB_TYPE_RES_DESC) {
-			entries[num_entries].addr = hob.res_desc->phys_start;
-			entries[num_entries].size = hob.res_desc->len;
-
-			if (hob.res_desc->type == RES_SYS_MEM)
+			if (res_desc->type == RES_SYS_MEM)
 				entries[num_entries].type = E820_RAM;
-			else if (hob.res_desc->type == RES_MEM_RESERVED)
+			else if (res_desc->type == RES_MEM_RESERVED)
 				entries[num_entries].type = E820_RESERVED;
 		}
-		hob.raw = get_next_hob(hob);
+		hdr = get_next_hob(hdr);
 		num_entries++;
 	}
 

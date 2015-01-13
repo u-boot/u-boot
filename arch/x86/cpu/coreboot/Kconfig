@@ -1,0 +1,15 @@
+if TARGET_COREBOOT
+
+config SYS_COREBOOT
+	bool
+	default y
+
+config CBMEM_CONSOLE
+	bool
+	default y
+
+config VIDEO_COREBOOT
+	bool
+	default y
+
+endif

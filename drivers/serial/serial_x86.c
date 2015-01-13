@@ -6,8 +6,11 @@
 
 #include <common.h>
 #include <dm.h>
+#include <fdtdec.h>
 #include <ns16550.h>
 #include <serial.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static const struct udevice_id x86_serial_ids[] = {
 	{ .compatible = "x86-uart" },
@@ -22,10 +25,13 @@ static int x86_serial_ofdata_to_platdata(struct udevice *dev)
 	ret = ns16550_serial_ofdata_to_platdata(dev);
 	if (ret)
 		return ret;
-	plat->clock = 1843200;
+
+	plat->clock = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+				     "clock-frequency", 1843200);
 
 	return 0;
 }
+
 U_BOOT_DRIVER(serial_ns16550) = {
 	.name	= "serial_x86",
 	.id	= UCLASS_SERIAL,
