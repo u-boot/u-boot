@@ -780,7 +780,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 {
 	int is_dual;
 	int is_dio = 0;
-	unsigned long lqspi_frequency;
+	unsigned int lqspi_frequency;
 	struct zynq_qspi_slave *qspi;
 
 	debug("%s: bus: %d cs: %d max_hz: %d mode: %d\n",
@@ -811,7 +811,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		qspi->qspi.master.input_clk_hz = 200000000;
 	} else {
 		qspi->qspi.master.input_clk_hz = lqspi_frequency;
-		debug("Qspi clk frequency set to %ld Hz\n", lqspi_frequency);
+		debug("Qspi clk frequency set to %d Hz\n", lqspi_frequency);
 	}
 
 	qspi->slave.option = is_dual;
