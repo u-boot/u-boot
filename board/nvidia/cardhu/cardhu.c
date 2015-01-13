@@ -57,7 +57,7 @@ void board_sdmmc_voltage_init(void)
 	reg = 0x32;
 
 	for (i = 0; i < MAX_I2C_RETRY; ++i) {
-		if (i2c_write(dev, reg, data_buffer, 1))
+		if (dm_i2c_write(dev, reg, data_buffer, 1))
 			udelay(100);
 	}
 
@@ -66,7 +66,7 @@ void board_sdmmc_voltage_init(void)
 	reg = 0x67;
 
 	for (i = 0; i < MAX_I2C_RETRY; ++i) {
-		if (i2c_write(dev, reg, data_buffer, 1))
+		if (dm_i2c_write(dev, reg, data_buffer, 1))
 			udelay(100);
 	}
 }
@@ -104,7 +104,7 @@ int tegra_pcie_board_init(void)
 	data[0] = 0x15;
 	addr = 0x30;
 
-	err = i2c_write(dev, addr, data, 1);
+	err = dm_i2c_write(dev, addr, data, 1);
 	if (err) {
 		debug("failed to set VDD supply\n");
 		return err;
@@ -121,7 +121,7 @@ int tegra_pcie_board_init(void)
 	data[0] = 0x15;
 	addr = 0x31;
 
-	err = i2c_write(dev, addr, data, 1);
+	err = dm_i2c_write(dev, addr, data, 1);
 	if (err) {
 		debug("failed to set AVDD supply\n");
 		return err;

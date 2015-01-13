@@ -23,7 +23,8 @@ unsigned long get_version(void)
 # define install_hdlr      irq_install_handler
 # define free_hdlr         irq_free_handler
 #endif
-#ifndef CONFIG_CMD_I2C
+#if !defined(CONFIG_CMD_I2C) || \
+	(defined(CONFIG_DM_I2C) && !defined(CONFIG_DM_I2C_COMPAT))
 # define i2c_write         dummy
 # define i2c_read          dummy
 #endif

@@ -33,15 +33,15 @@ void pin_mux_mmc(void)
 		return;
 	}
 	val = 0x29;
-	ret = i2c_write(dev, 0x46, &val, 1);
+	ret = dm_i2c_write(dev, 0x46, &val, 1);
 	if (ret)
 		printf("i2c_write 0 0x3c 0x46 failed: %d\n", ret);
 	val = 0x00;
-	ret = i2c_write(dev, 0x45, &val, 1);
+	ret = dm_i2c_write(dev, 0x45, &val, 1);
 	if (ret)
 		printf("i2c_write 0 0x3c 0x45 failed: %d\n", ret);
 	val = 0x1f;
-	ret = i2c_write(dev, 0x44, &val, 1);
+	ret = dm_i2c_write(dev, 0x44, &val, 1);
 	if (ret)
 		printf("i2c_write 0 0x3c 0x44 failed: %d\n", ret);
 
@@ -70,11 +70,11 @@ void pin_mux_usb(void)
 		return;
 	}
 	val = 0x03;
-	ret = i2c_write(dev, 2, &val, 1);
+	ret = dm_i2c_write(dev, 2, &val, 1);
 	if (ret)
 		printf("i2c_write 0 0x20 2 failed: %d\n", ret);
 	val = 0xfc;
-	ret = i2c_write(dev, 6, &val, 1);
+	ret = dm_i2c_write(dev, 6, &val, 1);
 	if (ret)
 		printf("i2c_write 0 0x20 6 failed: %d\n", ret);
 }

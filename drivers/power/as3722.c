@@ -31,7 +31,7 @@ static int as3722_read(struct udevice *pmic, u8 reg, u8 *value)
 {
 	int err;
 
-	err = i2c_read(pmic, reg, value, 1);
+	err = dm_i2c_read(pmic, reg, value, 1);
 	if (err < 0)
 		return err;
 
@@ -42,7 +42,7 @@ static int as3722_write(struct udevice *pmic, u8 reg, u8 value)
 {
 	int err;
 
-	err = i2c_write(pmic, reg, &value, 1);
+	err = dm_i2c_write(pmic, reg, &value, 1);
 	if (err < 0)
 		return err;
 

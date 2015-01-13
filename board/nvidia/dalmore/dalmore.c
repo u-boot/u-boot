@@ -65,7 +65,7 @@ void board_sdmmc_voltage_init(void)
 	data_buffer[0] = 0x31;
 	reg = 0x61;
 
-	ret = i2c_write(dev, reg, data_buffer, 1);
+	ret = dm_i2c_write(dev, reg, data_buffer, 1);
 	if (ret)
 		printf("%s: PMU i2c_write %02X<-%02X returned %d\n",
 			__func__, reg, data_buffer[0], ret);
@@ -74,7 +74,7 @@ void board_sdmmc_voltage_init(void)
 	data_buffer[0] = 0x01;
 	reg = 0x60;
 
-	ret = i2c_write(dev, reg, data_buffer, 1);
+	ret = dm_i2c_write(dev, reg, data_buffer, 1);
 	if (ret)
 		printf("%s: PMU i2c_write %02X<-%02X returned %d\n",
 			__func__, reg, data_buffer[0], ret);
@@ -88,7 +88,7 @@ void board_sdmmc_voltage_init(void)
 		debug("%s: Cannot find charger I2C chip\n", __func__);
 		return;
 	}
-	ret = i2c_write(dev, reg, data_buffer, 1);
+	ret = dm_i2c_write(dev, reg, data_buffer, 1);
 	if (ret)
 		printf("%s: BAT i2c_write %02X<-%02X returned %d\n",
 			__func__, reg, data_buffer[0], ret);

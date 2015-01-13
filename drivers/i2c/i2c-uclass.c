@@ -100,7 +100,7 @@ static int i2c_write_bytewise(struct udevice *dev, uint offset,
 	return 0;
 }
 
-int i2c_read(struct udevice *dev, uint offset, uint8_t *buffer, int len)
+int dm_i2c_read(struct udevice *dev, uint offset, uint8_t *buffer, int len)
 {
 	struct dm_i2c_chip *chip = dev_get_parentdata(dev);
 	struct udevice *bus = dev_get_parent(dev);
@@ -130,7 +130,8 @@ int i2c_read(struct udevice *dev, uint offset, uint8_t *buffer, int len)
 	return ops->xfer(bus, msg, msg_count);
 }
 
-int i2c_write(struct udevice *dev, uint offset, const uint8_t *buffer, int len)
+int dm_i2c_write(struct udevice *dev, uint offset, const uint8_t *buffer,
+		 int len)
 {
 	struct dm_i2c_chip *chip = dev_get_parentdata(dev);
 	struct udevice *bus = dev_get_parent(dev);
@@ -303,8 +304,8 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, struct udevice **devp)
 	return 0;
 }
 
-int i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
-	      struct udevice **devp)
+int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
+		 struct udevice **devp)
 {
 	int ret;
 

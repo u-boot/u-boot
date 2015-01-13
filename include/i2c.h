@@ -75,7 +75,7 @@ struct dm_i2c_bus {
 };
 
 /**
- * i2c_read() - read bytes from an I2C chip
+ * dm_i2c_read() - read bytes from an I2C chip
  *
  * To obtain an I2C device (called a 'chip') given the I2C bus address you
  * can use i2c_get_chip(). To obtain a bus by bus number use
@@ -91,13 +91,12 @@ struct dm_i2c_bus {
  *
  * @return 0 on success, -ve on failure
  */
-int i2c_read(struct udevice *dev, uint offset, uint8_t *buffer,
-	     int len);
+int dm_i2c_read(struct udevice *dev, uint offset, uint8_t *buffer, int len);
 
 /**
- * i2c_write() - write bytes to an I2C chip
+ * dm_i2c_write() - write bytes to an I2C chip
  *
- * See notes for i2c_read() above.
+ * See notes for dm_i2c_read() above.
  *
  * @dev:	Chip to write to
  * @offset:	Offset within chip to start writing
@@ -106,11 +105,11 @@ int i2c_read(struct udevice *dev, uint offset, uint8_t *buffer,
  *
  * @return 0 on success, -ve on failure
  */
-int i2c_write(struct udevice *dev, uint offset, const uint8_t *buffer,
-	      int len);
+int dm_i2c_write(struct udevice *dev, uint offset, const uint8_t *buffer,
+		 int len);
 
 /**
- * i2c_probe() - probe a particular chip address
+ * dm_i2c_probe() - probe a particular chip address
  *
  * This can be useful to check for the existence of a chip on the bus.
  * It is typically implemented by writing the chip address to the bus
@@ -122,8 +121,8 @@ int i2c_write(struct udevice *dev, uint offset, const uint8_t *buffer,
  * @devp:	Returns the device found, or NULL if none
  * @return 0 if a chip was found at that address, -ve if not
  */
-int i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
-	      struct udevice **devp);
+int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
+		 struct udevice **devp);
 
 /**
  * i2c_set_bus_speed() - set the speed of a bus

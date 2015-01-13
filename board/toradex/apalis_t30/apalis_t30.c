@@ -51,7 +51,7 @@ int tegra_pcie_board_init(void)
 	data[0] = 0x27;
 	addr = 0x25;
 
-	err = i2c_write(dev, addr, data, 1);
+	err = dm_i2c_write(dev, addr, data, 1);
 	if (err) {
 		debug("failed to set VDD supply\n");
 		return err;
@@ -61,7 +61,7 @@ int tegra_pcie_board_init(void)
 	data[0] = 0x0D;
 	addr = 0x24;
 
-	err = i2c_write(dev, addr, data, 1);
+	err = dm_i2c_write(dev, addr, data, 1);
 	if (err) {
 		debug("failed to enable VDD supply\n");
 		return err;
@@ -71,7 +71,7 @@ int tegra_pcie_board_init(void)
 	data[0] = 0x0D;
 	addr = 0x35;
 
-	err = i2c_write(dev, addr, data, 1);
+	err = dm_i2c_write(dev, addr, data, 1);
 	if (err) {
 		debug("failed to set AVDD supply\n");
 		return err;
