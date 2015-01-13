@@ -5,7 +5,6 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
 #include <fdtdec.h>
 #include <fpga.h>
 #include <mmc.h>
@@ -65,12 +64,6 @@ int board_init(void)
 		break;
 	}
 #endif
-
-	/*
-	 * temporary hack to clear pending irqs before Linux as it
-	 * will hang Linux
-	 */
-	writel(0x26d, 0xe0001014);
 
 #if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
     (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
