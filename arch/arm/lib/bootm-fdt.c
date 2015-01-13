@@ -23,5 +23,22 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int arch_fixup_fdt(void *blob)
 {
-	return 0;
+	bd_t *bd = gd->bd;
+	int bank, ret;
+	u64 start[CONFIG_NR_DRAM_BANKS];
+	u64 size[CONFIG_NR_DRAM_BANKS];
+
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		start[bank] = bd->bi_dram[bank].start;
+		size[bank] = bd->bi_dram[bank].size;
+	}
+
+	ret = fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+	if (ret)
+		return ret;
+
+	ret = armv7_update_dt(blob);
+#endif
+	return ret;
 }
