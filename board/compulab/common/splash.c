@@ -10,11 +10,32 @@
 #include <nand.h>
 #include <errno.h>
 #include <bmp_layout.h>
+#include "common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_CMD_NAND
-static int splash_load_from_nand(u32 bmp_load_addr, int nand_offset)
+static int splash_nand_read(u32 bmp_load_addr, int offset, size_t read_size)
+{
+	return nand_read_skip_bad(&nand_info[nand_curr_device], offset,
+				  &read_size, NULL,
+				  nand_info[nand_curr_device].size,
+				  (u_char *)bmp_load_addr);
+}
+#else
+static int splash_nand_read(u32 bmp_load_addr, int offset, size_t read_size)
+{
+	debug("%s: nand support not available\n", __func__);
+	return -ENOSYS;
+}
+#endif
+
+static int splash_storage_read(u32 bmp_load_addr, int offset, size_t read_size)
+{
+	return splash_nand_read(bmp_load_addr, offset, read_size);
+}
+
+static int splash_load_raw(u32 bmp_load_addr, int offset)
 {
 	struct bmp_header *bmp_hdr;
 	int res;
@@ -23,10 +44,7 @@ static int splash_load_from_nand(u32 bmp_load_addr, int nand_offset)
 	if (bmp_load_addr + bmp_header_size >= gd->start_addr_sp)
 		goto splash_address_too_high;
 
-	res = nand_read_skip_bad(&nand_info[nand_curr_device],
-			nand_offset, &bmp_header_size,
-			NULL, nand_info[nand_curr_device].size,
-			(u_char *)bmp_load_addr);
+	res = splash_storage_read(bmp_load_addr, offset, bmp_header_size);
 	if (res < 0)
 		return res;
 
@@ -36,10 +54,7 @@ static int splash_load_from_nand(u32 bmp_load_addr, int nand_offset)
 	if (bmp_load_addr + bmp_size >= gd->start_addr_sp)
 		goto splash_address_too_high;
 
-	return nand_read_skip_bad(&nand_info[nand_curr_device],
-			nand_offset, &bmp_size,
-			NULL, nand_info[nand_curr_device].size,
-			(u_char *)bmp_load_addr);
+	return splash_storage_read(bmp_load_addr, offset, bmp_size);
 
 splash_address_too_high:
 	printf("Error: splashimage address too high. Data overwrites U-Boot "
@@ -47,14 +62,8 @@ splash_address_too_high:
 
 	return -EFAULT;
 }
-#else
-static inline int splash_load_from_nand(u32 bmp_load_addr, int nand_offset)
-{
-	return -ENOSYS;
-}
-#endif /* CONFIG_CMD_NAND */
 
-int cl_splash_screen_prepare(int nand_offset)
+int cl_splash_screen_prepare(int offset)
 {
 	char *env_splashimage_value;
 	u32 bmp_load_addr;
@@ -69,5 +78,5 @@ int cl_splash_screen_prepare(int nand_offset)
 		return -EFAULT;
 	}
 
-	return splash_load_from_nand(bmp_load_addr, nand_offset);
+	return splash_load_raw(bmp_load_addr, offset);
 }

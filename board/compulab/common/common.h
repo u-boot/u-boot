@@ -25,9 +25,9 @@ static inline void cl_usb_hub_deinit(int gpio) {}
 #endif /* CONFIG_CMD_USB */
 
 #ifdef CONFIG_SPLASH_SCREEN
-int cl_splash_screen_prepare(int nand_offset);
+int cl_splash_screen_prepare(int offset);
 #else /* !CONFIG_SPLASH_SCREEN */
-static inline int cl_splash_screen_prepare(int nand_offset)
+static inline int cl_splash_screen_prepare(int offset)
 {
 	return -ENOSYS;
 }
