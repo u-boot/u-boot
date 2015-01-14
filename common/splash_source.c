@@ -9,10 +9,10 @@
 #include <common.h>
 #include <nand.h>
 #include <errno.h>
+#include <splash.h>
 #include <spi_flash.h>
 #include <spi.h>
 #include <bmp_layout.h>
-#include "common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -98,8 +98,7 @@ static int splash_load_raw(struct splash_location *location, u32 bmp_load_addr)
 	return splash_storage_read(location, bmp_load_addr, bmp_size);
 
 splash_address_too_high:
-	printf("Error: splashimage address too high. Data overwrites U-Boot "
-		"and/or placed beyond DRAM boundaries.\n");
+	printf("Error: splashimage address too high. Data overwrites U-Boot and/or placed beyond DRAM boundaries.\n");
 
 	return -EFAULT;
 }
@@ -141,7 +140,19 @@ static struct splash_location *select_splash_location(
 	return NULL;
 }
 
-int cl_splash_screen_prepare(struct splash_location *locations, uint size)
+/**
+ * splash_source_load - load splash image from a supported location.
+ *
+ * Select a splash image location based on the value of splashsource environment
+ * variable and the board supported splash source locations, and load a
+ * splashimage to the address pointed to by splashimage environment variable.
+ *
+ * @locations:		An array of supported splash locations.
+ * @size:		Size of splash_locations array.
+ *
+ * @return: 0 on success, negative value on failure.
+ */
+int splash_source_load(struct splash_location *locations, uint size)
 {
 	struct splash_location *splash_location;
 	char *env_splashimage_value;

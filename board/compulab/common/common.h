@@ -24,27 +24,6 @@ static inline int cl_usb_hub_init(int gpio, const char *label)
 static inline void cl_usb_hub_deinit(int gpio) {}
 #endif /* CONFIG_CMD_USB */
 
-enum splash_storage {
-	SPLASH_STORAGE_NAND,
-	SPLASH_STORAGE_SF,
-};
-
-struct splash_location {
-	char *name;
-	enum splash_storage storage;
-	u32 offset;	/* offset from start of storage */
-};
-
-#ifdef CONFIG_SPLASH_SCREEN
-int cl_splash_screen_prepare(struct splash_location *locations, uint size);
-#else /* !CONFIG_SPLASH_SCREEN */
-static inline int cl_splash_screen_prepare(struct splash_location *locations,
-					   uint size)
-{
-	return -ENOSYS;
-}
-#endif /* CONFIG_SPLASH_SCREEN */
-
 #ifdef CONFIG_SMC911X
 int cl_omap3_smc911x_init(int id, int cs, u32 base_addr,
 			  int (*reset)(int), int rst_gpio);

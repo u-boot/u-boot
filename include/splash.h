@@ -22,7 +22,18 @@
 #ifndef _SPLASH_H_
 #define _SPLASH_H_
 
+enum splash_storage {
+	SPLASH_STORAGE_NAND,
+	SPLASH_STORAGE_SF,
+};
 
+struct splash_location {
+	char *name;
+	enum splash_storage storage;
+	u32 offset;	/* offset from start of storage */
+};
+
+int splash_source_load(struct splash_location *locations, uint size);
 int splash_screen_prepare(void);
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN

@@ -15,6 +15,7 @@
 #include <netdev.h>
 #include <fdt_support.h>
 #include <sata.h>
+#include <splash.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/iomux.h>
@@ -42,8 +43,8 @@ static struct splash_location cm_fx6_splash_locations[] = {
 
 int splash_screen_prepare(void)
 {
-	return cl_splash_screen_prepare(cm_fx6_splash_locations,
-					ARRAY_SIZE(cm_fx6_splash_locations));
+	return splash_source_load(cm_fx6_splash_locations,
+				  ARRAY_SIZE(cm_fx6_splash_locations));
 }
 #endif
 

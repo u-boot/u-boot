@@ -19,6 +19,7 @@
 #include <i2c.h>
 #include <usb.h>
 #include <mmc.h>
+#include <splash.h>
 #include <twl4030.h>
 #include <linux/compiler.h>
 
@@ -69,8 +70,8 @@ struct splash_location splash_locations[] = {
 
 int splash_screen_prepare(void)
 {
-	return cl_splash_screen_prepare(splash_locations,
-					ARRAY_SIZE(splash_locations));
+	return splash_source_load(splash_locations,
+				  ARRAY_SIZE(splash_locations));
 }
 
 /*
