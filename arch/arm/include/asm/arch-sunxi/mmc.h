@@ -43,10 +43,11 @@ struct sunxi_mmc {
 	u32 chda;		/* 0x90 */
 	u32 cbda;		/* 0x94 */
 	u32 res1[26];
-#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I)
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I) || \
+    defined(CONFIG_MACH_SUN9I)
 	u32 res2[64];
 #endif
-	u32 fifo;		/* 0x100 (0x200 on sun6i) FIFO access address */
+	u32 fifo;		/* 0x100 / 0x200 FIFO access address */
 };
 
 #define SUNXI_MMC_CLK_POWERSAVE		(0x1 << 17)
@@ -122,6 +123,9 @@ struct sunxi_mmc {
 
 #define SUNXI_MMC_IDIE_TXIRQ		(0x1 << 0)
 #define SUNXI_MMC_IDIE_RXIRQ		(0x1 << 1)
+
+#define SUNXI_MMC_COMMON_CLK_GATE		(1 << 16)
+#define SUNXI_MMC_COMMON_RESET			(1 << 18)
 
 struct mmc *sunxi_mmc_init(int sdc_no);
 #endif /* _SUNXI_MMC_H */
