@@ -12,6 +12,7 @@
 
 #ifndef _LCD_H_
 #define _LCD_H_
+#include <lcd_console.h>
 
 extern char lcd_is_enabled;
 
@@ -291,6 +292,20 @@ int lcd_get_screen_rows(void);
 int lcd_get_screen_columns(void);
 
 /**
+ * Get the background color of the LCD
+ *
+ * @return background color value
+ */
+int lcd_getbgcolor(void);
+
+/**
+ * Get the foreground color of the LCD
+ *
+ * @return foreground color value
+ */
+int lcd_getfgcolor(void);
+
+/**
  * Set the position of the text cursor
  *
  * @param col	Column to place cursor (0 = left side)
@@ -359,15 +374,7 @@ void lcd_sync(void);
 /************************************************************************/
 /* ** CONSOLE CONSTANTS							*/
 /************************************************************************/
-#if LCD_BPP == LCD_MONOCHROME
-
-/*
- * Simple black/white definitions
- */
-# define CONSOLE_COLOR_BLACK	0
-# define CONSOLE_COLOR_WHITE	1	/* Must remain last / highest	*/
-
-#elif LCD_BPP == LCD_COLOR8
+#if LCD_BPP == LCD_COLOR8
 
 /*
  * 8bpp color definitions
