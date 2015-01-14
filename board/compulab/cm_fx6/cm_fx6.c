@@ -27,8 +27,25 @@
 #include <dm/platform_data/serial_mxc.h>
 #include "common.h"
 #include "../common/eeprom.h"
+#include "../common/common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SPLASH_SCREEN
+static struct splash_location cm_fx6_splash_locations[] = {
+	{
+		.name = "sf",
+		.storage = SPLASH_STORAGE_SF,
+		.offset = 0x100000,
+	},
+};
+
+int splash_screen_prepare(void)
+{
+	return cl_splash_screen_prepare(cm_fx6_splash_locations,
+					ARRAY_SIZE(cm_fx6_splash_locations));
+}
+#endif
 
 #ifdef CONFIG_IMX_HDMI
 static void cm_fx6_enable_hdmi(struct display_info_t const *dev)
