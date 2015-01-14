@@ -9,10 +9,35 @@
 #include <common.h>
 #include <nand.h>
 #include <errno.h>
+#include <spi_flash.h>
+#include <spi.h>
 #include <bmp_layout.h>
 #include "common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SPI_FLASH
+static struct spi_flash *sf;
+static int splash_sf_read(u32 bmp_load_addr, int offset, size_t read_size)
+{
+	if (!sf) {
+		sf = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
+				     CONFIG_SF_DEFAULT_CS,
+				     CONFIG_SF_DEFAULT_SPEED,
+				     CONFIG_SF_DEFAULT_MODE);
+		if (!sf)
+			return -ENODEV;
+	}
+
+	return spi_flash_read(sf, offset, read_size, (void *)bmp_load_addr);
+}
+#else
+static int splash_sf_read(u32 bmp_load_addr, int offset, size_t read_size)
+{
+	debug("%s: sf support not available\n", __func__);
+	return -ENOSYS;
+}
+#endif
 
 #ifdef CONFIG_CMD_NAND
 static int splash_nand_read(u32 bmp_load_addr, int offset, size_t read_size)
@@ -42,6 +67,8 @@ static int splash_storage_read(struct splash_location *location,
 	switch (location->storage) {
 	case SPLASH_STORAGE_NAND:
 		return splash_nand_read(bmp_load_addr, offset, read_size);
+	case SPLASH_STORAGE_SF:
+		return splash_sf_read(bmp_load_addr, offset, read_size);
 	default:
 		printf("Unknown splash location\n");
 	}

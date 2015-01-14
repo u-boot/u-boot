@@ -26,6 +26,7 @@ static inline void cl_usb_hub_deinit(int gpio) {}
 
 enum splash_storage {
 	SPLASH_STORAGE_NAND,
+	SPLASH_STORAGE_SF,
 };
 
 struct splash_location {
