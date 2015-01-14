@@ -310,8 +310,12 @@ static void boot_jump_linux(bootm_headers_t *images)
 	if (mips_boot_malta)
 		linux_extra = gd->ram_size;
 
-	/* we assume that the kernel is in place */
-	printf("\nStarting kernel ...\n\n");
+#ifdef CONFIG_BOOTSTAGE_FDT
+	bootstage_fdt_add_report();
+#endif
+#ifdef CONFIG_BOOTSTAGE_REPORT
+	bootstage_report();
+#endif
 
 	kernel(linux_argc, (ulong)linux_argv, (ulong)linux_env, linux_extra);
 }
