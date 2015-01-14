@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <nand.h>
+#include <errno.h>
 #include <bmp_layout.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -44,12 +45,12 @@ splash_address_too_high:
 	printf("Error: splashimage address too high. Data overwrites U-Boot "
 		"and/or placed beyond DRAM boundaries.\n");
 
-	return -1;
+	return -EFAULT;
 }
 #else
 static inline int splash_load_from_nand(u32 bmp_load_addr, int nand_offset)
 {
-	return -1;
+	return -ENOSYS;
 }
 #endif /* CONFIG_CMD_NAND */
 
@@ -60,12 +61,12 @@ int cl_splash_screen_prepare(int nand_offset)
 
 	env_splashimage_value = getenv("splashimage");
 	if (env_splashimage_value == NULL)
-		return -1;
+		return -ENOENT;
 
 	bmp_load_addr = simple_strtoul(env_splashimage_value, 0, 16);
 	if (bmp_load_addr == 0) {
 		printf("Error: bad splashimage address specified\n");
-		return -1;
+		return -EFAULT;
 	}
 
 	return splash_load_from_nand(bmp_load_addr, nand_offset);
