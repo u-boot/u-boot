@@ -12,7 +12,6 @@
 #include <malloc.h>
 #include <sdhci.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/hardware.h>
 
 int zynq_sdhci_init(unsigned long regbase)
 {
