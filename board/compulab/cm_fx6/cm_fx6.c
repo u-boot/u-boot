@@ -18,8 +18,10 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/iomux.h>
+#include <asm/arch/mxc_hdmi.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/sata.h>
+#include <asm/imx-common/video.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <dm/platform_data/serial_mxc.h>
@@ -27,6 +29,53 @@
 #include "../common/eeprom.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_IMX_HDMI
+static void cm_fx6_enable_hdmi(struct display_info_t const *dev)
+{
+	imx_enable_hdmi_phy();
+}
+
+struct display_info_t const displays[] = {
+	{
+		.bus	= -1,
+		.addr	= 0,
+		.pixfmt	= IPU_PIX_FMT_RGB24,
+		.detect	= detect_hdmi,
+		.enable	= cm_fx6_enable_hdmi,
+		.mode	= {
+			.name           = "HDMI",
+			.refresh        = 60,
+			.xres           = 1024,
+			.yres           = 768,
+			.pixclock       = 40385,
+			.left_margin    = 220,
+			.right_margin   = 40,
+			.upper_margin   = 21,
+			.lower_margin   = 7,
+			.hsync_len      = 60,
+			.vsync_len      = 10,
+			.sync           = FB_SYNC_EXT,
+			.vmode          = FB_VMODE_NONINTERLACED,
+		}
+	},
+};
+size_t display_count = ARRAY_SIZE(displays);
+
+static void cm_fx6_setup_display(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	int reg;
+
+	enable_ipu_clock();
+	imx_setup_hdmi();
+	reg = __raw_readl(&mxc_ccm->CCGR3);
+	reg |= MXC_CCM_CCGR3_IPU1_IPU_DI0_MASK;
+	writel(reg, &mxc_ccm->CCGR3);
+}
+#else
+static inline void cm_fx6_setup_display(void) {}
+#endif /* CONFIG_VIDEO_IPUV3 */
 
 #ifdef CONFIG_DWC_AHSATA
 static int cm_fx6_issd_gpios[] = {
@@ -515,6 +564,8 @@ int board_init(void)
 	ret = cm_fx6_setup_i2c();
 	if (ret)
 		printf("Warning: I2C setup failed: %d\n", ret);
+
+	cm_fx6_setup_display();
 
 	return 0;
 }

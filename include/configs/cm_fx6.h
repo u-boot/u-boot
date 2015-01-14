@@ -103,6 +103,9 @@
 #define CONFIG_ENV_OFFSET		(768 * 1024)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"stdout=serial,vga\0" \
+	"stderr=serial,vga\0" \
+	"panel=HDMI\0" \
 	"autoload=no\0" \
 	"kernel=uImage-cm-fx6\0" \
 	"script=boot.scr\0" \
@@ -290,5 +293,17 @@
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
 #define CONFIG_SPL_SPI_LOAD
+
+/* Display */
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_IPUV3
+#define CONFIG_IPUV3_CLK          260000000
+#define CONFIG_IMX_HDMI
+#define CONFIG_IMX_VIDEO_SKIP
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_CONSOLE_MUX
+#define CONFIG_VIDEO_SW_CURSOR
 
 #endif	/* __CONFIG_CM_FX6_H */
