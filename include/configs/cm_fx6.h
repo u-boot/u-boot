@@ -103,6 +103,7 @@
 #define CONFIG_ENV_OFFSET		(768 * 1024)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"stdin=serial,usbkbd\0" \
 	"stdout=serial,vga\0" \
 	"stderr=serial,vga\0" \
 	"panel=HDMI\0" \
@@ -193,6 +194,8 @@
 	"run setupnandboot;" \
 	"run nandboot;"
 
+#define CONFIG_PREBOOT		"usb start"
+
 /* SPI */
 #define CONFIG_SPI
 #define CONFIG_MXC_SPI
@@ -241,6 +244,9 @@
 #define CONFIG_MXC_USB_FLAGS		0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
+#define CONFIG_USB_KEYBOARD
+#define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
+#define CONFIG_SYS_STDIO_DEREGISTER
 
 /* I2C */
 #define CONFIG_CMD_I2C
