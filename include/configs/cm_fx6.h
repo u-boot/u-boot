@@ -103,97 +103,92 @@
 #define CONFIG_ENV_OFFSET		(768 * 1024)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"kernel=uImage-cm-fx6\0" \
 	"autoload=no\0" \
+	"kernel=uImage-cm-fx6\0" \
+	"script=boot.scr\0" \
+	"dtb=cm-fx6.dtb\0" \
+	"bootm_low=18000000\0" \
 	"loadaddr=0x10800000\0" \
 	"fdtaddr=0x11000000\0" \
 	"console=ttymxc3,115200\0" \
 	"ethprime=FEC0\0" \
-	"bootscr=boot.scr\0" \
-	"bootm_low=18000000\0" \
 	"video_hdmi=mxcfb0:dev=hdmi,1920x1080M-32@50,if=RGB32\0" \
 	"video_dvi=mxcfb0:dev=dvi,1280x800M-32@50,if=RGB32\0" \
-	"fdtfile=cm-fx6.dtb\0" \
 	"doboot=bootm ${loadaddr}\0" \
-	"loadfdt=false\0" \
+	"doloadfdt=false\0" \
 	"setboottypez=setenv kernel zImage-cm-fx6;" \
 		"setenv doboot bootz ${loadaddr} - ${fdtaddr};" \
-		"setenv loadfdt true;\0" \
+		"setenv doloadfdt true;\0" \
 	"setboottypem=setenv kernel uImage-cm-fx6;" \
 		"setenv doboot bootm ${loadaddr};" \
-		"setenv loadfdt false;\0"\
-	"run_eboot=echo Starting EBOOT ...; "\
-		"mmc dev ${mmcdev} && " \
-		"mmc rescan && mmc read 10042000 a 400 && go 10042000\0" \
-	"mmcdev=2\0" \
+		"setenv doloadfdt false;\0"\
 	"mmcroot=/dev/mmcblk0p2 rw rootwait\0" \
-	"loadmmcbootscript=load mmc ${mmcdev} ${loadaddr} ${bootscr}\0" \
-	"mmcbootscript=echo Running bootscript from mmc ...; "\
-		"source ${loadaddr}\0" \
-	"mmcargs=setenv bootargs console=${console} " \
-		"root=${mmcroot} " \
-		"${video}\0" \
-	"mmcloadkernel=load mmc ${mmcdev} ${loadaddr} ${kernel}\0" \
-	"mmcloadfdt=load mmc ${mmcdev} ${fdtaddr} ${fdtfile}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
-		"run doboot\0" \
-	"satadev=0\0" \
 	"sataroot=/dev/sda2 rw rootwait\0" \
-	"sataargs=setenv bootargs console=${console} " \
-		"root=${sataroot} " \
-		"${video}\0" \
-	"loadsatabootscript=load sata ${satadev} ${loadaddr} ${bootscr}\0" \
-	"satabootscript=echo Running bootscript from sata ...; " \
-		"source ${loadaddr}\0" \
-	"sataloadkernel=load sata ${satadev} ${loadaddr} ${kernel}\0" \
-	"sataloadfdt=load sata ${satadev} ${fdtaddr} ${fdtfile}\0" \
-	"sataboot=echo Booting from sata ...; "\
-		"run sataargs; " \
-		"run doboot\0" \
 	"nandroot=/dev/mtdblock4 rw\0" \
 	"nandrootfstype=ubifs\0" \
+	"mmcargs=setenv bootargs console=${console} root=${mmcroot} " \
+		"${video}\0" \
+	"sataargs=setenv bootargs console=${console} root=${sataroot} " \
+		"${video}\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype} " \
 		"${video}\0" \
-	"nandloadfdt=nand read ${fdtaddr} 780000 80000;\0" \
-	"nandboot=echo Booting from nand ...; " \
-		"run nandargs; " \
-		"nand read ${loadaddr} 0 780000; " \
-		"if ${loadfdt}; then " \
+	"nandboot=if run nandloadkernel; then " \
 			"run nandloadfdt;" \
-		"fi; " \
-		"run doboot\0" \
-	"boot=mmc dev ${mmcdev}; " \
-		"if mmc rescan; then " \
-			"if run loadmmcbootscript; then " \
-				"run mmcbootscript;" \
-			"else " \
-				"if run mmcloadkernel; then " \
-					"if ${loadfdt}; then " \
-						"run mmcloadfdt;" \
-					"fi;" \
-					"run mmcboot;" \
-				"fi;" \
-			"fi;" \
+			"run setboottypem;" \
+			"run storagebootcmd;" \
+			"run setboottypez;" \
+			"run storagebootcmd;" \
+		"fi;\0" \
+	"run_eboot=echo Starting EBOOT ...; "\
+		"mmc dev 2 && " \
+		"mmc rescan && mmc read 10042000 a 400 && go 10042000\0" \
+	"loadscript=load ${storagetype} ${storagedev} ${loadaddr} ${script};\0"\
+	"loadkernel=load ${storagetype} ${storagedev} ${loadaddr} ${kernel};\0"\
+	"loadfdt=load ${storagetype} ${storagedev} ${fdtaddr} ${dtb};\0" \
+	"bootscript=echo Running bootscript from ${storagetype} ...;" \
+		   "source ${loadaddr};\0" \
+	"nandloadkernel=nand read ${loadaddr} 0 780000;\0" \
+	"nandloadfdt=nand read ${fdtaddr} 780000 80000;\0" \
+	"setupmmcboot=setenv storagetype mmc; setenv storagedev 2;\0" \
+	"setupsataboot=setenv storagetype sata; setenv storagedev 0;\0" \
+	"setupnandboot=setenv storagetype nand;\0" \
+	"setupusbboot=setenv storagetype usb; setenv storagedev 0;\0" \
+	"storagebootcmd=echo Booting from ${storagetype} ...;" \
+			"run ${storagetype}args; run doboot;\0" \
+	"trybootk=if run loadkernel; then " \
+		"if ${doloadfdt}; then " \
+			"run loadfdt;" \
 		"fi;" \
-		"if sata init; then " \
-			"if run loadsatabootscript; then " \
-				"run satabootscript;" \
-			"else "\
-				"if run sataloadkernel; then " \
-					"if ${loadfdt}; then " \
-						"run sataloadfdt; " \
-					"fi;" \
-					"run sataboot;" \
-				"fi;" \
-			"fi;" \
+		"run storagebootcmd;" \
+		"fi;\0" \
+	"trybootsmz=if run loadscript; then " \
+			"run bootscript;" \
 		"fi;" \
-		"run nandboot\0"
+		"run setboottypem;" \
+		"run trybootk;" \
+		"run setboottypez;" \
+		"run trybootk;\0"
 
 #define CONFIG_BOOTCOMMAND \
-	"run setboottypem; run boot"
+	"run setupmmcboot;" \
+	"mmc dev ${storagedev};" \
+	"if mmc rescan; then " \
+		"run trybootsmz;" \
+	"fi;" \
+	"run setupusbboot;" \
+	"if usb start; then "\
+		"if run loadscript; then " \
+			"run bootscript;" \
+		"fi;" \
+	"fi;" \
+	"run setupsataboot;" \
+	"if sata init; then " \
+		"run trybootsmz;" \
+	"fi;" \
+	"run setupnandboot;" \
+	"run nandboot;"
 
 /* SPI */
 #define CONFIG_SPI
