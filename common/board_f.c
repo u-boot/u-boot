@@ -894,7 +894,7 @@ static init_fnc_t init_sequence_f[] = {
 	prt_mpc5xxx_clks,
 #endif /* CONFIG_MPC5xxx */
 #if defined(CONFIG_DISPLAY_BOARDINFO)
-	checkboard,		/* display board info */
+	show_board_info,
 #endif
 	INIT_FUNC_WATCHDOG_INIT
 #if defined(CONFIG_MISC_INIT_F)
