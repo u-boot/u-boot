@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <image.h>
+#include <fdt_support.h>
 #include <asm/addrspace.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -72,7 +73,37 @@ static int boot_setup_linux(bootm_headers_t *images)
 	if (ret)
 		return ret;
 
+#if defined(CONFIG_MIPS_BOOT_FDT) && defined(CONFIG_OF_LIBFDT)
+	if (images->ft_len) {
+		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
+
+		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
+			&images->ft_len);
+		if (ret)
+			return ret;
+	}
+#endif
+
 	return 0;
+}
+
+static void boot_setup_fdt(bootm_headers_t *images)
+{
+#if defined(CONFIG_MIPS_BOOT_FDT) && defined(CONFIG_OF_LIBFDT)
+	u64 mem_start = 0;
+	u64 mem_size = gd->ram_size;
+
+	debug("## setup FDT\n");
+
+	fdt_chosen(images->ft_addr, 1);
+	fdt_fixup_memory_banks(images->ft_addr, &mem_start, &mem_size, 1);
+	fdt_fixup_ethernet(images->ft_addr);
+	fdt_initrd(images->ft_addr, images->initrd_start, images->initrd_end, 1);
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+	ft_board_setup(images->ft_addr, gd->bd);
+#endif
+#endif
 }
 
 static void linux_cmdline_init(void)
@@ -168,7 +199,7 @@ static void linux_cmdline_append(bootm_headers_t *images)
 
 static void boot_cmdline_linux(bootm_headers_t *images)
 {
-	if (mips_boot_cmdline_legacy) {
+	if (mips_boot_cmdline_legacy && !images->ft_len) {
 		linux_cmdline_legacy(images);
 
 		if (!mips_boot_env_legacy)
@@ -259,8 +290,11 @@ static void linux_env_legacy(bootm_headers_t *images)
 
 static void boot_prep_linux(bootm_headers_t *images)
 {
-	if (mips_boot_env_legacy)
+	if (mips_boot_env_legacy && !images->ft_len)
 		linux_env_legacy(images);
+
+	if (images->ft_len)
+		boot_setup_fdt(images);
 }
 
 static void boot_jump_linux(bootm_headers_t *images)

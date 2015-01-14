@@ -136,6 +136,17 @@ config MIPS_BOOT_ENV_LEGACY
 	  address and size will be prepared as zero-terminated key/value list.
 	  The address of the enviroment is stored in register $a2.
 
+config MIPS_BOOT_FDT
+	bool "Hand over a flattened device tree to Linux kernel (INCOMPLETE)"
+	default n
+	help
+	  Enable this option if you want U-Boot to hand over a flattened
+	  device tree to the kernel.
+
+	  Note: the final hand over to the kernel is not yet implemented. After
+	        the community agreed on the MIPS boot interface for device trees,
+	        the corresponding code will be added.
+
 endmenu
 
 config SUPPORTS_BIG_ENDIAN
