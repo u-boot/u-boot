@@ -30,12 +30,26 @@ static int splash_nand_read(u32 bmp_load_addr, int offset, size_t read_size)
 }
 #endif
 
-static int splash_storage_read(u32 bmp_load_addr, int offset, size_t read_size)
+static int splash_storage_read(struct splash_location *location,
+			       u32 bmp_load_addr, size_t read_size)
 {
-	return splash_nand_read(bmp_load_addr, offset, read_size);
+	u32 offset;
+
+	if (!location)
+		return -EINVAL;
+
+	offset = location->offset;
+	switch (location->storage) {
+	case SPLASH_STORAGE_NAND:
+		return splash_nand_read(bmp_load_addr, offset, read_size);
+	default:
+		printf("Unknown splash location\n");
+	}
+
+	return -EINVAL;
 }
 
-static int splash_load_raw(u32 bmp_load_addr, int offset)
+static int splash_load_raw(struct splash_location *location, u32 bmp_load_addr)
 {
 	struct bmp_header *bmp_hdr;
 	int res;
@@ -44,7 +58,7 @@ static int splash_load_raw(u32 bmp_load_addr, int offset)
 	if (bmp_load_addr + bmp_header_size >= gd->start_addr_sp)
 		goto splash_address_too_high;
 
-	res = splash_storage_read(bmp_load_addr, offset, bmp_header_size);
+	res = splash_storage_read(location, bmp_load_addr, bmp_header_size);
 	if (res < 0)
 		return res;
 
@@ -54,7 +68,7 @@ static int splash_load_raw(u32 bmp_load_addr, int offset)
 	if (bmp_load_addr + bmp_size >= gd->start_addr_sp)
 		goto splash_address_too_high;
 
-	return splash_storage_read(bmp_load_addr, offset, bmp_size);
+	return splash_storage_read(location, bmp_load_addr, bmp_size);
 
 splash_address_too_high:
 	printf("Error: splashimage address too high. Data overwrites U-Boot "
@@ -63,8 +77,46 @@ splash_address_too_high:
 	return -EFAULT;
 }
 
-int cl_splash_screen_prepare(int offset)
+/**
+ * select_splash_location - return the splash location based on board support
+ *			    and env variable "splashsource".
+ *
+ * @locations:		An array of supported splash locations.
+ * @size:		Size of splash_locations array.
+ *
+ * @return: If a null set of splash locations is given, or
+ *	    splashsource env variable is set to unsupported value
+ *			return NULL.
+ *	    If splashsource env variable is not defined
+ *			return the first entry in splash_locations as default.
+ *	    If splashsource env variable contains a supported value
+ *			return the location selected by splashsource.
+ */
+static struct splash_location *select_splash_location(
+			    struct splash_location *locations, uint size)
 {
+	int i;
+	char *env_splashsource;
+
+	if (!locations || size == 0)
+		return NULL;
+
+	env_splashsource = getenv("splashsource");
+	if (env_splashsource == NULL)
+		return &locations[0];
+
+	for (i = 0; i < size; i++) {
+		if (!strcmp(locations[i].name, env_splashsource))
+			return &locations[i];
+	}
+
+	printf("splashsource env variable set to unsupported value\n");
+	return NULL;
+}
+
+int cl_splash_screen_prepare(struct splash_location *locations, uint size)
+{
+	struct splash_location *splash_location;
 	char *env_splashimage_value;
 	u32 bmp_load_addr;
 
@@ -78,5 +130,9 @@ int cl_splash_screen_prepare(int offset)
 		return -EFAULT;
 	}
 
-	return splash_load_raw(bmp_load_addr, offset);
+	splash_location = select_splash_location(locations, size);
+	if (!splash_location)
+		return -EINVAL;
+
+	return splash_load_raw(splash_location, bmp_load_addr);
 }

@@ -59,11 +59,18 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 }
 #endif
 
-#define CM_T35_SPLASH_NAND_OFFSET 0x100000
+struct splash_location splash_locations[] = {
+	{
+		.name = "nand",
+		.storage = SPLASH_STORAGE_NAND,
+		.offset = 0x100000,
+	},
+};
 
 int splash_screen_prepare(void)
 {
-	return cl_splash_screen_prepare(CM_T35_SPLASH_NAND_OFFSET);
+	return cl_splash_screen_prepare(splash_locations,
+					ARRAY_SIZE(splash_locations));
 }
 
 /*
