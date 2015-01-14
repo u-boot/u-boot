@@ -345,32 +345,36 @@ static iomux_v3_cfg_t const enet_pads[] = {
 						MUX_PAD_CTRL(ENET_PAD_CTRL)),
 };
 
-static int handle_mac_address(void)
+static int handle_mac_address(char *env_var, uint eeprom_bus)
 {
 	unsigned char enetaddr[6];
 	int rc;
 
-	rc = eth_getenv_enetaddr("ethaddr", enetaddr);
+	rc = eth_getenv_enetaddr(env_var, enetaddr);
 	if (rc)
 		return 0;
 
-	rc = cl_eeprom_read_mac_addr(enetaddr, CONFIG_SYS_I2C_EEPROM_BUS);
+	rc = cl_eeprom_read_mac_addr(enetaddr, eeprom_bus);
 	if (rc)
 		return rc;
 
 	if (!is_valid_ether_addr(enetaddr))
 		return -1;
 
-	return eth_setenv_enetaddr("ethaddr", enetaddr);
+	return eth_setenv_enetaddr(env_var, enetaddr);
 }
 
+#define SB_FX6_I2C_EEPROM_BUS	0
+#define NO_MAC_ADDR		"No MAC address found for %s\n"
 int board_eth_init(bd_t *bis)
 {
 	int err;
 
-	err = handle_mac_address();
-	if (err)
-		puts("No MAC address found\n");
+	if (handle_mac_address("ethaddr", CONFIG_SYS_I2C_EEPROM_BUS))
+		printf(NO_MAC_ADDR, "primary NIC");
+
+	if (handle_mac_address("eth1addr", SB_FX6_I2C_EEPROM_BUS))
+		printf(NO_MAC_ADDR, "secondary NIC");
 
 	SETUP_IOMUX_PADS(enet_pads);
 	/* phy reset */
@@ -467,6 +471,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 		fdt_find_and_setprop(blob,
 				     "/soc/aips-bus@02100000/ethernet@02188000",
 				     "local-mac-address", enetaddr, 6, 1);
+	}
+
+	if (eth_getenv_enetaddr("eth1addr", enetaddr)) {
+		fdt_find_and_setprop(blob, "/eth@pcie", "local-mac-address",
+				     enetaddr, 6, 1);
 	}
 
 	return 0;
