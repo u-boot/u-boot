@@ -320,4 +320,11 @@ struct sunxi_ccm_reg {
 #define CCM_DE_CTRL_RST			(1 << 30)
 #define CCM_DE_CTRL_GATE		(1 << 31)
 
+#ifndef __ASSEMBLY__
+void clock_set_pll1(unsigned int hz);
+void clock_set_pll3(unsigned int hz);
+unsigned int clock_get_pll5p(void);
+unsigned int clock_get_pll6(void);
+#endif
+
 #endif /* _SUNXI_CLOCK_SUN4I_H */
