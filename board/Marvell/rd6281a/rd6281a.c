@@ -10,7 +10,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 #include "rd6281a.h"
 
@@ -23,9 +23,9 @@ int board_early_init_f(void)
 	 * There are maximum 64 gpios controlled through 2 sets of registers
 	 * the  below configuration configures mainly initial LED status
 	 */
-	kw_config_gpio(RD6281A_OE_VAL_LOW,
-			RD6281A_OE_VAL_HIGH,
-			RD6281A_OE_LOW, RD6281A_OE_HIGH);
+	mvebu_config_gpio(RD6281A_OE_VAL_LOW,
+			  RD6281A_OE_VAL_HIGH,
+			  RD6281A_OE_LOW, RD6281A_OE_HIGH);
 
 	/* Multi-Purpose Pins Functionality configuration */
 	static const u32 kwmpp_config[] = {
@@ -93,7 +93,7 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_RD88F6281;
 
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	return 0;
 }

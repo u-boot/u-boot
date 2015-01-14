@@ -10,10 +10,6 @@
 #include <div64.h>
 #include <asm/io.h>
 
-#if CONFIG_SYS_HZ != 1000
-#warning "CONFIG_SYS_HZ must be 1000 and should not be defined by platforms"
-#endif
-
 #ifndef CONFIG_WD_PERIOD
 # define CONFIG_WD_PERIOD	(10 * 1000 * 1000)	/* 10 seconds default */
 #endif
@@ -41,7 +37,7 @@ unsigned long notrace timer_read_counter(void)
 extern unsigned long __weak timer_read_counter(void);
 #endif
 
-unsigned long long __weak notrace get_ticks(void)
+uint64_t __weak notrace get_ticks(void)
 {
 	unsigned long now = timer_read_counter();
 
@@ -49,11 +45,11 @@ unsigned long long __weak notrace get_ticks(void)
 	if (now < gd->timebase_l)
 		gd->timebase_h++;
 	gd->timebase_l = now;
-	return ((unsigned long long)gd->timebase_h << 32) | gd->timebase_l;
+	return ((uint64_t)gd->timebase_h << 32) | gd->timebase_l;
 }
 
 /* Returns time in milliseconds */
-static unsigned long long notrace tick_to_time(unsigned long long tick)
+static uint64_t notrace tick_to_time(uint64_t tick)
 {
 	ulong div = get_tbclk();
 
@@ -78,9 +74,9 @@ unsigned long __weak notrace timer_get_us(void)
 	return tick_to_time(get_ticks() * 1000);
 }
 
-static unsigned long long usec_to_tick(unsigned long usec)
+static uint64_t usec_to_tick(unsigned long usec)
 {
-	unsigned long long tick = usec;
+	uint64_t tick = usec;
 	tick *= get_tbclk();
 	do_div(tick, 1000000);
 	return tick;
@@ -88,7 +84,7 @@ static unsigned long long usec_to_tick(unsigned long usec)
 
 void __weak __udelay(unsigned long usec)
 {
-	unsigned long long tmp;
+	uint64_t tmp;
 
 	tmp = get_ticks() + usec_to_tick(usec);	/* get current timestamp */
 

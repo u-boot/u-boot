@@ -87,7 +87,7 @@
 	"fdt_addr=0x88000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
-	"mmcdev=0\0" \
+	"mmcdev=1\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
@@ -187,10 +187,20 @@
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_ENV_OFFSET		(6 * SZ_64K)
 #define CONFIG_ENV_SIZE			SZ_8K
+
+#if defined CONFIG_SYS_BOOT_SPINOR
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_OFFSET               (768 * 1024)
+#define CONFIG_ENV_SECT_SIZE            (64 * 1024)
+#define CONFIG_ENV_SPI_BUS              CONFIG_SF_DEFAULT_BUS
+#define CONFIG_ENV_SPI_CS               CONFIG_SF_DEFAULT_CS
+#define CONFIG_ENV_SPI_MODE             CONFIG_SF_DEFAULT_MODE
+#define CONFIG_ENV_SPI_MAX_HZ           CONFIG_SF_DEFAULT_SPEED
+#else
+#define CONFIG_ENV_OFFSET		(6 * SZ_64K)
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0
+#endif
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
@@ -208,6 +218,25 @@
 #define CONFIG_SF_DEFAULT_CS		0
 #define CONFIG_SF_DEFAULT_SPEED		20000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
+#endif
+
+/* USB Configs */
+#define CONFIG_CMD_USB
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_MX6
+#define CONFIG_USB_STORAGE
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CONFIG_MXC_USB_FLAGS		0
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+#endif
+
+#define CONFIG_SYS_FSL_USDHC_NUM	3
+#if defined(CONFIG_ENV_IS_IN_MMC)
+#define CONFIG_SYS_MMC_ENV_DEV		1	/* SDHC2*/
 #endif
 
 #endif				/* __CONFIG_H */

@@ -8,6 +8,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <asm/io.h>
+#include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-ddr.h>
 #include <asm/arch/mx6-pins.h>
@@ -392,6 +393,30 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 	mx6_dram_cfg(&sysinfo, calib, mem);
 }
 
+static void ccgr_init(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	writel(0x00C03F3F, &ccm->CCGR0);
+	writel(0x0030FC03, &ccm->CCGR1);
+	writel(0x0FFFC000, &ccm->CCGR2);
+	writel(0x3FF00000, &ccm->CCGR3);
+	writel(0xFFFFF300, &ccm->CCGR4);	/* enable NAND/GPMI/BCH clks */
+	writel(0x0F0000C3, &ccm->CCGR5);
+	writel(0x000003FF, &ccm->CCGR6);
+}
+
+static void gpr_init(void)
+{
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	/* enable AXI cache for VDOA/VPU/IPU */
+	writel(0xF00000CF, &iomux->gpr[4]);
+	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
+	writel(0x007F007F, &iomux->gpr[6]);
+	writel(0x007F007F, &iomux->gpr[7]);
+}
+
 /*
  * called from C runtime startup code (arch/arm/lib/crt0.S:_main)
  * - we have a stack and a place to store GD, both in SRAM
@@ -404,6 +429,9 @@ void board_init_f(ulong dummy)
 
 	/* setup AIPS and disable watchdog */
 	arch_cpu_init();
+
+	ccgr_init();
+	gpr_init();
 
 	/* iomux and setup of i2c */
 	board_early_init_f();

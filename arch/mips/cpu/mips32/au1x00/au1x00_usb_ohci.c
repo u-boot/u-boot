@@ -54,8 +54,6 @@
 #define readl(a)     au_readl((long)(a))
 #define writel(v,a)  au_writel((v),(int)(a))
 
-#define min_t(type,x,y) ({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
-
 #define DEBUG
 #ifdef DEBUG
 #define dbg(format, arg...) printf("DEBUG: " format "\n", ## arg)

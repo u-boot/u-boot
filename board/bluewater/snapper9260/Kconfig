@@ -1,8 +1,5 @@
 if TARGET_SNAPPER9260
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "snapper9260"
 

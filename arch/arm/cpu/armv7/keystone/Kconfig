@@ -9,10 +9,10 @@ config TARGET_K2HK_EVM
 config TARGET_K2E_EVM
 	bool "TI Keystone 2 Edison EVM"
 
-endchoice
+config TARGET_K2L_EVM
+	bool "TI Keystone 2 Lamar EVM"
 
-config SYS_CPU
-	default "armv7"
+endchoice
 
 config SYS_SOC
 	default "keystone"

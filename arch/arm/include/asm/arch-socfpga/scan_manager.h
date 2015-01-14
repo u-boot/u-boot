@@ -13,6 +13,7 @@ struct socfpga_scan_manager {
 	u32	padding[2];
 	u32	fifo_single_byte;
 	u32	fifo_double_byte;
+	u32	fifo_triple_byte;
 	u32	fifo_quad_byte;
 };
 

@@ -1,8 +1,5 @@
 if TARGET_AT91SAM9260EK
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "at91sam9260ek"
 

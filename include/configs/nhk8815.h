@@ -12,7 +12,6 @@
 
 #include <nomadik.h>
 
-#define CONFIG_ARM926EJS
 #define CONFIG_NOMADIK_8815	/* cpu variant */
 
 #define CONFIG_SKIP_LOWLEVEL_INIT /* we have already been loaded to RAM */

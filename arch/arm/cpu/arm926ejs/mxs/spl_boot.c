@@ -118,6 +118,8 @@ static void mxs_spl_fixup_vectors(void)
 	 * fine.
 	 */
 	extern uint32_t _start;
+
+	/* cppcheck-suppress nullPointer */
 	memcpy(0x0, &_start, 0x60);
 }
 

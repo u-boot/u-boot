@@ -66,7 +66,21 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	assert(run_command_list("false", -1, 0) == 1);
 	assert(run_command_list("echo", -1, 0) == 0);
 
+	run_command("setenv foo 'setenv monty 1; setenv python 2'", 0);
+	run_command("run foo", 0);
+	assert(getenv("monty") != NULL);
+	assert(!strcmp("1", getenv("monty")));
+	assert(getenv("python") != NULL);
+	assert(!strcmp("2", getenv("python")));
+
 #ifdef CONFIG_SYS_HUSH_PARSER
+	run_command("setenv foo 'setenv black 1\nsetenv adder 2'", 0);
+	run_command("run foo", 0);
+	assert(getenv("black") != NULL);
+	assert(!strcmp("1", getenv("black")));
+	assert(getenv("adder") != NULL);
+	assert(!strcmp("2", getenv("adder")));
+
 	/* Test the 'test' command */
 
 #define HUSH_TEST(name, expr, expected_result) \
@@ -173,6 +187,11 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	HUSH_TEST(e, "-e hostfs - creating_this_file_breaks_uboot_unit_test", n);
 #endif
 #endif
+
+	assert(run_command("", 0) == 0);
+	assert(run_command(" ", 0) == 0);
+
+	assert(run_command("'", 0) == 1);
 
 	printf("%s: Everything went swimmingly\n", __func__);
 	return 0;

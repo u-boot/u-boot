@@ -1,9 +1,16 @@
 menu "NAND Device Support"
 
+config SYS_NAND_SELF_INIT
+	bool
+	help
+	  This option, if enabled, provides more flexible and linux-like
+	  NAND initialization process.
+
 if !SPL_BUILD
 
 config NAND_DENALI
 	bool "Support Denali NAND controller"
+	select SYS_NAND_SELF_INIT
 	help
 	  Enable support for the Denali NAND controller.
 

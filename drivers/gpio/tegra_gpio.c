@@ -39,7 +39,6 @@ struct tegra_gpio_platdata {
 
 /* Information about each port at run-time */
 struct tegra_port_info {
-	char label[TEGRA_GPIOS_PER_PORT][GPIO_NAME_SIZE];
 	struct gpio_ctlr_bank *bank;
 	int base_gpio;		/* Port number for this port (0, 1,.., n-1) */
 };
@@ -132,21 +131,6 @@ static void set_level(unsigned gpio, int high)
 	writel(u, &bank->gpio_out[GPIO_PORT(gpio)]);
 }
 
-static int check_reserved(struct udevice *dev, unsigned offset,
-			  const char *func)
-{
-	struct tegra_port_info *state = dev_get_priv(dev);
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
-
-	if (!*state->label[offset]) {
-		printf("tegra_gpio: %s: error: gpio %s%d not reserved\n",
-		       func, uc_priv->bank_name, offset);
-		return -EBUSY;
-	}
-
-	return 0;
-}
-
 /* set GPIO pin 'gpio' as an output, with polarity 'value' */
 int tegra_spl_gpio_direction_output(int gpio, int value)
 {
@@ -171,56 +155,16 @@ static int tegra_gpio_request(struct udevice *dev, unsigned offset,
 {
 	struct tegra_port_info *state = dev_get_priv(dev);
 
-	if (*state->label[offset])
-		return -EBUSY;
-
-	strncpy(state->label[offset], label, GPIO_NAME_SIZE);
-	state->label[offset][GPIO_NAME_SIZE - 1] = '\0';
-
 	/* Configure as a GPIO */
 	set_config(state->base_gpio + offset, 1);
 
 	return 0;
 }
 
-static int tegra_gpio_free(struct udevice *dev, unsigned offset)
-{
-	struct tegra_port_info *state = dev_get_priv(dev);
-	int ret;
-
-	ret = check_reserved(dev, offset, __func__);
-	if (ret)
-		return ret;
-	state->label[offset][0] = '\0';
-
-	return 0;
-}
-
-/* read GPIO OUT value of pin 'gpio' */
-static int tegra_gpio_get_output_value(unsigned gpio)
-{
-	struct gpio_ctlr *ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
-	struct gpio_ctlr_bank *bank = &ctlr->gpio_bank[GPIO_BANK(gpio)];
-	int val;
-
-	debug("gpio_get_output_value: pin = %d (port %d:bit %d)\n",
-		gpio, GPIO_FULLPORT(gpio), GPIO_BIT(gpio));
-
-	val = readl(&bank->gpio_out[GPIO_PORT(gpio)]);
-
-	return (val >> GPIO_BIT(gpio)) & 1;
-}
-
-
 /* set GPIO pin 'gpio' as an input */
 static int tegra_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
 	struct tegra_port_info *state = dev_get_priv(dev);
-	int ret;
-
-	ret = check_reserved(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	/* Configure GPIO direction as input. */
 	set_direction(state->base_gpio + offset, 0);
@@ -234,11 +178,6 @@ static int tegra_gpio_direction_output(struct udevice *dev, unsigned offset,
 {
 	struct tegra_port_info *state = dev_get_priv(dev);
 	int gpio = state->base_gpio + offset;
-	int ret;
-
-	ret = check_reserved(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	/* Configure GPIO output value. */
 	set_level(gpio, value);
@@ -254,12 +193,7 @@ static int tegra_gpio_get_value(struct udevice *dev, unsigned offset)
 {
 	struct tegra_port_info *state = dev_get_priv(dev);
 	int gpio = state->base_gpio + offset;
-	int ret;
 	int val;
-
-	ret = check_reserved(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	debug("%s: pin = %d (port %d:bit %d)\n", __func__,
 	      gpio, GPIO_FULLPORT(gpio), GPIO_BIT(gpio));
@@ -274,11 +208,6 @@ static int tegra_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 {
 	struct tegra_port_info *state = dev_get_priv(dev);
 	int gpio = state->base_gpio + offset;
-	int ret;
-
-	ret = check_reserved(dev, offset, __func__);
-	if (ret)
-		return ret;
 
 	debug("gpio_set_value: pin = %d (port %d:bit %d), value = %d\n",
 	      gpio, GPIO_FULLPORT(gpio), GPIO_BIT(gpio), value);
@@ -314,8 +243,6 @@ static int tegra_gpio_get_function(struct udevice *dev, unsigned offset)
 	struct tegra_port_info *state = dev_get_priv(dev);
 	int gpio = state->base_gpio + offset;
 
-	if (!*state->label[offset])
-		return GPIOF_UNUSED;
 	if (!get_config(gpio))
 		return GPIOF_FUNC;
 	else if (get_direction(gpio))
@@ -324,50 +251,13 @@ static int tegra_gpio_get_function(struct udevice *dev, unsigned offset)
 		return GPIOF_INPUT;
 }
 
-static int tegra_gpio_get_state(struct udevice *dev, unsigned int offset,
-				char *buf, int bufsize)
-{
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
-	struct tegra_port_info *state = dev_get_priv(dev);
-	int gpio = state->base_gpio + offset;
-	const char *label;
-	int is_output;
-	int is_gpio;
-	int size;
-
-	label = state->label[offset];
-	is_gpio = get_config(gpio); /* GPIO, not SFPIO */
-	size = snprintf(buf, bufsize, "%s%d: ",
-			uc_priv->bank_name ? uc_priv->bank_name : "", offset);
-	buf += size;
-	bufsize -= size;
-	if (is_gpio) {
-		is_output = get_direction(gpio);
-
-		snprintf(buf, bufsize, "%s: %d [%c]%s%s",
-			 is_output ? "out" : " in",
-			 is_output ?
-				tegra_gpio_get_output_value(gpio) :
-				tegra_gpio_get_value(dev, offset),
-			 *label ? 'x' : ' ',
-			 *label ? " " : "",
-			 label);
-	} else {
-		snprintf(buf, bufsize, "sfpio");
-	}
-
-	return 0;
-}
-
 static const struct dm_gpio_ops gpio_tegra_ops = {
 	.request		= tegra_gpio_request,
-	.free			= tegra_gpio_free,
 	.direction_input	= tegra_gpio_direction_input,
 	.direction_output	= tegra_gpio_direction_output,
 	.get_value		= tegra_gpio_get_value,
 	.set_value		= tegra_gpio_set_value,
 	.get_function		= tegra_gpio_get_function,
-	.get_state		= tegra_gpio_get_state,
 };
 
 /**

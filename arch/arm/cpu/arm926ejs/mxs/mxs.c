@@ -83,7 +83,9 @@ void mx28_fixup_vt(uint32_t start_addr)
 	int i;
 
 	for (i = 0; i < 8; i++) {
+		/* cppcheck-suppress nullPointer */
 		vt[i] = ldr_pc;
+		/* cppcheck-suppress nullPointer */
 		vt[i + 8] = start_addr + (4 * i);
 	}
 }

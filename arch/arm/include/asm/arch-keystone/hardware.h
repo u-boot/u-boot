@@ -87,6 +87,56 @@ typedef volatile unsigned int   *dv_reg_p;
 
 #define KS2_DDR3_PLLCTRL_PHY_RESET	0x80000000
 
+/* DDR3 ECC */
+#define KS2_DDR3_ECC_INT_STATUS_OFFSET			0x0AC
+#define KS2_DDR3_ECC_INT_ENABLE_SET_SYS_OFFSET		0x0B4
+#define KS2_DDR3_ECC_CTRL_OFFSET			0x110
+#define KS2_DDR3_ECC_ADDR_RANGE1_OFFSET			0x114
+#define KS2_DDR3_ONE_BIT_ECC_ERR_CNT_OFFSET		0x130
+#define KS2_DDR3_ONE_BIT_ECC_ERR_ADDR_LOG_OFFSET	0x13C
+
+/* DDR3 ECC Interrupt Status register */
+#define KS2_DDR3_1B_ECC_ERR_SYS		BIT(5)
+#define KS2_DDR3_2B_ECC_ERR_SYS		BIT(4)
+#define KS2_DDR3_WR_ECC_ERR_SYS		BIT(3)
+
+/* DDR3 ECC Control register */
+#define KS2_DDR3_ECC_EN			BIT(31)
+#define KS2_DDR3_ECC_ADDR_RNG_PROT	BIT(30)
+#define KS2_DDR3_ECC_VERIFY_EN		BIT(29)
+#define KS2_DDR3_ECC_RMW_EN		BIT(28)
+#define KS2_DDR3_ECC_ADDR_RNG_1_EN	BIT(0)
+
+#define KS2_DDR3_ECC_ENABLE		(KS2_DDR3_ECC_EN | \
+					KS2_DDR3_ECC_ADDR_RNG_PROT | \
+					KS2_DDR3_ECC_VERIFY_EN)
+
+/* EDMA */
+#define KS2_EDMA0_BASE			0x02700000
+
+/* EDMA3 register offsets */
+#define KS2_EDMA_QCHMAP0		0x0200
+#define KS2_EDMA_IPR			0x1068
+#define KS2_EDMA_ICR			0x1070
+#define KS2_EDMA_QEECR			0x1088
+#define KS2_EDMA_QEESR			0x108c
+#define KS2_EDMA_PARAM_1(x)		(0x4020 + (4 * x))
+
+/* NETCP pktdma */
+#define KS2_NETCP_PDMA_RX_FREE_QUEUE	4001
+#define KS2_NETCP_PDMA_RX_RCV_QUEUE	4002
+
+/* Chip Interrupt Controller */
+#define KS2_CIC2_BASE			0x02608000
+
+/* Chip Interrupt Controller register offsets */
+#define KS2_CIC_CTRL			0x04
+#define KS2_CIC_HOST_CTRL		0x0C
+#define KS2_CIC_GLOBAL_ENABLE		0x10
+#define KS2_CIC_SYS_ENABLE_IDX_SET	0x28
+#define KS2_CIC_HOST_ENABLE_IDX_SET	0x34
+#define KS2_CIC_CHAN_MAP(n)		(0x0400 + (n << 2))
+
 #define KS2_UART0_BASE                	0x02530c00
 #define KS2_UART1_BASE                	0x02531000
 
@@ -94,6 +144,7 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_DEVICE_STATE_CTRL_BASE	0x02620000
 #define KS2_JTAG_ID_REG			(KS2_DEVICE_STATE_CTRL_BASE + 0x18)
 #define KS2_DEVSTAT			(KS2_DEVICE_STATE_CTRL_BASE + 0x20)
+#define KS2_DEVCFG			(KS2_DEVICE_STATE_CTRL_BASE + 0x14c)
 
 /* PSC */
 #define KS2_PSC_BASE			0x02350000
@@ -140,19 +191,51 @@ typedef volatile unsigned int   *dv_reg_p;
 /* Flag from ks2_debug options to check if DSPs need to stay ON */
 #define DBG_LEAVE_DSPS_ON		0x1
 
+/* MSMC control */
+#define KS2_MSMC_CTRL_BASE		0x0bc00000
+#define KS2_MSMC_DATA_BASE		0x0c000000
+#define KS2_MSMC_SEGMENT_TETRIS		8
+#define KS2_MSMC_SEGMENT_NETCP		9
+#define KS2_MSMC_SEGMENT_QM_PDSP	10
+#define KS2_MSMC_SEGMENT_PCIE0		11
+
+/* MSMC segment size shift bits */
+#define KS2_MSMC_SEG_SIZE_SHIFT		12
+#define KS2_MSMC_MAP_SEG_NUM		(2 << (30 - KS2_MSMC_SEG_SIZE_SHIFT))
+#define KS2_MSMC_DST_SEG_BASE		(CONFIG_SYS_LPAE_SDRAM_BASE >> \
+					KS2_MSMC_SEG_SIZE_SHIFT)
+
 /* Device speed */
 #define KS2_REV1_DEVSPEED		(KS2_DEVICE_STATE_CTRL_BASE + 0xc98)
 #define KS2_EFUSE_BOOTROM		(KS2_DEVICE_STATE_CTRL_BASE + 0xc90)
+#define KS2_MISC_CTRL			(KS2_DEVICE_STATE_CTRL_BASE + 0xc7c)
 
 /* Queue manager */
-#define KS2_QM_MANAGER_BASE		0x02a02000
+#define KS2_QM_BASE_ADDRESS		0x23a80000
+#define KS2_QM_CONF_BASE		0x02a02000
 #define KS2_QM_DESC_SETUP_BASE		0x02a03000
-#define KS2_QM_MANAGER_QUEUES_BASEi	0x02a80000
+#define KS2_QM_STATUS_RAM_BASE		0x02a06000
+#define KS2_QM_INTD_CONF_BASE		0x02a0c000
+#define KS2_QM_PDSP1_CMD_BASE		0x02a20000
+#define KS2_QM_PDSP1_CTRL_BASE		0x02a0f000
+#define KS2_QM_PDSP1_IRAM_BASE		0x02a10000
+#define KS2_QM_MANAGER_QUEUES_BASE	0x02a80000
 #define KS2_QM_MANAGER_Q_PROXY_BASE	0x02ac0000
 #define KS2_QM_QUEUE_STATUS_BASE	0x02a40000
+#define KS2_QM_LINK_RAM_BASE		0x00100000
+#define KS2_QM_REGION_NUM		64
+#define KS2_QM_QPOOL_NUM		4000
 
-/* MSMC control */
-#define KS2_MSMC_CTRL_BASE		0x0bc00000
+/* USB */
+#define KS2_USB_SS_BASE			0x02680000
+#define KS2_USB_HOST_XHCI_BASE		(KS2_USB_SS_BASE + 0x10000)
+#define KS2_DEV_USB_PHY_BASE		0x02620738
+#define KS2_USB_PHY_CFG_BASE		0x02630000
+
+#define KS2_MAC_ID_BASE_ADDR		(KS2_DEVICE_STATE_CTRL_BASE + 0x110)
+
+/* SGMII SerDes */
+#define KS2_SGMII_SERDES_BASE		0x0232a000
 
 #ifdef CONFIG_SOC_K2HK
 #include <asm/arch/hardware-k2hk.h>
@@ -160,6 +243,10 @@ typedef volatile unsigned int   *dv_reg_p;
 
 #ifdef CONFIG_SOC_K2E
 #include <asm/arch/hardware-k2e.h>
+#endif
+
+#ifdef CONFIG_SOC_K2L
+#include <asm/arch/hardware-k2l.h>
 #endif
 
 #ifndef __ASSEMBLY__
@@ -177,6 +264,14 @@ static inline int cpu_is_k2e(void)
 	unsigned int part_no    = (jtag_id >> 12) & 0xffff;
 
 	return (part_no == 0xb9a6) ? 1 : 0;
+}
+
+static inline int cpu_is_k2l(void)
+{
+	unsigned int jtag_id    = __raw_readl(KS2_JTAG_ID_REG);
+	unsigned int part_no    = (jtag_id >> 12) & 0xffff;
+
+	return (part_no == 0xb9a7) ? 1 : 0;
 }
 
 static inline int cpu_revision(void)

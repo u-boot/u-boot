@@ -10,8 +10,7 @@
 #include <linux/sizes.h>
 #include <asm/arch/sysmap.h>
 
-/* Architecture, CPU, chip, mach, etc */
-#define CONFIG_ARMV7
+/* CPU, chip, mach, etc */
 #define CONFIG_KONA
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SYS_GENERIC_BOARD

@@ -195,6 +195,9 @@ pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 			     bdf < PCI_BDF(bus + 1, 0, 0);
 #endif
 			     bdf += PCI_BDF(0, 0, 1)) {
+				if (pci_skip_dev(hose, bdf))
+					continue;
+
 				if (!PCI_FUNC(bdf)) {
 					pci_read_config_byte(bdf,
 							     PCI_HEADER_TYPE,
@@ -363,9 +366,27 @@ phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
 	return phys_addr;
 }
 
-/*
- *
- */
+void pci_write_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum,
+		     u32 addr_and_ctrl)
+{
+	int bar;
+
+	bar = PCI_BASE_ADDRESS_0 + barnum * 4;
+	pci_hose_write_config_dword(hose, dev, bar, addr_and_ctrl);
+}
+
+u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum)
+{
+	u32 addr;
+	int bar;
+
+	bar = PCI_BASE_ADDRESS_0 + barnum * 4;
+	pci_hose_read_config_dword(hose, dev, bar, &addr);
+	if (addr & PCI_BASE_ADDRESS_SPACE_IO)
+		return addr & PCI_BASE_ADDRESS_IO_MASK;
+	else
+		return addr & PCI_BASE_ADDRESS_MEM_MASK;
+}
 
 int pci_hose_config_device(struct pci_controller *hose,
 			   pci_dev_t dev,
@@ -572,7 +593,7 @@ const char * pci_class_str(u8 class)
 }
 #endif /* CONFIG_CMD_PCI || CONFIG_PCI_SCAN_SHOW */
 
-int __pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
+__weak int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
 {
 	/*
 	 * Check if pci device should be skipped in configuration
@@ -591,19 +612,15 @@ int __pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
 
 	return 0;
 }
-int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev)
-	__attribute__((weak, alias("__pci_skip_dev")));
 
 #ifdef CONFIG_PCI_SCAN_SHOW
-int __pci_print_dev(struct pci_controller *hose, pci_dev_t dev)
+__weak int pci_print_dev(struct pci_controller *hose, pci_dev_t dev)
 {
 	if (dev == PCI_BDF(hose->first_busno, 0, 0))
 		return 0;
 
 	return 1;
 }
-int pci_print_dev(struct pci_controller *hose, pci_dev_t dev)
-	__attribute__((weak, alias("__pci_print_dev")));
 #endif /* CONFIG_PCI_SCAN_SHOW */
 
 int pci_hose_scan_bus(struct pci_controller *hose, int bus)
@@ -666,13 +683,15 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 #endif
 
 #ifdef CONFIG_PCI_PNP
-		sub_bus = max(pciauto_config_device(hose, dev), sub_bus);
+		sub_bus = max((unsigned int)pciauto_config_device(hose, dev),
+			      sub_bus);
 #else
 		cfg = pci_find_config(hose, class, vendor, device,
 				      PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev));
 		if (cfg) {
 			cfg->config_device(hose, dev, cfg);
-			sub_bus = max(sub_bus, hose->current_busno);
+			sub_bus = max(sub_bus,
+				      (unsigned int)hose->current_busno);
 		}
 #endif
 

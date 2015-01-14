@@ -12,10 +12,10 @@ config TARGET_OMAP5_UEVM
 config TARGET_DRA7XX_EVM
 	bool "TI DRA7XX"
 
-endchoice
+config TARGET_BEAGLE_X15
+	bool "BeagleBoard X15"
 
-config SYS_CPU
-	default "armv7"
+endchoice
 
 config SYS_SOC
 	default "omap5"
@@ -23,5 +23,6 @@ config SYS_SOC
 source "board/compulab/cm_t54/Kconfig"
 source "board/ti/omap5_uevm/Kconfig"
 source "board/ti/dra7xx/Kconfig"
+source "board/ti/beagle_x15/Kconfig"
 
 endif

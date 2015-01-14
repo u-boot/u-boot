@@ -1,0 +1,20 @@
+if TARGET_CROWNBAY
+
+config SYS_BOARD
+	default "crownbay"
+
+config SYS_VENDOR
+	default "intel"
+
+config SYS_SOC
+	default "queensbay"
+
+config SYS_CONFIG_NAME
+	default "crownbay"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select INTEL_QUEENSBAY
+	select BOARD_ROMSIZE_KB_1024
+
+endif

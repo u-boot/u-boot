@@ -10,15 +10,16 @@
 #include <command.h>
 
 #include <net.h>
+#include <phy.h>
+#include <errno.h>
 #include <miiphy.h>
 #include <malloc.h>
-#include <asm/arch/emac_defs.h>
-#include <asm/arch/psc_defs.h>
-#include <asm/arch/keystone_nav.h>
-
-unsigned int emac_dbg;
+#include <asm/ti-common/keystone_nav.h>
+#include <asm/ti-common/keystone_net.h>
+#include <asm/ti-common/keystone_serdes.h>
 
 unsigned int emac_open;
+static struct mii_dev *mdio_bus;
 static unsigned int sys_has_mdio = 1;
 
 #ifdef KEYSTONE2_EMAC_GIG_ENABLE
@@ -30,6 +31,7 @@ static unsigned int sys_has_mdio = 1;
 #define RX_BUFF_NUMS	24
 #define RX_BUFF_LEN	1520
 #define MAX_SIZE_STREAM_BUFFER RX_BUFF_LEN
+#define SGMII_ANEG_TIMEOUT		4000
 
 static u8 rx_buffs[RX_BUFF_NUMS * RX_BUFF_LEN] __aligned(16);
 
@@ -40,15 +42,7 @@ struct rx_buff_desc net_rx_buffs = {
 	.rx_flow	= 22,
 };
 
-static void keystone2_eth_mdio_enable(void);
-
-static int gen_get_link_speed(int phy_addr);
-
-/* EMAC Addresses */
-static volatile struct emac_regs	*adap_emac =
-	(struct emac_regs *)EMAC_EMACSL_BASE_ADDR;
-static volatile struct mdio_regs	*adap_mdio =
-	(struct mdio_regs *)EMAC_MDIO_BASE_ADDR;
+static void keystone2_net_serdes_setup(void);
 
 int keystone2_eth_read_mac_addr(struct eth_device *dev)
 {
@@ -74,83 +68,73 @@ int keystone2_eth_read_mac_addr(struct eth_device *dev)
 	return 0;
 }
 
-static void keystone2_eth_mdio_enable(void)
+/* MDIO */
+
+static int keystone2_mdio_reset(struct mii_dev *bus)
 {
-	u_int32_t	clkdiv;
+	u_int32_t clkdiv;
+	struct mdio_regs *adap_mdio = bus->priv;
 
 	clkdiv = (EMAC_MDIO_BUS_FREQ / EMAC_MDIO_CLOCK_FREQ) - 1;
 
-	writel((clkdiv & 0xffff) |
-	       MDIO_CONTROL_ENABLE |
-	       MDIO_CONTROL_FAULT |
-	       MDIO_CONTROL_FAULT_ENABLE,
+	writel((clkdiv & 0xffff) | MDIO_CONTROL_ENABLE |
+	       MDIO_CONTROL_FAULT | MDIO_CONTROL_FAULT_ENABLE,
 	       &adap_mdio->control);
 
 	while (readl(&adap_mdio->control) & MDIO_CONTROL_IDLE)
 		;
+
+	return 0;
 }
 
-/* Read a PHY register via MDIO inteface. Returns 1 on success, 0 otherwise */
-int keystone2_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data)
+/**
+ * keystone2_mdio_read - read a PHY register via MDIO interface.
+ * Blocks until operation is complete.
+ */
+static int keystone2_mdio_read(struct mii_dev *bus,
+			       int addr, int devad, int reg)
 {
-	int	tmp;
+	int tmp;
+	struct mdio_regs *adap_mdio = bus->priv;
 
 	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
 		;
 
-	writel(MDIO_USERACCESS0_GO |
-	       MDIO_USERACCESS0_WRITE_READ |
-	       ((reg_num & 0x1f) << 21) |
-	       ((phy_addr & 0x1f) << 16),
+	writel(MDIO_USERACCESS0_GO | MDIO_USERACCESS0_WRITE_READ |
+	       ((reg & 0x1f) << 21) | ((addr & 0x1f) << 16),
 	       &adap_mdio->useraccess0);
 
 	/* Wait for command to complete */
 	while ((tmp = readl(&adap_mdio->useraccess0)) & MDIO_USERACCESS0_GO)
 		;
 
-	if (tmp & MDIO_USERACCESS0_ACK) {
-		*data = tmp & 0xffff;
-		return 0;
-	}
+	if (tmp & MDIO_USERACCESS0_ACK)
+		return tmp & 0xffff;
 
-	*data = -1;
 	return -1;
 }
 
-/*
- * Write to a PHY register via MDIO inteface.
+/**
+ * keystone2_mdio_write - write to a PHY register via MDIO interface.
  * Blocks until operation is complete.
  */
-int keystone2_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data)
+static int keystone2_mdio_write(struct mii_dev *bus,
+				int addr, int devad, int reg, u16 val)
 {
+	struct mdio_regs *adap_mdio = bus->priv;
+
 	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
 		;
 
-	writel(MDIO_USERACCESS0_GO |
-	       MDIO_USERACCESS0_WRITE_WRITE |
-	       ((reg_num & 0x1f) << 21) |
-	       ((phy_addr & 0x1f) << 16) |
-	       (data & 0xffff),
-	       &adap_mdio->useraccess0);
+	writel(MDIO_USERACCESS0_GO | MDIO_USERACCESS0_WRITE_WRITE |
+	       ((reg & 0x1f) << 21) | ((addr & 0x1f) << 16) |
+	       (val & 0xffff), &adap_mdio->useraccess0);
 
 	/* Wait for command to complete */
 	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
 		;
 
 	return 0;
-}
-
-/* PHY functions for a generic PHY */
-static int gen_get_link_speed(int phy_addr)
-{
-	u_int16_t	tmp;
-
-	if ((!keystone2_eth_phy_read(phy_addr, MII_STATUS_REG, &tmp)) &&
-	    (tmp & 0x04)) {
-		return 0;
-	}
-
-	return -1;
 }
 
 static void  __attribute__((unused))
@@ -160,8 +144,10 @@ static void  __attribute__((unused))
 	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
 
 	if (sys_has_mdio) {
-		if (keystone2_eth_phy_read(eth_priv->phy_addr, 0, &data) ||
-		    !(data & (1 << 6))) /* speed selection MSB */
+		data = keystone2_mdio_read(mdio_bus, eth_priv->phy_addr,
+					   MDIO_DEVAD_NONE, 0);
+		/* speed selection MSB */
+		if (!(data & (1 << 6)))
 			return;
 	}
 
@@ -169,10 +155,10 @@ static void  __attribute__((unused))
 	 * Check if link detected is giga-bit
 	 * If Gigabit mode detected, enable gigbit in MAC
 	 */
-	writel(readl(&(adap_emac[eth_priv->slave_port - 1].maccontrol)) |
+	writel(readl(DEVICE_EMACSL_BASE(eth_priv->slave_port - 1) +
+		     CPGMACSL_REG_CTL) |
 	       EMAC_MACCONTROL_GIGFORCE | EMAC_MACCONTROL_GIGABIT_ENABLE,
-	       &(adap_emac[eth_priv->slave_port - 1].maccontrol))
-		;
+	       DEVICE_EMACSL_BASE(eth_priv->slave_port - 1) + CPGMACSL_REG_CTL);
 }
 
 int keystone_sgmii_link_status(int port)
@@ -181,38 +167,11 @@ int keystone_sgmii_link_status(int port)
 
 	status = __raw_readl(SGMII_STATUS_REG(port));
 
-	return status & SGMII_REG_STATUS_LINK;
+	return (status & SGMII_REG_STATUS_LOCK) &&
+	       (status & SGMII_REG_STATUS_LINK);
 }
 
-
-int keystone_get_link_status(struct eth_device *dev)
-{
-	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
-	int sgmii_link;
-	int link_state = 0;
-#if CONFIG_GET_LINK_STATUS_ATTEMPTS > 1
-	int j;
-
-	for (j = 0; (j < CONFIG_GET_LINK_STATUS_ATTEMPTS) && (link_state == 0);
-	     j++) {
-#endif
-		sgmii_link =
-			keystone_sgmii_link_status(eth_priv->slave_port - 1);
-
-		if (sgmii_link) {
-			link_state = 1;
-
-			if (eth_priv->sgmii_link_type == SGMII_LINK_MAC_PHY)
-				if (gen_get_link_speed(eth_priv->phy_addr))
-					link_state = 0;
-		}
-#if CONFIG_GET_LINK_STATUS_ATTEMPTS > 1
-	}
-#endif
-	return link_state;
-}
-
-int keystone_sgmii_config(int port, int interface)
+int keystone_sgmii_config(struct phy_device *phy_dev, int port, int interface)
 {
 	unsigned int i, status, mask;
 	unsigned int mr_adv_ability, control;
@@ -273,11 +232,35 @@ int keystone_sgmii_config(int port, int interface)
 	if (control & SGMII_REG_CONTROL_AUTONEG)
 		mask |= SGMII_REG_STATUS_AUTONEG;
 
-	for (i = 0; i < 1000; i++) {
+	status = __raw_readl(SGMII_STATUS_REG(port));
+	if ((status & mask) == mask)
+		return 0;
+
+	printf("\n%s Waiting for SGMII auto negotiation to complete",
+	       phy_dev->dev->name);
+	while ((status & mask) != mask) {
+		/*
+		 * Timeout reached ?
+		 */
+		if (i > SGMII_ANEG_TIMEOUT) {
+			puts(" TIMEOUT !\n");
+			phy_dev->link = 0;
+			return 0;
+		}
+
+		if (ctrlc()) {
+			puts("user interrupt!\n");
+			phy_dev->link = 0;
+			return -EINTR;
+		}
+
+		if ((i++ % 500) == 0)
+			printf(".");
+
+		udelay(1000);   /* 1 ms */
 		status = __raw_readl(SGMII_STATUS_REG(port));
-		if ((status & mask) == mask)
-			break;
 	}
+	puts(" done\n");
 
 	return 0;
 }
@@ -331,6 +314,11 @@ int mac_sl_config(u_int16_t port, struct mac_sl_cfg *cfg)
 
 	writel(cfg->max_rx_len, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_MAXLEN);
 	writel(cfg->ctl, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_CTL);
+
+#if defined(CONFIG_SOC_K2E) || defined(CONFIG_SOC_K2L)
+	/* Map RX packet flow priority to 0 */
+	writel(0, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_RX_PRI_MAP);
+#endif
 
 	return ret;
 }
@@ -393,15 +381,15 @@ int32_t cpmac_drv_send(u32 *buffer, int num_bytes, int slave_port_num)
 	if (num_bytes < EMAC_MIN_ETHERNET_PKT_SIZE)
 		num_bytes = EMAC_MIN_ETHERNET_PKT_SIZE;
 
-	return netcp_send(buffer, num_bytes, (slave_port_num) << 16);
+	return ksnav_send(&netcp_pktdma, buffer,
+			  num_bytes, (slave_port_num) << 16);
 }
 
 /* Eth device open */
 static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 {
-	u_int32_t clkdiv;
-	int link;
 	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
+	struct phy_device *phy_dev = eth_priv->phy_dev;
 
 	debug("+ emac_open\n");
 
@@ -410,15 +398,12 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 	sys_has_mdio =
 		(eth_priv->sgmii_link_type == SGMII_LINK_MAC_PHY) ? 1 : 0;
 
-	psc_enable_module(KS2_LPSC_PA);
-	psc_enable_module(KS2_LPSC_CPGMAC);
-
-	sgmii_serdes_setup_156p25mhz();
+	keystone2_net_serdes_setup();
 
 	if (sys_has_mdio)
-		keystone2_eth_mdio_enable();
+		keystone2_mdio_reset(mdio_bus);
 
-	keystone_sgmii_config(eth_priv->slave_port - 1,
+	keystone_sgmii_config(phy_dev, eth_priv->slave_port - 1,
 			      eth_priv->sgmii_link_type);
 
 	udelay(10000);
@@ -431,7 +416,7 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 		printf("ERROR: qm_init()\n");
 		return -1;
 	}
-	if (netcp_init(&net_rx_buffs)) {
+	if (ksnav_init(&netcp_pktdma, &net_rx_buffs)) {
 		qm_close();
 		printf("ERROR: netcp_init()\n");
 		return -1;
@@ -445,18 +430,11 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 	hw_config_streaming_switch();
 
 	if (sys_has_mdio) {
-		/* Init MDIO & get link state */
-		clkdiv = (EMAC_MDIO_BUS_FREQ / EMAC_MDIO_CLOCK_FREQ) - 1;
-		writel((clkdiv & 0xff) | MDIO_CONTROL_ENABLE |
-		       MDIO_CONTROL_FAULT, &adap_mdio->control)
-			;
+		keystone2_mdio_reset(mdio_bus);
 
-		/* We need to wait for MDIO to start */
-		udelay(1000);
-
-		link = keystone_get_link_status(dev);
-		if (link == 0) {
-			netcp_close();
+		phy_startup(phy_dev);
+		if (phy_dev->link == 0) {
+			ksnav_close(&netcp_pktdma);
 			qm_close();
 			return -1;
 		}
@@ -476,6 +454,9 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 /* Eth device close */
 void keystone2_eth_close(struct eth_device *dev)
 {
+	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
+	struct phy_device *phy_dev = eth_priv->phy_dev;
+
 	debug("+ emac_close\n");
 
 	if (!emac_open)
@@ -483,15 +464,14 @@ void keystone2_eth_close(struct eth_device *dev)
 
 	ethss_stop();
 
-	netcp_close();
+	ksnav_close(&netcp_pktdma);
 	qm_close();
+	phy_shutdown(phy_dev);
 
 	emac_open = 0;
 
 	debug("- emac_close\n");
 }
-
-static int tx_send_loop;
 
 /*
  * This function sends a single packet on the network and returns
@@ -502,21 +482,14 @@ static int keystone2_eth_send_packet(struct eth_device *dev,
 {
 	int ret_status = -1;
 	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
+	struct phy_device *phy_dev = eth_priv->phy_dev;
 
-	tx_send_loop = 0;
-
-	if (keystone_get_link_status(dev) == 0)
+	genphy_update_link(phy_dev);
+	if (phy_dev->link == 0)
 		return -1;
-
-	emac_gigabit_enable(dev);
 
 	if (cpmac_drv_send((u32 *)packet, length, eth_priv->slave_port) != 0)
 		return ret_status;
-
-	if (keystone_get_link_status(dev) == 0)
-		return -1;
-
-	emac_gigabit_enable(dev);
 
 	return length;
 }
@@ -530,13 +503,13 @@ static int keystone2_eth_rcv_packet(struct eth_device *dev)
 	int  pkt_size;
 	u32  *pkt;
 
-	hd = netcp_recv(&pkt, &pkt_size);
+	hd = ksnav_recv(&netcp_pktdma, &pkt, &pkt_size);
 	if (hd == NULL)
 		return 0;
 
 	NetReceive((uchar *)pkt, pkt_size);
 
-	netcp_release_rxhd(hd);
+	ksnav_release_rxhd(&netcp_pktdma, hd);
 
 	return pkt_size;
 }
@@ -546,7 +519,9 @@ static int keystone2_eth_rcv_packet(struct eth_device *dev)
  */
 int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 {
+	int res;
 	struct eth_device *dev;
+	struct phy_device *phy_dev;
 
 	dev = malloc(sizeof(struct eth_device));
 	if (dev == NULL)
@@ -567,145 +542,55 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 
 	eth_register(dev);
 
+	/* Register MDIO bus if it's not registered yet */
+	if (!mdio_bus) {
+		mdio_bus	= mdio_alloc();
+		mdio_bus->read	= keystone2_mdio_read;
+		mdio_bus->write	= keystone2_mdio_write;
+		mdio_bus->reset	= keystone2_mdio_reset;
+		mdio_bus->priv	= (void *)EMAC_MDIO_BASE_ADDR;
+		sprintf(mdio_bus->name, "ethernet-mdio");
+
+		res = mdio_register(mdio_bus);
+		if (res)
+			return res;
+	}
+
+	/* Create phy device and bind it with driver */
+#ifdef CONFIG_KSNET_MDIO_PHY_CONFIG_ENABLE
+	phy_dev = phy_connect(mdio_bus, eth_priv->phy_addr,
+			      dev, PHY_INTERFACE_MODE_SGMII);
+	phy_config(phy_dev);
+#else
+	phy_dev = phy_find_by_mask(mdio_bus, 1 << eth_priv->phy_addr,
+				   PHY_INTERFACE_MODE_SGMII);
+	phy_dev->dev = dev;
+#endif
+	eth_priv->phy_dev = phy_dev;
+
 	return 0;
 }
 
-void sgmii_serdes_setup_156p25mhz(void)
+struct ks2_serdes ks2_serdes_sgmii_156p25mhz = {
+	.clk = SERDES_CLOCK_156P25M,
+	.rate = SERDES_RATE_5G,
+	.rate_mode = SERDES_QUARTER_RATE,
+	.intf = SERDES_PHY_SGMII,
+	.loopback = 0,
+};
+
+static void keystone2_net_serdes_setup(void)
 {
-	unsigned int cnt;
+	ks2_serdes_init(CONFIG_KSNET_SERDES_SGMII_BASE,
+			&ks2_serdes_sgmii_156p25mhz,
+			CONFIG_KSNET_SERDES_LANES_PER_SGMII);
 
-	/*
-	 * configure Serializer/Deserializer (SerDes) hardware. SerDes IP
-	 * hardware vendor published only register addresses and their values
-	 * to be used for configuring SerDes. So had to use hardcoded values
-	 * below.
-	 */
-	clrsetbits_le32(0x0232a000, 0xffff0000, 0x00800000);
-	clrsetbits_le32(0x0232a014, 0x0000ffff, 0x00008282);
-	clrsetbits_le32(0x0232a060, 0x00ffffff, 0x00142438);
-	clrsetbits_le32(0x0232a064, 0x00ffff00, 0x00c3c700);
-	clrsetbits_le32(0x0232a078, 0x0000ff00, 0x0000c000);
+#if defined(CONFIG_SOC_K2E) || defined(CONFIG_SOC_K2L)
+	ks2_serdes_init(CONFIG_KSNET_SERDES_SGMII2_BASE,
+			&ks2_serdes_sgmii_156p25mhz,
+			CONFIG_KSNET_SERDES_LANES_PER_SGMII);
+#endif
 
-	clrsetbits_le32(0x0232a204, 0xff0000ff, 0x38000080);
-	clrsetbits_le32(0x0232a208, 0x000000ff, 0x00000000);
-	clrsetbits_le32(0x0232a20c, 0xff000000, 0x02000000);
-	clrsetbits_le32(0x0232a210, 0xff000000, 0x1b000000);
-	clrsetbits_le32(0x0232a214, 0x0000ffff, 0x00006fb8);
-	clrsetbits_le32(0x0232a218, 0xffff00ff, 0x758000e4);
-	clrsetbits_le32(0x0232a2ac, 0x0000ff00, 0x00004400);
-	clrsetbits_le32(0x0232a22c, 0x00ffff00, 0x00200800);
-	clrsetbits_le32(0x0232a280, 0x00ff00ff, 0x00820082);
-	clrsetbits_le32(0x0232a284, 0xffffffff, 0x1d0f0385);
-
-	clrsetbits_le32(0x0232a404, 0xff0000ff, 0x38000080);
-	clrsetbits_le32(0x0232a408, 0x000000ff, 0x00000000);
-	clrsetbits_le32(0x0232a40c, 0xff000000, 0x02000000);
-	clrsetbits_le32(0x0232a410, 0xff000000, 0x1b000000);
-	clrsetbits_le32(0x0232a414, 0x0000ffff, 0x00006fb8);
-	clrsetbits_le32(0x0232a418, 0xffff00ff, 0x758000e4);
-	clrsetbits_le32(0x0232a4ac, 0x0000ff00, 0x00004400);
-	clrsetbits_le32(0x0232a42c, 0x00ffff00, 0x00200800);
-	clrsetbits_le32(0x0232a480, 0x00ff00ff, 0x00820082);
-	clrsetbits_le32(0x0232a484, 0xffffffff, 0x1d0f0385);
-
-	clrsetbits_le32(0x0232a604, 0xff0000ff, 0x38000080);
-	clrsetbits_le32(0x0232a608, 0x000000ff, 0x00000000);
-	clrsetbits_le32(0x0232a60c, 0xff000000, 0x02000000);
-	clrsetbits_le32(0x0232a610, 0xff000000, 0x1b000000);
-	clrsetbits_le32(0x0232a614, 0x0000ffff, 0x00006fb8);
-	clrsetbits_le32(0x0232a618, 0xffff00ff, 0x758000e4);
-	clrsetbits_le32(0x0232a6ac, 0x0000ff00, 0x00004400);
-	clrsetbits_le32(0x0232a62c, 0x00ffff00, 0x00200800);
-	clrsetbits_le32(0x0232a680, 0x00ff00ff, 0x00820082);
-	clrsetbits_le32(0x0232a684, 0xffffffff, 0x1d0f0385);
-
-	clrsetbits_le32(0x0232a804, 0xff0000ff, 0x38000080);
-	clrsetbits_le32(0x0232a808, 0x000000ff, 0x00000000);
-	clrsetbits_le32(0x0232a80c, 0xff000000, 0x02000000);
-	clrsetbits_le32(0x0232a810, 0xff000000, 0x1b000000);
-	clrsetbits_le32(0x0232a814, 0x0000ffff, 0x00006fb8);
-	clrsetbits_le32(0x0232a818, 0xffff00ff, 0x758000e4);
-	clrsetbits_le32(0x0232a8ac, 0x0000ff00, 0x00004400);
-	clrsetbits_le32(0x0232a82c, 0x00ffff00, 0x00200800);
-	clrsetbits_le32(0x0232a880, 0x00ff00ff, 0x00820082);
-	clrsetbits_le32(0x0232a884, 0xffffffff, 0x1d0f0385);
-
-	clrsetbits_le32(0x0232aa00, 0x0000ff00, 0x00000800);
-	clrsetbits_le32(0x0232aa08, 0xffff0000, 0x38a20000);
-	clrsetbits_le32(0x0232aa30, 0x00ffff00, 0x008a8a00);
-	clrsetbits_le32(0x0232aa84, 0x0000ff00, 0x00000600);
-	clrsetbits_le32(0x0232aa94, 0xff000000, 0x10000000);
-	clrsetbits_le32(0x0232aaa0, 0xff000000, 0x81000000);
-	clrsetbits_le32(0x0232aabc, 0xff000000, 0xff000000);
-	clrsetbits_le32(0x0232aac0, 0x000000ff, 0x0000008b);
-	clrsetbits_le32(0x0232ab08, 0xffff0000, 0x583f0000);
-	clrsetbits_le32(0x0232ab0c, 0x000000ff, 0x0000004e);
-	clrsetbits_le32(0x0232a000, 0x000000ff, 0x00000003);
-	clrsetbits_le32(0x0232aa00, 0x000000ff, 0x0000005f);
-
-	clrsetbits_le32(0x0232aa48, 0x00ffff00, 0x00fd8c00);
-	clrsetbits_le32(0x0232aa54, 0x00ffffff, 0x002fec72);
-	clrsetbits_le32(0x0232aa58, 0xffffff00, 0x00f92100);
-	clrsetbits_le32(0x0232aa5c, 0xffffffff, 0x00040060);
-	clrsetbits_le32(0x0232aa60, 0xffffffff, 0x00008000);
-	clrsetbits_le32(0x0232aa64, 0xffffffff, 0x0c581220);
-	clrsetbits_le32(0x0232aa68, 0xffffffff, 0xe13b0602);
-	clrsetbits_le32(0x0232aa6c, 0xffffffff, 0xb8074cc1);
-	clrsetbits_le32(0x0232aa70, 0xffffffff, 0x3f02e989);
-	clrsetbits_le32(0x0232aa74, 0x000000ff, 0x00000001);
-	clrsetbits_le32(0x0232ab20, 0x00ff0000, 0x00370000);
-	clrsetbits_le32(0x0232ab1c, 0xff000000, 0x37000000);
-	clrsetbits_le32(0x0232ab20, 0x000000ff, 0x0000005d);
-
-	/*Bring SerDes out of Reset if SerDes is Shutdown & is in Reset Mode*/
-	clrbits_le32(0x0232a010, 1 << 28);
-
-	/* Enable TX and RX via the LANExCTL_STS 0x0000 + x*4 */
-	clrbits_le32(0x0232a228, 1 << 29);
-	writel(0xF800F8C0, 0x0232bfe0);
-	clrbits_le32(0x0232a428, 1 << 29);
-	writel(0xF800F8C0, 0x0232bfe4);
-	clrbits_le32(0x0232a628, 1 << 29);
-	writel(0xF800F8C0, 0x0232bfe8);
-	clrbits_le32(0x0232a828, 1 << 29);
-	writel(0xF800F8C0, 0x0232bfec);
-
-	/*Enable pll via the pll_ctrl 0x0014*/
-	writel(0xe0000000, 0x0232bff4)
-		;
-
-	/*Waiting for SGMII Serdes PLL lock.*/
-	for (cnt = 10000; cnt > 0 && ((readl(0x02090114) & 0x10) == 0); cnt--)
-		;
-
-	for (cnt = 10000; cnt > 0 && ((readl(0x02090214) & 0x10) == 0); cnt--)
-		;
-
-	for (cnt = 10000; cnt > 0 && ((readl(0x02090414) & 0x10) == 0); cnt--)
-		;
-
-	for (cnt = 10000; cnt > 0 && ((readl(0x02090514) & 0x10) == 0); cnt--)
-		;
-
-	udelay(45000);
-}
-
-void sgmii_serdes_shutdown(void)
-{
-	/*
-	 * shutdown SerDes hardware. SerDes hardware vendor published only
-	 * register addresses and their values. So had to use hardcoded
-	 * values below.
-	 */
-	clrbits_le32(0x0232bfe0, 3 << 29 | 3 << 13);
-	setbits_le32(0x02320228, 1 << 29);
-	clrbits_le32(0x0232bfe4, 3 << 29 | 3 << 13);
-	setbits_le32(0x02320428, 1 << 29);
-	clrbits_le32(0x0232bfe8, 3 << 29 | 3 << 13);
-	setbits_le32(0x02320628, 1 << 29);
-	clrbits_le32(0x0232bfec, 3 << 29 | 3 << 13);
-	setbits_le32(0x02320828, 1 << 29);
-
-	clrbits_le32(0x02320034, 3 << 29);
-	setbits_le32(0x02320010, 1 << 28);
+	/* wait till setup */
+	udelay(5000);
 }

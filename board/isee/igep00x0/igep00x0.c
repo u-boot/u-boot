@@ -5,6 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
+#include <ns16550.h>
 #include <twl4030.h>
 #include <netdev.h>
 #include <asm/gpio.h>
@@ -29,6 +31,17 @@ static const u32 gpmc_lan_config[] = {
 	NET_LAN9221_GPMC_CONFIG6,
 };
 #endif
+
+static const struct ns16550_platdata igep_serial = {
+	OMAP34XX_UART3,
+	2,
+	V_NS16550_CLK
+};
+
+U_BOOT_DEVICE(igep_uart) = {
+	"serial_omap",
+	&igep_serial
+};
 
 /*
  * Routine: board_init
@@ -134,6 +147,13 @@ static inline void setup_net_chip(void) {}
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
+}
+#endif
+
+#if defined(CONFIG_GENERIC_MMC)
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
 }
 #endif
 

@@ -19,6 +19,7 @@
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
+#include <hwconfig.h>
 
 #include "../common/qixis.h"
 #include "../common/vsc3316_3308.h"
@@ -333,6 +334,8 @@ int configure_vsc3316_3308(void)
 	unsigned int num_vsc16_con, num_vsc08_con;
 	u32 serdes1_prtcl, serdes2_prtcl;
 	int ret;
+	char buffer[HWCONFIG_BUFFER_SIZE];
+	char *buf = NULL;
 
 	serdes1_prtcl = in_be32(&gur->rcwsr[4]) &
 			FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
@@ -385,15 +388,18 @@ int configure_vsc3316_3308(void)
 		}
 		break;
 
+	case 0x01:
 	case 0x02:
 	case 0x04:
 	case 0x05:
 	case 0x06:
+	case 0x07:
 	case 0x08:
 	case 0x09:
 	case 0x0A:
 	case 0x0B:
 	case 0x0C:
+	case 0x2F:
 	case 0x30:
 	case 0x32:
 	case 0x33:
@@ -487,6 +493,9 @@ int configure_vsc3316_3308(void)
 		return -1;
 	}
 
+	num_vsc08_con = NUM_CON_VSC3308;
+	/* Configure VSC3308 crossbar switch */
+	ret = select_i2c_ch_pca(I2C_CH_VSC3308);
 	switch (serdes2_prtcl) {
 #ifdef CONFIG_PPC_B4420
 	case 0x9d:
@@ -494,14 +503,11 @@ int configure_vsc3316_3308(void)
 	case 0x9E:
 	case 0x9A:
 	case 0x98:
-	case 0xb2:
+	case 0x48:
 	case 0x49:
 	case 0x4E:
-	case 0x8D:
+	case 0x79:
 	case 0x7A:
-		num_vsc08_con = NUM_CON_VSC3308;
-		/* Configure VSC3308 crossbar switch */
-		ret = select_i2c_ch_pca(I2C_CH_VSC3308);
 		if (!ret) {
 			ret = vsc3308_config(VSC3308_TX_ADDRESS,
 					vsc08_tx_amc, num_vsc08_con);
@@ -511,6 +517,71 @@ int configure_vsc3316_3308(void)
 					vsc08_rx_amc, num_vsc08_con);
 			if (ret)
 				return ret;
+		} else {
+			return ret;
+		}
+		break;
+	case 0x80:
+	case 0x81:
+	case 0x82:
+	case 0x83:
+	case 0x84:
+	case 0x85:
+	case 0x86:
+	case 0x87:
+	case 0x88:
+	case 0x89:
+	case 0x8a:
+	case 0x8b:
+	case 0x8c:
+	case 0x8d:
+	case 0x8e:
+	case 0xb1:
+	case 0xb2:
+		if (!ret) {
+			/*
+			 * Extract hwconfig from environment since environment
+			 * is not setup properly yet
+			 */
+			getenv_f("hwconfig", buffer, sizeof(buffer));
+			buf = buffer;
+
+			if (hwconfig_subarg_cmp_f("fsl_b4860_serdes2",
+						  "sfp_amc", "sfp", buf)) {
+#ifdef CONFIG_SYS_FSL_B4860QDS_XFI_ERR
+				/* change default VSC3308 for XFI erratum */
+				ret = vsc3308_config_adjust(VSC3308_TX_ADDRESS,
+						vsc08_tx_sfp, num_vsc08_con);
+				if (ret)
+					return ret;
+
+				ret = vsc3308_config_adjust(VSC3308_RX_ADDRESS,
+						vsc08_rx_sfp, num_vsc08_con);
+				if (ret)
+					return ret;
+#else
+				ret = vsc3308_config(VSC3308_TX_ADDRESS,
+						vsc08_tx_sfp, num_vsc08_con);
+				if (ret)
+					return ret;
+
+				ret = vsc3308_config(VSC3308_RX_ADDRESS,
+						vsc08_rx_sfp, num_vsc08_con);
+				if (ret)
+					return ret;
+#endif
+			} else {
+				ret = vsc3308_config(VSC3308_TX_ADDRESS,
+						vsc08_tx_amc, num_vsc08_con);
+				if (ret)
+					return ret;
+
+				ret = vsc3308_config(VSC3308_RX_ADDRESS,
+						vsc08_rx_amc, num_vsc08_con);
+				if (ret)
+					return ret;
+			}
+
 		} else {
 			return ret;
 		}
@@ -730,19 +801,23 @@ int config_serdes1_refclks(void)
 	 * to 122.88MHz
 	 */
 	switch (serdes1_prtcl) {
+	case 0x29:
 	case 0x2A:
 	case 0x2C:
 	case 0x2D:
 	case 0x2E:
+	case 0x01:
 	case 0x02:
 	case 0x04:
 	case 0x05:
 	case 0x06:
+	case 0x07:
 	case 0x08:
 	case 0x09:
 	case 0x0A:
 	case 0x0B:
 	case 0x0C:
+	case 0x2F:
 	case 0x30:
 	case 0x32:
 	case 0x33:
@@ -860,6 +935,8 @@ int config_serdes2_refclks(void)
 #endif
 	case 0x9E:
 	case 0x9A:
+		/* fallthrough */
+	case 0xb1:
 	case 0xb2:
 		debug("Configuring IDT for PCIe SATA for srds_prctl:%x\n",
 			serdes2_prtcl);
@@ -915,6 +992,14 @@ int board_early_init_r(void)
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
 	int flash_esel = find_tlb_idx((void *)flashbase, 1);
 	int ret;
+	u32 svr = SVR_SOC_VER(get_svr());
+
+	/* Create law for MAPLE only for personalities having MAPLE */
+	if ((svr == SVR_B4860) || (svr == SVR_B4440) ||
+	    (svr == SVR_B4420) || (svr == SVR_B4220)) {
+		set_next_law(CONFIG_SYS_MAPLE_MEM_PHYS, LAW_SIZE_16M,
+			     LAW_TRGT_IF_MAPLE);
+	}
 
 	/*
 	 * Remap Boot flash + PROMJET region to caching-inhibited
@@ -1110,7 +1195,7 @@ int misc_init_r(void)
 	return 0;
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -1136,6 +1221,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_fman_ethernet(blob);
 	fdt_fixup_board_enet(blob);
 #endif
+
+	return 0;
 }
 
 /*

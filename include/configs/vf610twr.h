@@ -125,7 +125,10 @@
 #define CONFIG_BOOTDELAY		3
 
 #define CONFIG_LOADADDR			0x82000000
-#define CONFIG_SYS_TEXT_BASE		0x3f008000
+
+/* We boot from the gfxRAM area of the OCRAM. */
+#define CONFIG_SYS_TEXT_BASE		0x3f408000
+#define CONFIG_BOARD_SIZE_LIMIT		524288
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \

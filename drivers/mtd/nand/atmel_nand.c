@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <nand.h>
 #include <watchdog.h>
+#include <linux/mtd/nand_ecc.h>
 
 #ifdef CONFIG_ATMEL_NAND_HWECC
 
@@ -762,6 +763,62 @@ static int pmecc_choose_ecc(struct atmel_nand_host *host,
 }
 #endif
 
+#if defined(NO_GALOIS_TABLE_IN_ROM)
+static uint16_t *pmecc_galois_table;
+static inline int deg(unsigned int poly)
+{
+	/* polynomial degree is the most-significant bit index */
+	return fls(poly) - 1;
+}
+
+static int build_gf_tables(int mm, unsigned int poly,
+			   int16_t *index_of, int16_t *alpha_to)
+{
+	unsigned int i, x = 1;
+	const unsigned int k = 1 << deg(poly);
+	unsigned int nn = (1 << mm) - 1;
+
+	/* primitive polynomial must be of degree m */
+	if (k != (1u << mm))
+		return -EINVAL;
+
+	for (i = 0; i < nn; i++) {
+		alpha_to[i] = x;
+		index_of[x] = i;
+		if (i && (x == 1))
+			/* polynomial is not primitive (a^i=1 with 0<i<2^m-1) */
+			return -EINVAL;
+		x <<= 1;
+		if (x & k)
+			x ^= poly;
+	}
+
+	alpha_to[nn] = 1;
+	index_of[0] = 0;
+
+	return 0;
+}
+
+static uint16_t *create_lookup_table(int sector_size)
+{
+	int degree = (sector_size == 512) ?
+			PMECC_GF_DIMENSION_13 :
+			PMECC_GF_DIMENSION_14;
+	unsigned int poly = (sector_size == 512) ?
+			PMECC_GF_13_PRIMITIVE_POLY :
+			PMECC_GF_14_PRIMITIVE_POLY;
+	int table_size = (sector_size == 512) ?
+			PMECC_INDEX_TABLE_SIZE_512 :
+			PMECC_INDEX_TABLE_SIZE_1024;
+
+	int16_t *addr = kzalloc(2 * table_size * sizeof(uint16_t), GFP_KERNEL);
+	if (addr && build_gf_tables(degree, poly, addr, addr + table_size))
+		return NULL;
+
+	return (uint16_t *)addr;
+}
+#endif
+
 static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 		struct mtd_info *mtd)
 {
@@ -809,11 +866,18 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 	sector_size = host->pmecc_sector_size;
 
 	/* TODO: need check whether cap & sector_size is validate */
-
+#if defined(NO_GALOIS_TABLE_IN_ROM)
+	/*
+	 * As pmecc_rom_base is the begin of the gallois field table, So the
+	 * index offset just set as 0.
+	 */
+	host->pmecc_index_table_offset = 0;
+#else
 	if (host->pmecc_sector_size == 512)
 		host->pmecc_index_table_offset = ATMEL_PMECC_INDEX_OFFSET_512;
 	else
 		host->pmecc_index_table_offset = ATMEL_PMECC_INDEX_OFFSET_1024;
+#endif
 
 	MTDDEBUG(MTD_DEBUG_LEVEL1,
 		"Initialize PMECC params, cap: %d, sector: %d\n",
@@ -822,7 +886,17 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 	host->pmecc = (struct pmecc_regs __iomem *) ATMEL_BASE_PMECC;
 	host->pmerrloc = (struct pmecc_errloc_regs __iomem *)
 			ATMEL_BASE_PMERRLOC;
+#if defined(NO_GALOIS_TABLE_IN_ROM)
+	pmecc_galois_table = create_lookup_table(host->pmecc_sector_size);
+	if (!pmecc_galois_table) {
+		dev_err(host->dev, "out of memory\n");
+		return -ENOMEM;
+	}
+
+	host->pmecc_rom_base = (void __iomem *)pmecc_galois_table;
+#else
 	host->pmecc_rom_base = (void __iomem *) ATMEL_BASE_ROM;
+#endif
 
 	/* ECC is calculated for the whole page (1 step) */
 	nand->ecc.size = mtd->writesize;
@@ -1187,7 +1261,7 @@ static int nand_command(int block, int page, uint32_t offs, u8 cmd)
 	void (*hwctrl)(struct mtd_info *mtd, int cmd,
 			unsigned int ctrl) = this->cmd_ctrl;
 
-	while (this->dev_ready(&mtd))
+	while (!this->dev_ready(&mtd))
 		;
 
 	if (cmd == NAND_CMD_READOOB) {
@@ -1212,7 +1286,7 @@ static int nand_command(int block, int page, uint32_t offs, u8 cmd)
 	hwctrl(&mtd, NAND_CMD_READSTART, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 	hwctrl(&mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
-	while (this->dev_ready(&mtd))
+	while (!this->dev_ready(&mtd))
 		;
 
 	return 0;
@@ -1273,6 +1347,39 @@ static int nand_read_page(int block, int page, void *dst)
 
 	return 0;
 }
+
+int spl_nand_erase_one(int block, int page)
+{
+	struct nand_chip *this = mtd.priv;
+	void (*hwctrl)(struct mtd_info *mtd, int cmd,
+			unsigned int ctrl) = this->cmd_ctrl;
+	int page_addr;
+
+	if (nand_chip.select_chip)
+		nand_chip.select_chip(&mtd, 0);
+
+	page_addr = page + block * CONFIG_SYS_NAND_PAGE_COUNT;
+	hwctrl(&mtd, NAND_CMD_ERASE1, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	/* Row address */
+	hwctrl(&mtd, (page_addr & 0xff), NAND_CTRL_ALE | NAND_CTRL_CHANGE);
+	hwctrl(&mtd, ((page_addr >> 8) & 0xff),
+	       NAND_CTRL_ALE | NAND_CTRL_CHANGE);
+#ifdef CONFIG_SYS_NAND_5_ADDR_CYCLE
+	/* One more address cycle for devices > 128MiB */
+	hwctrl(&mtd, (page_addr >> 16) & 0x0f,
+	       NAND_CTRL_ALE | NAND_CTRL_CHANGE);
+#endif
+
+	hwctrl(&mtd, NAND_CMD_ERASE2, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	udelay(2000);
+
+	while (!this->dev_ready(&mtd))
+		;
+
+	nand_deselect();
+
+	return 0;
+}
 #else
 static int nand_read_page(int block, int page, void *dst)
 {
@@ -1319,7 +1426,7 @@ int at91_nand_wait_ready(struct mtd_info *mtd)
 
 	udelay(this->chip_delay);
 
-	return 0;
+	return 1;
 }
 
 int board_nand_init(struct nand_chip *nand)

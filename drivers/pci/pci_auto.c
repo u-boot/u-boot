@@ -387,7 +387,7 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		n = pci_hose_scan_bus(hose, hose->current_busno);
 
 		/* figure out the deepest we've gone for this leg */
-		sub_bus = max(n, sub_bus);
+		sub_bus = max((unsigned int)n, sub_bus);
 		pciauto_postscan_setup_bridge(hose, dev, sub_bus);
 
 		sub_bus = hose->current_busno;

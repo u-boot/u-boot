@@ -1,8 +1,5 @@
 if TARGET_MX31ADS
 
-config SYS_CPU
-	default "arm1136"
-
 config SYS_BOARD
 	default "mx31ads"
 

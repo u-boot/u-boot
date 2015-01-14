@@ -15,7 +15,6 @@
 /*
  * defines to be used in other places
  */
-#define CONFIG_ARM926EJS	/* ARM926EJS Core */
 #define CONFIG_AT91FAMILY	/* it's a member of AT91 */
 
 /*

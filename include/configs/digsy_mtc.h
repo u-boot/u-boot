@@ -22,6 +22,8 @@
 
 #define CONFIG_MPC5200		1	/* This is an MPC5200 CPU */
 #define CONFIG_DIGSY_MTC	1	/* ... on InterControl digsyMTC board */
+#define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * Valid values for CONFIG_SYS_TEXT_BASE are:

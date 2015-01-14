@@ -13,22 +13,18 @@
 #include "ehci.h"
 
 #if defined(CONFIG_R8A7740)
-static u32 usb_base_address[CONFIG_USB_MAX_CONTROLLER_COUNT] = {
+static u32 usb_base_address[] = {
 	0xC6700000
 };
 #elif defined(CONFIG_R8A7790)
-static u32 usb_base_address[CONFIG_USB_MAX_CONTROLLER_COUNT] = {
+static u32 usb_base_address[] = {
 	0xEE080000,	/* USB0 (EHCI) */
 	0xEE0A0000,	/* USB1 */
 	0xEE0C0000,	/* USB2 */
 };
-#elif defined(CONFIG_R8A7791)
-static u32 usb_base_address[CONFIG_USB_MAX_CONTROLLER_COUNT] = {
-	0xEE080000,	/* USB0 (EHCI) */
-	0xEE0C0000,	/* USB1 */
-};
-#elif defined(CONFIG_R8A7794)
-static u32 usb_base_address[CONFIG_USB_MAX_CONTROLLER_COUNT] = {
+#elif defined(CONFIG_R8A7791) || defined(CONFIG_R8A7793) || \
+	defined(CONFIG_R8A7794)
+static u32 usb_base_address[] = {
 	0xEE080000,	/* USB0 (EHCI) */
 	0xEE0C0000,	/* USB1 */
 };
@@ -57,7 +53,7 @@ int ehci_hcd_stop(int index)
 	if (!i)
 		printf("error : ehci(%d) reset failed.\n", index);
 
-	if (index == (CONFIG_USB_MAX_CONTROLLER_COUNT - 1))
+	if (index == (ARRAY_SIZE(usb_base_address) - 1))
 		setbits_le32(SMSTPCR7, SMSTPCR703);
 
 	return 0;

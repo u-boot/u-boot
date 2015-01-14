@@ -38,7 +38,7 @@ struct uclass_driver *lists_uclass_lookup(enum uclass_id id);
  * This searches the U_BOOT_DEVICE() structures and creates new devices for
  * each one. The devices will have @parent as their parent.
  *
- * @parent: parent driver (root)
+ * @parent: parent device (root)
  * @early_only: If true, bind only drivers with the DM_INIT_F flag. If false
  * bind all drivers.
  */
@@ -50,7 +50,7 @@ int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only);
  * This creates a new device bound to the given device tree node, with
  * @parent as its parent.
  *
- * @parent: parent driver (root)
+ * @parent: parent device (root)
  * @blob: device tree blob
  * @offset: offset of this device tree node
  * @devp: if non-NULL, returns a pointer to the bound device
@@ -59,5 +59,18 @@ int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only);
  */
 int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 		   struct udevice **devp);
+
+/**
+ * device_bind_driver() - bind a device to a driver
+ *
+ * This binds a new device to a driver.
+ *
+ * @parent:	Parent device
+ * @drv_name:	Name of driver to attach to this parent
+ * @dev_name:	Name of the new device thus created
+ * @devp:	Returns the newly bound device
+ */
+int device_bind_driver(struct udevice *parent, const char *drv_name,
+		       const char *dev_name, struct udevice **devp);
 
 #endif

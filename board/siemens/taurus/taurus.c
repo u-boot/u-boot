@@ -21,14 +21,17 @@
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/at91sam9_sdramc.h>
+#include <asm/arch/clk.h>
+#include <linux/mtd/nand.h>
 #include <atmel_mci.h>
+#include <asm/arch/at91_spi.h>
+#include <spi.h>
 
 #include <net.h>
 #include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_CMD_NAND
 static void taurus_nand_hw_init(void)
 {
 	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
@@ -61,15 +64,77 @@ static void taurus_nand_hw_init(void)
 	/* Enable NandFlash */
 	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
+
+#if defined(CONFIG_SPL_BUILD)
+#include <spl.h>
+#include <nand.h>
+
+void matrix_init(void)
+{
+	struct at91_matrix *mat = (struct at91_matrix *)ATMEL_BASE_MATRIX;
+
+	writel((readl(&mat->scfg[3]) & (~AT91_MATRIX_SLOT_CYCLE))
+			| AT91_MATRIX_SLOT_CYCLE_(0x40),
+			&mat->scfg[3]);
+}
+
+void at91_spl_board_init(void)
+{
+	taurus_nand_hw_init();
+
+	/* Configure recovery button PINs */
+	at91_set_gpio_input(AT91_PIN_PA31, 1);
+
+	/* check if button is pressed */
+	if (at91_get_gpio_value(AT91_PIN_PA31) == 0) {
+		u32 boot_device;
+
+		debug("Recovery button pressed\n");
+		boot_device = spl_boot_device();
+		switch (boot_device) {
+#ifdef CONFIG_SPL_NAND_SUPPORT
+		case BOOT_DEVICE_NAND:
+			nand_init();
+			spl_nand_erase_one(0, 0);
+			break;
+#endif
+		}
+	}
+}
+
+void mem_init(void)
+{
+	struct at91_matrix *ma = (struct at91_matrix *)ATMEL_BASE_MATRIX;
+	struct sdramc_reg setting;
+
+	at91_sdram_hw_init();
+	setting.cr = (AT91_SDRAMC_NC_9 |
+		      AT91_SDRAMC_NR_13 |
+		      AT91_SDRAMC_CAS_3 |
+		      AT91_SDRAMC_NB_4 |
+		      AT91_SDRAMC_DBW_32 |
+		      AT91_SDRAMC_TWR_VAL(3) |
+		      AT91_SDRAMC_TRC_VAL(9) |
+		      AT91_SDRAMC_TRP_VAL(3) |
+		      AT91_SDRAMC_TRCD_VAL(3) |
+		      AT91_SDRAMC_TRAS_VAL(6) |
+		      AT91_SDRAMC_TXSR_VAL(10));
+	setting.mdr = AT91_SDRAMC_MD_SDRAM;
+	setting.tr = (CONFIG_SYS_MASTER_CLOCK * 7) / 1000000;
+
+
+	writel(readl(&ma->ebicsa) | AT91_MATRIX_CS1A_SDRAMC |
+		AT91_MATRIX_VDDIOMSEL_3_3V | AT91_MATRIX_EBI_IOSR_SEL,
+		&ma->ebicsa);
+	sdramc_initialize(ATMEL_BASE_CS1, &setting);
+}
 #endif
 
 #ifdef CONFIG_MACB
 static void taurus_macb_hw_init(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
 	/* Enable EMAC clock */
-	writel(1 << ATMEL_ID_EMAC0, &pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_EMAC0);
 
 	/*
 	 * Disable pull-up on:
@@ -117,14 +182,29 @@ int board_mmc_init(bd_t *bd)
 
 int board_early_init_f(void)
 {
-	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-
 	/* Enable clocks for all PIOs */
-	writel((1 << ATMEL_ID_PIOA) | (1 << ATMEL_ID_PIOB) |
-		(1 << ATMEL_ID_PIOC),
-		&pmc->pcer);
+	at91_periph_clk_enable(ATMEL_ID_PIOA);
+	at91_periph_clk_enable(ATMEL_ID_PIOB);
+	at91_periph_clk_enable(ATMEL_ID_PIOC);
+
+	at91_seriald_hw_init();
 
 	return 0;
+}
+
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	return bus == 0 && cs == 0;
+}
+
+void spi_cs_activate(struct spi_slave *slave)
+{
+	at91_set_gpio_value(TAURUS_SPI_CS_PIN, 0);
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	at91_set_gpio_value(TAURUS_SPI_CS_PIN, 1);
 }
 
 int board_init(void)
@@ -132,13 +212,13 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-	at91_seriald_hw_init();
 #ifdef CONFIG_CMD_NAND
 	taurus_nand_hw_init();
 #endif
 #ifdef CONFIG_MACB
 	taurus_macb_hw_init();
 #endif
+	at91_spi0_hw_init(TAURUS_SPI_MASK);
 
 	return 0;
 }

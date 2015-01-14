@@ -234,7 +234,7 @@ int board_eth_init(bd_t *bis)
 #if defined(CONFIG_OF_BOARD_SETUP)
 extern void ft_pci_board_setup(void *blob);
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	const char *soc_usb_compat = "fsl-usb2-dr";
 	int err, usb1_off, usb2_off;
@@ -263,39 +263,41 @@ void ft_board_setup(void *blob, bd_t *bd)
 		int off = fdt_node_offset_by_compatible(blob, -1,
 			soc_elbc_compat);
 		if (off < 0) {
-			printf("WARNING: could not find compatible node"
-				" %s: %s.\n", soc_elbc_compat,
-				fdt_strerror(off));
-				return;
+			printf("WARNING: could not find compatible node %s\n",
+			       soc_elbc_compat);
+			return off;
 		}
 		err = fdt_del_node(blob, off);
 		if (err < 0) {
-			printf("WARNING: could not remove %s: %s.\n",
-				soc_elbc_compat, fdt_strerror(err));
+			printf("WARNING: could not remove %s\n",
+			       soc_elbc_compat);
+			return err;
 		}
-		return;
+		return 0;
 	}
 #endif
 	/* Delete USB2 node as it is muxed with eLBC */
 	usb1_off = fdt_node_offset_by_compatible(blob, -1,
 		soc_usb_compat);
 	if (usb1_off < 0) {
-		printf("WARNING: could not find compatible node"
-			" %s: %s.\n", soc_usb_compat,
-			fdt_strerror(usb1_off));
-		return;
+		printf("WARNING: could not find compatible node %s\n",
+		       soc_usb_compat);
+		return usb1_off;
 	}
 	usb2_off = fdt_node_offset_by_compatible(blob, usb1_off,
 			soc_usb_compat);
 	if (usb2_off < 0) {
-		printf("WARNING: could not find compatible node"
-			" %s: %s.\n", soc_usb_compat,
-			fdt_strerror(usb2_off));
-		return;
+		printf("WARNING: could not find compatible node %s\n",
+		       soc_usb_compat);
+		return usb2_off;
 	}
 	err = fdt_del_node(blob, usb2_off);
-	if (err < 0)
-		printf("WARNING: could not remove %s: %s.\n",
-			soc_usb_compat, fdt_strerror(err));
+	if (err < 0) {
+		printf("WARNING: could not remove %s\n", soc_usb_compat);
+		return err;
+	}
+
+	return 0;
 }
+
 #endif

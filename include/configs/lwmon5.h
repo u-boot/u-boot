@@ -671,8 +671,6 @@
 #define CONFIG_SPL_TEXT_BASE		0xffff0000 /* last 64 KiB for SPL */
 #define CONFIG_SYS_SPL_MAX_LEN		(64 << 10)
 #define CONFIG_UBOOT_PAD_TO		458752	/* decimal for 'dd' */
-#define	CONFIG_SPL_START_S_PATH	"arch/powerpc/cpu/ppc4xx"
-#define CONFIG_SPL_LDSCRIPT	"arch/powerpc/cpu/ppc4xx/u-boot-spl.lds"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* image.c */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT	/* string.c */
 #define CONFIG_SPL_SERIAL_SUPPORT

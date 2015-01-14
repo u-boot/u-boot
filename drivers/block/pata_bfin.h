@@ -43,7 +43,6 @@ struct ata_port {
 
 #define DRV_NAME		"pata-bfin"
 #define DRV_VERSION		"0.9"
-#define __iomem
 
 #define ATA_REG_CTRL		0x0E
 #define ATA_REG_ALTSTATUS	ATA_REG_CTRL

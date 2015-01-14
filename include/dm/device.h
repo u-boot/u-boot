@@ -47,6 +47,7 @@ struct driver_info;
  * @name: Name of device, typically the FDT node name
  * @platdata: Configuration data for this device
  * @of_offset: Device tree node offset for this device (- for none)
+ * @of_id: Pointer to the udevice_id structure which created the device
  * @parent: Parent of this device, or NULL for the top level device
  * @priv: Private data for this device
  * @uclass: Pointer to uclass for this device
@@ -57,13 +58,15 @@ struct driver_info;
  * @sibling_node: Next device in list of all devices
  * @flags: Flags for this device DM_FLAG_...
  * @req_seq: Requested sequence number for this device (-1 = any)
- * @seq: Allocated sequence number for this device (-1 = none)
+ * @seq: Allocated sequence number for this device (-1 = none). This is set up
+ * when the device is probed and will be unique within the device's uclass.
  */
 struct udevice {
 	struct driver *driver;
 	const char *name;
 	void *platdata;
 	int of_offset;
+	const struct udevice_id *of_id;
 	struct udevice *parent;
 	void *priv;
 	struct uclass *uclass;
@@ -95,6 +98,12 @@ struct udevice_id {
 	const char *compatible;
 	ulong data;
 };
+
+#ifdef CONFIG_OF_CONTROL
+#define of_match_ptr(_ptr)	(_ptr)
+#else
+#define of_match_ptr(_ptr)	NULL
+#endif /* CONFIG_OF_CONTROL */
 
 /**
  * struct driver - A driver for a feature or peripheral
@@ -133,6 +142,10 @@ struct udevice_id {
  * @per_child_auto_alloc_size: Each device can hold private data owned by
  * its parent. If required this will be automatically allocated if this
  * value is non-zero.
+ * TODO(sjg@chromium.org): I'm considering dropping this, and just having
+ * device_probe_child() pass it in. So far the use case for allocating it
+ * is SPI, but I found that unsatisfactory. Since it is here I will leave it
+ * until things are clearer.
  * @ops: Driver-specific operations. This is typically a list of function
  * pointers defined by the driver, to implement driver functions required by
  * the uclass.
@@ -193,6 +206,23 @@ void *dev_get_parentdata(struct udevice *dev);
  * @return private data, or NULL if none
  */
 void *dev_get_priv(struct udevice *dev);
+
+/**
+ * struct dev_get_parent() - Get the parent of a device
+ *
+ * @child:	Child to check
+ * @return parent of child, or NULL if this is the root device
+ */
+struct udevice *dev_get_parent(struct udevice *child);
+
+/**
+ * dev_get_of_data() - get the device tree data used to bind a device
+ *
+ * When a device is bound using a device tree node, it matches a
+ * particular compatible string as in struct udevice_id. This function
+ * returns the associated data value for that compatible string
+ */
+ulong dev_get_of_data(struct udevice *dev);
 
 /**
  * device_get_child() - Get the child of a device by index
@@ -273,5 +303,23 @@ int device_find_child_by_of_offset(struct udevice *parent, int of_offset,
  */
 int device_get_child_by_of_offset(struct udevice *parent, int seq,
 				  struct udevice **devp);
+
+/**
+ * device_find_first_child() - Find the first child of a device
+ *
+ * @parent: Parent device to search
+ * @devp: Returns first child device, or NULL if none
+ * @return 0
+ */
+int device_find_first_child(struct udevice *parent, struct udevice **devp);
+
+/**
+ * device_find_first_child() - Find the first child of a device
+ *
+ * @devp: Pointer to previous child device on entry. Returns pointer to next
+ *		child device, or NULL if none
+ * @return 0
+ */
+int device_find_next_child(struct udevice **devp);
 
 #endif

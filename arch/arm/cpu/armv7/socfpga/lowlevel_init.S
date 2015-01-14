@@ -7,13 +7,6 @@
 #include <config.h>
 #include <version.h>
 
-/* Save the parameter pass in by previous boot loader */
-.global save_boot_params
-save_boot_params:
-	/* no parameter to save */
-	bx	lr
-
-
 /* Set up the platform, once the cpu has been initialized */
 .globl lowlevel_init
 lowlevel_init:

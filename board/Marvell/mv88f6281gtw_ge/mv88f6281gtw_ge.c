@@ -11,7 +11,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 #include "mv88f6281gtw_ge.h"
 
@@ -24,9 +24,9 @@ int board_early_init_f(void)
 	 * There are maximum 64 gpios controlled through 2 sets of registers
 	 * the  below configuration configures mainly initial LED status
 	 */
-	kw_config_gpio(MV88F6281GTW_GE_OE_VAL_LOW,
-			MV88F6281GTW_GE_OE_VAL_HIGH,
-			MV88F6281GTW_GE_OE_LOW, MV88F6281GTW_GE_OE_HIGH);
+	mvebu_config_gpio(MV88F6281GTW_GE_OE_VAL_LOW,
+			  MV88F6281GTW_GE_OE_VAL_HIGH,
+			  MV88F6281GTW_GE_OE_LOW, MV88F6281GTW_GE_OE_HIGH);
 
 	/* Multi-Purpose Pins Functionality configuration */
 	static const u32 kwmpp_config[] = {
@@ -94,7 +94,7 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_MV88F6281GTW_GE;
 
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	return 0;
 }

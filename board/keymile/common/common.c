@@ -360,6 +360,7 @@ static int do_checktestboot(cmd_tbl_t *cmdtp, int flag, int argc,
 	testboot = (testpin != 0) && (s);
 	if (verbose) {
 		printf("testpin   = %d\n", testpin);
+		/* cppcheck-suppress nullPointer */
 		printf("test_bank = %s\n", s ? s : "not set");
 		printf("boot test app : %s\n", (testboot) ? "yes" : "no");
 	}

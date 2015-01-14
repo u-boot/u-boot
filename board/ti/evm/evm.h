@@ -300,7 +300,7 @@ static void reset_net_chip(void);
 	MUX_VAL(CP(SYS_OFF_MODE),	(IEN  | PTD | DIS | M0)) /*SYS_OFF_MODE*/\
 	MUX_VAL(CP(SYS_CLKOUT1),	(IEN  | PTD | DIS | M0)) /*SYS_CLKOUT1*/\
 	MUX_VAL(CP(SYS_CLKOUT2),	(IEN  | PTU | EN  | M0)) /*SYS_CLKOUT2*/\
-	MUX_VAL(CP(JTAG_nTRST),		(IEN  | PTD | DIS | M0)) /*JTAG_nTRST*/\
+	MUX_VAL(CP(JTAG_NTRST),		(IEN  | PTD | DIS | M0)) /*JTAG_NTRST*/\
 	MUX_VAL(CP(JTAG_TCK),		(IEN  | PTD | DIS | M0)) /*JTAG_TCK*/\
 	MUX_VAL(CP(JTAG_TMS),		(IEN  | PTD | DIS | M0)) /*JTAG_TMS*/\
 	MUX_VAL(CP(JTAG_TDI),		(IEN  | PTD | DIS | M0)) /*JTAG_TDI*/\

@@ -37,3 +37,29 @@ obj-$(CONFIG_TEGRA) += tegra-common/
 ifneq (,$(filter s5pc1xx exynos,$(SOC)))
 obj-y += s5p-common/
 endif
+
+obj-$(if $(filter am33xx,$(SOC)),y) += am33xx/
+obj-$(if $(filter armada-xp,$(SOC)),y) += armada-xp/
+obj-$(CONFIG_AT91FAMILY) += at91/
+obj-$(if $(filter bcm281xx,$(SOC)),y) += bcm281xx/
+obj-$(if $(filter bcmcygnus,$(SOC)),y) += bcmcygnus/
+obj-$(if $(filter bcmnsp,$(SOC)),y) += bcmnsp/
+obj-$(CONFIG_ARCH_EXYNOS) += exynos/
+obj-$(CONFIG_ARCH_HIGHBANK) += highbank/
+obj-$(CONFIG_ARCH_KEYSTONE) += keystone/
+obj-$(if $(filter ls102xa,$(SOC)),y) += ls102xa/
+obj-$(if $(filter mx5,$(SOC)),y) += mx5/
+obj-$(CONFIG_MX6) += mx6/
+obj-$(CONFIG_OMAP34XX) += omap3/
+obj-$(CONFIG_OMAP44XX) += omap4/
+obj-$(CONFIG_OMAP54XX) += omap5/
+obj-$(CONFIG_RMOBILE) += rmobile/
+obj-$(CONFIG_ARCH_S5PC1XX) += s5pc1xx/
+obj-$(CONFIG_SOCFPGA) += socfpga/
+obj-$(if $(filter stv0991,$(SOC)),y) += stv0991/
+obj-$(CONFIG_ARCH_SUNXI) += sunxi/
+obj-$(CONFIG_TEGRA20) += tegra20/
+obj-$(CONFIG_U8500) += u8500/
+obj-$(CONFIG_ARCH_UNIPHIER) += uniphier/
+obj-$(CONFIG_VF610) += vf610/
+obj-$(CONFIG_ZYNQ) += zynq/

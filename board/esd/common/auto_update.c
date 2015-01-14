@@ -12,6 +12,7 @@
 #include <image.h>
 #include <asm/byteorder.h>
 #include <fat.h>
+#include <flash.h>
 #include <part.h>
 
 #include "auto_update.h"
@@ -30,14 +31,8 @@ extern int N_AU_IMAGES;
 #define MAX_LOADSZ 0x1c00000
 
 /* externals */
-extern int fat_register_device(block_dev_desc_t *, int);
-extern int file_fat_detectfs(void);
-extern long file_fat_read(const char *, void *, unsigned long);
 long do_fat_read (const char *filename, void *buffer,
 		  unsigned long maxsize, int dols);
-extern int flash_sect_erase(ulong, ulong);
-extern int flash_sect_protect (int, ulong, ulong);
-extern int flash_write (char *, ulong, ulong);
 
 extern block_dev_desc_t ide_dev_desc[CONFIG_SYS_IDE_MAXDEVICE];
 
@@ -377,7 +372,7 @@ int do_auto_update(void)
 {
 	block_dev_desc_t *stor_dev = NULL;
 	long sz;
-	int i, res, cnt, old_ctrlc;
+	int i, res, old_ctrlc;
 	char buffer[32];
 	char str[80];
 	int n;
@@ -455,7 +450,6 @@ int do_auto_update(void)
 				clear_ctrlc ();
 				break;
 			}
-			cnt++;
 		} while (res < 0);
 	}
 

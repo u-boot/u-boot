@@ -41,6 +41,10 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(NVIDIA_TEGRA20_SFLASH, "nvidia,tegra20-sflash"),
 	COMPAT(NVIDIA_TEGRA20_SLINK, "nvidia,tegra20-slink"),
 	COMPAT(NVIDIA_TEGRA114_SPI, "nvidia,tegra114-spi"),
+	COMPAT(NVIDIA_TEGRA124_PCIE, "nvidia,tegra124-pcie"),
+	COMPAT(NVIDIA_TEGRA30_PCIE, "nvidia,tegra30-pcie"),
+	COMPAT(NVIDIA_TEGRA20_PCIE, "nvidia,tegra20-pcie"),
+	COMPAT(NVIDIA_TEGRA124_XUSB_PADCTL, "nvidia,tegra124-xusb-padctl"),
 	COMPAT(SMSC_LAN9215, "smsc,lan9215"),
 	COMPAT(SAMSUNG_EXYNOS5_SROMC, "samsung,exynos-sromc"),
 	COMPAT(SAMSUNG_S3C2440_I2C, "samsung,s3c2440-i2c"),
@@ -72,6 +76,13 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(COMPAT_NXP_PTN3460, "nxp,ptn3460"),
 	COMPAT(SAMSUNG_EXYNOS_SYSMMU, "samsung,sysmmu-v3.3"),
 	COMPAT(PARADE_PS8625, "parade,ps8625"),
+	COMPAT(COMPAT_INTEL_LPC, "intel,lpc"),
+	COMPAT(INTEL_MICROCODE, "intel,microcode"),
+	COMPAT(MEMORY_SPD, "memory-spd"),
+	COMPAT(INTEL_PANTHERPOINT_AHCI, "intel,pantherpoint-ahci"),
+	COMPAT(INTEL_MODEL_206AX, "intel,model-206ax"),
+	COMPAT(INTEL_GMA, "intel,gma"),
+	COMPAT(AMS_AS3722, "ams,as3722"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
@@ -354,9 +365,9 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 		slash = strrchr(prop, '/');
 		if (strcmp(slash + 1, find_name))
 			continue;
-		for (p = name; *p; p++) {
-			if (isdigit(*p)) {
-				*seqp = simple_strtoul(p, NULL, 10);
+		for (p = name + strlen(name) - 1; p > name; p--) {
+			if (!isdigit(*p)) {
+				*seqp = simple_strtoul(p + 1, NULL, 10);
 				debug("Found seq %d\n", *seqp);
 				return 0;
 			}
@@ -365,21 +376,6 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 
 	debug("Not found\n");
 	return -ENOENT;
-}
-
-int fdtdec_get_alias_node(const void *blob, const char *name)
-{
-	const char *prop;
-	int alias_node;
-	int len;
-
-	if (!blob)
-		return -FDT_ERR_NOTFOUND;
-	alias_node = fdt_path_offset(blob, "/aliases");
-	prop = fdt_getprop(blob, alias_node, name, &len);
-	if (!prop)
-		return -FDT_ERR_NOTFOUND;
-	return fdt_path_offset(blob, prop);
 }
 
 int fdtdec_get_chosen_node(const void *blob, const char *name)
@@ -482,6 +478,26 @@ int fdtdec_get_int_array(const void *blob, int node, const char *prop_name,
 			array[i] = fdt32_to_cpu(cell[i]);
 	}
 	return err;
+}
+
+int fdtdec_get_int_array_count(const void *blob, int node,
+			       const char *prop_name, u32 *array, int count)
+{
+	const u32 *cell;
+	int len, elems;
+	int i;
+
+	debug("%s: %s\n", __func__, prop_name);
+	cell = fdt_getprop(blob, node, prop_name, &len);
+	if (!cell)
+		return -FDT_ERR_NOTFOUND;
+	elems = len / sizeof(u32);
+	if (count > elems)
+		count = elems;
+	for (i = 0; i < count; i++)
+		array[i] = fdt32_to_cpu(cell[i]);
+
+	return count;
 }
 
 const u32 *fdtdec_locate_array(const void *blob, int node,
@@ -668,20 +684,25 @@ char *fdtdec_get_config_string(const void *blob, const char *prop_name)
 	return (char *)nodep;
 }
 
-int fdtdec_decode_region(const void *blob, int node,
-		const char *prop_name, void **ptrp, size_t *size)
+int fdtdec_decode_region(const void *blob, int node, const char *prop_name,
+			 fdt_addr_t *basep, fdt_size_t *sizep)
 {
 	const fdt_addr_t *cell;
 	int len;
 
-	debug("%s: %s\n", __func__, prop_name);
+	debug("%s: %s: %s\n", __func__, fdt_get_name(blob, node, NULL),
+	      prop_name);
 	cell = fdt_getprop(blob, node, prop_name, &len);
-	if (!cell || (len != sizeof(fdt_addr_t) * 2))
+	if (!cell || (len < sizeof(fdt_addr_t) * 2)) {
+		debug("cell=%p, len=%d\n", cell, len);
 		return -1;
+	}
 
-	*ptrp = map_sysmem(fdt_addr_to_cpu(*cell), *size);
-	*size = fdt_size_to_cpu(cell[1]);
-	debug("%s: size=%zx\n", __func__, *size);
+	*basep = fdt_addr_to_cpu(*cell);
+	*sizep = fdt_size_to_cpu(cell[1]);
+	debug("%s: base=%08lx, size=%lx\n", __func__, (ulong)*basep,
+	      (ulong)*sizep);
+
 	return 0;
 }
 
@@ -697,6 +718,7 @@ int fdtdec_decode_region(const void *blob, int node,
 int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
 			   struct fmap_entry *entry)
 {
+	const char *prop;
 	u32 reg[2];
 
 	if (fdtdec_get_int_array(blob, node, "reg", reg, 2)) {
@@ -705,6 +727,145 @@ int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
 	}
 	entry->offset = reg[0];
 	entry->length = reg[1];
+	entry->used = fdtdec_get_int(blob, node, "used", entry->length);
+	prop = fdt_getprop(blob, node, "compress", NULL);
+	entry->compress_algo = prop && !strcmp(prop, "lzo") ?
+		FMAP_COMPRESS_LZO : FMAP_COMPRESS_NONE;
+	prop = fdt_getprop(blob, node, "hash", &entry->hash_size);
+	entry->hash_algo = prop ? FMAP_HASH_SHA256 : FMAP_HASH_NONE;
+	entry->hash = (uint8_t *)prop;
+
+	return 0;
+}
+
+static u64 fdtdec_get_number(const fdt32_t *ptr, unsigned int cells)
+{
+	u64 number = 0;
+
+	while (cells--)
+		number = (number << 32) | fdt32_to_cpu(*ptr++);
+
+	return number;
+}
+
+int fdt_get_resource(const void *fdt, int node, const char *property,
+		     unsigned int index, struct fdt_resource *res)
+{
+	const fdt32_t *ptr, *end;
+	int na, ns, len, parent;
+	unsigned int i = 0;
+
+	parent = fdt_parent_offset(fdt, node);
+	if (parent < 0)
+		return parent;
+
+	na = fdt_address_cells(fdt, parent);
+	ns = fdt_size_cells(fdt, parent);
+
+	ptr = fdt_getprop(fdt, node, property, &len);
+	if (!ptr)
+		return len;
+
+	end = ptr + len / sizeof(*ptr);
+
+	while (ptr + na + ns <= end) {
+		if (i == index) {
+			res->start = res->end = fdtdec_get_number(ptr, na);
+			res->end += fdtdec_get_number(&ptr[na], ns) - 1;
+			return 0;
+		}
+
+		ptr += na + ns;
+		i++;
+	}
+
+	return -FDT_ERR_NOTFOUND;
+}
+
+int fdt_get_named_resource(const void *fdt, int node, const char *property,
+			   const char *prop_names, const char *name,
+			   struct fdt_resource *res)
+{
+	int index;
+
+	index = fdt_find_string(fdt, node, prop_names, name);
+	if (index < 0)
+		return index;
+
+	return fdt_get_resource(fdt, node, property, index, res);
+}
+
+int fdtdec_pci_get_bdf(const void *fdt, int node, int *bdf)
+{
+	const fdt32_t *prop;
+	int len;
+
+	prop = fdt_getprop(fdt, node, "reg", &len);
+	if (!prop)
+		return len;
+
+	*bdf = fdt32_to_cpu(*prop) & 0xffffff;
+
+	return 0;
+}
+
+int fdtdec_decode_memory_region(const void *blob, int config_node,
+				const char *mem_type, const char *suffix,
+				fdt_addr_t *basep, fdt_size_t *sizep)
+{
+	char prop_name[50];
+	const char *mem;
+	fdt_size_t size, offset_size;
+	fdt_addr_t base, offset;
+	int node;
+
+	if (config_node == -1) {
+		config_node = fdt_path_offset(blob, "/config");
+		if (config_node < 0) {
+			debug("%s: Cannot find /config node\n", __func__);
+			return -ENOENT;
+		}
+	}
+	if (!suffix)
+		suffix = "";
+
+	snprintf(prop_name, sizeof(prop_name), "%s-memory%s", mem_type,
+		 suffix);
+	mem = fdt_getprop(blob, config_node, prop_name, NULL);
+	if (!mem) {
+		debug("%s: No memory type for '%s', using /memory\n", __func__,
+		      prop_name);
+		mem = "/memory";
+	}
+
+	node = fdt_path_offset(blob, mem);
+	if (node < 0) {
+		debug("%s: Failed to find node '%s': %s\n", __func__, mem,
+		      fdt_strerror(node));
+		return -ENOENT;
+	}
+
+	/*
+	 * Not strictly correct - the memory may have multiple banks. We just
+	 * use the first
+	 */
+	if (fdtdec_decode_region(blob, node, "reg", &base, &size)) {
+		debug("%s: Failed to decode memory region %s\n", __func__,
+		      mem);
+		return -EINVAL;
+	}
+
+	snprintf(prop_name, sizeof(prop_name), "%s-offset%s", mem_type,
+		 suffix);
+	if (fdtdec_decode_region(blob, config_node, prop_name, &offset,
+				 &offset_size)) {
+		debug("%s: Failed to decode memory region '%s'\n", __func__,
+		      prop_name);
+		return -EINVAL;
+	}
+
+	*basep = base + offset;
+	*sizep = offset_size;
 
 	return 0;
 }

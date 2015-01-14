@@ -1,8 +1,5 @@
 if TARGET_PENGWYN
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "pengwyn"
 

@@ -26,6 +26,10 @@ ENTRY(lowlevel_init)
 	orr	r0, r0, #(CR_C | CR_M)		@ enable MMU and Dcache
 	mcr	p15, 0, r0, c1, c0, 0
 
+#ifdef CONFIG_DEBUG_LL
+	bl	setup_lowlevel_debug
+#endif
+
 	/*
 	 * Now we are using the page table embedded in the Boot ROM.
 	 * It is not handy since it is not a straight mapped table for sLD3.

@@ -1,364 +1,826 @@
 /*
- * (C) Copyright 2008
- * Marvell Semiconductor <www.marvell.com>
- * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
+ * Image manipulator for Marvell SoCs
+ *  supports Kirkwood, Dove, Armada 370, and Armada XP
+ *
+ * (C) Copyright 2013 Thomas Petazzoni
+ * <thomas.petazzoni@free-electrons.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
+ *
+ * Not implemented: support for the register headers and secure
+ * headers in v1 images
  */
 
 #include "imagetool.h"
+#include <limits.h>
 #include <image.h>
+#include <stdint.h>
 #include "kwbimage.h"
 
-/*
- * Supported commands for configuration file
- */
-static table_entry_t kwbimage_cmds[] = {
-	{CMD_BOOT_FROM,		"BOOT_FROM",		"boot command",	},
-	{CMD_NAND_ECC_MODE,	"NAND_ECC_MODE",	"NAND mode",	},
-	{CMD_NAND_PAGE_SIZE,	"NAND_PAGE_SIZE",	"NAND size",	},
-	{CMD_SATA_PIO_MODE,	"SATA_PIO_MODE",	"SATA mode",	},
-	{CMD_DDR_INIT_DELAY,	"DDR_INIT_DELAY",	"DDR init dly",	},
-	{CMD_DATA,		"DATA",			"Reg Write Data", },
-	{CMD_INVALID,		"",			"",	},
+#define ALIGN_SUP(x, a) (((x) + (a - 1)) & ~(a - 1))
+
+/* Structure of the main header, version 0 (Kirkwood, Dove) */
+struct main_hdr_v0 {
+	uint8_t  blockid;		/*0     */
+	uint8_t  nandeccmode;		/*1     */
+	uint16_t nandpagesize;		/*2-3   */
+	uint32_t blocksize;		/*4-7   */
+	uint32_t rsvd1;			/*8-11  */
+	uint32_t srcaddr;		/*12-15 */
+	uint32_t destaddr;		/*16-19 */
+	uint32_t execaddr;		/*20-23 */
+	uint8_t  satapiomode;		/*24    */
+	uint8_t  rsvd3;			/*25    */
+	uint16_t ddrinitdelay;		/*26-27 */
+	uint16_t rsvd2;			/*28-29 */
+	uint8_t  ext;			/*30    */
+	uint8_t  checksum;		/*31    */
+};
+
+struct ext_hdr_v0_reg {
+	uint32_t raddr;
+	uint32_t rdata;
+};
+
+#define EXT_HDR_V0_REG_COUNT ((0x1dc - 0x20) / sizeof(struct ext_hdr_v0_reg))
+
+struct ext_hdr_v0 {
+	uint32_t              offset;
+	uint8_t               reserved[0x20 - sizeof(uint32_t)];
+	struct ext_hdr_v0_reg rcfg[EXT_HDR_V0_REG_COUNT];
+	uint8_t               reserved2[7];
+	uint8_t               checksum;
+};
+
+/* Structure of the main header, version 1 (Armada 370, Armada XP) */
+struct main_hdr_v1 {
+	uint8_t  blockid;               /* 0 */
+	uint8_t  reserved1;             /* 1 */
+	uint16_t reserved2;             /* 2-3 */
+	uint32_t blocksize;             /* 4-7 */
+	uint8_t  version;               /* 8 */
+	uint8_t  headersz_msb;          /* 9 */
+	uint16_t headersz_lsb;          /* A-B */
+	uint32_t srcaddr;               /* C-F */
+	uint32_t destaddr;              /* 10-13 */
+	uint32_t execaddr;              /* 14-17 */
+	uint8_t  reserved3;             /* 18 */
+	uint8_t  nandblocksize;         /* 19 */
+	uint8_t  nandbadblklocation;    /* 1A */
+	uint8_t  reserved4;             /* 1B */
+	uint16_t reserved5;             /* 1C-1D */
+	uint8_t  ext;                   /* 1E */
+	uint8_t  checksum;              /* 1F */
 };
 
 /*
- * Supported Boot options for configuration file
+ * Header for the optional headers, version 1 (Armada 370, Armada XP)
  */
-static table_entry_t kwbimage_bootops[] = {
-	{IBR_HDR_SPI_ID,	"spi",		"SPI Flash",	},
-	{IBR_HDR_NAND_ID,	"nand",		"NAND Flash",	},
-	{IBR_HDR_SATA_ID,	"sata",		"Sata port",	},
-	{IBR_HDR_PEX_ID,	"pex",		"PCIe port",	},
-	{IBR_HDR_UART_ID,	"uart",		"Serial port",	},
-	{-1,			"",		"Invalid",	},
+struct opt_hdr_v1 {
+	uint8_t  headertype;
+	uint8_t  headersz_msb;
+	uint16_t headersz_lsb;
+	char     data[0];
 };
 
 /*
- * Supported NAND ecc options configuration file
+ * Various values for the opt_hdr_v1->headertype field, describing the
+ * different types of optional headers. The "secure" header contains
+ * informations related to secure boot (encryption keys, etc.). The
+ * "binary" header contains ARM binary code to be executed prior to
+ * executing the main payload (usually the bootloader). This is
+ * typically used to execute DDR3 training code. The "register" header
+ * allows to describe a set of (address, value) tuples that are
+ * generally used to configure the DRAM controller.
  */
-static table_entry_t kwbimage_eccmodes[] = {
-	{IBR_HDR_ECC_DEFAULT,		"default",	"Default mode",	},
-	{IBR_HDR_ECC_FORCED_HAMMING,	"hamming",	"Hamming mode",	},
-	{IBR_HDR_ECC_FORCED_RS,		"rs",		"RS mode",	},
-	{IBR_HDR_ECC_DISABLED,		"disabled",	"ECC Disabled",	},
-	{-1,				"",		"",	},
+#define OPT_HDR_V1_SECURE_TYPE   0x1
+#define OPT_HDR_V1_BINARY_TYPE   0x2
+#define OPT_HDR_V1_REGISTER_TYPE 0x3
+
+#define KWBHEADER_V1_SIZE(hdr) \
+	(((hdr)->headersz_msb << 16) | (hdr)->headersz_lsb)
+
+static struct image_cfg_element *image_cfg;
+static int cfgn;
+
+struct boot_mode {
+	unsigned int id;
+	const char *name;
 };
 
-static struct kwb_header kwbimage_header;
-static int datacmd_cnt = 0;
-static char * fname = "Unknown";
-static int lineno = -1;
+struct boot_mode boot_modes[] = {
+	{ 0x4D, "i2c"  },
+	{ 0x5A, "spi"  },
+	{ 0x8B, "nand" },
+	{ 0x78, "sata" },
+	{ 0x9C, "pex"  },
+	{ 0x69, "uart" },
+	{},
+};
+
+struct nand_ecc_mode {
+	unsigned int id;
+	const char *name;
+};
+
+struct nand_ecc_mode nand_ecc_modes[] = {
+	{ 0x00, "default" },
+	{ 0x01, "hamming" },
+	{ 0x02, "rs" },
+	{ 0x03, "disabled" },
+	{},
+};
+
+/* Used to identify an undefined execution or destination address */
+#define ADDR_INVALID ((uint32_t)-1)
+
+#define BINARY_MAX_ARGS 8
+
+/* In-memory representation of a line of the configuration file */
+struct image_cfg_element {
+	enum {
+		IMAGE_CFG_VERSION = 0x1,
+		IMAGE_CFG_BOOT_FROM,
+		IMAGE_CFG_DEST_ADDR,
+		IMAGE_CFG_EXEC_ADDR,
+		IMAGE_CFG_NAND_BLKSZ,
+		IMAGE_CFG_NAND_BADBLK_LOCATION,
+		IMAGE_CFG_NAND_ECC_MODE,
+		IMAGE_CFG_NAND_PAGESZ,
+		IMAGE_CFG_BINARY,
+		IMAGE_CFG_PAYLOAD,
+		IMAGE_CFG_DATA,
+	} type;
+	union {
+		unsigned int version;
+		unsigned int bootfrom;
+		struct {
+			const char *file;
+			unsigned int args[BINARY_MAX_ARGS];
+			unsigned int nargs;
+		} binary;
+		const char *payload;
+		unsigned int dstaddr;
+		unsigned int execaddr;
+		unsigned int nandblksz;
+		unsigned int nandbadblklocation;
+		unsigned int nandeccmode;
+		unsigned int nandpagesz;
+		struct ext_hdr_v0_reg regdata;
+	};
+};
+
+#define IMAGE_CFG_ELEMENT_MAX 256
 
 /*
- * Report Error if xflag is set in addition to default
+ * Byte 8 of the image header contains the version number. In the v0
+ * header, byte 8 was reserved, and always set to 0. In the v1 header,
+ * byte 8 has been changed to a proper field, set to 1.
  */
-static int kwbimage_check_params(struct image_tool_params *params)
+static unsigned int image_version(void *header)
 {
-	if (!strlen (params->imagename)) {
-		printf ("Error:%s - Configuration file not specified, "
-			"it is needed for kwbimage generation\n",
-			params->cmdname);
-		return CFG_INVALID;
-	}
-	return	((params->dflag && (params->fflag || params->lflag)) ||
-		(params->fflag && (params->dflag || params->lflag)) ||
-		(params->lflag && (params->dflag || params->fflag)) ||
-		(params->xflag) || !(strlen (params->imagename)));
+	unsigned char *ptr = header;
+	return ptr[8];
 }
 
-static uint32_t check_get_hexval (char *token)
-{
-	uint32_t hexval;
+/*
+ * Utility functions to manipulate boot mode and ecc modes (convert
+ * them back and forth between description strings and the
+ * corresponding numerical identifiers).
+ */
 
-	if (!sscanf (token, "%x", &hexval)) {
-		printf ("Error:%s[%d] - Invalid hex data(%s)\n", fname,
-			lineno, token);
-		exit (EXIT_FAILURE);
+static const char *image_boot_mode_name(unsigned int id)
+{
+	int i;
+	for (i = 0; boot_modes[i].name; i++)
+		if (boot_modes[i].id == id)
+			return boot_modes[i].name;
+	return NULL;
+}
+
+int image_boot_mode_id(const char *boot_mode_name)
+{
+	int i;
+	for (i = 0; boot_modes[i].name; i++)
+		if (!strcmp(boot_modes[i].name, boot_mode_name))
+			return boot_modes[i].id;
+
+	return -1;
+}
+
+int image_nand_ecc_mode_id(const char *nand_ecc_mode_name)
+{
+	int i;
+	for (i = 0; nand_ecc_modes[i].name; i++)
+		if (!strcmp(nand_ecc_modes[i].name, nand_ecc_mode_name))
+			return nand_ecc_modes[i].id;
+	return -1;
+}
+
+static struct image_cfg_element *
+image_find_option(unsigned int optiontype)
+{
+	int i;
+
+	for (i = 0; i < cfgn; i++) {
+		if (image_cfg[i].type == optiontype)
+			return &image_cfg[i];
 	}
-	return hexval;
+
+	return NULL;
+}
+
+static unsigned int
+image_count_options(unsigned int optiontype)
+{
+	int i;
+	unsigned int count = 0;
+
+	for (i = 0; i < cfgn; i++)
+		if (image_cfg[i].type == optiontype)
+			count++;
+
+	return count;
 }
 
 /*
- * Generates 8 bit checksum
+ * Compute a 8-bit checksum of a memory area. This algorithm follows
+ * the requirements of the Marvell SoC BootROM specifications.
  */
-static uint8_t kwbimage_checksum8 (void *start, uint32_t len, uint8_t csum)
+static uint8_t image_checksum8(void *start, uint32_t len)
 {
-	register uint8_t sum = csum;
-	volatile uint8_t *p = (volatile uint8_t *)start;
+	uint8_t csum = 0;
+	uint8_t *p = start;
 
 	/* check len and return zero checksum if invalid */
 	if (!len)
 		return 0;
 
 	do {
-		sum += *p;
+		csum += *p;
 		p++;
 	} while (--len);
-	return (sum);
+
+	return csum;
 }
 
-/*
- * Generates 32 bit checksum
- */
-static uint32_t kwbimage_checksum32 (uint32_t *start, uint32_t len, uint32_t csum)
+static uint32_t image_checksum32(void *start, uint32_t len)
 {
-	register uint32_t sum = csum;
-	volatile uint32_t *p = start;
+	uint32_t csum = 0;
+	uint32_t *p = start;
 
 	/* check len and return zero checksum if invalid */
 	if (!len)
 		return 0;
 
 	if (len % sizeof(uint32_t)) {
-		printf ("Error:%s[%d] - length is not in multiple of %zu\n",
-			__FUNCTION__, len, sizeof(uint32_t));
+		fprintf(stderr, "Length %d is not in multiple of %zu\n",
+			len, sizeof(uint32_t));
 		return 0;
 	}
 
 	do {
-		sum += *p;
+		csum += *p;
 		p++;
 		len -= sizeof(uint32_t);
 	} while (len > 0);
-	return (sum);
+
+	return csum;
 }
 
-static void kwbimage_check_cfgdata (char *token, enum kwbimage_cmd cmdsw,
-					struct kwb_header *kwbhdr)
+static void *image_create_v0(size_t *imagesz, struct image_tool_params *params,
+			     int payloadsz)
 {
-	bhr_t *mhdr = &kwbhdr->kwb_hdr;
-	extbhr_t *exthdr = &kwbhdr->kwb_exthdr;
-	int i;
+	struct image_cfg_element *e;
+	size_t headersz;
+	struct main_hdr_v0 *main_hdr;
+	struct ext_hdr_v0 *ext_hdr;
+	void *image;
+	int has_ext = 0;
 
-	switch (cmdsw) {
-	case CMD_BOOT_FROM:
-		i = get_table_entry_id (kwbimage_bootops,
-				"Kwbimage boot option", token);
+	/*
+	 * Calculate the size of the header and the size of the
+	 * payload
+	 */
+	headersz  = sizeof(struct main_hdr_v0);
 
-		if (i < 0)
-			goto INVL_DATA;
-
-		mhdr->blockid = i;
-		printf ("Preparing kirkwood boot image to boot "
-			"from %s\n", token);
-		break;
-	case CMD_NAND_ECC_MODE:
-		i = get_table_entry_id (kwbimage_eccmodes,
-			"NAND ecc mode", token);
-
-		if (i < 0)
-			goto INVL_DATA;
-
-		mhdr->nandeccmode = i;
-		printf ("Nand ECC mode = %s\n", token);
-		break;
-	case CMD_NAND_PAGE_SIZE:
-		mhdr->nandpagesize =
-			(uint16_t) check_get_hexval (token);
-		printf ("Nand page size = 0x%x\n", mhdr->nandpagesize);
-		break;
-	case CMD_SATA_PIO_MODE:
-		mhdr->satapiomode =
-			(uint8_t) check_get_hexval (token);
-		printf ("Sata PIO mode = 0x%x\n",
-				mhdr->satapiomode);
-		break;
-	case CMD_DDR_INIT_DELAY:
-		mhdr->ddrinitdelay =
-			(uint16_t) check_get_hexval (token);
-		printf ("DDR init delay = %d msec\n", mhdr->ddrinitdelay);
-		break;
-	case CMD_DATA:
-		exthdr->rcfg[datacmd_cnt].raddr =
-			check_get_hexval (token);
-
-		break;
-	case CMD_INVALID:
-		goto INVL_DATA;
-	default:
-		goto INVL_DATA;
-	}
-	return;
-
-INVL_DATA:
-	printf ("Error:%s[%d] - Invalid data\n", fname, lineno);
-	exit (EXIT_FAILURE);
-}
-
-/*
- * this function sets the kwbimage header by-
- * 	1. Abstracting input command line arguments data
- *	2. parses the kwbimage configuration file and update extebded header data
- *	3. calculates header, extended header and image checksums
- */
-static void kwdimage_set_ext_header (struct kwb_header *kwbhdr, char* name) {
-	bhr_t *mhdr = &kwbhdr->kwb_hdr;
-	extbhr_t *exthdr = &kwbhdr->kwb_exthdr;
-	FILE *fd = NULL;
-	int j;
-	char *line = NULL;
-	char * token, *saveptr1, *saveptr2;
-	size_t len = 0;
-	enum kwbimage_cmd cmd;
-
-	fname = name;
-	/* set dram register offset */
-	exthdr->dramregsoffs = (intptr_t)&exthdr->rcfg - (intptr_t)mhdr;
-
-	if ((fd = fopen (name, "r")) == 0) {
-		printf ("Error:%s - Can't open\n", fname);
-		exit (EXIT_FAILURE);
+	if (image_count_options(IMAGE_CFG_DATA) > 0) {
+		has_ext = 1;
+		headersz += sizeof(struct ext_hdr_v0);
 	}
 
-	/* Simple kwimage.cfg file parser */
-	lineno=0;
-	while ((getline (&line, &len, fd)) > 0) {
-		lineno++;
-		token = strtok_r (line, "\r\n", &saveptr1);
-		/* drop all lines with zero tokens (= empty lines) */
-		if (token == NULL)
-			continue;
+	if (image_count_options(IMAGE_CFG_PAYLOAD) > 1) {
+		fprintf(stderr, "More than one payload, not possible\n");
+		return NULL;
+	}
 
-		for (j = 0, cmd = CMD_INVALID, line = token; ; line = NULL) {
-			token = strtok_r (line, " \t", &saveptr2);
-			if (token == NULL)
-			break;
-			/* Drop all text starting with '#' as comments */
-			if (token[0] == '#')
-				break;
+	image = malloc(headersz);
+	if (!image) {
+		fprintf(stderr, "Cannot allocate memory for image\n");
+		return NULL;
+	}
 
-			/* Process rest as valid config command line */
-			switch (j) {
-			case CFG_COMMAND:
-				cmd = get_table_entry_id (kwbimage_cmds,
-						"Kwbimage command", token);
+	memset(image, 0, headersz);
 
-				if (cmd == CMD_INVALID)
-					goto INVL_CMD;
-				break;
+	main_hdr = image;
 
-			case CFG_DATA0:
-				kwbimage_check_cfgdata (token, cmd, kwbhdr);
-				break;
+	/* Fill in the main header */
+	main_hdr->blocksize = payloadsz + sizeof(uint32_t) - headersz;
+	main_hdr->srcaddr   = headersz;
+	main_hdr->ext       = has_ext;
+	main_hdr->destaddr  = params->addr;
+	main_hdr->execaddr  = params->ep;
 
-			case CFG_DATA1:
-				if (cmd != CMD_DATA)
-					goto INVL_CMD;
+	e = image_find_option(IMAGE_CFG_BOOT_FROM);
+	if (e)
+		main_hdr->blockid = e->bootfrom;
+	e = image_find_option(IMAGE_CFG_NAND_ECC_MODE);
+	if (e)
+		main_hdr->nandeccmode = e->nandeccmode;
+	e = image_find_option(IMAGE_CFG_NAND_PAGESZ);
+	if (e)
+		main_hdr->nandpagesize = e->nandpagesz;
+	main_hdr->checksum = image_checksum8(image,
+					     sizeof(struct main_hdr_v0));
 
-				exthdr->rcfg[datacmd_cnt].rdata =
-						check_get_hexval (token);
+	/* Generate the ext header */
+	if (has_ext) {
+		int cfgi, datai;
 
-				if (datacmd_cnt > KWBIMAGE_MAX_CONFIG ) {
-					printf ("Error:%s[%d] - Found more "
-						"than max(%zd) allowed "
-						"data configurations\n",
-						fname, lineno,
-						KWBIMAGE_MAX_CONFIG);
-				exit (EXIT_FAILURE);
-				} else
-					datacmd_cnt++;
-				break;
+		ext_hdr = image + sizeof(struct main_hdr_v0);
+		ext_hdr->offset = 0x40;
 
-			default:
-				goto INVL_CMD;
-			}
-			j++;
+		for (cfgi = 0, datai = 0; cfgi < cfgn; cfgi++) {
+			e = &image_cfg[cfgi];
+			if (e->type != IMAGE_CFG_DATA)
+				continue;
+
+			ext_hdr->rcfg[datai].raddr = e->regdata.raddr;
+			ext_hdr->rcfg[datai].rdata = e->regdata.rdata;
+			datai++;
 		}
-	}
-	if (line)
-		free (line);
 
-	fclose (fd);
-	return;
-
-/*
- * Invalid Command error reporring
- *
- * command CMD_DATA needs three strings on a line
- * whereas other commands need only two.
- *
- * if more than two/three (as per command type) are observed,
- * then error will be reported
- */
-INVL_CMD:
-	printf ("Error:%s[%d] - Invalid command\n", fname, lineno);
-	exit (EXIT_FAILURE);
-}
-
-static void kwbimage_set_header (void *ptr, struct stat *sbuf, int ifd,
-				struct image_tool_params *params)
-{
-	struct kwb_header *hdr = (struct kwb_header *)ptr;
-	bhr_t *mhdr = &hdr->kwb_hdr;
-	extbhr_t *exthdr = &hdr->kwb_exthdr;
-	uint32_t checksum;
-	int size;
-
-	/* Build and add image checksum header */
-	checksum = kwbimage_checksum32 ((uint32_t *)ptr, sbuf->st_size, 0);
-
-	size = write (ifd, &checksum, sizeof(uint32_t));
-	if (size != sizeof(uint32_t)) {
-		printf ("Error:%s - Checksum write %d bytes %s\n",
-			params->cmdname, size, params->imagefile);
-		exit (EXIT_FAILURE);
+		ext_hdr->checksum = image_checksum8(ext_hdr,
+						    sizeof(struct ext_hdr_v0));
 	}
 
-	sbuf->st_size += sizeof(uint32_t);
-
-	mhdr->blocksize = sbuf->st_size - sizeof(struct kwb_header);
-	mhdr->srcaddr = sizeof(struct kwb_header);
-	mhdr->destaddr= params->addr;
-	mhdr->execaddr =params->ep;
-	mhdr->ext = 0x1; /* header extension appended */
-
-	kwdimage_set_ext_header (hdr, params->imagename);
-	/* calculate checksums */
-	mhdr->checkSum = kwbimage_checksum8 ((void *)mhdr, sizeof(bhr_t), 0);
-	exthdr->checkSum = kwbimage_checksum8 ((void *)exthdr,
-						sizeof(extbhr_t), 0);
+	*imagesz = headersz;
+	return image;
 }
 
-static int kwbimage_verify_header (unsigned char *ptr, int image_size,
-			struct image_tool_params *params)
+static size_t image_headersz_v1(struct image_tool_params *params,
+				int *hasext)
 {
-	struct kwb_header *hdr = (struct kwb_header *)ptr;
-	bhr_t *mhdr = &hdr->kwb_hdr;
-	extbhr_t *exthdr = &hdr->kwb_exthdr;
-	uint8_t calc_hdrcsum;
-	uint8_t calc_exthdrcsum;
+	struct image_cfg_element *binarye;
+	size_t headersz;
+	int ret;
 
-	calc_hdrcsum = kwbimage_checksum8 ((void *)mhdr,
-			sizeof(bhr_t) - sizeof(uint8_t), 0);
-	if (calc_hdrcsum != mhdr->checkSum)
-		return -FDT_ERR_BADSTRUCTURE;	/* mhdr csum not matched */
+	/*
+	 * Calculate the size of the header and the size of the
+	 * payload
+	 */
+	headersz = sizeof(struct main_hdr_v1);
 
-	calc_exthdrcsum = kwbimage_checksum8 ((void *)exthdr,
-			sizeof(extbhr_t) - sizeof(uint8_t), 0);
-	if (calc_exthdrcsum != exthdr->checkSum)
-		return -FDT_ERR_BADSTRUCTURE; /* exthdr csum not matched */
+	if (image_count_options(IMAGE_CFG_BINARY) > 1) {
+		fprintf(stderr, "More than one binary blob, not supported\n");
+		return 0;
+	}
+
+	if (image_count_options(IMAGE_CFG_PAYLOAD) > 1) {
+		fprintf(stderr, "More than one payload, not possible\n");
+		return 0;
+	}
+
+	binarye = image_find_option(IMAGE_CFG_BINARY);
+	if (binarye) {
+		struct stat s;
+
+		ret = stat(binarye->binary.file, &s);
+		if (ret < 0) {
+			char cwd[PATH_MAX];
+			char *dir = cwd;
+
+			memset(cwd, 0, sizeof(cwd));
+			if (!getcwd(cwd, sizeof(cwd))) {
+				dir = "current working directory";
+				perror("getcwd() failed");
+			}
+
+			fprintf(stderr,
+				"Didn't find the file '%s' in '%s' which is mandatory to generate the image\n"
+				"This file generally contains the DDR3 training code, and should be extracted from an existing bootable\n"
+				"image for your board. See 'kwbimage -x' to extract it from an existing image.\n",
+				binarye->binary.file, dir);
+			return 0;
+		}
+
+		headersz += s.st_size +
+			binarye->binary.nargs * sizeof(unsigned int);
+		if (hasext)
+			*hasext = 1;
+	}
+
+	/*
+	 * The payload should be aligned on some reasonable
+	 * boundary
+	 */
+	return ALIGN_SUP(headersz, 4096);
+}
+
+static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
+			     int payloadsz)
+{
+	struct image_cfg_element *e, *binarye;
+	struct main_hdr_v1 *main_hdr;
+	size_t headersz;
+	void *image, *cur;
+	int hasext = 0;
+	int ret;
+
+	/*
+	 * Calculate the size of the header and the size of the
+	 * payload
+	 */
+	headersz = image_headersz_v1(params, &hasext);
+	if (headersz == 0)
+		return NULL;
+
+	image = malloc(headersz);
+	if (!image) {
+		fprintf(stderr, "Cannot allocate memory for image\n");
+		return NULL;
+	}
+
+	memset(image, 0, headersz);
+
+	cur = main_hdr = image;
+	cur += sizeof(struct main_hdr_v1);
+
+	/* Fill the main header */
+	main_hdr->blocksize    = payloadsz - headersz + sizeof(uint32_t);
+	main_hdr->headersz_lsb = headersz & 0xFFFF;
+	main_hdr->headersz_msb = (headersz & 0xFFFF0000) >> 16;
+	main_hdr->destaddr     = params->addr;
+	main_hdr->execaddr     = params->ep;
+	main_hdr->srcaddr      = headersz;
+	main_hdr->ext          = hasext;
+	main_hdr->version      = 1;
+	e = image_find_option(IMAGE_CFG_BOOT_FROM);
+	if (e)
+		main_hdr->blockid = e->bootfrom;
+	e = image_find_option(IMAGE_CFG_NAND_BLKSZ);
+	if (e)
+		main_hdr->nandblocksize = e->nandblksz / (64 * 1024);
+	e = image_find_option(IMAGE_CFG_NAND_BADBLK_LOCATION);
+	if (e)
+		main_hdr->nandbadblklocation = e->nandbadblklocation;
+
+	binarye = image_find_option(IMAGE_CFG_BINARY);
+	if (binarye) {
+		struct opt_hdr_v1 *hdr = cur;
+		unsigned int *args;
+		size_t binhdrsz;
+		struct stat s;
+		int argi;
+		FILE *bin;
+
+		hdr->headertype = OPT_HDR_V1_BINARY_TYPE;
+
+		bin = fopen(binarye->binary.file, "r");
+		if (!bin) {
+			fprintf(stderr, "Cannot open binary file %s\n",
+				binarye->binary.file);
+			return NULL;
+		}
+
+		fstat(fileno(bin), &s);
+
+		binhdrsz = sizeof(struct opt_hdr_v1) +
+			(binarye->binary.nargs + 1) * sizeof(unsigned int) +
+			s.st_size;
+		hdr->headersz_lsb = binhdrsz & 0xFFFF;
+		hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
+
+		cur += sizeof(struct opt_hdr_v1);
+
+		args = cur;
+		*args = binarye->binary.nargs;
+		args++;
+		for (argi = 0; argi < binarye->binary.nargs; argi++)
+			args[argi] = binarye->binary.args[argi];
+
+		cur += (binarye->binary.nargs + 1) * sizeof(unsigned int);
+
+		ret = fread(cur, s.st_size, 1, bin);
+		if (ret != 1) {
+			fprintf(stderr,
+				"Could not read binary image %s\n",
+				binarye->binary.file);
+			return NULL;
+		}
+
+		fclose(bin);
+
+		cur += s.st_size;
+
+		/*
+		 * For now, we don't support more than one binary
+		 * header, and no other header types are
+		 * supported. So, the binary header is necessarily the
+		 * last one
+		 */
+		*((unsigned char *)cur) = 0;
+
+		cur += sizeof(uint32_t);
+	}
+
+	/* Calculate and set the header checksum */
+	main_hdr->checksum = image_checksum8(main_hdr, headersz);
+
+	*imagesz = headersz;
+	return image;
+}
+
+static int image_create_config_parse_oneline(char *line,
+					     struct image_cfg_element *el)
+{
+	char *keyword, *saveptr;
+	char deliminiters[] = " \t";
+
+	keyword = strtok_r(line, deliminiters, &saveptr);
+	if (!strcmp(keyword, "VERSION")) {
+		char *value = strtok_r(NULL, deliminiters, &saveptr);
+		el->type = IMAGE_CFG_VERSION;
+		el->version = atoi(value);
+	} else if (!strcmp(keyword, "BOOT_FROM")) {
+		char *value = strtok_r(NULL, deliminiters, &saveptr);
+		int ret = image_boot_mode_id(value);
+		if (ret < 0) {
+			fprintf(stderr,
+				"Invalid boot media '%s'\n", value);
+			return -1;
+		}
+		el->type = IMAGE_CFG_BOOT_FROM;
+		el->bootfrom = ret;
+	} else if (!strcmp(keyword, "NAND_BLKSZ")) {
+		char *value = strtok_r(NULL, deliminiters, &saveptr);
+		el->type = IMAGE_CFG_NAND_BLKSZ;
+		el->nandblksz = strtoul(value, NULL, 16);
+	} else if (!strcmp(keyword, "NAND_BADBLK_LOCATION")) {
+		char *value = strtok_r(NULL, deliminiters, &saveptr);
+		el->type = IMAGE_CFG_NAND_BADBLK_LOCATION;
+		el->nandbadblklocation =
+			strtoul(value, NULL, 16);
+	} else if (!strcmp(keyword, "NAND_ECC_MODE")) {
+		char *value = strtok_r(NULL, deliminiters, &saveptr);
+		int ret = image_nand_ecc_mode_id(value);
+		if (ret < 0) {
+			fprintf(stderr,
+				"Invalid NAND ECC mode '%s'\n", value);
+			return -1;
+		}
+		el->type = IMAGE_CFG_NAND_ECC_MODE;
+		el->nandeccmode = ret;
+	} else if (!strcmp(keyword, "NAND_PAGE_SIZE")) {
+		char *value = strtok_r(NULL, deliminiters, &saveptr);
+		el->type = IMAGE_CFG_NAND_PAGESZ;
+		el->nandpagesz = strtoul(value, NULL, 16);
+	} else if (!strcmp(keyword, "BINARY")) {
+		char *value = strtok_r(NULL, deliminiters, &saveptr);
+		int argi = 0;
+
+		el->type = IMAGE_CFG_BINARY;
+		el->binary.file = strdup(value);
+		while (1) {
+			value = strtok_r(NULL, deliminiters, &saveptr);
+			if (!value)
+				break;
+			el->binary.args[argi] = strtoul(value, NULL, 16);
+			argi++;
+			if (argi >= BINARY_MAX_ARGS) {
+				fprintf(stderr,
+					"Too many argument for binary\n");
+				return -1;
+			}
+		}
+		el->binary.nargs = argi;
+	} else if (!strcmp(keyword, "DATA")) {
+		char *value1 = strtok_r(NULL, deliminiters, &saveptr);
+		char *value2 = strtok_r(NULL, deliminiters, &saveptr);
+
+		if (!value1 || !value2) {
+			fprintf(stderr,
+				"Invalid number of arguments for DATA\n");
+			return -1;
+		}
+
+		el->type = IMAGE_CFG_DATA;
+		el->regdata.raddr = strtoul(value1, NULL, 16);
+		el->regdata.rdata = strtoul(value2, NULL, 16);
+	} else {
+		fprintf(stderr, "Ignoring unknown line '%s'\n", line);
+	}
 
 	return 0;
 }
 
-static void kwbimage_print_header (const void *ptr)
+/*
+ * Parse the configuration file 'fcfg' into the array of configuration
+ * elements 'image_cfg', and return the number of configuration
+ * elements in 'cfgn'.
+ */
+static int image_create_config_parse(FILE *fcfg)
 {
-	struct kwb_header *hdr = (struct kwb_header *) ptr;
-	bhr_t *mhdr = &hdr->kwb_hdr;
-	char *name = get_table_entry_name (kwbimage_bootops,
-				"Kwbimage boot option",
-				(int) mhdr->blockid);
+	int ret;
+	int cfgi = 0;
 
-	printf ("Image Type:   Kirkwood Boot from %s Image\n", name);
-	printf ("Data Size:    ");
-	genimg_print_size (mhdr->blocksize - sizeof(uint32_t));
-	printf ("Load Address: %08x\n", mhdr->destaddr);
-	printf ("Entry Point:  %08x\n", mhdr->execaddr);
+	/* Parse the configuration file */
+	while (!feof(fcfg)) {
+		char *line;
+		char buf[256];
+
+		/* Read the current line */
+		memset(buf, 0, sizeof(buf));
+		line = fgets(buf, sizeof(buf), fcfg);
+		if (!line)
+			break;
+
+		/* Ignore useless lines */
+		if (line[0] == '\n' || line[0] == '#')
+			continue;
+
+		/* Strip final newline */
+		if (line[strlen(line) - 1] == '\n')
+			line[strlen(line) - 1] = 0;
+
+		/* Parse the current line */
+		ret = image_create_config_parse_oneline(line,
+							&image_cfg[cfgi]);
+		if (ret)
+			return ret;
+
+		cfgi++;
+
+		if (cfgi >= IMAGE_CFG_ELEMENT_MAX) {
+			fprintf(stderr,
+				"Too many configuration elements in .cfg file\n");
+			return -1;
+		}
+	}
+
+	cfgn = cfgi;
+	return 0;
 }
 
-static int kwbimage_check_image_types (uint8_t type)
+static int image_get_version(void)
+{
+	struct image_cfg_element *e;
+
+	e = image_find_option(IMAGE_CFG_VERSION);
+	if (!e)
+		return -1;
+
+	return e->version;
+}
+
+static int image_version_file(const char *input)
+{
+	FILE *fcfg;
+	int version;
+	int ret;
+
+	fcfg = fopen(input, "r");
+	if (!fcfg) {
+		fprintf(stderr, "Could not open input file %s\n", input);
+		return -1;
+	}
+
+	image_cfg = malloc(IMAGE_CFG_ELEMENT_MAX *
+			   sizeof(struct image_cfg_element));
+	if (!image_cfg) {
+		fprintf(stderr, "Cannot allocate memory\n");
+		fclose(fcfg);
+		return -1;
+	}
+
+	memset(image_cfg, 0,
+	       IMAGE_CFG_ELEMENT_MAX * sizeof(struct image_cfg_element));
+	rewind(fcfg);
+
+	ret = image_create_config_parse(fcfg);
+	fclose(fcfg);
+	if (ret) {
+		free(image_cfg);
+		return -1;
+	}
+
+	version = image_get_version();
+	/* Fallback to version 0 is no version is provided in the cfg file */
+	if (version == -1)
+		version = 0;
+
+	free(image_cfg);
+
+	return version;
+}
+
+static void kwbimage_set_header(void *ptr, struct stat *sbuf, int ifd,
+				struct image_tool_params *params)
+{
+	FILE *fcfg;
+	void *image = NULL;
+	int version;
+	size_t headersz = 0;
+	uint32_t checksum;
+	int ret;
+	int size;
+
+	fcfg = fopen(params->imagename, "r");
+	if (!fcfg) {
+		fprintf(stderr, "Could not open input file %s\n",
+			params->imagename);
+		exit(EXIT_FAILURE);
+	}
+
+	image_cfg = malloc(IMAGE_CFG_ELEMENT_MAX *
+			   sizeof(struct image_cfg_element));
+	if (!image_cfg) {
+		fprintf(stderr, "Cannot allocate memory\n");
+		fclose(fcfg);
+		exit(EXIT_FAILURE);
+	}
+
+	memset(image_cfg, 0,
+	       IMAGE_CFG_ELEMENT_MAX * sizeof(struct image_cfg_element));
+	rewind(fcfg);
+
+	ret = image_create_config_parse(fcfg);
+	fclose(fcfg);
+	if (ret) {
+		free(image_cfg);
+		exit(EXIT_FAILURE);
+	}
+
+	version = image_get_version();
+	switch (version) {
+		/*
+		 * Fallback to version 0 if no version is provided in the
+		 * cfg file
+		 */
+	case -1:
+	case 0:
+		image = image_create_v0(&headersz, params, sbuf->st_size);
+		break;
+
+	case 1:
+		image = image_create_v1(&headersz, params, sbuf->st_size);
+		break;
+
+	default:
+		fprintf(stderr, "Unsupported version %d\n", version);
+		free(image_cfg);
+		exit(EXIT_FAILURE);
+	}
+
+	if (!image) {
+		fprintf(stderr, "Could not create image\n");
+		free(image_cfg);
+		exit(EXIT_FAILURE);
+	}
+
+	free(image_cfg);
+
+	/* Build and add image checksum header */
+	checksum = image_checksum32((uint32_t *)ptr, sbuf->st_size);
+	size = write(ifd, &checksum, sizeof(uint32_t));
+	if (size != sizeof(uint32_t)) {
+		fprintf(stderr, "Error:%s - Checksum write %d bytes %s\n",
+			params->cmdname, size, params->imagefile);
+		exit(EXIT_FAILURE);
+	}
+
+	sbuf->st_size += sizeof(uint32_t);
+
+	/* Finally copy the header into the image area */
+	memcpy(ptr, image, headersz);
+
+	free(image);
+}
+
+static void kwbimage_print_header(const void *ptr)
+{
+	struct main_hdr_v0 *mhdr = (struct main_hdr_v0 *)ptr;
+
+	printf("Image Type:   MVEBU Boot from %s Image\n",
+	       image_boot_mode_name(mhdr->blockid));
+	printf("Image version:%d\n", image_version((void *)ptr));
+	printf("Data Size:    ");
+	genimg_print_size(mhdr->blocksize - sizeof(uint32_t));
+	printf("Load Address: %08x\n", mhdr->destaddr);
+	printf("Entry Point:  %08x\n", mhdr->execaddr);
+}
+
+static int kwbimage_check_image_types(uint8_t type)
 {
 	if (type == IH_TYPE_KWBIMAGE)
 		return EXIT_SUCCESS;
@@ -366,18 +828,93 @@ static int kwbimage_check_image_types (uint8_t type)
 		return EXIT_FAILURE;
 }
 
+static int kwbimage_verify_header(unsigned char *ptr, int image_size,
+				  struct image_tool_params *params)
+{
+	struct main_hdr_v0 *main_hdr;
+	struct ext_hdr_v0 *ext_hdr;
+	uint8_t checksum;
+
+	main_hdr = (void *)ptr;
+	checksum = image_checksum8(ptr,
+				   sizeof(struct main_hdr_v0)
+				   - sizeof(uint8_t));
+	if (checksum != main_hdr->checksum)
+		return -FDT_ERR_BADSTRUCTURE;
+
+	/* Only version 0 extended header has checksum */
+	if (image_version((void *)ptr) == 0) {
+		ext_hdr = (void *)ptr + sizeof(struct main_hdr_v0);
+		checksum = image_checksum8(ext_hdr,
+					   sizeof(struct ext_hdr_v0)
+					   - sizeof(uint8_t));
+		if (checksum != ext_hdr->checksum)
+			return -FDT_ERR_BADSTRUCTURE;
+	}
+
+	return 0;
+}
+
+static int kwbimage_generate(struct image_tool_params *params,
+			     struct image_type_params *tparams)
+{
+	int alloc_len;
+	void *hdr;
+	int version = 0;
+
+	version = image_version_file(params->imagename);
+	if (version == 0) {
+		alloc_len = sizeof(struct main_hdr_v0) +
+			sizeof(struct ext_hdr_v0);
+	} else {
+		alloc_len = image_headersz_v1(params, NULL);
+	}
+
+	hdr = malloc(alloc_len);
+	if (!hdr) {
+		fprintf(stderr, "%s: malloc return failure: %s\n",
+			params->cmdname, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	memset(hdr, 0, alloc_len);
+	tparams->header_size = alloc_len;
+	tparams->hdr = hdr;
+
+	return 0;
+}
+
+/*
+ * Report Error if xflag is set in addition to default
+ */
+static int kwbimage_check_params(struct image_tool_params *params)
+{
+	if (!strlen(params->imagename)) {
+		fprintf(stderr, "Error:%s - Configuration file not specified, "
+			"it is needed for kwbimage generation\n",
+			params->cmdname);
+		return CFG_INVALID;
+	}
+
+	return (params->dflag && (params->fflag || params->lflag)) ||
+		(params->fflag && (params->dflag || params->lflag)) ||
+		(params->lflag && (params->dflag || params->fflag)) ||
+		(params->xflag) || !(strlen(params->imagename));
+}
+
 /*
  * kwbimage type parameters definition
  */
 static struct image_type_params kwbimage_params = {
-	.name = "Kirkwood Boot Image support",
-	.header_size = sizeof(struct kwb_header),
-	.hdr = (void*)&kwbimage_header,
+	.name		= "Marvell MVEBU Boot Image support",
+	.header_size	= 0,		/* no fixed header size */
+	.hdr		= NULL,
+	.vrec_header	= kwbimage_generate,
 	.check_image_type = kwbimage_check_image_types,
-	.verify_header = kwbimage_verify_header,
-	.print_header = kwbimage_print_header,
-	.set_header = kwbimage_set_header,
-	.check_params = kwbimage_check_params,
+	.verify_header	= kwbimage_verify_header,
+	.print_header	= kwbimage_print_header,
+	.set_header	= kwbimage_set_header,
+	.check_params	= kwbimage_check_params,
 };
 
 void init_kwb_image_type (void)

@@ -102,7 +102,7 @@ static void ti_spi_setup_spi_register(struct ti_qspi_slave *qslave)
 	struct spi_slave *slave = &qslave->slave;
 	u32 memval = 0;
 
-#ifdef CONFIG_DRA7XX
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 	slave->memory_map = (void *)MMAP_START_ADDR_DRA;
 #else
 	slave->memory_map = (void *)MMAP_START_ADDR_AM43x;
@@ -244,7 +244,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	uint status;
 	int timeout;
 
-#ifdef CONFIG_DRA7XX
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 	int val;
 #endif
 
@@ -254,7 +254,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	/* Setup mmap flags */
 	if (flags & SPI_XFER_MMAP) {
 		writel(MM_SWITCH, &qslave->base->memswitch);
-#ifdef CONFIG_DRA7XX
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 		val = readl(CORE_CTRL_IO);
 		val |= MEM_CS;
 		writel(val, CORE_CTRL_IO);
@@ -262,7 +262,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		return 0;
 	} else if (flags & SPI_XFER_MMAP_END) {
 		writel(~MM_SWITCH, &qslave->base->memswitch);
-#ifdef CONFIG_DRA7XX
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 		val = readl(CORE_CTRL_IO);
 		val &= MEM_CS_UNSELECT;
 		writel(val, CORE_CTRL_IO);

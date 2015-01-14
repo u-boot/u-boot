@@ -31,7 +31,8 @@ int do_fpga_md(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned int fpga;
 	ulong	addr, length;
 	int rc = 0;
-	u16	linebuf[DISP_LINE_LEN/sizeof(u16)];
+	u16 linebuf[DISP_LINE_LEN/sizeof(u16)];
+	ulong nbytes;
 
 	/*
 	 * We use the last specified parameters, unless new ones are
@@ -63,13 +64,28 @@ int do_fpga_md(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			length = simple_strtoul(argv[3], NULL, 16);
 	}
 
-	/* Print the lines. */
-	for (k = 0; k < DISP_LINE_LEN / sizeof(u16); ++k)
-		fpga_get_reg(fpga, (u16 *)fpga_ptr[fpga] + k, k * sizeof(u16),
-			     &linebuf[k]);
-	print_buffer(addr, (void *)linebuf, sizeof(u16),
-		     length, DISP_LINE_LEN / sizeof(u16));
-	addr += sizeof(u16)*length;
+	nbytes = length * sizeof(u16);
+	do {
+		ulong linebytes = (nbytes > DISP_LINE_LEN) ?
+				  DISP_LINE_LEN : nbytes;
+
+		for (k = 0; k < linebytes / sizeof(u16); ++k)
+			fpga_get_reg(fpga,
+				     (u16 *)fpga_ptr[fpga] + addr
+				     / sizeof(u16) + k,
+				     addr + k * sizeof(u16),
+				     &linebuf[k]);
+		print_buffer(addr, (void *)linebuf, sizeof(u16),
+			     linebytes / sizeof(u16),
+			     DISP_LINE_LEN / sizeof(u16));
+
+		nbytes -= linebytes;
+		addr += linebytes;
+		if (ctrlc()) {
+			rc = 1;
+			break;
+		}
+	} while (nbytes > 0);
 
 	dp_last_fpga = fpga;
 	dp_last_addr = addr;

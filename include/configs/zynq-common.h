@@ -10,9 +10,6 @@
 #ifndef __CONFIG_ZYNQ_COMMON_H
 #define __CONFIG_ZYNQ_COMMON_H
 
-/* High Level configuration Options */
-#define CONFIG_ARMV7
-
 /* CPU clock */
 #ifndef CONFIG_CPU_FREQ_HZ
 # define CONFIG_CPU_FREQ_HZ	800000000
@@ -268,10 +265,10 @@
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x300 /* address 0x60000 */
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS      0x200 /* 256 KB */
-#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION    1
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot-dtb.img"
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot-dtb.img"
 #endif
 
 /* Disable dcache for SPL just for sure */
@@ -283,8 +280,8 @@
 /* Address in RAM where the parameters must be copied by SPL. */
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x10000000
 
-#define CONFIG_SPL_FAT_LOAD_ARGS_NAME		"system.dtb"
-#define CONFIG_SPL_FAT_LOAD_KERNEL_NAME		"uImage"
+#define CONFIG_SPL_FS_LOAD_ARGS_NAME		"system.dtb"
+#define CONFIG_SPL_FS_LOAD_KERNEL_NAME		"uImage"
 
 /* Not using MMC raw mode - just for compilation purpose */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0

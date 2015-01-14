@@ -34,6 +34,7 @@ SPL_BIN := u-boot-spl
 endif
 
 include $(srctree)/config.mk
+include $(srctree)/arch/$(ARCH)/Makefile
 
 # Enable garbage collection of un-used sections for SPL
 KBUILD_CFLAGS += -ffunction-sections -fdata-sections
@@ -45,30 +46,13 @@ cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
 
-ifdef	CONFIG_SPL_START_S_PATH
-START_PATH := $(CONFIG_SPL_START_S_PATH:"%"=%)
-else
-START_PATH := $(CPUDIR)
-endif
-
-head-y := $(START_PATH)/start.o
-head-$(CONFIG_X86) += $(START_PATH)/start16.o $(START_PATH)/resetvec.o
-head-$(CONFIG_4xx) += $(START_PATH)/resetvec.o
-head-$(CONFIG_MPC85xx) += $(START_PATH)/resetvec.o
-
-libs-y += arch/$(ARCH)/lib/
-
-libs-y += $(CPUDIR)/
-
-ifdef SOC
-libs-y += $(CPUDIR)/$(SOC)/
-endif
 libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 
 libs-$(CONFIG_SPL_FRAMEWORK) += common/spl/
 libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/
 libs-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
+libs-$(CONFIG_SPL_DM) += drivers/core/
 libs-$(CONFIG_SPL_I2C_SUPPORT) += drivers/i2c/
 libs-$(CONFIG_SPL_GPIO_SUPPORT) += drivers/gpio/
 libs-$(CONFIG_SPL_MMC_SUPPORT) += drivers/mmc/
@@ -80,7 +64,7 @@ libs-y += fs/
 libs-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
 libs-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/ drivers/power/pmic/
 libs-$(CONFIG_SPL_MTD_SUPPORT) += drivers/mtd/
-libs-$(if $(CONFIG_CMD_NAND),$(CONFIG_SPL_NAND_SUPPORT)) += drivers/mtd/nand/
+libs-$(CONFIG_SPL_NAND_SUPPORT) += drivers/mtd/nand/
 libs-$(CONFIG_SPL_DRIVERS_MISC_SUPPORT) += drivers/misc/
 libs-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/
 libs-$(CONFIG_SPL_DMA_SUPPORT) += drivers/dma/
@@ -95,13 +79,6 @@ libs-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/
 libs-$(CONFIG_SPL_USB_HOST_SUPPORT) += drivers/usb/host/
 libs-$(CONFIG_OMAP_USB_PHY) += drivers/usb/phy/
 libs-$(CONFIG_SPL_SATA_SUPPORT) += drivers/block/
-
-ifneq (,$(CONFIG_MX23)$(CONFIG_MX35)$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
-libs-y += arch/$(ARCH)/imx-common/
-endif
-
-libs-$(CONFIG_ARM) += arch/arm/cpu/
-libs-$(CONFIG_PPC) += arch/powerpc/cpu/
 
 head-y		:= $(addprefix $(obj)/,$(head-y))
 libs-y		:= $(addprefix $(obj)/,$(libs-y))
@@ -181,6 +158,10 @@ ALL-y	+= $(obj)/sunxi-spl.bin
 endif
 endif
 
+ifeq ($(CONFIG_SYS_SOC),"at91")
+ALL-y	+= boot.bin
+endif
+
 all:	$(ALL-y)
 
 ifdef CONFIG_SAMSUNG
@@ -216,13 +197,13 @@ $(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin
 endif
 
 quiet_cmd_u-boot-spl = LD      $@
-      cmd_u-boot-spl = cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
+      cmd_u-boot-spl = (cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
 		       $(patsubst $(obj)/%,%,$(u-boot-spl-init)) --start-group \
 		       $(patsubst $(obj)/%,%,$(u-boot-spl-main)) --end-group \
-		       $(PLATFORM_LIBS) -Map $(SPL_BIN).map -o $(SPL_BIN)
+		       $(PLATFORM_LIBS) -Map $(SPL_BIN).map -o $(SPL_BIN))
 
-$(obj)/$(SPL_BIN): $(u-boot-spl-init) $(u-boot-spl-main) $(obj)/u-boot-spl.lds
-	$(call cmd,u-boot-spl)
+$(obj)/$(SPL_BIN): $(u-boot-spl-init) $(u-boot-spl-main) $(obj)/u-boot-spl.lds FORCE
+	$(call if_changed,u-boot-spl)
 
 $(sort $(u-boot-spl-init) $(u-boot-spl-main)): $(u-boot-spl-dirs) ;
 

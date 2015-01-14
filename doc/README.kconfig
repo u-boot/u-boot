@@ -79,7 +79,7 @@ See below for how each configuration target works in U-Boot:
   ST:   - the line is valid for SPL and TPL images
   +S:   - the line is valid for Normal and SPL images
   +T:   - the line is valid for Normal and TPL images
-  +ST:  - the line is valid for Normal, SPL and SPL images
+  +ST:  - the line is valid for Normal, SPL and TPL images
 
   So, if neither CONFIG_SPL nor CONFIG_TPL is defined, the defconfig file
   has no "<condition>:" part and therefore has the same form as in Linux.

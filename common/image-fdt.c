@@ -237,6 +237,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	int		fdt_noffset;
 #endif
 	const char *select = NULL;
+	int		ok_no_fdt = 0;
 
 	*of_flat_tree = NULL;
 	*of_size = 0;
@@ -309,7 +310,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			       fdt_addr);
 			fdt_hdr = image_get_fdt(fdt_addr);
 			if (!fdt_hdr)
-				goto error;
+				goto no_fdt;
 
 			/*
 			 * move image data to the load address,
@@ -379,7 +380,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			break;
 		default:
 			puts("ERROR: Did not find a cmdline Flattened Device Tree\n");
-			goto error;
+			goto no_fdt;
 		}
 
 		printf("   Booting using the fdt blob at %#08lx\n", fdt_addr);
@@ -413,11 +414,11 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			}
 		} else {
 			debug("## No Flattened Device Tree\n");
-			return 0;
+			goto no_fdt;
 		}
 	} else {
 		debug("## No Flattened Device Tree\n");
-		return 0;
+		goto no_fdt;
 	}
 
 	*of_flat_tree = fdt_blob;
@@ -427,9 +428,15 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 
 	return 0;
 
+no_fdt:
+	ok_no_fdt = 1;
 error:
 	*of_flat_tree = NULL;
 	*of_size = 0;
+	if (!select && ok_no_fdt) {
+		debug("Continuing to boot without FDT\n");
+		return 0;
+	}
 	return 1;
 }
 
@@ -460,19 +467,32 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 {
 	ulong *initrd_start = &images->initrd_start;
 	ulong *initrd_end = &images->initrd_end;
-	int ret;
+	int ret = -EPERM;
+	int fdt_ret;
 
 	if (fdt_chosen(blob) < 0) {
-		puts("ERROR: /chosen node create failed");
-		puts(" - must RESET the board to recover.\n");
-		return -1;
+		printf("ERROR: /chosen node create failed\n");
+		goto err;
 	}
 	if (arch_fixup_fdt(blob) < 0) {
-		puts("ERROR: arch specific fdt fixup failed");
-		return -1;
+		printf("ERROR: arch-specific fdt fixup failed\n");
+		goto err;
 	}
-	if (IMAGE_OF_BOARD_SETUP)
-		ft_board_setup(blob, gd->bd);
+	if (IMAGE_OF_BOARD_SETUP) {
+		fdt_ret = ft_board_setup(blob, gd->bd);
+		if (fdt_ret) {
+			printf("ERROR: board-specific fdt fixup failed: %s\n",
+			       fdt_strerror(fdt_ret));
+			goto err;
+		}
+	}
+	if (IMAGE_OF_SYSTEM_SETUP) {
+		if (ft_system_setup(blob, gd->bd)) {
+			printf("ERROR: system-specific fdt fixup failed: %s\n",
+			       fdt_strerror(fdt_ret));
+			goto err;
+		}
+	}
 	fdt_fixup_ethernet(blob);
 
 	/* Delete the old LMB reservation */
@@ -481,7 +501,7 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 
 	ret = fdt_shrink_to_minimum(blob);
 	if (ret < 0)
-		return ret;
+		goto err;
 	of_size = ret;
 
 	if (*initrd_start && *initrd_end) {
@@ -493,7 +513,7 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 
 	fdt_initrd(blob, *initrd_start, *initrd_end);
 	if (!ft_verify_fdt(blob))
-		return -1;
+		goto err;
 
 #if defined(CONFIG_SOC_KEYSTONE)
 	if (IMAGE_OF_BOARD_SETUP)
@@ -501,4 +521,8 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 #endif
 
 	return 0;
+err:
+	printf(" - must RESET the board to recover.\n\n");
+
+	return ret;
 }

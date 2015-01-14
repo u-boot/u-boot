@@ -229,7 +229,7 @@ int board_eth_init(bd_t *bis)
 #endif /* #ifdef CONFIG_FACTORYSET */
 
 	/* Set rgmii mode and enable rmii clock to be sourced from chip */
-	writel(RGMII_MODE_ENABLE , &cdev->miisel);
+	writel(RGMII_MODE_ENABLE  | RGMII_INT_DELAY, &cdev->miisel);
 
 	rv = cpsw_register(&cpsw_data);
 	if (rv < 0)
@@ -428,4 +428,38 @@ static int board_video_init(void)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	int ret;
+
+	omap_nand_switch_ecc(1, 8);
+
+#ifdef CONFIG_FACTORYSET
+	if (factory_dat.asn[0] != 0) {
+		char tmp[2 * MAX_STRING_LENGTH + 2];
+
+		if (strncmp((const char *)factory_dat.asn, "PXM50", 5) == 0)
+			factory_dat.pxm50 = 1;
+		else
+			factory_dat.pxm50 = 0;
+		sprintf(tmp, "%s_%s", factory_dat.asn,
+			factory_dat.comp_version);
+		ret = setenv("boardid", tmp);
+		if (ret)
+			printf("error setting board id\n");
+	} else {
+		factory_dat.pxm50 = 1;
+		ret = setenv("boardid", "PXM50_1.0");
+		if (ret)
+			printf("error setting board id\n");
+	}
+	debug("PXM50: %d\n", factory_dat.pxm50);
+#endif
+
+	return 0;
+}
+#endif
+
 #include "../common/board.c"

@@ -31,6 +31,7 @@
 #define MMC_VERSION_4_3		(MMC_VERSION_MMC | 0x403)
 #define MMC_VERSION_4_41	(MMC_VERSION_MMC | 0x429)
 #define MMC_VERSION_4_5		(MMC_VERSION_MMC | 0x405)
+#define MMC_VERSION_5_0		(MMC_VERSION_MMC | 0x500)
 
 #define MMC_MODE_HS		(1 << 0)
 #define MMC_MODE_HS_52MHz	(1 << 1)
@@ -147,6 +148,7 @@
  * EXT_CSD fields
  */
 #define EXT_CSD_GP_SIZE_MULT		143	/* R/W */
+#define EXT_CSD_PARTITION_SETTING	155	/* R/W */
 #define EXT_CSD_PARTITIONS_ATTRIBUTE	156	/* R/W */
 #define EXT_CSD_PARTITIONING_SUPPORT	160	/* RO */
 #define EXT_CSD_RST_N_FUNCTION		162	/* R/W */
@@ -196,6 +198,8 @@
 #define EXT_CSD_BOOT_BUS_WIDTH_MODE(x)	(x << 3)
 #define EXT_CSD_BOOT_BUS_WIDTH_RESET(x)	(x << 2)
 #define EXT_CSD_BOOT_BUS_WIDTH_WIDTH(x)	(x)
+
+#define EXT_CSD_PARTITION_SETTING_COMPLETED	(1 << 0)
 
 #define R1_ILLEGAL_COMMAND		(1 << 22)
 #define R1_APP_CMD			(1 << 5)
@@ -314,6 +318,7 @@ struct mmc {
 	char init_in_progress;	/* 1 if we have done mmc_start_init() */
 	char preinit;		/* start init as early as possible */
 	uint op_cond_response;	/* the response byte from the last op_cond */
+	int ddr_mode;
 };
 
 int mmc_register(struct mmc *mmc);
@@ -385,8 +390,10 @@ struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode);
 int mmc_legacy_init(int verbose);
 #endif
 
+void board_mmc_power_init(void);
 int board_mmc_init(bd_t *bis);
 int cpu_mmc_init(bd_t *bis);
+int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr);
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
 #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT

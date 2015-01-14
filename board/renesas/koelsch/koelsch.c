@@ -16,6 +16,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/arch/rmobile.h>
+#include <asm/arch/rcar-mstp.h>
 #include <netdev.h>
 #include <miiphy.h>
 #include <i2c.h>
@@ -43,26 +44,9 @@ void s_init(void)
 	qos_init();
 }
 
-#define MSTPSR1		0xE6150038
-#define SMSTPCR1	0xE6150134
 #define TMU0_MSTP125	(1 << 25)
-
-#define MSTPSR7		0xE61501C4
-#define SMSTPCR7	0xE615014C
 #define SCIF0_MSTP721	(1 << 21)
-
-#define MSTPSR8		0xE61509A0
-#define SMSTPCR8	0xE6150990
 #define ETHER_MSTP813	(1 << 13)
-
-#define mstp_setbits(type, addr, saddr, set) \
-	out_##type((saddr), in_##type(addr) | (set))
-#define mstp_clrbits(type, addr, saddr, clear) \
-	out_##type((saddr), in_##type(addr) & ~(clear))
-#define mstp_setbits_le32(addr, saddr, set) \
-	mstp_setbits(le32, addr, saddr, set)
-#define mstp_clrbits_le32(addr, saddr, clear)   \
-	mstp_clrbits(le32, addr, saddr, clear)
 
 int board_early_init_f(void)
 {
@@ -77,12 +61,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-void arch_preboot_os(void)
-{
-	/* Disable TMU0 */
-	mstp_setbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
-}
-
 /* LSI pin pull-up control */
 #define PUPR5 0xe6060114
 #define PUPR5_ETH 0x3FFC0000
@@ -90,7 +68,7 @@ void arch_preboot_os(void)
 int board_init(void)
 {
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = KOELSCH_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	/* Init PFC controller */
 	r8a7791_pinmux_init();
@@ -150,7 +128,6 @@ int board_eth_init(bd_t *bis)
 
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
 	return 0;
@@ -173,17 +150,6 @@ int board_phy_config(struct phy_device *phydev)
 const struct rmobile_sysinfo sysinfo = {
 	CONFIG_RMOBILE_BOARD_STRING
 };
-
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = KOELSCH_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = KOELSCH_SDRAM_SIZE;
-}
-
-int board_late_init(void)
-{
-	return 0;
-}
 
 void reset_cpu(ulong addr)
 {

@@ -41,6 +41,7 @@
  * Modified to use le32_to_cpu and cpu_to_le32 properly
  */
 #include <common.h>
+#include <errno.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
@@ -79,7 +80,11 @@ static int media[MAX_UNITS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 #define InterFrameGap	0x03	/* 3 means InterFrameGap = the shortest one */
 
 #define NUM_TX_DESC	1	/* Number of Tx descriptor registers */
-#define NUM_RX_DESC	4	/* Number of Rx descriptor registers */
+#ifdef CONFIG_SYS_RX_ETH_BUFFER
+  #define NUM_RX_DESC	CONFIG_SYS_RX_ETH_BUFFER
+#else
+  #define NUM_RX_DESC	4	/* Number of Rx descriptor registers */
+#endif
 #define RX_BUF_SIZE	1536	/* Rx Buffer size */
 #define RX_BUF_LEN	8192
 
@@ -248,6 +253,7 @@ static struct {
 	{"RTL-8168b/8111sb",	0x38, 0xff7e1880,},
 	{"RTL-8168d/8111d",	0x28, 0xff7e1880,},
 	{"RTL-8168evl/8111evl",	0x2e, 0xff7e1880,},
+	{"RTL-8168/8111g",	0x4c, 0xff7e1880,},
 	{"RTL-8101e",		0x34, 0xff7e1880,},
 	{"RTL-8100e",		0x32, 0xff7e1880,},
 };
@@ -273,23 +279,40 @@ struct RxDesc {
 	u32 buf_Haddr;
 };
 
-/* Define the TX Descriptor */
-static u8 tx_ring[NUM_TX_DESC * sizeof(struct TxDesc) + 256];
-/*	__attribute__ ((aligned(256))); */
+#define RTL8169_DESC_SIZE 16
 
-/* Create a static buffer of size RX_BUF_SZ for each
-TX Descriptor.	All descriptors point to a
-part of this buffer */
-static unsigned char txb[NUM_TX_DESC * RX_BUF_SIZE];
+#if ARCH_DMA_MINALIGN > 256
+#  define RTL8169_ALIGN ARCH_DMA_MINALIGN
+#else
+#  define RTL8169_ALIGN 256
+#endif
 
-/* Define the RX Descriptor */
-static u8 rx_ring[NUM_RX_DESC * sizeof(struct TxDesc) + 256];
-  /*  __attribute__ ((aligned(256))); */
+/*
+ * Warn if the cache-line size is larger than the descriptor size. In such
+ * cases the driver will likely fail because the CPU needs to flush the cache
+ * when requeuing RX buffers, therefore descriptors written by the hardware
+ * may be discarded.
+ *
+ * This can be fixed by defining CONFIG_SYS_NONCACHED_MEMORY which will cause
+ * the driver to allocate descriptors from a pool of non-cached memory.
+ */
+#if RTL8169_DESC_SIZE < ARCH_DMA_MINALIGN
+#if !defined(CONFIG_SYS_NONCACHED_MEMORY) && !defined(CONFIG_SYS_DCACHE_OFF)
+#warning cache-line size is larger than descriptor size
+#endif
+#endif
 
-/* Create a static buffer of size RX_BUF_SZ for each
-RX Descriptor	All descriptors point to a
-part of this buffer */
-static unsigned char rxb[NUM_RX_DESC * RX_BUF_SIZE];
+/*
+ * Create a static buffer of size RX_BUF_SZ for each TX Descriptor. All
+ * descriptors point to a part of this buffer.
+ */
+DEFINE_ALIGN_BUFFER(u8, txb, NUM_TX_DESC * RX_BUF_SIZE, RTL8169_ALIGN);
+
+/*
+ * Create a static buffer of size RX_BUF_SZ for each RX Descriptor. All
+ * descriptors point to a part of this buffer.
+ */
+DEFINE_ALIGN_BUFFER(u8, rxb, NUM_RX_DESC * RX_BUF_SIZE, RTL8169_ALIGN);
 
 struct rtl8169_private {
 	void *mmio_addr;	/* memory map physical address */
@@ -297,8 +320,6 @@ struct rtl8169_private {
 	unsigned long cur_rx;	/* Index into the Rx descriptor buffer of next Rx pkt. */
 	unsigned long cur_tx;	/* Index into the Tx descriptor buffer of next Rx pkt. */
 	unsigned long dirty_tx;
-	unsigned char *TxDescArrays;	/* Index of Tx Descriptor buffer */
-	unsigned char *RxDescArrays;	/* Index of Rx Descriptor buffer */
 	struct TxDesc *TxDescArray;	/* Index of 256-alignment Tx Descriptor buffer */
 	struct RxDesc *RxDescArray;	/* Index of 256-alignment Rx Descriptor buffer */
 	unsigned char *RxBufferRings;	/* Index of Rx Buffer  */
@@ -398,34 +419,71 @@ match:
 }
 
 /*
+ * TX and RX descriptors are 16 bytes. This causes problems with the cache
+ * maintenance on CPUs where the cache-line size exceeds the size of these
+ * descriptors. What will happen is that when the driver receives a packet
+ * it will be immediately requeued for the hardware to reuse. The CPU will
+ * therefore need to flush the cache-line containing the descriptor, which
+ * will cause all other descriptors in the same cache-line to be flushed
+ * along with it. If one of those descriptors had been written to by the
+ * device those changes (and the associated packet) will be lost.
+ *
+ * To work around this, we make use of non-cached memory if available. If
+ * descriptors are mapped uncached there's no need to manually flush them
+ * or invalidate them.
+ *
+ * Note that this only applies to descriptors. The packet data buffers do
+ * not have the same constraints since they are 1536 bytes large, so they
+ * are unlikely to share cache-lines.
+ */
+static void *rtl_alloc_descs(unsigned int num)
+{
+	size_t size = num * RTL8169_DESC_SIZE;
+
+#ifdef CONFIG_SYS_NONCACHED_MEMORY
+	return (void *)noncached_alloc(size, RTL8169_ALIGN);
+#else
+	return memalign(RTL8169_ALIGN, size);
+#endif
+}
+
+/*
  * Cache maintenance functions. These are simple wrappers around the more
  * general purpose flush_cache() and invalidate_dcache_range() functions.
  */
 
 static void rtl_inval_rx_desc(struct RxDesc *desc)
 {
+#ifndef CONFIG_SYS_NONCACHED_MEMORY
 	unsigned long start = (unsigned long)desc & ~(ARCH_DMA_MINALIGN - 1);
 	unsigned long end = ALIGN(start + sizeof(*desc), ARCH_DMA_MINALIGN);
 
 	invalidate_dcache_range(start, end);
+#endif
 }
 
 static void rtl_flush_rx_desc(struct RxDesc *desc)
 {
+#ifndef CONFIG_SYS_NONCACHED_MEMORY
 	flush_cache((unsigned long)desc, sizeof(*desc));
+#endif
 }
 
 static void rtl_inval_tx_desc(struct TxDesc *desc)
 {
+#ifndef CONFIG_SYS_NONCACHED_MEMORY
 	unsigned long start = (unsigned long)desc & ~(ARCH_DMA_MINALIGN - 1);
 	unsigned long end = ALIGN(start + sizeof(*desc), ARCH_DMA_MINALIGN);
 
 	invalidate_dcache_range(start, end);
+#endif
 }
 
 static void rtl_flush_tx_desc(struct TxDesc *desc)
 {
+#ifndef CONFIG_SYS_NONCACHED_MEMORY
 	flush_cache((unsigned long)desc, sizeof(*desc));
+#endif
 }
 
 static void rtl_inval_buffer(void *buf, size_t size)
@@ -707,16 +765,6 @@ static int rtl_reset(struct eth_device *dev, bd_t *bis)
 	printf ("%s\n", __FUNCTION__);
 #endif
 
-	tpc->TxDescArrays = tx_ring;
-	/* Tx Desscriptor needs 256 bytes alignment; */
-	tpc->TxDescArray = (struct TxDesc *) ((unsigned long)(tpc->TxDescArrays +
-							      255) & ~255);
-
-	tpc->RxDescArrays = rx_ring;
-	/* Rx Desscriptor needs 256 bytes alignment; */
-	tpc->RxDescArray = (struct RxDesc *) ((unsigned long)(tpc->RxDescArrays +
-							      255) & ~255);
-
 	rtl8169_init_ring(dev);
 	rtl8169_hw_start(dev);
 	/* Construct a perfect filter frame with the mac address as first match
@@ -758,10 +806,6 @@ static void rtl_halt(struct eth_device *dev)
 
 	RTL_W32(RxMissed, 0);
 
-	tpc->TxDescArrays = NULL;
-	tpc->RxDescArrays = NULL;
-	tpc->TxDescArray = NULL;
-	tpc->RxDescArray = NULL;
 	for (i = 0; i < NUM_RX_DESC; i++) {
 		tpc->RxBufferRing[i] = NULL;
 	}
@@ -906,7 +950,16 @@ static int rtl_init(struct eth_device *dev, bd_t *bis)
 #endif
 	}
 
-	return 1;
+
+	tpc->RxDescArray = rtl_alloc_descs(NUM_RX_DESC);
+	if (!tpc->RxDescArray)
+		return -ENOMEM;
+
+	tpc->TxDescArray = rtl_alloc_descs(NUM_TX_DESC);
+	if (!tpc->TxDescArray)
+		return -ENOMEM;
+
+	return 0;
 }
 
 int rtl8169_initialize(bd_t *bis)
@@ -920,6 +973,7 @@ int rtl8169_initialize(bd_t *bis)
 	while(1){
 		unsigned int region;
 		u16 device;
+		int err;
 
 		/* Find RTL8169 */
 		if ((devno = pci_find_devices(supported, idx++)) < 0)
@@ -958,9 +1012,14 @@ int rtl8169_initialize(bd_t *bis)
 		dev->send = rtl_send;
 		dev->recv = rtl_recv;
 
-		eth_register (dev);
+		err = rtl_init(dev, bis);
+		if (err < 0) {
+			printf(pr_fmt("failed to initialize card: %d\n"), err);
+			free(dev);
+			continue;
+		}
 
-		rtl_init(dev, bis);
+		eth_register (dev);
 
 		card_number++;
 	}

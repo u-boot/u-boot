@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/sromc.h>
 
@@ -172,6 +172,9 @@ static int exynos5420_mmc_config(int peripheral, int flags)
 		 * this same assumption.
 		 */
 		if ((peripheral == PERIPH_ID_SDMMC0) && (i == (start + 2))) {
+#ifndef CONFIG_SPL_BUILD
+			gpio_request(i, "sdmmc0_vdden");
+#endif
 			gpio_set_value(i, 1);
 			gpio_cfg_pin(i, S5P_GPIO_OUTPUT);
 		} else {
@@ -834,7 +837,7 @@ static int exynos4x12_pinmux_config(int peripheral, int flags)
 int exynos_pinmux_config(int peripheral, int flags)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420())
+		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_pinmux_config(peripheral, flags);
 		else if (proid_is_exynos5250())
 			return exynos5_pinmux_config(peripheral, flags);

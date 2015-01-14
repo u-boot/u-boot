@@ -15,6 +15,7 @@
 #include <asm/arch/iomux-mx51.h>
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/imx-common/spi.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <power/pmic.h>

@@ -1,8 +1,5 @@
 if TARGET_QONG
 
-config SYS_CPU
-	default "arm1136"
-
 config SYS_BOARD
 	default "qong"
 

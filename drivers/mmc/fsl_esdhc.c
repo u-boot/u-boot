@@ -23,6 +23,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define SDHCI_IRQ_EN_BITS		(IRQSTATEN_CC | IRQSTATEN_TC | \
+				IRQSTATEN_CINT | \
+				IRQSTATEN_CTOE | IRQSTATEN_CCE | IRQSTATEN_CEBE | \
+				IRQSTATEN_CIE | IRQSTATEN_DTOE | IRQSTATEN_DCE | \
+				IRQSTATEN_DEBE | IRQSTATEN_BRR | IRQSTATEN_BWR | \
+				IRQSTATEN_DINT)
+
 struct fsl_esdhc {
 	uint    dsaddr;		/* SDMA system address register */
 	uint    blkattr;	/* Block attributes register */
@@ -558,6 +565,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_HCKEN
 				| SYSCTL_IPGEN | SYSCTL_CKEN);
 
+	writel(SDHCI_IRQ_EN_BITS, &regs->irqstaten);
 	memset(&cfg->cfg, 0, sizeof(cfg->cfg));
 
 	voltage_caps = 0;
@@ -610,7 +618,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 #endif
 
 	cfg->cfg.f_min = 400000;
-	cfg->cfg.f_max = min(gd->arch.sdhc_clk, 52000000);
+	cfg->cfg.f_max = min(cfg->sdhc_clk, (u32)52000000);
 
 	cfg->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 

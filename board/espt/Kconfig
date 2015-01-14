@@ -1,8 +1,5 @@
 if TARGET_ESPT
 
-config SYS_CPU
-	default "sh4"
-
 config SYS_BOARD
 	default "espt"
 

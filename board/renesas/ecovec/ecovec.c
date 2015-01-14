@@ -41,7 +41,7 @@ static void debug_led(u8 led)
 int board_late_init(void)
 {
 	u8 mac[6];
-	char env_mac[17];
+	char env_mac[18];
 
 	udelay(1000);
 

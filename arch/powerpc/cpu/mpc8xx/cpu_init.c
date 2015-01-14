@@ -125,20 +125,6 @@ void cpu_init_f (volatile immap_t * immr)
 	 *  I owe him a free beer. - wd]
 	 */
 
-#if defined(CONFIG_HERMES)	|| \
-    defined(CONFIG_ICU862)	|| \
-    defined(CONFIG_IP860)	|| \
-    defined(CONFIG_IVML24)	|| \
-    defined(CONFIG_IVMS8)	|| \
-    defined(CONFIG_LWMON)	|| \
-    defined(CONFIG_MHPC)	|| \
-    defined(CONFIG_R360MPI)	|| \
-    defined(CONFIG_RMU)		|| \
-    defined(CONFIG_SPD823TS)
-
-	memctl->memc_br0 = CONFIG_SYS_BR0_PRELIM;
-#endif
-
 #if defined(CONFIG_SYS_OR0_REMAP)
 	memctl->memc_or0 = CONFIG_SYS_OR0_REMAP;
 #endif
@@ -156,10 +142,6 @@ void cpu_init_f (volatile immap_t * immr)
 #if (defined(CONFIG_SYS_OR1_PRELIM) && defined(CONFIG_SYS_BR1_PRELIM))
 	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;
 	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;
-#endif
-
-#if defined(CONFIG_IP860) /* disable CS0 now that Flash is mapped on CS1 */
-	memctl->memc_br0 = 0;
 #endif
 
 #if defined(CONFIG_SYS_OR2_PRELIM) && defined(CONFIG_SYS_BR2_PRELIM)

@@ -97,6 +97,7 @@ F:	arch/arm/include/asm/imx-common/
 
 ARM MARVELL KIRKWOOD
 M:	Prafulla Wadaskar <prafulla@marvell.com>
+M:	Luka Perkov <luka.perkov@sartura.hr>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-marvell.git
 F:	arch/arm/cpu/arm926ejs/kirkwood/
@@ -127,6 +128,12 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-stm.git
 F:	arch/arm/cpu/arm926ejs/spear/
 F:	arch/arm/include/asm/arch-spear/
+
+ARM STM STV0991
+M:	Vikas Manocha <vikas.manocha@st.com>
+S:	Maintained
+F:	arch/arm/cpu/armv7/stv0991/
+F:	arch/arm/include/asm/arch-stv0991/
 
 ARM SUNXI
 M:	Ian Campbell <ijc@hellion.org.uk>
@@ -192,10 +199,12 @@ CFI FLASH
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-cfi-flash.git
-F:	drivers/mtd/*
+F:	drivers/mtd/cfi_flash.c
+F:	drivers/mtd/jedec_flash.c
 
 COLDFIRE
-M:	Jason Jin <jason.jin@freescale.com>
+M:	Huan Wang <alison.wang@freescale.com>
+M:	Angelo Dureghello <angelo@sysam.it>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-coldfire.git
 F:	arch/m68k/
@@ -253,7 +262,7 @@ T:	git git://git.denx.de/u-boot-mips.git
 F:	arch/mips/
 
 MMC
-M:	Pantelis Antoniou <panto.antoniou-consulting.com>
+M:	Pantelis Antoniou <panto@antoniou-consulting.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-mmc.git
 F:	drivers/mmc/
@@ -389,6 +398,7 @@ T:	git git://git.denx.de/u-boot-tq-group.git
 
 UBI
 M:	Kyungmin Park <kmpark@infradead.org>
+M:	Heiko Schocher <hs@denx.de>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-ubi.git
 F:	drivers/mtd/ubi/

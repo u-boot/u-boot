@@ -9,6 +9,7 @@ choice
 
 config TARGET_MICROBLAZE_GENERIC
 	bool "Support microblaze-generic"
+	select SUPPORT_SPL
 
 endchoice
 

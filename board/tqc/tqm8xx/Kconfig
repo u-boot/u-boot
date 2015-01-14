@@ -1,68 +1,3 @@
-if TARGET_FPS850L
-
-config SYS_BOARD
-	default "tqm8xx"
-
-config SYS_VENDOR
-	default "tqc"
-
-config SYS_CONFIG_NAME
-	default "FPS850L"
-
-endif
-
-if TARGET_FPS860L
-
-config SYS_BOARD
-	default "tqm8xx"
-
-config SYS_VENDOR
-	default "tqc"
-
-config SYS_CONFIG_NAME
-	default "FPS860L"
-
-endif
-
-if TARGET_NSCU
-
-config SYS_BOARD
-	default "tqm8xx"
-
-config SYS_VENDOR
-	default "tqc"
-
-config SYS_CONFIG_NAME
-	default "NSCU"
-
-endif
-
-if TARGET_SM850
-
-config SYS_BOARD
-	default "tqm8xx"
-
-config SYS_VENDOR
-	default "tqc"
-
-config SYS_CONFIG_NAME
-	default "SM850"
-
-endif
-
-if TARGET_TK885D
-
-config SYS_BOARD
-	default "tqm8xx"
-
-config SYS_VENDOR
-	default "tqc"
-
-config SYS_CONFIG_NAME
-	default "TK885D"
-
-endif
-
 if TARGET_TQM823L
 
 config SYS_BOARD
@@ -216,18 +151,5 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "TQM885D"
-
-endif
-
-if TARGET_VIRTLAB2
-
-config SYS_BOARD
-	default "tqm8xx"
-
-config SYS_VENDOR
-	default "tqc"
-
-config SYS_CONFIG_NAME
-	default "virtlab2"
 
 endif

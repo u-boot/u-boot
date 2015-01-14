@@ -18,8 +18,7 @@
 /*
  * SoC configurations
  */
-#define CONFIG_ARM926EJS		/* this is an ARM926EJS CPU */
-#define CONFIG_MX27			/* in a Freescale i.MX27 Chip */
+#define CONFIG_MX27			/* This is a Freescale i.MX27 Chip */
 #define CONFIG_MACH_TYPE	1698	/* APF27 */
 #define CONFIG_SYS_GENERIC_BOARD
 

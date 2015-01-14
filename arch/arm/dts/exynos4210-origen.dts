@@ -8,8 +8,8 @@
  */
 
 /dts-v1/;
-/include/ "skeleton.dtsi"
-/include/ "exynos4.dtsi"
+#include "skeleton.dtsi"
+#include "exynos4210.dtsi"
 
 / {
 	model = "Insignal Origen evaluation board based on Exynos4210";

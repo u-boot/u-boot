@@ -102,6 +102,7 @@ struct sdhci_host sdhci_host[SDHCI_MAX_HOSTS];
 
 static int do_sdhci_init(struct sdhci_host *host)
 {
+	char str[20];
 	int dev_id, flag;
 	int err = 0;
 
@@ -109,6 +110,8 @@ static int do_sdhci_init(struct sdhci_host *host)
 	dev_id = host->index + PERIPH_ID_SDMMC0;
 
 	if (fdt_gpio_isvalid(&host->pwr_gpio)) {
+		sprintf(str, "sdhci%d_power", host->index & 0xf);
+		gpio_request(host->pwr_gpio.gpio, str);
 		gpio_direction_output(host->pwr_gpio.gpio, 1);
 		err = exynos_pinmux_config(dev_id, flag);
 		if (err) {
@@ -118,7 +121,9 @@ static int do_sdhci_init(struct sdhci_host *host)
 	}
 
 	if (fdt_gpio_isvalid(&host->cd_gpio)) {
-		gpio_direction_output(host->cd_gpio.gpio, 0xf);
+		sprintf(str, "sdhci%d_cd", host->index & 0xf);
+		gpio_request(host->cd_gpio.gpio, str);
+		gpio_direction_input(host->cd_gpio.gpio);
 		if (gpio_get_value(host->cd_gpio.gpio))
 			return -ENODEV;
 

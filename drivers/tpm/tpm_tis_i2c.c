@@ -38,7 +38,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
-#include <compiler.h>
+#include <linux/compiler.h>
 #include <i2c.h>
 #include <tpm.h>
 #include <asm-generic/errno.h>

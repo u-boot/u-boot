@@ -349,10 +349,11 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 			return ret;
 #endif
 		byte_addr = offset % page_size;
-		chunk_len = min(len - actual, page_size - byte_addr);
+		chunk_len = min(len - actual, (size_t)(page_size - byte_addr));
 
 		if (flash->spi->max_write_size)
-			chunk_len = min(chunk_len, flash->spi->max_write_size);
+			chunk_len = min(chunk_len,
+					(size_t)flash->spi->max_write_size);
 
 		spi_flash_addr(write_addr, cmd);
 
@@ -552,6 +553,37 @@ int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
 		ret = sst_byte_write(flash, offset, buf + actual);
 
  done:
+	debug("SF: sst: program %s %zu bytes @ 0x%zx\n",
+	      ret ? "failure" : "success", len, offset - actual);
+
+	spi_release_bus(flash->spi);
+	return ret;
+}
+
+int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
+		const void *buf)
+{
+	size_t actual;
+	int ret;
+
+	ret = spi_claim_bus(flash->spi);
+	if (ret) {
+		debug("SF: Unable to claim SPI bus\n");
+		return ret;
+	}
+
+	for (actual = 0; actual < len; actual++) {
+		ret = sst_byte_write(flash, offset, buf + actual);
+		if (ret) {
+			debug("SF: sst byte program failed\n");
+			break;
+		}
+		offset++;
+	}
+
+	if (!ret)
+		ret = spi_flash_cmd_write_disable(flash);
+
 	debug("SF: sst: program %s %zu bytes @ 0x%zx\n",
 	      ret ? "failure" : "success", len, offset - actual);
 

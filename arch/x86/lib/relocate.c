@@ -16,6 +16,7 @@
  */
 
 #include <common.h>
+#include <inttypes.h>
 #include <libfdt.h>
 #include <malloc.h>
 #include <asm/u-boot-x86.h>
@@ -75,6 +76,9 @@ int do_elf_reloc_fixups(void)
 	/* The size of the region of u-boot that runs out of RAM. */
 	uintptr_t size = (uintptr_t)&__bss_end - (uintptr_t)&__text_start;
 
+	if (re_src == re_end)
+		panic("No relocation data");
+
 	do {
 		/* Get the location from the relocation entry */
 		offset_ptr_rom = (Elf32_Addr *)re_src->r_offset;
@@ -94,7 +98,7 @@ int do_elf_reloc_fixups(void)
 				*offset_ptr_ram += gd->reloc_off;
 			} else {
 				debug("   %p: rom reloc %x, ram %p, value %x,"
-					" limit %lx\n", re_src,
+					" limit %" PRIXPTR "\n", re_src,
 					re_src->r_offset, offset_ptr_ram,
 					*offset_ptr_ram,
 					CONFIG_SYS_TEXT_BASE + size);

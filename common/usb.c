@@ -33,7 +33,6 @@
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
-#include <compiler.h>
 #include <errno.h>
 #include <usb.h>
 #ifdef CONFIG_4xx
@@ -927,7 +926,6 @@ int usb_new_device(struct usb_device *dev)
 	 * thread_id=5729457&forum_id=5398
 	 */
 	__maybe_unused struct usb_device_descriptor *desc;
-	int port = -1;
 	struct usb_device *parent = dev->parent;
 	unsigned short portstatus;
 
@@ -965,24 +963,10 @@ int usb_new_device(struct usb_device *dev)
 #endif
 
 	if (parent) {
-		int j;
-
-		/* find the port number we're at */
-		for (j = 0; j < parent->maxchild; j++) {
-			if (parent->children[j] == dev) {
-				port = j;
-				break;
-			}
-		}
-		if (port < 0) {
-			printf("usb_new_device:cannot locate device's port.\n");
-			return 1;
-		}
-
 		/* reset the port for the second time */
-		err = hub_port_reset(dev->parent, port, &portstatus);
+		err = hub_port_reset(dev->parent, dev->portnr - 1, &portstatus);
 		if (err < 0) {
-			printf("\n     Couldn't reset port %i\n", port);
+			printf("\n     Couldn't reset port %i\n", dev->portnr);
 			return 1;
 		}
 	}

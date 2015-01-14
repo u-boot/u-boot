@@ -8,9 +8,6 @@ config TARGET_EDMINIV2
 
 endchoice
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_SOC
 	default "orion5x"
 

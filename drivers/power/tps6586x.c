@@ -10,9 +10,7 @@
 #include <asm/io.h>
 #include <i2c.h>
 
-static int bus_num;		/* I2C bus we are on */
-#define I2C_ADDRESS		0x34	/* chip requires this address */
-static char inited;		/* 1 if we have been inited */
+static struct udevice *tps6586x_dev;
 
 enum {
 	/* Registers that we access */
@@ -37,13 +35,9 @@ static int tps6586x_read(int reg)
 	int	i;
 	uchar	data;
 	int	retval = -1;
-	int	old_bus_num;
-
-	old_bus_num = i2c_get_bus_num();
-	i2c_set_bus_num(bus_num);
 
 	for (i = 0; i < MAX_I2C_RETRY; ++i) {
-		if (!i2c_read(I2C_ADDRESS, reg, 1, &data, 1)) {
+		if (!i2c_read(tps6586x_dev, reg,  &data, 1)) {
 			retval = (int)data;
 			goto exit;
 		}
@@ -53,7 +47,6 @@ static int tps6586x_read(int reg)
 	}
 
 exit:
-	i2c_set_bus_num(old_bus_num);
 	debug("pmu_read %x=%x\n", reg, retval);
 	if (retval < 0)
 		debug("%s: failed to read register %#x: %d\n", __func__, reg,
@@ -65,13 +58,9 @@ static int tps6586x_write(int reg, uchar *data, uint len)
 {
 	int	i;
 	int	retval = -1;
-	int	old_bus_num;
-
-	old_bus_num = i2c_get_bus_num();
-	i2c_set_bus_num(bus_num);
 
 	for (i = 0; i < MAX_I2C_RETRY; ++i) {
-		if (!i2c_write(I2C_ADDRESS, reg, 1, data, len)) {
+		if (!i2c_write(tps6586x_dev, reg, data, len)) {
 			retval = 0;
 			goto exit;
 		}
@@ -81,7 +70,6 @@ static int tps6586x_write(int reg, uchar *data, uint len)
 	}
 
 exit:
-	i2c_set_bus_num(old_bus_num);
 	debug("pmu_write %x=%x: ", reg, retval);
 	for (i = 0; i < len; i++)
 		debug("%x ", data[i]);
@@ -163,7 +151,7 @@ int tps6586x_set_pwm_mode(int mask)
 	uchar val;
 	int ret;
 
-	assert(inited);
+	assert(tps6586x_dev);
 	ret = tps6586x_read(PFM_MODE);
 	if (ret != -1) {
 		val = (uchar)ret;
@@ -184,7 +172,7 @@ int tps6586x_adjust_sm0_sm1(int sm0_target, int sm1_target, int step, int rate,
 	int sm0, sm1;
 	int bad;
 
-	assert(inited);
+	assert(tps6586x_dev);
 
 	/* get current voltage settings */
 	if (read_voltages(&sm0, &sm1)) {
@@ -255,10 +243,9 @@ int tps6586x_adjust_sm0_sm1(int sm0_target, int sm1_target, int step, int rate,
 	return bad ? -1 : 0;
 }
 
-int tps6586x_init(int bus)
+int tps6586x_init(struct udevice *dev)
 {
-	bus_num = bus;
-	inited = 1;
+	tps6586x_dev = dev;
 
 	return 0;
 }

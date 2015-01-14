@@ -13,6 +13,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
+#include <ns16550.h>
 #include <netdev.h>
 #include <twl4030.h>
 #include <linux/mtd/nand.h>
@@ -25,11 +27,18 @@
 #include <asm/mach-types.h>
 #include "overo.h"
 
+#ifdef CONFIG_USB_EHCI
+#include <usb.h>
+#include <asm/ehci-omap.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define TWL4030_I2C_BUS			0
 #define EXPANSION_EEPROM_I2C_BUS	2
 #define EXPANSION_EEPROM_I2C_ADDRESS	0x51
+
+#define GUMSTIX_EMPTY_EEPROM		0x0
 
 #define GUMSTIX_SUMMIT			0x01000200
 #define GUMSTIX_TOBI			0x02000200
@@ -56,21 +65,17 @@ static struct {
 	char fab_revision[8];
 	char env_var[16];
 	char env_setting[64];
-} expansion_config;
+} expansion_config = {0x0};
 
-#if defined(CONFIG_CMD_NET)
-static void setup_net_chip(void);
-#endif
+static const struct ns16550_platdata overo_serial = {
+	OMAP34XX_UART3,
+	2,
+	V_NS16550_CLK
+};
 
-/* GPMC definitions for LAN9221 chips on Tobi expansion boards */
-static const u32 gpmc_lan_config[] = {
-    NET_LAN9221_GPMC_CONFIG1,
-    NET_LAN9221_GPMC_CONFIG2,
-    NET_LAN9221_GPMC_CONFIG3,
-    NET_LAN9221_GPMC_CONFIG4,
-    NET_LAN9221_GPMC_CONFIG5,
-    NET_LAN9221_GPMC_CONFIG6,
-    /*CONFIG7- computed as params */
+U_BOOT_DEVICE(overo_uart) = {
+	"serial_omap",
+	&overo_serial
 };
 
 /*
@@ -213,6 +218,9 @@ int get_sdio2_config(void)
  */
 unsigned int get_expansion_id(void)
 {
+	if (expansion_config.device_vendor != 0x0)
+		return expansion_config.device_vendor;
+
 	i2c_set_bus_num(EXPANSION_EEPROM_I2C_BUS);
 
 	/* return GUMSTIX_NO_EEPROM if eeprom doesn't respond */
@@ -241,10 +249,6 @@ int misc_init_r(void)
 	twl4030_power_init();
 	twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
 
-#if defined(CONFIG_CMD_NET)
-	setup_net_chip();
-#endif
-
 	printf("Board revision: %d\n", get_board_revision());
 
 	switch (get_sdio2_config()) {
@@ -266,6 +270,7 @@ int misc_init_r(void)
 		printf("Recognized Summit expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "dvi");
 		setenv("expansionname", "summit");
 		break;
@@ -273,6 +278,7 @@ int misc_init_r(void)
 		printf("Recognized Tobi expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "dvi");
 		setenv("expansionname", "tobi");
 		break;
@@ -280,20 +286,20 @@ int misc_init_r(void)
 		printf("Recognized Tobi Duo expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
-		/* second lan chip */
-		enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[4],
-		    0x2B000000, GPMC_SIZE_16M);
+		MUX_GUMSTIX();
 		break;
 	case GUMSTIX_PALO35:
 		printf("Recognized Palo35 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "lcd35");
 		break;
 	case GUMSTIX_PALO43:
 		printf("Recognized Palo43 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "lcd43");
 		setenv("expansionname", "palo43");
 		break;
@@ -301,6 +307,7 @@ int misc_init_r(void)
 		printf("Recognized Chestnut43 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "lcd43");
 		setenv("expansionname", "chestnut43");
 		break;
@@ -308,11 +315,13 @@ int misc_init_r(void)
 		printf("Recognized Pinto expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		break;
 	case GUMSTIX_GALLOP43:
 		printf("Recognized Gallop43 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "lcd43");
 		setenv("expansionname", "gallop43");
 		break;
@@ -320,6 +329,7 @@ int misc_init_r(void)
 		printf("Recognized Alto35 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		MUX_ALTO35();
 		setenv("defaultdisplay", "lcd35");
 		setenv("expansionname", "alto35");
@@ -328,21 +338,25 @@ int misc_init_r(void)
 		printf("Recognized Stagecoach expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		break;
 	case GUMSTIX_THUMBO:
 		printf("Recognized Thumbo expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		break;
 	case GUMSTIX_TURTLECORE:
 		printf("Recognized Turtlecore expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		break;
 	case GUMSTIX_ARBOR43C:
 		printf("Recognized Arbor43C expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		MUX_ARBOR43C();
 		setenv("defaultdisplay", "lcd43");
 		break;
@@ -350,16 +364,17 @@ int misc_init_r(void)
 		printf("Recognized Ettus Research USRP-E (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		MUX_USRP_E();
 		setenv("defaultdisplay", "dvi");
 		break;
 	case GUMSTIX_NO_EEPROM:
-		puts("No EEPROM on expansion board\n");
+	case GUMSTIX_EMPTY_EEPROM:
+		puts("No or empty EEPROM on expansion board\n");
+		MUX_GUMSTIX();
 		setenv("expansionname", "tobi");
 		break;
 	default:
-		if (expansion_id == 0x0)
-			setenv("expansionname", "tobi");
 		printf("Unrecognized expansion board 0x%08x\n", expansion_id);
 		break;
 	}
@@ -388,7 +403,18 @@ void set_muxconf_regs(void)
 	MUX_OVERO();
 }
 
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET) && !defined(CONFIG_SPL_BUILD)
+/* GPMC definitions for LAN9221 chips on Tobi expansion boards */
+static const u32 gpmc_lan_config[] = {
+	NET_LAN9221_GPMC_CONFIG1,
+	NET_LAN9221_GPMC_CONFIG2,
+	NET_LAN9221_GPMC_CONFIG3,
+	NET_LAN9221_GPMC_CONFIG4,
+	NET_LAN9221_GPMC_CONFIG5,
+	NET_LAN9221_GPMC_CONFIG6,
+	/*CONFIG7- computed as params */
+};
+
 /*
  * Routine: setup_net_chip
  * Description: Setting up the configuration GPMC registers specific to the
@@ -398,10 +424,6 @@ static void setup_net_chip(void)
 {
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 
-	/* first lan chip */
-	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[5], 0x2C000000,
-			GPMC_SIZE_16M);
-
 	/* Enable off mode for NWE in PADCONF_GPMC_NWE register */
 	writew(readw(&ctrl_base ->gpmc_nwe) | 0x0E00, &ctrl_base->gpmc_nwe);
 	/* Enable off mode for NOE in PADCONF_GPMC_NADV_ALE register */
@@ -409,7 +431,14 @@ static void setup_net_chip(void)
 	/* Enable off mode for ALE in PADCONF_GPMC_NADV_ALE register */
 	writew(readw(&ctrl_base->gpmc_nadv_ale) | 0x0E00,
 		&ctrl_base->gpmc_nadv_ale);
+}
 
+/*
+ * Routine: reset_net_chip
+ * Description: Reset the Ethernet hardware.
+ */
+static void reset_net_chip(void)
+{
 	/* Make GPIO 64 as output pin and send a magic pulse through it */
 	if (!gpio_request(64, "")) {
 		gpio_direction_output(64, 0);
@@ -420,16 +449,42 @@ static void setup_net_chip(void)
 		gpio_set_value(64, 1);
 	}
 }
-#endif
 
 int board_eth_init(bd_t *bis)
 {
+	unsigned int expansion_id;
 	int rc = 0;
+
 #ifdef CONFIG_SMC911X
-	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+	expansion_id = get_expansion_id();
+	switch (expansion_id) {
+	case GUMSTIX_TOBI_DUO:
+		/* second lan chip */
+		enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[4],
+				      0x2B000000, GPMC_SIZE_16M);
+		/* no break */
+	case GUMSTIX_TOBI:
+	case GUMSTIX_CHESTNUT43:
+	case GUMSTIX_STAGECOACH:
+	case GUMSTIX_NO_EEPROM:
+	case GUMSTIX_EMPTY_EEPROM:
+		/* first lan chip */
+		enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[5],
+				      0x2C000000, GPMC_SIZE_16M);
+
+		setup_net_chip();
+		reset_net_chip();
+
+		rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+		break;
+	default:
+		break;
+	}
 #endif
+
 	return rc;
 }
+#endif
 
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
@@ -437,3 +492,39 @@ int board_mmc_init(bd_t *bis)
 	return omap_mmc_init(0, 0, 0, -1, -1);
 }
 #endif
+
+#if defined(CONFIG_GENERIC_MMC)
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
+}
+#endif
+
+#if defined(CONFIG_USB_EHCI) &&  !defined(CONFIG_SPL_BUILD)
+static struct omap_usbhs_board_data usbhs_bdata = {
+	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,
+	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
+	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED
+};
+
+#define GUMSTIX_GPIO_USBH_CPEN		168
+int ehci_hcd_init(int index, enum usb_init_type init,
+		  struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+{
+	/* Enable USB power */
+	if (!gpio_request(GUMSTIX_GPIO_USBH_CPEN, "usbh_cpen"))
+		gpio_direction_output(GUMSTIX_GPIO_USBH_CPEN, 1);
+
+	return omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
+}
+
+int ehci_hcd_stop(void)
+{
+	/* Disable USB power */
+	gpio_set_value(GUMSTIX_GPIO_USBH_CPEN, 0);
+	gpio_free(GUMSTIX_GPIO_USBH_CPEN);
+
+	return omap_ehci_hcd_stop();
+}
+
+#endif /* CONFIG_USB_EHCI */

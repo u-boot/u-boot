@@ -1,8 +1,5 @@
 if TARGET_MIGOR
 
-config SYS_CPU
-	default "sh4"
-
 config SYS_BOARD
 	default "MigoR"
 

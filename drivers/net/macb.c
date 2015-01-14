@@ -525,6 +525,7 @@ static int macb_phy_init(struct macb_device *macb)
 	return 1;
 }
 
+static int macb_write_hwaddr(struct eth_device *dev);
 static int macb_init(struct eth_device *netdev, bd_t *bd)
 {
 	struct macb_device *macb = to_macb(netdev);
@@ -565,7 +566,13 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	macb_writel(macb, TBQP, macb->tx_ring_dma);
 
 	if (macb_is_gem(macb)) {
-#ifdef CONFIG_RGMII
+		/*
+		 * When the GMAC IP with GE feature, this bit is used to
+		 * select interface between RGMII and GMII.
+		 * When the GMAC IP without GE feature, this bit is used
+		 * to select interface between RMII and MII.
+		 */
+#if defined(CONFIG_RGMII) || defined(CONFIG_RMII)
 		gem_writel(macb, UR, GEM_BIT(RGMII));
 #else
 		gem_writel(macb, UR, 0);
@@ -585,6 +592,14 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	macb_writel(macb, USRIO, MACB_BIT(MII));
 #endif
 #endif /* CONFIG_RMII */
+	}
+
+	/* update the ethaddr */
+	if (is_valid_ether_addr(netdev->enetaddr)) {
+		macb_write_hwaddr(netdev);
+	} else {
+		printf("%s: mac address is not valid\n", netdev->name);
+		return -1;
 	}
 
 	if (!macb_phy_init(macb))

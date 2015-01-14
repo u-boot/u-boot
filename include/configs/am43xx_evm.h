@@ -11,6 +11,9 @@
 
 #define CONFIG_AM43XX
 
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_SAVEENV
+
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SYS_CACHELINE_SIZE       32
@@ -82,7 +85,11 @@
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
 
-#define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_IN_FAT
+#define FAT_ENV_INTERFACE		"mmc"
+#define FAT_ENV_DEVICE_AND_PART		"0:1"
+#define FAT_ENV_FILE			"uboot.env"
+#define CONFIG_FAT_WRITE
 
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
@@ -103,7 +110,7 @@
 
 #ifdef CONFIG_QSPI_BOOT
 #define CONFIG_SYS_TEXT_BASE           0x30000000
-#undef CONFIG_ENV_IS_NOWHERE
+#undef CONFIG_ENV_IS_IN_FAT
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SPI_MAX_HZ           CONFIG_SF_DEFAULT_SPEED
@@ -141,8 +148,6 @@
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
 #define CONFIG_EFI_PARTITION
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \

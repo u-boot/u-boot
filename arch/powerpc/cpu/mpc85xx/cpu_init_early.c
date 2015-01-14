@@ -70,9 +70,9 @@ void setup_ifc(void)
 #endif
 
 	/* Change flash's physical address */
-	out_be32(&(ifc_regs->cspr_cs[0].cspr), CONFIG_SYS_CSPR0);
-	out_be32(&(ifc_regs->csor_cs[0].csor), CONFIG_SYS_CSOR0);
-	out_be32(&(ifc_regs->amask_cs[0].amask), CONFIG_SYS_AMASK0);
+	ifc_out32(&(ifc_regs->cspr_cs[0].cspr), CONFIG_SYS_CSPR0);
+	ifc_out32(&(ifc_regs->csor_cs[0].csor), CONFIG_SYS_CSOR0);
+	ifc_out32(&(ifc_regs->amask_cs[0].amask), CONFIG_SYS_AMASK0);
 
 	return ;
 }
@@ -161,9 +161,12 @@ void cpu_init_early_f(void *fdt)
 	setup_ifc_sram = (void *)SRAM_BASE_ADDR;
 	dst = (u32 *) SRAM_BASE_ADDR;
 	src = (u32 *) setup_ifc;
-	for (i = 0; i < 1024; i++)
+	for (i = 0; i < 1024; i++) {
+		/* cppcheck-suppress nullPointer */
 		*dst++ = *src++;
+	}
 
+	/* cppcheck-suppress nullPointer */
 	setup_ifc_sram();
 
 	/* CLEANUP */

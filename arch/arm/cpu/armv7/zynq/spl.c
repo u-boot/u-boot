@@ -63,7 +63,7 @@ u32 spl_boot_device(void)
 #ifdef CONFIG_SPL_MMC_SUPPORT
 u32 spl_boot_mode(void)
 {
-	return MMCSD_MODE_FAT;
+	return MMCSD_MODE_FS;
 }
 #endif
 

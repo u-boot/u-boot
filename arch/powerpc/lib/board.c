@@ -820,13 +820,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	mac_read_from_eeprom();
 #endif
 
-#ifdef	CONFIG_HERMES
-	if ((gd->board_type >> 16) == 2)
-		bd->bi_ethspeed = gd->board_type & 0xFFFF;
-	else
-		bd->bi_ethspeed = 0xFFFF;
-#endif
-
 #ifdef CONFIG_CMD_NET
 	/* kept around for legacy kernels only ... ignore the next section */
 	eth_getenv_enetaddr("ethaddr", bd->bi_enetaddr);
@@ -874,11 +867,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */
 	misc_init_r();
-#endif
-
-#ifdef	CONFIG_HERMES
-	if (bd->bi_ethspeed != 0xFFFF)
-		hermes_start_lxt980((int) bd->bi_ethspeed);
 #endif
 
 #if defined(CONFIG_CMD_KGDB)

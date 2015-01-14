@@ -17,6 +17,9 @@
 #define SOC_VER_LS1021		0x11
 #define SOC_VER_LS1022		0x12
 
+#define CCSR_BRR_OFFSET		0xe4
+#define CCSR_SCRATCHRW1_OFFSET	0x200
+
 #define RCWSR0_SYS_PLL_RAT_SHIFT	25
 #define RCWSR0_SYS_PLL_RAT_MASK		0x1f
 #define RCWSR0_MEM_PLL_RAT_SHIFT	16
@@ -28,6 +31,11 @@
 #define TIMER_COMP_VAL			0xffffffff
 #define ARCH_TIMER_CTRL_ENABLE		(1 << 0)
 #define SYS_COUNTER_CTRL_ENABLE		(1 << 24)
+
+#define DCFG_CCSR_PORSR1_RCW_MASK	0xff800000
+#define DCFG_CCSR_PORSR1_RCW_SRC_I2C	0x24800000
+
+#define DCFG_DCSR_PORCR1		0
 
 struct sys_info {
 	unsigned long freq_processor[CONFIG_MAX_CPUS];
@@ -95,11 +103,10 @@ struct ccsr_gur {
 	u32	sdhcpcr;
 };
 
-#define SCFG_SCFGREVCR_REV		0xffffffff
-#define SCFG_SCFGREVCR_NOREV		0
 #define SCFG_ETSECDMAMCR_LE_BD_FR	0xf8001a0f
 #define SCFG_ETSECCMCR_GE2_CLK125	0x04000000
 #define SCFG_PIXCLKCR_PXCKEN		0x80000000
+#define SCFG_QSPI_CLKSEL		0xc0100000
 
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {
@@ -182,7 +189,7 @@ struct ccsr_scfg {
 	u32 etsecmcr;
 	u32 sdhciovserlcr;
 	u32 resv14[61];
-	u32 sparecr;
+	u32 sparecr[8];
 };
 
 /* Clocking */
@@ -448,6 +455,7 @@ struct ccsr_ddr {
 
 #define CCI400_CTRLORD_TERM_BARRIER	0x00000008
 #define CCI400_CTRLORD_EN_BARRIER	0
+#define CCI400_SHAORD_NON_SHAREABLE	0x00000002
 
 /* CCI-400 registers */
 struct ccsr_cci400 {

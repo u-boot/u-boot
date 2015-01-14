@@ -33,6 +33,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <inttypes.h>
 #include <asm/byteorder.h>
 #include <asm/processor.h>
 
@@ -1071,7 +1072,7 @@ unsigned long usb_stor_read(int device, lbaint_t blknr,
 	blks = blkcnt;
 
 	debug("\nusb_read: dev %d startblk " LBAF ", blccnt " LBAF
-	      " buffer %lx\n", device, start, blks, buf_addr);
+	      " buffer %" PRIxPTR "\n", device, start, blks, buf_addr);
 
 	do {
 		/* XXX need some comment here */
@@ -1101,7 +1102,7 @@ retry_it:
 	ss->flags &= ~USB_READY;
 
 	debug("usb_read: end startblk " LBAF
-	      ", blccnt %x buffer %lx\n",
+	      ", blccnt %x buffer %" PRIxPTR "\n",
 	      start, smallblks, buf_addr);
 
 	usb_disable_asynch(0); /* asynch transfer allowed */
@@ -1145,7 +1146,7 @@ unsigned long usb_stor_write(int device, lbaint_t blknr,
 	blks = blkcnt;
 
 	debug("\nusb_write: dev %d startblk " LBAF ", blccnt " LBAF
-	      " buffer %lx\n", device, start, blks, buf_addr);
+	      " buffer %" PRIxPTR "\n", device, start, blks, buf_addr);
 
 	do {
 		/* If write fails retry for max retry count else
@@ -1176,8 +1177,8 @@ retry_it:
 	} while (blks != 0);
 	ss->flags &= ~USB_READY;
 
-	debug("usb_write: end startblk " LBAF ", blccnt %x buffer %lx\n",
-	      start, smallblks, buf_addr);
+	debug("usb_write: end startblk " LBAF ", blccnt %x buffer %"
+	      PRIxPTR "\n", start, smallblks, buf_addr);
 
 	usb_disable_asynch(0); /* asynch transfer allowed */
 	if (blkcnt >= USB_MAX_XFER_BLK)
@@ -1350,8 +1351,11 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 	perq = usb_stor_buf[0];
 	modi = usb_stor_buf[1];
 
-	if ((perq & 0x1f) == 0x1f) {
-		/* skip unknown devices */
+	/*
+	 * Skip unknown devices (0x1f) and enclosure service devices (0x0d),
+	 * they would not respond to test_unit_ready .
+	 */
+	if (((perq & 0x1f) == 0x1f) || ((perq & 0x1f) == 0x0d)) {
 		return 0;
 	}
 	if ((modi&0x80) == 0x80) {

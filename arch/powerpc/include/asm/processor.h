@@ -1133,6 +1133,10 @@
 #define SVR_T1020	0x852100
 #define SVR_T1021	0x852101
 #define SVR_T1022	0x852102
+#define SVR_T1024	0x854000
+#define SVR_T1023	0x854100
+#define SVR_T1014	0x854400
+#define SVR_T1013	0x854500
 #define SVR_T2080	0x853000
 #define SVR_T2081	0x853100
 
@@ -1356,8 +1360,6 @@ void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 #elif defined(CONFIG_MPC8260)
 #define _machine _MACH_8260
 #define have_of 0
-#elif defined(CONFIG_SANDPOINT)
-#define _machine _MACH_sandpoint
 #else
 #error "Machine not defined correctly"
 #endif

@@ -8,14 +8,23 @@
 #include <i2c.h>
 #include <asm/io.h>
 #include <asm/arch/immap_ls102xa.h>
+#include <asm/arch/ns_access.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
+#include <asm/arch/ls102xa_stream_id.h>
+#include <asm/pcie_layerscape.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
 #include <netdev.h>
 #include <fsl_mdio.h>
 #include <tsec.h>
+#include <fsl_sec.h>
+#include <spl.h>
+#ifdef CONFIG_U_QE
+#include "../../../drivers/qe/qe.h"
+#endif
+
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -65,6 +74,7 @@ struct cpld_data {
 	u8 rev2;		/* Reserved */
 };
 
+#ifndef CONFIG_QSPI_BOOT
 static void convert_serdes_mux(int type, int need_reset);
 
 void cpld_show(void)
@@ -100,11 +110,14 @@ void cpld_show(void)
 	       in_8(&cpld_data->serdes_mux));
 #endif
 }
+#endif
 
 int checkboard(void)
 {
 	puts("Board: LS1021ATWR\n");
+#ifndef CONFIG_QSPI_BOOT
 	cpld_show();
+#endif
 
 	return 0;
 }
@@ -213,6 +226,7 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
+#ifndef CONFIG_QSPI_BOOT
 int config_serdes_mux(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
@@ -244,17 +258,15 @@ int config_serdes_mux(void)
 
 	return 0;
 }
+#endif
 
 int board_early_init_f(void)
 {
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
 
 #ifdef CONFIG_TSEC_ENET
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_REV);
 	out_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
 	out_be32(&scfg->etsecmcr, SCFG_ETSECCMCR_GE2_CLK125);
-	udelay(10);
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_NOREV);
 #endif
 
 #ifdef CONFIG_FSL_IFC
@@ -262,27 +274,189 @@ int board_early_init_f(void)
 #endif
 
 #ifdef CONFIG_FSL_DCU_FB
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_REV);
 	out_be32(&scfg->pixclkcr, SCFG_PIXCLKCR_PXCKEN);
-	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_NOREV);
+#endif
+
+#ifdef CONFIG_FSL_QSPI
+	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
 #endif
 
 	return 0;
 }
+
+#ifdef CONFIG_SPL_BUILD
+void board_init_f(ulong dummy)
+{
+	/* Set global data pointer */
+	gd = &gdata;
+
+	/* Clear the BSS */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	get_clocks();
+
+	preloader_console_init();
+
+	dram_init();
+
+	board_init_r(NULL, 0);
+}
+#endif
+
+#ifdef CONFIG_LS102XA_NS_ACCESS
+static struct csu_ns_dev ns_dev[] = {
+	{ CSU_CSLX_PCIE2_IO, CSU_ALL_RW },
+	{ CSU_CSLX_PCIE1_IO, CSU_ALL_RW },
+	{ CSU_CSLX_MG2TPR_IP, CSU_ALL_RW },
+	{ CSU_CSLX_IFC_MEM, CSU_ALL_RW },
+	{ CSU_CSLX_OCRAM, CSU_ALL_RW },
+	{ CSU_CSLX_GIC, CSU_ALL_RW },
+	{ CSU_CSLX_PCIE1, CSU_ALL_RW },
+	{ CSU_CSLX_OCRAM2, CSU_ALL_RW },
+	{ CSU_CSLX_QSPI_MEM, CSU_ALL_RW },
+	{ CSU_CSLX_PCIE2, CSU_ALL_RW },
+	{ CSU_CSLX_SATA, CSU_ALL_RW },
+	{ CSU_CSLX_USB3, CSU_ALL_RW },
+	{ CSU_CSLX_SERDES, CSU_ALL_RW },
+	{ CSU_CSLX_QDMA, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART2, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART1, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART4, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART3, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART6, CSU_ALL_RW },
+	{ CSU_CSLX_LPUART5, CSU_ALL_RW },
+	{ CSU_CSLX_DSPI2, CSU_ALL_RW },
+	{ CSU_CSLX_DSPI1, CSU_ALL_RW },
+	{ CSU_CSLX_QSPI, CSU_ALL_RW },
+	{ CSU_CSLX_ESDHC, CSU_ALL_RW },
+	{ CSU_CSLX_2D_ACE, CSU_ALL_RW },
+	{ CSU_CSLX_IFC, CSU_ALL_RW },
+	{ CSU_CSLX_I2C1, CSU_ALL_RW },
+	{ CSU_CSLX_USB2, CSU_ALL_RW },
+	{ CSU_CSLX_I2C3, CSU_ALL_RW },
+	{ CSU_CSLX_I2C2, CSU_ALL_RW },
+	{ CSU_CSLX_DUART2, CSU_ALL_RW },
+	{ CSU_CSLX_DUART1, CSU_ALL_RW },
+	{ CSU_CSLX_WDT2, CSU_ALL_RW },
+	{ CSU_CSLX_WDT1, CSU_ALL_RW },
+	{ CSU_CSLX_EDMA, CSU_ALL_RW },
+	{ CSU_CSLX_SYS_CNT, CSU_ALL_RW },
+	{ CSU_CSLX_DMA_MUX2, CSU_ALL_RW },
+	{ CSU_CSLX_DMA_MUX1, CSU_ALL_RW },
+	{ CSU_CSLX_DDR, CSU_ALL_RW },
+	{ CSU_CSLX_QUICC, CSU_ALL_RW },
+	{ CSU_CSLX_DCFG_CCU_RCPM, CSU_ALL_RW },
+	{ CSU_CSLX_SECURE_BOOTROM, CSU_ALL_RW },
+	{ CSU_CSLX_SFP, CSU_ALL_RW },
+	{ CSU_CSLX_TMU, CSU_ALL_RW },
+	{ CSU_CSLX_SECURE_MONITOR, CSU_ALL_RW },
+	{ CSU_CSLX_RESERVED0, CSU_ALL_RW },
+	{ CSU_CSLX_ETSEC1, CSU_ALL_RW },
+	{ CSU_CSLX_SEC5_5, CSU_ALL_RW },
+	{ CSU_CSLX_ETSEC3, CSU_ALL_RW },
+	{ CSU_CSLX_ETSEC2, CSU_ALL_RW },
+	{ CSU_CSLX_GPIO2, CSU_ALL_RW },
+	{ CSU_CSLX_GPIO1, CSU_ALL_RW },
+	{ CSU_CSLX_GPIO4, CSU_ALL_RW },
+	{ CSU_CSLX_GPIO3, CSU_ALL_RW },
+	{ CSU_CSLX_PLATFORM_CONT, CSU_ALL_RW },
+	{ CSU_CSLX_CSU, CSU_ALL_RW },
+	{ CSU_CSLX_ASRC, CSU_ALL_RW },
+	{ CSU_CSLX_SPDIF, CSU_ALL_RW },
+	{ CSU_CSLX_FLEXCAN2, CSU_ALL_RW },
+	{ CSU_CSLX_FLEXCAN1, CSU_ALL_RW },
+	{ CSU_CSLX_FLEXCAN4, CSU_ALL_RW },
+	{ CSU_CSLX_FLEXCAN3, CSU_ALL_RW },
+	{ CSU_CSLX_SAI2, CSU_ALL_RW },
+	{ CSU_CSLX_SAI1, CSU_ALL_RW },
+	{ CSU_CSLX_SAI4, CSU_ALL_RW },
+	{ CSU_CSLX_SAI3, CSU_ALL_RW },
+	{ CSU_CSLX_FTM2, CSU_ALL_RW },
+	{ CSU_CSLX_FTM1, CSU_ALL_RW },
+	{ CSU_CSLX_FTM4, CSU_ALL_RW },
+	{ CSU_CSLX_FTM3, CSU_ALL_RW },
+	{ CSU_CSLX_FTM6, CSU_ALL_RW },
+	{ CSU_CSLX_FTM5, CSU_ALL_RW },
+	{ CSU_CSLX_FTM8, CSU_ALL_RW },
+	{ CSU_CSLX_FTM7, CSU_ALL_RW },
+	{ CSU_CSLX_COP_DCSR, CSU_ALL_RW },
+	{ CSU_CSLX_EPU, CSU_ALL_RW },
+	{ CSU_CSLX_GDI, CSU_ALL_RW },
+	{ CSU_CSLX_DDI, CSU_ALL_RW },
+	{ CSU_CSLX_RESERVED1, CSU_ALL_RW },
+	{ CSU_CSLX_USB3_PHY, CSU_ALL_RW },
+	{ CSU_CSLX_RESERVED2, CSU_ALL_RW },
+};
+#endif
+
+struct smmu_stream_id dev_stream_id[] = {
+	{ 0x100, 0x01, "ETSEC MAC1" },
+	{ 0x104, 0x02, "ETSEC MAC2" },
+	{ 0x108, 0x03, "ETSEC MAC3" },
+	{ 0x10c, 0x04, "PEX1" },
+	{ 0x110, 0x05, "PEX2" },
+	{ 0x114, 0x06, "qDMA" },
+	{ 0x118, 0x07, "SATA" },
+	{ 0x11c, 0x08, "USB3" },
+	{ 0x120, 0x09, "QE" },
+	{ 0x124, 0x0a, "eSDHC" },
+	{ 0x128, 0x0b, "eMA" },
+	{ 0x14c, 0x0c, "2D-ACE" },
+	{ 0x150, 0x0d, "USB2" },
+	{ 0x18c, 0x0e, "DEBUG" },
+};
 
 int board_init(void)
 {
+	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
+
+	/*
+	 * Set CCI-400 Slave interface S0, S1, S2 Shareable Override Register
+	 * All transactions are treated as non-shareable
+	 */
+	out_le32(&cci->slave[0].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[1].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	fsl_serdes_init();
+#ifndef CONFIG_QSPI_BOOT
 	config_serdes_mux();
+#endif
+#endif
+
+	ls102xa_config_smmu_stream_id(dev_stream_id,
+				      ARRAY_SIZE(dev_stream_id));
+
+#ifdef CONFIG_LS102XA_NS_ACCESS
+	enable_devices_ns_access(ns_dev, ARRAY_SIZE(ns_dev));
+#endif
+
+#ifdef CONFIG_U_QE
+	u_qe_init();
 #endif
 
 	return 0;
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+#if defined(CONFIG_MISC_INIT_R)
+int misc_init_r(void)
+{
+#ifdef CONFIG_FSL_CAAM
+	return sec_init();
+#endif
+}
+#endif
+
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+
+#ifdef CONFIG_PCIE_LAYERSCAPE
+	ft_pcie_setup(blob, bd);
+#endif
+
+	return 0;
 }
 
 u8 flash_read8(void *addr)
@@ -304,6 +478,7 @@ u16 flash_read16(void *addr)
 	return (((val) >> 8) & 0x00ff) | (((val) << 8) & 0xff00);
 }
 
+#ifndef CONFIG_QSPI_BOOT
 static void convert_flash_bank(char bank)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
@@ -486,3 +661,4 @@ U_BOOT_CMD(
 	"	-change lane C & lane D to PCIeX2\n"
 	"\nWARNING: If you aren't familiar with the setting of serdes, don't try to change anything!\n"
 );
+#endif

@@ -1,8 +1,5 @@
 if TARGET_ZMX25
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "zmx25"
 

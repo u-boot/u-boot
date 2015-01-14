@@ -65,7 +65,8 @@ int timer_init(void)
 	/* Enable PITC */
 	writel(TIMER_LOAD_VAL | AT91_PIT_MR_EN , &pit->mr);
 
-	gd->arch.timer_rate_hz = gd->arch.mck_rate_hz / 16;
+	gd->arch.timer_rate_hz = get_pit_clk_rate() / 16;
+
 	gd->arch.tbu = 0;
 	gd->arch.tbl = 0;
 

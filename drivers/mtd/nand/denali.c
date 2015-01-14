@@ -44,7 +44,7 @@ static int onfi_timing_mode = NAND_DEFAULT_TIMINGS;
  * this macro allows us to convert from an MTD structure to our own
  * device context (denali) structure.
  */
-#define mtd_to_denali(m) (((struct nand_chip *)mtd->priv)->priv)
+#define mtd_to_denali(m) container_of(m->priv, struct denali_nand_info, nand)
 
 /* These constants are defined by the driver to enable common driver
  * configuration options. */
@@ -1144,70 +1144,128 @@ static void denali_hw_init(struct denali_nand_info *denali)
 
 static struct nand_ecclayout nand_oob;
 
-static int denali_nand_init(struct nand_chip *nand)
+static int denali_init(struct denali_nand_info *denali)
 {
-	struct denali_nand_info *denali;
+	int ret;
 
-	denali = malloc(sizeof(*denali));
-	if (!denali)
-		return -ENOMEM;
+	denali_hw_init(denali);
 
-	nand->priv = denali;
+	denali->mtd->name = "denali-nand";
+	denali->mtd->owner = THIS_MODULE;
+	denali->mtd->priv = &denali->nand;
 
-	denali->flash_reg = (void  __iomem *)CONFIG_SYS_NAND_REGS_BASE;
-	denali->flash_mem = (void  __iomem *)CONFIG_SYS_NAND_DATA_BASE;
+	/* register the driver with the NAND core subsystem */
+	denali->nand.select_chip = denali_select_chip;
+	denali->nand.cmdfunc = denali_cmdfunc;
+	denali->nand.read_byte = denali_read_byte;
+	denali->nand.read_buf = denali_read_buf;
+	denali->nand.waitfunc = denali_waitfunc;
+
+	/*
+	 * scan for NAND devices attached to the controller
+	 * this is the first stage in a two step process to register
+	 * with the nand subsystem
+	 */
+	if (nand_scan_ident(denali->mtd, denali->max_banks, NULL)) {
+		ret = -ENXIO;
+		goto fail;
+	}
 
 #ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
 	/* check whether flash got BBT table (located at end of flash). As we
 	 * use NAND_BBT_NO_OOB, the BBT page will start with
 	 * bbt_pattern. We will have mirror pattern too */
-	nand->bbt_options |= NAND_BBT_USE_FLASH;
+	denali->nand.bbt_options |= NAND_BBT_USE_FLASH;
 	/*
 	 * We are using main + spare with ECC support. As BBT need ECC support,
 	 * we need to ensure BBT code don't write to OOB for the BBT pattern.
 	 * All BBT info will be stored into data area with ECC support.
 	 */
-	nand->bbt_options |= NAND_BBT_NO_OOB;
+	denali->nand.bbt_options |= NAND_BBT_NO_OOB;
 #endif
 
-	nand->ecc.mode = NAND_ECC_HW;
-	nand->ecc.size = CONFIG_NAND_DENALI_ECC_SIZE;
-	nand->ecc.read_oob = denali_read_oob;
-	nand->ecc.write_oob = denali_write_oob;
-	nand->ecc.read_page = denali_read_page;
-	nand->ecc.read_page_raw = denali_read_page_raw;
-	nand->ecc.write_page = denali_write_page;
-	nand->ecc.write_page_raw = denali_write_page_raw;
+	denali->nand.ecc.mode = NAND_ECC_HW;
+	denali->nand.ecc.size = CONFIG_NAND_DENALI_ECC_SIZE;
+
 	/*
 	 * Tell driver the ecc strength. This register may be already set
 	 * correctly. So we read this value out.
 	 */
-	nand->ecc.strength = readl(denali->flash_reg + ECC_CORRECTION);
-	switch (nand->ecc.size) {
+	denali->nand.ecc.strength = readl(denali->flash_reg + ECC_CORRECTION);
+	switch (denali->nand.ecc.size) {
 	case 512:
-		nand->ecc.bytes = (nand->ecc.strength * 13 + 15) / 16 * 2;
+		denali->nand.ecc.bytes =
+			(denali->nand.ecc.strength * 13 + 15) / 16 * 2;
 		break;
 	case 1024:
-		nand->ecc.bytes = (nand->ecc.strength * 14 + 15) / 16 * 2;
+		denali->nand.ecc.bytes =
+			(denali->nand.ecc.strength * 14 + 15) / 16 * 2;
 		break;
 	default:
 		pr_err("Unsupported ECC size\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto fail;
 	}
-	nand_oob.eccbytes = nand->ecc.bytes;
-	nand->ecc.layout = &nand_oob;
+	nand_oob.eccbytes = denali->nand.ecc.bytes;
+	denali->nand.ecc.layout = &nand_oob;
 
-	/* Set address of hardware control function */
-	nand->cmdfunc = denali_cmdfunc;
-	nand->read_byte = denali_read_byte;
-	nand->read_buf = denali_read_buf;
-	nand->select_chip = denali_select_chip;
-	nand->waitfunc = denali_waitfunc;
-	denali_hw_init(denali);
-	return 0;
+	writel(denali->mtd->erasesize / denali->mtd->writesize,
+	       denali->flash_reg + PAGES_PER_BLOCK);
+	writel(denali->nand.options & NAND_BUSWIDTH_16 ? 1 : 0,
+	       denali->flash_reg + DEVICE_WIDTH);
+	writel(denali->mtd->writesize,
+	       denali->flash_reg + DEVICE_MAIN_AREA_SIZE);
+	writel(denali->mtd->oobsize,
+	       denali->flash_reg + DEVICE_SPARE_AREA_SIZE);
+	if (readl(denali->flash_reg + DEVICES_CONNECTED) == 0)
+		writel(1, denali->flash_reg + DEVICES_CONNECTED);
+
+	/* override the default operations */
+	denali->nand.ecc.read_page = denali_read_page;
+	denali->nand.ecc.read_page_raw = denali_read_page_raw;
+	denali->nand.ecc.write_page = denali_write_page;
+	denali->nand.ecc.write_page_raw = denali_write_page_raw;
+	denali->nand.ecc.read_oob = denali_read_oob;
+	denali->nand.ecc.write_oob = denali_write_oob;
+
+	if (nand_scan_tail(denali->mtd)) {
+		ret = -ENXIO;
+		goto fail;
+	}
+
+	ret = nand_register(0);
+
+fail:
+	return ret;
 }
 
-int board_nand_init(struct nand_chip *chip)
+static int __board_nand_init(void)
 {
-	return denali_nand_init(chip);
+	struct denali_nand_info *denali;
+
+	denali = kzalloc(sizeof(*denali), GFP_KERNEL);
+	if (!denali)
+		return -ENOMEM;
+
+	/*
+	 * If CONFIG_SYS_NAND_SELF_INIT is defined, each driver is responsible
+	 * for instantiating struct nand_chip, while drivers/mtd/nand/nand.c
+	 * still provides a "struct mtd_info nand_info" instance.
+	 */
+	denali->mtd = &nand_info[0];
+
+	/*
+	 * In the future, these base addresses should be taken from
+	 * Device Tree or platform data.
+	 */
+	denali->flash_reg = (void  __iomem *)CONFIG_SYS_NAND_REGS_BASE;
+	denali->flash_mem = (void  __iomem *)CONFIG_SYS_NAND_DATA_BASE;
+
+	return denali_init(denali);
+}
+
+void board_nand_init(void)
+{
+	if (__board_nand_init() < 0)
+		pr_warn("Failed to initialize Denali NAND controller.\n");
 }

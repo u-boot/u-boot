@@ -27,6 +27,9 @@
 #include <hwconfig.h>
 #include <linux/compiler.h>
 #include "mp.h"
+#ifdef CONFIG_FSL_CAAM
+#include <fsl_sec.h>
+#endif
 #ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #include <nand.h>
 #include <errno.h>
@@ -423,7 +426,8 @@ ulong cpu_init_f(void)
 {
 	ulong flag = 0;
 	extern void m8560_cpm_reset (void);
-#ifdef CONFIG_SYS_DCSRBAR_PHYS
+#if defined(CONFIG_SYS_DCSRBAR_PHYS) || \
+	(defined(CONFIG_SECURE_BOOT) && defined(CONFIG_FSL_CORENET))
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif
 #if defined(CONFIG_SECURE_BOOT)
@@ -455,6 +459,12 @@ ulong cpu_init_f(void)
 #if defined(CONFIG_SYS_CPC_REINIT_F)
 	disable_cpc_sram();
 #endif
+
+#if defined(CONFIG_FSL_CORENET)
+	/* Put PAMU in bypass mode */
+	out_be32(&gur->pamubypenr, FSL_CORENET_PAMU_BYPASS);
+#endif
+
 #endif
 
 #ifdef CONFIG_CPM2
@@ -803,7 +813,7 @@ int cpu_init_r(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_SEC_A003571
 #define MCFGR_AXIPIPE 0x000000f0
 	if (IS_SVR_REV(svr, 1, 0))
-		clrbits_be32(&sec->mcfgr, MCFGR_AXIPIPE);
+		sec_clrbits32(&sec->mcfgr, MCFGR_AXIPIPE);
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A005871
@@ -936,6 +946,10 @@ int cpu_init_r(void)
 
 #ifdef CONFIG_FMAN_ENET
 	fman_enet_init();
+#endif
+
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
 #endif
 
 #if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_FSL_SATA_ERRATUM_A001)

@@ -100,16 +100,11 @@ uint mmc_get_env_part(struct mmc *mmc)
 #define SB_T54_CD_GPIO 228
 #define SB_T54_WP_GPIO 229
 
-int board_mmc_getcd(struct mmc *mmc)
-{
-	return !gpio_get_value(SB_T54_CD_GPIO);
-}
-
 int board_mmc_init(bd_t *bis)
 {
 	int ret0, ret1;
 
-	ret0 = omap_mmc_init(0, 0, 0, -1, SB_T54_WP_GPIO);
+	ret0 = omap_mmc_init(0, 0, 0, SB_T54_CD_GPIO, SB_T54_WP_GPIO);
 	if (ret0)
 		printf("cm_t54: failed to initialize mmc0\n");
 
@@ -126,7 +121,7 @@ int board_mmc_init(bd_t *bis)
 
 #ifdef CONFIG_USB_HOST_ETHER
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	uint8_t enetaddr[6];
 
@@ -135,6 +130,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 		fdt_find_and_setprop(blob, "/smsc95xx@0", "mac-address",
 				     enetaddr, 6, 1);
 	}
+
+	return 0;
 }
 
 static void generate_mac_addr(uint8_t *enetaddr)

@@ -256,7 +256,7 @@ static void nc_puts(struct stdio_dev *dev, const char *s)
 
 	len = strlen(s);
 	while (len) {
-		int send_len = min(len, sizeof(input_buffer));
+		int send_len = min(len, (int)sizeof(input_buffer));
 		nc_send_packet(s, send_len);
 		len -= send_len;
 		s += send_len;

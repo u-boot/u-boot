@@ -1,34 +1,316 @@
 menu "Command line interface"
 	depends on !SPL_BUILD
 
+config HUSH_PARSER
+	bool "Use hush shell"
+	select SYS_HUSH_PARSER
+	help
+	  This option enables the "hush" shell (from Busybox) as command line
+	  interpreter, thus enabling powerful command line syntax like
+	  if...then...else...fi conditionals or `&&' and '||'
+	  constructs ("shell scripts").
+
+	  If disabled, you get the old, much simpler behaviour with a somewhat
+	  smaller memory footprint.
+
+config SYS_HUSH_PARSER
+	bool
+	help
+	  Backward compatibility.
+
+comment "Commands"
+
+menu "Info commands"
+
+config CMD_BDI
+	bool "bdinfo"
+	help
+	  Print board info
+
+config CMD_CONSOLE
+	bool "coninfo"
+	help
+	  Print console devices and information.
+
+config CMD_LICENSE
+	bool "license"
+	help
+	  Print GPL license text
+
+endmenu
+
+menu "Boot commands"
+
+config CMD_BOOTD
+	bool "bootd"
+	help
+	  Run the command stored in the environment "bootcmd", i.e.
+	  "bootd" does the same thing as "run bootcmd".
+
 config CMD_BOOTM
-	bool "Enable bootm command"
+	bool "bootm"
 	default y
 	help
 	  Boot an application image from the memory.
 
-config CMD_CRC32
-	bool "Enable crc32 command"
+config CMD_GO
+	bool "go"
 	default y
 	help
-	  Compute CRC32.
+	  Start an application at a given address.
+
+config CMD_RUN
+	bool "run"
+	help
+	  Run the command in the given environment variable.
+
+config CMD_IMI
+	bool "iminfo"
+	help
+	  Print header information for application image.
+
+config CMD_IMLS
+	bool "imls"
+	help
+	  List all images found in flash
+
+config CMD_XIMG
+	bool "imxtract"
+	help
+	  Extract a part of a multi-image.
+
+endmenu
+
+menu "Environment commands"
 
 config CMD_EXPORTENV
-	bool "Enable env export command"
+	bool "env export"
 	default y
 	help
 	  Export environments.
 
 config CMD_IMPORTENV
-	bool "Enable env import command"
+	bool "env import"
 	default y
 	help
 	  Import environments.
 
-config CMD_GO
-	bool "Enable go command"
+config CMD_EDITENV
+	bool "editenv"
+	help
+	  Edit environment variable.
+
+config CMD_SAVEENV
+	bool "saveenv"
+	help
+	  Run the command in the given environment variable.
+
+endmenu
+
+menu "Memory commands"
+
+config CMD_MEMORY
+	bool "md, mm, nm, mw, cp, cmp, base, loop"
+	help
+	  Memeory commands.
+	    md - memory display
+	    mm - memory modify (auto-incrementing address)
+	    nm - memory modify (constant address)
+	    mw - memory write (fill)
+	    cp - memory copy
+	    cmp - memory compare
+	    base - print or set address offset
+	    loop - initinite loop on address range
+
+config CMD_CRC32
+	bool "crc32"
 	default y
 	help
-	  Start an application at a given address.
+	  Compute CRC32.
+
+config LOOPW
+	bool "loopw"
+	help
+	  Infinite write loop on address range
+
+config CMD_MEMTEST
+	bool "crc32"
+	help
+	  Simple RAM read/write test.
+
+config CMD_MX_CYCLIC
+	bool "mdc, mwc"
+	help
+	  mdc - memory display cyclic
+	  mwc - memory write cyclic
+
+config CMD_MEMINFO
+	bool "meminfo"
+	help
+	  Display memory information.
+
+endmenu
+
+menu "Device access commands"
+
+config CMD_LOADB
+	bool "loadb"
+	help
+	  Load a binary file over serial line.
+
+config CMD_LOADS
+	bool "loads"
+	help
+	  Load an S-Record file over serial line
+
+config CMD_FLASH
+	bool "flinfo, erase, protect"
+	help
+	  NOR flash support.
+	    flinfo - print FLASH memory information
+	    erase - FLASH memory
+	    protect - enable or disable FLASH write protection
+
+config CMD_NAND
+	bool "nand"
+	help
+	  NAND support.
+
+config CMD_SPI
+	bool "sspi"
+	help
+	  SPI utility command.
+
+config CMD_I2C
+	bool "i2c"
+	help
+	  I2C support.
+
+config CMD_USB
+	bool "usb"
+	help
+	  USB support.
+
+config CMD_FPGA
+	bool "fpga"
+	help
+	  FPGA support.
+
+endmenu
+
+
+menu "Shell scripting commands"
+
+config CMD_ECHO
+	bool "echo"
+	help
+	  Echo args to console
+
+config CMD_ITEST
+	bool "itest"
+	help
+	  Return true/false on integer compare.
+
+config CMD_SOURCE
+	bool "source"
+	help
+	  Run script from memory
+
+endmenu
+
+menu "Network commands"
+
+config CMD_NET
+	bool "bootp, tftpboot"
+	help
+	  Network commands.
+	  bootp - boot image via network using BOOTP/TFTP protocol
+	  tftpboot - boot image via network using TFTP protocol
+
+config CMD_TFTPPUT
+	bool "tftp put"
+	help
+	  TFTP put command, for uploading files to a server
+
+config CMD_TFTPSRV
+	bool "tftpsrv"
+	help
+	  Act as a TFTP server and boot the first received file
+
+config CMD_RARP
+	bool "rarpboot"
+	help
+	  Boot image via network using RARP/TFTP protocol
+
+config CMD_DHCP
+	bool "dhcp"
+	help
+	  Boot image via network using DHCP/TFTP protocol
+
+config CMD_NFS
+	bool "nfs"
+	help
+	  Boot image via network using NFS protocol.
+
+config CMD_PING
+	bool "ping"
+	help
+	  Send ICMP ECHO_REQUEST to network host
+
+config CMD_CDP
+	bool "cdp"
+	help
+	  Perform CDP network configuration
+
+config CMD_SNTP
+	bool "sntp"
+	help
+	  Synchronize RTC via network
+
+config CMD_DNS
+	bool "dns"
+	help
+	  Lookup the IP of a hostname
+
+config CMD_DNS
+	bool "dns"
+	help
+	  Lookup the IP of a hostname
+
+config CMD_LINK_LOCAL
+	bool "linklocal"
+	help
+	  Acquire a network IP address using the link-local protocol
+
+endmenu
+
+menu "Misc commands"
+
+config CMD_TIME
+	bool "time"
+	help
+	  Run commands and summarize execution time.
+
+# TODO: rename to CMD_SLEEP
+config CMD_MISC
+	bool "sleep"
+	help
+	  Delay execution for some time
+
+config CMD_TIMER
+	bool "timer"
+	help
+	  Access the system timer.
+
+config CMD_SETGETDCR
+	bool "getdcr, setdcr, getidcr, setidcr"
+	depends on 4xx
+	help
+	  getdcr - Get an AMCC PPC 4xx DCR's value
+	  setdcr - Set an AMCC PPC 4xx DCR's value
+	  getidcr - Get a register value via indirect DCR addressing
+	  setidcr - Set a register value via indirect DCR addressing
+
+endmenu
 
 endmenu

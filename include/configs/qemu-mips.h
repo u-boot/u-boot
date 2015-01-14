@@ -13,6 +13,9 @@
 #define __CONFIG_H
 
 #define CONFIG_QEMU_MIPS
+
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_BOOTDELAY	10	/* autoboot after 10 seconds */

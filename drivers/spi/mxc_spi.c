@@ -12,6 +12,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
+#include <asm/imx-common/spi.h>
 
 #ifdef CONFIG_MX27
 /* i.MX27 has a completely wrong register layout and register definitions in the
@@ -48,6 +49,8 @@ struct mxc_spi_slave {
 #endif
 	int		gpio;
 	int		ss_pol;
+	unsigned int	max_hz;
+	unsigned int	mode;
 };
 
 static inline struct mxc_spi_slave *to_mxc_spi_slave(struct spi_slave *slave)
@@ -82,12 +85,13 @@ u32 get_cspi_div(u32 div)
 }
 
 #ifdef MXC_CSPI
-static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
+static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs)
 {
 	unsigned int ctrl_reg;
 	u32 clk_src;
 	u32 div;
+	unsigned int max_hz = mxcs->max_hz;
+	unsigned int mode = mxcs->mode;
 
 	clk_src = mxc_get_clock(MXC_CSPI_CLK);
 
@@ -119,19 +123,15 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 #endif
 
 #ifdef MXC_ECSPI
-static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
+static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs)
 {
 	u32 clk_src = mxc_get_clock(MXC_CSPI_CLK);
 	s32 reg_ctrl, reg_config;
 	u32 ss_pol = 0, sclkpol = 0, sclkpha = 0, sclkctl = 0;
 	u32 pre_div = 0, post_div = 0;
 	struct cspi_regs *regs = (struct cspi_regs *)mxcs->base;
-
-	if (max_hz == 0) {
-		printf("Error: desired clock is 0\n");
-		return -1;
-	}
+	unsigned int max_hz = mxcs->max_hz;
+	unsigned int mode = mxcs->mode;
 
 	/*
 	 * Reset SPI and set all CSs to master mode, if toggling
@@ -167,9 +167,6 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 		MXC_CSPICTRL_PREDIV(pre_div);
 	reg_ctrl = (reg_ctrl & ~MXC_CSPICTRL_POSTDIV(0x0F)) |
 		MXC_CSPICTRL_POSTDIV(post_div);
-
-	/* We need to disable SPI before changing registers */
-	reg_ctrl &= ~MXC_CSPICTRL_EN;
 
 	if (mode & SPI_CS_HIGH)
 		ss_pol = 1;
@@ -318,7 +315,7 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 		tmp = reg_read(&regs->rxdata);
 		data = cpu_to_be32(tmp);
 		debug("SPI Rx: 0x%x 0x%x\n", tmp, data);
-		cnt = min(nbytes, sizeof(data));
+		cnt = min_t(u32, nbytes, sizeof(data));
 		if (din) {
 			memcpy(din, &data, cnt);
 			din += cnt;
@@ -411,6 +408,11 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (bus >= ARRAY_SIZE(spi_bases))
 		return NULL;
 
+	if (max_hz == 0) {
+		printf("Error: desired clock is 0\n");
+		return NULL;
+	}
+
 	mxcs = spi_alloc_slave(struct mxc_spi_slave, bus, cs);
 	if (!mxcs) {
 		puts("mxc_spi: SPI Slave not allocated !\n");
@@ -426,13 +428,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	}
 
 	mxcs->base = spi_bases[bus];
+	mxcs->max_hz = max_hz;
+	mxcs->mode = mode;
 
-	ret = spi_cfg_mxc(mxcs, cs, max_hz, mode);
-	if (ret) {
-		printf("mxc_spi: cannot setup SPI controller\n");
-		free(mxcs);
-		return NULL;
-	}
 	return &mxcs->slave;
 }
 
@@ -445,12 +443,17 @@ void spi_free_slave(struct spi_slave *slave)
 
 int spi_claim_bus(struct spi_slave *slave)
 {
+	int ret;
 	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
 	struct cspi_regs *regs = (struct cspi_regs *)mxcs->base;
 
 	reg_write(&regs->rxdata, 1);
 	udelay(1);
-	reg_write(&regs->ctrl, mxcs->ctrl_reg);
+	ret = spi_cfg_mxc(mxcs, slave->cs);
+	if (ret) {
+		printf("mxc_spi: cannot setup SPI controller\n");
+		return ret;
+	}
 	reg_write(&regs->period, MXC_CSPIPERIOD_32KHZ);
 	reg_write(&regs->intr, 0);
 

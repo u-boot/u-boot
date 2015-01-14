@@ -61,6 +61,22 @@ struct ihs_osd {
 	u16 y_pos;
 };
 
+struct ihs_mdio {
+	u16 control;
+	u16 address_data;
+	u16 rx_data;
+};
+
+struct ihs_io_ep {
+	u16 transmit_data;
+	u16 rx_tx_control;
+	u16 receive_data;
+	u16 rx_tx_status;
+	u16 reserved;
+	u16 device_address;
+	u16 target_address;
+};
+
 #ifdef CONFIG_NEO
 struct ihs_fpga {
 	u16 reflection_low;	/* 0x0000 */
@@ -119,12 +135,16 @@ struct ihs_fpga {
 	u16 versions;		/* 0x0002 */
 	u16 fpga_version;	/* 0x0004 */
 	u16 fpga_features;	/* 0x0006 */
-	u16 reserved_0[6];	/* 0x0008 */
+	u16 reserved_0[1];	/* 0x0008 */
+	u16 top_interrupt;	/* 0x000a */
+	u16 reserved_1[4];	/* 0x000c */
 	struct ihs_gpio gpio;	/* 0x0014 */
 	u16 mpc3w_control;	/* 0x001a */
-	u16 reserved_1[18];	/* 0x001c */
+	u16 reserved_2[2];	/* 0x001c */
+	struct ihs_io_ep ep;	/* 0x0020 */
+	u16 reserved_3[9];	/* 0x002e */
 	struct ihs_i2c i2c;	/* 0x0040 */
-	u16 reserved_2[10];	/* 0x004c */
+	u16 reserved_4[10];	/* 0x004c */
 	u16 mc_int;		/* 0x0060 */
 	u16 mc_int_en;		/* 0x0062 */
 	u16 mc_status;		/* 0x0064 */
@@ -135,10 +155,44 @@ struct ihs_fpga {
 	u16 mc_res;		/* 0x006e */
 	u16 mc_rx_cmd_status;	/* 0x0070 */
 	u16 mc_rx_data;		/* 0x0072 */
-	u16 reserved_3[69];	/* 0x0074 */
+	u16 reserved_5[69];	/* 0x0074 */
 	u16 reflection_high;	/* 0x00fe */
 	struct ihs_osd osd;	/* 0x0100 */
-	u16 reserved_4[889];	/* 0x010e */
+	u16 reserved_6[889];	/* 0x010e */
+	u16 videomem[31736];	/* 0x0800 */
+};
+#endif
+
+#ifdef CONFIG_HRCON
+struct ihs_fpga {
+	u16 reflection_low;	/* 0x0000 */
+	u16 versions;		/* 0x0002 */
+	u16 fpga_version;	/* 0x0004 */
+	u16 fpga_features;	/* 0x0006 */
+	u16 reserved_0[1];	/* 0x0008 */
+	u16 top_interrupt;	/* 0x000a */
+	u16 reserved_1[4];	/* 0x000c */
+	struct ihs_gpio gpio;	/* 0x0014 */
+	u16 mpc3w_control;	/* 0x001a */
+	u16 reserved_2[2];	/* 0x001c */
+	struct ihs_io_ep ep;	/* 0x0020 */
+	u16 reserved_3[9];	/* 0x002e */
+	struct ihs_i2c i2c;	/* 0x0040 */
+	u16 reserved_4[10];	/* 0x004c */
+	u16 mc_int;		/* 0x0060 */
+	u16 mc_int_en;		/* 0x0062 */
+	u16 mc_status;		/* 0x0064 */
+	u16 mc_control;		/* 0x0066 */
+	u16 mc_tx_data;		/* 0x0068 */
+	u16 mc_tx_address;	/* 0x006a */
+	u16 mc_tx_cmd;		/* 0x006c */
+	u16 mc_res;		/* 0x006e */
+	u16 mc_rx_cmd_status;	/* 0x0070 */
+	u16 mc_rx_data;		/* 0x0072 */
+	u16 reserved_5[69];	/* 0x0074 */
+	u16 reflection_high;	/* 0x00fe */
+	struct ihs_osd osd;	/* 0x0100 */
+	u16 reserved_6[889];	/* 0x010e */
 	u16 videomem[31736];	/* 0x0800 */
 };
 #endif

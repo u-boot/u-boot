@@ -248,8 +248,7 @@ class PatchStream:
         # Detect the start of a new commit
         elif commit_match:
             self.CloseCommit()
-            # TODO: We should store the whole hash, and just display a subset
-            self.commit = commit.Commit(commit_match.group(1)[:8])
+            self.commit = commit.Commit(commit_match.group(1))
 
         # Detect tags in the commit message
         elif tag_match:

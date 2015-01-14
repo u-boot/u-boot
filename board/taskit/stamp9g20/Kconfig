@@ -1,8 +1,5 @@
 if TARGET_STAMP9G20
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "stamp9g20"
 

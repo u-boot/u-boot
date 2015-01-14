@@ -15,11 +15,16 @@ obj-$(CONFIG_CROS_EC_SANDBOX) += cros_ec_sandbox.o
 obj-$(CONFIG_CROS_EC_SPI) += cros_ec_spi.o
 obj-$(CONFIG_FSL_IIM) += fsl_iim.o
 obj-$(CONFIG_GPIO_LED) += gpio_led.o
+obj-$(CONFIG_I2C_EEPROM) += i2c_eeprom.o
 obj-$(CONFIG_FSL_MC9SDZ60) += mc9sdz60.o
 obj-$(CONFIG_MXC_OCOTP) += mxc_ocotp.o
 obj-$(CONFIG_MXS_OCOTP) += mxs_ocotp.o
 obj-$(CONFIG_NS87308) += ns87308.o
 obj-$(CONFIG_PDSP188x) += pdsp188x.o
+ifdef CONFIG_DM_I2C
+obj-$(CONFIG_SANDBOX) += i2c_eeprom_emul.o
+endif
+obj-$(CONFIG_SMSC_LPC47M) += smsc_lpc47m.o
 obj-$(CONFIG_STATUS_LED) += status_led.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
 obj-$(CONFIG_FSL_IFC) += fsl_ifc.o

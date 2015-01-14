@@ -25,6 +25,21 @@
 #define AT91_ASM_SDRAMC_CR	(ATMEL_BASE_SDRAMC + 0x08)
 #define AT91_ASM_SDRAMC_MDR	(ATMEL_BASE_SDRAMC + 0x24)
 
+#else
+struct sdramc_reg {
+	u32	mr;
+	u32	tr;
+	u32	cr;
+	u32	lpr;
+	u32	ier;
+	u32	idr;
+	u32	imr;
+	u32	isr;
+	u32	mdr;
+};
+
+int sdramc_initialize(unsigned int sdram_address,
+		      const struct sdramc_reg *p);
 #endif
 
 /* SDRAM Controller (SDRAMC) registers */
@@ -62,11 +77,17 @@
 #define			AT91_SDRAMC_DBW_32	(0 << 7)
 #define			AT91_SDRAMC_DBW_16	(1 << 7)
 #define		AT91_SDRAMC_TWR		(0xf <<  8)		/* Write Recovery Delay */
+#define		AT91_SDRAMC_TWR_VAL(x)	(x << 8)
 #define		AT91_SDRAMC_TRC		(0xf << 12)		/* Row Cycle Delay */
+#define			AT91_SDRAMC_TRC_VAL(x)	(x << 12)
 #define		AT91_SDRAMC_TRP		(0xf << 16)		/* Row Precharge Delay */
+#define		AT91_SDRAMC_TRP_VAL(x)	(x << 16)
 #define		AT91_SDRAMC_TRCD	(0xf << 20)		/* Row to Column Delay */
+#define			AT91_SDRAMC_TRCD_VAL(x)	(x << 20)
 #define		AT91_SDRAMC_TRAS	(0xf << 24)		/* Active to Precharge Delay */
+#define		AT91_SDRAMC_TRAS_VAL(x)	(x << 24)
 #define		AT91_SDRAMC_TXSR	(0xf << 28)		/* Exit Self Refresh to Active Delay */
+#define		AT91_SDRAMC_TXSR_VAL(x)	(x << 28)
 
 #define AT91_SDRAMC_LPR		(ATMEL_BASE_SDRAMC + 0x10)	/* SDRAM Controller Low Power Register */
 #define		AT91_SDRAMC_LPCB		(3 << 0)	/* Low-power Configurations */
@@ -92,6 +113,5 @@
 #define		AT91_SDRAMC_MD		(3 << 0)		/* Memory Device Type */
 #define			AT91_SDRAMC_MD_SDRAM		0
 #define			AT91_SDRAMC_MD_LOW_POWER_SDRAM	1
-
 
 #endif

@@ -14,7 +14,7 @@
 #include <linux/types.h>
 #include <power/pmic.h>
 #include <i2c.h>
-#include <compiler.h>
+#include <linux/compiler.h>
 
 int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 {

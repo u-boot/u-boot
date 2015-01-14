@@ -57,17 +57,6 @@ void *kmem_cache_alloc(struct kmem_cache *obj, int flag);
 
 #define KERNEL_VERSION(a,b,c)	(((a) << 16) + ((b) << 8) + (c))
 
-/*
- * ..and if you can't take the strict
- * types, you can specify one yourself.
- *
- * Or not use min/max at all, of course.
- */
-#define min_t(type,x,y) \
-	({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
-#define max_t(type,x,y) \
-	({ type __x = (x); type __y = (y); __x > __y ? __x: __y; })
-
 #ifndef BUG
 #define BUG() do { \
 	printf("U-Boot BUG at %s:%d!\n", __FILE__, __LINE__); \
@@ -80,24 +69,6 @@ void *kmem_cache_alloc(struct kmem_cache *obj, int flag);
 				  , __FILE__, __LINE__); }
 
 #define PAGE_SIZE	4096
-
-/**
- * upper_32_bits - return MSB bits 32-63 of a number if little endian, or
- * return MSB bits 0-31 of a number if big endian.
- * @n: the number we're accessing
- *
- * A basic shift-right of a 64- or 32-bit quantity.  Use this to suppress
- * the "right shift count >= width of type" warning when that quantity is
- * 32-bits.
- */
-#define upper_32_bits(n) ((u32)(((n) >> 16) >> 16))
-
-/**
- * lower_32_bits - return LSB bits 0-31 of a number if little endian, or
- * return LSB bits 32-63 of a number if big endian.
- * @n: the number we're accessing
- */
-#define lower_32_bits(n) ((u32)(n))
 
 /* drivers/char/random.c */
 #define get_random_bytes(...)
@@ -152,17 +123,6 @@ typedef unsigned long blkcnt_t;
 
 #define ENOTSUPP	524	/* Operation is not supported */
 
-/* from include/linux/kernel.h */
-/*
- * This looks more complex than it should be. But we need to
- * get the type for the ~ right in round_down (it needs to be
- * as wide as the result!), and we want to evaluate the macro
- * arguments just once each.
- */
-#define __round_mask(x, y) ((__typeof__(x))((y)-1))
-#define round_up(x, y) ((((x)-1) | __round_mask(x, y))+1)
-#define round_down(x, y) ((x) & ~__round_mask(x, y))
-
 /* module */
 #define THIS_MODULE		0
 #define try_module_get(...)	1
@@ -197,18 +157,6 @@ typedef unsigned long blkcnt_t;
 #define misc_deregister(...)
 
 #define blocking_notifier_call_chain(...) 0
-
-/*
- * Multiplies an integer by a fraction, while avoiding unnecessary
- * overflow or loss of precision.
- */
-#define mult_frac(x, numer, denom)(			\
-{							\
-	typeof(x) quot = (x) / (denom);			\
-	typeof(x) rem  = (x) % (denom);			\
-	(quot * (numer)) + ((rem * (numer)) / (denom));	\
-}							\
-)
 
 #define __initdata
 #define late_initcall(...)
@@ -267,15 +215,11 @@ typedef int	wait_queue_head_t;
 #define cond_resched()			do { } while (0)
 #define yield()				do { } while (0)
 
-#define INT_MAX				((int)(~0U>>1))
-
-#define __user
 #define __init
 #define __exit
 #define __devinit
 #define __devinitdata
 #define __devinitconst
-#define __iomem
 
 #define kthread_create(...)	__builtin_return_address(0)
 #define kthread_stop(...)	do { } while (0)
@@ -305,8 +249,6 @@ struct cdev {
 #define cdev_init(...)		do { } while (0)
 #define cdev_add(...)		0
 #define cdev_del(...)		do { } while (0)
-
-#define MAX_ERRNO		4095
 
 #define prandom_u32(...)	0
 

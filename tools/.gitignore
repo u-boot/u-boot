@@ -1,8 +1,10 @@
+/atmel_pmecc_params
 /bmp_logo
 /envcrc
 /fit_check_sign
 /fit_info
 /gen_eth_addr
+/ifdtool
 /img2srec
 /kwboot
 /dumpimage

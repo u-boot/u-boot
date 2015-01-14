@@ -28,7 +28,7 @@ sudo apt-get install clang
 
 To compile U-Boot with clang on linux without IAS use e.g.:
 export TRIPLET=arm-linux-gnueabi && export CROSS_COMPILE="$TRIPLET-"
-make HOSTCC=clang CC="clang -target $TRIPLET -mllvm -arm-use-movt=0 -no-integrated-as" rpi_b_defconfig
+make HOSTCC=clang CC="clang -target $TRIPLET -mllvm -arm-use-movt=0 -no-integrated-as" rpi_defconfig
 make HOSTCC=clang CC="clang -target $TRIPLET -mllvm -arm-use-movt=0 -no-integrated-as" all V=1 -j8
 
 FreeBSD 11 (Current):
@@ -42,7 +42,7 @@ ln -s /usr/local/bin/arm-gnueabi-freebsd-as /usr/bin/arm-freebsd-eabi-as
 # The following commands compile U-Boot using the clang xdev toolchain.
 # NOTE: CROSS_COMPILE and target differ on purpose!
 export CROSS_COMPILE=arm-gnueabi-freebsd-
-gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0" rpi_b_defconfig
+gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0" rpi_defconfig
 gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0" -j8
 
 Given that u-boot will default to gcc, above commands can be

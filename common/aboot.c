@@ -208,6 +208,7 @@ void write_sparse_image(block_dev_desc_t *dev_desc,
 			break;
 
 			case CHUNK_TYPE_DONT_CARE:
+			blk += blkcnt;
 			total_blocks += chunk_header->chunk_sz;
 			break;
 

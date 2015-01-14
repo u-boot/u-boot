@@ -39,6 +39,7 @@
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_F_LEN		(1 << 10)
 
 /* Init Functions */
 #define CONFIG_BOARD_EARLY_INIT_F

@@ -53,34 +53,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define VIDEO_INFO_Y		16
 
 /************************************************************************/
-/* ** VIDEO ENCODER CONSTANTS						*/
-/************************************************************************/
-
-#ifdef CONFIG_VIDEO_ENCODER_AD7176
-
-#include <video_ad7176.h>	/* Sets encoder data, mode, and visible and active area */
-
-#define VIDEO_I2C		1
-#define VIDEO_I2C_ADDR		CONFIG_VIDEO_ENCODER_AD7176_ADDR
-#endif
-
-#ifdef CONFIG_VIDEO_ENCODER_AD7177
-
-#include <video_ad7177.h>	/* Sets encoder data, mode, and visible and active area */
-
-#define VIDEO_I2C		1
-#define VIDEO_I2C_ADDR		CONFIG_VIDEO_ENCODER_AD7177_ADDR
-#endif
-
-#ifdef CONFIG_VIDEO_ENCODER_AD7179
-
-#include <video_ad7179.h>	/* Sets encoder data, mode, and visible and active area */
-
-#define VIDEO_I2C		1
-#define VIDEO_I2C_ADDR		CONFIG_VIDEO_ENCODER_AD7179_ADDR
-#endif
-
-/************************************************************************/
 /* ** VIDEO MODE CONSTANTS						*/
 /************************************************************************/
 
@@ -467,7 +439,6 @@ static inline void video_putstring (int xx, int yy, unsigned char *s)
 /* ** VIDEO CONTROLLER LOW-LEVEL FUNCTIONS				*/
 /************************************************************************/
 
-#if !defined(CONFIG_RRVISION)
 static void video_mode_dupefield (VRAM * source, VRAM * dest, int entries)
 {
 	int i;
@@ -480,7 +451,6 @@ static void video_mode_dupefield (VRAM * source, VRAM * dest, int entries)
 	dest[0].lcyc++;			/* Add a cycle to the first entry */
 	dest[entries - 1].lst = 1;	/* Set end of ram entries */
 }
-#endif
 
 static void inline video_mode_addentry (VRAM * vr,
 	int Hx, int Vx, int Fx, int Bx,
@@ -641,72 +611,6 @@ static int video_mode_generate (void)
 
 #ifdef VIDEO_MODE_PAL
 
-#if defined(CONFIG_RRVISION)
-
-#define HPW   160  /* horizontal pulse width (was 139)	*/
-#define VPW	2  /* vertical pulse width		*/
-#define HBP   104  /* horizontal back porch (was 112)	*/
-#define VBP    19  /* vertical back porch (was 19)	*/
-#define VID_R 240  /* number of rows			*/
-
-	debug ("[VIDEO CTRL] Starting to add controller entries...");
-/*
- * Even field
- */
-	ADDENTRY (0, 3, 0, 3, 1, 0, 2, 0, 0);
-	ADDENTRY (0, 0, 0, 3, 1, 0, HPW, 0, 0);
-	ADDENTRY (3, 0, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 0, 0);
-
-	ADDENTRY (0, 0, 0, 3, 1, 0, VPW, 1, 0);
-	ADDENTRY (0, 0, 0, 3, 1, 0, HPW-1, 0, 0);
-	ADDENTRY (3, 0, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 1, 0);
-
-	ADDENTRY (0, 3, 0, 3, 1, 0, VBP, 1, 0);
-	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 1, 0);
-/*
- * Active area
- */
-	ADDENTRY (0, 3, 0, 3, 1, 0, VID_R , 1, 0);
-	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 1, 0, HBP, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 0, 0, VIDEO_COLS*2, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 1, 0, 72, 1, 1);
-
-	ADDENTRY (0, 3, 0, 3, 1, 0, 51, 1, 0);
-	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 1, 0, HBP +(VIDEO_COLS * 2) + 72 , 1, 0);
-/*
- * Odd field
- */
-	ADDENTRY (0, 3, 0, 3, 1, 0, 2, 0, 0);
-	ADDENTRY (0, 0, 0, 3, 1, 0, HPW, 0, 0);
-	ADDENTRY (3, 0, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 0, 0);
-
-	ADDENTRY (0, 0, 0, 3, 1, 0, VPW+1, 1, 0);
-	ADDENTRY (0, 0, 0, 3, 1, 0, HPW-1, 0, 0);
-	ADDENTRY (3, 0, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 1, 0);
-
-	ADDENTRY (0, 3, 0, 3, 1, 0, VBP, 1, 0);
-	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 1, 0, HBP + (VIDEO_COLS * 2) + 72, 1, 0);
-/*
- * Active area
- */
-	ADDENTRY (0, 3, 0, 3, 1, 0, VID_R , 1, 0);
-	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 1, 0, HBP, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 0, 0, VIDEO_COLS*2, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 1, 0, 72, 1, 1);
-
-	ADDENTRY (0, 3, 0, 3, 1, 0, 51, 1, 0);
-	ADDENTRY (0, 3, 0, 3, 1, 0, HPW-1, 0, 0);
-	ADDENTRY (3, 3, 0, 3, 1, 0, HBP +(VIDEO_COLS * 2) + 72 , 1, 0);
-
-	debug ("done\n");
-
-#else  /* !CONFIG_RRVISION */
-
 /*
  *	Hx Vx Fx Bx VDS INT LCYC LP LST
  *
@@ -758,7 +662,6 @@ static int video_mode_generate (void)
  * one more cycle loop and a last identifier)
  */
 	video_mode_dupefield (vr, &vr[entry], entry);
-#endif /* CONFIG_RRVISION */
 
 #endif /* VIDEO_MODE_PAL */
 
@@ -787,42 +690,6 @@ static int video_mode_generate (void)
 
 static void video_encoder_init (void)
 {
-#ifdef VIDEO_I2C
-	int rc;
-
-	/* Initialize the I2C */
-	debug ("[VIDEO ENCODER] Initializing I2C bus...\n");
-#ifdef CONFIG_SYS_I2C
-	i2c_init_all();
-#else
-	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-#endif
-
-	/* Send configuration */
-#ifdef DEBUG
-	{
-		int i;
-
-		puts ("[VIDEO ENCODER] Configuring the encoder...\n");
-
-		printf ("Sending %zu bytes (@ %08lX) to I2C 0x%lX:\n   ",
-			sizeof(video_encoder_data),
-			(ulong)video_encoder_data,
-			(ulong)VIDEO_I2C_ADDR);
-		for (i=0; i<sizeof(video_encoder_data); ++i) {
-			printf(" %02X", video_encoder_data[i]);
-		}
-		putc ('\n');
-	}
-#endif	/* DEBUG */
-
-	if ((rc = i2c_write (VIDEO_I2C_ADDR, 0, 1,
-			 video_encoder_data,
-			 sizeof(video_encoder_data))) != 0) {
-		printf ("i2c_send error: rc=%d\n", rc);
-		return;
-	}
-#endif	/* VIDEO_I2C */
 	return;
 }
 
@@ -865,21 +732,6 @@ static void video_ctrl_init (void *memptr)
 	debug ("[VIDEO CTRL] Configuring input/output pins...\n");
 	immap->im_ioport.iop_pdpar = 0x1fff;
 	immap->im_ioport.iop_pddir = 0x0000;
-
-#ifdef CONFIG_RRVISION
-	debug ("PC5->Output(1): enable PAL clock");
-	immap->im_ioport.iop_pcpar &= ~(0x0400);
-	immap->im_ioport.iop_pcdir |=   0x0400 ;
-	immap->im_ioport.iop_pcdat |=   0x0400 ;
-	debug ("PDPAR=0x%04X PDDIR=0x%04X PDDAT=0x%04X\n",
-	       immap->im_ioport.iop_pdpar,
-	       immap->im_ioport.iop_pddir,
-	       immap->im_ioport.iop_pddat);
-	debug ("PCPAR=0x%04X PCDIR=0x%04X PCDAT=0x%04X\n",
-	       immap->im_ioport.iop_pcpar,
-	       immap->im_ioport.iop_pcdir,
-	       immap->im_ioport.iop_pcdat);
-#endif	/* CONFIG_RRVISION */
 
 	/* Blanking the screen. */
 	debug ("[VIDEO CTRL] Blanking the screen...\n");

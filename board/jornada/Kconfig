@@ -1,8 +1,5 @@
 if TARGET_JORNADA
 
-config SYS_CPU
-	default "sa1100"
-
 config SYS_BOARD
 	default "jornada"
 

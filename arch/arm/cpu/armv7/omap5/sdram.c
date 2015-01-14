@@ -513,7 +513,7 @@ const struct lpddr2_mr_regs mr_regs = {
 	.mr16	= MR16_REF_FULL_ARRAY
 };
 
-static void emif_get_ext_phy_ctrl_const_regs(u32 emif_nr,
+void __weak emif_get_ext_phy_ctrl_const_regs(u32 emif_nr,
 					     const u32 **regs,
 					     u32 *size)
 {

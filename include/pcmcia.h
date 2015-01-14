@@ -23,20 +23,6 @@
 
 #if defined(CONFIG_TQM8xxL)
 # define	CONFIG_PCMCIA_SLOT_B	/* The TQM8xxL use SLOT_B	*/
-#elif defined(CONFIG_SPD823TS)		/* The SPD8xx  use SLOT_B	*/
-# define CONFIG_PCMCIA_SLOT_B
-#elif defined(CONFIG_IVMS8) || defined(CONFIG_IVML24)	/* The IVM* use SLOT_A	*/
-# define CONFIG_PCMCIA_SLOT_A
-#elif defined(CONFIG_LWMON)		/* The LWMON  use SLOT_B	*/
-# define CONFIG_PCMCIA_SLOT_B
-#elif defined(CONFIG_ICU862)		/* The ICU862 use SLOT_B	*/
-# define CONFIG_PCMCIA_SLOT_B
-#elif defined(CONFIG_R360MPI)		/* The R360MPI use SLOT_B	*/
-# define CONFIG_PCMCIA_SLOT_B
-#elif defined(CONFIG_ATC)		/* The ATC use SLOT_A	*/
-# define CONFIG_PCMCIA_SLOT_A
-#elif defined(CONFIG_UC100)		/* The UC100 use SLOT_B	        */
-# define CONFIG_PCMCIA_SLOT_B
 #else
 # error "PCMCIA Slot not configured"
 #endif

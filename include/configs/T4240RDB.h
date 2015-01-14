@@ -12,6 +12,8 @@
 
 #define CONFIG_T4240RDB
 #define CONFIG_PHYS_64BIT
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_PCIE4
@@ -47,6 +49,7 @@
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCIE1			/* PCIE controler 1 */
 #define CONFIG_PCIE2			/* PCIE controler 2 */
@@ -513,6 +516,29 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS2_FTIM2		CONFIG_SYS_NOR_FTIM2
 #define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NOR_FTIM3
 
+/* CPLD on IFC */
+#define CONFIG_SYS_CPLD_BASE	0xffdf0000
+#define CONFIG_SYS_CPLD_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_CPLD_BASE)
+#define CONFIG_SYS_CSPR3_EXT	(0xf)
+#define CONFIG_SYS_CSPR3	(CSPR_PHYS_ADDR(CONFIG_SYS_CPLD_BASE_PHYS) \
+				| CSPR_PORT_SIZE_8 \
+				| CSPR_MSEL_GPCM \
+				| CSPR_V)
+
+#define CONFIG_SYS_AMASK3	IFC_AMASK(4*1024)
+#define CONFIG_SYS_CSOR3	0x0
+
+/* CPLD Timing parameters for IFC CS3 */
+#define CONFIG_SYS_CS3_FTIM0		(FTIM0_GPCM_TACSE(0x0e) | \
+					FTIM0_GPCM_TEADC(0x0e) | \
+					FTIM0_GPCM_TEAHC(0x0e))
+#define CONFIG_SYS_CS3_FTIM1		(FTIM1_GPCM_TACO(0x0e) | \
+					FTIM1_GPCM_TRAD(0x1f))
+#define CONFIG_SYS_CS3_FTIM2		(FTIM2_GPCM_TCS(0x0e) | \
+					FTIM2_GPCM_TCH(0x8) | \
+					FTIM2_GPCM_TWP(0x1f))
+#define CONFIG_SYS_CS3_FTIM3		0x0
+
 #if defined(CONFIG_RAMBOOT_PBL)
 #define CONFIG_SYS_RAMBOOT
 #endif
@@ -553,10 +579,26 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_BMAN_MEM_BASE	0xf4000000
 #define CONFIG_SYS_BMAN_MEM_PHYS	0xff4000000ull
 #define CONFIG_SYS_BMAN_MEM_SIZE	0x02000000
+#define CONFIG_SYS_BMAN_SP_CENA_SIZE    0x4000
+#define CONFIG_SYS_BMAN_SP_CINH_SIZE    0x1000
+#define CONFIG_SYS_BMAN_CENA_BASE       CONFIG_SYS_BMAN_MEM_BASE
+#define CONFIG_SYS_BMAN_CENA_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_CINH_BASE       (CONFIG_SYS_BMAN_MEM_BASE + \
+					CONFIG_SYS_BMAN_CENA_SIZE)
+#define CONFIG_SYS_BMAN_CINH_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_SWP_ISDR_REG    0xE08
 #define CONFIG_SYS_QMAN_NUM_PORTALS	50
 #define CONFIG_SYS_QMAN_MEM_BASE	0xf6000000
 #define CONFIG_SYS_QMAN_MEM_PHYS	0xff6000000ull
 #define CONFIG_SYS_QMAN_MEM_SIZE	0x02000000
+#define CONFIG_SYS_QMAN_SP_CENA_SIZE    0x4000
+#define CONFIG_SYS_QMAN_SP_CINH_SIZE    0x1000
+#define CONFIG_SYS_QMAN_CENA_BASE       CONFIG_SYS_QMAN_MEM_BASE
+#define CONFIG_SYS_QMAN_CENA_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_CINH_BASE       (CONFIG_SYS_QMAN_MEM_BASE + \
+					CONFIG_SYS_QMAN_CENA_SIZE)
+#define CONFIG_SYS_QMAN_CINH_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_SWP_ISDR_REG	0xE08
 
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
@@ -666,6 +708,13 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
+#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
+#endif
+
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
 #endif
 
 #define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
@@ -751,6 +800,7 @@ unsigned long get_board_ddr_clk(void);
  * which is anyways not used in Secure Environment.
  */
 #undef CONFIG_CMD_USB
+#define CONFIG_CMD_BLOB
 #endif
 
 #endif	/* __CONFIG_H */

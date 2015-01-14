@@ -253,22 +253,30 @@ static void set_csn_config_2(int i, fsl_ddr_cfg_regs_t *ddr)
 /* -3E = 667 CL5, -25 = CL6 800, -25E = CL5 800 */
 
 #if !defined(CONFIG_SYS_FSL_DDR1)
+/*
+ * Check DIMM configuration, return 2 if quad-rank or two dual-rank
+ * Return 1 if other two slots configuration. Return 0 if single slot.
+ */
 static inline int avoid_odt_overlap(const dimm_params_t *dimm_params)
 {
 #if CONFIG_DIMM_SLOTS_PER_CTLR == 1
 	if (dimm_params[0].n_ranks == 4)
-		return 1;
+		return 2;
 #endif
 
 #if CONFIG_DIMM_SLOTS_PER_CTLR == 2
 	if ((dimm_params[0].n_ranks == 2) &&
 		(dimm_params[1].n_ranks == 2))
-		return 1;
+		return 2;
 
 #ifdef CONFIG_FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 	if (dimm_params[0].n_ranks == 4)
-		return 1;
+		return 2;
 #endif
+
+	if ((dimm_params[0].n_ranks != 0) &&
+	    (dimm_params[2].n_ranks != 0))
+		return 1;
 #endif
 	return 0;
 }
@@ -303,7 +311,7 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 
 #ifdef CONFIG_SYS_FSL_DDR4
 	/* tXP=max(4nCK, 6ns) */
-	int txp = max(mclk_ps * 4, 6000); /* unit=ps */
+	int txp = max((int)mclk_ps * 4, 6000); /* unit=ps */
 	trwt_mclk = 2;
 	twrt_mclk = 1;
 	act_pd_exit_mclk = picos_to_mclk(txp);
@@ -312,10 +320,12 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 	 * MRS_CYC = max(tMRD, tMOD)
 	 * tMRD = 8nCK, tMOD = max(24nCK, 15ns)
 	 */
-	tmrd_mclk = max(24, picos_to_mclk(15000));
+	tmrd_mclk = max(24U, picos_to_mclk(15000));
 #elif defined(CONFIG_SYS_FSL_DDR3)
 	unsigned int data_rate = get_ddr_freq(0);
 	int txp;
+	unsigned int ip_rev;
+	int odt_overlap;
 	/*
 	 * (tXARD and tXARDS). Empirical?
 	 * The DDR3 spec has not tXARD,
@@ -325,19 +335,47 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 	 * spec has not the tAXPD, we use
 	 * tAXPD=1, need design to confirm.
 	 */
-	txp = max(mclk_ps * 3, (mclk_ps > 1540 ? 7500 : 6000));
+	txp = max((int)mclk_ps * 3, (mclk_ps > 1540 ? 7500 : 6000));
 
-	tmrd_mclk = 4;
+	ip_rev = fsl_ddr_get_version();
+	if (ip_rev >= 0x40700) {
+		/*
+		 * MRS_CYC = max(tMRD, tMOD)
+		 * tMRD = 4nCK (8nCK for RDIMM)
+		 * tMOD = max(12nCK, 15ns)
+		 */
+		tmrd_mclk = max((unsigned int)12, picos_to_mclk(15000));
+	} else {
+		/*
+		 * MRS_CYC = tMRD
+		 * tMRD = 4nCK (8nCK for RDIMM)
+		 */
+		if (popts->registered_dimm_en)
+			tmrd_mclk = 8;
+		else
+			tmrd_mclk = 4;
+	}
+
 	/* set the turnaround time */
 
 	/*
-	 * for single quad-rank DIMM and two dual-rank DIMMs
+	 * for single quad-rank DIMM and two-slot DIMMs
 	 * to avoid ODT overlap
 	 */
-	if (avoid_odt_overlap(dimm_params)) {
+	odt_overlap = avoid_odt_overlap(dimm_params);
+	switch (odt_overlap) {
+	case 2:
 		twwt_mclk = 2;
 		trrt_mclk = 1;
+		break;
+	case 1:
+		twwt_mclk = 1;
+		trrt_mclk = 0;
+		break;
+	default:
+		break;
 	}
+
 	/* for faster clock, need more time for data setup */
 	trwt_mclk = (data_rate/1000000 > 1800) ? 2 : 1;
 
@@ -383,7 +421,7 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 		);
 	debug("FSLDDR: timing_cfg_0 = 0x%08x\n", ddr->timing_cfg_0);
 }
-#endif	/* defined(CONFIG_SYS_FSL_DDR2) */
+#endif	/* !defined(CONFIG_SYS_FSL_DDR1) */
 
 /* DDR SDRAM Timing Configuration 3 (TIMING_CFG_3) */
 static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
@@ -511,8 +549,8 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 #ifdef CONFIG_SYS_FSL_DDR4
 	refrec_ctrl = picos_to_mclk(common_dimm->trfc1_ps) - 8;
 	wrrec_mclk = picos_to_mclk(common_dimm->twr_ps);
-	acttoact_mclk = max(picos_to_mclk(common_dimm->trrds_ps), 4);
-	wrtord_mclk = max(2, picos_to_mclk(2500));
+	acttoact_mclk = max(picos_to_mclk(common_dimm->trrds_ps), 4U);
+	wrtord_mclk = max(2U, picos_to_mclk(2500));
 	if ((wrrec_mclk < 1) || (wrrec_mclk > 24))
 		printf("Error: WRREC doesn't support %d clocks\n", wrrec_mclk);
 	else
@@ -627,14 +665,14 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	wr_data_delay = popts->write_data_delay;
 #ifdef CONFIG_SYS_FSL_DDR4
 	cpo = 0;
-	cke_pls = max(3, picos_to_mclk(5000));
+	cke_pls = max(3U, picos_to_mclk(5000));
 #elif defined(CONFIG_SYS_FSL_DDR3)
 	/*
 	 * cke pulse = max(3nCK, 7.5ns) for DDR3-800
 	 *             max(3nCK, 5.625ns) for DDR3-1066, 1333
 	 *             max(3nCK, 5ns) for DDR3-1600, 1866, 2133
 	 */
-	cke_pls = max(3, picos_to_mclk(mclk_ps > 1870 ? 7500 :
+	cke_pls = max(3U, picos_to_mclk(mclk_ps > 1870 ? 7500 :
 				       (mclk_ps > 1245 ? 5625 : 5000)));
 #else
 	cke_pls = FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR;
@@ -1810,9 +1848,9 @@ static void set_timing_cfg_7(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int txpr, tcksre, tcksrx;
 	unsigned int cke_rst, cksre, cksrx, par_lat, cs_to_cmd;
 
-	txpr = max(5, picos_to_mclk(common_dimm->trfc1_ps + 10000));
-	tcksre = max(5, picos_to_mclk(10000));
-	tcksrx = max(5, picos_to_mclk(10000));
+	txpr = max(5U, picos_to_mclk(common_dimm->trfc1_ps + 10000));
+	tcksre = max(5U, picos_to_mclk(10000));
+	tcksrx = max(5U, picos_to_mclk(10000));
 	par_lat = 0;
 	cs_to_cmd = 0;
 
@@ -1877,7 +1915,7 @@ static void set_timing_cfg_8(fsl_ddr_cfg_regs_t *ddr,
 	}
 
 	acttoact_bg = picos_to_mclk(common_dimm->trrdl_ps);
-	wrtord_bg = max(4, picos_to_mclk(7500));
+	wrtord_bg = max(4U, picos_to_mclk(7500));
 	if (popts->otf_burst_chop_en)
 		wrtord_bg += 2;
 

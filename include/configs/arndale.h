@@ -9,6 +9,9 @@
 #ifndef __CONFIG_ARNDALE_H
 #define __CONFIG_ARNDALE_H
 
+#define EXYNOS_FDTFILE_SETTING \
+	"fdtfile=exynos5250-arndale.dtb\0"
+
 #include "exynos5250-common.h"
 
 /* SD/MMC configuration */
@@ -17,8 +20,6 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_CMD_EXT2
-
 /* USB */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_EXYNOS
@@ -26,6 +27,7 @@
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_ASIX88179
 
 /* MMC SPL */
 #define CONFIG_EXYNOS_SPL
@@ -59,7 +61,5 @@
 
 /* The PERIPHBASE in the CBAR register is wrong on the Arndale, so override it */
 #define CONFIG_ARM_GIC_BASE_ADDRESS	0x10480000
-
-#define CONFIG_ARMV7_VIRT
 
 #endif	/* __CONFIG_H */

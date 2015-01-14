@@ -9,8 +9,18 @@
 
 #include <asm/io.h>
 #include <common.h>
+#include <asm/arch/msmc.h>
 #include <asm/arch/ddr3.h>
 #include <asm/arch/psc_defs.h>
+
+#include <asm/ti-common/ti-edma3.h>
+
+#define DDR3_EDMA_BLK_SIZE_SHIFT	10
+#define DDR3_EDMA_BLK_SIZE		(1 << DDR3_EDMA_BLK_SIZE_SHIFT)
+#define DDR3_EDMA_BCNT			0x8000
+#define DDR3_EDMA_CCNT			1
+#define DDR3_EDMA_XF_SIZE		(DDR3_EDMA_BLK_SIZE * DDR3_EDMA_BCNT)
+#define DDR3_EDMA_SLOT_NUM		1
 
 void ddr3_init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg)
 {
@@ -68,6 +78,240 @@ void ddr3_init_ddremif(u32 base, struct ddr3_emif_config *emif_cfg)
 	__raw_writel(emif_cfg->sdtim4, base + KS2_DDR3_SDTIM4_OFFSET);
 	__raw_writel(emif_cfg->zqcfg,  base + KS2_DDR3_ZQCFG_OFFSET);
 	__raw_writel(emif_cfg->sdrfc,  base + KS2_DDR3_SDRFC_OFFSET);
+}
+
+int ddr3_ecc_support_rmw(u32 base)
+{
+	u32 value = __raw_readl(base + KS2_DDR3_MIDR_OFFSET);
+
+	/* Check the DDR3 controller ID reg if the controllers
+	   supports ECC RMW or not */
+	if (value == 0x40461C02)
+		return 1;
+
+	return 0;
+}
+
+static void ddr3_ecc_config(u32 base, u32 value)
+{
+	u32 data;
+
+	__raw_writel(value,  base + KS2_DDR3_ECC_CTRL_OFFSET);
+	udelay(100000); /* delay required to synchronize across clock domains */
+
+	if (value & KS2_DDR3_ECC_EN) {
+		/* Clear the 1-bit error count */
+		data = __raw_readl(base + KS2_DDR3_ONE_BIT_ECC_ERR_CNT_OFFSET);
+		__raw_writel(data, base + KS2_DDR3_ONE_BIT_ECC_ERR_CNT_OFFSET);
+
+		/* enable the ECC interrupt */
+		__raw_writel(KS2_DDR3_1B_ECC_ERR_SYS | KS2_DDR3_2B_ECC_ERR_SYS |
+			     KS2_DDR3_WR_ECC_ERR_SYS,
+			     base + KS2_DDR3_ECC_INT_ENABLE_SET_SYS_OFFSET);
+
+		/* Clear the ECC error interrupt status */
+		__raw_writel(KS2_DDR3_1B_ECC_ERR_SYS | KS2_DDR3_2B_ECC_ERR_SYS |
+			     KS2_DDR3_WR_ECC_ERR_SYS,
+			     base + KS2_DDR3_ECC_INT_STATUS_OFFSET);
+	}
+}
+
+static void ddr3_reset_data(u32 base, u32 ddr3_size)
+{
+	u32 mpax[2];
+	u32 seg_num;
+	u32 seg, blks, dst, edma_blks;
+	struct edma3_slot_config slot;
+	struct edma3_channel_config edma_channel;
+	u32 edma_src[DDR3_EDMA_BLK_SIZE/4] __aligned(16) = {0, };
+
+	/* Setup an edma to copy the 1k block to the entire DDR */
+	puts("\nClear entire DDR3 memory to enable ECC\n");
+
+	/* save the SES MPAX regs */
+	msmc_get_ses_mpax(8, 0, mpax);
+
+	/* setup edma slot 1 configuration */
+	slot.opt = EDMA3_SLOPT_TRANS_COMP_INT_ENB |
+		   EDMA3_SLOPT_COMP_CODE(0) |
+		   EDMA3_SLOPT_STATIC | EDMA3_SLOPT_AB_SYNC;
+	slot.bcnt = DDR3_EDMA_BCNT;
+	slot.acnt = DDR3_EDMA_BLK_SIZE;
+	slot.ccnt = DDR3_EDMA_CCNT;
+	slot.src_bidx = 0;
+	slot.dst_bidx = DDR3_EDMA_BLK_SIZE;
+	slot.src_cidx = 0;
+	slot.dst_cidx = 0;
+	slot.link = EDMA3_PARSET_NULL_LINK;
+	slot.bcntrld = 0;
+	edma3_slot_configure(KS2_EDMA0_BASE, DDR3_EDMA_SLOT_NUM, &slot);
+
+	/* configure quik edma channel */
+	edma_channel.slot = DDR3_EDMA_SLOT_NUM;
+	edma_channel.chnum = 0;
+	edma_channel.complete_code = 0;
+	/* event trigger after dst update */
+	edma_channel.trigger_slot_word = EDMA3_TWORD(dst);
+	qedma3_start(KS2_EDMA0_BASE, &edma_channel);
+
+	/* DDR3 size in segments (4KB seg size) */
+	seg_num = ddr3_size << (30 - KS2_MSMC_SEG_SIZE_SHIFT);
+
+	for (seg = 0; seg < seg_num; seg += KS2_MSMC_MAP_SEG_NUM) {
+		/* map 2GB 36-bit DDR address to 32-bit DDR address in EMIF
+		   access slave interface so that edma driver can access */
+		msmc_map_ses_segment(8, 0, base >> KS2_MSMC_SEG_SIZE_SHIFT,
+				     KS2_MSMC_DST_SEG_BASE + seg, MPAX_SEG_2G);
+
+		if ((seg_num - seg) > KS2_MSMC_MAP_SEG_NUM)
+			edma_blks = KS2_MSMC_MAP_SEG_NUM <<
+					(KS2_MSMC_SEG_SIZE_SHIFT
+					- DDR3_EDMA_BLK_SIZE_SHIFT);
+		else
+			edma_blks = (seg_num - seg) << (KS2_MSMC_SEG_SIZE_SHIFT
+					- DDR3_EDMA_BLK_SIZE_SHIFT);
+
+		/* Use edma driver to scrub 2GB DDR memory */
+		for (dst = base, blks = 0; blks < edma_blks;
+		     blks += DDR3_EDMA_BCNT, dst += DDR3_EDMA_XF_SIZE) {
+			edma3_set_src_addr(KS2_EDMA0_BASE,
+					   edma_channel.slot, (u32)edma_src);
+			edma3_set_dest_addr(KS2_EDMA0_BASE,
+					    edma_channel.slot, (u32)dst);
+
+			while (edma3_check_for_transfer(KS2_EDMA0_BASE,
+							&edma_channel))
+				udelay(10);
+		}
+	}
+
+	qedma3_stop(KS2_EDMA0_BASE, &edma_channel);
+
+	/* restore the SES MPAX regs */
+	msmc_set_ses_mpax(8, 0, mpax);
+}
+
+static void ddr3_ecc_init_range(u32 base)
+{
+	u32 ecc_val = KS2_DDR3_ECC_EN;
+	u32 rmw = ddr3_ecc_support_rmw(base);
+
+	if (rmw)
+		ecc_val |= KS2_DDR3_ECC_RMW_EN;
+
+	__raw_writel(0, base + KS2_DDR3_ECC_ADDR_RANGE1_OFFSET);
+
+	ddr3_ecc_config(base, ecc_val);
+}
+
+void ddr3_enable_ecc(u32 base, int test)
+{
+	u32 ecc_val = KS2_DDR3_ECC_ENABLE;
+	u32 rmw = ddr3_ecc_support_rmw(base);
+
+	if (test)
+		ecc_val |= KS2_DDR3_ECC_ADDR_RNG_1_EN;
+
+	if (!rmw) {
+		if (!test)
+			/* by default, disable ecc when rmw = 0 and no
+			   ecc test */
+			ecc_val = 0;
+	} else {
+		ecc_val |= KS2_DDR3_ECC_RMW_EN;
+	}
+
+	ddr3_ecc_config(base, ecc_val);
+}
+
+void ddr3_disable_ecc(u32 base)
+{
+	ddr3_ecc_config(base, 0);
+}
+
+#if defined(CONFIG_SOC_K2HK) || defined(CONFIG_SOC_K2L)
+static void cic_init(u32 base)
+{
+	/* Disable CIC global interrupts */
+	__raw_writel(0, base + KS2_CIC_GLOBAL_ENABLE);
+
+	/* Set to normal mode, no nesting, no priority hold */
+	__raw_writel(0, base + KS2_CIC_CTRL);
+	__raw_writel(0, base + KS2_CIC_HOST_CTRL);
+
+	/* Enable CIC global interrupts */
+	__raw_writel(1, base + KS2_CIC_GLOBAL_ENABLE);
+}
+
+static void cic_map_cic_to_gic(u32 base, u32 chan_num, u32 irq_num)
+{
+	/* Map the system interrupt to a CIC channel */
+	__raw_writeb(chan_num, base + KS2_CIC_CHAN_MAP(0) + irq_num);
+
+	/* Enable CIC system interrupt */
+	__raw_writel(irq_num, base + KS2_CIC_SYS_ENABLE_IDX_SET);
+
+	/* Enable CIC Host interrupt */
+	__raw_writel(chan_num, base + KS2_CIC_HOST_ENABLE_IDX_SET);
+}
+
+static void ddr3_map_ecc_cic2_irq(u32 base)
+{
+	cic_init(base);
+	cic_map_cic_to_gic(base, KS2_CIC2_DDR3_ECC_CHAN_NUM,
+			   KS2_CIC2_DDR3_ECC_IRQ_NUM);
+}
+#endif
+
+void ddr3_init_ecc(u32 base)
+{
+	u32 ddr3_size;
+
+	if (!ddr3_ecc_support_rmw(base)) {
+		ddr3_disable_ecc(base);
+		return;
+	}
+
+	ddr3_ecc_init_range(base);
+	ddr3_size = ddr3_get_size();
+	ddr3_reset_data(CONFIG_SYS_SDRAM_BASE, ddr3_size);
+
+	/* mapping DDR3 ECC system interrupt from CIC2 to GIC */
+#if defined(CONFIG_SOC_K2HK) || defined(CONFIG_SOC_K2L)
+	ddr3_map_ecc_cic2_irq(KS2_CIC2_BASE);
+#endif
+	ddr3_enable_ecc(base, 0);
+}
+
+void ddr3_check_ecc_int(u32 base)
+{
+	char *env;
+	int ecc_test = 0;
+	u32 value = __raw_readl(base + KS2_DDR3_ECC_INT_STATUS_OFFSET);
+
+	env = getenv("ecc_test");
+	if (env)
+		ecc_test = simple_strtol(env, NULL, 0);
+
+	if (value & KS2_DDR3_WR_ECC_ERR_SYS)
+		puts("DDR3 ECC write error interrupted\n");
+
+	if (value & KS2_DDR3_2B_ECC_ERR_SYS) {
+		puts("DDR3 ECC 2-bit error interrupted\n");
+
+		if (!ecc_test) {
+			puts("Reseting the device ...\n");
+			reset_cpu(0);
+		}
+	}
+
+	value = __raw_readl(base + KS2_DDR3_ONE_BIT_ECC_ERR_CNT_OFFSET);
+	if (value) {
+		printf("1-bit ECC err count: 0x%x\n", value);
+		value = __raw_readl(base +
+				    KS2_DDR3_ONE_BIT_ECC_ERR_ADDR_LOG_OFFSET);
+		printf("1-bit ECC err address log: 0x%x\n", value);
+	}
 }
 
 void ddr3_reset_ddrphy(void)

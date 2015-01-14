@@ -25,6 +25,11 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
+#define CONFIG_DM
+#define CONFIG_DM_THERMAL
+#define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
+#define CONFIG_IMX6_THERMAL
+
 #define CONFIG_SYS_GENERIC_BOARD
 
 /* Size of malloc() pool */
@@ -37,7 +42,7 @@
 #define CONFIG_MXC_UART
 
 #define CONFIG_CMD_FUSE
-#ifdef CONFIG_CMD_FUSE
+#if defined(CONFIG_CMD_FUSE) || defined(CONFIG_IMX6_THERMAL)
 #define CONFIG_MXC_OCOTP
 #endif
 
@@ -215,9 +220,6 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE              256
-
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS             16
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 
@@ -251,7 +253,7 @@
 #define CONFIG_ENV_IS_IN_MMC
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
+#define CONFIG_ENV_OFFSET		(8 * 64 * 1024)
 #endif
 
 #define CONFIG_OF_LIBFDT
@@ -259,5 +261,22 @@
 #ifndef CONFIG_SYS_DCACHE_OFF
 #define CONFIG_CMD_CACHE
 #endif
+
+/* Framebuffer */
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_IPUV3
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_IPUV3_CLK 260000000
+#define CONFIG_IMX_HDMI
+#define CONFIG_IMX_VIDEO_SKIP
 
 #endif                         /* __MX6QSABRE_COMMON_CONFIG_H */

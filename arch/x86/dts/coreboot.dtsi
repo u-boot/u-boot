@@ -1,13 +1,14 @@
 /include/ "skeleton.dtsi"
 
 / {
-	aliases {
-		console = "/serial";
+	chosen {
+		stdout-path = "/serial";
 	};
 
 	serial {
-		compatible = "ns16550";
-		reg-shift = <1>;
+		compatible = "x86-uart";
+		reg = <0x3f8 0x10>;
+		reg-shift = <0>;
 		io-mapped = <1>;
 		multiplier = <1>;
 		baudrate = <115200>;

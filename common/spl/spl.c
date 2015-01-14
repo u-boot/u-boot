@@ -7,6 +7,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <nand.h>
@@ -15,6 +16,7 @@
 #include <i2c.h>
 #include <image.h>
 #include <malloc.h>
+#include <dm/root.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -23,6 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_SYS_UBOOT_START	CONFIG_SYS_TEXT_BASE
 #endif
 #ifndef CONFIG_SYS_MONITOR_LEN
+/* Unknown U-Boot size, let's assume it will not be more than 200 KB */
 #define CONFIG_SYS_MONITOR_LEN	(200 * 1024)
 #endif
 
@@ -61,6 +64,15 @@ __weak void spl_board_prepare_for_linux(void)
 	/* Nothing to do! */
 }
 
+void spl_set_header_raw_uboot(void)
+{
+	spl_image.size = CONFIG_SYS_MONITOR_LEN;
+	spl_image.entry_point = CONFIG_SYS_UBOOT_START;
+	spl_image.load_addr = CONFIG_SYS_TEXT_BASE;
+	spl_image.os = IH_OS_U_BOOT;
+	spl_image.name = "U-Boot";
+}
+
 void spl_parse_image_header(const struct image_header *header)
 {
 	u32 header_size = sizeof(struct image_header);
@@ -92,12 +104,7 @@ void spl_parse_image_header(const struct image_header *header)
 		/* Signature not found - assume u-boot.bin */
 		debug("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
-		/* Let's assume U-Boot will not be more than 200 KB */
-		spl_image.size = CONFIG_SYS_MONITOR_LEN;
-		spl_image.entry_point = CONFIG_SYS_UBOOT_START;
-		spl_image.load_addr = CONFIG_SYS_TEXT_BASE;
-		spl_image.os = IH_OS_U_BOOT;
-		spl_image.name = "U-Boot";
+		spl_set_header_raw_uboot();
 	}
 }
 
@@ -134,9 +141,16 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	u32 boot_device;
 	debug(">>spl:board_init_r()\n");
 
-#ifdef CONFIG_SYS_SPL_MALLOC_START
+#if defined(CONFIG_SYS_SPL_MALLOC_START)
 	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
 			CONFIG_SYS_SPL_MALLOC_SIZE);
+	gd->flags |= GD_FLG_FULL_MALLOC_INIT;
+#elif defined(CONFIG_SYS_MALLOC_F_LEN)
+	gd->malloc_limit = gd->malloc_base + CONFIG_SYS_MALLOC_F_LEN;
+	gd->malloc_ptr = 0;
+#endif
+#ifdef CONFIG_SPL_DM
+	dm_init_and_scan(true);
 #endif
 
 #ifndef CONFIG_PPC
@@ -216,7 +230,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		break;
 #endif
 	default:
-		debug("SPL: Un-supported Boot Device\n");
+#if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+		printf("SPL: Unsupported Boot Device %d\n", boot_device);
+#endif
 		hang();
 	}
 
@@ -233,6 +249,11 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	default:
 		debug("Unsupported OS image.. Jumping nevertheless..\n");
 	}
+#if defined(CONFIG_SYS_MALLOC_F_LEN) && !defined(CONFIG_SYS_SPL_MALLOC_SIZE)
+	debug("SPL malloc() used %#lx bytes (%ld KB)\n", gd->malloc_ptr,
+	      gd->malloc_ptr / 1024);
+#endif
+
 	jump_to_image_no_args(&spl_image);
 }
 

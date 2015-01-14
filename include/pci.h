@@ -623,6 +623,7 @@ extern void pci_register_hose(struct pci_controller* hose);
 extern struct pci_controller* pci_bus_to_hose(int bus);
 extern struct pci_controller *find_hose_by_cfg_addr(void *cfg_addr);
 
+extern int pci_skip_dev(struct pci_controller *hose, pci_dev_t dev);
 extern int pci_hose_scan(struct pci_controller *hose);
 extern int pci_hose_scan_bus(struct pci_controller *hose, int bus);
 
@@ -669,13 +670,32 @@ extern void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
 const char * pci_class_str(u8 class);
 int pci_last_busno(void);
 
-#ifdef CONFIG_MPC824X
-extern void pci_mpc824x_init (struct pci_controller *hose);
-#endif
-
 #ifdef CONFIG_MPC85xx
 extern void pci_mpc85xx_init (struct pci_controller *hose);
 #endif
+
+/**
+ * pci_write_bar32() - Write the address of a BAR including control bits
+ *
+ * This writes a raw address (with control bits) to a bar
+ *
+ * @hose:	PCI hose to use
+ * @dev:	PCI device to update
+ * @barnum:	BAR number (0-5)
+ * @addr:	BAR address with control bits
+ */
+void pci_write_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum,
+		     u32 addr_and_ctrl);
+
+/**
+ * pci_read_bar32() - read the address of a bar
+ *
+ * @hose:	PCI hose to use
+ * @dev:	PCI device to inspect
+ * @barnum:	BAR number (0-5)
+ * @return address of the bar, masking out any control bits
+ * */
+u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
 
 #endif /* __ASSEMBLY__ */
 #endif /* _PCI_H */

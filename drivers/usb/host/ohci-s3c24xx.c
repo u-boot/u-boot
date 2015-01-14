@@ -35,9 +35,6 @@
 #define	OHCI_CONTROL_INIT \
 	(OHCI_CTRL_CBSR & 0x3) | OHCI_CTRL_IE | OHCI_CTRL_PLE
 
-#define min_t(type, x, y) \
-	({ type __x = (x); type __y = (y); __x < __y ? __x : __y; })
-
 #undef DEBUG
 #ifdef DEBUG
 #define dbg(format, arg...) printf("DEBUG: " format "\n", ## arg)

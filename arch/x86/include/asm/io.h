@@ -1,7 +1,7 @@
 #ifndef _ASM_IO_H
 #define _ASM_IO_H
 
-#include <compiler.h>
+#include <linux/compiler.h>
 
 /*
  * This file contains the definitions for the x86 IO instructions
@@ -68,6 +68,55 @@
 #define memset_io(a,b,c)	memset((a),(b),(c))
 #define memcpy_fromio(a,b,c)	memcpy((a),(b),(c))
 #define memcpy_toio(a,b,c)	memcpy((a),(b),(c))
+
+#define write_arch(type, endian, a, v) __raw_write##type(cpu_to_##endian(v), a)
+#define read_arch(type, endian, a) endian##_to_cpu(__raw_read##type(a))
+
+#define write_le64(a, v)	write_arch(q, le64, a, v)
+#define write_le32(a, v)	write_arch(l, le32, a, v)
+#define write_le16(a, v)	write_arch(w, le16, a, v)
+
+#define read_le64(a)	read_arch(q, le64, a)
+#define read_le32(a)	read_arch(l, le32, a)
+#define read_le16(a)	read_arch(w, le16, a)
+
+#define write_be32(a, v)	write_arch(l, be32, a, v)
+#define write_be16(a, v)	write_arch(w, be16, a, v)
+
+#define read_be32(a)	read_arch(l, be32, a)
+#define read_be16(a)	read_arch(w, be16, a)
+
+#define write_8(a, v)	__raw_writeb(v, a)
+#define read_8(a)	__raw_readb(a)
+
+#define clrbits(type, addr, clear) \
+	write_##type((addr), read_##type(addr) & ~(clear))
+
+#define setbits(type, addr, set) \
+	write_##type((addr), read_##type(addr) | (set))
+
+#define clrsetbits(type, addr, clear, set) \
+	write_##type((addr), (read_##type(addr) & ~(clear)) | (set))
+
+#define clrbits_be32(addr, clear) clrbits(be32, addr, clear)
+#define setbits_be32(addr, set) setbits(be32, addr, set)
+#define clrsetbits_be32(addr, clear, set) clrsetbits(be32, addr, clear, set)
+
+#define clrbits_le32(addr, clear) clrbits(le32, addr, clear)
+#define setbits_le32(addr, set) setbits(le32, addr, set)
+#define clrsetbits_le32(addr, clear, set) clrsetbits(le32, addr, clear, set)
+
+#define clrbits_be16(addr, clear) clrbits(be16, addr, clear)
+#define setbits_be16(addr, set) setbits(be16, addr, set)
+#define clrsetbits_be16(addr, clear, set) clrsetbits(be16, addr, clear, set)
+
+#define clrbits_le16(addr, clear) clrbits(le16, addr, clear)
+#define setbits_le16(addr, set) setbits(le16, addr, set)
+#define clrsetbits_le16(addr, clear, set) clrsetbits(le16, addr, clear, set)
+
+#define clrbits_8(addr, clear) clrbits(8, addr, clear)
+#define setbits_8(addr, set) setbits(8, addr, set)
+#define clrsetbits_8(addr, clear, set) clrsetbits(8, addr, clear, set)
 
 /*
  * ISA space is 'always mapped' on a typical x86 system, no need to

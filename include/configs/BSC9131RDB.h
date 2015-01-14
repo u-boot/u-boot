@@ -11,6 +11,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 #ifdef CONFIG_BSC9131RDB
 #define CONFIG_BSC9131
 #define CONFIG_NAND_FSL_IFC
@@ -55,6 +58,7 @@
 #define CONFIG_BOOKE			/* BOOKE */
 #define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 
 #define CONFIG_FSL_LAW			/* Use common FSL init code */
 #define CONFIG_TSEC_ENET
@@ -382,6 +386,12 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #endif
 
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
+
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
@@ -390,6 +400,23 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_STORAGE
 #define CONFIG_HAS_FSL_DR_USB
+#endif
+
+/*
+ * Dynamic MTD Partition support with mtdparts
+ */
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT "nand0=ff800000.flash,"
+#define MTDPARTS_DEFAULT "mtdparts=ff800000.flash:1m(uboot)," \
+			"8m(kernel),512k(dtb),-(fs)"
+/*
+ * Override partitions in device tree using info
+ * in "mtdparts" environment variable
+ */
+#ifdef CONFIG_CMD_MTDPARTS
+#define CONFIG_FDT_FIXUP_PARTITIONS
 #endif
 
 /*

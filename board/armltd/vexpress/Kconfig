@@ -1,8 +1,5 @@
 if TARGET_VEXPRESS_CA15_TC2
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "vexpress"
 
@@ -16,9 +13,6 @@ endif
 
 if TARGET_VEXPRESS_CA5X2
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "vexpress"
 
@@ -31,9 +25,6 @@ config SYS_CONFIG_NAME
 endif
 
 if TARGET_VEXPRESS_CA9X4
-
-config SYS_CPU
-	default "armv7"
 
 config SYS_BOARD
 	default "vexpress"

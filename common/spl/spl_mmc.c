@@ -15,7 +15,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int mmc_load_image_raw(struct mmc *mmc, unsigned long sector)
+static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 {
 	unsigned long err;
 	u32 image_size_sectors;
@@ -51,6 +51,22 @@ end:
 	return (err == 0);
 }
 
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
+static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
+{
+	disk_partition_t info;
+
+	if (get_partition_info(&mmc->block_dev, partition, &info)) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+		printf("spl: partition error\n");
+#endif
+		return -1;
+	}
+
+	return mmc_load_image_raw_sector(mmc, info.start);
+}
+#endif
+
 #ifdef CONFIG_SPL_OS_BOOT
 static int mmc_load_image_raw_os(struct mmc *mmc)
 {
@@ -64,7 +80,8 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 		return -1;
 	}
 
-	return mmc_load_image_raw(mmc, CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR);
+	return mmc_load_image_raw_sector(mmc,
+						CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR);
 }
 #endif
 
@@ -98,19 +115,39 @@ void spl_mmc_load_image(void)
 #ifdef CONFIG_SPL_OS_BOOT
 		if (spl_start_uboot() || mmc_load_image_raw_os(mmc))
 #endif
-		err = mmc_load_image_raw(mmc,
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
+		err = mmc_load_image_raw_partition(mmc,
+			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);
+#else
+		err = mmc_load_image_raw_sector(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
+#endif
+#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+	}
+	if (err || boot_mode == MMCSD_MODE_FS) {
+		debug("boot mode - FS\n");
 #ifdef CONFIG_SPL_FAT_SUPPORT
-	} else if (boot_mode == MMCSD_MODE_FAT) {
-		debug("boot mode - FAT\n");
 #ifdef CONFIG_SPL_OS_BOOT
 		if (spl_start_uboot() || spl_load_image_fat_os(&mmc->block_dev,
-								CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION))
+								CONFIG_SYS_MMCSD_FS_BOOT_PARTITION))
 #endif
 		err = spl_load_image_fat(&mmc->block_dev,
-					CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION,
-					CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME);
+					CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
+					CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
+		if(err)
+#endif /* CONFIG_SPL_FAT_SUPPORT */
+		{
+#ifdef CONFIG_SPL_EXT_SUPPORT
+#ifdef CONFIG_SPL_OS_BOOT
+		if (spl_start_uboot() || spl_load_image_ext_os(&mmc->block_dev,
+								CONFIG_SYS_MMCSD_FS_BOOT_PARTITION))
 #endif
+		err = spl_load_image_ext(&mmc->block_dev,
+					CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
+					CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
+#endif /* CONFIG_SPL_EXT_SUPPORT */
+		}
+#endif /* defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT) */
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	} else if (boot_mode == MMCSD_MODE_EMMCBOOT) {
 		/*
@@ -132,14 +169,27 @@ void spl_mmc_load_image(void)
 #ifdef CONFIG_SPL_OS_BOOT
 		if (spl_start_uboot() || mmc_load_image_raw_os(mmc))
 #endif
-		err = mmc_load_image_raw(mmc,
+		err = mmc_load_image_raw_sector(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 #endif
-	} else {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		puts("spl: wrong MMC boot mode\n");
+	}
+
+	switch(boot_mode){
+		case MMCSD_MODE_RAW:
+#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+		case MMCSD_MODE_FS:
 #endif
-		hang();
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+		case MMCSD_MODE_EMMCBOOT:
+#endif
+			/* Boot mode is ok. Nothing to do. */
+			break;
+		case MMCSD_MODE_UNDEFINED:
+		default:
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+			puts("spl: wrong MMC boot mode\n");
+#endif
+			hang();
 	}
 
 	if (err)

@@ -42,7 +42,7 @@ enum state_terminal_raw {
 
 struct sandbox_spi_info {
 	const char *spec;
-	const struct sandbox_spi_emu_ops *ops;
+	struct udevice *emul;
 };
 
 /* The complete state of the test system */

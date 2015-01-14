@@ -168,7 +168,7 @@ static int jtag_getc(struct stdio_dev *dev)
 		inbound_len = emudat;
 	} else {
 		/* store the bytes */
-		leftovers_len = min(4, inbound_len);
+		leftovers_len = min((size_t)4, inbound_len);
 		inbound_len -= leftovers_len;
 		leftovers = emudat;
 	}

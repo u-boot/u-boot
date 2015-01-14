@@ -1,8 +1,5 @@
 if TARGET_VISION2
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "vision2"
 

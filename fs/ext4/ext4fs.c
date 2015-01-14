@@ -25,6 +25,7 @@
 #include <ext_common.h>
 #include <ext4fs.h>
 #include "ext4_common.h"
+#include <div64.h>
 
 int ext4fs_symlinknest;
 struct ext_filesystem ext_fs;
@@ -45,8 +46,8 @@ void ext4fs_free_node(struct ext2fs_node *node, struct ext2fs_node *currroot)
  * Optimized read file API : collects and defers contiguous sector
  * reads into one potentially more efficient larger sequential read action
  */
-int ext4fs_read_file(struct ext2fs_node *node, int pos,
-		unsigned int len, char *buf)
+int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
+		loff_t len, char *buf, loff_t *actread)
 {
 	struct ext_filesystem *fs = get_fs();
 	int i;
@@ -67,11 +68,11 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 	if (len > filesize)
 		len = filesize;
 
-	blockcnt = ((len + pos) + blocksize - 1) / blocksize;
+	blockcnt = lldiv(((len + pos) + blocksize - 1), blocksize);
 
-	for (i = pos / blocksize; i < blockcnt; i++) {
+	for (i = lldiv(pos, blocksize); i < blockcnt; i++) {
 		lbaint_t blknr;
-		int blockoff = pos % blocksize;
+		int blockoff = pos - (blocksize * i);
 		int blockend = blocksize;
 		int skipfirst = 0;
 		blknr = read_allocated_block(&(node->inode), i);
@@ -82,7 +83,7 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 
 		/* Last block.  */
 		if (i == blockcnt - 1) {
-			blockend = (len + pos) % blocksize;
+			blockend = (len + pos) - (blocksize * i);
 
 			/* The last portion is exactly blocksize. */
 			if (!blockend)
@@ -90,7 +91,7 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 		}
 
 		/* First block. */
-		if (i == pos / blocksize) {
+		if (i == lldiv(pos, blocksize)) {
 			skipfirst = blockoff;
 			blockend -= skipfirst;
 		}
@@ -150,7 +151,8 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 		previous_block_number = -1;
 	}
 
-	return len;
+	*actread  = len;
+	return 0;
 }
 
 int ext4fs_ls(const char *dirname)
@@ -176,23 +178,24 @@ int ext4fs_ls(const char *dirname)
 
 int ext4fs_exists(const char *filename)
 {
-	int file_len;
+	loff_t file_len;
+	int ret;
 
-	file_len = ext4fs_open(filename);
-	return file_len >= 0;
+	ret = ext4fs_open(filename, &file_len);
+	return ret == 0;
 }
 
-int ext4fs_size(const char *filename)
+int ext4fs_size(const char *filename, loff_t *size)
 {
-	return ext4fs_open(filename);
+	return ext4fs_open(filename, size);
 }
 
-int ext4fs_read(char *buf, unsigned len)
+int ext4fs_read(char *buf, loff_t len, loff_t *actread)
 {
 	if (ext4fs_root == NULL || ext4fs_file == NULL)
 		return 0;
 
-	return ext4fs_read_file(ext4fs_file, 0, len, buf);
+	return ext4fs_read_file(ext4fs_file, 0, len, buf, actread);
 }
 
 int ext4fs_probe(block_dev_desc_t *fs_dev_desc,
@@ -208,18 +211,19 @@ int ext4fs_probe(block_dev_desc_t *fs_dev_desc,
 	return 0;
 }
 
-int ext4_read_file(const char *filename, void *buf, int offset, int len)
+int ext4_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
+		   loff_t *len_read)
 {
-	int file_len;
-	int len_read;
+	loff_t file_len;
+	int ret;
 
 	if (offset != 0) {
 		printf("** Cannot support non-zero offset **\n");
 		return -1;
 	}
 
-	file_len = ext4fs_open(filename);
-	if (file_len < 0) {
+	ret = ext4fs_open(filename, &file_len);
+	if (ret < 0) {
 		printf("** File not found %s **\n", filename);
 		return -1;
 	}
@@ -227,7 +231,20 @@ int ext4_read_file(const char *filename, void *buf, int offset, int len)
 	if (len == 0)
 		len = file_len;
 
-	len_read = ext4fs_read(buf, len);
+	return ext4fs_read(buf, len, len_read);
+}
 
-	return len_read;
+int ext4fs_uuid(char *uuid_str)
+{
+	if (ext4fs_root == NULL)
+		return -1;
+
+#ifdef CONFIG_LIB_UUID
+	uuid_bin_to_str((unsigned char *)ext4fs_root->sblock.unique_id,
+			uuid_str, UUID_STR_FORMAT_STD);
+
+	return 0;
+#else
+	return -ENOSYS;
+#endif
 }

@@ -169,11 +169,11 @@ ENTRY(_nonsec_init)
  * we do this here instead.
  * But first check if we have the generic timer.
  */
-#ifdef CONFIG_SYS_CLK_FREQ
+#ifdef CONFIG_TIMER_CLK_FREQ
 	mrc	p15, 0, r0, c0, c1, 1		@ read ID_PFR1
 	and	r0, r0, #CPUID_ARM_GENTIMER_MASK	@ mask arch timer bits
 	cmp	r0, #(1 << CPUID_ARM_GENTIMER_SHIFT)
-	ldreq	r1, =CONFIG_SYS_CLK_FREQ
+	ldreq	r1, =CONFIG_TIMER_CLK_FREQ
 	mcreq	p15, 0, r1, c14, c0, 0		@ write CNTFRQ
 #endif
 
@@ -191,6 +191,9 @@ ENTRY(smp_waitloop)
 	wfi
 	ldr	r1, =CONFIG_SMP_PEN_ADDR	@ load start address
 	ldr	r1, [r1]
+#ifdef CONFIG_PEN_ADDR_BIG_ENDIAN
+	rev	r1, r1
+#endif
 	cmp	r0, r1			@ make sure we dont execute this code
 	beq	smp_waitloop		@ again (due to a spurious wakeup)
 	mov	r0, r1

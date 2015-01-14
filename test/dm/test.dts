@@ -81,7 +81,7 @@
 		compatible = "google,another-fdt-test";
 	};
 
-	base-gpios {
+	gpio_a: base-gpios {
 		compatible = "sandbox,gpio";
 		gpio-bank-name = "a";
 		num-gpios = <20>;
@@ -92,4 +92,36 @@
 		gpio-bank-name = "b";
 		num-gpios = <10>;
 	};
+
+	i2c@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+		compatible = "sandbox,i2c";
+		clock-frequency = <100000>;
+		eeprom@2c {
+			reg = <0x2c>;
+			compatible = "i2c-eeprom";
+			emul {
+				compatible = "sandbox,i2c-eeprom";
+				sandbox,filename = "i2c.bin";
+				sandbox,size = <256>;
+			};
+		};
+	};
+
+	spi@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+		compatible = "sandbox,spi";
+		cs-gpios = <0>, <&gpio_a 0>;
+		spi.bin@0 {
+			reg = <0>;
+			compatible = "spansion,m25p16", "spi-flash";
+			spi-max-frequency = <40000000>;
+			sandbox,filename = "spi.bin";
+		};
+	};
+
 };

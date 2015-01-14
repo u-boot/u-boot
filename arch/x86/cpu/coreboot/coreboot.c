@@ -13,25 +13,25 @@
 #include <ns16550.h>
 #include <asm/msr.h>
 #include <asm/cache.h>
+#include <asm/cpu.h>
 #include <asm/io.h>
-#include <asm/arch-coreboot/tables.h>
-#include <asm/arch-coreboot/sysinfo.h>
+#include <asm/arch/tables.h>
+#include <asm/arch/sysinfo.h>
 #include <asm/arch/timestamp.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * Miscellaneous platform dependent initializations
- */
-int cpu_init_f(void)
+int arch_cpu_init(void)
 {
 	int ret = get_coreboot_info(&lib_sysinfo);
-	if (ret != 0)
+	if (ret != 0) {
 		printf("Failed to parse coreboot tables.\n");
+		return ret;
+	}
 
 	timestamp_init();
 
-	return ret;
+	return x86_cpu_init_f();
 }
 
 int board_early_init_f(void)
@@ -39,38 +39,9 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int board_early_init_r(void)
+int print_cpuinfo(void)
 {
-	/* CPU Speed to 100MHz */
-	gd->cpu_clk = 100000000;
-
-	/* Crystal is 33.000MHz */
-	gd->bus_clk = 33000000;
-
-	return 0;
-}
-
-void show_boot_progress(int val)
-{
-#if MIN_PORT80_KCLOCKS_DELAY
-	/*
-	 * Scale the time counter reading to avoid using 64 bit arithmetics.
-	 * Can't use get_timer() here becuase it could be not yet
-	 * initialized or even implemented.
-	 */
-	if (!gd->arch.tsc_prev) {
-		gd->arch.tsc_base_kclocks = rdtsc() / 1000;
-		gd->arch.tsc_prev = 0;
-	} else {
-		uint32_t now;
-
-		do {
-			now = rdtsc() / 1000 - gd->arch.tsc_base_kclocks;
-		} while (now < (gd->arch.tsc_prev + MIN_PORT80_KCLOCKS_DELAY));
-		gd->arch.tsc_prev = now;
-	}
-#endif
-	outb(val, 0x80);
+	return default_print_cpuinfo();
 }
 
 int last_stage_init(void)
@@ -98,7 +69,7 @@ int board_eth_init(bd_t *bis)
 #define MTRRphysBase_MSR(reg) (0x200 + 2 * (reg))
 #define MTRRphysMask_MSR(reg) (0x200 + 2 * (reg) + 1)
 
-int board_final_cleanup(void)
+void board_final_cleanup(void)
 {
 	/* Un-cache the ROM so the kernel has one
 	 * more MTRR available.
@@ -120,8 +91,6 @@ int board_final_cleanup(void)
 	/* Issue SMI to Coreboot to lock down ME and registers */
 	printf("Finalizing Coreboot\n");
 	outb(0xcb, 0xb2);
-
-	return 0;
 }
 
 void panic_puts(const char *str)

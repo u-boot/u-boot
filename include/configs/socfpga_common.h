@@ -11,7 +11,6 @@
 /* Virtual target or real hardware */
 #undef CONFIG_SOCFPGA_VIRTUAL_TARGET
 
-#define CONFIG_ARMV7
 #define CONFIG_SYS_THUMB_BUILD
 
 #define CONFIG_SOCFPGA
@@ -22,7 +21,7 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_MISC_INIT_R
+#define CONFIG_ARCH_EARLY_INIT_R
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_CLOCKS
 
@@ -37,7 +36,7 @@
  */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0x0
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
 #define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
 #define CONFIG_SYS_MEMTEST_END		PHYS_SDRAM_1_SIZE
 
@@ -77,6 +76,25 @@
 #define CONFIG_SYS_CACHELINE_SIZE 32
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE		SOCFPGA_MPUL2_ADDRESS
+
+/*
+ * EPCS/EPCQx1 Serial Flash Controller
+ */
+#ifdef CONFIG_ALTERA_SPI
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_SF_DEFAULT_SPEED		30000000
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_BAR
+/*
+ * The base address is configurable in QSys, each board must specify the
+ * base address based on it's particular FPGA configuration. Please note
+ * that the address here is incremented by  0x400  from the Base address
+ * selected in QSys, since the SPI registers are at offset +0x400.
+ * #define CONFIG_SYS_SPI_BASE		0xff240400
+ */
+#endif
 
 /*
  * Ethernet on SoC (EMAC)
@@ -121,7 +139,7 @@
 #define CONFIG_DESIGNWARE_WATCHDOG
 #define CONFIG_DW_WDT_BASE		SOCFPGA_L4WD0_ADDRESS
 #define CONFIG_DW_WDT_CLOCK_KHZ		25000
-#define CONFIG_HW_WATCHDOG_TIMEOUT_MS	12000
+#define CONFIG_HW_WATCHDOG_TIMEOUT_MS	30000
 #endif
 
 /*
@@ -142,6 +160,64 @@
 #endif
 
 /*
+ * I2C support
+ */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_DW
+#define CONFIG_SYS_I2C_BUS_MAX		4
+#define CONFIG_SYS_I2C_BASE		SOCFPGA_I2C0_ADDRESS
+#define CONFIG_SYS_I2C_BASE1		SOCFPGA_I2C1_ADDRESS
+#define CONFIG_SYS_I2C_BASE2		SOCFPGA_I2C2_ADDRESS
+#define CONFIG_SYS_I2C_BASE3		SOCFPGA_I2C3_ADDRESS
+/* Using standard mode which the speed up to 100Kb/s */
+#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C_SPEED1		100000
+#define CONFIG_SYS_I2C_SPEED2		100000
+#define CONFIG_SYS_I2C_SPEED3		100000
+/* Address of device when used as slave */
+#define CONFIG_SYS_I2C_SLAVE		0x02
+#define CONFIG_SYS_I2C_SLAVE1		0x02
+#define CONFIG_SYS_I2C_SLAVE2		0x02
+#define CONFIG_SYS_I2C_SLAVE3		0x02
+#ifndef __ASSEMBLY__
+/* Clock supplied to I2C controller in unit of MHz */
+unsigned int cm_get_l4_sp_clk_hz(void);
+#define IC_CLK				(cm_get_l4_sp_clk_hz() / 1000000)
+#endif
+#define CONFIG_CMD_I2C
+
+/*
+ * QSPI support
+ */
+#ifdef CONFIG_OF_CONTROL	/* QSPI is controlled via DT */
+#define CONFIG_CMD_DM
+#define CONFIG_DM
+#define CONFIG_DM_SPI
+#define CONFIG_DM_SPI_FLASH
+#define CONFIG_CADENCE_QSPI
+/* Enable multiple SPI NOR flash manufacturers */
+#define CONFIG_SPI_FLASH		/* SPI flash subsystem */
+#define CONFIG_SPI_FLASH_STMICRO	/* Micron/Numonyx flash */
+#define CONFIG_SPI_FLASH_SPANSION	/* Spansion flash */
+#define CONFIG_SPI_FLASH_MTD
+/* QSPI reference clock */
+#ifndef __ASSEMBLY__
+unsigned int cm_get_qspi_controller_clk_hz(void);
+#define CONFIG_CQSPI_REF_CLK		cm_get_qspi_controller_clk_hz()
+#endif
+#define CONFIG_CQSPI_DECODER		0
+#define CONFIG_CMD_SF
+#endif
+
+#ifdef CONFIG_OF_CONTROL	/* DW SPI is controlled via DT */
+#define CONFIG_CMD_DM
+#define CONFIG_DM
+#define CONFIG_DM_SPI
+#define CONFIG_DESIGNWARE_SPI
+#define CONFIG_CMD_SPI
+#endif
+
+/*
  * Serial Driver
  */
 #define CONFIG_SYS_NS16550
@@ -157,6 +233,49 @@
 #define CONFIG_BAUDRATE			115200
 
 /*
+ * USB
+ */
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_DWC2
+#define CONFIG_USB_STORAGE
+/*
+ * NOTE: User must define either of the following to select which
+ *       of the two USB controllers available on SoCFPGA to use.
+ *       The DWC2 driver doesn't support multiple USB controllers.
+ * #define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB0_ADDRESS
+ * #define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB1_ADDRESS
+ */
+#endif
+
+/*
+ * USB Gadget (DFU, UMS)
+ */
+#if defined(CONFIG_CMD_DFU) || defined(CONFIG_CMD_USB_MASS_STORAGE)
+#define CONFIG_USB_GADGET
+#define CONFIG_USB_GADGET_S3C_UDC_OTG
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
+
+/* USB Composite download gadget - g_dnl */
+#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_USB_GADGET_MASS_STORAGE
+
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_MMC
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE	(32 * 1024 * 1024)
+#define DFU_DEFAULT_POLL_TIMEOUT	300
+
+/* USB IDs */
+#define CONFIG_G_DNL_VENDOR_NUM		0x0525	/* NetChip */
+#define CONFIG_G_DNL_PRODUCT_NUM	0xA4A5	/* Linux-USB File-backed Storage Gadget */
+#define CONFIG_G_DNL_UMS_VENDOR_NUM	CONFIG_G_DNL_VENDOR_NUM
+#define CONFIG_G_DNL_UMS_PRODUCT_NUM	CONFIG_G_DNL_PRODUCT_NUM
+#ifndef CONFIG_G_DNL_MANUFACTURER
+#define CONFIG_G_DNL_MANUFACTURER	"Altera"
+#endif
+#endif
+
+/*
  * U-Boot environment
  */
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
@@ -167,16 +286,21 @@
 
 /*
  * SPL
+ *
+ * SRAM Memory layout:
+ *
+ * 0xFFFF_0000 ...... Start of SRAM
+ * 0xFFFF_xxxx ...... Top of stack (grows down)
+ * 0xFFFF_yyyy ...... Malloc area
+ * 0xFFFF_zzzz ...... Global Data
+ * 0xFFFF_FF00 ...... End of SRAM
  */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_RAM_DEVICE
-#define CONFIG_SPL_TEXT_BASE		0xFFFF0000
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
-#define CONFIG_SPL_STACK_SIZE		(4 * 1024)
-#define CONFIG_SPL_MALLOC_SIZE		(5 * 1024)	/* FIXME */
-#define CONFIG_SYS_SPL_MALLOC_START	((unsigned long) (&__malloc_start))
-#define CONFIG_SYS_SPL_MALLOC_SIZE	(&__malloc_end - &__malloc_start)
+#define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
+#define CONFIG_SYS_SPL_MALLOC_START	CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SYS_SPL_MALLOC_SIZE	(5 * 1024)
 
 #define CHUNKSZ_CRC32			(1 * 1024)	/* FIXME: ewww */
 #define CONFIG_CRC32_VERIFY

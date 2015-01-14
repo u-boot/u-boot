@@ -23,6 +23,7 @@
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE
 #define CONFIG_BAUDRATE			115200
 
+#define CONFIG_MISC_INIT_R
 /* MMC ENV related defines */
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
@@ -35,8 +36,6 @@
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
 #define CONFIG_EFI_PARTITION
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
 #define CONFIG_HSMMC2_8BIT
 #define CONFIG_SUPPORT_EMMC_BOOT
 

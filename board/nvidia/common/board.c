@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <ns16550.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
@@ -37,55 +38,36 @@
 #include <asm/arch-tegra/tegra_mmc.h>
 #include <asm/arch-tegra/mmc.h>
 #endif
+#include <asm/arch-tegra/xusb-padctl.h>
 #include <i2c.h>
 #include <spi.h>
 #include "emc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_SPL_BUILD
+/* TODO(sjg@chromium.org): Remove once SPL supports device tree */
+U_BOOT_DEVICE(tegra_gpios) = {
+	"gpio_tegra"
+};
+#endif
+
 const struct tegra_sysinfo sysinfo = {
 	CONFIG_TEGRA_BOARD_STRING
 };
 
-void __pinmux_init(void)
-{
-}
-
-void pinmux_init(void) __attribute__((weak, alias("__pinmux_init")));
-
-void __pin_mux_usb(void)
-{
-}
-
-void pin_mux_usb(void) __attribute__((weak, alias("__pin_mux_usb")));
-
-void __pin_mux_spi(void)
-{
-}
-
-void pin_mux_spi(void) __attribute__((weak, alias("__pin_mux_spi")));
-
-void __gpio_early_init_uart(void)
-{
-}
-
-void gpio_early_init_uart(void)
-__attribute__((weak, alias("__gpio_early_init_uart")));
+__weak void pinmux_init(void) {}
+__weak void pin_mux_usb(void) {}
+__weak void pin_mux_spi(void) {}
+__weak void gpio_early_init_uart(void) {}
+__weak void pin_mux_display(void) {}
 
 #if defined(CONFIG_TEGRA_NAND)
-void __pin_mux_nand(void)
+__weak void pin_mux_nand(void)
 {
 	funcmux_select(PERIPH_ID_NDFLASH, FUNCMUX_DEFAULT);
 }
-
-void pin_mux_nand(void) __attribute__((weak, alias("__pin_mux_nand")));
 #endif
-
-void __pin_mux_display(void)
-{
-}
-
-void pin_mux_display(void) __attribute__((weak, alias("__pin_mux_display")));
 
 /*
  * Routine: power_det_init
@@ -114,9 +96,8 @@ int board_init(void)
 	clock_init();
 	clock_verify();
 
-#ifdef CONFIG_FDT_SPI
+#ifdef CONFIG_TEGRA_SPI
 	pin_mux_spi();
-	spi_init();
 #endif
 
 #ifdef CONFIG_PWM_TEGRA
@@ -133,10 +114,6 @@ int board_init(void)
 	power_det_init();
 
 #ifdef CONFIG_SYS_I2C_TEGRA
-#ifndef CONFIG_SYS_I2C_INIT_BOARD
-#error "You must define CONFIG_SYS_I2C_INIT_BOARD to use i2c on Nvidia boards"
-#endif
-	i2c_init_board();
 # ifdef CONFIG_TEGRA_PMU
 	if (pmu_set_nominal())
 		debug("Failed to select nominal voltages\n");
@@ -160,6 +137,8 @@ int board_init(void)
 #ifdef CONFIG_TEGRA_NAND
 	pin_mux_nand();
 #endif
+
+	tegra_xusb_padctl_init(gd->fdt_blob);
 
 #ifdef CONFIG_TEGRA_LP0
 	/* save Sdram params to PMC 2, 4, and 24 for WB0 */
@@ -205,11 +184,9 @@ int board_late_init(void)
 }
 
 #if defined(CONFIG_TEGRA_MMC)
-void __pin_mux_mmc(void)
+__weak void pin_mux_mmc(void)
 {
 }
-
-void pin_mux_mmc(void) __attribute__((weak, alias("__pin_mux_mmc")));
 
 /* this is a weak define that we are overriding */
 int board_mmc_init(bd_t *bd)

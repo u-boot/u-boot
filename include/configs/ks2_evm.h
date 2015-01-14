@@ -20,10 +20,8 @@
 #define CONFIG_SYS_THUMB_BUILD
 
 /* SoC Configuration */
-#define CONFIG_ARMV7
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SYS_ARCH_TIMER
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_TEXT_BASE		0x0c001000
 #define CONFIG_SPL_TARGET		"u-boot-spi.gph"
 #define CONFIG_SYS_DCACHE_OFF
@@ -92,6 +90,8 @@
 #define CONFIG_SYS_SPI2_NUM_CS		4
 
 /* Network Configuration */
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_MARVELL
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS
@@ -99,10 +99,51 @@
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		32
 #define CONFIG_NET_MULTI
-#define CONFIG_GET_LINK_STATUS_ATTEMPTS	5
 #define CONFIG_SYS_SGMII_REFCLK_MHZ	312
 #define CONFIG_SYS_SGMII_LINERATE_MHZ	1250
 #define CONFIG_SYS_SGMII_RATESCALE	2
+
+/* Keyston Navigator Configuration */
+#define CONFIG_TI_KSNAV
+#define CONFIG_KSNAV_QM_BASE_ADDRESS		KS2_QM_BASE_ADDRESS
+#define CONFIG_KSNAV_QM_CONF_BASE		KS2_QM_CONF_BASE
+#define CONFIG_KSNAV_QM_DESC_SETUP_BASE		KS2_QM_DESC_SETUP_BASE
+#define CONFIG_KSNAV_QM_STATUS_RAM_BASE		KS2_QM_STATUS_RAM_BASE
+#define CONFIG_KSNAV_QM_INTD_CONF_BASE		KS2_QM_INTD_CONF_BASE
+#define CONFIG_KSNAV_QM_PDSP1_CMD_BASE		KS2_QM_PDSP1_CMD_BASE
+#define CONFIG_KSNAV_QM_PDSP1_CTRL_BASE		KS2_QM_PDSP1_CTRL_BASE
+#define CONFIG_KSNAV_QM_PDSP1_IRAM_BASE		KS2_QM_PDSP1_IRAM_BASE
+#define CONFIG_KSNAV_QM_MANAGER_QUEUES_BASE	KS2_QM_MANAGER_QUEUES_BASE
+#define CONFIG_KSNAV_QM_MANAGER_Q_PROXY_BASE	KS2_QM_MANAGER_Q_PROXY_BASE
+#define CONFIG_KSNAV_QM_QUEUE_STATUS_BASE	KS2_QM_QUEUE_STATUS_BASE
+#define CONFIG_KSNAV_QM_LINK_RAM_BASE		KS2_QM_LINK_RAM_BASE
+#define CONFIG_KSNAV_QM_REGION_NUM		KS2_QM_REGION_NUM
+#define CONFIG_KSNAV_QM_QPOOL_NUM		KS2_QM_QPOOL_NUM
+
+/* NETCP pktdma */
+#define CONFIG_KSNAV_PKTDMA_NETCP
+#define CONFIG_KSNAV_NETCP_PDMA_CTRL_BASE	KS2_NETCP_PDMA_CTRL_BASE
+#define CONFIG_KSNAV_NETCP_PDMA_TX_BASE		KS2_NETCP_PDMA_TX_BASE
+#define CONFIG_KSNAV_NETCP_PDMA_TX_CH_NUM	KS2_NETCP_PDMA_TX_CH_NUM
+#define CONFIG_KSNAV_NETCP_PDMA_RX_BASE		KS2_NETCP_PDMA_RX_BASE
+#define CONFIG_KSNAV_NETCP_PDMA_RX_CH_NUM	KS2_NETCP_PDMA_RX_CH_NUM
+#define CONFIG_KSNAV_NETCP_PDMA_SCHED_BASE	KS2_NETCP_PDMA_SCHED_BASE
+#define CONFIG_KSNAV_NETCP_PDMA_RX_FLOW_BASE	KS2_NETCP_PDMA_RX_FLOW_BASE
+#define CONFIG_KSNAV_NETCP_PDMA_RX_FLOW_NUM	KS2_NETCP_PDMA_RX_FLOW_NUM
+#define CONFIG_KSNAV_NETCP_PDMA_RX_FREE_QUEUE	KS2_NETCP_PDMA_RX_FREE_QUEUE
+#define CONFIG_KSNAV_NETCP_PDMA_RX_RCV_QUEUE	KS2_NETCP_PDMA_RX_RCV_QUEUE
+#define CONFIG_KSNAV_NETCP_PDMA_TX_SND_QUEUE	KS2_NETCP_PDMA_TX_SND_QUEUE
+
+/* Keystone net */
+#define CONFIG_DRIVER_TI_KEYSTONE_NET
+#define CONFIG_KSNET_MAC_ID_BASE		KS2_MAC_ID_BASE_ADDR
+#define CONFIG_KSNET_NETCP_BASE			KS2_NETCP_BASE
+#define CONFIG_KSNET_SERDES_SGMII_BASE		KS2_SGMII_SERDES_BASE
+#define CONFIG_KSNET_SERDES_SGMII2_BASE		KS2_SGMII_SERDES2_BASE
+#define CONFIG_KSNET_SERDES_LANES_PER_SGMII	KS2_LANES_PER_SGMII_SERDES
+
+/* SerDes */
+#define CONFIG_TI_KEYSTONE_SERDES
 
 /* AEMIF */
 #define CONFIG_TI_AEMIF
@@ -154,6 +195,20 @@
 					"1024k(bootloader)ro,512k(params)ro," \
 					"-(ubifs)"
 
+/* USB Configuration */
+#define CONFIG_USB_XHCI
+#define CONFIG_USB_XHCI_KEYSTONE
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
+#define CONFIG_USB_STORAGE
+#define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+#define CONFIG_FS_FAT
+#define CONFIG_SYS_CACHELINE_SIZE		64
+#define CONFIG_USB_SS_BASE			KS2_USB_SS_BASE
+#define CONFIG_USB_HOST_XHCI_BASE		KS2_USB_HOST_XHCI_BASE
+#define CONFIG_DEV_USB_PHY_BASE			KS2_DEV_USB_PHY_BASE
+#define CONFIG_USB_PHY_CFG_BASE			KS2_USB_PHY_CFG_BASE
+
 /* U-Boot command configuration */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
@@ -167,9 +222,13 @@
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_USB
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_MISC_INIT_R
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_PBSIZE		2048
 #define CONFIG_SYS_MAXARGS		16
@@ -187,30 +246,25 @@
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	"boot=ramfs\0"							\
+	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
+	"boot=ubi\0"							\
 	"tftp_root=/\0"							\
 	"nfs_root=/export\0"						\
 	"mem_lpae=1\0"							\
 	"mem_reserve=512M\0"						\
 	"addr_fdt=0x87000000\0"						\
 	"addr_kern=0x88000000\0"					\
-	KS2_ADDR_MON							\
 	"addr_uboot=0x87000000\0"					\
 	"addr_fs=0x82000000\0"						\
 	"addr_ubi=0x82000000\0"						\
 	"addr_secdb_key=0xc000000\0"					\
 	"fdt_high=0xffffffff\0"						\
-	KS2_FDT_NAME							\
-	"name_fs=arago-console-image.cpio.gz\0"				\
-	"name_kern=uImage\0"						\
-	KS2_NAME_MON							\
-	NAME_UBOOT							\
-	NAME_UBI							\
+	"name_kern=uImage-keystone-evm.bin\0"				\
 	"run_mon=mon_install ${addr_mon}\0"				\
 	"run_kern=bootm ${addr_kern} - ${addr_fdt}\0"			\
 	"init_net=run args_all args_net\0"				\
 	"init_ubi=run args_all args_ubi; "				\
-		"ubi part ubifs; ubifsmount boot;"			\
+		"ubi part ubifs; ubifsmount ubi:boot;"			\
 		"ubifsload ${addr_secdb_key} securedb.key.bin;\0"       \
 	"get_fdt_net=dhcp ${addr_fdt} ${tftp_root}/${name_fdt}\0"	\
 	"get_fdt_ubi=ubifsload ${addr_fdt} ${name_fdt}\0"		\
@@ -224,7 +278,6 @@
 	"burn_uboot_nand=nand erase 0 0x100000; "			\
 		"nand write ${addr_uboot} 0 ${filesize}\0"		\
 	"args_all=setenv bootargs console=ttyS0,115200n8 rootwait=1\0"	\
-	KS2_ARGS_UBI							\
 	"args_net=setenv bootargs ${bootargs} rootfstype=nfs "		\
 		"root=/dev/nfs rw nfsroot=${serverip}:${nfs_root},"	\
 		"${nfs_options} ip=dhcp\0"				\
@@ -265,9 +318,5 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
 #define CONFIG_SYS_HZ_CLOCK		clk_get_rate(KS2_CLK1_6)
-
-/* Maximum memory size for relocated U-boot at the end of the DDR3 memory
-   which is NOT applicable for DDR ECC test */
-#define CONFIG_MAX_UBOOT_MEM_SIZE	(4 << 20)	/* 4 MiB */
 
 #endif /* __CONFIG_KS2_EVM_H */

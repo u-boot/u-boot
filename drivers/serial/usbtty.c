@@ -882,7 +882,7 @@ static int write_buffer (circbuf_t * buf)
 			space_avail =
 				current_urb->buffer_length -
 				current_urb->actual_length;
-			popnum = min(space_avail, buf->size);
+			popnum = min(space_avail, (int)buf->size);
 			if (popnum == 0)
 				break;
 

@@ -19,7 +19,7 @@ static inline void mdm_readline(char *buf, int bufsiz)
 	for(;;) {
 		c = serial_getc();
 
-		/*		dbg("(%c)", c); */
+		debug("(%c)", c);
 
 		switch(c) {
 		case '\r':
@@ -40,7 +40,6 @@ static inline void mdm_readline(char *buf, int bufsiz)
 	}
 }
 
-extern void  dbg(const char *fmt, ...);
 int mdm_init (void)
 {
 	char env_str[16];
@@ -66,15 +65,15 @@ int mdm_init (void)
 			serial_puts("\n");
 			for(;;) {
 				mdm_readline(console_buffer, CONFIG_SYS_CBSIZE);
-				dbg("ini%d: [%s]", i, console_buffer);
+				debug("ini%d: [%s]", i, console_buffer);
 
 				if ((strcmp(console_buffer, "OK") == 0) ||
 					(strcmp(console_buffer, "ERROR") == 0)) {
-					dbg("ini%d: cmd done", i);
+					debug("ini%d: cmd done", i);
 					break;
 				} else /* in case we are originating call ... */
 					if (strncmp(console_buffer, "CONNECT", 7) == 0) {
-						dbg("ini%d: connect", i);
+						debug("ini%d: connect", i);
 						return 0;
 					}
 			}
@@ -90,9 +89,9 @@ int mdm_init (void)
 	for(;i > 1;) { /* if 'i' > 1 - wait for connection
 				  message from modem */
 		mdm_readline(console_buffer, CONFIG_SYS_CBSIZE);
-		dbg("ini_f: [%s]", console_buffer);
+		debug("ini_f: [%s]", console_buffer);
 		if (strncmp(console_buffer, "CONNECT", 7) == 0) {
-			dbg("ini_f: connected");
+			debug("ini_f: connected");
 			return 0;
 		}
 	}

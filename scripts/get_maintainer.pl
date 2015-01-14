@@ -835,8 +835,7 @@ sub top_of_kernel_tree {
     if ($lk_path ne "" && substr($lk_path,length($lk_path)-1,1) ne "/") {
 	$lk_path .= "/";
     }
-    if (   (-f "${lk_path}CREDITS")
-	&& (-f "${lk_path}Kbuild")
+    if (   (-f "${lk_path}Kbuild")
 	&& (-f "${lk_path}MAINTAINERS")
 	&& (-f "${lk_path}Makefile")
 	&& (-f "${lk_path}README")

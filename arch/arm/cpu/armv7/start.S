@@ -81,12 +81,6 @@ ENTRY(c_runtime_cpu_setup)
 	mcr     p15, 0, r0, c7, c10, 4	@ DSB
 	mcr     p15, 0, r0, c7, c5, 4	@ ISB
 #endif
-/*
- * Move vector table
- */
-	/* Set vector address in CP15 VBAR register */
-	ldr     r0, =_start
-	mcr     p15, 0, r0, c12, c0, 0  @Set VBAR
 
 	bx	lr
 

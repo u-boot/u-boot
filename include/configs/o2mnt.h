@@ -39,8 +39,8 @@
 
 #define CONFIG_BOARD_NAME		"o2mnt"
 #define CONFIG_BOARD_BOOTCMD		"${newcmd}"
-#define CONFIG_BOARD_MEM_LIMIT		xstr(62)
-#define BOARD_POST_CRC32_END		xstr(0x01000000)
+#define CONFIG_BOARD_MEM_LIMIT		__stringify(62)
+#define BOARD_POST_CRC32_END		__stringify(0x01000000)
 
 #ifndef CONFIG_IFM_SENSOR_TYPE
 #define CONFIG_IFM_SENSOR_TYPE		"O2M110"
@@ -56,7 +56,7 @@
 	"ramtop=ffc5ffff\0"						\
 	"jffbot=ffc60000\0"						\
 	"jfftop=ffffffff\0"						\
-	"ubobot=" xstr(CONFIG_SYS_FLASH_BASE) "\0"			\
+	"ubobot=" __stringify(CONFIG_SYS_FLASH_BASE) "\0"		\
 	"ubotop=ff03ffff\0"						\
 	"kernel_addr=0xff060000\0"					\
 	"ramdisk_addr=0xff260000\0"					\

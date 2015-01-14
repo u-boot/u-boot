@@ -356,24 +356,48 @@ static void board_clock_init(void)
 static void board_gpio_init(void)
 {
 	/* eMMC Reset Pin */
+	gpio_request(EXYNOS4X12_GPIO_K12, "eMMC Reset");
+
 	gpio_cfg_pin(EXYNOS4X12_GPIO_K12, S5P_GPIO_FUNC(0x1));
 	gpio_set_pull(EXYNOS4X12_GPIO_K12, S5P_GPIO_PULL_NONE);
 	gpio_set_drv(EXYNOS4X12_GPIO_K12, S5P_GPIO_DRV_4X);
 
 	/* Enable FAN (Odroid U3) */
+	gpio_request(EXYNOS4X12_GPIO_D00, "FAN Control");
+
 	gpio_set_pull(EXYNOS4X12_GPIO_D00, S5P_GPIO_PULL_UP);
 	gpio_set_drv(EXYNOS4X12_GPIO_D00, S5P_GPIO_DRV_4X);
 	gpio_direction_output(EXYNOS4X12_GPIO_D00, 1);
 
 	/* OTG Vbus output (Odroid U3+) */
+	gpio_request(EXYNOS4X12_GPIO_L20, "OTG Vbus");
+
 	gpio_set_pull(EXYNOS4X12_GPIO_L20, S5P_GPIO_PULL_NONE);
 	gpio_set_drv(EXYNOS4X12_GPIO_L20, S5P_GPIO_DRV_4X);
 	gpio_direction_output(EXYNOS4X12_GPIO_L20, 0);
 
 	/* OTG INT (Odroid U3+) */
+	gpio_request(EXYNOS4X12_GPIO_X31, "OTG INT");
+
 	gpio_set_pull(EXYNOS4X12_GPIO_X31, S5P_GPIO_PULL_UP);
 	gpio_set_drv(EXYNOS4X12_GPIO_X31, S5P_GPIO_DRV_4X);
 	gpio_direction_input(EXYNOS4X12_GPIO_X31);
+
+	/* Blue LED (Odroid X2/U2/U3) */
+	gpio_request(EXYNOS4X12_GPIO_C10, "Blue LED");
+
+	gpio_direction_output(EXYNOS4X12_GPIO_C10, 0);
+
+#ifdef CONFIG_CMD_USB
+	/* USB3503A Reference frequency */
+	gpio_request(EXYNOS4X12_GPIO_X30, "USB3503A RefFreq");
+
+	/* USB3503A Connect */
+	gpio_request(EXYNOS4X12_GPIO_X34, "USB3503A Connect");
+
+	/* USB3503A Reset */
+	gpio_request(EXYNOS4X12_GPIO_X35, "USB3503A Reset");
+#endif
 }
 
 static int pmic_init_max77686(void)
@@ -403,7 +427,6 @@ static void board_init_i2c(void)
 int exynos_early_init_f(void)
 {
 	board_clock_init();
-	board_gpio_init();
 
 	return 0;
 }
@@ -413,6 +436,8 @@ int exynos_init(void)
 	/* The last MB of memory is reserved for secure firmware */
 	gd->ram_size -= SZ_1M;
 	gd->bd->bi_dram[CONFIG_NR_DRAM_BANKS - 1].size -= SZ_1M;
+
+	board_gpio_init();
 
 	return 0;
 }
@@ -453,9 +478,39 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 	.usb_phy_ctrl	= EXYNOS4X12_USBPHY_CONTROL,
 	.usb_flags	= PHY0_SLEEP,
 };
+#endif
+
+#if defined(CONFIG_USB_GADGET) || defined(CONFIG_CMD_USB)
 
 int board_usb_init(int index, enum usb_init_type init)
 {
+#ifdef CONFIG_CMD_USB
+	struct pmic *p_pmic;
+
+	/* Set Ref freq 0 => 24MHz, 1 => 26MHz*/
+	/* Odroid Us have it at 24MHz, Odroid Xs at 26MHz */
+	if (gd->board_type == ODROID_TYPE_U3)
+		gpio_direction_output(EXYNOS4X12_GPIO_X30, 0);
+	else
+		gpio_direction_output(EXYNOS4X12_GPIO_X30, 1);
+
+	/* Disconnect, Reset, Connect */
+	gpio_direction_output(EXYNOS4X12_GPIO_X34, 0);
+	gpio_direction_output(EXYNOS4X12_GPIO_X35, 0);
+	gpio_direction_output(EXYNOS4X12_GPIO_X35, 1);
+	gpio_direction_output(EXYNOS4X12_GPIO_X34, 1);
+
+	/* Power off and on BUCK8 for LAN9730 */
+	debug("LAN9730 - Turning power buck 8 OFF and ON.\n");
+
+	p_pmic = pmic_get("MAX77686_PMIC");
+	if (p_pmic && !pmic_probe(p_pmic)) {
+		max77686_set_buck_voltage(p_pmic, 8, 750000);
+		max77686_set_buck_voltage(p_pmic, 8, 3300000);
+	}
+
+#endif
+
 	debug("USB_udc_probe\n");
 	return s3c_udc_probe(&s5pc210_otg_data);
 }

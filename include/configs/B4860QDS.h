@@ -82,6 +82,7 @@
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCIE1			/* PCIE controler 1 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
@@ -640,6 +641,14 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_BMAN_MEM_PHYS	CONFIG_SYS_BMAN_MEM_BASE
 #endif
 #define CONFIG_SYS_BMAN_MEM_SIZE	0x02000000
+#define CONFIG_SYS_BMAN_SP_CENA_SIZE	0x4000
+#define CONFIG_SYS_BMAN_SP_CINH_SIZE	0x1000
+#define CONFIG_SYS_BMAN_CENA_BASE	CONFIG_SYS_BMAN_MEM_BASE
+#define CONFIG_SYS_BMAN_CENA_SIZE	(CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_CINH_BASE	(CONFIG_SYS_BMAN_MEM_BASE + \
+					CONFIG_SYS_BMAN_CENA_SIZE)
+#define CONFIG_SYS_BMAN_CINH_SIZE	(CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_SWP_ISDR_REG	0xE08
 #define CONFIG_SYS_QMAN_NUM_PORTALS	25
 #define CONFIG_SYS_QMAN_MEM_BASE	0xf6000000
 #ifdef CONFIG_PHYS_64BIT
@@ -648,6 +657,14 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_QMAN_MEM_PHYS	CONFIG_SYS_QMAN_MEM_BASE
 #endif
 #define CONFIG_SYS_QMAN_MEM_SIZE	0x02000000
+#define CONFIG_SYS_QMAN_SP_CENA_SIZE    0x4000
+#define CONFIG_SYS_QMAN_SP_CINH_SIZE    0x1000
+#define CONFIG_SYS_QMAN_CENA_BASE       CONFIG_SYS_QMAN_MEM_BASE
+#define CONFIG_SYS_QMAN_CENA_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_CINH_BASE       (CONFIG_SYS_QMAN_MEM_BASE + \
+					CONFIG_SYS_QMAN_CENA_SIZE)
+#define CONFIG_SYS_QMAN_CINH_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_SWP_ISDR_REG	0xE08
 
 #define CONFIG_SYS_DPAA_FMAN
 
@@ -712,8 +729,8 @@ unsigned long get_board_ddr_clk(void);
 #endif	/* CONFIG_PCI */
 
 #ifdef CONFIG_FMAN_ENET
-#define CONFIG_SYS_FM1_DTSEC5_PHY_ADDR	0x10
-#define CONFIG_SYS_FM1_DTSEC6_PHY_ADDR	0x11
+#define CONFIG_SYS_FM1_ONBOARD_PHY1_ADDR 0x10
+#define CONFIG_SYS_FM1_ONBOARD_PHY2_ADDR 0x11
 
 /*B4860 QDS AMC2PEX-2S default PHY_ADDR */
 #define CONFIG_SYS_FM1_10GEC1_PHY_ADDR 0x7	 /*SLOT 1*/
@@ -729,6 +746,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ETHPRIME		"FM1@DTSEC1"
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
+
+#define CONFIG_SYS_FSL_B4860QDS_XFI_ERR
 
 /*
  * Environment
@@ -757,6 +776,12 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_NET
+#endif
+
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
 #endif
 
 /*
@@ -912,5 +937,9 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_BOOTCOMMAND		CONFIG_LINUX
 
 #include <asm/fsl_secure_boot.h>
+
+#ifdef CONFIG_SECURE_BOOT
+#define CONFIG_CMD_BLOB
+#endif
 
 #endif	/* __CONFIG_H */

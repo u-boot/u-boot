@@ -159,6 +159,7 @@ struct memac {
 #define MEMAC_CMD_CFG_RX_EN		0x00000002 /* MAC Rx path enable */
 #define MEMAC_CMD_CFG_TX_EN		0x00000001 /* MAC Tx path enable */
 #define MEMAC_CMD_CFG_RXTX_EN	(MEMAC_CMD_CFG_RX_EN | MEMAC_CMD_CFG_TX_EN)
+#define MEMAC_CMD_CFG_NO_LEN_CHK 0x20000 /* Payload length check disable */
 
 /* HASHTABLE_CTRL - Hashtable control register */
 #define HASHTABLE_CTRL_MCAST_EN	0x00000200 /* enable mulitcast Rx hash */
@@ -243,6 +244,7 @@ struct memac_mdio_controller {
 #define MDIO_STAT_PRE		(1 << 5)
 #define MDIO_STAT_ENC		(1 << 6)
 #define MDIO_STAT_HOLD_15_CLK	(7 << 2)
+#define MDIO_STAT_NEG		(1 << 23)
 
 #define MDIO_CTL_DEV_ADDR(x)	(x & 0x1f)
 #define MDIO_CTL_PORT_ADDR(x)	((x & 0x1f) << 5)

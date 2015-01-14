@@ -16,6 +16,7 @@
 #include <asm/fsl_dma.h>
 #include <asm/fsl_i2c.h>
 #include <fsl_ifc.h>
+#include <fsl_sec.h>
 #include <asm/fsl_lbc.h>
 #include <asm/fsl_fman.h>
 #include <fsl_immap.h>
@@ -1625,10 +1626,15 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_DEVDISR2_DTSEC1_6	0x04000000
 #define FSL_CORENET_DEVDISR2_DTSEC1_9	0x00800000
 #define FSL_CORENET_DEVDISR2_DTSEC1_10	0x00400000
+#ifdef CONFIG_FSL_FM_10GEC_REGULAR_NOTATION
+#define FSL_CORENET_DEVDISR2_10GEC1_1   0x80000000
+#define FSL_CORENET_DEVDISR2_10GEC1_2   0x40000000
+#else
 #define FSL_CORENET_DEVDISR2_10GEC1_1	0x00800000
 #define FSL_CORENET_DEVDISR2_10GEC1_2	0x00400000
 #define FSL_CORENET_DEVDISR2_10GEC1_3	0x80000000
 #define FSL_CORENET_DEVDISR2_10GEC1_4	0x40000000
+#endif
 #define FSL_CORENET_DEVDISR2_DTSEC2_1	0x00080000
 #define FSL_CORENET_DEVDISR2_DTSEC2_2	0x00040000
 #define FSL_CORENET_DEVDISR2_DTSEC2_3	0x00020000
@@ -1786,6 +1792,21 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define PXCKEN_MASK	0x80000000
 #define PXCK_MASK	0x00FF0000
 #define PXCK_BITS_START	16
+#elif defined(CONFIG_PPC_T1024) || defined(CONFIG_PPC_T1023) || \
+	defined(CONFIG_PPC_T1014) || defined(CONFIG_PPC_T1013)
+#define FSL_CORENET2_RCWSR4_SRDS1_PRTCL		0xff800000
+#define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	23
+#define FSL_CORENET_RCWSR6_BOOT_LOC		0x0f800000
+#define FSL_CORENET_RCWSR13_EC1			0x30000000 /* bits 418..419 */
+#define FSL_CORENET_RCWSR13_EC1_RGMII		0x00000000
+#define FSL_CORENET_RCWSR13_EC1_GPIO		0x10000000
+#define FSL_CORENET_RCWSR13_EC2			0x0c000000
+#define FSL_CORENET_RCWSR13_EC2_RGMII		0x08000000
+#define CONFIG_SYS_FSL_SCFG_PIXCLKCR_OFFSET	0x28
+#define CONFIG_SYS_FSL_SCFG_IODSECR1_OFFSET	0xd00
+#define PXCKEN_MASK				0x80000000
+#define PXCK_MASK				0x00FF0000
+#define PXCK_BITS_START				16
 #elif defined(CONFIG_PPC_T2080) || defined(CONFIG_PPC_T2081)
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL		0xff000000
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	24
@@ -1911,6 +1932,7 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 	u8	res24[64];
 	u32	pblsr;		/* Preboot loader status */
 	u32	pamubypenr;	/* PAMU bypass enable */
+#define FSL_CORENET_PAMU_BYPASS		0xffff0000
 	u32	dmacr1;		/* DMA control */
 	u8	res25[4];
 	u32	gensr1;		/* General status */
@@ -2675,72 +2697,6 @@ enum {
 	FSL_SRDS_B3_LANE_D = 23,
 };
 
-/* Security Engine Block (MS = Most Sig., LS = Least Sig.) */
-#if CONFIG_SYS_FSL_SEC_COMPAT >= 4
-typedef struct ccsr_sec {
-	u32	res0;
-	u32	mcfgr;		/* Master CFG Register */
-	u8	res1[0x8];
-	struct {
-		u32	ms;	/* Job Ring LIODN Register, MS */
-		u32	ls;	/* Job Ring LIODN Register, LS */
-	} jrliodnr[4];
-	u8	res2[0x30];
-	struct {
-		u32	ms;	/* RTIC LIODN Register, MS */
-		u32	ls;	/* RTIC LIODN Register, LS */
-	} rticliodnr[4];
-	u8	res3[0x1c];
-	u32	decorr;		/* DECO Request Register */
-	struct {
-		u32	ms;	/* DECO LIODN Register, MS */
-		u32	ls;	/* DECO LIODN Register, LS */
-	} decoliodnr[8];
-	u8	res4[0x40];
-	u32	dar;		/* DECO Avail Register */
-	u32	drr;		/* DECO Reset Register */
-	u8	res5[0xe78];
-	u32	crnr_ms;	/* CHA Revision Number Register, MS */
-	u32	crnr_ls;	/* CHA Revision Number Register, LS */
-	u32	ctpr_ms;	/* Compile Time Parameters Register, MS */
-	u32	ctpr_ls;	/* Compile Time Parameters Register, LS */
-	u8	res6[0x10];
-	u32	far_ms;		/* Fault Address Register, MS */
-	u32	far_ls;		/* Fault Address Register, LS */
-	u32	falr;		/* Fault Address LIODN Register */
-	u32	fadr;		/* Fault Address Detail Register */
-	u8	res7[0x4];
-	u32	csta;		/* CAAM Status Register */
-	u8	res8[0x8];
-	u32	rvid;		/* Run Time Integrity Checking Version ID Reg.*/
-	u32	ccbvid;		/* CHA Cluster Block Version ID Register */
-	u32	chavid_ms;	/* CHA Version ID Register, MS */
-	u32	chavid_ls;	/* CHA Version ID Register, LS */
-	u32	chanum_ms;	/* CHA Number Register, MS */
-	u32	chanum_ls;	/* CHA Number Register, LS */
-	u32	secvid_ms;	/* SEC Version ID Register, MS */
-	u32	secvid_ls;	/* SEC Version ID Register, LS */
-	u8	res9[0x6020];
-	u32	qilcr_ms;	/* Queue Interface LIODN CFG Register, MS */
-	u32	qilcr_ls;	/* Queue Interface LIODN CFG Register, LS */
-	u8	res10[0x8fd8];
-} ccsr_sec_t;
-
-#define SEC_CTPR_MS_AXI_LIODN		0x08000000
-#define SEC_CTPR_MS_QI			0x02000000
-#define SEC_RVID_MA			0x0f000000
-#define SEC_CHANUM_MS_JRNUM_MASK	0xf0000000
-#define SEC_CHANUM_MS_JRNUM_SHIFT	28
-#define SEC_CHANUM_MS_DECONUM_MASK	0x0f000000
-#define SEC_CHANUM_MS_DECONUM_SHIFT	24
-#define SEC_SECVID_MS_IPID_MASK	0xffff0000
-#define SEC_SECVID_MS_IPID_SHIFT	16
-#define SEC_SECVID_MS_MAJ_REV_MASK	0x0000ff00
-#define SEC_SECVID_MS_MAJ_REV_SHIFT	8
-#define SEC_CCBVID_ERA_MASK		0xff000000
-#define SEC_CCBVID_ERA_SHIFT		24
-#endif
-
 typedef struct ccsr_qman {
 #ifdef CONFIG_SYS_FSL_QMAN_V3
 	u8	res0[0x200];
@@ -2940,6 +2896,7 @@ struct ccsr_sfp_regs {
 #define CONFIG_SYS_MPC85xx_SATA1_OFFSET		0x220000
 #define CONFIG_SYS_MPC85xx_SATA2_OFFSET		0x221000
 #define CONFIG_SYS_FSL_SEC_OFFSET		0x300000
+#define CONFIG_SYS_FSL_JR0_OFFSET		0x301000
 #define CONFIG_SYS_FSL_CORENET_PME_OFFSET	0x316000
 #define CONFIG_SYS_FSL_QMAN_OFFSET		0x318000
 #define CONFIG_SYS_FSL_BMAN_OFFSET		0x31a000
@@ -3000,8 +2957,10 @@ struct ccsr_sfp_regs {
 #define CONFIG_SYS_MPC85xx_ESDHC_OFFSET		0x2e000
 #if defined(CONFIG_PPC_C29X)
 #define CONFIG_SYS_FSL_SEC_OFFSET		0x80000
+#define CONFIG_SYS_FSL_JR0_OFFSET               0x81000
 #else
 #define CONFIG_SYS_FSL_SEC_OFFSET		0x30000
+#define CONFIG_SYS_FSL_JR0_OFFSET               0x31000
 #endif
 #define CONFIG_SYS_MPC85xx_SERDES2_OFFSET	0xE3100
 #define CONFIG_SYS_MPC85xx_SERDES1_OFFSET	0xE3000
@@ -3032,6 +2991,8 @@ struct ccsr_sfp_regs {
 	(CONFIG_SYS_CCSRBAR + CONFIG_SYS_FSL_SCFG_OFFSET)
 #define CONFIG_SYS_FSL_SCFG_PIXCLK_ADDR	\
 	(CONFIG_SYS_FSL_SCFG_ADDR + CONFIG_SYS_FSL_SCFG_PIXCLKCR_OFFSET)
+#define CONFIG_SYS_FSL_SCFG_IODSECR1_ADDR \
+	(CONFIG_SYS_FSL_SCFG_ADDR + CONFIG_SYS_FSL_SCFG_IODSECR1_OFFSET)
 #define CONFIG_SYS_FSL_QMAN_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_QMAN_OFFSET)
 #define CONFIG_SYS_FSL_BMAN_ADDR \
@@ -3106,6 +3067,8 @@ struct ccsr_sfp_regs {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_USB2_PHY_OFFSET)
 #define CONFIG_SYS_FSL_SEC_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_SEC_OFFSET)
+#define CONFIG_SYS_FSL_JR0_ADDR \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_JR0_OFFSET)
 #define CONFIG_SYS_FSL_FM1_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_FM1_OFFSET)
 #define CONFIG_SYS_FSL_FM1_DTSEC1_ADDR \

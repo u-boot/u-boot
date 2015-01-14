@@ -255,6 +255,11 @@ int init_sata(int dev)
 	return 0;
 }
 
+int reset_sata(int dev)
+{
+	return 0;
+}
+
 static void fsl_sata_dump_regs(fsl_sata_reg_t __iomem *reg)
 {
 	printf("\n\rSATA:           %08x\n\r", (u32)reg);

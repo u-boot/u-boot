@@ -332,7 +332,7 @@ static void ft_codec_setup(void *blob, const char *compatible)
 	}
 }
 
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -356,5 +356,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	/* Update the WM8776 node's clock frequency property */
 	ft_codec_setup(blob, "wlf,wm8776");
+
+	return 0;
 }
 #endif

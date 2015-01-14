@@ -6,6 +6,9 @@ choice
 config TARGET_ARMADILLO_800EVA
 	bool "armadillo 800 eva board"
 
+config TARGET_GOSE
+	bool "Gose board"
+
 config TARGET_KOELSCH
 	bool "Koelsch board"
 
@@ -20,13 +23,16 @@ config TARGET_ALT
 
 endchoice
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_SOC
 	default "rmobile"
 
+config RMOBILE_EXTRAM_BOOT
+	bool "Enable boot from RAM"
+	depends on TARGET_ALT || TARGET_KOELSCH || TARGET_LAGER
+	default n
+
 source "board/atmark-techno/armadillo-800eva/Kconfig"
+source "board/renesas/gose/Kconfig"
 source "board/renesas/koelsch/Kconfig"
 source "board/renesas/lager/Kconfig"
 source "board/kmc/kzm9g/Kconfig"

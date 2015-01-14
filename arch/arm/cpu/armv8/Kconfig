@@ -1,6 +1,0 @@
-if ARM64
-
-config SYS_CPU
-	default "armv8"
-
-endif

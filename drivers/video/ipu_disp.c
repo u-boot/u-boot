@@ -377,7 +377,7 @@ static struct dp_csc_param_t dp_csc_array[CSC_NUM][CSC_NUM] = {
 static enum csc_type_t fg_csc_type = CSC_NONE, bg_csc_type = CSC_NONE;
 static int color_key_4rgb = 1;
 
-void ipu_dp_csc_setup(int dp, struct dp_csc_param_t dp_csc_param,
+static void ipu_dp_csc_setup(int dp, struct dp_csc_param_t dp_csc_param,
 			unsigned char srm_mode_update)
 {
 	u32 reg;
@@ -605,17 +605,6 @@ void ipu_dc_uninit(int dc_chan)
 	}
 }
 
-int ipu_chan_is_interlaced(ipu_channel_t channel)
-{
-	if (channel == MEM_DC_SYNC)
-		return !!(__raw_readl(DC_WR_CH_CONF_1) &
-			  DC_WR_CH_CONF_FIELD_MODE);
-	else if ((channel == MEM_BG_SYNC) || (channel == MEM_FG_SYNC))
-		return !!(__raw_readl(DC_WR_CH_CONF_5) &
-			  DC_WR_CH_CONF_FIELD_MODE);
-	return 0;
-}
-
 void ipu_dp_dc_enable(ipu_channel_t channel)
 {
 	int di;
@@ -782,7 +771,7 @@ void ipu_init_dc_mappings(void)
 	ipu_dc_map_config(4, 2, 21, 0xFC);
 }
 
-int ipu_pixfmt_to_map(uint32_t fmt)
+static int ipu_pixfmt_to_map(uint32_t fmt)
 {
 	switch (fmt) {
 	case IPU_PIX_FMT_GENERIC:
@@ -799,28 +788,6 @@ int ipu_pixfmt_to_map(uint32_t fmt)
 	}
 
 	return -1;
-}
-
-/*
- * This function is called to adapt synchronous LCD panel to IPU restriction.
- */
-void adapt_panel_to_ipu_restricitions(uint32_t *pixel_clk,
-				      uint16_t width, uint16_t height,
-				      uint16_t h_start_width,
-				      uint16_t h_end_width,
-				      uint16_t v_start_width,
-				      uint16_t *v_end_width)
-{
-	if (*v_end_width < 2) {
-		uint16_t total_width = width + h_start_width + h_end_width;
-		uint16_t total_height_old = height + v_start_width +
-			(*v_end_width);
-		uint16_t total_height_new = height + v_start_width + 2;
-		*v_end_width = 2;
-		*pixel_clk = (*pixel_clk) * total_width * total_height_new /
-			(total_width * total_height_old);
-		printf("WARNING: adapt panel end blank lines\n");
-	}
 }
 
 /*
@@ -880,14 +847,17 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 	if ((v_sync_width == 0) || (h_sync_width == 0))
 		return -EINVAL;
 
-	adapt_panel_to_ipu_restricitions(&pixel_clk, width, height,
-					 h_start_width, h_end_width,
-					 v_start_width, &v_end_width);
+	/* adapt panel to ipu restricitions */
+	if (v_end_width < 2) {
+		v_end_width = 2;
+		puts("WARNING: v_end_width (lower_margin) must be >= 2, adjusted\n");
+	}
+
 	h_total = width + h_sync_width + h_start_width + h_end_width;
 	v_total = height + v_sync_width + v_start_width + v_end_width;
 
 	/* Init clocking */
-	debug("pixel clk = %d\n", pixel_clk);
+	debug("pixel clk = %dHz\n", pixel_clk);
 
 	if (sig.ext_clk) {
 		if (!(g_di1_tvout && (disp == 1))) { /*not round div for tvout*/

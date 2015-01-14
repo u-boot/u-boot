@@ -19,6 +19,7 @@
 #include <common.h>
 
 #include <command.h>
+#include <bios_emul.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/errno.h>
@@ -37,11 +38,6 @@
 #define DPRINT(x...) printf(x)
 #else
 #define DPRINT(x...) do{}while(0)
-#endif
-
-#ifndef min_t
-#define min_t(type,x,y) \
-	({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
 #endif
 
 #define MAX_MAPPED_VRAM	(2048*2048*4)
@@ -549,7 +545,6 @@ void radeon_setmode_9200(int vesa_idx, int bpp)
 }
 
 #include "../bios_emulator/include/biosemu.h"
-extern int BootVideoCardBIOS(pci_dev_t pcidev, BE_VGAInfo ** pVGAInfo, int cleanUp);
 
 int radeon_probe(struct radeonfb_info *rinfo)
 {

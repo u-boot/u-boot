@@ -121,7 +121,7 @@ static void dma_calc_size(unsigned long ldst, unsigned long lsrc, size_t count,
 	*dshift = WDSIZE_P;
 #endif
 
-	*bpos = min(limit, ffs(ldst | lsrc | count)) - 1;
+	*bpos = min(limit, (unsigned long)ffs(ldst | lsrc | count)) - 1;
 }
 
 /* This version misbehaves for count values of 0 and 2^16+.
@@ -157,7 +157,7 @@ void dma_memcpy_nocache(void *dst, const void *src, size_t count)
 
 #ifdef PSIZE
 	/* The max memory DMA peripheral transfer size is 4 bytes. */
-	dsize |= min(2, bpos) << PSIZE_P;
+	dsize |= min(2UL, bpos) << PSIZE_P;
 #endif
 
 	/* Copy sram functions from sdram to sram */

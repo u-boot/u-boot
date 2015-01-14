@@ -11,7 +11,6 @@
 
 #include "tegra30-common.h"
 
-
 #define V_PROMPT			"Colibri T30 # "
 #define CONFIG_TEGRA_BOARD_STRING	"Toradex Colibri T30"
 
@@ -26,10 +25,7 @@
 
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
-#define CONFIG_SYS_I2C_INIT_BOARD
-#define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_CMD_I2C
-#define CONFIG_SYS_I2C
 
 /* SD/MMC */
 #define CONFIG_MMC

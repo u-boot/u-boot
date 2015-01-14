@@ -12,6 +12,7 @@
 #include <bootm.h>
 #include <command.h>
 #include <environment.h>
+#include <errno.h>
 #include <image.h>
 #include <lmb.h>
 #include <malloc.h>

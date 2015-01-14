@@ -7,6 +7,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/umc-regs.h>
+#include <asm/arch/ddrphy-regs.h>
 
 static inline void umc_start_ssif(void __iomem *ssif_base)
 {
@@ -94,6 +95,10 @@ static inline int umc_init_sub(int freq, int size_ch0, int size_ch1)
 	void __iomem *ca_base1 = (void __iomem *)UMC_CA_BASE(1);
 	void __iomem *dramcont0 = (void __iomem *)UMC_DRAMCONT_BASE(0);
 	void __iomem *dramcont1 = (void __iomem *)UMC_DRAMCONT_BASE(1);
+	void __iomem *phy0_0 = (void __iomem *)DDRPHY_BASE(0, 0);
+	void __iomem *phy0_1 = (void __iomem *)DDRPHY_BASE(0, 1);
+	void __iomem *phy1_0 = (void __iomem *)DDRPHY_BASE(1, 0);
+	void __iomem *phy1_1 = (void __iomem *)DDRPHY_BASE(1, 1);
 
 	umc_dram_init_start(dramcont0);
 	umc_dram_init_start(dramcont1);
@@ -102,11 +107,31 @@ static inline int umc_init_sub(int freq, int size_ch0, int size_ch1)
 
 	writel(0x00000101, dramcont0 + UMC_DIOCTLA);
 
+	ddrphy_init(phy0_0, freq, size_ch0);
+
+	ddrphy_prepare_training(phy0_0, 0);
+	ddrphy_training(phy0_0);
+
 	writel(0x00000103, dramcont0 + UMC_DIOCTLA);
+
+	ddrphy_init(phy0_1, freq, size_ch0);
+
+	ddrphy_prepare_training(phy0_1, 1);
+	ddrphy_training(phy0_1);
 
 	writel(0x00000101, dramcont1 + UMC_DIOCTLA);
 
+	ddrphy_init(phy1_0, freq, size_ch1);
+
+	ddrphy_prepare_training(phy1_0, 0);
+	ddrphy_training(phy1_0);
+
 	writel(0x00000103, dramcont1 + UMC_DIOCTLA);
+
+	ddrphy_init(phy1_1, freq, size_ch1);
+
+	ddrphy_prepare_training(phy1_1, 1);
+	ddrphy_training(phy1_1);
 
 	umc_dramcont_init(dramcont0, ca_base0, size_ch0, freq);
 	umc_dramcont_init(dramcont1, ca_base1, size_ch1, freq);
@@ -121,10 +146,6 @@ int umc_init(void)
 	return umc_init_sub(CONFIG_DDR_FREQ, CONFIG_SDRAM0_SIZE / 0x08000000,
 					CONFIG_SDRAM1_SIZE / 0x08000000);
 }
-
-#if CONFIG_DDR_FREQ != 1600
-#error Unsupported DDR frequency.
-#endif
 
 #if ((CONFIG_SDRAM0_SIZE == 0x20000000 && CONFIG_DDR_NUM_CH0 == 2) || \
      (CONFIG_SDRAM0_SIZE == 0x10000000 && CONFIG_DDR_NUM_CH0 == 1)) && \

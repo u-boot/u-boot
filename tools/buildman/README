@@ -42,7 +42,7 @@ Theory of Operation
 Buildman is a builder. It is not make, although it runs make. It does not
 produce any useful output on the terminal while building, except for
 progress information (except with -v, see below). All the output (errors,
-warnings and binaries if you are ask for them) is stored in output
+warnings and binaries if you ask for them) is stored in output
 directories, which you can look at while the build is progressing, or when
 it is finished.
 
@@ -85,10 +85,10 @@ branch. Put all your commits in a branch, set the branch's upstream to a
 valid value, and all will be well. Otherwise buildman will perform random
 actions. Use -n to check what the random actions might be.
 
-If you just want to build the current source tree, leave off the -b flag.
-This will display results and errors as they happen. You can still look
-at them later using -s. Note that buildman will assume that the source
-has changed, and will build all specified boards in this case.
+If you just want to build the current source tree, leave off the -b flag
+and add -e. This will display results and errors as they happen. You can
+still look at them later using -se. Note that buildman will assume that the
+source has changed, and will build all specified boards in this case.
 
 Buildman is optimised for building many commits at once, for many boards.
 On multi-core machines, Buildman is fast because it uses most of the
@@ -121,7 +121,7 @@ You can also use -x to specifically exclude some boards. For example:
 means to build all arm boards except nvidia, freescale and anything ending
 with 'ball'.
 
-It is convenient to use the -n option to see whaat will be built based on
+It is convenient to use the -n option to see what will be built based on
 the subset given.
 
 Buildman does not store intermediate object files. It optionally copies
@@ -371,7 +371,7 @@ in an hour and 15 minutes. Use this time to buy a faster computer.
 
 
 To find out how the build went, ask for a summary with -s. You can do this
-either before the build completes (presumably in another terminal) or or
+either before the build completes (presumably in another terminal) or
 afterwards. Let's work through an example of how this is used:
 
 $ ./tools/buildman/buildman -b lcd9b -s
@@ -439,7 +439,7 @@ again.
 
 At commit 16, the error moves - you can see that the old error at line 120
 is fixed, but there is a new one at line 126. This is probably only because
-we added some code and moved the broken line father down the file.
+we added some code and moved the broken line further down the file.
 
 If many boards have the same error, then -e will display the error only
 once. This makes the output as concise as possible. To see which boards have
@@ -647,8 +647,8 @@ This shows that commit 19 has increased text size for arm (although only one
 board was built) and by 96 bytes for powerpc. This increase was offset in both
 cases by reductions in rodata and data/bss.
 
-Shown below the summary lines is the sizes for each board. Below each board
-is the sizes for each function. This information starts with:
+Shown below the summary lines are the sizes for each board. Below each board
+are the sizes for each function. This information starts with:
 
    add - number of functions added / removed
    grow - number of functions which grew / shrunk
@@ -693,9 +693,9 @@ Quick Sanity Check
 ==================
 
 If you have made changes and want to do a quick sanity check of the
-currently-checked-out source, run buildman without the -b flag. This will
-build the selected boards and display build status and errors as it runs
-(i.e. -v amd -e are enabled automatically).
+currently checked-out source, run buildman without the -b flag. This will
+build the selected boards and display build status as it runs (i.e. -v is
+enabled automatically). Use -e to see errors/warnings as well.
 
 
 Other options
@@ -752,7 +752,7 @@ an error and green indicating that a commit fixed an error. Use the -e
 flag to see the full errors and -l to see which boards caused which errors.
 
 If you really want to see build results as they happen, use -v when doing a
-build (-e will be enabled automatically).
+build (and -e to see the errors/warnings too).
 
 You don't need to stick around on that branch while buildman is running. It
 checks out its own copy of the source code, so you can change branches,
@@ -816,11 +816,10 @@ TODO
 
 This has mostly be written in my spare time as a response to my difficulties
 in testing large series of patches. Apart from tidying up there is quite a
-bit of scope for improvement. Things like better error diffs, easier access
-to log files, error display while building. Also it would be nice it buildman
-could 'hunt' for problems, perhaps by building a few boards for each arch,
-or checking commits for changed files and building only boards which use
-those files.
+bit of scope for improvement. Things like better error diffs and easier
+access to log files. Also it would be nice if buildman could 'hunt' for
+problems, perhaps by building a few boards for each arch, or checking
+commits for changed files and building only boards which use those files.
 
 
 Credits

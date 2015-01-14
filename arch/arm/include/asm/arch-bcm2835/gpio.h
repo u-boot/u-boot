@@ -52,4 +52,13 @@ struct bcm2835_gpio_regs {
 	u32 gppudclk[2];
 };
 
+/**
+ * struct bcm2835_gpio_platdata - GPIO platform description
+ *
+ * @base: Base address of GPIO controller
+ */
+struct bcm2835_gpio_platdata {
+	unsigned long base;
+};
+
 #endif /* _BCM2835_GPIO_H_ */

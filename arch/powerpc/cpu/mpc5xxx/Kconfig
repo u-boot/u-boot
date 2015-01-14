@@ -9,6 +9,7 @@ choice
 
 config TARGET_A3M071
 	bool "Support a3m071"
+	select SUPPORT_SPL
 
 config TARGET_A4M072
 	bool "Support a4m072"
@@ -37,9 +38,6 @@ config TARGET_IPEK01
 config TARGET_JUPITER
 	bool "Support jupiter"
 
-config TARGET_MCC200
-	bool "Support mcc200"
-
 config TARGET_MOTIONPRO
 	bool "Support motionpro"
 
@@ -54,9 +52,6 @@ config TARGET_TOTAL5200
 
 config TARGET_V38B
 	bool "Support v38b"
-
-config TARGET_TOP5200
-	bool "Support TOP5200"
 
 config TARGET_CPCI5200
 	bool "Support cpci5200"
@@ -88,15 +83,6 @@ config TARGET_O3DNT
 config TARGET_DIGSY_MTC
 	bool "Support digsy_mtc"
 
-config TARGET_HMI1001
-	bool "Support hmi1001"
-
-config TARGET_MUCMC52
-	bool "Support mucmc52"
-
-config TARGET_UC101
-	bool "Support uc101"
-
 config TARGET_PCM030
 	bool "Support pcm030"
 
@@ -119,7 +105,6 @@ source "board/a4m072/Kconfig"
 source "board/bc3450/Kconfig"
 source "board/canmb/Kconfig"
 source "board/cm5200/Kconfig"
-source "board/emk/top5200/Kconfig"
 source "board/esd/cpci5200/Kconfig"
 source "board/esd/mecp5200/Kconfig"
 source "board/esd/pf5200/Kconfig"
@@ -130,10 +115,6 @@ source "board/inka4x0/Kconfig"
 source "board/intercontrol/digsy_mtc/Kconfig"
 source "board/ipek01/Kconfig"
 source "board/jupiter/Kconfig"
-source "board/manroland/hmi1001/Kconfig"
-source "board/manroland/mucmc52/Kconfig"
-source "board/manroland/uc101/Kconfig"
-source "board/mcc200/Kconfig"
 source "board/motionpro/Kconfig"
 source "board/munices/Kconfig"
 source "board/phytec/pcm030/Kconfig"

@@ -1,8 +1,5 @@
 if TARGET_SPEAR320
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "spear320"
 

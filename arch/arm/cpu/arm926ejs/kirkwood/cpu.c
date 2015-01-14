@@ -9,13 +9,10 @@
 #include <common.h>
 #include <netdev.h>
 #include <asm/cache.h>
-#include <u-boot/md5.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <mvebu_mmc.h>
-
-#define BUFLEN	16
 
 void reset_cpu(unsigned long ignored)
 {
@@ -27,31 +24,6 @@ void reset_cpu(unsigned long ignored)
 	writel(readl(&cpureg->sys_soft_rst) | 1,
 		&cpureg->sys_soft_rst);
 	while (1) ;
-}
-
-/*
- * Generates Ramdom hex number reading some time varient system registers
- * and using md5 algorithm
- */
-unsigned char get_random_hex(void)
-{
-	int i;
-	u32 inbuf[BUFLEN];
-	u8 outbuf[BUFLEN];
-
-	/*
-	 * in case of 88F6281/88F6282/88F6192 A0,
-	 * Bit7 need to reset to generate random values in KW_REG_UNDOC_0x1470
-	 * Soc reg offsets KW_REG_UNDOC_0x1470 and KW_REG_UNDOC_0x1478 are
-	 * reserved regs and does not have names at this moment
-	 * (no errata available)
-	 */
-	writel(readl(KW_REG_UNDOC_0x1478) & ~(1 << 7), KW_REG_UNDOC_0x1478);
-	for (i = 0; i < BUFLEN; i++) {
-		inbuf[i] = readl(KW_REG_UNDOC_0x1470);
-	}
-	md5((u8 *) inbuf, (BUFLEN * sizeof(u32)), outbuf);
-	return outbuf[outbuf[7] % 0x0f];
 }
 
 /*
@@ -136,50 +108,6 @@ int kw_config_adr_windows(void)
 	writel(KWCPU_WIN_DISABLE, &winregs[6].ctrl);
 	writel(KWCPU_WIN_DISABLE, &winregs[7].ctrl);
 
-	return 0;
-}
-
-/*
- * kw_config_gpio - GPIO configuration
- */
-void kw_config_gpio(u32 gpp0_oe_val, u32 gpp1_oe_val, u32 gpp0_oe, u32 gpp1_oe)
-{
-	struct kwgpio_registers *gpio0reg =
-		(struct kwgpio_registers *)KW_GPIO0_BASE;
-	struct kwgpio_registers *gpio1reg =
-		(struct kwgpio_registers *)KW_GPIO1_BASE;
-
-	/* Init GPIOS to default values as per board requirement */
-	writel(gpp0_oe_val, &gpio0reg->dout);
-	writel(gpp1_oe_val, &gpio1reg->dout);
-	writel(gpp0_oe, &gpio0reg->oe);
-	writel(gpp1_oe, &gpio1reg->oe);
-}
-
-/*
- * kw_config_mpp - Multi-Purpose Pins Functionality configuration
- *
- * Each MPP can be configured to different functionality through
- * MPP control register, ref (sec 6.1 of kirkwood h/w specification)
- *
- * There are maximum 64 Multi-Pourpose Pins on Kirkwood
- * Each MPP functionality can be configuration by a 4bit value
- * of MPP control reg, the value and associated functionality depends
- * upon used SoC varient
- */
-int kw_config_mpp(u32 mpp0_7, u32 mpp8_15, u32 mpp16_23, u32 mpp24_31,
-		u32 mpp32_39, u32 mpp40_47, u32 mpp48_55)
-{
-	u32 *mppreg = (u32 *) KW_MPP_BASE;
-
-	/* program mpp registers */
-	writel(mpp0_7, &mppreg[0]);
-	writel(mpp8_15, &mppreg[1]);
-	writel(mpp16_23, &mppreg[2]);
-	writel(mpp24_31, &mppreg[3]);
-	writel(mpp32_39, &mppreg[4]);
-	writel(mpp40_47, &mppreg[5]);
-	writel(mpp48_55, &mppreg[6]);
 	return 0;
 }
 

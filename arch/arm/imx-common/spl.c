@@ -14,11 +14,12 @@
 #include <spl.h>
 
 #if defined(CONFIG_MX6)
-/* determine boot device from SRC_SBMR1 register (BOOT_CFG[4:1]) */
+/* determine boot device from SRC_SBMR1 (BOOT_CFG[4:1]) or SRC_GPR9 register */
 u32 spl_boot_device(void)
 {
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
-	unsigned reg = readl(&psrc->sbmr1);
+	unsigned int gpr10_boot = readl(&psrc->gpr10) & (1 << 28);
+	unsigned reg = gpr10_boot ? readl(&psrc->gpr9) : readl(&psrc->sbmr1);
 
 	/* BOOT_CFG1[7:4] - see IMX6DQRM Table 8-8 */
 	switch ((reg & 0x000000FF) >> 4) {
@@ -67,8 +68,10 @@ u32 spl_boot_mode(void)
 	/* for MMC return either RAW or FAT mode */
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
-#ifdef CONFIG_SPL_FAT_SUPPORT
-		return MMCSD_MODE_FAT;
+#if defined(CONFIG_SPL_FAT_SUPPORT)
+		return MMCSD_MODE_FS;
+#elif defined(CONFIG_SUPPORT_EMMC_BOOT)
+		return MMCSD_MODE_EMMCBOOT;
 #else
 		return MMCSD_MODE_RAW;
 #endif

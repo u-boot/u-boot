@@ -14,16 +14,20 @@ alias aaribaud       Albert Aribaud <albert.u.boot@aribaud.net>
 alias abiessmann     Andreas Bießmann <andreas.devel@googlemail.com>
 alias afleming       Andy Fleming <afleming@gmail.com>
 alias ag             Anatolij Gustschin <agust@denx.de>
+alias alisonwang     Alison Wang <alison.wang@freescale.com>
+alias angelo_ts      Angelo Dureghello <angelo@sysam.it>
+alias danielschwierzeck Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
 alias galak          Kumar Gala <galak@kernel.crashing.org>
 alias gruss          Graeme Russ <graeme.russ@gmail.com>
 alias hs             Heiko Schocher <hs@denx.de>
 alias ijc            Ian Campbell <ijc+uboot@hellion.org.uk>
 alias iwamatsu       Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-alias jagan	     Jagannadha Sutradharudu Teki <jagannadh.teki@gmail.com>
+alias jagan          Jagannadha Sutradharudu Teki <jagannadh.teki@gmail.com>
 alias jasonjin       Jason Jin <jason.jin@freescale.com>
 alias jhersh         Joe Hershberger <joe.hershberger@gmail.com>
 alias jwrdegoede     Hans de Goede <hdegoede@redhat.com>
 alias kimphill       Kim Phillips <kim.phillips@freescale.com>
+alias luka           Luka Perkov <luka.perkov@sartura.hr>
 alias lukma          Lukasz Majewski <l.majewski@samsung.com>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
@@ -31,6 +35,7 @@ alias masahiro       Masahiro Yamada <yamada.m@jp.panasonic.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias panto          Pantelis Antoniou <panto@antoniou-consulting.com>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
+alias bobenstein     Przemyslaw Marczak <p.marczak@samsung.com>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
 alias rbohmer        Remy Bohmer <linux@bohmer.net>
 alias reinhardm      Reinhard Meyer <u-boot@emk-elektronik.de>
@@ -52,7 +57,7 @@ alias arm            uboot, aaribaud
 alias at91           uboot, abiessmann
 alias davinci        ti
 alias imx            uboot, sbabic
-alias kirkwood       uboot, prafulla
+alias kirkwood       uboot, prafulla, luka
 alias omap           ti
 alias pxa            uboot, marex
 alias rmobile        uboot, iwamatsu
@@ -71,13 +76,13 @@ alias avr32          uboot, abiessmann
 alias bfin           uboot, vapier, sonic
 alias blackfin       bfin
 
-alias m68k           uboot, jasonjin
+alias m68k           uboot, alisonwang, angelo_ts
 alias coldfire       m68k
 
 alias microblaze     uboot, monstr
 alias mb             microblaze
 
-alias mips           uboot, Shinya Kuribayashi <skuribay@pobox.com>
+alias mips           uboot, danielschwierzeck
 
 alias nds32          uboot, macpaul
 
@@ -117,8 +122,10 @@ alias kconfig        uboot, masahiro
 alias mmc            uboot, panto
 alias nand           uboot, scottwood
 alias net            uboot, jhersh
-alias spi	     uboot, jagan
+alias spi            uboot, jagan
+alias ubi            uboot, hs
 alias usb            uboot, marex
 alias video          uboot, ag
 alias patman         uboot, sjg
 alias buildman       uboot, sjg
+alias pmic           uboot, bobenstein

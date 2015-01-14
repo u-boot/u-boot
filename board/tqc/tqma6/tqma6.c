@@ -17,6 +17,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/imx-common/mxc_i2c.h>
+#include <asm/imx-common/spi.h>
 #include <common.h>
 #include <fsl_esdhc.h>
 #include <libfdt.h>
@@ -50,7 +51,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+	gd->ram_size = imx_ddr_size();
 
 	return 0;
 }
@@ -138,8 +139,10 @@ static iomux_v3_cfg_t const tqma6_ecspi1_pads[] = {
 	NEW_PAD_CTRL(MX6_PAD_EIM_D18__ECSPI1_MOSI, SPI_PAD_CTRL),
 };
 
+#define TQMA6_SF_CS_GPIO IMX_GPIO_NR(3, 19)
+
 static unsigned const tqma6_ecspi1_cs[] = {
-	IMX_GPIO_NR(3, 19),
+	TQMA6_SF_CS_GPIO,
 };
 
 static void tqma6_iomuxc_spi(void)
@@ -150,6 +153,12 @@ static void tqma6_iomuxc_spi(void)
 		gpio_direction_output(tqma6_ecspi1_cs[i], 1);
 	imx_iomux_v3_setup_multiple_pads(tqma6_ecspi1_pads,
 					 ARRAY_SIZE(tqma6_ecspi1_pads));
+}
+
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return ((bus == CONFIG_SF_DEFAULT_BUS) &&
+		(cs == CONFIG_SF_DEFAULT_CS)) ? TQMA6_SF_CS_GPIO : -1;
 }
 
 static struct i2c_pads_info tqma6_i2c3_pads = {
@@ -172,8 +181,14 @@ static struct i2c_pads_info tqma6_i2c3_pads = {
 
 static void tqma6_setup_i2c(void)
 {
-	/* use logical index for bus, e.g. I2C1 -> 0 */
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &tqma6_i2c3_pads);
+	int ret;
+	/*
+	 * use logical index for bus, e.g. I2C1 -> 0
+	 * warn on error
+	 */
+	ret = setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &tqma6_i2c3_pads);
+	if (ret)
+		printf("setup I2C3 failed: %d\n", ret);
 }
 
 int board_early_init_f(void)
@@ -251,12 +266,14 @@ int checkboard(void)
  * Device Tree Support
  */
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	/* bring in eMMC dsr settings */
 	do_fixup_by_path_u32(blob,
 			     "/soc/aips-bus@02100000/usdhc@02198000",
 			     "dsr", tqma6_emmc_dsr, 2);
 	tqma6_bb_ft_board_setup(blob, bd);
+
+	return 0;
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */

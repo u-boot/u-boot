@@ -1,5 +1,5 @@
 XPEDITE517X BOARD
-#M:	-
+M:	Peter Tyser <ptyser@xes-inc.com>
 S:	Maintained
 F:	board/xes/xpedite517x/
 F:	include/configs/xpedite517x.h

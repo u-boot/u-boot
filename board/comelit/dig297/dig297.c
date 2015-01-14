@@ -133,6 +133,11 @@ int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);
 }
+
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
+}
 #endif
 
 #ifdef CONFIG_CMD_NET

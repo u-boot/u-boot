@@ -23,6 +23,7 @@ extern ulong ide_bus_offset[];
 #define LED_IDE2	0x02
 #define	DEVICE_LED(d)	((d & 2) | ((d & 2) == 0)) /* depends on bit positions! */
 
+void ide_led(uchar led, uchar status);
 #endif /* CONFIG_IDE_LED */
 
 #ifdef CONFIG_SYS_64BIT_LBA

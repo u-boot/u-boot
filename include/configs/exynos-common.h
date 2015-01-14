@@ -17,14 +17,18 @@
 #include <linux/sizes.h>
 
 #define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DM
+#define CONFIG_CMD_DM
+#define CONFIG_DM_GPIO
+#define CONFIG_DM_SERIAL
+#define CONFIG_DM_SPI
+#define CONFIG_DM_SPI_FLASH
+
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
-
-/* Enable fdt support */
-#define CONFIG_OF_LIBFDT
 
 /* Keep L2 Cache Disabled */
 #define CONFIG_CMD_CACHE
@@ -35,7 +39,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_ENV_OVERWRITE
 
 /* Size of malloc() pool before and after relocation */
@@ -54,7 +57,6 @@
 #define CONFIG_EXYNOS_DWMMC
 #define CONFIG_BOUNCE_BUFFER
 
-#define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
 /* PWM */
@@ -64,21 +66,16 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
+#define CONFIG_CMD_FS_GENERIC
 
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
 #define CONFIG_CMD_PART
 #define CONFIG_PARTITION_UUIDS
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE		384	/* Print Buffer Size */
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
+#define CONFIG_SYS_PBSIZE		1024	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 
 /* Boot Argument Buffer Size */
@@ -87,5 +84,7 @@
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
 #undef CONFIG_CMD_IMLS
+
+#include <config_distro_defaults.h>
 
 #endif	/* __CONFIG_H */

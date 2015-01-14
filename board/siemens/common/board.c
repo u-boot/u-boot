@@ -96,15 +96,6 @@ const struct dpll_params *get_dpll_ddr_params(void)
 	return &dpll_ddr;
 }
 
-#ifdef CONFIG_BOARD_LATE_INIT
-int board_late_init(void)
-{
-	omap_nand_switch_ecc(1, 8);
-
-	return 0;
-}
-#endif
-
 #ifndef CONFIG_SPL_BUILD
 #if defined(BOARD_DFU_BUTTON_GPIO)
 /*

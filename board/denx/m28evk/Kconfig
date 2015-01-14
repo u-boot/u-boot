@@ -1,8 +1,5 @@
 if TARGET_M28EVK
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "m28evk"
 

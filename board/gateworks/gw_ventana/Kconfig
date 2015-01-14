@@ -1,8 +1,5 @@
 if TARGET_GW_VENTANA
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "gw_ventana"
 

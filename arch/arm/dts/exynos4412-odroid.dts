@@ -8,7 +8,7 @@
  */
 
 /dts-v1/;
-/include/ "exynos4.dtsi"
+#include "exynos4412.dtsi"
 
 / {
 	model = "Odroid based on Exynos4412";
@@ -51,7 +51,7 @@
 	sdhci@12530000 {
 		samsung,bus-width = <4>;
 		samsung,timing = <1 2 3>;
-		cd-gpios = <&gpio 0xC2 0>;
+		cd-gpios = <&gpio 122 0>;
 	};
 
 	sdhci@12540000 {
@@ -66,5 +66,16 @@
 		bus_hz = <400000000>;
 		div = <0x3>;
 		index = <4>;
+	};
+
+	ehci@12580000 {
+		compatible = "samsung,exynos-ehci";
+		reg = <0x12580000 0x100>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		phy {
+			compatible = "samsung,exynos-usb-phy";
+			reg = <0x125B0000 0x100>;
+		};
 	};
 };

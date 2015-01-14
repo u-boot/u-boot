@@ -975,3 +975,35 @@ fail:
 
 	return -1;
 }
+
+int ext4_write_file(const char *filename, void *buf, loff_t offset,
+		    loff_t len, loff_t *actwrite)
+{
+	int ret;
+
+	if (offset != 0) {
+		printf("** Cannot support non-zero offset **\n");
+		return -1;
+	}
+
+	/* mount the filesystem */
+	if (!ext4fs_mount(0)) {
+		printf("** Error Bad ext4 partition **\n");
+		goto fail;
+	}
+
+	ret = ext4fs_write(filename, buf, len);
+
+	if (ret) {
+		printf("** Error ext4fs_write() **\n");
+		goto fail;
+	}
+	ext4fs_close();
+
+	return 0;
+
+fail:
+	ext4fs_close();
+
+	return -1;
+}

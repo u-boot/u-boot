@@ -37,11 +37,16 @@ obj-$(CONFIG_USB_EHCI_PCI) += ehci-pci.o
 obj-$(CONFIG_USB_EHCI_SPEAR) += ehci-spear.o
 obj-$(CONFIG_USB_EHCI_SUNXI) += ehci-sunxi.o
 obj-$(CONFIG_USB_EHCI_TEGRA) += ehci-tegra.o
+obj-$(CONFIG_USB_EHCI_UNIPHIER) += ehci-uniphier.o
 obj-$(CONFIG_USB_EHCI_VCT) += ehci-vct.o
 obj-$(CONFIG_USB_EHCI_RMOBILE) += ehci-rmobile.o
 obj-$(CONFIG_USB_EHCI_ZYNQ) += ehci-zynq.o
 
 # xhci
 obj-$(CONFIG_USB_XHCI) += xhci.o xhci-mem.o xhci-ring.o
+obj-$(CONFIG_USB_XHCI_KEYSTONE) += xhci-keystone.o
 obj-$(CONFIG_USB_XHCI_EXYNOS) += xhci-exynos5.o
 obj-$(CONFIG_USB_XHCI_OMAP) += xhci-omap.o
+
+# designware
+obj-$(CONFIG_USB_DWC2) += dwc2.o

@@ -73,14 +73,11 @@ static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 		writeb(cmd, this->IO_ADDR_W);
 }
 
-#ifdef CONFIG_SPL_BUILD
 /* Check wait pin as dev ready indicator */
-int omap_spl_dev_ready(struct mtd_info *mtd)
+static int omap_dev_ready(struct mtd_info *mtd)
 {
 	return gpmc_cfg->status & (1 << 8);
 }
-#endif
-
 
 /*
  * gen_true_ecc - This function will generate true ECC value, which
@@ -159,23 +156,6 @@ static int __maybe_unused omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
 		}
 	}
 	return 0;
-}
-
-/*
- * omap_reverse_list - re-orders list elements in reverse order [internal]
- * @list:	pointer to start of list
- * @length:	length of list
-*/
-void omap_reverse_list(u8 *list, unsigned int length)
-{
-	unsigned int i, j;
-	unsigned int half_length = length / 2;
-	u8 tmp;
-	for (i = 0, j = length - 1; i < half_length; i++, j--) {
-		tmp = list[i];
-		list[i] = list[j];
-		list[j] = tmp;
-	}
 }
 
 /*
@@ -351,6 +331,23 @@ static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
 
 #ifdef CONFIG_NAND_OMAP_ELM
 /*
+ * omap_reverse_list - re-orders list elements in reverse order [internal]
+ * @list:	pointer to start of list
+ * @length:	length of list
+*/
+static void omap_reverse_list(u8 *list, unsigned int length)
+{
+	unsigned int i, j;
+	unsigned int half_length = length / 2;
+	u8 tmp;
+	for (i = 0, j = length - 1; i < half_length; i++, j--) {
+		tmp = list[i];
+		list[i] = list[j];
+		list[j] = tmp;
+	}
+}
+
+/*
  * omap_correct_data_bch - Compares the ecc read from nand spare area
  * with ECC registers values and corrects one bit error if it has occured
  *
@@ -371,8 +368,9 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	uint32_t error_loc[ELM_MAX_ERROR_COUNT];
 	enum bch_level bch_type;
 	uint32_t i, ecc_flag = 0;
-	uint8_t count, err = 0;
+	uint8_t count;
 	uint32_t byte_pos, bit_pos;
+	int err = 0;
 
 	/* check calculated ecc */
 	for (i = 0; i < ecc->bytes && !ecc_flag; i++) {
@@ -887,7 +885,9 @@ int board_nand_init(struct nand_chip *nand)
 		nand->read_buf = nand_read_buf16;
 	else
 		nand->read_buf = nand_read_buf;
-	nand->dev_ready = omap_spl_dev_ready;
 #endif
+
+	nand->dev_ready = omap_dev_ready;
+
 	return 0;
 }

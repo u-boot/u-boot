@@ -85,4 +85,104 @@ struct ccsr_usb_phy {
 #define CONFIG_SYS_FSL_USB_SQUELCH_PROG_MASK 0x07
 #endif
 
+/* USB Erratum Checking code */
+#ifdef CONFIG_PPC
+static inline bool has_erratum_a006261(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_P1010:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	case SVR_P2041:
+	case SVR_P2040:
+		return IS_SVR_REV(svr, 1, 0) ||
+			IS_SVR_REV(svr, 1, 1) || IS_SVR_REV(svr, 2, 1);
+	case SVR_P3041:
+		return IS_SVR_REV(svr, 1, 0) ||
+			IS_SVR_REV(svr, 1, 1) ||
+			IS_SVR_REV(svr, 2, 0) || IS_SVR_REV(svr, 2, 1);
+	case SVR_P5010:
+	case SVR_P5020:
+	case SVR_P5021:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	case SVR_T4240:
+	case SVR_T4160:
+	case SVR_T4080:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	case SVR_T1040:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_T2080:
+	case SVR_T2081:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_P5040:
+		return IS_SVR_REV(svr, 1, 0);
+	}
+
+	return false;
+}
+
+static inline bool has_erratum_a007075(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_B4860:
+	case SVR_B4420:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	case SVR_P1010:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_P4080:
+		return IS_SVR_REV(svr, 2, 0) || IS_SVR_REV(svr, 3, 0);
+	}
+	return false;
+}
+
+static inline bool has_erratum_a007798(void)
+{
+	return SVR_SOC_VER(get_svr()) == SVR_T4240 &&
+		IS_SVR_REV(get_svr(), 2, 0);
+}
+
+static inline bool has_erratum_a007792(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_T4240:
+	case SVR_T4160:
+		return IS_SVR_REV(svr, 2, 0);
+	case SVR_T1040:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_T2080:
+	case SVR_T2081:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
+	}
+	return false;
+}
+
+#else
+static inline bool has_erratum_a006261(void)
+{
+	return false;
+}
+
+static inline bool has_erratum_a007075(void)
+{
+	return false;
+}
+
+static inline bool has_erratum_a007798(void)
+{
+	return false;
+}
+
+static inline bool has_erratum_a007792(void)
+{
+	return false;
+}
+#endif
 #endif /*_ASM_FSL_USB_H_ */

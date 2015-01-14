@@ -1,5 +1,6 @@
 /*
- * Boot a Marvell Kirkwood SoC, with Xmodem over UART0.
+ * Boot a Marvell SoC, with Xmodem over UART0.
+ *  supports Kirkwood, Dove, Armada 370, Armada XP
  *
  * (c) 2012 Daniel Stodden <daniel.stodden@gmail.com>
  *
@@ -37,8 +38,17 @@ static unsigned char kwboot_msg_boot[] = {
 	0xBB, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77
 };
 
+static unsigned char kwboot_msg_debug[] = {
+	0xDD, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77
+};
+
+/* Defines known to work on Kirkwood */
 #define KWBOOT_MSG_REQ_DELAY	10 /* ms */
 #define KWBOOT_MSG_RSP_TIMEO	50 /* ms */
+
+/* Defines known to work on Armada XP */
+#define KWBOOT_MSG_REQ_DELAY_AXP	1000 /* ms */
+#define KWBOOT_MSG_RSP_TIMEO_AXP	1000 /* ms */
 
 /*
  * Xmodem Transfers
@@ -61,6 +71,9 @@ struct kwboot_block {
 #define KWBOOT_BLK_RSP_TIMEO 1000 /* ms */
 
 static int kwboot_verbose;
+
+static int msg_req_delay = KWBOOT_MSG_REQ_DELAY;
+static int msg_rsp_timeo = KWBOOT_MSG_RSP_TIMEO;
 
 static void
 kwboot_printv(const char *fmt, ...)
@@ -184,6 +197,9 @@ kwboot_tty_send(int fd, const void *buf, size_t len)
 	int rc;
 	ssize_t n;
 
+	if (!buf)
+		return 0;
+
 	rc = -1;
 
 	do {
@@ -268,7 +284,10 @@ kwboot_bootmsg(int tty, void *msg)
 	int rc;
 	char c;
 
-	kwboot_printv("Sending boot message. Please reboot the target...");
+	if (msg == NULL)
+		kwboot_printv("Please reboot the target into UART boot mode...");
+	else
+		kwboot_printv("Sending boot message. Please reboot the target...");
 
 	do {
 		rc = tcflush(tty, TCIOFLUSH);
@@ -277,15 +296,46 @@ kwboot_bootmsg(int tty, void *msg)
 
 		rc = kwboot_tty_send(tty, msg, 8);
 		if (rc) {
-			usleep(KWBOOT_MSG_REQ_DELAY * 1000);
+			usleep(msg_req_delay * 1000);
 			continue;
 		}
 
-		rc = kwboot_tty_recv(tty, &c, 1, KWBOOT_MSG_RSP_TIMEO);
+		rc = kwboot_tty_recv(tty, &c, 1, msg_rsp_timeo);
 
 		kwboot_spinner();
 
 	} while (rc || c != NAK);
+
+	kwboot_printv("\n");
+
+	return rc;
+}
+
+static int
+kwboot_debugmsg(int tty, void *msg)
+{
+	int rc;
+
+	kwboot_printv("Sending debug message. Please reboot the target...");
+
+	do {
+		char buf[16];
+
+		rc = tcflush(tty, TCIOFLUSH);
+		if (rc)
+			break;
+
+		rc = kwboot_tty_send(tty, msg, 8);
+		if (rc) {
+			usleep(msg_req_delay * 1000);
+			continue;
+		}
+
+		rc = kwboot_tty_recv(tty, buf, 16, msg_rsp_timeo);
+
+		kwboot_spinner();
+
+	} while (rc);
 
 	kwboot_printv("\n");
 
@@ -300,6 +350,7 @@ kwboot_xm_makeblock(struct kwboot_block *block, const void *data,
 	size_t n;
 	int i;
 
+	block->soh = SOH;
 	block->pnum = pnum;
 	block->_pnum = ~block->pnum;
 
@@ -326,9 +377,15 @@ kwboot_xm_sendblock(int fd, struct kwboot_block *block)
 		if (rc)
 			break;
 
-		rc = kwboot_tty_recv(fd, &c, 1, KWBOOT_BLK_RSP_TIMEO);
-		if (rc)
-			break;
+		do {
+			rc = kwboot_tty_recv(fd, &c, 1, KWBOOT_BLK_RSP_TIMEO);
+			if (rc)
+				break;
+
+			if (c != ACK && c != NAK && c != CAN)
+				printf("%c", c);
+
+		} while (c != ACK && c != NAK && c != CAN);
 
 		if (c != ACK)
 			kwboot_progress(-1, '+');
@@ -511,7 +568,6 @@ kwboot_mmap_image(const char *path, size_t *size, int prot)
 	void *img;
 
 	rc = -1;
-	fd = -1;
 	img = NULL;
 
 	fd = open(path, O_RDONLY);
@@ -601,11 +657,16 @@ static void
 kwboot_usage(FILE *stream, char *progname)
 {
 	fprintf(stream,
-		"Usage: %s -b <image> [ -p ] [ -t ] "
-		"[-B <baud> ] <TTY>\n", progname);
+		"Usage: %s [-d | -a | -b <image> | -D <image> ] [ -t ] [-B <baud> ] <TTY>\n",
+		progname);
 	fprintf(stream, "\n");
-	fprintf(stream, "  -b <image>: boot <image>\n");
+	fprintf(stream,
+		"  -b <image>: boot <image> with preamble (Kirkwood, Armada 370/XP)\n");
 	fprintf(stream, "  -p: patch <image> to type 0x69 (uart boot)\n");
+	fprintf(stream,
+		"  -D <image>: boot <image> without preamble (Dove)\n");
+	fprintf(stream, "  -d: enter debug mode\n");
+	fprintf(stream, "  -a: use timings for Armada XP\n");
 	fprintf(stream, "\n");
 	fprintf(stream, "  -t: mini terminal\n");
 	fprintf(stream, "\n");
@@ -619,6 +680,7 @@ main(int argc, char **argv)
 	const char *ttypath, *imgpath;
 	int rv, rc, tty, term, prot, patch;
 	void *bootmsg;
+	void *debugmsg;
 	void *img;
 	size_t size;
 	speed_t speed;
@@ -626,6 +688,7 @@ main(int argc, char **argv)
 	rv = 1;
 	tty = -1;
 	bootmsg = NULL;
+	debugmsg = NULL;
 	imgpath = NULL;
 	img = NULL;
 	term = 0;
@@ -636,7 +699,7 @@ main(int argc, char **argv)
 	kwboot_verbose = isatty(STDOUT_FILENO);
 
 	do {
-		int c = getopt(argc, argv, "hb:ptB:");
+		int c = getopt(argc, argv, "hb:ptaB:dD:");
 		if (c < 0)
 			break;
 
@@ -646,12 +709,26 @@ main(int argc, char **argv)
 			imgpath = optarg;
 			break;
 
+		case 'D':
+			bootmsg = NULL;
+			imgpath = optarg;
+			break;
+
+		case 'd':
+			debugmsg = kwboot_msg_debug;
+			break;
+
 		case 'p':
 			patch = 1;
 			break;
 
 		case 't':
 			term = 1;
+			break;
+
+		case 'a':
+			msg_req_delay = KWBOOT_MSG_REQ_DELAY_AXP;
+			msg_rsp_timeo = KWBOOT_MSG_RSP_TIMEO_AXP;
 			break;
 
 		case 'B':
@@ -667,7 +744,7 @@ main(int argc, char **argv)
 		}
 	} while (1);
 
-	if (!bootmsg && !term)
+	if (!bootmsg && !term && !debugmsg)
 		goto usage;
 
 	if (patch && !imgpath)
@@ -702,7 +779,13 @@ main(int argc, char **argv)
 		}
 	}
 
-	if (bootmsg) {
+	if (debugmsg) {
+		rc = kwboot_debugmsg(tty, debugmsg);
+		if (rc) {
+			perror("debugmsg");
+			goto out;
+		}
+	} else {
 		rc = kwboot_bootmsg(tty, bootmsg);
 		if (rc) {
 			perror("bootmsg");

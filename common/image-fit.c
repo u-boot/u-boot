@@ -1114,7 +1114,8 @@ int fit_image_check_arch(const void *fit, int noffset, uint8_t arch)
 
 	if (fit_image_get_arch(fit, noffset, &image_arch))
 		return 0;
-	return (arch == image_arch);
+	return (arch == image_arch) ||
+		(arch == IH_ARCH_I386 && image_arch == IH_ARCH_X86_64);
 }
 
 /**
@@ -1434,7 +1435,7 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 		printf("%s  FDT:          %s\n", p, uname);
 }
 
-int fit_image_select(const void *fit, int rd_noffset, int verify)
+static int fit_image_select(const void *fit, int rd_noffset, int verify)
 {
 	fit_image_print(fit, rd_noffset, "   ");
 
@@ -1497,6 +1498,8 @@ static const char *fit_get_image_type_property(int type)
 		return FIT_KERNEL_PROP;
 	case IH_TYPE_RAMDISK:
 		return FIT_RAMDISK_PROP;
+	case IH_TYPE_X86_SETUP:
+		return FIT_SETUP_PROP;
 	}
 
 	return "unknown";
@@ -1591,7 +1594,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	}
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ARCH);
-#ifndef USE_HOSTCC
+#if !defined(USE_HOSTCC) && !defined(CONFIG_SANDBOX)
 	if (!fit_image_check_target_arch(fit, noffset)) {
 		puts("Unsupported Architecture\n");
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_CHECK_ARCH);
@@ -1692,4 +1695,24 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		*fit_uname_configp = (char *)fit_uname_config;
 
 	return noffset;
+}
+
+int boot_get_setup_fit(bootm_headers_t *images, uint8_t arch,
+			ulong *setup_start, ulong *setup_len)
+{
+	int noffset;
+	ulong addr;
+	ulong len;
+	int ret;
+
+	addr = map_to_sysmem(images->fit_hdr_os);
+	noffset = fit_get_node_from_config(images, FIT_SETUP_PROP, addr);
+	if (noffset < 0)
+		return noffset;
+
+	ret = fit_image_load(images, addr, NULL, NULL, arch,
+			     IH_TYPE_X86_SETUP, BOOTSTAGE_ID_FIT_SETUP_START,
+			     FIT_LOAD_REQUIRED, setup_start, &len);
+
+	return ret;
 }

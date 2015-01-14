@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <os.h>
+#include <cli.h>
 #include <asm/getopt.h>
 #include <asm/io.h>
 #include <asm/sections.h>
@@ -38,7 +39,7 @@ int sandbox_early_getopt_check(void)
 
 	max_arg_len = 0;
 	for (i = 0; i < num_options; ++i)
-		max_arg_len = max(strlen(sb_opt[i]->flag), max_arg_len);
+		max_arg_len = max((int)strlen(sb_opt[i]->flag), max_arg_len);
 	max_noarg_len = max_arg_len + 7;
 
 	for (i = 0; i < num_options; ++i) {
@@ -76,6 +77,8 @@ int sandbox_main_loop_init(void)
 
 	/* Execute command if required */
 	if (state->cmd) {
+		cli_init();
+
 		run_command_list(state->cmd, -1, 0);
 		if (!state->interactive)
 			os_exit(state->exit_type);
@@ -127,7 +130,8 @@ static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 	state->write_ram_buf = true;
 	state->ram_buf_fname = arg;
 
-	if (os_read_ram_buf(arg)) {
+	err = os_read_ram_buf(arg);
+	if (err) {
 		printf("Failed to read RAM buffer\n");
 		return err;
 	}

@@ -6,12 +6,17 @@
 	model = "Toradex Colibri T30";
 	compatible = "toradex,colibri_t30", "nvidia,tegra30";
 
+	chosen {
+		stdout-path = &uarta;
+	};
+
 	aliases {
 		i2c0 = "/i2c@7000d000";
 		i2c1 = "/i2c@7000c000";
 		i2c2 = "/i2c@7000c700";
 		sdhci0 = "/sdhci@78000600";
 		sdhci1 = "/sdhci@78000200";
+		spi0 = "/spi@7000d400";
 		usb0 = "/usb@7d000000";
 		usb1 = "/usb@7d004000"; /* on module only, for ASIX */
 		usb2 = "/usb@7d008000";
@@ -22,8 +27,10 @@
 		reg = <0x80000000 0x40000000>;
 	};
 
-	/* GEN1_I2C: I2C_SDA/SCL on SODIMM pin 194/196 (e.g. RTC on carrier
-	   board) */
+	/*
+	 * GEN1_I2C: I2C_SDA/SCL on SODIMM pin 194/196 (e.g. RTC on carrier
+	 * board)
+	 */
 	i2c@7000c000 {
 		status = "okay";
 		clock-frequency = <100000>;
@@ -39,8 +46,10 @@
 		clock-frequency = <100000>;
 	};
 
-	/* PWR_I2C: power I2C to audio codec, PMIC, temperature sensor and
-	   touch screen controller */
+	/*
+	 * PWR_I2C: power I2C to audio codec, PMIC, temperature sensor and
+	 * touch screen controller
+	 */
 	i2c@7000d000 {
 		status = "okay";
 		clock-frequency = <100000>;

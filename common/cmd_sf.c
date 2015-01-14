@@ -8,13 +8,15 @@
 
 #include <common.h>
 #include <div64.h>
+#include <dm.h>
 #include <malloc.h>
+#include <spi.h>
 #include <spi_flash.h>
 
 #include <asm/io.h>
+#include <dm/device-internal.h>
 
 static struct spi_flash *flash;
-
 
 /*
  * This function computes the length argument for the erase command.
@@ -68,9 +70,9 @@ static ulong bytes_per_second(unsigned int len, ulong start_ms)
 {
 	/* less accurate but avoids overflow */
 	if (len >= ((unsigned int) -1) / 1024)
-		return len / (max(get_timer(start_ms) / 1024, 1));
+		return len / (max(get_timer(start_ms) / 1024, 1UL));
 	else
-		return 1024 * len / max(get_timer(start_ms), 1);
+		return 1024 * len / max(get_timer(start_ms), 1UL);
 }
 
 static int do_spi_flash_probe(int argc, char * const argv[])
@@ -80,7 +82,12 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 	unsigned int speed = CONFIG_SF_DEFAULT_SPEED;
 	unsigned int mode = CONFIG_SF_DEFAULT_MODE;
 	char *endp;
+#ifdef CONFIG_DM_SPI_FLASH
+	struct udevice *new, *bus_dev;
+	int ret;
+#else
 	struct spi_flash *new;
+#endif
 
 	if (argc >= 2) {
 		cs = simple_strtoul(argv[1], &endp, 0);
@@ -108,6 +115,23 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 			return -1;
 	}
 
+#ifdef CONFIG_DM_SPI_FLASH
+	/* Remove the old device, otherwise probe will just be a nop */
+	ret = spi_find_bus_and_cs(bus, cs, &bus_dev, &new);
+	if (!ret) {
+		device_remove(new);
+		device_unbind(new);
+	}
+	flash = NULL;
+	ret = spi_flash_probe_bus_cs(bus, cs, speed, mode, &new);
+	if (ret) {
+		printf("Failed to initialize SPI flash at %u:%u (error %d)\n",
+		       bus, cs, ret);
+		return 1;
+	}
+
+	flash = new->uclass_priv;
+#else
 	new = spi_flash_probe(bus, cs, speed, mode);
 	if (!new) {
 		printf("Failed to initialize SPI flash at %u:%u\n", bus, cs);
@@ -117,6 +141,7 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 	if (flash)
 		spi_flash_free(flash);
 	flash = new;
+#endif
 
 	return 0;
 }
@@ -197,7 +222,7 @@ static int spi_flash_update(struct spi_flash *flash, u32 offset,
 		ulong last_update = get_timer(0);
 
 		for (; buf < end && !err_oper; buf += todo, offset += todo) {
-			todo = min(end - buf, flash->sector_size);
+			todo = min_t(size_t, end - buf, flash->sector_size);
 			if (get_timer(last_update) > 100) {
 				printf("   \rUpdating, %zu%% %lu B/s",
 				       100 - (end - buf) / scale,
@@ -395,7 +420,8 @@ static int spi_flash_test(struct spi_flash *flash, uint8_t *buf, ulong len,
 	for (i = 0; i < len; i++) {
 		if (vbuf[i] != 0xff) {
 			printf("Check failed at %d\n", i);
-			print_buffer(i, vbuf + i, 1, min(len - i, 0x40), 0);
+			print_buffer(i, vbuf + i, 1,
+				     min_t(uint, len - i, 0x40), 0);
 			return -1;
 		}
 	}
@@ -417,9 +443,11 @@ static int spi_flash_test(struct spi_flash *flash, uint8_t *buf, ulong len,
 	for (i = 0; i < len; i++) {
 		if (buf[i] != vbuf[i]) {
 			printf("Verify failed at %d, good data:\n", i);
-			print_buffer(i, buf + i, 1, min(len - i, 0x40), 0);
+			print_buffer(i, buf + i, 1,
+				     min_t(uint, len - i, 0x40), 0);
 			printf("Bad data:\n");
-			print_buffer(i, vbuf + i, 1, min(len - i, 0x40), 0);
+			print_buffer(i, vbuf + i, 1,
+				     min_t(uint, len - i, 0x40), 0);
 			return -1;
 		}
 	}

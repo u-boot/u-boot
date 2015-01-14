@@ -18,8 +18,11 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/arch/rmobile.h>
+#include <asm/arch/rcar-mstp.h>
+#include <asm/arch/mmc.h>
 #include <miiphy.h>
 #include <i2c.h>
+#include <mmc.h>
 #include "qos.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -36,35 +39,24 @@ void s_init(void)
 
 	/* CPU frequency setting. Set to 1.4GHz */
 	if (rmobile_get_cpu_rev_integer() >= R8A7790_CUT_ES2X) {
+		u32 stat = 0;
 		u32 stc = ((1400 / CLK2MHZ(CONFIG_SYS_CLK_FREQ)) - 1)
 			<< PLL0_STC_BIT;
 		clrsetbits_le32(PLL0CR, PLL0_STC_MASK, stc);
+
+		do {
+			stat = readl(PLLECR) & PLL0ST;
+		} while (stat == 0x0);
 	}
 
 	/* QoS(Quality-of-Service) Init */
 	qos_init();
 }
 
-#define MSTPSR1	0xE6150038
-#define SMSTPCR1	0xE6150134
 #define TMU0_MSTP125	(1 << 25)
-
-#define MSTPSR7	0xE61501C4
-#define SMSTPCR7	0xE615014C
 #define SCIF0_MSTP721	(1 << 21)
-
-#define MSTPSR8	0xE61509A0
-#define SMSTPCR8	0xE6150990
 #define ETHER_MSTP813	(1 << 13)
-
-#define mstp_setbits(type, addr, saddr, set) \
-	out_##type((saddr), in_##type(addr) | (set))
-#define mstp_clrbits(type, addr, saddr, clear) \
-	out_##type((saddr), in_##type(addr) & ~(clear))
-#define mstp_setbits_le32(addr, saddr, set)	\
-		mstp_setbits(le32, addr, saddr, set)
-#define mstp_clrbits_le32(addr, saddr, clear)	\
-		mstp_clrbits(le32, addr, saddr, clear)
+#define MMC1_MSTP305    (1 << 5)
 
 int board_early_init_f(void)
 {
@@ -74,21 +66,17 @@ int board_early_init_f(void)
 	mstp_clrbits_le32(MSTPSR7, SMSTPCR7, SCIF0_MSTP721);
 	/* ETHER */
 	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHER_MSTP813);
+	/* eMMC */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, MMC1_MSTP305);
 
 	return 0;
-}
-
-void arch_preboot_os(void)
-{
-	/* Disable TMU0 */
-	mstp_setbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
 }
 
 DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = LAGER_SDRAM_BASE + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	/* Init PFC controller */
 	r8a7790_pinmux_init();
@@ -158,9 +146,30 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
+int board_mmc_init(bd_t *bis)
+{
+	int ret = 0;
+
+#ifdef CONFIG_SH_MMCIF
+	gpio_request(GPIO_FN_MMC1_D0, NULL);
+	gpio_request(GPIO_FN_MMC1_D1, NULL);
+	gpio_request(GPIO_FN_MMC1_D2, NULL);
+	gpio_request(GPIO_FN_MMC1_D3, NULL);
+	gpio_request(GPIO_FN_MMC1_D4, NULL);
+	gpio_request(GPIO_FN_MMC1_D5, NULL);
+	gpio_request(GPIO_FN_MMC1_D6, NULL);
+	gpio_request(GPIO_FN_MMC1_D7, NULL);
+	gpio_request(GPIO_FN_MMC1_CLK, NULL);
+	gpio_request(GPIO_FN_MMC1_CMD, NULL);
+
+	ret = mmcif_mmc_init();
+#endif
+	return ret;
+}
+
+
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
 	return 0;
@@ -169,17 +178,6 @@ int dram_init(void)
 const struct rmobile_sysinfo sysinfo = {
 	CONFIG_RMOBILE_BOARD_STRING
 };
-
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = LAGER_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = LAGER_SDRAM_SIZE;
-}
-
-int board_late_init(void)
-{
-	return 0;
-}
 
 void reset_cpu(ulong addr)
 {

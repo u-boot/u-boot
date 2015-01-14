@@ -11,6 +11,8 @@
 
 #include <usb_defs.h>
 #include <linux/usb/ch9.h>
+#include <asm/cache.h>
+#include <part.h>
 
 /*
  * The EHCI spec says that we must align to at least 32 bytes.  However,
@@ -129,6 +131,8 @@ struct usb_device {
 	unsigned int slot_id;
 };
 
+struct int_queue;
+
 /*
  * You can initialize platform's USB host or device
  * ports by passing this enum as an argument to
@@ -150,7 +154,8 @@ enum usb_init_type {
 	defined(CONFIG_USB_OMAP3) || defined(CONFIG_USB_DA8XX) || \
 	defined(CONFIG_USB_BLACKFIN) || defined(CONFIG_USB_AM35X) || \
 	defined(CONFIG_USB_MUSB_DSPS) || defined(CONFIG_USB_MUSB_AM35X) || \
-	defined(CONFIG_USB_MUSB_OMAP2PLUS) || defined(CONFIG_USB_XHCI)
+	defined(CONFIG_USB_MUSB_OMAP2PLUS) || defined(CONFIG_USB_XHCI) || \
+	defined(CONFIG_USB_DWC2)
 
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller);
 int usb_lowlevel_stop(int index);
@@ -161,6 +166,13 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, struct devrequest *setup);
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, int interval);
+
+#ifdef CONFIG_USB_EHCI /* Only the ehci code has pollable int support */
+struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
+	int queuesize, int elementsize, void *buffer);
+int destroy_int_queue(struct usb_device *dev, struct int_queue *queue);
+void *poll_int_queue(struct usb_device *dev, struct int_queue *queue);
+#endif
 
 /* Defines */
 #define USB_UHCI_VEND_ID	0x8086

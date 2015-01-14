@@ -144,9 +144,6 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_eth(5);
 #endif
 
-#ifdef CONFIG_HERMES
-	print_mhz("ethspeed",		bd->bi_ethspeed);
-#endif
 	printf("IP addr     = %s\n", getenv("ipaddr"));
 	printf("baudrate    = %6u bps\n", gd->baudrate);
 	print_num("relocaddr", gd->relocaddr);
@@ -518,7 +515,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-#elif defined(CONFIG_ARC700)
+#elif defined(CONFIG_ARC)
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

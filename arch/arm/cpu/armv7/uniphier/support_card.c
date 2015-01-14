@@ -83,6 +83,12 @@ static int support_card_show_revision(void)
 }
 #endif
 
+int check_support_card(void)
+{
+	printf("SC:    Micro Support Card ");
+	return support_card_show_revision();
+}
+
 void support_card_init(void)
 {
 	/*
@@ -92,12 +98,6 @@ void support_card_init(void)
 	 * function. So we do not have to wait here.
 	 */
 	support_card_reset_deassert();
-}
-
-int check_support_card(void)
-{
-	printf("SC:    Micro Support Card ");
-	return support_card_show_revision();
 }
 
 #if defined(CONFIG_SMC911X)
@@ -112,18 +112,14 @@ int board_eth_init(bd_t *bis)
 #if !defined(CONFIG_SYS_NO_FLASH)
 
 #include <mtd/cfi_flash.h>
+#include <asm/arch/sbc-regs.h>
 
-#if CONFIG_SYS_MAX_FLASH_BANKS > 1
-static phys_addr_t flash_banks_list[CONFIG_SYS_MAX_FLASH_BANKS] =
-					CONFIG_SYS_FLASH_BANKS_LIST;
+struct memory_bank {
+	phys_addr_t base;
+	unsigned long size;
+};
 
-phys_addr_t cfi_flash_bank_addr(int i)
-{
-	return flash_banks_list[i];
-}
-#endif
-
-int mem_is_flash(phys_addr_t base)
+static int mem_is_flash(const struct memory_bank *mem)
 {
 	const int loop = 128;
 	u32 *scratch_addr;
@@ -131,8 +127,9 @@ int mem_is_flash(phys_addr_t base)
 	int ret = 1;
 	int i;
 
-	scratch_addr = map_physmem(base + 0x01e00000,
-					sizeof(u32) * loop, MAP_NOCACHE);
+	/* just in case, use the tail of the memory bank */
+	scratch_addr = map_physmem(mem->base + mem->size - sizeof(u32) * loop,
+				   sizeof(u32) * loop, MAP_NOCACHE);
 
 	for (i = 0; i < loop; i++, scratch_addr++) {
 		saved_value = readl(scratch_addr);
@@ -150,31 +147,79 @@ int mem_is_flash(phys_addr_t base)
 	return ret;
 }
 
-int board_flash_wp_on(void)
-{
-	int i;
-	int ret = 1;
+#if defined(CONFIG_PFC_MICRO_SUPPORT_CARD)
+	/* {address, size} */
+static const struct memory_bank memory_banks_boot_swap_off[] = {
+	{0x02000000, 0x01f00000},
+};
 
-	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
-		if (mem_is_flash(cfi_flash_bank_addr(i))) {
-			/*
-			 * We found at least one flash.
-			 * We need to return 0 and call flash_init().
-			 */
-			ret = 0;
-		}
-#if CONFIG_SYS_MAX_FLASH_BANKS > 1
-		else {
-			/*
-			 * We might have a SRAM here.
-			 * To prevent SRAM data from being destroyed,
-			 * we set dummy address (SDRAM).
-			 */
-			flash_banks_list[i] = 0x80000000 + 0x10000 * i;
-		}
+static const struct memory_bank memory_banks_boot_swap_on[] = {
+	{0x00000000, 0x01f00000},
+};
 #endif
+
+#if defined(CONFIG_DCC_MICRO_SUPPORT_CARD)
+static const struct memory_bank memory_banks_boot_swap_off[] = {
+	{0x04000000, 0x02000000},
+};
+
+static const struct memory_bank memory_banks_boot_swap_on[] = {
+	{0x00000000, 0x02000000},
+	{0x04000000, 0x02000000},
+};
+#endif
+
+static const struct memory_bank
+*flash_banks_list[CONFIG_SYS_MAX_FLASH_BANKS_DETECT];
+
+phys_addr_t cfi_flash_bank_addr(int i)
+{
+	return flash_banks_list[i]->base;
+}
+
+unsigned long cfi_flash_bank_size(int i)
+{
+	return flash_banks_list[i]->size;
+}
+
+static void detect_num_flash_banks(void)
+{
+	const struct memory_bank *memory_bank, *end;
+
+	cfi_flash_num_flash_banks = 0;
+
+	if (boot_is_swapped()) {
+		memory_bank = memory_banks_boot_swap_on;
+		end = memory_bank + ARRAY_SIZE(memory_banks_boot_swap_on);
+	} else {
+		memory_bank = memory_banks_boot_swap_off;
+		end = memory_bank + ARRAY_SIZE(memory_banks_boot_swap_off);
 	}
 
-	return ret;
+	for (; memory_bank < end; memory_bank++) {
+		if (cfi_flash_num_flash_banks >=
+		    CONFIG_SYS_MAX_FLASH_BANKS_DETECT)
+			break;
+
+		if (mem_is_flash(memory_bank)) {
+			flash_banks_list[cfi_flash_num_flash_banks] =
+								memory_bank;
+
+			debug("flash bank found: base = 0x%lx, size = 0x%lx\n",
+			      memory_bank->base, memory_bank->size);
+			cfi_flash_num_flash_banks++;
+		}
+	}
+
+	debug("number of flash banks: %d\n", cfi_flash_num_flash_banks);
 }
-#endif
+#else /* ONFIG_SYS_NO_FLASH */
+void detect_num_flash_banks(void)
+{
+};
+#endif /* ONFIG_SYS_NO_FLASH */
+
+void support_card_late_init(void)
+{
+	detect_num_flash_banks();
+}

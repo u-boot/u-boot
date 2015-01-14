@@ -9,12 +9,14 @@
  */
 
 #include <common.h>
+#include <ahci.h>
 #include <spl.h>
 #include <asm/omap_common.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <watchdog.h>
+#include <scsi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -33,8 +35,19 @@ void save_omap_boot_params(void)
 	 * used. But it not correct to assume that romcode structure
 	 * encoding would be same as u-boot. So use the defined offsets.
 	 */
-	gd->arch.omap_boot_params.omap_bootdevice = boot_device =
-				   *((u8 *)(rom_params + BOOT_DEVICE_OFFSET));
+	boot_device = *((u8 *)(rom_params + BOOT_DEVICE_OFFSET));
+
+#if defined(BOOT_DEVICE_NAND_I2C)
+	/*
+	 * Re-map NAND&I2C boot-device to the "normal" NAND boot-device.
+	 * Otherwise the SPL boot IF can't handle this device correctly.
+	 * Somehow booting with Hynix 4GBit NAND H27U4G8 on Siemens
+	 * Draco leads to this boot-device passed to SPL from the BootROM.
+	 */
+	if (boot_device == BOOT_DEVICE_NAND_I2C)
+		boot_device = BOOT_DEVICE_NAND;
+#endif
+	gd->arch.omap_boot_params.omap_bootdevice = boot_device;
 
 	gd->arch.omap_boot_params.ch_flags =
 				*((u8 *)(rom_params + CH_FLAGS_OFFSET));
@@ -57,7 +70,7 @@ void save_omap_boot_params(void)
 		}
 	}
 
-#ifdef CONFIG_DRA7XX
+#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
 	/*
 	 * We get different values for QSPI_1 and QSPI_4 being used, but
 	 * don't actually care about this difference.  Rather than
@@ -81,8 +94,8 @@ u32 spl_boot_mode(void)
 
 	if (val == MMCSD_MODE_RAW)
 		return MMCSD_MODE_RAW;
-	else if (val == MMCSD_MODE_FAT)
-		return MMCSD_MODE_FAT;
+	else if (val == MMCSD_MODE_FS)
+		return MMCSD_MODE_FS;
 	else
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 		return MMCSD_MODE_EMMCBOOT;
@@ -130,5 +143,12 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	debug("image entry point: 0x%X\n", spl_image->entry_point);
 	/* Pass the saved boot_params from rom code */
 	image_entry((u32 *)&gd->arch.omap_boot_params);
+}
+#endif
+
+#ifdef CONFIG_SCSI_AHCI_PLAT
+void arch_preboot_os(void)
+{
+	ahci_reset(DWC_AHSATA_BASE);
 }
 #endif

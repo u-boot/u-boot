@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <asm/armv7.h>
+#include <asm/bootm.h>
 #include <asm/pl310.h>
 #include <asm/errno.h>
 #include <asm/io.h>
@@ -20,6 +21,9 @@
 #include <stdbool.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/bootm.h>
+#include <dm.h>
+#include <imx_thermal.h>
 
 enum ldo_reg {
 	LDO_ARM,
@@ -34,6 +38,19 @@ struct scu_regs {
 	u32	invalidate;
 	u32	fpga_rev;
 };
+
+#if defined(CONFIG_IMX6_THERMAL)
+static const struct imx_thermal_plat imx6_thermal_plat = {
+	.regs = (void *)ANATOP_BASE_ADDR,
+	.fuse_bank = 1,
+	.fuse_word = 6,
+};
+
+U_BOOT_DEVICE(imx6_thermal) = {
+	.name = "imx_thermal",
+	.platdata = &imx6_thermal_plat,
+};
+#endif
 
 u32 get_nr_cpus(void)
 {
@@ -238,6 +255,18 @@ static void clear_mmdc_ch_mask(void)
 	writel(0, &mxc_ccm->ccdr);
 }
 
+#ifdef CONFIG_MX6SL
+static void set_preclk_from_osc(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	u32 reg;
+
+	reg = readl(&mxc_ccm->cscmr1);
+	reg |= MXC_CCM_CSCMR1_PER_CLK_SEL_MASK;
+	writel(reg, &mxc_ccm->cscmr1);
+}
+#endif
+
 int arch_cpu_init(void)
 {
 	init_aips();
@@ -252,6 +281,11 @@ int arch_cpu_init(void)
 	 */
 	if (mxc_get_clock(MXC_ARM_CLK) == 396000000)
 		set_ahb_rate(132000000);
+
+		/* Set perclk to source from OSC 24MHz */
+#if defined(CONFIG_MX6SL)
+	set_preclk_from_osc();
+#endif
 
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
 
@@ -331,8 +365,8 @@ void boot_mode_apply(unsigned cfg_val)
 /*
  * cfg_val will be used for
  * Boot_cfg4[7:0]:Boot_cfg3[7:0]:Boot_cfg2[7:0]:Boot_cfg1[7:0]
- * After reset, if GPR10[28] is 1, ROM will copy GPR9[25:0]
- * to SBMR1, which will determine the boot device.
+ * After reset, if GPR10[28] is 1, ROM will use GPR9[25:0]
+ * instead of SBMR1 to determine the boot device.
  */
 const struct boot_mode soc_boot_modes[] = {
 	{"normal",	MAKE_CFGVAL(0x00, 0x00, 0x00, 0x00)},

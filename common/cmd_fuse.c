@@ -128,7 +128,7 @@ static int do_fuse(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 err:
 	puts("ERROR\n");
-	return ret;
+	return CMD_RET_FAILURE;
 }
 
 U_BOOT_CMD(

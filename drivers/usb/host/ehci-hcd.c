@@ -119,15 +119,12 @@ static struct descriptor {
 #define ehci_is_TDI()	(0)
 #endif
 
-int __ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
+__weak int ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
 {
 	return PORTSC_PSPD(reg);
 }
 
-int ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
-	__attribute__((weak, alias("__ehci_get_port_speed")));
-
-void __ehci_set_usbmode(int index)
+__weak void ehci_set_usbmode(int index)
 {
 	uint32_t tmp;
 	uint32_t *reg_ptr;
@@ -141,16 +138,10 @@ void __ehci_set_usbmode(int index)
 	ehci_writel(reg_ptr, tmp);
 }
 
-void ehci_set_usbmode(int index)
-	__attribute__((weak, alias("__ehci_set_usbmode")));
-
-void __ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+__weak void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
 {
 	mdelay(50);
 }
-
-void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
-	__attribute__((weak, alias("__ehci_powerup_fixup")));
 
 static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 {
@@ -919,7 +910,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	}
 
 	mdelay(1);
-	len = min3(srclen, le16_to_cpu(req->length), length);
+	len = min3(srclen, (int)le16_to_cpu(req->length), length);
 	if (srcptr != NULL && len > 0)
 		memcpy(buffer, srcptr, len);
 	else
@@ -980,7 +971,6 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	qh_list->qh_link = cpu_to_hc32((uint32_t)qh_list | QH_LINK_TYPE_QH);
 	qh_list->qh_endpt1 = cpu_to_hc32(QH_ENDPT1_H(1) |
 						QH_ENDPT1_EPS(USB_SPEED_HIGH));
-	qh_list->qh_curtd = cpu_to_hc32(QT_NEXT_TERMINATE);
 	qh_list->qh_overlay.qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 	qh_list->qh_overlay.qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
 	qh_list->qh_overlay.qt_token =
@@ -1106,6 +1096,7 @@ submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 }
 
 struct int_queue {
+	int elementsize;
 	struct QH *first;
 	struct QH *current;
 	struct QH *last;
@@ -1163,6 +1154,23 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 	struct int_queue *result = NULL;
 	int i;
 
+	/*
+	 * Interrupt transfers requiring several transactions are not supported
+	 * because bInterval is ignored.
+	 *
+	 * Also, ehci_submit_async() relies on wMaxPacketSize being a power of 2
+	 * <= PKT_ALIGN if several qTDs are required, while the USB
+	 * specification does not constrain this for interrupt transfers. That
+	 * means that ehci_submit_async() would support interrupt transfers
+	 * requiring several transactions only as long as the transfer size does
+	 * not require more than a single qTD.
+	 */
+	if (elementsize > usb_maxpacket(dev, pipe)) {
+		printf("%s: xfers requiring several transactions are not supported.\n",
+		       __func__);
+		return NULL;
+	}
+
 	debug("Enter create_int_queue\n");
 	if (usb_pipetype(pipe) != PIPE_INTERRUPT) {
 		debug("non-interrupt pipe (type=%lu)", usb_pipetype(pipe));
@@ -1183,6 +1191,7 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 		debug("ehci intr queue: out of memory\n");
 		goto fail1;
 	}
+	result->elementsize = elementsize;
 	result->first = memalign(USB_DMA_MINALIGN,
 				 sizeof(struct QH) * queuesize);
 	if (!result->first) {
@@ -1258,9 +1267,11 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 			   ALIGN_END_ADDR(struct qTD, result->tds,
 					  queuesize));
 
-	if (disable_periodic(ctrl) < 0) {
-		debug("FATAL: periodic should never fail, but did");
-		goto fail3;
+	if (ctrl->periodic_schedules > 0) {
+		if (disable_periodic(ctrl) < 0) {
+			debug("FATAL: periodic should never fail, but did");
+			goto fail3;
+		}
 	}
 
 	/* hook up to periodic list */
@@ -1317,6 +1328,11 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 		queue->current++;
 	else
 		queue->current = NULL;
+
+	invalidate_dcache_range((uint32_t)cur->buffer,
+				ALIGN_END_ADDR(char, cur->buffer,
+					       queue->elementsize));
+
 	debug("Exit poll_int_queue with completed intr transfer. token is %x at %p (first at %p)\n",
 	      hc32_to_cpu(cur_td->qt_token), cur, queue->first);
 	return cur->buffer;
@@ -1382,24 +1398,9 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	debug("dev=%p, pipe=%lu, buffer=%p, length=%d, interval=%d",
 	      dev, pipe, buffer, length, interval);
 
-	/*
-	 * Interrupt transfers requiring several transactions are not supported
-	 * because bInterval is ignored.
-	 *
-	 * Also, ehci_submit_async() relies on wMaxPacketSize being a power of 2
-	 * <= PKT_ALIGN if several qTDs are required, while the USB
-	 * specification does not constrain this for interrupt transfers. That
-	 * means that ehci_submit_async() would support interrupt transfers
-	 * requiring several transactions only as long as the transfer size does
-	 * not require more than a single qTD.
-	 */
-	if (length > usb_maxpacket(dev, pipe)) {
-		printf("%s: Interrupt transfers requiring several "
-			"transactions are not supported.\n", __func__);
-		return -1;
-	}
-
 	queue = create_int_queue(dev, pipe, 1, length, buffer);
+	if (!queue)
+		return -1;
 
 	timeout = get_timer(0) + USB_TIMEOUT_MS(pipe);
 	while ((backbuffer = poll_int_queue(dev, queue)) == NULL)
@@ -1414,9 +1415,6 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		      (uint32_t)backbuffer, (uint32_t)buffer);
 		return -EINVAL;
 	}
-
-	invalidate_dcache_range((uint32_t)buffer,
-				ALIGN_END_ADDR(char, buffer, length));
 
 	ret = destroy_int_queue(dev, queue);
 	if (ret < 0)

@@ -37,6 +37,8 @@ static void usage(const char *exec_name)
 	       "\t\tkey1=value1\n"
 	       "\t\tkey2=value2\n"
 	       "\t\t...\n"
+	       "\tEmpty lines are skipped, and lines with a # in the first\n"
+	       "\tcolumn are treated as comments (also skipped).\n"
 	       "\t-r : the environment has multiple copies in flash\n"
 	       "\t-b : the target is big endian (default is little endian)\n"
 	       "\t-p <byte> : fill the image with <byte> bytes instead of 0xff bytes\n"
@@ -221,10 +223,9 @@ int main(int argc, char **argv)
 	/* Replace newlines separating variables with \0 */
 	for (fp = 0, ep = 0 ; fp < filesize ; fp++) {
 		if (filebuf[fp] == '\n') {
-			if (ep == 0) {
+			if (fp == 0 || filebuf[fp-1] == '\n') {
 				/*
-				 * Newlines at the beginning of the file ?
-				 * Ignore them.
+				 * Skip empty lines.
 				 */
 				continue;
 			} else if (filebuf[fp-1] == '\\') {
@@ -240,6 +241,10 @@ int main(int argc, char **argv)
 				/* End of a variable */
 				envptr[ep++] = '\0';
 			}
+		} else if ((fp == 0 || filebuf[fp-1] == '\n') && filebuf[fp] == '#') {
+			/* Comment, skip the line. */
+			while (++fp < filesize && filebuf[fp] != '\n')
+			continue;
 		} else {
 			envptr[ep++] = filebuf[fp];
 		}

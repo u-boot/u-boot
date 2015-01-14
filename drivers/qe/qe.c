@@ -13,6 +13,9 @@
 #include "asm/io.h"
 #include "linux/immap_qe.h"
 #include "qe.h"
+#ifdef CONFIG_LS102XA
+#include <asm/arch/immap_ls102xa.h>
+#endif
 
 #define MPC85xx_DEVDISR_QE_DISABLE	0x1
 
@@ -40,6 +43,7 @@ void qe_issue_cmd(uint cmd, uint sbc, u8 mcn, u32 cmd_data)
 	return;
 }
 
+#ifdef CONFIG_QE
 uint qe_muram_alloc(uint size, uint align)
 {
 	uint	retloc;
@@ -70,6 +74,7 @@ uint qe_muram_alloc(uint size, uint align)
 
 	return retloc;
 }
+#endif
 
 void *qe_muram_addr(uint offset)
 {
@@ -180,6 +185,17 @@ void qe_init(uint qe_base)
 	qe_snums_init();
 }
 
+#ifdef CONFIG_U_QE
+void u_qe_init(void)
+{
+	uint qe_base = CONFIG_SYS_IMMR + 0x01400000; /* QE immr base */
+	qe_immr = (qe_map_t *)qe_base;
+
+	u_qe_upload_firmware((const void *)CONFIG_SYS_QE_FW_ADDR);
+	out_be32(&qe_immr->iram.iready, QE_IRAM_READY);
+}
+#endif
+
 void qe_reset(void)
 {
 	qe_issue_cmd(QE_RESET, QE_CR_SUBBLOCK_INVALID,
@@ -212,6 +228,7 @@ void qe_assign_page(uint snum, uint para_ram_base)
 
 #define BRG_CLK		(gd->arch.brg_clk)
 
+#ifdef CONFIG_QE
 int qe_set_brg(uint brg, uint rate)
 {
 	volatile uint	*bp;
@@ -239,6 +256,7 @@ int qe_set_brg(uint brg, uint rate)
 
 	return 0;
 }
+#endif
 
 /* Set ethernet MII clock master
 */
@@ -320,7 +338,11 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 	size_t length;
 	const struct qe_header *hdr;
 #ifdef CONFIG_DEEP_SLEEP
+#ifdef CONFIG_LS102XA
+	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+#else
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#endif
 #endif
 	if (!firmware) {
 		printf("Invalid address\n");
@@ -428,6 +450,135 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 
 	return 0;
 }
+
+#ifdef CONFIG_U_QE
+/*
+ * Upload a microcode to the I-RAM at a specific address.
+ *
+ * See docs/README.qe_firmware for information on QE microcode uploading.
+ *
+ * Currently, only version 1 is supported, so the 'version' field must be
+ * set to 1.
+ *
+ * The SOC model and revision are not validated, they are only displayed for
+ * informational purposes.
+ *
+ * 'calc_size' is the calculated size, in bytes, of the firmware structure and
+ * all of the microcode structures, minus the CRC.
+ *
+ * 'length' is the size that the structure says it is, including the CRC.
+ */
+int u_qe_upload_firmware(const struct qe_firmware *firmware)
+{
+	unsigned int i;
+	unsigned int j;
+	u32 crc;
+	size_t calc_size = sizeof(struct qe_firmware);
+	size_t length;
+	const struct qe_header *hdr;
+#ifdef CONFIG_DEEP_SLEEP
+#ifdef CONFIG_LS102XA
+	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+#else
+	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#endif
+#endif
+	if (!firmware) {
+		printf("Invalid address\n");
+		return -EINVAL;
+	}
+
+	hdr = &firmware->header;
+	length = be32_to_cpu(hdr->length);
+
+	/* Check the magic */
+	if ((hdr->magic[0] != 'Q') || (hdr->magic[1] != 'E') ||
+	    (hdr->magic[2] != 'F')) {
+		printf("Not a microcode\n");
+#ifdef CONFIG_DEEP_SLEEP
+		setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_QE_DISABLE);
+#endif
+		return -EPERM;
+	}
+
+	/* Check the version */
+	if (hdr->version != 1) {
+		printf("Unsupported version\n");
+		return -EPERM;
+	}
+
+	/* Validate some of the fields */
+	if ((firmware->count < 1) || (firmware->count > MAX_QE_RISC)) {
+		printf("Invalid data\n");
+		return -EINVAL;
+	}
+
+	/* Validate the length and check if there's a CRC */
+	calc_size += (firmware->count - 1) * sizeof(struct qe_microcode);
+
+	for (i = 0; i < firmware->count; i++)
+		/*
+		 * For situations where the second RISC uses the same microcode
+		 * as the first, the 'code_offset' and 'count' fields will be
+		 * zero, so it's okay to add those.
+		 */
+		calc_size += sizeof(u32) *
+			be32_to_cpu(firmware->microcode[i].count);
+
+	/* Validate the length */
+	if (length != calc_size + sizeof(u32)) {
+		printf("Invalid length\n");
+		return -EPERM;
+	}
+
+	/*
+	 * Validate the CRC.  We would normally call crc32_no_comp(), but that
+	 * function isn't available unless you turn on JFFS support.
+	 */
+	crc = be32_to_cpu(*(u32 *)((void *)firmware + calc_size));
+	if (crc != (crc32(-1, (const void *)firmware, calc_size) ^ -1)) {
+		printf("Firmware CRC is invalid\n");
+		return -EIO;
+	}
+
+	/*
+	 * If the microcode calls for it, split the I-RAM.
+	 */
+	if (!firmware->split) {
+		out_be16(&qe_immr->cp.cercr,
+			 in_be16(&qe_immr->cp.cercr) | QE_CP_CERCR_CIR);
+	}
+
+	if (firmware->soc.model)
+		printf("Firmware '%s' for %u V%u.%u\n",
+		       firmware->id, be16_to_cpu(firmware->soc.model),
+		       firmware->soc.major, firmware->soc.minor);
+	else
+		printf("Firmware '%s'\n", firmware->id);
+
+	/* Loop through each microcode. */
+	for (i = 0; i < firmware->count; i++) {
+		const struct qe_microcode *ucode = &firmware->microcode[i];
+
+		/* Upload a microcode if it's present */
+		if (ucode->code_offset)
+			qe_upload_microcode(firmware, ucode);
+
+		/* Program the traps for this processor */
+		for (j = 0; j < 16; j++) {
+			u32 trap = be32_to_cpu(ucode->traps[j]);
+
+			if (trap)
+				out_be32(&qe_immr->rsp[i].tibcr[j], trap);
+		}
+
+		/* Enable traps */
+		out_be32(&qe_immr->rsp[i].eccr, be32_to_cpu(ucode->eccr));
+	}
+
+	return 0;
+}
+#endif
 
 struct qe_firmware_info *qe_get_firmware_info(void)
 {

@@ -186,7 +186,6 @@ Directory Hierarchy:
       /mpc5xx		Files specific to Freescale MPC5xx CPUs
       /mpc5xxx		Files specific to Freescale MPC5xxx CPUs
       /mpc8xx		Files specific to Freescale MPC8xx CPUs
-      /mpc824x		Files specific to Freescale MPC824x CPUs
       /mpc8260		Files specific to Freescale MPC8260 CPUs
       /mpc85xx		Files specific to Freescale MPC85xx CPUs
       /ppc4xx		Files specific to AMCC PowerPC 4xx CPUs
@@ -326,10 +325,6 @@ The following options need to be configured:
 					  multiple fs option at one time
 					  for marvell soc family
 
-- MPC824X Family Member (if CONFIG_MPC824X is defined)
-		Define exactly one of
-		CONFIG_MPC8240, CONFIG_MPC8245
-
 - 8xx CPU Options: (if using an MPC8xx CPU)
 		CONFIG_8xx_GCLK_FREQ	- deprecated: CPU clock if
 					  get_gclk_freq() cannot work
@@ -407,7 +402,11 @@ The following options need to be configured:
 
 		CONFIG_A003399_NOR_WORKAROUND
 		Enables a workaround for IFC erratum A003399. It is only
-		requred during NOR boot.
+		required during NOR boot.
+
+		CONFIG_A008044_WORKAROUND
+		Enables a workaround for T1040/T1042 erratum A008044. It is only
+		required during NAND boot and valid for Rev 1.0 SoC revision
 
 		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
 
@@ -439,7 +438,7 @@ The following options need to be configured:
 		time of U-boot entry and is required to be re-initialized.
 
 		CONFIG_DEEP_SLEEP
-		Inidcates this SoC supports deep sleep feature. If deep sleep is
+		Indicates this SoC supports deep sleep feature. If deep sleep is
 		supported, core will start to execute uboot when wakes up.
 
 - Generic CPU options:
@@ -544,6 +543,12 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
 		Number of controllers used for other than main memory.
 
+		CONFIG_SYS_FSL_SEC_BE
+		Defines the SEC controller register space as Big Endian
+
+		CONFIG_SYS_FSL_SEC_LE
+		Defines the SEC controller register space as Little Endian
+
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
 
@@ -617,12 +622,119 @@ The following options need to be configured:
 		exists, unlike the similar options in the Linux kernel. Do not
 		set these options unless they apply!
 
-- CPU timer options:
-		CONFIG_SYS_HZ
+- Driver Model
+		Driver model is a new framework for devices in U-Boot
+		introduced in early 2014. U-Boot is being progressively
+		moved over to this. It offers a consistent device structure,
+		supports grouping devices into classes and has built-in
+		handling of platform data and device tree.
 
-		The frequency of the timer returned by get_timer().
-		get_timer() must operate in milliseconds and this CONFIG
-		option must be set to 1000.
+		To enable transition to driver model in a relatively
+		painful fashion, each subsystem can be independently
+		switched between the legacy/ad-hoc approach and the new
+		driver model using the options below. Also, many uclass
+		interfaces include compatibility features which may be
+		removed once the conversion of that subsystem is complete.
+		As a result, the API provided by the subsystem may in fact
+		not change with driver model.
+
+		See doc/driver-model/README.txt for more information.
+
+		CONFIG_DM
+
+		Enable driver model. This brings in the core support,
+		including scanning of platform data on start-up. If
+		CONFIG_OF_CONTROL is enabled, the device tree will be
+		scanned also when available.
+
+		CONFIG_CMD_DM
+
+		Enable driver model test commands. These allow you to print
+		out the driver model tree and the uclasses.
+
+		CONFIG_DM_DEMO
+
+		Enable some demo devices and the 'demo' command. These are
+		really only useful for playing around while trying to
+		understand driver model in sandbox.
+
+		CONFIG_SPL_DM
+
+		Enable driver model in SPL. You will need to provide a
+		suitable malloc() implementation. If you are not using the
+		full malloc() enabled by CONFIG_SYS_SPL_MALLOC_START,
+		consider using CONFIG_SYS_MALLOC_SIMPLE. In that case you
+		must provide CONFIG_SYS_MALLOC_F_LEN to set the size.
+		In most cases driver model will only allocate a few uclasses
+		and devices in SPL, so 1KB should be enable. See
+		CONFIG_SYS_MALLOC_F_LEN for more details on how to enable
+		it.
+
+		CONFIG_DM_SERIAL
+
+		Enable driver model for serial. This replaces
+		drivers/serial/serial.c with the serial uclass, which
+		implements serial_putc() etc. The uclass interface is
+		defined in include/serial.h.
+
+		CONFIG_DM_GPIO
+
+		Enable driver model for GPIO access. The standard GPIO
+		interface (gpio_get_value(), etc.) is then implemented by
+		the GPIO uclass. Drivers provide methods to query the
+		particular GPIOs that they provide. The uclass interface
+		is defined in include/asm-generic/gpio.h.
+
+		CONFIG_DM_SPI
+
+		Enable driver model for SPI. The SPI slave interface
+		(spi_setup_slave(), spi_xfer(), etc.) is then implemented by
+		the SPI uclass. Drivers provide methods to access the SPI
+		buses that they control. The uclass interface is defined in
+		include/spi.h. The existing spi_slave structure is attached
+		as 'parent data' to every slave on each bus. Slaves
+		typically use driver-private data instead of extending the
+		spi_slave structure.
+
+		CONFIG_DM_SPI_FLASH
+
+		Enable driver model for SPI flash. This SPI flash interface
+		(spi_flash_probe(), spi_flash_write(), etc.) is then
+		implemented by the SPI flash uclass. There is one standard
+		SPI flash driver which knows how to probe most chips
+		supported by U-Boot. The uclass interface is defined in
+		include/spi_flash.h, but is currently fully compatible
+		with the old interface to avoid confusion and duplication
+		during the transition parent. SPI and SPI flash must be
+		enabled together (it is not possible to use driver model
+		for one and not the other).
+
+		CONFIG_DM_CROS_EC
+
+		Enable driver model for the Chrome OS EC interface. This
+		allows the cros_ec SPI driver to operate with CONFIG_DM_SPI
+		but otherwise makes few changes. Since cros_ec also supports
+		I2C and LPC (which don't support driver model yet), a full
+		conversion is not yet possible.
+
+
+		** Code size options: The following options are enabled by
+		default except in SPL. Enable them explicitly to get these
+		features in SPL.
+
+		CONFIG_DM_WARN
+
+		Enable the dm_warn() function. This can use up quite a bit
+		of space for its strings.
+
+		CONFIG_DM_STDIO
+
+		Enable registering a serial device with the stdio library.
+
+		CONFIG_DM_DEVICE_REMOVE
+
+		Enable removing of devices.
+
 
 - Linux Kernel Interface:
 		CONFIG_CLOCKS_IN_MHZ
@@ -640,7 +752,7 @@ The following options need to be configured:
 
 		CONFIG_MEMSIZE_IN_BYTES		[relevant for MIPS only]
 
-		When transferring memsize parameter to linux, some versions
+		When transferring memsize parameter to Linux, some versions
 		expect it to be in bytes, others in MB.
 		Define CONFIG_MEMSIZE_IN_BYTES to make it in bytes.
 
@@ -669,6 +781,13 @@ The following options need to be configured:
 
 		Board code has addition modification that it wants to make
 		to the flat device tree before handing it off to the kernel
+
+		CONFIG_OF_SYSTEM_SETUP
+
+		Other code has addition modification that it wants to make
+		to the flat device tree before handing it off to the kernel.
+		This causes ft_system_setup() to be called before booting
+		the kernel.
 
 		CONFIG_OF_BOOT_CPU
 
@@ -990,6 +1109,7 @@ The following options need to be configured:
 		CONFIG_CMD_EXT4		* ext4 command support
 		CONFIG_CMD_FS_GENERIC	* filesystem commands (e.g. load, ls)
 					  that work for multiple fs types
+		CONFIG_CMD_FS_UUID	* Look up a filesystem UUID
 		CONFIG_CMD_SAVEENV	  saveenv
 		CONFIG_CMD_FDC		* Floppy Disk Support
 		CONFIG_CMD_FAT		* FAT command support
@@ -1459,6 +1579,9 @@ The following options need to be configured:
 		CONFIG_USB_EHCI_TXFIFO_THRESH enables setting of the
 		txfilltuning field in the EHCI controller on reset.
 
+		CONFIG_USB_DWC2_REG_ADDR the physical CPU address of the DWC2
+		HW module registers.
+
 - USB Device:
 		Define the below if you wish to use the USB console.
 		Once firmware is rebuilt from a serial console issue the
@@ -1645,6 +1768,15 @@ The following options need to be configured:
 		regarding the non-volatile storage device. Define this to
 		the eMMC device that fastboot should use to store the image.
 
+		CONFIG_FASTBOOT_GPT_NAME
+		The fastboot "flash" command supports writing the downloaded
+		image to the Protective MBR and the Primary GUID Partition
+		Table. (Additionally, this downloaded image is post-processed
+		to generate and write the Backup GUID Partition Table.)
+		This occurs when the specified "partition name" on the
+		"fastboot flash" command line matches this value.
+		Default is GPT_ENTRY_NAME (currently "gpt") if undefined.
+
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
 		CONFIG_JFFS2_NAND_DEV
@@ -1830,7 +1962,7 @@ CBFS (Coreboot Filesystem) support
 
 		CONFIG_LCD_ALIGNMENT
 
-		Normally the LCD is page-aligned (tyically 4KB). If this is
+		Normally the LCD is page-aligned (typically 4KB). If this is
 		defined then the LCD will be aligned to this value instead.
 		For ARM it is sometimes useful to use MMU_SECTION_SIZE
 		here, since it is cheaper to change data cache settings on
@@ -1906,7 +2038,7 @@ CBFS (Coreboot Filesystem) support
 		can be displayed via the splashscreen support or the
 		bmp command.
 
-- Do compresssing for memory range:
+- Do compressing for memory range:
 		CONFIG_CMD_ZIP
 
 		If this option is set, it would use zlib deflate method
@@ -2269,7 +2401,7 @@ CBFS (Coreboot Filesystem) support
 		  - define slave for bus 2 with CONFIG_SYS_MXC_I2C2_SLAVE
 		  - define speed for bus 3 with CONFIG_SYS_MXC_I2C3_SPEED
 		  - define slave for bus 3 with CONFIG_SYS_MXC_I2C3_SLAVE
-		If thoses defines are not set, default value is 100000
+		If those defines are not set, default value is 100000
 		for speed, and 0 for slave.
 
 		- drivers/i2c/rcar_i2c.c:
@@ -2302,7 +2434,7 @@ CBFS (Coreboot Filesystem) support
 		  - CONFIG_SYS_I2C_SH_SPEED4 for for the speed channel 4
 		  - CONFIG_SYS_I2C_SH_BASE5 for setting the register channel 5
 		  - CONFIG_SYS_I2C_SH_SPEED5 for for the speed channel 5
-		  - CONFIF_SYS_I2C_SH_NUM_CONTROLLERS for nummber of i2c buses
+		  - CONFIG_SYS_I2C_SH_NUM_CONTROLLERS for number of i2c buses
 
 		- drivers/i2c/omap24xx_i2c.c
 		  - activate this driver with CONFIG_SYS_I2C_OMAP24XX
@@ -2346,7 +2478,7 @@ CBFS (Coreboot Filesystem) support
 		additional defines:
 
 		CONFIG_SYS_NUM_I2C_BUSES
-		Hold the number of i2c busses you want to use. If you
+		Hold the number of i2c buses you want to use. If you
 		don't use/have i2c muxes on your i2c bus, this
 		is equal to CONFIG_SYS_NUM_I2C_ADAPTERS, and you can
 		omit this define.
@@ -2362,7 +2494,7 @@ CBFS (Coreboot Filesystem) support
 		define.
 
 		CONFIG_SYS_I2C_BUSES
-		hold a list of busses you want to use, only used if
+		hold a list of buses you want to use, only used if
 		CONFIG_SYS_I2C_DIRECT_BUS is not defined, for example
 		a board with CONFIG_SYS_I2C_MAX_HOPS = 1 and
 		CONFIG_SYS_NUM_I2C_BUSES = 9:
@@ -2700,14 +2832,14 @@ CBFS (Coreboot Filesystem) support
 
 		CONFIG_SYS_FPGA_WAIT_INIT
 
-		Maximum time to wait for the INIT_B line to deassert
-		after PROB_B has been deasserted during a Virtex II
+		Maximum time to wait for the INIT_B line to de-assert
+		after PROB_B has been de-asserted during a Virtex II
 		FPGA configuration sequence. The default time is 500
 		ms.
 
 		CONFIG_SYS_FPGA_WAIT_BUSY
 
-		Maximum time to wait for BUSY to deassert during
+		Maximum time to wait for BUSY to de-assert during
 		Virtex II FPGA configuration. The default is 5 ms.
 
 		CONFIG_SYS_FPGA_WAIT_CONFIG
@@ -2716,6 +2848,14 @@ CBFS (Coreboot Filesystem) support
 		200 ms.
 
 - Configuration Management:
+		CONFIG_BUILD_TARGET
+
+		Some SoCs need special image types (e.g. U-Boot binary
+		with a special header) as build targets. By defining
+		CONFIG_BUILD_TARGET in the SoC / board header, this
+		special image will be automatically built upon calling
+		make / MAKEALL.
+
 		CONFIG_IDENT_STRING
 
 		If defined, this string will be added to the U-Boot
@@ -2824,22 +2964,6 @@ CBFS (Coreboot Filesystem) support
 
 		Enable auto completion of commands using TAB.
 
-		Note that this feature has NOT been implemented yet
-		for the "hush" shell.
-
-
-		CONFIG_SYS_HUSH_PARSER
-
-		Define this variable to enable the "hush" shell (from
-		Busybox) as command line interpreter, thus enabling
-		powerful command line syntax like
-		if...then...else...fi conditionals or `&&' and '||'
-		constructs ("shell scripts").
-
-		If undefined, you get the old, much simpler behaviour
-		with a somewhat smaller memory footprint.
-
-
 		CONFIG_SYS_PROMPT_HUSH_PS2
 
 		This defines the secondary prompt string, which is
@@ -2867,11 +2991,11 @@ CBFS (Coreboot Filesystem) support
 		of the backslashes before semicolons and special
 		symbols.
 
-- Commandline Editing and History:
+- Command Line Editing and History:
 		CONFIG_CMDLINE_EDITING
 
 		Enable editing and History functions for interactive
-		commandline input operations
+		command line input operations
 
 - Default Environment:
 		CONFIG_EXTRA_ENV_SETTINGS
@@ -2922,7 +3046,7 @@ CBFS (Coreboot Filesystem) support
 		CONFIG_DELAY_ENVIRONMENT
 
 		Normally the environment is loaded when the board is
-		intialised so that it is available to U-Boot. This inhibits
+		initialised so that it is available to U-Boot. This inhibits
 		that so that the environment is not available until
 		explicitly loaded later by U-Boot code. With CONFIG_OF_CONTROL
 		this is instead controlled by the value of
@@ -2968,7 +3092,7 @@ CBFS (Coreboot Filesystem) support
 
 		Define this option to use dual flash support where two flash
 		memories can be connected with a given cs line.
-		currently Xilinx Zynq qspi support these type of connections.
+		Currently Xilinx Zynq qspi supports these type of connections.
 
 		CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
 		enable the W#/Vpp signal to disable writing to the status
@@ -3401,7 +3525,7 @@ FIT uImage format:
 		to 128 or 256, although it does not have to be power of 2).
 
 		default: 4096
-		
+
 		CONFIG_MTD_UBI_BEB_LIMIT
 		This option specifies the maximum bad physical eraseblocks UBI
 		expects on the MTD device (per 1024 eraseblocks). If the
@@ -3541,9 +3665,12 @@ FIT uImage format:
 
 		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR,
 		CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS,
-		CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION
-		Address, size and partition on the MMC to load U-Boot from
+		Address and partition on the MMC to load U-Boot from
 		when the MMC is being used in raw mode.
+
+		CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
+		Partition on the MMC to load U-Boot from when the MMC is being
+		used in raw mode
 
 		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR
 		Sector to load kernel uImage from when MMC is being
@@ -3555,19 +3682,26 @@ FIT uImage format:
 		parameters from when MMC is being used in raw mode
 		(for falcon mode)
 
+		CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
+		Partition on the MMC to load U-Boot from when the MMC is being
+		used in fs mode
+
 		CONFIG_SPL_FAT_SUPPORT
 		Support for fs/fat/libfat.o in SPL binary
 
-		CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME
-		Filename to read to load U-Boot when reading from FAT
+		CONFIG_SPL_EXT_SUPPORT
+		Support for EXT filesystem in SPL binary
 
-		CONFIG_SPL_FAT_LOAD_KERNEL_NAME
+		CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
+		Filename to read to load U-Boot when reading from filesystem
+
+		CONFIG_SPL_FS_LOAD_KERNEL_NAME
 		Filename to read to load kernel uImage when reading
-		from FAT (for Falcon mode)
+		from filesystem (for Falcon mode)
 
-		CONFIG_SPL_FAT_LOAD_ARGS_NAME
+		CONFIG_SPL_FS_LOAD_ARGS_NAME
 		Filename to read to load kernel argument parameters
-		when reading from FAT (for Falcon mode)
+		when reading from filesystem (for Falcon mode)
 
 		CONFIG_SPL_MPC83XX_WAIT_FOR_NAND
 		Set this for NAND SPL on PPC mpc83xx targets, so that
@@ -3595,6 +3729,10 @@ FIT uImage format:
 		CONFIG_SPL_MTD_SUPPORT
 		Support for the MTD subsystem within SPL.  Useful for
 		environment on NAND support within SPL.
+
+		CONFIG_SPL_NAND_RAW_ONLY
+		Support to boot only raw u-boot.bin images. Use this only
+		if you need to save space.
 
 		CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 		Set for the SPL on PPC mpc8xxx targets, support for
@@ -3629,7 +3767,7 @@ FIT uImage format:
 
 		CONFIG_SYS_NAND_HW_ECC_OOBFIRST
 		Define this if you need to first read the OOB and then the
-		data. This is used for example on davinci plattforms.
+		data. This is used, for example, on davinci platforms.
 
 		CONFIG_SPL_OMAP3_ID_NAND
 		Support for an OMAP3-specific set of functions to return the
@@ -3862,11 +4000,35 @@ Configuration Settings:
 		This feature allocates regions with increasing addresses
 		within the region. calloc() is supported, but realloc()
 		is not available. free() is supported but does nothing.
-		The memory will be freed (or in fact just forgotton) when
+		The memory will be freed (or in fact just forgotten) when
 		U-Boot relocates itself.
 
 		Pre-relocation malloc() is only supported on ARM and sandbox
 		at present but is fairly easy to enable for other archs.
+
+- CONFIG_SYS_MALLOC_SIMPLE
+		Provides a simple and small malloc() and calloc() for those
+		boards which do not use the full malloc in SPL (which is
+		enabled with CONFIG_SYS_SPL_MALLOC_START).
+
+- CONFIG_SYS_NONCACHED_MEMORY:
+		Size of non-cached memory area. This area of memory will be
+		typically located right below the malloc() area and mapped
+		uncached in the MMU. This is useful for drivers that would
+		otherwise require a lot of explicit cache maintenance. For
+		some drivers it's also impossible to properly maintain the
+		cache. For example if the regions that need to be flushed
+		are not a multiple of the cache-line size, *and* padding
+		cannot be allocated between the regions to align them (i.e.
+		if the HW requires a contiguous array of regions, and the
+		size of each region is not cache-aligned), then a flush of
+		one region may result in overwriting data that hardware has
+		written to another region in the same cache-line. This can
+		happen for example in network drivers where descriptors for
+		buffers are typically smaller than the CPU cache-line (e.g.
+		16 bytes vs. 32 or 64 bytes).
+
+		Non-cached memory is only supported on 32-bit ARM at present.
 
 - CONFIG_SYS_BOOTM_LEN:
 		Normally compressed uImages are limited to an
@@ -3999,8 +4161,8 @@ Configuration Settings:
 
 	The format of the list is:
 		type_attribute = [s|d|x|b|i|m]
-		access_atribute = [a|r|o|c]
-		attributes = type_attribute[access_atribute]
+		access_attribute = [a|r|o|c]
+		attributes = type_attribute[access_attribute]
 		entry = variable_name[:attributes]
 		list = entry[,list]
 
@@ -4020,7 +4182,7 @@ Configuration Settings:
 
 	- CONFIG_ENV_FLAGS_LIST_DEFAULT
 		Define this to a list (string) to define the ".flags"
-		envirnoment variable in the default or embedded environment.
+		environment variable in the default or embedded environment.
 
 	- CONFIG_ENV_FLAGS_LIST_STATIC
 		Define this to a list (string) to define validation that
@@ -4046,7 +4208,12 @@ Configuration Settings:
 - CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC (OMAP only)
 	This is set by OMAP boards for the max time that reset should
 	be asserted. See doc/README.omap-reset-time for details on how
-	the value can be calulated on a given board.
+	the value can be calculated on a given board.
+
+- CONFIG_USE_STDINT
+	If stdint.h is available with your toolchain you can define this
+	option to enable it. You can provide option 'USE_STDINT=1' when
+	building U-Boot to enable this.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
@@ -4142,7 +4309,7 @@ accordingly!
 	  provision.
 
 BE CAREFUL! The first access to the environment happens quite early
-in U-Boot initalization (when we try to get the setting of for the
+in U-Boot initialization (when we try to get the setting of for the
 console baudrate). You *MUST* have mapped your NVRAM area then, or
 U-Boot will hang.
 
@@ -4365,16 +4532,16 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
                               table, or the whole device D if has no partition
                               table.
                - "D:auto": first partition in device D with bootable flag set.
-                           If none, first valid paratition in device D. If no
+                           If none, first valid partition in device D. If no
                            partition table then means device D.
 
        - FAT_ENV_FILE:
 
          It's a string of the FAT file name. This file use to store the
-         envrionment.
+         environment.
 
        - CONFIG_FAT_WRITE:
-         This should be defined. Otherwise it cannot save the envrionment file.
+         This should be defined. Otherwise it cannot save the environment file.
 
 - CONFIG_ENV_IS_IN_MMC:
 
@@ -4557,7 +4724,7 @@ Low Level (hardware related) configuration options:
 		if CONFIG_SYS_FDC_HW_INIT is defined, then the function
 		fdc_hw_init() is called at the beginning of the FDC
 		setup. fdc_hw_init() must be provided by the board
-		source code. It is used to make hardware dependant
+		source code. It is used to make hardware-dependent
 		initializations.
 
 - CONFIG_IDE_AHB:
@@ -4566,7 +4733,7 @@ Low Level (hardware related) configuration options:
 		When software is doing ATA command and data transfer to
 		IDE devices through IDE-AHB controller, some additional
 		registers accessing to these kind of IDE-AHB controller
-		is requierd.
+		is required.
 
 - CONFIG_SYS_IMMR:	Physical address of the Internal Memory.
 		DO NOT CHANGE unless you know exactly what you're
@@ -4679,7 +4846,7 @@ Low Level (hardware related) configuration options:
 		required.
 
 - CONFIG_PCI_ENUM_ONLY
-		Only scan through and get the devices on the busses.
+		Only scan through and get the devices on the buses.
 		Don't do any setup work, presumably because someone or
 		something has already done it, and we don't need to do it
 		a second time.	Useful for platforms that are pre-booted
@@ -4998,14 +5165,14 @@ this behavior and build U-Boot to some external directory:
 	make O=/tmp/build NAME_defconfig
 	make O=/tmp/build all
 
-2. Set environment variable BUILD_DIR to point to the desired location:
+2. Set environment variable KBUILD_OUTPUT to point to the desired location:
 
-	export BUILD_DIR=/tmp/build
+	export KBUILD_OUTPUT=/tmp/build
 	make distclean
 	make NAME_defconfig
 	make all
 
-Note that the command line "O=" setting overrides the BUILD_DIR environment
+Note that the command line "O=" setting overrides the KBUILD_OUTPUT environment
 variable.
 
 
@@ -5301,7 +5468,7 @@ List of environment variables (most likely not complete):
 
   npe_ucode	- set load address for the NPE microcode
 
-  silent_linux  - If set then linux will be told to boot silently, by
+  silent_linux  - If set then Linux will be told to boot silently, by
 		  changing the console to be empty. If "yes" it will be
 		  made silent. If "no" it will not be made silent. If
 		  unset, then it will be made silent if the U-Boot console
@@ -5388,7 +5555,7 @@ Callback functions for environment variables:
 ---------------------------------------------
 
 For some environment variables, the behavior of u-boot needs to change
-when their values are changed.  This functionailty allows functions to
+when their values are changed.  This functionality allows functions to
 be associated with arbitrary variables.  On creation, overwrite, or
 deletion, the callback will provide the opportunity for some side
 effect to happen or for the change to be rejected.
@@ -5411,7 +5578,7 @@ Callbacks can also be associated by defining the ".callbacks" variable
 with the same list format above.  Any association in ".callbacks" will
 override any association in the static list. You can define
 CONFIG_ENV_CALLBACK_LIST_DEFAULT to a list (string) to define the
-".callbacks" envirnoment variable in the default or embedded environment.
+".callbacks" environment variable in the default or embedded environment.
 
 
 Command Line Parsing:
@@ -6176,7 +6343,7 @@ code for the initialization procedures:
 * Initialized global data (data segment) is read-only. Do not attempt
   to write it.
 
-* Do not use any uninitialized global data (or implicitely initialized
+* Do not use any uninitialized global data (or implicitly initialized
   as zero data - BSS segment) at all - this is undefined, initiali-
   zation is performed later (when relocating to RAM).
 
@@ -6184,7 +6351,7 @@ code for the initialization procedures:
   that.
 
 Having only the stack as writable memory limits means we cannot use
-normal global data to share information beween the code. But it
+normal global data to share information between the code. But it
 turned out that the implementation of U-Boot can be greatly
 simplified by making a global data structure (gd_t) available to all
 functions. We could pass a pointer to this data as argument to _all_
@@ -6315,7 +6482,7 @@ System Initialization:
 
 In the reset configuration, U-Boot starts at the reset entry point
 (on most PowerPC systems at address 0x00000100). Because of the reset
-configuration for CS0# this is a mirror of the onboard Flash memory.
+configuration for CS0# this is a mirror of the on board Flash memory.
 To be able to re-map memory U-Boot then jumps to its link address.
 To be able to implement the initialization code in C, a (small!)
 initial stack is set up in the internal Dual Ported RAM (in case CPUs
@@ -6431,7 +6598,7 @@ coding style; see the file "Documentation/CodingStyle" and the script
 
 Source files originating from a different project (for example the
 MTD subsystem) are generally exempt from these guidelines and are not
-reformated to ease subsequent migration to newer versions of those
+reformatted to ease subsequent migration to newer versions of those
 sources.
 
 Please note that U-Boot is implemented in C (and to some small parts in

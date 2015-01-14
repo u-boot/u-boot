@@ -37,9 +37,6 @@ extern unsigned char new[];
 	((readb(&musbr->power) & MUSB_POWER_HSMODE) \
 		>> MUSB_POWER_HSMODE_SHIFT)
 
-#define min_t(type, x, y)	\
-	({ type __x = (x); type __y = (y); __x < __y ? __x : __y; })
-
 /* USB HUB CONSTANTS (not OHCI-specific; see hub.h) */
 
 /* destination of request */

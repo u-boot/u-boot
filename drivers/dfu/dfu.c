@@ -17,7 +17,6 @@
 #include <linux/list.h>
 #include <linux/compiler.h>
 
-static bool dfu_detach_request;
 static LIST_HEAD(dfu_list);
 static int dfu_alt_num;
 static int alt_num_cnt;
@@ -37,21 +36,6 @@ static struct hash_algo *dfu_hash_algo;
 __weak bool dfu_usb_get_reset(void)
 {
 	return true;
-}
-
-bool dfu_detach(void)
-{
-	return dfu_detach_request;
-}
-
-void dfu_trigger_detach(void)
-{
-	dfu_detach_request = true;
-}
-
-void dfu_clear_detach(void)
-{
-	dfu_detach_request = false;
 }
 
 static int dfu_find_alt_num(const char *s)
@@ -111,8 +95,12 @@ unsigned char *dfu_get_buf(struct dfu_entity *dfu)
 		return dfu_buf;
 
 	s = getenv("dfu_bufsiz");
-	dfu_buf_size = s ? (unsigned long)simple_strtol(s, NULL, 16) :
-			CONFIG_SYS_DFU_DATA_BUF_SIZE;
+	if (s)
+		dfu_buf_size = (unsigned long)simple_strtol(s, NULL, 0);
+
+	if (!s || !dfu_buf_size)
+		dfu_buf_size = CONFIG_SYS_DFU_DATA_BUF_SIZE;
+
 	if (dfu->max_buf_size && dfu_buf_size > dfu->max_buf_size)
 		dfu_buf_size = dfu->max_buf_size;
 
@@ -289,7 +277,7 @@ static int dfu_read_buffer_fill(struct dfu_entity *dfu, void *buf, int size)
 	readn = 0;
 	while (size > 0) {
 		/* get chunk that can be read */
-		chunk = min(size, dfu->b_left);
+		chunk = min((long)size, dfu->b_left);
 		/* consume */
 		if (chunk > 0) {
 			memcpy(buf, dfu->i_buf, chunk);
@@ -544,10 +532,35 @@ struct dfu_entity *dfu_get_entity(int alt)
 int dfu_get_alt(char *name)
 {
 	struct dfu_entity *dfu;
+	char *str;
 
 	list_for_each_entry(dfu, &dfu_list, list) {
-		if (!strncmp(dfu->name, name, strlen(dfu->name)))
-			return dfu->alt;
+		if (dfu->name[0] != '/') {
+			if (!strncmp(dfu->name, name, strlen(dfu->name)))
+				return dfu->alt;
+		} else {
+			/*
+			 * One must also consider absolute path
+			 * (/boot/bin/uImage) available at dfu->name when
+			 * compared "plain" file name (uImage)
+			 *
+			 * It is the case for e.g. thor gadget where lthor SW
+			 * sends only the file name, so only the very last part
+			 * of path must be checked for equality
+			 */
+
+			str = strstr(dfu->name, name);
+			if (!str)
+				continue;
+
+			/*
+			 * Check if matching substring is the last element of
+			 * dfu->name (uImage)
+			 */
+			if (strlen(dfu->name) ==
+			    ((str - dfu->name) + strlen(name)))
+				return dfu->alt;
+		}
 	}
 
 	return -ENODEV;

@@ -13,6 +13,9 @@
 #define __CONFIG_H
 
 #define CONFIG_ARIA 1
+#define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * Memory map for the ARIA board:
  *

@@ -128,6 +128,13 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+#if defined(CONFIG_GENERIC_MMC)
+void board_mmc_power_init(void)
+{
+	twl4030_power_mmc_init(0);
+}
+#endif
+
 #ifdef CONFIG_SMC911X
 /* GPMC CS1 settings for Logic SOM LV/Torpedo LAN92xx Ethernet chip */
 static const u32 gpmc_lan92xx_config[] = {
@@ -230,6 +237,6 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(SYS_OFF_MODE),	(IEN  | PTD | DIS | M0));
 	MUX_VAL(CP(SYS_CLKOUT1),	(IEN  | PTD | DIS | M0));
 	MUX_VAL(CP(SYS_CLKOUT2),	(IEN  | PTU | EN  | M0));
-	MUX_VAL(CP(JTAG_nTRST),		(IEN  | PTD | DIS | M0));
+	MUX_VAL(CP(JTAG_NTRST),		(IEN  | PTD | DIS | M0));
 	MUX_VAL(CP(SDRC_CKE0),		(IDIS | PTU | EN  | M0));
 }

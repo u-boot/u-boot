@@ -15,23 +15,34 @@
 
 #include <common.h>
 #include <cros_ec.h>
+#include <dm.h>
+#include <errno.h>
 #include <spi.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_DM_CROS_EC
+int cros_ec_spi_packet(struct udevice *udev, int out_bytes, int in_bytes)
+{
+	struct cros_ec_dev *dev = udev->uclass_priv;
+#else
 int cros_ec_spi_packet(struct cros_ec_dev *dev, int out_bytes, int in_bytes)
 {
+#endif
+	struct spi_slave *slave = dev_get_parentdata(dev->dev);
 	int rv;
 
 	/* Do the transfer */
-	if (spi_claim_bus(dev->spi)) {
+	if (spi_claim_bus(slave)) {
 		debug("%s: Cannot claim SPI bus\n", __func__);
 		return -1;
 	}
 
-	rv = spi_xfer(dev->spi, max(out_bytes, in_bytes) * 8,
+	rv = spi_xfer(slave, max(out_bytes, in_bytes) * 8,
 		      dev->dout, dev->din,
 		      SPI_XFER_BEGIN | SPI_XFER_END);
 
-	spi_release_bus(dev->spi);
+	spi_release_bus(slave);
 
 	if (rv) {
 		debug("%s: Cannot complete SPI transfer\n", __func__);
@@ -56,10 +67,19 @@ int cros_ec_spi_packet(struct cros_ec_dev *dev, int out_bytes, int in_bytes)
  * @param din_len	Maximum size of response in bytes
  * @return number of bytes in response, or -1 on error
  */
+#ifdef CONFIG_DM_CROS_EC
+int cros_ec_spi_command(struct udevice *udev, uint8_t cmd, int cmd_version,
+		     const uint8_t *dout, int dout_len,
+		     uint8_t **dinp, int din_len)
+{
+	struct cros_ec_dev *dev = udev->uclass_priv;
+#else
 int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 		     const uint8_t *dout, int dout_len,
 		     uint8_t **dinp, int din_len)
 {
+#endif
+	struct spi_slave *slave = dev_get_parentdata(dev->dev);
 	int in_bytes = din_len + 4;	/* status, length, checksum, trailer */
 	uint8_t *out;
 	uint8_t *p;
@@ -92,7 +112,7 @@ int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 	 */
 	memset(dev->din, '\0', in_bytes);
 
-	if (spi_claim_bus(dev->spi)) {
+	if (spi_claim_bus(slave)) {
 		debug("%s: Cannot claim SPI bus\n", __func__);
 		return -1;
 	}
@@ -113,17 +133,17 @@ int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 	p = dev->din + sizeof(int64_t) - 2;
 	len = dout_len + 4;
 	cros_ec_dump_data("out", cmd, out, len);
-	rv = spi_xfer(dev->spi, max(len, in_bytes) * 8, out, p,
+	rv = spi_xfer(slave, max(len, in_bytes) * 8, out, p,
 		      SPI_XFER_BEGIN | SPI_XFER_END);
 
-	spi_release_bus(dev->spi);
+	spi_release_bus(slave);
 
 	if (rv) {
 		debug("%s: Cannot complete SPI transfer\n", __func__);
 		return -1;
 	}
 
-	len = min(p[1], din_len);
+	len = min((int)p[1], din_len);
 	cros_ec_dump_data("in", -1, p, len + 3);
 
 	/* Response code is first byte of message */
@@ -146,6 +166,7 @@ int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 	return len;
 }
 
+#ifndef CONFIG_DM_CROS_EC
 int cros_ec_spi_decode_fdt(struct cros_ec_dev *dev, const void *blob)
 {
 	/* Decode interface-specific FDT params */
@@ -165,11 +186,59 @@ int cros_ec_spi_decode_fdt(struct cros_ec_dev *dev, const void *blob)
  */
 int cros_ec_spi_init(struct cros_ec_dev *dev, const void *blob)
 {
-	dev->spi = spi_setup_slave_fdt(blob, dev->node, dev->parent_node);
-	if (!dev->spi) {
+	int ret;
+
+	ret = spi_setup_slave_fdt(blob, dev->node, dev->parent_node,
+				  &slave);
+	if (ret) {
 		debug("%s: Could not setup SPI slave\n", __func__);
-		return -1;
+		return ret;
 	}
 
 	return 0;
 }
+#endif
+
+#ifdef CONFIG_DM_CROS_EC
+int cros_ec_probe(struct udevice *dev)
+{
+	struct spi_slave *slave = dev_get_parentdata(dev);
+	int ret;
+
+	/*
+	 * TODO(sjg@chromium.org)
+	 *
+	 * This is really horrible at present. It is an artifact of removing
+	 * the child_pre_probe() method for SPI. Everything here could go in
+	 * an automatic function, except that spi_get_bus_and_cs() wants to
+	 * set it up manually and call device_probe_child().
+	 *
+	 * The solution may be to re-enable the child_pre_probe() method for
+	 * SPI and have it do nothing if the child is already passed in via
+	 * device_probe_child().
+	 */
+	slave->dev = dev;
+	ret = spi_ofdata_to_platdata(gd->fdt_blob, dev->of_offset, slave);
+	if (ret)
+		return ret;
+	return cros_ec_register(dev);
+}
+
+struct dm_cros_ec_ops cros_ec_ops = {
+	.packet = cros_ec_spi_packet,
+	.command = cros_ec_spi_command,
+};
+
+static const struct udevice_id cros_ec_ids[] = {
+	{ .compatible = "google,cros-ec" },
+	{ }
+};
+
+U_BOOT_DRIVER(cros_ec_spi) = {
+	.name		= "cros_ec",
+	.id		= UCLASS_CROS_EC,
+	.of_match	= cros_ec_ids,
+	.probe		= cros_ec_probe,
+	.ops		= &cros_ec_ops,
+};
+#endif

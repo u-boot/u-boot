@@ -16,6 +16,7 @@
 #include <fsl_esdhc.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -125,7 +126,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
-	s32 status = 0;
+	int ret;
 	u32 index = 0;
 
 	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
@@ -145,13 +146,15 @@ int board_mmc_init(bd_t *bis)
 			printf("Warning: you configured more USDHC controllers"
 				"(%d) then supported by the board (%d)\n",
 				index + 1, CONFIG_SYS_FSL_USDHC_NUM);
-			return status;
+			return -EINVAL;
 		}
 
-		status |= fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
+		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
+		if (ret)
+			return ret;
 	}
 
-	return status;
+	return 0;
 }
 #endif
 
@@ -211,6 +214,43 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
+#ifdef CONFIG_USB_EHCI_MX6
+#define USB_OTHERREGS_OFFSET	0x800
+#define UCTRL_PWR_POL		(1 << 9)
+
+static iomux_v3_cfg_t const usb_otg_pads[] = {
+	MX6_PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+static void setup_usb(void)
+{
+	imx_iomux_v3_setup_multiple_pads(usb_otg_pads,
+					 ARRAY_SIZE(usb_otg_pads));
+
+	/*
+	 * set daisy chain for otg_pin_id on 6q.
+	 * for 6dl, this bit is reserved
+	 */
+	imx_iomux_set_gpr_register(1, 13, 1, 1);
+}
+
+int board_ehci_hcd_init(int port)
+{
+	u32 *usbnc_usb_ctrl;
+
+	if (port > 0)
+		return -EINVAL;
+
+	usbnc_usb_ctrl = (u32 *)(USB_BASE_ADDR + USB_OTHERREGS_OFFSET +
+				 port * 4);
+
+	setbits_le32(usbnc_usb_ctrl, UCTRL_PWR_POL);
+
+	return 0;
+}
+#endif
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -223,6 +263,10 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+
+#ifdef CONFIG_USB_EHCI_MX6
+	setup_usb();
+#endif
 
 	return 0;
 }

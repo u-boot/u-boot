@@ -181,7 +181,7 @@ static void kbd_wait_for_fifo_init(struct keyb *config)
  * @param input		Input configuration
  * @return 1, to indicate that we have something to look at
  */
-int tegra_kbc_check(struct input_config *input)
+static int tegra_kbc_check(struct input_config *input)
 {
 	kbd_wait_for_fifo_init(&config);
 	check_for_keys(&config);

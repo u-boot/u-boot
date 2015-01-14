@@ -66,6 +66,19 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 int device_probe(struct udevice *dev);
 
 /**
+ * device_probe() - Probe a child device, activating it
+ *
+ * Activate a device so that it is ready for use. All its parents are probed
+ * first. The child is provided with parent data if parent_priv is not NULL.
+ *
+ * @dev: Pointer to device to probe
+ * @parent_priv: Pointer to parent data. If non-NULL then this is provided to
+ * the child.
+ * @return 0 if OK, -ve on error
+ */
+int device_probe_child(struct udevice *dev, void *parent_priv);
+
+/**
  * device_remove() - Remove a device, de-activating it
  *
  * De-activate a device so that it is no longer ready for use. All its
@@ -74,7 +87,11 @@ int device_probe(struct udevice *dev);
  * @dev: Pointer to device to remove
  * @return 0 if OK, -ve on error (an error here is normally a very bad thing)
  */
+#ifdef CONFIG_DM_DEVICE_REMOVE
 int device_remove(struct udevice *dev);
+#else
+static inline int device_remove(struct udevice *dev) { return 0; }
+#endif
 
 /**
  * device_unbind() - Unbind a device, destroying it
@@ -85,6 +102,12 @@ int device_remove(struct udevice *dev);
  * @return 0 if OK, -ve on error
  */
 int device_unbind(struct udevice *dev);
+
+#ifdef CONFIG_DM_DEVICE_REMOVE
+void device_free(struct udevice *dev);
+#else
+static inline void device_free(struct udevice *dev) {}
+#endif
 
 /* Cast away any volatile pointer */
 #define DM_ROOT_NON_CONST		(((gd_t *)gd)->dm_root)

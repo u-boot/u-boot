@@ -1,8 +1,5 @@
 if TARGET_SCB9328
 
-config SYS_CPU
-	default "arm920t"
-
 config SYS_BOARD
 	default "scb9328"
 

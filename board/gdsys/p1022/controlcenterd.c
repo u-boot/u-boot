@@ -326,7 +326,7 @@ int board_eth_init(bd_t *bis)
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -343,6 +343,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 	FT_FSL_PCI_SETUP;
+
+	return 0;
 }
 #endif
 

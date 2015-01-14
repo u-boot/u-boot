@@ -174,6 +174,7 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
 
 /*
  * Common filesystems support.  When we have removable storage we
@@ -186,6 +187,8 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FS_GENERIC
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
 #endif
 
 /*
@@ -232,13 +235,13 @@
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
 
 /* FAT sd card locations. */
-#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION	1
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
 #ifdef CONFIG_SPL_OS_BOOT
 /* FAT */
-#define CONFIG_SPL_FAT_LOAD_KERNEL_NAME		"uImage"
-#define CONFIG_SPL_FAT_LOAD_ARGS_NAME		"args"
+#define CONFIG_SPL_FS_LOAD_KERNEL_NAME		"uImage"
+#define CONFIG_SPL_FS_LOAD_ARGS_NAME		"args"
 
 /* RAW SD card / eMMC */
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x900	/* address 0x120000 */

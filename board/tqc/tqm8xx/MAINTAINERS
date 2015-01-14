@@ -2,12 +2,6 @@ TQM8XX BOARD
 M:	Wolfgang Denk <wd@denx.de>
 S:	Maintained
 F:	board/tqc/tqm8xx/
-F:	include/configs/FPS850L.h
-F:	configs/FPS850L_defconfig
-F:	include/configs/FPS860L.h
-F:	configs/FPS860L_defconfig
-F:	include/configs/SM850.h
-F:	configs/SM850_defconfig
 F:	include/configs/TQM823L.h
 F:	configs/TQM823L_defconfig
 F:	configs/TQM823L_LCD_defconfig
@@ -34,14 +28,4 @@ F:	configs/TQM866M_defconfig
 F:	include/configs/TQM885D.h
 F:	configs/TQM885D_defconfig
 F:	configs/TTTech_defconfig
-F:	include/configs/virtlab2.h
-F:	configs/virtlab2_defconfig
 F:	configs/wtk_defconfig
-
-NSCU BOARD
-#M:	-
-S:	Maintained
-F:	include/configs/NSCU.h
-F:	configs/NSCU_defconfig
-F:	include/configs/TK885D.h
-F:	configs/TK885D_defconfig

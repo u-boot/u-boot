@@ -126,6 +126,9 @@ hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl
 hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl
 HOSTCFLAGS_mkexynosspl.o := -pedantic
 
+ifdtool-objs := $(LIBFDT_OBJS) ifdtool.o
+hostprogs-$(CONFIG_X86) += ifdtool
+
 hostprogs-$(CONFIG_MX23) += mxsboot
 hostprogs-$(CONFIG_MX28) += mxsboot
 HOSTCFLAGS_mxsboot.o := -pedantic
@@ -140,6 +143,7 @@ ubsha1-objs := os_support.o ubsha1.o lib/sha1.o
 HOSTCFLAGS_ubsha1.o := -pedantic
 
 hostprogs-$(CONFIG_KIRKWOOD) += kwboot
+hostprogs-$(CONFIG_ARMADA_XP) += kwboot
 hostprogs-y += proftool
 hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela
 
@@ -156,7 +160,7 @@ HOSTCFLAGS_sha256.o := -pedantic
 #HOSTCFLAGS_mpc86x_clk.o := -pedantic
 
 quiet_cmd_wrap = WRAP    $@
-cmd_wrap = echo "\#include <$(srctree)/$(patsubst $(obj)/%,%,$@)>" >$@
+cmd_wrap = echo "\#include <../$(patsubst $(obj)/%,%,$@)>" >$@
 
 $(obj)/lib/%.c $(obj)/common/%.c:
 	$(call cmd,wrap)

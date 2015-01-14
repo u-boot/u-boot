@@ -59,7 +59,7 @@
 	"fdt_addr=0x88000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
-	"mmcdev=0\0" \
+	"mmcdev=2\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
@@ -198,6 +198,20 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
 
+
+#define CONFIG_CMD_USB
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_MX6
+#define CONFIG_USB_STORAGE
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CONFIG_MXC_USB_FLAGS   0
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
+#endif
+
 #define CONFIG_CMD_PCI
 #ifdef CONFIG_CMD_PCI
 #define CONFIG_PCI
@@ -208,19 +222,53 @@
 #define CONFIG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(2, 1)
 #endif
 
+#define CONFIG_DM
+#define CONFIG_DM_THERMAL
+#define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
+#define CONFIG_IMX6_THERMAL
+
+#define CONFIG_CMD_FUSE
+#if defined(CONFIG_CMD_FUSE) || defined(CONFIG_IMX6_THERMAL)
+#define CONFIG_MXC_OCOTP
+#endif
+
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
+
+#define CONFIG_CMD_TIME
+
+#define CONFIG_FSL_QSPI
+
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_BAR
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SYS_FSL_QSPI_LE
+#define CONFIG_SYS_FSL_QSPI_AHB
+#ifdef CONFIG_MX6SX_SABRESD_REVA
+#define FSL_QSPI_FLASH_SIZE		SZ_16M
+#else
+#define FSL_QSPI_FLASH_SIZE		SZ_32M
+#endif
+#define FSL_QSPI_FLASH_NUM		2
+#endif
 
 #define CONFIG_ENV_OFFSET		(6 * SZ_64K)
 #define CONFIG_ENV_SIZE			SZ_8K
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 #define CONFIG_CMD_CACHE
+#endif
+
+#define CONFIG_SYS_FSL_USDHC_NUM	3
+#if defined(CONFIG_ENV_IS_IN_MMC)
+#define CONFIG_SYS_MMC_ENV_DEV		2  /*USDHC4*/
 #endif
 
 #endif				/* __CONFIG_H */

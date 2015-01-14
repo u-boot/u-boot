@@ -47,8 +47,6 @@
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
 #define CONFIG_EFI_PARTITION
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
 
 #ifdef CONFIG_NAND
 #define NANDARGS \
@@ -314,6 +312,18 @@
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
+#ifndef CONFIG_SPL_USBETH_SUPPORT
+/* Fastboot */
+#define CONFIG_CMD_FASTBOOT
+#define CONFIG_ANDROID_BOOT_IMAGE
+#define CONFIG_USB_FASTBOOT_BUF_ADDR	CONFIG_SYS_LOAD_ADDR
+#define CONFIG_USB_FASTBOOT_BUF_SIZE	0x07000000
+
+/* To support eMMC booting */
+#define CONFIG_STORAGE_EMMC
+#define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
+#endif
+
 #ifdef CONFIG_MUSB_HOST
 #define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
@@ -325,8 +335,8 @@
 #define CONFIG_USBNET_HOST_ADDR	"de:ad:be:af:00:00"
 
 /* USB TI's IDs */
-#define CONFIG_G_DNL_VENDOR_NUM 0x0403
-#define CONFIG_G_DNL_PRODUCT_NUM 0xBD00
+#define CONFIG_G_DNL_VENDOR_NUM 0x0451
+#define CONFIG_G_DNL_PRODUCT_NUM 0xD022
 #define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
 #endif /* CONFIG_MUSB_GADGET */
 
@@ -352,10 +362,10 @@
 	"boot part 0 1;" \
 	"rootfs part 0 2;" \
 	"MLO fat 0 1;" \
-	"MLO.raw mmc 0x100 0x100;" \
-	"u-boot.img.raw mmc 0x300 0x400;" \
-	"spl-os-args.raw mmc 0x80 0x80;" \
-	"spl-os-image.raw mmc 0x900 0x2000;" \
+	"MLO.raw raw 0x100 0x100;" \
+	"u-boot.img.raw raw 0x300 0x400;" \
+	"spl-os-args.raw raw 0x80 0x80;" \
+	"spl-os-image.raw raw 0x900 0x2000;" \
 	"spl-os-args fat 0 1;" \
 	"spl-os-image fat 0 1;" \
 	"u-boot.img fat 0 1;" \
@@ -382,7 +392,7 @@
 	"fdt ram 0x80F80000 0x80000;" \
 	"ramdisk ram 0x81000000 0x4000000\0"
 #define DFUARGS \
-	"dfu_alt_info_emmc=rawemmc mmc 0 3751936\0" \
+	"dfu_alt_info_emmc=rawemmc raw 0 3751936\0" \
 	DFU_ALT_INFO_MMC \
 	DFU_ALT_INFO_RAM \
 	DFU_ALT_INFO_NAND

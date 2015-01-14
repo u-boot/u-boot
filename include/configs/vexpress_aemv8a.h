@@ -8,6 +8,9 @@
 #ifndef __VEXPRESS_AEMV8A_H
 #define __VEXPRESS_AEMV8A_H
 
+/* We use generic board for v8 Versatile Express */
+#define CONFIG_SYS_GENERIC_BOARD
+
 #ifdef CONFIG_BASE_FVP
 #ifndef CONFIG_SEMIHOSTING
 #error CONFIG_BASE_FVP requires CONFIG_SEMIHOSTING
@@ -24,8 +27,6 @@
 #endif
 
 /*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
-
-/*#define CONFIG_SYS_GENERIC_BOARD*/
 
 #define CONFIG_SYS_NO_FLASH
 

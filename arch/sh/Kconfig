@@ -1,76 +1,128 @@
 menu "SuperH architecture"
 	depends on SH
 
-config SYS_ARCH
-	default "sh"
+config CPU_SH2
+	bool
+
+config CPU_SH2A
+	bool
+	select CPU_SH2
+
+config CPU_SH3
+	bool
+
+config CPU_SH4
+	bool
+
+config CPU_SH4A
+	bool
+	select CPU_SH4
+
+config SH_32BIT
+	bool "32bit mode"
+	depends on CPU_SH4A
+	default n
+	help
+	  SH4A has 2 physical memory maps. This use 32bit mode.
+	  And this is board specific. Please check your board if you
+	  want to use this.
 
 choice
 	prompt "Target select"
 
 config TARGET_RSK7203
-	bool "Support rsk7203"
+	bool "RSK+ 7203"
+	select CPU_SH2A
 
 config TARGET_RSK7264
-	bool "Support rsk7264"
+	bool "RSK2+SH7264"
+	select CPU_SH2A
 
 config TARGET_RSK7269
-	bool "Support rsk7269"
+	bool "RSK2+SH7269"
+	select CPU_SH2A
 
 config TARGET_MPR2
-	bool "Support mpr2"
+	bool "Magic Panel Release 2 board"
+	select CPU_SH3
 
 config TARGET_MS7720SE
 	bool "Support ms7720se"
+	select CPU_SH3
 
 config TARGET_SHMIN
-	bool "Support shmin"
+	bool "SHMIN"
+	select CPU_SH3
 
 config TARGET_ESPT
-	bool "Support espt"
+	bool "Data Technology ESPT-GIGA board"
+	select CPU_SH4
 
 config TARGET_MS7722SE
-	bool "Support ms7722se"
+	bool "SolutionEngine 7722"
+	select CPU_SH4
 
 config TARGET_MS7750SE
-	bool "Support ms7750se"
+	bool "SolutionEngine 7750"
+	select CPU_SH4
 
 config TARGET_AP_SH4A_4A
-	bool "Support ap_sh4a_4a"
+	bool "ALPHAPROJECT AP-SH4A-4A"
+	select CPU_SH4A
 
 config TARGET_AP325RXA
-	bool "Support ap325rxa"
+	bool "Renesas AP-325RXA"
+	select CPU_SH4
 
 config TARGET_ECOVEC
-	bool "Support ecovec"
+	bool "EcoVec"
+	select CPU_SH4A
 
 config TARGET_MIGOR
-	bool "Support MigoR"
+	bool "Migo-R"
+	select CPU_SH4
 
 config TARGET_R0P7734
 	bool "Support r0p7734"
+	select CPU_SH4A
 
 config TARGET_R2DPLUS
-	bool "Support r2dplus"
+	bool "Renesas R2D-PLUS"
+	select CPU_SH4
 
 config TARGET_R7780MP
-	bool "Support r7780mp"
+	bool "R7780MP board"
+	select CPU_SH4A
 
 config TARGET_SH7752EVB
-	bool "Support sh7752evb"
+	bool "SH7752EVB"
+	select CPU_SH4A
 
 config TARGET_SH7753EVB
-	bool "Support sh7753evb"
+	bool "SH7753EVB"
+	select CPU_SH4
 
 config TARGET_SH7757LCR
-	bool "Support sh7757lcr"
+	bool "SH7757LCR"
+	select CPU_SH4A
 
 config TARGET_SH7763RDP
-	bool "Support sh7763rdp"
+	bool "SH7763RDP"
+	select CPU_SH4
 
 config TARGET_SH7785LCR
-	bool "Support sh7785lcr"
+	bool "SH7785LCR"
+	select CPU_SH4A
 
 endchoice
+
+config SYS_ARCH
+	default "sh"
+
+config SYS_CPU
+	default "sh2" if CPU_SH2
+	default "sh3" if CPU_SH3
+	default "sh4" if CPU_SH4
 
 source "board/alphaproject/ap_sh4a_4a/Kconfig"
 source "board/espt/Kconfig"

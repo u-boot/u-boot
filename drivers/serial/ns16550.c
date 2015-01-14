@@ -61,13 +61,13 @@ static void ns16550_writeb(NS16550_t port, int offset, int value)
 	unsigned char *addr;
 
 	offset *= 1 << plat->reg_shift;
-	addr = plat->base + offset;
+	addr = map_sysmem(plat->base, 0) + offset;
 	/*
 	 * As far as we know it doesn't make sense to support selection of
 	 * these options at run-time, so use the existing CONFIG options.
 	 */
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
-	outb(value, addr);
+	outb(value, (ulong)addr);
 #elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_SYS_BIG_ENDIAN)
 	out_le32(addr, value);
 #elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
@@ -85,9 +85,9 @@ static int ns16550_readb(NS16550_t port, int offset)
 	unsigned char *addr;
 
 	offset *= 1 << plat->reg_shift;
-	addr = plat->base + offset;
+	addr = map_sysmem(plat->base, 0) + offset;
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
-	return inb(addr);
+	return inb((ulong)addr);
 #elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_SYS_BIG_ENDIAN)
 	return in_le32(addr);
 #elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
@@ -132,11 +132,12 @@ static void NS16550_setbrg(NS16550_t com_port, int baud_divisor)
 
 void NS16550_init(NS16550_t com_port, int baud_divisor)
 {
-#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_OMAP34XX))
+#if (defined(CONFIG_SPL_BUILD) && \
+		(defined(CONFIG_OMAP34XX) || defined(CONFIG_OMAP44XX)))
 	/*
-	 * On some OMAP3 devices when UART3 is configured for boot mode before
-	 * SPL starts only THRE bit is set. We have to empty the transmitter
-	 * before initialization starts.
+	 * On some OMAP3/OMAP4 devices when UART3 is configured for boot mode
+	 * before SPL starts only THRE bit is set. We have to empty the
+	 * transmitter before initialization starts.
 	 */
 	if ((serial_in(&com_port->lsr) & (UART_LSR_TEMT | UART_LSR_THRE))
 	     == UART_LSR_THRE) {
@@ -253,7 +254,7 @@ static int ns16550_serial_getc(struct udevice *dev)
 {
 	struct NS16550 *const com_port = dev_get_priv(dev);
 
-	if (!serial_in(&com_port->lsr) & UART_LSR_DR)
+	if (!(serial_in(&com_port->lsr) & UART_LSR_DR))
 		return -EAGAIN;
 
 	return serial_in(&com_port->rbr);
@@ -276,14 +277,15 @@ int ns16550_serial_probe(struct udevice *dev)
 {
 	struct NS16550 *const com_port = dev_get_priv(dev);
 
+	com_port->plat = dev_get_platdata(dev);
 	NS16550_init(com_port, -1);
 
 	return 0;
 }
 
+#ifdef CONFIG_OF_CONTROL
 int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 {
-	struct NS16550 *const com_port = dev_get_priv(dev);
 	struct ns16550_platdata *plat = dev->platdata;
 	fdt_addr_t addr;
 
@@ -291,13 +293,13 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	plat->base = (unsigned char *)addr;
+	plat->base = addr;
 	plat->reg_shift = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 					 "reg-shift", 1);
-	com_port->plat = plat;
 
 	return 0;
 }
+#endif
 
 const struct dm_serial_ops ns16550_serial_ops = {
 	.putc = ns16550_serial_putc,

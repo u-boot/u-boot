@@ -39,9 +39,14 @@ static void dtsec_configure_serdes(struct fm_eth *priv)
 	u32 value;
 	struct mii_dev bus;
 	bus.priv = priv->mac->phyregs;
+	bool sgmii_2500 = (priv->enet_if ==
+			PHY_INTERFACE_MODE_SGMII_2500) ? true : false;
 
-	/* SGMII IF mode + AN enable */
-	value = PHY_SGMII_IF_MODE_AN | PHY_SGMII_IF_MODE_SGMII;
+	/* SGMII IF mode + AN enable only for 1G SGMII, not for 2.5G */
+	value = PHY_SGMII_IF_MODE_SGMII;
+	if (!sgmii_2500)
+		value |= PHY_SGMII_IF_MODE_AN;
+
 	memac_mdio_write(&bus, 0, MDIO_DEVAD_NONE, 0x14, value);
 
 	/* Dev ability according to SGMII specification */
@@ -54,7 +59,9 @@ static void dtsec_configure_serdes(struct fm_eth *priv)
 	memac_mdio_write(&bus, 0, MDIO_DEVAD_NONE, 0x12, 0xd40);
 
 	/* Restart AN */
-	value = PHY_SGMII_CR_DEF_VAL | PHY_SGMII_CR_RESET_AN;
+	value = PHY_SGMII_CR_DEF_VAL;
+	if (!sgmii_2500)
+		value |= PHY_SGMII_CR_RESET_AN;
 	memac_mdio_write(&bus, 0, MDIO_DEVAD_NONE, 0, value);
 #else
 	struct dtsec *regs = priv->mac->base;
@@ -83,7 +90,8 @@ static void dtsec_init_phy(struct eth_device *dev)
 	out_be32(&regs->tbipa, CONFIG_SYS_TBIPA_VALUE);
 #endif
 
-	if (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII)
+	if (fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII ||
+	    fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII_2500)
 		dtsec_configure_serdes(fm_eth);
 }
 
@@ -557,9 +565,11 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 	num = fm_eth->num;
 
 #ifdef CONFIG_SYS_FMAN_V3
+#ifndef CONFIG_FSL_FM_10GEC_REGULAR_NOTATION
 	if (fm_eth->type == FM_ETH_10G_E) {
-		/* 10GEC1/10GEC2 use mEMAC9/mEMAC10
-		 * 10GEC3/10GEC4 use mEMAC1/mEMAC2
+		/* 10GEC1/10GEC2 use mEMAC9/mEMAC10 on T2080/T4240.
+		 * 10GEC3/10GEC4 use mEMAC1/mEMAC2 on T2080.
+		 * 10GEC1 uses mEMAC1 on T1024.
 		 * so it needs to change the num.
 		 */
 		if (fm_eth->num >= 2)
@@ -567,6 +577,7 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 		else
 			num += 8;
 	}
+#endif
 	base = &reg->memac[num].fm_memac;
 	phyregs = &reg->memac[num].fm_memac_mdio;
 #else

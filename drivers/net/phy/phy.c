@@ -448,6 +448,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_BROADCOM
 	phy_broadcom_init();
 #endif
+#ifdef CONFIG_PHY_CORTINA
+	phy_cortina_init();
+#endif
 #ifdef CONFIG_PHY_DAVICOM
 	phy_davicom_init();
 #endif
@@ -575,7 +578,7 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
  * Description: Reads the ID registers of the PHY at @addr on the
  *   @bus, stores it in @phy_id and returns zero on success.
  */
-int __weak get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id)
+static int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id)
 {
 	int phy_reg;
 
@@ -648,7 +651,7 @@ static struct phy_device *get_phy_device_by_mask(struct mii_dev *bus,
 		if (phydev)
 			return phydev;
 	}
-	printf("Phy not found\n");
+	printf("Phy %d not found\n", ffs(phy_mask) - 1);
 	return phy_device_create(bus, ffs(phy_mask) - 1, 0xffffffff, interface);
 }
 
@@ -785,15 +788,12 @@ int phy_startup(struct phy_device *phydev)
 	return 0;
 }
 
-static int __board_phy_config(struct phy_device *phydev)
+__weak int board_phy_config(struct phy_device *phydev)
 {
 	if (phydev->drv->config)
 		return phydev->drv->config(phydev);
 	return 0;
 }
-
-int board_phy_config(struct phy_device *phydev)
-	__attribute__((weak, alias("__board_phy_config")));
 
 int phy_config(struct phy_device *phydev)
 {

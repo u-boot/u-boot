@@ -1,8 +1,5 @@
 if TARGET_TNY_A9260
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "tny_a9260"
 

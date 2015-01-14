@@ -9,8 +9,6 @@
 
 #include <asm/arch/configs.h>
 
-/* Architecture, CPU, chip, etc */
-#define CONFIG_ARMV7
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_SYS_GENERIC_BOARD

@@ -12,7 +12,7 @@
 #include <dm.h>
 #include <asm/gpio.h>
 
-int __weak name_to_gpio(const char *name)
+__weak int name_to_gpio(const char *name)
 {
 	return simple_strtoul(name, NULL, 10);
 }
@@ -25,13 +25,6 @@ enum gpio_cmd {
 };
 
 #if defined(CONFIG_DM_GPIO) && !defined(gpio_status)
-static const char * const gpio_function[GPIOF_COUNT] = {
-	"input",
-	"output",
-	"unused",
-	"unknown",
-	"func",
-};
 
 /* A few flags used by show_gpio() */
 enum {
@@ -40,22 +33,16 @@ enum {
 	FLAG_SHOW_NEWLINE	= 1 << 2,
 };
 
-static void show_gpio(struct udevice *dev, const char *bank_name, int offset,
-		      int *flagsp)
+static void gpio_get_description(struct udevice *dev, const char *bank_name,
+				 int offset, int *flagsp)
 {
-	struct dm_gpio_ops *ops = gpio_get_ops(dev);
-	int func = GPIOF_UNKNOWN;
 	char buf[80];
 	int ret;
 
-	BUILD_BUG_ON(GPIOF_COUNT != ARRAY_SIZE(gpio_function));
-
-	if (ops->get_function) {
-		ret = ops->get_function(dev, offset);
-		if (ret >= 0 && ret < ARRAY_SIZE(gpio_function))
-			func = ret;
-	}
-	if (!(*flagsp & FLAG_SHOW_ALL) && func == GPIOF_UNUSED)
+	ret = gpio_get_function(dev, offset, NULL);
+	if (ret < 0)
+		goto err;
+	if (!(*flagsp & FLAG_SHOW_ALL) && ret == GPIOF_UNUSED)
 		return;
 	if ((*flagsp & FLAG_SHOW_BANK) && bank_name) {
 		if (*flagsp & FLAG_SHOW_NEWLINE) {
@@ -65,20 +52,15 @@ static void show_gpio(struct udevice *dev, const char *bank_name, int offset,
 		printf("Bank %s:\n", bank_name);
 		*flagsp &= ~FLAG_SHOW_BANK;
 	}
-	*buf = '\0';
-	if (ops->get_state) {
-		ret = ops->get_state(dev, offset, buf, sizeof(buf));
-		if (ret) {
-			puts("<unknown>");
-			return;
-		}
-	} else {
-		sprintf(buf, "%s%u: %8s %d", bank_name, offset,
-			gpio_function[func], ops->get_value(dev, offset));
-	}
 
-	puts(buf);
-	puts("\n");
+	ret = gpio_get_status(dev, offset, buf, sizeof(buf));
+	if (ret)
+		goto err;
+
+	printf("%s\n", buf);
+	return;
+err:
+	printf("Error %d\n", ret);
 }
 
 static int do_gpio_status(bool all, const char *gpio_name)
@@ -101,8 +83,10 @@ static int do_gpio_status(bool all, const char *gpio_name)
 		if (all)
 			flags |= FLAG_SHOW_ALL;
 		bank_name = gpio_get_bank_info(dev, &num_bits);
-		if (!num_bits)
+		if (!num_bits) {
+			debug("GPIO device %s has no bits\n", dev->name);
 			continue;
+		}
 		banklen = bank_name ? strlen(bank_name) : 0;
 
 		if (!gpio_name || !bank_name ||
@@ -113,11 +97,12 @@ static int do_gpio_status(bool all, const char *gpio_name)
 			p = gpio_name + banklen;
 			if (gpio_name && *p) {
 				offset = simple_strtoul(p, NULL, 10);
-				show_gpio(dev, bank_name, offset, &flags);
+				gpio_get_description(dev, bank_name, offset,
+						     &flags);
 			} else {
 				for (offset = 0; offset < num_bits; offset++) {
-					show_gpio(dev, bank_name, offset,
-						  &flags);
+					gpio_get_description(dev, bank_name,
+							     offset, &flags);
 				}
 			}
 		}

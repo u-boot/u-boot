@@ -151,7 +151,7 @@ static void exynos_spi_copy(unsigned int uboot_size, unsigned int uboot_addr)
 	}
 
 	for (upto = 0, i = 0; upto < uboot_size; upto += todo, i++) {
-		todo = min(uboot_size - upto, (1 << 15));
+		todo = min(uboot_size - upto, (unsigned int)(1 << 15));
 		spi_rx_tx(regs, todo, (void *)(uboot_addr),
 			  (void *)(SPI_FLASH_UBOOT_POS), i);
 	}
@@ -195,9 +195,15 @@ void copy_uboot_to_ram(void)
 	void (*end_bootop_from_emmc)(void);
 #endif
 #ifdef CONFIG_USB_BOOTING
-	u32 (*usb_copy)(void);
 	int is_cr_z_set;
 	unsigned int sec_boot_check;
+
+	/*
+	 * Note that older hardware (before Exynos5800) does not expect any
+	 * arguments, but it does not hurt to pass them, so a common function
+	 * prototype is used.
+	 */
+	u32 (*usb_copy)(u32 num_of_block, u32 *dst);
 
 	/* Read iRAM location to check for secondary USB boot mode */
 	sec_boot_check = readl(EXYNOS_IRAM_SECONDARY_BASE);
@@ -240,7 +246,7 @@ void copy_uboot_to_ram(void)
 		 */
 		is_cr_z_set = config_branch_prediction(0);
 		usb_copy = get_irom_func(USB_INDEX);
-		usb_copy();
+		usb_copy(0, (u32 *)CONFIG_SYS_TEXT_BASE);
 		config_branch_prediction(is_cr_z_set);
 		break;
 #endif

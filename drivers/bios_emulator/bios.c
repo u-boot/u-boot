@@ -42,8 +42,8 @@
 ****************************************************************************/
 
 #define __io
-#include <asm/io.h>
 #include <common.h>
+#include <asm/io.h>
 #include "biosemui.h"
 
 /*----------------------------- Implementation ----------------------------*/
@@ -84,14 +84,14 @@ static void X86API int42(int intno)
 			PM_outpb(0x3c2, PM_inpb(0x3cc) & (u8) ~ 0x02);
 			return;
 		}
-#ifdef  DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
 		else {
 			printf("int42: unknown function AH=0x12, BL=0x32, AL=%#02x\n",
 			     M.x86.R_AL);
 		}
 #endif
 	}
-#ifdef  DEBUG
+#ifdef CONFIG_X86EMU_DEBUG
 	else {
 		printf("int42: unknown function AH=%#02x, AL=%#02x, BL=%#02x\n",
 		     M.x86.R_AH, M.x86.R_AL, M.x86.R_BL);

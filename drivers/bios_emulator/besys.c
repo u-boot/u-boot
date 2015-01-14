@@ -48,16 +48,24 @@
 ****************************************************************************/
 
 #define __io
-#include <asm/io.h>
 #include <common.h>
+#include <asm/io.h>
 #include "biosemui.h"
 
 /*------------------------- Global Variables ------------------------------*/
 
-#ifndef __i386__
+#ifndef CONFIG_X86EMU_RAW_IO
 static char *BE_biosDate = "08/14/99";
 static u8 BE_model = 0xFC;
 static u8 BE_submodel = 0x00;
+#endif
+
+#undef DEBUG_IO_ACCESS
+
+#ifdef DEBUG_IO_ACCESS
+#define debug_io(fmt, ...)	printf(fmt, ##__VA_ARGS__)
+#else
+#define debug_io(x, b...)
 #endif
 
 /*----------------------------- Implementation ----------------------------*/
@@ -80,38 +88,40 @@ static u8 *BE_memaddr(u32 addr)
 	if (addr >= 0xC0000 && addr <= _BE_env.biosmem_limit) {
 		return (u8*)(_BE_env.biosmem_base + addr - 0xC0000);
 	} else if (addr > _BE_env.biosmem_limit && addr < 0xD0000) {
-		DB(printf("BE_memaddr: address %#lx may be invalid!\n", addr);)
-		return M.mem_base;
+		DB(printf("BE_memaddr: address %#lx may be invalid!\n",
+			  (ulong)addr);)
+		return (u8 *)M.mem_base;
 	} else if (addr >= 0xA0000 && addr <= 0xBFFFF) {
 		return (u8*)(_BE_env.busmem_base + addr - 0xA0000);
 	}
-#ifdef __i386__
+#ifdef CONFIG_X86EMU_RAW_IO
 	else if (addr >= 0xD0000 && addr <= 0xFFFFF) {
 		/* We map the real System BIOS directly on real PC's */
-		DB(printf("BE_memaddr: System BIOS address %#lx\n", addr);)
-		    return _BE_env.busmem_base + addr - 0xA0000;
+		DB(printf("BE_memaddr: System BIOS address %#lx\n",
+			  (ulong)addr);)
+		    return (u8 *)_BE_env.busmem_base + addr - 0xA0000;
 	}
 #else
 	else if (addr >= 0xFFFF5 && addr < 0xFFFFE) {
 		/* Return a faked BIOS date string for non-x86 machines */
-		DB(printf("BE_memaddr - Returning BIOS date\n");)
+		debug_io("BE_memaddr - Returning BIOS date\n");
 		return (u8 *)(BE_biosDate + addr - 0xFFFF5);
 	} else if (addr == 0xFFFFE) {
 		/* Return system model identifier for non-x86 machines */
-		DB(printf("BE_memaddr - Returning model\n");)
+		debug_io("BE_memaddr - Returning model\n");
 		return &BE_model;
 	} else if (addr == 0xFFFFF) {
 		/* Return system submodel identifier for non-x86 machines */
-		DB(printf("BE_memaddr - Returning submodel\n");)
+		debug_io("BE_memaddr - Returning submodel\n");
 		return &BE_submodel;
 	}
 #endif
 	else if (addr > M.mem_size - 1) {
 		HALT_SYS();
-		return M.mem_base;
+		return (u8 *)M.mem_base;
 	}
 
-	return M.mem_base + addr;
+	return (u8 *)(M.mem_base + addr);
 }
 
 /****************************************************************************
@@ -230,7 +240,7 @@ void X86API BE_wrl(u32 addr, u32 val)
 	}
 }
 
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 
 /* For Non-Intel machines we may need to emulate some I/O port accesses that
  * the BIOS may try to access, such as the PCI config registers.
@@ -258,6 +268,7 @@ static u8 VGA_inpb (const int port)
 {
 	u8 val = 0xff;
 
+	debug_io("vga_inb.%04X -> ", (u16) port);
 	switch (port) {
 	case 0x3C0:
 		/* 3C0 has funky characteristics because it can act as either
@@ -560,7 +571,7 @@ u8 X86API BE_inb(X86EMU_pioAddr port)
 {
 	u8 val = 0;
 
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 	if (IS_VGA_PORT(port)){
 		/*seems reading port 0x3c3 return the high 16 bit of io port*/
 		if(port == 0x3c3)
@@ -581,7 +592,12 @@ u8 X86API BE_inb(X86EMU_pioAddr port)
 		val = LOG_inpb(port);
 	} else
 #endif
+	{
+		debug_io("inb.%04X -> ", (u16) port);
 		val = LOG_inpb(port);
+		debug_io("%02X\n", val);
+	}
+
 	return val;
 }
 
@@ -601,7 +617,7 @@ u16 X86API BE_inw(X86EMU_pioAddr port)
 {
 	u16 val = 0;
 
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 	if (IS_PCI_PORT(port))
 		val = PCI_inp(port, REG_READ_WORD);
 	else if (port < 0x100) {
@@ -609,7 +625,12 @@ u16 X86API BE_inw(X86EMU_pioAddr port)
 		val = LOG_inpw(port);
 	} else
 #endif
+	{
+		debug_io("inw.%04X -> ", (u16) port);
 		val = LOG_inpw(port);
+		debug_io("%04X\n", val);
+	}
+
 	return val;
 }
 
@@ -629,14 +650,19 @@ u32 X86API BE_inl(X86EMU_pioAddr port)
 {
 	u32 val = 0;
 
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 	if (IS_PCI_PORT(port))
 		val = PCI_inp(port, REG_READ_DWORD);
 	else if (port < 0x100) {
 		val = LOG_inpd(port);
 	} else
 #endif
+	{
+		debug_io("inl.%04X -> ", (u16) port);
 		val = LOG_inpd(port);
+		debug_io("%08X\n", val);
+	}
+
 	return val;
 }
 
@@ -652,7 +678,7 @@ through to the real hardware if we don't need to special case it.
 ****************************************************************************/
 void X86API BE_outb(X86EMU_pioAddr port, u8 val)
 {
-#if defined(DEBUG) || !defined(__i386__)
+#if !defined(CONFIG_X86EMU_RAW_IO)
 	if (IS_VGA_PORT(port))
 		VGA_outpb(port, val);
 	else if (IS_TIMER_PORT(port))
@@ -668,7 +694,11 @@ void X86API BE_outb(X86EMU_pioAddr port, u8 val)
 		LOG_outpb(port, val);
 	} else
 #endif
+	{
+		debug_io("outb.%04X <- %02X", (u16) port, val);
 		LOG_outpb(port, val);
+		debug_io("\n");
+	}
 }
 
 /****************************************************************************
@@ -683,19 +713,23 @@ through to the real hardware if we don't need to special case it.
 ****************************************************************************/
 void X86API BE_outw(X86EMU_pioAddr port, u16 val)
 {
-#if defined(DEBUG) || !defined(__i386__)
-		if (IS_VGA_PORT(port)) {
-			VGA_outpb(port, val);
-			VGA_outpb(port + 1, val >> 8);
-		} else if (IS_PCI_PORT(port))
-			PCI_outp(port, val, REG_WRITE_WORD);
-		else if (port < 0x100) {
-			DB(printf("WARN: MAybe INVALID outw.%04X <- %04X\n", (u16) port,
-			       val);)
-			LOG_outpw(port, val);
-		} else
+#if !defined(CONFIG_X86EMU_RAW_IO)
+	if (IS_VGA_PORT(port)) {
+		VGA_outpb(port, val);
+		VGA_outpb(port + 1, val >> 8);
+	} else if (IS_PCI_PORT(port)) {
+		PCI_outp(port, val, REG_WRITE_WORD);
+	} else if (port < 0x100) {
+		DB(printf("WARN: MAybe INVALID outw.%04X <- %04X\n", (u16)port,
+			  val);)
+		LOG_outpw(port, val);
+	} else
 #endif
-			LOG_outpw(port, val);
+	{
+		debug_io("outw.%04X <- %04X", (u16) port, val);
+		LOG_outpw(port, val);
+		debug_io("\n");
+	}
 }
 
 /****************************************************************************
@@ -710,13 +744,17 @@ through to the real hardware if we don't need to special case it.
 ****************************************************************************/
 void X86API BE_outl(X86EMU_pioAddr port, u32 val)
 {
-#if defined(DEBUG) || !defined(__i386__)
-	if (IS_PCI_PORT(port))
+#if !defined(CONFIG_X86EMU_RAW_IO)
+	if (IS_PCI_PORT(port)) {
 		PCI_outp(port, val, REG_WRITE_DWORD);
-	else if (port < 0x100) {
+	} else if (port < 0x100) {
 		DB(printf("WARN: INVALID outl.%04X <- %08X\n", (u16) port,val);)
 		LOG_outpd(port, val);
 	} else
 #endif
+	{
+		debug_io("outl.%04X <- %08X", (u16) port, val);
 		LOG_outpd(port, val);
+		debug_io("\n");
+	}
 }

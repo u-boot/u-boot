@@ -25,7 +25,6 @@
  * SoC Configuration
  */
 #define CONFIG_MACH_DAVINCI_DA850_EVM
-#define CONFIG_ARM926EJS		/* arm926ejs CPU core */
 #define CONFIG_SOC_DA8XX		/* TI DA8xx SoC */
 #define CONFIG_SOC_DA850		/* TI DA850 SoC */
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH

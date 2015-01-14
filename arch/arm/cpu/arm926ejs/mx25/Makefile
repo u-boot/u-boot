@@ -5,3 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 
 obj-y	= generic.o timer.o reset.o
+
+ifndef CONFIG_SPL_BUILD
+obj-y	+= relocate.o
+endif

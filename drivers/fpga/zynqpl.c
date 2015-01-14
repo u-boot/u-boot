@@ -406,8 +406,8 @@ static int zynq_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
 	unsigned long ts; /* Timestamp */
 	u32 isr_status, swap;
 	u32 partialbit = 0;
-	u32 blocksize;
-	u32 pos = 0;
+	loff_t blocksize, actread;
+	loff_t pos = 0;
 	int fstype;
 	char *interface, *dev_part, *filename;
 
@@ -420,7 +420,7 @@ static int zynq_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
 	if (fs_set_blk_dev(interface, dev_part, fstype))
 		return FPGA_FAIL;
 
-	if (fs_read(filename, (u32) buf, pos, blocksize) < 0)
+	if (fs_read(filename, (u32) buf, pos, blocksize, &actread) < 0)
 		return FPGA_FAIL;
 
 	if (zynq_validate_bitstream(desc, buf, bsize, blocksize, &swap,
@@ -443,10 +443,10 @@ static int zynq_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
 			return FPGA_FAIL;
 
 		if (bsize > blocksize) {
-			if (fs_read(filename, (u32) buf, pos, blocksize) < 0)
+			if (fs_read(filename, (u32) buf, pos, blocksize, &actread) < 0)
 				return FPGA_FAIL;
 		} else {
-			if (fs_read(filename, (u32) buf, pos, bsize) < 0)
+			if (fs_read(filename, (u32) buf, pos, bsize, &actread) < 0)
 				return FPGA_FAIL;
 		}
 	} while (bsize > blocksize);

@@ -21,7 +21,6 @@
  * SoC Configuration
  */
 #define CONFIG_MACH_DAVINCI_DA830_EVM
-#define CONFIG_ARM926EJS		/* arm926ejs CPU core */
 #define CONFIG_SOC_DA8XX		/* TI DA8xx SoC */
 #define CONFIG_SOC_DA830		/* TI DA830 SoC */
 #define CONFIG_SYS_CLK_FREQ		clk_get(DAVINCI_ARM_CLKID)

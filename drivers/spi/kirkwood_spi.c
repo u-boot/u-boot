@@ -12,23 +12,30 @@
 #include <malloc.h>
 #include <spi.h>
 #include <asm/io.h>
-#include <asm/arch/kirkwood.h>
-#include <asm/arch/spi.h>
+#include <asm/arch/soc.h>
+#ifdef CONFIG_KIRKWOOD
 #include <asm/arch/mpp.h>
+#endif
+#include <asm/arch-mvebu/spi.h>
 
-static struct kwspi_registers *spireg = (struct kwspi_registers *)KW_SPI_BASE;
+static struct kwspi_registers *spireg =
+	(struct kwspi_registers *)MVEBU_SPI_BASE;
 
+#ifdef CONFIG_KIRKWOOD
 static u32 cs_spi_mpp_back[2];
+#endif
 
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				unsigned int max_hz, unsigned int mode)
 {
 	struct spi_slave *slave;
 	u32 data;
+#ifdef CONFIG_KIRKWOOD
 	static const u32 kwspi_mpp_config[2][2] = {
 		{ MPP0_SPI_SCn, 0 }, /* if cs == 0 */
 		{ MPP7_SPI_SCn, 0 } /* if cs != 0 */
 	};
+#endif
 
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
@@ -51,15 +58,19 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	writel(KWSPI_SMEMRDIRQ, &spireg->irq_cause);
 	writel(KWSPI_IRQMASK, &spireg->irq_mask);
 
+#ifdef CONFIG_KIRKWOOD
 	/* program mpp registers to select  SPI_CSn */
 	kirkwood_mpp_conf(kwspi_mpp_config[cs ? 1 : 0], cs_spi_mpp_back);
+#endif
 
 	return slave;
 }
 
 void spi_free_slave(struct spi_slave *slave)
 {
+#ifdef CONFIG_KIRKWOOD
 	kirkwood_mpp_conf(cs_spi_mpp_back, NULL);
+#endif
 	free(slave);
 }
 

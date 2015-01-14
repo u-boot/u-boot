@@ -1,6 +1,9 @@
 /dts-v1/;
 
 / {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	chosen {
 		stdout-path = "/serial";
 	};
@@ -129,6 +132,46 @@
 		#gpio-cells = <1>;
 		gpio-bank-name = "a";
 		num-gpios = <20>;
+	};
+
+	i2c@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+		compatible = "sandbox,i2c";
+		clock-frequency = <400000>;
+		eeprom@2c {
+			reg = <0x2c>;
+			compatible = "i2c-eeprom";
+			emul {
+				compatible = "sandbox,i2c-eeprom";
+				sandbox,filename = "i2c.bin";
+				sandbox,size = <128>;
+			};
+		};
+	};
+
+	spi@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+		compatible = "sandbox,spi";
+		cs-gpios = <0>, <&gpio_a 0>;
+		flash@0 {
+			reg = <0>;
+			compatible = "spansion,m25p16", "sandbox,spi-flash";
+			spi-max-frequency = <40000000>;
+			sandbox,filename = "spi.bin";
+		};
+	};
+
+	cros-ec@0 {
+		compatible = "google,cros-ec";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		firmware_storage_spi: flash@0 {
+			reg = <0 0x400000>;
+		};
 	};
 
 };

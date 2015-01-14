@@ -92,10 +92,10 @@
 #define AIPS3_END_ADDR			0x022FFFFF
 #define WEIM_ARB_BASE_ADDR              0x50000000
 #define WEIM_ARB_END_ADDR               0x57FFFFFF
-#define QSPI1_ARB_BASE_ADDR             0x60000000
-#define QSPI1_ARB_END_ADDR              0x6FFFFFFF
-#define QSPI2_ARB_BASE_ADDR             0x70000000
-#define QSPI2_ARB_END_ADDR              0x7FFFFFFF
+#define QSPI0_AMBA_BASE                0x60000000
+#define QSPI0_AMBA_END                 0x6FFFFFFF
+#define QSPI1_AMBA_BASE                0x70000000
+#define QSPI1_AMBA_END                 0x7FFFFFFF
 #else
 #define SATA_ARB_BASE_ADDR              0x02200000
 #define SATA_ARB_END_ADDR               0x02203FFF
@@ -262,8 +262,8 @@
 #define AUDMUX_BASE_ADDR            (AIPS2_OFF_BASE_ADDR + 0x58000)
 #ifdef CONFIG_MX6SX
 #define SAI2_BASE_ADDR              (AIPS2_OFF_BASE_ADDR + 0x5C000)
-#define QSPI1_BASE_ADDR             (AIPS2_OFF_BASE_ADDR + 0x60000)
-#define QSPI2_BASE_ADDR             (AIPS2_OFF_BASE_ADDR + 0x64000)
+#define QSPI0_BASE_ADDR             (AIPS2_OFF_BASE_ADDR + 0x60000)
+#define QSPI1_BASE_ADDR             (AIPS2_OFF_BASE_ADDR + 0x64000)
 #else
 #define MIPI_CSI2_BASE_ADDR         (AIPS2_OFF_BASE_ADDR + 0x5C000)
 #define MIPI_DSI_BASE_ADDR          (AIPS2_OFF_BASE_ADDR + 0x60000)
@@ -331,6 +331,43 @@ extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 #define SRC_SCR_CORE_2_ENABLE_MASK      (1<<SRC_SCR_CORE_2_ENABLE_OFFSET)
 #define SRC_SCR_CORE_3_ENABLE_OFFSET    24
 #define SRC_SCR_CORE_3_ENABLE_MASK      (1<<SRC_SCR_CORE_3_ENABLE_OFFSET)
+
+/* WEIM registers */
+struct weim {
+	u32 cs0gcr1;
+	u32 cs0gcr2;
+	u32 cs0rcr1;
+	u32 cs0rcr2;
+	u32 cs0wcr1;
+	u32 cs0wcr2;
+
+	u32 cs1gcr1;
+	u32 cs1gcr2;
+	u32 cs1rcr1;
+	u32 cs1rcr2;
+	u32 cs1wcr1;
+	u32 cs1wcr2;
+
+	u32 cs2gcr1;
+	u32 cs2gcr2;
+	u32 cs2rcr1;
+	u32 cs2rcr2;
+	u32 cs2wcr1;
+	u32 cs2wcr2;
+
+	u32 cs3gcr1;
+	u32 cs3gcr2;
+	u32 cs3rcr1;
+	u32 cs3rcr2;
+	u32 cs3wcr1;
+	u32 cs3wcr2;
+
+	u32 unused[12];
+
+	u32 wcr;
+	u32 wiar;
+	u32 ear;
+};
 
 /* System Reset Controller (SRC) */
 struct src {

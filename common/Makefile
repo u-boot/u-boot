@@ -8,21 +8,11 @@
 # core
 ifndef CONFIG_SPL_BUILD
 obj-y += main.o
-obj-y += command.o
 obj-y += exports.o
 obj-y += hash.o
 ifdef CONFIG_SYS_HUSH_PARSER
 obj-y += cli_hush.o
 endif
-
-# We always have this since drivers/ddr/fs/interactive.c needs it
-obj-y += cli_simple.o
-
-obj-y += cli.o
-obj-y += cli_readline.o
-obj-y += s_record.o
-obj-y += xyzModem.o
-obj-y += cmd_disk.o
 
 # This option is not just y/n - it can have a numeric value
 ifdef CONFIG_BOOTDELAY
@@ -188,6 +178,7 @@ obj-y += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
 endif
 obj-$(CONFIG_CMD_FASTBOOT) += cmd_fastboot.o
+obj-$(CONFIG_CMD_FS_UUID) += cmd_fs_uuid.o
 
 obj-$(CONFIG_CMD_USB_MASS_STORAGE) += cmd_usb_mass_storage.o
 obj-$(CONFIG_CMD_THOR_DOWNLOAD) += cmd_thordown.o
@@ -233,6 +224,7 @@ obj-$(CONFIG_SPL_ENV_SUPPORT) += env_flags.o
 obj-$(CONFIG_SPL_ENV_SUPPORT) += env_callback.o
 obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
 obj-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
+obj-$(CONFIG_ENV_IS_IN_FAT) += env_fat.o
 obj-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
 obj-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env_sf.o
 obj-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
@@ -250,6 +242,9 @@ obj-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 obj-y += console.o
 obj-$(CONFIG_CROS_EC) += cros_ec.o
 obj-y += dlmalloc.o
+ifdef CONFIG_SYS_MALLOC_F_LEN
+obj-y += malloc_simple.o
+endif
 obj-y += image.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
 obj-$(CONFIG_OF_LIBFDT) += image-fdt.o
@@ -264,5 +259,17 @@ ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
 obj-y += aboot.o
 obj-y += fb_mmc.o
 endif
+
+obj-$(CONFIG_CMD_BLOB) += cmd_blob.o
+
+# We always have this since drivers/ddr/fs/interactive.c needs it
+obj-y += cli_simple.o
+
+obj-y += cli.o
+obj-y += cli_readline.o
+obj-y += command.o
+obj-y += s_record.o
+obj-y += xyzModem.o
+obj-y += cmd_disk.o
 
 CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)

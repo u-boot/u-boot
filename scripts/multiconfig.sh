@@ -162,6 +162,16 @@ do_defconfig () {
 	fi
 }
 
+do_board_felconfig () {
+    do_board_defconfig ${1%%_felconfig}_defconfig
+    if ! grep -q CONFIG_ARCH_SUNXI=y .config || ! grep -q CONFIG_SPL=y .config ; then
+	echo "$progname: Cannot felconfig a non-sunxi or non-SPL platform" >&2
+	exit 1
+    fi
+    sed -i -e 's/\# CONFIG_SPL_FEL is not set/CONFIG_SPL_FEL=y/g' \
+	.config spl/.config
+}
+
 do_savedefconfig () {
 	if [ -r "$KCONFIG_CONFIG" ]; then
 		subimages=$(get_enabled_subimages)
@@ -297,9 +307,24 @@ do_others () {
 	else
 		objdir=${1%/*}
 		check_enabled_subimage $1 $objdir
+
+		if [ -f "$objdir/$KCONFIG_CONFIG" ]; then
+			timestamp_before=$(stat --printf="%Y" \
+						$objdir/$KCONFIG_CONFIG)
+		fi
 	fi
 
 	run_make_config $target $objdir
+
+	if [ "$timestamp_before" -a -f "$objdir/$KCONFIG_CONFIG" ]; then
+		timestamp_after=$(stat --printf="%Y" $objdir/$KCONFIG_CONFIG)
+
+		if [ "$timestamp_after" -gt "$timestamp_before" ]; then
+			# $objdir/.config has been updated.
+			# touch .config to invoke "make silentoldconfig"
+			touch $KCONFIG_CONFIG
+		fi
+	fi
 }
 
 progname=$(basename $0)
@@ -308,6 +333,8 @@ target=$1
 case $target in
 *_defconfig)
 	do_board_defconfig $target;;
+*_felconfig)
+	do_board_felconfig $target;;
 *_config)
 	# backward compatibility
 	do_board_defconfig ${target%_config}_defconfig;;

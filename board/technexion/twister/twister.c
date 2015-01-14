@@ -16,6 +16,8 @@
 #include <asm/omap_gpio.h>
 #include <asm/arch/mmc_host_def.h>
 #include <i2c.h>
+#include <spl.h>
+#include <mmc.h>
 #include <asm/gpio.h>
 #ifdef CONFIG_USB_EHCI
 #include <usb.h>

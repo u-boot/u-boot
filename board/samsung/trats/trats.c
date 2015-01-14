@@ -10,8 +10,8 @@
 #include <common.h>
 #include <lcd.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/mipi_dsim.h>
@@ -63,6 +63,8 @@ void i2c_init_board(void)
 	}
 
 	/* I2C_8 -> FG */
+	gpio_request(EXYNOS4_GPIO_Y40, "i2c_clk");
+	gpio_request(EXYNOS4_GPIO_Y41, "i2c_data");
 	gpio_direction_output(EXYNOS4_GPIO_Y40, 1);
 	gpio_direction_output(EXYNOS4_GPIO_Y41, 1);
 }
@@ -346,12 +348,17 @@ int exynos_power_init(void)
 static unsigned int get_hw_revision(void)
 {
 	int hwrev = 0;
+	char str[10];
 	int i;
 
 	/* hw_rev[3:0] == GPE1[3:0] */
-	for (i = EXYNOS4_GPIO_E10; i < EXYNOS4_GPIO_E14; i++) {
-		gpio_cfg_pin(i, S5P_GPIO_INPUT);
-		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
+	for (i = 0; i < 4; i++) {
+		int pin = i + EXYNOS4_GPIO_E10;
+
+		sprintf(str, "hw_rev%d", i);
+		gpio_request(pin, str);
+		gpio_cfg_pin(pin, S5P_GPIO_INPUT);
+		gpio_set_pull(pin, S5P_GPIO_PULL_NONE);
 	}
 
 	udelay(1);
@@ -517,6 +524,7 @@ static void board_power_init(void)
 static void exynos_uart_init(void)
 {
 	/* UART_SEL GPY4[7] (part2) at EXYNOS4 */
+	gpio_request(EXYNOS4_GPIO_Y47, "uart_sel");
 	gpio_set_pull(EXYNOS4_GPIO_Y47, S5P_GPIO_PULL_UP);
 	gpio_direction_output(EXYNOS4_GPIO_Y47, 1);
 }
@@ -534,6 +542,7 @@ int exynos_early_init_f(void)
 
 void exynos_reset_lcd(void)
 {
+	gpio_request(EXYNOS4_GPIO_Y45, "lcd_reset");
 	gpio_direction_output(EXYNOS4_GPIO_Y45, 1);
 	udelay(10000);
 	gpio_direction_output(EXYNOS4_GPIO_Y45, 0);

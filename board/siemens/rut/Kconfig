@@ -1,8 +1,5 @@
 if TARGET_RUT
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "rut"
 

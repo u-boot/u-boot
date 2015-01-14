@@ -1,0 +1,12 @@
+if TARGET_APALIS_T30
+
+config SYS_BOARD
+	default "apalis_t30"
+
+config SYS_VENDOR
+	default "toradex"
+
+config SYS_CONFIG_NAME
+	default "apalis_t30"
+
+endif

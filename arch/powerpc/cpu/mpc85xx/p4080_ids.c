@@ -40,8 +40,8 @@ struct liodn_id_table liodn_tbl[] = {
 	SET_PCI_LIODN(CONFIG_SYS_FSL_PCIE_COMPAT, 2, 194),
 	SET_PCI_LIODN(CONFIG_SYS_FSL_PCIE_COMPAT, 3, 195),
 
-	SET_DMA_LIODN(1, 196),
-	SET_DMA_LIODN(2, 197),
+	SET_DMA_LIODN(1, "fsl,eloplus-dma", 196),
+	SET_DMA_LIODN(2, "fsl,eloplus-dma", 197),
 
 	SET_GUTS_LIODN("fsl,srio-rmu", 200, rmuliodnr, 0xd3000),
 

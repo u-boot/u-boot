@@ -16,7 +16,6 @@
 /*
  * defines to be used in other places
  */
-#define CONFIG_ARMV7		/* ARM A5 Core */
 #define CONFIG_AT91FAMILY	/* it's a member of AT91 */
 
 /*

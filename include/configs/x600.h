@@ -83,8 +83,8 @@
 #define CONFIG_SPEAR_GPIO
 
 /* I2C config options */
-#define CONFIG_HARD_I2C
-#define CONFIG_DW_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_DW
 #define CONFIG_SYS_I2C_BASE			0xD0200000
 #define CONFIG_SYS_I2C_SPEED			400000
 #define CONFIG_SYS_I2C_SLAVE			0x02
@@ -181,26 +181,24 @@
 #define CONFIG_UBI_PART				ubi0
 #define CONFIG_UBIFS_VOLUME			rootfs
 
-#define xstr(s)	str(s)
-#define str(s)	#s
-
 #define MTDIDS_DEFAULT		"nand0=nand"
 #define MTDPARTS_DEFAULT	"mtdparts=nand:64M(ubi0),64M(ubi1)"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"u-boot_addr=1000000\0"						\
-	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.spr\0"			\
+	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.spr\0"		\
 	"load=tftp ${u-boot_addr} ${u-boot}\0"				\
-	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE) " +${filesize};"\
-		"erase " xstr(CONFIG_SYS_MONITOR_BASE) " +${filesize};"	\
-		"cp.b ${u-boot_addr} " xstr(CONFIG_SYS_MONITOR_BASE)	\
+	"update=protect off " __stringify(CONFIG_SYS_MONITOR_BASE)	\
+		" +${filesize};"					\
+		"erase " __stringify(CONFIG_SYS_MONITOR_BASE) " +${filesize};" \
+		"cp.b ${u-boot_addr} " __stringify(CONFIG_SYS_MONITOR_BASE) \
 		" ${filesize};"						\
-		"protect on " xstr(CONFIG_SYS_MONITOR_BASE)		\
+		"protect on " __stringify(CONFIG_SYS_MONITOR_BASE)	\
 		" +${filesize}\0"					\
 	"upd=run load update\0"						\
-	"ubifs=" xstr(CONFIG_HOSTNAME) "/ubifs.img\0"			\
-	"part=" xstr(CONFIG_UBI_PART) "\0"				\
-	"vol=" xstr(CONFIG_UBIFS_VOLUME) "\0"				\
+	"ubifs=" __stringify(CONFIG_HOSTNAME) "/ubifs.img\0"		\
+	"part=" __stringify(CONFIG_UBI_PART) "\0"			\
+	"vol=" __stringify(CONFIG_UBIFS_VOLUME) "\0"			\
 	"load_ubifs=tftp ${kernel_addr} ${ubifs}\0"			\
 	"update_ubifs=ubi part ${part};ubi write ${kernel_addr} ${vol}"	\
 		" ${filesize}\0"					\
@@ -223,11 +221,12 @@
 		"saveenv;boot\0"					\
 	"ubifsargs=set bootargs ubi.mtd=ubi${boot_part} "		\
 		"root=ubi0:rootfs rootfstype=ubifs\0"			\
-	"kernel=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
+	"kernel=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
 	"kernel_fs=/boot/uImage \0"					\
 	"kernel_addr=1000000\0"						\
-	"dtb=" xstr(CONFIG_HOSTNAME) "/" xstr(CONFIG_HOSTNAME) ".dtb\0"	\
-	"dtb_fs=/boot/" xstr(CONFIG_HOSTNAME) ".dtb\0"			\
+	"dtb=" __stringify(CONFIG_HOSTNAME) "/"				\
+		__stringify(CONFIG_HOSTNAME) ".dtb\0"			\
+	"dtb_fs=/boot/" __stringify(CONFIG_HOSTNAME) ".dtb\0"		\
 	"dtb_addr=1800000\0"						\
 	"load_kernel=tftp ${kernel_addr} ${kernel}\0"			\
 	"load_dtb=tftp ${dtb_addr} ${dtb}\0"				\

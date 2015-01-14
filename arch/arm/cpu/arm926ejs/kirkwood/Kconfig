@@ -59,9 +59,6 @@ config TARGET_GOFLEXHOME
 
 endchoice
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_SOC
 	default "kirkwood"
 

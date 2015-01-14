@@ -1,0 +1,56 @@
+#
+# USB Host Controller Drivers
+#
+comment "USB Host Controller Drivers"
+
+config USB_XHCI_HCD
+	bool "xHCI HCD (USB 3.0) support"
+	---help---
+	  The eXtensible Host Controller Interface (xHCI) is standard for USB 3.0
+	  "SuperSpeed" host controller hardware.
+
+config USB_XHCI
+	bool
+	default USB_XHCI_HCD
+	---help---
+	  TODO: rename after most boards switch to Kconfig
+
+if USB_XHCI_HCD
+
+endif
+
+config USB_EHCI_HCD
+	bool "EHCI HCD (USB 2.0) support"
+	---help---
+	  The Enhanced Host Controller Interface (EHCI) is standard for USB 2.0
+	  "high speed" (480 Mbit/sec, 60 Mbyte/sec) host controller hardware.
+	  If your USB host controller supports USB 2.0, you will likely want to
+	  configure this Host Controller Driver.
+
+	  EHCI controllers are packaged with "companion" host controllers (OHCI
+	  or UHCI) to handle USB 1.1 devices connected to root hub ports.  Ports
+	  will connect to EHCI if the device is high speed, otherwise they
+	  connect to a companion controller.  If you configure EHCI, you should
+	  probably configure the OHCI (for NEC and some other vendors) USB Host
+	  Controller Driver or UHCI (for Via motherboards) Host Controller
+	  Driver too.
+
+	  You may want to read <file:Documentation/usb/ehci.txt>.
+
+config USB_EHCI
+	bool
+	default USB_EHCI_HCD
+	---help---
+	  TODO: rename after most boards switch to Kconfig
+
+if USB_EHCI_HCD
+
+config USB_EHCI_UNIPHIER
+	bool "Support for Panasonic UniPhier on-chip EHCI USB controller"
+	depends on ARCH_UNIPHIER
+	default y
+	---help---
+	  Enables support for the on-chip EHCI controller on Panasonic
+	  UniPhier SoCs.
+
+endif

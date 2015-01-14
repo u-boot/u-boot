@@ -24,19 +24,9 @@ struct driver *lists_driver_lookup_name(const char *name)
 		ll_entry_start(struct driver, driver);
 	const int n_ents = ll_entry_count(struct driver, driver);
 	struct driver *entry;
-	int len;
-
-	if (!drv || !n_ents)
-		return NULL;
-
-	len = strlen(name);
 
 	for (entry = drv; entry != drv + n_ents; entry++) {
-		if (strncmp(name, entry->name, len))
-			continue;
-
-		/* Full match */
-		if (len == strlen(entry->name))
+		if (!strcmp(name, entry->name))
 			return entry;
 	}
 
@@ -50,9 +40,6 @@ struct uclass_driver *lists_uclass_lookup(enum uclass_id id)
 		ll_entry_start(struct uclass_driver, uclass);
 	const int n_ents = ll_entry_count(struct uclass_driver, uclass);
 	struct uclass_driver *entry;
-
-	if ((id == UCLASS_INVALID) || !uclass)
-		return NULL;
 
 	for (entry = uclass; entry != uclass + n_ents; entry++) {
 		if (entry->id == id)
@@ -84,34 +71,60 @@ int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only)
 	return result;
 }
 
+int device_bind_driver(struct udevice *parent, const char *drv_name,
+		       const char *dev_name, struct udevice **devp)
+{
+	struct driver *drv;
+	int ret;
+
+	drv = lists_driver_lookup_name(drv_name);
+	if (!drv) {
+		printf("Cannot find driver '%s'\n", drv_name);
+		return -ENOENT;
+	}
+	ret = device_bind(parent, drv, dev_name, NULL, -1, devp);
+	if (ret) {
+		printf("Cannot create device named '%s' (err=%d)\n",
+		       dev_name, ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 #ifdef CONFIG_OF_CONTROL
 /**
  * driver_check_compatible() - Check if a driver is compatible with this node
  *
  * @param blob:		Device tree pointer
  * @param offset:	Offset of node in device tree
- * @param of_matchL	List of compatible strings to match
+ * @param of_match:	List of compatible strings to match
+ * @param of_idp:	Returns the match that was found
  * @return 0 if there is a match, -ENOENT if no match, -ENODEV if the node
  * does not have a compatible string, other error <0 if there is a device
  * tree error
  */
 static int driver_check_compatible(const void *blob, int offset,
-				   const struct udevice_id *of_match)
+				   const struct udevice_id *of_match,
+				   const struct udevice_id **of_idp)
 {
 	int ret;
 
+	*of_idp = NULL;
 	if (!of_match)
 		return -ENOENT;
 
 	while (of_match->compatible) {
 		ret = fdt_node_check_compatible(blob, offset,
 						of_match->compatible);
-		if (!ret)
+		if (!ret) {
+			*of_idp = of_match;
 			return 0;
-		else if (ret == -FDT_ERR_NOTFOUND)
+		} else if (ret == -FDT_ERR_NOTFOUND) {
 			return -ENODEV;
-		else if (ret < 0)
+		} else if (ret < 0) {
 			return -EINVAL;
+		}
 		of_match++;
 	}
 
@@ -123,6 +136,7 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 {
 	struct driver *driver = ll_entry_start(struct driver, driver);
 	const int n_ents = ll_entry_count(struct driver, driver);
+	const struct udevice_id *id;
 	struct driver *entry;
 	struct udevice *dev;
 	bool found = false;
@@ -134,7 +148,8 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 	if (devp)
 		*devp = NULL;
 	for (entry = driver; entry != driver + n_ents; entry++) {
-		ret = driver_check_compatible(blob, offset, entry->of_match);
+		ret = driver_check_compatible(blob, offset, entry->of_match,
+					      &id);
 		name = fdt_get_name(blob, offset, NULL);
 		if (ret == -ENOENT) {
 			continue;
@@ -143,8 +158,7 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 			break;
 		} else if (ret) {
 			dm_warn("Device tree error at offset %d\n", offset);
-			if (!result || ret != -ENOENT)
-				result = ret;
+			result = ret;
 			break;
 		}
 
@@ -154,6 +168,7 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 			dm_warn("Error binding driver '%s'\n", entry->name);
 			return ret;
 		} else {
+			dev->of_id = id;
 			found = true;
 			if (devp)
 				*devp = dev;

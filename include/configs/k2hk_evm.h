@@ -17,14 +17,15 @@
 /* U-Boot general configuration */
 #define CONFIG_SYS_PROMPT               "K2HK EVM # "
 
-#define KS2_ARGS_UBI   "args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "\
-		       "root=ubi0:rootfs rootflags=sync rw ubi.mtd=2,2048\0"
-
-#define KS2_FDT_NAME   "name_fdt=k2hk-evm.dtb\0"
-#define KS2_ADDR_MON   "addr_mon=0x0c5f0000\0"
-#define KS2_NAME_MON   "name_mon=skern-k2hk-evm.bin\0"
-#define NAME_UBOOT     "name_uboot=u-boot-spi-k2hk-evm.gph\0"
-#define NAME_UBI       "name_ubi=k2hk-evm-ubifs.ubi\0"
+#define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
+	"addr_mon=0x0c5f0000\0"						\
+	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
+	"root=ubi0:rootfs rootflags=sync rw ubi.mtd=2,2048\0"		\
+	"name_fdt=uImage-k2hk-evm.dtb\0"				\
+	"name_mon=skern-k2hk-evm.bin\0"					\
+	"name_ubi=k2hk-evm-ubifs.ubi\0"					\
+	"name_uboot=u-boot-spi-k2hk-evm.gph\0"				\
+	"name_fs=arago-console-image-k2hk-evm.cpio.gz\0"
 
 #include <configs/ks2_evm.h>
 
@@ -35,6 +36,7 @@
 #define CONFIG_SYS_NAND_PAGE_2K
 
 /* Network */
-#define CONFIG_DRIVER_TI_KEYSTONE_NET
+#define CONFIG_KSNET_NETCP_V1_0
+#define CONFIG_KSNET_CPSW_NUM_PORTS	5
 
 #endif /* __CONFIG_K2HK_EVM_H */

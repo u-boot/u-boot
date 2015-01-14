@@ -92,7 +92,10 @@ static struct pci_device_id e1000_supported[] = {
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_80003ES2LAN_SERDES_DPT},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_80003ES2LAN_COPPER_SPT},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_80003ES2LAN_SERDES_SPT},
+	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I210_UNPROGRAMMED},
+	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I211_UNPROGRAMMED},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I210_COPPER},
+	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I211_COPPER},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I210_COPPER_FLASHLESS},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I210_SERDES},
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I210_SERDES_FLASHLESS},
@@ -1112,8 +1115,11 @@ e1000_swfw_sync_acquire(struct e1000_hw *hw, uint16_t mask)
 		if (e1000_get_hw_eeprom_semaphore(hw))
 			return -E1000_ERR_SWFW_SYNC;
 
-		swfw_sync = E1000_READ_REG(hw, SW_FW_SYNC);
-		if ((swfw_sync & swmask) && !(swfw_sync & fwmask))
+		if (hw->mac_type == e1000_igb)
+			swfw_sync = E1000_READ_REG(hw, I210_SW_FW_SYNC);
+		else
+			swfw_sync = E1000_READ_REG(hw, SW_FW_SYNC);
+		if (!(swfw_sync & (fwmask | swmask)))
 			break;
 
 		/* firmware currently using resource (fwmask) */
@@ -1374,7 +1380,10 @@ e1000_set_mac_type(struct e1000_hw *hw)
 	case E1000_DEV_ID_ICH8_IGP_M:
 		hw->mac_type = e1000_ich8lan;
 		break;
+	case PCI_DEVICE_ID_INTEL_I210_UNPROGRAMMED:
+	case PCI_DEVICE_ID_INTEL_I211_UNPROGRAMMED:
 	case PCI_DEVICE_ID_INTEL_I210_COPPER:
+	case PCI_DEVICE_ID_INTEL_I211_COPPER:
 	case PCI_DEVICE_ID_INTEL_I210_COPPER_FLASHLESS:
 	case PCI_DEVICE_ID_INTEL_I210_SERDES:
 	case PCI_DEVICE_ID_INTEL_I210_SERDES_FLASHLESS:
@@ -4429,7 +4438,6 @@ e1000_phy_hw_reset(struct e1000_hw *hw)
 
 		if (hw->mac_type >= e1000_82571)
 			mdelay(10);
-
 	} else {
 		/* Read the Extended Device Control Register, assert the PHY_RESET_DIR
 		 * bit to put the PHY into reset. Then, take it out of reset.

@@ -9,7 +9,7 @@
 #include <common.h>
 #include <miiphy.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/kirkwood.h>
+#include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 #include "iconnect.h"
 
@@ -22,9 +22,9 @@ int board_early_init_f(void)
 	 * There are maximum 64 gpios controlled through 2 sets of registers
 	 * the below configuration configures mainly initial LED status
 	 */
-	kw_config_gpio(ICONNECT_OE_VAL_LOW,
-			ICONNECT_OE_VAL_HIGH,
-			ICONNECT_OE_LOW, ICONNECT_OE_HIGH);
+	mvebu_config_gpio(ICONNECT_OE_VAL_LOW,
+			  ICONNECT_OE_VAL_HIGH,
+			  ICONNECT_OE_LOW, ICONNECT_OE_HIGH);
 
 	/* Multi-Purpose Pins Functionality configuration */
 	static const u32 kwmpp_config[] = {
@@ -87,7 +87,7 @@ int board_early_init_f(void)
 int board_init(void)
 {
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
+	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 	return 0;
 }

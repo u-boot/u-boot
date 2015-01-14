@@ -16,6 +16,8 @@
 #include <asm/io.h>
 #include <asm/arch/mem.h>	/* get mem tables */
 #include <asm/arch/sys_proto.h>
+#include <asm/bootm.h>
+
 #include <i2c.h>
 #include <linux/compiler.h>
 
@@ -202,7 +204,7 @@ u32 __weak get_board_rev(void)
 /********************************************************
  *  get_base(); get upper addr of current execution
  *******************************************************/
-u32 get_base(void)
+static u32 get_base(void)
 {
 	u32 val;
 

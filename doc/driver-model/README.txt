@@ -36,9 +36,9 @@ How to try it
 
 Build U-Boot sandbox and run it:
 
-   make sandbox_config
+   make sandbox_defconfig
    make
-   ./u-boot
+   ./u-boot -d u-boot.dtb
 
    (type 'reset' to exit U-Boot)
 
@@ -95,7 +95,7 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 21 driver model tests
+    Running 29 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
     Test: dm_test_bus_children
@@ -103,6 +103,7 @@ You should see something like this:
     Device 'c-test@0': seq 0 is in use by 'a-test'
     Device 'c-test@1': seq 1 is in use by 'd-test'
     Test: dm_test_bus_children_funcs
+    Test: dm_test_bus_children_iterators
     Test: dm_test_bus_parent_data
     Test: dm_test_bus_parent_ops
     Test: dm_test_children
@@ -114,7 +115,12 @@ You should see something like this:
     Device 'd-test': seq 3 is in use by 'b-test'
     Device 'a-test': seq 0 is in use by 'd-test'
     Test: dm_test_gpio
-    sandbox_gpio: sb_gpio_get_value: error: offset 4 not reserved
+    extra-gpios: get_value: error: gpio b5 not reserved
+    Test: dm_test_gpio_anon
+    Test: dm_test_gpio_copy
+    Test: dm_test_gpio_leak
+    extra-gpios: get_value: error: gpio b5 not reserved
+    Test: dm_test_gpio_requestf
     Test: dm_test_leak
     Test: dm_test_lifecycle
     Test: dm_test_operations
@@ -122,6 +128,26 @@ You should see something like this:
     Test: dm_test_platdata
     Test: dm_test_pre_reloc
     Test: dm_test_remove
+    Test: dm_test_spi_find
+    Invalid chip select 0:0 (err=-19)
+    SF: Failed to get idcodes
+    Device 'name-emul': seq 0 is in use by 'name-emul'
+    SF: Detected M25P16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB
+    Test: dm_test_spi_flash
+    2097152 bytes written in 0 ms
+    SF: Detected M25P16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB
+    SPI flash test:
+    0 erase: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    1 check: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    2 write: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    3 read: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    Test passed
+    0 erase: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    1 check: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    2 write: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    3 read: 0 ticks, 65536000 KiB/s 524288.000 Mbps
+    Test: dm_test_spi_xfer
+    SF: Detected M25P16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB
     Test: dm_test_uclass
     Test: dm_test_uclass_before_ready
     Failures: 0
@@ -358,7 +384,9 @@ Device Sequence Numbers
 U-Boot numbers devices from 0 in many situations, such as in the command
 line for I2C and SPI buses, and the device names for serial ports (serial0,
 serial1, ...). Driver model supports this numbering and permits devices
-to be locating by their 'sequence'.
+to be locating by their 'sequence'. This numbering unique identifies a
+device in its uclass, so no two devices within a particular uclass can have
+the same sequence number.
 
 Sequence numbers start from 0 but gaps are permitted. For example, a board
 may have I2C buses 0, 1, 4, 5 but no 2 or 3. The choice of how devices are
@@ -722,19 +750,43 @@ device pointers, but this is not currently implemented (the root device
 pointer is saved but not made available through the driver model API).
 
 
+SPL Support
+-----------
+
+Driver model can operate in SPL. Its efficient implementation and small code
+size provide for a small overhead which is acceptable for all but the most
+constrained systems.
+
+To enable driver model in SPL, define CONFIG_SPL_DM. You might want to
+consider the following option also. See the main README for more details.
+
+   - CONFIG_SYS_MALLOC_SIMPLE
+   - CONFIG_DM_WARN
+   - CONFIG_DM_DEVICE_REMOVE
+   - CONFIG_DM_STDIO
+
+
+Enabling Driver Model
+---------------------
+
+Driver model is being brought into U-Boot gradually. As each subsystems gets
+support, a uclass is created and a CONFIG to enable use of driver model for
+that subsystem.
+
+For example CONFIG_DM_SERIAL enables driver model for serial. With that
+defined, the old serial support is not enabled, and your serial driver must
+conform to driver model. With that undefined, the old serial support is
+enabled and driver model is not available for serial. This means that when
+you convert a driver, you must either convert all its boards, or provide for
+the driver to be compiled both with and without driver model (generally this
+is not very hard).
+
+See the main README for full details of the available driver model CONFIG
+options.
+
+
 Things to punt for later
 ------------------------
-
-- SPL support - this will have to be present before many drivers can be
-converted, but it seems like we can add it once we are happy with the
-core implementation.
-
-That is not to say that no thinking has gone into this - in fact there
-is quite a lot there. However, getting these right is non-trivial and
-there is a high cost associated with going down the wrong path.
-
-For SPL, it may be possible to fit in a simplified driver model with only
-bind and probe methods, to reduce size.
 
 Uclasses are statically numbered at compile time. It would be possible to
 change this to dynamic numbering, but then we would require some sort of

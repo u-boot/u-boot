@@ -135,34 +135,33 @@ struct s3c24x0_lcd {
 };
 
 
-#ifdef CONFIG_S3C2410
-/* NAND FLASH (see S3C2410 manual chapter 6) */
-struct s3c2410_nand {
+/* NAND FLASH (see manual chapter 6) */
+struct s3c24x0_nand {
 	u32	nfconf;
-	u32	nfcmd;
-	u32	nfaddr;
-	u32	nfdata;
-	u32	nfstat;
-	u32	nfecc;
-};
-#endif
-#ifdef CONFIG_S3C2440
-/* NAND FLASH (see S3C2440 manual chapter 6) */
-struct s3c2440_nand {
-	u32	nfconf;
+#ifndef CONFIG_S3C2410
 	u32	nfcont;
+#endif
 	u32	nfcmd;
 	u32	nfaddr;
 	u32	nfdata;
+#ifndef CONFIG_S3C2410
 	u32	nfeccd0;
 	u32	nfeccd1;
 	u32	nfeccd;
+#endif
 	u32	nfstat;
+#ifdef CONFIG_S3C2410
+	u32	nfecc;
+#else
 	u32	nfstat0;
 	u32	nfstat1;
-};
+	u32	nfmecc0;
+	u32	nfmecc1;
+	u32	nfsecc;
+	u32	nfsblk;
+	u32	nfeblk;
 #endif
-
+};
 
 /* UART (see manual chapter 11) */
 struct s3c24x0_uart {

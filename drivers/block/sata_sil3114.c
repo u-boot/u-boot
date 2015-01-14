@@ -702,6 +702,11 @@ int init_sata (int dev)
 	return res;
 }
 
+int reset_sata(int dev)
+{
+	return 0;
+}
+
 /* Check if device is connected to port */
 int sata_bus_probe (int portno)
 {

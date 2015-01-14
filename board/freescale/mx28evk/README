@@ -1,7 +1,7 @@
 FREESCALE MX28EVK
 ==================
 
-Supported hardware: only MX28EVK rev D is supported in U-boot.
+Supported hardware: MX28EVK rev C and D are supported in U-boot.
 
 Files of the MX28EVK port
 --------------------------

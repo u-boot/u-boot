@@ -7,6 +7,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <inttypes.h>
 #include <version.h>
 #include <linux/ctype.h>
 #include <asm/io.h>
@@ -21,15 +22,10 @@ int display_options (void)
 	return 0;
 }
 
-/*
- * print sizes as "xxx KiB", "xxx.y KiB", "xxx MiB", "xxx.y MiB",
- * xxx GiB, xxx.y GiB, etc as needed; allow for optional trailing string
- * (like "\n")
- */
-void print_size(unsigned long long size, const char *s)
+void print_size(uint64_t size, const char *s)
 {
 	unsigned long m = 0, n;
-	unsigned long long f;
+	uint64_t f;
 	static const char names[] = {'E', 'P', 'T', 'G', 'M', 'K'};
 	unsigned long d = 10 * ARRAY_SIZE(names);
 	char c = 0;
@@ -43,7 +39,7 @@ void print_size(unsigned long long size, const char *s)
 	}
 
 	if (!c) {
-		printf("%llu Bytes%s", size, s);
+		printf("%" PRIu64 " Bytes%s", size, s);
 		return;
 	}
 
@@ -127,7 +123,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 			else
 				x = lb.uc[i] = *(volatile uint8_t *)data;
 #ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
-			printf(" %0*llx", width * 2, x);
+			printf(" %0*" PRIx64, width * 2, x);
 #else
 			printf(" %0*x", width * 2, x);
 #endif

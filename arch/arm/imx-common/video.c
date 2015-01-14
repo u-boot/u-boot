@@ -6,14 +6,12 @@
 #include <asm/errno.h>
 #include <asm/imx-common/video.h>
 
-extern struct display_info_t const displays[];
-extern size_t display_count;
-
 int board_video_skip(void)
 {
 	int i;
 	int ret;
 	char const *panel = getenv("panel");
+
 	if (!panel) {
 		for (i = 0; i < display_count; i++) {
 			struct display_info_t const *dev = displays+i;
@@ -34,11 +32,14 @@ int board_video_skip(void)
 				break;
 		}
 	}
+
 	if (i < display_count) {
 		ret = ipuv3_fb_init(&displays[i].mode, 0,
 				    displays[i].pixfmt);
 		if (!ret) {
-			displays[i].enable(displays+i);
+			if (displays[i].enable)
+				displays[i].enable(displays + i);
+
 			printf("Display: %s (%ux%u)\n",
 			       displays[i].mode.name,
 			       displays[i].mode.xres,

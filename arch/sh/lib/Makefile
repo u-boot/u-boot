@@ -8,7 +8,7 @@
 
 obj-y	+= board.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
-ifeq ($(CONFIG_SH2),y)
+ifeq ($(CONFIG_CPU_SH2),y)
 obj-y	+= time_sh2.o
 else
 obj-y	+= time.o

@@ -100,7 +100,7 @@ void fdt_fixup_board_enet(void *fdt)
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
@@ -115,5 +115,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);
 #endif
+
+	return 0;
 }
 #endif

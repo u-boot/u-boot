@@ -1,8 +1,5 @@
 if TARGET_LS1021ATWR
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "ls1021atwr"
 

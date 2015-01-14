@@ -141,6 +141,10 @@ struct pmecc_errloc_regs {
 #define PMECC_GF_DIMENSION_13			13
 #define PMECC_GF_DIMENSION_14			14
 
+/* Primitive Polynomial used by PMECC */
+#define PMECC_GF_13_PRIMITIVE_POLY		0x201b
+#define PMECC_GF_14_PRIMITIVE_POLY		0x4443
+
 #define PMECC_INDEX_TABLE_SIZE_512		0x2000
 #define PMECC_INDEX_TABLE_SIZE_1024		0x4000
 

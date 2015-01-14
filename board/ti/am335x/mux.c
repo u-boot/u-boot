@@ -359,9 +359,9 @@ void enable_board_pin_mux(struct am335x_baseboard_id *header)
 		configure_module_pin_mux(i2c1_pin_mux);
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_NAND) && defined(CONFIG_EMMC_BOOT)
 		configure_module_pin_mux(nand_pin_mux);
-#elif defined(CONFIG_NOR)
+#elif defined(CONFIG_NOR) && defined(CONFIG_EMMC_BOOT)
 		configure_module_pin_mux(bone_norcape_pin_mux);
 #else
 		configure_module_pin_mux(mmc1_pin_mux);

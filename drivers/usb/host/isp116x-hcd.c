@@ -103,12 +103,6 @@ static int rh_devnum;		/* address of Root Hub endpoint */
 
 /* ------------------------------------------------------------------------- */
 
-#define ALIGN(x,a)	(((x)+(a)-1UL)&~((a)-1UL))
-#define min_t(type,x,y)	\
-	({ type __x = (x); type __y = (y); __x < __y ? __x : __y; })
-
-/* ------------------------------------------------------------------------- */
-
 static int isp116x_reset(struct isp116x *isp116x);
 
 /* --- Debugging functions ------------------------------------------------- */

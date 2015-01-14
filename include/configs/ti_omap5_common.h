@@ -19,7 +19,6 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_MISC_INIT_R
 #define CONFIG_ARCH_CPU_INIT
 
 #define CONFIG_SYS_CACHELINE_SIZE	64
@@ -79,7 +78,7 @@
 	"partitions=" PARTS_DEFAULT "\0" \
 	"optargs=\0" \
 	"mmcdev=0\0" \
-	"mmcroot=/dev/mmcblk1p2 rw\0" \
+	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \
@@ -118,6 +117,8 @@
 			"setenv fdtfile dra7-evm.dtb; fi;" \
 		"if test $board_name = dra72x; then " \
 			"setenv fdtfile dra72-evm.dtb; fi;" \
+		"if test $board_name = beagle_x15; then " \
+			"setenv fdtfile am57xx-beagle-x15.dtb; fi;" \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile};\0" \

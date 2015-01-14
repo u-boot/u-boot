@@ -87,8 +87,8 @@ psci_cpu_on:
 	str	r2, [r0]
 	dsb
 
-	movw	r0, #(SUNXI_CPUCFG_BASE & 0xffff)
-	movt	r0, #(SUNXI_CPUCFG_BASE >> 16)
+	movw	r0, #(SUN7I_CPUCFG_BASE & 0xffff)
+	movt	r0, #(SUN7I_CPUCFG_BASE >> 16)
 
 	@ CPU mask
 	and	r1, r1, #3	@ only care about first cluster

@@ -119,6 +119,54 @@ struct bcm2835_mbox_tag_hdr {
  * };
  */
 
+#define BCM2835_MBOX_TAG_GET_BOARD_REV	0x00010002
+
+/*
+ * 0x2..0xf from:
+ * http://raspberryalphaomega.org.uk/2013/02/06/automatic-raspberry-pi-board-revision-detection-model-a-b1-and-b2/
+ * http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=32733
+ * 0x10, 0x11 from swarren's testing
+ */
+#define BCM2835_BOARD_REV_B_I2C0_2	0x2
+#define BCM2835_BOARD_REV_B_I2C0_3	0x3
+#define BCM2835_BOARD_REV_B_I2C1_4	0x4
+#define BCM2835_BOARD_REV_B_I2C1_5	0x5
+#define BCM2835_BOARD_REV_B_I2C1_6	0x6
+#define BCM2835_BOARD_REV_A_7		0x7
+#define BCM2835_BOARD_REV_A_8		0x8
+#define BCM2835_BOARD_REV_A_9		0x9
+#define BCM2835_BOARD_REV_B_REV2_d	0xd
+#define BCM2835_BOARD_REV_B_REV2_e	0xe
+#define BCM2835_BOARD_REV_B_REV2_f	0xf
+#define BCM2835_BOARD_REV_B_PLUS	0x10
+#define BCM2835_BOARD_REV_CM		0x11
+#define BCM2835_BOARD_REV_A_PLUS	0x12
+
+struct bcm2835_mbox_tag_get_board_rev {
+	struct bcm2835_mbox_tag_hdr tag_hdr;
+	union {
+		struct {
+		} req;
+		struct {
+			u32 rev;
+		} resp;
+	} body;
+};
+
+#define BCM2835_MBOX_TAG_GET_MAC_ADDRESS	0x00010003
+
+struct bcm2835_mbox_tag_get_mac_address {
+	struct bcm2835_mbox_tag_hdr tag_hdr;
+	union {
+		struct {
+		} req;
+		struct {
+			u8 mac[6];
+			u8 pad[2];
+		} resp;
+	} body;
+};
+
 #define BCM2835_MBOX_TAG_GET_ARM_MEMORY		0x00010005
 
 struct bcm2835_mbox_tag_get_arm_mem {

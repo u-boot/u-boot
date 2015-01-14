@@ -40,6 +40,7 @@ void zynq_ddrc_init(void)
 		 * first stage bootloader. To get ECC to work all memory has
 		 * been initialized by writing any value.
 		 */
+		/* cppcheck-suppress nullPointer */
 		memset((void *)0, 0, 1 * 1024 * 1024);
 	} else {
 		puts("ECC disabled ");

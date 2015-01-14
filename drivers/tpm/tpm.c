@@ -34,7 +34,7 @@
 
 #include <config.h>
 #include <common.h>
-#include <compiler.h>
+#include <linux/compiler.h>
 #include <fdtdec.h>
 #include <i2c.h>
 #include <tpm.h>

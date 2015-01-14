@@ -30,10 +30,10 @@ kwbimage support available with mkimage utility will generate kirkwood boot
 image that can be flashed on the board NAND/SPI flash.  The make target
 which uses mkimage to produce such an image is "u-boot.kwb".  For example:
 
-  export BUILD_DIR=/tmp/build
+  export KBUILD_OUTPUT=/tmp/build
   make distclean
   make yourboard_config
-  make $BUILD_DIR/u-boot.kwb
+  make u-boot.kwb
 
 
 Board specific configuration file specifications:

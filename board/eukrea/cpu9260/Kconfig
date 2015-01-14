@@ -1,8 +1,5 @@
 if TARGET_CPU9260
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "cpu9260"
 

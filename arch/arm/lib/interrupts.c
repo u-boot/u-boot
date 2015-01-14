@@ -21,18 +21,46 @@
 
 #include <common.h>
 #include <asm/proc-armv/ptrace.h>
+#include <asm/u-boot-arm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_USE_IRQ
 int interrupt_init (void)
 {
+	unsigned long cpsr;
+
 	/*
 	 * setup up stacks if necessary
 	 */
 	IRQ_STACK_START = gd->irq_sp - 4;
 	IRQ_STACK_START_IN = gd->irq_sp + 8;
 	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
+
+
+	__asm__ __volatile__("mrs %0, cpsr\n"
+			     : "=r" (cpsr)
+			     :
+			     : "memory");
+
+	__asm__ __volatile__("msr cpsr_c, %0\n"
+			     "mov sp, %1\n"
+			     :
+			     : "r" (IRQ_MODE | I_BIT | F_BIT | (cpsr & ~FIQ_MODE)),
+			       "r" (IRQ_STACK_START)
+			     : "memory");
+
+	__asm__ __volatile__("msr cpsr_c, %0\n"
+			     "mov sp, %1\n"
+			     :
+			     : "r" (FIQ_MODE | I_BIT | F_BIT | (cpsr & ~IRQ_MODE)),
+			       "r" (FIQ_STACK_START)
+			     : "memory");
+
+	__asm__ __volatile__("msr cpsr_c, %0"
+			     :
+			     : "r" (cpsr)
+			     : "memory");
 
 	return arch_interrupt_init();
 }

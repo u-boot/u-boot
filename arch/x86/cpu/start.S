@@ -1,5 +1,5 @@
 /*
- *  U-boot - x86 Startup Code
+ *  U-Boot - x86 Startup Code
  *
  * (C) Copyright 2008-2011
  * Graeme Russ, <graeme.russ@gmail.com>
@@ -13,9 +13,11 @@
 #include <config.h>
 #include <version.h>
 #include <asm/global_data.h>
+#include <asm/post.h>
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <generated/generic-asm-offsets.h>
+#include <generated/asm-offsets.h>
 
 .section .text
 .code32
@@ -49,6 +51,8 @@ _start:
 	 */
 	movw	$GD_FLG_COLD_BOOT, %bx
 1:
+	/* Save BIST */
+	movl	%eax, %ebp
 
 	/* Load the segement registes to match the gdt loaded in start16.S */
 	movl	$(X86_GDT_ENTRY_32BIT_DS * X86_GDT_ENTRY_SIZE), %eax
@@ -65,27 +69,61 @@ _start:
 	jmp	early_board_init
 .globl early_board_init_ret
 early_board_init_ret:
+	post_code(POST_START)
 
 	/* Initialise Cache-As-RAM */
 	jmp	car_init
 .globl car_init_ret
 car_init_ret:
+#ifndef CONFIG_HAVE_FSP
 	/*
 	 * We now have CONFIG_SYS_CAR_SIZE bytes of Cache-As-RAM (or SRAM,
 	 * or fully initialised SDRAM - we really don't care which)
 	 * starting at CONFIG_SYS_CAR_ADDR to be used as a temporary stack
+	 * and early malloc area. The MRC requires some space at the top.
+	 *
+	 * Stack grows down from top of CAR. We have:
+	 *
+	 * top-> CONFIG_SYS_CAR_ADDR + CONFIG_SYS_CAR_SIZE
+	 *	MRC area
+	 *	global_data
+	 *	x86 global descriptor table
+	 *	early malloc area
+	 *	stack
+	 * bottom-> CONFIG_SYS_CAR_ADDR
 	 */
-
-	/* Stack grows down from top of CAR */
-	movl	$(CONFIG_SYS_CAR_ADDR + CONFIG_SYS_CAR_SIZE), %esp
+	movl	$(CONFIG_SYS_CAR_ADDR + CONFIG_SYS_CAR_SIZE - 4), %esp
+#ifdef CONFIG_DCACHE_RAM_MRC_VAR_SIZE
+	subl	$CONFIG_DCACHE_RAM_MRC_VAR_SIZE, %esp
+#endif
+#else
+	/*
+	 * When we get here after car_init, esp points to a temporary stack
+	 * and esi holds the HOB list address returned by the FSP.
+	 */
+#endif
 
 	/* Reserve space on stack for global data */
 	subl	$GENERATED_GBL_DATA_SIZE, %esp
 
 	/* Align global data to 16-byte boundary */
 	andl	$0xfffffff0, %esp
+	post_code(POST_START_STACK)
 
-	/* Setup first parameter to setup_gdt */
+	/* Zero the global data since it won't happen later */
+	xorl	%eax, %eax
+	movl	$GENERATED_GBL_DATA_SIZE, %ecx
+	movl	%esp, %edi
+	rep	stosb
+
+#ifdef CONFIG_HAVE_FSP
+	/* Store HOB list */
+	movl	%esp, %edx
+	addl	$GD_HOB_LIST, %edx
+	movl	%esi, (%edx)
+#endif
+
+	/* Setup first parameter to setup_gdt, pointer to global_data */
 	movl	%esp, %eax
 
 	/* Reserve space for global descriptor table */
@@ -93,16 +131,28 @@ car_init_ret:
 
 	/* Align temporary global descriptor table to 16-byte boundary */
 	andl	$0xfffffff0, %esp
+	movl	%esp, %ecx
+
+#if defined(CONFIG_SYS_MALLOC_F_LEN)
+	subl	$CONFIG_SYS_MALLOC_F_LEN, %esp
+	movl	%eax, %edx
+	addl	$GD_MALLOC_BASE, %edx
+	movl	%esp, (%edx)
+#endif
+	/* Store BIST */
+	movl	%eax, %edx
+	addl	$GD_BIST, %edx
+	movl	%ebp, (%edx)
 
 	/* Set second parameter to setup_gdt */
-	movl	%esp, %edx
+	movl	%ecx, %edx
 
 	/* Setup global descriptor table so gd->xyz works */
 	call	setup_gdt
 
 	/* Set parameter to board_init_f() to boot flags */
+	post_code(POST_START_DONE)
 	xorl	%eax, %eax
-	movw	%bx, %ax
 
 	/* Enter, U-boot! */
 	call	board_init_f

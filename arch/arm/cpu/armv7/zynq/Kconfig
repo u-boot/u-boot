@@ -15,10 +15,10 @@ config TARGET_ZYNQ_ZC70X
 config TARGET_ZYNQ_ZC770
 	bool "Zynq ZC770 Board"
 
-endchoice
+config TARGET_ZYNQ_ZYBO
+	bool "Zynq Zybo Board"
 
-config SYS_CPU
-	default "armv7"
+endchoice
 
 config SYS_BOARD
 	default "zynq"
@@ -34,5 +34,6 @@ config SYS_CONFIG_NAME
 	default "zynq_microzed" if TARGET_ZYNQ_MICROZED
 	default "zynq_zc70x" if TARGET_ZYNQ_ZC70X
 	default "zynq_zc770" if TARGET_ZYNQ_ZC770
+	default "zynq_zybo" if TARGET_ZYNQ_ZYBO
 
 endif

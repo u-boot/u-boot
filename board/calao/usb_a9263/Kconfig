@@ -1,8 +1,5 @@
 if TARGET_USB_A9263
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "usb_a9263"
 

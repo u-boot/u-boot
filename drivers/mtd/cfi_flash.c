@@ -63,6 +63,12 @@ flash_info_t flash_info[CFI_MAX_FLASH_BANKS];	/* FLASH chips info */
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
 #endif
 
+#ifdef CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
+#define __maybe_weak __weak
+#else
+#define __maybe_weak static
+#endif
+
 /*
  * 0xffff is an undefined value for the configuration register. When
  * this value is returned, the configuration register shall not be
@@ -81,14 +87,12 @@ static u16 cfi_flash_config_reg(int i)
 int cfi_flash_num_flash_banks = CONFIG_SYS_MAX_FLASH_BANKS_DETECT;
 #endif
 
-static phys_addr_t __cfi_flash_bank_addr(int i)
+__weak phys_addr_t cfi_flash_bank_addr(int i)
 {
 	return ((phys_addr_t [])CONFIG_SYS_FLASH_BANKS_LIST)[i];
 }
-phys_addr_t cfi_flash_bank_addr(int i)
-	__attribute__((weak, alias("__cfi_flash_bank_addr")));
 
-static unsigned long __cfi_flash_bank_size(int i)
+__weak unsigned long cfi_flash_bank_size(int i)
 {
 #ifdef CONFIG_SYS_FLASH_BANKS_SIZES
 	return ((unsigned long [])CONFIG_SYS_FLASH_BANKS_SIZES)[i];
@@ -96,70 +100,48 @@ static unsigned long __cfi_flash_bank_size(int i)
 	return 0;
 #endif
 }
-unsigned long cfi_flash_bank_size(int i)
-	__attribute__((weak, alias("__cfi_flash_bank_size")));
 
-static void __flash_write8(u8 value, void *addr)
+__maybe_weak void flash_write8(u8 value, void *addr)
 {
 	__raw_writeb(value, addr);
 }
 
-static void __flash_write16(u16 value, void *addr)
+__maybe_weak void flash_write16(u16 value, void *addr)
 {
 	__raw_writew(value, addr);
 }
 
-static void __flash_write32(u32 value, void *addr)
+__maybe_weak void flash_write32(u32 value, void *addr)
 {
 	__raw_writel(value, addr);
 }
 
-static void __flash_write64(u64 value, void *addr)
+__maybe_weak void flash_write64(u64 value, void *addr)
 {
 	/* No architectures currently implement __raw_writeq() */
 	*(volatile u64 *)addr = value;
 }
 
-static u8 __flash_read8(void *addr)
+__maybe_weak u8 flash_read8(void *addr)
 {
 	return __raw_readb(addr);
 }
 
-static u16 __flash_read16(void *addr)
+__maybe_weak u16 flash_read16(void *addr)
 {
 	return __raw_readw(addr);
 }
 
-static u32 __flash_read32(void *addr)
+__maybe_weak u32 flash_read32(void *addr)
 {
 	return __raw_readl(addr);
 }
 
-static u64 __flash_read64(void *addr)
+__maybe_weak u64 flash_read64(void *addr)
 {
 	/* No architectures currently implement __raw_readq() */
 	return *(volatile u64 *)addr;
 }
-
-#ifdef CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
-void flash_write8(u8 value, void *addr)__attribute__((weak, alias("__flash_write8")));
-void flash_write16(u16 value, void *addr)__attribute__((weak, alias("__flash_write16")));
-void flash_write32(u32 value, void *addr)__attribute__((weak, alias("__flash_write32")));
-void flash_write64(u64 value, void *addr)__attribute__((weak, alias("__flash_write64")));
-u8 flash_read8(void *addr)__attribute__((weak, alias("__flash_read8")));
-u16 flash_read16(void *addr)__attribute__((weak, alias("__flash_read16")));
-u32 flash_read32(void *addr)__attribute__((weak, alias("__flash_read32")));
-u64 flash_read64(void *addr)__attribute__((weak, alias("__flash_read64")));
-#else
-#define flash_write8	__flash_write8
-#define flash_write16	__flash_write16
-#define flash_write32	__flash_write32
-#define flash_write64	__flash_write64
-#define flash_read8	__flash_read8
-#define flash_read16	__flash_read16
-#define flash_read32	__flash_read32
-#define flash_read64	__flash_read64
-#endif
 
 /*-----------------------------------------------------------------------
  */

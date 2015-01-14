@@ -8,18 +8,22 @@ config TARGET_ENBW_CMC
 
 config TARGET_IPAM390
 	bool "IPAM390 board"
+	select SUPPORT_SPL
 
 config TARGET_DA830EVM
 	bool "DA830 EVM board"
 
 config TARGET_DA850EVM
 	bool "DA850 EVM board"
+	select SUPPORT_SPL
 
 config TARGET_CAM_ENC_4XX
 	bool "CAM ENC 4xx board"
+	select SUPPORT_SPL
 
 config TARGET_HAWKBOARD
 	bool "Hawkboard"
+	select SUPPORT_SPL
 
 config TARGET_DAVINCI_DM355EVM
 	bool "DM355 EVM board"
@@ -52,9 +56,6 @@ config TARGET_CALIMAIN
 	bool "Calimain board"
 
 endchoice
-
-config SYS_CPU
-	default "arm926ejs"
 
 config SYS_SOC
 	default "davinci"

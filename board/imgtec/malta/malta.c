@@ -37,7 +37,7 @@ static void malta_lcd_puts(const char *str)
 	void *reg = (void *)CKSEG1ADDR(MALTA_ASCIIPOS0);
 
 	/* print up to 8 characters of the string */
-	for (i = 0; i < min(strlen(str), 8); i++) {
+	for (i = 0; i < min((int)strlen(str), 8); i++) {
 		__raw_writel(str[i], reg);
 		reg += MALTA_ASCIIPOS1 - MALTA_ASCIIPOS0;
 	}

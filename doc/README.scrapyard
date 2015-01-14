@@ -12,14 +12,80 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-MVBC_P           powerpc     mpc5xxx        -           -           Andre Schwarz <andre.schwarz@matrix-vision.de>
-MVSMR            powerpc     mpc5xxx        -           -           Andre Schwarz <andre.schwarz@matrix-vision.de>
-MERGERBOX        powerpc     mpc83xx        -           -           Andre Schwarz <andre.schwarz@matrix-vision.de>
-MVBLM7           powerpc     mpc83xx        -           -           Andre Schwarz <andre.schwarz@matrix-vision.de>
-bluestone        powerpc     ppc4xx         -           -           Tirumala Marri <tmarri@apm.com>
-CRAYL1           powerpc     ppc4xx         -           -           David Updegraff <dave@cray.com>
-KAREF            powerpc     ppc4xx         -           -           Travis Sawyer <travis.sawyer@sandburst.com>
-METROBOX         powerpc     ppc4xx         -           -           Travis Sawyer <travis.sawyer@sandburst.com>
+A3000            powerpc     mpc824x        -           -
+CPC45            powerpc     mpc824x        -           -           Josef Wagner <Wagner@Microsys.de>
+CU824            powerpc     mpc824x        -           -           Wolfgang Denk <wd@denx.de>
+eXalion          powerpc     mpc824x        -           -           Torsten Demke <torsten.demke@fci.com>
+MVBLUE           powerpc     mpc824x        -           -
+MUSENKI          powerpc     mpc824x        -           -           Jim Thompson <jim@musenki.com>
+Sandpoint8240    powerpc     mpc824x        -           -           Wolfgang Denk <wd@denx.de>
+Sandpoint8245    powerpc     mpc824x        -           -           Jim Thompson <jim@musenki.com>
+utx8245          powerpc     mpc824x        -           -           Greg Allen <gallen@arlut.utexas.edu>
+atc              powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
+CPU86            powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
+CPU87            powerpc     mpc8260        -           -
+ep82xxm          powerpc     mpc8260        -           -
+gw8260           powerpc     mpc8260        -           -           Oliver Brown <obrown@adventnetworks.com>
+IPHASE4539       powerpc     mpc8260        -           -           Wolfgang Grandegger <wg@denx.de>
+muas3001         powerpc     mpc8260        -           -           Heiko Schocher <hs@denx.de>
+PM825            powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
+PM826            powerpc     mpc8260        -           -           Wolfgang Denk <wd@denx.de>
+PM828            powerpc     mpc8260        -           -
+MPC8266ADS       powerpc     mpc8260        -           -           Rune Torgersen <runet@innovsys.com>
+VoVPN-GW         powerpc     mpc8260        -           -
+ep8260           powerpc     mpc8260        -           -           Frank Panno <fpanno@delphintech.com>
+ppmc8260         powerpc     mpc8260        -           -           Brad Kemp <Brad.Kemp@seranoa.com>
+sacsng           powerpc     mpc8260        -           -           Jerry Van Baren <gerald.vanbaren@smiths-aerospace.com>
+cogent_mpc8260   powerpc     mpc8260        -           -           Murray Jensen <Murray.Jensen@csiro.au>
+cogent_8xx       powerpc     mpc8xx         -           -           Murray Jensen <Murray.Jensen@csiro.au>
+ESTEEM192E       powerpc     mpc8xx         -           -           Conn Clark <clark@esteem.com>
+IP860            powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+IVML24           powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+IVMS8            powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+lwmon            powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+NETVIA           powerpc     mpc8xx         -           -           Pantelis Antoniou <panto@intracom.gr>
+R360MPI          powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+RRvision         powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+SPD823TS         powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+KUP4K            powerpc     mpc8xx         -           -           Klaus Heydeck <heydeck@kieback-peter.de>
+KUP4X            powerpc     mpc8xx         -           -           Klaus Heydeck <heydeck@kieback-peter.de>
+ELPT860          powerpc     mpc8xx         -           -           The LEOX team <team@leox.org>
+hmi1001          powerpc     mpc5xxx        -           -
+mucmc52          powerpc     mpc5xxx        -           -           Heiko Schocher <hs@denx.de>
+uc101            powerpc     mpc5xxx        -           -           Heiko Schocher <hs@denx.de>
+uc100            powerpc     mpc8xx         -           -           Stefan Roese <sr@denx.de>
+FPS850L          powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+FPS860L          powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+NSCU             powerpc     mpc8xx         -           -
+SM850            powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+TK885D           powerpc     mpc8xx         -           -
+virtlab2         powerpc     mpc8xx         -           -           Wolfgang Denk <wd@denx.de>
+hermes           powerpc     mpc8xx         36da51e     2014-12-08  Wolfgang Denk <wd@denx.de>
+PRS200		 powerpc     mpc5200	    ecfdcee	2014-11-12
+MCC200		 powerpc     mpc5200	    ecfdcee     2014-11-12
+TOP5200		 powerpc     mpc5200	    d58a945	2014-10-28  Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
+TOP860		 powerpc     mpc860	    d58a945	2014-10-28  Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
+TOP9000		 arm	     at91sam9xeXXX  d58a945	2014-10-28  Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
+TQM8272          powerpc     mpc8260        f06f9a1     2014-10-27  Wolfgang Denk <wd@denx.de>
+TQM8260          powerpc     mpc8260        ccc1950     2014-10-27  Wolfgang Denk <wd@denx.de>
+IDS8247          powerpc     mpc8260        6afb357     2014-10-27  Heiko Schocher <hs@denx.de>
+HWW1U1A          powerpc     mpc85xx        4109cb0     2014-10-27  Kyle Moffett <Kyle.D.Moffett@boeing.com>
+hymod            powerpc     mpc8260        5038d7f     2014-10-27  Murray Jensen <Murray.Jensen@csiro.au>
+MHPC             powerpc     mpc8xx         1655f9f     2014-10-27  Frank Gottschling <fgottschling@eltec.de>
+ICU862           powerpc     mpc8xx         4af5f0f     2014-10-27  Wolfgang Denk <wd@denx.de>
+CPCI750		 powerpc     74xx_7xx	    03b0040	2014-10-27  Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+DB64360		 powerpc     74xx_7xx	    03b0040	2014-10-27
+DB64460		 powerpc     74xx_7xx	    03b0040	2014-10-27
+p3m750		 powerpc     74xx_7xx	    03b0040	2014-10-27  Stefan Roese <sr@denx.de>
+p3m7448		 powerpc     74xx_7xx	    03b0040	2014-10-27  Stefan Roese <sr@denx.de>
+MVBC_P           powerpc     mpc5xxx        af55e35	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
+MVSMR            powerpc     mpc5xxx        af55e35	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
+MERGERBOX        powerpc     mpc83xx        e7a5656	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
+MVBLM7           powerpc     mpc83xx        e7a5656	2014-10-10  Andre Schwarz <andre.schwarz@matrix-vision.de>
+bluestone        powerpc     ppc4xx         9ed3246	2014-10-10  Tirumala Marri <tmarri@apm.com>
+CRAYL1           powerpc     ppc4xx         1521cdc	2014-10-10  David Updegraff <dave@cray.com>
+KAREF            powerpc     ppc4xx         dc9617e	2014-10-10  Travis Sawyer <travis.sawyer@sandburst.com>
+METROBOX         powerpc     ppc4xx         dc9617e	2014-10-10  Travis Sawyer <travis.sawyer@sandburst.com>
 PK1C20           nios2       -              70fbc461    2014-08-24  Scott McNutt <smcnutt@psyent.com>
 PCI5441          nios2       -              70fbc461    2014-08-24  Scott McNutt <smcnutt@psyent.com>
 flagadm          powerpc     mpc8xx         aec6f8c5    2014-08-22  Kári Davíðsson <kd@flaga.is>

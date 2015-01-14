@@ -20,6 +20,7 @@
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/sata.h>
+#include <asm/imx-common/spi.h>
 #include <asm/imx-common/video.h>
 #include <jffs2/load_kernel.h>
 #include <hwconfig.h>
@@ -1482,7 +1483,7 @@ int misc_init_r(void)
  *  - board (full model from EEPROM)
  *  - peripherals removed from DTB if not loaded on board (per EEPROM config)
  */
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	struct ventana_board_info *info = &ventana_info;
 	struct ventana_eeprom_config *cfg;
@@ -1494,7 +1495,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	if (getenv("fdt_noauto")) {
 		puts("   Skiping ft_board_setup (fdt_noauto defined)\n");
-		return;
+		return 0;
 	}
 
 	/* Update partition nodes using info from mtdparts env var */
@@ -1503,7 +1504,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	if (!model) {
 		puts("invalid board info: Leaving FDT fully enabled\n");
-		return;
+		return 0;
 	}
 	printf("   Adjusting FDT per EEPROM for %s...\n", model);
 
@@ -1522,7 +1523,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 	 */
 	if (getenv("fdt_noconfig")) {
 		puts("   Skiping periperhal config (fdt_noconfig defined)\n");
-		return;
+		return 0;
 	}
 	cfg = econfig;
 	while (cfg->name) {
@@ -1532,6 +1533,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 		}
 		cfg++;
 	}
+
+	return 0;
 }
 #endif /* defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP) */
 

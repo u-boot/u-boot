@@ -44,8 +44,8 @@
 
 #define CONFIG_BOARD_NAME		"o3dnt"
 #define CONFIG_BOARD_BOOTCMD		"run flash_self"
-#define CONFIG_BOARD_MEM_LIMIT		xstr(62)
-#define BOARD_POST_CRC32_END		xstr(0x01000000)
+#define CONFIG_BOARD_MEM_LIMIT		__stringify(62)
+#define BOARD_POST_CRC32_END		__stringify(0x01000000)
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_IFM_DEFAULT_ENV_SETTINGS					\
@@ -57,7 +57,7 @@
 	"ramtop=fc55ffff\0"						\
 	"jffbot=fc560000\0"						\
 	"jfftop=fce5ffff\0"						\
-	"ubobot=" xstr(CONFIG_SYS_FLASH_BASE) "\0"			\
+	"ubobot=" __stringify(CONFIG_SYS_FLASH_BASE) "\0"		\
 	"ubotop=fc03ffff\0"						\
 	"calname="CONFIG_BOARD_NAME"/uCal_"CONFIG_BOARD_NAME"_act\0"	\
 	"calbot=fce60000\0"						\

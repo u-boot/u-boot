@@ -72,8 +72,10 @@ static FLASH_BUS_RET flash_status_reg (void)
 
 	FLASH_BUS *addr = (FLASH_BUS *) 0;
 
+	/* cppcheck-suppress nullPointer */
 	*addr = FLASH_CMD (CFI_INTEL_CMD_READ_STATUS_REGISTER);
 
+	/* cppcheck-suppress nullPointer */
 	return *addr;
 }
 

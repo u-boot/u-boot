@@ -45,8 +45,8 @@ static void update_window(struct dc_ctlr *dc, struct disp_ctl_win *win)
 	writel(0, &dc->win.h_initial_dda);
 	writel(0, &dc->win.v_initial_dda);
 
-	h_dda = (win->w * 0x1000) / max(win->out_w - 1, 1);
-	v_dda = (win->h * 0x1000) / max(win->out_h - 1, 1);
+	h_dda = (win->w * 0x1000) / max(win->out_w - 1, 1U);
+	v_dda = (win->h * 0x1000) / max(win->out_h - 1, 1U);
 
 	val = h_dda << H_DDA_INC_SHIFT;
 	val |= v_dda << V_DDA_INC_SHIFT;
@@ -194,7 +194,8 @@ static void rgb_enable(struct dc_com_reg *com)
 		writel(rgb_sel_tab[i], &com->pin_output_sel[i]);
 }
 
-int setup_window(struct disp_ctl_win *win, struct fdt_disp_config *config)
+static int setup_window(struct disp_ctl_win *win,
+			struct fdt_disp_config *config)
 {
 	win->x = 0;
 	win->y = 0;

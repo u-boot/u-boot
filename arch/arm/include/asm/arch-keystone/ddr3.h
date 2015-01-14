@@ -49,8 +49,14 @@ struct ddr3_emif_config {
 };
 
 void ddr3_init(void);
+int ddr3_get_size(void);
 void ddr3_reset_ddrphy(void);
+void ddr3_init_ecc(u32 base);
+void ddr3_disable_ecc(u32 base);
+void ddr3_check_ecc_int(u32 base);
+int ddr3_ecc_support_rmw(u32 base);
 void ddr3_err_reset_workaround(void);
+void ddr3_enable_ecc(u32 base, int test);
 void ddr3_init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg);
 void ddr3_init_ddremif(u32 base, struct ddr3_emif_config *emif_cfg);
 

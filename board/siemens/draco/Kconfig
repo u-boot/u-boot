@@ -1,8 +1,5 @@
 if TARGET_DRACO
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "draco"
 
@@ -18,9 +15,6 @@ config SYS_CONFIG_NAME
 endif
 
 if TARGET_DXR2
-
-config SYS_CPU
-	default "armv7"
 
 config SYS_BOARD
 	default "draco"

@@ -41,6 +41,7 @@ obj-$(CONFIG_MCFFEC) += mcffec.o mcfmii.o
 obj-$(CONFIG_MPC5xxx_FEC) += mpc5xxx_fec.o
 obj-$(CONFIG_MPC512x_FEC) += mpc512x_fec.o
 obj-$(CONFIG_MVGBE) += mvgbe.o
+obj-$(CONFIG_MVNETA) += mvneta.o
 obj-$(CONFIG_NATSEMI) += natsemi.o
 obj-$(CONFIG_DRIVER_NE2000) += ne2000.o ne2000_base.o
 obj-$(CONFIG_DRIVER_AX88796L) += ax88796.o ne2000_base.o

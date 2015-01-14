@@ -16,59 +16,38 @@
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 
-/**
- * dm_display_line() - Display information about a single device
- *
- * Displays a single line of information with an option prefix
- *
- * @dev:	Device to display
- * @buf:	Prefix to display at the start of the line
- */
-static void dm_display_line(struct udevice *dev, char *buf)
+static void show_devices(struct udevice *dev, int depth, int last_flag)
 {
-	printf("%s- %c %s @ %08lx", buf,
-	       dev->flags & DM_FLAG_ACTIVATED ? '*' : ' ',
-	       dev->name, (ulong)map_to_sysmem(dev));
-	if (dev->req_seq != -1)
-		printf(", %d", dev->req_seq);
-	puts("\n");
-}
+	int i, is_last;
+	struct udevice *child;
+	char class_name[12];
 
-static int display_succ(struct udevice *in, char *buf)
-{
-	int len;
-	int ip = 0;
-	char local[16];
-	struct udevice *pos, *n, *prev = NULL;
+	/* print the first 11 characters to not break the tree-format. */
+	strlcpy(class_name, dev->uclass->uc_drv->name, sizeof(class_name));
+	printf(" %-11s [ %c ]    ", class_name,
+	       dev->flags & DM_FLAG_ACTIVATED ? '+' : ' ');
 
-	dm_display_line(in, buf);
-
-	if (list_empty(&in->child_head))
-		return 0;
-
-	len = strlen(buf);
-	strncpy(local, buf, sizeof(local));
-	snprintf(local + len, 2, "|");
-	if (len && local[len - 1] == '`')
-		local[len - 1] = ' ';
-
-	list_for_each_entry_safe(pos, n, &in->child_head, sibling_node) {
-		if (ip++)
-			display_succ(prev, local);
-		prev = pos;
+	for (i = depth; i >= 0; i--) {
+		is_last = (last_flag >> i) & 1;
+		if (i) {
+			if (is_last)
+				printf("    ");
+			else
+				printf("|   ");
+		} else {
+			if (is_last)
+				printf("`-- ");
+			else
+				printf("|-- ");
+		}
 	}
 
-	snprintf(local + len, 2, "`");
-	display_succ(prev, local);
+	printf("%s\n", dev->name);
 
-	return 0;
-}
-
-static int dm_dump(struct udevice *dev)
-{
-	if (!dev)
-		return -EINVAL;
-	return display_succ(dev, "");
+	list_for_each_entry(child, &dev->child_head, sibling_node) {
+		is_last = list_is_last(&child->sibling_node, &dev->child_head);
+		show_devices(child, depth + 1, (last_flag << 1) | is_last);
+	}
 }
 
 static int do_dm_dump_all(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -77,8 +56,30 @@ static int do_dm_dump_all(cmd_tbl_t *cmdtp, int flag, int argc,
 	struct udevice *root;
 
 	root = dm_root();
-	printf("ROOT %08lx\n", (ulong)map_to_sysmem(root));
-	return dm_dump(root);
+	if (root) {
+		printf(" Class       Probed   Name\n");
+		printf("----------------------------------------\n");
+		show_devices(root, -1, 0);
+	}
+
+	return 0;
+}
+
+/**
+ * dm_display_line() - Display information about a single device
+ *
+ * Displays a single line of information with an option prefix
+ *
+ * @dev:	Device to display
+ */
+static void dm_display_line(struct udevice *dev)
+{
+	printf("- %c %s @ %08lx",
+	       dev->flags & DM_FLAG_ACTIVATED ? '*' : ' ',
+	       dev->name, (ulong)map_to_sysmem(dev));
+	if (dev->req_seq != -1)
+		printf(", %d", dev->req_seq);
+	puts("\n");
 }
 
 static int do_dm_dump_uclass(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -99,7 +100,7 @@ static int do_dm_dump_uclass(cmd_tbl_t *cmdtp, int flag, int argc,
 		if (list_empty(&uc->dev_head))
 			continue;
 		list_for_each_entry(dev, &uc->dev_head, uclass_node) {
-			dm_display_line(dev, "");
+			dm_display_line(dev);
 		}
 		puts("\n");
 	}

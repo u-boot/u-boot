@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include "emc.h"
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/emc.h>

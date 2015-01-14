@@ -23,6 +23,7 @@ obj-$(CONFIG_FMAN_ENET)	+= fman.o
 obj-$(CONFIG_FSL_PIXIS)	+= pixis.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_FSL_NGPIXIS)	+= ngpixis.o
+obj-$(CONFIG_VID)		+= vid.o
 endif
 obj-$(CONFIG_FSL_QIXIS)	+= qixis.o
 obj-$(CONFIG_PQ_MDS_PIB)	+= pq-mds-pib.o
@@ -35,6 +36,12 @@ obj-$(CONFIG_FSL_FIXED_MMC_LOCATION)	+= sdhc_boot.o
 endif
 
 obj-$(CONFIG_FSL_DIU_CH7301)	+= diu_ch7301.o
+
+ifdef CONFIG_ARM
+obj-$(CONFIG_DEEP_SLEEP)		+= arm_sleep.o
+else
+obj-$(CONFIG_DEEP_SLEEP)		+= mpc85xx_sleep.o
+endif
 
 obj-$(CONFIG_FSL_DCU_SII9022A)    += dcu_sii9022a.o
 
@@ -53,6 +60,9 @@ obj-$(CONFIG_P5040DS)		+= ics307_clk.o
 obj-$(CONFIG_VSC_CROSSBAR)    += vsc3316_3308.o
 obj-$(CONFIG_IDT8T49N222A)	+= idt8t49n222a_serdes_clk.o
 obj-$(CONFIG_ZM7300)		+= zm7300.o
+obj-$(CONFIG_POWER_PFUZE100)	+= pfuze.o
+
+obj-$(CONFIG_LS102XA_STREAM_ID)	+= ls102xa_stream_id.o
 
 # deal with common files for P-series corenet based devices
 obj-$(CONFIG_P2041RDB)	+= p_corenet/
@@ -60,4 +70,6 @@ obj-$(CONFIG_P3041DS)	+= p_corenet/
 obj-$(CONFIG_P4080DS)	+= p_corenet/
 obj-$(CONFIG_P5020DS)	+= p_corenet/
 obj-$(CONFIG_P5040DS)	+= p_corenet/
+
+obj-$(CONFIG_LS102XA_NS_ACCESS)	+= ns_access.o
 endif

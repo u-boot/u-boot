@@ -1,0 +1,47 @@
+config AXP221_POWER
+	boolean "axp221 pmic support"
+	depends on MACH_SUN6I
+	default y
+	---help---
+	Say y here to enable support for the axp221 pmic found on most sun6i
+	(A31) boards.
+
+config AXP221_DLDO1_VOLT
+	int "axp221 dldo1 voltage"
+	depends on AXP221_POWER
+	default -1
+	---help---
+	Set the voltage (mV) to program the axp221 dldo1 at, set to -1 to
+	disable dldo1.
+
+config AXP221_DLDO4_VOLT
+	int "axp221 dldo4 voltage"
+	depends on AXP221_POWER
+	default -1
+	---help---
+	Set the voltage (mV) to program the axp221 dldo4 at, set to -1 to
+	disable dldo4.
+
+config AXP221_ALDO1_VOLT
+	int "axp221 aldo1 voltage"
+	depends on AXP221_POWER
+	default -1
+	---help---
+	Set the voltage (mV) to program the axp221 aldo1 at, set to -1 to
+	disable aldo1.
+
+config AXP221_ALDO2_VOLT
+	int "axp221 aldo2 voltage"
+	depends on AXP221_POWER
+	default -1
+	---help---
+	Set the voltage (mV) to program the axp221 aldo2 at, set to -1 to
+	disable aldo2.
+
+config AXP221_ALDO3_VOLT
+	int "axp221 aldo3 voltage"
+	depends on AXP221_POWER
+	default -1
+	---help---
+	Set the voltage (mV) to program the axp221 aldo3 at, set to -1 to
+	disable aldo3.

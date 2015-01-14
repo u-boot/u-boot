@@ -10,6 +10,18 @@
 #include <asm/io.h>
 #include <nand.h>
 
+#if defined(CONFIG_SPL_NAND_RAW_ONLY)
+void spl_nand_load_image(void)
+{
+	nand_init();
+
+	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
+			    CONFIG_SYS_NAND_U_BOOT_SIZE,
+			    (void *)CONFIG_SYS_NAND_U_BOOT_DST);
+	spl_set_header_raw_uboot();
+	nand_deselect();
+}
+#else
 void spl_nand_load_image(void)
 {
 	struct image_header *header;
@@ -82,3 +94,4 @@ void spl_nand_load_image(void)
 		spl_image.size, (void *)spl_image.load_addr);
 	nand_deselect();
 }
+#endif

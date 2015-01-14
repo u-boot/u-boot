@@ -8,7 +8,7 @@
  */
 
 /dts-v1/;
-/include/ "exynos4.dtsi"
+#include "exynos4210.dtsi"
 
 / {
 	model = "Samsung Universal C210 based on Exynos4210 rev0";
@@ -24,7 +24,7 @@
 	sdhci@12510000 {
 		samsung,bus-width = <8>;
 		samsung,timing = <1 3 3>;
-		pwr-gpios = <&gpio 0xA2 0>;
+		pwr-gpios = <&gpio 146 0>;
 	};
 
 	sdhci@12520000 {
@@ -34,11 +34,24 @@
 	sdhci@12530000 {
 		samsung,bus-width = <4>;
 		samsung,timing = <1 2 3>;
-		cd-gpios = <&gpio 0x39C 0>;
+		cd-gpios = <&gpio 284 0>;
 	};
 
 	sdhci@12540000 {
 		status = "disabled";
+	};
+
+	soft-spi {
+		compatible = "u-boot,soft-spi";
+		cs-gpio = <&gpio 235 0>;	/* Y43 */
+		sclk-gpio = <&gpio 225 0>;	/* Y31 */
+		mosi-gpio = <&gpio 227 0>;	/* Y33 */
+		miso-gpio = <&gpio 224 0>;	/* Y30 */
+		spi-delay-us = <1>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cs@0 {
+		};
 	};
 
 	fimd@11c00000 {

@@ -11,6 +11,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <net.h>
+#include <netdev.h>
 #include <miiphy.h>
 #include "fec_mxc.h"
 
@@ -179,13 +180,14 @@ static int fec_mdio_write(struct ethernet_regs *eth, uint8_t phyAddr,
 	return 0;
 }
 
-int fec_phy_read(struct mii_dev *bus, int phyAddr, int dev_addr, int regAddr)
+static int fec_phy_read(struct mii_dev *bus, int phyAddr, int dev_addr,
+			int regAddr)
 {
 	return fec_mdio_read(bus->priv, phyAddr, regAddr);
 }
 
-int fec_phy_write(struct mii_dev *bus, int phyAddr, int dev_addr, int regAddr,
-		u16 data)
+static int fec_phy_write(struct mii_dev *bus, int phyAddr, int dev_addr,
+			 int regAddr, u16 data)
 {
 	return fec_mdio_write(bus->priv, phyAddr, regAddr, data);
 }

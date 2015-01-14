@@ -1,8 +1,5 @@
 if TARGET_CM41XX
 
-config SYS_CPU
-	default "arm920t"
-
 config SYS_BOARD
 	default "cm41xx"
 

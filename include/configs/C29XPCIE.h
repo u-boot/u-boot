@@ -12,6 +12,8 @@
 #define __CONFIG_H
 
 #define CONFIG_PHYS_64BIT
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 
 #ifdef CONFIG_C29XPCIE
 #define CONFIG_PPC_C29X
@@ -86,6 +88,7 @@
 #define CONFIG_BOOKE			/* BOOKE */
 #define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
+#define CONFIG_FSL_CAAM			/* Enable SEC/CAAM */
 #define CONFIG_SYS_HAS_SERDES		/* common SERDES init code */
 
 #define CONFIG_PCI			/* Enable PCI/PCIE */
@@ -505,6 +508,12 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_REGINFO
+
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
 
 /*
  * Miscellaneous configurable options

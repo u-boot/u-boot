@@ -42,7 +42,7 @@
 /* Booting Linux */
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"zImage"
-#define CONFIG_BOOTARGS		"console=ttyS0" __stringify(CONFIG_BAUDRATE)
+#define CONFIG_BOOTARGS		"console=ttyS0," __stringify(CONFIG_BAUDRATE)
 #ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
 #define CONFIG_BOOTCOMMAND	"run ramboot"
 #else
@@ -55,10 +55,8 @@
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_EMAC_BASE		SOCFPGA_EMAC1_ADDRESS
 #define CONFIG_PHY_INTERFACE_MODE	PHY_INTERFACE_MODE_RGMII
-#define CONFIG_EPHY0_PHY_ADDR		0
 
 /* PHY */
-#define CONFIG_EPHY1_PHY_ADDR		4
 #define CONFIG_PHY_MICREL
 #define CONFIG_PHY_MICREL_KSZ9021
 #define CONFIG_KSZ9021_CLK_SKEW_ENV	"micrel-ksz9021-clk-skew"

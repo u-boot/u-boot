@@ -44,6 +44,7 @@
 #define CONFIG_SYS_FSL_CPC	/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC	CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_FSL_IFC		/* Enable IFC Support */
+#define CONFIG_FSL_CAAM		/* Enable SEC/CAAM */
 #define CONFIG_FSL_LAW		/* Use common FSL init code */
 #define CONFIG_ENV_OVERWRITE
 
@@ -233,7 +234,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_FSL_DDR3
-#undef CONFIG_FSL_DDR_INTERACTIVE
+#define CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define CONFIG_SYS_SDRAM_SIZE	2048	/* for fixed parameter use */
 #define SPD_EEPROM_ADDRESS1	0x51
@@ -493,6 +494,23 @@ unsigned long get_board_ddr_clk(void);
 #define I2C_MUX_PCA_ADDR_SEC2	0x76 /* I2C bus multiplexer,secondary 2 */
 #define I2C_MUX_CH_DEFAULT	0x8
 
+#define I2C_MUX_CH_VOL_MONITOR 0xa
+
+/* Voltage monitor on channel 2*/
+#define I2C_VOL_MONITOR_ADDR           0x40
+#define I2C_VOL_MONITOR_BUS_V_OFFSET   0x2
+#define I2C_VOL_MONITOR_BUS_V_OVF      0x1
+#define I2C_VOL_MONITOR_BUS_V_SHIFT    3
+
+#define CONFIG_VID_FLS_ENV		"t208xqds_vdd_mv"
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_VID
+#endif
+#define CONFIG_VOL_MONITOR_IR36021_SET
+#define CONFIG_VOL_MONITOR_IR36021_READ
+/* The lowest and highest voltage allowed for T208xQDS */
+#define VDD_MV_MIN			819
+#define VDD_MV_MAX			1212
 
 /*
  * RapidIO
@@ -616,10 +634,26 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_BMAN_MEM_BASE	0xf4000000
 #define CONFIG_SYS_BMAN_MEM_PHYS	0xff4000000ull
 #define CONFIG_SYS_BMAN_MEM_SIZE	0x02000000
+#define CONFIG_SYS_BMAN_SP_CENA_SIZE    0x4000
+#define CONFIG_SYS_BMAN_SP_CINH_SIZE    0x1000
+#define CONFIG_SYS_BMAN_CENA_BASE       CONFIG_SYS_BMAN_MEM_BASE
+#define CONFIG_SYS_BMAN_CENA_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_CINH_BASE       (CONFIG_SYS_BMAN_MEM_BASE + \
+					CONFIG_SYS_BMAN_CENA_SIZE)
+#define CONFIG_SYS_BMAN_CINH_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_SWP_ISDR_REG    0xE08
 #define CONFIG_SYS_QMAN_NUM_PORTALS	18
 #define CONFIG_SYS_QMAN_MEM_BASE	0xf6000000
 #define CONFIG_SYS_QMAN_MEM_PHYS	0xff6000000ull
 #define CONFIG_SYS_QMAN_MEM_SIZE	0x02000000
+#define CONFIG_SYS_QMAN_SP_CENA_SIZE    0x4000
+#define CONFIG_SYS_QMAN_SP_CINH_SIZE    0x1000
+#define CONFIG_SYS_QMAN_CENA_BASE       CONFIG_SYS_QMAN_MEM_BASE
+#define CONFIG_SYS_QMAN_CENA_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_CINH_BASE       (CONFIG_SYS_QMAN_MEM_BASE + \
+					CONFIG_SYS_QMAN_CENA_SIZE)
+#define CONFIG_SYS_QMAN_CINH_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_SWP_ISDR_REG	0xE08
 
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
@@ -777,6 +811,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_NET
 #endif
 
+/* Hash command with SHA acceleration supported in hardware */
+#ifdef CONFIG_FSL_CAAM
+#define CONFIG_CMD_HASH
+#define CONFIG_SHA_HW_ACCEL
+#endif
+
 /*
  * Miscellaneous configurable options
  */
@@ -784,7 +824,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMDLINE_EDITING		/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000 /* default load address */
-#define CONFIG_SYS_PROMPT	"=> "	  /* Monitor Command Prompt */
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_SYS_CBSIZE	1024	  /* Console I/O Buffer Size */
 #else
@@ -909,6 +948,7 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_SECURE_BOOT
 #include <asm/fsl_secure_boot.h>
+#define CONFIG_CMD_BLOB
 #undef CONFIG_CMD_USB
 #endif
 

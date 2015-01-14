@@ -14,6 +14,8 @@
 #define __deprecated
 #endif
 
+#include <linux/compat.h>
+
 /* The USB role is defined by the connector used on the board, so long as
  * standards are being followed.  (Developer boards sometimes won't.)
  */

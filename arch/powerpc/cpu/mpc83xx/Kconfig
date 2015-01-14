@@ -24,6 +24,7 @@ config TARGET_MPC8308RDB
 
 config TARGET_MPC8313ERDB
 	bool "Support MPC8313ERDB"
+	select SUPPORT_SPL
 
 config TARGET_MPC8315ERDB
 	bool "Support MPC8315ERDB"
@@ -67,6 +68,9 @@ config TARGET_TUXX1
 config TARGET_TQM834X
 	bool "Support TQM834x"
 
+config TARGET_HRCON
+	bool "Support hrcon"
+
 endchoice
 
 source "board/esd/vme8349/Kconfig"
@@ -87,5 +91,6 @@ source "board/mpc8308_p1m/Kconfig"
 source "board/sbc8349/Kconfig"
 source "board/tqc/tqm834x/Kconfig"
 source "board/ve8313/Kconfig"
+source "board/gdsys/mpc8308/Kconfig"
 
 endmenu

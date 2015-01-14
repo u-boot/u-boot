@@ -35,7 +35,7 @@ void clock_init_safe(void)
 	       APB0_DIV_1 << APB0_DIV_SHIFT |
 	       CPU_CLK_SRC_PLL1 << CPU_CLK_SRC_SHIFT,
 	       &ccm->cpu_ahb_apb0_cfg);
-#ifdef CONFIG_SUN7I
+#ifdef CONFIG_MACH_SUN7I
 	setbits_le32(&ccm->ahb_gate0, 0x1 << AHB_GATE_OFFSET_DMA);
 #endif
 	writel(PLL6_CFG_DEFAULT, &ccm->pll6_cfg);
@@ -180,6 +180,32 @@ void clock_set_pll1(unsigned int hz)
 }
 #endif
 
+void clock_set_pll3(unsigned int clk)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	if (clk == 0) {
+		clrbits_le32(&ccm->pll3_cfg, CCM_PLL3_CTRL_EN);
+		return;
+	}
+
+	/* PLL3 rate = 3000000 * m */
+	writel(CCM_PLL3_CTRL_EN | CCM_PLL3_CTRL_INTEGER_MODE |
+	       CCM_PLL3_CTRL_M(clk / 3000000), &ccm->pll3_cfg);
+}
+
+unsigned int clock_get_pll5p(void)
+{
+	struct sunxi_ccm_reg *const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	uint32_t rval = readl(&ccm->pll5_cfg);
+	int n = ((rval & CCM_PLL5_CTRL_N_MASK) >> CCM_PLL5_CTRL_N_SHIFT);
+	int k = ((rval & CCM_PLL5_CTRL_K_MASK) >> CCM_PLL5_CTRL_K_SHIFT) + 1;
+	int p = ((rval & CCM_PLL5_CTRL_P_MASK) >> CCM_PLL5_CTRL_P_SHIFT);
+	return (24000000 * n * k) >> p;
+}
+
 unsigned int clock_get_pll6(void)
 {
 	struct sunxi_ccm_reg *const ccm =
@@ -188,4 +214,16 @@ unsigned int clock_get_pll6(void)
 	int n = ((rval & CCM_PLL6_CTRL_N_MASK) >> CCM_PLL6_CTRL_N_SHIFT);
 	int k = ((rval & CCM_PLL6_CTRL_K_MASK) >> CCM_PLL6_CTRL_K_SHIFT) + 1;
 	return 24000000 * n * k / 2;
+}
+
+void clock_set_de_mod_clock(u32 *clk_cfg, unsigned int hz)
+{
+	int pll = clock_get_pll5p();
+	int div = 1;
+
+	while ((pll / div) > hz)
+		div++;
+
+	writel(CCM_DE_CTRL_GATE | CCM_DE_CTRL_RST | CCM_DE_CTRL_PLL5P |
+	       CCM_DE_CTRL_M(div), clk_cfg);
 }

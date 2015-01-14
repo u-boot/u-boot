@@ -1,8 +1,5 @@
 if TARGET_TNETV107X_EVM
 
-config SYS_CPU
-	default "arm1176"
-
 config SYS_BOARD
 	default "tnetv107xevm"
 

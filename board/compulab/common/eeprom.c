@@ -109,15 +109,19 @@ int cl_eeprom_read_mac_addr(uchar *buf)
 	return cl_eeprom_read(offset, buf, 6);
 }
 
+static u32 board_rev;
+
 /*
  * Routine: cl_eeprom_get_board_rev
  * Description: read system revision from eeprom
  */
 u32 cl_eeprom_get_board_rev(void)
 {
-	u32 rev = 0;
 	char str[5]; /* Legacy representation can contain at most 4 digits */
 	uint offset = BOARD_REV_OFFSET_LEGACY;
+
+	if (board_rev)
+		return board_rev;
 
 	if (cl_eeprom_setup_layout())
 		return 0;
@@ -125,7 +129,7 @@ u32 cl_eeprom_get_board_rev(void)
 	if (cl_eeprom_layout != LAYOUT_LEGACY)
 		offset = BOARD_REV_OFFSET;
 
-	if (cl_eeprom_read(offset, (uchar *)&rev, BOARD_REV_SIZE))
+	if (cl_eeprom_read(offset, (uchar *)&board_rev, BOARD_REV_SIZE))
 		return 0;
 
 	/*
@@ -133,9 +137,9 @@ u32 cl_eeprom_get_board_rev(void)
 	 * representation. i.e. for rev 1.00: 0x100 --> 0x64
 	 */
 	if (cl_eeprom_layout == LAYOUT_LEGACY) {
-		sprintf(str, "%x", rev);
-		rev = simple_strtoul(str, NULL, 10);
+		sprintf(str, "%x", board_rev);
+		board_rev = simple_strtoul(str, NULL, 10);
 	}
 
-	return rev;
+	return board_rev;
 };

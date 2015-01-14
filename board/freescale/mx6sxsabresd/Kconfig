@@ -1,8 +1,5 @@
 if TARGET_MX6SXSABRESD
 
-config SYS_CPU
-	default "armv7"
-
 config SYS_BOARD
 	default "mx6sxsabresd"
 

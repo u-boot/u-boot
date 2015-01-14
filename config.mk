@@ -18,6 +18,8 @@ PLATFORM_LDFLAGS :=
 LDFLAGS :=
 LDFLAGS_FINAL :=
 OBJCOPYFLAGS :=
+# clear VENDOR for tcsh
+VENDOR :=
 #########################################################################
 
 ARCH := $(CONFIG_SYS_ARCH:"%"=%)
@@ -55,6 +57,11 @@ endif
 
 ifdef FTRACE
 PLATFORM_CPPFLAGS += -finstrument-functions -DFTRACE
+endif
+
+# Allow use of stdint.h if available
+ifneq ($(USE_STDINT),)
+PLATFORM_CPPFLAGS += -DCONFIG_USE_STDINT
 endif
 
 #########################################################################

@@ -58,54 +58,38 @@ static void exynos_lcd_init(vidinfo_t *vid)
 	lcd_set_flush_dcache(1);
 }
 
-void __exynos_cfg_lcd_gpio(void)
+__weak void exynos_cfg_lcd_gpio(void)
 {
 }
-void exynos_cfg_lcd_gpio(void)
-	__attribute__((weak, alias("__exynos_cfg_lcd_gpio")));
 
-void __exynos_backlight_on(unsigned int onoff)
+__weak void exynos_backlight_on(unsigned int onoff)
 {
 }
-void exynos_backlight_on(unsigned int onoff)
-	__attribute__((weak, alias("__exynos_cfg_lcd_gpio")));
 
-void __exynos_reset_lcd(void)
+__weak void exynos_reset_lcd(void)
 {
 }
-void exynos_reset_lcd(void)
-	__attribute__((weak, alias("__exynos_reset_lcd")));
 
-void __exynos_lcd_power_on(void)
+__weak void exynos_lcd_power_on(void)
 {
 }
-void exynos_lcd_power_on(void)
-	__attribute__((weak, alias("__exynos_lcd_power_on")));
 
-void __exynos_cfg_ldo(void)
+__weak void exynos_cfg_ldo(void)
 {
 }
-void exynos_cfg_ldo(void)
-	__attribute__((weak, alias("__exynos_cfg_ldo")));
 
-void __exynos_enable_ldo(unsigned int onoff)
+__weak void exynos_enable_ldo(unsigned int onoff)
 {
 }
-void exynos_enable_ldo(unsigned int onoff)
-	__attribute__((weak, alias("__exynos_enable_ldo")));
 
-void __exynos_backlight_reset(void)
+__weak void exynos_backlight_reset(void)
 {
 }
-void exynos_backlight_reset(void)
-	__attribute__((weak, alias("__exynos_backlight_reset")));
 
-int __exynos_lcd_misc_init(vidinfo_t *vid)
+__weak int exynos_lcd_misc_init(vidinfo_t *vid)
 {
 	return 0;
 }
-int exynos_lcd_misc_init(vidinfo_t *vid)
-	__attribute__((weak, alias("__exynos_lcd_misc_init")));
 
 static void lcd_panel_on(vidinfo_t *vid)
 {

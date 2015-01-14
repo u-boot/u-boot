@@ -13,7 +13,7 @@
 #include <asm/arch/rmobile.h>
 
 /* QoS version 0.955 for ES1 and version 0.963 for ES2 */
-
+#if defined(CONFIG_RMOBILE_EXTRAM_BOOT)
 enum {
 	DBSC3_00, DBSC3_01, DBSC3_02, DBSC3_03, DBSC3_04,
 	DBSC3_05, DBSC3_06, DBSC3_07, DBSC3_08, DBSC3_09,
@@ -2381,3 +2381,8 @@ void qos_init(void)
 	else
 		qos_init_es1();
 }
+#else /* CONFIG_RMOBILE_EXTRAM_BOOT */
+void qos_init(void)
+{
+}
+#endif /* CONFIG_RMOBILE_EXTRAM_BOOT */

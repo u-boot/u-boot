@@ -254,3 +254,13 @@ void nand_boot(void)
 	uboot = (void *)CONFIG_SYS_NAND_U_BOOT_START;
 	uboot();
 }
+
+#ifndef CONFIG_SPL_NAND_INIT
+void nand_init(void)
+{
+}
+
+void nand_deselect(void)
+{
+}
+#endif

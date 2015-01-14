@@ -1,8 +1,5 @@
 if TARGET_LP8X4X
 
-config SYS_CPU
-	default "pxa"
-
 config SYS_BOARD
 	default "lp8x4x"
 

@@ -20,8 +20,8 @@
 
 #if defined(CONFIG_ORION5X)
 #include <asm/arch/orion5x.h>
-#elif defined(CONFIG_KIRKWOOD)
-#include <asm/arch/kirkwood.h>
+#elif (defined(CONFIG_KIRKWOOD) || defined(CONFIG_ARMADA_XP))
+#include <asm/arch/soc.h>
 #elif defined(CONFIG_SUNXI)
 #include <asm/arch/i2c.h>
 #else

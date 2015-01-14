@@ -16,7 +16,6 @@
 #define CONFIG_SYS_USE_NAND
 #define CONFIG_SYS_USE_DSPLINK		/* don't power up the DSP. */
 /* SoC Configuration */
-#define CONFIG_ARM926EJS			/* arm926ejs CPU core */
 #define CONFIG_SYS_TIMERBASE		0x01c21400	/* use timer 0 */
 #define CONFIG_SYS_HZ_CLOCK		27000000	/* Timer Input clock freq */
 #define CONFIG_SOC_DM644X

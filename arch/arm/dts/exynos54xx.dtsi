@@ -5,7 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/include/ "exynos5.dtsi"
+#include "exynos5.dtsi"
+#include "exynos54xx-pinctrl.dtsi"
 
 / {
 	config {
@@ -24,6 +25,11 @@
 		i2c8 = "/i2c@12e00000";
 		i2c9 = "/i2c@12e10000";
 		i2c10 = "/i2c@12e20000";
+		pinctrl0 = &pinctrl_0;
+		pinctrl1 = &pinctrl_1;
+		pinctrl2 = &pinctrl_2;
+		pinctrl3 = &pinctrl_3;
+		pinctrl4 = &pinctrl_4;
 		spi0 = "/spi@12d20000";
 		spi1 = "/spi@12d30000";
 		spi2 = "/spi@12d40000";
@@ -121,6 +127,42 @@
 	fimdm1_sysmmu@0x14680000 {
 		compatible = "samsung,sysmmu-v3.3";
 		reg = <0x14680000 0x100>;
+	};
+
+	pinctrl_0: pinctrl@13400000 {
+		compatible = "samsung,exynos5420-pinctrl";
+		reg = <0x13400000 0x1000>;
+		interrupts = <0 45 0>;
+
+		wakeup-interrupt-controller {
+			compatible = "samsung,exynos4210-wakeup-eint";
+			interrupt-parent = <&gic>;
+			interrupts = <0 32 0>;
+		};
+	};
+
+	pinctrl_1: pinctrl@13410000 {
+		compatible = "samsung,exynos5420-pinctrl";
+		reg = <0x13410000 0x1000>;
+		interrupts = <0 78 0>;
+	};
+
+	pinctrl_2: pinctrl@14000000 {
+		compatible = "samsung,exynos5420-pinctrl";
+		reg = <0x14000000 0x1000>;
+		interrupts = <0 46 0>;
+	};
+
+	pinctrl_3: pinctrl@14010000 {
+		compatible = "samsung,exynos5420-pinctrl";
+		reg = <0x14010000 0x1000>;
+		interrupts = <0 50 0>;
+	};
+
+	pinctrl_4: pinctrl@03860000 {
+		compatible = "samsung,exynos5420-pinctrl";
+		reg = <0x03860000 0x1000>;
+		interrupts = <0 47 0>;
 	};
 
 	fimd@14400000 {

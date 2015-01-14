@@ -289,48 +289,58 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		 * Find minimum tckmax_ps to find fastest slow speed,
 		 * i.e., this is the slowest the whole system can go.
 		 */
-		tckmax_ps = min(tckmax_ps, dimm_params[i].tckmax_ps);
+		tckmax_ps = min(tckmax_ps,
+				(unsigned int)dimm_params[i].tckmax_ps);
 #if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
-		taamin_ps = max(taamin_ps, dimm_params[i].taa_ps);
+		taamin_ps = max(taamin_ps,
+				(unsigned int)dimm_params[i].taa_ps);
 #endif
-		tckmin_x_ps = max(tckmin_x_ps, dimm_params[i].tckmin_x_ps);
-		trcd_ps = max(trcd_ps, dimm_params[i].trcd_ps);
-		trp_ps = max(trp_ps, dimm_params[i].trp_ps);
-		tras_ps = max(tras_ps, dimm_params[i].tras_ps);
+		tckmin_x_ps = max(tckmin_x_ps,
+				  (unsigned int)dimm_params[i].tckmin_x_ps);
+		trcd_ps = max(trcd_ps, (unsigned int)dimm_params[i].trcd_ps);
+		trp_ps = max(trp_ps, (unsigned int)dimm_params[i].trp_ps);
+		tras_ps = max(tras_ps, (unsigned int)dimm_params[i].tras_ps);
 #ifdef CONFIG_SYS_FSL_DDR4
-		trfc1_ps = max(trfc1_ps, dimm_params[i].trfc1_ps);
-		trfc2_ps = max(trfc2_ps, dimm_params[i].trfc2_ps);
-		trfc4_ps = max(trfc4_ps, dimm_params[i].trfc4_ps);
-		trrds_ps = max(trrds_ps, dimm_params[i].trrds_ps);
-		trrdl_ps = max(trrdl_ps, dimm_params[i].trrdl_ps);
-		tccdl_ps = max(tccdl_ps, dimm_params[i].tccdl_ps);
+		trfc1_ps = max(trfc1_ps,
+			       (unsigned int)dimm_params[i].trfc1_ps);
+		trfc2_ps = max(trfc2_ps,
+			       (unsigned int)dimm_params[i].trfc2_ps);
+		trfc4_ps = max(trfc4_ps,
+			       (unsigned int)dimm_params[i].trfc4_ps);
+		trrds_ps = max(trrds_ps,
+			       (unsigned int)dimm_params[i].trrds_ps);
+		trrdl_ps = max(trrdl_ps,
+			       (unsigned int)dimm_params[i].trrdl_ps);
+		tccdl_ps = max(tccdl_ps,
+			       (unsigned int)dimm_params[i].tccdl_ps);
 #else
-		twr_ps = max(twr_ps, dimm_params[i].twr_ps);
-		twtr_ps = max(twtr_ps, dimm_params[i].twtr_ps);
-		trfc_ps = max(trfc_ps, dimm_params[i].trfc_ps);
-		trrd_ps = max(trrd_ps, dimm_params[i].trrd_ps);
-		trtp_ps = max(trtp_ps, dimm_params[i].trtp_ps);
+		twr_ps = max(twr_ps, (unsigned int)dimm_params[i].twr_ps);
+		twtr_ps = max(twtr_ps, (unsigned int)dimm_params[i].twtr_ps);
+		trfc_ps = max(trfc_ps, (unsigned int)dimm_params[i].trfc_ps);
+		trrd_ps = max(trrd_ps, (unsigned int)dimm_params[i].trrd_ps);
+		trtp_ps = max(trtp_ps, (unsigned int)dimm_params[i].trtp_ps);
 #endif
-		trc_ps = max(trc_ps, dimm_params[i].trc_ps);
+		trc_ps = max(trc_ps, (unsigned int)dimm_params[i].trc_ps);
 #if defined(CONFIG_SYS_FSL_DDR1) || defined(CONFIG_SYS_FSL_DDR2)
-		tis_ps = max(tis_ps, dimm_params[i].tis_ps);
-		tih_ps = max(tih_ps, dimm_params[i].tih_ps);
-		tds_ps = max(tds_ps, dimm_params[i].tds_ps);
-		tdh_ps = max(tdh_ps, dimm_params[i].tdh_ps);
-		tqhs_ps = max(tqhs_ps, dimm_params[i].tqhs_ps);
+		tis_ps = max(tis_ps, (unsigned int)dimm_params[i].tis_ps);
+		tih_ps = max(tih_ps, (unsigned int)dimm_params[i].tih_ps);
+		tds_ps = max(tds_ps, (unsigned int)dimm_params[i].tds_ps);
+		tdh_ps = max(tdh_ps, (unsigned int)dimm_params[i].tdh_ps);
+		tqhs_ps = max(tqhs_ps, (unsigned int)dimm_params[i].tqhs_ps);
 		/*
 		 * Find maximum tdqsq_max_ps to find slowest.
 		 *
 		 * FIXME: is finding the slowest value the correct
 		 * strategy for this parameter?
 		 */
-		tdqsq_max_ps = max(tdqsq_max_ps, dimm_params[i].tdqsq_max_ps);
+		tdqsq_max_ps = max(tdqsq_max_ps,
+				   (unsigned int)dimm_params[i].tdqsq_max_ps);
 #endif
 		refresh_rate_ps = max(refresh_rate_ps,
-				      dimm_params[i].refresh_rate_ps);
+				      (unsigned int)dimm_params[i].refresh_rate_ps);
 		/* extended_op_srt is either 0 or 1, 0 having priority */
 		extended_op_srt = min(extended_op_srt,
-				      dimm_params[i].extended_op_srt);
+				      (unsigned int)dimm_params[i].extended_op_srt);
 	}
 
 	outpdimm->ndimms_present = number_of_dimms - temp1;

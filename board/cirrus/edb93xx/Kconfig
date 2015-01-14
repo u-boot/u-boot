@@ -1,8 +1,5 @@
 if TARGET_EDB93XX
 
-config SYS_CPU
-	default "arm920t"
-
 config SYS_BOARD
 	default "edb93xx"
 

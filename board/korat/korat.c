@@ -610,7 +610,7 @@ void pci_target_init(struct pci_controller *hose)
 #endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	u32 val[4];
 	int rc;
@@ -627,5 +627,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 	if (rc)
 		printf("Unable to update property NOR mapping, err=%s\n",
 		       fdt_strerror(rc));
+
+	return 0;
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

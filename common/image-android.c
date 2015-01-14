@@ -7,9 +7,26 @@
 #include <common.h>
 #include <image.h>
 #include <android_image.h>
+#include <malloc.h>
+#include <errno.h>
 
 static char andr_tmp_str[ANDR_BOOT_ARGS_SIZE + 1];
 
+/**
+ * android_image_get_kernel() - processes kernel part of Android boot images
+ * @hdr:	Pointer to image header, which is at the start
+ *			of the image.
+ * @verify:	Checksum verification flag. Currently unimplemented.
+ * @os_data:	Pointer to a ulong variable, will hold os data start
+ *			address.
+ * @os_len:	Pointer to a ulong variable, will hold os data length.
+ *
+ * This function returns the os image's start address and length. Also,
+ * it appends the kernel command line to the bootargs env variable.
+ *
+ * Return: Zero, os start address and length on success,
+ *		otherwise on failure.
+ */
 int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 			     ulong *os_data, ulong *os_len)
 {
@@ -25,16 +42,32 @@ int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 
 	printf("Kernel load addr 0x%08x size %u KiB\n",
 	       hdr->kernel_addr, DIV_ROUND_UP(hdr->kernel_size, 1024));
-	strncpy(andr_tmp_str, hdr->cmdline, ANDR_BOOT_ARGS_SIZE);
-	andr_tmp_str[ANDR_BOOT_ARGS_SIZE] = '\0';
-	if (strlen(andr_tmp_str)) {
-		printf("Kernel command line: %s\n", andr_tmp_str);
-		setenv("bootargs", andr_tmp_str);
+
+	int len = 0;
+	if (*hdr->cmdline) {
+		printf("Kernel command line: %s\n", hdr->cmdline);
+		len += strlen(hdr->cmdline);
 	}
-	if (hdr->ramdisk_size)
-		printf("RAM disk load addr 0x%08x size %u KiB\n",
-		       hdr->ramdisk_addr,
-		       DIV_ROUND_UP(hdr->ramdisk_size, 1024));
+
+	char *bootargs = getenv("bootargs");
+	if (bootargs)
+		len += strlen(bootargs);
+
+	char *newbootargs = malloc(len + 2);
+	if (!newbootargs) {
+		puts("Error: malloc in android_image_get_kernel failed!\n");
+		return -ENOMEM;
+	}
+	*newbootargs = '\0';
+
+	if (bootargs) {
+		strcpy(newbootargs, bootargs);
+		strcat(newbootargs, " ");
+	}
+	if (*hdr->cmdline)
+		strcat(newbootargs, hdr->cmdline);
+
+	setenv("bootargs", newbootargs);
 
 	if (os_data) {
 		*os_data = (ulong)hdr;
@@ -52,17 +85,18 @@ int android_image_check_header(const struct andr_img_hdr *hdr)
 
 ulong android_image_get_end(const struct andr_img_hdr *hdr)
 {
-	u32 size = 0;
+	ulong end;
 	/*
 	 * The header takes a full page, the remaining components are aligned
 	 * on page boundary
 	 */
-	size += hdr->page_size;
-	size += ALIGN(hdr->kernel_size, hdr->page_size);
-	size += ALIGN(hdr->ramdisk_size, hdr->page_size);
-	size += ALIGN(hdr->second_size, hdr->page_size);
+	end = (ulong)hdr;
+	end += hdr->page_size;
+	end += ALIGN(hdr->kernel_size, hdr->page_size);
+	end += ALIGN(hdr->ramdisk_size, hdr->page_size);
+	end += ALIGN(hdr->second_size, hdr->page_size);
 
-	return size;
+	return end;
 }
 
 ulong android_image_get_kload(const struct andr_img_hdr *hdr)
@@ -75,6 +109,10 @@ int android_image_get_ramdisk(const struct andr_img_hdr *hdr,
 {
 	if (!hdr->ramdisk_size)
 		return -1;
+
+	printf("RAM disk load addr 0x%08x size %u KiB\n",
+	       hdr->ramdisk_addr, DIV_ROUND_UP(hdr->ramdisk_size, 1024));
+
 	*rd_data = (unsigned long)hdr;
 	*rd_data += hdr->page_size;
 	*rd_data += ALIGN(hdr->kernel_size, hdr->page_size);

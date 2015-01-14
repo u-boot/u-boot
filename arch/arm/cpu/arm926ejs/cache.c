@@ -99,7 +99,4 @@ void flush_cache(unsigned long start, unsigned long size)
 /*
  * Stub implementations for l2 cache operations
  */
-void __l2_cache_disable(void) {}
-
-void l2_cache_disable(void)
-	__attribute__((weak, alias("__l2_cache_disable")));
+__weak void l2_cache_disable(void) {}

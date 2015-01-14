@@ -467,4 +467,27 @@ static int board_video_init(void)
 	return 0;
 }
 #endif /* ifdef CONFIG_VIDEO */
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	int ret;
+	char tmp[2 * MAX_STRING_LENGTH + 2];
+
+	omap_nand_switch_ecc(1, 8);
+
+	if (factory_dat.asn[0] != 0)
+		sprintf(tmp, "%s_%s", factory_dat.asn,
+			factory_dat.comp_version);
+	else
+		sprintf(tmp, "QMX7.E38_4.0");
+
+	ret = setenv("boardid", tmp);
+	if (ret)
+		printf("error setting board id\n");
+
+	return 0;
+}
+#endif
+
 #include "../common/board.c"

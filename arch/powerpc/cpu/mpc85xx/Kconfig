@@ -13,20 +13,22 @@ config TARGET_SBC8548
 config TARGET_SOCRATES
 	bool "Support socrates"
 
-config TARGET_HWW1U1A
-	bool "Support HWW1U1A"
-
 config TARGET_B4860QDS
 	bool "Support B4860QDS"
+	select SUPPORT_SPL
 
 config TARGET_BSC9131RDB
 	bool "Support BSC9131RDB"
+	select SUPPORT_SPL
 
 config TARGET_BSC9132QDS
 	bool "Support BSC9132QDS"
+	select SUPPORT_SPL
 
 config TARGET_C29XPCIE
 	bool "Support C29XPCIE"
+	select SUPPORT_SPL
+	select SUPPORT_TPL
 
 config TARGET_P3041DS
 	bool "Support P3041DS"
@@ -72,18 +74,26 @@ config TARGET_MPC8572DS
 
 config TARGET_P1010RDB
 	bool "Support P1010RDB"
+	select SUPPORT_SPL
+	select SUPPORT_TPL
 
 config TARGET_P1022DS
 	bool "Support P1022DS"
+	select SUPPORT_SPL
+	select SUPPORT_TPL
 
 config TARGET_P1023RDB
 	bool "Support P1023RDB"
 
 config TARGET_P1_P2_RDB
 	bool "Support P1_P2_RDB"
+	select SUPPORT_SPL
+	select SUPPORT_TPL
 
 config TARGET_P1_P2_RDB_PC
 	bool "Support p1_p2_rdb_pc"
+	select SUPPORT_SPL
+	select SUPPORT_TPL
 
 config TARGET_P1_TWR
 	bool "Support p1_twr"
@@ -100,23 +110,35 @@ config TARGET_P2041RDB
 config TARGET_QEMU_PPCE500
 	bool "Support qemu-ppce500"
 
+config TARGET_T102XQDS
+	bool "Support T102xQDS"
+	select SUPPORT_SPL
+
+config TARGET_T102XRDB
+	bool "Support T102xRDB"
+	select SUPPORT_SPL
+
 config TARGET_T1040QDS
 	bool "Support T1040QDS"
 
 config TARGET_T104XRDB
 	bool "Support T104xRDB"
+	select SUPPORT_SPL
 
 config TARGET_T208XQDS
 	bool "Support T208xQDS"
+	select SUPPORT_SPL
 
 config TARGET_T208XRDB
 	bool "Support T208xRDB"
+	select SUPPORT_SPL
 
 config TARGET_T4240EMU
 	bool "Support T4240EMU"
 
 config TARGET_T4240QDS
 	bool "Support T4240QDS"
+	select SUPPORT_SPL
 
 config TARGET_T4240RDB
 	bool "Support T4240RDB"
@@ -144,7 +166,6 @@ config TARGET_XPEDITE550X
 
 endchoice
 
-source "board/exmeritus/hww1u1a/Kconfig"
 source "board/freescale/b4860qds/Kconfig"
 source "board/freescale/bsc9131rdb/Kconfig"
 source "board/freescale/bsc9132qds/Kconfig"
@@ -170,6 +191,8 @@ source "board/freescale/p2020come/Kconfig"
 source "board/freescale/p2020ds/Kconfig"
 source "board/freescale/p2041rdb/Kconfig"
 source "board/freescale/qemu-ppce500/Kconfig"
+source "board/freescale/t102xqds/Kconfig"
+source "board/freescale/t102xrdb/Kconfig"
 source "board/freescale/t1040qds/Kconfig"
 source "board/freescale/t104xrdb/Kconfig"
 source "board/freescale/t208xqds/Kconfig"

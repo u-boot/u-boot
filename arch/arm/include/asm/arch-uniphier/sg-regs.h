@@ -88,7 +88,18 @@
 #define SG_PINMON0_CLK_MODE_AXOSEL_20480KHZ	(0x2 << 16)
 #define SG_PINMON0_CLK_MODE_AXOSEL_25000KHZ_A	(0x3 << 16)
 
-#ifndef __ASSEMBLY__
+#ifdef __ASSEMBLY__
+
+	.macro	set_pinsel, n, value, ra, rd
+	ldr	\ra, =SG_PINSEL_ADDR(\n)
+	ldr	\rd, [\ra]
+	and	\rd, \rd, #SG_PINSEL_MASK(\n)
+	orr	\rd, \rd, #SG_PINSEL_MODE(\n, \value)
+	str	\rd, [\ra]
+	.endm
+
+#else
+
 #include <linux/types.h>
 #include <asm/io.h>
 

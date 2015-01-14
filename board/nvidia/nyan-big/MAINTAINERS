@@ -1,0 +1,6 @@
+NORRIN BOARD
+M:	Allen Martin <amartin@nvidia.com>
+S:	Maintained
+F:	board/nvidia/nyan-big/
+F:	include/configs/nyan-big.h
+F:	configs/nyan-big_defconfig

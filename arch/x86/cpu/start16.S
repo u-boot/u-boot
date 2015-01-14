@@ -21,18 +21,16 @@
 .code16
 .globl start16
 start16:
+	/* Save BIST */
+	movl	%eax, %ecx
+
 	/* Set the Cold Boot / Hard Reset flag */
 	movl	$GD_FLG_COLD_BOOT, %ebx
 
-	/*
-	 * First we let the BSP do some early initialization
-	 * this code have to map the flash to its final position
-	 */
-	jmp	board_init16
-.globl board_init16_ret
-board_init16_ret:
+	xorl	%eax, %eax
+	movl	%eax, %cr3    /* Invalidate TLB */
 
-	/* Turn of cache (this might require a 486-class CPU) */
+	/* Turn off cache (this might require a 486-class CPU) */
 	movl	%cr0, %eax
 	orl	$(X86_CR0_NW | X86_CR0_CD), %eax
 	movl	%eax, %cr0
@@ -50,9 +48,11 @@ o32 cs	lgdt	gdt_ptr
 	/* Flush the prefetch queue */
 	jmp	ff
 ff:
-	/* Finally jump to the 32bit initialization code */
+
+	/* Finally restore BIST and jump to the 32bit initialization code */
 	movw	$code32start, %ax
 	movw	%ax, %bp
+	movl	%ecx, %eax
 o32 cs	ljmp	*(%bp)
 
 	/* 48-bit far pointer */
@@ -70,7 +70,7 @@ idt_ptr:
  * GDT is setup in a safe location in RAM
  */
 gdt_ptr:
-	.word	0x20		/* limit (32 bytes = 4 GDT entries) */
+	.word	0x1f		/* limit (31 bytes = 4 GDT entries - 1) */
 	.long	BOOT_SEG + gdt	/* base */
 
 /* Some CPUs are picky about GDT alignment... */

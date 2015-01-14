@@ -85,11 +85,9 @@
 #endif
 
 /* High-level configuration options */
-#define CONFIG_ARM920T		1		/* This is an ARM920T core... */
-#define CONFIG_EP93XX		1		/* in a Cirrus Logic 93xx SoC */
+#define CONFIG_EP93XX		1		/* This is a Cirrus Logic 93xx SoC */
 
 #define CONFIG_SYS_CLK_FREQ	14745600	/* EP93xx has a 14.7456 clock */
-#define CONFIG_SYS_HZ		1000		/* decr freq: 1 ms ticks */
 #undef CONFIG_USE_IRQ				/* Don't need IRQ/FIQ */
 
 /* Monitor configuration */

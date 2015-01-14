@@ -300,11 +300,9 @@ phys_size_t initdram(int board_type)
 	out_8(&memctl->memc_psrt, CONFIG_SYS_PSRT);
 	out_be16(&memctl->memc_mptpr, CONFIG_SYS_MPTPR);
 
-#ifndef CONFIG_SYS_RAMBOOT
 	/* 60x SDRAM setup:
 	 */
 	psize = probe_sdram(memctl);
-#endif /* CONFIG_SYS_RAMBOOT */
 
 	icache_enable();
 
@@ -460,8 +458,10 @@ static void setports(int gpio)
 }
 #endif
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-void ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+
+	return 0;
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */

@@ -122,7 +122,7 @@ static void handle_error(void)
 	sci_out(&sh_sci, SCLSR, 0x00);
 }
 
-void serial_raw_putc(const char c)
+static void serial_raw_putc(const char c)
 {
 	while (1) {
 		/* Tx fifo is empty */
@@ -152,7 +152,7 @@ static int sh_serial_tstc(void)
 }
 
 
-int serial_getc_check(void)
+static int serial_getc_check(void)
 {
 	unsigned short status;
 

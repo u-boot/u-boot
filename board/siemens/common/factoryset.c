@@ -86,6 +86,7 @@ int get_factory_record_val(unsigned char *eeprom_buf, int size,	uchar *record,
 	int i, nxt = 0;
 	int c;
 	unsigned char end = 0xff;
+	unsigned char tmp;
 
 	for (i = 0; fact_get_char(i) != end; i = nxt) {
 		nxt = i + 1;
@@ -93,6 +94,7 @@ int get_factory_record_val(unsigned char *eeprom_buf, int size,	uchar *record,
 			int pos;
 			int endpos;
 			int z;
+			int level = 0;
 
 			c = strncmp((char *)&eeprom_buf[i + 1], (char *)record,
 				    strlen((char *)record));
@@ -103,22 +105,30 @@ int get_factory_record_val(unsigned char *eeprom_buf, int size,	uchar *record,
 				/* search for "<" */
 				c = -1;
 				for (z = pos; fact_get_char(z) != end; z++) {
-					if ((fact_get_char(z) == '<')  ||
-					    (fact_get_char(z) == '>')) {
-						endpos = z;
-						nxt = endpos;
-						c = 0;
-						break;
+					if (fact_get_char(z) == '<') {
+						if (level == 0) {
+							endpos = z;
+							nxt = endpos;
+							c = 0;
+							break;
+						} else {
+							level--;
+						}
 					}
+					if (fact_get_char(z) == '>')
+						level++;
 				}
+			} else {
+				continue;
 			}
 			if (c == 0) {
 				/* end found -> call get_factory_val */
+				tmp = eeprom_buf[endpos];
 				eeprom_buf[endpos] = end;
 				ret = get_factory_val(&eeprom_buf[pos],
-					size - pos, name, buf, len);
+					endpos - pos, name, buf, len);
 				/* fix buffer */
-				eeprom_buf[endpos] = '<';
+				eeprom_buf[endpos] = tmp;
 				debug("%s: %s.%s = %s\n",
 				      __func__, record, name, buf);
 				return ret;
@@ -210,15 +220,6 @@ int factoryset_read_eeprom(int i2c_addr)
 	printf("DFU USB: VID = 0x%4x, PID = 0x%4x\n", factory_dat.usb_vendor_id,
 	       factory_dat.usb_product_id);
 #endif
-	if (0 <= get_factory_record_val(cp, size, (uchar *)"DEV",
-					(uchar *)"id", buf,
-					MAX_STRING_LENGTH)) {
-		if (strncmp((const char *)buf, "PXM50", 5) == 0)
-			factory_dat.pxm50 = 1;
-		else
-			factory_dat.pxm50 = 0;
-	}
-	debug("PXM50: %d\n", factory_dat.pxm50);
 #if defined(CONFIG_VIDEO)
 	if (0 <= get_factory_record_val(cp, size, (uchar *)"DISP1",
 					(uchar *)"name", factory_dat.disp_name,
@@ -237,6 +238,23 @@ int factoryset_read_eeprom(int i2c_addr)
 		factory_dat.version = simple_strtoul((char *)buf,
 							    NULL, 16);
 		debug("version number: %d\n", factory_dat.version);
+	}
+	/* Get ASN from factory set if available */
+	if (0 <= get_factory_record_val(cp, size, (uchar *)"DEV",
+					(uchar *)"id", factory_dat.asn,
+					MAX_STRING_LENGTH)) {
+		debug("factoryset asn: %s\n", factory_dat.asn);
+	} else {
+		factory_dat.asn[0] = 0;
+	}
+	/* Get COMP/ver from factory set if available */
+	if (0 <= get_factory_record_val(cp, size, (uchar *)"COMP",
+					(uchar *)"ver",
+					factory_dat.comp_version,
+					MAX_STRING_LENGTH)) {
+		debug("factoryset COMP/ver: %s\n", factory_dat.comp_version);
+	} else {
+		strcpy((char *)factory_dat.comp_version, "1.0");
 	}
 
 	return 0;

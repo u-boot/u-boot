@@ -72,6 +72,8 @@ struct ppc4xx_i2c {
 #define IIC_EXTSTS_XFRA		0x01
 #define IIC_EXTSTS_ICT		0x02
 #define IIC_EXTSTS_LA		0x04
+#define IIC_EXTSTS_BCS_MASK	0x70
+#define IIC_EXTSTS_BCS_FREE	0x40
 
 /* XTCNTLSS Register Bit definition */
 #define IIC_XTCNTLSS_SRST	0x01

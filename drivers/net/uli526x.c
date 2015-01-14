@@ -548,7 +548,7 @@ static int uli526x_rx_packet(struct eth_device *dev)
 
 	rdes0 = le32_to_cpu(rxptr->rdes0);
 #ifdef RX_DEBUG
-	printf("%s(): rxptr->rdes0=%x:%x\n", __FUNCTION__, rxptr->rdes0);
+	printf("%s(): rxptr->rdes0=%x\n", __FUNCTION__, rxptr->rdes0);
 #endif
 	if (!(rdes0 & 0x80000000)) {	/* packet owner check */
 		if ((rdes0 & 0x300) != 0x300) {

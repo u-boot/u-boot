@@ -218,8 +218,7 @@ pci_init_board(void)
 
 
 #if defined(CONFIG_OF_BOARD_SETUP)
-void
-ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, bd_t *bd)
 {
 	int node, tmp[2];
 	const char *path;
@@ -237,5 +236,7 @@ ft_board_setup(void *blob, bd_t *bd)
 		}
 #endif
 	}
+
+	return 0;
 }
 #endif

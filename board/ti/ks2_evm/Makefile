@@ -11,3 +11,5 @@ obj-$(CONFIG_K2HK_EVM) += board_k2hk.o
 obj-$(CONFIG_K2HK_EVM) += ddr3_k2hk.o
 obj-$(CONFIG_K2E_EVM) += board_k2e.o
 obj-$(CONFIG_K2E_EVM) += ddr3_k2e.o
+obj-$(CONFIG_K2L_EVM) += board_k2l.o
+obj-$(CONFIG_K2L_EVM) += ddr3_k2l.o

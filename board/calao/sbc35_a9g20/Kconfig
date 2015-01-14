@@ -1,8 +1,5 @@
 if TARGET_SBC35_A9G20
 
-config SYS_CPU
-	default "arm926ejs"
-
 config SYS_BOARD
 	default "sbc35_a9g20"
 

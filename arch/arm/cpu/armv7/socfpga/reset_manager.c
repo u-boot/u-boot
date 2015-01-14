@@ -104,3 +104,12 @@ void socfpga_emac_reset(int enable)
 #endif
 	}
 }
+
+/* SPI Master enable (its held in reset by the preloader) */
+void socfpga_spim_enable(void)
+{
+	const void *reset = &reset_manager_base->per_mod_reset;
+
+	clrbits_le32(reset, (1 << RSTMGR_PERMODRST_SPIM0_LSB) |
+		     (1 << RSTMGR_PERMODRST_SPIM1_LSB));
+}

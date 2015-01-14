@@ -476,10 +476,6 @@ struct file {
 #define MAX_LFS_FILESIZE 	0x7fffffffffffffffUL
 #endif
 
-#define INT_MAX		((int)(~0U>>1))
-#define INT_MIN		(-INT_MAX - 1)
-#define LLONG_MAX	((long long)(~0ULL>>1))
-
 /*
  * These are the fs-independent mount-flags: up to 32 flags are supported
  */

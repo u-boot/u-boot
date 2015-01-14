@@ -1,8 +1,5 @@
 if TARGET_COLIBRI_PXA270
 
-config SYS_CPU
-	default "pxa"
-
 config SYS_BOARD
 	default "colibri_pxa270"
 

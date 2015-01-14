@@ -944,7 +944,7 @@ static void parse_putc(const char c)
 		CURSOR_SET;
 }
 
-void video_putc(struct stdio_dev *dev, const char c)
+static void video_putc(struct stdio_dev *dev, const char c)
 {
 #ifdef CONFIG_CFB_CONSOLE_ANSI
 	int i;
@@ -1158,12 +1158,21 @@ void video_putc(struct stdio_dev *dev, const char c)
 		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 }
 
-void video_puts(struct stdio_dev *dev, const char *s)
+static void video_puts(struct stdio_dev *dev, const char *s)
 {
+	int flush = cfb_do_flush_cache;
 	int count = strlen(s);
+
+	/* temporarily disable cache flush */
+	cfb_do_flush_cache = 0;
 
 	while (count--)
 		video_putc(dev, *s++);
+
+	if (flush) {
+		cfb_do_flush_cache = flush;
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
+	}
 }
 
 /*
@@ -1171,13 +1180,10 @@ void video_puts(struct stdio_dev *dev, const char *s)
  * video_set_lut() if they do not support 8 bpp format.
  * Implement weak default function instead.
  */
-void __video_set_lut(unsigned int index, unsigned char r,
+__weak void video_set_lut(unsigned int index, unsigned char r,
 		     unsigned char g, unsigned char b)
 {
 }
-
-void video_set_lut(unsigned int, unsigned char, unsigned char, unsigned char)
-	__attribute__ ((weak, alias("__video_set_lut")));
 
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 
@@ -1535,14 +1541,14 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 	if (x == BMP_ALIGN_CENTER)
-		x = max(0, (VIDEO_VISIBLE_COLS - width) / 2);
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - width) / 2);
 	else if (x < 0)
-		x = max(0, VIDEO_VISIBLE_COLS - width + x + 1);
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - width + x + 1));
 
 	if (y == BMP_ALIGN_CENTER)
-		y = max(0, (VIDEO_VISIBLE_ROWS - height) / 2);
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - height) / 2);
 	else if (y < 0)
-		y = max(0, VIDEO_VISIBLE_ROWS - height + y + 1);
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - height + y + 1));
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
 	/*
@@ -1868,14 +1874,14 @@ static void plot_logo_or_black(void *screen, int width, int x, int y, int black)
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 	if (x == BMP_ALIGN_CENTER)
-		x = max(0, (VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH) / 2);
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH) / 2);
 	else if (x < 0)
-		x = max(0, VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH + x + 1);
+		x = max(0, (int)(VIDEO_VISIBLE_COLS - VIDEO_LOGO_WIDTH + x + 1));
 
 	if (y == BMP_ALIGN_CENTER)
-		y = max(0, (VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT) / 2);
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT) / 2);
 	else if (y < 0)
-		y = max(0, VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT + y + 1);
+		y = max(0, (int)(VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT + y + 1));
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
 	dest = (unsigned char *)screen + (y * width  + x) * VIDEO_PIXEL_SIZE;
@@ -2022,7 +2028,7 @@ static void *video_logo(void)
 		 * we need to adjust the logo height
 		 */
 		if (video_logo_ypos == BMP_ALIGN_CENTER)
-			video_logo_height += max(0, (VIDEO_VISIBLE_ROWS - \
+			video_logo_height += max(0, (int)(VIDEO_VISIBLE_ROWS -
 						     VIDEO_LOGO_HEIGHT) / 2);
 		else if (video_logo_ypos > 0)
 			video_logo_height += video_logo_ypos;
@@ -2240,14 +2246,11 @@ static int video_init(void)
  * Implement a weak default function for boards that optionally
  * need to skip the video initialization.
  */
-int __board_video_skip(void)
+__weak int board_video_skip(void)
 {
 	/* As default, don't skip test */
 	return 0;
 }
-
-int board_video_skip(void)
-	__attribute__ ((weak, alias("__board_video_skip")));
 
 int drv_video_init(void)
 {

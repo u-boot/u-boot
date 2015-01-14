@@ -1533,6 +1533,9 @@ void mem_malloc_init(ulong start, ulong size)
 	mem_malloc_end = start + size;
 	mem_malloc_brk = start;
 
+	debug("using memory %#lx-%#lx for malloc()\n", mem_malloc_start,
+	      mem_malloc_end);
+
 	memset((void *)mem_malloc_start, 0, size);
 
 	malloc_bin_reloc();
@@ -2181,17 +2184,8 @@ Void_t* mALLOc(bytes) size_t bytes;
   INTERNAL_SIZE_T nb;
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
-	if (!(gd->flags & GD_FLG_RELOC)) {
-		ulong new_ptr;
-		void *ptr;
-
-		new_ptr = gd->malloc_ptr + bytes;
-		if (new_ptr > gd->malloc_limit)
-			panic("Out of pre-reloc memory");
-		ptr = map_sysmem(gd->malloc_base + gd->malloc_ptr, bytes);
-		gd->malloc_ptr = ALIGN(new_ptr, sizeof(new_ptr));
-		return ptr;
-	}
+	if (gd && !(gd->flags & GD_FLG_FULL_MALLOC_INIT))
+		return malloc_simple(bytes);
 #endif
 
   /* check if mem_malloc_init() was run */
@@ -2459,7 +2453,7 @@ void fREe(mem) Void_t* mem;
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
 	/* free() is a no-op - all the memory will be freed on relocation */
-	if (!(gd->flags & GD_FLG_RELOC))
+	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT))
 		return;
 #endif
 
@@ -2615,7 +2609,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
   if (oldmem == NULL) return mALLOc(bytes);
 
 #ifdef CONFIG_SYS_MALLOC_F_LEN
-	if (!(gd->flags & GD_FLG_RELOC)) {
+	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
 		/* This is harder to support and should not be needed */
 		panic("pre-reloc realloc() is not supported");
 	}
@@ -2967,7 +2961,7 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
   else
   {
 #ifdef CONFIG_SYS_MALLOC_F_LEN
-	if (!(gd->flags & GD_FLG_RELOC)) {
+	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
 		MALLOC_ZERO(mem, sz);
 		return mem;
 	}

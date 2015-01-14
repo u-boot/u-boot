@@ -94,6 +94,7 @@
 /* Command definition */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
 
 #undef CONFIG_CMD_IMLS
 
@@ -107,7 +108,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
-	"fdt_file=imx53-qsb.dtb\0" \
 	"fdt_addr=0x71000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \

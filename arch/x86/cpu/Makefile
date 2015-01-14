@@ -9,5 +9,13 @@
 #
 
 extra-y	= start.o
-extra-$(CONFIG_X86_RESET_VECTOR) += resetvec.o start16.o
-obj-y	= interrupts.o cpu.o
+obj-$(CONFIG_X86_RESET_VECTOR) += resetvec.o start16.o
+obj-y	+= interrupts.o cpu.o call64.o
+
+obj-$(CONFIG_SYS_COREBOOT) += coreboot/
+obj-$(CONFIG_NORTHBRIDGE_INTEL_SANDYBRIDGE) += ivybridge/
+obj-$(CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE) += ivybridge/
+obj-$(CONFIG_INTEL_QUEENSBAY) += queensbay/
+obj-y += lapic.o
+obj-$(CONFIG_PCI) += pci.o
+obj-y += turbo.o

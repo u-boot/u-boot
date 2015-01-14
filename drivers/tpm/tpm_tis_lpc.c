@@ -274,7 +274,7 @@ static u32 tis_senddata(const u8 * const data, u32 len)
 		 * changes to zero exactly after the last byte is fed into the
 		 * FIFO.
 		 */
-		count = min(burst, len - offset - 1);
+		count = min((u32)burst, len - offset - 1);
 		while (count--)
 			tpm_write_byte(data[offset++],
 				  &lpc_tpm_dev[locality].data);

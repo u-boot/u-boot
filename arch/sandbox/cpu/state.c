@@ -49,14 +49,14 @@ static int state_ensure_space(int extra_size)
 
 static int state_read_file(struct sandbox_state *state, const char *fname)
 {
-	int size;
+	loff_t size;
 	int ret;
 	int fd;
 
-	size = os_get_filesize(fname);
-	if (size < 0) {
+	ret = os_get_filesize(fname, &size);
+	if (ret < 0) {
 		printf("Cannot find sandbox state file '%s'\n", fname);
-		return -ENOENT;
+		return ret;
 	}
 	state->state_fdt = os_malloc(size);
 	if (!state->state_fdt) {

@@ -192,6 +192,11 @@ int init_sata(int dev)
 	return 0;
 }
 
+int reset_sata(int dev)
+{
+	return 0;
+}
+
 static inline u8 sata_inb(unsigned long ioaddr)
 {
 	return inb(ioaddr);

@@ -172,9 +172,6 @@
 
 #define CONFIG_BOOTFILE		"uImage"
 
-#define xstr(s)	str(s)
-#define str(s)	#s
-
 /* Setup MTD for NAND on the SOM */
 #define MTDIDS_DEFAULT		"nand0=omap2-nand.0"
 #define MTDPARTS_DEFAULT	"mtdparts=omap2-nand.0:512k(MLO),"	\
@@ -201,13 +198,13 @@
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"baudrate=115200\0"						\
 	"consoledev=ttyO2\0"						\
-	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
+	"hostname=" __stringify(CONFIG_HOSTNAME) "\0"			\
 	"loadaddr=0x82000000\0"						\
 	"load=tftp ${loadaddr} ${u-boot}\0"				\
 	"load_k=tftp ${loadaddr} ${bootfile}\0"				\
 	"loaduimage=fatload mmc 0 ${loadaddr} uImage\0"			\
 	"loadmlo=tftp ${loadaddr} ${mlo}\0"				\
-	"mlo=" xstr(CONFIG_HOSTNAME) "/MLO\0"				\
+	"mlo=" __stringify(CONFIG_HOSTNAME) "/MLO\0"			\
 	"mmcargs=root=/dev/mmcblk0p2 rw "				\
 		"rootfstype=ext3 rootwait\0"				\
 	"mmcboot=echo Booting from mmc ...; "				\
@@ -221,7 +218,7 @@
 		"bootm ${loadaddr}\0"					\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
-	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.img\0"			\
+	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.img\0"		\
 	"uboot_addr=0x80000\0"						\
 	"update=nandecc sw;nand erase ${uboot_addr} 100000;"		\
 		"nand write ${loadaddr} ${uboot_addr} 80000\0"		\
@@ -372,8 +369,8 @@
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
-#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION	1
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
 /* NAND boot config */
 #define CONFIG_SYS_NAND_PAGE_COUNT	64

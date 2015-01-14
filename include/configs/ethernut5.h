@@ -78,7 +78,6 @@
 
 /* SPI */
 #define CONFIG_ATMEL_SPI
-#define CONFIG_SYS_SPI_WRITE_TOUT	(5 * CONFIG_SYS_HZ)
 #define AT91_SPI_CLK			15000000
 
 /* Serial port */

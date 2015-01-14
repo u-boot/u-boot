@@ -12,8 +12,7 @@
 #include <asm/arch/imx-regs.h>
 
  /* High Level Configuration Options */
-#define CONFIG_ARM1136		1		/* This is an arm1136 CPU core */
-#define CONFIG_MX31		1		/* in a mx31 */
+#define CONFIG_MX31		1		/* This is a mx31 */
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO

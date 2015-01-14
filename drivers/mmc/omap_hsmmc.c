@@ -67,14 +67,19 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 #ifdef OMAP_HSMMC_USE_GPIO
 static int omap_mmc_setup_gpio_in(int gpio, const char *label)
 {
+	int ret;
+
+#ifndef CONFIG_DM_GPIO
 	if (!gpio_is_valid(gpio))
 		return -1;
+#endif
+	ret = gpio_request(gpio, label);
+	if (ret)
+		return ret;
 
-	if (gpio_request(gpio, label) < 0)
-		return -1;
-
-	if (gpio_direction_input(gpio) < 0)
-		return -1;
+	ret = gpio_direction_input(gpio);
+	if (ret)
+		return ret;
 
 	return gpio;
 }
@@ -130,12 +135,7 @@ static unsigned char mmc_board_init(struct mmc *mmc)
 	pbias_lite = readl(&t2_base->pbias_lite);
 	pbias_lite &= ~(PBIASLITEPWRDNZ1 | PBIASLITEPWRDNZ0);
 	writel(pbias_lite, &t2_base->pbias_lite);
-#endif
-#if defined(CONFIG_TWL4030_POWER)
-	twl4030_power_mmc_init();
-	mdelay(100);	/* ramp-up delay from Linux code */
-#endif
-#if defined(CONFIG_OMAP34XX)
+
 	writel(pbias_lite | PBIASLITEPWRDNZ1 |
 		PBIASSPEEDCTRL0 | PBIASLITEPWRDNZ0,
 		&t2_base->pbias_lite);
@@ -606,7 +606,8 @@ static int omap_hsmmc_getcd(struct mmc *mmc)
 	if (cd_gpio < 0)
 		return 1;
 
-	return gpio_get_value(cd_gpio);
+	/* NOTE: assumes card detect signal is active-low */
+	return !gpio_get_value(cd_gpio);
 }
 
 static int omap_hsmmc_getwp(struct mmc *mmc)
@@ -619,6 +620,7 @@ static int omap_hsmmc_getwp(struct mmc *mmc)
 	if (wp_gpio < 0)
 		return 0;
 
+	/* NOTE: assumes write protect signal is active-high */
 	return gpio_get_value(wp_gpio);
 }
 #endif
@@ -656,7 +658,8 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 	case 1:
 		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE;
 #if (defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX) || \
-     defined(CONFIG_DRA7XX)) && defined(CONFIG_HSMMC2_8BIT)
+     defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)) && \
+		defined(CONFIG_HSMMC2_8BIT)
 		/* Enable 8-bit interface for eMMC on OMAP4/5 or DRA7XX */
 		host_caps_val |= MMC_MODE_8BIT;
 #endif
@@ -665,7 +668,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 #ifdef OMAP_HSMMC3_BASE
 	case 2:
 		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC3_BASE;
-#if defined(CONFIG_DRA7XX) && defined(CONFIG_HSMMC3_8BIT)
+#if (defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)) && defined(CONFIG_HSMMC3_8BIT)
 		/* Enable 8-bit interface for eMMC on DRA7XX */
 		host_caps_val |= MMC_MODE_8BIT;
 #endif

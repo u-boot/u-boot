@@ -100,7 +100,8 @@ U_BOOT_CMD(
 static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 		int argc, char * const argv[])
 {
-	long size;
+	loff_t size;
+	int ret;
 	unsigned long addr;
 	unsigned long count;
 	block_dev_desc_t *dev_desc = NULL;
@@ -127,15 +128,15 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	count = simple_strtoul(argv[5], NULL, 16);
 
 	buf = map_sysmem(addr, count);
-	size = file_fat_write(argv[4], buf, count);
+	ret = file_fat_write(argv[4], buf, 0, count, &size);
 	unmap_sysmem(buf);
-	if (size == -1) {
+	if (ret < 0) {
 		printf("\n** Unable to write \"%s\" from %s %d:%d **\n",
 			argv[4], argv[1], dev, part);
 		return 1;
 	}
 
-	printf("%ld bytes written\n", size);
+	printf("%llu bytes written\n", size);
 
 	return 0;
 }

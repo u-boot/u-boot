@@ -61,61 +61,16 @@ int do_ext4_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 #if defined(CONFIG_CMD_EXT4_WRITE)
 int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
-				char *const argv[])
+		  char *const argv[])
 {
-	const char *filename = "/";
-	int dev, part;
-	unsigned long ram_address;
-	unsigned long file_size;
-	disk_partition_t info;
-	block_dev_desc_t *dev_desc;
-
-	if (argc < 6)
-		return cmd_usage(cmdtp);
-
-	part = get_device_and_partition(argv[1], argv[2], &dev_desc, &info, 1);
-	if (part < 0)
-		return 1;
-
-	dev = dev_desc->dev;
-
-	/* get the filename */
-	filename = argv[4];
-
-	/* get the address in hexadecimal format (string to int) */
-	ram_address = simple_strtoul(argv[3], NULL, 16);
-
-	/* get the filesize in hexadecimal format */
-	file_size = simple_strtoul(argv[5], NULL, 16);
-
-	/* set the device as block device */
-	ext4fs_set_blk_dev(dev_desc, &info);
-
-	/* mount the filesystem */
-	if (!ext4fs_mount(info.size)) {
-		printf("Bad ext4 partition %s %d:%d\n", argv[1], dev, part);
-		goto fail;
-	}
-
-	/* start write */
-	if (ext4fs_write(filename, (unsigned char *)ram_address, file_size)) {
-		printf("** Error ext4fs_write() **\n");
-		goto fail;
-	}
-	ext4fs_close();
-
-	return 0;
-
-fail:
-	ext4fs_close();
-
-	return 1;
+	return do_save(cmdtp, flag, argc, argv, FS_TYPE_EXT);
 }
 
-U_BOOT_CMD(ext4write, 6, 1, do_ext4_write,
-	"create a file in the root directory",
-	"<interface> <dev[:part]> <addr> <absolute filename path> [sizebytes]\n"
-	"    - create a file in / directory");
+U_BOOT_CMD(ext4write, 7, 1, do_ext4_write,
+	   "create a file in the root directory",
+	   "<interface> <dev[:part]> <addr> <absolute filename path>\n"
+	   "    [sizebytes] [file offset]\n"
+	   "    - create a file in / directory");
 
 #endif
 
@@ -132,7 +87,7 @@ U_BOOT_CMD(ext4ls, 4, 1, do_ext4_ls,
 	   "<interface> <dev[:part]> [directory]\n"
 	   "    - list files from 'dev' on 'interface' in a 'directory'");
 
-U_BOOT_CMD(ext4load, 6, 0, do_ext4_load,
+U_BOOT_CMD(ext4load, 7, 0, do_ext4_load,
 	   "load binary file from a Ext4 filesystem",
 	   "<interface> [<dev[:part]> [addr [filename [bytes [pos]]]]]\n"
 	   "    - load binary file 'filename' from 'dev' on 'interface'\n"

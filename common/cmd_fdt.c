@@ -123,7 +123,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (control)
 			gd->fdt_blob = blob;
 		else
-			set_working_fdt_addr(blob);
+			set_working_fdt_addr((void *)blob);
 
 		if (argc >= 2) {
 			int  len;
@@ -566,8 +566,27 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #ifdef CONFIG_OF_BOARD_SETUP
 	/* Call the board-specific fixup routine */
-	else if (strncmp(argv[1], "boa", 3) == 0)
-		ft_board_setup(working_fdt, gd->bd);
+	else if (strncmp(argv[1], "boa", 3) == 0) {
+		int err = ft_board_setup(working_fdt, gd->bd);
+
+		if (err) {
+			printf("Failed to update board information in FDT: %s\n",
+			       fdt_strerror(err));
+			return CMD_RET_FAILURE;
+		}
+	}
+#endif
+#ifdef CONFIG_OF_SYSTEM_SETUP
+	/* Call the board-specific fixup routine */
+	else if (strncmp(argv[1], "sys", 3) == 0) {
+		int err = ft_system_setup(working_fdt, gd->bd);
+
+		if (err) {
+			printf("Failed to add system information to FDT: %s\n",
+			       fdt_strerror(err));
+			return CMD_RET_FAILURE;
+		}
+	}
 #endif
 	/* Create a chosen node */
 	else if (strncmp(argv[1], "cho", 3) == 0) {
@@ -1007,6 +1026,9 @@ static char fdt_help_text[] =
 	"addr [-c]  <addr> [<length>]   - Set the [control] fdt location to <addr>\n"
 #ifdef CONFIG_OF_BOARD_SETUP
 	"fdt boardsetup                      - Do board-specific set up\n"
+#endif
+#ifdef CONFIG_OF_SYSTEM_SETUP
+	"fdt systemsetup                     - Do system-specific set up\n"
 #endif
 	"fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr> and make it active\n"
 	"fdt resize                          - Resize fdt to size + padding to 4k addr\n"

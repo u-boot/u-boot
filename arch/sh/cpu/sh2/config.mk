@@ -7,11 +7,11 @@
 #
 ENDIANNESS += -EB
 
-ifdef CONFIG_SH2A
+ifdef CONFIG_CPU_SH2A
 PLATFORM_CPPFLAGS += -m2a -m2a-nofpu -mb
 else # SH2
 PLATFORM_CPPFLAGS += -m3e -mb
 endif
-PLATFORM_CPPFLAGS += -DCONFIG_SH2 $(call cc-option,-mno-fdpic)
+PLATFORM_CPPFLAGS += $(call cc-option,-mno-fdpic)
 
 PLATFORM_LDFLAGS += $(ENDIANNESS)

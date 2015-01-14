@@ -89,9 +89,12 @@ PHONY += create_symlink
 create_symlink:
 ifneq ($(KBUILD_SRC),)
 	$(Q)mkdir -p include/asm
+	$(Q)ln -fsn $(KBUILD_SRC)/arch/$(ARCH)/include/asm/arch-$(if $(SOC),$(SOC),$(CPU)) \
+		include/asm/arch
+else
+	$(Q)ln -fsn arch-$(if $(SOC),$(SOC),$(CPU)) \
+		arch/$(ARCH)/include/asm/arch
 endif
-	$(Q)ln -fsn $(srctree)/arch/$(ARCH)/include/asm/arch-$(if $(SOC),$(SOC),$(CPU)) \
-		$(if $(KBUILD_SRC),,arch/$(ARCH)/)include/asm/arch
 
 PHONY += FORCE
 FORCE:

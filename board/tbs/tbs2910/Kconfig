@@ -1,0 +1,15 @@
+if TARGET_TBS2910
+
+config SYS_BOARD
+	default "tbs2910"
+
+config SYS_VENDOR
+	default "tbs"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "tbs2910"
+
+endif

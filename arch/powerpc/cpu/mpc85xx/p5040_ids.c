@@ -42,30 +42,30 @@ struct liodn_id_table liodn_tbl[] = {
 	SET_PCI_LIODN_BASE(CONFIG_SYS_FSL_PCIE_COMPAT, 2, 196),
 	SET_PCI_LIODN_BASE(CONFIG_SYS_FSL_PCIE_COMPAT, 3, 197),
 
-	SET_DMA_LIODN(1, 193),
-	SET_DMA_LIODN(2, 194),
+	SET_DMA_LIODN(1, "fsl,eloplus-dma", 193),
+	SET_DMA_LIODN(2, "fsl,eloplus-dma", 194),
 };
 int liodn_tbl_sz = ARRAY_SIZE(liodn_tbl);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 struct liodn_id_table fman1_liodn_tbl[] = {
-	SET_FMAN_RX_1G_LIODN(1, 0, 6),
-	SET_FMAN_RX_1G_LIODN(1, 1, 7),
-	SET_FMAN_RX_1G_LIODN(1, 2, 8),
-	SET_FMAN_RX_1G_LIODN(1, 3, 9),
-	SET_FMAN_RX_1G_LIODN(1, 4, 10),
-	SET_FMAN_RX_10G_LIODN(1, 0, 11),
+	SET_FMAN_RX_1G_LIODN(1, 0, 11),
+	SET_FMAN_RX_1G_LIODN(1, 1, 12),
+	SET_FMAN_RX_1G_LIODN(1, 2, 13),
+	SET_FMAN_RX_1G_LIODN(1, 3, 14),
+	SET_FMAN_RX_1G_LIODN(1, 4, 15),
+	SET_FMAN_RX_10G_LIODN(1, 0, 16),
 };
 int fman1_liodn_tbl_sz = ARRAY_SIZE(fman1_liodn_tbl);
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
 struct liodn_id_table fman2_liodn_tbl[] = {
-	SET_FMAN_RX_1G_LIODN(2, 0, 12),
-	SET_FMAN_RX_1G_LIODN(2, 1, 13),
-	SET_FMAN_RX_1G_LIODN(2, 2, 14),
-	SET_FMAN_RX_1G_LIODN(2, 3, 15),
-	SET_FMAN_RX_1G_LIODN(2, 4, 16),
-	SET_FMAN_RX_10G_LIODN(2, 0, 17),
+	SET_FMAN_RX_1G_LIODN(2, 0, 17),
+	SET_FMAN_RX_1G_LIODN(2, 1, 18),
+	SET_FMAN_RX_1G_LIODN(2, 2, 19),
+	SET_FMAN_RX_1G_LIODN(2, 3, 20),
+	SET_FMAN_RX_1G_LIODN(2, 4, 21),
+	SET_FMAN_RX_10G_LIODN(2, 0, 22),
 };
 int fman2_liodn_tbl_sz = ARRAY_SIZE(fman2_liodn_tbl);
 #endif

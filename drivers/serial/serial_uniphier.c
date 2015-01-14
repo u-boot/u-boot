@@ -2,15 +2,16 @@
  * Copyright (C) 2012-2014 Panasonic Corporation
  *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
  *
- * Based on serial_ns16550.c
- * (C) Copyright 2000
- * Rob Taylor, Flying Pig Systems. robt@flyingpig.com.
- *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
+#include <linux/serial_reg.h>
+#include <asm/io.h>
+#include <asm/errno.h>
+#include <dm/device.h>
+#include <dm/platform_data/serial-uniphier.h>
 #include <serial.h>
+#include <fdtdec.h>
 
 #define UART_REG(x)					\
 	u8 x;						\
@@ -37,168 +38,117 @@ struct uniphier_serial {
 
 #define thr rbr
 
-/*
- * These are the definitions for the Line Control Register
- */
-#define UART_LCR_WLS_8	0x03		/* 8 bit character length */
+struct uniphier_serial_private_data {
+	struct uniphier_serial __iomem *membase;
+};
 
-/*
- * These are the definitions for the Line Status Register
- */
-#define UART_LSR_DR	0x01		/* Data ready */
-#define UART_LSR_THRE	0x20		/* Xmit holding register empty */
+#define uniphier_serial_port(dev)	\
+	((struct uniphier_serial_private_data *)dev_get_priv(dev))->membase
 
-DECLARE_GLOBAL_DATA_PTR;
-
-static void uniphier_serial_init(struct uniphier_serial *port)
+static int uniphier_serial_setbrg(struct udevice *dev, int baudrate)
 {
+	struct uniphier_serial_platform_data *plat = dev_get_platdata(dev);
+	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
 	const unsigned int mode_x_div = 16;
 	unsigned int divisor;
 
-	writeb(UART_LCR_WLS_8, &port->lcr);
+	writeb(UART_LCR_WLEN8, &port->lcr);
 
-	divisor = DIV_ROUND_CLOSEST(CONFIG_SYS_UNIPHIER_UART_CLK,
-						mode_x_div * gd->baudrate);
+	divisor = DIV_ROUND_CLOSEST(plat->uartclk, mode_x_div * baudrate);
 
 	writew(divisor, &port->dlr);
+
+	return 0;
 }
 
-static void uniphier_serial_setbrg(struct uniphier_serial *port)
+static int uniphier_serial_getc(struct udevice *dev)
 {
-	uniphier_serial_init(port);
-}
+	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
 
-static int uniphier_serial_tstc(struct uniphier_serial *port)
-{
-	return (readb(&port->lsr) & UART_LSR_DR) != 0;
-}
-
-static int uniphier_serial_getc(struct uniphier_serial *port)
-{
-	while (!uniphier_serial_tstc(port))
-		;
+	if (!(readb(&port->lsr) & UART_LSR_DR))
+		return -EAGAIN;
 
 	return readb(&port->rbr);
 }
 
-static void uniphier_serial_putc(struct uniphier_serial *port, const char c)
+static int uniphier_serial_putc(struct udevice *dev, const char c)
 {
-	if (c == '\n')
-		uniphier_serial_putc(port, '\r');
+	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
 
-	while (!(readb(&port->lsr) & UART_LSR_THRE))
-		;
+	if (!(readb(&port->lsr) & UART_LSR_THRE))
+		return -EAGAIN;
 
 	writeb(c, &port->thr);
+
+	return 0;
 }
 
-static struct uniphier_serial *serial_ports[4] = {
-#ifdef CONFIG_SYS_UNIPHIER_SERIAL_BASE0
-	(struct uniphier_serial *)CONFIG_SYS_UNIPHIER_SERIAL_BASE0,
-#else
-	NULL,
-#endif
-#ifdef CONFIG_SYS_UNIPHIER_SERIAL_BASE1
-	(struct uniphier_serial *)CONFIG_SYS_UNIPHIER_SERIAL_BASE1,
-#else
-	NULL,
-#endif
-#ifdef CONFIG_SYS_UNIPHIER_SERIAL_BASE2
-	(struct uniphier_serial *)CONFIG_SYS_UNIPHIER_SERIAL_BASE2,
-#else
-	NULL,
-#endif
-#ifdef CONFIG_SYS_UNIPHIER_SERIAL_BASE3
-	(struct uniphier_serial *)CONFIG_SYS_UNIPHIER_SERIAL_BASE3,
-#else
-	NULL,
-#endif
+static int uniphier_serial_pending(struct udevice *dev, bool input)
+{
+	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
+
+	if (input)
+		return readb(&port->lsr) & UART_LSR_DR;
+	else
+		return !(readb(&port->lsr) & UART_LSR_THRE);
+}
+
+static int uniphier_serial_probe(struct udevice *dev)
+{
+	struct uniphier_serial_private_data *priv = dev_get_priv(dev);
+	struct uniphier_serial_platform_data *plat = dev_get_platdata(dev);
+
+	priv->membase = map_sysmem(plat->base, sizeof(struct uniphier_serial));
+
+	if (!priv->membase)
+		return -ENOMEM;
+
+	return 0;
+}
+
+static int uniphier_serial_remove(struct udevice *dev)
+{
+	unmap_sysmem(uniphier_serial_port(dev));
+
+	return 0;
+}
+
+#ifdef CONFIG_OF_CONTROL
+static const struct udevice_id uniphier_uart_of_match[] = {
+	{ .compatible = "panasonic,uniphier-uart" },
+	{},
 };
 
-/* Multi serial device functions */
-#define DECLARE_ESERIAL_FUNCTIONS(port) \
-	static int  eserial##port##_init(void) \
-	{ \
-		uniphier_serial_init(serial_ports[port]); \
-		return 0 ; \
-	} \
-	static void eserial##port##_setbrg(void) \
-	{ \
-		uniphier_serial_setbrg(serial_ports[port]); \
-	} \
-	static int  eserial##port##_getc(void) \
-	{ \
-		return uniphier_serial_getc(serial_ports[port]); \
-	} \
-	static int  eserial##port##_tstc(void) \
-	{ \
-		return uniphier_serial_tstc(serial_ports[port]); \
-	} \
-	static void eserial##port##_putc(const char c) \
-	{ \
-		uniphier_serial_putc(serial_ports[port], c); \
-	}
-
-/* Serial device descriptor */
-#define INIT_ESERIAL_STRUCTURE(port, __name) {	\
-	.name	= __name,			\
-	.start	= eserial##port##_init,		\
-	.stop	= NULL,				\
-	.setbrg	= eserial##port##_setbrg,	\
-	.getc	= eserial##port##_getc,		\
-	.tstc	= eserial##port##_tstc,		\
-	.putc	= eserial##port##_putc,		\
-	.puts	= default_serial_puts,		\
-}
-
-#if defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE0)
-DECLARE_ESERIAL_FUNCTIONS(0);
-struct serial_device uniphier_serial0_device =
-	INIT_ESERIAL_STRUCTURE(0, "ttyS0");
-#endif
-#if defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE1)
-DECLARE_ESERIAL_FUNCTIONS(1);
-struct serial_device uniphier_serial1_device =
-	INIT_ESERIAL_STRUCTURE(1, "ttyS1");
-#endif
-#if defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE2)
-DECLARE_ESERIAL_FUNCTIONS(2);
-struct serial_device uniphier_serial2_device =
-	INIT_ESERIAL_STRUCTURE(2, "ttyS2");
-#endif
-#if defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE3)
-DECLARE_ESERIAL_FUNCTIONS(3);
-struct serial_device uniphier_serial3_device =
-	INIT_ESERIAL_STRUCTURE(3, "ttyS3");
-#endif
-
-__weak struct serial_device *default_serial_console(void)
+static int uniphier_serial_ofdata_to_platdata(struct udevice *dev)
 {
-#if defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE0)
-	return &uniphier_serial0_device;
-#elif defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE1)
-	return &uniphier_serial1_device;
-#elif defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE2)
-	return &uniphier_serial2_device;
-#elif defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE3)
-	return &uniphier_serial3_device;
-#else
-#error "No uniphier serial ports configured."
-#endif
-}
+	struct uniphier_serial_platform_data *plat = dev_get_platdata(dev);
+	DECLARE_GLOBAL_DATA_PTR;
 
-void uniphier_serial_initialize(void)
-{
-#if defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE0)
-	serial_register(&uniphier_serial0_device);
-#endif
-#if defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE1)
-	serial_register(&uniphier_serial1_device);
-#endif
-#if defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE2)
-	serial_register(&uniphier_serial2_device);
-#endif
-#if defined(CONFIG_SYS_UNIPHIER_SERIAL_BASE3)
-	serial_register(&uniphier_serial3_device);
-#endif
+	plat->base = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+	plat->uartclk = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+				       "clock-frequency", 0);
+
+	return 0;
 }
+#endif
+
+static const struct dm_serial_ops uniphier_serial_ops = {
+	.setbrg = uniphier_serial_setbrg,
+	.getc = uniphier_serial_getc,
+	.putc = uniphier_serial_putc,
+	.pending = uniphier_serial_pending,
+};
+
+U_BOOT_DRIVER(uniphier_serial) = {
+	.name = DRIVER_NAME,
+	.id = UCLASS_SERIAL,
+	.of_match = of_match_ptr(uniphier_uart_of_match),
+	.ofdata_to_platdata = of_match_ptr(uniphier_serial_ofdata_to_platdata),
+	.probe = uniphier_serial_probe,
+	.remove = uniphier_serial_remove,
+	.priv_auto_alloc_size = sizeof(struct uniphier_serial_private_data),
+	.platdata_auto_alloc_size =
+				sizeof(struct uniphier_serial_platform_data),
+	.ops = &uniphier_serial_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};

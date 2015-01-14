@@ -180,6 +180,22 @@ void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 	else
 		*regs = &emif_regs_elpida_400_mhz_1cs;
 }
+
+void emif_get_dmm_regs(const struct dmm_lisa_map_regs
+						**dmm_lisa_regs)
+{
+	u32 omap_rev = omap_revision();
+
+	if (omap_rev == OMAP4430_ES1_0)
+		*dmm_lisa_regs = &lisa_map_2G_x_1_x_2;
+	else if (omap_rev == OMAP4430_ES2_3)
+		*dmm_lisa_regs = &lisa_map_2G_x_2_x_2;
+	else if (omap_rev < OMAP4460_ES1_0)
+		*dmm_lisa_regs = &lisa_map_2G_x_2_x_2;
+	else
+		*dmm_lisa_regs = &ma_lisa_map_2G_x_2_x_2;
+}
+
 #endif
 
 /**

@@ -163,6 +163,9 @@
 #elif defined(CONFIG_MPC512X)
 #define CONFIG_SYS_FSL_USB1_ADDR CONFIG_SYS_MPC512x_USB1_ADDR
 #define CONFIG_SYS_FSL_USB2_ADDR	0
+#elif defined(CONFIG_LS102XA)
+#define CONFIG_SYS_FSL_USB1_ADDR CONFIG_SYS_LS102XA_USB1_ADDR
+#define CONFIG_SYS_FSL_USB2_ADDR        0
 #endif
 
 /*
@@ -277,7 +280,9 @@ struct usb_ehci {
 #define MXC_EHCI_IPPUE_DOWN		(1 << 10)
 #define MXC_EHCI_IPPUE_UP		(1 << 11)
 
+int usb_phy_mode(int port);
 /* Board-specific initialization */
 int board_ehci_hcd_init(int port);
+int board_usb_phy_mode(int port);
 
 #endif /* _EHCI_FSL_H */

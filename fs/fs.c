@@ -15,6 +15,7 @@
  */
 
 #include <config.h>
+#include <errno.h>
 #include <common.h>
 #include <part.h>
 #include <ext4fs.h>
@@ -22,6 +23,8 @@
 #include <fs.h>
 #include <sandboxfs.h>
 #include <asm/io.h>
+#include <div64.h>
+#include <linux/math64.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -46,25 +49,32 @@ static inline int fs_exists_unsupported(const char *filename)
 	return 0;
 }
 
-static inline int fs_size_unsupported(const char *filename)
+static inline int fs_size_unsupported(const char *filename, loff_t *size)
 {
 	return -1;
 }
 
 static inline int fs_read_unsupported(const char *filename, void *buf,
-				      int offset, int len)
+				      loff_t offset, loff_t len,
+				      loff_t *actread)
 {
 	return -1;
 }
 
 static inline int fs_write_unsupported(const char *filename, void *buf,
-				      int offset, int len)
+				      loff_t offset, loff_t len,
+				      loff_t *actwrite)
 {
 	return -1;
 }
 
 static inline void fs_close_unsupported(void)
 {
+}
+
+static inline int fs_uuid_unsupported(char *uuid_str)
+{
+	return -1;
 }
 
 struct fstype_info {
@@ -82,10 +92,13 @@ struct fstype_info {
 		     disk_partition_t *fs_partition);
 	int (*ls)(const char *dirname);
 	int (*exists)(const char *filename);
-	int (*size)(const char *filename);
-	int (*read)(const char *filename, void *buf, int offset, int len);
-	int (*write)(const char *filename, void *buf, int offset, int len);
+	int (*size)(const char *filename, loff_t *size);
+	int (*read)(const char *filename, void *buf, loff_t offset,
+		    loff_t len, loff_t *actread);
+	int (*write)(const char *filename, void *buf, loff_t offset,
+		     loff_t len, loff_t *actwrite);
 	void (*close)(void);
+	int (*uuid)(char *uuid_str);
 };
 
 static struct fstype_info fstypes[] = {
@@ -99,7 +112,12 @@ static struct fstype_info fstypes[] = {
 		.exists = fat_exists,
 		.size = fat_size,
 		.read = fat_read_file,
+#ifdef CONFIG_FAT_WRITE
+		.write = file_fat_write,
+#else
 		.write = fs_write_unsupported,
+#endif
+		.uuid = fs_uuid_unsupported,
 	},
 #endif
 #ifdef CONFIG_FS_EXT4
@@ -112,7 +130,12 @@ static struct fstype_info fstypes[] = {
 		.exists = ext4fs_exists,
 		.size = ext4fs_size,
 		.read = ext4_read_file,
+#ifdef CONFIG_CMD_EXT4_WRITE
+		.write = ext4_write_file,
+#else
 		.write = fs_write_unsupported,
+#endif
+		.uuid = ext4fs_uuid,
 	},
 #endif
 #ifdef CONFIG_SANDBOX
@@ -126,6 +149,7 @@ static struct fstype_info fstypes[] = {
 		.size = sandbox_fs_size,
 		.read = fs_read_sandbox,
 		.write = fs_write_sandbox,
+		.uuid = fs_uuid_unsupported,
 	},
 #endif
 	{
@@ -138,6 +162,7 @@ static struct fstype_info fstypes[] = {
 		.size = fs_size_unsupported,
 		.read = fs_read_unsupported,
 		.write = fs_write_unsupported,
+		.uuid = fs_uuid_unsupported,
 	},
 };
 
@@ -206,6 +231,13 @@ static void fs_close(void)
 	fs_type = FS_TYPE_ANY;
 }
 
+int fs_uuid(char *uuid_str)
+{
+	struct fstype_info *info = fs_get_info(fs_type);
+
+	return info->uuid(uuid_str);
+}
+
 int fs_ls(const char *dirname)
 {
 	int ret;
@@ -233,20 +265,21 @@ int fs_exists(const char *filename)
 	return ret;
 }
 
-int fs_size(const char *filename)
+int fs_size(const char *filename, loff_t *size)
 {
 	int ret;
 
 	struct fstype_info *info = fs_get_info(fs_type);
 
-	ret = info->size(filename);
+	ret = info->size(filename, size);
 
 	fs_close();
 
 	return ret;
 }
 
-int fs_read(const char *filename, ulong addr, int offset, int len)
+int fs_read(const char *filename, ulong addr, loff_t offset, loff_t len,
+	    loff_t *actread)
 {
 	struct fstype_info *info = fs_get_info(fs_type);
 	void *buf;
@@ -257,11 +290,11 @@ int fs_read(const char *filename, ulong addr, int offset, int len)
 	 * means read the whole file.
 	 */
 	buf = map_sysmem(addr, len);
-	ret = info->read(filename, buf, offset, len);
+	ret = info->read(filename, buf, offset, len, actread);
 	unmap_sysmem(buf);
 
 	/* If we requested a specific number of bytes, check we got it */
-	if (ret >= 0 && len && ret != len) {
+	if (ret == 0 && len && *actread != len) {
 		printf("** Unable to read file %s **\n", filename);
 		ret = -1;
 	}
@@ -270,17 +303,18 @@ int fs_read(const char *filename, ulong addr, int offset, int len)
 	return ret;
 }
 
-int fs_write(const char *filename, ulong addr, int offset, int len)
+int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
+	     loff_t *actwrite)
 {
 	struct fstype_info *info = fs_get_info(fs_type);
 	void *buf;
 	int ret;
 
 	buf = map_sysmem(addr, len);
-	ret = info->write(filename, buf, offset, len);
+	ret = info->write(filename, buf, offset, len, actwrite);
 	unmap_sysmem(buf);
 
-	if (ret >= 0 && ret != len) {
+	if (ret < 0 && len != *actwrite) {
 		printf("** Unable to write file %s **\n", filename);
 		ret = -1;
 	}
@@ -292,7 +326,7 @@ int fs_write(const char *filename, ulong addr, int offset, int len)
 int do_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype)
 {
-	int size;
+	loff_t size;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -300,8 +334,7 @@ int do_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	if (fs_set_blk_dev(argv[1], argv[2], fstype))
 		return 1;
 
-	size = fs_size(argv[3]);
-	if (size < 0)
+	if (fs_size(argv[3], &size) < 0)
 		return CMD_RET_FAILURE;
 
 	setenv_hex("filesize", size);
@@ -315,9 +348,10 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	unsigned long addr;
 	const char *addr_str;
 	const char *filename;
-	unsigned long bytes;
-	unsigned long pos;
-	int len_read;
+	loff_t bytes;
+	loff_t pos;
+	loff_t len_read;
+	int ret;
 	unsigned long time;
 	char *ep;
 
@@ -359,15 +393,15 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		pos = 0;
 
 	time = get_timer(0);
-	len_read = fs_read(filename, addr, pos, bytes);
+	ret = fs_read(filename, addr, pos, bytes, &len_read);
 	time = get_timer(time);
-	if (len_read <= 0)
+	if (ret < 0)
 		return 1;
 
-	printf("%d bytes read in %lu ms", len_read, time);
+	printf("%llu bytes read in %lu ms", len_read, time);
 	if (time > 0) {
 		puts(" (");
-		print_size(len_read / time * 1000, "/s");
+		print_size(div_u64(len_read, time) * 1000, "/s");
 		puts(")");
 	}
 	puts("\n");
@@ -408,9 +442,10 @@ int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 {
 	unsigned long addr;
 	const char *filename;
-	unsigned long bytes;
-	unsigned long pos;
-	int len;
+	loff_t bytes;
+	loff_t pos;
+	loff_t len;
+	int ret;
 	unsigned long time;
 
 	if (argc < 6 || argc > 7)
@@ -419,8 +454,8 @@ int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	if (fs_set_blk_dev(argv[1], argv[2], fstype))
 		return 1;
 
-	filename = argv[3];
-	addr = simple_strtoul(argv[4], NULL, 16);
+	addr = simple_strtoul(argv[3], NULL, 16);
+	filename = argv[4];
 	bytes = simple_strtoul(argv[5], NULL, 16);
 	if (argc >= 7)
 		pos = simple_strtoul(argv[6], NULL, 16);
@@ -428,18 +463,43 @@ int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		pos = 0;
 
 	time = get_timer(0);
-	len = fs_write(filename, addr, pos, bytes);
+	ret = fs_write(filename, addr, pos, bytes, &len);
 	time = get_timer(time);
-	if (len <= 0)
+	if (ret < 0)
 		return 1;
 
-	printf("%d bytes written in %lu ms", len, time);
+	printf("%llu bytes written in %lu ms", len, time);
 	if (time > 0) {
 		puts(" (");
-		print_size(len / time * 1000, "/s");
+		print_size(div_u64(len, time) * 1000, "/s");
 		puts(")");
 	}
 	puts("\n");
 
 	return 0;
+}
+
+int do_fs_uuid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+		int fstype)
+{
+	int ret;
+	char uuid[37];
+	memset(uuid, 0, sizeof(uuid));
+
+	if (argc < 3 || argc > 4)
+		return CMD_RET_USAGE;
+
+	if (fs_set_blk_dev(argv[1], argv[2], fstype))
+		return 1;
+
+	ret = fs_uuid(uuid);
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	if (argc == 4)
+		setenv(argv[3], uuid);
+	else
+		printf("%s\n", uuid);
+
+	return CMD_RET_SUCCESS;
 }

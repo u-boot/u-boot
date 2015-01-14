@@ -7,9 +7,16 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/include/ "skeleton.dtsi"
+#include "skeleton.dtsi"
 
 / {
+	combiner: interrupt-controller@10440000 {
+		compatible = "samsung,exynos4210-combiner";
+		#interrupt-cells = <2>;
+		interrupt-controller;
+		reg = <0x10440000 0x1000>;
+	};
+
 	serial@13800000 {
 		compatible = "samsung,exynos4210-uart";
 		reg = <0x13800000 0x3c>;

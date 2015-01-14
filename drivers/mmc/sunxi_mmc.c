@@ -14,12 +14,13 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm-generic/gpio.h>
 
 struct sunxi_mmc_host {
 	unsigned mmc_no;
 	uint32_t *mclkreg;
-	unsigned database;
 	unsigned fatal_err;
 	unsigned mod_clk;
 	struct sunxi_mmc *reg;
@@ -29,10 +30,22 @@ struct sunxi_mmc_host {
 /* support 4 mmc hosts */
 struct sunxi_mmc_host mmc_host[4];
 
+static int sunxi_mmc_getcd_gpio(int sdc_no)
+{
+	switch (sdc_no) {
+	case 0: return sunxi_name_to_gpio(CONFIG_MMC0_CD_PIN);
+	case 1: return sunxi_name_to_gpio(CONFIG_MMC1_CD_PIN);
+	case 2: return sunxi_name_to_gpio(CONFIG_MMC2_CD_PIN);
+	case 3: return sunxi_name_to_gpio(CONFIG_MMC3_CD_PIN);
+	}
+	return -1;
+}
+
 static int mmc_resource_init(int sdc_no)
 {
 	struct sunxi_mmc_host *mmchost = &mmc_host[sdc_no];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	int cd_pin, ret = 0;
 
 	debug("init mmc %d resource\n", sdc_no);
 
@@ -57,10 +70,13 @@ static int mmc_resource_init(int sdc_no)
 		printf("Wrong mmc number %d\n", sdc_no);
 		return -1;
 	}
-	mmchost->database = (unsigned int)mmchost->reg + 0x100;
 	mmchost->mmc_no = sdc_no;
 
-	return 0;
+	cd_pin = sunxi_mmc_getcd_gpio(sdc_no);
+	if (cd_pin != -1)
+		ret = gpio_request(cd_pin, "mmc_cd");
+
+	return ret;
 }
 
 static int mmc_clk_io_on(int sdc_no)
@@ -74,6 +90,11 @@ static int mmc_clk_io_on(int sdc_no)
 
 	/* config ahb clock */
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
+
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I)
+	/* unassert reset */
+	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
+#endif
 
 	/* config mod clock */
 	pll_clk = clock_get_pll6();
@@ -194,9 +215,9 @@ static int mmc_trans_data_by_cpu(struct mmc *mmc, struct mmc_data *data)
 		}
 
 		if (reading)
-			buff[i] = readl(mmchost->database);
+			buff[i] = readl(&mmchost->reg->fifo);
 		else
-			writel(buff[i], mmchost->database);
+			writel(buff[i], &mmchost->reg->fifo);
 	}
 
 	return 0;
@@ -343,13 +364,26 @@ out:
 	return error;
 }
 
+static int sunxi_mmc_getcd(struct mmc *mmc)
+{
+	struct sunxi_mmc_host *mmchost = mmc->priv;
+	int cd_pin;
+
+	cd_pin = sunxi_mmc_getcd_gpio(mmchost->mmc_no);
+	if (cd_pin == -1)
+		return 1;
+
+	return !gpio_direction_input(cd_pin);
+}
+
 static const struct mmc_ops sunxi_mmc_ops = {
 	.send_cmd	= mmc_send_cmd,
 	.set_ios	= mmc_set_ios,
 	.init		= mmc_core_init,
+	.getcd		= sunxi_mmc_getcd,
 };
 
-int sunxi_mmc_init(int sdc_no)
+struct mmc *sunxi_mmc_init(int sdc_no)
 {
 	struct mmc_config *cfg = &mmc_host[sdc_no].cfg;
 
@@ -361,16 +395,18 @@ int sunxi_mmc_init(int sdc_no)
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
 	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || defined(CONFIG_MACH_SUN8I)
+	cfg->host_caps |= MMC_MODE_HC;
+#endif
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	cfg->f_min = 400000;
 	cfg->f_max = 52000000;
 
-	mmc_resource_init(sdc_no);
+	if (mmc_resource_init(sdc_no) != 0)
+		return NULL;
+
 	mmc_clk_io_on(sdc_no);
 
-	if (mmc_create(cfg, &mmc_host[sdc_no]) == NULL)
-		return -1;
-
-	return 0;
+	return mmc_create(cfg, &mmc_host[sdc_no]);
 }

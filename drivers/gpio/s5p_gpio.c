@@ -6,120 +6,69 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <errno.h>
+#include <fdtdec.h>
+#include <malloc.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
-#include <asm/arch/gpio.h>
+#include <dm/device-internal.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define S5P_GPIO_GET_PIN(x)	(x % GPIO_PER_BANK)
 
-#define CON_MASK(x)		(0xf << ((x) << 2))
-#define CON_SFR(x, v)		((v) << ((x) << 2))
+#define CON_MASK(val)			(0xf << ((val) << 2))
+#define CON_SFR(gpio, cfg)		((cfg) << ((gpio) << 2))
+#define CON_SFR_UNSHIFT(val, gpio)	((val) >> ((gpio) << 2))
 
-#define DAT_MASK(x)		(0x1 << (x))
-#define DAT_SET(x)		(0x1 << (x))
+#define DAT_MASK(gpio)			(0x1 << (gpio))
+#define DAT_SET(gpio)			(0x1 << (gpio))
 
-#define PULL_MASK(x)		(0x3 << ((x) << 1))
-#define PULL_MODE(x, v)		((v) << ((x) << 1))
+#define PULL_MASK(gpio)		(0x3 << ((gpio) << 1))
+#define PULL_MODE(gpio, pull)		((pull) << ((gpio) << 1))
 
-#define DRV_MASK(x)		(0x3 << ((x) << 1))
-#define DRV_SET(x, m)		((m) << ((x) << 1))
-#define RATE_MASK(x)		(0x1 << (x + 16))
-#define RATE_SET(x)		(0x1 << (x + 16))
+#define DRV_MASK(gpio)			(0x3 << ((gpio) << 1))
+#define DRV_SET(gpio, mode)		((mode) << ((gpio) << 1))
+#define RATE_MASK(gpio)		(0x1 << (gpio + 16))
+#define RATE_SET(gpio)			(0x1 << (gpio + 16))
 
-#define name_to_gpio(n) s5p_name_to_gpio(n)
-static inline int s5p_name_to_gpio(const char *name)
+/* Platform data for each bank */
+struct exynos_gpio_platdata {
+	struct s5p_gpio_bank *bank;
+	const char *bank_name;	/* Name of port, e.g. 'gpa0" */
+};
+
+/* Information about each bank at run-time */
+struct exynos_bank_info {
+	struct s5p_gpio_bank *bank;
+};
+
+static struct s5p_gpio_bank *s5p_gpio_get_bank(unsigned int gpio)
 {
-	unsigned num, irregular_set_number, irregular_bank_base;
-	const struct gpio_name_num_table *tabp;
-	char this_bank, bank_name, irregular_bank_name;
-	char *endp;
+	const struct gpio_info *data;
+	unsigned int upto;
+	int i, count;
 
-	/*
-	 * The gpio name starts with either 'g' or 'gp' followed by the bank
-	 * name character. Skip one or two characters depending on the prefix.
-	 */
-	if (name[0] == 'g' && name[1] == 'p')
-		name += 2;
-	else if (name[0] == 'g')
-		name++;
-	else
-		return -1; /* Name must start with 'g' */
+	data = get_gpio_data();
+	count = get_bank_num();
+	upto = 0;
 
-	bank_name = *name++;
-	if (!*name)
-		return -1; /* At least one digit is required/expected. */
-
-	/*
-	 * On both exynos5 and exynos5420 architectures there is a bank of
-	 * GPIOs which does not fall into the regular address pattern. Those
-	 * banks are c4 on Exynos5 and y7 on Exynos5420. The rest of the below
-	 * assignments help to handle these irregularities.
-	 */
-#if defined(CONFIG_EXYNOS4) || defined(CONFIG_EXYNOS5)
-	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420()) {
-			tabp = exynos5420_gpio_table;
-			irregular_bank_name = 'y';
-			irregular_set_number = '7';
-			irregular_bank_base = EXYNOS5420_GPIO_Y70;
-		} else {
-			tabp = exynos5_gpio_table;
-			irregular_bank_name = 'c';
-			irregular_set_number = '4';
-			irregular_bank_base = EXYNOS5_GPIO_C40;
+	for (i = 0; i < count; i++) {
+		debug("i=%d, upto=%d\n", i, upto);
+		if (gpio < data->max_gpio) {
+			struct s5p_gpio_bank *bank;
+			bank = (struct s5p_gpio_bank *)data->reg_addr;
+			bank += (gpio - upto) / GPIO_PER_BANK;
+			debug("gpio=%d, bank=%p\n", gpio, bank);
+			return bank;
 		}
-	} else {
-		if (proid_is_exynos4412())
-			tabp = exynos4x12_gpio_table;
-		else
-			tabp = exynos4_gpio_table;
-		irregular_bank_name = 0;
-		irregular_set_number = 0;
-		irregular_bank_base = 0;
+
+		upto = data->max_gpio;
+		data++;
 	}
-#else
-	if (cpu_is_s5pc110())
-		tabp = s5pc110_gpio_table;
-	else
-		tabp = s5pc100_gpio_table;
-	irregular_bank_name = 0;
-	irregular_set_number = 0;
-	irregular_bank_base = 0;
-#endif
 
-	this_bank = tabp->bank;
-	do {
-		if (bank_name == this_bank) {
-			unsigned pin_index; /* pin number within the bank */
-			if ((bank_name == irregular_bank_name) &&
-			    (name[0] == irregular_set_number)) {
-				pin_index = name[1] - '0';
-				/* Irregular sets have 8 pins. */
-				if (pin_index >= GPIO_PER_BANK)
-					return -1;
-				num = irregular_bank_base + pin_index;
-			} else {
-				pin_index = simple_strtoul(name, &endp, 8);
-				pin_index -= tabp->bank_offset;
-				/*
-				 * Sanity check: bunk 'z' has no set number,
-				 * for all other banks there must be exactly
-				 * two octal digits, and the resulting number
-				 * should not exceed the number of pins in the
-				 * bank.
-				 */
-				if (((bank_name != 'z') && !name[1]) ||
-				    *endp ||
-				    (pin_index >= tabp->bank_size))
-					return -1;
-				num = tabp->base + pin_index;
-			}
-			return num;
-		}
-		this_bank = (++tabp)->bank;
-	} while (this_bank);
-
-	return -1;
+	return NULL;
 }
 
 static void s5p_gpio_cfg_pin(struct s5p_gpio_bank *bank, int gpio, int cfg)
@@ -143,16 +92,23 @@ static void s5p_gpio_set_value(struct s5p_gpio_bank *bank, int gpio, int en)
 	writel(value, &bank->dat);
 }
 
-static void s5p_gpio_direction_output(struct s5p_gpio_bank *bank,
-				      int gpio, int en)
+#ifdef CONFIG_SPL_BUILD
+/* Common GPIO API - SPL does not support driver model yet */
+int gpio_set_value(unsigned gpio, int value)
 {
-	s5p_gpio_cfg_pin(bank, gpio, S5P_GPIO_OUTPUT);
-	s5p_gpio_set_value(bank, gpio, en);
-}
+	s5p_gpio_set_value(s5p_gpio_get_bank(gpio),
+			   s5p_gpio_get_pin(gpio), value);
 
-static void s5p_gpio_direction_input(struct s5p_gpio_bank *bank, int gpio)
+	return 0;
+}
+#else
+static int s5p_gpio_get_cfg_pin(struct s5p_gpio_bank *bank, int gpio)
 {
-	s5p_gpio_cfg_pin(bank, gpio, S5P_GPIO_INPUT);
+	unsigned int value;
+
+	value = readl(&bank->con);
+	value &= CON_MASK(gpio);
+	return CON_SFR_UNSHIFT(value, gpio);
 }
 
 static unsigned int s5p_gpio_get_value(struct s5p_gpio_bank *bank, int gpio)
@@ -162,6 +118,7 @@ static unsigned int s5p_gpio_get_value(struct s5p_gpio_bank *bank, int gpio)
 	value = readl(&bank->dat);
 	return !!(value & DAT_MASK(gpio));
 }
+#endif /* CONFIG_SPL_BUILD */
 
 static void s5p_gpio_set_pull(struct s5p_gpio_bank *bank, int gpio, int mode)
 {
@@ -222,78 +179,63 @@ static void s5p_gpio_set_rate(struct s5p_gpio_bank *bank, int gpio, int mode)
 	writel(value, &bank->drv);
 }
 
-struct s5p_gpio_bank *s5p_gpio_get_bank(unsigned int gpio)
-{
-	const struct gpio_info *data;
-	unsigned int upto;
-	int i, count;
-
-	data = get_gpio_data();
-	count = get_bank_num();
-	upto = 0;
-
-	for (i = 0; i < count; i++) {
-		debug("i=%d, upto=%d\n", i, upto);
-		if (gpio < data->max_gpio) {
-			struct s5p_gpio_bank *bank;
-			bank = (struct s5p_gpio_bank *)data->reg_addr;
-			bank += (gpio - upto) / GPIO_PER_BANK;
-			debug("gpio=%d, bank=%p\n", gpio, bank);
-			return bank;
-		}
-
-		upto = data->max_gpio;
-		data++;
-	}
-
-	return NULL;
-}
-
 int s5p_gpio_get_pin(unsigned gpio)
 {
 	return S5P_GPIO_GET_PIN(gpio);
 }
 
-/* Common GPIO API */
-
-int gpio_request(unsigned gpio, const char *label)
+/* Driver model interface */
+#ifndef CONFIG_SPL_BUILD
+/* set GPIO pin 'gpio' as an input */
+static int exynos_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
-	return 0;
-}
+	struct exynos_bank_info *state = dev_get_priv(dev);
 
-int gpio_free(unsigned gpio)
-{
-	return 0;
-}
-
-int gpio_direction_input(unsigned gpio)
-{
-	s5p_gpio_direction_input(s5p_gpio_get_bank(gpio),
-				s5p_gpio_get_pin(gpio));
-	return 0;
-}
-
-int gpio_direction_output(unsigned gpio, int value)
-{
-	s5p_gpio_direction_output(s5p_gpio_get_bank(gpio),
-				 s5p_gpio_get_pin(gpio), value);
-	return 0;
-}
-
-int gpio_get_value(unsigned gpio)
-{
-	return (int) s5p_gpio_get_value(s5p_gpio_get_bank(gpio),
-				       s5p_gpio_get_pin(gpio));
-}
-
-int gpio_set_value(unsigned gpio, int value)
-{
-	s5p_gpio_set_value(s5p_gpio_get_bank(gpio),
-			  s5p_gpio_get_pin(gpio), value);
+	/* Configure GPIO direction as input. */
+	s5p_gpio_cfg_pin(state->bank, offset, S5P_GPIO_INPUT);
 
 	return 0;
 }
 
+/* set GPIO pin 'gpio' as an output, with polarity 'value' */
+static int exynos_gpio_direction_output(struct udevice *dev, unsigned offset,
+				       int value)
+{
+	struct exynos_bank_info *state = dev_get_priv(dev);
+
+	/* Configure GPIO output value. */
+	s5p_gpio_set_value(state->bank, offset, value);
+
+	/* Configure GPIO direction as output. */
+	s5p_gpio_cfg_pin(state->bank, offset, S5P_GPIO_OUTPUT);
+
+	return 0;
+}
+
+/* read GPIO IN value of pin 'gpio' */
+static int exynos_gpio_get_value(struct udevice *dev, unsigned offset)
+{
+	struct exynos_bank_info *state = dev_get_priv(dev);
+
+	return s5p_gpio_get_value(state->bank, offset);
+}
+
+/* write GPIO OUT value to pin 'gpio' */
+static int exynos_gpio_set_value(struct udevice *dev, unsigned offset,
+				 int value)
+{
+	struct exynos_bank_info *state = dev_get_priv(dev);
+
+	s5p_gpio_set_value(state->bank, offset, value);
+
+	return 0;
+}
+#endif /* nCONFIG_SPL_BUILD */
+
+/*
+ * There is no common GPIO API for pull, drv, pin, rate (yet). These
+ * functions are kept here to preserve function ordering for review.
+ */
 void gpio_set_pull(int gpio, int mode)
 {
 	s5p_gpio_set_pull(s5p_gpio_get_bank(gpio),
@@ -317,3 +259,112 @@ void gpio_set_rate(int gpio, int mode)
 	s5p_gpio_set_rate(s5p_gpio_get_bank(gpio),
 			  s5p_gpio_get_pin(gpio), mode);
 }
+
+#ifndef CONFIG_SPL_BUILD
+static int exynos_gpio_get_function(struct udevice *dev, unsigned offset)
+{
+	struct exynos_bank_info *state = dev_get_priv(dev);
+	int cfg;
+
+	cfg = s5p_gpio_get_cfg_pin(state->bank, offset);
+	if (cfg == S5P_GPIO_OUTPUT)
+		return GPIOF_OUTPUT;
+	else if (cfg == S5P_GPIO_INPUT)
+		return GPIOF_INPUT;
+	else
+		return GPIOF_FUNC;
+}
+
+static const struct dm_gpio_ops gpio_exynos_ops = {
+	.direction_input	= exynos_gpio_direction_input,
+	.direction_output	= exynos_gpio_direction_output,
+	.get_value		= exynos_gpio_get_value,
+	.set_value		= exynos_gpio_set_value,
+	.get_function		= exynos_gpio_get_function,
+};
+
+static int gpio_exynos_probe(struct udevice *dev)
+{
+	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct exynos_bank_info *priv = dev->priv;
+	struct exynos_gpio_platdata *plat = dev->platdata;
+
+	/* Only child devices have ports */
+	if (!plat)
+		return 0;
+
+	priv->bank = plat->bank;
+
+	uc_priv->gpio_count = GPIO_PER_BANK;
+	uc_priv->bank_name = plat->bank_name;
+
+	return 0;
+}
+
+/**
+ * We have a top-level GPIO device with no actual GPIOs. It has a child
+ * device for each Exynos GPIO bank.
+ */
+static int gpio_exynos_bind(struct udevice *parent)
+{
+	struct exynos_gpio_platdata *plat = parent->platdata;
+	struct s5p_gpio_bank *bank, *base;
+	const void *blob = gd->fdt_blob;
+	int node;
+
+	/* If this is a child device, there is nothing to do here */
+	if (plat)
+		return 0;
+
+	base = (struct s5p_gpio_bank *)fdtdec_get_addr(gd->fdt_blob,
+						   parent->of_offset, "reg");
+	for (node = fdt_first_subnode(blob, parent->of_offset), bank = base;
+	     node > 0;
+	     node = fdt_next_subnode(blob, node), bank++) {
+		struct exynos_gpio_platdata *plat;
+		struct udevice *dev;
+		fdt_addr_t reg;
+		int ret;
+
+		if (!fdtdec_get_bool(blob, node, "gpio-controller"))
+			continue;
+		plat = calloc(1, sizeof(*plat));
+		if (!plat)
+			return -ENOMEM;
+		reg = fdtdec_get_addr(blob, node, "reg");
+		if (reg != FDT_ADDR_T_NONE)
+			bank = (struct s5p_gpio_bank *)((ulong)base + reg);
+		plat->bank = bank;
+		plat->bank_name = fdt_get_name(blob, node, NULL);
+		debug("dev at %p: %s\n", bank, plat->bank_name);
+
+		ret = device_bind(parent, parent->driver,
+					plat->bank_name, plat, -1, &dev);
+		if (ret)
+			return ret;
+		dev->of_offset = parent->of_offset;
+	}
+
+	return 0;
+}
+
+static const struct udevice_id exynos_gpio_ids[] = {
+	{ .compatible = "samsung,s5pc100-pinctrl" },
+	{ .compatible = "samsung,s5pc110-pinctrl" },
+	{ .compatible = "samsung,exynos4210-pinctrl" },
+	{ .compatible = "samsung,exynos4x12-pinctrl" },
+	{ .compatible = "samsung,exynos5250-pinctrl" },
+	{ .compatible = "samsung,exynos5420-pinctrl" },
+	{ }
+};
+
+U_BOOT_DRIVER(gpio_exynos) = {
+	.name	= "gpio_exynos",
+	.id	= UCLASS_GPIO,
+	.of_match = exynos_gpio_ids,
+	.bind	= gpio_exynos_bind,
+	.probe = gpio_exynos_probe,
+	.priv_auto_alloc_size = sizeof(struct exynos_bank_info),
+	.ops	= &gpio_exynos_ops,
+};
+#endif

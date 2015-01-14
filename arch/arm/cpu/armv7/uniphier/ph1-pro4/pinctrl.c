@@ -41,5 +41,12 @@ void pin_init(void)
 	sg_set_pinsel(54, 0);	/* NRYBY0 -> NRYBY0 */
 #endif
 
+#ifdef CONFIG_USB_EHCI_UNIPHIER
+	sg_set_pinsel(184, 0);	/* USB2VBUS -> USB2VBUS */
+	sg_set_pinsel(185, 0);	/* USB2OD   -> USB2OD */
+	sg_set_pinsel(187, 0);	/* USB3VBUS -> USB3VBUS */
+	sg_set_pinsel(188, 0);	/* USB3OD   -> USB3OD */
+#endif
+
 	writel(1, SG_LOADPINCTRL);
 }

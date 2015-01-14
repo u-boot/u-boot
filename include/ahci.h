@@ -161,5 +161,6 @@ struct ahci_probe_ent {
 };
 
 int ahci_init(u32 base);
+int ahci_reset(u32 base);
 
 #endif

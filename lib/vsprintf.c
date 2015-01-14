@@ -25,9 +25,6 @@
 #include <div64.h>
 #define noinline __attribute__((noinline))
 
-/* some reluctance to put this into a new limits.h, so it is here */
-#define INT_MAX		((int)(~0U>>1))
-
 unsigned long simple_strtoul(const char *cp, char **endp,
 				unsigned int base)
 {
@@ -270,7 +267,7 @@ static char *put_dec_full(char *buf, unsigned q)
 	return buf;
 }
 /* No inlining helps gcc to use registers better */
-static noinline char *put_dec(char *buf, u64 num)
+static noinline char *put_dec(char *buf, uint64_t num)
 {
 	while (1) {
 		unsigned rem;
@@ -518,6 +515,8 @@ static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
 static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		int field_width, int precision, int flags)
 {
+	u64 num = (uintptr_t)ptr;
+
 	/*
 	 * Being a boot loader, we explicitly allow pointers to
 	 * (physical) address null.
@@ -530,6 +529,17 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 
 #ifdef CONFIG_CMD_NET
 	switch (*fmt) {
+	case 'a':
+		flags |= SPECIAL | ZEROPAD;
+
+		switch (fmt[1]) {
+		case 'p':
+		default:
+			field_width = sizeof(phys_addr_t) * 2 + 2;
+			num = *(phys_addr_t *)ptr;
+			break;
+		}
+		break;
 	case 'm':
 		flags |= SPECIAL;
 		/* Fallthrough */
@@ -555,8 +565,7 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		field_width = 2*sizeof(void *);
 		flags |= ZEROPAD;
 	}
-	return number(buf, end, (unsigned long)ptr, 16, field_width,
-		      precision, flags);
+	return number(buf, end, num, 16, field_width, precision, flags);
 }
 
 static int vsnprintf_internal(char *buf, size_t size, const char *fmt,

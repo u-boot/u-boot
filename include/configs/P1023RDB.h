@@ -10,6 +10,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xeff40000
 #endif
@@ -344,9 +347,25 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_QMAN_MEM_BASE	0xff000000
 #define CONFIG_SYS_QMAN_MEM_PHYS	CONFIG_SYS_QMAN_MEM_BASE
 #define CONFIG_SYS_QMAN_MEM_SIZE	0x00200000
+#define CONFIG_SYS_QMAN_SP_CENA_SIZE    0x4000
+#define CONFIG_SYS_QMAN_SP_CINH_SIZE    0x1000
+#define CONFIG_SYS_QMAN_CENA_BASE       CONFIG_SYS_QMAN_MEM_BASE
+#define CONFIG_SYS_QMAN_CENA_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_CINH_BASE       (CONFIG_SYS_QMAN_MEM_BASE + \
+					CONFIG_SYS_QMAN_CENA_SIZE)
+#define CONFIG_SYS_QMAN_CINH_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_SWP_ISDR_REG	0xE08
 #define CONFIG_SYS_BMAN_MEM_BASE	0xff200000
 #define CONFIG_SYS_BMAN_MEM_PHYS	CONFIG_SYS_BMAN_MEM_BASE
 #define CONFIG_SYS_BMAN_MEM_SIZE	0x00200000
+#define CONFIG_SYS_BMAN_SP_CENA_SIZE    0x4000
+#define CONFIG_SYS_BMAN_SP_CINH_SIZE    0x1000
+#define CONFIG_SYS_BMAN_CENA_BASE       CONFIG_SYS_BMAN_MEM_BASE
+#define CONFIG_SYS_BMAN_CENA_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_CINH_BASE       (CONFIG_SYS_BMAN_MEM_BASE + \
+					CONFIG_SYS_BMAN_CENA_SIZE)
+#define CONFIG_SYS_BMAN_CINH_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_SWP_ISDR_REG	0xE08
 
 /* For FM */
 #define CONFIG_SYS_DPAA_FMAN
@@ -374,6 +393,49 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
+	"netdev=eth0\0"						\
+	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
+	"loadaddr=1000000\0"					\
+	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
+	"tftpflash=tftpboot $loadaddr $uboot; "			\
+		"protect off $ubootaddr +$filesize; "		\
+		"erase $ubootaddr +$filesize; "			\
+		"cp.b $loadaddr $ubootaddr $filesize; "		\
+		"protect on $ubootaddr +$filesize; "		\
+		"cmp.b $loadaddr $ubootaddr $filesize\0"	\
+	"consoledev=ttyS0\0"					\
+	"ramdiskaddr=2000000\0"					\
+	"ramdiskfile=rootfs.ext2.gz.uboot\0"			\
+	"fdtaddr=c00000\0"					\
+	"fdtfile=p1023rdb.dtb\0"				\
+	"othbootargs=ramdisk_size=600000\0"			\
+	"bdev=sda1\0"						\
 	"hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"
+
+#define CONFIG_HDBOOT					\
+	"setenv bootargs root=/dev/$bdev rw "		\
+	"console=$consoledev,$baudrate $othbootargs;"	\
+	"tftp $loadaddr $bootfile;"			\
+	"tftp $fdtaddr $fdtfile;"			\
+	"bootm $loadaddr - $fdtaddr"
+
+#define CONFIG_NFSBOOTCOMMAND						\
+	"setenv bootargs root=/dev/nfs rw "				\
+	"nfsroot=$serverip:$rootpath "					\
+	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
+	"console=$consoledev,$baudrate $othbootargs;"			\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr - $fdtaddr"
+
+#define CONFIG_RAMBOOTCOMMAND						\
+	"setenv bootargs root=/dev/ram rw "				\
+	"console=$consoledev,$baudrate $othbootargs;"			\
+	"tftp $ramdiskaddr $ramdiskfile;"				\
+	"tftp $loadaddr $bootfile;"					\
+	"tftp $fdtaddr $fdtfile;"					\
+	"bootm $loadaddr $ramdiskaddr $fdtaddr"
+
+#define CONFIG_BOOTCOMMAND		CONFIG_RAMBOOTCOMMAND
 
 #endif	/* __CONFIG_H */

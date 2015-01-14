@@ -51,8 +51,6 @@
 /* The size of the tx descriptor is determined by how much padding is used.
    4, 20, or 52 bytes of padding can be used */
 #define TX_DESC_PADDING	(CONFIG_SH_ETHER_ALIGNE_SIZE - 12)
-/* same as CONFIG_SH_ETHER_ALIGNE_SIZE */
-#define TX_DESC_SIZE	(12 + TX_DESC_PADDING)
 
 /* Tx descriptor. We always use 3 bytes of padding */
 struct tx_desc_s {
@@ -68,8 +66,6 @@ struct tx_desc_s {
 /* The size of the rx descriptor is determined by how much padding is used.
    4, 20, or 52 bytes of padding can be used */
 #define RX_DESC_PADDING	(CONFIG_SH_ETHER_ALIGNE_SIZE - 12)
-/* same as CONFIG_SH_ETHER_ALIGNE_SIZE */
-#define RX_DESC_SIZE		(12 + RX_DESC_PADDING)
 /* aligned cache line size */
 #define RX_BUF_ALIGNE_SIZE	(CONFIG_SH_ETHER_ALIGNE_SIZE > 32 ? 64 : 32)
 
@@ -82,13 +78,13 @@ struct rx_desc_s {
 };
 
 struct sh_eth_info {
-	struct tx_desc_s *tx_desc_malloc;
+	struct tx_desc_s *tx_desc_alloc;
 	struct tx_desc_s *tx_desc_base;
 	struct tx_desc_s *tx_desc_cur;
-	struct rx_desc_s *rx_desc_malloc;
+	struct rx_desc_s *rx_desc_alloc;
 	struct rx_desc_s *rx_desc_base;
 	struct rx_desc_s *rx_desc_cur;
-	u8 *rx_buf_malloc;
+	u8 *rx_buf_alloc;
 	u8 *rx_buf_base;
 	u8 mac_addr[6];
 	u8 phy_addr;
@@ -359,7 +355,7 @@ static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
 #define SH_ETH_TYPE_GETHER
 #define BASE_IO_ADDR	0xE9A00000
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
-	defined(CONFIG_R8A7794)
+	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 #define SH_ETH_TYPE_ETHER
 #define BASE_IO_ADDR	0xEE700200
 #elif defined(CONFIG_R7S72100)
@@ -571,7 +567,7 @@ enum FELIC_MODE_BIT {
 #ifdef CONFIG_CPU_SH7724
 	ECMR_RTM = 0x00000010,
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
-	defined(CONFIG_R8A7794)
+	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 	ECMR_RTM = 0x00000004,
 #endif
 

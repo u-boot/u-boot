@@ -1,8 +1,5 @@
 if TARGET_AT91RM9200EK
 
-config SYS_CPU
-	default "arm920t"
-
 config SYS_BOARD
 	default "at91rm9200ek"
 
