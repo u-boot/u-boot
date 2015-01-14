@@ -22,6 +22,7 @@ obj-$(CONFIG_MACH_SUN5I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN6I)	+= clock_sun6i.o
 obj-$(CONFIG_MACH_SUN7I)	+= clock_sun4i.o
 obj-$(CONFIG_MACH_SUN8I)	+= clock_sun6i.o
+obj-$(CONFIG_MACH_SUN9I)	+= clock_sun9i.o
 
 ifndef CONFIG_SPL_BUILD
 ifdef CONFIG_ARMV7_PSCI
