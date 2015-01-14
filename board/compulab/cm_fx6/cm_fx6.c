@@ -354,7 +354,7 @@ static int handle_mac_address(void)
 	if (rc)
 		return 0;
 
-	rc = cl_eeprom_read_mac_addr(enetaddr);
+	rc = cl_eeprom_read_mac_addr(enetaddr, CONFIG_SYS_I2C_EEPROM_BUS);
 	if (rc)
 		return rc;
 
