@@ -464,8 +464,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	/* MAC addr */
 	if (eth_getenv_enetaddr("ethaddr", enetaddr)) {
-		fdt_find_and_setprop(blob, "/fec", "local-mac-address",
-				     enetaddr, 6, 1);
+		fdt_find_and_setprop(blob,
+				     "/soc/aips-bus@02100000/ethernet@02188000",
+				     "local-mac-address", enetaddr, 6, 1);
 	}
 
 	return 0;
