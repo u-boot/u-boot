@@ -116,6 +116,19 @@ config CPU_MIPS64_R2
 
 endchoice
 
+menu "OS boot interface"
+
+config MIPS_BOOT_CMDLINE_LEGACY
+	bool "Hand over legacy command line to Linux kernel"
+	default y
+	help
+	  Enable this option if you want U-Boot to hand over the Yamon-style
+	  command line to the kernel. All bootargs will be prepared as argc/argv
+	  compatible list. The argument count (argc) is stored in register $a0.
+	  The address of the argument list (argv) is stored in register $a1.
+
+endmenu
+
 config SUPPORTS_BIG_ENDIAN
 	bool
 

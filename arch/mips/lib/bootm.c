@@ -20,6 +20,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define mips_boot_malta		0
 #endif
 
+#if defined(CONFIG_MIPS_BOOT_CMDLINE_LEGACY)
+#define mips_boot_cmdline_legacy	1
+#else
+#define mips_boot_cmdline_legacy	0
+#endif
+
 static int linux_argc;
 static char **linux_argv;
 static char *linux_argp;
@@ -92,7 +98,7 @@ static void linux_cmdline_dump(void)
 		debug("   arg %03d: %s\n", i, linux_argv[i]);
 }
 
-static void boot_cmdline_linux(bootm_headers_t *images)
+static void linux_cmdline_legacy(bootm_headers_t *images)
 {
 	const char *bootargs, *next, *quote;
 
@@ -130,8 +136,14 @@ static void boot_cmdline_linux(bootm_headers_t *images)
 
 		bootargs = next;
 	}
+}
 
-	linux_cmdline_dump();
+static void boot_cmdline_linux(bootm_headers_t *images)
+{
+	if (mips_boot_cmdline_legacy) {
+		linux_cmdline_legacy(images);
+		linux_cmdline_dump();
+	}
 }
 
 static void linux_env_init(void)
