@@ -88,8 +88,8 @@
 #define AIPS2_ARB_BASE_ADDR             0x02100000
 #define AIPS2_ARB_END_ADDR              0x021FFFFF
 #ifdef CONFIG_MX6SX
-#define AIPS3_BASE_ADDR			0x02200000
-#define AIPS3_END_ADDR			0x022FFFFF
+#define AIPS3_ARB_BASE_ADDR             0x02200000
+#define AIPS3_ARB_END_ADDR              0x022FFFFF
 #define WEIM_ARB_BASE_ADDR              0x50000000
 #define WEIM_ARB_END_ADDR               0x57FFFFFF
 #define QSPI0_AMBA_BASE                0x60000000
