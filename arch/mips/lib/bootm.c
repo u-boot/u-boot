@@ -144,10 +144,36 @@ static void linux_cmdline_legacy(bootm_headers_t *images)
 	}
 }
 
+static void linux_cmdline_append(bootm_headers_t *images)
+{
+	char buf[24];
+	ulong mem, rd_start, rd_size;
+
+	/* append mem */
+	mem = gd->ram_size >> 20;
+	sprintf(buf, "mem=%luM", mem);
+	linux_cmdline_set(buf, strlen(buf));
+
+	/* append rd_start and rd_size */
+	rd_start = images->initrd_start;
+	rd_size = images->initrd_end - images->initrd_start;
+
+	if (rd_size) {
+		sprintf(buf, "rd_start=0x%08lX", rd_start);
+		linux_cmdline_set(buf, strlen(buf));
+		sprintf(buf, "rd_size=0x%lX", rd_size);
+		linux_cmdline_set(buf, strlen(buf));
+	}
+}
+
 static void boot_cmdline_linux(bootm_headers_t *images)
 {
 	if (mips_boot_cmdline_legacy) {
 		linux_cmdline_legacy(images);
+
+		if (!mips_boot_env_legacy)
+			linux_cmdline_append(images);
+
 		linux_cmdline_dump();
 	}
 }
