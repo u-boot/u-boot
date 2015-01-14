@@ -489,7 +489,8 @@ static int zynq_gem_miiphy_write(const char *devname, uchar addr,
 	return phywrite(dev, addr, reg, val);
 }
 
-int zynq_gem_initialize(bd_t *bis, int base_addr, int phy_addr, u32 emio)
+int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
+			int phy_addr, u32 emio)
 {
 	struct eth_device *dev;
 	struct zynq_gem_priv *priv;
@@ -521,7 +522,7 @@ int zynq_gem_initialize(bd_t *bis, int base_addr, int phy_addr, u32 emio)
 	priv->phyaddr = phy_addr;
 	priv->emio = emio;
 
-	sprintf(dev->name, "Gem.%x", base_addr);
+	sprintf(dev->name, "Gem.%lx", base_addr);
 
 	dev->iobase = base_addr;
 
