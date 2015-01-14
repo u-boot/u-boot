@@ -26,6 +26,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define mips_boot_cmdline_legacy	0
 #endif
 
+#if defined(CONFIG_MIPS_BOOT_ENV_LEGACY)
+#define mips_boot_env_legacy	1
+#else
+#define mips_boot_env_legacy	0
+#endif
+
 static int linux_argc;
 static char **linux_argv;
 static char *linux_argp;
@@ -177,7 +183,7 @@ static void linux_env_set(const char *env_name, const char *env_val)
 	}
 }
 
-static void boot_prep_linux(bootm_headers_t *images)
+static void linux_env_legacy(bootm_headers_t *images)
 {
 	char env_buf[12];
 	const char *cp;
@@ -223,6 +229,12 @@ static void boot_prep_linux(bootm_headers_t *images)
 		sprintf(env_buf, "%un8r", gd->baudrate);
 		linux_env_set("modetty0", env_buf);
 	}
+}
+
+static void boot_prep_linux(bootm_headers_t *images)
+{
+	if (mips_boot_env_legacy)
+		linux_env_legacy(images);
 }
 
 static void boot_jump_linux(bootm_headers_t *images)
