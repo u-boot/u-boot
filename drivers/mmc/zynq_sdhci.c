@@ -13,7 +13,7 @@
 #include <sdhci.h>
 #include <asm/arch/sys_proto.h>
 
-int zynq_sdhci_init(u32 regbase)
+int zynq_sdhci_init(phys_addr_t regbase)
 {
 	struct sdhci_host *host = NULL;
 
@@ -40,7 +40,7 @@ int zynq_sdhci_of_init(const void *blob)
 {
 	int offset = 0;
 	u32 ret = 0;
-	u32 reg;
+	phys_addr_t reg;
 
 	debug("ZYNQ SDHCI: Initialization\n");
 

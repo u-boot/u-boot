@@ -20,7 +20,7 @@ extern void zynq_ddrc_init(void);
 extern unsigned int zynq_get_silicon_version(void);
 
 /* Driver extern functions */
-extern int zynq_sdhci_init(u32 regbase);
+extern int zynq_sdhci_init(phys_addr_t regbase);
 extern int zynq_sdhci_of_init(const void *blob);
 
 extern void ps7_init(void);
