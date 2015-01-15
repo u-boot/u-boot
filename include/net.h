@@ -579,12 +579,12 @@ static inline IPaddr_t NetReadIP(void *from)
 	return ip;
 }
 
-/* return ulong *in network byteorder* */
-static inline ulong NetReadLong(ulong *from)
+/* return u32 *in network byteorder* */
+static inline u32 netread32(void *from)
 {
-	ulong l;
+	u32 l;
 
-	memcpy((void *)&l, (void *)from, sizeof(u32));
+	memcpy((void *)&l, from, sizeof(u32));
 	return l;
 }
 
@@ -600,10 +600,10 @@ static inline void NetCopyIP(void *to, void *from)
 	memcpy((void *)to, from, sizeof(IPaddr_t));
 }
 
-/* copy ulong */
-static inline void NetCopyLong(ulong *to, ulong *from)
+/* copy u32 */
+static inline void netcopy32(void *to, void *from)
 {
-	memcpy((void *)to, (void *)from, sizeof(u32));
+	memcpy(to, from, sizeof(u32));
 }
 
 /**
