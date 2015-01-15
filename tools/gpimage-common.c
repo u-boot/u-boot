@@ -32,7 +32,8 @@ void to_be32(uint32_t *gph_size, uint32_t *gph_load_addr)
 
 int gph_verify_header(struct gp_header *gph, int be)
 {
-	uint32_t gph_size = gph->size, gph_load_addr = gph->load_addr;
+	uint32_t gph_size = gph->size;
+	uint32_t gph_load_addr = gph->load_addr;
 
 	if (be)
 		to_be32(&gph_size, &gph_load_addr);

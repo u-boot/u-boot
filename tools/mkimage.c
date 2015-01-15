@@ -15,9 +15,6 @@
 static void copy_file(int, const char *, int);
 static void usage(void);
 
-/* image_type_params link list to maintain registered image type supports */
-struct image_type_params *mkimage_tparams = NULL;
-
 /* parameters initialized by core will be used by the image type code */
 struct image_tool_params params = {
 	.os = IH_OS_LINUX,

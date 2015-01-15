@@ -5899,9 +5899,10 @@ option performs the converse operation of the mkimage's second form (the "-d"
 option). Given an image built by mkimage, the dumpimage extracts a "data file"
 from the image:
 
-	tools/dumpimage -i image -p position data_file
-	  -i ==> extract from the 'image' a specific 'data_file', \
-	   indexed by 'position'
+	tools/dumpimage -i image -T type -p position data_file
+	  -i ==> extract from the 'image' a specific 'data_file'
+	  -T ==> set image type to 'type'
+	  -p ==> 'position' (starting at 0) of the 'data_file' inside the 'image'
 
 
 Installing a Linux Image:

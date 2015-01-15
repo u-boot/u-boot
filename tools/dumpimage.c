@@ -12,9 +12,6 @@
 
 static void usage(void);
 
-/* image_type_params linked list to maintain registered image types supports */
-static struct image_type_params *dumpimage_tparams;
-
 /* parameters initialized by core will be used by the image type code */
 static struct image_tool_params params = {
 	.type = IH_TYPE_KERNEL,
@@ -31,33 +28,27 @@ static struct image_tool_params params = {
  * returns negative if input image format does not match with any of
  * supported image types
  */
-static int dumpimage_extract_datafile(void *ptr, struct stat *sbuf)
+static int dumpimage_extract_datafile(struct image_type_params *tparams,
+		void *ptr, struct stat *sbuf)
 {
 	int retval = -1;
-	struct image_type_params *curr;
-	struct image_type_params *start = ll_entry_start(
-			struct image_type_params, image_type);
-	struct image_type_params *end = ll_entry_end(
-			struct image_type_params, image_type);
 
-	for (curr = start; curr != end; curr++) {
-		if (curr->verify_header) {
-			retval = curr->verify_header((unsigned char *)ptr,
-						     sbuf->st_size, &params);
-			if (retval != 0)
-				continue;
-			/*
-			 * Extract the file from the image
-			 * if verify is successful
-			 */
-			if (curr->extract_datafile) {
-				curr->extract_datafile(ptr, &params);
-			} else {
-				fprintf(stderr,
-					"%s: extract_datafile undefined for %s\n",
-					params.cmdname, curr->name);
-			break;
-			}
+	if (tparams->verify_header) {
+		retval = tparams->verify_header((unsigned char *)ptr,
+				sbuf->st_size, &params);
+		if (retval != 0)
+			return -1;
+		/*
+		 * Extract the file from the image
+		 * if verify is successful
+		 */
+		if (tparams->extract_datafile) {
+			retval = tparams->extract_datafile(ptr, &params);
+		} else {
+			fprintf(stderr,
+				"%s: extract_datafile undefined for %s\n",
+				params.cmdname, tparams->name);
+			return -2;
 		}
 	}
 
@@ -75,7 +66,7 @@ int main(int argc, char **argv)
 
 	params.cmdname = *argv;
 
-	while ((opt = getopt(argc, argv, "li:o:p:V")) != -1) {
+	while ((opt = getopt(argc, argv, "li:o:T:p:V")) != -1) {
 		switch (opt) {
 		case 'l':
 			params.lflag = 1;
@@ -86,6 +77,12 @@ int main(int argc, char **argv)
 			break;
 		case 'o':
 			params.outfile = optarg;
+			break;
+		case 'T':
+			params.type = genimg_get_type_id(optarg);
+			if (params.type < 0) {
+				usage();
+			}
 			break;
 		case 'p':
 			params.pflag = strtoul(optarg, &ptr, 10);
@@ -101,6 +98,7 @@ int main(int argc, char **argv)
 			exit(EXIT_SUCCESS);
 		default:
 			usage();
+			break;
 		}
 	}
 
@@ -110,7 +108,7 @@ int main(int argc, char **argv)
 	/* set tparams as per input type_id */
 	tparams = imagetool_get_type(params.type);
 	if (tparams == NULL) {
-		fprintf(stderr, "%s: unsupported type %s\n",
+		fprintf(stderr, "%s: unsupported type: %s\n",
 			params.cmdname, genimg_get_type_name(params.type));
 		exit(EXIT_FAILURE);
 	}
@@ -147,7 +145,7 @@ int main(int argc, char **argv)
 			exit(EXIT_FAILURE);
 		}
 
-		if ((unsigned)sbuf.st_size < tparams->header_size) {
+		if ((uint32_t)sbuf.st_size < tparams->header_size) {
 			fprintf(stderr,
 				"%s: Bad size: \"%s\" is not valid image\n",
 				params.cmdname, params.imagefile);
@@ -172,7 +170,8 @@ int main(int argc, char **argv)
 			 * Extract the data files from within the matched
 			 * image type. Returns the error code if not matched
 			 */
-			retval = dumpimage_extract_datafile(ptr, &sbuf);
+			retval = dumpimage_extract_datafile(tparams, ptr,
+					&sbuf);
 		} else {
 			/*
 			 * Print the image information for matched image type
@@ -199,9 +198,10 @@ static void usage(void)
 		"          -l ==> list image header information\n",
 		params.cmdname);
 	fprintf(stderr,
-		"       %s -i image [-p position] [-o outfile] data_file\n"
-		"          -i ==> extract from the 'image' a specific 'data_file'"
-		", indexed by 'position' (starting at 0)\n",
+		"       %s -i image -T type [-p position] [-o outfile] data_file\n"
+		"          -i ==> extract from the 'image' a specific 'data_file'\n"
+		"          -T ==> set image type to 'type'\n"
+		"          -p ==> 'position' (starting at 0) of the 'data_file' inside the 'image'\n",
 		params.cmdname);
 	fprintf(stderr,
 		"       %s -V ==> print version information and exit\n",
