@@ -85,4 +85,9 @@
 			reg = <0x125B0000 0x100>;
 		};
 	};
+
+	emmc-reset {
+		compatible = "samsung,emmc-reset";
+		reset-gpio = <&gpk1 2 0>;
+	};
 };
