@@ -1063,4 +1063,6 @@ struct mxc_ccm_reg {
 #define BF_ANADIG_PFD_528_PFD0_FRAC(v)  \
 	(((v) << 0) & BM_ANADIG_PFD_528_PFD0_FRAC)
 
+#define BM_ANADIG_ANA_MISC0_REFTOP_SELBIASOFF 0x00000008
+
 #endif /*__ARCH_ARM_MACH_MX6_CCM_REGS_H__ */
