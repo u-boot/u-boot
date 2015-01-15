@@ -230,6 +230,11 @@ static void imx_set_wdog_powerdown(bool enable)
 	struct wdog_regs *wdog1 = (struct wdog_regs *)WDOG1_BASE_ADDR;
 	struct wdog_regs *wdog2 = (struct wdog_regs *)WDOG2_BASE_ADDR;
 
+#ifdef CONFIG_MX6SX
+	struct wdog_regs *wdog3 = (struct wdog_regs *)WDOG3_BASE_ADDR;
+	writew(enable, &wdog3->wmcr);
+#endif
+
 	/* Write to the PDE (Power Down Enable) bit */
 	writew(enable, &wdog1->wmcr);
 	writew(enable, &wdog2->wmcr);
