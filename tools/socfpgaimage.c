@@ -33,6 +33,8 @@
 
 #include "pbl_crc32.h"
 #include "imagetool.h"
+#include "mkimage.h"
+
 #include <image.h>
 
 #define HEADER_OFFSET	0x40
@@ -133,12 +135,12 @@ static int verify_buffer(const uint8_t *buf)
 
 	len = verify_header(buf + HEADER_OFFSET);
 	if (len < 0) {
-		fprintf(stderr, "Invalid header\n");
+		debug("Invalid header\n");
 		return -1;
 	}
 
 	if (len < HEADER_OFFSET || len > PADDED_SIZE) {
-		fprintf(stderr, "Invalid header length (%i)\n", len);
+		debug("Invalid header length (%i)\n", len);
 		return -1;
 	}
 

@@ -15,6 +15,8 @@
  */
 
 #include "imagetool.h"
+#include "mkimage.h"
+
 #include <image.h>
 #include <u-boot/crc.h>
 
@@ -53,9 +55,8 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 	memcpy(hdr, ptr, sizeof(image_header_t));
 
 	if (be32_to_cpu(hdr->ih_magic) != IH_MAGIC) {
-		fprintf(stderr,
-			"%s: Bad Magic Number: \"%s\" is no valid image\n",
-			params->cmdname, params->imagefile);
+		debug("%s: Bad Magic Number: \"%s\" is no valid image\n",
+		      params->cmdname, params->imagefile);
 		return -FDT_ERR_BADMAGIC;
 	}
 
@@ -66,9 +67,8 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 	hdr->ih_hcrc = cpu_to_be32(0);	/* clear for re-calculation */
 
 	if (crc32(0, data, len) != checksum) {
-		fprintf(stderr,
-			"%s: ERROR: \"%s\" has bad header checksum!\n",
-			params->cmdname, params->imagefile);
+		debug("%s: ERROR: \"%s\" has bad header checksum!\n",
+		      params->cmdname, params->imagefile);
 		return -FDT_ERR_BADSTATE;
 	}
 
@@ -77,9 +77,8 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 
 	checksum = be32_to_cpu(hdr->ih_dcrc);
 	if (crc32(0, data, len) != checksum) {
-		fprintf(stderr,
-			"%s: ERROR: \"%s\" has corrupted data!\n",
-			params->cmdname, params->imagefile);
+		debug("%s: ERROR: \"%s\" has corrupted data!\n",
+		      params->cmdname, params->imagefile);
 		return -FDT_ERR_BADSTRUCTURE;
 	}
 	return 0;
