@@ -93,7 +93,7 @@ int board_mmc_init(bd_t *bd)
 #endif
 	}
 
-        return ret;
+	return ret;
 }
 #endif
 
