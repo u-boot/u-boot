@@ -11,8 +11,6 @@
 #include <fdtdec.h>
 #include <linux/ctype.h>
 
-#include <asm/gpio.h>
-
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
