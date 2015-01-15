@@ -219,6 +219,12 @@ struct cm_dpll {
 	unsigned int resv4[2];
 	unsigned int clklcdcpixelclk;	/* offset 0x34 */
 };
+
+struct prm_device_inst {
+	unsigned int prm_rstctrl;
+	unsigned int prm_rsttime;
+	unsigned int prm_rstst;
+};
 #else
 /* Encapsulating core pll registers */
 struct cm_wkuppll {
@@ -384,6 +390,11 @@ struct cm_perpll {
 struct cm_device_inst {
 	unsigned int cm_clkout1_ctrl;
 	unsigned int cm_dll_ctrl;
+};
+
+struct prm_device_inst {
+	unsigned int prm_rstctrl;
+	unsigned int prm_rstst;
 };
 
 struct cm_dpll {

@@ -304,6 +304,11 @@ Platform specific options
 		Thus BCH16 can be supported on 4K page NAND.
 
 
+    CONFIG_NAND_OMAP_GPMC_PREFETCH
+	On OMAP platforms that use the GPMC controller
+	(CONFIG_NAND_OMAP_GPMC_PREFETCH), this options enables the code that
+	uses the prefetch mode to speed up read operations.
+
 NOTE:
 =====
 
