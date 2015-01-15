@@ -319,12 +319,6 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-mpc86xx.git
 F:	arch/powerpc/cpu/mpc86xx/
 
-POWERPC PPC74XX PPC7XX
-M:	Wolfgang Denk <wd@denx.de>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-74xx-7xx.git
-F:	arch/powerpc/cpu/74xx_7xx/
-
 POWERPC PPC4XX
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained

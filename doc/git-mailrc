@@ -98,8 +98,6 @@ alias mpc83xx        uboot, kimphill
 alias mpc85xx        uboot, afleming, galak
 alias mpc86xx        uboot, afleming, galak
 alias ppc4xx         uboot, stroese
-alias ppc7xx         uboot, wd
-alias ppc74xx        uboot, wd
 
 alias sandbox        sjg
 alias sb             sandbox

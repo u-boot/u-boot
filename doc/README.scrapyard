@@ -12,6 +12,11 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+P3G4             powerpc     74xx_7xx       -           -           Wolfgang Denk <wd@denx.de>
+ZUMA             powerpc     74xx_7xx       -           -           Nye Liu <nyet@zumanetworks.com>
+ppmc7xx          powerpc     74xx_7xx       -           -
+ELPPC            powerpc     74xx_7xx       -           -
+mpc7448hpc2      powerpc     74xx_7xx       -           -           Roy Zang <tie-fei.zang@freescale.com>
 CPCI405          ppc4xx      405gp          5f1459dc    2015-01-13  Matthias Fuchs <matthias.fuchs@esd.eu>
 CPCI405DT        ppc4xx      405gpr         5f1459dc    2015-01-13  Matthias Fuchs <matthias.fuchs@esd.eu>
 CPCI405AB        ppc4xx      405gpr         5f1459dc    2015-01-13  Matthias Fuchs <matthias.fuchs@esd.eu>

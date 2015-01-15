@@ -182,7 +182,6 @@ Directory Hierarchy:
     /lib		Architecture specific library files
   /powerpc		Files generic to PowerPC architecture
     /cpu		CPU specific files
-      /74xx_7xx		Files specific to Freescale MPC74xx and 7xx CPUs
       /mpc5xx		Files specific to Freescale MPC5xx CPUs
       /mpc5xxx		Files specific to Freescale MPC5xxx CPUs
       /mpc8xx		Files specific to Freescale MPC8xx CPUs

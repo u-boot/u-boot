@@ -198,12 +198,7 @@ pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 		for (bus = hose->first_busno; bus <= hose->last_busno; bus++)
 #endif
 			for (bdf = PCI_BDF(bus, 0, 0);
-#if defined(CONFIG_ELPPC) || defined(CONFIG_PPMC7XX)
-			     bdf < PCI_BDF(bus, PCI_MAX_PCI_DEVICES - 1,
-				PCI_MAX_PCI_FUNCTIONS - 1);
-#else
 			     bdf < PCI_BDF(bus + 1, 0, 0);
-#endif
 			     bdf += PCI_BDF(0, 0, 1)) {
 				if (pci_skip_dev(hose, bdf))
 					continue;

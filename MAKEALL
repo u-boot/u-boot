@@ -316,12 +316,6 @@ LIST_85xx="$(targets_by_cpu mpc85xx)"
 LIST_86xx="$(targets_by_cpu mpc86xx)"
 
 #########################################################################
-## 74xx/7xx Systems
-#########################################################################
-
-LIST_74xx_7xx="$(targets_by_cpu 74xx_7xx)"
-
-#########################################################################
 ## PowerPC groups
 #########################################################################
 
@@ -342,7 +336,6 @@ LIST_powerpc="		\
 	${LIST_85xx}	\
 	${LIST_86xx}	\
 	${LIST_4xx}	\
-	${LIST_74xx_7xx}\
 "
 
 # Alias "ppc" -> "powerpc" to not break compatibility with older scripts
