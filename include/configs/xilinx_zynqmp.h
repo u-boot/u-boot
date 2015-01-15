@@ -65,7 +65,8 @@
 
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 4800, 9600, 19200, 38400, 57600, 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE \
+	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
 /* Command line configuration */
 #define CONFIG_CMD_ENV
@@ -106,7 +107,7 @@
 # define CONFIG_CMD_MMC
 #endif
 
-#if defined (CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQ_USB)
+#if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQ_USB)
 # define CONFIG_FAT_WRITE
 # define CONFIG_CMD_EXT4_WRITE
 #endif
@@ -115,25 +116,28 @@
 #define CONFIG_SYS_LOAD_ADDR		0x8000000
 
 /* Initial environment variables */
-#define CONFIG_EXTRA_ENV_SETTINGS       \
-	"ethaddr=00:0a:35:00:01:22\0"	\
-	"kernel_addr=0x200000\0"	\
-	"initrd_addr=0xa00000\0"	\
-	"initrd_size=0x2000000\0"	\
-	"fdt_addr=0x100000\0"		\
-	"fdt_high=0x10000000\0"		\
-	"veloce=fdt addr f000000 && fdt set /amba/misc_clk clock-frequency <96000> && "\
-	"fdt set /amba_apu/timer clock-frequency <480000> && " \
-	"fdt set /amba/i2c_clk clock-frequency <480000> && " \
-	"booti 80000 - f000000\0"	\
-	"netboot=tftpboot 80000 Image && tftpboot f000000 system.dtb && booti 80000 - f000000\0"	\
-	"qspiboot=sf probe 0 && sf read f000000 100000 40000 && "	\
-		  "sf read 80000 140000 1800000 && booti 80000 - f000000\0"	\
-	"sdboot=mmcinfo && fatload mmc 0:0 f000000 system.dtb && "	\
-		"fatload mmc 0:0 f000000 Image && booti 80000 - f000000\0"	\
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"ethaddr=00:0a:35:00:01:22\0" \
+	"kernel_addr=0x200000\0" \
+	"initrd_addr=0xa00000\0" \
+	"initrd_size=0x2000000\0" \
+	"fdt_addr=0x100000\0" \
+	"fdt_high=0x10000000\0" \
+	"veloce=fdt addr f000000 && " \
+		"fdt set /amba/misc_clk clock-frequency <96000> && "\
+		"fdt set /amba_apu/timer clock-frequency <480000> && " \
+		"fdt set /amba/i2c_clk clock-frequency <480000> && " \
+		"booti 80000 - f000000\0" \
+	"netboot=tftpboot 80000 Image && tftpboot f000000 system.dtb && " \
+		 "booti 80000 - f000000\0" \
+	"qspiboot=sf probe 0 && sf read f000000 100000 40000 && " \
+		  "sf read 80000 140000 1800000 && booti 80000 - f000000\0" \
+	"sdboot=mmcinfo && fatload mmc 0:0 f000000 system.dtb && " \
+		"fatload mmc 0:0 f000000 Image && booti 80000 - f000000\0" \
 	"jtagboot=tftpboot 10000000 image.ub && bootm\0"
 
-#define CONFIG_BOOTARGS		"setenv bootargs console=ttyPS0,${baudrate} earlycon=cdns,mmio,0xff000000,${baudrate}n8"
+#define CONFIG_BOOTARGS		"setenv bootargs console=ttyPS0,${baudrate} " \
+				"earlycon=cdns,mmio,0xff000000,${baudrate}n8"
 #define CONFIG_PREBOOT		"echo Hello Xilinx ZynqMP; run bootargs"
 #define CONFIG_BOOTCOMMAND	"run $modeboot"
 #define CONFIG_BOOTDELAY	5
