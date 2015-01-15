@@ -281,7 +281,7 @@ static void zynq_qspi_init_hw(int is_dual, unsigned int cs)
 	config_reg |= ZYNQ_QSPI_CONFIG_IFMODE_MASK |
 		ZYNQ_QSPI_CONFIG_MCS_MASK | ZYNQ_QSPI_CONFIG_PCS_MASK |
 		ZYNQ_QSPI_CONFIG_FW_MASK | ZYNQ_QSPI_CONFIG_MSTREN_MASK;
-#ifndef XILINX_ZYNQMP
+#ifndef CONFIG_TARGET_XILINX_ZYNQMP
 	if (is_dual == SF_DUAL_STACKED_FLASH)
 #endif
 		config_reg |= 0x10;
@@ -476,7 +476,7 @@ static int zynq_qspi_setup_transfer(struct spi_device *qspi,
 	if (qspi->mode & SPI_CPOL)
 		config_reg |= ZYNQ_QSPI_CONFIG_CPOL_MASK;
 
-#ifndef XILINX_ZYNQMP
+#ifndef CONFIG_TARGET_XILINX_ZYNQMP
 	/* Set the clock frequency */
 	if (zqspi->speed_hz != req_hz) {
 		baud_rate_val = 0;
@@ -902,7 +902,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-#ifndef XILINX_ZYNQMP
+#ifndef CONFIG_TARGET_XILINX_ZYNQMP
 	lqspi_frequency = zynq_clk_get_rate(lqspi_clk);
 #endif
 	if (!lqspi_frequency) {

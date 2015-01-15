@@ -56,14 +56,14 @@
 #define ZYNQ_GEM_NWCFG_SPEED1000	0x000000400 /* 1Gbps operation */
 #define ZYNQ_GEM_NWCFG_FDEN		0x000000002 /* Full Duplex mode */
 #define ZYNQ_GEM_NWCFG_FSREM		0x000020000 /* FCS removal */
-#ifdef XILINX_ZYNQMP
+#ifdef CONFIG_TARGET_XILINX_ZYNQMP
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x0001C0000 /* Div pclk by 224, 540MHz */
 #else
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000080000 /* Div pclk by 32, 80MHz */
 #endif
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV2	0x0000c0000 /* Div pclk by 48, 120MHz */
 
-#ifdef XILINX_ZYNQMP
+#ifdef CONFIG_TARGET_XILINX_ZYNQMP
 # define ZYNQ_GEM_DBUS_WIDTH	(1 << 21) /* 64 bit bus */
 #else
 # define ZYNQ_GEM_DBUS_WIDTH	(0 << 21) /* 32 bit bus */
@@ -348,7 +348,7 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		priv->init++;
 	}
 
-#ifdef XILINX_ZYNQMP
+#ifdef CONFIG_TARGET_XILINX_ZYNQMP
 	if (!priv->init) {
 #endif
 	phy_detection(dev);
@@ -384,11 +384,11 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		clk_rate = ZYNQ_GEM_FREQUENCY_10;
 		break;
 	}
-#ifdef XILINX_ZYNQMP
+#ifdef CONFIG_TARGET_XILINX_ZYNQMP
 	}
 #endif
 
-#ifndef XILINX_ZYNQMP
+#ifndef CONFIG_TARGET_XILINX_ZYNQMP
 	/* Change the rclk and clk only not using EMIO interface */
 	if (!priv->emio)
 		zynq_slcr_gem_clk_setup(dev->iobase !=

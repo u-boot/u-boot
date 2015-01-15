@@ -86,7 +86,7 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"N25Q256",	   0x20ba19, 0x0,       64 * 1024,   512, RD_FULL,	   WR_QPP | SECT_4K},
 	{"N25Q256A",	   0x20bb19, 0x0,       64 * 1024,   512, RD_FULL,	   WR_QPP | SECT_4K},
 	{"N25Q512",	   0x20ba20, 0x0,       64 * 1024,  1024, RD_FULL, WR_QPP | E_FSR | SECT_4K},
-#ifdef XILINX_ZYNQMP
+#ifdef CONFIG_TARGET_XILINX_ZYNQMP
 	{"N25Q512A",	   0x20bb20, 0x0,       64 * 1024,  1024, RD_FULL,	     WR_QPP | E_FSR},
 #else
 	{"N25Q512A",	   0x20bb20, 0x0,       64 * 1024,  1024, RD_FULL, WR_QPP | E_FSR | SECT_4K},

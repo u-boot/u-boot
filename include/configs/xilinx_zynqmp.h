@@ -19,8 +19,6 @@
 
 #define CONFIG_SYS_GENERIC_BOARD
 
-#define XILINX_ZYNQMP
-
 /* Generic Interrupt Controller Definitions */
 #define CONFIG_GICV2
 #define GICD_BASE	0xF9010000
