@@ -63,10 +63,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405EP)
 
-#if defined(CONFIG_PMC405)
-ushort pmc405_pci_subsys_deviceid(void);
-#endif
-
 /*#define DEBUG*/
 
 /*

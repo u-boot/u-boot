@@ -125,16 +125,6 @@
 #define VIDEO_HW_BITBLT
 #endif
 
-/*
- * Defines for the SED13806 driver
- */
-#ifdef CONFIG_VIDEO_SM501
-
-#ifdef CONFIG_HH405
-#define VIDEO_FB_LITTLE_ENDIAN
-#endif
-#endif
-
 #ifdef CONFIG_VIDEO_MXS
 #define VIDEO_FB_16BPP_WORD_SWAP
 #endif
