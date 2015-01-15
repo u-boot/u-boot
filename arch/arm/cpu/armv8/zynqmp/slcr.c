@@ -45,27 +45,27 @@ static const int qspi1_pins[] = {
 };
 
 static const struct zynq_slcr_mio_get_status mio_periphs[] = {
-        {
-                "qspi0",
-                qspi0_pins,
-                ARRAY_SIZE(qspi0_pins),
-                SLCR_QSPI_ENABLE_MASK,
-                SLCR_QSPI_ENABLE,
-        },
-        {
-                "qspi1_cs",
-                qspi1_cs_pin,
-                ARRAY_SIZE(qspi1_cs_pin),
-                SLCR_QSPI_ENABLE_MASK,
-                SLCR_QSPI_ENABLE,
-        },
-        {
-                "qspi1",
-                qspi1_pins,
-                ARRAY_SIZE(qspi1_pins),
-                SLCR_QSPI_ENABLE_MASK,
-                SLCR_QSPI_ENABLE,
-        },
+	{
+		"qspi0",
+		qspi0_pins,
+		ARRAY_SIZE(qspi0_pins),
+		SLCR_QSPI_ENABLE_MASK,
+		SLCR_QSPI_ENABLE,
+	},
+	{
+		"qspi1_cs",
+		qspi1_cs_pin,
+		ARRAY_SIZE(qspi1_cs_pin),
+		SLCR_QSPI_ENABLE_MASK,
+		SLCR_QSPI_ENABLE,
+	},
+	{
+		"qspi1",
+		qspi1_pins,
+		ARRAY_SIZE(qspi1_pins),
+		SLCR_QSPI_ENABLE_MASK,
+		SLCR_QSPI_ENABLE,
+	},
 };
 
 /*
