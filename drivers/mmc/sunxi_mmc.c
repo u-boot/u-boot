@@ -355,7 +355,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		}
 	}
 
-	error = mmc_rint_wait(mmc, 0xfffff, SUNXI_MMC_RINT_COMMAND_DONE, "cmd");
+	error = mmc_rint_wait(mmc, 1000, SUNXI_MMC_RINT_COMMAND_DONE, "cmd");
 	if (error)
 		goto out;
 
