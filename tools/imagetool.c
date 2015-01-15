@@ -113,3 +113,30 @@ int imagetool_verify_print_header(
 
 	return retval;
 }
+
+int imagetool_save_datafile(
+	const char *file_name,
+	ulong file_data,
+	ulong file_len)
+{
+	int dfd;
+
+	dfd = open(file_name, O_RDWR | O_CREAT | O_TRUNC | O_BINARY,
+		   S_IRUSR | S_IWUSR);
+	if (dfd < 0) {
+		fprintf(stderr, "Can't open \"%s\": %s\n",
+			file_name, strerror(errno));
+		return -1;
+	}
+
+	if (write(dfd, (void *)file_data, file_len) != (ssize_t)file_len) {
+		fprintf(stderr, "Write error on \"%s\": %s\n",
+			file_name, strerror(errno));
+		close(dfd);
+		return -1;
+	}
+
+	close(dfd);
+
+	return 0;
+}

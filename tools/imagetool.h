@@ -181,6 +181,23 @@ int imagetool_verify_print_header(
 	struct image_type_params *tparams,
 	struct image_tool_params *params);
 
+/**
+ * imagetool_save_datafile - store data into a file
+ * @file_name: name of the destination file
+ * @file_data: data to be written
+ * @file_len: the amount of data to store
+ *
+ * imagetool_save_datafile() store file_len bytes of data pointed by file_data
+ * into the file name by file_name.
+ *
+ * returns:
+ *     zero in case of success or a negative value if fail.
+ */
+int imagetool_save_datafile(
+	const char *file_name,
+	ulong file_data,
+	ulong file_len);
+
 /*
  * There is a c file associated with supported image type low level code
  * for ex. default_image.c, fit_image.c

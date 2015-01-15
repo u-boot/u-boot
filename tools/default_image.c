@@ -117,32 +117,6 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 	image_set_hcrc(hdr, checksum);
 }
 
-static int image_save_datafile(struct image_tool_params *params,
-			       ulong file_data, ulong file_len)
-{
-	int dfd;
-	const char *datafile = params->outfile;
-
-	dfd = open(datafile, O_RDWR | O_CREAT | O_TRUNC | O_BINARY,
-		   S_IRUSR | S_IWUSR);
-	if (dfd < 0) {
-		fprintf(stderr, "%s: Can't open \"%s\": %s\n",
-			params->cmdname, datafile, strerror(errno));
-		return -1;
-	}
-
-	if (write(dfd, (void *)file_data, file_len) != (ssize_t)file_len) {
-		fprintf(stderr, "%s: Write error on \"%s\": %s\n",
-			params->cmdname, datafile, strerror(errno));
-		close(dfd);
-		return -1;
-	}
-
-	close(dfd);
-
-	return 0;
-}
-
 static int image_extract_datafile(void *ptr, struct image_tool_params *params)
 {
 	const image_header_t *hdr = (const image_header_t *)ptr;
@@ -170,7 +144,7 @@ static int image_extract_datafile(void *ptr, struct image_tool_params *params)
 	}
 
 	/* save the "data file" into the file system */
-	return image_save_datafile(params, file_data, file_len);
+	return imagetool_save_datafile(params->outfile, file_data, file_len);
 }
 
 /*
