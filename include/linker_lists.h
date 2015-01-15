@@ -23,7 +23,7 @@
 
 /**
  * A linker list is constructed by grouping together linker input
- * sections, each containning one entry of the list. Each input section
+ * sections, each containing one entry of the list. Each input section
  * contains a constant initialized variable which holds the entry's
  * content. Linker list input sections are constructed from the list
  * and entry names, plus a prefix which allows grouping all lists
@@ -39,7 +39,7 @@
  * This ensures uniqueness for both input section and C variable name.
  *
  * Note that the names differ only in the first character, "." for the
- * setion and "_" for the variable, so that the linker cannot confuse
+ * section and "_" for the variable, so that the linker cannot confuse
  * section and symbol names. From now on, both names will be referred
  * to as
  *
