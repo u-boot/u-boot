@@ -36,6 +36,10 @@ def ParseArgs():
     parser.add_option('-F', '--force-build-failures', dest='force_build_failures',
           action='store_true', default=False,
           help='Force build of previously-failed build')
+    parser.add_option('--fetch-arch', type='string',
+          help="Fetch a toolchain for architecture FETCH_ARCH ('list' to list)."
+              ' You can also fetch several toolchains separate by comma, or'
+              " 'all' to download all")
     parser.add_option('-g', '--git', type='string',
           help='Git repo containing branch to build', default='.')
     parser.add_option('-G', '--config-file', type='string',
@@ -55,11 +59,15 @@ def ParseArgs():
           help='List available tool chains')
     parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
           default=False, help="Do a dry run (describe actions, but do nothing)")
+    parser.add_option('-N', '--no-subdirs', action='store_true', dest='no_subdirs',
+          default=False, help="Don't create subdirectories when building current source for a single board")
     parser.add_option('-o', '--output-dir', type='string',
           dest='output_dir', default='..',
           help='Directory where all builds happen and buildman has its workspace (default is ../)')
     parser.add_option('-Q', '--quick', action='store_true',
           default=False, help='Do a rough build, with limited warning resolution')
+    parser.add_option('-p', '--full-path', action='store_true',
+          default=False, help="Use full toolchain path in CROSS_COMPILE")
     parser.add_option('-s', '--summary', action='store_true',
           default=False, help='Show a build summary')
     parser.add_option('-S', '--show-sizes', action='store_true',
@@ -74,6 +82,8 @@ def ParseArgs():
           default=False, help='Show boards with unknown build result')
     parser.add_option('-v', '--verbose', action='store_true',
           default=False, help='Show build results while the build progresses')
+    parser.add_option('-V', '--verbose-build', action='store_true',
+          default=False, help='Run make with V=1, showing all output')
     parser.add_option('-x', '--exclude', dest='exclude',
           type='string', action='append',
           help='Specify a list of boards to exclude, separated by comma')
