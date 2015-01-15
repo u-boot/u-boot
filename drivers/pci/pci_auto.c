@@ -11,7 +11,7 @@
  */
 
 #include <common.h>
-
+#include <errno.h>
 #include <pci.h>
 
 #undef DEBUG
@@ -189,6 +189,32 @@ void pciauto_setup_device(struct pci_controller *hose,
 	pci_hose_write_config_byte(hose, dev, PCI_CACHE_LINE_SIZE,
 		CONFIG_SYS_PCI_CACHE_LINE_SIZE);
 	pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, 0x80);
+}
+
+int pciauto_setup_rom(struct pci_controller *hose, pci_dev_t dev)
+{
+	pci_addr_t bar_value;
+	pci_size_t bar_size;
+	u32 bar_response;
+	u16 cmdstat = 0;
+
+	pci_hose_write_config_dword(hose, dev, PCI_ROM_ADDRESS, 0xfffffffe);
+	pci_hose_read_config_dword(hose, dev, PCI_ROM_ADDRESS, &bar_response);
+	if (!bar_response)
+		return -ENOENT;
+
+	bar_size = -(bar_response & ~1);
+	DEBUGF("PCI Autoconfig: ROM, size=%#x, ", bar_size);
+	if (pciauto_region_allocate(hose->pci_mem, bar_size, &bar_value) == 0) {
+		pci_hose_write_config_dword(hose, dev, PCI_ROM_ADDRESS,
+					    bar_value);
+	}
+	DEBUGF("\n");
+	pci_hose_read_config_word(hose, dev, PCI_COMMAND, &cmdstat);
+	cmdstat |= PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+	pci_hose_write_config_word(hose, dev, PCI_COMMAND, cmdstat);
+
+	return 0;
 }
 
 void pciauto_prescan_setup_bridge(struct pci_controller *hose,
