@@ -148,7 +148,7 @@
 
 /* Monitor Command Prompt */
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE		512
+#define CONFIG_SYS_CBSIZE		2048
 #define CONFIG_SYS_PROMPT		"ZynqMP> "
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
