@@ -175,7 +175,7 @@
 		"if i2c probe 0x10; then " \
 			"setenv bootargs ${bootargs} " \
 				"video=mxcfb${nextcon}:dev=lcd,800x480@60," \
-					"if=RGB666; " \
+					"if=RGB666,bpp=32; " \
 			"if test 0 -eq ${nextcon}; then " \
 				"setenv fbmem fbmem=10M; " \
 			"else " \
