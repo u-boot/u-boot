@@ -263,6 +263,7 @@ int config_serdes_mux(void)
 int board_early_init_f(void)
 {
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
 
 #ifdef CONFIG_TSEC_ENET
 	out_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
@@ -280,6 +281,20 @@ int board_early_init_f(void)
 #ifdef CONFIG_FSL_QSPI
 	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
 #endif
+
+	/*
+	 * Enable snoop requests and DVM message requests for
+	 * Slave insterface S4 (A7 core cluster)
+	 */
+	out_le32(&cci->slave[4].snoop_ctrl,
+		 CCI400_DVM_MESSAGE_REQ_EN | CCI400_SNOOP_REQ_EN);
+
+	/*
+	 * Set CCI-400 Slave interface S1, S2 Shareable Override Register
+	 * All transactions are treated as non-shareable
+	 */
+	out_le32(&cci->slave[1].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
 
 	return 0;
 }
@@ -405,16 +420,6 @@ struct smmu_stream_id dev_stream_id[] = {
 
 int board_init(void)
 {
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
-
-	/*
-	 * Set CCI-400 Slave interface S0, S1, S2 Shareable Override Register
-	 * All transactions are treated as non-shareable
-	 */
-	out_le32(&cci->slave[0].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
-	out_le32(&cci->slave[1].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
-	out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
-
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	fsl_serdes_init();
 #ifndef CONFIG_QSPI_BOOT
