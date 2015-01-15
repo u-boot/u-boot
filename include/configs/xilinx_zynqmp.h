@@ -1,6 +1,6 @@
 /*
  * Configuration for Xilinx ZynqMP
- * (C) Copyright 2014 Xilinx, Inc.
+ * (C) Copyright 2014 - 2015 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
  *
  * Based on Configuration for Versatile Express

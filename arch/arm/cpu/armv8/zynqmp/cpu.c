@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2014 Xilinx, Inc.
+ * (C) Copyright 2014 - 2015 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
