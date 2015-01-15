@@ -110,14 +110,15 @@ struct image_type_params {
 	void (*set_header) (void *, struct stat *, int,
 					struct image_tool_params *);
 	/*
-	 * This function is used by the command to retrieve a data file from
-	 * the image (i.e. dumpimage -i <image> -p <position> <data_file>).
+	 * This function is used by the command to retrieve a component
+	 * (sub-image) from the image (i.e. dumpimage -i <image> -p <position>
+	 * <sub-image-name>).
 	 * Thus the code to extract a file from an image must be put here.
 	 *
 	 * Returns 0 if the file was successfully retrieved from the image,
 	 * or a negative value on error.
 	 */
-	int (*extract_datafile) (void *, struct image_tool_params *);
+	int (*extract_subimage)(void *, struct image_tool_params *);
 	/*
 	 * Some image generation support for ex (default image type) supports
 	 * more than one type_ids, this callback function is used to check
@@ -169,18 +170,18 @@ int imagetool_verify_print_header(
 	struct image_tool_params *params);
 
 /**
- * imagetool_save_datafile - store data into a file
+ * imagetool_save_subimage - store data into a file
  * @file_name: name of the destination file
  * @file_data: data to be written
  * @file_len: the amount of data to store
  *
- * imagetool_save_datafile() store file_len bytes of data pointed by file_data
+ * imagetool_save_subimage() store file_len bytes of data pointed by file_data
  * into the file name by file_name.
  *
  * returns:
  *     zero in case of success or a negative value if fail.
  */
-int imagetool_save_datafile(
+int imagetool_save_subimage(
 	const char *file_name,
 	ulong file_data,
 	ulong file_len);
@@ -202,7 +203,7 @@ void pbl_load_uboot(int fd, struct image_tool_params *mparams);
 		_verify_header, \
 		_print_header, \
 		_set_header, \
-		_extract_datafile, \
+		_extract_subimage, \
 		_check_image_type, \
 		_fflag_handle, \
 		_vrec_header \
@@ -215,7 +216,7 @@ void pbl_load_uboot(int fd, struct image_tool_params *mparams);
 		.verify_header = _verify_header, \
 		.print_header = _print_header, \
 		.set_header = _set_header, \
-		.extract_datafile = _extract_datafile, \
+		.extract_subimage = _extract_subimage, \
 		.check_image_type = _check_image_type, \
 		.fflag_handle = _fflag_handle, \
 		.vrec_header = _vrec_header \

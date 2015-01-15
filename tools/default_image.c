@@ -117,7 +117,7 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 	image_set_hcrc(hdr, checksum);
 }
 
-static int image_extract_datafile(void *ptr, struct image_tool_params *params)
+static int image_extract_subimage(void *ptr, struct image_tool_params *params)
 {
 	const image_header_t *hdr = (const image_header_t *)ptr;
 	ulong file_data;
@@ -144,7 +144,7 @@ static int image_extract_datafile(void *ptr, struct image_tool_params *params)
 	}
 
 	/* save the "data file" into the file system */
-	return imagetool_save_datafile(params->outfile, file_data, file_len);
+	return imagetool_save_subimage(params->outfile, file_data, file_len);
 }
 
 /*
@@ -159,7 +159,7 @@ U_BOOT_IMAGE_TYPE(
 	image_verify_header,
 	image_print_contents,
 	image_set_header,
-	image_extract_datafile,
+	image_extract_subimage,
 	image_check_image_types,
 	NULL,
 	NULL

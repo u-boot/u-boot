@@ -66,7 +66,7 @@ int imagetool_verify_print_header(
 	return retval;
 }
 
-int imagetool_save_datafile(
+int imagetool_save_subimage(
 	const char *file_name,
 	ulong file_data,
 	ulong file_len)

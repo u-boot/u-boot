@@ -18,7 +18,7 @@ static struct image_tool_params params = {
 };
 
 /*
- * dumpimage_extract_datafile -
+ * dumpimage_extract_subimage -
  *
  * It scans all registered image types,
  * verifies image_header for each supported image type
@@ -28,7 +28,7 @@ static struct image_tool_params params = {
  * returns negative if input image format does not match with any of
  * supported image types
  */
-static int dumpimage_extract_datafile(struct image_type_params *tparams,
+static int dumpimage_extract_subimage(struct image_type_params *tparams,
 		void *ptr, struct stat *sbuf)
 {
 	int retval = -1;
@@ -42,11 +42,11 @@ static int dumpimage_extract_datafile(struct image_type_params *tparams,
 		 * Extract the file from the image
 		 * if verify is successful
 		 */
-		if (tparams->extract_datafile) {
-			retval = tparams->extract_datafile(ptr, &params);
+		if (tparams->extract_subimage) {
+			retval = tparams->extract_subimage(ptr, &params);
 		} else {
 			fprintf(stderr,
-				"%s: extract_datafile undefined for %s\n",
+				"%s: extract_subimage undefined for %s\n",
 				params.cmdname, tparams->name);
 			return -2;
 		}
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
 			 * Extract the data files from within the matched
 			 * image type. Returns the error code if not matched
 			 */
-			retval = dumpimage_extract_datafile(tparams, ptr,
+			retval = dumpimage_extract_subimage(tparams, ptr,
 					&sbuf);
 		} else {
 			/*
