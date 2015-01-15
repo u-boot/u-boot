@@ -150,6 +150,37 @@ void register_image_tool(imagetool_register_t image_register);
  */
 void register_image_type(struct image_type_params *tparams);
 
+/**
+ * imagetool_get_type() - find the image type params for a given image type
+ *
+ * It scans all registers image type supports
+ * checks the input type for each supported image type
+ *
+ * if successful,
+ *     returns respective image_type_params pointer if success
+ * if input type_id is not supported by any of image_type_support
+ *     returns NULL
+ */
+struct image_type_params *imagetool_get_type(
+	int type,
+	struct image_type_params *tparams);
+
+/*
+ * imagetool_verify_print_header() - verifies the image header
+ *
+ * Scan registered image types and verify the image_header for each
+ * supported image type. If verification is successful, this prints
+ * the respective header.
+ *
+ * @return 0 on success, negative if input image format does not match with
+ * any of supported image types
+ */
+int imagetool_verify_print_header(
+	void *ptr,
+	struct stat *sbuf,
+	struct image_type_params *tparams,
+	struct image_tool_params *params);
+
 /*
  * There is a c file associated with supported image type low level code
  * for ex. default_image.c, fit_image.c

@@ -55,67 +55,6 @@ static void dumpimage_register(struct image_type_params *tparams)
 	debug("Registered %s\n", tparams->name);
 }
 
-/**
- * dumpimage_get_type() - find the image type params for a given image type
- *
- * Scan all registered image types and check the input type_id for each
- * supported image type
- *
- * @return respective image_type_params pointer. If the input type is not
- * supported by any of registered image types, returns NULL
- */
-static struct image_type_params *dumpimage_get_type(int type)
-{
-	struct image_type_params *curr;
-
-	for (curr = dumpimage_tparams; curr != NULL; curr = curr->next) {
-		if (curr->check_image_type) {
-			if (!curr->check_image_type(type))
-				return curr;
-		}
-	}
-	return NULL;
-}
-
-/*
- * dumpimage_verify_print_header() - verifies the image header
- *
- * Scan registered image types and verify the image_header for each
- * supported image type. If verification is successful, this prints
- * the respective header.
- *
- * @return 0 on success, negative if input image format does not match with
- * any of supported image types
- */
-static int dumpimage_verify_print_header(void *ptr, struct stat *sbuf)
-{
-	int retval = -1;
-	struct image_type_params *curr;
-
-	for (curr = dumpimage_tparams; curr != NULL; curr = curr->next) {
-		if (curr->verify_header) {
-			retval = curr->verify_header((unsigned char *)ptr,
-						     sbuf->st_size, &params);
-			if (retval != 0)
-				continue;
-			/*
-			 * Print the image information  if verify is
-			 * successful
-			 */
-			if (curr->print_header) {
-				curr->print_header(ptr);
-			} else {
-				fprintf(stderr,
-					"%s: print_header undefined for %s\n",
-					params.cmdname, curr->name);
-			}
-			break;
-		}
-	}
-
-	return retval;
-}
-
 /*
  * dumpimage_extract_datafile -
  *
@@ -203,7 +142,7 @@ int main(int argc, char **argv)
 		usage();
 
 	/* set tparams as per input type_id */
-	tparams = dumpimage_get_type(params.type);
+	tparams = imagetool_get_type(params.type, dumpimage_tparams);
 	if (tparams == NULL) {
 		fprintf(stderr, "%s: unsupported type %s\n",
 			params.cmdname, genimg_get_type_name(params.type));
@@ -273,7 +212,8 @@ int main(int argc, char **argv)
 			 * Print the image information for matched image type
 			 * Returns the error code if not matched
 			 */
-			retval = dumpimage_verify_print_header(ptr, &sbuf);
+			retval = imagetool_verify_print_header(ptr, &sbuf,
+					tparams, &params);
 		}
 
 		(void)munmap((void *)ptr, sbuf.st_size);

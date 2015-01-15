@@ -8,6 +8,8 @@
 
 #include "imagetool.h"
 
+#include <image.h>
+
 /*
  * Callback function to register a image type within a tool
  */
@@ -61,4 +63,53 @@ void register_image_tool(imagetool_register_t image_register)
 void register_image_type(struct image_type_params *tparams)
 {
 	register_func(tparams);
+}
+
+struct image_type_params *imagetool_get_type(
+	int type,
+	struct image_type_params *tparams)
+{
+	struct image_type_params *curr;
+
+	for (curr = tparams; curr != NULL; curr = curr->next) {
+		if (curr->check_image_type) {
+			if (!curr->check_image_type(type))
+				return curr;
+		}
+	}
+	return NULL;
+}
+
+int imagetool_verify_print_header(
+	void *ptr,
+	struct stat *sbuf,
+	struct image_type_params *tparams,
+	struct image_tool_params *params)
+{
+	int retval = -1;
+	struct image_type_params *curr;
+
+	for (curr = tparams; curr != NULL; curr = curr->next) {
+		if (curr->verify_header) {
+			retval = curr->verify_header((unsigned char *)ptr,
+						     sbuf->st_size, params);
+
+			if (retval == 0) {
+				/*
+				 * Print the image information  if verify is
+				 * successful
+				 */
+				if (curr->print_header) {
+					curr->print_header(ptr);
+				} else {
+					fprintf(stderr,
+						"%s: print_header undefined for %s\n",
+						params->cmdname, curr->name);
+				}
+				break;
+			}
+		}
+	}
+
+	return retval;
 }
