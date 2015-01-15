@@ -29,42 +29,6 @@ struct image_tool_params params = {
 	.imagename2 = "",
 };
 
-/*
- * mkimage_register -
- *
- * It is used to register respective image generation/list support to the
- * mkimage core
- *
- * the input struct image_type_params is checked and appended to the link
- * list, if the input structure is already registered, error
- */
-void mkimage_register (struct image_type_params *tparams)
-{
-	struct image_type_params **tp;
-
-	if (!tparams) {
-		fprintf (stderr, "%s: %s: Null input\n",
-			params.cmdname, __FUNCTION__);
-		exit (EXIT_FAILURE);
-	}
-
-	/* scan the linked list, check for registry and point the last one */
-	for (tp = &mkimage_tparams; *tp != NULL; tp = &(*tp)->next) {
-		if (!strcmp((*tp)->name, tparams->name)) {
-			fprintf (stderr, "%s: %s already registered\n",
-				params.cmdname, tparams->name);
-			return;
-		}
-	}
-
-	/* add input struct entry at the end of link list */
-	*tp = tparams;
-	/* mark input entry as last entry in the link list */
-	tparams->next = NULL;
-
-	debug ("Registered %s\n", tparams->name);
-}
-
 int
 main (int argc, char **argv)
 {
@@ -74,9 +38,6 @@ main (int argc, char **argv)
 	int retval = 0;
 	struct image_type_params *tparams = NULL;
 	int pad_len = 0;
-
-	/* Init all image generation/list support */
-	register_image_tool(mkimage_register);
 
 	params.cmdname = *argv;
 	params.addr = params.ep = 0;
@@ -215,7 +176,7 @@ NXTARG:		;
 		usage ();
 
 	/* set tparams as per input type_id */
-	tparams = imagetool_get_type(params.type, mkimage_tparams);
+	tparams = imagetool_get_type(params.type);
 	if (tparams == NULL) {
 		fprintf (stderr, "%s: unsupported type %s\n",
 			params.cmdname, genimg_get_type_name(params.type));
@@ -466,8 +427,7 @@ copy_file (int ifd, const char *datafile, int pad)
 	uint8_t zeros[4096];
 	int offset = 0;
 	int size;
-	struct image_type_params *tparams = imagetool_get_type(params.type,
-			mkimage_tparams);
+	struct image_type_params *tparams = imagetool_get_type(params.type);
 
 	if (pad >= sizeof(zeros)) {
 		fprintf(stderr, "%s: Can't pad to %d\n",

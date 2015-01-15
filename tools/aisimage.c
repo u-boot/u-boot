@@ -413,19 +413,17 @@ int aisimage_check_params(struct image_tool_params *params)
 /*
  * aisimage parameters
  */
-static struct image_type_params aisimage_params = {
-	.name		= "TI Davinci AIS Boot Image support",
-	.header_size	= 0,
-	.hdr		= NULL,
-	.check_image_type = aisimage_check_image_types,
-	.verify_header	= aisimage_verify_header,
-	.print_header	= aisimage_print_header,
-	.set_header	= aisimage_set_header,
-	.check_params	= aisimage_check_params,
-	.vrec_header	= aisimage_generate,
-};
-
-void init_ais_image_type(void)
-{
-	register_image_type(&aisimage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	aisimage,
+	"TI Davinci AIS Boot Image support",
+	0,
+	NULL,
+	aisimage_check_params,
+	aisimage_verify_header,
+	aisimage_print_header,
+	aisimage_set_header,
+	NULL,
+	aisimage_check_image_types,
+	NULL,
+	aisimage_generate
+);

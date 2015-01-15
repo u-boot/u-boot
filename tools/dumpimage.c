@@ -20,41 +20,6 @@ static struct image_tool_params params = {
 	.type = IH_TYPE_KERNEL,
 };
 
-/**
- * dumpimage_register() - register respective image generation/list support
- *
- * the input struct image_type_params is checked and appended to the link
- * list, if the input structure is already registered, issue an error
- *
- * @tparams: Image type parameters
- */
-static void dumpimage_register(struct image_type_params *tparams)
-{
-	struct image_type_params **tp;
-
-	if (!tparams) {
-		fprintf(stderr, "%s: %s: Null input\n", params.cmdname,
-			__func__);
-		exit(EXIT_FAILURE);
-	}
-
-	/* scan the linked list, check for registry and point the last one */
-	for (tp = &dumpimage_tparams; *tp != NULL; tp = &(*tp)->next) {
-		if (!strcmp((*tp)->name, tparams->name)) {
-			fprintf(stderr, "%s: %s already registered\n",
-				params.cmdname, tparams->name);
-			return;
-		}
-	}
-
-	/* add input struct entry at the end of link list */
-	*tp = tparams;
-	/* mark input entry as last entry in the link list */
-	tparams->next = NULL;
-
-	debug("Registered %s\n", tparams->name);
-}
-
 /*
  * dumpimage_extract_datafile -
  *
@@ -70,8 +35,12 @@ static int dumpimage_extract_datafile(void *ptr, struct stat *sbuf)
 {
 	int retval = -1;
 	struct image_type_params *curr;
+	struct image_type_params *start = ll_entry_start(
+			struct image_type_params, image_type);
+	struct image_type_params *end = ll_entry_end(
+			struct image_type_params, image_type);
 
-	for (curr = dumpimage_tparams; curr != NULL; curr = curr->next) {
+	for (curr = start; curr != end; curr++) {
 		if (curr->verify_header) {
 			retval = curr->verify_header((unsigned char *)ptr,
 						     sbuf->st_size, &params);
@@ -103,9 +72,6 @@ int main(int argc, char **argv)
 	char *ptr;
 	int retval = 0;
 	struct image_type_params *tparams = NULL;
-
-	/* Init all image generation/list support */
-	register_image_tool(dumpimage_register);
 
 	params.cmdname = *argv;
 
@@ -142,7 +108,7 @@ int main(int argc, char **argv)
 		usage();
 
 	/* set tparams as per input type_id */
-	tparams = imagetool_get_type(params.type, dumpimage_tparams);
+	tparams = imagetool_get_type(params.type);
 	if (tparams == NULL) {
 		fprintf(stderr, "%s: unsupported type %s\n",
 			params.cmdname, genimg_get_type_name(params.type));

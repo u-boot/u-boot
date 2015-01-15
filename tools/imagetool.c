@@ -10,68 +10,15 @@
 
 #include <image.h>
 
-/*
- * Callback function to register a image type within a tool
- */
-static imagetool_register_t register_func;
-
-/*
- * register_image_tool -
- *
- * The tool provides its own registration function in order to all image
- * types initialize themselves.
- */
-void register_image_tool(imagetool_register_t image_register)
-{
-	/*
-	 * Save the image tool callback function. It will be used to register
-	 * image types within that tool
-	 */
-	register_func = image_register;
-
-	/* Init ATMEL ROM Boot Image generation/list support */
-	init_atmel_image_type();
-	/* Init Freescale PBL Boot image generation/list support */
-	init_pbl_image_type();
-	/* Init Kirkwood Boot image generation/list support */
-	init_kwb_image_type();
-	/* Init Freescale imx Boot image generation/list support */
-	init_imx_image_type();
-	/* Init Freescale mxs Boot image generation/list support */
-	init_mxs_image_type();
-	/* Init FIT image generation/list support */
-	init_fit_image_type();
-	/* Init TI OMAP Boot image generation/list support */
-	init_omap_image_type();
-	/* Init Default image generation/list support */
-	init_default_image_type();
-	/* Init Davinci UBL support */
-	init_ubl_image_type();
-	/* Init Davinci AIS support */
-	init_ais_image_type();
-	/* Init Altera SOCFPGA support */
-	init_socfpga_image_type();
-	/* Init TI Keystone boot image generation/list support */
-	init_gpimage_type();
-}
-
-/*
- * register_image_type -
- *
- * Register a image type within a tool
- */
-void register_image_type(struct image_type_params *tparams)
-{
-	register_func(tparams);
-}
-
-struct image_type_params *imagetool_get_type(
-	int type,
-	struct image_type_params *tparams)
+struct image_type_params *imagetool_get_type(int type)
 {
 	struct image_type_params *curr;
+	struct image_type_params *start = ll_entry_start(
+			struct image_type_params, image_type);
+	struct image_type_params *end = ll_entry_end(
+			struct image_type_params, image_type);
 
-	for (curr = tparams; curr != NULL; curr = curr->next) {
+	for (curr = start; curr != end; curr++) {
 		if (curr->check_image_type) {
 			if (!curr->check_image_type(type))
 				return curr;
@@ -89,7 +36,12 @@ int imagetool_verify_print_header(
 	int retval = -1;
 	struct image_type_params *curr;
 
-	for (curr = tparams; curr != NULL; curr = curr->next) {
+	struct image_type_params *start = ll_entry_start(
+			struct image_type_params, image_type);
+	struct image_type_params *end = ll_entry_end(
+			struct image_type_params, image_type);
+
+	for (curr = start; curr != end; curr++) {
 		if (curr->verify_header) {
 			retval = curr->verify_header((unsigned char *)ptr,
 						     sbuf->st_size, params);

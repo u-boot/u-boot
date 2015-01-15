@@ -19,6 +19,16 @@
 #include <time.h>
 #include <unistd.h>
 #include <u-boot/sha1.h>
+
+/* define __KERNEL__ in order to get the definitions
+ * required by the linker list. This is probably not
+ * the best way to do this */
+#ifndef __KERNEL__
+#define __KERNEL__
+#include <linker_lists.h>
+#undef __KERNEL__
+#endif /* __KERNEL__ */
+
 #include "fdt_host.h"
 
 #define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
@@ -127,28 +137,7 @@ struct image_type_params {
 	 */
 	int (*vrec_header) (struct image_tool_params *,
 		struct image_type_params *);
-	/* pointer to the next registered entry in linked list */
-	struct image_type_params *next;
 };
-
-/*
- * Tool registration function.
- */
-typedef void (*imagetool_register_t)(struct image_type_params *);
-
-/*
- * Initializes all image types with the given registration callback
- * function.
- * An image tool uses this function to initialize all image types.
- */
-void register_image_tool(imagetool_register_t image_register);
-
-/*
- * Register a image type within a tool.
- * An image type uses this function to register itself within
- * all tools.
- */
-void register_image_type(struct image_type_params *tparams);
 
 /**
  * imagetool_get_type() - find the image type params for a given image type
@@ -161,9 +150,7 @@ void register_image_type(struct image_type_params *tparams);
  * if input type_id is not supported by any of image_type_support
  *     returns NULL
  */
-struct image_type_params *imagetool_get_type(
-	int type,
-	struct image_type_params *tparams);
+struct image_type_params *imagetool_get_type(int type);
 
 /*
  * imagetool_verify_print_header() - verifies the image header
@@ -201,24 +188,37 @@ int imagetool_save_datafile(
 /*
  * There is a c file associated with supported image type low level code
  * for ex. default_image.c, fit_image.c
- * init_xxx_type() is the only function referred by image tool core to avoid
- * a single lined header file, you can define them here
- *
- * Supported image types init functions
  */
-void init_default_image_type(void);
-void init_atmel_image_type(void);
-void init_pbl_image_type(void);
-void init_ais_image_type(void);
-void init_kwb_image_type(void);
-void init_imx_image_type(void);
-void init_mxs_image_type(void);
-void init_fit_image_type(void);
-void init_ubl_image_type(void);
-void init_omap_image_type(void);
-void init_socfpga_image_type(void);
-void init_gpimage_type(void);
+
 
 void pbl_load_uboot(int fd, struct image_tool_params *mparams);
+
+#define U_BOOT_IMAGE_TYPE( \
+		_id, \
+		_name, \
+		_header_size, \
+		_header, \
+		_check_params, \
+		_verify_header, \
+		_print_header, \
+		_set_header, \
+		_extract_datafile, \
+		_check_image_type, \
+		_fflag_handle, \
+		_vrec_header \
+	) \
+	ll_entry_declare(struct image_type_params, _id, image_type) = { \
+		.name = _name, \
+		.header_size = _header_size, \
+		.hdr = _header, \
+		.check_params = _check_params, \
+		.verify_header = _verify_header, \
+		.print_header = _print_header, \
+		.set_header = _set_header, \
+		.extract_datafile = _extract_datafile, \
+		.check_image_type = _check_image_type, \
+		.fflag_handle = _fflag_handle, \
+		.vrec_header = _vrec_header \
+	}
 
 #endif /* _IMAGETOOL_H_ */

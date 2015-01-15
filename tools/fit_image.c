@@ -162,19 +162,17 @@ static int fit_check_params(struct image_tool_params *params)
 		(params->lflag && (params->dflag || params->fflag)));
 }
 
-static struct image_type_params fitimage_params = {
-	.name = "FIT Image support",
-	.header_size = sizeof(image_header_t),
-	.hdr = (void*)&header,
-	.verify_header = fit_verify_header,
-	.print_header = fit_print_contents,
-	.check_image_type = fit_check_image_types,
-	.fflag_handle = fit_handle_file,
-	.set_header = NULL,	/* FIT images use DTB header */
-	.check_params = fit_check_params,
-};
-
-void init_fit_image_type (void)
-{
-	register_image_type(&fitimage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	fitimage,
+	"FIT Image support",
+	sizeof(image_header_t),
+	(void *)&header,
+	fit_check_params,
+	fit_verify_header,
+	fit_print_contents,
+	NULL,
+	NULL,
+	fit_check_image_types,
+	fit_handle_file,
+	NULL /* FIT images use DTB header */
+);

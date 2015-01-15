@@ -241,19 +241,17 @@ static void socfpgaimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	sign_buffer(buf, 0, 0, data_size, 0);
 }
 
-static struct image_type_params socfpgaimage_params = {
-	.name		= "Altera SOCFPGA preloader support",
-	.vrec_header	= socfpgaimage_vrec_header,
-	.header_size	= 0, /* This will be modified by vrec_header() */
-	.hdr		= (void *)buffer,
-	.check_image_type = socfpgaimage_check_image_types,
-	.verify_header	= socfpgaimage_verify_header,
-	.print_header	= socfpgaimage_print_header,
-	.set_header	= socfpgaimage_set_header,
-	.check_params	= socfpgaimage_check_params,
-};
-
-void init_socfpga_image_type(void)
-{
-	register_image_type(&socfpgaimage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	socfpgaimage,
+	"Altera SOCFPGA preloader support",
+	0, /* This will be modified by vrec_header() */
+	(void *)buffer,
+	socfpgaimage_check_params,
+	socfpgaimage_verify_header,
+	socfpgaimage_print_header,
+	socfpgaimage_set_header,
+	NULL,
+	socfpgaimage_check_image_types,
+	NULL,
+	socfpgaimage_vrec_header
+);

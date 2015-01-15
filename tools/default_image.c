@@ -150,19 +150,17 @@ static int image_extract_datafile(void *ptr, struct image_tool_params *params)
 /*
  * Default image type parameters definition
  */
-static struct image_type_params defimage_params = {
-	.name = "Default Image support",
-	.header_size = sizeof(image_header_t),
-	.hdr = (void*)&header,
-	.check_image_type = image_check_image_types,
-	.verify_header = image_verify_header,
-	.print_header = image_print_contents,
-	.set_header = image_set_header,
-	.extract_datafile = image_extract_datafile,
-	.check_params = image_check_params,
-};
-
-void init_default_image_type(void)
-{
-	register_image_type(&defimage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	defimage,
+	"Default Image support",
+	sizeof(image_header_t),
+	(void *)&header,
+	image_check_params,
+	image_verify_header,
+	image_print_contents,
+	image_set_header,
+	image_extract_datafile,
+	image_check_image_types,
+	NULL,
+	NULL
+);

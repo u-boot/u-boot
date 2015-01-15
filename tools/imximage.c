@@ -694,19 +694,17 @@ static int imximage_generate(struct image_tool_params *params,
 /*
  * imximage parameters
  */
-static struct image_type_params imximage_params = {
-	.name		= "Freescale i.MX Boot Image support",
-	.header_size	= 0,
-	.hdr		= NULL,
-	.check_image_type = imximage_check_image_types,
-	.verify_header	= imximage_verify_header,
-	.print_header	= imximage_print_header,
-	.set_header	= imximage_set_header,
-	.check_params	= imximage_check_params,
-	.vrec_header	= imximage_generate,
-};
-
-void init_imx_image_type(void)
-{
-	register_image_type(&imximage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	imximage,
+	"Freescale i.MX Boot Image support",
+	0,
+	NULL,
+	imximage_check_params,
+	imximage_verify_header,
+	imximage_print_header,
+	imximage_set_header,
+	NULL,
+	imximage_check_image_types,
+	NULL,
+	imximage_generate
+);

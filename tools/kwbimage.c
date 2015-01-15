@@ -905,19 +905,17 @@ static int kwbimage_check_params(struct image_tool_params *params)
 /*
  * kwbimage type parameters definition
  */
-static struct image_type_params kwbimage_params = {
-	.name		= "Marvell MVEBU Boot Image support",
-	.header_size	= 0,		/* no fixed header size */
-	.hdr		= NULL,
-	.vrec_header	= kwbimage_generate,
-	.check_image_type = kwbimage_check_image_types,
-	.verify_header	= kwbimage_verify_header,
-	.print_header	= kwbimage_print_header,
-	.set_header	= kwbimage_set_header,
-	.check_params	= kwbimage_check_params,
-};
-
-void init_kwb_image_type (void)
-{
-	register_image_type(&kwbimage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	kwbimage,
+	"Marvell MVEBU Boot Image support",
+	0,
+	NULL,
+	kwbimage_check_params,
+	kwbimage_verify_header,
+	kwbimage_print_header,
+	kwbimage_set_header,
+	NULL,
+	kwbimage_check_image_types,
+	NULL,
+	kwbimage_generate
+);
