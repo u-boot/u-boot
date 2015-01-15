@@ -52,15 +52,6 @@ struct iou_scntr {
 #define SD_MODE		0x00000005
 #define JTAG_MODE	0x00000000
 
-#define ZYNQMP_CSU_BASEADDR	0xFFCA0000
-
-struct csu_regs {
-	u32 reserved0[16];
-	u32 version; /* 0x44 */
-};
-
-#define csu_base ((struct csu_regs *)ZYNQMP_CSU_BASEADDR)
-
 #define ZYNQMP_IOU_SLCR_BASEADDR	0xFF180000
 
 struct iou_slcr_regs {
