@@ -155,6 +155,97 @@ err_system:
 	return -1;
 }
 
+/**
+ * fit_image_extract - extract a FIT component image
+ * @fit: pointer to the FIT format image header
+ * @image_noffset: offset of the component image node
+ * @file_name: name of the file to store the FIT sub-image
+ *
+ * returns:
+ *     zero in case of success or a negative value if fail.
+ */
+static int fit_image_extract(
+	const void *fit,
+	int image_noffset,
+	const char *file_name)
+{
+	const void *file_data;
+	size_t file_size = 0;
+
+	/* get the "data" property of component at offset "image_noffset" */
+	fit_image_get_data(fit, image_noffset, &file_data, &file_size);
+
+	/* save the "file_data" into the file specified by "file_name" */
+	return imagetool_save_subimage(file_name, (ulong) file_data, file_size);
+}
+
+/**
+ * fit_extract_contents - retrieve a sub-image component from the FIT image
+ * @ptr: pointer to the FIT format image header
+ * @params: command line parameters
+ *
+ * returns:
+ *     zero in case of success or a negative value if fail.
+ */
+static int fit_extract_contents(void *ptr, struct image_tool_params *params)
+{
+	int images_noffset;
+	int noffset;
+	int ndepth;
+	const void *fit = ptr;
+	int count = 0;
+	const char *p;
+
+	/* Indent string is defined in header image.h */
+	p = IMAGE_INDENT_STRING;
+
+	if (!fit_check_format(fit)) {
+		printf("Bad FIT image format\n");
+		return -1;
+	}
+
+	/* Find images parent node offset */
+	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
+	if (images_noffset < 0) {
+		printf("Can't find images parent node '%s' (%s)\n",
+		       FIT_IMAGES_PATH, fdt_strerror(images_noffset));
+		return -1;
+	}
+
+	/* Avoid any overrun */
+	count = fit_get_subimage_count(fit, images_noffset);
+	if ((params->pflag < 0) || (count <= params->pflag)) {
+		printf("No such component at '%d'\n", params->pflag);
+		return -1;
+	}
+
+	/* Process its subnodes, extract the desired component from image */
+	for (ndepth = 0, count = 0,
+		noffset = fdt_next_node(fit, images_noffset, &ndepth);
+		(noffset >= 0) && (ndepth > 0);
+		noffset = fdt_next_node(fit, noffset, &ndepth)) {
+		if (ndepth == 1) {
+			/*
+			 * Direct child node of the images parent node,
+			 * i.e. component image node.
+			 */
+			if (params->pflag == count) {
+				printf("Extracted:\n%s Image %u (%s)\n", p,
+				       count, fit_get_name(fit, noffset, NULL));
+
+				fit_image_print(fit, noffset, p);
+
+				return fit_image_extract(fit, noffset,
+						params->outfile);
+			}
+
+			count++;
+		}
+	}
+
+	return 0;
+}
+
 static int fit_check_params(struct image_tool_params *params)
 {
 	return	((params->dflag && (params->fflag || params->lflag)) ||
@@ -171,7 +262,7 @@ U_BOOT_IMAGE_TYPE(
 	fit_verify_header,
 	fit_print_contents,
 	NULL,
-	NULL,
+	fit_extract_contents,
 	fit_check_image_types,
 	fit_handle_file,
 	NULL /* FIT images use DTB header */

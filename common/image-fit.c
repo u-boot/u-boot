@@ -112,6 +112,33 @@ static void fit_get_debug(const void *fit, int noffset,
 	      fdt_strerror(err));
 }
 
+/**
+ * fit_get_subimage_count - get component (sub-image) count
+ * @fit: pointer to the FIT format image header
+ * @images_noffset: offset of images node
+ *
+ * returns:
+ *     number of image components
+ */
+int fit_get_subimage_count(const void *fit, int images_noffset)
+{
+	int noffset;
+	int ndepth;
+	int count = 0;
+
+	/* Process its subnodes, print out component images details */
+	for (ndepth = 0, count = 0,
+		noffset = fdt_next_node(fit, images_noffset, &ndepth);
+	     (noffset >= 0) && (ndepth > 0);
+	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
+		if (ndepth == 1) {
+			count++;
+		}
+	}
+
+	return count;
+}
+
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_FIT_SPL_PRINT)
 /**
  * fit_print_contents - prints out the contents of the FIT format image
@@ -423,7 +450,8 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 		}
 	}
 }
-#endif
+
+#endif /* !defined(CONFIG_SPL_BUILD) || defined(CONFIG_FIT_SPL_PRINT) */
 
 /**
  * fit_get_desc - get node description property
