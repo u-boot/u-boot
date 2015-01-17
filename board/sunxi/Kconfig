@@ -122,6 +122,10 @@ config TARGET_MELE_M3
 	bool "MELE_M3"
 	depends on MACH_SUN7I
 
+config TARGET_MK802_A10S
+	bool "MK802_A10S"
+	depends on MACH_SUN5I
+
 config TARGET_MSI_PRIMO73
 	bool "MSI Primo73 (7\" tablet)"
 	depends on MACH_SUN7I

@@ -26,6 +26,7 @@ obj-$(CONFIG_TARGET_CUBIEBOARD2)	+= dram_cubieboard2.o
 obj-$(CONFIG_TARGET_CUBIETRUCK)		+= dram_cubietruck.o
 obj-$(CONFIG_TARGET_I12_TVBOX)		+= dram_sun7i_384_1024_iow16.o
 obj-$(CONFIG_TARGET_MELE_M3)		+= dram_sun7i_384_1024_iow16.o
+obj-$(CONFIG_TARGET_MK802_A10S)		+= dram_sun5i_auto.o
 obj-$(CONFIG_TARGET_MSI_PRIMO73)	+= dram_sun7i_384_1024_iow16.o
 obj-$(CONFIG_TARGET_PCDUINO3)		+= dram_linksprite_pcduino3.o
 obj-$(CONFIG_TARGET_QT840A)		+= dram_sun7i_384_512_busw16_iow16.o
