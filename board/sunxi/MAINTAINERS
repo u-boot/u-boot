@@ -10,6 +10,7 @@ F:	configs/Mele_A1000_defconfig
 F:	configs/Mele_M3_defconfig
 F:	configs/Mini-X_defconfig
 F:	configs/mk802_defconfig
+F:	configs/mk802ii_defconfig
 F:	include/configs/sun5i.h
 F:	configs/A10s-OLinuXino-M_defconfig
 F:	configs/A13-OLinuXino_defconfig
