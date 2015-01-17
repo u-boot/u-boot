@@ -33,21 +33,31 @@ config MACH_SUN8I
 
 endchoice
 
-if MACH_SUN6I || MACH_SUN8I
-
 config DRAM_CLK
-	int "sun6i dram clock speed"
-	default 312
+	int "sunxi dram clock speed"
+	default 312 if MACH_SUN6I || MACH_SUN8I
+	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	---help---
 	Set the dram clock speed, valid range 240 - 480, must be a multiple
-	of 24.
+	of 24. Note on sun4i / sun5i / sun7i this is only used by boards
+	which use dram autoconfig.
 
 config DRAM_ZQ
-	int "sun6i dram zq value"
-	default 123
+	int "sunxi dram zq value"
+	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
+	default 127 if MACH_SUN7I
 	---help---
-	Set the dram zq value.
+	Set the dram zq value. Note on sun4i / sun5i / sun7i this is only
+	used by boards which use dram autoconfig.
 
+if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+config DRAM_EMR1
+	int "sunxi dram emr1 value"
+	default 0 if MACH_SUN4I
+	default 4 if MACH_SUN5I || MACH_SUN7I
+	---help---
+	Set the dram controller emr1 value. Note this is only used by boards
+	which use dram autoconfig.
 endif
 
 config SYS_CONFIG_NAME
@@ -132,10 +142,6 @@ config TARGET_PCDUINO3
 	bool "PCDUINO3"
 	depends on MACH_SUN7I
 
-config TARGET_MELE_A1000G
-	bool "MELE_A1000G"
-	depends on MACH_SUN4I
-
 config TARGET_MELE_A1000
 	bool "MELE_A1000"
 	depends on MACH_SUN4I
@@ -147,10 +153,6 @@ config TARGET_MELE_M3
 config TARGET_MELE_M9
 	bool "MELE_M9"
 	depends on MACH_SUN6I
-
-config TARGET_MINI_X_1GB
-	bool "MINI_X_1GB"
-	depends on MACH_SUN4I
 
 config TARGET_MINI_X
 	bool "MINI_X"
