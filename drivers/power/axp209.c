@@ -16,6 +16,11 @@ enum axp209_reg {
 	AXP209_DCDC3_VOLTAGE = 0x27,
 	AXP209_LDO24_VOLTAGE = 0x28,
 	AXP209_LDO3_VOLTAGE = 0x29,
+	AXP209_IRQ_ENABLE1 = 0x40,
+	AXP209_IRQ_ENABLE2 = 0x41,
+	AXP209_IRQ_ENABLE3 = 0x42,
+	AXP209_IRQ_ENABLE4 = 0x43,
+	AXP209_IRQ_ENABLE5 = 0x44,
 	AXP209_IRQ_STATUS5 = 0x4c,
 	AXP209_SHUTDOWN = 0x32,
 	AXP209_GPIO0_CTRL = 0x90,
@@ -143,7 +148,7 @@ int axp209_set_ldo4(int mvolt)
 int axp209_init(void)
 {
 	u8 ver;
-	int rc;
+	int i, rc;
 
 	rc = axp209_read(AXP209_CHIP_VERSION, &ver);
 	if (rc)
@@ -154,6 +159,13 @@ int axp209_init(void)
 
 	if (ver != 0x1)
 		return -1;
+
+	/* Mask all interrupts */
+	for (i = AXP209_IRQ_ENABLE1; i <= AXP209_IRQ_ENABLE5; i++) {
+		rc = axp209_write(i, 0);
+		if (rc)
+			return rc;
+	}
 
 	return 0;
 }
