@@ -15,6 +15,11 @@
 #define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 #endif
 
+#ifndef CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + \
+				CONFIG_SYS_INIT_SP_OFFSET)
+#endif
+
 #ifdef CONFIG_SYS_LITTLE_ENDIAN
 #define MIPS64_R_INFO(ssym, r_type3, r_type2, r_type) \
 	(((r_type) << 24) | ((r_type2) << 16) | ((r_type3) << 8) | (ssym))
@@ -129,7 +134,7 @@ reset:
 #endif
 
 	/* Set up temporary stack */
-	dli	sp, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
+	dli	sp, CONFIG_SYS_INIT_SP_ADDR
 	move	fp, sp
 
 	dla	t9, board_init_f

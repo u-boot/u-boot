@@ -15,6 +15,11 @@
 #define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 #endif
 
+#ifndef CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + \
+				CONFIG_SYS_INIT_SP_OFFSET)
+#endif
+
 	/*
 	 * For the moment disable interrupts, mark the kernel mode and
 	 * set ST0_KX so that the CPU does not spit fire when using
@@ -135,7 +140,7 @@ reset:
 #endif
 
 	/* Set up temporary stack */
-	li	sp, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
+	li	sp, CONFIG_SYS_INIT_SP_ADDR
 	move	fp, sp
 
 	la	t9, board_init_f
