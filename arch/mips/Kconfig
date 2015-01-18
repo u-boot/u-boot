@@ -167,6 +167,14 @@ config SUPPORTS_CPU_MIPS64_R1
 config SUPPORTS_CPU_MIPS64_R2
 	bool
 
+config CPU_MIPS32
+	bool
+	default y if CPU_MIPS32_R1 || CPU_MIPS32_R2
+
+config CPU_MIPS64
+	bool
+	default y if CPU_MIPS64_R1 || CPU_MIPS64_R2
+
 config 32BIT
 	bool
 
