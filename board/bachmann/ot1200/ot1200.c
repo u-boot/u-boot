@@ -125,7 +125,7 @@ static void ccgr_init(void)
 	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 
 	writel(0x00C03F3F, &ccm->CCGR0);
-	writel(0x0030FC03, &ccm->CCGR1);
+	writel(0x0030FC33, &ccm->CCGR1);
 	writel(0x0FFFC000, &ccm->CCGR2);
 	writel(0x3FF00000, &ccm->CCGR3);
 	writel(0x00FFF300, &ccm->CCGR4);
@@ -318,9 +318,6 @@ int board_init(void)
 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
 
 	leds_on();
-
-	/* enable ecspi3 clocks */
-	enable_cspi_clock(1, 2);
 
 #ifdef CONFIG_CMD_SATA
 	setup_sata();
