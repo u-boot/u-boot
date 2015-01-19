@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
@@ -119,8 +120,35 @@ static void setup_iomux_features(void)
 		ARRAY_SIZE(feature_pads));
 }
 
+static void ccgr_init(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	writel(0x00C03F3F, &ccm->CCGR0);
+	writel(0x0030FC03, &ccm->CCGR1);
+	writel(0x0FFFC000, &ccm->CCGR2);
+	writel(0x3FF00000, &ccm->CCGR3);
+	writel(0x00FFF300, &ccm->CCGR4);
+	writel(0x0F0000C3, &ccm->CCGR5);
+	writel(0x000003FF, &ccm->CCGR6);
+}
+
+static void gpr_init(void)
+{
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	/* enable AXI cache for VDOA/VPU/IPU */
+	writel(0xF00000CF, &iomux->gpr[4]);
+	/* set IPU AXI-id0 Qos=0xf(bypass) AXI-id1 Qos=0x7 */
+	writel(0x007F007F, &iomux->gpr[6]);
+	writel(0x007F007F, &iomux->gpr[7]);
+}
+
 int board_early_init_f(void)
 {
+	ccgr_init();
+	gpr_init();
+
 	setup_iomux_uart();
 	setup_iomux_spi();
 	setup_iomux_features();
