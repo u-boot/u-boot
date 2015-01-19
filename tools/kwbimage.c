@@ -16,6 +16,7 @@
 #include <image.h>
 #include <stdint.h>
 #include "kwbimage.h"
+#include <config.h>
 
 #define ALIGN_SUP(x, a) (((x) + (a - 1)) & ~(a - 1))
 
@@ -868,6 +869,16 @@ static int kwbimage_generate(struct image_tool_params *params,
 			sizeof(struct ext_hdr_v0);
 	} else {
 		alloc_len = image_headersz_v1(params, NULL);
+#if defined(CONFIG_SYS_SPI_U_BOOT_OFFS)
+		if (alloc_len > CONFIG_SYS_SPI_U_BOOT_OFFS) {
+			fprintf(stderr, "Error: Image header (incl. SPL image) too big!\n");
+			fprintf(stderr, "header=0x%x CONFIG_SYS_SPI_U_BOOT_OFFS=0x%x!\n",
+				alloc_len, CONFIG_SYS_SPI_U_BOOT_OFFS);
+			fprintf(stderr, "Increase CONFIG_SYS_SPI_U_BOOT_OFFS!\n");
+		} else {
+			alloc_len = CONFIG_SYS_SPI_U_BOOT_OFFS;
+		}
+#endif
 	}
 
 	hdr = malloc(alloc_len);
