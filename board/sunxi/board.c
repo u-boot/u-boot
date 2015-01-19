@@ -189,6 +189,7 @@ void sunxi_board_init(void)
 	power_failed |= axp221_set_aldo1(CONFIG_AXP221_ALDO1_VOLT);
 	power_failed |= axp221_set_aldo2(CONFIG_AXP221_ALDO2_VOLT);
 	power_failed |= axp221_set_aldo3(CONFIG_AXP221_ALDO3_VOLT);
+	power_failed |= axp221_set_eldo(3, CONFIG_AXP221_ELDO3_VOLT);
 #endif
 
 	printf("DRAM:");
