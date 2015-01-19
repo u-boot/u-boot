@@ -110,7 +110,7 @@
 #define BOOTENV_DEV_DHCP(devtypeu, devtypel, instance) \
 	"bootcmd_dhcp=" \
 		BOOTENV_RUN_USB_INIT \
-		"if dhcp ${scriptaddr} boot.scr.uimg; then " \
+		"if dhcp ${scriptaddr} ${boot_script_dhcp}; then " \
 			"source ${scriptaddr}; " \
 		"fi\0"
 #define BOOTENV_DEV_NAME_DHCP(devtypeu, devtypel, instance) \
@@ -154,6 +154,7 @@
 	BOOTENV_SHARED_IDE \
 	"boot_prefixes=/ /boot/\0" \
 	"boot_scripts=boot.scr.uimg boot.scr\0" \
+	"boot_script_dhcp=boot.scr.uimg\0" \
 	BOOTENV_BOOT_TARGETS \
 	\
 	"boot_extlinux="                                                  \
