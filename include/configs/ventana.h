@@ -21,9 +21,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_VENTANA
 
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT		/* Make sure LCD init is complete */
-
 /* SD/MMC */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
