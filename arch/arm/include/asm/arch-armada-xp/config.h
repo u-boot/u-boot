@@ -31,7 +31,11 @@
 #endif /* CONFIG_SYS_KWD_CONFIG */
 
 /* Add target to build it automatically upon "make" */
+#ifdef CONFIG_SPL
+#define CONFIG_BUILD_TARGET	"u-boot-spl.kwb"
+#else
 #define CONFIG_BUILD_TARGET	"u-boot.kwb"
+#endif
 
 /* end of 16M scrubbed by training in bootrom */
 #define CONFIG_SYS_INIT_SP_ADDR		0x00FF0000
