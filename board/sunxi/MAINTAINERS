@@ -59,6 +59,11 @@ M:	Maxime Ripard <maxime.ripard@free-electrons.com>
 S:	Maintained
 F:	configs/Colombus_defconfig
 
+GEMEI-G9 TABLET
+M: Priit Laes <plaes@plaes.org>
+S: Maintained
+F: configs/sunxi_Gemei_G9_defconfig
+
 HUMMINIGBIRD-A31 BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
