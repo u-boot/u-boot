@@ -621,6 +621,13 @@ The following options need to be configured:
 		exists, unlike the similar options in the Linux kernel. Do not
 		set these options unless they apply!
 
+- Tegra SoC options:
+		CONFIG_TEGRA_SUPPORT_NON_SECURE
+
+		Support executing U-Boot in non-secure (NS) mode. Certain
+		impossible actions will be skipped if the CPU is in NS mode,
+		such as ARM architectural timer initialization.
+
 - Driver Model
 		Driver model is a new framework for devices in U-Boot
 		introduced in early 2014. U-Boot is being progressively

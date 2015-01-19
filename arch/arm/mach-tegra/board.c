@@ -11,6 +11,7 @@
 #include <asm/arch/funcmux.h>
 #include <asm/arch/mc.h>
 #include <asm/arch/tegra.h>
+#include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/sys_proto.h>
@@ -27,6 +28,24 @@ enum {
 	UARTE	= 1 << 4,
 	UART_COUNT = 5,
 };
+
+#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
+#if !defined(CONFIG_TEGRA124)
+#error tegra_cpu_is_non_secure has only been validated on Tegra124
+#endif
+bool tegra_cpu_is_non_secure(void)
+{
+	/*
+	 * This register reads 0xffffffff in non-secure mode. This register
+	 * only implements bits 31:20, so the lower bits will always read 0 in
+	 * secure mode. Thus, the lower bits are an indicator for secure vs.
+	 * non-secure mode.
+	 */
+	struct mc_ctlr *mc = (struct mc_ctlr *)NV_PA_MC_BASE;
+	uint32_t mc_s_cfg0 = readl(&mc->mc_security_cfg0);
+	return (mc_s_cfg0 & 1) == 1;
+}
+#endif
 
 /* Read the RAM size directly from the memory controller */
 unsigned int query_sdram_size(void)

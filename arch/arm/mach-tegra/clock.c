@@ -20,6 +20,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/tegra.h>
+#include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/timer.h>
 #include <div64.h>
@@ -573,7 +574,10 @@ void clock_init(void)
 	debug("PLLX = %d\n", pll_rate[CLOCK_ID_XCPU]);
 
 	/* Do any special system timer/TSC setup */
-	arch_timer_init();
+#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
+	if (!tegra_cpu_is_non_secure())
+#endif
+		arch_timer_init();
 }
 
 static void set_avp_clock_source(u32 src)

@@ -74,3 +74,7 @@ static inline void config_vpr(void)
 {
 }
 #endif
+
+#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
+bool tegra_cpu_is_non_secure(void);
+#endif
