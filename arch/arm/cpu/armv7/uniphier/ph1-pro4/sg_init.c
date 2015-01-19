@@ -23,6 +23,6 @@ void sg_init(void)
 
 	/* Input ports must be enabled before deasserting reset of cores */
 	tmp = readl(SG_IECTRL);
-	tmp |= 0x1;
+	tmp |= 1 << 6;
 	writel(tmp, SG_IECTRL);
 }
