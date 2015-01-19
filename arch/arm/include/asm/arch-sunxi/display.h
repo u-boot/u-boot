@@ -9,6 +9,107 @@
 #ifndef _SUNXI_DISPLAY_H
 #define _SUNXI_DISPLAY_H
 
+struct sunxi_de_fe_reg {
+	u32 enable;			/* 0x000 */
+	u32 frame_ctrl;			/* 0x004 */
+	u32 bypass;			/* 0x008 */
+	u32 algorithm_sel;		/* 0x00c */
+	u32 line_int_ctrl;		/* 0x010 */
+	u8 res0[0x0c];			/* 0x014 */
+	u32 ch0_addr;			/* 0x020 */
+	u32 ch1_addr;			/* 0x024 */
+	u32 ch2_addr;			/* 0x028 */
+	u32 field_sequence;		/* 0x02c */
+	u32 ch0_offset;			/* 0x030 */
+	u32 ch1_offset;			/* 0x034 */
+	u32 ch2_offset;			/* 0x038 */
+	u8 res1[0x04];			/* 0x03c */
+	u32 ch0_stride;			/* 0x040 */
+	u32 ch1_stride;			/* 0x044 */
+	u32 ch2_stride;			/* 0x048 */
+	u32 input_fmt;			/* 0x04c */
+	u32 ch3_addr;			/* 0x050 */
+	u32 ch4_addr;			/* 0x054 */
+	u32 ch5_addr;			/* 0x058 */
+	u32 output_fmt;			/* 0x05c */
+	u32 int_enable;			/* 0x060 */
+	u32 int_status;			/* 0x064 */
+	u32 status;			/* 0x068 */
+	u8 res2[0x04];			/* 0x06c */
+	u32 csc_coef00;			/* 0x070 */
+	u32 csc_coef01;			/* 0x074 */
+	u32 csc_coef02;			/* 0x078 */
+	u32 csc_coef03;			/* 0x07c */
+	u32 csc_coef10;			/* 0x080 */
+	u32 csc_coef11;			/* 0x084 */
+	u32 csc_coef12;			/* 0x088 */
+	u32 csc_coef13;			/* 0x08c */
+	u32 csc_coef20;			/* 0x090 */
+	u32 csc_coef21;			/* 0x094 */
+	u32 csc_coef22;			/* 0x098 */
+	u32 csc_coef23;			/* 0x09c */
+	u32 deinterlace_ctrl;		/* 0x0a0 */
+	u32 deinterlace_diag;		/* 0x0a4 */
+	u32 deinterlace_tempdiff;	/* 0x0a8 */
+	u32 deinterlace_sawtooth;	/* 0x0ac */
+	u32 deinterlace_spatcomp;	/* 0x0b0 */
+	u32 deinterlace_burstlen;	/* 0x0b4 */
+	u32 deinterlace_preluma;	/* 0x0b8 */
+	u32 deinterlace_tile_addr;	/* 0x0bc */
+	u32 deinterlace_tile_stride;	/* 0x0c0 */
+	u8 res3[0x0c];			/* 0x0c4 */
+	u32 wb_stride_enable;		/* 0x0d0 */
+	u32 ch3_stride;			/* 0x0d4 */
+	u32 ch4_stride;			/* 0x0d8 */
+	u32 ch5_stride;			/* 0x0dc */
+	u32 fe_3d_ctrl;			/* 0x0e0 */
+	u32 fe_3d_ch0_addr;		/* 0x0e4 */
+	u32 fe_3d_ch1_addr;		/* 0x0e8 */
+	u32 fe_3d_ch2_addr;		/* 0x0ec */
+	u32 fe_3d_ch0_offset;		/* 0x0f0 */
+	u32 fe_3d_ch1_offset;		/* 0x0f4 */
+	u32 fe_3d_ch2_offset;		/* 0x0f8 */
+	u8 res4[0x04];			/* 0x0fc */
+	u32 ch0_insize;			/* 0x100 */
+	u32 ch0_outsize;		/* 0x104 */
+	u32 ch0_horzfact;		/* 0x108 */
+	u32 ch0_vertfact;		/* 0x10c */
+	u32 ch0_horzphase;		/* 0x110 */
+	u32 ch0_vertphase0;		/* 0x114 */
+	u32 ch0_vertphase1;		/* 0x118 */
+	u8 res5[0x04];			/* 0x11c */
+	u32 ch0_horztapoffset0;		/* 0x120 */
+	u32 ch0_horztapoffset1;		/* 0x124 */
+	u32 ch0_verttapoffset;		/* 0x128 */
+	u8 res6[0xd4];			/* 0x12c */
+	u32 ch1_insize;			/* 0x200 */
+	u32 ch1_outsize;		/* 0x204 */
+	u32 ch1_horzfact;		/* 0x208 */
+	u32 ch1_vertfact;		/* 0x20c */
+	u32 ch1_horzphase;		/* 0x210 */
+	u32 ch1_vertphase0;		/* 0x214 */
+	u32 ch1_vertphase1;		/* 0x218 */
+	u8 res7[0x04];			/* 0x21c */
+	u32 ch1_horztapoffset0;		/* 0x220 */
+	u32 ch1_horztapoffset1;		/* 0x224 */
+	u32 ch1_verttapoffset;		/* 0x228 */
+	u8 res8[0x1d4];			/* 0x22c */
+	u32 ch0_horzcoef0[32];		/* 0x400 */
+	u32 ch0_horzcoef1[32];		/* 0x480 */
+	u32 ch0_vertcoef[32];		/* 0x500 */
+	u8 res9[0x80];			/* 0x580 */
+	u32 ch1_horzcoef0[32];		/* 0x600 */
+	u32 ch1_horzcoef1[32];		/* 0x680 */
+	u32 ch1_vertcoef[32];		/* 0x700 */
+	u8 res10[0x280];		/* 0x780 */
+	u32 vpp_enable;			/* 0xa00 */
+	u32 vpp_dcti;			/* 0xa04 */
+	u32 vpp_lp1;			/* 0xa08 */
+	u32 vpp_lp2;			/* 0xa0c */
+	u32 vpp_wle;			/* 0xa10 */
+	u32 vpp_ble;			/* 0xa14 */
+};
+
 struct sunxi_de_be_reg {
 	u8 res0[0x800];			/* 0x000 */
 	u32 mode;			/* 0x800 */
@@ -210,6 +311,20 @@ struct sunxi_tve_reg {
 };
 
 /*
+ * DE-FE register constants.
+ */
+#define SUNXI_DE_FE_WIDTH(x)			(((x) - 1) << 0)
+#define SUNXI_DE_FE_HEIGHT(y)			(((y) - 1) << 16)
+#define SUNXI_DE_FE_FACTOR_INT(n)		((n) << 16)
+#define SUNXI_DE_FE_ENABLE_EN			(1 << 0)
+#define SUNXI_DE_FE_FRAME_CTRL_REG_RDY		(1 << 0)
+#define SUNXI_DE_FE_FRAME_CTRL_COEF_RDY		(1 << 1)
+#define SUNXI_DE_FE_FRAME_CTRL_FRM_START	(1 << 16)
+#define SUNXI_DE_FE_BYPASS_CSC_BYPASS		(1 << 1)
+#define SUNXI_DE_FE_INPUT_FMT_ARGB8888		0x00000151
+#define SUNXI_DE_FE_OUTPUT_FMT_ARGB8888		0x00000002
+
+/*
  * DE-BE register constants.
  */
 #define SUNXI_DE_BE_WIDTH(x)			(((x) - 1) << 0)
@@ -219,6 +334,7 @@ struct sunxi_tve_reg {
 #define SUNXI_DE_BE_MODE_LAYER0_ENABLE		(1 << 8)
 #define SUNXI_DE_BE_LAYER_STRIDE(x)		((x) << 5)
 #define SUNXI_DE_BE_REG_CTRL_LOAD_REGS		(1 << 0)
+#define SUNXI_DE_BE_LAYER_ATTR0_SRC_FE0		0x00000002
 #define SUNXI_DE_BE_LAYER_ATTR1_FMT_XRGB8888	(0x09 << 8)
 
 /*
