@@ -142,9 +142,7 @@ int checkboard(void)
 /* Configure and enable MV88E6185 switch */
 void reset_phy(void)
 {
-	u16 devadr = CONFIG_PHY_BASE_ADDR;
 	char *name = "neta0";
-	u16 reg;
 
 	if (miiphy_set_current_dev(name))
 		return;
