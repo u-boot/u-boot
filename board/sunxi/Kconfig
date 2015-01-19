@@ -347,6 +347,13 @@ config VIDEO_LCD_PANEL_LVDS
 	bool "Generic lvds interface LCD panel"
 	select VIDEO_LCD_IF_LVDS
 
+config VIDEO_LCD_PANEL_MIPI_4_LANE_513_MBPS_VIA_SSD2828
+	bool "MIPI 4-lane, 513Mbps LCD panel via SSD2828 bridge chip"
+	select VIDEO_LCD_SSD2828
+	select VIDEO_LCD_IF_PARALLEL
+	---help---
+	 7.85" 768x1024 LCD panels, such as LG LP079X01 or AUO B079XAN01.0
+
 endchoice
 
 

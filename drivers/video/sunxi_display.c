@@ -20,6 +20,7 @@
 #include <fdt_support.h>
 #include <video_fb.h>
 #include "videomodes.h"
+#include "ssd2828.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -821,6 +822,40 @@ static void sunxi_vga_external_dac_enable(void)
 }
 #endif /* CONFIG_VIDEO_VGA_VIA_LCD */
 
+#ifdef CONFIG_VIDEO_LCD_SSD2828
+static int sunxi_ssd2828_init(const struct ctfb_res_modes *mode)
+{
+	struct ssd2828_config cfg = {
+		.csx_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_CS),
+		.sck_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_SCLK),
+		.sdi_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_MOSI),
+		.sdo_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_MISO),
+		.reset_pin = name_to_gpio(CONFIG_VIDEO_LCD_SSD2828_RESET),
+		.ssd2828_tx_clk_khz  = CONFIG_VIDEO_LCD_SSD2828_TX_CLK * 1000,
+		.ssd2828_color_depth = 24,
+#ifdef CONFIG_VIDEO_LCD_PANEL_MIPI_4_LANE_513_MBPS_VIA_SSD2828
+		.mipi_dsi_number_of_data_lanes           = 4,
+		.mipi_dsi_bitrate_per_data_lane_mbps     = 513,
+		.mipi_dsi_delay_after_exit_sleep_mode_ms = 100,
+		.mipi_dsi_delay_after_set_display_on_ms  = 200
+#else
+#error MIPI LCD panel needs configuration parameters
+#endif
+	};
+
+	if (cfg.csx_pin == -1 || cfg.sck_pin == -1 || cfg.sdi_pin == -1) {
+		printf("SSD2828: SPI pins are not properly configured\n");
+		return 1;
+	}
+	if (cfg.reset_pin == -1) {
+		printf("SSD2828: Reset pin is not properly configured\n");
+		return 1;
+	}
+
+	return ssd2828_init(&cfg, mode);
+}
+#endif /* CONFIG_VIDEO_LCD_SSD2828 */
+
 static void sunxi_engines_init(void)
 {
 	sunxi_composer_init();
@@ -853,6 +888,9 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_lcdc_tcon0_mode_set(mode);
 		sunxi_composer_enable();
 		sunxi_lcdc_enable();
+#ifdef CONFIG_VIDEO_LCD_SSD2828
+		sunxi_ssd2828_init(mode);
+#endif
 		sunxi_lcdc_backlight_enable();
 		break;
 	case sunxi_monitor_vga:
