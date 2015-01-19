@@ -1202,12 +1202,17 @@ struct cpu_type {
 	u32 soc_ver;
 	u32 num_cores;
 	u32 mask;	/* which cpu(s) actually exist */
+#ifdef CONFIG_HETROGENOUS_CLUSTERS
+	u32 dsp_num_cores;
+	u32 dsp_mask;	/* which DSP cpu(s) actually exist */
+#endif
 };
 
 struct cpu_type *identify_cpu(u32 ver);
 int fixup_cpu(void);
 
 int fsl_qoriq_core_to_cluster(unsigned int core);
+int fsl_qoriq_dsp_core_to_cluster(unsigned int core);
 
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 #define CPU_TYPE_ENTRY(n, v, nc) \
