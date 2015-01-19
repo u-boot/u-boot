@@ -340,7 +340,7 @@ static int ssd2828_configure_video_interface(const struct ssd2828_config *cfg,
 int ssd2828_init(const struct ssd2828_config *cfg,
 		 const struct ctfb_res_modes *mode)
 {
-	u32 lp_div, pll_freq_kbps, pll_config;
+	u32 lp_div, pll_freq_kbps, reference_freq_khz, pll_config;
 	/* The LP clock speed is limited by 10MHz */
 	const u32 mipi_dsi_low_power_clk_khz = 10000;
 	/*
@@ -374,6 +374,20 @@ int ssd2828_init(const struct ssd2828_config *cfg,
 	}
 
 	/*
+	 * Pick the reference clock for PLL. If we know the exact 'tx_clk'
+	 * clock speed, then everything is good. If not, then we can fallback
+	 * to 'pclk' (pixel clock from the parallel LCD interface). In the
+	 * case of using this fallback, it is necessary to have parallel LCD
+	 * already initialized and running at this point.
+	 */
+	reference_freq_khz = cfg->ssd2828_tx_clk_khz;
+	if (reference_freq_khz  == 0) {
+		reference_freq_khz = mode->pixclock_khz;
+		/* Use 'pclk' as the reference clock for PLL */
+		cfgr_reg |= SSD2828_CFGR_CSS;
+	}
+
+	/*
 	 * Setup the parallel LCD timings in the appropriate registers.
 	 */
 	if (ssd2828_configure_video_interface(cfg, mode) != 0) {
@@ -390,10 +404,10 @@ int ssd2828_init(const struct ssd2828_config *cfg,
 	/* PLL Configuration Register */
 	pll_config = construct_pll_config(
 				cfg->mipi_dsi_bitrate_per_data_lane_mbps * 1000,
-				cfg->ssd2828_tx_clk_khz);
+				reference_freq_khz);
 	write_hw_register(cfg, SSD2828_PLCR, pll_config);
 
-	pll_freq_kbps = decode_pll_config(pll_config, cfg->ssd2828_tx_clk_khz);
+	pll_freq_kbps = decode_pll_config(pll_config, reference_freq_khz);
 	lp_div = DIV_ROUND_UP(pll_freq_kbps, mipi_dsi_low_power_clk_khz * 8);
 
 	/* VC Control Register */

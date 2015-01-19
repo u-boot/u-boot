@@ -47,8 +47,12 @@ struct ssd2828_config {
 	 * to TX_CLK_XIO/TX_CLK_XIN pins), which is necessary at least for
 	 * clocking SPI after reset. The exact clock speed is not strictly,
 	 * defined, but the datasheet says that it must be somewhere in the
-	 * 8MHz - 30MHz range (see "TX_CLK Timing" section). It is used as
-	 * a reference clock for PLL and must be set correctly.
+	 * 8MHz - 30MHz range (see "TX_CLK Timing" section). It can be also
+	 * used as a reference clock for PLL. If the exact clock frequency
+	 * is known, then it can be specified here. If it is unknown, or the
+	 * information is not trustworthy, then it can be set to 0.
+	 *
+	 * If unsure, set to 0.
 	 */
 	int ssd2828_tx_clk_khz;
 
@@ -115,7 +119,8 @@ struct ssd2828_config {
  * The right place to insert this function call is after the parallel LCD
  * interface is initialized and before turning on the backlight. This is
  * advised in the "Example for system sleep in and out" section of the
- * SSD2828 datasheet.
+ * SSD2828 datasheet. And also SS2828 may use 'pclk' as the clock source
+ * for PLL, which means that the input signal must be already there.
  */
 int ssd2828_init(const struct ssd2828_config *cfg,
 		 const struct ctfb_res_modes *mode);

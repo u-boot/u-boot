@@ -19,12 +19,14 @@ config VIDEO_LCD_SSD2828
 config VIDEO_LCD_SSD2828_TX_CLK
 	int "SSD2828 TX_CLK frequency (in MHz)"
 	depends on VIDEO_LCD_SSD2828
+	default 0
 	---help---
 	The frequency of the crystal, which is clocking SSD2828. It may be
 	anything in the 8MHz-30MHz range and the exact value should be
 	retrieved from the board schematics. Or in the case of Allwinner
 	hardware, it can be usually found as 'lcd_xtal_freq' variable in
-	FEX files.
+	FEX files. It can be also set to 0 for selecting PCLK from the
+	parallel LCD interface instead of TX_CLK as the PLL clock source.
 
 config VIDEO_LCD_SSD2828_RESET
 	string "RESET pin of SSD2828"
