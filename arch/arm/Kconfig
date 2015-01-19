@@ -664,6 +664,7 @@ config TARGET_TQMA6
 config TARGET_OT1200
 	bool "Bachmann OT1200"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_PLATINUM_PICON
 	bool "Support platinum-picon"
