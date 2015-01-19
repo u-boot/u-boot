@@ -240,6 +240,7 @@ config TARGET_DB_MV784MP_GP
 config TARGET_MAXBCM
 	bool "Support maxbcm"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
