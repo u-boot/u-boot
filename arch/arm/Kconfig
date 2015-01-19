@@ -236,6 +236,7 @@ config KIRKWOOD
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_MAXBCM
 	bool "Support maxbcm"
