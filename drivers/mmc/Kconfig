@@ -1,0 +1,9 @@
+menu "MMC Host controller Support"
+
+config SH_SDHI
+	bool "SuperH/Renesas ARM SoCs on-chip SDHI host controller support"
+	depends on RMOBILE
+	help
+	  Support for the on-chip SDHI host controller on SuperH/Renesas ARM SoCs platform
+
+endmenu
