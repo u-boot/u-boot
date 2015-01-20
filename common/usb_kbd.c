@@ -332,7 +332,8 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 		/* We've consumed all queued int packets, create new */
 		destroy_int_queue(dev, data->intq);
 		data->intq = create_int_queue(dev, data->intpipe, 1,
-				      USB_KBD_BOOT_REPORT_SIZE, data->new);
+				      USB_KBD_BOOT_REPORT_SIZE, data->new,
+				      data->intinterval);
 	}
 #endif
 }
@@ -453,7 +454,8 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	debug("USB KBD: enable interrupt pipe...\n");
 #ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
 	data->intq = create_int_queue(dev, data->intpipe, 1,
-				      USB_KBD_BOOT_REPORT_SIZE, data->new);
+				      USB_KBD_BOOT_REPORT_SIZE, data->new,
+				      data->intinterval);
 	if (!data->intq) {
 #else
 	if (usb_submit_int_msg(dev, data->intpipe, data->new, data->intpktsize,
@@ -542,6 +544,10 @@ int usb_kbd_deregister(int force)
 		data = usb_kbd_dev->privptr;
 		if (stdio_deregister_dev(dev, force) != 0)
 			return 1;
+#ifdef CONFIG_CONSOLE_MUX
+		if (iomux_doenv(stdin, getenv("stdin")) != 0)
+			return 1;
+#endif
 #ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
 		destroy_int_queue(usb_kbd_dev, data->intq);
 #endif

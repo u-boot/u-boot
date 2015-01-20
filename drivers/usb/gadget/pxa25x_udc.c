@@ -1950,10 +1950,10 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	dev->watchdog.period = 5000 * CONFIG_SYS_HZ / 1000000; /* 5 ms */
 	dev->watchdog.function = udc_watchdog;
 
+	dev->mach = &mach_info;
+
 	udc_disable(dev);
 	udc_reinit(dev);
-
-	dev->mach = &mach_info;
 
 	dev->gadget.name = "pxa2xx_udc";
 	retval = driver->bind(&dev->gadget);

@@ -216,6 +216,9 @@
 
 #ifndef CONFIG_BLACKFIN
 
+/* SUNXI has different reg addresses, but identical r/w functions */
+#ifndef CONFIG_ARCH_SUNXI 
+
 /*
  * Common USB registers
  */
@@ -318,6 +321,85 @@
 #define MUSB_BUSCTL_OFFSET(_epnum, _offset) \
 	(0x80 + (8*(_epnum)) + (_offset))
 
+#else /* CONFIG_ARCH_SUNXI */
+
+/*
+ * Common USB registers
+ */
+
+#define MUSB_FADDR		0x0098
+#define MUSB_POWER		0x0040
+
+#define MUSB_INTRTX		0x0044
+#define MUSB_INTRRX		0x0046
+#define MUSB_INTRTXE		0x0048
+#define MUSB_INTRRXE		0x004A
+#define MUSB_INTRUSB		0x004C
+#define MUSB_INTRUSBE		0x0050
+#define MUSB_FRAME		0x0054
+#define MUSB_INDEX		0x0042
+#define MUSB_TESTMODE		0x007C
+
+/* Get offset for a given FIFO from musb->mregs */
+#define MUSB_FIFO_OFFSET(epnum)	(0x00 + ((epnum) * 4))
+
+/*
+ * Additional Control Registers
+ */
+
+#define MUSB_DEVCTL		0x0041
+
+/* These are always controlled through the INDEX register */
+#define MUSB_TXFIFOSZ		0x0090
+#define MUSB_RXFIFOSZ		0x0094
+#define MUSB_TXFIFOADD		0x0092
+#define MUSB_RXFIFOADD		0x0096
+
+#define MUSB_EPINFO		0x0078
+#define MUSB_RAMINFO		0x0079
+#define MUSB_LINKINFO		0x007A
+#define MUSB_VPLEN		0x007B
+#define MUSB_HS_EOF1		0x007C
+#define MUSB_FS_EOF1		0x007D
+#define MUSB_LS_EOF1		0x007E
+
+/* Offsets to endpoint registers */
+#define MUSB_TXMAXP		0x0080
+#define MUSB_TXCSR		0x0082
+#define MUSB_CSR0		0x0082
+#define MUSB_RXMAXP		0x0084
+#define MUSB_RXCSR		0x0086
+#define MUSB_RXCOUNT		0x0088
+#define MUSB_COUNT0		0x0088
+#define MUSB_TXTYPE		0x008C
+#define MUSB_TYPE0		0x008C
+#define MUSB_TXINTERVAL		0x008D
+#define MUSB_NAKLIMIT0		0x008D
+#define MUSB_RXTYPE		0x008E
+#define MUSB_RXINTERVAL		0x008F
+
+#define MUSB_CONFIGDATA		0x00b0 /* musb_read_configdata adds 0x10 ! */
+#define MUSB_FIFOSIZE		0x0090
+
+/* Offsets to endpoint registers in indexed model (using INDEX register) */
+#define MUSB_INDEXED_OFFSET(_epnum, _offset) (_offset)
+
+#define MUSB_TXCSR_MODE		0x2000
+
+/* "bus control"/target registers, for host side multipoint (external hubs) */
+#define MUSB_TXFUNCADDR		0x0098
+#define MUSB_TXHUBADDR		0x009A
+#define MUSB_TXHUBPORT		0x009B
+
+#define MUSB_RXFUNCADDR		0x009C
+#define MUSB_RXHUBADDR		0x009E
+#define MUSB_RXHUBPORT		0x009F
+
+/* Endpoint is selected with MUSB_INDEX. */
+#define MUSB_BUSCTL_OFFSET(_epnum, _offset) (_offset)
+
+#endif /* CONFIG_ARCH_SUNXI */
+
 static inline void musb_write_txfifosz(void __iomem *mbase, u8 c_size)
 {
 	musb_writeb(mbase, MUSB_TXFIFOSZ, c_size);
@@ -340,7 +422,9 @@ static inline void  musb_write_rxfifoadd(void __iomem *mbase, u16 c_off)
 
 static inline void musb_write_ulpi_buscontrol(void __iomem *mbase, u8 val)
 {
+#ifndef CONFIG_ARCH_SUNXI /* No ulpi on sunxi */
 	musb_writeb(mbase, MUSB_ULPI_BUSCONTROL, val);
+#endif
 }
 
 static inline u8 musb_read_txfifosz(void __iomem *mbase)
@@ -365,7 +449,11 @@ static inline u16  musb_read_rxfifoadd(void __iomem *mbase)
 
 static inline u8 musb_read_ulpi_buscontrol(void __iomem *mbase)
 {
+#ifdef CONFIG_ARCH_SUNXI /* No ulpi on sunxi */
+	return 0;
+#else
 	return musb_readb(mbase, MUSB_ULPI_BUSCONTROL);
+#endif
 }
 
 static inline u8 musb_read_configdata(void __iomem *mbase)
@@ -376,7 +464,11 @@ static inline u8 musb_read_configdata(void __iomem *mbase)
 
 static inline u16 musb_read_hwvers(void __iomem *mbase)
 {
+#ifdef CONFIG_ARCH_SUNXI
+	return 0; /* Unknown version */
+#else
 	return musb_readw(mbase, MUSB_HWVERS);
+#endif
 }
 
 static inline void __iomem *musb_read_target_reg_base(u8 i, void __iomem *mbase)
