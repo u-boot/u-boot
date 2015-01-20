@@ -57,11 +57,13 @@
 .endm
 
 .macro SAVE_ALL_SYS
-
+	/* saving %r0 to reg->r0 in advance since we read %ecr into it */
+	st	%r0, [%sp, -8]
+	lr	%r0, [%ecr]	/* all stack addressing is manual so far */
 	st	%r0, [%sp]
-	lr	%r0, [%ecr]
-	st	%r0, [%sp, 8]	/* ECR */
-	st	%sp, [%sp, 4]
+	st	%sp, [%sp, -4]
+	/* now move %sp to reg->r0 position so we can do "push" automatically */
+	sub	%sp, %sp, 8
 
 	SAVE_R1_TO_R24
 	PUSH	%r25
@@ -76,11 +78,21 @@
 	PUSHAX	%erbta
 .endm
 
+.macro SAVE_EXCEPTION_SOURCE
+#ifdef CONFIG_MMU
+	/* If MMU exists exception faulting address is loaded in EFA reg */
+	lr	%r0, [%efa]
+#else
+	/* Otherwise in ERET (exception return) reg */
+	lr	%r0, [%eret]
+#endif
+.endm
+
+.section .ivt, "ax",@progbits
 .align 4
-.globl _start
-_start:
+_ivt:
 	/* Critical system events */
-	j	reset			/* 0 - 0x000 */
+	j	_start			/* 0 - 0x000 */
 	j	memory_error		/* 1 - 0x008 */
 	j	instruction_error	/* 2 - 0x010 */
 
@@ -98,15 +110,37 @@ _start:
 	j	EV_Trap			/* 0x128, Trap exception       (0x25) */
 	j	EV_Extension		/* 0x130, Extn Intruction Excp (0x26) */
 
+.text
+.globl _start
+_start:
+	/* Setup interrupt vector base that matches "__text_start" */
+	sr	__ivt_start, [ARC_AUX_INTR_VEC_BASE]
+
+	/* Setup stack pointer */
+	mov	%sp, CONFIG_SYS_INIT_SP_ADDR
+	mov	%fp, %sp
+
+	/* Clear bss */
+	mov	%r0, __bss_start
+	mov	%r1, __bss_end
+
+clear_bss:
+	st.ab	0, [%r0, 4]
+	brlt	%r0, %r1, clear_bss
+
+	/* Zero the one and only argument of "board_init_f" */
+	mov_s	%r0, 0
+	j	board_init_f
+
 memory_error:
 	SAVE_ALL_SYS
-	lr	%r0, [%efa]
+	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_memory_error
 
 instruction_error:
 	SAVE_ALL_SYS
-	lr	%r0, [%efa]
+	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_instruction_error
 
@@ -117,7 +151,7 @@ interrupt_handler:
 
 EV_MachineCheck:
 	SAVE_ALL_SYS
-	lr	%r0, [%efa]
+	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_machine_check_fault
 
@@ -133,7 +167,7 @@ EV_TLBMissD:
 
 EV_TLBProtV:
 	SAVE_ALL_SYS
-	lr	%r0, [%efa]
+	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_tlb_prot_violation
 
@@ -151,27 +185,6 @@ EV_Extension:
 	SAVE_ALL_SYS
 	mov	%r0, %sp
 	j	do_extension
-
-
-reset:
-	/* Setup interrupt vector base that matches "__text_start" */
-	sr	__text_start, [ARC_AUX_INTR_VEC_BASE]
-
-	/* Setup stack pointer */
-	mov	%sp, CONFIG_SYS_INIT_SP_ADDR
-	mov	%fp, %sp
-
-	/* Clear bss */
-	mov	%r0, __bss_start
-	mov	%r1, __bss_end
-
-clear_bss:
-	st.ab	0, [%r0, 4]
-	brlt	%r0, %r1, clear_bss
-
-	/* Zero the one and only argument of "board_init_f" */
-	mov_s	%r0, 0
-	j	board_init_f
 
 /*
  * void relocate_code (addr_sp, gd, addr_moni)

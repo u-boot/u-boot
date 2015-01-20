@@ -1,8 +1,5 @@
 if TARGET_ARCANGEL4
 
-config SYS_CPU
-	default "arc700"
-
 config SYS_VENDOR
 	default "synopsys"
 
@@ -12,9 +9,6 @@ config SYS_CONFIG_NAME
 endif
 
 if TARGET_ARCANGEL4_BE
-
-config SYS_CPU
-	default "arc700"
 
 config SYS_VENDOR
 	default "synopsys"

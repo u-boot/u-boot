@@ -23,7 +23,7 @@ int interrupt_init(void)
 int disable_interrupts(void)
 {
 	int status = read_aux_reg(ARC_AUX_STATUS32);
-	int state = (status | E1_MASK | E2_MASK) ? 1 : 0;
+	int state = (status & (E1_MASK | E2_MASK)) ? 1 : 0;
 
 	status &= ~(E1_MASK | E2_MASK);
 	/* STATUS32 register is updated indirectly with "FLAG" instruction */
@@ -61,6 +61,7 @@ static void print_reg_file(long *reg_rev, int start_num)
 
 void show_regs(struct pt_regs *regs)
 {
+	printf("ECR:\t0x%08lx\n", regs->ecr);
 	printf("RET:\t0x%08lx\nBLINK:\t0x%08lx\nSTAT32:\t0x%08lx\n",
 	       regs->ret, regs->blink, regs->status32);
 	printf("GP: 0x%08lx\t r25: 0x%08lx\t\n", regs->r26, regs->r25);

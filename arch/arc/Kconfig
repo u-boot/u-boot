@@ -4,6 +4,9 @@ menu "ARC architecture"
 config SYS_ARCH
 	default "arc"
 
+config SYS_CPU
+	default "arcv1"
+
 choice
 	prompt "Target select"
 
