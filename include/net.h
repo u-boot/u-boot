@@ -482,6 +482,36 @@ extern void net_set_ip_header(uchar *pkt, IPaddr_t dest, IPaddr_t source);
 extern void net_set_udp_header(uchar *pkt, IPaddr_t dest, int dport,
 				int sport, int len);
 
+/**
+ * compute_ip_checksum() - Compute IP checksum
+ *
+ * @addr:	Address to check (must be 16-bit aligned)
+ * @nbytes:	Number of bytes to check (normally a multiple of 2)
+ * @return 16-bit IP checksum
+ */
+unsigned compute_ip_checksum(const void *addr, unsigned nbytes);
+
+/**
+ * add_ip_checksums() - add two IP checksums
+ *
+ * @offset:	Offset of first sum (if odd we do a byte-swap)
+ * @sum:	First checksum
+ * @new_sum:	New checksum to add
+ * @return updated 16-bit IP checksum
+ */
+unsigned add_ip_checksums(unsigned offset, unsigned sum, unsigned new_sum);
+
+/**
+ * ip_checksum_ok() - check if a checksum is correct
+ *
+ * This works by making sure the checksum sums to 0
+ *
+ * @addr:	Address to check (must be 16-bit aligned)
+ * @nbytes:	Number of bytes to check (normally a multiple of 2)
+ * @return true if the checksum matches, false if not
+ */
+int ip_checksum_ok(const void *addr, unsigned nbytes);
+
 /* Checksum */
 extern int	NetCksumOk(uchar *, int);	/* Return true if cksum OK */
 extern uint	NetCksum(uchar *, int);		/* Calculate the checksum */
