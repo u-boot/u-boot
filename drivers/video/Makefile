@@ -29,6 +29,7 @@ obj-$(CONFIG_VIDEO_COREBOOT) += coreboot_fb.o
 obj-$(CONFIG_VIDEO_CT69000) += ct69000.o videomodes.o
 obj-$(CONFIG_VIDEO_DA8XX) += da8xx-fb.o videomodes.o
 obj-$(CONFIG_VIDEO_IMX25LCDC) += imx25lcdc.o videomodes.o
+obj-$(CONFIG_VIDEO_LCD_HITACHI_TX18D42VM) += hitachi_tx18d42vm_lcd.o
 obj-$(CONFIG_VIDEO_LCD_SSD2828) += ssd2828.o
 obj-$(CONFIG_VIDEO_MB862xx) += mb862xx.o videomodes.o
 obj-$(CONFIG_VIDEO_MB86R0xGDC) += mb86r0xgdc.o videomodes.o
