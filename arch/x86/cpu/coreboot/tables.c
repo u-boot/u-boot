@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/ipchecksum.h>
+#include <net.h>
 #include <asm/arch/sysinfo.h>
 #include <asm/arch/tables.h>
 
@@ -131,11 +131,11 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 		return 0;
 
 	/* Make sure the checksums match. */
-	if (ipchksum((u16 *) header, sizeof(*header)) != 0)
+	if (!ip_checksum_ok(header, sizeof(*header)))
 		return -1;
 
-	if (ipchksum((u16 *) (ptr + sizeof(*header)),
-		     header->table_bytes) != header->table_checksum)
+	if (compute_ip_checksum(ptr + sizeof(*header), header->table_bytes) !=
+	    header->table_checksum)
 		return -1;
 
 	/* Now, walk the tables. */
