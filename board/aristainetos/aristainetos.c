@@ -321,8 +321,8 @@ static void enable_lvds(struct display_info_t const *dev)
 	/* enable backlight PWM 3 */
 	if (pwm_init(2, 0, 0))
 		goto error;
-	/* duty cycle 200ns, period: 3000ns */
-	if (pwm_config(2, 200, 3000))
+	/* duty cycle 500ns, period: 3000ns */
+	if (pwm_config(2, 500, 3000))
 		goto error;
 	if (pwm_enable(2))
 		goto error;
@@ -350,8 +350,8 @@ struct display_info_t const displays[] = {
 			.right_margin   = 88,
 			.upper_margin   = 10,
 			.lower_margin   = 10,
-			.hsync_len      = 25,
-			.vsync_len      = 1,
+			.hsync_len      = 80,
+			.vsync_len      = 25,
 			.sync           = 0,
 			.vmode          = FB_VMODE_NONINTERLACED
 		}
