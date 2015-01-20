@@ -132,6 +132,7 @@ struct zynq_nand_info {
 	void __iomem		*nand_base;
 	unsigned long		end_cmd_pending;
 	unsigned long		end_cmd;
+	u8			addr_cycle_chng;
 };
 
 #define ONDIE_ECC_FEATURE_ADDR	0x90
@@ -760,6 +761,7 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 {
 	struct nand_chip *chip = mtd->priv;
 	const struct zynq_nand_command_format *curr_cmd = NULL;
+	u8 addr_cycles = 0;
 	struct zynq_nand_info *xnand;
 	void *cmd_addr;
 	unsigned long cmd_data = 0;
@@ -809,8 +811,14 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 	else
 		end_cmd = curr_cmd->end_cmd;
 
+	if (((command == NAND_CMD_READ0) ||
+            (command == NAND_CMD_SEQIN)) && xnand->addr_cycle_chng)
+		addr_cycles = curr_cmd->addr_cycles - 1;
+	else
+		addr_cycles = curr_cmd->addr_cycles;
+
 	cmd_phase_addr = (unsigned long)xnand->nand_base	|
-			(curr_cmd->addr_cycles << ADDR_CYCLES_SHIFT)	|
+			(addr_cycles << ADDR_CYCLES_SHIFT)	|
 			(end_cmd_valid << END_CMD_VALID_SHIFT)		|
 			(COMMAND_PHASE)					|
 			(end_cmd << END_CMD_SHIFT)			|
@@ -1101,6 +1109,9 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	/* Read manufacturer and device IDs */
 	maf_id = nand_chip->read_byte(mtd);
 	dev_id = nand_chip->read_byte(mtd);
+
+	if (maf_id == 0x01 && dev_id == 0xf1)
+		xnand->addr_cycle_chng = 1;
 
 	if ((maf_id == 0x2c) && ((dev_id == 0xf1) ||
 				 (dev_id == 0xa1) || (dev_id == 0xb1) ||
