@@ -512,10 +512,6 @@ unsigned add_ip_checksums(unsigned offset, unsigned sum, unsigned new_sum);
  */
 int ip_checksum_ok(const void *addr, unsigned nbytes);
 
-/* Checksum */
-extern int	NetCksumOk(uchar *, int);	/* Return true if cksum OK */
-extern uint	NetCksum(uchar *, int);		/* Calculate the checksum */
-
 /* Callbacks */
 extern rxhand_f *net_get_udp_handler(void);	/* Get UDP RX packet handler */
 extern void net_set_udp_handler(rxhand_f *);	/* Set UDP RX packet handler */
