@@ -99,3 +99,8 @@ void panic_puts(const char *str)
 	while (*str)
 		NS16550_putc(port, *str++);
 }
+
+int misc_init_r(void)
+{
+	return 0;
+}
