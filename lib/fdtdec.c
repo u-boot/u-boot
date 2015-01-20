@@ -83,6 +83,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(INTEL_MODEL_206AX, "intel,model-206ax"),
 	COMPAT(INTEL_GMA, "intel,gma"),
 	COMPAT(AMS_AS3722, "ams,as3722"),
+	COMPAT(INTEL_ICH_SPI, "intel,ich-spi"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
