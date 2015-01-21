@@ -143,10 +143,6 @@ config TARGET_I12_TVBOX
 	bool "I12_TVBOX"
 	depends on MACH_SUN7I
 
-config TARGET_QT840A
-	bool "QT840A"
-	depends on MACH_SUN7I
-
 config TARGET_R7DONGLE
 	bool "R7DONGLE"
 	depends on MACH_SUN5I
