@@ -18,6 +18,7 @@
 #include <fsl_mdio.h>
 #include <malloc.h>
 #include <asm/fsl_dtsec.h>
+#include <vsc9953.h>
 
 #include "../common/fman.h"
 #include "../common/qixis.h"
@@ -439,6 +440,12 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_FMAN_ENET
 	struct memac_mdio_info memac_mdio_info;
 	unsigned int i;
+#ifdef CONFIG_VSC9953
+	int lane;
+	int phy_addr;
+	phy_interface_t phy_int;
+	struct mii_dev *bus;
+#endif
 
 	printf("Initializing Fman\n");
 	set_brdcfg9_for_gtx_clk();
@@ -493,6 +500,90 @@ int board_eth_init(bd_t *bis)
 		}
 	}
 
+#ifdef CONFIG_VSC9953
+	for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+		lane = -1;
+		phy_addr = 0;
+		phy_int = PHY_INTERFACE_MODE_NONE;
+		switch (i) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+			lane = serdes_get_first_lane(FSL_SRDS_1, QSGMII_SW1_A);
+			/* PHYs connected over QSGMII */
+			if (lane >= 0) {
+				phy_addr = CONFIG_SYS_FM1_QSGMII21_PHY_ADDR +
+						i;
+				phy_int = PHY_INTERFACE_MODE_QSGMII;
+				break;
+			}
+			lane = serdes_get_first_lane(FSL_SRDS_1,
+					SGMII_SW1_MAC1 + i);
+
+			if (lane < 0)
+				break;
+
+			/* PHYs connected over QSGMII */
+			if (i != 3 || lane_to_slot[lane] == 7)
+				phy_addr = CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR
+					+ i;
+			else
+				phy_addr = CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR;
+			phy_int = PHY_INTERFACE_MODE_SGMII;
+			break;
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+			lane = serdes_get_first_lane(FSL_SRDS_1, QSGMII_SW1_B);
+			/* PHYs connected over QSGMII */
+			if (lane >= 0) {
+				phy_addr = CONFIG_SYS_FM1_QSGMII11_PHY_ADDR +
+						i - 4;
+				phy_int = PHY_INTERFACE_MODE_QSGMII;
+				break;
+			}
+			lane = serdes_get_first_lane(FSL_SRDS_1,
+					SGMII_SW1_MAC1 + i);
+			/* PHYs connected over SGMII */
+			if (lane >= 0) {
+				phy_addr = CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR
+						+ i - 3;
+				phy_int = PHY_INTERFACE_MODE_SGMII;
+			}
+			break;
+		case 8:
+			if (serdes_get_first_lane(FSL_SRDS_1,
+						  SGMII_FM1_DTSEC1) < 0)
+				/* FM1@DTSEC1 is connected to SW1@PORT8 */
+				vsc9953_port_enable(i);
+			break;
+		case 9:
+			if (serdes_get_first_lane(FSL_SRDS_1,
+						  SGMII_FM1_DTSEC2) < 0) {
+				/* Enable L2 On MAC2 using SCFG */
+				struct ccsr_scfg *scfg = (struct ccsr_scfg *)
+						CONFIG_SYS_MPC85xx_SCFG;
+
+				out_be32(&scfg->esgmiiselcr,
+					 in_be32(&scfg->esgmiiselcr) |
+					 (0x80000000));
+				vsc9953_port_enable(i);
+			}
+			break;
+		}
+
+		if (lane >= 0) {
+			bus = mii_dev_for_muxval(lane_to_slot[lane]);
+			vsc9953_port_info_set_mdio(i, bus);
+			vsc9953_port_enable(i);
+		}
+		vsc9953_port_info_set_phy_address(i, phy_addr);
+		vsc9953_port_info_set_phy_int(i, phy_int);
+	}
+
+#endif
 	cpu_eth_init(bis);
 #endif
 
