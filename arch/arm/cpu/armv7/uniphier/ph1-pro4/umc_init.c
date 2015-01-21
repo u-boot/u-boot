@@ -9,7 +9,7 @@
 #include <asm/arch/umc-regs.h>
 #include <asm/arch/ddrphy-regs.h>
 
-static inline void umc_start_ssif(void __iomem *ssif_base)
+static void umc_start_ssif(void __iomem *ssif_base)
 {
 	writel(0x00000001, ssif_base + 0x0000b004);
 	writel(0xffffffff, ssif_base + 0x0000c004);
@@ -88,7 +88,7 @@ static void umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
 	writel(0x80000020, dramcont + UMC_DFICUPDCTLA);
 }
 
-static inline int umc_init_sub(int freq, int size_ch0, int size_ch1)
+static int umc_init_sub(int freq, int size_ch0, int size_ch1)
 {
 	void __iomem *ssif_base = (void __iomem *)UMC_SSIF_BASE;
 	void __iomem *ca_base0 = (void __iomem *)UMC_CA_BASE(0);
