@@ -101,6 +101,7 @@
 #else
 
 #include <linux/types.h>
+#include <linux/sizes.h>
 #include <asm/io.h>
 
 static inline void sg_set_pinsel(int n, int value)
@@ -111,23 +112,23 @@ static inline void sg_set_pinsel(int n, int value)
 
 static inline u32 sg_memconf_val_ch0(unsigned long size, int num)
 {
-	int size_mb = (size >> 20) / num;
+	int size_mb = size / num;
 	u32 ret;
 
 	switch (size_mb) {
-	case 64:
+	case SZ_64M:
 		ret = SG_MEMCONF_CH0_SIZE_64MB;
 		break;
-	case 128:
+	case SZ_128M:
 		ret = SG_MEMCONF_CH0_SIZE_128MB;
 		break;
-	case 256:
+	case SZ_256M:
 		ret = SG_MEMCONF_CH0_SIZE_256MB;
 		break;
-	case 512:
+	case SZ_512M:
 		ret = SG_MEMCONF_CH0_SIZE_512MB;
 		break;
-	case 1024:
+	case SZ_1G:
 		ret = SG_MEMCONF_CH0_SIZE_1024MB;
 		break;
 	default:
@@ -151,23 +152,23 @@ static inline u32 sg_memconf_val_ch0(unsigned long size, int num)
 
 static inline u32 sg_memconf_val_ch1(unsigned long size, int num)
 {
-	int size_mb = (size >> 20) / num;
+	int size_mb = size / num;
 	u32 ret;
 
 	switch (size_mb) {
-	case 64:
+	case SZ_64M:
 		ret = SG_MEMCONF_CH1_SIZE_64MB;
 		break;
-	case 128:
+	case SZ_128M:
 		ret = SG_MEMCONF_CH1_SIZE_128MB;
 		break;
-	case 256:
+	case SZ_256M:
 		ret = SG_MEMCONF_CH1_SIZE_256MB;
 		break;
-	case 512:
+	case SZ_512M:
 		ret = SG_MEMCONF_CH1_SIZE_512MB;
 		break;
-	case 1024:
+	case SZ_1G:
 		ret = SG_MEMCONF_CH1_SIZE_1024MB;
 		break;
 	default:
