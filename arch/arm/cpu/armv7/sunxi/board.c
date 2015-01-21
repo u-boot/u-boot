@@ -27,26 +27,6 @@
 
 #include <linux/compiler.h>
 
-#ifdef CONFIG_SPL_BUILD
-/* Pointer to the global data structure for SPL */
-DECLARE_GLOBAL_DATA_PTR;
-
-/* The sunxi internal brom will try to loader external bootloader
- * from mmc0, nand flash, mmc2.
- * Unfortunately we can't check how SPL was loaded so assume
- * it's always the first SD/MMC controller
- */
-u32 spl_boot_device(void)
-{
-	return BOOT_DEVICE_MMC1;
-}
-
-/* No confirmation data available in SPL yet. Hardcode bootmode */
-u32 spl_boot_mode(void)
-{
-	return MMCSD_MODE_RAW;
-}
-
 static int gpio_init(void)
 {
 #if CONFIG_CONS_INDEX == 1 && defined(CONFIG_UART0_PORT_F)
@@ -85,7 +65,7 @@ static int gpio_init(void)
 	return 0;
 }
 
-void board_init_f(ulong dummy)
+void s_init(void)
 {
 #if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
 	/* Magic (undocmented) value taken from boot0, without this DRAM
@@ -105,7 +85,27 @@ void board_init_f(ulong dummy)
 	timer_init();
 	gpio_init();
 	i2c_init_board();
+}
 
+#ifdef CONFIG_SPL_BUILD
+/* The sunxi internal brom will try to loader external bootloader
+ * from mmc0, nand flash, mmc2.
+ * Unfortunately we can't check how SPL was loaded so assume
+ * it's always the first SD/MMC controller
+ */
+u32 spl_boot_device(void)
+{
+	return BOOT_DEVICE_MMC1;
+}
+
+/* No confirmation data available in SPL yet. Hardcode bootmode */
+u32 spl_boot_mode(void)
+{
+	return MMCSD_MODE_RAW;
+}
+
+void board_init_f(ulong dummy)
+{
 	preloader_console_init();
 
 #ifdef CONFIG_SPL_I2C_SUPPORT
