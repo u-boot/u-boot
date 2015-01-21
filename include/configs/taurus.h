@@ -21,9 +21,6 @@
  */
 #include <asm/hardware.h>
 
-#define MACH_TYPE_TAURUS		2067
-#define MACH_TYPE_AXM			2068
-
 #define CONFIG_SYS_GENERIC_BOARD
 
 #if defined(CONFIG_SPL_BUILD)
