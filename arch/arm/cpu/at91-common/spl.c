@@ -12,12 +12,16 @@
 #include <asm/arch/clk.h>
 #include <spl.h>
 
+#if defined(CONFIG_AT91SAM9_WATCHDOG)
+void at91_disable_wdt(void) { }
+#else
 void at91_disable_wdt(void)
 {
 	struct at91_wdt *wdt = (struct at91_wdt *)ATMEL_BASE_WDT;
 
 	writel(AT91_WDT_MR_WDDIS, &wdt->mr);
 }
+#endif
 
 u32 spl_boot_device(void)
 {
