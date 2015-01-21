@@ -52,8 +52,8 @@ static inline void umc_start_ssif(void __iomem *ssif_base)
 	writel(0x00000001, ssif_base + UMC_DMDRST);
 }
 
-void umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
-		       int size, int freq)
+static void umc_dramcont_init(void __iomem *dramcont, void __iomem *ca_base,
+			      int size, int freq)
 {
 	writel(0x66bb0f17, dramcont + UMC_CMDCTLA);
 	writel(0x18c6aa44, dramcont + UMC_CMDCTLB);
