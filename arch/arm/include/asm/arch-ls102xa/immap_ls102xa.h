@@ -170,8 +170,7 @@ struct ccsr_scfg {
 	u32 pex1rdmmsgrqsr;
 	u32 pex2rdmmsgrqsr;
 	u32 spimsiclrcr;
-	u32 pex1mscportsr;
-	u32 pex2mscportsr;
+	u32 pexmscportsr[2];
 	u32 pex2pmwrcr;
 	u32 resv5[24];
 	u32 mac1_streamid;
