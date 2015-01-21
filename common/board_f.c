@@ -111,7 +111,7 @@ static int init_func_watchdog_init(void)
 {
 # if defined(CONFIG_HW_WATCHDOG) && (defined(CONFIG_BLACKFIN) || \
 	defined(CONFIG_M68K) || defined(CONFIG_MICROBLAZE) || \
-	defined(CONFIG_SH))
+	defined(CONFIG_SH) || defined(CONFIG_AT91SAM9_WATCHDOG))
 	hw_watchdog_init();
 # endif
 	puts("       Watchdog enabled\n");
