@@ -25,19 +25,19 @@
 /* Memory Configuration */
 #define SG_MEMCONF			(SG_CTRL_BASE | 0x0400)
 
-#define SG_MEMCONF_CH0_SIZE_64MB	((0x0 << 10) | (0x01 << 0))
-#define SG_MEMCONF_CH0_SIZE_128MB	((0x0 << 10) | (0x02 << 0))
-#define SG_MEMCONF_CH0_SIZE_256MB	((0x0 << 10) | (0x03 << 0))
-#define SG_MEMCONF_CH0_SIZE_512MB	((0x1 << 10) | (0x00 << 0))
-#define SG_MEMCONF_CH0_SIZE_1024MB	((0x1 << 10) | (0x01 << 0))
+#define SG_MEMCONF_CH0_SZ_64M		((0x0 << 10) | (0x01 << 0))
+#define SG_MEMCONF_CH0_SZ_128M		((0x0 << 10) | (0x02 << 0))
+#define SG_MEMCONF_CH0_SZ_256M		((0x0 << 10) | (0x03 << 0))
+#define SG_MEMCONF_CH0_SZ_512M		((0x1 << 10) | (0x00 << 0))
+#define SG_MEMCONF_CH0_SZ_1G		((0x1 << 10) | (0x01 << 0))
 #define SG_MEMCONF_CH0_NUM_1		(0x1 << 8)
 #define SG_MEMCONF_CH0_NUM_2		(0x0 << 8)
 
-#define SG_MEMCONF_CH1_SIZE_64MB	((0x0 << 11) | (0x01 << 2))
-#define SG_MEMCONF_CH1_SIZE_128MB	((0x0 << 11) | (0x02 << 2))
-#define SG_MEMCONF_CH1_SIZE_256MB	((0x0 << 11) | (0x03 << 2))
-#define SG_MEMCONF_CH1_SIZE_512MB	((0x1 << 11) | (0x00 << 2))
-#define SG_MEMCONF_CH1_SIZE_1024MB	((0x1 << 11) | (0x01 << 2))
+#define SG_MEMCONF_CH1_SZ_64M		((0x0 << 11) | (0x01 << 2))
+#define SG_MEMCONF_CH1_SZ_128M		((0x0 << 11) | (0x02 << 2))
+#define SG_MEMCONF_CH1_SZ_256M		((0x0 << 11) | (0x03 << 2))
+#define SG_MEMCONF_CH1_SZ_512M		((0x1 << 11) | (0x00 << 2))
+#define SG_MEMCONF_CH1_SZ_1G		((0x1 << 11) | (0x01 << 2))
 #define SG_MEMCONF_CH1_NUM_1		(0x1 << 9)
 #define SG_MEMCONF_CH1_NUM_2		(0x0 << 9)
 
@@ -117,19 +117,19 @@ static inline u32 sg_memconf_val_ch0(unsigned long size, int num)
 
 	switch (size_mb) {
 	case SZ_64M:
-		ret = SG_MEMCONF_CH0_SIZE_64MB;
+		ret = SG_MEMCONF_CH0_SZ_64M;
 		break;
 	case SZ_128M:
-		ret = SG_MEMCONF_CH0_SIZE_128MB;
+		ret = SG_MEMCONF_CH0_SZ_128M;
 		break;
 	case SZ_256M:
-		ret = SG_MEMCONF_CH0_SIZE_256MB;
+		ret = SG_MEMCONF_CH0_SZ_256M;
 		break;
 	case SZ_512M:
-		ret = SG_MEMCONF_CH0_SIZE_512MB;
+		ret = SG_MEMCONF_CH0_SZ_512M;
 		break;
 	case SZ_1G:
-		ret = SG_MEMCONF_CH0_SIZE_1024MB;
+		ret = SG_MEMCONF_CH0_SZ_1G;
 		break;
 	default:
 		BUG();
@@ -157,19 +157,19 @@ static inline u32 sg_memconf_val_ch1(unsigned long size, int num)
 
 	switch (size_mb) {
 	case SZ_64M:
-		ret = SG_MEMCONF_CH1_SIZE_64MB;
+		ret = SG_MEMCONF_CH1_SZ_64M;
 		break;
 	case SZ_128M:
-		ret = SG_MEMCONF_CH1_SIZE_128MB;
+		ret = SG_MEMCONF_CH1_SZ_128M;
 		break;
 	case SZ_256M:
-		ret = SG_MEMCONF_CH1_SIZE_256MB;
+		ret = SG_MEMCONF_CH1_SZ_256M;
 		break;
 	case SZ_512M:
-		ret = SG_MEMCONF_CH1_SIZE_512MB;
+		ret = SG_MEMCONF_CH1_SZ_512M;
 		break;
 	case SZ_1G:
-		ret = SG_MEMCONF_CH1_SIZE_1024MB;
+		ret = SG_MEMCONF_CH1_SZ_1G;
 		break;
 	default:
 		BUG();
