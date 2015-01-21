@@ -41,6 +41,13 @@
 #define SG_MEMCONF_CH1_NUM_1		(0x1 << 9)
 #define SG_MEMCONF_CH1_NUM_2		(0x0 << 9)
 
+#define SG_MEMCONF_CH2_SZ_64M		((0x0 << 26) | (0x01 << 16))
+#define SG_MEMCONF_CH2_SZ_128M		((0x0 << 26) | (0x02 << 16))
+#define SG_MEMCONF_CH2_SZ_256M		((0x0 << 26) | (0x03 << 16))
+#define SG_MEMCONF_CH2_SZ_512M		((0x1 << 26) | (0x00 << 16))
+#define SG_MEMCONF_CH2_NUM_1		(0x1 << 24)
+#define SG_MEMCONF_CH2_NUM_2		(0x0 << 24)
+
 #define SG_MEMCONF_SPARSEMEM		(0x1 << 4)
 
 /* Pin Control */
@@ -182,6 +189,43 @@ static inline u32 sg_memconf_val_ch1(unsigned long size, int num)
 		break;
 	case 2:
 		ret |= SG_MEMCONF_CH1_NUM_2;
+		break;
+	default:
+		BUG();
+		break;
+	}
+	return ret;
+}
+
+static inline u32 sg_memconf_val_ch2(unsigned long size, int num)
+{
+	int size_mb = size / num;
+	u32 ret;
+
+	switch (size_mb) {
+	case SZ_64M:
+		ret = SG_MEMCONF_CH2_SZ_64M;
+		break;
+	case SZ_128M:
+		ret = SG_MEMCONF_CH2_SZ_128M;
+		break;
+	case SZ_256M:
+		ret = SG_MEMCONF_CH2_SZ_256M;
+		break;
+	case SZ_512M:
+		ret = SG_MEMCONF_CH2_SZ_512M;
+		break;
+	default:
+		BUG();
+		break;
+	}
+
+	switch (num) {
+	case 1:
+		ret |= SG_MEMCONF_CH2_NUM_1;
+		break;
+	case 2:
+		ret |= SG_MEMCONF_CH2_NUM_2;
 		break;
 	default:
 		BUG();
