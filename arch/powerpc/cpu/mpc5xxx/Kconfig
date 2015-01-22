@@ -26,9 +26,6 @@ config TARGET_CM5200
 config TARGET_GALAXY5200
 	bool "Support galaxy5200"
 
-config TARGET_ICECUBE
-	bool "Support IceCube"
-
 config TARGET_INKA4X0
 	bool "Support inka4x0"
 
@@ -46,15 +43,6 @@ config TARGET_MUNICES
 
 config TARGET_V38B
 	bool "Support v38b"
-
-config TARGET_CPCI5200
-	bool "Support cpci5200"
-
-config TARGET_MECP5200
-	bool "Support mecp5200"
-
-config TARGET_PF5200
-	bool "Support pf5200"
 
 config TARGET_O2D
 	bool "Support O2D"
@@ -99,11 +87,7 @@ source "board/a4m072/Kconfig"
 source "board/bc3450/Kconfig"
 source "board/canmb/Kconfig"
 source "board/cm5200/Kconfig"
-source "board/esd/cpci5200/Kconfig"
-source "board/esd/mecp5200/Kconfig"
-source "board/esd/pf5200/Kconfig"
 source "board/galaxy5200/Kconfig"
-source "board/icecube/Kconfig"
 source "board/ifm/o2dnt2/Kconfig"
 source "board/inka4x0/Kconfig"
 source "board/intercontrol/digsy_mtc/Kconfig"
