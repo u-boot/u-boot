@@ -7,6 +7,7 @@ F:	configs/A10-OLinuXino-Lime_defconfig
 F:	configs/ba10_tv_box_defconfig
 F:	configs/Chuwi_V7_CW0825_defconfig
 F:	configs/Cubieboard_defconfig
+F:	configs/Hyundai_A7HD_defconfig
 F:	configs/Mele_A1000_defconfig
 F:	configs/Mele_M3_defconfig
 F:	configs/Mini-X_defconfig
