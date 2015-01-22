@@ -15,6 +15,11 @@
 #define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 #endif
 
+#ifndef CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + \
+				CONFIG_SYS_INIT_SP_OFFSET)
+#endif
+
 #ifdef CONFIG_SYS_LITTLE_ENDIAN
 #define MIPS64_R_INFO(ssym, r_type3, r_type2, r_type) \
 	(((r_type) << 24) | ((r_type2) << 16) | ((r_type3) << 8) | (ssym))
@@ -129,8 +134,30 @@ reset:
 #endif
 
 	/* Set up temporary stack */
-	dli	sp, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
+	dli	t0, -16
+	dli	t1, CONFIG_SYS_INIT_SP_ADDR
+	and	sp, t1, t0		# force 16 byte alignment
+	dsub	sp, sp, GD_SIZE		# reserve space for gd
+	and	sp, sp, t0		# force 16 byte alignment
+	move	k0, sp			# save gd pointer
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	dli	t2, CONFIG_SYS_MALLOC_F_LEN
+	dsub	sp, sp, t2		# reserve space for early malloc
+	and	sp, sp, t0		# force 16 byte alignment
+#endif
 	move	fp, sp
+
+	/* Clear gd */
+	move	t0, k0
+1:
+	sw	zero, 0(t0)
+	blt	t0, t1, 1b
+	 daddi	t0, 4
+
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	daddu	t0, k0, GD_MALLOC_BASE	# gd->malloc_base offset
+	sw	sp, 0(t0)
+#endif
 
 	dla	t9, board_init_f
 	jr	t9

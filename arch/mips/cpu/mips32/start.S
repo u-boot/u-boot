@@ -15,6 +15,11 @@
 #define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 #endif
 
+#ifndef CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + \
+				CONFIG_SYS_INIT_SP_OFFSET)
+#endif
+
 	/*
 	 * For the moment disable interrupts, mark the kernel mode and
 	 * set ST0_KX so that the CPU does not spit fire when using
@@ -135,8 +140,30 @@ reset:
 #endif
 
 	/* Set up temporary stack */
-	li	sp, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
+	li	t0, -16
+	li	t1, CONFIG_SYS_INIT_SP_ADDR
+	and	sp, t1, t0		# force 16 byte alignment
+	sub	sp, sp, GD_SIZE		# reserve space for gd
+	and	sp, sp, t0		# force 16 byte alignment
+	move	k0, sp			# save gd pointer
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	li	t2, CONFIG_SYS_MALLOC_F_LEN
+	sub	sp, sp, t2		# reserve space for early malloc
+	and	sp, sp, t0		# force 16 byte alignment
+#endif
 	move	fp, sp
+
+	/* Clear gd */
+	move	t0, k0
+1:
+	sw	zero, 0(t0)
+	blt	t0, t1, 1b
+	 addi	t0, 4
+
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	addu	t0, k0, GD_MALLOC_BASE	# gd->malloc_base offset
+	sw	sp, 0(t0)
+#endif
 
 	la	t9, board_init_f
 	jr	t9
