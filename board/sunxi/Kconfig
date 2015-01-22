@@ -319,6 +319,13 @@ config VIDEO_LCD_BL_PWM
 	Set the backlight pwm pin for the LCD panel. This takes a string in the
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
+config VIDEO_LCD_BL_PWM_ACTIVE_LOW
+	bool "LCD panel backlight pwm is inverted"
+	depends on VIDEO
+	default y
+	---help---
+	Set this if the backlight pwm output is active low.
+
 
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig

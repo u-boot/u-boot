@@ -23,6 +23,14 @@
 #include "hitachi_tx18d42vm_lcd.h"
 #include "ssd2828.h"
 
+#ifdef CONFIG_VIDEO_LCD_BL_PWM_ACTIVE_LOW
+#define PWM_ON 0
+#define PWM_OFF 1
+#else
+#define PWM_ON 1
+#define PWM_OFF 0
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 enum sunxi_monitor {
@@ -598,8 +606,7 @@ static void sunxi_lcdc_panel_enable(void)
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_PWM);
 	if (pin != -1) {
 		gpio_request(pin, "lcd_backlight_pwm");
-		/* backlight pwm is inverted, set to 1 to disable backlight */
-		gpio_direction_output(pin, 1);
+		gpio_direction_output(pin, PWM_OFF);
 	}
 
 	/* Give the backlight some time to turn off and power up the panel. */
@@ -626,10 +633,8 @@ static void sunxi_lcdc_backlight_enable(void)
 		gpio_direction_output(pin, 1);
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_PWM);
-	if (pin != -1) {
-		/* backlight pwm is inverted, set to 0 to enable backlight */
-		gpio_direction_output(pin, 0);
-	}
+	if (pin != -1)
+		gpio_direction_output(pin, PWM_ON);
 }
 
 static int sunxi_lcdc_get_clk_delay(const struct ctfb_res_modes *mode)
