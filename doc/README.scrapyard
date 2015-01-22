@@ -12,6 +12,10 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+P2020RDB         powerpc     mpc85xx        -           -           Poonam Aggrwal <poonam.aggrwal@freescale.com>
+P2010RDB         powerpc     mpc85xx        -           -
+P1020RDB         powerpc     mpc85xx        -           -
+P1011RDB         powerpc     mpc85xx        -           -
 MPC8360EMDS      powerpc     mpc83xx        -           -           Dave Liu <daveliu@freescale.com>
 MPC8360ERDK      powerpc     mpc83xx        -           -           Anton Vorontsov <avorontsov@ru.mvista.com>
 P3G4             powerpc     74xx_7xx       d928664f    2015-01-16  Wolfgang Denk <wd@denx.de>
