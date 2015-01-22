@@ -94,3 +94,8 @@ MARSBOARD-A10 BOARD
 M:	Aleksei Mamlin <mamlinav@gmail.com>
 S:	Maintained
 F:	configs/Marsboard_A10_defconfig
+
+MELE M5 BOARD
+M:	Ian Campbell <ijc@hellion.org.uk>
+S:	Maintained
+F:	configs/Mele_M5_defconfig
