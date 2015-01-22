@@ -23,11 +23,15 @@ _start:
 
 	mts	rmsr, r0	/* disable cache */
 
+	addi	r8, r0, __end
+	mts	rslr, r8
 #if defined(CONFIG_SPL_BUILD)
 	addi	r1, r0, CONFIG_SPL_STACK_ADDR
+	mts	rshr, r1
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
 #else
 	addi	r1, r0, CONFIG_SYS_INIT_SP_OFFSET
+	mts	rshr, r1
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
 
 	/* Find-out if u-boot is running on BIG/LITTLE endian platform
@@ -130,7 +134,7 @@ flush:	bralid r15, flush_cache
 
 	/* enable instruction and data cache */
 	mfs	r12, rmsr
-	ori	r12, r12, 0xa0
+	ori	r12, r12, 0x1a0
 	mts	rmsr, r12
 
 clear_bss:
