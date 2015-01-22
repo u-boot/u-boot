@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+Total5200        powerpc     mpc5xxx        -           -
 CATcenter        powerpc     ppc4xx         -           -
 PPChameleonEVB   powerpc     ppc4xx         -           -           Andrea "llandre" Marson <andrea.marson@dave-tech.it>
 P2020DS          powerpc     mpc85xx        -           -

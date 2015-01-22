@@ -117,10 +117,7 @@
  * Defines for the SED13806 driver
  */
 #ifdef CONFIG_VIDEO_SED13806
-
-#ifndef CONFIG_TOTAL5200
 #define VIDEO_FB_LITTLE_ENDIAN
-#endif
 #define VIDEO_HW_RECTFILL
 #define VIDEO_HW_BITBLT
 #endif
