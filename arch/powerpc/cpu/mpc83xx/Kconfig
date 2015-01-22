@@ -41,12 +41,6 @@ config TARGET_MPC8349EMDS
 config TARGET_MPC8349ITX
 	bool "Support MPC8349ITX"
 
-config TARGET_MPC8360EMDS
-	bool "Support MPC8360EMDS"
-
-config TARGET_MPC8360ERDK
-	bool "Support MPC8360ERDK"
-
 config TARGET_MPC837XEMDS
 	bool "Support MPC837XEMDS"
 
@@ -81,8 +75,6 @@ source "board/freescale/mpc8323erdb/Kconfig"
 source "board/freescale/mpc832xemds/Kconfig"
 source "board/freescale/mpc8349emds/Kconfig"
 source "board/freescale/mpc8349itx/Kconfig"
-source "board/freescale/mpc8360emds/Kconfig"
-source "board/freescale/mpc8360erdk/Kconfig"
 source "board/freescale/mpc837xemds/Kconfig"
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
