@@ -98,7 +98,7 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 			       rom_address | PCI_ROM_ADDRESS_ENABLE);
 #endif
 	debug("Option ROM address %x\n", rom_address);
-	rom_header = (struct pci_rom_header *)rom_address;
+	rom_header = (struct pci_rom_header *)(unsigned long)rom_address;
 
 	debug("PCI expansion ROM, signature %#04x, INIT size %#04x, data ptr %#04x\n",
 	      le16_to_cpu(rom_header->signature),
