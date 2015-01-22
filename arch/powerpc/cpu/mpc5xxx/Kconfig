@@ -44,9 +44,6 @@ config TARGET_MOTIONPRO
 config TARGET_MUNICES
 	bool "Support munices"
 
-config TARGET_PM520
-	bool "Support PM520"
-
 config TARGET_V38B
 	bool "Support v38b"
 
@@ -115,7 +112,6 @@ source "board/jupiter/Kconfig"
 source "board/motionpro/Kconfig"
 source "board/munices/Kconfig"
 source "board/phytec/pcm030/Kconfig"
-source "board/pm520/Kconfig"
 source "board/tqc/tqm5200/Kconfig"
 source "board/v38b/Kconfig"
 
