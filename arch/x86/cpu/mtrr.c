@@ -17,6 +17,8 @@
 #include <asm/msr.h>
 #include <asm/mtrr.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Prepare to adjust MTRRs */
 void mtrr_open(struct mtrr_state *state)
 {
