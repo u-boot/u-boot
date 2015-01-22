@@ -262,7 +262,6 @@ typedef struct {
 
 /* from include/linux/types.h */
 
-typedef int	atomic_t;
 /**
  * struct callback_head - callback structure for use with RCU and task_work
  * @next: next update requests in a list
