@@ -21,8 +21,8 @@ void sg_init(void)
 #endif
 	writel(tmp, SG_MEMCONF);
 
-	/* Input ports must be enabled deasserting reset of cores */
+	/* Input ports must be enabled before deasserting reset of cores */
 	tmp = readl(SG_IECTRL);
-	tmp |= 0x1;
+	tmp |= 1 << 6;
 	writel(tmp, SG_IECTRL);
 }

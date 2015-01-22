@@ -72,7 +72,7 @@ struct ddrphy {
 		u32 gtr;	/* General Timing Register */
 		u32 rsv[3];	/* Reserved */
 	} dx[9];
-} __packed;
+};
 
 #endif /* __ASSEMBLY__ */
 
