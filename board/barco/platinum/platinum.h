@@ -9,6 +9,7 @@
 
 #include <miiphy.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/io.h>
 
 /* Defines */
 
