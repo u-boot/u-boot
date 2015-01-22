@@ -22,6 +22,9 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Prepare to adjust MTRRs */
 void mtrr_open(struct mtrr_state *state)
 {
+	if (!gd->arch.has_mtrr)
+		return;
+
 	state->enable_cache = dcache_status();
 
 	if (state->enable_cache)
@@ -33,6 +36,9 @@ void mtrr_open(struct mtrr_state *state)
 /* Clean up after adjusting MTRRs, and enable them */
 void mtrr_close(struct mtrr_state *state)
 {
+	if (!gd->arch.has_mtrr)
+		return;
+
 	wrmsrl(MTRR_DEF_TYPE_MSR, state->deftype | MTRR_DEF_TYPE_EN);
 	if (state->enable_cache)
 		enable_caches();
@@ -44,6 +50,9 @@ int mtrr_commit(bool do_caches)
 	struct mtrr_state state;
 	uint64_t mask;
 	int i;
+
+	if (!gd->arch.has_mtrr)
+		return -ENOSYS;
 
 	mtrr_open(&state);
 	for (i = 0; i < gd->arch.mtrr_req_count; i++, req++) {
@@ -65,6 +74,9 @@ int mtrr_add_request(int type, uint64_t start, uint64_t size)
 {
 	struct mtrr_request *req;
 	uint64_t mask;
+
+	if (!gd->arch.has_mtrr)
+		return -ENOSYS;
 
 	if (gd->arch.mtrr_req_count == MAX_MTRR_REQUESTS)
 		return -ENOSPC;

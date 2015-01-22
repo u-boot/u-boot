@@ -7,6 +7,7 @@
 #include <common.h>
 #include <fdtdec.h>
 #include <spi.h>
+#include <asm/errno.h>
 #include <asm/mtrr.h>
 #include <asm/sections.h>
 
@@ -71,7 +72,8 @@ int init_cache_f_r(void)
 	int ret;
 
 	ret = mtrr_commit(false);
-	if (ret)
+	/* If MTRR MSR is not implemented by the processor, just ignore it */
+	if (ret && ret != -ENOSYS)
 		return ret;
 #endif
 	/* Initialise the CPU cache(s) */
