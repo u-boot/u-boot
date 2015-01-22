@@ -101,12 +101,6 @@ config TARGET_FX12MM
 config TARGET_V5FX30TEVAL
 	bool "Support v5fx30teval"
 
-config TARGET_CATCENTER
-	bool "Support CATcenter"
-
-config TARGET_PPCHAMELEONEVB
-	bool "Support PPChameleonEVB"
-
 config TARGET_CPCI2DP
 	bool "Support CPCI2DP"
 
@@ -199,7 +193,6 @@ source "board/avnet/fx12mm/Kconfig"
 source "board/avnet/v5fx30teval/Kconfig"
 source "board/csb272/Kconfig"
 source "board/csb472/Kconfig"
-source "board/dave/PPChameleonEVB/Kconfig"
 source "board/esd/cpci2dp/Kconfig"
 source "board/esd/cpci405/Kconfig"
 source "board/esd/plu405/Kconfig"

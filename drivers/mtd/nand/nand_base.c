@@ -1065,11 +1065,6 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *chip)
 		}
 	}
 #endif
-#ifdef PPCHAMELON_NAND_TIMER_HACK
-	time_start = get_timer(0);
-	while (get_timer(time_start) < 10)
-		;
-#endif /*  PPCHAMELON_NAND_TIMER_HACK */
 	led_trigger_event(nand_led_trigger, LED_OFF);
 
 	status = (int)chip->read_byte(mtd);
