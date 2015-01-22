@@ -139,6 +139,11 @@ int xilinx_load(xilinx_desc *desc, const void *buf, size_t bsize,
 		return FPGA_FAIL;
 	}
 
+	if (!desc->operations || !desc->operations->load) {
+		printf("%s: Missing load operation\n", __func__);
+		return FPGA_FAIL;
+	}
+
 	return desc->operations->load(desc, buf, bsize, bstype);
 }
 
@@ -151,8 +156,10 @@ int xilinx_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
 		return FPGA_FAIL;
 	}
 
-	if (!desc->operations->loadfs)
+	if (!desc->operations || !desc->operations->loadfs) {
+		printf("%s: Missing loadfs operation\n", __func__);
 		return FPGA_FAIL;
+	}
 
 	return desc->operations->loadfs(desc, buf, bsize, fpga_fsinfo);
 }
@@ -162,6 +169,11 @@ int xilinx_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	if (!xilinx_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
+		return FPGA_FAIL;
+	}
+
+	if (!desc->operations || !desc->operations->dump) {
+		printf("%s: Missing dump operation\n", __func__);
 		return FPGA_FAIL;
 	}
 
@@ -226,11 +238,13 @@ int xilinx_info(xilinx_desc *desc)
 		if (desc->name)
 			printf("Device name:   \t%s\n", desc->name);
 
-		if (desc->iface_fns) {
+		if (desc->iface_fns)
 			printf ("Device Function Table @ 0x%p\n", desc->iface_fns);
-			desc->operations->info(desc);
-		} else
+		else
 			printf ("No Device Function Table.\n");
+
+		if (desc->operations && desc->operations->info)
+			desc->operations->info(desc);
 
 		ret_val = FPGA_SUCCESS;
 	} else {
