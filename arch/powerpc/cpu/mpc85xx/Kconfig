@@ -93,9 +93,6 @@ config TARGET_P1_P2_RDB_PC
 config TARGET_P1_TWR
 	bool "Support p1_twr"
 
-config TARGET_P2020DS
-	bool "Support P2020DS"
-
 config TARGET_P2041RDB
 	bool "Support P2041RDB"
 
@@ -178,7 +175,6 @@ source "board/freescale/p1022ds/Kconfig"
 source "board/freescale/p1023rdb/Kconfig"
 source "board/freescale/p1_p2_rdb_pc/Kconfig"
 source "board/freescale/p1_twr/Kconfig"
-source "board/freescale/p2020ds/Kconfig"
 source "board/freescale/p2041rdb/Kconfig"
 source "board/freescale/qemu-ppce500/Kconfig"
 source "board/freescale/t102xqds/Kconfig"

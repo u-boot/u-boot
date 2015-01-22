@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+P2020DS          powerpc     mpc85xx        -           -
 P2020COME        powerpc     mpc85xx        -           -           Ira W. Snyder <iws@ovro.caltech.edu>
 P2020RDB         powerpc     mpc85xx        -           -           Poonam Aggrwal <poonam.aggrwal@freescale.com>
 P2010RDB         powerpc     mpc85xx        -           -
