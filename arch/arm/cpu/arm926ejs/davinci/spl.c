@@ -34,29 +34,14 @@ void putc(char c)
 }
 #endif /* CONFIG_SPL_LIBCOMMON_SUPPORT */
 
-void board_init_f(ulong dummy)
+void spl_board_init(void)
 {
-	/* First, setup our stack pointer. */
-	asm volatile("mov sp, %0\n" : : "r"(CONFIG_SPL_STACK));
-
-	/* Second, perform our low-level init. */
 #ifdef CONFIG_SOC_DM365
 	dm36x_lowlevel_init(0);
 #endif
 #ifdef CONFIG_SOC_DA8XX
 	arch_cpu_init();
 #endif
-
-	/* Third, we clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
-
-	/* Finally, setup gd and move to the next step. */
-	gd = &gdata;
-	board_init_r(NULL, 0);
-}
-
-void spl_board_init(void)
-{
 	preloader_console_init();
 }
 
