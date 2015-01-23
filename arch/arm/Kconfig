@@ -736,6 +736,10 @@ config TARGET_VEXPRESS64_BASE_FVP
 	select ARM64
 	select SEMIHOSTING
 
+config TARGET_VEXPRESS64_JUNO
+	bool "Support Versatile Express Juno Development Platform"
+	select ARM64
+
 config TARGET_LS2085A_EMU
 	bool "Support ls2085a_emu"
 	select ARM64
