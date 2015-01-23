@@ -67,6 +67,9 @@ reset:
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
 0:
 
+	/* Apply ARM core specific erratas */
+	bl	apply_core_errata
+
 	/*
 	 * Cache/BPB/TLB Invalidate
 	 * i-cache is invalidated before enabled in icache_enable()
@@ -94,6 +97,48 @@ slave_cpu:
 	 */
 master_cpu:
 	bl	_main
+
+/*-----------------------------------------------------------------------*/
+
+WEAK(apply_core_errata)
+
+	mov	x29, lr			/* Save LR */
+	/* For now, we support Cortex-A57 specific errata only */
+
+	/* Check if we are running on a Cortex-A57 core */
+	branch_if_a57_core x0, apply_a57_core_errata
+0:
+	mov	lr, x29			/* Restore LR */
+	ret
+
+apply_a57_core_errata:
+
+#ifdef CONFIG_ARM_ERRATA_828024
+	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
+	/* Disable non-allocate hint of w-b-n-a memory type */
+	mov	x0, #0x1 << 49
+	/* Disable write streaming no L1-allocate threshold */
+	mov	x0, #0x3 << 25
+	/* Disable write streaming no-allocate threshold */
+	mov	x0, #0x3 << 27
+	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_826974
+	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
+	/* Disable speculative load execution ahead of a DMB */
+	mov	x0, #0x1 << 59
+	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_833069
+	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
+	/* Disable Enable Invalidates of BTB bit */
+	and	x0, x0, #0xE
+	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
+#endif
+	b 0b
+ENDPROC(apply_core_errata)
 
 /*-----------------------------------------------------------------------*/
 
