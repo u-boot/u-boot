@@ -85,8 +85,12 @@ static void print_mmcinfo(struct mmc *mmc)
 	printf("Tran Speed: %d\n", mmc->tran_speed);
 	printf("Rd Block Len: %d\n", mmc->read_bl_len);
 
-	printf("%s version %d.%d\n", IS_SD(mmc) ? "SD" : "MMC",
-			(mmc->version >> 8) & 0xf, mmc->version & 0xff);
+	printf("%s version %d.%d", IS_SD(mmc) ? "SD" : "MMC",
+			EXTRACT_SDMMC_MAJOR_VERSION(mmc->version),
+			EXTRACT_SDMMC_MINOR_VERSION(mmc->version));
+	if (EXTRACT_SDMMC_CHANGE_VERSION(mmc->version) != 0)
+		printf(".%d", EXTRACT_SDMMC_CHANGE_VERSION(mmc->version));
+	printf("\n");
 
 	printf("High Capacity: %s\n", mmc->high_capacity ? "Yes" : "No");
 	puts("Capacity: ");
