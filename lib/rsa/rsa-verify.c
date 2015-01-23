@@ -12,6 +12,7 @@
 #include <asm/errno.h>
 #include <asm/types.h>
 #include <asm/unaligned.h>
+#include <dm.h>
 #else
 #include "fdt_host.h"
 #include "mkimage.h"
@@ -43,6 +44,9 @@ static int rsa_verify_key(struct key_prop *prop, const uint8_t *sig,
 	const uint8_t *padding;
 	int pad_len;
 	int ret;
+#if !defined(USE_HOSTCC)
+	struct udevice *mod_exp_dev;
+#endif
 
 	if (!prop || !sig || !hash || !algo)
 		return -EIO;
@@ -63,7 +67,17 @@ static int rsa_verify_key(struct key_prop *prop, const uint8_t *sig,
 
 	uint8_t buf[sig_len];
 
+#if !defined(USE_HOSTCC)
+	ret = uclass_get_device(UCLASS_MOD_EXP, 0, &mod_exp_dev);
+	if (ret) {
+		printf("RSA: Can't find Modular Exp implementation\n");
+		return -EINVAL;
+	}
+
+	ret = rsa_mod_exp(mod_exp_dev, sig, sig_len, prop, buf);
+#else
 	ret = rsa_mod_exp_sw(sig, sig_len, prop, buf);
+#endif
 	if (ret) {
 		debug("Error in Modular exponentation\n");
 		return ret;

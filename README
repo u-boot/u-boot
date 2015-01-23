@@ -3176,8 +3176,13 @@ CBFS (Coreboot Filesystem) support
 		This enables the RSA algorithm used for FIT image verification
 		in U-Boot. See doc/uImage.FIT/signature.txt for more information.
 
+		The Modular Exponentiation algorithm in RSA is implemented using
+		driver model. So CONFIG_DM needs to be enabled by default for this
+		library to function.
+
 		The signing part is build into mkimage regardless of this
-		option.
+		option. The software based modular exponentiation is built into
+		mkimage irrespective of this option.
 
 - bootcount support:
 		CONFIG_BOOTCOUNT_LIMIT
