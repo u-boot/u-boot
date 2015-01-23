@@ -116,8 +116,9 @@ config FIT_VERBOSE
 	depends on FIT
 
 config FIT_SIGNATURE
-	bool "Enabel signature verification of FIT uImages"
+	bool "Enable signature verification of FIT uImages"
 	depends on FIT
+	select RSA
 	help
 	  This option enables signature verification of FIT uImages,
 	  using a hash signed and verified using RSA.

@@ -27,4 +27,11 @@ config SYS_HZ
 	  get_timer() must operate in milliseconds and this option must be
 	  set to 1000.
 
+config RSA
+	bool "Use RSA Library"
+	help
+	  RSA support. This enables the RSA algorithm used for FIT image
+	  verification in U-Boot.
+	  See doc/uImage.FIT/signature.txt for more details.
+
 endmenu
