@@ -16,6 +16,13 @@
 
 #include "fsl_epu.h"
 
+#define DCSR_RCPM2_BLOCK_OFFSET	0x223000
+#define DCSR_RCPM2_CPMFSMCR0	0x400
+#define DCSR_RCPM2_CPMFSMSR0	0x404
+#define DCSR_RCPM2_CPMFSMCR1	0x414
+#define DCSR_RCPM2_CPMFSMSR1	0x418
+#define CPMFSMSR_FSM_STATE_MASK	0x7f
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SYS_DCACHE_OFF
@@ -290,6 +297,27 @@ int cpu_eth_init(bd_t *bis)
 int arch_cpu_init(void)
 {
 	void *epu_base = (void *)(CONFIG_SYS_DCSRBAR + EPU_BLOCK_OFFSET);
+	void *rcpm2_base =
+		(void *)(CONFIG_SYS_DCSRBAR + DCSR_RCPM2_BLOCK_OFFSET);
+	u32 state;
+
+	/*
+	 * The RCPM FSM state may not be reset after power-on.
+	 * So, reset them.
+	 */
+	state = in_be32(rcpm2_base + DCSR_RCPM2_CPMFSMSR0) &
+		CPMFSMSR_FSM_STATE_MASK;
+	if (state != 0) {
+		out_be32(rcpm2_base + DCSR_RCPM2_CPMFSMCR0, 0x80);
+		out_be32(rcpm2_base + DCSR_RCPM2_CPMFSMCR0, 0x0);
+	}
+
+	state = in_be32(rcpm2_base + DCSR_RCPM2_CPMFSMSR1) &
+		CPMFSMSR_FSM_STATE_MASK;
+	if (state != 0) {
+		out_be32(rcpm2_base + DCSR_RCPM2_CPMFSMCR1, 0x80);
+		out_be32(rcpm2_base + DCSR_RCPM2_CPMFSMCR1, 0x0);
+	}
 
 	/*
 	 * After wakeup from deep sleep, Clear EPU registers
