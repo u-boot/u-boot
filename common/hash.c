@@ -20,7 +20,7 @@
 #include <asm/io.h>
 #include <asm/errno.h>
 
-#ifdef CONFIG_CMD_SHA1SUM
+#ifdef CONFIG_SHA1
 static int hash_init_sha1(struct hash_algo *algo, void **ctxp)
 {
 	sha1_context *ctx = malloc(sizeof(sha1_context));
@@ -125,12 +125,7 @@ static struct hash_algo hash_algo[] = {
 		CHUNKSZ_SHA256,
 	},
 #endif
-	/*
-	 * This is CONFIG_CMD_SHA1SUM instead of CONFIG_SHA1 since otherwise
-	 * it bloats the code for boards which use SHA1 but not the 'hash'
-	 * or 'sha1sum' commands.
-	 */
-#ifdef CONFIG_CMD_SHA1SUM
+#ifdef CONFIG_SHA1
 	{
 		"sha1",
 		SHA1_SUM_LEN,
@@ -140,7 +135,6 @@ static struct hash_algo hash_algo[] = {
 		hash_update_sha1,
 		hash_finish_sha1,
 	},
-#define MULTI_HASH
 #endif
 #ifdef CONFIG_SHA256
 	{
@@ -152,7 +146,6 @@ static struct hash_algo hash_algo[] = {
 		hash_update_sha256,
 		hash_finish_sha256,
 	},
-#define MULTI_HASH
 #endif
 	{
 		"crc32",
@@ -164,6 +157,10 @@ static struct hash_algo hash_algo[] = {
 		hash_finish_crc32,
 	},
 };
+
+#if defined(CONFIG_SHA256) || defined(CONFIG_CMD_SHA1SUM)
+#define MULTI_HASH
+#endif
 
 #if defined(CONFIG_HASH_VERIFY) || defined(CONFIG_CMD_HASH)
 #define MULTI_HASH
@@ -304,6 +301,24 @@ int hash_lookup_algo(const char *algo_name, struct hash_algo **algop)
 		if (!strcmp(algo_name, hash_algo[i].name)) {
 			*algop = &hash_algo[i];
 			return 0;
+		}
+	}
+
+	debug("Unknown hash algorithm '%s'\n", algo_name);
+	return -EPROTONOSUPPORT;
+}
+
+int hash_progressive_lookup_algo(const char *algo_name,
+				 struct hash_algo **algop)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
+		if (!strcmp(algo_name, hash_algo[i].name)) {
+			if (hash_algo[i].hash_init) {
+				*algop = &hash_algo[i];
+				return 0;
+			}
 		}
 	}
 

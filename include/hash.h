@@ -128,6 +128,20 @@ int hash_block(const char *algo_name, const void *data, unsigned int len,
 int hash_lookup_algo(const char *algo_name, struct hash_algo **algop);
 
 /**
+ * hash_progressive_lookup_algo() - Look up hash_algo for prog. hash support
+ *
+ * The function returns the pointer to the struct or -EPROTONOSUPPORT if the
+ * algorithm is not available with progressive hash support.
+ *
+ * @algo_name: Hash algorithm to look up
+ * @algop: Pointer to the hash_algo struct if found
+ *
+ * @return 0 if ok, -EPROTONOSUPPORT for an unknown algorithm.
+ */
+int hash_progressive_lookup_algo(const char *algo_name,
+				 struct hash_algo **algop);
+
+/**
  * hash_show() - Print out a hash algorithm and value
  *
  * You will get a message like this (without a newline at the end):
