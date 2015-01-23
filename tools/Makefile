@@ -60,7 +60,8 @@ FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := common/image-sig.o
 LIBFDT_OBJS := $(addprefix lib/libfdt/, \
 			fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_wip.o)
 RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
-					rsa-sign.o rsa-verify.o rsa-checksum.o)
+					rsa-sign.o rsa-verify.o rsa-checksum.o \
+					rsa-mod-exp.o)
 
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
