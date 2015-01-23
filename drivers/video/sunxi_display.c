@@ -20,6 +20,16 @@
 #include <fdt_support.h>
 #include <video_fb.h>
 #include "videomodes.h"
+#include "hitachi_tx18d42vm_lcd.h"
+#include "ssd2828.h"
+
+#ifdef CONFIG_VIDEO_LCD_BL_PWM_ACTIVE_LOW
+#define PWM_ON 0
+#define PWM_OFF 1
+#else
+#define PWM_ON 1
+#define PWM_OFF 0
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -270,6 +280,114 @@ static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 
 #endif /* CONFIG_VIDEO_HDMI */
 
+#ifdef CONFIG_MACH_SUN4I
+/*
+ * Testing has shown that on sun4i the display backend engine does not have
+ * deep enough fifo-s causing flickering / tearing in full-hd mode due to
+ * fifo underruns. So on sun4i we use the display frontend engine to do the
+ * dma from memory, as the frontend does have deep enough fifo-s.
+ */
+
+static const u32 sun4i_vert_coef[32] = {
+	0x00004000, 0x000140ff, 0x00033ffe, 0x00043ffd,
+	0x00063efc, 0xff083dfc, 0x000a3bfb, 0xff0d39fb,
+	0xff0f37fb, 0xff1136fa, 0xfe1433fb, 0xfe1631fb,
+	0xfd192ffb, 0xfd1c2cfb, 0xfd1f29fb, 0xfc2127fc,
+	0xfc2424fc, 0xfc2721fc, 0xfb291ffd, 0xfb2c1cfd,
+	0xfb2f19fd, 0xfb3116fe, 0xfb3314fe, 0xfa3611ff,
+	0xfb370fff, 0xfb390dff, 0xfb3b0a00, 0xfc3d08ff,
+	0xfc3e0600, 0xfd3f0400, 0xfe3f0300, 0xff400100,
+};
+
+static const u32 sun4i_horz_coef[64] = {
+	0x40000000, 0x00000000, 0x40fe0000, 0x0000ff03,
+	0x3ffd0000, 0x0000ff05, 0x3ffc0000, 0x0000ff06,
+	0x3efb0000, 0x0000ff08, 0x3dfb0000, 0x0000ff09,
+	0x3bfa0000, 0x0000fe0d, 0x39fa0000, 0x0000fe0f,
+	0x38fa0000, 0x0000fe10, 0x36fa0000, 0x0000fe12,
+	0x33fa0000, 0x0000fd16, 0x31fa0000, 0x0000fd18,
+	0x2ffa0000, 0x0000fd1a, 0x2cfa0000, 0x0000fc1e,
+	0x29fa0000, 0x0000fc21, 0x27fb0000, 0x0000fb23,
+	0x24fb0000, 0x0000fb26, 0x21fb0000, 0x0000fb29,
+	0x1ffc0000, 0x0000fa2b, 0x1cfc0000, 0x0000fa2e,
+	0x19fd0000, 0x0000fa30, 0x16fd0000, 0x0000fa33,
+	0x14fd0000, 0x0000fa35, 0x11fe0000, 0x0000fa37,
+	0x0ffe0000, 0x0000fa39, 0x0dfe0000, 0x0000fa3b,
+	0x0afe0000, 0x0000fa3e, 0x08ff0000, 0x0000fb3e,
+	0x06ff0000, 0x0000fb40, 0x05ff0000, 0x0000fc40,
+	0x03ff0000, 0x0000fd41, 0x01ff0000, 0x0000fe42,
+};
+
+static void sunxi_frontend_init(void)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct sunxi_de_fe_reg * const de_fe =
+		(struct sunxi_de_fe_reg *)SUNXI_DE_FE0_BASE;
+	int i;
+
+	/* Clocks on */
+	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_DE_FE0);
+	setbits_le32(&ccm->dram_clk_gate, 1 << CCM_DRAM_GATE_OFFSET_DE_FE0);
+	clock_set_de_mod_clock(&ccm->fe0_clk_cfg, 300000000);
+
+	setbits_le32(&de_fe->enable, SUNXI_DE_FE_ENABLE_EN);
+
+	for (i = 0; i < 32; i++) {
+		writel(sun4i_horz_coef[2 * i], &de_fe->ch0_horzcoef0[i]);
+		writel(sun4i_horz_coef[2 * i + 1], &de_fe->ch0_horzcoef1[i]);
+		writel(sun4i_vert_coef[i], &de_fe->ch0_vertcoef[i]);
+		writel(sun4i_horz_coef[2 * i], &de_fe->ch1_horzcoef0[i]);
+		writel(sun4i_horz_coef[2 * i + 1], &de_fe->ch1_horzcoef1[i]);
+		writel(sun4i_vert_coef[i], &de_fe->ch1_vertcoef[i]);
+	}
+
+	setbits_le32(&de_fe->frame_ctrl, SUNXI_DE_FE_FRAME_CTRL_COEF_RDY);
+}
+
+static void sunxi_frontend_mode_set(const struct ctfb_res_modes *mode,
+				    unsigned int address)
+{
+	struct sunxi_de_fe_reg * const de_fe =
+		(struct sunxi_de_fe_reg *)SUNXI_DE_FE0_BASE;
+
+	setbits_le32(&de_fe->bypass, SUNXI_DE_FE_BYPASS_CSC_BYPASS);
+	writel(CONFIG_SYS_SDRAM_BASE + address, &de_fe->ch0_addr);
+	writel(mode->xres * 4, &de_fe->ch0_stride);
+	writel(SUNXI_DE_FE_INPUT_FMT_ARGB8888, &de_fe->input_fmt);
+	writel(SUNXI_DE_FE_OUTPUT_FMT_ARGB8888, &de_fe->output_fmt);
+
+	writel(SUNXI_DE_FE_HEIGHT(mode->yres) | SUNXI_DE_FE_WIDTH(mode->xres),
+	       &de_fe->ch0_insize);
+	writel(SUNXI_DE_FE_HEIGHT(mode->yres) | SUNXI_DE_FE_WIDTH(mode->xres),
+	       &de_fe->ch0_outsize);
+	writel(SUNXI_DE_FE_FACTOR_INT(1), &de_fe->ch0_horzfact);
+	writel(SUNXI_DE_FE_FACTOR_INT(1), &de_fe->ch0_vertfact);
+
+	writel(SUNXI_DE_FE_HEIGHT(mode->yres) | SUNXI_DE_FE_WIDTH(mode->xres),
+	       &de_fe->ch1_insize);
+	writel(SUNXI_DE_FE_HEIGHT(mode->yres) | SUNXI_DE_FE_WIDTH(mode->xres),
+	       &de_fe->ch1_outsize);
+	writel(SUNXI_DE_FE_FACTOR_INT(1), &de_fe->ch1_horzfact);
+	writel(SUNXI_DE_FE_FACTOR_INT(1), &de_fe->ch1_vertfact);
+
+	setbits_le32(&de_fe->frame_ctrl, SUNXI_DE_FE_FRAME_CTRL_REG_RDY);
+}
+
+static void sunxi_frontend_enable(void)
+{
+	struct sunxi_de_fe_reg * const de_fe =
+		(struct sunxi_de_fe_reg *)SUNXI_DE_FE0_BASE;
+
+	setbits_le32(&de_fe->frame_ctrl, SUNXI_DE_FE_FRAME_CTRL_FRM_START);
+}
+#else
+static void sunxi_frontend_init(void) {}
+static void sunxi_frontend_mode_set(const struct ctfb_res_modes *mode,
+				    unsigned int address) {}
+static void sunxi_frontend_enable(void) {}
+#endif
+
 /*
  * This is the entity that mixes and matches the different layers and inputs.
  * Allwinner calls it the back-end, but i like composer better.
@@ -282,6 +400,8 @@ static void sunxi_composer_init(void)
 		(struct sunxi_de_be_reg *)SUNXI_DE_BE0_BASE;
 	int i;
 
+	sunxi_frontend_init();
+
 #if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
 	/* Reset off */
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DE_BE0);
@@ -289,7 +409,9 @@ static void sunxi_composer_init(void)
 
 	/* Clocks on */
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_DE_BE0);
+#ifndef CONFIG_MACH_SUN4I /* On sun4i the frontend does the dma */
 	setbits_le32(&ccm->dram_clk_gate, 1 << CCM_DRAM_GATE_OFFSET_DE_BE0);
+#endif
 	clock_set_de_mod_clock(&ccm->be0_clk_cfg, 300000000);
 
 	/* Engine bug, clear registers after reset */
@@ -305,13 +427,19 @@ static void sunxi_composer_mode_set(const struct ctfb_res_modes *mode,
 	struct sunxi_de_be_reg * const de_be =
 		(struct sunxi_de_be_reg *)SUNXI_DE_BE0_BASE;
 
+	sunxi_frontend_mode_set(mode, address);
+
 	writel(SUNXI_DE_BE_HEIGHT(mode->yres) | SUNXI_DE_BE_WIDTH(mode->xres),
 	       &de_be->disp_size);
 	writel(SUNXI_DE_BE_HEIGHT(mode->yres) | SUNXI_DE_BE_WIDTH(mode->xres),
 	       &de_be->layer0_size);
+#ifndef CONFIG_MACH_SUN4I /* On sun4i the frontend does the dma */
 	writel(SUNXI_DE_BE_LAYER_STRIDE(mode->xres), &de_be->layer0_stride);
 	writel(address << 3, &de_be->layer0_addr_low32b);
 	writel(address >> 29, &de_be->layer0_addr_high4b);
+#else
+	writel(SUNXI_DE_BE_LAYER_ATTR0_SRC_FE0, &de_be->layer0_attr0_ctrl);
+#endif
 	writel(SUNXI_DE_BE_LAYER_ATTR1_FMT_XRGB8888, &de_be->layer0_attr1_ctrl);
 
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_LAYER0_ENABLE);
@@ -321,6 +449,8 @@ static void sunxi_composer_enable(void)
 {
 	struct sunxi_de_be_reg * const de_be =
 		(struct sunxi_de_be_reg *)SUNXI_DE_BE0_BASE;
+
+	sunxi_frontend_enable();
 
 	setbits_le32(&de_be->reg_ctrl, SUNXI_DE_BE_REG_CTRL_LOAD_REGS);
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_START);
@@ -476,8 +606,7 @@ static void sunxi_lcdc_panel_enable(void)
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_PWM);
 	if (pin != -1) {
 		gpio_request(pin, "lcd_backlight_pwm");
-		/* backlight pwm is inverted, set to 1 to disable backlight */
-		gpio_direction_output(pin, 1);
+		gpio_direction_output(pin, PWM_OFF);
 	}
 
 	/* Give the backlight some time to turn off and power up the panel. */
@@ -504,10 +633,8 @@ static void sunxi_lcdc_backlight_enable(void)
 		gpio_direction_output(pin, 1);
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_PWM);
-	if (pin != -1) {
-		/* backlight pwm is inverted, set to 0 to enable backlight */
-		gpio_direction_output(pin, 0);
-	}
+	if (pin != -1)
+		gpio_direction_output(pin, PWM_ON);
 }
 
 static int sunxi_lcdc_get_clk_delay(const struct ctfb_res_modes *mode)
@@ -587,12 +714,7 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
 		       &lcdc->tcon0_frm_ctrl);
 	}
 
-#ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
-	val = SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE0;
-#endif
-#ifdef CONFIG_VIDEO_LCD_IF_LVDS
-	val = SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE60;
-#endif
+	val = SUNXI_LCDC_TCON0_IO_POL_DCLK_PHASE(CONFIG_VIDEO_LCD_DCLK_PHASE);
 	if (!(mode->sync & FB_SYNC_HOR_HIGH_ACT))
 		val |= SUNXI_LCDC_TCON_HSYNC_MASK;
 	if (!(mode->sync & FB_SYNC_VERT_HIGH_ACT))
@@ -826,6 +948,40 @@ static void sunxi_vga_external_dac_enable(void)
 }
 #endif /* CONFIG_VIDEO_VGA_VIA_LCD */
 
+#ifdef CONFIG_VIDEO_LCD_SSD2828
+static int sunxi_ssd2828_init(const struct ctfb_res_modes *mode)
+{
+	struct ssd2828_config cfg = {
+		.csx_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_CS),
+		.sck_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_SCLK),
+		.sdi_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_MOSI),
+		.sdo_pin = name_to_gpio(CONFIG_VIDEO_LCD_SPI_MISO),
+		.reset_pin = name_to_gpio(CONFIG_VIDEO_LCD_SSD2828_RESET),
+		.ssd2828_tx_clk_khz  = CONFIG_VIDEO_LCD_SSD2828_TX_CLK * 1000,
+		.ssd2828_color_depth = 24,
+#ifdef CONFIG_VIDEO_LCD_PANEL_MIPI_4_LANE_513_MBPS_VIA_SSD2828
+		.mipi_dsi_number_of_data_lanes           = 4,
+		.mipi_dsi_bitrate_per_data_lane_mbps     = 513,
+		.mipi_dsi_delay_after_exit_sleep_mode_ms = 100,
+		.mipi_dsi_delay_after_set_display_on_ms  = 200
+#else
+#error MIPI LCD panel needs configuration parameters
+#endif
+	};
+
+	if (cfg.csx_pin == -1 || cfg.sck_pin == -1 || cfg.sdi_pin == -1) {
+		printf("SSD2828: SPI pins are not properly configured\n");
+		return 1;
+	}
+	if (cfg.reset_pin == -1) {
+		printf("SSD2828: Reset pin is not properly configured\n");
+		return 1;
+	}
+
+	return ssd2828_init(&cfg, mode);
+}
+#endif /* CONFIG_VIDEO_LCD_SSD2828 */
+
 static void sunxi_engines_init(void)
 {
 	sunxi_composer_init();
@@ -854,10 +1010,17 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		break;
 	case sunxi_monitor_lcd:
 		sunxi_lcdc_panel_enable();
+		if (IS_ENABLED(CONFIG_VIDEO_LCD_HITACHI_TX18D42VM)) {
+			mdelay(50); /* Wait for lcd controller power on */
+			hitachi_tx18d42vm_init();
+		}
 		sunxi_composer_mode_set(mode, address);
 		sunxi_lcdc_tcon0_mode_set(mode);
 		sunxi_composer_enable();
 		sunxi_lcdc_enable();
+#ifdef CONFIG_VIDEO_LCD_SSD2828
+		sunxi_ssd2828_init(mode);
+#endif
 		sunxi_lcdc_backlight_enable();
 		break;
 	case sunxi_monitor_vga:
@@ -1027,21 +1190,27 @@ int sunxi_simplefb_setup(void *blob)
 	int offset, ret;
 	const char *pipeline = NULL;
 
+#ifdef CONFIG_MACH_SUN4I
+#define PIPELINE_PREFIX "de_fe0-"
+#else
+#define PIPELINE_PREFIX
+#endif
+
 	switch (sunxi_display.monitor) {
 	case sunxi_monitor_none:
 		return 0;
 	case sunxi_monitor_dvi:
 	case sunxi_monitor_hdmi:
-		pipeline = "de_be0-lcd0-hdmi";
+		pipeline = PIPELINE_PREFIX "de_be0-lcd0-hdmi";
 		break;
 	case sunxi_monitor_lcd:
-		pipeline = "de_be0-lcd0";
+		pipeline = PIPELINE_PREFIX "de_be0-lcd0";
 		break;
 	case sunxi_monitor_vga:
 #ifdef CONFIG_VIDEO_VGA
-		pipeline = "de_be0-lcd0-tve0";
+		pipeline = PIPELINE_PREFIX "de_be0-lcd0-tve0";
 #elif defined CONFIG_VIDEO_VGA_VIA_LCD
-		pipeline = "de_be0-lcd0";
+		pipeline = PIPELINE_PREFIX "de_be0-lcd0";
 #endif
 		break;
 	}

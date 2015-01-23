@@ -33,21 +33,31 @@ config MACH_SUN8I
 
 endchoice
 
-if MACH_SUN6I || MACH_SUN8I
-
 config DRAM_CLK
-	int "sun6i dram clock speed"
-	default 312
+	int "sunxi dram clock speed"
+	default 312 if MACH_SUN6I || MACH_SUN8I
+	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	---help---
 	Set the dram clock speed, valid range 240 - 480, must be a multiple
-	of 24.
+	of 24. Note on sun4i / sun5i / sun7i this is only used by boards
+	which use dram autoconfig.
 
 config DRAM_ZQ
-	int "sun6i dram zq value"
-	default 123
+	int "sunxi dram zq value"
+	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
+	default 127 if MACH_SUN7I
 	---help---
-	Set the dram zq value.
+	Set the dram zq value. Note on sun4i / sun5i / sun7i this is only
+	used by boards which use dram autoconfig.
 
+if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+config DRAM_EMR1
+	int "sunxi dram emr1 value"
+	default 0 if MACH_SUN4I
+	default 4 if MACH_SUN5I || MACH_SUN7I
+	---help---
+	Set the dram controller emr1 value. Note this is only used by boards
+	which use dram autoconfig.
 endif
 
 config SYS_CONFIG_NAME
@@ -59,10 +69,6 @@ config SYS_CONFIG_NAME
 
 choice
 	prompt "Board"
-
-config TARGET_A10_OLINUXINO_L
-	bool "A10_OLINUXINO_L"
-	depends on MACH_SUN4I
 
 config TARGET_A10S_OLINUXINO_M
 	bool "A10S_OLINUXINO_M"
@@ -100,61 +106,25 @@ config TARGET_BANANAPRO
 	bool "BANANAPRO"
 	depends on MACH_SUN7I
 
-config TARGET_COLOMBUS
-	bool "COLOMBUS"
-	depends on MACH_SUN6I
-
 config TARGET_CUBIEBOARD2
 	bool "CUBIEBOARD2"
 	depends on MACH_SUN7I
-
-config TARGET_CUBIEBOARD
-	bool "CUBIEBOARD"
-	depends on MACH_SUN4I
 
 config TARGET_CUBIETRUCK
 	bool "CUBIETRUCK"
 	depends on MACH_SUN7I
 
-config TARGET_HUMMINGBIRD_A31
-	bool "HUMMINGBIRD_A31"
-	depends on MACH_SUN6I
-
-config TARGET_IPPO_Q8H_V5
-	bool "IPPO_Q8H_V5"
-	depends on MACH_SUN8I
-
-config TARGET_PCDUINO
-	bool "PCDUINO"
-	depends on MACH_SUN4I
-
 config TARGET_PCDUINO3
 	bool "PCDUINO3"
 	depends on MACH_SUN7I
-
-config TARGET_MELE_A1000G
-	bool "MELE_A1000G"
-	depends on MACH_SUN4I
-
-config TARGET_MELE_A1000
-	bool "MELE_A1000"
-	depends on MACH_SUN4I
 
 config TARGET_MELE_M3
 	bool "MELE_M3"
 	depends on MACH_SUN7I
 
-config TARGET_MELE_M9
-	bool "MELE_M9"
-	depends on MACH_SUN6I
-
-config TARGET_MINI_X_1GB
-	bool "MINI_X_1GB"
-	depends on MACH_SUN4I
-
-config TARGET_MINI_X
-	bool "MINI_X"
-	depends on MACH_SUN4I
+config TARGET_MK802_A10S
+	bool "MK802_A10S"
+	depends on MACH_SUN5I
 
 config TARGET_MSI_PRIMO73
 	bool "MSI Primo73 (7\" tablet)"
@@ -169,29 +139,8 @@ config TARGET_MSI_PRIMO73
 	OTG and 3.5mm headphone jack. More details are available at
 	    http://linux-sunxi.org/MSI_Primo73
 
-config TARGET_MSI_PRIMO81
-	bool "MSI Primo81 (7.85\" tablet)"
-	depends on MACH_SUN6I
-	---help---
-	The MSI Primo81 is an A31s based tablet, with 1G RAM, 16G NAND,
-	1024x768 IPS LCD display, mono speaker, 0.3 MP front camera, 2.0 MP
-	rear camera, 3500 mAh battery, gt911 touchscreen, mma8452 accelerometer
-	and rtl8188etv usb wifi. Has "power", "volume+" and "volume-" buttons
-	(both volume buttons are also connected to the UBOOT_SEL pin). The
-	external connectors are represented by MicroSD slot, MiniHDMI, MicroUSB
-	OTG and 3.5mm headphone jack. More details are available at
-	    http://linux-sunxi.org/MSI_Primo81
-
-config TARGET_BA10_TV_BOX
-	bool "BA10_TV_BOX"
-	depends on MACH_SUN4I
-
 config TARGET_I12_TVBOX
 	bool "I12_TVBOX"
-	depends on MACH_SUN7I
-
-config TARGET_QT840A
-	bool "QT840A"
 	depends on MACH_SUN7I
 
 config TARGET_R7DONGLE
@@ -338,6 +287,13 @@ config VIDEO_LCD_MODE
 	This is in drivers/video/videomodes.c: video_get_params() format, e.g.
 	x:800,y:480,depth:18,pclk_khz:33000,le:16,ri:209,up:22,lo:22,hs:30,vs:1,sync:0,vmode:0
 
+config VIDEO_LCD_DCLK_PHASE
+	int "LCD panel display clock phase"
+	depends on VIDEO
+	default 1
+	---help---
+	Select LCD panel display clock phase shift, range 0-3.
+
 config VIDEO_LCD_POWER
 	string "LCD panel power enable pin"
 	depends on VIDEO
@@ -363,6 +319,13 @@ config VIDEO_LCD_BL_PWM
 	Set the backlight pwm pin for the LCD panel. This takes a string in the
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
+config VIDEO_LCD_BL_PWM_ACTIVE_LOW
+	bool "LCD panel backlight pwm is inverted"
+	depends on VIDEO
+	default y
+	---help---
+	Set this if the backlight pwm output is active low.
+
 
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig
@@ -387,8 +350,31 @@ config VIDEO_LCD_PANEL_LVDS
 	bool "Generic lvds interface LCD panel"
 	select VIDEO_LCD_IF_LVDS
 
+config VIDEO_LCD_PANEL_MIPI_4_LANE_513_MBPS_VIA_SSD2828
+	bool "MIPI 4-lane, 513Mbps LCD panel via SSD2828 bridge chip"
+	select VIDEO_LCD_SSD2828
+	select VIDEO_LCD_IF_PARALLEL
+	---help---
+	 7.85" 768x1024 LCD panels, such as LG LP079X01 or AUO B079XAN01.0
+
+config VIDEO_LCD_PANEL_HITACHI_TX18D42VM
+	bool "Hitachi tx18d42vm LCD panel"
+	select VIDEO_LCD_HITACHI_TX18D42VM
+	select VIDEO_LCD_IF_LVDS
+	---help---
+	7.85" 1024x768 Hitachi tx18d42vm LCD panel support
+
 endchoice
 
+
+config USB_MUSB_SUNXI
+	bool "Enable sunxi OTG / DRC USB controller in host mode"
+	default n
+	---help---
+	Say y here to enable support for the sunxi OTG / DRC USB controller
+	used on almost all sunxi boards. Note currently u-boot can only have
+	one usb host controller enabled at a time, so enabling this on boards
+	which also use the ehci host controller will result in build errors.
 
 config USB_KEYBOARD
 	boolean "Enable USB keyboard support"

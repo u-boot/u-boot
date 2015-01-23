@@ -76,7 +76,7 @@ struct dram_para {
 	u32 cas;
 	u32 zq;
 	u32 odt_en;
-	u32 size;
+	u32 size; /* For compat with dram.c files from u-boot-sunxi, unused */
 	u32 tpr0;
 	u32 tpr1;
 	u32 tpr2;

@@ -28,7 +28,9 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/usbc.h>
 #include <asm/io.h>
+#include <linux/usb/musb.h>
 #include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -189,6 +191,7 @@ void sunxi_board_init(void)
 	power_failed |= axp221_set_aldo1(CONFIG_AXP221_ALDO1_VOLT);
 	power_failed |= axp221_set_aldo2(CONFIG_AXP221_ALDO2_VOLT);
 	power_failed |= axp221_set_aldo3(CONFIG_AXP221_ALDO3_VOLT);
+	power_failed |= axp221_set_eldo(3, CONFIG_AXP221_ELDO3_VOLT);
 #endif
 
 	printf("DRAM:");
@@ -206,6 +209,26 @@ void sunxi_board_init(void)
 	else
 		printf("Failed to set core voltage! Can't set CPU frequency\n");
 }
+#endif
+
+#if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
+static struct musb_hdrc_config musb_config = {
+	.multipoint     = 1,
+	.dyn_fifo       = 1,
+	.num_eps        = 6,
+	.ram_bits       = 11,
+};
+
+static struct musb_hdrc_platform_data musb_plat = {
+#if defined(CONFIG_MUSB_HOST)
+	.mode           = MUSB_HOST,
+#else
+	.mode		= MUSB_PERIPHERAL,
+#endif
+	.config         = &musb_config,
+	.power          = 250,
+	.platform_ops	= &sunxi_musb_ops,
+};
 #endif
 
 #ifdef CONFIG_MISC_INIT_R
@@ -227,6 +250,9 @@ int misc_init_r(void)
 		eth_setenv_enetaddr("ethaddr", mac_addr);
 	}
 
+#if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
+	musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);
+#endif
 	return 0;
 }
 #endif

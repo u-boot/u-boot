@@ -40,6 +40,8 @@
  */
 #define CONFIG_DISPLAY_CPUINFO
 
+#define CONFIG_SYS_PROMPT	"sunxi# "
+
 /* Serial & console */
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
@@ -247,8 +249,16 @@
 #endif
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 1
+#endif
+
+#ifdef CONFIG_USB_MUSB_SUNXI
+#define CONFIG_MUSB_HOST
+#define CONFIG_MUSB_PIO_ONLY
+#endif
+
+#if defined CONFIG_USB_EHCI || defined CONFIG_USB_MUSB_SUNXI
+#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #endif
 

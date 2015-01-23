@@ -14,7 +14,6 @@
  */
 #define CONFIG_CLK_FULL_SPEED		912000000
 
-#define CONFIG_SYS_PROMPT		"sun7i# "
 #define CONFIG_MACH_TYPE		4283
 
 #ifdef CONFIG_USB_EHCI

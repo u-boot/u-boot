@@ -45,10 +45,10 @@ void clock_init_safe(void)
 
 void clock_init_uart(void)
 {
+#if CONFIG_CONS_INDEX < 5
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-#if CONFIG_CONS_INDEX < 5
 	/* uart clock source is apb2 */
 	writel(APB2_CLK_SRC_OSC24M|
 	       APB2_CLK_RATE_N_1|
@@ -68,9 +68,6 @@ void clock_init_uart(void)
 	/* enable R_PIO and R_UART clocks, and de-assert resets */
 	prcm_apb0_enable(PRCM_APB0_GATE_PIO | PRCM_APB0_GATE_UART);
 #endif
-
-	/* Dup with clock_init_safe(), drop once sun6i SPL support lands */
-	writel(PLL6_CFG_DEFAULT, &ccm->pll6_cfg);
 }
 
 int clock_twi_onoff(int port, int state)
