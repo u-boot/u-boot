@@ -23,8 +23,8 @@
 # define CONFIG_TIMESTAMP
 # define CONFIG_LZO
 # ifdef CONFIG_ENABLE_VBOOT
-#  define CONFIG_FIT_SIGNATURE
-#  define CONFIG_RSA
+# define CONFIG_FIT_SIGNATURE
+# define CONFIG_RSA
 # endif
 #endif
 
