@@ -424,7 +424,6 @@ void fsl_erratum_a007212_workaround(void)
 
 ulong cpu_init_f(void)
 {
-	ulong flag = 0;
 	extern void m8560_cpm_reset (void);
 #if defined(CONFIG_SYS_DCSRBAR_PHYS) || \
 	(defined(CONFIG_SECURE_BOOT) && defined(CONFIG_FSL_CORENET))
@@ -499,18 +498,11 @@ ulong cpu_init_f(void)
 	in_be32(&gur->dcsrcr);
 #endif
 
-#ifdef CONFIG_SYS_DCSRBAR_PHYS
-#ifdef CONFIG_DEEP_SLEEP
-	/* disable the console if boot from deep sleep */
-	if (in_be32(&gur->scrtsr[0]) & (1 << 3))
-		flag = GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
-#endif
-#endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A007212
 	fsl_erratum_a007212_workaround();
 #endif
 
-	return flag;
+	return 0;
 }
 
 /* Implement a dummy function for those platforms w/o SERDES */

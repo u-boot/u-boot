@@ -726,6 +726,14 @@
 #define CONFIG_SYS_RGMII1_PHY_ADDR		0x01
 #define CONFIG_SYS_RGMII2_PHY_ADDR		0x02
 
+/* Enable VSC9953 L2 Switch driver on T1040 SoC */
+#ifdef CONFIG_T1040RDB
+#define CONFIG_VSC9953
+#define CONFIG_VSC9953_CMD
+#define CONFIG_SYS_FM1_QSGMII11_PHY_ADDR	0x04
+#define CONFIG_SYS_FM1_QSGMII21_PHY_ADDR	0x08
+#endif
+
 #define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"FM1@DTSEC4"
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */

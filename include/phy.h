@@ -225,6 +225,7 @@ int gen10g_startup(struct phy_device *phydev);
 int gen10g_shutdown(struct phy_device *phydev);
 int gen10g_discover_mmds(struct phy_device *phydev);
 
+int phy_aquantia_init(void);
 int phy_atheros_init(void);
 int phy_broadcom_init(void);
 int phy_cortina_init(void);

@@ -15,6 +15,7 @@
 #include <netdev.h>
 #include <asm/cache.h>
 #include <asm/io.h>
+#include <vsc9953.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -270,6 +271,10 @@ int cpu_eth_init(bd_t *bis)
 
 #ifdef CONFIG_FMAN_ENET
 	fm_standard_init(bis);
+#endif
+
+#ifdef CONFIG_VSC9953
+	vsc9953_init(bis);
 #endif
 	return 0;
 }

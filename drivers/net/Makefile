@@ -66,3 +66,4 @@ obj-$(CONFIG_XILINX_LL_TEMAC) += xilinx_ll_temac.o xilinx_ll_temac_mdio.o \
 		xilinx_ll_temac_fifo.o xilinx_ll_temac_sdma.o
 obj-$(CONFIG_ZYNQ_GEM) += zynq_gem.o
 obj-$(CONFIG_FSL_MC_ENET) += fsl_mc/
+obj-$(CONFIG_VSC9953) += vsc9953.o
