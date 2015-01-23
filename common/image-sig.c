@@ -38,7 +38,7 @@ struct checksum_algo checksum_algos[] = {
 #if IMAGE_ENABLE_SIGN
 		EVP_sha1,
 #endif
-		sha1_calculate,
+		hash_calculate,
 		padding_sha1_rsa2048,
 	},
 	{
@@ -48,7 +48,7 @@ struct checksum_algo checksum_algos[] = {
 #if IMAGE_ENABLE_SIGN
 		EVP_sha256,
 #endif
-		sha256_calculate,
+		hash_calculate,
 		padding_sha256_rsa2048,
 	},
 	{
@@ -58,7 +58,7 @@ struct checksum_algo checksum_algos[] = {
 #if IMAGE_ENABLE_SIGN
 		EVP_sha256,
 #endif
-		sha256_calculate,
+		hash_calculate,
 		padding_sha256_rsa4096,
 	}
 

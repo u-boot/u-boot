@@ -184,7 +184,12 @@ int rsa_verify(struct image_sign_info *info,
 	}
 
 	/* Calculate checksum with checksum-algorithm */
-	info->algo->checksum->calculate(region, region_count, hash);
+	ret = info->algo->checksum->calculate(info->algo->checksum->name,
+					region, region_count, hash);
+	if (ret < 0) {
+		debug("%s: Error in checksum calculation\n", __func__);
+		return -EINVAL;
+	}
 
 	/* See if we must use a particular key */
 	if (info->required_keynode != -1) {
