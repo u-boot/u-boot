@@ -35,9 +35,41 @@ struct key_prop {
  * @sig:	RSA PKCS1.5 signature
  * @sig_len:	Length of signature in number of bytes
  * @node:	Node with RSA key elements like modulus, exponent, R^2, n0inv
- * @out:	Result in form of byte array
+ * @out:	Result in form of byte array of len equal to sig_len
  */
 int rsa_mod_exp_sw(const uint8_t *sig, uint32_t sig_len,
 		struct key_prop *node, uint8_t *out);
+
+int rsa_mod_exp(struct udevice *dev, const uint8_t *sig, uint32_t sig_len,
+		struct key_prop *node, uint8_t *out);
+
+/**
+ * struct struct mod_exp_ops - Driver model for RSA Modular Exponentiation
+ *				operations
+ *
+ * The uclass interface is implemented by all crypto devices which use
+ * driver model.
+ */
+struct mod_exp_ops {
+	/**
+	 * Perform Modular Exponentiation
+	 *
+	 * Operation: out[] = sig ^ exponent % modulus
+	 *
+	 * @dev:	RSA Device
+	 * @sig:	RSA PKCS1.5 signature
+	 * @sig_len:	Length of signature in number of bytes
+	 * @node:	Node with RSA key elements like modulus, exponent,
+	 *		R^2, n0inv
+	 * @out:	Result in form of byte array of len equal to sig_len
+	 *
+	 * This function computes exponentiation over the signature.
+	 * Returns: 0 if exponentiation is successful, or a negative value
+	 * if it wasn't.
+	 */
+	int (*mod_exp)(struct udevice *dev, const uint8_t *sig,
+			   uint32_t sig_len, struct key_prop *node,
+			   uint8_t *outp);
+};
 
 #endif
