@@ -14,6 +14,10 @@
 #define CONFIG_LS2085A
 #define CONFIG_GICV3
 
+/* Errata fixes */
+#define CONFIG_ARM_ERRATA_828024
+#define CONFIG_ARM_ERRATA_826974
+
 /* Link Definitions */
 #define CONFIG_SYS_TEXT_BASE		0x30001000
 
