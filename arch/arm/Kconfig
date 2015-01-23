@@ -51,6 +51,13 @@ config SYS_CPU
         default "sa1100" if CPU_SA1100
 	default "armv8" if ARM64
 
+config SEMIHOSTING
+	bool "support boot from semihosting"
+	help
+	  In emulated environments, semihosting is a way for
+	  the hosted environment to call out to the emulator to
+	  retrieve files from the host machine.
+
 choice
 	prompt "Target select"
 
@@ -720,9 +727,14 @@ config TEGRA
 	select CPU_ARM720T if SPL_BUILD
 	select CPU_V7 if !SPL_BUILD
 
-config TARGET_VEXPRESS_AEMV8A
+config TARGET_VEXPRESS64_AEMV8A
 	bool "Support vexpress_aemv8a"
 	select ARM64
+
+config TARGET_VEXPRESS64_BASE_FVP
+	bool "Support Versatile Express ARMv8a FVP BASE model"
+	select ARM64
+	select SEMIHOSTING
 
 config TARGET_LS2085A_EMU
 	bool "Support ls2085a_emu"

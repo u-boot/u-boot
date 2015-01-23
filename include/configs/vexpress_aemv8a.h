@@ -11,9 +11,9 @@
 /* We use generic board for v8 Versatile Express */
 #define CONFIG_SYS_GENERIC_BOARD
 
-#ifdef CONFIG_BASE_FVP
+#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #ifndef CONFIG_SEMIHOSTING
-#error CONFIG_BASE_FVP requires CONFIG_SEMIHOSTING
+#error CONFIG_TARGET_VEXPRESS64_BASE_FVP requires CONFIG_SEMIHOSTING
 #endif
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_ARMV8_SWITCH_TO_EL1
@@ -21,8 +21,8 @@
 
 #define CONFIG_REMAKE_ELF
 
-#ifndef CONFIG_BASE_FVP
-/* Base FVP not using GICv3 yet */
+#ifndef CONFIG_TARGET_VEXPRESS64_BASE_FVP
+/* Base FVP and Juno not using GICv3 yet */
 #define CONFIG_GICV3
 #endif
 
@@ -40,7 +40,7 @@
 #define CONFIG_BOOTP_VCI_STRING		"U-boot.armv8.vexpress_aemv8a"
 
 /* Link Definitions */
-#ifdef CONFIG_BASE_FVP
+#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 /* ATF loads u-boot here for BASE_FVP model */
 #define CONFIG_SYS_TEXT_BASE		0x88000000
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x03f00000)
@@ -54,7 +54,7 @@
 
 
 /* SMP Spin Table Definitions */
-#ifdef CONFIG_BASE_FVP
+#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x03f00000)
 #else
 #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
@@ -119,7 +119,7 @@
 #define GICR_BASE			(0x2f100000)
 #else
 
-#ifdef CONFIG_BASE_FVP
+#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #define GICD_BASE			(0x2f000000)
 #define GICC_BASE			(0x2c000000)
 #else
@@ -191,7 +191,7 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Initial environment variables */
-#ifdef CONFIG_BASE_FVP
+#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 				"kernel_name=uImage\0"	\
 				"kernel_addr_r=0x80000000\0"	\
