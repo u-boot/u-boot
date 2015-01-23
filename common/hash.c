@@ -10,15 +10,24 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#ifndef USE_HOSTCC
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
 #include <hw_sha.h>
-#include <hash.h>
-#include <u-boot/sha1.h>
-#include <u-boot/sha256.h>
 #include <asm/io.h>
 #include <asm/errno.h>
+#else
+#include "mkimage.h"
+#include <time.h>
+#include <image.h>
+#endif /* !USE_HOSTCC*/
+
+#include <hash.h>
+#include <u-boot/crc.h>
+#include <u-boot/sha1.h>
+#include <u-boot/sha256.h>
+#include <u-boot/md5.h>
 
 #ifdef CONFIG_SHA1
 static int hash_init_sha1(struct hash_algo *algo, void **ctxp)
@@ -173,6 +182,40 @@ static struct hash_algo hash_algo[] = {
 #define multi_hash()	0
 #endif
 
+int hash_lookup_algo(const char *algo_name, struct hash_algo **algop)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
+		if (!strcmp(algo_name, hash_algo[i].name)) {
+			*algop = &hash_algo[i];
+			return 0;
+		}
+	}
+
+	debug("Unknown hash algorithm '%s'\n", algo_name);
+	return -EPROTONOSUPPORT;
+}
+
+int hash_progressive_lookup_algo(const char *algo_name,
+				 struct hash_algo **algop)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
+		if (!strcmp(algo_name, hash_algo[i].name)) {
+			if (hash_algo[i].hash_init) {
+				*algop = &hash_algo[i];
+				return 0;
+			}
+		}
+	}
+
+	debug("Unknown hash algorithm '%s'\n", algo_name);
+	return -EPROTONOSUPPORT;
+}
+
+#ifndef USE_HOSTCC
 /**
  * store_result: Store the resulting sum to an address or variable
  *
@@ -293,39 +336,6 @@ static int parse_verify_sum(struct hash_algo *algo, char *verify_str,
 	return 0;
 }
 
-int hash_lookup_algo(const char *algo_name, struct hash_algo **algop)
-{
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
-		if (!strcmp(algo_name, hash_algo[i].name)) {
-			*algop = &hash_algo[i];
-			return 0;
-		}
-	}
-
-	debug("Unknown hash algorithm '%s'\n", algo_name);
-	return -EPROTONOSUPPORT;
-}
-
-int hash_progressive_lookup_algo(const char *algo_name,
-				 struct hash_algo **algop)
-{
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
-		if (!strcmp(algo_name, hash_algo[i].name)) {
-			if (hash_algo[i].hash_init) {
-				*algop = &hash_algo[i];
-				return 0;
-			}
-		}
-	}
-
-	debug("Unknown hash algorithm '%s'\n", algo_name);
-	return -EPROTONOSUPPORT;
-}
-
 void hash_show(struct hash_algo *algo, ulong addr, ulong len, uint8_t *output)
 {
 	int i;
@@ -439,3 +449,4 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 
 	return 0;
 }
+#endif

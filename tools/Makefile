@@ -91,6 +91,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			socfpgaimage.o \
 			lib/sha1.o \
 			lib/sha256.o \
+			common/hash.o \
 			ublimage.o \
 			$(LIBFDT_OBJS) \
 			$(RSA_OBJS-y)
