@@ -39,7 +39,6 @@
 /* SATA AHCI storage */
 
 #define CONFIG_SCSI_AHCI
-#define CONFIG_SATA_INTEL
 #ifdef CONFIG_SCSI_AHCI
 #define CONFIG_LIBATA
 #define CONFIG_SYS_64BIT_LBA
