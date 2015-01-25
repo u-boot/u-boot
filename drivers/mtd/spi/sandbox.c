@@ -590,6 +590,11 @@ int sandbox_sf_bind_emul(struct sandbox_state *state, int busnum, int cs,
 
 void sandbox_sf_unbind_emul(struct sandbox_state *state, int busnum, int cs)
 {
+	struct udevice *dev;
+
+	dev = state->spi[busnum][cs].emul;
+	device_remove(dev);
+	device_unbind(dev);
 	state->spi[busnum][cs].emul = NULL;
 }
 

@@ -202,25 +202,6 @@ int cros_ec_spi_init(struct cros_ec_dev *dev, const void *blob)
 #ifdef CONFIG_DM_CROS_EC
 int cros_ec_probe(struct udevice *dev)
 {
-	struct spi_slave *slave = dev_get_parentdata(dev);
-	int ret;
-
-	/*
-	 * TODO(sjg@chromium.org)
-	 *
-	 * This is really horrible at present. It is an artifact of removing
-	 * the child_pre_probe() method for SPI. Everything here could go in
-	 * an automatic function, except that spi_get_bus_and_cs() wants to
-	 * set it up manually and call device_probe_child().
-	 *
-	 * The solution may be to re-enable the child_pre_probe() method for
-	 * SPI and have it do nothing if the child is already passed in via
-	 * device_probe_child().
-	 */
-	slave->dev = dev;
-	ret = spi_ofdata_to_platdata(gd->fdt_blob, dev->of_offset, slave);
-	if (ret)
-		return ret;
 	return cros_ec_register(dev);
 }
 

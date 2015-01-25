@@ -179,14 +179,6 @@ static int soft_spi_set_mode(struct udevice *dev, unsigned int mode)
 	return 0;
 }
 
-static int soft_spi_child_pre_probe(struct udevice *dev)
-{
-	struct spi_slave *slave = dev_get_parentdata(dev);
-
-	slave->dev = dev;
-	return spi_ofdata_to_platdata(gd->fdt_blob, dev->of_offset, slave);
-}
-
 static const struct dm_spi_ops soft_spi_ops = {
 	.claim_bus	= soft_spi_claim_bus,
 	.release_bus	= soft_spi_release_bus,
@@ -241,5 +233,4 @@ U_BOOT_DRIVER(soft_spi) = {
 	.platdata_auto_alloc_size = sizeof(struct soft_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct soft_spi_priv),
 	.probe	= soft_spi_probe,
-	.child_pre_probe	= soft_spi_child_pre_probe,
 };
