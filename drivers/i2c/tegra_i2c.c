@@ -484,21 +484,6 @@ static const struct dm_i2c_ops tegra_i2c_ops = {
 	.set_bus_speed	= tegra_i2c_set_bus_speed,
 };
 
-static int tegra_i2c_child_pre_probe(struct udevice *dev)
-{
-	struct dm_i2c_chip *i2c_chip = dev_get_parentdata(dev);
-
-	if (dev->of_offset == -1)
-		return 0;
-	return i2c_chip_ofdata_to_platdata(gd->fdt_blob, dev->of_offset,
-					   i2c_chip);
-}
-
-static int tegra_i2c_ofdata_to_platdata(struct udevice *dev)
-{
-	return 0;
-}
-
 static const struct udevice_id tegra_i2c_ids[] = {
 	{ .compatible = "nvidia,tegra114-i2c", .data = TYPE_114 },
 	{ .compatible = "nvidia,tegra20-i2c", .data = TYPE_STD },
@@ -510,10 +495,7 @@ U_BOOT_DRIVER(i2c_tegra) = {
 	.name	= "i2c_tegra",
 	.id	= UCLASS_I2C,
 	.of_match = tegra_i2c_ids,
-	.ofdata_to_platdata = tegra_i2c_ofdata_to_platdata,
 	.probe	= tegra_i2c_probe,
-	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
-	.child_pre_probe = tegra_i2c_child_pre_probe,
 	.priv_auto_alloc_size = sizeof(struct i2c_bus),
 	.ops	= &tegra_i2c_ops,
 };

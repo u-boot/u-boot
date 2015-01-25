@@ -145,16 +145,6 @@ static int uniphier_fi2c_remove(struct udevice *dev)
 	return 0;
 }
 
-static int uniphier_fi2c_child_pre_probe(struct udevice *dev)
-{
-	struct dm_i2c_chip *i2c_chip = dev_get_parentdata(dev);
-
-	if (dev->of_offset == -1)
-		return 0;
-	return i2c_chip_ofdata_to_platdata(gd->fdt_blob, dev->of_offset,
-					   i2c_chip);
-}
-
 static int wait_for_irq(struct uniphier_fi2c_dev *dev, u32 flags,
 			bool *stop)
 {
@@ -372,8 +362,6 @@ U_BOOT_DRIVER(uniphier_fi2c) = {
 	.of_match = uniphier_fi2c_of_match,
 	.probe = uniphier_fi2c_probe,
 	.remove = uniphier_fi2c_remove,
-	.per_child_auto_alloc_size = sizeof(struct dm_i2c_chip),
-	.child_pre_probe = uniphier_fi2c_child_pre_probe,
 	.priv_auto_alloc_size = sizeof(struct uniphier_fi2c_dev),
 	.ops = &uniphier_fi2c_ops,
 };

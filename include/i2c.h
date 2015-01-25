@@ -39,8 +39,8 @@ enum dm_i2c_chip_flags {
  * An I2C chip is a device on the I2C bus. It sits at a particular address
  * and normally supports 7-bit or 10-bit addressing.
  *
- * To obtain this structure, use dev_get_parentdata(dev) where dev is the
- * chip to examine.
+ * To obtain this structure, use dev_get_parent_platdata(dev) where dev is
+ * the chip to examine.
  *
  * @chip_addr:	Chip address on bus
  * @offset_len: Length of offset in bytes. A single byte offset can

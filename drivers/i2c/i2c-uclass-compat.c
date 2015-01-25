@@ -20,7 +20,7 @@ static int i2c_compat_get_device(uint chip_addr, int alen,
 	ret = i2c_get_chip_for_busnum(cur_busnum, chip_addr, devp);
 	if (ret)
 		return ret;
-	chip = dev_get_parentdata(*devp);
+	chip = dev_get_parent_platdata(*devp);
 	if (chip->offset_len != alen) {
 		printf("Requested alen %d does not match chip offset_len %d\n",
 		       alen, chip->offset_len);
