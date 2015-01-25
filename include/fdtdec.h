@@ -115,9 +115,6 @@ enum fdt_compat_id {
 	COMPAT_NVIDIA_TEGRA20_USB,	/* Tegra20 USB port */
 	COMPAT_NVIDIA_TEGRA30_USB,	/* Tegra30 USB port */
 	COMPAT_NVIDIA_TEGRA114_USB,	/* Tegra114 USB port */
-	COMPAT_NVIDIA_TEGRA114_I2C,	/* Tegra114 I2C w/single clock source */
-	COMPAT_NVIDIA_TEGRA20_I2C,	/* Tegra20 i2c */
-	COMPAT_NVIDIA_TEGRA20_DVC,	/* Tegra20 dvc (really just i2c) */
 	COMPAT_NVIDIA_TEGRA20_EMC,	/* Tegra20 memory controller */
 	COMPAT_NVIDIA_TEGRA20_EMC_TABLE, /* Tegra20 memory timing table */
 	COMPAT_NVIDIA_TEGRA20_KBC,	/* Tegra20 Keyboard */
@@ -127,9 +124,6 @@ enum fdt_compat_id {
 	COMPAT_NVIDIA_TEGRA124_SDMMC,	/* Tegra124 SDMMC controller */
 	COMPAT_NVIDIA_TEGRA30_SDMMC,	/* Tegra30 SDMMC controller */
 	COMPAT_NVIDIA_TEGRA20_SDMMC,	/* Tegra20 SDMMC controller */
-	COMPAT_NVIDIA_TEGRA20_SFLASH,	/* Tegra 2 SPI flash controller */
-	COMPAT_NVIDIA_TEGRA20_SLINK,	/* Tegra 2 SPI SLINK controller */
-	COMPAT_NVIDIA_TEGRA114_SPI,	/* Tegra 114 SPI controller */
 	COMPAT_NVIDIA_TEGRA124_PCIE,	/* Tegra 124 PCIe controller */
 	COMPAT_NVIDIA_TEGRA30_PCIE,	/* Tegra 30 PCIe controller */
 	COMPAT_NVIDIA_TEGRA20_PCIE,	/* Tegra 20 PCIe controller */
