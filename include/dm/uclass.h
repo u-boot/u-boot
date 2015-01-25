@@ -60,6 +60,10 @@ struct udevice;
  * @per_device_auto_alloc_size: Each device can hold private data owned
  * by the uclass. If required this will be automatically allocated if this
  * value is non-zero.
+ * @per_child_platdata_auto_alloc_size: A bus likes to store information about
+ * its children. If non-zero this is the size of this data, to be allocated
+ * in the child device's parent_platdata pointer. This value is only used as
+ * a falback if this member is 0 in the driver.
  * @ops: Uclass operations, providing the consistent interface to devices
  * within the uclass.
  */
@@ -74,6 +78,7 @@ struct uclass_driver {
 	int (*destroy)(struct uclass *class);
 	int priv_auto_alloc_size;
 	int per_device_auto_alloc_size;
+	int per_child_platdata_auto_alloc_size;
 	const void *ops;
 };
 

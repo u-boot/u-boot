@@ -83,6 +83,10 @@ int device_bind(struct udevice *parent, struct driver *drv, const char *name,
 	if (parent) {
 		int size = parent->driver->per_child_platdata_auto_alloc_size;
 
+		if (!size) {
+			size = parent->uclass->uc_drv->
+					per_child_platdata_auto_alloc_size;
+		}
 		if (size) {
 			dev->flags |= DM_FLAG_ALLOC_PARENT_PDATA;
 			dev->parent_platdata = calloc(1, size);
