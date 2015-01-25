@@ -305,6 +305,8 @@ struct sunxi_ccm_reg {
 #define CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII 0x2
 #define CCM_GMAC_CTRL_GPIT_MII (0x0 << 2)
 #define CCM_GMAC_CTRL_GPIT_RGMII (0x1 << 2)
+#define CCM_GMAC_CTRL_RX_CLK_DELAY(x)	((x) << 5)
+#define CCM_GMAC_CTRL_TX_CLK_DELAY(x)	((x) << 10)
 
 #define CCM_USB_CTRL_PHY0_RST (0x1 << 0)
 #define CCM_USB_CTRL_PHY1_RST (0x1 << 1)

@@ -380,4 +380,10 @@ config USB_KEYBOARD
 	Say Y here to add support for using a USB keyboard (typically used
 	in combination with a graphical console).
 
+config GMAC_TX_DELAY
+	int "GMAC Transmit Clock Delay Chain"
+	default 0
+	---help---
+	Set the GMAC Transmit Clock Delay Chain value.
+
 endif
