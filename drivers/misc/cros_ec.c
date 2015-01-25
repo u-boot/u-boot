@@ -154,7 +154,9 @@ static int prepare_proto3_response_buffer(struct cros_ec_dev *dev, int din_len)
  * @param dev		CROS-EC device
  * @param dinp          Returns pointer to response data
  * @param din_len       Maximum size of response in bytes
- * @return number of bytes of response data, or <0 if error
+ * @return number of bytes of response data, or <0 if error. Note that error
+ * codes can be from errno.h or -ve EC_RES_INVALID_CHECKSUM values (and they
+ * overlap!)
  */
 static int handle_proto3_response(struct cros_ec_dev *dev,
 				  uint8_t **dinp, int din_len)
@@ -228,7 +230,7 @@ static int send_command_proto3(struct cros_ec_dev *dev,
 
 #ifdef CONFIG_DM_CROS_EC
 	ops = dm_cros_ec_get_ops(dev->dev);
-	rv = ops->packet(dev->dev, out_bytes, in_bytes);
+	rv = ops->packet ? ops->packet(dev->dev, out_bytes, in_bytes) : -ENOSYS;
 #else
 	switch (dev->interface) {
 #ifdef CONFIG_CROS_EC_SPI
@@ -320,7 +322,7 @@ static int send_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
  *			If not NULL, it will be updated to point to the data
  *			and will always be double word aligned (64-bits)
  * @param din_len       Maximum size of response in bytes
- * @return number of bytes in response, or -1 on error
+ * @return number of bytes in response, or -ve on error
  */
 static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
 		int cmd_version, const void *dout, int dout_len, uint8_t **dinp,
@@ -387,7 +389,7 @@ static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
  *			It not NULL, it is a place for ec_command() to copy the
  *      data to.
  * @param din_len       Maximum size of response in bytes
- * @return number of bytes in response, or -1 on error
+ * @return number of bytes in response, or -ve on error
  */
 static int ec_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 		      const void *dout, int dout_len,
