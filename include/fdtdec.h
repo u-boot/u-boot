@@ -134,7 +134,6 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_S3C2440_I2C,	/* Exynos I2C Controller */
 	COMPAT_SAMSUNG_EXYNOS5_SOUND,	/* Exynos Sound */
 	COMPAT_WOLFSON_WM8994_CODEC,	/* Wolfson WM8994 Sound Codec */
-	COMPAT_SAMSUNG_EXYNOS_SPI,	/* Exynos SPI */
 	COMPAT_GOOGLE_CROS_EC,		/* Google CROS_EC Protocol */
 	COMPAT_GOOGLE_CROS_EC_KEYB,	/* Google CROS_EC Keyboard */
 	COMPAT_SAMSUNG_EXYNOS_EHCI,	/* Exynos EHCI controller */
