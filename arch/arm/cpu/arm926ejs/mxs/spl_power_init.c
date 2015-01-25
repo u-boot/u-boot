@@ -14,6 +14,13 @@
 
 #include "mxs_init.h"
 
+#ifdef CONFIG_SYS_MXS_VDD5V_ONLY
+#define DCDC4P2_DROPOUT_CONFIG	POWER_DCDC4P2_DROPOUT_CTRL_100MV | \
+				POWER_DCDC4P2_DROPOUT_CTRL_SRC_4P2
+#else
+#define DCDC4P2_DROPOUT_CONFIG	POWER_DCDC4P2_DROPOUT_CTRL_100MV | \
+				POWER_DCDC4P2_DROPOUT_CTRL_SRC_SEL
+#endif
 /**
  * mxs_power_clock2xtal() - Switch CPU core clock source to 24MHz XTAL
  *
@@ -303,8 +310,7 @@ static void mxs_power_init_4p2_params(void)
 
 	clrsetbits_le32(&power_regs->hw_power_dcdc4p2,
 		POWER_DCDC4P2_DROPOUT_CTRL_MASK,
-		POWER_DCDC4P2_DROPOUT_CTRL_100MV |
-		POWER_DCDC4P2_DROPOUT_CTRL_SRC_SEL);
+		DCDC4P2_DROPOUT_CONFIG);
 
 	clrsetbits_le32(&power_regs->hw_power_5vctrl,
 		POWER_5VCTRL_CHARGE_4P2_ILIMIT_MASK,
