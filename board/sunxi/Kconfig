@@ -185,6 +185,16 @@ config VIDEO_VGA_VIA_LCD
 	LCD interface driving a VGA connector, such as found on the
 	Olimex A13 boards.
 
+config VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH
+	boolean "Force sync active high for VGA via LCD controller support"
+	depends on VIDEO_VGA_VIA_LCD
+	default n
+	---help---
+	Say Y here if you've a board which uses opendrain drivers for the vga
+	hsync and vsync signals. Opendrain drivers cannot generate steep enough
+	positive edges for a stable video output, so on boards with opendrain
+	drivers the sync signals must always be active high.
+
 config VIDEO_VGA_EXTERNAL_DAC_EN
 	string "LCD panel power enable pin"
 	depends on VIDEO_VGA_VIA_LCD

@@ -645,7 +645,8 @@ static int sunxi_lcdc_get_clk_delay(const struct ctfb_res_modes *mode)
 	return (delay > 30) ? 30 : delay;
 }
 
-static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
+static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
+				      bool for_ext_vga_dac)
 {
 	struct sunxi_lcdc_reg * const lcdc =
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
@@ -719,6 +720,11 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
 		val |= SUNXI_LCDC_TCON_HSYNC_MASK;
 	if (!(mode->sync & FB_SYNC_VERT_HIGH_ACT))
 		val |= SUNXI_LCDC_TCON_VSYNC_MASK;
+
+#ifdef CONFIG_VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH
+	if (for_ext_vga_dac)
+		val = 0;
+#endif
 	writel(val, &lcdc->tcon0_io_polarity);
 
 	writel(0, &lcdc->tcon0_io_tristate);
@@ -1015,7 +1021,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 			hitachi_tx18d42vm_init();
 		}
 		sunxi_composer_mode_set(mode, address);
-		sunxi_lcdc_tcon0_mode_set(mode);
+		sunxi_lcdc_tcon0_mode_set(mode, false);
 		sunxi_composer_enable();
 		sunxi_lcdc_enable();
 #ifdef CONFIG_VIDEO_LCD_SSD2828
@@ -1033,7 +1039,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_vga_enable();
 #elif defined CONFIG_VIDEO_VGA_VIA_LCD
 		sunxi_composer_mode_set(mode, address);
-		sunxi_lcdc_tcon0_mode_set(mode);
+		sunxi_lcdc_tcon0_mode_set(mode, true);
 		sunxi_composer_enable();
 		sunxi_lcdc_enable();
 		sunxi_vga_external_dac_enable();
