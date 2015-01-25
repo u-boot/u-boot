@@ -108,6 +108,15 @@ int spi_post_probe(struct udevice *dev)
 	return 0;
 }
 
+int spi_child_pre_probe(struct udevice *dev)
+{
+	struct spi_slave *slave = dev_get_parentdata(dev);
+
+	slave->dev = dev;
+
+	return 0;
+}
+
 int spi_chip_select(struct udevice *dev)
 {
 	struct spi_slave *slave = dev_get_parentdata(dev);
@@ -347,6 +356,7 @@ UCLASS_DRIVER(spi) = {
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_bind	= spi_post_bind,
 	.post_probe	= spi_post_probe,
+	.child_pre_probe = spi_child_pre_probe,
 	.per_device_auto_alloc_size = sizeof(struct dm_spi_bus),
 	.per_child_auto_alloc_size = sizeof(struct spi_slave),
 };
