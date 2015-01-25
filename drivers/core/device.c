@@ -81,18 +81,13 @@ int device_bind(struct udevice *parent, struct driver *drv, const char *name,
 
 	ret = uclass_bind_device(dev);
 	if (ret)
-		goto fail_bind;
+		goto fail_uclass_bind;
 
 	/* if we fail to bind we remove device from successors and free it */
 	if (drv->bind) {
 		ret = drv->bind(dev);
-		if (ret) {
-			if (uclass_unbind_device(dev)) {
-				dm_warn("Failed to unbind dev '%s' on error path\n",
-					dev->name);
-			}
+		if (ret)
 			goto fail_bind;
-		}
 	}
 	if (parent)
 		dm_dbg("Bound device %s to %s\n", dev->name, parent->name);
@@ -101,8 +96,15 @@ int device_bind(struct udevice *parent, struct driver *drv, const char *name,
 	return 0;
 
 fail_bind:
-	list_del(&dev->sibling_node);
+	if (uclass_unbind_device(dev)) {
+		dm_warn("Failed to unbind dev '%s' on error path\n",
+			dev->name);
+	}
+fail_uclass_bind:
+	if (parent)
+		list_del(&dev->sibling_node);
 	free(dev);
+
 	return ret;
 }
 
