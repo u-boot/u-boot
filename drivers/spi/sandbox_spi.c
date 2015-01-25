@@ -160,6 +160,5 @@ U_BOOT_DRIVER(spi_sandbox) = {
 	.name	= "spi_sandbox",
 	.id	= UCLASS_SPI,
 	.of_match = sandbox_spi_ids,
-	.per_child_auto_alloc_size	= sizeof(struct spi_slave),
 	.ops	= &sandbox_spi_ops,
 };

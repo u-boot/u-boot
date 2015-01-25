@@ -348,6 +348,7 @@ UCLASS_DRIVER(spi) = {
 	.post_bind	= spi_post_bind,
 	.post_probe	= spi_post_probe,
 	.per_device_auto_alloc_size = sizeof(struct dm_spi_bus),
+	.per_child_auto_alloc_size = sizeof(struct spi_slave),
 };
 
 UCLASS_DRIVER(spi_generic) = {
