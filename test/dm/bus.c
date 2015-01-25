@@ -17,6 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct dm_test_parent_platdata {
 	int count;
+	int bind_flag;
 };
 
 enum {
@@ -29,6 +30,16 @@ static struct dm_test_state *test_state;
 static int testbus_drv_probe(struct udevice *dev)
 {
 	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+}
+
+static int testbus_child_post_bind(struct udevice *dev)
+{
+	struct dm_test_parent_platdata *plat;
+
+	plat = dev_get_parent_platdata(dev);
+	plat->bind_flag = 1;
+
+	return 0;
 }
 
 static int testbus_child_pre_probe(struct udevice *dev)
@@ -64,6 +75,7 @@ U_BOOT_DRIVER(testbus_drv) = {
 	.of_match	= testbus_ids,
 	.id	= UCLASS_TEST_BUS,
 	.probe	= testbus_drv_probe,
+	.child_post_bind = testbus_child_post_bind,
 	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
 	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
 	.per_child_auto_alloc_size = sizeof(struct dm_test_parent_data),
@@ -380,3 +392,26 @@ static int dm_test_bus_parent_platdata_uclass(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_bus_parent_platdata_uclass,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that the child post_bind method is called */
+static int dm_test_bus_child_post_bind(struct dm_test_state *dms)
+{
+	struct dm_test_parent_platdata *plat;
+	struct udevice *bus, *dev;
+	int child_count;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
+	for (device_find_first_child(bus, &dev), child_count = 0;
+	     dev;
+	     device_find_next_child(&dev)) {
+		/* Check that platform data is allocated */
+		plat = dev_get_parent_platdata(dev);
+		ut_assert(plat != NULL);
+		ut_asserteq(1, plat->bind_flag);
+		child_count++;
+	}
+	ut_asserteq(3, child_count);
+
+	return 0;
+}
+DM_TEST(dm_test_bus_child_post_bind, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

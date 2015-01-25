@@ -111,11 +111,23 @@ int device_bind(struct udevice *parent, struct driver *drv, const char *name,
 		if (ret)
 			goto fail_bind;
 	}
+	if (parent && parent->driver->child_post_bind) {
+		ret = parent->driver->child_post_bind(dev);
+		if (ret)
+			goto fail_child_post_bind;
+	}
+
 	if (parent)
 		dm_dbg("Bound device %s to %s\n", dev->name, parent->name);
 	*devp = dev;
 
 	return 0;
+
+fail_child_post_bind:
+	if (drv->unbind && drv->unbind(dev)) {
+		dm_warn("unbind() method failed on dev '%s' on error path\n",
+			dev->name);
+	}
 
 fail_bind:
 	if (uclass_unbind_device(dev)) {
