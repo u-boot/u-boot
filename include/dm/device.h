@@ -26,6 +26,9 @@ struct driver_info;
 /* DM should init this device prior to relocation */
 #define DM_FLAG_PRE_RELOC	(1 << 2)
 
+/* DM is responsible for allocating and freeing parent_platdata */
+#define DM_FLAG_ALLOC_PARENT_PDATA	(1 << 3)
+
 /**
  * struct udevice - An instance of a driver
  *
@@ -46,6 +49,7 @@ struct driver_info;
  * @driver: The driver used by this device
  * @name: Name of device, typically the FDT node name
  * @platdata: Configuration data for this device
+ * @parent_platdata: The parent bus's configuration data for this device
  * @of_offset: Device tree node offset for this device (- for none)
  * @of_id: Pointer to the udevice_id structure which created the device
  * @parent: Parent of this device, or NULL for the top level device
@@ -65,6 +69,7 @@ struct udevice {
 	struct driver *driver;
 	const char *name;
 	void *platdata;
+	void *parent_platdata;
 	int of_offset;
 	const struct udevice_id *of_id;
 	struct udevice *parent;
@@ -146,6 +151,9 @@ struct udevice_id {
  * device_probe_child() pass it in. So far the use case for allocating it
  * is SPI, but I found that unsatisfactory. Since it is here I will leave it
  * until things are clearer.
+ * @per_child_platdata_auto_alloc_size: A bus likes to store information about
+ * its children. If non-zero this is the size of this data, to be allocated
+ * in the child's parent_platdata pointer.
  * @ops: Driver-specific operations. This is typically a list of function
  * pointers defined by the driver, to implement driver functions required by
  * the uclass.
@@ -165,6 +173,7 @@ struct driver {
 	int priv_auto_alloc_size;
 	int platdata_auto_alloc_size;
 	int per_child_auto_alloc_size;
+	int per_child_platdata_auto_alloc_size;
 	const void *ops;	/* driver-specific operations */
 	uint32_t flags;
 };
@@ -182,6 +191,16 @@ struct driver {
  * @return platform data, or NULL if none
  */
 void *dev_get_platdata(struct udevice *dev);
+
+/**
+ * dev_get_parent_platdata() - Get the parent platform data for a device
+ *
+ * This checks that dev is not NULL, but no other checks for now
+ *
+ * @dev		Device to check
+ * @return parent's platform data, or NULL if none
+ */
+void *dev_get_parent_platdata(struct udevice *dev);
 
 /**
  * dev_get_parentdata() - Get the parent data for a device

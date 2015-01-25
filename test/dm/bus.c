@@ -9,10 +9,15 @@
 #include <dm/device-internal.h>
 #include <dm/root.h>
 #include <dm/test.h>
+#include <dm/uclass-internal.h>
 #include <dm/ut.h>
 #include <dm/util.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+struct dm_test_parent_platdata {
+	int count;
+};
 
 enum {
 	FLAG_CHILD_PROBED	= 10,
@@ -62,6 +67,8 @@ U_BOOT_DRIVER(testbus_drv) = {
 	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
 	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
 	.per_child_auto_alloc_size = sizeof(struct dm_test_parent_data),
+	.per_child_platdata_auto_alloc_size =
+			sizeof(struct dm_test_parent_platdata),
 	.child_pre_probe = testbus_child_pre_probe,
 	.child_post_remove = testbus_child_post_remove,
 };
@@ -271,3 +278,77 @@ static int dm_test_bus_parent_ops(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_bus_parent_ops, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that the bus can store platform data about each child */
+static int dm_test_bus_parent_platdata(struct dm_test_state *dms)
+{
+	struct dm_test_parent_platdata *plat;
+	struct udevice *bus, *dev;
+	int child_count;
+
+	/* Check that the bus has no children */
+	ut_assertok(uclass_find_device(UCLASS_TEST_BUS, 0, &bus));
+	device_find_first_child(bus, &dev);
+	ut_asserteq_ptr(NULL, dev);
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
+
+	for (device_find_first_child(bus, &dev), child_count = 0;
+	     dev;
+	     device_find_next_child(&dev)) {
+		/* Check that platform data is allocated */
+		plat = dev_get_parent_platdata(dev);
+		ut_assert(plat != NULL);
+
+		/*
+		 * Check that it is not affected by the device being
+		 * probed/removed
+		 */
+		plat->count++;
+		ut_asserteq(1, plat->count);
+		device_probe(dev);
+		device_remove(dev);
+
+		ut_asserteq_ptr(plat, dev_get_parent_platdata(dev));
+		ut_asserteq(1, plat->count);
+		ut_assertok(device_probe(dev));
+		child_count++;
+	}
+	ut_asserteq(3, child_count);
+
+	/* Removing the bus should also have no effect (it is still bound) */
+	device_remove(bus);
+	for (device_find_first_child(bus, &dev), child_count = 0;
+	     dev;
+	     device_find_next_child(&dev)) {
+		/* Check that platform data is allocated */
+		plat = dev_get_parent_platdata(dev);
+		ut_assert(plat != NULL);
+		ut_asserteq(1, plat->count);
+		child_count++;
+	}
+	ut_asserteq(3, child_count);
+
+	/* Unbind all the children */
+	do {
+		device_find_first_child(bus, &dev);
+		if (dev)
+			device_unbind(dev);
+	} while (dev);
+
+	/* Now the child platdata should be removed and re-added */
+	device_probe(bus);
+	for (device_find_first_child(bus, &dev), child_count = 0;
+	     dev;
+	     device_find_next_child(&dev)) {
+		/* Check that platform data is allocated */
+		plat = dev_get_parent_platdata(dev);
+		ut_assert(plat != NULL);
+		ut_asserteq(0, plat->count);
+		child_count++;
+	}
+	ut_asserteq(3, child_count);
+
+	return 0;
+}
+DM_TEST(dm_test_bus_parent_platdata, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

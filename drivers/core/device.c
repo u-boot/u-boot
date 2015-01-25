@@ -80,6 +80,18 @@ int device_bind(struct udevice *parent, struct driver *drv, const char *name,
 			goto fail_alloc1;
 		}
 	}
+	if (parent) {
+		int size = parent->driver->per_child_platdata_auto_alloc_size;
+
+		if (size) {
+			dev->flags |= DM_FLAG_ALLOC_PARENT_PDATA;
+			dev->parent_platdata = calloc(1, size);
+			if (!dev->parent_platdata) {
+				ret = -ENOMEM;
+				goto fail_alloc2;
+			}
+		}
+	}
 
 	/* put dev into parent's successor list */
 	if (parent)
@@ -107,8 +119,12 @@ fail_bind:
 			dev->name);
 	}
 fail_uclass_bind:
-	if (parent)
-		list_del(&dev->sibling_node);
+	list_del(&dev->sibling_node);
+	if (dev->flags & DM_FLAG_ALLOC_PARENT_PDATA) {
+		free(dev->parent_platdata);
+		dev->parent_platdata = NULL;
+	}
+fail_alloc2:
 	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
 		free(dev->platdata);
 		dev->platdata = NULL;
@@ -245,6 +261,16 @@ void *dev_get_platdata(struct udevice *dev)
 	}
 
 	return dev->platdata;
+}
+
+void *dev_get_parent_platdata(struct udevice *dev)
+{
+	if (!dev) {
+		dm_warn("%s: null device", __func__);
+		return NULL;
+	}
+
+	return dev->parent_platdata;
 }
 
 void *dev_get_priv(struct udevice *dev)
