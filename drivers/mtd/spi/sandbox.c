@@ -141,8 +141,10 @@ static int sandbox_sf_probe(struct udevice *dev)
 		assert(bus->seq != -1);
 		if (bus->seq < CONFIG_SANDBOX_SPI_MAX_BUS)
 			spec = state->spi[bus->seq][cs].spec;
-		if (!spec)
-			return -ENOENT;
+		if (!spec) {
+			ret = -ENOENT;
+			goto error;
+		}
 
 		file = strchr(spec, ':');
 		if (!file) {
@@ -196,6 +198,7 @@ static int sandbox_sf_probe(struct udevice *dev)
 	return 0;
 
  error:
+	debug("%s: Got error %d\n", __func__, ret);
 	return ret;
 }
 
