@@ -49,6 +49,9 @@ int dm_init(void)
 	ret = device_bind_by_name(NULL, false, &root_info, &DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
+#ifdef CONFIG_OF_CONTROL
+	DM_ROOT_NON_CONST->of_offset = 0;
+#endif
 	ret = device_probe(DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;

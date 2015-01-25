@@ -363,6 +363,10 @@ can leave out platdata_auto_alloc_size. In this case you can use malloc
 in your ofdata_to_platdata (or probe) method to allocate the required memory,
 and you should free it in the remove method.
 
+The driver model tree is intended to mirror that of the device tree. The
+root driver is at device tree offset 0 (the root node, '/'), and its
+children are the children of the root node.
+
 
 Declaring Uclasses
 ------------------
