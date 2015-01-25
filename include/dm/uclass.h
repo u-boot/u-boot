@@ -141,6 +141,8 @@ int uclass_get_device_by_of_offset(enum uclass_id id, int node,
 /**
  * uclass_first_device() - Get the first device in a uclass
  *
+ * The device returned is probed if necessary, and ready for use
+ *
  * @id: Uclass ID to look up
  * @devp: Returns pointer to the first device in that uclass, or NULL if none
  * @return 0 if OK (found or not found), -1 on error
@@ -149,6 +151,8 @@ int uclass_first_device(enum uclass_id id, struct udevice **devp);
 
 /**
  * uclass_next_device() - Get the next device in a uclass
+ *
+ * The device returned is probed if necessary, and ready for use
  *
  * @devp: On entry, pointer to device to lookup. On exit, returns pointer
  * to the next device in the same uclass, or NULL if none
