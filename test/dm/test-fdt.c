@@ -89,6 +89,7 @@ int testfdt_ping(struct udevice *dev, int pingval, int *pingret)
 UCLASS_DRIVER(testfdt) = {
 	.name		= "testfdt",
 	.id		= UCLASS_TEST_FDT,
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
 
 int dm_check_devices(struct dm_test_state *dms, int num_devices)
@@ -128,7 +129,7 @@ int dm_check_devices(struct dm_test_state *dms, int num_devices)
 /* Test that FDT-based binding works correctly */
 static int dm_test_fdt(struct dm_test_state *dms)
 {
-	const int num_devices = 4;
+	const int num_devices = 6;
 	struct udevice *dev;
 	struct uclass *uc;
 	int ret;
@@ -184,7 +185,7 @@ static int dm_test_fdt_uclass_seq(struct dm_test_state *dms)
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 3, true, &dev));
 	ut_asserteq_str("b-test", dev->name);
 
-	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 0, true, &dev));
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 8, true, &dev));
 	ut_asserteq_str("a-test", dev->name);
 
 	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 5,
@@ -220,11 +221,11 @@ static int dm_test_fdt_uclass_seq(struct dm_test_state *dms)
 	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_TEST_FDT, 1,
 						      &dev));
 	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
-	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 1, &dev));
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 4, &dev));
 
 	/* But now that it is probed, we can find it */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 1, &dev));
-	ut_asserteq_str("a-test", dev->name);
+	ut_asserteq_str("f-test", dev->name);
 
 	return 0;
 }

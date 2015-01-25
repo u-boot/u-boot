@@ -453,6 +453,7 @@ int i2c_post_bind(struct udevice *dev)
 UCLASS_DRIVER(i2c) = {
 	.id		= UCLASS_I2C,
 	.name		= "i2c",
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.per_device_auto_alloc_size = sizeof(struct dm_i2c_bus),
 	.post_bind	= i2c_post_bind,
 	.post_probe	= i2c_post_probe,

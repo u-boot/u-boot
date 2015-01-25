@@ -40,6 +40,9 @@ struct uclass {
 
 struct udevice;
 
+/* Members of this uclass sequence themselves with aliases */
+#define DM_UC_FLAG_SEQ_ALIAS			(1 << 0)
+
 /**
  * struct uclass_driver - Driver for the uclass
  *
@@ -66,6 +69,7 @@ struct udevice;
  * a falback if this member is 0 in the driver.
  * @ops: Uclass operations, providing the consistent interface to devices
  * within the uclass.
+ * @flags: Flags for this uclass (DM_UC_...)
  */
 struct uclass_driver {
 	const char *name;
@@ -80,6 +84,7 @@ struct uclass_driver {
 	int per_device_auto_alloc_size;
 	int per_child_platdata_auto_alloc_size;
 	const void *ops;
+	uint32_t flags;
 };
 
 /* Declare a new uclass_driver */

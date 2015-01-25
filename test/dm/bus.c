@@ -88,12 +88,13 @@ U_BOOT_DRIVER(testbus_drv) = {
 UCLASS_DRIVER(testbus) = {
 	.name		= "testbus",
 	.id		= UCLASS_TEST_BUS,
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
 
 /* Test that we can probe for children */
 static int dm_test_bus_children(struct dm_test_state *dms)
 {
-	int num_devices = 4;
+	int num_devices = 6;
 	struct udevice *bus;
 	struct uclass *uc;
 

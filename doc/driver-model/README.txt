@@ -388,12 +388,12 @@ Device Sequence Numbers
 U-Boot numbers devices from 0 in many situations, such as in the command
 line for I2C and SPI buses, and the device names for serial ports (serial0,
 serial1, ...). Driver model supports this numbering and permits devices
-to be locating by their 'sequence'. This numbering unique identifies a
+to be locating by their 'sequence'. This numbering uniquely identifies a
 device in its uclass, so no two devices within a particular uclass can have
 the same sequence number.
 
 Sequence numbers start from 0 but gaps are permitted. For example, a board
-may have I2C buses 0, 1, 4, 5 but no 2 or 3. The choice of how devices are
+may have I2C buses 1, 4, 5 but no 0, 2 or 3. The choice of how devices are
 numbered is up to a particular board, and may be set by the SoC in some
 cases. While it might be tempting to automatically renumber the devices
 where there are gaps in the sequence, this can lead to confusion and is
@@ -403,7 +403,7 @@ Each device can request a sequence number. If none is required then the
 device will be automatically allocated the next available sequence number.
 
 To specify the sequence number in the device tree an alias is typically
-used.
+used. Make sure that the uclass has the DM_UC_FLAG_SEQ_ALIAS flag set.
 
 aliases {
 	serial2 = "/serial@22230000";
@@ -413,43 +413,18 @@ This indicates that in the uclass called "serial", the named node
 ("/serial@22230000") will be given sequence number 2. Any command or driver
 which requests serial device 2 will obtain this device.
 
-Some devices represent buses where the devices on the bus are numbered or
-addressed. For example, SPI typically numbers its slaves from 0, and I2C
-uses a 7-bit address. In these cases the 'reg' property of the subnode is
-used, for example:
+More commonly you can use node references, which expand to the full path:
 
-{
-	aliases {
-		spi2 = "/spi@22300000";
-	};
+aliases {
+	serial2 = &serial_2;
+};
+...
+serial_2: serial@22230000 {
+...
+};
 
-	spi@22300000 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		spi-flash@0 {
-			reg = <0>;
-			...
-		}
-		eeprom@1 {
-			reg = <1>;
-		};
-	};
-
-In this case we have a SPI bus with two slaves at 0 and 1. The SPI bus
-itself is numbered 2. So we might access the SPI flash with:
-
-	sf probe 2:0
-
-and the eeprom with
-
-	sspi 2:1 32 ef
-
-These commands simply need to look up the 2nd device in the SPI uclass to
-find the right SPI bus. Then, they look at the children of that bus for the
-right sequence number (0 or 1 in this case).
-
-Typically the alias method is used for top-level nodes and the 'reg' method
-is used only for buses.
+The alias resolves to the same string in this case, but this version is
+easier to read.
 
 Device sequence numbers are resolved when a device is probed. Before then
 the sequence number is only a request which may or may not be honoured,

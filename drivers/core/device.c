@@ -53,24 +53,22 @@ int device_bind(struct udevice *parent, struct driver *drv, const char *name,
 	dev->driver = drv;
 	dev->uclass = uc;
 
-	/*
-	 * For some devices, such as a SPI or I2C bus, the 'reg' property
-	 * is a reasonable indicator of the sequence number. But if there is
-	 * an alias, we use that in preference. In any case, this is just
-	 * a 'requested' sequence, and will be resolved (and ->seq updated)
-	 * when the device is probed.
-	 */
 	dev->seq = -1;
-#ifdef CONFIG_OF_CONTROL
-	dev->req_seq = fdtdec_get_int(gd->fdt_blob, of_offset, "reg", -1);
-	if (!IS_ERR_VALUE(dev->req_seq))
-		dev->req_seq &= INT_MAX;
-	if (uc->uc_drv->name && of_offset != -1) {
-		fdtdec_get_alias_seq(gd->fdt_blob, uc->uc_drv->name, of_offset,
-				     &dev->req_seq);
-	}
-#else
 	dev->req_seq = -1;
+#ifdef CONFIG_OF_CONTROL
+	/*
+	 * Some devices, such as a SPI bus, I2C bus and serial ports are
+	 * numbered using aliases.
+	 *
+	 * This is just a 'requested' sequence, and will be
+	 * resolved (and ->seq updated) when the device is probed.
+	 */
+	if (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS) {
+		if (uc->uc_drv->name && of_offset != -1) {
+			fdtdec_get_alias_seq(gd->fdt_blob, uc->uc_drv->name,
+					     of_offset, &dev->req_seq);
+		}
+	}
 #endif
 	if (!dev->platdata && drv->platdata_auto_alloc_size) {
 		dev->flags |= DM_FLAG_ALLOC_PDATA;

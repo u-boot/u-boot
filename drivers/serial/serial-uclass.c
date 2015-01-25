@@ -297,6 +297,7 @@ static int serial_pre_remove(struct udevice *dev)
 UCLASS_DRIVER(serial) = {
 	.id		= UCLASS_SERIAL,
 	.name		= "serial",
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_probe	= serial_post_probe,
 	.pre_remove	= serial_pre_remove,
 	.per_device_auto_alloc_size = sizeof(struct serial_dev_priv),

@@ -344,6 +344,7 @@ int spi_ofdata_to_platdata(const void *blob, int node,
 UCLASS_DRIVER(spi) = {
 	.id		= UCLASS_SPI,
 	.name		= "spi",
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_bind	= spi_post_bind,
 	.post_probe	= spi_post_probe,
 	.per_device_auto_alloc_size = sizeof(struct dm_spi_bus),
