@@ -192,7 +192,7 @@ DM_TEST(dm_test_bus_children_iterators,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test that the bus can store data about each child */
-static int dm_test_bus_parent_data(struct dm_test_state *dms)
+static int test_bus_parent_data(struct dm_test_state *dms)
 {
 	struct dm_test_parent_data *parent_data;
 	struct udevice *bus, *dev;
@@ -251,8 +251,35 @@ static int dm_test_bus_parent_data(struct dm_test_state *dms)
 
 	return 0;
 }
-
+/* Test that the bus can store data about each child */
+static int dm_test_bus_parent_data(struct dm_test_state *dms)
+{
+	return test_bus_parent_data(dms);
+}
 DM_TEST(dm_test_bus_parent_data, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* As above but the size is controlled by the uclass */
+static int dm_test_bus_parent_data_uclass(struct dm_test_state *dms)
+{
+	struct udevice *bus;
+	int size;
+	int ret;
+
+	/* Set the driver size to 0 so that the uclass size is used */
+	ut_assertok(uclass_find_device(UCLASS_TEST_BUS, 0, &bus));
+	size = bus->driver->per_child_auto_alloc_size;
+	bus->uclass->uc_drv->per_child_auto_alloc_size = size;
+	bus->driver->per_child_auto_alloc_size = 0;
+	ret = test_bus_parent_data(dms);
+	if (ret)
+		return ret;
+	bus->uclass->uc_drv->per_child_auto_alloc_size = 0;
+	bus->driver->per_child_auto_alloc_size = size;
+
+	return 0;
+}
+DM_TEST(dm_test_bus_parent_data_uclass,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test that the bus ops are called when a child is probed/removed */
 static int dm_test_bus_parent_ops(struct dm_test_state *dms)

@@ -126,6 +126,10 @@ void device_free(struct udevice *dev)
 	}
 	if (dev->parent) {
 		size = dev->parent->driver->per_child_auto_alloc_size;
+		if (!size) {
+			size = dev->parent->uclass->uc_drv->
+					per_child_auto_alloc_size;
+		}
 		if (size) {
 			free(dev->parent_priv);
 			dev->parent_priv = NULL;

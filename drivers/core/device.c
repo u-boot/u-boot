@@ -201,6 +201,10 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 	/* Ensure all parents are probed */
 	if (dev->parent) {
 		size = dev->parent->driver->per_child_auto_alloc_size;
+		if (!size) {
+			size = dev->parent->uclass->uc_drv->
+					per_child_auto_alloc_size;
+		}
 		if (size) {
 			dev->parent_priv = calloc(1, size);
 			if (!dev->parent_priv) {
