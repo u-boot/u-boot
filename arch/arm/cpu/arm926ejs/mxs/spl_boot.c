@@ -147,6 +147,7 @@ void mxs_common_spl_init(const uint32_t arg, const uint32_t *resptr,
 	mxs_iomux_setup_multiple_pads(iomux_setup, iomux_size);
 
 	mxs_spl_console_init();
+	debug("SPL: Serial Console Initialised\n");
 
 	mxs_power_init();
 
