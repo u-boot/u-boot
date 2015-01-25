@@ -388,10 +388,12 @@ struct dm_i2c_ops {
  *
  * @bus:	Bus to examine
  * @chip_addr:	Chip address for the new device
+ * @offset_len:	Length of a register offset in bytes (normally 1)
  * @devp:	Returns pointer to new device if found or -ENODEV if not
  *		found
  */
-int i2c_get_chip(struct udevice *bus, uint chip_addr, struct udevice **devp);
+int i2c_get_chip(struct udevice *bus, uint chip_addr, uint offset_len,
+		 struct udevice **devp);
 
 /**
  * i2c_get_chip() - get a device to use to access a chip on a bus number
@@ -401,10 +403,12 @@ int i2c_get_chip(struct udevice *bus, uint chip_addr, struct udevice **devp);
  *
  * @busnum:	Bus number to examine
  * @chip_addr:	Chip address for the new device
+ * @offset_len:	Length of a register offset in bytes (normally 1)
  * @devp:	Returns pointer to new device if found or -ENODEV if not
  *		found
  */
-int i2c_get_chip_for_busnum(int busnum, int chip_addr, struct udevice **devp);
+int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
+			    struct udevice **devp);
 
 /**
  * i2c_chip_ofdata_to_platdata() - Decode standard I2C platform data

@@ -242,7 +242,7 @@ int as3722_init(struct udevice **devp)
 	const unsigned int address = 0x40;
 	int err;
 
-	err = i2c_get_chip_for_busnum(bus, address, &pmic);
+	err = i2c_get_chip_for_busnum(bus, address, 1, &pmic);
 	if (err)
 		return err;
 	err = as3722_read_id(pmic, &id, &revision);

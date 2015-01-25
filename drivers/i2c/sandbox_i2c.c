@@ -60,7 +60,7 @@ static int sandbox_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 	if (msg->addr == SANDBOX_I2C_TEST_ADDR)
 		return 0;
 
-	ret = i2c_get_chip(bus, msg->addr, &dev);
+	ret = i2c_get_chip(bus, msg->addr, 1, &dev);
 	if (ret)
 		return ret;
 

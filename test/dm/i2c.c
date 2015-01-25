@@ -49,7 +49,7 @@ static int dm_test_i2c_read_write(struct dm_test_state *dms)
 	uint8_t buf[5];
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
-	ut_assertok(i2c_get_chip(bus, chip, &dev));
+	ut_assertok(i2c_get_chip(bus, chip, 1, &dev));
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "\0\0\0\0\0", sizeof(buf)));
 	ut_assertok(dm_i2c_write(dev, 2, (uint8_t *)"AB", 2));
@@ -66,7 +66,7 @@ static int dm_test_i2c_speed(struct dm_test_state *dms)
 	uint8_t buf[5];
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
-	ut_assertok(i2c_get_chip(bus, chip, &dev));
+	ut_assertok(i2c_get_chip(bus, chip, 1, &dev));
 	ut_assertok(i2c_set_bus_speed(bus, 100000));
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(i2c_set_bus_speed(bus, 400000));
@@ -84,7 +84,7 @@ static int dm_test_i2c_offset_len(struct dm_test_state *dms)
 	uint8_t buf[5];
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
-	ut_assertok(i2c_get_chip(bus, chip, &dev));
+	ut_assertok(i2c_get_chip(bus, chip, 1, &dev));
 	ut_assertok(i2c_set_chip_offset_len(dev, 1));
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 
@@ -113,7 +113,7 @@ static int dm_test_i2c_bytewise(struct dm_test_state *dms)
 	uint8_t buf[5];
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
-	ut_assertok(i2c_get_chip(bus, chip, &dev));
+	ut_assertok(i2c_get_chip(bus, chip, 1, &dev));
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "\0\0\0\0\0", sizeof(buf)));
 
@@ -167,7 +167,7 @@ static int dm_test_i2c_offset(struct dm_test_state *dms)
 	struct udevice *dev;
 	uint8_t buf[5];
 
-	ut_assertok(i2c_get_chip_for_busnum(busnum, chip, &dev));
+	ut_assertok(i2c_get_chip_for_busnum(busnum, chip, 1, &dev));
 
 	/* Do a transfer so we can find the emulator */
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));

@@ -27,7 +27,7 @@ void pin_mux_mmc(void)
 	int ret;
 
 	/* Turn on MAX8907B LDO12 to 2.8V for J40 power */
-	ret = i2c_get_chip_for_busnum(0, 0x3c, &dev);
+	ret = i2c_get_chip_for_busnum(0, 0x3c, 1, &dev);
 	if (ret) {
 		printf("%s: Cannot find MAX8907B I2C chip\n", __func__);
 		return;
@@ -64,7 +64,7 @@ void pin_mux_usb(void)
 	 */
 
 	/* Turn on TAC6416's GPIO 0+1 for USB1/3's VBUS */
-	ret = i2c_get_chip_for_busnum(0, 0x20, &dev);
+	ret = i2c_get_chip_for_busnum(0, 0x20, 1, &dev);
 	if (ret) {
 		printf("%s: Cannot find TAC6416 I2C chip\n", __func__);
 		return;

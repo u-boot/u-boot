@@ -168,7 +168,7 @@ static int i2c_get_cur_bus_chip(uint chip_addr, struct udevice **devp)
 	if (ret)
 		return ret;
 
-	return i2c_get_chip(bus, chip_addr, devp);
+	return i2c_get_chip(bus, chip_addr, 1, devp);
 }
 
 #endif

@@ -42,7 +42,7 @@ int tegra_pcie_board_init(void)
 	u8 addr, data[1];
 	int err;
 
-	err = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, &dev);
+	err = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, 1, &dev);
 	if (err) {
 		debug("%s: Cannot find PMIC I2C chip\n", __func__);
 		return err;

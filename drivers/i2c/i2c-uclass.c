@@ -220,7 +220,7 @@ static int i2c_probe_chip(struct udevice *bus, uint chip_addr,
 	return ops->xfer(bus, msg, 1);
 }
 
-static int i2c_bind_driver(struct udevice *bus, uint chip_addr,
+static int i2c_bind_driver(struct udevice *bus, uint chip_addr, uint offset_len,
 			   struct udevice **devp)
 {
 	struct dm_i2c_chip chip;
@@ -238,7 +238,7 @@ static int i2c_bind_driver(struct udevice *bus, uint chip_addr,
 	/* Tell the device what we know about it */
 	memset(&chip, '\0', sizeof(chip));
 	chip.chip_addr = chip_addr;
-	chip.offset_len = 1;	/* we assume */
+	chip.offset_len = offset_len;
 	ret = device_probe_child(dev, &chip);
 	debug("%s:  device_probe_child: ret=%d\n", __func__, ret);
 	if (ret)
@@ -254,7 +254,8 @@ err_bind:
 	return ret;
 }
 
-int i2c_get_chip(struct udevice *bus, uint chip_addr, struct udevice **devp)
+int i2c_get_chip(struct udevice *bus, uint chip_addr, uint offset_len,
+		 struct udevice **devp)
 {
 	struct udevice *dev;
 
@@ -281,10 +282,11 @@ int i2c_get_chip(struct udevice *bus, uint chip_addr, struct udevice **devp)
 		}
 	}
 	debug("not found\n");
-	return i2c_bind_driver(bus, chip_addr, devp);
+	return i2c_bind_driver(bus, chip_addr, offset_len, devp);
 }
 
-int i2c_get_chip_for_busnum(int busnum, int chip_addr, struct udevice **devp)
+int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
+			    struct udevice **devp)
 {
 	struct udevice *bus;
 	int ret;
@@ -294,7 +296,7 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, struct udevice **devp)
 		debug("Cannot find I2C bus %d\n", busnum);
 		return ret;
 	}
-	ret = i2c_get_chip(bus, chip_addr, devp);
+	ret = i2c_get_chip(bus, chip_addr, offset_len, devp);
 	if (ret) {
 		debug("Cannot find I2C chip %02x on bus %d\n", chip_addr,
 		      busnum);
@@ -319,7 +321,7 @@ int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
 		return ret;
 
 	/* The chip was found, see if we have a driver, and probe it */
-	ret = i2c_get_chip(bus, chip_addr, devp);
+	ret = i2c_get_chip(bus, chip_addr, 1, devp);
 	debug("%s:  i2c_get_chip: ret=%d\n", __func__, ret);
 
 	return ret;

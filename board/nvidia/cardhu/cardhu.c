@@ -46,7 +46,7 @@ void board_sdmmc_voltage_init(void)
 	int ret;
 	int i;
 
-	ret = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, &dev);
+	ret = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, 1, &dev);
 	if (ret) {
 		debug("%s: Cannot find PMIC I2C chip\n", __func__);
 		return;
@@ -94,7 +94,7 @@ int tegra_pcie_board_init(void)
 	u8 addr, data[1];
 	int err;
 
-	err = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, &dev);
+	err = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, 1, &dev);
 	if (err) {
 		debug("failed to find PMU bus\n");
 		return err;
