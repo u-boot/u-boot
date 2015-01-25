@@ -441,11 +441,18 @@ access to other devices. Example of buses include SPI and I2C. Typically
 the bus provides some sort of transport or translation that makes it
 possible to talk to the devices on the bus.
 
-Driver model provides a few useful features to help with implementing
-buses. Firstly, a bus can request that its children store some 'parent
-data' which can be used to keep track of child state. Secondly, the bus can
-define methods which are called when a child is probed or removed. This is
-similar to the methods the uclass driver provides.
+Driver model provides some useful features to help with implementing buses.
+Firstly, a bus can request that its children store some 'parent data' which
+can be used to keep track of child state. Secondly, the bus can define
+methods which are called when a child is probed or removed. This is similar
+to the methods the uclass driver provides. Thirdly, per-child platform data
+can be provided to specify things like the child's address on the bus. This
+persists across child probe()/remove() cycles.
+
+For consistency and ease of implementation, the bus uclass can specify the
+per-child platform data, so that it can be the same for all children of buses
+in that uclass. There are also uclass methods which can be called when
+children are bound and probed.
 
 Here an explanation of how a bus fits with a uclass may be useful. Consider
 a USB bus with several devices attached to it, each from a different (made
@@ -460,14 +467,22 @@ Each of the devices is connected to a different address on the USB bus.
 The bus device wants to store this address and some other information such
 as the bus speed for each device.
 
-To achieve this, the bus device can use dev->parent_priv in each of its
-three children. This can be auto-allocated if the bus driver has a non-zero
-value for per_child_auto_alloc_size. If not, then the bus device can
-allocate the space itself before the child device is probed.
+To achieve this, the bus device can use dev->parent_platdata in each of its
+three children. This can be auto-allocated if the bus driver (or bus uclass)
+has a non-zero value for per_child_platdata_auto_alloc_size. If not, then
+the bus device or uclass can allocate the space itself before the child
+device is probed.
 
 Also the bus driver can define the child_pre_probe() and child_post_remove()
 methods to allow it to do some processing before the child is activated or
 after it is deactivated.
+
+Similarly the bus uclass can define the child_post_bind() method to obtain
+the per-child platform data from the device tree and set it up for the child.
+The bus uclass can also provide a child_pre_probe() method. Very often it is
+the bus uclass that controls these features, since it avoids each driver
+having to do the same processing. Of course the driver can still tweak and
+override these activities.
 
 Note that the information that controls this behaviour is in the bus's
 driver, not the child's. In fact it is possible that child has no knowledge
@@ -495,7 +510,8 @@ bus device, regardless of its own views on the matter.
 The uclass for the device can also contain data private to that uclass.
 But note that each device on the bus may be a memeber of a different
 uclass, and this data has nothing to do with the child data for each child
-on the bus.
+on the bus. It is the bus' uclass that controls the child with respect to
+the bus.
 
 
 Driver Lifecycle
