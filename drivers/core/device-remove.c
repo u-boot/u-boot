@@ -88,6 +88,10 @@ int device_unbind(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
+		free(dev->platdata);
+		dev->platdata = NULL;
+	}
 	ret = uclass_unbind_device(dev);
 	if (ret)
 		return ret;
@@ -110,10 +114,6 @@ void device_free(struct udevice *dev)
 	if (dev->driver->priv_auto_alloc_size) {
 		free(dev->priv);
 		dev->priv = NULL;
-	}
-	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
-		free(dev->platdata);
-		dev->platdata = NULL;
 	}
 	size = dev->uclass->uc_drv->per_device_auto_alloc_size;
 	if (size) {

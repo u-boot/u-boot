@@ -72,8 +72,14 @@ int device_bind(struct udevice *parent, struct driver *drv, const char *name,
 #else
 	dev->req_seq = -1;
 #endif
-	if (!dev->platdata && drv->platdata_auto_alloc_size)
+	if (!dev->platdata && drv->platdata_auto_alloc_size) {
 		dev->flags |= DM_FLAG_ALLOC_PDATA;
+		dev->platdata = calloc(1, drv->platdata_auto_alloc_size);
+		if (!dev->platdata) {
+			ret = -ENOMEM;
+			goto fail_alloc1;
+		}
+	}
 
 	/* put dev into parent's successor list */
 	if (parent)
@@ -103,6 +109,11 @@ fail_bind:
 fail_uclass_bind:
 	if (parent)
 		list_del(&dev->sibling_node);
+	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
+		free(dev->platdata);
+		dev->platdata = NULL;
+	}
+fail_alloc1:
 	free(dev);
 
 	return ret;
@@ -139,7 +150,7 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 	drv = dev->driver;
 	assert(drv);
 
-	/* Allocate private data and platdata if requested */
+	/* Allocate private data if requested */
 	if (drv->priv_auto_alloc_size) {
 		dev->priv = calloc(1, drv->priv_auto_alloc_size);
 		if (!dev->priv) {
@@ -148,13 +159,6 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 		}
 	}
 	/* Allocate private data if requested */
-	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
-		dev->platdata = calloc(1, drv->platdata_auto_alloc_size);
-		if (!dev->platdata) {
-			ret = -ENOMEM;
-			goto fail;
-		}
-	}
 	size = dev->uclass->uc_drv->per_device_auto_alloc_size;
 	if (size) {
 		dev->uclass_priv = calloc(1, size);

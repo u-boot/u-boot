@@ -143,12 +143,12 @@ static int dm_test_fdt(struct dm_test_state *dms)
 	/* These are num_devices compatible root-level device tree nodes */
 	ut_asserteq(num_devices, list_count_items(&uc->dev_head));
 
-	/* Each should have no platdata / priv */
+	/* Each should have platform data but no private data */
 	for (i = 0; i < num_devices; i++) {
 		ret = uclass_find_device(UCLASS_TEST_FDT, i, &dev);
 		ut_assert(!ret);
 		ut_assert(!dev_get_priv(dev));
-		ut_assert(!dev->platdata);
+		ut_assert(dev->platdata);
 	}
 
 	ut_assertok(dm_check_devices(dms, num_devices));
