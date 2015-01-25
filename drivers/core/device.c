@@ -438,3 +438,8 @@ ulong dev_get_of_data(struct udevice *dev)
 {
 	return dev->of_id->data;
 }
+
+enum uclass_id device_get_uclass_id(struct udevice *dev)
+{
+	return dev->uclass->uc_drv->id;
+}

@@ -245,6 +245,14 @@ struct udevice *dev_get_parent(struct udevice *child);
  */
 ulong dev_get_of_data(struct udevice *dev);
 
+/*
+ * device_get_uclass_id() - return the uclass ID of a device
+ *
+ * @dev:	Device to check
+ * @return uclass ID for the device
+ */
+enum uclass_id device_get_uclass_id(struct udevice *dev);
+
 /**
  * device_get_child() - Get the child of a device by index
  *
