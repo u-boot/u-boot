@@ -39,16 +39,14 @@ config DRAM_CLK
 	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 	---help---
 	Set the dram clock speed, valid range 240 - 480, must be a multiple
-	of 24. Note on sun4i / sun5i / sun7i this is only used by boards
-	which use dram autoconfig.
+	of 24.
 
 config DRAM_ZQ
 	int "sunxi dram zq value"
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 	default 127 if MACH_SUN7I
 	---help---
-	Set the dram zq value. Note on sun4i / sun5i / sun7i this is only
-	used by boards which use dram autoconfig.
+	Set the dram zq value.
 
 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 config DRAM_EMR1
@@ -56,8 +54,7 @@ config DRAM_EMR1
 	default 0 if MACH_SUN4I
 	default 4 if MACH_SUN5I || MACH_SUN7I
 	---help---
-	Set the dram controller emr1 value. Note this is only used by boards
-	which use dram autoconfig.
+	Set the dram controller emr1 value.
 endif
 
 config SYS_CONFIG_NAME
