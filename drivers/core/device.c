@@ -227,6 +227,10 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 	}
 	dev->seq = seq;
 
+	ret = uclass_pre_probe_child(dev);
+	if (ret)
+		goto fail;
+
 	if (dev->parent && dev->parent->driver->child_pre_probe) {
 		ret = dev->parent->driver->child_pre_probe(dev);
 		if (ret)

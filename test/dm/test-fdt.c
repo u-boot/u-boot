@@ -51,6 +51,13 @@ static int testfdt_drv_probe(struct udevice *dev)
 
 	priv->ping_total += DM_TEST_START_TOTAL;
 
+	/*
+	 * If this device is on a bus, the uclass_flag will be set before
+	 * calling this function. This is used by
+	 * dm_test_bus_child_pre_probe_uclass().
+	 */
+	priv->uclass_total += priv->uclass_flag;
+
 	return 0;
 }
 

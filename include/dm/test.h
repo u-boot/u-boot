@@ -67,6 +67,8 @@ enum {
 struct dm_test_priv {
 	int ping_total;
 	int op_count[DM_TEST_OP_COUNT];
+	int uclass_flag;
+	int uclass_total;
 };
 
 /**
@@ -88,6 +90,7 @@ struct dm_test_uclass_priv {
  *
  * @sum: Test value used to check parent data works correctly
  * @flag: Used to track calling of parent operations
+ * @uclass_flag: Used to track calling of parent operations by uclass
  */
 struct dm_test_parent_data {
 	int sum;
