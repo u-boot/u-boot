@@ -18,6 +18,8 @@ void _hw_exception_handler (void)
 	/* loading excetpion state register ESR */
 	MFS (state, resr);
 	printf ("Hardware exception at 0x%x address\n", address);
+	R17(address);
+	printf("Return address from exception 0x%x\n", address);
 	switch (state & 0x1f) {	/* mask on exception cause */
 	case 0x1:
 		puts ("Unaligned data access exception\n");
