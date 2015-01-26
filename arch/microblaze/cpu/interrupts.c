@@ -84,12 +84,12 @@ int install_interrupt_handler(int irq, interrupt_handler_t *hdlr, void *arg)
 		act->handler = hdlr;
 		act->arg = arg;
 		act->count = 0;
-		enable_one_interrupt (irq);
+		enable_one_interrupt(irq);
 		return 0;
 	}
 
 	/* Disable */
-	act->handler = (interrupt_handler_t *) def_hdlr;
+	act->handler = (interrupt_handler_t *)def_hdlr;
 	act->arg = (void *)irq;
 	disable_one_interrupt(irq);
 	return 1;
@@ -113,7 +113,7 @@ int interrupts_init(void)
 	int i;
 
 #if defined(CONFIG_SYS_INTC_0_ADDR) && defined(CONFIG_SYS_INTC_0_NUM)
-	intc = (microblaze_intc_t *) (CONFIG_SYS_INTC_0_ADDR);
+	intc = (microblaze_intc_t *)CONFIG_SYS_INTC_0_ADDR;
 	irq_no = CONFIG_SYS_INTC_0_NUM;
 #endif
 	if (irq_no) {
@@ -125,7 +125,7 @@ int interrupts_init(void)
 
 		/* initialize irq list */
 		for (i = 0; i < irq_no; i++) {
-			vecs[i].handler = (interrupt_handler_t *) def_hdlr;
+			vecs[i].handler = (interrupt_handler_t *)def_hdlr;
 			vecs[i].arg = (void *)i;
 			vecs[i].count = 0;
 		}
@@ -154,7 +154,7 @@ void interrupt_handler(void)
 
 	debug("Jumping to interrupt handler rutine addr %x,count %x,arg %x\n",
 	      (u32)act->handler, act->count, (u32)act->arg);
-	act->handler (act->arg);
+	act->handler(act->arg);
 	act->count++;
 
 	intc->iar = mask << irqs;
@@ -179,10 +179,10 @@ int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, const char *argv[])
 		      "-----------------------------\n");
 
 		for (i = 0; i < irq_no; i++) {
-			if (act->handler != (interrupt_handler_t *) def_hdlr) {
+			if (act->handler != (interrupt_handler_t *)def_hdlr) {
 				printf("%02d  %08x  %08x  %d\n", i,
-					(int)act->handler, (int)act->arg,
-								act->count);
+				       (int)act->handler, (int)act->arg,
+				       act->count);
 			}
 			act++;
 		}
