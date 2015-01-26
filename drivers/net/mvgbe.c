@@ -35,6 +35,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_MVGBE_PORTS
+# define CONFIG_MVGBE_PORTS {0, 0}
+#endif
+
 #define MV_PHY_ADR_REQUEST 0xee
 #define MVGBE_SMI_REG (((struct mvgbe_registers *)MVGBE0_BASE)->smi)
 
