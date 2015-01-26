@@ -281,11 +281,11 @@ static int gpt_default(block_dev_desc_t *blk_dev_desc, const char *str_part)
 	}
 
 	/* save partitions layout to disk */
-	gpt_restore(blk_dev_desc, str_disk_guid, partitions, part_count);
+	ret = gpt_restore(blk_dev_desc, str_disk_guid, partitions, part_count);
 	free(str_disk_guid);
 	free(partitions);
 
-	return 0;
+	return ret;
 }
 
 /**
