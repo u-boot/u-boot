@@ -14,8 +14,6 @@
 #include <asm/microblaze_intc.h>
 #include <asm/asm.h>
 
-#undef DEBUG_INT
-
 void enable_interrupts(void)
 {
 	MSRSET(0x2);
@@ -50,12 +48,11 @@ static void enable_one_interrupt(int irq)
 	offset <<= irq;
 	mask = intc->ier;
 	intc->ier = (mask | offset);
-#ifdef DEBUG_INT
-	printf("Enable one interrupt irq %x - mask %x,ier %x\n", offset, mask,
-		intc->ier);
-	printf("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
-		intc->iar, intc->mer);
-#endif
+
+	debug("Enable one interrupt irq %x - mask %x,ier %x\n", offset, mask,
+	      intc->ier);
+	debug("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
+	      intc->iar, intc->mer);
 }
 
 static void disable_one_interrupt(int irq)
@@ -66,12 +63,11 @@ static void disable_one_interrupt(int irq)
 	offset <<= irq;
 	mask = intc->ier;
 	intc->ier = (mask & ~offset);
-#ifdef DEBUG_INT
-	printf("Disable one interrupt irq %x - mask %x,ier %x\n", irq, mask,
-		intc->ier);
-	printf("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
-		intc->iar, intc->mer);
-#endif
+
+	debug("Disable one interrupt irq %x - mask %x,ier %x\n", irq, mask,
+	      intc->ier);
+	debug("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
+	      intc->iar, intc->mer);
 }
 
 int install_interrupt_handler(int irq, interrupt_handler_t *hdlr, void *arg)
@@ -107,10 +103,9 @@ static void intc_init(void)
 	intc->iar = 0xFFFFFFFF;
 	/* XIntc_Start - hw_interrupt enable and all interrupt enable */
 	intc->mer = 0x3;
-#ifdef DEBUG_INT
-	printf("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
-		intc->iar, intc->mer);
-#endif
+
+	debug("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
+	      intc->iar, intc->mer);
 }
 
 int interrupts_init(void)
@@ -147,31 +142,29 @@ void interrupt_handler(void)
 {
 	int irqs = intc->ivr;	/* find active interrupt */
 	int mask = 1;
-#ifdef DEBUG_INT
 	int value;
-	printf ("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
-		intc->iar, intc->mer);
-	R14(value);
-	printf ("Interrupt handler on %x line, r14 %x\n", irqs, value);
-#endif
 	struct irq_action *act = vecs + irqs;
 
-#ifdef DEBUG_INT
-	printf
-	    ("Jumping to interrupt handler rutine addr %x,count %x,arg %x\n",
-	     act->handler, act->count, act->arg);
+	debug("INTC isr %x, ier %x, iar %x, mer %x\n", intc->isr, intc->ier,
+	      intc->iar, intc->mer);
+#ifdef DEBUG
+	R14(value);
 #endif
+	debug("Interrupt handler on %x line, r14 %x\n", irqs, value);
+
+	debug("Jumping to interrupt handler rutine addr %x,count %x,arg %x\n",
+	      (u32)act->handler, act->count, (u32)act->arg);
 	act->handler (act->arg);
 	act->count++;
 
 	intc->iar = mask << irqs;
 
-#ifdef DEBUG_INT
-	printf ("Dump INTC reg, isr %x, ier %x, iar %x, mer %x\n", intc->isr,
-		intc->ier, intc->iar, intc->mer);
+	debug("Dump INTC reg, isr %x, ier %x, iar %x, mer %x\n", intc->isr,
+	      intc->ier, intc->iar, intc->mer);
+#ifdef DEBUG
 	R14(value);
-	printf ("Interrupt handler on %x line, r14 %x\n", irqs, value);
 #endif
+	debug("Interrupt handler on %x line, r14 %x\n", irqs, value);
 }
 
 #if defined(CONFIG_CMD_IRQ)
