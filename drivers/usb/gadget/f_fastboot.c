@@ -516,6 +516,17 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 static void cb_oem(struct usb_ep *ep, struct usb_request *req)
 {
 	char *cmd = req->buf;
+#ifdef CONFIG_FASTBOOT_FLASH
+	if (strncmp("format", cmd + 4, 6) == 0) {
+		char cmdbuf[32];
+                sprintf(cmdbuf, "gpt write mmc %x $partitions",
+			CONFIG_FASTBOOT_FLASH_MMC_DEV);
+                if (run_command(cmdbuf, 0))
+			fastboot_tx_write_str("FAIL");
+                else
+			fastboot_tx_write_str("OKAY");
+	} else
+#endif
 	if (strncmp("unlock", cmd + 4, 8) == 0) {
 		fastboot_tx_write_str("FAILnot implemented");
 	}
