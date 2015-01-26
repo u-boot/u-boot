@@ -12,7 +12,6 @@
 
 #define AXP223_DEVICE_ADDR 0x3a3
 #define AXP223_RUNTIME_ADDR 0x2d
-#define AXP223_DEVICE_MODE_DATA 0x7c3e00
 
 /* Page 0 addresses */
 #define AXP221_CHIP_ID		0x03
