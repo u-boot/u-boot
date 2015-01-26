@@ -16,6 +16,7 @@
 
 void enable_interrupts(void)
 {
+	debug("Enable interrupts for the whole CPU\n");
 	MSRSET(0x2);
 }
 
