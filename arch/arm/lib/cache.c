@@ -25,10 +25,12 @@ __weak void flush_cache(unsigned long start, unsigned long size)
 #endif /* CONFIG_CPU_ARM1136 */
 
 #ifdef CONFIG_CPU_ARM926EJS
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	/* test and clean, page 2-23 of arm926ejs manual */
 	asm("0: mrc p15, 0, r15, c7, c10, 3\n\t" "bne 0b\n" : : : "memory");
 	/* disable write buffer as well (page 2-22) */
 	asm("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
+#endif
 #endif /* CONFIG_CPU_ARM926EJS */
 	return;
 }

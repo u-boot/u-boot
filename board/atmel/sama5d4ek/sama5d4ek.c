@@ -10,6 +10,7 @@
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
+#include <asm/arch/atmel_usba_udc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/sama5d3_smc.h>
@@ -293,6 +294,9 @@ int board_init(void)
 #ifdef CONFIG_CMD_USB
 	sama5d4ek_usb_hw_init();
 #endif
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+	at91_udp_hw_init();
+#endif
 
 	return 0;
 }
@@ -310,6 +314,13 @@ int board_eth_init(bd_t *bis)
 
 #ifdef CONFIG_MACB
 	rc = macb_eth_initialize(0, (void *)ATMEL_BASE_GMAC0, 0x00);
+#endif
+
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+	usba_udc_probe(&pdata);
+#ifdef CONFIG_USB_ETH_RNDIS
+	usb_eth_initialize(bis);
+#endif
 #endif
 
 	return rc;
