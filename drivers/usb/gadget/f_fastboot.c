@@ -513,6 +513,17 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 }
 #endif
 
+static void cb_oem(struct usb_ep *ep, struct usb_request *req)
+{
+	char *cmd = req->buf;
+	if (strncmp("unlock", cmd + 4, 8) == 0) {
+		fastboot_tx_write_str("FAILnot implemented");
+	}
+	else {
+		fastboot_tx_write_str("FAILunknown oem command");
+	}
+}
+
 struct cmd_dispatch_info {
 	char *cmd;
 	void (*cb)(struct usb_ep *ep, struct usb_request *req);
@@ -541,6 +552,10 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 		.cb = cb_flash,
 	},
 #endif
+	{
+		.cmd = "oem",
+		.cb = cb_oem,
+	},
 };
 
 static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
