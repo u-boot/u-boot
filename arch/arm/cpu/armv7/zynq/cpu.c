@@ -10,10 +10,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
 
-void lowlevel_init(void)
-{
-}
-
 #define ZYNQ_SILICON_VER_MASK	0xF0000000
 #define ZYNQ_SILICON_VER_SHIFT	28
 

@@ -91,6 +91,14 @@ int board_late_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_DISPLAY_BOARDINFO
+int checkboard(void)
+{
+	puts("Board:\tXilinx Zynq\n");
+	return 0;
+}
+#endif
+
 int board_eth_init(bd_t *bis)
 {
 	u32 ret = 0;
@@ -115,11 +123,13 @@ int board_eth_init(bd_t *bis)
 #if defined(CONFIG_ZYNQ_GEM)
 # if defined(CONFIG_ZYNQ_GEM0)
 	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR0,
-						CONFIG_ZYNQ_GEM_PHY_ADDR0, 0);
+				   CONFIG_ZYNQ_GEM_PHY_ADDR0,
+				   CONFIG_ZYNQ_GEM_EMIO0);
 # endif
 # if defined(CONFIG_ZYNQ_GEM1)
 	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR1,
-						CONFIG_ZYNQ_GEM_PHY_ADDR1, 0);
+				   CONFIG_ZYNQ_GEM_PHY_ADDR1,
+				   CONFIG_ZYNQ_GEM_EMIO1);
 # endif
 #endif
 	return ret;

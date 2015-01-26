@@ -43,12 +43,21 @@ u32 spl_boot_device(void)
 		mode = BOOT_DEVICE_SPI;
 		break;
 #endif
+	case ZYNQ_BM_NAND:
+		mode = BOOT_DEVICE_NAND;
+		break;
+	case ZYNQ_BM_NOR:
+		mode = BOOT_DEVICE_NOR;
+		break;
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case ZYNQ_BM_SD:
 		puts("mmc boot\n");
 		mode = BOOT_DEVICE_MMC1;
 		break;
 #endif
+	case ZYNQ_BM_JTAG:
+		mode = BOOT_DEVICE_RAM;
+		break;
 	default:
 		puts("Unsupported boot mode selected\n");
 		hang();
