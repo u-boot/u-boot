@@ -29,9 +29,6 @@ SECTIONS
 	.data ALIGN(0x4):
 	{
 		__data_start = .;
-#ifdef CONFIG_OF_EMBED
-		dts/built-in.o (.data)
-#endif
 		*(.data)
 		__data_end = .;
 	}
