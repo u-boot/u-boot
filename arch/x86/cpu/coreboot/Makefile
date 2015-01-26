@@ -16,7 +16,6 @@
 obj-y += car.o
 obj-y += coreboot.o
 obj-y += tables.o
-obj-y += ipchecksum.o
 obj-y += sdram.o
 obj-y += timestamp.o
 obj-$(CONFIG_PCI) += pci.o

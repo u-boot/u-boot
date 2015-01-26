@@ -8,7 +8,6 @@
 #define _PCI_ROM_H
 
 #define PCI_ROM_HDR			0xaa55
-#define PCI_VGA_RAM_IMAGE_START		0xc0000
 
 struct pci_rom_header {
 	uint16_t signature;

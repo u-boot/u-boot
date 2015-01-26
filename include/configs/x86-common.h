@@ -179,6 +179,7 @@
 #define VIDEO_FB_16BPP_WORD_SWAP
 #define CONFIG_I8042_KBD
 #define CONFIG_CFB_CONSOLE
+#define CONFIG_CONSOLE_SCROLL_LINES 5
 
 /*-----------------------------------------------------------------------
  * CPU Features
@@ -210,6 +211,7 @@
 #define CONFIG_CMD_SF_TEST
 #define CONFIG_CMD_SPI
 #define CONFIG_SPI
+#define CONFIG_OF_SPI_FLASH
 
 /*-----------------------------------------------------------------------
  * Environment configuration

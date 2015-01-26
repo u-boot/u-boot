@@ -153,6 +153,13 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	return &ich->slave;
 }
 
+struct spi_slave *spi_setup_slave_fdt(const void *blob, int slave_node,
+				      int spi_node)
+{
+	/* We only support a single SPI at present */
+	return spi_setup_slave(0, 0, 20000000, 0);
+}
+
 void spi_free_slave(struct spi_slave *slave)
 {
 	struct ich_spi_slave *ich = to_ich_spi(slave);

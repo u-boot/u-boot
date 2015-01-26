@@ -223,6 +223,11 @@ static bool has_cpuid(void)
 	return flag_is_changeable_p(X86_EFLAGS_ID);
 }
 
+static bool has_mtrr(void)
+{
+	return cpuid_edx(0x00000001) & (1 << 12) ? true : false;
+}
+
 static int build_vendor_name(char *vendor_name)
 {
 	struct cpuid_result result;
@@ -318,6 +323,8 @@ int x86_cpu_init_f(void)
 		gd->arch.x86_model = c.x86_model;
 		gd->arch.x86_mask = c.x86_mask;
 		gd->arch.x86_device = cpu.device;
+
+		gd->arch.has_mtrr = has_mtrr();
 	}
 
 	return 0;

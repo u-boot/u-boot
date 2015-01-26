@@ -44,11 +44,11 @@ struct mtrr_request {
 
 /* Architecture-specific global data */
 struct arch_global_data {
-	struct global_data *gd_addr;		/* Location of Global Data */
-	uint8_t  x86;			/* CPU family */
-	uint8_t  x86_vendor;		/* CPU vendor */
-	uint8_t  x86_model;
-	uint8_t  x86_mask;
+	struct global_data *gd_addr;	/* Location of Global Data */
+	uint8_t x86;			/* CPU family */
+	uint8_t x86_vendor;		/* CPU vendor */
+	uint8_t x86_model;
+	uint8_t x86_mask;
 	uint32_t x86_device;
 	uint64_t tsc_base;		/* Initial value returned by rdtsc() */
 	uint32_t tsc_base_kclocks;	/* Initial tsc as a kclocks value */
@@ -60,10 +60,14 @@ struct arch_global_data {
 	const struct pch_gpio_map *gpio_map;	/* board GPIO map */
 	struct memory_info meminfo;	/* Memory information */
 #ifdef CONFIG_HAVE_FSP
-	void	*hob_list;		/* FSP HOB list */
+	void *hob_list;			/* FSP HOB list */
 #endif
 	struct mtrr_request mtrr_req[MAX_MTRR_REQUESTS];
 	int mtrr_req_count;
+	int has_mtrr;
+	/* MRC training data to save for the next boot */
+	char *mrc_output;
+	unsigned int mrc_output_len;
 };
 
 #endif
