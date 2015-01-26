@@ -125,13 +125,13 @@ static int console_setfile(int file, struct stdio_dev * dev)
 		 */
 		switch (file) {
 		case stdin:
-			gd->jt[XF_getc] = getc;
-			gd->jt[XF_tstc] = tstc;
+			gd->jt->getc = getc;
+			gd->jt->tstc = tstc;
 			break;
 		case stdout:
-			gd->jt[XF_putc] = putc;
-			gd->jt[XF_puts] = puts;
-			gd->jt[XF_printf] = printf;
+			gd->jt->putc  = putc;
+			gd->jt->puts  = puts;
+			gd->jt->printf = printf;
 			break;
 		}
 		break;
@@ -758,11 +758,11 @@ int console_init_r(void)
 #endif
 
 	/* set default handlers at first */
-	gd->jt[XF_getc] = serial_getc;
-	gd->jt[XF_tstc] = serial_tstc;
-	gd->jt[XF_putc] = serial_putc;
-	gd->jt[XF_puts] = serial_puts;
-	gd->jt[XF_printf] = serial_printf;
+	gd->jt->getc  = serial_getc;
+	gd->jt->tstc  = serial_tstc;
+	gd->jt->putc  = serial_putc;
+	gd->jt->puts  = serial_puts;
+	gd->jt->printf = serial_printf;
 
 	/* stdin stdout and stderr are in environment */
 	/* scan for it */

@@ -5,18 +5,18 @@ Design Notes on Exporting U-Boot Functions to Standalone Applications:
    table is allocated and initialized in the jumptable_init() routine
    (common/exports.c). Other routines may also modify the jump table,
    however. The jump table can be accessed as the 'jt' field of the
-   'global_data' structure. The slot numbers for the jump table are
+   'global_data' structure. The struct members for the jump table are
    defined in the <include/exports.h> header. E.g., to substitute the
    malloc() and free() functions that will be available to standalone
    applications, one should do the following:
 
 	DECLARE_GLOBAL_DATA_PTR;
 
-	gd->jt[XF_malloc]	= my_malloc;
-	gd->jt[XF_free]		= my_free;
+	gd->jt->malloc	= my_malloc;
+	gd->jt->free = my_free;
 
-   Note that the pointers to the functions all have 'void *' type and
-   thus the compiler cannot perform type checks on these assignments.
+   Note that the pointers to the functions are real function pointers
+   so the compiler can perform type checks on these assignments.
 
 2. The pointer to the jump table is passed to the application in a
    machine-dependent way. PowerPC, ARM, MIPS, Blackfin and Nios II
@@ -65,26 +65,45 @@ Design Notes on Exporting U-Boot Functions to Standalone Applications:
    => tftp 0x40000 hello_world.bin
    => go 0x40004
 
-5. To export some additional function foobar(), the following steps
+5. To export some additional function long foobar(int i,char c), the following steps
    should be undertaken:
 
    - Append the following line at the end of the include/_exports.h
      file:
 
-	EXPORT_FUNC(foobar)
+	EXPORT_FUNC(foobar, long, foobar, int, char)
+
+	Parameters to EXPORT_FUNC:
+	 - the first parameter is the function that is exported (default implementation)
+	 - the second parameter is the return value type
+	 - the third  parameter is the name of the member in struct jt_funcs
+	   this is also the name that the standalone application will used.
+	   the rest of the parameters are the function arguments
 
    - Add the prototype for this function to the include/exports.h
      file:
 
-	void foobar(void);
+	long foobar(int i, char c);
 
-   - Add the initialization of the jump table slot wherever
-     appropriate (most likely, to the jumptable_init() function):
+	Initialization with the default implementation is done in jumptable_init()
 
-	gd->jt[XF_foobar] = foobar;
+	You can override the default implementation using:
+
+	gd->jt->foobar = another_foobar;
+
+	The signature of another_foobar must then match the declaration of foobar.
 
    - Increase the XF_VERSION value by one in the include/exports.h
      file
+
+   - If you want to export a function which depends on a CONFIG_XXX
+	use 2 lines like this:
+	#ifdef CONFIG_FOOBAR
+		EXPORT_FUNC(foobar, long, foobar, int, char)
+	#else
+		EXPORT_FUNC(dummy, void, foobar, void)
+	#endif
+
 
 6. The code for exporting the U-Boot functions to applications is
    mostly machine-independent. The only places written in assembly

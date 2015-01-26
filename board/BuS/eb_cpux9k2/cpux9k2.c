@@ -98,7 +98,7 @@ int misc_init_r(void)
 				puts("Error: invalid MAC at EEPROM\n");
 		}
 	}
-	gd->jt[XF_do_reset] = (void *) do_reset;
+	gd->jt->do_reset = do_reset;
 
 #ifdef CONFIG_STATUS_LED
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);
