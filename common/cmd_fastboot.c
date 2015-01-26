@@ -20,6 +20,12 @@ static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	if (ret)
 		return ret;
 
+	if (!g_dnl_board_usb_cable_connected()) {
+		puts("\rUSB cable not detected.\n" \
+		     "Command exit.\n");
+		return CMD_RET_FAILURE;
+	}
+
 	while (1) {
 		if (g_dnl_detach())
 			break;
