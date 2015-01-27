@@ -452,7 +452,10 @@
 #define CONFIG_SPL_LDSCRIPT	"arch/microblaze/cpu/u-boot-spl.lds"
 
 #define CONFIG_SPL_RAM_DEVICE
-#define CONFIG_SPL_NOR_SUPPORT
+#ifdef CONFIG_SYS_FLASH_BASE
+# define CONFIG_SPL_NOR_SUPPORT
+# define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_FLASH_BASE
+#endif
 
 /* for booting directly linux */
 #define CONFIG_SPL_OS_BOOT
@@ -491,7 +494,6 @@
 /* Just for sure that there is a space for stack */
 #define CONFIG_SPL_STACK_SIZE		0x100
 
-#define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_UBOOT_START		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SPL_MAX_FOOTPRINT	(CONFIG_SYS_INIT_RAM_SIZE - \
