@@ -118,10 +118,15 @@ static int ns16550_readb(NS16550_t port, int offset)
 	ns16550_readb(com_port, addr - (unsigned char *)com_port)
 #endif
 
-int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate)
+static inline int calc_divisor(NS16550_t port, int clock, int baudrate)
 {
 	const unsigned int mode_x_div = 16;
 
+	return DIV_ROUND_CLOSEST(clock, mode_x_div * baudrate);
+}
+
+int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate)
+{
 #ifdef CONFIG_OMAP1510
 	/* If can't cleanly clock 115200 set div to 1 */
 	if ((clock == 12000000) && (baudrate == 115200)) {
@@ -131,7 +136,7 @@ int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate)
 	port->osc_12m_sel = 0;			/* clear if previsouly set */
 #endif
 
-	return DIV_ROUND_CLOSEST(clock, mode_x_div * baudrate);
+	return calc_divisor(port, clock, baudrate);
 }
 
 static void NS16550_setbrg(NS16550_t com_port, int baud_divisor)
@@ -230,6 +235,47 @@ int NS16550_tstc(NS16550_t com_port)
 }
 
 #endif /* CONFIG_NS16550_MIN_FUNCTIONS */
+
+#ifdef CONFIG_DEBUG_UART_NS16550
+
+#include <debug_uart.h>
+
+void debug_uart_init(void)
+{
+	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
+	int baud_divisor;
+
+	/*
+	 * We copy the code from above because it is already horribly messy.
+	 * Trying to refactor to nicely remove the duplication doesn't seem
+	 * feasible. The better fix is to move all users of this driver to
+	 * driver model.
+	 */
+	baud_divisor = calc_divisor(com_port, CONFIG_DEBUG_UART_CLOCK,
+				    CONFIG_BAUDRATE);
+
+	serial_out_shift(&com_port->ier, 0, CONFIG_SYS_NS16550_IER);
+	serial_out_shift(&com_port->mcr, 0, UART_MCRVAL);
+	serial_out_shift(&com_port->fcr, 0, UART_FCRVAL);
+
+	serial_out_shift(&com_port->lcr, 0, UART_LCR_BKSE | UART_LCRVAL);
+	serial_out_shift(&com_port->dll, 0, baud_divisor & 0xff);
+	serial_out_shift(&com_port->dlm, 0, (baud_divisor >> 8) & 0xff);
+	serial_out_shift(&com_port->lcr, 0, UART_LCRVAL);
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
+
+	while (!(serial_in_shift(&com_port->lsr, 0) & UART_LSR_THRE))
+		;
+	serial_out_shift(&com_port->thr, 0, ch);
+}
+
+DEBUG_UART_FUNCS
+
+#endif
 
 #ifdef CONFIG_DM_SERIAL
 static int ns16550_serial_putc(struct udevice *dev, const char ch)
