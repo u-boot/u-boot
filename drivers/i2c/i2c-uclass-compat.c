@@ -17,7 +17,7 @@ static int i2c_compat_get_device(uint chip_addr, int alen,
 	struct dm_i2c_chip *chip;
 	int ret;
 
-	ret = i2c_get_chip_for_busnum(cur_busnum, chip_addr, devp);
+	ret = i2c_get_chip_for_busnum(cur_busnum, chip_addr, alen, devp);
 	if (ret)
 		return ret;
 	chip = dev_get_parent_platdata(*devp);
