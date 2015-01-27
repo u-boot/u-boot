@@ -22,8 +22,8 @@ static int i2c_compat_get_device(uint chip_addr, int alen,
 		return ret;
 	chip = dev_get_parent_platdata(*devp);
 	if (chip->offset_len != alen) {
-		printf("Requested alen %d does not match chip offset_len %d\n",
-		       alen, chip->offset_len);
+		printf("I2C chip %x: requested alen %d does not match chip offset_len %d\n",
+		       chip_addr, alen, chip->offset_len);
 		return -EADDRNOTAVAIL;
 	}
 
@@ -95,4 +95,14 @@ int i2c_set_bus_num(unsigned int bus)
 	cur_busnum = bus;
 
 	return 0;
+}
+
+void i2c_init(int speed, int slaveaddr)
+{
+	/* Nothing to do here - the init happens through driver model */
+}
+
+void board_i2c_init(const void *blob)
+{
+	/* Nothing to do here - the init happens through driver model */
 }

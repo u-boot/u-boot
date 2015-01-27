@@ -225,7 +225,7 @@ int i2c_get_bus_num_fdt(int node);
 unsigned int i2c_get_bus_num(void);
 
 /**
- * i2c_set_bus_num(): Compatibility function for driver model
+ * i2c_set_bus_num() - Compatibility function for driver model
  *
  * Sets the 'current' bus
  */
@@ -240,6 +240,21 @@ static inline unsigned int I2C_GET_BUS(void)
 {
 	return i2c_get_bus_num();
 }
+
+/**
+ * i2c_init() - Compatibility function for driver model
+ *
+ * This function does nothing.
+ */
+void i2c_init(int speed, int slaveaddr);
+
+/**
+ * board_i2c_init() - Compatibility function for driver model
+ *
+ * @param blob  Device tree blbo
+ * @return the number of I2C bus
+ */
+void board_i2c_init(const void *blob);
 
 #endif
 
