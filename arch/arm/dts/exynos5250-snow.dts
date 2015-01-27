@@ -44,6 +44,7 @@
 			reg = <0x1e>;
 			compatible = "google,cros-ec";
 			i2c-max-frequency = <100000>;
+			u-boot,i2c-offset-len = <0>;
 			ec-interrupt = <&gpx1 6 GPIO_ACTIVE_LOW>;
 		};
 
