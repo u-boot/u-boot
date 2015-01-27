@@ -55,6 +55,37 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif /* CONFIG_SYS_NS16550_IER */
 
 #ifdef CONFIG_DM_SERIAL
+
+static inline void serial_out_shift(unsigned char *addr, int shift, int value)
+{
+#ifdef CONFIG_SYS_NS16550_PORT_MAPPED
+	outb(value, (ulong)addr);
+#elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_SYS_BIG_ENDIAN)
+	out_le32(addr, value);
+#elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
+	out_be32(addr, value);
+#elif defined(CONFIG_SYS_BIG_ENDIAN)
+	writeb(value, addr + (1 << shift) - 1);
+#else
+	writeb(value, addr);
+#endif
+}
+
+static inline int serial_in_shift(unsigned char *addr, int shift)
+{
+#ifdef CONFIG_SYS_NS16550_PORT_MAPPED
+	return inb((ulong)addr);
+#elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_SYS_BIG_ENDIAN)
+	return in_le32(addr);
+#elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
+	return in_be32(addr);
+#elif defined(CONFIG_SYS_BIG_ENDIAN)
+	return readb(addr + (1 << reg_shift) - 1);
+#else
+	return readb(addr);
+#endif
+}
+
 static void ns16550_writeb(NS16550_t port, int offset, int value)
 {
 	struct ns16550_platdata *plat = port->plat;
@@ -66,17 +97,7 @@ static void ns16550_writeb(NS16550_t port, int offset, int value)
 	 * As far as we know it doesn't make sense to support selection of
 	 * these options at run-time, so use the existing CONFIG options.
 	 */
-#ifdef CONFIG_SYS_NS16550_PORT_MAPPED
-	outb(value, (ulong)addr);
-#elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_SYS_BIG_ENDIAN)
-	out_le32(addr, value);
-#elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
-	out_be32(addr, value);
-#elif defined(CONFIG_SYS_BIG_ENDIAN)
-	writeb(value, addr + (1 << plat->reg_shift) - 1);
-#else
-	writeb(value, addr);
-#endif
+	serial_out_shift(addr, plat->reg_shift, value);
 }
 
 static int ns16550_readb(NS16550_t port, int offset)
@@ -86,17 +107,8 @@ static int ns16550_readb(NS16550_t port, int offset)
 
 	offset *= 1 << plat->reg_shift;
 	addr = map_sysmem(plat->base, 0) + offset;
-#ifdef CONFIG_SYS_NS16550_PORT_MAPPED
-	return inb((ulong)addr);
-#elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_SYS_BIG_ENDIAN)
-	return in_le32(addr);
-#elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
-	return in_be32(addr);
-#elif defined(CONFIG_SYS_BIG_ENDIAN)
-	return readb(addr + (1 << plat->reg_shift) - 1);
-#else
-	return readb(addr);
-#endif
+
+	return serial_in_shift(addr, plat->reg_shift);
 }
 
 /* We can clean these up once everything is moved to driver model */
