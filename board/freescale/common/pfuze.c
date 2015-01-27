@@ -5,8 +5,46 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
+
+int pfuze_mode_init(struct pmic *p, u32 mode)
+{
+	unsigned char offset, i, switch_num;
+	u32 id, ret;
+
+	pmic_reg_read(p, PFUZE100_DEVICEID, &id);
+	id = id & 0xf;
+
+	if (id == 0) {
+		switch_num = 6;
+		offset = PFUZE100_SW1CMODE;
+	} else if (id == 1) {
+		switch_num = 4;
+		offset = PFUZE100_SW2MODE;
+	} else {
+		printf("Not supported, id=%d\n", id);
+		return -EINVAL;
+	}
+
+	ret = pmic_reg_write(p, PFUZE100_SW1ABMODE, mode);
+	if (ret < 0) {
+		printf("Set SW1AB mode error!\n");
+		return ret;
+	}
+
+	for (i = 0; i < switch_num - 1; i++) {
+		ret = pmic_reg_write(p, offset + i * SWITCH_SIZE, mode);
+		if (ret < 0) {
+			printf("Set switch 0x%x mode error!\n",
+			       offset + i * SWITCH_SIZE);
+			return ret;
+		}
+	}
+
+	return ret;
+}
 
 struct pmic *pfuze_common_init(unsigned char i2cbus)
 {
