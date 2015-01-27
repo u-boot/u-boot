@@ -420,7 +420,8 @@ int i2c_deblock(struct udevice *bus)
 int i2c_chip_ofdata_to_platdata(const void *blob, int node,
 				struct dm_i2c_chip *chip)
 {
-	chip->offset_len = 1;	/* default */
+	chip->offset_len = fdtdec_get_int(gd->fdt_blob, node,
+					  "u-boot,i2c-offset-len", 1);
 	chip->flags = 0;
 	chip->chip_addr = fdtdec_get_int(gd->fdt_blob, node, "reg", -1);
 	if (chip->chip_addr == -1) {
