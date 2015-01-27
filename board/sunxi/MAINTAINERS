@@ -105,3 +105,8 @@ MSI-PRIMO81 BOARD
 M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
 S:	Maintained
 F:	configs/MSI_Primo81_defconfig
+
+TZX-Q8-713B7 BOARD
+M:	Paul Kocialkowski <contact@paulk.fr>
+S:	Maintained
+F:	configs/TZX-Q8-713B7_defconfig
