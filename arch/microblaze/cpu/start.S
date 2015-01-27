@@ -152,6 +152,7 @@ clear_bss:
 #ifndef CONFIG_SPL_BUILD
 	brai	board_init_f
 #else
+	addi	r31, r0, CONFIG_SYS_SPL_MALLOC_END
 	brai	board_init_r
 #endif
 1:	bri	1b

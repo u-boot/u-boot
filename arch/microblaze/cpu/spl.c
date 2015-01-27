@@ -25,8 +25,6 @@ u32 spl_boot_device(void)
 /* Board initialization after bss clearance */
 void spl_board_init(void)
 {
-	gd = (gd_t *)CONFIG_SPL_STACK_ADDR;
-
 	/* enable console uart printing */
 	preloader_console_init();
 }
