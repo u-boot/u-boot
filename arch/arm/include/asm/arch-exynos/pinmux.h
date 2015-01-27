@@ -23,6 +23,9 @@ enum {
 	/* Flags for SROM controller */
 	PINMUX_FLAG_BANK	= 3 << 0,       /* bank number (0-3) */
 	PINMUX_FLAG_16BIT	= 1 << 2,       /* 16-bit width */
+
+	/* Flags for I2C */
+	PINMUX_FLAG_HS_MODE	= 1 << 1,       /* I2C High Speed Mode */
 };
 
 /**
