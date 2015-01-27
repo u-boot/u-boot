@@ -29,6 +29,7 @@
 #include <asm/arch/crm_regs.h>
 #include <pca953x.h>
 #include <power/pmic.h>
+#include <power/pfuze100_pmic.h>
 #include "../common/pfuze.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -494,10 +495,15 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 int power_init_board(void)
 {
 	struct pmic *p;
+	unsigned int ret;
 
 	p = pfuze_common_init(I2C_PMIC);
 	if (!p)
 		return -ENODEV;
+
+	ret = pfuze_mode_init(p, APS_PFM);
+	if (ret < 0)
+		return ret;
 
 	return 0;
 }
