@@ -31,7 +31,7 @@ static u8 spi_read_cmds_array[] = {
 	CMD_READ_QUAD_IO_FAST,
 };
 
-#ifdef CONFIG_SPI_FLASH_MACRONIX
+#if defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_ISSI)
 static int spi_flash_set_qeb_mxic(struct spi_flash *flash)
 {
 	u8 qeb_status;
@@ -78,8 +78,9 @@ static int spi_flash_set_qeb_winspan(struct spi_flash *flash)
 static int spi_flash_set_qeb(struct spi_flash *flash, u8 idcode0)
 {
 	switch (idcode0) {
-#ifdef CONFIG_SPI_FLASH_MACRONIX
+#if defined(CONFIG_SPI_FLASH_MACRONIX) || defined(CONFIG_SPI_FLASH_ISSI)
 	case SPI_FLASH_CFI_MFR_MACRONIX:
+	case SPI_FLASH_CFI_MFR_ISSI:
 		return spi_flash_set_qeb_mxic(flash);
 #endif
 #if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
@@ -193,8 +194,11 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 			flash->read_cmd = CMD_READ_DUAL_IO_FAST;
 		}
 	} else {
-		/* Go for default supported read cmd */
-		flash->read_cmd = CMD_READ_ARRAY_FAST;
+		if (idcode[0] == SPI_FLASH_CFI_MFR_ISSI)
+			flash->read_cmd = CMD_READ_QUAD_IO_FAST;
+		else
+			/* Go for default supported read cmd */
+			flash->read_cmd = CMD_READ_ARRAY_FAST;
 	}
 
 	/* Not require to look for fastest only two write cmds yet */
@@ -237,7 +241,10 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	 */
 	switch (flash->read_cmd) {
 	case CMD_READ_QUAD_IO_FAST:
-		flash->dummy_byte = 2;
+		if (idcode[0] == SPI_FLASH_CFI_MFR_ISSI)
+			flash->dummy_byte = 3;
+		else
+			flash->dummy_byte = 2;
 		break;
 	case CMD_READ_DUAL_IO_FAST:
 		if (idcode[0] == SPI_FLASH_CFI_MFR_STMICRO)
