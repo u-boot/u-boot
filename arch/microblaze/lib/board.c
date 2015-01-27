@@ -55,7 +55,7 @@ init_fnc_t *init_sequence[] = {
 #endif
 	display_banner,
 #ifndef CONFIG_SPL_BUILD
-	interrupts_init,
+	interrupt_init,
 	timer_init,
 #endif
 	NULL,

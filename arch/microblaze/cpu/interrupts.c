@@ -109,7 +109,7 @@ static void intc_init(void)
 	      intc->iar, intc->mer);
 }
 
-int interrupts_init(void)
+int interrupt_init(void)
 {
 	int i;
 
