@@ -212,12 +212,14 @@ relocate_code:
 	/* Relocate text and data - r12 temp value */
 	addi	r21, r0, _start
 	addi	r22, r0, __end - 4 /* Include BSS too */
-1:	lwi	r12, r21, 0 /* Load u-boot data */
-	swi	r12, r23, 0 /* Write zero to loc */
-	addi	r21, r21, 4 /* Increment to next loc - origin code */
-	cmp	r12, r21, r22 /* Check if we have reach the end */
+
+	rsub	r6, r21, r22
+	or	r5, r0, r0
+1:	lw	r12, r21, r5 /* Load u-boot data */
+	sw	r12, r23, r5 /* Write zero to loc */
+	cmp	r12, r5, r6 /* Check if we have reach the end */
 	bneid	r12, 1b
-	addi	r23, r23, 4 /* Increment to next loc - relocate code */
+	addi	r5, r5, 4 /* Increment to next loc - relocate code */
 
        /* R23 points to the base address. */
 	add	r23, r0, r7 /* Move reloc addr to r23 */
