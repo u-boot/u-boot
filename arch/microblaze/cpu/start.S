@@ -129,7 +129,7 @@ _start:
 	/* Flush cache before enable cache */
 	addik	r5, r0, 0
 	addik	r6, r0, XILINX_DCACHE_BYTE_SIZE
-flush:	bralid r15, flush_cache
+	bralid r15, flush_cache
 	nop
 
 	/* enable instruction and data cache */
