@@ -44,18 +44,3 @@ void board_pci_setup_hose(struct pci_controller *hose)
 
 	hose->region_count = 4;
 }
-
-int board_pci_post_scan(struct pci_controller *hose)
-{
-	u32 status;
-
-	/* call into FspNotify */
-	debug("Calling into FSP (notify phase INIT_PHASE_PCI): ");
-	status = fsp_notify(NULL, INIT_PHASE_PCI);
-	if (status != FSP_SUCCESS)
-		debug("fail, error code %x\n", status);
-	else
-		debug("OK\n");
-
-	return 0;
-}
