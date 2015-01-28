@@ -4,4 +4,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-y += fsp_car.o
+obj-y += fsp_dram.o
 obj-y += fsp_support.o
