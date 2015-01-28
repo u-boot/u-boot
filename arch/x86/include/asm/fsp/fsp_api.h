@@ -8,6 +8,8 @@
 #ifndef __FSP_API_H__
 #define __FSP_API_H__
 
+#include <linux/linkage.h>
+
 /*
  * FspInit continuation function prototype.
  * Control will be returned to this callback function after FspInit API call.
@@ -47,9 +49,9 @@ struct fsp_notify_params {
 };
 
 /* FspInit API function prototype */
-typedef u32 (*fsp_init_f)(struct fsp_init_params *params);
+typedef asmlinkage u32 (*fsp_init_f)(struct fsp_init_params *params);
 
 /* FspNotify API function prototype */
-typedef u32 (*fsp_notify_f)(struct fsp_notify_params *params);
+typedef asmlinkage u32 (*fsp_notify_f)(struct fsp_notify_params *params);
 
 #endif

@@ -30,7 +30,7 @@ static bool compare_guid(const struct efi_guid *guid1,
 		return false;
 }
 
-u32 __attribute__((optimize("O0"))) find_fsp_header(void)
+struct fsp_header *__attribute__((optimize("O0"))) find_fsp_header(void)
 {
 	/*
 	 * This function may be called before the a stack is established,
@@ -84,7 +84,7 @@ u32 __attribute__((optimize("O0"))) find_fsp_header(void)
 		fsp = 0;
 	}
 
-	return (u32)fsp;
+	return (struct fsp_header *)fsp;
 }
 
 void fsp_continue(struct shared_data *shared_data, u32 status, void *hob_list)

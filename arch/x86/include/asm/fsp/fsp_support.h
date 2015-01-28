@@ -26,6 +26,8 @@ struct shared_data {
 
 #define FSP_LOWMEM_BASE		0x100000UL
 #define FSP_HIGHMEM_BASE	0x100000000ULL
+#define UPD_TERMINATOR		0x55AA
+
 
 /**
  * FSP Continuation assembly helper routine
@@ -61,7 +63,7 @@ void fsp_continue(struct shared_data *shared_data, u32 status,
  *
  * @retval: the offset of FSP header. If signature is invalid, returns 0.
  */
-u32 find_fsp_header(void);
+struct fsp_header *find_fsp_header(void);
 
 /**
  * FSP initialization wrapper function.
