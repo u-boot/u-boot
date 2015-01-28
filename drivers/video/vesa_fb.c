@@ -42,8 +42,10 @@ void *video_hw_init(void)
 			printf("no card detected\n");
 			return NULL;
 		}
+		bootstage_start(BOOTSTAGE_ID_ACCUM_LCD, "vesa display");
 		ret = pci_run_vga_bios(dev, NULL, PCI_ROM_USE_NATIVE |
 				       PCI_ROM_ALLOW_FALLBACK);
+		bootstage_accum(BOOTSTAGE_ID_ACCUM_LCD);
 		if (ret) {
 			printf("failed to run video BIOS: %d\n", ret);
 			return NULL;
