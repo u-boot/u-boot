@@ -228,11 +228,12 @@ int vbe_get_video_info(struct graphic_device *gdev)
 #endif
 }
 
-int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
+int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), int exec_method)
 {
 	struct pci_rom_header *rom, *ram;
 	int vesa_mode = -1;
 	uint16_t class;
+	bool emulate;
 	int ret;
 
 	/* Only execute VGA ROMs */
@@ -262,6 +263,29 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
 	vesa_mode = CONFIG_FRAMEBUFFER_VESA_MODE;
 #endif
 	debug("Selected vesa mode %#x\n", vesa_mode);
+
+	if (exec_method & PCI_ROM_USE_NATIVE) {
+#ifdef CONFIG_X86
+		emulate = false;
+#else
+		if (!(exec_method & PCI_ROM_ALLOW_FALLBACK)) {
+			printf("BIOS native execution is only available on x86\n");
+			return -ENOSYS;
+		}
+		emulate = true;
+#endif
+	} else {
+#ifdef CONFIG_BIOSEMU
+		emulate = true;
+#else
+		if (!(exec_method & PCI_ROM_ALLOW_FALLBACK)) {
+			printf("BIOS emulation not available - see CONFIG_BIOSEMU\n");
+			return -ENOSYS;
+		}
+		emulate = false;
+#endif
+	}
+
 	if (emulate) {
 #ifdef CONFIG_BIOSEMU
 		BE_VGAInfo *info;
@@ -274,9 +298,6 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
 				  vesa_mode, &mode_info);
 		if (ret)
 			return ret;
-#else
-		printf("BIOS emulation not available - see CONFIG_BIOSEMU\n");
-		return -ENOSYS;
 #endif
 	} else {
 #ifdef CONFIG_X86
@@ -284,9 +305,6 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
 
 		bios_run_on_x86(dev, (unsigned long)ram, vesa_mode,
 				&mode_info);
-#else
-		printf("BIOS native execution is only available on x86\n");
-		return -ENOSYS;
 #endif
 	}
 	debug("Final vesa mode %#x\n", mode_info.video_mode);

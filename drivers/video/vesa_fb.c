@@ -42,8 +42,8 @@ void *video_hw_init(void)
 			printf("no card detected\n");
 			return NULL;
 		}
-		printf("bdf %x\n", dev);
-		ret = pci_run_vga_bios(dev, NULL, true);
+		ret = pci_run_vga_bios(dev, NULL, PCI_ROM_USE_NATIVE |
+				       PCI_ROM_ALLOW_FALLBACK);
 		if (ret) {
 			printf("failed to run video BIOS: %d\n", ret);
 			return NULL;
@@ -59,7 +59,7 @@ void *video_hw_init(void)
 	sprintf(gdev->modeIdent, "%dx%dx%d", gdev->winSizeX, gdev->winSizeY,
 		bits_per_pixel);
 	printf("%s\n", gdev->modeIdent);
-	debug("Framex buffer at %x\n", gdev->pciBase);
+	debug("Frame buffer at %x\n", gdev->pciBase);
 
 	return (void *)gdev;
 }
