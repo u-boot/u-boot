@@ -23,6 +23,7 @@ struct pci_device_id vesa_video_ids[] = {
 	{ .vendor = 0x1002, .device = 0x5159 },
 	{ .vendor = 0x1002, .device = 0x4752 },
 	{ .vendor = 0x1002, .device = 0x5452 },
+	{ .vendor = 0x8086, .device = 0x0f31 },
 	{},
 };
 
