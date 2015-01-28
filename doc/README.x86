@@ -164,6 +164,70 @@ mtrr - List and set the Memory Type Range Registers (MTRR). These are used to
 	 mode to use. U-Boot sets up some reasonable values but you can
 	 adjust then with this command.
 
+Development Flow
+----------------
+
+These notes are for those who want to port U-Boot to a new x86 platform.
+
+Since x86 CPUs boot from SPI flash, a SPI flash emulator is a good investment.
+The Dediprog em100 can be used on Linux. The em100 tool is available here:
+
+   http://review.coreboot.org/p/em100.git
+
+On Minnowboard Max the following command line can be used:
+
+   sudo em100 -s -p LOW -d u-boot.rom -c W25Q64DW -r
+
+A suitable clip for connecting over the SPI flash chip is here:
+
+   http://www.dediprog.com/pd/programmer-accessories/EM-TC-8
+
+This allows you to override the SPI flash contents for development purposes.
+Typically you can write to the em100 in around 1200ms, considerably faster
+than programming the real flash device each time. The only important
+limitation of the em100 is that it only supports SPI bus speeds up to 20MHz.
+This means that images must be set to boot with that speed. This is an
+Intel-specific feature - e.g. tools/ifttool has an option to set the SPI
+speed in the SPI descriptor region.
+
+If your chip/board uses an Intel Firmware Support Package (FSP) it is fairly
+easy to fit it in. You can follow the Minnowboard Max implementation, for
+example. Hopefully you will just need to create new files similar to those
+in arch/x86/cpu/baytrail which provide Bay Trail support.
+
+If you are not using an FSP you have more freedom and more responsibility.
+The ivybridge support works this way, although it still uses a ROM for
+graphics and still has binary blobs containing Intel code. You should aim to
+support all important peripherals on your platform including video and storage.
+Use the device tree for configuration where possible.
+
+For the microcode you can create a suitable device tree file using the
+microcode tool:
+
+  ./tools/microcode-tool -d microcode.dat create <model>
+
+or if you only have header files and not the full Intel microcode.dat database:
+
+  ./tools/microcode-tool -H BAY_TRAIL_FSP_KIT/Microcode/M0130673322.h \
+	-H BAY_TRAIL_FSP_KIT/Microcode/M0130679901.h \
+	create all
+
+These are written to arch/x86/dts/microcode/ by default.
+
+Note that it is possible to just add the micrcode for your CPU if you know its
+model. U-Boot prints this information when it starts
+
+   CPU: x86_64, vendor Intel, device 30673h
+
+so here we can use the M0130673322 file.
+
+If you platform can display POST codes on two little 7-segment displays on
+the board, then you can use post_code() calls from C or assembler to monitor
+boot progress. This can be good for debugging.
+
+If not, you can try to get serial working as early as possible. The early
+debug serial port may be useful here. See setup_early_uart() for an example.
+
 TODO List
 ---------
 - Audio
