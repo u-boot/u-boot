@@ -45,6 +45,9 @@ ulong board_get_usable_ram_top(ulong total_size);
 void dram_init_banksize(void);
 int default_print_cpuinfo(void);
 
+/* Set up a UART which can be used with printch(), printhex8(), etc. */
+int setup_early_uart(void);
+
 void setup_pcat_compatibility(void);
 
 void isa_unmap_rom(u32 addr);
