@@ -9,7 +9,7 @@
 #include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/arch/tnc.h>
-#include <asm/arch/fsp/fsp_support.h>
+#include <asm/fsp/fsp_support.h>
 #include <asm/processor.h>
 
 static void unprotect_spi_flash(void)

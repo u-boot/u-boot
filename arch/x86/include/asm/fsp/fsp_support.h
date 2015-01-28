@@ -16,7 +16,7 @@
 #include "fsp_platform.h"
 #include "fsp_infoheader.h"
 #include "fsp_bootmode.h"
-#include "fsp_vpd.h"
+#include <asm/arch/fsp/fsp_vpd.h>
 
 struct shared_data {
 	struct fsp_header	*fsp_hdr;

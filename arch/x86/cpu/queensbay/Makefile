@@ -5,5 +5,5 @@
 #
 
 obj-y += tnc_car.o tnc_dram.o tnc.o topcliff.o
-obj-y += fsp_configs.o fsp_support.o
+obj-y += fsp_configs.o
 obj-$(CONFIG_PCI) += tnc_pci.o
