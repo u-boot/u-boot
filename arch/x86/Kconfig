@@ -356,4 +356,18 @@ source "board/google/chromebook_link/Kconfig"
 
 source "board/intel/crownbay/Kconfig"
 
+config PCIE_ECAM_BASE
+	hex
+    default 0xe0000000
+	help
+	  This is the memory-mapped address of PCI configuration space, which
+	  is only available through the Enhanced Configuration Access
+	  Mechanism (ECAM) with PCI Express. It can be set up almost
+	  anywhere. Before it is set up, it is possible to access PCI
+	  configuration space through I/O access, but memory access is more
+	  convenient. Using this, PCI can be scanned and configured. This
+	  should be set to a region that does not conflict with memory
+	  assigned to PCI devices - i.e. the memory and prefetch regions, as
+	  passed to pci_set_region().
+
 endmenu
