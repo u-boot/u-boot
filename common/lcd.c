@@ -268,6 +268,7 @@ void lcd_clear(void)
 	console_rows = panel_info.vl_row / VIDEO_FONT_HEIGHT;
 #endif
 	console_cols = panel_info.vl_col / VIDEO_FONT_WIDTH;
+	lcd_init_console(lcd_base, console_rows, console_cols);
 	lcd_init_console(lcd_logo(), console_rows, console_cols);
 	lcd_sync();
 }
