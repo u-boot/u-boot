@@ -51,9 +51,11 @@ Building ROM version of U-Boot (hereafter referred to as u-boot.rom) is a
 little bit tricky, as generally it requires several binary blobs which are not
 shipped in the U-Boot source tree. Due to this reason, the u-boot.rom build is
 not turned on by default in the U-Boot source tree. Firstly, you need turn it
-on by uncommenting the following line in the main U-Boot Makefile:
+on by enabling the ROM build:
 
-# ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
+$ export BUILD_ROM=y
+
+This tells the Makefile to build u-boot.rom as a target.
 
 Link-specific instructions:
 
@@ -126,11 +128,11 @@ Make sure 0x1110000 matches CONFIG_SYS_TEXT_BASE and 0x1110015 matches the
 symbol address of _start (in arch/x86/cpu/start.S).
 
 If you want to use ELF as the coreboot payload, change U-Boot configuration to
-use CONFIG_OF_EMBED.
+use CONFIG_OF_EMBED instead of CONFIG_OF_SEPARATE.
 
 CPU Microcode
 -------------
-Modern CPU usually requires a special bit stream called microcode [5] to be
+Modern CPUs usually require a special bit stream called microcode [5] to be
 loaded on the processor after power up in order to function properly. U-Boot
 has already integrated these as hex dumps in the source tree.
 

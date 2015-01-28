@@ -729,8 +729,9 @@ ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
 ALL-$(CONFIG_REMAKE_ELF) += u-boot.elf
 
-# We can't do this yet due to the need for binary blobs
-# ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
+ifneq ($(BUILD_ROM),)
+ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
+endif
 
 # enable combined SPL/u-boot/dtb rules for tegra
 ifneq ($(CONFIG_TEGRA),)
