@@ -258,6 +258,10 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 
 	writel(readl(&dma_p->opmode) | RXSTART | TXSTART, &dma_p->opmode);
 
+#ifdef CONFIG_DW_AXI_BURST_LEN
+	writel((CONFIG_DW_AXI_BURST_LEN & 0x1FF >> 1), &dma_p->axibus);
+#endif
+
 	/* Start up the PHY */
 	if (phy_startup(priv->phydev)) {
 		printf("Could not initialize PHY %s\n",
