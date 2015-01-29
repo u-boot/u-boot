@@ -52,10 +52,10 @@ reset:
  * Continue to use ROM code vector only in OMAP4 spl)
  */
 #if !(defined(CONFIG_OMAP44XX) && defined(CONFIG_SPL_BUILD))
-	/* Set V=0 in CP15 SCTRL register - for VBAR to point to vector */
-	mrc	p15, 0, r0, c1, c0, 0	@ Read CP15 SCTRL Register
+	/* Set V=0 in CP15 SCTLR register - for VBAR to point to vector */
+	mrc	p15, 0, r0, c1, c0, 0	@ Read CP15 SCTLR Register
 	bic	r0, #CR_V		@ V = 0
-	mcr	p15, 0, r0, c1, c0, 0	@ Write CP15 SCTRL Register
+	mcr	p15, 0, r0, c1, c0, 0	@ Write CP15 SCTLR Register
 
 	/* Set vector address in CP15 VBAR register */
 	ldr	r0, =_start
