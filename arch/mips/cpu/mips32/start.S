@@ -21,6 +21,21 @@
 				CONFIG_SYS_INIT_SP_OFFSET)
 #endif
 
+#ifdef CONFIG_32BIT
+# define MIPS_RELOC	3
+#endif
+
+#ifdef CONFIG_64BIT
+# ifdef CONFIG_SYS_LITTLE_ENDIAN
+#  define MIPS64_R_INFO(ssym, r_type3, r_type2, r_type) \
+	(((r_type) << 24) | ((r_type2) << 16) | ((r_type3) << 8) | (ssym))
+# else
+#  define MIPS64_R_INFO(ssym, r_type3, r_type2, r_type) \
+	((r_type) | ((r_type2) << 8) | ((r_type3) << 16) | (ssym) << 24)
+# endif
+# define MIPS_RELOC	MIPS64_R_INFO(0x00, 0x00, 0x12, 0x03)
+#endif
+
 	/*
 	 * For the moment disable interrupts, mark the kernel mode and
 	 * set ST0_KX so that the CPU does not spit fire when using
@@ -264,8 +279,8 @@ in_ram:
 1:
 	lw	t8, -4(t1)		# t8 <-- relocation info
 
-	PTR_LI	t3, 3
-	bne	t8, t3, 2f		# skip non R_MIPS_REL32 entries
+	PTR_LI	t3, MIPS_RELOC
+	bne	t8, t3, 2f		# skip non-MIPS_RELOC entries
 	 nop
 
 	PTR_L	t3, -(2 * PTRSIZE)(t1)	# t3 <-- location to fix up in FLASH
