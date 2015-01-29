@@ -5,6 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-y	+= cache.o
 obj-y	+= io.o
 
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
