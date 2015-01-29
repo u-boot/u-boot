@@ -22,14 +22,6 @@
 
 #define INDEX_BASE	CKSEG0
 
-	.macro	cache_op op addr
-	.set	push
-	.set	noreorder
-	.set	mips3
-	cache	\op, 0(\addr)
-	.set	pop
-	.endm
-
 	.macro	f_fill64 dst, offset, val
 	LONG_S	\val, (\offset +  0 * LONGSIZE)(\dst)
 	LONG_S	\val, (\offset +  1 * LONGSIZE)(\dst)
@@ -60,17 +52,17 @@ LEAF(mips_init_icache)
 	/* clear tag to invalidate */
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, a1
-1:	cache_op	INDEX_STORE_TAG_I t0
+1:	cache		INDEX_STORE_TAG_I, 0(t0)
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
 	/* fill once, so data field parity is correct */
 	PTR_LI		t0, INDEX_BASE
-2:	cache_op	FILL t0
+2:	cache		FILL, 0(t0)
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 2b
 	/* invalidate again - prudent but not strictly neccessary */
 	PTR_LI		t0, INDEX_BASE
-1:	cache_op	INDEX_STORE_TAG_I t0
+1:	cache		INDEX_STORE_TAG_I, 0(t0)
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
 9:	jr		ra
@@ -85,7 +77,7 @@ LEAF(mips_init_dcache)
 	/* clear all tags */
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, a1
-1:	cache_op	INDEX_STORE_TAG_D t0
+1:	cache		INDEX_STORE_TAG_D, 0(t0)
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
 	/* load from each line (in cached space) */
@@ -95,7 +87,7 @@ LEAF(mips_init_dcache)
 	bne		t0, t1, 2b
 	/* clear all tags */
 	PTR_LI		t0, INDEX_BASE
-1:	cache_op	INDEX_STORE_TAG_D t0
+1:	cache		INDEX_STORE_TAG_D, 0(t0)
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
 9:	jr		ra

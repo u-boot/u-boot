@@ -12,16 +12,6 @@
 #include <asm/cacheops.h>
 #include <asm/reboot.h>
 
-#define cache_op(op,addr)						\
-	__asm__ __volatile__(						\
-	"	.set	push					\n"	\
-	"	.set	noreorder				\n"	\
-	"	.set	mips3\n\t				\n"	\
-	"	cache	%0, %1					\n"	\
-	"	.set	pop					\n"	\
-	:								\
-	: "i" (op), "R" (*(unsigned char *)(addr)))
-
 void __attribute__((weak)) _machine_restart(void)
 {
 }
@@ -74,20 +64,20 @@ void flush_cache(ulong start_addr, ulong size)
 {
 	unsigned long ilsize = icache_line_size();
 	unsigned long dlsize = dcache_line_size();
-	unsigned long addr, aend;
+	const void *addr, *aend;
 
 	/* aend will be miscalculated when size is zero, so we return here */
 	if (size == 0)
 		return;
 
-	addr = start_addr & ~(dlsize - 1);
-	aend = (start_addr + size - 1) & ~(dlsize - 1);
+	addr = (const void *)(start_addr & ~(dlsize - 1));
+	aend = (const void *)((start_addr + size - 1) & ~(dlsize - 1));
 
 	if (ilsize == dlsize) {
 		/* flush I-cache & D-cache simultaneously */
 		while (1) {
-			cache_op(HIT_WRITEBACK_INV_D, addr);
-			cache_op(HIT_INVALIDATE_I, addr);
+			mips_cache(HIT_WRITEBACK_INV_D, addr);
+			mips_cache(HIT_INVALIDATE_I, addr);
 			if (addr == aend)
 				break;
 			addr += dlsize;
@@ -97,17 +87,17 @@ void flush_cache(ulong start_addr, ulong size)
 
 	/* flush D-cache */
 	while (1) {
-		cache_op(HIT_WRITEBACK_INV_D, addr);
+		mips_cache(HIT_WRITEBACK_INV_D, addr);
 		if (addr == aend)
 			break;
 		addr += dlsize;
 	}
 
 	/* flush I-cache */
-	addr = start_addr & ~(ilsize - 1);
-	aend = (start_addr + size - 1) & ~(ilsize - 1);
+	addr = (const void *)(start_addr & ~(ilsize - 1));
+	aend = (const void *)((start_addr + size - 1) & ~(ilsize - 1));
 	while (1) {
-		cache_op(HIT_INVALIDATE_I, addr);
+		mips_cache(HIT_INVALIDATE_I, addr);
 		if (addr == aend)
 			break;
 		addr += ilsize;
@@ -117,11 +107,11 @@ void flush_cache(ulong start_addr, ulong size)
 void flush_dcache_range(ulong start_addr, ulong stop)
 {
 	unsigned long lsize = dcache_line_size();
-	unsigned long addr = start_addr & ~(lsize - 1);
-	unsigned long aend = (stop - 1) & ~(lsize - 1);
+	const void *addr = (const void *)(start_addr & ~(lsize - 1));
+	const void *aend = (const void *)((stop - 1) & ~(lsize - 1));
 
 	while (1) {
-		cache_op(HIT_WRITEBACK_INV_D, addr);
+		mips_cache(HIT_WRITEBACK_INV_D, addr);
 		if (addr == aend)
 			break;
 		addr += lsize;
@@ -131,11 +121,11 @@ void flush_dcache_range(ulong start_addr, ulong stop)
 void invalidate_dcache_range(ulong start_addr, ulong stop)
 {
 	unsigned long lsize = dcache_line_size();
-	unsigned long addr = start_addr & ~(lsize - 1);
-	unsigned long aend = (stop - 1) & ~(lsize - 1);
+	const void *addr = (const void *)(start_addr & ~(lsize - 1));
+	const void *aend = (const void *)((stop - 1) & ~(lsize - 1));
 
 	while (1) {
-		cache_op(HIT_INVALIDATE_D, addr);
+		mips_cache(HIT_INVALIDATE_D, addr);
 		if (addr == aend)
 			break;
 		addr += lsize;

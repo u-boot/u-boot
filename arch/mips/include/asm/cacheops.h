@@ -11,6 +11,19 @@
 #ifndef	__ASM_CACHEOPS_H
 #define	__ASM_CACHEOPS_H
 
+#ifndef __ASSEMBLY__
+
+static inline void mips_cache(int op, const volatile void *addr)
+{
+#ifdef __GCC_HAVE_BUILTIN_MIPS_CACHE
+	__builtin_mips_cache(op, addr);
+#else
+	__asm__ __volatile__("cache %0, %1" : : "i"(op), "R"(addr))
+#endif
+}
+
+#endif /* !__ASSEMBLY__ */
+
 /*
  * Cache Operations available on all MIPS processors with R4000-style caches
  */
