@@ -124,6 +124,7 @@ void _machine_restart(void)
 
 	reset_base = (void __iomem *)CKSEG1ADDR(MALTA_RESET_BASE);
 	__raw_writel(GORESET, reset_base);
+	mdelay(1000);
 }
 
 int board_early_init_f(void)
