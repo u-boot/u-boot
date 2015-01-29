@@ -113,6 +113,8 @@ LEAF(mips_cache_reset)
 	l1_info	t3, t9, MIPS_CONF1_DA_SHIFT
 #endif
 
+#ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
+
 	/* Determine the largest L1 cache size */
 #if defined(CONFIG_SYS_ICACHE_SIZE) && defined(CONFIG_SYS_DCACHE_SIZE)
 #if CONFIG_SYS_ICACHE_SIZE > CONFIG_SYS_DCACHE_SIZE
@@ -134,14 +136,15 @@ LEAF(mips_cache_reset)
 	f_fill64	a0, -64, zero
 	bne		a0, a1, 2b
 
-	/*
-	 * The caches are probably in an indeterminate state,
-	 * so we force good parity into them by doing an
-	 * invalidate, load/fill, invalidate for each line.
-	 */
+#endif /* CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD */
 
 	/*
-	 * Assume bottom of RAM will generate good parity for the cache.
+	 * The caches are probably in an indeterminate state, so we force good
+	 * parity into them by doing an invalidate for each line. If
+	 * CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD is set then we'll proceed to
+	 * perform a load/fill & a further invalidate for each line, assuming
+	 * that the bottom of RAM (having just been cleared) will generate good
+	 * parity for the cache.
 	 */
 
 	/*
@@ -153,12 +156,14 @@ LEAF(mips_cache_reset)
 	PTR_ADDU	t1, t0, t2
 	/* clear tag to invalidate */
 	cache_loop	t0, t1, t8, INDEX_STORE_TAG_I
+#ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* fill once, so data field parity is correct */
 	PTR_LI		t0, INDEX_BASE
 	cache_loop	t0, t1, t8, FILL
 	/* invalidate again - prudent but not strictly neccessary */
 	PTR_LI		t0, INDEX_BASE
 	cache_loop	t0, t1, t8, INDEX_STORE_TAG_I
+#endif
 
 	/*
 	 * then initialize D-cache.
@@ -169,6 +174,7 @@ LEAF(mips_cache_reset)
 	PTR_ADDU	t1, t0, t3
 	/* clear all tags */
 	cache_loop	t0, t1, t9, INDEX_STORE_TAG_D
+#ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* load from each line (in cached space) */
 	PTR_LI		t0, INDEX_BASE
 2:	LONG_L		zero, 0(t0)
@@ -177,6 +183,7 @@ LEAF(mips_cache_reset)
 	/* clear all tags */
 	PTR_LI		t0, INDEX_BASE
 	cache_loop	t0, t1, t9, INDEX_STORE_TAG_D
+#endif
 
 3:	jr	ra
 	END(mips_cache_reset)
