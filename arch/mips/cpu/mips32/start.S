@@ -23,6 +23,7 @@
 
 #ifdef CONFIG_32BIT
 # define MIPS_RELOC	3
+# define STATUS_SET	0
 #endif
 
 #ifdef CONFIG_64BIT
@@ -34,6 +35,7 @@
 	((r_type) | ((r_type2) << 8) | ((r_type3) << 16) | (ssym) << 24)
 # endif
 # define MIPS_RELOC	MIPS64_R_INFO(0x00, 0x00, 0x12, 0x03)
+# define STATUS_SET	ST0_KX
 #endif
 
 	/*
@@ -120,7 +122,7 @@ reset:
 	/* WP(Watch Pending), SW0/1 should be cleared */
 	mtc0	zero, CP0_CAUSE
 
-	setup_c0_status 0 0
+	setup_c0_status STATUS_SET 0
 
 	/* Init Timer */
 	mtc0	zero, CP0_COUNT
