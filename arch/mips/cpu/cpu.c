@@ -8,18 +8,22 @@
 #include <common.h>
 #include <command.h>
 #include <netdev.h>
+#include <linux/compiler.h>
 #include <asm/mipsregs.h>
 #include <asm/reboot.h>
 
-void __attribute__((weak)) _machine_restart(void)
+void __weak _machine_restart(void)
 {
+	fprintf(stderr, "*** reset failed ***\n");
+
+	while (1)
+		/* NOP */;
 }
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	_machine_restart();
 
-	fprintf(stderr, "*** reset failed ***\n");
 	return 0;
 }
 
