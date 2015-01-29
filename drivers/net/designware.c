@@ -253,8 +253,13 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 
 	writel(FIXEDBURST | PRIORXTX_41 | DMA_PBL, &dma_p->busmode);
 
+#ifndef CONFIG_DW_MAC_FORCE_THRESHOLD_MODE
 	writel(readl(&dma_p->opmode) | FLUSHTXFIFO | STOREFORWARD,
 	       &dma_p->opmode);
+#else
+	writel(readl(&dma_p->opmode) | FLUSHTXFIFO,
+	       &dma_p->opmode);
+#endif
 
 	writel(readl(&dma_p->opmode) | RXSTART | TXSTART, &dma_p->opmode);
 
