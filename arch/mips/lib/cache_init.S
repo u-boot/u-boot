@@ -139,6 +139,14 @@ LEAF(mips_cache_reset)
 #endif /* CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD */
 
 	/*
+	 * The TagLo registers used depend upon the CPU implementation, but the
+	 * architecture requires that it is safe for software to write to both
+	 * TagLo selects 0 & 2 covering supported cases.
+	 */
+	mtc0		zero, CP0_TAGLO
+	mtc0		zero, CP0_TAGLO, 2
+
+	/*
 	 * The caches are probably in an indeterminate state, so we force good
 	 * parity into them by doing an invalidate for each line. If
 	 * CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD is set then we'll proceed to
@@ -151,7 +159,6 @@ LEAF(mips_cache_reset)
 	 * Initialize the I-cache first,
 	 */
 	blez		t2, 1f
-	mtc0		zero, CP0_TAGLO
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, t2
 	/* clear tag to invalidate */
@@ -169,7 +176,6 @@ LEAF(mips_cache_reset)
 	 * then initialize D-cache.
 	 */
 1:	blez		t3, 3f
-	mtc0		zero, CP0_TAGLO
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, t3
 	/* clear all tags */
