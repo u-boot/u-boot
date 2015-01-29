@@ -14,26 +14,17 @@
 #include <asm/addrspace.h>
 #include <asm/cacheops.h>
 
-#define RA		t9
+#ifndef CONFIG_SYS_MIPS_CACHE_MODE
+#define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
+#endif
 
-/*
- * 16kB is the maximum size of instruction and data caches on MIPS 4K,
- * 64kB is on 4KE, 24K, 5K, etc. Set bigger size for convenience.
- *
- * Note that the above size is the maximum size of primary cache. U-Boot
- * doesn't have L2 cache support for now.
- */
-#define MIPS_MAX_CACHE_SIZE	0x10000
+#ifdef CONFIG_64BIT
+# define RA		ta3
+#else
+# define RA		t7
+#endif
 
 #define INDEX_BASE	CKSEG0
-
-	.macro	cache_op op addr
-	.set	push
-	.set	noreorder
-	.set	mips3
-	cache	\op, 0(\addr)
-	.set	pop
-	.endm
 
 	.macro	f_fill64 dst, offset, val
 	LONG_S	\val, (\offset +  0 * LONGSIZE)(\dst)
@@ -65,17 +56,17 @@ LEAF(mips_init_icache)
 	/* clear tag to invalidate */
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, a1
-1:	cache_op	INDEX_STORE_TAG_I t0
+1:	cache		INDEX_STORE_TAG_I, 0(t0)
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
 	/* fill once, so data field parity is correct */
 	PTR_LI		t0, INDEX_BASE
-2:	cache_op	FILL t0
+2:	cache		FILL, 0(t0)
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 2b
 	/* invalidate again - prudent but not strictly neccessary */
 	PTR_LI		t0, INDEX_BASE
-1:	cache_op	INDEX_STORE_TAG_I t0
+1:	cache		INDEX_STORE_TAG_I, 0(t0)
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
 9:	jr		ra
@@ -90,7 +81,7 @@ LEAF(mips_init_dcache)
 	/* clear all tags */
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, a1
-1:	cache_op	INDEX_STORE_TAG_D t0
+1:	cache		INDEX_STORE_TAG_D, 0(t0)
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
 	/* load from each line (in cached space) */
@@ -100,7 +91,7 @@ LEAF(mips_init_dcache)
 	bne		t0, t1, 2b
 	/* clear all tags */
 	PTR_LI		t0, INDEX_BASE
-1:	cache_op	INDEX_STORE_TAG_D t0
+1:	cache		INDEX_STORE_TAG_D, 0(t0)
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
 9:	jr		ra
@@ -122,12 +113,85 @@ LEAF(mips_init_dcache)
  */
 NESTED(mips_cache_reset, 0, ra)
 	move	RA, ra
-	li	t2, CONFIG_SYS_ICACHE_SIZE
-	li	t3, CONFIG_SYS_DCACHE_SIZE
+
+#if !defined(CONFIG_SYS_ICACHE_SIZE) || !defined(CONFIG_SYS_DCACHE_SIZE) || \
+    !defined(CONFIG_SYS_CACHELINE_SIZE)
+	/* read Config1 for use below */
+	mfc0	t5, CP0_CONFIG, 1
+#endif
+
+#ifdef CONFIG_SYS_CACHELINE_SIZE
+	li	t9, CONFIG_SYS_CACHELINE_SIZE
 	li	t8, CONFIG_SYS_CACHELINE_SIZE
+#else
+	/* Detect I-cache line size. */
+	srl	t8, t5, MIPS_CONF1_IL_SHIFT
+	andi	t8, t8, (MIPS_CONF1_IL >> MIPS_CONF1_IL_SHIFT)
+	beqz	t8, 1f
+	li	t6, 2
+	sllv	t8, t6, t8
 
-	li	v0, MIPS_MAX_CACHE_SIZE
+1:	/* Detect D-cache line size. */
+	srl	t9, t5, MIPS_CONF1_DL_SHIFT
+	andi	t9, t9, (MIPS_CONF1_DL >> MIPS_CONF1_DL_SHIFT)
+	beqz	t9, 1f
+	li	t6, 2
+	sllv	t9, t6, t9
+1:
+#endif
 
+#ifdef CONFIG_SYS_ICACHE_SIZE
+	li	t2, CONFIG_SYS_ICACHE_SIZE
+#else
+	/* Detect I-cache size. */
+	srl	t6, t5, MIPS_CONF1_IS_SHIFT
+	andi	t6, t6, (MIPS_CONF1_IS >> MIPS_CONF1_IS_SHIFT)
+	li	t4, 32
+	xori	t2, t6, 0x7
+	beqz	t2, 1f
+	addi	t6, t6, 1
+	sllv	t4, t4, t6
+1:	/* At this point t4 == I-cache sets. */
+	mul	t2, t4, t8
+	srl	t6, t5, MIPS_CONF1_IA_SHIFT
+	andi	t6, t6, (MIPS_CONF1_IA >> MIPS_CONF1_IA_SHIFT)
+	addi	t6, t6, 1
+	/* At this point t6 == I-cache ways. */
+	mul	t2, t2, t6
+#endif
+
+#ifdef CONFIG_SYS_DCACHE_SIZE
+	li	t3, CONFIG_SYS_DCACHE_SIZE
+#else
+	/* Detect D-cache size. */
+	srl	t6, t5, MIPS_CONF1_DS_SHIFT
+	andi	t6, t6, (MIPS_CONF1_DS >> MIPS_CONF1_DS_SHIFT)
+	li	t4, 32
+	xori	t3, t6, 0x7
+	beqz	t3, 1f
+	addi	t6, t6, 1
+	sllv	t4, t4, t6
+1:	/* At this point t4 == I-cache sets. */
+	mul	t3, t4, t9
+	srl	t6, t5, MIPS_CONF1_DA_SHIFT
+	andi	t6, t6, (MIPS_CONF1_DA >> MIPS_CONF1_DA_SHIFT)
+	addi	t6, t6, 1
+	/* At this point t6 == I-cache ways. */
+	mul	t3, t3, t6
+#endif
+
+	/* Determine the largest L1 cache size */
+#if defined(CONFIG_SYS_ICACHE_SIZE) && defined(CONFIG_SYS_DCACHE_SIZE)
+#if CONFIG_SYS_ICACHE_SIZE > CONFIG_SYS_DCACHE_SIZE
+	li	v0, CONFIG_SYS_ICACHE_SIZE
+#else
+	li	v0, CONFIG_SYS_DCACHE_SIZE
+#endif
+#else
+	move	v0, t2
+	sltu	t1, t2, t3
+	movn	v0, t3, t1
+#endif
 	/*
 	 * Now clear that much memory starting from zero.
 	 */
@@ -159,7 +223,7 @@ NESTED(mips_cache_reset, 0, ra)
 	 * then initialize D-cache.
 	 */
 	move	a1, t3
-	move	a2, t8
+	move	a2, t9
 	PTR_LA	v1, mips_init_dcache
 	jalr	v1
 
@@ -207,7 +271,7 @@ LEAF(dcache_enable)
 	mfc0	t0, CP0_CONFIG
 	ori	t0, CONF_CM_CMASK
 	xori	t0, CONF_CM_CMASK
-	ori	t0, CONF_CM_CACHABLE_NONCOHERENT
+	ori	t0, CONFIG_SYS_MIPS_CACHE_MODE
 	mtc0	t0, CP0_CONFIG
 	jr	ra
 	END(dcache_enable)

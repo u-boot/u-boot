@@ -6,4 +6,4 @@
 #
 
 extra-y	= start.o
-obj-y	= cpu.o interrupts.o time.o cache.o
+obj-y	= cpu.o interrupts.o time.o
