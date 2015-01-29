@@ -18,12 +18,6 @@
 #define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 #endif
 
-#ifdef CONFIG_64BIT
-# define RA		ta3
-#else
-# define RA		t7
-#endif
-
 #define INDEX_BASE	CKSEG0
 
 	.macro	f_fill64 dst, offset, val
@@ -52,46 +46,6 @@
 	PTR_ADDU	\curr, \curr, \line_sz
 	bne		\curr, \end, 10b
 	.endm
-
-/*
- * mips_init_icache(uint PRId, ulong icache_size, unchar icache_linesz)
- */
-LEAF(mips_init_icache)
-	blez		a1, 9f
-	mtc0		zero, CP0_TAGLO
-	PTR_LI		t0, INDEX_BASE
-	PTR_ADDU	t1, t0, a1
-	/* clear tag to invalidate */
-	cache_loop	t0, t1, a2, INDEX_STORE_TAG_I
-	/* fill once, so data field parity is correct */
-	PTR_LI		t0, INDEX_BASE
-	cache_loop	t0, t1, a2, FILL
-	/* invalidate again - prudent but not strictly neccessary */
-	PTR_LI		t0, INDEX_BASE
-	cache_loop	t0, t1, a2, INDEX_STORE_TAG_I
-9:	jr		ra
-	END(mips_init_icache)
-
-/*
- * mips_init_dcache(uint PRId, ulong dcache_size, unchar dcache_linesz)
- */
-LEAF(mips_init_dcache)
-	blez		a1, 9f
-	mtc0		zero, CP0_TAGLO
-	PTR_LI		t0, INDEX_BASE
-	PTR_ADDU	t1, t0, a1
-	/* clear all tags */
-	cache_loop	t0, t1, a2, INDEX_STORE_TAG_D
-	/* load from each line (in cached space) */
-	PTR_LI		t0, INDEX_BASE
-2:	LONG_L		zero, 0(t0)
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 2b
-	/* clear all tags */
-	PTR_LI		t0, INDEX_BASE
-	cache_loop	t0, t1, a2, INDEX_STORE_TAG_D
-9:	jr		ra
-	END(mips_init_dcache)
 
 	.macro	l1_info		sz, line_sz, off
 	.set	push
@@ -144,9 +98,7 @@ LEAF(mips_init_dcache)
  * RETURNS: N/A
  *
  */
-NESTED(mips_cache_reset, 0, ra)
-	move	RA, ra
-
+LEAF(mips_cache_reset)
 #ifdef CONFIG_SYS_ICACHE_SIZE
 	li	t2, CONFIG_SYS_ICACHE_SIZE
 	li	t8, CONFIG_SYS_CACHELINE_SIZE
@@ -195,20 +147,38 @@ NESTED(mips_cache_reset, 0, ra)
 	/*
 	 * Initialize the I-cache first,
 	 */
-	move	a1, t2
-	move	a2, t8
-	PTR_LA	v1, mips_init_icache
-	jalr	v1
+	blez		t2, 1f
+	mtc0		zero, CP0_TAGLO
+	PTR_LI		t0, INDEX_BASE
+	PTR_ADDU	t1, t0, t2
+	/* clear tag to invalidate */
+	cache_loop	t0, t1, t8, INDEX_STORE_TAG_I
+	/* fill once, so data field parity is correct */
+	PTR_LI		t0, INDEX_BASE
+	cache_loop	t0, t1, t8, FILL
+	/* invalidate again - prudent but not strictly neccessary */
+	PTR_LI		t0, INDEX_BASE
+	cache_loop	t0, t1, t8, INDEX_STORE_TAG_I
 
 	/*
 	 * then initialize D-cache.
 	 */
-	move	a1, t3
-	move	a2, t9
-	PTR_LA	v1, mips_init_dcache
-	jalr	v1
+1:	blez		t3, 3f
+	mtc0		zero, CP0_TAGLO
+	PTR_LI		t0, INDEX_BASE
+	PTR_ADDU	t1, t0, t3
+	/* clear all tags */
+	cache_loop	t0, t1, t9, INDEX_STORE_TAG_D
+	/* load from each line (in cached space) */
+	PTR_LI		t0, INDEX_BASE
+2:	LONG_L		zero, 0(t0)
+	PTR_ADDU	t0, t9
+	bne		t0, t1, 2b
+	/* clear all tags */
+	PTR_LI		t0, INDEX_BASE
+	cache_loop	t0, t1, t9, INDEX_STORE_TAG_D
 
-	jr	RA
+3:	jr	ra
 	END(mips_cache_reset)
 
 /*
