@@ -97,6 +97,43 @@ LEAF(mips_init_dcache)
 9:	jr		ra
 	END(mips_init_dcache)
 
+	.macro	l1_info		sz, line_sz, off
+	.set	push
+	.set	noat
+
+	mfc0	$1, CP0_CONFIG, 1
+
+	/* detect line size */
+	srl	\line_sz, $1, \off + MIPS_CONF1_DL_SHIFT - MIPS_CONF1_DA_SHIFT
+	andi	\line_sz, \line_sz, (MIPS_CONF1_DL >> MIPS_CONF1_DL_SHIFT)
+	move	\sz, zero
+	beqz	\line_sz, 10f
+	li	\sz, 2
+	sllv	\line_sz, \sz, \line_sz
+
+	/* detect associativity */
+	srl	\sz, $1, \off + MIPS_CONF1_DA_SHIFT - MIPS_CONF1_DA_SHIFT
+	andi	\sz, \sz, (MIPS_CONF1_DA >> MIPS_CONF1_DA_SHIFT)
+	addi	\sz, \sz, 1
+
+	/* sz *= line_sz */
+	mul	\sz, \sz, \line_sz
+
+	/* detect log32(sets) */
+	srl	$1, $1, \off + MIPS_CONF1_DS_SHIFT - MIPS_CONF1_DA_SHIFT
+	andi	$1, $1, (MIPS_CONF1_DS >> MIPS_CONF1_DS_SHIFT)
+	addiu	$1, $1, 1
+	andi	$1, $1, 0x7
+
+	/* sz <<= log32(sets) */
+	sllv	\sz, \sz, $1
+
+	/* sz *= 32 */
+	li	$1, 32
+	mul	\sz, \sz, $1
+10:
+	.set	pop
+	.endm
 /*
  * mips_cache_reset - low level initialisation of the primary caches
  *
@@ -114,70 +151,18 @@ LEAF(mips_init_dcache)
 NESTED(mips_cache_reset, 0, ra)
 	move	RA, ra
 
-#if !defined(CONFIG_SYS_ICACHE_SIZE) || !defined(CONFIG_SYS_DCACHE_SIZE) || \
-    !defined(CONFIG_SYS_CACHELINE_SIZE)
-	/* read Config1 for use below */
-	mfc0	t5, CP0_CONFIG, 1
-#endif
-
-#ifdef CONFIG_SYS_CACHELINE_SIZE
-	li	t9, CONFIG_SYS_CACHELINE_SIZE
-	li	t8, CONFIG_SYS_CACHELINE_SIZE
-#else
-	/* Detect I-cache line size. */
-	srl	t8, t5, MIPS_CONF1_IL_SHIFT
-	andi	t8, t8, (MIPS_CONF1_IL >> MIPS_CONF1_IL_SHIFT)
-	beqz	t8, 1f
-	li	t6, 2
-	sllv	t8, t6, t8
-
-1:	/* Detect D-cache line size. */
-	srl	t9, t5, MIPS_CONF1_DL_SHIFT
-	andi	t9, t9, (MIPS_CONF1_DL >> MIPS_CONF1_DL_SHIFT)
-	beqz	t9, 1f
-	li	t6, 2
-	sllv	t9, t6, t9
-1:
-#endif
-
 #ifdef CONFIG_SYS_ICACHE_SIZE
 	li	t2, CONFIG_SYS_ICACHE_SIZE
+	li	t8, CONFIG_SYS_CACHELINE_SIZE
 #else
-	/* Detect I-cache size. */
-	srl	t6, t5, MIPS_CONF1_IS_SHIFT
-	andi	t6, t6, (MIPS_CONF1_IS >> MIPS_CONF1_IS_SHIFT)
-	li	t4, 32
-	xori	t2, t6, 0x7
-	beqz	t2, 1f
-	addi	t6, t6, 1
-	sllv	t4, t4, t6
-1:	/* At this point t4 == I-cache sets. */
-	mul	t2, t4, t8
-	srl	t6, t5, MIPS_CONF1_IA_SHIFT
-	andi	t6, t6, (MIPS_CONF1_IA >> MIPS_CONF1_IA_SHIFT)
-	addi	t6, t6, 1
-	/* At this point t6 == I-cache ways. */
-	mul	t2, t2, t6
+	l1_info	t2, t8, MIPS_CONF1_IA_SHIFT
 #endif
 
 #ifdef CONFIG_SYS_DCACHE_SIZE
 	li	t3, CONFIG_SYS_DCACHE_SIZE
+	li	t9, CONFIG_SYS_CACHELINE_SIZE
 #else
-	/* Detect D-cache size. */
-	srl	t6, t5, MIPS_CONF1_DS_SHIFT
-	andi	t6, t6, (MIPS_CONF1_DS >> MIPS_CONF1_DS_SHIFT)
-	li	t4, 32
-	xori	t3, t6, 0x7
-	beqz	t3, 1f
-	addi	t6, t6, 1
-	sllv	t4, t4, t6
-1:	/* At this point t4 == I-cache sets. */
-	mul	t3, t4, t9
-	srl	t6, t5, MIPS_CONF1_DA_SHIFT
-	andi	t6, t6, (MIPS_CONF1_DA >> MIPS_CONF1_DA_SHIFT)
-	addi	t6, t6, 1
-	/* At this point t6 == I-cache ways. */
-	mul	t3, t3, t6
+	l1_info	t3, t9, MIPS_CONF1_DA_SHIFT
 #endif
 
 	/* Determine the largest L1 cache size */
