@@ -32,11 +32,3 @@ void write_one_tlb(int index, u32 pagemask, u32 hi, u32 low0, u32 low1)
 	write_c0_index(index);
 	tlb_write_indexed();
 }
-
-int cpu_eth_init(bd_t *bis)
-{
-#ifdef CONFIG_SOC_AU1X00
-	au1x00_enet_initialize(bis);
-#endif
-	return 0;
-}

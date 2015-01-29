@@ -294,3 +294,9 @@ int au1x00_enet_initialize(bd_t *bis){
 
 	return 1;
 }
+
+int cpu_eth_init(bd_t *bis)
+{
+	au1x00_enet_initialize(bis);
+	return 0;
+}

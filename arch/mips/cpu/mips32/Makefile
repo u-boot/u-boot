@@ -7,5 +7,3 @@
 
 extra-y	= start.o
 obj-y	= cpu.o interrupts.o time.o
-
-obj-$(CONFIG_SOC_AU1X00) += au1x00/
