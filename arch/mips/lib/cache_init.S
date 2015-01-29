@@ -47,28 +47,28 @@
 #endif
 	.endm
 
+	.macro cache_loop	curr, end, line_sz, op
+10:	cache		\op, 0(\curr)
+	PTR_ADDU	\curr, \curr, \line_sz
+	bne		\curr, \end, 10b
+	.endm
+
 /*
  * mips_init_icache(uint PRId, ulong icache_size, unchar icache_linesz)
  */
 LEAF(mips_init_icache)
 	blez		a1, 9f
 	mtc0		zero, CP0_TAGLO
-	/* clear tag to invalidate */
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, a1
-1:	cache		INDEX_STORE_TAG_I, 0(t0)
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 1b
+	/* clear tag to invalidate */
+	cache_loop	t0, t1, a2, INDEX_STORE_TAG_I
 	/* fill once, so data field parity is correct */
 	PTR_LI		t0, INDEX_BASE
-2:	cache		FILL, 0(t0)
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 2b
+	cache_loop	t0, t1, a2, FILL
 	/* invalidate again - prudent but not strictly neccessary */
 	PTR_LI		t0, INDEX_BASE
-1:	cache		INDEX_STORE_TAG_I, 0(t0)
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 1b
+	cache_loop	t0, t1, a2, INDEX_STORE_TAG_I
 9:	jr		ra
 	END(mips_init_icache)
 
@@ -78,12 +78,10 @@ LEAF(mips_init_icache)
 LEAF(mips_init_dcache)
 	blez		a1, 9f
 	mtc0		zero, CP0_TAGLO
-	/* clear all tags */
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, a1
-1:	cache		INDEX_STORE_TAG_D, 0(t0)
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 1b
+	/* clear all tags */
+	cache_loop	t0, t1, a2, INDEX_STORE_TAG_D
 	/* load from each line (in cached space) */
 	PTR_LI		t0, INDEX_BASE
 2:	LONG_L		zero, 0(t0)
@@ -91,9 +89,7 @@ LEAF(mips_init_dcache)
 	bne		t0, t1, 2b
 	/* clear all tags */
 	PTR_LI		t0, INDEX_BASE
-1:	cache		INDEX_STORE_TAG_D, 0(t0)
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 1b
+	cache_loop	t0, t1, a2, INDEX_STORE_TAG_D
 9:	jr		ra
 	END(mips_init_dcache)
 
