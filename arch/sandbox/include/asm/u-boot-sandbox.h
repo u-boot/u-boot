@@ -17,7 +17,6 @@
 
 /* board/.../... */
 int board_init(void);
-int dram_init(void);
 
 /* start.c */
 int sandbox_early_getopt_check(void);
