@@ -342,9 +342,10 @@ static int do_i2c_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 	int ret;
 #ifdef CONFIG_DM_I2C
 	struct udevice *dev;
+	struct dm_i2c_chip *i2c_chip;
 #endif
 
-	if (argc != 5)
+	if ((argc < 5) || (argc > 6))
 		return cmd_usage(cmdtp);
 
 	/*
@@ -367,7 +368,7 @@ static int do_i2c_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 		return cmd_usage(cmdtp);
 
 	/*
-	 * Length is the number of objects, not number of bytes.
+	 * Length is the number of bytes.
 	 */
 	length = simple_strtoul(argv[4], NULL, 16);
 
@@ -377,22 +378,47 @@ static int do_i2c_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 		ret = i2c_set_chip_offset_len(dev, alen);
 	if (ret)
 		return i2c_report_err(ret, I2C_ERR_WRITE);
+	i2c_chip = dev_get_parent_platdata(dev);
+	if (!i2c_chip)
+		return i2c_report_err(ret, I2C_ERR_WRITE);
 #endif
 
-	while (length-- > 0) {
+	if (argc == 6 && !strcmp(argv[5], "-s")) {
+		/*
+		 * Write all bytes in a single I2C transaction. If the target
+		 * device is an EEPROM, it is your responsibility to not cross
+		 * a page boundary. No write delay upon completion, take this
+		 * into account if linking commands.
+		 */
 #ifdef CONFIG_DM_I2C
-		ret = dm_i2c_write(dev, devaddr++, memaddr++, 1);
+		i2c_chip->flags &= ~DM_I2C_CHIP_WR_ADDRESS;
+		ret = dm_i2c_write(dev, devaddr, memaddr, length);
 #else
-		ret = i2c_write(chip, devaddr++, alen, memaddr++, 1);
+		ret = i2c_write(chip, devaddr, alen, memaddr, length);
 #endif
 		if (ret)
 			return i2c_report_err(ret, I2C_ERR_WRITE);
+	} else {
+		/*
+		 * Repeated addressing - perform <length> separate
+		 * write transactions of one byte each
+		 */
+		while (length-- > 0) {
+#ifdef CONFIG_DM_I2C
+			i2c_chip->flags |= DM_I2C_CHIP_WR_ADDRESS;
+			ret = dm_i2c_write(dev, devaddr++, memaddr++, 1);
+#else
+			ret = i2c_write(chip, devaddr++, alen, memaddr++, 1);
+#endif
+			if (ret)
+				return i2c_report_err(ret, I2C_ERR_WRITE);
 /*
  * No write delay with FRAM devices.
  */
 #if !defined(CONFIG_SYS_I2C_FRAM)
-		udelay(11000);
+			udelay(11000);
 #endif
+		}
 	}
 	return 0;
 }
@@ -1827,7 +1853,7 @@ static cmd_tbl_t cmd_i2c_sub[] = {
 	U_BOOT_CMD_MKENT(nm, 2, 1, do_i2c_nm, "", ""),
 	U_BOOT_CMD_MKENT(probe, 0, 1, do_i2c_probe, "", ""),
 	U_BOOT_CMD_MKENT(read, 5, 1, do_i2c_read, "", ""),
-	U_BOOT_CMD_MKENT(write, 5, 0, do_i2c_write, "", ""),
+	U_BOOT_CMD_MKENT(write, 6, 0, do_i2c_write, "", ""),
 #ifdef CONFIG_DM_I2C
 	U_BOOT_CMD_MKENT(flags, 2, 1, do_i2c_flags, "", ""),
 #endif
@@ -1894,7 +1920,8 @@ static char i2c_help_text[] =
 	"i2c nm chip address[.0, .1, .2] - write to I2C device (constant address)\n"
 	"i2c probe [address] - test for and show device(s) on the I2C bus\n"
 	"i2c read chip address[.0, .1, .2] length memaddress - read to memory\n"
-	"i2c write memaddress chip address[.0, .1, .2] length - write memory to i2c\n"
+	"i2c write memaddress chip address[.0, .1, .2] length [-s] - write memory\n"
+	"          to I2C; the -s option selects bulk write in a single transaction\n"
 #ifdef CONFIG_DM_I2C
 	"i2c flags chip [flags] - set or get chip flags\n"
 #endif
@@ -1906,7 +1933,7 @@ static char i2c_help_text[] =
 #endif
 
 U_BOOT_CMD(
-	i2c, 6, 1, do_i2c,
+	i2c, 7, 1, do_i2c,
 	"I2C sub-system",
 	i2c_help_text
 );
