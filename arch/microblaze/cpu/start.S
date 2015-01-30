@@ -151,12 +151,18 @@ clear_bss:
 3:	/* jumping to board_init */
 #ifndef CONFIG_SPL_BUILD
 	or	r5, r0, r0	/* flags - empty */
+	addi    r31, r0, _gd
 	brai	board_init_f
 #else
 	addi	r31, r0, CONFIG_SYS_SPL_MALLOC_END
 	brai	board_init_r
 #endif
 1:	bri	1b
+
+ .section .bss
+.align 4
+_gd:
+         .space  GENERATED_GBL_DATA_SIZE
 
 #ifndef CONFIG_SPL_BUILD
 /*
