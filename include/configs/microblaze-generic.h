@@ -113,6 +113,7 @@
 #endif
 
 #define CONFIG_SYS_MALLOC_LEN	0xC0000
+#define CONFIG_SYS_MALLOC_F_LEN	1024
 
 /* Stack location before relocation */
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_TEXT_BASE
