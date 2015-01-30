@@ -79,7 +79,7 @@ enum {
 struct fdt_nand {
 	struct nand_ctlr *reg;
 	int enabled;		/* 1 to enable, 0 to disable */
-	struct fdt_gpio_state wp_gpio;	/* write-protect GPIO */
+	struct gpio_desc wp_gpio;	/* write-protect GPIO */
 	s32 width;		/* bit width, normally 8 */
 	u32 timing[FDT_NAND_TIMING_COUNT];
 };
@@ -945,8 +945,8 @@ static int fdt_decode_nand(const void *blob, int node, struct fdt_nand *config)
 	config->reg = (struct nand_ctlr *)fdtdec_get_addr(blob, node, "reg");
 	config->enabled = fdtdec_get_is_enabled(blob, node);
 	config->width = fdtdec_get_int(blob, node, "nvidia,nand-width", 8);
-	err = fdtdec_decode_gpio(blob, node, "nvidia,wp-gpios",
-				 &config->wp_gpio);
+	err = gpio_request_by_name_nodev(blob, node, "nvidia,wp-gpios", 0,
+				 &config->wp_gpio, GPIOD_IS_OUT);
 	if (err)
 		return err;
 	err = fdtdec_get_int_array(blob, node, "nvidia,timing",
@@ -1009,8 +1009,7 @@ int tegra_nand_init(struct nand_chip *nand, int devnum)
 	/* Adjust timing for NAND device */
 	setup_timing(config->timing, info->reg);
 
-	fdtdec_setup_gpio(&config->wp_gpio);
-	gpio_direction_output(config->wp_gpio.gpio, 1);
+	dm_gpio_set_value(&config->wp_gpio, 1);
 
 	our_mtd = &nand_info[devnum];
 	our_mtd->priv = nand;

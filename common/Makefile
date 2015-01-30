@@ -27,6 +27,8 @@ endif
 # boards
 obj-$(CONFIG_SYS_GENERIC_BOARD) += board_f.o
 obj-$(CONFIG_SYS_GENERIC_BOARD) += board_r.o
+obj-$(CONFIG_DISPLAY_BOARDINFO) += board_info.o
+obj-$(CONFIG_DISPLAY_BOARDINFO_LATE) += board_info.o
 
 # core command
 obj-y += cmd_boot.o

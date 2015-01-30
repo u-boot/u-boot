@@ -9,3 +9,4 @@
 obj-y += sec.o
 obj-$(CONFIG_FSL_CAAM) += jr.o fsl_hash.o jobdesc.o error.o
 obj-$(CONFIG_CMD_BLOB) += fsl_blob.o
+obj-$(CONFIG_RSA_FREESCALE_EXP) += fsl_rsa.o

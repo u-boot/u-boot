@@ -37,7 +37,7 @@
 	};
 
 	nand-controller@70008000 {
-		nvidia,wp-gpios = <&gpio 23 0>;		/* PC7 */
+		nvidia,wp-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_HIGH>;
 		nvidia,width = <8>;
 		nvidia,timing = <26 100 20 80 20 10 12 10 70>;
 		nand@0 {
@@ -67,22 +67,22 @@
 	};
 
 	usb@c5004000 {
-		nvidia,phy-reset-gpio = <&gpio 169 0>; /* gpio PV1 */
+		nvidia,phy-reset-gpio = <&gpio TEGRA_GPIO(V, 1) 0>;
 	};
 
 	sdhci@c8000200 {
 		status = "okay";
-		cd-gpios = <&gpio 69 1>; /* gpio PI5 */
-		wp-gpios = <&gpio 57 0>; /* gpio PH1 */
-		power-gpios = <&gpio 155 0>; /* gpio PT3 */
+		cd-gpios = <&gpio TEGRA_GPIO(I, 5) GPIO_ACTIVE_LOW>;
+		wp-gpios = <&gpio TEGRA_GPIO(H, 1) GPIO_ACTIVE_HIGH>;
+		power-gpios = <&gpio TEGRA_GPIO(T, 3) GPIO_ACTIVE_HIGH>;
 		bus-width = <4>;
 	};
 
 	sdhci@c8000600 {
 		status = "okay";
-		cd-gpios = <&gpio 58 1>; /* gpio PH2 */
-		wp-gpios = <&gpio 59 0>; /* gpio PH3 */
-		power-gpios = <&gpio 70 0>; /* gpio PI6 */
+		cd-gpios = <&gpio TEGRA_GPIO(H, 2) GPIO_ACTIVE_LOW>;
+		wp-gpios = <&gpio TEGRA_GPIO(H, 3) GPIO_ACTIVE_HIGH>;
+		power-gpios = <&gpio TEGRA_GPIO(I, 6) GPIO_ACTIVE_HIGH>;
 		bus-width = <8>;
 	};
 
@@ -100,10 +100,14 @@
 		vsyncx-active-high;
 		nvidia,bits-per-pixel = <16>;
 		nvidia,pwm = <&pwm 0 0>;
-		nvidia,backlight-enable-gpios = <&gpio 13 0>;	/* PB5 */
-		nvidia,lvds-shutdown-gpios = <&gpio 10 0>;	/* PB2 */
-		nvidia,backlight-vdd-gpios = <&gpio 176 0>;	/* PW0 */
-		nvidia,panel-vdd-gpios = <&gpio 22 0>;		/* PC6 */
+		nvidia,backlight-enable-gpios = <&gpio TEGRA_GPIO(B, 5)
+							GPIO_ACTIVE_HIGH>;
+		nvidia,lvds-shutdown-gpios = <&gpio TEGRA_GPIO(B, 2)
+							GPIO_ACTIVE_HIGH>;
+		nvidia,backlight-vdd-gpios = <&gpio TEGRA_GPIO(W, 0)
+							GPIO_ACTIVE_HIGH>;
+		nvidia,panel-vdd-gpios = <&gpio TEGRA_GPIO(C, 6)
+							GPIO_ACTIVE_HIGH>;
 		nvidia,panel-timings = <0 0 200 0 0>;
 	};
 };

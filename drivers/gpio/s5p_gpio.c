@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <dm/device-internal.h>
+#include <dt-bindings/gpio/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -275,12 +276,22 @@ static int exynos_gpio_get_function(struct udevice *dev, unsigned offset)
 		return GPIOF_FUNC;
 }
 
+static int exynos_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
+			     struct fdtdec_phandle_args *args)
+{
+	desc->offset = args->args[0];
+	desc->flags = args->args[1] & GPIO_ACTIVE_LOW ? GPIOD_ACTIVE_LOW : 0;
+
+	return 0;
+}
+
 static const struct dm_gpio_ops gpio_exynos_ops = {
 	.direction_input	= exynos_gpio_direction_input,
 	.direction_output	= exynos_gpio_direction_output,
 	.get_value		= exynos_gpio_get_value,
 	.set_value		= exynos_gpio_set_value,
 	.get_function		= exynos_gpio_get_function,
+	.xlate			= exynos_gpio_xlate,
 };
 
 static int gpio_exynos_probe(struct udevice *dev)
@@ -342,7 +353,7 @@ static int gpio_exynos_bind(struct udevice *parent)
 					plat->bank_name, plat, -1, &dev);
 		if (ret)
 			return ret;
-		dev->of_offset = parent->of_offset;
+		dev->of_offset = node;
 	}
 
 	return 0;

@@ -598,3 +598,14 @@ static int dm_test_uclass_before_ready(struct dm_test_state *dms)
 }
 
 DM_TEST(dm_test_uclass_before_ready, 0);
+
+static int dm_test_device_get_uclass_id(struct dm_test_state *dms)
+{
+	struct udevice *dev;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST, 0, &dev));
+	ut_asserteq(UCLASS_TEST, device_get_uclass_id(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_device_get_uclass_id, DM_TESTF_SCAN_PDATA);

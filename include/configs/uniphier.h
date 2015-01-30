@@ -43,6 +43,9 @@
 #define CONFIG_SDRAM1_SIZE	0x10000000
 #endif
 
+#define CONFIG_I2C_EEPROM
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
+
 /*
  * Support card address map
  */

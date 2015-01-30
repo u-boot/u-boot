@@ -303,8 +303,9 @@
 
 	sdhci@700b0400 {
 		status = "okay";
-		cd-gpios = <&gpio 170 1>; /* gpio PV2 */
-		power-gpios = <&gpio 136 0>; /* gpio PR0 */
+		cd-gpios = <&gpio TEGRA_GPIO(V, 2) GPIO_ACTIVE_LOW>;
+		power-gpios = <&gpio TEGRA_GPIO(R, 0) GPIO_ACTIVE_HIGH>;
+		wp-gpios = <&gpio TEGRA_GPIO(Q, 4) GPIO_ACTIVE_HIGH>;
 		bus-width = <4>;
 	};
 
@@ -316,12 +317,12 @@
 	usb@7d000000 {
 		status = "okay";
 		dr_mode = "otg";
-		nvidia,vbus-gpio = <&gpio 108 0>; /* gpio PN4, USB_VBUS_EN0 */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(N, 4) GPIO_ACTIVE_HIGH>;
 	};
 
 	usb@7d008000 {
 		status = "okay";
-		nvidia,vbus-gpio = <&gpio 109 0>; /* gpio PN5, USB_VBUS_EN1 */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(N, 5) GPIO_ACTIVE_HIGH>;
 	};
 
 	regulators {

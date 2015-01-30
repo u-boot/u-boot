@@ -515,8 +515,8 @@ static int tegra_mmc_getcd(struct mmc *mmc)
 
 	debug("tegra_mmc_getcd called\n");
 
-	if (fdt_gpio_isvalid(&host->cd_gpio))
-		return fdtdec_get_gpio(&host->cd_gpio);
+	if (dm_gpio_is_valid(&host->cd_gpio))
+		return dm_gpio_get_value(&host->cd_gpio);
 
 	return 1;
 }
@@ -531,7 +531,6 @@ static const struct mmc_ops tegra_mmc_ops = {
 static int do_mmc_init(int dev_index)
 {
 	struct mmc_host *host;
-	char gpusage[12]; /* "SD/MMCn PWR" or "SD/MMCn CD" */
 	struct mmc *mmc;
 
 	/* DT should have been read & host config filled in */
@@ -539,27 +538,15 @@ static int do_mmc_init(int dev_index)
 	if (!host->enabled)
 		return -1;
 
-	debug(" do_mmc_init: index %d, bus width %d "
-		"pwr_gpio %d cd_gpio %d\n",
-		dev_index, host->width,
-		host->pwr_gpio.gpio, host->cd_gpio.gpio);
+	debug(" do_mmc_init: index %d, bus width %d pwr_gpio %d cd_gpio %d\n",
+	      dev_index, host->width, gpio_get_number(&host->pwr_gpio),
+	      gpio_get_number(&host->cd_gpio));
 
 	host->clock = 0;
 	clock_start_periph_pll(host->mmc_id, CLOCK_ID_PERIPH, 20000000);
 
-	if (fdt_gpio_isvalid(&host->pwr_gpio)) {
-		sprintf(gpusage, "SD/MMC%d PWR", dev_index);
-		gpio_request(host->pwr_gpio.gpio, gpusage);
-		gpio_direction_output(host->pwr_gpio.gpio, 1);
-		debug(" Power GPIO name = %s\n", host->pwr_gpio.name);
-	}
-
-	if (fdt_gpio_isvalid(&host->cd_gpio)) {
-		sprintf(gpusage, "SD/MMC%d CD", dev_index);
-		gpio_request(host->cd_gpio.gpio, gpusage);
-		gpio_direction_input(host->cd_gpio.gpio);
-		debug(" CD GPIO name = %s\n", host->cd_gpio.name);
-	}
+	if (dm_gpio_is_valid(&host->pwr_gpio))
+		dm_gpio_set_value(&host->pwr_gpio, 1);
 
 	memset(&host->cfg, 0, sizeof(host->cfg));
 
@@ -626,9 +613,12 @@ static int mmc_get_config(const void *blob, int node, struct mmc_host *host)
 		debug("%s: no sdmmc width found\n", __func__);
 
 	/* These GPIOs are optional */
-	fdtdec_decode_gpio(blob, node, "cd-gpios", &host->cd_gpio);
-	fdtdec_decode_gpio(blob, node, "wp-gpios", &host->wp_gpio);
-	fdtdec_decode_gpio(blob, node, "power-gpios", &host->pwr_gpio);
+	gpio_request_by_name_nodev(blob, node, "cd-gpios", 0, &host->cd_gpio,
+				   GPIOD_IS_IN);
+	gpio_request_by_name_nodev(blob, node, "wp-gpios", 0, &host->wp_gpio,
+				   GPIOD_IS_IN);
+	gpio_request_by_name_nodev(blob, node, "power-gpios", 0,
+				   &host->pwr_gpio, GPIOD_IS_OUT);
 
 	debug("%s: found controller at %p, width = %d, periph_id = %d\n",
 		__func__, host->reg, host->width, host->mmc_id);

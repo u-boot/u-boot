@@ -19,13 +19,11 @@
 #include <configs/ti_am335x_common.h>
 
 #ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_FIT
 # define CONFIG_FIT
+#endif
 # define CONFIG_TIMESTAMP
 # define CONFIG_LZO
-# ifdef CONFIG_ENABLE_VBOOT
-#  define CONFIG_FIT_SIGNATURE
-#  define CONFIG_RSA
-# endif
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)

@@ -17,7 +17,6 @@ enum {
 	HASH_FLAG_ENV		= 1 << 1,	/* Allow env vars */
 };
 
-#ifndef USE_HOSTCC
 #if defined(CONFIG_SHA1SUM_VERIFY) || defined(CONFIG_CRC32_VERIFY)
 #define CONFIG_HASH_VERIFY
 #endif
@@ -77,6 +76,7 @@ struct hash_algo {
 			   int size);
 };
 
+#ifndef USE_HOSTCC
 /**
  * hash_command: Process a hash command for a particular algorithm
  *
@@ -115,19 +115,6 @@ int hash_block(const char *algo_name, const void *data, unsigned int len,
 	       uint8_t *output, int *output_size);
 
 /**
- * hash_lookup_algo() - Look up the hash_algo struct for an algorithm
- *
- * The function returns the pointer to the struct or -EPROTONOSUPPORT if the
- * algorithm is not available.
- *
- * @algo_name: Hash algorithm to look up
- * @algop: Pointer to the hash_algo struct if found
- *
- * @return 0 if ok, -EPROTONOSUPPORT for an unknown algorithm.
- */
-int hash_lookup_algo(const char *algo_name, struct hash_algo **algop);
-
-/**
  * hash_show() - Print out a hash algorithm and value
  *
  * You will get a message like this (without a newline at the end):
@@ -141,5 +128,34 @@ int hash_lookup_algo(const char *algo_name, struct hash_algo **algop);
  */
 void hash_show(struct hash_algo *algo, ulong addr, ulong len,
 	       uint8_t *output);
+
 #endif /* !USE_HOSTCC */
+
+/**
+ * hash_lookup_algo() - Look up the hash_algo struct for an algorithm
+ *
+ * The function returns the pointer to the struct or -EPROTONOSUPPORT if the
+ * algorithm is not available.
+ *
+ * @algo_name: Hash algorithm to look up
+ * @algop: Pointer to the hash_algo struct if found
+ *
+ * @return 0 if ok, -EPROTONOSUPPORT for an unknown algorithm.
+ */
+int hash_lookup_algo(const char *algo_name, struct hash_algo **algop);
+
+/**
+ * hash_progressive_lookup_algo() - Look up hash_algo for prog. hash support
+ *
+ * The function returns the pointer to the struct or -EPROTONOSUPPORT if the
+ * algorithm is not available with progressive hash support.
+ *
+ * @algo_name: Hash algorithm to look up
+ * @algop: Pointer to the hash_algo struct if found
+ *
+ * @return 0 if ok, -EPROTONOSUPPORT for an unknown algorithm.
+ */
+int hash_progressive_lookup_algo(const char *algo_name,
+				 struct hash_algo **algop);
+
 #endif

@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include "rsa_caam.h"
 
 #define KEY_IDNFR_SZ_BYTES		16
 
@@ -26,4 +27,8 @@ void inline_cnstr_jobdesc_blob_decap(uint32_t *desc, uint8_t *key_idnfr,
 				     uint32_t out_sz);
 
 void inline_cnstr_jobdesc_rng_instantiation(uint32_t *desc);
+
+void inline_cnstr_jobdesc_pkha_rsaexp(uint32_t *desc,
+				      struct pk_in_params *pkin, uint8_t *out,
+				      uint32_t out_siz);
 #endif

@@ -928,8 +928,9 @@ struct checksum_algo {
 #if IMAGE_ENABLE_SIGN
 	const EVP_MD *(*calculate_sign)(void);
 #endif
-	void (*calculate)(const struct image_region region[],
-			  int region_count, uint8_t *checksum);
+	int (*calculate)(const char *name,
+			 const struct image_region region[],
+			 int region_count, uint8_t *checksum);
 	const uint8_t *rsa_padding;
 };
 

@@ -415,15 +415,6 @@ static int pmic_init_max77686(void)
 	return 0;
 }
 
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-static void board_init_i2c(void)
-{
-	/* I2C_0 */
-	if (exynos_pinmux_config(PERIPH_ID_I2C0, PINMUX_FLAG_NONE))
-		debug("I2C%d not configured\n", (I2C_0));
-}
-#endif
-
 int exynos_early_init_f(void)
 {
 	board_clock_init();
@@ -444,10 +435,7 @@ int exynos_init(void)
 
 int exynos_power_init(void)
 {
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-	board_init_i2c();
-#endif
-	pmic_init(I2C_0);
+	pmic_init(0);
 	pmic_init_max77686();
 
 	return 0;

@@ -481,11 +481,12 @@ int spi_flash_std_erase(struct udevice *dev, u32 offset, size_t len)
 int spi_flash_std_probe(struct udevice *dev)
 {
 	struct spi_slave *slave = dev_get_parentdata(dev);
+	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
 	struct spi_flash *flash;
 
 	flash = dev->uclass_priv;
 	flash->dev = dev;
-	debug("%s: slave=%p, cs=%d\n", __func__, slave, slave->cs);
+	debug("%s: slave=%p, cs=%d\n", __func__, slave, plat->cs);
 	return spi_flash_probe_slave(slave, flash);
 }
 

@@ -476,22 +476,6 @@ static int initr_api(void)
 }
 #endif
 
-#ifdef CONFIG_DISPLAY_BOARDINFO_LATE
-static int show_model_r(void)
-{
-	/* Put this here so it appears on the LCD, now it is ready */
-# ifdef CONFIG_OF_CONTROL
-	const char *model;
-
-	model = (char *)fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-	printf("Model: %s\n", model ? model : "<unknown>");
-# else
-	checkboard();
-# endif
-	return 0;
-}
-#endif
-
 /* enable exceptions */
 #ifdef CONFIG_ARM
 static int initr_enable_interrupts(void)
@@ -801,7 +785,7 @@ init_fnc_t init_sequence_r[] = {
 #endif
 	console_init_r,		/* fully init console as a device */
 #ifdef CONFIG_DISPLAY_BOARDINFO_LATE
-	show_model_r,
+	show_board_info,
 #endif
 #ifdef CONFIG_ARCH_MISC_INIT
 	arch_misc_init,		/* miscellaneous arch-dependent init */
