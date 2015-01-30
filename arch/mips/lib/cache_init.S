@@ -18,17 +18,7 @@
 #define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 #endif
 
-#define RA		t9
-
 #define INDEX_BASE	CKSEG0
-
-	.macro	cache_op op addr
-	.set	push
-	.set	noreorder
-	.set	mips3
-	cache	\op, 0(\addr)
-	.set	pop
-	.endm
 
 	.macro	f_fill64 dst, offset, val
 	LONG_S	\val, (\offset +  0 * LONGSIZE)(\dst)
@@ -51,56 +41,49 @@
 #endif
 	.endm
 
-/*
- * mips_init_icache(uint PRId, ulong icache_size, unchar icache_linesz)
- */
-LEAF(mips_init_icache)
-	blez		a1, 9f
-	mtc0		zero, CP0_TAGLO
-	/* clear tag to invalidate */
-	PTR_LI		t0, INDEX_BASE
-	PTR_ADDU	t1, t0, a1
-1:	cache_op	INDEX_STORE_TAG_I t0
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 1b
-	/* fill once, so data field parity is correct */
-	PTR_LI		t0, INDEX_BASE
-2:	cache_op	FILL t0
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 2b
-	/* invalidate again - prudent but not strictly neccessary */
-	PTR_LI		t0, INDEX_BASE
-1:	cache_op	INDEX_STORE_TAG_I t0
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 1b
-9:	jr		ra
-	END(mips_init_icache)
+	.macro cache_loop	curr, end, line_sz, op
+10:	cache		\op, 0(\curr)
+	PTR_ADDU	\curr, \curr, \line_sz
+	bne		\curr, \end, 10b
+	.endm
 
-/*
- * mips_init_dcache(uint PRId, ulong dcache_size, unchar dcache_linesz)
- */
-LEAF(mips_init_dcache)
-	blez		a1, 9f
-	mtc0		zero, CP0_TAGLO
-	/* clear all tags */
-	PTR_LI		t0, INDEX_BASE
-	PTR_ADDU	t1, t0, a1
-1:	cache_op	INDEX_STORE_TAG_D t0
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 1b
-	/* load from each line (in cached space) */
-	PTR_LI		t0, INDEX_BASE
-2:	LONG_L		zero, 0(t0)
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 2b
-	/* clear all tags */
-	PTR_LI		t0, INDEX_BASE
-1:	cache_op	INDEX_STORE_TAG_D t0
-	PTR_ADDU	t0, a2
-	bne		t0, t1, 1b
-9:	jr		ra
-	END(mips_init_dcache)
+	.macro	l1_info		sz, line_sz, off
+	.set	push
+	.set	noat
 
+	mfc0	$1, CP0_CONFIG, 1
+
+	/* detect line size */
+	srl	\line_sz, $1, \off + MIPS_CONF1_DL_SHIFT - MIPS_CONF1_DA_SHIFT
+	andi	\line_sz, \line_sz, (MIPS_CONF1_DL >> MIPS_CONF1_DL_SHIFT)
+	move	\sz, zero
+	beqz	\line_sz, 10f
+	li	\sz, 2
+	sllv	\line_sz, \sz, \line_sz
+
+	/* detect associativity */
+	srl	\sz, $1, \off + MIPS_CONF1_DA_SHIFT - MIPS_CONF1_DA_SHIFT
+	andi	\sz, \sz, (MIPS_CONF1_DA >> MIPS_CONF1_DA_SHIFT)
+	addi	\sz, \sz, 1
+
+	/* sz *= line_sz */
+	mul	\sz, \sz, \line_sz
+
+	/* detect log32(sets) */
+	srl	$1, $1, \off + MIPS_CONF1_DS_SHIFT - MIPS_CONF1_DA_SHIFT
+	andi	$1, $1, (MIPS_CONF1_DS >> MIPS_CONF1_DS_SHIFT)
+	addiu	$1, $1, 1
+	andi	$1, $1, 0x7
+
+	/* sz <<= log32(sets) */
+	sllv	\sz, \sz, $1
+
+	/* sz *= 32 */
+	li	$1, 32
+	mul	\sz, \sz, $1
+10:
+	.set	pop
+	.endm
 /*
  * mips_cache_reset - low level initialisation of the primary caches
  *
@@ -115,74 +98,22 @@ LEAF(mips_init_dcache)
  * RETURNS: N/A
  *
  */
-NESTED(mips_cache_reset, 0, ra)
-	move	RA, ra
-
-#if !defined(CONFIG_SYS_ICACHE_SIZE) || !defined(CONFIG_SYS_DCACHE_SIZE) || \
-    !defined(CONFIG_SYS_CACHELINE_SIZE)
-	/* read Config1 for use below */
-	mfc0	t5, CP0_CONFIG, 1
-#endif
-
-#ifdef CONFIG_SYS_CACHELINE_SIZE
-	li	t7, CONFIG_SYS_CACHELINE_SIZE
-	li	t8, CONFIG_SYS_CACHELINE_SIZE
-#else
-	/* Detect I-cache line size. */
-	srl	t8, t5, MIPS_CONF1_IL_SHIFT
-	andi	t8, t8, (MIPS_CONF1_IL >> MIPS_CONF1_IL_SHIFT)
-	beqz	t8, 1f
-	li	t6, 2
-	sllv	t8, t6, t8
-
-1:	/* Detect D-cache line size. */
-	srl	t7, t5, MIPS_CONF1_DL_SHIFT
-	andi	t7, t7, (MIPS_CONF1_DL >> MIPS_CONF1_DL_SHIFT)
-	beqz	t7, 1f
-	li	t6, 2
-	sllv	t7, t6, t7
-1:
-#endif
-
+LEAF(mips_cache_reset)
 #ifdef CONFIG_SYS_ICACHE_SIZE
 	li	t2, CONFIG_SYS_ICACHE_SIZE
+	li	t8, CONFIG_SYS_CACHELINE_SIZE
 #else
-	/* Detect I-cache size. */
-	srl	t6, t5, MIPS_CONF1_IS_SHIFT
-	andi	t6, t6, (MIPS_CONF1_IS >> MIPS_CONF1_IS_SHIFT)
-	li	t4, 32
-	xori	t2, t6, 0x7
-	beqz	t2, 1f
-	addi	t6, t6, 1
-	sllv	t4, t4, t6
-1:	/* At this point t4 == I-cache sets. */
-	mul	t2, t4, t8
-	srl	t6, t5, MIPS_CONF1_IA_SHIFT
-	andi	t6, t6, (MIPS_CONF1_IA >> MIPS_CONF1_IA_SHIFT)
-	addi	t6, t6, 1
-	/* At this point t6 == I-cache ways. */
-	mul	t2, t2, t6
+	l1_info	t2, t8, MIPS_CONF1_IA_SHIFT
 #endif
 
 #ifdef CONFIG_SYS_DCACHE_SIZE
 	li	t3, CONFIG_SYS_DCACHE_SIZE
+	li	t9, CONFIG_SYS_CACHELINE_SIZE
 #else
-	/* Detect D-cache size. */
-	srl	t6, t5, MIPS_CONF1_DS_SHIFT
-	andi	t6, t6, (MIPS_CONF1_DS >> MIPS_CONF1_DS_SHIFT)
-	li	t4, 32
-	xori	t3, t6, 0x7
-	beqz	t3, 1f
-	addi	t6, t6, 1
-	sllv	t4, t4, t6
-1:	/* At this point t4 == I-cache sets. */
-	mul	t3, t4, t7
-	srl	t6, t5, MIPS_CONF1_DA_SHIFT
-	andi	t6, t6, (MIPS_CONF1_DA >> MIPS_CONF1_DA_SHIFT)
-	addi	t6, t6, 1
-	/* At this point t6 == I-cache ways. */
-	mul	t3, t3, t6
+	l1_info	t3, t9, MIPS_CONF1_DA_SHIFT
 #endif
+
+#ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 
 	/* Determine the largest L1 cache size */
 #if defined(CONFIG_SYS_ICACHE_SIZE) && defined(CONFIG_SYS_DCACHE_SIZE)
@@ -205,33 +136,62 @@ NESTED(mips_cache_reset, 0, ra)
 	f_fill64	a0, -64, zero
 	bne		a0, a1, 2b
 
-	/*
-	 * The caches are probably in an indeterminate state,
-	 * so we force good parity into them by doing an
-	 * invalidate, load/fill, invalidate for each line.
-	 */
+#endif /* CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD */
 
 	/*
-	 * Assume bottom of RAM will generate good parity for the cache.
+	 * The TagLo registers used depend upon the CPU implementation, but the
+	 * architecture requires that it is safe for software to write to both
+	 * TagLo selects 0 & 2 covering supported cases.
+	 */
+	mtc0		zero, CP0_TAGLO
+	mtc0		zero, CP0_TAGLO, 2
+
+	/*
+	 * The caches are probably in an indeterminate state, so we force good
+	 * parity into them by doing an invalidate for each line. If
+	 * CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD is set then we'll proceed to
+	 * perform a load/fill & a further invalidate for each line, assuming
+	 * that the bottom of RAM (having just been cleared) will generate good
+	 * parity for the cache.
 	 */
 
 	/*
 	 * Initialize the I-cache first,
 	 */
-	move	a1, t2
-	move	a2, t8
-	PTR_LA	v1, mips_init_icache
-	jalr	v1
+	blez		t2, 1f
+	PTR_LI		t0, INDEX_BASE
+	PTR_ADDU	t1, t0, t2
+	/* clear tag to invalidate */
+	cache_loop	t0, t1, t8, INDEX_STORE_TAG_I
+#ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
+	/* fill once, so data field parity is correct */
+	PTR_LI		t0, INDEX_BASE
+	cache_loop	t0, t1, t8, FILL
+	/* invalidate again - prudent but not strictly neccessary */
+	PTR_LI		t0, INDEX_BASE
+	cache_loop	t0, t1, t8, INDEX_STORE_TAG_I
+#endif
 
 	/*
 	 * then initialize D-cache.
 	 */
-	move	a1, t3
-	move	a2, t7
-	PTR_LA	v1, mips_init_dcache
-	jalr	v1
+1:	blez		t3, 3f
+	PTR_LI		t0, INDEX_BASE
+	PTR_ADDU	t1, t0, t3
+	/* clear all tags */
+	cache_loop	t0, t1, t9, INDEX_STORE_TAG_D
+#ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
+	/* load from each line (in cached space) */
+	PTR_LI		t0, INDEX_BASE
+2:	LONG_L		zero, 0(t0)
+	PTR_ADDU	t0, t9
+	bne		t0, t1, 2b
+	/* clear all tags */
+	PTR_LI		t0, INDEX_BASE
+	cache_loop	t0, t1, t9, INDEX_STORE_TAG_D
+#endif
 
-	jr	RA
+3:	jr	ra
 	END(mips_cache_reset)
 
 /*
