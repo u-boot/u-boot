@@ -12,6 +12,8 @@
 #include <miiphy.h>
 #include <asm/arch/orion5x.h>
 #include "../common/common.h"
+#include <spl.h>
+#include <ns16550.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -83,3 +85,21 @@ void reset_phy(void)
 	mv_phy_88e1116_init("egiga0", 8);
 }
 #endif /* CONFIG_RESET_PHY_R */
+
+/*
+ * SPL serial setup and NOR boot device selection
+ */
+
+#ifdef CONFIG_SPL_BUILD
+
+void spl_board_init(void)
+{
+	preloader_console_init();
+}
+
+u32 spl_boot_device(void)
+{
+	return BOOT_DEVICE_NOR;
+}
+
+#endif /* CONFIG_SPL_BUILD */
