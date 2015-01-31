@@ -55,6 +55,38 @@ config DRAM_EMR1
 	default 4 if MACH_SUN5I || MACH_SUN7I
 	---help---
 	Set the dram controller emr1 value.
+
+choice
+	prompt "sunxi dram timings"
+	default DRAM_TIMINGS_VENDOR_MAGIC
+	---help---
+	Select the timings of the DDR3 chips.
+
+config DRAM_TIMINGS_VENDOR_MAGIC
+	bool "Magic vendor timings from Android"
+	---help---
+	The same DRAM timings as in the Allwinner boot0 bootloader.
+
+config DRAM_TIMINGS_DDR3_1066F_1333H
+	bool "JEDEC DDR3-1333H with down binning to DDR3-1066F"
+	---help---
+	Use the timings of the standard JEDEC DDR3-1066F speed bin for
+	DRAM_CLK <= 533MHz and the timings of the DDR3-1333H speed bin
+	for DRAM_CLK > 533MHz. This covers the majority of DDR3 chips
+	used in Allwinner A10/A13/A20 devices. In the case of DDR3-1333
+	or DDR3-1600 chips, be sure to check the DRAM datasheet to confirm
+	that down binning to DDR3-1066F is supported (because DDR3-1066F
+	uses a bit faster timings than DDR3-1333H).
+
+config DRAM_TIMINGS_DDR3_800E_1066G_1333J
+	bool "JEDEC DDR3-800E / DDR3-1066G / DDR3-1333J"
+	---help---
+	Use the timings of the slowest possible JEDEC speed bin for the
+	selected DRAM_CLK. Depending on the DRAM_CLK value, it may be
+	DDR3-800E, DDR3-1066G or DDR3-1333J.
+
+endchoice
+
 endif
 
 config SYS_CONFIG_NAME
