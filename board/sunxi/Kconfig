@@ -41,6 +41,15 @@ config DRAM_CLK
 	Set the dram clock speed, valid range 240 - 480, must be a multiple
 	of 24.
 
+if MACH_SUN5I || MACH_SUN7I
+config DRAM_MBUS_CLK
+	int "sunxi mbus clock speed"
+	default 300
+	---help---
+	Set the mbus clock speed. The maximum on sun5i hardware is 300MHz.
+
+endif
+
 config DRAM_ZQ
 	int "sunxi dram zq value"
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
@@ -55,6 +64,40 @@ config DRAM_EMR1
 	default 4 if MACH_SUN5I || MACH_SUN7I
 	---help---
 	Set the dram controller emr1 value.
+
+config DRAM_ODT_EN
+	int "sunxi dram odt_en value"
+	default 0
+	---help---
+	Set the dram controller odt_en parameter. This can be used to
+	enable/disable the ODT feature.
+
+config DRAM_TPR3
+	hex "sunxi dram tpr3 value"
+	default 0
+	---help---
+	Set the dram controller tpr3 parameter. This parameter configures
+	the delay on the command lane and also phase shifts, which are
+	applied for sampling incoming read data. The default value 0
+	means that no phase/delay adjustments are necessary. Properly
+	configuring this parameter increases reliability at high DRAM
+	clock speeds.
+
+config DRAM_DQS_GATING_DELAY
+	hex "sunxi dram dqs_gating_delay value"
+	default 0
+	---help---
+	Set the dram controller dqs_gating_delay parmeter. Each byte
+	encodes the DQS gating delay for each byte lane. The delay
+	granularity is 1/4 cycle. For example, the value 0x05060606
+	means that the delay is 5 quarter-cycles for one lane (1.25
+	cycles) and 6 quarter-cycles (1.5 cycles) for 3 other lanes.
+	The default value 0 means autodetection. The results of hardware
+	autodetection are not very reliable and depend on the chip
+	temperature (sometimes producing different results on cold start
+	and warm reboot). But the accuracy of hardware autodetection
+	is usually good enough, unless running at really high DRAM
+	clocks speeds (up to 600MHz). If unsure, keep as 0.
 
 choice
 	prompt "sunxi dram timings"

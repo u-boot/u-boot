@@ -9,7 +9,7 @@ static struct dram_para dram_para = {
 	.io_width = 0,
 	.bus_width = 0,
 	.zq = CONFIG_DRAM_ZQ,
-	.odt_en = 0,
+	.odt_en = CONFIG_DRAM_ODT_EN,
 	.size = 0,
 #ifdef CONFIG_DRAM_TIMINGS_VENDOR_MAGIC
 	.cas = 6,
@@ -19,12 +19,14 @@ static struct dram_para dram_para = {
 	.emr2 = 0,
 #else
 #	include "dram_timings_sun4i.h"
+	.active_windowing = 1,
 #endif
-	.tpr3 = 0,
+	.tpr3 = CONFIG_DRAM_TPR3,
 	.tpr4 = 0,
 	.tpr5 = 0,
 	.emr1 = CONFIG_DRAM_EMR1,
 	.emr3 = 0,
+	.dqs_gating_delay = CONFIG_DRAM_DQS_GATING_DELAY,
 };
 
 unsigned long sunxi_dram_init(void)
