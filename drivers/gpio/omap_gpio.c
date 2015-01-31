@@ -291,7 +291,7 @@ static int omap_gpio_get_function(struct udevice *dev, unsigned offset)
 	struct gpio_bank *bank = dev_get_priv(dev);
 
 	/* GPIOF_FUNC is not implemented yet */
-	if (_get_gpio_direction(bank->base, offset) == OMAP_GPIO_DIR_OUT)
+	if (_get_gpio_direction(bank, offset) == OMAP_GPIO_DIR_OUT)
 		return GPIOF_OUTPUT;
 	else
 		return GPIOF_INPUT;
