@@ -236,8 +236,10 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 
 	start = get_timer(0);
 	while (readl(&dma_p->busmode) & DMAMAC_SRST) {
-		if (get_timer(start) >= CONFIG_MACRESET_TIMEOUT)
+		if (get_timer(start) >= CONFIG_MACRESET_TIMEOUT) {
+			printf("DMA reset timeout\n");
 			return -1;
+		}
 
 		mdelay(100);
 	};

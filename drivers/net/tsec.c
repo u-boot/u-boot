@@ -597,6 +597,8 @@ static int init_phy(struct eth_device *dev)
 		tsec_configure_serdes(priv);
 
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, priv->interface);
+	if (!phydev)
+		return 0;
 
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
