@@ -6,6 +6,7 @@
 #include <common.h>
 #include <os.h>
 #include <cli.h>
+#include <malloc.h>
 #include <asm/getopt.h>
 #include <asm/io.h>
 #include <asm/sections.h>
@@ -101,6 +102,25 @@ static int sandbox_cmdline_cb_fdt(struct sandbox_state *state, const char *arg)
 	return 0;
 }
 SANDBOX_CMDLINE_OPT_SHORT(fdt, 'd', 1, "Specify U-Boot's control FDT");
+
+static int sandbox_cmdline_cb_default_fdt(struct sandbox_state *state,
+					  const char *arg)
+{
+	const char *fmt = "%s.dtb";
+	char *fname;
+	int len;
+
+	len = strlen(state->argv[0]) + strlen(fmt) + 1;
+	fname = os_malloc(len);
+	if (!fname)
+		return -ENOMEM;
+	snprintf(fname, len, fmt, state->argv[0]);
+	state->fdt_fname = fname;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(default_fdt, 'D', 0,
+		"Use the default u-boot.dtb control FDT in U-Boot directory");
 
 static int sandbox_cmdline_cb_interactive(struct sandbox_state *state,
 					  const char *arg)

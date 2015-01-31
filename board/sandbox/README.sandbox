@@ -18,8 +18,8 @@ create unit tests which we can run to test this upper level code.
 
 CONFIG_SANDBOX is defined when building a native board.
 
-The chosen vendor and board names are also 'sandbox', so there is a single
-board in board/sandbox.
+The board name is 'sandbox' but the vendor name is unset, so there is a
+single board in board/sandbox.
 
 CONFIG_SANDBOX_BIG_ENDIAN should be defined when running on big-endian
 machines.

@@ -74,10 +74,8 @@
 
 	cros-ec-keyb {
 		compatible = "google,cros-ec-keyb";
-		google,key-rows = <8>;
-		google,key-columns = <13>;
-		google,repeat-delay-ms = <240>;
-		google,repeat-rate-ms = <30>;
+		keypad,num-rows = <8>;
+		keypad,num-columns = <13>;
 		google,ghost-filter;
 		/*
 		 * Keymap entries take the form of 0xRRCCKKKK where
