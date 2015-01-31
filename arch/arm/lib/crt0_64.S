@@ -62,9 +62,18 @@ ENTRY(_main)
  * Set up initial C runtime environment and call board_init_f(0).
  */
 	ldr	x0, =(CONFIG_SYS_INIT_SP_ADDR)
-	sub	x0, x0, #GD_SIZE	/* allocate one GD above SP */
+	sub	x18, x0, #GD_SIZE	/* allocate one GD above SP */
+	bic	x18, x18, #0x7		/* 8-byte alignment for GD */
+zero_gd:
+	sub	x0, x0, #0x8
+	str	xzr, [x0]
+	cmp	x0, x18
+	b.gt	zero_gd
+#if defined(CONFIG_SYS_MALLOC_F_LEN)
+	sub	x0, x18, #CONFIG_SYS_MALLOC_F_LEN
+	str	x0, [x18, #GD_MALLOC_BASE]
+#endif
 	bic	sp, x0, #0xf	/* 16-byte alignment for ABI compliance */
-	mov	x18, sp			/* GD is above SP */
 	mov	x0, #0
 	bl	board_init_f
 
