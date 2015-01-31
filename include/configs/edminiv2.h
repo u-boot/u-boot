@@ -12,6 +12,10 @@
 #ifndef _CONFIG_EDMINIV2_H
 #define _CONFIG_EDMINIV2_H
 
+/* general settings */
+#define CONFIG_SYS_TEXT_BASE 0xfff90000
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * Version number information
  */
