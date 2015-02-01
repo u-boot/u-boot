@@ -114,13 +114,9 @@
 
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_FLASH_CFI_LEGACY
 #define CONFIG_SYS_MAX_FLASH_BANKS	1  /* max num of flash banks       */
 #define CONFIG_SYS_MAX_FLASH_SECT	11 /* max num of sects on one chip */
 #define CONFIG_SYS_FLASH_BASE		0xfff80000
-#define CONFIG_SYS_FLASH_SECTSZ \
-	{16384, 8192, 8192, 32768, \
-	 65536, 65536, 65536, 65536, 65536, 65536, 65536}
 
 /* auto boot */
 #define CONFIG_BOOTDELAY	3	/* default enable autoboot */
