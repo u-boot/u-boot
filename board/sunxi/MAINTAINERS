@@ -81,6 +81,11 @@ M:	Zoltan Herpai <wigyori@uid0.hu>
 S:	Maintained
 F:	configs/Linksprite_pcDuino_defconfig
 
+LINKSPRITE-PCDUINO3-NANO BOARD
+M:	Adam Sampson <ats@offog.org>
+S:	Maintained
+F:	configs/Linksprite_pcDuino3_Nano_defconfig
+
 MARSBOARD-A10 BOARD
 M:	Aleksei Mamlin <mamlinav@gmail.com>
 S:	Maintained
