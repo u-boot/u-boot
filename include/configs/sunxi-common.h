@@ -210,10 +210,10 @@
 
 #ifdef CONFIG_VIDEO
 /*
- * The amount of RAM that is reserved for the FB. This will not show up as
- * RAM to the kernel, but will be reclaimed by a KMS driver in future.
+ * The amount of RAM to keep free at the top of RAM when relocating u-boot,
+ * to use as framebuffer. This must be a multiple of 4096.
  */
-#define CONFIG_SUNXI_FB_SIZE (9 << 20)
+#define CONFIG_SUNXI_MAX_FB_SIZE (9 << 20)
 
 /* Do we want to initialize a simple FB? */
 #define CONFIG_VIDEO_DT_SIMPLEFB
@@ -230,8 +230,6 @@
 #define CONFIG_CONSOLE_MUX
 /* stop x86 thinking in cfbconsole from trying to init a pc keyboard */
 #define CONFIG_VGA_AS_SINGLE_DEVICE
-
-#define CONFIG_SYS_MEM_TOP_HIDE ((CONFIG_SUNXI_FB_SIZE + 0xFFF) & ~0xFFF)
 
 /* To be able to hook simplefb into dt */
 #ifdef CONFIG_VIDEO_DT_SIMPLEFB
