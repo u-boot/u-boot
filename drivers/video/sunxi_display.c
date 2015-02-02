@@ -46,6 +46,7 @@ struct sunxi_display {
 	GraphicDevice graphic_device;
 	enum sunxi_monitor monitor;
 	unsigned int depth;
+	unsigned int fb_size;
 } sunxi_display;
 
 #ifdef CONFIG_VIDEO_HDMI
@@ -1080,10 +1081,6 @@ void *video_hw_init(void)
 
 	memset(&sunxi_display, 0, sizeof(struct sunxi_display));
 
-	printf("Reserved %dkB of RAM for Framebuffer.\n",
-	       CONFIG_SUNXI_MAX_FB_SIZE >> 10);
-	gd->fb_base = gd->ram_top;
-
 	video_get_ctfb_res_modes(RES_MODE_1024x768, 24, &mode,
 				 &sunxi_display.depth, &options);
 #ifdef CONFIG_VIDEO_HDMI
@@ -1174,6 +1171,17 @@ void *video_hw_init(void)
 		       mode->yres, sunxi_get_mon_desc(sunxi_display.monitor));
 	}
 
+	sunxi_display.fb_size =
+		(mode->xres * mode->yres * 4 + 0xfff) & ~0xfff;
+	if (sunxi_display.fb_size > CONFIG_SUNXI_MAX_FB_SIZE) {
+		printf("Error need %dkB for fb, but only %dkB is reserved\n",
+		       sunxi_display.fb_size >> 10,
+		       CONFIG_SUNXI_MAX_FB_SIZE >> 10);
+		return NULL;
+	}
+
+	gd->fb_base = gd->bd->bi_dram[0].start +
+		      gd->bd->bi_dram[0].size - sunxi_display.fb_size;
 	sunxi_engines_init();
 	sunxi_mode_set(mode, gd->fb_base - CONFIG_SYS_SDRAM_BASE);
 
@@ -1250,7 +1258,7 @@ int sunxi_simplefb_setup(void *blob)
 	 * linux/arch/arm/mm/ioremap.c around line 301.
 	 */
 	start = gd->bd->bi_dram[0].start;
-	size = gd->bd->bi_dram[0].size - CONFIG_SUNXI_MAX_FB_SIZE;
+	size = gd->bd->bi_dram[0].size - sunxi_display.fb_size;
 	ret = fdt_fixup_memory_banks(blob, &start, &size, 1);
 	if (ret) {
 		eprintf("Cannot setup simplefb: Error reserving memory\n");
