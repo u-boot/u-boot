@@ -5,6 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <status_led.h>
 #include <dm.h>
 #include <ns16550.h>
 #include <twl4030.h>
@@ -53,21 +54,12 @@ int board_init(void)
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
 
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
+#endif
+
 	return 0;
 }
-
-#if defined(CONFIG_SHOW_BOOT_PROGRESS) && !defined(CONFIG_SPL_BUILD)
-void show_boot_progress(int val)
-{
-	if (val < 0) {
-		/* something went wrong */
-		return;
-	}
-
-	if (!gpio_request(IGEP00X0_GPIO_LED, ""))
-		gpio_direction_output(IGEP00X0_GPIO_LED, 1);
-}
-#endif
 
 #ifdef CONFIG_SPL_BUILD
 /*

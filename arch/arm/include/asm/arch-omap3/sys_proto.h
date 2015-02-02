@@ -23,6 +23,7 @@ struct emu_hal_params {
 
 /* Board SDRC timing values */
 struct board_sdrc_timings {
+	u32 sharing;
 	u32 mcfg;
 	u32 ctrla;
 	u32 ctrlb;

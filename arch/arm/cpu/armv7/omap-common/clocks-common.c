@@ -437,12 +437,15 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 {
 	u32 offset_code;
 	u32 offset = volt_mv;
+#ifndef	CONFIG_DRA7XX
 	int ret = 0;
+#endif
 
 	if (!volt_mv)
 		return;
 
 	pmic->pmic_bus_init();
+#ifndef	CONFIG_DRA7XX
 	/* See if we can first get the GPIO if needed */
 	if (pmic->gpio_en)
 		ret = gpio_request(pmic->gpio, "PMIC_GPIO");
@@ -456,7 +459,7 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 	/* Pull the GPIO low to select SET0 register, while we program SET1 */
 	if (pmic->gpio_en)
 		gpio_direction_output(pmic->gpio, 0);
-
+#endif
 	/* convert to uV for better accuracy in the calculations */
 	offset *= 1000;
 
@@ -467,9 +470,10 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 
 	if (pmic->pmic_write(pmic->i2c_slave_addr, vcore_reg, offset_code))
 		printf("Scaling voltage failed for 0x%x\n", vcore_reg);
-
+#ifndef	CONFIG_DRA7XX
 	if (pmic->gpio_en)
 		gpio_direction_output(pmic->gpio, 1);
+#endif
 }
 
 static u32 optimize_vcore_voltage(struct volts const *v)
@@ -505,13 +509,79 @@ static u32 optimize_vcore_voltage(struct volts const *v)
 }
 
 /*
- * Setup the voltages for vdd_mpu, vdd_core, and vdd_iva
- * We set the maximum voltages allowed here because Smart-Reflex is not
- * enabled in bootloader. Voltage initialization in the kernel will set
- * these to the nominal values after enabling Smart-Reflex
+ * Setup the voltages for the main SoC core power domains.
+ * We start with the maximum voltages allowed here, as set in the corresponding
+ * vcores_data struct, and then scale (usually down) to the fused values that
+ * are retrieved from the SoC. The scaling happens only if the efuse.reg fields
+ * are initialised.
+ * Rail grouping is supported for the DRA7xx SoCs only, therefore the code is
+ * compiled conditionally. Note that the new code writes the scaled (or zeroed)
+ * values back to the vcores_data struct for eventual reuse. Zero values mean
+ * that the corresponding rails are not controlled separately, and are not sent
+ * to the PMIC.
  */
 void scale_vcores(struct vcores_data const *vcores)
 {
+#if defined(CONFIG_DRA7XX)
+	int i;
+	struct volts *pv = (struct volts *)vcores;
+	struct volts *px;
+
+	for (i=0; i<(sizeof(struct vcores_data)/sizeof(struct volts)); i++) {
+		debug("%d -> ", pv->value);
+		if (pv->value) {
+			/* Handle non-empty members only */
+			pv->value = optimize_vcore_voltage(pv);
+     			px = (struct volts *)vcores;
+			while (px < pv) {
+				/*
+				 * Scan already handled non-empty members to see
+				 * if we have a group and find the max voltage,
+				 * which is set to the first occurance of the
+				 * particular SMPS; the other group voltages are
+				 * zeroed.
+				 */
+				if (px->value) {
+					if ((pv->pmic->i2c_slave_addr ==
+					     px->pmic->i2c_slave_addr) &&
+					    (pv->addr == px->addr)) {
+					    	/* Same PMIC, same SMPS */
+						if (pv->value > px->value)
+							px->value = pv->value;
+
+						pv->value = 0;
+					}
+		     		}
+				px++;
+			}
+		}
+	     	debug("%d\n", pv->value);
+		pv++;
+	}
+
+	debug("cor: %d\n", vcores->core.value);
+	do_scale_vcore(vcores->core.addr, vcores->core.value, vcores->core.pmic);
+	debug("mpu: %d\n", vcores->mpu.value);
+	do_scale_vcore(vcores->mpu.addr, vcores->mpu.value, vcores->mpu.pmic);
+	/* Configure MPU ABB LDO after scale */
+	abb_setup((*ctrl)->control_std_fuse_opp_vdd_mpu_2,
+		  (*ctrl)->control_wkup_ldovbb_mpu_voltage_ctrl,
+		  (*prcm)->prm_abbldo_mpu_setup,
+		  (*prcm)->prm_abbldo_mpu_ctrl,
+		  (*prcm)->prm_irqstatus_mpu_2,
+		  OMAP_ABB_MPU_TXDONE_MASK,
+		  OMAP_ABB_FAST_OPP);
+
+	/* The .mm member is not used for the DRA7xx */
+
+	debug("gpu: %d\n", vcores->gpu.value);
+	do_scale_vcore(vcores->gpu.addr, vcores->gpu.value, vcores->gpu.pmic);
+	debug("eve: %d\n", vcores->eve.value);
+	do_scale_vcore(vcores->eve.addr, vcores->eve.value, vcores->eve.pmic);
+	debug("iva: %d\n", vcores->iva.value);
+	do_scale_vcore(vcores->iva.addr, vcores->iva.value, vcores->iva.pmic);
+	/* Might need udelay(1000) here if debug is enabled to see all prints */
+#else
 	u32 val;
 
 	val = optimize_vcore_voltage(&vcores->core);
@@ -540,6 +610,7 @@ void scale_vcores(struct vcores_data const *vcores)
 
 	val = optimize_vcore_voltage(&vcores->iva);
 	do_scale_vcore(vcores->iva.addr, val, vcores->iva.pmic);
+#endif
 }
 
 static inline void enable_clock_domain(u32 const clkctrl_reg, u32 enable_mode)
