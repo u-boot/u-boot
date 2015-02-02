@@ -52,6 +52,19 @@ config TARGET_MINNOWMAX
 	  Note that PCIE_ECAM_BASE is set up by the FSP so the value used
 	  by U-Boot matches that value.
 
+config TARGET_GALILEO
+	bool "Support Intel Galileo"
+	help
+	  This is the Intel Galileo board, which is the first in a family of
+	  Arduino-certified development and prototyping boards based on Intel
+	  architecture. It includes an Intel Quark SoC X1000 processor, a 32-bit
+	  single-core, single-thread, Intel Pentium processor instrunction set
+	  architecture (ISA) compatible, operating at speeds up to 400Mhz,
+	  along with 256MB DDR3 memory. It supports a wide range of industry
+	  standard I/O interfaces, including a full-sized mini-PCIe slot,
+	  one 100Mb Ethernet port, a microSD card slot, a USB host port and
+	  a USB client port.
+
 endchoice
 
 config RAMBASE
@@ -399,6 +412,8 @@ source "arch/x86/cpu/coreboot/Kconfig"
 
 source "arch/x86/cpu/ivybridge/Kconfig"
 
+source "arch/x86/cpu/quark/Kconfig"
+
 source "arch/x86/cpu/queensbay/Kconfig"
 
 source "board/coreboot/coreboot/Kconfig"
@@ -408,6 +423,8 @@ source "board/google/chromebook_link/Kconfig"
 source "board/intel/crownbay/Kconfig"
 
 source "board/intel/minnowmax/Kconfig"
+
+source "board/intel/galileo/Kconfig"
 
 config PCIE_ECAM_BASE
 	hex
