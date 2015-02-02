@@ -1,0 +1,11 @@
+if TEGRA210
+
+choice
+	prompt "Tegra210 board select"
+
+endchoice
+
+config SYS_SOC
+	default "tegra210"
+
+endif
