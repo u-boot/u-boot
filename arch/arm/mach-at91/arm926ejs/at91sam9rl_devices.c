@@ -101,3 +101,20 @@ void at91_spi0_hw_init(unsigned long cs_mask)
 	}
 }
 #endif
+
+#ifdef CONFIG_GENERIC_ATMEL_MCI
+void at91_mci_hw_init(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+
+	at91_set_a_periph(AT91_PIO_PORTA, 2, 0);        /* MCI CLK */
+	at91_set_a_periph(AT91_PIO_PORTA, 1, 0);        /* MCI CDA */
+	at91_set_a_periph(AT91_PIO_PORTA, 0, 0);        /* MCI DA0 */
+	at91_set_a_periph(AT91_PIO_PORTA, 3, 0);        /* MCI DA1 */
+	at91_set_a_periph(AT91_PIO_PORTA, 4, 0);        /* MCI DA2 */
+	at91_set_a_periph(AT91_PIO_PORTA, 5, 0);        /* MCI DA3 */
+
+	/* Enable clock */
+	writel(1 << ATMEL_ID_MCI, &pmc->pcer);
+}
+#endif

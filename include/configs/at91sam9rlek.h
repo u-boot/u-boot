@@ -124,6 +124,17 @@
 
 #endif
 
+/* MMC */
+#define CONFIG_CMD_MMC
+
+#ifdef CONFIG_CMD_MMC
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_GENERIC_ATMEL_MCI
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
+
 /* Ethernet - not present */
 
 /* USB - not supported */
