@@ -428,7 +428,7 @@ source "board/intel/galileo/Kconfig"
 
 config PCIE_ECAM_BASE
 	hex
-    default 0xe0000000
+	default 0xe0000000
 	help
 	  This is the memory-mapped address of PCI configuration space, which
 	  is only available through the Enhanced Configuration Access
