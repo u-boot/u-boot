@@ -215,7 +215,7 @@ static int mmc_config_clock(struct mmc *mmc)
 	return 0;
 }
 
-static void mmc_set_ios(struct mmc *mmc)
+static void sunxi_mmc_set_ios(struct mmc *mmc)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
 
@@ -237,7 +237,7 @@ static void mmc_set_ios(struct mmc *mmc)
 		writel(0x0, &mmchost->reg->width);
 }
 
-static int mmc_core_init(struct mmc *mmc)
+static int sunxi_mmc_core_init(struct mmc *mmc)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
 
@@ -298,8 +298,8 @@ static int mmc_rint_wait(struct mmc *mmc, unsigned int timeout_msecs,
 	return 0;
 }
 
-static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			struct mmc_data *data)
+static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+			      struct mmc_data *data)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
 	unsigned int cmdval = SUNXI_MMC_CMD_START;
@@ -432,9 +432,9 @@ static int sunxi_mmc_getcd(struct mmc *mmc)
 }
 
 static const struct mmc_ops sunxi_mmc_ops = {
-	.send_cmd	= mmc_send_cmd,
-	.set_ios	= mmc_set_ios,
-	.init		= mmc_core_init,
+	.send_cmd	= sunxi_mmc_send_cmd,
+	.set_ios	= sunxi_mmc_set_ios,
+	.init		= sunxi_mmc_core_init,
 	.getcd		= sunxi_mmc_getcd,
 };
 
