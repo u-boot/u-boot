@@ -91,6 +91,10 @@ config TARGET_TWISTER
 	bool "Twister"
 	select SUPPORT_SPL
 
+config TARGET_OMAP3_CAIRO
+	bool "QUIPOS CAIRO"
+	select SUPPORT_SPL
+
 endchoice
 
 config DM
@@ -133,5 +137,6 @@ source "board/matrix_vision/mvblx/Kconfig"
 source "board/nokia/rx51/Kconfig"
 source "board/technexion/tao3530/Kconfig"
 source "board/technexion/twister/Kconfig"
+source "board/quipos/cairo/Kconfig"
 
 endif
