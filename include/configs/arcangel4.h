@@ -15,7 +15,6 @@
 /*
  * Board configuration
  */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is in RAM already */
 
 #define CONFIG_ARCH_EARLY_INIT_R

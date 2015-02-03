@@ -17,7 +17,6 @@
 /*
  * Board configuration
  */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_ARCH_EARLY_INIT_R
 
 /*
