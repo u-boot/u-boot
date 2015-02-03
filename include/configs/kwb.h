@@ -88,10 +88,17 @@
 #define CONFIG_BOOTDELAY		1 /* TODO: für release auf 0 setzen */
 
 /* undefine command which we not need here */
-#undef	CONFIG_BOOTM_LINUX
 #undef	CONFIG_BOOTM_NETBSD
 #undef	CONFIG_BOOTM_PLAN9
 #undef	CONFIG_BOOTM_RTEMS
+#undef CONFIG_CMD_CRC32
+
+/* Support both device trees and ATAGs. */
+#define CONFIG_OF_LIBFDT
+#define CONFIG_CMDLINE_TAG
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
+#define CONFIG_CMD_BOOTZ
 
 /* USB configuration */
 #define CONFIG_USB_MUSB_DSPS
