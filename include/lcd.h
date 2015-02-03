@@ -13,21 +13,19 @@
 #ifndef _LCD_H_
 #define _LCD_H_
 #include <lcd_console.h>
+#if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
+#include <bmp_layout.h>
+#include <asm/byteorder.h>
+#endif
 
 extern char lcd_is_enabled;
-
 extern int lcd_line_length;
-
 extern struct vidinfo panel_info;
 
 void lcd_ctrl_init(void *lcdbase);
 void lcd_enable(void);
-
-/* setcolreg used in 8bpp/16bpp; initcolregs used in monochrome */
 void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue);
-void lcd_initcolregs(void);
 
-/* gunzip_bmp used if CONFIG_VIDEO_BMP_GZIP */
 struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
 			     void **alloc_addr);
 int bmp_display(ulong addr, int x, int y);
@@ -53,11 +51,8 @@ void lcd_set_flush_dcache(int flush);
 typedef struct vidinfo {
 	ushort	vl_col;		/* Number of columns (i.e. 160) */
 	ushort	vl_row;		/* Number of rows (i.e. 100) */
-
 	u_char	vl_bpix;	/* Bits per pixel, 0 = 1 */
-
 	ushort	*cmap;		/* Pointer to the colormap */
-
 	void	*priv;		/* Pointer to driver-specific data */
 } vidinfo_t;
 
@@ -71,13 +66,11 @@ ushort *configuration_get_cmap(void);
 
 extern vidinfo_t panel_info;
 
-/* Video functions */
-
-void	lcd_putc(const char c);
-void	lcd_puts(const char *s);
-void	lcd_printf(const char *fmt, ...);
-void	lcd_clear(void);
-int	lcd_display_bitmap(ulong bmp_image, int x, int y);
+void lcd_putc(const char c);
+void lcd_puts(const char *s);
+void lcd_printf(const char *fmt, ...);
+void lcd_clear(void);
+int lcd_display_bitmap(ulong bmp_image, int x, int y);
 
 /**
  * Get the width of the LCD in pixels
@@ -141,14 +134,6 @@ int lcd_dt_simplefb_enable_existing_node(void *blob);
 /* Update the LCD / flush the cache */
 void lcd_sync(void);
 
-/************************************************************************/
-/* ** BITMAP DISPLAY SUPPORT						*/
-/************************************************************************/
-#if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
-# include <bmp_layout.h>
-# include <asm/byteorder.h>
-#endif
-
 /*
  *  Information about displays we are using. This is for configuring
  *  the LCD controller and memory allocation. Someone has to know what
@@ -163,38 +148,32 @@ void lcd_sync(void);
 #define LCD_COLOR8	3
 #define LCD_COLOR16	4
 #define LCD_COLOR32	5
-/*----------------------------------------------------------------------*/
+
 #if defined(CONFIG_LCD_INFO_BELOW_LOGO)
-# define LCD_INFO_X		0
-# define LCD_INFO_Y		(BMP_LOGO_HEIGHT + VIDEO_FONT_HEIGHT)
+#define LCD_INFO_X		0
+#define LCD_INFO_Y		(BMP_LOGO_HEIGHT + VIDEO_FONT_HEIGHT)
 #elif defined(CONFIG_LCD_LOGO)
-# define LCD_INFO_X		(BMP_LOGO_WIDTH + 4 * VIDEO_FONT_WIDTH)
-# define LCD_INFO_Y		VIDEO_FONT_HEIGHT
+#define LCD_INFO_X		(BMP_LOGO_WIDTH + 4 * VIDEO_FONT_WIDTH)
+#define LCD_INFO_Y		VIDEO_FONT_HEIGHT
 #else
-# define LCD_INFO_X		VIDEO_FONT_WIDTH
-# define LCD_INFO_Y		VIDEO_FONT_HEIGHT
+#define LCD_INFO_X		VIDEO_FONT_WIDTH
+#define LCD_INFO_Y		VIDEO_FONT_HEIGHT
 #endif
 
 /* Default to 8bpp if bit depth not specified */
 #ifndef LCD_BPP
-# define LCD_BPP			LCD_COLOR8
+#define LCD_BPP			LCD_COLOR8
 #endif
+
 #ifndef LCD_DF
-# define LCD_DF			1
+#define LCD_DF			1
 #endif
 
 /* Calculate nr. of bits per pixel  and nr. of colors */
 #define NBITS(bit_code)		(1 << (bit_code))
 #define NCOLORS(bit_code)	(1 << NBITS(bit_code))
 
-/************************************************************************/
-/* ** CONSOLE CONSTANTS							*/
-/************************************************************************/
 #if LCD_BPP == LCD_COLOR8
-
-/*
- * 8bpp color definitions
- */
 # define CONSOLE_COLOR_BLACK	0
 # define CONSOLE_COLOR_RED	1
 # define CONSOLE_COLOR_GREEN	2
@@ -203,38 +182,25 @@ void lcd_sync(void);
 # define CONSOLE_COLOR_MAGENTA	5
 # define CONSOLE_COLOR_CYAN	6
 # define CONSOLE_COLOR_GREY	14
-# define CONSOLE_COLOR_WHITE	15	/* Must remain last / highest	*/
-
+# define CONSOLE_COLOR_WHITE	15		/* Must remain last / highest */
 #elif LCD_BPP == LCD_COLOR32
-/*
- * 32bpp color definitions
- */
-# define CONSOLE_COLOR_RED	0x00ff0000
-# define CONSOLE_COLOR_GREEN	0x0000ff00
-# define CONSOLE_COLOR_YELLOW	0x00ffff00
-# define CONSOLE_COLOR_BLUE	0x000000ff
-# define CONSOLE_COLOR_MAGENTA	0x00ff00ff
-# define CONSOLE_COLOR_CYAN	0x0000ffff
-# define CONSOLE_COLOR_GREY	0x00aaaaaa
-# define CONSOLE_COLOR_BLACK	0x00000000
-# define CONSOLE_COLOR_WHITE	0x00ffffff	/* Must remain last / highest*/
-# define NBYTES(bit_code)	(NBITS(bit_code) >> 3)
-
-#else
-
-/*
- * 16bpp color definitions
- */
-# define CONSOLE_COLOR_BLACK	0x0000
-# define CONSOLE_COLOR_WHITE	0xffff	/* Must remain last / highest	*/
-
+#define CONSOLE_COLOR_RED	0x00ff0000
+#define CONSOLE_COLOR_GREEN	0x0000ff00
+#define CONSOLE_COLOR_YELLOW	0x00ffff00
+#define CONSOLE_COLOR_BLUE	0x000000ff
+#define CONSOLE_COLOR_MAGENTA	0x00ff00ff
+#define CONSOLE_COLOR_CYAN	0x0000ffff
+#define CONSOLE_COLOR_GREY	0x00aaaaaa
+#define CONSOLE_COLOR_BLACK	0x00000000
+#define CONSOLE_COLOR_WHITE	0x00ffffff	/* Must remain last / highest */
+#define NBYTES(bit_code)	(NBITS(bit_code) >> 3)
+#else /* 16bpp color definitions */
+#define CONSOLE_COLOR_BLACK	0x0000
+#define CONSOLE_COLOR_WHITE	0xffff		/* Must remain last / highest */
 #endif /* color definitions */
 
-/************************************************************************/
 #ifndef PAGE_SIZE
-# define PAGE_SIZE	4096
+#define PAGE_SIZE	4096
 #endif
-
-/************************************************************************/
 
 #endif	/* _LCD_H_ */

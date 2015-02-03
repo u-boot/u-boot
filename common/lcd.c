@@ -1,5 +1,5 @@
 /*
- * Common LCD routines for supported CPUs
+ * Common LCD routines
  *
  * (C) Copyright 2001-2002
  * Wolfgang Denk, DENX Software Engineering -- wd@denx.de
@@ -7,12 +7,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/************************************************************************/
-/* ** HEADER FILES							*/
-/************************************************************************/
-
 /* #define DEBUG */
-
 #include <config.h>
 #include <common.h>
 #include <command.h>
@@ -26,25 +21,18 @@
 #include <asm/io.h>
 #include <asm/unaligned.h>
 #include <fdt_support.h>
+#include <video_font.h>
 
 #if defined(CONFIG_LCD_DT_SIMPLEFB)
 #include <libfdt.h>
 #endif
 
-/************************************************************************/
-/* ** FONT DATA								*/
-/************************************************************************/
-#include <video_font.h>		/* Get font data, width and height	*/
-
-/************************************************************************/
-/* ** LOGO DATA								*/
-/************************************************************************/
 #ifdef CONFIG_LCD_LOGO
-# include <bmp_logo.h>		/* Get logo data, width and height	*/
-# include <bmp_logo_data.h>
-# if (CONSOLE_COLOR_WHITE >= BMP_LOGO_OFFSET) && (LCD_BPP != LCD_COLOR16)
-#  error Default Color Map overlaps with Logo Color Map
-# endif
+#include <bmp_logo.h>
+#include <bmp_logo_data.h>
+#if (CONSOLE_COLOR_WHITE >= BMP_LOGO_OFFSET) && (LCD_BPP != LCD_COLOR16)
+#error Default Color Map overlaps with Logo Color Map
+#endif
 #endif
 
 #ifdef CONFIG_SANDBOX
@@ -57,29 +45,22 @@
 
 #if (LCD_BPP != LCD_COLOR8) && (LCD_BPP != LCD_COLOR16) && \
 	(LCD_BPP != LCD_COLOR32)
-# error Unsupported LCD BPP.
+#error Unsupported LCD BPP.
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static int lcd_init(void *lcdbase);
-
 static void *lcd_logo(void);
-
 static void lcd_setfgcolor(int color);
 static void lcd_setbgcolor(int color);
 
 static int lcd_color_fg;
 static int lcd_color_bg;
 int lcd_line_length;
-
 char lcd_is_enabled = 0;
-
 static void *lcd_base;			/* Start of framebuffer memory	*/
-
 static char lcd_flush_dcache;	/* 1 to flush dcache after each lcd update */
-
-/************************************************************************/
 
 /* Flush LCD activity to the caches */
 void lcd_sync(void)
@@ -110,8 +91,6 @@ void lcd_set_flush_dcache(int flush)
 	lcd_flush_dcache = (flush != 0);
 }
 
-/*----------------------------------------------------------------------*/
-
 static void lcd_stub_putc(struct stdio_dev *dev, const char c)
 {
 	lcd_putc(c);
@@ -122,9 +101,7 @@ static void lcd_stub_puts(struct stdio_dev *dev, const char *s)
 	lcd_puts(s);
 }
 
-/************************************************************************/
-/**  Small utility to check that you got the colours right		*/
-/************************************************************************/
+/* Small utility to check that you got the colours right */
 #ifdef LCD_TEST_PATTERN
 
 #define	N_BLK_VERT	2
@@ -158,10 +135,6 @@ static void test_pattern(void)
 }
 #endif /* LCD_TEST_PATTERN */
 
-
-/************************************************************************/
-/* ** GENERIC Initialization Routines					*/
-/************************************************************************/
 /*
  * With most lcd drivers the line length is set up
  * by calculating it from panel_info parameters. Some
@@ -181,7 +154,7 @@ int drv_lcd_init(void)
 
 	lcd_base = map_sysmem(gd->fb_base, 0);
 
-	lcd_init(lcd_base);		/* LCD initialization */
+	lcd_init(lcd_base);
 
 	/* Device initialization */
 	memset(&lcddev, 0, sizeof(lcddev));
@@ -197,7 +170,6 @@ int drv_lcd_init(void)
 	return (rc == 0) ? 1 : rc;
 }
 
-/*----------------------------------------------------------------------*/
 void lcd_clear(void)
 {
 	short console_rows, console_cols;
@@ -261,20 +233,11 @@ static int do_lcd_clear(cmd_tbl_t *cmdtp, int flag, int argc,
 	lcd_clear();
 	return 0;
 }
-
-U_BOOT_CMD(
-	cls,	1,	1,	do_lcd_clear,
-	"clear screen",
-	""
-);
-
-/*----------------------------------------------------------------------*/
+U_BOOT_CMD(cls,	1, 1, do_lcd_clear, "clear screen", "");
 
 static int lcd_init(void *lcdbase)
 {
-	/* Initialize the lcd controller */
 	debug("[LCD] Initializing LCD frambuffer at %p\n", lcdbase);
-
 	lcd_ctrl_init(lcdbase);
 
 	/*
@@ -304,10 +267,6 @@ static int lcd_init(void *lcdbase)
 	return 0;
 }
 
-
-/************************************************************************/
-/* ** ROM capable initialization part - needed to reserve FB memory	*/
-/************************************************************************/
 /*
  * This is called early in the system initialization to grab memory
  * for the LCD controller.
@@ -338,8 +297,6 @@ ulong lcd_setmem(ulong addr)
 	return addr;
 }
 
-/*----------------------------------------------------------------------*/
-
 static void lcd_setfgcolor(int color)
 {
 	lcd_color_fg = color;
@@ -350,8 +307,6 @@ int lcd_getfgcolor(void)
 	return lcd_color_fg;
 }
 
-/*----------------------------------------------------------------------*/
-
 static void lcd_setbgcolor(int color)
 {
 	lcd_color_bg = color;
@@ -361,10 +316,6 @@ int lcd_getbgcolor(void)
 {
 	return lcd_color_bg;
 }
-
-/************************************************************************/
-/* ** Chipset depending Bitmap / Logo stuff...                          */
-/************************************************************************/
 
 #ifdef CONFIG_LCD_LOGO
 __weak void lcd_logo_set_cmap(void)
@@ -379,16 +330,13 @@ __weak void lcd_logo_set_cmap(void)
 void bitmap_plot(int x, int y)
 {
 	ushort i, j;
-	uchar *bmap;
-	uchar *fb;
-	ushort *fb16;
+	uchar *bmap = &bmp_logo_bitmap[0];
 	unsigned bpix = NBITS(panel_info.vl_bpix);
+	uchar *fb = (uchar *)(lcd_base + y * lcd_line_length + x * bpix / 8);
+	ushort *fb16;
 
 	debug("Logo: width %d  height %d  colors %d\n",
 	      BMP_LOGO_WIDTH, BMP_LOGO_HEIGHT, BMP_LOGO_COLORS);
-
-	bmap = &bmp_logo_bitmap[0];
-	fb   = (uchar *)(lcd_base + y * lcd_line_length + x * bpix / 8);
 
 	if (bpix < 12) {
 		WATCHDOG_RESET();
@@ -424,13 +372,7 @@ void bitmap_plot(int x, int y)
 static inline void bitmap_plot(int x, int y) {}
 #endif /* CONFIG_LCD_LOGO */
 
-/*----------------------------------------------------------------------*/
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
-/*
- * Display the BMP file located at address bmp_image.
- * Only uncompressed.
- */
-
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 #define BMP_ALIGN_CENTER	0x7FFF
 
@@ -451,9 +393,7 @@ static void splash_align_axis(int *axis, unsigned long panel_size,
 }
 #endif
 
-
 #ifdef CONFIG_LCD_BMP_RLE8
-
 #define BMP_RLE8_ESCAPE		0
 #define BMP_RLE8_EOL		0
 #define BMP_RLE8_EOBMP		1
@@ -683,7 +623,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		(y + height - 1) * lcd_line_length + x * bpix / 8);
 
 	switch (bmp_bpix) {
-	case 1: /* pass through */
+	case 1:
 	case 8: {
 		cmap_base = configuration_get_cmap();
 #ifdef CONFIG_LCD_BMP_RLE8
