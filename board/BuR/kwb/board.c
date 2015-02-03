@@ -169,10 +169,18 @@ int board_late_init(void)
 	const unsigned int toff = 1000;
 	unsigned int cnt  = 3;
 	unsigned short buf = 0xAAAA;
+	unsigned char scratchreg = 0;
 	unsigned int oldspeed;
 
-	tps65217_reg_write(TPS65217_PROT_LEVEL_NONE,
-			   TPS65217_WLEDCTRL2, 0x32, 0xFF); /* 50% dimlevel */
+	/* try to read out some boot-instruction from resetcontroller */
+	oldspeed = i2c_get_bus_speed();
+	if (i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC) >= 0) {
+		i2c_read(RSTCTRL_ADDR, RSTCTRL_SCRATCHREG, 1,
+			 &scratchreg, sizeof(scratchreg));
+		i2c_set_bus_speed(oldspeed);
+	} else {
+		puts("ERROR: i2c_set_bus_speed failed! (scratchregister)\n");
+	}
 
 	if (gpio_get_value(ESC_KEY)) {
 		do {
@@ -223,6 +231,24 @@ int board_late_init(void)
 				break;
 			}
 		} while (cnt);
+	} else if (scratchreg == 0xCC) {
+		lcd_position_cursor(1, 8);
+		lcd_puts(
+		"starting vxworks from network ...      ");
+		setenv("bootcmd", "run netboot");
+		cnt = 4;
+	} else if (scratchreg == 0xCD) {
+		lcd_position_cursor(1, 8);
+		lcd_puts(
+		"starting script from network ...      ");
+		setenv("bootcmd", "run netscript");
+		cnt = 4;
+	} else if (scratchreg == 0xCE) {
+		lcd_position_cursor(1, 8);
+		lcd_puts(
+		"starting AR from eMMC ...             ");
+		setenv("bootcmd", "run mmcboot");
+		cnt = 4;
 	}
 
 	lcd_position_cursor(1, 8);
