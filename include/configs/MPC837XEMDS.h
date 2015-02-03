@@ -283,7 +283,6 @@
  * NAND Flash on the Local Bus
  */
 #define CONFIG_CMD_NAND		1
-#define CONFIG_MTD_NAND_VERIFY_WRITE	1
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_NAND_FSL_ELBC	1
 

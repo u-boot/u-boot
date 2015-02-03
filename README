@@ -3483,9 +3483,6 @@ FIT uImage format:
 		Adds the MTD partitioning infrastructure from the Linux
 		kernel. Needed for UBI support.
 
-		CONFIG_MTD_NAND_VERIFY_WRITE
-		verify if the written data is correct reread.
-
 - UBI support
 		CONFIG_CMD_UBI
 
