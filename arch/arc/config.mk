@@ -25,6 +25,10 @@ ifdef CONFIG_ARC_MMU_VER
 CONFIG_MMU = 1
 endif
 
+ifdef CONFIG_CPU_ARC770D
+PLATFORM_CPPFLAGS += -mlock -mswape
+endif
+
 PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -gdwarf-2
 
 # Needed for relocation

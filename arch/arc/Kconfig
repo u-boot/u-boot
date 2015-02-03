@@ -8,6 +8,46 @@ config SYS_CPU
 	default "arcv1"
 
 choice
+	prompt "CPU selection"
+	default CPU_ARC770D
+
+config CPU_ARC750D
+	bool "ARC 750D"
+	select ARC_MMU_V2
+	help
+	  Choose this option to build an U-Boot for ARC750D CPU.
+
+config CPU_ARC770D
+	bool "ARC 770D"
+	select ARC_MMU_V3
+	help
+	  Choose this option to build an U-Boot for ARC770D CPU.
+
+endchoice
+
+choice
+	prompt "MMU Version"
+	default ARC_MMU_V3 if CPU_ARC770D
+	default ARC_MMU_V2 if CPU_ARC750D
+
+config ARC_MMU_V2
+	bool "MMU v2"
+	depends on CPU_ARC750D
+	help
+	  Fixed the deficiency of v1 - possible thrashing in memcpy sceanrio
+	  when 2 D-TLB and 1 I-TLB entries index into same 2way set.
+
+config ARC_MMU_V3
+	bool "MMU v3"
+	depends on CPU_ARC770D
+	help
+	  Introduced with ARC700 4.10: New Features
+	  Variable Page size (1k-16k), var JTLB size 128 x (2 or 4)
+	  Shared Address Spaces (SASID)
+
+endchoice
+
+choice
 	prompt "Target select"
 
 config TARGET_TB100

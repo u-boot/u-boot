@@ -10,7 +10,6 @@
 /*
  *  CPU configuration
  */
-#define CONFIG_ARC_MMU_VER		3
 #define CONFIG_SYS_CACHELINE_SIZE	32
 #define CONFIG_SYS_TIMER_RATE		CONFIG_SYS_CLK_FREQ
 
