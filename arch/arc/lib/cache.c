@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <asm/arcregs.h>
+#include <asm/cache.h>
 
 /* Bit values in IC_CTRL */
 #define IC_CTRL_CACHE_DISABLE	(1 << 0)

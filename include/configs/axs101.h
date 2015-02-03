@@ -10,11 +10,7 @@
 /*
  *  CPU configuration
  */
-#define CONFIG_SYS_CACHELINE_SIZE	32
 #define CONFIG_SYS_TIMER_RATE		CONFIG_SYS_CLK_FREQ
-
-/* NAND controller DMA doesn't work correctly with D$ enabled */
-#define CONFIG_SYS_DCACHE_OFF
 
 /*
  * Board configuration
