@@ -385,13 +385,13 @@ int lcd_getbgcolor(void)
 /************************************************************************/
 
 #ifdef CONFIG_LCD_LOGO
+__weak void lcd_logo_set_cmap(void)
+{
+}
+
 void bitmap_plot(int x, int y)
 {
-#ifdef CONFIG_ATMEL_LCD
-	uint *cmap = (uint *)bmp_logo_palette;
-#else
 	ushort *cmap = (ushort *)bmp_logo_palette;
-#endif
 	ushort i, j;
 	uchar *bmap;
 	uchar *fb;
@@ -417,8 +417,6 @@ void bitmap_plot(int x, int y)
 		 */
 #if defined(CONFIG_MPC823)
 		cmap = (ushort *) &(cp->lcd_cmap[BMP_LOGO_OFFSET * sizeof(ushort)]);
-#elif defined(CONFIG_ATMEL_LCD)
-		cmap = (uint *)configuration_get_cmap();
 #else
 		cmap = configuration_get_cmap();
 #endif
@@ -426,25 +424,14 @@ void bitmap_plot(int x, int y)
 		WATCHDOG_RESET();
 
 		/* Set color map */
+#ifdef CONFIG_ATMEL_LCD
+		lcd_logo_set_cmap();
+#else
 		for (i = 0; i < ARRAY_SIZE(bmp_logo_palette); ++i) {
 			ushort colreg = bmp_logo_palette[i];
-#ifdef CONFIG_ATMEL_LCD
-			uint lut_entry;
-#ifdef CONFIG_ATMEL_LCD_BGR555
-			lut_entry = ((colreg & 0x000F) << 11) |
-					((colreg & 0x00F0) <<  2) |
-					((colreg & 0x0F00) >>  7);
-#else /* CONFIG_ATMEL_LCD_RGB565 */
-			lut_entry = ((colreg & 0x000F) << 1) |
-					((colreg & 0x00F0) << 3) |
-					((colreg & 0x0F00) << 4);
-#endif
-			*(cmap + BMP_LOGO_OFFSET) = lut_entry;
-			cmap++;
-#else /* !CONFIG_ATMEL_LCD */
 			*cmap++ = colreg;
-#endif /* CONFIG_ATMEL_LCD */
 		}
+#endif
 
 		WATCHDOG_RESET();
 

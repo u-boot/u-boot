@@ -43,6 +43,32 @@ void fb_put_word(uchar **fb, uchar **from)
 }
 #endif
 
+#ifdef CONFIG_LCD_LOGO
+#include <bmp_logo.h>
+void lcd_logo_set_cmap(void)
+{
+	int i;
+	uint lut_entry;
+	ushort colreg;
+	uint *cmap = (uint *)configuration_get_cmap();
+
+	for (i = 0; i < BMP_LOGO_COLORS; ++i) {
+		colreg = bmp_logo_palette[i];
+#ifdef CONFIG_ATMEL_LCD_BGR555
+		lut_entry = ((colreg & 0x000F) << 11) |
+				((colreg & 0x00F0) <<  2) |
+				((colreg & 0x0F00) >>  7);
+#else
+		lut_entry = ((colreg & 0x000F) << 1) |
+				((colreg & 0x00F0) << 3) |
+				((colreg & 0x0F00) << 4);
+#endif
+		*(cmap + BMP_LOGO_OFFSET) = lut_entry;
+		cmap++;
+	}
+}
+#endif
+
 void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
 {
 #if defined(CONFIG_ATMEL_LCD_BGR555)
