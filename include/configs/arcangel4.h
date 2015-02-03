@@ -13,11 +13,6 @@
 #define CONFIG_SYS_TIMER_RATE		CONFIG_SYS_CLK_FREQ
 
 /*
- * Board configuration
- */
-#define CONFIG_ARCH_EARLY_INIT_R
-
-/*
  * Memory configuration
  */
 #define CONFIG_SYS_TEXT_BASE		0x81000000
