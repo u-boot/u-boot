@@ -15,8 +15,6 @@
 /*
  * Board configuration
  */
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is in RAM already */
-
 #define CONFIG_ARCH_EARLY_INIT_R
 
 #define ARC_FPGA_PERIPHERAL_BASE	0xE0000000
