@@ -419,10 +419,13 @@ static int raw_access(nand_info_t *nand, ulong addr, loff_t off, ulong count,
 			.mode = MTD_OPS_RAW
 		};
 
-		if (read)
+		if (read) {
 			ret = mtd_read_oob(nand, off, &ops);
-		else
+		} else {
 			ret = mtd_write_oob(nand, off, &ops);
+			if (!ret)
+				ret = nand_verify_page_oob(nand, &ops, off);
+		}
 
 		if (ret) {
 			printf("%s: error at offset %llx, ret %d\n",
@@ -690,7 +693,8 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			else
 				ret = nand_write_skip_bad(nand, off, &rwsize,
 							  NULL, maxsize,
-							  (u_char *)addr, 0);
+							  (u_char *)addr,
+							  WITH_WR_VERIFY);
 #ifdef CONFIG_CMD_NAND_TRIMFFS
 		} else if (!strcmp(s, ".trimffs")) {
 			if (read) {
@@ -699,7 +703,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 			ret = nand_write_skip_bad(nand, off, &rwsize, NULL,
 						maxsize, (u_char *)addr,
-						WITH_DROP_FFS);
+						WITH_DROP_FFS | WITH_WR_VERIFY);
 #endif
 #ifdef CONFIG_CMD_NAND_YAFFS
 		} else if (!strcmp(s, ".yaffs")) {
@@ -709,7 +713,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 			ret = nand_write_skip_bad(nand, off, &rwsize, NULL,
 						maxsize, (u_char *)addr,
-						WITH_YAFFS_OOB);
+						WITH_YAFFS_OOB | WITH_WR_VERIFY);
 #endif
 		} else if (!strcmp(s, ".oob")) {
 			/* out-of-band data */
