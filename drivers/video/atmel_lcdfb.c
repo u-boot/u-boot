@@ -11,6 +11,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
 #include <lcd.h>
+#include <bmp_layout.h>
 #include <atmel_lcdc.h>
 
 /* configurable parameters */
@@ -78,6 +79,16 @@ void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
 	lcdc_writel(panel_info.mmio, ATMEL_LCDC_LUT(regno),
 		    (blue >> 3) | ((green & 0xfc) << 3) | ((red & 0xf8) << 8));
 #endif
+}
+
+void lcd_set_cmap(bmp_image_t *bmp, unsigned colors)
+{
+	int i;
+
+	for (i = 0; i < colors; ++i) {
+		bmp_color_table_entry_t cte = bmp->color_table[i];
+		lcd_setcolreg(i, cte.red, cte.green, cte.blue);
+	}
 }
 
 void lcd_ctrl_init(void *lcdbase)

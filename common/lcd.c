@@ -613,9 +613,27 @@ __weak void fb_put_word(uchar **fb, uchar **from)
 }
 #endif /* CONFIG_BMP_16BPP */
 
+__weak void lcd_set_cmap(bmp_image_t *bmp, unsigned colors)
+{
+	int i;
+	bmp_color_table_entry_t cte;
+	ushort *cmap = configuration_get_cmap();
+
+	for (i = 0; i < colors; ++i) {
+		cte = bmp->color_table[i];
+		*cmap = (((cte.red)   << 8) & 0xf800) |
+			(((cte.green) << 3) & 0x07e0) |
+			(((cte.blue)  >> 3) & 0x001f);
+#if defined(CONFIG_MPC823)
+		cmap--;
+#else
+		cmap++;
+#endif
+	}
+}
+
 int lcd_display_bitmap(ulong bmp_image, int x, int y)
 {
-	ushort *cmap = NULL;
 	ushort *cmap_base = NULL;
 	ushort i, j;
 	uchar *fb;
@@ -663,29 +681,8 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	debug("Display-bmp: %d x %d  with %d colors\n",
 		(int)width, (int)height, (int)colors);
 
-	if (bmp_bpix == 8) {
-		cmap = configuration_get_cmap();
-		cmap_base = cmap;
-
-		/* Set color map */
-		for (i = 0; i < colors; ++i) {
-			bmp_color_table_entry_t cte = bmp->color_table[i];
-#if !defined(CONFIG_ATMEL_LCD)
-			ushort colreg =
-				( ((cte.red)   << 8) & 0xf800) |
-				( ((cte.green) << 3) & 0x07e0) |
-				( ((cte.blue)  >> 3) & 0x001f) ;
-			*cmap = colreg;
-#if defined(CONFIG_MPC823)
-			cmap--;
-#else
-			cmap++;
-#endif
-#else /* CONFIG_ATMEL_LCD */
-			lcd_setcolreg(i, cte.red, cte.green, cte.blue);
-#endif
-		}
-	}
+	if (bmp_bpix == 8)
+		lcd_set_cmap(bmp, colors);
 
 	padded_width = (width & 0x3 ? (width & ~0x3) + 4 : width);
 
@@ -706,6 +703,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	switch (bmp_bpix) {
 	case 1: /* pass through */
 	case 8: {
+		cmap_base = configuration_get_cmap();
 #ifdef CONFIG_LCD_BMP_RLE8
 		u32 compression = get_unaligned_le32(&bmp->header.compression);
 		if (compression == BMP_BI_RLE8) {
