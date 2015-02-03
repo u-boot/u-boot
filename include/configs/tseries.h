@@ -14,6 +14,12 @@
 
 #include <configs/bur_am335x_common.h>
 /* ------------------------------------------------------------------------- */
+#define CONFIG_AM335X_LCD
+#define CONFIG_LCD
+#define CONFIG_LCD_NOSTDOUT
+#define CONFIG_SYS_WHITE_ON_BLACK
+#define LCD_BPP				LCD_COLOR32
+
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -22,6 +28,8 @@
 
 /* Support both device trees and ATAGs. */
 #define CONFIG_OF_LIBFDT
+#define CONFIG_USE_FDT			/* use fdt within board code */
+#define CONFIG_OF_BOARD_SETUP
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
