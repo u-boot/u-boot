@@ -62,9 +62,7 @@ M:	Hans de Goede <hdegoede@redhat.com>
 S:	Maintained
 F:	include/configs/sun7i.h
 F:	configs/Cubieboard2_defconfig
-F:	configs/Cubieboard2_FEL_defconfig
 F:	configs/Cubietruck_defconfig
-F:	configs/Cubietruck_FEL_defconfig
 
 GEMEI-G9 TABLET
 M:	Priit Laes <plaes@plaes.org>
