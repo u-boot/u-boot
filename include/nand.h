@@ -82,33 +82,7 @@ static inline int nand_erase(nand_info_t *info, loff_t off, size_t size)
  * declarations from nand_util.c
  ****************************************************************************/
 
-struct nand_write_options {
-	u_char *buffer;		/* memory block containing image to write */
-	ulong length;		/* number of bytes to write */
-	ulong offset;		/* start address in NAND */
-	int quiet;		/* don't display progress messages */
-	int autoplace;		/* if true use auto oob layout */
-	int forcejffs2;		/* force jffs2 oob layout */
-	int forceyaffs;		/* force yaffs oob layout */
-	int noecc;		/* write without ecc */
-	int writeoob;		/* image contains oob data */
-	int pad;		/* pad to page size */
-	int blockalign;		/* 1|2|4 set multiple of eraseblocks
-				 * to align to */
-};
-
-typedef struct nand_write_options nand_write_options_t;
 typedef struct mtd_oob_ops mtd_oob_ops_t;
-
-struct nand_read_options {
-	u_char *buffer;		/* memory block in which read image is written*/
-	ulong length;		/* number of bytes to read */
-	ulong offset;		/* start address in NAND */
-	int quiet;		/* don't display progress messages */
-	int readoob;		/* put oob data in image */
-};
-
-typedef struct nand_read_options nand_read_options_t;
 
 struct nand_erase_options {
 	loff_t length;		/* number of bytes to erase */
