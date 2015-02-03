@@ -357,6 +357,13 @@ lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue)
 
 /*----------------------------------------------------------------------*/
 
+ushort *configuration_get_cmap(void)
+{
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+	cpm8xx_t *cp = &(immr->im_cpm);
+	return (ushort *)&(cp->lcd_cmap[255 * sizeof(ushort)]);
+}
+
 void lcd_enable (void)
 {
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;

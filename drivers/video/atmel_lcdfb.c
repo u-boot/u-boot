@@ -29,6 +29,11 @@
 #define lcdc_readl(mmio, reg)		__raw_readl((mmio)+(reg))
 #define lcdc_writel(mmio, reg, val)	__raw_writel((val), (mmio)+(reg))
 
+ushort *configuration_get_cmap(void)
+{
+	return (ushort *)(panel_info.mmio + ATMEL_LCDC_LUT(0));
+}
+
 void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
 {
 #if defined(CONFIG_ATMEL_LCD_BGR555)

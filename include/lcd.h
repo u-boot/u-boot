@@ -60,7 +60,14 @@ typedef struct vidinfo {
 
 	void	*priv;		/* Pointer to driver-specific data */
 } vidinfo_t;
+
+static __maybe_unused ushort *configuration_get_cmap(void)
+{
+	return panel_info.cmap;
+}
 #endif
+
+ushort *configuration_get_cmap(void);
 
 extern vidinfo_t panel_info;
 

@@ -383,25 +383,6 @@ int lcd_getbgcolor(void)
 /************************************************************************/
 /* ** Chipset depending Bitmap / Logo stuff...                          */
 /************************************************************************/
-static inline ushort *configuration_get_cmap(void)
-{
-#if defined CONFIG_CPU_PXA
-	struct pxafb_info *fbi = &panel_info.pxa;
-	return (ushort *)fbi->palette;
-#elif defined(CONFIG_MPC823)
-	immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	cpm8xx_t *cp = &(immr->im_cpm);
-	return (ushort *)&(cp->lcd_cmap[255 * sizeof(ushort)]);
-#elif defined(CONFIG_ATMEL_LCD)
-	return (ushort *)(panel_info.mmio + ATMEL_LCDC_LUT(0));
-#elif !defined(CONFIG_ATMEL_HLCD) && !defined(CONFIG_EXYNOS_FB)
-	return panel_info.cmap;
-#elif defined(CONFIG_LCD_LOGO)
-	return bmp_logo_palette;
-#else
-	return NULL;
-#endif
-}
 
 #ifdef CONFIG_LCD_LOGO
 void bitmap_plot(int x, int y)

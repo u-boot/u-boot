@@ -13,6 +13,10 @@
 #include <lcd.h>
 #include <atmel_hlcdc.h>
 
+#if defined(CONFIG_LCD_LOGO)
+#include <bmp_logo.h>
+#endif
+
 /* configurable parameters */
 #define ATMEL_LCDC_CVAL_DEFAULT		0xc8
 #define ATMEL_LCDC_DMA_BURST_LEN	8
@@ -35,6 +39,15 @@ void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
 		| ((green << LCDC_BASECLUT_GCLUT_Pos) & LCDC_BASECLUT_GCLUT_Msk)
 		| ((blue << LCDC_BASECLUT_BCLUT_Pos) & LCDC_BASECLUT_BCLUT_Msk),
 		panel_info.mmio + ATMEL_LCDC_LUT(regno));
+}
+
+ushort *configuration_get_cmap(void)
+{
+#if defined(CONFIG_LCD_LOGO)
+	return bmp_logo_palette;
+#else
+	return NULL;
+#endif
 }
 
 void lcd_ctrl_init(void *lcdbase)
