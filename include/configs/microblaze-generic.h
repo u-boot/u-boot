@@ -113,7 +113,12 @@
 #endif
 
 #define CONFIG_SYS_MALLOC_LEN	0xC0000
-#define CONFIG_SYS_MALLOC_F_LEN	1024
+#ifndef CONFIG_SPL_BUILD
+# define CONFIG_SYS_MALLOC_F_LEN	1024
+#else
+# define CONFIG_SYS_MALLOC_SIMPLE
+# define CONFIG_SYS_MALLOC_F_LEN	0x150
+#endif
 
 /* Stack location before relocation */
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_TEXT_BASE
@@ -426,25 +431,11 @@
 /* BRAM start */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0
 /* BRAM size - will be generated */
-#define CONFIG_SYS_INIT_RAM_SIZE	0x10000
-/* Stack pointer prior relocation, must situated at on-chip RAM */
-#define CONFIG_SYS_SPL_MALLOC_END	(CONFIG_SYS_INIT_RAM_ADDR + \
+#define CONFIG_SYS_INIT_RAM_SIZE	0x100000
+
+# define CONFIG_SPL_STACK_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
 					 CONFIG_SYS_INIT_RAM_SIZE - \
-					 GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100
-
-/*
- * The main reason to do it in this way is that MALLOC_START
- * can't be defined - common/spl/spl.c
- */
-#if (CONFIG_SYS_SPL_MALLOC_SIZE != 0)
-# define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_SPL_MALLOC_END - \
-					 CONFIG_SYS_SPL_MALLOC_SIZE)
-# define CONFIG_SPL_STACK_ADDR		CONFIG_SYS_SPL_MALLOC_START
-#else
-# define CONFIG_SPL_STACK_ADDR		CONFIG_SYS_SPL_MALLOC_END
-#endif
+					 CONFIG_SYS_MALLOC_F_LEN)
 
 /* Just for sure that there is a space for stack */
 #define CONFIG_SPL_STACK_SIZE		0x100
@@ -453,8 +444,7 @@
 
 #define CONFIG_SPL_MAX_FOOTPRINT	(CONFIG_SYS_INIT_RAM_SIZE - \
 					 CONFIG_SYS_INIT_RAM_ADDR - \
-					 GENERATED_GBL_DATA_SIZE - \
-					 CONFIG_SYS_SPL_MALLOC_SIZE - \
+					 CONFIG_SYS_MALLOC_F_LEN - \
 					 CONFIG_SPL_STACK_SIZE)
 
 #endif	/* __CONFIG_H */

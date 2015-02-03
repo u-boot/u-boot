@@ -162,7 +162,11 @@ clear_bss:
 #endif
 	brai	board_init_f
 #else
-	addi	r31, r0, CONFIG_SYS_SPL_MALLOC_END
+	addi	r31, r0, _gd
+#if defined(CONFIG_SYS_MALLOC_F_LEN)
+	addi	r6, r0, CONFIG_SPL_STACK_ADDR
+	swi	r6, r31, GD_MALLOC_BASE
+#endif
 	brai	board_init_r
 #endif
 1:	bri	1b
