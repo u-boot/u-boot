@@ -16,14 +16,9 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
-#include <stdarg.h>
-#include <search.h>
 #include <env_callback.h>
 #include <linux/types.h>
 #include <stdio_dev.h>
-#if defined(CONFIG_POST)
-#include <post.h>
-#endif
 #include <lcd.h>
 #include <watchdog.h>
 #include <asm/unaligned.h>
@@ -31,19 +26,6 @@
 #include <asm/io.h>
 #include <asm/unaligned.h>
 #include <fdt_support.h>
-
-#if defined(CONFIG_CPU_PXA25X) || defined(CONFIG_CPU_PXA27X) || \
-	defined(CONFIG_CPU_MONAHANS)
-#include <asm/byteorder.h>
-#endif
-
-#if defined(CONFIG_MPC823)
-#include <lcdvideo.h>
-#endif
-
-#if defined(CONFIG_ATMEL_LCD)
-#include <atmel_lcdc.h>
-#endif
 
 #if defined(CONFIG_LCD_DT_SIMPLEFB)
 #include <libfdt.h>
