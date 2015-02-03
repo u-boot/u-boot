@@ -464,6 +464,87 @@ static size_t drop_ffs(const nand_info_t *nand, const u_char *buf,
 #endif
 
 /**
+ * nand_verify_page_oob:
+ *
+ * Verify a page of NAND flash, including the OOB.
+ * Reads page of NAND and verifies the contents and OOB against the
+ * values in ops.
+ *
+ * @param nand		NAND device
+ * @param ops		MTD operations, including data to verify
+ * @param ofs		offset in flash
+ * @return		0 in case of success
+ */
+int nand_verify_page_oob(nand_info_t *nand, struct mtd_oob_ops *ops, loff_t ofs)
+{
+	int rval;
+	struct mtd_oob_ops vops;
+	size_t verlen = nand->writesize + nand->oobsize;
+
+	memcpy(&vops, ops, sizeof(vops));
+
+	vops.datbuf = malloc(verlen);
+
+	if (!vops.datbuf)
+		return -ENOMEM;
+
+	vops.oobbuf = vops.datbuf + nand->writesize;
+
+	rval = mtd_read_oob(nand, ofs, &vops);
+	if (!rval)
+		rval = memcmp(ops->datbuf, vops.datbuf, vops.len);
+	if (!rval)
+		rval = memcmp(ops->oobbuf, vops.oobbuf, vops.ooblen);
+
+	free(vops.datbuf);
+
+	return rval ? -EIO : 0;
+}
+
+/**
+ * nand_verify:
+ *
+ * Verify a region of NAND flash.
+ * Reads NAND in page-sized chunks and verifies the contents against
+ * the contents of a buffer.  The offset into the NAND must be
+ * page-aligned, and the function doesn't handle skipping bad blocks.
+ *
+ * @param nand		NAND device
+ * @param ofs		offset in flash
+ * @param len		buffer length
+ * @param buf		buffer to read from
+ * @return		0 in case of success
+ */
+int nand_verify(nand_info_t *nand, loff_t ofs, size_t len, u_char *buf)
+{
+	int rval = 0;
+	size_t verofs;
+	size_t verlen = nand->writesize;
+	uint8_t *verbuf = malloc(verlen);
+
+	if (!verbuf)
+		return -ENOMEM;
+
+	/* Read the NAND back in page-size groups to limit malloc size */
+	for (verofs = ofs; verofs < ofs + len;
+	     verofs += verlen, buf += verlen) {
+		verlen = min(nand->writesize, (uint32_t)(ofs + len - verofs));
+		rval = nand_read(nand, verofs, &verlen, verbuf);
+		if (!rval || (rval == -EUCLEAN))
+			rval = memcmp(buf, verbuf, verlen);
+
+		if (rval)
+			break;
+	}
+
+	free(verbuf);
+
+	return rval ? -EIO : 0;
+}
+
+
+
+/**
  * nand_write_skip_bad:
  *
  * Write image to NAND flash.
@@ -501,7 +582,7 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 
 #ifdef CONFIG_CMD_NAND_YAFFS
 	if (flags & WITH_YAFFS_OOB) {
-		if (flags & ~WITH_YAFFS_OOB)
+		if (flags & (~WITH_YAFFS_OOB & ~WITH_WR_VERIFY))
 			return -EINVAL;
 
 		int pages;
@@ -554,6 +635,10 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 
 	if (!need_skip && !(flags & WITH_DROP_FFS)) {
 		rval = nand_write(nand, offset, length, buffer);
+
+		if ((flags & WITH_WR_VERIFY) && !rval)
+			rval = nand_verify(nand, offset, *length, buffer);
+
 		if (rval == 0)
 			return 0;
 
@@ -601,6 +686,11 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 				ops.oobbuf = ops.datbuf + pagesize;
 
 				rval = mtd_write_oob(nand, offset, &ops);
+
+				if ((flags & WITH_WR_VERIFY) && !rval)
+					rval = nand_verify_page_oob(nand,
+							&ops, offset);
+
 				if (rval != 0)
 					break;
 
@@ -620,6 +710,11 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 
 			rval = nand_write(nand, offset, &truncated_write_size,
 					p_buffer);
+
+			if ((flags & WITH_WR_VERIFY) && !rval)
+				rval = nand_verify(nand, offset,
+					truncated_write_size, p_buffer);
+
 			offset += write_size;
 			p_buffer += write_size;
 		}

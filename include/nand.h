@@ -108,11 +108,15 @@ int nand_read_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 				  * is a 'mode' meaning it cannot be mixed with
 				  * other flags */
 #define WITH_DROP_FFS	(1 << 1) /* drop trailing all-0xff pages */
+#define WITH_WR_VERIFY	(1 << 2) /* verify data was written correctly */
 
 int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 			size_t *actual, loff_t lim, u_char *buffer, int flags);
 int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts);
 int nand_torture(nand_info_t *nand, loff_t offset);
+int nand_verify_page_oob(nand_info_t *nand, struct mtd_oob_ops *ops,
+			loff_t ofs);
+int nand_verify(nand_info_t *nand, loff_t ofs, size_t len, u_char *buf);
 
 #define NAND_LOCK_STATUS_TIGHT	0x01
 #define NAND_LOCK_STATUS_UNLOCK 0x04
