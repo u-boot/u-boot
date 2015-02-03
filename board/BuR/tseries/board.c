@@ -34,9 +34,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* --------------------------------------------------------------------------*/
 /* -- defines for GPIO -- */
-#define	ETHLED_ORANGE	(96+16)	/* GPIO3_16 */
 #define	REPSWITCH	(0+20)	/* GPIO0_20 */
-
 
 #if defined(CONFIG_SPL_BUILD)
 /* TODO: check ram-timing ! */
