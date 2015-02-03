@@ -28,6 +28,7 @@
 #include <power/tps65217.h>
 #include "../common/bur_common.h"
 #include <lcd.h>
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -144,6 +145,9 @@ void sdram_init(void)
 /* Basic board specific setup.  Pinmux has been handled already. */
 int board_init(void)
 {
+#if defined(CONFIG_HW_WATCHDOG)
+	hw_watchdog_init();
+#endif
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 #ifdef CONFIG_NAND
 	gpmc_init();

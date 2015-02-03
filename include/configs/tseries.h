@@ -20,6 +20,9 @@
 #define CONFIG_SYS_WHITE_ON_BLACK
 #define LCD_BPP				LCD_COLOR32
 
+#define CONFIG_HW_WATCHDOG
+#define CONFIG_OMAP_WATCHDOG
+#define CONFIG_SPL_WATCHDOG_SUPPORT
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
