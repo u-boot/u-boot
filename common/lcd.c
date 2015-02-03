@@ -635,11 +635,10 @@ static void lcd_display_rle8_bitmap(bmp_image_t *bmp, ushort *cmap, uchar *fb,
 }
 #endif
 
-#if defined(CONFIG_MPC823)
-#define FB_PUT_BYTE(fb, from) *(fb)++ = (255 - *(from)++)
-#else
-#define FB_PUT_BYTE(fb, from) *(fb)++ = *(from)++
-#endif
+__weak void fb_put_byte(uchar **fb, uchar **from)
+{
+	*(*fb)++ = *(*from)++;
+}
 
 #if defined(CONFIG_BMP_16BPP)
 __weak void fb_put_word(uchar **fb, uchar **from)
@@ -764,7 +763,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 			WATCHDOG_RESET();
 			for (j = 0; j < width; j++) {
 				if (bpix != 16) {
-					FB_PUT_BYTE(fb, bmap);
+					fb_put_byte(&fb, &bmap);
 				} else {
 					*(uint16_t *)fb = cmap_base[*(bmap++)];
 					fb += sizeof(uint16_t) / sizeof(*fb);

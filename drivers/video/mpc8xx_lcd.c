@@ -364,6 +364,13 @@ ushort *configuration_get_cmap(void)
 	return (ushort *)&(cp->lcd_cmap[255 * sizeof(ushort)]);
 }
 
+#if defined(CONFIG_MPC823)
+void fb_put_byte(uchar **fb, uchar **from)
+{
+	*(*fb)++ = (255 - *(*from)++);
+}
+#endif
+
 void lcd_enable (void)
 {
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
