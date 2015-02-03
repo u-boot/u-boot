@@ -642,20 +642,11 @@ static void lcd_display_rle8_bitmap(bmp_image_t *bmp, ushort *cmap, uchar *fb,
 #endif
 
 #if defined(CONFIG_BMP_16BPP)
-#if defined(CONFIG_ATMEL_LCD_BGR555)
-static inline void fb_put_word(uchar **fb, uchar **from)
-{
-	*(*fb)++ = (((*from)[0] & 0x1f) << 2) | ((*from)[1] & 0x03);
-	*(*fb)++ = ((*from)[0] & 0xe0) | (((*from)[1] & 0x7c) >> 2);
-	*from += 2;
-}
-#else
-static inline void fb_put_word(uchar **fb, uchar **from)
+__weak void fb_put_word(uchar **fb, uchar **from)
 {
 	*(*fb)++ = *(*from)++;
 	*(*fb)++ = *(*from)++;
 }
-#endif
 #endif /* CONFIG_BMP_16BPP */
 
 int lcd_display_bitmap(ulong bmp_image, int x, int y)

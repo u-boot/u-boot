@@ -34,6 +34,15 @@ ushort *configuration_get_cmap(void)
 	return (ushort *)(panel_info.mmio + ATMEL_LCDC_LUT(0));
 }
 
+#if defined(CONFIG_BMP_16BPP) && defined(CONFIG_ATMEL_LCD_BGR555)
+void fb_put_word(uchar **fb, uchar **from)
+{
+	*(*fb)++ = (((*from)[0] & 0x1f) << 2) | ((*from)[1] & 0x03);
+	*(*fb)++ = ((*from)[0] & 0xe0) | (((*from)[1] & 0x7c) >> 2);
+	*from += 2;
+}
+#endif
+
 void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
 {
 #if defined(CONFIG_ATMEL_LCD_BGR555)
