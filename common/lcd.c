@@ -20,12 +20,7 @@
 #include <splash.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>
-#include <fdt_support.h>
 #include <video_font.h>
-
-#if defined(CONFIG_LCD_DT_SIMPLEFB)
-#include <libfdt.h>
-#endif
 
 #ifdef CONFIG_LCD_LOGO
 #include <bmp_logo.h>
@@ -777,48 +772,3 @@ int lcd_get_pixel_height(void)
 {
 	return panel_info.vl_row;
 }
-
-#if defined(CONFIG_LCD_DT_SIMPLEFB)
-static int lcd_dt_simplefb_configure_node(void *blob, int off)
-{
-#if LCD_BPP == LCD_COLOR16
-	return fdt_setup_simplefb_node(blob, off, gd->fb_base,
-				       panel_info.vl_col, panel_info.vl_row,
-				       panel_info.vl_col * 2, "r5g6b5");
-#else
-	return -1;
-#endif
-}
-
-int lcd_dt_simplefb_add_node(void *blob)
-{
-	static const char compat[] = "simple-framebuffer";
-	static const char disabled[] = "disabled";
-	int off, ret;
-
-	off = fdt_add_subnode(blob, 0, "framebuffer");
-	if (off < 0)
-		return -1;
-
-	ret = fdt_setprop(blob, off, "status", disabled, sizeof(disabled));
-	if (ret < 0)
-		return -1;
-
-	ret = fdt_setprop(blob, off, "compatible", compat, sizeof(compat));
-	if (ret < 0)
-		return -1;
-
-	return lcd_dt_simplefb_configure_node(blob, off);
-}
-
-int lcd_dt_simplefb_enable_existing_node(void *blob)
-{
-	int off;
-
-	off = fdt_node_offset_by_compatible(blob, -1, "simple-framebuffer");
-	if (off < 0)
-		return -1;
-
-	return lcd_dt_simplefb_configure_node(blob, off);
-}
-#endif

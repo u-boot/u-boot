@@ -128,9 +128,6 @@ void lcd_show_board_info(void);
 /* Return the size of the LCD frame buffer, and the line length */
 int lcd_get_size(int *line_length);
 
-int lcd_dt_simplefb_add_node(void *blob);
-int lcd_dt_simplefb_enable_existing_node(void *blob);
-
 /* Update the LCD / flush the cache */
 void lcd_sync(void);
 
