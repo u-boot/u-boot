@@ -47,6 +47,12 @@
 #define	RSTCTRL_FORCE_PWR_NEN			0x0404
 #define	RSTCTRL_CAN_STB				0x4040
 
+#define VXWORKS_BOOTLINE			0x80001100
+#define DEFAULT_BOOTLINE	"cpsw(0,0):pme/vxWorks"
+#define VXWORKS_USER		"u=vxWorksFTP pw=vxWorks tn=vxtarget"
+
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_SPL_BUILD)
 /* TODO: check ram-timing ! */
 static const struct ddr_data ddr3_data = {
@@ -248,6 +254,30 @@ int board_late_init(void)
 	} else {
 		puts("ERROR: i2c_set_bus_speed failed! (scratchregister)\n");
 	}
+	/* setup vxworks bootline */
+	char *vxworksbootline = (char *)VXWORKS_BOOTLINE;
+
+	/* setup default IP, in case if there is nothing in environment */
+	if (!getenv("ipaddr")) {
+		setenv("ipaddr", "192.168.60.1");
+		setenv("netmask", "255.255.255.0");
+		setenv("serverip", "192.168.60.254");
+		setenv("gatewayip", "192.168.60.254");
+		puts("net: had no IP! made default setup.\n");
+	}
+
+	sprintf(vxworksbootline,
+		"%s h=%s e=%s:%s g=%s %s o=0x%08x;0x%08x;0x%08x;0x%08x",
+		DEFAULT_BOOTLINE,
+		getenv("serverip"),
+		getenv("ipaddr"), getenv("netmask"),
+		getenv("gatewayip"),
+		VXWORKS_USER,
+		(unsigned int) gd->fb_base-0x20,
+		(u32)getenv_ulong("vx_memtop", 16, gd->fb_base-0x20),
+		(u32)getenv_ulong("vx_romfsbase", 16, 0),
+		(u32)getenv_ulong("vx_romfssize", 16, 0));
+
 	/*
 	 * reset VBAR registers to its reset location, VxWorks 6.9.3.2 does
 	 * expect that vectors are there, original u-boot moves them to _start
