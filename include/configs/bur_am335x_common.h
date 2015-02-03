@@ -29,6 +29,7 @@
 "run netdisplay0; " \
 "setenv stdout nc;setenv stdin nc;setenv stderr nc\0"
 
+#define CONFIG_CMD_TIME
 #define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_AM33XX
