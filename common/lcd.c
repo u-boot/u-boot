@@ -396,10 +396,6 @@ void bitmap_plot(int x, int y)
 	uchar *bmap;
 	uchar *fb;
 	ushort *fb16;
-#if defined(CONFIG_MPC823)
-	immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	cpm8xx_t *cp = &(immr->im_cpm);
-#endif
 	unsigned bpix = NBITS(panel_info.vl_bpix);
 
 	debug("Logo: width %d  height %d  colors %d  cmap %d\n",
@@ -415,16 +411,12 @@ void bitmap_plot(int x, int y)
 		 * cmap was set to the source palette, so no change is done.
 		 * This avoids even more ifdefs in the next stanza
 		 */
-#if defined(CONFIG_MPC823)
-		cmap = (ushort *) &(cp->lcd_cmap[BMP_LOGO_OFFSET * sizeof(ushort)]);
-#else
 		cmap = configuration_get_cmap();
-#endif
 
 		WATCHDOG_RESET();
 
 		/* Set color map */
-#ifdef CONFIG_ATMEL_LCD
+#if defined(CONFIG_ATMEL_LCD) || defined(CONFIG_MPC823)
 		lcd_logo_set_cmap();
 #else
 		for (i = 0; i < ARRAY_SIZE(bmp_logo_palette); ++i) {
