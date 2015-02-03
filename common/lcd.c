@@ -46,7 +46,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static int lcd_init(void *lcdbase);
-static void *lcd_logo(void);
+static void lcd_logo(void);
 static void lcd_setfgcolor(int color);
 static void lcd_setbgcolor(int color);
 
@@ -169,6 +169,9 @@ void lcd_clear(void)
 {
 	short console_rows, console_cols;
 	int bg_color;
+	char *s;
+	ulong addr;
+	static int do_splash = 1;
 #if LCD_BPP == LCD_COLOR8
 	/* Setting the palette */
 	lcd_setcolreg(CONSOLE_COLOR_BLACK, 0, 0, 0);
@@ -218,7 +221,23 @@ void lcd_clear(void)
 #endif
 	console_cols = panel_info.vl_col / VIDEO_FONT_WIDTH;
 	lcd_init_console(lcd_base, console_rows, console_cols);
-	lcd_init_console(lcd_logo(), console_rows, console_cols);
+	if (do_splash) {
+		s = getenv("splashimage");
+		if (s) {
+			do_splash = 0;
+			addr = simple_strtoul(s, NULL, 16);
+			if (lcd_splash(addr) == 0) {
+				lcd_sync();
+				return;
+			}
+		}
+	}
+
+	lcd_logo();
+#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
+	addr = (ulong)lcd_base + BMP_LOGO_HEIGHT * lcd_line_length;
+	lcd_init_console((void *)addr, console_rows, console_cols);
+#endif
 	lcd_sync();
 }
 
@@ -701,29 +720,8 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 }
 #endif
 
-static void *lcd_logo(void)
+static void lcd_logo(void)
 {
-#ifdef CONFIG_SPLASH_SCREEN
-	char *s;
-	ulong addr;
-	static int do_splash = 1;
-
-	if (do_splash && (s = getenv("splashimage")) != NULL) {
-		int x = 0, y = 0;
-		do_splash = 0;
-
-		if (splash_screen_prepare())
-			return (void *)lcd_base;
-
-		addr = simple_strtoul (s, NULL, 16);
-
-		splash_get_pos(&x, &y);
-
-		if (bmp_display(addr, x, y) == 0)
-			return (void *)lcd_base;
-	}
-#endif /* CONFIG_SPLASH_SCREEN */
-
 	lcd_logo_plot(0, 0);
 
 #ifdef CONFIG_LCD_INFO
@@ -731,12 +729,6 @@ static void *lcd_logo(void)
 	lcd_set_row(LCD_INFO_Y / VIDEO_FONT_HEIGHT);
 	lcd_show_board_info();
 #endif /* CONFIG_LCD_INFO */
-
-#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
-	return (void *)((ulong)lcd_base + BMP_LOGO_HEIGHT * lcd_line_length);
-#else
-	return (void *)lcd_base;
-#endif /* CONFIG_LCD_LOGO && !defined(CONFIG_LCD_INFO_BELOW_LOGO) */
 }
 
 #ifdef CONFIG_SPLASHIMAGE_GUARD

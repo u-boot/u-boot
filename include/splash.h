@@ -21,7 +21,7 @@
 
 #ifndef _SPLASH_H_
 #define _SPLASH_H_
-
+#include <errno.h>
 
 int splash_screen_prepare(void);
 
@@ -29,6 +29,15 @@ int splash_screen_prepare(void);
 void splash_get_pos(int *x, int *y);
 #else
 static inline void splash_get_pos(int *x, int *y) { }
+#endif
+
+#if defined(CONFIG_SPLASH_SCREEN) && defined(CONFIG_LCD)
+int lcd_splash(ulong addr);
+#else
+static inline int lcd_splash(ulong addr)
+{
+	return -ENOSYS;
+}
 #endif
 
 #define BMP_ALIGN_CENTER	0x7FFF
