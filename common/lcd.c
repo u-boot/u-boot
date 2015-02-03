@@ -387,44 +387,30 @@ int lcd_getbgcolor(void)
 #ifdef CONFIG_LCD_LOGO
 __weak void lcd_logo_set_cmap(void)
 {
+	int i;
+	ushort *cmap = configuration_get_cmap();
+
+	for (i = 0; i < ARRAY_SIZE(bmp_logo_palette); ++i)
+		*cmap++ = bmp_logo_palette[i];
 }
 
 void bitmap_plot(int x, int y)
 {
-	ushort *cmap = (ushort *)bmp_logo_palette;
 	ushort i, j;
 	uchar *bmap;
 	uchar *fb;
 	ushort *fb16;
 	unsigned bpix = NBITS(panel_info.vl_bpix);
 
-	debug("Logo: width %d  height %d  colors %d  cmap %d\n",
-		BMP_LOGO_WIDTH, BMP_LOGO_HEIGHT, BMP_LOGO_COLORS,
-		ARRAY_SIZE(bmp_logo_palette));
+	debug("Logo: width %d  height %d  colors %d\n",
+	      BMP_LOGO_WIDTH, BMP_LOGO_HEIGHT, BMP_LOGO_COLORS);
 
 	bmap = &bmp_logo_bitmap[0];
 	fb   = (uchar *)(lcd_base + y * lcd_line_length + x * bpix / 8);
 
 	if (bpix < 12) {
-		/* Leave room for default color map
-		 * default case: generic system with no cmap (most likely 16bpp)
-		 * cmap was set to the source palette, so no change is done.
-		 * This avoids even more ifdefs in the next stanza
-		 */
-		cmap = configuration_get_cmap();
-
 		WATCHDOG_RESET();
-
-		/* Set color map */
-#if defined(CONFIG_ATMEL_LCD) || defined(CONFIG_MPC823)
 		lcd_logo_set_cmap();
-#else
-		for (i = 0; i < ARRAY_SIZE(bmp_logo_palette); ++i) {
-			ushort colreg = bmp_logo_palette[i];
-			*cmap++ = colreg;
-		}
-#endif
-
 		WATCHDOG_RESET();
 
 		for (i = 0; i < BMP_LOGO_HEIGHT; ++i) {
