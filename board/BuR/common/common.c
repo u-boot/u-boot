@@ -591,9 +591,9 @@ static struct cpsw_platform_data cpsw_data = {
 int board_eth_init(bd_t *bis)
 {
 	int rv = 0;
-	uint8_t mac_addr[6];
+	char mac_addr[6];
+	const char *mac = 0;
 	uint32_t mac_hi, mac_lo;
-
 	/* try reading mac address from efuse */
 	mac_lo = readl(&cdev->macid0l);
 	mac_hi = readl(&cdev->macid0h);
@@ -607,14 +607,19 @@ int board_eth_init(bd_t *bis)
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
 	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
 	if (!getenv("ethaddr")) {
-		printf("<ethaddr> not set. Validating first E-fuse MAC ... ");
+		#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_USE_FDT)
+		printf("<ethaddr> not set. trying DTB ... ");
+		mac = dtbmacaddr(0);
+		#endif
+		if (!mac) {
+			printf("<ethaddr> not set. validating E-fuse MAC ... ");
+			if (is_valid_ether_addr((const u8 *)mac_addr))
+				mac = (const char *)mac_addr;
+		}
 
-		if (is_valid_ether_addr(mac_addr)) {
-			printf("using: %02X:%02X:%02X:%02X:%02X:%02X.\n",
-			       mac_addr[0], mac_addr[1], mac_addr[2],
-			       mac_addr[3], mac_addr[4], mac_addr[5]
-				);
-			eth_setenv_enetaddr("ethaddr", mac_addr);
+		if (mac) {
+			printf("using: %pM on ", mac);
+			eth_setenv_enetaddr("ethaddr", (const u8 *)mac);
 		}
 	}
 	writel(MII_MODE_ENABLE, &cdev->miisel);
