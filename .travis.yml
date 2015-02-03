@@ -107,9 +107,6 @@ matrix:
         - TEST_CMD="tools/buildman/buildman mpc512x"
           INSTALL_TOOLCHAIN="ppc"
     - env:
-        - TEST_CMD="tools/buildman/buildman mpc824x"
-          INSTALL_TOOLCHAIN="ppc"
-    - env:
         - TEST_CMD="tools/buildman/buildman mpc8260"
           INSTALL_TOOLCHAIN="ppc"
     - env:
