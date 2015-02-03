@@ -168,7 +168,14 @@ static struct module_pin_mux gpIOs[] = {
 	{OFFSET(mcasp0_axr0),  (MODE(7) | PULLUDDIS) },
 	/* GPIO3_17 (MCASP0_AHCLKR) - ETH2_LEDY */
 	{OFFSET(mcasp0_ahclkr), (MODE(7) | PULLUDDIS) },
-
+#ifndef CONFIG_NAND
+	/* GPIO2_3 - NAND_OE */
+	{OFFSET(gpmc_oen_ren), (MODE(7) | PULLDOWN_EN | RXACTIVE)},
+	/* GPIO2_4 - NAND_WEN */
+	{OFFSET(gpmc_wen), (MODE(7) | PULLDOWN_EN | RXACTIVE)},
+	/* GPIO2_5 - NAND_BE_CLE */
+	{OFFSET(gpmc_be0n_cle), (MODE(7) | PULLDOWN_EN | RXACTIVE)},
+#endif
 	{-1},
 };
 
