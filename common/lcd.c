@@ -327,7 +327,7 @@ __weak void lcd_logo_set_cmap(void)
 		*cmap++ = bmp_logo_palette[i];
 }
 
-void bitmap_plot(int x, int y)
+void lcd_logo_plot(int x, int y)
 {
 	ushort i, j;
 	uchar *bmap = &bmp_logo_bitmap[0];
@@ -369,7 +369,7 @@ void bitmap_plot(int x, int y)
 	lcd_sync();
 }
 #else
-static inline void bitmap_plot(int x, int y) {}
+static inline void lcd_logo_plot(int x, int y) {}
 #endif /* CONFIG_LCD_LOGO */
 
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
@@ -729,7 +729,7 @@ static void *lcd_logo(void)
 	}
 #endif /* CONFIG_SPLASH_SCREEN */
 
-	bitmap_plot(0, 0);
+	lcd_logo_plot(0, 0);
 
 #ifdef CONFIG_LCD_INFO
 	lcd_set_col(LCD_INFO_X / VIDEO_FONT_WIDTH);
