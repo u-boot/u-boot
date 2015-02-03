@@ -209,3 +209,24 @@ void lcd_printf(const char *fmt, ...)
 
 	lcd_puts(buf);
 }
+
+static int do_lcd_setcursor(cmd_tbl_t *cmdtp, int flag, int argc,
+			    char *const argv[])
+{
+	unsigned int col, row;
+
+	if (argc != 3)
+		return CMD_RET_USAGE;
+
+	col = simple_strtoul(argv[1], NULL, 10);
+	row = simple_strtoul(argv[2], NULL, 10);
+	lcd_position_cursor(col, row);
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	setcurs, 3,	1,	do_lcd_setcursor,
+	"set cursor position within screen",
+	"    <col> <row> in character"
+);
