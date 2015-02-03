@@ -131,9 +131,9 @@ static struct module_pin_mux gpIOs[] = {
 	{OFFSET(spi0_cs1),  (MODE(7) | PULLUDEN | PULLUP_EN | RXACTIVE)},
 	/* TIMER5   (MMC0_DAT3) - TIMER5 (Buzzer) */
 	{OFFSET(mmc0_dat3), (MODE(3) | PULLUDEN | RXACTIVE)},
-	/* TIMER6   (MMC0_DAT2) - PWM_BACK_3V3, later used as MODE3 for PWM */
-	{OFFSET(mmc0_dat2), (MODE(7) | PULLUDEN | RXACTIVE)},
-	/* GPIO2_27 (MMC0_DAT1)	 - MII_nNAND */
+	/* TIMER6   (MMC0_DAT2) - PWM_BACK_3V3 */
+	{OFFSET(mmc0_dat2), (MODE(3) | PULLUDEN | RXACTIVE)},
+	/* GPIO2_28 (MMC0_DAT1)	 - MII_nNAND */
 	{OFFSET(mmc0_dat1), (MODE(7) | PULLUDEN | RXACTIVE)},
 	/* GPIO2_29 (MMC0_DAT0)	 - NAND_1n0 */
 	{OFFSET(mmc0_dat0), (MODE(7) | PULLUDEN | RXACTIVE)},
