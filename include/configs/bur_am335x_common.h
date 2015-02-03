@@ -12,6 +12,23 @@
 #ifndef __BUR_AM335X_COMMON_H__
 #define __BUR_AM335X_COMMON_H__
 /* ------------------------------------------------------------------------- */
+#define BUR_COMMON_ENV \
+"defaultip=192.168.60.253\0" \
+"defaultsip=192.168.60.254\0" \
+"netconsole=echo switching to network console ...; " \
+"if dhcp; then " \
+"setenv ncip ${serverip}; else " \
+"setenv ncip 192.168.60.254; " \
+"setenv serverip 192.168.60.254; " \
+"setenv gatewayip 192.168.60.254; " \
+"setenv ipaddr 192.168.60.1; " \
+"fi;" \
+"setenv netdisplay0 '" \
+"setcurs 1 9; puts myip; setcurs 10 9; puts ${ipaddr};" \
+"setcurs 1 10;puts serverip; setcurs 10 10; puts ${serverip}\;'" \
+"run netdisplay0; " \
+"setenv stdout nc;setenv stdin nc;setenv stderr nc\0"
+
 #define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_AM33XX
@@ -47,7 +64,7 @@
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SUBNETMASK
-#define CONFIG_NET_RETRY_COUNT		4
+#define CONFIG_NET_RETRY_COUNT		2
 #define CONFIG_CMD_PING
 #define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
 #define CONFIG_MII			/* Required in net/eth.c */
@@ -57,7 +74,9 @@
 #define CONFIG_SPL_NET_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT		/* used for a fetching MAC-Address */
 #define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
-
+/* Network console */
+#define CONFIG_NETCONSOLE			1
+#define CONFIG_BOOTP_MAY_FAIL		/* if we don't have DHCP environment */
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
  * area between 0x402F0400 and 0x4030B800 as a download area and

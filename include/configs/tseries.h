@@ -125,35 +125,10 @@
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"autoload=0\0" \
-	"loadaddr=0x80200000\0" \
-	"bootfile=zImage\0" \
-	"console=ttyO0,115200n8\0" \
-	"optargs=\0" \
-	"rootpath=/tftpboot/tseries/rootfs-small\0" \
-	"nfsopts=nolock\0" \
-	"netargs=setenv bootargs console=${console} " \
-		"${optargs} " \
-		"root=/dev/nfs " \
-		"nfsroot=${serverip}:${rootpath},${nfsopts} rw " \
-		"ip=dhcp\0" \
-	"netboot=echo Booting from network ...; " \
-		"setenv autoload no; " \
-		"dhcp; " \
-		"tftp ${loadaddr} ${bootfile}; " \
-		"run netargs; " \
-		"bootm ${loadaddr}\0" \
-	"usbupdate=echo Updating UBOOT from USB-Stick ...; " \
-		"usb start; " \
-		"fatload usb 0 0x80000000 updateubootusb.img; " \
-		"source;\0" \
-	"netupdate=echo Updating UBOOT from Network (TFTP) ...; " \
-		"setenv autoload 0; " \
-		"dhcp;" \
-		"tftp 0x80000000 updateUBOOT.img;" \
-		"source;\0" \
-	NANDARGS \
-	MMCARGS
+BUR_COMMON_ENV \
+"autoload=0\0" \
+NANDARGS \
+MMCARGS
 #endif /* !CONFIG_SPL_BUILD*/
 
 #define CONFIG_BOOTCOMMAND \
