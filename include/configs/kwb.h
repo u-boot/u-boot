@@ -14,6 +14,11 @@
 
 #include <configs/bur_am335x_common.h>
 /* ------------------------------------------------------------------------- */
+#define CONFIG_AM335X_LCD
+#define CONFIG_LCD
+#define CONFIG_LCD_NOSTDOUT
+#define CONFIG_SYS_WHITE_ON_BLACK
+#define LCD_BPP				LCD_COLOR32
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -87,8 +92,6 @@
 #undef	CONFIG_BOOTM_NETBSD
 #undef	CONFIG_BOOTM_PLAN9
 #undef	CONFIG_BOOTM_RTEMS
-#undef	CONFIG_GZIP
-#undef	CONFIG_ZLIB
 
 /* USB configuration */
 #define CONFIG_USB_MUSB_DSPS
@@ -100,6 +103,8 @@
 #define CONFIG_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_HOST
+#define CONFIG_AM335X_USB1
+#define CONFIG_AM335X_USB1_MODE	MUSB_HOST
 
 #ifdef CONFIG_MUSB_HOST
 #define CONFIG_CMD_USB

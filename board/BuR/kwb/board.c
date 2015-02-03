@@ -26,14 +26,13 @@
 #include <i2c.h>
 #include <power/tps65217.h>
 #include "../common/bur_common.h"
+#include <lcd.h>
 
 /* -------------------------------------------------------------------------*/
 /* -- defines for used GPIO Hardware -- */
-#define KEY						(0+4)
-#define LCD_PWR						(0+5)
-#define PUSH_KEY					(0+31)
-#define USB2SD_NRST					(32+29)
-#define USB2SD_PWR					(96+13)
+#define ESC_KEY					(0+19)
+#define LCD_PWR					(0+5)
+#define PUSH_KEY				(0+31)
 /* -------------------------------------------------------------------------*/
 /* -- PSOC Resetcontroller Register defines -- */
 
@@ -46,6 +45,7 @@
 
 /* -- defines for RSTCTRL_CTRLREG  -- */
 #define	RSTCTRL_FORCE_PWR_NEN			0x0404
+#define	RSTCTRL_CAN_STB				0x4040
 
 #if defined(CONFIG_SPL_BUILD)
 /* TODO: check ram-timing ! */
@@ -107,10 +107,13 @@ void am33xx_spl_board_init(void)
 		&cmper->epwmss0clkctrl,
 		&cmper->epwmss1clkctrl,
 		&cmper->epwmss2clkctrl,
+		&cmper->lcdclkctrl,
+		&cmper->lcdcclkstctrl,
 		0
 	};
 	do_enable_clocks(clk_domains, clk_modules_kwbspecific, 1);
-
+	/* setup LCD-Pixel Clock */
+	writel(0x2, CM_DPLL + 0x34);
 	/* power-OFF LCD-Display */
 	gpio_direction_output(LCD_PWR, 0);
 
@@ -121,7 +124,7 @@ void am33xx_spl_board_init(void)
 	/* power-ON  3V3 via Resetcontroller */
 	oldspeed = i2c_get_bus_speed();
 	if (i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC) >= 0) {
-		buf = RSTCTRL_FORCE_PWR_NEN;
+		buf = RSTCTRL_FORCE_PWR_NEN | RSTCTRL_CAN_STB;
 		i2c_write(RSTCTRL_ADDR, RSTCTRL_CTRLREG, 1,
 			  (uint8_t *)&buf, sizeof(buf));
 		i2c_set_bus_speed(oldspeed);
@@ -129,15 +132,6 @@ void am33xx_spl_board_init(void)
 		puts("ERROR: i2c_set_bus_speed failed! (turn on PWR_nEN)\n");
 	}
 
-#if defined(CONFIG_AM335X_USB0)
-	/* power on USB2SD Controller */
-	gpio_direction_output(USB2SD_PWR, 1);
-	mdelay(1);
-	/* give a reset Pulse to USB2SD Controller */
-	gpio_direction_output(USB2SD_NRST, 0);
-	mdelay(1);
-	gpio_set_value(USB2SD_NRST, 1);
-#endif
 	pmicsetup(0);
 }
 
@@ -166,7 +160,6 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
-	const unsigned int ton  = 250;
 	const unsigned int toff = 1000;
 	unsigned int cnt  = 3;
 	unsigned short buf = 0xAAAA;
@@ -175,50 +168,77 @@ int board_late_init(void)
 	tps65217_reg_write(TPS65217_PROT_LEVEL_NONE,
 			   TPS65217_WLEDCTRL2, 0x32, 0xFF); /* 50% dimlevel */
 
-	if (gpio_get_value(KEY)) {
+	if (gpio_get_value(ESC_KEY)) {
 		do {
-			/* turn on light */
-			tps65217_reg_write(TPS65217_PROT_LEVEL_NONE,
-					   TPS65217_WLEDCTRL1, 0x09, 0xFF);
-			mdelay(ton);
-			/* turn off light */
-			tps65217_reg_write(TPS65217_PROT_LEVEL_NONE,
-					   TPS65217_WLEDCTRL1, 0x01, 0xFF);
+			lcd_position_cursor(1, 8);
+			switch (cnt) {
+			case 3:
+				lcd_puts(
+				"release ESC-KEY to enter SERVICE-mode.");
+				break;
+			case 2:
+				lcd_puts(
+				"release ESC-KEY to enter DIAGNOSE-mode.");
+				break;
+			case 1:
+				lcd_puts(
+				"release ESC-KEY to enter BOOT-mode.    ");
+				break;
+			}
 			mdelay(toff);
 			cnt--;
-			if (!gpio_get_value(KEY) &&
-			    gpio_get_value(PUSH_KEY) && 1 == cnt) {
-				puts("updating from USB ...\n");
-				setenv("bootcmd", "run usbupdate");
+			if (!gpio_get_value(ESC_KEY) &&
+			    gpio_get_value(PUSH_KEY) && 2 == cnt) {
+				lcd_position_cursor(1, 8);
+				lcd_puts(
+				"switching to network-console ...       ");
+				setenv("bootcmd", "run netconsole");
+				cnt = 4;
 				break;
-			} else if (!gpio_get_value(KEY)) {
+			} else if (!gpio_get_value(ESC_KEY) &&
+			    gpio_get_value(PUSH_KEY) && 1 == cnt) {
+				lcd_position_cursor(1, 8);
+				lcd_puts(
+				"updating U-BOOT from USB ...           ");
+				setenv("bootcmd", "run usbupdate");
+				cnt = 4;
+				break;
+			} else if ((!gpio_get_value(ESC_KEY) &&
+				    gpio_get_value(PUSH_KEY) && cnt == 0) ||
+				    (gpio_get_value(ESC_KEY) &&
+				    gpio_get_value(PUSH_KEY) && cnt == 0)) {
+				lcd_position_cursor(1, 8);
+				lcd_puts(
+				"starting script from network ...      ");
+				setenv("bootcmd", "run netscript");
+				cnt = 4;
+				break;
+			} else if (!gpio_get_value(ESC_KEY)) {
 				break;
 			}
 		} while (cnt);
 	}
 
+	lcd_position_cursor(1, 8);
 	switch (cnt) {
 	case 0:
-		puts("3 blinks ... entering BOOT mode.\n");
+		lcd_puts("entering BOOT-mode.                    ");
+		setenv("bootcmd", "run defaultAR");
 		buf = 0x0000;
 		break;
 	case 1:
-		puts("2 blinks ... entering DIAGNOSE mode.\n");
+		lcd_puts("entering DIAGNOSE-mode.                ");
 		buf = 0x0F0F;
 		break;
 	case 2:
-		puts("1 blinks ... entering SERVICE mode.\n");
+		lcd_puts("entering SERVICE mode.                 ");
 		buf = 0xB4B4;
 		break;
 	case 3:
-		puts("0 blinks ... entering RUN mode.\n");
+		lcd_puts("loading OS...                          ");
 		buf = 0x0404;
 		break;
 	}
-	mdelay(ton);
-	/* turn on light */
-	tps65217_reg_write(TPS65217_PROT_LEVEL_NONE,
-			   TPS65217_WLEDCTRL1, 0x09, 0xFF);
 	/* write bootinfo into scratchregister of resetcontroller */
 	oldspeed = i2c_get_bus_speed();
 	if (i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC) >= 0) {
