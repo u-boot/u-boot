@@ -188,8 +188,13 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	cmd = fls(params->e_rd_cmd & flash->spi->op_mode_rx);
 	if (cmd) {
 		if (flash->spi->dio != SF_DUALIO_FLASH) {
-			cmd = spi_read_cmds_array[cmd - 1];
-			flash->read_cmd = cmd;
+			if ((idcode[0] == SPI_FLASH_CFI_MFR_SPANSION) &&
+			    (idcode[5] == SPI_FLASH_SPANSION_S25FS_FMLY)) {
+				flash->read_cmd = CMD_READ_QUAD_IO_FAST;
+			} else {
+				cmd = spi_read_cmds_array[cmd - 1];
+				flash->read_cmd = cmd;
+			}
 		} else {
 			flash->read_cmd = CMD_READ_DUAL_IO_FAST;
 		}
@@ -204,11 +209,16 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	/* Not require to look for fastest only two write cmds yet */
 	if ((params->flags & WR_QPP) &&
 	    (flash->spi->op_mode_tx & SPI_OPM_TX_QPP) &&
-	    (flash->spi->dio != SF_DUALIO_FLASH))
-		flash->write_cmd = CMD_QUAD_PAGE_PROGRAM;
-	else
+	    (flash->spi->dio != SF_DUALIO_FLASH)) {
+		if ((idcode[0] == SPI_FLASH_CFI_MFR_SPANSION) &&
+		    (idcode[5] == SPI_FLASH_SPANSION_S25FS_FMLY))
+			flash->write_cmd = CMD_PAGE_PROGRAM;
+		else
+			flash->write_cmd = CMD_QUAD_PAGE_PROGRAM;
+	} else {
 		/* Go for default supported write cmd */
 		flash->write_cmd = CMD_PAGE_PROGRAM;
+	}
 
 	/* Set the quad enable bit - only for quad commands */
 	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
@@ -243,6 +253,12 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	case CMD_READ_QUAD_IO_FAST:
 		if (idcode[0] == SPI_FLASH_CFI_MFR_ISSI)
 			flash->dummy_byte = 3;
+		else if ((idcode[0] == SPI_FLASH_CFI_MFR_SPANSION) &&
+			 (idcode[5] == SPI_FLASH_SPANSION_S25FS_FMLY))
+			if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH)
+				flash->dummy_byte = 7;
+			else
+				flash->dummy_byte = 5;
 		else
 			flash->dummy_byte = 2;
 		break;
@@ -364,7 +380,7 @@ static int spi_enable_wp_pin(struct spi_flash *flash)
  */
 int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 {
-	u8 idcode[5];
+	u8 idcode[6];
 	int ret;
 
 	/* Setup spi_slave */
