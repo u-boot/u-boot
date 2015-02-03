@@ -23,6 +23,10 @@
 #define CONFIG_HW_WATCHDOG
 #define CONFIG_OMAP_WATCHDOG
 #define CONFIG_SPL_WATCHDOG_SUPPORT
+/* Bootcount using the RTC block */
+#define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_BOOTCOUNT_AM33XX
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
