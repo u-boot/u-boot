@@ -225,8 +225,26 @@ static int do_lcd_setcursor(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_lcd_puts(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char *const argv[])
+{
+	if (argc != 2)
+		return CMD_RET_USAGE;
+
+	lcd_puts(argv[1]);
+
+	return 0;
+}
+
 U_BOOT_CMD(
 	setcurs, 3,	1,	do_lcd_setcursor,
 	"set cursor position within screen",
 	"    <col> <row> in character"
 );
+
+U_BOOT_CMD(
+	lcdputs, 2,	1,	do_lcd_puts,
+	"print string on lcd-framebuffer",
+	"    <string>"
+);
+
