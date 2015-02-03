@@ -25,6 +25,13 @@ static struct module_pin_mux uart0_pin_mux[] = {
 	{OFFSET(uart0_txd), (MODE(0) | PULLUDEN)},
 	{-1},
 };
+static struct module_pin_mux uart1_pin_mux[] = {
+	/* UART0_RXD */
+	{OFFSET(uart1_rxd), (MODE(0) | PULLUDEN | PULLUP_EN | RXACTIVE)},
+	/* UART0_TXD */
+	{OFFSET(uart1_txd), (MODE(0) | PULLUDEN)},
+	{-1},
+};
 #ifdef CONFIG_MMC
 static struct module_pin_mux mmc1_pin_mux[] = {
 	{OFFSET(gpmc_ad7), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT7 */
@@ -236,5 +243,6 @@ void enable_board_pin_mux(void)
 #endif
 	configure_module_pin_mux(spi0_pin_mux);
 	configure_module_pin_mux(lcd_pin_mux);
+	configure_module_pin_mux(uart1_pin_mux);
 	configure_module_pin_mux(gpIOs);
 }
