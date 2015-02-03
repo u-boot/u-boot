@@ -580,24 +580,7 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 	if (actual)
 		*actual = 0;
 
-#ifdef CONFIG_CMD_NAND_YAFFS
-	if (flags & WITH_YAFFS_OOB) {
-		if (flags & (~WITH_YAFFS_OOB & ~WITH_WR_VERIFY))
-			return -EINVAL;
-
-		int pages;
-		pages = nand->erasesize / nand->writesize;
-		blocksize = (pages * nand->oobsize) + nand->erasesize;
-		if (*length % (nand->writesize + nand->oobsize)) {
-			printf("Attempt to write incomplete page"
-				" in yaffs mode\n");
-			return -EINVAL;
-		}
-	} else
-#endif
-	{
-		blocksize = nand->erasesize;
-	}
+	blocksize = nand->erasesize;
 
 	/*
 	 * nand_write() handles unaligned, partial page writes.
@@ -666,58 +649,22 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 		else
 			write_size = blocksize - block_offset;
 
-#ifdef CONFIG_CMD_NAND_YAFFS
-		if (flags & WITH_YAFFS_OOB) {
-			int page, pages;
-			size_t pagesize = nand->writesize;
-			size_t pagesize_oob = pagesize + nand->oobsize;
-			struct mtd_oob_ops ops;
-
-			ops.len = pagesize;
-			ops.ooblen = nand->oobsize;
-			ops.mode = MTD_OPS_AUTO_OOB;
-			ops.ooboffs = 0;
-
-			pages = write_size / pagesize_oob;
-			for (page = 0; page < pages; page++) {
-				WATCHDOG_RESET();
-
-				ops.datbuf = p_buffer;
-				ops.oobbuf = ops.datbuf + pagesize;
-
-				rval = mtd_write_oob(nand, offset, &ops);
-
-				if ((flags & WITH_WR_VERIFY) && !rval)
-					rval = nand_verify_page_oob(nand,
-							&ops, offset);
-
-				if (rval != 0)
-					break;
-
-				offset += pagesize;
-				p_buffer += pagesize_oob;
-			}
-		}
-		else
-#endif
-		{
-			truncated_write_size = write_size;
+		truncated_write_size = write_size;
 #ifdef CONFIG_CMD_NAND_TRIMFFS
-			if (flags & WITH_DROP_FFS)
-				truncated_write_size = drop_ffs(nand, p_buffer,
-						&write_size);
+		if (flags & WITH_DROP_FFS)
+			truncated_write_size = drop_ffs(nand, p_buffer,
+					&write_size);
 #endif
 
-			rval = nand_write(nand, offset, &truncated_write_size,
-					p_buffer);
+		rval = nand_write(nand, offset, &truncated_write_size,
+				p_buffer);
 
-			if ((flags & WITH_WR_VERIFY) && !rval)
-				rval = nand_verify(nand, offset,
-					truncated_write_size, p_buffer);
+		if ((flags & WITH_WR_VERIFY) && !rval)
+			rval = nand_verify(nand, offset,
+				truncated_write_size, p_buffer);
 
-			offset += write_size;
-			p_buffer += write_size;
-		}
+		offset += write_size;
+		p_buffer += write_size;
 
 		if (rval != 0) {
 			printf("NAND write to offset %llx failed %d\n",
