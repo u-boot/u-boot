@@ -366,8 +366,8 @@ static struct clk_bit_info *get_clk_bit_info(int peripheral)
 static unsigned long exynos5_get_periph_rate(int peripheral)
 {
 	struct clk_bit_info *bit_info = get_clk_bit_info(peripheral);
-	unsigned long sclk, sub_clk = 0;
-	unsigned int src, div, sub_div = 0;
+	unsigned long sclk = 0;
+	unsigned int src = 0, div = 0, sub_div = 0;
 	struct exynos5_clock *clk =
 			(struct exynos5_clock *)samsung_get_base_clock();
 
@@ -389,30 +389,30 @@ static unsigned long exynos5_get_periph_rate(int peripheral)
 		break;
 	case PERIPH_ID_I2S0:
 		src = readl(&clk->src_mau);
-		div = readl(&clk->div_mau);
+		div = sub_div = readl(&clk->div_mau);
 	case PERIPH_ID_SPI0:
 	case PERIPH_ID_SPI1:
 		src = readl(&clk->src_peric1);
-		div = readl(&clk->div_peric1);
+		div = sub_div = readl(&clk->div_peric1);
 		break;
 	case PERIPH_ID_SPI2:
 		src = readl(&clk->src_peric1);
-		div = readl(&clk->div_peric2);
+		div = sub_div = readl(&clk->div_peric2);
 		break;
 	case PERIPH_ID_SPI3:
 	case PERIPH_ID_SPI4:
 		src = readl(&clk->sclk_src_isp);
-		div = readl(&clk->sclk_div_isp);
+		div = sub_div = readl(&clk->sclk_div_isp);
 		break;
 	case PERIPH_ID_SDMMC0:
 	case PERIPH_ID_SDMMC1:
 		src = readl(&clk->src_fsys);
-		div = readl(&clk->div_fsys1);
+		div = sub_div = readl(&clk->div_fsys1);
 		break;
 	case PERIPH_ID_SDMMC2:
 	case PERIPH_ID_SDMMC3:
 		src = readl(&clk->src_fsys);
-		div = readl(&clk->div_fsys2);
+		div = sub_div = readl(&clk->div_fsys2);
 		break;
 	case PERIPH_ID_I2C0:
 	case PERIPH_ID_I2C1:
@@ -422,12 +422,10 @@ static unsigned long exynos5_get_periph_rate(int peripheral)
 	case PERIPH_ID_I2C5:
 	case PERIPH_ID_I2C6:
 	case PERIPH_ID_I2C7:
-		sclk = exynos5_get_pll_clk(MPLL);
-		sub_div = ((readl(&clk->div_top1) >> bit_info->div_bit)
-			    & bit_info->div_mask) + 1;
-		div = ((readl(&clk->div_top0) >> bit_info->prediv_bit)
-			& bit_info->prediv_mask) + 1;
-		return (sclk / sub_div) / div;
+		src = EXYNOS_SRC_MPLL;
+		div = readl(&clk->div_top0);
+		sub_div = readl(&clk->div_top1);
+		break;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
 		return -1;
@@ -447,28 +445,28 @@ static unsigned long exynos5_get_periph_rate(int peripheral)
 		sclk = exynos5_get_pll_clk(VPLL);
 		break;
 	default:
+		debug("%s: EXYNOS_SRC %d not supported\n", __func__, src);
 		return 0;
 	}
 
-	/* Ratio clock division for this peripheral */
-	if (bit_info->div_bit >= 0) {
-		sub_div = (div >> bit_info->div_bit) & bit_info->div_mask;
-		sub_clk = sclk / (sub_div + 1);
-	}
+	/* Clock divider ratio for this peripheral */
+	if (bit_info->div_bit >= 0)
+		div = (div >> bit_info->div_bit) & bit_info->div_mask;
 
-	if (bit_info->prediv_bit >= 0) {
-		div = (div >> bit_info->prediv_bit) & bit_info->prediv_mask;
-		return sub_clk / (div + 1);
-	}
+	/* Clock pre-divider ratio for this peripheral */
+	if (bit_info->prediv_bit >= 0)
+		sub_div = (sub_div >> bit_info->prediv_bit)
+			  & bit_info->prediv_mask;
 
-	return sub_clk;
+	/* Calculate and return required clock rate */
+	return (sclk / (div + 1)) / (sub_div + 1);
 }
 
 static unsigned long exynos542x_get_periph_rate(int peripheral)
 {
 	struct clk_bit_info *bit_info = get_clk_bit_info(peripheral);
-	unsigned long sclk, sub_clk = 0;
-	unsigned int src, div, sub_div = 0;
+	unsigned long sclk = 0;
+	unsigned int src = 0, div = 0, sub_div = 0;
 	struct exynos5420_clock *clk =
 			(struct exynos5420_clock *)samsung_get_base_clock();
 
@@ -516,10 +514,9 @@ static unsigned long exynos542x_get_periph_rate(int peripheral)
 	case PERIPH_ID_I2C8:
 	case PERIPH_ID_I2C9:
 	case PERIPH_ID_I2C10:
-		sclk = exynos542x_get_pll_clk(MPLL);
-		sub_div = ((readl(&clk->div_top1) >> bit_info->div_bit)
-			    & bit_info->div_mask) + 1;
-		return sclk / sub_div;
+		src = EXYNOS542X_SRC_MPLL;
+		div = readl(&clk->div_top1);
+		break;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
 		return -1;
@@ -542,22 +539,21 @@ static unsigned long exynos542x_get_periph_rate(int peripheral)
 		sclk = exynos542x_get_pll_clk(RPLL);
 		break;
 	default:
+		debug("%s: EXYNOS542X_SRC %d not supported", __func__, src);
 		return 0;
 	}
 
-	/* Ratio clock division for this peripheral */
-	if (bit_info->div_bit >= 0) {
+	/* Clock divider ratio for this peripheral */
+	if (bit_info->div_bit >= 0)
 		div = (div >> bit_info->div_bit) & bit_info->div_mask;
-		sub_clk = sclk / (div + 1);
-	}
 
-	if (bit_info->prediv_bit >= 0) {
+	/* Clock pre-divider ratio for this peripheral */
+	if (bit_info->prediv_bit >= 0)
 		sub_div = (sub_div >> bit_info->prediv_bit)
-						& bit_info->prediv_mask;
-		return sub_clk / (sub_div + 1);
-	}
+			  & bit_info->prediv_mask;
 
-	return sub_clk;
+	/* Calculate and return required clock rate */
+	return (sclk / (div + 1)) / (sub_div + 1);
 }
 
 unsigned long clock_get_periph_rate(int peripheral)
