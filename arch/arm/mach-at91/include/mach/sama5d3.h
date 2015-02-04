@@ -189,6 +189,9 @@
 #define PIO_SCDR_DIV		0x3fff
 #define CPU_HAS_PCR
 
+/* Timer */
+#define CONFIG_SYS_TIMER_COUNTER	0xfffffe3c
+
 /*
  * PMECC table in ROM
  */

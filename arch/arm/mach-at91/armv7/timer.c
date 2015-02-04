@@ -36,22 +36,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define TIMER_LOAD_VAL	0xfffff
 
-static inline unsigned long long tick_to_time(unsigned long long tick)
-{
-	tick *= CONFIG_SYS_HZ;
-	do_div(tick, gd->arch.timer_rate_hz);
-
-	return tick;
-}
-
-static inline unsigned long long usec_to_tick(unsigned long long usec)
-{
-	usec *= gd->arch.timer_rate_hz;
-	do_div(usec, 1000000);
-
-	return usec;
-}
-
 /*
  * Use the PITC in full 32 bit incrementing mode
  */
@@ -67,52 +51,7 @@ int timer_init(void)
 
 	gd->arch.timer_rate_hz = get_pit_clk_rate() / 16;
 
-	gd->arch.tbu = 0;
-	gd->arch.tbl = 0;
-
 	return 0;
-}
-
-/*
- * Get the current 64 bit timer tick count
- */
-unsigned long long get_ticks(void)
-{
-	at91_pit_t *pit = (at91_pit_t *)ATMEL_BASE_PIT;
-
-	ulong now = readl(&pit->piir);
-
-	/* increment tbu if tbl has rolled over */
-	if (now < gd->arch.tbl)
-		gd->arch.tbu++;
-	gd->arch.tbl = now;
-	return (((unsigned long long)gd->arch.tbu) << 32) | gd->arch.tbl;
-}
-
-void __udelay(unsigned long usec)
-{
-	unsigned long long start;
-	ulong tmo;
-
-	start = get_ticks();		/* get current timestamp */
-	tmo = usec_to_tick(usec);	/* convert usecs to ticks */
-	while ((get_ticks() - start) < tmo)
-		;			/* loop till time has passed */
-}
-
-/*
- * get_timer(base) can be used to check for timeouts or
- * to measure elasped time relative to an event:
- *
- * ulong start_time = get_timer(0) sets start_time to the current
- * time value.
- * get_timer(start_time) returns the time elapsed since then.
- *
- * The time is used in CONFIG_SYS_HZ units!
- */
-ulong get_timer(ulong base)
-{
-	return tick_to_time(get_ticks()) - base;
 }
 
 /*
