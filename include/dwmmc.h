@@ -141,9 +141,9 @@ struct dwmci_host {
 	int dev_index;
 	int dev_id;
 	int buswidth;
-	u32 clksel_val;
 	u32 fifoth_val;
 	struct mmc *mmc;
+	void *priv;
 
 	void (*clksel)(struct dwmci_host *host);
 	void (*board_init)(struct dwmci_host *host);
