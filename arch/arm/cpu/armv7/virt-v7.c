@@ -112,13 +112,20 @@ int armv7_init_nonsec(void)
 	for (i = 1; i <= itlinesnr; i++)
 		writel((unsigned)-1, gic_dist_addr + GICD_IGROUPRn + 4 * i);
 
+	/*
+	 * Relocate secure section before any cpu runs in secure ram.
+	 * smp_kick_all_cpus may enable other cores and runs into secure
+	 * ram, so need to relocate secure section before enabling other
+	 * cores.
+	 */
+	relocate_secure_section();
+
 #ifndef CONFIG_ARMV7_PSCI
 	smp_set_core_boot_addr((unsigned long)secure_ram_addr(_smp_pen), -1);
 	smp_kick_all_cpus();
 #endif
 
 	/* call the non-sec switching code on this CPU also */
-	relocate_secure_section();
 	secure_ram_addr(_nonsec_init)();
 	return 0;
 }
