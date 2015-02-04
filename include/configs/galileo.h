@@ -50,4 +50,11 @@
 #undef CONFIG_VIDEO
 #undef CONFIG_CFB_CONSOLE
 
+/* SD/MMC support */
+#define CONFIG_MMC
+#define CONFIG_SDHCI
+#define CONFIG_GENERIC_MMC
+#define CONFIG_MMC_SDMA
+#define CONFIG_CMD_MMC
+
 #endif	/* __CONFIG_H */

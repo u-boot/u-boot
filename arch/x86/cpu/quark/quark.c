@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <mmc.h>
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/post.h>
@@ -12,6 +13,10 @@
 #include <asm/arch/device.h>
 #include <asm/arch/msg_port.h>
 #include <asm/arch/quark.h>
+
+static struct pci_device_id mmc_supported[] = {
+	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_QRK_SDIO },
+};
 
 /*
  * TODO:
@@ -104,4 +109,10 @@ void reset_cpu(ulong addr)
 {
 	/* cold reset */
 	outb(0x08, PORT_RESET);
+}
+
+int cpu_mmc_init(bd_t *bis)
+{
+	return pci_mmc_init("Quark SDHCI", mmc_supported,
+			    ARRAY_SIZE(mmc_supported));
 }
