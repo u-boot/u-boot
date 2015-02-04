@@ -64,6 +64,10 @@ static void exynos_dwmci_board_init(struct dwmci_host *host)
 			     MPSCTRL_NON_SECURE_READ_BIT |
 			     MPSCTRL_NON_SECURE_WRITE_BIT | MPSCTRL_VALID);
 	}
+
+	/* Set to clksel_val at initial time */
+	if (host->clksel_val)
+		exynos_dwmci_clksel(host);
 }
 
 static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
