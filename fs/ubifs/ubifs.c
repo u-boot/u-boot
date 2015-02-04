@@ -150,6 +150,12 @@ static inline int crypto_comp_decompress(struct crypto_comp *tfm,
 
 	return 0;
 }
+
+/* from shrinker.c */
+
+/* Global clean znode counter (for all mounted UBIFS instances) */
+atomic_long_t ubifs_clean_zn_cnt;
+
 #endif
 
 /**
