@@ -79,4 +79,17 @@
 		bank-name = "B";
 	};
 
+	spi {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "intel,ich-spi";
+		spi-flash@0 {
+			#size-cells = <1>;
+			#address-cells = <1>;
+			reg = <0>;
+			compatible = "winbond,w25q64", "spi-flash";
+			memory-map = <0xff800000 0x00800000>;
+		};
+	};
+
 };

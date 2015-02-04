@@ -13,6 +13,21 @@
 #include <asm/arch/msg_port.h>
 #include <asm/arch/quark.h>
 
+/*
+ * TODO:
+ *
+ * This whole routine should be removed until we fully convert the ICH SPI
+ * driver to DM and make use of DT to pass the bios control register offset
+ */
+static void unprotect_spi_flash(void)
+{
+	u32 bc;
+
+	bc = pci_read_config32(QUARK_LEGACY_BRIDGE, 0xd8);
+	bc |= 0x1;	/* unprotect the flash */
+	pci_write_config32(QUARK_LEGACY_BRIDGE, 0xd8, bc);
+}
+
 static void quark_setup_bars(void)
 {
 	/* GPIO - D31:F0:R44h */
@@ -73,6 +88,8 @@ int arch_cpu_init(void)
 	 * which need be initialized with suggested values
 	 */
 	quark_setup_bars();
+
+	unprotect_spi_flash();
 
 	return 0;
 }
