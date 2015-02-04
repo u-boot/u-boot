@@ -26,6 +26,10 @@ enum pll_src_bit {
 	EXYNOS_SRC_MPLL = 6,
 	EXYNOS_SRC_EPLL,
 	EXYNOS_SRC_VPLL,
+	EXYNOS542X_SRC_MPLL = 3,
+	EXYNOS542X_SRC_SPLL,
+	EXYNOS542X_SRC_EPLL = 6,
+	EXYNOS542X_SRC_RPLL,
 };
 
 unsigned long get_pll_clk(int pllreg);

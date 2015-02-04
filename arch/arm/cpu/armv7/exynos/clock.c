@@ -27,7 +27,7 @@ struct clk_bit_info {
 };
 
 /* periph_id src_bit div_bit prediv_bit */
-static struct clk_bit_info clk_bit_info[] = {
+static struct clk_bit_info exynos5_bit_info[] = {
 	{PERIPH_ID_UART0,	0,	0,	-1},
 	{PERIPH_ID_UART1,	4,	4,	-1},
 	{PERIPH_ID_UART2,	8,	8,	-1},
@@ -57,6 +57,41 @@ static struct clk_bit_info clk_bit_info[] = {
 	{PERIPH_ID_PWM2,	24,	0,	-1},
 	{PERIPH_ID_PWM3,	24,	0,	-1},
 	{PERIPH_ID_PWM4,	24,	0,	-1},
+
+	{PERIPH_ID_NONE,	-1,	-1,	-1},
+};
+
+static struct clk_bit_info exynos542x_bit_info[] = {
+	{PERIPH_ID_UART0,	4,	8,	-1},
+	{PERIPH_ID_UART1,	8,	12,	-1},
+	{PERIPH_ID_UART2,	12,	16,	-1},
+	{PERIPH_ID_UART3,	16,	20,	-1},
+	{PERIPH_ID_I2C0,	-1,	8,	-1},
+	{PERIPH_ID_I2C1,	-1,	8,	-1},
+	{PERIPH_ID_I2C2,	-1,	8,	-1},
+	{PERIPH_ID_I2C3,	-1,	8,	-1},
+	{PERIPH_ID_I2C4,	-1,	8,	-1},
+	{PERIPH_ID_I2C5,	-1,	8,	-1},
+	{PERIPH_ID_I2C6,	-1,	8,	-1},
+	{PERIPH_ID_I2C7,	-1,	8,	-1},
+	{PERIPH_ID_SPI0,	20,	20,	8},
+	{PERIPH_ID_SPI1,	24,	24,	16},
+	{PERIPH_ID_SPI2,	28,	28,	24},
+	{PERIPH_ID_SDMMC0,	8,	0,	-1},
+	{PERIPH_ID_SDMMC1,	12,	10,	-1},
+	{PERIPH_ID_SDMMC2,	16,	20,	-1},
+	{PERIPH_ID_I2C8,	-1,	8,	-1},
+	{PERIPH_ID_I2C9,	-1,	8,	-1},
+	{PERIPH_ID_I2S0,	0,	0,	4},
+	{PERIPH_ID_I2S1,	4,	12,	16},
+	{PERIPH_ID_SPI3,	12,	16,	0},
+	{PERIPH_ID_SPI4,	16,	20,	8},
+	{PERIPH_ID_PWM0,	24,	28,	-1},
+	{PERIPH_ID_PWM1,	24,	28,	-1},
+	{PERIPH_ID_PWM2,	24,	28,	-1},
+	{PERIPH_ID_PWM3,	24,	28,	-1},
+	{PERIPH_ID_PWM4,	24,	28,	-1},
+	{PERIPH_ID_I2C10,	-1,	8,	-1},
 
 	{PERIPH_ID_NONE,	-1,	-1,	-1},
 };
@@ -306,16 +341,22 @@ static unsigned long exynos542x_get_pll_clk(int pllreg)
 static struct clk_bit_info *get_clk_bit_info(int peripheral)
 {
 	int i;
+	struct clk_bit_info *info;
 
-	for (i = 0; clk_bit_info[i].id != PERIPH_ID_NONE; i++) {
-		if (clk_bit_info[i].id == peripheral)
+	if (proid_is_exynos5420() || proid_is_exynos5800())
+		info = exynos542x_bit_info;
+	else
+		info = exynos5_bit_info;
+
+	for (i = 0; info[i].id != PERIPH_ID_NONE; i++) {
+		if (info[i].id == peripheral)
 			break;
 	}
 
-	if (clk_bit_info[i].id == PERIPH_ID_NONE)
+	if (info[i].id == PERIPH_ID_NONE)
 		debug("ERROR: Peripheral ID %d not found\n", peripheral);
 
-	return &clk_bit_info[i];
+	return &info[i];
 }
 
 static unsigned long exynos5_get_periph_rate(int peripheral)
@@ -414,12 +455,110 @@ static unsigned long exynos5_get_periph_rate(int peripheral)
 	return sub_clk;
 }
 
+static unsigned long exynos542x_get_periph_rate(int peripheral)
+{
+	struct clk_bit_info *bit_info = get_clk_bit_info(peripheral);
+	unsigned long sclk, sub_clk = 0;
+	unsigned int src, div, sub_div = 0;
+	struct exynos5420_clock *clk =
+			(struct exynos5420_clock *)samsung_get_base_clock();
+
+	switch (peripheral) {
+	case PERIPH_ID_UART0:
+	case PERIPH_ID_UART1:
+	case PERIPH_ID_UART2:
+	case PERIPH_ID_UART3:
+	case PERIPH_ID_PWM0:
+	case PERIPH_ID_PWM1:
+	case PERIPH_ID_PWM2:
+	case PERIPH_ID_PWM3:
+	case PERIPH_ID_PWM4:
+		src = readl(&clk->src_peric0);
+		div = readl(&clk->div_peric0);
+		break;
+	case PERIPH_ID_SPI0:
+	case PERIPH_ID_SPI1:
+	case PERIPH_ID_SPI2:
+		src = readl(&clk->src_peric1);
+		div = readl(&clk->div_peric1);
+		sub_div = readl(&clk->div_peric4);
+		break;
+	case PERIPH_ID_SPI3:
+	case PERIPH_ID_SPI4:
+		src = readl(&clk->src_isp);
+		div = readl(&clk->div_isp1);
+		sub_div = readl(&clk->div_isp1);
+		break;
+	case PERIPH_ID_SDMMC0:
+	case PERIPH_ID_SDMMC1:
+	case PERIPH_ID_SDMMC2:
+	case PERIPH_ID_SDMMC3:
+		src = readl(&clk->src_fsys);
+		div = readl(&clk->div_fsys1);
+		break;
+	case PERIPH_ID_I2C0:
+	case PERIPH_ID_I2C1:
+	case PERIPH_ID_I2C2:
+	case PERIPH_ID_I2C3:
+	case PERIPH_ID_I2C4:
+	case PERIPH_ID_I2C5:
+	case PERIPH_ID_I2C6:
+	case PERIPH_ID_I2C7:
+	case PERIPH_ID_I2C8:
+	case PERIPH_ID_I2C9:
+	case PERIPH_ID_I2C10:
+		sclk = exynos542x_get_pll_clk(MPLL);
+		sub_div = ((readl(&clk->div_top1) >> bit_info->div_bit)
+								& 0x7) + 1;
+		return sclk / sub_div;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return -1;
+	};
+
+	if (bit_info->src_bit >= 0)
+		src = (src >> bit_info->src_bit) & 0xf;
+
+	switch (src) {
+	case EXYNOS542X_SRC_MPLL:
+		sclk = exynos542x_get_pll_clk(MPLL);
+		break;
+	case EXYNOS542X_SRC_SPLL:
+		sclk = exynos542x_get_pll_clk(SPLL);
+		break;
+	case EXYNOS542X_SRC_EPLL:
+		sclk = exynos542x_get_pll_clk(EPLL);
+		break;
+	case EXYNOS542X_SRC_RPLL:
+		sclk = exynos542x_get_pll_clk(RPLL);
+		break;
+	default:
+		return 0;
+	}
+
+	/* Ratio clock division for this peripheral */
+	if (bit_info->div_bit >= 0) {
+		div = (div >> bit_info->div_bit) & 0xf;
+		sub_clk = sclk / (div + 1);
+	}
+
+	if (bit_info->prediv_bit >= 0) {
+		sub_div = (sub_div >> bit_info->prediv_bit) & 0xff;
+		return sub_clk / (sub_div + 1);
+	}
+
+	return sub_clk;
+}
+
 unsigned long clock_get_periph_rate(int peripheral)
 {
-	if (cpu_is_exynos5())
+	if (cpu_is_exynos5()) {
+		if (proid_is_exynos5420() || proid_is_exynos5800())
+			return exynos542x_get_periph_rate(peripheral);
 		return exynos5_get_periph_rate(peripheral);
-	else
+	} else {
 		return 0;
+	}
 }
 
 /* exynos4: return ARM clock frequency */
