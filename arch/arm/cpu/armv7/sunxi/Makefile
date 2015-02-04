@@ -11,6 +11,7 @@ obj-y	+= timer.o
 obj-y	+= board.o
 obj-y	+= clock.o
 obj-y	+= cpu_info.o
+obj-y	+= dram_helpers.o
 obj-y	+= pinmux.o
 obj-y	+= usbc.o
 obj-$(CONFIG_MACH_SUN6I)	+= prcm.o
