@@ -18,8 +18,8 @@ U-Boot supports running as a coreboot [1] payload on x86. So far only Link
 on other x86 boards since coreboot deals with most of the low-level details.
 
 U-Boot also supports booting directly from x86 reset vector without coreboot,
-aka raw support or bare support. Currently Link, Intel Crown Bay and Intel
-Minnowboard Max support running U-Boot 'bare metal'.
+aka raw support or bare support. Currently Link, Intel Crown Bay, Intel
+Minnowboard Max and Intel Galileo support running U-Boot 'bare metal'.
 
 As for loading an OS, U-Boot supports directly booting a 32-bit or 64-bit
 Linux kernel as part of a FIT image. It also supports a compressed zImage.
@@ -110,7 +110,6 @@ Now you can build U-Boot and obtain u-boot.rom
 $ make crownbay_defconfig
 $ make all
 
-
 Intel Minnowboard Max instructions:
 
 This uses as FSP as with Crown Bay, except it is for the Atom E3800 series.
@@ -136,6 +135,24 @@ Now you can build U-Boot and obtain u-boot.rom
 $ make minnowmax_defconfig
 $ make all
 
+Intel Galileo instructions:
+
+Only one binary blob is needed for Remote Management Unit (RMU) within Intel
+Quark SoC. Not like FSP, U-Boot does not call into the binary. The binary is
+needed by the Quark SoC itself.
+
+You can get the binary blob from Quark Board Support Package from Intel website:
+
+* ./QuarkSocPkg/QuarkNorthCluster/Binary/QuarkMicrocode/RMU.bin
+
+Rename the file and put it to the board directory by:
+
+   $ cp RMU.bin board/intel/galileo/rmu.bin
+
+Now you can build U-Boot and obtain u-boot.rom
+
+$ make galileo_defconfig
+$ make all
 
 Test with coreboot
 ------------------
@@ -203,7 +220,6 @@ mtrr - List and set the Memory Type Range Registers (MTRR). These are used to
 
 Development Flow
 ----------------
-
 These notes are for those who want to port U-Boot to a new x86 platform.
 
 Since x86 CPUs boot from SPI flash, a SPI flash emulator is a good investment.
