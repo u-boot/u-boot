@@ -154,6 +154,9 @@
 #define ATMEL_CPU_NAME	get_cpu_name()
 #endif
 
+/* Timer */
+#define CONFIG_SYS_TIMER_COUNTER	0xfffffe3c
+
 /*
  * Other misc defines
  */
