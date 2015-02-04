@@ -20,42 +20,45 @@
  * positions of the peripheral clocks of the src and div registers
  */
 struct clk_bit_info {
+	enum periph_id id;
 	int8_t src_bit;
 	int8_t div_bit;
 	int8_t prediv_bit;
 };
 
-/* src_bit div_bit prediv_bit */
+/* periph_id src_bit div_bit prediv_bit */
 static struct clk_bit_info clk_bit_info[] = {
-	{0,	0,	-1},
-	{4,	4,	-1},
-	{8,	8,	-1},
-	{12,	12,	-1},
-	{0,	0,	8},
-	{4,	16,	24},
-	{8,	0,	8},
-	{12,	16,	24},
-	{-1,	-1,	-1},
-	{16,	0,	8},
-	{20,	16,	24},
-	{24,	0,	8},
-	{0,	0,	4},
-	{4,	12,	16},
-	{-1,	-1,	-1},
-	{-1,	-1,	-1},
-	{-1,	24,	0},
-	{-1,	24,	0},
-	{-1,	24,	0},
-	{-1,	24,	0},
-	{-1,	24,	0},
-	{-1,	24,	0},
-	{-1,	24,	0},
-	{-1,	24,	0},
-	{24,	0,	-1},
-	{24,	0,	-1},
-	{24,	0,	-1},
-	{24,	0,	-1},
-	{24,	0,	-1},
+	{PERIPH_ID_UART0,	0,	0,	-1},
+	{PERIPH_ID_UART1,	4,	4,	-1},
+	{PERIPH_ID_UART2,	8,	8,	-1},
+	{PERIPH_ID_UART3,	12,	12,	-1},
+	{PERIPH_ID_I2C0,	-1,	24,	0},
+	{PERIPH_ID_I2C1,	-1,	24,	0},
+	{PERIPH_ID_I2C2,	-1,	24,	0},
+	{PERIPH_ID_I2C3,	-1,	24,	0},
+	{PERIPH_ID_I2C4,	-1,	24,	0},
+	{PERIPH_ID_I2C5,	-1,	24,	0},
+	{PERIPH_ID_I2C6,	-1,	24,	0},
+	{PERIPH_ID_I2C7,	-1,	24,	0},
+	{PERIPH_ID_SPI0,	16,	0,	8},
+	{PERIPH_ID_SPI1,	20,	16,	24},
+	{PERIPH_ID_SPI2,	24,	0,	8},
+	{PERIPH_ID_SDMMC0,	0,	0,	8},
+	{PERIPH_ID_SDMMC1,	4,	16,	24},
+	{PERIPH_ID_SDMMC2,	8,	0,	8},
+	{PERIPH_ID_SDMMC3,	12,	16,	24},
+	{PERIPH_ID_I2S0,	0,	0,	4},
+	{PERIPH_ID_I2S1,	4,	12,	16},
+	{PERIPH_ID_SPI3,	0,	0,	4},
+	{PERIPH_ID_SPI4,	4,	12,	16},
+	{PERIPH_ID_SDMMC4,	16,	0,	8},
+	{PERIPH_ID_PWM0,	24,	0,	-1},
+	{PERIPH_ID_PWM1,	24,	0,	-1},
+	{PERIPH_ID_PWM2,	24,	0,	-1},
+	{PERIPH_ID_PWM3,	24,	0,	-1},
+	{PERIPH_ID_PWM4,	24,	0,	-1},
+
+	{PERIPH_ID_NONE,	-1,	-1,	-1},
 };
 
 /* Epll Clock division values to achive different frequency output */
@@ -260,9 +263,24 @@ static unsigned long exynos5_get_pll_clk(int pllreg)
 	return fout;
 }
 
+static struct clk_bit_info *get_clk_bit_info(int peripheral)
+{
+	int i;
+
+	for (i = 0; clk_bit_info[i].id != PERIPH_ID_NONE; i++) {
+		if (clk_bit_info[i].id == peripheral)
+			break;
+	}
+
+	if (clk_bit_info[i].id == PERIPH_ID_NONE)
+		debug("ERROR: Peripheral ID %d not found\n", peripheral);
+
+	return &clk_bit_info[i];
+}
+
 static unsigned long exynos5_get_periph_rate(int peripheral)
 {
-	struct clk_bit_info *bit_info = &clk_bit_info[peripheral];
+	struct clk_bit_info *bit_info = get_clk_bit_info(peripheral);
 	unsigned long sclk, sub_clk;
 	unsigned int src, div, sub_div;
 	struct exynos5_clock *clk =
