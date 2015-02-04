@@ -21,79 +21,83 @@
  */
 struct clk_bit_info {
 	enum periph_id id;
+	int32_t src_mask;
+	int32_t div_mask;
+	int32_t prediv_mask;
 	int8_t src_bit;
 	int8_t div_bit;
 	int8_t prediv_bit;
 };
 
-/* periph_id src_bit div_bit prediv_bit */
 static struct clk_bit_info exynos5_bit_info[] = {
-	{PERIPH_ID_UART0,	0,	0,	-1},
-	{PERIPH_ID_UART1,	4,	4,	-1},
-	{PERIPH_ID_UART2,	8,	8,	-1},
-	{PERIPH_ID_UART3,	12,	12,	-1},
-	{PERIPH_ID_I2C0,	-1,	24,	0},
-	{PERIPH_ID_I2C1,	-1,	24,	0},
-	{PERIPH_ID_I2C2,	-1,	24,	0},
-	{PERIPH_ID_I2C3,	-1,	24,	0},
-	{PERIPH_ID_I2C4,	-1,	24,	0},
-	{PERIPH_ID_I2C5,	-1,	24,	0},
-	{PERIPH_ID_I2C6,	-1,	24,	0},
-	{PERIPH_ID_I2C7,	-1,	24,	0},
-	{PERIPH_ID_SPI0,	16,	0,	8},
-	{PERIPH_ID_SPI1,	20,	16,	24},
-	{PERIPH_ID_SPI2,	24,	0,	8},
-	{PERIPH_ID_SDMMC0,	0,	0,	8},
-	{PERIPH_ID_SDMMC1,	4,	16,	24},
-	{PERIPH_ID_SDMMC2,	8,	0,	8},
-	{PERIPH_ID_SDMMC3,	12,	16,	24},
-	{PERIPH_ID_I2S0,	0,	0,	4},
-	{PERIPH_ID_I2S1,	4,	12,	16},
-	{PERIPH_ID_SPI3,	0,	0,	4},
-	{PERIPH_ID_SPI4,	4,	12,	16},
-	{PERIPH_ID_SDMMC4,	16,	0,	8},
-	{PERIPH_ID_PWM0,	24,	0,	-1},
-	{PERIPH_ID_PWM1,	24,	0,	-1},
-	{PERIPH_ID_PWM2,	24,	0,	-1},
-	{PERIPH_ID_PWM3,	24,	0,	-1},
-	{PERIPH_ID_PWM4,	24,	0,	-1},
+	/* periph id		s_mask	d_mask	p_mask	s_bit	d_bit	p_bit */
+	{PERIPH_ID_UART0,	0xf,	0xf,	-1,	0,	0,	-1},
+	{PERIPH_ID_UART1,	0xf,	0xf,	-1,	4,	4,	-1},
+	{PERIPH_ID_UART2,	0xf,	0xf,	-1,	8,	8,	-1},
+	{PERIPH_ID_UART3,	0xf,	0xf,	-1,	12,	12,	-1},
+	{PERIPH_ID_I2C0,	-1,	0x7,	0x7,	-1,	24,	0},
+	{PERIPH_ID_I2C1,	-1,	0x7,	0x7,	-1,	24,	0},
+	{PERIPH_ID_I2C2,	-1,	0x7,	0x7,	-1,	24,	0},
+	{PERIPH_ID_I2C3,	-1,	0x7,	0x7,	-1,	24,	0},
+	{PERIPH_ID_I2C4,	-1,	0x7,	0x7,	-1,	24,	0},
+	{PERIPH_ID_I2C5,	-1,	0x7,	0x7,	-1,	24,	0},
+	{PERIPH_ID_I2C6,	-1,	0x7,	0x7,	-1,	24,	0},
+	{PERIPH_ID_I2C7,	-1,	0x7,	0x7,	-1,	24,	0},
+	{PERIPH_ID_SPI0,	0xf,	0xf,	0xff,	16,	0,	8},
+	{PERIPH_ID_SPI1,	0xf,	0xf,	0xff,	20,	16,	24},
+	{PERIPH_ID_SPI2,	0xf,	0xf,	0xff,	24,	0,	8},
+	{PERIPH_ID_SDMMC0,	0xf,	0xf,	0xff,	0,	0,	8},
+	{PERIPH_ID_SDMMC1,	0xf,	0xf,	0xff,	4,	16,	24},
+	{PERIPH_ID_SDMMC2,	0xf,	0xf,	0xff,	8,	0,	8},
+	{PERIPH_ID_SDMMC3,	0xf,	0xf,	0xff,	12,	16,	24},
+	{PERIPH_ID_I2S0,	0xf,	0xf,	0xff,	0,	0,	4},
+	{PERIPH_ID_I2S1,	0xf,	0xf,	0xff,	4,	12,	16},
+	{PERIPH_ID_SPI3,	0xf,	0xf,	0xff,	0,	0,	4},
+	{PERIPH_ID_SPI4,	0xf,	0xf,	0xff,	4,	12,	16},
+	{PERIPH_ID_SDMMC4,	0xf,	0xf,	0xff,	16,	0,	8},
+	{PERIPH_ID_PWM0,	0xf,	0xf,	-1,	24,	0,	-1},
+	{PERIPH_ID_PWM1,	0xf,	0xf,	-1,	24,	0,	-1},
+	{PERIPH_ID_PWM2,	0xf,	0xf,	-1,	24,	0,	-1},
+	{PERIPH_ID_PWM3,	0xf,	0xf,	-1,	24,	0,	-1},
+	{PERIPH_ID_PWM4,	0xf,	0xf,	-1,	24,	0,	-1},
 
-	{PERIPH_ID_NONE,	-1,	-1,	-1},
+	{PERIPH_ID_NONE,	-1,	-1,	-1,	-1,	-1,	-1},
 };
 
 static struct clk_bit_info exynos542x_bit_info[] = {
-	{PERIPH_ID_UART0,	4,	8,	-1},
-	{PERIPH_ID_UART1,	8,	12,	-1},
-	{PERIPH_ID_UART2,	12,	16,	-1},
-	{PERIPH_ID_UART3,	16,	20,	-1},
-	{PERIPH_ID_I2C0,	-1,	8,	-1},
-	{PERIPH_ID_I2C1,	-1,	8,	-1},
-	{PERIPH_ID_I2C2,	-1,	8,	-1},
-	{PERIPH_ID_I2C3,	-1,	8,	-1},
-	{PERIPH_ID_I2C4,	-1,	8,	-1},
-	{PERIPH_ID_I2C5,	-1,	8,	-1},
-	{PERIPH_ID_I2C6,	-1,	8,	-1},
-	{PERIPH_ID_I2C7,	-1,	8,	-1},
-	{PERIPH_ID_SPI0,	20,	20,	8},
-	{PERIPH_ID_SPI1,	24,	24,	16},
-	{PERIPH_ID_SPI2,	28,	28,	24},
-	{PERIPH_ID_SDMMC0,	8,	0,	-1},
-	{PERIPH_ID_SDMMC1,	12,	10,	-1},
-	{PERIPH_ID_SDMMC2,	16,	20,	-1},
-	{PERIPH_ID_I2C8,	-1,	8,	-1},
-	{PERIPH_ID_I2C9,	-1,	8,	-1},
-	{PERIPH_ID_I2S0,	0,	0,	4},
-	{PERIPH_ID_I2S1,	4,	12,	16},
-	{PERIPH_ID_SPI3,	12,	16,	0},
-	{PERIPH_ID_SPI4,	16,	20,	8},
-	{PERIPH_ID_PWM0,	24,	28,	-1},
-	{PERIPH_ID_PWM1,	24,	28,	-1},
-	{PERIPH_ID_PWM2,	24,	28,	-1},
-	{PERIPH_ID_PWM3,	24,	28,	-1},
-	{PERIPH_ID_PWM4,	24,	28,	-1},
-	{PERIPH_ID_I2C10,	-1,	8,	-1},
+	/* periph id		s_mask	d_mask	p_mask	s_bit	d_bit	p_bit */
+	{PERIPH_ID_UART0,	0xf,	0xf,	-1,	4,	8,	-1},
+	{PERIPH_ID_UART1,	0xf,	0xf,	-1,	8,	12,	-1},
+	{PERIPH_ID_UART2,	0xf,	0xf,	-1,	12,	16,	-1},
+	{PERIPH_ID_UART3,	0xf,	0xf,	-1,	16,	20,	-1},
+	{PERIPH_ID_I2C0,	-1,	0x3f,	-1,	-1,	8,	-1},
+	{PERIPH_ID_I2C1,	-1,	0x3f,	-1,	-1,	8,	-1},
+	{PERIPH_ID_I2C2,	-1,	0x3f,	-1,	-1,	8,	-1},
+	{PERIPH_ID_I2C3,	-1,	0x3f,	-1,	-1,	8,	-1},
+	{PERIPH_ID_I2C4,	-1,	0x3f,	-1,	-1,	8,	-1},
+	{PERIPH_ID_I2C5,	-1,	0x3f,	-1,	-1,	8,	-1},
+	{PERIPH_ID_I2C6,	-1,	0x3f,	-1,	-1,	8,	-1},
+	{PERIPH_ID_I2C7,	-1,	0x3f,	-1,	-1,	8,	-1},
+	{PERIPH_ID_SPI0,	0xf,	0xf,	0xff,	20,	20,	8},
+	{PERIPH_ID_SPI1,	0xf,	0xf,	0xff,	24,	24,	16},
+	{PERIPH_ID_SPI2,	0xf,	0xf,	0xff,	28,	28,	24},
+	{PERIPH_ID_SDMMC0,	0x7,	0x3ff,	-1,	8,	0,	-1},
+	{PERIPH_ID_SDMMC1,	0x7,	0x3ff,	-1,	12,	10,	-1},
+	{PERIPH_ID_SDMMC2,	0x7,	0x3ff,	-1,	16,	20,	-1},
+	{PERIPH_ID_I2C8,	-1,	0x3f,	-1,	-1,	8,	-1},
+	{PERIPH_ID_I2C9,	-1,	0x3f,	-1,	-1,	8,	-1},
+	{PERIPH_ID_I2S0,	0xf,	0xf,	0xff,	0,	0,	4},
+	{PERIPH_ID_I2S1,	0xf,	0xf,	0xff,	4,	12,	16},
+	{PERIPH_ID_SPI3,	0xf,	0xf,	0xff,	12,	16,	0},
+	{PERIPH_ID_SPI4,	0xf,	0xf,	0xff,	16,	20,	8},
+	{PERIPH_ID_PWM0,	0xf,	0xf,	-1,	24,	28,	-1},
+	{PERIPH_ID_PWM1,	0xf,	0xf,	-1,	24,	28,	-1},
+	{PERIPH_ID_PWM2,	0xf,	0xf,	-1,	24,	28,	-1},
+	{PERIPH_ID_PWM3,	0xf,	0xf,	-1,	24,	28,	-1},
+	{PERIPH_ID_PWM4,	0xf,	0xf,	-1,	24,	28,	-1},
+	{PERIPH_ID_I2C10,	-1,	0x3f,	-1,	-1,	8,	-1},
 
-	{PERIPH_ID_NONE,	-1,	-1,	-1},
+	{PERIPH_ID_NONE,	-1,	-1,	-1,	-1,	-1,	-1},
 };
 
 /* Epll Clock division values to achive different frequency output */
@@ -420,9 +424,9 @@ static unsigned long exynos5_get_periph_rate(int peripheral)
 	case PERIPH_ID_I2C7:
 		sclk = exynos5_get_pll_clk(MPLL);
 		sub_div = ((readl(&clk->div_top1) >> bit_info->div_bit)
-								& 0x7) + 1;
+			    & bit_info->div_mask) + 1;
 		div = ((readl(&clk->div_top0) >> bit_info->prediv_bit)
-								& 0x7) + 1;
+			& bit_info->prediv_mask) + 1;
 		return (sclk / sub_div) / div;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
@@ -430,7 +434,7 @@ static unsigned long exynos5_get_periph_rate(int peripheral)
 	};
 
 	if (bit_info->src_bit >= 0)
-		src = (src >> bit_info->src_bit) & 0xf;
+		src = (src >> bit_info->src_bit) & bit_info->src_mask;
 
 	switch (src) {
 	case EXYNOS_SRC_MPLL:
@@ -448,12 +452,12 @@ static unsigned long exynos5_get_periph_rate(int peripheral)
 
 	/* Ratio clock division for this peripheral */
 	if (bit_info->div_bit >= 0) {
-		sub_div = (div >> bit_info->div_bit) & 0xf;
+		sub_div = (div >> bit_info->div_bit) & bit_info->div_mask;
 		sub_clk = sclk / (sub_div + 1);
 	}
 
 	if (bit_info->prediv_bit >= 0) {
-		div = (div >> bit_info->prediv_bit) & 0xff;
+		div = (div >> bit_info->prediv_bit) & bit_info->prediv_mask;
 		return sub_clk / (div + 1);
 	}
 
@@ -514,7 +518,7 @@ static unsigned long exynos542x_get_periph_rate(int peripheral)
 	case PERIPH_ID_I2C10:
 		sclk = exynos542x_get_pll_clk(MPLL);
 		sub_div = ((readl(&clk->div_top1) >> bit_info->div_bit)
-								& 0x7) + 1;
+			    & bit_info->div_mask) + 1;
 		return sclk / sub_div;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
@@ -522,7 +526,7 @@ static unsigned long exynos542x_get_periph_rate(int peripheral)
 	};
 
 	if (bit_info->src_bit >= 0)
-		src = (src >> bit_info->src_bit) & 0xf;
+		src = (src >> bit_info->src_bit) & bit_info->src_mask;
 
 	switch (src) {
 	case EXYNOS542X_SRC_MPLL:
@@ -543,12 +547,13 @@ static unsigned long exynos542x_get_periph_rate(int peripheral)
 
 	/* Ratio clock division for this peripheral */
 	if (bit_info->div_bit >= 0) {
-		div = (div >> bit_info->div_bit) & 0xf;
+		div = (div >> bit_info->div_bit) & bit_info->div_mask;
 		sub_clk = sclk / (div + 1);
 	}
 
 	if (bit_info->prediv_bit >= 0) {
-		sub_div = (sub_div >> bit_info->prediv_bit) & 0xff;
+		sub_div = (sub_div >> bit_info->prediv_bit)
+						& bit_info->prediv_mask;
 		return sub_clk / (sub_div + 1);
 	}
 
