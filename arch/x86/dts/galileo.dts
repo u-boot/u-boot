@@ -65,4 +65,18 @@
 		};
 	};
 
+	gpioa {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0 0x20>;
+		bank-name = "A";
+	};
+
+	gpiob {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x20 0x20>;
+		bank-name = "B";
+	};
+
 };
