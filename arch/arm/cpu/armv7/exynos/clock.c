@@ -263,6 +263,46 @@ static unsigned long exynos5_get_pll_clk(int pllreg)
 	return fout;
 }
 
+/* exynos542x: return pll clock frequency */
+static unsigned long exynos542x_get_pll_clk(int pllreg)
+{
+	struct exynos5420_clock *clk =
+		(struct exynos5420_clock *)samsung_get_base_clock();
+	unsigned long r, k = 0;
+
+	switch (pllreg) {
+	case APLL:
+		r = readl(&clk->apll_con0);
+		break;
+	case MPLL:
+		r = readl(&clk->mpll_con0);
+		break;
+	case EPLL:
+		r = readl(&clk->epll_con0);
+		k = readl(&clk->epll_con1);
+		break;
+	case VPLL:
+		r = readl(&clk->vpll_con0);
+		k = readl(&clk->vpll_con1);
+		break;
+	case BPLL:
+		r = readl(&clk->bpll_con0);
+		break;
+	case RPLL:
+		r = readl(&clk->rpll_con0);
+		k = readl(&clk->rpll_con1);
+		break;
+	case SPLL:
+		r = readl(&clk->spll_con0);
+		break;
+	default:
+		printf("Unsupported PLL (%d)\n", pllreg);
+		return 0;
+	}
+
+	return exynos_get_pll_clk(pllreg, r, k);
+}
+
 static struct clk_bit_info *get_clk_bit_info(int peripheral)
 {
 	int i;
@@ -380,46 +420,6 @@ unsigned long clock_get_periph_rate(int peripheral)
 		return exynos5_get_periph_rate(peripheral);
 	else
 		return 0;
-}
-
-/* exynos5420: return pll clock frequency */
-static unsigned long exynos5420_get_pll_clk(int pllreg)
-{
-	struct exynos5420_clock *clk =
-		(struct exynos5420_clock *)samsung_get_base_clock();
-	unsigned long r, k = 0;
-
-	switch (pllreg) {
-	case APLL:
-		r = readl(&clk->apll_con0);
-		break;
-	case MPLL:
-		r = readl(&clk->mpll_con0);
-		break;
-	case EPLL:
-		r = readl(&clk->epll_con0);
-		k = readl(&clk->epll_con1);
-		break;
-	case VPLL:
-		r = readl(&clk->vpll_con0);
-		k = readl(&clk->vpll_con1);
-		break;
-	case BPLL:
-		r = readl(&clk->bpll_con0);
-		break;
-	case RPLL:
-		r = readl(&clk->rpll_con0);
-		k = readl(&clk->rpll_con1);
-		break;
-	case SPLL:
-		r = readl(&clk->spll_con0);
-		break;
-	default:
-		printf("Unsupported PLL (%d)\n", pllreg);
-		return 0;
-	}
-
-	return exynos_get_pll_clk(pllreg, r, k);
 }
 
 /* exynos4: return ARM clock frequency */
@@ -1603,7 +1603,7 @@ unsigned long get_pll_clk(int pllreg)
 {
 	if (cpu_is_exynos5()) {
 		if (proid_is_exynos5420() || proid_is_exynos5800())
-			return exynos5420_get_pll_clk(pllreg);
+			return exynos542x_get_pll_clk(pllreg);
 		return exynos5_get_pll_clk(pllreg);
 	} else {
 		if (proid_is_exynos4412())
