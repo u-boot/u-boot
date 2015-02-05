@@ -8,7 +8,6 @@ obj-$(CONFIG_SPL_BUILD) += spl.o
 obj-y += timer.o
 obj-y += reset.o
 obj-y += cache_uniphier.o
-obj-$(CONFIG_BOARD_POSTCLK_INIT) += board_postclk_init.o
 obj-y += dram_init.o
 obj-$(CONFIG_DRAM_INIT) += ddrphy_training.o
 obj-$(CONFIG_BOARD_EARLY_INIT_F) += board_early_init_f.o
