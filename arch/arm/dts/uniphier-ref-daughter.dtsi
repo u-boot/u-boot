@@ -11,5 +11,6 @@
 	eeprom {
 		compatible = "i2c-eeprom";
 		reg = <0x50>;
+		u-boot,i2c-offset-len = <2>;
 	};
 };
