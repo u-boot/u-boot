@@ -26,6 +26,15 @@ void pin_init(void)
 	sg_set_pinsel(111, 1);	/* SBI0 -> RXD3 */
 #endif
 
+#ifdef CONFIG_SYS_I2C_UNIPHIER
+	{
+		u32 tmp;
+		tmp = readl(SG_IECTRL);
+		tmp |= 0xc00; /* enable SCL0, SDA0, SCL1, SDA1 */
+		writel(tmp, SG_IECTRL);
+	}
+#endif
+
 #ifdef CONFIG_NAND_DENALI
 	sg_set_pinsel(15, 0);	/* XNFRE_GB -> XNFRE_GB */
 	sg_set_pinsel(16, 0);	/* XNFWE_GB -> XNFWE_GB */
