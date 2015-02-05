@@ -2,7 +2,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_DISPLAY_BOARDINFO) += board_info.o
 obj-$(if $(CONFIG_OF_CONTROL),,y) += platdevice.o
 obj-y += boot-mode.o
 obj-$(CONFIG_DEBUG_LL) += lowlevel_debug.o
