@@ -167,6 +167,7 @@ enum fdt_compat_id {
 	COMPAT_INTEL_GMA,		/* Intel Graphics Media Accelerator */
 	COMPAT_AMS_AS3722,		/* AMS AS3722 PMIC */
 	COMPAT_INTEL_ICH_SPI,		/* Intel ICH7/9 SPI controller */
+	COMPAT_INTEL_QRK_MRC,		/* Intel Quark MRC */
 
 	COMPAT_COUNT,
 };
