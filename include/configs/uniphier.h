@@ -235,6 +235,11 @@
 	"image_offset=0x00080000\0"		\
 	"image_size=0x00f00000\0"		\
 	"verify=n\0"				\
+	"nandupdate=nand erase 0 0x100000 &&"				\
+		   "tftpboot u-boot-spl.bin &&"				\
+		   "nand write $loadaddr 0 0x10000 &&"			\
+		   "tftpboot u-boot-dtb.img &&"				\
+		   "nand write $loadaddr 0x10000 0xf0000\0"		\
 	"norboot=run add_default_bootargs &&"				\
 		"bootm $image_offset\0"					\
 	"nandboot=run add_default_bootargs &&"				\
