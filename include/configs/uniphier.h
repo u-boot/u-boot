@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2014 Panasonic Corporation
+ * Copyright (C) 2012-2015 Panasonic Corporation
  *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -235,11 +235,11 @@
 	"image_offset=0x00080000\0"		\
 	"image_size=0x00f00000\0"		\
 	"verify=n\0"				\
-	"norboot=run add_default_bootargs;"				\
+	"norboot=run add_default_bootargs &&"				\
 		"bootm $image_offset\0"					\
-	"nandboot=run add_default_bootargs;"				\
-		"nand read $loadaddr $image_offset $image_size;"	\
-		"bootm\0"						\
+	"nandboot=run add_default_bootargs &&"				\
+		 "nand read $loadaddr $image_offset $image_size &&"	\
+		 "bootm\0"						\
 	"add_default_bootargs=setenv bootargs $bootargs"		\
 		" console=ttyS0,$baudrate\0"				\
 
