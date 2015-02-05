@@ -11,6 +11,7 @@ obj-y += cache_uniphier.o
 obj-$(CONFIG_BOARD_POSTCLK_INIT) += board_postclk_init.o
 obj-y += dram_init.o
 obj-$(CONFIG_DRAM_INIT) += ddrphy_training.o
+obj-$(CONFIG_BOARD_EARLY_INIT_F) += board_early_init_f.o
 obj-$(CONFIG_DISPLAY_CPUINFO) += cpu_info.o
 obj-$(CONFIG_BOARD_EARLY_INIT_R) += board_early_init_r.o
 obj-$(CONFIG_BOARD_LATE_INIT) += board_late_init.o

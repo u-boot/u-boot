@@ -39,9 +39,6 @@ int board_postclk_init(void)
 
 	led_write(B, 2, , );
 #endif
-	pin_init();
-
-	led_write(B, 3, , );
 
 	return 0;
 }

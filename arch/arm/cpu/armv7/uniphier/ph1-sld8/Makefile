@@ -8,5 +8,5 @@ obj-y += boot-mode.o
 obj-$(CONFIG_DEBUG_LL) += lowlevel_debug.o
 obj-$(CONFIG_SOC_INIT) += bcu_init.o sbc_init.o sg_init.o pll_init.o \
 								clkrst_init.o
-obj-$(CONFIG_BOARD_POSTCLK_INIT) += pinctrl.o
+obj-$(CONFIG_BOARD_EARLY_INIT_F) += pinctrl.o
 obj-$(CONFIG_DRAM_INIT) += pll_spectrum.o umc_init.o ddrphy_init.o
