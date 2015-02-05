@@ -45,7 +45,7 @@ struct boot_device_info boot_device_table[] = {
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
-	{BOOT_DEVICE_NONE, ""}
+	{ /* sentinel */ }
 };
 
 int get_boot_mode_sel(void)

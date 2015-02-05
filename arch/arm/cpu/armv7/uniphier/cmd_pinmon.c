@@ -19,7 +19,7 @@ static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	puts("Boot Mode Pin:\n");
 
-	for (i = 0; strlen(boot_device_table[i].info); i++)
+	for (i = 0; boot_device_table[i].info; i++)
 		printf(" %c %02x %s\n", i == mode_sel ? '*' : ' ', i,
 		       boot_device_table[i].info);
 
