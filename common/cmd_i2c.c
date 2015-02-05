@@ -518,7 +518,7 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		ret = i2c_read(chip, addr, alen, linebuf, linebytes);
 #endif
 		if (ret)
-			i2c_report_err(ret, I2C_ERR_READ);
+			return i2c_report_err(ret, I2C_ERR_READ);
 		else {
 			printf("%04x:", addr);
 			cp = linebuf;
@@ -616,7 +616,7 @@ static int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		ret = i2c_write(chip, addr++, alen, &byte, 1);
 #endif
 		if (ret)
-			i2c_report_err(ret, I2C_ERR_WRITE);
+			return i2c_report_err(ret, I2C_ERR_WRITE);
 		/*
 		 * Wait for the write to complete.  The write can take
 		 * up to 10mSec (we allow a little more time).
@@ -798,16 +798,15 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 		ret = i2c_read(chip, addr, alen, (uchar *)&data, size);
 #endif
 		if (ret)
-			i2c_report_err(ret, I2C_ERR_READ);
-		else {
-			data = cpu_to_be32(data);
-			if (size == 1)
-				printf(" %02lx", (data >> 24) & 0x000000FF);
-			else if (size == 2)
-				printf(" %04lx", (data >> 16) & 0x0000FFFF);
-			else
-				printf(" %08lx", data);
-		}
+			return i2c_report_err(ret, I2C_ERR_READ);
+
+		data = cpu_to_be32(data);
+		if (size == 1)
+			printf(" %02lx", (data >> 24) & 0x000000FF);
+		else if (size == 2)
+			printf(" %04lx", (data >> 16) & 0x0000FFFF);
+		else
+			printf(" %08lx", data);
 
 		nbytes = cli_readline(" ? ");
 		if (nbytes == 0) {
@@ -848,7 +847,8 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 						(uchar *)&data, size);
 #endif
 				if (ret)
-					i2c_report_err(ret, I2C_ERR_WRITE);
+					return i2c_report_err(ret,
+							      I2C_ERR_WRITE);
 #ifdef CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS
 				udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
 #endif
