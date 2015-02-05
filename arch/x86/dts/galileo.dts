@@ -6,6 +6,8 @@
 
 /dts-v1/;
 
+#include <dt-bindings/mrc/quark.h>
+
 /include/ "skeleton.dtsi"
 
 / {
@@ -18,6 +20,29 @@
 
 	chosen {
 		stdout-path = &pciuart0;
+	};
+
+	mrc {
+		compatible = "intel,quark-mrc";
+		flags = <MRC_FLAG_SCRAMBLE_EN>;
+		dram-width = <DRAM_WIDTH_X8>;
+		dram-speed = <DRAM_FREQ_800>;
+		dram-type = <DRAM_TYPE_DDR3>;
+		rank-mask = <DRAM_RANK(0)>;
+		chan-mask = <DRAM_CHANNEL(0)>;
+		chan-width = <DRAM_CHANNEL_WIDTH_X16>;
+		addr-mode = <DRAM_ADDR_MODE0>;
+		refresh-rate = <DRAM_REFRESH_RATE_785US>;
+		sr-temp-range = <DRAM_SRT_RANGE_NORMAL>;
+		ron-value = <DRAM_RON_34OHM>;
+		rtt-nom-value = <DRAM_RTT_NOM_120OHM>;
+		rd-odt-value = <DRAM_RD_ODT_OFF>;
+		dram-density = <DRAM_DENSITY_1G>;
+		dram-cl = <6>;
+		dram-ras = <0x0000927c>;
+		dram-wtr = <0x00002710>;
+		dram-rrd = <0x00002710>;
+		dram-faw = <0x00009c40>;
 	};
 
 	pci {
