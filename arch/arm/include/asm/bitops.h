@@ -95,9 +95,6 @@ static inline int __test_and_change_bit(int nr, volatile void *addr)
 	return (old & mask) != 0;
 }
 
-extern int find_first_zero_bit(void * addr, unsigned size);
-extern int find_next_zero_bit(void * addr, int size, int offset);
-
 /*
  * This routine doesn't need to be atomic.
  */
@@ -129,6 +126,43 @@ static inline unsigned long ffz(unsigned long word)
 	return k;
 }
 
+static inline int find_next_zero_bit(void *addr, int size, int offset)
+{
+	unsigned long *p = ((unsigned long *)addr) + (offset >> 5);
+	unsigned long result = offset & ~31UL;
+	unsigned long tmp;
+
+	if (offset >= size)
+		return size;
+	size -= result;
+	offset &= 31UL;
+	if (offset) {
+		tmp = *(p++);
+		tmp |= ~0UL >> (32-offset);
+		if (size < 32)
+			goto found_first;
+		if (~tmp)
+			goto found_middle;
+		size -= 32;
+		result += 32;
+	}
+	while (size & ~31UL) {
+		tmp = *(p++);
+		if (~tmp)
+			goto found_middle;
+		result += 32;
+		size -= 32;
+	}
+	if (!size)
+		return result;
+	tmp = *p;
+
+found_first:
+	tmp |= ~0UL >> size;
+found_middle:
+	return result + ffz(tmp);
+}
+
 /*
  * hweightN: returns the hamming weight (i.e. the number
  * of bits set) of a N-bit word
@@ -137,6 +171,9 @@ static inline unsigned long ffz(unsigned long word)
 #define hweight32(x) generic_hweight32(x)
 #define hweight16(x) generic_hweight16(x)
 #define hweight8(x) generic_hweight8(x)
+
+#define find_first_zero_bit(addr, size) \
+	find_next_zero_bit((addr), (size), 0)
 
 #define ext2_set_bit			test_and_set_bit
 #define ext2_clear_bit			test_and_clear_bit
