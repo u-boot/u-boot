@@ -118,6 +118,7 @@ config FIT_VERBOSE
 config FIT_SIGNATURE
 	bool "Enable signature verification of FIT uImages"
 	depends on FIT
+	depends on DM
 	select RSA
 	help
 	  This option enables signature verification of FIT uImages,
