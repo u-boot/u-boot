@@ -13,11 +13,6 @@
 static struct sandbox_state main_state;
 static struct sandbox_state *state;	/* Pointer to current state record */
 
-void state_record_exit(enum exit_type_id exit_type)
-{
-	state->exit_type = exit_type;
-}
-
 static int state_ensure_space(int extra_size)
 {
 	void *blob = state->state_fdt;
