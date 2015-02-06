@@ -21,13 +21,9 @@
 #define CONFIG_MACH_TYPE		4273
 
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_DM
-#define CONFIG_CMD_DM
 
-#define CONFIG_DM_GPIO
 #define CONFIG_CMD_GPIO
 
-#define CONFIG_DM_SERIAL
 #define CONFIG_SYS_MALLOC_F_LEN		(1 << 10)
 #endif
 
