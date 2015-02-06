@@ -98,7 +98,7 @@ void board_init_f(ulong board_type)
 
 	/* Perform initialization sequence */
 	board_early_init_f();
-	cpu_init();
+	arch_cpu_init();
 	board_postclk_init();
 	env_init();
 	init_baudrate();

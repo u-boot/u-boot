@@ -27,7 +27,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int cpu_init(void)
+int arch_cpu_init(void)
 {
 	extern void _evba(void);
 
