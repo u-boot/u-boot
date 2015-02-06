@@ -16,7 +16,7 @@ def ParseArgs():
     """
     parser = OptionParser()
     parser.add_option('-b', '--branch', type='string',
-          help='Branch name to build')
+          help='Branch name to build, or range of commits to build')
     parser.add_option('-B', '--bloat', dest='show_bloat',
           action='store_true', default=False,
           help='Show changes in function code size for each board')
@@ -53,6 +53,8 @@ def ParseArgs():
           default=None, help='Number of jobs to run at once (passed to make)')
     parser.add_option('-k', '--keep-outputs', action='store_true',
           default=False, help='Keep all build output files (e.g. binaries)')
+    parser.add_option('-K', '--show-config', action='store_true',
+          default=False, help='Show configuration changes in summary (both board config files and Kconfig)')
     parser.add_option('-l', '--list-error-boards', action='store_true',
           default=False, help='Show a list of boards next to each error/warning')
     parser.add_option('--list-tool-chains', action='store_true', default=False,
