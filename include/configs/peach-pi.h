@@ -44,7 +44,6 @@
 
 #define CONFIG_POWER_TPS65090_EC
 #define CONFIG_CROS_EC_SPI		/* Support CROS_EC over SPI */
-#define CONFIG_DM_CROS_EC
 
 #define CONFIG_USB_XHCI
 #define CONFIG_USB_XHCI_EXYNOS

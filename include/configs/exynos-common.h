@@ -17,12 +17,6 @@
 #include <linux/sizes.h>
 
 #define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_DM
-#define CONFIG_CMD_DM
-#define CONFIG_DM_GPIO
-#define CONFIG_DM_SERIAL
-#define CONFIG_DM_SPI
-#define CONFIG_DM_SPI_FLASH
 
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
