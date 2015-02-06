@@ -40,6 +40,7 @@ obj-y	+= extable.o
 obj-y	+= interrupts.o
 obj-$(CONFIG_CMD_KGDB) += kgdb.o
 obj-$(CONFIG_CMD_IDE) += ide.o
+obj-y	+= stack.o
 obj-y	+= time.o
 
 # Don't include the MPC5xxx special memcpy into the

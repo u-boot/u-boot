@@ -35,6 +35,7 @@ endif
 obj-$(CONFIG_SEMIHOSTING) += semihosting.o
 
 obj-y	+= sections.o
+obj-y	+= stack.o
 ifdef CONFIG_ARM64
 obj-y	+= gic_64.o
 obj-y	+= interrupts_64.o
