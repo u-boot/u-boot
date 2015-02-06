@@ -45,50 +45,6 @@ int cpu_mmc_init(bd_t *bd)
 	return atmel_mci_init((void *)ATMEL_BASE_MMCI);
 }
 
-#ifdef CONFIG_SYS_DMA_ALLOC_LEN
-#include <asm/arch/cacheflush.h>
-#include <asm/io.h>
-
-static unsigned long dma_alloc_start;
-static unsigned long dma_alloc_end;
-static unsigned long dma_alloc_brk;
-
-static void dma_alloc_init(void)
-{
-	unsigned long monitor_addr;
-
-	monitor_addr = CONFIG_SYS_MONITOR_BASE + gd->reloc_off;
-	dma_alloc_end = monitor_addr - CONFIG_SYS_MALLOC_LEN;
-	dma_alloc_start = dma_alloc_end - CONFIG_SYS_DMA_ALLOC_LEN;
-	dma_alloc_brk = dma_alloc_start;
-
-	printf("DMA: Using memory from 0x%08lx to 0x%08lx\n",
-	       dma_alloc_start, dma_alloc_end);
-
-	invalidate_dcache_range((unsigned long)cached(dma_alloc_start),
-				dma_alloc_end);
-}
-
-void *dma_alloc_coherent(size_t len, unsigned long *handle)
-{
-	unsigned long paddr = dma_alloc_brk;
-
-	if (dma_alloc_brk + len > dma_alloc_end)
-		return NULL;
-
-	dma_alloc_brk = ((paddr + len + CONFIG_SYS_DCACHE_LINESZ - 1)
-			 & ~(CONFIG_SYS_DCACHE_LINESZ - 1));
-
-	*handle = paddr;
-	return uncached(paddr);
-}
-#else
-static inline void dma_alloc_init(void)
-{
-
-}
-#endif
-
 static int init_baudrate(void)
 {
 	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
@@ -180,12 +136,6 @@ void board_init_f(ulong board_type)
 	/* Reserve memory for malloc() */
 	addr -= CONFIG_SYS_MALLOC_LEN;
 
-#ifdef CONFIG_SYS_DMA_ALLOC_LEN
-	/* Reserve DMA memory (must be cache aligned) */
-	addr &= ~(CONFIG_SYS_DCACHE_LINESZ - 1);
-	addr -= CONFIG_SYS_DMA_ALLOC_LEN;
-#endif
-
 #ifdef CONFIG_LCD
 #ifdef CONFIG_FB_ADDR
 	printf("LCD: Frame buffer allocated at preset 0x%08x\n",
@@ -264,7 +214,6 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	/* The malloc area is right below the monitor image in RAM */
 	mem_malloc_init(CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
 			CONFIG_SYS_MALLOC_LEN, CONFIG_SYS_MALLOC_LEN);
-	dma_alloc_init();
 
 	enable_interrupts();
 
