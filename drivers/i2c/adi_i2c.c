@@ -63,7 +63,7 @@ struct twi_regs {
 #endif
 
 /* All transfers are described by this data structure */
-struct i2c_msg {
+struct adi_i2c_msg {
 	u8 flags;
 #define I2C_M_COMBO		0x4
 #define I2C_M_STOP		0x2
@@ -81,7 +81,7 @@ struct i2c_msg {
  * wait_for_completion - manage the actual i2c transfer
  *	@msg: the i2c msg
  */
-static int wait_for_completion(struct twi_regs *twi, struct i2c_msg *msg)
+static int wait_for_completion(struct twi_regs *twi, struct adi_i2c_msg *msg)
 {
 	u16 int_stat, ctl;
 	ulong timebase = get_timer(0);
@@ -151,7 +151,7 @@ static int i2c_transfer(struct i2c_adapter *adap, uint8_t chip, uint addr,
 		(addr >>  8),
 		(addr >> 16),
 	};
-	struct i2c_msg msg = {
+	struct adi_i2c_msg msg = {
 		.flags = flags | (len >= 0xff ? I2C_M_STOP : 0),
 		.buf   = buffer,
 		.len   = len,

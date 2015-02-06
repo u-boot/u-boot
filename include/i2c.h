@@ -25,14 +25,13 @@
  * enough as to be incompatible for compilation purposes.
  */
 
-#ifdef CONFIG_DM_I2C
-
 enum dm_i2c_chip_flags {
 	DM_I2C_CHIP_10BIT	= 1 << 0, /* Use 10-bit addressing */
 	DM_I2C_CHIP_RD_ADDRESS	= 1 << 1, /* Send address for each read byte */
 	DM_I2C_CHIP_WR_ADDRESS	= 1 << 2, /* Send address for each write byte */
 };
 
+struct udevice;
 /**
  * struct dm_i2c_chip - information about an i2c chip
  *
@@ -438,8 +437,6 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
  */
 int i2c_chip_ofdata_to_platdata(const void *blob, int node,
 				struct dm_i2c_chip *chip);
-
-#endif
 
 #ifndef CONFIG_DM_I2C
 
