@@ -169,7 +169,7 @@ class TestBuild(unittest.TestCase):
         expected_colour = col.GREEN if ok else col.RED
         expect = '%10s: ' % arch
         # TODO(sjg@chromium.org): If plus is '', we shouldn't need this
-        expect += col.Color(expected_colour, plus)
+        expect += ' ' + col.Color(expected_colour, plus)
         expect += '  '
         for board in boards:
             expect += col.Color(expected_colour, ' %s' % board)

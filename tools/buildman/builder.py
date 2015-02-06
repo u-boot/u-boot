@@ -664,7 +664,7 @@ class Builder:
                 arch = 'unknown'
             str = self.col.Color(color, ' ' + target)
             if not arch in done_arch:
-                str = self.col.Color(color, char) + '  ' + str
+                str = ' %s  %s' % (self.col.Color(color, char), str)
                 done_arch[arch] = True
             if not arch in arch_list:
                 arch_list[arch] = str
