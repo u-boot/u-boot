@@ -2,5 +2,7 @@ config DM
 	bool "Enable Driver Model"
 	depends on !SPL_BUILD
 	help
-	  This config option enables Driver Model.
-	  To use legacy drivers, say N.
+	  This config option enables Driver Model. This brings in the core
+	  support, including scanning of platform data on start-up. If
+	  CONFIG_OF_CONTROL is enabled, the device tree will be scanned also
+	  when available.
