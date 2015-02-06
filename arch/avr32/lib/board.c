@@ -29,6 +29,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 unsigned long monitor_flash_len;
 
+__weak void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_dram[0].size =  gd->ram_size;
+}
+
 /* Weak aliases for optional board functions */
 static int __do_nothing(void)
 {
@@ -82,7 +88,6 @@ void board_init_f(ulong board_type)
 	unsigned long monitor_len;
 	unsigned long monitor_addr;
 	unsigned long addr;
-	long sdram_size;
 
 	/* Initialize the global data pointer */
 	memset(&gd_data, 0, sizeof(gd_data));
@@ -97,10 +102,10 @@ void board_init_f(ulong board_type)
 	serial_init();
 	console_init_f();
 	display_banner();
-	sdram_size = initdram(board_type);
+	dram_init();
 
 	/* If we have no SDRAM, we can't go on */
-	if (sdram_size <= 0)
+	if (gd->ram_size <= 0)
 		panic("No working SDRAM available\n");
 
 	/*
@@ -114,7 +119,7 @@ void board_init_f(ulong board_type)
 	 *  - global data struct
 	 *  - stack
 	 */
-	addr = CONFIG_SYS_SDRAM_BASE + sdram_size;
+	addr = CONFIG_SYS_SDRAM_BASE + gd->ram_size;
 	monitor_len = (char *)(&__bss_end) - _text;
 
 	/*
@@ -156,12 +161,7 @@ void board_init_f(ulong board_type)
 	*(--new_sp) = 0;
 	*(--new_sp) = 0;
 
-	/*
-	 * Initialize the board information struct with the
-	 * information we have.
-	 */
-	bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	bd->bi_dram[0].size = sdram_size;
+	dram_init_banksize();
 
 	memcpy(new_gd, gd, sizeof(gd_t));
 

@@ -26,5 +26,6 @@ typedef struct bd_info {
 #define IH_ARCH_DEFAULT IH_ARCH_AVR32
 
 int arch_cpu_init(void);
+int dram_init(void);
 
 #endif /* __ASM_U_BOOT_H__ */

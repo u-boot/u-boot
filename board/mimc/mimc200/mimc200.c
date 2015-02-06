@@ -91,6 +91,8 @@ int board_early_init_f(void)
 
 	/* Enable 26 address bits and NCS2 */
 	portmux_enable_ebi(16, 26, PORTMUX_EBI_CS(2), PORTMUX_DRIVE_HIGH);
+	sdram_init(uncached(EBI_SDRAM_BASE), &sdram_config);
+
 	portmux_enable_usart1(PORTMUX_DRIVE_MIN);
 
 	/* de-assert "force sys reset" pin */
@@ -149,24 +151,6 @@ int board_early_init_f(void)
 #endif
 
 	return 0;
-}
-
-phys_size_t initdram(int board_type)
-{
-	unsigned long expected_size;
-	unsigned long actual_size;
-	void *sdram_base;
-
-	sdram_base = uncached(EBI_SDRAM_BASE);
-
-	expected_size = sdram_init(sdram_base, &sdram_config);
-	actual_size = get_ram_size(sdram_base, expected_size);
-
-	if (expected_size != actual_size)
-		printf("Warning: Only %lu of %lu MiB SDRAM is working\n",
-				actual_size >> 20, expected_size >> 20);
-
-	return actual_size;
 }
 
 int board_early_init_r(void)
