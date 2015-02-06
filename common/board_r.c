@@ -459,6 +459,18 @@ static int initr_env(void)
 	return 0;
 }
 
+#ifdef CONFIG_SYS_BOOTPARAMS_LEN
+static int initr_malloc_bootparams(void)
+{
+	gd->bd->bi_boot_params = (ulong)malloc(CONFIG_SYS_BOOTPARAMS_LEN);
+	if (!gd->bd->bi_boot_params) {
+		puts("WARNING: Cannot allocate space for boot parameters\n");
+		return -ENOMEM;
+	}
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_SC3
 /* TODO: with new initcalls, move this into the driver */
 extern void sc3_read_eeprom(void);
@@ -775,6 +787,9 @@ init_fnc_t init_sequence_r[] = {
 	initr_dataflash,
 #endif
 	initr_env,
+#ifdef CONFIG_SYS_BOOTPARAMS_LEN
+	initr_malloc_bootparams,
+#endif
 	INIT_FUNC_WATCHDOG_RESET
 	initr_secondary_cpu,
 #ifdef CONFIG_SC3
