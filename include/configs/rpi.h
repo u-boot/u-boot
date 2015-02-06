@@ -30,12 +30,6 @@
  */
 #define CONFIG_MACH_TYPE		MACH_TYPE_BCM2708
 
-/* Enable driver model */
-#define CONFIG_DM
-#define CONFIG_CMD_DM
-#define CONFIG_DM_GPIO
-#define CONFIG_DM_SERIAL
-
 /* Memory layout */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
