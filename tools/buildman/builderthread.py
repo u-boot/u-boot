@@ -209,14 +209,17 @@ class BuilderThread(threading.Thread):
                 if do_config:
                     result = self.Make(commit, brd, 'mrproper', cwd,
                             'mrproper', *args, env=env)
+                    config_out = result.combined
                     result = self.Make(commit, brd, 'config', cwd,
                             *(args + config_args), env=env)
-                    config_out = result.combined
+                    config_out += result.combined
                     do_config = False   # No need to configure next time
                 if result.return_code == 0:
                     result = self.Make(commit, brd, 'build', cwd, *args,
                             env=env)
                 result.stderr = result.stderr.replace(src_dir + '/', '')
+                if self.builder.verbose_build:
+                    result.stdout = config_out + result.stdout
             else:
                 result.return_code = 1
                 result.stderr = 'No tool chain for %s\n' % brd.arch

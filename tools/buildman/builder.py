@@ -335,6 +335,9 @@ class Builder:
         cmd = [self.gnu_make] + list(args)
         result = command.RunPipe([cmd], capture=True, capture_stderr=True,
                 cwd=cwd, raise_on_error=False, **kwargs)
+        if self.verbose_build:
+            result.stdout = '%s\n' % (' '.join(cmd)) + result.stdout
+            result.combined = '%s\n' % (' '.join(cmd)) + result.combined
         return result
 
     def ProcessResult(self, result):
