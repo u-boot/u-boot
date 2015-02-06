@@ -345,16 +345,38 @@ class BuilderThread(threading.Thread):
                 with open(sizes, 'w') as fd:
                     print >>fd, '\n'.join(lines)
 
+        # Write out the configuration files, with a special case for SPL
+        for dirname in ['', 'spl', 'tpl']:
+            self.CopyFiles(result.out_dir, build_dir, dirname, ['u-boot.cfg',
+                'spl/u-boot-spl.cfg', 'tpl/u-boot-tpl.cfg', '.config',
+                'include/autoconf.mk', 'include/generated/autoconf.h'])
+
         # Now write the actual build output
         if keep_outputs:
-            patterns = ['u-boot', '*.bin', 'u-boot.dtb', '*.map', '*.img',
-                        'include/autoconf.mk', 'spl/u-boot-spl',
-                        'spl/u-boot-spl.bin']
-            for pattern in patterns:
-                file_list = glob.glob(os.path.join(result.out_dir, pattern))
-                for fname in file_list:
-                    shutil.copy(fname, build_dir)
+            self.CopyFiles(result.out_dir, build_dir, '', ['u-boot', '*.bin',
+                    'u-boot.dtb', '*.map', '*.img',
+                    'spl/u-boot-spl', 'spl/u-boot-spl.bin',
+                    'tpl/u-boot-tpl', 'tpl/u-boot-tpl.bin'])
 
+    def CopyFiles(self, out_dir, build_dir, dirname, patterns):
+        """Copy files from the build directory to the output.
+
+        Args:
+            out_dir: Path to output directory containing the files
+            build_dir: Place to copy the files
+            dirname: Source directory, '' for normal U-Boot, 'spl' for SPL
+            patterns: A list of filenames (strings) to copy, each relative
+               to the build directory
+        """
+        for pattern in patterns:
+            file_list = glob.glob(os.path.join(out_dir, dirname, pattern))
+            for fname in file_list:
+                target = os.path.basename(fname)
+                if dirname:
+                    base, ext = os.path.splitext(target)
+                    if ext:
+                        target = '%s-%s%s' % (base, dirname, ext)
+                shutil.copy(fname, os.path.join(build_dir, target))
 
     def RunJob(self, job):
         """Run a single job
