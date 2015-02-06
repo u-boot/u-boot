@@ -8,7 +8,6 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
-	unsigned long stack_end;	/* highest stack address */
 	unsigned long cpu_hz;		/* cpu core clock frequency */
 };
 
