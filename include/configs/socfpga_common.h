@@ -190,10 +190,6 @@ unsigned int cm_get_l4_sp_clk_hz(void);
  * QSPI support
  */
 #ifdef CONFIG_OF_CONTROL	/* QSPI is controlled via DT */
-#define CONFIG_CMD_DM
-#define CONFIG_DM
-#define CONFIG_DM_SPI
-#define CONFIG_DM_SPI_FLASH
 #define CONFIG_CADENCE_QSPI
 /* Enable multiple SPI NOR flash manufacturers */
 #define CONFIG_SPI_FLASH		/* SPI flash subsystem */
@@ -210,9 +206,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #endif
 
 #ifdef CONFIG_OF_CONTROL	/* DW SPI is controlled via DT */
-#define CONFIG_CMD_DM
-#define CONFIG_DM
-#define CONFIG_DM_SPI
 #define CONFIG_DESIGNWARE_SPI
 #define CONFIG_CMD_SPI
 #endif
