@@ -12,6 +12,8 @@ import threading
 import command
 import gitutil
 
+RETURN_CODE_RETRY = -1
+
 def Mkdir(dirname, parents = False):
     """Make a directory if it doesn't already exist.
 
@@ -145,7 +147,11 @@ class BuilderThread(threading.Thread):
             # Get the return code from that build and use it
             with open(done_file, 'r') as fd:
                 result.return_code = int(fd.readline())
-            if will_build:
+
+            # Check the signal that the build needs to be retried
+            if result.return_code == RETURN_CODE_RETRY:
+                will_build = True
+            elif will_build:
                 err_file = self.builder.GetErrFile(commit_upto, brd.target)
                 if os.path.exists(err_file) and os.stat(err_file).st_size:
                     result.stderr = 'bad'
@@ -243,9 +249,10 @@ class BuilderThread(threading.Thread):
         if result.return_code < 0:
             return
 
-        # Aborted?
-        if result.stderr and 'No child processes' in result.stderr:
-            return
+        # If we think this might have been aborted with Ctrl-C, record the
+        # failure but not that we are 'done' with this board. A retry may fix
+        # it.
+        maybe_aborted =  result.stderr and 'No child processes' in result.stderr
 
         if result.already_done:
             return
@@ -275,7 +282,11 @@ class BuilderThread(threading.Thread):
             done_file = self.builder.GetDoneFile(result.commit_upto,
                     result.brd.target)
             with open(done_file, 'w') as fd:
-                fd.write('%s' % result.return_code)
+                if maybe_aborted:
+                    # Special code to indicate we need to retry
+                    fd.write('%s' % RETURN_CODE_RETRY)
+                else:
+                    fd.write('%s' % result.return_code)
             with open(os.path.join(build_dir, 'toolchain'), 'w') as fd:
                 print >>fd, 'gcc', result.toolchain.gcc
                 print >>fd, 'path', result.toolchain.path
