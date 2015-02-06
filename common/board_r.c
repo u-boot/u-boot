@@ -55,6 +55,9 @@
 #include <dm/root.h>
 #include <linux/compiler.h>
 #include <linux/err.h>
+#ifdef CONFIG_AVR32
+#include <asm/arch/mmu.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -498,7 +501,7 @@ static int initr_api(void)
 #endif
 
 /* enable exceptions */
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_AVR32)
 static int initr_enable_interrupts(void)
 {
 	enable_interrupts();
@@ -825,10 +828,10 @@ init_fnc_t init_sequence_r[] = {
 	initr_kgdb,
 #endif
 	interrupt_init,
-#if defined(CONFIG_ARM)
+#if defined(CONFIG_ARM) || defined(CONFIG_AVR32)
 	initr_enable_interrupts,
 #endif
-#if defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE)
+#if defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE) || defined(CONFIG_AVR32)
 	timer_init,		/* initialize timer */
 #endif
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
@@ -891,6 +894,10 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	int i;
+#endif
+
+#ifdef CONFIG_AVR32
+	mmu_init_r(dest_addr);
 #endif
 
 #if !defined(CONFIG_X86) && !defined(CONFIG_ARM) && !defined(CONFIG_ARM64)

@@ -8,5 +8,6 @@
 #define _ASM_CONFIG_H_
 
 #define CONFIG_NEEDS_MANUAL_RELOC
+#define CONFIG_SYS_GENERIC_GLOBAL_DATA
 
 #endif
