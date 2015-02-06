@@ -18,16 +18,6 @@
 
 #include <asm/arch/tegra.h>		/* get chip and board defs */
 
-#define CONFIG_DM
-#define CONFIG_CMD_DM
-#define CONFIG_DM_GPIO
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_DM_SERIAL
-#endif
-#define CONFIG_DM_SPI
-#define CONFIG_DM_SPI_FLASH
-#define CONFIG_DM_I2C
-
 #define CONFIG_SYS_TIMER_RATE		1000000
 #define CONFIG_SYS_TIMER_COUNTER	NV_PA_TMRUS_BASE
 
