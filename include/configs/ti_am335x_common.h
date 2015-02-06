@@ -23,7 +23,6 @@
 #ifndef CONFIG_DM
 # define CONFIG_DM
 #endif
-# define CONFIG_CMD_DM
 # define CONFIG_DM_GPIO
 # define CONFIG_DM_SERIAL
 # define CONFIG_OMAP_SERIAL

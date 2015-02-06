@@ -153,6 +153,29 @@ endmenu
 
 menu "Device access commands"
 
+config CMD_DM
+	bool "dm - Access to driver model information"
+	depends on DM
+	default y
+	help
+	  Provides access to driver model data structures and information,
+	  such as a list of devices, list of uclasses and the state of each
+	  device (e.g. activated). This is not required for operation, but
+	  can be useful to see the state of driver model for debugging or
+	  interest.
+
+config CMD_DEMO
+	bool "demo - Demonstration commands for driver model"
+	depends on DM
+	help
+	  Provides a 'demo' command which can be used to play around with
+	  driver model. To use this properly you will need to enable one or
+	  both of the demo devices (DM_DEMO_SHAPE and DM_DEMO_SIMPLE).
+	  Otherwise you will always get an empty list of devices. The demo
+	  devices are defined in the sandbox device tree, so the easiest
+	  option is to use sandbox and pass the -d point to sandbox's
+	  u-boot.dtb file.
+
 config CMD_LOADB
 	bool "loadb"
 	help
