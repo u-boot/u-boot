@@ -23,21 +23,21 @@ DECLARE_GLOBAL_DATA_PTR;
 struct mmu_vm_range mmu_vmr_table[CONFIG_SYS_NR_VM_REGIONS] = {
 	{
 		/* Atmel AT49BV640D 8 MiB x16 NOR flash on NCS0 */
-		.virt_pgno	= CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT,
-		.nr_pages	= CONFIG_SYS_FLASH_SIZE >> PAGE_SHIFT,
-		.phys		= (CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT)
+		.virt_pgno	= CONFIG_SYS_FLASH_BASE >> MMU_PAGE_SHIFT,
+		.nr_pages	= CONFIG_SYS_FLASH_SIZE >> MMU_PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_FLASH_BASE >> MMU_PAGE_SHIFT)
 					| MMU_VMR_CACHE_NONE,
 	}, {
 		/* Micron MT29F2G16AAD 256 MiB x16 NAND flash on NCS3 */
-		.virt_pgno	= EBI_SRAM_CS3_BASE >> PAGE_SHIFT,
-		.nr_pages	= EBI_SRAM_CS3_SIZE >> PAGE_SHIFT,
-		.phys		= (EBI_SRAM_CS3_BASE >> PAGE_SHIFT)
+		.virt_pgno	= EBI_SRAM_CS3_BASE >> MMU_PAGE_SHIFT,
+		.nr_pages	= EBI_SRAM_CS3_SIZE >> MMU_PAGE_SHIFT,
+		.phys		= (EBI_SRAM_CS3_BASE >> MMU_PAGE_SHIFT)
 					| MMU_VMR_CACHE_NONE,
 	}, {
 		/* 2x16-bit ISSI IS42S16320B 64 MiB SDRAM (128 MiB total) */
-		.virt_pgno	= CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT,
-		.nr_pages	= EBI_SDRAM_SIZE >> PAGE_SHIFT,
-		.phys		= (CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT)
+		.virt_pgno	= CONFIG_SYS_SDRAM_BASE >> MMU_PAGE_SHIFT,
+		.nr_pages	= EBI_SDRAM_SIZE >> MMU_PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_SDRAM_BASE >> MMU_PAGE_SHIFT)
 					| MMU_VMR_CACHE_WRBACK,
 	},
 };

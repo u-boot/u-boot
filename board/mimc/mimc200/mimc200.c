@@ -20,19 +20,19 @@
 
 struct mmu_vm_range mmu_vmr_table[CONFIG_SYS_NR_VM_REGIONS] = {
 	{
-		.virt_pgno	= CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT,
-		.nr_pages	= CONFIG_SYS_FLASH_SIZE >> PAGE_SHIFT,
-		.phys		= (CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT)
+		.virt_pgno	= CONFIG_SYS_FLASH_BASE >> MMU_PAGE_SHIFT,
+		.nr_pages	= CONFIG_SYS_FLASH_SIZE >> MMU_PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_FLASH_BASE >> MMU_PAGE_SHIFT)
 					| MMU_VMR_CACHE_NONE,
 	}, {
-		.virt_pgno	= EBI_SRAM_CS2_BASE >> PAGE_SHIFT,
-		.nr_pages	= EBI_SRAM_CS2_SIZE >> PAGE_SHIFT,
-		.phys		= (EBI_SRAM_CS2_BASE >> PAGE_SHIFT)
+		.virt_pgno	= EBI_SRAM_CS2_BASE >> MMU_PAGE_SHIFT,
+		.nr_pages	= EBI_SRAM_CS2_SIZE >> MMU_PAGE_SHIFT,
+		.phys		= (EBI_SRAM_CS2_BASE >> MMU_PAGE_SHIFT)
 					| MMU_VMR_CACHE_NONE,
 	}, {
-		.virt_pgno	= CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT,
-		.nr_pages	= EBI_SDRAM_SIZE >> PAGE_SHIFT,
-		.phys		= (CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT)
+		.virt_pgno	= CONFIG_SYS_SDRAM_BASE >> MMU_PAGE_SHIFT,
+		.nr_pages	= EBI_SDRAM_SIZE >> MMU_PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_SDRAM_BASE >> MMU_PAGE_SHIFT)
 					| MMU_VMR_CACHE_WRBACK,
 	},
 };
