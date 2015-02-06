@@ -67,6 +67,15 @@ config TARGET_GALILEO
 
 endchoice
 
+config DM
+	default y
+
+config DM_GPIO
+	default y
+
+config DM_SERIAL
+	default y
+
 config RAMBASE
 	hex
 	default 0x100000
