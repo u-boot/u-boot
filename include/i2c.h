@@ -125,21 +125,21 @@ int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
 		 struct udevice **devp);
 
 /**
- * i2c_set_bus_speed() - set the speed of a bus
+ * dm_i2c_set_bus_speed() - set the speed of a bus
  *
  * @bus:	Bus to adjust
  * @speed:	Requested speed in Hz
  * @return 0 if OK, -EINVAL for invalid values
  */
-int i2c_set_bus_speed(struct udevice *bus, unsigned int speed);
+int dm_i2c_set_bus_speed(struct udevice *bus, unsigned int speed);
 
 /**
- * i2c_get_bus_speed() - get the speed of a bus
+ * dm_i2c_get_bus_speed() - get the speed of a bus
  *
  * @bus:	Bus to check
  * @return speed of selected I2C bus in Hz, -ve on error
  */
-int i2c_get_bus_speed(struct udevice *bus);
+int dm_i2c_get_bus_speed(struct udevice *bus);
 
 /**
  * i2c_set_chip_flags() - set flags for a chip

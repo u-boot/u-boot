@@ -67,10 +67,10 @@ static int dm_test_i2c_speed(struct dm_test_state *dms)
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
 	ut_assertok(i2c_get_chip(bus, chip, 1, &dev));
-	ut_assertok(i2c_set_bus_speed(bus, 100000));
+	ut_assertok(dm_i2c_set_bus_speed(bus, 100000));
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
-	ut_assertok(i2c_set_bus_speed(bus, 400000));
-	ut_asserteq(400000, i2c_get_bus_speed(bus));
+	ut_assertok(dm_i2c_set_bus_speed(bus, 400000));
+	ut_asserteq(400000, dm_i2c_get_bus_speed(bus));
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_asserteq(-EINVAL, dm_i2c_write(dev, 0, buf, 5));
 

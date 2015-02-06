@@ -1730,7 +1730,7 @@ static int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 #endif
 	if (argc == 1) {
 #ifdef CONFIG_DM_I2C
-		speed = i2c_get_bus_speed(bus);
+		speed = dm_i2c_get_bus_speed(bus);
 #else
 		speed = i2c_get_bus_speed();
 #endif
@@ -1740,7 +1740,7 @@ static int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 		speed = simple_strtoul(argv[1], NULL, 10);
 		printf("Setting bus speed to %d Hz\n", speed);
 #ifdef CONFIG_DM_I2C
-		ret = i2c_set_bus_speed(bus, speed);
+		ret = dm_i2c_set_bus_speed(bus, speed);
 #else
 		ret = i2c_set_bus_speed(speed);
 #endif
