@@ -20,11 +20,6 @@
 #define CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
 #ifndef CONFIG_SPL_BUILD
-#ifndef CONFIG_DM
-# define CONFIG_DM
-#endif
-# define CONFIG_DM_GPIO
-# define CONFIG_DM_SERIAL
 # define CONFIG_OMAP_SERIAL
 # define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
 #endif
