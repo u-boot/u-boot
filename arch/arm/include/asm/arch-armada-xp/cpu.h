@@ -96,6 +96,9 @@ struct kwgpio_registers {
 	u32 irq_level;
 };
 
+/* Needed for dynamic (board-specific) mbus configuration */
+extern struct mvebu_mbus_state mbus_state;
+
 /*
  * functions
  */
@@ -103,5 +106,18 @@ unsigned int mvebu_sdram_bar(enum memory_bank bank);
 unsigned int mvebu_sdram_bs(enum memory_bank bank);
 void mvebu_sdram_size_adjust(enum memory_bank bank);
 int mvebu_mbus_probe(struct mbus_win windows[], int count);
+
+/*
+ * Highspeed SERDES PHY config init, ported from bin_hdr
+ * to mainline U-Boot
+ */
+int serdes_phy_config(void);
+
+/*
+ * DDR3 init / training code ported from Marvell bin_hdr. Now
+ * available in mainline U-Boot in:
+ * drivers/ddr/mvebu/
+ */
+int ddr3_init(void);
 #endif /* __ASSEMBLY__ */
 #endif /* _ARMADA_XP_CPU_H */
