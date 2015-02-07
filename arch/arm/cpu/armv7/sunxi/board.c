@@ -27,6 +27,13 @@
 
 #include <linux/compiler.h>
 
+struct fel_stash {
+	uint32_t sp;
+	uint32_t lr;
+};
+
+struct fel_stash fel_stash __attribute__((section(".data")));
+
 static int gpio_init(void)
 {
 #if CONFIG_CONS_INDEX == 1 && defined(CONFIG_UART0_PORT_F)
@@ -65,6 +72,12 @@ static int gpio_init(void)
 	return 0;
 }
 
+void spl_board_load_image(void)
+{
+	debug("Returning to FEL sp=%x, lr=%x\n", fel_stash.sp, fel_stash.lr);
+	return_to_fel(fel_stash.sp, fel_stash.lr);
+}
+
 void s_init(void)
 {
 #if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
@@ -95,6 +108,14 @@ void s_init(void)
  */
 u32 spl_boot_device(void)
 {
+	/*
+	 * Have we been asked to return to the FEL portion of the boot ROM?
+	 * TODO: We need a more robust test here, or bracket this with
+	 * #ifdef CONFIG_SPL_FEL.
+	 */
+	if (fel_stash.lr >= 0xffff0000 && fel_stash.lr < 0xffff4000)
+		return BOOT_DEVICE_BOARD;
+
 	return BOOT_DEVICE_MMC1;
 }
 

@@ -18,9 +18,7 @@
  */
 #define CONFIG_SUNXI		/* sunxi family */
 #ifdef CONFIG_SPL_BUILD
-#ifndef CONFIG_SPL_FEL
 #define CONFIG_SYS_THUMB_BUILD	/* Thumbs mode to save space in SPL */
-#endif
 #endif
 
 #include <asm/arch/cpu.h>	/* get chip and board defs */
@@ -149,10 +147,10 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 
+#define CONFIG_SPL_BOARD_LOAD_IMAGE
+
 #ifdef CONFIG_SPL_FEL
 
-#define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl-fel.lds"
-#define CONFIG_SPL_START_S_PATH "arch/arm/cpu/armv7/sunxi"
 #define CONFIG_SPL_TEXT_BASE		0x2000
 #define CONFIG_SPL_MAX_SIZE		0x4000		/* 16 KiB */
 
