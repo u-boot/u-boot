@@ -12,6 +12,7 @@ SECTIONS
   . = + SIZEOF_HEADERS;
   .text      :
   {
+    _image_copy_start = .;
     arch/powerpc/cpu/ppc4xx/start.o	(.text*)
     board/amcc/canyonlands/init.o	(.text*)
 
@@ -61,9 +62,14 @@ SECTIONS
   . = ALIGN(256);
   __init_begin = .;
   .text.init : { *(.text.init) }
-  .data.init : { *(.data.init) }
-  . = ALIGN(256);
+  .data.init : {
+	*(.data.init)
+	. = ALIGN(256);
+	LONG(0) LONG(0)		/* Extend u-boot.bin to here */
+  }
   __init_end = .;
+  _end = .;
+  _image_binary_end = .;
 
   __bss_start = .;
   .bss (NOLOAD)       :
