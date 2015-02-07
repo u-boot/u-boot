@@ -16,7 +16,6 @@
 #include <image.h>
 #include <stdint.h>
 #include "kwbimage.h"
-#include <config.h>
 
 #define ALIGN_SUP(x, a) (((x) + (a - 1)) & ~(a - 1))
 
