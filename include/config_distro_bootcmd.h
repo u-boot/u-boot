@@ -10,6 +10,10 @@
 #ifndef _CONFIG_CMD_DISTRO_BOOTCMD_H
 #define _CONFIG_CMD_DISTRO_BOOTCMD_H
 
+/* We need the part command */
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
+
 #define BOOTENV_SHARED_BLKDEV_BODY(devtypel) \
 		"if " #devtypel " dev ${devnum}; then " \
 			"setenv devtype " #devtypel "; " \
