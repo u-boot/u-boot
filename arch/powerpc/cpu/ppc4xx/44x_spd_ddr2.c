@@ -424,6 +424,14 @@ phys_size_t initdram(int board_type)
 	int write_recovery;
 	phys_size_t dram_size = 0;
 
+	if (IS_ENABLED(CONFIG_SYS_RAMBOOT)) {
+		/*
+		 * Reduce RAM size to avoid overwriting memory used by
+		 * current stack? Not sure what is happening.
+		 */
+		return sdram_memsize() / 2;
+	}
+
 	num_dimm_banks = sizeof(iic0_dimm_addr);
 
 	/*------------------------------------------------------------------
