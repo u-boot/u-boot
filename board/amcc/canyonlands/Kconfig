@@ -29,6 +29,10 @@ config ARCHES
 
 endchoice
 
+config DISPLAY_BOARDINFO
+	bool
+	default y
+
 config DM
 	default y
 
