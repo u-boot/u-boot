@@ -37,7 +37,8 @@ ih_magic:		/* IH_MAGIC in big endian from include/image.h */
 
 .global save_boot_params
 save_boot_params:
-
+	/* Get return address */
+	ldr	lr, =save_boot_params_ret
 
 /* Copy valid attached kernel to address KERNEL_ADDRESS */
 

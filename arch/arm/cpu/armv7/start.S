@@ -31,9 +31,12 @@
  *************************************************************************/
 
 	.globl	reset
+	.globl	save_boot_params_ret
 
 reset:
-	bl	save_boot_params
+	/* Allow the board to save important registers */
+	b	save_boot_params
+save_boot_params_ret:
 	/*
 	 * disable interrupts (FIQ and IRQ), also set the cpu to SVC32 mode,
 	 * except if in HYP mode already
@@ -96,7 +99,7 @@ ENDPROC(c_runtime_cpu_setup)
  *
  *************************************************************************/
 ENTRY(save_boot_params)
-	bx	lr			@ back to my caller
+	b	save_boot_params_ret		@ back to my caller
 ENDPROC(save_boot_params)
 	.weak	save_boot_params
 
