@@ -1075,4 +1075,22 @@ void board_init_f_r(void)
 	/* NOTREACHED - board_init_r() does not return */
 	hang();
 }
+#else
+ulong board_init_f_mem(ulong top)
+{
+	/* Leave space for the stack we are running with now */
+	top -= 0x40;
+
+	top -= sizeof(struct global_data);
+	top = ALIGN(top, 16);
+	gd = (struct global_data *)top;
+	memset((void *)gd, '\0', sizeof(*gd));
+
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	top -= CONFIG_SYS_MALLOC_F_LEN;
+	gd->malloc_base = top;
+#endif
+
+	return top;
+}
 #endif /* CONFIG_X86 */
