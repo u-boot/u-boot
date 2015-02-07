@@ -22,6 +22,10 @@
 		serial1 = &UART1;
 	};
 
+	chosen {
+		stdout-path = &UART0;
+	};
+
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -280,6 +284,7 @@
 
 			UART0: serial@ef600300 {
 				device_type = "serial";
+				reg-shift = <0>;
 				compatible = "ns16550";
 				reg = <0xef600300 0x00000008>;
 				virtual-reg = <0xef600300>;
@@ -291,6 +296,7 @@
 
 			UART1: serial@ef600400 {
 				device_type = "serial";
+				reg-shift = <0>;
 				compatible = "ns16550";
 				reg = <0xef600400 0x00000008>;
 				virtual-reg = <0xef600400>;

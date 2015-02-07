@@ -251,6 +251,7 @@
 
 			UART1: serial@ef600400 {
 				device_type = "serial";
+				reg-shift = <0>;
 				compatible = "ns16550";
 				reg = <0xef600400 0x00000008>;
 				virtual-reg = <0xef600400>;
@@ -262,6 +263,7 @@
 
 			UART2: serial@ef600500 {
 				device_type = "serial";
+				reg-shift = <0>;
 				compatible = "ns16550";
 				reg = <0xef600500 0x00000008>;
 				virtual-reg = <0xef600500>;
@@ -273,6 +275,7 @@
 
 			UART3: serial@ef600600 {
 				device_type = "serial";
+				reg-shift = <0>;
 				compatible = "ns16550";
 				reg = <0xef600600 0x00000008>;
 				virtual-reg = <0xef600600>;
