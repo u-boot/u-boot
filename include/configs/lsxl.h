@@ -125,7 +125,7 @@
 	"hdpart=0:1\0"							\
 	"kernel_addr=0x00800000\0"					\
 	"ramdisk_addr=0x01000000\0"					\
-	"fdt_addr=0x01ff0000\0"						\
+	"fdt_addr=0x00ff0000\0"						\
 	"bootcmd_legacy=ide reset "					\
 		"&& load ide ${hdpart} ${kernel_addr} /uImage.buffalo "	\
 		"&& load ide ${hdpart} ${ramdisk_addr} /initrd.buffalo "\
