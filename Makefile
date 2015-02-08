@@ -281,6 +281,11 @@ os_x_before	= $(shell if [ $(DARWIN_MAJOR_VERSION) -le $(1) -a \
 HOSTCC       = $(call os_x_before, 10, 5, "cc", "gcc")
 HOSTCFLAGS  += $(call os_x_before, 10, 4, "-traditional-cpp")
 HOSTLDFLAGS += $(call os_x_before, 10, 5, "-multiply_defined suppress")
+
+# since Lion (10.7) ASLR is on by default, but we use linker generated lists
+# in some host tools which is a problem then ... so disable ASLR for these
+# tools
+HOSTLDFLAGS += $(call os_x_before, 10, 7, "", "-Xlinker -no_pie")
 endif
 
 # Decide whether to build built-in, modular, or both.
