@@ -127,9 +127,9 @@
 	"ramdisk_addr=0x01000000\0"					\
 	"fdt_addr=0x01ff0000\0"						\
 	"bootcmd_legacy=ide reset "					\
-		"&& load ide ${hdpart} 0x00100000 /uImage.buffalo "	\
-		"&& load ide ${hdpart} 0x00800000 /initrd.buffalo "	\
-		"&& bootm 0x00100000 0x00800000\0"			\
+		"&& load ide ${hdpart} ${kernel_addr} /uImage.buffalo "	\
+		"&& load ide ${hdpart} ${ramdisk_addr} /initrd.buffalo "\
+		"&& bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"bootcmd_net=bootp ${kernel_addr} uImage "			\
 		"&& tftpboot ${ramdisk_addr} uInitrd "			\
 		"&& tftpboot ${fdt_addr} " CONFIG_FDTFILE " "		\
