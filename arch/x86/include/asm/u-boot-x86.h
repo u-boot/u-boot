@@ -26,14 +26,8 @@ unsigned long get_tbclk_mhz(void);
 void timer_set_base(uint64_t base);
 int pcat_timer_init(void);
 
-/* Architecture specific DRAM init */
-int dram_init(void);
-
 /* cpu/.../interrupts.c */
 int cpu_init_interrupts(void);
-
-/* board/.../... */
-int dram_init(void);
 
 int cleanup_before_linux(void);
 int x86_cleanup_before_linux(void);

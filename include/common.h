@@ -183,6 +183,7 @@ typedef void (interrupt_handler_t)(void *);
 /*
  * Function Prototypes
  */
+int dram_init(void);
 
 void	hang		(void) __attribute__ ((noreturn));
 

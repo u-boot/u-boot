@@ -22,7 +22,6 @@ int	cleanup_before_linux(void);
 
 /* board/.../... */
 int	board_init(void);
-int	dram_init(void);
 
 /* cpu/.../interrupt.c */
 void	reset_timer_masked(void);

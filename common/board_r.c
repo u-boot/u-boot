@@ -294,6 +294,15 @@ static int initr_announce(void)
 	return 0;
 }
 
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+static int initr_manual_reloc_cmdtable(void)
+{
+	fixup_cmdtable(ll_entry_start(cmd_tbl_t, cmd),
+		       ll_entry_count(cmd_tbl_t, cmd));
+	return 0;
+}
+#endif
+
 #if !defined(CONFIG_SYS_NO_FLASH)
 static int initr_flash(void)
 {
@@ -702,6 +711,9 @@ init_fnc_t init_sequence_r[] = {
 	initr_serial,
 	initr_announce,
 	INIT_FUNC_WATCHDOG_RESET
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	initr_manual_reloc_cmdtable,
+#endif
 #ifdef CONFIG_PPC
 	initr_trap,
 #endif
@@ -801,7 +813,7 @@ init_fnc_t init_sequence_r[] = {
 #if defined(CONFIG_ARM)
 	initr_enable_interrupts,
 #endif
-#ifdef CONFIG_X86
+#if defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE)
 	timer_init,		/* initialize timer */
 #endif
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)

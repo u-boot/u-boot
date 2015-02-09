@@ -262,7 +262,7 @@ static int zero_global_data(void)
 
 static int setup_mon_len(void)
 {
-#ifdef __ARM__
+#if defined(__ARM__) || defined(__MICROBLAZE__)
 	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
 #elif defined(CONFIG_SANDBOX)
 	gd->mon_len = (ulong)&_end - (ulong)_init;
@@ -909,7 +909,7 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 	announce_dram_init,
 	/* TODO: unify all these dram functions? */
-#if defined(CONFIG_ARM) || defined(CONFIG_X86)
+#if defined(CONFIG_ARM) || defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE)
 	dram_init,		/* configure available RAM banks */
 #endif
 #if defined(CONFIG_MIPS) || defined(CONFIG_PPC)
