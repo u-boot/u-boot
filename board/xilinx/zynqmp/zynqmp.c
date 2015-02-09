@@ -51,6 +51,14 @@ void reset_cpu(ulong addr)
 {
 }
 
+#ifdef CONFIG_SCSI_AHCI_PLAT
+void scsi_init(void)
+{
+	ahci_init(ZYNQMP_SATA_BASEADDR);
+	scsi_scan(1);
+}
+#endif
+
 int board_eth_init(bd_t *bis)
 {
 	u32 ret = 0;
