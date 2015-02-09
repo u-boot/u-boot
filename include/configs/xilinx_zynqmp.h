@@ -119,23 +119,23 @@
 	"kernel_addr=0x200000\0" \
 	"initrd_addr=0xa00000\0" \
 	"initrd_size=0x2000000\0" \
-	"fdt_addr=0x100000\0" \
+	"fdt_addr=0x7000000\0" \
 	"fdt_high=0x10000000\0" \
-	"veloce=fdt addr f000000 && " \
+	"veloce=fdt addr $fdt_addr && " \
 		"fdt set /amba/misc_clk clock-frequency <96000> && "\
 		"fdt set /amba_apu/timer clock-frequency <480000> && " \
 		"fdt set /amba/i2c_clk clock-frequency <480000> && " \
 		"booti 80000 - f000000\0" \
-	"netboot=tftpboot 80000 Image && tftpboot f000000 system.dtb && " \
-		 "booti 80000 - f000000\0" \
-	"qspiboot=sf probe 0 && sf read f000000 100000 40000 && " \
-		  "sf read 80000 140000 1800000 && booti 80000 - f000000\0" \
-	"sdboot=mmcinfo && fatload mmc 0:0 f000000 system.dtb && " \
-		"fatload mmc 0:0 f000000 Image && booti 80000 - f000000\0" \
-	"xen=tftpb 4000000 system.dtb && fdt addr 4000000 && fdt resize && \
+	"netboot=tftpboot 80000 Image && tftpboot $fdt_addr system.dtb && " \
+		 "booti 80000 - $fdt_addr\0" \
+	"qspiboot=sf probe 0 && sf read $fdt_addr 100000 40000 && " \
+		  "sf read 80000 140000 1800000 && booti 80000 - $fdt_addr\0" \
+	"sdboot=mmcinfo && fatload mmc 0:0 $fdt_addr system.dtb && " \
+		"fatload mmc 0:0 f000000 Image && booti 80000 - $fdt_addr\0" \
+	"xen=tftpb $fdt_addr system.dtb && fdt addr $fdt_addr && fdt resize && \
 		tftpb 0x80000 Image && \
 		fdt set /chosen/dom0 reg <0x80000 0x$filesize> && \
-		tftpb 6000000 xen.ub && bootm 6000000 - 4000000\0" \
+		tftpb 6000000 xen.ub && bootm 6000000 - $fdt_addr\0" \
 	"jtagboot=tftpboot 10000000 image.ub && bootm\0"
 
 #define CONFIG_BOOTARGS		"setenv bootargs console=ttyPS0,${baudrate} " \
