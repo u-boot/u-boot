@@ -1,0 +1,33 @@
+if TARGET_BAV335X
+
+config SYS_BOARD
+	default "bav335x"
+
+config SYS_VENDOR
+	default "birdland"
+
+config SYS_SOC
+	default "am33xx"
+
+config SYS_CONFIG_NAME
+	default "bav335x"
+
+config CONS_INDEX
+	int "UART used for console"
+	range 1 6
+	default 1
+	help
+	  The AM335x SoC has a total of 6 UARTs (UART0 to UART5 as referenced
+	  in documentation, etc) available to it.  Depending on your specific
+	  board you may want something other than UART0 as for example the IDK
+	  uses UART3 so enter 4 here.
+
+config BAV_VERSION
+	int "BAV335x Version (1=A, 2=B)"
+	range 1 2
+	help
+	  The BAV335x has various version of the board. Rev.A (mostly obsolete)
+	  used 10/100 Ethernet PHY while Rev.B uses a Gigabit Ethernet PHY.
+	  Overwrite this if you have an older Rev.A and want ethernet support.
+
+endif

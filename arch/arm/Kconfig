@@ -381,6 +381,19 @@ config TARGET_AM43XX_EVM
 	select CPU_V7
 	select SUPPORT_SPL
 
+config TARGET_BAV335X
+	bool "Support bav335x"
+	select CPU_V7
+	select SUPPORT_SPL
+	help
+	  The BAV335x OEM Network Processor integrates all the functions of an
+	  embedded network computer in a small, easy to use SODIMM module which
+	  incorporates the popular Texas Instruments Sitara 32bit ARM Coretex-A8
+	  processor, with fast DDR3 512MB SDRAM, 4GB of embedded MMC and a Gigabit
+	  ethernet with simple connection to external connectors.
+
+	  For more information, visit: http://birdland.com/oem
+
 config TARGET_TI814X_EVM
 	bool "Support ti814x_evm"
 	select CPU_V7
@@ -836,6 +849,7 @@ source "board/syteco/zmx25/Kconfig"
 source "board/tbs/tbs2910/Kconfig"
 source "board/ti/am335x/Kconfig"
 source "board/ti/am43xx/Kconfig"
+source "board/birdland/bav335x/Kconfig"
 source "board/ti/ti814x/Kconfig"
 source "board/ti/ti816x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
