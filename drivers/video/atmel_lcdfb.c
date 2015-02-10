@@ -21,7 +21,7 @@
 #define ATMEL_LCDC_GUARD_TIME		1
 #endif
 
-#if defined(CONFIG_AT91SAM9263) || defined(CONFIG_AT91CAP9)
+#if defined(CONFIG_AT91SAM9263)
 #define ATMEL_LCDC_FIFO_SIZE		2048
 #else
 #define ATMEL_LCDC_FIFO_SIZE		512

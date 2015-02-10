@@ -51,11 +51,23 @@ static void switch_to_main_crystal_osc(void)
 	while (!(readl(&pmc->mcfr) & AT91_PMC_MAINRDY))
 		;
 
+#ifndef CONFIG_SAMA5D4
 	tmp = readl(&pmc->mor);
 	tmp &= ~AT91_PMC_MOR_MOSCRCEN;
 	tmp &= ~AT91_PMC_MOR_KEY(0xff);
 	tmp |= AT91_PMC_MOR_KEY(0x37);
 	writel(tmp, &pmc->mor);
+#endif
+}
+
+__weak void matrix_init(void)
+{
+	/* This only be used for sama5d4 soc now */
+}
+
+__weak void redirect_int_from_saic_to_aic(void)
+{
+	/* This only be used for sama5d4 soc now */
 }
 
 void s_init(void)
@@ -69,6 +81,10 @@ void s_init(void)
 	at91_pmc_init();
 
 	at91_clock_init(CONFIG_SYS_AT91_MAIN_CLOCK);
+
+	matrix_init();
+
+	redirect_int_from_saic_to_aic();
 
 	timer_init();
 

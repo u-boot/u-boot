@@ -33,5 +33,6 @@ void at91_mck_init(u32 mckr);
 void at91_spl_board_init(void);
 void at91_disable_wdt(void);
 void matrix_init(void);
+void redirect_int_from_saic_to_aic(void);
 
 #endif /* AT91_COMMON_H */

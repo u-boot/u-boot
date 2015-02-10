@@ -30,7 +30,11 @@
 #define ticks_to_ms(t)	(((t + 1) * 1000) >> 8)
 
 /* Hardware timeout in seconds */
+#if !defined(CONFIG_AT91_HW_WDT_TIMEOUT)
 #define WDT_HW_TIMEOUT 2
+#else
+#define WDT_HW_TIMEOUT CONFIG_AT91_HW_WDT_TIMEOUT
+#endif
 
 /*
  * Set the watchdog time interval in 1/256Hz (write-once)

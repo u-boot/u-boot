@@ -1257,6 +1257,9 @@ The following options need to be configured:
 		SoC, then define this variable and provide board
 		specific code for the "hw_watchdog_reset" function.
 
+		CONFIG_AT91_HW_WDT_TIMEOUT
+		specify the timeout in seconds. default 2 seconds.
+
 - U-Boot Version:
 		CONFIG_VERSION_VARIABLE
 		If this variable is defined, an environment variable

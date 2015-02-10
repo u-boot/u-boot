@@ -13,6 +13,8 @@
 #ifndef AT91_RSTC_H
 #define AT91_RSTC_H
 
+/* Reset Controller Status Register */
+#define AT91_ASM_RSTC_SR	(ATMEL_BASE_RSTC + 0x04)
 #define AT91_ASM_RSTC_MR	(ATMEL_BASE_RSTC + 0x08)
 
 #ifndef __ASSEMBLY__
