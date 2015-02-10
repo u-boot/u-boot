@@ -23,6 +23,7 @@ enum mxc_gpio_direction {
 #define GPIO_PER_BANK			32
 
 struct mxc_gpio_plat {
+	int bank_index;
 	struct gpio_regs *regs;
 };
 
@@ -259,19 +260,19 @@ static const struct dm_gpio_ops gpio_mxc_ops = {
 };
 
 static const struct mxc_gpio_plat mxc_plat[] = {
-	{ (struct gpio_regs *)GPIO1_BASE_ADDR },
-	{ (struct gpio_regs *)GPIO2_BASE_ADDR },
-	{ (struct gpio_regs *)GPIO3_BASE_ADDR },
+	{ 0, (struct gpio_regs *)GPIO1_BASE_ADDR },
+	{ 1, (struct gpio_regs *)GPIO2_BASE_ADDR },
+	{ 2, (struct gpio_regs *)GPIO3_BASE_ADDR },
 #if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
 		defined(CONFIG_MX53) || defined(CONFIG_MX6)
-	{ (struct gpio_regs *)GPIO4_BASE_ADDR },
+	{ 3, (struct gpio_regs *)GPIO4_BASE_ADDR },
 #endif
 #if defined(CONFIG_MX27) || defined(CONFIG_MX53) || defined(CONFIG_MX6)
-	{ (struct gpio_regs *)GPIO5_BASE_ADDR },
-	{ (struct gpio_regs *)GPIO6_BASE_ADDR },
+	{ 4, (struct gpio_regs *)GPIO5_BASE_ADDR },
+	{ 5, (struct gpio_regs *)GPIO6_BASE_ADDR },
 #endif
 #if defined(CONFIG_MX53) || defined(CONFIG_MX6)
-	{ (struct gpio_regs *)GPIO7_BASE_ADDR },
+	{ 6, (struct gpio_regs *)GPIO7_BASE_ADDR },
 #endif
 };
 
@@ -283,7 +284,7 @@ static int mxc_gpio_probe(struct udevice *dev)
 	int banknum;
 	char name[18], *str;
 
-	banknum = plat - mxc_plat;
+	banknum = plat->bank_index;
 	sprintf(name, "GPIO%d_", banknum + 1);
 	str = strdup(name);
 	if (!str)
