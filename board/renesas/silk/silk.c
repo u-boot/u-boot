@@ -38,18 +38,6 @@ void s_init(void)
 
 	/* QoS */
 	qos_init();
-
-#ifndef CONFIG_DCACHE_OFF
-	/*
-	 * The caches are disabled when ACTLR.SMP is set to 0
-	 * regardless of the value of the SCTLR.C (cache enable bit)
-	 * on Cortex-A7 MPCore
-	 */
-	asm volatile(
-		"mrc	15, 0, r0, c1, c0, 1\n"		/* read ACTLR */
-		"orr	r0, r0, #(1 << 6)\n"		/* set ACTLR.SMP bit */
-		"mcr	p15, 0, r0, c1, c0, 1\n");	/* write ACTLR */
-#endif
 }
 
 #define TMU0_MSTP125	(1 << 25)
