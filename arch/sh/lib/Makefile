@@ -15,5 +15,5 @@ obj-y	+= time.o
 endif
 obj-$(CONFIG_CMD_SH_ZIMAGEBOOT) += zimageboot.o
 
-lib-$(CONFIG_USE_PRIVATE_LIBGCC) += ashiftrt.o ashiftlt.o lshiftrt.o \
-				    ashldi3.o ashrsi3.o lshrdi3.o movmem.o
+lib-$(CONFIG_USE_PRIVATE_LIBGCC) += movmem.o ashldi3.o lshrdi3.o \
+				    ashlsi3.o ashrsi3.o ashiftrt.o lshrsi3.o
