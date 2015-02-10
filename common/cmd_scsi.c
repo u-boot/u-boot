@@ -217,8 +217,10 @@ void scsi_init(void)
 		       (busdevfunc >> 8) & 0x7);
 	}
 #endif
+	bootstage_start(BOOTSTAGE_ID_ACCUM_SCSI, "ahci");
 	scsi_low_level_init(busdevfunc);
 	scsi_scan(1);
+	bootstage_accum(BOOTSTAGE_ID_ACCUM_SCSI);
 }
 #endif
 

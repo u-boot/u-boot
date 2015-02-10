@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/fsp/fsp_support.h>
+#include <asm/fsp/fsp_support.h>
 #include <asm/post.h>
 
 /**
@@ -30,7 +30,7 @@ static bool compare_guid(const struct efi_guid *guid1,
 		return false;
 }
 
-u32 __attribute__((optimize("O0"))) find_fsp_header(void)
+struct fsp_header *__attribute__((optimize("O0"))) find_fsp_header(void)
 {
 	/*
 	 * This function may be called before the a stack is established,
@@ -84,7 +84,7 @@ u32 __attribute__((optimize("O0"))) find_fsp_header(void)
 		fsp = 0;
 	}
 
-	return (u32)fsp;
+	return (struct fsp_header *)fsp;
 }
 
 void fsp_continue(struct shared_data *shared_data, u32 status, void *hob_list)
@@ -124,25 +124,29 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	struct fsp_init_params *params_ptr;
 	struct upd_region *fsp_upd;
 
-	fsp_hdr = (struct fsp_header *)find_fsp_header();
+#ifdef CONFIG_DEBUG_UART
+	setup_early_uart();
+#endif
+
+	fsp_hdr = find_fsp_header();
 	if (fsp_hdr == NULL) {
 		/* No valid FSP info header was found */
 		panic("Invalid FSP header");
 	}
 
-	fsp_upd = (struct upd_region *)&shared_data.fsp_upd;
+	fsp_upd = &shared_data.fsp_upd;
 	memset(&rt_buf, 0, sizeof(struct fspinit_rtbuf));
 
 	/* Reserve a gap in stack top */
 	rt_buf.common.stack_top = (u32 *)stack_top - 32;
 	rt_buf.common.boot_mode = boot_mode;
-	rt_buf.common.upd_data = (struct upd_region *)fsp_upd;
+	rt_buf.common.upd_data = fsp_upd;
 
 	/* Get VPD region start */
 	fsp_vpd = (struct vpd_region *)(fsp_hdr->img_base +
 			fsp_hdr->cfg_region_off);
 
-	/* Verifify the VPD data region is valid */
+	/* Verify the VPD data region is valid */
 	assert((fsp_vpd->img_rev == VPD_IMAGE_REV) &&
 	       (fsp_vpd->sign == VPD_IMAGE_ID));
 
@@ -150,7 +154,7 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 	memcpy(fsp_upd, (void *)(fsp_hdr->img_base + fsp_vpd->upd_offset),
 	       sizeof(struct upd_region));
 
-	/* Verifify the UPD data region is valid */
+	/* Verify the UPD data region is valid */
 	assert(fsp_upd->terminator == UPD_TERMINATOR);
 
 	/* Override any UPD setting if required */

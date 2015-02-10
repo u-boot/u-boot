@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/fsp/fsp_support.h>
+#include <asm/fsp/fsp_support.h>
 #include <asm/e820.h>
 #include <asm/post.h>
 

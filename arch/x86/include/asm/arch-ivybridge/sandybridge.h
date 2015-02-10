@@ -43,7 +43,7 @@
 #define DEFAULT_EPBAR		0xfed19000	/* 4 KB */
 #define DEFAULT_RCBABASE	0xfed1c000
 /* 4 KB per PCIe device */
-#define DEFAULT_PCIEXBAR	CONFIG_MMCONF_BASE_ADDRESS
+#define DEFAULT_PCIEXBAR	CONFIG_PCIE_ECAM_BASE
 
 /* Device 0:0.0 PCI configuration space (Host Bridge) */
 #define EPBAR		0x40

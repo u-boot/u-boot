@@ -34,57 +34,6 @@ static struct pci_device_id ehci_pci_ids[] = {
 	{0, 0}
 };
 #else
-static pci_dev_t ehci_find_class(int index)
-{
-	int bus;
-	int devnum;
-	pci_dev_t bdf;
-	uint32_t class;
-
-	for (bus = 0; bus <= pci_last_busno(); bus++) {
-		for (devnum = 0; devnum < PCI_MAX_PCI_DEVICES-1; devnum++) {
-			pci_read_config_dword(PCI_BDF(bus, devnum, 0),
-					      PCI_CLASS_REVISION, &class);
-			if (class >> 16 == 0xffff)
-				continue;
-
-			for (bdf = PCI_BDF(bus, devnum, 0);
-					bdf <= PCI_BDF(bus, devnum,
-						PCI_MAX_PCI_FUNCTIONS - 1);
-					bdf += PCI_BDF(0, 0, 1)) {
-				pci_read_config_dword(bdf, PCI_CLASS_REVISION,
-						      &class);
-				class >>= 8;
-				/*
-				 * Here be dragons! In case we have multiple
-				 * PCI EHCI controllers, this function will
-				 * be called multiple times as well. This
-				 * function will scan the PCI busses, always
-				 * starting from bus 0, device 0, function 0,
-				 * until it finds an USB controller. The USB
-				 * stack gives us an 'index' of a controller
-				 * that is currently being registered, which
-				 * is a number, starting from 0 and growing
-				 * in ascending order as controllers are added.
-				 * To avoid probing the same controller in tne
-				 * subsequent runs of this function, we will
-				 * skip 'index - 1' detected controllers and
-				 * report the index'th controller.
-				 */
-				if (class != PCI_CLASS_SERIAL_USB_EHCI)
-					continue;
-				if (index) {
-					index--;
-					continue;
-				}
-				/* Return index'th controller. */
-				return bdf;
-			}
-		}
-	}
-
-	return -ENODEV;
-}
 #endif
 
 /*
@@ -102,7 +51,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 #ifdef CONFIG_PCI_EHCI_DEVICE
 	pdev = pci_find_devices(ehci_pci_ids, CONFIG_PCI_EHCI_DEVICE);
 #else
-	pdev = ehci_find_class(index);
+	pdev = pci_find_class(PCI_CLASS_SERIAL_USB_EHCI, index);
 #endif
 	if (pdev < 0) {
 		printf("EHCI host controller not found\n");

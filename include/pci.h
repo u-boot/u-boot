@@ -644,8 +644,7 @@ extern int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
 
 extern pci_dev_t pci_find_device (unsigned int vendor, unsigned int device, int index);
 extern pci_dev_t pci_find_devices (struct pci_device_id *ids, int index);
-extern pci_dev_t pci_find_class(int wanted_class, int wanted_sub_code,
-				int wanted_prog_if, int index);
+pci_dev_t pci_find_class(unsigned int find_class, int index);
 
 extern int pci_hose_config_device(struct pci_controller *hose,
 				  pci_dev_t dev,
