@@ -18,6 +18,7 @@
 #include <config.h>
 #include <dm.h>
 #include <fdt_support.h>
+#include <fdt_simplefb.h>
 #include <lcd.h>
 #include <mmc.h>
 #include <asm/gpio.h>

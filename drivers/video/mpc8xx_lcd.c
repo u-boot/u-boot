@@ -357,6 +357,35 @@ lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue)
 
 /*----------------------------------------------------------------------*/
 
+ushort *configuration_get_cmap(void)
+{
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+	cpm8xx_t *cp = &(immr->im_cpm);
+	return (ushort *)&(cp->lcd_cmap[255 * sizeof(ushort)]);
+}
+
+#if defined(CONFIG_MPC823)
+void fb_put_byte(uchar **fb, uchar **from)
+{
+	*(*fb)++ = (255 - *(*from)++);
+}
+#endif
+
+#ifdef CONFIG_LCD_LOGO
+#include <bmp_logo.h>
+void lcd_logo_set_cmap(void)
+{
+	int i;
+	ushort *cmap;
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+	cpm8xx_t *cp = &(immr->im_cpm);
+	cmap = (ushort *)&(cp->lcd_cmap[BMP_LOGO_OFFSET * sizeof(ushort)]);
+
+	for (i = 0; i < BMP_LOGO_COLORS; ++i)
+		*cmap++ = bmp_logo_palette[i];
+}
+#endif
+
 void lcd_enable (void)
 {
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
