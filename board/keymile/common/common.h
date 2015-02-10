@@ -126,8 +126,7 @@ struct bfticu_iomap {
 #endif
 
 int ethernet_present(void);
-int ivm_read_eeprom(void);
-int ivm_simple_read_eeprom(unsigned char *buf, int len);
+int ivm_read_eeprom(unsigned char *buf, int len);
 int ivm_analyze_eeprom(unsigned char *buf, int len);
 
 int trigger_fpga_config(void);

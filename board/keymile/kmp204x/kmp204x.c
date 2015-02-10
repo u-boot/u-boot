@@ -197,7 +197,7 @@ int misc_init_r(void)
 		}
 	}
 
-	ivm_simple_read_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
+	ivm_read_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	return 0;
 }
 

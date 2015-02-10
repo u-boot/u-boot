@@ -315,7 +315,7 @@ static int ivm_populate_env(unsigned char *buf, int len)
 	return 0;
 }
 
-int ivm_simple_read_eeprom(unsigned char *buf, int len)
+int ivm_read_eeprom(unsigned char *buf, int len)
 {
 	int ret;
 
@@ -330,23 +330,4 @@ int ivm_simple_read_eeprom(unsigned char *buf, int len)
 	}
 
 	return ivm_populate_env(buf, len);
-}
-
-int ivm_read_eeprom(void)
-{
-	uchar i2c_buffer[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
-	int ret;
-
-	i2c_set_bus_num(CONFIG_KM_IVM_BUS);
-	/* add deblocking here */
-	i2c_make_abort();
-
-	ret = i2c_read(CONFIG_SYS_IVM_EEPROM_ADR, 0, 1, i2c_buffer,
-		CONFIG_SYS_IVM_EEPROM_MAX_LEN);
-	if (ret != 0) {
-		printf("Error reading EEprom\n");
-		return -2;
-	}
-
-	return ivm_analyze_eeprom(i2c_buffer, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 }
