@@ -31,6 +31,7 @@
 #define LAYOUT_INVALID	0
 #define LAYOUT_LEGACY	0xff
 
+static int cl_eeprom_bus;
 static int cl_eeprom_layout; /* Implicitly LAYOUT_INVALID */
 
 static int cl_eeprom_read(uint offset, uchar *buf, int len)
@@ -38,7 +39,7 @@ static int cl_eeprom_read(uint offset, uchar *buf, int len)
 	int res;
 	unsigned int current_i2c_bus = i2c_get_bus_num();
 
-	res = i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
+	res = i2c_set_bus_num(cl_eeprom_bus);
 	if (res < 0)
 		return res;
 
@@ -50,13 +51,18 @@ static int cl_eeprom_read(uint offset, uchar *buf, int len)
 	return res;
 }
 
-static int cl_eeprom_setup_layout(void)
+static int cl_eeprom_setup(uint eeprom_bus)
 {
 	int res;
 
-	if (cl_eeprom_layout != LAYOUT_INVALID)
+	/*
+	 * We know the setup was already done when the layout is set to a valid
+	 * value and we're using the same bus as before.
+	 */
+	if (cl_eeprom_layout != LAYOUT_INVALID && eeprom_bus == cl_eeprom_bus)
 		return 0;
 
+	cl_eeprom_bus = eeprom_bus;
 	res = cl_eeprom_read(EEPROM_LAYOUT_VER_OFFSET,
 			     (uchar *)&cl_eeprom_layout, 1);
 	if (res) {
@@ -77,7 +83,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 	memset(serialnr, 0, sizeof(*serialnr));
 
-	if (cl_eeprom_setup_layout())
+	if (cl_eeprom_setup(CONFIG_SYS_I2C_EEPROM_BUS))
 		return;
 
 	offset = (cl_eeprom_layout != LAYOUT_LEGACY) ?
@@ -96,11 +102,11 @@ void get_board_serial(struct tag_serialnr *serialnr)
  * Routine: cl_eeprom_read_mac_addr
  * Description: read mac address and store it in buf.
  */
-int cl_eeprom_read_mac_addr(uchar *buf)
+int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus)
 {
 	uint offset;
 
-	if (cl_eeprom_setup_layout())
+	if (cl_eeprom_setup(eeprom_bus))
 		return 0;
 
 	offset = (cl_eeprom_layout != LAYOUT_LEGACY) ?
@@ -123,7 +129,7 @@ u32 cl_eeprom_get_board_rev(void)
 	if (board_rev)
 		return board_rev;
 
-	if (cl_eeprom_setup_layout())
+	if (cl_eeprom_setup(CONFIG_SYS_I2C_EEPROM_BUS))
 		return 0;
 
 	if (cl_eeprom_layout != LAYOUT_LEGACY)

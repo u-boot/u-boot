@@ -198,6 +198,7 @@ obj-$(CONFIG_CMD_KGDB) += kgdb.o kgdb_stubs.o
 obj-$(CONFIG_I2C_EDID) += edid.o
 obj-$(CONFIG_KALLSYMS) += kallsyms.o
 obj-y += splash.o
+obj-$(CONFIG_SPLASH_SOURCE) += splash_source.o
 obj-$(CONFIG_LCD) += lcd.o lcd_console.o
 obj-$(CONFIG_LYNXKDI) += lynxkdi.o
 obj-$(CONFIG_MENU) += menu.o

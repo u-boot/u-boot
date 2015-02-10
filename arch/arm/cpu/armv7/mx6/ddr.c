@@ -12,6 +12,65 @@
 #include <asm/io.h>
 #include <asm/types.h>
 
+#if defined(CONFIG_MX6SX)
+/* Configure MX6SX mmdc iomux */
+void mx6sx_dram_iocfg(unsigned width,
+		      const struct mx6sx_iomux_ddr_regs *ddr,
+		      const struct mx6sx_iomux_grp_regs *grp)
+{
+	struct mx6sx_iomux_ddr_regs *mx6_ddr_iomux;
+	struct mx6sx_iomux_grp_regs *mx6_grp_iomux;
+
+	mx6_ddr_iomux = (struct mx6sx_iomux_ddr_regs *)MX6SX_IOM_DDR_BASE;
+	mx6_grp_iomux = (struct mx6sx_iomux_grp_regs *)MX6SX_IOM_GRP_BASE;
+
+	/* DDR IO TYPE */
+	writel(grp->grp_ddr_type, &mx6_grp_iomux->grp_ddr_type);
+	writel(grp->grp_ddrpke, &mx6_grp_iomux->grp_ddrpke);
+
+	/* CLOCK */
+	writel(ddr->dram_sdclk_0, &mx6_ddr_iomux->dram_sdclk_0);
+
+	/* ADDRESS */
+	writel(ddr->dram_cas, &mx6_ddr_iomux->dram_cas);
+	writel(ddr->dram_ras, &mx6_ddr_iomux->dram_ras);
+	writel(grp->grp_addds, &mx6_grp_iomux->grp_addds);
+
+	/* Control */
+	writel(ddr->dram_reset, &mx6_ddr_iomux->dram_reset);
+	writel(ddr->dram_sdba2, &mx6_ddr_iomux->dram_sdba2);
+	writel(ddr->dram_sdcke0, &mx6_ddr_iomux->dram_sdcke0);
+	writel(ddr->dram_sdcke1, &mx6_ddr_iomux->dram_sdcke1);
+	writel(ddr->dram_odt0, &mx6_ddr_iomux->dram_odt0);
+	writel(ddr->dram_odt1, &mx6_ddr_iomux->dram_odt1);
+	writel(grp->grp_ctlds, &mx6_grp_iomux->grp_ctlds);
+
+	/* Data Strobes */
+	writel(grp->grp_ddrmode_ctl, &mx6_grp_iomux->grp_ddrmode_ctl);
+	writel(ddr->dram_sdqs0, &mx6_ddr_iomux->dram_sdqs0);
+	writel(ddr->dram_sdqs1, &mx6_ddr_iomux->dram_sdqs1);
+	if (width >= 32) {
+		writel(ddr->dram_sdqs2, &mx6_ddr_iomux->dram_sdqs2);
+		writel(ddr->dram_sdqs3, &mx6_ddr_iomux->dram_sdqs3);
+	}
+
+	/* Data */
+	writel(grp->grp_ddrmode, &mx6_grp_iomux->grp_ddrmode);
+	writel(grp->grp_b0ds, &mx6_grp_iomux->grp_b0ds);
+	writel(grp->grp_b1ds, &mx6_grp_iomux->grp_b1ds);
+	if (width >= 32) {
+		writel(grp->grp_b2ds, &mx6_grp_iomux->grp_b2ds);
+		writel(grp->grp_b3ds, &mx6_grp_iomux->grp_b3ds);
+	}
+	writel(ddr->dram_dqm0, &mx6_ddr_iomux->dram_dqm0);
+	writel(ddr->dram_dqm1, &mx6_ddr_iomux->dram_dqm1);
+	if (width >= 32) {
+		writel(ddr->dram_dqm2, &mx6_ddr_iomux->dram_dqm2);
+		writel(ddr->dram_dqm3, &mx6_ddr_iomux->dram_dqm3);
+	}
+}
+#endif
+
 #if defined(CONFIG_MX6QDL) || defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
 /* Configure MX6DQ mmdc iomux */
 void mx6dq_dram_iocfg(unsigned width,
@@ -184,12 +243,19 @@ void mx6sdl_dram_iocfg(unsigned width,
  */
 #define MR(val, ba, cmd, cs1) \
 	((val << 16) | (1 << 15) | (cmd << 4) | (cs1 << 3) | ba)
+#ifdef CONFIG_MX6SX
+#define MMDC1(entry, value)	do {} while (0)
+#else
+#define MMDC1(entry, value) do { mmdc1->entry = value; } while (0)
+#endif
 void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 		  const struct mx6_mmdc_calibration *calib,
 		  const struct mx6_ddr3_cfg *ddr3_cfg)
 {
 	volatile struct mmdc_p_regs *mmdc0;
+#ifndef CONFIG_MX6SX
 	volatile struct mmdc_p_regs *mmdc1;
+#endif
 	u32 val;
 	u8 tcke, tcksrx, tcksre, txpdll, taofpd, taonpd, trrd;
 	u8 todtlon, taxpd, tanpd, tcwl, txp, tfaw, tcl;
@@ -203,7 +269,9 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	int cs;
 
 	mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
+#ifndef CONFIG_MX6SX
 	mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
+#endif
 
 	/* MX6D/MX6Q: 1066 MHz memory clock, clkper = 1.894ns = 1894ps */
 	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) {
@@ -362,12 +430,12 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	mmdc0->mprddlctl = calib->p0_mprddlctl;
 	mmdc0->mpwrdlctl = calib->p0_mpwrdlctl;
 	if (sysinfo->dsize > 1) {
-		mmdc1->mpwldectrl0 = calib->p1_mpwldectrl0;
-		mmdc1->mpwldectrl1 = calib->p1_mpwldectrl1;
-		mmdc1->mpdgctrl0 = calib->p1_mpdgctrl0;
-		mmdc1->mpdgctrl1 = calib->p1_mpdgctrl1;
-		mmdc1->mprddlctl = calib->p1_mprddlctl;
-		mmdc1->mpwrdlctl = calib->p1_mpwrdlctl;
+		MMDC1(mpwldectrl0, calib->p1_mpwldectrl0);
+		MMDC1(mpwldectrl1, calib->p1_mpwldectrl1);
+		MMDC1(mpdgctrl0, calib->p1_mpdgctrl0);
+		MMDC1(mpdgctrl1, calib->p1_mpdgctrl1);
+		MMDC1(mprddlctl, calib->p1_mprddlctl);
+		MMDC1(mpwrdlctl, calib->p1_mpwrdlctl);
 	}
 
 	/* Read data DQ Byte0-3 delay */
@@ -379,23 +447,23 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	}
 
 	if (sysinfo->dsize > 1) {
-		mmdc1->mprddqby0dl = 0x33333333;
-		mmdc1->mprddqby1dl = 0x33333333;
-		mmdc1->mprddqby2dl = 0x33333333;
-		mmdc1->mprddqby3dl = 0x33333333;
+		MMDC1(mprddqby0dl, 0x33333333);
+		MMDC1(mprddqby1dl, 0x33333333);
+		MMDC1(mprddqby2dl, 0x33333333);
+		MMDC1(mprddqby3dl, 0x33333333);
 	}
 
 	/* MMDC Termination: rtt_nom:2 RZQ/2(120ohm), rtt_nom:1 RZQ/4(60ohm) */
 	val = (sysinfo->rtt_nom == 2) ? 0x00011117 : 0x00022227;
 	mmdc0->mpodtctrl = val;
 	if (sysinfo->dsize > 1)
-		mmdc1->mpodtctrl = val;
+		MMDC1(mpodtctrl, val);
 
 	/* complete calibration */
 	val = (1 << 11); /* Force measurement on delay-lines */
 	mmdc0->mpmur0 = val;
 	if (sysinfo->dsize > 1)
-		mmdc1->mpmur0 = val;
+		MMDC1(mpmur0, val);
 
 	/* Step 1: configuration request */
 	mmdc0->mdscr = (u32)(1 << 15); /* config request */
@@ -435,7 +503,7 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	val = 0xa1390001; /* one-time HW ZQ calib */
 	mmdc0->mpzqhwctrl = val;
 	if (sysinfo->dsize > 1)
-		mmdc1->mpzqhwctrl = val;
+		MMDC1(mpzqhwctrl, val);
 
 	/* Step 7: Enable MMDC with desired chip select */
 	mmdc0->mdctl |= (1 << 31) |			     /* SDE_0 for CS0 */
@@ -477,7 +545,7 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	val = 0xa1390003;
 	mmdc0->mpzqhwctrl = val;
 	if (sysinfo->dsize > 1)
-		mmdc1->mpzqhwctrl = val;
+		MMDC1(mpzqhwctrl, val);
 
 	/* Step 12: Configure and activate periodic refresh */
 	mmdc0->mdref = (1 << 14) | /* REF_SEL: Periodic refresh cycle: 32kHz */

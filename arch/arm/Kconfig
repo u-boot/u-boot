@@ -646,6 +646,7 @@ config TARGET_MX6SLEVK
 config TARGET_MX6SXSABRESD
 	bool "Support mx6sxsabresd"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_GW_VENTANA
 	bool "Support gw_ventana"
@@ -672,6 +673,17 @@ config TARGET_TQMA6
 config TARGET_OT1200
 	bool "Bachmann OT1200"
 	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_PLATINUM_PICON
+	bool "Support platinum-picon"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_PLATINUM_TITANIUM
+	bool "Support platinum-titanium"
+	select CPU_V7
+	select SUPPORT_SPL
 
 config OMAP34XX
 	bool "OMAP34XX SoC"
@@ -887,6 +899,7 @@ source "board/atmel/sama5d4_xplained/Kconfig"
 source "board/atmel/sama5d4ek/Kconfig"
 source "board/bachmann/ot1200/Kconfig"
 source "board/balloon3/Kconfig"
+source "board/barco/platinum/Kconfig"
 source "board/barco/titanium/Kconfig"
 source "board/bluegiga/apx4devkit/Kconfig"
 source "board/bluewater/snapper9260/Kconfig"

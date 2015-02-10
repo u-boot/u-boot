@@ -15,18 +15,85 @@
 #include <netdev.h>
 #include <fdt_support.h>
 #include <sata.h>
+#include <splash.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/iomux.h>
+#include <asm/arch/mxc_hdmi.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/sata.h>
+#include <asm/imx-common/video.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <dm/platform_data/serial_mxc.h>
 #include "common.h"
 #include "../common/eeprom.h"
+#include "../common/common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SPLASH_SCREEN
+static struct splash_location cm_fx6_splash_locations[] = {
+	{
+		.name = "sf",
+		.storage = SPLASH_STORAGE_SF,
+		.offset = 0x100000,
+	},
+};
+
+int splash_screen_prepare(void)
+{
+	return splash_source_load(cm_fx6_splash_locations,
+				  ARRAY_SIZE(cm_fx6_splash_locations));
+}
+#endif
+
+#ifdef CONFIG_IMX_HDMI
+static void cm_fx6_enable_hdmi(struct display_info_t const *dev)
+{
+	imx_enable_hdmi_phy();
+}
+
+struct display_info_t const displays[] = {
+	{
+		.bus	= -1,
+		.addr	= 0,
+		.pixfmt	= IPU_PIX_FMT_RGB24,
+		.detect	= detect_hdmi,
+		.enable	= cm_fx6_enable_hdmi,
+		.mode	= {
+			.name           = "HDMI",
+			.refresh        = 60,
+			.xres           = 1024,
+			.yres           = 768,
+			.pixclock       = 40385,
+			.left_margin    = 220,
+			.right_margin   = 40,
+			.upper_margin   = 21,
+			.lower_margin   = 7,
+			.hsync_len      = 60,
+			.vsync_len      = 10,
+			.sync           = FB_SYNC_EXT,
+			.vmode          = FB_VMODE_NONINTERLACED,
+		}
+	},
+};
+size_t display_count = ARRAY_SIZE(displays);
+
+static void cm_fx6_setup_display(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	int reg;
+
+	enable_ipu_clock();
+	imx_setup_hdmi();
+	reg = __raw_readl(&mxc_ccm->CCGR3);
+	reg |= MXC_CCM_CCGR3_IPU1_IPU_DI0_MASK;
+	writel(reg, &mxc_ccm->CCGR3);
+}
+#else
+static inline void cm_fx6_setup_display(void) {}
+#endif /* CONFIG_VIDEO_IPUV3 */
 
 #ifdef CONFIG_DWC_AHSATA
 static int cm_fx6_issd_gpios[] = {
@@ -345,32 +412,36 @@ static iomux_v3_cfg_t const enet_pads[] = {
 						MUX_PAD_CTRL(ENET_PAD_CTRL)),
 };
 
-static int handle_mac_address(void)
+static int handle_mac_address(char *env_var, uint eeprom_bus)
 {
 	unsigned char enetaddr[6];
 	int rc;
 
-	rc = eth_getenv_enetaddr("ethaddr", enetaddr);
+	rc = eth_getenv_enetaddr(env_var, enetaddr);
 	if (rc)
 		return 0;
 
-	rc = cl_eeprom_read_mac_addr(enetaddr);
+	rc = cl_eeprom_read_mac_addr(enetaddr, eeprom_bus);
 	if (rc)
 		return rc;
 
 	if (!is_valid_ether_addr(enetaddr))
 		return -1;
 
-	return eth_setenv_enetaddr("ethaddr", enetaddr);
+	return eth_setenv_enetaddr(env_var, enetaddr);
 }
 
+#define SB_FX6_I2C_EEPROM_BUS	0
+#define NO_MAC_ADDR		"No MAC address found for %s\n"
 int board_eth_init(bd_t *bis)
 {
 	int err;
 
-	err = handle_mac_address();
-	if (err)
-		puts("No MAC address found\n");
+	if (handle_mac_address("ethaddr", CONFIG_SYS_I2C_EEPROM_BUS))
+		printf(NO_MAC_ADDR, "primary NIC");
+
+	if (handle_mac_address("eth1addr", SB_FX6_I2C_EEPROM_BUS))
+		printf(NO_MAC_ADDR, "secondary NIC");
 
 	SETUP_IOMUX_PADS(enet_pads);
 	/* phy reset */
@@ -464,7 +535,13 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	/* MAC addr */
 	if (eth_getenv_enetaddr("ethaddr", enetaddr)) {
-		fdt_find_and_setprop(blob, "/fec", "local-mac-address",
+		fdt_find_and_setprop(blob,
+				     "/soc/aips-bus@02100000/ethernet@02188000",
+				     "local-mac-address", enetaddr, 6, 1);
+	}
+
+	if (eth_getenv_enetaddr("eth1addr", enetaddr)) {
+		fdt_find_and_setprop(blob, "/eth@pcie", "local-mac-address",
 				     enetaddr, 6, 1);
 	}
 
@@ -505,6 +582,8 @@ int board_init(void)
 	ret = cm_fx6_setup_i2c();
 	if (ret)
 		printf("Warning: I2C setup failed: %d\n", ret);
+
+	cm_fx6_setup_display();
 
 	return 0;
 }
