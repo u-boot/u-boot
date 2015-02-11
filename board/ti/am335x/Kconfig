@@ -47,4 +47,10 @@ config DM_GPIO
 config DM_SERIAL
 	default y if DM && !SPL_BUILD
 
+config SYS_MALLOC_F
+	default y if DM && !SPL_BUILD
+
+config SYS_MALLOC_F_LEN
+	default 0x400 if DM && !SPL_BUILD
+
 endif

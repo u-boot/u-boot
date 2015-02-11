@@ -29,7 +29,6 @@
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_DM)
 # define CONFIG_DW_SERIAL
-# define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
 #endif
 
 /*

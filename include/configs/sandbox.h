@@ -60,7 +60,6 @@
 /*
  * Size of malloc() pool, before and after relocation
  */
-#define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
 #define CONFIG_MALLOC_F_ADDR		0x0010000
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)	/* 32MB  */
 

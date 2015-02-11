@@ -21,7 +21,6 @@
 
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_OMAP_SERIAL
-# define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
 #endif
 
 #include <asm/arch/omap.h>

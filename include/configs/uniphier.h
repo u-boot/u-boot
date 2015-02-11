@@ -80,8 +80,6 @@
 #define CONFIG_SMC911X_BASE		CONFIG_SUPPORT_CARD_ETHER_BASE
 #define CONFIG_SMC911X_32_BIT
 
-#define CONFIG_SYS_MALLOC_F_LEN  0x2000
-
 /*-----------------------------------------------------------------------
  * MMU and Cache Setting
  *----------------------------------------------------------------------*/

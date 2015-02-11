@@ -56,6 +56,25 @@ config CC_OPTIMIZE_FOR_SIZE
 
 	  This option is enabled by default for U-Boot.
 
+config SYS_MALLOC_F
+	bool "Enable malloc() pool before relocation"
+	default 0x400
+	help
+	  Before relocation memory is very limited on many platforms. Still,
+	  we can provide a small malloc() pool if needed. Driver model in
+	  particular needs this to operate, so that it can allocate the
+	  initial serial device and any others that are needed.
+
+config SYS_MALLOC_F_LEN
+	hex "Size of malloc() pool before relocation"
+	depends on SYS_MALLOC_F
+	default 0x400
+	help
+	  Before relocation memory is very limited on many platforms. Still,
+	  we can provide a small malloc() pool if needed. Driver model in
+	  particular needs this to operate, so that it can allocate the
+	  initial serial device and any others that are needed.
+
 menuconfig EXPERT
         bool "Configure standard U-Boot features (expert users)"
         help

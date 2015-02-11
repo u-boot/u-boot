@@ -21,10 +21,7 @@
 #define CONFIG_MACH_TYPE		4273
 
 #ifndef CONFIG_SPL_BUILD
-
 #define CONFIG_CMD_GPIO
-
-#define CONFIG_SYS_MALLOC_F_LEN		(1 << 10)
 #endif
 
 /* Display information on boot */
