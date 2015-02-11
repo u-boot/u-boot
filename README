@@ -4341,6 +4341,9 @@ to save the current settings.
 	  If defined, specified the chip address of the EEPROM device.
 	  The default address is zero.
 
+	- CONFIG_SYS_I2C_EEPROM_BUS:
+	  If defined, specified the i2c bus of the EEPROM device.
+
 	- CONFIG_SYS_EEPROM_PAGE_WRITE_BITS:
 	  If defined, the number of bits used to address bytes in a
 	  single page in the EEPROM device.  A 64 byte page, for example
