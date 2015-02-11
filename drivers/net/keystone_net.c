@@ -398,8 +398,6 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 	sys_has_mdio =
 		(eth_priv->sgmii_link_type == SGMII_LINK_MAC_PHY) ? 1 : 0;
 
-	keystone2_net_serdes_setup();
-
 	if (sys_has_mdio)
 		keystone2_mdio_reset(mdio_bus);
 
@@ -555,6 +553,8 @@ int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
 		if (res)
 			return res;
 	}
+
+	keystone2_net_serdes_setup();
 
 	/* Create phy device and bind it with driver */
 #ifdef CONFIG_KSNET_MDIO_PHY_CONFIG_ENABLE
