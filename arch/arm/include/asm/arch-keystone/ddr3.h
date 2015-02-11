@@ -48,10 +48,9 @@ struct ddr3_emif_config {
 	unsigned int sdrfc;
 };
 
-void ddr3_init(void);
-int ddr3_get_size(void);
+u32 ddr3_init(void);
 void ddr3_reset_ddrphy(void);
-void ddr3_init_ecc(u32 base);
+void ddr3_init_ecc(u32 base, u32 ddr3_size);
 void ddr3_disable_ecc(u32 base);
 void ddr3_check_ecc_int(u32 base);
 int ddr3_ecc_support_rmw(u32 base);

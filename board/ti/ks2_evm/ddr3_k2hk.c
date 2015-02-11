@@ -12,14 +12,13 @@
 #include <asm/arch/ddr3.h>
 #include <asm/arch/hardware.h>
 
-static int ddr3_size;
-
 struct pll_init_data ddr3a_333 = DDR3_PLL_333(A);
 struct pll_init_data ddr3a_400 = DDR3_PLL_400(A);
 
-void ddr3_init(void)
+u32 ddr3_init(void)
 {
 	char dimm_name[32];
+	u32 ddr3_size;
 
 	ddr3_get_dimm_params(dimm_name);
 
@@ -93,12 +92,6 @@ void ddr3_init(void)
 	/* Apply the workaround for PG 1.0 and 1.1 Silicons */
 	if (cpu_revision() <= 1)
 		ddr3_err_reset_workaround();
-}
 
-/**
- * ddr3_get_size - return ddr3 size in GiB
- */
-int ddr3_get_size(void)
-{
 	return ddr3_size;
 }

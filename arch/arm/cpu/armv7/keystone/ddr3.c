@@ -263,17 +263,14 @@ static void ddr3_map_ecc_cic2_irq(u32 base)
 }
 #endif
 
-void ddr3_init_ecc(u32 base)
+void ddr3_init_ecc(u32 base, u32 ddr3_size)
 {
-	u32 ddr3_size;
-
 	if (!ddr3_ecc_support_rmw(base)) {
 		ddr3_disable_ecc(base);
 		return;
 	}
 
 	ddr3_ecc_init_range(base);
-	ddr3_size = ddr3_get_size();
 	ddr3_reset_data(CONFIG_SYS_SDRAM_BASE, ddr3_size);
 
 	/* mapping DDR3 ECC system interrupt from CIC2 to GIC */
