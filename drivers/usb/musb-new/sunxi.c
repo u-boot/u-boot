@@ -145,16 +145,6 @@ static void USBC_ForceIdToHigh(__iomem void *base)
 	musb_writel(base, USBC_REG_o_ISCR, reg_val);
 }
 
-static void USBC_ForceVbusValidDisable(__iomem void *base)
-{
-	u32 reg_val;
-
-	reg_val = musb_readl(base, USBC_REG_o_ISCR);
-	reg_val &= ~(0x03 << USBC_BP_ISCR_FORCE_VBUS_VALID);
-	reg_val = USBC_WakeUp_ClearChangeDetect(reg_val);
-	musb_writel(base, USBC_REG_o_ISCR, reg_val);
-}
-
 static void USBC_ForceVbusValidToHigh(__iomem void *base)
 {
 	u32 reg_val;
@@ -248,12 +238,11 @@ static int sunxi_musb_init(struct musb *musb)
 	if (is_host_enabled(musb)) {
 		/* Host mode */
 		USBC_ForceIdToLow(musb->mregs);
-		USBC_ForceVbusValidToHigh(musb->mregs);
 	} else {
 		/* Peripheral mode */
 		USBC_ForceIdToHigh(musb->mregs);
-		USBC_ForceVbusValidDisable(musb->mregs);
 	}
+	USBC_ForceVbusValidToHigh(musb->mregs);
 
 	return 0;
 }
