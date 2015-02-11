@@ -114,14 +114,10 @@ typedef union at91_pio {
 		at91_port_t	pioa;
 		at91_port_t	piob;
 		at91_port_t	pioc;
-	#if (ATMEL_PIO_PORTS > 3)
-		at91_port_t	piod;
-	#endif
-	#if (ATMEL_PIO_PORTS > 4)
-		at91_port_t	pioe;
-	#endif
-	} ;
-	at91_port_t port[ATMEL_PIO_PORTS];
+		at91_port_t	piod;	/* not present in all hardware */
+		at91_port_t	pioe;/* not present in all hardware */
+	};
+	at91_port_t port[5];
 } at91_pio_t;
 
 #ifdef CONFIG_AT91_GPIO
