@@ -232,5 +232,7 @@ enum {
 #define APS_PFM		0xc
 #define PWM_PFM		0xd
 
+#define SWITCH_SIZE	0x7
+
 int power_pfuze100_init(unsigned char bus);
 #endif
