@@ -1,13 +1,15 @@
 /*
  * Common definitions for LPC32XX board configurations
  *
- * Copyright (C) 2011 Vladimir Zapolskiy <vz@mleia.com>
+ * Copyright (C) 2011-2015 Vladimir Zapolskiy <vz@mleia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _LPC32XX_CONFIG_H
 #define _LPC32XX_CONFIG_H
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* Basic CPU architecture */
 #define CONFIG_ARCH_CPU_INIT
