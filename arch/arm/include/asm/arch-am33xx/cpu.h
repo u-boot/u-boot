@@ -400,6 +400,8 @@ struct prm_device_inst {
 struct cm_dpll {
 	unsigned int resv1;
 	unsigned int clktimer2clk;	/* offset 0x04 */
+	unsigned int resv2[11];
+	unsigned int clkselmacclk;	/* offset 0x34 */ 
 };
 #endif /* CONFIG_AM43XX */
 
