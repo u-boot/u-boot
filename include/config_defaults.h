@@ -20,16 +20,4 @@
 #define CONFIG_ZLIB 1
 #define CONFIG_PARTITIONS 1
 
-#ifndef CONFIG_SPL_BUILD
-#ifndef CONFIG_DM_WARN
-#define CONFIG_DM_WARN
-#endif
-#ifndef CONFIG_DM_DEVICE_REMOVE
-#define CONFIG_DM_DEVICE_REMOVE
-#endif
-#ifndef CONFIG_DM_STDIO
-#define CONFIG_DM_STDIO
-#endif
-#endif
-
 #endif
