@@ -17,7 +17,8 @@
 /****************************************************************************/
 /* DMA Timer module registers */
 typedef struct dtimer_ctrl {
-#if defined(CONFIG_M5249) || defined(CONFIG_M5253) || defined(CONFIG_M5272)
+#if defined(CONFIG_M5249) || defined(CONFIG_M5253) || \
+    defined(CONFIG_M5272) || defined(CONFIG_M5307)
 	u16 tmr;		/* 0x00 Mode register */
 	u16 res1;		/* 0x02 */
 	u16 trr;		/* 0x04 Reference register */

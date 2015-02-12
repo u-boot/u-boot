@@ -240,6 +240,30 @@
 #endif
 #endif				/* CONFIG_M5282 */
 
+#ifdef CONFIG_M5307
+#include <asm/immap_5307.h>
+#include <asm/m5307.h>
+
+#define CONFIG_SYS_UART_BASE            (MMAP_UART0 + \
+					(CONFIG_SYS_UART_PORT * 0x40))
+#define CONFIG_SYS_INTR_BASE            (MMAP_INTC)
+#define CONFIG_SYS_NUM_IRQS             (64)
+
+/* Timer */
+#ifdef CONFIG_MCFTMR
+#define CONFIG_SYS_UDELAY_BASE          (MMAP_DTMR0)
+#define CONFIG_SYS_TMR_BASE             (MMAP_DTMR1)
+#define CONFIG_SYS_TMRPND_REG		(((volatile intctrl_t *) \
+					(CONFIG_SYS_INTR_BASE))->ipr)
+#define CONFIG_SYS_TMRINTR_NO           (31)
+#define CONFIG_SYS_TMRINTR_MASK		(0x00000400)
+#define CONFIG_SYS_TMRINTR_PEND		(CONFIG_SYS_TMRINTR_MASK)
+#define CONFIG_SYS_TMRINTR_PRI          (MCFSIM_ICR_AUTOVEC | \
+					MCFSIM_ICR_LEVEL7 | MCFSIM_ICR_PRI3)
+#define CONFIG_SYS_TIMER_PRESCALER      (((gd->bus_clk / 1000000) - 1) << 8)
+#endif
+#endif                          /* CONFIG_M5307 */
+
 #if defined(CONFIG_MCF5301x)
 #include <asm/immap_5301x.h>
 #include <asm/m5301x.h>
