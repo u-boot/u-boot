@@ -167,14 +167,17 @@ static int initr_serial(void)
 	return 0;
 }
 
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 static int initr_trap(void)
 {
 	/*
 	 * Setup trap handlers
 	 */
+#if defined(CONFIG_PPC)
 	trap_init(gd->relocaddr);
-
+#else
+	trap_init(CONFIG_SYS_SDRAM_BASE);
+#endif
 	return 0;
 }
 #endif
@@ -267,14 +270,6 @@ static int initr_malloc(void)
 			TOTAL_MALLOC_LEN);
 	return 0;
 }
-
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-static int initr_noncached(void)
-{
-	noncached_init();
-	return 0;
-}
-#endif
 
 #ifdef CONFIG_DM
 static int initr_dm(void)
@@ -703,9 +698,6 @@ init_fnc_t init_sequence_r[] = {
 #endif
 	initr_barrier,
 	initr_malloc,
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-	initr_noncached,
-#endif
 	bootstage_relocate,
 #ifdef CONFIG_DM
 	initr_dm,
@@ -729,7 +721,7 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	initr_manual_reloc_cmdtable,
 #endif
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 	initr_trap,
 #endif
 #ifdef CONFIG_ADDR_MAP
@@ -831,7 +823,8 @@ init_fnc_t init_sequence_r[] = {
 #if defined(CONFIG_ARM) || defined(CONFIG_AVR32)
 	initr_enable_interrupts,
 #endif
-#if defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE) || defined(CONFIG_AVR32)
+#if defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE) || defined(CONFIG_AVR32) \
+	|| defined(CONFIG_M68K)
 	timer_init,		/* initialize timer */
 #endif
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)

@@ -174,7 +174,7 @@ static int announce_dram_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_MIPS) || defined(CONFIG_PPC)
+#if defined(CONFIG_MIPS) || defined(CONFIG_PPC) || defined(CONFIG_M68K)
 static int init_func_ram(void)
 {
 #ifdef	CONFIG_BOARD_TYPES
@@ -598,7 +598,7 @@ static int display_new_sp(void)
 	return 0;
 }
 
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 static int setup_board_part1(void)
 {
 	bd_t *bd = gd->bd;
@@ -619,7 +619,7 @@ static int setup_board_part1(void)
 		defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 	bd->bi_immr_base = CONFIG_SYS_IMMR;	/* base  of IMMR register     */
 #endif
-#if defined(CONFIG_MPC5xxx)
+#if defined(CONFIG_MPC5xxx) || defined(CONFIG_M68K)
 	bd->bi_mbar_base = CONFIG_SYS_MBAR;	/* base of internal registers */
 #endif
 #if defined(CONFIG_MPC83xx)
@@ -709,6 +709,13 @@ static int setup_reloc(void)
 {
 #ifdef CONFIG_SYS_TEXT_BASE
 	gd->reloc_off = gd->relocaddr - CONFIG_SYS_TEXT_BASE;
+#ifdef CONFIG_M68K
+	/*
+	 * On all ColdFire arch cpu, monitor code starts always
+	 * just after the default vector table location, so at 0x400
+	 */
+	gd->reloc_off = gd->relocaddr - (CONFIG_SYS_TEXT_BASE + 0x400);
+#endif
 #endif
 	memcpy(gd->new_gd, (char *)gd, sizeof(gd_t));
 
@@ -834,6 +841,9 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_FSL_ESDHC
 	get_clocks,
 #endif
+#ifdef CONFIG_M68K
+	get_clocks,
+#endif
 	env_init,		/* initialize environment */
 #if defined(CONFIG_8xx_CPUCLK_DEFAULT)
 	/* get CPU and bus clocks according to the environment variable */
@@ -860,7 +870,7 @@ static init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_MPC83xx)
 	prt_83xx_rsr,
 #endif
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 	checkcpu,
 #endif
 	print_cpuinfo,		/* display cpu info (and speed) */
@@ -886,7 +896,7 @@ static init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_ARM) || defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE) || defined(CONFIG_AVR32)
 	dram_init,		/* configure available RAM banks */
 #endif
-#if defined(CONFIG_MIPS) || defined(CONFIG_PPC)
+#if defined(CONFIG_MIPS) || defined(CONFIG_PPC) || defined(CONFIG_M68K)
 	init_func_ram,
 #endif
 #ifdef CONFIG_POST
@@ -954,7 +964,7 @@ static init_fnc_t init_sequence_f[] = {
 	reserve_stacks,
 	setup_dram_config,
 	show_dram_config,
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
 	setup_board_part1,
 	INIT_FUNC_WATCHDOG_RESET
 	setup_board_part2,

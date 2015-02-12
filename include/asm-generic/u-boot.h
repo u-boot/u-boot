@@ -45,7 +45,7 @@ typedef struct bd_info {
 	|| defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 	unsigned long	bi_immr_base;	/* base of IMMR register */
 #endif
-#if defined(CONFIG_MPC5xxx)
+#if defined(CONFIG_MPC5xxx) || defined(CONFIG_M68K)
 	unsigned long	bi_mbar_base;	/* base of internal registers */
 #endif
 #if defined(CONFIG_MPC83xx)
