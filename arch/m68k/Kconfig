@@ -67,6 +67,9 @@ config TARGET_M5475EVB
 config TARGET_M5485EVB
 	bool "Support M5485EVB"
 
+config TARGET_AMCORE
+	bool "Support AMCORE"
+
 endchoice
 
 source "board/BuS/eb_cpu5282/Kconfig"
@@ -89,5 +92,6 @@ source "board/freescale/m54451evb/Kconfig"
 source "board/freescale/m54455evb/Kconfig"
 source "board/freescale/m547xevb/Kconfig"
 source "board/freescale/m548xevb/Kconfig"
+source "board/sysam/amcore/Kconfig"
 
 endmenu
