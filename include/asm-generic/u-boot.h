@@ -66,9 +66,14 @@ typedef struct bd_info {
 #if defined(CONFIG_MPC512X)
 	unsigned long	bi_ipsfreq;	/* IPS Bus Freq, in MHz */
 #endif /* CONFIG_MPC512X */
-#if defined(CONFIG_MPC5xxx)
+#if defined(CONFIG_MPC5xxx) || defined(CONFIG_M68K)
 	unsigned long	bi_ipbfreq;	/* IPB Bus Freq, in MHz */
 	unsigned long	bi_pcifreq;	/* PCI Bus Freq, in MHz */
+#endif
+#if defined(CONFIG_EXTRA_CLOCK)
+	unsigned long bi_inpfreq;	/* input Freq in MHz */
+	unsigned long bi_vcofreq;	/* vco Freq in MHz */
+	unsigned long bi_flbfreq;	/* Flexbus Freq in MHz */
 #endif
 #if defined(CONFIG_405)   || \
 		defined(CONFIG_405GP) || \

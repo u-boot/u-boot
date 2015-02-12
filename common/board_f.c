@@ -648,6 +648,14 @@ static int setup_board_part2(void)
 	bd->bi_ipbfreq = gd->arch.ipb_clk;
 	bd->bi_pcifreq = gd->pci_clk;
 #endif /* CONFIG_MPC5xxx */
+#if defined(CONFIG_M68K) && defined(CONFIG_PCI)
+	bd->bi_pcifreq = gd->pci_clk;
+#endif
+#if defined(CONFIG_EXTRA_CLOCK)
+	bd->bi_inpfreq = gd->arch.inp_clk;	/* input Freq in Hz */
+	bd->bi_vcofreq = gd->arch.vco_clk;	/* vco Freq in Hz */
+	bd->bi_flbfreq = gd->arch.flb_clk;	/* flexbus Freq in Hz */
+#endif
 
 	return 0;
 }
