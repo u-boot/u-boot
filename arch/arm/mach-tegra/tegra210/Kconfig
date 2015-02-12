@@ -3,9 +3,16 @@ if TEGRA210
 choice
 	prompt "Tegra210 board select"
 
+config TARGET_P2571
+	bool "NVIDIA Tegra210 P2571 base board"
+	help
+	  P2571 is a P2530 married to a P1963 I/O board
+
 endchoice
 
 config SYS_SOC
 	default "tegra210"
+
+source "board/nvidia/p2571/Kconfig"
 
 endif
