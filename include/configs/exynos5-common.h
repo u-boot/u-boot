@@ -126,6 +126,8 @@
 #define SPI_FLASH_UBOOT_POS	(CONFIG_SEC_FW_SIZE + CONFIG_BL1_SIZE)
 
 /* I2C */
+
+/* TODO(sjg@chromium.org): Move these two options to Kconfig */
 #define CONFIG_DM_I2C
 #define CONFIG_DM_I2C_COMPAT
 #define CONFIG_CMD_I2C
