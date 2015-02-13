@@ -29,12 +29,14 @@ config TARGET_MALTA
 	select SUPPORTS_LITTLE_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
+	select SWAP_IO_SPACE
 
 config TARGET_VCT
 	bool "Support vct"
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
+	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 
 config TARGET_DBAU1X00
 	bool "Support dbau1x00"
@@ -42,12 +44,14 @@ config TARGET_DBAU1X00
 	select SUPPORTS_LITTLE_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
+	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 
 config TARGET_PB1X00
 	bool "Support pb1x00"
 	select SUPPORTS_LITTLE_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
+	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 
 
 endchoice
@@ -116,6 +120,39 @@ config CPU_MIPS64_R2
 
 endchoice
 
+menu "OS boot interface"
+
+config MIPS_BOOT_CMDLINE_LEGACY
+	bool "Hand over legacy command line to Linux kernel"
+	default y
+	help
+	  Enable this option if you want U-Boot to hand over the Yamon-style
+	  command line to the kernel. All bootargs will be prepared as argc/argv
+	  compatible list. The argument count (argc) is stored in register $a0.
+	  The address of the argument list (argv) is stored in register $a1.
+
+config MIPS_BOOT_ENV_LEGACY
+	bool "Hand over legacy environment to Linux kernel"
+	default y
+	help
+	  Enable this option if you want U-Boot to hand over the Yamon-style
+	  environment to the kernel. Information like memory size, initrd
+	  address and size will be prepared as zero-terminated key/value list.
+	  The address of the enviroment is stored in register $a2.
+
+config MIPS_BOOT_FDT
+	bool "Hand over a flattened device tree to Linux kernel (INCOMPLETE)"
+	default n
+	help
+	  Enable this option if you want U-Boot to hand over a flattened
+	  device tree to the kernel.
+
+	  Note: the final hand over to the kernel is not yet implemented. After
+	        the community agreed on the MIPS boot interface for device trees,
+	        the corresponding code will be added.
+
+endmenu
+
 config SUPPORTS_BIG_ENDIAN
 	bool
 
@@ -134,10 +171,24 @@ config SUPPORTS_CPU_MIPS64_R1
 config SUPPORTS_CPU_MIPS64_R2
 	bool
 
+config CPU_MIPS32
+	bool
+	default y if CPU_MIPS32_R1 || CPU_MIPS32_R2
+
+config CPU_MIPS64
+	bool
+	default y if CPU_MIPS64_R1 || CPU_MIPS64_R2
+
 config 32BIT
 	bool
 
 config 64BIT
+	bool
+
+config SWAP_IO_SPACE
+	bool
+
+config SYS_MIPS_CACHE_INIT_RAM_LOAD
 	bool
 
 endif

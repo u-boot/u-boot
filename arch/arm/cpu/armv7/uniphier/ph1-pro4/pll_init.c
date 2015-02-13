@@ -11,7 +11,7 @@
 
 #undef DPLL_SSC_RATE_1PER
 
-void dpll_init(void)
+static void dpll_init(void)
 {
 	u32 tmp;
 
@@ -46,7 +46,7 @@ void dpll_init(void)
 	writel(tmp, SC_DPLLCTRL2);
 }
 
-void stop_mpll(void)
+static void stop_mpll(void)
 {
 	u32 tmp;
 
@@ -62,7 +62,7 @@ void stop_mpll(void)
 		;
 }
 
-void vpll_init(void)
+static void vpll_init(void)
 {
 	u32 tmp, clk_mode_axosel;
 

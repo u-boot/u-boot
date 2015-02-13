@@ -7,7 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <linux/compiler.h>
-#include <asm/arch/fsp/fsp_support.h>
+#include <asm/fsp/fsp_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

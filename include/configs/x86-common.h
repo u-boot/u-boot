@@ -39,7 +39,6 @@
 /* SATA AHCI storage */
 
 #define CONFIG_SCSI_AHCI
-#define CONFIG_SATA_INTEL
 #ifdef CONFIG_SCSI_AHCI
 #define CONFIG_LIBATA
 #define CONFIG_SYS_64BIT_LBA
@@ -179,6 +178,7 @@
 #define VIDEO_FB_16BPP_WORD_SWAP
 #define CONFIG_I8042_KBD
 #define CONFIG_CFB_CONSOLE
+#define CONFIG_CONSOLE_SCROLL_LINES 5
 
 /*-----------------------------------------------------------------------
  * CPU Features
@@ -210,6 +210,7 @@
 #define CONFIG_CMD_SF_TEST
 #define CONFIG_CMD_SPI
 #define CONFIG_SPI
+#define CONFIG_OF_SPI_FLASH
 
 /*-----------------------------------------------------------------------
  * Environment configuration
@@ -242,6 +243,9 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
+
+#define CONFIG_BOOTSTAGE
+#define CONFIG_CMD_BOOTSTAGE
 
 #define CONFIG_CMD_USB
 

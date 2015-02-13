@@ -244,18 +244,17 @@ int ublimage_check_params(struct image_tool_params *params)
 /*
  * ublimage parameters
  */
-static struct image_type_params ublimage_params = {
-	.name		= "Davinci UBL boot support",
-	.header_size	= sizeof(struct ubl_header),
-	.hdr		= (void *)&ublimage_header,
-	.check_image_type = ublimage_check_image_types,
-	.verify_header	= ublimage_verify_header,
-	.print_header	= ublimage_print_header,
-	.set_header	= ublimage_set_header,
-	.check_params	= ublimage_check_params,
-};
-
-void init_ubl_image_type(void)
-{
-	register_image_type(&ublimage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	ublimage,
+	"Davinci UBL boot support",
+	sizeof(struct ubl_header),
+	(void *)&ublimage_header,
+	ublimage_check_params,
+	ublimage_verify_header,
+	ublimage_print_header,
+	ublimage_set_header,
+	NULL,
+	ublimage_check_image_types,
+	NULL,
+	NULL
+);

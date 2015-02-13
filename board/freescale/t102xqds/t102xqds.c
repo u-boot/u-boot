@@ -19,10 +19,10 @@
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
 #include <hwconfig.h>
-#include <asm/mpc85xx_gpio.h>
 #include "../common/qixis.h"
 #include "t102xqds.h"
 #include "t102xqds_qixis.h"
+#include "../common/sleep.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -242,6 +242,16 @@ void board_retimer_ds125df111_init(void)
 	i2c_write(I2C_RETIMER_ADDR, 0x64, 1, &reg, 1);
 }
 
+int board_early_init_f(void)
+{
+#if defined(CONFIG_DEEP_SLEEP)
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
+
+	return 0;
+}
+
 int board_early_init_r(void)
 {
 #ifdef CONFIG_SYS_FLASH_BASE
@@ -395,14 +405,3 @@ void qixis_dump_switch(void)
 		printf("SW%d = (0x%02x)\n", i, QIXIS_READ(cms[1]));
 	}
 }
-
-#ifdef CONFIG_DEEP_SLEEP
-void board_mem_sleep_setup(void)
-{
-	/* does not provide HW signals for power management */
-	QIXIS_WRITE(pwr_ctl[1], (QIXIS_READ(pwr_ctl[1]) & ~0x2));
-	/* Disable MCKE isolation */
-	gpio_set_value(2, 0);
-	udelay(1);
-}
-#endif

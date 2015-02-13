@@ -68,6 +68,7 @@ static void taurus_nand_hw_init(void)
 #if defined(CONFIG_SPL_BUILD)
 #include <spl.h>
 #include <nand.h>
+#include <spi_flash.h>
 
 void matrix_init(void)
 {
@@ -81,23 +82,28 @@ void matrix_init(void)
 void at91_spl_board_init(void)
 {
 	taurus_nand_hw_init();
+	at91_spi0_hw_init(TAURUS_SPI_MASK);
 
 	/* Configure recovery button PINs */
 	at91_set_gpio_input(AT91_PIN_PA31, 1);
 
 	/* check if button is pressed */
 	if (at91_get_gpio_value(AT91_PIN_PA31) == 0) {
-		u32 boot_device;
+		struct spi_flash *flash;
 
 		debug("Recovery button pressed\n");
-		boot_device = spl_boot_device();
-		switch (boot_device) {
-#ifdef CONFIG_SPL_NAND_SUPPORT
-		case BOOT_DEVICE_NAND:
-			nand_init();
-			spl_nand_erase_one(0, 0);
-			break;
-#endif
+		nand_init();
+		spl_nand_erase_one(0, 0);
+		flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
+					0,
+					CONFIG_SF_DEFAULT_SPEED,
+					SPI_MODE_3);
+		if (!flash) {
+			puts("no flash\n");
+		} else {
+			puts("erase spi flash sector 0\n");
+			spi_flash_erase(flash, 0,
+					CONFIG_SYS_NAND_U_BOOT_SIZE);
 		}
 	}
 }

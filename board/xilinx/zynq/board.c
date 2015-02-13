@@ -24,6 +24,7 @@ static xilinx_desc fpga010 = XILINX_XC7Z010_DESC(0x10);
 static xilinx_desc fpga015 = XILINX_XC7Z015_DESC(0x15);
 static xilinx_desc fpga020 = XILINX_XC7Z020_DESC(0x20);
 static xilinx_desc fpga030 = XILINX_XC7Z030_DESC(0x30);
+static xilinx_desc fpga035 = XILINX_XC7Z035_DESC(0x35);
 static xilinx_desc fpga045 = XILINX_XC7Z045_DESC(0x45);
 static xilinx_desc fpga100 = XILINX_XC7Z100_DESC(0x100);
 #endif
@@ -48,6 +49,9 @@ int board_init(void)
 		break;
 	case XILINX_ZYNQ_7030:
 		fpga = fpga030;
+		break;
+	case XILINX_ZYNQ_7035:
+		fpga = fpga035;
 		break;
 	case XILINX_ZYNQ_7045:
 		fpga = fpga045;
@@ -87,6 +91,14 @@ int board_late_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_DISPLAY_BOARDINFO
+int checkboard(void)
+{
+	puts("Board:\tXilinx Zynq\n");
+	return 0;
+}
+#endif
+
 int board_eth_init(bd_t *bis)
 {
 	u32 ret = 0;
@@ -111,11 +123,13 @@ int board_eth_init(bd_t *bis)
 #if defined(CONFIG_ZYNQ_GEM)
 # if defined(CONFIG_ZYNQ_GEM0)
 	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR0,
-						CONFIG_ZYNQ_GEM_PHY_ADDR0, 0);
+				   CONFIG_ZYNQ_GEM_PHY_ADDR0,
+				   CONFIG_ZYNQ_GEM_EMIO0);
 # endif
 # if defined(CONFIG_ZYNQ_GEM1)
 	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR1,
-						CONFIG_ZYNQ_GEM_PHY_ADDR1, 0);
+				   CONFIG_ZYNQ_GEM_PHY_ADDR1,
+				   CONFIG_ZYNQ_GEM_EMIO1);
 # endif
 #endif
 	return ret;

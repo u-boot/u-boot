@@ -19,6 +19,7 @@
 		colour = "cyan";
 		sides = <3>;
 		character = <83>;
+		light-gpios = <&gpio_a 2>, <&gpio_b 6 0>;
 	};
 	square {
 		compatible = "demo-shape";
@@ -73,10 +74,8 @@
 
 	cros-ec-keyb {
 		compatible = "google,cros-ec-keyb";
-		google,key-rows = <8>;
-		google,key-columns = <13>;
-		google,repeat-delay-ms = <240>;
-		google,repeat-rate-ms = <30>;
+		keypad,num-rows = <8>;
+		keypad,num-columns = <13>;
 		google,ghost-filter;
 		/*
 		 * Keymap entries take the form of 0xRRCCKKKK where
@@ -126,12 +125,20 @@
 			0x070b0067 0x070c0069>;
 	};
 
-	gpio_a: gpios {
+	gpio_a: gpios@0 {
 		gpio-controller;
 		compatible = "sandbox,gpio";
 		#gpio-cells = <1>;
 		gpio-bank-name = "a";
 		num-gpios = <20>;
+	};
+
+	gpio_b: gpios@1 {
+		gpio-controller;
+		compatible = "sandbox,gpio";
+		#gpio-cells = <2>;
+		gpio-bank-name = "b";
+		num-gpios = <10>;
 	};
 
 	i2c@0 {

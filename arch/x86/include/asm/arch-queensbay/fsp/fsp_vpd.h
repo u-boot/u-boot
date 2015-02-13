@@ -10,8 +10,6 @@
 #ifndef __VPDHEADER_H__
 #define __VPDHEADER_H__
 
-#define UPD_TERMINATOR	0x55AA
-
 struct __packed upd_region {
 	u64	sign;			/* Offset 0x0000 */
 	u64	reserved;		/* Offset 0x0008 */

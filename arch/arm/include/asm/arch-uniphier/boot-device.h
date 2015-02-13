@@ -8,7 +8,7 @@
 #ifndef _ASM_BOOT_DEVICE_H_
 #define _ASM_BOOT_DEVICE_H_
 
-u32 get_boot_mode_sel(void);
+int get_boot_mode_sel(void);
 
 struct boot_device_info {
 	u32 type;

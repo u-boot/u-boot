@@ -361,6 +361,5 @@ U_BOOT_DRIVER(tegra30_spi) = {
 	.ofdata_to_platdata = tegra30_spi_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct tegra_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct tegra30_spi_priv),
-	.per_child_auto_alloc_size	= sizeof(struct spi_slave),
 	.probe	= tegra30_spi_probe,
 };

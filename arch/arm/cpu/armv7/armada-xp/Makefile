@@ -5,3 +5,5 @@
 #
 
 obj-y	= cpu.o
+obj-$(CONFIG_SPL_BUILD) += spl.o
+obj-$(CONFIG_SPL_BUILD) += lowlevel_spl.o

@@ -36,7 +36,6 @@ static int dm_test_spi_find(struct dm_test_state *dms)
 	ut_asserteq(0, uclass_get_device_by_seq(UCLASS_SPI, busnum, &bus));
 	ut_assertok(spi_cs_info(bus, cs, &info));
 	of_offset = info.dev->of_offset;
-	sandbox_sf_unbind_emul(state_get_current(), busnum, cs);
 	device_remove(info.dev);
 	device_unbind(info.dev);
 
@@ -45,7 +44,7 @@ static int dm_test_spi_find(struct dm_test_state *dms)
 	 * reports that CS 0 is present
 	 */
 	ut_assertok(spi_cs_info(bus, cs, &info));
-	ut_asserteq_ptr(info.dev, NULL);
+	ut_asserteq_ptr(NULL, info.dev);
 
 	/* This finds nothing because we removed the device */
 	ut_asserteq(-ENODEV, spi_find_bus_and_cs(busnum, cs, &bus, &dev));
@@ -62,8 +61,9 @@ static int dm_test_spi_find(struct dm_test_state *dms)
 	ut_asserteq(-ENOENT, spi_get_bus_and_cs(busnum, cs, speed, mode,
 						"spi_flash_std", "name", &bus,
 						&slave));
+	sandbox_sf_unbind_emul(state_get_current(), busnum, cs);
 	ut_assertok(spi_cs_info(bus, cs, &info));
-	ut_asserteq_ptr(info.dev, NULL);
+	ut_asserteq_ptr(NULL, info.dev);
 
 	/* Add the emulation and try again */
 	ut_assertok(sandbox_sf_bind_emul(state, busnum, cs, bus, of_offset,

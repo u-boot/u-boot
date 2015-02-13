@@ -211,6 +211,7 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 				comp = image_get_comp(hdr);
 				if (comp == IH_COMP_GZIP) {
+#if defined(CONFIG_GZIP)
 					ulong image_buf = image_get_data(hdr);
 					data = image_get_load(hdr);
 					ulong image_size = ~0UL;
@@ -222,6 +223,10 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 						return 1;
 					}
 					data_size = image_size;
+#else
+					puts("Gunzip image is not supported\n");
+					return 1;
+#endif
 				} else {
 					data = (ulong)image_get_data(hdr);
 					data_size = image_get_data_size(hdr);
@@ -341,7 +346,7 @@ U_BOOT_CMD(fpga, 6, 1, do_fpga,
 	   "loadable FPGA image support",
 	   "[operation type] [device number] [image address] [image size]\n"
 	   "fpga operations:\n"
-	   "  dump\t[dev]\t\t\tLoad device to memory buffer\n"
+	   "  dump\t[dev] [address] [size]\tLoad device to memory buffer\n"
 	   "  info\t[dev]\t\t\tlist known device information\n"
 	   "  load\t[dev] [address] [size]\tLoad device from memory buffer\n"
 #if defined(CONFIG_CMD_FPGA_LOADP)

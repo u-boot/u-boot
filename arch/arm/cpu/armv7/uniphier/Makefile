@@ -2,23 +2,32 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_SPL_BUILD) += lowlevel_init.o init_page_table.o
-obj-$(CONFIG_SPL_BUILD) += spl.o
+ifdef CONFIG_SPL_BUILD
 
-obj-y += timer.o
-obj-y += reset.o
-obj-y += cache_uniphier.o
-obj-$(CONFIG_BOARD_POSTCLK_INIT) += board_postclk_init.o
-obj-y += dram_init.o
-obj-$(CONFIG_DRAM_INIT) += ddrphy_training.o
+obj-y += lowlevel_init.o
+obj-y += init_page_table.o
+obj-y += spl.o
+obj-y += ddrphy_training.o
+
+else
+
+obj-$(CONFIG_BOARD_EARLY_INIT_F) += board_early_init_f.o
 obj-$(CONFIG_DISPLAY_CPUINFO) += cpu_info.o
+obj-$(CONFIG_MISC_INIT_F) += print_misc_info.o
+obj-y += dram_init.o
+obj-y += board_common.o
 obj-$(CONFIG_BOARD_EARLY_INIT_R) += board_early_init_r.o
 obj-$(CONFIG_BOARD_LATE_INIT) += board_late_init.o
+obj-y += reset.o
+obj-y += cache_uniphier.o
 obj-$(CONFIG_UNIPHIER_SMP) += smp.o
 obj-$(CONFIG_CMD_PINMON) += cmd_pinmon.o
 obj-$(CONFIG_CMD_DDRPHY_DUMP) += cmd_ddrphy.o
 
-obj-y += board_common.o
+endif
+
+obj-y += timer.o
+
 obj-$(CONFIG_PFC_MICRO_SUPPORT_CARD) += support_card.o
 obj-$(CONFIG_DCC_MICRO_SUPPORT_CARD) += support_card.o
 

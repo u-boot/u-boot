@@ -23,9 +23,15 @@
 #ifdef CONFIG_SYS_FSL_DDR_LE
 #define ddr_in32(a)	in_le32(a)
 #define ddr_out32(a, v)	out_le32(a, v)
+#define ddr_setbits32(a, v)	setbits_le32(a, v)
+#define ddr_clrbits32(a, v)	clrbits_le32(a, v)
+#define ddr_clrsetbits32(a, clear, set)	clrsetbits_le32(a, clear, set)
 #else
 #define ddr_in32(a)	in_be32(a)
 #define ddr_out32(a, v)	out_be32(a, v)
+#define ddr_setbits32(a, v)	setbits_be32(a, v)
+#define ddr_clrbits32(a, v)	clrbits_be32(a, v)
+#define ddr_clrsetbits32(a, clear, set)	clrsetbits_be32(a, clear, set)
 #endif
 
 #define _DDR_ADDR CONFIG_SYS_FSL_DDR_ADDR

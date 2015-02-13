@@ -644,8 +644,7 @@ extern int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev);
 
 extern pci_dev_t pci_find_device (unsigned int vendor, unsigned int device, int index);
 extern pci_dev_t pci_find_devices (struct pci_device_id *ids, int index);
-extern pci_dev_t pci_find_class(int wanted_class, int wanted_sub_code,
-				int wanted_prog_if, int index);
+pci_dev_t pci_find_class(unsigned int find_class, int index);
 
 extern int pci_hose_config_device(struct pci_controller *hose,
 				  pci_dev_t dev,
@@ -696,6 +695,15 @@ void pci_write_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum,
  * @return address of the bar, masking out any control bits
  * */
 u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
+
+/**
+ * pciauto_setup_rom() - Set up access to a device ROM
+ *
+ * @hose:	PCI hose to use
+ * @dev:	PCI device to adjust
+ * @return 0 if done, -ve on error
+ */
+int pciauto_setup_rom(struct pci_controller *hose, pci_dev_t dev);
 
 #endif /* __ASSEMBLY__ */
 #endif /* _PCI_H */

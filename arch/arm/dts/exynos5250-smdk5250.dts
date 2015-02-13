@@ -146,6 +146,6 @@
 	};
 
 	ehci@12110000 {
-		samsung,vbus-gpio = <&gpio 0x316 0>; /* X26 */
+		samsung,vbus-gpio = <&gpx2 6 GPIO_ACTIVE_HIGH>;
 	};
 };

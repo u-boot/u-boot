@@ -111,14 +111,6 @@ int arch_cpu_init(void)
  */
 void s_init(void)
 {
-	/*
-	 * Save the boot parameters passed from romcode.
-	 * We cannot delay the saving further than this,
-	 * to prevent overwrites.
-	 */
-#ifdef CONFIG_SPL_BUILD
-	save_omap_boot_params();
-#endif
 	init_omap_revision();
 	hw_data_init();
 
@@ -133,9 +125,6 @@ void s_init(void)
 	srcomp_enable();
 	setup_clocks_for_console();
 
-	gd = &gdata;
-
-	preloader_console_init();
 	do_io_settings();
 #endif
 	prcm_init();

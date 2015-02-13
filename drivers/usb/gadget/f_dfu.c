@@ -780,6 +780,13 @@ static int dfu_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 	return 0;
 }
 
+static int __dfu_get_alt(struct usb_function *f, unsigned intf)
+{
+	struct f_dfu *f_dfu = func_to_dfu(f);
+
+	return f_dfu->altsetting;
+}
+
 /* TODO: is this really what we need here? */
 static void dfu_disable(struct usb_function *f)
 {
@@ -806,6 +813,7 @@ static int dfu_bind_config(struct usb_configuration *c)
 	f_dfu->usb_function.bind = dfu_bind;
 	f_dfu->usb_function.unbind = dfu_unbind;
 	f_dfu->usb_function.set_alt = dfu_set_alt;
+	f_dfu->usb_function.get_alt = __dfu_get_alt;
 	f_dfu->usb_function.disable = dfu_disable;
 	f_dfu->usb_function.strings = dfu_generic_strings;
 	f_dfu->usb_function.setup = dfu_handle;

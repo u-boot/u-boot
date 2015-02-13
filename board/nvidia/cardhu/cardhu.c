@@ -46,7 +46,7 @@ void board_sdmmc_voltage_init(void)
 	int ret;
 	int i;
 
-	ret = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, &dev);
+	ret = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, 1, &dev);
 	if (ret) {
 		debug("%s: Cannot find PMIC I2C chip\n", __func__);
 		return;
@@ -57,7 +57,7 @@ void board_sdmmc_voltage_init(void)
 	reg = 0x32;
 
 	for (i = 0; i < MAX_I2C_RETRY; ++i) {
-		if (i2c_write(dev, reg, data_buffer, 1))
+		if (dm_i2c_write(dev, reg, data_buffer, 1))
 			udelay(100);
 	}
 
@@ -66,7 +66,7 @@ void board_sdmmc_voltage_init(void)
 	reg = 0x67;
 
 	for (i = 0; i < MAX_I2C_RETRY; ++i) {
-		if (i2c_write(dev, reg, data_buffer, 1))
+		if (dm_i2c_write(dev, reg, data_buffer, 1))
 			udelay(100);
 	}
 }
@@ -94,7 +94,7 @@ int tegra_pcie_board_init(void)
 	u8 addr, data[1];
 	int err;
 
-	err = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, &dev);
+	err = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, 1, &dev);
 	if (err) {
 		debug("failed to find PMU bus\n");
 		return err;
@@ -104,7 +104,7 @@ int tegra_pcie_board_init(void)
 	data[0] = 0x15;
 	addr = 0x30;
 
-	err = i2c_write(dev, addr, data, 1);
+	err = dm_i2c_write(dev, addr, data, 1);
 	if (err) {
 		debug("failed to set VDD supply\n");
 		return err;
@@ -121,7 +121,7 @@ int tegra_pcie_board_init(void)
 	data[0] = 0x15;
 	addr = 0x31;
 
-	err = i2c_write(dev, addr, data, 1);
+	err = dm_i2c_write(dev, addr, data, 1);
 	if (err) {
 		debug("failed to set AVDD supply\n");
 		return err;

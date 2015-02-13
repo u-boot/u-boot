@@ -4,6 +4,7 @@ choice
 
 config ARC
 	bool "ARC architecture"
+	select HAVE_PRIVATE_LIBGCC
 
 config ARM
 	bool "ARM architecture"

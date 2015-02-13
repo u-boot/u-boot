@@ -1358,6 +1358,10 @@ out_version:
 out_class:
 	class_destroy(ubi_class);
 out:
+#ifdef __UBOOT__
+	/* Reset any globals that the driver depends on being zeroed */
+	mtd_devs = 0;
+#endif
 	ubi_err("cannot initialize UBI, error %d", err);
 	return err;
 }
@@ -1384,6 +1388,10 @@ void ubi_exit(void)
 	misc_deregister(&ubi_ctrl_cdev);
 	class_remove_file(ubi_class, &ubi_version);
 	class_destroy(ubi_class);
+#ifdef __UBOOT__
+	/* Reset any globals that the driver depends on being zeroed */
+	mtd_devs = 0;
+#endif
 }
 module_exit(ubi_exit);
 

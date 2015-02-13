@@ -7,14 +7,6 @@
 #ifndef _IGEP00X0_H_
 #define _IGEP00X0_H_
 
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)
-#define IGEP00X0_GPIO_LED 27
-#endif
-
-#if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0030)
-#define IGEP00X0_GPIO_LED 16
-#endif
-
 const omap3_sysinfo sysinfo = {
 	DDR_STACKED,
 #if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020)

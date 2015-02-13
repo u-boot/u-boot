@@ -13,7 +13,7 @@
 #define BOOTENV_SHARED_BLKDEV_BODY(devtypel) \
 		"if " #devtypel " dev ${devnum}; then " \
 			"setenv devtype " #devtypel "; " \
-			"run scan_dev_for_boot; " \
+			"run scan_dev_for_boot_part; " \
 		"fi\0"
 
 #define BOOTENV_SHARED_BLKDEV(devtypel) \
@@ -90,15 +90,8 @@
 #endif
 
 #ifdef CONFIG_CMD_USB
-#define BOOTENV_RUN_USB_INIT "run usb_init; "
-#define BOOTENV_SET_USB_NEED_INIT "setenv usb_need_init; "
+#define BOOTENV_RUN_USB_INIT "usb start; "
 #define BOOTENV_SHARED_USB \
-	"usb_init=" \
-		"if ${usb_need_init}; then " \
-			"setenv usb_need_init false; " \
-			"usb start 0; " \
-		"fi\0" \
-	\
 	"usb_boot=" \
 		BOOTENV_RUN_USB_INIT \
 		BOOTENV_SHARED_BLKDEV_BODY(usb)
@@ -106,7 +99,6 @@
 #define BOOTENV_DEV_NAME_USB	BOOTENV_DEV_NAME_BLKDEV
 #else
 #define BOOTENV_RUN_USB_INIT
-#define BOOTENV_SET_USB_NEED_INIT
 #define BOOTENV_SHARED_USB
 #define BOOTENV_DEV_USB \
 	BOOT_TARGET_DEVICES_references_USB_without_CONFIG_CMD_USB
@@ -118,7 +110,7 @@
 #define BOOTENV_DEV_DHCP(devtypeu, devtypel, instance) \
 	"bootcmd_dhcp=" \
 		BOOTENV_RUN_USB_INIT \
-		"if dhcp ${scriptaddr} boot.scr.uimg; then " \
+		"if dhcp ${scriptaddr} ${boot_script_dhcp}; then " \
 			"source ${scriptaddr}; " \
 		"fi\0"
 #define BOOTENV_DEV_NAME_DHCP(devtypeu, devtypel, instance) \
@@ -162,8 +154,8 @@
 	BOOTENV_SHARED_IDE \
 	"boot_prefixes=/ /boot/\0" \
 	"boot_scripts=boot.scr.uimg boot.scr\0" \
+	"boot_script_dhcp=boot.scr.uimg\0" \
 	BOOTENV_BOOT_TARGETS \
-	"bootpart=1\0" \
 	\
 	"boot_extlinux="                                                  \
 		"sysboot ${devtype} ${devnum}:${bootpart} any "           \
@@ -194,17 +186,30 @@
 		"done\0"                                                  \
 	\
 	"scan_dev_for_boot="                                              \
-		"echo Scanning ${devtype} ${devnum}...; "                 \
+		"echo Scanning ${devtype} ${devnum}:${bootpart}...; "     \
 		"for prefix in ${boot_prefixes}; do "                     \
 			"run scan_dev_for_extlinux; "                     \
 			"run scan_dev_for_scripts; "                      \
 		"done\0"                                                  \
 	\
+	"scan_dev_for_boot_part="                                         \
+		"part list ${devtype} ${devnum} devplist; "               \
+		"for bootpart in ${devplist}; do "                        \
+			"if fstype ${devtype} ${devnum}:${bootpart} "     \
+					"bootfstype; then "               \
+				"run scan_dev_for_boot; "                 \
+			"fi; "                                            \
+		"done\0"                                                  \
+	\
 	BOOT_TARGET_DEVICES(BOOTENV_DEV)                                  \
 	\
-	"bootcmd=" BOOTENV_SET_USB_NEED_INIT BOOTENV_SET_SCSI_NEED_INIT   \
+	"distro_bootcmd=" BOOTENV_SET_SCSI_NEED_INIT                      \
 		"for target in ${boot_targets}; do "                      \
 			"run bootcmd_${target}; "                         \
 		"done\0"
+
+#ifndef CONFIG_BOOTCOMMAND
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd"
+#endif
 
 #endif  /* _CONFIG_CMD_DISTRO_BOOTCMD_H */

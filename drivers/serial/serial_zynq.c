@@ -27,35 +27,19 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_UART_MR_PARITY_NONE	0x00000020  /* No parity mode */
 
 struct uart_zynq {
-	u32 control; /* Control Register [8:0] */
-	u32 mode; /* Mode Register [10:0] */
+	u32 control; /* 0x0 - Control Register [8:0] */
+	u32 mode; /* 0x4 - Mode Register [10:0] */
 	u32 reserved1[4];
-	u32 baud_rate_gen; /* Baud Rate Generator [15:0] */
+	u32 baud_rate_gen; /* 0x18 - Baud Rate Generator [15:0] */
 	u32 reserved2[4];
-	u32 channel_sts; /* Channel Status [11:0] */
-	u32 tx_rx_fifo; /* FIFO [15:0] or [7:0] */
-	u32 baud_rate_divider; /* Baud Rate Divider [7:0] */
+	u32 channel_sts; /* 0x2c - Channel Status [11:0] */
+	u32 tx_rx_fifo; /* 0x30 - FIFO [15:0] or [7:0] */
+	u32 baud_rate_divider; /* 0x34 - Baud Rate Divider [7:0] */
 };
 
 static struct uart_zynq *uart_zynq_ports[2] = {
 	[0] = (struct uart_zynq *)ZYNQ_SERIAL_BASEADDR0,
 	[1] = (struct uart_zynq *)ZYNQ_SERIAL_BASEADDR1,
-};
-
-#if !defined(CONFIG_ZYNQ_SERIAL_BAUDRATE0)
-# define CONFIG_ZYNQ_SERIAL_BAUDRATE0	CONFIG_BAUDRATE
-#endif
-#if !defined(CONFIG_ZYNQ_SERIAL_BAUDRATE1)
-# define CONFIG_ZYNQ_SERIAL_BAUDRATE1	CONFIG_BAUDRATE
-#endif
-
-struct uart_zynq_params {
-	u32 baudrate;
-};
-
-static struct uart_zynq_params uart_zynq_ports_param[2] = {
-	[0].baudrate = CONFIG_ZYNQ_SERIAL_BAUDRATE0,
-	[1].baudrate = CONFIG_ZYNQ_SERIAL_BAUDRATE1,
 };
 
 /* Set up the baud rate in gd struct */
@@ -64,7 +48,7 @@ static void uart_zynq_serial_setbrg(const int port)
 	/* Calculation results. */
 	unsigned int calc_bauderror, bdiv, bgen;
 	unsigned long calc_baud = 0;
-	unsigned long baud = uart_zynq_ports_param[port].baudrate;
+	unsigned long baud = gd->baudrate;
 	unsigned long clock = get_uart_clk(port);
 	struct uart_zynq *regs = uart_zynq_ports[port];
 

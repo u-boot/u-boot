@@ -63,3 +63,13 @@ config AXP221_ALDO3_VOLT
 	Set the voltage (mV) to program the axp221 aldo3 at, set to 0 to
 	disable aldo3. This is typically connected to VCC-PLL and AVCC and
 	must be set to 3V.
+
+config AXP221_ELDO3_VOLT
+	int "axp221 eldo3 voltage"
+	depends on AXP221_POWER
+	default 0
+	---help---
+	Set the voltage (mV) to program the axp221 eldo3 at, set to 0 to
+	disable eldo3. On some A31(s) tablets it might be used to supply
+	1.2V for the SSD2828 chip (converter of parallel LCD interface
+	into MIPI DSI).

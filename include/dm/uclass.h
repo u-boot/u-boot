@@ -40,6 +40,9 @@ struct uclass {
 
 struct udevice;
 
+/* Members of this uclass sequence themselves with aliases */
+#define DM_UC_FLAG_SEQ_ALIAS			(1 << 0)
+
 /**
  * struct uclass_driver - Driver for the uclass
  *
@@ -52,6 +55,7 @@ struct udevice;
  * @pre_unbind: Called before a device is unbound from this uclass
  * @post_probe: Called after a new device is probed
  * @pre_remove: Called before a device is removed
+ * @child_post_bind: Called after a child is bound to a device in this uclass
  * @init: Called to set up the uclass
  * @destroy: Called to destroy the uclass
  * @priv_auto_alloc_size: If non-zero this is the size of the private data
@@ -60,8 +64,16 @@ struct udevice;
  * @per_device_auto_alloc_size: Each device can hold private data owned
  * by the uclass. If required this will be automatically allocated if this
  * value is non-zero.
+ * @per_child_auto_alloc_size: Each child device (of a parent in this
+ * uclass) can hold parent data for the device/uclass. This value is only
+ * used as a falback if this member is 0 in the driver.
+ * @per_child_platdata_auto_alloc_size: A bus likes to store information about
+ * its children. If non-zero this is the size of this data, to be allocated
+ * in the child device's parent_platdata pointer. This value is only used as
+ * a falback if this member is 0 in the driver.
  * @ops: Uclass operations, providing the consistent interface to devices
  * within the uclass.
+ * @flags: Flags for this uclass (DM_UC_...)
  */
 struct uclass_driver {
 	const char *name;
@@ -70,11 +82,16 @@ struct uclass_driver {
 	int (*pre_unbind)(struct udevice *dev);
 	int (*post_probe)(struct udevice *dev);
 	int (*pre_remove)(struct udevice *dev);
+	int (*child_post_bind)(struct udevice *dev);
+	int (*child_pre_probe)(struct udevice *dev);
 	int (*init)(struct uclass *class);
 	int (*destroy)(struct uclass *class);
 	int priv_auto_alloc_size;
 	int per_device_auto_alloc_size;
+	int per_child_auto_alloc_size;
+	int per_child_platdata_auto_alloc_size;
 	const void *ops;
+	uint32_t flags;
 };
 
 /* Declare a new uclass_driver */
@@ -141,6 +158,8 @@ int uclass_get_device_by_of_offset(enum uclass_id id, int node,
 /**
  * uclass_first_device() - Get the first device in a uclass
  *
+ * The device returned is probed if necessary, and ready for use
+ *
  * @id: Uclass ID to look up
  * @devp: Returns pointer to the first device in that uclass, or NULL if none
  * @return 0 if OK (found or not found), -1 on error
@@ -149,6 +168,8 @@ int uclass_first_device(enum uclass_id id, struct udevice **devp);
 
 /**
  * uclass_next_device() - Get the next device in a uclass
+ *
+ * The device returned is probed if necessary, and ready for use
  *
  * @devp: On entry, pointer to device to lookup. On exit, returns pointer
  * to the next device in the same uclass, or NULL if none

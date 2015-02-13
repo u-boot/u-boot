@@ -2827,7 +2827,6 @@ out_unlock:
 	return ERR_PTR(err);
 }
 
-#ifndef __UBOOT__
 /**
  * tnc_destroy_cnext - destroy left-over obsolete znodes from a failed commit.
  * @c: UBIFS file-system description object
@@ -2869,7 +2868,6 @@ void ubifs_tnc_close(struct ubifs_info *c)
 	kfree(c->ilebs);
 	destroy_old_idx(c);
 }
-#endif
 
 /**
  * left_znode - get the znode to the left.

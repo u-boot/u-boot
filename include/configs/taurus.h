@@ -21,11 +21,13 @@
  */
 #include <asm/hardware.h>
 
-#define MACH_TYPE_TAURUS		2067
-#define MACH_TYPE_AXM			2068
-
 #define CONFIG_SYS_GENERIC_BOARD
 
+#if defined(CONFIG_SPL_BUILD)
+#define CONFIG_SYS_THUMB_BUILD
+#define CONFIG_SYS_ICACHE_OFF
+#define CONFIG_SYS_DCACHE_OFF
+#endif
 /*
  * Warning: changing CONFIG_SYS_TEXT_BASE requires
  * adapting the initial boot program.
@@ -116,6 +118,12 @@
 #define CONFIG_RMII
 #define CONFIG_AT91_WANTS_COMMON_PHY
 
+#define CONFIG_AT91SAM9_WATCHDOG
+#if !defined(CONFIG_SPL_BUILD)
+/* Enable the watchdog */
+#define CONFIG_HW_WATCHDOG
+#endif
+
 /* USB */
 #if defined(CONFIG_BOARD_TAURUS)
 #define CONFIG_USB_ATMEL
@@ -136,6 +144,19 @@
 #define CONFIG_SPI_FLASH_STMICRO
 #define TAURUS_SPI_MASK (1 << 4)
 #define TAURUS_SPI_CS_PIN	AT91_PIN_PA3
+
+#if defined(CONFIG_SPL_BUILD)
+/* SPL related */
+#undef CONFIG_SPL_OS_BOOT		/* Not supported by existing map */
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SPL_SPI_LOAD
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
+
+#define CONFIG_SF_DEFAULT_BUS 0
+#define CONFIG_SF_DEFAULT_SPEED 10000000
+#define CONFIG_SF_DEFAULT_MODE SPI_MODE_0
+#endif
 
 /* load address */
 #define CONFIG_SYS_LOAD_ADDR			0x22000000
@@ -171,8 +192,11 @@
 /* Defines for SPL */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x0
-#define CONFIG_SPL_MAX_SIZE		(11 * 1024)
+#define CONFIG_SPL_MAX_SIZE		(14 * 1024)
 #define CONFIG_SPL_STACK		(16 * 1024)
+#define CONFIG_SYS_SPL_MALLOC_START     (CONFIG_SYS_TEXT_BASE - \
+					CONFIG_SYS_MALLOC_LEN)
+#define CONFIG_SYS_SPL_MALLOC_SIZE      CONFIG_SYS_MALLOC_LEN
 
 #define CONFIG_SPL_BSS_START_ADDR	CONFIG_SPL_MAX_SIZE
 #define CONFIG_SPL_BSS_MAX_SIZE		(3 * 1024)

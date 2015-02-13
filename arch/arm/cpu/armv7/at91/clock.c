@@ -130,10 +130,18 @@ void at91_mck_init(u32 mckr)
 		 AT91_PMC_MCKR_PRES_MASK |
 		 AT91_PMC_MCKR_MDIV_MASK |
 		 AT91_PMC_MCKR_PLLADIV_2);
+#ifdef CPU_HAS_H32MXDIV
+	tmp &= ~AT91_PMC_MCKR_H32MXDIV;
+#endif
+
 	tmp |= mckr & (AT91_PMC_MCKR_CSS_MASK  |
 		       AT91_PMC_MCKR_PRES_MASK |
 		       AT91_PMC_MCKR_MDIV_MASK |
 		       AT91_PMC_MCKR_PLLADIV_2);
+#ifdef CPU_HAS_H32MXDIV
+	tmp |= mckr & AT91_PMC_MCKR_H32MXDIV;
+#endif
+
 	writel(tmp, &pmc->mckr);
 
 	while (!(readl(&pmc->sr) & AT91_PMC_MCKRDY))

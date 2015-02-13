@@ -162,18 +162,17 @@ static void omapimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 /*
  * omapimage parameters
  */
-static struct image_type_params omapimage_params = {
-	.name		= "TI OMAP CH/GP Boot Image support",
-	.header_size	= OMAP_FILE_HDR_SIZE,
-	.hdr		= (void *)&omapimage_header,
-	.check_image_type = omapimage_check_image_types,
-	.verify_header	= omapimage_verify_header,
-	.print_header	= omapimage_print_header,
-	.set_header	= omapimage_set_header,
-	.check_params	= gpimage_check_params,
-};
-
-void init_omap_image_type(void)
-{
-	register_image_type(&omapimage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	omapimage,
+	"TI OMAP CH/GP Boot Image support",
+	OMAP_FILE_HDR_SIZE,
+	(void *)&omapimage_header,
+	gpimage_check_params,
+	omapimage_verify_header,
+	omapimage_print_header,
+	omapimage_set_header,
+	NULL,
+	omapimage_check_image_types,
+	NULL,
+	NULL
+);

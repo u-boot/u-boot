@@ -56,8 +56,29 @@
 #define SPI_DEFAULT_WORDLEN 8
 
 #ifdef CONFIG_DM_SPI
+/* TODO(sjg@chromium.org): Remove this and use max_hz from struct spi_slave */
 struct dm_spi_bus {
 	uint max_hz;
+};
+
+/**
+ * struct dm_spi_platdata - platform data for all SPI slaves
+ *
+ * This describes a SPI slave, a child device of the SPI bus. To obtain this
+ * struct from a spi_slave, use dev_get_parent_platdata(dev) or
+ * dev_get_parent_platdata(slave->dev).
+ *
+ * This data is immuatable. Each time the device is probed, @max_hz and @mode
+ * will be copied to struct spi_slave.
+ *
+ * @cs:		Chip select number (0..n-1)
+ * @max_hz:	Maximum bus speed that this slave can tolerate
+ * @mode:	SPI mode to use for this device (see SPI mode flags)
+ */
+struct dm_spi_slave_platdata {
+	unsigned int cs;
+	uint max_hz;
+	uint mode;
 };
 
 #endif /* CONFIG_DM_SPI */
@@ -66,10 +87,11 @@ struct dm_spi_bus {
  * struct spi_slave - Representation of a SPI slave
  *
  * For driver model this is the per-child data used by the SPI bus. It can
- * be accessed using dev_get_parentdata() on the slave device. Each SPI
- * driver should define this child data in its U_BOOT_DRIVER() definition:
- *
- *	.per_child_auto_alloc_size	= sizeof(struct spi_slave),
+ * be accessed using dev_get_parentdata() on the slave device. The SPI uclass
+ * sets uip per_child_auto_alloc_size to sizeof(struct spi_slave), and the
+ * driver should not override it. Two platform data fields (max_hz and mode)
+ * are copied into this structure to provide an initial value. This allows
+ * them to be changed, since we should never change platform data in drivers.
  *
  * If not using driver model, drivers are expected to extend this with
  * controller-specific data.
@@ -97,8 +119,8 @@ struct spi_slave {
 	uint mode;
 #else
 	unsigned int bus;
-#endif
 	unsigned int cs;
+#endif
 	u8 op_mode_rx;
 	u8 op_mode_tx;
 	unsigned int wordlen;
@@ -545,16 +567,16 @@ int spi_chip_select(struct udevice *slave);
 int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp);
 
 /**
- * spi_ofdata_to_platdata() - decode standard SPI platform data
+ * spi_slave_ofdata_to_platdata() - decode standard SPI platform data
  *
- * This decodes the speed and mode from a device tree node and puts it into
- * the spi_slave structure.
+ * This decodes the speed and mode for a slave from a device tree node
  *
  * @blob:	Device tree blob
  * @node:	Node offset to read from
- * @spi:	Place to put the decoded information
+ * @plat:	Place to put the decoded information
  */
-int spi_ofdata_to_platdata(const void *blob, int node, struct spi_slave *spi);
+int spi_slave_ofdata_to_platdata(const void *blob, int node,
+				 struct dm_spi_slave_platdata *plat);
 
 /**
  * spi_cs_info() - Check information on a chip select

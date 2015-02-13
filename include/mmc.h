@@ -147,11 +147,16 @@
 /*
  * EXT_CSD fields
  */
+#define EXT_CSD_ENH_START_ADDR		136	/* R/W */
+#define EXT_CSD_ENH_SIZE_MULT		140	/* R/W */
 #define EXT_CSD_GP_SIZE_MULT		143	/* R/W */
 #define EXT_CSD_PARTITION_SETTING	155	/* R/W */
 #define EXT_CSD_PARTITIONS_ATTRIBUTE	156	/* R/W */
+#define EXT_CSD_MAX_ENH_SIZE_MULT	157	/* R */
 #define EXT_CSD_PARTITIONING_SUPPORT	160	/* RO */
 #define EXT_CSD_RST_N_FUNCTION		162	/* R/W */
+#define EXT_CSD_WR_REL_PARAM		166	/* R */
+#define EXT_CSD_WR_REL_SET		167	/* R/W */
 #define EXT_CSD_RPMB_MULT		168	/* RO */
 #define EXT_CSD_ERASE_GROUP_DEF		175	/* R/W */
 #define EXT_CSD_BOOT_BUS_WIDTH		177
@@ -201,6 +206,14 @@
 
 #define EXT_CSD_PARTITION_SETTING_COMPLETED	(1 << 0)
 
+#define EXT_CSD_ENH_USR		(1 << 0)	/* user data area is enhanced */
+#define EXT_CSD_ENH_GP(x)	(1 << ((x)+1))	/* GP part (x+1) is enhanced */
+
+#define EXT_CSD_HS_CTRL_REL	(1 << 0)	/* host controlled WR_REL_SET */
+
+#define EXT_CSD_WR_DATA_REL_USR		(1 << 0)	/* user data area WR_REL */
+#define EXT_CSD_WR_DATA_REL_GP(x)	(1 << ((x)+1))	/* GP part (x+1) WR_REL */
+
 #define R1_ILLEGAL_COMMAND		(1 << 22)
 #define R1_APP_CMD			(1 << 5)
 
@@ -224,6 +237,7 @@
 #define MMCPART_NOAVAILABLE	(0xff)
 #define PART_ACCESS_MASK	(0x7)
 #define PART_SUPPORT		(0x1)
+#define ENHNCD_SUPPORT		(0x2)
 #define PART_ENH_ATTRIB		(0x1f)
 
 /* Maximum block size for MMC */
@@ -302,23 +316,50 @@ struct mmc {
 	uint csd[4];
 	uint cid[4];
 	ushort rca;
+	u8 part_support;
+	u8 part_attr;
+	u8 wr_rel_set;
 	char part_config;
 	char part_num;
 	uint tran_speed;
 	uint read_bl_len;
 	uint write_bl_len;
-	uint erase_grp_size;
+	uint erase_grp_size;	/* in 512-byte sectors */
+	uint hc_wp_grp_size;	/* in 512-byte sectors */
 	u64 capacity;
 	u64 capacity_user;
 	u64 capacity_boot;
 	u64 capacity_rpmb;
 	u64 capacity_gp[4];
+	u64 enh_user_start;
+	u64 enh_user_size;
 	block_dev_desc_t block_dev;
 	char op_cond_pending;	/* 1 if we are waiting on an op_cond command */
 	char init_in_progress;	/* 1 if we have done mmc_start_init() */
 	char preinit;		/* start init as early as possible */
 	uint op_cond_response;	/* the response byte from the last op_cond */
 	int ddr_mode;
+};
+
+struct mmc_hwpart_conf {
+	struct {
+		uint enh_start;	/* in 512-byte sectors */
+		uint enh_size;	/* in 512-byte sectors, if 0 no enh area */
+		unsigned wr_rel_change : 1;
+		unsigned wr_rel_set : 1;
+	} user;
+	struct {
+		uint size;	/* in 512-byte sectors */
+		unsigned enhanced : 1;
+		unsigned wr_rel_change : 1;
+		unsigned wr_rel_set : 1;
+	} gp_part[4];
+};
+
+enum mmc_hwpart_conf_mode {
+	MMC_HWPART_CONF_CHECK,
+	MMC_HWPART_CONF_SET,
+	MMC_HWPART_CONF_COMPLETE,
 };
 
 int mmc_register(struct mmc *mmc);
@@ -333,6 +374,8 @@ int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);
 int get_mmc_num(void);
 int mmc_switch_part(int dev_num, unsigned int part_num);
+int mmc_hwpart_config(struct mmc *mmc, const struct mmc_hwpart_conf *conf,
+		      enum mmc_hwpart_conf_mode mode);
 int mmc_getcd(struct mmc *mmc);
 int board_mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);
@@ -394,6 +437,20 @@ void board_mmc_power_init(void);
 int board_mmc_init(bd_t *bis);
 int cpu_mmc_init(bd_t *bis);
 int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr);
+
+struct pci_device_id;
+
+/**
+ * pci_mmc_init() - set up PCI MMC devices
+ *
+ * This finds all the matching PCI IDs and sets them up as MMC devices.
+ *
+ * @name:		Name to use for devices
+ * @mmc_supported:	PCI IDs to search for
+ * @num_ids:		Number of elements in @mmc_supported
+ */
+int pci_mmc_init(const char *name, struct pci_device_id *mmc_supported,
+		 int num_ids);
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
 #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT

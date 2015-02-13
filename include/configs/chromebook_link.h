@@ -20,6 +20,7 @@
 
 #define CONFIG_DCACHE_RAM_MRC_VAR_SIZE		0x4000
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_MISC_INIT_R
 
 #define CONFIG_NR_DRAM_BANKS			8
 #define CONFIG_X86_MRC_ADDR			0xfffa0000
@@ -62,6 +63,13 @@
 #define CONFIG_CROS_EC_LPC
 #define CONFIG_CMD_CROS_EC
 #define CONFIG_ARCH_EARLY_INIT_R
+
+#undef CONFIG_ENV_IS_NOWHERE
+#undef CONFIG_ENV_SIZE
+#define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_ENV_SECT_SIZE		0x1000
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_OFFSET		0x003f8000
 
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=usbkbd,vga,serial\0" \
 					"stdout=vga,serial\0" \

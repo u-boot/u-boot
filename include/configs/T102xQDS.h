@@ -35,7 +35,10 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_DEEP_SLEEP
+#if defined(CONFIG_DEEP_SLEEP)
 #define CONFIG_SILENT_CONSOLE
+#define CONFIG_BOARD_EARLY_INIT_F
+#endif
 
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t102xqds/t1024_pbi.cfg

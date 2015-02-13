@@ -52,7 +52,7 @@ int pmu_set_nominal(void)
 		debug("%s: Cannot find DVC I2C bus\n", __func__);
 		return ret;
 	}
-	ret = i2c_get_chip(bus, PMI_I2C_ADDRESS, &dev);
+	ret = i2c_get_chip(bus, PMI_I2C_ADDRESS, 1, &dev);
 	if (ret) {
 		debug("%s: Cannot find DVC I2C chip\n", __func__);
 		return ret;

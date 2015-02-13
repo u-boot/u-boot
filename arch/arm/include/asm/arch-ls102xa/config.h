@@ -97,8 +97,13 @@
 #define CONFIG_SYS_FSL_DDR_VER			FSL_DDR_VER_5_0
 #define CONFIG_SYS_FSL_SEC_COMPAT		5
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		1
+#define CONFIG_SYS_FSL_ERRATUM_A008378
 #else
 #error SoC not defined
 #endif
+
+#define FSL_IFC_COMPAT		"fsl,ifc"
+#define FSL_QSPI_COMPAT		"fsl,ls1-qspi"
+#define FSL_DSPI_COMPAT		"fsl,vf610-dspi"
 
 #endif /* _ASM_ARMV7_LS102XA_CONFIG_ */

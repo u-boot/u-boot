@@ -2312,25 +2312,18 @@ fail:
 /*
  * mxsimage parameters
  */
-static struct image_type_params mxsimage_params = {
-	.name		= "Freescale MXS Boot Image support",
-	.header_size	= 0,
-	.hdr		= NULL,
-	.check_image_type = mxsimage_check_image_types,
-	.verify_header	= mxsimage_verify_header,
-	.print_header	= mxsimage_print_header,
-	.set_header	= mxsimage_set_header,
-	.check_params	= mxsimage_check_params,
-	.vrec_header	= mxsimage_generate,
-};
-
-void init_mxs_image_type(void)
-{
-	register_image_type(&mxsimage_params);
-}
-
-#else
-void init_mxs_image_type(void)
-{
-}
+U_BOOT_IMAGE_TYPE(
+	mxsimage,
+	"Freescale MXS Boot Image support",
+	0,
+	NULL,
+	mxsimage_check_params,
+	mxsimage_verify_header,
+	mxsimage_print_header,
+	mxsimage_set_header,
+	NULL,
+	mxsimage_check_image_types,
+	NULL,
+	mxsimage_generate
+);
 #endif

@@ -122,7 +122,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_SYS_L2CACHE_OFF		1
 #define CONFIG_INITRD_TAG		1
-
+#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_OF_LIBFDT		1
 
 /* Size of malloc() pool */

@@ -82,7 +82,7 @@
 #define CONFIG_ENV_OFFSET		0x4000
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_SECT_SIZE	0x10000	/* Total Size of Environment Sector */
+#define CONFIG_ENV_SECT_SIZE	0x12000	/* Total Size of Environment Sector */
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)
 #define ENV_IS_EMBEDDED
 #else

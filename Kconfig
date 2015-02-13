@@ -116,8 +116,9 @@ config FIT_VERBOSE
 	depends on FIT
 
 config FIT_SIGNATURE
-	bool "Enabel signature verification of FIT uImages"
+	bool "Enable signature verification of FIT uImages"
 	depends on FIT
+	select RSA
 	help
 	  This option enables signature verification of FIT uImages,
 	  using a hash signed and verified using RSA.
@@ -138,7 +139,7 @@ config SYS_EXTRA_OPTIONS
 	  new boards should not use this option.
 
 config SYS_TEXT_BASE
-	depends on SPARC
+	depends on SPARC || ARC
 	hex "Text Base"
 	help
 	  TODO: Move CONFIG_SYS_TEXT_BASE for all the architecture

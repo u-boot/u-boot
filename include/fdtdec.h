@@ -115,9 +115,6 @@ enum fdt_compat_id {
 	COMPAT_NVIDIA_TEGRA20_USB,	/* Tegra20 USB port */
 	COMPAT_NVIDIA_TEGRA30_USB,	/* Tegra30 USB port */
 	COMPAT_NVIDIA_TEGRA114_USB,	/* Tegra114 USB port */
-	COMPAT_NVIDIA_TEGRA114_I2C,	/* Tegra114 I2C w/single clock source */
-	COMPAT_NVIDIA_TEGRA20_I2C,	/* Tegra20 i2c */
-	COMPAT_NVIDIA_TEGRA20_DVC,	/* Tegra20 dvc (really just i2c) */
 	COMPAT_NVIDIA_TEGRA20_EMC,	/* Tegra20 memory controller */
 	COMPAT_NVIDIA_TEGRA20_EMC_TABLE, /* Tegra20 memory timing table */
 	COMPAT_NVIDIA_TEGRA20_KBC,	/* Tegra20 Keyboard */
@@ -127,9 +124,6 @@ enum fdt_compat_id {
 	COMPAT_NVIDIA_TEGRA124_SDMMC,	/* Tegra124 SDMMC controller */
 	COMPAT_NVIDIA_TEGRA30_SDMMC,	/* Tegra30 SDMMC controller */
 	COMPAT_NVIDIA_TEGRA20_SDMMC,	/* Tegra20 SDMMC controller */
-	COMPAT_NVIDIA_TEGRA20_SFLASH,	/* Tegra 2 SPI flash controller */
-	COMPAT_NVIDIA_TEGRA20_SLINK,	/* Tegra 2 SPI SLINK controller */
-	COMPAT_NVIDIA_TEGRA114_SPI,	/* Tegra 114 SPI controller */
 	COMPAT_NVIDIA_TEGRA124_PCIE,	/* Tegra 124 PCIe controller */
 	COMPAT_NVIDIA_TEGRA30_PCIE,	/* Tegra 30 PCIe controller */
 	COMPAT_NVIDIA_TEGRA20_PCIE,	/* Tegra 20 PCIe controller */
@@ -140,7 +134,6 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_S3C2440_I2C,	/* Exynos I2C Controller */
 	COMPAT_SAMSUNG_EXYNOS5_SOUND,	/* Exynos Sound */
 	COMPAT_WOLFSON_WM8994_CODEC,	/* Wolfson WM8994 Sound Codec */
-	COMPAT_SAMSUNG_EXYNOS_SPI,	/* Exynos SPI */
 	COMPAT_GOOGLE_CROS_EC,		/* Google CROS_EC Protocol */
 	COMPAT_GOOGLE_CROS_EC_KEYB,	/* Google CROS_EC Keyboard */
 	COMPAT_SAMSUNG_EXYNOS_EHCI,	/* Exynos EHCI controller */
@@ -173,42 +166,64 @@ enum fdt_compat_id {
 	COMPAT_INTEL_MODEL_206AX,	/* Intel Model 206AX CPU */
 	COMPAT_INTEL_GMA,		/* Intel Graphics Media Accelerator */
 	COMPAT_AMS_AS3722,		/* AMS AS3722 PMIC */
+	COMPAT_INTEL_ICH_SPI,		/* Intel ICH7/9 SPI controller */
+	COMPAT_INTEL_QRK_MRC,		/* Intel Quark MRC */
 
 	COMPAT_COUNT,
 };
 
-/* GPIOs are numbered from 0 */
-enum {
-	FDT_GPIO_NONE = -1U,	/* an invalid GPIO used to end our list */
-
-	FDT_GPIO_ACTIVE_LOW = 1 << 0,	/* input is active low (else high) */
+#define MAX_PHANDLE_ARGS 16
+struct fdtdec_phandle_args {
+	int node;
+	int args_count;
+	uint32_t args[MAX_PHANDLE_ARGS];
 };
 
-/* This is the state of a GPIO pin as defined by the fdt */
-struct fdt_gpio_state {
-	const char *name;	/* name of the fdt property defining this */
-	uint gpio;		/* GPIO number, or FDT_GPIO_NONE if none */
-	u8 flags;		/* FDT_GPIO_... flags */
-};
-
-/* This tells us whether a fdt_gpio_state record is valid or not */
-#define fdt_gpio_isvalid(x) ((x)->gpio != FDT_GPIO_NONE)
-
 /**
- * Read the GPIO taking into account the polarity of the pin.
+ * fdtdec_parse_phandle_with_args() - Find a node pointed by phandle in a list
  *
- * @param gpio		pointer to the decoded gpio
- * @return value of the gpio if successful, < 0 if unsuccessful
- */
-int fdtdec_get_gpio(struct fdt_gpio_state *gpio);
-
-/**
- * Write the GPIO taking into account the polarity of the pin.
+ * This function is useful to parse lists of phandles and their arguments.
  *
- * @param gpio		pointer to the decoded gpio
- * @return 0 if successful
+ * Example:
+ *
+ * phandle1: node1 {
+ *	#list-cells = <2>;
+ * }
+ *
+ * phandle2: node2 {
+ *	#list-cells = <1>;
+ * }
+ *
+ * node3 {
+ *	list = <&phandle1 1 2 &phandle2 3>;
+ * }
+ *
+ * To get a device_node of the `node2' node you may call this:
+ * fdtdec_parse_phandle_with_args(blob, node3, "list", "#list-cells", 0, 1,
+ *				  &args);
+ *
+ * (This function is a modified version of __of_parse_phandle_with_args() from
+ * Linux 3.18)
+ *
+ * @blob:	Pointer to device tree
+ * @src_node:	Offset of device tree node containing a list
+ * @list_name:	property name that contains a list
+ * @cells_name:	property name that specifies the phandles' arguments count,
+ *		or NULL to use @cells_count
+ * @cells_count: Cell count to use if @cells_name is NULL
+ * @index:	index of a phandle to parse out
+ * @out_args:	optional pointer to output arguments structure (will be filled)
+ * @return 0 on success (with @out_args filled out if not NULL), -ENOENT if
+ *	@list_name does not exist, a phandle was not found, @cells_name
+ *	could not be found, the arguments were truncated or there were too
+ *	many arguments.
+ *
  */
-int fdtdec_set_gpio(struct fdt_gpio_state *gpio, int val);
+int fdtdec_parse_phandle_with_args(const void *blob, int src_node,
+				   const char *list_name,
+				   const char *cells_name,
+				   int cell_count, int index,
+				   struct fdtdec_phandle_args *out_args);
 
 /**
  * Find the next numbered alias for a peripheral. This is used to enumerate
@@ -589,50 +604,6 @@ const u32 *fdtdec_locate_array(const void *blob, int node,
  * @return 1 if the properly is present; 0 if it isn't present
  */
 int fdtdec_get_bool(const void *blob, int node, const char *prop_name);
-
-/**
- * Decode a single GPIOs from an FDT.
- *
- * If the property is not found, then the GPIO structure will still be
- * initialised, with gpio set to FDT_GPIO_NONE. This makes it easy to
- * provide optional GPIOs.
- *
- * @param blob		FDT blob to use
- * @param node		Node to look at
- * @param prop_name	Node property name
- * @param gpio		gpio elements to fill from FDT
- * @return 0 if ok, -FDT_ERR_NOTFOUND if the property is missing.
- */
-int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
-		struct fdt_gpio_state *gpio);
-
-/**
- * Decode a list of GPIOs from an FDT. This creates a list of GPIOs with no
- * terminating item.
- *
- * @param blob         FDT blob to use
- * @param node         Node to look at
- * @param prop_name    Node property name
- * @param gpio         Array of gpio elements to fill from FDT. This will be
- *                     untouched if either 0 or an error is returned
- * @param max_count    Maximum number of elements allowed
- * @return number of GPIOs read if ok, -FDT_ERR_BADLAYOUT if max_count would
- * be exceeded, or -FDT_ERR_NOTFOUND if the property is missing.
- */
-int fdtdec_decode_gpios(const void *blob, int node, const char *prop_name,
-		struct fdt_gpio_state *gpio, int max_count);
-
-/**
- * Set up a GPIO pin according to the provided gpio information. At present this
- * just requests the GPIO.
- *
- * If the gpio is FDT_GPIO_NONE, no action is taken. This makes it easy to
- * deal with optional GPIOs.
- *
- * @param gpio		GPIO info to use for set up
- * @return 0 if all ok or gpio was FDT_GPIO_NONE; -1 on error
- */
-int fdtdec_setup_gpio(struct fdt_gpio_state *gpio);
 
 /**
  * Look in the FDT for a config item with the given name and return its value

@@ -5,7 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_AT91CAP9)	+= at91cap9_devices.o
 obj-$(CONFIG_AT91SAM9260)	+= at91sam9260_devices.o
 obj-$(CONFIG_AT91SAM9G20)	+= at91sam9260_devices.o
 obj-$(CONFIG_AT91SAM9XE)	+= at91sam9260_devices.o

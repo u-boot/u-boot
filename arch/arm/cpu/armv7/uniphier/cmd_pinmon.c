@@ -11,20 +11,17 @@
 
 static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	struct boot_device_info *table;
-	u32 mode_sel, n = 0;
-
-	mode_sel = get_boot_mode_sel();
+	int mode_sel, i;
 
 	printf("Boot Swap: %s\n\n", boot_is_swapped() ? "ON" : "OFF");
 
+	mode_sel = get_boot_mode_sel();
+
 	puts("Boot Mode Pin:\n");
 
-	for (table = boot_device_table; strlen(table->info); table++) {
-		printf(" %c %02x %s\n", n == mode_sel ? '*' : ' ', n,
-		       table->info);
-		n++;
-	}
+	for (i = 0; boot_device_table[i].info; i++)
+		printf(" %c %02x %s\n", i == mode_sel ? '*' : ' ', i,
+		       boot_device_table[i].info);
 
 	return 0;
 }

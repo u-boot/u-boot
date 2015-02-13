@@ -38,8 +38,6 @@
 #define CONFIG_SYS_MHZ			250	/* arbitrary value */
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CONFIG_SYS_MHZ * 1000000)
 
-#define CONFIG_SWAP_IO_SPACE
-
 /*
  * Memory map
  */
@@ -73,6 +71,7 @@
 					 sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS		16
 
+#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
 
@@ -109,6 +108,16 @@
 	(CONFIG_SYS_FLASH_BASE + (4 << 20) - CONFIG_ENV_SIZE)
 
 /*
+ * IDE/ATA
+ */
+#define CONFIG_SYS_IDE_MAXBUS		1
+#define CONFIG_SYS_IDE_MAXDEVICE	2
+#define CONFIG_SYS_ATA_BASE_ADDR	CONFIG_SYS_ISA_IO_BASE_ADDRESS
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x01f0
+#define CONFIG_SYS_ATA_DATA_OFFSET	0
+#define CONFIG_SYS_ATA_REG_OFFSET	0
+
+/*
  * Commands
  */
 #include <config_cmd_default.h>
@@ -120,6 +129,8 @@
 
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_IDE
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 

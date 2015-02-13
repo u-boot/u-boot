@@ -40,6 +40,8 @@
  */
 #define CONFIG_DISPLAY_CPUINFO
 
+#define CONFIG_SYS_PROMPT	"sunxi# "
+
 /* Serial & console */
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
@@ -82,6 +84,9 @@
 
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_SETEXPR
+
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
 
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
@@ -179,7 +184,10 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000	/* 512 KiB */
 
 /* I2C */
+#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER
 #define CONFIG_SPL_I2C_SUPPORT
+#endif
+
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MVTWSI
 #define CONFIG_SYS_I2C_SPEED		400000
@@ -247,8 +255,16 @@
 #endif
 
 #ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 1
+#endif
+
+#ifdef CONFIG_USB_MUSB_SUNXI
+#define CONFIG_MUSB_HOST
+#define CONFIG_MUSB_PIO_ONLY
+#endif
+
+#if defined CONFIG_USB_EHCI || defined CONFIG_USB_MUSB_SUNXI
+#define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #endif
 

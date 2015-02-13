@@ -119,6 +119,7 @@ int board_mmc_init(bd_t *bis)
 
 void spl_board_init(void)
 {
+	preloader_console_init();
 #if defined(CONFIG_SPL_NAND_SUPPORT) || defined(CONFIG_SPL_ONENAND_SUPPORT)
 	gpmc_init();
 #endif
@@ -262,14 +263,6 @@ void s_init(void)
 
 #ifdef CONFIG_USB_EHCI_OMAP
 	ehci_clocks_enable();
-#endif
-
-#ifdef CONFIG_SPL_BUILD
-	gd = &gdata;
-
-	preloader_console_init();
-
-	timer_init();
 #endif
 
 	if (!in_sdram)

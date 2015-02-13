@@ -81,3 +81,18 @@ U_BOOT_CMD(
 	"    - List files in directory 'directory' of partition 'part' on\n"
 	"      device type 'interface' instance 'dev'."
 )
+
+static int do_fstype_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
+				char * const argv[])
+{
+	return do_fs_type(cmdtp, flag, argc, argv);
+}
+
+U_BOOT_CMD(
+	fstype, 4, 1, do_fstype_wrapper,
+	"Look up a filesystem type",
+	"<interface> <dev>:<part>\n"
+	"- print filesystem type\n"
+	"fstype <interface> <dev>:<part> <varname>\n"
+	"- set environment variable to filesystem type\n"
+);

@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <errno.h>
+#include <fdtdec.h>
 #include <malloc.h>
 #include <libfdt.h>
 #include <dm/device.h>
@@ -49,6 +50,9 @@ int dm_init(void)
 	ret = device_bind_by_name(NULL, false, &root_info, &DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
+#ifdef CONFIG_OF_CONTROL
+	DM_ROOT_NON_CONST->of_offset = 0;
+#endif
 	ret = device_probe(DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
@@ -89,6 +93,10 @@ int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
 		if (pre_reloc_only &&
 		    !fdt_getprop(blob, offset, "u-boot,dm-pre-reloc", NULL))
 			continue;
+		if (!fdtdec_get_is_enabled(blob, offset)) {
+			dm_dbg("   - ignoring disabled device\n");
+			continue;
+		}
 		err = lists_bind_fdt(parent, blob, offset, NULL);
 		if (err && !ret)
 			ret = err;

@@ -12,7 +12,6 @@
 
 #define AXP223_DEVICE_ADDR 0x3a3
 #define AXP223_RUNTIME_ADDR 0x2d
-#define AXP223_DEVICE_MODE_DATA 0x7c3e00
 
 /* Page 0 addresses */
 #define AXP221_CHIP_ID		0x03
@@ -26,6 +25,9 @@
 #define AXP221_OUTPUT_CTRL1_ALDO1_EN	(1 << 6)
 #define AXP221_OUTPUT_CTRL1_ALDO2_EN	(1 << 7)
 #define AXP221_OUTPUT_CTRL2	0x12
+#define AXP221_OUTPUT_CTRL2_ELDO1_EN	(1 << 0)
+#define AXP221_OUTPUT_CTRL2_ELDO2_EN	(1 << 1)
+#define AXP221_OUTPUT_CTRL2_ELDO3_EN	(1 << 2)
 #define AXP221_OUTPUT_CTRL2_DLDO1_EN	(1 << 3)
 #define AXP221_OUTPUT_CTRL2_DLDO2_EN	(1 << 4)
 #define AXP221_OUTPUT_CTRL2_DLDO3_EN	(1 << 5)
@@ -37,6 +39,9 @@
 #define AXP221_DLDO2_CTRL	0x16
 #define AXP221_DLDO3_CTRL	0x17
 #define AXP221_DLDO4_CTRL	0x18
+#define AXP221_ELDO1_CTRL	0x19
+#define AXP221_ELDO2_CTRL	0x1a
+#define AXP221_ELDO3_CTRL	0x1b
 #define AXP221_DCDC1_CTRL	0x21
 #define AXP221_DCDC2_CTRL	0x22
 #define AXP221_DCDC3_CTRL	0x23
@@ -69,6 +74,7 @@ int axp221_set_dldo4(unsigned int mvolt);
 int axp221_set_aldo1(unsigned int mvolt);
 int axp221_set_aldo2(unsigned int mvolt);
 int axp221_set_aldo3(unsigned int mvolt);
+int axp221_set_eldo(int eldo_num, unsigned int mvolt);
 int axp221_init(void);
 int axp221_get_sid(unsigned int *sid);
 int axp_drivebus_enable(void);

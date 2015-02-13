@@ -57,7 +57,7 @@ struct liodn_id_table liodn_tbl[] = {
 
 	SET_USB_LIODN(1, "fsl-usb2-dr", 553),
 
-	SET_PCI_LIODN(CONFIG_SYS_FSL_PCIE_COMPAT, 1, 148),
+	SET_PCI_LIODN_BASE(CONFIG_SYS_FSL_PCIE_COMPAT, 1, 148),
 
 	SET_DMA_LIODN(1, "fsl,elo3-dma", 147),
 	SET_DMA_LIODN(2, "fsl,elo3-dma", 227),

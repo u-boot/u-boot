@@ -12,11 +12,28 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-P3G4             powerpc     74xx_7xx       -           -           Wolfgang Denk <wd@denx.de>
-ZUMA             powerpc     74xx_7xx       -           -           Nye Liu <nyet@zumanetworks.com>
-ppmc7xx          powerpc     74xx_7xx       -           -
-ELPPC            powerpc     74xx_7xx       -           -
-mpc7448hpc2      powerpc     74xx_7xx       -           -           Roy Zang <tie-fei.zang@freescale.com>
+icecube_5200     powerpc     mpc5xxx        -           -           Wolfgang Denk <wd@denx.de>
+Lite5200         powerpc     mpc5xxx        -           -
+cpci5200         powerpc     mpc5xxx        -           -           Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+mecp5200         powerpc     mpc5xxx        -           -           Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+pf5200           powerpc     mpc5xxx        -           -           Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+PM520            powerpc     mpc5xxx        -           -           Josef Wagner <Wagner@Microsys.de>
+Total5200        powerpc     mpc5xxx        -           -
+CATcenter        powerpc     ppc4xx         -           -
+PPChameleonEVB   powerpc     ppc4xx         -           -           Andrea "llandre" Marson <andrea.marson@dave-tech.it>
+P2020DS          powerpc     mpc85xx        -           -
+P2020COME        powerpc     mpc85xx        -           -           Ira W. Snyder <iws@ovro.caltech.edu>
+P2020RDB         powerpc     mpc85xx        -           -           Poonam Aggrwal <poonam.aggrwal@freescale.com>
+P2010RDB         powerpc     mpc85xx        -           -
+P1020RDB         powerpc     mpc85xx        -           -
+P1011RDB         powerpc     mpc85xx        -           -
+MPC8360EMDS      powerpc     mpc83xx        -           -           Dave Liu <daveliu@freescale.com>
+MPC8360ERDK      powerpc     mpc83xx        -           -           Anton Vorontsov <avorontsov@ru.mvista.com>
+P3G4             powerpc     74xx_7xx       d928664f    2015-01-16  Wolfgang Denk <wd@denx.de>
+ZUMA             powerpc     74xx_7xx       d928664f    2015-01-16  Nye Liu <nyet@zumanetworks.com>
+ppmc7xx          powerpc     74xx_7xx       d928664f    2015-01-16
+ELPPC            powerpc     74xx_7xx       d928664f    2015-01-16
+mpc7448hpc2      powerpc     74xx_7xx       d928664f    2015-01-16  Roy Zang <tie-fei.zang@freescale.com>
 CPCI405          ppc4xx      405gp          5f1459dc    2015-01-13  Matthias Fuchs <matthias.fuchs@esd.eu>
 CPCI405DT        ppc4xx      405gpr         5f1459dc    2015-01-13  Matthias Fuchs <matthias.fuchs@esd.eu>
 CPCI405AB        ppc4xx      405gpr         5f1459dc    2015-01-13  Matthias Fuchs <matthias.fuchs@esd.eu>

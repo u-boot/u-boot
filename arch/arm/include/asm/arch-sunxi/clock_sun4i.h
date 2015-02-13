@@ -186,6 +186,7 @@ struct sunxi_ccm_reg {
 
 /* ahb clock gate bit offset (second register) */
 #define AHB_GATE_OFFSET_GMAC		17
+#define AHB_GATE_OFFSET_DE_FE0		14
 #define AHB_GATE_OFFSET_DE_BE0		12
 #define AHB_GATE_OFFSET_HDMI		11
 #define AHB_GATE_OFFSET_LCD1		5
@@ -266,7 +267,10 @@ struct sunxi_ccm_reg {
 #define CCM_MMC_CTRL_PLL5		(0x2 << 24)
 #define CCM_MMC_CTRL_ENABLE		(0x1 << 31)
 
+#define CCM_DRAM_GATE_OFFSET_DE_FE1	24 /* Note the order of FE1 and */
+#define CCM_DRAM_GATE_OFFSET_DE_FE0	25 /* FE0 is swapped ! */
 #define CCM_DRAM_GATE_OFFSET_DE_BE0	26
+#define CCM_DRAM_GATE_OFFSET_DE_BE1	27
 
 #define CCM_LCD_CH0_CTRL_PLL3		(0 << 24)
 #define CCM_LCD_CH0_CTRL_PLL7		(1 << 24)
@@ -301,6 +305,8 @@ struct sunxi_ccm_reg {
 #define CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII 0x2
 #define CCM_GMAC_CTRL_GPIT_MII (0x0 << 2)
 #define CCM_GMAC_CTRL_GPIT_RGMII (0x1 << 2)
+#define CCM_GMAC_CTRL_RX_CLK_DELAY(x)	((x) << 5)
+#define CCM_GMAC_CTRL_TX_CLK_DELAY(x)	((x) << 10)
 
 #define CCM_USB_CTRL_PHY0_RST (0x1 << 0)
 #define CCM_USB_CTRL_PHY1_RST (0x1 << 1)
@@ -319,5 +325,12 @@ struct sunxi_ccm_reg {
 #define CCM_DE_CTRL_PLL5P		(2 << 24)
 #define CCM_DE_CTRL_RST			(1 << 30)
 #define CCM_DE_CTRL_GATE		(1 << 31)
+
+#ifndef __ASSEMBLY__
+void clock_set_pll1(unsigned int hz);
+void clock_set_pll3(unsigned int hz);
+unsigned int clock_get_pll5p(void);
+unsigned int clock_get_pll6(void);
+#endif
 
 #endif /* _SUNXI_CLOCK_SUN4I_H */

@@ -29,9 +29,7 @@ static int pmic_bus_init(void)
 #else
 	int ret;
 
-	rsb_init();
-
-	ret = rsb_set_device_mode(AXP223_DEVICE_MODE_DATA);
+	ret = rsb_init();
 	if (ret)
 		return ret;
 
@@ -300,6 +298,39 @@ int axp221_set_aldo3(unsigned int mvolt)
 
 	return axp221_setbits(AXP221_OUTPUT_CTRL3,
 			      AXP221_OUTPUT_CTRL3_ALDO3_EN);
+}
+
+int axp221_set_eldo(int eldo_num, unsigned int mvolt)
+{
+	int ret;
+	u8 cfg = axp221_mvolt_to_cfg(mvolt, 700, 3300, 100);
+	u8 addr, bits;
+
+	switch (eldo_num) {
+	case 3:
+		addr = AXP221_ELDO3_CTRL;
+		bits = AXP221_OUTPUT_CTRL2_ELDO3_EN;
+		break;
+	case 2:
+		addr = AXP221_ELDO2_CTRL;
+		bits = AXP221_OUTPUT_CTRL2_ELDO2_EN;
+		break;
+	case 1:
+		addr = AXP221_ELDO1_CTRL;
+		bits = AXP221_OUTPUT_CTRL2_ELDO1_EN;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	if (mvolt == 0)
+		return axp221_clrbits(AXP221_OUTPUT_CTRL2, bits);
+
+	ret = pmic_bus_write(addr, cfg);
+	if (ret)
+		return ret;
+
+	return axp221_setbits(AXP221_OUTPUT_CTRL2, bits);
 }
 
 int axp221_init(void)

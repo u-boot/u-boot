@@ -89,8 +89,13 @@ static int mmc_set_mod_clk(struct sunxi_mmc_host *mmchost, unsigned int hz)
 		pll = CCM_MMC_CTRL_OSCM24;
 		pll_hz = 24000000;
 	} else {
+#ifdef CONFIG_MACH_SUN9I
+		pll = CCM_MMC_CTRL_PLL_PERIPH0;
+		pll_hz = clock_get_pll4_periph0();
+#else
 		pll = CCM_MMC_CTRL_PLL6;
 		pll_hz = clock_get_pll6();
+#endif
 	}
 
 	div = pll_hz / hz;
@@ -146,9 +151,15 @@ static int mmc_clk_io_on(int sdc_no)
 	/* config ahb clock */
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
 
-#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I)
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I) || \
+    defined(CONFIG_MACH_SUN9I)
 	/* unassert reset */
 	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
+#endif
+#if defined(CONFIG_MACH_SUN9I)
+	/* sun9i has a mmc-common module, also set the gate and reset there */
+	writel(SUNXI_MMC_COMMON_CLK_GATE | SUNXI_MMC_COMMON_RESET,
+	       SUNXI_MMC_COMMON_BASE + 4 * sdc_no);
 #endif
 
 	return mmc_set_mod_clk(mmchost, 24000000);
@@ -204,7 +215,7 @@ static int mmc_config_clock(struct mmc *mmc)
 	return 0;
 }
 
-static void mmc_set_ios(struct mmc *mmc)
+static void sunxi_mmc_set_ios(struct mmc *mmc)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
 
@@ -226,7 +237,7 @@ static void mmc_set_ios(struct mmc *mmc)
 		writel(0x0, &mmchost->reg->width);
 }
 
-static int mmc_core_init(struct mmc *mmc)
+static int sunxi_mmc_core_init(struct mmc *mmc)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
 
@@ -287,8 +298,8 @@ static int mmc_rint_wait(struct mmc *mmc, unsigned int timeout_msecs,
 	return 0;
 }
 
-static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			struct mmc_data *data)
+static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+			      struct mmc_data *data)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
 	unsigned int cmdval = SUNXI_MMC_CMD_START;
@@ -355,7 +366,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		}
 	}
 
-	error = mmc_rint_wait(mmc, 0xfffff, SUNXI_MMC_RINT_COMMAND_DONE, "cmd");
+	error = mmc_rint_wait(mmc, 1000, SUNXI_MMC_RINT_COMMAND_DONE, "cmd");
 	if (error)
 		goto out;
 
@@ -421,9 +432,9 @@ static int sunxi_mmc_getcd(struct mmc *mmc)
 }
 
 static const struct mmc_ops sunxi_mmc_ops = {
-	.send_cmd	= mmc_send_cmd,
-	.set_ios	= mmc_set_ios,
-	.init		= mmc_core_init,
+	.send_cmd	= sunxi_mmc_send_cmd,
+	.set_ios	= sunxi_mmc_set_ios,
+	.init		= sunxi_mmc_core_init,
 	.getcd		= sunxi_mmc_getcd,
 };
 
@@ -439,7 +450,8 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
 	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || defined(CONFIG_MACH_SUN8I)
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || \
+    defined(CONFIG_MACH_SUN8I) || defined(CONFIG_MACH_SUN9I)
 	cfg->host_caps |= MMC_MODE_HC;
 #endif
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;

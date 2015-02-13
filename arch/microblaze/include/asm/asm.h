@@ -43,6 +43,10 @@
 #define R14(val) \
 	__asm__ __volatile__ ("addi %0, r14, 0":"=r" (val));
 
+/* get return address from interrupt */
+#define R17(val) \
+	__asm__ __volatile__ ("addi %0, r17, 0" : "=r" (val));
+
 #define NOP	__asm__ __volatile__ ("nop");
 
 /* use machine status registe USE_MSR_REG */

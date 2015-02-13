@@ -65,7 +65,6 @@ void mtrr_open(struct mtrr_state *state);
  *
  * @state:	Structure from mtrr_open()
  */
-/*  */
 void mtrr_close(struct mtrr_state *state);
 
 /**
@@ -76,6 +75,8 @@ void mtrr_close(struct mtrr_state *state);
  * @type:	Requested type (MTRR_TYPE_)
  * @start:	Start address
  * @size:	Size
+ *
+ * @return:	0 on success, non-zero on failure
  */
 int mtrr_add_request(int type, uint64_t start, uint64_t size);
 
@@ -86,6 +87,8 @@ int mtrr_add_request(int type, uint64_t start, uint64_t size);
  * It must be called with caches disabled.
  *
  * @do_caches:	true if caches are currently on
+ *
+ * @return:	0 on success, non-zero on failure
  */
 int mtrr_commit(bool do_caches);
 

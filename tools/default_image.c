@@ -15,6 +15,8 @@
  */
 
 #include "imagetool.h"
+#include "mkimage.h"
+
 #include <image.h>
 #include <u-boot/crc.h>
 
@@ -53,9 +55,8 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 	memcpy(hdr, ptr, sizeof(image_header_t));
 
 	if (be32_to_cpu(hdr->ih_magic) != IH_MAGIC) {
-		fprintf(stderr,
-			"%s: Bad Magic Number: \"%s\" is no valid image\n",
-			params->cmdname, params->imagefile);
+		debug("%s: Bad Magic Number: \"%s\" is no valid image\n",
+		      params->cmdname, params->imagefile);
 		return -FDT_ERR_BADMAGIC;
 	}
 
@@ -66,9 +67,8 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 	hdr->ih_hcrc = cpu_to_be32(0);	/* clear for re-calculation */
 
 	if (crc32(0, data, len) != checksum) {
-		fprintf(stderr,
-			"%s: ERROR: \"%s\" has bad header checksum!\n",
-			params->cmdname, params->imagefile);
+		debug("%s: ERROR: \"%s\" has bad header checksum!\n",
+		      params->cmdname, params->imagefile);
 		return -FDT_ERR_BADSTATE;
 	}
 
@@ -77,9 +77,8 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 
 	checksum = be32_to_cpu(hdr->ih_dcrc);
 	if (crc32(0, data, len) != checksum) {
-		fprintf(stderr,
-			"%s: ERROR: \"%s\" has corrupted data!\n",
-			params->cmdname, params->imagefile);
+		debug("%s: ERROR: \"%s\" has corrupted data!\n",
+		      params->cmdname, params->imagefile);
 		return -FDT_ERR_BADSTRUCTURE;
 	}
 	return 0;
@@ -117,33 +116,7 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 	image_set_hcrc(hdr, checksum);
 }
 
-static int image_save_datafile(struct image_tool_params *params,
-			       ulong file_data, ulong file_len)
-{
-	int dfd;
-	const char *datafile = params->outfile;
-
-	dfd = open(datafile, O_RDWR | O_CREAT | O_TRUNC | O_BINARY,
-		   S_IRUSR | S_IWUSR);
-	if (dfd < 0) {
-		fprintf(stderr, "%s: Can't open \"%s\": %s\n",
-			params->cmdname, datafile, strerror(errno));
-		return -1;
-	}
-
-	if (write(dfd, (void *)file_data, file_len) != (ssize_t)file_len) {
-		fprintf(stderr, "%s: Write error on \"%s\": %s\n",
-			params->cmdname, datafile, strerror(errno));
-		close(dfd);
-		return -1;
-	}
-
-	close(dfd);
-
-	return 0;
-}
-
-static int image_extract_datafile(void *ptr, struct image_tool_params *params)
+static int image_extract_subimage(void *ptr, struct image_tool_params *params)
 {
 	const image_header_t *hdr = (const image_header_t *)ptr;
 	ulong file_data;
@@ -170,25 +143,23 @@ static int image_extract_datafile(void *ptr, struct image_tool_params *params)
 	}
 
 	/* save the "data file" into the file system */
-	return image_save_datafile(params, file_data, file_len);
+	return imagetool_save_subimage(params->outfile, file_data, file_len);
 }
 
 /*
  * Default image type parameters definition
  */
-static struct image_type_params defimage_params = {
-	.name = "Default Image support",
-	.header_size = sizeof(image_header_t),
-	.hdr = (void*)&header,
-	.check_image_type = image_check_image_types,
-	.verify_header = image_verify_header,
-	.print_header = image_print_contents,
-	.set_header = image_set_header,
-	.extract_datafile = image_extract_datafile,
-	.check_params = image_check_params,
-};
-
-void init_default_image_type(void)
-{
-	register_image_type(&defimage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	defimage,
+	"Default Image support",
+	sizeof(image_header_t),
+	(void *)&header,
+	image_check_params,
+	image_verify_header,
+	image_print_contents,
+	image_set_header,
+	image_extract_subimage,
+	image_check_image_types,
+	NULL,
+	NULL
+);

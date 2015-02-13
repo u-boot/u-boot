@@ -459,7 +459,6 @@ static int tegra_pcie_parse_port_info(const void *fdt, int node,
 				      unsigned int *lanes)
 {
 	struct fdt_pci_addr addr;
-	pci_dev_t bdf;
 	int err;
 
 	err = fdtdec_get_int(fdt, node, "nvidia,num-lanes", 0);
@@ -470,13 +469,13 @@ static int tegra_pcie_parse_port_info(const void *fdt, int node,
 
 	*lanes = err;
 
-	err = fdtdec_get_pci_bdf(fdt, node, &addr, &bdf);
+	err = fdtdec_get_pci_addr(fdt, node, 0, "reg", &addr);
 	if (err < 0) {
 		error("failed to parse \"reg\" property");
 		return err;
 	}
 
-	*index = PCI_DEV(bdf) - 1;
+	*index = PCI_DEV(addr.phys_hi) - 1;
 
 	return 0;
 }

@@ -13,9 +13,11 @@
 # ./test/image/test-imagetools.sh
 
 BASEDIR=sandbox
-SRCDIR=sandbox/boot
+SRCDIR=${BASEDIR}/boot
 IMAGE_NAME="v1.0-test"
-IMAGE=linux.img
+IMAGE_MULTI=linux.img
+IMAGE_FIT_ITS=linux.its
+IMAGE_FIT_ITB=linux.itb
 DATAFILE0=vmlinuz
 DATAFILE1=initrd.img
 DATAFILE2=System.map
@@ -34,14 +36,17 @@ cleanup()
 	for file in ${DATAFILES}; do
 		rm -f ${file} ${SRCDIR}/${file}
 	done
-	rm -f ${IMAGE} ${DUMPIMAGE_LIST} ${MKIMAGE_LIST} ${TEST_OUT}
+	rm -f ${IMAGE_MULTI}
+	rm -f ${DUMPIMAGE_LIST}
+	rm -f ${MKIMAGE_LIST}
+	rm -f ${TEST_OUT}
 	rmdir ${SRCDIR}
 }
 
 # Check that two files are the same
 assert_equal()
 {
-	if ! diff $1 $2; then
+	if ! diff -u $1 $2; then
 		echo "Failed."
 		cleanup
 		exit 1
@@ -82,35 +87,103 @@ do_cmd_redir()
 	${cmd} >${redir}
 }
 
-# Write files into an image
-create_image()
+# Write files into an multi-file image
+create_multi_image()
 {
 	local files="${SRCDIR}/${DATAFILE0}:${SRCDIR}/${DATAFILE1}"
 	files+=":${SRCDIR}/${DATAFILE2}"
 
-	echo -e "\nBuilding image..."
+	echo -e "\nBuilding multi-file image..."
 	do_cmd ${MKIMAGE} -A x86 -O linux -T multi -n \"${IMAGE_NAME}\" \
-		-d ${files} ${IMAGE}
+		-d ${files} ${IMAGE_MULTI}
 	echo "done."
 }
 
-# Extract files from an image
-extract_image()
+# Extract files from an multi-file image
+extract_multi_image()
 {
-	echo -e "\nExtracting image contents..."
-	do_cmd ${DUMPIMAGE} -i ${IMAGE} -p 0 ${DATAFILE0}
-	do_cmd ${DUMPIMAGE} -i ${IMAGE} -p 1 ${DATAFILE1}
-	do_cmd ${DUMPIMAGE} -i ${IMAGE} -p 2 ${DATAFILE2}
-	do_cmd ${DUMPIMAGE} -i ${IMAGE} -p 2 ${DATAFILE2} -o ${TEST_OUT}
+	echo -e "\nExtracting multi-file image contents..."
+	do_cmd ${DUMPIMAGE} -T multi -i ${IMAGE_MULTI} -p 0 ${DATAFILE0}
+	do_cmd ${DUMPIMAGE} -T multi -i ${IMAGE_MULTI} -p 1 ${DATAFILE1}
+	do_cmd ${DUMPIMAGE} -T multi -i ${IMAGE_MULTI} -p 2 ${DATAFILE2}
+	do_cmd ${DUMPIMAGE} -T multi -i ${IMAGE_MULTI} -p 2 ${DATAFILE2} -o ${TEST_OUT}
+	echo "done."
+}
+
+# Write files into a FIT image
+create_fit_image()
+{
+	echo " \
+	/dts-v1/; \
+	/ { \
+	    description = \"FIT image\"; \
+	    #address-cells = <1>; \
+	\
+	    images { \
+	        kernel@1 { \
+	            description = \"kernel\"; \
+	            data = /incbin/(\"${DATAFILE0}\"); \
+	            type = \"kernel\"; \
+	            arch = \"sandbox\"; \
+	            os = \"linux\"; \
+	            compression = \"gzip\"; \
+	            load = <0x40000>; \
+	            entry = <0x8>; \
+	        }; \
+	        ramdisk@1 { \
+	            description = \"filesystem\"; \
+	            data = /incbin/(\"${DATAFILE1}\"); \
+	            type = \"ramdisk\"; \
+	            arch = \"sandbox\"; \
+	            os = \"linux\"; \
+	            compression = \"none\"; \
+	            load = <0x80000>; \
+	            entry = <0x16>; \
+	        }; \
+	        fdt@1 { \
+	            description = \"device tree\"; \
+	            data = /incbin/(\"${DATAFILE2}\"); \
+	            type = \"flat_dt\"; \
+	            arch = \"sandbox\"; \
+	            compression = \"none\"; \
+	        }; \
+	    }; \
+	    configurations { \
+	        default = \"conf@1\"; \
+	        conf@1 { \
+	            kernel = \"kernel@1\"; \
+	            fdt = \"fdt@1\"; \
+	        }; \
+	    }; \
+	}; \
+	" > ${IMAGE_FIT_ITS}
+
+	echo -e "\nBuilding FIT image..."
+	do_cmd ${MKIMAGE} -f ${IMAGE_FIT_ITS} ${IMAGE_FIT_ITB}
+	echo "done."
+}
+
+# Extract files from a FIT image
+extract_fit_image()
+{
+	echo -e "\nExtracting FIT image contents..."
+	do_cmd ${DUMPIMAGE} -T flat_dt -i ${IMAGE_FIT_ITB} -p 0 ${DATAFILE0}
+	do_cmd ${DUMPIMAGE} -T flat_dt -i ${IMAGE_FIT_ITB} -p 1 ${DATAFILE1}
+	do_cmd ${DUMPIMAGE} -T flat_dt -i ${IMAGE_FIT_ITB} -p 2 ${DATAFILE2}
+	do_cmd ${DUMPIMAGE} -T flat_dt -i ${IMAGE_FIT_ITB} -p 2 ${DATAFILE2} -o ${TEST_OUT}
 	echo "done."
 }
 
 # List the contents of a file
+# Args:
+#    image filename
 list_image()
 {
+	local image="$1"
+
 	echo -e "\nListing image contents..."
-	do_cmd_redir ${MKIMAGE_LIST} ${MKIMAGE} -l ${IMAGE}
-	do_cmd_redir ${DUMPIMAGE_LIST} ${DUMPIMAGE} -l ${IMAGE}
+	do_cmd_redir ${MKIMAGE_LIST} ${MKIMAGE} -l ${image}
+	do_cmd_redir ${DUMPIMAGE_LIST} ${DUMPIMAGE} -l ${image}
 	echo "done."
 }
 
@@ -120,16 +193,28 @@ main()
 
 	create_files
 
-	# Compress and extract multifile images, compare the result
-	create_image
-	extract_image
+	# Compress and extract multi-file images, compare the result
+	create_multi_image
+	extract_multi_image
 	for file in ${DATAFILES}; do
 		assert_equal ${file} ${SRCDIR}/${file}
 	done
 	assert_equal ${TEST_OUT} ${DATAFILE2}
 
-	# List contents and compares output fro tools
-	list_image
+	# List contents of multi-file image and compares output from tools
+	list_image ${IMAGE_MULTI}
+	assert_equal ${DUMPIMAGE_LIST} ${MKIMAGE_LIST}
+
+	# Compress and extract FIT images, compare the result
+	create_fit_image
+	extract_fit_image
+	for file in ${DATAFILES}; do
+		assert_equal ${file} ${SRCDIR}/${file}
+	done
+	assert_equal ${TEST_OUT} ${DATAFILE2}
+
+	# List contents of FIT image and compares output from tools
+	list_image ${IMAGE_FIT_ITB}
 	assert_equal ${DUMPIMAGE_LIST} ${MKIMAGE_LIST}
 
 	# Remove files created

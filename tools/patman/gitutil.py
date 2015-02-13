@@ -392,7 +392,8 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
                    "Or do something like this\n"
                    "git config sendemail.to u-boot@lists.denx.de")
             return
-    cc = BuildEmailList(series.get('cc'), '--cc', alias, raise_on_error)
+    cc = BuildEmailList(list(set(series.get('cc')) - set(series.get('to'))),
+                        '--cc', alias, raise_on_error)
     if self_only:
         to = BuildEmailList([os.getenv('USER')], '--to', alias, raise_on_error)
         cc = []

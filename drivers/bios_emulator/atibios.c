@@ -62,40 +62,158 @@ static u32 saveBaseAddress14;
 static u32 saveBaseAddress18;
 static u32 saveBaseAddress20;
 
-static void atibios_set_vesa_mode(RMREGS *regs, int vesa_mode,
-				  struct vbe_mode_info *mode_info)
+/* Addres im memory of VBE region */
+const int vbe_offset = 0x2000;
+
+static const void *bios_ptr(const void *buf, BE_VGAInfo *vga_info,
+			    u32 x86_dword_ptr)
 {
+	u32 seg_ofs, flat;
+
+	seg_ofs = le32_to_cpu(x86_dword_ptr);
+	flat = ((seg_ofs & 0xffff0000) >> 12) | (seg_ofs & 0xffff);
+	if (flat >= 0xc0000)
+		return vga_info->BIOSImage + flat - 0xc0000;
+	else
+		return buf + (flat - vbe_offset);
+}
+
+static int atibios_debug_mode(BE_VGAInfo *vga_info, RMREGS *regs,
+			      int vesa_mode, struct vbe_mode_info *mode_info)
+{
+	void *buffer = (void *)(M.mem_base + vbe_offset);
+	u16 buffer_seg = (((unsigned long)vbe_offset) >> 4) & 0xff00;
+	u16 buffer_adr = ((unsigned long)vbe_offset) & 0xffff;
+	struct vesa_mode_info *vm;
+	struct vbe_info *info;
+	const u16 *modes_bios, *ptr;
+	u16 *modes;
+	int size;
+
+	debug("VBE: Getting information\n");
+	regs->e.eax = VESA_GET_INFO;
+	regs->e.esi = buffer_seg;
+	regs->e.edi = buffer_adr;
+	info = buffer;
+	memset(info, '\0', sizeof(*info));
+	strcpy(info->signature, "VBE2");
+	BE_int86(0x10, regs, regs);
+	if (regs->e.eax != 0x4f) {
+		debug("VESA_GET_INFO: error %x\n", regs->e.eax);
+		return -ENOSYS;
+	}
+	debug("version %x\n", le16_to_cpu(info->version));
+	debug("oem '%s'\n", (char *)bios_ptr(buffer, vga_info,
+					     info->oem_string_ptr));
+	debug("vendor '%s'\n", (char *)bios_ptr(buffer, vga_info,
+						info->vendor_name_ptr));
+	debug("product '%s'\n", (char *)bios_ptr(buffer, vga_info,
+						 info->product_name_ptr));
+	debug("rev '%s'\n", (char *)bios_ptr(buffer, vga_info,
+					     info->product_rev_ptr));
+	modes_bios = bios_ptr(buffer, vga_info, info->modes_ptr);
+	debug("Modes: ");
+	for (ptr = modes_bios; *ptr != 0xffff; ptr++)
+		debug("%x ", le16_to_cpu(*ptr));
+	debug("\nmemory %dMB\n", le16_to_cpu(info->total_memory) >> 4);
+	size = (ptr - modes_bios) * sizeof(u16) + 2;
+	modes = malloc(size);
+	if (!modes)
+		return -ENOMEM;
+	memcpy(modes, modes_bios, size);
+
+	regs->e.eax = VESA_GET_CUR_MODE;
+	BE_int86(0x10, regs, regs);
+	if (regs->e.eax != 0x4f) {
+		debug("VESA_GET_CUR_MODE: error %x\n", regs->e.eax);
+		return -ENOSYS;
+	}
+	debug("Current mode %x\n", regs->e.ebx);
+
+	for (ptr = modes; *ptr != 0xffff; ptr++) {
+		int mode = le16_to_cpu(*ptr);
+		bool linear_ok;
+		int attr;
+
+		break;
+		debug("Mode %x: ", mode);
+		memset(buffer, '\0', sizeof(struct vbe_mode_info));
+		regs->e.eax = VESA_GET_MODE_INFO;
+		regs->e.ebx = 0;
+		regs->e.ecx = mode;
+		regs->e.edx = 0;
+		regs->e.esi = buffer_seg;
+		regs->e.edi = buffer_adr;
+		BE_int86(0x10, regs, regs);
+		if (regs->e.eax != 0x4f) {
+			debug("VESA_GET_MODE_INFO: error %x\n", regs->e.eax);
+			continue;
+		}
+		memcpy(mode_info->mode_info_block, buffer,
+		       sizeof(struct vesa_mode_info));
+		mode_info->valid = true;
+		vm = &mode_info->vesa;
+		attr = le16_to_cpu(vm->mode_attributes);
+		linear_ok = attr & 0x80;
+		debug("res %d x %d, %d bpp, mm %d, (Linear %s, attr %02x)\n",
+		      le16_to_cpu(vm->x_resolution),
+		      le16_to_cpu(vm->y_resolution),
+		      vm->bits_per_pixel, vm->memory_model,
+		      linear_ok ? "OK" : "not available",
+		      attr);
+		debug("\tRGB pos=%d,%d,%d, size=%d,%d,%d\n",
+		      vm->red_mask_pos, vm->green_mask_pos, vm->blue_mask_pos,
+		      vm->red_mask_size, vm->green_mask_size,
+		      vm->blue_mask_size);
+	}
+
+	return 0;
+}
+
+static int atibios_set_vesa_mode(RMREGS *regs, int vesa_mode,
+				 struct vbe_mode_info *mode_info)
+{
+	void *buffer = (void *)(M.mem_base + vbe_offset);
+	u16 buffer_seg = (((unsigned long)vbe_offset) >> 4) & 0xff00;
+	u16 buffer_adr = ((unsigned long)vbe_offset) & 0xffff;
+	struct vesa_mode_info *vm;
+
 	debug("VBE: Setting VESA mode %#04x\n", vesa_mode);
-	/* request linear framebuffer mode */
-	vesa_mode |= (1 << 14);
-	/* request clearing of framebuffer */
-	vesa_mode &= ~(1 << 15);
 	regs->e.eax = VESA_SET_MODE;
 	regs->e.ebx = vesa_mode;
+	/* request linear framebuffer mode and don't clear display */
+	regs->e.ebx |= (1 << 14) | (1 << 15);
 	BE_int86(0x10, regs, regs);
+	if (regs->e.eax != 0x4f) {
+		debug("VESA_SET_MODE: error %x\n", regs->e.eax);
+		return -ENOSYS;
+	}
 
-	int offset = 0x2000;
-	void *buffer = (void *)(M.mem_base + offset);
-
-	u16 buffer_seg = (((unsigned long)offset) >> 4) & 0xff00;
-	u16 buffer_adr = ((unsigned long)offset) & 0xffff;
+	memset(buffer, '\0', sizeof(struct vbe_mode_info));
+	debug("VBE: Geting info for VESA mode %#04x\n", vesa_mode);
 	regs->e.eax = VESA_GET_MODE_INFO;
-	regs->e.ebx = 0;
 	regs->e.ecx = vesa_mode;
-	regs->e.edx = 0;
 	regs->e.esi = buffer_seg;
 	regs->e.edi = buffer_adr;
 	BE_int86(0x10, regs, regs);
-	memcpy(mode_info->mode_info_block, buffer,
-	       sizeof(struct vbe_mode_info));
-	mode_info->valid = true;
+	if (regs->e.eax != 0x4f) {
+		debug("VESA_GET_MODE_INFO: error %x\n", regs->e.eax);
+		return -ENOSYS;
+	}
 
-	vesa_mode |= (1 << 14);
-	/* request clearing of framebuffer */
-	vesa_mode &= ~(1 << 15);
-	regs->e.eax = VESA_SET_MODE;
-	regs->e.ebx = vesa_mode;
-	BE_int86(0x10, regs, regs);
+	memcpy(mode_info->mode_info_block, buffer,
+		sizeof(struct vesa_mode_info));
+	mode_info->valid = true;
+	mode_info->video_mode = vesa_mode;
+	vm = &mode_info->vesa;
+	vm->x_resolution = le16_to_cpu(vm->x_resolution);
+	vm->y_resolution = le16_to_cpu(vm->y_resolution);
+	vm->bytes_per_scanline = le16_to_cpu(vm->bytes_per_scanline);
+	vm->phys_base_ptr = le32_to_cpu(vm->phys_base_ptr);
+	vm->mode_attributes = le16_to_cpu(vm->mode_attributes);
+	debug("VBE: Init complete\n");
+
+	return 0;
 }
 
 /****************************************************************************
@@ -132,6 +250,9 @@ static void PCI_doBIOSPOST(pci_dev_t pcidev, BE_VGAInfo *vga_info,
 	/*Cleanup and exit*/
 	BE_getVGA(vga_info);
 
+	/* Useful for debugging */
+	if (0)
+		atibios_debug_mode(vga_info, &regs, vesa_mode, mode_info);
 	if (vesa_mode != -1)
 		atibios_set_vesa_mode(&regs, vesa_mode, mode_info);
 }
