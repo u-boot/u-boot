@@ -137,6 +137,7 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 	int id;
 	struct usb_gadget *gadget = c->cdev->gadget;
 	struct f_fastboot *f_fb = func_to_fastboot(f);
+	const char *s;
 
 	/* DYNAMIC interface numbers assignments */
 	id = usb_interface_id(c, f);
@@ -161,6 +162,10 @@ static int fastboot_bind(struct usb_configuration *c, struct usb_function *f)
 	f_fb->out_ep->driver_data = c->cdev;
 
 	hs_ep_out.bEndpointAddress = fs_ep_out.bEndpointAddress;
+
+	s = getenv("serial#");
+	if (s)
+		g_dnl_set_serialnumber((char *)s);
 
 	return 0;
 }
