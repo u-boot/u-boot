@@ -17,10 +17,14 @@
 #define ARCH_DMA_MINALIGN		128
 #endif
 
-#if defined(CONFIG_ARC_MMU_V2)
+#if defined(ARC_MMU_ABSENT)
+#define CONFIG_ARC_MMU_VER 0
+#elif defined(CONFIG_ARC_MMU_V2)
 #define CONFIG_ARC_MMU_VER 2
 #elif defined(CONFIG_ARC_MMU_V3)
 #define CONFIG_ARC_MMU_VER 3
+#elif defined(CONFIG_ARC_MMU_V4)
+#define CONFIG_ARC_MMU_VER 4
 #endif
 
 #endif /* __ASM_ARC_CACHE_H */
