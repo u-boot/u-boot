@@ -2,8 +2,10 @@ config DM_SERIAL
 	bool "Enable Driver Model for serial drivers"
 	depends on DM
 	help
-	  If you want to use driver model for serial drivers, say Y.
-	  To use legacy serial drivers, say N.
+	  Enable driver model for serial. This replaces
+	  drivers/serial/serial.c with the serial uclass, which
+	  implements serial_putc() etc. The uclass interface is
+	  defined in include/serial.h.
 
 config UNIPHIER_SERIAL
 	bool "UniPhier on-chip UART support"

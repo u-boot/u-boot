@@ -23,15 +23,6 @@
 
 #define CONFIG_BOOTSTAGE
 #define CONFIG_BOOTSTAGE_REPORT
-#define CONFIG_CMD_DEMO
-#define CONFIG_CMD_DM
-#define CONFIG_DM_DEMO
-#define CONFIG_DM_DEMO_SIMPLE
-#define CONFIG_DM_DEMO_SHAPE
-#define CONFIG_DM_GPIO
-#define CONFIG_DM_TEST
-#define CONFIG_DM_SERIAL
-#define CONFIG_DM_CROS_EC
 
 #define CONFIG_SYS_STDIO_DEREGISTER
 
@@ -69,7 +60,6 @@
 /*
  * Size of malloc() pool, before and after relocation
  */
-#define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
 #define CONFIG_MALLOC_F_ADDR		0x0010000
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)	/* 32MB  */
 
@@ -96,8 +86,6 @@
 #define CONFIG_CMD_SF_TEST
 #define CONFIG_CMD_SPI
 #define CONFIG_SPI_FLASH
-#define CONFIG_DM_SPI
-#define CONFIG_DM_SPI_FLASH
 #define CONFIG_SPI_FLASH_ATMEL
 #define CONFIG_SPI_FLASH_EON
 #define CONFIG_SPI_FLASH_GIGADEVICE
@@ -108,7 +96,6 @@
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_WINBOND
 
-#define CONFIG_DM_I2C
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C_SANDBOX
 #define CONFIG_I2C_EDID

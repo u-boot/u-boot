@@ -2,6 +2,8 @@ menu "Device Drivers"
 
 source "drivers/core/Kconfig"
 
+source "drivers/demo/Kconfig"
+
 source "drivers/pci/Kconfig"
 
 source "drivers/pcmcia/Kconfig"
@@ -47,5 +49,7 @@ source "drivers/rtc/Kconfig"
 source "drivers/dma/Kconfig"
 
 source "drivers/crypto/Kconfig"
+
+source "drivers/thermal/Kconfig"
 
 endmenu

@@ -23,6 +23,7 @@ enum mxc_gpio_direction {
 #define GPIO_PER_BANK			32
 
 struct mxc_gpio_plat {
+	int bank_index;
 	struct gpio_regs *regs;
 };
 
@@ -150,6 +151,9 @@ int gpio_direction_output(unsigned gpio, int value)
 #endif
 
 #ifdef CONFIG_DM_GPIO
+#include <fdtdec.h>
+DECLARE_GLOBAL_DATA_PTR;
+
 static int mxc_gpio_is_output(struct gpio_regs *regs, int offset)
 {
 	u32 val;
@@ -258,23 +262,6 @@ static const struct dm_gpio_ops gpio_mxc_ops = {
 	.get_function		= mxc_gpio_get_function,
 };
 
-static const struct mxc_gpio_plat mxc_plat[] = {
-	{ (struct gpio_regs *)GPIO1_BASE_ADDR },
-	{ (struct gpio_regs *)GPIO2_BASE_ADDR },
-	{ (struct gpio_regs *)GPIO3_BASE_ADDR },
-#if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
-		defined(CONFIG_MX53) || defined(CONFIG_MX6)
-	{ (struct gpio_regs *)GPIO4_BASE_ADDR },
-#endif
-#if defined(CONFIG_MX27) || defined(CONFIG_MX53) || defined(CONFIG_MX6)
-	{ (struct gpio_regs *)GPIO5_BASE_ADDR },
-	{ (struct gpio_regs *)GPIO6_BASE_ADDR },
-#endif
-#if defined(CONFIG_MX53) || defined(CONFIG_MX6)
-	{ (struct gpio_regs *)GPIO7_BASE_ADDR },
-#endif
-};
-
 static int mxc_gpio_probe(struct udevice *dev)
 {
 	struct mxc_bank_info *bank = dev_get_priv(dev);
@@ -283,7 +270,7 @@ static int mxc_gpio_probe(struct udevice *dev)
 	int banknum;
 	char name[18], *str;
 
-	banknum = plat - mxc_plat;
+	banknum = plat->bank_index;
 	sprintf(name, "GPIO%d_", banknum + 1);
 	str = strdup(name);
 	if (!str)
@@ -295,12 +282,72 @@ static int mxc_gpio_probe(struct udevice *dev)
 	return 0;
 }
 
+static int mxc_gpio_bind(struct udevice *dev)
+{
+	struct mxc_gpio_plat *plat = dev->platdata;
+	fdt_addr_t addr;
+
+	/*
+	 * If platdata already exsits, directly return.
+	 * Actually only when DT is not supported, platdata
+	 * is statically initialized in U_BOOT_DEVICES.Here
+	 * will return.
+	 */
+	if (plat)
+		return 0;
+
+	addr = dev_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -ENODEV;
+
+	/*
+	 * TODO:
+	 * When every board is converted to driver model and DT is supported,
+	 * this can be done by auto-alloc feature, but not using calloc
+	 * to alloc memory for platdata.
+	 */
+	plat = calloc(1, sizeof(*plat));
+	if (!plat)
+		return -ENOMEM;
+
+	plat->regs = (struct gpio_regs *)addr;
+	plat->bank_index = dev->req_seq;
+	dev->platdata = plat;
+
+	return 0;
+}
+
+static const struct udevice_id mxc_gpio_ids[] = {
+	{ .compatible = "fsl,imx35-gpio" },
+	{ }
+};
+
 U_BOOT_DRIVER(gpio_mxc) = {
 	.name	= "gpio_mxc",
 	.id	= UCLASS_GPIO,
 	.ops	= &gpio_mxc_ops,
 	.probe	= mxc_gpio_probe,
 	.priv_auto_alloc_size = sizeof(struct mxc_bank_info),
+	.of_match = mxc_gpio_ids,
+	.bind	= mxc_gpio_bind,
+};
+
+#ifndef CONFIG_OF_CONTROL
+static const struct mxc_gpio_plat mxc_plat[] = {
+	{ 0, (struct gpio_regs *)GPIO1_BASE_ADDR },
+	{ 1, (struct gpio_regs *)GPIO2_BASE_ADDR },
+	{ 2, (struct gpio_regs *)GPIO3_BASE_ADDR },
+#if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX51) || \
+		defined(CONFIG_MX53) || defined(CONFIG_MX6)
+	{ 3, (struct gpio_regs *)GPIO4_BASE_ADDR },
+#endif
+#if defined(CONFIG_MX27) || defined(CONFIG_MX53) || defined(CONFIG_MX6)
+	{ 4, (struct gpio_regs *)GPIO5_BASE_ADDR },
+	{ 5, (struct gpio_regs *)GPIO6_BASE_ADDR },
+#endif
+#if defined(CONFIG_MX53) || defined(CONFIG_MX6)
+	{ 6, (struct gpio_regs *)GPIO7_BASE_ADDR },
+#endif
 };
 
 U_BOOT_DEVICES(mxc_gpios) = {
@@ -319,4 +366,5 @@ U_BOOT_DEVICES(mxc_gpios) = {
 	{ "gpio_mxc", &mxc_plat[6] },
 #endif
 };
+#endif
 #endif

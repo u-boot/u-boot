@@ -25,14 +25,13 @@
  * enough as to be incompatible for compilation purposes.
  */
 
-#ifdef CONFIG_DM_I2C
-
 enum dm_i2c_chip_flags {
 	DM_I2C_CHIP_10BIT	= 1 << 0, /* Use 10-bit addressing */
 	DM_I2C_CHIP_RD_ADDRESS	= 1 << 1, /* Send address for each read byte */
 	DM_I2C_CHIP_WR_ADDRESS	= 1 << 2, /* Send address for each write byte */
 };
 
+struct udevice;
 /**
  * struct dm_i2c_chip - information about an i2c chip
  *
@@ -125,21 +124,21 @@ int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
 		 struct udevice **devp);
 
 /**
- * i2c_set_bus_speed() - set the speed of a bus
+ * dm_i2c_set_bus_speed() - set the speed of a bus
  *
  * @bus:	Bus to adjust
  * @speed:	Requested speed in Hz
  * @return 0 if OK, -EINVAL for invalid values
  */
-int i2c_set_bus_speed(struct udevice *bus, unsigned int speed);
+int dm_i2c_set_bus_speed(struct udevice *bus, unsigned int speed);
 
 /**
- * i2c_get_bus_speed() - get the speed of a bus
+ * dm_i2c_get_bus_speed() - get the speed of a bus
  *
  * @bus:	Bus to check
  * @return speed of selected I2C bus in Hz, -ve on error
  */
-int i2c_get_bus_speed(struct udevice *bus);
+int dm_i2c_get_bus_speed(struct udevice *bus);
 
 /**
  * i2c_set_chip_flags() - set flags for a chip
@@ -438,8 +437,6 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
  */
 int i2c_chip_ofdata_to_platdata(const void *blob, int node,
 				struct dm_i2c_chip *chip);
-
-#endif
 
 #ifndef CONFIG_DM_I2C
 

@@ -839,6 +839,8 @@ endchoice
 
 source "arch/arm/cpu/arm926ejs/davinci/Kconfig"
 
+source "arch/arm/cpu/arm1176/bcm2835/Kconfig"
+
 source "arch/arm/cpu/armv7/exynos/Kconfig"
 
 source "arch/arm/cpu/armv7/highbank/Kconfig"

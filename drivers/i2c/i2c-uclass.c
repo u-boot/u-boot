@@ -325,7 +325,7 @@ int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
 	return ret;
 }
 
-int i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
+int dm_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 {
 	struct dm_i2c_ops *ops = i2c_get_ops(bus);
 	struct dm_i2c_bus *i2c = bus->uclass_priv;
@@ -346,12 +346,7 @@ int i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	return 0;
 }
 
-/*
- * i2c_get_bus_speed:
- *
- *  Returns speed of selected I2C bus in Hz
- */
-int i2c_get_bus_speed(struct udevice *bus)
+int dm_i2c_get_bus_speed(struct udevice *bus)
 {
 	struct dm_i2c_ops *ops = i2c_get_ops(bus);
 	struct dm_i2c_bus *i2c = bus->uclass_priv;
@@ -440,7 +435,7 @@ static int i2c_post_probe(struct udevice *dev)
 	i2c->speed_hz = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 				     "clock-frequency", 100000);
 
-	return i2c_set_bus_speed(dev, i2c->speed_hz);
+	return dm_i2c_set_bus_speed(dev, i2c->speed_hz);
 }
 
 static int i2c_post_bind(struct udevice *dev)

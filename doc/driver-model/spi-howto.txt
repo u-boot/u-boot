@@ -40,8 +40,8 @@ with only minor changes:
 
 Add these to your board config:
 
-#define CONFIG_DM_SPI
-#define CONFIG_DM_SPI_FLASH
+CONFIG_DM_SPI
+CONFIG_DM_SPI_FLASH
 
 
 2. Add the skeleton

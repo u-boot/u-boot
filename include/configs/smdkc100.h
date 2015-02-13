@@ -48,9 +48,6 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
 
-/* Small malloc pool before relocation */
-#define CONFIG_SYS_MALLOC_F_LEN		(1 << 10)
-
 /*
  * select serial console configuration
  */
@@ -224,9 +221,5 @@
 #define CONFIG_OF_LIBFDT
 
 #define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_DM
-#define CONFIG_CMD_DM
-#define CONFIG_DM_GPIO
-#define CONFIG_DM_SERIAL
 
 #endif	/* __CONFIG_H */

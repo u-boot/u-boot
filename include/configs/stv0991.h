@@ -28,21 +28,10 @@
 	(PHYS_SDRAM_1_SIZE - CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MAXARGS			16
 #define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 16 * 1024)
-#define CONFIG_SYS_MALLOC_F_LEN			0x2000
 
-#define CONFIG_DM
 /* serial port (PL011) configuration */
 #define CONFIG_BAUDRATE				115200
-#ifdef CONFIG_DM
-#define CONFIG_DM_SERIAL
 #define CONFIG_PL01X_SERIAL
-#else
-#define CONFIG_SYS_SERIAL0                     0x80406000
-#define CONFIG_CONS_INDEX			0
-#define CONFIG_PL011_SERIAL
-#define CONFIG_PL01x_PORTS                     {(void *)CONFIG_SYS_SERIAL0}
-#define CONFIG_PL011_CLOCK                     (2700 * 1000)
-#endif
 
 /* user interface */
 #define CONFIG_SYS_PROMPT			"STV0991> "

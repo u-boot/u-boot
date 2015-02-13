@@ -48,6 +48,12 @@ config DCC_MICRO_SUPPORT_CARD
 
 endchoice
 
+config SYS_MALLOC_F
+	default y
+
+config SYS_MALLOC_F_LEN
+	default 0x2000
+
 config CMD_PINMON
 	bool "Enable boot mode pins monitor command"
 	default y

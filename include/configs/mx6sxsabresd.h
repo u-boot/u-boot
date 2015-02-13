@@ -229,7 +229,6 @@
 
 #define CONFIG_DM
 #define CONFIG_DM_THERMAL
-#define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
 #define CONFIG_IMX6_THERMAL
 
 #define CONFIG_CMD_FUSE

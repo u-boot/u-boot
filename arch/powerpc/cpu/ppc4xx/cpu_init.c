@@ -450,10 +450,12 @@ cpu_init_f (void)
 	      PLB4Ax_ACR_RDP_4DEEP);
 #endif /* CONFIG_440SP/SPE || CONFIG_460EX/GT || CONFIG_405EX */
 
+#ifndef CONFIG_SYS_GENERIC_BOARD
 	gd = (gd_t *)(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
 	/* Clear initial global data */
 	memset((void *)gd, 0, sizeof(gd_t));
+#endif
 }
 
 /*
