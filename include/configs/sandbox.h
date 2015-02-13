@@ -141,9 +141,6 @@
 
 #define CONFIG_BOOTARGS ""
 
-#define CONFIG_CROS_EC
-#define CONFIG_CMD_CROS_EC
-#define CONFIG_CROS_EC_SANDBOX
 #define CONFIG_ARCH_EARLY_INIT_R
 #define CONFIG_BOARD_LATE_INIT
 
@@ -166,7 +163,6 @@
 #define LCD_BPP			LCD_COLOR16
 #define CONFIG_LCD_BMP_RLE8
 
-#define CONFIG_CROS_EC_KEYB
 #define CONFIG_KEYBOARD
 
 #define CONFIG_EXTRA_ENV_SETTINGS	"stdin=serial,cros-ec-keyb\0" \
