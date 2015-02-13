@@ -355,3 +355,31 @@ int misc_init_r(void)
 	return 0;
 }
 #endif
+
+void reset_misc(void)
+{
+	struct gpio_desc gpio = {};
+	int node;
+
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, 0,
+			"samsung,emmc-reset");
+	if (node < 0)
+		return;
+
+	gpio_request_by_name_nodev(gd->fdt_blob, node, "reset-gpio", 0, &gpio,
+				   GPIOD_IS_OUT);
+
+	if (dm_gpio_is_valid(&gpio)) {
+		/*
+		 * Reset eMMC
+		 *
+		 * FIXME: Need to optimize delay time. Minimum 1usec pulse is
+		 *	  required by 'JEDEC Standard No.84-A441' (eMMC)
+		 *	  document but real delay time is expected to greater
+		 *	  than 1usec.
+		 */
+		dm_gpio_set_value(&gpio, 0);
+		mdelay(10);
+		dm_gpio_set_value(&gpio, 1);
+	}
+}

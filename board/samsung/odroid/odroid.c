@@ -248,12 +248,12 @@ static void board_clock_init(void)
 	 * MOUTc2c = 800 Mhz
 	 * MOUTpwi = 108 MHz
 	 *
-	 * sclk_g2d_acp = MOUTg2d / (ratio + 1) = 400 (1)
+	 * sclk_g2d_acp = MOUTg2d / (ratio + 1) = 200 (3)
 	 * sclk_c2c = MOUTc2c / (ratio + 1) = 400 (1)
 	 * aclk_c2c = sclk_c2c / (ratio + 1) = 200 (1)
 	 * sclk_pwi = MOUTpwi / (ratio + 1) = 18 (5)
 	 */
-	set = G2D_ACP_RATIO(1) | C2C_RATIO(1) | PWI_RATIO(5) |
+	set = G2D_ACP_RATIO(3) | C2C_RATIO(1) | PWI_RATIO(5) |
 	      C2C_ACLK_RATIO(1) | DVSEM_RATIO(1) | DPM_RATIO(1);
 
 	clrsetbits_le32(&clk->div_dmc1, clr, set);
@@ -503,11 +503,3 @@ int board_usb_init(int index, enum usb_init_type init)
 	return s3c_udc_probe(&s5pc210_otg_data);
 }
 #endif
-
-void reset_misc(void)
-{
-	/* Reset eMMC*/
-	gpio_set_value(EXYNOS4X12_GPIO_K12, 0);
-	mdelay(10);
-	gpio_set_value(EXYNOS4X12_GPIO_K12, 1);
-}
