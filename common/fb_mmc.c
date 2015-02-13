@@ -23,13 +23,13 @@ static char *response_str;
 
 void fastboot_fail(const char *s)
 {
-	strncpy(response_str, "FAIL", 4);
+	strncpy(response_str, "FAIL\0", 5);
 	strncat(response_str, s, RESPONSE_LEN - 4 - 1);
 }
 
 void fastboot_okay(const char *s)
 {
-	strncpy(response_str, "OKAY", 4);
+	strncpy(response_str, "OKAY\0", 5);
 	strncat(response_str, s, RESPONSE_LEN - 4 - 1);
 }
 
