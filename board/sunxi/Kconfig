@@ -312,6 +312,14 @@ config VIDEO_LCD_POWER
 	Set the power enable pin for the LCD panel. This takes a string in the
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
+config VIDEO_LCD_RESET
+	string "LCD panel reset pin"
+	depends on VIDEO
+	default ""
+	---help---
+	Set the reset pin for the LCD panel. This takes a string in the format
+	understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
 config VIDEO_LCD_BL_EN
 	string "LCD panel backlight enable pin"
 	depends on VIDEO

@@ -592,7 +592,7 @@ static void sunxi_lcdc_enable(void)
 
 static void sunxi_lcdc_panel_enable(void)
 {
-	int pin;
+	int pin, reset_pin;
 
 	/*
 	 * Start with backlight disabled to avoid the screen flashing to
@@ -610,6 +610,12 @@ static void sunxi_lcdc_panel_enable(void)
 		gpio_direction_output(pin, PWM_OFF);
 	}
 
+	reset_pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_RESET);
+	if (reset_pin != -1) {
+		gpio_request(reset_pin, "lcd_reset");
+		gpio_direction_output(reset_pin, 0); /* Assert reset */
+	}
+
 	/* Give the backlight some time to turn off and power up the panel. */
 	mdelay(40);
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_POWER);
@@ -617,6 +623,9 @@ static void sunxi_lcdc_panel_enable(void)
 		gpio_request(pin, "lcd_power");
 		gpio_direction_output(pin, 1);
 	}
+
+	if (reset_pin != -1)
+		gpio_direction_output(reset_pin, 1); /* De-assert reset */
 }
 
 static void sunxi_lcdc_backlight_enable(void)
