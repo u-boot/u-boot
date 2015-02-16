@@ -406,6 +406,14 @@ config VIDEO_LCD_PANEL_HITACHI_TX18D42VM
 	---help---
 	7.85" 1024x768 Hitachi tx18d42vm LCD panel support
 
+config VIDEO_LCD_TL059WV5C0
+	bool "tl059wv5c0 LCD panel"
+	select VIDEO_LCD_PANEL_I2C
+	select VIDEO_LCD_IF_PARALLEL
+	---help---
+	6" 480x800 tl059wv5c0 panel support, as used on the Utoo P66 and
+	Aigo M60/M608/M606 tablets.
+
 endchoice
 
 
