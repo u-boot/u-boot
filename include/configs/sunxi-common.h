@@ -18,9 +18,7 @@
  */
 #define CONFIG_SUNXI		/* sunxi family */
 #ifdef CONFIG_SPL_BUILD
-#ifndef CONFIG_SPL_FEL
 #define CONFIG_SYS_THUMB_BUILD	/* Thumbs mode to save space in SPL */
-#endif
 #endif
 
 #include <asm/arch/cpu.h>	/* get chip and board defs */
@@ -145,10 +143,10 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 
+#define CONFIG_SPL_BOARD_LOAD_IMAGE
+
 #ifdef CONFIG_SPL_FEL
 
-#define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl-fel.lds"
-#define CONFIG_SPL_START_S_PATH "arch/arm/cpu/armv7/sunxi"
 #define CONFIG_SPL_TEXT_BASE		0x2000
 #define CONFIG_SPL_MAX_SIZE		0x4000		/* 16 KiB */
 
@@ -206,10 +204,10 @@
 
 #ifdef CONFIG_VIDEO
 /*
- * The amount of RAM that is reserved for the FB. This will not show up as
- * RAM to the kernel, but will be reclaimed by a KMS driver in future.
+ * The amount of RAM to keep free at the top of RAM when relocating u-boot,
+ * to use as framebuffer. This must be a multiple of 4096.
  */
-#define CONFIG_SUNXI_FB_SIZE (9 << 20)
+#define CONFIG_SUNXI_MAX_FB_SIZE (9 << 20)
 
 /* Do we want to initialize a simple FB? */
 #define CONFIG_VIDEO_DT_SIMPLEFB
@@ -226,8 +224,6 @@
 #define CONFIG_CONSOLE_MUX
 /* stop x86 thinking in cfbconsole from trying to init a pc keyboard */
 #define CONFIG_VGA_AS_SINGLE_DEVICE
-
-#define CONFIG_SYS_MEM_TOP_HIDE ((CONFIG_SUNXI_FB_SIZE + 0xFFF) & ~0xFFF)
 
 /* To be able to hook simplefb into dt */
 #ifdef CONFIG_VIDEO_DT_SIMPLEFB

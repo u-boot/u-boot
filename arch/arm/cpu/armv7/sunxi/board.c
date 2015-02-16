@@ -27,6 +27,17 @@
 
 #include <linux/compiler.h>
 
+struct fel_stash {
+	uint32_t sp;
+	uint32_t lr;
+	uint32_t cpsr;
+	uint32_t sctlr;
+	uint32_t vbar;
+	uint32_t cr;
+};
+
+struct fel_stash fel_stash __attribute__((section(".data")));
+
 static int gpio_init(void)
 {
 #if CONFIG_CONS_INDEX == 1 && defined(CONFIG_UART0_PORT_F)
@@ -65,6 +76,12 @@ static int gpio_init(void)
 	return 0;
 }
 
+void spl_board_load_image(void)
+{
+	debug("Returning to FEL sp=%x, lr=%x\n", fel_stash.sp, fel_stash.lr);
+	return_to_fel(fel_stash.sp, fel_stash.lr);
+}
+
 void s_init(void)
 {
 #if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
@@ -95,7 +112,34 @@ void s_init(void)
  */
 u32 spl_boot_device(void)
 {
-	return BOOT_DEVICE_MMC1;
+#ifdef CONFIG_SPL_FEL
+	/*
+	 * This is the legacy compile time configuration for a special FEL
+	 * enabled build. It has many restrictions and can only boot over USB.
+	 */
+	return BOOT_DEVICE_BOARD;
+#else
+	/*
+	 * When booting from the SD card, the "eGON.BT0" signature is expected
+	 * to be found in memory at the address 0x0004 (see the "mksunxiboot"
+	 * tool, which generates this header).
+	 *
+	 * When booting in the FEL mode over USB, this signature is patched in
+	 * memory and replaced with something else by the 'fel' tool. This other
+	 * signature is selected in such a way, that it can't be present in a
+	 * valid bootable SD card image (because the BROM would refuse to
+	 * execute the SPL in this case).
+	 *
+	 * This branch is just making a decision at runtime whether to load
+	 * the main u-boot binary from the SD card (if the "eGON.BT0" signature
+	 * is found) or return to the FEL code in the BROM to wait and receive
+	 * the main u-boot binary over USB.
+	 */
+	if (readl(4) == 0x4E4F4765 && readl(8) == 0x3054422E) /* eGON.BT0 */
+		return BOOT_DEVICE_MMC1;
+	else
+		return BOOT_DEVICE_BOARD;
+#endif
 }
 
 /* No confirmation data available in SPL yet. Hardcode bootmode */

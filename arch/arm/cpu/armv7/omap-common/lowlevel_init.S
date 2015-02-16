@@ -19,7 +19,7 @@
 ENTRY(save_boot_params)
 	ldr	r1, =OMAP_SRAM_SCRATCH_BOOT_PARAMS
 	str	r0, [r1]
-	bx	lr
+	b	save_boot_params_ret
 ENDPROC(save_boot_params)
 
 ENTRY(set_pl310_ctrl_reg)

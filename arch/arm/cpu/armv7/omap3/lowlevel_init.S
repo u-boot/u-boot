@@ -23,7 +23,7 @@ ENTRY(save_boot_params)
 	ldr	r5, [r0, #0x4]
 	and	r5, r5, #0xff
 	str	r5, [r4]
-	bx	lr
+	b	save_boot_params_ret
 ENDPROC(save_boot_params)
 #endif
 

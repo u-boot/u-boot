@@ -43,19 +43,19 @@ int gen_check_sum(struct boot_file_head *head_p)
 	uint32_t i;
 	uint32_t sum;
 
-	length = head_p->length;
+	length = le32_to_cpu(head_p->length);
 	if ((length & 0x3) != 0)	/* must 4-byte-aligned */
 		return -1;
 	buf = (uint32_t *)head_p;
-	head_p->check_sum = STAMP_VALUE;	/* fill stamp */
+	head_p->check_sum = cpu_to_le32(STAMP_VALUE);	/* fill stamp */
 	loop = length >> 2;
 
 	/* calculate the sum */
 	for (i = 0, sum = 0; i < loop; i++)
-		sum += buf[i];
+		sum += le32_to_cpu(buf[i]);
 
 	/* write back check sum */
-	head_p->check_sum = sum;
+	head_p->check_sum = cpu_to_le32(sum);
 
 	return 0;
 }
@@ -125,10 +125,12 @@ int main(int argc, char *argv[])
 	memcpy(img.header.magic, BOOT0_MAGIC, 8);	/* no '0' termination */
 	img.header.length =
 		ALIGN(file_size + sizeof(struct boot_file_head), BLOCK_SIZE);
+	img.header.b_instruction = cpu_to_le32(img.header.b_instruction);
+	img.header.length = cpu_to_le32(img.header.length);
 	gen_check_sum(&img.header);
 
-	count = write(fd_out, &img, img.header.length);
-	if (count != img.header.length) {
+	count = write(fd_out, &img, le32_to_cpu(img.header.length));
+	if (count != le32_to_cpu(img.header.length)) {
 		perror("Writing output");
 		return EXIT_FAILURE;
 	}

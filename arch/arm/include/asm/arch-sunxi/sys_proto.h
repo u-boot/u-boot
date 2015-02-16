@@ -13,4 +13,14 @@
 
 void sdelay(unsigned long);
 
+/* return_to_fel() - Return to BROM from SPL
+ *
+ * This returns back into the BROM after U-Boot SPL has performed its initial
+ * init. It uses the provided lr and sp to do so.
+ *
+ * @lr:		BROM link register value (return address)
+ * @sp:		BROM stack pointer
+ */
+void return_to_fel(uint32_t lr, uint32_t sp);
+
 #endif
