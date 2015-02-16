@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2012-2013 Stephen Warren
+ * (C) Copyright 2012-2013,2015 Stephen Warren
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
@@ -29,7 +29,11 @@ U_BOOT_DEVICE(bcm2835_gpios) = {
 };
 
 static const struct pl01x_serial_platdata serial_platdata = {
+#ifdef CONFIG_BCM2836
+	.base = 0x3f201000,
+#else
 	.base = 0x20201000,
+#endif
 	.type = TYPE_PL011,
 	.clock = 3000000,
 };
@@ -77,9 +81,20 @@ static const struct {
 } models[] = {
 	[0] = {
 		"Unknown model",
+#ifdef CONFIG_BCM2836
+		"bcm2836-rpi-other.dtb",
+#else
 		"bcm2835-rpi-other.dtb",
+#endif
 		false,
 	},
+#ifdef CONFIG_BCM2836
+	[BCM2836_BOARD_REV_2_B] = {
+		"2 Model B",
+		"bcm2836-rpi-2-b.dtb",
+		true,
+	},
+#else
 	[BCM2835_BOARD_REV_B_I2C0_2] = {
 		"Model B (no P5)",
 		"bcm2835-rpi-b-i2c0.dtb",
@@ -150,6 +165,7 @@ static const struct {
 		"bcm2835-rpi-a-plus.dtb",
 		false,
 	},
+#endif
 };
 
 u32 rpi_board_rev = 0;
@@ -257,7 +273,15 @@ static void get_board_rev(void)
 		return;
 	}
 
+	/*
+	 * For details of old-vs-new scheme, see:
+	 * https://github.com/pimoroni/RPi.version/blob/master/RPi/version.py
+	 * http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=99293&p=690282
+	 * (a few posts down)
+	 */
 	rpi_board_rev = msg->get_board_rev.body.resp.rev;
+	if (rpi_board_rev & 0x800000)
+		rpi_board_rev = (rpi_board_rev >> 4) & 0xff;
 	if (rpi_board_rev >= ARRAY_SIZE(models)) {
 		printf("RPI: Board rev %u outside known range\n",
 		       rpi_board_rev);
@@ -269,7 +293,7 @@ static void get_board_rev(void)
 	}
 
 	name = models[rpi_board_rev].name;
-	printf("RPI model: %s\n", name);
+	printf("RPI %s\n", name);
 }
 
 int board_init(void)

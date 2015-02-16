@@ -1,0 +1,15 @@
+if TARGET_RPI_2
+
+config SYS_BOARD
+	default "rpi_2"
+
+config SYS_VENDOR
+	default "raspberrypi"
+
+config SYS_SOC
+	default "bcm2835"
+
+config SYS_CONFIG_NAME
+	default "rpi_2"
+
+endif
