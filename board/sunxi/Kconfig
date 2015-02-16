@@ -344,6 +344,30 @@ config VIDEO_LCD_BL_PWM_ACTIVE_LOW
 	---help---
 	Set this if the backlight pwm output is active low.
 
+config VIDEO_LCD_PANEL_I2C
+	bool "LCD panel needs to be configured via i2c"
+	depends on VIDEO
+	default m
+	---help---
+	Say y here if the LCD panel needs to be configured via i2c. This
+	will add a bitbang i2c controller using gpios to talk to the LCD.
+
+config VIDEO_LCD_PANEL_I2C_SDA
+	string "LCD panel i2c interface SDA pin"
+	depends on VIDEO_LCD_PANEL_I2C
+	default "PG12"
+	---help---
+	Set the SDA pin for the LCD i2c interface. This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
+config VIDEO_LCD_PANEL_I2C_SCL
+	string "LCD panel i2c interface SCL pin"
+	depends on VIDEO_LCD_PANEL_I2C
+	default "PG10"
+	---help---
+	Set the SCL pin for the LCD i2c interface. This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
 
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig
