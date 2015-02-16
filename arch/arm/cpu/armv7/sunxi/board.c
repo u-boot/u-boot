@@ -30,6 +30,10 @@
 struct fel_stash {
 	uint32_t sp;
 	uint32_t lr;
+	uint32_t cpsr;
+	uint32_t sctlr;
+	uint32_t vbar;
+	uint32_t cr;
 };
 
 struct fel_stash fel_stash __attribute__((section(".data")));
@@ -108,15 +112,34 @@ void s_init(void)
  */
 u32 spl_boot_device(void)
 {
+#ifdef CONFIG_SPL_FEL
 	/*
-	 * Have we been asked to return to the FEL portion of the boot ROM?
-	 * TODO: We need a more robust test here, or bracket this with
-	 * #ifdef CONFIG_SPL_FEL.
+	 * This is the legacy compile time configuration for a special FEL
+	 * enabled build. It has many restrictions and can only boot over USB.
 	 */
-	if (fel_stash.lr >= 0xffff0000 && fel_stash.lr < 0xffff4000)
+	return BOOT_DEVICE_BOARD;
+#else
+	/*
+	 * When booting from the SD card, the "eGON.BT0" signature is expected
+	 * to be found in memory at the address 0x0004 (see the "mksunxiboot"
+	 * tool, which generates this header).
+	 *
+	 * When booting in the FEL mode over USB, this signature is patched in
+	 * memory and replaced with something else by the 'fel' tool. This other
+	 * signature is selected in such a way, that it can't be present in a
+	 * valid bootable SD card image (because the BROM would refuse to
+	 * execute the SPL in this case).
+	 *
+	 * This branch is just making a decision at runtime whether to load
+	 * the main u-boot binary from the SD card (if the "eGON.BT0" signature
+	 * is found) or return to the FEL code in the BROM to wait and receive
+	 * the main u-boot binary over USB.
+	 */
+	if (readl(4) == 0x4E4F4765 && readl(8) == 0x3054422E) /* eGON.BT0 */
+		return BOOT_DEVICE_MMC1;
+	else
 		return BOOT_DEVICE_BOARD;
-
-	return BOOT_DEVICE_MMC1;
+#endif
 }
 
 /* No confirmation data available in SPL yet. Hardcode bootmode */

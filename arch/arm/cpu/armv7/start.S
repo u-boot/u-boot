@@ -54,8 +54,7 @@ save_boot_params_ret:
  * (OMAP4 spl TEXT_BASE is not 32 byte aligned.
  * Continue to use ROM code vector only in OMAP4 spl)
  */
-#if !(defined(CONFIG_OMAP44XX) && defined(CONFIG_SPL_BUILD)) && \
-		!defined(CONFIG_SPL_FEL)
+#if !(defined(CONFIG_OMAP44XX) && defined(CONFIG_SPL_BUILD))
 	/* Set V=0 in CP15 SCTLR register - for VBAR to point to vector */
 	mrc	p15, 0, r0, c1, c0, 0	@ Read CP15 SCTLR Register
 	bic	r0, #CR_V		@ V = 0
@@ -68,9 +67,7 @@ save_boot_params_ret:
 
 	/* the mask ROM code should have PLL and others stable */
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
-#ifndef CONFIG_SPL_FEL
 	bl	cpu_init_cp15
-#endif
 	bl	cpu_init_crit
 #endif
 
