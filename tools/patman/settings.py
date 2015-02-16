@@ -235,6 +235,31 @@ def _UpdateDefaults(parser, config):
         else:
             print "WARNING: Unknown setting %s" % name
 
+def _ReadAliasFile(fname):
+    """Read in the U-Boot git alias file if it exists.
+
+    Args:
+        fname: Filename to read.
+    """
+    if os.path.exists(fname):
+        bad_line = None
+        with open(fname) as fd:
+            linenum = 0
+            for line in fd:
+                linenum += 1
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                words = line.split(' ', 2)
+                if len(words) < 3 or words[0] != 'alias':
+                    if not bad_line:
+                        bad_line = "%s:%d:Invalid line '%s'" % (fname, linenum,
+                                                                line)
+                    continue
+                alias[words[1]] = [s.strip() for s in words[2].split(',')]
+        if bad_line:
+            print bad_line
+
 def Setup(parser, project_name, config_fname=''):
     """Set up the settings module by reading config files.
 
@@ -244,6 +269,8 @@ def Setup(parser, project_name, config_fname=''):
             for sections named "project_section" as well.
         config_fname:   Config filename to read ('' for default)
     """
+    # First read the git alias file if available
+    _ReadAliasFile('doc/git-mailrc')
     config = _ProjectConfigParser(project_name)
     if config_fname == '':
         config_fname = '%s/.patman' % os.getenv('HOME')
