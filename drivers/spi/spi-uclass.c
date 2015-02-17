@@ -63,9 +63,12 @@ int spi_claim_bus(struct spi_slave *slave)
 	}
 	if (!speed)
 		speed = 100000;
-	ret = spi_set_speed_mode(bus, speed, slave->mode);
-	if (ret)
-		return ret;
+	if (speed != slave->speed) {
+		ret = spi_set_speed_mode(bus, speed, slave->mode);
+		if (ret)
+			return ret;
+		slave->speed = speed;
+	}
 
 	return ops->claim_bus ? ops->claim_bus(dev) : 0;
 }

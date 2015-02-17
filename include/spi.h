@@ -100,6 +100,8 @@ struct dm_spi_slave_platdata {
  * @dev:		SPI slave device
  * @max_hz:		Maximum speed for this slave
  * @mode:		SPI mode to use for this slave (see SPI mode flags)
+ * @speed:		Current bus speed. This is 0 until the bus is first
+ *			claimed.
  * @bus:		ID of the bus that the slave is attached to. For
  *			driver model this is the sequence number of the SPI
  *			bus (bus->seq) so does not need to be stored
@@ -117,6 +119,7 @@ struct spi_slave {
 #ifdef CONFIG_DM_SPI
 	struct udevice *dev;	/* struct spi_slave is dev->parentdata */
 	uint max_hz;
+	uint speed;
 	uint mode;
 #else
 	unsigned int bus;
