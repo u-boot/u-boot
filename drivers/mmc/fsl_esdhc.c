@@ -54,19 +54,21 @@ struct fsl_esdhc {
 	uint    fevt;		/* Force event register */
 	uint    admaes;		/* ADMA error status register */
 	uint    adsaddr;	/* ADMA system address register */
-	char    reserved2[160];	/* reserved */
+	char    reserved2[100];	/* reserved */
+	uint    vendorspec;	/* Vendor Specific register */
+	char    reserved3[59];	/* reserved */
 	uint    hostver;	/* Host controller version register */
-	char    reserved3[4];	/* reserved */
-	uint    dmaerraddr;	/* DMA error address register */
 	char    reserved4[4];	/* reserved */
-	uint    dmaerrattr;	/* DMA error attribute register */
+	uint    dmaerraddr;	/* DMA error address register */
 	char    reserved5[4];	/* reserved */
+	uint    dmaerrattr;	/* DMA error attribute register */
+	char    reserved6[4];	/* reserved */
 	uint    hostcapblt2;	/* Host controller capabilities register 2 */
-	char    reserved6[8];	/* reserved */
+	char    reserved7[8];	/* reserved */
 	uint    tcr;		/* Tuning control register */
-	char    reserved7[28];	/* reserved */
+	char    reserved8[28];	/* reserved */
 	uint    sddirctl;	/* SD direction control register */
-	char    reserved8[712];	/* reserved */
+	char    reserved9[712];	/* reserved */
 	uint    scr;		/* eSDHC control register */
 };
 
@@ -341,6 +343,15 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 		goto out;
 	}
 
+	/* Switch voltage to 1.8V if CMD11 succeeded */
+	if (cmd->cmdidx == SD_CMD_SWITCH_UHS18V) {
+		esdhc_setbits32(&regs->vendorspec, ESDHC_VENDORSPEC_VSELECT);
+
+		printf("Run CMD11 1.8V switch\n");
+		/* Sleep for 5 ms - max time for card to switch to 1.8V */
+		udelay(5000);
+	}
+
 	/* Workaround for ESDHC errata ENGcm03648 */
 	if (!data && (cmd->resp_type & MMC_RSP_BUSY)) {
 		int timeout = 2500;
@@ -413,6 +424,10 @@ out:
 			while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTD))
 				;
 		}
+
+		/* If this was CMD11, then notify that power cycle is needed */
+		if (cmd->cmdidx == SD_CMD_SWITCH_UHS18V)
+			printf("CMD11 to switch to 1.8V mode failed, card requires power cycle.\n");
 	}
 
 	esdhc_write32(&regs->irqstat, -1);
