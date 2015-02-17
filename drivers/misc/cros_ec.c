@@ -986,7 +986,8 @@ int cros_ec_register(struct udevice *dev)
 	}
 
 	/* Remember this device for use by the cros_ec command */
-	debug("Google Chrome EC CROS-EC driver ready, id '%s'\n", id);
+	debug("Google Chrome EC v%d CROS-EC driver ready, id '%s'\n",
+	      cdev->protocol_version, id);
 
 	return 0;
 }
