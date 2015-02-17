@@ -338,9 +338,6 @@ int arch_early_init_r(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-#ifdef CONFIG_SET_DFU_ALT_INFO
-	set_dfu_alt_info();
-#endif
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info();
 #endif
