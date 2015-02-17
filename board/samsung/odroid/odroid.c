@@ -427,10 +427,6 @@ int exynos_early_init_f(void)
 
 int exynos_init(void)
 {
-	/* The last MB of memory is reserved for secure firmware */
-	gd->ram_size -= SZ_1M;
-	gd->bd->bi_dram[CONFIG_NR_DRAM_BANKS - 1].size -= SZ_1M;
-
 	board_gpio_init();
 
 	return 0;
