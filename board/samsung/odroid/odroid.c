@@ -15,6 +15,7 @@
 #include <power/pmic.h>
 #include <power/max77686_pmic.h>
 #include <errno.h>
+#include <mmc.h>
 #include <usb.h>
 #include <usb/s3c_udc.h>
 #include <samsung/misc.h>
@@ -61,27 +62,29 @@ const char *get_board_type(void)
 #endif
 
 #ifdef CONFIG_SET_DFU_ALT_INFO
-char *get_dfu_alt_system(void)
+char *get_dfu_alt_system(char *interface, char *devstr)
 {
 	return getenv("dfu_alt_system");
 }
 
-char *get_dfu_alt_boot(void)
+char *get_dfu_alt_boot(char *interface, char *devstr)
 {
+	struct mmc *mmc;
 	char *alt_boot;
+	int dev_num;
 
-	switch (get_boot_mode()) {
-	case BOOT_MODE_SD:
-		alt_boot = CONFIG_DFU_ALT_BOOT_SD;
-		break;
-	case BOOT_MODE_EMMC:
-	case BOOT_MODE_EMMC_SD:
-		alt_boot = CONFIG_DFU_ALT_BOOT_EMMC;
-		break;
-	default:
-		alt_boot = NULL;
-		break;
-	}
+	dev_num = simple_strtoul(devstr, NULL, 10);
+
+	mmc = find_mmc_device(dev_num);
+	if (!mmc)
+		return NULL;
+
+	if (mmc_init(mmc))
+		return NULL;
+
+	alt_boot = IS_SD(mmc) ? CONFIG_DFU_ALT_BOOT_SD :
+				CONFIG_DFU_ALT_BOOT_EMMC;
+
 	return alt_boot;
 }
 #endif
