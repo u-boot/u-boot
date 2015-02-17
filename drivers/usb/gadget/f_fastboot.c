@@ -535,6 +535,28 @@ static void cb_oem(struct usb_ep *ep, struct usb_request *req)
 	}
 }
 
+#ifdef CONFIG_FASTBOOT_FLASH
+static void cb_erase(struct usb_ep *ep, struct usb_request *req)
+{
+	char *cmd = req->buf;
+	char response[RESPONSE_LEN];
+
+	strsep(&cmd, ":");
+	if (!cmd) {
+		error("missing partition name");
+		fastboot_tx_write_str("FAILmissing partition name");
+		return;
+	}
+
+	strcpy(response, "FAILno flash device defined");
+
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+	fb_mmc_erase(cmd, response);
+#endif
+	fastboot_tx_write_str(response);
+}
+#endif
+
 struct cmd_dispatch_info {
 	char *cmd;
 	void (*cb)(struct usb_ep *ep, struct usb_request *req);
@@ -561,6 +583,9 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 	{
 		.cmd = "flash",
 		.cb = cb_flash,
+	}, {
+		.cmd = "erase",
+		.cb = cb_erase,
 	},
 #endif
 	{
