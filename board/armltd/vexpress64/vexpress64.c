@@ -143,5 +143,8 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_SMC91111
 	rc = smc91111_initialize(0, CONFIG_SMC91111_BASE);
 #endif
+#ifdef CONFIG_SMC911X
+	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+#endif
 	return rc;
 }

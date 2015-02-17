@@ -146,9 +146,17 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
 
-/* SMSC91C111 Ethernet Configuration */
+/* Ethernet Configuration */
+#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
+/* The real hardware Versatile express uses SMSC9118 */
+#define CONFIG_SMC911X			1
+#define CONFIG_SMC911X_32_BIT		1
+#define CONFIG_SMC911X_BASE		(0x018000000)
+#else
+/* The Vexpress64 simulators use SMSC91C111 */
 #define CONFIG_SMC91111			1
 #define CONFIG_SMC91111_BASE		(0x01A000000)
+#endif
 
 /* PL011 Serial Configuration */
 #define CONFIG_PL011_SERIAL
@@ -237,7 +245,7 @@
 					"fdt_addr_r=0x83000000\0"		\
 					"fdt_high=0xa0000000\0"
 
-#define CONFIG_BOOTARGS			"console=ttyAMA0 root=/dev/ram0"
+#define CONFIG_BOOTARGS			"console=ttyAMA0,115200n8 root=/dev/ram0"
 #define CONFIG_BOOTCOMMAND		"bootm $kernel_addr_r " \
 					"$initrd_addr_r:$initrd_size $fdt_addr_r"
 #define CONFIG_BOOTDELAY		-1
