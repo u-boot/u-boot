@@ -25,13 +25,11 @@
 
 #define CONFIG_CMD_MMC
 
-/*
- * FIXME: The number of bank is actually 8. But there is no way to reserve the
- * last 16 Mib in the last bank now. So I just excluded the last bank
- * temporally.
- */
-#define CONFIG_NR_DRAM_BANKS	7
+#define CONFIG_NR_DRAM_BANKS	8
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
+/* Reserve the last 22 MiB for the secure firmware */
+#define CONFIG_SYS_MEM_TOP_HIDE		(22UL << 20UL)
+#define CONFIG_TZSW_RESERVED_DRAM_SIZE	CONFIG_SYS_MEM_TOP_HIDE
 
 #define CONFIG_ENV_IS_IN_MMC
 
