@@ -22,7 +22,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 void pinmux_init(void)
 {
-	pinmux_set_tristate_input_clamping();
+	pinmux_clear_tristate_input_clamping();
 
 	gpio_config_table(jetson_tk1_gpio_inits,
 			  ARRAY_SIZE(jetson_tk1_gpio_inits));
