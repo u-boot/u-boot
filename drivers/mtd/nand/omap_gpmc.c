@@ -912,8 +912,18 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 			return -EINVAL;
 		}
 	} else {
-		err = omap_select_ecc_scheme(nand, OMAP_ECC_HAM1_CODE_SW,
+		if (eccstrength == 1) {
+			err = omap_select_ecc_scheme(nand,
+					OMAP_ECC_HAM1_CODE_SW,
 					mtd->writesize, mtd->oobsize);
+		} else if (eccstrength == 8) {
+			err = omap_select_ecc_scheme(nand,
+					OMAP_ECC_BCH8_CODE_HW_DETECTION_SW,
+					mtd->writesize, mtd->oobsize);
+		} else {
+			printf("nand: error: unsupported ECC scheme\n");
+			return -EINVAL;
+		}
 	}
 
 	/* Update NAND handling after ECC mode switch */

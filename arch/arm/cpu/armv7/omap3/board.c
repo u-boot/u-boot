@@ -347,7 +347,16 @@ static int do_switch_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 				goto usage;
 		}
 	} else if (strncmp(argv[1], "sw", 2) == 0) {
-		omap_nand_switch_ecc(0, 0);
+		if (argc == 2) {
+			omap_nand_switch_ecc(0, 1);
+		} else {
+			if (strncmp(argv[2], "hamming", 7) == 0)
+				omap_nand_switch_ecc(0, 1);
+			else if (strncmp(argv[2], "bch8", 4) == 0)
+				omap_nand_switch_ecc(0, 8);
+			else
+				goto usage;
+		}
 	} else {
 		goto usage;
 	}
