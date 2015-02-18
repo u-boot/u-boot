@@ -253,6 +253,24 @@ int update_flash_size(int flash_size);
 int arch_early_init_r(void);
 
 /**
+ * Reserve all necessary stacks
+ *
+ * This is used in generic board init sequence in common/board_f.c. Each
+ * architecture could provide this function to tailor the required stacks.
+ *
+ * On entry gd->start_addr_sp is pointing to the suggested top of the stack.
+ * The callee ensures gd->start_add_sp is 16-byte aligned, so architectures
+ * require only this can leave it untouched.
+ *
+ * On exit gd->start_addr_sp and gd->irq_sp should be set to the respective
+ * positions of the stack. The stack pointer(s) will be set to this later.
+ * gd->irq_sp is only required, if the architecture needs it.
+ *
+ * @return 0 if no error
+ */
+__weak int arch_reserve_stacks(void);
+
+/**
  * Show the DRAM size in a board-specific way
  *
  * This is used by boards to display DRAM information in their own way.

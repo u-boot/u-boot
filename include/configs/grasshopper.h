@@ -62,6 +62,10 @@
 #define CONFIG_USART_BASE		ATMEL_BASE_USART1
 #define CONFIG_USART_ID			1
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_EARLY_INIT_R
+
 /* User serviceable stuff */
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -151,7 +155,6 @@
 					 CONFIG_SYS_INTRAM_SIZE)
 
 #define CONFIG_SYS_MALLOC_LEN		(256*1024)
-#define CONFIG_SYS_DMA_ALLOC_LEN	(16384)
 
 /* Allow 4MB for the kernel run-time image */
 #define CONFIG_SYS_LOAD_ADDR		(EBI_SDRAM_BASE + 0x00400000)

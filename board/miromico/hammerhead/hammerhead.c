@@ -21,14 +21,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct mmu_vm_range mmu_vmr_table[CONFIG_SYS_NR_VM_REGIONS] = {
 	{
-		.virt_pgno	= CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT,
-		.nr_pages	= CONFIG_SYS_FLASH_SIZE >> PAGE_SHIFT,
-		.phys		= (CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT)
+		.virt_pgno	= CONFIG_SYS_FLASH_BASE >> MMU_PAGE_SHIFT,
+		.nr_pages	= CONFIG_SYS_FLASH_SIZE >> MMU_PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_FLASH_BASE >> MMU_PAGE_SHIFT)
 					| MMU_VMR_CACHE_NONE,
 	}, {
-		.virt_pgno	= CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT,
-		.nr_pages	= EBI_SDRAM_SIZE >> PAGE_SHIFT,
-		.phys		= (CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT)
+		.virt_pgno	= CONFIG_SYS_SDRAM_BASE >> MMU_PAGE_SHIFT,
+		.nr_pages	= EBI_SDRAM_SIZE >> MMU_PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_SDRAM_BASE >> MMU_PAGE_SHIFT)
 					| MMU_VMR_CACHE_WRBACK,
 	},
 };
@@ -63,6 +63,8 @@ int board_early_init_f(void)
 	hmatrix_slave_write(EBI, SFR, HMATRIX_BIT(EBI_SDRAM_ENABLE));
 
 	portmux_enable_ebi(32, 23, 0, PORTMUX_DRIVE_HIGH);
+	sdram_init(uncached(EBI_SDRAM_BASE), &sdram_config);
+
 	portmux_enable_usart1(PORTMUX_DRIVE_MIN);
 
 #if defined(CONFIG_MACB)
@@ -72,24 +74,6 @@ int board_early_init_f(void)
 	portmux_enable_mmci(0, PORTMUX_MMCI_4BIT, PORTMUX_DRIVE_LOW);
 #endif
 	return 0;
-}
-
-phys_size_t initdram(int board_type)
-{
-	unsigned long expected_size;
-	unsigned long actual_size;
-	void *sdram_base;
-
-	sdram_base = uncached(EBI_SDRAM_BASE);
-
-	expected_size = sdram_init(sdram_base, &sdram_config);
-	actual_size = get_ram_size(sdram_base, expected_size);
-
-	if (expected_size != actual_size)
-		printf("Warning: Only %lu of %lu MiB SDRAM is working\n",
-		       actual_size >> 20, expected_size >> 20);
-
-	return actual_size;
 }
 
 int board_early_init_r(void)

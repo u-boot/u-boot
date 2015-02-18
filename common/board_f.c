@@ -573,48 +573,22 @@ static int reserve_fdt(void)
 	return 0;
 }
 
+int arch_reserve_stacks(void)
+{
+	return 0;
+}
+
 static int reserve_stacks(void)
 {
-#ifdef CONFIG_SPL_BUILD
-# ifdef CONFIG_ARM
-	gd->start_addr_sp -= 128;	/* leave 32 words for abort-stack */
-	gd->irq_sp = gd->start_addr_sp;
-# endif
-#else
-# ifdef CONFIG_PPC
-	ulong *s;
-# endif
-
-	/* setup stack pointer for exceptions */
+	/* make stack pointer 16-byte aligned */
 	gd->start_addr_sp -= 16;
 	gd->start_addr_sp &= ~0xf;
-	gd->irq_sp = gd->start_addr_sp;
 
 	/*
-	 * Handle architecture-specific things here
-	 * TODO(sjg@chromium.org): Perhaps create arch_reserve_stack()
-	 * to handle this and put in arch/xxx/lib/stack.c
+	 * let the architecture specific code tailor gd->start_addr_sp and
+	 * gd->irq_sp
 	 */
-# if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
-#  ifdef CONFIG_USE_IRQ
-	gd->start_addr_sp -= (CONFIG_STACKSIZE_IRQ + CONFIG_STACKSIZE_FIQ);
-	debug("Reserving %zu Bytes for IRQ stack at: %08lx\n",
-		CONFIG_STACKSIZE_IRQ + CONFIG_STACKSIZE_FIQ, gd->start_addr_sp);
-
-	/* 8-byte alignment for ARM ABI compliance */
-	gd->start_addr_sp &= ~0x07;
-#  endif
-	/* leave 3 words for abort-stack, plus 1 for alignment */
-	gd->start_addr_sp -= 16;
-# elif defined(CONFIG_PPC)
-	/* Clear initial stack frame */
-	s = (ulong *) gd->start_addr_sp;
-	*s = 0; /* Terminate back chain */
-	*++s = 0; /* NULL return address */
-# endif /* Architecture specific code */
-
-	return 0;
-#endif
+	return arch_reserve_stacks();
 }
 
 static int display_new_sp(void)
@@ -909,7 +883,7 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 	announce_dram_init,
 	/* TODO: unify all these dram functions? */
-#if defined(CONFIG_ARM) || defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE)
+#if defined(CONFIG_ARM) || defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE) || defined(CONFIG_AVR32)
 	dram_init,		/* configure available RAM banks */
 #endif
 #if defined(CONFIG_MIPS) || defined(CONFIG_PPC)

@@ -13,9 +13,9 @@
 
 #include <asm/sysreg.h>
 
-#define PAGE_SHIFT	20
-#define PAGE_SIZE	(1UL << PAGE_SHIFT)
-#define PAGE_ADDR_MASK	(~(PAGE_SIZE - 1))
+#define MMU_PAGE_SHIFT	20
+#define MMU_PAGE_SIZE	(1UL << MMU_PAGE_SHIFT)
+#define MMU_PAGE_ADDR_MASK	(~(MMU_PAGE_SIZE - 1))
 
 #define MMU_VMR_CACHE_NONE						\
 	(SYSREG_BF(AP, 3) | SYSREG_BF(SZ, 3) | SYSREG_BIT(TLBELO_D))

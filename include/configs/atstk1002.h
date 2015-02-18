@@ -104,6 +104,10 @@
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY
 
+/* generic board */
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_EARLY_INIT_R
 
 /*
  * Command line configuration.
@@ -158,7 +162,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INTRAM_BASE + CONFIG_SYS_INTRAM_SIZE)
 
 #define CONFIG_SYS_MALLOC_LEN			(256*1024)
-#define CONFIG_SYS_DMA_ALLOC_LEN		(16384)
 
 /* Allow 4MB for the kernel run-time image */
 #define CONFIG_SYS_LOAD_ADDR			(EBI_SDRAM_BASE + 0x00400000)
