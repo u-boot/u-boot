@@ -230,6 +230,8 @@ static int i2c_bind_driver(struct udevice *bus, uint chip_addr, uint offset_len,
 
 	snprintf(name, sizeof(name), "generic_%x", chip_addr);
 	str = strdup(name);
+	if (!str)
+		return -ENOMEM;
 	ret = device_bind_driver(bus, "i2c_generic_chip_drv", str, &dev);
 	debug("%s:  device_bind_driver: ret=%d\n", __func__, ret);
 	if (ret)
