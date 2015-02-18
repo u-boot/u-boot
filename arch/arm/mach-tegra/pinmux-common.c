@@ -94,11 +94,15 @@
 void pinmux_set_tristate_input_clamping(void)
 {
 	u32 *reg = _R(APB_MISC_PP_PINMUX_GLOBAL_0);
-	u32 val;
 
-	val = readl(reg);
-	val |= CLAMP_INPUTS_WHEN_TRISTATED;
-	writel(val, reg);
+	setbits_le32(reg, CLAMP_INPUTS_WHEN_TRISTATED);
+}
+
+void pinmux_clear_tristate_input_clamping(void)
+{
+	u32 *reg = _R(APB_MISC_PP_PINMUX_GLOBAL_0);
+
+	clrbits_le32(reg, CLAMP_INPUTS_WHEN_TRISTATED);
 }
 #endif
 
