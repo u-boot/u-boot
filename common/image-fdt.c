@@ -190,7 +190,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 	*of_flat_tree = of_start;
 	*of_size = of_len;
 
-	set_working_fdt_addr(*of_flat_tree);
+	set_working_fdt_addr((ulong)*of_flat_tree);
 	return 0;
 
 error:
