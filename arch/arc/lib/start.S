@@ -6,6 +6,7 @@
 
 #include <asm-offsets.h>
 #include <config.h>
+#include <linux/linkage.h>
 #include <asm/arcregs.h>
 
 /*
@@ -88,31 +89,7 @@
 #endif
 .endm
 
-.section .ivt, "ax",@progbits
-.align 4
-_ivt:
-	/* Critical system events */
-	j	_start			/* 0 - 0x000 */
-	j	memory_error		/* 1 - 0x008 */
-	j	instruction_error	/* 2 - 0x010 */
-
-	/* Device interrupts */
-.rept	29
-	j	interrupt_handler	/* 3:31 - 0x018:0xF8 */
-.endr
-	/* Exceptions */
-	j	EV_MachineCheck		/* 0x100, Fatal Machine check  (0x20) */
-	j	EV_TLBMissI		/* 0x108, Intruction TLB miss  (0x21) */
-	j	EV_TLBMissD		/* 0x110, Data TLB miss        (0x22) */
-	j	EV_TLBProtV		/* 0x118, Protection Violation (0x23)
-							or Misaligned Access  */
-	j	EV_PrivilegeV		/* 0x120, Privilege Violation  (0x24) */
-	j	EV_Trap			/* 0x128, Trap exception       (0x25) */
-	j	EV_Extension		/* 0x130, Extn Intruction Excp (0x26) */
-
-.text
-.globl _start
-_start:
+ENTRY(_start)
 	/* Setup interrupt vector base that matches "__text_start" */
 	sr	__ivt_start, [ARC_AUX_INTR_VEC_BASE]
 
@@ -131,60 +108,71 @@ clear_bss:
 	/* Zero the one and only argument of "board_init_f" */
 	mov_s	%r0, 0
 	j	board_init_f
+ENDPROC(_start)
 
-memory_error:
+ENTRY(memory_error)
 	SAVE_ALL_SYS
 	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_memory_error
+ENDPROC(memory_error)
 
-instruction_error:
+ENTRY(instruction_error)
 	SAVE_ALL_SYS
 	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_instruction_error
+ENDPROC(instruction_error)
 
-interrupt_handler:
+ENTRY(interrupt_handler)
 	/* Todo - save and restore CPU context when interrupts will be in use */
 	bl	do_interrupt_handler
 	rtie
+ENDPROC(interrupt_handler)
 
-EV_MachineCheck:
+ENTRY(EV_MachineCheck)
 	SAVE_ALL_SYS
 	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_machine_check_fault
+ENDPROC(EV_MachineCheck)
 
-EV_TLBMissI:
+ENTRY(EV_TLBMissI)
 	SAVE_ALL_SYS
 	mov	%r0, %sp
 	j	do_itlb_miss
+ENDPROC(EV_TLBMissI)
 
-EV_TLBMissD:
+ENTRY(EV_TLBMissD)
 	SAVE_ALL_SYS
 	mov	%r0, %sp
 	j	do_dtlb_miss
+ENDPROC(EV_TLBMissD)
 
-EV_TLBProtV:
+ENTRY(EV_TLBProtV)
 	SAVE_ALL_SYS
 	SAVE_EXCEPTION_SOURCE
 	mov	%r1, %sp
 	j	do_tlb_prot_violation
+ENDPROC(EV_TLBProtV)
 
-EV_PrivilegeV:
+ENTRY(EV_PrivilegeV)
 	SAVE_ALL_SYS
 	mov	%r0, %sp
 	j	do_privilege_violation
+ENDPROC(EV_PrivilegeV)
 
-EV_Trap:
+ENTRY(EV_Trap)
 	SAVE_ALL_SYS
 	mov	%r0, %sp
 	j	do_trap
+ENDPROC(EV_Trap)
 
-EV_Extension:
+ENTRY(EV_Extension)
 	SAVE_ALL_SYS
 	mov	%r0, %sp
 	j	do_extension
+ENDPROC(EV_Extension)
 
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
@@ -196,9 +184,7 @@ EV_Extension:
  * r1 = new__gd
  * r2 = relocaddr
  */
-.align 4
-.globl	relocate_code
-relocate_code:
+ENTRY(relocate_code)
 	/*
 	 * r0-r12 might be clobbered by C functions
 	 * so we use r13-r16 for storage here
@@ -252,3 +238,4 @@ do_board_init_r:
 	mov	%r0, %r14		/* 1-st parameter: gd_t */
 	mov	%r1, %r15		/* 2-nd parameter: dest_addr */
 	j	[%r2]
+ENDPROC(relocate_code)
