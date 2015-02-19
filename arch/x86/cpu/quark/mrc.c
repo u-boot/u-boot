@@ -34,6 +34,7 @@
  */
 
 #include <common.h>
+#include <version.h>
 #include <asm/arch/mrc.h>
 #include <asm/arch/msg_port.h>
 #include "mrc_util.h"
@@ -192,7 +193,7 @@ void mrc_init(struct mrc_params *mrc_params)
 	ENTERFN();
 
 	DPF(D_INFO, "MRC Version %04x %s %s\n", MRC_VERSION,
-	    __DATE__, __TIME__);
+	    U_BOOT_DATE, U_BOOT_TIME);
 
 	/* Set up the data structures used by mrc_mem_init() */
 	mrc_adjust_params(mrc_params);
