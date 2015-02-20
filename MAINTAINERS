@@ -76,8 +76,7 @@ ARM ATMEL AT91
 M:	Andreas Bießmann <andreas.devel@googlemail.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-atmel.git
-F:	arch/arm/cpu/armv7/at91/
-F:	arch/arm/cpu/at91-common/
+F:	arch/arm/mach-at91/
 F:	arch/arm/include/asm/arch-at91/
 
 ARM FREESCALE IMX

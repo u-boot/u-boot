@@ -15,7 +15,6 @@ endif
 endif
 
 obj-$(CONFIG_ARMADA100) += armada100/
-obj-$(CONFIG_AT91FAMILY) += at91/
 obj-$(CONFIG_ARCH_DAVINCI) += davinci/
 obj-$(CONFIG_KIRKWOOD) += kirkwood/
 obj-$(if $(filter lpc32xx,$(SOC)),y) += lpc32xx/

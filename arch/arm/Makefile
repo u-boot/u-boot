@@ -4,6 +4,7 @@
 
 # Machine directory name.  This list is sorted alphanumerically
 # by CONFIG_* macro name.
+machine-$(CONFIG_ARCH_AT91)		+= at91
 
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))
 
