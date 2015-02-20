@@ -722,7 +722,7 @@ source "arch/arm/cpu/arm1176/bcm2835/Kconfig"
 
 source "arch/arm/cpu/armv7/exynos/Kconfig"
 
-source "arch/arm/cpu/armv7/highbank/Kconfig"
+source "arch/arm/mach-highbank/Kconfig"
 
 source "arch/arm/cpu/armv7/keystone/Kconfig"
 

@@ -43,7 +43,6 @@ obj-$(if $(filter bcm281xx,$(SOC)),y) += bcm281xx/
 obj-$(if $(filter bcmcygnus,$(SOC)),y) += bcmcygnus/
 obj-$(if $(filter bcmnsp,$(SOC)),y) += bcmnsp/
 obj-$(CONFIG_ARCH_EXYNOS) += exynos/
-obj-$(CONFIG_ARCH_HIGHBANK) += highbank/
 obj-$(CONFIG_ARCH_KEYSTONE) += keystone/
 obj-$(if $(filter ls102xa,$(SOC)),y) += ls102xa/
 obj-$(if $(filter mx5,$(SOC)),y) += mx5/
