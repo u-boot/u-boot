@@ -84,6 +84,34 @@ static inline void v7_enable_l2_hazard_detect(void)
 	asm volatile ("mcr     p15, 1, %0, c15, c0, 0\n\t" : : "r"(val));
 }
 
+/*
+ * Workaround for ARM errata # 799270
+ * Ensure that the L2 logic has been used within the previous 256 cycles
+ * before modifying the ACTLR.SMP bit. This is required during boot before
+ * MMU has been enabled, or during a specified reset or power down sequence.
+ */
+static inline void v7_enable_smp(uint32_t address)
+{
+	uint32_t temp, val;
+
+	/* Read auxiliary control register */
+	asm volatile ("mrc     p15, 0, %0, c1, c0, 1\n\t" : "=r"(val));
+
+	/* Enable SMP */
+	val |= (1 << 6);
+
+	/* Dummy read to assure L2 access */
+	temp = readl(address);
+	temp &= 0;
+	val |= temp;
+
+	/* Write auxiliary control register */
+	asm volatile ("mcr     p15, 0, %0, c1, c0, 1\n\t" : : "r"(val));
+
+	CP15DSB;
+	CP15ISB;
+}
+
 void v7_en_l2_hazard_detect(void);
 void v7_outer_cache_enable(void);
 void v7_outer_cache_disable(void);
