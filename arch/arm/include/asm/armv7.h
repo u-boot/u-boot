@@ -69,6 +69,22 @@
 #define CP15DSB	asm volatile ("mcr     p15, 0, %0, c7, c10, 4" : : "r" (0))
 #define CP15DMB	asm volatile ("mcr     p15, 0, %0, c7, c10, 5" : : "r" (0))
 
+/*
+ * Workaround for ARM errata # 798870
+ * Set L2ACTLR[7] to reissue any memory transaction in the L2 that has been
+ * stalled for 1024 cycles to verify that its hazard condition still exists.
+ */
+static inline void v7_enable_l2_hazard_detect(void)
+{
+	uint32_t val;
+
+	/* L2ACTLR[7]: Enable hazard detect timeout */
+	asm volatile ("mrc     p15, 1, %0, c15, c0, 0\n\t" : "=r"(val));
+	val |= (1 << 7);
+	asm volatile ("mcr     p15, 1, %0, c15, c0, 0\n\t" : : "r"(val));
+}
+
+void v7_en_l2_hazard_detect(void);
 void v7_outer_cache_enable(void);
 void v7_outer_cache_disable(void);
 void v7_outer_cache_flush_all(void);
