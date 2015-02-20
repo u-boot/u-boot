@@ -99,7 +99,6 @@ M:	Luka Perkov <luka.perkov@sartura.hr>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-marvell.git
 F:	arch/arm/mach-kirkwood/
-F:	arch/arm/include/asm/arch-kirkwood/
 
 ARM MARVELL PXA
 M:	Marek Vasut <marex@denx.de>
