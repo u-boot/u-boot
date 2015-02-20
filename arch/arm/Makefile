@@ -19,6 +19,8 @@ machine-$(CONFIG_ARCH_VERSATILE)	+= versatile
 
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))
 
+PLATFORM_CPPFLAGS += $(patsubst %,-I$(srctree)/%include,$(machdirs))
+
 libs-y += $(machdirs)
 
 head-y := arch/arm/cpu/$(CPU)/start.o
