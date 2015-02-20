@@ -89,7 +89,7 @@ static void secondary_cpu_start(void)
 {
 	v7_enable_smp(EXYNOS5420_INFORM_BASE);
 	svc32_mode_en();
-	set_pc(CONFIG_EXYNOS_RELOCATE_CODE_BASE);
+	branch_bx(CONFIG_EXYNOS_RELOCATE_CODE_BASE);
 }
 
 /*
