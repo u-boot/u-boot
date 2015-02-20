@@ -9,6 +9,7 @@ machine-$(CONFIG_ARCH_DAVINCI)		+= davinci
 # TODO: rename CONFIG_KIRKWOOD -> CONFIG_ARCH_KIRKWOOD
 machine-$(CONFIG_KIRKWOOD)		+= kirkwood
 # TODO: rename CONFIG_TEGRA -> CONFIG_ARCH_TEGRA
+machine-$(CONFIG_ARCH_NOMADIK)		+= nomadik
 machine-$(CONFIG_TEGRA)			+= tegra
 
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))
