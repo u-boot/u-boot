@@ -103,7 +103,7 @@ static void low_power_start(void)
 	reg_val = readl(EXYNOS5420_SPARE_BASE);
 	if (reg_val != CPU_RST_FLAG_VAL) {
 		writel(0x0, CONFIG_LOWPOWER_FLAG);
-		set_pc(0x0);
+		branch_bx(0x0);
 	}
 
 	reg_val = readl(CONFIG_PHY_IRAM_BASE + 0x4);
