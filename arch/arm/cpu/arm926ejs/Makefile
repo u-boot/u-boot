@@ -22,4 +22,3 @@ obj-$(CONFIG_MX27) += mx27/
 obj-$(if $(filter mxs,$(SOC)),y) += mxs/
 obj-$(CONFIG_PANTHEON) += pantheon/
 obj-$(if $(filter spear,$(SOC)),y) += spear/
-obj-$(CONFIG_ARCH_VERSATILE) += versatile/

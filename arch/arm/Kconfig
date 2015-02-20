@@ -746,7 +746,7 @@ source "arch/arm/mach-tegra/Kconfig"
 
 source "arch/arm/cpu/armv7/uniphier/Kconfig"
 
-source "arch/arm/cpu/arm926ejs/versatile/Kconfig"
+source "arch/arm/mach-versatile/Kconfig"
 
 source "arch/arm/cpu/armv7/zynq/Kconfig"
 
