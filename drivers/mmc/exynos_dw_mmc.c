@@ -13,6 +13,7 @@
 #include <asm/arch/dwmmc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch/power.h>
 #include <asm/gpio.h>
 #include <asm-generic/errno.h>
 
@@ -196,7 +197,6 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 	if (host->dev_index == host->dev_id)
 		host->dev_index = host->dev_id - PERIPH_ID_SDMMC0;
 
-
 	/* Get the bus width from the device node */
 	host->buswidth = fdtdec_get_int(blob, node, "samsung,bus-width", 0);
 	if (host->buswidth <= 0) {
@@ -267,12 +267,21 @@ int exynos_dwmmc_init(const void *blob)
 {
 	int compat_id;
 	int node_list[DWMMC_MAX_CH_NUM];
+	int boot_dev_node;
 	int err = 0, count;
 
 	compat_id = COMPAT_SAMSUNG_EXYNOS_DWMMC;
 
 	count = fdtdec_find_aliases_for_id(blob, "mmc",
 				compat_id, node_list, DWMMC_MAX_CH_NUM);
+
+	/* For DWMMC always set boot device as mmc 0 */
+	if (count >= 3 && get_boot_mode() == BOOT_MODE_SD) {
+		boot_dev_node = node_list[2];
+		node_list[2] = node_list[0];
+		node_list[0] = boot_dev_node;
+	}
+
 	err = exynos_dwmci_process_node(blob, node_list, count);
 
 	return err;
