@@ -20,13 +20,6 @@ struct cf_spi_slave {
 	int charbit;
 };
 
-int cfspi_xfer(struct spi_slave *slave, uint bitlen, const void *dout,
-	       void *din, ulong flags);
-struct spi_slave *cfspi_setup_slave(struct cf_spi_slave *cfslave, uint mode);
-void cfspi_init(void);
-void cfspi_tx(u32 ctrl, u16 data);
-u16 cfspi_rx(void);
-
 extern void cfspi_port_conf(void);
 extern int cfspi_claim_bus(uint bus, uint cs);
 extern void cfspi_release_bus(uint bus, uint cs);
@@ -51,7 +44,7 @@ static inline struct cf_spi_slave *to_cf_spi_slave(struct spi_slave *slave)
 	return container_of(slave, struct cf_spi_slave, slave);
 }
 
-void cfspi_init(void)
+static void cfspi_init(void)
 {
 	volatile dspi_t *dspi = (dspi_t *) MMAP_DSPI;
 
@@ -89,7 +82,7 @@ void cfspi_init(void)
 #endif
 }
 
-void cfspi_tx(u32 ctrl, u16 data)
+static void cfspi_tx(u32 ctrl, u16 data)
 {
 	volatile dspi_t *dspi = (dspi_t *) MMAP_DSPI;
 
@@ -98,7 +91,7 @@ void cfspi_tx(u32 ctrl, u16 data)
 	dspi->tfr = (ctrl | data);
 }
 
-u16 cfspi_rx(void)
+static u16 cfspi_rx(void)
 {
 	volatile dspi_t *dspi = (dspi_t *) MMAP_DSPI;
 
@@ -107,8 +100,8 @@ u16 cfspi_rx(void)
 	return (dspi->rfr & 0xFFFF);
 }
 
-int cfspi_xfer(struct spi_slave *slave, uint bitlen, const void *dout,
-	       void *din, ulong flags)
+static int cfspi_xfer(struct spi_slave *slave, uint bitlen, const void *dout,
+		      void *din, ulong flags)
 {
 	struct cf_spi_slave *cfslave = to_cf_spi_slave(slave);
 	u16 *spi_rd16 = NULL, *spi_wr16 = NULL;
@@ -181,7 +174,8 @@ int cfspi_xfer(struct spi_slave *slave, uint bitlen, const void *dout,
 	return 0;
 }
 
-struct spi_slave *cfspi_setup_slave(struct cf_spi_slave *cfslave, uint mode)
+static struct spi_slave *cfspi_setup_slave(struct cf_spi_slave *cfslave,
+					   uint mode)
 {
 	/*
 	 * bit definition for mode:
