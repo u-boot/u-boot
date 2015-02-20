@@ -726,7 +726,7 @@ source "arch/arm/cpu/armv7/highbank/Kconfig"
 
 source "arch/arm/cpu/armv7/keystone/Kconfig"
 
-source "arch/arm/cpu/arm926ejs/kirkwood/Kconfig"
+source "arch/arm/mach-kirkwood/Kconfig"
 
 source "arch/arm/cpu/arm926ejs/nomadik/Kconfig"
 

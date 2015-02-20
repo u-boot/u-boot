@@ -99,7 +99,7 @@ M:	Prafulla Wadaskar <prafulla@marvell.com>
 M:	Luka Perkov <luka.perkov@sartura.hr>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-marvell.git
-F:	arch/arm/cpu/arm926ejs/kirkwood/
+F:	arch/arm/mach-kirkwood/
 F:	arch/arm/include/asm/arch-kirkwood/
 
 ARM MARVELL PXA

@@ -6,6 +6,8 @@
 # by CONFIG_* macro name.
 machine-$(CONFIG_ARCH_AT91)		+= at91
 machine-$(CONFIG_ARCH_DAVINCI)		+= davinci
+# TODO: rename CONFIG_KIRKWOOD -> CONFIG_ARCH_KIRKWOOD
+machine-$(CONFIG_KIRKWOOD)		+= kirkwood
 # TODO: rename CONFIG_TEGRA -> CONFIG_ARCH_TEGRA
 machine-$(CONFIG_TEGRA)			+= tegra
 
