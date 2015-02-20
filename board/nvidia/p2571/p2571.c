@@ -9,6 +9,7 @@
 #include <i2c.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
+#include <asm/gpio.h>
 #include "max77620_init.h"
 #include "pinmux-config-p2571.h"
 
@@ -48,4 +49,15 @@ void pinmux_init(void)
 
 	pinmux_config_drvgrp_table(p2571_drvgrps,
 				   ARRAY_SIZE(p2571_drvgrps));
+}
+
+/*
+ * Routine: start_cpu_fan
+ * Description: Enable/start PWM CPU fan on P2571
+ */
+void start_cpu_fan(void)
+{
+	/* GPIO_PE4 is PS_VDD_FAN_ENABLE */
+	gpio_request(GPIO_PE4, "FAN_VDD");
+	gpio_direction_output(GPIO_PE4, 1);
 }
