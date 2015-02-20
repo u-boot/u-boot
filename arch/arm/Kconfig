@@ -716,7 +716,7 @@ endchoice
 
 source "arch/arm/mach-at91/Kconfig"
 
-source "arch/arm/cpu/arm926ejs/davinci/Kconfig"
+source "arch/arm/mach-davinci/Kconfig"
 
 source "arch/arm/cpu/arm1176/bcm2835/Kconfig"
 
