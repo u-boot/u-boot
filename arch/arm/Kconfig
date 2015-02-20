@@ -77,17 +77,8 @@ config TARGET_A320EVB
 	bool "Support a320evb"
 	select CPU_ARM920T
 
-config TARGET_AT91RM9200EK
-	bool "Support at91rm9200ek"
-	select CPU_ARM920T
-
-config TARGET_EB_CPUX9K2
-	bool "Support eb_cpux9k2"
-	select CPU_ARM920T
-
-config TARGET_CPUAT91
-	bool "Support cpuat91"
-	select CPU_ARM920T
+config ARCH_AT91
+	bool "Atmel AT91"
 
 config TARGET_EDB93XX
 	bool "Support edb93xx"
@@ -127,100 +118,6 @@ config TARGET_ASPENITE
 
 config TARGET_GPLUGD
 	bool "Support gplugd"
-	select CPU_ARM926EJS
-
-config TARGET_AFEB9260
-	bool "Support afeb9260"
-	select CPU_ARM926EJS
-
-config TARGET_AT91SAM9260EK
-	bool "Support at91sam9260ek"
-	select CPU_ARM926EJS
-
-config TARGET_AT91SAM9261EK
-	bool "Support at91sam9261ek"
-	select CPU_ARM926EJS
-
-config TARGET_AT91SAM9263EK
-	bool "Support at91sam9263ek"
-	select CPU_ARM926EJS
-
-config TARGET_AT91SAM9M10G45EK
-	bool "Support at91sam9m10g45ek"
-	select CPU_ARM926EJS
-
-config TARGET_AT91SAM9N12EK
-	bool "Support at91sam9n12ek"
-	select CPU_ARM926EJS
-
-config TARGET_AT91SAM9RLEK
-	bool "Support at91sam9rlek"
-	select CPU_ARM926EJS
-
-config TARGET_AT91SAM9X5EK
-	bool "Support at91sam9x5ek"
-	select CPU_ARM926EJS
-
-config TARGET_SNAPPER9260
-	bool "Support snapper9260"
-	select CPU_ARM926EJS
-
-config TARGET_VL_MA2SC
-	bool "Support vl_ma2sc"
-	select CPU_ARM926EJS
-
-config TARGET_SBC35_A9G20
-	bool "Support sbc35_a9g20"
-	select CPU_ARM926EJS
-
-config TARGET_TNY_A9260
-	bool "Support tny_a9260"
-	select CPU_ARM926EJS
-
-config TARGET_USB_A9263
-	bool "Support usb_a9263"
-	select CPU_ARM926EJS
-
-config TARGET_ETHERNUT5
-	bool "Support ethernut5"
-	select CPU_ARM926EJS
-
-config TARGET_MEESC
-	bool "Support meesc"
-	select CPU_ARM926EJS
-
-config TARGET_OTC570
-	bool "Support otc570"
-	select CPU_ARM926EJS
-
-config TARGET_CPU9260
-	bool "Support cpu9260"
-	select CPU_ARM926EJS
-
-config TARGET_PM9261
-	bool "Support pm9261"
-	select CPU_ARM926EJS
-
-config TARGET_PM9263
-	bool "Support pm9263"
-	select CPU_ARM926EJS
-
-config TARGET_PM9G45
-	bool "Support pm9g45"
-	select CPU_ARM926EJS
-
-config TARGET_CORVUS
-	select SUPPORT_SPL
-	bool "Support corvus"
-	select CPU_ARM926EJS
-
-config TARGET_TAURUS
-	select SUPPORT_SPL
-	bool "Support taurus"
-	select CPU_ARM926EJS
-
-config TARGET_STAMP9G20
-	bool "Support stamp9g20"
 	select CPU_ARM926EJS
 
 config ARCH_DAVINCI
@@ -511,26 +408,6 @@ config TARGET_TI814X_EVM
 
 config TARGET_TI816X_EVM
 	bool "Support ti816x_evm"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_SAMA5D3_XPLAINED
-	bool "Support sama5d3_xplained"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_SAMA5D3XEK
-	bool "Support sama5d3xek"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_SAMA5D4_XPLAINED
-	bool "Support sama5d4_xplained"
-	select CPU_V7
-	select SUPPORT_SPL
-
-config TARGET_SAMA5D4EK
-	bool "Support sama5d4ek"
 	select CPU_V7
 	select SUPPORT_SPL
 
@@ -837,6 +714,8 @@ config ARCH_UNIPHIER
 
 endchoice
 
+source "arch/arm/mach-at91/Kconfig"
+
 source "arch/arm/cpu/arm926ejs/davinci/Kconfig"
 
 source "arch/arm/cpu/arm1176/bcm2835/Kconfig"
@@ -876,44 +755,25 @@ source "arch/arm/cpu/armv7/Kconfig"
 source "board/aristainetos/Kconfig"
 source "board/BuR/kwb/Kconfig"
 source "board/BuR/tseries/Kconfig"
-source "board/BuS/eb_cpux9k2/Kconfig"
-source "board/BuS/vl_ma2sc/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/db-mv784mp-gp/Kconfig"
 source "board/Marvell/dkb/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
-source "board/afeb9260/Kconfig"
 source "board/altera/socfpga/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/integrator/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
-source "board/atmel/at91rm9200ek/Kconfig"
-source "board/atmel/at91sam9260ek/Kconfig"
-source "board/atmel/at91sam9261ek/Kconfig"
-source "board/atmel/at91sam9263ek/Kconfig"
-source "board/atmel/at91sam9m10g45ek/Kconfig"
-source "board/atmel/at91sam9n12ek/Kconfig"
-source "board/atmel/at91sam9rlek/Kconfig"
-source "board/atmel/at91sam9x5ek/Kconfig"
-source "board/atmel/sama5d3_xplained/Kconfig"
-source "board/atmel/sama5d3xek/Kconfig"
-source "board/atmel/sama5d4_xplained/Kconfig"
-source "board/atmel/sama5d4ek/Kconfig"
 source "board/bachmann/ot1200/Kconfig"
 source "board/balloon3/Kconfig"
 source "board/barco/platinum/Kconfig"
 source "board/barco/titanium/Kconfig"
 source "board/bluegiga/apx4devkit/Kconfig"
-source "board/bluewater/snapper9260/Kconfig"
 source "board/boundary/nitrogen6x/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
-source "board/calao/sbc35_a9g20/Kconfig"
-source "board/calao/tny_a9260/Kconfig"
-source "board/calao/usb_a9263/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/cm4008/Kconfig"
 source "board/cm41xx/Kconfig"
@@ -924,13 +784,8 @@ source "board/creative/xfi3/Kconfig"
 source "board/davedenx/qong/Kconfig"
 source "board/denx/m28evk/Kconfig"
 source "board/denx/m53evk/Kconfig"
-source "board/egnite/ethernut5/Kconfig"
 source "board/embest/mx6boards/Kconfig"
-source "board/esd/meesc/Kconfig"
-source "board/esd/otc570/Kconfig"
 source "board/esg/ima3-mx53/Kconfig"
-source "board/eukrea/cpu9260/Kconfig"
-source "board/eukrea/cpuat91/Kconfig"
 source "board/faraday/a320evb/Kconfig"
 source "board/freescale/ls2085a/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
@@ -975,18 +830,13 @@ source "board/phytec/pcm051/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
 source "board/pxa255_idp/Kconfig"
 source "board/raspberrypi/rpi/Kconfig"
-source "board/ronetix/pm9261/Kconfig"
-source "board/ronetix/pm9263/Kconfig"
-source "board/ronetix/pm9g45/Kconfig"
 source "board/samsung/smdk2410/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
 source "board/scb9328/Kconfig"
 source "board/schulercontrol/sc_sps_1/Kconfig"
-source "board/siemens/corvus/Kconfig"
 source "board/siemens/draco/Kconfig"
 source "board/siemens/pxm2/Kconfig"
 source "board/siemens/rut/Kconfig"
-source "board/siemens/taurus/Kconfig"
 source "board/silica/pengwyn/Kconfig"
 source "board/solidrun/hummingboard/Kconfig"
 source "board/spear/spear300/Kconfig"
@@ -1000,7 +850,6 @@ source "board/st/stv0991/Kconfig"
 source "board/sunxi/Kconfig"
 source "board/syteco/jadecpu/Kconfig"
 source "board/syteco/zmx25/Kconfig"
-source "board/taskit/stamp9g20/Kconfig"
 source "board/tbs/tbs2910/Kconfig"
 source "board/ti/am335x/Kconfig"
 source "board/ti/am43xx/Kconfig"
