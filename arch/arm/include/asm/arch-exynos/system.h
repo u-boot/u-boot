@@ -37,7 +37,6 @@ struct exynos5_sysreg {
 
 #define USB20_PHY_CFG_HOST_LINK_EN	(1 << 0)
 
-#ifdef CONFIG_EXYNOS5420
 /*
  * Data Synchronization Barrier acts as a special kind of memory barrier.
  * No instruction in program order after this instruction executes until
@@ -125,7 +124,6 @@ struct exynos5_sysreg {
 /* Write L2 Auxilliary Control register */
 #define mcr_l2_aux_ctlr(x) __asm__ __volatile__	\
 			("mcr     p15, 1, %0, c15, c0, 0\n\t" : : "r"(x))
-#endif
 
 void set_usbhost_mode(unsigned int mode);
 void set_system_display_ctrl(void);

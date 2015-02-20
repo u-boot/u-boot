@@ -47,42 +47,6 @@ enum {
 
 #ifdef CONFIG_EXYNOS5420
 /*
- * Enable ECC by setting L2CTLR[21].
- * Set L2CTLR[7] to make tag ram latency 3 cycles and
- * set L2CTLR[1] to make data ram latency 3 cycles.
- * We need to make RAM latency of 3 cycles here because cores
- * power ON and OFF while switching. And everytime a core powers
- * ON, iROM provides it a default L2CTLR value 0x400 which stands
- * for TAG RAM setup of 1 cycle. Hence, we face a need of
- * restoring data and tag latency values.
- */
-static void configure_l2_ctlr(void)
-{
-	uint32_t val;
-
-	mrc_l2_ctlr(val);
-	val |= (1 << 21);
-	val |= (1 << 7);
-	val |= (1 << 1);
-	mcr_l2_ctlr(val);
-}
-
-/*
- * Set L2ACTLR[27] to prevent the clock generator from stopping
- * the L2 logic clock.
- * Set L2ACTLR[3] to disable clean/evict push to external.
- */
-static void configure_l2_actlr(void)
-{
-	uint32_t val;
-
-	mrc_l2_aux_ctlr(val);
-	val |= (1 << 27);
-	val |= (1 << 3);
-	mcr_l2_aux_ctlr(val);
-}
-
-/*
  * Power up secondary CPUs.
  */
 static void secondary_cpu_start(void)
@@ -185,10 +149,6 @@ static void power_down_core(void)
  */
 static void secondary_cores_configure(void)
 {
-	/* Setup L2 cache */
-	configure_l2_ctlr();
-	v7_enable_l2_hazard_detect();
-
 	/* Clear secondary boot iRAM base */
 	writel(0x0, (CONFIG_EXYNOS_RELOCATE_CODE_BASE + 0x1C));
 
@@ -213,6 +173,21 @@ int do_lowlevel_init(void)
 	int actions = 0;
 
 	arch_cpu_init();
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+	/*
+	 * Init L2 cache parameters here for use by boot and resume
+	 *
+	 * These are here instead of in v7_outer_cache_enable() so that the
+	 * L2 cache settings get properly set even at resume time or if we're
+	 * running U-Boot with the cache off.  The kernel still needs us to
+	 * set these for it.
+	 */
+	configure_l2_ctlr();
+	configure_l2_actlr();
+	dsb();
+	isb();
+#endif
 
 #ifdef CONFIG_EXYNOS5420
 	relocate_wait_code();
