@@ -37,30 +37,32 @@ void enable_caches(void)
  */
 static void exynos5_set_l2cache_params(void)
 {
-	unsigned int val = 0;
+	unsigned int l2ctlr = 0, l2actlr = 0;
 
 	/* Read L2CTLR value */
-	asm volatile("mrc p15, 1, %0, c9, c0, 2\n" : "=r"(val));
+	asm volatile("mrc p15, 1, %0, c9, c0, 2\n" : "=r"(l2ctlr));
 
-	/* Set cache setup and latency cycles */
-	val |= CACHE_TAG_RAM_SETUP |
-		CACHE_DATA_RAM_SETUP |
-		CACHE_TAG_RAM_LATENCY |
+	/* Set cache latency cycles */
+	l2ctlr |= CACHE_TAG_RAM_LATENCY |
 		CACHE_DATA_RAM_LATENCY;
-
-	/* Write new vlaue to L2CTLR */
-	asm volatile("mcr p15, 1, %0, c9, c0, 2\n" : : "r"(val));
 
 	if (proid_is_exynos5420() || proid_is_exynos5800()) {
 		/* Read L2ACTLR value */
-		asm volatile("mrc	p15, 1, %0, c15, c0, 0" : "=r" (val));
+		asm volatile("mrc p15, 1, %0, c15, c0, 0" : "=r" (l2actlr));
 
 		/* Disable clean/evict push to external */
-		val |= CACHE_DISABLE_CLEAN_EVICT;
+		l2actlr |= CACHE_DISABLE_CLEAN_EVICT;
 
 		/* Write new vlaue to L2ACTLR */
-		asm volatile("mcr	p15, 1, %0, c15, c0, 0" : : "r" (val));
+		asm volatile("mcr p15, 1, %0, c15, c0, 0" : : "r" (l2actlr));
+	} else {
+		/* Set cache setup cycles */
+		l2ctlr |= CACHE_TAG_RAM_SETUP |
+			CACHE_DATA_RAM_SETUP;
 	}
+
+	/* Write new vlaue to L2CTLR */
+	asm volatile("mcr p15, 1, %0, c9, c0, 2\n" : : "r"(l2ctlr));
 }
 
 /*
