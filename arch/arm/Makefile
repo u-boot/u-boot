@@ -2,6 +2,13 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+# Machine directory name.  This list is sorted alphanumerically
+# by CONFIG_* macro name.
+
+machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))
+
+libs-y += $(machdirs)
+
 head-y := arch/arm/cpu/$(CPU)/start.o
 
 ifeq ($(CONFIG_SPL_BUILD),y)
@@ -27,3 +34,6 @@ endif
 ifneq (,$(filter $(SOC), armada-xp kirkwood))
 libs-y += arch/arm/mvebu-common/
 endif
+
+# deprecated
+-include $(machdirs)/config.mk
