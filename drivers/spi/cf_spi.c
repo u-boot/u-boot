@@ -46,6 +46,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SPI_MODE_MOD	0x00200000
 #define SPI_DBLRATE	0x00100000
 
+static inline struct cf_spi_slave *to_cf_spi_slave(struct spi_slave *slave)
+{
+	return container_of(slave, struct cf_spi_slave, slave);
+}
+
 void cfspi_init(void)
 {
 	volatile dspi_t *dspi = (dspi_t *) MMAP_DSPI;
@@ -105,7 +110,7 @@ u16 cfspi_rx(void)
 int cfspi_xfer(struct spi_slave *slave, uint bitlen, const void *dout,
 	       void *din, ulong flags)
 {
-	struct cf_spi_slave *cfslave = (struct cf_spi_slave *)slave;
+	struct cf_spi_slave *cfslave = to_cf_spi_slave(slave);
 	u16 *spi_rd16 = NULL, *spi_wr16 = NULL;
 	u8 *spi_rd = NULL, *spi_wr = NULL;
 	static u32 ctrl = 0;
@@ -326,7 +331,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 void spi_free_slave(struct spi_slave *slave)
 {
-	free(slave);
+	struct cf_spi_slave *cfslave = to_cf_spi_slave(slave);
+
+	free(cfslave);
 }
 
 int spi_claim_bus(struct spi_slave *slave)
