@@ -15,7 +15,7 @@
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/ap.h>
-#include "../tegra-common/cpu.h"
+#include "../cpu.h"
 
 /* Tegra124-specific CPU init code */
 

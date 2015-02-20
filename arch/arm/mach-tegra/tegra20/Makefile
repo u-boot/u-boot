@@ -1,11 +1,15 @@
 #
 # (C) Copyright 2010,2011 Nvidia Corporation.
 #
-# (C) Copyright 2000-2008
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
 # SPDX-License-Identifier:	GPL-2.0+
 #
+
+ifdef CONFIG_SPL_BUILD
+obj-y	+= cpu.o
+else
+obj-$(CONFIG_PWM_TEGRA) += pwm.o
+obj-$(CONFIG_VIDEO_TEGRA) += display.o
+endif
 
 # The AVP is ARMv4T architecture so we must use special compiler
 # flags for any startup files it might use.

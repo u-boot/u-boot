@@ -22,7 +22,7 @@
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
-#include "../tegra-common/cpu.h"
+#include "../cpu.h"
 
 /* Tegra114-specific CPU init code */
 static void enable_cpu_power_rail(void)

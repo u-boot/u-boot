@@ -32,7 +32,6 @@ obj-$(CONFIG_IPROC) += iproc-common/
 obj-$(CONFIG_KONA) += kona-common/
 obj-$(CONFIG_OMAP_COMMON) += omap-common/
 obj-$(CONFIG_SYS_ARCH_TIMER) += arch_timer.o
-obj-$(CONFIG_TEGRA) += tegra-common/
 
 ifneq (,$(filter s5pc1xx exynos,$(SOC)))
 obj-y += s5p-common/
@@ -57,7 +56,6 @@ obj-$(CONFIG_ARCH_S5PC1XX) += s5pc1xx/
 obj-$(CONFIG_SOCFPGA) += socfpga/
 obj-$(if $(filter stv0991,$(SOC)),y) += stv0991/
 obj-$(CONFIG_ARCH_SUNXI) += sunxi/
-obj-$(CONFIG_TEGRA20) += tegra20/
 obj-$(CONFIG_U8500) += u8500/
 obj-$(CONFIG_ARCH_UNIPHIER) += uniphier/
 obj-$(CONFIG_VF610) += vf610/

@@ -1,8 +1,5 @@
 #
-# Copyright (c) 2010-2012, NVIDIA CORPORATION.  All rights reserved.
-#
-# (C) Copyright 2000-2008
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Copyright (c) 2010-2013, NVIDIA CORPORATION.  All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms and conditions of the GNU General Public License,
@@ -17,4 +14,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-obj-y	+= cpu.o
+obj-$(CONFIG_SPL_BUILD) += cpu.o
+
+obj-y	+= clock.o funcmux.o pinmux.o

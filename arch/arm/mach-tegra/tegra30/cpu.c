@@ -22,7 +22,7 @@
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/tegra_i2c.h>
-#include "../tegra-common/cpu.h"
+#include "../cpu.h"
 
 /* Tegra30-specific CPU init code */
 void tegra_i2c_ll_write_addr(uint addr, uint config)

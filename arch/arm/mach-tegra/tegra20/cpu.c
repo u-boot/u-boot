@@ -18,7 +18,7 @@
 #include <asm/io.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/pmc.h>
-#include "../tegra-common/cpu.h"
+#include "../cpu.h"
 
 static void enable_cpu_power_rail(void)
 {

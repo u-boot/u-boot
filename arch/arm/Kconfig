@@ -742,7 +742,7 @@ source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
 source "arch/arm/cpu/armv7/s5pc1xx/Kconfig"
 
-source "arch/arm/cpu/armv7/tegra-common/Kconfig"
+source "arch/arm/mach-tegra/Kconfig"
 
 source "arch/arm/cpu/armv7/uniphier/Kconfig"
 

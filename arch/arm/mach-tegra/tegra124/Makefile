@@ -5,4 +5,9 @@
 # SPDX-License-Identifier:     GPL-2.0+
 #
 
-obj-y	+= cpu.o
+obj-$(CONFIG_SPL_BUILD) += cpu.o
+
+obj-y	+= clock.o
+obj-y	+= funcmux.o
+obj-y	+= pinmux.o
+obj-y	+= xusb-padctl.o

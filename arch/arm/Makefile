@@ -5,6 +5,8 @@
 # Machine directory name.  This list is sorted alphanumerically
 # by CONFIG_* macro name.
 machine-$(CONFIG_ARCH_AT91)		+= at91
+# TODO: rename CONFIG_TEGRA -> CONFIG_ARCH_TEGRA
+machine-$(CONFIG_TEGRA)			+= tegra
 
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))
 

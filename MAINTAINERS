@@ -146,9 +146,7 @@ ARM TEGRA
 M:	Tom Warren <twarren@nvidia.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-tegra.git
-F:	arch/arm/cpu/arm720t/tegra*/
-F:	arch/arm/cpu/armv7/tegra*/
-F:	arch/arm/cpu/tegra*/
+F:	arch/arm/mach-tegra/
 F:	arch/arm/include/asm/arch-tegra*/
 
 ARM TI
