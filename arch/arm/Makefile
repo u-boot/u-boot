@@ -11,6 +11,8 @@ machine-$(CONFIG_ARCH_HIGHBANK)		+= highbank
 machine-$(CONFIG_KIRKWOOD)		+= kirkwood
 # TODO: rename CONFIG_TEGRA -> CONFIG_ARCH_TEGRA
 machine-$(CONFIG_ARCH_NOMADIK)		+= nomadik
+# TODO: rename CONFIG_ORION5X -> CONFIG_ARCH_ORION5X
+machine-$(CONFIG_ORION5X)		+= orion5x
 machine-$(CONFIG_TEGRA)			+= tegra
 
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))

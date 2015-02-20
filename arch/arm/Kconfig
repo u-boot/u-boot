@@ -736,7 +736,7 @@ source "arch/arm/cpu/armv7/omap4/Kconfig"
 
 source "arch/arm/cpu/armv7/omap5/Kconfig"
 
-source "arch/arm/cpu/arm926ejs/orion5x/Kconfig"
+source "arch/arm/mach-orion5x/Kconfig"
 
 source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
