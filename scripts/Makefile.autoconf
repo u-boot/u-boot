@@ -85,15 +85,26 @@ include/config.h: scripts/Makefile.autoconf create_symlink FORCE
 	$(call filechk,config_h)
 
 # symbolic links
+# If arch/$(ARCH)/mach-$(SOC)/include/mach exists,
+# make a symbolic link to that directory.
+# Otherwise, create a symbolic link to arch/$(ARCH)/include/asm/arch-$(SOC).
 PHONY += create_symlink
 create_symlink:
 ifneq ($(KBUILD_SRC),)
 	$(Q)mkdir -p include/asm
-	$(Q)ln -fsn $(KBUILD_SRC)/arch/$(ARCH)/include/asm/arch-$(if $(SOC),$(SOC),$(CPU)) \
-		include/asm/arch
+	$(Q)if [ -d $(KBUILD_SRC)/arch/$(ARCH)/mach-$(SOC)/include/mach ]; then	\
+		dest=arch/$(ARCH)/mach-$(SOC)/include/mach;			\
+	else									\
+		dest=arch/$(ARCH)/include/asm/arch-$(if $(SOC),$(SOC),$(CPU));	\
+	fi;									\
+	ln -fsn $(KBUILD_SRC)/$$dest include/asm/arch
 else
-	$(Q)ln -fsn arch-$(if $(SOC),$(SOC),$(CPU)) \
-		arch/$(ARCH)/include/asm/arch
+	$(Q)if [ -d arch/$(ARCH)/mach-$(SOC)/include/mach ]; then	\
+		dest=../../mach-$(SOC)/include/mach;			\
+	else								\
+		dest=arch-$(if $(SOC),$(SOC),$(CPU));			\
+	fi;								\
+	ln -fsn $$dest arch/$(ARCH)/include/asm/arch
 endif
 
 PHONY += FORCE
