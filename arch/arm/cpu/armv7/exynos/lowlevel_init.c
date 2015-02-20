@@ -32,6 +32,7 @@
 #include <asm/arch/periph.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/system.h>
+#include <asm/armv7.h>
 #include "common_setup.h"
 #include "exynos5_setup.h"
 
@@ -45,6 +46,61 @@ enum {
 };
 
 #ifdef CONFIG_EXYNOS5420
+/*
+ * Power up secondary CPUs.
+ */
+static void secondary_cpu_start(void)
+{
+	v7_enable_smp(EXYNOS5420_INFORM_BASE);
+	svc32_mode_en();
+	set_pc(CONFIG_EXYNOS_RELOCATE_CODE_BASE);
+}
+
+/*
+ * This is the entry point of hotplug-in and
+ * cluster switching.
+ */
+static void low_power_start(void)
+{
+	uint32_t val, reg_val;
+
+	reg_val = readl(EXYNOS5420_SPARE_BASE);
+	if (reg_val != CPU_RST_FLAG_VAL) {
+		writel(0x0, CONFIG_LOWPOWER_FLAG);
+		set_pc(0x0);
+	}
+
+	reg_val = readl(CONFIG_PHY_IRAM_BASE + 0x4);
+	if (reg_val != (uint32_t)&low_power_start) {
+		/* Store jump address as low_power_start if not present */
+		writel((uint32_t)&low_power_start, CONFIG_PHY_IRAM_BASE + 0x4);
+		dsb();
+		sev();
+	}
+
+	/* Set the CPU to SVC32 mode */
+	svc32_mode_en();
+	v7_enable_l2_hazard_detect();
+
+	/* Invalidate L1 & TLB */
+	val = 0x0;
+	mcr_tlb(val);
+	mcr_icache(val);
+
+	/* Disable MMU stuff and caches */
+	mrc_sctlr(val);
+
+	val &= ~((0x2 << 12) | 0x7);
+	val |= ((0x1 << 12) | (0x8 << 8) | 0x2);
+	mcr_sctlr(val);
+
+	/* CPU state is hotplug or reset */
+	secondary_cpu_start();
+
+	/* Core should not enter into WFI here */
+	wfi();
+}
+
 /*
  * Pointer to this function is stored in iRam which is used
  * for jump and power down of a specific core.
@@ -81,29 +137,25 @@ static void power_down_core(void)
  */
 static void secondary_cores_configure(void)
 {
-	uint32_t core_id;
+	/* Setup L2 cache */
+	v7_enable_l2_hazard_detect();
 
-	/* Store jump address for power down of secondary cores */
+	/* Clear secondary boot iRAM base */
+	writel(0x0, (CONFIG_EXYNOS_RELOCATE_CODE_BASE + 0x1C));
+
+	/* set lowpower flag and address */
+	writel(CPU_RST_FLAG_VAL, CONFIG_LOWPOWER_FLAG);
+	writel((uint32_t)&low_power_start, CONFIG_LOWPOWER_ADDR);
+	writel(CPU_RST_FLAG_VAL, EXYNOS5420_SPARE_BASE);
+	/* Store jump address for power down */
 	writel((uint32_t)&power_down_core, CONFIG_PHY_IRAM_BASE + 0x4);
 
 	/* Need all core power down check */
 	dsb();
 	sev();
-
-	/*
-	 * Power down all cores(secondary) while primary core must
-	 * wait for all cores to go down.
-	 */
-	for (core_id = 1; core_id != CONFIG_CORE_COUNT; core_id++) {
-		while ((readl(EXYNOS5420_CPU_STATUS_BASE
-			+ (core_id * CPU_CONFIG_STATUS_OFFSET))
-			& 0xff) != 0x0) {
-			isb();
-			sev();
-		}
-		isb();
-	}
 }
+
+extern void relocate_wait_code(void);
 #endif
 
 int do_lowlevel_init(void)
@@ -114,6 +166,8 @@ int do_lowlevel_init(void)
 	arch_cpu_init();
 
 #ifdef CONFIG_EXYNOS5420
+	relocate_wait_code();
+
 	/* Reconfigure secondary cores */
 	secondary_cores_configure();
 #endif
