@@ -74,6 +74,9 @@
 #define ZYNQ_NAND_ECC_BUSY	(1 << 6)	/* ECC block is busy */
 #define ZYNQ_NAND_ECC_MASK	0x00FFFFFF	/* ECC value mask */
 
+#define ZYNQ_NAND_ROW_ADDR_CYCL_MASK	0x0F
+#define ZYNQ_NAND_COL_ADDR_CYCL_MASK	0xF0
+
 /* NAND MIO buswidth count*/
 #define ZYNQ_NAND_MIO_NUM_NAND_8BIT	13
 #define ZYNQ_NAND_MIO_NUM_NAND_16BIT	8
@@ -132,7 +135,6 @@ struct zynq_nand_info {
 	void __iomem		*nand_base;
 	unsigned long		end_cmd_pending;
 	unsigned long		end_cmd;
-	u8			addr_cycle_chng;
 };
 
 #define ONDIE_ECC_FEATURE_ADDR	0x90
@@ -811,11 +813,15 @@ static void zynq_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 	else
 		end_cmd = curr_cmd->end_cmd;
 
-	if (((command == NAND_CMD_READ0) ||
-            (command == NAND_CMD_SEQIN)) && xnand->addr_cycle_chng)
-		addr_cycles = curr_cmd->addr_cycles - 1;
-	else
+	if ((command == NAND_CMD_READ0) ||
+            (command == NAND_CMD_SEQIN)) {
+		addr_cycles = chip->onfi_params.addr_cycles &
+				ZYNQ_NAND_ROW_ADDR_CYCL_MASK;
+		addr_cycles += ((chip->onfi_params.addr_cycles &
+				ZYNQ_NAND_COL_ADDR_CYCL_MASK) >> 4);
+	} else {
 		addr_cycles = curr_cmd->addr_cycles;
+	}
 
 	cmd_phase_addr = (unsigned long)xnand->nand_base	|
 			(addr_cycles << ADDR_CYCLES_SHIFT)	|
@@ -1109,9 +1115,6 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	/* Read manufacturer and device IDs */
 	maf_id = nand_chip->read_byte(mtd);
 	dev_id = nand_chip->read_byte(mtd);
-
-	if (maf_id == 0x01 && dev_id == 0xf1)
-		xnand->addr_cycle_chng = 1;
 
 	if ((maf_id == 0x2c) && ((dev_id == 0xf1) ||
 				 (dev_id == 0xa1) || (dev_id == 0xb1) ||
