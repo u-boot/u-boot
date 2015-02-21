@@ -13,6 +13,22 @@
 #ifndef _SUNXI_COMMON_CONFIG_H
 #define _SUNXI_COMMON_CONFIG_H
 
+#ifdef CONFIG_OLD_SUNXI_KERNEL_COMPAT
+/*
+ * The U-Boot workarounds bugs in the outdated buggy sunxi-3.4 kernels at the
+ * expense of restricting some features, so the regular machine id values can
+ * be used.
+ */
+# define CONFIG_MACH_TYPE_COMPAT_REV	0
+#else
+/*
+ * A compatibility guard to prevent loading outdated buggy sunxi-3.4 kernels.
+ * Only sunxi-3.4 kernels with appropriate fixes applied are able to pass
+ * beyond the machine id check.
+ */
+# define CONFIG_MACH_TYPE_COMPAT_REV	1
+#endif
+
 /*
  * High Level Configuration Options
  */
