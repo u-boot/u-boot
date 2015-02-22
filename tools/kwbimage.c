@@ -498,6 +498,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		binhdrsz = sizeof(struct opt_hdr_v1) +
 			(binarye->binary.nargs + 1) * sizeof(unsigned int) +
 			s.st_size;
+		binhdrsz = ALIGN_SUP(binhdrsz, 32);
 		hdr->headersz_lsb = binhdrsz & 0xFFFF;
 		hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
 
