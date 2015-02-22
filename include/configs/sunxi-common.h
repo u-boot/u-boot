@@ -13,6 +13,22 @@
 #ifndef _SUNXI_COMMON_CONFIG_H
 #define _SUNXI_COMMON_CONFIG_H
 
+#ifdef CONFIG_OLD_SUNXI_KERNEL_COMPAT
+/*
+ * The U-Boot workarounds bugs in the outdated buggy sunxi-3.4 kernels at the
+ * expense of restricting some features, so the regular machine id values can
+ * be used.
+ */
+# define CONFIG_MACH_TYPE_COMPAT_REV	0
+#else
+/*
+ * A compatibility guard to prevent loading outdated buggy sunxi-3.4 kernels.
+ * Only sunxi-3.4 kernels with appropriate fixes applied are able to pass
+ * beyond the machine id check.
+ */
+# define CONFIG_MACH_TYPE_COMPAT_REV	1
+#endif
+
 /*
  * High Level Configuration Options
  */
@@ -183,6 +199,22 @@
 #define CONFIG_SYS_I2C_MVTWSI
 #define CONFIG_SYS_I2C_SPEED		400000
 #define CONFIG_SYS_I2C_SLAVE		0x7f
+
+#if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
+#define CONFIG_SYS_I2C_SOFT
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x00
+#define CONFIG_VIDEO_LCD_I2C_BUS	0 /* The lcd panel soft i2c is bus 0 */
+#define CONFIG_SYS_SPD_BUS_NUM		1 /* And the axp209 i2c bus is bus 1 */
+/* We use pin names in Kconfig and sunxi_name_to_gpio() */
+#define CONFIG_SOFT_I2C_GPIO_SDA	soft_i2c_gpio_sda
+#define CONFIG_SOFT_I2C_GPIO_SCL	soft_i2c_gpio_scl
+#ifndef __ASSEMBLY__
+extern int soft_i2c_gpio_sda;
+extern int soft_i2c_gpio_scl;
+#endif
+#endif
+
 #define CONFIG_CMD_I2C
 
 /* PMU */
@@ -192,6 +224,20 @@
 
 #ifndef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX              1       /* UART0 */
+#endif
+
+#if CONFIG_CONS_INDEX == 1
+#ifdef CONFIG_MACH_SUN9I
+#define OF_STDOUT_PATH		"/soc/serial@07000000:115200"
+#else
+#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28000:115200"
+#endif
+#elif CONFIG_CONS_INDEX == 2 && defined(CONFIG_MACH_SUN5I)
+#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28400:115200"
+#elif CONFIG_CONS_INDEX == 5 && defined(CONFIG_MACH_SUN8I)
+#define OF_STDOUT_PATH		"/soc@01c00000/serial@01f02800:115200"
+#else
+#error Unsupported console port nr. Please fix stdout-path in sunxi-common.h.
 #endif
 
 /* GPIO */

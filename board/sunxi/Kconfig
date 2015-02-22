@@ -223,6 +223,14 @@ config USB0_VBUS_PIN
 	Set the Vbus enable pin for usb0 (otg). This takes a string in the
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
+config USB0_VBUS_DET
+	string "Vbus detect pin for usb0 (otg)"
+	depends on USB_MUSB_SUNXI
+	default ""
+	---help---
+	Set the Vbus detect pin for usb0 (otg). This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
 config USB1_VBUS_PIN
 	string "Vbus enable pin for usb1 (ehci0)"
 	default "PH6" if MACH_SUN4I || MACH_SUN7I
@@ -312,6 +320,14 @@ config VIDEO_LCD_POWER
 	Set the power enable pin for the LCD panel. This takes a string in the
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
+config VIDEO_LCD_RESET
+	string "LCD panel reset pin"
+	depends on VIDEO
+	default ""
+	---help---
+	Set the reset pin for the LCD panel. This takes a string in the format
+	understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
 config VIDEO_LCD_BL_EN
 	string "LCD panel backlight enable pin"
 	depends on VIDEO
@@ -335,6 +351,30 @@ config VIDEO_LCD_BL_PWM_ACTIVE_LOW
 	default y
 	---help---
 	Set this if the backlight pwm output is active low.
+
+config VIDEO_LCD_PANEL_I2C
+	bool "LCD panel needs to be configured via i2c"
+	depends on VIDEO
+	default m
+	---help---
+	Say y here if the LCD panel needs to be configured via i2c. This
+	will add a bitbang i2c controller using gpios to talk to the LCD.
+
+config VIDEO_LCD_PANEL_I2C_SDA
+	string "LCD panel i2c interface SDA pin"
+	depends on VIDEO_LCD_PANEL_I2C
+	default "PG12"
+	---help---
+	Set the SDA pin for the LCD i2c interface. This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
+config VIDEO_LCD_PANEL_I2C_SCL
+	string "LCD panel i2c interface SCL pin"
+	depends on VIDEO_LCD_PANEL_I2C
+	default "PG10"
+	---help---
+	Set the SCL pin for the LCD i2c interface. This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
 
 # Note only one of these may be selected at a time! But hidden choices are
@@ -373,6 +413,14 @@ config VIDEO_LCD_PANEL_HITACHI_TX18D42VM
 	select VIDEO_LCD_IF_LVDS
 	---help---
 	7.85" 1024x768 Hitachi tx18d42vm LCD panel support
+
+config VIDEO_LCD_TL059WV5C0
+	bool "tl059wv5c0 LCD panel"
+	select VIDEO_LCD_PANEL_I2C
+	select VIDEO_LCD_IF_PARALLEL
+	---help---
+	6" 480x800 tl059wv5c0 panel support, as used on the Utoo P66 and
+	Aigo M60/M608/M606 tablets.
 
 endchoice
 

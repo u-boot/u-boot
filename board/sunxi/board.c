@@ -33,6 +33,12 @@
 #include <linux/usb/musb.h>
 #include <net.h>
 
+#if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
+/* So that we can use pin names in Kconfig and sunxi_name_to_gpio() */
+int soft_i2c_gpio_sda;
+int soft_i2c_gpio_scl;
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /* add board specific code here */
@@ -152,6 +158,10 @@ void i2c_init_board(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUNXI_GPB0_TWI0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUNXI_GPB0_TWI0);
 	clock_twi_onoff(0, 1);
+#if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
+	soft_i2c_gpio_sda = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SDA);
+	soft_i2c_gpio_scl = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SCL);
+#endif
 }
 
 #ifdef CONFIG_SPL_BUILD

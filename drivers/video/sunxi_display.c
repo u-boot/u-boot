@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
+#include <i2c.h>
 #include <video_fb.h>
 #include "videomodes.h"
 #include "hitachi_tx18d42vm_lcd.h"
@@ -592,7 +593,7 @@ static void sunxi_lcdc_enable(void)
 
 static void sunxi_lcdc_panel_enable(void)
 {
-	int pin;
+	int pin, reset_pin;
 
 	/*
 	 * Start with backlight disabled to avoid the screen flashing to
@@ -610,6 +611,12 @@ static void sunxi_lcdc_panel_enable(void)
 		gpio_direction_output(pin, PWM_OFF);
 	}
 
+	reset_pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_RESET);
+	if (reset_pin != -1) {
+		gpio_request(reset_pin, "lcd_reset");
+		gpio_direction_output(reset_pin, 0); /* Assert reset */
+	}
+
 	/* Give the backlight some time to turn off and power up the panel. */
 	mdelay(40);
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_POWER);
@@ -617,6 +624,9 @@ static void sunxi_lcdc_panel_enable(void)
 		gpio_request(pin, "lcd_power");
 		gpio_direction_output(pin, 1);
 	}
+
+	if (reset_pin != -1)
+		gpio_direction_output(reset_pin, 1); /* De-assert reset */
 }
 
 static void sunxi_lcdc_backlight_enable(void)
@@ -1020,6 +1030,12 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		if (IS_ENABLED(CONFIG_VIDEO_LCD_HITACHI_TX18D42VM)) {
 			mdelay(50); /* Wait for lcd controller power on */
 			hitachi_tx18d42vm_init();
+		}
+		if (IS_ENABLED(CONFIG_VIDEO_LCD_TL059WV5C0)) {
+			unsigned int orig_i2c_bus = i2c_get_bus_num();
+			i2c_set_bus_num(CONFIG_VIDEO_LCD_I2C_BUS);
+			i2c_reg_write(0x5c, 0x04, 0x42); /* Turn on the LCD */
+			i2c_set_bus_num(orig_i2c_bus);
 		}
 		sunxi_composer_mode_set(mode, address);
 		sunxi_lcdc_tcon0_mode_set(mode, false);
