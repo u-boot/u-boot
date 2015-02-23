@@ -21,10 +21,11 @@ enum omap_dwc3_vbus_id_status {
 
 struct dwc3_omap_device {
 	void *base;
+	int index;
 	enum dwc3_omap_utmi_mode utmi_mode;
 	enum omap_dwc3_vbus_id_status vbus_id_status;
 };
 
 int dwc3_omap_uboot_init(struct dwc3_omap_device *dev);
-void dwc3_omap_uboot_exit(void);
+void dwc3_omap_uboot_exit(int index);
 #endif /* __DWC3_OMAP_UBOOT_H_ */

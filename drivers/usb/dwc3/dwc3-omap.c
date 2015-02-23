@@ -119,9 +119,11 @@ struct dwc3_omap {
 	u32			irq0_offset;
 
 	u32			dma_status:1;
+	struct list_head	list;
+	u32			index;
 };
 
-struct dwc3_omap *omap;
+static LIST_HEAD(dwc3_omap_list);
 
 static inline u32 dwc3_omap_readl(void __iomem *base, u32 offset)
 {
@@ -363,12 +365,14 @@ int dwc3_omap_uboot_init(struct dwc3_omap_device *omap_dev)
 {
 	u32			reg;
 	struct device		*dev;
+	struct dwc3_omap	*omap;
 
 	omap = devm_kzalloc(dev, sizeof(*omap), GFP_KERNEL);
 	if (!omap)
 		return -ENOMEM;
 
 	omap->base	= omap_dev->base;
+	omap->index	= omap_dev->index;
 
 	dwc3_omap_map_offset(omap);
 	dwc3_omap_set_utmi_mode(omap, omap_dev->utmi_mode);
@@ -380,6 +384,7 @@ int dwc3_omap_uboot_init(struct dwc3_omap_device *omap_dev)
 	dwc3_omap_set_mailbox(omap, omap_dev->vbus_id_status);
 
 	dwc3_omap_enable_irqs(omap);
+	list_add_tail(&omap->list, &dwc3_omap_list);
 
 	return 0;
 }
@@ -389,16 +394,25 @@ int dwc3_omap_uboot_init(struct dwc3_omap_device *omap_dev)
  * @index: index of this controller
  *
  * Performs cleanup of memory allocated in dwc3_omap_uboot_init
- * (equivalent to dwc3_omap_remove in linux).
+ * (equivalent to dwc3_omap_remove in linux). index of _this_ controller
+ * should be passed and should match with the index passed in
+ * dwc3_omap_device during init.
  *
  * Generally called from board file.
  */
-void dwc3_omap_uboot_exit(void)
+void dwc3_omap_uboot_exit(int index)
 {
-	dwc3_omap_disable_irqs(omap);
-	kfree(omap);
+	struct dwc3_omap *omap = NULL;
 
-	return 0;
+	list_for_each_entry(omap, &dwc3_omap_list, list) {
+		if (omap->index != index)
+			continue;
+
+		dwc3_omap_disable_irqs(omap);
+		list_del(&omap->list);
+		kfree(omap);
+		break;
+	}
 }
 
 MODULE_ALIAS("platform:omap-dwc3");
