@@ -68,6 +68,7 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 exit:
 	g_dnl_unregister();
+	board_usb_cleanup(controller_index, USB_INIT_DEVICE);
 done:
 	dfu_free_entities();
 

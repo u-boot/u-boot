@@ -1090,4 +1090,10 @@ int board_usb_init(int index, enum usb_init_type init)
 {
 	return 0;
 }
+
+__weak
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	return 0;
+}
 /* EOF */
