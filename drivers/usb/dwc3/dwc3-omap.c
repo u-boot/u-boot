@@ -17,6 +17,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <dwc3-omap-uboot.h>
 #include <linux/usb/dwc3-omap.h>
 #include <linux/ioport.h>
 
@@ -119,6 +120,8 @@ struct dwc3_omap {
 
 	u32			dma_status:1;
 };
+
+struct dwc3_omap *omap;
 
 static inline u32 dwc3_omap_readl(void __iomem *base, u32 offset)
 {
@@ -278,15 +281,6 @@ static irqreturn_t dwc3_omap_interrupt(int irq, void *_omap)
 	return IRQ_HANDLED;
 }
 
-static int dwc3_omap_remove_core(struct device *dev, void *c)
-{
-	struct platform_device *pdev = to_platform_device(dev);
-
-	of_device_unregister(pdev);
-
-	return 0;
-}
-
 static void dwc3_omap_enable_irqs(struct dwc3_omap *omap)
 {
 	u32			reg;
@@ -315,12 +309,8 @@ static void dwc3_omap_disable_irqs(struct dwc3_omap *omap)
 	dwc3_omap_write_irq0_set(omap, 0x00);
 }
 
-static u64 dwc3_omap_dma_mask = DMA_BIT_MASK(32);
-
 static void dwc3_omap_map_offset(struct dwc3_omap *omap)
 {
-	struct device_node	*node = omap->dev->of_node;
-
 	/*
 	 * Differentiate between OMAP5 and AM437x.
 	 *
@@ -329,24 +319,20 @@ static void dwc3_omap_map_offset(struct dwc3_omap *omap)
 	 *
 	 * Using dt compatible to differentiate AM437x.
 	 */
-	if (of_device_is_compatible(node, "ti,am437x-dwc3")) {
-		omap->irq_eoi_offset = USBOTGSS_EOI_OFFSET;
-		omap->irq0_offset = USBOTGSS_IRQ0_OFFSET;
-		omap->irqmisc_offset = USBOTGSS_IRQMISC_OFFSET;
-		omap->utmi_otg_offset = USBOTGSS_UTMI_OTG_OFFSET;
-		omap->debug_offset = USBOTGSS_DEBUG_OFFSET;
-	}
+#ifdef CONFIG_AM43XX
+	omap->irq_eoi_offset = USBOTGSS_EOI_OFFSET;
+	omap->irq0_offset = USBOTGSS_IRQ0_OFFSET;
+	omap->irqmisc_offset = USBOTGSS_IRQMISC_OFFSET;
+	omap->utmi_otg_offset = USBOTGSS_UTMI_OTG_OFFSET;
+	omap->debug_offset = USBOTGSS_DEBUG_OFFSET;
+#endif
 }
 
-static void dwc3_omap_set_utmi_mode(struct dwc3_omap *omap)
+static void dwc3_omap_set_utmi_mode(struct dwc3_omap *omap, int utmi_mode)
 {
 	u32			reg;
-	struct device_node	*node = omap->dev->of_node;
-	int			utmi_mode = 0;
 
 	reg = dwc3_omap_read_utmi_status(omap);
-
-	of_property_read_u32(node, "utmi-mode", &utmi_mode);
 
 	switch (utmi_mode) {
 	case DWC3_OMAP_UTMI_MODE_SW:
@@ -362,94 +348,58 @@ static void dwc3_omap_set_utmi_mode(struct dwc3_omap *omap)
 	dwc3_omap_write_utmi_status(omap, reg);
 }
 
-static int dwc3_omap_probe(struct platform_device *pdev)
+/**
+ * dwc3_omap_uboot_init - dwc3 omap uboot initialization code
+ * @dev: struct dwc3_omap_device containing initialization data
+ *
+ * Entry point for dwc3 omap driver (equivalent to dwc3_omap_probe in linux
+ * kernel driver). Pointer to dwc3_omap_device should be passed containing
+ * base address and other initialization data. Returns '0' on success and
+ * a negative value on failure.
+ *
+ * Generally called from board_usb_init() implemented in board file.
+ */
+int dwc3_omap_uboot_init(struct dwc3_omap_device *omap_dev)
 {
-	struct device_node	*node = pdev->dev.of_node;
-
-	struct dwc3_omap	*omap;
-	struct resource		*res;
-	struct device		*dev = &pdev->dev;
-
-	int			ret;
 	u32			reg;
-
-	void __iomem		*base;
-
-	if (!node) {
-		dev_err(dev, "device node not found\n");
-		return -EINVAL;
-	}
+	struct device		*dev;
 
 	omap = devm_kzalloc(dev, sizeof(*omap), GFP_KERNEL);
 	if (!omap)
 		return -ENOMEM;
 
-	platform_set_drvdata(pdev, omap);
-
-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	base = devm_ioremap_resource(dev, res);
-	if (IS_ERR(base))
-		return PTR_ERR(base);
-
-	omap->dev	= dev;
-	omap->base	= base;
-	dev->dma_mask	= &dwc3_omap_dma_mask;
+	omap->base	= omap_dev->base;
 
 	dwc3_omap_map_offset(omap);
-	dwc3_omap_set_utmi_mode(omap);
+	dwc3_omap_set_utmi_mode(omap, omap_dev->utmi_mode);
 
 	/* check the DMA Status */
 	reg = dwc3_omap_readl(omap->base, USBOTGSS_SYSCONFIG);
 	omap->dma_status = !!(reg & USBOTGSS_SYSCONFIG_DMADISABLE);
 
+	dwc3_omap_set_mailbox(omap, omap_dev->vbus_id_status);
+
 	dwc3_omap_enable_irqs(omap);
 
-	ret = of_platform_populate(node, NULL, NULL, dev);
-	if (ret) {
-		dev_err(&pdev->dev, "failed to create dwc3 core\n");
-		goto err1;
-	}
-
 	return 0;
-
-err1:
-	dwc3_omap_disable_irqs(omap);
-
-err0:
-	return ret;
 }
 
-static int dwc3_omap_remove(struct platform_device *pdev)
+/**
+ * dwc3_omap_uboot_exit - dwc3 omap uboot cleanup code
+ * @index: index of this controller
+ *
+ * Performs cleanup of memory allocated in dwc3_omap_uboot_init
+ * (equivalent to dwc3_omap_remove in linux).
+ *
+ * Generally called from board file.
+ */
+void dwc3_omap_uboot_exit(void)
 {
-	struct dwc3_omap	*omap = platform_get_drvdata(pdev);
-
 	dwc3_omap_disable_irqs(omap);
-	device_for_each_child(&pdev->dev, NULL, dwc3_omap_remove_core);
+	kfree(omap);
 
 	return 0;
 }
-
-static const struct of_device_id of_dwc3_match[] = {
-	{
-		.compatible =	"ti,dwc3"
-	},
-	{
-		.compatible =	"ti,am437x-dwc3"
-	},
-	{ },
-};
-MODULE_DEVICE_TABLE(of, of_dwc3_match);
-
-static struct platform_driver dwc3_omap_driver = {
-	.probe		= dwc3_omap_probe,
-	.remove		= dwc3_omap_remove,
-	.driver		= {
-		.name	= "omap-dwc3",
-		.of_match_table	= of_dwc3_match,
-	},
-};
-
-module_platform_driver(dwc3_omap_driver);
 
 MODULE_ALIAS("platform:omap-dwc3");
 MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
