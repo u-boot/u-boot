@@ -54,4 +54,5 @@ typedef unsigned long phys_size_t;
 
 #endif /* __KERNEL__ */
 
+typedef unsigned long resource_size_t;
 #endif
