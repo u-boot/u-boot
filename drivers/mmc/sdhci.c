@@ -412,7 +412,7 @@ static int sdhci_init(struct mmc *mmc)
 	if (host->quirks & SDHCI_QUIRK_NO_CD) {
 		unsigned int status;
 
-		sdhci_writel(host, SDHCI_CTRL_CD_TEST_INS | SDHCI_CTRL_CD_TEST,
+		sdhci_writeb(host, SDHCI_CTRL_CD_TEST_INS | SDHCI_CTRL_CD_TEST,
 			SDHCI_HOST_CONTROL);
 
 		status = sdhci_readl(host, SDHCI_PRESENT_STATE);
