@@ -14,7 +14,7 @@ enum dma_data_direction {
 	DMA_FROM_DEVICE		= 2,
 };
 
-static void *dma_alloc_coherent(size_t len, unsigned long *handle)
+static inline void *dma_alloc_coherent(size_t len, unsigned long *handle)
 {
 	*handle = (unsigned long)memalign(ARCH_DMA_MINALIGN, len);
 	return (void *)*handle;
