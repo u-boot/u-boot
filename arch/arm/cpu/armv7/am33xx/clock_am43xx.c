@@ -111,9 +111,21 @@ void enable_basic_clocks(void)
 		&cmper->emifclkctrl,
 		&cmper->otfaemifclkctrl,
 		&cmper->qspiclkctrl,
+		&cmper->usb0clkctrl,
+		&cmper->usbphyocp2scp0clkctrl,
+		&cmper->usb1clkctrl,
+		&cmper->usbphyocp2scp1clkctrl,
 		0
 	};
 
+	setbits_le32(&cmper->usb0clkctrl,
+		     USBOTGSSX_CLKCTRL_OPTFCLKEN_REFCLK960);
+	setbits_le32(&cmwkup->usbphy0clkctrl,
+		     USBPHY0_CLKCTRL_OPTFCLKEN_CLK32K);
+	setbits_le32(&cmper->usb1clkctrl,
+		     USBOTGSSX_CLKCTRL_OPTFCLKEN_REFCLK960);
+	setbits_le32(&cmwkup->usbphy1clkctrl,
+		     USBPHY0_CLKCTRL_OPTFCLKEN_CLK32K);
 	do_enable_clocks(clk_domains, clk_modules_explicit_en, 1);
 
 	/* Select the Master osc clk as Timer2 clock source */
