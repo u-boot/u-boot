@@ -18,9 +18,7 @@
 #ifndef __DRIVERS_USB_DWC3_IO_H
 #define __DRIVERS_USB_DWC3_IO_H
 
-#include <linux/io.h>
-#include "debug.h"
-#include "core.h"
+#include <asm/io.h>
 
 static inline u32 dwc3_readl(void __iomem *base, u32 offset)
 {

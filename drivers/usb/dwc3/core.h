@@ -18,19 +18,10 @@
 #ifndef __DRIVERS_USB_DWC3_CORE_H
 #define __DRIVERS_USB_DWC3_CORE_H
 
-#include <linux/device.h>
-#include <linux/spinlock.h>
 #include <linux/ioport.h>
-#include <linux/list.h>
-#include <linux/dma-mapping.h>
-#include <linux/mm.h>
-#include <linux/debugfs.h>
 
 #include <linux/usb/ch9.h>
-#include <linux/usb/gadget.h>
 #include <linux/usb/otg.h>
-
-#include <linux/phy/phy.h>
 
 #define DWC3_MSG_MAX	500
 
@@ -981,7 +972,7 @@ struct dwc3_gadget_ep_cmd_params {
 void dwc3_set_mode(struct dwc3 *dwc, u32 mode);
 int dwc3_gadget_resize_tx_fifos(struct dwc3 *dwc);
 
-#if IS_ENABLED(CONFIG_USB_DWC3_HOST) || IS_ENABLED(CONFIG_USB_DWC3_DUAL_ROLE)
+#ifdef CONFIG_USB_DWC3_HOST
 int dwc3_host_init(struct dwc3 *dwc);
 void dwc3_host_exit(struct dwc3 *dwc);
 #else
@@ -991,7 +982,7 @@ static inline void dwc3_host_exit(struct dwc3 *dwc)
 { }
 #endif
 
-#if IS_ENABLED(CONFIG_USB_DWC3_GADGET) || IS_ENABLED(CONFIG_USB_DWC3_DUAL_ROLE)
+#ifdef CONFIG_USB_DWC3_GADGET
 int dwc3_gadget_init(struct dwc3 *dwc);
 void dwc3_gadget_exit(struct dwc3 *dwc);
 int dwc3_gadget_set_test_mode(struct dwc3 *dwc, int mode);
