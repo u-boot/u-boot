@@ -20,7 +20,6 @@
 #include <linux/interrupt.h>
 #include <linux/platform_device.h>
 #include <linux/platform_data/dwc3-omap.h>
-#include <linux/pm_runtime.h>
 #include <linux/dma-mapping.h>
 #include <linux/ioport.h>
 #include <linux/io.h>
@@ -509,13 +508,6 @@ static int dwc3_omap_probe(struct platform_device *pdev)
 	omap->vbus_reg	= vbus_reg;
 	dev->dma_mask	= &dwc3_omap_dma_mask;
 
-	pm_runtime_enable(dev);
-	ret = pm_runtime_get_sync(dev);
-	if (ret < 0) {
-		dev_err(dev, "get_sync failed with err %d\n", ret);
-		goto err0;
-	}
-
 	dwc3_omap_map_offset(omap);
 	dwc3_omap_set_utmi_mode(omap);
 
@@ -528,38 +520,33 @@ static int dwc3_omap_probe(struct platform_device *pdev)
 	if (ret) {
 		dev_err(dev, "failed to request IRQ #%d --> %d\n",
 				omap->irq, ret);
-		goto err1;
+		goto err0;
 	}
 
 	dwc3_omap_enable_irqs(omap);
 
 	ret = dwc3_omap_extcon_register(omap);
 	if (ret < 0)
-		goto err2;
+		goto err1;
 
 	ret = of_platform_populate(node, NULL, NULL, dev);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to create dwc3 core\n");
-		goto err3;
+		goto err2;
 	}
 
 	return 0;
 
-err3:
+err2:
 	if (omap->extcon_vbus_dev.edev)
 		extcon_unregister_interest(&omap->extcon_vbus_dev);
 	if (omap->extcon_id_dev.edev)
 		extcon_unregister_interest(&omap->extcon_id_dev);
 
-err2:
+err1:
 	dwc3_omap_disable_irqs(omap);
 
-err1:
-	pm_runtime_put_sync(dev);
-
 err0:
-	pm_runtime_disable(dev);
-
 	return ret;
 }
 
@@ -573,8 +560,6 @@ static int dwc3_omap_remove(struct platform_device *pdev)
 		extcon_unregister_interest(&omap->extcon_id_dev);
 	dwc3_omap_disable_irqs(omap);
 	device_for_each_child(&pdev->dev, NULL, dwc3_omap_remove_core);
-	pm_runtime_put_sync(&pdev->dev);
-	pm_runtime_disable(&pdev->dev);
 
 	return 0;
 }
@@ -590,48 +575,12 @@ static const struct of_device_id of_dwc3_match[] = {
 };
 MODULE_DEVICE_TABLE(of, of_dwc3_match);
 
-#ifdef CONFIG_PM_SLEEP
-static int dwc3_omap_suspend(struct device *dev)
-{
-	struct dwc3_omap	*omap = dev_get_drvdata(dev);
-
-	omap->utmi_otg_status = dwc3_omap_read_utmi_status(omap);
-	dwc3_omap_disable_irqs(omap);
-
-	return 0;
-}
-
-static int dwc3_omap_resume(struct device *dev)
-{
-	struct dwc3_omap	*omap = dev_get_drvdata(dev);
-
-	dwc3_omap_write_utmi_status(omap, omap->utmi_otg_status);
-	dwc3_omap_enable_irqs(omap);
-
-	pm_runtime_disable(dev);
-	pm_runtime_set_active(dev);
-	pm_runtime_enable(dev);
-
-	return 0;
-}
-
-static const struct dev_pm_ops dwc3_omap_dev_pm_ops = {
-
-	SET_SYSTEM_SLEEP_PM_OPS(dwc3_omap_suspend, dwc3_omap_resume)
-};
-
-#define DEV_PM_OPS	(&dwc3_omap_dev_pm_ops)
-#else
-#define DEV_PM_OPS	NULL
-#endif /* CONFIG_PM_SLEEP */
-
 static struct platform_driver dwc3_omap_driver = {
 	.probe		= dwc3_omap_probe,
 	.remove		= dwc3_omap_remove,
 	.driver		= {
 		.name	= "omap-dwc3",
 		.of_match_table	= of_dwc3_match,
-		.pm	= DEV_PM_OPS,
 	},
 };
 

@@ -1012,20 +1012,4 @@ static inline int dwc3_send_gadget_generic_command(struct dwc3 *dwc,
 { return 0; }
 #endif
 
-/* power management interface */
-#if !IS_ENABLED(CONFIG_USB_DWC3_HOST)
-int dwc3_gadget_suspend(struct dwc3 *dwc);
-int dwc3_gadget_resume(struct dwc3 *dwc);
-#else
-static inline int dwc3_gadget_suspend(struct dwc3 *dwc)
-{
-	return 0;
-}
-
-static inline int dwc3_gadget_resume(struct dwc3 *dwc)
-{
-	return 0;
-}
-#endif /* !IS_ENABLED(CONFIG_USB_DWC3_HOST) */
-
 #endif /* __DRIVERS_USB_DWC3_CORE_H */
