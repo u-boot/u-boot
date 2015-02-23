@@ -761,7 +761,10 @@ static void dwc3_ep0_complete_data(struct dwc3 *dwc,
 	struct usb_request	*ur;
 	struct dwc3_trb		*trb;
 	struct dwc3_ep		*ep0;
-	u32			transferred;
+	unsigned		transfer_size = 0;
+	unsigned		maxp;
+	void			*buf;
+	u32			transferred = 0;
 	u32			status;
 	u32			length;
 	u8			epnum;
@@ -790,18 +793,19 @@ static void dwc3_ep0_complete_data(struct dwc3 *dwc,
 	}
 
 	ur = &r->request;
+	buf = ur->buf;
 
 	length = trb->size & DWC3_TRB_SIZE_MASK;
 
-	if (dwc->ep0_bounced) {
-		unsigned transfer_size = ur->length;
-		unsigned maxp = ep0->endpoint.maxpacket;
+	maxp = ep0->endpoint.maxpacket;
 
-		transfer_size += (maxp - (transfer_size % maxp));
-		transferred = min_t(u32, ur->length,
-				transfer_size - length);
+	if (dwc->ep0_bounced) {
+		transfer_size = roundup((ur->length - transfer_size),
+					maxp);
+		transferred = min_t(u32, ur->length - transferred,
+				    transfer_size - length);
 		dwc3_flush_cache((int)dwc->ep0_bounce, DWC3_EP0_BOUNCE_SIZE);
-		memcpy(ur->buf, dwc->ep0_bounce, transferred);
+		memcpy(buf, dwc->ep0_bounce, transferred);
 	} else {
 		transferred = ur->length - length;
 	}
