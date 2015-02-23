@@ -396,6 +396,7 @@ static inline void usb_ep_fifo_flush(struct usb_ep *ep)
 /*-------------------------------------------------------------------------*/
 
 struct usb_gadget;
+struct usb_gadget_driver;
 
 /* the rest of the api to the controller hardware: device operations,
  * which don't involve endpoints (or i/o).
@@ -409,6 +410,9 @@ struct usb_gadget_ops {
 	int	(*pullup) (struct usb_gadget *, int is_on);
 	int	(*ioctl)(struct usb_gadget *,
 				unsigned code, unsigned long param);
+	int	(*udc_start)(struct usb_gadget *,
+			     struct usb_gadget_driver *);
+	int	(*udc_stop)(struct usb_gadget *);
 };
 
 /**
@@ -459,6 +463,7 @@ struct usb_gadget {
 	struct usb_ep			*ep0;
 	struct list_head		ep_list;	/* of usb_ep */
 	enum usb_device_speed		speed;
+	enum usb_device_state		state;
 	unsigned			is_dualspeed:1;
 	unsigned			is_otg:1;
 	unsigned			is_a_peripheral:1;
@@ -686,6 +691,7 @@ static inline int usb_gadget_disconnect(struct usb_gadget *gadget)
 
 /**
  * struct usb_gadget_driver - driver for usb 'slave' devices
+ * @function: String describing the gadget's function
  * @speed: Highest speed the driver handles.
  * @bind: Invoked when the driver is bound to a gadget, usually
  *	after registering the driver.
@@ -707,6 +713,8 @@ static inline int usb_gadget_disconnect(struct usb_gadget *gadget)
  *	Called in a context that permits sleeping.
  * @suspend: Invoked on USB suspend.  May be called in_interrupt.
  * @resume: Invoked on USB resume.  May be called in_interrupt.
+ * @reset: Invoked on USB bus reset. It is mandatory for all gadget drivers
+ *	and should be called in_interrupt.
  *
  * Devices are disabled till a gadget driver successfully bind()s, which
  * means the driver will handle setup() requests needed to enumerate (and
@@ -753,6 +761,7 @@ static inline int usb_gadget_disconnect(struct usb_gadget *gadget)
  * power is maintained.
  */
 struct usb_gadget_driver {
+	char			*function;
 	enum usb_device_speed	speed;
 	int			(*bind)(struct usb_gadget *);
 	void			(*unbind)(struct usb_gadget *);
@@ -761,6 +770,7 @@ struct usb_gadget_driver {
 	void			(*disconnect)(struct usb_gadget *);
 	void			(*suspend)(struct usb_gadget *);
 	void			(*resume)(struct usb_gadget *);
+	void			(*reset)(struct usb_gadget *);
 };
 
 
@@ -801,6 +811,10 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver);
  */
 int usb_gadget_unregister_driver(struct usb_gadget_driver *driver);
 
+int usb_add_gadget_udc_release(struct device *parent,
+		struct usb_gadget *gadget, void (*release)(struct device *dev));
+int usb_add_gadget_udc(struct device *parent, struct usb_gadget *gadget);
+void usb_del_gadget_udc(struct usb_gadget *gadget);
 /*-------------------------------------------------------------------------*/
 
 /* utility to simplify dealing with string descriptors */
@@ -845,6 +859,35 @@ int usb_descriptor_fillbuf(void *, unsigned,
 /* build config descriptor from single descriptor vector */
 int usb_gadget_config_buf(const struct usb_config_descriptor *config,
 	void *buf, unsigned buflen, const struct usb_descriptor_header **desc);
+
+/*-------------------------------------------------------------------------*/
+/* utility to simplify map/unmap of usb_requests to/from DMA */
+
+extern int usb_gadget_map_request(struct usb_gadget *gadget,
+				  struct usb_request *req, int is_in);
+
+extern void usb_gadget_unmap_request(struct usb_gadget *gadget,
+				     struct usb_request *req, int is_in);
+
+/*-------------------------------------------------------------------------*/
+
+/* utility to set gadget state properly */
+
+extern void usb_gadget_set_state(struct usb_gadget *gadget,
+				 enum usb_device_state state);
+
+/*-------------------------------------------------------------------------*/
+
+/* utility to tell udc core that the bus reset occurs */
+extern void usb_gadget_udc_reset(struct usb_gadget *gadget,
+				 struct usb_gadget_driver *driver);
+
+/*-------------------------------------------------------------------------*/
+
+/* utility to give requests back to the gadget layer */
+
+extern void usb_gadget_giveback_request(struct usb_ep *ep,
+					struct usb_request *req);
 
 /*-------------------------------------------------------------------------*/
 
