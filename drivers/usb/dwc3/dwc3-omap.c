@@ -415,6 +415,26 @@ void dwc3_omap_uboot_exit(int index)
 	}
 }
 
+/**
+ * dwc3_omap_uboot_interrupt_status - check the status of interrupt
+ * @index: index of this controller
+ *
+ * Checks the status of interrupts and returns true if an interrupt
+ * is detected or false otherwise.
+ *
+ * Generally called from board file.
+ */
+int dwc3_omap_uboot_interrupt_status(int index)
+{
+	struct dwc3_omap *omap = NULL;
+
+	list_for_each_entry(omap, &dwc3_omap_list, list)
+		if (omap->index == index)
+			return dwc3_omap_interrupt(-1, omap);
+
+	return 0;
+}
+
 MODULE_ALIAS("platform:omap-dwc3");
 MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
 MODULE_LICENSE("GPL v2");
