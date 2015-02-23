@@ -5,9 +5,6 @@
  *
  * Authors: Kishon Vijay Abraham I <kishon@ti.com>
  *
- * Taken from Linux Kernel v3.16 (drivers/usb/dwc3/core.c) and ported
- * to uboot.
- *
  * SPDX-License-Identifier:	GPL-2.0
  *
  */

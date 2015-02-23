@@ -326,6 +326,7 @@ typedef unsigned long dmaaddr_t;
 
 #define IRQ_NONE 0
 #define IRQ_HANDLED 1
+#define IRQ_WAKE_THREAD 2
 
 #define dev_set_drvdata(dev, data) do {} while (0)
 
