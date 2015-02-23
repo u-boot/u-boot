@@ -68,6 +68,10 @@
 #define PARTS_DEFAULT
 #endif
 
+#ifndef DFUARGS
+#define DFUARGS
+#endif
+
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
@@ -138,6 +142,7 @@
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile};\0" \
+	DFUARGS \
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
