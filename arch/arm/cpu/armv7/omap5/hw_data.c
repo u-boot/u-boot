@@ -460,6 +460,10 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l4per_gpio6_clkctrl,
 		(*prcm)->cm_l4per_gpio7_clkctrl,
 		(*prcm)->cm_l4per_gpio8_clkctrl,
+#ifdef CONFIG_USB_DWC3
+		(*prcm)->cm_l3init_ocp2scp1_clkctrl,
+		(*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
+#endif
 		0
 	};
 
@@ -490,6 +494,16 @@ void enable_basic_clocks(void)
 			HSMMC_CLKCTRL_CLKSEL_MASK);
 	setbits_le32((*prcm)->cm_l3init_hsmmc2_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_MASK);
+
+#ifdef CONFIG_USB_DWC3
+	/* Enable 960 MHz clock for dwc3 */
+	setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
+		     OPTFCLKEN_REFCLK960M);
+
+	/* Enable 32 KHz clock for dwc3 */
+	setbits_le32((*prcm)->cm_coreaon_usb_phy1_core_clkctrl,
+		     USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+#endif
 
 	/* Set the correct clock dividers for mmc */
 	setbits_le32((*prcm)->cm_l3init_hsmmc1_clkctrl,
