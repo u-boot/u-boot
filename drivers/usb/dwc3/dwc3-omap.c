@@ -14,21 +14,16 @@
  * SPDX-License-Identifier:     GPL-2.0
  */
 
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/slab.h>
-#include <linux/interrupt.h>
-#include <linux/platform_device.h>
-#include <linux/platform_data/dwc3-omap.h>
-#include <linux/dma-mapping.h>
+#include <common.h>
+#include <malloc.h>
+#include <asm/io.h>
+#include <linux/usb/dwc3-omap.h>
 #include <linux/ioport.h>
-#include <linux/io.h>
-#include <linux/of.h>
-#include <linux/of_platform.h>
-#include <linux/extcon.h>
-#include <linux/regulator/consumer.h>
 
 #include <linux/usb/otg.h>
+#include <linux/compat.h>
+
+#include "linux-compat.h"
 
 /*
  * All these registers belong to OMAP's Wrapper around the
@@ -113,7 +108,6 @@
 struct dwc3_omap {
 	struct device		*dev;
 
-	int			irq;
 	void __iomem		*base;
 
 	u32			utmi_otg_status;
@@ -124,13 +118,6 @@ struct dwc3_omap {
 	u32			irq0_offset;
 
 	u32			dma_status:1;
-
-	struct extcon_specific_cable_nb extcon_vbus_dev;
-	struct extcon_specific_cable_nb extcon_id_dev;
-	struct notifier_block	vbus_nb;
-	struct notifier_block	id_nb;
-
-	struct regulator	*vbus_reg;
 };
 
 enum omap_dwc3_vbus_id_status {
@@ -205,20 +192,11 @@ static void dwc3_omap_write_irq0_set(struct dwc3_omap *omap, u32 value)
 static void dwc3_omap_set_mailbox(struct dwc3_omap *omap,
 	enum omap_dwc3_vbus_id_status status)
 {
-	int	ret;
 	u32	val;
 
 	switch (status) {
 	case OMAP_DWC3_ID_GROUND:
 		dev_dbg(omap->dev, "ID GND\n");
-
-		if (omap->vbus_reg) {
-			ret = regulator_enable(omap->vbus_reg);
-			if (ret) {
-				dev_dbg(omap->dev, "regulator enable failed\n");
-				return;
-			}
-		}
 
 		val = dwc3_omap_read_utmi_status(omap);
 		val &= ~(USBOTGSS_UTMI_OTG_STATUS_IDDIG
@@ -242,9 +220,6 @@ static void dwc3_omap_set_mailbox(struct dwc3_omap *omap,
 		break;
 
 	case OMAP_DWC3_ID_FLOAT:
-		if (omap->vbus_reg)
-			regulator_disable(omap->vbus_reg);
-
 	case OMAP_DWC3_VBUS_OFF:
 		dev_dbg(omap->dev, "VBUS Disconnect\n");
 
@@ -349,32 +324,6 @@ static void dwc3_omap_disable_irqs(struct dwc3_omap *omap)
 
 static u64 dwc3_omap_dma_mask = DMA_BIT_MASK(32);
 
-static int dwc3_omap_id_notifier(struct notifier_block *nb,
-	unsigned long event, void *ptr)
-{
-	struct dwc3_omap *omap = container_of(nb, struct dwc3_omap, id_nb);
-
-	if (event)
-		dwc3_omap_set_mailbox(omap, OMAP_DWC3_ID_GROUND);
-	else
-		dwc3_omap_set_mailbox(omap, OMAP_DWC3_ID_FLOAT);
-
-	return NOTIFY_DONE;
-}
-
-static int dwc3_omap_vbus_notifier(struct notifier_block *nb,
-	unsigned long event, void *ptr)
-{
-	struct dwc3_omap *omap = container_of(nb, struct dwc3_omap, vbus_nb);
-
-	if (event)
-		dwc3_omap_set_mailbox(omap, OMAP_DWC3_VBUS_VALID);
-	else
-		dwc3_omap_set_mailbox(omap, OMAP_DWC3_VBUS_OFF);
-
-	return NOTIFY_DONE;
-}
-
 static void dwc3_omap_map_offset(struct dwc3_omap *omap)
 {
 	struct device_node	*node = omap->dev->of_node;
@@ -420,42 +369,6 @@ static void dwc3_omap_set_utmi_mode(struct dwc3_omap *omap)
 	dwc3_omap_write_utmi_status(omap, reg);
 }
 
-static int dwc3_omap_extcon_register(struct dwc3_omap *omap)
-{
-	int			ret;
-	struct device_node	*node = omap->dev->of_node;
-	struct extcon_dev	*edev;
-
-	if (of_property_read_bool(node, "extcon")) {
-		edev = extcon_get_edev_by_phandle(omap->dev, 0);
-		if (IS_ERR(edev)) {
-			dev_vdbg(omap->dev, "couldn't get extcon device\n");
-			return -EPROBE_DEFER;
-		}
-
-		omap->vbus_nb.notifier_call = dwc3_omap_vbus_notifier;
-		ret = extcon_register_interest(&omap->extcon_vbus_dev,
-					       edev->name, "USB",
-					       &omap->vbus_nb);
-		if (ret < 0)
-			dev_vdbg(omap->dev, "failed to register notifier for USB\n");
-
-		omap->id_nb.notifier_call = dwc3_omap_id_notifier;
-		ret = extcon_register_interest(&omap->extcon_id_dev,
-					       edev->name, "USB-HOST",
-					       &omap->id_nb);
-		if (ret < 0)
-			dev_vdbg(omap->dev, "failed to register notifier for USB-HOST\n");
-
-		if (extcon_get_cable_state(edev, "USB") == true)
-			dwc3_omap_set_mailbox(omap, OMAP_DWC3_VBUS_VALID);
-		if (extcon_get_cable_state(edev, "USB-HOST") == true)
-			dwc3_omap_set_mailbox(omap, OMAP_DWC3_ID_GROUND);
-	}
-
-	return 0;
-}
-
 static int dwc3_omap_probe(struct platform_device *pdev)
 {
 	struct device_node	*node = pdev->dev.of_node;
@@ -463,11 +376,8 @@ static int dwc3_omap_probe(struct platform_device *pdev)
 	struct dwc3_omap	*omap;
 	struct resource		*res;
 	struct device		*dev = &pdev->dev;
-	struct regulator	*vbus_reg = NULL;
 
 	int			ret;
-	int			irq;
-
 	u32			reg;
 
 	void __iomem		*base;
@@ -483,29 +393,13 @@ static int dwc3_omap_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, omap);
 
-	irq = platform_get_irq(pdev, 0);
-	if (irq < 0) {
-		dev_err(dev, "missing IRQ resource\n");
-		return -EINVAL;
-	}
-
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(dev, res);
 	if (IS_ERR(base))
 		return PTR_ERR(base);
 
-	if (of_property_read_bool(node, "vbus-supply")) {
-		vbus_reg = devm_regulator_get(dev, "vbus");
-		if (IS_ERR(vbus_reg)) {
-			dev_err(dev, "vbus init failed\n");
-			return PTR_ERR(vbus_reg);
-		}
-	}
-
 	omap->dev	= dev;
-	omap->irq	= irq;
 	omap->base	= base;
-	omap->vbus_reg	= vbus_reg;
 	dev->dma_mask	= &dwc3_omap_dma_mask;
 
 	dwc3_omap_map_offset(omap);
@@ -515,33 +409,15 @@ static int dwc3_omap_probe(struct platform_device *pdev)
 	reg = dwc3_omap_readl(omap->base, USBOTGSS_SYSCONFIG);
 	omap->dma_status = !!(reg & USBOTGSS_SYSCONFIG_DMADISABLE);
 
-	ret = devm_request_irq(dev, omap->irq, dwc3_omap_interrupt, 0,
-			"dwc3-omap", omap);
-	if (ret) {
-		dev_err(dev, "failed to request IRQ #%d --> %d\n",
-				omap->irq, ret);
-		goto err0;
-	}
-
 	dwc3_omap_enable_irqs(omap);
-
-	ret = dwc3_omap_extcon_register(omap);
-	if (ret < 0)
-		goto err1;
 
 	ret = of_platform_populate(node, NULL, NULL, dev);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to create dwc3 core\n");
-		goto err2;
+		goto err1;
 	}
 
 	return 0;
-
-err2:
-	if (omap->extcon_vbus_dev.edev)
-		extcon_unregister_interest(&omap->extcon_vbus_dev);
-	if (omap->extcon_id_dev.edev)
-		extcon_unregister_interest(&omap->extcon_id_dev);
 
 err1:
 	dwc3_omap_disable_irqs(omap);
@@ -554,10 +430,6 @@ static int dwc3_omap_remove(struct platform_device *pdev)
 {
 	struct dwc3_omap	*omap = platform_get_drvdata(pdev);
 
-	if (omap->extcon_vbus_dev.edev)
-		extcon_unregister_interest(&omap->extcon_vbus_dev);
-	if (omap->extcon_id_dev.edev)
-		extcon_unregister_interest(&omap->extcon_id_dev);
 	dwc3_omap_disable_irqs(omap);
 	device_for_each_child(&pdev->dev, NULL, dwc3_omap_remove_core);
 
