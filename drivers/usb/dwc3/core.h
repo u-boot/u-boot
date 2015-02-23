@@ -695,6 +695,8 @@ struct dwc3_scratchpad_array {
  * 	1	- -3.5dB de-emphasis
  * 	2	- No de-emphasis
  * 	3	- Reserved
+ * @index: index of _this_ controller
+ * @list: to maintain the list of dwc3 controllers
  */
 struct dwc3 {
 	struct usb_ctrlrequest	*ctrl_req;
@@ -811,6 +813,8 @@ struct dwc3 {
 
 	unsigned		tx_de_emphasis_quirk:1;
 	unsigned		tx_de_emphasis:2;
+	int			index;
+	struct list_head        list;
 };
 
 /* -------------------------------------------------------------------------- */

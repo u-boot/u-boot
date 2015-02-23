@@ -29,7 +29,7 @@
 
 #include "linux-compat.h"
 
-struct dwc3 *dwc;
+static LIST_HEAD(dwc3_list);
 /* -------------------------------------------------------------------------- */
 
 void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
@@ -612,6 +612,7 @@ static void dwc3_core_exit_mode(struct dwc3 *dwc)
  */
 int dwc3_uboot_init(struct dwc3_device *dwc3_dev)
 {
+	struct dwc3		*dwc;
 	struct device		*dev;
 	u8			lpm_nyet_threshold;
 	u8			tx_de_emphasis;
@@ -678,6 +679,8 @@ int dwc3_uboot_init(struct dwc3_device *dwc3_dev)
 	dwc->hird_threshold = hird_threshold
 		| (dwc->is_utmi_l1_suspend << 4);
 
+	dwc->index = dwc3_dev->index;
+
 	dwc3_cache_hwparams(dwc);
 
 	ret = dwc3_alloc_event_buffers(dwc, DWC3_EVENT_BUFFERS_SIZE);
@@ -710,6 +713,8 @@ int dwc3_uboot_init(struct dwc3_device *dwc3_dev)
 	if (ret)
 		goto err2;
 
+	list_add_tail(&dwc->list, &dwc3_list);
+
 	return 0;
 
 err2:
@@ -729,17 +734,28 @@ err0:
  * @index: index of this controller
  *
  * Performs cleanup of memory allocated in dwc3_uboot_init and other misc
- * cleanups (equivalent to dwc3_remove in linux).
+ * cleanups (equivalent to dwc3_remove in linux). index of _this_ controller
+ * should be passed and should match with the index passed in
+ * dwc3_device during init.
  *
  * Generally called from board file.
  */
-void dwc3_uboot_exit()
+void dwc3_uboot_exit(int index)
 {
-	dwc3_core_exit_mode(dwc);
-	dwc3_event_buffers_cleanup(dwc);
-	dwc3_free_event_buffers(dwc);
-	dwc3_core_exit(dwc);
-	kfree(dwc->mem);
+	struct dwc3 *dwc;
+
+	list_for_each_entry(dwc, &dwc3_list, list) {
+		if (dwc->index != index)
+			continue;
+
+		dwc3_core_exit_mode(dwc);
+		dwc3_event_buffers_cleanup(dwc);
+		dwc3_free_event_buffers(dwc);
+		dwc3_core_exit(dwc);
+		list_del(&dwc->list);
+		kfree(dwc->mem);
+		break;
+	}
 }
 
 MODULE_ALIAS("platform:dwc3");

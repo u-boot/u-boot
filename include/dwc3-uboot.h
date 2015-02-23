@@ -33,8 +33,9 @@ struct dwc3_device {
 	unsigned dis_u2_susphy_quirk;
 	unsigned tx_de_emphasis_quirk;
 	unsigned tx_de_emphasis;
+	int index;
 };
 
 int dwc3_uboot_init(struct dwc3_device *dev);
-void dwc3_uboot_exit(void);
+void dwc3_uboot_exit(int index);
 #endif /* __DWC3_UBOOT_H_ */
