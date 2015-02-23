@@ -758,6 +758,27 @@ void dwc3_uboot_exit(int index)
 	}
 }
 
+/**
+ * dwc3_uboot_handle_interrupt - handle dwc3 core interrupt
+ * @index: index of this controller
+ *
+ * Invokes dwc3 gadget interrupts.
+ *
+ * Generally called from board file.
+ */
+void dwc3_uboot_handle_interrupt(int index)
+{
+	struct dwc3 *dwc = NULL;
+
+	list_for_each_entry(dwc, &dwc3_list, list) {
+		if (dwc->index != index)
+			continue;
+
+		dwc3_gadget_uboot_handle_interrupt(dwc);
+		break;
+	}
+}
+
 MODULE_ALIAS("platform:dwc3");
 MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
 MODULE_LICENSE("GPL v2");
