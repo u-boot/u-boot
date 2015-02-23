@@ -14,32 +14,19 @@
  * SPDX-License-Identifier:     GPL-2.0
  */
 
-#include <linux/version.h>
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/slab.h>
-#include <linux/spinlock.h>
-#include <linux/platform_device.h>
-#include <linux/interrupt.h>
+#include <common.h>
+#include <malloc.h>
+#include <asm/dma-mapping.h>
 #include <linux/ioport.h>
-#include <linux/io.h>
-#include <linux/list.h>
-#include <linux/delay.h>
-#include <linux/dma-mapping.h>
-#include <linux/of.h>
-#include <linux/acpi.h>
 
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
-#include <linux/usb/of.h>
-#include <linux/usb/otg.h>
 
-#include "platform_data.h"
 #include "core.h"
 #include "gadget.h"
 #include "io.h"
 
-#include "debug.h"
+#include "linux-compat.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -60,7 +47,6 @@ void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
 static int dwc3_core_soft_reset(struct dwc3 *dwc)
 {
 	u32		reg;
-	int		ret;
 
 	/* Before Resetting PHY, put Core in Reset */
 	reg = dwc3_readl(dwc->regs, DWC3_GCTL);
@@ -77,17 +63,6 @@ static int dwc3_core_soft_reset(struct dwc3 *dwc)
 	reg |= DWC3_GUSB2PHYCFG_PHYSOFTRST;
 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
 
-	usb_phy_init(dwc->usb2_phy);
-	usb_phy_init(dwc->usb3_phy);
-	ret = phy_init(dwc->usb2_generic_phy);
-	if (ret < 0)
-		return ret;
-
-	ret = phy_init(dwc->usb3_generic_phy);
-	if (ret < 0) {
-		phy_exit(dwc->usb2_generic_phy);
-		return ret;
-	}
 	mdelay(100);
 
 	/* Clear USB3 PHY reset */
@@ -118,7 +93,7 @@ static int dwc3_core_soft_reset(struct dwc3 *dwc)
 static void dwc3_free_one_event_buffer(struct dwc3 *dwc,
 		struct dwc3_event_buffer *evt)
 {
-	dma_free_coherent(dwc->dev, evt->length, evt->buf, evt->dma);
+	dma_free_coherent(evt->buf);
 }
 
 /**
@@ -140,8 +115,8 @@ static struct dwc3_event_buffer *dwc3_alloc_one_event_buffer(struct dwc3 *dwc,
 
 	evt->dwc	= dwc;
 	evt->length	= length;
-	evt->buf	= dma_alloc_coherent(dwc->dev, length,
-			&evt->dma, GFP_KERNEL);
+	evt->buf	= dma_alloc_coherent(length,
+					     (unsigned long *)&evt->dma);
 	if (!evt->buf)
 		return ERR_PTR(-ENOMEM);
 
@@ -276,13 +251,9 @@ static int dwc3_setup_scratch_buffers(struct dwc3 *dwc)
 	if (!dwc->nr_scratch)
 		return 0;
 
-	 /* should never fall here */
-	if (!WARN_ON(dwc->scratchbuf))
-		return 0;
-
-	scratch_addr = dma_map_single(dwc->dev, dwc->scratchbuf,
-			dwc->nr_scratch * DWC3_SCRATCHBUF_SIZE,
-			DMA_BIDIRECTIONAL);
+	scratch_addr = dma_map_single(dwc->scratchbuf,
+				      dwc->nr_scratch * DWC3_SCRATCHBUF_SIZE,
+				      DMA_BIDIRECTIONAL);
 	if (dma_mapping_error(dwc->dev, scratch_addr)) {
 		dev_err(dwc->dev, "failed to map scratch buffer\n");
 		ret = -EFAULT;
@@ -308,8 +279,8 @@ static int dwc3_setup_scratch_buffers(struct dwc3 *dwc)
 	return 0;
 
 err1:
-	dma_unmap_single(dwc->dev, dwc->scratch_addr, dwc->nr_scratch *
-			DWC3_SCRATCHBUF_SIZE, DMA_BIDIRECTIONAL);
+	dma_unmap_single((void *)dwc->scratch_addr, dwc->nr_scratch *
+			 DWC3_SCRATCHBUF_SIZE, DMA_BIDIRECTIONAL);
 
 err0:
 	return ret;
@@ -323,12 +294,8 @@ static void dwc3_free_scratch_buffers(struct dwc3 *dwc)
 	if (!dwc->nr_scratch)
 		return;
 
-	 /* should never fall here */
-	if (!WARN_ON(dwc->scratchbuf))
-		return;
-
-	dma_unmap_single(dwc->dev, dwc->scratch_addr, dwc->nr_scratch *
-			DWC3_SCRATCHBUF_SIZE, DMA_BIDIRECTIONAL);
+	dma_unmap_single((void *)dwc->scratch_addr, dwc->nr_scratch *
+			 DWC3_SCRATCHBUF_SIZE, DMA_BIDIRECTIONAL);
 	kfree(dwc->scratchbuf);
 }
 
@@ -446,12 +413,6 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	}
 	dwc->revision = reg;
 
-	/*
-	 * Write Linux Version Code to our GUID register so it's easy to figure
-	 * out which kernel version a bug was found.
-	 */
-	dwc3_writel(dwc->regs, DWC3_GUID, LINUX_VERSION_CODE);
-
 	/* Handle USB2.0-only core configuration */
 	if (DWC3_GHWPARAMS3_SSPHY_IFC(dwc->hwparams.hwparams3) ==
 			DWC3_GHWPARAMS3_SSPHY_IFC_DIS) {
@@ -460,21 +421,19 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	}
 
 	/* issue device SoftReset too */
-	timeout = jiffies + msecs_to_jiffies(500);
+	timeout = 5000;
 	dwc3_writel(dwc->regs, DWC3_DCTL, DWC3_DCTL_CSFTRST);
-	do {
+	while (timeout--) {
 		reg = dwc3_readl(dwc->regs, DWC3_DCTL);
 		if (!(reg & DWC3_DCTL_CSFTRST))
 			break;
+	};
 
-		if (time_after(jiffies, timeout)) {
-			dev_err(dwc->dev, "Reset Timed Out\n");
-			ret = -ETIMEDOUT;
-			goto err0;
-		}
-
-		cpu_relax();
-	} while (true);
+	if (!timeout) {
+		dev_err(dwc->dev, "Reset Timed Out\n");
+		ret = -ETIMEDOUT;
+		goto err0;
+	}
 
 	ret = dwc3_core_soft_reset(dwc);
 	if (ret)
@@ -525,8 +484,9 @@ static int dwc3_core_init(struct dwc3 *dwc)
 		dwc->is_fpga = true;
 	}
 
-	WARN_ONCE(dwc->disable_scramble_quirk && !dwc->is_fpga,
-			"disable_scramble cannot be used on non-FPGA builds\n");
+	if(dwc->disable_scramble_quirk && !dwc->is_fpga)
+		WARN(true,
+		     "disable_scramble cannot be used on non-FPGA builds\n");
 
 	if (dwc->disable_scramble_quirk && dwc->is_fpga)
 		reg |= DWC3_GCTL_DISSCRAMBLE;
@@ -553,22 +513,16 @@ static int dwc3_core_init(struct dwc3 *dwc)
 
 	ret = dwc3_alloc_scratch_buffers(dwc);
 	if (ret)
-		goto err1;
+		goto err0;
 
 	ret = dwc3_setup_scratch_buffers(dwc);
 	if (ret)
-		goto err2;
+		goto err1;
 
 	return 0;
 
-err2:
-	dwc3_free_scratch_buffers(dwc);
-
 err1:
-	usb_phy_shutdown(dwc->usb2_phy);
-	usb_phy_shutdown(dwc->usb3_phy);
-	phy_exit(dwc->usb2_generic_phy);
-	phy_exit(dwc->usb3_generic_phy);
+	dwc3_free_scratch_buffers(dwc);
 
 err0:
 	return ret;
@@ -577,82 +531,10 @@ err0:
 static void dwc3_core_exit(struct dwc3 *dwc)
 {
 	dwc3_free_scratch_buffers(dwc);
-	usb_phy_shutdown(dwc->usb2_phy);
-	usb_phy_shutdown(dwc->usb3_phy);
-	phy_exit(dwc->usb2_generic_phy);
-	phy_exit(dwc->usb3_generic_phy);
-}
-
-static int dwc3_core_get_phy(struct dwc3 *dwc)
-{
-	struct device		*dev = dwc->dev;
-	struct device_node	*node = dev->of_node;
-	int ret;
-
-	if (node) {
-		dwc->usb2_phy = devm_usb_get_phy_by_phandle(dev, "usb-phy", 0);
-		dwc->usb3_phy = devm_usb_get_phy_by_phandle(dev, "usb-phy", 1);
-	} else {
-		dwc->usb2_phy = devm_usb_get_phy(dev, USB_PHY_TYPE_USB2);
-		dwc->usb3_phy = devm_usb_get_phy(dev, USB_PHY_TYPE_USB3);
-	}
-
-	if (IS_ERR(dwc->usb2_phy)) {
-		ret = PTR_ERR(dwc->usb2_phy);
-		if (ret == -ENXIO || ret == -ENODEV) {
-			dwc->usb2_phy = NULL;
-		} else if (ret == -EPROBE_DEFER) {
-			return ret;
-		} else {
-			dev_err(dev, "no usb2 phy configured\n");
-			return ret;
-		}
-	}
-
-	if (IS_ERR(dwc->usb3_phy)) {
-		ret = PTR_ERR(dwc->usb3_phy);
-		if (ret == -ENXIO || ret == -ENODEV) {
-			dwc->usb3_phy = NULL;
-		} else if (ret == -EPROBE_DEFER) {
-			return ret;
-		} else {
-			dev_err(dev, "no usb3 phy configured\n");
-			return ret;
-		}
-	}
-
-	dwc->usb2_generic_phy = devm_phy_get(dev, "usb2-phy");
-	if (IS_ERR(dwc->usb2_generic_phy)) {
-		ret = PTR_ERR(dwc->usb2_generic_phy);
-		if (ret == -ENOSYS || ret == -ENODEV) {
-			dwc->usb2_generic_phy = NULL;
-		} else if (ret == -EPROBE_DEFER) {
-			return ret;
-		} else {
-			dev_err(dev, "no usb2 phy configured\n");
-			return ret;
-		}
-	}
-
-	dwc->usb3_generic_phy = devm_phy_get(dev, "usb3-phy");
-	if (IS_ERR(dwc->usb3_generic_phy)) {
-		ret = PTR_ERR(dwc->usb3_generic_phy);
-		if (ret == -ENOSYS || ret == -ENODEV) {
-			dwc->usb3_generic_phy = NULL;
-		} else if (ret == -EPROBE_DEFER) {
-			return ret;
-		} else {
-			dev_err(dev, "no usb3 phy configured\n");
-			return ret;
-		}
-	}
-
-	return 0;
 }
 
 static int dwc3_core_init_mode(struct dwc3 *dwc)
 {
-	struct device *dev = dwc->dev;
 	int ret;
 
 	switch (dwc->dr_mode) {
@@ -870,10 +752,6 @@ static int dwc3_probe(struct platform_device *pdev)
 	dwc->hird_threshold = hird_threshold
 		| (dwc->is_utmi_l1_suspend << 4);
 
-	ret = dwc3_core_get_phy(dwc);
-	if (ret)
-		return ret;
-
 	spin_lock_init(&dwc->lock);
 	platform_set_drvdata(pdev, dwc);
 
@@ -888,8 +766,7 @@ static int dwc3_probe(struct platform_device *pdev)
 	ret = dwc3_alloc_event_buffers(dwc, DWC3_EVENT_BUFFERS_SIZE);
 	if (ret) {
 		dev_err(dwc->dev, "failed to allocate event buffers\n");
-		ret = -ENOMEM;
-		goto err0;
+		return -ENOMEM;
 	}
 
 	if (IS_ENABLED(CONFIG_USB_DWC3_HOST))
@@ -906,49 +783,22 @@ static int dwc3_probe(struct platform_device *pdev)
 		goto err0;
 	}
 
-	usb_phy_set_suspend(dwc->usb2_phy, 0);
-	usb_phy_set_suspend(dwc->usb3_phy, 0);
-	ret = phy_power_on(dwc->usb2_generic_phy);
-	if (ret < 0)
-		goto err1;
-
-	ret = phy_power_on(dwc->usb3_generic_phy);
-	if (ret < 0)
-		goto err_usb2phy_power;
-
 	ret = dwc3_event_buffers_setup(dwc);
 	if (ret) {
 		dev_err(dwc->dev, "failed to setup event buffers\n");
-		goto err_usb3phy_power;
+		goto err1;
 	}
 
 	ret = dwc3_core_init_mode(dwc);
 	if (ret)
 		goto err2;
 
-	ret = dwc3_debugfs_init(dwc);
-	if (ret) {
-		dev_err(dev, "failed to initialize debugfs\n");
-		goto err3;
-	}
-
 	return 0;
-
-err3:
-	dwc3_core_exit_mode(dwc);
 
 err2:
 	dwc3_event_buffers_cleanup(dwc);
 
-err_usb3phy_power:
-	phy_power_off(dwc->usb3_generic_phy);
-
-err_usb2phy_power:
-	phy_power_off(dwc->usb2_generic_phy);
-
 err1:
-	usb_phy_set_suspend(dwc->usb2_phy, 1);
-	usb_phy_set_suspend(dwc->usb3_phy, 1);
 	dwc3_core_exit(dwc);
 
 err0:
@@ -961,15 +811,9 @@ static int dwc3_remove(struct platform_device *pdev)
 {
 	struct dwc3	*dwc = platform_get_drvdata(pdev);
 
-	dwc3_debugfs_exit(dwc);
 	dwc3_core_exit_mode(dwc);
 	dwc3_event_buffers_cleanup(dwc);
 	dwc3_free_event_buffers(dwc);
-
-	usb_phy_set_suspend(dwc->usb2_phy, 1);
-	usb_phy_set_suspend(dwc->usb3_phy, 1);
-	phy_power_off(dwc->usb2_generic_phy);
-	phy_power_off(dwc->usb3_generic_phy);
 
 	dwc3_core_exit(dwc);
 

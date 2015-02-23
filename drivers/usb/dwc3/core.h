@@ -641,10 +641,6 @@ struct dwc3_scratchpad_array {
  * @maximum_speed: maximum speed requested (mainly for testing purposes)
  * @revision: revision register contents
  * @dr_mode: requested mode of operation
- * @usb2_phy: pointer to USB2 PHY
- * @usb3_phy: pointer to USB3 PHY
- * @usb2_generic_phy: pointer to USB2 PHY
- * @usb3_generic_phy: pointer to USB3 PHY
  * @dcfg: saved contents of DCFG register
  * @gctl: saved contents of GCTL register
  * @isoch_delay: wValue from Set Isochronous Delay request;
@@ -725,12 +721,6 @@ struct dwc3 {
 
 	struct usb_gadget	gadget;
 	struct usb_gadget_driver *gadget_driver;
-
-	struct usb_phy		*usb2_phy;
-	struct usb_phy		*usb3_phy;
-
-	struct phy		*usb2_generic_phy;
-	struct phy		*usb3_generic_phy;
 
 	void __iomem		*regs;
 	size_t			regs_size;
