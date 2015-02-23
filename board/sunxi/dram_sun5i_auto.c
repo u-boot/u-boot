@@ -24,7 +24,7 @@ static struct dram_para dram_para = {
 #	include "dram_timings_sun4i.h"
 	.active_windowing = 1,
 #endif
-	.tpr3 = 0,
+	.tpr3 = CONFIG_DRAM_TPR3,
 	.tpr4 = 0,
 	.tpr5 = 0,
 	.emr1 = CONFIG_DRAM_EMR1,
