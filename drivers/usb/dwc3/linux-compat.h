@@ -14,6 +14,7 @@
 
 #define pr_debug(format)                debug(format)
 #define WARN(val, format, arg...)	debug(format, ##arg)
+#define dev_WARN(dev, format, arg...)	debug(format, ##arg)
 #define WARN_ON_ONCE(val)		debug("Error %d\n", val)
 
 #define BUILD_BUG_ON_NOT_POWER_OF_2(n)

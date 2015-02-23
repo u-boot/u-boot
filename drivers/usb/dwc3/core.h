@@ -841,6 +841,30 @@ struct dwc3_event_type {
 #define DWC3_DEPEVT_EPCMDCMPLT		0x07
 
 /**
+ * dwc3_ep_event_string - returns event name
+ * @event: then event code
+ */
+static inline const char *dwc3_ep_event_string(u8 event)
+{
+	switch (event) {
+	case DWC3_DEPEVT_XFERCOMPLETE:
+		return "Transfer Complete";
+	case DWC3_DEPEVT_XFERINPROGRESS:
+		return "Transfer In-Progress";
+	case DWC3_DEPEVT_XFERNOTREADY:
+		return "Transfer Not Ready";
+	case DWC3_DEPEVT_RXTXFIFOEVT:
+		return "FIFO";
+	case DWC3_DEPEVT_STREAMEVT:
+		return "Stream";
+	case DWC3_DEPEVT_EPCMDCMPLT:
+		return "Endpoint Command Complete";
+	}
+
+	return "UNKNOWN";
+}
+
+/**
  * struct dwc3_event_depvt - Device Endpoint Events
  * @one_bit: indicates this is an endpoint event (not used)
  * @endpoint_number: number of the endpoint
