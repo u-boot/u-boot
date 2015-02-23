@@ -74,6 +74,9 @@ static int dwc3_ep0_start_trans(struct dwc3 *dwc, u8 epnum, dma_addr_t buf_dma,
 			| DWC3_TRB_CTRL_IOC
 			| DWC3_TRB_CTRL_ISP_IMI);
 
+	dwc3_flush_cache((int)buf_dma, len);
+	dwc3_flush_cache((int)trb, sizeof(*trb));
+
 	memset(&params, 0, sizeof(params));
 	params.param0 = upper_32_bits(dwc->ep0_trb_addr);
 	params.param1 = lower_32_bits(dwc->ep0_trb_addr);
@@ -774,6 +777,8 @@ static void dwc3_ep0_complete_data(struct dwc3 *dwc,
 	if (!r)
 		return;
 
+	dwc3_flush_cache((int)trb, sizeof(*trb));
+
 	status = DWC3_TRB_SIZE_TRBSTS(trb->size);
 	if (status == DWC3_TRBSTS_SETUP_PENDING) {
 		dev_dbg(dwc->dev, "Setup Pending received");
@@ -795,6 +800,7 @@ static void dwc3_ep0_complete_data(struct dwc3 *dwc,
 		transfer_size += (maxp - (transfer_size % maxp));
 		transferred = min_t(u32, ur->length,
 				transfer_size - length);
+		dwc3_flush_cache((int)dwc->ep0_bounce, DWC3_EP0_BOUNCE_SIZE);
 		memcpy(ur->buf, dwc->ep0_bounce, transferred);
 	} else {
 		transferred = ur->length - length;

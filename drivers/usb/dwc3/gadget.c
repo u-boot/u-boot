@@ -244,6 +244,7 @@ void dwc3_gadget_giveback(struct dwc3_ep *dep, struct dwc3_request *req,
 
 	list_del(&req->list);
 	req->trb = NULL;
+	dwc3_flush_cache((int)req->request.dma, req->request.length);
 
 	if (req->request.status == -EINPROGRESS)
 		req->request.status = status;
@@ -769,6 +770,9 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
 		trb->ctrl |= DWC3_TRB_CTRL_SID_SOFN(req->request.stream_id);
 
 	trb->ctrl |= DWC3_TRB_CTRL_HWO;
+
+	dwc3_flush_cache((int)dma, length);
+	dwc3_flush_cache((int)trb, sizeof(*trb));
 }
 
 /*
@@ -1770,6 +1774,7 @@ static int dwc3_cleanup_done_reqs(struct dwc3 *dwc, struct dwc3_ep *dep,
 		slot %= DWC3_TRB_NUM;
 		trb = &dep->trb_pool[slot];
 
+		dwc3_flush_cache((int)trb, sizeof(*trb));
 		ret = __dwc3_cleanup_done_trbs(dwc, dep, req, trb,
 				event, status);
 		if (ret)
@@ -2583,7 +2588,8 @@ int dwc3_gadget_init(struct dwc3 *dwc)
 		goto err1;
 	}
 
-	dwc->setup_buf = kzalloc(DWC3_EP0_BOUNCE_SIZE, GFP_KERNEL);
+	dwc->setup_buf = memalign(CONFIG_SYS_CACHELINE_SIZE,
+				  DWC3_EP0_BOUNCE_SIZE);
 	if (!dwc->setup_buf) {
 		ret = -ENOMEM;
 		goto err2;

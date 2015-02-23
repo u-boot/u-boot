@@ -157,8 +157,8 @@ static int dwc3_alloc_event_buffers(struct dwc3 *dwc, unsigned length)
 	num = DWC3_NUM_INT(dwc->hwparams.hwparams1);
 	dwc->num_event_buffers = num;
 
-	dwc->ev_buffs = devm_kzalloc(dwc->dev, sizeof(*dwc->ev_buffs) * num,
-			GFP_KERNEL);
+	dwc->ev_buffs = memalign(CONFIG_SYS_CACHELINE_SIZE,
+				 sizeof(*dwc->ev_buffs) * num);
 	if (!dwc->ev_buffs)
 		return -ENOMEM;
 
@@ -769,10 +769,17 @@ void dwc3_uboot_exit(int index)
 void dwc3_uboot_handle_interrupt(int index)
 {
 	struct dwc3 *dwc = NULL;
+	int i;
+	struct dwc3_event_buffer *evt;
 
 	list_for_each_entry(dwc, &dwc3_list, list) {
 		if (dwc->index != index)
 			continue;
+
+		for (i = 0; i < dwc->num_event_buffers; i++) {
+			evt = dwc->ev_buffs[i];
+			dwc3_flush_cache((int)evt->buf, evt->length);
+		}
 
 		dwc3_gadget_uboot_handle_interrupt(dwc);
 		break;
