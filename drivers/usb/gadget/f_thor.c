@@ -543,7 +543,7 @@ static int thor_rx_data(void)
 		}
 
 		while (!dev->rxdata) {
-			usb_gadget_handle_interrupts();
+			usb_gadget_handle_interrupts(0);
 			if (ctrlc())
 				return -1;
 		}
@@ -577,7 +577,7 @@ static void thor_tx_data(unsigned char *data, int len)
 
 	/* Wait until tx interrupt received */
 	while (!dev->txdata)
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 
 	dev->txdata = 0;
 }
@@ -694,7 +694,7 @@ int thor_init(void)
 	/* Wait for a device enumeration and configuration settings */
 	debug("THOR enumeration/configuration setting....\n");
 	while (!dev->configuration_done)
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 
 	thor_set_dma(thor_rx_data_buf, strlen("THOR"));
 	/* detect the download request from Host PC */

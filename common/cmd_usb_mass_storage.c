@@ -137,7 +137,7 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	}
 
 	while (1) {
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(controller_index);
 
 		rc = fsg_main_thread(NULL);
 		if (rc) {

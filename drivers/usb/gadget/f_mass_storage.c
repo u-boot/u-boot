@@ -689,7 +689,7 @@ static int sleep_thread(struct fsg_common *common)
 			k = 0;
 		}
 
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 	}
 	common->thread_wakeup_needed = 0;
 	return rc;

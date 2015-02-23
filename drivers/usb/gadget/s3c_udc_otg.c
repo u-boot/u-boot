@@ -833,7 +833,7 @@ int s3c_udc_probe(struct s3c_plat_otg_data *pdata)
 	return retval;
 }
 
-int usb_gadget_handle_interrupts()
+int usb_gadget_handle_interrupts(int index)
 {
 	u32 intr_status = readl(&reg->gintsts);
 	u32 gintmsk = readl(&reg->gintmsk);

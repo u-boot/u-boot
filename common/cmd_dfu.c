@@ -64,7 +64,7 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (ctrlc())
 			goto exit;
 
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(controller_index);
 	}
 exit:
 	g_dnl_unregister();

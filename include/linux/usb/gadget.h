@@ -937,6 +937,6 @@ extern struct usb_ep *usb_ep_autoconfig(struct usb_gadget *,
 
 extern void usb_ep_autoconfig_reset(struct usb_gadget *);
 
-extern int usb_gadget_handle_interrupts(void);
+extern int usb_gadget_handle_interrupts(int index);
 
 #endif	/* __LINUX_USB_GADGET_H */

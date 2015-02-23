@@ -1907,7 +1907,7 @@ static int eth_stop(struct eth_dev *dev)
 		/* Wait until host receives OID_GEN_MEDIA_CONNECT_STATUS */
 		ts = get_timer(0);
 		while (get_timer(ts) < timeout)
-			usb_gadget_handle_interrupts();
+			usb_gadget_handle_interrupts(0);
 #endif
 
 		rndis_uninit(dev->rndis_config);
@@ -2358,7 +2358,7 @@ static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 			error("The remote end did not respond in time.");
 			goto fail;
 		}
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 	}
 
 	packet_received = 0;
@@ -2426,7 +2426,7 @@ static int usb_eth_send(struct eth_device *netdev, void *packet, int length)
 			printf("timeout sending packets to usb ethernet\n");
 			return -1;
 		}
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 	}
 	if (rndis_pkt)
 		free(rndis_pkt);
@@ -2441,7 +2441,7 @@ static int usb_eth_recv(struct eth_device *netdev)
 {
 	struct eth_dev *dev = &l_ethdev;
 
-	usb_gadget_handle_interrupts();
+	usb_gadget_handle_interrupts(0);
 
 	if (packet_received) {
 		debug("%s: packet received\n", __func__);
@@ -2486,7 +2486,7 @@ void usb_eth_halt(struct eth_device *netdev)
 
 	/* Clear pending interrupt */
 	if (dev->network_started) {
-		usb_gadget_handle_interrupts();
+		usb_gadget_handle_interrupts(0);
 		dev->network_started = 0;
 	}
 

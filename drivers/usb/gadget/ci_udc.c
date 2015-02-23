@@ -741,7 +741,7 @@ void udc_irq(void)
 	}
 }
 
-int usb_gadget_handle_interrupts(void)
+int usb_gadget_handle_interrupts(int index)
 {
 	u32 value;
 	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
