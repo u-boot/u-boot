@@ -16,6 +16,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <dwc3-uboot.h>
 #include <asm/dma-mapping.h>
 #include <linux/ioport.h>
 
@@ -28,6 +29,7 @@
 
 #include "linux-compat.h"
 
+struct dwc3 *dwc;
 /* -------------------------------------------------------------------------- */
 
 void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
@@ -597,20 +599,26 @@ static void dwc3_core_exit_mode(struct dwc3 *dwc)
 
 #define DWC3_ALIGN_MASK		(16 - 1)
 
-static int dwc3_probe(struct platform_device *pdev)
+/**
+ * dwc3_uboot_init - dwc3 core uboot initialization code
+ * @dwc3_dev: struct dwc3_device containing initialization data
+ *
+ * Entry point for dwc3 driver (equivalent to dwc3_probe in linux
+ * kernel driver). Pointer to dwc3_device should be passed containing
+ * base address and other initialization data. Returns '0' on success and
+ * a negative value on failure.
+ *
+ * Generally called from board_usb_init() implemented in board file.
+ */
+int dwc3_uboot_init(struct dwc3_device *dwc3_dev)
 {
-	struct device		*dev = &pdev->dev;
-	struct dwc3_platform_data *pdata = dev_get_platdata(dev);
-	struct device_node	*node = dev->of_node;
-	struct resource		*res;
-	struct dwc3		*dwc;
+	struct device		*dev;
 	u8			lpm_nyet_threshold;
 	u8			tx_de_emphasis;
 	u8			hird_threshold;
 
 	int			ret;
 
-	void __iomem		*regs;
 	void			*mem;
 
 	mem = devm_kzalloc(dev, sizeof(*dwc) + DWC3_ALIGN_MASK, GFP_KERNEL);
@@ -619,48 +627,8 @@ static int dwc3_probe(struct platform_device *pdev)
 
 	dwc = PTR_ALIGN(mem, DWC3_ALIGN_MASK + 1);
 	dwc->mem = mem;
-	dwc->dev = dev;
 
-	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-	if (!res) {
-		dev_err(dev, "missing IRQ\n");
-		return -ENODEV;
-	}
-	dwc->xhci_resources[1].start = res->start;
-	dwc->xhci_resources[1].end = res->end;
-	dwc->xhci_resources[1].flags = res->flags;
-	dwc->xhci_resources[1].name = res->name;
-
-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if (!res) {
-		dev_err(dev, "missing memory resource\n");
-		return -ENODEV;
-	}
-
-	dwc->xhci_resources[0].start = res->start;
-	dwc->xhci_resources[0].end = dwc->xhci_resources[0].start +
-					DWC3_XHCI_REGS_END;
-	dwc->xhci_resources[0].flags = res->flags;
-	dwc->xhci_resources[0].name = res->name;
-
-	res->start += DWC3_GLOBALS_REGS_START;
-
-	/*
-	 * Request memory region but exclude xHCI regs,
-	 * since it will be requested by the xhci-plat driver.
-	 */
-	regs = devm_ioremap_resource(dev, res);
-	if (IS_ERR(regs))
-		return PTR_ERR(regs);
-
-	dwc->regs	= regs;
-	dwc->regs_size	= resource_size(res);
-	/*
-	 * restore res->start back to its original value so that,
-	 * in case the probe is deferred, we don't end up getting error in
-	 * request the memory region the next time probe is called.
-	 */
-	res->start -= DWC3_GLOBALS_REGS_START;
+	dwc->regs	= (int *)(dwc3_dev->base + DWC3_GLOBALS_REGS_START);
 
 	/* default to highest possible threshold */
 	lpm_nyet_threshold = 0xff;
@@ -674,73 +642,31 @@ static int dwc3_probe(struct platform_device *pdev)
 	 */
 	hird_threshold = 12;
 
-	if (node) {
-		dwc->maximum_speed = of_usb_get_maximum_speed(node);
-		dwc->has_lpm_erratum = of_property_read_bool(node,
-				"snps,has-lpm-erratum");
-		of_property_read_u8(node, "snps,lpm-nyet-threshold",
-				&lpm_nyet_threshold);
-		dwc->is_utmi_l1_suspend = of_property_read_bool(node,
-				"snps,is-utmi-l1-suspend");
-		of_property_read_u8(node, "snps,hird-threshold",
-				&hird_threshold);
+	dwc->maximum_speed = dwc3_dev->maximum_speed;
+	dwc->has_lpm_erratum = dwc3_dev->has_lpm_erratum;
+	if (dwc3_dev->lpm_nyet_threshold)
+		lpm_nyet_threshold = dwc3_dev->lpm_nyet_threshold;
+	dwc->is_utmi_l1_suspend = dwc3_dev->is_utmi_l1_suspend;
+	if (dwc3_dev->hird_threshold)
+		hird_threshold = dwc3_dev->hird_threshold;
 
-		dwc->needs_fifo_resize = of_property_read_bool(node,
-				"tx-fifo-resize");
-		dwc->dr_mode = of_usb_get_dr_mode(node);
+	dwc->needs_fifo_resize = dwc3_dev->tx_fifo_resize;
+	dwc->dr_mode = dwc3_dev->dr_mode;
 
-		dwc->disable_scramble_quirk = of_property_read_bool(node,
-				"snps,disable_scramble_quirk");
-		dwc->u2exit_lfps_quirk = of_property_read_bool(node,
-				"snps,u2exit_lfps_quirk");
-		dwc->u2ss_inp3_quirk = of_property_read_bool(node,
-				"snps,u2ss_inp3_quirk");
-		dwc->req_p1p2p3_quirk = of_property_read_bool(node,
-				"snps,req_p1p2p3_quirk");
-		dwc->del_p1p2p3_quirk = of_property_read_bool(node,
-				"snps,del_p1p2p3_quirk");
-		dwc->del_phy_power_chg_quirk = of_property_read_bool(node,
-				"snps,del_phy_power_chg_quirk");
-		dwc->lfps_filter_quirk = of_property_read_bool(node,
-				"snps,lfps_filter_quirk");
-		dwc->rx_detect_poll_quirk = of_property_read_bool(node,
-				"snps,rx_detect_poll_quirk");
-		dwc->dis_u3_susphy_quirk = of_property_read_bool(node,
-				"snps,dis_u3_susphy_quirk");
-		dwc->dis_u2_susphy_quirk = of_property_read_bool(node,
-				"snps,dis_u2_susphy_quirk");
+	dwc->disable_scramble_quirk = dwc3_dev->disable_scramble_quirk;
+	dwc->u2exit_lfps_quirk = dwc3_dev->u2exit_lfps_quirk;
+	dwc->u2ss_inp3_quirk = dwc3_dev->u2ss_inp3_quirk;
+	dwc->req_p1p2p3_quirk = dwc3_dev->req_p1p2p3_quirk;
+	dwc->del_p1p2p3_quirk = dwc3_dev->del_p1p2p3_quirk;
+	dwc->del_phy_power_chg_quirk = dwc3_dev->del_phy_power_chg_quirk;
+	dwc->lfps_filter_quirk = dwc3_dev->lfps_filter_quirk;
+	dwc->rx_detect_poll_quirk = dwc3_dev->rx_detect_poll_quirk;
+	dwc->dis_u3_susphy_quirk = dwc3_dev->dis_u3_susphy_quirk;
+	dwc->dis_u2_susphy_quirk = dwc3_dev->dis_u2_susphy_quirk;
 
-		dwc->tx_de_emphasis_quirk = of_property_read_bool(node,
-				"snps,tx_de_emphasis_quirk");
-		of_property_read_u8(node, "snps,tx_de_emphasis",
-				&tx_de_emphasis);
-	} else if (pdata) {
-		dwc->maximum_speed = pdata->maximum_speed;
-		dwc->has_lpm_erratum = pdata->has_lpm_erratum;
-		if (pdata->lpm_nyet_threshold)
-			lpm_nyet_threshold = pdata->lpm_nyet_threshold;
-		dwc->is_utmi_l1_suspend = pdata->is_utmi_l1_suspend;
-		if (pdata->hird_threshold)
-			hird_threshold = pdata->hird_threshold;
-
-		dwc->needs_fifo_resize = pdata->tx_fifo_resize;
-		dwc->dr_mode = pdata->dr_mode;
-
-		dwc->disable_scramble_quirk = pdata->disable_scramble_quirk;
-		dwc->u2exit_lfps_quirk = pdata->u2exit_lfps_quirk;
-		dwc->u2ss_inp3_quirk = pdata->u2ss_inp3_quirk;
-		dwc->req_p1p2p3_quirk = pdata->req_p1p2p3_quirk;
-		dwc->del_p1p2p3_quirk = pdata->del_p1p2p3_quirk;
-		dwc->del_phy_power_chg_quirk = pdata->del_phy_power_chg_quirk;
-		dwc->lfps_filter_quirk = pdata->lfps_filter_quirk;
-		dwc->rx_detect_poll_quirk = pdata->rx_detect_poll_quirk;
-		dwc->dis_u3_susphy_quirk = pdata->dis_u3_susphy_quirk;
-		dwc->dis_u2_susphy_quirk = pdata->dis_u2_susphy_quirk;
-
-		dwc->tx_de_emphasis_quirk = pdata->tx_de_emphasis_quirk;
-		if (pdata->tx_de_emphasis)
-			tx_de_emphasis = pdata->tx_de_emphasis;
-	}
+	dwc->tx_de_emphasis_quirk = dwc3_dev->tx_de_emphasis_quirk;
+	if (dwc3_dev->tx_de_emphasis)
+		tx_de_emphasis = dwc3_dev->tx_de_emphasis;
 
 	/* default to superspeed if no maximum_speed passed */
 	if (dwc->maximum_speed == USB_SPEED_UNKNOWN)
@@ -751,15 +677,6 @@ static int dwc3_probe(struct platform_device *pdev)
 
 	dwc->hird_threshold = hird_threshold
 		| (dwc->is_utmi_l1_suspend << 4);
-
-	spin_lock_init(&dwc->lock);
-	platform_set_drvdata(pdev, dwc);
-
-	if (!dev->dma_mask) {
-		dev->dma_mask = dev->parent->dma_mask;
-		dev->dma_parms = dev->parent->dma_parms;
-		dma_set_coherent_mask(dev, dev->parent->coherent_dma_mask);
-	}
 
 	dwc3_cache_hwparams(dwc);
 
@@ -807,54 +724,23 @@ err0:
 	return ret;
 }
 
-static int dwc3_remove(struct platform_device *pdev)
+/**
+ * dwc3_uboot_exit - dwc3 core uboot cleanup code
+ * @index: index of this controller
+ *
+ * Performs cleanup of memory allocated in dwc3_uboot_init and other misc
+ * cleanups (equivalent to dwc3_remove in linux).
+ *
+ * Generally called from board file.
+ */
+void dwc3_uboot_exit()
 {
-	struct dwc3	*dwc = platform_get_drvdata(pdev);
-
 	dwc3_core_exit_mode(dwc);
 	dwc3_event_buffers_cleanup(dwc);
 	dwc3_free_event_buffers(dwc);
-
 	dwc3_core_exit(dwc);
-
-	return 0;
+	kfree(dwc->mem);
 }
-
-#ifdef CONFIG_OF
-static const struct of_device_id of_dwc3_match[] = {
-	{
-		.compatible = "snps,dwc3"
-	},
-	{
-		.compatible = "synopsys,dwc3"
-	},
-	{ },
-};
-MODULE_DEVICE_TABLE(of, of_dwc3_match);
-#endif
-
-#ifdef CONFIG_ACPI
-
-#define ACPI_ID_INTEL_BSW	"808622B7"
-
-static const struct acpi_device_id dwc3_acpi_match[] = {
-	{ ACPI_ID_INTEL_BSW, 0 },
-	{ },
-};
-MODULE_DEVICE_TABLE(acpi, dwc3_acpi_match);
-#endif
-
-static struct platform_driver dwc3_driver = {
-	.probe		= dwc3_probe,
-	.remove		= dwc3_remove,
-	.driver		= {
-		.name	= "dwc3",
-		.of_match_table	= of_match_ptr(of_dwc3_match),
-		.acpi_match_table = ACPI_PTR(dwc3_acpi_match),
-	},
-};
-
-module_platform_driver(dwc3_driver);
 
 MODULE_ALIAS("platform:dwc3");
 MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
