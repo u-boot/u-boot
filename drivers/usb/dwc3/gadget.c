@@ -1,19 +1,17 @@
 /**
  * gadget.c - DesignWare USB3 DRD Controller Gadget Framework Link
  *
- * Copyright (C) 2010-2011 Texas Instruments Incorporated - http://www.ti.com
+ * Copyright (C) 2015 Texas Instruments Incorporated - http://www.ti.com
  *
  * Authors: Felipe Balbi <balbi@ti.com>,
  *	    Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2  of
- * the License as published by the Free Software Foundation.
+ * Taken from Linux Kernel v3.19-rc1 (drivers/usb/dwc3/gadget.c) and ported
+ * to uboot.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * commit 8e74475b0e : usb: dwc3: gadget: use udc-core's reset notifier
+ *
+ * SPDX-License-Identifier:     GPL-2.0
  */
 
 #include <linux/kernel.h>

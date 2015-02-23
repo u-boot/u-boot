@@ -1,19 +1,18 @@
 /**
  * io.h - DesignWare USB3 DRD IO Header
  *
- * Copyright (C) 2010-2011 Texas Instruments Incorporated - http://www.ti.com
+ * Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com
  *
  * Authors: Felipe Balbi <balbi@ti.com>,
  *	    Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2  of
- * the License as published by the Free Software Foundation.
+ * Taken from Linux Kernel v3.19-rc1 (drivers/usb/dwc3/io.h) and ported
+ * to uboot.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * commit 2c4cbe6e5a : usb: dwc3: add tracepoints to aid debugging
+ *
+ * SPDX-License-Identifier:     GPL-2.0
+ *
  */
 
 #ifndef __DRIVERS_USB_DWC3_IO_H
