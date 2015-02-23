@@ -120,13 +120,6 @@ struct dwc3_omap {
 	u32			dma_status:1;
 };
 
-enum omap_dwc3_vbus_id_status {
-	OMAP_DWC3_ID_FLOAT,
-	OMAP_DWC3_ID_GROUND,
-	OMAP_DWC3_VBUS_OFF,
-	OMAP_DWC3_VBUS_VALID,
-};
-
 static inline u32 dwc3_omap_readl(void __iomem *base, u32 offset)
 {
 	return readl(base + offset);
