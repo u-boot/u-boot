@@ -20,6 +20,7 @@
 #include <asm/arch/rmobile.h>
 #include <asm/arch/rcar-mstp.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/sh_sdhi.h>
 #include <netdev.h>
 #include <miiphy.h>
 #include <i2c.h>
@@ -47,6 +48,10 @@ void s_init(void)
 #define ETHER_MSTP813	(1 << 13)
 #define IIC1_MSTP323	(1 << 23)
 #define MMC0_MSTP315	(1 << 15)
+#define SDHI1_MSTP312	(1 << 12)
+
+#define SD1CKCR		0xE6150078
+#define SD1_97500KHZ	0x7
 
 int board_early_init_f(void)
 {
@@ -65,6 +70,16 @@ int board_early_init_f(void)
 #ifdef CONFIG_SH_MMCIF
 	/* MMC */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, MMC0_MSTP315);
+#endif
+
+#ifdef CONFIG_SH_SDHI
+	/* SDHI1 */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SDHI1_MSTP312);
+
+	/*
+	 * Set SD1 to the 97.5MHz
+	 */
+	writel(SD1_97500KHZ, SD1CKCR);
 #endif
 	return 0;
 }
@@ -139,7 +154,7 @@ int board_eth_init(bd_t *bis)
 
 int board_mmc_init(bd_t *bis)
 {
-	int ret = 0;
+	int ret = -ENODEV;
 
 #ifdef CONFIG_SH_MMCIF
 	/* MMC0 */
@@ -147,6 +162,24 @@ int board_mmc_init(bd_t *bis)
 	gpio_direction_output(GPIO_GP_4_31, 1);
 
 	ret = mmcif_mmc_init();
+#endif
+
+#ifdef CONFIG_SH_SDHI
+	gpio_request(GPIO_FN_SD1_DATA0, NULL);
+	gpio_request(GPIO_FN_SD1_DATA1, NULL);
+	gpio_request(GPIO_FN_SD1_DATA2, NULL);
+	gpio_request(GPIO_FN_SD1_DATA3, NULL);
+	gpio_request(GPIO_FN_SD1_CLK, NULL);
+	gpio_request(GPIO_FN_SD1_CMD, NULL);
+	gpio_request(GPIO_FN_SD1_CD, NULL);
+
+	/* SDHI 1 */
+	gpio_request(GPIO_GP_4_26, NULL);
+	gpio_request(GPIO_GP_4_29, NULL);
+	gpio_direction_output(GPIO_GP_4_26, 1);
+	gpio_direction_output(GPIO_GP_4_29, 1);
+
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI1_BASE, 1, 0);
 #endif
 	return ret;
 }

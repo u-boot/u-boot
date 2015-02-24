@@ -101,6 +101,9 @@
 #define CONFIG_SH_MMCIF_ADDR	0xee200000
 #define CONFIG_SH_MMCIF_CLK	48000000
 
+/* SDHI */
+#define CONFIG_SH_SDHI_FREQ	97500000
+
 /* Module stop status bits */
 /* INTC-RT */
 #define CONFIG_SMSTP0_ENA	0x00400000
