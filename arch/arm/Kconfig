@@ -144,10 +144,6 @@ config TARGET_DEVKIT3250
 	bool "Support devkit3250"
 	select CPU_ARM926EJS
 
-config TARGET_JADECPU
-	bool "Support jadecpu"
-	select CPU_ARM926EJS
-
 config TARGET_MX25PDK
 	bool "Support mx25pdk"
 	select CPU_ARM926EJS
@@ -852,7 +848,6 @@ source "board/st-ericsson/snowball/Kconfig"
 source "board/st-ericsson/u8500/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/sunxi/Kconfig"
-source "board/syteco/jadecpu/Kconfig"
 source "board/syteco/zmx25/Kconfig"
 source "board/tbs/tbs2910/Kconfig"
 source "board/ti/am335x/Kconfig"

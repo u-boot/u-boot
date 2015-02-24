@@ -32,7 +32,6 @@ obj-$(CONFIG_VIDEO_IMX25LCDC) += imx25lcdc.o videomodes.o
 obj-$(CONFIG_VIDEO_LCD_HITACHI_TX18D42VM) += hitachi_tx18d42vm_lcd.o
 obj-$(CONFIG_VIDEO_LCD_SSD2828) += ssd2828.o
 obj-$(CONFIG_VIDEO_MB862xx) += mb862xx.o videomodes.o
-obj-$(CONFIG_VIDEO_MB86R0xGDC) += mb86r0xgdc.o videomodes.o
 obj-$(CONFIG_VIDEO_MX3) += mx3fb.o videomodes.o
 obj-$(CONFIG_VIDEO_IPUV3) += mxc_ipuv3_fb.o ipu_common.o ipu_disp.o
 obj-$(CONFIG_VIDEO_MXS) += mxsfb.o videomodes.o

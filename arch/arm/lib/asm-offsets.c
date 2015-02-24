@@ -15,9 +15,6 @@
 #include <common.h>
 #include <linux/kbuild.h>
 
-#if defined(CONFIG_MB86R0x)
-#include <asm/arch/mb86r0x.h>
-#endif
 #if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX35) \
 	|| defined(CONFIG_MX51) || defined(CONFIG_MX53)
 #include <asm/arch/imx-regs.h>
@@ -27,8 +24,6 @@ int main(void)
 {
 	/*
 	 * TODO : Check if each entry in this file is really necessary.
-	 *   - struct mb86r0x_ddr2
-	 *   - struct mb86r0x_memc
 	 *   - struct esdramc_regs
 	 *   - struct max_regs
 	 *   - struct aips_regs
@@ -39,47 +34,6 @@ int main(void)
 	 * It means their offset addresses are referenced only from assembly
 	 * code. Is it better to define the macros directly in headers?
 	 */
-
-#if defined(CONFIG_MB86R0x)
-	/* ddr2 controller */
-	DEFINE(DDR2_DRIC, offsetof(struct mb86r0x_ddr2c, dric));
-	DEFINE(DDR2_DRIC1, offsetof(struct mb86r0x_ddr2c, dric1));
-	DEFINE(DDR2_DRIC2, offsetof(struct mb86r0x_ddr2c, dric2));
-	DEFINE(DDR2_DRCA, offsetof(struct mb86r0x_ddr2c, drca));
-	DEFINE(DDR2_DRCM, offsetof(struct mb86r0x_ddr2c, drcm));
-	DEFINE(DDR2_DRCST1, offsetof(struct mb86r0x_ddr2c, drcst1));
-	DEFINE(DDR2_DRCST2, offsetof(struct mb86r0x_ddr2c, drcst2));
-	DEFINE(DDR2_DRCR, offsetof(struct mb86r0x_ddr2c, drcr));
-	DEFINE(DDR2_DRCF, offsetof(struct mb86r0x_ddr2c, drcf));
-	DEFINE(DDR2_DRASR, offsetof(struct mb86r0x_ddr2c, drasr));
-	DEFINE(DDR2_DRIMS, offsetof(struct mb86r0x_ddr2c, drims));
-	DEFINE(DDR2_DROS, offsetof(struct mb86r0x_ddr2c, dros));
-	DEFINE(DDR2_DRIBSODT1, offsetof(struct mb86r0x_ddr2c, dribsodt1));
-	DEFINE(DDR2_DROABA, offsetof(struct mb86r0x_ddr2c, droaba));
-	DEFINE(DDR2_DROBS, offsetof(struct mb86r0x_ddr2c, drobs));
-
-	/* clock reset generator */
-	DEFINE(CRG_CRPR, offsetof(struct mb86r0x_crg, crpr));
-	DEFINE(CRG_CRHA, offsetof(struct mb86r0x_crg, crha));
-	DEFINE(CRG_CRPA, offsetof(struct mb86r0x_crg, crpa));
-	DEFINE(CRG_CRPB, offsetof(struct mb86r0x_crg, crpb));
-	DEFINE(CRG_CRHB, offsetof(struct mb86r0x_crg, crhb));
-	DEFINE(CRG_CRAM, offsetof(struct mb86r0x_crg, cram));
-
-	/* chip control module */
-	DEFINE(CCNT_CDCRC, offsetof(struct mb86r0x_ccnt, cdcrc));
-
-	/* external bus interface */
-	DEFINE(MEMC_MCFMODE0, offsetof(struct mb86r0x_memc, mcfmode[0]));
-	DEFINE(MEMC_MCFMODE2, offsetof(struct mb86r0x_memc, mcfmode[2]));
-	DEFINE(MEMC_MCFMODE4, offsetof(struct mb86r0x_memc, mcfmode[4]));
-	DEFINE(MEMC_MCFTIM0, offsetof(struct mb86r0x_memc, mcftim[0]));
-	DEFINE(MEMC_MCFTIM2, offsetof(struct mb86r0x_memc, mcftim[2]));
-	DEFINE(MEMC_MCFTIM4, offsetof(struct mb86r0x_memc, mcftim[4]));
-	DEFINE(MEMC_MCFAREA0, offsetof(struct mb86r0x_memc, mcfarea[0]));
-	DEFINE(MEMC_MCFAREA2, offsetof(struct mb86r0x_memc, mcfarea[2]));
-	DEFINE(MEMC_MCFAREA4, offsetof(struct mb86r0x_memc, mcfarea[4]));
-#endif
 
 #if defined(CONFIG_MX25)
 	/* Clock Control Module */
