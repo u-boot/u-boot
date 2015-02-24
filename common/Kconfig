@@ -1,5 +1,4 @@
 menu "Command line interface"
-	depends on !SPL_BUILD
 
 config HUSH_PARSER
 	bool "Use hush shell"

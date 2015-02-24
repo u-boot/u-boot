@@ -620,9 +620,8 @@ config TEGRA
 	bool "NVIDIA Tegra"
 	select SUPPORT_SPL
 	select SPL
-	select OF_CONTROL if !SPL_BUILD
-	select CPU_ARM720T if SPL_BUILD
-	select CPU_V7 if !SPL_BUILD
+	select OF_CONTROL
+	select CPU_V7
 
 config TARGET_VEXPRESS64_AEMV8A
 	bool "Support vexpress_aemv8a"
@@ -714,7 +713,7 @@ config ARCH_UNIPHIER
 	select CPU_V7
 	select SUPPORT_SPL
 	select SPL
-	select OF_CONTROL if !SPL_BUILD
+	select OF_CONTROL
 
 endchoice
 

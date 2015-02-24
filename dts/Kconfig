@@ -9,7 +9,6 @@ config SUPPORT_OF_CONTROL
 	bool
 
 menu "Device Tree Control"
-	depends on !SPL_BUILD
 	depends on SUPPORT_OF_CONTROL
 
 config OF_CONTROL

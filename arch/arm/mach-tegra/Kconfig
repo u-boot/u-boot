@@ -27,22 +27,22 @@ config USE_PRIVATE_LIBGCC
 	default y
 
 config DM
-	default y if !SPL_BUILD
+	default y
 
 config DM_SERIAL
-	default y if !SPL_BUILD
+	default y
 
 config DM_SPI
-	default y if !SPL_BUILD
+	default y
 
 config DM_SPI_FLASH
-	default y if !SPL_BUILD
+	default y
 
 config DM_I2C
-	default y if !SPL_BUILD
+	default y
 
 config DM_GPIO
-	default y if !SPL_BUILD
+	default y
 
 source "arch/arm/mach-tegra/tegra20/Kconfig"
 source "arch/arm/mach-tegra/tegra30/Kconfig"

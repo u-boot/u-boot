@@ -1,6 +1,5 @@
 config DM
 	bool "Enable Driver Model"
-	depends on !SPL_BUILD
 	help
 	  This config option enables Driver Model. This brings in the core
 	  support, including scanning of platform data on start-up. If
@@ -22,31 +21,28 @@ config SPL_DM
 
 config DM_WARN
 	bool "Enable warnings in driver model"
+	depends on DM
+	default y
 	help
 	  The dm_warn() function can use up quite a bit of space for its
 	  strings. By default this is disabled for SPL builds to save space.
 	  This will cause dm_warn() to be compiled out - it will do nothing
 	  when called.
-	depends on DM
-	default y if !SPL_BUILD
-	default n if SPL_BUILD
 
 config DM_DEVICE_REMOVE
 	bool "Support device removal"
+	depends on DM
+	default y
 	help
 	  We can save some code space by dropping support for removing a
 	  device. This is not normally required in SPL, so by default this
 	  option is disabled for SPL.
-	depends on DM
-	default y if !SPL_BUILD
-	default n if SPL_BUILD
 
 config DM_STDIO
 	bool "Support stdio registration"
+	depends on DM
+	default y
 	help
 	  Normally serial drivers register with stdio so that they can be used
 	  as normal output devices. In SPL we don't normally use stdio, so
 	  we can omit this feature.
-	depends on DM
-	default y if !SPL_BUILD
-	default n if SPL_BUILD

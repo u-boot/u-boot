@@ -94,19 +94,19 @@ config TARGET_TWISTER
 endchoice
 
 config DM
-	default y if !SPL_BUILD
+	default y
 
 config DM_GPIO
-	default y if DM && !SPL_BUILD
+	default y if DM
 
 config DM_SERIAL
-	default y if DM && !SPL_BUILD
+	default y if DM
 
 config SYS_MALLOC_F
-	default y if DM && !SPL_BUILD
+	default y if DM
 
 config SYS_MALLOC_F_LEN
-	default 0x400 if DM && !SPL_BUILD
+	default 0x400 if DM
 
 config SYS_SOC
 	default "omap3"

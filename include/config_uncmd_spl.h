@@ -29,5 +29,9 @@
 #undef CONFIG_DM_SPI
 #endif
 
+#undef CONFIG_DM_WARN
+#undef CONFIG_DM_DEVICE_REMOVE
+#undef CONFIG_DM_STDIO
+
 #endif /* CONFIG_SPL_BUILD */
 #endif /* __CONFIG_UNCMD_SPL_H__ */
