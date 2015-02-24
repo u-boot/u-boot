@@ -23,39 +23,45 @@ enum pmux_tristate {
 	PMUX_TRI_TRISTATE = 1,
 };
 
-#ifdef TEGRA_PMX_HAS_PIN_IO_BIT_ETC
+#ifdef TEGRA_PMX_PINS_HAVE_E_INPUT
 enum pmux_pin_io {
 	PMUX_PIN_OUTPUT = 0,
 	PMUX_PIN_INPUT = 1,
 	PMUX_PIN_NONE,
 };
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_LOCK
 enum pmux_pin_lock {
 	PMUX_PIN_LOCK_DEFAULT = 0,
 	PMUX_PIN_LOCK_DISABLE,
 	PMUX_PIN_LOCK_ENABLE,
 };
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_OD
 enum pmux_pin_od {
 	PMUX_PIN_OD_DEFAULT = 0,
 	PMUX_PIN_OD_DISABLE,
 	PMUX_PIN_OD_ENABLE,
 };
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_IO_RESET
 enum pmux_pin_ioreset {
 	PMUX_PIN_IO_RESET_DEFAULT = 0,
 	PMUX_PIN_IO_RESET_DISABLE,
 	PMUX_PIN_IO_RESET_ENABLE,
 };
+#endif
 
-#ifdef TEGRA_PMX_HAS_RCV_SEL
+#ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
 enum pmux_pin_rcv_sel {
 	PMUX_PIN_RCV_SEL_DEFAULT = 0,
 	PMUX_PIN_RCV_SEL_NORMAL,
 	PMUX_PIN_RCV_SEL_HIGH,
 };
-#endif /* TEGRA_PMX_HAS_RCV_SEL */
-#endif /* TEGRA_PMX_HAS_PIN_IO_BIT_ETC */
+#endif
 
 /*
  * This defines the configuration for a pin, including the function assigned,
@@ -68,19 +74,25 @@ struct pmux_pingrp_config {
 	u32 func:8;		/* function to assign PMUX_FUNC_... */
 	u32 pull:2;		/* pull up/down/normal PMUX_PULL_...*/
 	u32 tristate:2;		/* tristate or normal PMUX_TRI_...  */
-#ifdef TEGRA_PMX_HAS_PIN_IO_BIT_ETC
+#ifdef TEGRA_PMX_PINS_HAVE_E_INPUT
 	u32 io:2;		/* input or output PMUX_PIN_...     */
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_LOCK
 	u32 lock:2;		/* lock enable/disable PMUX_PIN...  */
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_OD
 	u32 od:2;		/* open-drain or push-pull driver   */
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_IO_RESET
 	u32 ioreset:2;		/* input/output reset PMUX_PIN...   */
-#ifdef TEGRA_PMX_HAS_RCV_SEL
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
 	u32 rcv_sel:2;		/* select between High and Normal  */
 				/* VIL/VIH receivers */
 #endif
-#endif
 };
 
-#if !defined(CONFIG_TEGRA20) && !defined(CONFIG_TEGRA30)
+#ifdef TEGRA_PMX_SOC_HAS_IO_CLAMPING
 /* Set/clear the pinmux CLAMP_INPUTS_WHEN_TRISTATED bit */
 void pinmux_set_tristate_input_clamping(void);
 void pinmux_clear_tristate_input_clamping(void);
@@ -98,7 +110,7 @@ void pinmux_tristate_enable(enum pmux_pingrp pin);
 /* Set a pin group to normal (non tristate) */
 void pinmux_tristate_disable(enum pmux_pingrp pin);
 
-#ifdef TEGRA_PMX_HAS_PIN_IO_BIT_ETC
+#ifdef TEGRA_PMX_PINS_HAVE_E_INPUT
 /* Set a pin group as input or output */
 void pinmux_set_io(enum pmux_pingrp pin, enum pmux_pin_io io);
 #endif
@@ -112,7 +124,7 @@ void pinmux_set_io(enum pmux_pingrp pin, enum pmux_pin_io io);
 void pinmux_config_pingrp_table(const struct pmux_pingrp_config *config,
 				int len);
 
-#ifdef TEGRA_PMX_HAS_DRVGRPS
+#ifdef TEGRA_PMX_SOC_HAS_DRVGRPS
 
 #define PMUX_SLWF_MIN	0
 #define PMUX_SLWF_MAX	3
@@ -176,7 +188,7 @@ struct pmux_drvgrp_config {
 void pinmux_config_drvgrp_table(const struct pmux_drvgrp_config *config,
 				int len);
 
-#endif /* TEGRA_PMX_HAS_DRVGRPS */
+#endif /* TEGRA_PMX_SOC_HAS_DRVGRPS */
 
 struct pmux_pingrp_desc {
 	u8 funcs[4];

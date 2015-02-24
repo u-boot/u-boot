@@ -391,8 +391,11 @@ enum pmux_func {
 	PMUX_FUNC_COUNT,
 };
 
-#define TEGRA_PMX_HAS_PIN_IO_BIT_ETC
-#define TEGRA_PMX_HAS_DRVGRPS
+#define TEGRA_PMX_SOC_HAS_DRVGRPS
+#define TEGRA_PMX_PINS_HAVE_E_INPUT
+#define TEGRA_PMX_PINS_HAVE_LOCK
+#define TEGRA_PMX_PINS_HAVE_OD
+#define TEGRA_PMX_PINS_HAVE_IO_RESET
 #include <asm/arch-tegra/pinmux.h>
 
 #endif /* _TEGRA30_PINMUX_H_ */

@@ -24,31 +24,37 @@
 #define pmux_pin_tristate_isvalid(tristate) \
 	(((tristate) >= PMUX_TRI_NORMAL) && ((tristate) <= PMUX_TRI_TRISTATE))
 
-#ifdef TEGRA_PMX_HAS_PIN_IO_BIT_ETC
+#ifdef TEGRA_PMX_PINS_HAVE_E_INPUT
 /* return 1 if a pin_io_is in range */
 #define pmux_pin_io_isvalid(io) \
 	(((io) >= PMUX_PIN_OUTPUT) && ((io) <= PMUX_PIN_INPUT))
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_LOCK
 /* return 1 if a pin_lock is in range */
 #define pmux_pin_lock_isvalid(lock) \
 	(((lock) >= PMUX_PIN_LOCK_DISABLE) && ((lock) <= PMUX_PIN_LOCK_ENABLE))
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_OD
 /* return 1 if a pin_od is in range */
 #define pmux_pin_od_isvalid(od) \
 	(((od) >= PMUX_PIN_OD_DISABLE) && ((od) <= PMUX_PIN_OD_ENABLE))
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_IO_RESET
 /* return 1 if a pin_ioreset_is in range */
 #define pmux_pin_ioreset_isvalid(ioreset) \
 	(((ioreset) >= PMUX_PIN_IO_RESET_DISABLE) && \
 	 ((ioreset) <= PMUX_PIN_IO_RESET_ENABLE))
+#endif
 
-#ifdef TEGRA_PMX_HAS_RCV_SEL
+#ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
 /* return 1 if a pin_rcv_sel_is in range */
 #define pmux_pin_rcv_sel_isvalid(rcv_sel) \
 	(((rcv_sel) >= PMUX_PIN_RCV_SEL_NORMAL) && \
 	 ((rcv_sel) <= PMUX_PIN_RCV_SEL_HIGH))
-#endif /* TEGRA_PMX_HAS_RCV_SEL */
-#endif /* TEGRA_PMX_HAS_PIN_IO_BIT_ETC */
+#endif
 
 #define _R(offset)	(u32 *)(NV_PA_APB_MISC_BASE + (offset))
 
@@ -86,7 +92,7 @@
 #define IO_RESET_SHIFT	8
 #define RCV_SEL_SHIFT	9
 
-#if !defined(CONFIG_TEGRA20) && !defined(CONFIG_TEGRA30)
+#ifdef TEGRA_PMX_SOC_HAS_IO_CLAMPING
 /* This register/field only exists on Tegra114 and later */
 #define APB_MISC_PP_PINMUX_GLOBAL_0 0x40
 #define CLAMP_INPUTS_WHEN_TRISTATED 1
@@ -180,7 +186,7 @@ void pinmux_tristate_disable(enum pmux_pingrp pin)
 	pinmux_set_tristate(pin, PMUX_TRI_NORMAL);
 }
 
-#ifdef TEGRA_PMX_HAS_PIN_IO_BIT_ETC
+#ifdef TEGRA_PMX_PINS_HAVE_E_INPUT
 void pinmux_set_io(enum pmux_pingrp pin, enum pmux_pin_io io)
 {
 	u32 *reg = REG(pin);
@@ -200,7 +206,9 @@ void pinmux_set_io(enum pmux_pingrp pin, enum pmux_pin_io io)
 		val &= ~(1 << IO_SHIFT);
 	writel(val, reg);
 }
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_LOCK
 static void pinmux_set_lock(enum pmux_pingrp pin, enum pmux_pin_lock lock)
 {
 	u32 *reg = REG(pin);
@@ -225,7 +233,9 @@ static void pinmux_set_lock(enum pmux_pingrp pin, enum pmux_pin_lock lock)
 
 	return;
 }
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_OD
 static void pinmux_set_od(enum pmux_pingrp pin, enum pmux_pin_od od)
 {
 	u32 *reg = REG(pin);
@@ -247,7 +257,9 @@ static void pinmux_set_od(enum pmux_pingrp pin, enum pmux_pin_od od)
 
 	return;
 }
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_IO_RESET
 static void pinmux_set_ioreset(enum pmux_pingrp pin,
 				enum pmux_pin_ioreset ioreset)
 {
@@ -270,8 +282,9 @@ static void pinmux_set_ioreset(enum pmux_pingrp pin,
 
 	return;
 }
+#endif
 
-#ifdef TEGRA_PMX_HAS_RCV_SEL
+#ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
 static void pinmux_set_rcv_sel(enum pmux_pingrp pin,
 				enum pmux_pin_rcv_sel rcv_sel)
 {
@@ -294,8 +307,7 @@ static void pinmux_set_rcv_sel(enum pmux_pingrp pin,
 
 	return;
 }
-#endif /* TEGRA_PMX_HAS_RCV_SEL */
-#endif /* TEGRA_PMX_HAS_PIN_IO_BIT_ETC */
+#endif
 
 static void pinmux_config_pingrp(const struct pmux_pingrp_config *config)
 {
@@ -304,14 +316,20 @@ static void pinmux_config_pingrp(const struct pmux_pingrp_config *config)
 	pinmux_set_func(pin, config->func);
 	pinmux_set_pullupdown(pin, config->pull);
 	pinmux_set_tristate(pin, config->tristate);
-#ifdef TEGRA_PMX_HAS_PIN_IO_BIT_ETC
+#ifdef TEGRA_PMX_PINS_HAVE_E_INPUT
 	pinmux_set_io(pin, config->io);
-	pinmux_set_lock(pin, config->lock);
-	pinmux_set_od(pin, config->od);
-	pinmux_set_ioreset(pin, config->ioreset);
-#ifdef TEGRA_PMX_HAS_RCV_SEL
-	pinmux_set_rcv_sel(pin, config->rcv_sel);
 #endif
+#ifdef TEGRA_PMX_PINS_HAVE_LOCK
+	pinmux_set_lock(pin, config->lock);
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_OD
+	pinmux_set_od(pin, config->od);
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_IO_RESET
+	pinmux_set_ioreset(pin, config->ioreset);
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
+	pinmux_set_rcv_sel(pin, config->rcv_sel);
 #endif
 }
 
@@ -324,7 +342,7 @@ void pinmux_config_pingrp_table(const struct pmux_pingrp_config *config,
 		pinmux_config_pingrp(&config[i]);
 }
 
-#ifdef TEGRA_PMX_HAS_DRVGRPS
+#ifdef TEGRA_PMX_SOC_HAS_DRVGRPS
 
 #define pmux_drvgrp_isvalid(pd) (((pd) >= 0) && ((pd) < PMUX_DRVGRP_COUNT))
 
