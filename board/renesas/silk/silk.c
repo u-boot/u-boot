@@ -136,7 +136,7 @@ int board_mmc_init(bd_t *bis)
 #ifdef CONFIG_SH_MMCIF
 	/* MMC0 */
 	gpio_request(GPIO_GP_4_31, NULL);
-	gpio_set_value(GPIO_GP_4_31, 1);
+	gpio_direction_output(GPIO_GP_4_31, 1);
 
 	ret = mmcif_mmc_init();
 #endif
