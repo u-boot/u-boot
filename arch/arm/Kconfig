@@ -73,10 +73,6 @@ config TARGET_INTEGRATORCP_CM920T
 	bool "Support integratorcp_cm920t"
 	select CPU_ARM920T
 
-config TARGET_A320EVB
-	bool "Support a320evb"
-	select CPU_ARM920T
-
 config ARCH_AT91
 	bool "Atmel AT91"
 
@@ -770,7 +766,6 @@ source "board/denx/m28evk/Kconfig"
 source "board/denx/m53evk/Kconfig"
 source "board/embest/mx6boards/Kconfig"
 source "board/esg/ima3-mx53/Kconfig"
-source "board/faraday/a320evb/Kconfig"
 source "board/freescale/ls2085a/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
