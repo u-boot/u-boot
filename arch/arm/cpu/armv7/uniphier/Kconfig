@@ -52,7 +52,7 @@ config SYS_MALLOC_F
 	default y
 
 config SYS_MALLOC_F_LEN
-	default 0x2000
+	default 0x400
 
 config CMD_PINMON
 	bool "Enable boot mode pins monitor command"
