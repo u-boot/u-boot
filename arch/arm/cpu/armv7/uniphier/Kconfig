@@ -71,7 +71,6 @@ config CMD_DDRPHY_DUMP
 
 choice
 	prompt "DDR3 Frequency select"
-	depends on SPL_BUILD
 
 config DDR_FREQ_1600
 	bool "DDR3 1600"

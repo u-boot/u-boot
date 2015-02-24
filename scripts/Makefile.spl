@@ -21,13 +21,15 @@ _dummy := $(shell [ -d $(obj) ] || mkdir -p $(obj))
 
 include $(srctree)/scripts/Kbuild.include
 
-UBOOTINCLUDE := -I$(obj)/include $(UBOOTINCLUDE)
-
--include $(obj)/include/config/auto.conf
+-include include/config/auto.conf
 -include $(obj)/include/autoconf.mk
 
+KBUILD_CPPFLAGS += -DCONFIG_SPL_BUILD
 ifeq ($(CONFIG_TPL_BUILD),y)
-export CONFIG_TPL_BUILD
+KBUILD_CPPFLAGS += -DCONFIG_TPL_BUILD
+endif
+
+ifeq ($(CONFIG_TPL_BUILD),y)
 SPL_BIN := u-boot-tpl
 else
 SPL_BIN := u-boot-spl

@@ -8,10 +8,6 @@ config UBOOTVERSION
 	string
 	option env="UBOOTVERSION"
 
-config KCONFIG_OBJDIR
-	string
-	option env="KCONFIG_OBJDIR"
-
 # Allow defaults in arch-specific code to override any given here
 source "arch/Kconfig"
 
@@ -89,16 +85,6 @@ menuconfig EXPERT
 endmenu		# General setup
 
 menu "Boot images"
-
-config SPL_BUILD
-	bool
-	depends on $KCONFIG_OBJDIR="spl" || $KCONFIG_OBJDIR="tpl"
-	default y
-
-config TPL_BUILD
-	bool
-	depends on $KCONFIG_OBJDIR="tpl"
-	default y
 
 config SUPPORT_SPL
 	bool

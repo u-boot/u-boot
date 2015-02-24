@@ -20,5 +20,14 @@
 #undef CONFIG_CMD_SNTP
 #undef CONFIG_CMD_TFTPPUT
 #undef CONFIG_CMD_TFTPSRV
+#undef CONFIG_OF_CONTROL
+
+#ifndef CONFIG_SPL_DM
+#undef CONFIG_DM_SERIAL
+#undef CONFIG_DM_GPIO
+#undef CONFIG_DM_I2C
+#undef CONFIG_DM_SPI
+#endif
+
 #endif /* CONFIG_SPL_BUILD */
 #endif /* __CONFIG_UNCMD_SPL_H__ */
