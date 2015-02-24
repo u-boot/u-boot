@@ -56,6 +56,21 @@
 	 ((rcv_sel) <= PMUX_PIN_RCV_SEL_HIGH))
 #endif
 
+#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
+#define pmux_lpmd_isvalid(lpm) \
+	(((lpm) >= PMUX_LPMD_X8) && ((lpm) <= PMUX_LPMD_X))
+#endif
+
+#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
+#define pmux_schmt_isvalid(schmt) \
+	(((schmt) >= PMUX_SCHMT_DISABLE) && ((schmt) <= PMUX_SCHMT_ENABLE))
+#endif
+
+#ifdef TEGRA_PMX_GRPS_HAVE_HSM
+#define pmux_hsm_isvalid(hsm) \
+	(((hsm) >= PMUX_HSM_DISABLE) && ((hsm) <= PMUX_HSM_ENABLE))
+#endif
+
 #define _R(offset)	(u32 *)(NV_PA_APB_MISC_BASE + (offset))
 
 #if defined(CONFIG_TEGRA20)
@@ -351,21 +366,6 @@ void pinmux_config_pingrp_table(const struct pmux_pingrp_config *config,
 
 #define pmux_drv_isvalid(drv) \
 	(((drv) >= PMUX_DRVUP_MIN) && ((drv) <= PMUX_DRVUP_MAX))
-
-#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
-#define pmux_lpmd_isvalid(lpm) \
-	(((lpm) >= PMUX_LPMD_X8) && ((lpm) <= PMUX_LPMD_X))
-#endif
-
-#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
-#define pmux_schmt_isvalid(schmt) \
-	(((schmt) >= PMUX_SCHMT_DISABLE) && ((schmt) <= PMUX_SCHMT_ENABLE))
-#endif
-
-#ifdef TEGRA_PMX_GRPS_HAVE_HSM
-#define pmux_hsm_isvalid(hsm) \
-	(((hsm) >= PMUX_HSM_DISABLE) && ((hsm) <= PMUX_HSM_ENABLE))
-#endif
 
 #ifdef TEGRA_PMX_GRPS_HAVE_HSM
 #define HSM_SHIFT	2
