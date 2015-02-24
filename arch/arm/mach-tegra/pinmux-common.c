@@ -347,6 +347,21 @@ void pinmux_config_pingrp_table(const struct pmux_pingrp_config *config,
 #define SCHMT_SHIFT	3
 #define LPMD_SHIFT	4
 #define LPMD_MASK	(3 << LPMD_SHIFT)
+/*
+ * Note that the following DRV* and SLW* defines are accurate for many drive
+ * groups on many SoCs. We really need a per-group data structure to solve
+ * this, since the fields are in different positions/sizes in different
+ * registers (for different groups).
+ *
+ * On Tegra30/114/124, the DRV*_SHIFT values vary.
+ * On Tegra30, the SLW*_SHIFT values vary.
+ * On Tegra30/114/124/210, the DRV*_MASK values vary, although the values
+ *   below are wide enough to cover the widest fields, and hopefully don't
+ *   interfere with any other fields.
+ * On Tegra30, the SLW*_MASK values vary, but we can't use a value that's
+ *   wide enough to cover all cases, since that would cause the field to
+ *   overlap with other fields in the narrower cases.
+ */
 #define DRVDN_SHIFT	12
 #define DRVDN_MASK	(0x7F << DRVDN_SHIFT)
 #define DRVUP_SHIFT	20
