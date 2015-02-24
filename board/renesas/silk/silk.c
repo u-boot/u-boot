@@ -69,6 +69,11 @@ int board_early_init_f(void)
 	return 0;
 }
 
+/* LSI pin pull-up control */
+#define PUPR3		0xe606010C
+#define PUPR3_ETH	0x006FF800
+#define PUPR1		0xe6060104
+#define PUPR1_DREQ0_N	(1 << 20)
 int board_init(void)
 {
 	/* adress of boot parameters */
@@ -93,7 +98,10 @@ int board_init(void)
 	gpio_request(GPIO_FN_IRQ8, NULL);
 
 	/* PHY reset */
+	mstp_clrbits_le32(PUPR3, PUPR3, PUPR3_ETH);
 	gpio_request(GPIO_GP_1_24, NULL);
+	mstp_clrbits_le32(PUPR1, PUPR1, PUPR1_DREQ0_N);
+
 	gpio_direction_output(GPIO_GP_1_24, 0);
 	mdelay(20);
 	gpio_set_value(GPIO_GP_1_24, 1);
