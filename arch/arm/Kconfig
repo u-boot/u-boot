@@ -223,10 +223,6 @@ config ORION5X
 	bool "Marvell Orion"
 	select CPU_ARM926EJS
 
-config TARGET_DKB
-	bool "Support dkb"
-	select CPU_ARM926EJS
-
 config TARGET_SPEAR300
 	bool "Support spear300"
 	select CPU_ARM926EJS
@@ -757,7 +753,6 @@ source "board/BuR/tseries/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/db-mv784mp-gp/Kconfig"
-source "board/Marvell/dkb/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
 source "board/altera/socfpga/Kconfig"
 source "board/armadeus/apf27/Kconfig"
