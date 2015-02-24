@@ -179,7 +179,7 @@ static const struct sh_serial_platdata serial_platdata = {
 	.clk_mode = EXT_CLK,
 };
 
-U_BOOT_DEVICE(alt_serials) = {
+U_BOOT_DEVICE(silk_serials) = {
 	.name = "serial_sh",
 	.platdata = &serial_platdata,
 };
