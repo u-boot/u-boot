@@ -12,6 +12,9 @@ config KCONFIG_OBJDIR
 	string
 	option env="KCONFIG_OBJDIR"
 
+# Allow defaults in arch-specific code to override any given here
+source "arch/Kconfig"
+
 menu "General setup"
 
 config LOCALVERSION
@@ -171,8 +174,6 @@ config SYS_CLK_FREQ
 	  TODO: Move CONFIG_SYS_CLK_FREQ for all the architecture
 
 endmenu		# Boot images
-
-source "arch/Kconfig"
 
 source "common/Kconfig"
 
