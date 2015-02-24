@@ -78,7 +78,8 @@ static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 
-	if (state != BOOTM_STATE_START && images.state >= state) {
+	if (((state & BOOTM_STATE_START) != BOOTM_STATE_START) &&
+	    images.state >= state) {
 		printf("Trying to execute a command out of order\n");
 		return CMD_RET_USAGE;
 	}
