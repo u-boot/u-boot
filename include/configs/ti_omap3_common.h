@@ -19,12 +19,7 @@
 #include <asm/arch/omap3.h>
 
 #ifndef CONFIG_SPL_BUILD
-# define CONFIG_DM
-# define CONFIG_CMD_DM
-# define CONFIG_DM_GPIO
-# define CONFIG_DM_SERIAL
 # define CONFIG_OMAP_SERIAL
-# define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
 #endif
 
 /* The chip has SDRC controller */

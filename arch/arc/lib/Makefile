@@ -20,3 +20,5 @@ obj-y += reset.o
 obj-y += timer.o
 
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
+
+lib-$(CONFIG_USE_PRIVATE_LIBGCC) += _millicodethunk.o libgcc2.o

@@ -11,6 +11,7 @@
 #include <common.h>
 #include "desc_constr.h"
 #include "jobdesc.h"
+#include "rsa_caam.h"
 
 #define KEY_BLOB_SIZE			32
 #define MAC_SIZE			16
@@ -122,4 +123,31 @@ void inline_cnstr_jobdesc_rng_instantiation(uint32_t *desc)
 	/* generate secure keys (non-test) */
 	append_operation(desc, OP_TYPE_CLASS1_ALG | OP_ALG_ALGSEL_RNG |
 			 OP_ALG_RNG4_SK);
+}
+
+/* Change key size to bytes form bits in calling function*/
+void inline_cnstr_jobdesc_pkha_rsaexp(uint32_t *desc,
+				      struct pk_in_params *pkin, uint8_t *out,
+				      uint32_t out_siz)
+{
+	dma_addr_t dma_addr_e, dma_addr_a, dma_addr_n, dma_addr_out;
+
+	dma_addr_e = virt_to_phys((void *)pkin->e);
+	dma_addr_a = virt_to_phys((void *)pkin->a);
+	dma_addr_n = virt_to_phys((void *)pkin->n);
+	dma_addr_out = virt_to_phys((void *)out);
+
+	init_job_desc(desc, 0);
+	append_key(desc, dma_addr_e, pkin->e_siz, KEY_DEST_PKHA_E | CLASS_1);
+
+	append_fifo_load(desc, dma_addr_a,
+			 pkin->a_siz, LDST_CLASS_1_CCB | FIFOLD_TYPE_PK_A);
+
+	append_fifo_load(desc, dma_addr_n,
+			 pkin->n_siz, LDST_CLASS_1_CCB | FIFOLD_TYPE_PK_N);
+
+	append_operation(desc, OP_TYPE_PK | OP_ALG_PK | OP_ALG_PKMODE_MOD_EXPO);
+
+	append_fifo_store(desc, dma_addr_out, out_siz,
+			  LDST_CLASS_1_CCB | FIFOST_TYPE_PKHA_B);
 }

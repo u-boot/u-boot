@@ -110,7 +110,7 @@ static int handle_mac_address(void)
 	if (rv)
 		return 0;
 
-	rv = cl_eeprom_read_mac_addr(enetaddr);
+	rv = cl_eeprom_read_mac_addr(enetaddr, CONFIG_SYS_I2C_EEPROM_BUS);
 	if (rv)
 		get_efuse_mac_addr(enetaddr);
 

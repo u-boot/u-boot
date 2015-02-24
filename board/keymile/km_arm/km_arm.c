@@ -102,6 +102,8 @@ static const u32 kwmpp_config[] = {
 	0
 };
 
+static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
+
 #if defined(CONFIG_KM_MGCOGE3UN)
 /*
  * Wait for startup OK from mgcoge3ne
@@ -209,6 +211,8 @@ int misc_init_r(void)
 		}
 	}
 #endif
+
+	ivm_read_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 
 	initialize_unit_leds();
 	set_km_env();
@@ -419,7 +423,7 @@ void reset_phy(void)
 #if defined(CONFIG_HUSH_INIT_VAR)
 int hush_init_var(void)
 {
-	ivm_read_eeprom();
+	ivm_analyze_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	return 0;
 }
 #endif

@@ -48,22 +48,19 @@ config DCC_MICRO_SUPPORT_CARD
 
 endchoice
 
+config SYS_MALLOC_F
+	default y
+
+config SYS_MALLOC_F_LEN
+	default 0x2000
+
 config CMD_PINMON
 	bool "Enable boot mode pins monitor command"
-	depends on !SPL_BUILD
 	default y
 	help
 	  The command "pinmon" shows the state of the boot mode pins.
 	  The boot mode pins are latched when the system reset is deasserted
 	  and determine which device the system should load a boot image from.
-
-config SOC_INIT
-	bool
-	default SPL_BUILD
-
-config DRAM_INIT
-	bool
-	default SPL_BUILD
 
 config CMD_DDRPHY_DUMP
 	bool "Enable dump command of DDR PHY parameters"
@@ -74,7 +71,7 @@ config CMD_DDRPHY_DUMP
 
 choice
 	prompt "DDR3 Frequency select"
-	depends on DRAM_INIT
+	depends on SPL_BUILD
 
 config DDR_FREQ_1600
 	bool "DDR3 1600"

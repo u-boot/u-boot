@@ -340,6 +340,5 @@ U_BOOT_DRIVER(cadence_spi) = {
 	.ofdata_to_platdata = cadence_spi_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct cadence_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct cadence_spi_priv),
-	.per_child_auto_alloc_size = sizeof(struct spi_slave),
 	.probe = cadence_spi_probe,
 };

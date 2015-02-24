@@ -62,7 +62,7 @@
 	};
 
 	usb@c5000000 {
-		nvidia,vbus-gpio = <&gpio 170 0>; /* PV2 */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(V, 2) GPIO_ACTIVE_HIGH>;
 	};
 
 	usb@c5004000 {
@@ -76,8 +76,8 @@
 
 	sdhci@c8000600 {
 		status = "okay";
-		cd-gpios = <&gpio 121 1>; /* gpio PP1 */
-		wp-gpios = <&gpio 122 0>; /* gpio PP2 */
+		cd-gpios = <&gpio TEGRA_GPIO(P, 1) GPIO_ACTIVE_LOW>;
+		wp-gpios = <&gpio TEGRA_GPIO(P, 2) GPIO_ACTIVE_HIGH>;
 		bus-width = <4>;
 	};
 
@@ -111,7 +111,7 @@
 			regulator-min-microvolt = <5000000>;
 			regulator-max-microvolt = <5000000>;
 			enable-active-high;
-			gpio = <&gpio TEGRA_GPIO(V, 2) 0>;
+			gpio = <&gpio TEGRA_GPIO(V, 2) GPIO_ACTIVE_HIGH>;
 			regulator-always-on;
 			regulator-boot-on;
 		};

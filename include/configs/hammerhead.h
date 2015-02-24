@@ -137,7 +137,6 @@
 
 #define CONFIG_SYS_MALLOC_LEN			(256*1024)
 
-#define CONFIG_SYS_DMA_ALLOC_LEN		(16384)
 
 /* Allow 4MB for the kernel run-time image */
 #define CONFIG_SYS_LOAD_ADDR			(CONFIG_SYS_SDRAM_BASE + 0x00400000)

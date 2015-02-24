@@ -342,6 +342,12 @@ static int pxafb_init (vidinfo_t *vid);
 /* ---------------  PXA chipset specific functions  ------------------- */
 /************************************************************************/
 
+ushort *configuration_get_cmap(void)
+{
+	struct pxafb_info *fbi = &panel_info.pxa;
+	return (ushort *)fbi->palette;
+}
+
 void lcd_ctrl_init (void *lcdbase)
 {
 	pxafb_init_mem(lcdbase, &panel_info);

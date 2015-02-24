@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <ide.h>
 #include <netdev.h>
 #include <pci.h>
 #include <pci_gt64120.h>
@@ -123,6 +124,7 @@ void _machine_restart(void)
 
 	reset_base = (void __iomem *)CKSEG1ADDR(MALTA_RESET_BASE);
 	__raw_writel(GORESET, reset_base);
+	mdelay(1000);
 }
 
 int board_early_init_f(void)
@@ -217,4 +219,22 @@ void pci_init_board(void)
 	pci_read_config_byte(bdf, PCI_CFG_PIIX4_SERIRQC, &val8);
 	val8 |= PCI_CFG_PIIX4_SERIRQC_EN | PCI_CFG_PIIX4_SERIRQC_CONT;
 	pci_write_config_byte(bdf, PCI_CFG_PIIX4_SERIRQC, val8);
+
+	bdf = pci_find_device(PCI_VENDOR_ID_INTEL,
+			      PCI_DEVICE_ID_INTEL_82371AB, 0);
+	if (bdf == -1)
+		panic("Failed to find PIIX4 IDE controller\n");
+
+	/* enable bus master & IO access */
+	val32 |= PCI_COMMAND_MASTER | PCI_COMMAND_IO;
+	pci_write_config_dword(bdf, PCI_COMMAND, val32);
+
+	/* set latency */
+	pci_write_config_byte(bdf, PCI_LATENCY_TIMER, 0x40);
+
+	/* enable IDE/ATA */
+	pci_write_config_dword(bdf, PCI_CFG_PIIX4_IDETIM_PRI,
+			       PCI_CFG_PIIX4_IDETIM_IDE);
+	pci_write_config_dword(bdf, PCI_CFG_PIIX4_IDETIM_SEC,
+			       PCI_CFG_PIIX4_IDETIM_IDE);
 }

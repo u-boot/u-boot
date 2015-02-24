@@ -756,7 +756,7 @@ int genimg_get_format(const void *img_addr)
  * genimg_get_image - get image from special storage (if necessary)
  * @img_addr: image start address
  *
- * genimg_get_image() checks if provided image start adddress is located
+ * genimg_get_image() checks if provided image start address is located
  * in a dataflash storage. If so, image is moved to a system RAM memory.
  *
  * returns:

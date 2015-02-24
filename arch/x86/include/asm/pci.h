@@ -1,4 +1,3 @@
-
 /*
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
@@ -8,6 +7,14 @@
 
 #ifndef _PCI_I386_H_
 #define _PCI_I386_H_
+
+/* bus mapping constants (used for PCI core initialization) */
+#define PCI_REG_ADDR	0xcf8
+#define PCI_REG_DATA	0xcfc
+
+#define PCI_CFG_EN	0x80000000
+
+#ifndef __ASSEMBLY__
 
 #define DEFINE_PCI_DEVICE_TABLE(_table) \
 	const struct pci_device_id _table[]
@@ -49,4 +56,6 @@ void pci_write_config8(pci_dev_t dev, unsigned where, unsigned value);
 void pci_write_config16(pci_dev_t dev, unsigned where, unsigned value);
 void pci_write_config32(pci_dev_t dev, unsigned where, unsigned value);
 
-#endif
+#endif /* __ASSEMBLY__ */
+
+#endif /* _PCI_I386_H_ */

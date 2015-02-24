@@ -233,7 +233,7 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	set_working_fdt_addr(images.ft_addr);
+	set_working_fdt_addr((ulong)images.ft_addr);
 
 	return 0;
 }

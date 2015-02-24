@@ -53,7 +53,7 @@ int cleanup_before_linux(void)
 	 * After D-cache is flushed and before it is disabled there may
 	 * be some new valid entries brought into the cache. We are sure
 	 * that these lines are not dirty and will not affect our execution.
-	 * (because unwinding the call-stack and setting a bit in CP15 SCTRL
+	 * (because unwinding the call-stack and setting a bit in CP15 SCTLR
 	 * is all we did during this. We have not pushed anything on to the
 	 * stack. Neither have we affected any static data)
 	 * So just invalidate the entire d-cache again to avoid coherency

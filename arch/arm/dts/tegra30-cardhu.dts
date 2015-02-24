@@ -185,9 +185,9 @@
 
 	sdhci@78000000 {
 		status = "okay";
-		cd-gpios = <&gpio 69 1>; /* gpio PI5 */
-		wp-gpios = <&gpio 155 0>; /* gpio PT3 */
-		power-gpios = <&gpio 31 0>; /* gpio PD7 */
+		cd-gpios = <&gpio TEGRA_GPIO(I, 5) GPIO_ACTIVE_LOW>;
+		wp-gpios = <&gpio TEGRA_GPIO(T, 3) GPIO_ACTIVE_HIGH>;
+		power-gpios = <&gpio TEGRA_GPIO(D, 7) GPIO_ACTIVE_HIGH>;
 		bus-width = <4>;
 	};
 
@@ -197,7 +197,7 @@
 	};
 
 	usb@7d008000 {
-		nvidia,vbus-gpio = <&gpio 236 0>;	/* PDD4 */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(DD, 4) GPIO_ACTIVE_HIGH>;
 		status = "okay";
 	};
 

@@ -15,9 +15,6 @@
 static void copy_file(int, const char *, int);
 static void usage(void);
 
-/* image_type_params link list to maintain registered image type supports */
-struct image_type_params *mkimage_tparams = NULL;
-
 /* parameters initialized by core will be used by the image type code */
 struct image_tool_params params = {
 	.os = IH_OS_LINUX,
@@ -29,106 +26,6 @@ struct image_tool_params params = {
 	.imagename2 = "",
 };
 
-/*
- * mkimage_register -
- *
- * It is used to register respective image generation/list support to the
- * mkimage core
- *
- * the input struct image_type_params is checked and appended to the link
- * list, if the input structure is already registered, error
- */
-void mkimage_register (struct image_type_params *tparams)
-{
-	struct image_type_params **tp;
-
-	if (!tparams) {
-		fprintf (stderr, "%s: %s: Null input\n",
-			params.cmdname, __FUNCTION__);
-		exit (EXIT_FAILURE);
-	}
-
-	/* scan the linked list, check for registry and point the last one */
-	for (tp = &mkimage_tparams; *tp != NULL; tp = &(*tp)->next) {
-		if (!strcmp((*tp)->name, tparams->name)) {
-			fprintf (stderr, "%s: %s already registered\n",
-				params.cmdname, tparams->name);
-			return;
-		}
-	}
-
-	/* add input struct entry at the end of link list */
-	*tp = tparams;
-	/* mark input entry as last entry in the link list */
-	tparams->next = NULL;
-
-	debug ("Registered %s\n", tparams->name);
-}
-
-/*
- * mkimage_get_type -
- *
- * It scans all registers image type supports
- * checks the input type_id for each supported image type
- *
- * if successful,
- * 	returns respective image_type_params pointer if success
- * if input type_id is not supported by any of image_type_support
- * 	returns NULL
- */
-struct image_type_params *mkimage_get_type(int type)
-{
-	struct image_type_params *curr;
-
-	for (curr = mkimage_tparams; curr != NULL; curr = curr->next) {
-		if (curr->check_image_type) {
-			if (!curr->check_image_type (type))
-				return curr;
-		}
-	}
-	return NULL;
-}
-
-/*
- * mkimage_verify_print_header -
- *
- * It scans mkimage_tparams link list,
- * verifies image_header for each supported image type
- * if verification is successful, prints respective header
- *
- * returns negative if input image format does not match with any of
- * supported image types
- */
-int mkimage_verify_print_header (void *ptr, struct stat *sbuf)
-{
-	int retval = -1;
-	struct image_type_params *curr;
-
-	for (curr = mkimage_tparams; curr != NULL; curr = curr->next ) {
-		if (curr->verify_header) {
-			retval = curr->verify_header (
-				(unsigned char *)ptr, sbuf->st_size,
-				&params);
-
-			if (retval == 0) {
-				/*
-				 * Print the image information
-				 * if verify is successful
-				 */
-				if (curr->print_header)
-					curr->print_header (ptr);
-				else {
-					fprintf (stderr,
-					"%s: print_header undefined for %s\n",
-					params.cmdname, curr->name);
-				}
-				break;
-			}
-		}
-	}
-	return retval;
-}
-
 int
 main (int argc, char **argv)
 {
@@ -138,9 +35,6 @@ main (int argc, char **argv)
 	int retval = 0;
 	struct image_type_params *tparams = NULL;
 	int pad_len = 0;
-
-	/* Init all image generation/list support */
-	register_image_tool(mkimage_register);
 
 	params.cmdname = *argv;
 	params.addr = params.ep = 0;
@@ -279,7 +173,7 @@ NXTARG:		;
 		usage ();
 
 	/* set tparams as per input type_id */
-	tparams = mkimage_get_type(params.type);
+	tparams = imagetool_get_type(params.type);
 	if (tparams == NULL) {
 		fprintf (stderr, "%s: unsupported type %s\n",
 			params.cmdname, genimg_get_type_name(params.type));
@@ -363,7 +257,8 @@ NXTARG:		;
 		 * Print the image information for matched image type
 		 * Returns the error code if not matched
 		 */
-		retval = mkimage_verify_print_header (ptr, &sbuf);
+		retval = imagetool_verify_print_header(ptr, &sbuf,
+				tparams, &params);
 
 		(void) munmap((void *)ptr, sbuf.st_size);
 		(void) close (ifd);
@@ -529,7 +424,7 @@ copy_file (int ifd, const char *datafile, int pad)
 	uint8_t zeros[4096];
 	int offset = 0;
 	int size;
-	struct image_type_params *tparams = mkimage_get_type (params.type);
+	struct image_type_params *tparams = imagetool_get_type(params.type);
 
 	if (pad >= sizeof(zeros)) {
 		fprintf(stderr, "%s: Can't pad to %d\n",

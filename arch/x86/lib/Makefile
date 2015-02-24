@@ -25,6 +25,7 @@ obj-y	+= string.o
 obj-$(CONFIG_SYS_X86_TSC_TIMER)	+= tsc_timer.o
 obj-$(CONFIG_VIDEO_VGA)	+= video.o
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
+obj-$(CONFIG_HAVE_FSP) += fsp/
 
 extra-$(CONFIG_USE_PRIVATE_LIBGCC) := lib.a
 

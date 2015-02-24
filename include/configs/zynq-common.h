@@ -276,16 +276,10 @@
 #define CONFIG_OF_LIBFDT
 
 /* FIT support */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 #define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */
 
 /* FDT support */
 #define CONFIG_DISPLAY_BOARDINFO_LATE
-
-/* RSA support */
-#define CONFIG_FIT_SIGNATURE
-#define CONFIG_RSA
 
 /* Extend size of kernel image for uncompression */
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)

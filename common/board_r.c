@@ -55,6 +55,9 @@
 #include <dm/root.h>
 #include <linux/compiler.h>
 #include <linux/err.h>
+#ifdef CONFIG_AVR32
+#include <asm/arch/mmu.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -294,6 +297,15 @@ static int initr_announce(void)
 	return 0;
 }
 
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+static int initr_manual_reloc_cmdtable(void)
+{
+	fixup_cmdtable(ll_entry_start(cmd_tbl_t, cmd),
+		       ll_entry_count(cmd_tbl_t, cmd));
+	return 0;
+}
+#endif
+
 #if !defined(CONFIG_SYS_NO_FLASH)
 static int initr_flash(void)
 {
@@ -450,6 +462,18 @@ static int initr_env(void)
 	return 0;
 }
 
+#ifdef CONFIG_SYS_BOOTPARAMS_LEN
+static int initr_malloc_bootparams(void)
+{
+	gd->bd->bi_boot_params = (ulong)malloc(CONFIG_SYS_BOOTPARAMS_LEN);
+	if (!gd->bd->bi_boot_params) {
+		puts("WARNING: Cannot allocate space for boot parameters\n");
+		return -ENOMEM;
+	}
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_SC3
 /* TODO: with new initcalls, move this into the driver */
 extern void sc3_read_eeprom(void);
@@ -476,24 +500,8 @@ static int initr_api(void)
 }
 #endif
 
-#ifdef CONFIG_DISPLAY_BOARDINFO_LATE
-static int show_model_r(void)
-{
-	/* Put this here so it appears on the LCD, now it is ready */
-# ifdef CONFIG_OF_CONTROL
-	const char *model;
-
-	model = (char *)fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-	printf("Model: %s\n", model ? model : "<unknown>");
-# else
-	checkboard();
-# endif
-	return 0;
-}
-#endif
-
 /* enable exceptions */
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_AVR32)
 static int initr_enable_interrupts(void)
 {
 	enable_interrupts();
@@ -718,6 +726,9 @@ init_fnc_t init_sequence_r[] = {
 	initr_serial,
 	initr_announce,
 	INIT_FUNC_WATCHDOG_RESET
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	initr_manual_reloc_cmdtable,
+#endif
 #ifdef CONFIG_PPC
 	initr_trap,
 #endif
@@ -779,6 +790,9 @@ init_fnc_t init_sequence_r[] = {
 	initr_dataflash,
 #endif
 	initr_env,
+#ifdef CONFIG_SYS_BOOTPARAMS_LEN
+	initr_malloc_bootparams,
+#endif
 	INIT_FUNC_WATCHDOG_RESET
 	initr_secondary_cpu,
 #ifdef CONFIG_SC3
@@ -801,7 +815,7 @@ init_fnc_t init_sequence_r[] = {
 #endif
 	console_init_r,		/* fully init console as a device */
 #ifdef CONFIG_DISPLAY_BOARDINFO_LATE
-	show_model_r,
+	show_board_info,
 #endif
 #ifdef CONFIG_ARCH_MISC_INIT
 	arch_misc_init,		/* miscellaneous arch-dependent init */
@@ -814,10 +828,10 @@ init_fnc_t init_sequence_r[] = {
 	initr_kgdb,
 #endif
 	interrupt_init,
-#if defined(CONFIG_ARM)
+#if defined(CONFIG_ARM) || defined(CONFIG_AVR32)
 	initr_enable_interrupts,
 #endif
-#ifdef CONFIG_X86
+#if defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE) || defined(CONFIG_AVR32)
 	timer_init,		/* initialize timer */
 #endif
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
@@ -880,6 +894,10 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	int i;
+#endif
+
+#ifdef CONFIG_AVR32
+	mmu_init_r(dest_addr);
 #endif
 
 #if !defined(CONFIG_X86) && !defined(CONFIG_ARM) && !defined(CONFIG_ARM64)

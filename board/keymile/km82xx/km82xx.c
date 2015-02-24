@@ -18,6 +18,8 @@
 #include <i2c.h>
 #include "../common/common.h"
 
+static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
+
 /*
  * I/O Port configuration table
  *
@@ -393,9 +395,15 @@ int board_early_init_r(void)
 	return 0;
 }
 
+int misc_init_r(void)
+{
+	ivm_read_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
+	return 0;
+}
+
 int hush_init_var(void)
 {
-	ivm_read_eeprom();
+	ivm_analyze_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	return 0;
 }
 

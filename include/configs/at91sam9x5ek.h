@@ -203,11 +203,12 @@
 				"bootm 0x22000000"
 #else /* CONFIG_SYS_USE_MMC */
 /* bootstrap + u-boot + env + linux in mmc */
-#define CONFIG_ENV_IS_IN_MMC
-/* For FAT system, most cases it should be in the reserved sector */
-#define CONFIG_ENV_OFFSET	0x2000
-#define CONFIG_ENV_SIZE		0x1000
-#define CONFIG_SYS_MMC_ENV_DEV	0
+#define CONFIG_ENV_IS_IN_FAT
+#define CONFIG_FAT_WRITE
+#define FAT_ENV_INTERFACE	"mmc"
+#define FAT_ENV_FILE		"uboot.env"
+#define FAT_ENV_DEVICE_AND_PART "0"
+#define CONFIG_ENV_SIZE		0x4000
 #endif
 
 #ifdef CONFIG_SYS_USE_MMC

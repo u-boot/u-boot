@@ -29,9 +29,7 @@ static int pmic_bus_init(void)
 #else
 	int ret;
 
-	rsb_init();
-
-	ret = rsb_set_device_mode(AXP223_DEVICE_MODE_DATA);
+	ret = rsb_init();
 	if (ret)
 		return ret;
 

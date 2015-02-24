@@ -16,14 +16,27 @@
 #include <asm/arch/prcm.h>
 #include <asm/arch/rsb.h>
 
+static int rsb_set_device_mode(void);
+
 static void rsb_cfg_io(void)
 {
+#ifdef CONFIG_MACH_SUN8I
 	sunxi_gpio_set_cfgpin(SUNXI_GPL(0), SUN8I_GPL0_R_RSB_SCK);
 	sunxi_gpio_set_cfgpin(SUNXI_GPL(1), SUN8I_GPL1_R_RSB_SDA);
 	sunxi_gpio_set_pull(SUNXI_GPL(0), 1);
 	sunxi_gpio_set_pull(SUNXI_GPL(1), 1);
 	sunxi_gpio_set_drv(SUNXI_GPL(0), 2);
 	sunxi_gpio_set_drv(SUNXI_GPL(1), 2);
+#elif defined CONFIG_MACH_SUN9I
+	sunxi_gpio_set_cfgpin(SUNXI_GPN(0), SUN9I_GPN0_R_RSB_SCK);
+	sunxi_gpio_set_cfgpin(SUNXI_GPN(1), SUN9I_GPN1_R_RSB_SDA);
+	sunxi_gpio_set_pull(SUNXI_GPN(0), 1);
+	sunxi_gpio_set_pull(SUNXI_GPN(1), 1);
+	sunxi_gpio_set_drv(SUNXI_GPN(0), 2);
+	sunxi_gpio_set_drv(SUNXI_GPN(1), 2);
+#else
+#error unsupported MACH_SUNXI
+#endif
 }
 
 static void rsb_set_clk(void)
@@ -42,7 +55,7 @@ static void rsb_set_clk(void)
 	writel((cd_odly << 8) | div, &rsb->ccr);
 }
 
-void rsb_init(void)
+int rsb_init(void)
 {
 	struct sunxi_rsb_reg * const rsb =
 		(struct sunxi_rsb_reg *)SUNXI_RSB_BASE;
@@ -54,6 +67,8 @@ void rsb_init(void)
 
 	writel(RSB_CTRL_SOFT_RST, &rsb->ctrl);
 	rsb_set_clk();
+
+	return rsb_set_device_mode();
 }
 
 static int rsb_await_trans(void)
@@ -88,13 +103,14 @@ static int rsb_await_trans(void)
 	return ret;
 }
 
-int rsb_set_device_mode(u32 device_mode_data)
+static int rsb_set_device_mode(void)
 {
 	struct sunxi_rsb_reg * const rsb =
 		(struct sunxi_rsb_reg *)SUNXI_RSB_BASE;
 	unsigned long tmo = timer_get_us() + 1000000;
 
-	writel(RSB_DMCR_DEVICE_MODE_START | device_mode_data, &rsb->dmcr);
+	writel(RSB_DMCR_DEVICE_MODE_START | RSB_DMCR_DEVICE_MODE_DATA,
+	       &rsb->dmcr);
 
 	while (readl(&rsb->dmcr) & RSB_DMCR_DEVICE_MODE_START) {
 		if (timer_get_us() > tmo)

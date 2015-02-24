@@ -15,6 +15,12 @@
  * PTU  - Pull type Up
  * DIS  - Pull type selection is inactive
  * EN   - Pull type selection is active
+ * SB_LOW - Standby mode configuration: Output low-level
+ * SB_HI - Standby mode configuration: Output high-level
+ * SB_HIZ - Standby mode configuration: Output hi-impedence
+ * SB_PD - Standby mode pull-down enabled
+ * SB_PU - Standby mode pull-up enabled
+ * WKEN - Wakeup input enabled
  * M0   - Mode 0
  */
 
@@ -26,6 +32,13 @@
 #define EN	(1 << 3)
 #define DIS	(0 << 3)
 
+#define SB_LOW (1 << 9)
+#define SB_HI (5 << 9)
+#define SB_HIZ (2 << 9)
+#define SB_PD (1 << 12)
+#define SB_PU (3 << 12)
+#define WKEN (1 << 14)
+
 #define M0	0
 #define M1	1
 #define M2	2
@@ -36,8 +49,8 @@
 #define M7	7
 
 /*
- * To get the actual address the offset has to added
- * with OMAP34XX_CTRL_BASE to get the actual address
+ * To get the actual address the offset has to be added
+ * to OMAP34XX_CTRL_BASE
  */
 
 /*SDRC*/
@@ -78,6 +91,33 @@
 #define CONTROL_PADCONF_SDRC_DQS1	0x0074
 #define CONTROL_PADCONF_SDRC_DQS2	0x0076
 #define CONTROL_PADCONF_SDRC_DQS3	0x0078
+#define CONTROL_PADCONF_SDRC_BA0	0x05A0
+#define CONTROL_PADCONF_SDRC_BA1	0x05A2
+#define CONTROL_PADCONF_SDRC_A0		0x05A4
+#define CONTROL_PADCONF_SDRC_A1		0x05A6
+#define CONTROL_PADCONF_SDRC_A2		0x05A8
+#define CONTROL_PADCONF_SDRC_A3		0x05AA
+#define CONTROL_PADCONF_SDRC_A4		0x05AC
+#define CONTROL_PADCONF_SDRC_A5		0x05AE
+#define CONTROL_PADCONF_SDRC_A6		0x05B0
+#define CONTROL_PADCONF_SDRC_A7		0x05B2
+#define CONTROL_PADCONF_SDRC_A8		0x05B4
+#define CONTROL_PADCONF_SDRC_A9		0x05B6
+#define CONTROL_PADCONF_SDRC_A10	0x05B8
+#define CONTROL_PADCONF_SDRC_A11	0x05BA
+#define CONTROL_PADCONF_SDRC_A12	0x05BC
+#define CONTROL_PADCONF_SDRC_A13	0x05BE
+#define CONTROL_PADCONF_SDRC_A14	0x05C0
+#define CONTROL_PADCONF_SDRC_NCS0	0x05C2
+#define CONTROL_PADCONF_SDRC_NCS1	0x05C4
+#define CONTROL_PADCONF_SDRC_NCLK	0x05C6
+#define CONTROL_PADCONF_SDRC_NRAS	0x05C8
+#define CONTROL_PADCONF_SDRC_NCAS	0x05CA
+#define CONTROL_PADCONF_SDRC_NWE	0x05CC
+#define CONTROL_PADCONF_SDRC_DM0	0x05CE
+#define CONTROL_PADCONF_SDRC_DM1	0x05D0
+#define CONTROL_PADCONF_SDRC_DM2	0x05D2
+#define CONTROL_PADCONF_SDRC_DM3	0x05D4
 /*GPMC*/
 #define CONTROL_PADCONF_GPMC_A1		0x007A
 #define CONTROL_PADCONF_GPMC_A2		0x007C
@@ -89,6 +129,7 @@
 #define CONTROL_PADCONF_GPMC_A8		0x0088
 #define CONTROL_PADCONF_GPMC_A9		0x008A
 #define CONTROL_PADCONF_GPMC_A10	0x008C
+#define CONTROL_PADCONF_GPMC_A11	0x0264
 #define CONTROL_PADCONF_GPMC_D0		0x008E
 #define CONTROL_PADCONF_GPMC_D1		0x0090
 #define CONTROL_PADCONF_GPMC_D2		0x0092
@@ -323,6 +364,8 @@
 #define CONTROL_PADCONF_ETK_D13_ES2	0x05F6
 #define CONTROL_PADCONF_ETK_D14_ES2	0x05F8
 #define CONTROL_PADCONF_ETK_D15_ES2	0x05FA
+#define CONTROL_PADCONF_JTAG_RTCK	0x0A4E
+#define CONTROL_PADCONF_JTAG_TDO	0x0A50
 /*Die to Die */
 #define CONTROL_PADCONF_D2D_MCAD0	0x01E4
 #define CONTROL_PADCONF_D2D_MCAD1	0x01E6
@@ -433,6 +476,10 @@
 #define CONTROL_PADCONF_SYS_BOOT8	0x0226
 
 /* AM/DM37xx specific */
+#define CONTROL_PADCONF_GPIO112		0x0134
+#define CONTROL_PADCONF_GPIO113		0x0136
+#define CONTROL_PADCONF_GPIO114		0x0138
+#define CONTROL_PADCONF_GPIO115		0x013A
 #define CONTROL_PADCONF_GPIO127		0x0A54
 #define CONTROL_PADCONF_GPIO126		0x0A56
 #define CONTROL_PADCONF_GPIO128		0x0A58

@@ -118,4 +118,7 @@ void enable_basic_clocks(void)
 
 	/* Select the Master osc clk as Timer2 clock source */
 	writel(0x1, &cmdpll->clktimer2clk);
+
+	/* For OPP100 the mac clock should be /5. */
+	writel(0x4, &cmdpll->clkselmacclk);
 }

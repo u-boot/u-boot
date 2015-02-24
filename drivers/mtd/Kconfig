@@ -1,1 +1,3 @@
 source "drivers/mtd/nand/Kconfig"
+
+source "drivers/mtd/spi/Kconfig"

@@ -149,14 +149,18 @@ static int fdt_decode_lcd(const void *blob, struct fdt_panel_config *config)
 					    FDT_LCD_CACHE_WRITE_BACK_FLUSH);
 
 	/* These GPIOs are all optional */
-	fdtdec_decode_gpio(blob, display_node, "nvidia,backlight-enable-gpios",
-			    &config->backlight_en);
-	fdtdec_decode_gpio(blob, display_node, "nvidia,lvds-shutdown-gpios",
-			   &config->lvds_shutdown);
-	fdtdec_decode_gpio(blob, display_node, "nvidia,backlight-vdd-gpios",
-			   &config->backlight_vdd);
-	fdtdec_decode_gpio(blob, display_node, "nvidia,panel-vdd-gpios",
-			   &config->panel_vdd);
+	gpio_request_by_name_nodev(blob, display_node,
+				   "nvidia,backlight-enable-gpios", 0,
+				   &config->backlight_en, GPIOD_IS_OUT);
+	gpio_request_by_name_nodev(blob, display_node,
+				   "nvidia,lvds-shutdown-gpios", 0,
+				   &config->lvds_shutdown, GPIOD_IS_OUT);
+	gpio_request_by_name_nodev(blob, display_node,
+				   "nvidia,backlight-vdd-gpios", 0,
+				   &config->backlight_vdd, GPIOD_IS_OUT);
+	gpio_request_by_name_nodev(blob, display_node,
+				   "nvidia,panel-vdd-gpios", 0,
+				   &config->panel_vdd, GPIOD_IS_OUT);
 
 	return fdtdec_get_int_array(blob, display_node, "nvidia,panel-timings",
 			config->panel_timings, FDT_LCD_TIMINGS);
@@ -196,36 +200,18 @@ static int handle_stage(const void *blob)
 		 */
 
 		funcmux_select(PERIPH_ID_DISP1, FUNCMUX_DEFAULT);
-
-		fdtdec_setup_gpio(&config.panel_vdd);
-		fdtdec_setup_gpio(&config.lvds_shutdown);
-		fdtdec_setup_gpio(&config.backlight_vdd);
-		fdtdec_setup_gpio(&config.backlight_en);
-
-		/*
-		 * TODO: If fdt includes output flag we can omit this code
-		 * since fdtdec_setup_gpio will do it for us.
-		 */
-		if (fdt_gpio_isvalid(&config.panel_vdd))
-			gpio_direction_output(config.panel_vdd.gpio, 0);
-		if (fdt_gpio_isvalid(&config.lvds_shutdown))
-			gpio_direction_output(config.lvds_shutdown.gpio, 0);
-		if (fdt_gpio_isvalid(&config.backlight_vdd))
-			gpio_direction_output(config.backlight_vdd.gpio, 0);
-		if (fdt_gpio_isvalid(&config.backlight_en))
-			gpio_direction_output(config.backlight_en.gpio, 0);
 		break;
 	case STAGE_PANEL_VDD:
-		if (fdt_gpio_isvalid(&config.panel_vdd))
-			gpio_direction_output(config.panel_vdd.gpio, 1);
+		if (dm_gpio_is_valid(&config.panel_vdd))
+			dm_gpio_set_value(&config.panel_vdd, 1);
 		break;
 	case STAGE_LVDS:
-		if (fdt_gpio_isvalid(&config.lvds_shutdown))
-			gpio_set_value(config.lvds_shutdown.gpio, 1);
+		if (dm_gpio_is_valid(&config.lvds_shutdown))
+			dm_gpio_set_value(&config.lvds_shutdown, 1);
 		break;
 	case STAGE_BACKLIGHT_VDD:
-		if (fdt_gpio_isvalid(&config.backlight_vdd))
-			gpio_set_value(config.backlight_vdd.gpio, 1);
+		if (dm_gpio_is_valid(&config.backlight_vdd))
+			dm_gpio_set_value(&config.backlight_vdd, 1);
 		break;
 	case STAGE_PWM:
 		/* Enable PWM at 15/16 high, 32768 Hz with divider 1 */
@@ -235,8 +221,8 @@ static int handle_stage(const void *blob)
 		pwm_enable(config.pwm_channel, 32768, 0xdf, 1);
 		break;
 	case STAGE_BACKLIGHT_EN:
-		if (fdt_gpio_isvalid(&config.backlight_en))
-			gpio_set_value(config.backlight_en.gpio, 1);
+		if (dm_gpio_is_valid(&config.backlight_en))
+			dm_gpio_set_value(&config.backlight_en, 1);
 		break;
 	case STAGE_DONE:
 		break;

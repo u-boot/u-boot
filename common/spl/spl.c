@@ -229,6 +229,11 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		spl_sata_load_image();
 		break;
 #endif
+#ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
+	case BOOT_DEVICE_BOARD:
+		spl_board_load_image();
+		break;
+#endif
 	default:
 #if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		puts("SPL: Unsupported Boot Device!\n");

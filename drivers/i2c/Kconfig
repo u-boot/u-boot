@@ -1,0 +1,39 @@
+config DM_I2C
+	bool "Enable Driver Model for I2C drivers"
+	depends on DM
+	help
+	  Enable driver model for I2C. This SPI flash interface
+	  (spi_flash_probe(), spi_flash_write(), etc.) is then
+	  implemented by the SPI flash uclass. There is one standard
+	  SPI flash driver which knows how to probe most chips
+	  supported by U-Boot. The uclass interface is defined in
+	  include/spi_flash.h, but is currently fully compatible
+	  with the old interface to avoid confusion and duplication
+	  during the transition parent. SPI and SPI flash must be
+	  enabled together (it is not possible to use driver model
+	  for one and not the other).
+
+config DM_I2C_COMPAT
+	bool "Enable I2C compatibility layer"
+	depends on DM
+	help
+	  Enable old-style I2C functions for compatibility with existing code.
+	  This option can be enabled as a temporary measure to avoid needing
+	  to convert all code for a board in a single commit. It should not
+	  be enabled for any board in an official release.
+
+config SYS_I2C_UNIPHIER
+	bool "UniPhier I2C driver"
+	depends on ARCH_UNIPHIER && DM_I2C
+	default y
+	help
+	  Support for Panasonic UniPhier I2C controller driver.  This I2C
+	  controller is used on PH1-LD4, PH1-sLD8 or older UniPhier SoCs.
+
+config SYS_I2C_UNIPHIER_F
+	bool "UniPhier FIFO-builtin I2C driver"
+	depends on ARCH_UNIPHIER && DM_I2C
+	default y
+	help
+	  Support for Panasonic UniPhier FIFO-builtin I2C controller driver.
+	  This I2C controller is used on PH1-Pro4 or newer UniPhier SoCs.

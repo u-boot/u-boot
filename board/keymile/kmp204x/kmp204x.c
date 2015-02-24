@@ -26,6 +26,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
+
 int checkboard(void)
 {
 	printf("Board: Keymile %s\n", CONFIG_KM_BOARD_NAME);
@@ -195,13 +197,14 @@ int misc_init_r(void)
 		}
 	}
 
+	ivm_read_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	return 0;
 }
 
 #if defined(CONFIG_HUSH_INIT_VAR)
 int hush_init_var(void)
 {
-	ivm_read_eeprom();
+	ivm_analyze_eeprom(ivm_content, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	return 0;
 }
 #endif

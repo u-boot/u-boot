@@ -21,10 +21,10 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct soft_spi_platdata {
-	struct fdt_gpio_state cs;
-	struct fdt_gpio_state sclk;
-	struct fdt_gpio_state mosi;
-	struct fdt_gpio_state miso;
+	struct gpio_desc cs;
+	struct gpio_desc sclk;
+	struct gpio_desc mosi;
+	struct gpio_desc miso;
 	int spi_delay_us;
 };
 
@@ -35,9 +35,8 @@ struct soft_spi_priv {
 static int soft_spi_scl(struct udevice *dev, int bit)
 {
 	struct soft_spi_platdata *plat = dev->platdata;
-	struct soft_spi_priv *priv = dev_get_priv(dev);
 
-	gpio_set_value(plat->sclk.gpio, priv->mode & SPI_CPOL ? bit : !bit);
+	dm_gpio_set_value(&plat->sclk, bit);
 
 	return 0;
 }
@@ -46,7 +45,7 @@ static int soft_spi_sda(struct udevice *dev, int bit)
 {
 	struct soft_spi_platdata *plat = dev->platdata;
 
-	gpio_set_value(plat->mosi.gpio, bit);
+	dm_gpio_set_value(&plat->mosi, bit);
 
 	return 0;
 }
@@ -54,11 +53,10 @@ static int soft_spi_sda(struct udevice *dev, int bit)
 static int soft_spi_cs_activate(struct udevice *dev)
 {
 	struct soft_spi_platdata *plat = dev->platdata;
-	struct soft_spi_priv *priv = dev_get_priv(dev);
 
-	gpio_set_value(plat->cs.gpio, !(priv->mode & SPI_CS_HIGH));
-	gpio_set_value(plat->sclk.gpio, priv->mode & SPI_CPOL);
-	gpio_set_value(plat->cs.gpio, priv->mode & SPI_CS_HIGH);
+	dm_gpio_set_value(&plat->cs, 0);
+	dm_gpio_set_value(&plat->sclk, 0);
+	dm_gpio_set_value(&plat->cs, 1);
 
 	return 0;
 }
@@ -66,9 +64,8 @@ static int soft_spi_cs_activate(struct udevice *dev)
 static int soft_spi_cs_deactivate(struct udevice *dev)
 {
 	struct soft_spi_platdata *plat = dev->platdata;
-	struct soft_spi_priv *priv = dev_get_priv(dev);
 
-	gpio_set_value(plat->cs.gpio, !(priv->mode & SPI_CS_HIGH));
+	dm_gpio_set_value(&plat->cs, 0);
 
 	return 0;
 }
@@ -109,7 +106,6 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	uchar		tmpdout = 0;
 	const u8	*txd = dout;
 	u8		*rxd = din;
-	int		cpol = priv->mode & SPI_CPOL;
 	int		cpha = priv->mode & SPI_CPHA;
 	unsigned int	j;
 
@@ -137,19 +133,19 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		}
 
 		if (!cpha)
-			soft_spi_scl(dev, !cpol);
+			soft_spi_scl(dev, 0);
 		soft_spi_sda(dev, tmpdout & 0x80);
 		udelay(plat->spi_delay_us);
 		if (cpha)
-			soft_spi_scl(dev, !cpol);
+			soft_spi_scl(dev, 0);
 		else
-			soft_spi_scl(dev, cpol);
+			soft_spi_scl(dev, 1);
 		tmpdin	<<= 1;
-		tmpdin	|= gpio_get_value(plat->miso.gpio);
+		tmpdin	|= dm_gpio_get_value(&plat->miso);
 		tmpdout	<<= 1;
 		udelay(plat->spi_delay_us);
 		if (cpha)
-			soft_spi_scl(dev, cpol);
+			soft_spi_scl(dev, 1);
 	}
 	/*
 	 * If the number of bits isn't a multiple of 8, shift the last
@@ -183,14 +179,6 @@ static int soft_spi_set_mode(struct udevice *dev, unsigned int mode)
 	return 0;
 }
 
-static int soft_spi_child_pre_probe(struct udevice *dev)
-{
-	struct spi_slave *slave = dev_get_parentdata(dev);
-
-	slave->dev = dev;
-	return spi_ofdata_to_platdata(gd->fdt_blob, dev->of_offset, slave);
-}
-
 static const struct dm_spi_ops soft_spi_ops = {
 	.claim_bus	= soft_spi_claim_bus,
 	.release_bus	= soft_spi_release_bus,
@@ -205,11 +193,6 @@ static int soft_spi_ofdata_to_platdata(struct udevice *dev)
 	const void *blob = gd->fdt_blob;
 	int node = dev->of_offset;
 
-	if (fdtdec_decode_gpio(blob, node, "cs-gpio", &plat->cs) ||
-	    fdtdec_decode_gpio(blob, node, "sclk-gpio", &plat->sclk) ||
-	    fdtdec_decode_gpio(blob, node, "mosi-gpio", &plat->mosi) ||
-	    fdtdec_decode_gpio(blob, node, "miso-gpio", &plat->miso))
-		return -EINVAL;
 	plat->spi_delay_us = fdtdec_get_int(blob, node, "spi-delay-us", 0);
 
 	return 0;
@@ -219,16 +202,19 @@ static int soft_spi_probe(struct udevice *dev)
 {
 	struct spi_slave *slave = dev_get_parentdata(dev);
 	struct soft_spi_platdata *plat = dev->platdata;
+	int cs_flags, clk_flags;
 
-	gpio_request(plat->cs.gpio, "soft_spi_cs");
-	gpio_request(plat->sclk.gpio, "soft_spi_sclk");
-	gpio_request(plat->mosi.gpio, "soft_spi_mosi");
-	gpio_request(plat->miso.gpio, "soft_spi_miso");
-
-	gpio_direction_output(plat->sclk.gpio, slave->mode & SPI_CPOL);
-	gpio_direction_output(plat->mosi.gpio, 1);
-	gpio_direction_input(plat->miso.gpio);
-	gpio_direction_output(plat->cs.gpio, !(slave->mode & SPI_CS_HIGH));
+	cs_flags = (slave->mode & SPI_CS_HIGH) ? 0 : GPIOD_ACTIVE_LOW;
+	clk_flags = (slave->mode & SPI_CPOL) ? GPIOD_ACTIVE_LOW : 0;
+	if (gpio_request_by_name(dev, "cs-gpio", 0, &plat->cs,
+				 GPIOD_IS_OUT | cs_flags) ||
+	    gpio_request_by_name(dev, "sclk-gpio", 0, &plat->sclk,
+				 GPIOD_IS_OUT | clk_flags) ||
+	    gpio_request_by_name(dev, "mosi-gpio", 0, &plat->mosi,
+				 GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE) ||
+	    gpio_request_by_name(dev, "miso-gpio", 0, &plat->miso,
+				 GPIOD_IS_IN))
+		return -EINVAL;
 
 	return 0;
 }
@@ -246,7 +232,5 @@ U_BOOT_DRIVER(soft_spi) = {
 	.ofdata_to_platdata = soft_spi_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct soft_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct soft_spi_priv),
-	.per_child_auto_alloc_size	= sizeof(struct spi_slave),
 	.probe	= soft_spi_probe,
-	.child_pre_probe	= soft_spi_child_pre_probe,
 };

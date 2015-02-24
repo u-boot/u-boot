@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <asm/arcregs.h>
+#include <asm/cache.h>
 
 /* Bit values in IC_CTRL */
 #define IC_CTRL_CACHE_DISABLE	(1 << 0)
@@ -101,7 +102,7 @@ void flush_dcache_all(void)
 #ifndef CONFIG_SYS_DCACHE_OFF
 static void dcache_flush_line(unsigned addr)
 {
-#if (CONFIG_ARC_MMU_VER > 2)
+#if (CONFIG_ARC_MMU_VER == 3)
 	write_aux_reg(ARC_AUX_DC_PTAG, addr);
 #endif
 	write_aux_reg(ARC_AUX_DC_FLDL, addr);
@@ -115,7 +116,7 @@ static void dcache_flush_line(unsigned addr)
 	 * Invalidate I$ for addresses range just flushed from D$.
 	 * If we try to execute data flushed above it will be valid/correct
 	 */
-#if (CONFIG_ARC_MMU_VER > 2)
+#if (CONFIG_ARC_MMU_VER == 3)
 	write_aux_reg(ARC_AUX_IC_PTAG, addr);
 #endif
 	write_aux_reg(ARC_AUX_IC_IVIL, addr);
@@ -145,7 +146,7 @@ void invalidate_dcache_range(unsigned long start, unsigned long end)
 	end = end & (~(CONFIG_SYS_CACHELINE_SIZE - 1));
 
 	for (addr = start; addr <= end; addr += CONFIG_SYS_CACHELINE_SIZE) {
-#if (CONFIG_ARC_MMU_VER > 2)
+#if (CONFIG_ARC_MMU_VER == 3)
 		write_aux_reg(ARC_AUX_DC_PTAG, addr);
 #endif
 		write_aux_reg(ARC_AUX_DC_IVDL, addr);

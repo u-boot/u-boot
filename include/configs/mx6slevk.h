@@ -198,7 +198,7 @@
 #define CONFIG_ENV_SPI_MODE             CONFIG_SF_DEFAULT_MODE
 #define CONFIG_ENV_SPI_MAX_HZ           CONFIG_SF_DEFAULT_SPEED
 #else
-#define CONFIG_ENV_OFFSET		(6 * SZ_64K)
+#define CONFIG_ENV_OFFSET		(8 * SZ_64K)
 #define CONFIG_ENV_IS_IN_MMC
 #endif
 

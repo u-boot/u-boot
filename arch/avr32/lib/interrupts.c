@@ -7,6 +7,11 @@
 
 #include <asm/sysreg.h>
 
+int interrupt_init(void)
+{
+	return 0;
+}
+
 void enable_interrupts(void)
 {
 	asm volatile("csrf	%0" : : "n"(SYSREG_GM_OFFSET));

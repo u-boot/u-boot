@@ -35,6 +35,6 @@ static int do_gettime(cmd_tbl_t *cmdtp, int flag, int argc,
 
 U_BOOT_CMD(
 	gettime,	1,	1,	do_gettime,
-	"get timer val elapsed,\n",
-	"get time elapsed from uboot start\n"
+	"get timer val elapsed",
+	"get time elapsed from uboot start"
 );

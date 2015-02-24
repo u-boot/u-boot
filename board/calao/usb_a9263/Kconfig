@@ -6,9 +6,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	default "calao"
 
-config SYS_SOC
-	default "at91"
-
 config SYS_CONFIG_NAME
 	default "usb_a9263"
 

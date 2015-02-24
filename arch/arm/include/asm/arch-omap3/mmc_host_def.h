@@ -51,6 +51,7 @@ typedef struct t2 {
 #define PBIASLITEPWRDNZ0		(1 << 1)
 #define PBIASSPEEDCTRL0			(1 << 2)
 #define PBIASLITEPWRDNZ1		(1 << 9)
+#define PBIASLITEVMODE0			(1 << 0)
 
 #define CTLPROGIO1SPEEDCTRL		(1 << 20)
 

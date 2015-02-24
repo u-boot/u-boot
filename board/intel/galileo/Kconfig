@@ -1,0 +1,21 @@
+if TARGET_GALILEO
+
+config SYS_BOARD
+	default "galileo"
+
+config SYS_VENDOR
+	default "intel"
+
+config SYS_SOC
+	default "quark"
+
+config SYS_CONFIG_NAME
+	default "galileo"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select X86_RESET_VECTOR
+	select INTEL_QUARK
+	select BOARD_ROMSIZE_KB_1024
+
+endif

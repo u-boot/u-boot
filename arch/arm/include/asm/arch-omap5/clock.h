@@ -236,12 +236,19 @@
 #define VDD_MPU_ES2_LOW 880
 #define VDD_MM_ES2_LOW 880
 
-/* TPS659038 Voltage settings in mv for OPP_NOMINAL */
-#define VDD_MPU_DRA752		1090
+/* DRA74x/75x voltage settings in mv for OPP_NOM per DM */
+#define VDD_MPU_DRA752		1100
 #define VDD_EVE_DRA752		1060
 #define VDD_GPU_DRA752		1060
-#define VDD_CORE_DRA752		1030
+#define VDD_CORE_DRA752		1060
 #define VDD_IVA_DRA752		1060
+
+/* DRA72x voltage settings in mv for OPP_NOM per DM */
+#define VDD_MPU_DRA72x		1100
+#define VDD_EVE_DRA72x		1060
+#define VDD_GPU_DRA72x		1060
+#define VDD_CORE_DRA72x		1060
+#define VDD_IVA_DRA72x		1060
 
 /* Efuse register offsets for DRA7xx platform */
 #define DRA752_EFUSE_BASE	0x4A002000
@@ -283,6 +290,13 @@
 #define TPS659038_REG_ADDR_SMPS6		0x2F
 #define TPS659038_REG_ADDR_SMPS7		0x33
 #define TPS659038_REG_ADDR_SMPS8		0x37
+
+/* TPS65917 */
+#define TPS65917_I2C_SLAVE_ADDR		0x58
+#define TPS65917_REG_ADDR_SMPS1		0x23
+#define TPS65917_REG_ADDR_SMPS2		0x27
+#define TPS65917_REG_ADDR_SMPS3		0x2F
+
 
 /* TPS */
 #define TPS62361_I2C_SLAVE_ADDR		0x60

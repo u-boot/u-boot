@@ -139,6 +139,9 @@ class PatchStream:
         # Initially we have no output. Prepare the input line string
         out = []
         line = line.rstrip('\n')
+
+        commit_match = re_commit.match(line) if self.is_log else None
+
         if self.is_log:
             if line[:4] == '    ':
                 line = line[4:]
@@ -146,7 +149,6 @@ class PatchStream:
         # Handle state transition and skipping blank lines
         series_tag_match = re_series_tag.match(line)
         commit_tag_match = re_commit_tag.match(line)
-        commit_match = re_commit.match(line) if self.is_log else None
         cover_cc_match = re_cover_cc.match(line)
         signoff_match = re_signoff.match(line)
         tag_match = None

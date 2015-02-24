@@ -108,6 +108,16 @@
 #endif
 
 
+/* SPL */
+#ifdef CONFIG_SPL
+#include "imx6_spl.h"
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SYS_SPI_U_BOOT_OFFS     (64 * 1024)
+#define CONFIG_SPL_SPI_LOAD
+#endif
+
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
@@ -159,7 +169,6 @@
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS           1
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
-#define PHYS_SDRAM_SIZE                (1u * 1024 * 1024 * 1024)
 
 #define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR

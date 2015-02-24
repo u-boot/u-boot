@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2014 Panasonic Corporation
+ * Copyright (C) 2012-2015 Panasonic Corporation
  *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -43,6 +43,9 @@
 #define CONFIG_SDRAM1_SIZE	0x10000000
 #endif
 
+#define CONFIG_I2C_EEPROM
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
+
 /*
  * Support card address map
  */
@@ -77,8 +80,6 @@
 #define CONFIG_SMC911X_BASE		CONFIG_SUPPORT_CARD_ETHER_BASE
 #define CONFIG_SMC911X_32_BIT
 
-#define CONFIG_SYS_MALLOC_F_LEN  0x2000
-
 /*-----------------------------------------------------------------------
  * MMU and Cache Setting
  *----------------------------------------------------------------------*/
@@ -92,6 +93,8 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_MISC_INIT_F
+#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_BOARD_LATE_INIT
 
@@ -187,8 +190,6 @@
 #define CONFIG_FAT_WRITE
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_CMD_DM
-
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x01000000)
@@ -232,11 +233,16 @@
 	"image_offset=0x00080000\0"		\
 	"image_size=0x00f00000\0"		\
 	"verify=n\0"				\
-	"norboot=run add_default_bootargs;"				\
+	"nandupdate=nand erase 0 0x100000 &&"				\
+		   "tftpboot u-boot-spl.bin &&"				\
+		   "nand write $loadaddr 0 0x10000 &&"			\
+		   "tftpboot u-boot-dtb.img &&"				\
+		   "nand write $loadaddr 0x10000 0xf0000\0"		\
+	"norboot=run add_default_bootargs &&"				\
 		"bootm $image_offset\0"					\
-	"nandboot=run add_default_bootargs;"				\
-		"nand read $loadaddr $image_offset $image_size;"	\
-		"bootm\0"						\
+	"nandboot=run add_default_bootargs &&"				\
+		 "nand read $loadaddr $image_offset $image_size &&"	\
+		 "bootm\0"						\
 	"add_default_bootargs=setenv bootargs $bootargs"		\
 		" console=ttyS0,$baudrate\0"				\
 
@@ -265,8 +271,6 @@
 #if defined(CONFIG_MACH_PH1_PRO4)
 #define CONFIG_SPL_TEXT_BASE		0x00100000
 #endif
-
-#define CONFIG_BOARD_POSTCLK_INIT
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SKIP_LOWLEVEL_INIT

@@ -2,8 +2,69 @@ config DM_SERIAL
 	bool "Enable Driver Model for serial drivers"
 	depends on DM
 	help
-	  If you want to use driver model for serial drivers, say Y.
-	  To use legacy serial drivers, say N.
+	  Enable driver model for serial. This replaces
+	  drivers/serial/serial.c with the serial uclass, which
+	  implements serial_putc() etc. The uclass interface is
+	  defined in include/serial.h.
+
+config DEBUG_UART
+	bool "Enable an early debug UART for debugging"
+	help
+	  The debug UART is intended for use very early in U-Boot to debug
+	  problems when an ICE or other debug mechanism is not available.
+
+	  To use it you should:
+	  - Make sure your UART supports this interface
+	  - Enable CONFIG_DEBUG_UART
+	  - Enable the CONFIG for your UART to tell it to provide this interface
+	        (e.g. CONFIG_DEBUG_UART_NS16550)
+	  - Define the required settings as needed (see below)
+	  - Call debug_uart_init() before use
+	  - Call debug_uart_putc() to output a character
+
+	  Depending on your platform it may be possible to use this UART before
+	  a stack is available.
+
+	  If your UART does not support this interface you can probably add
+	  support quite easily. Remember that you cannot use driver model and
+	  it is preferred to use no stack.
+
+	  You must not use this UART once driver model is working and the
+	  serial drivers are up and running (done in serial_init()). Otherwise
+	  the drivers may conflict and you will get strange output.
+
+choice
+	prompt "Select which UART will provide the debug UART"
+	depends on DEBUG_UART
+
+config DEBUG_UART_NS16550
+	bool "ns16550"
+	help
+	  Select this to enable a debug UART using the ns16550 driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver model serial is running.
+
+endchoice
+
+config DEBUG_UART_BASE
+	hex "Base address of UART"
+	depends on DEBUG_UART
+	help
+	  This is the base address of your UART for memory-mapped UARTs.
+
+	  A default should be provided by your board, but if not you will need
+	  to use the correct value here.
+
+config DEBUG_UART_CLOCK
+	int "UART input clock"
+	depends on DEBUG_UART
+	help
+	  The UART input clock determines the speed of the internal UART
+	  circuitry. The baud rate is derived from this by dividing the input
+	  clock down.
+
+	  A default should be provided by your board, but if not you will need
+	  to use the correct value here.
 
 config UNIPHIER_SERIAL
 	bool "UniPhier on-chip UART support"

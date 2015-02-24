@@ -14,24 +14,41 @@
 #include <linux/compiler.h>
 #include <part.h>
 
-#define SD_VERSION_SD	0x20000
-#define SD_VERSION_3	(SD_VERSION_SD | 0x300)
-#define SD_VERSION_2	(SD_VERSION_SD | 0x200)
-#define SD_VERSION_1_0	(SD_VERSION_SD | 0x100)
-#define SD_VERSION_1_10	(SD_VERSION_SD | 0x10a)
-#define MMC_VERSION_MMC		0x10000
-#define MMC_VERSION_UNKNOWN	(MMC_VERSION_MMC)
-#define MMC_VERSION_1_2		(MMC_VERSION_MMC | 0x102)
-#define MMC_VERSION_1_4		(MMC_VERSION_MMC | 0x104)
-#define MMC_VERSION_2_2		(MMC_VERSION_MMC | 0x202)
-#define MMC_VERSION_3		(MMC_VERSION_MMC | 0x300)
-#define MMC_VERSION_4		(MMC_VERSION_MMC | 0x400)
-#define MMC_VERSION_4_1		(MMC_VERSION_MMC | 0x401)
-#define MMC_VERSION_4_2		(MMC_VERSION_MMC | 0x402)
-#define MMC_VERSION_4_3		(MMC_VERSION_MMC | 0x403)
-#define MMC_VERSION_4_41	(MMC_VERSION_MMC | 0x429)
-#define MMC_VERSION_4_5		(MMC_VERSION_MMC | 0x405)
-#define MMC_VERSION_5_0		(MMC_VERSION_MMC | 0x500)
+/* SD/MMC version bits; 8 flags, 8 major, 8 minor, 8 change */
+#define SD_VERSION_SD	(1U << 31)
+#define MMC_VERSION_MMC	(1U << 30)
+
+#define MAKE_SDMMC_VERSION(a, b, c)	\
+	((((u32)(a)) << 16) | ((u32)(b) << 8) | (u32)(c))
+#define MAKE_SD_VERSION(a, b, c)	\
+	(SD_VERSION_SD | MAKE_SDMMC_VERSION(a, b, c))
+#define MAKE_MMC_VERSION(a, b, c)	\
+	(MMC_VERSION_MMC | MAKE_SDMMC_VERSION(a, b, c))
+
+#define EXTRACT_SDMMC_MAJOR_VERSION(x)	\
+	(((u32)(x) >> 16) & 0xff)
+#define EXTRACT_SDMMC_MINOR_VERSION(x)	\
+	(((u32)(x) >> 8) & 0xff)
+#define EXTRACT_SDMMC_CHANGE_VERSION(x)	\
+	((u32)(x) & 0xff)
+
+#define SD_VERSION_3		MAKE_SD_VERSION(3, 0, 0)
+#define SD_VERSION_2		MAKE_SD_VERSION(2, 0, 0)
+#define SD_VERSION_1_0		MAKE_SD_VERSION(1, 0, 0)
+#define SD_VERSION_1_10		MAKE_SD_VERSION(1, 10, 0)
+
+#define MMC_VERSION_UNKNOWN	MAKE_MMC_VERSION(0, 0, 0)
+#define MMC_VERSION_1_2		MAKE_MMC_VERSION(1, 2, 0)
+#define MMC_VERSION_1_4		MAKE_MMC_VERSION(1, 4, 0)
+#define MMC_VERSION_2_2		MAKE_MMC_VERSION(2, 2, 0)
+#define MMC_VERSION_3		MAKE_MMC_VERSION(3, 0, 0)
+#define MMC_VERSION_4		MAKE_MMC_VERSION(4, 0, 0)
+#define MMC_VERSION_4_1		MAKE_MMC_VERSION(4, 1, 0)
+#define MMC_VERSION_4_2		MAKE_MMC_VERSION(4, 2, 0)
+#define MMC_VERSION_4_3		MAKE_MMC_VERSION(4, 3, 0)
+#define MMC_VERSION_4_41	MAKE_MMC_VERSION(4, 4, 1)
+#define MMC_VERSION_4_5		MAKE_MMC_VERSION(4, 5, 0)
+#define MMC_VERSION_5_0		MAKE_MMC_VERSION(5, 0, 0)
 
 #define MMC_MODE_HS		(1 << 0)
 #define MMC_MODE_HS_52MHz	(1 << 1)
@@ -43,7 +60,8 @@
 
 #define SD_DATA_4BIT	0x00040000
 
-#define IS_SD(x) (x->version & SD_VERSION_SD)
+#define IS_SD(x)	((x)->version & SD_VERSION_SD)
+#define IS_MMC(x)	((x)->version & SD_VERSION_MMC)
 
 #define MMC_DATA_READ		1
 #define MMC_DATA_WRITE		2
@@ -437,6 +455,20 @@ void board_mmc_power_init(void);
 int board_mmc_init(bd_t *bis);
 int cpu_mmc_init(bd_t *bis);
 int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr);
+
+struct pci_device_id;
+
+/**
+ * pci_mmc_init() - set up PCI MMC devices
+ *
+ * This finds all the matching PCI IDs and sets them up as MMC devices.
+ *
+ * @name:		Name to use for devices
+ * @mmc_supported:	PCI IDs to search for
+ * @num_ids:		Number of elements in @mmc_supported
+ */
+int pci_mmc_init(const char *name, struct pci_device_id *mmc_supported,
+		 int num_ids);
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
 #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT

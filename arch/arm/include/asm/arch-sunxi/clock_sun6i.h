@@ -243,6 +243,8 @@ struct sunxi_ccm_reg {
 #define CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII 0x2
 #define CCM_GMAC_CTRL_GPIT_MII		(0x0 << 2)
 #define CCM_GMAC_CTRL_GPIT_RGMII	(0x1 << 2)
+#define CCM_GMAC_CTRL_RX_CLK_DELAY(x)	((x) << 5)
+#define CCM_GMAC_CTRL_TX_CLK_DELAY(x)	((x) << 10)
 
 #define MDFS_CLK_DEFAULT		0x81000002 /* PLL6 / 3 */
 

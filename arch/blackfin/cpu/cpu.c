@@ -24,6 +24,7 @@
 
 #include "cpu.h"
 #include "initcode.h"
+#include "exports.h"
 
 ulong bfin_poweron_retx;
 DECLARE_GLOBAL_DATA_PTR;
@@ -121,7 +122,7 @@ static void display_global_data(void)
 	printf(" |-ram_size: %lx\n", gd->ram_size);
 	printf(" |-env_addr: %lx\n", gd->env_addr);
 	printf(" |-env_valid: %lx\n", gd->env_valid);
-	printf(" |-jt(%p): %p\n", gd->jt, *(gd->jt));
+	printf(" |-jt(%p): %p\n", gd->jt, gd->jt->get_version);
 	printf(" \\-bd: %p\n", gd->bd);
 	printf("   |-bi_boot_params: %lx\n", bd->bi_boot_params);
 	printf("   |-bi_memstart: %lx\n", bd->bi_memstart);

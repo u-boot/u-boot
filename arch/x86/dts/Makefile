@@ -1,5 +1,7 @@
 dtb-y += chromebook_link.dtb \
-	crownbay.dtb
+	crownbay.dtb \
+	galileo.dtb \
+	minnowmax.dtb
 
 targets += $(dtb-y)
 

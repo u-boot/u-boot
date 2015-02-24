@@ -6,4 +6,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+ifdef CONFIG_SPL_BUILD
+obj-y  := ot1200.o ot1200_spl.o
+else
 obj-y  := ot1200.o
+endif

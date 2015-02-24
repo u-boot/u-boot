@@ -37,6 +37,15 @@ vidinfo_t panel_info  = {
 };
 #endif
 
+ushort *configuration_get_cmap(void)
+{
+#if defined(CONFIG_LCD_LOGO)
+	return bmp_logo_palette;
+#else
+	return NULL;
+#endif
+}
+
 static void exynos_lcd_init_mem(void *lcdbase, vidinfo_t *vid)
 {
 	unsigned long palette_size;

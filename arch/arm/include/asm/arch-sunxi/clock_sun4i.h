@@ -144,7 +144,16 @@ struct sunxi_ccm_reg {
 
 #define PLL1_CFG_DEFAULT	0xa1005000
 
+#if defined CONFIG_OLD_SUNXI_KERNEL_COMPAT && defined CONFIG_MACH_SUN5I
+/*
+ * Older linux-sunxi-3.4 kernels override our PLL6 setting with 300 MHz,
+ * halving the mbus frequency, so set it to 300 MHz ourselves and base the
+ * mbus divider on that.
+ */
+#define PLL6_CFG_DEFAULT	0xa1009900
+#else
 #define PLL6_CFG_DEFAULT	0xa1009911
+#endif
 
 /* nand clock */
 #define NAND_CLK_SRC_OSC24		0
@@ -305,6 +314,8 @@ struct sunxi_ccm_reg {
 #define CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII 0x2
 #define CCM_GMAC_CTRL_GPIT_MII (0x0 << 2)
 #define CCM_GMAC_CTRL_GPIT_RGMII (0x1 << 2)
+#define CCM_GMAC_CTRL_RX_CLK_DELAY(x)	((x) << 5)
+#define CCM_GMAC_CTRL_TX_CLK_DELAY(x)	((x) << 10)
 
 #define CCM_USB_CTRL_PHY0_RST (0x1 << 0)
 #define CCM_USB_CTRL_PHY1_RST (0x1 << 1)

@@ -1257,6 +1257,9 @@ The following options need to be configured:
 		SoC, then define this variable and provide board
 		specific code for the "hw_watchdog_reset" function.
 
+		CONFIG_AT91_HW_WDT_TIMEOUT
+		specify the timeout in seconds. default 2 seconds.
+
 - U-Boot Version:
 		CONFIG_VERSION_VARIABLE
 		If this variable is defined, an environment variable
@@ -3176,8 +3179,13 @@ CBFS (Coreboot Filesystem) support
 		This enables the RSA algorithm used for FIT image verification
 		in U-Boot. See doc/uImage.FIT/signature.txt for more information.
 
+		The Modular Exponentiation algorithm in RSA is implemented using
+		driver model. So CONFIG_DM needs to be enabled by default for this
+		library to function.
+
 		The signing part is build into mkimage regardless of this
-		option.
+		option. The software based modular exponentiation is built into
+		mkimage irrespective of this option.
 
 - bootcount support:
 		CONFIG_BOOTCOUNT_LIMIT
@@ -5899,9 +5907,10 @@ option performs the converse operation of the mkimage's second form (the "-d"
 option). Given an image built by mkimage, the dumpimage extracts a "data file"
 from the image:
 
-	tools/dumpimage -i image -p position data_file
-	  -i ==> extract from the 'image' a specific 'data_file', \
-	   indexed by 'position'
+	tools/dumpimage -i image -T type -p position data_file
+	  -i ==> extract from the 'image' a specific 'data_file'
+	  -T ==> set image type to 'type'
+	  -p ==> 'position' (starting at 0) of the 'data_file' inside the 'image'
 
 
 Installing a Linux Image:

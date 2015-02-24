@@ -24,6 +24,7 @@ obj-$(CONFIG_MVEBU_MMC) += mvebu_mmc.o
 obj-$(CONFIG_MXC_MMC) += mxcmmc.o
 obj-$(CONFIG_MXS_MMC) += mxsmmc.o
 obj-$(CONFIG_OMAP_HSMMC) += omap_hsmmc.o
+obj-$(CONFIG_X86) += pci_mmc.o
 obj-$(CONFIG_PXA_MMC_GENERIC) += pxa_mmc_gen.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += rpmb.o
 obj-$(CONFIG_S3C_SDI) += s3c_sdi.o

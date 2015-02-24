@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
+#include <i2c.h>
 #include <video_fb.h>
 #include "videomodes.h"
 #include "hitachi_tx18d42vm_lcd.h"
@@ -46,6 +47,7 @@ struct sunxi_display {
 	GraphicDevice graphic_device;
 	enum sunxi_monitor monitor;
 	unsigned int depth;
+	unsigned int fb_size;
 } sunxi_display;
 
 #ifdef CONFIG_VIDEO_HDMI
@@ -591,7 +593,7 @@ static void sunxi_lcdc_enable(void)
 
 static void sunxi_lcdc_panel_enable(void)
 {
-	int pin;
+	int pin, reset_pin;
 
 	/*
 	 * Start with backlight disabled to avoid the screen flashing to
@@ -609,6 +611,12 @@ static void sunxi_lcdc_panel_enable(void)
 		gpio_direction_output(pin, PWM_OFF);
 	}
 
+	reset_pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_RESET);
+	if (reset_pin != -1) {
+		gpio_request(reset_pin, "lcd_reset");
+		gpio_direction_output(reset_pin, 0); /* Assert reset */
+	}
+
 	/* Give the backlight some time to turn off and power up the panel. */
 	mdelay(40);
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_POWER);
@@ -616,6 +624,9 @@ static void sunxi_lcdc_panel_enable(void)
 		gpio_request(pin, "lcd_power");
 		gpio_direction_output(pin, 1);
 	}
+
+	if (reset_pin != -1)
+		gpio_direction_output(reset_pin, 1); /* De-assert reset */
 }
 
 static void sunxi_lcdc_backlight_enable(void)
@@ -645,7 +656,8 @@ static int sunxi_lcdc_get_clk_delay(const struct ctfb_res_modes *mode)
 	return (delay > 30) ? 30 : delay;
 }
 
-static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
+static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
+				      bool for_ext_vga_dac)
 {
 	struct sunxi_lcdc_reg * const lcdc =
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
@@ -719,6 +731,11 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode)
 		val |= SUNXI_LCDC_TCON_HSYNC_MASK;
 	if (!(mode->sync & FB_SYNC_VERT_HIGH_ACT))
 		val |= SUNXI_LCDC_TCON_VSYNC_MASK;
+
+#ifdef CONFIG_VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH
+	if (for_ext_vga_dac)
+		val = 0;
+#endif
 	writel(val, &lcdc->tcon0_io_polarity);
 
 	writel(0, &lcdc->tcon0_io_tristate);
@@ -1014,8 +1031,14 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 			mdelay(50); /* Wait for lcd controller power on */
 			hitachi_tx18d42vm_init();
 		}
+		if (IS_ENABLED(CONFIG_VIDEO_LCD_TL059WV5C0)) {
+			unsigned int orig_i2c_bus = i2c_get_bus_num();
+			i2c_set_bus_num(CONFIG_VIDEO_LCD_I2C_BUS);
+			i2c_reg_write(0x5c, 0x04, 0x42); /* Turn on the LCD */
+			i2c_set_bus_num(orig_i2c_bus);
+		}
 		sunxi_composer_mode_set(mode, address);
-		sunxi_lcdc_tcon0_mode_set(mode);
+		sunxi_lcdc_tcon0_mode_set(mode, false);
 		sunxi_composer_enable();
 		sunxi_lcdc_enable();
 #ifdef CONFIG_VIDEO_LCD_SSD2828
@@ -1033,7 +1056,7 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_vga_enable();
 #elif defined CONFIG_VIDEO_VGA_VIA_LCD
 		sunxi_composer_mode_set(mode, address);
-		sunxi_lcdc_tcon0_mode_set(mode);
+		sunxi_lcdc_tcon0_mode_set(mode, true);
 		sunxi_composer_enable();
 		sunxi_lcdc_enable();
 		sunxi_vga_external_dac_enable();
@@ -1054,6 +1077,11 @@ static const char *sunxi_get_mon_desc(enum sunxi_monitor monitor)
 	return NULL; /* never reached */
 }
 
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	return gd->ram_top - CONFIG_SUNXI_MAX_FB_SIZE;
+}
+
 void *video_hw_init(void)
 {
 	static GraphicDevice *graphic_device = &sunxi_display.graphic_device;
@@ -1068,10 +1096,6 @@ void *video_hw_init(void)
 	int i;
 
 	memset(&sunxi_display, 0, sizeof(struct sunxi_display));
-
-	printf("Reserved %dkB of RAM for Framebuffer.\n",
-	       CONFIG_SUNXI_FB_SIZE >> 10);
-	gd->fb_base = gd->ram_top;
 
 	video_get_ctfb_res_modes(RES_MODE_1024x768, 24, &mode,
 				 &sunxi_display.depth, &options);
@@ -1163,6 +1187,17 @@ void *video_hw_init(void)
 		       mode->yres, sunxi_get_mon_desc(sunxi_display.monitor));
 	}
 
+	sunxi_display.fb_size =
+		(mode->xres * mode->yres * 4 + 0xfff) & ~0xfff;
+	if (sunxi_display.fb_size > CONFIG_SUNXI_MAX_FB_SIZE) {
+		printf("Error need %dkB for fb, but only %dkB is reserved\n",
+		       sunxi_display.fb_size >> 10,
+		       CONFIG_SUNXI_MAX_FB_SIZE >> 10);
+		return NULL;
+	}
+
+	gd->fb_base = gd->bd->bi_dram[0].start +
+		      gd->bd->bi_dram[0].size - sunxi_display.fb_size;
 	sunxi_engines_init();
 	sunxi_mode_set(mode, gd->fb_base - CONFIG_SYS_SDRAM_BASE);
 
@@ -1188,6 +1223,7 @@ int sunxi_simplefb_setup(void *blob)
 {
 	static GraphicDevice *graphic_device = &sunxi_display.graphic_device;
 	int offset, ret;
+	u64 start, size;
 	const char *pipeline = NULL;
 
 #ifdef CONFIG_MACH_SUN4I
@@ -1229,6 +1265,20 @@ int sunxi_simplefb_setup(void *blob)
 	if (offset < 0) {
 		eprintf("Cannot setup simplefb: node not found\n");
 		return 0; /* Keep older kernels working */
+	}
+
+	/*
+	 * Do not report the framebuffer as free RAM to the OS, note we cannot
+	 * use fdt_add_mem_rsv() here, because then it is still seen as RAM,
+	 * and e.g. Linux refuses to iomap RAM on ARM, see:
+	 * linux/arch/arm/mm/ioremap.c around line 301.
+	 */
+	start = gd->bd->bi_dram[0].start;
+	size = gd->bd->bi_dram[0].size - sunxi_display.fb_size;
+	ret = fdt_fixup_memory_banks(blob, &start, &size, 1);
+	if (ret) {
+		eprintf("Cannot setup simplefb: Error reserving memory\n");
+		return ret;
 	}
 
 	ret = fdt_setup_simplefb_node(blob, offset, gd->fb_base,

@@ -421,6 +421,5 @@ U_BOOT_DRIVER(dw_spi) = {
 	.ofdata_to_platdata = dw_spi_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct dw_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct dw_spi_priv),
-	.per_child_auto_alloc_size = sizeof(struct spi_slave),
 	.probe = dw_spi_probe,
 };

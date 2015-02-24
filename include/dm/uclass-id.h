@@ -33,6 +33,7 @@ enum uclass_id {
 	UCLASS_I2C,		/* I2C bus */
 	UCLASS_I2C_GENERIC,	/* Generic I2C device */
 	UCLASS_I2C_EEPROM,	/* I2C EEPROM device */
+	UCLASS_MOD_EXP,		/* RSA Mod Exp device */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,

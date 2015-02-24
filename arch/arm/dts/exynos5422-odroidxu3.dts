@@ -32,7 +32,7 @@
 	};
 
 	ehci@12110000 {
-		samsung,vbus-gpio = <&gpio 0x66 0>; /* X26 */
+		samsung,vbus-gpio = <&gpx2 6 GPIO_ACTIVE_HIGH>;
 	};
 
 	serial@12C20000 {
@@ -45,5 +45,10 @@
 
 	mmc@12220000 {
 		fifoth_val = <0x201f0020>;
+	};
+
+	emmc-reset {
+		compatible = "samsung,emmc-reset";
+		reset-gpio = <&gpd1 0 0>;
 	};
 };

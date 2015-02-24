@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/fsp/fsp_support.h>
+#include <asm/fsp/fsp_support.h>
 
 void update_fsp_upd(struct upd_region *fsp_upd)
 {

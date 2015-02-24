@@ -1693,11 +1693,19 @@ void print_mmc_devices(char separator)
 {
 	struct mmc *m;
 	struct list_head *entry;
+	char *mmc_type;
 
 	list_for_each(entry, &mmc_devices) {
 		m = list_entry(entry, struct mmc, link);
 
+		if (m->has_init)
+			mmc_type = IS_SD(m) ? "SD" : "eMMC";
+		else
+			mmc_type = NULL;
+
 		printf("%s: %d", m->cfg->name, m->block_dev.dev);
+		if (mmc_type)
+			printf(" (%s)", mmc_type);
 
 		if (entry->next != &mmc_devices) {
 			printf("%c", separator);

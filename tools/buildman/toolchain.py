@@ -197,13 +197,14 @@ class Toolchains:
         Returns:
             Filename of C compiler if found, else None
         """
+        fnames = []
         for subdir in ['.', 'bin', 'usr/bin']:
             dirname = os.path.join(path, subdir)
             if verbose: print "      - looking in '%s'" % dirname
             for fname in glob.glob(dirname + '/*gcc'):
                 if verbose: print "         - found '%s'" % fname
-                return fname
-        return None
+                fnames.append(fname)
+        return fnames
 
 
     def Scan(self, verbose):
@@ -219,8 +220,8 @@ class Toolchains:
         if verbose: print 'Scanning for tool chains'
         for path in self.paths:
             if verbose: print "   - scanning path '%s'" % path
-            fname = self.ScanPath(path, verbose)
-            if fname:
+            fnames = self.ScanPath(path, verbose)
+            for fname in fnames:
                 self.Add(fname, True, verbose)
 
     def List(self):

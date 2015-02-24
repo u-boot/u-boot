@@ -24,9 +24,6 @@
 #define CONFIG_POWER_TPS65090
 
 /* Enable keyboard */
-#define CONFIG_CROS_EC		/* CROS_EC protocol */
-#define CONFIG_CROS_EC_KEYB	/* CROS_EC keyboard input */
-#define CONFIG_CMD_CROS_EC
 #define CONFIG_KEYBOARD
 
 #endif

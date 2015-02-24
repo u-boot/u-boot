@@ -18,6 +18,8 @@ void mxs_lradc_init(void)
 {
 	struct mxs_lradc_regs *regs = (struct mxs_lradc_regs *)MXS_LRADC_BASE;
 
+	debug("SPL: Initialisating LRADC\n");
+
 	writel(LRADC_CTRL0_SFTRST, &regs->hw_lradc_ctrl0_clr);
 	writel(LRADC_CTRL0_CLKGATE, &regs->hw_lradc_ctrl0_clr);
 	writel(LRADC_CTRL0_ONCHIP_GROUNDREF, &regs->hw_lradc_ctrl0_clr);
@@ -37,9 +39,15 @@ void mxs_lradc_enable_batt_measurement(void)
 {
 	struct mxs_lradc_regs *regs = (struct mxs_lradc_regs *)MXS_LRADC_BASE;
 
+	debug("SPL: Enabling LRADC battery measurement\n");
+
 	/* Check if the channel is present at all. */
-	if (!(readl(&regs->hw_lradc_status) & LRADC_STATUS_CHANNEL7_PRESENT))
+	if (!(readl(&regs->hw_lradc_status) & LRADC_STATUS_CHANNEL7_PRESENT)) {
+		debug("SPL: LRADC channel 7 is not present - aborting\n");
 		return;
+	}
+
+	debug("SPL: LRADC channel 7 is present - configuring\n");
 
 	writel(LRADC_CTRL1_LRADC7_IRQ_EN, &regs->hw_lradc_ctrl1_clr);
 	writel(LRADC_CTRL1_LRADC7_IRQ, &regs->hw_lradc_ctrl1_clr);
@@ -65,6 +73,7 @@ void mxs_lradc_enable_batt_measurement(void)
 		100, &regs->hw_lradc_delay3);
 
 	writel(0xffffffff, &regs->hw_lradc_ch7_clr);
-
 	writel(LRADC_DELAY_KICK, &regs->hw_lradc_delay3_set);
+
+	debug("SPL: LRADC channel 7 configuration complete\n");
 }

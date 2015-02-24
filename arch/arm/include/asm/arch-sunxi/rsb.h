@@ -37,6 +37,7 @@ struct sunxi_rsb_reg {
 #define RSB_STAT_TERR_INT		(1 << 1)
 #define RSB_STAT_LBSY_INT		(1 << 2)
 
+#define RSB_DMCR_DEVICE_MODE_DATA	0x7c3e00
 #define RSB_DMCR_DEVICE_MODE_START	(1 << 31)
 
 #define RSB_CMD_BYTE_WRITE		0x4e
@@ -46,8 +47,7 @@ struct sunxi_rsb_reg {
 #define RSB_DEVADDR_RUNTIME_ADDR(x)	((x) << 16)
 #define RSB_DEVADDR_DEVICE_ADDR(x)	((x) << 0)
 
-void rsb_init(void);
-int rsb_set_device_mode(u32 device_mode_data);
+int rsb_init(void);
 int rsb_set_device_address(u16 device_addr, u16 runtime_addr);
 int rsb_write(const u16 runtime_device_addr, const u8 reg_addr, u8 data);
 int rsb_read(const u16 runtime_device_addr, const u8 reg_addr, u8 *data);

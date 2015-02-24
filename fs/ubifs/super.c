@@ -1049,7 +1049,6 @@ static void free_orphans(struct ubifs_info *c)
 	c->orph_buf = NULL;
 }
 
-#ifndef __UBOOT__
 /**
  * free_buds - free per-bud objects.
  * @c: UBIFS file-system description object
@@ -1061,7 +1060,6 @@ static void free_buds(struct ubifs_info *c)
 	rbtree_postorder_for_each_entry_safe(bud, n, &c->buds, rb)
 		kfree(bud);
 }
-#endif
 
 /**
  * check_volume_empty - check if the UBI volume is empty.
@@ -1242,6 +1240,7 @@ static int ubifs_parse_options(struct ubifs_info *c, char *options,
 
 	return 0;
 }
+#endif
 
 /**
  * destroy_journal - destroy journal data structures.
@@ -1272,7 +1271,6 @@ static void destroy_journal(struct ubifs_info *c)
 	ubifs_tnc_close(c);
 	free_buds(c);
 }
-#endif
 
 /**
  * bu_init - initialize bulk-read information.
@@ -1502,11 +1500,9 @@ static int mount_ubifs(struct ubifs_info *c)
 	if (err)
 		goto out_lpt;
 
-#ifndef __UBOOT__
 	err = ubifs_replay_journal(c);
 	if (err)
 		goto out_journal;
-#endif
 
 	/* Calculate 'min_idx_lebs' after journal replay */
 	c->bi.min_idx_lebs = ubifs_calc_min_idx_lebs(c);
@@ -1678,10 +1674,8 @@ out_infos:
 	spin_unlock(&ubifs_infos_lock);
 out_orphans:
 	free_orphans(c);
-#ifndef __UBOOT__
 out_journal:
 	destroy_journal(c);
-#endif
 out_lpt:
 	ubifs_lpt_free(c, 0);
 out_master:

@@ -21,9 +21,6 @@
  */
 #include <asm/hardware.h>
 
-#define MACH_TYPE_TAURUS		2067
-#define MACH_TYPE_AXM			2068
-
 #define CONFIG_SYS_GENERIC_BOARD
 
 #if defined(CONFIG_SPL_BUILD)
@@ -120,6 +117,12 @@
 #define CONFIG_MACB
 #define CONFIG_RMII
 #define CONFIG_AT91_WANTS_COMMON_PHY
+
+#define CONFIG_AT91SAM9_WATCHDOG
+#if !defined(CONFIG_SPL_BUILD)
+/* Enable the watchdog */
+#define CONFIG_HW_WATCHDOG
+#endif
 
 /* USB */
 #if defined(CONFIG_BOARD_TAURUS)

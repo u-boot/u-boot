@@ -10,6 +10,8 @@
 #include <i2c.h>
 #include "common.h"
 
+#define MAC_STR_SZ	20
+
 static int ivm_calc_crc(unsigned char *buf, int len)
 {
 	const unsigned short crc_tab[16] = {
@@ -185,45 +187,37 @@ static int ivm_check_crc(unsigned char *buf, int block)
 	return 0;
 }
 
-static int calculate_mac_offset(unsigned char *valbuf, unsigned char *buf,
+/* take care of the possible MAC address offset and the IVM content offset */
+static int process_mac(unsigned char *valbuf, unsigned char *buf,
 				int offset)
 {
+	unsigned char mac[6];
 	unsigned long val = (buf[4] << 16) + (buf[5] << 8) + buf[6];
 
-	if (offset == 0)
-		return 0;
+	/* use an intermediate buffer, to not change IVM content
+	 * MAC address is at offset 1
+	 */
+	memcpy(mac, buf+1, 6);
 
-	val += offset;
-	buf[4] = (val >> 16) & 0xff;
-	buf[5] = (val >> 8) & 0xff;
-	buf[6] = val & 0xff;
-	sprintf((char *)valbuf, "%pM", buf + 1);
+	if (offset) {
+		val += offset;
+		mac[3] = (val >> 16) & 0xff;
+		mac[4] = (val >> 8) & 0xff;
+		mac[5] = val & 0xff;
+	}
+
+	sprintf((char *)valbuf, "%pM", mac);
 	return 0;
 }
 
 static int ivm_analyze_block2(unsigned char *buf, int len)
 {
-	unsigned char	valbuf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN];
+	unsigned char	valbuf[MAC_STR_SZ];
 	unsigned long	count;
 
 	/* IVM_MAC Adress begins at offset 1 */
 	sprintf((char *)valbuf, "%pM", buf + 1);
 	ivm_set_value("IVM_MacAddress", (char *)valbuf);
-	/* if an offset is defined, add it */
-	calculate_mac_offset(buf, valbuf, CONFIG_PIGGY_MAC_ADRESS_OFFSET);
-#ifdef MACH_TYPE_KM_KIRKWOOD
-	setenv((char *)"ethaddr", (char *)valbuf);
-#else
-	if (getenv("ethaddr") == NULL)
-		setenv((char *)"ethaddr", (char *)valbuf);
-#endif
-#ifdef CONFIG_KMVECT1
-/* KMVECT1 has two ethernet interfaces */
-	if (getenv("eth1addr") == NULL) {
-		calculate_mac_offset(buf, valbuf, 1);
-		setenv((char *)"eth1addr", (char *)valbuf);
-	}
-#endif
 	/* IVM_MacCount */
 	count = (buf[10] << 24) +
 		   (buf[11] << 16) +
@@ -236,7 +230,7 @@ static int ivm_analyze_block2(unsigned char *buf, int len)
 	return 0;
 }
 
-static int ivm_analyze_eeprom(unsigned char *buf, int len)
+int ivm_analyze_eeprom(unsigned char *buf, int len)
 {
 	unsigned short	val;
 	unsigned char	valbuf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN];
@@ -296,21 +290,44 @@ static int ivm_analyze_eeprom(unsigned char *buf, int len)
 	return 0;
 }
 
-int ivm_read_eeprom(void)
+static int ivm_populate_env(unsigned char *buf, int len)
 {
-	uchar i2c_buffer[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
+	unsigned char	*page2;
+	unsigned char	valbuf[MAC_STR_SZ];
+
+	/* do we have the page 2 filled ? if not return */
+	if (ivm_check_crc(buf, 2))
+		return 0;
+	page2 = &buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN*2];
+
+	/* if an offset is defined, add it */
+	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET);
+	if (getenv("ethaddr") == NULL)
+		setenv((char *)"ethaddr", (char *)valbuf);
+#ifdef CONFIG_KMVECT1
+/* KMVECT1 has two ethernet interfaces */
+	if (getenv("eth1addr") == NULL) {
+		process_mac(valbuf, page2, 1);
+		setenv((char *)"eth1addr", (char *)valbuf);
+	}
+#endif
+
+	return 0;
+}
+
+int ivm_read_eeprom(unsigned char *buf, int len)
+{
 	int ret;
 
 	i2c_set_bus_num(CONFIG_KM_IVM_BUS);
 	/* add deblocking here */
 	i2c_make_abort();
 
-	ret = i2c_read(CONFIG_SYS_IVM_EEPROM_ADR, 0, 1, i2c_buffer,
-		CONFIG_SYS_IVM_EEPROM_MAX_LEN);
+	ret = i2c_read(CONFIG_SYS_IVM_EEPROM_ADR, 0, 1, buf, len);
 	if (ret != 0) {
 		printf("Error reading EEprom\n");
 		return -2;
 	}
 
-	return ivm_analyze_eeprom(i2c_buffer, CONFIG_SYS_IVM_EEPROM_MAX_LEN);
+	return ivm_populate_env(buf, len);
 }

@@ -45,17 +45,17 @@ struct boot_device_info boot_device_table[] = {
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
 	{BOOT_DEVICE_NONE, "Reserved"},
-	{BOOT_DEVICE_NONE, ""}
+	{ /* sentinel */ }
 };
 
-u32 get_boot_mode_sel(void)
+int get_boot_mode_sel(void)
 {
 	return (readl(SG_PINMON0) >> 1) & 0x1f;
 }
 
 u32 spl_boot_device(void)
 {
-	u32 boot_mode;
+	int boot_mode;
 
 	if (boot_is_swapped())
 		return BOOT_DEVICE_NOR;

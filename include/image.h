@@ -751,6 +751,7 @@ int fit_parse_conf(const char *spec, ulong addr_curr,
 int fit_parse_subimage(const char *spec, ulong addr_curr,
 		ulong *addr, const char **image_name);
 
+int fit_get_subimage_count(const void *fit, int images_noffset);
 void fit_print_contents(const void *fit);
 void fit_image_print(const void *fit, int noffset, const char *p);
 
@@ -927,8 +928,9 @@ struct checksum_algo {
 #if IMAGE_ENABLE_SIGN
 	const EVP_MD *(*calculate_sign)(void);
 #endif
-	void (*calculate)(const struct image_region region[],
-			  int region_count, uint8_t *checksum);
+	int (*calculate)(const char *name,
+			 const struct image_region region[],
+			 int region_count, uint8_t *checksum);
 	const uint8_t *rsa_padding;
 };
 

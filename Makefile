@@ -1,7 +1,7 @@
 VERSION = 2015
-PATCHLEVEL = 01
+PATCHLEVEL = 04
 SUBLEVEL =
-EXTRAVERSION =
+EXTRAVERSION = -rc2
 NAME =
 
 # *DOCUMENTATION*
@@ -281,6 +281,11 @@ os_x_before	= $(shell if [ $(DARWIN_MAJOR_VERSION) -le $(1) -a \
 HOSTCC       = $(call os_x_before, 10, 5, "cc", "gcc")
 HOSTCFLAGS  += $(call os_x_before, 10, 4, "-traditional-cpp")
 HOSTLDFLAGS += $(call os_x_before, 10, 5, "-multiply_defined suppress")
+
+# since Lion (10.7) ASLR is on by default, but we use linker generated lists
+# in some host tools which is a problem then ... so disable ASLR for these
+# tools
+HOSTLDFLAGS += $(call os_x_before, 10, 7, "", "-Xlinker -no_pie")
 endif
 
 # Decide whether to build built-in, modular, or both.
@@ -729,8 +734,9 @@ ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
 ALL-$(CONFIG_REMAKE_ELF) += u-boot.elf
 
-# We can't do this yet due to the need for binary blobs
-# ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
+ifneq ($(BUILD_ROM),)
+ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
+endif
 
 # enable combined SPL/u-boot/dtb rules for tegra
 ifneq ($(CONFIG_TEGRA),)
@@ -774,6 +780,13 @@ ifneq ($(CONFIG_SYS_GENERIC_BOARD),y)
 	@echo "Please convert this board to generic board."
 	@echo "Otherwise it will be removed by the end of 2014."
 	@echo "See doc/README.generic-board for further information"
+	@echo "===================================================="
+endif
+ifeq ($(CONFIG_DM_I2C_COMPAT),y)
+	@echo "===================== WARNING ======================"
+	@echo "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
+	@echo "(possibly in a subsequent patch in your series)"
+	@echo "before sending patches to the mailing list."
 	@echo "===================================================="
 endif
 
@@ -849,10 +862,16 @@ MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
 MKIMAGEFLAGS_u-boot.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
 	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
 
+MKIMAGEFLAGS_u-boot-spl.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
+	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
+
 MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
 
 u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
+	$(call if_changed,mkimage)
+
+u-boot-spl.kwb: u-boot.img spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 
 MKIMAGEFLAGS_u-boot-dtb.img = $(MKIMAGEFLAGS_u-boot.img)

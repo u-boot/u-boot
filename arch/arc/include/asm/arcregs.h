@@ -7,6 +7,8 @@
 #ifndef _ASM_ARC_ARCREGS_H
 #define _ASM_ARC_ARCREGS_H
 
+#include <asm/cache.h>
+
 /*
  * ARC architecture has additional address space - auxiliary registers.
  * These registers are mostly used for configuration purposes.
@@ -21,7 +23,7 @@
 #define ARC_AUX_IC_IVIC		0x10
 #define ARC_AUX_IC_CTRL		0x11
 #define ARC_AUX_IC_IVIL		0x19
-#if (CONFIG_ARC_MMU_VER > 2)
+#if (CONFIG_ARC_MMU_VER == 3)
 #define ARC_AUX_IC_PTAG		0x1E
 #endif
 #define ARC_BCR_IC_BUILD	0x77
@@ -40,7 +42,7 @@
 #define ARC_AUX_DC_IVDL		0x4A
 #define ARC_AUX_DC_FLSH		0x4B
 #define ARC_AUX_DC_FLDL		0x4C
-#if (CONFIG_ARC_MMU_VER > 2)
+#if (CONFIG_ARC_MMU_VER == 3)
 #define ARC_AUX_DC_PTAG		0x5C
 #endif
 #define ARC_BCR_DC_BUILD	0x72

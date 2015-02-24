@@ -16,5 +16,6 @@ obj-y			+= cache.o
 obj-y			+= interrupts.o
 obj-$(CONFIG_PORTMUX_PIO) += portmux-pio.o
 obj-$(CONFIG_PORTMUX_GPIO) += portmux-gpio.o
+obj-y += mmc.o
 
 obj-$(if $(filter at32ap700x,$(SOC)),y) += at32ap700x/

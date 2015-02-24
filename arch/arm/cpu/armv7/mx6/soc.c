@@ -109,7 +109,7 @@ void init_aips(void)
 	aips1 = (struct aipstz_regs *)AIPS1_BASE_ADDR;
 	aips2 = (struct aipstz_regs *)AIPS2_BASE_ADDR;
 #ifdef CONFIG_MX6SX
-	aips3 = (struct aipstz_regs *)AIPS3_BASE_ADDR;
+	aips3 = (struct aipstz_regs *)AIPS3_CONFIG_BASE_ADDR;
 #endif
 
 	/*
