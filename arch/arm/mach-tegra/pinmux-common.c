@@ -99,7 +99,7 @@
 
 #endif /* CONFIG_TEGRA20 */
 
-#define DRV_REG(group)	_R(0x868 + ((group) * 4))
+#define DRV_REG(group)	_R(TEGRA_PMX_SOC_DRV_GROUP_BASE_REG + ((group) * 4))
 
 /*
  * We could force arch-tegraNN/pinmux.h to define all of these. However,
