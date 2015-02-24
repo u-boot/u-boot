@@ -20,6 +20,7 @@ obj-y += reset.o
 obj-y += timer.o
 obj-y += start.o
 obj-y += ints_low.o
+obj-y += init_helpers.o
 
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 
