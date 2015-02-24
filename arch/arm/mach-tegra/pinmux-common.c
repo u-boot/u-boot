@@ -352,19 +352,31 @@ void pinmux_config_pingrp_table(const struct pmux_pingrp_config *config,
 #define pmux_drv_isvalid(drv) \
 	(((drv) >= PMUX_DRVUP_MIN) && ((drv) <= PMUX_DRVUP_MAX))
 
+#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
 #define pmux_lpmd_isvalid(lpm) \
 	(((lpm) >= PMUX_LPMD_X8) && ((lpm) <= PMUX_LPMD_X))
+#endif
 
+#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
 #define pmux_schmt_isvalid(schmt) \
 	(((schmt) >= PMUX_SCHMT_DISABLE) && ((schmt) <= PMUX_SCHMT_ENABLE))
+#endif
 
+#ifdef TEGRA_PMX_GRPS_HAVE_HSM
 #define pmux_hsm_isvalid(hsm) \
 	(((hsm) >= PMUX_HSM_DISABLE) && ((hsm) <= PMUX_HSM_ENABLE))
+#endif
 
+#ifdef TEGRA_PMX_GRPS_HAVE_HSM
 #define HSM_SHIFT	2
+#endif
+#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
 #define SCHMT_SHIFT	3
+#endif
+#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
 #define LPMD_SHIFT	4
 #define LPMD_MASK	(3 << LPMD_SHIFT)
+#endif
 /*
  * Note that the following DRV* and SLW* defines are accurate for many drive
  * groups on many SoCs. We really need a per-group data structure to solve
@@ -473,6 +485,7 @@ static void pinmux_set_drvdn(enum pmux_drvgrp grp, int drvdn)
 	return;
 }
 
+#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
 static void pinmux_set_lpmd(enum pmux_drvgrp grp, enum pmux_lpmd lpmd)
 {
 	u32 *reg = DRV_REG(grp);
@@ -493,7 +506,9 @@ static void pinmux_set_lpmd(enum pmux_drvgrp grp, enum pmux_lpmd lpmd)
 
 	return;
 }
+#endif
 
+#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
 static void pinmux_set_schmt(enum pmux_drvgrp grp, enum pmux_schmt schmt)
 {
 	u32 *reg = DRV_REG(grp);
@@ -516,7 +531,9 @@ static void pinmux_set_schmt(enum pmux_drvgrp grp, enum pmux_schmt schmt)
 
 	return;
 }
+#endif
 
+#ifdef TEGRA_PMX_GRPS_HAVE_HSM
 static void pinmux_set_hsm(enum pmux_drvgrp grp, enum pmux_hsm hsm)
 {
 	u32 *reg = DRV_REG(grp);
@@ -539,6 +556,7 @@ static void pinmux_set_hsm(enum pmux_drvgrp grp, enum pmux_hsm hsm)
 
 	return;
 }
+#endif
 
 static void pinmux_config_drvgrp(const struct pmux_drvgrp_config *config)
 {
@@ -548,9 +566,15 @@ static void pinmux_config_drvgrp(const struct pmux_drvgrp_config *config)
 	pinmux_set_drvdn_slwr(grp, config->slwr);
 	pinmux_set_drvup(grp, config->drvup);
 	pinmux_set_drvdn(grp, config->drvdn);
+#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
 	pinmux_set_lpmd(grp, config->lpmd);
+#endif
+#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
 	pinmux_set_schmt(grp, config->schmt);
+#endif
+#ifdef TEGRA_PMX_GRPS_HAVE_HSM
 	pinmux_set_hsm(grp, config->hsm);
+#endif
 }
 
 void pinmux_config_drvgrp_table(const struct pmux_drvgrp_config *config,

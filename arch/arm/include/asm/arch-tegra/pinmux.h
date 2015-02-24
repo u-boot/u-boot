@@ -142,6 +142,7 @@ void pinmux_config_pingrp_table(const struct pmux_pingrp_config *config,
 #define PMUX_DRVDN_MAX	127
 #define PMUX_DRVDN_NONE	-1
 
+#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
 /* Defines a pin group cfg's low-power mode select */
 enum pmux_lpmd {
 	PMUX_LPMD_X8 = 0,
@@ -150,20 +151,25 @@ enum pmux_lpmd {
 	PMUX_LPMD_X,
 	PMUX_LPMD_NONE = -1,
 };
+#endif
 
+#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
 /* Defines whether a pin group cfg's schmidt is enabled or not */
 enum pmux_schmt {
 	PMUX_SCHMT_DISABLE = 0,
 	PMUX_SCHMT_ENABLE = 1,
 	PMUX_SCHMT_NONE = -1,
 };
+#endif
 
+#ifdef TEGRA_PMX_GRPS_HAVE_HSM
 /* Defines whether a pin group cfg's high-speed mode is enabled or not */
 enum pmux_hsm {
 	PMUX_HSM_DISABLE = 0,
 	PMUX_HSM_ENABLE = 1,
 	PMUX_HSM_NONE = -1,
 };
+#endif
 
 /*
  * This defines the configuration for a pin group's pad control config
@@ -174,9 +180,15 @@ struct pmux_drvgrp_config {
 	u32 slwr:3;		/* rising edge slew          */
 	u32 drvup:8;		/* pull-up drive strength    */
 	u32 drvdn:8;		/* pull-down drive strength  */
+#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
 	u32 lpmd:3;		/* low-power mode selection  */
+#endif
+#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
 	u32 schmt:2;		/* schmidt enable            */
+#endif
+#ifdef TEGRA_PMX_GRPS_HAVE_HSM
 	u32 hsm:2;		/* high-speed mode enable    */
+#endif
 };
 
 /**
