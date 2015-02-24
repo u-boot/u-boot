@@ -55,7 +55,6 @@ int ftmac100_initialize(bd_t *bits);
 int ftmac110_initialize(bd_t *bits);
 int greth_initialize(bd_t *bis);
 void gt6426x_eth_initialize(bd_t *bis);
-int ks8695_eth_initialize(void);
 int ks8851_mll_initialize(u8 dev_num, int base_addr);
 int lan91c96_initialize(u8 dev_num, int base_addr);
 int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);

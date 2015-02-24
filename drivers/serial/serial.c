@@ -127,7 +127,6 @@ serial_initfunc(evb64260_serial_initialize);
 serial_initfunc(imx_serial_initialize);
 serial_initfunc(iop480_serial_initialize);
 serial_initfunc(jz_serial_initialize);
-serial_initfunc(ks8695_serial_initialize);
 serial_initfunc(leon2_serial_initialize);
 serial_initfunc(leon3_serial_initialize);
 serial_initfunc(lh7a40x_serial_initialize);
@@ -220,7 +219,6 @@ void serial_initialize(void)
 	imx_serial_initialize();
 	iop480_serial_initialize();
 	jz_serial_initialize();
-	ks8695_serial_initialize();
 	leon2_serial_initialize();
 	leon3_serial_initialize();
 	lh7a40x_serial_initialize();

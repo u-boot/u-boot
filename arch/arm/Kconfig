@@ -88,14 +88,6 @@ config TARGET_SCB9328
 	bool "Support scb9328"
 	select CPU_ARM920T
 
-config TARGET_CM4008
-	bool "Support cm4008"
-	select CPU_ARM920T
-
-config TARGET_CM41XX
-	bool "Support cm41xx"
-	select CPU_ARM920T
-
 config TARGET_VCMA9
 	bool "Support VCMA9"
 	select CPU_ARM920T
@@ -769,8 +761,6 @@ source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
-source "board/cm4008/Kconfig"
-source "board/cm41xx/Kconfig"
 source "board/compulab/cm_t335/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"

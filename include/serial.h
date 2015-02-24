@@ -182,7 +182,6 @@ void evb64260_serial_initialize(void);
 void imx_serial_initialize(void);
 void iop480_serial_initialize(void);
 void jz_serial_initialize(void);
-void ks8695_serial_initialize(void);
 void leon2_serial_initialize(void);
 void leon3_serial_initialize(void);
 void lh7a40x_serial_initialize(void);

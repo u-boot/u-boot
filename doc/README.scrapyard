@@ -12,6 +12,8 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+cm4008           arm         arm920t        -           -           Greg Ungerer <greg.ungerer@opengear.com>
+cm41xx           arm         arm920t        -           -
 dkb              arm         arm926ejs      -           -           Lei Wen <leiwen@marvell.com>
 jadecpu          arm         arm926ejs      -           -           Matthias Weisser <weisserm@arcor.de>
 icecube_5200     powerpc     mpc5xxx        37b608a5    2015-01-23  Wolfgang Denk <wd@denx.de>
