@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+tnetv107x        arm         arm1176        -           -           Chan-Taek Park <c-park@ti.com>
 a320evb          arm         arm920t        -           -           Po-Yu Chuang <ratbert@faraday-tech.com>
 cm4008           arm         arm920t        -           -           Greg Ungerer <greg.ungerer@opengear.com>
 cm41xx           arm         arm920t        -           -

@@ -294,10 +294,6 @@ config TARGET_RPI_2
 	bool "Support rpi_2"
 	select CPU_V7
 
-config TARGET_TNETV107X_EVM
-	bool "Support tnetv107x_evm"
-	select CPU_ARM1176
-
 config TARGET_INTEGRATORAP_CM946ES
 	bool "Support integratorap_cm946es"
 	select CPU_ARM946ES
@@ -834,7 +830,6 @@ source "board/ti/am335x/Kconfig"
 source "board/ti/am43xx/Kconfig"
 source "board/ti/ti814x/Kconfig"
 source "board/ti/ti816x/Kconfig"
-source "board/ti/tnetv107xevm/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/tqc/tqma6/Kconfig"
