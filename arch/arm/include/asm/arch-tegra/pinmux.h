@@ -63,6 +63,14 @@ enum pmux_pin_rcv_sel {
 };
 #endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_E_IO_HV
+enum pmux_pin_e_io_hv {
+	PMUX_PIN_E_IO_HV_DEFAULT = 0,
+	PMUX_PIN_E_IO_HV_NORMAL,
+	PMUX_PIN_E_IO_HV_HIGH,
+};
+#endif
+
 #ifdef TEGRA_PMX_GRPS_HAVE_LPMD
 /* Defines a pin group cfg's low-power mode select */
 enum pmux_lpmd {
@@ -118,6 +126,9 @@ struct pmux_pingrp_config {
 #ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
 	u32 rcv_sel:2;		/* select between High and Normal  */
 				/* VIL/VIH receivers */
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_E_IO_HV
+	u32 e_io_hv:2;		/* select 3.3v tolerant receivers */
 #endif
 #ifdef TEGRA_PMX_PINS_HAVE_SCHMT
 	u32 schmt:2;		/* schmitt enable            */

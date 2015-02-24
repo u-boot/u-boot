@@ -56,6 +56,13 @@
 	 ((rcv_sel) <= PMUX_PIN_RCV_SEL_HIGH))
 #endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_E_IO_HV
+/* return 1 if a pin_e_io_hv is in range */
+#define pmux_pin_e_io_hv_isvalid(e_io_hv) \
+	(((e_io_hv) >= PMUX_PIN_E_IO_HV_NORMAL) && \
+	 ((e_io_hv) <= PMUX_PIN_E_IO_HV_HIGH))
+#endif
+
 #ifdef TEGRA_PMX_GRPS_HAVE_LPMD
 #define pmux_lpmd_isvalid(lpm) \
 	(((lpm) >= PMUX_LPMD_X8) && ((lpm) <= PMUX_LPMD_X))
@@ -113,6 +120,7 @@
 #ifdef TEGRA_PMX_PINS_HAVE_HSM
 #define HSM_SHIFT	9
 #endif
+#define E_IO_HV_SHIFT	10
 #define OD_SHIFT	11
 #ifdef TEGRA_PMX_PINS_HAVE_SCHMT
 #define SCHMT_SHIFT	12
@@ -342,6 +350,31 @@ static void pinmux_set_rcv_sel(enum pmux_pingrp pin,
 }
 #endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_E_IO_HV
+static void pinmux_set_e_io_hv(enum pmux_pingrp pin,
+				enum pmux_pin_e_io_hv e_io_hv)
+{
+	u32 *reg = REG(pin);
+	u32 val;
+
+	if (e_io_hv == PMUX_PIN_E_IO_HV_DEFAULT)
+		return;
+
+	/* Error check on pin and e_io_hv */
+	assert(pmux_pingrp_isvalid(pin));
+	assert(pmux_pin_e_io_hv_isvalid(e_io_hv));
+
+	val = readl(reg);
+	if (e_io_hv == PMUX_PIN_E_IO_HV_HIGH)
+		val |= (1 << E_IO_HV_SHIFT);
+	else
+		val &= ~(1 << E_IO_HV_SHIFT);
+	writel(val, reg);
+
+	return;
+}
+#endif
+
 #ifdef TEGRA_PMX_PINS_HAVE_SCHMT
 static void pinmux_set_schmt(enum pmux_pingrp pin, enum pmux_schmt schmt)
 {
@@ -413,6 +446,9 @@ static void pinmux_config_pingrp(const struct pmux_pingrp_config *config)
 #endif
 #ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
 	pinmux_set_rcv_sel(pin, config->rcv_sel);
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_E_IO_HV
+	pinmux_set_e_io_hv(pin, config->e_io_hv);
 #endif
 #ifdef TEGRA_PMX_PINS_HAVE_SCHMT
 	pinmux_set_schmt(pin, config->schmt);
