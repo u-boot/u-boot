@@ -39,6 +39,9 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 #define CONFIG_SYS_GENERIC_BOARD
 
+/* Add target to build it automatically upon "make" */
+#define CONFIG_BUILD_TARGET     "u-boot.kwb"
+
 /*
  * Commands configuration
  */
