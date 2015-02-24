@@ -101,11 +101,23 @@
 
 #define DRV_REG(group)	_R(0x868 + ((group) * 4))
 
+/*
+ * We could force arch-tegraNN/pinmux.h to define all of these. However,
+ * that's a lot of defines, and for now it's manageable to just put a
+ * special case here. It's possible this decision will change with future
+ * SoCs.
+ */
+#ifdef CONFIG_TEGRA210
+#define IO_SHIFT	6
+#define LOCK_SHIFT	7
+#define OD_SHIFT	11
+#else
 #define IO_SHIFT	5
 #define OD_SHIFT	6
 #define LOCK_SHIFT	7
 #define IO_RESET_SHIFT	8
 #define RCV_SEL_SHIFT	9
+#endif
 
 #ifdef TEGRA_PMX_SOC_HAS_IO_CLAMPING
 /* This register/field only exists on Tegra114 and later */
