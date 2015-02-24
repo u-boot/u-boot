@@ -61,12 +61,12 @@
 	(((lpm) >= PMUX_LPMD_X8) && ((lpm) <= PMUX_LPMD_X))
 #endif
 
-#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
+#if defined(TEGRA_PMX_PINS_HAVE_SCHMT) || defined(TEGRA_PMX_GRPS_HAVE_SCHMT)
 #define pmux_schmt_isvalid(schmt) \
 	(((schmt) >= PMUX_SCHMT_DISABLE) && ((schmt) <= PMUX_SCHMT_ENABLE))
 #endif
 
-#ifdef TEGRA_PMX_GRPS_HAVE_HSM
+#if defined(TEGRA_PMX_PINS_HAVE_HSM) || defined(TEGRA_PMX_GRPS_HAVE_HSM)
 #define pmux_hsm_isvalid(hsm) \
 	(((hsm) >= PMUX_HSM_DISABLE) && ((hsm) <= PMUX_HSM_ENABLE))
 #endif
@@ -110,7 +110,13 @@
 #ifdef CONFIG_TEGRA210
 #define IO_SHIFT	6
 #define LOCK_SHIFT	7
+#ifdef TEGRA_PMX_PINS_HAVE_HSM
+#define HSM_SHIFT	9
+#endif
 #define OD_SHIFT	11
+#ifdef TEGRA_PMX_PINS_HAVE_SCHMT
+#define SCHMT_SHIFT	12
+#endif
 #else
 #define IO_SHIFT	5
 #define OD_SHIFT	6
@@ -336,6 +342,56 @@ static void pinmux_set_rcv_sel(enum pmux_pingrp pin,
 }
 #endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_SCHMT
+static void pinmux_set_schmt(enum pmux_pingrp pin, enum pmux_schmt schmt)
+{
+	u32 *reg = REG(grp);
+	u32 val;
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (schmt == PMUX_SCHMT_NONE)
+		return;
+
+	/* Error check pad */
+	assert(pmux_pingrp_isvalid(pin));
+	assert(pmux_schmt_isvalid(schmt));
+
+	val = readl(reg);
+	if (schmt == PMUX_SCHMT_ENABLE)
+		val |= (1 << SCHMT_SHIFT);
+	else
+		val &= ~(1 << SCHMT_SHIFT);
+	writel(val, reg);
+
+	return;
+}
+#endif
+
+#ifdef TEGRA_PMX_PINS_HAVE_HSM
+static void pinmux_set_hsm(enum pmux_pingrp pin, enum pmux_hsm hsm)
+{
+	u32 *reg = REG(grp);
+	u32 val;
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (hsm == PMUX_HSM_NONE)
+		return;
+
+	/* Error check pad */
+	assert(pmux_pingrp_isvalid(pin));
+	assert(pmux_hsm_isvalid(hsm));
+
+	val = readl(reg);
+	if (hsm == PMUX_HSM_ENABLE)
+		val |= (1 << HSM_SHIFT);
+	else
+		val &= ~(1 << HSM_SHIFT);
+	writel(val, reg);
+
+	return;
+}
+#endif
+
 static void pinmux_config_pingrp(const struct pmux_pingrp_config *config)
 {
 	enum pmux_pingrp pin = config->pingrp;
@@ -357,6 +413,12 @@ static void pinmux_config_pingrp(const struct pmux_pingrp_config *config)
 #endif
 #ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
 	pinmux_set_rcv_sel(pin, config->rcv_sel);
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_SCHMT
+	pinmux_set_schmt(pin, config->schmt);
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_HSM
+	pinmux_set_hsm(pin, config->hsm);
 #endif
 }
 

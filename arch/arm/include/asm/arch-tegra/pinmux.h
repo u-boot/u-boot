@@ -74,7 +74,7 @@ enum pmux_lpmd {
 };
 #endif
 
-#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
+#if defined(TEGRA_PMX_PINS_HAVE_SCHMT) || defined(TEGRA_PMX_GRPS_HAVE_SCHMT)
 /* Defines whether a pin group cfg's schmidt is enabled or not */
 enum pmux_schmt {
 	PMUX_SCHMT_DISABLE = 0,
@@ -83,7 +83,7 @@ enum pmux_schmt {
 };
 #endif
 
-#ifdef TEGRA_PMX_GRPS_HAVE_HSM
+#if defined(TEGRA_PMX_PINS_HAVE_HSM) || defined(TEGRA_PMX_GRPS_HAVE_HSM)
 /* Defines whether a pin group cfg's high-speed mode is enabled or not */
 enum pmux_hsm {
 	PMUX_HSM_DISABLE = 0,
@@ -118,6 +118,12 @@ struct pmux_pingrp_config {
 #ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
 	u32 rcv_sel:2;		/* select between High and Normal  */
 				/* VIL/VIH receivers */
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_SCHMT
+	u32 schmt:2;		/* schmitt enable            */
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_HSM
+	u32 hsm:2;		/* high-speed mode enable    */
 #endif
 };
 
