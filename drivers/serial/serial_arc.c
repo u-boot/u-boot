@@ -28,7 +28,7 @@ struct arc_serial_regs {
 #define UART_OVERFLOW_ERR	(1 << 1)
 #define UART_TXEMPTY		(1 << 7)
 
-struct arc_serial_regs *regs;
+struct arc_serial_regs *regs = (struct arc_serial_regs *)CONFIG_ARC_UART_BASE;
 
 static void arc_serial_setbrg(void)
 {
@@ -60,7 +60,6 @@ static void arc_serial_setbrg(void)
 
 static int arc_serial_init(void)
 {
-	regs = (struct arc_serial_regs *)CONFIG_ARC_UART_BASE;
 	serial_setbrg();
 	return 0;
 }
