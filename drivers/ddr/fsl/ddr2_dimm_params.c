@@ -211,10 +211,10 @@ compute_derated_DDR2_CAS_latency(unsigned int mclk_ps)
  *
  * FIXME: use #define for the retvals
  */
-unsigned int
-ddr_compute_dimm_parameters(const ddr2_spd_eeprom_t *spd,
-			     dimm_params_t *pdimm,
-			     unsigned int dimm_number)
+unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
+					 const ddr2_spd_eeprom_t *spd,
+					 dimm_params_t *pdimm,
+					 unsigned int dimm_number)
 {
 	unsigned int retval;
 
@@ -310,8 +310,8 @@ ddr_compute_dimm_parameters(const ddr2_spd_eeprom_t *spd,
 					  & ~(1 << pdimm->caslat_x_minus_1));
 
 	/* Compute CAS latencies below that defined by SPD */
-	pdimm->caslat_lowest_derated
-		= compute_derated_DDR2_CAS_latency(get_memory_clk_period_ps());
+	pdimm->caslat_lowest_derated = compute_derated_DDR2_CAS_latency(
+					get_memory_clk_period_ps(ctrl_num));
 
 	/* Compute timing parameters */
 	pdimm->trcd_ps = spd->trcd * 250;

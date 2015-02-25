@@ -127,11 +127,21 @@ static struct hash_algo hash_algo[] = {
 		SHA1_SUM_LEN,
 		hw_sha1,
 		CHUNKSZ_SHA1,
+#ifdef CONFIG_SHA_PROG_HW_ACCEL
+		hw_sha_init,
+		hw_sha_update,
+		hw_sha_finish,
+#endif
 	}, {
 		"sha256",
 		SHA256_SUM_LEN,
 		hw_sha256,
 		CHUNKSZ_SHA256,
+#ifdef CONFIG_SHA_PROG_HW_ACCEL
+		hw_sha_init,
+		hw_sha_update,
+		hw_sha_finish,
+#endif
 	},
 #endif
 #ifdef CONFIG_SHA1

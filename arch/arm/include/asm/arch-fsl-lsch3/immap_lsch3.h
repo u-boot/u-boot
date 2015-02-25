@@ -15,6 +15,7 @@ struct sys_info {
 	unsigned long freq_processor[CONFIG_MAX_CPUS];
 	unsigned long freq_systembus;
 	unsigned long freq_ddrbus;
+	unsigned long freq_ddrbus2;
 	unsigned long freq_localbus;
 	unsigned long freq_qe;
 #ifdef CONFIG_SYS_DPAA_FMAN
@@ -60,6 +61,8 @@ struct ccsr_gur {
 #define FSL_CHASSIS3_RCWSR0_SYS_PLL_RAT_MASK	0x1f
 #define FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_SHIFT	10
 #define FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_MASK	0x3f
+#define FSL_CHASSIS3_RCWSR0_MEM2_PLL_RAT_SHIFT	18
+#define FSL_CHASSIS3_RCWSR0_MEM2_PLL_RAT_MASK	0x3f
 	u8	res_180[0x200-0x180];
 	u32	scratchrw[32];	/* Scratch Read/Write */
 	u8	res_280[0x300-0x280];

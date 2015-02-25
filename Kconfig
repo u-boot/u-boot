@@ -123,7 +123,9 @@ config FIT_SIGNATURE
 	select RSA
 	help
 	  This option enables signature verification of FIT uImages,
-	  using a hash signed and verified using RSA.
+	  using a hash signed and verified using RSA. If
+	  CONFIG_SHA_PROG_HW_ACCEL is defined, i.e support for progressive
+	  hashing is available using hardware, RSA library will use it.
 	  See doc/uImage.FIT/signature.txt for more details.
 
 config SYS_EXTRA_OPTIONS

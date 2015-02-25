@@ -3152,8 +3152,18 @@ CBFS (Coreboot Filesystem) support
 		Enable the hash verify command (hash -v). This adds to code
 		size a little.
 
-		CONFIG_SHA1 - support SHA1 hashing
-		CONFIG_SHA256 - support SHA256 hashing
+		CONFIG_SHA1 - This option enables support of hashing using SHA1
+		algorithm. The hash is calculated in software.
+		CONFIG_SHA256 - This option enables support of hashing using
+		SHA256 algorithm. The hash is calculated in software.
+		CONFIG_SHA_HW_ACCEL - This option enables hardware acceleration
+		for SHA1/SHA256 hashing.
+		This affects the 'hash' command and also the
+		hash_lookup_algo() function.
+		CONFIG_SHA_PROG_HW_ACCEL - This option enables
+		hardware-acceleration for SHA1/SHA256 progressive hashing.
+		Data can be streamed in a block at a time and the hashing
+		is performed in hardware.
 
 		Note: There is also a sha1sum command, which should perhaps
 		be deprecated in favour of 'hash sha1'.
@@ -3447,8 +3457,10 @@ FIT uImage format:
 
 		CONFIG_FIT_SIGNATURE
 		This option enables signature verification of FIT uImages,
-		using a hash signed and verified using RSA. See
-		doc/uImage.FIT/signature.txt for more details.
+		using a hash signed and verified using RSA. If
+		CONFIG_SHA_PROG_HW_ACCEL is defined, i.e support for progressive
+		hashing is available using hardware, RSA library will use it.
+		See doc/uImage.FIT/signature.txt for more details.
 
 		WARNING: When relying on signed FIT images with required
 		signature check the legacy image format is default
@@ -4915,6 +4927,9 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_FSL_DDR_INTERACTIVE
 		Enable interactive DDR debugging. See doc/README.fsl-ddr.
+
+- CONFIG_FSL_DDR_SYNC_REFRESH
+		Enable sync of refresh for multiple controllers.
 
 - CONFIG_SYS_83XX_DDR_USES_CS0
 		Only for 83xx systems. If specified, then DDR should

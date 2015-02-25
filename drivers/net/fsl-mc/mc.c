@@ -3,9 +3,12 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+
 #include <errno.h>
 #include <asm/io.h>
-#include <fsl_mc.h>
+#include <fsl-mc/fsl_mc.h>
+#include <fsl-mc/fsl_mc_sys.h>
+#include <fsl-mc/fsl_dpmng.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 static int mc_boot_status;
@@ -14,7 +17,7 @@ static int mc_boot_status;
  * Copying MC firmware or DPL image to DDR
  */
 static int mc_copy_image(const char *title,
-		    u64 image_addr, u32 image_size, u64 mc_ram_addr)
+			 u64 image_addr, u32 image_size, u64 mc_ram_addr)
 {
 	debug("%s copied to address %p\n", title, (void *)mc_ram_addr);
 	memcpy((void *)mc_ram_addr, (void *)image_addr, image_size);
@@ -25,10 +28,9 @@ static int mc_copy_image(const char *title,
  * MC firmware FIT image parser checks if the image is in FIT
  * format, verifies integrity of the image and calculates
  * raw image address and size values.
- * Returns 0 if success and 1 if any of the above mentioned
+ * Returns 0 on success and a negative errno on error.
  * task fail.
  **/
-
 int parse_mc_firmware_fit_image(const void **raw_image_addr,
 				size_t *raw_image_size)
 {
@@ -39,7 +41,7 @@ int parse_mc_firmware_fit_image(const void **raw_image_addr,
 	size_t size;
 	const char *uname = "firmware";
 
-	/* Check if the image is in NOR flash*/
+	/* Check if the image is in NOR flash */
 #ifdef CONFIG_SYS_LS_MC_FW_IN_NOR
 	fit_hdr = (void *)CONFIG_SYS_LS_MC_FW_ADDR;
 #else
@@ -50,26 +52,26 @@ int parse_mc_firmware_fit_image(const void **raw_image_addr,
 	format = genimg_get_format(fit_hdr);
 
 	if (format != IMAGE_FORMAT_FIT) {
-		debug("Not a FIT image\n");
-		return 1;
+		printf("fsl-mc: ERROR: Bad firmware image (not a FIT image)\n");
+		return -EINVAL;
 	}
 
 	if (!fit_check_format(fit_hdr)) {
-		debug("Bad FIT image format\n");
-		return 1;
+		printf("fsl-mc: ERROR: Bad firmware image (bad FIT header)\n");
+		return -EINVAL;
 	}
 
 	node_offset = fit_image_get_node(fit_hdr, uname);
 
 	if (node_offset < 0) {
-		debug("Can not find %s subimage\n", uname);
-		return 1;
+		printf("fsl-mc: ERROR: Bad firmware image (missing subimage)\n");
+		return -ENOENT;
 	}
 
 	/* Verify MC firmware image */
 	if (!(fit_image_verify(fit_hdr, node_offset))) {
-		debug("Bad MC firmware hash");
-		return 1;
+		printf("fsl-mc: ERROR: Bad firmware image (bad CRC)\n");
+		return -EINVAL;
 	}
 
 	/* Get address and size of raw image */
@@ -90,12 +92,13 @@ int mc_init(bd_t *bis)
 	u64 mc_dpl_offset;
 	u32 reg_gsr;
 	u32 mc_fw_boot_status;
-	void *fdt_hdr;
+	void *dpl_fdt_hdr;
 	int dpl_size;
 	const void *raw_image_addr;
 	size_t raw_image_size = 0;
-
-	BUILD_BUG_ON(CONFIG_SYS_LS_MC_FW_LENGTH % 4 != 0);
+	struct fsl_mc_io mc_io;
+	int portal_id;
+	struct mc_version mc_ver_info;
 
 	/*
 	 * The MC private DRAM block was already carved at the end of DRAM
@@ -130,25 +133,44 @@ int mc_init(bd_t *bis)
 	/*
 	 * Load the MC FW at the beginning of the MC private DRAM block:
 	 */
-	mc_copy_image(
-		"MC Firmware",
-		(u64)raw_image_addr,
-		raw_image_size,
-		mc_ram_addr);
+	mc_copy_image("MC Firmware",
+		      (u64)raw_image_addr, raw_image_size, mc_ram_addr);
+
+	/*
+	 * Get address and size of the DPL blob stored in flash:
+	 */
+#ifdef CONFIG_SYS_LS_MC_DPL_IN_NOR
+	dpl_fdt_hdr = (void *)CONFIG_SYS_LS_MC_DPL_ADDR;
+#else
+#error "No CONFIG_SYS_LS_MC_DPL_IN_xxx defined"
+#endif
+
+	error = fdt_check_header(dpl_fdt_hdr);
+	if (error != 0) {
+		printf("fsl-mc: ERROR: Bad DPL image (bad header)\n");
+		goto out;
+	}
+
+	dpl_size = fdt_totalsize(dpl_fdt_hdr);
+	if (dpl_size > CONFIG_SYS_LS_MC_DPL_MAX_LENGTH) {
+		printf("fsl-mc: ERROR: Bad DPL image (too large: %d)\n",
+		       dpl_size);
+		error = -EINVAL;
+		goto out;
+	}
 
 	/*
 	 * Calculate offset in the MC private DRAM block at which the MC DPL
 	 * blob is to be placed:
 	 */
 #ifdef CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET
-	BUILD_BUG_ON(
-		(CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET & 0x3) != 0 ||
-		CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET > 0xffffffff);
+	BUILD_BUG_ON((CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET & 0x3) != 0 ||
+		     CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET > 0xffffffff);
 
 	mc_dpl_offset = CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET;
 #else
 	mc_dpl_offset = mc_get_dram_block_size() -
-			roundup(CONFIG_SYS_LS_MC_DPL_LENGTH, 4096);
+			roundup(CONFIG_SYS_LS_MC_DPL_MAX_LENGTH, 4096);
 
 	if ((mc_dpl_offset & 0x3) != 0 || mc_dpl_offset > 0xffffffff) {
 		printf("%s: Invalid MC DPL offset: %llu\n",
@@ -158,23 +180,14 @@ int mc_init(bd_t *bis)
 	}
 #endif
 
-	/* Check if DPL image is in NOR flash */
-#ifdef CONFIG_SYS_LS_MC_DPL_IN_NOR
-	fdt_hdr = (void *)CONFIG_SYS_LS_MC_DPL_ADDR;
-#else
-#error "No CONFIG_SYS_LS_MC_DPL_IN_xxx defined"
-#endif
-
-	dpl_size = fdt_totalsize(fdt_hdr);
-
 	/*
 	 * Load the MC DPL blob at the far end of the MC private DRAM block:
+	 *
+	 * TODO: Should we place the DPL at a different location to match
+	 * assumptions of MC firmware about its memory layout?
 	 */
-	mc_copy_image(
-		"MC DPL blob",
-		(u64)fdt_hdr,
-		dpl_size,
-		mc_ram_addr + mc_dpl_offset);
+	mc_copy_image("MC DPL blob",
+		      (u64)dpl_fdt_hdr, dpl_size, mc_ram_addr + mc_dpl_offset);
 
 	debug("mc_ccsr_regs %p\n", mc_ccsr_regs);
 
@@ -200,6 +213,8 @@ int mc_init(bd_t *bis)
 	 */
 	out_le32(&mc_ccsr_regs->reg_gsr, (u32)(mc_dpl_offset >> 2));
 
+	printf("\nfsl-mc: Booting Management Complex ...\n");
+
 	/*
 	 * Deassert reset and release MC core 0 to run
 	 */
@@ -219,16 +234,12 @@ int mc_init(bd_t *bis)
 	}
 
 	if (timeout <= 0) {
-		printf("%s: timeout booting management complex firmware\n",
-		       __func__);
+		printf("fsl-mc: timeout booting management complex firmware\n");
 
 		/* TODO: Get an error status from an MC CCSR register */
 		error = -ETIMEDOUT;
 		goto out;
 	}
-
-	printf("Management complex booted (boot status: %#x)\n",
-	       mc_fw_boot_status);
 
 	if (mc_fw_boot_status != 0x1) {
 		/*
@@ -237,8 +248,41 @@ int mc_init(bd_t *bis)
 		 * appropriate errno, so that the status property is set to
 		 * failure in the fsl,dprc device tree node.
 		 */
+		printf("fsl-mc: WARNING: Firmware booted with error (GSR: %#x)\n",
+		       reg_gsr);
 	}
 
+	/*
+	 * TODO: need to obtain the portal_id for the root container from the
+	 * DPL
+	 */
+	portal_id = 0;
+
+	/*
+	 * Check that the MC firmware is responding portal commands:
+	 */
+	mc_io.mmio_regs = SOC_MC_PORTAL_ADDR(portal_id);
+	debug("Checking access to MC portal of root DPRC container (portal_id %d, portal physical addr %p)\n",
+	      portal_id, mc_io.mmio_regs);
+
+	error = mc_get_version(&mc_io, &mc_ver_info);
+	if (error != 0) {
+		printf("fsl-mc: ERROR: Firmware version check failed (error: %d)\n",
+		       error);
+		goto out;
+	}
+
+	if (MC_VER_MAJOR != mc_ver_info.major)
+		printf("fsl-mc: ERROR: Firmware major version mismatch (found: %d, expected: %d)\n",
+		       mc_ver_info.major, MC_VER_MAJOR);
+
+	if (MC_VER_MINOR != mc_ver_info.minor)
+		printf("fsl-mc: WARNING: Firmware minor version mismatch (found: %d, expected: %d)\n",
+		       mc_ver_info.minor, MC_VER_MINOR);
+
+	printf("fsl-mc: Management Complex booted (version: %d.%d.%d, boot status: %#x)\n",
+	       mc_ver_info.major, mc_ver_info.minor, mc_ver_info.revision,
+	       mc_fw_boot_status);
 out:
 	if (error != 0)
 		mc_boot_status = -error;

@@ -42,9 +42,141 @@ ENTRY(lowlevel_init)
 	ldr	x0, =secondary_boot_func
 	blr	x0
 2:
+
+#ifdef CONFIG_FSL_TZPC_BP147
+	/* Set Non Secure access for all devices protected via TZPC */
+	ldr	x1, =TZPCDECPROT_0_SET_BASE /* Decode Protection-0 Set Reg */
+	orr	w0, w0, #1 << 3 /* DCFG_RESET is accessible from NS world */
+	str	w0, [x1]
+
+	isb
+	dsb	sy
+#endif
+
+#ifdef CONFIG_FSL_TZASC_400
+	/* Set TZASC so that:
+	 * a. We use only Region0 whose global secure write/read is EN
+	 * b. We use only Region0 whose NSAID write/read is EN
+	 *
+	 * NOTE: As per the CCSR map doc, TZASC 3 and TZASC 4 are just
+	 * 	 placeholders.
+	 */
+	ldr	x1, =TZASC_GATE_KEEPER(0)
+	ldr	x0, [x1]		/* Filter 0 Gate Keeper Register */
+	orr	x0, x0, #1 << 0		/* Set open_request for Filter 0 */
+	str	x0, [x1]
+
+	ldr	x1, =TZASC_GATE_KEEPER(1)
+	ldr	x0, [x1]		/* Filter 0 Gate Keeper Register */
+	orr	x0, x0, #1 << 0		/* Set open_request for Filter 0 */
+	str	x0, [x1]
+
+	ldr	x1, =TZASC_REGION_ATTRIBUTES_0(0)
+	ldr	x0, [x1]		/* Region-0 Attributes Register */
+	orr	x0, x0, #1 << 31	/* Set Sec global write en, Bit[31] */
+	orr	x0, x0, #1 << 30	/* Set Sec global read en, Bit[30] */
+	str	x0, [x1]
+
+	ldr	x1, =TZASC_REGION_ATTRIBUTES_0(1)
+	ldr	x0, [x1]		/* Region-1 Attributes Register */
+	orr	x0, x0, #1 << 31	/* Set Sec global write en, Bit[31] */
+	orr	x0, x0, #1 << 30	/* Set Sec global read en, Bit[30] */
+	str	x0, [x1]
+
+	ldr	x1, =TZASC_REGION_ID_ACCESS_0(0)
+	ldr	w0, [x1]		/* Region-0 Access Register */
+	mov	w0, #0xFFFFFFFF		/* Set nsaid_wr_en and nsaid_rd_en */
+	str	w0, [x1]
+
+	ldr	x1, =TZASC_REGION_ID_ACCESS_0(1)
+	ldr	w0, [x1]		/* Region-1 Attributes Register */
+	mov	w0, #0xFFFFFFFF		/* Set nsaid_wr_en and nsaid_rd_en */
+	str	w0, [x1]
+
+	isb
+	dsb	sy
+#endif
 	mov	lr, x29			/* Restore LR */
 	ret
 ENDPROC(lowlevel_init)
+
+hnf_pstate_poll:
+	/* x0 has the desired status, return 0 for success, 1 for timeout
+	 * clobber x1, x2, x3, x4, x6, x7
+	 */
+	mov	x1, x0
+	mov	x7, #0			/* flag for timeout */
+	mrs	x3, cntpct_el0		/* read timer */
+	add	x3, x3, #1200		/* timeout after 100 microseconds */
+	mov	x0, #0x18
+	movk	x0, #0x420, lsl #16	/* HNF0_PSTATE_STATUS */
+	mov	w6, #8			/* HN-F node count */
+1:
+	ldr	x2, [x0]
+	cmp	x2, x1			/* check status */
+	b.eq	2f
+	mrs	x4, cntpct_el0
+	cmp	x4, x3
+	b.ls	1b
+	mov	x7, #1			/* timeout */
+	b	3f
+2:
+	add	x0, x0, #0x10000	/* move to next node */
+	subs	w6, w6, #1
+	cbnz	w6, 1b
+3:
+	mov	x0, x7
+	ret
+
+hnf_set_pstate:
+	/* x0 has the desired state, clobber x1, x2, x6 */
+	mov	x1, x0
+	/* power state to SFONLY */
+	mov	w6, #8			/* HN-F node count */
+	mov	x0, #0x10
+	movk	x0, #0x420, lsl #16	/* HNF0_PSTATE_REQ */
+1:	/* set pstate to sfonly */
+	ldr	x2, [x0]
+	and	x2, x2, #0xfffffffffffffffc	/* & HNFPSTAT_MASK */
+	orr	x2, x2, x1
+	str	x2, [x0]
+	add	x0, x0, #0x10000	/* move to next node */
+	subs	w6, w6, #1
+	cbnz	w6, 1b
+
+	ret
+
+ENTRY(__asm_flush_l3_cache)
+	/*
+	 * Return status in x0
+	 *    success 0
+	 *    tmeout 1 for setting SFONLY, 2 for FAM, 3 for both
+	 */
+	mov	x29, lr
+	mov	x8, #0
+
+	dsb	sy
+	mov	x0, #0x1		/* HNFPSTAT_SFONLY */
+	bl	hnf_set_pstate
+
+	mov	x0, #0x4		/* SFONLY status */
+	bl	hnf_pstate_poll
+	cbz	x0, 1f
+	mov	x8, #1			/* timeout */
+1:
+	dsb	sy
+	mov	x0, #0x3		/* HNFPSTAT_FAM */
+	bl	hnf_set_pstate
+
+	mov	x0, #0xc		/* FAM status */
+	bl	hnf_pstate_poll
+	cbz	x0, 1f
+	add	x8, x8, #0x2
+1:
+	mov	x0, x8
+	mov	lr, x29
+	ret
+ENDPROC(__asm_flush_l3_cache)
 
 	/* Keep literals not used by the secondary boot code outside it */
 	.ltorg

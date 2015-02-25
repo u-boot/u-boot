@@ -32,5 +32,6 @@ int fsl_lsch3_wake_seconday_cores(void);
 void *get_spin_tbl_addr(void);
 phys_addr_t determine_mp_bootpg(void);
 void secondary_boot_func(void);
+int is_core_online(u64 cpu_id);
 #endif
 #endif /* _FSL_CH3_MP_H */

@@ -11,7 +11,7 @@
 #include "desc.h"
 #include "jr.h"
 
-int blob_decrypt(u8 *key_mod, u8 *src, u8 *dst, u8 len)
+int blob_decap(u8 *key_mod, u8 *src, u8 *dst, u32 len)
 {
 	int ret, i = 0;
 	u32 *desc;
@@ -36,7 +36,7 @@ int blob_decrypt(u8 *key_mod, u8 *src, u8 *dst, u8 len)
 	return ret;
 }
 
-int blob_encrypt(u8 *key_mod, u8 *src, u8 *dst, u8 len)
+int blob_encap(u8 *key_mod, u8 *src, u8 *dst, u32 len)
 {
 	int ret, i = 0;
 	u32 *desc;
