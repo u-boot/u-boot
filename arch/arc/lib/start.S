@@ -22,6 +22,14 @@ ENTRY(_start)
 	bl	dcache_disable
 	bl	icache_disable
 
+	/* Allocate and zero GD, update SP */
+	mov	%r0, %sp
+	bl	board_init_f_mem
+
+	/* Update stack- and frame-pointers */
+	mov	%sp, %r0
+	mov	%fp, %sp
+
 	/* Zero the one and only argument of "board_init_f" */
 	mov_s	%r0, 0
 	j	board_init_f
