@@ -135,7 +135,7 @@ int dcache_status(void)
 	return (get_sctlr() & CR_C) != 0;
 }
 
-void mmu_set_region_dcache_behaviour(u32 start, int size,
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option)
 {
 	/* get the level2_table0 start address */
@@ -184,7 +184,7 @@ int dcache_status(void)
 	return 0;
 }
 
-void mmu_set_region_dcache_behaviour(u32 start, int size,
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option)
 {
 }

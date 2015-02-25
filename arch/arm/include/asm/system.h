@@ -201,16 +201,6 @@ enum {
 };
 
 /**
- * Change the cache settings for a region.
- *
- * \param start		start address of memory region to change
- * \param size		size of memory region to change
- * \param option	dcache option to select
- */
-void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
-				     enum dcache_option option);
-
-/**
  * Register an update to the page tables, and flush the TLB
  *
  * \param start		start address of update in page table
@@ -239,7 +229,7 @@ phys_addr_t noncached_alloc(size_t size, size_t align);
  * \param size		size of memory region to change
  * \param option	dcache option to select
  */
-void mmu_set_region_dcache_behaviour(u32 start, int size,
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option);
 #endif /* __ASSEMBLY__ */
 
