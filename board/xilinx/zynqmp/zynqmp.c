@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <ahci.h>
+#include <scsi.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
