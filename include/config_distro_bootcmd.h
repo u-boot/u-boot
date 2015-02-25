@@ -213,7 +213,8 @@
 		"done\0"                                                  \
 	\
 	"scan_dev_for_boot_part="                                         \
-		"part list ${devtype} ${devnum} devplist; "               \
+		"part list ${devtype} ${devnum} -bootable devplist; "     \
+		"env exists devplist || setenv devplist 1; "              \
 		"for bootpart in ${devplist}; do "                        \
 			"if fstype ${devtype} ${devnum}:${bootpart} "     \
 					"bootfstype; then "               \
