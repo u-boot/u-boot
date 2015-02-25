@@ -1062,7 +1062,7 @@ void board_init_f_r(void)
 	 * Transfer execution from Flash to RAM by calculating the address
 	 * of the in-RAM copy of board_init_r() and calling it
 	 */
-	(board_init_r + gd->reloc_off)(gd, gd->relocaddr);
+	(board_init_r + gd->reloc_off)((gd_t *)gd, gd->relocaddr);
 
 	/* NOTREACHED - board_init_r() does not return */
 	hang();
