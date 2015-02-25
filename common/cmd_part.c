@@ -53,29 +53,57 @@ static int do_part_list(int argc, char * const argv[])
 {
 	int ret;
 	block_dev_desc_t *desc;
+	char *var = NULL;
+	bool bootable = false;
+	int i;
 
-	if (argc < 2 || argc > 3)
+	if (argc < 2)
 		return CMD_RET_USAGE;
+
+	if (argc > 2) {
+		for (i = 2; i < argc ; i++) {
+			if (argv[i][0] == '-') {
+				if (!strcmp(argv[i], "-bootable")) {
+					bootable = true;
+				} else {
+					printf("Unknown option %s\n", argv[i]);
+					return CMD_RET_USAGE;
+				}
+			} else {
+				var = argv[i];
+				break;
+			}
+		}
+
+		/* Loops should have been exited at the last argument, which
+		 * as it contained the variable */
+		if (argc != i + 1)
+			return CMD_RET_USAGE;
+	}
 
 	ret = get_device(argv[0], argv[1], &desc);
 	if (ret < 0)
 		return 1;
 
-	if (argc == 3) {
+	if (var != NULL) {
 		int p;
-		char str[512] = { 0, };
+		char str[512] = { '\0', };
 	  disk_partition_t info;
 
 		for (p = 1; p < 128; p++) {
+			char t[5];
 			int r = get_partition_info(desc, p, &info);
 
-			if (r == 0) {
-				char t[5];
-				sprintf(t, "%s%d", str[0] ? " " : "", p);
-				strcat(str, t);
-			}
+			if (r != 0)
+				continue;
+
+			if (bootable && !info.bootable)
+				continue;
+
+			sprintf(t, "%s%d", str[0] ? " " : "", p);
+			strcat(str, t);
 		}
-		setenv(argv[2], str);
+		setenv(var, str);
 		return 0;
 	}
 
@@ -98,7 +126,7 @@ static int do_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	part,	5,	1,	do_part,
+	part,	CONFIG_SYS_MAXARGS,	1,	do_part,
 	"disk partition related commands",
 	"part uuid <interface> <dev>:<part>\n"
 	"    - print partition UUID\n"
@@ -106,6 +134,7 @@ U_BOOT_CMD(
 	"    - set environment variable to partition UUID\n"
 	"part list <interface> <dev>\n"
 	"    - print a device's partition table\n"
-	"part list <interface> <dev> <varname>\n"
-	"    - set environment variable to the list of partitions"
+	"part list <interface> <dev> [flags] <varname>\n"
+	"    - set environment variable to the list of partitions\n"
+	"      flags can be -bootable (list only bootable partitions)"
 );
