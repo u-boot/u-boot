@@ -23,7 +23,7 @@
 struct stdio_dev {
 	int	flags;			/* Device flags: input/output/system	*/
 	int	ext;			/* Supported extensions			*/
-	char	name[16];		/* Device name				*/
+	char	name[32];		/* Device name				*/
 
 /* GENERAL functions */
 
