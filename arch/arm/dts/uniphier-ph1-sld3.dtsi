@@ -1,7 +1,7 @@
 /*
  * Device Tree Source for UniPhier PH1-sLD3 SoC
  *
- * Copyright (C) 2014 Panasonic Corporation
+ * Copyright (C) 2014-2015 Panasonic Corporation
  *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -93,25 +93,25 @@
 		};
 
 		usb0: usb@5a800100 {
-			compatible = "panasonic,uniphier-ehci", "usb-ehci";
+			compatible = "panasonic,uniphier-ehci", "generic-ehci";
 			status = "disabled";
 			reg = <0x5a800100 0x100>;
 		};
 
 		usb1: usb@5a810100 {
-			compatible = "panasonic,uniphier-ehci", "usb-ehci";
+			compatible = "panasonic,uniphier-ehci", "generic-ehci";
 			status = "disabled";
 			reg = <0x5a810100 0x100>;
 		};
 
 		usb2: usb@5a820100 {
-			compatible = "panasonic,uniphier-ehci", "usb-ehci";
+			compatible = "panasonic,uniphier-ehci", "generic-ehci";
 			status = "disabled";
 			reg = <0x5a820100 0x100>;
 		};
 
 		usb3: usb@5a830100 {
-			compatible = "panasonic,uniphier-ehci", "usb-ehci";
+			compatible = "panasonic,uniphier-ehci", "generic-ehci";
 			status = "disabled";
 			reg = <0x5a830100 0x100>;
 		};
