@@ -7,6 +7,7 @@ ifdef CONFIG_SPL_BUILD
 obj-y += lowlevel_init.o
 obj-y += init_page_table.o
 obj-y += spl.o
+obj-y += memconf.o
 obj-y += ddrphy_training.o
 
 else

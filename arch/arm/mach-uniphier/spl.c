@@ -18,6 +18,7 @@ void sbc_init(void);
 void sg_init(void);
 void pll_init(void);
 void pin_init(void);
+void memconf_init(void);
 void early_clkrst_init(void);
 int umc_init(void);
 void enable_dpll_ssc(void);
@@ -38,9 +39,13 @@ void spl_board_init(void)
 
 	led_write(L, 0, , );
 
-	early_clkrst_init();
+	memconf_init();
 
 	led_write(L, 1, , );
+
+	early_clkrst_init();
+
+	led_write(L, 2, , );
 
 	{
 		int res;
@@ -51,9 +56,9 @@ void spl_board_init(void)
 				;
 		}
 	}
-	led_write(L, 2, , );
+	led_write(L, 3, , );
 
 	enable_dpll_ssc();
 
-	led_write(L, 3, , );
+	led_write(L, 4, , );
 }
