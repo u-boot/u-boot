@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2014 Panasonic Corporation
+ * Copyright (C) 2011-2015 Panasonic Corporation
  *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -35,8 +35,8 @@ void sbc_init(void)
 		/*
 		 * Boot Swap Off: boot from mask ROM
 		 * 0x00000000-0x01ffffff: mask ROM
-		 * 0x02000000-0x3effffff: memory bank (31MB)
-		 * 0x03f00000-0x3fffffff: peripherals (1MB)
+		 * 0x02000000-0x03efffff: memory bank (31MB)
+		 * 0x03f00000-0x03ffffff: peripherals (1MB)
 		 */
 		writel(0x0000be01, SBBASE0); /* dummy */
 		writel(0x0200be01, SBBASE1);
