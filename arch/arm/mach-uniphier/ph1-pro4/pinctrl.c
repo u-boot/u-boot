@@ -41,6 +41,13 @@ void pin_init(void)
 	sg_set_pinsel(54, 0);	/* NRYBY0 -> NRYBY0 */
 #endif
 
+#ifdef CONFIG_USB_XHCI_UNIPHIER
+	sg_set_pinsel(180, 0);	/* USB0VBUS -> USB0VBUS */
+	sg_set_pinsel(181, 0);	/* USB0OD   -> USB0OD */
+	sg_set_pinsel(182, 0);	/* USB1VBUS -> USB1VBUS */
+	sg_set_pinsel(183, 0);	/* USB1OD   -> USB1OD */
+#endif
+
 #ifdef CONFIG_USB_EHCI_UNIPHIER
 	sg_set_pinsel(184, 0);	/* USB2VBUS -> USB2VBUS */
 	sg_set_pinsel(185, 0);	/* USB2OD   -> USB2OD */
