@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Panasonic Corporation
+ * Copyright (C) 2014-2015 Panasonic Corporation
  *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -11,12 +11,6 @@
 #include <linux/types.h>
 #include <asm/io.h>
 #include "mio-regs.h"
-
-struct uniphier_ehci_platform_data {
-	unsigned long base;
-};
-
-extern struct uniphier_ehci_platform_data uniphier_ehci_platdata[];
 
 static inline void uniphier_ehci_reset(int index, int on)
 {

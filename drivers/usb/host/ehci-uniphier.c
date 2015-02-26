@@ -9,10 +9,9 @@
 #include <linux/err.h>
 #include <usb.h>
 #include <mach/ehci-uniphier.h>
+#include <fdtdec.h>
 #include "ehci.h"
 
-#ifdef CONFIG_OF_CONTROL
-#include <fdtdec.h>
 DECLARE_GLOBAL_DATA_PTR;
 
 #define FDT		gd->fdt_blob
@@ -35,18 +34,7 @@ static int get_uniphier_ehci_base(int index, struct ehci_hccr **base)
 
 	return -ENODEV; /* not found */
 }
-#else
-static int get_uniphier_ehci_base(int index, struct ehci_hccr **base)
-{
-	*base = (struct ehci_hccr *)uniphier_ehci_platdata[index].base;
-	return 0;
-}
-#endif
 
-/*
- * Create the appropriate control structures to manage
- * a new EHCI host controller.
- */
 int ehci_hcd_init(int index, enum usb_init_type init, struct ehci_hccr **hccr,
 		  struct ehci_hcor **hcor)
 {
