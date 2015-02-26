@@ -6,8 +6,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_CPPFLAGS += -mcpu=xscale
-
 #
 # !WARNING!
 # The PXA's OneNAND SPL uses .text.0 and .text.1 segments to allow booting from
