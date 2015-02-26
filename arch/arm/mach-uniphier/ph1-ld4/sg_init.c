@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/sg-regs.h>
+#include <mach/sg-regs.h>
 
 void sg_init(void)
 {

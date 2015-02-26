@@ -5,7 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <asm/arch/board.h>
+#include <mach/board.h>
 
 int misc_init_f(void)
 {

@@ -6,7 +6,7 @@
 
 #include <linux/types.h>
 #include <asm/io.h>
-#include <asm/arch/ddrphy-regs.h>
+#include <mach/ddrphy-regs.h>
 
 void ddrphy_init(struct ddrphy __iomem *phy, int freq, int size)
 {

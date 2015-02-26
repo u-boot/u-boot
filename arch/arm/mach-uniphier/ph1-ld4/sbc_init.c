@@ -7,8 +7,8 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/sbc-regs.h>
-#include <asm/arch/sg-regs.h>
+#include <mach/sbc-regs.h>
+#include <mach/sg-regs.h>
 
 void sbc_init(void)
 {

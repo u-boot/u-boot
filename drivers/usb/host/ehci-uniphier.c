@@ -8,7 +8,7 @@
 #include <common.h>
 #include <linux/err.h>
 #include <usb.h>
-#include <asm/arch/ehci-uniphier.h>
+#include <mach/ehci-uniphier.h>
 #include "ehci.h"
 
 #ifdef CONFIG_OF_CONTROL

@@ -8,10 +8,10 @@
  */
 
 #include <linux/linkage.h>
-#include <asm/arch/sg-regs.h>
+#include <mach/sg-regs.h>
 
 #define UART_CLK		80000000
-#include <asm/arch/debug-uart.S>
+#include <mach/debug-uart.S>
 
 ENTRY(setup_lowlevel_debug)
 		init_debug_uart	r0, r1, r2

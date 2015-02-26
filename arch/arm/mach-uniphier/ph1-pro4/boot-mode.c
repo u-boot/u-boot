@@ -8,9 +8,9 @@
 #include <common.h>
 #include <spl.h>
 #include <asm/io.h>
-#include <asm/arch/boot-device.h>
-#include <asm/arch/sg-regs.h>
-#include <asm/arch/sbc-regs.h>
+#include <mach/boot-device.h>
+#include <mach/sg-regs.h>
+#include <mach/sbc-regs.h>
 
 struct boot_device_info boot_device_table[] = {
 	{BOOT_DEVICE_NAND, "NAND (Mirror 8, ECC  8, EraseSize 128KB, Addr 4)"},

@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/arm-mpcore.h>
+#include <mach/arm-mpcore.h>
 
 #define PERIPHCLK (50 * 1000 * 1000) /* 50 MHz */
 #define PRESCALER ((PERIPHCLK) / (CONFIG_SYS_TIMER_RATE) - 1)

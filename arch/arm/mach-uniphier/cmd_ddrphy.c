@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/ddrphy-regs.h>
+#include <mach/ddrphy-regs.h>
 
 /* Select either decimal or hexadecimal */
 #if 1

@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/board.h>
+#include <mach/board.h>
 
 int board_early_init_r(void)
 {

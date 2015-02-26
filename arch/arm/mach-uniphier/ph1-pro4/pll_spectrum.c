@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/sc-regs.h>
+#include <mach/sc-regs.h>
 
 void enable_dpll_ssc(void)
 {

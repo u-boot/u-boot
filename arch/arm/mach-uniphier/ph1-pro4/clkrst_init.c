@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/sc-regs.h>
+#include <mach/sc-regs.h>
 
 void clkrst_init(void)
 {

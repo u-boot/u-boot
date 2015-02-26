@@ -8,9 +8,9 @@
 #include <config.h>
 #include <linux/linkage.h>
 #include <asm/system.h>
-#include <asm/arch/led.h>
-#include <asm/arch/arm-mpcore.h>
-#include <asm/arch/sbc-regs.h>
+#include <mach/led.h>
+#include <mach/arm-mpcore.h>
+#include <mach/sbc-regs.h>
 
 ENTRY(lowlevel_init)
 	mov	r8, lr			@ persevere link reg across call
@@ -122,7 +122,7 @@ ENTRY(enable_mmu)
 	mov	pc, lr
 ENDPROC(enable_mmu)
 
-#include <asm/arch/ssc-regs.h>
+#include <mach/ssc-regs.h>
 
 #define BOOT_RAM_SIZE    (SSC_WAY_SIZE)
 #define BOOT_WAY_BITS    (0x00000100)   /* way 8 */

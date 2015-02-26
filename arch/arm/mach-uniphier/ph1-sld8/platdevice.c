@@ -5,7 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <asm/arch/platdevice.h>
+#include <mach/platdevice.h>
 
 #define UART_MASTER_CLK		80000000
 

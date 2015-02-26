@@ -6,8 +6,8 @@
  */
 
 #include <common.h>
-#include <asm/arch/boot-device.h>
-#include <asm/arch/sbc-regs.h>
+#include <mach/boot-device.h>
+#include <mach/sbc-regs.h>
 
 static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

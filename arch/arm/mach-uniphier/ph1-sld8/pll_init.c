@@ -6,8 +6,8 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/sc-regs.h>
-#include <asm/arch/sg-regs.h>
+#include <mach/sc-regs.h>
+#include <mach/sg-regs.h>
 
 static void dpll_init(void)
 {

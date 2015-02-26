@@ -8,8 +8,8 @@
 #include <common.h>
 #include <spl.h>
 #include <linux/compiler.h>
-#include <asm/arch/led.h>
-#include <asm/arch/board.h>
+#include <mach/led.h>
+#include <mach/board.h>
 
 void __weak bcu_init(void)
 {

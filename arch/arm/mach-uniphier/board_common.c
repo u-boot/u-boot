@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/led.h>
+#include <mach/led.h>
 
 /*
  * Routine: board_init

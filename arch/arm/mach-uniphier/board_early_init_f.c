@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <asm/arch/led.h>
-#include <asm/arch/board.h>
+#include <mach/led.h>
+#include <mach/board.h>
 
 void pin_init(void);
 

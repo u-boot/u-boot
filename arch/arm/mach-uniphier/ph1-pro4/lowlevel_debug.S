@@ -8,11 +8,11 @@
  */
 
 #include <linux/linkage.h>
-#include <asm/arch/sc-regs.h>
-#include <asm/arch/sg-regs.h>
+#include <mach/sc-regs.h>
+#include <mach/sg-regs.h>
 
 #define UART_CLK		73728000
-#include <asm/arch/debug-uart.S>
+#include <mach/debug-uart.S>
 
 ENTRY(setup_lowlevel_debug)
 		ldr		r0, =SC_CLKCTRL

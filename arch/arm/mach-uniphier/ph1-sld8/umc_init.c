@@ -6,8 +6,8 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/umc-regs.h>
-#include <asm/arch/ddrphy-regs.h>
+#include <mach/umc-regs.h>
+#include <mach/ddrphy-regs.h>
 
 static void umc_start_ssif(void __iomem *ssif_base)
 {

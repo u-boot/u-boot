@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/board.h>
+#include <mach/board.h>
 
 #if defined(CONFIG_PFC_MICRO_SUPPORT_CARD)
 
@@ -112,7 +112,7 @@ int board_eth_init(bd_t *bis)
 #if !defined(CONFIG_SYS_NO_FLASH)
 
 #include <mtd/cfi_flash.h>
-#include <asm/arch/sbc-regs.h>
+#include <mach/sbc-regs.h>
 
 struct memory_bank {
 	phys_addr_t base;

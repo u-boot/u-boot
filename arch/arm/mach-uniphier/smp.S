@@ -8,8 +8,8 @@
 #include <config.h>
 #include <linux/linkage.h>
 #include <asm/system.h>
-#include <asm/arch/led.h>
-#include <asm/arch/sbc-regs.h>
+#include <mach/led.h>
+#include <mach/sbc-regs.h>
 
 /* Entry point of U-Boot main program for the secondary CPU */
 LENTRY(secondary_entry)
