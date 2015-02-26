@@ -8,32 +8,19 @@
 #include <asm/io.h>
 #include <mach/sc-regs.h>
 
-void clkrst_init(void)
+void early_clkrst_init(void)
 {
 	u32 tmp;
 
 	/* deassert reset */
 	tmp = readl(SC_RSTCTRL);
-#ifdef CONFIG_UNIPHIER_ETH
-	tmp |= SC_RSTCTRL_NRST_ETHER;
-#endif
-#ifdef CONFIG_NAND_DENALI
-	tmp |= SC_RSTCTRL_NRST_NAND;
-#endif
+	tmp |= SC_RSTCTRL_NRST_UMC1 | SC_RSTCTRL_NRST_UMC0;
 	writel(tmp, SC_RSTCTRL);
 	readl(SC_RSTCTRL); /* dummy read */
 
 	/* privide clocks */
 	tmp = readl(SC_CLKCTRL);
-#ifdef CONFIG_UNIPHIER_ETH
-	tmp |= SC_CLKCTRL_CEN_ETHER;
-#endif
-#ifdef CONFIG_USB_EHCI_UNIPHIER
-	tmp |= SC_CLKCTRL_CEN_MIO;
-#endif
-#ifdef CONFIG_NAND_DENALI
-	tmp |= SC_CLKCTRL_CEN_NAND;
-#endif
+	tmp |= SC_CLKCTRL_CEN_UMC | SC_CLKCTRL_CEN_SBC | SC_CLKCTRL_CEN_PERI;
 	writel(tmp, SC_CLKCTRL);
 	readl(SC_CLKCTRL); /* dummy read */
 }

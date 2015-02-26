@@ -9,6 +9,7 @@
 #include <mach/board.h>
 
 void pin_init(void);
+void clkrst_init(void);
 
 int board_early_init_f(void)
 {
@@ -17,6 +18,10 @@ int board_early_init_f(void)
 	pin_init();
 
 	led_write(U, 1, , );
+
+	clkrst_init();
+
+	led_write(U, 2, , );
 
 	return 0;
 }

@@ -18,7 +18,7 @@ void sbc_init(void);
 void sg_init(void);
 void pll_init(void);
 void pin_init(void);
-void clkrst_init(void);
+void early_clkrst_init(void);
 int umc_init(void);
 void enable_dpll_ssc(void);
 
@@ -38,7 +38,7 @@ void spl_board_init(void)
 
 	led_write(L, 0, , );
 
-	clkrst_init();
+	early_clkrst_init();
 
 	led_write(L, 1, , );
 
