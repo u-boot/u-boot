@@ -14,6 +14,10 @@ void clkrst_init(void)
 
 	/* deassert reset */
 	tmp = readl(SC_RSTCTRL);
+#ifdef CONFIG_USB_XHCI_UNIPHIER
+	tmp |= SC_RSTCTRL_NRST_USB3B0 | SC_RSTCTRL_NRST_USB3C0 |
+		SC_RSTCTRL_NRST_GIO;
+#endif
 #ifdef CONFIG_UNIPHIER_ETH
 	tmp |= SC_RSTCTRL_NRST_ETHER;
 #endif
@@ -26,8 +30,19 @@ void clkrst_init(void)
 	writel(tmp, SC_RSTCTRL);
 	readl(SC_RSTCTRL); /* dummy read */
 
+#ifdef CONFIG_USB_XHCI_UNIPHIER
+	tmp = readl(SC_RSTCTRL2);
+	tmp |= SC_RSTCTRL2_NRST_USB3B1 | SC_RSTCTRL2_NRST_USB3C1;
+	writel(tmp, SC_RSTCTRL2);
+	readl(SC_RSTCTRL2); /* dummy read */
+#endif
+
 	/* privide clocks */
 	tmp = readl(SC_CLKCTRL);
+#ifdef CONFIG_USB_XHCI_UNIPHIER
+	tmp |= SC_CLKCTRL_CEN_USB31 | SC_CLKCTRL_CEN_USB30 |
+		SC_CLKCTRL_CEN_GIO;
+#endif
 #ifdef CONFIG_UNIPHIER_ETH
 	tmp |= SC_CLKCTRL_CEN_ETHER;
 #endif

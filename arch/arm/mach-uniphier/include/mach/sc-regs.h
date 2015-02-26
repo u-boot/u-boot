@@ -1,7 +1,7 @@
 /*
  * UniPhier SC (System Control) block registers
  *
- * Copyright (C) 2011-2014 Panasonic Corporation
+ * Copyright (C) 2011-2015 Panasonic Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -38,19 +38,28 @@
 #define SC_VPLL27BCTRL3			(SC_BASE_ADDR | 0x1298)
 
 #define SC_RSTCTRL			(SC_BASE_ADDR | 0x2000)
+#define SC_RSTCTRL_NRST_USB3B0		(0x1 << 17)	/* USB3 #0 bus */
+#define SC_RSTCTRL_NRST_USB3C0		(0x1 << 16)	/* USB3 #0 core */
 #define SC_RSTCTRL_NRST_ETHER		(0x1 << 12)
 #define SC_RSTCTRL_NRST_STDMAC		(0x1 << 10)
+#define SC_RSTCTRL_NRST_GIO		(0x1 <<  6)
 #define SC_RSTCTRL_NRST_UMC1		(0x1 <<  5)
 #define SC_RSTCTRL_NRST_UMC0		(0x1 <<  4)
 #define SC_RSTCTRL_NRST_NAND		(0x1 <<  2)
 
 #define SC_RSTCTRL2			(SC_BASE_ADDR | 0x2004)
+#define SC_RSTCTRL2_NRST_USB3B1		(0x1 << 17)	/* USB3 #1 bus */
+#define SC_RSTCTRL2_NRST_USB3C1		(0x1 << 16)	/* USB3 #1 core */
+
 #define SC_RSTCTRL3			(SC_BASE_ADDR | 0x2008)
 
 #define SC_CLKCTRL			(SC_BASE_ADDR | 0x2104)
+#define SC_CLKCTRL_CEN_USB31		(0x1 << 17)	/* USB3 #1 */
+#define SC_CLKCTRL_CEN_USB30		(0x1 << 16)	/* USB3 #0 */
 #define SC_CLKCTRL_CEN_ETHER		(0x1 << 12)
 #define SC_CLKCTRL_CEN_MIO		(0x1 << 11)
 #define SC_CLKCTRL_CEN_STDMAC		(0x1 << 10)
+#define SC_CLKCTRL_CEN_GIO		(0x1 <<  6)
 #define SC_CLKCTRL_CEN_UMC		(0x1 <<  4)
 #define SC_CLKCTRL_CEN_NAND		(0x1 <<  2)
 #define SC_CLKCTRL_CEN_SBC		(0x1 <<  1)
