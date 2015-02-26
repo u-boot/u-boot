@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2014 Panasonic Corporation
+ * Copyright (C) 2011-2015 Panasonic Corporation
  *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -19,18 +19,18 @@ void sbc_init(void)
 	tmp &= 0xfffffcff;
 	writel(tmp, PC0CTRL);
 
-#if !defined(CONFIG_SPL_BUILD)
-	/* XECS0 : dummy */
-	writel(SBCTRL0_SAVEPIN_MEM_VALUE, SBCTRL00);
-	writel(SBCTRL1_SAVEPIN_MEM_VALUE, SBCTRL01);
-	writel(SBCTRL2_SAVEPIN_MEM_VALUE, SBCTRL02);
-	writel(SBCTRL4_SAVEPIN_MEM_VALUE, SBCTRL04);
-#endif
-	/* XECS1 : boot memory (always boot swap = on) */
-	writel(SBCTRL0_SAVEPIN_MEM_VALUE, SBCTRL10);
-	writel(SBCTRL1_SAVEPIN_MEM_VALUE, SBCTRL11);
-	writel(SBCTRL2_SAVEPIN_MEM_VALUE, SBCTRL12);
-	writel(SBCTRL4_SAVEPIN_MEM_VALUE, SBCTRL14);
+	/*
+	 * SBCTRL0* does not need settings because PH1-sLD8 has no support for
+	 * XECS0.  The boot swap must be enabled to boot from the support card.
+	 */
+
+	if (boot_is_swapped()) {
+		/* XECS1 : boot memory if boot swap is on */
+		writel(SBCTRL0_SAVEPIN_MEM_VALUE, SBCTRL10);
+		writel(SBCTRL1_SAVEPIN_MEM_VALUE, SBCTRL11);
+		writel(SBCTRL2_SAVEPIN_MEM_VALUE, SBCTRL12);
+		writel(SBCTRL4_SAVEPIN_MEM_VALUE, SBCTRL14);
+	}
 
 	/* XECS4 : sub memory */
 	writel(SBCTRL0_SAVEPIN_MEM_VALUE, SBCTRL40);
@@ -54,5 +54,5 @@ void sbc_init(void)
 	sg_set_pinsel(135, 16); /* XIRQ7 -> XECS5 */
 
 	/* dummy read to assure write process */
-	readl(SG_PINCTRL(33));
+	readl(SG_PINCTRL(0));
 }

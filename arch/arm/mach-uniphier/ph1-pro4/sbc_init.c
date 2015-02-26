@@ -42,13 +42,12 @@ void sbc_init(void)
 		writel(0x0200be01, SBBASE1);
 	}
 #elif defined(CONFIG_DCC_MICRO_SUPPORT_CARD)
-#if !defined(CONFIG_SPL_BUILD)
 	/* XECS0: boot/sub memory (boot swap = off/on) */
 	writel(SBCTRL0_SAVEPIN_MEM_VALUE, SBCTRL00);
 	writel(SBCTRL1_SAVEPIN_MEM_VALUE, SBCTRL01);
 	writel(SBCTRL2_SAVEPIN_MEM_VALUE, SBCTRL02);
 	writel(SBCTRL4_SAVEPIN_MEM_VALUE, SBCTRL04);
-#endif
+
 	/* XECS1: sub/boot memory (boot swap = off/on) */
 	writel(SBCTRL0_SAVEPIN_MEM_VALUE, SBCTRL10);
 	writel(SBCTRL1_SAVEPIN_MEM_VALUE, SBCTRL11);
@@ -65,9 +64,10 @@ void sbc_init(void)
 	writel(0x0400bc01, SBBASE1); /* sub memory */
 	writel(0x0800bf01, SBBASE3); /* peripherals */
 
-#if !defined(CONFIG_SPL_BUILD)
-	sg_set_pinsel(318, 5); /* PORT22 -> XECS0 */
-#endif
+	/* enable access to sub memory when boot swap is on */
+	if (boot_is_swapped())
+		sg_set_pinsel(318, 5); /* PORT22 -> XECS0 */
+
 	sg_set_pinsel(313, 5); /* PORT15 -> XECS3 */
 	writel(0x00000001, SG_LOADPINCTRL);
 
