@@ -45,12 +45,6 @@ static int uniphier_serial_setbrg(struct udevice *dev, int baudrate)
 	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
 	const unsigned int mode_x_div = 16;
 	unsigned int divisor;
-	u32 tmp;
-
-	tmp = readl(&port->lcr_mcr);
-	tmp &= ~LCR_MASK;
-	tmp |= UART_LCR_WLEN8 << LCR_SHIFT;
-	writel(tmp, &port->lcr_mcr);
 
 	divisor = DIV_ROUND_CLOSEST(plat->uartclk, mode_x_div * baudrate);
 
@@ -93,13 +87,21 @@ static int uniphier_serial_pending(struct udevice *dev, bool input)
 
 static int uniphier_serial_probe(struct udevice *dev)
 {
+	u32 tmp;
 	struct uniphier_serial_private_data *priv = dev_get_priv(dev);
 	struct uniphier_serial_platform_data *plat = dev_get_platdata(dev);
+	struct uniphier_serial __iomem *port;
 
-	priv->membase = map_sysmem(plat->base, sizeof(struct uniphier_serial));
-
-	if (!priv->membase)
+	port = map_sysmem(plat->base, sizeof(struct uniphier_serial));
+	if (!port)
 		return -ENOMEM;
+
+	priv->membase = port;
+
+	tmp = readl(&port->lcr_mcr);
+	tmp &= ~LCR_MASK;
+	tmp |= UART_LCR_WLEN8 << LCR_SHIFT;
+	writel(tmp, &port->lcr_mcr);
 
 	return 0;
 }
