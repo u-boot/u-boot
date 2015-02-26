@@ -22,8 +22,8 @@ void clkrst_init(void)
 
 	/* privide clocks */
 	tmp = readl(SC_CLKCTRL);
-	tmp |= SC_CLKCTRL_CLK_ETHER | SC_CLKCTRL_CLK_MIO | SC_CLKCTRL_CLK_UMC
-	     | SC_CLKCTRL_CLK_NAND | SC_CLKCTRL_CLK_SBC | SC_CLKCTRL_CLK_PERI;
+	tmp |= SC_CLKCTRL_CEN_ETHER | SC_CLKCTRL_CEN_MIO | SC_CLKCTRL_CEN_UMC
+	     | SC_CLKCTRL_CEN_NAND | SC_CLKCTRL_CEN_SBC | SC_CLKCTRL_CEN_PERI;
 	writel(tmp, SC_CLKCTRL);
 	readl(SC_CLKCTRL); /* dummy read */
 }

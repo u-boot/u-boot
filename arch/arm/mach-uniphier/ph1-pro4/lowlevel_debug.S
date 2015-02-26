@@ -17,7 +17,7 @@
 ENTRY(setup_lowlevel_debug)
 		ldr		r0, =SC_CLKCTRL
 		ldr		r1, [r0]
-		orr		r1, r1, #SC_CLKCTRL_CLK_PERI
+		orr		r1, r1, #SC_CLKCTRL_CEN_PERI
 		str		r1, [r0]
 
 		init_debug_uart	r0, r1, r2

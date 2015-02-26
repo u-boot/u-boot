@@ -47,12 +47,12 @@
 #define SC_RSTCTRL3			(SC_BASE_ADDR | 0x2008)
 
 #define SC_CLKCTRL			(SC_BASE_ADDR | 0x2104)
-#define SC_CLKCTRL_CLK_ETHER		(0x1 << 12)
-#define SC_CLKCTRL_CLK_MIO		(0x1 << 11)
-#define SC_CLKCTRL_CLK_UMC		(0x1 <<  4)
-#define SC_CLKCTRL_CLK_NAND		(0x1 <<  2)
-#define SC_CLKCTRL_CLK_SBC		(0x1 <<  1)
-#define SC_CLKCTRL_CLK_PERI		(0x1 <<  0)
+#define SC_CLKCTRL_CEN_ETHER		(0x1 << 12)
+#define SC_CLKCTRL_CEN_MIO		(0x1 << 11)
+#define SC_CLKCTRL_CEN_UMC		(0x1 <<  4)
+#define SC_CLKCTRL_CEN_NAND		(0x1 <<  2)
+#define SC_CLKCTRL_CEN_SBC		(0x1 <<  1)
+#define SC_CLKCTRL_CEN_PERI		(0x1 <<  0)
 
 /* System reset control register */
 #define SC_IRQTIMSET			(SC_BASE_ADDR | 0x3000)
