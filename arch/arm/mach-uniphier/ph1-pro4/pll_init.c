@@ -46,22 +46,6 @@ static void dpll_init(void)
 	writel(tmp, SC_DPLLCTRL2);
 }
 
-static void stop_mpll(void)
-{
-	u32 tmp;
-
-	tmp = readl(SC_MPLLOSCCTL);
-
-	if (!(tmp & SC_MPLLOSCCTL_MPLLST))
-		return; /* already stopped */
-
-	tmp &= ~SC_MPLLOSCCTL_MPLLEN;
-	writel(tmp, SC_MPLLOSCCTL);
-
-	while (readl(SC_MPLLOSCCTL) & SC_MPLLOSCCTL_MPLLST)
-		;
-}
-
 static void vpll_init(void)
 {
 	u32 tmp, clk_mode_axosel;
@@ -157,7 +141,6 @@ static void vpll_init(void)
 void pll_init(void)
 {
 	dpll_init();
-	stop_mpll();
 	vpll_init();
 
 	/*
