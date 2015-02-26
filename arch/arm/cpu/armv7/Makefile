@@ -56,6 +56,5 @@ obj-$(CONFIG_SOCFPGA) += socfpga/
 obj-$(if $(filter stv0991,$(SOC)),y) += stv0991/
 obj-$(CONFIG_ARCH_SUNXI) += sunxi/
 obj-$(CONFIG_U8500) += u8500/
-obj-$(CONFIG_ARCH_UNIPHIER) += uniphier/
 obj-$(CONFIG_VF610) += vf610/
 obj-$(CONFIG_ZYNQ) += zynq/
