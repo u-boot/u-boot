@@ -39,6 +39,7 @@
 
 #define SC_RSTCTRL			(SC_BASE_ADDR | 0x2000)
 #define SC_RSTCTRL_NRST_ETHER		(0x1 << 12)
+#define SC_RSTCTRL_NRST_STDMAC		(0x1 << 10)
 #define SC_RSTCTRL_NRST_UMC1		(0x1 <<  5)
 #define SC_RSTCTRL_NRST_UMC0		(0x1 <<  4)
 #define SC_RSTCTRL_NRST_NAND		(0x1 <<  2)
@@ -49,6 +50,7 @@
 #define SC_CLKCTRL			(SC_BASE_ADDR | 0x2104)
 #define SC_CLKCTRL_CEN_ETHER		(0x1 << 12)
 #define SC_CLKCTRL_CEN_MIO		(0x1 << 11)
+#define SC_CLKCTRL_CEN_STDMAC		(0x1 << 10)
 #define SC_CLKCTRL_CEN_UMC		(0x1 <<  4)
 #define SC_CLKCTRL_CEN_NAND		(0x1 <<  2)
 #define SC_CLKCTRL_CEN_SBC		(0x1 <<  1)

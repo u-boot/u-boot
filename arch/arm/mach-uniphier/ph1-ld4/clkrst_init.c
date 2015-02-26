@@ -17,6 +17,9 @@ void clkrst_init(void)
 #ifdef CONFIG_UNIPHIER_ETH
 	tmp |= SC_RSTCTRL_NRST_ETHER;
 #endif
+#ifdef CONFIG_USB_EHCI_UNIPHIER
+	tmp |= SC_RSTCTRL_NRST_STDMAC;
+#endif
 #ifdef CONFIG_NAND_DENALI
 	tmp |= SC_RSTCTRL_NRST_NAND;
 #endif
@@ -29,7 +32,7 @@ void clkrst_init(void)
 	tmp |= SC_CLKCTRL_CEN_ETHER;
 #endif
 #ifdef CONFIG_USB_EHCI_UNIPHIER
-	tmp |= SC_CLKCTRL_CEN_MIO;
+	tmp |= SC_CLKCTRL_CEN_MIO | SC_CLKCTRL_CEN_STDMAC;
 #endif
 #ifdef CONFIG_NAND_DENALI
 	tmp |= SC_CLKCTRL_CEN_NAND;
