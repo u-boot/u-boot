@@ -7,10 +7,12 @@
 
 #include <config.h>
 #include <linux/linkage.h>
+#include <linux/sizes.h>
 #include <asm/system.h>
 #include <mach/led.h>
 #include <mach/arm-mpcore.h>
 #include <mach/sbc-regs.h>
+#include <mach/ssc-regs.h>
 
 ENTRY(lowlevel_init)
 	mov	r8, lr			@ persevere link reg across call
@@ -122,9 +124,11 @@ ENTRY(enable_mmu)
 	mov	pc, lr
 ENDPROC(enable_mmu)
 
-#include <mach/ssc-regs.h>
-
-#define BOOT_RAM_SIZE    (SSC_WAY_SIZE)
+/*
+ * For PH1-Pro4 or older SoCs, the size of WAY is 32KB.
+ * It is large enough for tmp RAM.
+ */
+#define BOOT_RAM_SIZE    (SZ_32K)
 #define BOOT_WAY_BITS    (0x00000100)   /* way 8 */
 
 ENTRY(setup_init_ram)
