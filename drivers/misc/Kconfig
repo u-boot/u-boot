@@ -53,3 +53,11 @@ config DM_CROS_EC
 	  but otherwise makes few changes. Since cros_ec also supports
 	  LPC (which doesn't support driver model yet), a full
 	  conversion is not yet possible.
+
+config CONFIG_FSL_SEC_MON
+	bool "Enable FSL SEC_MON Driver"
+	help
+	  Freescale Security Monitor block is responsible for monitoring
+	  system states.
+	  Security Monitor can be transitioned on any security failures,
+	  like software violations or hardware security violations.
