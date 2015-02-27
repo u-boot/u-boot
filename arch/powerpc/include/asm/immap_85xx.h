@@ -17,6 +17,7 @@
 #include <asm/fsl_i2c.h>
 #include <fsl_ifc.h>
 #include <fsl_sec.h>
+#include <fsl_sfp.h>
 #include <asm/fsl_lbc.h>
 #include <asm/fsl_fman.h>
 #include <fsl_immap.h>
@@ -2821,21 +2822,6 @@ struct ccsr_pman {
 	u8	res_e8[0x8];
 	u32	pics;		/* PMAN Interrupt Control and Status */
 	u8	res_f4[0xf0c];
-};
-#endif
-#ifdef CONFIG_SYS_FSL_SFP_VER_3_0
-struct ccsr_sfp_regs {
-	u32 ospr;		/* 0x200 */
-	u32 reserved0[14];
-	u32 srk_hash[8];	/* 0x23c Super Root Key Hash */
-	u32 oem_uid;		/* 0x9c OEM Unique ID */
-	u8 reserved2[0x04];
-	u32 ovpr;			/* 0xA4  Intent To Secure */
-	u8 reserved4[0x08];
-	u32 fsl_uid;		/* 0xB0  FSL Unique ID */
-	u8 reserved5[0x04];
-	u32 fsl_spfr0;		/* Scratch Pad Fuse Register 0 */
-	u32 fsl_spfr1;		/* Scratch Pad Fuse Register 1 */
 };
 #endif
 
