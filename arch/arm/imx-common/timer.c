@@ -176,3 +176,20 @@ ulong get_tbclk(void)
 {
 	return gpt_get_clk();
 }
+
+/*
+ * This function is intended for SHORT delays only.
+ * It will overflow at around 10 seconds @ 400MHz,
+ * or 20 seconds @ 200MHz.
+ */
+unsigned long usec2ticks(unsigned long usec)
+{
+	ulong ticks;
+
+	if (usec < 1000)
+		ticks = ((usec * (get_tbclk()/1000)) + 500) / 1000;
+	else
+		ticks = ((usec / 10) * (get_tbclk() / 100000));
+
+	return ticks;
+}
