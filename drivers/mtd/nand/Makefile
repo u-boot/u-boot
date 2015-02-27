@@ -65,6 +65,7 @@ obj-$(CONFIG_NAND_OMAP_GPMC) += omap_gpmc.o
 obj-$(CONFIG_NAND_OMAP_ELM) += omap_elm.o
 obj-$(CONFIG_NAND_PLAT) += nand_plat.o
 obj-$(CONFIG_NAND_DOCG4) += docg4.o
+obj-$(CONFIG_NAND_ZYNQMP) += arasan_nfc.o
 
 else  # minimal SPL drivers
 
