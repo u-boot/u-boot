@@ -101,6 +101,11 @@ M:	Aleksei Mamlin <mamlinav@gmail.com>
 S:	Maintained
 F:	configs/Marsboard_A10_defconfig
 
+MELE I7 BOARD
+M:	Marcus Cooper <codekipper@gmail.com>
+S:	Maintained
+F:	configs/Mele_I7_defconfig
+
 MELE M5 BOARD
 M:	Ian Campbell <ijc@hellion.org.uk>
 S:	Maintained
