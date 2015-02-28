@@ -56,21 +56,23 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 
 	dev->seq = -1;
 	dev->req_seq = -1;
-#ifdef CONFIG_OF_CONTROL
-	/*
-	 * Some devices, such as a SPI bus, I2C bus and serial ports are
-	 * numbered using aliases.
-	 *
-	 * This is just a 'requested' sequence, and will be
-	 * resolved (and ->seq updated) when the device is probed.
-	 */
-	if (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS) {
-		if (uc->uc_drv->name && of_offset != -1) {
-			fdtdec_get_alias_seq(gd->fdt_blob, uc->uc_drv->name,
-					     of_offset, &dev->req_seq);
+	if (IS_ENABLED(CONFIG_OF_CONTROL) && IS_ENABLED(CONFIG_DM_SEQ_ALIAS)) {
+		/*
+		* Some devices, such as a SPI bus, I2C bus and serial ports
+		* are numbered using aliases.
+		*
+		* This is just a 'requested' sequence, and will be
+		* resolved (and ->seq updated) when the device is probed.
+		*/
+		if (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS) {
+			if (uc->uc_drv->name && of_offset != -1) {
+				fdtdec_get_alias_seq(gd->fdt_blob,
+						uc->uc_drv->name, of_offset,
+						&dev->req_seq);
+			}
 		}
 	}
-#endif
+
 	if (!dev->platdata && drv->platdata_auto_alloc_size) {
 		dev->flags |= DM_FLAG_ALLOC_PDATA;
 		dev->platdata = calloc(1, drv->platdata_auto_alloc_size);
