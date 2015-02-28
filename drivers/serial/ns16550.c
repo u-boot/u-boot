@@ -57,7 +57,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_DM_SERIAL
 
-static inline void serial_out_shift(unsigned char *addr, int shift, int value)
+static inline void serial_out_shift(void *addr, int shift, int value)
 {
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
 	outb(value, (ulong)addr);
@@ -72,7 +72,7 @@ static inline void serial_out_shift(unsigned char *addr, int shift, int value)
 #endif
 }
 
-static inline int serial_in_shift(unsigned char *addr, int shift)
+static inline int serial_in_shift(void *addr, int shift)
 {
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
 	return inb((ulong)addr);
@@ -114,9 +114,11 @@ static int ns16550_readb(NS16550_t port, int offset)
 
 /* We can clean these up once everything is moved to driver model */
 #define serial_out(value, addr)	\
-	ns16550_writeb(com_port, addr - (unsigned char *)com_port, value)
+	ns16550_writeb(com_port, \
+		(unsigned char *)addr - (unsigned char *)com_port, value)
 #define serial_in(addr) \
-	ns16550_readb(com_port, addr - (unsigned char *)com_port)
+	ns16550_readb(com_port, \
+		(unsigned char *)addr - (unsigned char *)com_port)
 #endif
 
 static inline int calc_divisor(NS16550_t port, int clock, int baudrate)
