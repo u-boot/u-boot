@@ -793,4 +793,10 @@ int fdt_get_named_resource(const void *fdt, int node, const char *property,
 int fdtdec_decode_memory_region(const void *blob, int node,
 				const char *mem_type, const char *suffix,
 				fdt_addr_t *basep, fdt_size_t *sizep);
+
+/**
+ * Set up the device tree ready for use
+ */
+int setup_fdt(void);
+
 #endif

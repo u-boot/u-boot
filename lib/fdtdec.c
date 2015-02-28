@@ -9,6 +9,7 @@
 #include <serial.h>
 #include <libfdt.h>
 #include <fdtdec.h>
+#include <asm/sections.h>
 #include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -1037,4 +1038,34 @@ int fdtdec_decode_memory_region(const void *blob, int config_node,
 
 	return 0;
 }
+
+int setup_fdt(void)
+{
+#ifdef CONFIG_OF_CONTROL
+# ifdef CONFIG_OF_EMBED
+	/* Get a pointer to the FDT */
+	gd->fdt_blob = __dtb_dt_begin;
+# elif defined CONFIG_OF_SEPARATE
+#  ifdef CONFIG_SPL_BUILD
+	/* FDT is at end of BSS */
+	gd->fdt_blob = (ulong *)&__bss_end;
+#  else
+	/* FDT is at end of image */
+	gd->fdt_blob = (ulong *)&_end;
 #endif
+# elif defined(CONFIG_OF_HOSTFILE)
+	if (sandbox_read_fdt_from_file()) {
+		puts("Failed to read control FDT\n");
+		return -1;
+	}
+# endif
+# ifndef CONFIG_SPL_BUILD
+	/* Allow the early environment to override the fdt address */
+	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
+						(uintptr_t)gd->fdt_blob);
+# endif
+#endif
+	return 0;
+}
+
+#endif /* !USE_HOSTCC */
