@@ -26,13 +26,13 @@
 #define	CONFIG_SYS_MALLOC_LEN		(128 * 1024)
 #define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_BOOTCOMMAND						\
-	"if mmc init && fatload mmc 0 0xa0000000 uImage; then "		\
+	"if fatload mmc 0 0xa0000000 uImage; then "			\
 		"bootm 0xa0000000; "					\
 	"fi; "								\
 	"if usb reset && fatload usb 0 0xa0000000 uImage; then "	\
 		"bootm 0xa0000000; "					\
 	"fi; "								\
-	"bootm 0x80000;"
+	"bootm 0xc0000;"
 #define	CONFIG_BOOTARGS			"console=tty0 console=ttyS0,115200"
 #define	CONFIG_TIMESTAMP
 #define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
