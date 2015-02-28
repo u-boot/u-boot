@@ -158,7 +158,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			CONFIG_SYS_SPL_MALLOC_SIZE);
 	gd->flags |= GD_FLG_FULL_MALLOC_INIT;
 #elif defined(CONFIG_SYS_MALLOC_F_LEN)
-	gd->malloc_limit = gd->malloc_base + CONFIG_SYS_MALLOC_F_LEN;
+	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
 #endif
 #ifdef CONFIG_SPL_DM
