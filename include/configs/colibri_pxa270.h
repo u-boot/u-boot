@@ -65,7 +65,6 @@
 
 /*
  * Networking Configuration
- *  chip on the Voipac PXA270 board
  */
 #ifdef	CONFIG_CMD_NET
 #define	CONFIG_CMD_PING
