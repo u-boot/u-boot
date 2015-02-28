@@ -2,6 +2,7 @@
  * Toradex Colibri PXA270 configuration file
  *
  * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
+ * Copyright (C) 2015 Marcel Ziswiler <marcel@ziswiler.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -13,6 +14,7 @@
  * High Level Board Configuration Options
  */
 #define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
+#define CONFIG_SYS_GENERIC_BOARD
 #define	CONFIG_SYS_TEXT_BASE		0x0
 
 /*
