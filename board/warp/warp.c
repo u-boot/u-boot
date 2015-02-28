@@ -21,6 +21,7 @@
 #include <watchdog.h>
 #include <fsl_esdhc.h>
 #include <mmc.h>
+#include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -80,6 +81,11 @@ int board_mmc_init(bd_t *bis)
 
 	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+}
+
+int board_usb_phy_mode(int port)
+{
+	return USB_INIT_DEVICE;
 }
 
 int board_early_init_f(void)
