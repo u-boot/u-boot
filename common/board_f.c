@@ -762,7 +762,7 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 	setup_mon_len,
 #ifdef CONFIG_OF_CONTROL
-	setup_fdt,
+	fdtdec_setup,
 #endif
 #ifdef CONFIG_TRACE
 	trace_early_init,
@@ -774,9 +774,6 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 	arch_cpu_init,		/* basic arch cpu dependent setup */
 	mark_bootstage,
-#ifdef CONFIG_OF_CONTROL
-	fdtdec_check_fdt,
-#endif
 	initf_dm,
 	arch_cpu_init_dm,
 #if defined(CONFIG_BOARD_EARLY_INIT_F)

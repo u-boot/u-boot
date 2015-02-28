@@ -797,6 +797,6 @@ int fdtdec_decode_memory_region(const void *blob, int node,
 /**
  * Set up the device tree ready for use
  */
-int setup_fdt(void);
+int fdtdec_setup(void);
 
 #endif

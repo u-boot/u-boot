@@ -1039,7 +1039,7 @@ int fdtdec_decode_memory_region(const void *blob, int config_node,
 	return 0;
 }
 
-int setup_fdt(void)
+int fdtdec_setup(void)
 {
 #ifdef CONFIG_OF_CONTROL
 # ifdef CONFIG_OF_EMBED
@@ -1065,7 +1065,7 @@ int setup_fdt(void)
 						(uintptr_t)gd->fdt_blob);
 # endif
 #endif
-	return 0;
+	return fdtdec_prepare_fdt();
 }
 
 #endif /* !USE_HOSTCC */
