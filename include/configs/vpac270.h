@@ -221,7 +221,7 @@
 
 #else	/* No flash */
 #define	CONFIG_SYS_NO_FLASH
-#define	CONFIG_SYS_ENV_IS_NOWHERE
+#define	CONFIG_ENV_IS_NOWHERE
 #endif
 
 /*
