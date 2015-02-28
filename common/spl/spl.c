@@ -151,6 +151,8 @@ static void spl_ram_load_image(void)
 void board_init_r(gd_t *dummy1, ulong dummy2)
 {
 	u32 boot_device;
+	int ret;
+
 	debug(">>spl:board_init_r()\n");
 
 #if defined(CONFIG_SYS_SPL_MALLOC_START)
@@ -161,9 +163,21 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
 #endif
-#ifdef CONFIG_SPL_DM
-	dm_init_and_scan(true);
-#endif
+	if (IS_ENABLED(CONFIG_OF_CONTROL) &&
+			!IS_ENABLED(CONFIG_SPL_DISABLE_OF_CONTROL)) {
+		ret = fdtdec_setup();
+		if (ret) {
+			debug("fdtdec_setup() returned error %d\n", ret);
+			hang();
+		}
+	}
+	if (IS_ENABLED(CONFIG_SPL_DM)) {
+		ret = dm_init_and_scan(true);
+		if (ret) {
+			debug("dm_init_and_scan() returned error %d\n", ret);
+			hang();
+		}
+	}
 
 #ifndef CONFIG_PPC
 	/*
