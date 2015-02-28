@@ -74,12 +74,33 @@ int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc)
 int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc)
 {
 	u8 data[2];
+#ifdef CONFIG_SPI_GENERIC
+	u8 dataup[2];
+#endif
 	u8 cmd;
 	int ret;
 
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH)
+		flash->spi->flags |= SPI_XFER_LOWER;
+#endif
 	ret = spi_flash_cmd_read_status(flash, &data[0]);
 	if (ret < 0)
 		return ret;
+
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) {
+		flash->spi->flags |= SPI_XFER_UPPER;
+		ret = spi_flash_cmd_read_status(flash, &dataup[0]);
+		if (ret < 0)
+			return ret;
+	}
+#endif
+
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH)
+		flash->spi->flags |= SPI_XFER_LOWER;
+#endif
 
 	cmd = CMD_WRITE_STATUS;
 	data[1] = wc;
@@ -88,6 +109,18 @@ int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc)
 		debug("SF: fail to write config register\n");
 		return ret;
 	}
+
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) {
+		flash->spi->flags |= SPI_XFER_UPPER;
+		dataup[1] = wc;
+		ret = spi_flash_write_common(flash, &cmd, 1, &dataup, 2);
+		if (ret) {
+			debug("SF: fail to write config register\n");
+			return ret;
+		}
+	}
+#endif
 
 	return 0;
 }
@@ -166,14 +199,18 @@ static void spi_flash_dual_flash(struct spi_flash *flash, u32 *addr)
 }
 #endif
 
-static int spi_flash_poll_status(struct spi_slave *spi, unsigned long timeout,
+static int spi_flash_poll_status(struct spi_flash *flash, unsigned long timeout,
 				 u8 cmd, u8 poll_bit)
 {
+	struct spi_slave *spi = flash->spi;
 	unsigned long timebase;
-	unsigned long flags = SPI_XFER_BEGIN;
+	unsigned long flags = 0;
 	int ret;
 	u8 status;
 	u8 check_status = 0x0;
+#ifdef CONFIG_SPI_GENERIC
+	u8 status_up;
+#endif
 
 	if (cmd == CMD_FLAG_STATUS)
 		check_status = poll_bit;
@@ -182,7 +219,7 @@ static int spi_flash_poll_status(struct spi_slave *spi, unsigned long timeout,
 	if (spi->flags & SPI_XFER_U_PAGE)
 		flags |= SPI_XFER_U_PAGE;
 #endif
-	ret = spi_xfer(spi, 8, &cmd, NULL, flags);
+	ret = spi_xfer(spi, 8, &cmd, NULL, flags | SPI_XFER_BEGIN);
 	if (ret) {
 		debug("SF: fail to read %s status register\n",
 		      cmd == CMD_READ_STATUS ? "read" : "flag");
@@ -193,20 +230,50 @@ static int spi_flash_poll_status(struct spi_slave *spi, unsigned long timeout,
 	do {
 		WATCHDOG_RESET();
 
-		ret = spi_xfer(spi, 8, NULL, &status, 0);
-		if (ret)
-			return -1;
+#ifdef CONFIG_SPI_GENERIC
+		if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH) {
+			ret = spi_xfer(spi, 8, NULL, &status,
+				       flags | SPI_XFER_LOWER);
+			if (ret)
+				return -1;
+			ret = spi_xfer(spi, 8, NULL, &status_up,
+				       flags | SPI_XFER_UPPER);
+			if (ret)
+				return -1;
+			debug("Poll Status:0x%x, Status_up:0x%x\n", status,
+			      status_up);
 
-		if ((status & poll_bit) == check_status)
-			break;
+			if (((status & poll_bit) == check_status) &&
+			    ((status_up & poll_bit) == check_status))
+				break;
+		} else {
+#endif
+			ret = spi_xfer(spi, 8, NULL, &status, flags);
+			if (ret)
+				return -1;
 
+			debug("Poll Status:0x%x\n", status);
+			if ((status & poll_bit) == check_status)
+				break;
+#ifdef CONFIG_SPI_GENERIC
+		}
+#endif
 	} while (get_timer(timebase) < timeout);
 
-	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
+	spi_xfer(spi, 0, NULL, NULL, flags | SPI_XFER_END);
 
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH) {
+		if (((status & poll_bit) == check_status) &&
+		    ((status_up & poll_bit) == check_status))
+			return 0;
+	} else {
+#endif
 	if ((status & poll_bit) == check_status)
 		return 0;
-
+#ifdef CONFIG_SPI_GENERIC
+	}
+#endif
 	/* Timed out */
 	debug("SF: time out!\n");
 	return -1;
@@ -214,19 +281,18 @@ static int spi_flash_poll_status(struct spi_slave *spi, unsigned long timeout,
 
 int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
-	struct spi_slave *spi = flash->spi;
 	int ret;
 	u8 poll_bit = STATUS_WIP;
 	u8 cmd = CMD_READ_STATUS;
 
-	ret = spi_flash_poll_status(spi, timeout, cmd, poll_bit);
+	ret = spi_flash_poll_status(flash, timeout, cmd, poll_bit);
 	if (ret < 0)
 		return ret;
 
 	if (flash->poll_cmd == CMD_FLAG_STATUS) {
 		poll_bit = STATUS_PEC;
 		cmd = CMD_FLAG_STATUS;
-		ret = spi_flash_poll_status(spi, timeout, cmd, poll_bit);
+		ret = spi_flash_poll_status(flash, timeout, cmd, poll_bit);
 		if (ret < 0)
 			return ret;
 	}
@@ -360,6 +426,10 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		debug("SF: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
 		      buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
 
+#ifdef CONFIG_SPI_GENERIC
+		if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH)
+			flash->spi->flags |= SPI_XFER_STRIPE;
+#endif
 		ret = spi_flash_write_common(flash, cmd, sizeof(cmd),
 					buf + actual, chunk_len);
 		if (ret < 0) {
@@ -452,6 +522,11 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 			read_len = remain_len;
 
 		spi_flash_addr(read_addr, cmd);
+
+#ifdef CONFIG_SPI_GENERIC
+		if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH)
+			flash->spi->flags |= SPI_XFER_STRIPE;
+#endif
 
 		ret = spi_flash_read_common(flash, cmd, cmdsz, data, read_len);
 		if (ret < 0) {

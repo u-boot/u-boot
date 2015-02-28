@@ -15,28 +15,38 @@ static int spi_flash_read_write(struct spi_slave *spi,
 				const u8 *data_out, u8 *data_in,
 				size_t data_len)
 {
-	unsigned long flags = SPI_XFER_BEGIN;
+	unsigned long flags = 0;
 	int ret;
 
 #ifdef CONFIG_SF_DUAL_FLASH
 	if (spi->flags & SPI_XFER_U_PAGE)
 		flags |= SPI_XFER_U_PAGE;
+#ifdef CONFIG_SPI_GENERIC
+	if (spi->flags & SPI_XFER_LOWER)
+		flags |= SPI_XFER_LOWER;
+	if (spi->flags & SPI_XFER_UPPER)
+		flags |= SPI_XFER_UPPER;
+	if (spi->flags & SPI_XFER_STRIPE)
+		flags |= SPI_XFER_STRIPE;
+#endif
 #endif
 	if (data_len == 0)
 		flags |= SPI_XFER_END;
 
-	ret = spi_xfer(spi, cmd_len * 8, cmd, NULL, flags);
+	ret = spi_xfer(spi, cmd_len * 8, cmd, NULL, flags | SPI_XFER_BEGIN);
 	if (ret) {
 		debug("SF: Failed to send command (%zu bytes): %d\n",
 		      cmd_len, ret);
 	} else if (data_len != 0) {
 		ret = spi_xfer(spi, data_len * 8, data_out, data_in,
-					SPI_XFER_END);
+					flags | SPI_XFER_END);
 		if (ret)
 			debug("SF: Failed to transfer %zu bytes of data: %d\n",
 			      data_len, ret);
 	}
-
+#ifdef CONFIG_SPI_GENERIC
+	spi->flags &= ~SPI_XFER_MASK;
+#endif
 	return ret;
 }
 

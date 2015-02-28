@@ -35,13 +35,31 @@ static u8 spi_read_cmds_array[] = {
 static int spi_flash_set_qeb_mxic(struct spi_flash *flash)
 {
 	u8 qeb_status;
+#ifdef CONFIG_SPI_GENERIC
+	u8 qeb_status_up;
+#endif
 	int ret;
+
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH)
+		flash->spi->flags |= SPI_XFER_LOWER;
+#endif
 
 	ret = spi_flash_cmd_read_status(flash, &qeb_status);
 	if (ret < 0)
 		return ret;
 
-	if (qeb_status & STATUS_QEB_MXIC) {
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) {
+		flash->spi->flags |= SPI_XFER_UPPER;
+		spi_flash_cmd_read_status(flash, &qeb_status_up);
+	}
+#endif
+	if ((qeb_status & STATUS_QEB_MXIC)
+#ifdef CONFIG_SPI_GENERIC
+	     && (qeb_status_up & STATUS_QEB_MXIC)
+#endif
+	) {
 		debug("SF: mxic: QEB is already set\n");
 	} else {
 		ret = spi_flash_cmd_write_status(flash, STATUS_QEB_MXIC);
@@ -57,13 +75,31 @@ static int spi_flash_set_qeb_mxic(struct spi_flash *flash)
 static int spi_flash_set_qeb_winspan(struct spi_flash *flash)
 {
 	u8 qeb_status;
+#ifdef CONFIG_SPI_GENERIC
+	u8 qeb_status_up;
+#endif
 	int ret;
+
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH)
+		flash->spi->flags |= SPI_XFER_LOWER;
+#endif
 
 	ret = spi_flash_cmd_read_config(flash, &qeb_status);
 	if (ret < 0)
 		return ret;
 
-	if (qeb_status & STATUS_QEB_WINSPAN) {
+#ifdef CONFIG_SPI_GENERIC
+	if (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) {
+		flash->spi->flags |= SPI_XFER_UPPER;
+		ret = spi_flash_cmd_read_config(flash, &qeb_status_up);
+	}
+#endif
+	if ((qeb_status & STATUS_QEB_WINSPAN)
+#ifdef CONFIG_SPI_GENERIC
+	    && (qeb_status_up & STATUS_QEB_WINSPAN)
+#endif
+	) {
 		debug("SF: winspan: QEB is already set\n");
 	} else {
 		ret = spi_flash_cmd_write_config(flash, STATUS_QEB_WINSPAN);
@@ -258,11 +294,15 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 		flash->bank_write_cmd = (idcode[0] == 0x01) ?
 					CMD_BANKADDR_BRWR : CMD_EXTNADDR_WREAR;
 
-		ret = spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
-					    &curr_bank, 1);
-		if (ret) {
-			debug("SF: fail to read bank addr register\n");
-			return ret;
+		if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH) {
+			spi->flags |= SPI_XFER_LOWER;
+			ret = spi_flash_read_common(flash,
+						     &flash->bank_read_cmd,
+						     1, &curr_bank, 1);
+			if (ret) {
+				debug("SF: fail to read bank addr register\n");
+				return ret;
+			}
 		}
 		flash->bank_curr = curr_bank;
 	} else {
@@ -346,6 +386,10 @@ static int spi_enable_wp_pin(struct spi_flash *flash)
 int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 {
 	u8 idcode[5];
+#ifdef CONFIG_SPI_GENERIC
+	u8 idcode_up[5];
+	u8 i;
+#endif
 	int ret;
 
 	/* Setup spi_slave */
@@ -361,6 +405,8 @@ int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 		return ret;
 	}
 
+	if (spi->option == SF_DUAL_PARALLEL_FLASH)
+		spi->flags |= SPI_XFER_LOWER;
 	/* Read the ID codes */
 	ret = spi_flash_cmd(spi, CMD_READ_ID, idcode, sizeof(idcode));
 	if (ret) {
@@ -368,6 +414,23 @@ int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 		goto err_read_id;
 	}
 
+#ifdef CONFIG_SPI_GENERIC
+	if (spi->option == SF_DUAL_PARALLEL_FLASH) {
+		spi->flags |= SPI_XFER_UPPER;
+		ret = spi_flash_cmd(spi, CMD_READ_ID, idcode_up,
+				    sizeof(idcode_up));
+		if (ret) {
+			printf("SF: Failed to get idcodes\n");
+			goto err_read_id;
+		}
+		for (i = 0; i < sizeof(idcode); i++) {
+			if (idcode[i] != idcode_up[i]) {
+				printf("SF: Failed to get same idcodes\n");
+				goto err_read_id;
+			}
+		}
+	}
+#endif
 #ifdef DEBUG
 	printf("SF: Got idcodes\n");
 	print_buffer(0, idcode, 1, sizeof(idcode), 0);

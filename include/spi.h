@@ -31,6 +31,10 @@
 #define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
 #define SPI_XFER_U_PAGE	(1 << 5)
+#define SPI_XFER_STRIPE	(1 << 6)
+#define SPI_XFER_MASK	(3 << 8)
+#define SPI_XFER_LOWER	(1 << 8)
+#define SPI_XFER_UPPER	(2 << 8)
 
 /* SPI TX operation modes */
 #define SPI_OPM_TX_QPP		(1 << 0)
@@ -106,7 +110,7 @@ struct spi_slave {
 	unsigned int max_write_size;
 	void *memory_map;
 	u8 option;
-	u8 flags;
+	u32 flags;
 };
 
 /**
