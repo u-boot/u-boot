@@ -52,6 +52,8 @@
  */
 #include <config_cmd_default.h>
 
+#undef CONFIG_CMD_LOADB			/* Both together */
+#undef CONFIG_CMD_LOADS			/* saves 10 KB */
 #define	CONFIG_CMD_NET
 #define	CONFIG_CMD_ENV
 #undef	CONFIG_CMD_IMLS
@@ -84,7 +86,7 @@
  */
 #define	CONFIG_SYS_HUSH_PARSER		1
 
-#define	CONFIG_SYS_LONGHELP
+#undef	CONFIG_SYS_LONGHELP		/* Saves 10 KB */
 #ifdef	CONFIG_SYS_HUSH_PARSER
 #define	CONFIG_SYS_PROMPT		"$ "
 #else
