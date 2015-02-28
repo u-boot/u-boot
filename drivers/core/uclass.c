@@ -386,6 +386,7 @@ err:
 	return ret;
 }
 
+#ifdef CONFIG_DM_DEVICE_REMOVE
 int uclass_unbind_device(struct udevice *dev)
 {
 	struct uclass *uc;
@@ -401,6 +402,7 @@ int uclass_unbind_device(struct udevice *dev)
 	list_del(&dev->uclass_node);
 	return 0;
 }
+#endif
 
 int uclass_resolve_seq(struct udevice *dev)
 {
@@ -464,6 +466,7 @@ int uclass_post_probe_device(struct udevice *dev)
 	return 0;
 }
 
+#ifdef CONFIG_DM_DEVICE_REMOVE
 int uclass_pre_remove_device(struct udevice *dev)
 {
 	struct uclass_driver *uc_drv;
@@ -485,3 +488,4 @@ int uclass_pre_remove_device(struct udevice *dev)
 
 	return 0;
 }
+#endif
