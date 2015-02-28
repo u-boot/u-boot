@@ -23,6 +23,7 @@
 #include <i2c.h>
 #include <initcall.h>
 #include <logbuff.h>
+#include <malloc.h>
 #include <mapmem.h>
 
 /* TODO: Can we move these into arch/ headers? */
@@ -717,17 +718,6 @@ static int jump_to_copy(void)
 static int mark_bootstage(void)
 {
 	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_F, "board_init_f");
-
-	return 0;
-}
-
-static int initf_malloc(void)
-{
-#ifdef CONFIG_SYS_MALLOC_F_LEN
-	assert(gd->malloc_base);	/* Set up by crt0.S */
-	gd->malloc_limit = gd->malloc_base + CONFIG_SYS_MALLOC_F_LEN;
-	gd->malloc_ptr = 0;
-#endif
 
 	return 0;
 }
