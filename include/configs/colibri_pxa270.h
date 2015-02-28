@@ -7,8 +7,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef	__CONFIG_H
+#define	__CONFIG_H
 
 /*
  * High Level Board Configuration Options
@@ -16,6 +16,8 @@
 #define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
 #define CONFIG_SYS_GENERIC_BOARD
 #define	CONFIG_SYS_TEXT_BASE		0x0
+/* Avoid overwriting factory configuration block */
+#define CONFIG_BOARD_SIZE_LIMIT		0x40000
 
 /*
  * Environment settings
@@ -100,7 +102,6 @@
 #define	CONFIG_CMDLINE_EDITING		1
 #define	CONFIG_AUTO_COMPLETE		1
 
-
 /*
  * Clock Configuration
  */
@@ -150,10 +151,11 @@
 #endif
 
 #define	CONFIG_SYS_MONITOR_BASE		0x0
-#define	CONFIG_SYS_MONITOR_LEN		0x80000
+#define	CONFIG_SYS_MONITOR_LEN		0x40000
 
+/* Skip factory configuration block */
 #define	CONFIG_ENV_ADDR			\
-			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
+			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN + 0x40000)
 #define	CONFIG_ENV_SIZE			0x40000
 #define	CONFIG_ENV_SECT_SIZE		0x40000
 #define CONFIG_ENV_ADDR_REDUND		(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
@@ -219,4 +221,4 @@
 
 #include "pxa-common.h"
 
-#endif	/* __CONFIG_H */
+#endif /* __CONFIG_H */
