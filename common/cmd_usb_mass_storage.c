@@ -159,7 +159,7 @@ exit:
 }
 
 U_BOOT_CMD(ums, 4, 1, do_usb_mass_storage,
-	"Use the UMS [User Mass Storage]",
+	"Use the UMS [USB Mass Storage]",
 	"<USB_controller> [<devtype>] <devnum>  e.g. ums 0 mmc 0\n"
 	"    devtype defaults to mmc"
 );
