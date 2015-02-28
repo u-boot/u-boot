@@ -84,7 +84,6 @@
 /*
  * Clock Configuration
  */
-#undef	CONFIG_SYS_CLKS_IN_HZ
 #define	CONFIG_SYS_CPUSPEED		0x290		/* 520MHz */
 
 /*
