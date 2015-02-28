@@ -175,7 +175,6 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 			defined(CONFIG_TI81XX) || defined(CONFIG_AM43XX)
 	serial_out(0x7, &com_port->mdr1);	/* mode select reset TL16C750*/
 #endif
-	NS16550_setbrg(com_port, 0);
 	serial_out(UART_MCRVAL, &com_port->mcr);
 	serial_out(UART_FCRVAL, &com_port->fcr);
 	if (baud_divisor != -1)
