@@ -197,13 +197,15 @@ int dm_init_and_scan(bool pre_reloc_only)
 		debug("dm_scan_platdata() failed: %d\n", ret);
 		return ret;
 	}
-#ifdef CONFIG_OF_CONTROL
-	ret = dm_scan_fdt(gd->fdt_blob, pre_reloc_only);
-	if (ret) {
-		debug("dm_scan_fdt() failed: %d\n", ret);
-		return ret;
+
+	if (OF_CONTROL) {
+		ret = dm_scan_fdt(gd->fdt_blob, pre_reloc_only);
+		if (ret) {
+			debug("dm_scan_fdt() failed: %d\n", ret);
+			return ret;
+		}
 	}
-#endif
+
 	ret = dm_scan_other(pre_reloc_only);
 	if (ret)
 		return ret;
