@@ -2,10 +2,10 @@
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
+# (C) Copyright 2015
+# Kamil Lulko, <rev13@wp.pl>
+#
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-extra-y := start.o
-obj-y += cpu.o
-
-obj-$(CONFIG_STM32F4) += stm32f4/
+obj-y += soc.o clock.o timer.o flash.o
