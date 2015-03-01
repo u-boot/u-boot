@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Marcel Ziswiler
+ * Copyright (c) 2014-2015 Marcel Ziswiler
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -45,12 +45,8 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_USB
 
-/* USB networking support */
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-
 /* PCI host support */
-#undef CONFIG_PCI	/* just define once Tegra PCIe support got merged */
+#define CONFIG_PCI
 #define CONFIG_PCI_TEGRA
 #define CONFIG_PCI_PNP
 #define CONFIG_CMD_PCI
@@ -58,7 +54,7 @@
 
 /* PCI networking support */
 #define CONFIG_E1000
-#undef CONFIG_E1000_NO_NVM	/* just define once E1000 driver got fixed */
+#define CONFIG_E1000_NO_NVM
 
 /* General networking support */
 #define CONFIG_CMD_NET
