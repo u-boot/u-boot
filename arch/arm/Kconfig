@@ -33,6 +33,9 @@ config CPU_V7
         bool
         select HAS_VBAR
 
+config CPU_V7M
+	bool
+
 config CPU_PXA
         bool
 
@@ -47,6 +50,7 @@ config SYS_CPU
         default "arm1136" if CPU_ARM1136
         default "arm1176" if CPU_ARM1176
         default "armv7" if CPU_V7
+        default "armv7m" if CPU_V7M
         default "pxa" if CPU_PXA
         default "sa1100" if CPU_SA1100
 	default "armv8" if ARM64
