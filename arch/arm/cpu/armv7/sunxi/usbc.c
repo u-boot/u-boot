@@ -28,7 +28,11 @@
 #endif
 
 #define SUNXI_USB_PMU_IRQ_ENABLE	0x800
+#ifdef CONFIG_MACH_SUN8I_A33
+#define SUNXI_USB_CSR			0x410
+#else
 #define SUNXI_USB_CSR			0x404
+#endif
 #define SUNXI_USB_PASSBY_EN		1
 
 #define SUNXI_EHCI_AHB_ICHR8_EN		(1 << 10)
@@ -102,6 +106,11 @@ static void usb_phy_write(struct sunxi_usbc_hcd *sunxi_usbc, int addr,
 {
 	int j = 0, usbc_bit = 0;
 	void *dest = sunxi_usbc_get_io_base(0) + SUNXI_USB_CSR;
+
+#ifdef CONFIG_MACH_SUN8I_A33
+	/* CSR needs to be explicitly initialized to 0 on A33 */
+	writel(0, dest);
+#endif
 
 	usbc_bit = 1 << (sunxi_usbc->id * 2);
 	for (j = 0; j < len; j++) {

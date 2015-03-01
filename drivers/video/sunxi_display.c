@@ -947,6 +947,9 @@ static void sunxi_drc_init(void)
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	/* On sun6i the drc must be clocked even when in pass-through mode */
+#ifdef CONFIG_MACH_SUN8I_A33
+	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_SAT);
+#endif
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DRC0);
 	clock_set_de_mod_clock(&ccm->iep_drc0_clk_cfg, 300000000);
 #endif

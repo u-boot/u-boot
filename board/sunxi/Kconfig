@@ -52,6 +52,12 @@ config MACH_SUN8I_A23
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
+config MACH_SUN8I_A33
+	bool "sun8i (Allwinner A33)"
+	select CPU_V7
+	select SUNXI_GEN_SUN6I
+	select SUPPORT_SPL
+
 endchoice
 
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
