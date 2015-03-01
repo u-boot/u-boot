@@ -59,6 +59,11 @@ M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
 F:	configs/Ampe_A76_defconfig
 
+Astar MID756 BOARD
+M:	VishnuPatekar <vishnupatekar0510@gmail.com>
+S:	Maintained
+F:	configs/Astar_MID756_defconfig
+
 COLOMBUS BOARD
 M:	Maxime Ripard <maxime.ripard@free-electrons.com>
 S:	Maintained
