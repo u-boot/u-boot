@@ -60,6 +60,25 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
+/* Miscellaneous commands */
+#define CONFIG_CMD_SETEXPR
+#define CONFIG_FAT_WRITE
+
+/* Increase console I/O buffer size */
+#undef CONFIG_SYS_CBSIZE
+#define CONFIG_SYS_CBSIZE		1024
+
+/* Increase arguments buffer size */
+#undef CONFIG_SYS_BARGSIZE
+#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
+
+/* Increase print buffer size */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+
+/* Increase maximum number of arguments */
+#undef CONFIG_SYS_MAXARGS
+#define CONFIG_SYS_MAXARGS		32
+
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
