@@ -18,6 +18,10 @@
 		sdhci0 = "/sdhci@78000600";
 		sdhci1 = "/sdhci@78000400";
 		sdhci2 = "/sdhci@78000000";
+		spi0 = "/spi@7000d400";
+		spi1 = "/spi@7000dc00";
+		spi2 = "/spi@7000de00";
+		spi3 = "/spi@7000da00";
 		usb0 = "/usb@7d000000";
 		usb1 = "/usb@7d004000";
 		usb2 = "/usb@7d008000";
