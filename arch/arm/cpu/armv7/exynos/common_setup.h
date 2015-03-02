@@ -23,6 +23,8 @@
  * MA 02111-1307 USA
  */
 
+#include <asm/arch/system.h>
+
 #define DMC_OFFSET	0x10000
 
 /*
@@ -43,3 +45,63 @@ void system_clock_init(void);
 int do_lowlevel_init(void);
 
 void sdelay(unsigned long);
+
+enum l2_cache_params {
+	CACHE_DATA_RAM_LATENCY_2_CYCLES = (2 << 0),
+	CACHE_DATA_RAM_LATENCY_3_CYCLES = (3 << 0),
+	CACHE_DISABLE_CLEAN_EVICT = (1 << 3),
+	CACHE_DATA_RAM_SETUP = (1 << 5),
+	CACHE_TAG_RAM_LATENCY_2_CYCLES = (2 << 6),
+	CACHE_TAG_RAM_LATENCY_3_CYCLES = (3 << 6),
+	CACHE_ENABLE_HAZARD_DETECT = (1 << 7),
+	CACHE_TAG_RAM_SETUP = (1 << 9),
+	CACHE_ECC_AND_PARITY = (1 << 21),
+	CACHE_ENABLE_FORCE_L2_LOGIC = (1 << 27)
+};
+
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+/*
+ * Configure L2CTLR to get timings that keep us from hanging/crashing.
+ *
+ * Must be inline here since low_power_start() is called without a
+ * stack (!).
+ */
+static inline void configure_l2_ctlr(void)
+{
+	uint32_t val;
+
+	mrc_l2_ctlr(val);
+
+	val |= CACHE_TAG_RAM_SETUP |
+		CACHE_DATA_RAM_SETUP |
+		CACHE_TAG_RAM_LATENCY_2_CYCLES |
+		CACHE_DATA_RAM_LATENCY_2_CYCLES;
+
+	if (proid_is_exynos5420() || proid_is_exynos5800()) {
+		val |= CACHE_ECC_AND_PARITY |
+			CACHE_TAG_RAM_LATENCY_3_CYCLES |
+			CACHE_DATA_RAM_LATENCY_3_CYCLES;
+	}
+
+	mcr_l2_ctlr(val);
+}
+
+/*
+ * Configure L2ACTLR.
+ *
+ * Must be inline here since low_power_start() is called without a
+ * stack (!).
+ */
+static inline void configure_l2_actlr(void)
+{
+	uint32_t val;
+
+	if (proid_is_exynos5420() || proid_is_exynos5800()) {
+		mrc_l2_aux_ctlr(val);
+		val |= CACHE_ENABLE_FORCE_L2_LOGIC |
+			CACHE_DISABLE_CLEAN_EVICT;
+		mcr_l2_aux_ctlr(val);
+	}
+}
+#endif
