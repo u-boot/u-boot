@@ -39,8 +39,6 @@
 
 /* SCIF */
 #define CONFIG_SCIF_CONSOLE
-#define CONFIG_CONS_SCIF2
-#define CONFIG_SCIF_USE_EXT_CLK
 
 /* FLASH */
 #define CONFIG_SPI
@@ -71,7 +69,6 @@
 #define CONFIG_SH_TMU_CLK_FREQ	(CONFIG_SYS_CLK_FREQ / 2) /* EXT / 2 */
 #define CONFIG_PLL1_CLK_FREQ	(CONFIG_SYS_CLK_FREQ * 156 / 2)
 #define CONFIG_P_CLK_FREQ	(CONFIG_PLL1_CLK_FREQ / 24)
-#define CONFIG_SH_SCIF_CLK_FREQ	14745600 /* External Clock */
 
 #define CONFIG_SYS_TMU_CLK_DIV  4
 
@@ -103,6 +100,9 @@
 #define CONFIG_SH_MMCIF
 #define CONFIG_SH_MMCIF_ADDR	0xee200000
 #define CONFIG_SH_MMCIF_CLK	48000000
+
+/* SDHI */
+#define CONFIG_SH_SDHI_FREQ	97500000
 
 /* Module stop status bits */
 /* INTC-RT */
