@@ -58,6 +58,7 @@
 
 #ifndef __ASSEMBLY__
 #include <linux/types.h>
+#include <asm/io.h>
 
 /*
  * CP15 Barrier instructions
