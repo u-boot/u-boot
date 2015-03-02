@@ -1,6 +1,48 @@
 config DM
 	bool "Enable Driver Model"
-	depends on !SPL_BUILD
 	help
-	  This config option enables Driver Model.
-	  To use legacy drivers, say N.
+	  This config option enables Driver Model. This brings in the core
+	  support, including scanning of platform data on start-up. If
+	  CONFIG_OF_CONTROL is enabled, the device tree will be scanned also
+	  when available.
+
+config SPL_DM
+	bool "Enable Driver Model for SPL"
+	depends on DM && SPL
+	help
+	  Enable driver model in SPL. You will need to provide a
+	  suitable malloc() implementation. If you are not using the
+	  full malloc() enabled by CONFIG_SYS_SPL_MALLOC_START,
+	  consider using CONFIG_SYS_MALLOC_SIMPLE. In that case you
+	  must provide CONFIG_SYS_MALLOC_F_LEN to set the size.
+	  In most cases driver model will only allocate a few uclasses
+	  and devices in SPL, so 1KB should be enable. See
+	  CONFIG_SYS_MALLOC_F_LEN for more details on how to enable it.
+
+config DM_WARN
+	bool "Enable warnings in driver model"
+	depends on DM
+	default y
+	help
+	  The dm_warn() function can use up quite a bit of space for its
+	  strings. By default this is disabled for SPL builds to save space.
+	  This will cause dm_warn() to be compiled out - it will do nothing
+	  when called.
+
+config DM_DEVICE_REMOVE
+	bool "Support device removal"
+	depends on DM
+	default y
+	help
+	  We can save some code space by dropping support for removing a
+	  device. This is not normally required in SPL, so by default this
+	  option is disabled for SPL.
+
+config DM_STDIO
+	bool "Support stdio registration"
+	depends on DM
+	default y
+	help
+	  Normally serial drivers register with stdio so that they can be used
+	  as normal output devices. In SPL we don't normally use stdio, so
+	  we can omit this feature.

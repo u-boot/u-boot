@@ -8,8 +8,6 @@
 # AMCC 460EX/460GT Evaluation Board (Canyonlands) board
 #
 
-PLATFORM_CPPFLAGS += -DCONFIG_440=1
-
 ifeq ($(debug),1)
 PLATFORM_CPPFLAGS += -DDEBUG
 endif

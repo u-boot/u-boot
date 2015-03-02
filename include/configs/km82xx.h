@@ -34,6 +34,8 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
+#define CONFIG_MISC_INIT_R
+
 /* include common defines/options for all Keymile boards */
 #include "km/keymile-common.h"
 #include "km/km-powerpc.h"

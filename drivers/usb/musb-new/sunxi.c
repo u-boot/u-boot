@@ -22,7 +22,9 @@
  */
 #include <common.h>
 #include <asm/arch/cpu.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/usbc.h>
+#include <asm-generic/gpio.h>
 #include "linux-compat.h"
 #include "musb_core.h"
 
@@ -145,16 +147,6 @@ static void USBC_ForceIdToHigh(__iomem void *base)
 	musb_writel(base, USBC_REG_o_ISCR, reg_val);
 }
 
-static void USBC_ForceVbusValidDisable(__iomem void *base)
-{
-	u32 reg_val;
-
-	reg_val = musb_readl(base, USBC_REG_o_ISCR);
-	reg_val &= ~(0x03 << USBC_BP_ISCR_FORCE_VBUS_VALID);
-	reg_val = USBC_WakeUp_ClearChangeDetect(reg_val);
-	musb_writel(base, USBC_REG_o_ISCR, reg_val);
-}
-
 static void USBC_ForceVbusValidToHigh(__iomem void *base)
 {
 	u32 reg_val;
@@ -234,6 +226,33 @@ static int sunxi_musb_init(struct musb *musb)
 
 	pr_debug("%s():\n", __func__);
 
+	if (is_host_enabled(musb)) {
+		int vbus_det = sunxi_name_to_gpio(CONFIG_USB0_VBUS_DET);
+		if (vbus_det == -1) {
+			eprintf("Error invalid Vusb-det pin\n");
+			return -EINVAL;
+		}
+
+		err = gpio_request(vbus_det, "vbus0_det");
+		if (err)
+			return err;
+
+		err = gpio_direction_input(vbus_det);
+		if (err) {
+			gpio_free(vbus_det);
+			return err;
+		}
+
+		err = gpio_get_value(vbus_det);
+		if (err) {
+			eprintf("Error: A charger is plugged into the OTG\n");
+			gpio_free(vbus_det);
+			return -EIO;
+		}
+
+		gpio_free(vbus_det);
+	}
+
 	err = sunxi_usbc_request_resources(0);
 	if (err)
 		return err;
@@ -248,12 +267,11 @@ static int sunxi_musb_init(struct musb *musb)
 	if (is_host_enabled(musb)) {
 		/* Host mode */
 		USBC_ForceIdToLow(musb->mregs);
-		USBC_ForceVbusValidToHigh(musb->mregs);
 	} else {
 		/* Peripheral mode */
 		USBC_ForceIdToHigh(musb->mregs);
-		USBC_ForceVbusValidDisable(musb->mregs);
 	}
+	USBC_ForceVbusValidToHigh(musb->mregs);
 
 	return 0;
 }

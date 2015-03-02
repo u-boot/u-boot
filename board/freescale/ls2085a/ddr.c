@@ -77,6 +77,7 @@ found:
 		popts->data_bus_width = 1;
 		popts->otf_burst_chop_en = 0;
 		popts->burst_length = DDR_BL8;
+		popts->bstopre = 0;	/* enable auto precharge */
 	}
 	/*
 	 * Factors to consider for half-strength driver enable:

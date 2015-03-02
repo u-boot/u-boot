@@ -1149,6 +1149,7 @@ struct emif_regs {
 	u32 sdram_config;
 	u32 sdram_config2;
 	u32 ref_ctrl;
+	u32 ref_ctrl_final;
 	u32 sdram_tim1;
 	u32 sdram_tim2;
 	u32 sdram_tim3;

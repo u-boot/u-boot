@@ -13,14 +13,20 @@
 #include <asm/arch/dwmmc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch/power.h>
 #include <asm/gpio.h>
 #include <asm-generic/errno.h>
 
 #define	DWMMC_MAX_CH_NUM		4
 #define	DWMMC_MAX_FREQ			52000000
 #define	DWMMC_MIN_FREQ			400000
-#define	DWMMC_MMC0_CLKSEL_VAL		0x03030001
-#define	DWMMC_MMC2_CLKSEL_VAL		0x03020001
+#define	DWMMC_MMC0_SDR_TIMING_VAL	0x03030001
+#define	DWMMC_MMC2_SDR_TIMING_VAL	0x03020001
+
+/* Exynos implmentation specific drver private data */
+struct dwmci_exynos_priv_data {
+	u32 sdr_timing;
+};
 
 /*
  * Function used as callback function to initialise the
@@ -28,7 +34,9 @@
  */
 static void exynos_dwmci_clksel(struct dwmci_host *host)
 {
-	dwmci_writel(host, DWMCI_CLKSEL, host->clksel_val);
+	struct dwmci_exynos_priv_data *priv = host->priv;
+
+	dwmci_writel(host, DWMCI_CLKSEL, priv->sdr_timing);
 }
 
 unsigned int exynos_dwmci_get_clk(struct dwmci_host *host)
@@ -55,6 +63,8 @@ unsigned int exynos_dwmci_get_clk(struct dwmci_host *host)
 
 static void exynos_dwmci_board_init(struct dwmci_host *host)
 {
+	struct dwmci_exynos_priv_data *priv = host->priv;
+
 	if (host->quirks & DWMCI_QUIRK_DISABLE_SMU) {
 		dwmci_writel(host, EMMCP_MPSBEGIN0, 0);
 		dwmci_writel(host, EMMCP_SEND0, 0);
@@ -64,12 +74,17 @@ static void exynos_dwmci_board_init(struct dwmci_host *host)
 			     MPSCTRL_NON_SECURE_READ_BIT |
 			     MPSCTRL_NON_SECURE_WRITE_BIT | MPSCTRL_VALID);
 	}
+
+	/* Set to timing value at initial time */
+	if (priv->sdr_timing)
+		exynos_dwmci_clksel(host);
 }
 
 static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 {
 	unsigned int div;
 	unsigned long freq, sclk;
+	struct dwmci_exynos_priv_data *priv = host->priv;
 
 	if (host->bus_hz)
 		freq = host->bus_hz;
@@ -88,11 +103,11 @@ static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 #endif
 	host->board_init = exynos_dwmci_board_init;
 
-	if (!host->clksel_val) {
+	if (!priv->sdr_timing) {
 		if (index == 0)
-			host->clksel_val = DWMMC_MMC0_CLKSEL_VAL;
+			priv->sdr_timing = DWMMC_MMC0_SDR_TIMING_VAL;
 		else if (index == 2)
-			host->clksel_val = DWMMC_MMC2_CLKSEL_VAL;
+			priv->sdr_timing = DWMMC_MMC2_SDR_TIMING_VAL;
 	}
 
 	host->caps = MMC_MODE_DDR_52MHz;
@@ -118,6 +133,7 @@ static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
 {
 	struct dwmci_host *host = NULL;
+	struct dwmci_exynos_priv_data *priv;
 
 	host = malloc(sizeof(struct dwmci_host));
 	if (!host) {
@@ -125,11 +141,19 @@ int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
 		return -ENOMEM;
 	}
 
+	priv = malloc(sizeof(struct dwmci_exynos_priv_data));
+	if (!priv) {
+		error("dwmci_exynos_priv_data malloc fail!\n");
+		return -ENOMEM;
+	}
+
 	host->ioaddr = (void *)regbase;
 	host->buswidth = bus_width;
 
 	if (clksel)
-		host->clksel_val = clksel;
+		priv->sdr_timing = clksel;
+
+	host->priv = priv;
 
 	return exynos_dwmci_core_init(host, index);
 }
@@ -157,7 +181,14 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 					struct dwmci_host *host)
 {
 	int err = 0;
-	u32 base, clksel_val, timing[3];
+	u32 base, timing[3];
+	struct dwmci_exynos_priv_data *priv;
+
+	priv = malloc(sizeof(struct dwmci_exynos_priv_data));
+	if (!priv) {
+		error("dwmci_exynos_priv_data malloc fail!\n");
+		return -ENOMEM;
+	}
 
 	/* Extract device id for each mmc channel */
 	host->dev_id = pinmux_decode_periph_id(blob, node);
@@ -165,7 +196,6 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 	host->dev_index = fdtdec_get_int(blob, node, "index", host->dev_id);
 	if (host->dev_index == host->dev_id)
 		host->dev_index = host->dev_id - PERIPH_ID_SDMMC0;
-
 
 	/* Get the bus width from the device node */
 	host->buswidth = fdtdec_get_int(blob, node, "samsung,bus-width", 0);
@@ -190,15 +220,23 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 		return -EINVAL;
 	}
 
-	clksel_val = (DWMCI_SET_SAMPLE_CLK(timing[0]) |
+	priv->sdr_timing = (DWMCI_SET_SAMPLE_CLK(timing[0]) |
 			DWMCI_SET_DRV_CLK(timing[1]) |
 			DWMCI_SET_DIV_RATIO(timing[2]));
-	if (clksel_val)
-		host->clksel_val = clksel_val;
+
+	/* sdr_timing didn't assigned anything, use the default value */
+	if (!priv->sdr_timing) {
+		if (host->dev_index == 0)
+			priv->sdr_timing = DWMMC_MMC0_SDR_TIMING_VAL;
+		else if (host->dev_index == 2)
+			priv->sdr_timing = DWMMC_MMC2_SDR_TIMING_VAL;
+	}
 
 	host->fifoth_val = fdtdec_get_int(blob, node, "fifoth_val", 0);
 	host->bus_hz = fdtdec_get_int(blob, node, "bus_hz", 0);
 	host->div = fdtdec_get_int(blob, node, "div", 0);
+
+	host->priv = priv;
 
 	return 0;
 }
@@ -229,12 +267,21 @@ int exynos_dwmmc_init(const void *blob)
 {
 	int compat_id;
 	int node_list[DWMMC_MAX_CH_NUM];
+	int boot_dev_node;
 	int err = 0, count;
 
 	compat_id = COMPAT_SAMSUNG_EXYNOS_DWMMC;
 
 	count = fdtdec_find_aliases_for_id(blob, "mmc",
 				compat_id, node_list, DWMMC_MAX_CH_NUM);
+
+	/* For DWMMC always set boot device as mmc 0 */
+	if (count >= 3 && get_boot_mode() == BOOT_MODE_SD) {
+		boot_dev_node = node_list[2];
+		node_list[2] = node_list[0];
+		node_list[0] = boot_dev_node;
+	}
+
 	err = exynos_dwmci_process_node(blob, node_list, count);
 
 	return err;

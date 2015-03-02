@@ -112,9 +112,9 @@
 #define I2C_START_STOP	0x20	/* START / STOP */
 #define I2C_TXRX_ENA	0x10	/* I2C Tx/Rx enable */
 
-#define I2C_TIMEOUT_MS 1000		/* 1 second */
+#define I2C_TIMEOUT_MS 10		/* 10 ms */
 
-#define	HSI2C_TIMEOUT_US 100000 /* 100 ms, finer granularity */
+#define	HSI2C_TIMEOUT_US 10000 /* 10 ms, finer granularity */
 
 
 /* To support VCMA9 boards and other who dont define max_i2c_num */

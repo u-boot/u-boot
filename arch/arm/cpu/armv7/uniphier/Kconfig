@@ -48,6 +48,12 @@ config DCC_MICRO_SUPPORT_CARD
 
 endchoice
 
+config SYS_MALLOC_F
+	default y
+
+config SYS_MALLOC_F_LEN
+	default 0x400
+
 config CMD_PINMON
 	bool "Enable boot mode pins monitor command"
 	default y
@@ -58,14 +64,12 @@ config CMD_PINMON
 
 config CMD_DDRPHY_DUMP
 	bool "Enable dump command of DDR PHY parameters"
-	depends on !SPL_BUILD
 	help
 	  The command "ddrphy" shows the resulting parameters of DDR PHY
 	  training; it is useful for the evaluation of DDR PHY training.
 
 choice
 	prompt "DDR3 Frequency select"
-	depends on SPL_BUILD
 
 config DDR_FREQ_1600
 	bool "DDR3 1600"

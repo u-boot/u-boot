@@ -101,7 +101,11 @@ static inline int device_remove(struct udevice *dev) { return 0; }
  * @dev: Pointer to device to unbind
  * @return 0 if OK, -ve on error
  */
+#ifdef CONFIG_DM_DEVICE_REMOVE
 int device_unbind(struct udevice *dev);
+#else
+static inline int device_unbind(struct udevice *dev) { return 0; }
+#endif
 
 #ifdef CONFIG_DM_DEVICE_REMOVE
 void device_free(struct udevice *dev);

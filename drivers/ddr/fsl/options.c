@@ -732,7 +732,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 #endif
 
 	/* Global Timing Parameters. */
-	debug("mclk_ps = %u ps\n", get_memory_clk_period_ps());
+	debug("mclk_ps = %u ps\n", get_memory_clk_period_ps(ctrl_num));
 
 	/* Pick a caslat override. */
 	popts->cas_latency_override = 0;
@@ -785,7 +785,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	 * FIXME: width, was considering looking at pdimm->primary_sdram_width
 	 */
 #if defined(CONFIG_SYS_FSL_DDR1)
-	popts->tfaw_window_four_activates_ps = mclk_to_picos(1);
+	popts->tfaw_window_four_activates_ps = mclk_to_picos(ctrl_num, 1);
 
 #elif defined(CONFIG_SYS_FSL_DDR2)
 	/*
@@ -1036,7 +1036,7 @@ done:
 	if (pdimm[0].n_ranks == 4)
 		popts->quad_rank_present = 1;
 
-	ddr_freq = get_ddr_freq(0) / 1000000;
+	ddr_freq = get_ddr_freq(ctrl_num) / 1000000;
 	if (popts->registered_dimm_en) {
 		popts->rcw_override = 1;
 		popts->rcw_1 = 0x000a5a00;

@@ -67,6 +67,21 @@ config TARGET_GALILEO
 
 endchoice
 
+config DM
+	default y
+
+config DM_GPIO
+	default y
+
+config DM_SERIAL
+	default y
+
+config SYS_MALLOC_F
+	default y
+
+config SYS_MALLOC_F_LEN
+	default 0x800
+
 config RAMBASE
 	hex
 	default 0x100000

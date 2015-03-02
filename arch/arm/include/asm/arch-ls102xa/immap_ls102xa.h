@@ -37,6 +37,43 @@
 
 #define DCFG_DCSR_PORCR1		0
 
+/*
+ * Define default values for some CCSR macros to make header files cleaner
+ *
+ * To completely disable CCSR relocation in a board header file, define
+ * CONFIG_SYS_CCSR_DO_NOT_RELOCATE.  This will force CONFIG_SYS_CCSRBAR_PHYS
+ * to a value that is the same as CONFIG_SYS_CCSRBAR.
+ */
+
+#ifdef CONFIG_SYS_CCSRBAR_PHYS
+#error "Do not define CONFIG_SYS_CCSRBAR_PHYS directly."
+#endif
+
+#ifdef CONFIG_SYS_CCSR_DO_NOT_RELOCATE
+#undef CONFIG_SYS_CCSRBAR_PHYS_HIGH
+#undef CONFIG_SYS_CCSRBAR_PHYS_LOW
+#define CONFIG_SYS_CCSRBAR_PHYS_HIGH	0
+#endif
+
+#ifndef CONFIG_SYS_CCSRBAR
+#define CONFIG_SYS_CCSRBAR		CONFIG_SYS_IMMR
+#endif
+
+#ifndef CONFIG_SYS_CCSRBAR_PHYS_HIGH
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_CCSRBAR_PHYS_HIGH	0xf
+#else
+#define CONFIG_SYS_CCSRBAR_PHYS_HIGH	0
+#endif
+#endif
+
+#ifndef CONFIG_SYS_CCSRBAR_PHYS_LOW
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_IMMR
+#endif
+
+#define CONFIG_SYS_CCSRBAR_PHYS ((CONFIG_SYS_CCSRBAR_PHYS_HIGH * 1ull) << 32 | \
+				 CONFIG_SYS_CCSRBAR_PHYS_LOW)
+
 struct sys_info {
 	unsigned long freq_processor[CONFIG_MAX_CPUS];
 	unsigned long freq_systembus;
@@ -133,8 +170,7 @@ struct ccsr_scfg {
 	u32 pex1rdmmsgrqsr;
 	u32 pex2rdmmsgrqsr;
 	u32 spimsiclrcr;
-	u32 pex1mscportsr;
-	u32 pex2mscportsr;
+	u32 pexmscportsr[2];
 	u32 pex2pmwrcr;
 	u32 resv5[24];
 	u32 mac1_streamid;

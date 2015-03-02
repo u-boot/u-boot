@@ -46,6 +46,11 @@ S:	Maintained
 F:	board/sunxi/dram_a20_olinuxino_l2.c
 F:	configs/A20-OLinuXino-Lime2_defconfig
 
+AMPE A76 BOARD
+M:	Paul Kocialkowski <contact@paulk.fr>
+S:	Maintained
+F:	configs/Ampe_A76_defconfig
+
 COLOMBUS BOARD
 M:	Maxime Ripard <maxime.ripard@free-electrons.com>
 S:	Maintained
@@ -57,9 +62,7 @@ M:	Hans de Goede <hdegoede@redhat.com>
 S:	Maintained
 F:	include/configs/sun7i.h
 F:	configs/Cubieboard2_defconfig
-F:	configs/Cubieboard2_FEL_defconfig
 F:	configs/Cubietruck_defconfig
-F:	configs/Cubietruck_FEL_defconfig
 
 GEMEI-G9 TABLET
 M:	Priit Laes <plaes@plaes.org>

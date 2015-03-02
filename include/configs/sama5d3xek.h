@@ -274,7 +274,7 @@
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)
 
 #ifdef CONFIG_SYS_USE_MMC
-#define CONFIG_SPL_LDSCRIPT		arch/arm/cpu/at91-common/u-boot-spl.lds
+#define CONFIG_SPL_LDSCRIPT		arch/arm/mach-at91/u-boot-spl.lds
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x400
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x200

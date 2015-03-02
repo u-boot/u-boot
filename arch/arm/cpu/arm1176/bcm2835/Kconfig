@@ -1,0 +1,12 @@
+if TARGET_RPI || TARGET_RPI_2
+
+config DM
+	default y
+
+config DM_SERIAL
+	default y
+
+config DM_GPIO
+	default y
+
+endif

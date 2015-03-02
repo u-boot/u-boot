@@ -38,6 +38,18 @@ ifdef CONFIG_CPU_ARC770D
 PLATFORM_CPPFLAGS += -marc700 -mlock -mswape
 endif
 
+ifdef CONFIG_CPU_ARCEM6
+PLATFORM_CPPFLAGS += -marcem
+endif
+
+ifdef CONFIG_CPU_ARCHS34
+PLATFORM_CPPFLAGS += -marchs
+endif
+
+ifdef CONFIG_CPU_ARCHS38
+PLATFORM_CPPFLAGS += -marchs
+endif
+
 PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -gdwarf-2
 
 # Needed for relocation

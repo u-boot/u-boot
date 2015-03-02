@@ -90,17 +90,19 @@ static char blob_help_text[] =
 	"enc src dst len km - Encapsulate and create blob of data\n"
 	"                          $len bytes long at address $src and\n"
 	"                          store the result at address $dst.\n"
-	"                          $km is the 16 byte key modifier\n"
-	"                          is also required for generation/use as\n"
-	"                          key for cryptographic operation. Key\n"
-	"                          modifier should be 16 byte long.\n"
+	"                          $km is the address where the key\n"
+	"                          modifier is stored.\n"
+	"                          The modifier is required for generation\n"
+	"                          /use as key for cryptographic operation.\n"
+	"                          Key modifier should be 16 byte long.\n"
 	"blob dec src dst len km - Decapsulate the  blob of data at address\n"
 	"                          $src and store result of $len byte at\n"
 	"                          addr $dst.\n"
-	"                          $km is the 16 byte key modifier\n"
-	"                          is also required for generation/use as\n"
-	"                          key for cryptographic operation. Key\n"
-	"                          modifier should be 16 byte long.\n";
+	"                          $km is the address where the key\n"
+	"                          modifier is stored.\n"
+	"                          The modifier is required for generation\n"
+	"                          /use as key for cryptographic operation.\n"
+	"                          Key modifier should be 16 byte long.\n";
 
 U_BOOT_CMD(
 	blob, 6, 1, do_blob,

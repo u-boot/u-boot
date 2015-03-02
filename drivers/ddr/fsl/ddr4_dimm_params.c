@@ -119,10 +119,10 @@ compute_ranksize(const struct ddr4_spd_eeprom_s *spd)
  * Writes the results to the dimm_params_t structure pointed by pdimm.
  *
  */
-unsigned int
-ddr_compute_dimm_parameters(const generic_spd_eeprom_t *spd,
-			    dimm_params_t *pdimm,
-			    unsigned int dimm_number)
+unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
+					 const generic_spd_eeprom_t *spd,
+					 dimm_params_t *pdimm,
+					 unsigned int dimm_number)
 {
 	unsigned int retval;
 	int i;

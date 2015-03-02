@@ -10,10 +10,10 @@
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
 #include <asm/arch-fsl-lsch3/immap_lsch3.h>
+#include <fsl-mc/fsl_mc.h>
 #include "cpu.h"
 #include "mp.h"
 #include "speed.h"
-#include <fsl_mc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -150,7 +150,7 @@ static inline void final_mmu_setup(void)
 	 * set level 2 table 0 to cache-inhibit, covering 0 to 1GB
 	 */
 	section_l1t0 = 0;
-	section_l1t1 = BLOCK_SIZE_L0;
+	section_l1t1 = BLOCK_SIZE_L0 | PMD_SECT_OUTER_SHARE;
 	section_l2 = 0;
 	for (i = 0; i < 512; i++) {
 		set_pgtable_section(level1_table_0, i, section_l1t0,
@@ -168,10 +168,10 @@ static inline void final_mmu_setup(void)
 		(u64)level2_table_0 | PMD_TYPE_TABLE;
 	level1_table_0[2] =
 		0x80000000 | PMD_SECT_AF | PMD_TYPE_SECT |
-		PMD_ATTRINDX(MT_NORMAL);
+		PMD_SECT_OUTER_SHARE | PMD_ATTRINDX(MT_NORMAL);
 	level1_table_0[3] =
 		0xc0000000 | PMD_SECT_AF | PMD_TYPE_SECT |
-		PMD_ATTRINDX(MT_NORMAL);
+		PMD_SECT_OUTER_SHARE | PMD_ATTRINDX(MT_NORMAL);
 
 	/* Rewrite table to enable cache */
 	set_pgtable_section(level2_table_0,
@@ -240,59 +240,6 @@ int arch_cpu_init(void)
 	early_mmu_setup();
 	set_sctlr(get_sctlr() | CR_C);
 	return 0;
-}
-
-/*
- * flush_l3_cache
- * Dickens L3 cache can be flushed by transitioning from FAM to SFONLY power
- * state, by writing to HP-F P-state request register.
- * Fixme: This function should moved to a common file if other SoCs also use
- * the same Dickens.
- */
-#define HNF0_PSTATE_REQ 0x04200010
-#define HNF1_PSTATE_REQ 0x04210010
-#define HNF2_PSTATE_REQ 0x04220010
-#define HNF3_PSTATE_REQ 0x04230010
-#define HNF4_PSTATE_REQ 0x04240010
-#define HNF5_PSTATE_REQ 0x04250010
-#define HNF6_PSTATE_REQ 0x04260010
-#define HNF7_PSTATE_REQ 0x04270010
-#define HNFPSTAT_MASK (0xFFFFFFFFFFFFFFFC)
-#define HNFPSTAT_FAM	0x3
-#define HNFPSTAT_SFONLY 0x01
-
-static void hnf_pstate_req(u64 *ptr, u64 state)
-{
-	int timeout = 1000;
-	out_le64(ptr, (in_le64(ptr) & HNFPSTAT_MASK) | (state & 0x3));
-	ptr++;
-	/* checking if the transition is completed */
-	while (timeout > 0) {
-		if (((in_le64(ptr) & 0x0c) >> 2) == (state & 0x3))
-			break;
-		udelay(100);
-		timeout--;
-	}
-}
-
-void flush_l3_cache(void)
-{
-	hnf_pstate_req((u64 *)HNF0_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF1_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF2_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF3_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF4_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF5_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF6_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF7_PSTATE_REQ, HNFPSTAT_SFONLY);
-	hnf_pstate_req((u64 *)HNF0_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF1_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF2_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF3_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF4_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF5_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF6_PSTATE_REQ, HNFPSTAT_FAM);
-	hnf_pstate_req((u64 *)HNF7_PSTATE_REQ, HNFPSTAT_FAM);
 }
 
 /*
@@ -420,6 +367,7 @@ int print_cpuinfo(void)
 	printf("\n       Bus:      %-4s MHz  ",
 	       strmhz(buf, sysinfo.freq_systembus));
 	printf("DDR:      %-4s MHz", strmhz(buf, sysinfo.freq_ddrbus));
+	printf("     DP-DDR:   %-4s MHz", strmhz(buf, sysinfo.freq_ddrbus2));
 	puts("\n");
 
 	return 0;

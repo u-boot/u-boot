@@ -46,4 +46,9 @@
 	mmc@12220000 {
 		fifoth_val = <0x201f0020>;
 	};
+
+	emmc-reset {
+		compatible = "samsung,emmc-reset";
+		reset-gpio = <&gpd1 0 0>;
+	};
 };

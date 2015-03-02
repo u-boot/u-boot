@@ -17,109 +17,45 @@ source directory for a basic specification of Kconfig.
 Difference from Linux's Kconfig
 -------------------------------
 
-The biggest difference between Linux Kernel and U-Boot in terms of the
-configuration is that U-Boot has to configure multiple boot images per board:
-Normal, SPL, TPL.
-Kconfig functions need to be expanded for U-Boot to handle multiple images.
-The files scripts/kconfig/* were imported from Linux Kernel and adjusted
-for that purpose.
-
-See below for how each configuration target works in U-Boot:
-
-- config, nconfig, menuconfig, xconfig, gconfig
-
-  These targets are used to configure Normal and create (or modify) the
-  .config file.  For SPL configuration, the configutation targets are prefixed
-  with "spl/", for example "make spl/config", "make spl/menuconfig", etc.
-  Those targets create or modify the spl/.config file.  Likewise, run
-  "make tpl/config", "make tpl/menuconfig", etc. for TPL.
+Here are some worth-mentioning configuration targets.
 
 - silentoldconfig
 
   This target updates .config, include/generated/autoconf.h and
-  include/configs/*.  In U-Boot, the same thing is done for SPL, TPL,
-  if supported by the target board.  Depending on whether CONFIG_SPL and
-  CONFIG_TPL are defined, "make silentoldconfig" iterates three times at most
-  changing the work directory.
+  include/configs/* as in Linux.  In U-Boot, it also does the followings
+  for the compatibility with the old configuration system:
 
-  To sum up, "make silentoldconfig" possibly updates:
-  - .config, include/generated/autoconf.h, include/config/*
-  - spl/.config, spl/include/generated/autoconf.h, spl/include/config/*
-    (in case CONFIG_SPL=y)
-  - tpl/.config, tpl/include/generated/autoconf.h, tpl/include/config/*
-    (in case CONFIG_TPL=y)
+   * create a symbolic link "arch/${ARCH}/include/asm/arch" pointing to
+     the SoC/CPU specific header directory
+   * create include/config.h
+   * create include/autoconf.mk
+   * create spl/include/autoconf.mk (SPL and TPL only)
+   * create tpl/include/autoconf.mk (TPL only)
 
-- defconfig, <board>_defconfig
+   If we could completely switch to Kconfig in a long run
+   (i.e. remove all the include/configs/*.h), those additional processings
+   above would be removed.
 
-  The target "<board>_defconfig" is used to create the .config based on the
-  file configs/<board>_defconfig.  The "defconfig" target is the same
-  except it checks for a file specified with KBUILD_DEFCONFIG environment.
+- defconfig
 
-  Note:
-  The defconfig files are placed under the "configs" directory,
-  not "arch/$(ARCH)/configs".  This is because "ARCH" is not necessarily
-  given from the command line for the U-Boot configuration and build.
+  In U-Boot, "make defconfig" is a shorthand of "make sandbox_defconfig"
 
-  The defconfig file format in U-Boot has the special syntax; each line has
-  "<condition>:" prefix to show which image(s) the line is valid for.
-  For example,
+- <board>_defconfig
 
-  CONFIG_FOO=100
-  S:CONFIG_FOO=200
-  T:CONFIG_FOO=300
-  ST:CONFIG_BAR=y
-  +S:CONFIG_BAZ=y
-  +T:CONFIG_QUX=y
-  +ST:CONFIG_QUUX=y
-
-  Here, the "<condition>:" prefix is one of:
-  None  - the line is valid only for Normal image
-  S:    - the line is valid only for SPL image
-  T:    - the line is valid only for TPL image
-  ST:   - the line is valid for SPL and TPL images
-  +S:   - the line is valid for Normal and SPL images
-  +T:   - the line is valid for Normal and TPL images
-  +ST:  - the line is valid for Normal, SPL and TPL images
-
-  So, if neither CONFIG_SPL nor CONFIG_TPL is defined, the defconfig file
-  has no "<condition>:" part and therefore has the same form as in Linux.
-  From the example defconfig shown above, three separete configuration sets
-  are generated and used for creating .config, spl/.config and tpl/.config.
-
-  - Input for the default configuration of Normal
-     CONFIG_FOO=100
-     CONFIG_BAZ=y
-     CONFIG_QUX=y
-     CONFIG_QUUX=y
-
-  - Input for the default configuration of SPL
-     CONFIG_FOO=200
-     CONFIG_BAR=y
-     CONFIG_BAZ=y
-     CONFIG_QUUX=y
-
-  - Input for the default configuration of TPL
-     CONFIG_FOO=300
-     CONFIG_BAR=y
-     CONFIG_QUX=y
-     CONFIG_QUUX=y
-
-- savedefconfig
-
-  This is the reverse operation of "make defconfig".  If neither CONFIG_SPL
-  nor CONFIG_TPL is defined in the .config file, it works like "savedefconfig"
-  in Linux Kernel: creates the minimal set of config based on the .config
-  and saves it into the "defconfig" file.  If CONFIG_SPL (and CONFIG_TPL) is
-  defined, the common lines among .config, spl/.config (and tpl/.config) are
-  coalesced together with "<condition:>" prefix for each line as shown above.
-  This file can be used as an input of "defconfig" target.
+  Now it works as in Linux.
+  The prefixes such as "+S:" in *_defconfig are deprecated.
+  You can simply remove the prefixes.  Do not add them for new boards.
 
 - <board>_config
 
   This does not exist in Linux's Kconfig.
+  "make <board>_config" works the same as "make <board>_defconfig".
   Prior to Kconfig, in U-Boot, "make <board>_config" was used for the
-  configuration.  It is still supported for backward compatibility and
-  its behavior is the same as "make <board>_defconfig".
+  configuration.  It is still supported for backward compatibility, so
+  we do not need to update the distro recipes.
+
+
+The other configuration targets work as in Linux Kernel.
 
 
 Migration steps to Kconfig
@@ -137,14 +73,10 @@ based configuration as follows:
 
 Configuration files for use in C sources
   - include/generated/autoconf.h     (generated by Kconfig for Normal)
-  - spl/include/generated/autoconf.h (generated by Kconfig for SPL)
-  - tpl/include/generated/autoconf.h (generated by Kconfig for TPL)
   - include/configs/<board>.h        (exists for all boards)
 
 Configuration file for use in makefiles
-  - include/config/auto.conf         (generated by Kconfig for Normal)
-  - spl/include/config/auto.conf     (generated by Kconfig for SPL)
-  - tpl/include/config/auto.conf     (generated by Kconfig for TPL)
+  - include/config/auto.conf         (generated by Kconfig)
   - include/autoconf.mk              (generated by the old config for Normal)
   - spl/include/autoconfig.mk        (generated by the old config for SPL)
   - tpl/include/autoconfig.mk        (generated by the old config for TPL)
@@ -215,8 +147,8 @@ TODO
   CONFIG_SYS_EXTRA_OPTIONS should not be used for new boards.
 
 - In the pre-Kconfig, a single board had multiple entries in the boards.cfg
-  file with differences in the option fields.  The correspoing defconfig files
-  were auto-generated when switching to Kconfig.  Now we have too many
+  file with differences in the option fields.  The corresponding defconfig
+  files were auto-generated when switching to Kconfig.  Now we have too many
   defconfig files compared with the number of the supported boards.  It is
   recommended to have only one defconfig per board and allow users to select
   the config options.

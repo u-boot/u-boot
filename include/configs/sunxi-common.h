@@ -13,14 +13,28 @@
 #ifndef _SUNXI_COMMON_CONFIG_H
 #define _SUNXI_COMMON_CONFIG_H
 
+#ifdef CONFIG_OLD_SUNXI_KERNEL_COMPAT
+/*
+ * The U-Boot workarounds bugs in the outdated buggy sunxi-3.4 kernels at the
+ * expense of restricting some features, so the regular machine id values can
+ * be used.
+ */
+# define CONFIG_MACH_TYPE_COMPAT_REV	0
+#else
+/*
+ * A compatibility guard to prevent loading outdated buggy sunxi-3.4 kernels.
+ * Only sunxi-3.4 kernels with appropriate fixes applied are able to pass
+ * beyond the machine id check.
+ */
+# define CONFIG_MACH_TYPE_COMPAT_REV	1
+#endif
+
 /*
  * High Level Configuration Options
  */
 #define CONFIG_SUNXI		/* sunxi family */
 #ifdef CONFIG_SPL_BUILD
-#ifndef CONFIG_SPL_FEL
 #define CONFIG_SYS_THUMB_BUILD	/* Thumbs mode to save space in SPL */
-#endif
 #endif
 
 #include <asm/arch/cpu.h>	/* get chip and board defs */
@@ -28,11 +42,7 @@
 #define CONFIG_SYS_TEXT_BASE		0x4a000000
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_DM)
-# define CONFIG_CMD_DM
-# define CONFIG_DM_GPIO
-# define CONFIG_DM_SERIAL
 # define CONFIG_DW_SERIAL
-# define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
 #endif
 
 /*
@@ -84,9 +94,6 @@
 
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_SETEXPR
-
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
 
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
@@ -149,10 +156,10 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 
+#define CONFIG_SPL_BOARD_LOAD_IMAGE
+
 #ifdef CONFIG_SPL_FEL
 
-#define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl-fel.lds"
-#define CONFIG_SPL_START_S_PATH "arch/arm/cpu/armv7/sunxi"
 #define CONFIG_SPL_TEXT_BASE		0x2000
 #define CONFIG_SPL_MAX_SIZE		0x4000		/* 16 KiB */
 
@@ -192,6 +199,22 @@
 #define CONFIG_SYS_I2C_MVTWSI
 #define CONFIG_SYS_I2C_SPEED		400000
 #define CONFIG_SYS_I2C_SLAVE		0x7f
+
+#if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
+#define CONFIG_SYS_I2C_SOFT
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x00
+#define CONFIG_VIDEO_LCD_I2C_BUS	0 /* The lcd panel soft i2c is bus 0 */
+#define CONFIG_SYS_SPD_BUS_NUM		1 /* And the axp209 i2c bus is bus 1 */
+/* We use pin names in Kconfig and sunxi_name_to_gpio() */
+#define CONFIG_SOFT_I2C_GPIO_SDA	soft_i2c_gpio_sda
+#define CONFIG_SOFT_I2C_GPIO_SCL	soft_i2c_gpio_scl
+#ifndef __ASSEMBLY__
+extern int soft_i2c_gpio_sda;
+extern int soft_i2c_gpio_scl;
+#endif
+#endif
+
 #define CONFIG_CMD_I2C
 
 /* PMU */
@@ -203,6 +226,20 @@
 #define CONFIG_CONS_INDEX              1       /* UART0 */
 #endif
 
+#if CONFIG_CONS_INDEX == 1
+#ifdef CONFIG_MACH_SUN9I
+#define OF_STDOUT_PATH		"/soc/serial@07000000:115200"
+#else
+#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28000:115200"
+#endif
+#elif CONFIG_CONS_INDEX == 2 && defined(CONFIG_MACH_SUN5I)
+#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28400:115200"
+#elif CONFIG_CONS_INDEX == 5 && defined(CONFIG_MACH_SUN8I)
+#define OF_STDOUT_PATH		"/soc@01c00000/serial@01f02800:115200"
+#else
+#error Unsupported console port nr. Please fix stdout-path in sunxi-common.h.
+#endif
+
 /* GPIO */
 #define CONFIG_SUNXI_GPIO
 #define CONFIG_SPL_GPIO_SUPPORT
@@ -210,10 +247,10 @@
 
 #ifdef CONFIG_VIDEO
 /*
- * The amount of RAM that is reserved for the FB. This will not show up as
- * RAM to the kernel, but will be reclaimed by a KMS driver in future.
+ * The amount of RAM to keep free at the top of RAM when relocating u-boot,
+ * to use as framebuffer. This must be a multiple of 4096.
  */
-#define CONFIG_SUNXI_FB_SIZE (9 << 20)
+#define CONFIG_SUNXI_MAX_FB_SIZE (9 << 20)
 
 /* Do we want to initialize a simple FB? */
 #define CONFIG_VIDEO_DT_SIMPLEFB
@@ -230,8 +267,6 @@
 #define CONFIG_CONSOLE_MUX
 /* stop x86 thinking in cfbconsole from trying to init a pc keyboard */
 #define CONFIG_VGA_AS_SINGLE_DEVICE
-
-#define CONFIG_SYS_MEM_TOP_HIDE ((CONFIG_SUNXI_FB_SIZE + 0xFFF) & ~0xFFF)
 
 /* To be able to hook simplefb into dt */
 #ifdef CONFIG_VIDEO_DT_SIMPLEFB

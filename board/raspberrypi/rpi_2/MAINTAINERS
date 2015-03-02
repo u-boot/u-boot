@@ -1,0 +1,6 @@
+RPI_2 BOARD
+M:	Stephen Warren <swarren@wwwdotorg.org>
+S:	Maintained
+F:	board/raspberrypi/rpi_2/
+F:	include/configs/rpi_2.h
+F:	configs/rpi_2_defconfig

@@ -129,7 +129,7 @@ def GetUpstream(git_dir, branch):
         return upstream, msg
 
     if remote == '.':
-        return merge
+        return merge, None
     elif remote and merge:
         leaf = merge.split('/')[-1]
         return '%s/%s' % (remote, leaf), None

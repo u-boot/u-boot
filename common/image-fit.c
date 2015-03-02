@@ -1010,9 +1010,7 @@ int fit_image_verify(const void *fit, int image_noffset)
 	}
 
 	/* Process all hash subnodes of the component image node */
-	for (noffset = fdt_first_subnode(fit, image_noffset);
-	     noffset >= 0;
-	     noffset = fdt_next_subnode(fit, noffset)) {
+	fdt_for_each_subnode(fit, noffset, image_noffset) {
 		const char *name = fit_get_name(fit, noffset, NULL);
 
 		/*

@@ -9,6 +9,9 @@
 
 #include "ls2085a_common.h"
 
+#define CONFIG_IDENT_STRING		" LS2085A-SIMU"
+#define CONFIG_BOOTP_VCI_STRING		"U-boot.LS2085A-SIMU"
+
 /* SMSC 91C111 ethernet configuration */
 #define CONFIG_SMC91111
 #define CONFIG_SMC91111_BASE	(0x2210000)

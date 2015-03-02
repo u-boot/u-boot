@@ -76,9 +76,7 @@ ARM ATMEL AT91
 M:	Andreas Bießmann <andreas.devel@googlemail.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-atmel.git
-F:	arch/arm/cpu/armv7/at91/
-F:	arch/arm/cpu/at91-common/
-F:	arch/arm/include/asm/arch-at91/
+F:	arch/arm/mach-at91/
 
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
@@ -100,8 +98,7 @@ M:	Prafulla Wadaskar <prafulla@marvell.com>
 M:	Luka Perkov <luka.perkov@sartura.hr>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-marvell.git
-F:	arch/arm/cpu/arm926ejs/kirkwood/
-F:	arch/arm/include/asm/arch-kirkwood/
+F:	arch/arm/mach-kirkwood/
 
 ARM MARVELL PXA
 M:	Marek Vasut <marex@denx.de>
@@ -147,9 +144,7 @@ ARM TEGRA
 M:	Tom Warren <twarren@nvidia.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-tegra.git
-F:	arch/arm/cpu/arm720t/tegra*/
-F:	arch/arm/cpu/armv7/tegra*/
-F:	arch/arm/cpu/tegra*/
+F:	arch/arm/mach-tegra/
 F:	arch/arm/include/asm/arch-tegra*/
 
 ARM TI

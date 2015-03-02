@@ -17,7 +17,7 @@ void spl_nor_load_image(void)
 
 #ifdef CONFIG_SPL_OS_BOOT
 	if (!spl_start_uboot()) {
-		struct image_header *header;
+		const struct image_header *header;
 
 		/*
 		 * Load Linux from its location in NOR flash to its defined

@@ -401,6 +401,25 @@ static struct csu_ns_dev ns_dev[] = {
 };
 #endif
 
+struct liodn_id_table sec_liodn_tbl[] = {
+	SET_SEC_JR_LIODN_ENTRY(0, 0x10, 0x10),
+	SET_SEC_JR_LIODN_ENTRY(1, 0x10, 0x10),
+	SET_SEC_JR_LIODN_ENTRY(2, 0x10, 0x10),
+	SET_SEC_JR_LIODN_ENTRY(3, 0x10, 0x10),
+	SET_SEC_RTIC_LIODN_ENTRY(a, 0x10),
+	SET_SEC_RTIC_LIODN_ENTRY(b, 0x10),
+	SET_SEC_RTIC_LIODN_ENTRY(c, 0x10),
+	SET_SEC_RTIC_LIODN_ENTRY(d, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(0, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(1, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(2, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(3, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(4, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(5, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(6, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(7, 0x10, 0x10),
+};
+
 struct smmu_stream_id dev_stream_id[] = {
 	{ 0x100, 0x01, "ETSEC MAC1" },
 	{ 0x104, 0x02, "ETSEC MAC2" },
@@ -427,6 +446,8 @@ int board_init(void)
 #endif
 #endif
 
+	ls1021x_config_caam_stream_id(sec_liodn_tbl,
+				      ARRAY_SIZE(sec_liodn_tbl));
 	ls102xa_config_smmu_stream_id(dev_stream_id,
 				      ARRAY_SIZE(dev_stream_id));
 

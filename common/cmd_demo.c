@@ -97,7 +97,9 @@ static int do_demo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				ARRAY_SIZE(demo_commands));
 	argc -= 2;
 	argv += 2;
-	if (!demo_cmd || argc > demo_cmd->maxargs)
+
+	if ((!demo_cmd || argc > demo_cmd->maxargs) ||
+	    ((demo_cmd->name[0] != 'l') && (argc < 1)))
 		return CMD_RET_USAGE;
 
 	if (argc) {

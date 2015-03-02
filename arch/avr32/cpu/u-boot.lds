@@ -48,9 +48,11 @@ SECTIONS
 	_edata = .;
 
 	.bss (NOLOAD) : {
+		__bss_start = .;
 		*(.bss)
 		*(.bss.*)
 	}
 	. = ALIGN(8);
 	__bss_end = .;
+	__init_end = .;
 }

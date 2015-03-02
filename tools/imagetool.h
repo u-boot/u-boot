@@ -20,15 +20,6 @@
 #include <unistd.h>
 #include <u-boot/sha1.h>
 
-/* define __KERNEL__ in order to get the definitions
- * required by the linker list. This is probably not
- * the best way to do this */
-#ifndef __KERNEL__
-#define __KERNEL__
-#include <linker_lists.h>
-#undef __KERNEL__
-#endif /* __KERNEL__ */
-
 #include "fdt_host.h"
 
 #define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
@@ -194,6 +185,46 @@ int imagetool_save_subimage(
 
 void pbl_load_uboot(int fd, struct image_tool_params *mparams);
 
+#define ___cat(a, b) a ## b
+#define __cat(a, b) ___cat(a, b)
+
+/* we need some special handling for this host tool running eventually on
+ * Darwin. The Mach-O section handling is a bit different than ELF section
+ * handling. The differnces in detail are:
+ *  a) we have segments which have sections
+ *  b) we need a API call to get the respective section symbols */
+#if defined(__MACH__)
+#include <mach-o/getsect.h>
+
+#define INIT_SECTION(name)  do {					\
+		unsigned long name ## _len;				\
+		char *__cat(pstart_, name) = getsectdata("__TEXT",	\
+			#name, &__cat(name, _len));			\
+		char *__cat(pstop_, name) = __cat(pstart_, name) +	\
+			__cat(name, _len);				\
+		__cat(__start_, name) = (void *)__cat(pstart_, name);	\
+		__cat(__stop_, name) = (void *)__cat(pstop_, name);	\
+	} while (0)
+#define SECTION(name)   __attribute__((section("__TEXT, " #name)))
+
+struct image_type_params **__start_image_type, **__stop_image_type;
+#else
+#define INIT_SECTION(name) /* no-op for ELF */
+#define SECTION(name)   __attribute__((section(#name)))
+
+/* We construct a table of pointers in an ELF section (pointers generally
+ * go unpadded by gcc).  ld creates boundary syms for us. */
+extern struct image_type_params *__start_image_type[], *__stop_image_type[];
+#endif /* __MACH__ */
+
+#if !defined(__used)
+# if __GNUC__ == 3 && __GNUC_MINOR__ < 3
+#  define __used			__attribute__((__unused__))
+# else
+#  define __used			__attribute__((__used__))
+# endif
+#endif
+
 #define U_BOOT_IMAGE_TYPE( \
 		_id, \
 		_name, \
@@ -208,7 +239,8 @@ void pbl_load_uboot(int fd, struct image_tool_params *mparams);
 		_fflag_handle, \
 		_vrec_header \
 	) \
-	ll_entry_declare(struct image_type_params, _id, image_type) = { \
+	static struct image_type_params __cat(image_type_, _id) = \
+	{ \
 		.name = _name, \
 		.header_size = _header_size, \
 		.hdr = _header, \
@@ -220,6 +252,8 @@ void pbl_load_uboot(int fd, struct image_tool_params *mparams);
 		.check_image_type = _check_image_type, \
 		.fflag_handle = _fflag_handle, \
 		.vrec_header = _vrec_header \
-	}
+	}; \
+	static struct image_type_params *SECTION(image_type) __used \
+		__cat(image_type_ptr_, _id) = &__cat(image_type_, _id)
 
 #endif /* _IMAGETOOL_H_ */

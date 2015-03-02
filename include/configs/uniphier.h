@@ -80,8 +80,6 @@
 #define CONFIG_SMC911X_BASE		CONFIG_SUPPORT_CARD_ETHER_BASE
 #define CONFIG_SMC911X_32_BIT
 
-#define CONFIG_SYS_MALLOC_F_LEN  0x2000
-
 /*-----------------------------------------------------------------------
  * MMU and Cache Setting
  *----------------------------------------------------------------------*/
@@ -191,8 +189,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
 #define CONFIG_DOS_PARTITION
-
-#define CONFIG_CMD_DM
 
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE

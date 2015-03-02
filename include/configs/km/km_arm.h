@@ -195,7 +195,7 @@
 				}
 
 #ifndef __ASSEMBLY__
-#include <asm/arch-kirkwood/gpio.h>
+#include <asm/arch/gpio.h>
 extern void __set_direction(unsigned pin, int high);
 void set_sda(int state);
 void set_scl(int state);

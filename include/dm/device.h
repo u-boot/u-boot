@@ -12,6 +12,7 @@
 #define _DM_DEVICE_H
 
 #include <dm/uclass-id.h>
+#include <fdtdec.h>
 #include <linker_lists.h>
 #include <linux/list.h>
 
@@ -350,5 +351,14 @@ int device_find_first_child(struct udevice *parent, struct udevice **devp);
  * @return 0
  */
 int device_find_next_child(struct udevice **devp);
+
+/**
+ * dev_get_addr() - Get the reg property of a device
+ *
+ * @dev: Pointer to a device
+ *
+ * @return addr
+ */
+fdt_addr_t dev_get_addr(struct udevice *dev);
 
 #endif

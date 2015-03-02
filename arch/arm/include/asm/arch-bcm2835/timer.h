@@ -1,23 +1,17 @@
 /*
- * (C) Copyright 2012 Stephen Warren
+ * (C) Copyright 2012,2015 Stephen Warren
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _BCM2835_TIMER_H
 #define _BCM2835_TIMER_H
 
+#ifdef CONFIG_BCM2836
+#define BCM2835_TIMER_PHYSADDR	0x3f003000
+#else
 #define BCM2835_TIMER_PHYSADDR	0x20003000
+#endif
 
 struct bcm2835_timer_regs {
 	u32 cs;

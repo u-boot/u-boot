@@ -449,3 +449,15 @@ enum uclass_id device_get_uclass_id(struct udevice *dev)
 {
 	return dev->uclass->uc_drv->id;
 }
+
+#ifdef CONFIG_OF_CONTROL
+fdt_addr_t dev_get_addr(struct udevice *dev)
+{
+	return fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+}
+#else
+fdt_addr_t dev_get_addr(struct udevice *dev)
+{
+	return FDT_ADDR_T_NONE;
+}
+#endif

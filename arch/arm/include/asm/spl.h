@@ -26,9 +26,13 @@ enum {
 	BOOT_DEVICE_SPI,
 	BOOT_DEVICE_SATA,
 	BOOT_DEVICE_I2C,
+	BOOT_DEVICE_BOARD,
 	BOOT_DEVICE_NONE
 };
 #endif
+
+/* Board-specific load method */
+void spl_board_load_image(void);
 
 /* Linker symbols. */
 extern char __bss_start[], __bss_end[];

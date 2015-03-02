@@ -374,7 +374,8 @@ static void sdhci_set_ios(struct mmc *mmc)
 				(host->quirks & SDHCI_QUIRK_USE_WIDE8))
 			ctrl |= SDHCI_CTRL_8BITBUS;
 	} else {
-		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
+		if ((SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) ||
+				(host->quirks & SDHCI_QUIRK_USE_WIDE8))
 			ctrl &= ~SDHCI_CTRL_8BITBUS;
 		if (mmc->bus_width == 4)
 			ctrl |= SDHCI_CTRL_4BITBUS;

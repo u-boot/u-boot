@@ -11,11 +11,11 @@
 #include "ddr3_cfg.h"
 #include <asm/arch/ddr3.h>
 
-static int ddr3_size;
 static struct pll_init_data ddr3_400 = DDR3_PLL_400;
 
-void ddr3_init(void)
+u32 ddr3_init(void)
 {
+	u32 ddr3_size;
 	char dimm_name[32];
 
 	if (~(readl(KS2_PLL_CNTRL_BASE + KS2_RSTCTRL_RSTYPE) & 0x1))
@@ -43,13 +43,11 @@ void ddr3_init(void)
 		printf("DRAM: 4 GiB\n");
 		ddr3_init_ddrphy(KS2_DDR3A_DDRPHYC, &ddr3phy_1600_4g);
 		ddr3_init_ddremif(KS2_DDR3A_EMIF_CTRL_BASE, &ddr3_1600_4g);
+	} else {
+		printf("Unknown SO-DIMM. Cannot configure DDR3\n");
+		while (1)
+			;
 	}
-}
 
-/**
- * ddr3_get_size - return ddr3 size in GiB
- */
-int ddr3_get_size(void)
-{
 	return ddr3_size;
 }

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2012 Stephen Warren
+ * (C) Copyright 2012,2015 Stephen Warren
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -38,7 +38,11 @@
 
 /* Raw mailbox HW */
 
+#ifdef CONFIG_BCM2836
+#define BCM2835_MBOX_PHYSADDR	0x3f00b880
+#else
 #define BCM2835_MBOX_PHYSADDR	0x2000b880
+#endif
 
 struct bcm2835_mbox_regs {
 	u32 read;
@@ -121,6 +125,9 @@ struct bcm2835_mbox_tag_hdr {
 
 #define BCM2835_MBOX_TAG_GET_BOARD_REV	0x00010002
 
+#ifdef CONFIG_BCM2836
+#define BCM2836_BOARD_REV_2_B		0x4
+#else
 /*
  * 0x2..0xf from:
  * http://raspberryalphaomega.org.uk/2013/02/06/automatic-raspberry-pi-board-revision-detection-model-a-b1-and-b2/
@@ -141,6 +148,7 @@ struct bcm2835_mbox_tag_hdr {
 #define BCM2835_BOARD_REV_B_PLUS	0x10
 #define BCM2835_BOARD_REV_CM		0x11
 #define BCM2835_BOARD_REV_A_PLUS	0x12
+#endif
 
 struct bcm2835_mbox_tag_get_board_rev {
 	struct bcm2835_mbox_tag_hdr tag_hdr;

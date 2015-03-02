@@ -70,6 +70,7 @@ void __asm_invalidate_dcache_all(void);
 void __asm_flush_dcache_range(u64 start, u64 end);
 void __asm_invalidate_tlb_all(void);
 void __asm_invalidate_icache_all(void);
+int __asm_flush_l3_cache(void);
 
 void armv8_switch_to_el2(void);
 void armv8_switch_to_el1(void);
@@ -141,6 +142,21 @@ void flush_l3_cache(void);
 #define __asmeq(x, y)  ".ifnc " x "," y " ; .err ; .endif\n\t"
 
 #ifndef __ASSEMBLY__
+
+/**
+ * save_boot_params() - Save boot parameters before starting reset sequence
+ *
+ * If you provide this function it will be called immediately U-Boot starts,
+ * both for SPL and U-Boot proper.
+ *
+ * All registers are unchanged from U-Boot entry. No registers need be
+ * preserved.
+ *
+ * This is not a normal C function. There is no stack. Return by branching to
+ * save_boot_params_ret.
+ *
+ * void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3);
+ */
 
 #define isb() __asm__ __volatile__ ("" : : : "memory")
 

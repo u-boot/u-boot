@@ -12,16 +12,16 @@
 
 struct image_type_params *imagetool_get_type(int type)
 {
-	struct image_type_params *curr;
-	struct image_type_params *start = ll_entry_start(
-			struct image_type_params, image_type);
-	struct image_type_params *end = ll_entry_end(
-			struct image_type_params, image_type);
+	struct image_type_params **curr;
+	INIT_SECTION(image_type);
+
+	struct image_type_params **start = __start_image_type;
+	struct image_type_params **end = __stop_image_type;
 
 	for (curr = start; curr != end; curr++) {
-		if (curr->check_image_type) {
-			if (!curr->check_image_type(type))
-				return curr;
+		if ((*curr)->check_image_type) {
+			if (!(*curr)->check_image_type(type))
+				return *curr;
 		}
 	}
 	return NULL;
@@ -34,16 +34,15 @@ int imagetool_verify_print_header(
 	struct image_tool_params *params)
 {
 	int retval = -1;
-	struct image_type_params *curr;
+	struct image_type_params **curr;
+	INIT_SECTION(image_type);
 
-	struct image_type_params *start = ll_entry_start(
-			struct image_type_params, image_type);
-	struct image_type_params *end = ll_entry_end(
-			struct image_type_params, image_type);
+	struct image_type_params **start = __start_image_type;
+	struct image_type_params **end = __stop_image_type;
 
 	for (curr = start; curr != end; curr++) {
-		if (curr->verify_header) {
-			retval = curr->verify_header((unsigned char *)ptr,
+		if ((*curr)->verify_header) {
+			retval = (*curr)->verify_header((unsigned char *)ptr,
 						     sbuf->st_size, params);
 
 			if (retval == 0) {
@@ -51,12 +50,12 @@ int imagetool_verify_print_header(
 				 * Print the image information  if verify is
 				 * successful
 				 */
-				if (curr->print_header) {
-					curr->print_header(ptr);
+				if ((*curr)->print_header) {
+					(*curr)->print_header(ptr);
 				} else {
 					fprintf(stderr,
 						"%s: print_header undefined for %s\n",
-						params->cmdname, curr->name);
+						params->cmdname, (*curr)->name);
 				}
 				break;
 			}

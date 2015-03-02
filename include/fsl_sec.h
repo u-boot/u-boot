@@ -175,6 +175,32 @@ struct jr_regs {
 	u32 jrcr;
 };
 
+/*
+ * Scatter Gather Entry - Specifies the the Scatter Gather Format
+ * related information
+ */
+struct sg_entry {
+#ifdef CONFIG_SYS_FSL_SEC_LE
+	uint32_t addr_lo;	/* Memory Address - lo */
+	uint16_t addr_hi;	/* Memory Address of start of buffer - hi */
+	uint16_t reserved_zero;
+#else
+	uint16_t reserved_zero;
+	uint16_t addr_hi;	/* Memory Address of start of buffer - hi */
+	uint32_t addr_lo;	/* Memory Address - lo */
+#endif
+
+	uint32_t len_flag;	/* Length of the data in the frame */
+#define SG_ENTRY_LENGTH_MASK	0x3FFFFFFF
+#define SG_ENTRY_EXTENSION_BIT	0x80000000
+#define SG_ENTRY_FINAL_BIT	0x40000000
+	uint32_t bpid_offset;
+#define SG_ENTRY_BPID_MASK	0x00FF0000
+#define SG_ENTRY_BPID_SHIFT	16
+#define SG_ENTRY_OFFSET_MASK	0x00001FFF
+#define SG_ENTRY_OFFSET_SHIFT	0
+};
+
 int sec_init(void);
 #endif
 
