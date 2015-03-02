@@ -28,7 +28,7 @@
 #define CONFIG_REVISION_TAG
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(3 * SZ_1M)
+#define CONFIG_SYS_MALLOC_LEN		(35 * SZ_1M) /* Increase due to DFU */
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
@@ -147,6 +147,12 @@
 #define CONFIG_G_DNL_PRODUCT_NUM	0xa4a5
 #define CONFIG_G_DNL_MANUFACTURER	"FSL"
 
+#define CONFIG_CMD_DFU
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_MMC
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M
+#define DFU_DEFAULT_POLL_TIMEOUT 300
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
@@ -161,6 +167,7 @@
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
+	"dfu_alt_info=boot raw 0x2 0x400 mmcpart 1\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
