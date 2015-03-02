@@ -723,7 +723,7 @@ source "arch/arm/cpu/armv7/s5pc1xx/Kconfig"
 
 source "arch/arm/mach-tegra/Kconfig"
 
-source "arch/arm/cpu/armv7/uniphier/Kconfig"
+source "arch/arm/mach-uniphier/Kconfig"
 
 source "arch/arm/mach-versatile/Kconfig"
 

@@ -73,7 +73,8 @@ Supported devices
 
  - UART (on-chip)
  - NAND
- - USB (2.0)
+ - USB 2.0 (EHCI)
+ - USB 3.0 (xHCI)
  - LAN (on-board SMSC9118)
  - I2C
  - EEPROM (connected to the on-board I2C bus)

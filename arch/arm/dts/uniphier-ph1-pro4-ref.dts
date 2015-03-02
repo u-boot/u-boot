@@ -36,6 +36,7 @@
 		i2c3 = &i2c3;
 		i2c5 = &i2c5;
 		i2c6 = &i2c6;
+		usb0 = &usb0;
 	};
 };
 
@@ -52,9 +53,5 @@
 };
 
 &usb0 {
-	status = "okay";
-};
-
-&usb1 {
 	status = "okay";
 };
