@@ -1,0 +1,64 @@
+/dts-v1/;
+
+/include/ "skeleton.dtsi"
+/include/ "serial.dtsi"
+
+/ {
+	model = "Google Panther";
+	compatible = "google,panther", "intel,haswell";
+
+	aliases {
+		spi0 = "/spi";
+	};
+
+	config {
+		silent-console = <0>;
+		no-keyboard;
+	};
+
+	gpioa {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0 0x10>;
+		bank-name = "A";
+	};
+
+	gpiob {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x30 0x10>;
+		bank-name = "B";
+	};
+
+	gpioc {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x40 0x10>;
+		bank-name = "C";
+	};
+
+	chosen {
+		stdout-path = "/serial";
+	};
+
+	spi {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "intel,ich-spi";
+		spi-flash@0 {
+			#size-cells = <1>;
+			#address-cells = <1>;
+			reg = <0>;
+			compatible = "winbond,w25q64", "spi-flash";
+			memory-map = <0xff800000 0x00800000>;
+			rw-mrc-cache {
+				label = "rw-mrc-cache";
+				/* Alignment: 4k (for updating) */
+				reg = <0x003e0000 0x00010000>;
+				type = "wiped";
+				wipe-value = [ff];
+			};
+		};
+	};
+
+};
