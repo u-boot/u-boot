@@ -1,5 +1,5 @@
 AM335X BOARD
-M:	Tom Rini <trini@ti.com>
+M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
 F:	board/ti/am335x/
 F:	include/configs/am335x_evm.h
@@ -9,9 +9,4 @@ F:	configs/am335x_evm_defconfig
 F:	configs/am335x_evm_nor_defconfig
 F:	configs/am335x_evm_norboot_defconfig
 F:	configs/am335x_evm_spiboot_defconfig
-F:	configs/am335x_evm_uart1_defconfig
-F:	configs/am335x_evm_uart2_defconfig
-F:	configs/am335x_evm_uart3_defconfig
-F:	configs/am335x_evm_uart4_defconfig
-F:	configs/am335x_evm_uart5_defconfig
 F:	configs/am335x_evm_usbspl_defconfig
