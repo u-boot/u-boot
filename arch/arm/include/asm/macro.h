@@ -143,6 +143,9 @@ lr	.req	x30
 	mov	\xreg1, #0x33ff
 	msr	cptr_el2, \xreg1	/* Disable coprocessor traps to EL2 */
 
+	/* Initialize Generic Timers */
+	msr	cntvoff_el2, xzr
+
 	/* Initialize SCTLR_EL2
 	 *
 	 * setting RES1 bits (29,28,23,22,18,16,11,5,4) to 1
