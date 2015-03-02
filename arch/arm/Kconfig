@@ -592,6 +592,10 @@ config ZYNQ
 	select CPU_V7
 	select SUPPORT_SPL
 
+config TARGET_XILINX_ZYNQMP
+	bool "Support Xilinx ZynqMP Platform"
+	select ARM64
+
 config TEGRA
 	bool "NVIDIA Tegra"
 	select SUPPORT_SPL
@@ -840,6 +844,7 @@ source "board/vpac270/Kconfig"
 source "board/wandboard/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/xaeniax/Kconfig"
+source "board/xilinx/zynqmp/Kconfig"
 source "board/zipitz2/Kconfig"
 
 source "arch/arm/Kconfig.debug"
