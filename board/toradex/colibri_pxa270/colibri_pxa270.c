@@ -23,7 +23,7 @@ int board_init(void)
 	dcache_disable();
 	icache_disable();
 
-	/* arch number of vpac270 */
+	/* arch number of Toradex Colibri PXA270 */
 	gd->bd->bi_arch_number = MACH_TYPE_COLIBRI;
 
 	/* adress of boot parameters */

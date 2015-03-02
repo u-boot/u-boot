@@ -58,7 +58,6 @@
 		+ sizeof(CONFIG_SYS_PROMPT) + 16) /* print buffer size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* boot arg buffer size */
 
-#undef  CONFIG_SYS_CLKS_IN_HZ
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
 
 #define CONFIG_CMD_ASKEN

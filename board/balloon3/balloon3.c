@@ -29,7 +29,7 @@ int board_init(void)
 	dcache_disable();
 	icache_disable();
 
-	/* arch number of vpac270 */
+	/* arch number of balloon3 */
 	gd->bd->bi_arch_number = MACH_TYPE_BALLOON3;
 
 	/* adress of boot parameters */
