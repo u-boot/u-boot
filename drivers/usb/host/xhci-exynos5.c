@@ -182,7 +182,7 @@ static void exynos5_usb3_phy_exit(struct exynos_usb3_phy *phy)
 	set_usbdrd_phy_ctrl(POWER_USB_DRD_PHY_CTRL_DISABLE);
 }
 
-void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
+static void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
 {
 	clrsetbits_le32(&dwc3_reg->g_ctl,
 			DWC3_GCTL_PRTCAPDIR(DWC3_GCTL_PRTCAP_OTG),
