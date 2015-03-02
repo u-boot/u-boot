@@ -185,7 +185,8 @@ static int get_ich_version(uint16_t device_id)
 	     device_id <= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX) ||
 	    (device_id >= PCI_DEVICE_ID_INTEL_PANTHERPOINT_LPC_MIN &&
 	     device_id <= PCI_DEVICE_ID_INTEL_PANTHERPOINT_LPC_MAX) ||
-	    device_id == PCI_DEVICE_ID_INTEL_VALLEYVIEW_LPC)
+	    device_id == PCI_DEVICE_ID_INTEL_VALLEYVIEW_LPC ||
+	    device_id == PCI_DEVICE_ID_INTEL_LYNXPOINT_LPC)
 		return 9;
 
 	return 0;
