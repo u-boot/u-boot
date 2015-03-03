@@ -374,6 +374,11 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
 		      cmd[2], cmd[3], erase_addr);
 
+#ifdef CONFIG_SPI_GENERIC
+		if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH)
+			flash->spi->flags |= SPI_XFER_STRIPE;
+#endif
+
 		ret = spi_flash_write_common(flash, cmd, sizeof(cmd), NULL, 0);
 		if (ret < 0) {
 			debug("SF: erase failed\n");
