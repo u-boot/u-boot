@@ -220,7 +220,7 @@ struct usb_ep *usb_ep_autoconfig(
 	struct usb_endpoint_descriptor	*desc
 )
 {
-	struct usb_ep	*ep;
+	struct usb_ep	*ep = NULL;
 	u8		type;
 
 	type = desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK;
@@ -259,6 +259,28 @@ struct usb_ep *usb_ep_autoconfig(
 
 	} else if (gadget_is_mq11xx(gadget) && USB_ENDPOINT_XFER_INT == type) {
 		ep = find_ep(gadget, "ep1-bulk");
+		if (ep && ep_matches(gadget, ep, desc))
+			return ep;
+	} else if (gadget_is_dwc3(gadget)) {
+		const char *name = NULL;
+		/*
+		 * First try standard, common configuration: ep1in-bulk,
+		 * ep2out-bulk, ep3in-int to match other udc drivers to avoid
+		 * confusion in already deployed software (endpoint numbers
+		 * hardcoded in userspace software/drivers)
+		 */
+		if ((desc->bEndpointAddress & USB_DIR_IN) &&
+		    type == USB_ENDPOINT_XFER_BULK)
+			name = "ep1in";
+		else if ((desc->bEndpointAddress & USB_DIR_IN) == 0 &&
+			 type == USB_ENDPOINT_XFER_BULK)
+			name = "ep2out";
+		else if ((desc->bEndpointAddress & USB_DIR_IN) &&
+			 type == USB_ENDPOINT_XFER_INT)
+			name = "ep3in";
+
+		if (name)
+			ep = find_ep(gadget, name);
 		if (ep && ep_matches(gadget, ep, desc))
 			return ep;
 	}
