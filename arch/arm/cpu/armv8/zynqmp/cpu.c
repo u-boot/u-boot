@@ -71,7 +71,7 @@ static struct attr_tbl attr_tbll1t0[4] = { {16, 0x0},
 					 };
 static struct attr_tbl attr_tbll2t3[4] = { {0x180, DEVICE_ATTR},
 					   {0x40, 0x0},
-					   {0x3E, DEVICE_ATTR},
+					   {0x3F, DEVICE_ATTR},
 					   {0x1, MEMORY_ATTR}
 					 };
 
