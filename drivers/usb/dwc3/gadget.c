@@ -2683,6 +2683,17 @@ void dwc3_gadget_exit(struct dwc3 *dwc)
  */
 void dwc3_gadget_uboot_handle_interrupt(struct dwc3 *dwc)
 {
-	dwc3_interrupt(0, dwc);
-	dwc3_thread_interrupt(0, dwc);
+	int ret = dwc3_interrupt(0, dwc);
+
+	if (ret == IRQ_WAKE_THREAD) {
+		int i;
+		struct dwc3_event_buffer *evt;
+
+		for (i = 0; i < dwc->num_event_buffers; i++) {
+			evt = dwc->ev_buffs[i];
+			dwc3_flush_cache((int)evt->buf, evt->length);
+		}
+
+		dwc3_thread_interrupt(0, dwc);
+	}
 }

@@ -769,17 +769,10 @@ void dwc3_uboot_exit(int index)
 void dwc3_uboot_handle_interrupt(int index)
 {
 	struct dwc3 *dwc = NULL;
-	int i;
-	struct dwc3_event_buffer *evt;
 
 	list_for_each_entry(dwc, &dwc3_list, list) {
 		if (dwc->index != index)
 			continue;
-
-		for (i = 0; i < dwc->num_event_buffers; i++) {
-			evt = dwc->ev_buffs[i];
-			dwc3_flush_cache((int)evt->buf, evt->length);
-		}
 
 		dwc3_gadget_uboot_handle_interrupt(dwc);
 		break;
