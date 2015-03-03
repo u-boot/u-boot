@@ -346,7 +346,6 @@
 
 #define CONFIG_SPL_TEXT_BASE		0x40200800
 #define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 /*
  * Use 0x80008000 as TEXT_BASE here for compatibility reasons with the

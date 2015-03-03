@@ -213,10 +213,9 @@
  * SPLs).  We have our BSS be placed 2MiB after this, to allow for the
  * default Linux kernel address of 0x80008000 to work with most sized
  * kernels, in the Falcon Mode case.  We have the SPL malloc pool at the
- * end of the BSS area.  We place our stack at 32MiB after the start of
- * DRAM to allow room for all of the above.
+ * end of the BSS area.  We suggest that the stack be placed at 32MiB after
+ * the start of DRAM to allow room for all of the above (handled in Kconfig).
  */
-#define CONFIG_SPL_STACK		(CONFIG_SYS_SDRAM_BASE + (32 << 20))
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		0x80800000
 #endif
