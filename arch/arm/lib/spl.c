@@ -13,6 +13,7 @@
 #include <image.h>
 #include <linux/compiler.h>
 
+#ifndef CONFIG_DM
 /* Pointer to as well as the global data structure for SPL */
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -21,6 +22,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * pafches that rely on it. The global_data area is set up in crt0.S.
  */
 gd_t gdata __attribute__ ((section(".data")));
+#endif
 
 /*
  * In the context of SPL, board_init_f must ensure that any clocks/etc for
@@ -33,8 +35,10 @@ void __weak board_init_f(ulong dummy)
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
+#ifndef CONFIG_DM
 	/* TODO: Remove settings of the global data pointer here */
 	gd = &gdata;
+#endif
 
 	board_init_r(NULL, 0);
 }
