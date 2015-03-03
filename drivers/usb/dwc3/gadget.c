@@ -975,6 +975,14 @@ static int __dwc3_gadget_ep_queue(struct dwc3_ep *dep, struct dwc3_request *req)
 	req->epnum		= dep->number;
 
 	/*
+	 * DWC3 hangs on OUT requests smaller than maxpacket size,
+	 * so HACK the request length
+	 */
+	if (dep->direction == 0 &&
+	    req->request.length < dep->endpoint.maxpacket)
+		req->request.length = dep->endpoint.maxpacket;
+
+	/*
 	 * We only add to our list of requests now and
 	 * start consuming the list once we get XferNotReady
 	 * IRQ.
