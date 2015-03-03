@@ -13,6 +13,7 @@
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ls102xa_stream_id.h>
 #include <asm/pcie_layerscape.h>
+#include <hwconfig.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
@@ -53,6 +54,17 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define KEEP_STATUS		0x0
 #define NEED_RESET		0x1
+
+#define SOFT_MUX_ON_I2C3_IFC	0x2
+#define SOFT_MUX_ON_CAN3_USB2	0x8
+#define SOFT_MUX_ON_QE_LCD	0x10
+
+#define PIN_I2C3_IFC_MUX_I2C3	0x0
+#define PIN_I2C3_IFC_MUX_IFC	0x1
+#define PIN_CAN3_USB2_MUX_USB2	0x0
+#define PIN_CAN3_USB2_MUX_CAN3	0x1
+#define PIN_QE_LCD_MUX_LCD	0x0
+#define PIN_QE_LCD_MUX_QE	0x1
 
 struct cpld_data {
 	u8 cpld_ver;		/* cpld revision */
@@ -271,6 +283,68 @@ int config_serdes_mux(void)
 }
 #endif
 
+#ifndef CONFIG_QSPI_BOOT
+int config_board_mux(void)
+{
+	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+	int conflict_flag;
+
+	conflict_flag = 0;
+	if (hwconfig("i2c3")) {
+		conflict_flag++;
+		cpld_data->soft_mux_on |= SOFT_MUX_ON_I2C3_IFC;
+		cpld_data->i2c3_ifc_mux = PIN_I2C3_IFC_MUX_I2C3;
+	}
+
+	if (hwconfig("ifc")) {
+		conflict_flag++;
+		/* some signals can not enable simultaneous*/
+		if (conflict_flag > 1)
+			goto conflict;
+		cpld_data->soft_mux_on |= SOFT_MUX_ON_I2C3_IFC;
+		cpld_data->i2c3_ifc_mux = PIN_I2C3_IFC_MUX_IFC;
+	}
+
+	conflict_flag = 0;
+	if (hwconfig("usb2")) {
+		conflict_flag++;
+		cpld_data->soft_mux_on |= SOFT_MUX_ON_CAN3_USB2;
+		cpld_data->can3_usb2_mux = PIN_CAN3_USB2_MUX_USB2;
+	}
+
+	if (hwconfig("can3")) {
+		conflict_flag++;
+		/* some signals can not enable simultaneous*/
+		if (conflict_flag > 1)
+			goto conflict;
+		cpld_data->soft_mux_on |= SOFT_MUX_ON_CAN3_USB2;
+		cpld_data->can3_usb2_mux = PIN_CAN3_USB2_MUX_CAN3;
+	}
+
+	conflict_flag = 0;
+	if (hwconfig("lcd")) {
+		conflict_flag++;
+		cpld_data->soft_mux_on |= SOFT_MUX_ON_QE_LCD;
+		cpld_data->qe_lcd_mux = PIN_QE_LCD_MUX_LCD;
+	}
+
+	if (hwconfig("qe")) {
+		conflict_flag++;
+		/* some signals can not enable simultaneous*/
+		if (conflict_flag > 1)
+			goto conflict;
+		cpld_data->soft_mux_on |= SOFT_MUX_ON_QE_LCD;
+		cpld_data->qe_lcd_mux = PIN_QE_LCD_MUX_QE;
+	}
+
+	return 0;
+
+conflict:
+	printf("WARNING: pin conflict! MUX setting may failed!\n");
+	return 0;
+}
+#endif
+
 int board_early_init_f(void)
 {
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
@@ -480,6 +554,10 @@ int board_init(void)
 #if defined(CONFIG_MISC_INIT_R)
 int misc_init_r(void)
 {
+#ifndef CONFIG_QSPI_BOOT
+	config_board_mux();
+#endif
+
 #ifdef CONFIG_FSL_CAAM
 	return sec_init();
 #endif
