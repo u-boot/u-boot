@@ -465,11 +465,15 @@ class Toolchains:
         # Check that the toolchain works
         print 'Testing'
         dirpath = os.path.join(dest, path)
-        compiler_fname = self.ScanPath(dirpath, True)
-        if not compiler_fname:
+        compiler_fname_list = self.ScanPath(dirpath, True)
+        if not compiler_fname_list:
             print 'Could not locate C compiler - fetch failed.'
             return 1
-        toolchain = Toolchain(compiler_fname, True, True)
+        if len(compiler_fname_list) != 1:
+            print ('Internal error, ambiguous toolchains: %s' %
+                   (', '.join(compiler_fname)))
+            return 1
+        toolchain = Toolchain(compiler_fname_list[0], True, True)
 
         # Make sure that it will be found by buildman
         if not self.TestSettingsHasPath(dirpath):
