@@ -789,7 +789,6 @@ static void dwc3_prepare_trbs(struct dwc3_ep *dep, bool starting)
 	struct dwc3_request	*req, *n;
 	u32			trbs_left;
 	u32			max;
-	unsigned int		last_one = 0;
 
 	BUILD_BUG_ON_NOT_POWER_OF_2(DWC3_TRB_NUM);
 
@@ -839,24 +838,14 @@ static void dwc3_prepare_trbs(struct dwc3_ep *dep, bool starting)
 	list_for_each_entry_safe(req, n, &dep->request_list, list) {
 		unsigned	length;
 		dma_addr_t	dma;
-		last_one = false;
 
 		dma = req->request.dma;
 		length = req->request.length;
-		trbs_left--;
-
-		if (!trbs_left)
-			last_one = 1;
-
-		/* Is this the last request? */
-		if (list_is_last(&req->list, &dep->request_list))
-			last_one = 1;
 
 		dwc3_prepare_one_trb(dep, req, dma, length,
-				last_one, false, 0);
+				     true, false, 0);
 
-		if (last_one)
-			break;
+		break;
 	}
 }
 
