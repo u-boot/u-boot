@@ -1755,33 +1755,23 @@ static int dwc3_cleanup_done_reqs(struct dwc3 *dwc, struct dwc3_ep *dep,
 	struct dwc3_request	*req;
 	struct dwc3_trb		*trb;
 	unsigned int		slot;
-	int			ret;
 
-	do {
-		req = next_request(&dep->req_queued);
-		if (!req) {
-			WARN_ON_ONCE(1);
-			return 1;
-		}
+	req = next_request(&dep->req_queued);
+	if (!req) {
+		WARN_ON_ONCE(1);
+		return 1;
+	}
 
-		slot = req->start_slot;
-		if ((slot == DWC3_TRB_NUM - 1) &&
-			usb_endpoint_xfer_isoc(dep->endpoint.desc))
-			slot++;
-		slot %= DWC3_TRB_NUM;
-		trb = &dep->trb_pool[slot];
+	slot = req->start_slot;
+	if ((slot == DWC3_TRB_NUM - 1) &&
+	    usb_endpoint_xfer_isoc(dep->endpoint.desc))
+		slot++;
+	slot %= DWC3_TRB_NUM;
+	trb = &dep->trb_pool[slot];
 
-		dwc3_flush_cache((int)trb, sizeof(*trb));
-		ret = __dwc3_cleanup_done_trbs(dwc, dep, req, trb,
-				event, status);
-		if (ret)
-			break;
-
-		dwc3_gadget_giveback(dep, req, status);
-
-		if (ret)
-			break;
-	} while (1);
+	dwc3_flush_cache((int)trb, sizeof(*trb));
+	__dwc3_cleanup_done_trbs(dwc, dep, req, trb, event, status);
+	dwc3_gadget_giveback(dep, req, status);
 
 	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
 			list_empty(&dep->req_queued)) {
