@@ -2367,7 +2367,7 @@ static void dwc3_gadget_linksts_change_interrupt(struct dwc3 *dwc,
 static void dwc3_gadget_hibernation_interrupt(struct dwc3 *dwc,
 		unsigned int evtinfo)
 {
-	unsigned int is_ss = evtinfo & BIT(4);
+	unsigned int is_ss = evtinfo & (1UL << 4);
 
 	/**
 	 * WORKAROUND: DWC3 revison 2.20a with hibernation support

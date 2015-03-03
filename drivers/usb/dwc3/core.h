@@ -392,7 +392,7 @@ struct dwc3_event_buffer {
 	unsigned int		count;
 	unsigned int		flags;
 
-#define DWC3_EVENT_PENDING	BIT(0)
+#define DWC3_EVENT_PENDING	(1UL << 0)
 
 	dma_addr_t		dma;
 
