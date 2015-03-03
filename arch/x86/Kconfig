@@ -465,4 +465,13 @@ config PCIE_ECAM_BASE
 	  assigned to PCI devices - i.e. the memory and prefetch regions, as
 	  passed to pci_set_region().
 
+config BOOTSTAGE
+	default y
+
+config BOOTSTAGE_REPORT
+	default y
+
+config CMD_BOOTSTAGE
+	default y
+
 endmenu

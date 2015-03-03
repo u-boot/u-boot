@@ -237,9 +237,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-#define CONFIG_BOOTSTAGE
-#define CONFIG_CMD_BOOTSTAGE
-
 #define CONFIG_CMD_USB
 
 /* Default environment */

@@ -21,9 +21,6 @@
 
 #define CONFIG_SYS_TIMER_RATE		1000000
 
-#define CONFIG_BOOTSTAGE
-#define CONFIG_BOOTSTAGE_REPORT
-
 #define CONFIG_SYS_STDIO_DEREGISTER
 
 /* Number of bits in a C 'long' on this architecture */

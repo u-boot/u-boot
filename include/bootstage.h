@@ -11,7 +11,7 @@
 #ifndef _BOOTSTAGE_H
 #define _BOOTSTAGE_H
 
-/* The number of boot stage records available for the user */
+/* Define this for host tools */
 #ifndef CONFIG_BOOTSTAGE_USER_COUNT
 #define CONFIG_BOOTSTAGE_USER_COUNT	20
 #endif
