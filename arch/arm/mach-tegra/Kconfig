@@ -29,6 +29,9 @@ config USE_PRIVATE_LIBGCC
 config DM
 	default y
 
+config SPL_DM
+	default y
+
 config DM_SERIAL
 	default y
 
