@@ -806,6 +806,7 @@ static int thor_func_bind(struct usb_configuration *c, struct usb_function *f)
 	}
 
 	dev->in_ep = ep; /* Store IN EP for enabling @ setup */
+	ep->driver_data = dev;
 
 	ep = usb_ep_autoconfig(gadget, &fs_out_desc);
 	if (!ep) {
@@ -818,6 +819,7 @@ static int thor_func_bind(struct usb_configuration *c, struct usb_function *f)
 				fs_out_desc.bEndpointAddress;
 
 	dev->out_ep = ep; /* Store OUT EP for enabling @ setup */
+	ep->driver_data = dev;
 
 	ep = usb_ep_autoconfig(gadget, &fs_int_desc);
 	if (!ep) {
@@ -826,6 +828,7 @@ static int thor_func_bind(struct usb_configuration *c, struct usb_function *f)
 	}
 
 	dev->int_ep = ep;
+	ep->driver_data = dev;
 
 	if (gadget_is_dualspeed(gadget)) {
 		hs_int_desc.bEndpointAddress =
