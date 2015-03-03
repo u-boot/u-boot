@@ -25,6 +25,7 @@
 #include <asm/arch/sromc.h>
 #include <lcd.h>
 #include <samsung/misc.h>
+#include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -385,4 +386,9 @@ void reset_misc(void)
 		mdelay(10);
 		dm_gpio_set_value(&gpio, 1);
 	}
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	return 0;
 }
