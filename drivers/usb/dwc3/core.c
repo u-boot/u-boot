@@ -32,7 +32,7 @@
 static LIST_HEAD(dwc3_list);
 /* -------------------------------------------------------------------------- */
 
-void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
+static void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
 {
 	u32 reg;
 
