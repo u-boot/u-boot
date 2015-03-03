@@ -65,6 +65,11 @@ F:	include/configs/sun7i.h
 F:	configs/Cubieboard2_defconfig
 F:	configs/Cubietruck_defconfig
 
+FORFUN-Q88DB TABLET
+M:	Jens Lucius <info@jenslucius.com>
+S:	Maintained
+F:	configs/forfun_q88db_defconfig
+
 GEMEI-G9 TABLET
 M:	Priit Laes <plaes@plaes.org>
 S:	Maintained
