@@ -1052,6 +1052,7 @@ static struct usb_gadget_driver composite_driver = {
 	.unbind         = composite_unbind,
 
 	.setup		= composite_setup,
+	.reset          = composite_disconnect,
 	.disconnect	= composite_disconnect,
 
 	.suspend        = composite_suspend,
