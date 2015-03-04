@@ -61,6 +61,8 @@ Board(panel specific):
 				disabled with compatible string
 				"samsung,sysmmu-v3.3", with a "reg" property
 				holding the register address of FIMD sysmmu.
+	samsung,pwm-out-gpio: PWM output GPIO.
+	samsung,bl-en-gpio: backlight enable GPIO.
 
 Example:
 SOC specific part:

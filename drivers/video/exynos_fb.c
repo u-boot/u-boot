@@ -19,6 +19,7 @@
 #include <asm/arch/mipi_dsim.h>
 #include <asm/arch/dp_info.h>
 #include <asm/arch/system.h>
+#include <asm/gpio.h>
 #include <asm-generic/errno.h>
 
 #include "exynos_fb.h"
@@ -102,6 +103,10 @@ __weak int exynos_lcd_misc_init(vidinfo_t *vid)
 
 static void lcd_panel_on(vidinfo_t *vid)
 {
+	struct gpio_desc pwm_out_gpio;
+	struct gpio_desc bl_en_gpio;
+	unsigned int node;
+
 	udelay(vid->init_delay);
 
 	exynos_backlight_reset();
@@ -121,6 +126,22 @@ static void lcd_panel_on(vidinfo_t *vid)
 
 	exynos_backlight_on(1);
 
+#ifdef CONFIG_OF_CONTROL
+	node = fdtdec_next_compatible(gd->fdt_blob, 0,
+						COMPAT_SAMSUNG_EXYNOS_FIMD);
+	if (node <= 0) {
+		debug("FIMD: Can't get device node for FIMD\n");
+		return;
+	}
+	gpio_request_by_name_nodev(gd->fdt_blob, node, "samsung,pwm-out-gpio",
+				   0, &pwm_out_gpio,
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+
+	gpio_request_by_name_nodev(gd->fdt_blob, node, "samsung,bl-en-gpio", 0,
+				   &bl_en_gpio,
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+
+#endif
 	exynos_cfg_ldo();
 
 	exynos_enable_ldo(1);
