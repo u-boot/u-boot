@@ -208,6 +208,30 @@ static unsigned int usb_get_max_lun(struct us_data *us)
 	return (len > 0) ? *result : 0;
 }
 
+static int usb_storage_register(struct usb_device *dev, unsigned char iface)
+{
+	int lun, max_lun, start = usb_max_devs;
+	int nb_dev = 0;
+
+	if (!usb_storage_probe(dev, iface, &usb_stor[usb_max_devs]))
+		return nb_dev;
+
+	/*
+	 * OK, it's a storage device.  Iterate over its LUNs
+	 * and populate `usb_dev_desc'.
+	 */
+	max_lun = usb_get_max_lun(&usb_stor[usb_max_devs]);
+	for (lun = 0; lun <= max_lun && usb_max_devs < USB_MAX_STOR_DEV; lun++) {
+		usb_dev_desc[usb_max_devs].lun = lun;
+		if (usb_stor_get_info(dev, &usb_stor[start],
+		    &usb_dev_desc[usb_max_devs]) == 1) {
+			nb_dev++;
+		}
+	}
+
+	return nb_dev;
+}
+
 /*******************************************************************************
  * scan the usb and reports device info
  * to the user if mode = 1
@@ -215,7 +239,7 @@ static unsigned int usb_get_max_lun(struct us_data *us)
  */
 int usb_stor_scan(int mode)
 {
-	unsigned char i;
+	unsigned char i, iface;
 	struct usb_device *dev;
 
 	if (mode == 1)
@@ -241,23 +265,10 @@ int usb_stor_scan(int mode)
 		if (dev == NULL)
 			break; /* no more devices available */
 
-		if (usb_storage_probe(dev, 0, &usb_stor[usb_max_devs])) {
-			/* OK, it's a storage device.  Iterate over its LUNs
-			 * and populate `usb_dev_desc'.
-			 */
-			int lun, max_lun, start = usb_max_devs;
-
-			max_lun = usb_get_max_lun(&usb_stor[usb_max_devs]);
-			for (lun = 0;
-			     lun <= max_lun && usb_max_devs < USB_MAX_STOR_DEV;
-			     lun++) {
-				usb_dev_desc[usb_max_devs].lun = lun;
-				if (usb_stor_get_info(dev, &usb_stor[start],
-				    &usb_dev_desc[usb_max_devs]) == 1) {
-					usb_max_devs++;
-				}
-			}
+		for (iface = 0; iface < dev->config.no_of_if; iface++) {
+			usb_max_devs += usb_storage_register(dev, iface);
 		}
+
 		/* if storage device */
 		if (usb_max_devs == USB_MAX_STOR_DEV) {
 			printf("max USB Storage Device reached: %d stopping\n",
