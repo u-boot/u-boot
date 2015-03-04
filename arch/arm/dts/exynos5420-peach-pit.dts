@@ -67,6 +67,8 @@
 	        edp-lvds-bridge@48 {
 	                compatible = "parade,ps8625";
 	                reg = <0x48>;
+			sleep-gpio = <&gpx3 5 GPIO_ACTIVE_HIGH>;
+			reset-gpio = <&gpy7 7 GPIO_ACTIVE_HIGH>;
 	        };
 	};
 
