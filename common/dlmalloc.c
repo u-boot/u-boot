@@ -1535,9 +1535,9 @@ void mem_malloc_init(ulong start, ulong size)
 
 	debug("using memory %#lx-%#lx for malloc()\n", mem_malloc_start,
 	      mem_malloc_end);
-
-	memset((void *)mem_malloc_start, 0, size);
-
+#ifdef CONFIG_SYS_MALLOC_CLEAR_ON_INIT
+	memset((void *)mem_malloc_start, 0x0, size);
+#endif
 	malloc_bin_reloc();
 }
 
@@ -2948,9 +2948,11 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
 
 
   /* check if expand_top called, in which case don't need to clear */
+#ifdef CONFIG_SYS_MALLOC_CLEAR_ON_INIT
 #if MORECORE_CLEARS
   mchunkptr oldtop = top;
   INTERNAL_SIZE_T oldtopsize = chunksize(top);
+#endif
 #endif
   Void_t* mem = mALLOc (sz);
 
@@ -2977,12 +2979,14 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
 
     csz = chunksize(p);
 
+#ifdef CONFIG_SYS_MALLOC_CLEAR_ON_INIT
 #if MORECORE_CLEARS
     if (p == oldtop && csz > oldtopsize)
     {
       /* clear only the bytes from non-freshly-sbrked memory */
       csz = oldtopsize;
     }
+#endif
 #endif
 
     MALLOC_ZERO(mem, csz - SIZE_SZ);

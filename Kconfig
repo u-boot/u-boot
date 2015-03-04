@@ -72,13 +72,31 @@ config SYS_MALLOC_F_LEN
 	  initial serial device and any others that are needed.
 
 menuconfig EXPERT
-        bool "Configure standard U-Boot features (expert users)"
-        help
-          This option allows certain base U-Boot options and settings
-          to be disabled or tweaked. This is for specialized
-          environments which can tolerate a "non-standard" U-Boot.
-          Only use this if you really know what you are doing.
+	bool "Configure standard U-Boot features (expert users)"
+	default y
+	help
+	  This option allows certain base U-Boot options and settings
+	  to be disabled or tweaked. This is for specialized
+	  environments which can tolerate a "non-standard" U-Boot.
+	  Only use this if you really know what you are doing.
 
+if EXPERT
+	config SYS_MALLOC_CLEAR_ON_INIT
+	bool "Init with zeros the memory reserved for malloc (slow)"
+	default y
+	help
+	  This setting is enabled by default. The reserved malloc
+	  memory is initialized with zeros, so first malloc calls
+	  will return the pointer to the zeroed memory. But this
+	  slows the boot time.
+
+	  It is recommended to disable it, when CONFIG_SYS_MALLOC_LEN
+	  value, has more than few MiB, e.g. when uses bzip2 or bmp logo.
+	  Then the boot time can be significantly reduced.
+	  Warning:
+	  When disabling this, please check if malloc calls, maybe
+	  should be replaced by calloc - if expects zeroed memory.
+endif
 endmenu		# General setup
 
 menu "Boot images"
