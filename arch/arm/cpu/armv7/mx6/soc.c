@@ -21,7 +21,6 @@
 #include <stdbool.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/bootm.h>
 #include <dm.h>
 #include <imx_thermal.h>
 
