@@ -127,7 +127,11 @@
  * we are on so we do not need to rely on the command prompt.  We set a
  * console baudrate of 115200 and use the default baud rate table.
  */
-#define CONFIG_SYS_MALLOC_LEN		(16 << 20)
+#ifdef CONFIG_DFU_MMC
+#define CONFIG_SYS_MALLOC_LEN	((16 << 20) + CONFIG_SYS_DFU_DATA_BUF_SIZE)
+#else
+#define CONFIG_SYS_MALLOC_LEN	(16 << 20)
+#endif
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT		"U-Boot# "
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
