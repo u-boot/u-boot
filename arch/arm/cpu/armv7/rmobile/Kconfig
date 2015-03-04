@@ -52,7 +52,7 @@ config RMOBILE_EXTRAM_BOOT
 
 choice
 	prompt "Qos setting primary"
-	depends on TARGET_LAGER
+	depends on TARGET_KOELSCH || TARGET_LAGER
 	default QOS_PRI_NORMAL
 
 config QOS_PRI_NORMAL
