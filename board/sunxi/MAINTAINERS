@@ -138,3 +138,8 @@ TZX-Q8-713B7 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
 F:	configs/TZX-Q8-713B7_defconfig
+
+WEXLER-TAB7200 BOARD
+M:	Aleksei Mamlin <mamlinav@gmail.com>
+S:	Maintained
+F:	configs/Wexler_TAB7200_defconfig
