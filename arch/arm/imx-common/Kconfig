@@ -1,0 +1,2 @@
+config IMX_CONFIG
+	string

@@ -767,6 +767,8 @@ source "arch/arm/cpu/armv7/Kconfig"
 
 source "arch/arm/cpu/armv8/Kconfig"
 
+source "arch/arm/imx-common/Kconfig"
+
 source "board/aristainetos/Kconfig"
 source "board/BuR/kwb/Kconfig"
 source "board/BuR/tseries/Kconfig"
