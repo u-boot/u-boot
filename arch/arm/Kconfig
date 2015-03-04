@@ -433,6 +433,10 @@ config ARCH_KEYSTONE
 	select CPU_V7
 	select SUPPORT_SPL
 
+config ARCH_MX6
+	bool "Freescale MX6"
+	select CPU_V7
+
 config TARGET_M53EVK
 	bool "Support m53evk"
 	select CPU_V7
@@ -734,6 +738,8 @@ source "arch/arm/mach-highbank/Kconfig"
 source "arch/arm/mach-keystone/Kconfig"
 
 source "arch/arm/mach-kirkwood/Kconfig"
+
+source "arch/arm/cpu/armv7/mx6/Kconfig"
 
 source "arch/arm/mach-nomadik/Kconfig"
 

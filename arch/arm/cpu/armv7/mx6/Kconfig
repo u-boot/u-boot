@@ -1,0 +1,31 @@
+if ARCH_MX6
+
+config MX6
+	bool
+	default y
+
+config MX6D
+	bool
+
+config MX6DL
+	bool
+
+config MX6Q
+	bool
+
+config MX6QDL
+	bool
+
+config MX6S
+	bool
+
+config MX6SL
+	bool
+
+config MX6SX
+	bool
+
+config SYS_SOC
+	default "mx6"
+
+endif
