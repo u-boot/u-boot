@@ -50,6 +50,28 @@ config RMOBILE_EXTRAM_BOOT
 	depends on TARGET_ALT || TARGET_KOELSCH || TARGET_LAGER || TARGET_PORTER || TARGET_SILK
 	default n
 
+choice
+	prompt "Qos setting primary"
+	depends on TARGET_LAGER
+	default QOS_PRI_NORMAL
+
+config QOS_PRI_NORMAL
+	bool "Non primary"
+	help
+	   Select normal mode for QoS setting.
+
+config QOS_PRI_MEDIA
+	bool "Media primary"
+	help
+	   Select multimedia primary mode for QoS setting.
+
+config QOS_PRI_GFX
+	bool "GFX primary"
+	help
+	   Select GFX(graphics) primary mode for QoS setting.
+
+endchoice
+
 source "board/atmark-techno/armadillo-800eva/Kconfig"
 source "board/renesas/gose/Kconfig"
 source "board/renesas/koelsch/Kconfig"
