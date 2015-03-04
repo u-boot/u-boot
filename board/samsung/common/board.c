@@ -88,7 +88,7 @@ int board_init(void)
 
 int dram_init(void)
 {
-	int i;
+	unsigned int i;
 	u32 addr;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -100,7 +100,7 @@ int dram_init(void)
 
 void dram_init_banksize(void)
 {
-	int i;
+	unsigned int i;
 	u32 addr, size;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
