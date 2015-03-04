@@ -43,3 +43,11 @@ config DESIGNWARE_SPI
 	  Enable the Designware SPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this Designware
 	  IP core.
+
+config CADENCE_QSPI
+	bool "Cadence QSPI driver"
+	depends on DM_SPI
+	help
+	  Enable the Cadence Quad-SPI (QSPI) driver. This driver can be
+	  used to access the SPI NOR flash on platforms embedding this
+	  Cadence IP core.
