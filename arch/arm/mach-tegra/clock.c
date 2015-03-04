@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2014, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2015, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -113,7 +113,11 @@ int clock_ll_read_pll(enum clock_id clkid, u32 *divm, u32 *divn,
 	data = readl(&pll->pll_misc);
 	*cpcon = (data & PLL_CPCON_MASK) >> PLL_CPCON_SHIFT;
 	*lfcon = (data & PLL_LFCON_MASK) >> PLL_LFCON_SHIFT;
-
+#if defined(CONFIG_TEGRA210)
+	/* T210 PLLU uses KCP/KVCO instead of CPCON/LFCON */
+	*cpcon = (data & PLLU_KCP_MASK) >> PLLU_KCP_SHIFT;
+	*lfcon = (data & PLLU_KVCO_MASK) >> PLLU_KVCO_SHIFT;
+#endif
 	return 0;
 }
 
@@ -132,14 +136,28 @@ unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 	 * - same fields are always mapped at same offsets, except DCCON
 	 * - DCCON is always 0, doesn't conflict
 	 * - M,N, P of PLLP values are ignored for PLLP
+	 * NOTE: Above is no longer true with T210 - TBD: FIX THIS
 	 */
 	misc_data = (cpcon << PLL_CPCON_SHIFT) | (lfcon << PLL_LFCON_SHIFT);
 
+#if defined(CONFIG_TEGRA210)
+	/* T210 PLLU uses KCP/KVCO instead of cpcon/lfcon */
+	if (clkid == CLOCK_ID_USB) {
+		/* preserve EN_LOCKDET, set by default */
+		misc_data = readl(&pll->pll_misc);
+		misc_data |= (cpcon << PLLU_KCP_SHIFT) |
+			(lfcon << PLLU_KVCO_SHIFT);
+	}
+#endif
 	data = (divm << PLL_DIVM_SHIFT) | (divn << PLL_DIVN_SHIFT) |
 			(0 << PLL_BYPASS_SHIFT) | (1 << PLL_ENABLE_SHIFT);
 
 	if (clkid == CLOCK_ID_USB)
+#if defined(CONFIG_TEGRA210)
+		data |= divp << PLLU_DIVP_SHIFT;
+#else
 		data |= divp << PLLU_VCO_FREQ_SHIFT;
+#endif
 	else
 		data |= divp << PLL_DIVP_SHIFT;
 	if (pll) {
@@ -534,8 +552,15 @@ int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon)
 
 	/* Set cpcon to PLL_MISC */
 	misc_reg = readl(&pll->pll_misc);
+#if !defined(CONFIG_TEGRA210)
 	misc_reg &= ~PLL_CPCON_MASK;
 	misc_reg |= cpcon << PLL_CPCON_SHIFT;
+#else
+	/* T210 uses KCP instead, use the most common bit shift (PLLA/U/D2) */
+	misc_reg &= ~PLLU_KCP_MASK;
+	misc_reg |= cpcon << PLLU_KCP_SHIFT;
+#endif
+
 	writel(misc_reg, &pll->pll_misc);
 
 	/* Enable PLL */
@@ -628,6 +653,7 @@ static void set_avp_clock_source(u32 src)
 /*
  * This function is useful on Tegra30, and any later SoCs that have compatible
  * PLLP configuration registers.
+ * NOTE: Not used on Tegra210 - see tegra210_setup_pllp in T210 clock.c
  */
 void tegra30_set_up_pllp(void)
 {

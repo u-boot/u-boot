@@ -2,7 +2,7 @@
  * (C) Copyright 2009 SAMSUNG Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  * Jaehoon Chung <jh80.chung@samsung.com>
- * Portions Copyright 2011-2013 NVIDIA Corporation
+ * Portions Copyright 2011-2015 NVIDIA Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -667,6 +667,16 @@ void tegra_mmc_init(void)
 	int node_list[CONFIG_SYS_MMC_MAX_DEVICE], count;
 	const void *blob = gd->fdt_blob;
 	debug("%s entry\n", __func__);
+
+	/* See if any Tegra210 MMC controllers are present */
+	count = fdtdec_find_aliases_for_id(blob, "sdhci",
+		COMPAT_NVIDIA_TEGRA210_SDMMC, node_list,
+		CONFIG_SYS_MMC_MAX_DEVICE);
+	debug("%s: count of Tegra210 sdhci nodes is %d\n", __func__, count);
+	if (process_nodes(blob, node_list, count)) {
+		printf("%s: Error processing T30 mmc node(s)!\n", __func__);
+		return;
+	}
 
 	/* See if any Tegra124 MMC controllers are present */
 	count = fdtdec_find_aliases_for_id(blob, "sdhci",

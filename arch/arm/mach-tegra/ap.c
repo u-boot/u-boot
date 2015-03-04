@@ -1,5 +1,5 @@
 /*
-* (C) Copyright 2010-2014
+* (C) Copyright 2010-2015
 * NVIDIA Corporation <www.nvidia.com>
 *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -92,6 +92,13 @@ int tegra_get_chip_sku(void)
 			return TEGRA_SOC_T124;
 		}
 		break;
+	case CHIPID_TEGRA210:
+		switch (sku_id) {
+		case SKU_ID_T210_ENG:
+		default:
+			return TEGRA_SOC_T210;
+		}
+		break;
 	}
 
 	/* unknown chip/sku id */
@@ -100,6 +107,7 @@ int tegra_get_chip_sku(void)
 	return TEGRA_SOC_UNKNOWN;
 }
 
+#ifndef CONFIG_ARM64
 static void enable_scu(void)
 {
 	struct scu_ctlr *scu = (struct scu_ctlr *)NV_PA_ARM_PERIPHBASE;
@@ -222,3 +230,4 @@ void s_init(void)
 	/* init vpr */
 	config_vpr();
 }
+#endif
