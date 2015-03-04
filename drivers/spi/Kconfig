@@ -35,3 +35,11 @@ config SANDBOX_SPI
 			sandbox,filename = "spi.bin";
 		};
 	};
+
+config DESIGNWARE_SPI
+	bool "Designware SPI driver"
+	depends on DM_SPI
+	help
+	  Enable the Designware SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this Designware
+	  IP core.
