@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-#ifndef __CONFIG_SOCFPGA_CYCLONE5_H__
-#define __CONFIG_SOCFPGA_CYCLONE5_H__
+#ifndef __CONFIG_SOCFPGA_ARRIA5_H__
+#define __CONFIG_SOCFPGA_ARRIA5_H__
 
 #include <asm/arch/socfpga_base_addrs.h>
 #include "../../board/altera/socfpga/pinmux_config.h"
@@ -76,7 +76,7 @@
 #define CONFIG_G_DNL_MANUFACTURER      "Altera"
 
 /* Extra Environment */
-#define CONFIG_HOSTNAME		socfpga_cyclone5
+#define CONFIG_HOSTNAME		socfpga_arria5
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"verify=n\0" \
@@ -104,4 +104,4 @@
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
 
-#endif	/* __CONFIG_SOCFPGA_CYCLONE5_H__ */
+#endif	/* __CONFIG_SOCFPGA_ARRIA5_H__ */
