@@ -1,0 +1,12 @@
+menu "PCI"
+
+config DM_PCI
+	bool "Enable driver mode for PCI"
+	depends on DM
+	help
+	  Use driver model for PCI. Driver model is the new method for
+	  orgnising devices in U-Boot. For PCI, driver model keeps track of
+	  available PCI devices, allows scanning of PCI buses and provides
+	  device configuration support.
+
+endmenu

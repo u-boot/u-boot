@@ -1,0 +1,70 @@
+PCI with Driver Model
+=====================
+
+How busses are scanned
+----------------------
+
+Any config read will end up at pci_read_config(). This uses
+uclass_get_device_by_seq() to get the PCI bus for a particular bus number.
+Bus number 0 will need to  be requested first, and the alias in the device
+tree file will point to the correct device:
+
+
+	aliases {
+		pci0 = &pci;
+	};
+
+	pci: pci-controller {
+		compatible = "sandbox,pci";
+		...
+	};
+
+
+If there is no alias the devices will be numbered sequentially in the device
+tree.
+
+The call to uclass_get_device by seq() will cause the PCI bus to be probed.
+This does a scan of the bus to locate available devices. These devices are
+bound to their appropriate driver if available. If there is no driver, then
+they are bound to a generic PCI driver which does nothing.
+
+After probing a bus, the available devices will appear in the device tree
+under that bus.
+
+Note that this is all done on a lazy basis, as needed, so until something is
+touched on PCI it will not be probed.
+
+PCI devices can appear in the device tree. If they do this serves to specify
+the driver to use for the device. In this case they will be bound at
+start-up.
+
+
+Sandbox
+-------
+
+With sandbox we need a device emulator for each device on the bus since there
+is no real PCI bus. This works by looking in the device tree node for a
+driver. For example:
+
+
+	pci@1f,0 {
+		compatible = "pci-generic";
+		reg = <0xf800 0 0 0 0>;
+		emul@1f,0 {
+			compatible = "sandbox,swap-case";
+		};
+	};
+
+This means that there is a 'sandbox,swap-case' driver at that bus position.
+Note that the first cell in the 'reg' value is the bus/device/function. See
+PCI_BDF() for the encoding (it is also specified in the IEEE Std 1275-1994
+PCI bus binding document, v2.1)
+
+When this bus is scanned we will end up with something like this:
+
+`- * pci-controller @ 05c660c8, 0
+ `-   pci@1f,0 @ 05c661c8, 63488
+  `-   emul@1f,0 @ 05c662c8
+
+When accesses go to the pci@1f,0 device they are forwarded to its child, the
+emulator.
