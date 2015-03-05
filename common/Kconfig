@@ -133,7 +133,7 @@ config LOOPW
 	  Infinite write loop on address range
 
 config CMD_MEMTEST
-	bool "crc32"
+	bool "memtest"
 	help
 	  Simple RAM read/write test.
 
