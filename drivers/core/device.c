@@ -227,7 +227,7 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 	}
 	dev->seq = seq;
 
-	ret = uclass_pre_probe_child(dev);
+	ret = uclass_pre_probe_device(dev);
 	if (ret)
 		goto fail;
 

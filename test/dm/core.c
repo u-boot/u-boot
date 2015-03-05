@@ -141,6 +141,7 @@ static int dm_test_autoprobe(struct dm_test_state *dms)
 	ut_assert(uc);
 
 	ut_asserteq(1, dm_testdrv_op_count[DM_TEST_OP_INIT]);
+	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_PRE_PROBE]);
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_POST_PROBE]);
 
 	/* The root device should not be activated until needed */
@@ -167,8 +168,12 @@ static int dm_test_autoprobe(struct dm_test_state *dms)
 			ut_assert(dms->root->flags & DM_FLAG_ACTIVATED);
 	}
 
-	/* Our 3 dm_test_infox children should be passed to post_probe */
+	/*
+	 * Our 3 dm_test_info children should be passed to pre_probe and
+	 * post_probe
+	 */
 	ut_asserteq(3, dm_testdrv_op_count[DM_TEST_OP_POST_PROBE]);
+	ut_asserteq(3, dm_testdrv_op_count[DM_TEST_OP_PRE_PROBE]);
 
 	/* Also we can check the per-device data */
 	expected_base_add = 0;

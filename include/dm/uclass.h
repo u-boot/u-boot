@@ -53,6 +53,7 @@ struct udevice;
  * @id: ID number of this uclass
  * @post_bind: Called after a new device is bound to this uclass
  * @pre_unbind: Called before a device is unbound from this uclass
+ * @pre_probe: Called before a new device is probed
  * @post_probe: Called after a new device is probed
  * @pre_remove: Called before a device is removed
  * @child_post_bind: Called after a child is bound to a device in this uclass
@@ -80,6 +81,7 @@ struct uclass_driver {
 	enum uclass_id id;
 	int (*post_bind)(struct udevice *dev);
 	int (*pre_unbind)(struct udevice *dev);
+	int (*pre_probe)(struct udevice *dev);
 	int (*post_probe)(struct udevice *dev);
 	int (*pre_remove)(struct udevice *dev);
 	int (*child_post_bind)(struct udevice *dev);

@@ -44,15 +44,16 @@ int uclass_bind_device(struct udevice *dev);
 int uclass_unbind_device(struct udevice *dev);
 
 /**
- * uclass_pre_probe_child() - Deal with a child that is about to be probed
+ * uclass_pre_probe_device() - Deal with a device that is about to be probed
  *
  * Perform any pre-processing that is needed by the uclass before it can be
- * probed.
+ * probed. This includes the uclass' pre-probe() method and the parent
+ * uclass' child_pre_probe() method.
  *
  * @dev:	Pointer to the device
  * #return 0 on success, -ve on error
  */
-int uclass_pre_probe_child(struct udevice *dev);
+int uclass_pre_probe_device(struct udevice *dev);
 
 /**
  * uclass_post_probe_device() - Deal with a device that has just been probed

@@ -42,6 +42,17 @@ static int test_pre_unbind(struct udevice *dev)
 	return 0;
 }
 
+static int test_pre_probe(struct udevice *dev)
+{
+	struct dm_test_uclass_perdev_priv *priv = dev_get_uclass_priv(dev);
+
+	dm_testdrv_op_count[DM_TEST_OP_PRE_PROBE]++;
+	ut_assert(priv);
+	ut_assert(!device_active(dev));
+
+	return 0;
+}
+
 static int test_post_probe(struct udevice *dev)
 {
 	struct udevice *prev = list_entry(dev->uclass_node.prev,
@@ -96,6 +107,7 @@ UCLASS_DRIVER(test) = {
 	.id		= UCLASS_TEST,
 	.post_bind	= test_post_bind,
 	.pre_unbind	= test_pre_unbind,
+	.pre_probe	= test_pre_probe,
 	.post_probe	= test_post_probe,
 	.pre_remove	= test_pre_remove,
 	.init		= test_init,

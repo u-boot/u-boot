@@ -391,9 +391,17 @@ int uclass_resolve_seq(struct udevice *dev)
 	return seq;
 }
 
-int uclass_pre_probe_child(struct udevice *dev)
+int uclass_pre_probe_device(struct udevice *dev)
 {
 	struct uclass_driver *uc_drv;
+	int ret;
+
+	uc_drv = dev->uclass->uc_drv;
+	if (uc_drv->pre_probe) {
+		ret = uc_drv->pre_probe(dev);
+		if (ret)
+			return ret;
+	}
 
 	if (!dev->parent)
 		return 0;
