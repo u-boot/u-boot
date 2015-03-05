@@ -116,6 +116,14 @@ static void set_spi_speed(void)
 
 int arch_cpu_init(void)
 {
+	post_code(POST_CPU_INIT);
+	timer_set_base(rdtsc());
+
+	return x86_cpu_init_f();
+}
+
+int arch_cpu_init_dm(void)
+{
 	const void *blob = gd->fdt_blob;
 	struct pci_controller *hose;
 	int node;
