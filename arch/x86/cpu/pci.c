@@ -70,7 +70,7 @@ static struct pci_controller *get_hose(void)
 	return pci_bus_to_hose(0);
 }
 
-unsigned int pci_read_config8(pci_dev_t dev, unsigned where)
+unsigned int x86_pci_read_config8(pci_dev_t dev, unsigned where)
 {
 	uint8_t value;
 
@@ -79,7 +79,7 @@ unsigned int pci_read_config8(pci_dev_t dev, unsigned where)
 	return value;
 }
 
-unsigned int pci_read_config16(pci_dev_t dev, unsigned where)
+unsigned int x86_pci_read_config16(pci_dev_t dev, unsigned where)
 {
 	uint16_t value;
 
@@ -88,7 +88,7 @@ unsigned int pci_read_config16(pci_dev_t dev, unsigned where)
 	return value;
 }
 
-unsigned int pci_read_config32(pci_dev_t dev, unsigned where)
+unsigned int x86_pci_read_config32(pci_dev_t dev, unsigned where)
 {
 	uint32_t value;
 
@@ -97,17 +97,17 @@ unsigned int pci_read_config32(pci_dev_t dev, unsigned where)
 	return value;
 }
 
-void pci_write_config8(pci_dev_t dev, unsigned where, unsigned value)
+void x86_pci_write_config8(pci_dev_t dev, unsigned where, unsigned value)
 {
 	pci_hose_write_config_byte(get_hose(), dev, where, value);
 }
 
-void pci_write_config16(pci_dev_t dev, unsigned where, unsigned value)
+void x86_pci_write_config16(pci_dev_t dev, unsigned where, unsigned value)
 {
 	pci_hose_write_config_word(get_hose(), dev, where, value);
 }
 
-void pci_write_config32(pci_dev_t dev, unsigned where, unsigned value)
+void x86_pci_write_config32(pci_dev_t dev, unsigned where, unsigned value)
 {
 	pci_hose_write_config_dword(get_hose(), dev, where, value);
 }

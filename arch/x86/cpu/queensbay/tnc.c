@@ -16,9 +16,9 @@ static void unprotect_spi_flash(void)
 {
 	u32 bc;
 
-	bc = pci_read_config32(PCH_LPC_DEV, 0xd8);
+	bc = x86_pci_read_config32(PCH_LPC_DEV, 0xd8);
 	bc |= 0x1;	/* unprotect the flash */
-	pci_write_config32(PCH_LPC_DEV, 0xd8, bc);
+	x86_pci_write_config32(PCH_LPC_DEV, 0xd8, bc);
 }
 
 int arch_cpu_init(void)

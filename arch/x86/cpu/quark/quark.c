@@ -30,9 +30,9 @@ static void unprotect_spi_flash(void)
 {
 	u32 bc;
 
-	bc = pci_read_config32(QUARK_LEGACY_BRIDGE, 0xd8);
+	bc = x86_pci_read_config32(QUARK_LEGACY_BRIDGE, 0xd8);
 	bc |= 0x1;	/* unprotect the flash */
-	pci_write_config32(QUARK_LEGACY_BRIDGE, 0xd8, bc);
+	x86_pci_write_config32(QUARK_LEGACY_BRIDGE, 0xd8, bc);
 }
 
 static void quark_setup_bars(void)

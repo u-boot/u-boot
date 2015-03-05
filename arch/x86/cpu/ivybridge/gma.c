@@ -741,9 +741,9 @@ int gma_func0_init(pci_dev_t dev, struct pci_controller *hose,
 	int ret;
 
 	/* IGD needs to be Bus Master */
-	reg32 = pci_read_config32(dev, PCI_COMMAND);
+	reg32 = x86_pci_read_config32(dev, PCI_COMMAND);
 	reg32 |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY | PCI_COMMAND_IO;
-	pci_write_config32(dev, PCI_COMMAND, reg32);
+	x86_pci_write_config32(dev, PCI_COMMAND, reg32);
 
 	/* Use write-combining for the graphics memory, 256MB */
 	base = pci_read_bar32(hose, dev, 2);

@@ -14,14 +14,14 @@
 
 static inline u32 sir_read(pci_dev_t dev, int idx)
 {
-	pci_write_config32(dev, SATA_SIRI, idx);
-	return pci_read_config32(dev, SATA_SIRD);
+	x86_pci_write_config32(dev, SATA_SIRI, idx);
+	return x86_pci_read_config32(dev, SATA_SIRD);
 }
 
 static inline void sir_write(pci_dev_t dev, int idx, u32 value)
 {
-	pci_write_config32(dev, SATA_SIRI, idx);
-	pci_write_config32(dev, SATA_SIRD, value);
+	x86_pci_write_config32(dev, SATA_SIRI, idx);
+	x86_pci_write_config32(dev, SATA_SIRD, value);
 }
 
 static void common_sata_init(pci_dev_t dev, unsigned int port_map)
@@ -31,17 +31,17 @@ static void common_sata_init(pci_dev_t dev, unsigned int port_map)
 
 	/* Set IDE I/O Configuration */
 	reg32 = SIG_MODE_PRI_NORMAL | FAST_PCB1 | FAST_PCB0 | PCB1 | PCB0;
-	pci_write_config32(dev, IDE_CONFIG, reg32);
+	x86_pci_write_config32(dev, IDE_CONFIG, reg32);
 
 	/* Port enable */
-	reg16 = pci_read_config16(dev, 0x92);
+	reg16 = x86_pci_read_config16(dev, 0x92);
 	reg16 &= ~0x3f;
 	reg16 |= port_map;
-	pci_write_config16(dev, 0x92, reg16);
+	x86_pci_write_config16(dev, 0x92, reg16);
 
 	/* SATA Initialization register */
 	port_map &= 0xff;
-	pci_write_config32(dev, 0x94, ((port_map ^ 0x3f) << 24) | 0x183);
+	x86_pci_write_config32(dev, 0x94, ((port_map ^ 0x3f) << 24) | 0x183);
 }
 
 void bd82x6x_sata_init(pci_dev_t dev, const void *blob, int node)
@@ -60,7 +60,7 @@ void bd82x6x_sata_init(pci_dev_t dev, const void *blob, int node)
 				       "sata_interface_speed_support", 0);
 
 	/* Enable BARs */
-	pci_write_config16(dev, PCI_COMMAND, 0x0007);
+	x86_pci_write_config16(dev, PCI_COMMAND, 0x0007);
 
 	mode = fdt_getprop(blob, node, "intel,sata-mode", NULL);
 	if (!mode || !strcmp(mode, "ahci")) {
@@ -69,18 +69,18 @@ void bd82x6x_sata_init(pci_dev_t dev, const void *blob, int node)
 		debug("SATA: Controller in AHCI mode\n");
 
 		/* Set Interrupt Line, Interrupt Pin is set by D31IP.PIP */
-		pci_write_config8(dev, INTR_LN, 0x0a);
+		x86_pci_write_config8(dev, INTR_LN, 0x0a);
 
 		/* Set timings */
-		pci_write_config16(dev, IDE_TIM_PRI, IDE_DECODE_ENABLE |
+		x86_pci_write_config16(dev, IDE_TIM_PRI, IDE_DECODE_ENABLE |
 				IDE_ISP_3_CLOCKS | IDE_RCT_1_CLOCKS |
 				IDE_PPE0 | IDE_IE0 | IDE_TIME0);
-		pci_write_config16(dev, IDE_TIM_SEC, IDE_DECODE_ENABLE |
+		x86_pci_write_config16(dev, IDE_TIM_SEC, IDE_DECODE_ENABLE |
 				IDE_ISP_5_CLOCKS | IDE_RCT_4_CLOCKS);
 
 		/* Sync DMA */
-		pci_write_config16(dev, IDE_SDMA_CNT, IDE_PSDE0);
-		pci_write_config16(dev, IDE_SDMA_TIM, 0x0001);
+		x86_pci_write_config16(dev, IDE_SDMA_CNT, IDE_PSDE0);
+		x86_pci_write_config16(dev, IDE_SDMA_TIM, 0x0001);
 
 		common_sata_init(dev, 0x8000 | port_map);
 
@@ -115,22 +115,22 @@ void bd82x6x_sata_init(pci_dev_t dev, const void *blob, int node)
 		/* No AHCI: clear AHCI base */
 		pci_write_bar32(hose, dev, 5, 0x00000000);
 		/* And without AHCI BAR no memory decoding */
-		reg16 = pci_read_config16(dev, PCI_COMMAND);
+		reg16 = x86_pci_read_config16(dev, PCI_COMMAND);
 		reg16 &= ~PCI_COMMAND_MEMORY;
-		pci_write_config16(dev, PCI_COMMAND, reg16);
+		x86_pci_write_config16(dev, PCI_COMMAND, reg16);
 
-		pci_write_config8(dev, 0x09, 0x80);
+		x86_pci_write_config8(dev, 0x09, 0x80);
 
 		/* Set timings */
-		pci_write_config16(dev, IDE_TIM_PRI, IDE_DECODE_ENABLE |
+		x86_pci_write_config16(dev, IDE_TIM_PRI, IDE_DECODE_ENABLE |
 				IDE_ISP_5_CLOCKS | IDE_RCT_4_CLOCKS);
-		pci_write_config16(dev, IDE_TIM_SEC, IDE_DECODE_ENABLE |
+		x86_pci_write_config16(dev, IDE_TIM_SEC, IDE_DECODE_ENABLE |
 				IDE_ISP_3_CLOCKS | IDE_RCT_1_CLOCKS |
 				IDE_PPE0 | IDE_IE0 | IDE_TIME0);
 
 		/* Sync DMA */
-		pci_write_config16(dev, IDE_SDMA_CNT, IDE_SSDE0);
-		pci_write_config16(dev, IDE_SDMA_TIM, 0x0200);
+		x86_pci_write_config16(dev, IDE_SDMA_CNT, IDE_SSDE0);
+		x86_pci_write_config16(dev, IDE_SDMA_TIM, 0x0200);
 
 		common_sata_init(dev, port_map);
 	} else {
@@ -140,31 +140,32 @@ void bd82x6x_sata_init(pci_dev_t dev, const void *blob, int node)
 		pci_write_bar32(hose, dev, 5, 0x00000000);
 
 		/* And without AHCI BAR no memory decoding */
-		reg16 = pci_read_config16(dev, PCI_COMMAND);
+		reg16 = x86_pci_read_config16(dev, PCI_COMMAND);
 		reg16 &= ~PCI_COMMAND_MEMORY;
-		pci_write_config16(dev, PCI_COMMAND, reg16);
+		x86_pci_write_config16(dev, PCI_COMMAND, reg16);
 
 		/*
 		 * Native mode capable on both primary and secondary (0xa)
 		 * OR'ed with enabled (0x50) = 0xf
 		 */
-		pci_write_config8(dev, 0x09, 0x8f);
+		x86_pci_write_config8(dev, 0x09, 0x8f);
 
 		/* Set Interrupt Line */
 		/* Interrupt Pin is set by D31IP.PIP */
-		pci_write_config8(dev, INTR_LN, 0xff);
+		x86_pci_write_config8(dev, INTR_LN, 0xff);
 
 		/* Set timings */
-		pci_write_config16(dev, IDE_TIM_PRI, IDE_DECODE_ENABLE |
+		x86_pci_write_config16(dev, IDE_TIM_PRI, IDE_DECODE_ENABLE |
 				IDE_ISP_3_CLOCKS | IDE_RCT_1_CLOCKS |
 				IDE_PPE0 | IDE_IE0 | IDE_TIME0);
-		pci_write_config16(dev, IDE_TIM_SEC, IDE_DECODE_ENABLE |
+		x86_pci_write_config16(dev, IDE_TIM_SEC, IDE_DECODE_ENABLE |
 				IDE_SITRE | IDE_ISP_3_CLOCKS |
 				IDE_RCT_1_CLOCKS | IDE_IE0 | IDE_TIME0);
 
 		/* Sync DMA */
-		pci_write_config16(dev, IDE_SDMA_CNT, IDE_SSDE0 | IDE_PSDE0);
-		pci_write_config16(dev, IDE_SDMA_TIM, 0x0201);
+		x86_pci_write_config16(dev, IDE_SDMA_CNT,
+				       IDE_SSDE0 | IDE_PSDE0);
+		x86_pci_write_config16(dev, IDE_SDMA_TIM, 0x0201);
 
 		common_sata_init(dev, port_map);
 	}
@@ -221,5 +222,5 @@ void bd82x6x_sata_enable(pci_dev_t dev, const void *blob, int node)
 	port_map = fdtdec_get_int(blob, node, "intel,sata-port-map", 0);
 
 	map |= (port_map ^ 0x3f) << 8;
-	pci_write_config16(dev, 0x90, map);
+	x86_pci_write_config16(dev, 0x90, map);
 }

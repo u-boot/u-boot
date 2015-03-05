@@ -70,9 +70,9 @@ int board_pci_pre_scan(struct pci_controller *hose)
 
 	reg16 = 0xff;
 	dev = PCH_DEV;
-	reg16 = pci_read_config16(dev, PCI_COMMAND);
+	reg16 = x86_pci_read_config16(dev, PCI_COMMAND);
 	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_write_config16(dev, PCI_COMMAND, reg16);
+	x86_pci_write_config16(dev, PCI_COMMAND, reg16);
 
 	/*
 	* Clear non-reserved bits in status register.

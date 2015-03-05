@@ -444,7 +444,7 @@ int sdram_initialise(struct pei_data *pei_data)
 	 * Send ME init done for SandyBridge here.  This is done inside the
 	 * SystemAgent binary on IvyBridge
 	 */
-	done = pci_read_config32(PCH_DEV, PCI_DEVICE_ID);
+	done = x86_pci_read_config32(PCH_DEV, PCI_DEVICE_ID);
 	done &= BASE_REV_MASK;
 	if (BASE_REV_SNB == done)
 		intel_early_me_init_done(ME_INIT_STATUS_SUCCESS);
@@ -615,24 +615,24 @@ static int sdram_find(pci_dev_t dev)
 	 */
 
 	/* Top of Upper Usable DRAM, including remap */
-	touud = pci_read_config32(dev, TOUUD+4);
+	touud = x86_pci_read_config32(dev, TOUUD+4);
 	touud <<= 32;
-	touud |= pci_read_config32(dev, TOUUD);
+	touud |= x86_pci_read_config32(dev, TOUUD);
 
 	/* Top of Lower Usable DRAM */
-	tolud = pci_read_config32(dev, TOLUD);
+	tolud = x86_pci_read_config32(dev, TOLUD);
 
 	/* Top of Memory - does not account for any UMA */
-	tom = pci_read_config32(dev, 0xa4);
+	tom = x86_pci_read_config32(dev, 0xa4);
 	tom <<= 32;
-	tom |= pci_read_config32(dev, 0xa0);
+	tom |= x86_pci_read_config32(dev, 0xa0);
 
 	debug("TOUUD %llx TOLUD %08x TOM %llx\n", touud, tolud, tom);
 
 	/* ME UMA needs excluding if total memory <4GB */
-	me_base = pci_read_config32(dev, 0x74);
+	me_base = x86_pci_read_config32(dev, 0x74);
 	me_base <<= 32;
-	me_base |= pci_read_config32(dev, 0x70);
+	me_base |= x86_pci_read_config32(dev, 0x70);
 
 	debug("MEBASE %llx\n", me_base);
 
@@ -650,7 +650,7 @@ static int sdram_find(pci_dev_t dev)
 	}
 
 	/* Graphics memory comes next */
-	ggc = pci_read_config16(dev, GGC);
+	ggc = x86_pci_read_config16(dev, GGC);
 	if (!(ggc & 2)) {
 		debug("IGD decoded, subtracting ");
 
@@ -670,7 +670,7 @@ static int sdram_find(pci_dev_t dev)
 	}
 
 	/* Calculate TSEG size from its base which must be below GTT */
-	tseg_base = pci_read_config32(dev, 0xb8);
+	tseg_base = x86_pci_read_config32(dev, 0xb8);
 	uma_size = (uma_memory_base - tseg_base) >> 10;
 	tomk -= uma_size;
 	uma_memory_base = tomk * 1024ULL;

@@ -48,13 +48,13 @@ int board_pci_post_scan(struct pci_controller *hose);
  * Simple PCI access routines - these work from either the early PCI hose
  * or the 'real' one, created after U-Boot has memory available
  */
-unsigned int pci_read_config8(pci_dev_t dev, unsigned where);
-unsigned int pci_read_config16(pci_dev_t dev, unsigned where);
-unsigned int pci_read_config32(pci_dev_t dev, unsigned where);
+unsigned int x86_pci_read_config8(pci_dev_t dev, unsigned where);
+unsigned int x86_pci_read_config16(pci_dev_t dev, unsigned where);
+unsigned int x86_pci_read_config32(pci_dev_t dev, unsigned where);
 
-void pci_write_config8(pci_dev_t dev, unsigned where, unsigned value);
-void pci_write_config16(pci_dev_t dev, unsigned where, unsigned value);
-void pci_write_config32(pci_dev_t dev, unsigned where, unsigned value);
+void x86_pci_write_config8(pci_dev_t dev, unsigned where, unsigned value);
+void x86_pci_write_config16(pci_dev_t dev, unsigned where, unsigned value);
+void x86_pci_write_config32(pci_dev_t dev, unsigned where, unsigned value);
 
 #endif /* __ASSEMBLY__ */
 

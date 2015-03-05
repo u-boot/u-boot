@@ -17,10 +17,10 @@ static void sandybridge_setup_bars(pci_dev_t pch_dev, pci_dev_t lpc_dev)
 {
 	/* Setting up Southbridge. In the northbridge code. */
 	debug("Setting up static southbridge registers\n");
-	pci_write_config32(lpc_dev, PCH_RCBA_BASE, DEFAULT_RCBA | 1);
+	x86_pci_write_config32(lpc_dev, PCH_RCBA_BASE, DEFAULT_RCBA | 1);
 
-	pci_write_config32(lpc_dev, PMBASE, DEFAULT_PMBASE | 1);
-	pci_write_config8(lpc_dev, ACPI_CNTL, 0x80); /* Enable ACPI BAR */
+	x86_pci_write_config32(lpc_dev, PMBASE, DEFAULT_PMBASE | 1);
+	x86_pci_write_config8(lpc_dev, ACPI_CNTL, 0x80); /* Enable ACPI BAR */
 
 	debug("Disabling watchdog reboot\n");
 	setbits_le32(RCB_REG(GCS), 1 >> 5);	/* No reset */
@@ -28,25 +28,27 @@ static void sandybridge_setup_bars(pci_dev_t pch_dev, pci_dev_t lpc_dev)
 
 	/* Set up all hardcoded northbridge BARs */
 	debug("Setting up static registers\n");
-	pci_write_config32(pch_dev, EPBAR, DEFAULT_EPBAR | 1);
-	pci_write_config32(pch_dev, EPBAR + 4, (0LL + DEFAULT_EPBAR) >> 32);
-	pci_write_config32(pch_dev, MCHBAR, DEFAULT_MCHBAR | 1);
-	pci_write_config32(pch_dev, MCHBAR + 4, (0LL + DEFAULT_MCHBAR) >> 32);
+	x86_pci_write_config32(pch_dev, EPBAR, DEFAULT_EPBAR | 1);
+	x86_pci_write_config32(pch_dev, EPBAR + 4, (0LL + DEFAULT_EPBAR) >> 32);
+	x86_pci_write_config32(pch_dev, MCHBAR, DEFAULT_MCHBAR | 1);
+	x86_pci_write_config32(pch_dev, MCHBAR + 4,
+			       (0LL + DEFAULT_MCHBAR) >> 32);
 	/* 64MB - busses 0-63 */
-	pci_write_config32(pch_dev, PCIEXBAR, DEFAULT_PCIEXBAR | 5);
-	pci_write_config32(pch_dev, PCIEXBAR + 4,
-			   (0LL + DEFAULT_PCIEXBAR) >> 32);
-	pci_write_config32(pch_dev, DMIBAR, DEFAULT_DMIBAR | 1);
-	pci_write_config32(pch_dev, DMIBAR + 4, (0LL + DEFAULT_DMIBAR) >> 32);
+	x86_pci_write_config32(pch_dev, PCIEXBAR, DEFAULT_PCIEXBAR | 5);
+	x86_pci_write_config32(pch_dev, PCIEXBAR + 4,
+			       (0LL + DEFAULT_PCIEXBAR) >> 32);
+	x86_pci_write_config32(pch_dev, DMIBAR, DEFAULT_DMIBAR | 1);
+	x86_pci_write_config32(pch_dev, DMIBAR + 4,
+			       (0LL + DEFAULT_DMIBAR) >> 32);
 
 	/* Set C0000-FFFFF to access RAM on both reads and writes */
-	pci_write_config8(pch_dev, PAM0, 0x30);
-	pci_write_config8(pch_dev, PAM1, 0x33);
-	pci_write_config8(pch_dev, PAM2, 0x33);
-	pci_write_config8(pch_dev, PAM3, 0x33);
-	pci_write_config8(pch_dev, PAM4, 0x33);
-	pci_write_config8(pch_dev, PAM5, 0x33);
-	pci_write_config8(pch_dev, PAM6, 0x33);
+	x86_pci_write_config8(pch_dev, PAM0, 0x30);
+	x86_pci_write_config8(pch_dev, PAM1, 0x33);
+	x86_pci_write_config8(pch_dev, PAM2, 0x33);
+	x86_pci_write_config8(pch_dev, PAM3, 0x33);
+	x86_pci_write_config8(pch_dev, PAM4, 0x33);
+	x86_pci_write_config8(pch_dev, PAM5, 0x33);
+	x86_pci_write_config8(pch_dev, PAM6, 0x33);
 }
 
 static void sandybridge_setup_graphics(pci_dev_t pch_dev, pci_dev_t video_dev)
@@ -55,7 +57,7 @@ static void sandybridge_setup_graphics(pci_dev_t pch_dev, pci_dev_t video_dev)
 	u16 reg16;
 	u8 reg8;
 
-	reg16 = pci_read_config16(video_dev, PCI_DEVICE_ID);
+	reg16 = x86_pci_read_config16(video_dev, PCI_DEVICE_ID);
 	switch (reg16) {
 	case 0x0102: /* GT1 Desktop */
 	case 0x0106: /* GT1 Mobile */
@@ -75,7 +77,7 @@ static void sandybridge_setup_graphics(pci_dev_t pch_dev, pci_dev_t video_dev)
 	debug("Initialising Graphics\n");
 
 	/* Setup IGD memory by setting GGC[7:3] = 1 for 32MB */
-	reg16 = pci_read_config16(pch_dev, GGC);
+	reg16 = x86_pci_read_config16(pch_dev, GGC);
 	reg16 &= ~0x00f8;
 	reg16 |= 1 << 3;
 	/* Program GTT memory by setting GGC[9:8] = 2MB */
@@ -83,13 +85,13 @@ static void sandybridge_setup_graphics(pci_dev_t pch_dev, pci_dev_t video_dev)
 	reg16 |= 2 << 8;
 	/* Enable VGA decode */
 	reg16 &= ~0x0002;
-	pci_write_config16(pch_dev, GGC, reg16);
+	x86_pci_write_config16(pch_dev, GGC, reg16);
 
 	/* Enable 256MB aperture */
-	reg8 = pci_read_config8(video_dev, MSAC);
+	reg8 = x86_pci_read_config8(video_dev, MSAC);
 	reg8 &= ~0x06;
 	reg8 |= 0x02;
-	pci_write_config8(video_dev, MSAC, reg8);
+	x86_pci_write_config8(video_dev, MSAC, reg8);
 
 	/* Erratum workarounds */
 	reg32 = readl(MCHBAR_REG(0x5f00));
@@ -124,22 +126,22 @@ void sandybridge_early_init(int chipset_type)
 	u8 reg8;
 
 	/* Device ID Override Enable should be done very early */
-	capid0_a = pci_read_config32(pch_dev, 0xe4);
+	capid0_a = x86_pci_read_config32(pch_dev, 0xe4);
 	if (capid0_a & (1 << 10)) {
-		reg8 = pci_read_config8(pch_dev, 0xf3);
+		reg8 = x86_pci_read_config8(pch_dev, 0xf3);
 		reg8 &= ~7; /* Clear 2:0 */
 
 		if (chipset_type == SANDYBRIDGE_MOBILE)
 			reg8 |= 1; /* Set bit 0 */
 
-		pci_write_config8(pch_dev, 0xf3, reg8);
+		x86_pci_write_config8(pch_dev, 0xf3, reg8);
 	}
 
 	/* Setup all BARs required for early PCIe and raminit */
 	sandybridge_setup_bars(pch_dev, lpc_dev);
 
 	/* Device Enable */
-	pci_write_config32(pch_dev, DEVEN, DEVEN_HOST | DEVEN_IGD);
+	x86_pci_write_config32(pch_dev, DEVEN, DEVEN_HOST | DEVEN_IGD);
 
 	sandybridge_setup_graphics(pch_dev, video_dev);
 }
