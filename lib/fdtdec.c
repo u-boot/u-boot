@@ -918,7 +918,7 @@ int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
 	return 0;
 }
 
-static u64 fdtdec_get_number(const fdt32_t *ptr, unsigned int cells)
+u64 fdtdec_get_number(const fdt32_t *ptr, unsigned int cells)
 {
 	u64 number = 0;
 

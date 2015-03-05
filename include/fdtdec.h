@@ -389,6 +389,17 @@ s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,
 		s32 default_val);
 
 /**
+ * Get a variable-sized number from a property
+ *
+ * This reads a number from one or more cells.
+ *
+ * @param ptr	Pointer to property
+ * @param cells	Number of cells containing the number
+ * @return the value in the cells
+ */
+u64 fdtdec_get_number(const fdt32_t *ptr, unsigned int cells);
+
+/**
  * Look up a 64-bit integer property in a node and return it. The property
  * must have at least 8 bytes of data (2 cells). The first two cells are
  * concatenated to form a 8 bytes value, where the first cell is top half and
