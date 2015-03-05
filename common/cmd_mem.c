@@ -165,7 +165,7 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	ulong	addr, count;
 	int	size;
-	void *buf;
+	void *buf, *start;
 	ulong bytes;
 
 	if ((argc < 3) || (argc > 4))
@@ -197,7 +197,8 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	bytes = size * count;
-	buf = map_sysmem(addr, bytes);
+	start = map_sysmem(addr, bytes);
+	buf = start;
 	while (count-- > 0) {
 		if (size == 4)
 			*((u32 *)buf) = (u32)writeval;
@@ -211,7 +212,7 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			*((u8 *)buf) = (u8)writeval;
 		buf += size;
 	}
-	unmap_sysmem(buf);
+	unmap_sysmem(start);
 	return 0;
 }
 
