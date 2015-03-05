@@ -705,5 +705,19 @@ u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
  */
 int pciauto_setup_rom(struct pci_controller *hose, pci_dev_t dev);
 
+/**
+ * pci_hose_find_devices() - Find devices by vendor/device ID
+ *
+ * @hose:	PCI hose to search
+ * @busnum:	Bus number to search
+ * @ids:	PCI vendor/device IDs to look for, terminated by 0, 0 record
+ * @indexp:	Pointer to device index to find. To find the first matching
+ *		device, pass 0; to find the second, pass 1, etc. This
+ *		parameter is decremented for each non-matching device so
+ *		can be called repeatedly.
+ */
+pci_dev_t pci_hose_find_devices(struct pci_controller *hose, int busnum,
+				struct pci_device_id *ids, int *indexp);
+
 #endif /* __ASSEMBLY__ */
 #endif /* _PCI_H */
