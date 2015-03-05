@@ -200,7 +200,8 @@
 		};
 
 		lpc {
-			compatible = "intel,lpc";
+			reg = <0x0000f800 0 0 0 0>;
+			compatible = "intel,bd82x6x";
 			#address-cells = <1>;
 			#size-cells = <1>;
 			gen-dec = <0x800 0xfc 0x900 0xfc>;

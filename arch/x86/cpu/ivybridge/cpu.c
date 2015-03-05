@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <asm/cpu.h>
@@ -126,19 +127,20 @@ int arch_cpu_init_dm(void)
 {
 	const void *blob = gd->fdt_blob;
 	struct pci_controller *hose;
+	struct udevice *bus;
 	int node;
 	int ret;
 
-	post_code(POST_CPU_INIT);
-	timer_set_base(rdtsc());
-
-	ret = x86_cpu_init_f();
+	post_code(0x70);
+	ret = uclass_get_device(UCLASS_PCI, 0, &bus);
+	post_code(0x71);
 	if (ret)
 		return ret;
+	post_code(0x72);
+	hose = dev_get_uclass_priv(bus);
 
-	ret = pci_early_init_hose(&hose);
-	if (ret)
-		return ret;
+	/* TODO(sjg@chromium.org): Get rid of gd->hose */
+	gd->hose = hose;
 
 	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_LPC);
 	if (node < 0)

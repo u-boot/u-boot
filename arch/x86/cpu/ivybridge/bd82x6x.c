@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
@@ -86,7 +87,7 @@ void bd82x6x_pci_bus_enable_resources(pci_dev_t dev)
 	bd82x6x_pci_dev_enable_resources(dev);
 }
 
-int bd82x6x_init_pci_devices(void)
+static int bd82x6x_probe(struct udevice *dev)
 {
 	const void *blob = gd->fdt_blob;
 	struct pci_controller *hose;
@@ -144,3 +145,24 @@ int bd82x6x_init(void)
 
 	return 0;
 }
+
+static const struct udevice_id bd82x6x_ids[] = {
+	{ .compatible = "intel,bd82x6x" },
+	{ }
+};
+
+U_BOOT_DRIVER(bd82x6x_drv) = {
+	.name		= "bd82x6x",
+	.id		= UCLASS_PCH,
+	.of_match	= bd82x6x_ids,
+	.probe		= bd82x6x_probe,
+};
+
+/*
+ * TODO(sjg@chromium.org): Move this to arch/x86/lib or similar when other
+ * boards also use a PCH
+ */
+UCLASS_DRIVER(pch) = {
+	.id		= UCLASS_PCH,
+	.name		= "pch",
+};
