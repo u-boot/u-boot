@@ -992,6 +992,114 @@ static inline int pci_read_config_byte(pci_dev_t pcidev, int offset,
 	return pci_read_config8(pcidev, offset, valuep);
 }
 
+/**
+ * struct dm_pci_emul_ops - PCI device emulator operations
+ */
+struct dm_pci_emul_ops {
+	/**
+	 * get_devfn(): Check which device and function this emulators
+	 *
+	 * @dev:	device to check
+	 * @return the device and function this emulates, or -ve on error
+	 */
+	int (*get_devfn)(struct udevice *dev);
+	/**
+	 * read_config() - Read a PCI configuration value
+	 *
+	 * @dev:	Emulated device to read from
+	 * @offset:	Byte offset within the device's configuration space
+	 * @valuep:	Place to put the returned value
+	 * @size:	Access size
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*read_config)(struct udevice *dev, uint offset, ulong *valuep,
+			   enum pci_size_t size);
+	/**
+	 * write_config() - Write a PCI configuration value
+	 *
+	 * @dev:	Emulated device to write to
+	 * @offset:	Byte offset within the device's configuration space
+	 * @value:	Value to write
+	 * @size:	Access size
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*write_config)(struct udevice *dev, uint offset, ulong value,
+			    enum pci_size_t size);
+	/**
+	 * read_io() - Read a PCI I/O value
+	 *
+	 * @dev:	Emulated device to read from
+	 * @addr:	I/O address to read
+	 * @valuep:	Place to put the returned value
+	 * @size:	Access size
+	 * @return 0 if OK, -ENOENT if @addr is not mapped by this device,
+	 *		other -ve value on error
+	 */
+	int (*read_io)(struct udevice *dev, unsigned int addr, ulong *valuep,
+		       enum pci_size_t size);
+	/**
+	 * write_io() - Write a PCI I/O value
+	 *
+	 * @dev:	Emulated device to write from
+	 * @addr:	I/O address to write
+	 * @value:	Value to write
+	 * @size:	Access size
+	 * @return 0 if OK, -ENOENT if @addr is not mapped by this device,
+	 *		other -ve value on error
+	 */
+	int (*write_io)(struct udevice *dev, unsigned int addr,
+			ulong value, enum pci_size_t size);
+	/**
+	 * map_physmem() - Map a device into sandbox memory
+	 *
+	 * @dev:	Emulated device to map
+	 * @addr:	Memory address, normally corresponding to a PCI BAR.
+	 *		The device should have been configured to have a BAR
+	 *		at this address.
+	 * @lenp:	On entry, the size of the area to map, On exit it is
+	 *		updated to the size actually mapped, which may be less
+	 *		if the device has less space
+	 * @ptrp:	Returns a pointer to the mapped address. The device's
+	 *		space can be accessed as @lenp bytes starting here
+	 * @return 0 if OK, -ENOENT if @addr is not mapped by this device,
+	 *		other -ve value on error
+	 */
+	int (*map_physmem)(struct udevice *dev, phys_addr_t addr,
+			   unsigned long *lenp, void **ptrp);
+	/**
+	 * unmap_physmem() - undo a memory mapping
+	 *
+	 * This must be called after map_physmem() to undo the mapping.
+	 * Some devices can use this to check what has been written into
+	 * their mapped memory and perform an operations they require on it.
+	 * In this way, map/unmap can be used as a sort of handshake between
+	 * the emulated device and its users.
+	 *
+	 * @dev:	Emuated device to unmap
+	 * @vaddr:	Mapped memory address, as passed to map_physmem()
+	 * @len:	Size of area mapped, as returned by map_physmem()
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*unmap_physmem)(struct udevice *dev, const void *vaddr,
+			     unsigned long len);
+};
+
+/* Get access to a PCI device emulator's operations */
+#define pci_get_emul_ops(dev)	((struct dm_pci_emul_ops *)(dev)->driver->ops)
+
+/**
+ * sandbox_pci_get_emul() - Get the emulation device for a PCI device
+ *
+ * Searches for a suitable emulator for the given PCI bus device
+ *
+ * @bus:	PCI bus to search
+ * @find_devfn:	PCI device and function address (PCI_DEVFN())
+ * @emulp:	Returns emulated device if found
+ * @return 0 if found, -ENODEV if not found
+ */
+int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
+			 struct udevice **emulp);
+
 #endif
 
 #endif /* __ASSEMBLY__ */
