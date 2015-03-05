@@ -8,6 +8,8 @@
 #ifndef _PCI_I386_H_
 #define _PCI_I386_H_
 
+#include <pci.h>
+
 /* bus mapping constants (used for PCI core initialization) */
 #define PCI_REG_ADDR	0xcf8
 #define PCI_REG_DATA	0xcfc
@@ -55,6 +57,12 @@ unsigned int x86_pci_read_config32(pci_dev_t dev, unsigned where);
 void x86_pci_write_config8(pci_dev_t dev, unsigned where, unsigned value);
 void x86_pci_write_config16(pci_dev_t dev, unsigned where, unsigned value);
 void x86_pci_write_config32(pci_dev_t dev, unsigned where, unsigned value);
+
+int pci_x86_read_config(struct udevice *bus, pci_dev_t bdf, uint offset,
+			ulong *valuep, enum pci_size_t size);
+
+int pci_x86_write_config(struct udevice *bus, pci_dev_t bdf, uint offset,
+			 ulong value, enum pci_size_t size);
 
 #endif /* __ASSEMBLY__ */
 

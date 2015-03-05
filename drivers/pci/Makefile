@@ -9,6 +9,7 @@ ifneq ($(CONFIG_DM_PCI),)
 obj-$(CONFIG_PCI) += pci-uclass.o pci_compat.o
 obj-$(CONFIG_PCI_SANDBOX) += pci_sandbox.o
 obj-$(CONFIG_SANDBOX) += pci-emul-uclass.o
+obj-$(CONFIG_X86) += pci_x86.o
 else
 obj-$(CONFIG_PCI) += pci.o
 endif

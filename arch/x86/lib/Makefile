@@ -17,7 +17,9 @@ obj-y	+= interrupts.o
 obj-y += cmd_mtrr.o
 obj-$(CONFIG_SYS_PCAT_INTERRUPTS) += pcat_interrupts.o
 obj-$(CONFIG_SYS_PCAT_TIMER) += pcat_timer.o
+ifndef CONFIG_DM_PCI
 obj-$(CONFIG_PCI) += pci_type1.o
+endif
 obj-y	+= relocate.o
 obj-y += physmem.o
 obj-$(CONFIG_X86_RAMTEST) += ramtest.o
