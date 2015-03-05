@@ -140,6 +140,9 @@ int board_late_init(void)
 	case SD_MODE:
 		setenv("modeboot", "sdboot");
 		break;
+	case NAND_MODE:
+		setenv("modeboot", "nandboot");
+		break;
 	default:
 		printf("Invalid Boot Mode:0x%x\n", bootmode);
 		break;

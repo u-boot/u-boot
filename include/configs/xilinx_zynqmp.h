@@ -144,6 +144,9 @@
 		  "sf read 80000 140000 1800000 && booti 80000 - $fdt_addr\0" \
 	"sdboot=mmcinfo && fatload mmc 0:0 $fdt_addr system.dtb && " \
 		"fatload mmc 0:0 f000000 Image && booti 80000 - $fdt_addr\0" \
+	"nandboot=nand info && nand read $fdt_addr 100000 40000 && " \
+		  "nand read $kernel_addr 140000 1800000 && " \
+		  "booti $kernel_addr - $fdt_addr\0" \
 	"xen=tftpb $fdt_addr system.dtb && fdt addr $fdt_addr && fdt resize && " \
 		"tftpb 0x80000 Image && " \
 		"fdt set /chosen/dom0 reg <0x80000 0x$filesize> && "\
