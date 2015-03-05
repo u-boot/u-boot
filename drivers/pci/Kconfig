@@ -9,4 +9,14 @@ config DM_PCI
 	  available PCI devices, allows scanning of PCI buses and provides
 	  device configuration support.
 
+config PCI_SANDBOX
+	bool "Sandbox PCI support"
+	depends on SANDBOX && DM_PCI
+	help
+	  Support PCI on sandbox, as an emulated bus. This permits testing of
+	  PCI feature such as bus scanning, device configuration and device
+	  access. The available (emulated) devices are defined statically in
+	  the device tree but the normal PCI scan technique is used to find
+	  then.
+
 endmenu
