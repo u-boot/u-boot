@@ -26,6 +26,11 @@
 #endif
 
 /*
+ * Generic board support
+ */
+#define CONFIG_SYS_GENERIC_BOARD
+
+/*
  * Version number information
  */
 #define CONFIG_IDENT_STRING	"\nMarvell-gplugD"
