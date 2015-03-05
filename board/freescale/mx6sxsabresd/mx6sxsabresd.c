@@ -199,11 +199,15 @@ static struct i2c_pads_info i2c_pad_info1 = {
 int power_init_board(void)
 {
 	struct pmic *p;
-	unsigned int reg;
+	unsigned int reg, ret;
 
 	p = pfuze_common_init(I2C_PMIC);
 	if (!p)
 		return -ENODEV;
+
+	ret = pfuze_mode_init(p, APS_PFM);
+	if (ret < 0)
+		return ret;
 
 	/* Enable power of VGEN5 3V3, needed for SD3 */
 	pmic_reg_read(p, PFUZE100_VGEN5VOL, &reg);

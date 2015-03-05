@@ -155,6 +155,8 @@
 #define ESDHC_HOSTCAPBLT_DMAS	0x00400000
 #define ESDHC_HOSTCAPBLT_HSS	0x00200000
 
+#define ESDHC_VENDORSPEC_VSELECT 0x00000002 /* Use 1.8V */
+
 struct fsl_esdhc_cfg {
 	u32	esdhc_base;
 	u32	sdhc_clk;

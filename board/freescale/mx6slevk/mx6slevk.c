@@ -13,13 +13,18 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/spi.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
 #include <common.h>
 #include <fsl_esdhc.h>
+#include <i2c.h>
 #include <mmc.h>
 #include <netdev.h>
+#include <power/pmic.h>
+#include <power/pfuze100_pmic.h>
+#include "../common/pfuze.h"
 #include <usb.h>
 #include <usb/ehci-fsl.h>
 
@@ -39,6 +44,16 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define SPI_PAD_CTRL (PAD_CTL_HYS | PAD_CTL_SPEED_MED | \
 		      PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
+
+#define I2C_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |		\
+		      PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |	\
+		      PAD_CTL_DSE_40ohm | PAD_CTL_HYS |		\
+		      PAD_CTL_ODE | PAD_CTL_SRE_FAST)
+
+#define OTGID_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |		\
+			PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_LOW |\
+			PAD_CTL_DSE_80ohm | PAD_CTL_HYS |	\
+			PAD_CTL_SRE_FAST)
 
 #define ETH_PHY_RESET	IMX_GPIO_NR(4, 21)
 
@@ -221,6 +236,34 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
+#ifdef CONFIG_SYS_I2C_MXC
+#define PC	MUX_PAD_CTRL(I2C_PAD_CTRL)
+/* I2C1 for PMIC */
+struct i2c_pads_info i2c_pad_info1 = {
+	.sda = {
+		.i2c_mode = MX6_PAD_I2C1_SDA__I2C1_SDA | PC,
+		.gpio_mode = MX6_PAD_I2C1_SDA__GPIO_3_13 | PC,
+		.gp = IMX_GPIO_NR(3, 13),
+	},
+	.scl = {
+		.i2c_mode = MX6_PAD_I2C1_SCL__I2C1_SCL | PC,
+		.gpio_mode = MX6_PAD_I2C1_SCL__GPIO_3_12 | PC,
+		.gp = IMX_GPIO_NR(3, 12),
+	},
+};
+
+int power_init_board(void)
+{
+	struct pmic *p;
+
+	p = pfuze_common_init(I2C_PMIC);
+	if (!p)
+		return -ENODEV;
+
+	return pfuze_mode_init(p, APS_PFM);
+}
+#endif
+
 #ifdef CONFIG_FEC_MXC
 int board_eth_init(bd_t *bis)
 {
@@ -247,7 +290,7 @@ static int setup_fec(void)
 static iomux_v3_cfg_t const usb_otg_pads[] = {
 	/* OTG1 */
 	MX6_PAD_KEY_COL4__USB_USBOTG1_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_EPDC_PWRCOM__ANATOP_USBOTG1_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_EPDC_PWRCOM__ANATOP_USBOTG1_ID | MUX_PAD_CTRL(OTGID_PAD_CTRL),
 	/* OTG2 */
 	MX6_PAD_KEY_COL5__USB_USBOTG2_PWR | MUX_PAD_CTRL(NO_PAD_CTRL)
 };
@@ -296,6 +339,10 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+
+#ifdef CONFIG_SYS_I2C_MXC
+	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+#endif
 
 #ifdef	CONFIG_FEC_MXC
 	setup_fec();
