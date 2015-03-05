@@ -72,4 +72,10 @@ obj-$(CONFIG_P5020DS)	+= p_corenet/
 obj-$(CONFIG_P5040DS)	+= p_corenet/
 
 obj-$(CONFIG_LS102XA_NS_ACCESS)	+= ns_access.o
+
+ifdef CONFIG_SECURE_BOOT
+obj-y += fsl_validate.o
+obj-$(CONFIG_CMD_ESBC_VALIDATE) += cmd_esbc_validate.o
+endif
+
 endif

@@ -73,6 +73,11 @@ int checkcpu (void)
 	unsigned int i, core, nr_cores = cpu_numcores();
 	u32 mask = cpu_mask();
 
+#ifdef CONFIG_HETROGENOUS_CLUSTERS
+	unsigned int j, dsp_core, dsp_numcores = cpu_num_dspcores();
+	u32 dsp_mask = cpu_dsp_mask();
+#endif
+
 	svr = get_svr();
 	major = SVR_MAJ(svr);
 	minor = SVR_MIN(svr);
@@ -166,6 +171,16 @@ int checkcpu (void)
 		printf("CPU%d:%-4s MHz, ", core,
 			strmhz(buf1, sysinfo.freq_processor[core]));
 	}
+
+#ifdef CONFIG_HETROGENOUS_CLUSTERS
+	for_each_cpu(j, dsp_core, dsp_numcores, dsp_mask) {
+		if (!(j & 3))
+			printf("\n       ");
+		printf("DSP CPU%d:%-4s MHz, ", j,
+		       strmhz(buf1, sysinfo.freq_processor_dsp[dsp_core]));
+	}
+#endif
+
 	printf("\n       CCB:%-4s MHz,", strmhz(buf1, sysinfo.freq_systembus));
 	printf("\n");
 
@@ -222,6 +237,19 @@ int checkcpu (void)
 
 #ifdef CONFIG_QE
 	printf("       QE:%-4s MHz\n", strmhz(buf1, sysinfo.freq_qe));
+#endif
+
+#if defined(CONFIG_SYS_CPRI)
+	printf("       ");
+	printf("CPRI:%-4s MHz", strmhz(buf1, sysinfo.freq_cpri));
+#endif
+
+#if defined(CONFIG_SYS_MAPLE)
+	printf("\n       ");
+	printf("MAPLE:%-4s MHz, ", strmhz(buf1, sysinfo.freq_maple));
+	printf("MAPLE-ULB:%-4s MHz, ", strmhz(buf1, sysinfo.freq_maple_ulb));
+	printf("MAPLE-eTVPE:%-4s MHz\n",
+	       strmhz(buf1, sysinfo.freq_maple_etvpe));
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN

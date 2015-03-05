@@ -553,7 +553,9 @@ static inline int cpumask_next(int cpu, unsigned int mask)
 		iter++, cpu = cpumask_next(cpu, mask)) \
 
 int	cpu_numcores  (void);
+int	cpu_num_dspcores(void);
 u32	cpu_mask      (void);
+u32	cpu_dsp_mask(void);
 int	is_core_valid (unsigned int);
 int	probecpu      (void);
 int	checkcpu      (void);
