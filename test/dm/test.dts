@@ -10,6 +10,7 @@
 		console = &uart0;
 		i2c0 = "/i2c@0";
 		spi0 = "/spi@0";
+		pci0 = &pci;
 		testfdt6 = "/e-test";
 		testbus3 = "/some-bus";
 		testfdt0 = "/some-bus/c-test@0";
@@ -131,6 +132,22 @@
 				compatible = "sandbox,i2c-eeprom";
 				sandbox,filename = "i2c.bin";
 				sandbox,size = <256>;
+			};
+		};
+	};
+
+	pci: pci-controller {
+		compatible = "sandbox,pci";
+		device_type = "pci";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		ranges = <0x02000000 0 0x10000000 0x10000000 0 0x2000
+				0x01000000 0 0x20000000 0x20000000 0 0x2000>;
+		pci@1f,0 {
+			compatible = "pci-generic";
+			reg = <0xf800 0 0 0 0>;
+			emul@1f,0 {
+				compatible = "sandbox,swap-case";
 			};
 		};
 	};
