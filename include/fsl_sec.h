@@ -180,7 +180,7 @@ struct jr_regs {
  * related information
  */
 struct sg_entry {
-#ifdef defined(CONFIG_SYS_FSL_SEC_LE) && !defined(CONFIG_MX6)
+#if defined(CONFIG_SYS_FSL_SEC_LE) && !defined(CONFIG_MX6)
 	uint32_t addr_lo;	/* Memory Address - lo */
 	uint16_t addr_hi;	/* Memory Address of start of buffer - hi */
 	uint16_t reserved_zero;
