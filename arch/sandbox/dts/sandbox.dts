@@ -2,7 +2,7 @@
 
 / {
 	#address-cells = <1>;
-	#size-cells = <0>;
+	#size-cells = <1>;
 
 	chosen {
 		stdout-path = "/serial";
@@ -144,7 +144,7 @@
 	i2c@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <0>;
+		reg = <0 0>;
 		compatible = "sandbox,i2c";
 		clock-frequency = <400000>;
 		eeprom@2c {
@@ -161,7 +161,7 @@
 	spi@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <0>;
+		reg = <0 0>;
 		compatible = "sandbox,spi";
 		cs-gpios = <0>, <&gpio_a 0>;
 		flash@0 {
