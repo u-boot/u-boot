@@ -34,6 +34,10 @@
 #define CONFIG_CMD_FDT
 #define CONFIG_ANDROID_BOOT_IMAGE
 
+#define CONFIG_CMD_PCI
+#define CONFIG_PCI_PNP
+#define CONFIG_CMD_IO
+
 #define CONFIG_FS_FAT
 #define CONFIG_FAT_WRITE
 #define CONFIG_FS_EXT4

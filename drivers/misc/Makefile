@@ -26,6 +26,7 @@ obj-$(CONFIG_SANDBOX) += i2c_eeprom_emul.o
 endif
 obj-$(CONFIG_SMSC_LPC47M) += smsc_lpc47m.o
 obj-$(CONFIG_STATUS_LED) += status_led.o
+obj-$(CONFIG_SANDBOX) += swap_case.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
 obj-$(CONFIG_FSL_IFC) += fsl_ifc.o
 obj-$(CONFIG_FSL_SEC_MON) += fsl_sec_mon.o
