@@ -179,7 +179,7 @@ static int dm_test_autoprobe(struct dm_test_state *dms)
 		ut_assertok(uclass_find_device(UCLASS_TEST, i, &dev));
 		ut_assert(dev);
 
-		priv = dev->uclass_priv;
+		priv = dev_get_uclass_priv(dev);
 		ut_assert(priv);
 		ut_asserteq(expected_base_add, priv->base_add);
 

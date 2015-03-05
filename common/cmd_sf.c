@@ -130,7 +130,7 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 		return 1;
 	}
 
-	flash = new->uclass_priv;
+	flash = dev_get_uclass_priv(new);
 #else
 	new = spi_flash_probe(bus, cs, speed, mode);
 	if (!new) {

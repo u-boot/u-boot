@@ -47,7 +47,7 @@ static int test_post_probe(struct udevice *dev)
 	struct udevice *prev = list_entry(dev->uclass_node.prev,
 					    struct udevice, uclass_node);
 
-	struct dm_test_uclass_perdev_priv *priv = dev->uclass_priv;
+	struct dm_test_uclass_perdev_priv *priv = dev_get_uclass_priv(dev);
 	struct uclass *uc = dev->uclass;
 
 	dm_testdrv_op_count[DM_TEST_OP_POST_PROBE]++;
@@ -58,7 +58,7 @@ static int test_post_probe(struct udevice *dev)
 		return 0;
 	if (&prev->uclass_node != &uc->dev_head) {
 		struct dm_test_uclass_perdev_priv *prev_uc_priv
-				= prev->uclass_priv;
+				= dev_get_uclass_priv(prev);
 		struct dm_test_pdata *pdata = prev->platdata;
 
 		ut_assert(pdata);

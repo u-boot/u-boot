@@ -238,6 +238,16 @@ void *dev_get_priv(struct udevice *dev);
 struct udevice *dev_get_parent(struct udevice *child);
 
 /**
+ * dev_get_uclass_priv() - Get the private uclass data for a device
+ *
+ * This checks that dev is not NULL, but no other checks for now
+ *
+ * @dev		Device to check
+ * @return private uclass data for this device, or NULL if none
+ */
+void *dev_get_uclass_priv(struct udevice *dev);
+
+/**
  * dev_get_of_data() - get the device tree data used to bind a device
  *
  * When a device is bound using a device tree node, it matches a

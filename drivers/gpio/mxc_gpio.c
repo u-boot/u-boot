@@ -266,7 +266,7 @@ static int mxc_gpio_probe(struct udevice *dev)
 {
 	struct mxc_bank_info *bank = dev_get_priv(dev);
 	struct mxc_gpio_plat *plat = dev_get_platdata(dev);
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	int banknum;
 	char name[18], *str;
 

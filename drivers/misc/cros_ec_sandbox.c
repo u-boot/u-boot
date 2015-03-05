@@ -470,7 +470,7 @@ static int process_cmd(struct ec_state *ec,
 #ifdef CONFIG_DM_CROS_EC
 int cros_ec_sandbox_packet(struct udevice *udev, int out_bytes, int in_bytes)
 {
-	struct cros_ec_dev *dev = udev->uclass_priv;
+	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
 	struct ec_state *ec = dev_get_priv(dev->dev);
 #else
 int cros_ec_sandbox_packet(struct cros_ec_dev *dev, int out_bytes,

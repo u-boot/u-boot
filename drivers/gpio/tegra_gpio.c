@@ -295,7 +295,7 @@ static const struct udevice_id tegra_gpio_ids[] = {
 
 static int gpio_tegra_probe(struct udevice *dev)
 {
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct tegra_port_info *priv = dev->priv;
 	struct tegra_gpio_platdata *plat = dev->platdata;
 

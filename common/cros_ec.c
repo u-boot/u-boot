@@ -35,7 +35,7 @@ struct cros_ec_dev *board_get_cros_ec_dev(void)
 		debug("%s: Error %d\n", __func__, ret);
 		return NULL;
 	}
-	return dev->uclass_priv;
+	return dev_get_uclass_priv(dev);
 #else
 	return local.cros_ec_dev;
 #endif

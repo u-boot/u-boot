@@ -24,7 +24,7 @@ struct gpio_state {
 /* Access routines for GPIO state */
 static u8 *get_gpio_flags(struct udevice *dev, unsigned offset)
 {
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct gpio_state *state = dev_get_priv(dev);
 
 	if (offset >= uc_priv->gpio_count) {
@@ -160,7 +160,7 @@ static const struct dm_gpio_ops gpio_sandbox_ops = {
 
 static int sandbox_gpio_ofdata_to_platdata(struct udevice *dev)
 {
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	uc_priv->gpio_count = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 					     "num-gpios", 0);
@@ -172,7 +172,7 @@ static int sandbox_gpio_ofdata_to_platdata(struct udevice *dev)
 
 static int gpio_sandbox_probe(struct udevice *dev)
 {
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	if (dev->of_offset == -1) {
 		/* Tell the uclass how many GPIOs we have */

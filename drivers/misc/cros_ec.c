@@ -1087,7 +1087,7 @@ static int cros_ec_decode_fdt(const void *blob, int node,
 #ifdef CONFIG_DM_CROS_EC
 int cros_ec_register(struct udevice *dev)
 {
-	struct cros_ec_dev *cdev = dev->uclass_priv;
+	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	const void *blob = gd->fdt_blob;
 	int node = dev->of_offset;
 	char id[MSG_BYTES];
@@ -1128,7 +1128,7 @@ int cros_ec_init(const void *blob, struct cros_ec_dev **cros_ecp)
 	ret = uclass_get_device(UCLASS_CROS_EC, 0, &udev);
 	if (ret)
 		return ret;
-	dev = udev->uclass_priv;
+	dev = dev_get_uclass_priv(udev);
 	return 0;
 #else
 	int node = 0;
@@ -1610,7 +1610,7 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("Cannot get cros-ec device (err=%d)\n", ret);
 		return 1;
 	}
-	dev = udev->uclass_priv;
+	dev = dev_get_uclass_priv(udev);
 #else
 	/* Just use the last allocated device; there should be only one */
 	if (!last_dev) {

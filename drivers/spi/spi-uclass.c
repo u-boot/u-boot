@@ -50,7 +50,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	struct udevice *dev = slave->dev;
 	struct udevice *bus = dev->parent;
 	struct dm_spi_ops *ops = spi_get_ops(bus);
-	struct dm_spi_bus *spi = bus->uclass_priv;
+	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 	int speed;
 	int ret;
 
@@ -110,7 +110,7 @@ int spi_child_post_bind(struct udevice *dev)
 
 int spi_post_probe(struct udevice *bus)
 {
-	struct dm_spi_bus *spi = bus->uclass_priv;
+	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 
 	spi->max_hz = fdtdec_get_int(gd->fdt_blob, bus->of_offset,
 				     "spi-max-frequency", 0);

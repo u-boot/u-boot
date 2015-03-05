@@ -261,7 +261,7 @@ static char *gpio_bank_name(int bank)
 static int gpio_sunxi_probe(struct udevice *dev)
 {
 	struct sunxi_gpio_platdata *plat = dev_get_platdata(dev);
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	/* Tell the uclass how many GPIOs we have */
 	if (plat) {

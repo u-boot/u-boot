@@ -305,6 +305,16 @@ void *dev_get_priv(struct udevice *dev)
 	return dev->priv;
 }
 
+void *dev_get_uclass_priv(struct udevice *dev)
+{
+	if (!dev) {
+		dm_warn("%s: null device\n", __func__);
+		return NULL;
+	}
+
+	return dev->uclass_priv;
+}
+
 void *dev_get_parentdata(struct udevice *dev)
 {
 	if (!dev) {
