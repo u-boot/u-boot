@@ -596,6 +596,10 @@ config ZYNQ
 	select CPU_V7
 	select SUPPORT_SPL
 
+config TARGET_XILINX_ZYNQMP
+	bool "Support Xilinx ZynqMP Platform"
+	select ARM64
+
 config TEGRA
 	bool "NVIDIA Tegra"
 	select SUPPORT_SPL
@@ -727,7 +731,7 @@ source "arch/arm/cpu/armv7/s5pc1xx/Kconfig"
 
 source "arch/arm/mach-tegra/Kconfig"
 
-source "arch/arm/cpu/armv7/uniphier/Kconfig"
+source "arch/arm/mach-uniphier/Kconfig"
 
 source "arch/arm/mach-versatile/Kconfig"
 
@@ -845,6 +849,7 @@ source "board/wandboard/Kconfig"
 source "board/warp/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/xaeniax/Kconfig"
+source "board/xilinx/zynqmp/Kconfig"
 source "board/zipitz2/Kconfig"
 
 source "arch/arm/Kconfig.debug"

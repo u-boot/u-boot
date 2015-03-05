@@ -221,7 +221,7 @@
 
 #else	/* No flash */
 #define	CONFIG_SYS_NO_FLASH
-#define	CONFIG_SYS_ENV_IS_NOWHERE
+#define	CONFIG_ENV_IS_NOWHERE
 #endif
 
 /*
@@ -297,7 +297,6 @@
 #define	CONFIG_SYS_MDMRS_VAL	0x00000000
 #define	CONFIG_SYS_FLYCNFG_VAL	0x00000000
 #define	CONFIG_SYS_SXCNFG_VAL	0x40044004
-#define	CONFIG_SYS_MEM_BUF_IMP	0x0f
 
 /*
  * PCMCIA and CF Interfaces

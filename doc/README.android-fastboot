@@ -6,9 +6,8 @@ Overview
 The protocol that is used over USB is described in
 README.android-fastboot-protocol in same directory.
 
-The current implementation does not yet support the erase command or the
-"oem format" command, and there is minimal support for the flash command;
-it only supports eMMC devices.
+The current implementation is a minimal support of the erase command,the
+"oem format" command and flash command;it only supports eMMC devices.
 
 Client installation
 ===================

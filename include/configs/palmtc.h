@@ -116,7 +116,6 @@
 /*
  * Clock Configuration
  */
-#undef	CONFIG_SYS_CLKS_IN_HZ
 #define	CONFIG_SYS_CPUSPEED		0x161		/* 400MHz;L=1 M=3 T=1 */
 
 /*

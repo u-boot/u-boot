@@ -227,7 +227,8 @@ struct uart_port {
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
 	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 # define SCIF_ORER	0x0001
-# define SCSCR_INIT(port)	0x32	/* TIE=0,RIE=0,TE=1,RE=1,REIE=0, */
+# define SCSCR_INIT(port)	(port->clk_mode == EXT_CLK ? 0x32 : 0x30)
+				/* TIE=0,RIE=0,TE=1,RE=1,REIE=0, */
 #else
 # error CPU subtype not defined
 #endif
@@ -742,7 +743,7 @@ static inline int scbrr_calc(struct uart_port *port, int bps, int clk)
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
 	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 #define DL_VALUE(bps, clk) (clk / bps / 16) /* External Clock */
-#define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1) /* Internal Clock */
+#define SCBRR_VALUE(bps, clk) (clk / bps / 32 - 1) /* Internal Clock */
 #else /* Generic SH */
 #define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
 #endif

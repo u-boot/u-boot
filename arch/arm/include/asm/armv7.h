@@ -58,6 +58,7 @@
 
 #ifndef __ASSEMBLY__
 #include <linux/types.h>
+#include <asm/io.h>
 
 /*
  * CP15 Barrier instructions
@@ -69,6 +70,50 @@
 #define CP15DSB	asm volatile ("mcr     p15, 0, %0, c7, c10, 4" : : "r" (0))
 #define CP15DMB	asm volatile ("mcr     p15, 0, %0, c7, c10, 5" : : "r" (0))
 
+/*
+ * Workaround for ARM errata # 798870
+ * Set L2ACTLR[7] to reissue any memory transaction in the L2 that has been
+ * stalled for 1024 cycles to verify that its hazard condition still exists.
+ */
+static inline void v7_enable_l2_hazard_detect(void)
+{
+	uint32_t val;
+
+	/* L2ACTLR[7]: Enable hazard detect timeout */
+	asm volatile ("mrc     p15, 1, %0, c15, c0, 0\n\t" : "=r"(val));
+	val |= (1 << 7);
+	asm volatile ("mcr     p15, 1, %0, c15, c0, 0\n\t" : : "r"(val));
+}
+
+/*
+ * Workaround for ARM errata # 799270
+ * Ensure that the L2 logic has been used within the previous 256 cycles
+ * before modifying the ACTLR.SMP bit. This is required during boot before
+ * MMU has been enabled, or during a specified reset or power down sequence.
+ */
+static inline void v7_enable_smp(uint32_t address)
+{
+	uint32_t temp, val;
+
+	/* Read auxiliary control register */
+	asm volatile ("mrc     p15, 0, %0, c1, c0, 1\n\t" : "=r"(val));
+
+	/* Enable SMP */
+	val |= (1 << 6);
+
+	/* Dummy read to assure L2 access */
+	temp = readl(address);
+	temp &= 0;
+	val |= temp;
+
+	/* Write auxiliary control register */
+	asm volatile ("mcr     p15, 0, %0, c1, c0, 1\n\t" : : "r"(val));
+
+	CP15DSB;
+	CP15ISB;
+}
+
+void v7_en_l2_hazard_detect(void);
 void v7_outer_cache_enable(void);
 void v7_outer_cache_disable(void);
 void v7_outer_cache_flush_all(void);

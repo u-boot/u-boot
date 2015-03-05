@@ -175,7 +175,6 @@
  *
  * ----------------------------------------------------------------------------
  */
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 #undef  CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		0x80800000
 #define CONFIG_SPL_BSS_START_ADDR	0x80A00000

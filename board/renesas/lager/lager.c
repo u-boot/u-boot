@@ -11,6 +11,8 @@
 #include <common.h>
 #include <malloc.h>
 #include <netdev.h>
+#include <dm.h>
+#include <dm/platform_data/serial_sh.h>
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>
@@ -20,6 +22,7 @@
 #include <asm/arch/rmobile.h>
 #include <asm/arch/rcar-mstp.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/sh_sdhi.h>
 #include <miiphy.h>
 #include <i2c.h>
 #include <mmc.h>
@@ -58,6 +61,15 @@ void s_init(void)
 #define ETHER_MSTP813	(1 << 13)
 #define MMC1_MSTP305    (1 << 5)
 
+#define MSTPSR3		0xE6150048
+#define SMSTPCR3	0xE615013C
+#define SDHI0_MSTP314	(1 << 14)
+#define SDHI1_MSTP313	(1 << 13)
+#define SDHI2_MSTP312	(1 << 12)
+
+#define SD2CKCR		0xE6150078
+#define SD2_97500KHZ	0x7
+
 int board_early_init_f(void)
 {
 	/* TMU0 */
@@ -68,6 +80,14 @@ int board_early_init_f(void)
 	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHER_MSTP813);
 	/* eMMC */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, MMC1_MSTP305);
+	/* SDHI0, 2 */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SDHI0_MSTP314 | SDHI2_MSTP312);
+
+	/*
+	 * SD0 clock is set to 97.5MHz by default.
+	 * Set SD2 to the 97.5MHz as well.
+	 */
+	writel(SD2_97500KHZ, SD2CKCR);
 
 	return 0;
 }
@@ -148,7 +168,7 @@ int board_phy_config(struct phy_device *phydev)
 
 int board_mmc_init(bd_t *bis)
 {
-	int ret = 0;
+	int ret = -ENODEV;
 
 #ifdef CONFIG_SH_MMCIF
 	gpio_request(GPIO_FN_MMC1_D0, NULL);
@@ -163,6 +183,45 @@ int board_mmc_init(bd_t *bis)
 	gpio_request(GPIO_FN_MMC1_CMD, NULL);
 
 	ret = mmcif_mmc_init();
+#endif
+
+#ifdef CONFIG_SH_SDHI
+	gpio_request(GPIO_FN_SD0_DAT0, NULL);
+	gpio_request(GPIO_FN_SD0_DAT1, NULL);
+	gpio_request(GPIO_FN_SD0_DAT2, NULL);
+	gpio_request(GPIO_FN_SD0_DAT3, NULL);
+	gpio_request(GPIO_FN_SD0_CLK, NULL);
+	gpio_request(GPIO_FN_SD0_CMD, NULL);
+	gpio_request(GPIO_FN_SD0_CD, NULL);
+	gpio_request(GPIO_FN_SD2_DAT0, NULL);
+	gpio_request(GPIO_FN_SD2_DAT1, NULL);
+	gpio_request(GPIO_FN_SD2_DAT2, NULL);
+	gpio_request(GPIO_FN_SD2_DAT3, NULL);
+	gpio_request(GPIO_FN_SD2_CLK, NULL);
+	gpio_request(GPIO_FN_SD2_CMD, NULL);
+	gpio_request(GPIO_FN_SD2_CD, NULL);
+
+	/*
+	 * SDHI 0
+	 * need JP3 set to pin-1 side on board.
+	 */
+	gpio_request(GPIO_GP_5_24, NULL);
+	gpio_request(GPIO_GP_5_29, NULL);
+	gpio_direction_output(GPIO_GP_5_24, 1);	/* power on */
+	gpio_direction_output(GPIO_GP_5_29, 1);	/* 1: 3.3V, 0: 1.8V */
+
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI0_BASE, 0,
+			   SH_SDHI_QUIRK_16BIT_BUF);
+	if (ret)
+		return ret;
+
+	/* SDHI 2 */
+	gpio_request(GPIO_GP_5_25, NULL);
+	gpio_request(GPIO_GP_5_30, NULL);
+	gpio_direction_output(GPIO_GP_5_25, 1);	/* power on */
+	gpio_direction_output(GPIO_GP_5_30, 1);	/* 1: 3.3V, 0: 1.8V */
+
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 2, 0);
 #endif
 	return ret;
 }
@@ -189,3 +248,15 @@ void reset_cpu(ulong addr)
 	val |= 0x02;
 	i2c_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
 }
+
+static const struct sh_serial_platdata serial_platdata = {
+	.base = SCIF0_BASE,
+	.type = PORT_SCIF,
+	.clk = 14745600,
+	.clk_mode = EXT_CLK,
+};
+
+U_BOOT_DEVICE(lager_serials) = {
+	.name = "serial_sh",
+	.platdata = &serial_platdata,
+};

@@ -131,7 +131,6 @@
 #define CONFIG_SYS_MAXARGS	32	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Arg Buffer Size */
 
-#undef	CONFIG_SYS_CLKS_IN_HZ		/* everything, incl board info, in Hz */
 #define CONFIG_SYS_LOAD_ADDR		0x00100000 /* default load address */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
 

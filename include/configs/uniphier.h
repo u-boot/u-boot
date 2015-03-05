@@ -88,6 +88,8 @@
 /* #define CONFIG_SYS_ICACHE_OFF */
 /* #define CONFIG_SYS_DCACHE_OFF */
 
+#define CONFIG_SYS_CACHELINE_SIZE	32
+
 /* Comment out the following to enable L2 cache */
 #define CONFIG_UNIPHIER_L2CACHE_ON
 
@@ -186,6 +188,7 @@
 
 /* USB */
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	4
 #define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
 #define CONFIG_DOS_PARTITION

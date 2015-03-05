@@ -23,7 +23,9 @@
 	EXPORT_FUNC(dummy, void, free_hdlr, void)
 #endif
 	EXPORT_FUNC(malloc, void *, malloc, size_t)
+#ifndef CONFIG_SYS_MALLOC_SIMPLE
 	EXPORT_FUNC(free, void, free, void *)
+#endif
 	EXPORT_FUNC(udelay, void, udelay, unsigned long)
 	EXPORT_FUNC(get_timer, unsigned long, get_timer, unsigned long)
 	EXPORT_FUNC(vprintf, int, vprintf, const char *, va_list)

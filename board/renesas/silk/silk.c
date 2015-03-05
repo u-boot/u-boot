@@ -9,6 +9,8 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <dm.h>
+#include <dm/platform_data/serial_sh.h>
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>
@@ -18,6 +20,7 @@
 #include <asm/arch/rmobile.h>
 #include <asm/arch/rcar-mstp.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/sh_sdhi.h>
 #include <netdev.h>
 #include <miiphy.h>
 #include <i2c.h>
@@ -45,6 +48,10 @@ void s_init(void)
 #define ETHER_MSTP813	(1 << 13)
 #define IIC1_MSTP323	(1 << 23)
 #define MMC0_MSTP315	(1 << 15)
+#define SDHI1_MSTP312	(1 << 12)
+
+#define SD1CKCR		0xE6150078
+#define SD1_97500KHZ	0x7
 
 int board_early_init_f(void)
 {
@@ -64,9 +71,24 @@ int board_early_init_f(void)
 	/* MMC */
 	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, MMC0_MSTP315);
 #endif
+
+#ifdef CONFIG_SH_SDHI
+	/* SDHI1 */
+	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SDHI1_MSTP312);
+
+	/*
+	 * Set SD1 to the 97.5MHz
+	 */
+	writel(SD1_97500KHZ, SD1CKCR);
+#endif
 	return 0;
 }
 
+/* LSI pin pull-up control */
+#define PUPR3		0xe606010C
+#define PUPR3_ETH	0x006FF800
+#define PUPR1		0xe6060104
+#define PUPR1_DREQ0_N	(1 << 20)
 int board_init(void)
 {
 	/* adress of boot parameters */
@@ -91,7 +113,10 @@ int board_init(void)
 	gpio_request(GPIO_FN_IRQ8, NULL);
 
 	/* PHY reset */
+	mstp_clrbits_le32(PUPR3, PUPR3, PUPR3_ETH);
 	gpio_request(GPIO_GP_1_24, NULL);
+	mstp_clrbits_le32(PUPR1, PUPR1, PUPR1_DREQ0_N);
+
 	gpio_direction_output(GPIO_GP_1_24, 0);
 	mdelay(20);
 	gpio_set_value(GPIO_GP_1_24, 1);
@@ -129,14 +154,32 @@ int board_eth_init(bd_t *bis)
 
 int board_mmc_init(bd_t *bis)
 {
-	int ret = 0;
+	int ret = -ENODEV;
 
 #ifdef CONFIG_SH_MMCIF
 	/* MMC0 */
 	gpio_request(GPIO_GP_4_31, NULL);
-	gpio_set_value(GPIO_GP_4_31, 1);
+	gpio_direction_output(GPIO_GP_4_31, 1);
 
 	ret = mmcif_mmc_init();
+#endif
+
+#ifdef CONFIG_SH_SDHI
+	gpio_request(GPIO_FN_SD1_DATA0, NULL);
+	gpio_request(GPIO_FN_SD1_DATA1, NULL);
+	gpio_request(GPIO_FN_SD1_DATA2, NULL);
+	gpio_request(GPIO_FN_SD1_DATA3, NULL);
+	gpio_request(GPIO_FN_SD1_CLK, NULL);
+	gpio_request(GPIO_FN_SD1_CMD, NULL);
+	gpio_request(GPIO_FN_SD1_CD, NULL);
+
+	/* SDHI 1 */
+	gpio_request(GPIO_GP_4_26, NULL);
+	gpio_request(GPIO_GP_4_29, NULL);
+	gpio_direction_output(GPIO_GP_4_26, 1);
+	gpio_direction_output(GPIO_GP_4_29, 1);
+
+	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI1_BASE, 1, 0);
 #endif
 	return ret;
 }
@@ -161,3 +204,15 @@ void reset_cpu(ulong addr)
 	val |= 0x02;
 	i2c_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
 }
+
+static const struct sh_serial_platdata serial_platdata = {
+	.base = SCIF2_BASE,
+	.type = PORT_SCIF,
+	.clk = 14745600,
+	.clk_mode = EXT_CLK,
+};
+
+U_BOOT_DEVICE(silk_serials) = {
+	.name = "serial_sh",
+	.platdata = &serial_platdata,
+};

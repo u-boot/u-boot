@@ -55,6 +55,9 @@ int dfu_init_env_entities(char *interface, char *devstr)
 	char *env_bkp;
 	int ret;
 
+#ifdef CONFIG_SET_DFU_ALT_INFO
+	set_dfu_alt_info(interface, devstr);
+#endif
 	str_env = getenv("dfu_alt_info");
 	if (!str_env) {
 		error("\"dfu_alt_info\" env variable not defined!\n");

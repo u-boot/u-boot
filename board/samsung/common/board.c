@@ -82,13 +82,19 @@ int board_init(void)
 	}
 	boot_temp_check();
 #endif
+#ifdef CONFIG_TZSW_RESERVED_DRAM_SIZE
+	/* The last few MB of memory can be reserved for secure firmware */
+	ulong size = CONFIG_TZSW_RESERVED_DRAM_SIZE;
 
+	gd->ram_size -= size;
+	gd->bd->bi_dram[CONFIG_NR_DRAM_BANKS - 1].size -= size;
+#endif
 	return exynos_init();
 }
 
 int dram_init(void)
 {
-	int i;
+	unsigned int i;
 	u32 addr;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -100,7 +106,7 @@ int dram_init(void)
 
 void dram_init_banksize(void)
 {
-	int i;
+	unsigned int i;
 	u32 addr, size;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -338,9 +344,6 @@ int arch_early_init_r(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-#ifdef CONFIG_SET_DFU_ALT_INFO
-	set_dfu_alt_info();
-#endif
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info();
 #endif

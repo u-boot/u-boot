@@ -80,7 +80,7 @@ static inline int serial_in_shift(unsigned char *addr, int shift)
 #elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
 	return in_be32(addr);
 #elif defined(CONFIG_SYS_BIG_ENDIAN)
-	return readb(addr + (1 << reg_shift) - 1);
+	return readb(addr + (1 << shift) - 1);
 #else
 	return readb(addr);
 #endif

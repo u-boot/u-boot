@@ -166,8 +166,13 @@ int board_early_init_f(void)
 int board_mmc_init(bd_t *bd)
 {
 	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
+	char buffer[HWCONFIG_BUFFER_SIZE] = {0};
+	int esdhc_hwconfig_enabled = 0;
 
-	if (!hwconfig("esdhc"))
+	if (getenv_f("hwconfig", buffer, sizeof(buffer)) > 0)
+		esdhc_hwconfig_enabled = hwconfig_f("esdhc", buffer);
+
+	if (esdhc_hwconfig_enabled == 0)
 		return 0;
 
 	clrsetbits_be32(&im->sysconf.sicrl, SICRL_USB_B, SICRL_USB_B_SD);

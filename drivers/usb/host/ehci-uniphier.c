@@ -7,12 +7,12 @@
 
 #include <common.h>
 #include <linux/err.h>
+#include <asm/io.h>
 #include <usb.h>
-#include <asm/arch/ehci-uniphier.h>
+#include <mach/mio-regs.h>
+#include <fdtdec.h>
 #include "ehci.h"
 
-#ifdef CONFIG_OF_CONTROL
-#include <fdtdec.h>
 DECLARE_GLOBAL_DATA_PTR;
 
 #define FDT		gd->fdt_blob
@@ -35,18 +35,19 @@ static int get_uniphier_ehci_base(int index, struct ehci_hccr **base)
 
 	return -ENODEV; /* not found */
 }
-#else
-static int get_uniphier_ehci_base(int index, struct ehci_hccr **base)
-{
-	*base = (struct ehci_hccr *)uniphier_ehci_platdata[index].base;
-	return 0;
-}
-#endif
 
-/*
- * Create the appropriate control structures to manage
- * a new EHCI host controller.
- */
+static void uniphier_ehci_reset(int index, int on)
+{
+	u32 tmp;
+
+	tmp = readl(MIO_USB_RSTCTRL(index));
+	if (on)
+		tmp &= ~MIO_USB_RSTCTRL_XRST;
+	else
+		tmp |= MIO_USB_RSTCTRL_XRST;
+	writel(tmp, MIO_USB_RSTCTRL(index));
+}
+
 int ehci_hcd_init(int index, enum usb_init_type init, struct ehci_hccr **hccr,
 		  struct ehci_hcor **hcor)
 {

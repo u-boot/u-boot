@@ -132,21 +132,6 @@ static void set_level(unsigned gpio, int high)
 	writel(u, &bank->gpio_out[GPIO_PORT(gpio)]);
 }
 
-/* set GPIO pin 'gpio' as an output, with polarity 'value' */
-int tegra_spl_gpio_direction_output(int gpio, int value)
-{
-	/* Configure as a GPIO */
-	set_config(gpio, 1);
-
-	/* Configure GPIO output value. */
-	set_level(gpio, value);
-
-	/* Configure GPIO direction as output. */
-	set_direction(gpio, 1);
-
-	return 0;
-}
-
 /*
  * Generic_GPIO primitives.
  */
@@ -338,11 +323,18 @@ static int gpio_tegra_bind(struct udevice *parent)
 	int bank_count;
 	int bank;
 	int ret;
-	int len;
 
 	/* If this is a child device, there is nothing to do here */
 	if (plat)
 		return 0;
+
+	/* TODO(sjg@chromium.org): Remove once SPL supports device tree */
+#ifdef CONFIG_SPL_BUILD
+	ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
+	bank_count = TEGRA_GPIO_BANKS;
+#else
+	{
+	int len;
 
 	/*
 	 * This driver does not make use of interrupts, other than to figure
@@ -353,6 +345,8 @@ static int gpio_tegra_bind(struct udevice *parent)
 	bank_count = len / 3 / sizeof(u32);
 	ctlr = (struct gpio_ctlr *)fdtdec_get_addr(gd->fdt_blob,
 						   parent->of_offset, "reg");
+	}
+#endif
 	for (bank = 0; bank < bank_count; bank++) {
 		int port;
 
@@ -388,4 +382,5 @@ U_BOOT_DRIVER(gpio_tegra) = {
 	.probe = gpio_tegra_probe,
 	.priv_auto_alloc_size = sizeof(struct tegra_port_info),
 	.ops	= &gpio_tegra_ops,
+	.flags	= DM_FLAG_PRE_RELOC,
 };

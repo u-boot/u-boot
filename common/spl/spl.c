@@ -281,3 +281,38 @@ void preloader_console_init(void)
 	spl_display_print();
 #endif
 }
+
+/**
+ * spl_relocate_stack_gd() - Relocate stack ready for board_init_r() execution
+ *
+ * Sometimes board_init_f() runs with a stack in SRAM but we want to use SDRAM
+ * for the main board_init_r() execution. This is typically because we need
+ * more stack space for things like the MMC sub-system.
+ *
+ * This function calculates the stack position, copies the global_data into
+ * place and returns the new stack position. The caller is responsible for
+ * setting up the sp register.
+ *
+ * @return new stack location, or 0 to use the same stack
+ */
+ulong spl_relocate_stack_gd(void)
+{
+#ifdef CONFIG_SPL_STACK_R
+	gd_t *new_gd;
+	ulong ptr;
+
+	/* Get stack position: use 8-byte alignment for ABI compliance */
+	ptr = CONFIG_SPL_STACK_R - sizeof(gd_t);
+	ptr &= ~7;
+	new_gd = (gd_t *)ptr;
+	memcpy(new_gd, (void *)gd, sizeof(gd_t));
+	gd = new_gd;
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	return ptr;
+#else
+	return 0;
+#endif
+}

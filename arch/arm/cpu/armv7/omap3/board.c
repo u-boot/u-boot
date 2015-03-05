@@ -240,8 +240,6 @@ void try_unlock_memory(void)
  *****************************************************************************/
 void s_init(void)
 {
-	int in_sdram = is_running_in_sdram();
-
 	watchdog_init();
 
 	try_unlock_memory();
@@ -264,10 +262,14 @@ void s_init(void)
 #ifdef CONFIG_USB_EHCI_OMAP
 	ehci_clocks_enable();
 #endif
-
-	if (!in_sdram)
-		mem_init();
 }
+
+#ifdef CONFIG_SPL_BUILD
+void board_init_f(ulong dummy)
+{
+	mem_init();
+}
+#endif
 
 /*
  * Routine: misc_init_r
