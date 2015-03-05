@@ -172,6 +172,13 @@
 	};
 
 	pci {
+		compatible = "intel,pci-ivybridge", "pci-x86";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		u-boot,dm-pre-reloc;
+		ranges = <0x02000000 0x0 0xe0000000 0xe0000000 0 0x10000000
+			0x42000000 0x0 0xd0000000 0xd0000000 0 0x10000000
+			0x01000000 0x0 0x1000 0x1000 0 0xefff>;
 		sata {
 			compatible = "intel,pantherpoint-ahci";
 			intel,sata-mode = "ahci";

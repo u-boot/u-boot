@@ -37,6 +37,7 @@ enum uclass_id {
 	UCLASS_MOD_EXP,		/* RSA Mod Exp device */
 	UCLASS_PCI,		/* PCI bus */
 	UCLASS_PCI_GENERIC,	/* Generic PCI bus device */
+	UCLASS_PCH,		/* x86 platform controller hub */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
