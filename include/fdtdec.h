@@ -327,7 +327,9 @@ fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
  * @param type		pci address type (FDT_PCI_SPACE_xxx)
  * @param prop_name	name of property to find
  * @param addr		returns pci address in the form of fdt_pci_addr
- * @return 0 if ok, negative on error
+ * @return 0 if ok, -ENOENT if the property did not exist, -EINVAL if the
+ *		format of the property was invalid, -ENXIO if the requested
+ *		address type was not found
  */
 int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
 		const char *prop_name, struct fdt_pci_addr *addr);

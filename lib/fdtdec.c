@@ -160,8 +160,10 @@ int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
 			}
 		}
 
-		if (i == num)
+		if (i == num) {
+			ret = -ENXIO;
 			goto fail;
+		}
 
 		return 0;
 	} else {
