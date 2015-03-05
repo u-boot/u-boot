@@ -253,6 +253,17 @@ int update_flash_size(int flash_size);
 int arch_early_init_r(void);
 
 /**
+ * arch_cpu_init_dm() - init CPU after driver model is available
+ *
+ * This is called immediately after driver model is available before
+ * relocation. This is similar to arch_cpu_init() but is able to reference
+ * devices
+ *
+ * @return 0 if OK, -ve on error
+ */
+int arch_cpu_init_dm(void);
+
+/**
  * Reserve all necessary stacks
  *
  * This is used in generic board init sequence in common/board_f.c. Each

@@ -815,6 +815,11 @@ __weak int reserve_arch(void)
 	return 0;
 }
 
+__weak int arch_cpu_init_dm(void)
+{
+	return 0;
+}
+
 static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_SANDBOX
 	setup_ram_buf,
@@ -835,6 +840,7 @@ static init_fnc_t init_sequence_f[] = {
 	fdtdec_check_fdt,
 #endif
 	initf_dm,
+	arch_cpu_init_dm,
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,
 #endif
