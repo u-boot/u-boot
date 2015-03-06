@@ -27,6 +27,15 @@ config SYS_HZ
 	  get_timer() must operate in milliseconds and this option must be
 	  set to 1000.
 
+config SYS_VSNPRINTF
+	bool "Enable safe version of sprintf()"
+	help
+	  Since sprintf() can overflow its buffer, it is common to use
+	  snprintf() instead, which knows the buffer size and can avoid
+	  overflow. However, this does increase code size slightly (for
+	  Thumb-2, about 420 bytes). Enable this option for safety when
+	  using sprintf() with data you do not control.
+
 source lib/rsa/Kconfig
 
 menu "Hashing Support"

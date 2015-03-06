@@ -7,6 +7,9 @@ config SYS_ARCH
 config USE_PRIVATE_LIBGCC
 	default y
 
+config SYS_VSNPRINTF
+	default y
+
 choice
 	prompt "Target select"
 
