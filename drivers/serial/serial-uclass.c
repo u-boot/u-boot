@@ -32,7 +32,7 @@ static void serial_find_console_or_panic(void)
 	struct udevice *dev;
 	int node;
 
-	if (OF_CONTROL) {
+	if (OF_CONTROL && gd->fdt_blob) {
 		/* Check for a chosen console */
 		node = fdtdec_get_chosen_node(gd->fdt_blob, "stdout-path");
 		if (node < 0)
@@ -54,7 +54,8 @@ static void serial_find_console_or_panic(void)
 				return;
 			}
 		}
-	} else {
+	}
+	if (!SPL_BUILD || !OF_CONTROL || !gd->fdt_blob) {
 		/*
 		* Try to use CONFIG_CONS_INDEX if available (it is numbered
 		* from 1!).

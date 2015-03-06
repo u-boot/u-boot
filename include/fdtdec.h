@@ -41,6 +41,12 @@ struct fdt_memory {
 	fdt_addr_t end;
 };
 
+#ifdef CONFIG_SPL_BUILD
+#define SPL_BUILD	1
+#else
+#define SPL_BUILD	0
+#endif
+
 #ifdef CONFIG_OF_CONTROL
 # if defined(CONFIG_SPL_BUILD) && defined(SPL_DISABLE_OF_CONTROL)
 #  define OF_CONTROL 0
