@@ -145,8 +145,6 @@
 #define CONFIG_SHA1
 #define CONFIG_SHA256
 
-#define CONFIG_TPM_TIS_SANDBOX
-
 #define CONFIG_CMD_SANDBOX
 
 #define CONFIG_BOOTARGS ""
@@ -195,8 +193,6 @@
 #define CONFIG_BZIP2
 #define CONFIG_LZO
 #define CONFIG_LZMA
-
-#define CONFIG_TPM_TIS_SANDBOX
 
 #define CONFIG_CMD_LZMADEC
 #define CONFIG_CMD_USB
