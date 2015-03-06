@@ -37,6 +37,15 @@ config SOUND_MAX98095
 	  audio data and I2C for codec control. At present it only works
 	  with the Samsung I2S driver.
 
+config SOUND_SANDBOX
+	bool "Support sandbox emulated audio codec"
+	depends on SANDBOX && SOUND
+	help
+	  U-Boot sandbox can emulate a sound device using SDL, playing the
+	  sound on the host machine. This option implements the sound_init()
+	  and sound_play() functions for sandbox. Note that you must install
+	  the SDL libraries for this to work.
+
 config SOUND_WM8994
 	bool "Support Wolfson Micro wm8994 audio codec"
 	depends on I2S_SAMSUNG

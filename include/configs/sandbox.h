@@ -151,8 +151,6 @@
 
 #define CONFIG_BOARD_LATE_INIT
 
-#define CONFIG_SOUND_SANDBOX
-
 #ifndef SANDBOX_NO_SDL
 #define CONFIG_SANDBOX_SDL
 #endif
