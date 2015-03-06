@@ -9,3 +9,12 @@ config SOUND
 	  Note: At present the sound setup is somewhat tangled up in that the
 	  audio codecs are called from the sound-i2s code. This could be
 	  converted to driver model.
+
+config I2S
+	bool "Enable I2S support"
+	depends on SOUND
+	help
+	  I2S is a serial bus often used to transmit audio data from the
+	  SoC to the audio codec. This option enables sound support using
+	  I2S. It calls either of the two supported codecs (no use is made
+	  of driver model at present).
