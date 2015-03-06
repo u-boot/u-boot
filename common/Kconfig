@@ -339,6 +339,16 @@ config CMD_SETGETDCR
 	  getidcr - Get a register value via indirect DCR addressing
 	  setidcr - Set a register value via indirect DCR addressing
 
+config CMD_SOUND
+	bool "sound"
+	depends on SOUND
+	help
+	  This provides basic access to the U-Boot's sound support. The main
+	  feature is to play a beep.
+
+	     sound init   - set up sound system
+	     sound play   - play a sound
+
 endmenu
 
 menu "Boot timing"
