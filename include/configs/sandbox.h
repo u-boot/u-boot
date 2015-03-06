@@ -79,7 +79,6 @@
 #define CONFIG_ENV_IS_NOWHERE
 
 /* SPI - enable all SPI flash types for testing purposes */
-#define CONFIG_SANDBOX_SPI
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SF_TEST
 #define CONFIG_CMD_SPI

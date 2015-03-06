@@ -10,3 +10,28 @@ config DM_SPI
 	  as 'parent data' to every slave on each bus. Slaves
 	  typically use driver-private data instead of extending the
 	  spi_slave structure.
+
+config SANDBOX_SPI
+	bool "Sandbox SPI driver"
+	depends on SANDBOX && DM
+	help
+	  Enable SPI support for sandbox. This is an emulation of a real SPI
+	  bus. Devices can be attached to the bus using the device tree
+	  which specifies the driver to use. As an example, see this device
+	  tree fragment from sandbox.dts. It shows that the SPI bus has a
+	  single flash device on chip select 0 which is emulated by the driver
+	  for "sandbox,spi-flash", which is in drivers/mtd/spi/sandbox.c.
+
+	  spi@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+		compatible = "sandbox,spi";
+		cs-gpios = <0>, <&gpio_a 0>;
+		flash@0 {
+			reg = <0>;
+			compatible = "spansion,m25p16", "sandbox,spi-flash";
+			spi-max-frequency = <40000000>;
+			sandbox,filename = "spi.bin";
+		};
+	};
