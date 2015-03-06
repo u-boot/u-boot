@@ -31,7 +31,6 @@
 /* Sound */
 #define CONFIG_CMD_SOUND
 #ifdef CONFIG_CMD_SOUND
-#define CONFIG_SOUND
 #define CONFIG_I2S_SAMSUNG
 #define CONFIG_I2S
 #define CONFIG_SOUND_MAX98095
