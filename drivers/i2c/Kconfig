@@ -28,6 +28,36 @@ config DM_I2C_GPIO
 	  bindings are supported.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
 
+config SYS_I2C_SANDBOX
+	bool "Sandbox I2C driver"
+	depends on SANDBOX && DM_I2C
+	help
+	  Enable I2C support for sandbox. This is an emulation of a real I2C
+	  bus. Devices can be attached to the bus using the device tree
+	  which specifies the driver to use. As an example, see this device
+	  tree fragment from sandbox.dts. It shows that the I2C bus has a
+	  single EEPROM at address 0x2c (7-bit address) which is emulated by
+	  the driver for "sandbox,i2c-eeprom", which is in
+	  drivers/misc/i2c_eeprom_emul.c.
+
+	  i2c@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0>;
+		compatible = "sandbox,i2c";
+		clock-frequency = <400000>;
+		eeprom@2c {
+			reg = <0x2c>;
+			compatible = "i2c-eeprom";
+			emul {
+				compatible = "sandbox,i2c-eeprom";
+				sandbox,filename = "i2c.bin";
+				sandbox,size = <128>;
+			};
+		};
+	};
+
+
 config SYS_I2C_UNIPHIER
 	bool "UniPhier I2C driver"
 	depends on ARCH_UNIPHIER && DM_I2C
