@@ -36,3 +36,11 @@ config SOUND_MAX98095
 	  Enable the max98095 audio codec. This is connected via I2S for
 	  audio data and I2C for codec control. At present it only works
 	  with the Samsung I2S driver.
+
+config SOUND_WM8994
+	bool "Support Wolfson Micro wm8994 audio codec"
+	depends on I2S_SAMSUNG
+	help
+	  Enable the wm8994 audio codec. This is connected via I2S for
+	  audio data and I2C for codec control. At present it only works
+	  with the Samsung I2S driver.
