@@ -17,7 +17,7 @@
 
 #include <common.h>
 #include <fdt_support.h>
-#include <asm/armv7.h>
+#include <asm/psci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,7 +38,7 @@ int arch_fixup_fdt(void *blob)
 	if (ret)
 		return ret;
 
-	ret = armv7_update_dt(blob);
+	ret = psci_update_dt(blob);
 #endif
 	return ret;
 }
