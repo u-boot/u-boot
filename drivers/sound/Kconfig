@@ -18,3 +18,13 @@ config I2S
 	  SoC to the audio codec. This option enables sound support using
 	  I2S. It calls either of the two supported codecs (no use is made
 	  of driver model at present).
+
+config I2S_SAMSUNG
+	bool "Enable I2C support for Samsung SoCs"
+	depends on SOUND
+	help
+	  Samsung Exynos SoCs support an I2S interface for sending audio
+	  data to an audio codec. This option enables support for this,
+	  using one of the available audio codec drivers. Enabling this
+	  option provides an implementation for sound_init() and
+	  sound_play().
