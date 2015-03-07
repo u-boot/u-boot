@@ -32,6 +32,7 @@ F:	configs/i12-tvbox_defconfig
 F:	configs/Linksprite_pcDuino3_defconfig
 F:	configs/Linksprite_pcDuino3_fdt_defconfig
 F:	configs/Orangepi_defconfig
+F:	configs/Orangepi_mini_defconfig
 F:	configs/qt840a_defconfig
 F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
