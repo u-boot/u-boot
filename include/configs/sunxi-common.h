@@ -204,8 +204,6 @@
 #define CONFIG_SYS_I2C_SOFT
 #define CONFIG_SYS_I2C_SOFT_SPEED	50000
 #define CONFIG_SYS_I2C_SOFT_SLAVE	0x00
-#define CONFIG_VIDEO_LCD_I2C_BUS	0 /* The lcd panel soft i2c is bus 0 */
-#define CONFIG_SYS_SPD_BUS_NUM		1 /* And the axp209 i2c bus is bus 1 */
 /* We use pin names in Kconfig and sunxi_name_to_gpio() */
 #define CONFIG_SOFT_I2C_GPIO_SDA	soft_i2c_gpio_sda
 #define CONFIG_SOFT_I2C_GPIO_SCL	soft_i2c_gpio_scl
@@ -213,6 +211,11 @@
 extern int soft_i2c_gpio_sda;
 extern int soft_i2c_gpio_scl;
 #endif
+#define CONFIG_VIDEO_LCD_I2C_BUS	0 /* The lcd panel soft i2c is bus 0 */
+#define CONFIG_SYS_SPD_BUS_NUM		1 /* And the axp209 i2c bus is bus 1 */
+#else
+#define CONFIG_SYS_SPD_BUS_NUM		0 /* The axp209 i2c bus is bus 0 */
+#define CONFIG_VIDEO_LCD_I2C_BUS	-1 /* NA, but necessary to compile */
 #endif
 
 #define CONFIG_CMD_I2C
