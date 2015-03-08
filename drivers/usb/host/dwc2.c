@@ -767,7 +767,7 @@ int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
 		return -EINVAL;
 	}
 
-	while ((done < len) && !stop_transfer) {
+	do {
 		/* Initialize channel */
 		dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, devnum, ep, in, eptype,
 				max);
@@ -819,7 +819,7 @@ int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
 			if (sub)
 				stop_transfer = 1;
 		}
-	}
+	} while ((done < len) && !stop_transfer);
 
 	if (done && in)
 		memcpy(buffer, aligned_buffer, done);
@@ -852,14 +852,9 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		       int len, struct devrequest *setup)
 {
-	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
-	int done = 0;
 	int devnum = usb_pipedevice(pipe);
 	int ep = usb_pipeendpoint(pipe);
-	int max = usb_maxpacket(dev, pipe);
-	int ret;
-	uint32_t sub;
-
+	int pid, ret, act_len;
 	/* For CONTROL endpoint pid should start with DATA1 */
 	int status_direction;
 
@@ -869,75 +864,21 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		return dwc_otg_submit_rh_msg(dev, pipe, buffer, len, setup);
 	}
 
-	if (len > DWC2_DATA_BUF_SIZE) {
-		printf("%s: %d is more then available buffer size(%d)\n",
-		       __func__, len, DWC2_DATA_BUF_SIZE);
-		dev->status = 0;
-		dev->act_len = 0;
-		return -EINVAL;
-	}
-
-	/* Initialize channel, OUT for setup buffer */
-	dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, devnum, ep, 0,
-			DWC2_HCCHAR_EPTYPE_CONTROL, max);
-
-	/* SETUP stage  */
-	writel((8 << DWC2_HCTSIZ_XFERSIZE_OFFSET) |
-	       (1 << DWC2_HCTSIZ_PKTCNT_OFFSET) |
-	       (DWC2_HC_PID_SETUP << DWC2_HCTSIZ_PID_OFFSET),
-	       &hc_regs->hctsiz);
-
-	writel((uint32_t)setup, &hc_regs->hcdma);
-
-	/* Set host channel enable after all other setup is complete. */
-	clrsetbits_le32(&hc_regs->hcchar, DWC2_HCCHAR_MULTICNT_MASK |
-			DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS,
-			(1 << DWC2_HCCHAR_MULTICNT_OFFSET) | DWC2_HCCHAR_CHEN);
-
-	ret = wait_for_chhltd(&sub, NULL);
-	if (ret) {
-		dev->status = 0;
-		dev->act_len = 0;
-		return -EINVAL;
-	}
-
-	/* Clear interrupts */
-	writel(0, &hc_regs->hcintmsk);
-	writel(0xFFFFFFFF, &hc_regs->hcint);
+	pid = DWC2_HC_PID_SETUP;
+	ret = chunk_msg(dev, pipe, &pid, 0, setup, 8);
+	if (ret)
+		return ret;
 
 	if (buffer) {
-		/* DATA stage */
-		dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, devnum, ep,
-				usb_pipein(pipe),
-				DWC2_HCCHAR_EPTYPE_CONTROL, max);
-
-		/* TODO: check if len < 64 */
 		control_data_toggle[devnum][ep] = DWC2_HC_PID_DATA1;
-		writel((len << DWC2_HCTSIZ_XFERSIZE_OFFSET) |
-		       (1 << DWC2_HCTSIZ_PKTCNT_OFFSET) |
-		       (control_data_toggle[devnum][ep] <<
-				DWC2_HCTSIZ_PID_OFFSET),
-		       &hc_regs->hctsiz);
-
-		writel((uint32_t)buffer, &hc_regs->hcdma);
-
-		/* Set host channel enable after all other setup is complete */
-		clrsetbits_le32(&hc_regs->hcchar, DWC2_HCCHAR_MULTICNT_MASK |
-				DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS,
-				(1 << DWC2_HCCHAR_MULTICNT_OFFSET) |
-				DWC2_HCCHAR_CHEN);
-
-		ret = wait_for_chhltd(&sub, &control_data_toggle[devnum][ep]);
-		if (ret) {
-			dev->status = 0;
-			dev->act_len = 0;
-			return -EINVAL;
-		}
-
-		done = len;
-		if (usb_pipein(pipe))
-			done -= sub;
+		ret = chunk_msg(dev, pipe, &control_data_toggle[devnum][ep],
+				usb_pipein(pipe), buffer, len);
+		if (ret)
+			return ret;
+		act_len = dev->act_len;
 	} /* End of DATA stage */
+	else
+		act_len = 0;
 
 	/* STATUS stage */
 	if ((len == 0) || usb_pipeout(pipe))
@@ -945,29 +886,12 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	else
 		status_direction = 0;
 
-	dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, devnum, ep,
-			status_direction, DWC2_HCCHAR_EPTYPE_CONTROL, max);
+	pid = DWC2_HC_PID_DATA1;
+	ret = chunk_msg(dev, pipe, &pid, status_direction, status_buffer, 0);
+	if (ret)
+		return ret;
 
-	writel((1 << DWC2_HCTSIZ_PKTCNT_OFFSET) |
-	       (DWC2_HC_PID_DATA1 << DWC2_HCTSIZ_PID_OFFSET),
-	       &hc_regs->hctsiz);
-
-	writel((uint32_t)status_buffer, &hc_regs->hcdma);
-
-	/* Set host channel enable after all other setup is complete. */
-	clrsetbits_le32(&hc_regs->hcchar, DWC2_HCCHAR_MULTICNT_MASK |
-			DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS,
-			(1 << DWC2_HCCHAR_MULTICNT_OFFSET) | DWC2_HCCHAR_CHEN);
-
-	ret = wait_for_chhltd(&sub, NULL);
-	if (ret) {
-		dev->status = 0;
-		dev->act_len = 0;
-		return -EINVAL;
-	}
-
-	dev->act_len = done;
-	dev->status = 0;
+	dev->act_len = act_len;
 
 	return 0;
 }
