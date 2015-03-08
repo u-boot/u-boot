@@ -219,6 +219,7 @@ F:	drivers/usb/gadget/
 DRIVER MODEL
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
+T:	git git://git.denx.de/u-boot-dm.git
 F:	drivers/core/
 F:	include/dm/
 F:	test/dm/
