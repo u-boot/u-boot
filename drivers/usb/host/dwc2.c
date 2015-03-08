@@ -756,24 +756,18 @@ int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
 	debug("%s: msg: pipe %lx pid %d in %d len %d\n", __func__, pipe, *pid,
 	      in, len);
 
-	if (len > DWC2_DATA_BUF_SIZE) {
-		printf("%s: %d is more then available buffer size (%d)\n",
-		       __func__, len, DWC2_DATA_BUF_SIZE);
-		dev->status = 0;
-		dev->act_len = 0;
-		return -EINVAL;
-	}
-
 	do {
 		/* Initialize channel */
 		dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, devnum, ep, in, eptype,
 				max);
 
 		xfer_len = len - done;
-		/* Make sure that xfer_len is a multiple of max packet size. */
 		if (xfer_len > CONFIG_DWC2_MAX_TRANSFER_SIZE)
 			xfer_len = CONFIG_DWC2_MAX_TRANSFER_SIZE - max + 1;
+		if (xfer_len > DWC2_DATA_BUF_SIZE)
+			xfer_len = DWC2_DATA_BUF_SIZE - max + 1;
 
+		/* Make sure that xfer_len is a multiple of max packet size. */
 		if (xfer_len > 0) {
 			num_packets = (xfer_len + max - 1) / max;
 			if (num_packets > CONFIG_DWC2_MAX_PACKET_COUNT) {
