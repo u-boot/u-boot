@@ -795,7 +795,9 @@ int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
 		       (*pid << DWC2_HCTSIZ_PID_OFFSET),
 		       &hc_regs->hctsiz);
 
-		memcpy(aligned_buffer, (char *)buffer + done, len - done);
+		if (!in)
+			memcpy(aligned_buffer, (char *)buffer + done, len);
+
 		writel((uint32_t)aligned_buffer, &hc_regs->hcdma);
 
 		/* Set host channel enable after all other setup is complete. */
@@ -810,16 +812,16 @@ int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
 			break;
 		}
 
-		done += xfer_len;
 		if (in) {
-			done -= sub;
+			xfer_len -= sub;
+			memcpy(buffer + done, aligned_buffer, xfer_len);
 			if (sub)
 				stop_transfer = 1;
 		}
-	} while ((done < len) && !stop_transfer);
 
-	if (done && in)
-		memcpy(buffer, aligned_buffer, done);
+		done += xfer_len;
+
+	} while ((done < len) && !stop_transfer);
 
 	writel(0, &hc_regs->hcintmsk);
 	writel(0xFFFFFFFF, &hc_regs->hcint);
