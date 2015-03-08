@@ -724,11 +724,9 @@ int wait_for_chhltd(uint32_t *sub, int *toggle)
 	hctsiz = readl(&hc_regs->hctsiz);
 	*sub = (hctsiz & DWC2_HCTSIZ_XFERSIZE_MASK) >>
 		DWC2_HCTSIZ_XFERSIZE_OFFSET;
-	if (toggle)
-		*toggle = (hctsiz & DWC2_HCTSIZ_PID_MASK) >>
-			DWC2_HCTSIZ_PID_OFFSET;
+	*toggle = (hctsiz & DWC2_HCTSIZ_PID_MASK) >> DWC2_HCTSIZ_PID_OFFSET;
 
-	debug("%s: sub=%u toggle=%d\n", __func__, *sub, toggle ? *toggle : -1);
+	debug("%s: sub=%u toggle=%d\n", __func__, *sub, *toggle);
 
 	return 0;
 }
