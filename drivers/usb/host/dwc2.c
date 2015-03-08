@@ -734,25 +734,30 @@ int wait_for_chhltd(uint32_t *sub, int *toggle)
 	return 0;
 }
 
-/* U-Boot USB transmission interface */
-int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
-		    int len)
+static int dwc2_eptype[] = {
+	DWC2_HCCHAR_EPTYPE_ISOC,
+	DWC2_HCCHAR_EPTYPE_INTR,
+	DWC2_HCCHAR_EPTYPE_CONTROL,
+	DWC2_HCCHAR_EPTYPE_BULK,
+};
+
+int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
+	      void *buffer, int len)
 {
+	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
 	int devnum = usb_pipedevice(pipe);
 	int ep = usb_pipeendpoint(pipe);
 	int max = usb_maxpacket(dev, pipe);
+	int eptype = dwc2_eptype[usb_pipetype(pipe)];
 	int done = 0;
 	int ret;
 	uint32_t sub;
-	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
 	uint32_t xfer_len;
 	uint32_t num_packets;
 	int stop_transfer = 0;
 
-	if (devnum == root_hub_devnum) {
-		dev->status = 0;
-		return -EINVAL;
-	}
+	debug("%s: msg: pipe %lx pid %d in %d len %d\n", __func__, pipe, *pid,
+	      in, len);
 
 	if (len > DWC2_DATA_BUF_SIZE) {
 		printf("%s: %d is more then available buffer size (%d)\n",
@@ -764,8 +769,8 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	while ((done < len) && !stop_transfer) {
 		/* Initialize channel */
-		dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, devnum, ep,
-				usb_pipein(pipe), DWC2_HCCHAR_EPTYPE_BULK, max);
+		dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, devnum, ep, in, eptype,
+				max);
 
 		xfer_len = len - done;
 		/* Make sure that xfer_len is a multiple of max packet size. */
@@ -782,13 +787,15 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			num_packets = 1;
 		}
 
-		if (usb_pipein(pipe))
+		if (in)
 			xfer_len = num_packets * max;
+
+		debug("%s: chunk: pid %d xfer_len %u pkts %u\n", __func__,
+		      *pid, xfer_len, num_packets);
 
 		writel((xfer_len << DWC2_HCTSIZ_XFERSIZE_OFFSET) |
 		       (num_packets << DWC2_HCTSIZ_PKTCNT_OFFSET) |
-		       (bulk_data_toggle[devnum][ep] <<
-				DWC2_HCTSIZ_PID_OFFSET),
+		       (*pid << DWC2_HCTSIZ_PID_OFFSET),
 		       &hc_regs->hctsiz);
 
 		memcpy(aligned_buffer, (char *)buffer + done, len - done);
@@ -800,21 +807,21 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 				(1 << DWC2_HCCHAR_MULTICNT_OFFSET) |
 				DWC2_HCCHAR_CHEN);
 
-		ret = wait_for_chhltd(&sub, &bulk_data_toggle[devnum][ep]);
+		ret = wait_for_chhltd(&sub, pid);
 		if (ret) {
 			stop_transfer = 1;
 			break;
 		}
 
 		done += xfer_len;
-		if (usb_pipein(pipe)) {
+		if (in) {
 			done -= sub;
 			if (sub)
 				stop_transfer = 1;
 		}
 	}
 
-	if (done && usb_pipein(pipe))
+	if (done && in)
 		memcpy(buffer, aligned_buffer, done);
 
 	writel(0, &hc_regs->hcintmsk);
@@ -824,6 +831,22 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	dev->act_len = done;
 
 	return 0;
+}
+
+/* U-Boot USB transmission interface */
+int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
+		    int len)
+{
+	int devnum = usb_pipedevice(pipe);
+	int ep = usb_pipeendpoint(pipe);
+
+	if (devnum == root_hub_devnum) {
+		dev->status = 0;
+		return -EINVAL;
+	}
+
+	return chunk_msg(dev, pipe, &bulk_data_toggle[devnum][ep],
+			 usb_pipein(pipe), buffer, len);
 }
 
 int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
