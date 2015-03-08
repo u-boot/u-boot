@@ -704,6 +704,36 @@ static int dwc_otg_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 	return stat;
 }
 
+int wait_for_chhltd(uint32_t *sub, int *toggle)
+{
+	const uint32_t hcint_comp_hlt_ack = DWC2_HCINT_XFERCOMP |
+		DWC2_HCINT_CHHLTD | DWC2_HCINT_ACK;
+	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
+	int ret;
+	uint32_t hcint, hctsiz;
+
+	ret = wait_for_bit(&hc_regs->hcint, DWC2_HCINT_CHHLTD, true);
+	if (ret)
+		return ret;
+
+	hcint = readl(&hc_regs->hcint);
+	if (hcint != hcint_comp_hlt_ack) {
+		debug("%s: Error (HCINT=%08x)\n", __func__, hcint);
+		return -EINVAL;
+	}
+
+	hctsiz = readl(&hc_regs->hctsiz);
+	*sub = (hctsiz & DWC2_HCTSIZ_XFERSIZE_MASK) >>
+		DWC2_HCTSIZ_XFERSIZE_OFFSET;
+	if (toggle)
+		*toggle = (hctsiz & DWC2_HCTSIZ_PID_MASK) >>
+			DWC2_HCTSIZ_PID_OFFSET;
+
+	debug("%s: sub=%u toggle=%d\n", __func__, *sub, toggle ? *toggle : -1);
+
+	return 0;
+}
+
 /* U-Boot USB transmission interface */
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		    int len)
@@ -712,13 +742,12 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	int ep = usb_pipeendpoint(pipe);
 	int max = usb_maxpacket(dev, pipe);
 	int done = 0;
-	uint32_t hctsiz, sub, tmp;
+	int ret;
+	uint32_t sub;
 	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
-	uint32_t hcint;
 	uint32_t xfer_len;
 	uint32_t num_packets;
 	int stop_transfer = 0;
-	unsigned int timeout = 1000000;
 
 	if (devnum == root_hub_devnum) {
 		dev->status = 0;
@@ -771,50 +800,17 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 				(1 << DWC2_HCCHAR_MULTICNT_OFFSET) |
 				DWC2_HCCHAR_CHEN);
 
-		while (1) {
-			hcint = readl(&hc_regs->hcint);
+		ret = wait_for_chhltd(&sub, &bulk_data_toggle[devnum][ep]);
+		if (ret) {
+			stop_transfer = 1;
+			break;
+		}
 
-			if (!(hcint & DWC2_HCINT_CHHLTD))
-				continue;
-
-			if (hcint & DWC2_HCINT_XFERCOMP) {
-				hctsiz = readl(&hc_regs->hctsiz);
-				done += xfer_len;
-
-				sub = hctsiz & DWC2_HCTSIZ_XFERSIZE_MASK;
-				sub >>= DWC2_HCTSIZ_XFERSIZE_OFFSET;
-
-				if (usb_pipein(pipe)) {
-					done -= sub;
-					if (hctsiz & DWC2_HCTSIZ_XFERSIZE_MASK)
-						stop_transfer = 1;
-				}
-
-				tmp = hctsiz & DWC2_HCTSIZ_PID_MASK;
-				tmp >>= DWC2_HCTSIZ_PID_OFFSET;
-				if (tmp == DWC2_HC_PID_DATA1) {
-					bulk_data_toggle[devnum][ep] =
-						DWC2_HC_PID_DATA1;
-				} else {
-					bulk_data_toggle[devnum][ep] =
-						DWC2_HC_PID_DATA0;
-				}
-				break;
-			}
-
-			if (hcint & DWC2_HCINT_STALL) {
-				puts("DWC OTG: Channel halted\n");
-				bulk_data_toggle[devnum][ep] =
-					DWC2_HC_PID_DATA0;
-
+		done += xfer_len;
+		if (usb_pipein(pipe)) {
+			done -= sub;
+			if (sub)
 				stop_transfer = 1;
-				break;
-			}
-
-			if (!--timeout) {
-				printf("%s: Timeout!\n", __func__);
-				break;
-			}
 		}
 	}
 
@@ -838,11 +834,8 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	int devnum = usb_pipedevice(pipe);
 	int ep = usb_pipeendpoint(pipe);
 	int max = usb_maxpacket(dev, pipe);
-	uint32_t hctsiz = 0, sub, tmp, ret;
-	uint32_t hcint;
-	const uint32_t hcint_comp_hlt_ack = DWC2_HCINT_XFERCOMP |
-		DWC2_HCINT_CHHLTD | DWC2_HCINT_ACK;
-	unsigned int timeout = 1000000;
+	int ret;
+	uint32_t sub;
 
 	/* For CONTROL endpoint pid should start with DATA1 */
 	int status_direction;
@@ -878,14 +871,8 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS,
 			(1 << DWC2_HCCHAR_MULTICNT_OFFSET) | DWC2_HCCHAR_CHEN);
 
-	ret = wait_for_bit(&hc_regs->hcint, DWC2_HCINT_CHHLTD, 1);
-	if (ret)
-		printf("%s: Timeout!\n", __func__);
-
-	hcint = readl(&hc_regs->hcint);
-
-	if (!(hcint & DWC2_HCINT_CHHLTD) || !(hcint & DWC2_HCINT_XFERCOMP)) {
-		printf("%s: Error (HCINT=%08x)\n", __func__, hcint);
+	ret = wait_for_chhltd(&sub, NULL);
+	if (ret) {
 		dev->status = 0;
 		dev->act_len = 0;
 		return -EINVAL;
@@ -917,47 +904,16 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 				(1 << DWC2_HCCHAR_MULTICNT_OFFSET) |
 				DWC2_HCCHAR_CHEN);
 
-		while (1) {
-			hcint = readl(&hc_regs->hcint);
-			if (!(hcint & DWC2_HCINT_CHHLTD))
-				continue;
-
-			if (hcint & DWC2_HCINT_XFERCOMP) {
-				hctsiz = readl(&hc_regs->hctsiz);
-				done = len;
-
-				sub = hctsiz & DWC2_HCTSIZ_XFERSIZE_MASK;
-				sub >>= DWC2_HCTSIZ_XFERSIZE_OFFSET;
-
-				if (usb_pipein(pipe))
-					done -= sub;
-			}
-
-			if (hcint & DWC2_HCINT_ACK) {
-				tmp = hctsiz & DWC2_HCTSIZ_PID_MASK;
-				tmp >>= DWC2_HCTSIZ_PID_OFFSET;
-				if (tmp == DWC2_HC_PID_DATA0) {
-					control_data_toggle[devnum][ep] =
-						DWC2_HC_PID_DATA0;
-				} else {
-					control_data_toggle[devnum][ep] =
-						DWC2_HC_PID_DATA1;
-				}
-			}
-
-			if (hcint != hcint_comp_hlt_ack) {
-				printf("%s: Error (HCINT=%08x)\n",
-				       __func__, hcint);
-				goto out;
-			}
-
-			if (!--timeout) {
-				printf("%s: Timeout!\n", __func__);
-				goto out;
-			}
-
-			break;
+		ret = wait_for_chhltd(&sub, &control_data_toggle[devnum][ep]);
+		if (ret) {
+			dev->status = 0;
+			dev->act_len = 0;
+			return -EINVAL;
 		}
+
+		done = len;
+		if (usb_pipein(pipe))
+			done -= sub;
 	} /* End of DATA stage */
 
 	/* STATUS stage */
@@ -980,20 +936,17 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS,
 			(1 << DWC2_HCCHAR_MULTICNT_OFFSET) | DWC2_HCCHAR_CHEN);
 
-	while (1) {
-		hcint = readl(&hc_regs->hcint);
-		if (hcint & DWC2_HCINT_CHHLTD)
-			break;
+	ret = wait_for_chhltd(&sub, NULL);
+	if (ret) {
+		dev->status = 0;
+		dev->act_len = 0;
+		return -EINVAL;
 	}
 
-	if (hcint != hcint_comp_hlt_ack)
-		printf("%s: Error (HCINT=%08x)\n", __func__, hcint);
-
-out:
 	dev->act_len = done;
 	dev->status = 0;
 
-	return done;
+	return 0;
 }
 
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
