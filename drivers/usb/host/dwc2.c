@@ -27,7 +27,6 @@ DEFINE_ALIGN_BUFFER(uint8_t, status_buffer, DWC2_STATUS_BUF_SIZE, 8);
 #define MAX_DEVICE			16
 #define MAX_ENDPOINT			16
 static int bulk_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
-static int control_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
 
 static int root_hub_devnum;
 
@@ -853,7 +852,6 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		       int len, struct devrequest *setup)
 {
 	int devnum = usb_pipedevice(pipe);
-	int ep = usb_pipeendpoint(pipe);
 	int pid, ret, act_len;
 	/* For CONTROL endpoint pid should start with DATA1 */
 	int status_direction;
@@ -870,9 +868,9 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		return ret;
 
 	if (buffer) {
-		control_data_toggle[devnum][ep] = DWC2_HC_PID_DATA1;
-		ret = chunk_msg(dev, pipe, &control_data_toggle[devnum][ep],
-				usb_pipein(pipe), buffer, len);
+		pid = DWC2_HC_PID_DATA1;
+		ret = chunk_msg(dev, pipe, &pid, usb_pipein(pipe), buffer,
+				len);
 		if (ret)
 			return ret;
 		act_len = dev->act_len;
@@ -933,10 +931,8 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 		     DWC2_HPRT0_PRTRST);
 
 	for (i = 0; i < MAX_DEVICE; i++) {
-		for (j = 0; j < MAX_ENDPOINT; j++) {
-			control_data_toggle[i][j] = DWC2_HC_PID_DATA1;
+		for (j = 0; j < MAX_ENDPOINT; j++)
 			bulk_data_toggle[i][j] = DWC2_HC_PID_DATA0;
-		}
 	}
 
 	return 0;
