@@ -693,6 +693,7 @@ The following options need to be configured:
 		NOTE: The following can be machine specific errata. These
 		do have ability to provide rudimentary version and machine
 		specific checks, but expect no product checks.
+		CONFIG_ARM_ERRATA_454179
 		CONFIG_ARM_ERRATA_798870
 
 - Tegra SoC options:
