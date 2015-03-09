@@ -137,6 +137,9 @@ extern char __secure_end[];
 
 #endif /* CONFIG_ARMV7_NONSEC || CONFIG_ARMV7_VIRT */
 
+void v7_arch_cp15_set_l2aux_ctrl(u32 l2auxctrl, u32 cpu_midr,
+				 u32 cpu_rev_comb, u32 cpu_variant,
+				 u32 cpu_rev);
 #endif /* ! __ASSEMBLY__ */
 
 #endif
