@@ -340,6 +340,12 @@
 #endif /* CONFIG_MUSB_GADGET */
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
+/* Remove other SPL modes. */
+#undef CONFIG_SPL_YMODEM_SUPPORT
+#undef CONFIG_SPL_NAND_SUPPORT
+#undef CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_ENV_IS_NOWHERE
+#undef CONFIG_ENV_IS_IN_NAND
 /* disable host part of MUSB in SPL */
 #undef CONFIG_MUSB_HOST
 /* disable EFI partitions and partition UUID support */
