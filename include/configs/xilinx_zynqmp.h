@@ -132,7 +132,7 @@
 	"initrd_size=0x2000000\0" \
 	"fdt_addr=0x7000000\0" \
 	"fdt_high=0x10000000\0" \
-	"sata_root=if test $scsidevs -gt 0; then setenv bootargs \$bootargs root=/dev/sda rw rootfstype=ext4; fi\0" \
+	"sata_root=if test $scsidevs -gt 0; then setenv bootargs $bootargs root=/dev/sda rw rootfstype=ext4; fi\0" \
 	"veloce=fdt addr $fdt_addr && " \
 		"fdt set /amba/misc_clk clock-frequency <96000> && "\
 		"fdt set /amba_apu/timer clock-frequency <480000> && " \
