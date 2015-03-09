@@ -276,6 +276,7 @@
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
+#ifndef CONFIG_SPL
 #define CONFIG_CI_UDC
 #define CONFIG_USBD_HS
 #define CONFIG_USB_GADGET_DUALSPEED
@@ -289,5 +290,6 @@
 #define CONFIG_G_DNL_VENDOR_NUM		0x0525
 #define CONFIG_G_DNL_PRODUCT_NUM	0xa4a5
 #define CONFIG_G_DNL_MANUFACTURER	"FSL"
+#endif
 
 #endif                         /* __MX6QSABRE_COMMON_CONFIG_H */
