@@ -22,12 +22,6 @@ int board_init(void)
 
 int dram_init(void)
 {
-	/*
-	 * Clear spin table so that secondary processors
-	 * observe the correct value after waken up from wfe.
-	 */
-	*(unsigned long *)CPU_RELEASE_ADDR = 0;
-
 	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }

@@ -54,13 +54,6 @@
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_LIBFDT
 
-/* SMP Spin Table Definitions */
-#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x03f00000)
-#else
-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
-#endif
-
 /* CS register bases for the original memory map. */
 #define V2M_PA_CS0			0x00000000
 #define V2M_PA_CS1			0x14000000

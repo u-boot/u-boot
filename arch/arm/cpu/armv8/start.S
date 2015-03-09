@@ -77,6 +77,7 @@ reset:
 	/* Processor specific initialization */
 	bl	lowlevel_init
 
+#ifdef CONFIG_ARMV8_MULTIENTRY
 	branch_if_master x0, x1, master_cpu
 
 	/*
@@ -88,17 +89,25 @@ slave_cpu:
 	ldr	x0, [x1]
 	cbz	x0, slave_cpu
 	br	x0			/* branch to the given address */
-
-	/*
-	 * Master CPU
-	 */
 master_cpu:
+	/* On the master CPU */
+#endif /* CONFIG_ARMV8_MULTIENTRY */
+
 	bl	_main
 
 /*-----------------------------------------------------------------------*/
 
 WEAK(lowlevel_init)
 	mov	x29, lr			/* Save LR */
+
+#ifndef CONFIG_ARMV8_MULTIENTRY
+	/*
+	 * For single-entry systems the lowlevel init is very simple.
+	 */
+	ldr	x0, =GICD_BASE
+	bl	gic_init_secure
+
+#else /* CONFIG_ARMV8_MULTIENTRY is set */
 
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
 	branch_if_slave x0, 1f
@@ -136,6 +145,8 @@ WEAK(lowlevel_init)
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
 	bl	armv8_switch_to_el1
 #endif
+
+#endif /* CONFIG_ARMV8_MULTIENTRY */
 
 2:
 	mov	lr, x29			/* Restore LR */

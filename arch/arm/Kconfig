@@ -641,10 +641,12 @@ config TARGET_VEXPRESS64_JUNO
 config TARGET_LS2085A_EMU
 	bool "Support ls2085a_emu"
 	select ARM64
+	select ARMV8_MULTIENTRY
 
 config TARGET_LS2085A_SIMU
 	bool "Support ls2085a_simu"
 	select ARM64
+	select ARMV8_MULTIENTRY
 
 config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
@@ -756,6 +758,8 @@ source "arch/arm/mach-versatile/Kconfig"
 source "arch/arm/cpu/armv7/zynq/Kconfig"
 
 source "arch/arm/cpu/armv7/Kconfig"
+
+source "arch/arm/cpu/armv8/Kconfig"
 
 source "board/aristainetos/Kconfig"
 source "board/BuR/kwb/Kconfig"
