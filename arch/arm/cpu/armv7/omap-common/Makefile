@@ -28,7 +28,7 @@ endif
 
 ifeq ($(CONFIG_OMAP34XX),)
 obj-y	+= boot-common.o
-obj-y	+= lowlevel_init.o
 endif
+obj-y	+= lowlevel_init.o
 
 obj-y	+= mem-common.o

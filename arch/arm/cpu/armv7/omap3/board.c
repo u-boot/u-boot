@@ -429,8 +429,7 @@ static void omap3_update_aux_cr_secure(u32 set_bits, u32 clear_bits)
 	acr |= set_bits;
 
 	if (get_device_type() == GP_DEVICE) {
-		omap3_gp_romcode_call(OMAP3_GP_ROMCODE_API_WRITE_ACR,
-				       acr);
+		omap_smc1(OMAP3_GP_ROMCODE_API_WRITE_ACR, acr);
 	} else {
 		struct emu_hal_params emu_romcode_params;
 		emu_romcode_params.num_params = 1;
@@ -470,8 +469,7 @@ static void omap3_update_aux_cr(u32 set_bits, u32 clear_bits)
 static void omap3_invalidate_l2_cache_secure(void)
 {
 	if (get_device_type() == GP_DEVICE) {
-		omap3_gp_romcode_call(OMAP3_GP_ROMCODE_API_L2_INVAL,
-				      0);
+		omap_smc1(OMAP3_GP_ROMCODE_API_L2_INVAL, 0);
 	} else {
 		struct emu_hal_params emu_romcode_params;
 		emu_romcode_params.num_params = 1;
