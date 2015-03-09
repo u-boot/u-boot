@@ -385,6 +385,22 @@ int axp221_get_sid(unsigned int *sid)
 	return 0;
 }
 
+int axp_get_vbus(void)
+{
+	int ret;
+	u8 val;
+
+	ret = axp221_init();
+	if (ret)
+		return ret;
+
+	ret = pmic_bus_read(AXP221_POWER_STATUS, &val);
+	if (ret)
+		return ret;
+
+	return (val & AXP221_POWER_STATUS_VBUS_USABLE) ? 1 : 0;
+}
+
 static int axp_drivebus_setup(void)
 {
 	int ret;

@@ -14,6 +14,9 @@
 #define AXP223_RUNTIME_ADDR 0x2d
 
 /* Page 0 addresses */
+#define AXP221_POWER_STATUS	0x00
+#define AXP221_POWER_STATUS_VBUS_AVAIL	(1 << 5)
+#define AXP221_POWER_STATUS_VBUS_USABLE	(1 << 4)
 #define AXP221_CHIP_ID		0x03
 #define AXP221_OUTPUT_CTRL1	0x10
 #define AXP221_OUTPUT_CTRL1_DCDC0_EN	(1 << 0)
@@ -59,6 +62,9 @@
 /* Page 1 addresses */
 #define AXP221_SID		0x20
 
+/* We support vbus detection */
+#define AXP_VBUS_DETECT
+
 /* We support drivebus control */
 #define AXP_DRIVEBUS
 
@@ -77,5 +83,6 @@ int axp221_set_aldo3(unsigned int mvolt);
 int axp221_set_eldo(int eldo_num, unsigned int mvolt);
 int axp221_init(void);
 int axp221_get_sid(unsigned int *sid);
+int axp_get_vbus(void);
 int axp_drivebus_enable(void);
 int axp_drivebus_disable(void);
