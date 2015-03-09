@@ -16,7 +16,7 @@
 
 
 #include <asm/arch/cpu.h>
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 
 #ifndef CONFIG_SPL_BUILD
 # define CONFIG_OMAP_SERIAL

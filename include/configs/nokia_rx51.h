@@ -42,7 +42,7 @@
 #define CONFIG_SDRC			/* The chip has SDRC controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 #include <asm/arch/mem.h>
 #include <linux/stringify.h>
 

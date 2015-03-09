@@ -26,7 +26,7 @@
 #define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_FIT

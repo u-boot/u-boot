@@ -32,7 +32,7 @@
 #define CONFIG_SDRC			/* The chip has SDRC controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 
 #define CONFIG_SYS_GENERIC_BOARD
 
