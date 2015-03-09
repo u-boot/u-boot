@@ -415,30 +415,29 @@ static void omap3_emu_romcode_call(u32 service_id, u32 *parameters)
 	do_omap3_emu_romcode_call(service_id, OMAP3_PUBLIC_SRAM_SCRATCH_AREA);
 }
 
+void __weak omap3_set_aux_cr_secure(u32 acr)
+{
+	struct emu_hal_params emu_romcode_params;
+
+	emu_romcode_params.num_params = 1;
+	emu_romcode_params.param1 = acr;
+	omap3_emu_romcode_call(OMAP3_EMU_HAL_API_WRITE_ACR,
+			       (u32 *)&emu_romcode_params);
+}
+
 void v7_arch_cp15_set_acr(u32 acr, u32 cpu_midr, u32 cpu_rev_comb,
 			  u32 cpu_variant, u32 cpu_rev)
 {
-	if (get_device_type() == GP_DEVICE) {
+	/* Write ACR - affects secure banked bits */
+	if (get_device_type() == GP_DEVICE)
 		omap_smc1(OMAP3_GP_ROMCODE_API_WRITE_ACR, acr);
-	} else {
-		struct emu_hal_params emu_romcode_params;
-		emu_romcode_params.num_params = 1;
-		emu_romcode_params.param1 = acr;
-		omap3_emu_romcode_call(OMAP3_EMU_HAL_API_WRITE_ACR,
-				       (u32 *)&emu_romcode_params);
-	}
+	else
+		omap3_set_aux_cr_secure(acr);
+
+	/* Write ACR - affects non-secure banked bits - some erratas need it */
+	asm volatile ("mcr p15, 0, %0, c1, c0, 1" : : "r" (acr));
 }
 
-static void omap3_update_aux_cr_secure(u32 set_bits, u32 clear_bits)
-{
-	u32 acr;
-
-	/* Read ACR */
-	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
-	acr &= ~clear_bits;
-	acr |= set_bits;
-	v7_arch_cp15_set_acr(acr, 0, 0, 0, 0);
-}
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
 static void omap3_update_aux_cr(u32 set_bits, u32 clear_bits)
@@ -449,9 +448,8 @@ static void omap3_update_aux_cr(u32 set_bits, u32 clear_bits)
 	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
 	acr &= ~clear_bits;
 	acr |= set_bits;
+	v7_arch_cp15_set_acr(acr, 0, 0, 0, 0);
 
-	/* Write ACR - affects non-secure banked bits */
-	asm volatile ("mcr p15, 0, %0, c1, c0, 1" : : "r" (acr));
 }
 
 /* Invalidate the entire L2 cache from secure mode */
@@ -470,10 +468,9 @@ static void omap3_invalidate_l2_cache_secure(void)
 
 void v7_outer_cache_enable(void)
 {
-	/* Set L2EN */
-	omap3_update_aux_cr_secure(0x2, 0);
 
 	/*
+	 * Set L2EN
 	 * On some revisions L2EN bit is banked on some revisions it's not
 	 * No harm in setting both banked bits(in fact this is required
 	 * by an erratum)
@@ -483,10 +480,8 @@ void v7_outer_cache_enable(void)
 
 void omap3_outer_cache_disable(void)
 {
-	/* Clear L2EN */
-	omap3_update_aux_cr_secure(0, 0x2);
-
 	/*
+	 * Clear L2EN
 	 * On some revisions L2EN bit is banked on some revisions it's not
 	 * No harm in clearing both banked bits(in fact this is required
 	 * by an erratum)
