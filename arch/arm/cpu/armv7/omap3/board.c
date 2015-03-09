@@ -35,7 +35,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* Declarations */
 extern omap3_sysinfo sysinfo;
-static void omap3_setup_aux_cr(void);
 #ifndef CONFIG_SYS_L2CACHE_OFF
 static void omap3_invalidate_l2_cache_secure(void);
 #endif
@@ -244,9 +243,6 @@ void s_init(void)
 
 	try_unlock_memory();
 
-	/* Errata workarounds */
-	omap3_setup_aux_cr();
-
 #ifndef CONFIG_SYS_L2CACHE_OFF
 	/* Invalidate L2-cache from secure mode */
 	omap3_invalidate_l2_cache_secure();
@@ -419,15 +415,9 @@ static void omap3_emu_romcode_call(u32 service_id, u32 *parameters)
 	do_omap3_emu_romcode_call(service_id, OMAP3_PUBLIC_SRAM_SCRATCH_AREA);
 }
 
-static void omap3_update_aux_cr_secure(u32 set_bits, u32 clear_bits)
+void v7_arch_cp15_set_acr(u32 acr, u32 cpu_midr, u32 cpu_rev_comb,
+			  u32 cpu_variant, u32 cpu_rev)
 {
-	u32 acr;
-
-	/* Read ACR */
-	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
-	acr &= ~clear_bits;
-	acr |= set_bits;
-
 	if (get_device_type() == GP_DEVICE) {
 		omap_smc1(OMAP3_GP_ROMCODE_API_WRITE_ACR, acr);
 	} else {
@@ -439,16 +429,15 @@ static void omap3_update_aux_cr_secure(u32 set_bits, u32 clear_bits)
 	}
 }
 
-static void omap3_setup_aux_cr(void)
+static void omap3_update_aux_cr_secure(u32 set_bits, u32 clear_bits)
 {
-	/* Workaround for Cortex-A8 errata: #454179 #430973
-	 *	Set "IBE" bit
-	 *	Set "Disable Branch Size Mispredicts" bit
-	 * Workaround for erratum #621766
-	 *	Enable L1NEON bit
-	 * ACR |= (IBE | DBSM | L1NEON) => ACR |= 0xE0
-	 */
-	omap3_update_aux_cr_secure(0xE0, 0);
+	u32 acr;
+
+	/* Read ACR */
+	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
+	acr &= ~clear_bits;
+	acr |= set_bits;
+	v7_arch_cp15_set_acr(acr, 0, 0, 0, 0);
 }
 
 #ifndef CONFIG_SYS_L2CACHE_OFF

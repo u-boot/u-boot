@@ -16,6 +16,10 @@
 #define CONFIG_OMAP3_MCX		/* working with mcx */
 #define CONFIG_OMAP_GPIO
 #define CONFIG_OMAP_COMMON
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_454179
+#define CONFIG_ARM_ERRATA_430973
+#define CONFIG_ARM_ERRATA_621766
 
 #define MACH_TYPE_MCX			3656
 #define CONFIG_MACH_TYPE	MACH_TYPE_MCX

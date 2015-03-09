@@ -22,6 +22,11 @@
 # define CONFIG_OMAP_SERIAL
 #endif
 
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_454179
+#define CONFIG_ARM_ERRATA_430973
+#define CONFIG_ARM_ERRATA_621766
+
 /* The chip has SDRC controller */
 #define CONFIG_SDRC
 

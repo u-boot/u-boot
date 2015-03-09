@@ -23,6 +23,10 @@
 #define MACH_TYPE_OMAP3_CPS 2751
 #endif
 #define CONFIG_MACH_TYPE MACH_TYPE_OMAP3_CPS
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_454179
+#define CONFIG_ARM_ERRATA_430973
+#define CONFIG_ARM_ERRATA_621766
 
 /*
  * High Level Configuration Options

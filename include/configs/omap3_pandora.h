@@ -17,6 +17,10 @@
 #define CONFIG_OMAP3_PANDORA	1	/* working with pandora */
 #define CONFIG_OMAP_GPIO
 #define CONFIG_OMAP_COMMON
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_454179
+#define CONFIG_ARM_ERRATA_430973
+#define CONFIG_ARM_ERRATA_621766
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
