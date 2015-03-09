@@ -215,6 +215,19 @@ skip_errata_454179:
 skip_errata_430973:
 #endif
 
+#ifdef CONFIG_ARM_ERRATA_621766
+	cmp	r2, #0x21		@ Only on < r2p1
+	bge	skip_errata_621766
+
+	mrc	p15, 0, r0, c1, c0, 1	@ Read ACR
+	orr	r0, r0, #(0x1 << 5)	@ Set L1NEON bit
+	push	{r1-r5}			@ Save the cpu info registers
+	bl	v7_arch_cp15_set_acr
+	pop	{r1-r5}			@ Restore the cpu info - fall through
+
+skip_errata_621766:
+#endif
+
 	mov	pc, r5			@ back to my caller
 ENDPROC(cpu_init_cp15)
 

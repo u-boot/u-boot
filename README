@@ -695,6 +695,7 @@ The following options need to be configured:
 		specific checks, but expect no product checks.
 		CONFIG_ARM_ERRATA_430973
 		CONFIG_ARM_ERRATA_454179
+		CONFIG_ARM_ERRATA_621766
 		CONFIG_ARM_ERRATA_798870
 
 - Tegra SoC options:
