@@ -381,3 +381,10 @@ void setup_warmreset_time(void)
 	rst_val |= rst_time;
 	writel(rst_val, (*prcm)->prm_rsttime);
 }
+
+void v7_arch_cp15_set_l2aux_ctrl(u32 l2auxctrl, u32 cpu_midr,
+				 u32 cpu_rev_comb, u32 cpu_variant,
+				 u32 cpu_rev)
+{
+	omap_smc1(OMAP5_SERVICE_L2ACTLR_SET, l2auxctrl);
+}

@@ -21,6 +21,9 @@
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_ARCH_CPU_INIT
 
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_798870
+
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
 /* Use General purpose timer 1 */

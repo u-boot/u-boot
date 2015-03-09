@@ -66,4 +66,7 @@ static inline u32 usec_to_32k(u32 usec)
 {
 	return div_round_up(32768 * usec, 1000000);
 }
+
+#define OMAP5_SERVICE_L2ACTLR_SET    0x104
+
 #endif
