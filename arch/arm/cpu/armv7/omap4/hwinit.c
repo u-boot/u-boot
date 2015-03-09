@@ -159,11 +159,11 @@ void init_omap_revision(void)
 #ifndef CONFIG_SYS_L2CACHE_OFF
 void v7_outer_cache_enable(void)
 {
-	set_pl310_ctrl_reg(1);
+	omap_smc1(OMAP4_SERVICE_PL310_CONTROL_REG_SET, 1);
 }
 
 void v7_outer_cache_disable(void)
 {
-	set_pl310_ctrl_reg(0);
+	omap_smc1(OMAP4_SERVICE_PL310_CONTROL_REG_SET, 0);
 }
 #endif /* !CONFIG_SYS_L2CACHE_OFF */
