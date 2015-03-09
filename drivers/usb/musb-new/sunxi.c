@@ -27,6 +27,15 @@
 #include <asm-generic/gpio.h>
 #include "linux-compat.h"
 #include "musb_core.h"
+#ifdef CONFIG_AXP152_POWER
+#include <axp152.h>
+#endif
+#ifdef CONFIG_AXP209_POWER
+#include <axp209.h>
+#endif
+#ifdef CONFIG_AXP221_POWER
+#include <axp221.h>
+#endif
 
 /******************************************************************************
  ******************************************************************************
@@ -228,29 +237,44 @@ static int sunxi_musb_init(struct musb *musb)
 
 	if (is_host_enabled(musb)) {
 		int vbus_det = sunxi_name_to_gpio(CONFIG_USB0_VBUS_DET);
-		if (vbus_det == -1) {
-			eprintf("Error invalid Vusb-det pin\n");
-			return -EINVAL;
-		}
 
-		err = gpio_request(vbus_det, "vbus0_det");
-		if (err)
-			return err;
+#ifdef AXP_VBUS_DETECT
+		if (!strcmp(CONFIG_USB0_VBUS_DET, "axp_vbus_detect")) {
+			err = axp_get_vbus();
+			if (err < 0)
+				return err;
+		} else {
+#endif
+			if (vbus_det == -1) {
+				eprintf("Error invalid Vusb-det pin\n");
+				return -EINVAL;
+			}
 
-		err = gpio_direction_input(vbus_det);
-		if (err) {
+			err = gpio_request(vbus_det, "vbus0_det");
+			if (err)
+				return err;
+
+			err = gpio_direction_input(vbus_det);
+			if (err) {
+				gpio_free(vbus_det);
+				return err;
+			}
+
+			err = gpio_get_value(vbus_det);
+			if (err) {
+				gpio_free(vbus_det);
+				return -EIO;
+			}
+
 			gpio_free(vbus_det);
-			return err;
+#ifdef AXP_VBUS_DETECT
 		}
+#endif
 
-		err = gpio_get_value(vbus_det);
 		if (err) {
 			eprintf("Error: A charger is plugged into the OTG\n");
-			gpio_free(vbus_det);
 			return -EIO;
 		}
-
-		gpio_free(vbus_det);
 	}
 
 	err = sunxi_usbc_request_resources(0);
