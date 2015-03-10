@@ -10,6 +10,22 @@
 #ifndef _CONFIG_CMD_DISTRO_BOOTCMD_H
 #define _CONFIG_CMD_DISTRO_BOOTCMD_H
 
+/*
+ * A note on error handling: It is possible for BOOT_TARGET_DEVICES to
+ * reference a device that is not enabled in the U-Boot configuration, e.g.
+ * it may include MMC in the list without CONFIG_CMD_MMC being enabled. Given
+ * that BOOT_TARGET_DEVICES is a macro that's expanded by the C pre-processor
+ * at compile time, it's not  possible to detect and report such problems via
+ * a simple #ifdef/#error combination. Still, the code needs to report errors.
+ * The best way I've found to do this is to make BOOT_TARGET_DEVICES expand to
+ * reference a non-existent symbol, and have the name of that symbol encode
+ * the error message. Consequently, this file contains references to e.g.
+ * BOOT_TARGET_DEVICES_references_MMC_without_CONFIG_CMD_MMC. Given the
+ * prevalence of capitals here, this looks like a pre-processor macro and
+ * hence seems like it should be all capitals, but it's really an error
+ * message that includes some other pre-processor symbols in the text.
+ */
+
 /* We need the part command */
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART
