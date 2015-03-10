@@ -95,6 +95,7 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned long addr;		/* Address of the ELF image     */
 	unsigned long rc;		/* Return value from user code  */
 	char *sload, *saddr;
+	const char *ep = getenv("autostart");
 
 	/* -------------------------------------------------- */
 	int rcode = 0;
@@ -122,6 +123,9 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		addr = load_elf_image_phdr(addr);
 	else
 		addr = load_elf_image_shdr(addr);
+
+	if (ep && !strcmp(ep, "no"))
+		return rcode;
 
 	printf("## Starting application at 0x%08lx ...\n", addr);
 
