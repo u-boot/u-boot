@@ -56,7 +56,7 @@ struct fsl_esdhc {
 	uint    adsaddr;	/* ADMA system address register */
 	char    reserved2[100];	/* reserved */
 	uint    vendorspec;	/* Vendor Specific register */
-	char    reserved3[59];	/* reserved */
+	char    reserved3[56];	/* reserved */
 	uint    hostver;	/* Host controller version register */
 	char    reserved4[4];	/* reserved */
 	uint    dmaerraddr;	/* DMA error address register */
