@@ -59,6 +59,7 @@
 #define CONFIG_MII			/* Required in net/eth.c */
 #define CONFIG_PHY_GIGE			/* per-board part of CPSW */
 #define CONFIG_PHYLIB
+#define PHY_ANEG_TIMEOUT	8000	/* PHY needs longer aneg time at 1G */
 
 #define CONFIG_SUPPORT_EMMC_BOOT
 
