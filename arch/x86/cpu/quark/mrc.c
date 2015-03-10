@@ -105,8 +105,8 @@ static void mrc_adjust_params(struct mrc_params *mrc_params)
 	 * Column: 11 for 8Gbx8, else 10
 	 */
 	mrc_params->column_bits[0] =
-		((dram_params[0].density == 4) &&
-		(dram_width == X8)) ? (11) : (10);
+		(dram_params[0].density == 4) &&
+		(dram_width == X8) ? 11 : 10;
 
 	/*
 	 * Determine row bits:
@@ -117,9 +117,9 @@ static void mrc_adjust_params(struct mrc_params *mrc_params)
 	 * 4Gbx16=15   4Gbx8=16
 	 * 8Gbx16=16   8Gbx8=16
 	 */
-	mrc_params->row_bits[0] = 12 + (dram_params[0].density) +
-		(((dram_params[0].density < 4) &&
-		(dram_width == X8)) ? (1) : (0));
+	mrc_params->row_bits[0] = 12 + dram_params[0].density +
+		(dram_params[0].density < 4) &&
+		(dram_width == X8) ? 1 : 0;
 
 	/*
 	 * Determine per-channel memory size:
@@ -137,7 +137,7 @@ static void mrc_adjust_params(struct mrc_params *mrc_params)
 	 * 4Gb     x16   0x040000000 (1024MB)
 	 * 4Gb     x8    0x080000000 (2048MB)
 	 */
-	mrc_params->channel_size[0] = (1 << dram_params[0].density);
+	mrc_params->channel_size[0] = 1 << dram_params[0].density;
 	mrc_params->channel_size[0] *= (dram_width == X8) ? 2 : 1;
 	mrc_params->channel_size[0] *= (rank_enables == 0x3) ? 2 : 1;
 	mrc_params->channel_size[0] *= (channel_width == X16) ? 1 : 2;

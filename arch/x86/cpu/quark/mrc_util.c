@@ -18,14 +18,14 @@
 
 static const uint8_t vref_codes[64] = {
 	/* lowest to highest */
-	0x3F, 0x3E, 0x3D, 0x3C, 0x3B, 0x3A, 0x39, 0x38,
+	0x3f, 0x3e, 0x3d, 0x3c, 0x3b, 0x3a, 0x39, 0x38,
 	0x37, 0x36, 0x35, 0x34, 0x33, 0x32, 0x31, 0x30,
-	0x2F, 0x2E, 0x2D, 0x2C, 0x2B, 0x2A, 0x29, 0x28,
+	0x2f, 0x2e, 0x2d, 0x2c, 0x2b, 0x2a, 0x29, 0x28,
 	0x27, 0x26, 0x25, 0x24, 0x23, 0x22, 0x21, 0x20,
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+	0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-	0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+	0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f
 };
 
 void mrc_write_mask(u32 unit, u32 addr, u32 data, u32 mask)
@@ -80,7 +80,7 @@ void select_mem_mgr(void)
 	ENTERFN();
 
 	dco = msg_port_read(MEM_CTLR, DCO);
-	dco &= ~BIT28;
+	dco &= ~DCO_PMICTL;
 	msg_port_write(MEM_CTLR, DCO, dco);
 
 	LEAVEFN();
@@ -94,7 +94,7 @@ void select_hte(void)
 	ENTERFN();
 
 	dco = msg_port_read(MEM_CTLR, DCO);
-	dco |= BIT28;
+	dco |= DCO_PMICTL;
 	msg_port_write(MEM_CTLR, DCO, dco);
 
 	LEAVEFN();
@@ -151,26 +151,25 @@ void set_rcvn(uint8_t channel, uint8_t rank,
 	 * BL0 -> B01PTRCTL0[11:08] (0x0-0xF)
 	 * BL1 -> B01PTRCTL0[23:20] (0x0-0xF)
 	 */
-	reg = B01PTRCTL0 + ((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET);
-	msk = (byte_lane & BIT0) ? (BIT23 | BIT22 | BIT21 | BIT20) :
-		(BIT11 | BIT10 | BIT9 | BIT8);
-	temp = (byte_lane & BIT0) ? ((pi_count / HALF_CLK) << 20) :
-		((pi_count / HALF_CLK) << 8);
+	reg = B01PTRCTL0 + (byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET;
+	msk = (byte_lane & 1) ? 0xf00000 : 0xf00;
+	temp = (byte_lane & 1) ? (pi_count / HALF_CLK) << 20 :
+		(pi_count / HALF_CLK) << 8;
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* Adjust PI_COUNT */
-	pi_count -= ((pi_count / HALF_CLK) & 0xF) * HALF_CLK;
+	pi_count -= ((pi_count / HALF_CLK) & 0xf) * HALF_CLK;
 
 	/*
 	 * PI (1/64 MCLK, 1 PIs)
 	 * BL0 -> B0DLLPICODER0[29:24] (0x00-0x3F)
 	 * BL1 -> B1DLLPICODER0[29:24] (0x00-0x3F)
 	 */
-	reg = (byte_lane & BIT0) ? B1DLLPICODER0 : B0DLLPICODER0;
-	reg += (((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET));
-	msk = (BIT29 | BIT28 | BIT27 | BIT26 | BIT25 | BIT24);
+	reg = (byte_lane & 1) ? B1DLLPICODER0 : B0DLLPICODER0;
+	reg += ((byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET);
+	msk = 0x3f000000;
 	temp = pi_count << 24;
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
@@ -179,25 +178,25 @@ void set_rcvn(uint8_t channel, uint8_t rank,
 	 * BL0/1 -> B01DBCTL1[08/11] (+1 select)
 	 * BL0/1 -> B01DBCTL1[02/05] (enable)
 	 */
-	reg = B01DBCTL1 + ((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET);
+	reg = B01DBCTL1 + (byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET;
 	msk = 0x00;
 	temp = 0x00;
 
 	/* enable */
-	msk |= (byte_lane & BIT0) ? BIT5 : BIT2;
+	msk |= (byte_lane & 1) ? (1 << 5) : (1 << 2);
 	if ((pi_count < EARLY_DB) || (pi_count > LATE_DB))
 		temp |= msk;
 
 	/* select */
-	msk |= (byte_lane & BIT0) ? BIT11 : BIT8;
+	msk |= (byte_lane & 1) ? (1 << 11) : (1 << 8);
 	if (pi_count < EARLY_DB)
 		temp |= msk;
 
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* error check */
-	if (pi_count > 0x3F) {
+	if (pi_count > 0x3f) {
 		training_message(channel, rank, byte_lane);
 		mrc_post_code(0xee, 0xe0);
 	}
@@ -224,11 +223,11 @@ uint32_t get_rcvn(uint8_t channel, uint8_t rank, uint8_t byte_lane)
 	 * BL0 -> B01PTRCTL0[11:08] (0x0-0xF)
 	 * BL1 -> B01PTRCTL0[23:20] (0x0-0xF)
 	 */
-	reg = B01PTRCTL0 + ((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET);
+	reg = B01PTRCTL0 + (byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET;
 	temp = msg_port_alt_read(DDRPHY, reg);
-	temp >>= (byte_lane & BIT0) ? 20 : 8;
-	temp &= 0xF;
+	temp >>= (byte_lane & 1) ? 20 : 8;
+	temp &= 0xf;
 
 	/* Adjust PI_COUNT */
 	pi_count = temp * HALF_CLK;
@@ -238,12 +237,12 @@ uint32_t get_rcvn(uint8_t channel, uint8_t rank, uint8_t byte_lane)
 	 * BL0 -> B0DLLPICODER0[29:24] (0x00-0x3F)
 	 * BL1 -> B1DLLPICODER0[29:24] (0x00-0x3F)
 	 */
-	reg = (byte_lane & BIT0) ? B1DLLPICODER0 : B0DLLPICODER0;
-	reg += (((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET));
+	reg = (byte_lane & 1) ? B1DLLPICODER0 : B0DLLPICODER0;
+	reg += ((byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET);
 	temp = msg_port_alt_read(DDRPHY, reg);
 	temp >>= 24;
-	temp &= 0x3F;
+	temp &= 0x3f;
 
 	/* Adjust PI_COUNT */
 	pi_count += temp;
@@ -275,10 +274,10 @@ void set_rdqs(uint8_t channel, uint8_t rank,
 	 * BL0 -> B0RXDQSPICODE[06:00] (0x00-0x47)
 	 * BL1 -> B1RXDQSPICODE[06:00] (0x00-0x47)
 	 */
-	reg = (byte_lane & BIT0) ? B1RXDQSPICODE : B0RXDQSPICODE;
-	reg += (((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET));
-	msk = (BIT6 | BIT5 | BIT4 | BIT3 | BIT2 | BIT1 | BIT0);
+	reg = (byte_lane & 1) ? B1RXDQSPICODE : B0RXDQSPICODE;
+	reg += ((byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET);
+	msk = 0x7f;
 	temp = pi_count << 0;
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
@@ -310,13 +309,13 @@ uint32_t get_rdqs(uint8_t channel, uint8_t rank, uint8_t byte_lane)
 	 * BL0 -> B0RXDQSPICODE[06:00] (0x00-0x47)
 	 * BL1 -> B1RXDQSPICODE[06:00] (0x00-0x47)
 	 */
-	reg = (byte_lane & BIT0) ? B1RXDQSPICODE : B0RXDQSPICODE;
-	reg += (((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET));
+	reg = (byte_lane & 1) ? B1RXDQSPICODE : B0RXDQSPICODE;
+	reg += ((byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET);
 	temp = msg_port_alt_read(DDRPHY, reg);
 
 	/* Adjust PI_COUNT */
-	pi_count = temp & 0x7F;
+	pi_count = temp & 0x7f;
 
 	LEAVEFN();
 
@@ -346,26 +345,25 @@ void set_wdqs(uint8_t channel, uint8_t rank,
 	 * BL0 -> B01PTRCTL0[07:04] (0x0-0xF)
 	 * BL1 -> B01PTRCTL0[19:16] (0x0-0xF)
 	 */
-	reg = B01PTRCTL0 + ((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET);
-	msk = (byte_lane & BIT0) ? (BIT19 | BIT18 | BIT17 | BIT16) :
-		(BIT7 | BIT6 | BIT5 | BIT4);
+	reg = B01PTRCTL0 + (byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET;
+	msk = (byte_lane & 1) ? 0xf0000 : 0xf0;
 	temp = pi_count / HALF_CLK;
-	temp <<= (byte_lane & BIT0) ? 16 : 4;
+	temp <<= (byte_lane & 1) ? 16 : 4;
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* Adjust PI_COUNT */
-	pi_count -= ((pi_count / HALF_CLK) & 0xF) * HALF_CLK;
+	pi_count -= ((pi_count / HALF_CLK) & 0xf) * HALF_CLK;
 
 	/*
 	 * PI (1/64 MCLK, 1 PIs)
 	 * BL0 -> B0DLLPICODER0[21:16] (0x00-0x3F)
 	 * BL1 -> B1DLLPICODER0[21:16] (0x00-0x3F)
 	 */
-	reg = (byte_lane & BIT0) ? B1DLLPICODER0 : B0DLLPICODER0;
-	reg += (((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET));
-	msk = (BIT21 | BIT20 | BIT19 | BIT18 | BIT17 | BIT16);
+	reg = (byte_lane & 1) ? B1DLLPICODER0 : B0DLLPICODER0;
+	reg += ((byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET);
+	msk = 0x3f0000;
 	temp = pi_count << 16;
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
@@ -374,25 +372,25 @@ void set_wdqs(uint8_t channel, uint8_t rank,
 	 * BL0/1 -> B01DBCTL1[07/10] (+1 select)
 	 * BL0/1 -> B01DBCTL1[01/04] (enable)
 	 */
-	reg = B01DBCTL1 + ((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET);
+	reg = B01DBCTL1 + (byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET;
 	msk = 0x00;
 	temp = 0x00;
 
 	/* enable */
-	msk |= (byte_lane & BIT0) ? BIT4 : BIT1;
+	msk |= (byte_lane & 1) ? (1 << 4) : (1 << 1);
 	if ((pi_count < EARLY_DB) || (pi_count > LATE_DB))
 		temp |= msk;
 
 	/* select */
-	msk |= (byte_lane & BIT0) ? BIT10 : BIT7;
+	msk |= (byte_lane & 1) ? (1 << 10) : (1 << 7);
 	if (pi_count < EARLY_DB)
 		temp |= msk;
 
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* error check */
-	if (pi_count > 0x3F) {
+	if (pi_count > 0x3f) {
 		training_message(channel, rank, byte_lane);
 		mrc_post_code(0xee, 0xe2);
 	}
@@ -419,11 +417,11 @@ uint32_t get_wdqs(uint8_t channel, uint8_t rank, uint8_t byte_lane)
 	 * BL0 -> B01PTRCTL0[07:04] (0x0-0xF)
 	 * BL1 -> B01PTRCTL0[19:16] (0x0-0xF)
 	 */
-	reg = B01PTRCTL0 + ((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET);
+	reg = B01PTRCTL0 + (byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET;
 	temp = msg_port_alt_read(DDRPHY, reg);
-	temp >>= (byte_lane & BIT0) ? 16 : 4;
-	temp &= 0xF;
+	temp >>= (byte_lane & 1) ? 16 : 4;
+	temp &= 0xf;
 
 	/* Adjust PI_COUNT */
 	pi_count = (temp * HALF_CLK);
@@ -433,12 +431,12 @@ uint32_t get_wdqs(uint8_t channel, uint8_t rank, uint8_t byte_lane)
 	 * BL0 -> B0DLLPICODER0[21:16] (0x00-0x3F)
 	 * BL1 -> B1DLLPICODER0[21:16] (0x00-0x3F)
 	 */
-	reg = (byte_lane & BIT0) ? B1DLLPICODER0 : B0DLLPICODER0;
-	reg += (((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET));
+	reg = (byte_lane & 1) ? B1DLLPICODER0 : B0DLLPICODER0;
+	reg += ((byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET);
 	temp = msg_port_alt_read(DDRPHY, reg);
 	temp >>= 16;
-	temp &= 0x3F;
+	temp &= 0x3f;
 
 	/* Adjust PI_COUNT */
 	pi_count += temp;
@@ -471,26 +469,25 @@ void set_wdq(uint8_t channel, uint8_t rank,
 	 * BL0 -> B01PTRCTL0[03:00] (0x0-0xF)
 	 * BL1 -> B01PTRCTL0[15:12] (0x0-0xF)
 	 */
-	reg = B01PTRCTL0 + ((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET);
-	msk = (byte_lane & BIT0) ? (BIT15 | BIT14 | BIT13 | BIT12) :
-		(BIT3 | BIT2 | BIT1 | BIT0);
+	reg = B01PTRCTL0 + (byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET;
+	msk = (byte_lane & 1) ? 0xf000 : 0xf;
 	temp = pi_count / HALF_CLK;
-	temp <<= (byte_lane & BIT0) ? 12 : 0;
+	temp <<= (byte_lane & 1) ? 12 : 0;
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* Adjust PI_COUNT */
-	pi_count -= ((pi_count / HALF_CLK) & 0xF) * HALF_CLK;
+	pi_count -= ((pi_count / HALF_CLK) & 0xf) * HALF_CLK;
 
 	/*
 	 * PI (1/64 MCLK, 1 PIs)
 	 * BL0 -> B0DLLPICODER0[13:08] (0x00-0x3F)
 	 * BL1 -> B1DLLPICODER0[13:08] (0x00-0x3F)
 	 */
-	reg = (byte_lane & BIT0) ? B1DLLPICODER0 : B0DLLPICODER0;
-	reg += (((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET));
-	msk = (BIT13 | BIT12 | BIT11 | BIT10 | BIT9 | BIT8);
+	reg = (byte_lane & 1) ? B1DLLPICODER0 : B0DLLPICODER0;
+	reg += ((byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET);
+	msk = 0x3f00;
 	temp = pi_count << 8;
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
@@ -499,25 +496,25 @@ void set_wdq(uint8_t channel, uint8_t rank,
 	 * BL0/1 -> B01DBCTL1[06/09] (+1 select)
 	 * BL0/1 -> B01DBCTL1[00/03] (enable)
 	 */
-	reg = B01DBCTL1 + ((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET);
+	reg = B01DBCTL1 + (byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET;
 	msk = 0x00;
 	temp = 0x00;
 
 	/* enable */
-	msk |= (byte_lane & BIT0) ? BIT3 : BIT0;
+	msk |= (byte_lane & 1) ? (1 << 3) : (1 << 0);
 	if ((pi_count < EARLY_DB) || (pi_count > LATE_DB))
 		temp |= msk;
 
 	/* select */
-	msk |= (byte_lane & BIT0) ? BIT9 : BIT6;
+	msk |= (byte_lane & 1) ? (1 << 9) : (1 << 6);
 	if (pi_count < EARLY_DB)
 		temp |= msk;
 
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* error check */
-	if (pi_count > 0x3F) {
+	if (pi_count > 0x3f) {
 		training_message(channel, rank, byte_lane);
 		mrc_post_code(0xee, 0xe3);
 	}
@@ -544,11 +541,11 @@ uint32_t get_wdq(uint8_t channel, uint8_t rank, uint8_t byte_lane)
 	 * BL0 -> B01PTRCTL0[03:00] (0x0-0xF)
 	 * BL1 -> B01PTRCTL0[15:12] (0x0-0xF)
 	 */
-	reg = B01PTRCTL0 + ((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET);
+	reg = B01PTRCTL0 + (byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET;
 	temp = msg_port_alt_read(DDRPHY, reg);
-	temp >>= (byte_lane & BIT0) ? (12) : (0);
-	temp &= 0xF;
+	temp >>= (byte_lane & 1) ? 12 : 0;
+	temp &= 0xf;
 
 	/* Adjust PI_COUNT */
 	pi_count = temp * HALF_CLK;
@@ -558,12 +555,12 @@ uint32_t get_wdq(uint8_t channel, uint8_t rank, uint8_t byte_lane)
 	 * BL0 -> B0DLLPICODER0[13:08] (0x00-0x3F)
 	 * BL1 -> B1DLLPICODER0[13:08] (0x00-0x3F)
 	 */
-	reg = (byte_lane & BIT0) ? B1DLLPICODER0 : B0DLLPICODER0;
-	reg += (((byte_lane >> 1) * DDRIODQ_BL_OFFSET) +
-		(channel * DDRIODQ_CH_OFFSET));
+	reg = (byte_lane & 1) ? B1DLLPICODER0 : B0DLLPICODER0;
+	reg += ((byte_lane >> 1) * DDRIODQ_BL_OFFSET +
+		channel * DDRIODQ_CH_OFFSET);
 	temp = msg_port_alt_read(DDRPHY, reg);
 	temp >>= 8;
-	temp &= 0x3F;
+	temp &= 0x3f;
 
 	/* Adjust PI_COUNT */
 	pi_count += temp;
@@ -589,14 +586,14 @@ void set_wcmd(uint8_t channel, uint32_t pi_count)
 	 * RDPTR (1/2 MCLK, 64 PIs)
 	 * CMDPTRREG[11:08] (0x0-0xF)
 	 */
-	reg = CMDPTRREG + (channel * DDRIOCCC_CH_OFFSET);
-	msk = (BIT11 | BIT10 | BIT9 | BIT8);
+	reg = CMDPTRREG + channel * DDRIOCCC_CH_OFFSET;
+	msk = 0xf00;
 	temp = pi_count / HALF_CLK;
 	temp <<= 8;
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* Adjust PI_COUNT */
-	pi_count -= ((pi_count / HALF_CLK) & 0xF) * HALF_CLK;
+	pi_count -= ((pi_count / HALF_CLK) & 0xf) * HALF_CLK;
 
 	/*
 	 * PI (1/64 MCLK, 1 PIs)
@@ -609,18 +606,13 @@ void set_wcmd(uint8_t channel, uint32_t pi_count)
 	 * CMDDLLPICODER1[13:08] -> CMDSLICE R0 (unused)
 	 * CMDDLLPICODER1[05:00] -> CMDSLICE L0 (unused)
 	 */
-	reg = CMDDLLPICODER1 + (channel * DDRIOCCC_CH_OFFSET);
-
-	msk = (BIT29 | BIT28 | BIT27 | BIT26 | BIT25 | BIT24 |
-		BIT21 | BIT20 | BIT19 | BIT18 | BIT17 | BIT16 |
-		BIT13 | BIT12 | BIT11 | BIT10 | BIT9 | BIT8 |
-		BIT5 | BIT4 | BIT3 | BIT2 | BIT1 | BIT0);
-
+	reg = CMDDLLPICODER1 + channel * DDRIOCCC_CH_OFFSET;
+	msk = 0x3f3f3f3f;
 	temp = (pi_count << 24) | (pi_count << 16) |
 		(pi_count << 8) | (pi_count << 0);
 
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
-	reg = CMDDLLPICODER0 + (channel * DDRIOCCC_CH_OFFSET);	/* PO */
+	reg = CMDDLLPICODER0 + channel * DDRIOCCC_CH_OFFSET;	/* PO */
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/*
@@ -628,24 +620,24 @@ void set_wcmd(uint8_t channel, uint32_t pi_count)
 	 * CMDCFGREG0[17] (+1 select)
 	 * CMDCFGREG0[16] (enable)
 	 */
-	reg = CMDCFGREG0 + (channel * DDRIOCCC_CH_OFFSET);
+	reg = CMDCFGREG0 + channel * DDRIOCCC_CH_OFFSET;
 	msk = 0x00;
 	temp = 0x00;
 
 	/* enable */
-	msk |= BIT16;
+	msk |= (1 << 16);
 	if ((pi_count < EARLY_DB) || (pi_count > LATE_DB))
 		temp |= msk;
 
 	/* select */
-	msk |= BIT17;
+	msk |= (1 << 17);
 	if (pi_count < EARLY_DB)
 		temp |= msk;
 
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* error check */
-	if (pi_count > 0x3F)
+	if (pi_count > 0x3f)
 		mrc_post_code(0xee, 0xe4);
 
 	LEAVEFN();
@@ -667,10 +659,10 @@ uint32_t get_wcmd(uint8_t channel)
 	 * RDPTR (1/2 MCLK, 64 PIs)
 	 * CMDPTRREG[11:08] (0x0-0xF)
 	 */
-	reg = CMDPTRREG + (channel * DDRIOCCC_CH_OFFSET);
+	reg = CMDPTRREG + channel * DDRIOCCC_CH_OFFSET;
 	temp = msg_port_alt_read(DDRPHY, reg);
 	temp >>= 8;
-	temp &= 0xF;
+	temp &= 0xf;
 
 	/* Adjust PI_COUNT */
 	pi_count = temp * HALF_CLK;
@@ -686,10 +678,10 @@ uint32_t get_wcmd(uint8_t channel)
 	 * CMDDLLPICODER1[13:08] -> CMDSLICE R0 (unused)
 	 * CMDDLLPICODER1[05:00] -> CMDSLICE L0 (unused)
 	 */
-	reg = CMDDLLPICODER1 + (channel * DDRIOCCC_CH_OFFSET);
+	reg = CMDDLLPICODER1 + channel * DDRIOCCC_CH_OFFSET;
 	temp = msg_port_alt_read(DDRPHY, reg);
 	temp >>= 16;
-	temp &= 0x3F;
+	temp &= 0x3f;
 
 	/* Adjust PI_COUNT */
 	pi_count += temp;
@@ -716,13 +708,13 @@ void set_wclk(uint8_t channel, uint8_t rank, uint32_t pi_count)
 	 * CCPTRREG[15:12] -> CLK1 (0x0-0xF)
 	 * CCPTRREG[11:08] -> CLK0 (0x0-0xF)
 	 */
-	reg = CCPTRREG + (channel * DDRIOCCC_CH_OFFSET);
-	msk = (BIT15 | BIT14 | BIT13 | BIT12 | BIT11 | BIT10 | BIT9 | BIT8);
+	reg = CCPTRREG + channel * DDRIOCCC_CH_OFFSET;
+	msk = 0xff00;
 	temp = ((pi_count / HALF_CLK) << 12) | ((pi_count / HALF_CLK) << 8);
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* Adjust PI_COUNT */
-	pi_count -= ((pi_count / HALF_CLK) & 0xF) * HALF_CLK;
+	pi_count -= ((pi_count / HALF_CLK) & 0xf) * HALF_CLK;
 
 	/*
 	 * PI (1/64 MCLK, 1 PIs)
@@ -731,16 +723,18 @@ void set_wclk(uint8_t channel, uint8_t rank, uint32_t pi_count)
 	 */
 	reg = rank ? ECCB1DLLPICODER0 : ECCB1DLLPICODER0;
 	reg += (channel * DDRIOCCC_CH_OFFSET);
-	msk = (BIT21 | BIT20 | BIT19 | BIT18 | BIT17 | BIT16 |
-		BIT13 | BIT12 | BIT11 | BIT10 | BIT9 | BIT8);
+	msk = 0x3f3f00;
 	temp = (pi_count << 16) | (pi_count << 8);
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
+
 	reg = rank ? ECCB1DLLPICODER1 : ECCB1DLLPICODER1;
 	reg += (channel * DDRIOCCC_CH_OFFSET);
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
+
 	reg = rank ? ECCB1DLLPICODER2 : ECCB1DLLPICODER2;
 	reg += (channel * DDRIOCCC_CH_OFFSET);
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
+
 	reg = rank ? ECCB1DLLPICODER3 : ECCB1DLLPICODER3;
 	reg += (channel * DDRIOCCC_CH_OFFSET);
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
@@ -750,24 +744,24 @@ void set_wclk(uint8_t channel, uint8_t rank, uint32_t pi_count)
 	 * CCCFGREG1[11:08] (+1 select)
 	 * CCCFGREG1[03:00] (enable)
 	 */
-	reg = CCCFGREG1 + (channel * DDRIOCCC_CH_OFFSET);
+	reg = CCCFGREG1 + channel * DDRIOCCC_CH_OFFSET;
 	msk = 0x00;
 	temp = 0x00;
 
 	/* enable */
-	msk |= (BIT3 | BIT2 | BIT1 | BIT0);
+	msk |= 0xf;
 	if ((pi_count < EARLY_DB) || (pi_count > LATE_DB))
 		temp |= msk;
 
 	/* select */
-	msk |= (BIT11 | BIT10 | BIT9 | BIT8);
+	msk |= 0xf00;
 	if (pi_count < EARLY_DB)
 		temp |= msk;
 
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* error check */
-	if (pi_count > 0x3F)
+	if (pi_count > 0x3f)
 		mrc_post_code(0xee, 0xe5);
 
 	LEAVEFN();
@@ -790,10 +784,10 @@ uint32_t get_wclk(uint8_t channel, uint8_t rank)
 	 * CCPTRREG[15:12] -> CLK1 (0x0-0xF)
 	 * CCPTRREG[11:08] -> CLK0 (0x0-0xF)
 	 */
-	reg = CCPTRREG + (channel * DDRIOCCC_CH_OFFSET);
+	reg = CCPTRREG + channel * DDRIOCCC_CH_OFFSET;
 	temp = msg_port_alt_read(DDRPHY, reg);
 	temp >>= rank ? 12 : 8;
-	temp &= 0xF;
+	temp &= 0xf;
 
 	/* Adjust PI_COUNT */
 	pi_count = temp * HALF_CLK;
@@ -807,7 +801,7 @@ uint32_t get_wclk(uint8_t channel, uint8_t rank)
 	reg += (channel * DDRIOCCC_CH_OFFSET);
 	temp = msg_port_alt_read(DDRPHY, reg);
 	temp >>= rank ? 16 : 8;
-	temp &= 0x3F;
+	temp &= 0x3f;
 
 	pi_count += temp;
 
@@ -835,28 +829,31 @@ void set_wctl(uint8_t channel, uint8_t rank, uint32_t pi_count)
 	 * CCPTRREG[31:28] (0x0-0xF)
 	 * CCPTRREG[27:24] (0x0-0xF)
 	 */
-	reg = CCPTRREG + (channel * DDRIOCCC_CH_OFFSET);
-	msk = (BIT31 | BIT30 | BIT29 | BIT28 | BIT27 | BIT26 | BIT25 | BIT24);
+	reg = CCPTRREG + channel * DDRIOCCC_CH_OFFSET;
+	msk = 0xff000000;
 	temp = ((pi_count / HALF_CLK) << 28) | ((pi_count / HALF_CLK) << 24);
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* Adjust PI_COUNT */
-	pi_count -= ((pi_count / HALF_CLK) & 0xF) * HALF_CLK;
+	pi_count -= ((pi_count / HALF_CLK) & 0xf) * HALF_CLK;
 
 	/*
 	 * PI (1/64 MCLK, 1 PIs)
 	 * ECCB1DLLPICODER?[29:24] (0x00-0x3F)
 	 * ECCB1DLLPICODER?[29:24] (0x00-0x3F)
 	 */
-	reg = ECCB1DLLPICODER0 + (channel * DDRIOCCC_CH_OFFSET);
-	msk = (BIT29 | BIT28 | BIT27 | BIT26 | BIT25 | BIT24);
+	reg = ECCB1DLLPICODER0 + channel * DDRIOCCC_CH_OFFSET;
+	msk = 0x3f000000;
 	temp = (pi_count << 24);
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
-	reg = ECCB1DLLPICODER1 + (channel * DDRIOCCC_CH_OFFSET);
+
+	reg = ECCB1DLLPICODER1 + channel * DDRIOCCC_CH_OFFSET;
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
-	reg = ECCB1DLLPICODER2 + (channel * DDRIOCCC_CH_OFFSET);
+
+	reg = ECCB1DLLPICODER2 + channel * DDRIOCCC_CH_OFFSET;
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
-	reg = ECCB1DLLPICODER3 + (channel * DDRIOCCC_CH_OFFSET);
+
+	reg = ECCB1DLLPICODER3 + channel * DDRIOCCC_CH_OFFSET;
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/*
@@ -864,24 +861,24 @@ void set_wctl(uint8_t channel, uint8_t rank, uint32_t pi_count)
 	 * CCCFGREG1[13:12] (+1 select)
 	 * CCCFGREG1[05:04] (enable)
 	 */
-	reg = CCCFGREG1 + (channel * DDRIOCCC_CH_OFFSET);
+	reg = CCCFGREG1 + channel * DDRIOCCC_CH_OFFSET;
 	msk = 0x00;
 	temp = 0x00;
 
 	/* enable */
-	msk |= (BIT5 | BIT4);
+	msk |= 0x30;
 	if ((pi_count < EARLY_DB) || (pi_count > LATE_DB))
 		temp |= msk;
 
 	/* select */
-	msk |= (BIT13 | BIT12);
+	msk |= 0x3000;
 	if (pi_count < EARLY_DB)
 		temp |= msk;
 
 	mrc_alt_write_mask(DDRPHY, reg, temp, msk);
 
 	/* error check */
-	if (pi_count > 0x3F)
+	if (pi_count > 0x3f)
 		mrc_post_code(0xee, 0xe6);
 
 	LEAVEFN();
@@ -906,10 +903,10 @@ uint32_t get_wctl(uint8_t channel, uint8_t rank)
 	 * CCPTRREG[31:28] (0x0-0xF)
 	 * CCPTRREG[27:24] (0x0-0xF)
 	 */
-	reg = CCPTRREG + (channel * DDRIOCCC_CH_OFFSET);
+	reg = CCPTRREG + channel * DDRIOCCC_CH_OFFSET;
 	temp = msg_port_alt_read(DDRPHY, reg);
 	temp >>= 24;
-	temp &= 0xF;
+	temp &= 0xf;
 
 	/* Adjust PI_COUNT */
 	pi_count = temp * HALF_CLK;
@@ -919,10 +916,10 @@ uint32_t get_wctl(uint8_t channel, uint8_t rank)
 	 * ECCB1DLLPICODER?[29:24] (0x00-0x3F)
 	 * ECCB1DLLPICODER?[29:24] (0x00-0x3F)
 	 */
-	reg = ECCB1DLLPICODER0 + (channel * DDRIOCCC_CH_OFFSET);
+	reg = ECCB1DLLPICODER0 + channel * DDRIOCCC_CH_OFFSET;
 	temp = msg_port_alt_read(DDRPHY, reg);
 	temp >>= 24;
-	temp &= 0x3F;
+	temp &= 0x3f;
 
 	/* Adjust PI_COUNT */
 	pi_count += temp;
@@ -938,17 +935,16 @@ uint32_t get_wctl(uint8_t channel, uint8_t rank)
  */
 void set_vref(uint8_t channel, uint8_t byte_lane, uint32_t setting)
 {
-	uint32_t reg = (byte_lane & 0x1) ? (B1VREFCTL) : (B0VREFCTL);
+	uint32_t reg = (byte_lane & 0x1) ? B1VREFCTL : B0VREFCTL;
 
 	ENTERFN();
 
 	DPF(D_TRN, "Vref ch%d ln%d : val=%03X\n",
 	    channel, byte_lane, setting);
 
-	mrc_alt_write_mask(DDRPHY, (reg + (channel * DDRIODQ_CH_OFFSET) +
-		((byte_lane >> 1) * DDRIODQ_BL_OFFSET)),
-		(vref_codes[setting] << 2),
-		(BIT7 | BIT6 | BIT5 | BIT4 | BIT3 | BIT2));
+	mrc_alt_write_mask(DDRPHY, reg + channel * DDRIODQ_CH_OFFSET +
+		(byte_lane >> 1) * DDRIODQ_BL_OFFSET,
+		vref_codes[setting] << 2, 0xfc);
 
 	/*
 	 * need to wait ~300ns for Vref to settle
@@ -969,15 +965,15 @@ uint32_t get_vref(uint8_t channel, uint8_t byte_lane)
 {
 	uint8_t j;
 	uint32_t ret_val = sizeof(vref_codes) / 2;
-	uint32_t reg = (byte_lane & 0x1) ? (B1VREFCTL) : (B0VREFCTL);
+	uint32_t reg = (byte_lane & 0x1) ? B1VREFCTL : B0VREFCTL;
 	uint32_t temp;
 
 	ENTERFN();
 
-	temp = msg_port_alt_read(DDRPHY, (reg + (channel * DDRIODQ_CH_OFFSET) +
-		((byte_lane >> 1) * DDRIODQ_BL_OFFSET)));
+	temp = msg_port_alt_read(DDRPHY, reg + channel * DDRIODQ_CH_OFFSET +
+		(byte_lane >> 1) * DDRIODQ_BL_OFFSET);
 	temp >>= 2;
-	temp &= 0x3F;
+	temp &= 0x3f;
 
 	for (j = 0; j < sizeof(vref_codes); j++) {
 		if (vref_codes[j] == temp) {
@@ -997,7 +993,7 @@ uint32_t get_vref(uint8_t channel, uint8_t byte_lane)
  */
 uint32_t get_addr(uint8_t channel, uint8_t rank)
 {
-	uint32_t offset = 0x02000000;	/* 32MB */
+	uint32_t offset = 32 * 1024 * 1024;	/* 32MB */
 
 	/* Begin product specific code */
 	if (channel > 0) {
@@ -1040,8 +1036,8 @@ uint32_t sample_dqs(struct mrc_params *mrc_params, uint8_t channel,
 	uint32_t address = get_addr(channel, rank);
 
 	/* initialise msk[] */
-	msk[0] = rcvn ? BIT1 : BIT9;	/* BL0 */
-	msk[1] = rcvn ? BIT0 : BIT8;	/* BL1 */
+	msk[0] = rcvn ? (1 << 1) : (1 << 9);	/* BL0 */
+	msk[1] = rcvn ? (1 << 0) : (1 << 8);	/* BL1 */
 
 	/* cycle through each byte lane group */
 	for (bl_grp = 0; bl_grp < (NUM_BYTE_LANES / bl_divisor) / 2; bl_grp++) {
@@ -1056,9 +1052,9 @@ uint32_t sample_dqs(struct mrc_params *mrc_params, uint8_t channel,
 			 * DQTRAINSTS register
 			 */
 			sampled_val[j] = msg_port_alt_read(DDRPHY,
-				(DQTRAINSTS +
-				(bl_grp * DDRIODQ_BL_OFFSET) +
-				(channel * DDRIODQ_CH_OFFSET)));
+				DQTRAINSTS +
+				bl_grp * DDRIODQ_BL_OFFSET +
+				channel * DDRIODQ_CH_OFFSET);
 		}
 
 		/*
@@ -1076,7 +1072,7 @@ uint32_t sample_dqs(struct mrc_params *mrc_params, uint8_t channel,
 					num_0s++;
 			}
 		if (num_1s > num_0s)
-			ret_val |= (1 << (bl + (bl_grp * 2)));
+			ret_val |= (1 << (bl + bl_grp * 2));
 		}
 	}
 
@@ -1116,10 +1112,10 @@ void find_rising_edge(struct mrc_params *mrc_params, uint32_t delay[],
 			/* increase sample delay by 26 PI (0.2 CLK) */
 			if (rcvn) {
 				set_rcvn(channel, rank, bl,
-					 delay[bl] + (sample * SAMPLE_DLY));
+					 delay[bl] + sample * SAMPLE_DLY);
 			} else {
 				set_wdqs(channel, rank, bl,
-					 delay[bl] + (sample * SAMPLE_DLY));
+					 delay[bl] + sample * SAMPLE_DLY);
 			}
 		}
 
@@ -1129,7 +1125,7 @@ void find_rising_edge(struct mrc_params *mrc_params, uint32_t delay[],
 
 		DPF(D_TRN,
 		    "Find rising edge %s ch%d rnk%d: #%d dly=%d dqs=%02X\n",
-		    (rcvn ? "RCVN" : "WDQS"), channel, rank, sample,
+		    rcvn ? "RCVN" : "WDQS", channel, rank, sample,
 		    sample * SAMPLE_DLY, sample_result[sample]);
 	}
 
@@ -1137,7 +1133,7 @@ void find_rising_edge(struct mrc_params *mrc_params, uint32_t delay[],
 	 * This pattern will help determine where we landed and ultimately
 	 * how to place RCVEN/WDQS.
 	 */
-	for (bl = 0; bl < (NUM_BYTE_LANES / bl_divisor); bl++) {
+	for (bl = 0; bl < NUM_BYTE_LANES / bl_divisor; bl++) {
 		/* build transition_pattern (MSB is 1st sample) */
 		transition_pattern = 0;
 		for (sample = 0; sample < SAMPLE_CNT; sample++) {
@@ -1202,7 +1198,7 @@ void find_rising_edge(struct mrc_params *mrc_params, uint32_t delay[],
 		/* take a sample */
 		temp = sample_dqs(mrc_params, channel, rank, rcvn);
 		/* check all each byte lane for proper edge */
-		for (bl = 0; bl < (NUM_BYTE_LANES / bl_divisor); bl++) {
+		for (bl = 0; bl < NUM_BYTE_LANES / bl_divisor; bl++) {
 			if (temp & (1 << bl)) {
 				/* sampled "1" */
 				if (direction[bl] == BACKWARD) {
@@ -1340,10 +1336,10 @@ void lfsr32(uint32_t *lfsr_ptr)
 	lfsr = *lfsr_ptr;
 
 	for (i = 0; i < 32; i++) {
-		bit = 1 ^ (lfsr & BIT0);
-		bit = bit ^ ((lfsr & BIT1) >> 1);
-		bit = bit ^ ((lfsr & BIT2) >> 2);
-		bit = bit ^ ((lfsr & BIT22) >> 22);
+		bit = 1 ^ (lfsr & 1);
+		bit = bit ^ ((lfsr & 2) >> 1);
+		bit = bit ^ ((lfsr & 4) >> 2);
+		bit = bit ^ ((lfsr & 0x400000) >> 22);
 
 		lfsr = ((lfsr >> 1) | (bit << 31));
 	}
@@ -1362,16 +1358,16 @@ void clear_pointers(void)
 	for (channel = 0; channel < NUM_CHANNELS; channel++) {
 		for (bl = 0; bl < NUM_BYTE_LANES; bl++) {
 			mrc_alt_write_mask(DDRPHY,
-					   (B01PTRCTL1 +
-					   (channel * DDRIODQ_CH_OFFSET) +
-					   ((bl >> 1) * DDRIODQ_BL_OFFSET)),
-					   ~BIT8, BIT8);
+					   B01PTRCTL1 +
+					   channel * DDRIODQ_CH_OFFSET +
+					   (bl >> 1) * DDRIODQ_BL_OFFSET,
+					   ~(1 << 8), (1 << 8));
 
 			mrc_alt_write_mask(DDRPHY,
-					   (B01PTRCTL1 +
-					   (channel * DDRIODQ_CH_OFFSET) +
-					   ((bl >> 1) * DDRIODQ_BL_OFFSET)),
-					   BIT8, BIT8);
+					   B01PTRCTL1 +
+					   channel * DDRIODQ_CH_OFFSET +
+					   (bl >> 1) * DDRIODQ_BL_OFFSET,
+					   (1 << 8), (1 << 8));
 		}
 	}
 
@@ -1412,7 +1408,7 @@ static void print_timings_internal(uint8_t algo, uint8_t channel, uint8_t rank,
 		break;
 	}
 
-	for (bl = 0; bl < (NUM_BYTE_LANES / bl_divisor); bl++) {
+	for (bl = 0; bl < NUM_BYTE_LANES / bl_divisor; bl++) {
 		switch (algo) {
 		case RCVN:
 			DPF(D_INFO, " %03d", get_rcvn(channel, rank, bl));
