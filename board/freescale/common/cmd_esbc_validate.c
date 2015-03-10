@@ -8,6 +8,16 @@
 #include <command.h>
 #include <fsl_validate.h>
 
+static int do_esbc_halt(cmd_tbl_t *cmdtp, int flag, int argc,
+				char * const argv[])
+{
+	printf("Core is entering spin loop.\n");
+loop:
+	goto loop;
+
+	return 0;
+}
+
 static int do_esbc_validate(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
@@ -31,4 +41,10 @@ U_BOOT_CMD(
 	esbc_validate,	3,	0,	do_esbc_validate,
 	"Validates signature on a given image using RSA verification",
 	esbc_validate_help_text
+);
+
+U_BOOT_CMD(
+	esbc_halt,	1,	0,	do_esbc_halt,
+	"Put the core in spin loop ",
+	""
 );
