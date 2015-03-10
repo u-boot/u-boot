@@ -125,7 +125,7 @@ static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 		retval = -4;
 	else if (bp->bp_hlen != HWL_ETHER)
 		retval = -5;
-	else if (!bootp_match_id(NetReadLong((ulong *)&bp->bp_id)))
+	else if (!bootp_match_id(netread32(&bp->bp_id)))
 		retval = -6;
 
 	debug("Filtering pkt = %d\n", retval);
@@ -350,7 +350,7 @@ BootpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 	BootpCopyNetParams(bp);		/* Store net parameters from reply */
 
 	/* Retrieve extended information (we must parse the vendor area) */
-	if (NetReadLong((ulong *)&bp->bp_vend[0]) == htonl(BOOTP_VENDOR_MAGIC))
+	if (netread32(&bp->bp_vend[0]) == htonl(BOOTP_VENDOR_MAGIC))
 		BootpVendorProcess((uchar *)&bp->bp_vend[4], len);
 
 	NetSetTimeout(0, (thand_f *)0);
@@ -732,7 +732,7 @@ BootpRequest(void)
 	BootpID += get_timer(0);
 	BootpID = htonl(BootpID);
 	bootp_add_id(BootpID);
-	NetCopyLong(&bp->bp_id, &BootpID);
+	netcopy32(&bp->bp_id, &BootpID);
 
 	/*
 	 * Calculate proper packet lengths taking into account the
@@ -770,7 +770,7 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
 		case 2:		/* Time offset	*/
 			to_ptr = &NetTimeOffset;
-			NetCopyLong((ulong *)to_ptr, (ulong *)(popt + 2));
+			netcopy32(to_ptr, popt + 2);
 			NetTimeOffset = ntohl(NetTimeOffset);
 			break;
 #endif
@@ -806,7 +806,7 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 			break;
 #endif
 		case 51:
-			NetCopyLong(&dhcp_leasetime, (ulong *) (popt + 2));
+			netcopy32(&dhcp_leasetime, popt + 2);
 			break;
 		case 53:	/* Ignore Message Type Option */
 			break;
@@ -860,7 +860,7 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 
 static int DhcpMessageType(unsigned char *popt)
 {
-	if (NetReadLong((ulong *)popt) != htonl(BOOTP_VENDOR_MAGIC))
+	if (netread32(popt) != htonl(BOOTP_VENDOR_MAGIC))
 		return -1;
 
 	popt += 4;
@@ -911,7 +911,7 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	 * ID is the id of the OFFER packet
 	 */
 
-	NetCopyLong(&bp->bp_id, &bp_offer->bp_id);
+	netcopy32(&bp->bp_id, &bp_offer->bp_id);
 
 	/*
 	 * Copy options from OFFER packet if present
@@ -970,7 +970,7 @@ DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 			debug("TRANSITIONING TO REQUESTING STATE\n");
 			dhcp_state = REQUESTING;
 
-			if (NetReadLong((ulong *)&bp->bp_vend[0]) ==
+			if (netread32(&bp->bp_vend[0]) ==
 						htonl(BOOTP_VENDOR_MAGIC))
 				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
 
@@ -986,7 +986,7 @@ DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		debug("DHCP State: REQUESTING\n");
 
 		if (DhcpMessageType((u8 *)bp->bp_vend) == DHCP_ACK) {
-			if (NetReadLong((ulong *)&bp->bp_vend[0]) ==
+			if (netread32(&bp->bp_vend[0]) ==
 						htonl(BOOTP_VENDOR_MAGIC))
 				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
 			/* Store net params from reply */

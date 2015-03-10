@@ -20,6 +20,7 @@
 #include <phy.h>
 #include <miiphy.h>
 #include <watchdog.h>
+#include <asm/system.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
@@ -51,10 +52,21 @@
 #define ZYNQ_GEM_NWCFG_SPEED1000	0x000000400 /* 1Gbps operation */
 #define ZYNQ_GEM_NWCFG_FDEN		0x000000002 /* Full Duplex mode */
 #define ZYNQ_GEM_NWCFG_FSREM		0x000020000 /* FCS removal */
+#ifdef CONFIG_TARGET_XILINX_ZYNQMP
+#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x0001C0000 /* Div pclk by 224, 540MHz */
+#else
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000080000 /* Div pclk by 32, 80MHz */
+#endif
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV2	0x0000c0000 /* Div pclk by 48, 120MHz */
 
-#define ZYNQ_GEM_NWCFG_INIT		(ZYNQ_GEM_NWCFG_FDEN | \
+#ifdef CONFIG_TARGET_XILINX_ZYNQMP
+# define ZYNQ_GEM_DBUS_WIDTH	(1 << 21) /* 64 bit bus */
+#else
+# define ZYNQ_GEM_DBUS_WIDTH	(0 << 21) /* 32 bit bus */
+#endif
+
+#define ZYNQ_GEM_NWCFG_INIT		(ZYNQ_GEM_DBUS_WIDTH | \
+					ZYNQ_GEM_NWCFG_FDEN | \
 					ZYNQ_GEM_NWCFG_FSREM | \
 					ZYNQ_GEM_NWCFG_MDCCLKDIV)
 
@@ -298,7 +310,7 @@ static int zynq_gem_setup_mac(struct eth_device *dev)
 static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 {
 	u32 i;
-	unsigned long clk_rate = 0;
+	unsigned long __maybe_unused clk_rate = 0;
 	struct phy_device *phydev;
 	const u32 stat_size = (sizeof(struct zynq_gem_regs) -
 				offsetof(struct zynq_gem_regs, stat)) / 4;
@@ -355,6 +367,9 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		priv->init++;
 	}
 
+#ifdef CONFIG_TARGET_XILINX_ZYNQMP
+	if (!priv->init) {
+#endif
 	phy_detection(dev);
 
 #ifdef CONFIG_PHYLIB
@@ -389,11 +404,16 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		clk_rate = ZYNQ_GEM_FREQUENCY_10;
 		break;
 	}
+#ifdef CONFIG_TARGET_XILINX_ZYNQMP
+	}
+#endif
 
+#ifndef CONFIG_TARGET_XILINX_ZYNQMP
 	/* Change the rclk and clk only not using EMIO interface */
 	if (!priv->emio)
 		zynq_slcr_gem_clk_setup(dev->iobase !=
 					ZYNQ_GEM_BASEADDR0, clk_rate);
+#endif
 
 #else
 	/* PHY Setup */
@@ -447,6 +467,9 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	struct zynq_gem_priv *priv = dev->priv;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
 
+	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
+		     ZYNQ_GEM_NWCTRL_TXEN_MASK);
+
 	/* setup BD */
 	writel((u32)priv->tx_bd, &regs->txqbase);
 
@@ -460,6 +483,11 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	addr = (u32) ptr;
 	addr &= ~(ARCH_DMA_MINALIGN - 1);
 	size = roundup(len, ARCH_DMA_MINALIGN);
+	flush_dcache_range(addr, addr + size);
+
+	addr = (u32)priv->rxbuffers;
+	addr &= ~(ARCH_DMA_MINALIGN - 1);
+	size = roundup((RX_BUF * PKTSIZE_ALIGN), ARCH_DMA_MINALIGN);
 	flush_dcache_range(addr, addr + size);
 	barrier();
 
@@ -496,8 +524,6 @@ static int zynq_gem_recv(struct eth_device *dev)
 	if (frame_len) {
 		u32 addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
 		addr &= ~(ARCH_DMA_MINALIGN - 1);
-		u32 size = roundup(frame_len, ARCH_DMA_MINALIGN);
-		invalidate_dcache_range(addr, addr + size);
 
 		NetReceive((u8 *)addr, frame_len);
 
@@ -571,9 +597,10 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 	priv->rxbuffers = memalign(ARCH_DMA_MINALIGN, RX_BUF * PKTSIZE_ALIGN);
 	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
 
-	/* Align bd_space to 1MB */
+	/* Align bd_space to MMU_SECTION_SHIFT */
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
-	mmu_set_region_dcache_behaviour((u32)bd_space, BD_SPACE, DCACHE_OFF);
+	mmu_set_region_dcache_behaviour((phys_addr_t)bd_space,
+					BD_SPACE, DCACHE_OFF);
 
 	/* Initialize the bd spaces for tx and rx bd's */
 	priv->tx_bd = (struct emac_bd *)bd_space;

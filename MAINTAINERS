@@ -178,6 +178,12 @@ S:	Maintained
 F:	arch/arm/cpu/armv7/zynq/
 F:	arch/arm/include/asm/arch-zynq/
 
+ARM ZYNQMP
+M:	Michal Simek <michal.simek@xilinx.com>
+S:	Maintained
+F:	arch/arm/cpu/armv8/zynqmp/
+F:	arch/arm/include/asm/arch-zynqmp/
+
 AVR32
 M:	Andreas Bießmann <andreas.devel@googlemail.com>
 S:	Maintained
