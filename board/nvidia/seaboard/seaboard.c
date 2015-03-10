@@ -20,7 +20,7 @@
 void gpio_early_init_uart(void)
 {
 	/* Enable UART via GPIO_PI3 (port 8, bit 3) so serial console works */
-	gpio_request(GPIO_PI3, NULL);
+	gpio_request(GPIO_PI3, "uart_en");
 	gpio_direction_output(GPIO_PI3, 0);
 }
 #endif
