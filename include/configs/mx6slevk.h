@@ -249,4 +249,11 @@
 #define CONFIG_SYS_MMC_ENV_DEV		1	/* SDHC2*/
 #endif
 
+#define CONFIG_IMX6_THERMAL
+
+#define CONFIG_CMD_FUSE
+#if defined(CONFIG_CMD_FUSE) || defined(CONFIG_IMX6_THERMAL)
+#define CONFIG_MXC_OCOTP
+#endif
+
 #endif				/* __CONFIG_H */
