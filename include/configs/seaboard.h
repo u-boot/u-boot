@@ -32,9 +32,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_SEABOARD
 
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT		/* Make sure LCD init is complete */
-
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
 #define CONFIG_CMD_I2C

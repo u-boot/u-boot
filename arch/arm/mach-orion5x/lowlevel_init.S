@@ -62,13 +62,15 @@
 /*
  * Low-level init happens right after start.S has switched to SVC32,
  * flushed and disabled caches and disabled MMU. We're still running
- * from the boot chip select, so the first thing we should do is set
- * up RAM for us to relocate into.
+ * from the boot chip select, so the first thing SPL should do is to
+ * set up the RAM to copy U-Boot into.
  */
 
 .globl lowlevel_init
 
 lowlevel_init:
+
+#ifdef CONFIG_SPL_BUILD
 
 	/* Use 'r4 as the base for internal register accesses */
 	ldr	r4, =ORION5X_REGS_PHY_BASE
@@ -272,6 +274,14 @@ lowlevel_init:
 	ldr	r2, [r3, #0x484]
 	orr	r2, r2, r6
 	str	r2, [r3, #0x484]
+
+	/* enable for 2 GB DDR; detection should find out real amount */
+	sub	r6, r6, r6
+	str	r6, [r3, #0x500]
+	ldr	r6, =0x7fff0001
+	str	r6, [r3, #0x504]
+
+#endif /* CONFIG_SPL_BUILD */
 
 	/* Return to U-boot via saved link register */
 	mov	pc, lr

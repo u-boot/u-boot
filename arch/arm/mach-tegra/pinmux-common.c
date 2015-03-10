@@ -24,31 +24,59 @@
 #define pmux_pin_tristate_isvalid(tristate) \
 	(((tristate) >= PMUX_TRI_NORMAL) && ((tristate) <= PMUX_TRI_TRISTATE))
 
-#ifdef TEGRA_PMX_HAS_PIN_IO_BIT_ETC
+#ifdef TEGRA_PMX_PINS_HAVE_E_INPUT
 /* return 1 if a pin_io_is in range */
 #define pmux_pin_io_isvalid(io) \
 	(((io) >= PMUX_PIN_OUTPUT) && ((io) <= PMUX_PIN_INPUT))
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_LOCK
 /* return 1 if a pin_lock is in range */
 #define pmux_pin_lock_isvalid(lock) \
 	(((lock) >= PMUX_PIN_LOCK_DISABLE) && ((lock) <= PMUX_PIN_LOCK_ENABLE))
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_OD
 /* return 1 if a pin_od is in range */
 #define pmux_pin_od_isvalid(od) \
 	(((od) >= PMUX_PIN_OD_DISABLE) && ((od) <= PMUX_PIN_OD_ENABLE))
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_IO_RESET
 /* return 1 if a pin_ioreset_is in range */
 #define pmux_pin_ioreset_isvalid(ioreset) \
 	(((ioreset) >= PMUX_PIN_IO_RESET_DISABLE) && \
 	 ((ioreset) <= PMUX_PIN_IO_RESET_ENABLE))
+#endif
 
-#ifdef TEGRA_PMX_HAS_RCV_SEL
+#ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
 /* return 1 if a pin_rcv_sel_is in range */
 #define pmux_pin_rcv_sel_isvalid(rcv_sel) \
 	(((rcv_sel) >= PMUX_PIN_RCV_SEL_NORMAL) && \
 	 ((rcv_sel) <= PMUX_PIN_RCV_SEL_HIGH))
-#endif /* TEGRA_PMX_HAS_RCV_SEL */
-#endif /* TEGRA_PMX_HAS_PIN_IO_BIT_ETC */
+#endif
+
+#ifdef TEGRA_PMX_PINS_HAVE_E_IO_HV
+/* return 1 if a pin_e_io_hv is in range */
+#define pmux_pin_e_io_hv_isvalid(e_io_hv) \
+	(((e_io_hv) >= PMUX_PIN_E_IO_HV_NORMAL) && \
+	 ((e_io_hv) <= PMUX_PIN_E_IO_HV_HIGH))
+#endif
+
+#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
+#define pmux_lpmd_isvalid(lpm) \
+	(((lpm) >= PMUX_LPMD_X8) && ((lpm) <= PMUX_LPMD_X))
+#endif
+
+#if defined(TEGRA_PMX_PINS_HAVE_SCHMT) || defined(TEGRA_PMX_GRPS_HAVE_SCHMT)
+#define pmux_schmt_isvalid(schmt) \
+	(((schmt) >= PMUX_SCHMT_DISABLE) && ((schmt) <= PMUX_SCHMT_ENABLE))
+#endif
+
+#if defined(TEGRA_PMX_PINS_HAVE_HSM) || defined(TEGRA_PMX_GRPS_HAVE_HSM)
+#define pmux_hsm_isvalid(hsm) \
+	(((hsm) >= PMUX_HSM_DISABLE) && ((hsm) <= PMUX_HSM_ENABLE))
+#endif
 
 #define _R(offset)	(u32 *)(NV_PA_APB_MISC_BASE + (offset))
 
@@ -78,15 +106,34 @@
 
 #endif /* CONFIG_TEGRA20 */
 
-#define DRV_REG(group)	_R(0x868 + ((group) * 4))
+#define DRV_REG(group)	_R(TEGRA_PMX_SOC_DRV_GROUP_BASE_REG + ((group) * 4))
 
+/*
+ * We could force arch-tegraNN/pinmux.h to define all of these. However,
+ * that's a lot of defines, and for now it's manageable to just put a
+ * special case here. It's possible this decision will change with future
+ * SoCs.
+ */
+#ifdef CONFIG_TEGRA210
+#define IO_SHIFT	6
+#define LOCK_SHIFT	7
+#ifdef TEGRA_PMX_PINS_HAVE_HSM
+#define HSM_SHIFT	9
+#endif
+#define E_IO_HV_SHIFT	10
+#define OD_SHIFT	11
+#ifdef TEGRA_PMX_PINS_HAVE_SCHMT
+#define SCHMT_SHIFT	12
+#endif
+#else
 #define IO_SHIFT	5
 #define OD_SHIFT	6
 #define LOCK_SHIFT	7
 #define IO_RESET_SHIFT	8
 #define RCV_SEL_SHIFT	9
+#endif
 
-#if !defined(CONFIG_TEGRA20) && !defined(CONFIG_TEGRA30)
+#ifdef TEGRA_PMX_SOC_HAS_IO_CLAMPING
 /* This register/field only exists on Tegra114 and later */
 #define APB_MISC_PP_PINMUX_GLOBAL_0 0x40
 #define CLAMP_INPUTS_WHEN_TRISTATED 1
@@ -94,11 +141,15 @@
 void pinmux_set_tristate_input_clamping(void)
 {
 	u32 *reg = _R(APB_MISC_PP_PINMUX_GLOBAL_0);
-	u32 val;
 
-	val = readl(reg);
-	val |= CLAMP_INPUTS_WHEN_TRISTATED;
-	writel(val, reg);
+	setbits_le32(reg, CLAMP_INPUTS_WHEN_TRISTATED);
+}
+
+void pinmux_clear_tristate_input_clamping(void)
+{
+	u32 *reg = _R(APB_MISC_PP_PINMUX_GLOBAL_0);
+
+	clrbits_le32(reg, CLAMP_INPUTS_WHEN_TRISTATED);
 }
 #endif
 
@@ -176,7 +227,7 @@ void pinmux_tristate_disable(enum pmux_pingrp pin)
 	pinmux_set_tristate(pin, PMUX_TRI_NORMAL);
 }
 
-#ifdef TEGRA_PMX_HAS_PIN_IO_BIT_ETC
+#ifdef TEGRA_PMX_PINS_HAVE_E_INPUT
 void pinmux_set_io(enum pmux_pingrp pin, enum pmux_pin_io io)
 {
 	u32 *reg = REG(pin);
@@ -196,7 +247,9 @@ void pinmux_set_io(enum pmux_pingrp pin, enum pmux_pin_io io)
 		val &= ~(1 << IO_SHIFT);
 	writel(val, reg);
 }
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_LOCK
 static void pinmux_set_lock(enum pmux_pingrp pin, enum pmux_pin_lock lock)
 {
 	u32 *reg = REG(pin);
@@ -221,7 +274,9 @@ static void pinmux_set_lock(enum pmux_pingrp pin, enum pmux_pin_lock lock)
 
 	return;
 }
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_OD
 static void pinmux_set_od(enum pmux_pingrp pin, enum pmux_pin_od od)
 {
 	u32 *reg = REG(pin);
@@ -243,7 +298,9 @@ static void pinmux_set_od(enum pmux_pingrp pin, enum pmux_pin_od od)
 
 	return;
 }
+#endif
 
+#ifdef TEGRA_PMX_PINS_HAVE_IO_RESET
 static void pinmux_set_ioreset(enum pmux_pingrp pin,
 				enum pmux_pin_ioreset ioreset)
 {
@@ -266,8 +323,9 @@ static void pinmux_set_ioreset(enum pmux_pingrp pin,
 
 	return;
 }
+#endif
 
-#ifdef TEGRA_PMX_HAS_RCV_SEL
+#ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
 static void pinmux_set_rcv_sel(enum pmux_pingrp pin,
 				enum pmux_pin_rcv_sel rcv_sel)
 {
@@ -290,8 +348,82 @@ static void pinmux_set_rcv_sel(enum pmux_pingrp pin,
 
 	return;
 }
-#endif /* TEGRA_PMX_HAS_RCV_SEL */
-#endif /* TEGRA_PMX_HAS_PIN_IO_BIT_ETC */
+#endif
+
+#ifdef TEGRA_PMX_PINS_HAVE_E_IO_HV
+static void pinmux_set_e_io_hv(enum pmux_pingrp pin,
+				enum pmux_pin_e_io_hv e_io_hv)
+{
+	u32 *reg = REG(pin);
+	u32 val;
+
+	if (e_io_hv == PMUX_PIN_E_IO_HV_DEFAULT)
+		return;
+
+	/* Error check on pin and e_io_hv */
+	assert(pmux_pingrp_isvalid(pin));
+	assert(pmux_pin_e_io_hv_isvalid(e_io_hv));
+
+	val = readl(reg);
+	if (e_io_hv == PMUX_PIN_E_IO_HV_HIGH)
+		val |= (1 << E_IO_HV_SHIFT);
+	else
+		val &= ~(1 << E_IO_HV_SHIFT);
+	writel(val, reg);
+
+	return;
+}
+#endif
+
+#ifdef TEGRA_PMX_PINS_HAVE_SCHMT
+static void pinmux_set_schmt(enum pmux_pingrp pin, enum pmux_schmt schmt)
+{
+	u32 *reg = REG(grp);
+	u32 val;
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (schmt == PMUX_SCHMT_NONE)
+		return;
+
+	/* Error check pad */
+	assert(pmux_pingrp_isvalid(pin));
+	assert(pmux_schmt_isvalid(schmt));
+
+	val = readl(reg);
+	if (schmt == PMUX_SCHMT_ENABLE)
+		val |= (1 << SCHMT_SHIFT);
+	else
+		val &= ~(1 << SCHMT_SHIFT);
+	writel(val, reg);
+
+	return;
+}
+#endif
+
+#ifdef TEGRA_PMX_PINS_HAVE_HSM
+static void pinmux_set_hsm(enum pmux_pingrp pin, enum pmux_hsm hsm)
+{
+	u32 *reg = REG(grp);
+	u32 val;
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (hsm == PMUX_HSM_NONE)
+		return;
+
+	/* Error check pad */
+	assert(pmux_pingrp_isvalid(pin));
+	assert(pmux_hsm_isvalid(hsm));
+
+	val = readl(reg);
+	if (hsm == PMUX_HSM_ENABLE)
+		val |= (1 << HSM_SHIFT);
+	else
+		val &= ~(1 << HSM_SHIFT);
+	writel(val, reg);
+
+	return;
+}
+#endif
 
 static void pinmux_config_pingrp(const struct pmux_pingrp_config *config)
 {
@@ -300,14 +432,29 @@ static void pinmux_config_pingrp(const struct pmux_pingrp_config *config)
 	pinmux_set_func(pin, config->func);
 	pinmux_set_pullupdown(pin, config->pull);
 	pinmux_set_tristate(pin, config->tristate);
-#ifdef TEGRA_PMX_HAS_PIN_IO_BIT_ETC
+#ifdef TEGRA_PMX_PINS_HAVE_E_INPUT
 	pinmux_set_io(pin, config->io);
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_LOCK
 	pinmux_set_lock(pin, config->lock);
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_OD
 	pinmux_set_od(pin, config->od);
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_IO_RESET
 	pinmux_set_ioreset(pin, config->ioreset);
-#ifdef TEGRA_PMX_HAS_RCV_SEL
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
 	pinmux_set_rcv_sel(pin, config->rcv_sel);
 #endif
+#ifdef TEGRA_PMX_PINS_HAVE_E_IO_HV
+	pinmux_set_e_io_hv(pin, config->e_io_hv);
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_SCHMT
+	pinmux_set_schmt(pin, config->schmt);
+#endif
+#ifdef TEGRA_PMX_PINS_HAVE_HSM
+	pinmux_set_hsm(pin, config->hsm);
 #endif
 }
 
@@ -320,7 +467,7 @@ void pinmux_config_pingrp_table(const struct pmux_pingrp_config *config,
 		pinmux_config_pingrp(&config[i]);
 }
 
-#ifdef TEGRA_PMX_HAS_DRVGRPS
+#ifdef TEGRA_PMX_SOC_HAS_DRVGRPS
 
 #define pmux_drvgrp_isvalid(pd) (((pd) >= 0) && ((pd) < PMUX_DRVGRP_COUNT))
 
@@ -330,19 +477,31 @@ void pinmux_config_pingrp_table(const struct pmux_pingrp_config *config,
 #define pmux_drv_isvalid(drv) \
 	(((drv) >= PMUX_DRVUP_MIN) && ((drv) <= PMUX_DRVUP_MAX))
 
-#define pmux_lpmd_isvalid(lpm) \
-	(((lpm) >= PMUX_LPMD_X8) && ((lpm) <= PMUX_LPMD_X))
-
-#define pmux_schmt_isvalid(schmt) \
-	(((schmt) >= PMUX_SCHMT_DISABLE) && ((schmt) <= PMUX_SCHMT_ENABLE))
-
-#define pmux_hsm_isvalid(hsm) \
-	(((hsm) >= PMUX_HSM_DISABLE) && ((hsm) <= PMUX_HSM_ENABLE))
-
+#ifdef TEGRA_PMX_GRPS_HAVE_HSM
 #define HSM_SHIFT	2
+#endif
+#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
 #define SCHMT_SHIFT	3
+#endif
+#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
 #define LPMD_SHIFT	4
 #define LPMD_MASK	(3 << LPMD_SHIFT)
+#endif
+/*
+ * Note that the following DRV* and SLW* defines are accurate for many drive
+ * groups on many SoCs. We really need a per-group data structure to solve
+ * this, since the fields are in different positions/sizes in different
+ * registers (for different groups).
+ *
+ * On Tegra30/114/124, the DRV*_SHIFT values vary.
+ * On Tegra30, the SLW*_SHIFT values vary.
+ * On Tegra30/114/124/210, the DRV*_MASK values vary, although the values
+ *   below are wide enough to cover the widest fields, and hopefully don't
+ *   interfere with any other fields.
+ * On Tegra30, the SLW*_MASK values vary, but we can't use a value that's
+ *   wide enough to cover all cases, since that would cause the field to
+ *   overlap with other fields in the narrower cases.
+ */
 #define DRVDN_SHIFT	12
 #define DRVDN_MASK	(0x7F << DRVDN_SHIFT)
 #define DRVUP_SHIFT	20
@@ -436,6 +595,7 @@ static void pinmux_set_drvdn(enum pmux_drvgrp grp, int drvdn)
 	return;
 }
 
+#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
 static void pinmux_set_lpmd(enum pmux_drvgrp grp, enum pmux_lpmd lpmd)
 {
 	u32 *reg = DRV_REG(grp);
@@ -456,7 +616,9 @@ static void pinmux_set_lpmd(enum pmux_drvgrp grp, enum pmux_lpmd lpmd)
 
 	return;
 }
+#endif
 
+#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
 static void pinmux_set_schmt(enum pmux_drvgrp grp, enum pmux_schmt schmt)
 {
 	u32 *reg = DRV_REG(grp);
@@ -479,7 +641,9 @@ static void pinmux_set_schmt(enum pmux_drvgrp grp, enum pmux_schmt schmt)
 
 	return;
 }
+#endif
 
+#ifdef TEGRA_PMX_GRPS_HAVE_HSM
 static void pinmux_set_hsm(enum pmux_drvgrp grp, enum pmux_hsm hsm)
 {
 	u32 *reg = DRV_REG(grp);
@@ -502,6 +666,7 @@ static void pinmux_set_hsm(enum pmux_drvgrp grp, enum pmux_hsm hsm)
 
 	return;
 }
+#endif
 
 static void pinmux_config_drvgrp(const struct pmux_drvgrp_config *config)
 {
@@ -511,9 +676,15 @@ static void pinmux_config_drvgrp(const struct pmux_drvgrp_config *config)
 	pinmux_set_drvdn_slwr(grp, config->slwr);
 	pinmux_set_drvup(grp, config->drvup);
 	pinmux_set_drvdn(grp, config->drvdn);
+#ifdef TEGRA_PMX_GRPS_HAVE_LPMD
 	pinmux_set_lpmd(grp, config->lpmd);
+#endif
+#ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
 	pinmux_set_schmt(grp, config->schmt);
+#endif
+#ifdef TEGRA_PMX_GRPS_HAVE_HSM
 	pinmux_set_hsm(grp, config->hsm);
+#endif
 }
 
 void pinmux_config_drvgrp_table(const struct pmux_drvgrp_config *config,

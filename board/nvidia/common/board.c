@@ -21,6 +21,7 @@
 #include <asm/arch/pwm.h>
 #endif
 #include <asm/arch/tegra.h>
+#include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
@@ -179,6 +180,14 @@ int board_late_init(void)
 #ifdef CONFIG_LCD
 	/* Make sure we finish initing the LCD */
 	tegra_lcd_check_next_stage(gd->fdt_blob, 1);
+#endif
+#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
+	if (tegra_cpu_is_non_secure()) {
+		printf("CPU is in NS mode\n");
+		setenv("cpu_ns_mode", "1");
+	} else {
+		setenv("cpu_ns_mode", "");
+	}
 #endif
 	return 0;
 }

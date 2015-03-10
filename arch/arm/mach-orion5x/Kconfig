@@ -5,6 +5,7 @@ choice
 
 config TARGET_EDMINIV2
 	bool "LaCie Ethernet Disk mini V2"
+	select SUPPORT_SPL
 
 endchoice
 

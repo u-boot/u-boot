@@ -74,6 +74,28 @@ lr	.req	x30
 .endm
 
 /*
+ * Branch if current processor is a Cortex-A57 core.
+ */
+.macro	branch_if_a57_core, xreg, a57_label
+	mrs	\xreg, midr_el1
+	lsr	\xreg, \xreg, #4
+	and	\xreg, \xreg, #0x00000FFF
+	cmp	\xreg, #0xD07		/* Cortex-A57 MPCore processor. */
+	b.eq	\a57_label
+.endm
+
+/*
+ * Branch if current processor is a Cortex-A53 core.
+ */
+.macro	branch_if_a53_core, xreg, a53_label
+	mrs	\xreg, midr_el1
+	lsr	\xreg, \xreg, #4
+	and	\xreg, \xreg, #0x00000FFF
+	cmp	\xreg, #0xD03		/* Cortex-A53 MPCore processor. */
+	b.eq	\a53_label
+.endm
+
+/*
  * Branch if current processor is a slave,
  * choose processor with all zero affinity value as the master.
  */

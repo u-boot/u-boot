@@ -36,8 +36,6 @@
 #define MACH_TYPE_BEAVER		4597	/* not yet in mach-types.h */
 #define CONFIG_MACH_TYPE		MACH_TYPE_BEAVER
 
-#define CONFIG_BOARD_EARLY_INIT_F
-
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
 #define CONFIG_CMD_I2C

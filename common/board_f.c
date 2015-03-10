@@ -360,6 +360,18 @@ static int setup_fdt(void)
 /* Get the top of usable RAM */
 __weak ulong board_get_usable_ram_top(ulong total_size)
 {
+#ifdef CONFIG_SYS_SDRAM_BASE
+	/*
+	 * Detect whether we have so much RAM it goes past the end of our
+	 * 32-bit address space. If so, clip the usable RAM so it doesn't.
+	 */
+	if (gd->ram_top < CONFIG_SYS_SDRAM_BASE)
+		/*
+		 * Will wrap back to top of 32-bit space when reservations
+		 * are made.
+		 */
+		return 0;
+#endif
 	return gd->ram_top;
 }
 

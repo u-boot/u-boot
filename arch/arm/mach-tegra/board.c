@@ -11,6 +11,7 @@
 #include <asm/arch/funcmux.h>
 #include <asm/arch/mc.h>
 #include <asm/arch/tegra.h>
+#include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/sys_proto.h>
@@ -28,27 +29,66 @@ enum {
 	UART_COUNT = 5,
 };
 
+#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
+#if !defined(CONFIG_TEGRA124)
+#error tegra_cpu_is_non_secure has only been validated on Tegra124
+#endif
+bool tegra_cpu_is_non_secure(void)
+{
+	/*
+	 * This register reads 0xffffffff in non-secure mode. This register
+	 * only implements bits 31:20, so the lower bits will always read 0 in
+	 * secure mode. Thus, the lower bits are an indicator for secure vs.
+	 * non-secure mode.
+	 */
+	struct mc_ctlr *mc = (struct mc_ctlr *)NV_PA_MC_BASE;
+	uint32_t mc_s_cfg0 = readl(&mc->mc_security_cfg0);
+	return (mc_s_cfg0 & 1) == 1;
+}
+#endif
+
 /* Read the RAM size directly from the memory controller */
 unsigned int query_sdram_size(void)
 {
 	struct mc_ctlr *const mc = (struct mc_ctlr *)NV_PA_MC_BASE;
-	u32 size_mb;
+	u32 emem_cfg, size_bytes;
 
-	size_mb = readl(&mc->mc_emem_cfg);
+	emem_cfg = readl(&mc->mc_emem_cfg);
 #if defined(CONFIG_TEGRA20)
-	debug("mc->mc_emem_cfg (MEM_SIZE_KB) = 0x%08x\n", size_mb);
-	size_mb = get_ram_size((void *)PHYS_SDRAM_1, size_mb * 1024);
+	debug("mc->mc_emem_cfg (MEM_SIZE_KB) = 0x%08x\n", emem_cfg);
+	size_bytes = get_ram_size((void *)PHYS_SDRAM_1, emem_cfg * 1024);
 #else
-	debug("mc->mc_emem_cfg (MEM_SIZE_MB) = 0x%08x\n", size_mb);
-	size_mb = get_ram_size((void *)PHYS_SDRAM_1, size_mb * 1024 * 1024);
+	debug("mc->mc_emem_cfg (MEM_SIZE_MB) = 0x%08x\n", emem_cfg);
+	/*
+	 * If >=4GB RAM is present, the byte RAM size won't fit into 32-bits
+	 * and will wrap. Clip the reported size to the maximum that a 32-bit
+	 * variable can represent (rounded to a page).
+	 */
+	if (emem_cfg >= 4096) {
+		size_bytes = U32_MAX & ~(0x1000 - 1);
+	} else {
+		/* RAM size EMC is programmed to. */
+		size_bytes = emem_cfg * 1024 * 1024;
+		/*
+		 * If all RAM fits within 32-bits, it can be accessed without
+		 * LPAE, so go test the RAM size. Otherwise, we can't access
+		 * all the RAM, and get_ram_size() would get confused, so
+		 * avoid using it. There's no reason we should need this
+		 * validation step anyway.
+		 */
+		if (emem_cfg <= (0 - PHYS_SDRAM_1) / (1024 * 1024))
+			size_bytes = get_ram_size((void *)PHYS_SDRAM_1,
+						  size_bytes);
+	}
 #endif
 
 #if defined(CONFIG_TEGRA30) || defined(CONFIG_TEGRA114)
 	/* External memory limited to 2047 MB due to IROM/HI-VEC */
-	if (size_mb == SZ_2G) size_mb -= SZ_1M;
+	if (size_bytes == SZ_2G)
+		size_bytes -= SZ_1M;
 #endif
 
-	return size_mb;
+	return size_bytes;
 }
 
 int dram_init(void)

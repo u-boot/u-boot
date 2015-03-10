@@ -86,7 +86,7 @@ enum orion5x_cpu_attrib {
 #endif
 
 #if !defined (ORION5X_ADR_PCIE_IO_REMAP_LO)
-#define ORION5X_ADR_PCIE_IO_REMAP_LO	0x90000000
+#define ORION5X_ADR_PCIE_IO_REMAP_LO	0xf0000000
 #endif
 
 #if !defined (ORION5X_ADR_PCIE_IO_REMAP_HI)
