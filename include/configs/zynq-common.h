@@ -239,6 +239,7 @@
 #endif
 
 /* Default environment */
+#define CONFIG_PREBOOT
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"ethaddr=00:0a:35:00:01:22\0"	\
 	"kernel_image=uImage\0"	\
@@ -261,6 +262,12 @@
 	"loadbootenv=load mmc 0 ${loadbootenv_addr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from SD ...; " \
 		"env import -t ${loadbootenv_addr} $filesize\0" \
+	"sd_uEnvtxt_existence_test=test -e mmc 0 /uEnv.txt\0" \
+	"preboot=if test $modeboot = sdboot && env run sd_uEnvtxt_existence_test; " \
+			"then if env run loadbootenv; " \
+				"then env run importbootenv; " \
+			"fi; " \
+		"fi; \0" \
 	"mmc_loadbit=echo Loading bitstream from SD/MMC/eMMC to RAM.. && " \
 		"mmcinfo && " \
 		"load mmc 0 ${loadbit_addr} ${bitstream_image} && " \
