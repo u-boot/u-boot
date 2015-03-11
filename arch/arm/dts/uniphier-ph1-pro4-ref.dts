@@ -2,7 +2,8 @@
  * Device Tree Source for UniPhier PH1-Pro4 Reference Board
  *
  * Copyright (C) 2014-2015 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -12,8 +13,8 @@
 /include/ "uniphier-ref-daughter.dtsi"
 
 / {
-	model = "Panasonic UniPhier PH1-Pro4 Reference Board";
-	compatible = "panasonic,ph1-pro4-ref", "panasonic,ph1-pro4";
+	model = "UniPhier PH1-Pro4 Reference Board";
+	compatible = "socionext,ph1-pro4-ref", "socionext,ph1-pro4";
 
 	memory {
 		device_type = "memory";

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2012-2015 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -115,8 +116,8 @@ static int uniphier_serial_remove(struct udevice *dev)
 
 #ifdef CONFIG_OF_CONTROL
 static const struct udevice_id uniphier_uart_of_match[] = {
-	{ .compatible = "panasonic,uniphier-uart" },
-	{},
+	{ .compatible = "socionext,uniphier-uart" },
+	{ /* sentinel */ }
 };
 
 static int uniphier_serial_ofdata_to_platdata(struct udevice *dev)
