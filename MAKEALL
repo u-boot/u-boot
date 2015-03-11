@@ -655,6 +655,13 @@ build_target() {
 		RC=1
 	fi
 
+	OBJS=${output_dir}/u-boot
+	if [ -e ${output_dir}/spl/u-boot-spl ]; then
+		OBJS="${OBJS} ${output_dir}/spl/u-boot-spl"
+	fi
+
+	${CROSS_COMPILE}size ${OBJS} | tee -a ${LOG_DIR}/$target.MAKELOG
+
 	if [ $BUILD_MANY == 1 ] ; then
 		trap - TERM
 
@@ -678,13 +685,6 @@ build_target() {
 			rm ${LOG_DIR}/${target}.ERR
 		fi
 	fi
-
-	OBJS=${output_dir}/u-boot
-	if [ -e ${output_dir}/spl/u-boot-spl ]; then
-		OBJS="${OBJS} ${output_dir}/spl/u-boot-spl"
-	fi
-
-	${CROSS_COMPILE}size ${OBJS} | tee -a ${LOG_DIR}/$target.MAKELOG
 
 	[ -e "${LOG_DIR}/${target}.ERR" ] && cat "${LOG_DIR}/${target}.ERR"
 
