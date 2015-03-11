@@ -423,8 +423,8 @@ static unsigned long exynos5_get_periph_rate(int peripheral)
 	case PERIPH_ID_I2C6:
 	case PERIPH_ID_I2C7:
 		src = EXYNOS_SRC_MPLL;
-		div = readl(&clk->div_top0);
-		sub_div = readl(&clk->div_top1);
+		div = readl(&clk->div_top1);
+		sub_div = readl(&clk->div_top0);
 		break;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
