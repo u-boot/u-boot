@@ -16,6 +16,8 @@
 #define L2X0_STNDBY_MODE_EN			(1 << 0)
 #define L2X0_CTRL_EN				1
 
+#define L310_SHARED_ATT_OVERRIDE_ENABLE		(1 << 22)
+
 struct pl310_regs {
 	u32 pl310_cache_id;
 	u32 pl310_cache_type;
