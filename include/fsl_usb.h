@@ -87,6 +87,33 @@ struct ccsr_usb_phy {
 
 /* USB Erratum Checking code */
 #ifdef CONFIG_PPC
+static inline bool has_dual_phy(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_T1023:
+	case SVR_T1024:
+	case SVR_T1013:
+	case SVR_T1014:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_T1040:
+	case SVR_T1042:
+	case SVR_T1020:
+	case SVR_T1022:
+	case SVR_T2080:
+	case SVR_T2081:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
+	case SVR_T4240:
+	case SVR_T4160:
+	case SVR_T4080:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	}
+
+	return false;
+}
+
 static inline bool has_erratum_a006261(void)
 {
 	u32 svr = get_svr();
@@ -165,6 +192,11 @@ static inline bool has_erratum_a007792(void)
 }
 
 #else
+static inline bool has_dual_phy(void)
+{
+	return false;
+}
+
 static inline bool has_erratum_a006261(void)
 {
 	return false;
