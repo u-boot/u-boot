@@ -38,11 +38,12 @@
 
 /* SPI RX operation modes */
 #define SPI_OPM_RX_AS		(1 << 0)
-#define SPI_OPM_RX_DOUT	(1 << 1)
-#define SPI_OPM_RX_DIO		(1 << 2)
-#define SPI_OPM_RX_QOF		(1 << 3)
-#define SPI_OPM_RX_QIOF	(1 << 4)
-#define SPI_OPM_RX_EXTN	(SPI_OPM_RX_AS | SPI_OPM_RX_DOUT | \
+#define SPI_OPM_RX_AF		(1 << 1)
+#define SPI_OPM_RX_DOUT		(1 << 2)
+#define SPI_OPM_RX_DIO		(1 << 3)
+#define SPI_OPM_RX_QOF		(1 << 4)
+#define SPI_OPM_RX_QIOF		(1 << 5)
+#define SPI_OPM_RX_EXTN	(SPI_OPM_RX_AS | SPI_OPM_RX_AF | SPI_OPM_RX_DOUT | \
 				SPI_OPM_RX_DIO | SPI_OPM_RX_QOF | \
 				SPI_OPM_RX_QIOF)
 
