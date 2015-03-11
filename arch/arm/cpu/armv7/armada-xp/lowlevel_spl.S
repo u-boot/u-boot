@@ -6,7 +6,7 @@
 #include <linux/linkage.h>
 
 ENTRY(save_boot_params)
-	bx	lr
+	b	save_boot_params_ret
 ENDPROC(save_boot_params)
 
 /*
