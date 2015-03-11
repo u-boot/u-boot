@@ -154,21 +154,17 @@ static void spi_flash_dual_flash(struct spi_flash *flash, u32 *addr)
 }
 #endif
 
-int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
+static int spi_flash_poll_status(struct spi_slave *spi, unsigned long timeout,
+				 u8 cmd, u8 poll_bit)
 {
-	struct spi_slave *spi = flash->spi;
 	unsigned long timebase;
 	unsigned long flags = SPI_XFER_BEGIN;
 	int ret;
 	u8 status;
 	u8 check_status = 0x0;
-	u8 poll_bit = STATUS_WIP;
-	u8 cmd = flash->poll_cmd;
 
-	if (cmd == CMD_FLAG_STATUS) {
-		poll_bit = STATUS_PEC;
+	if (cmd == CMD_FLAG_STATUS)
 		check_status = poll_bit;
-	}
 
 #ifdef CONFIG_SF_DUAL_FLASH
 	if (spi->flags & SPI_XFER_U_PAGE)
@@ -202,6 +198,28 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 	/* Timed out */
 	debug("SF: time out!\n");
 	return -1;
+}
+
+int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
+{
+	struct spi_slave *spi = flash->spi;
+	int ret;
+	u8 poll_bit = STATUS_WIP;
+	u8 cmd = CMD_READ_STATUS;
+
+	ret = spi_flash_poll_status(spi, timeout, cmd, poll_bit);
+	if (ret < 0)
+		return ret;
+
+	if (flash->poll_cmd == CMD_FLAG_STATUS) {
+		poll_bit = STATUS_PEC;
+		cmd = CMD_FLAG_STATUS;
+		ret = spi_flash_poll_status(spi, timeout, cmd, poll_bit);
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
 }
 
 int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
