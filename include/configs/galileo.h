@@ -57,4 +57,9 @@
 #define CONFIG_MMC_SDMA
 #define CONFIG_CMD_MMC
 
+/* 10/100M Ethernet support */
+#define CONFIG_DESIGNWARE_ETH
+#define CONFIG_DW_ALTDESCRIPTOR
+#define CONFIG_PHYLIB
+
 #endif	/* __CONFIG_H */
