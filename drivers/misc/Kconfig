@@ -60,3 +60,16 @@ config CONFIG_FSL_SEC_MON
 	  system states.
 	  Security Monitor can be transitioned on any security failures,
 	  like software violations or hardware security violations.
+
+config PCA9551_LED
+	bool "Enable PCA9551 LED driver"
+	help
+	  Enable driver for PCA9551 LED controller. This controller
+	  is connected via I2C. So I2C needs to be enabled.
+
+config PCA9551_I2C_ADDR
+	hex "I2C address of PCA9551 LED controller"
+	depends on PCA9551_LED
+	default 0x60
+	help
+	  The I2C address of the PCA9551 LED controller.
