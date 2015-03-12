@@ -145,7 +145,7 @@ static unsigned const tqma6_ecspi1_cs[] = {
 	TQMA6_SF_CS_GPIO,
 };
 
-static void tqma6_iomuxc_spi(void)
+__weak void tqma6_iomuxc_spi(void)
 {
 	unsigned i;
 
