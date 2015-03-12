@@ -17,6 +17,9 @@
 #define SOC_VER_LS1021		0x11
 #define SOC_VER_LS1022		0x12
 
+#define SOC_MAJOR_VER_1_0	0x1
+#define SOC_MAJOR_VER_2_0	0x2
+
 #define CCSR_BRR_OFFSET		0xe4
 #define CCSR_SCRATCHRW1_OFFSET	0x200
 
