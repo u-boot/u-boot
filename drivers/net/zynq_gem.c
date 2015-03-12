@@ -455,6 +455,14 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100, &regs->nwcfg);
 #endif
 
+	/* set hardware address because of ... */
+	if (!is_valid_ether_addr(dev->enetaddr)) {
+		printf("%s: mac address is not valid\n", dev->name);
+		return -1;
+	}
+
+	zynq_gem_setup_mac(dev);
+
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
 					ZYNQ_GEM_NWCTRL_TXEN_MASK);
 
