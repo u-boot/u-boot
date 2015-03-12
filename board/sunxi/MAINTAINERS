@@ -120,6 +120,11 @@ M:	Ian Campbell <ijc@hellion.org.uk>
 S:	Maintained
 F:	configs/Mele_M5_defconfig
 
+MIXTILE-LOFTQ BOARD
+M:  Phil Han <pengphei@sina.com>
+S:  Maintained
+F:  configs/mixtile_loftq_defconfig
+
 MK808C BOARD
 M:	Marcus Cooper <codekipper@gmail.com>
 S:	Maintained
