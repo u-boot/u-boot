@@ -11,7 +11,6 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <malloc.h>
-#include <asm/pcie_layerscape.h>
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS CONFIG_SYS_SDRAM_BASE
@@ -486,7 +485,7 @@ static void ft_pcie_ls_setup(void *blob, const char *pci_compat,
 		fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
 }
 
-void ft_pcie_setup(void *blob, bd_t *bd)
+void ft_pci_setup(void *blob, bd_t *bd)
 {
 	#ifdef CONFIG_PCIE1
 	ft_pcie_ls_setup(blob, FSL_PCIE_COMPAT, CONFIG_SYS_PCIE1_ADDR, PCIE1);
@@ -506,7 +505,7 @@ void ft_pcie_setup(void *blob, bd_t *bd)
 }
 
 #else
-void ft_pcie_setup(void *blob, bd_t *bd)
+void ft_pci_setup(void *blob, bd_t *bd)
 {
 }
 #endif
