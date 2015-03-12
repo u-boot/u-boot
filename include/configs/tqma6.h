@@ -35,16 +35,6 @@
 #define PHYS_SDRAM_SIZE			(1024u * SZ_1M)
 #endif
 
-#if defined(CONFIG_MBA6)
-
-#if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
-#define CONFIG_DEFAULT_FDT_FILE		"imx6dl-mba6x.dtb"
-#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6Q)
-#define CONFIG_DEFAULT_FDT_FILE		"imx6q-mba6x.dtb"
-#endif
-
-#endif
-
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_SYS_GENERIC_BOARD
@@ -85,11 +75,6 @@
 
 /* I2C SYSMON (LM75) */
 #define CONFIG_DTT_LM75
-#if defined(CONFIG_MBA6)
-#define CONFIG_DTT_SENSORS		{ 0, 1 }
-#else
-#define CONFIG_DTT_SENSORS		{ 0 }
-#endif
 #define CONFIG_DTT_MAX_TEMP		70
 #define CONFIG_DTT_MIN_TEMP		-30
 #define CONFIG_DTT_HYSTERESIS	3
@@ -147,37 +132,11 @@
 #define CONFIG_PHYLIB
 #define CONFIG_MII
 
-#if defined(CONFIG_MBA6)
-
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-
-#define CONFIG_FEC_MXC_PHYADDR		0x03
-#define CONFIG_PHY_MICREL
-#define CONFIG_PHY_KSZ9031
-
-#else
-
-#error "define PHY to use for your baseboard"
-
-#endif
-
 #define CONFIG_ARP_TIMEOUT		200UL
 /* Network config - Allow larger/faster download for TFTP/NFS */
 #define CONFIG_IP_DEFRAG
 #define CONFIG_TFTP_BLOCKSIZE	4096
 #define CONFIG_NFS_READ_SIZE	4096
-
-#if defined(CONFIG_MBA6)
-
-#define CONFIG_MXC_UART_BASE		UART2_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc1"
-
-#else
-
-#error "define baseboard specific things (uart, number of SD-card slots)"
-
-#endif
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -490,6 +449,22 @@
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 #define CONFIG_CMD_CACHE
+#endif
+
+/*
+ * All the defines above are for the TQMa6 SoM
+ *
+ * Now include the baseboard specific configuration
+ */
+#ifdef CONFIG_MBA6
+#include "tqma6_mba6.h"
+#else
+#error "No baseboard for the TQMa6 defined!"
+#endif
+
+/* Support at least the sensor on TQMa6 SOM */
+#if !defined(CONFIG_DTT_SENSORS)
+#define CONFIG_DTT_SENSORS		{ 0 }
 #endif
 
 #endif /* __CONFIG_H */
