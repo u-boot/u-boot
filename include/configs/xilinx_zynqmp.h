@@ -66,6 +66,7 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_MEMORY
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_ELF
@@ -99,8 +100,8 @@
 	"kernel_addr=0x80000\0" \
 	"fdt_addr=0x7000000\0" \
 	"fdt_high=0x10000000\0" \
-	"sdboot=mmcinfo && fatload mmc 0:0 $fdt_addr system.dtb && " \
-		"fatload mmc 0:0 $kernel_addr Image && booti $kernel_addr - $fdt_addr\0"
+	"sdboot=mmcinfo && load mmc 0:0 $fdt_addr system.dtb && " \
+		"load mmc 0:0 $kernel_addr Image && booti $kernel_addr - $fdt_addr\0"
 
 #define CONFIG_BOOTARGS		"setenv bootargs console=ttyPS0,${baudrate} " \
 				"earlycon=cdns,mmio,0xff000000,${baudrate}n8"
