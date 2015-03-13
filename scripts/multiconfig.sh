@@ -70,16 +70,6 @@ do_board_defconfig () {
 	cleanup_after_defconfig
 }
 
-do_board_felconfig () {
-    do_board_defconfig ${1%%_felconfig}_defconfig
-    if ! grep -q CONFIG_ARCH_SUNXI=y .config || ! grep -q CONFIG_SPL=y .config ; then
-	echo "$progname: Cannot felconfig a non-sunxi or non-SPL platform" >&2
-	exit 1
-    fi
-    sed -i -e 's/\# CONFIG_SPL_FEL is not set/CONFIG_SPL_FEL=y\nCONFIG_UART0_PORT_F=n/g' \
-	.config
-}
-
 do_others () {
 	run_make_config $1
 }
@@ -90,8 +80,6 @@ target=$1
 case $target in
 *_defconfig)
 	do_board_defconfig $target;;
-*_felconfig)
-	do_board_felconfig $target;;
 *_config)
 	# backward compatibility
 	do_board_defconfig ${target%_config}_defconfig;;
