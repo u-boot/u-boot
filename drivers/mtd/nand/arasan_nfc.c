@@ -1074,6 +1074,9 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 	nand_chip->write_buf = arasan_nand_write_buf;
 	nand_chip->bbt_options = NAND_BBT_USE_FLASH;
 
+	writel(0x0, &arasan_nand_base->cmd_reg);
+	writel(0x0, &arasan_nand_base->pgm_reg);
+
 	/* first scan to find the device and get the page size */
 	if (nand_scan_ident(mtd, 1, NULL)) {
 		printf("%s: nand_scan_ident failed\n", __func__);
