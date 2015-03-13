@@ -58,8 +58,9 @@ struct iou_scntr {
 
 /* Bootmode setting values */
 #define BOOT_MODES_MASK	0x0000000F
-#define QSPI_MODE	0x00000001
-#define SD_MODE		0x00000005
+#define QSPI_MODE_24BIT	0x00000001
+#define QSPI_MODE_32BIT	0x00000002
+#define SD_MODE		0x00000003
 #define NAND_MODE	0x00000004
 #define JTAG_MODE	0x00000000
 
