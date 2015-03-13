@@ -692,6 +692,7 @@ static void arasan_nand_erase(struct arasan_nand_command_format *curr_cmd,
 	reg_val |= curr_cmd->cmd1 |
 		   (curr_cmd->cmd2 << ARASAN_NAND_CMD_CMD2_SHIFT);
 	row_addr_cycles = arasan_nand_get_addrcycle(mtd);
+	reg_val &= ~ARASAN_NAND_CMD_ADDR_CYCL_MASK;
 	reg_val |= (row_addr_cycles <<
 		    ARASAN_NAND_CMD_ADDR_CYCL_SHIFT);
 
@@ -740,6 +741,7 @@ static void arasan_nand_read_status(struct arasan_nand_command_format *curr_cmd,
 	reg_val |= curr_cmd->cmd1 |
 		   (curr_cmd->cmd2 << ARASAN_NAND_CMD_CMD2_SHIFT);
 	addr_cycles = arasan_nand_get_addrcycle(mtd);
+	reg_val &= ~ARASAN_NAND_CMD_ADDR_CYCL_MASK;
 	reg_val |= (addr_cycles <<
 		    ARASAN_NAND_CMD_ADDR_CYCL_SHIFT);
 
