@@ -16,14 +16,14 @@
 #define CONFIG_SYS_CACHELINE_SIZE	64
 #define CONFIG_EXYNOS_SPL
 
-/* Allow tracing to be enabled */
+#ifdef FTRACE
 #define CONFIG_TRACE
 #define CONFIG_CMD_TRACE
 #define CONFIG_TRACE_BUFFER_SIZE	(16 << 20)
 #define CONFIG_TRACE_EARLY_SIZE		(8 << 20)
 #define CONFIG_TRACE_EARLY
 #define CONFIG_TRACE_EARLY_ADDR		0x50000000
-
+#endif
 
 /* Enable ACE acceleration for SHA1 and SHA256 */
 #define CONFIG_EXYNOS_ACE_SHA
