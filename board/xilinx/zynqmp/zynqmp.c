@@ -83,6 +83,13 @@ int board_late_init(void)
 	bootmode = reg & BOOT_MODES_MASK;
 
 	switch (bootmode) {
+	case JTAG_MODE:
+		setenv("modeboot", "netboot");
+		break;
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+		setenv("modeboot", "qspiboot");
+		break;
 	case SD_MODE:
 	case EMMC_MODE:
 		setenv("modeboot", "sdboot");
