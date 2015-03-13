@@ -146,7 +146,8 @@
 		  "sf read $kernel_addr 140000 1800000 && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
 	"sdboot=mmcinfo && fatload mmc 0:0 $fdt_addr system.dtb && " \
-		"fatload mmc 0:0 f000000 Image && booti 80000 - $fdt_addr\0" \
+		"fatload mmc 0:0 $kernel_addr Image && " \
+		"booti $kernel_addr - $fdt_addr\0" \
 	"nandboot=nand info && nand read $fdt_addr 100000 40000 && " \
 		  "nand read $kernel_addr 140000 1800000 && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
