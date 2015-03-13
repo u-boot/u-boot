@@ -469,10 +469,10 @@ KBUILD_DEFCONFIG := sandbox_defconfig
 export KBUILD_DEFCONFIG KBUILD_KCONFIG
 
 config: scripts_basic outputmakefile FORCE
-	+$(Q)$(CONFIG_SHELL) $(srctree)/scripts/multiconfig.sh $@
+	$(Q)$(MAKE) $(build)=scripts/kconfig $@
 
 %config: scripts_basic outputmakefile FORCE
-	+$(Q)$(CONFIG_SHELL) $(srctree)/scripts/multiconfig.sh $@
+	$(Q)$(MAKE) $(build)=scripts/kconfig $@
 
 else
 # ===========================================================================
@@ -496,6 +496,15 @@ $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
 # we execute the config step to be sure to catch updated Kconfig files
 include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+	@# If the following part fails, include/config/auto.conf should be
+	@# deleted so "make silentoldconfig" will be re-run on the next build.
+	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.autoconf || \
+		{ rm -f include/config/auto.conf; false; }
+	@# include/config.h has been updated after "make silentoldconfig".
+	@# We need to touch include/config/auto.conf so it gets newer
+	@# than include/config.h.
+	@# Otherwise, 'make silentoldconfig' would be invoked twice.
+	$(Q)touch include/config/auto.conf
 
 -include include/autoconf.mk
 -include include/autoconf.mk.dep
