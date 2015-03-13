@@ -142,8 +142,9 @@
 		"booti 80000 - f000000\0" \
 	"netboot=tftpboot 80000 Image && tftpboot $fdt_addr system.dtb && " \
 		 "booti 80000 - $fdt_addr\0" \
-	"qspiboot=sf probe 0 && sf read $fdt_addr 100000 40000 && " \
-		  "sf read 80000 140000 1800000 && booti 80000 - $fdt_addr\0" \
+	"qspiboot=sf probe 0 0 0 && sf read $fdt_addr 100000 40000 && " \
+		  "sf read $kernel_addr 140000 1800000 && " \
+		  "booti $kernel_addr - $fdt_addr\0" \
 	"sdboot=mmcinfo && fatload mmc 0:0 $fdt_addr system.dtb && " \
 		"fatload mmc 0:0 f000000 Image && booti 80000 - $fdt_addr\0" \
 	"nandboot=nand info && nand read $fdt_addr 100000 40000 && " \
