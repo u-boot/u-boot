@@ -261,7 +261,7 @@ static int sunxi_musb_init(struct musb *musb)
 			}
 
 			err = gpio_get_value(vbus_det);
-			if (err) {
+			if (err < 0) {
 				gpio_free(vbus_det);
 				return -EIO;
 			}
