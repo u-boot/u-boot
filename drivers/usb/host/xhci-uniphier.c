@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2015 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -19,7 +20,7 @@ static int get_uniphier_xhci_base(int index, struct xhci_hccr **base)
 	int count;
 
 	count = fdtdec_find_aliases_for_id(gd->fdt_blob, "usb",
-					   COMPAT_PANASONIC_XHCI, node_list,
+					   COMPAT_SOCIONEXT_XHCI, node_list,
 					   ARRAY_SIZE(node_list));
 
 	if (index >= count)

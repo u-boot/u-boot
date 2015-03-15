@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2015 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -212,8 +213,8 @@ static const struct dm_i2c_ops uniphier_i2c_ops = {
 };
 
 static const struct udevice_id uniphier_i2c_of_match[] = {
-	{ .compatible = "panasonic,uniphier-i2c" },
-	{},
+	{ .compatible = "socionext,uniphier-i2c" },
+	{ /* sentinel */ }
 };
 
 U_BOOT_DRIVER(uniphier_i2c) = {

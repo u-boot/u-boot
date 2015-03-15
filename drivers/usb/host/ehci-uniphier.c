@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2015 Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -16,7 +17,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define FDT		gd->fdt_blob
-#define COMPAT		"panasonic,uniphier-ehci"
+#define COMPAT		"socionext,uniphier-ehci"
 
 static int get_uniphier_ehci_base(int index, struct ehci_hccr **base)
 {
