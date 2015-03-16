@@ -832,7 +832,7 @@ source "arch/arm/mach-uniphier/Kconfig"
 
 source "arch/arm/mach-versatile/Kconfig"
 
-source "arch/arm/cpu/armv7/zynq/Kconfig"
+source "arch/arm/mach-zynq/Kconfig"
 
 source "arch/arm/cpu/armv7/Kconfig"
 
