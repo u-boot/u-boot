@@ -25,7 +25,7 @@
 "fi;" \
 "setenv netdisplay0 '" \
 "setcurs 1 9; puts myip; setcurs 10 9; puts ${ipaddr};" \
-"setcurs 1 10;puts serverip; setcurs 10 10; puts ${serverip}\;'" \
+"setcurs 1 10;puts serverip; setcurs 10 10; puts ${serverip};" \
 "run netdisplay0; " \
 "setenv stdout nc;setenv stdin nc;setenv stderr nc\0"
 
