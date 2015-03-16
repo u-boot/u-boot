@@ -644,7 +644,7 @@ config TARGET_COLIBRI_VF
 	bool "Support Colibri VF50/61"
 	select CPU_V7
 
-config ZYNQ
+config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"
 	select CPU_V7
 	select SUPPORT_SPL

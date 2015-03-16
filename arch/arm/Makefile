@@ -55,7 +55,7 @@ machine-$(CONFIG_ORION5X)		+= orion5x
 machine-$(CONFIG_TEGRA)			+= tegra
 machine-$(CONFIG_ARCH_UNIPHIER)		+= uniphier
 machine-$(CONFIG_ARCH_VERSATILE)	+= versatile
-machine-$(CONFIG_ZYNQ)			+= zynq
+machine-$(CONFIG_ARCH_ZYNQ)		+= zynq
 
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))
 

@@ -1,4 +1,4 @@
-if ZYNQ
+if ARCH_ZYNQ
 
 choice
 	prompt "Xilinx Zynq board select"
