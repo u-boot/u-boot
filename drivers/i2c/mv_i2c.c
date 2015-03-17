@@ -73,7 +73,7 @@ static void i2c_board_init(struct mv_i2c *base)
 }
 
 #ifdef CONFIG_I2C_MULTI_BUS
-static u32 i2c_regs[CONFIG_MV_I2C_NUM] = CONFIG_MV_I2C_REG;
+static unsigned long i2c_regs[CONFIG_MV_I2C_NUM] = CONFIG_MV_I2C_REG;
 static unsigned int bus_initialized[CONFIG_MV_I2C_NUM];
 static unsigned int current_bus;
 
