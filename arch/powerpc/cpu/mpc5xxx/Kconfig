@@ -20,9 +20,6 @@ config TARGET_CANMB
 config TARGET_CM5200
 	bool "Support cm5200"
 
-config TARGET_GALAXY5200
-	bool "Support galaxy5200"
-
 config TARGET_INKA4X0
 	bool "Support inka4x0"
 
@@ -77,7 +74,6 @@ source "board/a3m071/Kconfig"
 source "board/a4m072/Kconfig"
 source "board/canmb/Kconfig"
 source "board/cm5200/Kconfig"
-source "board/galaxy5200/Kconfig"
 source "board/ifm/o2dnt2/Kconfig"
 source "board/inka4x0/Kconfig"
 source "board/intercontrol/digsy_mtc/Kconfig"

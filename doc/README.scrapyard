@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+galaxy5200       powerpc     mpc5xxx        -           -           Eric Millbrandt <emillbrandt@dekaresearch.com>
 W7OLMC           powerpc     ppc4xx         -           -           Erik Theisen <etheisen@mindspring.com>
 W7OLMG           powerpc     ppc4xx         -           -           Erik Theisen <etheisen@mindspring.com>
 aev              powerpc     mpc5xxx        -           -
