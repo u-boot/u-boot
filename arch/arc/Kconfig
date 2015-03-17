@@ -123,7 +123,7 @@ config ARC_CACHE_LINE_SHIFT
 	int "Cache Line Length (as power of 2)"
 	range 5 7
 	default "6"
-	depends on !SYS_DCACHE_OFF || !SYS_DCACHE_OFF
+	depends on !SYS_DCACHE_OFF || !SYS_ICACHE_OFF
 	help
 	  Starting with ARC700 4.9, Cache line length is configurable,
 	  This option specifies "N", with Line-len = 2 power N
@@ -132,6 +132,14 @@ config ARC_CACHE_LINE_SHIFT
 
 choice
 	prompt "Target select"
+
+config TARGET_DUMMY
+	bool "Dummy target"
+	help
+	  Please select one of real target boards below!
+	  This target is only meant to force "makedefconfig" to put
+	  TARGET_xxx in defconfig even this is the first target from the list
+	  below.
 
 config TARGET_TB100
 	bool "Support tb100"
