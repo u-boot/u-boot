@@ -65,14 +65,8 @@ config TARGET_DIGSY_MTC
 config TARGET_PCM030
 	bool "Support pcm030"
 
-config TARGET_AEV
-	bool "Support aev"
-
 config TARGET_CHARON
 	bool "Support charon"
-
-config TARGET_TB5200
-	bool "Support TB5200"
 
 config TARGET_TQM5200
 	bool "Support TQM5200"

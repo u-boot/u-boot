@@ -1,16 +1,3 @@
-if TARGET_AEV
-
-config SYS_BOARD
-	default "tqm5200"
-
-config SYS_VENDOR
-	default "tqc"
-
-config SYS_CONFIG_NAME
-	default "aev"
-
-endif
-
 if TARGET_CHARON
 
 config SYS_BOARD
@@ -21,19 +8,6 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "charon"
-
-endif
-
-if TARGET_TB5200
-
-config SYS_BOARD
-	default "tqm5200"
-
-config SYS_VENDOR
-	default "tqc"
-
-config SYS_CONFIG_NAME
-	default "TB5200"
 
 endif
 

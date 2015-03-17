@@ -12,6 +12,8 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+aev              powerpc     mpc5xxx        -           -
+TB5200           powerpc     mpc5xxx        -           -
 JSE              powerpc     ppc4xx         -           -           Stephen Williams <steve@icarus.com>
 BC3450           powerpc     mpc5xxx        -           -
 hawkboard        arm         arm926ejs      cb957cda    2015-02-24  Syed Mohammed Khasim <sm.khasim@gmail.com>:Sughosh Ganu <urwithsughosh@gmail.com>

@@ -258,11 +258,6 @@ phys_size_t initdram (int board_type)
 
 int checkboard (void)
 {
-#if defined(CONFIG_AEVFIFO)
-	puts ("Board: AEVFIFO\n");
-	return 0;
-#endif
-
 #if defined(CONFIG_TQM5200S)
 # define MODULE_NAME	"TQM5200S"
 #else
@@ -271,8 +266,6 @@ int checkboard (void)
 
 #if defined(CONFIG_STK52XX)
 # define CARRIER_NAME	"STK52xx"
-#elif defined(CONFIG_TB5200)
-# define CARRIER_NAME	"TB5200"
 #elif defined(CONFIG_CAM5200)
 # define CARRIER_NAME	"CAM5200"
 #elif defined(CONFIG_FO300)
@@ -762,16 +755,13 @@ void video_get_info_str (int line_number, char *info)
 	if (line_number == 1) {
 	strcpy (info, " Board: TQM5200 (TQ-Components GmbH)");
 #if defined (CONFIG_CHARON) || defined (CONFIG_FO300) || \
-	defined(CONFIG_STK52XX) || defined(CONFIG_TB5200)
+	defined(CONFIG_STK52XX)
 	} else if (line_number == 2) {
 #if defined (CONFIG_CHARON)
 		strcpy (info, "        on a CHARON carrier board");
 #endif
 #if defined (CONFIG_STK52XX)
 		strcpy (info, "        on a STK52xx carrier board");
-#endif
-#if defined (CONFIG_TB5200)
-		strcpy (info, "        on a TB5200 carrier board");
 #endif
 #if defined (CONFIG_FO300)
 		strcpy (info, "        on a FO300 carrier board");

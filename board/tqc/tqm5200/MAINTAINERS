@@ -9,9 +9,6 @@ F:	configs/cam5200_defconfig
 F:	configs/cam5200_niosflash_defconfig
 F:	configs/fo300_defconfig
 F:	configs/MiniFAP_defconfig
-F:	include/configs/TB5200.h
-F:	configs/TB5200_defconfig
-F:	configs/TB5200_B_defconfig
 F:	configs/TQM5200_defconfig
 F:	configs/TQM5200_B_defconfig
 F:	configs/TQM5200_B_HIGHBOOT_defconfig
