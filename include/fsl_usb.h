@@ -196,6 +196,19 @@ static inline bool has_erratum_a007792(void)
 	return false;
 }
 
+static inline bool has_erratum_a005697(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_9131:
+	case SVR_9132:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
+	}
+	return false;
+}
+
 #else
 static inline bool has_dual_phy(void)
 {
@@ -218,6 +231,11 @@ static inline bool has_erratum_a007798(void)
 }
 
 static inline bool has_erratum_a007792(void)
+{
+	return false;
+}
+
+static inline bool has_erratum_a005697(void)
 {
 	return false;
 }
