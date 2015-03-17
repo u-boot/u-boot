@@ -13,9 +13,6 @@ config TARGET_CSB272
 config TARGET_CSB472
 	bool "Support csb472"
 
-config TARGET_KORAT
-	bool "Support korat"
-
 config TARGET_LWMON5
 	bool "Support lwmon5"
 	select SUPPORT_SPL
@@ -195,7 +192,6 @@ source "board/gdsys/405ex/Kconfig"
 source "board/gdsys/dlvision/Kconfig"
 source "board/gdsys/gdppc440etx/Kconfig"
 source "board/gdsys/intip/Kconfig"
-source "board/korat/Kconfig"
 source "board/lwmon5/Kconfig"
 source "board/mosaixtech/icon/Kconfig"
 source "board/mpl/mip405/Kconfig"
