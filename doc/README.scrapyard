@@ -12,13 +12,14 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-hawkboard        arm         arm926ejs      -           -           Syed Mohammed Khasim <sm.khasim@gmail.com>:Sughosh Ganu <urwithsughosh@gmail.com>
-tnetv107x        arm         arm1176        -           -           Chan-Taek Park <c-park@ti.com>
-a320evb          arm         arm920t        -           -           Po-Yu Chuang <ratbert@faraday-tech.com>
-cm4008           arm         arm920t        -           -           Greg Ungerer <greg.ungerer@opengear.com>
-cm41xx           arm         arm920t        -           -
-dkb              arm         arm926ejs      -           -           Lei Wen <leiwen@marvell.com>
-jadecpu          arm         arm926ejs      -           -           Matthias Weisser <weisserm@arcor.de>
+BC3450           powerpc     mpc5xxx        -           -
+hawkboard        arm         arm926ejs      cb957cda    2015-02-24  Syed Mohammed Khasim <sm.khasim@gmail.com>:Sughosh Ganu <urwithsughosh@gmail.com>
+tnetv107x        arm         arm1176        50b82c4b    2015-02-24  Chan-Taek Park <c-park@ti.com>
+a320evb          arm         arm920t        29fc6f24    2015-02-24  Po-Yu Chuang <ratbert@faraday-tech.com>
+cm4008           arm         arm920t        a2f39e83    2015-02-24  Greg Ungerer <greg.ungerer@opengear.com>
+cm41xx           arm         arm920t        a2f39e83    2015-02-24
+dkb              arm         arm926ejs      346cfba4    2015-02-24  Lei Wen <leiwen@marvell.com>
+jadecpu          arm         arm926ejs      41fbbbbc    2015-02-24  Matthias Weisser <weisserm@arcor.de>
 icecube_5200     powerpc     mpc5xxx        37b608a5    2015-01-23  Wolfgang Denk <wd@denx.de>
 Lite5200         powerpc     mpc5xxx        37b608a5    2015-01-23
 cpci5200         powerpc     mpc5xxx        37b608a5    2015-01-23  Reinhard Arlt <reinhard.arlt@esd-electronics.com>
