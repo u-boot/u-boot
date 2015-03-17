@@ -16,7 +16,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include <version.h>
 
 #ifndef CONFIG_SYS_PHY_UBOOT_BASE
 #define CONFIG_SYS_PHY_UBOOT_BASE	CONFIG_SYS_UBOOT_BASE

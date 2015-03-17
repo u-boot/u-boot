@@ -15,7 +15,6 @@
 #include <common.h>
 #include <command.h>
 #include <watchdog.h>
-#include <version.h>
 #include <stdarg.h>
 #include <lcdvideo.h>
 #include <linux/types.h>

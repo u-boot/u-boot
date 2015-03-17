@@ -3,7 +3,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <linux/linkage.h>
 
 ENTRY(save_boot_params)

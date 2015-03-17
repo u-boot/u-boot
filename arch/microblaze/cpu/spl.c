@@ -9,7 +9,6 @@
 #include <common.h>
 #include <image.h>
 #include <spl.h>
-#include <version.h>
 #include <asm/io.h>
 #include <asm/u-boot.h>
 

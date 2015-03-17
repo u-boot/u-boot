@@ -8,7 +8,6 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc85xx.h>
-#include <version.h>
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>

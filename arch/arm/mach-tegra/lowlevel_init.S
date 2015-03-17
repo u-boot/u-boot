@@ -8,7 +8,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <linux/linkage.h>
 
 	.align	5

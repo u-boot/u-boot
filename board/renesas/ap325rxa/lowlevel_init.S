@@ -8,7 +8,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <asm/processor.h>
 #include <asm/macro.h>
 

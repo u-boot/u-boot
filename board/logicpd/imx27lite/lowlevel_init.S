@@ -10,7 +10,6 @@
 
 
 #include <config.h>
-#include <version.h>
 #include <asm/macro.h>
 #include <asm/arch/imx-regs.h>
 #include <generated/asm-offsets.h>

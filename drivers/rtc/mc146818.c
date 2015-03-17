@@ -14,7 +14,6 @@
 #include <common.h>
 #include <command.h>
 #include <rtc.h>
-#include <version.h>
 
 #if defined(__I386__) || defined(CONFIG_MALTA)
 #include <asm/io.h>

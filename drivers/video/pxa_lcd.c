@@ -13,7 +13,6 @@
 
 #include <config.h>
 #include <common.h>
-#include <version.h>
 #include <stdarg.h>
 #include <linux/types.h>
 #include <stdio_dev.h>

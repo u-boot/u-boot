@@ -10,7 +10,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include <version.h>
 
 	.text
 	.align	2

@@ -7,7 +7,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include <version.h>
 #include <linux/linkage.h>
 #include <asm/macro.h>
 

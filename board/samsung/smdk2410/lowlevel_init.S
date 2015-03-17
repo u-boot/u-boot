@@ -13,8 +13,6 @@
 
 
 #include <config.h>
-#include <version.h>
-
 
 /* some parameters for the board */
 

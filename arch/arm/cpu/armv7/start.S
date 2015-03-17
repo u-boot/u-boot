@@ -15,7 +15,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include <version.h>
 #include <asm/system.h>
 #include <linux/linkage.h>
 

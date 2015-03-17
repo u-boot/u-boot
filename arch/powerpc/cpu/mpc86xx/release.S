@@ -6,7 +6,6 @@
  */
 #include <config.h>
 #include <mpc86xx.h>
-#include <version.h>
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
