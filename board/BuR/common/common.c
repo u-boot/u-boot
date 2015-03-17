@@ -641,3 +641,7 @@ int board_mmc_init(bd_t *bis)
 	return omap_mmc_init(1, 0, 0, -1, -1);
 }
 #endif
+int overwrite_console(void)
+{
+	return 1;
+}
