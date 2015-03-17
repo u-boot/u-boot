@@ -350,15 +350,13 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 		flash->bank_write_cmd = (idcode[0] == 0x01) ?
 					CMD_BANKADDR_BRWR : CMD_EXTNADDR_WREAR;
 
-		if (flash->dual_flash == SF_DUAL_PARALLEL_FLASH) {
-			spi->flags |= SPI_XFER_LOWER;
-			ret = spi_flash_read_common(flash,
-						     &flash->bank_read_cmd,
-						     1, &curr_bank, 1);
-			if (ret) {
-				debug("SF: fail to read bank addr register\n");
-				return ret;
-			}
+		spi->flags |= SPI_XFER_LOWER;
+		ret = spi_flash_read_common(flash,
+					    &flash->bank_read_cmd,
+					    1, &curr_bank, 1);
+		if (ret) {
+			debug("SF: fail to read bank addr register\n");
+			return ret;
 		}
 		flash->bank_curr = curr_bank;
 	} else {
