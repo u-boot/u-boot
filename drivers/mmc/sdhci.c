@@ -194,13 +194,13 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 #ifdef CONFIG_MMC_SDMA
 		if (data->flags == MMC_DATA_READ)
-			start_addr = (unsigned int)data->dest;
+			start_addr = (unsigned long)data->dest;
 		else
-			start_addr = (unsigned int)data->src;
+			start_addr = (unsigned long)data->src;
 		if ((host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR) &&
 				(start_addr & 0x7) != 0x0) {
 			is_aligned = 0;
-			start_addr = (unsigned int)aligned_buffer;
+			start_addr = (unsigned long)aligned_buffer;
 			if (data->flags != MMC_DATA_READ)
 				memcpy(aligned_buffer, data->src, trans_bytes);
 		}
