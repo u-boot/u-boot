@@ -160,8 +160,8 @@ static struct ept_queue_item *ci_get_qtd(int ep_num, int dir_in)
 static void ci_flush_qh(int ep_num)
 {
 	struct ept_queue_head *head = ci_get_qh(ep_num, 0);
-	const uint32_t start = (uint32_t)head;
-	const uint32_t end = start + 2 * sizeof(*head);
+	const unsigned long start = (unsigned long)head;
+	const unsigned long end = start + 2 * sizeof(*head);
 
 	flush_dcache_range(start, end);
 }
@@ -175,8 +175,8 @@ static void ci_flush_qh(int ep_num)
 static void ci_invalidate_qh(int ep_num)
 {
 	struct ept_queue_head *head = ci_get_qh(ep_num, 0);
-	uint32_t start = (uint32_t)head;
-	uint32_t end = start + 2 * sizeof(*head);
+	unsigned long start = (unsigned long)head;
+	unsigned long end = start + 2 * sizeof(*head);
 
 	invalidate_dcache_range(start, end);
 }
@@ -190,8 +190,8 @@ static void ci_invalidate_qh(int ep_num)
 static void ci_flush_qtd(int ep_num)
 {
 	struct ept_queue_item *item = ci_get_qtd(ep_num, 0);
-	const uint32_t start = (uint32_t)item;
-	const uint32_t end = start + 2 * ILIST_ENT_SZ;
+	const unsigned long start = (unsigned long)item;
+	const unsigned long end = start + 2 * ILIST_ENT_SZ;
 
 	flush_dcache_range(start, end);
 }
@@ -205,8 +205,8 @@ static void ci_flush_qtd(int ep_num)
 static void ci_invalidate_qtd(int ep_num)
 {
 	struct ept_queue_item *item = ci_get_qtd(ep_num, 0);
-	const uint32_t start = (uint32_t)item;
-	const uint32_t end = start + 2 * ILIST_ENT_SZ;
+	const unsigned long start = (unsigned long)item;
+	const unsigned long end = start + 2 * ILIST_ENT_SZ;
 
 	invalidate_dcache_range(start, end);
 }
@@ -308,8 +308,8 @@ static int ci_ep_disable(struct usb_ep *ep)
 static int ci_bounce(struct ci_req *ci_req, int in)
 {
 	struct usb_request *req = &ci_req->req;
-	uint32_t addr = (uint32_t)req->buf;
-	uint32_t hwaddr;
+	unsigned long addr = (unsigned long)req->buf;
+	unsigned long hwaddr;
 	uint32_t aligned_used_len;
 
 	/* Input buffer address is not aligned. */
@@ -343,7 +343,7 @@ align:
 		memcpy(ci_req->hw_buf, req->buf, req->length);
 
 flush:
-	hwaddr = (uint32_t)ci_req->hw_buf;
+	hwaddr = (unsigned long)ci_req->hw_buf;
 	aligned_used_len = roundup(req->length, ARCH_DMA_MINALIGN);
 	flush_dcache_range(hwaddr, hwaddr + aligned_used_len);
 
@@ -353,8 +353,8 @@ flush:
 static void ci_debounce(struct ci_req *ci_req, int in)
 {
 	struct usb_request *req = &ci_req->req;
-	uint32_t addr = (uint32_t)req->buf;
-	uint32_t hwaddr = (uint32_t)ci_req->hw_buf;
+	unsigned long addr = (unsigned long)req->buf;
+	unsigned long hwaddr = (unsigned long)ci_req->hw_buf;
 	uint32_t aligned_used_len;
 
 	if (in)
@@ -388,13 +388,13 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 	len = ci_req->req.length;
 
 	item->info = INFO_BYTES(len) | INFO_ACTIVE;
-	item->page0 = (uint32_t)ci_req->hw_buf;
-	item->page1 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x1000;
-	item->page2 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x2000;
-	item->page3 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x3000;
-	item->page4 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x4000;
+	item->page0 = (unsigned long)ci_req->hw_buf;
+	item->page1 = ((unsigned long)ci_req->hw_buf & 0xfffff000) + 0x1000;
+	item->page2 = ((unsigned long)ci_req->hw_buf & 0xfffff000) + 0x2000;
+	item->page3 = ((unsigned long)ci_req->hw_buf & 0xfffff000) + 0x3000;
+	item->page4 = ((unsigned long)ci_req->hw_buf & 0xfffff000) + 0x4000;
 
-	head->next = (unsigned) item;
+	head->next = (unsigned long)item;
 	head->info = 0;
 
 	/*
@@ -422,7 +422,7 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 		 * can use the other to transmit the extra zero-length packet.
 		 */
 		struct ept_queue_item *other_item = ci_get_qtd(num, 0);
-		item->next = (unsigned)other_item;
+		item->next = (unsigned long)other_item;
 		item = other_item;
 		item->info = INFO_ACTIVE;
 	}
@@ -772,7 +772,7 @@ static int ci_pullup(struct usb_gadget *gadget, int is_on)
 		writel(USBCMD_ITC(MICRO_8FRAME) | USBCMD_RST, &udc->usbcmd);
 		udelay(200);
 
-		writel((unsigned)controller.epts, &udc->epinitaddr);
+		writel((unsigned long)controller.epts, &udc->epinitaddr);
 
 		/* select DEVICE mode */
 		writel(USBMODE_DEVICE, &udc->usbmode);
