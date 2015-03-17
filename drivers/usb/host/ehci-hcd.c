@@ -45,7 +45,7 @@
 static struct ehci_ctrl ehcic[CONFIG_USB_MAX_CONTROLLER_COUNT];
 
 #define ALIGN_END_ADDR(type, ptr, size)			\
-	((uint32_t)(ptr) + roundup((size) * sizeof(type), USB_DMA_MINALIGN))
+	((unsigned long)(ptr) + roundup((size) * sizeof(type), USB_DMA_MINALIGN))
 
 static struct descriptor {
 	struct usb_hub_descriptor hub;
@@ -223,7 +223,7 @@ static int ehci_shutdown(struct ehci_ctrl *ctrl)
 static int ehci_td_buffer(struct qTD *td, void *buf, size_t sz)
 {
 	uint32_t delta, next;
-	uint32_t addr = (uint32_t)buf;
+	uint32_t addr = (unsigned long)buf;
 	int idx;
 
 	if (addr != ALIGN(addr, ARCH_DMA_MINALIGN))
@@ -245,7 +245,7 @@ static int ehci_td_buffer(struct qTD *td, void *buf, size_t sz)
 	}
 
 	if (idx == QT_BUFFER_CNT) {
-		printf("out of buffer pointers (%u bytes left)\n", sz);
+		printf("out of buffer pointers (%zu bytes left)\n", sz);
 		return -1;
 	}
 
@@ -354,7 +354,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		 * qTD transfer size will be one page shorter, and the first qTD
 		 * data buffer of each transfer will be page-unaligned.
 		 */
-		if ((uint32_t)buffer & (PKT_ALIGN - 1))
+		if ((unsigned long)buffer & (PKT_ALIGN - 1))
 			xfr_sz--;
 		/* Convert the qTD transfer size to bytes. */
 		xfr_sz *= EHCI_PAGE_SIZE;
@@ -394,7 +394,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	 *   qh_overlay.qt_next ...... 13-10 H
 	 * - qh_overlay.qt_altnext
 	 */
-	qh->qh_link = cpu_to_hc32((uint32_t)&ctrl->qh_list | QH_LINK_TYPE_QH);
+	qh->qh_link = cpu_to_hc32((unsigned long)&ctrl->qh_list | QH_LINK_TYPE_QH);
 	c = (dev->speed != USB_SPEED_HIGH) && !usb_pipeendpoint(pipe);
 	maxpacket = usb_maxpacket(dev, pipe);
 	endpt = QH_ENDPT1_RL(8) | QH_ENDPT1_C(c) |
@@ -434,7 +434,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 			goto fail;
 		}
 		/* Update previous qTD! */
-		*tdp = cpu_to_hc32((uint32_t)&qtd[qtd_counter]);
+		*tdp = cpu_to_hc32((unsigned long)&qtd[qtd_counter]);
 		tdp = &qtd[qtd_counter++].qt_next;
 		toggle = 1;
 	}
@@ -454,7 +454,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 			 * portion of the first page before the buffer start
 			 * offset within that page is unusable.
 			 */
-			xfr_bytes -= (uint32_t)buf_ptr & (EHCI_PAGE_SIZE - 1);
+			xfr_bytes -= (unsigned long)buf_ptr & (EHCI_PAGE_SIZE - 1);
 			/*
 			 * In order to keep each packet within a qTD transfer,
 			 * align the qTD transfer size to PKT_ALIGN.
@@ -493,7 +493,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 				goto fail;
 			}
 			/* Update previous qTD! */
-			*tdp = cpu_to_hc32((uint32_t)&qtd[qtd_counter]);
+			*tdp = cpu_to_hc32((unsigned long)&qtd[qtd_counter]);
 			tdp = &qtd[qtd_counter++].qt_next;
 			/*
 			 * Data toggle has to be adjusted since the qTD transfer
@@ -524,21 +524,21 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 			QT_TOKEN_STATUS(QT_TOKEN_STATUS_ACTIVE);
 		qtd[qtd_counter].qt_token = cpu_to_hc32(token);
 		/* Update previous qTD! */
-		*tdp = cpu_to_hc32((uint32_t)&qtd[qtd_counter]);
+		*tdp = cpu_to_hc32((unsigned long)&qtd[qtd_counter]);
 		tdp = &qtd[qtd_counter++].qt_next;
 	}
 
-	ctrl->qh_list.qh_link = cpu_to_hc32((uint32_t)qh | QH_LINK_TYPE_QH);
+	ctrl->qh_list.qh_link = cpu_to_hc32((unsigned long)qh | QH_LINK_TYPE_QH);
 
 	/* Flush dcache */
-	flush_dcache_range((uint32_t)&ctrl->qh_list,
+	flush_dcache_range((unsigned long)&ctrl->qh_list,
 		ALIGN_END_ADDR(struct QH, &ctrl->qh_list, 1));
-	flush_dcache_range((uint32_t)qh, ALIGN_END_ADDR(struct QH, qh, 1));
-	flush_dcache_range((uint32_t)qtd,
+	flush_dcache_range((unsigned long)qh, ALIGN_END_ADDR(struct QH, qh, 1));
+	flush_dcache_range((unsigned long)qtd,
 			   ALIGN_END_ADDR(struct qTD, qtd, qtd_count));
 
 	/* Set async. queue head pointer. */
-	ehci_writel(&ctrl->hcor->or_asynclistaddr, (uint32_t)&ctrl->qh_list);
+	ehci_writel(&ctrl->hcor->or_asynclistaddr, (unsigned long)&ctrl->qh_list);
 
 	usbsts = ehci_readl(&ctrl->hcor->or_usbsts);
 	ehci_writel(&ctrl->hcor->or_usbsts, (usbsts & 0x3f));
@@ -561,11 +561,11 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	timeout = USB_TIMEOUT_MS(pipe);
 	do {
 		/* Invalidate dcache */
-		invalidate_dcache_range((uint32_t)&ctrl->qh_list,
+		invalidate_dcache_range((unsigned long)&ctrl->qh_list,
 			ALIGN_END_ADDR(struct QH, &ctrl->qh_list, 1));
-		invalidate_dcache_range((uint32_t)qh,
+		invalidate_dcache_range((unsigned long)qh,
 			ALIGN_END_ADDR(struct QH, qh, 1));
-		invalidate_dcache_range((uint32_t)qtd,
+		invalidate_dcache_range((unsigned long)qtd,
 			ALIGN_END_ADDR(struct qTD, qtd, qtd_count));
 
 		token = hc32_to_cpu(vtd->qt_token);
@@ -583,8 +583,8 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	 * dangerous operation, it's responsibility of the calling
 	 * code to make sure enough space is reserved.
 	 */
-	invalidate_dcache_range((uint32_t)buffer,
-		ALIGN((uint32_t)buffer + length, ARCH_DMA_MINALIGN));
+	invalidate_dcache_range((unsigned long)buffer,
+		ALIGN((unsigned long)buffer + length, ARCH_DMA_MINALIGN));
 
 	/* Check that the TD processing happened */
 	if (QT_TOKEN_GET_STATUS(token) & QT_TOKEN_STATUS_ACTIVE)
@@ -968,7 +968,7 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 
 	/* Set head of reclaim list */
 	memset(qh_list, 0, sizeof(*qh_list));
-	qh_list->qh_link = cpu_to_hc32((uint32_t)qh_list | QH_LINK_TYPE_QH);
+	qh_list->qh_link = cpu_to_hc32((unsigned long)qh_list | QH_LINK_TYPE_QH);
 	qh_list->qh_endpt1 = cpu_to_hc32(QH_ENDPT1_H(1) |
 						QH_ENDPT1_EPS(USB_SPEED_HIGH));
 	qh_list->qh_overlay.qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
@@ -976,11 +976,11 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	qh_list->qh_overlay.qt_token =
 			cpu_to_hc32(QT_TOKEN_STATUS(QT_TOKEN_STATUS_HALTED));
 
-	flush_dcache_range((uint32_t)qh_list,
+	flush_dcache_range((unsigned long)qh_list,
 			   ALIGN_END_ADDR(struct QH, qh_list, 1));
 
 	/* Set async. queue head pointer. */
-	ehci_writel(&ehcic[index].hcor->or_asynclistaddr, (uint32_t)qh_list);
+	ehci_writel(&ehcic[index].hcor->or_asynclistaddr, (unsigned long)qh_list);
 
 	/*
 	 * Set up periodic list
@@ -993,7 +993,7 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	periodic->qh_overlay.qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 	periodic->qh_overlay.qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
 
-	flush_dcache_range((uint32_t)periodic,
+	flush_dcache_range((unsigned long)periodic,
 			   ALIGN_END_ADDR(struct QH, periodic, 1));
 
 	/*
@@ -1011,17 +1011,17 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	if (!ehcic[index].periodic_list)
 		return -ENOMEM;
 	for (i = 0; i < 1024; i++) {
-		ehcic[index].periodic_list[i] = cpu_to_hc32((uint32_t)periodic
+		ehcic[index].periodic_list[i] = cpu_to_hc32((unsigned long)periodic
 						| QH_LINK_TYPE_QH);
 	}
 
-	flush_dcache_range((uint32_t)ehcic[index].periodic_list,
+	flush_dcache_range((unsigned long)ehcic[index].periodic_list,
 			   ALIGN_END_ADDR(uint32_t, ehcic[index].periodic_list,
 					  1024));
 
 	/* Set periodic list base address */
 	ehci_writel(&ehcic[index].hcor->or_periodiclistbase,
-		(uint32_t)ehcic[index].periodic_list);
+		(unsigned long)ehcic[index].periodic_list);
 
 	reg = ehci_readl(&ehcic[index].hccr->cr_hcsparams);
 	descriptor.hub.bNbrPorts = HCS_N_PORTS(reg);
@@ -1103,7 +1103,7 @@ struct int_queue {
 	struct qTD *tds;
 };
 
-#define NEXT_QH(qh) (struct QH *)(hc32_to_cpu((qh)->qh_link) & ~0x1f)
+#define NEXT_QH(qh) (struct QH *)((unsigned long)hc32_to_cpu((qh)->qh_link) & ~0x1f)
 
 static int
 enable_periodic(struct ehci_ctrl *ctrl)
@@ -1214,11 +1214,11 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 		struct qTD *td = result->tds + i;
 		void **buf = &qh->buffer;
 
-		qh->qh_link = cpu_to_hc32((uint32_t)(qh+1) | QH_LINK_TYPE_QH);
+		qh->qh_link = cpu_to_hc32((unsigned long)(qh+1) | QH_LINK_TYPE_QH);
 		if (i == queuesize - 1)
 			qh->qh_link = cpu_to_hc32(QH_LINK_TERMINATE);
 
-		qh->qh_overlay.qt_next = cpu_to_hc32((uint32_t)td);
+		qh->qh_overlay.qt_next = cpu_to_hc32((unsigned long)td);
 		qh->qh_overlay.qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
 		qh->qh_endpt1 =
 			cpu_to_hc32((0 << 28) | /* No NAK reload (ehci 4.9) */
@@ -1244,7 +1244,7 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 			((usb_pipein(pipe) ? 1 : 0) << 8) | /* IN/OUT token */
 			0x80); /* active */
 		td->qt_buffer[0] =
-		    cpu_to_hc32((uint32_t)buffer + i * elementsize);
+		    cpu_to_hc32((unsigned long)buffer + i * elementsize);
 		td->qt_buffer[1] =
 		    cpu_to_hc32((td->qt_buffer[0] + 0x1000) & ~0xfff);
 		td->qt_buffer[2] =
@@ -1257,13 +1257,13 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 		*buf = buffer + i * elementsize;
 	}
 
-	flush_dcache_range((uint32_t)buffer,
+	flush_dcache_range((unsigned long)buffer,
 			   ALIGN_END_ADDR(char, buffer,
 					  queuesize * elementsize));
-	flush_dcache_range((uint32_t)result->first,
+	flush_dcache_range((unsigned long)result->first,
 			   ALIGN_END_ADDR(struct QH, result->first,
 					  queuesize));
-	flush_dcache_range((uint32_t)result->tds,
+	flush_dcache_range((unsigned long)result->tds,
 			   ALIGN_END_ADDR(struct qTD, result->tds,
 					  queuesize));
 
@@ -1277,11 +1277,11 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 	/* hook up to periodic list */
 	struct QH *list = &ctrl->periodic_queue;
 	result->last->qh_link = list->qh_link;
-	list->qh_link = cpu_to_hc32((uint32_t)result->first | QH_LINK_TYPE_QH);
+	list->qh_link = cpu_to_hc32((unsigned long)result->first | QH_LINK_TYPE_QH);
 
-	flush_dcache_range((uint32_t)result->last,
+	flush_dcache_range((unsigned long)result->last,
 			   ALIGN_END_ADDR(struct QH, result->last, 1));
-	flush_dcache_range((uint32_t)list,
+	flush_dcache_range((unsigned long)list,
 			   ALIGN_END_ADDR(struct QH, list, 1));
 
 	if (enable_periodic(ctrl) < 0) {
@@ -1316,7 +1316,7 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 	}
 	/* still active */
 	cur_td = &queue->tds[queue->current - queue->first];
-	invalidate_dcache_range((uint32_t)cur_td,
+	invalidate_dcache_range((unsigned long)cur_td,
 				ALIGN_END_ADDR(struct qTD, cur_td, 1));
 	if (QT_TOKEN_GET_STATUS(hc32_to_cpu(cur_td->qt_token)) &
 			QT_TOKEN_STATUS_ACTIVE) {
@@ -1329,7 +1329,7 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 	else
 		queue->current = NULL;
 
-	invalidate_dcache_range((uint32_t)cur->buffer,
+	invalidate_dcache_range((unsigned long)cur->buffer,
 				ALIGN_END_ADDR(char, cur->buffer,
 					       queue->elementsize));
 
@@ -1359,7 +1359,7 @@ destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
 		if (NEXT_QH(cur) == queue->first) {
 			debug("found candidate. removing from chain\n");
 			cur->qh_link = queue->last->qh_link;
-			flush_dcache_range((uint32_t)cur,
+			flush_dcache_range((unsigned long)cur,
 					   ALIGN_END_ADDR(struct QH, cur, 1));
 			result = 0;
 			break;
@@ -1411,8 +1411,8 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		}
 
 	if (backbuffer != buffer) {
-		debug("got wrong buffer back (%x instead of %x)\n",
-		      (uint32_t)backbuffer, (uint32_t)buffer);
+		debug("got wrong buffer back (%p instead of %p)\n",
+		      backbuffer, buffer);
 		return -EINVAL;
 	}
 
