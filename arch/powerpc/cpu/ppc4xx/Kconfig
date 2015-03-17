@@ -13,9 +13,6 @@ config TARGET_CSB272
 config TARGET_CSB472
 	bool "Support csb472"
 
-config TARGET_JSE
-	bool "Support JSE"
-
 config TARGET_KORAT
 	bool "Support korat"
 
@@ -204,7 +201,6 @@ source "board/gdsys/405ex/Kconfig"
 source "board/gdsys/dlvision/Kconfig"
 source "board/gdsys/gdppc440etx/Kconfig"
 source "board/gdsys/intip/Kconfig"
-source "board/jse/Kconfig"
 source "board/korat/Kconfig"
 source "board/lwmon5/Kconfig"
 source "board/mosaixtech/icon/Kconfig"
