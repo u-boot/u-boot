@@ -228,13 +228,14 @@ static int twsi_stop(int status)
 	return status;
 }
 
-/*
- * Ugly formula to convert m and n values to a frequency comes from
- * TWSI specifications
- */
-
-#define TWSI_FREQUENCY(m, n) \
-	(CONFIG_SYS_TCLK / (10 * (m + 1) * (1 << n)))
+static unsigned int twsi_calc_freq(const int n, const int m)
+{
+#ifdef CONFIG_SUNXI
+	return CONFIG_SYS_TCLK / (10 * (m + 1) * (1 << n));
+#else
+	return CONFIG_SYS_TCLK / (10 * (m + 1) * (2 << n));
+#endif
+}
 
 /*
  * Reset controller.
@@ -266,7 +267,7 @@ static unsigned int twsi_i2c_set_bus_speed(struct i2c_adapter *adap,
 	/* compute m, n setting for highest speed not above requested speed */
 	for (n = 0; n < 8; n++) {
 		for (m = 0; m < 16; m++) {
-			tmp_speed = TWSI_FREQUENCY(m, n);
+			tmp_speed = twsi_calc_freq(n, m);
 			if ((tmp_speed <= requested_speed)
 			 && (tmp_speed > highest_speed)) {
 				highest_speed = tmp_speed;
