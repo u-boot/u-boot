@@ -30,7 +30,7 @@ static void s5p_sdhci_set_control_reg(struct sdhci_host *host)
 	sdhci_writel(host, SDHCI_CTRL4_DRIVE_MASK(0x3), SDHCI_CONTROL4);
 
 	val = sdhci_readl(host, SDHCI_CONTROL2);
-	val &= SDHCI_CTRL2_SELBASECLK_SHIFT;
+	val &= SDHCI_CTRL2_SELBASECLK_MASK(3);
 
 	val |=	SDHCI_CTRL2_ENSTAASYNCCLR |
 		SDHCI_CTRL2_ENCMDCNFMSK |
