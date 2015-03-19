@@ -43,8 +43,4 @@ config SYS_MALLOC_F
 	bool
 	default y
 
-config SYS_MALLOC_F_LEN
-	hex
-	default 0x400
-
 endif
