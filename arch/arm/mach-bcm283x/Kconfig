@@ -31,7 +31,7 @@ config SYS_VENDOR
 	default "raspberrypi"
 
 config SYS_SOC
-	default "bcm2835"
+	default "bcm283x"
 
 config SYS_CONFIG_NAME
 	default "rpi" if TARGET_RPI
