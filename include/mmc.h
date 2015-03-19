@@ -70,8 +70,7 @@
 #define UNUSABLE_ERR		-17 /* Unusable Card */
 #define COMM_ERR		-18 /* Communications Error */
 #define TIMEOUT			-19
-#define IN_PROGRESS		-20 /* operation is in progress */
-#define SWITCH_ERR		-21 /* Card reports failure to switch mode */
+#define SWITCH_ERR		-20 /* Card reports failure to switch mode */
 
 #define MMC_CMD_GO_IDLE_STATE		0
 #define MMC_CMD_SEND_OP_COND		1

@@ -387,7 +387,6 @@ static int mmc_send_op_cond(struct mmc *mmc)
 	mmc_go_idle(mmc);
 
  	/* Asking to the card its capabilities */
-	mmc->op_cond_pending = 1;
 	for (i = 0; i < 2; i++) {
 		err = mmc_send_op_cond_iter(mmc, i != 0);
 		if (err)
@@ -395,9 +394,10 @@ static int mmc_send_op_cond(struct mmc *mmc)
 
 		/* exit if not busy (flag seems to be inverted) */
 		if (mmc->ocr & OCR_BUSY)
-			return 0;
+			break;
 	}
-	return IN_PROGRESS;
+	mmc->op_cond_pending = 1;
+	return 0;
 }
 
 static int mmc_complete_op_cond(struct mmc *mmc)
@@ -1627,7 +1627,7 @@ int mmc_start_init(struct mmc *mmc)
 	if (err == TIMEOUT) {
 		err = mmc_send_op_cond(mmc);
 
-		if (err && err != IN_PROGRESS) {
+		if (err) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 			printf("Card did not respond to voltage select!\n");
 #endif
@@ -1635,7 +1635,7 @@ int mmc_start_init(struct mmc *mmc)
 		}
 	}
 
-	if (err == IN_PROGRESS)
+	if (!err)
 		mmc->init_in_progress = 1;
 
 	return err;
@@ -1645,6 +1645,7 @@ static int mmc_complete_init(struct mmc *mmc)
 {
 	int err = 0;
 
+	mmc->init_in_progress = 0;
 	if (mmc->op_cond_pending)
 		err = mmc_complete_op_cond(mmc);
 
@@ -1654,13 +1655,12 @@ static int mmc_complete_init(struct mmc *mmc)
 		mmc->has_init = 0;
 	else
 		mmc->has_init = 1;
-	mmc->init_in_progress = 0;
 	return err;
 }
 
 int mmc_init(struct mmc *mmc)
 {
-	int err = IN_PROGRESS;
+	int err = 0;
 	unsigned start;
 
 	if (mmc->has_init)
@@ -1671,7 +1671,7 @@ int mmc_init(struct mmc *mmc)
 	if (!mmc->init_in_progress)
 		err = mmc_start_init(mmc);
 
-	if (!err || err == IN_PROGRESS)
+	if (!err)
 		err = mmc_complete_init(mmc);
 	debug("%s: %d, time %lu\n", __func__, err, get_timer(start));
 	return err;
