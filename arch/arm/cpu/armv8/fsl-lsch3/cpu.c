@@ -380,7 +380,7 @@ int cpu_eth_init(bd_t *bis)
 	int error = 0;
 
 #ifdef CONFIG_FSL_MC_ENET
-	error = mc_init(bis);
+	error = fsl_mc_ldpaa_init(bis);
 #endif
 	return error;
 }

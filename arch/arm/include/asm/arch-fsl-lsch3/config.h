@@ -8,6 +8,8 @@
 #define _ASM_ARMV8_FSL_LSCH3_CONFIG_
 
 #include <fsl_ddrc_version.h>
+
+#define CONFIG_SYS_PAGE_SIZE		0x10000
 #define CONFIG_MP
 #define CONFIG_SYS_FSL_OCRAM_BASE	0x18000000	/* initial RAM */
 /* Link Definitions */

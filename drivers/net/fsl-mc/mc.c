@@ -8,11 +8,20 @@
 #include <asm/io.h>
 #include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/fsl_mc_sys.h>
+#include <fsl-mc/fsl_mc_private.h>
 #include <fsl-mc/fsl_dpmng.h>
 #include <fsl_debug_server.h>
+#include <fsl-mc/fsl_dprc.h>
+#include <fsl-mc/fsl_dpio.h>
+#include <fsl-mc/fsl_qbman_portal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 static int mc_boot_status;
+struct fsl_mc_io *dflt_mc_io = NULL;
+uint16_t dflt_dprc_handle = 0;
+struct fsl_dpbp_obj *dflt_dpbp = NULL;
+struct fsl_dpio_obj *dflt_dpio = NULL;
+uint16_t dflt_dpio_handle = NULL;
 
 /**
  * Copying MC firmware or DPL image to DDR
@@ -84,10 +93,11 @@ int parse_mc_firmware_fit_image(const void **raw_image_addr,
 	return 0;
 }
 
-int mc_init(bd_t *bis)
+int mc_init(void)
 {
 	int error = 0;
 	int timeout = 200000;
+	int portal_id = 0;
 	struct mc_ccsr_registers __iomem *mc_ccsr_regs = MC_CCSR_BASE_ADDR;
 	u64 mc_ram_addr;
 	u64 mc_dpl_offset;
@@ -97,8 +107,6 @@ int mc_init(bd_t *bis)
 	int dpl_size;
 	const void *raw_image_addr;
 	size_t raw_image_size = 0;
-	struct fsl_mc_io mc_io;
-	int portal_id;
 	struct mc_version mc_ver_info;
 
 	/*
@@ -263,13 +271,20 @@ int mc_init(bd_t *bis)
 	portal_id = 0;
 
 	/*
-	 * Check that the MC firmware is responding portal commands:
+	 * Initialize the global default MC portal
+	 * And check that the MC firmware is responding portal commands:
 	 */
-	mc_io.mmio_regs = SOC_MC_PORTAL_ADDR(portal_id);
-	debug("Checking access to MC portal of root DPRC container (portal_id %d, portal physical addr %p)\n",
-	      portal_id, mc_io.mmio_regs);
+	dflt_mc_io = (struct fsl_mc_io *)malloc(sizeof(struct fsl_mc_io));
+	if (!dflt_mc_io) {
+		printf(" No memory: malloc() failed\n");
+		return -ENOMEM;
+	}
 
-	error = mc_get_version(&mc_io, &mc_ver_info);
+	dflt_mc_io->mmio_regs = SOC_MC_PORTAL_ADDR(portal_id);
+	debug("Checking access to MC portal of root DPRC container (portal_id %d, portal physical addr %p)\n",
+	      portal_id, dflt_mc_io->mmio_regs);
+
+	error = mc_get_version(dflt_mc_io, &mc_ver_info);
 	if (error != 0) {
 		printf("fsl-mc: ERROR: Firmware version check failed (error: %d)\n",
 		       error);
@@ -311,4 +326,205 @@ int get_mc_boot_status(void)
 unsigned long mc_get_dram_block_size(void)
 {
 	return CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE;
+}
+
+int dpio_init(struct dprc_obj_desc obj_desc)
+{
+	struct qbman_swp_desc p_des;
+	struct dpio_attr attr;
+	int err = 0;
+
+	dflt_dpio = (struct fsl_dpio_obj *)malloc(sizeof(struct fsl_dpio_obj));
+	if (!dflt_dpio) {
+		printf(" No memory: malloc() failed\n");
+		return -ENOMEM;
+	}
+
+	dflt_dpio->dpio_id = obj_desc.id;
+
+	err = dpio_open(dflt_mc_io, obj_desc.id, &dflt_dpio_handle);
+	if (err) {
+		printf("dpio_open() failed\n");
+		goto err_open;
+	}
+
+	err = dpio_get_attributes(dflt_mc_io, dflt_dpio_handle, &attr);
+	if (err) {
+		printf("dpio_get_attributes() failed %d\n", err);
+		goto err_get_attr;
+	}
+
+	err = dpio_enable(dflt_mc_io, dflt_dpio_handle);
+	if (err) {
+		printf("dpio_enable() failed %d\n", err);
+		goto err_get_enable;
+	}
+	debug("ce_paddr=0x%llx, ci_paddr=0x%llx, portalid=%d, prios=%d\n",
+	      attr.qbman_portal_ce_paddr,
+	      attr.qbman_portal_ci_paddr,
+	      attr.qbman_portal_id,
+	      attr.num_priorities);
+
+	p_des.cena_bar = (void *)attr.qbman_portal_ce_paddr;
+	p_des.cinh_bar = (void *)attr.qbman_portal_ci_paddr;
+
+	dflt_dpio->sw_portal = qbman_swp_init(&p_des);
+	if (dflt_dpio->sw_portal == NULL) {
+		printf("qbman_swp_init() failed\n");
+		goto err_get_swp_init;
+	}
+	return 0;
+
+err_get_swp_init:
+err_get_enable:
+	dpio_disable(dflt_mc_io, dflt_dpio_handle);
+err_get_attr:
+	dpio_close(dflt_mc_io, dflt_dpio_handle);
+err_open:
+	free(dflt_dpio);
+	return err;
+}
+
+int dpbp_init(struct dprc_obj_desc obj_desc)
+{
+	dflt_dpbp = (struct fsl_dpbp_obj *)malloc(sizeof(struct fsl_dpbp_obj));
+	if (!dflt_dpbp) {
+		printf(" No memory: malloc() failed\n");
+		return -ENOMEM;
+	}
+	dflt_dpbp->dpbp_attr.id = obj_desc.id;
+
+	return 0;
+}
+
+int dprc_init_container_obj(struct dprc_obj_desc obj_desc)
+{
+	int error = 0;
+	if (!strcmp(obj_desc.type, "dpbp")) {
+		if (!dflt_dpbp) {
+			error = dpbp_init(obj_desc);
+			if (error < 0)
+				printf("dpbp_init failed\n");
+		}
+	} else if (!strcmp(obj_desc.type, "dpio")) {
+		if (!dflt_dpio) {
+			error = dpio_init(obj_desc);
+			if (error < 0)
+				printf("dpio_init failed\n");
+		}
+	}
+
+	return error;
+}
+
+int dprc_scan_container_obj(uint16_t dprc_handle, char *obj_type, int i)
+{
+	int error = 0;
+	struct dprc_obj_desc obj_desc;
+
+	memset((void *)&obj_desc, 0x00, sizeof(struct dprc_obj_desc));
+
+	error = dprc_get_obj(dflt_mc_io, dprc_handle,
+			     i, &obj_desc);
+	if (error < 0) {
+		printf("dprc_get_obj(i=%d) failed: %d\n",
+		       i, error);
+		return error;
+	}
+
+	if (!strcmp(obj_desc.type, obj_type)) {
+		debug("Discovered object: type %s, id %d, req %s\n",
+		      obj_desc.type, obj_desc.id, obj_type);
+
+		error = dprc_init_container_obj(obj_desc);
+		if (error < 0) {
+			printf("dprc_init_container_obj(i=%d) failed: %d\n",
+			       i, error);
+			return error;
+		}
+	}
+
+	return error;
+}
+
+int fsl_mc_ldpaa_init(bd_t *bis)
+{
+	int i, error = 0;
+	int dprc_opened = 0, container_id;
+	int num_child_objects = 0;
+
+	error = mc_init();
+
+	error = dprc_get_container_id(dflt_mc_io, &container_id);
+	if (error < 0) {
+		printf("dprc_get_container_id() failed: %d\n", error);
+		goto error;
+	}
+
+	debug("fsl-mc: Container id=0x%x\n", container_id);
+
+	error = dprc_open(dflt_mc_io, container_id, &dflt_dprc_handle);
+	if (error < 0) {
+		printf("dprc_open() failed: %d\n", error);
+		goto error;
+	}
+	dprc_opened = true;
+
+	error = dprc_get_obj_count(dflt_mc_io,
+				   dflt_dprc_handle,
+				   &num_child_objects);
+	if (error < 0) {
+		printf("dprc_get_obj_count() failed: %d\n", error);
+		goto error;
+	}
+	debug("Total child in container %d = %d\n", container_id,
+	      num_child_objects);
+
+	if (num_child_objects != 0) {
+		/*
+		 * Discover objects currently in the DPRC container in the MC:
+		 */
+		for (i = 0; i < num_child_objects; i++)
+			error = dprc_scan_container_obj(dflt_dprc_handle,
+							"dpbp", i);
+
+		for (i = 0; i < num_child_objects; i++)
+			error = dprc_scan_container_obj(dflt_dprc_handle,
+							"dpio", i);
+
+		for (i = 0; i < num_child_objects; i++)
+			error = dprc_scan_container_obj(dflt_dprc_handle,
+							"dpni", i);
+	}
+error:
+	if (dprc_opened)
+		dprc_close(dflt_mc_io, dflt_dprc_handle);
+
+	return error;
+}
+
+void fsl_mc_ldpaa_exit(bd_t *bis)
+{
+	int err;
+
+
+	err = dpio_disable(dflt_mc_io, dflt_dpio_handle);
+	if (err < 0) {
+		printf("dpio_disable() failed: %d\n", err);
+		return;
+	}
+	err = dpio_reset(dflt_mc_io, dflt_dpio_handle);
+	if (err < 0) {
+		printf("dpio_reset() failed: %d\n", err);
+		return;
+	}
+	err = dpio_close(dflt_mc_io, dflt_dpio_handle);
+	if (err < 0) {
+		printf("dpio_close() failed: %d\n", err);
+		return;
+	}
+
+	free(dflt_dpio);
+	free(dflt_dpbp);
+	free(dflt_mc_io);
 }
