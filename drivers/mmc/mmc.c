@@ -403,15 +403,17 @@ static int mmc_complete_op_cond(struct mmc *mmc)
 	int err;
 
 	mmc->op_cond_pending = 0;
-	start = get_timer(0);
-	do {
-		err = mmc_send_op_cond_iter(mmc, 1);
-		if (err)
-			return err;
-		if (get_timer(start) > timeout)
-			return UNUSABLE_ERR;
-		udelay(100);
-	} while (!(mmc->ocr & OCR_BUSY));
+	if (!(mmc->ocr & OCR_BUSY)) {
+		start = get_timer(0);
+		do {
+			err = mmc_send_op_cond_iter(mmc, 1);
+			if (err)
+				return err;
+			if (get_timer(start) > timeout)
+				return UNUSABLE_ERR;
+			udelay(100);
+		} while (!(mmc->ocr & OCR_BUSY));
+	}
 
 	if (mmc_host_is_spi(mmc)) { /* read OCR for spi */
 		cmd.cmdidx = MMC_CMD_SPI_READ_OCR;
