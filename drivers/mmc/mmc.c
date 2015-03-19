@@ -362,8 +362,8 @@ static int mmc_send_op_cond_iter(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (use_arg && !mmc_host_is_spi(mmc)) {
 		cmd->cmdarg =
 			(mmc->cfg->voltages &
-			(mmc->op_cond_response & OCR_VOLTAGE_MASK)) |
-			(mmc->op_cond_response & OCR_ACCESS_MODE);
+			(mmc->ocr & OCR_VOLTAGE_MASK)) |
+			(mmc->ocr & OCR_ACCESS_MODE);
 
 		if (mmc->cfg->host_caps & MMC_MODE_HC)
 			cmd->cmdarg |= OCR_HCS;
@@ -371,7 +371,7 @@ static int mmc_send_op_cond_iter(struct mmc *mmc, struct mmc_cmd *cmd,
 	err = mmc_send_cmd(mmc, cmd, NULL);
 	if (err)
 		return err;
-	mmc->op_cond_response = cmd->response[0];
+	mmc->ocr = cmd->response[0];
 	return 0;
 }
 
@@ -391,7 +391,7 @@ static int mmc_send_op_cond(struct mmc *mmc)
 			return err;
 
 		/* exit if not busy (flag seems to be inverted) */
-		if (mmc->op_cond_response & OCR_BUSY)
+		if (mmc->ocr & OCR_BUSY)
 			return 0;
 	}
 	return IN_PROGRESS;
@@ -413,7 +413,7 @@ static int mmc_complete_op_cond(struct mmc *mmc)
 		if (get_timer(start) > timeout)
 			return UNUSABLE_ERR;
 		udelay(100);
-	} while (!(mmc->op_cond_response & OCR_BUSY));
+	} while (!(mmc->ocr & OCR_BUSY));
 
 	if (mmc_host_is_spi(mmc)) { /* read OCR for spi */
 		cmd.cmdidx = MMC_CMD_SPI_READ_OCR;
@@ -424,10 +424,11 @@ static int mmc_complete_op_cond(struct mmc *mmc)
 
 		if (err)
 			return err;
+
+		mmc->ocr = cmd.response[0];
 	}
 
 	mmc->version = MMC_VERSION_UNKNOWN;
-	mmc->ocr = cmd.response[0];
 
 	mmc->high_capacity = ((mmc->ocr & OCR_HCS) == OCR_HCS);
 	mmc->rca = 1;

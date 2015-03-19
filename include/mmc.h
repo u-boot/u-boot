@@ -356,7 +356,6 @@ struct mmc {
 	char op_cond_pending;	/* 1 if we are waiting on an op_cond command */
 	char init_in_progress;	/* 1 if we have done mmc_start_init() */
 	char preinit;		/* start init as early as possible */
-	uint op_cond_response;	/* the response byte from the last op_cond */
 	int ddr_mode;
 };
 
