@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2014-2015 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -10,6 +10,22 @@
 #include <asm/processor.h>
 #include <fsl_immap.h>
 #include <fsl_ddr.h>
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008511
+static void set_wait_for_bits_clear(void *ptr, u32 value, u32 bits)
+{
+	int timeout = 1000;
+
+	ddr_out32(ptr, value);
+
+	while (ddr_in32(ptr) & bits) {
+		udelay(100);
+		timeout--;
+	}
+	if (timeout <= 0)
+		puts("Error: A007865 wait for clear timeout.\n");
+}
+#endif /* CONFIG_SYS_FSL_ERRATUM_A008511 */
 
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 4)
 #error Invalid setting for CONFIG_CHIP_SELECTS_PER_CTRL
@@ -35,6 +51,9 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 #if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
 	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
 	u32 *eddrtqcr1;
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008511
+	u32 temp32, mr6;
 #endif
 #ifdef CONFIG_FSL_DDR_BIST
 	u32 mtcr, err_detect, err_sbe;
@@ -221,6 +240,21 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 		ddr_setbits32(ddr->debug[28], 0x9 << 20);
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008511
+	/* Part 1 of 2 */
+	/* This erraum only applies to verion 5.2.0 */
+	if (fsl_ddr_get_version(ctrl_num) == 0x50200) {
+		/* Disable DRAM VRef training */
+		ddr_out32(&ddr->ddr_cdr2,
+			  regs->ddr_cdr2 & ~DDR_CDR2_VREF_TRAIN_EN);
+		/* Disable deskew */
+		ddr_out32(&ddr->debug[28], 0x400);
+		/* Disable D_INIT */
+		ddr_out32(&ddr->sdram_cfg_2,
+			  regs->ddr_sdram_cfg_2 & ~SDRAM_CFG2_D_INIT);
+		ddr_out32(&ddr->debug[25], 0x9000);
+	}
+#endif
 	/*
 	 * For RDIMMs, JEDEC spec requires clocks to be stable before reset is
 	 * deasserted. Clocks start when any chip select is enabled and clock
@@ -267,6 +301,66 @@ step2:
 	ddr_out32(&ddr->sdram_cfg, temp_sdram_cfg | SDRAM_CFG_MEM_EN);
 	mb();
 	isb();
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008511
+	/* Part 2 of 2 */
+	/* This erraum only applies to verion 5.2.0 */
+	if (fsl_ddr_get_version(ctrl_num) == 0x50200) {
+		/* Wait for idle */
+		timeout = 200;
+		while (!(ddr_in32(&ddr->debug[1]) & 0x2) &&
+		       (timeout > 0)) {
+			udelay(100);
+			timeout--;
+		}
+		if (timeout <= 0) {
+			printf("Controler %d timeout, debug_2 = %x\n",
+			       ctrl_num, ddr_in32(&ddr->debug[1]));
+		}
+		/* Set VREF */
+		for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+			if (!(regs->cs[i].config & SDRAM_CS_CONFIG_EN))
+				continue;
+
+			mr6 = (regs->ddr_sdram_mode_10 >> 16)		|
+				 MD_CNTL_MD_EN				|
+				 MD_CNTL_CS_SEL(i)			|
+				 MD_CNTL_MD_SEL(6)			|
+				 0x00200000;
+			temp32 = mr6 | 0xc0;
+			set_wait_for_bits_clear(&ddr->sdram_md_cntl,
+						temp32, MD_CNTL_MD_EN);
+			udelay(1);
+			debug("MR6 = 0x%08x\n", temp32);
+			temp32 = mr6 | 0xf0;
+			set_wait_for_bits_clear(&ddr->sdram_md_cntl,
+						temp32, MD_CNTL_MD_EN);
+			udelay(1);
+			debug("MR6 = 0x%08x\n", temp32);
+			temp32 = mr6 | 0x70;
+			set_wait_for_bits_clear(&ddr->sdram_md_cntl,
+						temp32, MD_CNTL_MD_EN);
+			udelay(1);
+			debug("MR6 = 0x%08x\n", temp32);
+		}
+		ddr_out32(&ddr->sdram_md_cntl, 0);
+		ddr_out32(&ddr->debug[28], 0);		/* Enable deskew */
+		ddr_out32(&ddr->debug[1], 0x400);	/* restart deskew */
+		/* wait for idle */
+		timeout = 200;
+		while (!(ddr_in32(&ddr->debug[1]) & 0x2) &&
+		       (timeout > 0)) {
+			udelay(100);
+			timeout--;
+		}
+		if (timeout <= 0) {
+			printf("Controler %d timeout, debug_2 = %x\n",
+			       ctrl_num, ddr_in32(&ddr->debug[1]));
+		}
+		/* Restore D_INIT */
+		ddr_out32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
+	}
+#endif /* CONFIG_SYS_FSL_ERRATUM_A008511 */
 
 	total_gb_size_per_controller = 0;
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {

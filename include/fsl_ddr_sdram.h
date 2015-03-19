@@ -155,6 +155,8 @@ typedef struct ddr4_spd_eeprom_s generic_spd_eeprom_t;
 #define MD_CNTL_CKE_CNTL_HIGH	0x00200000
 #define MD_CNTL_WRCW		0x00080000
 #define MD_CNTL_MD_VALUE(x)	(x & 0x0000FFFF)
+#define MD_CNTL_CS_SEL(x)	(((x) & 0x7) << 28)
+#define MD_CNTL_MD_SEL(x)	(((x) & 0xf) << 24)
 
 /* DDR_CDR1 */
 #define DDR_CDR1_DHC_EN	0x80000000
