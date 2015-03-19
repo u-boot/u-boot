@@ -17,9 +17,6 @@ PLATFORM_CPPFLAGS += $(PF_CPPFLAGS_X86)
 PLATFORM_CPPFLAGS += -fno-dwarf2-cfi-asm
 PLATFORM_CPPFLAGS += -march=i386 -m32
 
-# Support generic board on x86
-__HAVE_ARCH_GENERIC_BOARD := y
-
 PLATFORM_RELFLAGS += -ffunction-sections -fvisibility=hidden
 
 PLATFORM_LDFLAGS += --emit-relocs -Bsymbolic -Bsymbolic-functions -m elf_i386

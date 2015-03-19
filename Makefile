@@ -1163,7 +1163,7 @@ prepare2: prepare3 outputmakefile
 
 prepare1: prepare2 $(version_h) $(timestamp_h) \
                    include/config/auto.conf
-ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
+ifeq ($(CONFIG_HAVE_GENERIC_BOARD),)
 ifeq ($(CONFIG_SYS_GENERIC_BOARD),y)
 	@echo >&2 "  Your architecture does not support generic board."
 	@echo >&2 "  Please undefine CONFIG_SYS_GENERIC_BOARD in your board config file."

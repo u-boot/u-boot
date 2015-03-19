@@ -4190,9 +4190,9 @@ Configuration Settings:
 	to this new framework over time. Defining this will disable the
 	arch/foo/lib/board.c file and use common/board_f.c and
 	common/board_r.c instead. To use this option your architecture
-	must support it (i.e. must define __HAVE_ARCH_GENERIC_BOARD in
-	its config.mk file). If you find problems enabling this option on
-	your board please report the problem and send patches!
+	must support it (i.e. must select HAVE_GENERIC_BOARD in arch/Kconfig).
+	If you find problems enabling this option on your board please report
+	the problem and send patches!
 
 - CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC (OMAP only)
 	This is set by OMAP boards for the max time that reset should

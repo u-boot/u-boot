@@ -9,9 +9,6 @@ ifeq ($(CROSS_COMPILE),)
 CROSS_COMPILE := avr32-linux-
 endif
 
-# avr32 has generic board support
-__HAVE_ARCH_GENERIC_BOARD := y
-
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x00000000
 
 PLATFORM_RELFLAGS	+= -ffixed-r5 -fPIC -mno-init-got -mrelax

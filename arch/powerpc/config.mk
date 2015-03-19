@@ -18,9 +18,6 @@ PLATFORM_RELFLAGS += -fpic -mrelocatable -ffunction-sections \
 PLATFORM_CPPFLAGS += -D__powerpc__ -ffixed-r2 -m32
 PLATFORM_LDFLAGS  += -m32 -melf32ppclinux
 
-# Support generic board on PPC
-__HAVE_ARCH_GENERIC_BOARD := y
-
 #
 # When cross-compiling on NetBSD, we have to define __PPC__ or else we
 # will pick up a va_list declaration that is incompatible with the
