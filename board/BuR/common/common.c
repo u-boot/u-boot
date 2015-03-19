@@ -461,10 +461,6 @@ void pmicsetup(u32 mpupll)
 	int mpu_vdd;
 	int usb_cur_lim;
 
-	/* setup I2C */
-	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
-
 	if (i2c_probe(TPS65217_CHIP_PM)) {
 		puts("PMIC (0x24) not found! skip further initalization.\n");
 		return;

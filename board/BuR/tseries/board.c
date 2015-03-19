@@ -123,6 +123,10 @@ void am33xx_spl_board_init(void)
 	/* setup LCD-Pixel Clock */
 	writel(0x2, &cmdpll->clklcdcpixelclk);	/* clock comes from perPLL M2 */
 
+	/* setup I2C */
+	enable_i2c_pin_mux();
+	i2c_set_bus_num(0);
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 	pmicsetup(0);
 }
 
