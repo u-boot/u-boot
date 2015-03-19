@@ -76,9 +76,6 @@ config DM_GPIO
 config DM_SERIAL
 	default y
 
-config SYS_MALLOC_F
-	default y
-
 config SYS_MALLOC_F_LEN
 	default 0x800
 

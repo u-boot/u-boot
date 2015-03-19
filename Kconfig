@@ -54,7 +54,7 @@ config CC_OPTIMIZE_FOR_SIZE
 
 config SYS_MALLOC_F
 	bool "Enable malloc() pool before relocation"
-	default 0x400
+	default y if DM
 	help
 	  Before relocation memory is very limited on many platforms. Still,
 	  we can provide a small malloc() pool if needed. Driver model in

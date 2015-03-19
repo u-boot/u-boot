@@ -35,8 +35,6 @@
 #define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_SYS_GENERIC_BOARD
 
-#define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
-
 /* Support File sytems */
 #define CONFIG_FAT_WRITE
 #define CONFIG_DOS_PARTITION
