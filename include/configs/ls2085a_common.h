@@ -78,7 +78,7 @@
 #define COUNTER_FREQUENCY		12000000	/* 12MHz */
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)
 
 /* I2C */
 #define CONFIG_CMD_I2C
