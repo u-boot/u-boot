@@ -350,34 +350,32 @@ static int sd_send_op_cond(struct mmc *mmc)
 	return 0;
 }
 
-/* We pass in the cmd since otherwise the init seems to fail */
-static int mmc_send_op_cond_iter(struct mmc *mmc, struct mmc_cmd *cmd,
-		int use_arg)
+static int mmc_send_op_cond_iter(struct mmc *mmc, int use_arg)
 {
+	struct mmc_cmd cmd;
 	int err;
 
-	cmd->cmdidx = MMC_CMD_SEND_OP_COND;
-	cmd->resp_type = MMC_RSP_R3;
-	cmd->cmdarg = 0;
+	cmd.cmdidx = MMC_CMD_SEND_OP_COND;
+	cmd.resp_type = MMC_RSP_R3;
+	cmd.cmdarg = 0;
 	if (use_arg && !mmc_host_is_spi(mmc)) {
-		cmd->cmdarg =
+		cmd.cmdarg =
 			(mmc->cfg->voltages &
 			(mmc->ocr & OCR_VOLTAGE_MASK)) |
 			(mmc->ocr & OCR_ACCESS_MODE);
 
 		if (mmc->cfg->host_caps & MMC_MODE_HC)
-			cmd->cmdarg |= OCR_HCS;
+			cmd.cmdarg |= OCR_HCS;
 	}
-	err = mmc_send_cmd(mmc, cmd, NULL);
+	err = mmc_send_cmd(mmc, &cmd, NULL);
 	if (err)
 		return err;
-	mmc->ocr = cmd->response[0];
+	mmc->ocr = cmd.response[0];
 	return 0;
 }
 
 static int mmc_send_op_cond(struct mmc *mmc)
 {
-	struct mmc_cmd cmd;
 	int err, i;
 
 	/* Some cards seem to need this */
@@ -386,7 +384,7 @@ static int mmc_send_op_cond(struct mmc *mmc)
  	/* Asking to the card its capabilities */
 	mmc->op_cond_pending = 1;
 	for (i = 0; i < 2; i++) {
-		err = mmc_send_op_cond_iter(mmc, &cmd, i != 0);
+		err = mmc_send_op_cond_iter(mmc, i != 0);
 		if (err)
 			return err;
 
@@ -407,7 +405,7 @@ static int mmc_complete_op_cond(struct mmc *mmc)
 	mmc->op_cond_pending = 0;
 	start = get_timer(0);
 	do {
-		err = mmc_send_op_cond_iter(mmc, &cmd, 1);
+		err = mmc_send_op_cond_iter(mmc, 1);
 		if (err)
 			return err;
 		if (get_timer(start) > timeout)
