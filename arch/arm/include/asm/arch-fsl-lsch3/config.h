@@ -10,6 +10,12 @@
 #include <fsl_ddrc_version.h>
 
 #define CONFIG_SYS_PAGE_SIZE		0x10000
+
+#ifndef L1_CACHE_BYTES
+#define L1_CACHE_SHIFT		6
+#define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
+#endif
+
 #define CONFIG_MP
 #define CONFIG_SYS_FSL_OCRAM_BASE	0x18000000	/* initial RAM */
 /* Link Definitions */

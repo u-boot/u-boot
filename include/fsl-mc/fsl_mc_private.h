@@ -16,6 +16,7 @@
 
 #include <fsl-mc/fsl_mc_sys.h>
 #include <fsl-mc/fsl_mc_cmd.h>
+#include <fsl-mc/fsl_dprc.h>
 #include <fsl-mc/fsl_dpbp.h>
 
 extern struct fsl_mc_io *dflt_mc_io;
@@ -45,4 +46,5 @@ struct fsl_dpio_obj {
 extern struct fsl_dpio_obj *dflt_dpio;
 
 int mc_init(void);
+int ldpaa_eth_init(struct dprc_obj_desc obj_desc);
 #endif /* _FSL_MC_PRIVATE_H_ */

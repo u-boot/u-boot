@@ -397,9 +397,10 @@ int dpbp_init(struct dprc_obj_desc obj_desc)
 	return 0;
 }
 
-int dprc_init_container_obj(struct dprc_obj_desc obj_desc)
+int dprc_init_container_obj(struct dprc_obj_desc obj_desc, uint16_t dprc_handle)
 {
-	int error = 0;
+	int error = 0, state = 0;
+	struct dprc_endpoint dpni_endpoint, dpmac_endpoint;
 	if (!strcmp(obj_desc.type, "dpbp")) {
 		if (!dflt_dpbp) {
 			error = dpbp_init(obj_desc);
@@ -412,6 +413,15 @@ int dprc_init_container_obj(struct dprc_obj_desc obj_desc)
 			if (error < 0)
 				printf("dpio_init failed\n");
 		}
+	} else if (!strcmp(obj_desc.type, "dpni")) {
+		strcpy(dpni_endpoint.type, obj_desc.type);
+		dpni_endpoint.id = obj_desc.id;
+		error = dprc_get_connection(dflt_mc_io, dprc_handle,
+				     &dpni_endpoint, &dpmac_endpoint, &state);
+		if (!strcmp(dpmac_endpoint.type, "dpmac"))
+			error = ldpaa_eth_init(obj_desc);
+		if (error < 0)
+			printf("ldpaa_eth_init failed\n");
 	}
 
 	return error;
@@ -436,7 +446,7 @@ int dprc_scan_container_obj(uint16_t dprc_handle, char *obj_type, int i)
 		debug("Discovered object: type %s, id %d, req %s\n",
 		      obj_desc.type, obj_desc.id, obj_type);
 
-		error = dprc_init_container_obj(obj_desc);
+		error = dprc_init_container_obj(obj_desc, dprc_handle);
 		if (error < 0) {
 			printf("dprc_init_container_obj(i=%d) failed: %d\n",
 			       i, error);
