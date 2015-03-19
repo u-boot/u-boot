@@ -1,6 +1,10 @@
 config HAVE_GENERIC_BOARD
 	bool
 
+config SYS_GENERIC_BOARD
+	bool
+	depends on HAVE_GENERIC_BOARD
+
 choice
 	prompt "Architecture select"
 	default SANDBOX
@@ -9,6 +13,7 @@ config ARC
 	bool "ARC architecture"
 	select HAVE_PRIVATE_LIBGCC
 	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 
 config ARM
 	bool "ARM architecture"
@@ -23,20 +28,24 @@ config AVR32
 config BLACKFIN
 	bool "Blackfin architecture"
 	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 
 config M68K
 	bool "M68000 architecture"
 	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 
 config MICROBLAZE
 	bool "MicroBlaze architecture"
 	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 config MIPS
 	bool "MIPS architecture"
 	select HAVE_PRIVATE_LIBGCC
 	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 
 config NDS32
 	bool "NDS32 architecture"
@@ -44,6 +53,7 @@ config NDS32
 config NIOS2
 	bool "Nios II architecture"
 	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 
 config OPENRISC
 	bool "OpenRISC architecture"
@@ -57,6 +67,7 @@ config PPC
 config SANDBOX
 	bool "Sandbox"
 	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 config SH
@@ -70,6 +81,7 @@ config X86
 	bool "x86 architecture"
 	select HAVE_PRIVATE_LIBGCC
 	select HAVE_GENERIC_BOARD
+	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
 endchoice
