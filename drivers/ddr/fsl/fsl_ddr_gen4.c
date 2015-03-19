@@ -36,6 +36,13 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
 	u32 *eddrtqcr1;
 #endif
+#ifdef CONFIG_FSL_DDR_BIST
+	u32 mtcr, err_detect, err_sbe;
+	u32 cs0_bnds, cs1_bnds, cs2_bnds, cs3_bnds, cs0_config;
+#endif
+#ifdef CONFIG_FSL_DDR_BIST
+	char buffer[CONFIG_SYS_CBSIZE];
+#endif
 
 	switch (ctrl_num) {
 	case 0:
@@ -307,6 +314,72 @@ step2:
 		temp_sdram_cfg = ddr_in32(&ddr->sdram_cfg_2);
 		temp_sdram_cfg &= ~SDRAM_CFG2_FRC_SR;
 		ddr_out32(&ddr->sdram_cfg_2, temp_sdram_cfg);
+	}
+#endif
+
+#ifdef CONFIG_FSL_DDR_BIST
+#define BIST_PATTERN1	0xFFFFFFFF
+#define BIST_PATTERN2	0x0
+#define BIST_CR		0x80010000
+#define BIST_CR_EN	0x80000000
+#define BIST_CR_STAT	0x00000001
+#define CTLR_INTLV_MASK	0x20000000
+	/* Perform build-in test on memory. Three-way interleaving is not yet
+	 * supported by this code. */
+	if (getenv_f("ddr_bist", buffer, CONFIG_SYS_CBSIZE) >= 0) {
+		puts("Running BIST test. This will take a while...");
+		cs0_config = ddr_in32(&ddr->cs0_config);
+		if (cs0_config & CTLR_INTLV_MASK) {
+			cs0_bnds = ddr_in32(&cs0_bnds);
+			cs1_bnds = ddr_in32(&cs1_bnds);
+			cs2_bnds = ddr_in32(&cs2_bnds);
+			cs3_bnds = ddr_in32(&cs3_bnds);
+			/* set bnds to non-interleaving */
+			ddr_out32(&cs0_bnds, (cs0_bnds & 0xfffefffe) >> 1);
+			ddr_out32(&cs1_bnds, (cs1_bnds & 0xfffefffe) >> 1);
+			ddr_out32(&cs2_bnds, (cs2_bnds & 0xfffefffe) >> 1);
+			ddr_out32(&cs3_bnds, (cs3_bnds & 0xfffefffe) >> 1);
+		}
+		ddr_out32(&ddr->mtp1, BIST_PATTERN1);
+		ddr_out32(&ddr->mtp2, BIST_PATTERN1);
+		ddr_out32(&ddr->mtp3, BIST_PATTERN2);
+		ddr_out32(&ddr->mtp4, BIST_PATTERN2);
+		ddr_out32(&ddr->mtp5, BIST_PATTERN1);
+		ddr_out32(&ddr->mtp6, BIST_PATTERN1);
+		ddr_out32(&ddr->mtp7, BIST_PATTERN2);
+		ddr_out32(&ddr->mtp8, BIST_PATTERN2);
+		ddr_out32(&ddr->mtp9, BIST_PATTERN1);
+		ddr_out32(&ddr->mtp10, BIST_PATTERN2);
+		mtcr = BIST_CR;
+		ddr_out32(&ddr->mtcr, mtcr);
+		timeout = 100;
+		while (timeout > 0 && (mtcr & BIST_CR_EN)) {
+			mdelay(1000);
+			timeout--;
+			mtcr = ddr_in32(&ddr->mtcr);
+		}
+		if (timeout <= 0)
+			puts("Timeout\n");
+		else
+			puts("Done\n");
+		err_detect = ddr_in32(&ddr->err_detect);
+		err_sbe = ddr_in32(&ddr->err_sbe);
+		if (mtcr & BIST_CR_STAT) {
+			printf("BIST test failed on controller %d.\n",
+			       ctrl_num);
+		}
+		if (err_detect || (err_sbe & 0xffff)) {
+			printf("ECC error detected on controller %d.\n",
+			       ctrl_num);
+		}
+
+		if (cs0_config & CTLR_INTLV_MASK) {
+			/* restore bnds registers */
+			ddr_out32(&cs0_bnds, cs0_bnds);
+			ddr_out32(&cs1_bnds, cs1_bnds);
+			ddr_out32(&cs2_bnds, cs2_bnds);
+			ddr_out32(&cs3_bnds, cs3_bnds);
+		}
 	}
 #endif
 }
