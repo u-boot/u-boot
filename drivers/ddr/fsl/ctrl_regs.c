@@ -1116,8 +1116,14 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 	int i;
 	unsigned short esdmode4 = 0;	/* Extended SDRAM mode 4 */
 	unsigned short esdmode5;	/* Extended SDRAM mode 5 */
+	int rtt_park = 0;
 
-	esdmode5 = 0x00000500;		/* Data mask enabled */
+	if (ddr->cs[0].config & SDRAM_CS_CONFIG_EN) {
+		esdmode5 = 0x00000500;	/* Data mask enable, RTT_PARK CS0 */
+		rtt_park = 1;
+	} else {
+		esdmode5 = 0x00000400;	/* Data mask enabled */
+	}
 
 	ddr->ddr_sdram_mode_9 = (0
 				 | ((esdmode4 & 0xffff) << 16)
@@ -1125,11 +1131,17 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 				);
 
 	/* only mode_9 use 0x500, others use 0x400 */
-	esdmode5 = 0x00000400;		/* Data mask enabled */
 
 	debug("FSLDDR: ddr_sdram_mode_9) = 0x%08x\n", ddr->ddr_sdram_mode_9);
 	if (unq_mrs_en) {	/* unique mode registers are supported */
 		for (i = 1; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+			if (!rtt_park &&
+			    (ddr->cs[i].config & SDRAM_CS_CONFIG_EN)) {
+				esdmode5 |= 0x00000500;	/* RTT_PARK */
+				rtt_park = 1;
+			} else {
+				esdmode5 = 0x00000400;
+			}
 			switch (i) {
 			case 1:
 				ddr->ddr_sdram_mode_11 = (0
@@ -1977,31 +1989,41 @@ static void set_ddr_dq_mapping(fsl_ddr_cfg_regs_t *ddr,
 			       const dimm_params_t *dimm_params)
 {
 	unsigned int acc_ecc_en = (ddr->ddr_sdram_cfg >> 2) & 0x1;
+	int i;
 
-	ddr->dq_map_0 = ((dimm_params->dq_mapping[0] & 0x3F) << 26) |
-			((dimm_params->dq_mapping[1] & 0x3F) << 20) |
-			((dimm_params->dq_mapping[2] & 0x3F) << 14) |
-			((dimm_params->dq_mapping[3] & 0x3F) << 8) |
-			((dimm_params->dq_mapping[4] & 0x3F) << 2);
+	for (i = 0; i < CONFIG_DIMM_SLOTS_PER_CTLR; i++) {
+		if (dimm_params[i].n_ranks)
+			break;
+	}
+	if (i >= CONFIG_DIMM_SLOTS_PER_CTLR) {
+		puts("DDR error: no DIMM found!\n");
+		return;
+	}
 
-	ddr->dq_map_1 = ((dimm_params->dq_mapping[5] & 0x3F) << 26) |
-			((dimm_params->dq_mapping[6] & 0x3F) << 20) |
-			((dimm_params->dq_mapping[7] & 0x3F) << 14) |
-			((dimm_params->dq_mapping[10] & 0x3F) << 8) |
-			((dimm_params->dq_mapping[11] & 0x3F) << 2);
+	ddr->dq_map_0 = ((dimm_params[i].dq_mapping[0] & 0x3F) << 26) |
+			((dimm_params[i].dq_mapping[1] & 0x3F) << 20) |
+			((dimm_params[i].dq_mapping[2] & 0x3F) << 14) |
+			((dimm_params[i].dq_mapping[3] & 0x3F) << 8) |
+			((dimm_params[i].dq_mapping[4] & 0x3F) << 2);
 
-	ddr->dq_map_2 = ((dimm_params->dq_mapping[12] & 0x3F) << 26) |
-			((dimm_params->dq_mapping[13] & 0x3F) << 20) |
-			((dimm_params->dq_mapping[14] & 0x3F) << 14) |
-			((dimm_params->dq_mapping[15] & 0x3F) << 8) |
-			((dimm_params->dq_mapping[16] & 0x3F) << 2);
+	ddr->dq_map_1 = ((dimm_params[i].dq_mapping[5] & 0x3F) << 26) |
+			((dimm_params[i].dq_mapping[6] & 0x3F) << 20) |
+			((dimm_params[i].dq_mapping[7] & 0x3F) << 14) |
+			((dimm_params[i].dq_mapping[10] & 0x3F) << 8) |
+			((dimm_params[i].dq_mapping[11] & 0x3F) << 2);
+
+	ddr->dq_map_2 = ((dimm_params[i].dq_mapping[12] & 0x3F) << 26) |
+			((dimm_params[i].dq_mapping[13] & 0x3F) << 20) |
+			((dimm_params[i].dq_mapping[14] & 0x3F) << 14) |
+			((dimm_params[i].dq_mapping[15] & 0x3F) << 8) |
+			((dimm_params[i].dq_mapping[16] & 0x3F) << 2);
 
 	/* dq_map for ECC[4:7] is set to 0 if accumulated ECC is enabled */
-	ddr->dq_map_3 = ((dimm_params->dq_mapping[17] & 0x3F) << 26) |
-			((dimm_params->dq_mapping[8] & 0x3F) << 20) |
+	ddr->dq_map_3 = ((dimm_params[i].dq_mapping[17] & 0x3F) << 26) |
+			((dimm_params[i].dq_mapping[8] & 0x3F) << 20) |
 			(acc_ecc_en ? 0 :
-			 (dimm_params->dq_mapping[9] & 0x3F) << 14) |
-			dimm_params->dq_mapping_ors;
+			 (dimm_params[i].dq_mapping[9] & 0x3F) << 14) |
+			dimm_params[i].dq_mapping_ors;
 
 	debug("FSLDDR: dq_map_0 = 0x%08x\n", ddr->dq_map_0);
 	debug("FSLDDR: dq_map_1 = 0x%08x\n", ddr->dq_map_1);

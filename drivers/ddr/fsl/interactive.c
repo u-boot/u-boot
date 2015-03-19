@@ -512,7 +512,7 @@ static void fsl_ddr_options_edit(fsl_ddr_info_t *pinfo,
 		CTRL_OPTIONS_CS(3, odt_rd_cfg),
 		CTRL_OPTIONS_CS(3, odt_wr_cfg),
 #endif
-#if defined(CONFIG_SYS_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 		CTRL_OPTIONS_CS(0, odt_rtt_norm),
 		CTRL_OPTIONS_CS(0, odt_rtt_wr),
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 1)
@@ -802,7 +802,7 @@ static void print_memctl_options(const memctl_options_t *popts)
 		CTRL_OPTIONS_CS(3, odt_rd_cfg),
 		CTRL_OPTIONS_CS(3, odt_wr_cfg),
 #endif
-#if defined(CONFIG_SYS_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 		CTRL_OPTIONS_CS(0, odt_rtt_norm),
 		CTRL_OPTIONS_CS(0, odt_rtt_wr),
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 1)
@@ -844,6 +844,7 @@ static void print_memctl_options(const memctl_options_t *popts)
 		CTRL_OPTIONS(twot_en),
 		CTRL_OPTIONS(threet_en),
 		CTRL_OPTIONS(registered_dimm_en),
+		CTRL_OPTIONS(mirrored_dimm),
 		CTRL_OPTIONS(ap_en),
 		CTRL_OPTIONS(x4_en),
 		CTRL_OPTIONS(bstopre),
