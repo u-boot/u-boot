@@ -118,7 +118,7 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 	if (!mmc_host_is_spi(mmc))
 		cmd.cmdarg = mmc->rca << 16;
 
-	do {
+	while (1) {
 		err = mmc_send_cmd(mmc, &cmd, NULL);
 		if (!err) {
 			if ((cmd.response[0] & MMC_STATUS_RDY_FOR_DATA) &&
@@ -135,9 +135,11 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 		} else if (--retries < 0)
 			return err;
 
-		udelay(1000);
+		if (timeout-- <= 0)
+			break;
 
-	} while (timeout--);
+		udelay(1000);
+	}
 
 #ifdef CONFIG_MMC_TRACE
 	status = (cmd.response[0] & MMC_STATUS_CURR_STATE) >> 9;
@@ -291,7 +293,7 @@ static int sd_send_op_cond(struct mmc *mmc)
 	int err;
 	struct mmc_cmd cmd;
 
-	do {
+	while (1) {
 		cmd.cmdidx = MMC_CMD_APP_CMD;
 		cmd.resp_type = MMC_RSP_R1;
 		cmd.cmdarg = 0;
@@ -322,11 +324,14 @@ static int sd_send_op_cond(struct mmc *mmc)
 		if (err)
 			return err;
 
-		udelay(1000);
-	} while ((!(cmd.response[0] & OCR_BUSY)) && timeout--);
+		if (cmd.response[0] & OCR_BUSY)
+			break;
 
-	if (timeout <= 0)
-		return UNUSABLE_ERR;
+		if (timeout-- <= 0)
+			return UNUSABLE_ERR;
+
+		udelay(1000);
+	}
 
 	if (mmc->version != SD_VERSION_2)
 		mmc->version = SD_VERSION_1_0;
@@ -405,14 +410,16 @@ static int mmc_complete_op_cond(struct mmc *mmc)
 	mmc->op_cond_pending = 0;
 	if (!(mmc->ocr & OCR_BUSY)) {
 		start = get_timer(0);
-		do {
+		while (1) {
 			err = mmc_send_op_cond_iter(mmc, 1);
 			if (err)
 				return err;
+			if (mmc->ocr & OCR_BUSY)
+				break;
 			if (get_timer(start) > timeout)
 				return UNUSABLE_ERR;
 			udelay(100);
-		} while (!(mmc->ocr & OCR_BUSY));
+		}
 	}
 
 	if (mmc_host_is_spi(mmc)) { /* read OCR for spi */
