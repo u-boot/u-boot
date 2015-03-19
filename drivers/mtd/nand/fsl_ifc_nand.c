@@ -292,7 +292,7 @@ static int fsl_ifc_run_command(struct mtd_info *mtd)
 	struct fsl_ifc *ifc = ctrl->regs;
 	u32 timeo = (CONFIG_SYS_HZ * 10) / 1000;
 	u32 time_start;
-	u32 eccstat[4] = {0};
+	u32 eccstat[8] = {0};
 	int i;
 
 	/* set the chip select for NAND Transaction */
@@ -325,8 +325,15 @@ static int fsl_ifc_run_command(struct mtd_info *mtd)
 		int sector = bufnum * chip->ecc.steps;
 		int sector_end = sector + chip->ecc.steps - 1;
 
-		for (i = sector / 4; i <= sector_end / 4; i++)
+		for (i = sector / 4; i <= sector_end / 4; i++) {
+			if (i >= ARRAY_SIZE(eccstat)) {
+				printf("%s: eccstat too small for %d\n",
+				       __func__, i);
+				return -EIO;
+			}
+
 			eccstat[i] = ifc_in32(&ifc->ifc_nand.nand_eccstat[i]);
+		}
 
 		for (i = sector; i <= sector_end; i++) {
 			errors = check_read_ecc(mtd, ctrl, eccstat, i);
