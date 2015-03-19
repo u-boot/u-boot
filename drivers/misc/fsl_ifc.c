@@ -168,4 +168,13 @@ void init_final_memctl_regs(void)
 #ifdef CONFIG_SYS_CSPR0_FINAL
 	set_ifc_cspr(IFC_CS0, CONFIG_SYS_CSPR0_FINAL);
 #endif
+#ifdef CONFIG_SYS_CSPR1_FINAL
+	set_ifc_cspr(IFC_CS1, CONFIG_SYS_CSPR1_FINAL);
+#endif
+#ifdef CONFIG_SYS_AMASK1_FINAL
+	set_ifc_amask(IFC_CS1, CONFIG_SYS_AMASK1_FINAL);
+#endif
+#ifdef CONFIG_SYS_CSPR3_FINAL
+	set_ifc_cspr(IFC_CS3, CONFIG_SYS_CSPR3_FINAL);
+#endif
 }
