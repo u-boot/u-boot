@@ -19,6 +19,9 @@
 #define CONFIG_ARM_ERRATA_828024
 #define CONFIG_ARM_ERRATA_826974
 
+/* We need architecture specific misc initializations */
+#define CONFIG_ARCH_MISC_INIT
+
 /* Link Definitions */
 #define CONFIG_SYS_TEXT_BASE		0x30001000
 
@@ -205,6 +208,14 @@
 #define CONFIG_SYS_CS0_FTIM2		CONFIG_SYS_NOR_FTIM2
 #define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NOR_FTIM3
 
+/* Debug Server firmware */
+#define CONFIG_FSL_DEBUG_SERVER
+#define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(512UL * 1024 * 1024)
+#define CONFIG_SYS_DEBUG_SERVER_FW_IN_NOR
+#define CONFIG_SYS_DEBUG_SERVER_FW_ADDR			0x580C00000ULL
+/* 2 sec timeout */
+#define CONFIG_SYS_DEBUG_SERVER_TIMEOUT			(2 * 1000 * 1000)
+
 /* MC firmware */
 #define CONFIG_FSL_MC_ENET
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE	(512UL * 1024 * 1024)
@@ -216,9 +227,9 @@
 #define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH	(256 * 1024)
 #define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET    0xe00000
 
-/* Carve the MC private DRAM block from the end of DRAM */
-#ifdef CONFIG_FSL_MC_ENET
-#define CONFIG_SYS_MEM_TOP_HIDE		mc_get_dram_block_size()
+/* Carve out a DDR region which will not be used by u-boot/Linux */
+#if defined(CONFIG_FSL_MC_ENET) || defined(CONFIG_FSL_DEBUG_SERVER)
+#define CONFIG_SYS_MEM_TOP_HIDE		get_dram_size_to_hide()
 #endif
 
 /* Command line configuration */
@@ -249,7 +260,6 @@
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
 #define CONFIG_SYS_CLK_FREQ	100000000
 #define CONFIG_DDR_CLK_FREQ	133333333
-
 
 #define CONFIG_NR_DRAM_BANKS		3
 
@@ -297,7 +307,7 @@
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #ifndef __ASSEMBLY__
-unsigned long mc_get_dram_block_size(void);
+unsigned long get_dram_size_to_hide(void);
 #endif
 
 #endif /* __LS2_COMMON_H */

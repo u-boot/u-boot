@@ -9,6 +9,7 @@
 #include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/fsl_mc_sys.h>
 #include <fsl-mc/fsl_dpmng.h>
+#include <fsl_debug_server.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 static int mc_boot_status;
@@ -112,6 +113,9 @@ int mc_init(bd_t *bis)
 			gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;
 	}
 
+#ifdef CONFIG_FSL_DEBUG_SERVER
+		mc_ram_addr -= debug_server_get_dram_block_size();
+#endif
 	/*
 	 * Management Complex cores should be held at reset out of POR.
 	 * U-boot should be the first software to touch MC. To be safe,

@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <libfdt.h>
+#include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
 
@@ -77,6 +78,34 @@ int timer_init(void)
  */
 void reset_cpu(ulong addr)
 {
+}
+
+#if defined(CONFIG_ARCH_MISC_INIT)
+int arch_misc_init(void)
+{
+#ifdef CONFIG_FSL_DEBUG_SERVER
+	debug_server_init();
+#endif
+
+	return 0;
+}
+#endif
+
+unsigned long get_dram_size_to_hide(void)
+{
+	unsigned long dram_to_hide = 0;
+
+/* Carve the Debug Server private DRAM block from the end of DRAM */
+#ifdef CONFIG_FSL_DEBUG_SERVER
+	dram_to_hide += debug_server_get_dram_block_size();
+#endif
+
+/* Carve the MC private DRAM block from the end of DRAM */
+#ifdef CONFIG_FSL_MC_ENET
+	dram_to_hide += mc_get_dram_block_size();
+#endif
+
+	return dram_to_hide;
 }
 
 int board_eth_init(bd_t *bis)

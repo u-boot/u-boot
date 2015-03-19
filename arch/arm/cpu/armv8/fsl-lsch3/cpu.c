@@ -10,6 +10,7 @@
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
 #include <asm/arch-fsl-lsch3/immap_lsch3.h>
+#include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
 #include "cpu.h"
 #include "mp.h"
@@ -383,7 +384,6 @@ int cpu_eth_init(bd_t *bis)
 #endif
 	return error;
 }
-
 
 int arch_early_init_r(void)
 {

@@ -56,4 +56,5 @@ struct mc_ccsr_registers {
 int mc_init(bd_t *bis);
 
 int get_mc_boot_status(void);
+unsigned long mc_get_dram_block_size(void);
 #endif
