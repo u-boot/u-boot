@@ -34,9 +34,7 @@
 #define ddr_clrsetbits32(a, clear, set)	clrsetbits_be32(a, clear, set)
 #endif
 
-#define _DDR_ADDR CONFIG_SYS_FSL_DDR_ADDR
-
-u32 fsl_ddr_get_version(void);
+u32 fsl_ddr_get_version(unsigned int ctrl_num);
 
 #if defined(CONFIG_DDR_SPD) || defined(CONFIG_SPD_EEPROM)
 /*

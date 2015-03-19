@@ -313,7 +313,10 @@ static void set_timing_cfg_0(const unsigned int ctrl_num,
 #ifdef CONFIG_SYS_FSL_DDR4
 	/* tXP=max(4nCK, 6ns) */
 	int txp = max((int)mclk_ps * 4, 6000); /* unit=ps */
-	trwt_mclk = 2;
+	unsigned int data_rate = get_ddr_freq(ctrl_num);
+
+	/* for faster clock, need more time for data setup */
+	trwt_mclk = (data_rate/1000000 > 1900) ? 3 : 2;
 	twrt_mclk = 1;
 	act_pd_exit_mclk = picos_to_mclk(ctrl_num, txp);
 	pre_pd_exit_mclk = act_pd_exit_mclk;
@@ -338,7 +341,7 @@ static void set_timing_cfg_0(const unsigned int ctrl_num,
 	 */
 	txp = max((int)mclk_ps * 3, (mclk_ps > 1540 ? 7500 : 6000));
 
-	ip_rev = fsl_ddr_get_version();
+	ip_rev = fsl_ddr_get_version(ctrl_num);
 	if (ip_rev >= 0x40700) {
 		/*
 		 * MRS_CYC = max(tMRD, tMOD)
@@ -544,7 +547,7 @@ static void set_timing_cfg_1(const unsigned int ctrl_num,
 	 * we need set extend bit for it at
 	 * TIMING_CFG_3[EXT_CASLAT]
 	 */
-	if (fsl_ddr_get_version() <= 0x40400)
+	if (fsl_ddr_get_version(ctrl_num) <= 0x40400)
 		caslat_ctrl = 2 * cas_latency - 1;
 	else
 		caslat_ctrl = (cas_latency - 1) << 1;
@@ -1114,12 +1117,16 @@ static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
 	unsigned short esdmode4 = 0;	/* Extended SDRAM mode 4 */
 	unsigned short esdmode5;	/* Extended SDRAM mode 5 */
 
-	esdmode5 = 0x00000400;		/* Data mask enabled */
+	esdmode5 = 0x00000500;		/* Data mask enabled */
 
 	ddr->ddr_sdram_mode_9 = (0
 				 | ((esdmode4 & 0xffff) << 16)
 				 | ((esdmode5 & 0xffff) << 0)
 				);
+
+	/* only mode_9 use 0x500, others use 0x400 */
+	esdmode5 = 0x00000400;		/* Data mask enabled */
+
 	debug("FSLDDR: ddr_sdram_mode_9) = 0x%08x\n", ddr->ddr_sdram_mode_9);
 	if (unq_mrs_en) {	/* unique mode registers are supported */
 		for (i = 1; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
@@ -2357,7 +2364,7 @@ compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
 	set_ddr_cdr1(ddr, popts);
 	set_ddr_cdr2(ddr, popts);
 	set_ddr_sdram_cfg(ddr, popts, common_dimm);
-	ip_rev = fsl_ddr_get_version();
+	ip_rev = fsl_ddr_get_version(ctrl_num);
 	if (ip_rev > 0x40400)
 		unq_mrs_en = 1;
 
