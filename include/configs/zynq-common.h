@@ -34,7 +34,6 @@
 /* DCC driver */
 #if defined(CONFIG_ZYNQ_DCC)
 # define CONFIG_ARM_DCC
-# define CONFIG_CPU_V6 /* Required by CONFIG_ARM_DCC */
 #else
 # define CONFIG_ZYNQ_SERIAL
 #endif
