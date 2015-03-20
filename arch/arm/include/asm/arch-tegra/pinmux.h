@@ -8,6 +8,8 @@
 #ifndef _TEGRA_PINMUX_H_
 #define _TEGRA_PINMUX_H_
 
+#include <linux/types.h>
+
 #include <asm/arch/tegra.h>
 
 /* The pullup/pulldown state of a pin group */
