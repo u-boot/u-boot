@@ -973,7 +973,7 @@ static int do_write(struct fsg_common *common)
 
 			/* If an error occurred, report it and its position */
 			if (nwritten < amount) {
-				printf("nwritten:%d amount:%d\n", nwritten,
+				printf("nwritten:%zd amount:%u\n", nwritten,
 				       amount);
 				curlun->sense_data = SS_WRITE_ERROR;
 				curlun->info_valid = 1;
