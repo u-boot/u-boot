@@ -2395,6 +2395,8 @@ CBFS (Coreboot Filesystem) support
 		  - define slave for bus 3 with CONFIG_SYS_MXC_I2C3_SLAVE
 		If those defines are not set, default value is 100000
 		for speed, and 0 for slave.
+		  - enable bus 3 with CONFIG_SYS_I2C_MXC_I2C3
+		  - enable bus 4 with CONFIG_SYS_I2C_MXC_I2C4
 
 		- drivers/i2c/rcar_i2c.c:
 		  - activate this driver with CONFIG_SYS_I2C_RCAR

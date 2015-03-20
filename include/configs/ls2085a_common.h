@@ -84,6 +84,8 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
+#define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
 #define CONFIG_SYS_MXC_I2C1_SPEED	40000000
 #define CONFIG_SYS_MXC_I2C2_SPEED	40000000
 
