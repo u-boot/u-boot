@@ -128,6 +128,7 @@ config TARGET_T4240QDS
 
 config TARGET_T4240RDB
 	bool "Support T4240RDB"
+	select SUPPORT_SPL
 
 config TARGET_CONTROLCENTERD
 	bool "Support controlcenterd"
