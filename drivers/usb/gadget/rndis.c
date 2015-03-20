@@ -43,7 +43,6 @@
 #define ETH_ZLEN	60		/* Min. octets in frame sans FCS */
 #define ETH_DATA_LEN	1500		/* Max. octets in payload	 */
 #define ETH_FRAME_LEN	PKTSIZE_ALIGN	/* Max. octets in frame sans FCS */
-#define ETH_FCS_LEN	4		/* Octets in the FCS		 */
 #define ENOTSUPP        524     /* Operation is not supported */
 
 
