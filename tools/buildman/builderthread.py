@@ -353,10 +353,9 @@ class BuilderThread(threading.Thread):
 
         # Now write the actual build output
         if keep_outputs:
-            self.CopyFiles(result.out_dir, build_dir, '', ['u-boot', '*.bin',
-                    'u-boot.dtb', '*.map', '*.img',
-                    'spl/u-boot-spl', 'spl/u-boot-spl.bin',
-                    'tpl/u-boot-tpl', 'tpl/u-boot-tpl.bin'])
+            self.CopyFiles(result.out_dir, build_dir, '', ['u-boot*', '*.bin',
+                '*.map', '*.img', 'MLO', 'include/autoconf.mk',
+                'spl/u-boot-spl*'])
 
     def CopyFiles(self, out_dir, build_dir, dirname, patterns):
         """Copy files from the build directory to the output.
