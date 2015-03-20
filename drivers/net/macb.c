@@ -515,7 +515,7 @@ static int macb_phy_init(struct macb_device *macb)
 	       lpa);
 
 	ncfgr = macb_readl(macb, NCFGR);
-	ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD));
+	ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD) | GEM_BIT(GBE));
 	if (speed)
 		ncfgr |= MACB_BIT(SPD);
 	if (duplex)

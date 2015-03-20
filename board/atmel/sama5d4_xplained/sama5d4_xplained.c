@@ -228,6 +228,9 @@ void sama5d4_xplained_mci1_hw_init(void)
 
 int board_mmc_init(bd_t *bis)
 {
+	/* Enable the power supply */
+	at91_set_pio_output(AT91_PIO_PORTE, 4, 0);
+
 	return atmel_mci_init((void *)ATMEL_BASE_MCI1);
 }
 #endif /* CONFIG_GENERIC_ATMEL_MCI */
