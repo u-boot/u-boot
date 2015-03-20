@@ -52,6 +52,10 @@
 #define CONFIG_MMC_SDMA
 #define CONFIG_CMD_MMC
 
+/* Topcliff Gigabit Ethernet */
+#define CONFIG_PCH_GBE
+#define CONFIG_PHYLIB
+
 /* Video is not supported */
 #undef CONFIG_VIDEO
 #undef CONFIG_CFB_CONSOLE
