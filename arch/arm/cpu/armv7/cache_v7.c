@@ -68,7 +68,7 @@ static void v7_inval_dcache_level_setway(u32 level, u32 num_sets,
 		}
 	}
 	/* DSB to make sure the operation is complete */
-	CP15DSB;
+	DSB;
 }
 
 static void v7_clean_inval_dcache_level_setway(u32 level, u32 num_sets,
@@ -96,7 +96,7 @@ static void v7_clean_inval_dcache_level_setway(u32 level, u32 num_sets,
 		}
 	}
 	/* DSB to make sure the operation is complete */
-	CP15DSB;
+	DSB;
 }
 
 static void v7_maint_dcache_level_setway(u32 level, u32 operation)
@@ -215,7 +215,7 @@ static void v7_dcache_maint_range(u32 start, u32 stop, u32 range_op)
 	}
 
 	/* DSB to make sure the operation is complete */
-	CP15DSB;
+	DSB;
 }
 
 /* Invalidate TLB */
@@ -228,9 +228,9 @@ static void v7_inval_tlb(void)
 	/* Invalidate entire instruction TLB */
 	asm volatile ("mcr p15, 0, %0, c8, c5, 0" : : "r" (0));
 	/* Full system DSB - make sure that the invalidation is complete */
-	CP15DSB;
+	DSB;
 	/* Full system ISB - make sure the instruction stream sees it */
-	CP15ISB;
+	ISB;
 }
 
 void invalidate_dcache_all(void)
@@ -343,10 +343,10 @@ void invalidate_icache_all(void)
 	asm volatile ("mcr p15, 0, %0, c7, c5, 6" : : "r" (0));
 
 	/* Full system DSB - make sure that the invalidation is complete */
-	CP15DSB;
+	DSB;
 
 	/* ISB - make sure the instruction stream sees it */
-	CP15ISB;
+	ISB;
 }
 #else
 void invalidate_icache_all(void)
