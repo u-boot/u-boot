@@ -434,6 +434,8 @@ struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
 	struct spi_slave *bus;
 
 	bus = spi_setup_slave(busnum, cs, max_hz, spi_mode);
+	if (!bus)
+		return NULL;
 	return spi_flash_probe_tail(bus);
 }
 
@@ -444,6 +446,8 @@ struct spi_flash *spi_flash_probe_fdt(const void *blob, int slave_node,
 	struct spi_slave *bus;
 
 	bus = spi_setup_slave_fdt(blob, slave_node, spi_node);
+	if (!bus)
+		return NULL;
 	return spi_flash_probe_tail(bus);
 }
 #endif
