@@ -196,7 +196,7 @@ void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
 	if (controller->has_hostpc)
 		*reg |= EHCI_PS_PE;
 
-	if (((u32)status_reg & TEGRA_USB_ADDR_MASK) != port_addr_clear_csc)
+	if (((unsigned long)status_reg & TEGRA_USB_ADDR_MASK) != port_addr_clear_csc)
 		return;
 	/* For EHCI_PS_CSC to be cleared in ehci_hcd.c */
 	if (ehci_readl(status_reg) & EHCI_PS_CSC)
@@ -434,7 +434,7 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 			reset_set_enable(PERIPH_ID_USBD, 0);
 		}
 		usb1ctlr = (struct usb_ctlr *)
-			((u32)config->reg & USB1_ADDR_MASK);
+			((unsigned long)config->reg & USB1_ADDR_MASK);
 		val = readl(&usb1ctlr->utmip_bias_cfg0);
 		setbits_le32(&val, UTMIP_HSDISCON_LEVEL_MSB);
 		clrsetbits_le32(&val, UTMIP_HSDISCON_LEVEL_MASK,
@@ -537,7 +537,7 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 		 * controllers and can be controlled from USB1 only.
 		 */
 		usb1ctlr = (struct usb_ctlr *)
-			((u32)config->reg & USB1_ADDR_MASK);
+			((unsigned long)config->reg & USB1_ADDR_MASK);
 		clrbits_le32(&usb1ctlr->utmip_bias_cfg0, UTMIP_BIASPD);
 		udelay(25);
 		clrbits_le32(&usb1ctlr->utmip_bias_cfg1,
@@ -675,7 +675,7 @@ static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 	config->has_legacy_mode = fdtdec_get_bool(blob, node,
 						  "nvidia,has-legacy-mode");
 	if (config->has_legacy_mode)
-		port_addr_clear_csc = (u32) config->reg;
+		port_addr_clear_csc = (unsigned long)config->reg;
 	config->periph_id = clock_decode_periph_id(blob, node);
 	if (config->periph_id == PERIPH_ID_NONE) {
 		debug("%s: Missing/invalid peripheral ID\n", __func__);
