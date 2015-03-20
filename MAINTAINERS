@@ -328,10 +328,11 @@ T:	git git://git.denx.de/u-boot-ppc4xx.git
 F:	arch/powerpc/cpu/ppc4xx/
 
 NETWORK
-M:	Joe Hershberger <joe.hershberger@gmail.com>
+M:	Joe Hershberger <joe.hershberger@ni.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-net.git
 F:	drivers/net/
+F:	net/
 
 NAND FLASH
 M:	Scott Wood <scottwood@freescale.com>
