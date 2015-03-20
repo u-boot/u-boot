@@ -43,15 +43,16 @@ int ape_register(bd_t *bis, int iobase)
 {
 	struct ape_priv *priv;
 	struct eth_device *dev;
+	struct mii_dev *bus;
 
 	priv = malloc(sizeof(*priv));
 	if (priv == NULL)
-		return 1;
+		return -ENOMEM;
 
 	dev = malloc(sizeof(*dev));
 	if (dev == NULL) {
 		free(priv);
-		return 1;
+		return -ENOMEM;
 	}
 
 	/* setup whatever private state you need */
@@ -59,7 +60,8 @@ int ape_register(bd_t *bis, int iobase)
 	memset(dev, 0, sizeof(*dev));
 	sprintf(dev->name, "APE");
 
-	/* if your device has dedicated hardware storage for the
+	/*
+	 * if your device has dedicated hardware storage for the
 	 * MAC, read it and initialize dev->enetaddr with it
 	 */
 	ape_mac_read(dev->enetaddr);
@@ -74,8 +76,17 @@ int ape_register(bd_t *bis, int iobase)
 
 	eth_register(dev);
 
-#ifdef CONFIG_CMD_MII)
-	miiphy_register(dev->name, ape_mii_read, ape_mii_write);
+#ifdef CONFIG_PHYLIB
+	bus = mdio_alloc();
+	if (!bus) {
+		free(priv);
+		free(dev);
+		return -ENOMEM;
+	}
+
+	bus->read = ape_mii_read;
+	bus->write = ape_mii_write;
+	mdio_register(bus);
 #endif
 
 	return 1;
@@ -166,25 +177,33 @@ some net operation (ping / tftp / whatever...)
 	eth_halt()
 		dev->halt()
 
------------------------------
- CONFIG_MII / CONFIG_CMD_MII
------------------------------
+--------------------------------
+ CONFIG_PHYLIB / CONFIG_CMD_MII
+--------------------------------
 
 If your device supports banging arbitrary values on the MII bus (pretty much
 every device does), you should add support for the mii command.  Doing so is
 fairly trivial and makes debugging mii issues a lot easier at runtime.
 
 After you have called eth_register() in your driver's register function, add
-a call to miiphy_register() like so:
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-	miiphy_register(dev->name, mii_read, mii_write);
-#endif
+a call to mdio_alloc() and mdio_register() like so:
+	bus = mdio_alloc();
+	if (!bus) {
+		free(priv);
+		free(dev);
+		return -ENOMEM;
+	}
+
+	bus->read = ape_mii_read;
+	bus->write = ape_mii_write;
+	mdio_register(bus);
 
 And then define the mii_read and mii_write functions if you haven't already.
 Their syntax is straightforward:
-	int mii_read(char *devname, uchar addr, uchar reg, ushort *val);
-	int mii_write(char *devname, uchar addr, uchar reg, ushort val);
+	int mii_read(struct mii_dev *bus, int addr, int devad, int reg);
+	int mii_write(struct mii_dev *bus, int addr, int devad, int reg,
+		      u16 val);
 
 The read function should read the register 'reg' from the phy at address 'addr'
-and store the result in the pointer 'val'.  The implementation for the write
-function should logically follow.
+and return the result to its caller.  The implementation for the write function
+should logically follow.
