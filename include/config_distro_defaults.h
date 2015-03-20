@@ -31,7 +31,11 @@
 
 #define CONFIG_OF_LIBFDT
 
+#ifdef CONFIG_ARM64
+#define CONFIG_CMD_BOOTI
+#else
 #define CONFIG_CMD_BOOTZ
+#endif
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_EXT2
