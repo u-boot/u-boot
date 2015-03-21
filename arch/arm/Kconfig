@@ -721,6 +721,16 @@ config TARGET_LS2085AQDS
 	  development platform that supports the QorIQ LS2085A
 	  Layerscape Architecture processor.
 
+config TARGET_LS2085ARDB
+	bool "Support ls2085ardb"
+	select ARM64
+	select ARMV8_MULTIENTRY
+	help
+	  Support for Freescale LS2085ARDB platform.
+	  The LS2085A Reference design board (RDB) is a high-performance
+	  development platform that supports the QorIQ LS2085A
+	  Layerscape Architecture processor.
+
 config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
 	select CPU_V7
@@ -876,6 +886,7 @@ source "board/embest/mx6boards/Kconfig"
 source "board/esg/ima3-mx53/Kconfig"
 source "board/freescale/ls2085a/Kconfig"
 source "board/freescale/ls2085aqds/Kconfig"
+source "board/freescale/ls2085ardb/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
 source "board/freescale/mx23evk/Kconfig"

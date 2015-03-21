@@ -38,7 +38,7 @@ Flash Layout
 	32-MB NOR flash layout for pre-silicon platforms (simulator and emulator)
 
 (2) A typical layout of various images (including Linux and other firmware images)
-    is shown below considering a 128MB NOR flash device present on QDS
+    is shown below considering a 128MB NOR flash device present on QDS and RDB
     boards:
 	----------------------------------------- ----> 0x5_8800_0000 ---
 	|	.. Unused .. (7M)		|			|
@@ -86,7 +86,7 @@ Flash Layout
 	|	RCW and PBI (1M) 		|			|
 	----------------------------------------- ----> 0x5_8000_0000 ---
 
-	128-MB NOR flash layout for QDS board
+	128-MB NOR flash layout for QDS and RDB boards
 
 Environment Variables
 =====================
