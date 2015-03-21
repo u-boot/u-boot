@@ -702,6 +702,12 @@ init_fnc_t init_sequence_r[] = {
 	/* TODO: could x86/PPC have this also perhaps? */
 #ifdef CONFIG_ARM
 	initr_caches,
+	/* Note: For Freescale LS2 SoCs, new MMU table is created in DDR.
+	 *	 A temporary mapping of IFC high region is since removed,
+	 *	 so environmental variables in NOR flash is not availble
+	 *	 until board_init() is called below to remap IFC to high
+	 *	 region.
+	 */
 #endif
 	initr_reloc_global_data,
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
