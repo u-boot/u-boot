@@ -790,24 +790,36 @@ extern void print_ifc_regs(void);
 extern void init_early_memctl_regs(void);
 void init_final_memctl_regs(void);
 
-#define IFC_BASE_ADDR ((struct fsl_ifc *)CONFIG_SYS_IFC_ADDR)
+#define IFC_RREGS_4KOFFSET	(4*1024)
+#define IFC_RREGS_64KOFFSET	(64*1024)
 
-#define get_ifc_cspr_ext(i) (ifc_in32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr_ext))
-#define get_ifc_cspr(i) (ifc_in32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr))
-#define get_ifc_csor_ext(i) (ifc_in32(&(IFC_BASE_ADDR)->csor_cs[i].csor_ext))
-#define get_ifc_csor(i) (ifc_in32(&(IFC_BASE_ADDR)->csor_cs[i].csor))
-#define get_ifc_amask(i) (ifc_in32(&(IFC_BASE_ADDR)->amask_cs[i].amask))
-#define get_ifc_ftim(i, j) (ifc_in32(&(IFC_BASE_ADDR)->ftim_cs[i].ftim[j]))
+#define IFC_FCM_BASE_ADDR \
+	((struct fsl_ifc_fcm *)CONFIG_SYS_IFC_ADDR)
 
-#define set_ifc_cspr_ext(i, v) \
-			(ifc_out32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr_ext, v))
-#define set_ifc_cspr(i, v) (ifc_out32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr, v))
-#define set_ifc_csor_ext(i, v) \
-			(ifc_out32(&(IFC_BASE_ADDR)->csor_cs[i].csor_ext, v))
-#define set_ifc_csor(i, v) (ifc_out32(&(IFC_BASE_ADDR)->csor_cs[i].csor, v))
-#define set_ifc_amask(i, v) (ifc_out32(&(IFC_BASE_ADDR)->amask_cs[i].amask, v))
-#define set_ifc_ftim(i, j, v) \
-			(ifc_out32(&(IFC_BASE_ADDR)->ftim_cs[i].ftim[j], v))
+#define get_ifc_cspr_ext(i)	\
+		(ifc_in32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr_ext))
+#define get_ifc_cspr(i)		\
+		(ifc_in32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr))
+#define get_ifc_csor_ext(i)	\
+		(ifc_in32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor_ext))
+#define get_ifc_csor(i)		\
+		(ifc_in32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor))
+#define get_ifc_amask(i)	\
+		(ifc_in32(&(IFC_FCM_BASE_ADDR)->amask_cs[i].amask))
+#define get_ifc_ftim(i, j)	\
+		(ifc_in32(&(IFC_FCM_BASE_ADDR)->ftim_cs[i].ftim[j]))
+#define set_ifc_cspr_ext(i, v)	\
+		(ifc_out32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr_ext, v))
+#define set_ifc_cspr(i, v)	\
+		(ifc_out32(&(IFC_FCM_BASE_ADDR)->cspr_cs[i].cspr, v))
+#define set_ifc_csor_ext(i, v)	\
+		(ifc_out32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor_ext, v))
+#define set_ifc_csor(i, v)	\
+		(ifc_out32(&(IFC_FCM_BASE_ADDR)->csor_cs[i].csor, v))
+#define set_ifc_amask(i, v)	\
+		(ifc_out32(&(IFC_FCM_BASE_ADDR)->amask_cs[i].amask, v))
+#define set_ifc_ftim(i, j, v)	\
+		(ifc_out32(&(IFC_FCM_BASE_ADDR)->ftim_cs[i].ftim[j], v))
 
 enum ifc_chip_sel {
 	IFC_CS0,
@@ -869,20 +881,26 @@ struct fsl_ifc_nand {
 	u32 nand_evter_en;
 	u32 res17[0x2];
 	u32 nand_evter_intr_en;
-	u32 res18[0x2];
+	u32 nand_vol_addr_stat;
+	u32 res18;
 	u32 nand_erattr0;
 	u32 nand_erattr1;
 	u32 res19[0x10];
 	u32 nand_fsr;
-	u32 res20;
-	u32 nand_eccstat[4];
-	u32 res21[0x20];
+	u32 res20[0x3];
+	u32 nand_eccstat[6];
+	u32 res21[0x1c];
 	u32 nanndcr;
 	u32 res22[0x2];
 	u32 nand_autoboot_trgr;
 	u32 res23;
 	u32 nand_mdr;
-	u32 res24[0x5C];
+	u32 res24[0x1c];
+	u32 nand_dll_lowcfg0;
+	u32 nand_dll_lowcfg1;
+	u32 res25;
+	u32 nand_dll_lowstat;
+	u32 res26[0x3C];
 };
 
 /*
@@ -917,7 +935,6 @@ struct fsl_ifc_gpcm {
 	u32 gpcm_erattr1;
 	u32 gpcm_erattr2;
 	u32 gpcm_stat;
-	u32 res4[0x1F3];
 };
 
 #ifdef CONFIG_SYS_FSL_IFC_BANK_COUNT
@@ -965,9 +982,11 @@ struct fsl_ifc_ftim {
 };
 
 /*
- * IFC Controller Registers
+ * IFC Controller Global Registers
+ * FCM - Flash control machine
  */
-struct fsl_ifc {
+
+struct fsl_ifc_fcm {
 	u32 ifc_rev;
 	u32 res1[0x2];
 	struct fsl_ifc_cspr cspr_cs[CONFIG_SYS_FSL_IFC_BANK_COUNT];
@@ -979,7 +998,8 @@ struct fsl_ifc {
 	struct fsl_ifc_ftim ftim_cs[CONFIG_SYS_FSL_IFC_BANK_COUNT];
 	u8 res5[IFC_FTIM_REG_LEN - IFC_FTIM_USED_LEN];
 	u32 rb_stat;
-	u32 res6[0x2];
+	u32 rb_map;
+	u32 wp_map;
 	u32 ifc_gcr;
 	u32 res7[0x2];
 	u32 cm_evter_stat;
@@ -993,10 +1013,18 @@ struct fsl_ifc {
 	u32 res11[0x2];
 	u32 ifc_ccr;
 	u32 ifc_csr;
-	u32 res12[0x2EB];
+	u32 ddr_ccr_low;
+};
+
+struct fsl_ifc_runtime {
 	struct fsl_ifc_nand ifc_nand;
 	struct fsl_ifc_nor ifc_nor;
 	struct fsl_ifc_gpcm ifc_gpcm;
+};
+
+struct fsl_ifc {
+	struct fsl_ifc_fcm *gregs;
+	struct fsl_ifc_runtime *rregs;
 };
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A002769

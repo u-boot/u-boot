@@ -28,7 +28,7 @@ void get_sys_info(sys_info_t *sys_info)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #ifdef CONFIG_FSL_IFC
-	struct fsl_ifc *ifc_regs = (void *)CONFIG_SYS_IFC_ADDR;
+	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 	u32 ccr;
 #endif
 #ifdef CONFIG_FSL_CORENET
@@ -597,7 +597,7 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #if defined(CONFIG_FSL_IFC)
-	ccr = ifc_in32(&ifc_regs->ifc_ccr);
+	ccr = ifc_in32(&ifc_regs.gregs->ifc_ccr);
 	ccr = ((ccr & IFC_CCR_CLK_DIV_MASK) >> IFC_CCR_CLK_DIV_SHIFT) + 1;
 
 	sys_info->freq_localbus = sys_info->freq_systembus / ccr;
