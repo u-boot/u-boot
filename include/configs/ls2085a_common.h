@@ -19,6 +19,11 @@
 #define CONFIG_ARM_ERRATA_828024
 #define CONFIG_ARM_ERRATA_826974
 
+#include <asm/arch-fsl-lsch3/config.h>
+#if (defined(CONFIG_SYS_FSL_SRDS_1) || defined(CONFIG_SYS_FSL_SRDS_2))
+#define	CONFIG_SYS_HAS_SERDES
+#endif
+
 /* We need architecture specific misc initializations */
 #define CONFIG_ARCH_MISC_INIT
 

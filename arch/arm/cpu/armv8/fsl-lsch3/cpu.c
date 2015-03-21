@@ -12,6 +12,7 @@
 #include <asm/arch-fsl-lsch3/immap_lsch3.h>
 #include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
+#include <asm/arch/fsl_serdes.h>
 #include "cpu.h"
 #include "mp.h"
 #include "speed.h"
@@ -415,6 +416,9 @@ int arch_early_init_r(void)
 	if (rv)
 		printf("Did not wake secondary cores\n");
 
+#ifdef CONFIG_SYS_HAS_SERDES
+	fsl_serdes_init();
+#endif
 	return 0;
 }
 
