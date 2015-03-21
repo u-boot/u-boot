@@ -15,6 +15,7 @@
 #include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
+#include <asm/arch-fsl-lsch3/soc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,8 +32,7 @@ int board_init(void)
 
 int board_early_init_f(void)
 {
-	init_early_memctl_regs();	/* tighten IFC timing */
-
+	fsl_lsch3_early_init_f();
 	return 0;
 }
 
