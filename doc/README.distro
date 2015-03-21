@@ -1,6 +1,7 @@
 /*
  * (C) Copyright 2014 Red Hat Inc.
  * Copyright (c) 2014-2015, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (C) 2015 K. Merker <merker@debian.org>
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */
@@ -339,3 +340,49 @@ scan_dev_for_scripts:
 
   If you want to disable boot.scr on all disks, set the value to something
   innocuous, e.g. setenv scan_dev_for_scripts true.
+
+
+Interactively booting from a specific device at the u-boot prompt
+=================================================================
+
+For interactively booting from a user-selected device at the u-boot command
+prompt, the environment provides predefined bootcmd_<target> variables for
+every target defined in boot_targets, which can be run be the user.
+
+If the target is a storage device, the format of the target is always
+<device type><device number>, e.g. mmc0.  Specifying the device number is
+mandatory for storage devices, even if only support for a single instance
+of the storage device is actually implemented.
+
+For network targets (dhcp, pxe), only the device type gets specified;
+they do not have a device number.
+
+Examples:
+
+ - run bootcmd_usb0
+   boots from the first USB mass storage device
+
+ - run bootcmd_mmc1
+   boots from the second MMC device
+
+ - run bootcmd_pxe
+   boots by tftp using a pxelinux.cfg
+
+The list of possible targets consists of:
+
+- network targets
+  * dhcp
+  * pxe
+
+- storage targets (to which a device number must be appended)
+  * mmc
+  * sata
+  * scsi
+  * ide
+  * usb
+
+Other *boot* variables than the ones defined above are only for internal use
+of the boot environment and are not guaranteed to exist or work in the same
+way in future u-boot versions.  In particular the <device type>_boot
+variables (e.g. mmc_boot, usb_boot) are a strictly internal implementation
+detail and must not be used as a public interface.
