@@ -15,6 +15,7 @@
 
 #include "ldpaa_eth.h"
 
+#undef CONFIG_PHYLIB
 static int init_phy(struct eth_device *dev)
 {
 	/*TODO for external PHY */
@@ -32,8 +33,6 @@ static void ldpaa_eth_rx(struct ldpaa_eth_priv *priv,
 	uint32_t status, err;
 	struct qbman_release_desc releasedesc;
 	struct qbman_swp *swp = dflt_dpio->sw_portal;
-
-	invalidate_dcache_all();
 
 	fd_addr = ldpaa_fd_get_addr(fd);
 	fd_offset = ldpaa_fd_get_offset(fd);
@@ -63,6 +62,7 @@ static void ldpaa_eth_rx(struct ldpaa_eth_priv *priv,
 				    fd_length);
 
 error:
+	flush_dcache_range(fd_addr, fd_addr + LDPAA_ETH_RX_BUFFER_SIZE);
 	qbman_release_desc_clear(&releasedesc);
 	qbman_release_desc_set_bpid(&releasedesc, dflt_dpbp->dpbp_attr.bpid);
 	do {
@@ -77,22 +77,29 @@ static int ldpaa_eth_pull_dequeue_rx(struct eth_device *dev)
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)dev->priv;
 	const struct ldpaa_dq *dq;
 	const struct dpaa_fd *fd;
-	int i = 5, err = 0, status;
+	int i = 5, err = 0, status, loop = 20;
 	static struct qbman_pull_desc pulldesc;
 	struct qbman_swp *swp = dflt_dpio->sw_portal;
 
-	qbman_pull_desc_clear(&pulldesc);
-	qbman_pull_desc_set_numframes(&pulldesc, 1);
-	qbman_pull_desc_set_fq(&pulldesc, priv->rx_dflt_fqid);
-
 	while (--i) {
+		qbman_pull_desc_clear(&pulldesc);
+		qbman_pull_desc_set_numframes(&pulldesc, 1);
+		qbman_pull_desc_set_fq(&pulldesc, priv->rx_dflt_fqid);
+
 		err = qbman_swp_pull(swp, &pulldesc);
 		if (err < 0) {
 			printf("Dequeue frames error:0x%08x\n", err);
 			continue;
 		}
 
-		dq = qbman_swp_dqrr_next(swp);
+		do {
+			loop--;
+			dq = qbman_swp_dqrr_next(swp);
+
+			if (!loop)
+				break;
+		} while (!dq);
+
 		if (dq) {
 			/* Check for valid frame. If not sent a consume
 			 * confirmation to QBMAN otherwise give it to NADK
@@ -129,7 +136,6 @@ static void ldpaa_eth_tx_conf(struct ldpaa_eth_priv *priv,
 	struct qbman_release_desc releasedesc;
 	struct qbman_swp *swp = dflt_dpio->sw_portal;
 
-	invalidate_dcache_all();
 	fd_addr = ldpaa_fd_get_addr(fd);
 
 
@@ -160,22 +166,29 @@ static int ldpaa_eth_pull_dequeue_tx_conf(struct ldpaa_eth_priv *priv)
 	const struct ldpaa_dq *dq;
 	const struct dpaa_fd *fd;
 	int err = 0;
-	int i = 5, status;
+	int i = 5, status, loop = 20;
 	static struct qbman_pull_desc pulldesc;
 	struct qbman_swp *swp = dflt_dpio->sw_portal;
 
-	qbman_pull_desc_clear(&pulldesc);
-	qbman_pull_desc_set_numframes(&pulldesc, 1);
-	qbman_pull_desc_set_fq(&pulldesc, priv->tx_conf_fqid);
-
 	while (--i) {
+		qbman_pull_desc_clear(&pulldesc);
+		qbman_pull_desc_set_numframes(&pulldesc, 1);
+		qbman_pull_desc_set_fq(&pulldesc, priv->tx_conf_fqid);
+
 		err =  qbman_swp_pull(swp, &pulldesc);
 		if (err < 0) {
 			printf("Dequeue TX conf frames error:0x%08x\n", err);
 			continue;
 		}
 
-		dq = qbman_swp_dqrr_next(swp);
+		do {
+			loop--;
+			dq = qbman_swp_dqrr_next(swp);
+
+			if (!loop)
+				break;
+		} while (!dq);
+
 		if (dq) {
 			/* Check for valid frame. If not sent a consume
 			 * confirmation to QBMAN otherwise give it to NADK
@@ -230,7 +243,8 @@ static int ldpaa_eth_tx(struct eth_device *net_dev, void *buf, int len)
 
 	memcpy(((uint8_t *)(buffer_start) + data_offset), buf, len);
 
-	flush_dcache_range(buffer_start, LDPAA_ETH_RX_BUFFER_SIZE);
+	flush_dcache_range(buffer_start, buffer_start +
+					LDPAA_ETH_RX_BUFFER_SIZE);
 
 	ldpaa_fd_set_addr(&fd, (u64)buffer_start);
 	ldpaa_fd_set_offset(&fd, (uint16_t)(data_offset));
@@ -298,10 +312,10 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 
 #ifdef CONFIG_PHYLIB
 	/* TODO Check this path */
-	ret = phy_startup(priv->phydev);
-	if (ret) {
+	err = phy_startup(priv->phydev);
+	if (err) {
 		printf("%s: Could not initialize\n", priv->phydev->dev->name);
-		return ret;
+		return err;
 	}
 #else
 	priv->phydev->speed = SPEED_1000;
@@ -362,7 +376,8 @@ static void ldpaa_eth_stop(struct eth_device *net_dev)
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)net_dev->priv;
 	int err = 0;
 
-	if (net_dev->state == ETH_STATE_PASSIVE)
+	if ((net_dev->state == ETH_STATE_PASSIVE) ||
+	    (net_dev->state == ETH_STATE_INIT))
 		return;
 	/* Stop Tx and Rx traffic */
 	err = dpni_disable(dflt_mc_io, priv->dpni_handle);
@@ -423,6 +438,8 @@ static int ldpaa_bp_add_7(uint16_t bpid)
 			goto err_alloc;
 		}
 		memset(addr, 0x00, LDPAA_ETH_RX_BUFFER_SIZE);
+		flush_dcache_range((u64)addr,
+				   (u64)(addr + LDPAA_ETH_RX_BUFFER_SIZE));
 
 		buf_array[i] = (uint64_t)addr;
 		debug("Release: buffer addr =0x%p\n", addr);
@@ -624,10 +641,7 @@ static int ldpaa_eth_netdev_init(struct eth_device *net_dev)
 	int err;
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)net_dev->priv;
 
-	if (priv->type == LDPAA_ETH_1G_E)
-		sprintf(net_dev->name, "DTSEC%d", priv->dpni_id);
-	else
-		sprintf(net_dev->name, "TGEC%d", priv->dpni_id);
+	sprintf(net_dev->name, "DPNI%d", priv->dpni_id);
 
 	net_dev->iobase = 0;
 	net_dev->init = ldpaa_eth_open;
