@@ -419,3 +419,14 @@ int timer_init(void)
 
 	return 0;
 }
+
+void reset_cpu(ulong addr)
+{
+	u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
+	u32 val;
+
+	/* Raise RESET_REQ_B */
+	val = in_le32(rstcr);
+	val |= 0x02;
+	out_le32(rstcr, val);
+}
