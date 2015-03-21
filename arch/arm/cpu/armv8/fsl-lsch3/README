@@ -11,28 +11,82 @@ for example LS2085A.
 
 Flash Layout
 ============
-A typical layout of various images (including Linux and other firmware images)
-is shown below considering a 32MB NOR flash device:
+
+(1) A typical layout of various images (including Linux and other firmware images)
+   is shown below considering a 32MB NOR flash device present on most
+   pre-silicon platforms (simulator and emulator):
 
 	-------------------------
-	|	linux		|
+	| 	FIT Image	|
+	| (linux + DTB + RFS)	|
 	------------------------- ----> 0x0120_0000
-	|	Debug Server 	|
+	| 	Debug Server FW |
 	------------------------- ----> 0x00C0_0000
-	|	AIOP SW 	|
+	|	AIOP FW 	|
 	------------------------- ----> 0x0070_0000
 	|	MC FW 		|
 	------------------------- ----> 0x006C_0000
-	| MC Data Path Layout 	|
+	| 	MC DPL Blob 	|
 	------------------------- ----> 0x0020_0000
-	|	BootLoader 	|
+	| 	BootLoader + Env|
 	------------------------- ----> 0x0000_1000
 	|	PBI 		|
 	------------------------- ----> 0x0000_0080
 	|	RCW 		|
 	------------------------- ----> 0x0000_0000
 
-	32-MB NOR flash layout
+	32-MB NOR flash layout for pre-silicon platforms (simulator and emulator)
+
+(2) A typical layout of various images (including Linux and other firmware images)
+    is shown below considering a 128MB NOR flash device present on QDS
+    boards:
+	----------------------------------------- ----> 0x5_8800_0000 ---
+	|	.. Unused .. (7M)		|			|
+	----------------------------------------- ----> 0x5_8790_0000	|
+	| FIT Image (linux + DTB + RFS)	(40M)	|			|
+	----------------------------------------- ----> 0x5_8510_0000	|
+	|	PHY firmware (2M)	 	|			|
+	----------------------------------------- ----> 0x5_84F0_0000	| 64K
+	|	Debug Server FW (2M)		|			| Alt
+	----------------------------------------- ----> 0x5_84D0_0000	| Bank
+	|	AIOP FW (4M)			|			|
+	----------------------------------------- ----> 0x5_8490_0000 (vbank4)
+	|	MC DPC Blob (1M) 		|			|
+	----------------------------------------- ----> 0x5_8480_0000	|
+	|	MC DPL Blob (1M)		|			|
+	----------------------------------------- ----> 0x5_8470_0000	|
+	| 	MC FW (4M)			|			|
+	----------------------------------------- ----> 0x5_8430_0000	|
+	|	BootLoader Environment (1M) 	|			|
+	----------------------------------------- ----> 0x5_8420_0000	|
+	|	BootLoader (1M)			|			|
+	----------------------------------------- ----> 0x5_8410_0000	|
+	|	RCW and PBI (1M) 		|			|
+	----------------------------------------- ----> 0x5_8400_0000 ---
+	|	.. Unused .. (7M)		|			|
+	----------------------------------------- ----> 0x5_8390_0000	|
+	| FIT Image (linux + DTB + RFS)	(40M)	|			|
+	----------------------------------------- ----> 0x5_8110_0000	|
+	|	PHY firmware (2M)	 	|			|
+	----------------------------------------- ----> 0x5_80F0_0000	| 64K
+	|	Debug Server FW (2M)		|			| Bank
+	----------------------------------------- ----> 0x5_80D0_0000	|
+	|	AIOP FW (4M)			|			|
+	----------------------------------------- ----> 0x5_8090_0000 (vbank0)
+	|	MC DPC Blob (1M) 		|			|
+	----------------------------------------- ----> 0x5_8080_0000	|
+	|	MC DPL Blob (1M)		|			|
+	----------------------------------------- ----> 0x5_8070_0000	|
+	| 	MC FW (4M)			|			|
+	----------------------------------------- ----> 0x5_8030_0000	|
+	|	BootLoader Environment (1M) 	|			|
+	----------------------------------------- ----> 0x5_8020_0000	|
+	|	BootLoader (1M)			|			|
+	----------------------------------------- ----> 0x5_8010_0000	|
+	|	RCW and PBI (1M) 		|			|
+	----------------------------------------- ----> 0x5_8000_0000 ---
+
+	128-MB NOR flash layout for QDS board
 
 Environment Variables
 =====================

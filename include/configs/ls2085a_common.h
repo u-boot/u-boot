@@ -94,7 +94,7 @@
 #define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
 
 /* Serial Port */
-#define CONFIG_CONS_INDEX       2
+#define CONFIG_CONS_INDEX       1
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE     1
@@ -107,17 +107,34 @@
 #define CONFIG_FSL_IFC
 
 /*
- * During booting, CS0 needs to be at the region of 0x30000000, i.e. the IFC
- * address 0. But this region is limited to 256MB. To accommodate bigger NOR
- * flash and other devices, we will map CS0 to 0x580000000 after relocation.
+ * During booting, IFC is mapped at the region of 0x30000000.
+ * But this region is limited to 256MB. To accommodate NOR, promjet
+ * and FPGA. This region is divided as below:
+ * 0x30000000 - 0x37ffffff : 128MB : NOR flash
+ * 0x38000000 - 0x3BFFFFFF : 64MB  : Promjet
+ * 0x3C000000 - 0x40000000 : 64MB  : FPGA etc
+ *
+ * To accommodate bigger NOR flash and other devices, we will map IFC
+ * chip selects to as below:
+ * 0x5_1000_0000..0x5_1fff_ffff	Memory Hole
+ * 0x5_2000_0000..0x5_3fff_ffff	IFC CSx (FPGA, NAND and others 512MB)
+ * 0x5_4000_0000..0x5_7fff_ffff	ASIC or others 1GB
+ * 0x5_8000_0000..0x5_bfff_ffff	IFC CS0 1GB (NOR/Promjet)
+ * 0x5_C000_0000..0x5_ffff_ffff	IFC CS1 1GB (NOR/Promjet)
+ *
+ * For e.g. NOR flash at CS0 will be mapped to 0x580000000 after relocation.
  * CONFIG_SYS_FLASH_BASE has the final address (core view)
  * CONFIG_SYS_FLASH_BASE_PHYS has the final address (IFC view)
  * CONFIG_SYS_FLASH_BASE_PHYS_EARLY has the temporary IFC address
  * CONFIG_SYS_TEXT_BASE is linked to 0x30000000 for booting
  */
+
 #define CONFIG_SYS_FLASH_BASE			0x580000000ULL
 #define CONFIG_SYS_FLASH_BASE_PHYS		0x80000000
 #define CONFIG_SYS_FLASH_BASE_PHYS_EARLY	0x00000000
+
+#define CONFIG_SYS_FLASH1_BASE_PHYS		0xC0000000
+#define CONFIG_SYS_FLASH1_BASE_PHYS_EARLY	0x8000000
 
 #ifndef CONFIG_SYS_NO_FLASH
 #define CONFIG_FLASH_CFI_DRIVER
@@ -126,8 +143,15 @@
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #endif
 
-#define CONFIG_SYS_NAND_BASE		0x520000000
-#define CONFIG_SYS_NAND_BASE_PHYS	0x20000000
+#ifndef __ASSEMBLY__
+unsigned long long get_qixis_addr(void);
+#endif
+#define QIXIS_BASE				get_qixis_addr()
+#define QIXIS_BASE_PHYS				0x20000000
+#define QIXIS_BASE_PHYS_EARLY			0xC000000
+
+#define CONFIG_SYS_NAND_BASE			0x530000000ULL
+#define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
 
 /* Debug Server firmware */
 #define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(512UL * 1024 * 1024)
@@ -225,7 +249,7 @@
 				"hugepages=16"
 #define CONFIG_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
 					"$kernel_size && bootm $kernel_load"
-#define CONFIG_BOOTDELAY		1
+#define CONFIG_BOOTDELAY		10
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
