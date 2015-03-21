@@ -371,6 +371,7 @@ u32 fsl_qoriq_core_to_type(unsigned int core)
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	struct sys_info sysinfo;
 	char buf[32];
 	unsigned int i, core;
@@ -392,6 +393,19 @@ int print_cpuinfo(void)
 	       strmhz(buf, sysinfo.freq_systembus));
 	printf("DDR:      %-4s MHz", strmhz(buf, sysinfo.freq_ddrbus));
 	printf("     DP-DDR:   %-4s MHz", strmhz(buf, sysinfo.freq_ddrbus2));
+	puts("\n");
+
+	/* Display the RCW, so that no one gets confused as to what RCW
+	 * we're actually using for this boot.
+	 */
+	puts("Reset Configuration Word (RCW):");
+	for (i = 0; i < ARRAY_SIZE(gur->rcwsr); i++) {
+		u32 rcw = in_le32(&gur->rcwsr[i]);
+
+		if ((i % 4) == 0)
+			printf("\n       %02x:", i * 4);
+		printf(" %08x", rcw);
+	}
 	puts("\n");
 
 	return 0;
