@@ -72,12 +72,15 @@
 #define CONFIG_SYS_DEBUG_SERVER_FW_IN_NOR
 #define CONFIG_SYS_DEBUG_SERVER_FW_ADDR	0x580C00000ULL
 
-/* MC firmware */
-#define CONFIG_SYS_LS_MC_FW_IN_NOR
-#define CONFIG_SYS_LS_MC_FW_ADDR	0x580200000ULL
+/*
+ * This trick allows users to load MC images into DDR directly without
+ * copying from NOR flash. It dramatically improves speed.
+ */
+#define CONFIG_SYS_LS_MC_FW_IN_DDR
+#define CONFIG_SYS_LS_MC_DPL_IN_DDR
+#define CONFIG_SYS_LS_MC_DPC_IN_DDR
 
-#define CONFIG_SYS_LS_MC_DPL_IN_NOR
-#define CONFIG_SYS_LS_MC_DPL_ADDR	0x5806C0000ULL
+#define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS 200000
 
 /* Store environment at top of flash */
 #define CONFIG_ENV_IS_NOWHERE		1

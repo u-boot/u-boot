@@ -138,8 +138,10 @@
 #define CONFIG_FSL_MC_ENET
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE	(512UL * 1024 * 1024)
 /* TODO Actual DPL max length needs to be confirmed with the MC FW team */
-#define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH		(256 * 1024)
-#define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET	0xe00000
+#define CONFIG_SYS_LS_MC_DPC_MAX_LENGTH	    0x20000
+#define CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET    0x00F00000
+#define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH	    0x20000
+#define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET    0x00F20000
 
 /* Carve out a DDR region which will not be used by u-boot/Linux */
 #if defined(CONFIG_FSL_MC_ENET) || defined(CONFIG_FSL_DEBUG_SERVER)

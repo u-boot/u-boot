@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-
 #include <errno.h>
 #include <asm/io.h>
 #include <fsl-mc/fsl_mc.h>
@@ -15,14 +14,64 @@
 #include <fsl-mc/fsl_dpio.h>
 #include <fsl-mc/fsl_qbman_portal.h>
 
+#define MC_RAM_BASE_ADDR_ALIGNMENT  (512UL * 1024 * 1024)
+#define MC_RAM_BASE_ADDR_ALIGNMENT_MASK	(~(MC_RAM_BASE_ADDR_ALIGNMENT - 1))
+#define MC_RAM_SIZE_ALIGNMENT	    (256UL * 1024 * 1024)
+
+#define MC_MEM_SIZE_ENV_VAR	"mcmemsize"
+#define MC_BOOT_TIMEOUT_ENV_VAR	"mcboottimeout"
+
 DECLARE_GLOBAL_DATA_PTR;
 static int mc_boot_status;
 struct fsl_mc_io *dflt_mc_io = NULL;
 uint16_t dflt_dprc_handle = 0;
 struct fsl_dpbp_obj *dflt_dpbp = NULL;
 struct fsl_dpio_obj *dflt_dpio = NULL;
-uint16_t dflt_dpio_handle = NULL;
+uint16_t dflt_dpio_handle = 0;
 
+#ifdef DEBUG
+void dump_ram_words(const char *title, void *addr)
+{
+	int i;
+	uint32_t *words = addr;
+
+	printf("Dumping beginning of %s (%p):\n", title, addr);
+	for (i = 0; i < 16; i++)
+		printf("%#x ", words[i]);
+
+	printf("\n");
+}
+
+void dump_mc_ccsr_regs(struct mc_ccsr_registers __iomem *mc_ccsr_regs)
+{
+	printf("MC CCSR registers:\n"
+		"reg_gcr1 %#x\n"
+		"reg_gsr %#x\n"
+		"reg_sicbalr %#x\n"
+		"reg_sicbahr %#x\n"
+		"reg_sicapr %#x\n"
+		"reg_mcfbalr %#x\n"
+		"reg_mcfbahr %#x\n"
+		"reg_mcfapr %#x\n"
+		"reg_psr %#x\n",
+		mc_ccsr_regs->reg_gcr1,
+		mc_ccsr_regs->reg_gsr,
+		mc_ccsr_regs->reg_sicbalr,
+		mc_ccsr_regs->reg_sicbahr,
+		mc_ccsr_regs->reg_sicapr,
+		mc_ccsr_regs->reg_mcfbalr,
+		mc_ccsr_regs->reg_mcfbahr,
+		mc_ccsr_regs->reg_mcfapr,
+		mc_ccsr_regs->reg_psr);
+}
+#else
+
+#define dump_ram_words(title, addr)
+#define dump_mc_ccsr_regs(mc_ccsr_regs)
+
+#endif /* DEBUG */
+
+#ifndef CONFIG_SYS_LS_MC_FW_IN_DDR
 /**
  * Copying MC firmware or DPL image to DDR
  */
@@ -31,6 +80,7 @@ static int mc_copy_image(const char *title,
 {
 	debug("%s copied to address %p\n", title, (void *)mc_ram_addr);
 	memcpy((void *)mc_ram_addr, (void *)image_addr, image_size);
+	flush_dcache_range(mc_ram_addr, mc_ram_addr + image_size);
 	return 0;
 }
 
@@ -92,22 +142,254 @@ int parse_mc_firmware_fit_image(const void **raw_image_addr,
 
 	return 0;
 }
+#endif
+
+/*
+ * Calculates the values to be used to specify the address range
+ * for the MC private DRAM block, in the MCFBALR/MCFBAHR registers.
+ * It returns the highest 512MB-aligned address within the given
+ * address range, in '*aligned_base_addr', and the number of 256 MiB
+ * blocks in it, in 'num_256mb_blocks'.
+ */
+static int calculate_mc_private_ram_params(u64 mc_private_ram_start_addr,
+					   size_t mc_ram_size,
+					   u64 *aligned_base_addr,
+					   u8 *num_256mb_blocks)
+{
+	u64 addr;
+	u16 num_blocks;
+
+	if (mc_ram_size % MC_RAM_SIZE_ALIGNMENT != 0) {
+		printf("fsl-mc: ERROR: invalid MC private RAM size (%lu)\n",
+		       mc_ram_size);
+		return -EINVAL;
+	}
+
+	num_blocks = mc_ram_size / MC_RAM_SIZE_ALIGNMENT;
+	if (num_blocks < 1 || num_blocks > 0xff) {
+		printf("fsl-mc: ERROR: invalid MC private RAM size (%lu)\n",
+		       mc_ram_size);
+		return -EINVAL;
+	}
+
+	addr = (mc_private_ram_start_addr + mc_ram_size - 1) &
+		MC_RAM_BASE_ADDR_ALIGNMENT_MASK;
+
+	if (addr < mc_private_ram_start_addr) {
+		printf("fsl-mc: ERROR: bad start address %#llx\n",
+		       mc_private_ram_start_addr);
+		return -EFAULT;
+	}
+
+	*aligned_base_addr = addr;
+	*num_256mb_blocks = num_blocks;
+	return 0;
+}
+
+static int load_mc_dpc(u64 mc_ram_addr, size_t mc_ram_size)
+{
+	u64 mc_dpc_offset;
+#ifndef CONFIG_SYS_LS_MC_DPC_IN_DDR
+	int error;
+	void *dpc_fdt_hdr;
+	int dpc_size;
+#endif
+
+#ifdef CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET
+	BUILD_BUG_ON((CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET & 0x3) != 0 ||
+		     CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET > 0xffffffff);
+
+	mc_dpc_offset = CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET;
+#else
+#error "CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET not defined"
+#endif
+
+	/*
+	 * Load the MC DPC blob in the MC private DRAM block:
+	 */
+#ifdef CONFIG_SYS_LS_MC_DPC_IN_DDR
+	printf("MC DPC is preloaded to %#llx\n", mc_ram_addr + mc_dpc_offset);
+#else
+	/*
+	 * Get address and size of the DPC blob stored in flash:
+	 */
+#ifdef CONFIG_SYS_LS_MC_DPC_IN_NOR
+	dpc_fdt_hdr = (void *)CONFIG_SYS_LS_MC_DPC_ADDR;
+#else
+#error "No CONFIG_SYS_LS_MC_DPC_IN_xxx defined"
+#endif
+
+	error = fdt_check_header(dpc_fdt_hdr);
+	if (error != 0) {
+		/*
+		 * Don't return with error here, since the MC firmware can
+		 * still boot without a DPC
+		 */
+		printf("fsl-mc: WARNING: No DPC image found\n");
+		return 0;
+	}
+
+	dpc_size = fdt_totalsize(dpc_fdt_hdr);
+	if (dpc_size > CONFIG_SYS_LS_MC_DPC_MAX_LENGTH) {
+		printf("fsl-mc: ERROR: Bad DPC image (too large: %d)\n",
+		       dpc_size);
+		return -EINVAL;
+	}
+
+	mc_copy_image("MC DPC blob",
+		      (u64)dpc_fdt_hdr, dpc_size, mc_ram_addr + mc_dpc_offset);
+#endif /* not defined CONFIG_SYS_LS_MC_DPC_IN_DDR */
+
+	dump_ram_words("DPC", (void *)(mc_ram_addr + mc_dpc_offset));
+	return 0;
+}
+
+static int load_mc_dpl(u64 mc_ram_addr, size_t mc_ram_size)
+{
+	u64 mc_dpl_offset;
+#ifndef CONFIG_SYS_LS_MC_DPL_IN_DDR
+	int error;
+	void *dpl_fdt_hdr;
+	int dpl_size;
+#endif
+
+#ifdef CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET
+	BUILD_BUG_ON((CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET & 0x3) != 0 ||
+		     CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET > 0xffffffff);
+
+	mc_dpl_offset = CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET;
+#else
+#error "CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET not defined"
+#endif
+
+	/*
+	 * Load the MC DPL blob in the MC private DRAM block:
+	 */
+#ifdef CONFIG_SYS_LS_MC_DPL_IN_DDR
+	printf("MC DPL is preloaded to %#llx\n", mc_ram_addr + mc_dpl_offset);
+#else
+	/*
+	 * Get address and size of the DPL blob stored in flash:
+	 */
+#ifdef CONFIG_SYS_LS_MC_DPL_IN_NOR
+	dpl_fdt_hdr = (void *)CONFIG_SYS_LS_MC_DPL_ADDR;
+#else
+#error "No CONFIG_SYS_LS_MC_DPL_IN_xxx defined"
+#endif
+
+	error = fdt_check_header(dpl_fdt_hdr);
+	if (error != 0) {
+		printf("fsl-mc: ERROR: Bad DPL image (bad header)\n");
+		return error;
+	}
+
+	dpl_size = fdt_totalsize(dpl_fdt_hdr);
+	if (dpl_size > CONFIG_SYS_LS_MC_DPL_MAX_LENGTH) {
+		printf("fsl-mc: ERROR: Bad DPL image (too large: %d)\n",
+		       dpl_size);
+		return -EINVAL;
+	}
+
+	mc_copy_image("MC DPL blob",
+		      (u64)dpl_fdt_hdr, dpl_size, mc_ram_addr + mc_dpl_offset);
+#endif /* not defined CONFIG_SYS_LS_MC_DPL_IN_DDR */
+
+	dump_ram_words("DPL", (void *)(mc_ram_addr + mc_dpl_offset));
+	return 0;
+}
+
+/**
+ * Return the MC boot timeout value in milliseconds
+ */
+static unsigned long get_mc_boot_timeout_ms(void)
+{
+	unsigned long timeout_ms = CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS;
+
+	char *timeout_ms_env_var = getenv(MC_BOOT_TIMEOUT_ENV_VAR);
+
+	if (timeout_ms_env_var) {
+		timeout_ms = simple_strtoul(timeout_ms_env_var, NULL, 10);
+		if (timeout_ms == 0) {
+			printf("fsl-mc: WARNING: Invalid value for \'"
+			       MC_BOOT_TIMEOUT_ENV_VAR
+			       "\' environment variable: %lu\n",
+			       timeout_ms);
+
+			timeout_ms = CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS;
+		}
+	}
+
+	return timeout_ms;
+}
+
+static int wait_for_mc(bool booting_mc, u32 *final_reg_gsr)
+{
+	u32 reg_gsr;
+	u32 mc_fw_boot_status;
+	unsigned long timeout_ms = get_mc_boot_timeout_ms();
+	struct mc_ccsr_registers __iomem *mc_ccsr_regs = MC_CCSR_BASE_ADDR;
+
+	dmb();
+	debug("Polling mc_ccsr_regs->reg_gsr ...\n");
+	assert(timeout_ms > 0);
+	for (;;) {
+		udelay(1000);	/* throttle polling */
+		reg_gsr = in_le32(&mc_ccsr_regs->reg_gsr);
+		mc_fw_boot_status = (reg_gsr & GSR_FS_MASK);
+		if (mc_fw_boot_status & 0x1)
+			break;
+
+		timeout_ms--;
+		if (timeout_ms == 0)
+			break;
+	}
+
+	if (timeout_ms == 0) {
+		if (booting_mc)
+			printf("fsl-mc: timeout booting management complex firmware\n");
+		else
+			printf("fsl-mc: timeout deploying data path layout\n");
+
+		/* TODO: Get an error status from an MC CCSR register */
+		return -ETIMEDOUT;
+	}
+
+	if (mc_fw_boot_status != 0x1) {
+		/*
+		 * TODO: Identify critical errors from the GSR register's FS
+		 * field and for those errors, set error to -ENODEV or other
+		 * appropriate errno, so that the status property is set to
+		 * failure in the fsl,dprc device tree node.
+		 */
+		if (booting_mc) {
+			printf("fsl-mc: WARNING: Firmware booted with error (GSR: %#x)\n",
+			       reg_gsr);
+		} else {
+			printf("fsl-mc: WARNING: Data path layout deployed with error (GSR: %#x)\n",
+			       reg_gsr);
+		}
+	}
+
+	*final_reg_gsr = reg_gsr;
+	return 0;
+}
 
 int mc_init(void)
 {
 	int error = 0;
-	int timeout = 200000;
 	int portal_id = 0;
 	struct mc_ccsr_registers __iomem *mc_ccsr_regs = MC_CCSR_BASE_ADDR;
 	u64 mc_ram_addr;
-	u64 mc_dpl_offset;
 	u32 reg_gsr;
-	u32 mc_fw_boot_status;
-	void *dpl_fdt_hdr;
-	int dpl_size;
+	u32 reg_mcfbalr;
+#ifndef CONFIG_SYS_LS_MC_FW_IN_DDR
 	const void *raw_image_addr;
 	size_t raw_image_size = 0;
+#endif
 	struct mc_version mc_ver_info;
+	u64 mc_ram_aligned_base_addr;
+	u8 mc_ram_num_256mb_blocks;
+	size_t mc_ram_size = mc_get_dram_block_size();
 
 	/*
 	 * The MC private DRAM block was already carved at the end of DRAM
@@ -122,8 +404,19 @@ int mc_init(void)
 	}
 
 #ifdef CONFIG_FSL_DEBUG_SERVER
+	/*
+	 * FIXME: I don't think this is right. See get_dram_size_to_hide()
+	 */
 		mc_ram_addr -= debug_server_get_dram_block_size();
 #endif
+
+	error = calculate_mc_private_ram_params(mc_ram_addr,
+						mc_ram_size,
+						&mc_ram_aligned_base_addr,
+						&mc_ram_num_256mb_blocks);
+	if (error != 0)
+		goto out;
+
 	/*
 	 * Management Complex cores should be held at reset out of POR.
 	 * U-boot should be the first software to touch MC. To be safe,
@@ -139,6 +432,9 @@ int mc_init(void)
 	out_le32(&mc_ccsr_regs->reg_gcr1, 0);
 	dmb();
 
+#ifdef CONFIG_SYS_LS_MC_FW_IN_DDR
+	printf("MC firmware is preloaded to %#llx\n", mc_ram_addr);
+#else
 	error = parse_mc_firmware_fit_image(&raw_image_addr, &raw_image_size);
 	if (error != 0)
 		goto out;
@@ -147,83 +443,34 @@ int mc_init(void)
 	 */
 	mc_copy_image("MC Firmware",
 		      (u64)raw_image_addr, raw_image_size, mc_ram_addr);
-
-	/*
-	 * Get address and size of the DPL blob stored in flash:
-	 */
-#ifdef CONFIG_SYS_LS_MC_DPL_IN_NOR
-	dpl_fdt_hdr = (void *)CONFIG_SYS_LS_MC_DPL_ADDR;
-#else
-#error "No CONFIG_SYS_LS_MC_DPL_IN_xxx defined"
 #endif
+	dump_ram_words("firmware", (void *)mc_ram_addr);
 
-	error = fdt_check_header(dpl_fdt_hdr);
-	if (error != 0) {
-		printf("fsl-mc: ERROR: Bad DPL image (bad header)\n");
+	error = load_mc_dpc(mc_ram_addr, mc_ram_size);
+	if (error != 0)
 		goto out;
-	}
 
-	dpl_size = fdt_totalsize(dpl_fdt_hdr);
-	if (dpl_size > CONFIG_SYS_LS_MC_DPL_MAX_LENGTH) {
-		printf("fsl-mc: ERROR: Bad DPL image (too large: %d)\n",
-		       dpl_size);
-		error = -EINVAL;
+	error = load_mc_dpl(mc_ram_addr, mc_ram_size);
+	if (error != 0)
 		goto out;
-	}
-
-	/*
-	 * Calculate offset in the MC private DRAM block at which the MC DPL
-	 * blob is to be placed:
-	 */
-#ifdef CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET
-	BUILD_BUG_ON((CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET & 0x3) != 0 ||
-		     CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET > 0xffffffff);
-
-	mc_dpl_offset = CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET;
-#else
-	mc_dpl_offset = mc_get_dram_block_size() -
-			roundup(CONFIG_SYS_LS_MC_DPL_MAX_LENGTH, 4096);
-
-	if ((mc_dpl_offset & 0x3) != 0 || mc_dpl_offset > 0xffffffff) {
-		printf("%s: Invalid MC DPL offset: %llu\n",
-		       __func__, mc_dpl_offset);
-		error = -EINVAL;
-		goto out;
-	}
-#endif
-
-	/*
-	 * Load the MC DPL blob at the far end of the MC private DRAM block:
-	 *
-	 * TODO: Should we place the DPL at a different location to match
-	 * assumptions of MC firmware about its memory layout?
-	 */
-	mc_copy_image("MC DPL blob",
-		      (u64)dpl_fdt_hdr, dpl_size, mc_ram_addr + mc_dpl_offset);
 
 	debug("mc_ccsr_regs %p\n", mc_ccsr_regs);
+	dump_mc_ccsr_regs(mc_ccsr_regs);
 
 	/*
-	 * Tell MC where the MC Firmware image was loaded in DDR:
+	 * Tell MC what is the address range of the DRAM block assigned to it:
 	 */
-	out_le32(&mc_ccsr_regs->reg_mcfbalr, (u32)mc_ram_addr);
-	out_le32(&mc_ccsr_regs->reg_mcfbahr, (u32)((u64)mc_ram_addr >> 32));
+	reg_mcfbalr = (u32)mc_ram_aligned_base_addr |
+		      (mc_ram_num_256mb_blocks - 1);
+	out_le32(&mc_ccsr_regs->reg_mcfbalr, reg_mcfbalr);
+	out_le32(&mc_ccsr_regs->reg_mcfbahr,
+		 (u32)(mc_ram_aligned_base_addr >> 32));
 	out_le32(&mc_ccsr_regs->reg_mcfapr, MCFAPR_BYPASS_ICID_MASK);
 
 	/*
-	 * Tell MC where the DPL blob was loaded in DDR, by indicating
-	 * its offset relative to the beginning of the DDR block
-	 * allocated to the MC firmware. The MC firmware is responsible
-	 * for checking that there is no overlap between the DPL blob
-	 * and the runtime heap and stack of the MC firmware itself.
-	 *
-	 * NOTE: bits [31:2] of this offset need to be stored in bits [29:0] of
-	 * the GSR MC CCSR register. So, this offset is assumed to be 4-byte
-	 * aligned.
-	 * Care must be taken not to write 1s into bits 31 and 30 of the GSR in
-	 * this case as the SoC COP or PIC will be signaled.
+	 * Tell the MC that we want delayed DPL deployment.
 	 */
-	out_le32(&mc_ccsr_regs->reg_gsr, (u32)(mc_dpl_offset >> 2));
+	out_le32(&mc_ccsr_regs->reg_gsr, 0xDD00);
 
 	printf("\nfsl-mc: Booting Management Complex ...\n");
 
@@ -231,38 +478,9 @@ int mc_init(void)
 	 * Deassert reset and release MC core 0 to run
 	 */
 	out_le32(&mc_ccsr_regs->reg_gcr1, GCR1_P1_DE_RST | GCR1_M_ALL_DE_RST);
-	dmb();
-	debug("Polling mc_ccsr_regs->reg_gsr ...\n");
-
-	for (;;) {
-		reg_gsr = in_le32(&mc_ccsr_regs->reg_gsr);
-		mc_fw_boot_status = (reg_gsr & GSR_FS_MASK);
-		if (mc_fw_boot_status & 0x1)
-			break;
-
-		udelay(1000);	/* throttle polling */
-		if (timeout-- <= 0)
-			break;
-	}
-
-	if (timeout <= 0) {
-		printf("fsl-mc: timeout booting management complex firmware\n");
-
-		/* TODO: Get an error status from an MC CCSR register */
-		error = -ETIMEDOUT;
+	error = wait_for_mc(true, &reg_gsr);
+	if (error != 0)
 		goto out;
-	}
-
-	if (mc_fw_boot_status != 0x1) {
-		/*
-		 * TODO: Identify critical errors from the GSR register's FS
-		 * field and for those errors, set error to -ENODEV or other
-		 * appropriate errno, so that the status property is set to
-		 * failure in the fsl,dprc device tree node.
-		 */
-		printf("fsl-mc: WARNING: Firmware booted with error (GSR: %#x)\n",
-		       reg_gsr);
-	}
 
 	/*
 	 * TODO: need to obtain the portal_id for the root container from the
@@ -301,7 +519,16 @@ int mc_init(void)
 
 	printf("fsl-mc: Management Complex booted (version: %d.%d.%d, boot status: %#x)\n",
 	       mc_ver_info.major, mc_ver_info.minor, mc_ver_info.revision,
-	       mc_fw_boot_status);
+	       reg_gsr & GSR_FS_MASK);
+
+	/*
+	 * Tell the MC to deploy the DPL:
+	 */
+	out_le32(&mc_ccsr_regs->reg_gsr, 0x0);
+	printf("\nfsl-mc: Deploying data path layout ...\n");
+	error = wait_for_mc(false, &reg_gsr);
+	if (error != 0)
+		goto out;
 out:
 	if (error != 0)
 		mc_boot_status = -error;
@@ -318,14 +545,28 @@ int get_mc_boot_status(void)
 
 /**
  * Return the actual size of the MC private DRAM block.
- *
- * NOTE: For now this function always returns the minimum required size,
- * However, in the future, the actual size may be obtained from an environment
- * variable.
  */
 unsigned long mc_get_dram_block_size(void)
 {
-	return CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE;
+	unsigned long dram_block_size = CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE;
+
+	char *dram_block_size_env_var = getenv(MC_MEM_SIZE_ENV_VAR);
+
+	if (dram_block_size_env_var) {
+		dram_block_size = simple_strtoul(dram_block_size_env_var, NULL,
+						 10);
+
+		if (dram_block_size < CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE) {
+			printf("fsl-mc: WARNING: Invalid value for \'"
+			       MC_MEM_SIZE_ENV_VAR
+			       "\' environment variable: %lu\n",
+			       dram_block_size);
+
+			dram_block_size = CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE;
+		}
+	}
+
+	return dram_block_size;
 }
 
 int dpio_init(struct dprc_obj_desc obj_desc)
@@ -464,6 +705,8 @@ int fsl_mc_ldpaa_init(bd_t *bis)
 	int num_child_objects = 0;
 
 	error = mc_init();
+	if (error < 0)
+		goto error;
 
 	error = dprc_get_container_id(dflt_mc_io, &container_id);
 	if (error < 0) {
@@ -517,24 +760,27 @@ void fsl_mc_ldpaa_exit(bd_t *bis)
 {
 	int err;
 
+	if (get_mc_boot_status() == 0) {
+		err = dpio_disable(dflt_mc_io, dflt_dpio_handle);
+		if (err < 0) {
+			printf("dpio_disable() failed: %d\n", err);
+			return;
+		}
+		err = dpio_reset(dflt_mc_io, dflt_dpio_handle);
+		if (err < 0) {
+			printf("dpio_reset() failed: %d\n", err);
+			return;
+		}
+		err = dpio_close(dflt_mc_io, dflt_dpio_handle);
+		if (err < 0) {
+			printf("dpio_close() failed: %d\n", err);
+			return;
+		}
 
-	err = dpio_disable(dflt_mc_io, dflt_dpio_handle);
-	if (err < 0) {
-		printf("dpio_disable() failed: %d\n", err);
-		return;
-	}
-	err = dpio_reset(dflt_mc_io, dflt_dpio_handle);
-	if (err < 0) {
-		printf("dpio_reset() failed: %d\n", err);
-		return;
-	}
-	err = dpio_close(dflt_mc_io, dflt_dpio_handle);
-	if (err < 0) {
-		printf("dpio_close() failed: %d\n", err);
-		return;
+		free(dflt_dpio);
+		free(dflt_dpbp);
 	}
 
-	free(dflt_dpio);
-	free(dflt_dpbp);
-	free(dflt_mc_io);
+	if (dflt_mc_io)
+		free(dflt_mc_io);
 }

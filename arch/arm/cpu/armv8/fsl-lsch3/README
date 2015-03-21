@@ -33,3 +33,11 @@ is shown below considering a 32MB NOR flash device:
 	------------------------- ----> 0x0000_0000
 
 	32-MB NOR flash layout
+
+Environment Variables
+=====================
+mcboottimeout:	MC boot timeout in milliseconds. If this variable is not defined
+		the value CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS will be assumed.
+
+mcmemsize:	MC DRAM block size. If this variable is not defined, the value
+		CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE will be assumed.
