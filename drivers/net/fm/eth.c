@@ -15,7 +15,7 @@
 #include <phy.h>
 #include <asm/fsl_dtsec.h>
 #include <asm/fsl_tgec.h>
-#include <asm/fsl_memac.h>
+#include <fsl_memac.h>
 
 #include "fm.h"
 
