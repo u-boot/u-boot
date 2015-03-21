@@ -55,24 +55,6 @@ int dram_init(void)
 	return 0;
 }
 
-int timer_init(void)
-{
-	u32 __iomem *cntcr = (u32 *)CONFIG_SYS_FSL_TIMER_ADDR;
-	u32 __iomem *cltbenr = (u32 *)CONFIG_SYS_FSL_PMU_CLTBENR;
-
-	/* Enable timebase for all clusters.
-	 * It is safe to do so even some clusters are not enabled.
-	 */
-	out_le32(cltbenr, 0xf);
-
-	/* Enable clock for timer
-	 * This is a global setting.
-	 */
-	out_le32(cntcr, 0x1);
-
-	return 0;
-}
-
 /*
  * Board specific reset that is system reset.
  */

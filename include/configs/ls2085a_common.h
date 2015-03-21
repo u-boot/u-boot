@@ -72,7 +72,11 @@
 #define CONFIG_DP_DDR_NUM_CTRLS		1
 
 /* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		12000000	/* 12MHz */
+/*
+ * This is not an accurate number. It is used in start.S. The frequency
+ * will be udpated later when get_bus_freq(0) is available.
+ */
+#define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2048 * 1024)

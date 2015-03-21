@@ -690,6 +690,14 @@ The following options need to be configured:
 		exists, unlike the similar options in the Linux kernel. Do not
 		set these options unless they apply!
 
+		COUNTER_FREQUENCY
+		Generic timer clock source frequency.
+
+		COUNTER_FREQUENCY_REAL
+		Generic timer clock source frequency if the real clock is
+		different from COUNTER_FREQUENCY, and can only be determined
+		at run time.
+
 		NOTE: The following can be machine specific errata. These
 		do have ability to provide rudimentary version and machine
 		specific checks, but expect no product checks.

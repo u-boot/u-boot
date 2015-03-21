@@ -31,6 +31,13 @@ int fsl_lsch3_wake_seconday_cores(void)
 	int i, timeout = 10;
 	u64 *table = get_spin_tbl_addr();
 
+#ifdef COUNTER_FREQUENCY_REAL
+	/* update for secondary cores */
+	__real_cntfrq = COUNTER_FREQUENCY_REAL;
+	flush_dcache_range((unsigned long)&__real_cntfrq,
+			   (unsigned long)&__real_cntfrq + 8);
+#endif
+
 	cores = cpu_mask();
 	/* Clear spin table so that secondary processors
 	 * observe the correct value after waking up from wfe.
