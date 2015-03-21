@@ -214,19 +214,6 @@ unsigned long get_dram_size_to_hide(void)
 	return dram_to_hide;
 }
 
-int board_eth_init(bd_t *bis)
-{
-	int error = 0;
-
-#ifdef CONFIG_FSL_MC_ENET
-	error = cpu_eth_init(bis);
-#endif
-
-	error = pci_eth_init(bis);
-
-	return error;
-}
-
 #ifdef CONFIG_FSL_MC_ENET
 void fdt_fixup_board_enet(void *fdt)
 {

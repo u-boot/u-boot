@@ -280,4 +280,23 @@ unsigned long get_board_ddr_clk(void);
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x1000000\0"
 
+#ifdef CONFIG_FSL_MC_ENET
+#define CONFIG_FSL_MEMAC
+#define	CONFIG_PHYLIB
+#define CONFIG_PHYLIB_10G
+#define	CONFIG_CMD_MII
+#define CONFIG_PHY_VITESSE
+#define CONFIG_PHY_REALTEK
+#define CONFIG_PHY_TERANETICS
+#define SGMII_CARD_PORT1_PHY_ADDR 0x1C
+#define SGMII_CARD_PORT2_PHY_ADDR 0x1d
+#define SGMII_CARD_PORT3_PHY_ADDR 0x1E
+#define SGMII_CARD_PORT4_PHY_ADDR 0x1F
+
+#define CONFIG_MII		/* MII PHY management */
+#define CONFIG_ETHPRIME		"DPNI1"
+#define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
+
+#endif
+
 #endif /* __LS2_QDS_H */

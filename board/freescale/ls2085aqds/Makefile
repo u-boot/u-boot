@@ -6,3 +6,4 @@
 
 obj-y += ls2085aqds.o
 obj-y += ddr.o
+obj-y += eth.o
