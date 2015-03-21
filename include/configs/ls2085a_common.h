@@ -155,6 +155,9 @@ unsigned long long get_qixis_addr(void);
 #define QIXIS_BASE				get_qixis_addr()
 #define QIXIS_BASE_PHYS				0x20000000
 #define QIXIS_BASE_PHYS_EARLY			0xC000000
+#define QIXIS_STAT_PRES1			0xb
+#define QIXIS_SDID_MASK				0x07
+#define QIXIS_ESDHC_NO_ADAPTER			0x7
 
 #define CONFIG_SYS_NAND_BASE			0x530000000ULL
 #define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
@@ -217,8 +220,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_CMD_BOOTD
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_SOURCE
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)

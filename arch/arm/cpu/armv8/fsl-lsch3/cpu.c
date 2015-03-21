@@ -13,6 +13,9 @@
 #include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
 #include <asm/arch/fsl_serdes.h>
+#ifdef CONFIG_FSL_ESDHC
+#include <fsl_esdhc.h>
+#endif
 #include "cpu.h"
 #include "mp.h"
 #include "speed.h"
@@ -409,6 +412,13 @@ int print_cpuinfo(void)
 	puts("\n");
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_FSL_ESDHC
+int cpu_mmc_init(bd_t *bis)
+{
+	return fsl_esdhc_mmc_init(bis);
 }
 #endif
 

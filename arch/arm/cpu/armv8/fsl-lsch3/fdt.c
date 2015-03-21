@@ -7,6 +7,9 @@
 #include <common.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#ifdef CONFIG_FSL_ESDHC
+#include <fsl_esdhc.h>
+#endif
 #include "mp.h"
 
 #ifdef CONFIG_MP
@@ -64,5 +67,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_SYS_NS16550
 	do_fixup_by_compat_u32(blob, "fsl,ns16550",
 			       "clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
+#endif
+
+#if defined(CONFIG_FSL_ESDHC)
+	fdt_fixup_esdhc(blob, bd);
 #endif
 }

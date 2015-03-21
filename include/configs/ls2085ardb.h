@@ -277,7 +277,16 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_CMD_NET
 #endif
 
-
+/*  MMC  */
+#define CONFIG_MMC
+#ifdef CONFIG_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_FSL_ESDHC
+#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
+#define CONFIG_GENERIC_MMC
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
 
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS

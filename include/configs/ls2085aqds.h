@@ -275,6 +275,14 @@ unsigned long get_board_ddr_clk(void);
 #define I2C_MUX_CH_DEFAULT      0x8
 
 /*
+ * MMC
+ */
+#ifdef CONFIG_MMC
+#define CONFIG_ESDHC_DETECT_QUIRK ((readb(QIXIS_BASE + QIXIS_STAT_PRES1) & \
+	QIXIS_SDID_MASK) != QIXIS_ESDHC_NO_ADAPTER)
+#endif
+
+/*
  * RTC configuration
  */
 #define RTC
@@ -304,7 +312,16 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_NET
 #endif
 
-
+/*  MMC  */
+#define CONFIG_MMC
+#ifdef CONFIG_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_FSL_ESDHC
+#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
+#define CONFIG_GENERIC_MMC
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
 
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
