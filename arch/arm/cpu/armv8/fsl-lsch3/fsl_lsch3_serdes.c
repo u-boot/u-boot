@@ -9,6 +9,7 @@
 #include <asm/errno.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch-fsl-lsch3/immap_lsch3.h>
+#include <fsl-mc/ldpaa_wriop.h>
 
 #ifdef CONFIG_SYS_FSL_SRDS_1
 static u8 serdes1_prtcl_map[SERDES_PRCTL_COUNT];
@@ -86,8 +87,12 @@ void serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift,
 		enum srds_prtcl lane_prtcl = serdes_get_prtcl(sd, cfg, lane);
 		if (unlikely(lane_prtcl >= SERDES_PRCTL_COUNT))
 			debug("Unknown SerDes lane protocol %d\n", lane_prtcl);
-		else
+		else {
 			serdes_prtcl_map[lane_prtcl] = 1;
+#ifdef CONFIG_FSL_MC_ENET
+			wriop_init_dpmac(sd, lane + 1, (int)lane_prtcl);
+#endif
+		}
 	}
 }
 

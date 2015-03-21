@@ -4,5 +4,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-# Layerscape LDPAA driver
+obj-y += ldpaa_wriop.o
 obj-y += ldpaa_eth.o
