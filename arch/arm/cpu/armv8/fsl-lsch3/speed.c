@@ -86,6 +86,8 @@ void get_sys_info(struct sys_info *sys_info)
 	sys_info->freq_systembus *= (in_le32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS3_RCWSR0_SYS_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_SYS_PLL_RAT_MASK;
+	/* Platform clock is half of platform PLL */
+	sys_info->freq_systembus /= 2;
 	sys_info->freq_ddrbus *= (in_le32(&gur->rcwsr[0]) >>
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_SHIFT) &
 			FSL_CHASSIS3_RCWSR0_MEM_PLL_RAT_MASK;
@@ -102,10 +104,7 @@ void get_sys_info(struct sys_info *sys_info)
 			 offsetof(struct ccsr_clk_cluster_group,
 				  pllngsr[i%3].gsr));
 		ratio[i] = (in_le32(offset) >> 1) & 0x3f;
-		if (ratio[i] > 4)
-			freq_c_pll[i] = sysclk * ratio[i];
-		else
-			freq_c_pll[i] = sys_info->freq_systembus * ratio[i];
+		freq_c_pll[i] = sysclk * ratio[i];
 	}
 
 	for_each_cpu(i, cpu, cpu_numcores(), cpu_mask()) {
