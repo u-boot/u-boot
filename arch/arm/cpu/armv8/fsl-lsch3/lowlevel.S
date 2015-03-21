@@ -15,6 +15,15 @@
 ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
+	/* Add fully-coherent masters to DVM domain */
+	ldr	x1, =CCI_MN_BASE
+	ldr	x2, [x1, #CCI_MN_RNF_NODEID_LIST]
+	str	x2, [x1, #CCI_MN_DVM_DOMAIN_CTL_SET]
+1:	ldr	x3, [x1, #CCI_MN_DVM_DOMAIN_CTL_SET]
+	mvn	x0, x3
+	tst	x0, x3		/* Wait for domain addition to complete */
+	b.ne	1b
+
 	/* Set the SMMU page size in the sACR register */
 	ldr	x1, =SMMU_BASE
 	ldr	w0, [x1, #0x10]
