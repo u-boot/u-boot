@@ -118,6 +118,20 @@ int gpio_set_value(unsigned gpio, int value)
 	return sunxi_gpio_output(gpio, value);
 }
 
+int sunxi_name_to_gpio_bank(const char *name)
+{
+	int group = 0;
+
+	if (*name == 'P' || *name == 'p')
+		name++;
+	if (*name >= 'A') {
+		group = *name - (*name > 'a' ? 'a' : 'A');
+		return group;
+	}
+
+	return -1;
+}
+
 int sunxi_name_to_gpio(const char *name)
 {
 	int group = 0;

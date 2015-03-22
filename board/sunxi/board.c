@@ -71,10 +71,11 @@ int dram_init(void)
 static void mmc_pinmux_setup(int sdc)
 {
 	unsigned int pin;
+	__maybe_unused int pins;
 
 	switch (sdc) {
 	case 0:
-		/* D1-PF0, D0-PF1, CLK-PF2, CMD-PF3, D3-PF4, D4-PF5 */
+		/* SDC0: PF0-PF5 */
 		for (pin = SUNXI_GPF(0); pin <= SUNXI_GPF(5); pin++) {
 			sunxi_gpio_set_cfgpin(pin, SUNXI_GPF_SDC0);
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
@@ -83,30 +84,150 @@ static void mmc_pinmux_setup(int sdc)
 		break;
 
 	case 1:
-		/* CMD-PG3, CLK-PG4, D0~D3-PG5-8 */
+		pins = sunxi_name_to_gpio_bank(CONFIG_MMC1_PINS);
+
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+		if (pins == SUNXI_GPIO_H) {
+			/* SDC1: PH22-PH-27 */
+			for (pin = SUNXI_GPH(22); pin <= SUNXI_GPH(27); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN4I_GPH_SDC1);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		} else {
+			/* SDC1: PG0-PG5 */
+			for (pin = SUNXI_GPG(0); pin <= SUNXI_GPG(5); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN4I_GPG_SDC1);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		}
+#elif defined(CONFIG_MACH_SUN5I)
+		/* SDC1: PG3-PG8 */
 		for (pin = SUNXI_GPG(3); pin <= SUNXI_GPG(8); pin++) {
 			sunxi_gpio_set_cfgpin(pin, SUN5I_GPG_SDC1);
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
+#elif defined(CONFIG_MACH_SUN6I)
+		/* SDC1: PG0-PG5 */
+		for (pin = SUNXI_GPG(0); pin <= SUNXI_GPG(5); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUN6I_GPG_SDC1);
+			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(pin, 2);
+		}
+#elif defined(CONFIG_MACH_SUN8I)
+		if (pins == SUNXI_GPIO_D) {
+			/* SDC1: PD2-PD7 */
+			for (pin = SUNXI_GPD(2); pin <= SUNXI_GPD(7); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN8I_GPD_SDC1);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		} else {
+			/* SDC1: PG0-PG5 */
+			for (pin = SUNXI_GPG(0); pin <= SUNXI_GPG(5); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN8I_GPG_SDC1);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		}
+#endif
 		break;
 
 	case 2:
-		/* CMD-PC6, CLK-PC7, D0-PC8, D1-PC9, D2-PC10, D3-PC11 */
+		pins = sunxi_name_to_gpio_bank(CONFIG_MMC2_PINS);
+
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+		/* SDC2: PC6-PC11 */
 		for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(11); pin++) {
 			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
-		break;
+#elif defined(CONFIG_MACH_SUN5I)
+		if (pins == SUNXI_GPIO_E) {
+			/* SDC2: PE4-PE9 */
+			for (pin = SUNXI_GPE(4); pin <= SUNXI_GPD(9); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN5I_GPE_SDC2);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		} else {
+			/* SDC2: PC6-PC15 */
+			for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(15); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		}
+#elif defined(CONFIG_MACH_SUN6I)
+		if (pins == SUNXI_GPIO_A) {
+			/* SDC2: PA9-PA14 */
+			for (pin = SUNXI_GPA(9); pin <= SUNXI_GPA(14); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_SDC2);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		} else {
+			/* SDC2: PC6-PC15, PC24 */
+			for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(15); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
 
-	case 3:
-		/* CMD-PI4, CLK-PI5, D0~D3-PI6~9 : 2 */
-		for (pin = SUNXI_GPI(4); pin <= SUNXI_GPI(9); pin++) {
-			sunxi_gpio_set_cfgpin(pin, SUN4I_GPI_SDC3);
+			sunxi_gpio_set_cfgpin(SUNXI_GPC(24), SUNXI_GPC_SDC2);
+			sunxi_gpio_set_pull(SUNXI_GPC(24), SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(SUNXI_GPC(24), 2);
+		}
+#elif defined(CONFIG_MACH_SUN8I)
+		/* SDC2: PC5-PC6, PC8-PC16 */
+		for (pin = SUNXI_GPC(5); pin <= SUNXI_GPC(6); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
+
+		for (pin = SUNXI_GPC(8); pin <= SUNXI_GPC(16); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(pin, 2);
+		}
+#endif
+		break;
+
+	case 3:
+		pins = sunxi_name_to_gpio_bank(CONFIG_MMC3_PINS);
+
+#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
+		/* SDC3: PI4-PI9 */
+		for (pin = SUNXI_GPI(4); pin <= SUNXI_GPI(9); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPI_SDC3);
+			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(pin, 2);
+		}
+#elif defined(CONFIG_MACH_SUN6I)
+		if (pins == SUNXI_GPIO_A) {
+			/* SDC3: PA9-PA14 */
+			for (pin = SUNXI_GPA(9); pin <= SUNXI_GPA(14); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_SDC3);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+		} else {
+			/* SDC3: PC6-PC15, PC24 */
+			for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(15); pin++) {
+				sunxi_gpio_set_cfgpin(pin, SUN6I_GPC_SDC3);
+				sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+				sunxi_gpio_set_drv(pin, 2);
+			}
+
+			sunxi_gpio_set_cfgpin(SUNXI_GPC(24), SUN6I_GPC_SDC3);
+			sunxi_gpio_set_pull(SUNXI_GPC(24), SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(SUNXI_GPC(24), 2);
+		}
+#endif
 		break;
 
 	default:

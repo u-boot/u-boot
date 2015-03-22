@@ -212,6 +212,25 @@ config MMC3_CD_PIN
 	---help---
 	See MMC0_CD_PIN help text.
 
+config MMC1_PINS
+	string "Pins for mmc1"
+	default ""
+	---help---
+	Set the pins used for mmc1, when applicable. This takes a string in the
+	format understood by sunxi_name_to_gpio_bank, e.g. PH for port H.
+
+config MMC2_PINS
+	string "Pins for mmc2"
+	default ""
+	---help---
+	See MMC1_PINS help text.
+
+config MMC3_PINS
+	string "Pins for mmc3"
+	default ""
+	---help---
+	See MMC1_PINS help text.
+
 config MMC_SUNXI_SLOT_EXTRA
 	int "mmc extra slot number"
 	default -1
