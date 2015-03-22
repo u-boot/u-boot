@@ -360,12 +360,27 @@ int eth_initialize(void)
 		printf("No ethernet found.\n");
 		bootstage_error(BOOTSTAGE_ID_NET_ETH_START);
 	} else {
+		char *ethprime = getenv("ethprime");
+		struct udevice *prime_dev = NULL;
+
+		if (ethprime)
+			prime_dev = eth_get_dev_by_name(ethprime);
+		if (prime_dev) {
+			eth_set_dev(prime_dev);
+			eth_current_changed();
+		} else {
+			eth_set_dev(NULL);
+		}
+
 		bootstage_mark(BOOTSTAGE_ID_NET_ETH_INIT);
 		do {
 			if (num_devices)
 				printf(", ");
 
 			printf("eth%d: %s", dev->seq, dev->name);
+
+			if (ethprime && dev == prime_dev)
+				printf(" [PRIME]");
 
 			eth_write_hwaddr(dev);
 
@@ -915,8 +930,20 @@ void eth_set_current(void)
 		act = getenv("ethact");
 		env_changed_id = env_id;
 	}
-	if (act != NULL)
+
+	if (act == NULL) {
+		char *ethprime = getenv("ethprime");
+		void *dev = NULL;
+
+		if (ethprime)
+			dev = eth_get_dev_by_name(ethprime);
+		if (dev)
+			eth_set_dev(dev);
+		else
+			eth_set_dev(NULL);
+	} else {
 		eth_set_dev(eth_get_dev_by_name(act));
+	}
 
 	eth_current_changed();
 }

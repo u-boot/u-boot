@@ -60,3 +60,23 @@ static int dm_test_eth_alias(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_eth_alias, DM_TESTF_SCAN_FDT);
+
+static int dm_test_eth_prime(struct dm_test_state *dms)
+{
+	NetPingIP = string_to_ip("1.1.2.2");
+
+	/* Expected to be "eth@10003000" because of ethprime variable */
+	setenv("ethact", NULL);
+	setenv("ethprime", "eth5");
+	ut_assertok(NetLoop(PING));
+	ut_asserteq_str("eth@10003000", getenv("ethact"));
+
+	/* Expected to be "eth@10002000" because it is first */
+	setenv("ethact", NULL);
+	setenv("ethprime", NULL);
+	ut_assertok(NetLoop(PING));
+	ut_asserteq_str("eth@10002000", getenv("ethact"));
+
+	return 0;
+}
+DM_TEST(dm_test_eth_prime, DM_TESTF_SCAN_FDT);
