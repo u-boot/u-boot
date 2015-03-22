@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2012-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2012-2015 Panasonic Corporation
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -142,7 +143,7 @@ ENTRY(setup_init_ram)
 	ldr	r0, = 0x00408006	@ touch to zero with address range
 	ldr	r1, = SSCOQM
 	str	r0, [r1]
-	ldr	r0, = (CONFIG_SYS_INIT_SP_ADDR - BOOT_RAM_SIZE)	@ base address
+	ldr	r0, = (CONFIG_SPL_STACK - BOOT_RAM_SIZE)	@ base address
 	ldr	r1, = SSCOQAD
 	str	r0, [r1]
 	ldr	r0, = BOOT_RAM_SIZE
