@@ -97,11 +97,11 @@ struct eth_device {
 	void *priv;
 };
 
-extern int eth_initialize(bd_t *bis);	/* Initialize network subsystem */
-extern int eth_register(struct eth_device* dev);/* Register network device */
-extern int eth_unregister(struct eth_device *dev);/* Remove network device */
-extern void eth_try_another(int first_restart);	/* Change the device */
-extern void eth_set_current(void);		/* set nterface to ethcur var */
+int eth_initialize(bd_t *bis);	/* Initialize network subsystem */
+int eth_register(struct eth_device *dev);/* Register network device */
+int eth_unregister(struct eth_device *dev);/* Remove network device */
+void eth_try_another(int first_restart);	/* Change the device */
+void eth_set_current(void);		/* set nterface to ethcur var */
 
 /* get the current device MAC */
 extern struct eth_device *eth_current;
@@ -119,12 +119,12 @@ static inline unsigned char *eth_get_ethaddr(void)
 	return NULL;
 }
 
-extern struct eth_device *eth_get_dev_by_name(const char *devname);
-extern struct eth_device *eth_get_dev_by_index(int index); /* get dev @ index */
-extern int eth_get_dev_index(void);		/* get the device index */
-extern void eth_parse_enetaddr(const char *addr, uchar *enetaddr);
-extern int eth_getenv_enetaddr(char *name, uchar *enetaddr);
-extern int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
+struct eth_device *eth_get_dev_by_name(const char *devname);
+struct eth_device *eth_get_dev_by_index(int index); /* get dev @ index */
+int eth_get_dev_index(void);		/* get the device index */
+void eth_parse_enetaddr(const char *addr, uchar *enetaddr);
+int eth_getenv_enetaddr(char *name, uchar *enetaddr);
+int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
 
 /*
  * Get the hardware address for an ethernet interface .
@@ -135,20 +135,20 @@ extern int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
  * Returns:
  *	Return true if the address is valid.
  */
-extern int eth_getenv_enetaddr_by_index(const char *base_name, int index,
-					uchar *enetaddr);
+int eth_getenv_enetaddr_by_index(const char *base_name, int index,
+				 uchar *enetaddr);
 
-extern int usb_eth_initialize(bd_t *bi);
-extern int eth_init(bd_t *bis);			/* Initialize the device */
-extern int eth_send(void *packet, int length);	   /* Send a packet */
+int usb_eth_initialize(bd_t *bi);
+int eth_init(bd_t *bis);			/* Initialize the device */
+int eth_send(void *packet, int length);	   /* Send a packet */
 
 #ifdef CONFIG_API
-extern int eth_receive(void *packet, int length); /* Receive a packet*/
+int eth_receive(void *packet, int length); /* Receive a packet*/
 extern void (*push_packet)(void *packet, int length);
 #endif
-extern int eth_rx(void);			/* Check for received packets */
-extern void eth_halt(void);			/* stop SCC */
-extern char *eth_get_name(void);		/* get name of current device */
+int eth_rx(void);			/* Check for received packets */
+void eth_halt(void);			/* stop SCC */
+char *eth_get_name(void);		/* get name of current device */
 
 /* Set active state */
 static inline __attribute__((always_inline)) int eth_init_state_only(bd_t *bis)
@@ -471,25 +471,25 @@ extern IPaddr_t Mcast_addr;
 #endif
 
 /* Initialize the network adapter */
-extern void net_init(void);
-extern int NetLoop(enum proto_t);
+void net_init(void);
+int NetLoop(enum proto_t);
 
 /* Shutdown adapters and cleanup */
-extern void	NetStop(void);
+void	NetStop(void);
 
 /* Load failed.	 Start again. */
-extern void	NetStartAgain(void);
+void	NetStartAgain(void);
 
 /* Get size of the ethernet header when we send */
-extern int	NetEthHdrSize(void);
+int	NetEthHdrSize(void);
 
 /* Set ethernet header; returns the size of the header */
-extern int NetSetEther(uchar *, uchar *, uint);
-extern int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot);
+int NetSetEther(uchar *, uchar *, uint);
+int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot);
 
 /* Set IP header */
-extern void net_set_ip_header(uchar *pkt, IPaddr_t dest, IPaddr_t source);
-extern void net_set_udp_header(uchar *pkt, IPaddr_t dest, int dport,
+void net_set_ip_header(uchar *pkt, IPaddr_t dest, IPaddr_t source);
+void net_set_udp_header(uchar *pkt, IPaddr_t dest, int dport,
 				int sport, int len);
 
 /**
@@ -523,12 +523,12 @@ unsigned add_ip_checksums(unsigned offset, unsigned sum, unsigned new_sum);
 int ip_checksum_ok(const void *addr, unsigned nbytes);
 
 /* Callbacks */
-extern rxhand_f *net_get_udp_handler(void);	/* Get UDP RX packet handler */
-extern void net_set_udp_handler(rxhand_f *);	/* Set UDP RX packet handler */
-extern rxhand_f *net_get_arp_handler(void);	/* Get ARP RX packet handler */
-extern void net_set_arp_handler(rxhand_f *);	/* Set ARP RX packet handler */
-extern void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
-extern void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler */
+rxhand_f *net_get_udp_handler(void);	/* Get UDP RX packet handler */
+void net_set_udp_handler(rxhand_f *);	/* Set UDP RX packet handler */
+rxhand_f *net_get_arp_handler(void);	/* Get ARP RX packet handler */
+void net_set_arp_handler(rxhand_f *);	/* Set ARP RX packet handler */
+void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
+void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler */
 
 /* Network loop state */
 enum net_loop_state {
@@ -561,11 +561,11 @@ static inline void NetSendPacket(uchar *pkt, int len)
  * @param sport Source UDP port
  * @param payload_len Length of data after the UDP header
  */
-extern int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport,
+int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport,
 			int sport, int payload_len);
 
 /* Processes a received packet */
-extern void NetReceive(uchar *, int);
+void NetReceive(uchar *, int);
 
 #ifdef CONFIG_NETCONSOLE
 void NcStart(void);
@@ -713,28 +713,28 @@ static inline void eth_random_addr(uchar *addr)
 }
 
 /* Convert an IP address to a string */
-extern void ip_to_string(IPaddr_t x, char *s);
+void ip_to_string(IPaddr_t x, char *s);
 
 /* Convert a string to ip address */
-extern IPaddr_t string_to_ip(const char *s);
+IPaddr_t string_to_ip(const char *s);
 
 /* Convert a VLAN id to a string */
-extern void VLAN_to_string(ushort x, char *s);
+void VLAN_to_string(ushort x, char *s);
 
 /* Convert a string to a vlan id */
-extern ushort string_to_VLAN(const char *s);
+ushort string_to_VLAN(const char *s);
 
 /* read a VLAN id from an environment variable */
-extern ushort getenv_VLAN(char *);
+ushort getenv_VLAN(char *);
 
 /* copy a filename (allow for "..." notation, limit length) */
-extern void copy_filename(char *dst, const char *src, int size);
+void copy_filename(char *dst, const char *src, int size);
 
 /* get a random source port */
-extern unsigned int random_port(void);
+unsigned int random_port(void);
 
 /* Update U-Boot over TFTP */
-extern int update_tftp(ulong addr);
+int update_tftp(ulong addr);
 
 /**********************************************************************/
 
