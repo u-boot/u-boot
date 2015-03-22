@@ -130,6 +130,7 @@
 /* include default commands */
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_PING
 
 #define CONFIG_CMD_HASH
 #define CONFIG_HASH_VERIFY
