@@ -50,4 +50,7 @@ config NETDEVICES
 config DM_ETH
 	default y
 
+config ETH_SANDBOX_RAW
+	default y
+
 endmenu

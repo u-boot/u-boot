@@ -29,4 +29,14 @@ config ETH_SANDBOX
 
 	  This driver is particularly useful in the test/dm/eth.c tests
 
+config ETH_SANDBOX_RAW
+	depends on DM_ETH && SANDBOX
+	default y
+	bool "Sandbox: Bridge to Linux Raw Sockets"
+	help
+	  This driver is a bridge from the bottom of the network stack
+	  in U-Boot to the RAW AF_PACKET API in Linux. This allows real
+	  network traffic to be tested from within sandbox. See
+	  board/sandbox/README.sandbox for more details.
+
 endif # NETDEVICES
