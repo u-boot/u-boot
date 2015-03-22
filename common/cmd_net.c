@@ -44,10 +44,7 @@ U_BOOT_CMD(
 #ifdef CONFIG_CMD_TFTPPUT
 int do_tftpput(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int ret;
-
-	ret = netboot_common(TFTPPUT, cmdtp, argc, argv);
-	return ret;
+	return netboot_common(TFTPPUT, cmdtp, argc, argv);
 }
 
 U_BOOT_CMD(
@@ -217,7 +214,7 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 		if (strict_strtoul(argv[1], 16, &save_addr) < 0 ||
 			strict_strtoul(argv[2], 16, &save_size) < 0) {
 			printf("Invalid address/size\n");
-			return cmd_usage(cmdtp);
+			return CMD_RET_USAGE;
 		}
 		copy_filename(BootFile, argv[3], sizeof(BootFile));
 		break;
@@ -230,7 +227,7 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 
 	if ((size = NetLoop(proto)) < 0) {
 		bootstage_error(BOOTSTAGE_ID_NET_NETLOOP_OK);
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 	bootstage_mark(BOOTSTAGE_ID_NET_NETLOOP_OK);
 
@@ -240,7 +237,7 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 	/* done if no file was loaded (no errors though) */
 	if (size == 0) {
 		bootstage_error(BOOTSTAGE_ID_NET_LOADED);
-		return 0;
+		return CMD_RET_SUCCESS;
 	}
 
 	/* flush cache */
@@ -250,10 +247,10 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 
 	rcode = bootm_maybe_autostart(cmdtp, argv[0]);
 
-	if (rcode < 0)
-		bootstage_error(BOOTSTAGE_ID_NET_DONE_ERR);
-	else
+	if (rcode == CMD_RET_SUCCESS)
 		bootstage_mark(BOOTSTAGE_ID_NET_DONE);
+	else
+		bootstage_error(BOOTSTAGE_ID_NET_DONE_ERR);
 	return rcode;
 }
 
@@ -261,7 +258,7 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 static int do_ping(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
-		return -1;
+		return CMD_RET_USAGE;
 
 	NetPingIP = string_to_ip(argv[1]);
 	if (NetPingIP == 0)
@@ -269,12 +266,12 @@ static int do_ping(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (NetLoop(PING) < 0) {
 		printf("ping failed; host %s is not alive\n", argv[1]);
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	printf("host %s is alive\n", argv[1]);
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(
@@ -313,12 +310,12 @@ int do_cdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	r = NetLoop(CDP);
 	if (r < 0) {
 		printf("cdp failed; perhaps not a CISCO switch?\n");
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	cdp_update_env();
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(
@@ -337,13 +334,13 @@ int do_sntp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		NetNtpServerIP = getenv_IPaddr("ntpserverip");
 		if (NetNtpServerIP == 0) {
 			printf("ntpserverip not set\n");
-			return (1);
+			return CMD_RET_FAILURE;
 		}
 	} else {
 		NetNtpServerIP = string_to_ip(argv[1]);
 		if (NetNtpServerIP == 0) {
 			printf("Bad NTP server IP address\n");
-			return (1);
+			return CMD_RET_FAILURE;
 		}
 	}
 
@@ -356,10 +353,10 @@ int do_sntp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (NetLoop(SNTP) < 0) {
 		printf("SNTP failed: host %pI4 not responding\n",
 			&NetNtpServerIP);
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(
@@ -389,7 +386,7 @@ int do_dns(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 */
 	if (strlen(argv[1]) >= 255) {
 		printf("dns error: hostname too long\n");
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
 	NetDNSResolve = argv[1];
@@ -401,10 +398,10 @@ int do_dns(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (NetLoop(DNS) < 0) {
 		printf("dns lookup of %s failed, check setup\n", argv[1]);
-		return 1;
+		return CMD_RET_FAILURE;
 	}
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(
@@ -422,7 +419,7 @@ static int do_link_local(cmd_tbl_t *cmdtp, int flag, int argc,
 	char tmp[22];
 
 	if (NetLoop(LINKLOCAL) < 0)
-		return 1;
+		return CMD_RET_FAILURE;
 
 	NetOurGatewayIP = 0;
 	ip_to_string(NetOurGatewayIP, tmp);
@@ -435,7 +432,7 @@ static int do_link_local(cmd_tbl_t *cmdtp, int flag, int argc,
 	setenv("ipaddr", tmp);
 	setenv("llipaddr", tmp); /* store this for next time */
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(
