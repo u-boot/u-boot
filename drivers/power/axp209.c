@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <asm/arch/gpio.h>
 #include <axp209.h>
 
 enum axp209_reg {
@@ -31,6 +32,7 @@ enum axp209_reg {
 };
 
 #define AXP209_POWER_STATUS_ON_BY_DC	(1 << 0)
+#define AXP209_POWER_STATUS_VBUS_USABLE	(1 << 4)
 
 #define AXP209_IRQ5_PEK_UP		(1 << 6)
 #define AXP209_IRQ5_PEK_DOWN		(1 << 5)
@@ -205,6 +207,9 @@ static u8 axp209_get_gpio_ctrl_reg(unsigned int pin)
 
 int axp_gpio_direction_input(unsigned int pin)
 {
+	if (pin == SUNXI_GPIO_AXP0_VBUS_DETECT)
+		return 0;
+
 	u8 reg = axp209_get_gpio_ctrl_reg(pin);
 	/* GPIO3 is "special" */
 	u8 val = (pin == 3) ? AXP209_GPIO3_INPUT : AXP209_GPIO_INPUT;
@@ -232,7 +237,10 @@ int axp_gpio_get_value(unsigned int pin)
 	u8 val, mask;
 	int rc;
 
-	if (pin == 3) {
+	if (pin == SUNXI_GPIO_AXP0_VBUS_DETECT) {
+		rc = axp209_read(AXP209_POWER_STATUS, &val);
+		mask = AXP209_POWER_STATUS_VBUS_USABLE;
+	} else if (pin == 3) {
 		rc = axp209_read(AXP209_GPIO3_CTRL, &val);
 		mask = 1;
 	} else {
