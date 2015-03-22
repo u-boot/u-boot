@@ -14,6 +14,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <net.h>
+#include <asm/eth.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -122,3 +123,34 @@ static int dm_test_eth_rotate(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_eth_rotate, DM_TESTF_SCAN_FDT);
+
+static int dm_test_net_retry(struct dm_test_state *dms)
+{
+	NetPingIP = string_to_ip("1.1.2.2");
+
+	/*
+	 * eth1 is disabled and netretry is yes, so the ping should succeed and
+	 * the active device should be eth0
+	 */
+	sandbox_eth_disable_response(1, true);
+	setenv("ethact", "eth@10004000");
+	setenv("netretry", "yes");
+	ut_assertok(NetLoop(PING));
+	ut_asserteq_str("eth@10002000", getenv("ethact"));
+
+	/*
+	 * eth1 is disabled and netretry is no, so the ping should fail and the
+	 * active device should be eth1
+	 */
+	setenv("ethact", "eth@10004000");
+	setenv("netretry", "no");
+	ut_asserteq(-1, NetLoop(PING));
+	ut_asserteq_str("eth@10004000", getenv("ethact"));
+
+	/* Restore the env */
+	setenv("netretry", NULL);
+	sandbox_eth_disable_response(1, false);
+
+	return 0;
+}
+DM_TEST(dm_test_net_retry, DM_TESTF_SCAN_FDT);
