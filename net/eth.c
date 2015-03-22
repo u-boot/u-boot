@@ -321,7 +321,7 @@ int eth_initialize(bd_t *bis)
  * mcast_addr: multicast ipaddr from which multicast Mac is made
  * join: 1=join, 0=leave.
  */
-int eth_mcast_join(IPaddr_t mcast_ip, u8 join)
+int eth_mcast_join(IPaddr_t mcast_ip, int join)
 {
 	u8 mcast_mac[6];
 	if (!eth_current || !eth_current->mcast)

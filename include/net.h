@@ -178,7 +178,7 @@ void eth_halt(void);			/* stop SCC */
 const char *eth_get_name(void);		/* get name of current device */
 
 #ifdef CONFIG_MCAST_TFTP
-int eth_mcast_join(IPaddr_t mcast_addr, u8 join);
+int eth_mcast_join(IPaddr_t mcast_addr, int join);
 u32 ether_crc(size_t len, unsigned char const *p);
 #endif
 
