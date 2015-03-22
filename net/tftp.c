@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <mapmem.h>
 #include <net.h>
 #include "tftp.h"
 #include "bootp.h"
@@ -184,7 +185,10 @@ store_block(int block, uchar *src, unsigned len)
 	} else
 #endif /* CONFIG_SYS_DIRECT_FLASH_TFTP */
 	{
-		(void)memcpy((void *)(load_addr + offset), src, len);
+		void *ptr = map_sysmem(load_addr + offset, len);
+
+		memcpy(ptr, src, len);
+		unmap_sysmem(ptr);
 	}
 #ifdef CONFIG_MCAST_TFTP
 	if (Multicast)
