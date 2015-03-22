@@ -173,15 +173,15 @@ U-Boot sandbox supports these emulations:
 - Chrome OS EC
 - GPIO
 - Host filesystem (access files on the host from within U-Boot)
+- I2C
 - Keyboard (Chrome OS)
 - LCD
+- Network
 - Serial (for console only)
 - Sound (incomplete - see sandbox_sdl_sound_init() for details)
 - SPI
 - SPI flash
 - TPM (Trusted Platform Module)
-
-Notable omissions are networking and I2C.
 
 A wide range of commands is implemented. Filesystems which use a block
 device are supported.

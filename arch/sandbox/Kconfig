@@ -41,4 +41,13 @@ config PCI
 	  used on some devices to allow the CPU to communicate with its
 	  peripherals.
 
+config NET
+	default y
+
+config NETDEVICES
+	default y
+
+config DM_ETH
+	default y
+
 endmenu

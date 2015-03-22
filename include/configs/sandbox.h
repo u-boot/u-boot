@@ -130,9 +130,6 @@
 /* include default commands */
 #include <config_cmd_default.h>
 
-/* We don't have networking support yet */
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
 
 #define CONFIG_CMD_HASH
 #define CONFIG_HASH_VERIFY
@@ -169,15 +166,22 @@
 
 #define CONFIG_KEYBOARD
 
-#define CONFIG_EXTRA_ENV_SETTINGS	"stdin=serial,cros-ec-keyb\0" \
+#define SANDBOX_SERIAL_SETTINGS		"stdin=serial,cros-ec-keyb\0" \
 					"stdout=serial,lcd\0" \
 					"stderr=serial,lcd\0"
 #else
-
-#define CONFIG_EXTRA_ENV_SETTINGS	"stdin=serial\0" \
+#define SANDBOX_SERIAL_SETTINGS		"stdin=serial\0" \
 					"stdout=serial,lcd\0" \
 					"stderr=serial,lcd\0"
 #endif
+
+#define SANDBOX_ETH_SETTINGS		"ethaddr=00:00:11:22:33:44\0" \
+					"eth1addr=00:00:11:22:33:45\0" \
+					"eth2addr=00:00:11:22:33:46\0" \
+					"ipaddr=1.2.3.4\0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS	SANDBOX_SERIAL_SETTINGS \
+					SANDBOX_ETH_SETTINGS
 
 #define CONFIG_GZIP_COMPRESSED
 #define CONFIG_BZIP2
