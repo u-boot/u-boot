@@ -468,7 +468,11 @@ extern uchar		NetServerEther[6];	/* Boot server enet address */
 extern IPaddr_t		NetOurIP;	/* Our    IP addr (0 = unknown) */
 extern IPaddr_t		NetServerIP;	/* Server IP addr (0 = unknown) */
 extern uchar		*NetTxPacket;		/* THE transmit packet */
+#ifdef CONFIG_DM_ETH
+extern uchar		*net_rx_packets[PKTBUFSRX]; /* Receive packets */
+#else
 extern uchar		*NetRxPackets[PKTBUFSRX]; /* Receive packets */
+#endif
 extern uchar		*NetRxPacket;		/* Current receive packet */
 extern int		NetRxPacketLen;		/* Current rx packet length */
 extern unsigned		NetIPID;		/* IP ID (counting) */
@@ -618,8 +622,11 @@ static inline void NetSendPacket(uchar *pkt, int len)
 int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport,
 			int sport, int payload_len);
 
+#ifndef CONFIG_DM_ETH
+#define NetReceive(in_packet, len) net_process_received_packet(in_packet, len)
+#endif
 /* Processes a received packet */
-void NetReceive(uchar *, int);
+void net_process_received_packet(uchar *in_packet, int len);
 
 #ifdef CONFIG_NETCONSOLE
 void NcStart(void);

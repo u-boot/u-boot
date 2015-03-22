@@ -183,10 +183,13 @@ int		NetTimeOffset;
 #endif
 
 static uchar PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
-
+#ifdef CONFIG_DM_ETH
+/* Receive packets */
+uchar *net_rx_packets[PKTBUFSRX];
+#else
 /* Receive packet */
 uchar *NetRxPackets[PKTBUFSRX];
-
+#endif
 /* Current UDP RX packet handler */
 static rxhand_f *udp_packet_handler;
 /* Current ARP RX packet handler */
@@ -304,9 +307,15 @@ void net_init(void)
 
 		NetTxPacket = &PktBuf[0] + (PKTALIGN - 1);
 		NetTxPacket -= (ulong)NetTxPacket % PKTALIGN;
+#ifdef CONFIG_DM_ETH
+		for (i = 0; i < PKTBUFSRX; i++) {
+			net_rx_packets[i] = NetTxPacket + (i + 1) *
+				PKTSIZE_ALIGN;
+		}
+#else
 		for (i = 0; i < PKTBUFSRX; i++)
 			NetRxPackets[i] = NetTxPacket + (i + 1) * PKTSIZE_ALIGN;
-
+#endif
 		ArpInit();
 		net_clear_handlers();
 
@@ -952,8 +961,7 @@ static void receive_icmp(struct ip_udp_hdr *ip, int len,
 	}
 }
 
-void
-NetReceive(uchar *inpkt, int len)
+void net_process_received_packet(uchar *in_packet, int len)
 {
 	struct ethernet_hdr *et;
 	struct ip_udp_hdr *ip;
@@ -967,9 +975,9 @@ NetReceive(uchar *inpkt, int len)
 
 	debug_cond(DEBUG_NET_PKT, "packet received\n");
 
-	NetRxPacket = inpkt;
+	NetRxPacket = in_packet;
 	NetRxPacketLen = len;
-	et = (struct ethernet_hdr *)inpkt;
+	et = (struct ethernet_hdr *)in_packet;
 
 	/* too small packet? */
 	if (len < ETHER_HDR_SIZE)
@@ -977,7 +985,7 @@ NetReceive(uchar *inpkt, int len)
 
 #ifdef CONFIG_API
 	if (push_packet) {
-		(*push_packet)(inpkt, len);
+		(*push_packet)(in_packet, len);
 		return;
 	}
 #endif
@@ -1004,11 +1012,11 @@ NetReceive(uchar *inpkt, int len)
 		 */
 		eth_proto = ntohs(et802->et_prot);
 
-		ip = (struct ip_udp_hdr *)(inpkt + E802_HDR_SIZE);
+		ip = (struct ip_udp_hdr *)(in_packet + E802_HDR_SIZE);
 		len -= E802_HDR_SIZE;
 
 	} else if (eth_proto != PROT_VLAN) {	/* normal packet */
-		ip = (struct ip_udp_hdr *)(inpkt + ETHER_HDR_SIZE);
+		ip = (struct ip_udp_hdr *)(in_packet + ETHER_HDR_SIZE);
 		len -= ETHER_HDR_SIZE;
 
 	} else {			/* VLAN packet */
@@ -1033,7 +1041,7 @@ NetReceive(uchar *inpkt, int len)
 		vlanid = cti & VLAN_IDMASK;
 		eth_proto = ntohs(vet->vet_type);
 
-		ip = (struct ip_udp_hdr *)(inpkt + VLAN_ETHER_HDR_SIZE);
+		ip = (struct ip_udp_hdr *)(in_packet + VLAN_ETHER_HDR_SIZE);
 		len -= VLAN_ETHER_HDR_SIZE;
 	}
 
