@@ -527,6 +527,8 @@ restart:
 			(*x)();
 		}
 
+		if (net_state == NETLOOP_FAIL)
+			NetStartAgain();
 
 		switch (net_state) {
 
@@ -602,8 +604,10 @@ void NetStartAgain(void)
 			retrycnt = 1;
 		else
 			retrycnt = simple_strtoul(nretry, NULL, 0);
-	} else
-		retry_forever = 1;
+	} else {
+		retrycnt = 0;
+		retry_forever = 0;
+	}
 
 	if ((!retry_forever) && (NetTryCount >= retrycnt)) {
 		eth_halt();
