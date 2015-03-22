@@ -84,7 +84,7 @@ struct sunxi_gpio_reg {
 #define GPIO_CFG_INDEX(pin)	(((pin) & 0x1f) >> 3)
 #define GPIO_CFG_OFFSET(pin)	((((pin) & 0x1f) & 0x7) << 2)
 
-#define GPIO_DRV_INDEX(pin)   (((pin) & 0x1f) >> 4)
+#define GPIO_DRV_INDEX(pin)	(((pin) & 0x1f) >> 4)
 #define GPIO_DRV_OFFSET(pin)	((((pin) & 0x1f) & 0xf) << 1)
 
 #define GPIO_PULL_INDEX(pin)	(((pin) & 0x1f) >> 4)
@@ -194,7 +194,7 @@ enum sunxi_gpio_number {
 #define SUN8I_GPL3_R_UART_RX	2
 
 #define SUN9I_GPN0_R_RSB_SCK	3
-#define SUN9I_GPN1_R_RSB_SDA    3
+#define SUN9I_GPN1_R_RSB_SDA	3
 
 /* GPIO pin pull-up/down config */
 #define SUNXI_GPIO_PULL_DISABLE	0
