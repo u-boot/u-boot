@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2012-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2012-2015 Panasonic Corporation
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -94,7 +95,7 @@ void support_card_init(void)
 	/*
 	 * After power on, we need to keep the LAN controller in reset state
 	 * for a while. (200 usec)
-	 * Fortunatelly, enough wait time is already inserted in pll_init()
+	 * Fortunately, enough wait time is already inserted in pll_init()
 	 * function. So we do not have to wait here.
 	 */
 	support_card_reset_deassert();
@@ -213,11 +214,11 @@ static void detect_num_flash_banks(void)
 
 	debug("number of flash banks: %d\n", cfi_flash_num_flash_banks);
 }
-#else /* ONFIG_SYS_NO_FLASH */
+#else /* CONFIG_SYS_NO_FLASH */
 void detect_num_flash_banks(void)
 {
 };
-#endif /* ONFIG_SYS_NO_FLASH */
+#endif /* CONFIG_SYS_NO_FLASH */
 
 void support_card_late_init(void)
 {
