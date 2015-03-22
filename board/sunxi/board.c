@@ -241,6 +241,13 @@ static struct musb_hdrc_platform_data musb_plat = {
 };
 #endif
 
+#ifdef CONFIG_USB_GADGET
+int g_dnl_board_usb_cable_connected(void)
+{
+	return sunxi_usbc_vbus_detect(0);
+}
+#endif
+
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
