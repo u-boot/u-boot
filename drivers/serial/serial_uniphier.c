@@ -11,6 +11,7 @@
 #include <asm/errno.h>
 #include <dm/device.h>
 #include <dm/platform_data/serial-uniphier.h>
+#include <mapmem.h>
 #include <serial.h>
 #include <fdtdec.h>
 

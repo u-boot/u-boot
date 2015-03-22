@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <mapmem.h>
 #include <ns16550.h>
 #include <serial.h>
 #include <watchdog.h>

@@ -15,6 +15,7 @@
 #include <linux/types.h>
 #include <stdio_dev.h>
 #include <lcd.h>
+#include <mapmem.h>
 #include <watchdog.h>
 #include <asm/unaligned.h>
 #include <splash.h>

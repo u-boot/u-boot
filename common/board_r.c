@@ -33,6 +33,7 @@
 #endif
 #include <logbuff.h>
 #include <malloc.h>
+#include <mapmem.h>
 #ifdef CONFIG_BITBANGMII
 #include <miiphy.h>
 #endif

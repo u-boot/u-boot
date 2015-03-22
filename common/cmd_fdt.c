@@ -15,6 +15,7 @@
 #include <asm/global_data.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <mapmem.h>
 #include <asm/io.h>
 
 #define MAX_LEVEL	32		/* how deeply nested we will go */

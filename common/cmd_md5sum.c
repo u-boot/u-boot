@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <mapmem.h>
 #include <u-boot/md5.h>
 #include <asm/io.h>
 

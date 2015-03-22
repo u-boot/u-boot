@@ -14,6 +14,7 @@
 #include <dm/root.h>
 #include <i2c.h>
 #include <fdtdec.h>
+#include <mapmem.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

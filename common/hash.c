@@ -14,6 +14,7 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <hw_sha.h>
 #include <asm/io.h>
 #include <asm/errno.h>

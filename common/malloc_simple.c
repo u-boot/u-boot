@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;

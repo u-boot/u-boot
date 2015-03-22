@@ -10,6 +10,7 @@
 #include <div64.h>
 #include <dm.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <spi.h>
 #include <spi_flash.h>
 

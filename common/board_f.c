@@ -23,6 +23,7 @@
 #include <i2c.h>
 #include <initcall.h>
 #include <logbuff.h>
+#include <mapmem.h>
 
 /* TODO: Can we move these into arch/ headers? */
 #ifdef CONFIG_8xx

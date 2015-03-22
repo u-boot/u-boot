@@ -13,6 +13,7 @@
 #include <fdt_support.h>
 #include <lmb.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <asm/io.h>
 #include <linux/lzo.h>
 #include <lzma/LzmaTypes.h>
