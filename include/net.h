@@ -111,6 +111,14 @@ struct eth_device *eth_get_dev(void)
 {
 	return eth_current;
 }
+
+static inline unsigned char *eth_get_ethaddr(void)
+{
+	if (eth_current)
+		return eth_current->enetaddr;
+	return NULL;
+}
+
 extern struct eth_device *eth_get_dev_by_name(const char *devname);
 extern struct eth_device *eth_get_dev_by_index(int index); /* get dev @ index */
 extern int eth_get_dev_index(void);		/* get the device index */

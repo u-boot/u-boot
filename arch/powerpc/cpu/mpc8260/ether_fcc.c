@@ -299,7 +299,7 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
      * it unique by setting a few bits in the upper byte of the
      * non-static part of the address.
      */
-#define ea eth_get_dev()->enetaddr
+#define ea eth_get_ethaddr()
     pram_ptr->fen_paddrh = (ea[5] << 8) + ea[4];
     pram_ptr->fen_paddrm = (ea[3] << 8) + ea[2];
     pram_ptr->fen_paddrl = (ea[1] << 8) + ea[0];

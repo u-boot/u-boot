@@ -339,7 +339,7 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	pram_ptr->sen_gaddr3 = 0x0;	/* Group Address Filter 3 (unused) */
 	pram_ptr->sen_gaddr4 = 0x0;	/* Group Address Filter 4 (unused) */
 
-#define ea eth_get_dev()->enetaddr
+#define ea eth_get_ethaddr()
 	pram_ptr->sen_paddrh = (ea[5] << 8) + ea[4];
 	pram_ptr->sen_paddrm = (ea[3] << 8) + ea[2];
 	pram_ptr->sen_paddrl = (ea[1] << 8) + ea[0];

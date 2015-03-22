@@ -238,7 +238,7 @@ static int au1x00_init(struct eth_device* dev, bd_t * bd){
 	}
 
 	/* Put mac addr in little endian */
-#define ea eth_get_dev()->enetaddr
+#define ea eth_get_ethaddr()
 	*mac_addr_high	=	(ea[5] <<  8) | (ea[4]	    ) ;
 	*mac_addr_low	=	(ea[3] << 24) | (ea[2] << 16) |
 		(ea[1] <<  8) | (ea[0]	    ) ;
