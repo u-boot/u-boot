@@ -21,6 +21,9 @@
 #ifdef CONFIG_AXP209_POWER
 #include <axp209.h>
 #endif
+#ifdef CONFIG_AXP221_POWER
+#include <axp221.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -125,6 +128,12 @@ int sunxi_name_to_gpio(const char *name)
 #ifdef AXP_GPIO
 	if (strncasecmp(name, "AXP0-", 5) == 0) {
 		name += 5;
+		if (strcmp(name, "VBUS-DETECT") == 0)
+			return SUNXI_GPIO_AXP0_START +
+				SUNXI_GPIO_AXP0_VBUS_DETECT;
+		if (strcmp(name, "VBUS-ENABLE") == 0)
+			return SUNXI_GPIO_AXP0_START +
+				SUNXI_GPIO_AXP0_VBUS_ENABLE;
 		pin = simple_strtol(name, &eptr, 10);
 		if (!*name || *eptr)
 			return -1;
