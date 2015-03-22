@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2012-2015 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -287,6 +288,8 @@
 #else
 #define CONFIG_SYS_INIT_SP_ADDR		((CONFIG_SYS_TEXT_BASE) - 0x00001000)
 #endif
+
+#define CONFIG_PANIC_HANG
 
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SUPPORT
