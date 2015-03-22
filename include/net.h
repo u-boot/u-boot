@@ -97,13 +97,9 @@ struct eth_device {
 	void *priv;
 };
 
-int eth_initialize(bd_t *bis);	/* Initialize network subsystem */
 int eth_register(struct eth_device *dev);/* Register network device */
 int eth_unregister(struct eth_device *dev);/* Remove network device */
-void eth_try_another(int first_restart);	/* Change the device */
-void eth_set_current(void);		/* set nterface to ethcur var */
 
-/* get the current device MAC */
 extern struct eth_device *eth_current;
 
 static inline __attribute__((always_inline))
@@ -111,44 +107,16 @@ struct eth_device *eth_get_dev(void)
 {
 	return eth_current;
 }
+struct eth_device *eth_get_dev_by_name(const char *devname);
+struct eth_device *eth_get_dev_by_index(int index); /* get dev @ index */
 
+/* get the current device MAC */
 static inline unsigned char *eth_get_ethaddr(void)
 {
 	if (eth_current)
 		return eth_current->enetaddr;
 	return NULL;
 }
-
-struct eth_device *eth_get_dev_by_name(const char *devname);
-struct eth_device *eth_get_dev_by_index(int index); /* get dev @ index */
-int eth_get_dev_index(void);		/* get the device index */
-void eth_parse_enetaddr(const char *addr, uchar *enetaddr);
-int eth_getenv_enetaddr(char *name, uchar *enetaddr);
-int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
-
-/*
- * Get the hardware address for an ethernet interface .
- * Args:
- *	base_name - base name for device (normally "eth")
- *	index - device index number (0 for first)
- *	enetaddr - returns 6 byte hardware address
- * Returns:
- *	Return true if the address is valid.
- */
-int eth_getenv_enetaddr_by_index(const char *base_name, int index,
-				 uchar *enetaddr);
-
-int usb_eth_initialize(bd_t *bi);
-int eth_init(bd_t *bis);			/* Initialize the device */
-int eth_send(void *packet, int length);	   /* Send a packet */
-
-#ifdef CONFIG_API
-int eth_receive(void *packet, int length); /* Receive a packet*/
-extern void (*push_packet)(void *packet, int length);
-#endif
-int eth_rx(void);			/* Check for received packets */
-void eth_halt(void);			/* stop SCC */
-char *eth_get_name(void);		/* get name of current device */
 
 /* Set active state */
 static inline __attribute__((always_inline)) int eth_init_state_only(bd_t *bis)
@@ -174,6 +142,40 @@ static inline __attribute__((always_inline)) void eth_halt_state_only(void)
  */
 int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		     int eth_number);
+
+int usb_eth_initialize(bd_t *bi);
+
+int eth_initialize(bd_t *bis);	/* Initialize network subsystem */
+void eth_try_another(int first_restart);	/* Change the device */
+void eth_set_current(void);		/* set nterface to ethcur var */
+
+int eth_get_dev_index(void);		/* get the device index */
+void eth_parse_enetaddr(const char *addr, uchar *enetaddr);
+int eth_getenv_enetaddr(char *name, uchar *enetaddr);
+int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
+
+/*
+ * Get the hardware address for an ethernet interface .
+ * Args:
+ *	base_name - base name for device (normally "eth")
+ *	index - device index number (0 for first)
+ *	enetaddr - returns 6 byte hardware address
+ * Returns:
+ *	Return true if the address is valid.
+ */
+int eth_getenv_enetaddr_by_index(const char *base_name, int index,
+				 uchar *enetaddr);
+
+int eth_init(bd_t *bis);			/* Initialize the device */
+int eth_send(void *packet, int length);	   /* Send a packet */
+
+#ifdef CONFIG_API
+int eth_receive(void *packet, int length); /* Receive a packet*/
+extern void (*push_packet)(void *packet, int length);
+#endif
+int eth_rx(void);			/* Check for received packets */
+void eth_halt(void);			/* stop SCC */
+const char *eth_get_name(void);		/* get name of current device */
 
 #ifdef CONFIG_MCAST_TFTP
 int eth_mcast_join(IPaddr_t mcast_addr, u8 join);

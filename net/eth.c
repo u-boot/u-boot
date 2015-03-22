@@ -55,6 +55,14 @@ static inline int eth_setenv_enetaddr_by_index(const char *base_name, int index,
 	return eth_setenv_enetaddr(enetvar, enetaddr);
 }
 
+static void eth_env_init(void)
+{
+	const char *s;
+
+	s = getenv("bootfile");
+	if (s != NULL)
+		copy_filename(BootFile, s, sizeof(BootFile));
+}
 
 static int eth_mac_skip(int index)
 {
@@ -63,6 +71,8 @@ static int eth_mac_skip(int index)
 	sprintf(enetvar, index ? "eth%dmacskip" : "ethmacskip", index);
 	return ((skip_state = getenv(enetvar)) != NULL);
 }
+
+static void eth_current_changed(void);
 
 /*
  * CPU and board-specific Ethernet initializations.  Aliased function
@@ -86,6 +96,11 @@ static unsigned int eth_rcv_current, eth_rcv_last;
 
 static struct eth_device *eth_devices;
 struct eth_device *eth_current;
+
+static void eth_set_current_to_next(void)
+{
+	eth_current = eth_current->next;
+}
 
 struct eth_device *eth_get_dev_by_name(const char *devname)
 {
@@ -135,22 +150,6 @@ int eth_get_dev_index(void)
 		return -1;
 
 	return eth_current->index;
-}
-
-static void eth_current_changed(void)
-{
-	char *act = getenv("ethact");
-	/* update current ethernet name */
-	if (eth_current) {
-		if (act == NULL || strcmp(act, eth_current->name) != 0)
-			setenv("ethact", eth_current->name);
-	}
-	/*
-	 * remove the variable completely if there is no active
-	 * interface
-	 */
-	else if (act != NULL)
-		setenv("ethact", NULL);
 }
 
 int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
@@ -251,14 +250,6 @@ int eth_unregister(struct eth_device *dev)
 	return 0;
 }
 
-static void eth_env_init(bd_t *bis)
-{
-	const char *s;
-
-	if ((s = getenv("bootfile")) != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
-}
-
 int eth_initialize(bd_t *bis)
 {
 	int num_devices = 0;
@@ -274,7 +265,7 @@ int eth_initialize(bd_t *bis)
 	phy_init();
 #endif
 
-	eth_env_init(bis);
+	eth_env_init();
 
 	/*
 	 * If board-specific initialization exists, call it.
@@ -479,6 +470,22 @@ int eth_receive(void *packet, int length)
 }
 #endif /* CONFIG_API */
 
+static void eth_current_changed(void)
+{
+	char *act = getenv("ethact");
+	/* update current ethernet name */
+	if (eth_get_dev()) {
+		if (act == NULL || strcmp(act, eth_get_name()) != 0)
+			setenv("ethact", eth_get_name());
+	}
+	/*
+	 * remove the variable completely if there is no active
+	 * interface
+	 */
+	else if (act != NULL)
+		setenv("ethact", NULL);
+}
+
 void eth_try_another(int first_restart)
 {
 	static struct eth_device *first_failed;
@@ -492,17 +499,17 @@ void eth_try_another(int first_restart)
 	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0))
 		return;
 
-	if (!eth_current)
+	if (!eth_get_dev())
 		return;
 
 	if (first_restart)
-		first_failed = eth_current;
+		first_failed = eth_get_dev();
 
-	eth_current = eth_current->next;
+	eth_set_current_to_next();
 
 	eth_current_changed();
 
-	if (first_failed == eth_current)
+	if (first_failed == eth_get_dev())
 		NetRestartWrap = 1;
 }
 
@@ -513,7 +520,7 @@ void eth_set_current(void)
 	struct eth_device *old_current;
 	int	env_id;
 
-	if (!eth_current)	/* XXX no current */
+	if (!eth_get_dev())	/* XXX no current */
 		return;
 
 	env_id = get_env_id();
@@ -522,18 +529,18 @@ void eth_set_current(void)
 		env_changed_id = env_id;
 	}
 	if (act != NULL) {
-		old_current = eth_current;
+		old_current = eth_get_dev();
 		do {
-			if (strcmp(eth_current->name, act) == 0)
+			if (strcmp(eth_get_name(), act) == 0)
 				return;
-			eth_current = eth_current->next;
-		} while (old_current != eth_current);
+			eth_set_current_to_next();
+		} while (old_current != eth_get_dev());
 	}
 
 	eth_current_changed();
 }
 
-char *eth_get_name(void)
+const char *eth_get_name(void)
 {
-	return eth_current ? eth_current->name : "unknown";
+	return eth_get_dev() ? eth_get_dev()->name : "unknown";
 }
