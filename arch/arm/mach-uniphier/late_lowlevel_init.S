@@ -6,7 +6,12 @@
  */
 
 #include <linux/linkage.h>
+#include <mach/ssc-regs.h>
 
 ENTRY(lowlevel_init)
+	ldr	r1, = SSCC
+	ldr	r0, [r1]
+	bic	r0, r0, #SSCC_ON	@ L2 disable
+	str	r0, [r1]
 	mov	pc, lr
 ENDPROC(lowlevel_init)

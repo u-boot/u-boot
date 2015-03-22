@@ -122,23 +122,6 @@ void v7_outer_cache_disable(void)
 
 void enable_caches(void)
 {
-	uint32_t reg;
-
-	/*
-	 * UniPhier SoCs must use L2 cache for init stack pointer.
-	 * We disable L2 and L1 in this order.
-	 * If CONFIG_SYS_DCACHE_OFF is not defined,
-	 * caches are enabled again with a new page table.
-	 */
-
-	/* L2 disable */
-	v7_outer_cache_disable();
-
-	/* L1 disable */
-	reg = get_cr();
-	reg &= ~(CR_C | CR_M);
-	set_cr(reg);
-
 #ifndef CONFIG_SYS_DCACHE_OFF
 	dcache_enable();
 #endif
