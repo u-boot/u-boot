@@ -122,7 +122,5 @@ void v7_outer_cache_disable(void)
 
 void enable_caches(void)
 {
-#ifndef CONFIG_SYS_DCACHE_OFF
 	dcache_enable();
-#endif
 }
