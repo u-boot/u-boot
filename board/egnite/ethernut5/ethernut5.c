@@ -204,7 +204,7 @@ int board_eth_init(bd_t *bis)
 		miiphy_write(devname, 0, MII_BMCR, BMCR_RESET);
 	}
 	/* Sync environment with network devices, needed for nfsroot. */
-	return eth_init(gd->bd);
+	return eth_init();
 }
 #endif
 

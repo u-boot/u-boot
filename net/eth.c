@@ -12,6 +12,8 @@
 #include <phy.h>
 #include <asm/errno.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
 {
 	char *end;
@@ -250,7 +252,7 @@ int eth_unregister(struct eth_device *dev)
 	return 0;
 }
 
-int eth_initialize(bd_t *bis)
+int eth_initialize(void)
 {
 	int num_devices = 0;
 	eth_devices = NULL;
@@ -272,10 +274,10 @@ int eth_initialize(bd_t *bis)
 	 * If not, call a CPU-specific one
 	 */
 	if (board_eth_init != __def_eth_init) {
-		if (board_eth_init(bis) < 0)
+		if (board_eth_init(gd->bd) < 0)
 			printf("Board Net Initialization Failed\n");
 	} else if (cpu_eth_init != __def_eth_init) {
-		if (cpu_eth_init(bis) < 0)
+		if (cpu_eth_init(gd->bd) < 0)
 			printf("CPU Net Initialization Failed\n");
 	} else
 		printf("Net Initialization Skipped\n");
@@ -362,7 +364,7 @@ u32 ether_crc(size_t len, unsigned char const *p)
 #endif
 
 
-int eth_init(bd_t *bis)
+int eth_init(void)
 {
 	struct eth_device *old_current, *dev;
 
@@ -387,7 +389,7 @@ int eth_init(bd_t *bis)
 	do {
 		debug("Trying %s\n", eth_current->name);
 
-		if (eth_current->init(eth_current, bis) >= 0) {
+		if (eth_current->init(eth_current, gd->bd) >= 0) {
 			eth_current->state = ETH_STATE_ACTIVE;
 
 			return 0;

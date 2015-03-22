@@ -244,7 +244,7 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 #endif
 #if defined(CONFIG_CMD_NET)
 	puts("Net:   ");
-	eth_initialize(gd->bd);
+	eth_initialize();
 #endif
 
 #ifdef CONFIG_GENERIC_ATMEL_MCI

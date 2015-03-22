@@ -324,7 +324,6 @@ void net_init(void)
 
 int NetLoop(enum proto_t protocol)
 {
-	bd_t *bd = gd->bd;
 	int ret = -1;
 
 	NetRestarted = 0;
@@ -337,12 +336,12 @@ int NetLoop(enum proto_t protocol)
 	if (eth_is_on_demand_init() || protocol != NETCONS) {
 		eth_halt();
 		eth_set_current();
-		if (eth_init(bd) < 0) {
+		if (eth_init() < 0) {
 			eth_halt();
 			return -1;
 		}
 	} else
-		eth_init_state_only(bd);
+		eth_init_state_only();
 
 restart:
 #ifdef CONFIG_USB_KEYBOARD
@@ -618,7 +617,7 @@ void NetStartAgain(void)
 #if !defined(CONFIG_NET_DO_NOT_TRY_ANOTHER)
 	eth_try_another(!NetRestarted);
 #endif
-	eth_init(gd->bd);
+	eth_init();
 	if (NetRestartWrap) {
 		NetRestartWrap = 0;
 		if (NetDevExists) {

@@ -193,11 +193,11 @@ static void nc_send_packet(const char *buf, int len)
 
 	if (eth->state != ETH_STATE_ACTIVE) {
 		if (eth_is_on_demand_init()) {
-			if (eth_init(gd->bd) < 0)
+			if (eth_init() < 0)
 				return;
 			eth_set_last_protocol(NETCONS);
 		} else
-			eth_init_state_only(gd->bd);
+			eth_init_state_only();
 
 		inited = 1;
 	}

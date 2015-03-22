@@ -119,7 +119,7 @@ static inline unsigned char *eth_get_ethaddr(void)
 }
 
 /* Set active state */
-static inline __attribute__((always_inline)) int eth_init_state_only(bd_t *bis)
+static inline __attribute__((always_inline)) int eth_init_state_only(void)
 {
 	eth_get_dev()->state = ETH_STATE_ACTIVE;
 
@@ -145,7 +145,7 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 
 int usb_eth_initialize(bd_t *bi);
 
-int eth_initialize(bd_t *bis);	/* Initialize network subsystem */
+int eth_initialize(void);		/* Initialize network subsystem */
 void eth_try_another(int first_restart);	/* Change the device */
 void eth_set_current(void);		/* set nterface to ethcur var */
 
@@ -166,7 +166,7 @@ int eth_setenv_enetaddr(char *name, const uchar *enetaddr);
 int eth_getenv_enetaddr_by_index(const char *base_name, int index,
 				 uchar *enetaddr);
 
-int eth_init(bd_t *bis);			/* Initialize the device */
+int eth_init(void);			/* Initialize the device */
 int eth_send(void *packet, int length);	   /* Send a packet */
 
 #ifdef CONFIG_API

@@ -111,7 +111,7 @@ int misc_init_r(void)
 void reset_phy(void)
 {
 	udelay(10000);
-	eth_init(gd->bd);
+	eth_init();
 }
 #endif
 
