@@ -124,6 +124,11 @@ struct eth_ops {
 #define eth_get_ops(dev) ((struct eth_ops *)(dev)->driver->ops)
 
 struct udevice *eth_get_dev(void); /* get the current device */
+/*
+ * The devname can be either an exact name given by the driver or device tree
+ * or it can be an alias of the form "eth%d"
+ */
+struct udevice *eth_get_dev_by_name(const char *devname);
 unsigned char *eth_get_ethaddr(void); /* get the current device MAC */
 /* Used only when NetConsole is enabled */
 int eth_init_state_only(void); /* Set active state */

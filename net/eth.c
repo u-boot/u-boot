@@ -135,6 +135,39 @@ static void eth_set_dev(struct udevice *dev)
 	eth_get_uclass_priv()->current = dev;
 }
 
+/*
+ * Find the udevice that either has the name passed in as devname or has an
+ * alias named devname.
+ */
+struct udevice *eth_get_dev_by_name(const char *devname)
+{
+	int seq = -1;
+	char *endp = NULL;
+	const char *startp = NULL;
+	struct udevice *it;
+	struct uclass *uc;
+
+	/* Must be longer than 3 to be an alias */
+	if (strlen(devname) > strlen("eth")) {
+		startp = devname + strlen("eth");
+		seq = simple_strtoul(startp, &endp, 10);
+	}
+
+	uclass_get(UCLASS_ETH, &uc);
+	uclass_foreach_dev(it, uc) {
+		/* We need the seq to be valid, so make sure it's probed */
+		device_probe(it);
+		/*
+		 * Check for the name or the sequence number to match
+		 */
+		if (strcmp(it->name, devname) == 0 ||
+		    (endp > startp && it->seq == seq))
+			return it;
+	}
+
+	return NULL;
+}
+
 unsigned char *eth_get_ethaddr(void)
 {
 	struct eth_pdata *pdata;
@@ -421,6 +454,7 @@ UCLASS_DRIVER(eth) = {
 	.pre_remove	= eth_pre_remove,
 	.priv_auto_alloc_size = sizeof(struct eth_uclass_priv),
 	.per_device_auto_alloc_size = sizeof(struct eth_device_priv),
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
 #endif
 
@@ -451,6 +485,11 @@ struct eth_device *eth_current;
 static void eth_set_current_to_next(void)
 {
 	eth_current = eth_current->next;
+}
+
+static void eth_set_dev(struct eth_device *dev)
+{
+	eth_current = dev;
 }
 
 struct eth_device *eth_get_dev_by_name(const char *devname)
@@ -869,7 +908,6 @@ void eth_set_current(void)
 {
 	static char *act;
 	static int  env_changed_id;
-	void *old_current;
 	int	env_id;
 
 	env_id = get_env_id();
@@ -877,14 +915,8 @@ void eth_set_current(void)
 		act = getenv("ethact");
 		env_changed_id = env_id;
 	}
-	if (act != NULL) {
-		old_current = eth_get_dev();
-		do {
-			if (strcmp(eth_get_name(), act) == 0)
-				return;
-			eth_set_current_to_next();
-		} while (old_current != eth_get_dev());
-	}
+	if (act != NULL)
+		eth_set_dev(eth_get_dev_by_name(act));
 
 	eth_current_changed();
 }

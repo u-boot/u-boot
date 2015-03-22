@@ -18,6 +18,8 @@
 		testfdt3 = "/b-test";
 		testfdt5 = "/some-bus/c-test@5";
 		testfdt8 = "/a-test";
+		eth0 = "/eth@10002000";
+		eth5 = &eth_5;
 	};
 
 	uart0: serial {
@@ -172,7 +174,7 @@
 		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x00>;
 	};
 
-	eth@10003000 {
+	eth_5: eth@10003000 {
 		compatible = "sandbox,eth";
 		reg = <0x10003000 0x1000>;
 		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x11>;

@@ -36,3 +36,27 @@ static int dm_test_eth(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_eth, DM_TESTF_SCAN_FDT);
+
+static int dm_test_eth_alias(struct dm_test_state *dms)
+{
+	NetPingIP = string_to_ip("1.1.2.2");
+	setenv("ethact", "eth0");
+	ut_assertok(NetLoop(PING));
+	ut_asserteq_str("eth@10002000", getenv("ethact"));
+
+	setenv("ethact", "eth1");
+	ut_assertok(NetLoop(PING));
+	ut_asserteq_str("eth@10004000", getenv("ethact"));
+
+	/* Expected to fail since eth2 is not defined in the device tree */
+	setenv("ethact", "eth2");
+	ut_assertok(NetLoop(PING));
+	ut_asserteq_str("eth@10002000", getenv("ethact"));
+
+	setenv("ethact", "eth5");
+	ut_assertok(NetLoop(PING));
+	ut_asserteq_str("eth@10003000", getenv("ethact"));
+
+	return 0;
+}
+DM_TEST(dm_test_eth_alias, DM_TESTF_SCAN_FDT);
