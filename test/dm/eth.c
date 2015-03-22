@@ -99,7 +99,7 @@ static int dm_test_eth_rotate(struct dm_test_state *dms)
 	/* If ethrotate is no, then we should fail on a bad MAC */
 	setenv("ethact", "eth@10004000");
 	setenv("ethrotate", "no");
-	ut_asserteq(-1, NetLoop(PING));
+	ut_asserteq(-EINVAL, NetLoop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
 	/* Restore the env */
@@ -144,7 +144,7 @@ static int dm_test_net_retry(struct dm_test_state *dms)
 	 */
 	setenv("ethact", "eth@10004000");
 	setenv("netretry", "no");
-	ut_asserteq(-1, NetLoop(PING));
+	ut_asserteq(-ETIMEDOUT, NetLoop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
 	/* Restore the env */

@@ -98,6 +98,9 @@ struct eth_uclass_priv {
 	struct udevice *current;
 };
 
+/* eth_errno - This stores the most recent failure code from DM functions */
+static int eth_errno;
+
 static struct eth_uclass_priv *eth_get_uclass_priv(void)
 {
 	struct uclass *uc;
@@ -118,20 +121,32 @@ static void eth_set_current_to_next(void)
 		uclass_first_device(UCLASS_ETH, &uc_priv->current);
 }
 
+/*
+ * Typically this will simply return the active device.
+ * In the case where the most recent active device was unset, this will attempt
+ * to return the first device. If that device doesn't exist or fails to probe,
+ * this function will return NULL.
+ */
 struct udevice *eth_get_dev(void)
 {
 	struct eth_uclass_priv *uc_priv;
 
 	uc_priv = eth_get_uclass_priv();
 	if (!uc_priv->current)
-		uclass_first_device(UCLASS_ETH,
+		eth_errno = uclass_first_device(UCLASS_ETH,
 				    &uc_priv->current);
 	return uc_priv->current;
 }
 
+/*
+ * Typically this will just store a device pointer.
+ * In case it was not probed, we will attempt to do so.
+ * dev may be NULL to unset the active device.
+ */
 static void eth_set_dev(struct udevice *dev)
 {
-	device_probe(dev);
+	if (dev && !device_active(dev))
+		eth_errno = device_probe(dev);
 	eth_get_uclass_priv()->current = dev;
 }
 
@@ -155,7 +170,14 @@ struct udevice *eth_get_dev_by_name(const char *devname)
 
 	uclass_get(UCLASS_ETH, &uc);
 	uclass_foreach_dev(it, uc) {
-		/* We need the seq to be valid, so make sure it's probed */
+		/*
+		 * We need the seq to be valid, so try to probe it.
+		 * If the probe fails, the seq will not match since it will be
+		 * -1 instead of what we are looking for.
+		 * We don't care about errors from probe here. Either they won't
+		 * match an alias or it will match a literal name and we'll pick
+		 * up the error when we try to probe again in eth_set_dev().
+		 */
 		device_probe(it);
 		/*
 		 * Check for the name or the sequence number to match
@@ -221,6 +243,7 @@ int eth_init(void)
 {
 	struct udevice *current;
 	struct udevice *old_current;
+	int ret = -ENODEV;
 
 	current = eth_get_dev();
 	if (!current) {
@@ -243,22 +266,29 @@ int eth_init(void)
 			else
 				memset(pdata->enetaddr, 0, 6);
 
-			if (eth_get_ops(current)->start(current) >= 0) {
+			ret = eth_get_ops(current)->start(current);
+			if (ret >= 0) {
 				struct eth_device_priv *priv =
 					current->uclass_priv;
 
 				priv->state = ETH_STATE_ACTIVE;
 				return 0;
 			}
-		}
+		} else
+			ret = eth_errno;
+
 		debug("FAIL\n");
 
-		/* This will ensure the new "current" attempted to probe */
+		/*
+		 * If ethrotate is enabled, this will change "current",
+		 * otherwise we will drop out of this while loop immediately
+		 */
 		eth_try_another(0);
+		/* This will ensure the new "current" attempted to probe */
 		current = eth_get_dev();
 	} while (old_current != current);
 
-	return -ENODEV;
+	return ret;
 }
 
 void eth_halt(void)
@@ -278,6 +308,7 @@ void eth_halt(void)
 int eth_send(void *packet, int length)
 {
 	struct udevice *current;
+	int ret;
 
 	current = eth_get_dev();
 	if (!current)
@@ -286,7 +317,12 @@ int eth_send(void *packet, int length)
 	if (!device_active(current))
 		return -EINVAL;
 
-	return eth_get_ops(current)->send(current, packet, length);
+	ret = eth_get_ops(current)->send(current, packet, length);
+	if (ret < 0) {
+		/* We cannot completely return the error at present */
+		debug("%s: send() returned error %d\n", __func__, ret);
+	}
+	return ret;
 }
 
 int eth_rx(void)
@@ -313,6 +349,10 @@ int eth_rx(void)
 	}
 	if (ret == -EAGAIN)
 		ret = 0;
+	if (ret < 0) {
+		/* We cannot completely return the error at present */
+		debug("%s: recv() returned error %d\n", __func__, ret);
+	}
 	return ret;
 }
 

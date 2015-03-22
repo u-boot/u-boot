@@ -84,6 +84,7 @@
 #include <common.h>
 #include <command.h>
 #include <environment.h>
+#include <errno.h>
 #include <net.h>
 #if defined(CONFIG_STATUS_LED)
 #include <miiphy.h>
@@ -333,7 +334,7 @@ void net_init(void)
 
 int NetLoop(enum proto_t protocol)
 {
-	int ret = -1;
+	int ret = -EINVAL;
 
 	NetRestarted = 0;
 	NetDevExists = 0;
@@ -345,9 +346,10 @@ int NetLoop(enum proto_t protocol)
 	if (eth_is_on_demand_init() || protocol != NETCONS) {
 		eth_halt();
 		eth_set_current();
-		if (eth_init() < 0) {
+		ret = eth_init();
+		if (ret < 0) {
 			eth_halt();
-			return -1;
+			return ret;
 		}
 	} else
 		eth_init_state_only();
@@ -370,7 +372,7 @@ restart:
 	case 1:
 		/* network not configured */
 		eth_halt();
-		return -1;
+		return -ENODEV;
 
 	case 2:
 		/* network device not configured */
@@ -484,6 +486,8 @@ restart:
 		/*
 		 *	Check the ethernet for a new packet.  The ethernet
 		 *	receive routine will process it.
+		 *	Most drivers return the most recent packet size, but not
+		 *	errors that may have happened.
 		 */
 		eth_rx();
 
@@ -537,7 +541,7 @@ restart:
 		}
 
 		if (net_state == NETLOOP_FAIL)
-			NetStartAgain();
+			ret = NetStartAgain();
 
 		switch (net_state) {
 
@@ -597,11 +601,12 @@ startAgainTimeout(void)
 	net_set_state(NETLOOP_RESTART);
 }
 
-void NetStartAgain(void)
+int NetStartAgain(void)
 {
 	char *nretry;
 	int retry_forever = 0;
 	unsigned long retrycnt = 0;
+	int ret;
 
 	nretry = getenv("netretry");
 	if (nretry) {
@@ -621,7 +626,11 @@ void NetStartAgain(void)
 	if ((!retry_forever) && (NetTryCount >= retrycnt)) {
 		eth_halt();
 		net_set_state(NETLOOP_FAIL);
-		return;
+		/*
+		 * We don't provide a way for the protocol to return an error,
+		 * but this is almost always the reason.
+		 */
+		return -ETIMEDOUT;
 	}
 
 	NetTryCount++;
@@ -630,7 +639,7 @@ void NetStartAgain(void)
 #if !defined(CONFIG_NET_DO_NOT_TRY_ANOTHER)
 	eth_try_another(!NetRestarted);
 #endif
-	eth_init();
+	ret = eth_init();
 	if (NetRestartWrap) {
 		NetRestartWrap = 0;
 		if (NetDevExists) {
@@ -642,6 +651,7 @@ void NetStartAgain(void)
 	} else {
 		net_set_state(NETLOOP_RESTART);
 	}
+	return ret;
 }
 
 /**********************************************************************/

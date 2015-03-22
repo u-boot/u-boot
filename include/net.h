@@ -543,7 +543,7 @@ int NetLoop(enum proto_t);
 void	NetStop(void);
 
 /* Load failed.	 Start again. */
-void	NetStartAgain(void);
+int	NetStartAgain(void);
 
 /* Get size of the ethernet header when we send */
 int	NetEthHdrSize(void);
@@ -613,6 +613,7 @@ static inline void net_set_state(enum net_loop_state state)
 /* Transmit a packet */
 static inline void NetSendPacket(uchar *pkt, int len)
 {
+	/* Currently no way to return errors from eth_send() */
 	(void) eth_send(pkt, len);
 }
 
