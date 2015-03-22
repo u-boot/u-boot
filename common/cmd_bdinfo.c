@@ -34,6 +34,7 @@ static void print_eth(int idx)
 	printf("%-12s= %s\n", name, val);
 }
 
+#ifndef CONFIG_DM_ETH
 __maybe_unused
 static void print_eths(void)
 {
@@ -52,6 +53,7 @@ static void print_eths(void)
 	printf("current eth = %s\n", eth_get_name());
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 }
+#endif
 
 __maybe_unused
 static void print_lnum(const char *name, unsigned long long value)

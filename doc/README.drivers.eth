@@ -1,3 +1,9 @@
+!!! WARNING !!!
+
+This guide describes to the old way of doing things. No new Ethernet drivers
+should be implemented this way. All new drivers should be written against the
+U-Boot core driver model. See doc/driver-model/README.txt
+
 -----------------------
  Ethernet Driver Guide
 -----------------------

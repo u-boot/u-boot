@@ -78,6 +78,57 @@ enum eth_state_t {
 	ETH_STATE_ACTIVE
 };
 
+#ifdef CONFIG_DM_ETH
+/**
+ * struct eth_pdata - Platform data for Ethernet MAC controllers
+ *
+ * @iobase: The base address of the hardware registers
+ * @enetaddr: The Ethernet MAC address that is loaded from EEPROM or env
+ */
+struct eth_pdata {
+	phys_addr_t iobase;
+	unsigned char enetaddr[6];
+};
+
+/**
+ * struct eth_ops - functions of Ethernet MAC controllers
+ *
+ * start: Prepare the hardware to send and receive packets
+ * send: Send the bytes passed in "packet" as a packet on the wire
+ * recv: Check if the hardware received a packet. Call the network stack if so
+ * stop: Stop the hardware from looking for packets - may be called even if
+ *	 state == PASSIVE
+ * mcast: Join or leave a multicast group (for TFTP) - optional
+ * write_hwaddr: Write a MAC address to the hardware (used to pass it to Linux
+ *		 on some platforms like ARM). This function expects the
+ *		 eth_pdata::enetaddr field to be populated - optional
+ * read_rom_hwaddr: Some devices have a backup of the MAC address stored in a
+ *		    ROM on the board. This is how the driver should expose it
+ *		    to the network stack. This function should fill in the
+ *		    eth_pdata::enetaddr field - optional
+ */
+struct eth_ops {
+	int (*start)(struct udevice *dev);
+	int (*send)(struct udevice *dev, void *packet, int length);
+	int (*recv)(struct udevice *dev);
+	void (*stop)(struct udevice *dev);
+#ifdef CONFIG_MCAST_TFTP
+	int (*mcast)(struct udevice *dev, const u8 *enetaddr, int join);
+#endif
+	int (*write_hwaddr)(struct udevice *dev);
+	int (*read_rom_hwaddr)(struct udevice *dev);
+};
+
+#define eth_get_ops(dev) ((struct eth_ops *)(dev)->driver->ops)
+
+struct udevice *eth_get_dev(void); /* get the current device */
+unsigned char *eth_get_ethaddr(void); /* get the current device MAC */
+/* Used only when NetConsole is enabled */
+int eth_init_state_only(void); /* Set active state */
+void eth_halt_state_only(void); /* Set passive state */
+#endif
+
+#ifndef CONFIG_DM_ETH
 struct eth_device {
 	char name[16];
 	unsigned char enetaddr[6];
@@ -144,6 +195,7 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		     int eth_number);
 
 int usb_eth_initialize(bd_t *bi);
+#endif
 
 int eth_initialize(void);		/* Initialize network subsystem */
 void eth_try_another(int first_restart);	/* Change the device */

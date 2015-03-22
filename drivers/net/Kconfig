@@ -1,0 +1,9 @@
+config DM_ETH
+	bool "Enable Driver Model for Ethernet drivers"
+	depends on DM
+	help
+	  Enable driver model for Ethernet.
+
+	  The eth_*() interface will be implemented by the UC_ETH class
+	  This is currently implemented in net/eth.c
+	  Look in include/net.h for details.
