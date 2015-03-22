@@ -153,11 +153,6 @@ static void eth_current_changed(void)
 		setenv("ethact", NULL);
 }
 
-static int eth_address_set(unsigned char *addr)
-{
-	return memcmp(addr, "\0\0\0\0\0\0", 6);
-}
-
 int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		   int eth_number)
 {
@@ -166,9 +161,9 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 
 	eth_getenv_enetaddr_by_index(base_name, eth_number, env_enetaddr);
 
-	if (eth_address_set(env_enetaddr)) {
-		if (eth_address_set(dev->enetaddr) &&
-				memcmp(dev->enetaddr, env_enetaddr, 6)) {
+	if (!is_zero_ether_addr(env_enetaddr)) {
+		if (!is_zero_ether_addr(dev->enetaddr) &&
+		    memcmp(dev->enetaddr, env_enetaddr, 6)) {
 			printf("\nWarning: %s MAC addresses don't match:\n",
 				dev->name);
 			printf("Address in SROM is         %pM\n",
@@ -183,7 +178,7 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 					     dev->enetaddr);
 		printf("\nWarning: %s using MAC address from net device\n",
 			dev->name);
-	} else if (!(eth_address_set(dev->enetaddr))) {
+	} else if (is_zero_ether_addr(dev->enetaddr)) {
 		printf("\nError: %s address not set.\n",
 		       dev->name);
 		return -EINVAL;
