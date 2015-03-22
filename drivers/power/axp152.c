@@ -8,17 +8,6 @@
 #include <i2c.h>
 #include <axp152.h>
 
-enum axp152_reg {
-	AXP152_CHIP_VERSION = 0x3,
-	AXP152_DCDC2_VOLTAGE = 0x23,
-	AXP152_DCDC3_VOLTAGE = 0x27,
-	AXP152_DCDC4_VOLTAGE = 0x2B,
-	AXP152_LDO2_VOLTAGE = 0x2A,
-	AXP152_SHUTDOWN = 0x32,
-};
-
-#define AXP152_POWEROFF			(1 << 7)
-
 static int axp152_write(enum axp152_reg reg, u8 val)
 {
 	return i2c_write(0x30, reg, 1, &val, 1);
