@@ -95,7 +95,9 @@ struct eth_pdata {
  *
  * start: Prepare the hardware to send and receive packets
  * send: Send the bytes passed in "packet" as a packet on the wire
- * recv: Check if the hardware received a packet. Call the network stack if so
+ * recv: Check if the hardware received a packet. If so, set the pointer to the
+ *	 packet buffer in the packetp parameter. If not, return an error or 0 to
+ *	 indicate that the hardware receive FIFO is empty
  * stop: Stop the hardware from looking for packets - may be called even if
  *	 state == PASSIVE
  * mcast: Join or leave a multicast group (for TFTP) - optional
@@ -110,7 +112,7 @@ struct eth_pdata {
 struct eth_ops {
 	int (*start)(struct udevice *dev);
 	int (*send)(struct udevice *dev, void *packet, int length);
-	int (*recv)(struct udevice *dev);
+	int (*recv)(struct udevice *dev, uchar **packetp);
 	void (*stop)(struct udevice *dev);
 #ifdef CONFIG_MCAST_TFTP
 	int (*mcast)(struct udevice *dev, const u8 *enetaddr, int join);

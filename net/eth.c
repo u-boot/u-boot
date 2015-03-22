@@ -259,6 +259,9 @@ int eth_send(void *packet, int length)
 int eth_rx(void)
 {
 	struct udevice *current;
+	uchar *packet;
+	int ret;
+	int i;
 
 	current = eth_get_dev();
 	if (!current)
@@ -267,7 +270,17 @@ int eth_rx(void)
 	if (!device_active(current))
 		return -EINVAL;
 
-	return eth_get_ops(current)->recv(current);
+	/* Process up to 32 packets at one time */
+	for (i = 0; i < 32; i++) {
+		ret = eth_get_ops(current)->recv(current, &packet);
+		if (ret > 0)
+			net_process_received_packet(packet, ret);
+		else
+			break;
+	}
+	if (ret == -EAGAIN)
+		ret = 0;
+	return ret;
 }
 
 static int eth_write_hwaddr(struct udevice *dev)
