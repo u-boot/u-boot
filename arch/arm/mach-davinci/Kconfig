@@ -21,6 +21,10 @@ config TARGET_CAM_ENC_4XX
 	bool "CAM ENC 4xx board"
 	select SUPPORT_SPL
 
+config TARGET_OMAPL138_LCDK
+	bool "OMAPL138 LCDK"
+	select SUPPORT_SPL
+
 config TARGET_DAVINCI_DM355EVM
 	bool "DM355 EVM board"
 
