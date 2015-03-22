@@ -17,6 +17,7 @@ obj-$(CONFIG_DM_TEST) += ut.o
 obj-$(CONFIG_DM_TEST) += core.o
 obj-$(CONFIG_DM_TEST) += ut.o
 ifneq ($(CONFIG_SANDBOX),)
+obj-$(CONFIG_DM_ETH) += eth.o
 obj-$(CONFIG_DM_GPIO) += gpio.o
 obj-$(CONFIG_DM_I2C) += i2c.o
 obj-$(CONFIG_DM_PCI) += pci.o
