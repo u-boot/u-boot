@@ -12,6 +12,7 @@ obj-y += ddrphy_training.o
 
 else
 
+obj-y += late_lowlevel_init.o
 obj-$(CONFIG_BOARD_EARLY_INIT_F) += board_early_init_f.o
 obj-$(CONFIG_DISPLAY_CPUINFO) += cpu_info.o
 obj-$(CONFIG_MISC_INIT_F) += print_misc_info.o
