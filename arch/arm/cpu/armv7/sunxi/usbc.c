@@ -41,6 +41,7 @@ static struct sunxi_usbc_hcd {
 	int usb_rst_mask;
 	int ahb_clk_mask;
 	int gpio_vbus;
+	int gpio_vbus_det;
 	int irq;
 	int id;
 } sunxi_usbc_hcd[] = {
@@ -100,6 +101,14 @@ static int get_vbus_gpio(int index)
 	case 0: return sunxi_name_to_gpio(CONFIG_USB0_VBUS_PIN);
 	case 1: return sunxi_name_to_gpio(CONFIG_USB1_VBUS_PIN);
 	case 2: return sunxi_name_to_gpio(CONFIG_USB2_VBUS_PIN);
+	}
+	return -1;
+}
+
+static int get_vbus_detect_gpio(int index)
+{
+	switch (index) {
+	case 0: return sunxi_name_to_gpio(CONFIG_USB0_VBUS_DET);
 	}
 	return -1;
 }
@@ -183,22 +192,31 @@ void sunxi_usbc_enable_squelch_detect(int index, int enable)
 int sunxi_usbc_request_resources(int index)
 {
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	int ret = 0;
 
 	sunxi_usbc->gpio_vbus = get_vbus_gpio(index);
 	if (sunxi_usbc->gpio_vbus != -1)
-		return gpio_request(sunxi_usbc->gpio_vbus, "usbc_vbus");
+		ret |= gpio_request(sunxi_usbc->gpio_vbus, "usbc_vbus");
 
-	return 0;
+	sunxi_usbc->gpio_vbus_det = get_vbus_detect_gpio(index);
+	if (sunxi_usbc->gpio_vbus_det != -1)
+		ret |= gpio_request(sunxi_usbc->gpio_vbus_det, "usbc_vbus_det");
+
+	return ret;
 }
 
 int sunxi_usbc_free_resources(int index)
 {
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	int ret = 0;
 
 	if (sunxi_usbc->gpio_vbus != -1)
-		return gpio_free(sunxi_usbc->gpio_vbus);
+		ret |= gpio_free(sunxi_usbc->gpio_vbus);
 
-	return 0;
+	if (sunxi_usbc->gpio_vbus_det != -1)
+		ret |= gpio_free(sunxi_usbc->gpio_vbus_det);
+
+	return ret;
 }
 
 void sunxi_usbc_enable(int index)
@@ -259,4 +277,21 @@ void sunxi_usbc_vbus_disable(int index)
 
 	if (sunxi_usbc->gpio_vbus != -1)
 		gpio_direction_output(sunxi_usbc->gpio_vbus, 0);
+}
+
+int sunxi_usbc_vbus_detect(int index)
+{
+	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	int err;
+
+	if (sunxi_usbc->gpio_vbus_det == -1) {
+		eprintf("Error: invalid vbus detection pin\n");
+		return -1;
+	}
+
+	err = gpio_direction_input(sunxi_usbc->gpio_vbus_det);
+	if (err)
+		return err;
+
+	return gpio_get_value(sunxi_usbc->gpio_vbus_det);
 }

@@ -235,41 +235,18 @@ static int sunxi_musb_init(struct musb *musb)
 
 	pr_debug("%s():\n", __func__);
 
-	if (is_host_enabled(musb)) {
-		int vbus_det = sunxi_name_to_gpio(CONFIG_USB0_VBUS_DET);
-
-		if (vbus_det == -1) {
-			eprintf("Error invalid Vusb-det pin\n");
-			return -EINVAL;
-		}
-
-		err = gpio_request(vbus_det, "vbus0_det");
-		if (err)
-			return err;
-
-		err = gpio_direction_input(vbus_det);
-		if (err) {
-			gpio_free(vbus_det);
-			return err;
-		}
-
-		err = gpio_get_value(vbus_det);
-		if (err < 0) {
-			gpio_free(vbus_det);
-			return -EIO;
-		}
-
-		gpio_free(vbus_det);
-
-		if (err) {
-			eprintf("Error: A charger is plugged into the OTG\n");
-			return -EIO;
-		}
-	}
-
 	err = sunxi_usbc_request_resources(0);
 	if (err)
 		return err;
+
+	if (is_host_enabled(musb)) {
+		err = sunxi_usbc_vbus_detect(0);
+		if (err) {
+			eprintf("Error: A charger is plugged into the OTG\n");
+			sunxi_usbc_free_resources(0);
+			return -EIO;
+		}
+	}
 
 	musb->isr = sunxi_musb_interrupt;
 	sunxi_usbc_enable(0);
