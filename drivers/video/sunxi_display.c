@@ -665,10 +665,10 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 
 	for (pin = SUNXI_GPD(0); pin <= SUNXI_GPD(27); pin++)
 #ifdef CONFIG_VIDEO_LCD_IF_PARALLEL
-		sunxi_gpio_set_cfgpin(pin, SUNXI_GPD0_LCD0);
+		sunxi_gpio_set_cfgpin(pin, SUNXI_GPD_LCD0);
 #endif
 #ifdef CONFIG_VIDEO_LCD_IF_LVDS
-		sunxi_gpio_set_cfgpin(pin, SUNXI_GPD0_LVDS0);
+		sunxi_gpio_set_cfgpin(pin, SUNXI_GPD_LVDS0);
 #endif
 
 	sunxi_lcdc_pll_set(0, mode->pixclock_khz, &clk_div, &clk_double);
@@ -779,8 +779,8 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 	       &lcdc->tcon1_timing_sync);
 
 	if (use_portd_hvsync) {
-		sunxi_gpio_set_cfgpin(SUNXI_GPD(26), SUNXI_GPD0_LCD0);
-		sunxi_gpio_set_cfgpin(SUNXI_GPD(27), SUNXI_GPD0_LCD0);
+		sunxi_gpio_set_cfgpin(SUNXI_GPD(26), SUNXI_GPD_LCD0);
+		sunxi_gpio_set_cfgpin(SUNXI_GPD(27), SUNXI_GPD_LCD0);
 
 		val = 0;
 		if (mode->sync & FB_SYNC_HOR_HIGH_ACT)

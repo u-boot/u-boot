@@ -142,59 +142,37 @@ enum sunxi_gpio_number {
 #define SUNXI_GPIO_INPUT	0
 #define SUNXI_GPIO_OUTPUT	1
 
-#define SUNXI_GPA0_EMAC		2
-#define SUN6I_GPA0_GMAC		2
-#define SUN7I_GPA0_GMAC		5
+#define SUNXI_GPA_EMAC		2
+#define SUN6I_GPA_GMAC		2
+#define SUN7I_GPA_GMAC		5
 
-#define SUNXI_GPB0_TWI0		2
+#define SUNXI_GPB_TWI0		2
+#define SUN4I_GPB_UART0		2
+#define SUN5I_GPB_UART0		2
 
-#define SUN4I_GPB22_UART0_TX	2
-#define SUN4I_GPB23_UART0_RX	2
+#define SUNXI_GPC_SDC2		3
 
-#define SUN5I_GPB19_UART0_TX	2
-#define SUN5I_GPB20_UART0_RX	2
+#define SUNXI_GPD_LCD0		2
+#define SUNXI_GPD_LVDS0		3
 
-#define SUNXI_GPC6_SDC2		3
+#define SUNXI_GPF_SDC0		2
+#define SUNXI_GPF_UART0		4
+#define SUN8I_GPF_UART0		3
 
-#define SUNXI_GPD0_LCD0		2
-#define SUNXI_GPD0_LVDS0	3
+#define SUN5I_GPG_SDC1		2
+#define SUN5I_GPG_UART1		4
 
-#define SUNXI_GPF0_SDC0		2
+#define SUN6I_GPH_UART0		2
 
-#define SUNXI_GPF2_SDC0		2
-
-#ifdef CONFIG_MACH_SUN8I
-#define SUNXI_GPF2_UART0_TX	3
-#define SUNXI_GPF4_UART0_RX	3
-#else
-#define SUNXI_GPF2_UART0_TX	4
-#define SUNXI_GPF4_UART0_RX	4
-#endif
-
-#define SUN4I_GPG0_SDC1		4
-
-#define SUN5I_GPG3_SDC1		2
-
-#define SUN5I_GPG3_UART1_TX	4
-#define SUN5I_GPG4_UART1_RX	4
-
-#define SUN4I_GPH22_SDC1	5
-
-#define SUN6I_GPH20_UART0_TX	2
-#define SUN6I_GPH21_UART0_RX	2
-
-#define SUN4I_GPI4_SDC3		2
+#define SUN4I_GPI_SDC3		2
 
 #define SUN6I_GPL0_R_P2WI_SCK	3
 #define SUN6I_GPL1_R_P2WI_SDA	3
 
-#define SUN8I_GPL0_R_RSB_SCK	2
-#define SUN8I_GPL1_R_RSB_SDA	2
-#define SUN8I_GPL2_R_UART_TX	2
-#define SUN8I_GPL3_R_UART_RX	2
+#define SUN8I_GPL_R_RSB		2
+#define SUN8I_GPL_R_UART	2
 
-#define SUN9I_GPN0_R_RSB_SCK	3
-#define SUN9I_GPN1_R_RSB_SDA	3
+#define SUN9I_GPN_R_RSB		3
 
 /* GPIO pin pull-up/down config */
 #define SUNXI_GPIO_PULL_DISABLE	0
