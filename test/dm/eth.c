@@ -80,3 +80,45 @@ static int dm_test_eth_prime(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_eth_prime, DM_TESTF_SCAN_FDT);
+
+static int dm_test_eth_rotate(struct dm_test_state *dms)
+{
+	char ethaddr[18];
+
+	/* Invalidate eth1's MAC address */
+	NetPingIP = string_to_ip("1.1.2.2");
+	strcpy(ethaddr, getenv("eth1addr"));
+	setenv("eth1addr", NULL);
+
+	/* Make sure that the default is to rotate to the next interface */
+	setenv("ethact", "eth@10004000");
+	ut_assertok(NetLoop(PING));
+	ut_asserteq_str("eth@10002000", getenv("ethact"));
+
+	/* If ethrotate is no, then we should fail on a bad MAC */
+	setenv("ethact", "eth@10004000");
+	setenv("ethrotate", "no");
+	ut_asserteq(-1, NetLoop(PING));
+	ut_asserteq_str("eth@10004000", getenv("ethact"));
+
+	/* Restore the env */
+	setenv("eth1addr", ethaddr);
+	setenv("ethrotate", NULL);
+
+	/* Invalidate eth0's MAC address */
+	strcpy(ethaddr, getenv("ethaddr"));
+	setenv(".flags", "ethaddr");
+	setenv("ethaddr", NULL);
+
+	/* Make sure we can skip invalid devices */
+	setenv("ethact", "eth@10004000");
+	ut_assertok(NetLoop(PING));
+	ut_asserteq_str("eth@10004000", getenv("ethact"));
+
+	/* Restore the env */
+	setenv("ethaddr", ethaddr);
+	setenv(".flags", NULL);
+
+	return 0;
+}
+DM_TEST(dm_test_eth_rotate, DM_TESTF_SCAN_FDT);
