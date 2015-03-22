@@ -15,6 +15,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static int reply_arp;
+static IPaddr_t arp_ip;
 
 static int sb_eth_raw_start(struct udevice *dev)
 {
@@ -29,6 +31,11 @@ static int sb_eth_raw_start(struct udevice *dev)
 	if (interface == NULL)
 		return -EINVAL;
 
+	if (strcmp(interface, "lo") == 0) {
+		priv->local = 1;
+		setenv("ipaddr", "127.0.0.1");
+		setenv("serverip", "127.0.0.1");
+	}
 	return sandbox_eth_raw_os_start(interface, pdata->enetaddr, priv);
 }
 
@@ -38,18 +45,78 @@ static int sb_eth_raw_send(struct udevice *dev, void *packet, int length)
 
 	debug("eth_sandbox_raw: Send packet %d\n", length);
 
+	if (priv->local) {
+		struct ethernet_hdr *eth = packet;
+
+		if (ntohs(eth->et_protlen) == PROT_ARP) {
+			struct arp_hdr *arp = packet + ETHER_HDR_SIZE;
+
+			/**
+			 * localhost works on a higher-level API in Linux than
+			 * ARP packets, so fake it
+			 */
+			arp_ip = NetReadIP(&arp->ar_tpa);
+			reply_arp = 1;
+			return 0;
+		}
+		packet += ETHER_HDR_SIZE;
+		length -= ETHER_HDR_SIZE;
+	}
 	return sandbox_eth_raw_os_send(packet, length, priv);
 }
 
 static int sb_eth_raw_recv(struct udevice *dev, uchar **packetp)
 {
+	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);
-	int retval;
+	int retval = 0;
 	int length;
 
-	retval = sandbox_eth_raw_os_recv(net_rx_packets[0], &length, priv);
+	if (reply_arp) {
+		struct arp_hdr *arp = (void *)net_rx_packets[0] +
+			ETHER_HDR_SIZE;
+
+		/*
+		 * Fake an ARP response. The u-boot network stack is sending an
+		 * ARP request (to find the MAC address to address the actual
+		 * packet to) and requires an ARP response to continue. Since
+		 * this is the localhost interface, there is no Etherent level
+		 * traffic at all, so there is no way to send an ARP request or
+		 * to get a response. For this reason we fake the response to
+		 * make the u-boot network stack happy.
+		 */
+		arp->ar_hrd = htons(ARP_ETHER);
+		arp->ar_pro = htons(PROT_IP);
+		arp->ar_hln = ARP_HLEN;
+		arp->ar_pln = ARP_PLEN;
+		arp->ar_op = htons(ARPOP_REPLY);
+		/* Any non-zero MAC address will work */
+		memset(&arp->ar_sha, 0x01, ARP_HLEN);
+		/* Use whatever IP we were looking for (always 127.0.0.1?) */
+		NetWriteIP(&arp->ar_spa, arp_ip);
+		memcpy(&arp->ar_tha, pdata->enetaddr, ARP_HLEN);
+		NetWriteIP(&arp->ar_tpa, NetOurIP);
+		length = ARP_HDR_SIZE;
+	} else {
+		/* If local, the Ethernet header won't be included; skip it */
+		uchar *pktptr = priv->local ?
+			net_rx_packets[0] + ETHER_HDR_SIZE : net_rx_packets[0];
+
+		retval = sandbox_eth_raw_os_recv(pktptr, &length, priv);
+	}
 
 	if (!retval && length) {
+		if (priv->local) {
+			struct ethernet_hdr *eth = (void *)net_rx_packets[0];
+
+			/* Fill in enough of the missing Ethernet header */
+			memcpy(eth->et_dest, pdata->enetaddr, ARP_HLEN);
+			memset(eth->et_src, 0x01, ARP_HLEN);
+			eth->et_protlen = htons(reply_arp ? PROT_ARP : PROT_IP);
+			reply_arp = 0;
+			length += ETHER_HDR_SIZE;
+		}
+
 		debug("eth_sandbox_raw: received packet %d\n",
 		      length);
 		*packetp = net_rx_packets[0];

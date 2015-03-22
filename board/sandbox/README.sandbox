@@ -241,6 +241,28 @@ dhcp
 set serverip WWW.XXX.YYY.ZZZ
 tftpboot u-boot.bin
 
+The bridge also support (to a lesser extent) the localhost inderface, 'lo'.
+
+The 'lo' interface cannot use the RAW AF_PACKET API because the lo interface
+doesn't support Ethernet-level traffic. It is a higher-level interface that is
+expected only to be used at the AF_INET level of the API. As such, the most raw
+we can get on that interface is the RAW AF_INET API on UDP. This allows us to
+set the IP_HDRINCL option to include everything except the Ethernet header in
+the packets we send and receive.
+
+Because only UDP is supported, ICMP traffic will not work, so expect that ping
+commands will time out.
+
+The default device tree for sandbox includes an entry for lo on the sandbox
+host machine whose alias is "eth5". The following is an example of a network
+operation being tested on the lo interface.
+
+TFTP
+....
+
+set ethact eth5
+tftpboot u-boot.bin
+
 
 SPI Emulation
 -------------

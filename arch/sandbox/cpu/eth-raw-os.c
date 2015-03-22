@@ -12,6 +12,8 @@
 #include <fcntl.h>
 #include <net/if.h>
 #include <netinet/in.h>
+#include <netinet/ip.h>
+#include <netinet/udp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,10 +22,11 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <arpa/inet.h>
 #include <linux/if_ether.h>
 #include <linux/if_packet.h>
 
-int sandbox_eth_raw_os_start(const char *ifname, unsigned char *ethmac,
+static int _raw_packet_start(const char *ifname, unsigned char *ethmac,
 			    struct eth_sandbox_raw_priv *priv)
 {
 	struct sockaddr_ll *device;
@@ -89,13 +92,113 @@ int sandbox_eth_raw_os_start(const char *ifname, unsigned char *ethmac,
 	return 0;
 }
 
+static int _local_inet_start(struct eth_sandbox_raw_priv *priv)
+{
+	struct sockaddr_in *device;
+	int ret;
+	int flags;
+	int one = 1;
+
+	/* Prepare device struct */
+	priv->device = malloc(sizeof(struct sockaddr_in));
+	if (priv->device == NULL)
+		return -ENOMEM;
+	device = priv->device;
+	memset(device, 0, sizeof(struct sockaddr_in));
+	device->sin_family = AF_INET;
+	device->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+	/**
+	 * Open socket
+	 *  Since we specify UDP here, any incoming ICMP packets will
+	 *  not be received, so things like ping will not work on this
+	 *  localhost interface.
+	 */
+	priv->sd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
+	if (priv->sd < 0) {
+		printf("Failed to open socket: %d %s\n", errno,
+		       strerror(errno));
+		return -errno;
+	}
+
+	/* Make the socket non-blocking */
+	flags = fcntl(priv->sd, F_GETFL, 0);
+	fcntl(priv->sd, F_SETFL, flags | O_NONBLOCK);
+
+	/* Include the UDP/IP headers on send and receive */
+	ret = setsockopt(priv->sd, IPPROTO_IP, IP_HDRINCL, &one,
+			 sizeof(one));
+	if (ret < 0) {
+		printf("Failed to set header include option: %d %s\n", errno,
+		       strerror(errno));
+		return -errno;
+	}
+	priv->local_bind_sd = -1;
+	priv->local_bind_udp_port = 0;
+	return 0;
+}
+
+int sandbox_eth_raw_os_start(const char *ifname, unsigned char *ethmac,
+			    struct eth_sandbox_raw_priv *priv)
+{
+	if (priv->local)
+		return _local_inet_start(priv);
+	else
+		return _raw_packet_start(ifname, ethmac, priv);
+}
+
 int sandbox_eth_raw_os_send(void *packet, int length,
-			    const struct eth_sandbox_raw_priv *priv)
+			    struct eth_sandbox_raw_priv *priv)
 {
 	int retval;
+	struct udphdr *udph = packet + sizeof(struct iphdr);
 
 	if (!priv->sd || !priv->device)
 		return -EINVAL;
+
+	/*
+	 * This block of code came about when testing tftp on the localhost
+	 * interface. When using the RAW AF_INET API, the network stack is still
+	 * in play responding to incoming traffic based on open "ports". Since
+	 * it is raw (at the IP layer, no Ethernet) the network stack tells the
+	 * TFTP server that the port it responded to is closed. This causes the
+	 * TFTP transfer to be aborted. This block of code inspects the outgoing
+	 * packet as formulated by the u-boot network stack to determine the
+	 * source port (that the TFTP server will send packets back to) and
+	 * opens a typical UDP socket on that port, thus preventing the network
+	 * stack from sending that ICMP message claiming that the port has no
+	 * bound socket.
+	 */
+	if (priv->local && (priv->local_bind_sd == -1 ||
+			    priv->local_bind_udp_port != udph->source)) {
+		struct iphdr *iph = packet;
+		struct sockaddr_in addr;
+
+		if (priv->local_bind_sd != -1)
+			close(priv->local_bind_sd);
+
+		/* A normal UDP socket is required to bind */
+		priv->local_bind_sd = socket(AF_INET, SOCK_DGRAM, 0);
+		if (priv->local_bind_sd < 0) {
+			printf("Failed to open bind sd: %d %s\n", errno,
+			       strerror(errno));
+			return -errno;
+		}
+		priv->local_bind_udp_port = udph->source;
+
+		/**
+		 * Bind the UDP port that we intend to use as our source port
+		 * so that the kernel will not send an ICMP port unreachable
+		 * message to the server
+		 */
+		addr.sin_family = AF_INET;
+		addr.sin_port = udph->source;
+		addr.sin_addr.s_addr = iph->saddr;
+		retval = bind(priv->local_bind_sd, &addr, sizeof(addr));
+		if (retval < 0)
+			printf("Failed to bind: %d %s\n", errno,
+			       strerror(errno));
+	}
 
 	retval = sendto(priv->sd, packet, length, 0,
 			(struct sockaddr *)priv->device,
@@ -137,4 +240,10 @@ void sandbox_eth_raw_os_stop(struct eth_sandbox_raw_priv *priv)
 	priv->device = NULL;
 	close(priv->sd);
 	priv->sd = -1;
+	if (priv->local) {
+		if (priv->local_bind_sd != -1)
+			close(priv->local_bind_sd);
+		priv->local_bind_sd = -1;
+		priv->local_bind_udp_port = 0;
+	}
 }
