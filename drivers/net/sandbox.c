@@ -29,6 +29,19 @@ struct eth_sandbox_priv {
 	int recv_packet_length;
 };
 
+static bool disabled[8] = {false};
+
+/*
+ * sandbox_eth_disable_response()
+ *
+ * index - The alias index (also DM seq number)
+ * disable - If non-zero, ignore sent packets and don't send mock response
+ */
+void sandbox_eth_disable_response(int index, bool disable)
+{
+	disabled[index] = disable;
+}
+
 static int sb_eth_start(struct udevice *dev)
 {
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
@@ -47,6 +60,10 @@ static int sb_eth_send(struct udevice *dev, void *packet, int length)
 	struct ethernet_hdr *eth = packet;
 
 	debug("eth_sandbox: Send packet %d\n", length);
+
+	if (dev->seq >= 0 && dev->seq < ARRAY_SIZE(disabled) &&
+	    disabled[dev->seq])
+		return 0;
 
 	if (ntohs(eth->et_protlen) == PROT_ARP) {
 		struct arp_hdr *arp = packet + ETHER_HDR_SIZE;
