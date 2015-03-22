@@ -51,6 +51,11 @@ S:	Maintained
 F:	board/sunxi/dram_a20_olinuxino_l2.c
 F:	configs/A20-OLinuXino-Lime2_defconfig
 
+AINOL AW1 BOARD
+M:	Paul Kocialkowski <contact@paulk.fr>
+S:	Maintained
+F:	configs/Ainol_AW1_defconfig
+
 AMPE A76 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
