@@ -651,8 +651,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 	if (priv_data == NULL)
 		return -1;
 
-	host_caps_val = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
-			     MMC_MODE_HC;
+	host_caps_val = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	switch (dev_index) {
 	case 0:

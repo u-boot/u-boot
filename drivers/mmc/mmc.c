@@ -363,15 +363,12 @@ static int mmc_send_op_cond_iter(struct mmc *mmc, int use_arg)
 	cmd.cmdidx = MMC_CMD_SEND_OP_COND;
 	cmd.resp_type = MMC_RSP_R3;
 	cmd.cmdarg = 0;
-	if (use_arg && !mmc_host_is_spi(mmc)) {
-		cmd.cmdarg =
+	if (use_arg && !mmc_host_is_spi(mmc))
+		cmd.cmdarg = OCR_HCS |
 			(mmc->cfg->voltages &
 			(mmc->ocr & OCR_VOLTAGE_MASK)) |
 			(mmc->ocr & OCR_ACCESS_MODE);
 
-		if (mmc->cfg->host_caps & MMC_MODE_HC)
-			cmd.cmdarg |= OCR_HCS;
-	}
 	err = mmc_send_cmd(mmc, &cmd, NULL);
 	if (err)
 		return err;

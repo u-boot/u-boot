@@ -55,8 +55,7 @@
 #define MMC_MODE_4BIT		(1 << 2)
 #define MMC_MODE_8BIT		(1 << 3)
 #define MMC_MODE_SPI		(1 << 4)
-#define MMC_MODE_HC		(1 << 5)
-#define MMC_MODE_DDR_52MHz	(1 << 6)
+#define MMC_MODE_DDR_52MHz	(1 << 5)
 
 #define SD_DATA_4BIT	0x00040000
 

@@ -652,7 +652,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 		return -1;
 	}
 
-	cfg->cfg.host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT | MMC_MODE_HC;
+	cfg->cfg.host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
 #ifdef CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 	cfg->cfg.host_caps |= MMC_MODE_DDR_52MHz;
 #endif

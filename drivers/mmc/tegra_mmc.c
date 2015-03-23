@@ -559,7 +559,7 @@ static int do_mmc_init(int dev_index)
 		host->cfg.host_caps |= MMC_MODE_8BIT;
 	if (host->width >= 4)
 		host->cfg.host_caps |= MMC_MODE_4BIT;
-	host->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
+	host->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	/*
 	 * min freq is for card identification, and is the highest

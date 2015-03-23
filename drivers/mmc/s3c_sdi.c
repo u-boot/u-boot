@@ -298,7 +298,7 @@ int s3cmmc_initialize(bd_t *bis, int (*getcd)(struct mmc *),
 	cfg->name = "S3C MMC";
 	cfg->ops = &s3cmmc_ops;
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
-	cfg->host_caps = MMC_MODE_4BIT | MMC_MODE_HC | MMC_MODE_HS;
+	cfg->host_caps = MMC_MODE_4BIT | MMC_MODE_HS;
 	cfg->f_min = 400000;
 	cfg->f_max = get_PCLK() / 2;
 	cfg->b_max = 0x80;

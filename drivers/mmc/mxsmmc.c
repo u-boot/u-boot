@@ -405,8 +405,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int))
 	priv->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 
 	priv->cfg.host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT |
-			 MMC_MODE_HS_52MHz | MMC_MODE_HS |
-			 MMC_MODE_HC;
+			 MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
 	/*
 	 * SSPCLK = 480 * 18 / 29 / 1 = 297.731 MHz

@@ -121,7 +121,6 @@ int kona_sdhci_init(int dev_index, u32 min_clk, u32 quirks)
 	host->name = "kona-sdhci";
 	host->ioaddr = reg_base;
 	host->quirks = quirks;
-	host->host_caps = MMC_MODE_HC;
 
 	if (init_kona_mmc_core(host)) {
 		free(host);
