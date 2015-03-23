@@ -30,25 +30,10 @@ vexpress_aemv8a.h but differentiate the two models by the presence or
 absence of CONFIG_BASE_FVP. This change is tested and works on both the
 Foundation and Base fastmodel simulators.
 
-The level of semihosting support is minimal, restricted to just what it
-takes to load images to memory. If more semihosting functionality is
-required, such as file seek, outputting strings, reading characters, etc,
-then it can be easily added later.
+The semihosting code adds a command:
 
-We require that the board include file define these env variables:
-- kernel_name		e.g. "uImage"
-- kernel_addr_r		e.g. "0x80000000"
-- initrd_name		e.g. "ramdisk.img"
-- initrd_addr_r		e.g. "0x88000000"
-- fdt_name		e.g. "devtree.dtb"
-- fdt_addr_r		e.g. "0x83000000"
+  smhload <image> <address> [env var]
 
-Optionally, "fdt_high" and "initrd_high" can be specified as per
-their rules for allowing or preventing copying of these images.
-
-For the "fdt chosen" startup macro, this code will then define:
-- initrd_end (based on retrieving initrd_addr_r plus actual initrd_size)
-
-We will then load the kernel, initrd, and fdt into the specified
-locations in memory in a similar way that the ATF fastmodel code
-uses semihosting calls to load other boot stages and u-boot itself.
+That will load an image from the host filesystem into RAM at the specified
+address and optionally store the load end address in the specified
+environment variable.
