@@ -43,18 +43,8 @@ void mfp_config(u32 *mfp_cfgs)
 
 		/* Write a mfg register as per configuration */
 		val = 0;
-		if (cfg_val & MFP_AF_FLAG)
-			/* Abstract and program Afternate-Func Selection */
-			val |= cfg_val & MFP_AF_MASK;
-		if (cfg_val & MFP_EDGE_FLAG)
-			/* Abstract and program Edge configuration */
-			val |= cfg_val & MFP_LPM_EDGE_MASK;
-		if (cfg_val & MFP_DRIVE_FLAG)
-			/* Abstract and program Drive configuration */
-			val |= cfg_val & MFP_DRIVE_MASK;
-		if (cfg_val & MFP_PULL_FLAG)
-			/* Abstract and program Pullup/down configuration */
-			val |= cfg_val & MFP_PULL_MASK;
+		if (cfg_val & MFP_VALUE_MASK)
+			val |= cfg_val & MFP_VALUE_MASK;
 
 		writel(val, p_mfpr);
 	} while (1);
