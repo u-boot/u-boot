@@ -37,11 +37,45 @@ static void erratum_rcw_src(void)
 #endif
 }
 
+#define I2C_DEBUG_REG 0x6
+#define I2C_GLITCH_EN 0x8
+/*
+ * This erratum requires setting glitch_en bit to enable
+ * digital glitch filter to improve clock stability.
+ */
+static void erratum_a009203(void)
+{
+	u8 __iomem *ptr;
+#ifdef CONFIG_SYS_I2C
+#ifdef I2C1_BASE_ADDR
+	ptr = (u8 __iomem *)(I2C1_BASE_ADDR + I2C_DEBUG_REG);
+
+	writeb(I2C_GLITCH_EN, ptr);
+#endif
+#ifdef I2C2_BASE_ADDR
+	ptr = (u8 __iomem *)(I2C2_BASE_ADDR + I2C_DEBUG_REG);
+
+	writeb(I2C_GLITCH_EN, ptr);
+#endif
+#ifdef I2C3_BASE_ADDR
+	ptr = (u8 __iomem *)(I2C3_BASE_ADDR + I2C_DEBUG_REG);
+
+	writeb(I2C_GLITCH_EN, ptr);
+#endif
+#ifdef I2C4_BASE_ADDR
+	ptr = (u8 __iomem *)(I2C4_BASE_ADDR + I2C_DEBUG_REG);
+
+	writeb(I2C_GLITCH_EN, ptr);
+#endif
+#endif
+}
+
 void fsl_lsch3_early_init_f(void)
 {
 	erratum_a008751();
 	erratum_rcw_src();
 	init_early_memctl_regs();	/* tighten IFC timing */
+	erratum_a009203();
 }
 
 #ifdef CONFIG_SPL_BUILD
