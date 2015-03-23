@@ -20,14 +20,6 @@
 
 #define CONFIG_REMAKE_ELF
 
-#if !defined(CONFIG_TARGET_VEXPRESS64_BASE_FVP) && \
-    !defined(CONFIG_TARGET_VEXPRESS64_JUNO)
-/* Base FVP and Juno not using GICv3 yet */
-#define CONFIG_GICV3
-#endif
-
-/*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
-
 #define CONFIG_SUPPORT_RAW_INITRD
 
 /* Cache Definitions */
@@ -46,8 +38,7 @@
 #define CONFIG_SYS_TEXT_BASE		0xe0000000
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 #else
-#define CONFIG_SYS_TEXT_BASE		0x80000000
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+#error "Unknown board variant"
 #endif
 
 /* Flat Device Tree Definitions */
@@ -117,10 +108,9 @@
 #define GICD_BASE			(0x2C010000)
 #define GICC_BASE			(0x2C02f000)
 #else
-#define GICD_BASE			(0x2C001000)
-#define GICC_BASE			(0x2C002000)
+#error "Unknown board variant"
 #endif
-#endif
+#endif /* !CONFIG_GICV3 */
 
 #define CONFIG_SYS_MEMTEST_START	V2M_BASE
 #define CONFIG_SYS_MEMTEST_END		(V2M_BASE + 0x80000000)
@@ -222,17 +212,7 @@
 #define CONFIG_BOOTDELAY		1
 
 #else
-
-#define CONFIG_EXTRA_ENV_SETTINGS	\
-					"kernel_addr_r=0x80000000\0"	\
-					"initrd_addr_r=0x88000000\0"	\
-					"fdt_addr_r=0x83000000\0"		\
-					"fdt_high=0xa0000000\0"
-
-#define CONFIG_BOOTARGS			"console=ttyAMA0,115200n8 root=/dev/ram0"
-#define CONFIG_BOOTCOMMAND		"bootm $kernel_addr_r " \
-					"$initrd_addr_r:$initrd_size $fdt_addr_r"
-#define CONFIG_BOOTDELAY		-1
+#error "Unknown board variant"
 #endif
 
 /* Do not preserve environment */
