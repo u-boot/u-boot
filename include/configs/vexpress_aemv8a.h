@@ -15,7 +15,6 @@
 #ifndef CONFIG_SEMIHOSTING
 #error CONFIG_TARGET_VEXPRESS64_BASE_FVP requires CONFIG_SEMIHOSTING
 #endif
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_ARMV8_SWITCH_TO_EL1
 #endif
 
@@ -200,12 +199,12 @@
 /* Initial environment variables */
 #ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-				"kernel_name=uImage\0"	\
-				"kernel_addr_r=0x80000000\0"	\
+				"kernel_name=uImage\0"		\
+				"kernel_addr=0x80000000\0"	\
 				"initrd_name=ramdisk.img\0"	\
-				"initrd_addr_r=0x88000000\0"	\
-				"fdt_name=devtree.dtb\0"		\
-				"fdt_addr_r=0x83000000\0"		\
+				"initrd_addr=0x88000000\0"	\
+				"fdt_name=devtree.dtb\0"	\
+				"fdt_addr=0x83000000\0"		\
 				"fdt_high=0xffffffffffffffff\0"	\
 				"initrd_high=0xffffffffffffffff\0"
 
@@ -213,9 +212,12 @@
 				"0x1c090000 debug user_debug=31 "\
 				"loglevel=9"
 
-#define CONFIG_BOOTCOMMAND	"fdt addr $fdt_addr_r; fdt resize; " \
-				"fdt chosen $initrd_addr_r $initrd_end; " \
-				"bootm $kernel_addr_r - $fdt_addr_r"
+#define CONFIG_BOOTCOMMAND	"smhload ${kernel_name} ${kernel_addr}; " \
+				"smhload ${fdt_name} $fdt_addr; " \
+				"smhload ${initrd_name} $initrd_addr initrd_end; " \
+				"fdt addr $fdt_addr; fdt resize; " \
+				"fdt chosen $initrd_addr $initrd_end; " \
+				"bootm $kernel_addr - $fdt_addr"
 
 #define CONFIG_BOOTDELAY		1
 
