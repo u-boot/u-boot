@@ -26,7 +26,7 @@
 /*
  * Call the handler
  */
-static long smh_trap(unsigned int sysnum, void *addr)
+static noinline long smh_trap(unsigned int sysnum, void *addr)
 {
 	register long result asm("r0");
 #if defined(CONFIG_ARM64)
