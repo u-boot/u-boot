@@ -14,7 +14,6 @@
  */
 #include <common.h>
 #include <command.h>
-#include <asm/semihosting.h>
 
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02
@@ -143,97 +142,6 @@ static long smh_len_fd(long fd)
 		printf("%s: ERROR ret %ld, fd %ld\n", __func__, ret, fd);
 
 	return ret;
-}
-
-/*
- * Open, load a file into memory, and close it. Check that the available space
- * is sufficient to store the entire file. Return the bytes actually read from
- * the file as seen by the read function. The verbose flag enables some extra
- * printing of successful read status.
- */
-int smh_load(const char *fname, void *memp, int avail, int verbose)
-{
-	long ret;
-	long fd;
-	size_t len;
-
-	ret = -1;
-
-	debug("%s: fname \'%s\', avail %u, memp %p\n", __func__, fname,
-	      avail, memp);
-
-	/* Open the file */
-	fd = smh_open(fname, "rb");
-	if (fd == -1)
-		return -1;
-
-	/* Get the file length */
-	ret = smh_len_fd(fd);
-	if (ret == -1) {
-		smh_close(fd);
-		return -1;
-	}
-
-	/* Check that the file will fit in the supplied buffer */
-	if (ret > avail) {
-		printf("%s: ERROR ret %ld, avail %u\n", __func__, ret,
-		       avail);
-		smh_close(fd);
-		return -1;
-	}
-
-	len = ret;
-
-	/* Read the file into the buffer */
-	ret = smh_read(fd, memp, len);
-	if (ret == 0) {
-		/* Print successful load information if requested */
-		if (verbose) {
-			printf("\n%s\n", fname);
-			printf("    0x%8p dest\n", memp);
-			printf("    0x%08lx size\n", len);
-			printf("    0x%08x avail\n", avail);
-		}
-	}
-
-	/* Close the file */
-	smh_close(fd);
-
-	return ret;
-}
-
-/*
- * Get the file length from the filename
- */
-long smh_len(const char *fname)
-{
-	long ret;
-	long fd;
-	long len;
-
-	debug("%s: file \'%s\'\n", __func__, fname);
-
-	/* Open the file */
-	fd = smh_open(fname, "rb");
-	if (fd < 0)
-		return fd;
-
-	/* Get the file length */
-	len = smh_len_fd(fd);
-	if (len < 0) {
-		smh_close(fd);
-		return len;
-	}
-
-	/* Close the file */
-	ret = smh_close(fd);
-	if (ret < 0)
-		return ret;
-
-	debug("%s: returning len %ld\n", __func__, len);
-
-	/* Return the file length (or -1 error indication) */
-	return len;
 }
 
 static int smh_load_file(const char * const name, ulong load_addr,
