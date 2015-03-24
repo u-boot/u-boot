@@ -703,10 +703,9 @@ static int dwc_otg_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 	return stat;
 }
 
-int wait_for_chhltd(uint32_t *sub, int *toggle)
+int wait_for_chhltd(uint32_t *sub, int *toggle, bool ignore_ack)
 {
-	const uint32_t hcint_comp_hlt_ack = DWC2_HCINT_XFERCOMP |
-		DWC2_HCINT_CHHLTD | DWC2_HCINT_ACK;
+	uint32_t hcint_comp_hlt_ack = DWC2_HCINT_XFERCOMP | DWC2_HCINT_CHHLTD;
 	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
 	int ret;
 	uint32_t hcint, hctsiz;
@@ -716,6 +715,10 @@ int wait_for_chhltd(uint32_t *sub, int *toggle)
 		return ret;
 
 	hcint = readl(&hc_regs->hcint);
+	if (ignore_ack)
+		hcint &= ~DWC2_HCINT_ACK;
+	else
+		hcint_comp_hlt_ack |= DWC2_HCINT_ACK;
 	if (hcint != hcint_comp_hlt_ack) {
 		debug("%s: Error (HCINT=%08x)\n", __func__, hcint);
 		return -EINVAL;
@@ -739,7 +742,7 @@ static int dwc2_eptype[] = {
 };
 
 int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
-	      void *buffer, int len)
+	      void *buffer, int len, bool ignore_ack)
 {
 	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[DWC2_HC_CHANNEL];
 	int devnum = usb_pipedevice(pipe);
@@ -800,7 +803,7 @@ int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
 				(1 << DWC2_HCCHAR_MULTICNT_OFFSET) |
 				DWC2_HCCHAR_CHEN);
 
-		ret = wait_for_chhltd(&sub, pid);
+		ret = wait_for_chhltd(&sub, pid, ignore_ack);
 		if (ret) {
 			stop_transfer = 1;
 			break;
@@ -839,7 +842,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	}
 
 	return chunk_msg(dev, pipe, &bulk_data_toggle[devnum][ep],
-			 usb_pipein(pipe), buffer, len);
+			 usb_pipein(pipe), buffer, len, true);
 }
 
 int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
@@ -857,14 +860,14 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	}
 
 	pid = DWC2_HC_PID_SETUP;
-	ret = chunk_msg(dev, pipe, &pid, 0, setup, 8);
+	ret = chunk_msg(dev, pipe, &pid, 0, setup, 8, true);
 	if (ret)
 		return ret;
 
 	if (buffer) {
 		pid = DWC2_HC_PID_DATA1;
 		ret = chunk_msg(dev, pipe, &pid, usb_pipein(pipe), buffer,
-				len);
+				len, false);
 		if (ret)
 			return ret;
 		act_len = dev->act_len;
@@ -879,7 +882,8 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		status_direction = 0;
 
 	pid = DWC2_HC_PID_DATA1;
-	ret = chunk_msg(dev, pipe, &pid, status_direction, status_buffer, 0);
+	ret = chunk_msg(dev, pipe, &pid, status_direction, status_buffer, 0,
+		false);
 	if (ret)
 		return ret;
 
