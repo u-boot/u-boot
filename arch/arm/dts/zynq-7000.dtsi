@@ -234,7 +234,7 @@
 			nor0: flash@e2000000 {
 				status = "disabled";
 				compatible = "cfi-flash";
-				reg = <0xe2000000 0x1000>;
+				reg = <0xe2000000 0x2000000>;
 				#address-cells = <1>;
 				#size-cells = <1>;
 			};
