@@ -28,7 +28,11 @@
 #define CONFIG_ARCH_MISC_INIT
 
 /* Link Definitions */
+#ifdef CONFIG_SPL
+#define CONFIG_SYS_TEXT_BASE		0x80400000
+#else
 #define CONFIG_SYS_TEXT_BASE		0x30100000
+#endif
 
 #ifdef CONFIG_EMU
 #define CONFIG_SYS_NO_FLASH
@@ -47,7 +51,9 @@
 #define CONFIG_FIT
 #define CONFIG_FIT_VERBOSE	/* enable fit_format_{error,warning}() */
 
+#ifndef CONFIG_SPL
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
+#endif
 #ifndef CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_FSL_DDR3		/* Use DDR3 memory */
 #define CONFIG_SYS_DDR_RAW_TIMING
@@ -269,5 +275,28 @@ unsigned long get_dram_size_to_hide(void);
 #endif
 
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */
+
+#define CONFIG_SPL_BSS_START_ADDR	0x80100000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
+#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_I2C_SUPPORT
+#define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv8/u-boot-spl.lds"
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_MAX_SIZE		0x16000
+#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_STACK		(CONFIG_SYS_FSL_OCRAM_BASE + 0x9ff0)
+#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
+#define CONFIG_SPL_TEXT_BASE		0x1800a000
+
+#define CONFIG_SYS_NAND_U_BOOT_DST	0x80400000
+#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
+#define CONFIG_SYS_SPL_MALLOC_START	0x80200000
+#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 
 #endif /* __LS2_COMMON_H */

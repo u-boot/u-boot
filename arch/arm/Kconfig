@@ -715,6 +715,7 @@ config TARGET_LS2085AQDS
 	bool "Support ls2085aqds"
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select SUPPORT_SPL
 	help
 	  Support for Freescale LS2085AQDS platform
 	  The LS2085A Development System (QDS) is a high-performance

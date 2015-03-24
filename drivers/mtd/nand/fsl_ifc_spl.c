@@ -66,7 +66,7 @@ static inline void nand_wait(uchar *buf, int bufnum, int page_size)
 {
 	struct fsl_ifc_runtime *ifc = runtime_regs_address();
 	u32 status;
-	u32 eccstat[4];
+	u32 eccstat[8];
 	int bufperpage = page_size / 512;
 	int bufnum_end, i;
 

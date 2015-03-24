@@ -130,6 +130,15 @@
 #define CCI_MN_DVM_DOMAIN_CTL		0x200
 #define CCI_MN_DVM_DOMAIN_CTL_SET	0x210
 
+/* Device Configuration */
+#define DCFG_BASE		0x01e00000
+#define DCFG_PORSR1			0x000
+#define DCFG_PORSR1_RCW_SRC		0xff800000
+#define DCFG_PORSR1_RCW_SRC_NOR		0x12f00000
+
+#define DCFG_DCSR_BASE		0X700100000ULL
+#define DCFG_DCSR_PORCR1		0x000
+
 /* Supplemental Configuration */
 #define SCFG_BASE		0x01fc0000
 #define SCFG_USB3PRM1CR			0x000
