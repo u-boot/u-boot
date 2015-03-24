@@ -33,7 +33,7 @@ struct board_eeconfig {
 	unsigned int  magic;
 	char name[HDR_NAME_LEN];	/* BAV3354 */
 	char version[4];		/* 0B20 - Rev.B2 */
-	char serial[12];
+	char serial[16];
 	char config[32];
 	char mac_addr[HDR_NO_OF_MAC_ADDR][HDR_ETH_ALEN];
 };
