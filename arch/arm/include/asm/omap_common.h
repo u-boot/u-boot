@@ -362,6 +362,10 @@ struct omap_sys_ctrl_regs {
 	u32 control_core_control_io1;
 	u32 control_core_control_io2;
 	u32 control_id_code;
+	u32 control_std_fuse_die_id_0;
+	u32 control_std_fuse_die_id_1;
+	u32 control_std_fuse_die_id_2;
+	u32 control_std_fuse_die_id_3;
 	u32 control_std_fuse_opp_bgap;
 	u32 control_ldosram_iva_voltage_ctrl;
 	u32 control_ldosram_mpu_voltage_ctrl;
@@ -578,6 +582,7 @@ void abb_setup(u32 fuse, u32 ldovbb, u32 setup, u32 control,
 s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb);
 
 void usb_fake_mac_from_die_id(u32 *id);
+void usb_set_serial_num_from_die_id(u32 *id);
 
 void omap_smc1(u32 service, u32 val);
 
