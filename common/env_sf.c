@@ -188,15 +188,17 @@ void env_relocate_spec(void)
 		   tmp_env2->flags == ACTIVE_FLAG) {
 		gd->env_valid = 2;
 	} else if (tmp_env1->flags == tmp_env2->flags) {
-		gd->env_valid = 2;
+		gd->env_valid = 1;
 	} else if (tmp_env1->flags == 0xFF) {
+		gd->env_valid = 1;
+	} else if (tmp_env2->flags == 0xFF) {
 		gd->env_valid = 2;
 	} else {
 		/*
 		 * this differs from code in env_flash.c, but I think a sane
 		 * default path is desirable.
 		 */
-		gd->env_valid = 2;
+		gd->env_valid = 1;
 	}
 
 	if (gd->env_valid == 1)
