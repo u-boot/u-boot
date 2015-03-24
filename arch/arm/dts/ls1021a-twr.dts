@@ -46,7 +46,7 @@
 	#address-cells = <2>;
 	#size-cells = <1>;
 	/* NOR Flash on board */
-	ranges = <0x0 0x0 0x0 0x60000000 0x08000000>;
+	ranges = <0x0 0x0 0x60000000 0x08000000>;
 	status = "okay";
 
 	nor@0,0 {

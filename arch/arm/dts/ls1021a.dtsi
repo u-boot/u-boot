@@ -6,7 +6,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "skeleton64.dtsi"
+#include "skeleton.dtsi"
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 
 / {
@@ -58,8 +58,8 @@
 
 	soc {
 		compatible = "simple-bus";
-		#address-cells = <2>;
-		#size-cells = <2>;
+		#address-cells = <1>;
+		#size-cells = <1>;
 		device_type = "soc";
 		interrupt-parent = <&gic>;
 		ranges;
@@ -68,29 +68,29 @@
 			compatible = "arm,cortex-a7-gic";
 			#interrupt-cells = <3>;
 			interrupt-controller;
-			reg = <0x0 0x1401000 0x0 0x1000>,
-			      <0x0 0x1402000 0x0 0x1000>,
-			      <0x0 0x1404000 0x0 0x2000>,
-			      <0x0 0x1406000 0x0 0x2000>;
+			reg = <0x1401000 0x1000>,
+			      <0x1402000 0x1000>,
+			      <0x1404000 0x2000>,
+			      <0x1406000 0x2000>;
 			interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_HIGH)>;
 
 		};
 
 		ifc: ifc@1530000 {
 			compatible = "fsl,ifc", "simple-bus";
-			reg = <0x0 0x1530000 0x0 0x10000>;
+			reg = <0x1530000 0x10000>;
 			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
 		dcfg: dcfg@1ee0000 {
 			compatible = "fsl,ls1021a-dcfg", "syscon";
-			reg = <0x0 0x1ee0000 0x0 0x10000>;
+			reg = <0x1ee0000 0x10000>;
 			big-endian;
 		};
 
 		esdhc: esdhc@1560000 {
 			compatible = "fsl,esdhc";
-			reg = <0x0 0x1560000 0x0 0x10000>;
+			reg = <0x1560000 0x10000>;
 			interrupts = <GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <0>;
 			voltage-ranges = <1800 1800 3300 3300>;
@@ -102,14 +102,14 @@
 
 		scfg: scfg@1570000 {
 			compatible = "fsl,ls1021a-scfg", "syscon";
-			reg = <0x0 0x1570000 0x0 0x10000>;
+			reg = <0x1570000 0x10000>;
 			big-endian;
 		};
 
 		clockgen: clocking@1ee1000 {
 			#address-cells = <1>;
 			#size-cells = <1>;
-			ranges = <0x0 0x0 0x1ee1000 0x10000>;
+			ranges = <0x0 0x1ee1000 0x10000>;
 
 			sysclk: sysclk {
 				compatible = "fixed-clock";
@@ -148,7 +148,7 @@
 			compatible = "fsl,vf610-dspi";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x0 0x2100000 0x0 0x10000>;
+			reg = <0x2100000 0x10000>;
 			interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
 			clock-names = "dspi";
 			clocks = <&platform_clk 1>;
@@ -161,7 +161,7 @@
 			compatible = "fsl,vf610-dspi";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x0 0x2110000 0x0 0x10000>;
+			reg = <0x2110000 0x10000>;
 			interrupts = <GIC_SPI 97 IRQ_TYPE_LEVEL_HIGH>;
 			clock-names = "dspi";
 			clocks = <&platform_clk 1>;
@@ -174,7 +174,7 @@
 			compatible = "fsl,vf610-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x0 0x2180000 0x0 0x10000>;
+			reg = <0x2180000 0x10000>;
 			interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_HIGH>;
 			clock-names = "i2c";
 			clocks = <&platform_clk 1>;
@@ -185,7 +185,7 @@
 			compatible = "fsl,vf610-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x0 0x2190000 0x0 0x10000>;
+			reg = <0x2190000 0x10000>;
 			interrupts = <GIC_SPI 89 IRQ_TYPE_LEVEL_HIGH>;
 			clock-names = "i2c";
 			clocks = <&platform_clk 1>;
@@ -196,7 +196,7 @@
 			compatible = "fsl,vf610-i2c";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x0 0x21a0000 0x0 0x10000>;
+			reg = <0x21a0000 0x10000>;
 			interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
 			clock-names = "i2c";
 			clocks = <&platform_clk 1>;
@@ -205,7 +205,7 @@
 
 		uart0: serial@21c0500 {
 			compatible = "fsl,16550-FIFO64", "ns16550a";
-			reg = <0x0 0x21c0500 0x0 0x100>;
+			reg = <0x21c0500 0x100>;
 			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <0>;
 			fifo-size = <15>;
@@ -214,7 +214,7 @@
 
 		uart1: serial@21c0600 {
 			compatible = "fsl,16550-FIFO64", "ns16550a";
-			reg = <0x0 0x21c0600 0x0 0x100>;
+			reg = <0x21c0600 0x100>;
 			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <0>;
 			fifo-size = <15>;
@@ -223,7 +223,7 @@
 
 		uart2: serial@21d0500 {
 			compatible = "fsl,16550-FIFO64", "ns16550a";
-			reg = <0x0 0x21d0500 0x0 0x100>;
+			reg = <0x21d0500 0x100>;
 			interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <0>;
 			fifo-size = <15>;
@@ -232,7 +232,7 @@
 
 		uart3: serial@21d0600 {
 			compatible = "fsl,16550-FIFO64", "ns16550a";
-			reg = <0x0 0x21d0600 0x0 0x100>;
+			reg = <0x21d0600 0x100>;
 			interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <0>;
 			fifo-size = <15>;
@@ -241,7 +241,7 @@
 
 		lpuart0: serial@2950000 {
 			compatible = "fsl,ls1021a-lpuart";
-			reg = <0x0 0x2950000 0x0 0x1000>;
+			reg = <0x2950000 0x1000>;
 			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&sysclk>;
 			clock-names = "ipg";
@@ -250,7 +250,7 @@
 
 		lpuart1: serial@2960000 {
 			compatible = "fsl,ls1021a-lpuart";
-			reg = <0x0 0x2960000 0x0 0x1000>;
+			reg = <0x2960000 0x1000>;
 			interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&platform_clk 1>;
 			clock-names = "ipg";
@@ -259,7 +259,7 @@
 
 		lpuart2: serial@2970000 {
 			compatible = "fsl,ls1021a-lpuart";
-			reg = <0x0 0x2970000 0x0 0x1000>;
+			reg = <0x2970000 0x1000>;
 			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&platform_clk 1>;
 			clock-names = "ipg";
@@ -268,7 +268,7 @@
 
 		lpuart3: serial@2980000 {
 			compatible = "fsl,ls1021a-lpuart";
-			reg = <0x0 0x2980000 0x0 0x1000>;
+			reg = <0x2980000 0x1000>;
 			interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&platform_clk 1>;
 			clock-names = "ipg";
@@ -277,7 +277,7 @@
 
 		lpuart4: serial@2990000 {
 			compatible = "fsl,ls1021a-lpuart";
-			reg = <0x0 0x2990000 0x0 0x1000>;
+			reg = <0x2990000 0x1000>;
 			interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&platform_clk 1>;
 			clock-names = "ipg";
@@ -286,7 +286,7 @@
 
 		lpuart5: serial@29a0000 {
 			compatible = "fsl,ls1021a-lpuart";
-			reg = <0x0 0x29a0000 0x0 0x1000>;
+			reg = <0x29a0000 0x1000>;
 			interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&platform_clk 1>;
 			clock-names = "ipg";
@@ -295,7 +295,7 @@
 
 		wdog0: watchdog@2ad0000 {
 			compatible = "fsl,imx21-wdt";
-			reg = <0x0 0x2ad0000 0x0 0x10000>;
+			reg = <0x2ad0000 0x10000>;
 			interrupts = <GIC_SPI 115 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&platform_clk 1>;
 			clock-names = "wdog-en";
@@ -304,7 +304,7 @@
 
 		sai1: sai@2b50000 {
 			compatible = "fsl,vf610-sai";
-			reg = <0x0 0x2b50000 0x0 0x10000>;
+			reg = <0x2b50000 0x10000>;
 			interrupts = <GIC_SPI 132 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&platform_clk 1>;
 			clock-names = "sai";
@@ -317,7 +317,7 @@
 
 		sai2: sai@2b60000 {
 			compatible = "fsl,vf610-sai";
-			reg = <0x0 0x2b60000 0x0 0x10000>;
+			reg = <0x2b60000 0x10000>;
 			interrupts = <GIC_SPI 133 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&platform_clk 1>;
 			clock-names = "sai";
@@ -331,9 +331,9 @@
 		edma0: edma@2c00000 {
 			#dma-cells = <2>;
 			compatible = "fsl,vf610-edma";
-			reg = <0x0 0x2c00000 0x0 0x10000>,
-			      <0x0 0x2c10000 0x0 0x10000>,
-			      <0x0 0x2c20000 0x0 0x10000>;
+			reg = <0x2c00000 0x10000>,
+			      <0x2c10000 0x10000>,
+			      <0x2c20000 0x10000>;
 			interrupts = <GIC_SPI 135 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 135 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "edma-tx", "edma-err";
@@ -349,12 +349,12 @@
 			device_type = "mdio";
 			#address-cells = <1>;
 			#size-cells = <0>;
-			reg = <0x0 0x2d24000 0x0 0x4000>;
+			reg = <0x2d24000 0x4000>;
 		};
 
 		usb@8600000 {
 			compatible = "fsl-usb2-dr-v2.5", "fsl-usb2-dr";
-			reg = <0x0 0x8600000 0x0 0x1000>;
+			reg = <0x8600000 0x1000>;
 			interrupts = <GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>;
 			dr_mode = "host";
 			phy_type = "ulpi";
@@ -362,7 +362,7 @@
 
 		usb3@3100000 {
 			compatible = "snps,dwc3";
-			reg = <0x0 0x3100000 0x0 0x10000>;
+			reg = <0x3100000 0x10000>;
 			interrupts = <GIC_SPI 93 IRQ_TYPE_LEVEL_HIGH>;
 			dr_mode = "host";
 		};
