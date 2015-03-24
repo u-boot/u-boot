@@ -133,3 +133,16 @@ The u-boot image should be written to match SRC_ADDR, in above example 0x20000.
 nand write <u-boot image in memory> 200000 <size of u-boot image>
 
 With these two images in NAND device, the board can boot from NAND.
+
+Another example for RDB boards,
+
+1) CCSR 4-byte write to 0x00e00404, data=0x00000000
+2) CCSR 4-byte write to 0x00e00400, data=0x1800a000
+3) Block Copy: SRC=0x0119, SRC_ADDR=0x00080000, DEST_ADDR=0x1800a000,
+BLOCK_SIZE=0x00014000
+
+nand write <rcw image in memory> 0 <size of rcw image>
+nand write <u-boot image in memory> 80000 <size of u-boot image>
+
+Notice the difference from QDS is SRC, SRC_ADDR and the offset of u-boot image
+to match board NAND device with 4KB/page, block size 512KB.

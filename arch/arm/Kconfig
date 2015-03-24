@@ -726,6 +726,7 @@ config TARGET_LS2085ARDB
 	bool "Support ls2085ardb"
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select SUPPORT_SPL
 	help
 	  Support for Freescale LS2085ARDB platform.
 	  The LS2085A Reference design board (RDB) is a high-performance
