@@ -201,11 +201,22 @@
 #else /* CONFIG_SYS_USE_MMC */
 
 /* bootstrap + u-boot + env + linux in mmc */
-#define CONFIG_ENV_IS_IN_MMC
-/* For FAT system, most cases it should be in the reserved sector */
+
+#ifdef CONFIG_ENV_IS_IN_MMC
+/* Use raw reserved sectors to save environment */
 #define CONFIG_ENV_OFFSET		0x2000
 #define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_SYS_MMC_ENV_DEV		0
+#else
+/* Use file in FAT file to save environment */
+#define CONFIG_ENV_IS_IN_FAT
+#define CONFIG_FAT_WRITE
+#define FAT_ENV_INTERFACE		"mmc"
+#define FAT_ENV_FILE			"uboot.env"
+#define FAT_ENV_DEVICE_AND_PART		"0"
+#define CONFIG_ENV_SIZE			0x4000
+#endif
+
 #define CONFIG_BOOTCOMMAND						\
 	"setenv bootargs ${console} ${mtdparts} ${bootargs_mmc};"	\
 	"fatload mmc 0:1 0x21000000 dtb;"				\
