@@ -369,8 +369,7 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 		break;
 
 	case NAND_CMD_ERASE1:
-		if (nfc->page == page)
-			nfc->page = -1;
+		nfc->page = -1;
 		vf610_nfc_send_commands(nfc->regs, command,
 					NAND_CMD_ERASE2, ERASE_CMD_CODE);
 		vf610_nfc_addr_cycle(mtd, column, page);
