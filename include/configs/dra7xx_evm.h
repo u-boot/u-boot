@@ -84,6 +84,14 @@
 	DFU_ALT_INFO_EMMC \
 	DFU_ALT_INFO_RAM
 
+/* Fastboot */
+#define CONFIG_CMD_FASTBOOT
+#define CONFIG_ANDROID_BOOT_IMAGE
+#define CONFIG_USB_FASTBOOT_BUF_ADDR    CONFIG_SYS_LOAD_ADDR
+#define CONFIG_USB_FASTBOOT_BUF_SIZE    0x2F000000
+#define CONFIG_FASTBOOT_FLASH
+#define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
+
 #include <configs/ti_omap5_common.h>
 
 /* Enhance our eMMC support / experience. */
@@ -182,8 +190,8 @@
 #define CONFIG_USBDOWNLOAD_GADGET
 #define CONFIG_USB_GADGET_VBUS_DRAW 2
 #define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
-#define CONFIG_G_DNL_VENDOR_NUM 0x0403
-#define CONFIG_G_DNL_PRODUCT_NUM 0xBD00
+#define CONFIG_G_DNL_VENDOR_NUM 0x0451
+#define CONFIG_G_DNL_PRODUCT_NUM 0xd022
 #define CONFIG_USB_GADGET_DUALSPEED
 
 /* USB Device Firmware Update support */
