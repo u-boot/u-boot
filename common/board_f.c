@@ -1080,7 +1080,9 @@ void board_init_f_r(void)
 	/* NOTREACHED - board_init_r() does not return */
 	hang();
 }
-#else
+#endif /* CONFIG_X86 */
+
+#ifndef CONFIG_X86
 ulong board_init_f_mem(ulong top)
 {
 	/* Leave space for the stack we are running with now */
@@ -1098,4 +1100,4 @@ ulong board_init_f_mem(ulong top)
 
 	return top;
 }
-#endif /* CONFIG_X86 */
+#endif /* !CONFIG_X86 */
