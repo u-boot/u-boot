@@ -281,6 +281,31 @@ int eth_get_dev_index(void)
 	return -1;
 }
 
+static int eth_write_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev->platdata;
+	int ret = 0;
+
+	if (!dev || !device_active(dev))
+		return -EINVAL;
+
+	/* seq is valid since the device is active */
+	if (eth_get_ops(dev)->write_hwaddr && !eth_mac_skip(dev->seq)) {
+		if (!is_valid_ethaddr(pdata->enetaddr)) {
+			printf("\nError: %s address %pM illegal value\n",
+			       dev->name, pdata->enetaddr);
+			return -EINVAL;
+		}
+
+		ret = eth_get_ops(dev)->write_hwaddr(dev);
+		if (ret)
+			printf("\nWarning: %s failed to set MAC address\n",
+			       dev->name);
+	}
+
+	return ret;
+}
+
 int eth_init(void)
 {
 	struct udevice *current;
@@ -300,13 +325,22 @@ int eth_init(void)
 		if (device_active(current)) {
 			uchar env_enetaddr[6];
 			struct eth_pdata *pdata = current->platdata;
+			int enetaddr_changed = 0;
 
 			/* Sync environment with network device */
 			if (eth_getenv_enetaddr_by_index("eth", current->seq,
-							 env_enetaddr))
+							 env_enetaddr)) {
+				enetaddr_changed = memcmp(pdata->enetaddr,
+					env_enetaddr, 6);
 				memcpy(pdata->enetaddr, env_enetaddr, 6);
-			else
+			} else {
+				memset(env_enetaddr, 0, 6);
+				enetaddr_changed = memcmp(pdata->enetaddr,
+					env_enetaddr, 6);
 				memset(pdata->enetaddr, 0, 6);
+			}
+			if (enetaddr_changed)
+				eth_write_hwaddr(current);
 
 			ret = eth_get_ops(current)->start(current);
 			if (ret >= 0) {
@@ -398,31 +432,6 @@ int eth_rx(void)
 		/* We cannot completely return the error at present */
 		debug("%s: recv() returned error %d\n", __func__, ret);
 	}
-	return ret;
-}
-
-static int eth_write_hwaddr(struct udevice *dev)
-{
-	struct eth_pdata *pdata = dev->platdata;
-	int ret = 0;
-
-	if (!dev || !device_active(dev))
-		return -EINVAL;
-
-	/* seq is valid since the device is active */
-	if (eth_get_ops(dev)->write_hwaddr && !eth_mac_skip(dev->seq)) {
-		if (!is_valid_ethaddr(pdata->enetaddr)) {
-			printf("\nError: %s address %pM illegal value\n",
-			       dev->name, pdata->enetaddr);
-			return -EINVAL;
-		}
-
-		ret = eth_get_ops(dev)->write_hwaddr(dev);
-		if (ret)
-			printf("\nWarning: %s failed to set MAC address\n",
-			       dev->name);
-	}
-
 	return ret;
 }
 
@@ -834,10 +843,21 @@ int eth_init(void)
 	dev = eth_devices;
 	do {
 		uchar env_enetaddr[6];
+		int enetaddr_changed = 0;
 
 		if (eth_getenv_enetaddr_by_index("eth", dev->index,
-						 env_enetaddr))
+						 env_enetaddr)) {
+			enetaddr_changed = memcmp(dev->enetaddr,
+				env_enetaddr, 6);
 			memcpy(dev->enetaddr, env_enetaddr, 6);
+		} else {
+			memset(env_enetaddr, 0, 6);
+			enetaddr_changed = memcmp(dev->enetaddr,
+				env_enetaddr, 6);
+			memset(dev->enetaddr, 0, 6);
+		}
+		if (enetaddr_changed)
+			eth_write_hwaddr(dev, "eth", dev->index);
 
 		dev = dev->next;
 	} while (dev != eth_devices);
