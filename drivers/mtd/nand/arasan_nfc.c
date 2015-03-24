@@ -23,6 +23,7 @@ struct arasan_nand_info {
 	struct mtd_partition    *parts;
 #endif
 	void __iomem            *nand_base;
+	u32 page;
 };
 
 struct nand_regs {
@@ -371,6 +372,9 @@ static int arasan_nand_read_page_hwecc(struct mtd_info *mtd,
 
 	status = arasan_nand_read_page(mtd, buf, (mtd->writesize));
 
+	if (oob_required)
+		chip->ecc.read_oob(mtd, chip, page);
+
 	return status;
 }
 
@@ -423,6 +427,7 @@ static int arasan_nand_write_page_hwecc(struct mtd_info *mtd,
 	u32 size = mtd->writesize;
 	u32 rdcount = 0;
 	u8 column_addr_cycles;
+	struct arasan_nand_info *xnand = chip->priv;
 
 	if (chip->ecc_step_ds >= ARASAN_NAND_PKTSIZE_1K)
 		pktsize = ARASAN_NAND_PKTSIZE_1K;
@@ -505,6 +510,9 @@ static int arasan_nand_write_page_hwecc(struct mtd_info *mtd,
 	reg_val = readl(&arasan_nand_base->intsts_reg);
 	writel(reg_val | ARASAN_NAND_INT_STS_XFR_CMPLT_MASK ,
 	       &arasan_nand_base->intsts_reg);
+
+	if (oob_required)
+		chip->ecc.write_oob(mtd, chip, xnand->page);
 
 	return 0;
 }
@@ -919,6 +927,8 @@ static void arasan_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 				     int column, int page_addr)
 {
 	u32 i;
+	struct nand_chip *chip = mtd->priv;
+	struct arasan_nand_info *xnand = chip->priv;
 
 	curr_cmd = NULL;
 	writel(0x4, &arasan_nand_base->intsts_enr);
@@ -954,8 +964,10 @@ static void arasan_nand_cmd_function(struct mtd_info *mtd, unsigned int command,
 		arasan_nand_send_rdcmd(curr_cmd, column, page_addr, mtd);
 
 	if ((curr_cmd->cmd1 == NAND_CMD_SET_FEATURES) ||
-	    (curr_cmd->cmd1 == NAND_CMD_SEQIN))
+	    (curr_cmd->cmd1 == NAND_CMD_SEQIN)) {
+		xnand->page = page_addr;
 		arasan_nand_send_wrcmd(curr_cmd, column, page_addr, mtd);
+	}
 
 	if (curr_cmd->cmd1 == NAND_CMD_ERASE1)
 		arasan_nand_erase(curr_cmd, column, page_addr, mtd);
