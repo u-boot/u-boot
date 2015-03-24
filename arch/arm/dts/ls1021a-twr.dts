@@ -19,21 +19,6 @@
 	};
 };
 
-&dspi1 {
-	bus-num = <0>;
-	status = "okay";
-
-	dspiflash: s25fl064k@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		compatible = "spansion,s25fl064k";
-		spi-max-frequency = <16000000>;
-		spi-cpol;
-		spi-cpha;
-		reg = <0>;
-	};
-};
-
 &i2c0 {
 	status = "okay";
 };

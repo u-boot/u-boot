@@ -18,6 +18,7 @@
 		enet2_rgmii_phy = &rgmii_phy3;
 		enet0_sgmii_phy = &sgmii_phy1c;
 		enet1_sgmii_phy = &sgmii_phy1d;
+		spi1 = &dspi0;
 	};
 };
 
@@ -28,7 +29,7 @@
 	dspiflash: at45db021d@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "atmel,at45db021d", "atmel,at45", "atmel,dataflash";
+		compatible = "spi-flash";
 		spi-max-frequency = <16000000>;
 		spi-cpol;
 		spi-cpha;
