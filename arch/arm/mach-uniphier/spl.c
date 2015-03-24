@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2013-2015 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -20,6 +21,7 @@ void pll_init(void);
 void pin_init(void);
 void memconf_init(void);
 void early_clkrst_init(void);
+void early_pin_init(void);
 int umc_init(void);
 void enable_dpll_ssc(void);
 
@@ -47,6 +49,16 @@ void spl_board_init(void)
 
 	led_write(L, 2, , );
 
+	early_pin_init();
+
+	led_write(L, 3, , );
+
+#ifdef CONFIG_SPL_SERIAL_SUPPORT
+	preloader_console_init();
+#endif
+
+	led_write(L, 4, , );
+
 	{
 		int res;
 
@@ -56,9 +68,9 @@ void spl_board_init(void)
 				;
 		}
 	}
-	led_write(L, 3, , );
+	led_write(L, 5, , );
 
 	enable_dpll_ssc();
 
-	led_write(L, 4, , );
+	led_write(L, 6, , );
 }

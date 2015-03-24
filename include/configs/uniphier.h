@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2012-2015 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -275,20 +276,13 @@
 #define CONFIG_SPL_TEXT_BASE		0x00100000
 #endif
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
+#define CONFIG_SPL_STACK		(0x0ff08000)
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
 
-#define CONFIG_SYS_SPL_MALLOC_START	(0x0ff00000)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	(0x00004000)
-
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_INIT_SP_ADDR		(0x0ff08000)
-#else
-#define CONFIG_SYS_INIT_SP_ADDR		((CONFIG_SYS_TEXT_BASE) - 0x00001000)
-#endif
+#define CONFIG_PANIC_HANG
 
 #define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* for mem_malloc_init */
@@ -297,5 +291,7 @@
 #define CONFIG_SPL_BOARD_INIT
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x10000
+
+#define CONFIG_SPL_MAX_FOOTPRINT		0x10000
 
 #endif /* __CONFIG_UNIPHIER_COMMON_H__ */

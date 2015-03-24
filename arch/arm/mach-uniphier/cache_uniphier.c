@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2012-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -119,36 +120,7 @@ void v7_outer_cache_disable(void)
 	writel(tmp, SSCC);
 }
 
-void wakeup_secondary(void);
-
 void enable_caches(void)
 {
-	uint32_t reg;
-
-#ifdef CONFIG_UNIPHIER_SMP
-	/*
-	 * The secondary CPU must move to DDR,
-	 * before L2 disable.
-	 * On SPL, the Page Table is located on the L2.
-	 */
-	wakeup_secondary();
-#endif
-	/*
-	 * UniPhier SoCs must use L2 cache for init stack pointer.
-	 * We disable L2 and L1 in this order.
-	 * If CONFIG_SYS_DCACHE_OFF is not defined,
-	 * caches are enabled again with a new page table.
-	 */
-
-	/* L2 disable */
-	v7_outer_cache_disable();
-
-	/* L1 disable */
-	reg = get_cr();
-	reg &= ~(CR_C | CR_M);
-	set_cr(reg);
-
-#ifndef CONFIG_SYS_DCACHE_OFF
 	dcache_enable();
-#endif
 }

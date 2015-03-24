@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2012-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2012-2015 Panasonic Corporation
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -24,8 +25,8 @@ ENTRY(lowlevel_init)
 	 * First we need to turn on MMU and Dcache again to get back
 	 * data access to L2.
 	 */
-	mrc	p15, 0, r0, c1, c0, 0		@ SCTLR (System Contrl Register)
-	orr	r0, r0, #(CR_C | CR_M)		@ enable MMU and Dcache
+	mrc	p15, 0, r0, c1, c0, 0	@ SCTLR (System Control Register)
+	orr	r0, r0, #(CR_C | CR_M)	@ enable MMU and Dcache
 	mcr	p15, 0, r0, c1, c0, 0
 
 #ifdef CONFIG_DEBUG_LL
@@ -40,13 +41,32 @@ ENTRY(lowlevel_init)
 	ldr	r3, =init_page_table	@ page table must be 16KB aligned
 
 	/* Disable MMU and Dcache before switching Page Table */
-	mrc	p15, 0, r0, c1, c0, 0	@ SCTLR (System Contrl Register)
+	mrc	p15, 0, r0, c1, c0, 0	@ SCTLR (System Control Register)
 	bic	r0, r0, #(CR_C | CR_M)	@ disable MMU and Dcache
 	mcr	p15, 0, r0, c1, c0, 0
 
 	bl	enable_mmu
 
 #ifdef CONFIG_UNIPHIER_SMP
+secondary_startup:
+	/*
+	 * Entry point for secondary CPUs
+	 *
+	 * The Boot ROM has already enabled MMU for the secondary CPUs as well
+	 * as for the primary one.  The MMU table embedded in the Boot ROM
+	 * prohibits the DRAM access, so it is impossible to bring the
+	 * secondary CPUs into DRAM directly.  They must jump here into SPL,
+	 * which is run on L2 cache.
+	 *
+	 * Boot Sequence
+	 *  [primary CPU]                    [secondary CPUs]
+	 *  start from Boot ROM             start from Boot ROM
+	 *     jump to SPL                    sleep in Boot ROM
+	 *  kick secondaries   ---(sev)--->    jump to SPL
+	 *  jump to U-Boot main               sleep in SPL
+	 *  jump to Linux
+	 *  kick secondaries   ---(sev)--->    jump to Linux
+	 */
 	/*
 	 * ACTLR (Auxiliary Control Register) for Cortex-A9
 	 * bit[9]  Parity on
@@ -54,7 +74,7 @@ ENTRY(lowlevel_init)
 	 * bit[7]  EXCL (Exclusive cache bit)
 	 * bit[6]  SMP
 	 * bit[3]  Write full line of zeros mode
-	 * bit[2]  L1 Prefetch enable
+	 * bit[2]  L1 prefetch enable
 	 * bit[1]  L2 prefetch enable
 	 * bit[0]  FW (Cache and TLB maintenance broadcast)
 	 */
@@ -67,20 +87,31 @@ ENTRY(lowlevel_init)
 	and  	r0, r0, #0x3
 	cmp	r0, #0x0
 	beq	primary_cpu
-	ldr	r1, =ROM_BOOT_ROMRSV2
+	/* only for secondary CPUs */
+	ldr	r1, =ROM_BOOT_ROMRSV2	@ The last data access to L2 cache
+	mrc	p15, 0, r0, c1, c0, 0	@ SCTLR (System Control Register)
+	orr	r0, r0, #CR_I		@ Enable ICache
+	bic	r0, r0, #(CR_C | CR_M)	@ MMU and Dcache must be disabled
+	mcr	p15, 0, r0, c1, c0, 0	@ before jumping to Linux
 	mov	r0, #0
 	str	r0, [r1]
-0:	wfe
-	ldr	r0, [r1]
+	b	1f
+	/*
+	 * L2 cache is shared among all the CPUs and it might be disabled by
+	 * the primary one.  Before that, the following 5 lines must be cached
+	 * on the Icaches of the secondary CPUs.
+	 */
+0:	wfe				@ kicked by Linux
+1:	ldr	r0, [r1]
 	cmp	r0, #0
-	beq	0b
-	bx	r0			@ r0: entry point of U-Boot main for the secondary CPU
+	bxne	r0			@ r0: Linux entry for secondary CPUs
+	b	0b
 primary_cpu:
 	ldr	r1, =ROM_BOOT_ROMRSV2
-	ldr	r0, =_start		@ entry for the secondary CPU
+	ldr	r0, =secondary_startup
 	str	r0, [r1]
 	ldr	r0, [r1]		@ make sure str is complete before sev
-	sev				@ kick the sedoncary CPU
+	sev				@ kick the secondary CPU
 	mrc	p15, 4, r1, c15, c0, 0	@ Configuration Base Address Register
 	bfc	r1, #0, #13		@ clear bit 12-0
 	mov	r0, #-1
@@ -117,7 +148,7 @@ ENTRY(enable_mmu)
 	 * TLBs was already invalidated in "../start.S"
 	 * So, we don't need to invalidate it here.
 	 */
-	mrc	p15, 0, r0, c1, c0, 0	@ SCTLR (System Contrl Register)
+	mrc	p15, 0, r0, c1, c0, 0	@ SCTLR (System Control Register)
 	orr	r0, r0, #(CR_C | CR_M)	@ MMU and Dcache enable
 	mcr	p15, 0, r0, c1, c0, 0
 
@@ -142,7 +173,7 @@ ENTRY(setup_init_ram)
 	ldr	r0, = 0x00408006	@ touch to zero with address range
 	ldr	r1, = SSCOQM
 	str	r0, [r1]
-	ldr	r0, = (CONFIG_SYS_INIT_SP_ADDR - BOOT_RAM_SIZE)	@ base address
+	ldr	r0, = (CONFIG_SPL_STACK - BOOT_RAM_SIZE)	@ base address
 	ldr	r1, = SSCOQAD
 	str	r0, [r1]
 	ldr	r0, = BOOT_RAM_SIZE
@@ -154,7 +185,7 @@ ENTRY(setup_init_ram)
 	ldr	r1, = SSCOPPQSEF
 	ldr	r0, [r1]
 	cmp	r0, #0			@ check if the command is successfully set
-	bne	0b			@ try again if an error occurres
+	bne	0b			@ try again if an error occurs
 
 	ldr	r1, = SSCOLPQS
 1:

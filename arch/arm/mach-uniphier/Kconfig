@@ -1,9 +1,6 @@
 menu "Panasonic UniPhier platform"
 	depends on ARCH_UNIPHIER
 
-config SYS_SOC
-	default "uniphier"
-
 config SYS_CONFIG_NAME
 	default "uniphier"
 
