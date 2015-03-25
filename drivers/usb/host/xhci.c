@@ -384,7 +384,7 @@ static int xhci_set_configuration(struct usb_device *udev)
  * @param udev pointer to the Device Data Structure
  * @return 0 if successful else error code on failure
  */
-static int xhci_address_device(struct usb_device *udev)
+static int xhci_address_device(struct usb_device *udev, int root_portnr)
 {
 	int ret = 0;
 	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
@@ -400,8 +400,9 @@ static int xhci_address_device(struct usb_device *udev)
 	 * This is the first Set Address since device plug-in
 	 * so setting up the slot context.
 	 */
-	debug("Setting up addressable devices\n");
-	xhci_setup_addressable_virt_dev(udev);
+	debug("Setting up addressable devices %p\n", ctrl->dcbaa);
+	xhci_setup_addressable_virt_dev(ctrl, udev->slot_id, udev->speed,
+					root_portnr);
 
 	ctrl_ctx = xhci_get_input_control_ctx(virt_dev->in_ctx);
 	ctrl_ctx->add_flags = cpu_to_le32(SLOT_FLAG | EP0_FLAG);
@@ -903,11 +904,12 @@ submit_bulk_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
  * @param buffer	buffer to be read/written based on the request
  * @param length	length of the buffer
  * @param setup		Request type
+ * @param root_portnr	Root port number that this device is on
  * @return returns 0 if successful else -1 on failure
  */
-int
-submit_control_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
-					int length, struct devrequest *setup)
+static int _xhci_submit_control_msg(struct usb_device *udev, unsigned long pipe,
+				    void *buffer, int length,
+				    struct devrequest *setup, int root_portnr)
 {
 	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	int ret = 0;
@@ -921,7 +923,7 @@ submit_control_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
 		return xhci_submit_root(udev, pipe, buffer, setup);
 
 	if (setup->request == USB_REQ_SET_ADDRESS)
-		return xhci_address_device(udev);
+		return xhci_address_device(udev, root_portnr);
 
 	if (setup->request == USB_REQ_SET_CONFIGURATION) {
 		ret = xhci_set_configuration(udev);
@@ -1005,6 +1007,19 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	*controller = &xhcic[index];
 
 	return 0;
+}
+
+int submit_control_msg(struct usb_device *udev, unsigned long pipe,
+		       void *buffer, int length, struct devrequest *setup)
+{
+	struct usb_device *hop = udev;
+
+	if (hop->parent)
+		while (hop->parent->parent)
+			hop = hop->parent;
+
+	return _xhci_submit_control_msg(udev, pipe, buffer, length, setup,
+					hop->portnr);
 }
 
 /**

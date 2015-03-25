@@ -625,17 +625,16 @@ void xhci_slot_copy(struct xhci_ctrl *ctrl, struct xhci_container_ctx *in_ctx,
  * @param udev pointer to the Device Data Structure
  * @return returns negative value on failure else 0 on success
  */
-void xhci_setup_addressable_virt_dev(struct usb_device *udev)
+void xhci_setup_addressable_virt_dev(struct xhci_ctrl *ctrl, int slot_id,
+				     int speed, int hop_portnr)
 {
-	struct usb_device *hop = udev;
 	struct xhci_virt_device *virt_dev;
 	struct xhci_ep_ctx *ep0_ctx;
 	struct xhci_slot_ctx *slot_ctx;
 	u32 port_num = 0;
 	u64 trb_64 = 0;
-	struct xhci_ctrl *ctrl = udev->controller;
 
-	virt_dev = ctrl->devs[udev->slot_id];
+	virt_dev = ctrl->devs[slot_id];
 
 	BUG_ON(!virt_dev);
 
@@ -646,7 +645,7 @@ void xhci_setup_addressable_virt_dev(struct usb_device *udev)
 	/* Only the control endpoint is valid - one endpoint context */
 	slot_ctx->dev_info |= cpu_to_le32(LAST_CTX(1) | 0);
 
-	switch (udev->speed) {
+	switch (speed) {
 	case USB_SPEED_SUPER:
 		slot_ctx->dev_info |= cpu_to_le32(SLOT_SPEED_SS);
 		break;
@@ -664,11 +663,7 @@ void xhci_setup_addressable_virt_dev(struct usb_device *udev)
 		BUG();
 	}
 
-	/* Extract the root hub port number */
-	if (hop->parent)
-		while (hop->parent->parent)
-			hop = hop->parent;
-	port_num = hop->portnr;
+	port_num = hop_portnr;
 	debug("port_num = %d\n", port_num);
 
 	slot_ctx->dev_info2 |=
@@ -678,9 +673,9 @@ void xhci_setup_addressable_virt_dev(struct usb_device *udev)
 	/* Step 4 - ring already allocated */
 	/* Step 5 */
 	ep0_ctx->ep_info2 = cpu_to_le32(CTRL_EP << EP_TYPE_SHIFT);
-	debug("SPEED = %d\n", udev->speed);
+	debug("SPEED = %d\n", speed);
 
-	switch (udev->speed) {
+	switch (speed) {
 	case USB_SPEED_SUPER:
 		ep0_ctx->ep_info2 |= cpu_to_le32(((512 & MAX_PACKET_MASK) <<
 					MAX_PACKET_SHIFT));
