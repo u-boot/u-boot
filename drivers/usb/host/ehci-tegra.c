@@ -225,13 +225,14 @@ void ehci_set_usbmode(int index)
  * This ehci_get_port_speed overrides the weak function ehci_get_port_speed
  * in "ehci-hcd.c".
  */
-int ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
+int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
 {
 	uint32_t tmp;
 	uint32_t *reg_ptr;
 
 	if (controller->has_hostpc) {
-		reg_ptr = (uint32_t *)((u8 *)&hcor->or_usbcmd + HOSTPC1_DEVLC);
+		reg_ptr = (uint32_t *)((u8 *)&ctrl->hcor->or_usbcmd +
+				HOSTPC1_DEVLC);
 		tmp = ehci_readl(reg_ptr);
 		return HOSTPC1_PSPD(tmp);
 	} else

@@ -119,7 +119,7 @@ static struct descriptor {
 #define ehci_is_TDI()	(0)
 #endif
 
-__weak int ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
+__weak int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
 {
 	return PORTSC_PSPD(reg);
 }
@@ -781,7 +781,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			tmpbuf[1] |= USB_PORT_STAT_POWER >> 8;
 
 		if (ehci_is_TDI()) {
-			switch (ehci_get_port_speed(ctrl->hcor, reg)) {
+			switch (ehci_get_port_speed(ctrl, reg)) {
 			case PORTSC_PSPD_FS:
 				break;
 			case PORTSC_PSPD_LS:

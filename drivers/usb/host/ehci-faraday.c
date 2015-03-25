@@ -101,11 +101,12 @@ void ehci_set_usbmode(int index)
  * This ehci_get_port_speed() overrides the weak function
  * in "ehci-hcd.c".
  */
-int ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
+int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
 {
 	int spd, ret = PORTSC_PSPD_HS;
-	union ehci_faraday_regs *regs = (void __iomem *)((ulong)hcor - 0x10);
+	union ehci_faraday_regs *regs;
 
+	ret = (void __iomem *)((ulong)ctrl->hcor - 0x10);
 	if (ehci_is_fotg2xx(regs))
 		spd = OTGCSR_SPD(readl(&regs->otg.otgcsr));
 	else
