@@ -1002,4 +1002,17 @@ struct usb_set_sel_req {
  */
 #define USB_SELF_POWER_VBUS_MAX_DRAW		100
 
+/**
+ * struct usb_string - wraps a C string and its USB id
+ * @id:the (nonzero) ID for this string
+ * @s:the string, in UTF-8 encoding
+ *
+ * If you're using usb_gadget_get_string(), use this to wrap a string
+ * together with its ID.
+ */
+struct usb_string {
+	u8 id;
+	const char *s;
+};
+
 #endif /* __LINUX_USB_CH9_H */
