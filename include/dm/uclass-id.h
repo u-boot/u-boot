@@ -40,6 +40,7 @@ enum uclass_id {
 	UCLASS_PCH,		/* x86 platform controller hub */
 	UCLASS_ETH,		/* Ethernet device */
 	UCLASS_LPC,		/* x86 'low pin count' interface */
+	UCLASS_USB,		/* USB bus */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,

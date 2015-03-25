@@ -180,7 +180,7 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 	return NULL; /* URB still pending */
 }
 
-void usb_reset_root_port(void)
+int usb_reset_root_port(void)
 {
 	void *mbase = host->mregs;
 	u8 power;
@@ -208,6 +208,8 @@ void usb_reset_root_port(void)
 			(musb_readb(mbase, MUSB_DEVCTL) & MUSB_DEVCTL_FSDEV) ?
 			USB_SPEED_FULL : USB_SPEED_LOW;
 	mdelay((host_speed == USB_SPEED_LOW) ? 200 : 50);
+
+	return 0;
 }
 
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
