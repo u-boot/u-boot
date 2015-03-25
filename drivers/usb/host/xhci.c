@@ -110,6 +110,11 @@ static struct descriptor {
 
 static struct xhci_ctrl xhcic[CONFIG_USB_MAX_CONTROLLER_COUNT];
 
+struct xhci_ctrl *xhci_get_ctrl(struct usb_device *udev)
+{
+	return udev->controller;
+}
+
 /**
  * Waits for as per specified amount of time
  * for the "result" to match with "done"
@@ -250,7 +255,7 @@ static int xhci_configure_endpoints(struct usb_device *udev, bool ctx_change)
 {
 	struct xhci_container_ctx *in_ctx;
 	struct xhci_virt_device *virt_dev;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	union xhci_trb *event;
 
 	virt_dev = ctrl->devs[udev->slot_id];
@@ -298,7 +303,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 	int ep_index;
 	unsigned int dir;
 	unsigned int ep_type;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	int num_of_ep;
 	int ep_flag = 0;
 	u64 trb_64 = 0;
@@ -382,7 +387,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 static int xhci_address_device(struct usb_device *udev)
 {
 	int ret = 0;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	struct xhci_slot_ctx *slot_ctx;
 	struct xhci_input_control_ctx *ctrl_ctx;
 	struct xhci_virt_device *virt_dev;
@@ -463,8 +468,8 @@ static int xhci_address_device(struct usb_device *udev)
  */
 int usb_alloc_device(struct usb_device *udev)
 {
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	union xhci_trb *event;
-	struct xhci_ctrl *ctrl = udev->controller;
 	int ret;
 
 	/*
@@ -510,7 +515,7 @@ int usb_alloc_device(struct usb_device *udev)
  */
 int xhci_check_maxpacket(struct usb_device *udev)
 {
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	unsigned int slot_id = udev->slot_id;
 	int ep_index = 0;	/* control endpoint */
 	struct xhci_container_ctx *in_ctx;
@@ -640,7 +645,7 @@ static int xhci_submit_root(struct usb_device *udev, unsigned long pipe,
 	int len, srclen;
 	uint32_t reg;
 	volatile uint32_t *status_reg;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	struct xhci_hcor *hcor = ctrl->hcor;
 
 	if ((req->requesttype & USB_RT_PORT) &&
@@ -904,7 +909,7 @@ int
 submit_control_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
 					int length, struct devrequest *setup)
 {
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	int ret = 0;
 
 	if (usb_pipetype(pipe) != PIPE_CONTROL) {

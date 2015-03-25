@@ -1259,4 +1259,6 @@ int xhci_alloc_virt_device(struct usb_device *udev);
 int xhci_mem_init(struct xhci_ctrl *ctrl, struct xhci_hccr *hccr,
 		  struct xhci_hcor *hcor);
 
+struct xhci_ctrl *xhci_get_ctrl(struct usb_device *udev);
+
 #endif /* HOST_XHCI_H_ */
