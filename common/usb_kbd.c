@@ -471,59 +471,72 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	return 1;
 }
 
+static int probe_usb_keyboard(struct usb_device *dev)
+{
+	char *stdinname;
+	struct stdio_dev usb_kbd_dev;
+	int error;
+
+	/* Try probing the keyboard */
+	if (usb_kbd_probe(dev, 0) != 1)
+		return -ENOENT;
+
+	/* Register the keyboard */
+	debug("USB KBD: register.\n");
+	memset(&usb_kbd_dev, 0, sizeof(struct stdio_dev));
+	strcpy(usb_kbd_dev.name, DEVNAME);
+	usb_kbd_dev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+	usb_kbd_dev.getc = usb_kbd_getc;
+	usb_kbd_dev.tstc = usb_kbd_testc;
+	usb_kbd_dev.priv = (void *)dev;
+	error = stdio_register(&usb_kbd_dev);
+	if (error)
+		return error;
+
+	stdinname = getenv("stdin");
+#ifdef CONFIG_CONSOLE_MUX
+	error = iomux_doenv(stdin, stdinname);
+	if (error)
+		return error;
+#else
+	/* Check if this is the standard input device. */
+	if (strcmp(stdinname, DEVNAME))
+		return 1;
+
+	/* Reassign the console */
+	if (overwrite_console())
+		return 1;
+
+	error = console_assign(stdin, DEVNAME);
+	if (error)
+		return error;
+#endif
+
+	return 0;
+}
+
 /* Search for keyboard and register it if found. */
 int drv_usb_kbd_init(void)
 {
-	struct stdio_dev usb_kbd_dev;
-	struct usb_device *dev;
-	char *stdinname = getenv("stdin");
 	int error, i;
 
-	/* Scan all USB Devices */
+	debug("%s: Probing for keyboard\n", __func__);/* Scan all USB Devices */
 	for (i = 0; i < USB_MAX_DEVICE; i++) {
+		struct usb_device *dev;
+
 		/* Get USB device. */
 		dev = usb_get_dev_index(i);
 		if (!dev)
-			return -1;
+			break;
 
 		if (dev->devnum == -1)
 			continue;
 
-		/* Try probing the keyboard */
-		if (usb_kbd_probe(dev, 0) != 1)
-			continue;
-
-		/* Register the keyboard */
-		debug("USB KBD: register.\n");
-		memset(&usb_kbd_dev, 0, sizeof(struct stdio_dev));
-		strcpy(usb_kbd_dev.name, DEVNAME);
-		usb_kbd_dev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-		usb_kbd_dev.getc = usb_kbd_getc;
-		usb_kbd_dev.tstc = usb_kbd_testc;
-		usb_kbd_dev.priv = (void *)dev;
-		error = stdio_register(&usb_kbd_dev);
-		if (error)
-			return error;
-
-#ifdef CONFIG_CONSOLE_MUX
-		error = iomux_doenv(stdin, stdinname);
-		if (error)
-			return error;
-#else
-		/* Check if this is the standard input device. */
-		if (strcmp(stdinname, DEVNAME))
+		error = probe_usb_keyboard(dev);
+		if (!error)
 			return 1;
-
-		/* Reassign the console */
-		if (overwrite_console())
-			return 1;
-
-		error = console_assign(stdin, DEVNAME);
-		if (error)
+		if (error && error != -ENOENT)
 			return error;
-#endif
-
-		return 1;
 	}
 
 	/* No USB Keyboard found */
