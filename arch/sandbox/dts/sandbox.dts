@@ -1,5 +1,7 @@
 /dts-v1/;
 
+#define USB_CLASS_HUB			9
+
 / {
 	#address-cells = <1>;
 	#size-cells = <1>;
@@ -152,6 +154,44 @@
 		reg = <0x90000000 0x1000>;
 		host-raw-interface = "lo";
 	};
+
+	usb@0 {
+		compatible = "sandbox,usb";
+		status = "disabled";
+		hub {
+			compatible = "sandbox,usb-hub";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			flash-stick {
+				reg = <0>;
+				compatible = "sandbox,usb-flash";
+			};
+		};
+	};
+
+	usb@1 {
+		compatible = "sandbox,usb";
+		hub {
+			compatible = "usb-hub";
+			usb,device-class = <USB_CLASS_HUB>;
+			hub-emul {
+				compatible = "sandbox,usb-hub";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				flash-stick {
+					reg = <0>;
+					compatible = "sandbox,usb-flash";
+					sandbox,filepath = "flash.bin";
+				};
+			};
+		};
+	};
+
+	usb@2 {
+		compatible = "sandbox,usb";
+		status = "disabled";
+	};
+
 };
 
 #include "cros-ec-keyboard.dtsi"
