@@ -704,7 +704,7 @@ static int xhci_submit_root(struct usb_device *udev, unsigned long pipe,
 				srclen = 4;
 				break;
 			case 1:	/* Vendor String  */
-				srcptr = "\16\3u\0-\0b\0o\0o\0t\0";
+				srcptr = "\16\3U\0-\0B\0o\0o\0t\0";
 				srclen = 14;
 				break;
 			case 2:	/* Product Name */
