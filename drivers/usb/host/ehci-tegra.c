@@ -87,8 +87,6 @@ struct fdt_usb {
 
 static struct fdt_usb port[USB_PORTS_MAX];	/* List of valid USB ports */
 static unsigned port_count;			/* Number of available ports */
-/* Port that needs to clear CSC after Port Reset */
-static u32 port_addr_clear_csc;
 
 /*
  * This table has USB timing parameters for each Oscillator frequency we
@@ -206,7 +204,7 @@ static void tegra_ehci_powerup_fixup(struct ehci_ctrl *ctrl,
 	if (controller->has_hostpc)
 		*reg |= EHCI_PS_PE;
 
-	if (((unsigned long)status_reg & TEGRA_USB_ADDR_MASK) != port_addr_clear_csc)
+	if (!config->has_legacy_mode)
 		return;
 	/* For EHCI_PS_CSC to be cleared in ehci_hcd.c */
 	if (ehci_readl(status_reg) & EHCI_PS_CSC)
@@ -683,8 +681,6 @@ static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 	config->enabled = fdtdec_get_is_enabled(blob, node);
 	config->has_legacy_mode = fdtdec_get_bool(blob, node,
 						  "nvidia,has-legacy-mode");
-	if (config->has_legacy_mode)
-		port_addr_clear_csc = (unsigned long)config->reg;
 	config->periph_id = clock_decode_periph_id(blob, node);
 	if (config->periph_id == PERIPH_ID_NONE) {
 		debug("%s: Missing/invalid peripheral ID\n", __func__);
