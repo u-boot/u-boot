@@ -33,6 +33,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <inttypes.h>
 #include <mapmem.h>
 #include <asm/byteorder.h>
@@ -168,6 +169,60 @@ static unsigned int usb_get_max_lun(struct us_data *us)
 	return (len > 0) ? *result : 0;
 }
 
+static int usb_stor_probe_device(struct usb_device *dev)
+{
+	if (dev == NULL)
+		return -ENOENT; /* no more devices available */
+
+	debug("\n\nProbing for storage\n");
+	if (usb_storage_probe(dev, 0, &usb_stor[usb_max_devs])) {
+		/* OK, it's a storage device.  Iterate over its LUNs
+			* and populate `usb_dev_desc'.
+			*/
+		int lun, max_lun, start = usb_max_devs;
+
+		max_lun = usb_get_max_lun(&usb_stor[usb_max_devs]);
+		for (lun = 0;
+			lun <= max_lun && usb_max_devs < USB_MAX_STOR_DEV;
+			lun++) {
+			struct block_dev_desc *blkdev;
+
+			blkdev = &usb_dev_desc[usb_max_devs];
+			memset(blkdev, '\0', sizeof(block_dev_desc_t));
+			blkdev->if_type = IF_TYPE_USB;
+			blkdev->dev = usb_max_devs;
+			blkdev->part_type = PART_TYPE_UNKNOWN;
+			blkdev->target = 0xff;
+			blkdev->type = DEV_TYPE_UNKNOWN;
+			blkdev->block_read = usb_stor_read;
+			blkdev->block_write = usb_stor_write;
+			blkdev->lun = lun;
+			blkdev->priv = dev;
+
+			if (usb_stor_get_info(dev, &usb_stor[start],
+					      &usb_dev_desc[usb_max_devs]) ==
+					      1) {
+				usb_max_devs++;
+				debug("%s: Found device %p\n", __func__, dev);
+			}
+		}
+	}
+
+	/* if storage device */
+	if (usb_max_devs == USB_MAX_STOR_DEV) {
+		printf("max USB Storage Device reached: %d stopping\n",
+		       usb_max_devs);
+		return -ENOSPC;
+	}
+
+	return 0;
+}
+
+void usb_stor_reset(void)
+{
+	usb_max_devs = 0;
+}
+
 /*******************************************************************************
  * scan the usb and reports device info
  * to the user if mode = 1
@@ -176,54 +231,20 @@ static unsigned int usb_get_max_lun(struct us_data *us)
 int usb_stor_scan(int mode)
 {
 	unsigned char i;
-	struct usb_device *dev;
 
 	if (mode == 1)
 		printf("       scanning usb for storage devices... ");
 
 	usb_disable_asynch(1); /* asynch transfer not allowed */
 
-	for (i = 0; i < USB_MAX_STOR_DEV; i++) {
-		memset(&usb_dev_desc[i], 0, sizeof(block_dev_desc_t));
-		usb_dev_desc[i].if_type = IF_TYPE_USB;
-		usb_dev_desc[i].dev = i;
-		usb_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
-		usb_dev_desc[i].target = 0xff;
-		usb_dev_desc[i].type = DEV_TYPE_UNKNOWN;
-		usb_dev_desc[i].block_read = usb_stor_read;
-		usb_dev_desc[i].block_write = usb_stor_write;
-	}
-
-	usb_max_devs = 0;
+	usb_stor_reset();
 	for (i = 0; i < USB_MAX_DEVICE; i++) {
+		struct usb_device *dev;
+
 		dev = usb_get_dev_index(i); /* get device */
 		debug("i=%d\n", i);
-		if (dev == NULL)
-			break; /* no more devices available */
-
-		if (usb_storage_probe(dev, 0, &usb_stor[usb_max_devs])) {
-			/* OK, it's a storage device.  Iterate over its LUNs
-			 * and populate `usb_dev_desc'.
-			 */
-			int lun, max_lun, start = usb_max_devs;
-
-			max_lun = usb_get_max_lun(&usb_stor[usb_max_devs]);
-			for (lun = 0;
-			     lun <= max_lun && usb_max_devs < USB_MAX_STOR_DEV;
-			     lun++) {
-				usb_dev_desc[usb_max_devs].lun = lun;
-				if (usb_stor_get_info(dev, &usb_stor[start],
-				    &usb_dev_desc[usb_max_devs]) == 1) {
-					usb_max_devs++;
-				}
-			}
-		}
-		/* if storage device */
-		if (usb_max_devs == USB_MAX_STOR_DEV) {
-			printf("max USB Storage Device reached: %d stopping\n",
-				usb_max_devs);
+		if (usb_stor_probe_device(dev))
 			break;
-		}
 	} /* for */
 
 	usb_disable_asynch(0); /* asynch transfer allowed */
