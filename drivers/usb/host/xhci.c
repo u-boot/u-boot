@@ -936,33 +936,16 @@ static int _xhci_submit_control_msg(struct usb_device *udev, unsigned long pipe,
 	return xhci_ctrl_tx(udev, pipe, setup, length, buffer);
 }
 
-/**
- * Intialises the XHCI host controller
- * and allocates the necessary data structures
- *
- * @param index	index to the host controller data structure
- * @return pointer to the intialised controller
- */
-int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
+static int xhci_lowlevel_init(struct xhci_ctrl *ctrl)
 {
+	struct xhci_hccr *hccr;
+	struct xhci_hcor *hcor;
 	uint32_t val;
 	uint32_t val2;
 	uint32_t reg;
-	struct xhci_hccr *hccr;
-	struct xhci_hcor *hcor;
-	struct xhci_ctrl *ctrl;
 
-	if (xhci_hcd_init(index, &hccr, (struct xhci_hcor **)&hcor) != 0)
-		return -ENODEV;
-
-	if (xhci_reset(hcor) != 0)
-		return -ENODEV;
-
-	ctrl = &xhcic[index];
-
-	ctrl->hccr = hccr;
-	ctrl->hcor = hcor;
-
+	hccr = ctrl->hccr;
+	hcor = ctrl->hcor;
 	/*
 	 * Program the Number of Device Slots Enabled field in the CONFIG
 	 * register with the max value of slots the HC can handle.
@@ -1004,7 +987,20 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	reg = HC_VERSION(xhci_readl(&hccr->cr_capbase));
 	printf("USB XHCI %x.%02x\n", reg >> 8, reg & 0xff);
 
-	*controller = &xhcic[index];
+	return 0;
+}
+
+static int xhci_lowlevel_stop(struct xhci_ctrl *ctrl)
+{
+	u32 temp;
+
+	xhci_reset(ctrl->hcor);
+
+	debug("// Disabling event ring interrupts\n");
+	temp = xhci_readl(&ctrl->hcor->or_usbsts);
+	xhci_writel(&ctrl->hcor->or_usbsts, temp & ~STS_EINT);
+	temp = xhci_readl(&ctrl->ir_set->irq_pending);
+	xhci_writel(&ctrl->ir_set->irq_pending, ER_IRQ_DISABLE(temp));
 
 	return 0;
 }
@@ -1023,6 +1019,38 @@ int submit_control_msg(struct usb_device *udev, unsigned long pipe,
 }
 
 /**
+ * Intialises the XHCI host controller
+ * and allocates the necessary data structures
+ *
+ * @param index	index to the host controller data structure
+ * @return pointer to the intialised controller
+ */
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
+{
+	struct xhci_hccr *hccr;
+	struct xhci_hcor *hcor;
+	struct xhci_ctrl *ctrl;
+	int ret;
+
+	if (xhci_hcd_init(index, &hccr, (struct xhci_hcor **)&hcor) != 0)
+		return -ENODEV;
+
+	if (xhci_reset(hcor) != 0)
+		return -ENODEV;
+
+	ctrl = &xhcic[index];
+
+	ctrl->hccr = hccr;
+	ctrl->hcor = hcor;
+
+	ret = xhci_lowlevel_init(ctrl);
+
+	*controller = &xhcic[index];
+
+	return ret;
+}
+
+/**
  * Stops the XHCI host controller
  * and cleans up all the related data structures
  *
@@ -1032,18 +1060,9 @@ int submit_control_msg(struct usb_device *udev, unsigned long pipe,
 int usb_lowlevel_stop(int index)
 {
 	struct xhci_ctrl *ctrl = (xhcic + index);
-	u32 temp;
 
-	xhci_reset(ctrl->hcor);
-
-	debug("// Disabling event ring interrupts\n");
-	temp = xhci_readl(&ctrl->hcor->or_usbsts);
-	xhci_writel(&ctrl->hcor->or_usbsts, temp & ~STS_EINT);
-	temp = xhci_readl(&ctrl->ir_set->irq_pending);
-	xhci_writel(&ctrl->ir_set->irq_pending, ER_IRQ_DISABLE(temp));
-
+	xhci_lowlevel_stop(ctrl);
 	xhci_hcd_stop(index);
-
 	xhci_cleanup(ctrl);
 
 	return 0;
