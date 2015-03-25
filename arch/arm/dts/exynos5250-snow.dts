@@ -134,6 +134,7 @@
 
 	ehci@12110000 {
 		samsung,vbus-gpio = <&gpx1 1 GPIO_ACTIVE_HIGH>;
+		status = "okay";
 	};
 
 	xhci@12000000 {
