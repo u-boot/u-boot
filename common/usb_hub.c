@@ -149,7 +149,7 @@ static inline char *portspeed(int portstatus)
 	return speed_str;
 }
 
-int hub_port_reset(struct usb_device *dev, int port,
+int legacy_hub_port_reset(struct usb_device *dev, int port,
 			unsigned short *portstat)
 {
 	int tries;
@@ -249,7 +249,7 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 	mdelay(200);
 
 	/* Reset the port */
-	ret = hub_port_reset(dev, port, &portstatus);
+	ret = legacy_hub_port_reset(dev, port, &portstatus);
 	if (ret < 0) {
 		printf("cannot reset port %i!?\n", port + 1);
 		return ret;

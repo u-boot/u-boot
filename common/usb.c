@@ -877,6 +877,26 @@ __weak int usb_alloc_device(struct usb_device *udev)
 {
 	return 0;
 }
+
+int usb_legacy_port_reset(struct usb_device *hub, int portnr)
+{
+	if (hub) {
+		unsigned short portstatus;
+		int err;
+
+		/* reset the port for the second time */
+		err = legacy_hub_port_reset(hub, portnr - 1, &portstatus);
+		if (err < 0) {
+			printf("\n     Couldn't reset port %i\n", portnr);
+			return err;
+		}
+	} else {
+		usb_reset_root_port();
+	}
+
+	return 0;
+}
+
 /*
  * By the time we get here, the device has gotten a new device ID
  * and is in the default state. We need to identify the thing and
@@ -913,9 +933,6 @@ int usb_new_device(struct usb_device *dev)
 	 * http://sourceforge.net/mailarchive/forum.php?
 	 * thread_id=5729457&forum_id=5398
 	 */
-	__maybe_unused struct usb_device_descriptor *desc;
-	struct usb_device *parent = dev->parent;
-	unsigned short portstatus;
 
 	/*
 	 * send 64-byte GET-DEVICE-DESCRIPTOR request.  Since the descriptor is
@@ -923,7 +940,6 @@ int usb_new_device(struct usb_device *dev)
 	 * the maxpacket size is 8 or 16 the device may be waiting to transmit
 	 * some more, or keeps on retransmitting the 8 byte header. */
 
-	desc = (struct usb_device_descriptor *)tmpbuf;
 	dev->descriptor.bMaxPacketSize0 = 64;	    /* Start off at 64 bytes  */
 	/* Default to 64 byte max packet size */
 	dev->maxpacketsize = PACKET_SIZE_64;
@@ -937,6 +953,9 @@ int usb_new_device(struct usb_device *dev)
 	 * of that is done for XHCI unlike EHCI.
 	 */
 #ifndef CONFIG_USB_XHCI
+	struct usb_device_descriptor *desc;
+
+	desc = (struct usb_device_descriptor *)tmpbuf;
 	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
 	/*
 	 * Validate we've received only at least 8 bytes, not that we've
@@ -966,16 +985,9 @@ int usb_new_device(struct usb_device *dev)
 	dev->descriptor.bDeviceClass = desc->bDeviceClass;
 #endif
 
-	if (parent) {
-		/* reset the port for the second time */
-		err = hub_port_reset(dev->parent, dev->portnr - 1, &portstatus);
-		if (err < 0) {
-			printf("\n     Couldn't reset port %i\n", dev->portnr);
-			return -EIO;
-		}
-	} else {
-		usb_reset_root_port();
-	}
+	err = usb_legacy_port_reset(dev->parent, dev->portnr);
+	if (err)
+		return err;
 
 	dev->epmaxpacketin[0] = dev->descriptor.bMaxPacketSize0;
 	dev->epmaxpacketout[0] = dev->descriptor.bMaxPacketSize0;
