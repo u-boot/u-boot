@@ -179,7 +179,8 @@ enum usb_init_type {
 	defined(CONFIG_USB_BLACKFIN) || defined(CONFIG_USB_AM35X) || \
 	defined(CONFIG_USB_MUSB_DSPS) || defined(CONFIG_USB_MUSB_AM35X) || \
 	defined(CONFIG_USB_MUSB_OMAP2PLUS) || defined(CONFIG_USB_MUSB_SUNXI) || \
-	defined(CONFIG_USB_XHCI) || defined(CONFIG_USB_DWC2)
+	defined(CONFIG_USB_XHCI) || defined(CONFIG_USB_DWC2) || \
+	defined(CONFIG_USB_EMUL)
 
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller);
 int usb_lowlevel_stop(int index);
@@ -847,5 +848,66 @@ void usb_free_device(struct udevice *controller);
 int usb_new_device(struct usb_device *dev);
 
 int usb_alloc_device(struct usb_device *dev);
+
+/**
+ * usb_emul_setup_device() - Set up a new USB device emulation
+ *
+ * This is normally called when a new emulation device is bound. It tells
+ * the USB emulation uclass about the features of the emulator.
+ *
+ * @dev:		Emulation device
+ * @maxpacketsize:	Maximum packet size (e.g. PACKET_SIZE_64)
+ * @strings:		List of USB string descriptors, terminated by a NULL
+ *			entry
+ * @desc_list:		List of points or USB descriptors, terminated by NULL.
+ *			The first entry must be struct usb_device_descriptor,
+ *			and others follow on after that.
+ * @return 0 if OK, -ve on error
+ */
+int usb_emul_setup_device(struct udevice *dev, int maxpacketsize,
+			  struct usb_string *strings, void **desc_list);
+
+/**
+ * usb_emul_control() - Send a control packet to an emulator
+ *
+ * @emul:	Emulator device
+ * @udev:	USB device (which the emulator is causing to appear)
+ * See struct dm_usb_ops for details on other parameters
+ * @return 0 if OK, -ve on error
+ */
+int usb_emul_control(struct udevice *emul, struct usb_device *udev,
+		     unsigned long pipe, void *buffer, int length,
+		     struct devrequest *setup);
+
+/**
+ * usb_emul_bulk() - Send a bulk packet to an emulator
+ *
+ * @emul:	Emulator device
+ * @udev:	USB device (which the emulator is causing to appear)
+ * See struct dm_usb_ops for details on other parameters
+ * @return 0 if OK, -ve on error
+ */
+int usb_emul_bulk(struct udevice *emul, struct usb_device *udev,
+		  unsigned long pipe, void *buffer, int length);
+
+/**
+ * usb_emul_find() - Find an emulator for a particular device
+ *
+ * Check @pipe to find a device number on bus @bus and return it.
+ *
+ * @bus:	USB bus (controller)
+ * @pipe:	Describes pipe being used, and includes the device number
+ * @emulp:	Returns pointer to emulator, or NULL if not found
+ * @return 0 if found, -ve on error
+ */
+int usb_emul_find(struct udevice *bus, ulong pipe, struct udevice **emulp);
+
+/**
+ * usb_emul_reset() - Reset all emulators ready for use
+ *
+ * Clear out any address information in the emulators and make then ready for
+ * a new USB scan
+ */
+void usb_emul_reset(struct udevice *dev);
 
 #endif /*_USB_H_ */

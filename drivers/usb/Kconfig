@@ -51,6 +51,8 @@ config DM_USB
 
 source "drivers/usb/host/Kconfig"
 
+source "drivers/usb/emul/Kconfig"
+
 config USB_STORAGE
 	bool "USB Mass Storage support"
 	---help---
