@@ -80,6 +80,9 @@ config DM_SPI_FLASH
 config DM_GPIO
 	default y
 
+config DM_USB
+	default y
+
 source "board/samsung/smdkv310/Kconfig"
 source "board/samsung/trats/Kconfig"
 source "board/samsung/universal_c210/Kconfig"
