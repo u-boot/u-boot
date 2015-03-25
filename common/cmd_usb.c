@@ -254,15 +254,15 @@ static void usb_display_config(struct usb_device *dev)
 
 static struct usb_device *usb_find_device(int devnum)
 {
-	struct usb_device *dev;
+	struct usb_device *udev;
 	int d;
 
 	for (d = 0; d < USB_MAX_DEVICE; d++) {
-		dev = usb_get_dev_index(d);
-		if (dev == NULL)
+		udev = usb_get_dev_index(d);
+		if (udev == NULL)
 			return NULL;
-		if (dev->devnum == devnum)
-			return dev;
+		if (udev->devnum == devnum)
+			return udev;
 	}
 
 	return NULL;
@@ -305,8 +305,8 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 			has_child = 1;
 	}
 	/* check if we are the last one */
-	last_child = 1;
-	if (dev->parent != NULL) {
+	last_child = (dev->parent != NULL);
+	if (last_child) {
 		for (i = 0; i < dev->parent->maxchild; i++) {
 			/* search for children */
 			if (dev->parent->children[i] == dev) {
@@ -324,7 +324,7 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 		} /* for all children of the parent */
 		printf("\b+-");
 		/* correct last child */
-		if (last_child)
+		if (last_child && index)
 			pre[index-1] = ' ';
 	} /* if not root hub */
 	else
@@ -355,7 +355,7 @@ static void usb_show_tree(struct usb_device *dev)
 {
 	char preamble[32];
 
-	memset(preamble, 0, 32);
+	memset(preamble, '\0', sizeof(preamble));
 	usb_show_tree_graph(dev, &preamble[0]);
 }
 
@@ -466,9 +466,8 @@ static void do_usb_start(void)
  */
 static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-
+	struct usb_device *udev = NULL;
 	int i;
-	struct usb_device *dev = NULL;
 	extern char usb_started;
 #ifdef CONFIG_USB_STORAGE
 	block_dev_desc_t *stor_dev;
@@ -509,11 +508,11 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (strncmp(argv[1], "tree", 4) == 0) {
 		puts("USB device tree:\n");
 		for (i = 0; i < USB_MAX_DEVICE; i++) {
-			dev = usb_get_dev_index(i);
-			if (dev == NULL)
+			udev = usb_get_dev_index(i);
+			if (udev == NULL)
 				break;
-			if (dev->parent == NULL)
-				usb_show_tree(dev);
+			if (udev->parent == NULL)
+				usb_show_tree(udev);
 		}
 		return 0;
 	}
@@ -521,23 +520,23 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		int d;
 		if (argc == 2) {
 			for (d = 0; d < USB_MAX_DEVICE; d++) {
-				dev = usb_get_dev_index(d);
-				if (dev == NULL)
+				udev = usb_get_dev_index(d);
+				if (udev == NULL)
 					break;
-				usb_display_desc(dev);
-				usb_display_config(dev);
+				usb_display_desc(udev);
+				usb_display_config(udev);
 			}
 			return 0;
 		} else {
 			i = simple_strtoul(argv[2], NULL, 10);
 			printf("config for device %d\n", i);
-			dev = usb_find_device(i);
-			if (dev == NULL) {
+			udev = usb_find_device(i);
+			if (udev == NULL) {
 				printf("*** No device available ***\n");
 				return 0;
 			} else {
-				usb_display_desc(dev);
-				usb_display_config(dev);
+				usb_display_desc(udev);
+				usb_display_config(udev);
 			}
 		}
 		return 0;
@@ -546,13 +545,13 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (argc < 5)
 			return CMD_RET_USAGE;
 		i = simple_strtoul(argv[2], NULL, 10);
-		dev = usb_find_device(i);
-		if (dev == NULL) {
+		udev = usb_find_device(i);
+		if (udev == NULL) {
 			printf("Device %d does not exist.\n", i);
 			return 1;
 		}
 		i = simple_strtoul(argv[3], NULL, 10);
-		return usb_test(dev, i, argv[4]);
+		return usb_test(udev, i, argv[4]);
 	}
 #ifdef CONFIG_USB_STORAGE
 	if (strncmp(argv[1], "stor", 4) == 0)
