@@ -2,6 +2,8 @@
  * (C) Copyright 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  *
+ * usb_match_device() modified from Linux kernel v4.0.
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -247,6 +249,179 @@ int usb_legacy_port_reset(struct usb_device *parent, int portnr)
 	return usb_port_reset(parent, portnr);
 }
 
+/* returns 0 if no match, 1 if match */
+int usb_match_device(const struct usb_device_descriptor *desc,
+		     const struct usb_device_id *id)
+{
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_VENDOR) &&
+	    id->idVendor != le16_to_cpu(desc->idVendor))
+		return 0;
+
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_PRODUCT) &&
+	    id->idProduct != le16_to_cpu(desc->idProduct))
+		return 0;
+
+	/* No need to test id->bcdDevice_lo != 0, since 0 is never
+	   greater than any unsigned number. */
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_DEV_LO) &&
+	    (id->bcdDevice_lo > le16_to_cpu(desc->bcdDevice)))
+		return 0;
+
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_DEV_HI) &&
+	    (id->bcdDevice_hi < le16_to_cpu(desc->bcdDevice)))
+		return 0;
+
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_DEV_CLASS) &&
+	    (id->bDeviceClass != desc->bDeviceClass))
+		return 0;
+
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_DEV_SUBCLASS) &&
+	    (id->bDeviceSubClass != desc->bDeviceSubClass))
+		return 0;
+
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_DEV_PROTOCOL) &&
+	    (id->bDeviceProtocol != desc->bDeviceProtocol))
+		return 0;
+
+	return 1;
+}
+
+/* returns 0 if no match, 1 if match */
+int usb_match_one_id_intf(const struct usb_device_descriptor *desc,
+			  const struct usb_interface_descriptor *int_desc,
+			  const struct usb_device_id *id)
+{
+	/* The interface class, subclass, protocol and number should never be
+	 * checked for a match if the device class is Vendor Specific,
+	 * unless the match record specifies the Vendor ID. */
+	if (desc->bDeviceClass == USB_CLASS_VENDOR_SPEC &&
+	    !(id->match_flags & USB_DEVICE_ID_MATCH_VENDOR) &&
+	    (id->match_flags & (USB_DEVICE_ID_MATCH_INT_CLASS |
+				USB_DEVICE_ID_MATCH_INT_SUBCLASS |
+				USB_DEVICE_ID_MATCH_INT_PROTOCOL |
+				USB_DEVICE_ID_MATCH_INT_NUMBER)))
+		return 0;
+
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_INT_CLASS) &&
+	    (id->bInterfaceClass != int_desc->bInterfaceClass))
+		return 0;
+
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_INT_SUBCLASS) &&
+	    (id->bInterfaceSubClass != int_desc->bInterfaceSubClass))
+		return 0;
+
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_INT_PROTOCOL) &&
+	    (id->bInterfaceProtocol != int_desc->bInterfaceProtocol))
+		return 0;
+
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_INT_NUMBER) &&
+	    (id->bInterfaceNumber != int_desc->bInterfaceNumber))
+		return 0;
+
+	return 1;
+}
+
+/* returns 0 if no match, 1 if match */
+int usb_match_one_id(struct usb_device_descriptor *desc,
+		     struct usb_interface_descriptor *int_desc,
+		     const struct usb_device_id *id)
+{
+	if (!usb_match_device(desc, id))
+		return 0;
+
+	return usb_match_one_id_intf(desc, int_desc, id);
+}
+
+/**
+ * usb_find_and_bind_driver() - Find and bind the right USB driver
+ *
+ * This only looks at certain fields in the descriptor.
+ */
+static int usb_find_and_bind_driver(struct udevice *parent,
+				    struct usb_device_descriptor *desc,
+				    struct usb_interface_descriptor *iface,
+				    int bus_seq, int devnum,
+				    struct udevice **devp)
+{
+	struct usb_driver_entry *start, *entry;
+	int n_ents;
+	int ret;
+	char name[30], *str;
+
+	*devp = NULL;
+	debug("%s: Searching for driver\n", __func__);
+	start = ll_entry_start(struct usb_driver_entry, usb_driver_entry);
+	n_ents = ll_entry_count(struct usb_driver_entry, usb_driver_entry);
+	for (entry = start; entry != start + n_ents; entry++) {
+		const struct usb_device_id *id;
+		struct udevice *dev;
+		const struct driver *drv;
+		struct usb_dev_platdata *plat;
+
+		for (id = entry->match; id->match_flags; id++) {
+			if (!usb_match_one_id(desc, iface, id))
+				continue;
+
+			drv = entry->driver;
+			/*
+			 * We could pass the descriptor to the driver as
+			 * platdata (instead of NULL) and allow its bind()
+			 * method to return -ENOENT if it doesn't support this
+			 * device. That way we could continue the search to
+			 * find another driver. For now this doesn't seem
+			 * necesssary, so just bind the first match.
+			 */
+			ret = device_bind(parent, drv, drv->name, NULL, -1,
+					  &dev);
+			if (ret)
+				goto error;
+			debug("%s: Match found: %s\n", __func__, drv->name);
+			dev->driver_data = id->driver_info;
+			plat = dev_get_parent_platdata(dev);
+			plat->id = *id;
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	ret = -ENOENT;
+error:
+	debug("%s: No match found: %d\n", __func__, ret);
+	return ret;
+}
+
+/**
+ * usb_find_child() - Find an existing device which matches our needs
+ *
+ *
+ */
+static int usb_find_child(struct udevice *parent,
+			  struct usb_device_descriptor *desc,
+			  struct usb_interface_descriptor *iface,
+			  struct udevice **devp)
+{
+	struct udevice *dev;
+
+	*devp = NULL;
+	for (device_find_first_child(parent, &dev);
+	     dev;
+	     device_find_next_child(&dev)) {
+		struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
+
+		/* If this device is already in use, skip it */
+		if (device_active(dev))
+			continue;
+		debug("   %s: name='%s', plat=%d, desc=%d\n", __func__,
+		      dev->name, plat->id.bDeviceClass, desc->bDeviceClass);
+		if (usb_match_one_id(desc, iface, &plat->id)) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENOENT;
+}
+
 int usb_scan_device(struct udevice *parent, int port,
 		    enum usb_device_speed speed, struct udevice **devp)
 {
@@ -307,9 +482,36 @@ int usb_scan_device(struct udevice *parent, int port,
 		return ret;
 	ret = usb_find_child(parent, &udev->descriptor, iface, &dev);
 	debug("** usb_find_child returns %d\n", ret);
+	if (ret) {
+		if (ret != -ENOENT)
+			return ret;
+		ret = usb_find_and_bind_driver(parent, &udev->descriptor, iface,
+					       udev->controller_dev->seq,
+					       udev->devnum, &dev);
+		if (ret)
+			return ret;
+		created = true;
+	}
+	plat = dev_get_parent_platdata(dev);
+	debug("%s: Probing '%s', plat=%p\n", __func__, dev->name, plat);
+	plat->devnum = udev->devnum;
+	plat->speed = udev->speed;
+	plat->slot_id = udev->slot_id;
+	plat->portnr = port;
+	debug("** device '%s': stashing slot_id=%d\n", dev->name,
+	      plat->slot_id);
+	priv->next_addr++;
+	ret = device_probe(dev);
+	if (ret) {
+		debug("%s: Device '%s' probe failed\n", __func__, dev->name);
+		priv->next_addr--;
+		if (created)
+			device_unbind(dev);
+		return ret;
+	}
+	*devp = dev;
 
-	/* TODO: Find a suitable driver and create the device */
-	return -ENOENT;
+	return 0;
 }
 
 int usb_child_post_bind(struct udevice *dev)

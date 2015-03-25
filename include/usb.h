@@ -412,6 +412,113 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
 				((usb_pipeendpoint(pipe) * 2) - \
 				 (usb_pipein(pipe) ? 0 : 1))
 
+/**
+ * struct usb_device_id - identifies USB devices for probing and hotplugging
+ * @match_flags: Bit mask controlling which of the other fields are used to
+ *	match against new devices. Any field except for driver_info may be
+ *	used, although some only make sense in conjunction with other fields.
+ *	This is usually set by a USB_DEVICE_*() macro, which sets all
+ *	other fields in this structure except for driver_info.
+ * @idVendor: USB vendor ID for a device; numbers are assigned
+ *	by the USB forum to its members.
+ * @idProduct: Vendor-assigned product ID.
+ * @bcdDevice_lo: Low end of range of vendor-assigned product version numbers.
+ *	This is also used to identify individual product versions, for
+ *	a range consisting of a single device.
+ * @bcdDevice_hi: High end of version number range.  The range of product
+ *	versions is inclusive.
+ * @bDeviceClass: Class of device; numbers are assigned
+ *	by the USB forum.  Products may choose to implement classes,
+ *	or be vendor-specific.  Device classes specify behavior of all
+ *	the interfaces on a device.
+ * @bDeviceSubClass: Subclass of device; associated with bDeviceClass.
+ * @bDeviceProtocol: Protocol of device; associated with bDeviceClass.
+ * @bInterfaceClass: Class of interface; numbers are assigned
+ *	by the USB forum.  Products may choose to implement classes,
+ *	or be vendor-specific.  Interface classes specify behavior only
+ *	of a given interface; other interfaces may support other classes.
+ * @bInterfaceSubClass: Subclass of interface; associated with bInterfaceClass.
+ * @bInterfaceProtocol: Protocol of interface; associated with bInterfaceClass.
+ * @bInterfaceNumber: Number of interface; composite devices may use
+ *	fixed interface numbers to differentiate between vendor-specific
+ *	interfaces.
+ * @driver_info: Holds information used by the driver.  Usually it holds
+ *	a pointer to a descriptor understood by the driver, or perhaps
+ *	device flags.
+ *
+ * In most cases, drivers will create a table of device IDs by using
+ * USB_DEVICE(), or similar macros designed for that purpose.
+ * They will then export it to userspace using MODULE_DEVICE_TABLE(),
+ * and provide it to the USB core through their usb_driver structure.
+ *
+ * See the usb_match_id() function for information about how matches are
+ * performed.  Briefly, you will normally use one of several macros to help
+ * construct these entries.  Each entry you provide will either identify
+ * one or more specific products, or will identify a class of products
+ * which have agreed to behave the same.  You should put the more specific
+ * matches towards the beginning of your table, so that driver_info can
+ * record quirks of specific products.
+ */
+struct usb_device_id {
+	/* which fields to match against? */
+	u16 match_flags;
+
+	/* Used for product specific matches; range is inclusive */
+	u16 idVendor;
+	u16 idProduct;
+	u16 bcdDevice_lo;
+	u16 bcdDevice_hi;
+
+	/* Used for device class matches */
+	u8 bDeviceClass;
+	u8 bDeviceSubClass;
+	u8 bDeviceProtocol;
+
+	/* Used for interface class matches */
+	u8 bInterfaceClass;
+	u8 bInterfaceSubClass;
+	u8 bInterfaceProtocol;
+
+	/* Used for vendor-specific interface matches */
+	u8 bInterfaceNumber;
+
+	/* not matched against */
+	ulong driver_info;
+};
+
+/* Some useful macros to use to create struct usb_device_id */
+#define USB_DEVICE_ID_MATCH_VENDOR		0x0001
+#define USB_DEVICE_ID_MATCH_PRODUCT		0x0002
+#define USB_DEVICE_ID_MATCH_DEV_LO		0x0004
+#define USB_DEVICE_ID_MATCH_DEV_HI		0x0008
+#define USB_DEVICE_ID_MATCH_DEV_CLASS		0x0010
+#define USB_DEVICE_ID_MATCH_DEV_SUBCLASS	0x0020
+#define USB_DEVICE_ID_MATCH_DEV_PROTOCOL	0x0040
+#define USB_DEVICE_ID_MATCH_INT_CLASS		0x0080
+#define USB_DEVICE_ID_MATCH_INT_SUBCLASS	0x0100
+#define USB_DEVICE_ID_MATCH_INT_PROTOCOL	0x0200
+#define USB_DEVICE_ID_MATCH_INT_NUMBER		0x0400
+
+/* Match anything, indicates this is a valid entry even if everything is 0 */
+#define USB_DEVICE_ID_MATCH_NONE		0x0800
+#define USB_DEVICE_ID_MATCH_ALL			0x07ff
+
+/**
+ * struct usb_driver_entry - Matches a driver to its usb_device_ids
+ * @compatible: Compatible string
+ * @data: Data for this compatible string
+ */
+struct usb_driver_entry {
+	struct driver *driver;
+	const struct usb_device_id *match;
+};
+
+#define USB_DEVICE(__name, __match)					\
+	ll_entry_declare(struct usb_driver_entry, __name, usb_driver_entry) = {\
+		.driver = llsym(struct driver, __name, driver), \
+		.match = __match, \
+		}
+
 /*************************************************************************
  * Hub Stuff
  */
