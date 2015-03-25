@@ -266,7 +266,8 @@ static void set_up_vbus(struct fdt_usb *config, enum usb_init_type init)
 	}
 }
 
-void usbf_reset_controller(struct fdt_usb *config, struct usb_ctlr *usbctlr)
+static void usbf_reset_controller(struct fdt_usb *config,
+				  struct usb_ctlr *usbctlr)
 {
 	/* Reset the USB controller with 2us delay */
 	reset_periph(config->periph_id, 2);
@@ -524,7 +525,7 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 		udelay(1);
 	}
 	if (!loop_count)
-		return -1;
+		return -ETIMEDOUT;
 
 	/* Disable ICUSB FS/LS transceiver */
 	clrbits_le32(&usbctlr->icusb_ctrl, IC_ENB1);
@@ -567,6 +568,7 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 	int loop_count;
 	struct ulpi_viewport ulpi_vp;
 	struct usb_ctlr *usbctlr = config->reg;
+	int ret;
 
 	/* set up ULPI reference clock on pllp_out4 */
 	clock_enable(PERIPH_ID_DEV2_OUT);
@@ -612,9 +614,10 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 	ulpi_vp.port_num = 0;
 	ulpi_vp.viewport_addr = (u32)&usbctlr->ulpi_viewport;
 
-	if (ulpi_init(&ulpi_vp)) {
+	ret = ulpi_init(&ulpi_vp);
+	if (ret) {
 		printf("Tegra ULPI viewport init failed\n");
-		return -1;
+		return ret;
 	}
 
 	ulpi_set_vbus(&ulpi_vp, 1, 1);
@@ -631,7 +634,7 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 		udelay(1);
 	}
 	if (!loop_count)
-		return -1;
+		return -ETIMEDOUT;
 	clrbits_le32(&usbctlr->susp_ctrl, USB_SUSP_CLR);
 
 	return 0;
@@ -642,7 +645,7 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 {
 	printf("No code to set up ULPI controller, please enable"
 			"CONFIG_USB_ULPI and CONFIG_USB_ULPI_VIEWPORT");
-	return -1;
+	return -ENOSYS;
 }
 #endif
 
@@ -669,7 +672,7 @@ static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 		else {
 			debug("%s: Cannot decode dr_mode '%s'\n", __func__,
 			      mode);
-			return -FDT_ERR_NOTFOUND;
+			return -EINVAL;
 		}
 	} else {
 		config->dr_mode = DR_MODE_HOST;
@@ -684,7 +687,7 @@ static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 	config->periph_id = clock_decode_periph_id(blob, node);
 	if (config->periph_id == PERIPH_ID_NONE) {
 		debug("%s: Missing/invalid peripheral ID\n", __func__);
-		return -FDT_ERR_NOTFOUND;
+		return -EINVAL;
 	}
 	gpio_request_by_name_nodev(blob, node, "nvidia,vbus-gpio", 0,
 				   &config->vbus_gpio, GPIOD_IS_OUT);
