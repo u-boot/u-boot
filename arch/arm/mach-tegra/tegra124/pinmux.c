@@ -304,3 +304,20 @@ static const struct pmux_pingrp_desc tegra124_pingroups[] = {
 	PIN(DP_HPD_PFF0,            DP,         RSVD2,    RSVD3,        RSVD4),
 };
 const struct pmux_pingrp_desc *tegra_soc_pingroups = tegra124_pingroups;
+
+#define MIPIPADCTRL_GRP(grp, f0, f1)	\
+	{				\
+		.funcs = {		\
+			PMUX_FUNC_##f0,	\
+			PMUX_FUNC_##f1,	\
+		},			\
+	}
+
+#define MIPIPADCTRL_RESERVED {}
+
+static const struct pmux_mipipadctrlgrp_desc tegra124_mipipadctrl_groups[] = {
+	/*              pin,   f0,  f1 */
+	/* Offset 0x820 */
+	MIPIPADCTRL_GRP(DSI_B, CSI, DSI_B),
+};
+const struct pmux_mipipadctrlgrp_desc *tegra_soc_mipipadctrl_groups = tegra124_mipipadctrl_groups;
