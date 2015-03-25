@@ -139,6 +139,7 @@ int board_late_init(void)
 		setenv("modeboot", "qspiboot");
 		break;
 	case SD_MODE:
+	case EMMC_MODE:
 		setenv("modeboot", "sdboot");
 		break;
 	case NAND_MODE:
