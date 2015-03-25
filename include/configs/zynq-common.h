@@ -39,6 +39,9 @@
 # define CONFIG_ZYNQ_SERIAL
 #endif
 
+#define CONFIG_ZYNQ_GPIO
+#define CONFIG_CMD_GPIO
+
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1)
 # define CONFIG_NET_MULTI
