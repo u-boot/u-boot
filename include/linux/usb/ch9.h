@@ -379,6 +379,11 @@ struct usb_endpoint_descriptor {
 #define USB_DT_ENDPOINT_SIZE		7
 #define USB_DT_ENDPOINT_AUDIO_SIZE	9	/* Audio extension */
 
+/* Used to access common fields */
+struct usb_generic_descriptor {
+	__u8  bLength;
+	__u8  bDescriptorType;
+};
 
 /*
  * Endpoints
