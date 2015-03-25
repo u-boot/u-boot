@@ -23,6 +23,9 @@ config DM_SERIAL
 config DM_GPIO
 	default y
 
+config PHYS_TO_BUS
+	default y
+
 config SYS_BOARD
 	default "rpi" if TARGET_RPI
 	default "rpi_2" if TARGET_RPI_2
