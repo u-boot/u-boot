@@ -352,12 +352,10 @@ static struct xhci_container_ctx
  * @param udev	pointer to USB deivce structure
  * @return 0 on success else -1 on failure
  */
-int xhci_alloc_virt_device(struct usb_device *udev)
+int xhci_alloc_virt_device(struct xhci_ctrl *ctrl, unsigned int slot_id)
 {
 	u64 byte_64 = 0;
-	unsigned int slot_id = udev->slot_id;
 	struct xhci_virt_device *virt_dev;
-	struct xhci_ctrl *ctrl = udev->controller;
 
 	/* Slot ID 0 is reserved */
 	if (ctrl->devs[slot_id]) {

@@ -491,7 +491,7 @@ int usb_alloc_device(struct usb_device *udev)
 
 	xhci_acknowledge_event(ctrl);
 
-	ret = xhci_alloc_virt_device(udev);
+	ret = xhci_alloc_virt_device(ctrl, udev->slot_id);
 	if (ret < 0) {
 		/*
 		 * TODO: Unsuccessful Address Device command shall leave
