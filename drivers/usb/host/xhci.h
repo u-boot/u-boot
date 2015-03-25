@@ -1209,6 +1209,9 @@ void xhci_hcd_stop(int index);
 #define XHCI_STS_CNR		(1 << 11)
 
 struct xhci_ctrl {
+#ifdef CONFIG_DM_USB
+	struct udevice *dev;
+#endif
 	struct xhci_hccr *hccr;	/* R/O registers, not need for volatile */
 	struct xhci_hcor *hcor;
 	struct xhci_doorbell_array *dba;
@@ -1259,6 +1262,27 @@ struct xhci_ring *xhci_ring_alloc(unsigned int num_segs, bool link_trbs);
 int xhci_alloc_virt_device(struct xhci_ctrl *ctrl, unsigned int slot_id);
 int xhci_mem_init(struct xhci_ctrl *ctrl, struct xhci_hccr *hccr,
 		  struct xhci_hcor *hcor);
+
+/**
+ * xhci_deregister() - Unregister an XHCI controller
+ *
+ * @dev:	Controller device
+ * @return 0 if registered, -ve on error
+ */
+int xhci_deregister(struct udevice *dev);
+
+/**
+ * xhci_register() - Register a new XHCI controller
+ *
+ * @dev:	Controller device
+ * @hccr:	Host controller control registers
+ * @hcor:	Not sure what this means
+ * @return 0 if registered, -ve on error
+ */
+int xhci_register(struct udevice *dev, struct xhci_hccr *hccr,
+		  struct xhci_hcor *hcor);
+
+extern struct dm_usb_ops xhci_usb_ops;
 
 struct xhci_ctrl *xhci_get_ctrl(struct usb_device *udev);
 

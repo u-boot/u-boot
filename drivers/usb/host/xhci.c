@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/byteorder.h>
 #include <usb.h>
 #include <malloc.h>
@@ -108,11 +109,24 @@ static struct descriptor {
 	},
 };
 
+#ifndef CONFIG_DM_USB
 static struct xhci_ctrl xhcic[CONFIG_USB_MAX_CONTROLLER_COUNT];
+#endif
 
 struct xhci_ctrl *xhci_get_ctrl(struct usb_device *udev)
 {
+#ifdef CONFIG_DM_USB
+	struct udevice *dev;
+
+	/* Find the USB controller */
+	for (dev = udev->dev;
+	     device_get_uclass_id(dev) != UCLASS_USB;
+	     dev = dev->parent)
+		;
+	return dev_get_priv(dev);
+#else
 	return udev->controller;
+#endif
 }
 
 /**
@@ -467,7 +481,7 @@ static int xhci_address_device(struct usb_device *udev, int root_portnr)
  * @param udev	pointer to the Device Data Structure
  * @return Returns 0 on succes else return error code on failure
  */
-int usb_alloc_device(struct usb_device *udev)
+int _xhci_alloc_device(struct usb_device *udev)
 {
 	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	union xhci_trb *event;
@@ -504,6 +518,13 @@ int usb_alloc_device(struct usb_device *udev)
 
 	return 0;
 }
+
+#ifndef CONFIG_DM_USB
+int usb_alloc_device(struct usb_device *udev)
+{
+	return _xhci_alloc_device(udev);
+}
+#endif
 
 /*
  * Full speed devices may have a max packet size greater than 8 bytes, but the
@@ -864,9 +885,8 @@ unknown:
  * @param interval	interval of the interrupt
  * @return 0
  */
-int
-submit_int_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
-						int length, int interval)
+static int _xhci_submit_int_msg(struct usb_device *udev, unsigned long pipe,
+				void *buffer, int length, int interval)
 {
 	/*
 	 * TODO: Not addressing any interrupt type transfer requests
@@ -884,9 +904,8 @@ submit_int_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
  * @param length	length of the buffer
  * @return returns 0 if successful else -1 on failure
  */
-int
-submit_bulk_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
-								int length)
+static int _xhci_submit_bulk_msg(struct usb_device *udev, unsigned long pipe,
+				 void *buffer, int length)
 {
 	if (usb_pipetype(pipe) != PIPE_BULK) {
 		printf("non-bulk pipe (type=%lu)", usb_pipetype(pipe));
@@ -1005,6 +1024,7 @@ static int xhci_lowlevel_stop(struct xhci_ctrl *ctrl)
 	return 0;
 }
 
+#ifndef CONFIG_DM_USB
 int submit_control_msg(struct usb_device *udev, unsigned long pipe,
 		       void *buffer, int length, struct devrequest *setup)
 {
@@ -1016,6 +1036,18 @@ int submit_control_msg(struct usb_device *udev, unsigned long pipe,
 
 	return _xhci_submit_control_msg(udev, pipe, buffer, length, setup,
 					hop->portnr);
+}
+
+int submit_bulk_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
+		    int length)
+{
+	return _xhci_submit_bulk_msg(udev, pipe, buffer, length);
+}
+
+int submit_int_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
+		   int length, int interval)
+{
+	return _xhci_submit_int_msg(udev, pipe, buffer, length, interval);
 }
 
 /**
@@ -1067,3 +1099,136 @@ int usb_lowlevel_stop(int index)
 
 	return 0;
 }
+#endif /* CONFIG_DM_USB */
+
+#ifdef CONFIG_DM_USB
+/*
+static struct usb_device *get_usb_device(struct udevice *dev)
+{
+	struct usb_device *udev;
+
+	if (device_get_uclass_id(dev) == UCLASS_USB)
+		udev = dev_get_uclass_priv(dev);
+	else
+		udev = dev_get_parentdata(dev);
+
+	return udev;
+}
+*/
+static bool is_root_hub(struct udevice *dev)
+{
+	if (device_get_uclass_id(dev->parent) != UCLASS_USB_HUB)
+		return true;
+
+	return false;
+}
+
+static int xhci_submit_control_msg(struct udevice *dev, struct usb_device *udev,
+				   unsigned long pipe, void *buffer, int length,
+				   struct devrequest *setup)
+{
+	struct usb_device *uhop;
+	struct udevice *hub;
+	int root_portnr = 0;
+
+	debug("%s: dev='%s', udev=%p, udev->dev='%s', portnr=%d\n", __func__,
+	      dev->name, udev, udev->dev->name, udev->portnr);
+	hub = udev->dev;
+	if (device_get_uclass_id(hub) == UCLASS_USB_HUB) {
+		/* Figure out our port number on the root hub */
+		if (is_root_hub(hub)) {
+			root_portnr = udev->portnr;
+		} else {
+			while (!is_root_hub(hub->parent))
+				hub = hub->parent;
+			uhop = dev_get_parentdata(hub);
+			root_portnr = uhop->portnr;
+		}
+	}
+/*
+	struct usb_device *hop = udev;
+
+	if (hop->parent)
+		while (hop->parent->parent)
+			hop = hop->parent;
+*/
+	return _xhci_submit_control_msg(udev, pipe, buffer, length, setup,
+					root_portnr);
+}
+
+static int xhci_submit_bulk_msg(struct udevice *dev, struct usb_device *udev,
+				unsigned long pipe, void *buffer, int length)
+{
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+	return _xhci_submit_bulk_msg(udev, pipe, buffer, length);
+}
+
+static int xhci_submit_int_msg(struct udevice *dev, struct usb_device *udev,
+			       unsigned long pipe, void *buffer, int length,
+			       int interval)
+{
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+	return _xhci_submit_int_msg(udev, pipe, buffer, length, interval);
+}
+
+static int xhci_alloc_device(struct udevice *dev, struct usb_device *udev)
+{
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+	return _xhci_alloc_device(udev);
+}
+
+int xhci_register(struct udevice *dev, struct xhci_hccr *hccr,
+		  struct xhci_hcor *hcor)
+{
+	struct xhci_ctrl *ctrl = dev_get_priv(dev);
+	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
+	int ret;
+
+	debug("%s: dev='%s', ctrl=%p, hccr=%p, hcor=%p\n", __func__, dev->name,
+	      ctrl, hccr, hcor);
+
+	ctrl->dev = dev;
+
+	/*
+	 * XHCI needs to issue a Address device command to setup
+	 * proper device context structures, before it can interact
+	 * with the device. So a get_descriptor will fail before any
+	 * of that is done for XHCI unlike EHCI.
+	 */
+	priv->desc_before_addr = false;
+
+	ret = xhci_reset(hcor);
+	if (ret)
+		goto err;
+
+	ctrl->hccr = hccr;
+	ctrl->hcor = hcor;
+	ret = xhci_lowlevel_init(ctrl);
+	if (ret)
+		goto err;
+
+	return 0;
+err:
+	free(ctrl);
+	debug("%s: failed, ret=%d\n", __func__, ret);
+	return ret;
+}
+
+int xhci_deregister(struct udevice *dev)
+{
+	struct xhci_ctrl *ctrl = dev_get_priv(dev);
+
+	xhci_lowlevel_stop(ctrl);
+	xhci_cleanup(ctrl);
+
+	return 0;
+}
+
+struct dm_usb_ops xhci_usb_ops = {
+	.control = xhci_submit_control_msg,
+	.bulk = xhci_submit_bulk_msg,
+	.interrupt = xhci_submit_int_msg,
+	.alloc_device = xhci_alloc_device,
+};
+
+#endif

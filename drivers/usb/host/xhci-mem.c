@@ -15,6 +15,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/byteorder.h>
 #include <usb.h>
 #include <malloc.h>
