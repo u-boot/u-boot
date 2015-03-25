@@ -144,7 +144,7 @@ __weak void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
 	mdelay(50);
 }
 
-__weak uint32_t *ehci_get_portsc_register(struct ehci_hcor *hcor, int port)
+__weak uint32_t *ehci_get_portsc_register(struct ehci_ctrl *ctrl, int port)
 {
 	if (port < 0 || port >= CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
 		/* Printing the message would cause a scan failure! */
@@ -152,7 +152,7 @@ __weak uint32_t *ehci_get_portsc_register(struct ehci_hcor *hcor, int port)
 		return NULL;
 	}
 
-	return (uint32_t *)&hcor->or_portsc[port];
+	return (uint32_t *)&ctrl->hcor->or_portsc[port];
 }
 
 static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
@@ -687,7 +687,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	case USB_REQ_GET_STATUS | ((USB_RT_PORT | USB_DIR_IN) << 8):
 	case USB_REQ_SET_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
 	case USB_REQ_CLEAR_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
-		status_reg = ehci_get_portsc_register(ctrl->hcor, port - 1);
+		status_reg = ehci_get_portsc_register(ctrl, port - 1);
 		if (!status_reg)
 			return -1;
 		break;

@@ -256,7 +256,7 @@ int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg);
 void ehci_set_usbmode(struct ehci_ctrl *ctrl);
 void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
 			uint32_t *reg);
-uint32_t *ehci_get_portsc_register(struct ehci_hcor *hcor, int port);
+uint32_t *ehci_get_portsc_register(struct ehci_ctrl *ctrl, int port);
 
 /**
  * ehci_set_controller_priv() - Set up private data for the controller

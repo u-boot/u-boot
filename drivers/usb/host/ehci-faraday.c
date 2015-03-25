@@ -134,7 +134,7 @@ int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
  * This ehci_get_portsc_register() overrides the weak function
  * in "ehci-hcd.c".
  */
-uint32_t *ehci_get_portsc_register(struct ehci_hcor *hcor, int port)
+uint32_t *ehci_get_portsc_register(struct ehci_ctrl *ctrl, int port)
 {
 	/* Faraday EHCI has one and only one portsc register */
 	if (port) {
@@ -144,5 +144,5 @@ uint32_t *ehci_get_portsc_register(struct ehci_hcor *hcor, int port)
 	}
 
 	/* Faraday EHCI PORTSC register offset is 0x20 from hcor */
-	return (uint32_t *)((uint8_t *)hcor + 0x20);
+	return (uint32_t *)((uint8_t *)ctrl->hcor + 0x20);
 }
