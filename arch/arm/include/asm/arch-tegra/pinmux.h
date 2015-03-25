@@ -229,4 +229,20 @@ void pinmux_config_drvgrp_table(const struct pmux_drvgrp_config *config,
 
 #endif /* TEGRA_PMX_SOC_HAS_DRVGRPS */
 
+#ifdef TEGRA_PMX_SOC_HAS_MIPI_PAD_CTRL_GRPS
+struct pmux_mipipadctrlgrp_config {
+	u32 grp:16;	/* pin group PMUX_MIPIPADCTRLGRP_x   */
+	u32 func:8;	/* function to assign PMUX_FUNC_... */
+};
+
+void pinmux_config_mipipadctrlgrp_table(
+	const struct pmux_mipipadctrlgrp_config *config, int len);
+
+struct pmux_mipipadctrlgrp_desc {
+	u8 funcs[2];
+};
+
+extern const struct pmux_mipipadctrlgrp_desc *tegra_soc_mipipadctrl_groups;
+#endif /* TEGRA_PMX_SOC_HAS_MIPI_PAD_CTRL_GRPS */
+
 #endif /* _TEGRA_PINMUX_H_ */
