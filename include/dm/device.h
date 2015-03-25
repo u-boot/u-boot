@@ -70,7 +70,7 @@ struct driver_info;
  * when the device is probed and will be unique within the device's uclass.
  */
 struct udevice {
-	struct driver *driver;
+	const struct driver *driver;
 	const char *name;
 	void *platdata;
 	void *parent_platdata;

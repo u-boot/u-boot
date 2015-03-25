@@ -24,8 +24,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int device_bind(struct udevice *parent, struct driver *drv, const char *name,
-		void *platdata, int of_offset, struct udevice **devp)
+int device_bind(struct udevice *parent, const struct driver *drv,
+		const char *name, void *platdata, int of_offset,
+		struct udevice **devp)
 {
 	struct udevice *dev;
 	struct uclass *uc;
@@ -181,7 +182,7 @@ static void *alloc_priv(int size, uint flags)
 
 int device_probe_child(struct udevice *dev, void *parent_priv)
 {
-	struct driver *drv;
+	const struct driver *drv;
 	int size = 0;
 	int ret;
 	int seq;

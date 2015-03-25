@@ -66,7 +66,7 @@ static int device_chld_remove(struct udevice *dev)
 
 int device_unbind(struct udevice *dev)
 {
-	struct driver *drv;
+	const struct driver *drv;
 	int ret;
 
 	if (!dev)
@@ -139,7 +139,7 @@ void device_free(struct udevice *dev)
 
 int device_remove(struct udevice *dev)
 {
-	struct driver *drv;
+	const struct driver *drv;
 	int ret;
 
 	if (!dev)
