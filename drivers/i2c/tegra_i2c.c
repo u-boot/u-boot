@@ -338,7 +338,7 @@ static int tegra_i2c_probe(struct udevice *dev)
 	bool is_dvc;
 
 	i2c_bus->id = dev->seq;
-	i2c_bus->type = dev_get_of_data(dev);
+	i2c_bus->type = dev_get_driver_data(dev);
 	i2c_bus->regs = (struct i2c_ctlr *)fdtdec_get_addr(blob, node, "reg");
 
 	/*
@@ -360,7 +360,7 @@ static int tegra_i2c_probe(struct udevice *dev)
 	if (i2c_bus->periph_id == -1)
 		return -EINVAL;
 
-	is_dvc = dev_get_of_data(dev) == TYPE_DVC;
+	is_dvc = dev_get_driver_data(dev) == TYPE_DVC;
 	if (is_dvc) {
 		i2c_bus->control =
 			&((struct dvc_ctlr *)i2c_bus->regs)->control;
@@ -469,7 +469,7 @@ int tegra_i2c_get_dvc_bus(struct udevice **busp)
 	for (uclass_first_device(UCLASS_I2C, &bus);
 	     bus;
 	     uclass_next_device(&bus)) {
-		if (dev_get_of_data(bus) == TYPE_DVC) {
+		if (dev_get_driver_data(bus) == TYPE_DVC) {
 			*busp = bus;
 			return 0;
 		}

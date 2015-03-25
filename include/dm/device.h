@@ -55,7 +55,8 @@ struct driver_info;
  * @platdata: Configuration data for this device
  * @parent_platdata: The parent bus's configuration data for this device
  * @of_offset: Device tree node offset for this device (- for none)
- * @of_id: Pointer to the udevice_id structure which created the device
+ * @driver_data: Driver data word for the entry that matched this device with
+ *		its driver
  * @parent: Parent of this device, or NULL for the top level device
  * @priv: Private data for this device
  * @uclass: Pointer to uclass for this device
@@ -75,7 +76,7 @@ struct udevice {
 	void *platdata;
 	void *parent_platdata;
 	int of_offset;
-	const struct udevice_id *of_id;
+	ulong driver_data;
 	struct udevice *parent;
 	void *priv;
 	struct uclass *uclass;
@@ -251,13 +252,18 @@ struct udevice *dev_get_parent(struct udevice *child);
 void *dev_get_uclass_priv(struct udevice *dev);
 
 /**
- * dev_get_of_data() - get the device tree data used to bind a device
+ * dev_get_driver_data() - get the driver data used to bind a device
  *
  * When a device is bound using a device tree node, it matches a
  * particular compatible string as in struct udevice_id. This function
- * returns the associated data value for that compatible string
+ * returns the associated data value for that compatible string. This is
+ * the 'data' field in struct udevice_id.
+ *
+ * For USB devices, this is the driver_info field in struct usb_device_id.
+ *
+ * @dev:	Device to check
  */
-ulong dev_get_of_data(struct udevice *dev);
+ulong dev_get_driver_data(struct udevice *dev);
 
 /*
  * device_get_uclass_id() - return the uclass ID of a device

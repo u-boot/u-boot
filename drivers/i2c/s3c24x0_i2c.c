@@ -1348,7 +1348,7 @@ static int s3c_i2c_ofdata_to_platdata(struct udevice *dev)
 	struct s3c24x0_i2c_bus *i2c_bus = dev_get_priv(dev);
 	int node, flags;
 
-	i2c_bus->is_highspeed = dev->of_id->data;
+	i2c_bus->is_highspeed = dev_get_driver_data(dev);
 	node = dev->of_offset;
 
 	if (i2c_bus->is_highspeed) {

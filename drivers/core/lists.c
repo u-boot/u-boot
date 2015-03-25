@@ -168,7 +168,7 @@ int lists_bind_fdt(struct udevice *parent, const void *blob, int offset,
 			dm_warn("Error binding driver '%s'\n", entry->name);
 			return ret;
 		} else {
-			dev->of_id = id;
+			dev->driver_data = id->data;
 			found = true;
 			if (devp)
 				*devp = dev;

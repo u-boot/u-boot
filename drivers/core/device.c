@@ -467,9 +467,9 @@ struct udevice *dev_get_parent(struct udevice *child)
 	return child->parent;
 }
 
-ulong dev_get_of_data(struct udevice *dev)
+ulong dev_get_driver_data(struct udevice *dev)
 {
-	return dev->of_id->data;
+	return dev->driver_data;
 }
 
 enum uclass_id device_get_uclass_id(struct udevice *dev)
