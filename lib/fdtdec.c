@@ -44,8 +44,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SAMSUNG_EXYNOS5_SOUND, "samsung,exynos-sound"),
 	COMPAT(WOLFSON_WM8994_CODEC, "wolfson,wm8994-codec"),
 	COMPAT(GOOGLE_CROS_EC_KEYB, "google,cros-ec-keyb"),
-	COMPAT(SAMSUNG_EXYNOS_EHCI, "samsung,exynos-ehci"),
-	COMPAT(SAMSUNG_EXYNOS5_XHCI, "samsung,exynos5250-xhci"),
 	COMPAT(SAMSUNG_EXYNOS_USB_PHY, "samsung,exynos-usb-phy"),
 	COMPAT(SAMSUNG_EXYNOS5_USB3_PHY, "samsung,exynos5250-usb3-phy"),
 	COMPAT(SAMSUNG_EXYNOS_TMU, "samsung,exynos-tmu"),
