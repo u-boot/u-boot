@@ -113,7 +113,12 @@ static int do_dm_dump_uclass(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_dm_test(cmd_tbl_t *cmdtp, int flag, int argc,
 			  char * const argv[])
 {
-	return dm_test_main();
+	const char *test_name = NULL;
+
+	if (argc > 0)
+		test_name = argv[0];
+
+	return dm_test_main(test_name);
 }
 #define TEST_HELP "\ndm test         Run tests"
 #else
@@ -133,7 +138,7 @@ static int do_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	cmd_tbl_t *test_cmd;
 	int ret;
 
-	if (argc != 2)
+	if (argc < 2)
 		return CMD_RET_USAGE;
 	test_cmd = find_cmd_tbl(argv[1], test_commands,
 				ARRAY_SIZE(test_commands));
@@ -148,7 +153,7 @@ static int do_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	dm,	2,	1,	do_dm,
+	dm,	3,	1,	do_dm,
 	"Driver model low level access",
 	"tree         Dump driver model tree ('*' = activated)\n"
 	"dm uclass        Dump list of instances for each uclass"
