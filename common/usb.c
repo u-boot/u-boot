@@ -905,26 +905,8 @@ int usb_new_device(struct usb_device *dev)
 	addr = dev->devnum;
 	dev->devnum = 0;
 
-#ifdef CONFIG_LEGACY_USB_INIT_SEQ
-	/* this is the old and known way of initializing devices, it is
-	 * different than what Windows and Linux are doing. Windows and Linux
-	 * both retrieve 64 bytes while reading the device descriptor
-	 * Several USB stick devices report ERR: CTL_TIMEOUT, caused by an
-	 * invalid header while reading 8 bytes as device descriptor. */
-	dev->descriptor.bMaxPacketSize0 = 8;	    /* Start off at 8 bytes  */
-	dev->maxpacketsize = PACKET_SIZE_8;
-	dev->epmaxpacketin[0] = 8;
-	dev->epmaxpacketout[0] = 8;
-
-	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, tmpbuf, 8);
-	if (err < 8) {
-		printf("\n      USB device not responding, " \
-		       "giving up (status=%lX)\n", dev->status);
-		return -EIO;
-	}
-	memcpy(&dev->descriptor, tmpbuf, 8);
-#else
-	/* This is a Windows scheme of initialization sequence, with double
+	/*
+	 * This is a Windows scheme of initialization sequence, with double
 	 * reset of the device (Linux uses the same sequence)
 	 * Some equipment is said to work only with such init sequence; this
 	 * patch is based on the work by Alan Stern:
@@ -935,7 +917,8 @@ int usb_new_device(struct usb_device *dev)
 	struct usb_device *parent = dev->parent;
 	unsigned short portstatus;
 
-	/* send 64-byte GET-DEVICE-DESCRIPTOR request.  Since the descriptor is
+	/*
+	 * send 64-byte GET-DEVICE-DESCRIPTOR request.  Since the descriptor is
 	 * only 18 bytes long, this will terminate with a short packet.  But if
 	 * the maxpacket size is 8 or 16 the device may be waiting to transmit
 	 * some more, or keeps on retransmitting the 8 byte header. */
@@ -993,7 +976,6 @@ int usb_new_device(struct usb_device *dev)
 	} else {
 		usb_reset_root_port();
 	}
-#endif
 
 	dev->epmaxpacketin[0] = dev->descriptor.bMaxPacketSize0;
 	dev->epmaxpacketout[0] = dev->descriptor.bMaxPacketSize0;
