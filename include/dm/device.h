@@ -30,6 +30,9 @@ struct driver_info;
 /* DM is responsible for allocating and freeing parent_platdata */
 #define DM_FLAG_ALLOC_PARENT_PDATA	(1 << 3)
 
+/* Allocate driver private data on a DMA boundary */
+#define DM_FLAG_ALLOC_PRIV_DMA	(1 << 4)
+
 /**
  * struct udevice - An instance of a driver
  *

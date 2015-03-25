@@ -164,6 +164,21 @@ int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
 			   -1, devp);
 }
 
+static void *alloc_priv(int size, uint flags)
+{
+	void *priv;
+
+	if (flags & DM_FLAG_ALLOC_PRIV_DMA) {
+		priv = memalign(ARCH_DMA_MINALIGN, size);
+		if (priv)
+			memset(priv, '\0', size);
+	} else {
+		priv = calloc(1, size);
+	}
+
+	return priv;
+}
+
 int device_probe_child(struct udevice *dev, void *parent_priv)
 {
 	struct driver *drv;
@@ -182,7 +197,7 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 
 	/* Allocate private data if requested */
 	if (drv->priv_auto_alloc_size) {
-		dev->priv = calloc(1, drv->priv_auto_alloc_size);
+		dev->priv = alloc_priv(drv->priv_auto_alloc_size, drv->flags);
 		if (!dev->priv) {
 			ret = -ENOMEM;
 			goto fail;
@@ -206,7 +221,7 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 					per_child_auto_alloc_size;
 		}
 		if (size) {
-			dev->parent_priv = calloc(1, size);
+			dev->parent_priv = alloc_priv(size, drv->flags);
 			if (!dev->parent_priv) {
 				ret = -ENOMEM;
 				goto fail;
