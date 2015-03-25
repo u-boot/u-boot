@@ -170,6 +170,16 @@ void pinmux_set_io(enum pmux_pingrp pin, enum pmux_pin_io io);
 void pinmux_config_pingrp_table(const struct pmux_pingrp_config *config,
 				int len);
 
+struct pmux_pingrp_desc {
+	u8 funcs[4];
+#if defined(CONFIG_TEGRA20)
+	u8 ctl_id;
+	u8 pull_id;
+#endif /* CONFIG_TEGRA20 */
+};
+
+extern const struct pmux_pingrp_desc *tegra_soc_pingroups;
+
 #ifdef TEGRA_PMX_SOC_HAS_DRVGRPS
 
 #define PMUX_SLWF_MIN	0
@@ -218,15 +228,5 @@ void pinmux_config_drvgrp_table(const struct pmux_drvgrp_config *config,
 				int len);
 
 #endif /* TEGRA_PMX_SOC_HAS_DRVGRPS */
-
-struct pmux_pingrp_desc {
-	u8 funcs[4];
-#if defined(CONFIG_TEGRA20)
-	u8 ctl_id;
-	u8 pull_id;
-#endif /* CONFIG_TEGRA20 */
-};
-
-extern const struct pmux_pingrp_desc *tegra_soc_pingroups;
 
 #endif /* _TEGRA_PINMUX_H_ */

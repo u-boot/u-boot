@@ -695,4 +695,4 @@ void pinmux_config_drvgrp_table(const struct pmux_drvgrp_config *config,
 	for (i = 0; i < len; i++)
 		pinmux_config_drvgrp(&config[i]);
 }
-#endif /* TEGRA_PMX_HAS_DRVGRPS */
+#endif /* TEGRA_PMX_SOC_HAS_DRVGRPS */
