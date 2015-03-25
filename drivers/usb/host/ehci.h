@@ -248,6 +248,7 @@ struct ehci_ctrl {
 	uint32_t *periodic_list;
 	int periodic_schedules;
 	int ntds;
+	void *priv;	/* client's private data */
 };
 
 /* Weak functions that drivers can override */
@@ -255,6 +256,26 @@ int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg);
 void ehci_set_usbmode(int index);
 void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg);
 uint32_t *ehci_get_portsc_register(struct ehci_hcor *hcor, int port);
+
+/**
+ * ehci_set_controller_priv() - Set up private data for the controller
+ *
+ * This function can be called in ehci_hcd_init() to tell the EHCI layer
+ * about the controller's private data pointer. Then in the above functions
+ * this can be accessed given the struct ehci_ctrl pointer.
+ *
+ * @index:	Controller number to set
+ * @priv:	Controller pointer
+ */
+void ehci_set_controller_priv(int index, void *priv);
+
+/**
+ * ehci_get_controller_priv() - Get controller private data
+ *
+ * @index	Controller number to get
+ * @return controller pointer for this index
+ */
+void *ehci_get_controller_priv(int index);
 
 /* Low level init functions */
 int ehci_hcd_init(int index, enum usb_init_type init,

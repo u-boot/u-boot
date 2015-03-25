@@ -930,6 +930,16 @@ unknown:
 	return -1;
 }
 
+void ehci_set_controller_priv(int index, void *priv)
+{
+	ehcic[index].priv = priv;
+}
+
+void *ehci_get_controller_priv(int index)
+{
+	return ehcic[index].priv;
+}
+
 int usb_lowlevel_stop(int index)
 {
 	ehci_shutdown(&ehcic[index]);
