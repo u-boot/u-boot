@@ -685,6 +685,18 @@ static int gpio_renumber(struct udevice *removed_dev)
 	return 0;
 }
 
+int gpio_get_number(struct gpio_desc *desc)
+{
+	struct udevice *dev = desc->dev;
+	struct gpio_dev_priv *uc_priv;
+
+	if (!dev)
+		return -1;
+	uc_priv = dev->uclass_priv;
+
+	return uc_priv->gpio_base + desc->offset;
+}
+
 static int gpio_post_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
