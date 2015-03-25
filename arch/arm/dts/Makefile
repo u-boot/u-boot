@@ -54,6 +54,9 @@ dtb-$(CONFIG_SOCFPGA) +=				\
 	socfpga_cyclone5_socdk.dtb			\
 	socfpga_cyclone5_socrates.dtb
 
+dtb-$(CONFIG_LS102XA) += ls1021a-qds.dtb \
+	ls1021a-twr.dtb
+
 targets += $(dtb-y)
 
 DTC_FLAGS += -R 4 -p 0x1000
