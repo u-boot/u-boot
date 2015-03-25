@@ -897,10 +897,34 @@ int usb_legacy_port_reset(struct usb_device *hub, int portnr)
 	return 0;
 }
 
-static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
+static int get_descriptor_len(struct usb_device *dev, int len, int expect_len)
 {
 	__maybe_unused struct usb_device_descriptor *desc;
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, tmpbuf, USB_BUFSIZ);
+	int err;
+
+	desc = (struct usb_device_descriptor *)tmpbuf;
+
+	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, len);
+	if (err < expect_len) {
+		if (err < 0) {
+			printf("unable to get device descriptor (error=%d)\n",
+				err);
+			return err;
+		} else {
+			printf("USB device descriptor short read (expected %i, got %i)\n",
+				expect_len, err);
+			return -EIO;
+		}
+	}
+	memcpy(&dev->descriptor, tmpbuf, sizeof(dev->descriptor));
+
+	return 0;
+}
+
+static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
+{
+	__maybe_unused struct usb_device_descriptor *desc;
 
 	/*
 	 * This is a Windows scheme of initialization sequence, with double
@@ -917,7 +941,6 @@ static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 	 * the maxpacket size is 8 or 16 the device may be waiting to transmit
 	 * some more, or keeps on retransmitting the 8 byte header. */
 
-	desc = (struct usb_device_descriptor *)tmpbuf;
 	dev->descriptor.bMaxPacketSize0 = 64;	    /* Start off at 64 bytes  */
 	/* Default to 64 byte max packet size */
 	dev->maxpacketsize = PACKET_SIZE_64;
@@ -927,7 +950,6 @@ static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 	if (do_read) {
 		int err;
 
-		err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
 		/*
 		 * Validate we've received only at least 8 bytes, not that we've
 		 * received the entire descriptor. The reasoning is:
@@ -943,18 +965,9 @@ static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 		 * bytes of data with the maxpacket guessed as 64 (above) yields a
 		 * request for 1 packet.
 		 */
-		if (err < 8) {
-			if (err < 0) {
-				printf("unable to get device descriptor (error=%d)\n",
-				       err);
-				return err;
-			} else {
-				printf("USB device descriptor short read (expected %i, got %i)\n",
-				       (int)sizeof(dev->descriptor), err);
-				return -EIO;
-			}
-		}
-		memcpy(&dev->descriptor, tmpbuf, sizeof(dev->descriptor));
+		err = get_descriptor_len(dev, 64, 8);
+		if (err)
+			return err;
 	}
 
 	dev->epmaxpacketin[0] = dev->descriptor.bMaxPacketSize0;
@@ -1018,71 +1031,41 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 	return 0;
 }
 
-/*
- * By the time we get here, the device has gotten a new device ID
- * and is in the default state. We need to identify the thing and
- * get the ball rolling..
- *
- * Returns 0 for success, != 0 for error.
- */
-int usb_new_device(struct usb_device *dev)
+static int usb_select_config(struct usb_device *dev)
 {
-	bool do_read = true;
-	int addr, err;
-	int tmp, ret;
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, tmpbuf, USB_BUFSIZ);
+	int err;
 
-	/* We still haven't set the Address yet */
-	addr = dev->devnum;
-	dev->devnum = 0;
+	err = get_descriptor_len(dev, USB_DT_DEVICE_SIZE, USB_DT_DEVICE_SIZE);
+	if (err)
+		return err;
 
-	/*
-	 * XHCI needs to issue a Address device command to setup
-	 * proper device context structures, before it can interact
-	 * with the device. So a get_descriptor will fail before any
-	 * of that is done for XHCI unlike EHCI.
-	 */
-#ifdef CONFIG_USB_XHCI
-	do_read = false;
-#endif
-	ret = usb_prepare_device(dev, addr, do_read, dev->parent, dev->portnr);
-	if (ret)
-		return ret;
-
-	tmp = sizeof(dev->descriptor);
-
-	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0,
-				 tmpbuf, sizeof(dev->descriptor));
-	if (err < tmp) {
-		if (err < 0)
-			printf("unable to get device descriptor (error=%d)\n",
-			       err);
-		else
-			printf("USB device descriptor short read " \
-				"(expected %i, got %i)\n", tmp, err);
-		return -EIO;
-	}
-	memcpy(&dev->descriptor, tmpbuf, sizeof(dev->descriptor));
 	/* correct le values */
 	le16_to_cpus(&dev->descriptor.bcdUSB);
 	le16_to_cpus(&dev->descriptor.idVendor);
 	le16_to_cpus(&dev->descriptor.idProduct);
 	le16_to_cpus(&dev->descriptor.bcdDevice);
+
 	/* only support for one config for now */
 	err = usb_get_configuration_no(dev, tmpbuf, 0);
 	if (err < 0) {
 		printf("usb_new_device: Cannot read configuration, " \
 		       "skipping device %04x:%04x\n",
 		       dev->descriptor.idVendor, dev->descriptor.idProduct);
-		return -EIO;
+		return err;
 	}
 	usb_parse_config(dev, tmpbuf, 0);
 	usb_set_maxpacket(dev);
-	/* we set the default configuration here */
-	if (usb_set_configuration(dev, dev->config.desc.bConfigurationValue)) {
+	/*
+	 * we set the default configuration here
+	 * This seems premature. If the driver wants a different configuration
+	 * it will need to select itself.
+	 */
+	err = usb_set_configuration(dev, dev->config.desc.bConfigurationValue);
+	if (err < 0) {
 		printf("failed to set default configuration " \
 			"len %d, status %lX\n", dev->act_len, dev->status);
-		return -EIO;
+		return err;
 	}
 	debug("new device strings: Mfr=%d, Product=%d, SerialNumber=%d\n",
 	      dev->descriptor.iManufacturer, dev->descriptor.iProduct,
@@ -1102,8 +1085,58 @@ int usb_new_device(struct usb_device *dev)
 	debug("Manufacturer %s\n", dev->mf);
 	debug("Product      %s\n", dev->prod);
 	debug("SerialNumber %s\n", dev->serial);
-	/* now prode if the device is a hub */
-	usb_hub_probe(dev, 0);
+
+	return 0;
+}
+
+static int usb_setup_device(struct usb_device *dev, bool do_read,
+			    struct usb_device *parent, int portnr)
+{
+	int addr;
+	int ret;
+
+	/* We still haven't set the Address yet */
+	addr = dev->devnum;
+	dev->devnum = 0;
+
+	ret = usb_prepare_device(dev, addr, do_read, parent, portnr);
+	if (ret)
+		return ret;
+	ret = usb_select_config(dev);
+
+	return ret;
+}
+
+/*
+ * By the time we get here, the device has gotten a new device ID
+ * and is in the default state. We need to identify the thing and
+ * get the ball rolling..
+ *
+ * Returns 0 for success, != 0 for error.
+ */
+int usb_new_device(struct usb_device *dev)
+{
+	bool do_read = true;
+	int err;
+
+	/*
+	 * XHCI needs to issue a Address device command to setup
+	 * proper device context structures, before it can interact
+	 * with the device. So a get_descriptor will fail before any
+	 * of that is done for XHCI unlike EHCI.
+	 */
+#ifdef CONFIG_USB_XHCI
+	do_read = false;
+#endif
+	err = usb_setup_device(dev, do_read, dev->parent, dev->portnr);
+	if (err)
+		return err;
+
+	/* Now probe if the device is a hub */
+	err = usb_hub_probe(dev, 0);
+	if (err < 0)
+		return err;
+
 	return 0;
 }
 
