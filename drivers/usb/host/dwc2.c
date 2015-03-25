@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <usb.h>
 #include <malloc.h>
+#include <phys2bus.h>
 #include <usbroothubdes.h>
 #include <asm/io.h>
 
@@ -795,7 +796,8 @@ int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
 		if (!in)
 			memcpy(aligned_buffer, (char *)buffer + done, len);
 
-		writel((uint32_t)aligned_buffer, &hc_regs->hcdma);
+		writel(phys_to_bus((unsigned long)aligned_buffer),
+		       &hc_regs->hcdma);
 
 		/* Set host channel enable after all other setup is complete. */
 		clrsetbits_le32(&hc_regs->hcchar, DWC2_HCCHAR_MULTICNT_MASK |
