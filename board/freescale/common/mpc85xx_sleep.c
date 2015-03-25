@@ -7,6 +7,9 @@
 #include <common.h>
 #include <asm/immap_85xx.h>
 #include "sleep.h"
+#ifdef CONFIG_U_QE
+#include "../../../drivers/qe/qe.h"
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -65,6 +68,11 @@ static void dp_resume_prepare(void)
 	disable_cpc_sram();
 #endif
 	enable_cpc();
+
+#ifdef CONFIG_U_QE
+	u_qe_resume();
+#endif
+
 }
 
 int fsl_dp_resume(void)

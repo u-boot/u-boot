@@ -196,6 +196,18 @@ void u_qe_init(void)
 }
 #endif
 
+#ifdef CONFIG_U_QE
+void u_qe_resume(void)
+{
+	qe_map_t *qe_immrr;
+	uint qe_base = CONFIG_SYS_IMMR + QE_IMMR_OFFSET; /* QE immr base */
+	qe_immrr = (qe_map_t *)qe_base;
+
+	u_qe_firmware_resume((const void *)CONFIG_SYS_QE_FW_ADDR, qe_immrr);
+	out_be32(&qe_immrr->iram.iready, QE_IRAM_READY);
+}
+#endif
+
 void qe_reset(void)
 {
 	qe_issue_cmd(QE_RESET, QE_CR_SUBBLOCK_INVALID,
@@ -574,6 +586,76 @@ int u_qe_upload_firmware(const struct qe_firmware *firmware)
 
 		/* Enable traps */
 		out_be32(&qe_immr->rsp[i].eccr, be32_to_cpu(ucode->eccr));
+	}
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_U_QE
+int u_qe_firmware_resume(const struct qe_firmware *firmware, qe_map_t *qe_immrr)
+{
+	unsigned int i;
+	unsigned int j;
+	const struct qe_header *hdr;
+	const u32 *code;
+#ifdef CONFIG_DEEP_SLEEP
+#ifdef CONFIG_PPC
+	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#else
+	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
+#endif
+#endif
+
+	if (!firmware)
+		return -EINVAL;
+
+	hdr = &firmware->header;
+
+	/* Check the magic */
+	if ((hdr->magic[0] != 'Q') || (hdr->magic[1] != 'E') ||
+	    (hdr->magic[2] != 'F')) {
+#ifdef CONFIG_DEEP_SLEEP
+		setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_QE_DISABLE);
+#endif
+		return -EPERM;
+	}
+
+	/*
+	 * If the microcode calls for it, split the I-RAM.
+	 */
+	if (!firmware->split) {
+		out_be16(&qe_immrr->cp.cercr,
+			 in_be16(&qe_immrr->cp.cercr) | QE_CP_CERCR_CIR);
+	}
+
+	/* Loop through each microcode. */
+	for (i = 0; i < firmware->count; i++) {
+		const struct qe_microcode *ucode = &firmware->microcode[i];
+
+		/* Upload a microcode if it's present */
+		if (!ucode->code_offset)
+			return 0;
+
+		code = (const void *)firmware + be32_to_cpu(ucode->code_offset);
+
+		/* Use auto-increment */
+		out_be32(&qe_immrr->iram.iadd, be32_to_cpu(ucode->iram_offset) |
+			QE_IRAM_IADD_AIE | QE_IRAM_IADD_BADDR);
+
+		for (i = 0; i < be32_to_cpu(ucode->count); i++)
+			out_be32(&qe_immrr->iram.idata, be32_to_cpu(code[i]));
+
+		/* Program the traps for this processor */
+		for (j = 0; j < 16; j++) {
+			u32 trap = be32_to_cpu(ucode->traps[j]);
+
+			if (trap)
+				out_be32(&qe_immrr->rsp[i].tibcr[j], trap);
+		}
+
+		/* Enable traps */
+		out_be32(&qe_immrr->rsp[i].eccr, be32_to_cpu(ucode->eccr));
 	}
 
 	return 0;
