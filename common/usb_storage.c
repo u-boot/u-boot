@@ -56,48 +56,7 @@ static const unsigned char us_direction[256/8] = {
 #define US_DIRECTION(x) ((us_direction[x>>3] >> (x & 7)) & 1)
 
 static ccb usb_ccb __attribute__((aligned(ARCH_DMA_MINALIGN)));
-
-/*
- * CBI style
- */
-
-#define US_CBI_ADSC		0
-
-/*
- * BULK only
- */
-#define US_BBB_RESET		0xff
-#define US_BBB_GET_MAX_LUN	0xfe
-
-/* Command Block Wrapper */
-typedef struct {
-	__u32		dCBWSignature;
-#	define CBWSIGNATURE	0x43425355
-	__u32		dCBWTag;
-	__u32		dCBWDataTransferLength;
-	__u8		bCBWFlags;
-#	define CBWFLAGS_OUT	0x00
-#	define CBWFLAGS_IN	0x80
-	__u8		bCBWLUN;
-	__u8		bCDBLength;
-#	define CBWCDBLENGTH	16
-	__u8		CBWCDB[CBWCDBLENGTH];
-} umass_bbb_cbw_t;
-#define UMASS_BBB_CBW_SIZE	31
 static __u32 CBWTag;
-
-/* Command Status Wrapper */
-typedef struct {
-	__u32		dCSWSignature;
-#	define CSWSIGNATURE	0x53425355
-	__u32		dCSWTag;
-	__u32		dCSWDataResidue;
-	__u8		bCSWStatus;
-#	define CSWSTATUS_GOOD	0x0
-#	define CSWSTATUS_FAILED 0x1
-#	define CSWSTATUS_PHASE	0x2
-} umass_bbb_csw_t;
-#define UMASS_BBB_CSW_SIZE	13
 
 #define USB_MAX_STOR_DEV 5
 static int usb_max_devs; /* number of highest available usb device */
@@ -494,7 +453,7 @@ static int usb_stor_BBB_comdat(ccb *srb, struct us_data *us)
 	int actlen;
 	int dir_in;
 	unsigned int pipe;
-	ALLOC_CACHE_ALIGN_BUFFER(umass_bbb_cbw_t, cbw, 1);
+	ALLOC_CACHE_ALIGN_BUFFER(struct umass_bbb_cbw, cbw, 1);
 
 	dir_in = US_DIRECTION(srb->cmd[0]);
 
@@ -670,7 +629,7 @@ static int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
 	int dir_in;
 	int actlen, data_actlen;
 	unsigned int pipe, pipein, pipeout;
-	ALLOC_CACHE_ALIGN_BUFFER(umass_bbb_csw_t, csw, 1);
+	ALLOC_CACHE_ALIGN_BUFFER(struct umass_bbb_csw, csw, 1);
 #ifdef BBB_XPORT_TRACE
 	unsigned char *ptr;
 	int index;

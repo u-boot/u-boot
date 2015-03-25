@@ -286,4 +286,46 @@
 #define HUB_CHANGE_LOCAL_POWER	0x0001
 #define HUB_CHANGE_OVERCURRENT	0x0002
 
+/*
+ * CBI style
+ */
+
+#define US_CBI_ADSC		0
+
+/* Command Block Wrapper */
+struct umass_bbb_cbw {
+	__u32		dCBWSignature;
+#	define CBWSIGNATURE	0x43425355
+	__u32		dCBWTag;
+	__u32		dCBWDataTransferLength;
+	__u8		bCBWFlags;
+#	define CBWFLAGS_OUT	0x00
+#	define CBWFLAGS_IN	0x80
+#	define CBWFLAGS_SBZ	0x7f
+	__u8		bCBWLUN;
+	__u8		bCDBLength;
+#	define CBWCDBLENGTH	16
+	__u8		CBWCDB[CBWCDBLENGTH];
+};
+#define UMASS_BBB_CBW_SIZE	31
+
+/* Command Status Wrapper */
+struct umass_bbb_csw {
+	__u32		dCSWSignature;
+#	define CSWSIGNATURE	0x53425355
+	__u32		dCSWTag;
+	__u32		dCSWDataResidue;
+	__u8		bCSWStatus;
+#	define CSWSTATUS_GOOD	0x0
+#	define CSWSTATUS_FAILED 0x1
+#	define CSWSTATUS_PHASE	0x2
+};
+#define UMASS_BBB_CSW_SIZE	13
+
+/*
+ * BULK only
+ */
+#define US_BBB_RESET		0xff
+#define US_BBB_GET_MAX_LUN	0xfe
+
 #endif /*_USB_DEFS_H_ */
