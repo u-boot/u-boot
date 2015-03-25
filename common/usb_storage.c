@@ -9,6 +9,8 @@
  *
  * Adapted for U-Boot:
  *   (C) Copyright 2001 Denis Peter, MPL AG Switzerland
+ * Driver model conversion:
+ *   (C) Copyright 2015 Google, Inc
  *
  * For BBB support (C) Copyright 2003
  * Gary Jennejohn, DENX Software Engineering <garyj@denx.de>
@@ -33,11 +35,13 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <mapmem.h>
 #include <asm/byteorder.h>
 #include <asm/processor.h>
+#include <dm/device-internal.h>
 
 #include <part.h>
 #include <usb.h>
@@ -106,7 +110,6 @@ struct us_data {
 
 static struct us_data usb_stor[USB_MAX_STOR_DEV];
 
-
 #define USB_STOR_TRANSPORT_GOOD	   0
 #define USB_STOR_TRANSPORT_FAILED -1
 #define USB_STOR_TRANSPORT_ERROR  -2
@@ -119,7 +122,6 @@ unsigned long usb_stor_read(int device, lbaint_t blknr,
 			    lbaint_t blkcnt, void *buffer);
 unsigned long usb_stor_write(int device, lbaint_t blknr,
 			     lbaint_t blkcnt, const void *buffer);
-struct usb_device * usb_get_dev_index(int index);
 void uhci_show_temp_int_td(void);
 
 #ifdef CONFIG_PARTITIONS
@@ -223,6 +225,7 @@ void usb_stor_reset(void)
 	usb_max_devs = 0;
 }
 
+#ifndef CONFIG_DM_USB
 /*******************************************************************************
  * scan the usb and reports device info
  * to the user if mode = 1
@@ -253,6 +256,7 @@ int usb_stor_scan(int mode)
 		return 0;
 	return -1;
 }
+#endif
 
 static int usb_stor_irq(struct usb_device *dev)
 {
@@ -1398,3 +1402,46 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 	debug("partype: %d\n", dev_desc->part_type);
 	return 1;
 }
+
+#ifdef CONFIG_DM_USB
+
+static int usb_mass_storage_probe(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parentdata(dev);
+	int ret;
+
+	usb_disable_asynch(1); /* asynch transfer not allowed */
+	ret = usb_stor_probe_device(udev);
+	usb_disable_asynch(0); /* asynch transfer allowed */
+
+	return ret;
+}
+
+static const struct udevice_id usb_mass_storage_ids[] = {
+	{ .compatible = "usb-mass-storage" },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_mass_storage) = {
+	.name	= "usb_mass_storage",
+	.id	= UCLASS_MASS_STORAGE,
+	.of_match = usb_mass_storage_ids,
+	.probe = usb_mass_storage_probe,
+};
+
+UCLASS_DRIVER(usb_mass_storage) = {
+	.id		= UCLASS_MASS_STORAGE,
+	.name		= "usb_mass_storage",
+};
+
+static const struct usb_device_id mass_storage_id_table[] = {
+	{
+		.match_flags = USB_DEVICE_ID_MATCH_INT_CLASS,
+		.bInterfaceClass = USB_CLASS_MASS_STORAGE
+	},
+	{ }		/* Terminating entry */
+};
+
+USB_DEVICE(usb_mass_storage, mass_storage_id_table);
+
+#endif
