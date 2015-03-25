@@ -94,8 +94,8 @@ int usb_init(void)
 		controllers_initialized++;
 		start_index = dev_index;
 		printf("scanning bus %d for devices... ", i);
-		dev = usb_alloc_new_device(ctrl);
-		if (!dev)
+		ret = usb_alloc_new_device(ctrl, &dev);
+		if (ret)
 			break;
 
 		/*
@@ -104,7 +104,7 @@ int usb_init(void)
 		 */
 		ret = usb_new_device(dev);
 		if (ret)
-			usb_free_device();
+			usb_free_device(dev->controller);
 
 		if (start_index == dev_index) {
 			puts("No USB Device found\n");
@@ -833,16 +833,13 @@ struct usb_device *usb_get_dev_index(int index)
 		return &usb_dev[index];
 }
 
-/* returns a pointer of a new device structure or NULL, if
- * no device struct is available
- */
-struct usb_device *usb_alloc_new_device(void *controller)
+int usb_alloc_new_device(struct udevice *controller, struct usb_device **devp)
 {
 	int i;
 	debug("New Device %d\n", dev_index);
 	if (dev_index == USB_MAX_DEVICE) {
 		printf("ERROR, too many USB Devices, max=%d\n", USB_MAX_DEVICE);
-		return NULL;
+		return -ENOSPC;
 	}
 	/* default Address is 0, real addresses start with 1 */
 	usb_dev[dev_index].devnum = dev_index + 1;
@@ -852,7 +849,9 @@ struct usb_device *usb_alloc_new_device(void *controller)
 	usb_dev[dev_index].parent = NULL;
 	usb_dev[dev_index].controller = controller;
 	dev_index++;
-	return &usb_dev[dev_index - 1];
+	*devp = &usb_dev[dev_index - 1];
+
+	return 0;
 }
 
 /*
@@ -860,7 +859,7 @@ struct usb_device *usb_alloc_new_device(void *controller)
  * Called in error cases where configuring a newly attached
  * device fails for some reason.
  */
-void usb_free_device(void)
+void usb_free_device(struct udevice *controller)
 {
 	dev_index--;
 	debug("Freeing device node: %d\n", dev_index);

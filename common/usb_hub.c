@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <asm/processor.h>
 #include <asm/unaligned.h>
 #include <linux/ctype.h>
@@ -214,16 +215,18 @@ int hub_port_reset(struct usb_device *dev, int port,
 }
 
 
-void usb_hub_port_connect_change(struct usb_device *dev, int port)
+int usb_hub_port_connect_change(struct usb_device *dev, int port)
 {
 	struct usb_device *usb;
 	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
 	unsigned short portstatus;
+	int ret, speed;
 
 	/* Check status */
-	if (usb_get_port_status(dev, port + 1, portsts) < 0) {
+	ret = usb_get_port_status(dev, port + 1, portsts);
+	if (ret < 0) {
 		debug("get_port_status failed\n");
-		return;
+		return ret;
 	}
 
 	portstatus = le16_to_cpu(portsts->wPortStatus);
@@ -241,47 +244,55 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 		debug("usb_disconnect(&hub->children[port]);\n");
 		/* Return now if nothing is connected */
 		if (!(portstatus & USB_PORT_STAT_CONNECTION))
-			return;
+			return -ENOTCONN;
 	}
 	mdelay(200);
 
 	/* Reset the port */
-	if (hub_port_reset(dev, port, &portstatus) < 0) {
+	ret = hub_port_reset(dev, port, &portstatus);
+	if (ret < 0) {
 		printf("cannot reset port %i!?\n", port + 1);
-		return;
+		return ret;
 	}
 
 	mdelay(200);
 
-	/* Allocate a new device struct for it */
-	usb = usb_alloc_new_device(dev->controller);
-
 	switch (portstatus & USB_PORT_STAT_SPEED_MASK) {
 	case USB_PORT_STAT_SUPER_SPEED:
-		usb->speed = USB_SPEED_SUPER;
+		speed = USB_SPEED_SUPER;
 		break;
 	case USB_PORT_STAT_HIGH_SPEED:
-		usb->speed = USB_SPEED_HIGH;
+		speed = USB_SPEED_HIGH;
 		break;
 	case USB_PORT_STAT_LOW_SPEED:
-		usb->speed = USB_SPEED_LOW;
+		speed = USB_SPEED_LOW;
 		break;
 	default:
-		usb->speed = USB_SPEED_FULL;
+		speed = USB_SPEED_FULL;
 		break;
 	}
 
+	ret = usb_alloc_new_device(dev->controller, &usb);
+	if (ret) {
+		printf("cannot create new device: ret=%d", ret);
+		return ret;
+	}
+
 	dev->children[port] = usb;
+	usb->speed = speed;
 	usb->parent = dev;
 	usb->portnr = port + 1;
 	/* Run it through the hoops (find a driver, etc) */
-	if (usb_new_device(usb)) {
+	ret = usb_new_device(usb);
+	if (ret < 0) {
 		/* Woops, disable the port */
-		usb_free_device();
+		usb_free_device(dev->controller);
 		dev->children[port] = NULL;
 		debug("hub: disabling port %d\n", port + 1);
 		usb_clear_port_feature(dev, port + 1, USB_PORT_FEAT_ENABLE);
 	}
+
+	return ret;
 }
 
 

@@ -703,10 +703,26 @@ void usb_hub_reset(void);
 int hub_port_reset(struct usb_device *dev, int port,
 			  unsigned short *portstat);
 
-struct usb_device *usb_alloc_new_device(void *controller);
+/**
+ * usb_alloc_new_device() - Allocate a new device
+ *
+ * @devp: returns a pointer of a new device structure. With driver model this
+ *		is a device pointer, but with legacy USB this pointer is
+ *		driver-specific.
+ * @return 0 if OK, -ENOSPC if we have found out of room for new devices
+ */
+int usb_alloc_new_device(struct udevice *controller, struct usb_device **devp);
+
+/**
+ * usb_free_device() - Free a partially-inited device
+ *
+ * This is an internal function. It is used to reverse the action of
+ * usb_alloc_new_device() when we hit a problem during init.
+ */
+void usb_free_device(struct udevice *controller);
 
 int usb_new_device(struct usb_device *dev);
-void usb_free_device(void);
+
 int usb_alloc_device(struct usb_device *dev);
 
 #endif /*_USB_H_ */
