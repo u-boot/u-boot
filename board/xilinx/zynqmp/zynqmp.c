@@ -120,11 +120,13 @@ int board_late_init(void)
 	case ZYNQMP_CSU_VERSION_EP108:
 		setenv("serverip", "10.10.70.101");
 		setenv("ipaddr", "10.10.71.100");
+		setenv("partid", "auto");
 		break;
 	case ZYNQMP_CSU_VERSION_QEMU:
 	default:
 		setenv("serverip", "10.0.2.2");
 		setenv("ipaddr", "10.0.2.15");
+		setenv("partid", "0");
 	}
 
 	reg = readl(&crlapb_base->boot_mode);
