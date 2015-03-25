@@ -60,6 +60,7 @@
 #define CONFIG_CMD_GPT
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_EFI_PARTITION
+#define CONFIG_DOS_PARTITION
 
 /*
  * Size of malloc() pool, before and after relocation
@@ -199,5 +200,6 @@
 #define CONFIG_TPM_TIS_SANDBOX
 
 #define CONFIG_CMD_LZMADEC
+#define CONFIG_CMD_USB
 
 #endif
