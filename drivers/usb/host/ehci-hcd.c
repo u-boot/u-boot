@@ -119,6 +119,11 @@ static struct descriptor {
 #define ehci_is_TDI()	(0)
 #endif
 
+static struct ehci_ctrl *ehci_get_ctrl(struct usb_device *udev)
+{
+	return udev->controller;
+}
+
 __weak int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
 {
 	return PORTSC_PSPD(reg);
@@ -315,7 +320,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	uint32_t cmd;
 	int timeout;
 	int ret = 0;
-	struct ehci_ctrl *ctrl = dev->controller;
+	struct ehci_ctrl *ctrl = ehci_get_ctrl(dev);
 
 	debug("dev=%p, pipe=%lx, buffer=%p, length=%d, req=%p\n", dev, pipe,
 	      buffer, length, req);
@@ -661,9 +666,8 @@ fail:
 	return -1;
 }
 
-int
-ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
-		 int length, struct devrequest *req)
+static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
+			    void *buffer, int length, struct devrequest *req)
 {
 	uint8_t tmpbuf[4];
 	u16 typeReq;
@@ -672,7 +676,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	uint32_t reg;
 	uint32_t *status_reg;
 	int port = le16_to_cpu(req->index) & 0xff;
-	struct ehci_ctrl *ctrl = dev->controller;
+	struct ehci_ctrl *ctrl = ehci_get_ctrl(dev);
 
 	srclen = 0;
 
@@ -1075,9 +1079,8 @@ done:
 	return 0;
 }
 
-int
-submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
-		int length)
+static int _ehci_submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
+				 void *buffer, int length)
 {
 
 	if (usb_pipetype(pipe) != PIPE_BULK) {
@@ -1087,11 +1090,11 @@ submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	return ehci_submit_async(dev, pipe, buffer, length, NULL);
 }
 
-int
-submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
-		   int length, struct devrequest *setup)
+static int _ehci_submit_control_msg(struct usb_device *dev, unsigned long pipe,
+				    void *buffer, int length,
+				    struct devrequest *setup)
 {
-	struct ehci_ctrl *ctrl = dev->controller;
+	struct ehci_ctrl *ctrl = ehci_get_ctrl(dev);
 
 	if (usb_pipetype(pipe) != PIPE_CONTROL) {
 		debug("non-control pipe (type=%lu)", usb_pipetype(pipe));
@@ -1161,7 +1164,7 @@ struct int_queue *
 create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 		 int elementsize, void *buffer, int interval)
 {
-	struct ehci_ctrl *ctrl = dev->controller;
+	struct ehci_ctrl *ctrl = ehci_get_ctrl(dev);
 	struct int_queue *result = NULL;
 	int i;
 
@@ -1353,7 +1356,7 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 int
 destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
 {
-	struct ehci_ctrl *ctrl = dev->controller;
+	struct ehci_ctrl *ctrl = ehci_get_ctrl(dev);
 	int result = -1;
 	unsigned long timeout;
 
@@ -1397,9 +1400,8 @@ out:
 	return result;
 }
 
-int
-submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
-	       int length, int interval)
+static int _ehci_submit_int_msg(struct usb_device *dev, unsigned long pipe,
+				void *buffer, int length, int interval)
 {
 	void *backbuffer;
 	struct int_queue *queue;
@@ -1433,4 +1435,22 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	/* everything worked out fine */
 	return result;
+}
+
+int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
+			    void *buffer, int length)
+{
+	return _ehci_submit_bulk_msg(dev, pipe, buffer, length);
+}
+
+int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
+		   int length, struct devrequest *setup)
+{
+	return _ehci_submit_control_msg(dev, pipe, buffer, length, setup);
+}
+
+int submit_int_msg(struct usb_device *dev, unsigned long pipe,
+		   void *buffer, int length, int interval)
+{
+	return _ehci_submit_int_msg(dev, pipe, buffer, length, interval);
 }
