@@ -2,6 +2,9 @@
  * (C) Copyright 2001
  * Denis Peter, MPL AG Switzerland
  *
+ * Adapted for U-Boot driver model
+ * (C) Copyright 2015 Google, Inc
+ *
  * Most of this source has been derived from the Linux USB
  * project.
  *
@@ -10,6 +13,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
 #include <part.h>
@@ -252,8 +256,46 @@ static void usb_display_config(struct usb_device *dev)
 	printf("\n");
 }
 
+/*
+ * With driver model this isn't right since we can have multiple controllers
+ * and the device numbering starts at 1 on each bus.
+ * TODO(sjg@chromium.org): Add a way to specify the controller/bus.
+ */
 static struct usb_device *usb_find_device(int devnum)
 {
+#ifdef CONFIG_DM_USB
+	struct usb_device *udev;
+	struct udevice *hub;
+	struct uclass *uc;
+	int ret;
+
+	/* Device addresses start at 1 */
+	devnum++;
+	ret = uclass_get(UCLASS_USB_HUB, &uc);
+	if (ret)
+		return NULL;
+
+	uclass_foreach_dev(hub, uc) {
+		struct udevice *dev;
+
+		if (!device_active(hub))
+			continue;
+		udev = dev_get_parentdata(hub);
+		if (udev->devnum == devnum)
+			return udev;
+
+		for (device_find_first_child(hub, &dev);
+		     dev;
+		     device_find_next_child(&dev)) {
+			if (!device_active(hub))
+				continue;
+
+			udev = dev_get_parentdata(dev);
+			if (udev->devnum == devnum)
+				return udev;
+		}
+	}
+#else
 	struct usb_device *udev;
 	int d;
 
@@ -264,6 +306,7 @@ static struct usb_device *usb_find_device(int devnum)
 		if (udev->devnum == devnum)
 			return udev;
 	}
+#endif
 
 	return NULL;
 }
@@ -293,20 +336,31 @@ static inline char *portspeed(int speed)
 /* shows the device tree recursively */
 static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 {
-	int i, index;
+	int index;
 	int has_child, last_child;
 
 	index = strlen(pre);
 	printf(" %s", pre);
+#ifdef CONFIG_DM_USB
+	has_child = device_has_active_children(dev->dev);
+#else
 	/* check if the device has connected children */
+	int i;
+
 	has_child = 0;
 	for (i = 0; i < dev->maxchild; i++) {
 		if (dev->children[i] != NULL)
 			has_child = 1;
 	}
+#endif
 	/* check if we are the last one */
+#ifdef CONFIG_DM_USB
+	last_child = device_is_last_sibling(dev->dev);
+#else
 	last_child = (dev->parent != NULL);
+#endif
 	if (last_child) {
+#ifndef CONFIG_DM_USB
 		for (i = 0; i < dev->parent->maxchild; i++) {
 			/* search for children */
 			if (dev->parent->children[i] == dev) {
@@ -322,6 +376,7 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 				} /* while */
 			} /* device found */
 		} /* for all children of the parent */
+#endif
 		printf("\b+-");
 		/* correct last child */
 		if (last_child && index)
@@ -340,6 +395,26 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 	if (strlen(dev->mf) || strlen(dev->prod) || strlen(dev->serial))
 		printf(" %s  %s %s %s\n", pre, dev->mf, dev->prod, dev->serial);
 	printf(" %s\n", pre);
+#ifdef CONFIG_DM_USB
+	struct udevice *child;
+
+	for (device_find_first_child(dev->dev, &child);
+	     child;
+	     device_find_next_child(&child)) {
+		struct usb_device *udev;
+
+		if (!device_active(child))
+			continue;
+
+		udev = dev_get_parentdata(child);
+
+		/* Ignore emulators, we only want real devices */
+		if (device_get_uclass_id(child) != UCLASS_USB_EMUL) {
+			usb_show_tree_graph(udev, pre);
+			pre[index] = 0;
+		}
+	}
+#else
 	if (dev->maxchild > 0) {
 		for (i = 0; i < dev->maxchild; i++) {
 			if (dev->children[i] != NULL) {
@@ -348,6 +423,7 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 			}
 		}
 	}
+#endif
 }
 
 /* main routine for the tree command */
@@ -448,9 +524,12 @@ static void do_usb_start(void)
 	if (usb_init() < 0)
 		return;
 
+	/* Driver model will probe the devices as they are found */
+#ifndef CONFIG_DM_USB
 #ifdef CONFIG_USB_STORAGE
 	/* try to recognize storage devices immediately */
 	usb_stor_curr_dev = usb_stor_scan(1);
+#endif
 #endif
 #ifdef CONFIG_USB_HOST_ETHER
 	/* try to recognize ethernet devices immediately */
@@ -460,6 +539,43 @@ static void do_usb_start(void)
 	drv_usb_kbd_init();
 #endif
 }
+
+#ifdef CONFIG_DM_USB
+static void show_info(struct udevice *dev)
+{
+	struct udevice *child;
+	struct usb_device *udev;
+
+	udev = dev_get_parentdata(dev);
+	usb_display_desc(udev);
+	usb_display_config(udev);
+	for (device_find_first_child(dev, &child);
+	     child;
+	     device_find_next_child(&child)) {
+		if (device_active(child))
+			show_info(child);
+	}
+}
+
+static int usb_device_info(void)
+{
+	struct udevice *bus;
+
+	for (uclass_first_device(UCLASS_USB, &bus);
+	     bus;
+	     uclass_next_device(&bus)) {
+		struct udevice *hub;
+
+		device_find_first_child(bus, &hub);
+		if (device_get_uclass_id(hub) == UCLASS_USB_HUB &&
+		    device_active(hub)) {
+			show_info(hub);
+		}
+	}
+
+	return 0;
+}
+#endif
 
 /******************************************************************************
  * usb command intepreter
@@ -507,6 +623,23 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	if (strncmp(argv[1], "tree", 4) == 0) {
 		puts("USB device tree:\n");
+#ifdef CONFIG_DM_USB
+		struct udevice *bus;
+
+		for (uclass_first_device(UCLASS_USB, &bus);
+		     bus;
+		     uclass_next_device(&bus)) {
+			struct usb_device *udev;
+			struct udevice *hub;
+
+			device_find_first_child(bus, &hub);
+			if (device_get_uclass_id(hub) == UCLASS_USB_HUB &&
+			    device_active(hub)) {
+				udev = dev_get_parentdata(hub);
+				usb_show_tree(udev);
+			}
+		}
+#else
 		for (i = 0; i < USB_MAX_DEVICE; i++) {
 			udev = usb_get_dev_index(i);
 			if (udev == NULL)
@@ -514,11 +647,15 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (udev->parent == NULL)
 				usb_show_tree(udev);
 		}
+#endif
 		return 0;
 	}
 	if (strncmp(argv[1], "inf", 3) == 0) {
-		int d;
 		if (argc == 2) {
+#ifdef CONFIG_DM_USB
+			usb_device_info();
+#else
+			int d;
 			for (d = 0; d < USB_MAX_DEVICE; d++) {
 				udev = usb_get_dev_index(d);
 				if (udev == NULL)
@@ -526,8 +663,14 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				usb_display_desc(udev);
 				usb_display_config(udev);
 			}
+#endif
 			return 0;
 		} else {
+			/*
+			 * With driver model this isn't right since we can
+			 * have multiple controllers and the device numbering
+			 * starts at 1 on each bus.
+			 */
 			i = simple_strtoul(argv[2], NULL, 10);
 			printf("config for device %d\n", i);
 			udev = usb_find_device(i);
