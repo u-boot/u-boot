@@ -25,7 +25,9 @@
 #define CONFIG_BOARD_COMMON
 
 #define CONFIG_USB_XHCI
+#define CONFIG_USB_EHCI
 #define CONFIG_USB_XHCI_EXYNOS
+#define CONFIG_USB_EHCI_EXYNOS
 
 #define CONFIG_SYS_PROMPT		"snow # "
 #define CONFIG_IDENT_STRING		" for snow"
