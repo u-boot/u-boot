@@ -34,6 +34,7 @@
 #include <common.h>
 #include <command.h>
 #include <inttypes.h>
+#include <mapmem.h>
 #include <asm/byteorder.h>
 #include <asm/processor.h>
 
@@ -306,8 +307,9 @@ static int us_one_transfer(struct us_data *us, int pipe, char *buf, int length)
 		/* set up the transfer loop */
 		do {
 			/* transfer the data */
-			debug("Bulk xfer %p(%d) try #%d\n",
-			      buf, this_xfer, 11 - maxtry);
+			debug("Bulk xfer 0x%lx(%d) try #%d\n",
+			      (ulong)map_to_sysmem(buf), this_xfer,
+			      11 - maxtry);
 			result = usb_bulk_msg(us->pusb_dev, pipe, buf,
 					      this_xfer, &partial,
 					      USB_CNTL_TIMEOUT * 5);
