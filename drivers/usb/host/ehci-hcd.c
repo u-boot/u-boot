@@ -124,12 +124,12 @@ __weak int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
 	return PORTSC_PSPD(reg);
 }
 
-__weak void ehci_set_usbmode(int index)
+__weak void ehci_set_usbmode(struct ehci_ctrl *ctrl)
 {
 	uint32_t tmp;
 	uint32_t *reg_ptr;
 
-	reg_ptr = (uint32_t *)((u8 *)&ehcic[index].hcor->or_usbcmd + USBMODE);
+	reg_ptr = (uint32_t *)((u8 *)&ctrl->hcor->or_usbcmd + USBMODE);
 	tmp = ehci_readl(reg_ptr);
 	tmp |= USBMODE_CM_HC;
 #if defined(CONFIG_EHCI_MMIO_BIG_ENDIAN)
@@ -187,7 +187,7 @@ static int ehci_reset(int index)
 	}
 
 	if (ehci_is_TDI())
-		ehci_set_usbmode(index);
+		ehci_set_usbmode(&ehcic[index]);
 
 #ifdef CONFIG_USB_EHCI_TXFIFO_THRESH
 	cmd = ehci_readl(&ehcic[index].hcor->or_txfilltuning);

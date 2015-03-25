@@ -219,13 +219,12 @@ void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
  * This ehci_set_usbmode overrides the weak function ehci_set_usbmode
  * in "ehci-hcd.c".
  */
-void ehci_set_usbmode(int index)
+void ehci_set_usbmode(struct ehci_ctrl *ctrl)
 {
-	struct fdt_usb *config;
+	struct fdt_usb *config = ctrl->priv;
 	struct usb_ctlr *usbctlr;
 	uint32_t tmp;
 
-	config = &port[index];
 	usbctlr = config->reg;
 
 	tmp = ehci_readl(&usbctlr->usb_mode);

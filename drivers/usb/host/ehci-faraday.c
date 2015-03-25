@@ -92,7 +92,7 @@ int ehci_hcd_stop(int index)
  * This ehci_set_usbmode() overrides the weak function
  * in "ehci-hcd.c".
  */
-void ehci_set_usbmode(int index)
+void ehci_set_usbmode(struct ehci_ctrl *ctrl)
 {
 	/* nothing needs to be done */
 }
