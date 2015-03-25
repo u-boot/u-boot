@@ -61,6 +61,14 @@ enum dr_mode {
 	DR_MODE_OTG,		/* supports both */
 };
 
+enum usb_ctlr_type {
+	USB_CTLR_T20,
+	USB_CTLR_T30,
+	USB_CTLR_T114,
+
+	USB_CTRL_COUNT,
+};
+
 /* Information about a USB port */
 struct fdt_usb {
 	struct usb_ctlr *reg;	/* address of registers in physical memory */
@@ -69,6 +77,7 @@ struct fdt_usb {
 	unsigned enabled:1;	/* 1 to enable, 0 to disable */
 	unsigned has_legacy_mode:1; /* 1 if this port has legacy mode */
 	unsigned initialized:1; /* has this port already been initialized? */
+	enum usb_ctlr_type type;
 	enum usb_init_type init_type;
 	enum dr_mode dr_mode;	/* dual role mode */
 	enum periph_id periph_id;/* peripheral id */
@@ -162,7 +171,7 @@ struct fdt_usb_controller {
 	const unsigned *pll_parameter;
 };
 
-static struct fdt_usb_controller fdt_usb_controllers[] = {
+static struct fdt_usb_controller fdt_usb_controllers[USB_CTRL_COUNT] = {
 	{
 		.compat		= COMPAT_NVIDIA_TEGRA20_USB,
 		.has_hostpc	= 0,
@@ -284,7 +293,7 @@ void usbf_reset_controller(struct fdt_usb *config, struct usb_ctlr *usbctlr)
 		setbits_le32(&usbctlr->susp_ctrl, UTMIP_PHY_ENB);
 }
 
-static const unsigned *get_pll_timing(void)
+static const unsigned *get_pll_timing(struct fdt_usb_controller *controller)
 {
 	const unsigned *timing;
 
@@ -331,6 +340,7 @@ static void init_phy_mux(struct fdt_usb *config, uint pts,
 static int init_utmi_usb_controller(struct fdt_usb *config,
 				    enum usb_init_type init)
 {
+	struct fdt_usb_controller *controller;
 	u32 b_sess_valid_mask, val;
 	int loop_count;
 	const unsigned *timing;
@@ -363,11 +373,14 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 			VBUS_SENSE_CTL_MASK,
 			VBUS_SENSE_CTL_A_SESS_VLD << VBUS_SENSE_CTL_SHIFT);
 
+	controller = &fdt_usb_controllers[config->type];
+	debug("controller=%p, type=%d\n", controller, config->type);
+
 	/*
 	 * PLL Delay CONFIGURATION settings. The following parameters control
 	 * the bring up of the plls.
 	 */
-	timing = get_pll_timing();
+	timing = get_pll_timing(controller);
 
 	if (!controller->has_hostpc) {
 		val = readl(&usbctlr->utmip_misc_cfg1);
@@ -702,10 +715,12 @@ static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
  * @blob:	fdt blob
  * @node_list:	list of nodes to process (any <=0 are ignored)
  * @count:	number of nodes to process
+ * @id:		controller type (enum usb_ctlr_type)
  *
  * Return:	0 - ok, -1 - error
  */
-static int process_usb_nodes(const void *blob, int node_list[], int count)
+static int process_usb_nodes(const void *blob, int node_list[], int count,
+			     enum usb_ctlr_type id)
 {
 	struct fdt_usb config;
 	int node, i;
@@ -729,9 +744,11 @@ static int process_usb_nodes(const void *blob, int node_list[], int count)
 			return -1;
 		}
 		if (!clk_done) {
-			config_clock(get_pll_timing());
+			config_clock(get_pll_timing(
+					&fdt_usb_controllers[id]));
 			clk_done = 1;
 		}
+		config.type = id;
 		config.initialized = 0;
 
 		/* add new USB port to the list of available ports */
@@ -753,7 +770,7 @@ int usb_process_devicetree(const void *blob)
 		count = fdtdec_find_aliases_for_id(blob, "usb",
 			controller->compat, node_list, USB_PORTS_MAX);
 		if (count) {
-			err = process_usb_nodes(blob, node_list, count);
+			err = process_usb_nodes(blob, node_list, count, i);
 			if (err)
 				printf("%s: Error processing USB node!\n",
 				       __func__);
@@ -786,6 +803,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		return -1;
 
 	config = &port[index];
+	ehci_set_controller_priv(index, config);
 
 	switch (init) {
 	case USB_INIT_HOST:
