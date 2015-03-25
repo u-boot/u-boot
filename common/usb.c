@@ -980,6 +980,44 @@ static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 	return 0;
 }
 
+static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
+			      struct usb_device *parent, int portnr)
+{
+	int err;
+
+	/*
+	 * Allocate usb 3.0 device context.
+	 * USB 3.0 (xHCI) protocol tries to allocate device slot
+	 * and related data structures first. This call does that.
+	 * Refer to sec 4.3.2 in xHCI spec rev1.0
+	 */
+	err = usb_alloc_device(dev);
+	if (err) {
+		printf("Cannot allocate device context to get SLOT_ID\n");
+		return err;
+	}
+	err = usb_setup_descriptor(dev, do_read);
+	if (err)
+		return err;
+	err = usb_legacy_port_reset(parent, portnr);
+	if (err)
+		return err;
+
+	dev->devnum = addr;
+
+	err = usb_set_address(dev); /* set address */
+
+	if (err < 0) {
+		printf("\n      USB device not accepting new address " \
+			"(error=%lX)\n", dev->status);
+		return err;
+	}
+
+	mdelay(10);	/* Let the SET_ADDRESS settle */
+
+	return 0;
+}
+
 /*
  * By the time we get here, the device has gotten a new device ID
  * and is in the default state. We need to identify the thing and
@@ -991,19 +1029,8 @@ int usb_new_device(struct usb_device *dev)
 {
 	bool do_read = true;
 	int addr, err;
-	int tmp;
+	int tmp, ret;
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, tmpbuf, USB_BUFSIZ);
-
-	/*
-	 * Allocate usb 3.0 device context.
-	 * USB 3.0 (xHCI) protocol tries to allocate device slot
-	 * and related data structures first. This call does that.
-	 * Refer to sec 4.3.2 in xHCI spec rev1.0
-	 */
-	if (usb_alloc_device(dev)) {
-		printf("Cannot allocate device context to get SLOT_ID\n");
-		return -1;
-	}
 
 	/* We still haven't set the Address yet */
 	addr = dev->devnum;
@@ -1018,24 +1045,9 @@ int usb_new_device(struct usb_device *dev)
 #ifdef CONFIG_USB_XHCI
 	do_read = false;
 #endif
-	err = usb_setup_descriptor(dev, do_read);
-	if (err)
-		return err;
-	err = usb_legacy_port_reset(dev->parent, dev->portnr);
-	if (err)
-		return err;
-
-	dev->devnum = addr;
-
-	err = usb_set_address(dev); /* set address */
-
-	if (err < 0) {
-		printf("\n      USB device not accepting new address " \
-			"(error=%lX)\n", dev->status);
-		return -EIO;
-	}
-
-	mdelay(10);	/* Let the SET_ADDRESS settle */
+	ret = usb_prepare_device(dev, addr, do_read, dev->parent, dev->portnr);
+	if (ret)
+		return ret;
 
 	tmp = sizeof(dev->descriptor);
 
