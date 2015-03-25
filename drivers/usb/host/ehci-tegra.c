@@ -198,7 +198,8 @@ static struct fdt_usb_controller *controller;
  * This ehci_powerup_fixup overrides the weak function ehci_powerup_fixup
  * in "ehci-hcd.c".
  */
-void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
+			uint32_t *reg)
 {
 	mdelay(50);
 	/* This is to avoid PORT_ENABLE bit to be cleared in "ehci-hcd.c". */

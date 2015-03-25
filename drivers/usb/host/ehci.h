@@ -254,7 +254,8 @@ struct ehci_ctrl {
 /* Weak functions that drivers can override */
 int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg);
 void ehci_set_usbmode(int index);
-void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg);
+void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
+			uint32_t *reg);
 uint32_t *ehci_get_portsc_register(struct ehci_hcor *hcor, int port);
 
 /**
