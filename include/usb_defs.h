@@ -286,6 +286,9 @@
 #define HUB_CHANGE_LOCAL_POWER	0x0001
 #define HUB_CHANGE_OVERCURRENT	0x0002
 
+/* Mask for wIndex in get/set port feature */
+#define USB_HUB_PORT_MASK	0xf
+
 /*
  * CBI style
  */
