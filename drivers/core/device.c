@@ -490,3 +490,31 @@ fdt_addr_t dev_get_addr(struct udevice *dev)
 	return FDT_ADDR_T_NONE;
 }
 #endif
+
+bool device_has_children(struct udevice *dev)
+{
+	return !list_empty(&dev->child_head);
+}
+
+bool device_has_active_children(struct udevice *dev)
+{
+	struct udevice *child;
+
+	for (device_find_first_child(dev, &child);
+	     child;
+	     device_find_next_child(&child)) {
+		if (device_active(child))
+			return true;
+	}
+
+	return false;
+}
+
+bool device_is_last_sibling(struct udevice *dev)
+{
+	struct udevice *parent = dev->parent;
+
+	if (!parent)
+		return false;
+	return list_is_last(&dev->sibling_node, &parent->child_head);
+}

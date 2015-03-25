@@ -380,4 +380,34 @@ int device_find_next_child(struct udevice **devp);
  */
 fdt_addr_t dev_get_addr(struct udevice *dev);
 
+/**
+ * device_has_children() - check if a device has any children
+ *
+ * @dev:	Device to check
+ * @return true if the device has one or more children
+ */
+bool device_has_children(struct udevice *dev);
+
+/**
+ * device_has_active_children() - check if a device has any active children
+ *
+ * @dev:	Device to check
+ * @return true if the device has one or more children and at least one of
+ * them is active (probed).
+ */
+bool device_has_active_children(struct udevice *dev);
+
+/**
+ * device_is_last_sibling() - check if a device is the last sibling
+ *
+ * This function can be useful for display purposes, when special action needs
+ * to be taken when displaying the last sibling. This can happen when a tree
+ * view of devices is being displayed.
+ *
+ * @dev:	Device to check
+ * @return true if there are no more siblings after this one - i.e. is it
+ * last in the list.
+ */
+bool device_is_last_sibling(struct udevice *dev);
+
 #endif
