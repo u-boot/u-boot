@@ -143,6 +143,17 @@ __weak void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
 	mdelay(50);
 }
 
+__weak uint32_t *ehci_get_portsc_register(struct ehci_hcor *hcor, int port)
+{
+	if (port < 0 || port >= CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
+		/* Printing the message would cause a scan failure! */
+		debug("The request port(%u) is not configured\n", port);
+		return NULL;
+	}
+
+	return (uint32_t *)&hcor->or_portsc[port];
+}
+
 static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 {
 	uint32_t result;
@@ -647,17 +658,6 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 fail:
 	free(qtd);
 	return -1;
-}
-
-__weak uint32_t *ehci_get_portsc_register(struct ehci_hcor *hcor, int port)
-{
-	if (port < 0 || port >= CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
-		/* Printing the message would cause a scan failure! */
-		debug("The request port(%u) is not configured\n", port);
-		return NULL;
-	}
-
-	return (uint32_t *)&hcor->or_portsc[port];
 }
 
 int
