@@ -165,18 +165,29 @@
 #define USB_TEST_MODE_FORCE_ENABLE  0x05
 
 
-/* "pipe" definitions */
-
-#define PIPE_ISOCHRONOUS    0
-#define PIPE_INTERRUPT      1
-#define PIPE_CONTROL        2
-#define PIPE_BULK           3
+/*
+ * "pipe" definitions, use unsigned so we can compare reliably, since this
+ * value is shifted up to bits 30/31.
+ */
+#define PIPE_ISOCHRONOUS    0U
+#define PIPE_INTERRUPT      1U
+#define PIPE_CONTROL        2U
+#define PIPE_BULK           3U
 #define PIPE_DEVEP_MASK     0x0007ff00
 
 #define USB_ISOCHRONOUS    0
 #define USB_INTERRUPT      1
 #define USB_CONTROL        2
 #define USB_BULK           3
+
+#define USB_PIPE_TYPE_SHIFT	30
+#define USB_PIPE_TYPE_MASK	(3 << USB_PIPE_TYPE_SHIFT)
+
+#define USB_PIPE_DEV_SHIFT	8
+#define USB_PIPE_DEV_MASK	(0x7f << USB_PIPE_DEV_SHIFT)
+
+#define USB_PIPE_EP_SHIFT	15
+#define USB_PIPE_EP_MASK	(0xf << USB_PIPE_EP_SHIFT)
 
 /* USB-status codes: */
 #define USB_ST_ACTIVE           0x1		/* TD is active */
