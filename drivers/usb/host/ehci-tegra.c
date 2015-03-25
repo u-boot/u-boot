@@ -189,8 +189,6 @@ static struct fdt_usb_controller fdt_usb_controllers[USB_CTRL_COUNT] = {
 	},
 };
 
-static struct fdt_usb_controller *controller;
-
 /*
  * A known hardware issue where Connect Status Change bit of PORTSC register
  * of USB1 controller will be set after Port Reset.
@@ -201,6 +199,10 @@ static struct fdt_usb_controller *controller;
 void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
 			uint32_t *reg)
 {
+	struct fdt_usb *config = ctrl->priv;
+	struct fdt_usb_controller *controller;
+
+	controller = &fdt_usb_controllers[config->type];
 	mdelay(50);
 	/* This is to avoid PORT_ENABLE bit to be cleared in "ehci-hcd.c". */
 	if (controller->has_hostpc)
@@ -237,9 +239,12 @@ void ehci_set_usbmode(int index)
  */
 int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
 {
+	struct fdt_usb *config = ctrl->priv;
+	struct fdt_usb_controller *controller;
 	uint32_t tmp;
 	uint32_t *reg_ptr;
 
+	controller = &fdt_usb_controllers[config->type];
 	if (controller->has_hostpc) {
 		reg_ptr = (uint32_t *)((u8 *)&ctrl->hcor->or_usbcmd +
 				HOSTPC1_DEVLC);
@@ -766,10 +771,9 @@ int usb_process_devicetree(const void *blob)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(fdt_usb_controllers); i++) {
-		controller = &fdt_usb_controllers[i];
-
 		count = fdtdec_find_aliases_for_id(blob, "usb",
-			controller->compat, node_list, USB_PORTS_MAX);
+			fdt_usb_controllers[i].compat, node_list,
+			USB_PORTS_MAX);
 		if (count) {
 			err = process_usb_nodes(blob, node_list, count, i);
 			if (err)
@@ -778,8 +782,6 @@ int usb_process_devicetree(const void *blob)
 			return err;
 		}
 	}
-	if (i == ARRAY_SIZE(fdt_usb_controllers))
-		controller = NULL;
 
 	return err;
 }
