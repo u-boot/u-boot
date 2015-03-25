@@ -703,6 +703,82 @@ static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 	return 0;
 }
 
+int usb_common_init(struct fdt_usb *config, enum usb_init_type init)
+{
+	int ret = 0;
+
+	switch (init) {
+	case USB_INIT_HOST:
+		switch (config->dr_mode) {
+		case DR_MODE_HOST:
+		case DR_MODE_OTG:
+			break;
+		default:
+			printf("tegrausb: Invalid dr_mode %d for host mode\n",
+			       config->dr_mode);
+			return -1;
+		}
+		break;
+	case USB_INIT_DEVICE:
+		if (config->periph_id != PERIPH_ID_USBD) {
+			printf("tegrausb: Device mode only supported on first USB controller\n");
+			return -1;
+		}
+		if (!config->utmi) {
+			printf("tegrausb: Device mode only supported with UTMI PHY\n");
+			return -1;
+		}
+		switch (config->dr_mode) {
+		case DR_MODE_DEVICE:
+		case DR_MODE_OTG:
+			break;
+		default:
+			printf("tegrausb: Invalid dr_mode %d for device mode\n",
+			       config->dr_mode);
+			return -1;
+		}
+		break;
+	default:
+		printf("tegrausb: Unknown USB_INIT_* %d\n", init);
+		return -1;
+	}
+
+#ifndef CONFIG_DM_USB
+	/* skip init, if the port is already initialized */
+	if (config->initialized && config->init_type == init)
+		return 0;
+#endif
+
+	debug("%d, %d\n", config->utmi, config->ulpi);
+	if (config->utmi)
+		ret = init_utmi_usb_controller(config, init);
+	else if (config->ulpi)
+		ret = init_ulpi_usb_controller(config, init);
+	if (ret)
+		return ret;
+
+	set_up_vbus(config, init);
+
+	config->init_type = init;
+
+	return 0;
+}
+
+void usb_common_uninit(struct fdt_usb *priv)
+{
+	struct usb_ctlr *usbctlr;
+
+	usbctlr = priv->reg;
+
+	/* Stop controller */
+	writel(0, &usbctlr->usb_cmd);
+	udelay(1000);
+
+	/* Initiate controller reset */
+	writel(2, &usbctlr->usb_cmd);
+	udelay(1000);
+}
+
 static const struct ehci_ops tegra_ehci_ops = {
 	.set_usb_mode		= tegra_ehci_set_usbmode,
 	.get_port_speed		= tegra_ehci_get_port_speed,
@@ -795,6 +871,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 {
 	struct fdt_usb *config;
 	struct usb_ctlr *usbctlr;
+	int ret;
 
 	if (index >= port_count)
 		return -1;
@@ -802,62 +879,14 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	config = &port[index];
 	ehci_set_controller_priv(index, config, &tegra_ehci_ops);
 
-	switch (init) {
-	case USB_INIT_HOST:
-		switch (config->dr_mode) {
-		case DR_MODE_HOST:
-		case DR_MODE_OTG:
-			break;
-		default:
-			printf("tegrausb: Invalid dr_mode %d for host mode\n",
-			       config->dr_mode);
-			return -1;
-		}
-		break;
-	case USB_INIT_DEVICE:
-		if (config->periph_id != PERIPH_ID_USBD) {
-			printf("tegrausb: Device mode only supported on first USB controller\n");
-			return -1;
-		}
-		if (!config->utmi) {
-			printf("tegrausb: Device mode only supported with UTMI PHY\n");
-			return -1;
-		}
-		switch (config->dr_mode) {
-		case DR_MODE_DEVICE:
-		case DR_MODE_OTG:
-			break;
-		default:
-			printf("tegrausb: Invalid dr_mode %d for device mode\n",
-			       config->dr_mode);
-			return -1;
-		}
-		break;
-	default:
-		printf("tegrausb: Unknown USB_INIT_* %d\n", init);
-		return -1;
-	}
-
-	/* skip init, if the port is already initialized */
-	if (config->initialized && config->init_type == init)
-		goto success;
-
-	if (config->utmi && init_utmi_usb_controller(config, init)) {
+	ret = usb_common_init(config, init);
+	if (ret) {
 		printf("tegrausb: Cannot init port %d\n", index);
-		return -1;
+		return ret;
 	}
-
-	if (config->ulpi && init_ulpi_usb_controller(config, init)) {
-		printf("tegrausb: Cannot init port %d\n", index);
-		return -1;
-	}
-
-	set_up_vbus(config, init);
 
 	config->initialized = 1;
-	config->init_type = init;
 
-success:
 	usbctlr = config->reg;
 	*hccr = (struct ehci_hccr *)&usbctlr->cap_length;
 	*hcor = (struct ehci_hcor *)&usbctlr->usb_cmd;
@@ -870,17 +899,7 @@ success:
  */
 int ehci_hcd_stop(int index)
 {
-	struct usb_ctlr *usbctlr;
-
-	usbctlr = port[index].reg;
-
-	/* Stop controller */
-	writel(0, &usbctlr->usb_cmd);
-	udelay(1000);
-
-	/* Initiate controller reset */
-	writel(2, &usbctlr->usb_cmd);
-	udelay(1000);
+	usb_common_uninit(&port[index]);
 
 	port[index].initialized = 0;
 
