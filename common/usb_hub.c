@@ -305,27 +305,30 @@ static int usb_hub_configure(struct usb_device *dev)
 	struct usb_hub_descriptor *descriptor;
 	struct usb_hub_device *hub;
 	__maybe_unused struct usb_hub_status *hubsts;
+	int ret;
 
 	/* "allocate" Hub device */
 	hub = usb_hub_allocate();
 	if (hub == NULL)
-		return -1;
+		return -ENOMEM;
 	hub->pusb_dev = dev;
 	/* Get the the hub descriptor */
-	if (usb_get_hub_descriptor(dev, buffer, 4) < 0) {
+	ret = usb_get_hub_descriptor(dev, buffer, 4);
+	if (ret < 0) {
 		debug("usb_hub_configure: failed to get hub " \
 		      "descriptor, giving up %lX\n", dev->status);
-		return -1;
+		return ret;
 	}
 	descriptor = (struct usb_hub_descriptor *)buffer;
 
 	length = min_t(int, descriptor->bLength,
 		       sizeof(struct usb_hub_descriptor));
 
-	if (usb_get_hub_descriptor(dev, buffer, length) < 0) {
+	ret = usb_get_hub_descriptor(dev, buffer, length);
+	if (ret < 0) {
 		debug("usb_hub_configure: failed to get hub " \
 		      "descriptor 2nd giving up %lX\n", dev->status);
-		return -1;
+		return ret;
 	}
 	memcpy((unsigned char *)&hub->desc, buffer, length);
 	/* adjust 16bit values */
@@ -393,13 +396,14 @@ static int usb_hub_configure(struct usb_device *dev)
 	if (sizeof(struct usb_hub_status) > USB_BUFSIZ) {
 		debug("usb_hub_configure: failed to get Status - " \
 		      "too long: %d\n", descriptor->bLength);
-		return -1;
+		return -EFBIG;
 	}
 
-	if (usb_get_hub_status(dev, buffer) < 0) {
+	ret = usb_get_hub_status(dev, buffer);
+	if (ret < 0) {
 		debug("usb_hub_configure: failed to get Status %lX\n",
 		      dev->status);
-		return -1;
+		return ret;
 	}
 
 #ifdef DEBUG
@@ -431,6 +435,7 @@ static int usb_hub_configure(struct usb_device *dev)
 		int ret;
 		ulong start = get_timer(0);
 
+		debug("\n\nScanning port %d\n", i + 1);
 		/*
 		 * Wait for (whichever finishes first)
 		 *  - A maximum of 10 seconds
@@ -511,33 +516,53 @@ static int usb_hub_configure(struct usb_device *dev)
 	return 0;
 }
 
-int usb_hub_probe(struct usb_device *dev, int ifnum)
+static int usb_hub_check(struct usb_device *dev, int ifnum)
 {
 	struct usb_interface *iface;
-	struct usb_endpoint_descriptor *ep;
-	int ret;
+	struct usb_endpoint_descriptor *ep = NULL;
 
 	iface = &dev->config.if_desc[ifnum];
 	/* Is it a hub? */
 	if (iface->desc.bInterfaceClass != USB_CLASS_HUB)
-		return 0;
+		goto err;
 	/* Some hubs have a subclass of 1, which AFAICT according to the */
 	/*  specs is not defined, but it works */
 	if ((iface->desc.bInterfaceSubClass != 0) &&
 	    (iface->desc.bInterfaceSubClass != 1))
-		return 0;
+		goto err;
 	/* Multiple endpoints? What kind of mutant ninja-hub is this? */
 	if (iface->desc.bNumEndpoints != 1)
-		return 0;
+		goto err;
 	ep = &iface->ep_desc[0];
 	/* Output endpoint? Curiousier and curiousier.. */
 	if (!(ep->bEndpointAddress & USB_DIR_IN))
-		return 0;
+		goto err;
 	/* If it's not an interrupt endpoint, we'd better punt! */
 	if ((ep->bmAttributes & 3) != 3)
-		return 0;
+		goto err;
 	/* We found a hub */
 	debug("USB hub found\n");
+	return 0;
+
+err:
+	debug("USB hub not found: bInterfaceClass=%d, bInterfaceSubClass=%d, bNumEndpoints=%d\n",
+	      iface->desc.bInterfaceClass, iface->desc.bInterfaceSubClass,
+	      iface->desc.bNumEndpoints);
+	if (ep) {
+		debug("   bEndpointAddress=%#x, bmAttributes=%d",
+		      ep->bEndpointAddress, ep->bmAttributes);
+	}
+
+	return -ENOENT;
+}
+
+int usb_hub_probe(struct usb_device *dev, int ifnum)
+{
+	int ret;
+
+	ret = usb_hub_check(dev, ifnum);
+	if (ret)
+		return 0;
 	ret = usb_hub_configure(dev);
 	return ret;
 }
