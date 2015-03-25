@@ -249,6 +249,30 @@ int usb_legacy_port_reset(struct usb_device *parent, int portnr)
 	return usb_port_reset(parent, portnr);
 }
 
+int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
+{
+	struct usb_platdata *plat;
+	struct udevice *dev;
+	int ret;
+
+	/* Find the old device and remove it */
+	ret = uclass_find_device_by_seq(UCLASS_USB, 0, true, &dev);
+	if (ret)
+		return ret;
+	ret = device_remove(dev);
+	if (ret)
+		return ret;
+
+	plat = dev_get_platdata(dev);
+	plat->init_type = USB_INIT_DEVICE;
+	ret = device_probe(dev);
+	if (ret)
+		return ret;
+	*ctlrp = dev_get_priv(dev);
+
+	return 0;
+}
+
 /* returns 0 if no match, 1 if match */
 int usb_match_device(const struct usb_device_descriptor *desc,
 		     const struct usb_device_id *id)
