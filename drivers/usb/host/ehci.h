@@ -238,6 +238,12 @@ struct QH {
 	};
 };
 
+/* Tweak flags for EHCI, used to control operation */
+enum {
+	/* don't use or_configflag in init */
+	EHCI_TWEAK_NO_INIT_CF		= 1 << 0,
+};
+
 struct ehci_ctrl {
 	struct ehci_hccr *hccr;	/* R/O registers, not need for volatile */
 	struct ehci_hcor *hcor;

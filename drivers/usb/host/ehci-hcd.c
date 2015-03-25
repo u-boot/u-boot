@@ -945,41 +945,19 @@ void *ehci_get_controller_priv(int index)
 	return ehcic[index].priv;
 }
 
-int usb_lowlevel_stop(int index)
+static int ehci_common_init(struct ehci_ctrl *ctrl, uint tweaks)
 {
-	ehci_shutdown(&ehcic[index]);
-	return ehci_hcd_stop(index);
-}
-
-int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
-{
-	uint32_t reg;
-	uint32_t cmd;
 	struct QH *qh_list;
 	struct QH *periodic;
+	uint32_t reg;
+	uint32_t cmd;
 	int i;
-	int rc;
 
-	rc = ehci_hcd_init(index, init, &ehcic[index].hccr, &ehcic[index].hcor);
-	if (rc)
-		return rc;
-	if (init == USB_INIT_DEVICE)
-		goto done;
-
-	/* EHCI spec section 4.1 */
-	if (ehci_reset(index))
-		return -1;
-
-#if defined(CONFIG_EHCI_HCD_INIT_AFTER_RESET)
-	rc = ehci_hcd_init(index, init, &ehcic[index].hccr, &ehcic[index].hcor);
-	if (rc)
-		return rc;
-#endif
 	/* Set the high address word (aka segment) for 64-bit controller */
-	if (ehci_readl(&ehcic[index].hccr->cr_hccparams) & 1)
-		ehci_writel(&ehcic[index].hcor->or_ctrldssegment, 0);
+	if (ehci_readl(&ctrl->hccr->cr_hccparams) & 1)
+		ehci_writel(&ctrl->hcor->or_ctrldssegment, 0);
 
-	qh_list = &ehcic[index].qh_list;
+	qh_list = &ctrl->qh_list;
 
 	/* Set head of reclaim list */
 	memset(qh_list, 0, sizeof(*qh_list));
@@ -995,14 +973,14 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 			   ALIGN_END_ADDR(struct QH, qh_list, 1));
 
 	/* Set async. queue head pointer. */
-	ehci_writel(&ehcic[index].hcor->or_asynclistaddr, (unsigned long)qh_list);
+	ehci_writel(&ctrl->hcor->or_asynclistaddr, (unsigned long)qh_list);
 
 	/*
 	 * Set up periodic list
 	 * Step 1: Parent QH for all periodic transfers.
 	 */
-	ehcic[index].periodic_schedules = 0;
-	periodic = &ehcic[index].periodic_queue;
+	ctrl->periodic_schedules = 0;
+	periodic = &ctrl->periodic_queue;
 	memset(periodic, 0, sizeof(*periodic));
 	periodic->qh_link = cpu_to_hc32(QH_LINK_TERMINATE);
 	periodic->qh_overlay.qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
@@ -1020,25 +998,25 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	 *         Split Transactions will be spread across microframes using
 	 *         S-mask and C-mask.
 	 */
-	if (ehcic[index].periodic_list == NULL)
-		ehcic[index].periodic_list = memalign(4096, 1024 * 4);
+	if (ctrl->periodic_list == NULL)
+		ctrl->periodic_list = memalign(4096, 1024 * 4);
 
-	if (!ehcic[index].periodic_list)
+	if (!ctrl->periodic_list)
 		return -ENOMEM;
 	for (i = 0; i < 1024; i++) {
-		ehcic[index].periodic_list[i] = cpu_to_hc32((unsigned long)periodic
+		ctrl->periodic_list[i] = cpu_to_hc32((unsigned long)periodic
 						| QH_LINK_TYPE_QH);
 	}
 
-	flush_dcache_range((unsigned long)ehcic[index].periodic_list,
-			   ALIGN_END_ADDR(uint32_t, ehcic[index].periodic_list,
+	flush_dcache_range((unsigned long)ctrl->periodic_list,
+			   ALIGN_END_ADDR(uint32_t, ctrl->periodic_list,
 					  1024));
 
 	/* Set periodic list base address */
-	ehci_writel(&ehcic[index].hcor->or_periodiclistbase,
-		(unsigned long)ehcic[index].periodic_list);
+	ehci_writel(&ctrl->hcor->or_periodiclistbase,
+		(unsigned long)ctrl->periodic_list);
 
-	reg = ehci_readl(&ehcic[index].hccr->cr_hcsparams);
+	reg = ehci_readl(&ctrl->hccr->cr_hcsparams);
 	descriptor.hub.bNbrPorts = HCS_N_PORTS(reg);
 	debug("Register %x NbrPorts %d\n", reg, descriptor.hub.bNbrPorts);
 	/* Port Indicators */
@@ -1051,29 +1029,66 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 				| 0x01, &descriptor.hub.wHubCharacteristics);
 
 	/* Start the host controller. */
-	cmd = ehci_readl(&ehcic[index].hcor->or_usbcmd);
+	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
 	/*
 	 * Philips, Intel, and maybe others need CMD_RUN before the
 	 * root hub will detect new devices (why?); NEC doesn't
 	 */
 	cmd &= ~(CMD_LRESET|CMD_IAAD|CMD_PSE|CMD_ASE|CMD_RESET);
 	cmd |= CMD_RUN;
-	ehci_writel(&ehcic[index].hcor->or_usbcmd, cmd);
+	ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
 
-#ifndef CONFIG_USB_EHCI_FARADAY
-	/* take control over the ports */
-	cmd = ehci_readl(&ehcic[index].hcor->or_configflag);
-	cmd |= FLAG_CF;
-	ehci_writel(&ehcic[index].hcor->or_configflag, cmd);
-#endif
+	if (!(tweaks & EHCI_TWEAK_NO_INIT_CF)) {
+		/* take control over the ports */
+		cmd = ehci_readl(&ctrl->hcor->or_configflag);
+		cmd |= FLAG_CF;
+		ehci_writel(&ctrl->hcor->or_configflag, cmd);
+	}
 
 	/* unblock posted write */
-	cmd = ehci_readl(&ehcic[index].hcor->or_usbcmd);
+	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
 	mdelay(5);
-	reg = HC_VERSION(ehci_readl(&ehcic[index].hccr->cr_capbase));
+	reg = HC_VERSION(ehci_readl(&ctrl->hccr->cr_capbase));
 	printf("USB EHCI %x.%02x\n", reg >> 8, reg & 0xff);
 
-	ehcic[index].rootdev = 0;
+	return 0;
+}
+
+int usb_lowlevel_stop(int index)
+{
+	ehci_shutdown(&ehcic[index]);
+	return ehci_hcd_stop(index);
+}
+
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
+{
+	struct ehci_ctrl *ctrl = &ehcic[index];
+	uint tweaks = 0;
+	int rc;
+
+	rc = ehci_hcd_init(index, init, &ctrl->hccr, &ctrl->hcor);
+	if (rc)
+		return rc;
+	if (init == USB_INIT_DEVICE)
+		goto done;
+
+	/* EHCI spec section 4.1 */
+	if (ehci_reset(index))
+		return -1;
+
+#if defined(CONFIG_EHCI_HCD_INIT_AFTER_RESET)
+	rc = ehci_hcd_init(index, init, &ctrl->hccr, &ctrl->hcor);
+	if (rc)
+		return rc;
+#endif
+#ifdef CONFIG_USB_EHCI_FARADAY
+	tweaks |= EHCI_TWEAK_NO_INIT_CF;
+#endif
+	rc = ehci_common_init(ctrl, tweaks);
+	if (rc)
+		return rc;
+
+	ctrl->rootdev = 0;
 done:
 	*controller = &ehcic[index];
 	return 0;
