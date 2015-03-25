@@ -24,12 +24,16 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <errno.h>
 #include <asm/processor.h>
 #include <asm/unaligned.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
+#include <dm/root.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #include <usb.h>
 #ifdef CONFIG_4xx
@@ -38,6 +42,7 @@
 
 #define USB_BUFSIZ	512
 
+/* TODO(sjg@chromium.org): Remove this when CONFIG_DM_USB is defined */
 static struct usb_hub_device hub_dev[USB_MAX_HUB];
 static int usb_hub_index;
 
@@ -156,7 +161,12 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
 	unsigned short portstatus, portchange;
 
-	debug("hub_port_reset: resetting port %d...\n", port);
+#ifdef CONFIG_DM_USB
+	debug("%s: resetting '%s' port %d...\n", __func__, dev->dev->name,
+	      port + 1);
+#else
+	debug("%s: resetting port %d...\n", __func__, port + 1);
+#endif
 	for (tries = 0; tries < MAX_TRIES; tries++) {
 
 		usb_set_port_feature(dev, port + 1, USB_PORT_FEAT_RESET);
@@ -214,10 +224,17 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 	return 0;
 }
 
+#ifdef CONFIG_DM_USB
+int hub_port_reset(struct udevice *dev, int port, unsigned short *portstat)
+{
+	struct usb_device *udev = dev_get_parentdata(dev);
+
+	return legacy_hub_port_reset(udev, port, portstat);
+}
+#endif
 
 int usb_hub_port_connect_change(struct usb_device *dev, int port)
 {
-	struct usb_device *usb;
 	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
 	unsigned short portstatus;
 	int ret, speed;
@@ -240,7 +257,8 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 
 	/* Disconnect any existing devices under this port */
 	if (((!(portstatus & USB_PORT_STAT_CONNECTION)) &&
-	     (!(portstatus & USB_PORT_STAT_ENABLE))) || (dev->children[port])) {
+	     (!(portstatus & USB_PORT_STAT_ENABLE))) ||
+	    usb_device_has_child_on_port(dev, port)) {
 		debug("usb_disconnect(&hub->children[port]);\n");
 		/* Return now if nothing is connected */
 		if (!(portstatus & USB_PORT_STAT_CONNECTION))
@@ -272,6 +290,13 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 		break;
 	}
 
+#ifdef CONFIG_DM_USB
+	struct udevice *child;
+
+	ret = usb_scan_device(dev->dev, port + 1, speed, &child);
+#else
+	struct usb_device *usb;
+
 	ret = usb_alloc_new_device(dev->controller, &usb);
 	if (ret) {
 		printf("cannot create new device: ret=%d", ret);
@@ -288,6 +313,9 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 		/* Woops, disable the port */
 		usb_free_device(dev->controller);
 		dev->children[port] = NULL;
+	}
+#endif
+	if (ret < 0) {
 		debug("hub: disabling port %d\n", port + 1);
 		usb_clear_port_feature(dev, port + 1, USB_PORT_FEAT_ENABLE);
 	}
@@ -435,7 +463,11 @@ static int usb_hub_configure(struct usb_device *dev)
 		int ret;
 		ulong start = get_timer(0);
 
+#ifdef CONFIG_DM_USB
+		debug("\n\nScanning '%s' port %d\n", dev->dev->name, i + 1);
+#else
 		debug("\n\nScanning port %d\n", i + 1);
+#endif
 		/*
 		 * Wait for (whichever finishes first)
 		 *  - A maximum of 10 seconds
@@ -485,7 +517,7 @@ static int usb_hub_configure(struct usb_device *dev)
 			 * them again. Works at least with mouse driver */
 			if (!(portstatus & USB_PORT_STAT_ENABLE) &&
 			     (portstatus & USB_PORT_STAT_CONNECTION) &&
-			     ((dev->children[i]))) {
+			     usb_device_has_child_on_port(dev, i)) {
 				debug("already running port %i "  \
 				      "disabled by hub (EMI?), " \
 				      "re-enabling...\n", i + 1);
@@ -566,3 +598,57 @@ int usb_hub_probe(struct usb_device *dev, int ifnum)
 	ret = usb_hub_configure(dev);
 	return ret;
 }
+
+#ifdef CONFIG_DM_USB
+int usb_hub_scan(struct udevice *hub)
+{
+	struct usb_device *udev = dev_get_parentdata(hub);
+
+	return usb_hub_configure(udev);
+}
+
+static int usb_hub_post_bind(struct udevice *dev)
+{
+	/* Scan the bus for devices */
+	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+}
+
+static int usb_hub_post_probe(struct udevice *dev)
+{
+	debug("%s\n", __func__);
+	return usb_hub_scan(dev);
+}
+
+static const struct udevice_id usb_hub_ids[] = {
+	{ .compatible = "usb-hub" },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_generic_hub) = {
+	.name	= "usb_hub",
+	.id	= UCLASS_USB_HUB,
+	.of_match = usb_hub_ids,
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};
+
+UCLASS_DRIVER(usb_hub) = {
+	.id		= UCLASS_USB_HUB,
+	.name		= "usb_hub",
+	.post_bind	= usb_hub_post_bind,
+	.post_probe	= usb_hub_post_probe,
+	.child_pre_probe	= usb_child_pre_probe,
+	.per_child_auto_alloc_size = sizeof(struct usb_device),
+	.per_child_platdata_auto_alloc_size = sizeof(struct usb_dev_platdata),
+};
+
+static const struct usb_device_id hub_id_table[] = {
+	{
+		.match_flags = USB_DEVICE_ID_MATCH_DEV_CLASS,
+		.bDeviceClass = USB_CLASS_HUB
+	},
+	{ }	/* Terminating entry */
+};
+
+USB_DEVICE(usb_generic_hub, hub_id_table);
+
+#endif
