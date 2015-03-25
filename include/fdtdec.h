@@ -128,9 +128,6 @@ static inline fdt_size_t fdt_resource_size(const struct fdt_resource *res)
  */
 enum fdt_compat_id {
 	COMPAT_UNKNOWN,
-	COMPAT_NVIDIA_TEGRA20_USB,	/* Tegra20 USB port */
-	COMPAT_NVIDIA_TEGRA30_USB,	/* Tegra30 USB port */
-	COMPAT_NVIDIA_TEGRA114_USB,	/* Tegra114 USB port */
 	COMPAT_NVIDIA_TEGRA20_EMC,	/* Tegra20 memory controller */
 	COMPAT_NVIDIA_TEGRA20_EMC_TABLE, /* Tegra20 memory timing table */
 	COMPAT_NVIDIA_TEGRA20_KBC,	/* Tegra20 Keyboard */

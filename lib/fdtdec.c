@@ -22,9 +22,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define COMPAT(id, name) name
 static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(UNKNOWN, "<none>"),
-	COMPAT(NVIDIA_TEGRA20_USB, "nvidia,tegra20-ehci"),
-	COMPAT(NVIDIA_TEGRA30_USB, "nvidia,tegra30-ehci"),
-	COMPAT(NVIDIA_TEGRA114_USB, "nvidia,tegra114-ehci"),
 	COMPAT(NVIDIA_TEGRA20_EMC, "nvidia,tegra20-emc"),
 	COMPAT(NVIDIA_TEGRA20_EMC_TABLE, "nvidia,tegra20-emc-table"),
 	COMPAT(NVIDIA_TEGRA20_KBC, "nvidia,tegra20-kbc"),
