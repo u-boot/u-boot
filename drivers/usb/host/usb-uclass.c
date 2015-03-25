@@ -384,7 +384,13 @@ static int usb_find_and_bind_driver(struct udevice *parent,
 		}
 	}
 
-	ret = -ENOENT;
+	/* Bind a generic driver so that the device can be used */
+	snprintf(name, sizeof(name), "generic_bus_%x_dev_%x", bus_seq, devnum);
+	str = strdup(name);
+	if (!str)
+		return -ENOMEM;
+	ret = device_bind_driver(parent, "usb_dev_generic_drv", str, devp);
+
 error:
 	debug("%s: No match found: %d\n", __func__, ret);
 	return ret;
@@ -591,4 +597,14 @@ UCLASS_DRIVER(usb) = {
 	.child_post_bind = usb_child_post_bind,
 	.child_pre_probe = usb_child_pre_probe,
 	.per_child_platdata_auto_alloc_size = sizeof(struct usb_dev_platdata),
+};
+
+UCLASS_DRIVER(usb_dev_generic) = {
+	.id		= UCLASS_USB_DEV_GENERIC,
+	.name		= "usb_dev_generic",
+};
+
+U_BOOT_DRIVER(usb_dev_generic_drv) = {
+	.id		= UCLASS_USB_DEV_GENERIC,
+	.name		= "usb_dev_generic_drv",
 };

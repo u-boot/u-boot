@@ -42,6 +42,7 @@ enum uclass_id {
 	UCLASS_LPC,		/* x86 'low pin count' interface */
 	UCLASS_USB,		/* USB bus */
 	UCLASS_USB_HUB,		/* USB hub */
+	UCLASS_USB_DEV_GENERIC,	/* USB generic device */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
