@@ -119,7 +119,7 @@ int axp209_set_ldo3(int mvolt)
 	if (mvolt == -1)
 		cfg = 0x80;	/* determined by LDO3IN pin */
 	else
-		cfg = axp209_mvolt_to_cfg(mvolt, 700, 2275, 25);
+		cfg = axp209_mvolt_to_cfg(mvolt, 700, 3500, 25);
 
 	return axp209_write(AXP209_LDO3_VOLTAGE, cfg);
 }
