@@ -31,6 +31,7 @@ int test_ping(struct udevice *dev, int pingval, int *pingret)
 static int test_post_bind(struct udevice *dev)
 {
 	dm_testdrv_op_count[DM_TEST_OP_POST_BIND]++;
+	ut_assert(!device_active(dev));
 
 	return 0;
 }
@@ -48,7 +49,7 @@ static int test_pre_probe(struct udevice *dev)
 
 	dm_testdrv_op_count[DM_TEST_OP_PRE_PROBE]++;
 	ut_assert(priv);
-	ut_assert(!device_active(dev));
+	ut_assert(device_active(dev));
 
 	return 0;
 }

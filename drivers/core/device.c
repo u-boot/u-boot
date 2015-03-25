@@ -243,6 +243,8 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 	}
 	dev->seq = seq;
 
+	dev->flags |= DM_FLAG_ACTIVATED;
+
 	ret = uclass_pre_probe_device(dev);
 	if (ret)
 		goto fail;
@@ -269,10 +271,8 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 	}
 
 	ret = uclass_post_probe_device(dev);
-	if (ret) {
-		dev->flags &= ~DM_FLAG_ACTIVATED;
+	if (ret)
 		goto fail_uclass;
-	}
 
 	return 0;
 fail_uclass:
@@ -281,6 +281,8 @@ fail_uclass:
 			__func__, dev->name);
 	}
 fail:
+	dev->flags &= ~DM_FLAG_ACTIVATED;
+
 	dev->seq = -1;
 	device_free(dev);
 
