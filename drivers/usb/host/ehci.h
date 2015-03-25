@@ -296,4 +296,10 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor);
 int ehci_hcd_stop(int index);
 
+int ehci_register(struct udevice *dev, struct ehci_hccr *hccr,
+		  struct ehci_hcor *hcor, const struct ehci_ops *ops,
+		  uint tweaks, enum usb_init_type init);
+int ehci_deregister(struct udevice *dev);
+extern struct dm_usb_ops ehci_usb_ops;
+
 #endif /* USB_EHCI_H */

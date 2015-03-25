@@ -21,6 +21,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
@@ -42,7 +43,9 @@
  */
 #define HCHALT_TIMEOUT (8 * 1000)
 
+#ifndef CONFIG_DM_USB
 static struct ehci_ctrl ehcic[CONFIG_USB_MAX_CONTROLLER_COUNT];
+#endif
 
 #define ALIGN_END_ADDR(type, ptr, size)			\
 	((unsigned long)(ptr) + roundup((size) * sizeof(type), USB_DMA_MINALIGN))
@@ -121,7 +124,18 @@ static struct descriptor {
 
 static struct ehci_ctrl *ehci_get_ctrl(struct usb_device *udev)
 {
+#ifdef CONFIG_DM_USB
+	struct udevice *dev;
+
+	/* Find the USB controller */
+	for (dev = udev->dev;
+	     device_get_uclass_id(dev) != UCLASS_USB;
+	     dev = dev->parent)
+		;
+	return dev_get_priv(dev);
+#else
 	return udev->controller;
+#endif
 }
 
 static int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
@@ -281,12 +295,13 @@ static inline u8 ehci_encode_speed(enum usb_device_speed speed)
 	return QH_FULL_SPEED;
 }
 
-static void ehci_update_endpt2_dev_n_port(struct usb_device *dev,
+static void ehci_update_endpt2_dev_n_port(struct usb_device *udev,
 					  struct QH *qh)
 {
 	struct usb_device *ttdev;
+	int parent_devnum;
 
-	if (dev->speed != USB_SPEED_LOW && dev->speed != USB_SPEED_FULL)
+	if (udev->speed != USB_SPEED_LOW && udev->speed != USB_SPEED_FULL)
 		return;
 
 	/*
@@ -294,14 +309,35 @@ static void ehci_update_endpt2_dev_n_port(struct usb_device *dev,
 	 * the tt, so of the first upstream usb-2 hub, there may be usb-1 hubs
 	 * in the tree before that one!
 	 */
-	ttdev = dev;
+#ifdef CONFIG_DM_USB
+	struct udevice *parent;
+
+	for (ttdev = udev; ; ) {
+		struct udevice *dev = ttdev->dev;
+
+		if (dev->parent &&
+		    device_get_uclass_id(dev->parent) == UCLASS_USB_HUB)
+			parent = dev->parent;
+		else
+			parent = NULL;
+		if (!parent)
+			return;
+		ttdev = dev_get_parentdata(parent);
+		if (!ttdev->speed != USB_SPEED_HIGH)
+			break;
+	}
+	parent_devnum = ttdev->devnum;
+#else
+	ttdev = udev;
 	while (ttdev->parent && ttdev->parent->speed != USB_SPEED_HIGH)
 		ttdev = ttdev->parent;
 	if (!ttdev->parent)
 		return;
+	parent_devnum = ttdev->parent->devnum;
+#endif
 
 	qh->qh_endpt2 |= cpu_to_hc32(QH_ENDPT2_PORTNUM(ttdev->portnr) |
-				     QH_ENDPT2_HUBADDR(ttdev->parent->devnum));
+				     QH_ENDPT2_HUBADDR(parent_devnum));
 }
 
 static int
@@ -960,6 +996,7 @@ static void ehci_setup_ops(struct ehci_ctrl *ctrl, const struct ehci_ops *ops)
 	}
 }
 
+#ifndef CONFIG_DM_USB
 void ehci_set_controller_priv(int index, void *priv, const struct ehci_ops *ops)
 {
 	struct ehci_ctrl *ctrl = &ehcic[index];
@@ -972,6 +1009,7 @@ void *ehci_get_controller_priv(int index)
 {
 	return ehcic[index].priv;
 }
+#endif
 
 static int ehci_common_init(struct ehci_ctrl *ctrl, uint tweaks)
 {
@@ -1082,6 +1120,7 @@ static int ehci_common_init(struct ehci_ctrl *ctrl, uint tweaks)
 	return 0;
 }
 
+#ifndef CONFIG_DM_USB
 int usb_lowlevel_stop(int index)
 {
 	ehci_shutdown(&ehcic[index]);
@@ -1127,6 +1166,7 @@ done:
 	*controller = &ehcic[index];
 	return 0;
 }
+#endif
 
 static int _ehci_submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 				 void *buffer, int length)
@@ -1486,6 +1526,7 @@ static int _ehci_submit_int_msg(struct usb_device *dev, unsigned long pipe,
 	return result;
 }
 
+#ifndef CONFIG_DM_USB
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 			    void *buffer, int length)
 {
@@ -1503,3 +1544,79 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe,
 {
 	return _ehci_submit_int_msg(dev, pipe, buffer, length, interval);
 }
+#endif
+
+#ifdef CONFIG_DM_USB
+static int ehci_submit_control_msg(struct udevice *dev, struct usb_device *udev,
+				   unsigned long pipe, void *buffer, int length,
+				   struct devrequest *setup)
+{
+	debug("%s: dev='%s', udev=%p, udev->dev='%s', portnr=%d\n", __func__,
+	      dev->name, udev, udev->dev->name, udev->portnr);
+
+	return _ehci_submit_control_msg(udev, pipe, buffer, length, setup);
+}
+
+static int ehci_submit_bulk_msg(struct udevice *dev, struct usb_device *udev,
+				unsigned long pipe, void *buffer, int length)
+{
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+	return _ehci_submit_bulk_msg(udev, pipe, buffer, length);
+}
+
+static int ehci_submit_int_msg(struct udevice *dev, struct usb_device *udev,
+			       unsigned long pipe, void *buffer, int length,
+			       int interval)
+{
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+	return _ehci_submit_int_msg(udev, pipe, buffer, length, interval);
+}
+
+int ehci_register(struct udevice *dev, struct ehci_hccr *hccr,
+		  struct ehci_hcor *hcor, const struct ehci_ops *ops,
+		  uint tweaks, enum usb_init_type init)
+{
+	struct ehci_ctrl *ctrl = dev_get_priv(dev);
+	int ret;
+
+	debug("%s: dev='%s', ctrl=%p, hccr=%p, hcor=%p, init=%d\n", __func__,
+	      dev->name, ctrl, hccr, hcor, init);
+
+	ehci_setup_ops(ctrl, ops);
+	ctrl->hccr = hccr;
+	ctrl->hcor = hcor;
+	ctrl->priv = ctrl;
+
+	if (init == USB_INIT_DEVICE)
+		goto done;
+	ret = ehci_reset(ctrl);
+	if (ret)
+		goto err;
+
+	ret = ehci_common_init(ctrl, tweaks);
+	if (ret)
+		goto err;
+done:
+	return 0;
+err:
+	free(ctrl);
+	debug("%s: failed, ret=%d\n", __func__, ret);
+	return ret;
+}
+
+int ehci_deregister(struct udevice *dev)
+{
+	struct ehci_ctrl *ctrl = dev_get_priv(dev);
+
+	ehci_shutdown(ctrl);
+
+	return 0;
+}
+
+struct dm_usb_ops ehci_usb_ops = {
+	.control = ehci_submit_control_msg,
+	.bulk = ehci_submit_bulk_msg,
+	.interrupt = ehci_submit_int_msg,
+};
+
+#endif
