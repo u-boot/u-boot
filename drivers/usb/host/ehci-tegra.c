@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
@@ -20,6 +21,8 @@
 
 #include "ehci.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define USB1_ADDR_MASK	0xFFFF0000
 
 #define HOSTPC1_DEVLC	0x84
@@ -32,9 +35,11 @@
 	#endif
 #endif
 
+#ifndef CONFIG_DM_USB
 enum {
 	USB_PORTS_MAX	= 3,		/* Maximum ports we allow */
 };
+#endif
 
 /* Parameters we need for USB */
 enum {
@@ -71,12 +76,15 @@ enum usb_ctlr_type {
 
 /* Information about a USB port */
 struct fdt_usb {
+	struct ehci_ctrl ehci;
 	struct usb_ctlr *reg;	/* address of registers in physical memory */
 	unsigned utmi:1;	/* 1 if port has external tranceiver, else 0 */
 	unsigned ulpi:1;	/* 1 if port has external ULPI transceiver */
 	unsigned enabled:1;	/* 1 to enable, 0 to disable */
 	unsigned has_legacy_mode:1; /* 1 if this port has legacy mode */
+#ifndef CONFIG_DM_USB
 	unsigned initialized:1; /* has this port already been initialized? */
+#endif
 	enum usb_ctlr_type type;
 	enum usb_init_type init_type;
 	enum dr_mode dr_mode;	/* dual role mode */
@@ -85,8 +93,10 @@ struct fdt_usb {
 	struct gpio_desc phy_reset_gpio; /* GPIO to reset ULPI phy */
 };
 
+#ifndef CONFIG_DM_USB
 static struct fdt_usb port[USB_PORTS_MAX];	/* List of valid USB ports */
 static unsigned port_count;			/* Number of available ports */
+#endif
 
 /*
  * This table has USB timing parameters for each Oscillator frequency we
@@ -163,6 +173,7 @@ static const u8 utmip_elastic_limit = 16;
 static const u8 utmip_hs_sync_start_delay = 9;
 
 struct fdt_usb_controller {
+	/* TODO(sjg@chromium.org): Remove when we only use driver model */
 	int compat;
 	/* flag to determine whether controller supports hostpc register */
 	u32 has_hostpc:1;
@@ -785,6 +796,7 @@ static const struct ehci_ops tegra_ehci_ops = {
 	.powerup_fixup		= tegra_ehci_powerup_fixup,
 };
 
+#ifndef CONFIG_DM_USB
 /*
  * process_usb_nodes() - Process a list of USB nodes, adding them to our list
  *			of USB ports.
@@ -905,3 +917,74 @@ int ehci_hcd_stop(int index)
 
 	return 0;
 }
+#endif /* !CONFIG_DM_USB */
+
+#ifdef CONFIG_DM_USB
+static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
+{
+	struct fdt_usb *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = fdt_decode_usb(gd->fdt_blob, dev->of_offset, priv);
+	if (ret)
+		return ret;
+
+	priv->type = dev_get_driver_data(dev);
+
+	return 0;
+}
+
+static int ehci_usb_probe(struct udevice *dev)
+{
+	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct fdt_usb *priv = dev_get_priv(dev);
+	struct ehci_hccr *hccr;
+	struct ehci_hcor *hcor;
+	static bool clk_done;
+	int ret;
+
+	ret = usb_common_init(priv, plat->init_type);
+	if (ret)
+		return ret;
+	hccr = (struct ehci_hccr *)&priv->reg->cap_length;
+	hcor = (struct ehci_hcor *)&priv->reg->usb_cmd;
+	if (!clk_done) {
+		config_clock(get_pll_timing(&fdt_usb_controllers[priv->type]));
+		clk_done = true;
+	}
+
+	return ehci_register(dev, hccr, hcor, &tegra_ehci_ops, 0,
+			     plat->init_type);
+}
+
+static int ehci_usb_remove(struct udevice *dev)
+{
+	int ret;
+
+	ret = ehci_deregister(dev);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static const struct udevice_id ehci_usb_ids[] = {
+	{ .compatible = "nvidia,tegra20-ehci", .data = USB_CTLR_T20 },
+	{ .compatible = "nvidia,tegra30-ehci", .data = USB_CTLR_T30 },
+	{ .compatible = "nvidia,tegra114-ehci", .data = USB_CTLR_T114 },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_ehci) = {
+	.name	= "ehci_tegra",
+	.id	= UCLASS_USB,
+	.of_match = ehci_usb_ids,
+	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+	.probe = ehci_usb_probe,
+	.remove = ehci_usb_remove,
+	.ops	= &ehci_usb_ops,
+	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+	.priv_auto_alloc_size = sizeof(struct fdt_usb),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};
+#endif
