@@ -124,12 +124,12 @@ static struct ehci_ctrl *ehci_get_ctrl(struct usb_device *udev)
 	return udev->controller;
 }
 
-__weak int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
+static int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
 {
 	return PORTSC_PSPD(reg);
 }
 
-__weak void ehci_set_usbmode(struct ehci_ctrl *ctrl)
+static void ehci_set_usbmode(struct ehci_ctrl *ctrl)
 {
 	uint32_t tmp;
 	uint32_t *reg_ptr;
@@ -143,13 +143,13 @@ __weak void ehci_set_usbmode(struct ehci_ctrl *ctrl)
 	ehci_writel(reg_ptr, tmp);
 }
 
-__weak void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
+static void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
 			       uint32_t *reg)
 {
 	mdelay(50);
 }
 
-__weak uint32_t *ehci_get_portsc_register(struct ehci_ctrl *ctrl, int port)
+static uint32_t *ehci_get_portsc_register(struct ehci_ctrl *ctrl, int port)
 {
 	if (port < 0 || port >= CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
 		/* Printing the message would cause a scan failure! */
@@ -178,6 +178,7 @@ static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 
 static int ehci_reset(int index)
 {
+	struct ehci_ctrl *ctrl = &ehcic[index];
 	uint32_t cmd;
 	int ret = 0;
 
@@ -192,7 +193,7 @@ static int ehci_reset(int index)
 	}
 
 	if (ehci_is_TDI())
-		ehci_set_usbmode(&ehcic[index]);
+		ctrl->ops.set_usb_mode(&ehcic[index]);
 
 #ifdef CONFIG_USB_EHCI_TXFIFO_THRESH
 	cmd = ehci_readl(&ehcic[index].hcor->or_txfilltuning);
@@ -691,7 +692,7 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 	case USB_REQ_GET_STATUS | ((USB_RT_PORT | USB_DIR_IN) << 8):
 	case USB_REQ_SET_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
 	case USB_REQ_CLEAR_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
-		status_reg = ehci_get_portsc_register(ctrl, port - 1);
+		status_reg = ctrl->ops.get_portsc_register(ctrl, port - 1);
 		if (!status_reg)
 			return -1;
 		break;
@@ -786,7 +787,7 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 			tmpbuf[1] |= USB_PORT_STAT_POWER >> 8;
 
 		if (ehci_is_TDI()) {
-			switch (ehci_get_port_speed(ctrl, reg)) {
+			switch (ctrl->ops.get_port_speed(ctrl, reg)) {
 			case PORTSC_PSPD_FS:
 				break;
 			case PORTSC_PSPD_LS:
@@ -848,7 +849,7 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 				 * usb 2.0 specification say 50 ms resets on
 				 * root
 				 */
-				ehci_powerup_fixup(ctrl, status_reg, &reg);
+				ctrl->ops.powerup_fixup(ctrl, status_reg, &reg);
 
 				ehci_writel(status_reg, reg & ~EHCI_PS_PR);
 				/*
@@ -935,9 +936,37 @@ unknown:
 	return -1;
 }
 
-void ehci_set_controller_priv(int index, void *priv)
+const struct ehci_ops default_ehci_ops = {
+	.set_usb_mode		= ehci_set_usbmode,
+	.get_port_speed		= ehci_get_port_speed,
+	.powerup_fixup		= ehci_powerup_fixup,
+	.get_portsc_register	= ehci_get_portsc_register,
+};
+
+static void ehci_setup_ops(struct ehci_ctrl *ctrl, const struct ehci_ops *ops)
 {
-	ehcic[index].priv = priv;
+	if (!ops) {
+		ctrl->ops = default_ehci_ops;
+	} else {
+		ctrl->ops = *ops;
+		if (!ctrl->ops.set_usb_mode)
+			ctrl->ops.set_usb_mode = ehci_set_usbmode;
+		if (!ctrl->ops.get_port_speed)
+			ctrl->ops.get_port_speed = ehci_get_port_speed;
+		if (!ctrl->ops.powerup_fixup)
+			ctrl->ops.powerup_fixup = ehci_powerup_fixup;
+		if (!ctrl->ops.get_portsc_register)
+			ctrl->ops.get_portsc_register =
+					ehci_get_portsc_register;
+	}
+}
+
+void ehci_set_controller_priv(int index, void *priv, const struct ehci_ops *ops)
+{
+	struct ehci_ctrl *ctrl = &ehcic[index];
+
+	ctrl->priv = priv;
+	ehci_setup_ops(ctrl, ops);
 }
 
 void *ehci_get_controller_priv(int index)
@@ -1065,6 +1094,12 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	struct ehci_ctrl *ctrl = &ehcic[index];
 	uint tweaks = 0;
 	int rc;
+
+	/**
+	 * Set ops to default_ehci_ops, ehci_hcd_init should call
+	 * ehci_set_controller_priv to change any of these function pointers.
+	 */
+	ctrl->ops = default_ehci_ops;
 
 	rc = ehci_hcd_init(index, init, &ctrl->hccr, &ctrl->hcor);
 	if (rc)

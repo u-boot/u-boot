@@ -244,6 +244,16 @@ enum {
 	EHCI_TWEAK_NO_INIT_CF		= 1 << 0,
 };
 
+struct ehci_ctrl;
+
+struct ehci_ops {
+	void (*set_usb_mode)(struct ehci_ctrl *ctrl);
+	int (*get_port_speed)(struct ehci_ctrl *ctrl, uint32_t reg);
+	void (*powerup_fixup)(struct ehci_ctrl *ctrl, uint32_t *status_reg,
+			      uint32_t *reg);
+	uint32_t *(*get_portsc_register)(struct ehci_ctrl *ctrl, int port);
+};
+
 struct ehci_ctrl {
 	struct ehci_hccr *hccr;	/* R/O registers, not need for volatile */
 	struct ehci_hcor *hcor;
@@ -254,27 +264,24 @@ struct ehci_ctrl {
 	uint32_t *periodic_list;
 	int periodic_schedules;
 	int ntds;
+	struct ehci_ops ops;
 	void *priv;	/* client's private data */
 };
 
-/* Weak functions that drivers can override */
-int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg);
-void ehci_set_usbmode(struct ehci_ctrl *ctrl);
-void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
-			uint32_t *reg);
-uint32_t *ehci_get_portsc_register(struct ehci_ctrl *ctrl, int port);
-
 /**
- * ehci_set_controller_priv() - Set up private data for the controller
+ * ehci_set_controller_info() - Set up private data for the controller
  *
  * This function can be called in ehci_hcd_init() to tell the EHCI layer
  * about the controller's private data pointer. Then in the above functions
- * this can be accessed given the struct ehci_ctrl pointer.
+ * this can be accessed given the struct ehci_ctrl pointer. Also special
+ * EHCI operation methods can be provided if required
  *
  * @index:	Controller number to set
  * @priv:	Controller pointer
+ * @ops:	Controller operations, or NULL to use default
  */
-void ehci_set_controller_priv(int index, void *priv);
+void ehci_set_controller_priv(int index, void *priv,
+			      const struct ehci_ops *ops);
 
 /**
  * ehci_get_controller_priv() - Get controller private data

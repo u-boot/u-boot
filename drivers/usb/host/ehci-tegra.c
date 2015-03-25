@@ -193,11 +193,9 @@ static struct fdt_usb_controller fdt_usb_controllers[USB_CTRL_COUNT] = {
  * A known hardware issue where Connect Status Change bit of PORTSC register
  * of USB1 controller will be set after Port Reset.
  * We have to clear it in order for later device enumeration to proceed.
- * This ehci_powerup_fixup overrides the weak function ehci_powerup_fixup
- * in "ehci-hcd.c".
  */
-void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
-			uint32_t *reg)
+static void tegra_ehci_powerup_fixup(struct ehci_ctrl *ctrl,
+				     uint32_t *status_reg, uint32_t *reg)
 {
 	struct fdt_usb *config = ctrl->priv;
 	struct fdt_usb_controller *controller;
@@ -215,11 +213,7 @@ void ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
 		*reg |= EHCI_PS_CSC;
 }
 
-/*
- * This ehci_set_usbmode overrides the weak function ehci_set_usbmode
- * in "ehci-hcd.c".
- */
-void ehci_set_usbmode(struct ehci_ctrl *ctrl)
+static void tegra_ehci_set_usbmode(struct ehci_ctrl *ctrl)
 {
 	struct fdt_usb *config = ctrl->priv;
 	struct usb_ctlr *usbctlr;
@@ -232,11 +226,7 @@ void ehci_set_usbmode(struct ehci_ctrl *ctrl)
 	ehci_writel(&usbctlr->usb_mode, tmp);
 }
 
-/*
- * This ehci_get_port_speed overrides the weak function ehci_get_port_speed
- * in "ehci-hcd.c".
- */
-int ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
+static int tegra_ehci_get_port_speed(struct ehci_ctrl *ctrl, uint32_t reg)
 {
 	struct fdt_usb *config = ctrl->priv;
 	struct fdt_usb_controller *controller;
@@ -714,6 +704,12 @@ static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 	return 0;
 }
 
+static const struct ehci_ops tegra_ehci_ops = {
+	.set_usb_mode		= tegra_ehci_set_usbmode,
+	.get_port_speed		= tegra_ehci_get_port_speed,
+	.powerup_fixup		= tegra_ehci_powerup_fixup,
+};
+
 /*
  * process_usb_nodes() - Process a list of USB nodes, adding them to our list
  *			of USB ports.
@@ -805,7 +801,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		return -1;
 
 	config = &port[index];
-	ehci_set_controller_priv(index, config);
+	ehci_set_controller_priv(index, config, &tegra_ehci_ops);
 
 	switch (init) {
 	case USB_INIT_HOST:
