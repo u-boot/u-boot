@@ -5,7 +5,9 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <usb.h>
+#include <dm/device-internal.h>
 
 #include "usb_ether.h"
 
@@ -118,8 +120,6 @@ static void probe_valid_drivers(struct usb_device *dev)
 int usb_host_eth_scan(int mode)
 {
 	int i, old_async;
-	struct usb_device *dev;
-
 
 	if (mode == 1)
 		printf("       scanning usb for ethernet devices... ");
@@ -138,23 +138,59 @@ int usb_host_eth_scan(int mode)
 	}
 
 	usb_max_eth_dev = 0;
+#ifdef CONFIG_DM_USB
+	/*
+	 * TODO: We should add USB_DEVICE() declarations to each USB ethernet
+	 * driver and then most of this file can be removed.
+	 */
+	struct udevice *bus;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(UCLASS_USB, &uc);
+	if (ret)
+		return ret;
+	uclass_foreach_dev(bus, uc) {
+		for (i = 0; i < USB_MAX_DEVICE; i++) {
+			struct usb_device *dev;
+
+			dev = usb_get_dev_index(bus, i); /* get device */
+			debug("i=%d, %s\n", i, dev ? dev->dev->name : "(done)");
+			if (!dev)
+				break; /* no more devices available */
+
+			/*
+			 * find valid usb_ether driver for this device,
+			 * if any
+			 */
+			probe_valid_drivers(dev);
+
+			/* check limit */
+			if (usb_max_eth_dev == USB_MAX_ETH_DEV)
+				break;
+		} /* for */
+	}
+#else
 	for (i = 0; i < USB_MAX_DEVICE; i++) {
+		struct usb_device *dev;
+
 		dev = usb_get_dev_index(i); /* get device */
 		debug("i=%d\n", i);
-		if (dev == NULL)
+		if (!dev)
 			break; /* no more devices available */
 
 		/* find valid usb_ether driver for this device, if any */
 		probe_valid_drivers(dev);
 
 		/* check limit */
-		if (usb_max_eth_dev == USB_MAX_ETH_DEV) {
-			printf("max USB Ethernet Device reached: %d stopping\n",
-				usb_max_eth_dev);
+		if (usb_max_eth_dev == USB_MAX_ETH_DEV)
 			break;
-		}
 	} /* for */
-
+#endif
+	if (usb_max_eth_dev == USB_MAX_ETH_DEV) {
+		printf("max USB Ethernet Device reached: %d stopping\n",
+		       usb_max_eth_dev);
+	}
 	usb_disable_asynch(old_async); /* restore asynch value */
 	printf("%d Ethernet Device(s) found\n", usb_max_eth_dev);
 	if (usb_max_eth_dev > 0)
