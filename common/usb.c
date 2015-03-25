@@ -897,33 +897,10 @@ int usb_legacy_port_reset(struct usb_device *hub, int portnr)
 	return 0;
 }
 
-/*
- * By the time we get here, the device has gotten a new device ID
- * and is in the default state. We need to identify the thing and
- * get the ball rolling..
- *
- * Returns 0 for success, != 0 for error.
- */
-int usb_new_device(struct usb_device *dev)
+static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 {
-	int addr, err;
-	int tmp;
+	__maybe_unused struct usb_device_descriptor *desc;
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, tmpbuf, USB_BUFSIZ);
-
-	/*
-	 * Allocate usb 3.0 device context.
-	 * USB 3.0 (xHCI) protocol tries to allocate device slot
-	 * and related data structures first. This call does that.
-	 * Refer to sec 4.3.2 in xHCI spec rev1.0
-	 */
-	if (usb_alloc_device(dev)) {
-		printf("Cannot allocate device context to get SLOT_ID\n");
-		return -EINVAL;
-	}
-
-	/* We still haven't set the Address yet */
-	addr = dev->devnum;
-	dev->devnum = 0;
 
 	/*
 	 * This is a Windows scheme of initialization sequence, with double
@@ -940,54 +917,45 @@ int usb_new_device(struct usb_device *dev)
 	 * the maxpacket size is 8 or 16 the device may be waiting to transmit
 	 * some more, or keeps on retransmitting the 8 byte header. */
 
+	desc = (struct usb_device_descriptor *)tmpbuf;
 	dev->descriptor.bMaxPacketSize0 = 64;	    /* Start off at 64 bytes  */
 	/* Default to 64 byte max packet size */
 	dev->maxpacketsize = PACKET_SIZE_64;
 	dev->epmaxpacketin[0] = 64;
 	dev->epmaxpacketout[0] = 64;
 
-	/*
-	 * XHCI needs to issue a Address device command to setup
-	 * proper device context structures, before it can interact
-	 * with the device. So a get_descriptor will fail before any
-	 * of that is done for XHCI unlike EHCI.
-	 */
-#ifndef CONFIG_USB_XHCI
-	struct usb_device_descriptor *desc;
+	if (do_read) {
+		int err;
 
-	desc = (struct usb_device_descriptor *)tmpbuf;
-	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
-	/*
-	 * Validate we've received only at least 8 bytes, not that we've
-	 * received the entire descriptor. The reasoning is:
-	 * - The code only uses fields in the first 8 bytes, so that's all we
-	 *   need to have fetched at this stage.
-	 * - The smallest maxpacket size is 8 bytes. Before we know the actual
-	 *   maxpacket the device uses, the USB controller may only accept a
-	 *   single packet. Consequently we are only guaranteed to receive 1
-	 *   packet (at least 8 bytes) even in a non-error case.
-	 *
-	 * At least the DWC2 controller needs to be programmed with the number
-	 * of packets in addition to the number of bytes. A request for 64
-	 * bytes of data with the maxpacket guessed as 64 (above) yields a
-	 * request for 1 packet.
-	 */
-	if (err < 8) {
-		debug("usb_new_device: usb_get_descriptor() failed\n");
-		return -EIO;
+		err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
+		/*
+		 * Validate we've received only at least 8 bytes, not that we've
+		 * received the entire descriptor. The reasoning is:
+		 * - The code only uses fields in the first 8 bytes, so that's all we
+		 *   need to have fetched at this stage.
+		 * - The smallest maxpacket size is 8 bytes. Before we know the actual
+		 *   maxpacket the device uses, the USB controller may only accept a
+		 *   single packet. Consequently we are only guaranteed to receive 1
+		 *   packet (at least 8 bytes) even in a non-error case.
+		 *
+		 * At least the DWC2 controller needs to be programmed with the number
+		 * of packets in addition to the number of bytes. A request for 64
+		 * bytes of data with the maxpacket guessed as 64 (above) yields a
+		 * request for 1 packet.
+		 */
+		if (err < 8) {
+			if (err < 0) {
+				printf("unable to get device descriptor (error=%d)\n",
+				       err);
+				return err;
+			} else {
+				printf("USB device descriptor short read (expected %i, got %i)\n",
+				       (int)sizeof(dev->descriptor), err);
+				return -EIO;
+			}
+		}
+		memcpy(&dev->descriptor, tmpbuf, sizeof(dev->descriptor));
 	}
-
-	dev->descriptor.bMaxPacketSize0 = desc->bMaxPacketSize0;
-	/*
-	 * Fetch the device class, driver can use this info
-	 * to differentiate between HUB and DEVICE.
-	 */
-	dev->descriptor.bDeviceClass = desc->bDeviceClass;
-#endif
-
-	err = usb_legacy_port_reset(dev->parent, dev->portnr);
-	if (err)
-		return err;
 
 	dev->epmaxpacketin[0] = dev->descriptor.bMaxPacketSize0;
 	dev->epmaxpacketout[0] = dev->descriptor.bMaxPacketSize0;
@@ -1008,6 +976,55 @@ int usb_new_device(struct usb_device *dev)
 		printf("usb_new_device: invalid max packet size\n");
 		return -EIO;
 	}
+
+	return 0;
+}
+
+/*
+ * By the time we get here, the device has gotten a new device ID
+ * and is in the default state. We need to identify the thing and
+ * get the ball rolling..
+ *
+ * Returns 0 for success, != 0 for error.
+ */
+int usb_new_device(struct usb_device *dev)
+{
+	bool do_read = true;
+	int addr, err;
+	int tmp;
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, tmpbuf, USB_BUFSIZ);
+
+	/*
+	 * Allocate usb 3.0 device context.
+	 * USB 3.0 (xHCI) protocol tries to allocate device slot
+	 * and related data structures first. This call does that.
+	 * Refer to sec 4.3.2 in xHCI spec rev1.0
+	 */
+	if (usb_alloc_device(dev)) {
+		printf("Cannot allocate device context to get SLOT_ID\n");
+		return -1;
+	}
+
+	/* We still haven't set the Address yet */
+	addr = dev->devnum;
+	dev->devnum = 0;
+
+	/*
+	 * XHCI needs to issue a Address device command to setup
+	 * proper device context structures, before it can interact
+	 * with the device. So a get_descriptor will fail before any
+	 * of that is done for XHCI unlike EHCI.
+	 */
+#ifdef CONFIG_USB_XHCI
+	do_read = false;
+#endif
+	err = usb_setup_descriptor(dev, do_read);
+	if (err)
+		return err;
+	err = usb_legacy_port_reset(dev->parent, dev->portnr);
+	if (err)
+		return err;
+
 	dev->devnum = addr;
 
 	err = usb_set_address(dev); /* set address */
