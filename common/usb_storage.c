@@ -1191,6 +1191,7 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,
 			iface->desc.bInterfaceClass != USB_CLASS_MASS_STORAGE ||
 			iface->desc.bInterfaceSubClass < US_SC_MIN ||
 			iface->desc.bInterfaceSubClass > US_SC_MAX) {
+		debug("Not mass storage\n");
 		/* if it's not a mass storage, we go no further */
 		return 0;
 	}
@@ -1317,8 +1318,10 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 	pccb->lun = dev_desc->lun;
 	debug(" address %d\n", dev_desc->target);
 
-	if (usb_inquiry(pccb, ss))
+	if (usb_inquiry(pccb, ss)) {
+		debug("%s: usb_inquiry() failed\n", __func__);
 		return -1;
+	}
 
 	perq = usb_stor_buf[0];
 	modi = usb_stor_buf[1];
@@ -1328,6 +1331,7 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 	 * they would not respond to test_unit_ready .
 	 */
 	if (((perq & 0x1f) == 0x1f) || ((perq & 0x1f) == 0x0d)) {
+		debug("%s: unknown/unsupported device\n", __func__);
 		return 0;
 	}
 	if ((modi&0x80) == 0x80) {
