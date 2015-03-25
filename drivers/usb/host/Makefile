@@ -7,6 +7,7 @@
 
 ifdef CONFIG_DM_USB
 obj-$(CONFIG_CMD_USB) += usb-uclass.o
+obj-$(CONFIG_SANDBOX) += usb-sandbox.o
 endif
 
 # ohci
