@@ -176,16 +176,15 @@ static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 	return -1;
 }
 
-static int ehci_reset(int index)
+static int ehci_reset(struct ehci_ctrl *ctrl)
 {
-	struct ehci_ctrl *ctrl = &ehcic[index];
 	uint32_t cmd;
 	int ret = 0;
 
-	cmd = ehci_readl(&ehcic[index].hcor->or_usbcmd);
+	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
 	cmd = (cmd & ~CMD_RUN) | CMD_RESET;
-	ehci_writel(&ehcic[index].hcor->or_usbcmd, cmd);
-	ret = handshake((uint32_t *)&ehcic[index].hcor->or_usbcmd,
+	ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
+	ret = handshake((uint32_t *)&ctrl->hcor->or_usbcmd,
 			CMD_RESET, 0, 250 * 1000);
 	if (ret < 0) {
 		printf("EHCI fail to reset\n");
@@ -193,13 +192,13 @@ static int ehci_reset(int index)
 	}
 
 	if (ehci_is_TDI())
-		ctrl->ops.set_usb_mode(&ehcic[index]);
+		ctrl->ops.set_usb_mode(ctrl);
 
 #ifdef CONFIG_USB_EHCI_TXFIFO_THRESH
-	cmd = ehci_readl(&ehcic[index].hcor->or_txfilltuning);
+	cmd = ehci_readl(&ctrl->hcor->or_txfilltuning);
 	cmd &= ~TXFIFO_THRESH_MASK;
 	cmd |= TXFIFO_THRESH(CONFIG_USB_EHCI_TXFIFO_THRESH);
-	ehci_writel(&ehcic[index].hcor->or_txfilltuning, cmd);
+	ehci_writel(&ctrl->hcor->or_txfilltuning, cmd);
 #endif
 out:
 	return ret;
@@ -1108,7 +1107,7 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 		goto done;
 
 	/* EHCI spec section 4.1 */
-	if (ehci_reset(index))
+	if (ehci_reset(ctrl))
 		return -1;
 
 #if defined(CONFIG_EHCI_HCD_INIT_AFTER_RESET)
