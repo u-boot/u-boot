@@ -64,7 +64,7 @@ off_t os_lseek(int fd, off_t offset, int whence);
  * Access to the OS open() system call
  *
  * \param pathname	Pathname of file to open
- * \param flags		Flags, like O_RDONLY, O_RDWR
+ * \param flags		Flags, like OS_O_RDONLY, OS_O_RDWR
  * \return file descriptor, or -1 on error
  */
 int os_open(const char *pathname, int flags);
