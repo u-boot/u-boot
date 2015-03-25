@@ -53,3 +53,11 @@ source "drivers/crypto/Kconfig"
 source "drivers/thermal/Kconfig"
 
 endmenu
+
+config PHYS_TO_BUS
+	bool
+	help
+	  Some SoCs use a different address map for CPU physical addresses and
+	  peripheral DMA master accesses. If yours does, select this option in
+	  your platform's Kconfig, and implement the appropriate mapping
+	  functions in your platform's support code.
