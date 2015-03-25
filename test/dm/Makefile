@@ -23,4 +23,5 @@ obj-$(CONFIG_DM_I2C) += i2c.o
 obj-$(CONFIG_DM_PCI) += pci.o
 obj-$(CONFIG_DM_SPI_FLASH) += sf.o
 obj-$(CONFIG_DM_SPI) += spi.o
+obj-$(CONFIG_DM_USB) += usb.o
 endif
