@@ -157,12 +157,3 @@ U_BOOT_DRIVER(bd82x6x_drv) = {
 	.of_match	= bd82x6x_ids,
 	.probe		= bd82x6x_probe,
 };
-
-/*
- * TODO(sjg@chromium.org): Move this to arch/x86/lib or similar when other
- * boards also use a PCH
- */
-UCLASS_DRIVER(pch) = {
-	.id		= UCLASS_PCH,
-	.name		= "pch",
-};
