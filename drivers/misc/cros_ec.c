@@ -1606,13 +1606,19 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	cmd = argv[1];
 	if (0 == strcmp("init", cmd)) {
-#ifndef CONFIG_DM_CROS_EC
+#ifdef CONFIG_DM_CROS_EC
+		/* Remove any existing device */
+		ret = uclass_find_device(UCLASS_CROS_EC, 0, &udev);
+		if (!ret)
+			device_remove(udev);
+		ret = uclass_get_device(UCLASS_CROS_EC, 0, &udev);
+#else
 		ret = cros_ec_init(gd->fdt_blob, &dev);
+#endif
 		if (ret) {
 			printf("Could not init cros_ec device (err %d)\n", ret);
 			return 1;
 		}
-#endif
 		return 0;
 	}
 
