@@ -22,9 +22,6 @@ int arch_early_init_r(void)
 	if (ret)
 		return ret;
 
-	if (cros_ec_board_init())
-		return -1;
-
 	return 0;
 }
 
