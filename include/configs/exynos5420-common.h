@@ -15,8 +15,6 @@
 
 #include <configs/exynos5-common.h>
 
-#define CONFIG_ARCH_EARLY_INIT_R
-
 #define MACH_TYPE_SMDK5420	8002
 #define CONFIG_MACH_TYPE	MACH_TYPE_SMDK5420
 

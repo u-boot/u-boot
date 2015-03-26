@@ -330,18 +330,6 @@ int board_late_init(void)
 }
 #endif
 
-int arch_early_init_r(void)
-{
-#ifdef CONFIG_CROS_EC
-	if (cros_ec_board_init()) {
-		printf("%s: Failed to init EC\n", __func__);
-		return 0;
-	}
-#endif
-
-	return 0;
-}
-
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
