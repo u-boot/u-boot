@@ -575,6 +575,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_PCIE2		/* PCIE controler 2 */
 #define CONFIG_PCIE3		/* PCIE controler 3 */
 #define CONFIG_PCIE4		/* PCIE controler 4 */
+#define CONFIG_FSL_PCIE_RESET
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */
 /* controller 1, direct to uli, tgtid 3, Base address 20000 */

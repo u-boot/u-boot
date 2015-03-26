@@ -444,6 +444,21 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 			ltssm = (in_be32(&pci->pex_csr0)
 				& PEX_CSR0_LTSSM_MASK) >> PEX_CSR0_LTSSM_SHIFT;
 			enabled = (ltssm == 0x11) ? 1 : 0;
+#ifdef CONFIG_FSL_PCIE_RESET
+			int i;
+			/* assert PCIe reset */
+			setbits_be32(&pci->pdb_stat, 0x08000000);
+			(void) in_be32(&pci->pdb_stat);
+			udelay(1000);
+			/* clear PCIe reset */
+			clrbits_be32(&pci->pdb_stat, 0x08000000);
+			asm("sync;isync");
+			for (i = 0; i < 100 && ltssm < PCI_LTSSM_L0; i++) {
+				pci_hose_read_config_word(hose, dev, PCI_LTSSM,
+							  &ltssm);
+				udelay(1000);
+			}
+#endif
 		} else {
 		/* pci_hose_read_config_word(hose, dev, PCI_LTSSM, &ltssm); */
 		/* enabled = ltssm >= PCI_LTSSM_L0; */
