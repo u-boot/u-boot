@@ -6,4 +6,4 @@
 
 include $(srctree)/board/nvidia/common/common.mk
 
-obj-y	+= colibri_t20_iris.o
+obj-y	+= colibri_t20.o

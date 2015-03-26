@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2012 Lucas Stach
+ * Copyright (C) 2012 Lucas Stach
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -10,8 +10,8 @@
 #include "tegra20-common.h"
 
 /* High-level configuration options */
-#define V_PROMPT                   "Tegra20 (Colibri) # "
-#define CONFIG_TEGRA_BOARD_STRING  "Toradex Colibri T20 on Iris"
+#define V_PROMPT			"Colibri T20 # "
+#define CONFIG_TEGRA_BOARD_STRING	"Toradex Colibri T20"
 
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTA
