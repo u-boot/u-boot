@@ -5,23 +5,11 @@
  */
 
 #include <common.h>
-#include <asm/gpio.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch-tegra/board.h>
-
-#include "../colibri_t20-common/colibri_t20-common.h"
-
-#ifdef CONFIG_USB_EHCI_TEGRA
-void pin_mux_usb(void)
-{
-	colibri_t20_common_pin_mux_usb();
-
-	/* USB 1 aka Tegra USB port 3 VBus*/
-	pinmux_tristate_disable(PMUX_PINGRP_SPIG);
-}
-#endif
+#include <asm/gpio.h>
 
 #ifdef CONFIG_TEGRA_MMC
 /*
@@ -32,5 +20,33 @@ void pin_mux_mmc(void)
 {
 	funcmux_select(PERIPH_ID_SDMMC4, FUNCMUX_SDMMC4_ATB_GMA_4_BIT);
 	pinmux_tristate_disable(PMUX_PINGRP_GMB);
+}
+#endif
+
+#ifdef CONFIG_TEGRA_NAND
+void pin_mux_nand(void)
+{
+	funcmux_select(PERIPH_ID_NDFLASH, FUNCMUX_NDFLASH_KBC_8_BIT);
+}
+#endif
+
+#ifdef CONFIG_USB_EHCI_TEGRA
+void pin_mux_usb(void)
+{
+	/* module internal USB bus to connect ethernet chipset */
+	funcmux_select(PERIPH_ID_USB2, FUNCMUX_USB2_ULPI);
+
+	/* ULPI reference clock output */
+	pinmux_set_func(PMUX_PINGRP_CDEV2, PMUX_FUNC_PLLP_OUT4);
+	pinmux_tristate_disable(PMUX_PINGRP_CDEV2);
+
+	/* PHY reset GPIO */
+	pinmux_tristate_disable(PMUX_PINGRP_UAC);
+
+	/* VBus GPIO */
+	pinmux_tristate_disable(PMUX_PINGRP_DTE);
+
+	/* USB 1 aka Tegra USB port 3 VBus */
+	pinmux_tristate_disable(PMUX_PINGRP_SPIG);
 }
 #endif

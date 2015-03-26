@@ -4,6 +4,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= ../../nvidia/common/board.o
-obj-y	+= ../colibri_t20-common/colibri_t20-common.o
+include $(srctree)/board/nvidia/common/common.mk
+
 obj-y	+= colibri_t20_iris.o
