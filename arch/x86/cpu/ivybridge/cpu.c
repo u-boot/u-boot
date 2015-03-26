@@ -142,7 +142,7 @@ int arch_cpu_init_dm(void)
 	/* TODO(sjg@chromium.org): Get rid of gd->hose */
 	gd->hose = hose;
 
-	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_LPC);
+	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_PCH);
 	if (node < 0)
 		return -ENOENT;
 	ret = lpc_early_init(gd->fdt_blob, node, PCH_LPC_DEV);

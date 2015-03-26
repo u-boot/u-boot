@@ -510,7 +510,7 @@ int lpc_init(struct pci_controller *hose, pci_dev_t dev)
 	pci_write_bar32(hose, dev, 3, 0x800);
 	pci_write_bar32(hose, dev, 4, 0x900);
 
-	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_LPC);
+	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_PCH);
 	if (node < 0)
 		return -ENOENT;
 
@@ -568,3 +568,14 @@ void lpc_enable(pci_dev_t dev)
 	writew(0x0010, RCB_REG(DISPBDF));
 	setbits_le32(RCB_REG(FD2), PCH_ENABLE_DBDF);
 }
+
+static const struct udevice_id bd82x6x_lpc_ids[] = {
+	{ .compatible = "intel,bd82x6x-lpc" },
+	{ }
+};
+
+U_BOOT_DRIVER(bd82x6x_lpc_drv) = {
+	.name		= "lpc",
+	.id		= UCLASS_LPC,
+	.of_match	= bd82x6x_lpc_ids,
+};

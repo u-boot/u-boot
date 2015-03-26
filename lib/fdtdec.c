@@ -67,7 +67,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(COMPAT_NXP_PTN3460, "nxp,ptn3460"),
 	COMPAT(SAMSUNG_EXYNOS_SYSMMU, "samsung,sysmmu-v3.3"),
 	COMPAT(PARADE_PS8625, "parade,ps8625"),
-	COMPAT(COMPAT_INTEL_LPC, "intel,bd82x6x"),
+	COMPAT(COMPAT_INTEL_LPC, "intel,bd82x6x-lpc"),
 	COMPAT(INTEL_MICROCODE, "intel,microcode"),
 	COMPAT(MEMORY_SPD, "memory-spd"),
 	COMPAT(INTEL_PANTHERPOINT_AHCI, "intel,pantherpoint-ahci"),
@@ -77,6 +77,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(INTEL_ICH_SPI, "intel,ich-spi"),
 	COMPAT(INTEL_QRK_MRC, "intel,quark-mrc"),
 	COMPAT(SOCIONEXT_XHCI, "socionext,uniphier-xhci"),
+	COMPAT(COMPAT_INTEL_PCH, "intel,bd82x6x"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
