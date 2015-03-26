@@ -28,11 +28,6 @@ struct cros_ec_dev *board_get_cros_ec_dev(void)
 	return dev_get_uclass_priv(dev);
 }
 
-int cros_ec_board_init(void)
-{
-	return 0;
-}
-
 int cros_ec_get_error(void)
 {
 	struct udevice *dev;

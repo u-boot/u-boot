@@ -363,13 +363,6 @@ int cros_ec_set_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t state);
 int cros_ec_get_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t *state);
 
 /**
- * Initialize the Chrome OS EC at board initialization time.
- *
- * @return 0 if ok, -ve on error
- */
-int cros_ec_board_init(void);
-
-/**
  * Get access to the error reported when cros_ec_board_init() was called
  *
  * This permits delayed reporting of the EC error if it failed during
