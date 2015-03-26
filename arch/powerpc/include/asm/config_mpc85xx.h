@@ -806,6 +806,7 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define QE_MURAM_SIZE			0x6000UL
 #define MAX_QE_RISC			1
 #define QE_NUM_OF_SNUM			28
+#define CONFIG_SYS_FSL_SFP_VER_3_0
 
 #elif defined(CONFIG_PPC_T1024) || defined(CONFIG_PPC_T1023) ||\
 defined(CONFIG_PPC_T1014) || defined(CONFIG_PPC_T1013)
