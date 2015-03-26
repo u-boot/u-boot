@@ -46,7 +46,14 @@ void pin_mux_usb(void)
 	/* VBus GPIO */
 	pinmux_tristate_disable(PMUX_PINGRP_DTE);
 
-	/* USB 1 aka Tegra USB port 3 VBus */
+	/* Reset ASIX using LAN_RESET */
+	gpio_request(GPIO_PV4, "LAN_RESET");
+	gpio_direction_output(GPIO_PV4, 0);
+	pinmux_tristate_disable(PMUX_PINGRP_GPV);
+	udelay(5);
+	gpio_set_value(GPIO_PV4, 1);
+
+	/* USBH_PEN: USB 1 aka Tegra USB port 3 VBus */
 	pinmux_tristate_disable(PMUX_PINGRP_SPIG);
 }
 #endif
