@@ -35,6 +35,15 @@ config CROS_EC_LPC
 	  through a legacy port interface, so on x86 machines the main
 	  function of the EC is power and thermal management.
 
+config CROS_EC_SANDBOX
+	bool "Enable Chrome OS EC sandbox driver"
+	depends on CROS_EC && SANDBOX
+	help
+	  Enable a sandbox emulation of the Chrome OS EC. This supports
+	  keyboard (use the -l flag to enable the LCD), verified boot context,
+	  EC flash read/write/erase support and a few other things. It is
+	  enough to perform a Chrome OS verified boot on sandbox.
+
 config CROS_EC_SPI
 	bool "Enable Chrome OS EC SPI driver"
 	depends on CROS_EC
