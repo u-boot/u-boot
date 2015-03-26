@@ -39,6 +39,7 @@ enum uclass_id {
 	UCLASS_PCI_GENERIC,	/* Generic PCI bus device */
 	UCLASS_PCH,		/* x86 platform controller hub */
 	UCLASS_ETH,		/* Ethernet device */
+	UCLASS_LPC,		/* x86 'low pin count' interface */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
