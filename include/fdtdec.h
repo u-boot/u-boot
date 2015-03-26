@@ -152,7 +152,6 @@ enum fdt_compat_id {
 	COMPAT_INFINEON_SLB9635_TPM,	/* Infineon SLB9635 TPM */
 	COMPAT_INFINEON_SLB9645_TPM,	/* Infineon SLB9645 TPM */
 	COMPAT_SAMSUNG_EXYNOS5_I2C,	/* Exynos5 High Speed I2C Controller */
-	COMPAT_SANDBOX_HOST_EMULATION,	/* Sandbox emulation of a function */
 	COMPAT_SANDBOX_LCD_SDL,		/* Sandbox LCD emulation with SDL */
 	COMPAT_TI_TPS65090,		/* Texas Instrument TPS65090 */
 	COMPAT_NXP_PTN3460,		/* NXP PTN3460 DP/LVDS bridge */

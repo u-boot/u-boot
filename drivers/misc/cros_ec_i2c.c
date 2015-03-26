@@ -139,12 +139,12 @@ static struct dm_cros_ec_ops cros_ec_ops = {
 };
 
 static const struct udevice_id cros_ec_ids[] = {
-	{ .compatible = "google,cros-ec" },
+	{ .compatible = "google,cros-ec-i2c" },
 	{ }
 };
 
 U_BOOT_DRIVER(cros_ec_i2c) = {
-	.name		= "cros_ec",
+	.name		= "cros_ec_i2c",
 	.id		= UCLASS_CROS_EC,
 	.of_match	= cros_ec_ids,
 	.probe		= cros_ec_probe,
