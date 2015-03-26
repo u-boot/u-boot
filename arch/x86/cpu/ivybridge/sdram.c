@@ -89,11 +89,12 @@ void dram_init_banksize(void)
 	}
 }
 
-static int get_mrc_entry(struct spi_flash **sfp, struct fmap_entry *entry)
+static int get_mrc_entry(struct udevice **devp, struct fmap_entry *entry)
 {
 	const void *blob = gd->fdt_blob;
 	int node, spi_node, mrc_node;
 	int upto;
+	int ret;
 
 	/* Find the flash chip within the SPI controller node */
 	upto = 0;
@@ -112,10 +113,13 @@ static int get_mrc_entry(struct spi_flash **sfp, struct fmap_entry *entry)
 	if (fdtdec_read_fmap_entry(blob, mrc_node, "rm-mrc-cache", entry))
 		return -EINVAL;
 
-	if (sfp) {
-		*sfp = spi_flash_probe_fdt(blob, node, spi_node);
-		if (!*sfp)
-			return -EBADF;
+	if (devp) {
+		debug("getting sf\n");
+		ret = uclass_get_device_by_of_offset(UCLASS_SPI_FLASH, node,
+						     devp);
+		debug("ret = %d\n", ret);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
@@ -246,7 +250,7 @@ static int sdram_save_mrc_data(void)
 {
 	struct mrc_data_container *data;
 	struct fmap_entry entry;
-	struct spi_flash *sf;
+	struct udevice *sf;
 	int ret;
 
 	if (!gd->arch.mrc_output_len)
@@ -266,7 +270,6 @@ static int sdram_save_mrc_data(void)
 
 	free(data);
 err_data:
-	spi_flash_free(sf);
 err_entry:
 	if (ret)
 		debug("%s: Failed: %d\n", __func__, ret);

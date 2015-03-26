@@ -780,9 +780,6 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_PPC
 	initr_spi,
 #endif
-#if defined(CONFIG_X86) && defined(CONFIG_SPI)
-	init_func_spi,
-#endif
 #ifdef CONFIG_CMD_NAND
 	initr_nand,
 #endif

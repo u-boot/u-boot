@@ -20,7 +20,7 @@ __packed struct mrc_data_container {
 };
 
 struct fmap_entry;
-struct spi_flash;
+struct udevice;
 
 /**
  * mrccache_find_current() - find the latest MRC cache record
@@ -45,7 +45,7 @@ struct mrc_data_container *mrccache_find_current(struct fmap_entry *entry);
  * @return 0 if updated, -EEXIST if the record is the same as the latest
  * record, other error if SPI write failed
  */
-int mrccache_update(struct spi_flash *sf, struct fmap_entry *entry,
+int mrccache_update(struct udevice *sf, struct fmap_entry *entry,
 		    struct mrc_data_container *cur);
 
 #endif
