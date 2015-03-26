@@ -681,10 +681,22 @@ static int cros_ec_check_version(struct cros_ec_dev *dev)
 	struct ec_params_hello req;
 	struct ec_response_hello *resp;
 
+#ifdef CONFIG_DM_CROS_EC
+	struct dm_cros_ec_ops *ops;
+	int ret;
+
+	ops = dm_cros_ec_get_ops(dev->dev);
+	if (ops->check_version) {
+		ret = ops->check_version(dev->dev);
+		if (ret)
+			return ret;
+	}
+#else
 #ifdef CONFIG_CROS_EC_LPC
 	/* LPC has its own way of doing this */
 	if (dev->interface == CROS_EC_IF_LPC)
 		return cros_ec_lpc_check_version(dev);
+#endif
 #endif
 
 	/*
