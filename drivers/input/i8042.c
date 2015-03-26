@@ -698,7 +698,14 @@ static int kbd_reset(void)
 
 	/* Enable Keyboard */
 	out8(I8042_COMMAND_REG, 0xae);
+	if (kbd_input_empty() == 0)
+		return -1;
 
+	out8(I8042_COMMAND_REG, 0x60);
+	if (kbd_input_empty() == 0)
+		return -1;
+
+	out8(I8042_DATA_REG, 0xf4);
 	if (kbd_input_empty() == 0)
 		return -1;
 
