@@ -19,9 +19,6 @@ config DM_GPIO
 config DM_SERIAL
 	default y
 
-config DM_CROS_EC
-	default y
-
 config DM_SPI
 	default y
 

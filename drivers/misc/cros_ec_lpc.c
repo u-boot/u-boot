@@ -41,18 +41,11 @@ static int wait_for_sync(struct cros_ec_dev *dev)
 	return 0;
 }
 
-#ifdef CONFIG_DM_CROS_EC
 int cros_ec_lpc_command(struct udevice *udev, uint8_t cmd, int cmd_version,
 		     const uint8_t *dout, int dout_len,
 		     uint8_t **dinp, int din_len)
 {
 	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
-#else
-int cros_ec_lpc_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
-		     const uint8_t *dout, int dout_len,
-		     uint8_t **dinp, int din_len)
-{
-#endif
 	const int cmd_addr = EC_LPC_ADDR_HOST_CMD;
 	const int data_addr = EC_LPC_ADDR_HOST_DATA;
 	const int args_addr = EC_LPC_ADDR_HOST_ARGS;
@@ -187,11 +180,7 @@ int cros_ec_lpc_init(struct cros_ec_dev *dev, const void *blob)
  * seeing whether the EC sets the EC_HOST_ARGS_FLAG_FROM_HOST flag
  * in args when it responds.
  */
-#ifdef CONFIG_DM_CROS_EC
 static int cros_ec_lpc_check_version(struct udevice *dev)
-#else
-int cros_ec_lpc_check_version(struct cros_ec_dev *dev)
-#endif
 {
 	if (inb(EC_LPC_ADDR_MEMMAP + EC_MEMMAP_ID) == 'E' &&
 			inb(EC_LPC_ADDR_MEMMAP + EC_MEMMAP_ID + 1)
@@ -206,7 +195,6 @@ int cros_ec_lpc_check_version(struct cros_ec_dev *dev)
 	return -1;
 }
 
-#ifdef CONFIG_DM_CROS_EC
 static int cros_ec_probe(struct udevice *dev)
 {
 	return cros_ec_register(dev);
@@ -229,4 +217,3 @@ U_BOOT_DRIVER(cros_ec_lpc) = {
 	.probe		= cros_ec_probe,
 	.ops		= &cros_ec_ops,
 };
-#endif

@@ -44,16 +44,6 @@ config CROS_EC_SPI
 	  provides a faster and more robust interface than I2C but the bugs
 	  are less interesting.
 
-config DM_CROS_EC
-	bool "Enable Driver Model for Chrome OS EC"
-	depends on DM
-	help
-	  Enable driver model for the Chrome OS EC interface. This
-	  allows the cros_ec SPI driver to operate with CONFIG_DM_SPI
-	  but otherwise makes few changes. Since cros_ec also supports
-	  LPC (which doesn't support driver model yet), a full
-	  conversion is not yet possible.
-
 config CONFIG_FSL_SEC_MON
 	bool "Enable FSL SEC_MON Driver"
 	help
