@@ -35,9 +35,6 @@ obj-$(CONFIG_PCI) += pci.o
 obj-$(CONFIG_PCIE) += pcie.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 
-# Stub implementations of cache management functions for USB
-obj-y += cache.o
-
 ifndef CONFIG_SYS_FSL_DDRC_GEN2
 obj-y += spd_sdram.o
 endif

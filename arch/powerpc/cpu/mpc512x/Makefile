@@ -17,6 +17,3 @@ obj-y += speed.o
 obj-$(CONFIG_FSL_DIU_FB) += diu.o
 obj-$(CONFIG_CMD_IDE) += ide.o
 obj-$(CONFIG_PCI) += pci.o
-
-# Stub implementations of cache management functions for USB
-obj-$(CONFIG_USB_EHCI) += cache.o
