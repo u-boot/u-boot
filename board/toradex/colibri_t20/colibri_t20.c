@@ -27,6 +27,12 @@ void pin_mux_mmc(void)
 void pin_mux_nand(void)
 {
 	funcmux_select(PERIPH_ID_NDFLASH, FUNCMUX_NDFLASH_KBC_8_BIT);
+
+	/*
+	 * configure pingroup ATC to something unrelated to
+	 * avoid ATC overriding KBC
+	 */
+	pinmux_set_func(PMUX_PINGRP_ATC, PMUX_FUNC_GMI);
 }
 #endif
 
