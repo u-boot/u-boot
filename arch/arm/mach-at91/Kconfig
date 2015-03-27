@@ -75,6 +75,7 @@ config TARGET_PM9G45
 config TARGET_AT91SAM9N12EK
 	bool "Atmel AT91SAM9N12-EK board"
 	select CPU_ARM926EJS
+	select SUPPORT_SPL
 
 config TARGET_AT91SAM9RLEK
 	bool "Atmel at91sam9rl reference board"
