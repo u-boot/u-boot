@@ -18,10 +18,24 @@
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
 #include "t102xrdb.h"
+#ifdef CONFIG_T1024RDB
 #include "cpld.h"
+#endif
 #include "../common/sleep.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_T1023RDB
+enum {
+	GPIO1_SD_SEL    = 0x00020000, /* GPIO1_14, 0: EMMC, 1:SD/MMC */
+	GPIO1_EMMC_SEL,
+	GPIO1_VBANK0,
+	GPIO1_VBANK4    = 0x00008000, /* GPIO1_16/20/22,  100:vBank4 */
+	GPIO1_VBANK_MASK = 0x00008a00,
+	GPIO1_DIR_OUTPUT = 0x00028a00,
+	GPIO1_GET_VAL,
+};
+#endif
 
 int checkboard(void)
 {
@@ -34,14 +48,17 @@ int checkboard(void)
 	srds_s1 >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
 
 	printf("Board: %sRDB, ", cpu->name);
-	printf("Board rev: 0x%02x CPLD ver: 0x%02x, boot from ",
+#ifdef CONFIG_T1024RDB
+	printf("Board rev: 0x%02x CPLD ver: 0x%02x, ",
 	       CPLD_READ(hw_ver), CPLD_READ(sw_ver));
+#endif
+	printf("boot from ");
 
 #ifdef CONFIG_SDCARD
 	puts("SD/MMC\n");
 #elif CONFIG_SPIFLASH
 	puts("SPI\n");
-#else
+#elif defined(CONFIG_T1024RDB)
 	u8 reg;
 
 	reg = CPLD_READ(flash_csr);
@@ -52,17 +69,25 @@ int checkboard(void)
 		reg = ((reg & CPLD_LBMAP_MASK) >> CPLD_LBMAP_SHIFT);
 		printf("NOR vBank%d\n", reg);
 	}
+#elif defined(CONFIG_T1023RDB)
+#ifdef CONFIG_NAND
+	puts("NAND\n");
+#else
+	printf("NOR vBank%d\n", (t1023rdb_gpio_ctrl(GPIO1_GET_VAL) &
+	       GPIO1_VBANK4) >> 15 ? 4 : 0);
+#endif
 #endif
 
 	puts("SERDES Reference Clocks:\n");
 	if (srds_s1 == 0x95)
 		printf("SD1_CLK1=%s, SD1_CLK2=%s\n", freq[2], freq[0]);
 	else
-		printf("SD1_CLK1=%s, SD1_CLK2=%s\n", freq[0], freq[0]);
+		printf("SD1_CLK1=%s, SD1_CLK2=%s\n", freq[0], freq[1]);
 
 	return 0;
 }
 
+#ifdef CONFIG_T1024RDB
 static void board_mux_lane(void)
 {
 	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -82,6 +107,7 @@ static void board_mux_lane(void)
 	}
 	CPLD_WRITE(boot_override, CPLD_OVERRIDE_MUX_EN);
 }
+#endif
 
 int board_early_init_f(void)
 {
@@ -124,7 +150,9 @@ int board_early_init_r(void)
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	setup_portals();
 #endif
+#ifdef CONFIG_T1024RDB
 	board_mux_lane();
+#endif
 
 	return 0;
 }
@@ -170,3 +198,62 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	return 0;
 }
+
+
+#ifdef CONFIG_T1023RDB
+static u32 t1023rdb_gpio_ctrl(u32 ctrl_type)
+{
+	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	u32 gpioval;
+
+	setbits_be32(&pgpio->gpdir, GPIO1_DIR_OUTPUT);
+	gpioval = in_be32(&pgpio->gpdat);
+
+	switch (ctrl_type) {
+	case GPIO1_SD_SEL:
+		gpioval |= GPIO1_SD_SEL;
+		break;
+	case GPIO1_EMMC_SEL:
+		gpioval &= ~GPIO1_SD_SEL;
+		break;
+	case GPIO1_VBANK0:
+		gpioval &= ~GPIO1_VBANK_MASK;
+		break;
+	case GPIO1_VBANK4:
+		gpioval &= ~GPIO1_VBANK_MASK;
+		gpioval |= GPIO1_VBANK4;
+		break;
+	case GPIO1_GET_VAL:
+		return gpioval;
+	default:
+		break;
+	}
+	out_be32(&pgpio->gpdat, gpioval);
+
+	return 0;
+}
+
+static int gpio_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
+		    char * const argv[])
+{
+	if (argc < 2)
+		return CMD_RET_USAGE;
+	if (!strcmp(argv[1], "vbank0"))
+		t1023rdb_gpio_ctrl(GPIO1_VBANK0);
+	else if (!strcmp(argv[1], "vbank4"))
+		t1023rdb_gpio_ctrl(GPIO1_VBANK4);
+	else if (!strcmp(argv[1], "sd"))
+		t1023rdb_gpio_ctrl(GPIO1_SD_SEL);
+	else if (!strcmp(argv[1], "EMMC"))
+		t1023rdb_gpio_ctrl(GPIO1_EMMC_SEL);
+	else
+		return CMD_RET_USAGE;
+	return 0;
+}
+
+U_BOOT_CMD(
+	gpio, 2, 0, gpio_cmd,
+	"for vbank0/vbank4/SD/eMMC switch control in runtime",
+	"command (e.g. gpio vbank4)"
+);
+#endif
