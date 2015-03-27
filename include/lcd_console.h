@@ -9,6 +9,26 @@
 #define CONFIG_CONSOLE_SCROLL_LINES 1
 #endif
 
+struct console_t {
+	short curr_col, curr_row;
+	short cols, rows;
+	void *fbbase;
+	u32 lcdsizex, lcdsizey, lcdrot;
+	void (*fp_putc_xy)(struct console_t *pcons, ushort x, ushort y, char c);
+	void (*fp_console_moverow)(struct console_t *pcons,
+				   u32 rowdst, u32 rowsrc);
+	void (*fp_console_setrow)(struct console_t *pcons, u32 row, int clr);
+};
+
+/**
+ * console_calc_rowcol() - calculate available rows / columns wihtin a given
+ * screen-size based on used VIDEO_FONT.
+ *
+ * @pcons: Pointer to struct console_t
+ * @sizex: size X of the screen in pixel
+ * @sizey: size Y of the screen in pixel
+ */
+void console_calc_rowcol(struct console_t *pcons, u32 sizex, u32 sizey);
 /**
  * lcd_init_console() - Initialize lcd console parameters
  *
@@ -16,11 +36,11 @@
  * console has.
  *
  * @address: Console base address
- * @rows: Number of rows in the console
- * @cols: Number of columns in the console
+ * @vl_rows: Number of rows in the console
+ * @vl_cols: Number of columns in the console
+ * @vl_rot: Rotation of display in degree (0 - 90 - 180 - 270) counterlockwise
  */
-void lcd_init_console(void *address, int rows, int cols);
-
+void lcd_init_console(void *address, int vl_cols, int vl_rows, int vl_rot);
 /**
  * lcd_set_col() - Set the number of the current lcd console column
  *

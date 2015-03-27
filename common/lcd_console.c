@@ -1,7 +1,8 @@
 /*
- * (C) Copyright 2001-2014
+ * (C) Copyright 2001-2015
  * DENX Software Engineering -- wd@denx.de
  * Compulab Ltd - http://compulab.co.il/
+ * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -9,26 +10,11 @@
 #include <common.h>
 #include <lcd.h>
 #include <video_font.h>		/* Get font data, width and height */
+#if defined(CONFIG_LCD_LOGO)
+#include <bmp_logo.h>
+#endif
 
-#define CONSOLE_ROW_SIZE	(VIDEO_FONT_HEIGHT * lcd_line_length)
-#define CONSOLE_ROW_FIRST	cons.lcd_address
-#define CONSOLE_SIZE		(CONSOLE_ROW_SIZE * cons.rows)
-
-struct console_t {
-	short curr_col, curr_row;
-	short cols, rows;
-	void *lcd_address;
-};
 static struct console_t cons;
-
-void lcd_init_console(void *address, int rows, int cols)
-{
-	memset(&cons, 0, sizeof(cons));
-	cons.cols = cols;
-	cons.rows = rows;
-	cons.lcd_address = address;
-
-}
 
 void lcd_set_col(short col)
 {
@@ -56,61 +42,50 @@ int lcd_get_screen_columns(void)
 	return cons.cols;
 }
 
-static void lcd_putc_xy(ushort x, ushort y, char c)
+static void lcd_putc_xy0(struct console_t *pcons, ushort x, ushort y, char c)
 {
-	uchar *dest;
-	ushort row;
 	int fg_color = lcd_getfgcolor();
 	int bg_color = lcd_getbgcolor();
-	int i;
+	int i, row;
+	fbptr_t *dst = (fbptr_t *)pcons->fbbase +
+				  y * pcons->lcdsizex +
+				  x;
 
-	dest = (uchar *)(cons.lcd_address +
-			 y * lcd_line_length + x * NBITS(LCD_BPP) / 8);
-
-	for (row = 0; row < VIDEO_FONT_HEIGHT; ++row, dest += lcd_line_length) {
-#if LCD_BPP == LCD_COLOR16
-		ushort *d = (ushort *)dest;
-#elif LCD_BPP == LCD_COLOR32
-		u32 *d = (u32 *)dest;
-#else
-		uchar *d = dest;
-#endif
-		uchar bits;
-		bits = video_fontdata[c * VIDEO_FONT_HEIGHT + row];
-
-		for (i = 0; i < 8; ++i) {
-			*d++ = (bits & 0x80) ? fg_color : bg_color;
+	for (row = 0; row < VIDEO_FONT_HEIGHT; row++) {
+		uchar bits = video_fontdata[c * VIDEO_FONT_HEIGHT + row];
+		for (i = 0; i < VIDEO_FONT_WIDTH; ++i) {
+			*dst++ = (bits & 0x80) ? fg_color : bg_color;
 			bits <<= 1;
 		}
+		dst += (pcons->lcdsizex - VIDEO_FONT_WIDTH);
 	}
 }
 
-static void console_scrollup(void)
+static inline void console_setrow0(struct console_t *pcons, u32 row, int clr)
 {
-	const int rows = CONFIG_CONSOLE_SCROLL_LINES;
-	int bg_color = lcd_getbgcolor();
+	int i;
+	fbptr_t *dst = (fbptr_t *)pcons->fbbase +
+				  row * VIDEO_FONT_HEIGHT *
+				  pcons->lcdsizex;
 
-	/* Copy up rows ignoring those that will be overwritten */
-	memcpy(CONSOLE_ROW_FIRST,
-	       cons.lcd_address + CONSOLE_ROW_SIZE * rows,
-	       CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows);
+	for (i = 0; i < (VIDEO_FONT_HEIGHT * pcons->lcdsizex); i++)
+		*dst++ = clr;
+}
 
-	/* Clear the last rows */
-#if (LCD_BPP != LCD_COLOR32)
-	memset(lcd_console_address + CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows,
-	       bg_color, CONSOLE_ROW_SIZE * rows);
-#else
-	u32 *ppix = cons.lcd_address +
-		    CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows;
-	u32 i;
-	for (i = 0;
-	    i < (CONSOLE_ROW_SIZE * rows) / NBYTES(panel_info.vl_bpix);
-	    i++) {
-		*ppix++ = bg_color;
-	}
-#endif
-	lcd_sync();
-	cons.curr_row -= rows;
+static inline void console_moverow0(struct console_t *pcons,
+				    u32 rowdst, u32 rowsrc)
+{
+	int i;
+	fbptr_t *dst = (fbptr_t *)pcons->fbbase +
+				  rowdst * VIDEO_FONT_HEIGHT *
+				  pcons->lcdsizex;
+
+	fbptr_t *src = (fbptr_t *)pcons->fbbase +
+				  rowsrc * VIDEO_FONT_HEIGHT *
+				  pcons->lcdsizex;
+
+	for (i = 0; i < (VIDEO_FONT_HEIGHT * pcons->lcdsizex); i++)
+		*dst++ = *src++;
 }
 
 static inline void console_back(void)
@@ -121,19 +96,64 @@ static inline void console_back(void)
 			cons.curr_row = 0;
 	}
 
-	lcd_putc_xy(cons.curr_col * VIDEO_FONT_WIDTH,
-		    cons.curr_row * VIDEO_FONT_HEIGHT, ' ');
+	cons.fp_putc_xy(&cons,
+			cons.curr_col * VIDEO_FONT_WIDTH,
+			cons.curr_row * VIDEO_FONT_HEIGHT, ' ');
 }
 
 static inline void console_newline(void)
 {
+	const int rows = CONFIG_CONSOLE_SCROLL_LINES;
+	int bg_color = lcd_getbgcolor();
+	int i;
+
 	cons.curr_col = 0;
 
 	/* Check if we need to scroll the terminal */
-	if (++cons.curr_row >= cons.rows)
-		console_scrollup();
-	else
-		lcd_sync();
+	if (++cons.curr_row >= cons.rows) {
+		for (i = 0; i < cons.rows-rows; i++)
+			cons.fp_console_moverow(&cons, i, i+rows);
+		for (i = 0; i < rows; i++)
+			cons.fp_console_setrow(&cons, cons.rows-i-1, bg_color);
+		cons.curr_row -= rows;
+	}
+	lcd_sync();
+}
+
+void console_calc_rowcol(struct console_t *pcons, u32 sizex, u32 sizey)
+{
+	pcons->cols = sizex / VIDEO_FONT_WIDTH;
+#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
+	pcons->rows = (pcons->lcdsizey - BMP_LOGO_HEIGHT);
+	pcons->rows /= VIDEO_FONT_HEIGHT;
+#else
+	pcons->rows = sizey / VIDEO_FONT_HEIGHT;
+#endif
+}
+
+void __weak lcd_init_console_rot(struct console_t *pcons)
+{
+	return;
+}
+
+void lcd_init_console(void *address, int vl_cols, int vl_rows, int vl_rot)
+{
+	memset(&cons, 0, sizeof(cons));
+	cons.fbbase = address;
+
+	cons.lcdsizex = vl_cols;
+	cons.lcdsizey = vl_rows;
+	cons.lcdrot = vl_rot;
+
+	cons.fp_putc_xy = &lcd_putc_xy0;
+	cons.fp_console_moverow = &console_moverow0;
+	cons.fp_console_setrow = &console_setrow0;
+	console_calc_rowcol(&cons, cons.lcdsizex, cons.lcdsizey);
+
+	lcd_init_console_rot(&cons);
+
+	debug("lcd_console: have %d/%d col/rws on scr %dx%d (%d deg rotated)\n",
+	      cons.cols, cons.rows, cons.lcdsizex, cons.lcdsizey, vl_rot);
 }
 
 void lcd_putc(const char c)
@@ -165,8 +185,9 @@ void lcd_putc(const char c)
 
 		return;
 	default:
-		lcd_putc_xy(cons.curr_col * VIDEO_FONT_WIDTH,
-			    cons.curr_row * VIDEO_FONT_HEIGHT, c);
+		cons.fp_putc_xy(&cons,
+				cons.curr_col * VIDEO_FONT_WIDTH,
+				cons.curr_row * VIDEO_FONT_HEIGHT, c);
 		if (++cons.curr_col >= cons.cols)
 			console_newline();
 	}
