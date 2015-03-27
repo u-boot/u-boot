@@ -11,6 +11,9 @@ config MCF520x
 config MCF52x2
 	bool
 
+config MCF530x
+	bool
+
 # processor type
 config M5208
 	bool
@@ -39,6 +42,10 @@ config M5275
 config M5282
 	bool
 	select MCF52x2
+
+config M5307
+	bool
+	select MCF530x
 
 choice
 	prompt "Target select"
@@ -114,6 +121,7 @@ config TARGET_M5485EVB
 
 config TARGET_AMCORE
 	bool "Support AMCORE"
+	select M5307
 
 endchoice
 
