@@ -14,6 +14,15 @@ config MCF52x2
 config MCF530x
 	bool
 
+config MCF5301x
+	bool
+
+config MCF532x
+	bool
+
+config MCF537x
+	bool
+
 # processor type
 config M5208
 	bool
@@ -46,6 +55,19 @@ config M5282
 config M5307
 	bool
 	select MCF530x
+
+config M53015
+	bool
+	select MCF5301x
+
+config M5329
+	bool
+	select MCF532x
+
+config M5373
+	bool
+	select MCF532x
+	select MCF537x
 
 choice
 	prompt "Target select"
@@ -94,15 +116,19 @@ config TARGET_M5282EVB
 
 config TARGET_ASTRO_MCF5373L
 	bool "Support astro_mcf5373l"
+	select M5373
 
 config TARGET_M53017EVB
 	bool "Support M53017EVB"
+	select M53015
 
 config TARGET_M5329EVB
 	bool "Support M5329EVB"
+	select M5329
 
 config TARGET_M5373EVB
 	bool "Support M5373EVB"
+	select M5373
 
 config TARGET_M54418TWR
 	bool "Support M54418TWR"
