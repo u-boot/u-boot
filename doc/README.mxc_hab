@@ -69,6 +69,7 @@ CONFIG_SECURE_BOOT
 CONFIG_SYS_FSL_SEC_COMPAT    4 /* HAB version */
 CONFIG_FSL_CAAM
 CONFIG_CMD_DEKBLOB
+CONFIG_SYS_FSL_LE
 
 Note: The encrypted boot feature is only supported by HABv4 or
 greater.
