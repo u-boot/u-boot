@@ -195,12 +195,16 @@ int sunxi_usbc_request_resources(int index)
 	int ret = 0;
 
 	sunxi_usbc->gpio_vbus = get_vbus_gpio(index);
-	if (sunxi_usbc->gpio_vbus != -1)
+	if (sunxi_usbc->gpio_vbus != -1) {
 		ret |= gpio_request(sunxi_usbc->gpio_vbus, "usbc_vbus");
+		ret |= gpio_direction_output(sunxi_usbc->gpio_vbus, 0);
+	}
 
 	sunxi_usbc->gpio_vbus_det = get_vbus_detect_gpio(index);
-	if (sunxi_usbc->gpio_vbus_det != -1)
+	if (sunxi_usbc->gpio_vbus_det != -1) {
 		ret |= gpio_request(sunxi_usbc->gpio_vbus_det, "usbc_vbus_det");
+		ret |= gpio_direction_input(sunxi_usbc->gpio_vbus_det);
+	}
 
 	return ret;
 }
@@ -268,7 +272,7 @@ void sunxi_usbc_vbus_enable(int index)
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 
 	if (sunxi_usbc->gpio_vbus != -1)
-		gpio_direction_output(sunxi_usbc->gpio_vbus, 1);
+		gpio_set_value(sunxi_usbc->gpio_vbus, 1);
 }
 
 void sunxi_usbc_vbus_disable(int index)
@@ -276,7 +280,7 @@ void sunxi_usbc_vbus_disable(int index)
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 
 	if (sunxi_usbc->gpio_vbus != -1)
-		gpio_direction_output(sunxi_usbc->gpio_vbus, 0);
+		gpio_set_value(sunxi_usbc->gpio_vbus, 0);
 }
 
 int sunxi_usbc_vbus_detect(int index)
@@ -288,10 +292,6 @@ int sunxi_usbc_vbus_detect(int index)
 		eprintf("Error: invalid vbus detection pin\n");
 		return -1;
 	}
-
-	err = gpio_direction_input(sunxi_usbc->gpio_vbus_det);
-	if (err)
-		return err;
 
 	return gpio_get_value(sunxi_usbc->gpio_vbus_det);
 }
