@@ -16,8 +16,6 @@
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 
-#include <ns16550.h>
-
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
