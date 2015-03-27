@@ -4,6 +4,42 @@ menu "M68000 architecture"
 config SYS_ARCH
 	default "m68k"
 
+# processor family
+config MCF520x
+	bool
+
+config MCF52x2
+	bool
+
+# processor type
+config M5208
+	bool
+	select MCF520x
+
+config M5249
+	bool
+	select MCF52x2
+
+config M5253
+	bool
+	select MCF52x2
+
+config M5271
+	bool
+	select MCF52x2
+
+config M5272
+	bool
+	select MCF52x2
+
+config M5275
+	bool
+	select MCF52x2
+
+config M5282
+	bool
+	select MCF52x2
+
 choice
 	prompt "Target select"
 
@@ -15,30 +51,39 @@ config TARGET_M5235EVB
 
 config TARGET_COBRA5272
 	bool "Support cobra5272"
+	select M5272
 
 config TARGET_EB_CPU5282
 	bool "Support eb_cpu5282"
+	select M5282
 
 config TARGET_M5208EVBE
 	bool "Support M5208EVBE"
+	select M5208
 
 config TARGET_M5249EVB
 	bool "Support M5249EVB"
+	select M5249
 
 config TARGET_M5253DEMO
 	bool "Support M5253DEMO"
+	select M5253
 
 config TARGET_M5253EVBE
 	bool "Support M5253EVBE"
+	select M5253
 
 config TARGET_M5272C3
 	bool "Support M5272C3"
+	select M5272
 
 config TARGET_M5275EVB
 	bool "Support M5275EVB"
+	select M5275
 
 config TARGET_M5282EVB
 	bool "Support M5282EVB"
+	select M5282
 
 config TARGET_ASTRO_MCF5373L
 	bool "Support astro_mcf5373l"
