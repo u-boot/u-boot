@@ -83,6 +83,7 @@ config TARGET_AT91SAM9RLEK
 config TARGET_AT91SAM9X5EK
 	bool "Atmel AT91SAM9X5-EK board"
 	select CPU_ARM926EJS
+	select SUPPORT_SPL
 
 config TARGET_SAMA5D3_XPLAINED
 	bool "SAMA5D3 Xplained board"

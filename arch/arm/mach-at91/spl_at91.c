@@ -115,9 +115,14 @@ void board_init_f(ulong dummy)
 	timer_init();
 
 	/* enable clocks for all PIOs */
+#ifdef CONFIG_AT91SAM9X5
+	at91_periph_clk_enable(ATMEL_ID_PIOAB);
+	at91_periph_clk_enable(ATMEL_ID_PIOCD);
+#else
 	at91_periph_clk_enable(ATMEL_ID_PIOA);
 	at91_periph_clk_enable(ATMEL_ID_PIOB);
 	at91_periph_clk_enable(ATMEL_ID_PIOC);
+#endif
 	/* init console */
 	at91_seriald_hw_init();
 	preloader_console_init();
