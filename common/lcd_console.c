@@ -11,48 +11,49 @@
 #include <video_font.h>		/* Get font data, width and height */
 
 #define CONSOLE_ROW_SIZE	(VIDEO_FONT_HEIGHT * lcd_line_length)
-#define CONSOLE_ROW_FIRST	lcd_console_address
-#define CONSOLE_SIZE		(CONSOLE_ROW_SIZE * console_rows)
+#define CONSOLE_ROW_FIRST	cons.lcd_address
+#define CONSOLE_SIZE		(CONSOLE_ROW_SIZE * cons.rows)
 
-static short console_curr_col;
-static short console_curr_row;
-static short console_cols;
-static short console_rows;
-static void *lcd_console_address;
+struct console_t {
+	short curr_col, curr_row;
+	short cols, rows;
+	void *lcd_address;
+};
+static struct console_t cons;
 
 void lcd_init_console(void *address, int rows, int cols)
 {
-	console_curr_col = 0;
-	console_curr_row = 0;
-	console_cols = cols;
-	console_rows = rows;
-	lcd_console_address = address;
+	memset(&cons, 0, sizeof(cons));
+	cons.cols = cols;
+	cons.rows = rows;
+	cons.lcd_address = address;
+
 }
 
 void lcd_set_col(short col)
 {
-	console_curr_col = col;
+	cons.curr_col = col;
 }
 
 void lcd_set_row(short row)
 {
-	console_curr_row = row;
+	cons.curr_row = row;
 }
 
 void lcd_position_cursor(unsigned col, unsigned row)
 {
-	console_curr_col = min_t(short, col, console_cols - 1);
-	console_curr_row = min_t(short, row, console_rows - 1);
+	cons.curr_col = min_t(short, col, cons.cols - 1);
+	cons.curr_row = min_t(short, row, cons.rows - 1);
 }
 
 int lcd_get_screen_rows(void)
 {
-	return console_rows;
+	return cons.rows;
 }
 
 int lcd_get_screen_columns(void)
 {
-	return console_cols;
+	return cons.cols;
 }
 
 static void lcd_putc_xy(ushort x, ushort y, char c)
@@ -63,7 +64,7 @@ static void lcd_putc_xy(ushort x, ushort y, char c)
 	int bg_color = lcd_getbgcolor();
 	int i;
 
-	dest = (uchar *)(lcd_console_address +
+	dest = (uchar *)(cons.lcd_address +
 			 y * lcd_line_length + x * NBITS(LCD_BPP) / 8);
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; ++row, dest += lcd_line_length) {
@@ -91,7 +92,7 @@ static void console_scrollup(void)
 
 	/* Copy up rows ignoring those that will be overwritten */
 	memcpy(CONSOLE_ROW_FIRST,
-	       lcd_console_address + CONSOLE_ROW_SIZE * rows,
+	       cons.lcd_address + CONSOLE_ROW_SIZE * rows,
 	       CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows);
 
 	/* Clear the last rows */
@@ -99,7 +100,7 @@ static void console_scrollup(void)
 	memset(lcd_console_address + CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows,
 	       bg_color, CONSOLE_ROW_SIZE * rows);
 #else
-	u32 *ppix = lcd_console_address +
+	u32 *ppix = cons.lcd_address +
 		    CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows;
 	u32 i;
 	for (i = 0;
@@ -109,27 +110,27 @@ static void console_scrollup(void)
 	}
 #endif
 	lcd_sync();
-	console_curr_row -= rows;
+	cons.curr_row -= rows;
 }
 
 static inline void console_back(void)
 {
-	if (--console_curr_col < 0) {
-		console_curr_col = console_cols - 1;
-		if (--console_curr_row < 0)
-			console_curr_row = 0;
+	if (--cons.curr_col < 0) {
+		cons.curr_col = cons.cols - 1;
+		if (--cons.curr_row < 0)
+			cons.curr_row = 0;
 	}
 
-	lcd_putc_xy(console_curr_col * VIDEO_FONT_WIDTH,
-		    console_curr_row * VIDEO_FONT_HEIGHT, ' ');
+	lcd_putc_xy(cons.curr_col * VIDEO_FONT_WIDTH,
+		    cons.curr_row * VIDEO_FONT_HEIGHT, ' ');
 }
 
 static inline void console_newline(void)
 {
-	console_curr_col = 0;
+	cons.curr_col = 0;
 
 	/* Check if we need to scroll the terminal */
-	if (++console_curr_row >= console_rows)
+	if (++cons.curr_row >= cons.rows)
 		console_scrollup();
 	else
 		lcd_sync();
@@ -145,18 +146,17 @@ void lcd_putc(const char c)
 
 	switch (c) {
 	case '\r':
-		console_curr_col = 0;
-
+		cons.curr_col = 0;
 		return;
 	case '\n':
 		console_newline();
 
 		return;
 	case '\t':	/* Tab (8 chars alignment) */
-		console_curr_col +=  8;
-		console_curr_col &= ~7;
+		cons.curr_col +=  8;
+		cons.curr_col &= ~7;
 
-		if (console_curr_col >= console_cols)
+		if (cons.curr_col >= cons.cols)
 			console_newline();
 
 		return;
@@ -165,9 +165,9 @@ void lcd_putc(const char c)
 
 		return;
 	default:
-		lcd_putc_xy(console_curr_col * VIDEO_FONT_WIDTH,
-			    console_curr_row * VIDEO_FONT_HEIGHT, c);
-		if (++console_curr_col >= console_cols)
+		lcd_putc_xy(cons.curr_col * VIDEO_FONT_WIDTH,
+			    cons.curr_row * VIDEO_FONT_HEIGHT, c);
+		if (++cons.curr_col >= cons.cols)
 			console_newline();
 	}
 }
