@@ -55,18 +55,17 @@ int lcd_get_screen_columns(void)
 	return console_cols;
 }
 
-static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
+static void lcd_putc_xy(ushort x, ushort y, char c)
 {
 	uchar *dest;
 	ushort row;
 	int fg_color, bg_color;
+	int i;
 
 	dest = (uchar *)(lcd_console_address +
 			 y * lcd_line_length + x * NBITS(LCD_BPP) / 8);
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; ++row, dest += lcd_line_length) {
-		uchar *s = str;
-		int i;
 #if LCD_BPP == LCD_COLOR16
 		ushort *d = (ushort *)dest;
 #elif LCD_BPP == LCD_COLOR32
@@ -77,23 +76,15 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 
 		fg_color = lcd_getfgcolor();
 		bg_color = lcd_getbgcolor();
-		for (i = 0; i < count; ++i) {
-			uchar c, bits;
 
-			c = *s++;
-			bits = video_fontdata[c * VIDEO_FONT_HEIGHT + row];
+		uchar bits;
+		bits = video_fontdata[c * VIDEO_FONT_HEIGHT + row];
 
-			for (c = 0; c < 8; ++c) {
-				*d++ = (bits & 0x80) ? fg_color : bg_color;
-				bits <<= 1;
-			}
+		for (i = 0; i < 8; ++i) {
+			*d++ = (bits & 0x80) ? fg_color : bg_color;
+			bits <<= 1;
 		}
 	}
-}
-
-static inline void lcd_putc_xy(ushort x, ushort y, uchar c)
-{
-	lcd_drawchars(x, y, &c, 1);
 }
 
 static void console_scrollup(void)
