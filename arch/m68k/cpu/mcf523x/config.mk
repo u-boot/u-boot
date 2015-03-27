@@ -7,4 +7,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_CPPFLAGS += -mcpu=5235 -fPIC
+cpuflags-$(CONFIG_M5235) := -mcpu=5235 -fPIC
+
+PLATFORM_CPPFLAGS += $(cpuflags-y)

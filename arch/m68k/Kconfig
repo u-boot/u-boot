@@ -11,6 +11,9 @@ config MCF520x
 config MCF52x2
 	bool
 
+config MCF523x
+	bool
+
 config MCF530x
 	bool
 
@@ -36,6 +39,10 @@ config MCF5227x
 config M5208
 	bool
 	select MCF520x
+
+config M5235
+	bool
+	select MCF523x
 
 config M5249
 	bool
@@ -103,6 +110,7 @@ config TARGET_M52277EVB
 
 config TARGET_M5235EVB
 	bool "Support M5235EVB"
+	select M5235
 
 config TARGET_COBRA5272
 	bool "Support cobra5272"
