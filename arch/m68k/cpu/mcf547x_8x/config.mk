@@ -7,7 +7,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_CPPFLAGS += -mcpu=5485 -fPIC
+cpuflags-$(CONFIG_MCF547x_8x) := -mcpu=5485 -fPIC
+
+PLATFORM_CPPFLAGS += $(cpuflags-y)
 
 ifneq (,$(findstring -linux-,$(shell $(CC) --version)))
 ifneq (,$(findstring GOT,$(shell $(LD) --help)))

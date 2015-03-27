@@ -35,6 +35,9 @@ config MCF5445x
 config MCF5227x
 	bool
 
+config MCF547x_8x
+	bool
+
 # processor type
 config M5208
 	bool
@@ -100,6 +103,14 @@ config M54455
 config M52277
 	bool
 	select MCF5227x
+
+config M547x
+	bool
+	select MCF547x_8x
+
+config M548x
+	bool
+	select MCF547x_8x
 
 choice
 	prompt "Target select"
@@ -178,9 +189,11 @@ config TARGET_M54455EVB
 
 config TARGET_M5475EVB
 	bool "Support M5475EVB"
+	select M547x
 
 config TARGET_M5485EVB
 	bool "Support M5485EVB"
+	select M548x
 
 config TARGET_AMCORE
 	bool "Support AMCORE"
