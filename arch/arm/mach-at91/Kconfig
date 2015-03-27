@@ -66,6 +66,7 @@ config TARGET_STAMP9G20
 config TARGET_AT91SAM9M10G45EK
 	bool "Atmel AT91SAM9M10G45-EK board"
 	select CPU_ARM926EJS
+	select SUPPORT_SPL
 
 config TARGET_PM9G45
 	bool "Ronetix pm9g45 board"

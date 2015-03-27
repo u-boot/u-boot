@@ -71,7 +71,11 @@ void __weak at91_spl_board_init(void)
 {
 }
 
-void spl_board_init(void)
+void __weak spl_board_init(void)
+{
+}
+
+void board_init_f(ulong dummy)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
