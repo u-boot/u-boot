@@ -29,6 +29,9 @@ config MCF5441x
 config MCF5445x
 	bool
 
+config MCF5227x
+	bool
+
 # processor type
 config M5208
 	bool
@@ -87,11 +90,16 @@ config M54455
 	bool
 	select MCF5445x
 
+config M52277
+	bool
+	select MCF5227x
+
 choice
 	prompt "Target select"
 
 config TARGET_M52277EVB
 	bool "Support M52277EVB"
+	select M52277
 
 config TARGET_M5235EVB
 	bool "Support M5235EVB"

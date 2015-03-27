@@ -18,8 +18,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF5227x		/* define processor family */
-#define CONFIG_M52277		/* define processor type */
 #define CONFIG_M52277EVB	/* M52277EVB board */
 
 #define CONFIG_MCFUART
