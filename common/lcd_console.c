@@ -59,7 +59,8 @@ static void lcd_putc_xy(ushort x, ushort y, char c)
 {
 	uchar *dest;
 	ushort row;
-	int fg_color, bg_color;
+	int fg_color = lcd_getfgcolor();
+	int bg_color = lcd_getbgcolor();
 	int i;
 
 	dest = (uchar *)(lcd_console_address +
@@ -73,10 +74,6 @@ static void lcd_putc_xy(ushort x, ushort y, char c)
 #else
 		uchar *d = dest;
 #endif
-
-		fg_color = lcd_getfgcolor();
-		bg_color = lcd_getbgcolor();
-
 		uchar bits;
 		bits = video_fontdata[c * VIDEO_FONT_HEIGHT + row];
 
