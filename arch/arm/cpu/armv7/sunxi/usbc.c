@@ -182,6 +182,13 @@ static void sunxi_usb_passby(struct sunxi_usbc_hcd *sunxi_usbc, int enable)
 	return;
 }
 
+void sunxi_usbc_enable_squelch_detect(int index, int enable)
+{
+	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+
+	usb_phy_write(sunxi_usbc, 0x3c, enable ? 0 : 2, 2);
+}
+
 int sunxi_usbc_request_resources(int index)
 {
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
