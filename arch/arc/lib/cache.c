@@ -49,10 +49,12 @@ void icache_disable(void)
 
 void invalidate_icache_all(void)
 {
-#ifndef CONFIG_SYS_ICACHE_OFF
+	/* If no cache in CPU exit immediately */
+	if (!(read_aux_reg(ARC_BCR_IC_BUILD) & CACHE_VER_NUM_MASK))
+		return;
+
 	/* Any write to IC_IVIC register triggers invalidation of entire I$ */
 	write_aux_reg(ARC_AUX_IC_IVIC, 1);
-#endif /* CONFIG_SYS_ICACHE_OFF */
 }
 
 int dcache_status(void)
@@ -156,10 +158,12 @@ void invalidate_dcache_range(unsigned long start, unsigned long end)
 
 void invalidate_dcache_all(void)
 {
-#ifndef CONFIG_SYS_DCACHE_OFF
+	/* If no cache in CPU exit immediately */
+	if (!(read_aux_reg(ARC_BCR_DC_BUILD) & CACHE_VER_NUM_MASK))
+		return;
+
 	/* Write 1 to DC_IVDC register triggers invalidation of entire D$ */
 	write_aux_reg(ARC_AUX_DC_IVDC, 1);
-#endif /* CONFIG_SYS_DCACHE_OFF */
 }
 
 void flush_cache(unsigned long start, unsigned long size)
