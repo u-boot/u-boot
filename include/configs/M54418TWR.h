@@ -18,8 +18,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF5441x	/* define processor family */
-#define CONFIG_M54418		/* define processor type */
 #define CONFIG_M54418TWR	/* M54418TWR board */
 
 #define CONFIG_MCFUART

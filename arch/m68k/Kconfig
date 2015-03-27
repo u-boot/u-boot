@@ -23,6 +23,12 @@ config MCF532x
 config MCF537x
 	bool
 
+config MCF5441x
+	bool
+
+config MCF5445x
+	bool
+
 # processor type
 config M5208
 	bool
@@ -68,6 +74,18 @@ config M5373
 	bool
 	select MCF532x
 	select MCF537x
+
+config M54418
+	bool
+	select MCF5441x
+
+config M54451
+	bool
+	select MCF5445x
+
+config M54455
+	bool
+	select MCF5445x
 
 choice
 	prompt "Target select"
@@ -132,12 +150,15 @@ config TARGET_M5373EVB
 
 config TARGET_M54418TWR
 	bool "Support M54418TWR"
+	select M54418
 
 config TARGET_M54451EVB
 	bool "Support M54451EVB"
+	select M54451
 
 config TARGET_M54455EVB
 	bool "Support M54455EVB"
+	select M54455
 
 config TARGET_M5475EVB
 	bool "Support M5475EVB"

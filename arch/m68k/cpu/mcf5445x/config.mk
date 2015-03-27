@@ -9,14 +9,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-cfg=$(srctree)/include/configs/$(CONFIG_SYS_CONFIG_NAME:"%"=%).h
-is5441x:=$(shell grep CONFIG_MCF5441x $(cfg))
-
-ifneq (,$(findstring CONFIG_MCF5441x,$(is5441x)))
-PLATFORM_CPPFLAGS += -mcpu=54418 -fPIC
-else
-PLATFORM_CPPFLAGS += -mcpu=54455 -fPIC
-endif
+cpuflags-$(CONFIG_MCF5441x) := -mcpu=54418 -fPIC
+cpuflags-$(CONFIG_MCF5445x) := -mcpu=54455 -fPIC
 
 ifneq (,$(findstring -linux-,$(shell $(CC) --version)))
 ifneq (,$(findstring GOT,$(shell $(LD) --help)))
