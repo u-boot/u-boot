@@ -424,7 +424,7 @@ int axp_gpio_get_value(unsigned int pin)
 		if (ret)
 			return ret;
 
-		return !!(val & AXP221_POWER_STATUS_VBUS_USABLE);
+		return !!(val & AXP221_POWER_STATUS_VBUS_AVAIL);
 	default:
 		return -EINVAL;
 	}
