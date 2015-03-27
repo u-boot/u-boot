@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <mmc.h>
+#include <netdev.h>
+#include <phy.h>
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/post.h>
@@ -115,4 +117,21 @@ int cpu_mmc_init(bd_t *bis)
 {
 	return pci_mmc_init("Quark SDHCI", mmc_supported,
 			    ARRAY_SIZE(mmc_supported));
+}
+
+int cpu_eth_init(bd_t *bis)
+{
+	u32 base;
+	int ret0, ret1;
+
+	pci_read_config_dword(QUARK_EMAC0, PCI_BASE_ADDRESS_0, &base);
+	ret0 = designware_initialize(base, PHY_INTERFACE_MODE_RMII);
+
+	pci_read_config_dword(QUARK_EMAC1, PCI_BASE_ADDRESS_0, &base);
+	ret1 = designware_initialize(base, PHY_INTERFACE_MODE_RMII);
+
+	if (ret0 < 0 && ret1 < 0)
+		return -1;
+	else
+		return 0;
 }

@@ -29,10 +29,10 @@ enum {
 #define HTE_LOOP_CNT		5
 
 /* random seed for victim */
-#define HTE_LFSR_VICTIM_SEED	0xF294BA21
+#define HTE_LFSR_VICTIM_SEED	0xf294ba21
 
 /* random seed for aggressor */
-#define HTE_LFSR_AGRESSOR_SEED	0xEBA7492D
+#define HTE_LFSR_AGRESSOR_SEED	0xeba7492d
 
 u32 hte_mem_init(struct mrc_params *mrc_params, u8 flag);
 u16 hte_basic_write_read(struct mrc_params *mrc_params, u32 addr,

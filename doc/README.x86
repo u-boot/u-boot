@@ -105,6 +105,13 @@ in this FSP package too.
 Rename the first one to fsp.bin and second one to cmc.bin and put them in the
 board directory.
 
+Note the FSP release version 001 has a bug which could cause random endless
+loop during the FspInit call. This bug was published by Intel although Intel
+did not describe any details. We need manually apply the patch to the FSP
+binary using any hex editor (eg: bvi). Go to the offset 0x1fcd8 of the FSP
+binary, change the following five bytes values from orginally E8 42 FF FF FF
+to B8 00 80 0B 00.
+
 Now you can build U-Boot and obtain u-boot.rom
 
 $ make crownbay_defconfig
