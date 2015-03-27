@@ -286,12 +286,23 @@ void sunxi_usbc_vbus_disable(int index)
 int sunxi_usbc_vbus_detect(int index)
 {
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
-	int err;
+	int err, retries = 3;
 
 	if (sunxi_usbc->gpio_vbus_det == -1) {
 		eprintf("Error: invalid vbus detection pin\n");
 		return -1;
 	}
 
-	return gpio_get_value(sunxi_usbc->gpio_vbus_det);
+	err = gpio_get_value(sunxi_usbc->gpio_vbus_det);
+	/*
+	 * Vbus may have been provided by the board and just been turned of
+	 * some milliseconds ago on reset, what we're measuring then is a
+	 * residual charge on Vbus, sleep a bit and try again.
+	 */
+	while (err > 0 && retries--) {
+		mdelay(100);
+		err = gpio_get_value(sunxi_usbc->gpio_vbus_det);
+	}
+
+	return err;
 }
