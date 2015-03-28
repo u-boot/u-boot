@@ -98,6 +98,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
+#define CONFIG_SERIAL_TAG
 
 /* mmc config */
 #if !defined(CONFIG_UART0_PORT_F)
