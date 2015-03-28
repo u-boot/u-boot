@@ -13,8 +13,6 @@ SECTIONS
   .text      :
   {
     arch/m68k/cpu/mcf532x/start.o	(.text*)
-    arch/m68k/cpu/mcf532x/built-in.o	(.text*)
-    arch/m68k/lib/built-in.o		(.text*)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.text*)
