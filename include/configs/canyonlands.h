@@ -13,8 +13,6 @@
 
 #include <linux/kconfig.h>
 
-#define CONFIG_SYS_GENERIC_BOARD
-
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
