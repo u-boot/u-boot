@@ -463,7 +463,11 @@ static int dwc_otg_submit_rh_msg_in_status(struct usb_device *dev, void *buffer,
 		if (hprt0 & DWC2_HPRT0_PRTPWR)
 			port_status |= USB_PORT_STAT_POWER;
 
-		port_status |= USB_PORT_STAT_HIGH_SPEED;
+		if ((hprt0 & DWC2_HPRT0_PRTSPD_MASK) == DWC2_HPRT0_PRTSPD_LOW)
+			port_status |= USB_PORT_STAT_LOW_SPEED;
+		else if ((hprt0 & DWC2_HPRT0_PRTSPD_MASK) ==
+			 DWC2_HPRT0_PRTSPD_HIGH)
+			port_status |= USB_PORT_STAT_HIGH_SPEED;
 
 		if (hprt0 & DWC2_HPRT0_PRTENCHNG)
 			port_change |= USB_PORT_STAT_C_ENABLE;
