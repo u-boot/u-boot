@@ -372,20 +372,31 @@ int g_dnl_board_usb_cable_connected(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
+	char serial_string[17] = { 0 };
 	unsigned int sid[4];
+	uint8_t mac_addr[6];
+	int ret;
 
-	if (!getenv("ethaddr") && sunxi_get_sid(sid) == 0 &&
-			sid[0] != 0 && sid[3] != 0) {
-		uint8_t mac_addr[6];
+	ret = sunxi_get_sid(sid);
+	if (ret == 0 && sid[0] != 0 && sid[3] != 0) {
+		if (!getenv("ethaddr")) {
+			/* Non OUI / registered MAC address */
+			mac_addr[0] = 0x02;
+			mac_addr[1] = (sid[0] >>  0) & 0xff;
+			mac_addr[2] = (sid[3] >> 24) & 0xff;
+			mac_addr[3] = (sid[3] >> 16) & 0xff;
+			mac_addr[4] = (sid[3] >>  8) & 0xff;
+			mac_addr[5] = (sid[3] >>  0) & 0xff;
 
-		mac_addr[0] = 0x02; /* Non OUI / registered MAC address */
-		mac_addr[1] = (sid[0] >>  0) & 0xff;
-		mac_addr[2] = (sid[3] >> 24) & 0xff;
-		mac_addr[3] = (sid[3] >> 16) & 0xff;
-		mac_addr[4] = (sid[3] >>  8) & 0xff;
-		mac_addr[5] = (sid[3] >>  0) & 0xff;
+			eth_setenv_enetaddr("ethaddr", mac_addr);
+		}
 
-		eth_setenv_enetaddr("ethaddr", mac_addr);
+		if (!getenv("serial#")) {
+			snprintf(serial_string, sizeof(serial_string),
+				"%08x%08x", sid[0], sid[3]);
+
+			setenv("serial#", serial_string);
+		}
 	}
 
 #if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
