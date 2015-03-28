@@ -37,7 +37,7 @@
 
 	.arch_extension sec
 
-#define	ONE_MS			(CONFIG_SYS_CLK_FREQ / 1000)
+#define	ONE_MS			(CONFIG_TIMER_CLK_FREQ / 1000)
 #define	TEN_MS			(10 * ONE_MS)
 #define	GICD_BASE		0x1c81000
 #define	GICC_BASE		0x1c82000

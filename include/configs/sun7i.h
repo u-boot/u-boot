@@ -12,7 +12,6 @@
 /*
  * A20 specific configuration
  */
-#define CONFIG_CLK_FULL_SPEED		912000000
 
 #ifdef CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_SUNXI
@@ -21,8 +20,7 @@
 
 #define CONFIG_ARMV7_PSCI		1
 #define CONFIG_ARMV7_SECURE_BASE	SUNXI_SRAM_B_BASE
-#define CONFIG_SYS_CLK_FREQ		24000000
-#define CONFIG_TIMER_CLK_FREQ		CONFIG_SYS_CLK_FREQ
+#define CONFIG_TIMER_CLK_FREQ		24000000
 
 /*
  * Include common sunxi configuration where most the settings are
