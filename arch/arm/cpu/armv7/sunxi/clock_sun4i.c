@@ -100,22 +100,23 @@ static struct {
 	unsigned int freq;
 } pll1_para[] = {
 	/* This array must be ordered by frequency. */
-	{ PLL1_CFG(16, 0, 0, 0), 384000000 },
-	{ PLL1_CFG(16, 1, 0, 0), 768000000 },
-	{ PLL1_CFG(20, 1, 0, 0), 960000000 },
-	{ PLL1_CFG(21, 1, 0, 0), 1008000000},
-	{ PLL1_CFG(22, 1, 0, 0), 1056000000},
-	{ PLL1_CFG(23, 1, 0, 0), 1104000000},
-	{ PLL1_CFG(24, 1, 0, 0), 1152000000},
-	{ PLL1_CFG(25, 1, 0, 0), 1200000000},
-	{ PLL1_CFG(26, 1, 0, 0), 1248000000},
-	{ PLL1_CFG(27, 1, 0, 0), 1296000000},
-	{ PLL1_CFG(28, 1, 0, 0), 1344000000},
-	{ PLL1_CFG(29, 1, 0, 0), 1392000000},
-	{ PLL1_CFG(30, 1, 0, 0), 1440000000},
 	{ PLL1_CFG(31, 1, 0, 0), 1488000000},
-	/* Final catchall entry */
-	{ PLL1_CFG(31, 1, 0, 0), ~0},
+	{ PLL1_CFG(30, 1, 0, 0), 1440000000},
+	{ PLL1_CFG(29, 1, 0, 0), 1392000000},
+	{ PLL1_CFG(28, 1, 0, 0), 1344000000},
+	{ PLL1_CFG(27, 1, 0, 0), 1296000000},
+	{ PLL1_CFG(26, 1, 0, 0), 1248000000},
+	{ PLL1_CFG(25, 1, 0, 0), 1200000000},
+	{ PLL1_CFG(24, 1, 0, 0), 1152000000},
+	{ PLL1_CFG(23, 1, 0, 0), 1104000000},
+	{ PLL1_CFG(22, 1, 0, 0), 1056000000},
+	{ PLL1_CFG(21, 1, 0, 0), 1008000000},
+	{ PLL1_CFG(20, 1, 0, 0), 960000000 },
+	{ PLL1_CFG(19, 1, 0, 0), 912000000 },
+	{ PLL1_CFG(16, 1, 0, 0), 768000000 },
+	/* Final catchall entry 384MHz*/
+	{ PLL1_CFG(16, 0, 0, 0), 0 },
+
 };
 
 void clock_set_pll1(unsigned int hz)
@@ -126,10 +127,12 @@ void clock_set_pll1(unsigned int hz)
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	/* Find target frequency */
-	while (pll1_para[i].freq < hz)
+	while (pll1_para[i].freq > hz)
 		i++;
 
 	hz = pll1_para[i].freq;
+	if (! hz)
+		hz = 384000000;
 
 	/* Calculate system clock divisors */
 	axi = DIV_ROUND_UP(hz, 432000000);	/* Max 450MHz */
