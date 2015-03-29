@@ -267,6 +267,10 @@
 #	define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_CS0_BASE }
 #endif
 
+#define LDS_BOARD_TEXT \
+        arch/m68k/cpu/mcf5227x/built-in.o   (.text*) \
+	arch/m68k/lib/built-in.o            (.text*)
+
 /*
  * This is setting for JFFS2 support in u-boot.
  * NOTE: Enable CONFIG_CMD_JFFS2 for JFFS2 support.
