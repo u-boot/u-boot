@@ -148,6 +148,8 @@ void spl_board_init(void)
 	socfpga_uart0_enable();
 	socfpga_osc1timer_enable();
 
+	timer_init();
+
 	debug("Reconfigure Clock Manager\n");
 	/* reconfigure the PLLs */
 	cm_basic_init(&cm_default_cfg);
