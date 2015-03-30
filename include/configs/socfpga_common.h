@@ -305,6 +305,11 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_WATCHDOG_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 
+/*
+ * Stack setup
+ */
+#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
+
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_PARTITIONS
 #endif
