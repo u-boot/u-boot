@@ -191,4 +191,10 @@ void spl_board_init(void)
 
 	sdram_size = sdram_calculate_size();
 	debug("SDRAM: %ld MiB\n", sdram_size >> 20);
+
+	/* Sanity check ensure correct SDRAM size specified */
+	if (get_ram_size(0, sdram_size) != sdram_size) {
+		puts("SDRAM size check failed!\n");
+		hang();
+	}
 }
