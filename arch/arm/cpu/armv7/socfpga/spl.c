@@ -54,6 +54,7 @@ u32 spl_boot_device(void)
  */
 void spl_board_init(void)
 {
+	unsigned long sdram_size;
 #ifndef CONFIG_SOCFPGA_VIRTUAL_TARGET
 	cm_config_t cm_default_cfg = {
 		/* main group */
@@ -187,4 +188,7 @@ void spl_board_init(void)
 		puts("SDRAM calibration failed.\n");
 		hang();
 	}
+
+	sdram_size = sdram_calculate_size();
+	debug("SDRAM: %ld MiB\n", sdram_size >> 20);
 }
