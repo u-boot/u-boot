@@ -292,6 +292,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
 #define CONFIG_SYS_SPL_MALLOC_START	CONFIG_SYS_INIT_SP_ADDR
 #define CONFIG_SYS_SPL_MALLOC_SIZE	(5 * 1024)
+#define CONFIG_SPL_MAX_SIZE		(64 * 1024)
 
 #define CHUNKSZ_CRC32			(1 * 1024)	/* FIXME: ewww */
 #define CONFIG_CRC32_VERIFY
