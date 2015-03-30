@@ -46,6 +46,10 @@
 #define ARC_AUX_DC_PTAG		0x5C
 #endif
 #define ARC_BCR_DC_BUILD	0x72
+#define ARC_BCR_SLC		0xce
+#define ARC_AUX_SLC_CONTROL	0x903
+#define ARC_AUX_SLC_FLUSH	0x904
+#define ARC_AUX_SLC_INVALIDATE	0x905
 
 #ifndef __ASSEMBLY__
 /* Accessors for auxiliary registers */

@@ -18,6 +18,10 @@ ENTRY(_start)
 	mov	%fp, %sp
 
 	/* Unconditionally disable caches */
+#ifdef CONFIG_ISA_ARCV2
+	bl	slc_flush
+	bl	slc_disable
+#endif
 	bl	flush_dcache_all
 	bl	dcache_disable
 	bl	icache_disable

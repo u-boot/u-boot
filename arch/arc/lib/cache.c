@@ -16,6 +16,7 @@
 #define DC_CTRL_INV_MODE_FLUSH	(1 << 6)
 #define DC_CTRL_FLUSH_STATUS	(1 << 8)
 #define CACHE_VER_NUM_MASK	0xF
+#define SLC_CTRL_SB		(1 << 2)
 
 int icache_status(void)
 {
@@ -170,3 +171,48 @@ void flush_cache(unsigned long start, unsigned long size)
 {
 	flush_dcache_range(start, start + size);
 }
+
+#ifdef CONFIG_ISA_ARCV2
+void slc_enable(void)
+{
+	/* If SLC ver = 0, no SLC present in CPU */
+	if (!(read_aux_reg(ARC_BCR_SLC) & 0xff))
+		return;
+
+	write_aux_reg(ARC_AUX_SLC_CONTROL,
+		      read_aux_reg(ARC_AUX_SLC_CONTROL) & ~1);
+}
+
+void slc_disable(void)
+{
+	/* If SLC ver = 0, no SLC present in CPU */
+	if (!(read_aux_reg(ARC_BCR_SLC) & 0xff))
+		return;
+
+	write_aux_reg(ARC_AUX_SLC_CONTROL,
+		      read_aux_reg(ARC_AUX_SLC_CONTROL) | 1);
+}
+
+void slc_flush(void)
+{
+	/* If SLC ver = 0, no SLC present in CPU */
+	if (!(read_aux_reg(ARC_BCR_SLC) & 0xff))
+		return;
+
+	write_aux_reg(ARC_AUX_SLC_FLUSH, 1);
+
+	/* Wait flush end */
+	while (read_aux_reg(ARC_AUX_SLC_CONTROL) & SLC_CTRL_SB)
+		;
+}
+
+void slc_invalidate(void)
+{
+	/* If SLC ver = 0, no SLC present in CPU */
+	if (!(read_aux_reg(ARC_BCR_SLC) & 0xff))
+		return;
+
+	write_aux_reg(ARC_AUX_SLC_INVALIDATE, 1);
+}
+
+#endif /* CONFIG_ISA_ARCV2 */

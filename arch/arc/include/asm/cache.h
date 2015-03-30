@@ -27,4 +27,15 @@
 #define CONFIG_ARC_MMU_VER 4
 #endif
 
+#ifndef __ASSEMBLY__
+
+#ifdef CONFIG_ISA_ARCV2
+void slc_enable(void);
+void slc_disable(void);
+void slc_flush(void);
+void slc_invalidate(void);
+#endif
+
+#endif /* __ASSEMBLY__ */
+
 #endif /* __ASM_ARC_CACHE_H */
