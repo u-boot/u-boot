@@ -144,6 +144,10 @@ void spl_board_init(void)
 	/* freeze all IO banks */
 	sys_mgr_frzctrl_freeze_req();
 
+	socfpga_sdram_enable();
+	socfpga_uart0_enable();
+	socfpga_osc1timer_enable();
+
 	debug("Reconfigure Clock Manager\n");
 	/* reconfigure the PLLs */
 	cm_basic_init(&cm_default_cfg);
