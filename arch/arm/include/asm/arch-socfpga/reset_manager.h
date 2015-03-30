@@ -15,6 +15,9 @@ void socfpga_bridges_reset(int enable);
 void socfpga_emac_reset(int enable);
 void socfpga_watchdog_reset(void);
 void socfpga_spim_enable(void);
+void socfpga_uart0_enable(void);
+void socfpga_sdram_enable(void);
+void socfpga_osc1timer_enable(void);
 
 struct socfpga_reset_manager {
 	u32	status;
@@ -36,7 +39,10 @@ struct socfpga_reset_manager {
 #define RSTMGR_PERMODRST_EMAC0_LSB	0
 #define RSTMGR_PERMODRST_EMAC1_LSB	1
 #define RSTMGR_PERMODRST_L4WD0_LSB	6
+#define RSTMGR_PERMODRST_OSC1TIMER0_LSB	8
+#define RSTMGR_PERMODRST_UART0_LSB	16
 #define RSTMGR_PERMODRST_SPIM0_LSB	18
 #define RSTMGR_PERMODRST_SPIM1_LSB	19
+#define RSTMGR_PERMODRST_SDR_LSB	29
 
 #endif /* _RESET_MANAGER_H_ */
