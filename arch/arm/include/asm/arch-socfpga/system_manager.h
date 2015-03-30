@@ -10,6 +10,7 @@
 #ifndef __ASSEMBLY__
 
 void sysmgr_pinmux_init(void);
+void sysmgr_enable_warmrstcfgio(void);
 
 /* declaration for handoff table type */
 extern unsigned long sys_mgr_init_table[CONFIG_HPS_PINMUX_NUM];
