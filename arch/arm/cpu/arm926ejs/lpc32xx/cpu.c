@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/wdt.h>
@@ -52,6 +53,14 @@ int print_cpuinfo(void)
 	printf("AHB bus clock:    %uMHz\n", get_hclk_clk_rate() / 1000000);
 	printf("Peripheral clock: %uMHz\n", get_periph_clk_rate() / 1000000);
 
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_LPC32XX_ETH
+int cpu_eth_init(bd_t *bis)
+{
+	lpc32xx_eth_initialize(bis);
 	return 0;
 }
 #endif

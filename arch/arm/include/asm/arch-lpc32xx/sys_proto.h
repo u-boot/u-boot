@@ -8,5 +8,6 @@
 #define _LPC32XX_SYS_PROTO_H
 
 void lpc32xx_uart_init(unsigned int uart_id);
+void lpc32xx_mac_init(void);
 
 #endif /* _LPC32XX_SYS_PROTO_H */

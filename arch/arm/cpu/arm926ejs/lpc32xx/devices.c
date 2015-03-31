@@ -37,3 +37,10 @@ void lpc32xx_uart_init(unsigned int uart_id)
 	writel(CLK_UART_X_DIV(1) | CLK_UART_Y_DIV(1),
 	       &clk->u3clk + (uart_id - 3));
 }
+
+void lpc32xx_mac_init(void)
+{
+	/* Enable MAC interface */
+	writel(CLK_MAC_REG | CLK_MAC_SLAVE | CLK_MAC_MASTER
+		| CLK_MAC_MII, &clk->macclk_ctrl);
+}
