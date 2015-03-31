@@ -631,11 +631,17 @@ config TARGET_SOCFPGA_ARRIA5
 	bool "Support socfpga_arria5"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SPI_FLASH
+	select DM_SPI
 
 config TARGET_SOCFPGA_CYCLONE5
 	bool "Support socfpga_cyclone5"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SPI_FLASH
+	select DM_SPI
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
