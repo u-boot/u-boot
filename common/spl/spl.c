@@ -101,10 +101,22 @@ void spl_parse_image_header(const struct image_header *header)
 			(int)sizeof(spl_image.name), spl_image.name,
 			spl_image.load_addr, spl_image.size);
 	} else {
+#ifdef CONFIG_SPL_PANIC_ON_RAW_IMAGE
+		/*
+		 * CONFIG_SPL_PANIC_ON_RAW_IMAGE is defined when the
+		 * code which loads images in SPL cannot guarantee that
+		 * absolutely all read errors will be reported.
+		 * An example is the LPC32XX MLC NAND driver, which
+		 * will consider that a completely unreadable NAND block
+		 * is bad, and thus should be skipped silently.
+		 */
+		panic("** no mkimage signature but raw image not supported");
+#else
 		/* Signature not found - assume u-boot.bin */
 		debug("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
 		spl_set_header_raw_uboot();
+#endif
 	}
 }
 
