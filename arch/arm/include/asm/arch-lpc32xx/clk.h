@@ -71,6 +71,7 @@ struct clk_pm_regs {
 };
 
 /* HCLK Divider Control Register bits */
+#define CLK_HCLK_DDRAM_MASK		(0x3 << 7)
 #define CLK_HCLK_DDRAM_HALF		(0x2 << 7)
 #define CLK_HCLK_DDRAM_NOMINAL		(0x1 << 7)
 #define CLK_HCLK_DDRAM_STOPPED		(0x0 << 7)
@@ -158,11 +159,15 @@ struct clk_pm_regs {
 /* SSP Clock Control Register bits */
 #define CLK_SSP0_ENABLE_CLOCK		(1 << 0)
 
+/* SDRAMCLK register bits */
+#define CLK_SDRAM_DDR_SEL		(1 << 1)
+
 unsigned int get_sys_clk_rate(void);
 unsigned int get_hclk_pll_rate(void);
 unsigned int get_hclk_clk_div(void);
 unsigned int get_hclk_clk_rate(void);
 unsigned int get_periph_clk_div(void);
 unsigned int get_periph_clk_rate(void);
+unsigned int get_sdram_clk_rate(void);
 
 #endif /* _LPC32XX_CLK_H */
