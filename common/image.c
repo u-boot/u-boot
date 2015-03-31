@@ -149,6 +149,7 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_MXSIMAGE,   "mxsimage",   "Freescale MXS Boot Image",},
 	{	IH_TYPE_ATMELIMAGE, "atmelimage", "ATMEL ROM-Boot Image",},
 	{	IH_TYPE_X86_SETUP,  "x86_setup",  "x86 setup.bin",    },
+	{	IH_TYPE_LPC32XXIMAGE, "lpc32xximage",  "LPC32XX Boot Image", },
 	{	-1,		    "",		  "",			},
 };
 
