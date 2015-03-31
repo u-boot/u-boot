@@ -155,6 +155,9 @@ struct clk_pm_regs {
 #define CLK_NAND_MLC			(1 << 1)
 #define CLK_NAND_MLC_INT		(1 << 5)
 
+/* SSP Clock Control Register bits */
+#define CLK_SSP0_ENABLE_CLOCK		(1 << 0)
+
 unsigned int get_sys_clk_rate(void);
 unsigned int get_hclk_pll_rate(void);
 unsigned int get_hclk_clk_div(void);

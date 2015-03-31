@@ -8,11 +8,13 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/uart.h>
+#include <asm/arch/mux.h>
 #include <asm/io.h>
 #include <dm.h>
 
 static struct clk_pm_regs    *clk  = (struct clk_pm_regs *)CLK_PM_BASE;
 static struct uart_ctrl_regs *ctrl = (struct uart_ctrl_regs *)UART_CTRL_BASE;
+static struct mux_regs *mux = (struct mux_regs *)MUX_BASE;
 
 void lpc32xx_uart_init(unsigned int uart_id)
 {
@@ -66,3 +68,15 @@ void lpc32xx_i2c_init(unsigned int devnum)
 U_BOOT_DEVICE(lpc32xx_gpios) = {
 	.name = "gpio_lpc32xx"
 };
+
+/* Mux for SCK0, MISO0, MOSI0. We do not use SSEL0. */
+
+#define P_MUX_SET_SSP0 0x1600
+
+void lpc32xx_ssp_init(void)
+{
+	/* Enable SSP0 interface */
+	writel(CLK_SSP0_ENABLE_CLOCK, &clk->ssp_ctrl);
+	/* Mux SSP0 pins */
+	writel(P_MUX_SET_SSP0, &mux->p_mux_set);
+}
