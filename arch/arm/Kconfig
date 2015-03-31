@@ -761,6 +761,9 @@ config ARCH_UNIPHIER
 	select SUPPORT_SPL
 	select SPL
 	select OF_CONTROL
+	select DM
+	select DM_SERIAL
+	select DM_I2C
 
 endchoice
 
