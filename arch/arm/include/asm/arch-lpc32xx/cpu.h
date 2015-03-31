@@ -37,6 +37,8 @@
 #define UART4_BASE	0x40088000	/* UART 4 registers base            */
 #define UART5_BASE	0x40090000	/* UART 5 registers base            */
 #define UART6_BASE	0x40098000	/* UART 6 registers base            */
+#define I2C1_BASE	0x400A0000	/* I2C  1 registers base            */
+#define I2C2_BASE	0x400A8000	/* I2C  2 registers base            */
 
 /* External SDRAM Memory Bank base addresses */
 #define EMC_DYCS0_BASE	0x80000000	/* SDRAM DYCS0 base address         */

@@ -20,6 +20,7 @@ obj-$(CONFIG_SYS_I2C_FSL) += fsl_i2c.o
 obj-$(CONFIG_SYS_I2C_FTI2C010) += fti2c010.o
 obj-$(CONFIG_SYS_I2C_IHS) += ihs_i2c.o
 obj-$(CONFIG_SYS_I2C_KONA) += kona_i2c.o
+obj-$(CONFIG_SYS_I2C_LPC32XX) += lpc32xx_i2c.o
 obj-$(CONFIG_SYS_I2C_MVTWSI) += mvtwsi.o
 obj-$(CONFIG_SYS_I2C_MXC) += mxc_i2c.o
 obj-$(CONFIG_SYS_I2C_MXS) += mxs_i2c.o

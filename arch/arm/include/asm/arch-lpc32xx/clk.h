@@ -123,6 +123,10 @@ struct clk_pm_regs {
 #define CLK_MAC_SLAVE			(1 << 1)
 #define CLK_MAC_REG			(1 << 0)
 
+/* I2C Clock Control Register bits	*/
+#define CLK_I2C2_ENABLE			(1 << 1)
+#define CLK_I2C1_ENABLE			(1 << 0)
+
 /* Timer Clock Control1 Register bits */
 #define CLK_TIMCLK_MOTOR		(1 << 6)
 #define CLK_TIMCLK_TIMER3		(1 << 5)

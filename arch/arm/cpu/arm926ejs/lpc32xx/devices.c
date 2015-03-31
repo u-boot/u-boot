@@ -50,3 +50,14 @@ void lpc32xx_mlc_nand_init(void)
 	/* Enable NAND interface */
 	writel(CLK_NAND_MLC | CLK_NAND_MLC_INT, &clk->flashclk_ctrl);
 }
+
+void lpc32xx_i2c_init(unsigned int devnum)
+{
+	/* Enable I2C interface */
+	uint32_t ctrl = readl(&clk->i2cclk_ctrl);
+	if (devnum == 1)
+		ctrl |= CLK_I2C1_ENABLE;
+	if (devnum == 2)
+		ctrl |= CLK_I2C2_ENABLE;
+	writel(ctrl, &clk->i2cclk_ctrl);
+}
