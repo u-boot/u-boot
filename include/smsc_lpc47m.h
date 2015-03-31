@@ -13,7 +13,8 @@
  *
  * @dev: High 8 bits = Super I/O port, low 8 bits = logical device number.
  * @iobase: Processor I/O port address to assign to this serial device.
+ * @irq: Processor IRQ number to assign to this serial device.
  */
-void lpc47m_enable_serial(u16 dev, u16 iobase);
+void lpc47m_enable_serial(u16 dev, u16 iobase, u8 irq);
 
 #endif /* _SMSC_LPC47M_H_ */
