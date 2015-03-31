@@ -136,6 +136,9 @@
 #define ATMEL_BASE_CS6		0x70000000
 #define ATMEL_BASE_CS7		0x80000000
 
+/* Timer */
+#define CONFIG_SYS_TIMER_COUNTER	0xfffffd3c
+
 /*
  * Other misc defines
  */

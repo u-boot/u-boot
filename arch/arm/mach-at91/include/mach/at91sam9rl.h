@@ -116,6 +116,9 @@
 #define ATMEL_BASE_CS4		0x50000000	/* Compact Flash Slot 0 */
 #define ATMEL_BASE_CS5		0x60000000	/* Compact Flash Slot 1 */
 
+/* Timer */
+#define CONFIG_SYS_TIMER_COUNTER	0xfffffd3c
+
 /*
  * Other misc defines
  */

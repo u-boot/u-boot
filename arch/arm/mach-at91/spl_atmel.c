@@ -70,7 +70,12 @@ __weak void redirect_int_from_saic_to_aic(void)
 	/* This only be used for sama5d4 soc now */
 }
 
+/* empty stub to satisfy current lowlevel_init, can be removed any time */
 void s_init(void)
+{
+}
+
+void board_init_f(ulong dummy)
 {
 	switch_to_main_crystal_osc();
 
@@ -93,4 +98,9 @@ void s_init(void)
 	preloader_console_init();
 
 	mem_init();
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	board_init_r(NULL, 0);
 }

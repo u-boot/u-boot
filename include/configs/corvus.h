@@ -16,9 +16,6 @@
 
 #include <asm/hardware.h>
 
-#define MACH_TYPE_CORVUS               2066
-
-#define CONFIG_MACH_TYPE		MACH_TYPE_CORVUS
 #define CONFIG_SYS_GENERIC_BOARD
 /*
  * Warning: changing CONFIG_SYS_TEXT_BASE requires

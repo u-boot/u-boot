@@ -71,7 +71,11 @@ void __weak at91_spl_board_init(void)
 {
 }
 
-void spl_board_init(void)
+void __weak spl_board_init(void)
+{
+}
+
+void board_init_f(ulong dummy)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
@@ -111,9 +115,14 @@ void spl_board_init(void)
 	timer_init();
 
 	/* enable clocks for all PIOs */
+#if defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12)
+	at91_periph_clk_enable(ATMEL_ID_PIOAB);
+	at91_periph_clk_enable(ATMEL_ID_PIOCD);
+#else
 	at91_periph_clk_enable(ATMEL_ID_PIOA);
 	at91_periph_clk_enable(ATMEL_ID_PIOB);
 	at91_periph_clk_enable(ATMEL_ID_PIOC);
+#endif
 	/* init console */
 	at91_seriald_hw_init();
 	preloader_console_init();

@@ -19,7 +19,8 @@ static inline void atmel_mpddr_op(int mode, u32 ram_address)
 
 static int ddr2_decodtype_is_seq(u32 cr)
 {
-#if defined(CONFIG_SAMA5D3) || defined(CONFIG_SAMA5D4)
+#if defined(CONFIG_SAMA5D3) || defined(CONFIG_SAMA5D4) || \
+	defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12)
 	if (cr & ATMEL_MPDDRC_CR_DECOD_INTERLEAVED)
 		return 0;
 #endif

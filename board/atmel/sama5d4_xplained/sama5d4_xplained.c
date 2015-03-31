@@ -24,6 +24,7 @@
 #include <netdev.h>
 #include <nand.h>
 #include <spi.h>
+#include <version.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -179,6 +180,7 @@ void lcd_show_board_info(void)
 	int i;
 	char temp[32];
 
+	lcd_printf("%s\n", U_BOOT_VERSION);
 	lcd_printf("2014 ATMEL Corp\n");
 	lcd_printf("%s CPU at %s MHz\n", get_cpu_name(),
 		   strmhz(temp, get_cpu_clk_rate()));

@@ -124,6 +124,16 @@
 #define ATMEL_BASE_EHCI		0x00700000 /* USB Host controller (EHCI) */
 #endif
 
+/*
+ * External memory
+ */
+#define ATMEL_BASE_CS0		0x10000000
+#define ATMEL_BASE_CS1		0x20000000
+#define ATMEL_BASE_CS2		0x30000000
+#define ATMEL_BASE_CS3		0x40000000
+#define ATMEL_BASE_CS4		0x50000000
+#define ATMEL_BASE_CS5		0x60000000
+
 /* 9x5 series chip id definitions */
 #define ARCH_ID_AT91SAM9X5	0x819a05a0
 #define ARCH_ID_VERSION_MASK	0x1f
@@ -153,6 +163,9 @@
 #else	/* AT91SAM9X5 */
 #define ATMEL_CPU_NAME	get_cpu_name()
 #endif
+
+/* Timer */
+#define CONFIG_SYS_TIMER_COUNTER	0xfffffe3c
 
 /*
  * Other misc defines

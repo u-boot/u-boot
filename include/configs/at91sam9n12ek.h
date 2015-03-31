@@ -201,11 +201,22 @@
 #else /* CONFIG_SYS_USE_MMC */
 
 /* bootstrap + u-boot + env + linux in mmc */
-#define CONFIG_ENV_IS_IN_MMC
-/* For FAT system, most cases it should be in the reserved sector */
+
+#ifdef CONFIG_ENV_IS_IN_MMC
+/* Use raw reserved sectors to save environment */
 #define CONFIG_ENV_OFFSET		0x2000
 #define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_SYS_MMC_ENV_DEV		0
+#else
+/* Use file in FAT file to save environment */
+#define CONFIG_ENV_IS_IN_FAT
+#define CONFIG_FAT_WRITE
+#define FAT_ENV_INTERFACE		"mmc"
+#define FAT_ENV_FILE			"uboot.env"
+#define FAT_ENV_DEVICE_AND_PART		"0"
+#define CONFIG_ENV_SIZE			0x4000
+#endif
+
 #define CONFIG_BOOTCOMMAND						\
 	"setenv bootargs ${console} ${mtdparts} ${bootargs_mmc};"	\
 	"fatload mmc 0:1 0x21000000 dtb;"				\
@@ -228,6 +239,62 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	(4 * 1024 * 1024)
-#define CONFIG_STACKSIZE	(32 * 1024)	/* regular stack */
+
+/* SPL */
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_TEXT_BASE		0x300000
+#define CONFIG_SPL_MAX_SIZE		0x6000
+#define CONFIG_SPL_STACK		0x308000
+
+#define CONFIG_SPL_BSS_START_ADDR	0x20000000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
+#define CONFIG_SYS_SPL_MALLOC_START	0x20080000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x80000
+
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_GPIO_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+
+#define CONFIG_SPL_BOARD_INIT
+#define CONFIG_SYS_MONITOR_LEN		(512 << 10)
+
+#define CONFIG_SYS_MASTER_CLOCK		132096000
+#define CONFIG_SYS_AT91_PLLA		0x20953f03
+#define CONFIG_SYS_MCKR			0x1301
+#define CONFIG_SYS_MCKR_CSS		0x1302
+
+#define ATMEL_BASE_MPDDRC		ATMEL_BASE_DDRSDRC
+
+#ifdef CONFIG_SYS_USE_MMC
+#define CONFIG_SPL_LDSCRIPT		arch/arm/mach-at91/arm926ejs/u-boot-spl.lds
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x400
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x200
+#define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
+#define CONFIG_SPL_FAT_SUPPORT
+#define CONFIG_SPL_LIBDISK_SUPPORT
+
+#elif CONFIG_SYS_USE_NANDFLASH
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_DRIVERS
+#define CONFIG_SPL_NAND_BASE
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#define CONFIG_SYS_NAND_PAGE_SIZE	0x800
+#define CONFIG_SYS_NAND_PAGE_COUNT	64
+#define CONFIG_SYS_NAND_OOBSIZE		64
+#define CONFIG_SYS_NAND_BLOCK_SIZE	0x20000
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0x0
+#define CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER
+
+#elif CONFIG_SYS_USE_SPIFLASH
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SPL_SPI_LOAD
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8400
+
+#endif
 
 #endif
