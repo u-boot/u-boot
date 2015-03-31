@@ -1,0 +1,42 @@
+if ARCH_MX6
+
+config MX6
+	bool
+	default y
+
+config MX6D
+	bool
+
+config MX6DL
+	bool
+
+config MX6Q
+	bool
+
+config MX6QDL
+	bool
+
+config MX6S
+	bool
+
+config MX6SL
+	bool
+
+config MX6SX
+	bool
+
+choice
+	prompt "MX6 board select"
+
+config TARGET_SECOMX6
+	bool "Support secomx6 boards"
+	select CPU_V7
+
+endchoice
+
+config SYS_SOC
+	default "mx6"
+
+source "board/seco/Kconfig"
+
+endif

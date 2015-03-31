@@ -1,0 +1,2 @@
+
+obj-$(CONFIG_TARGET_SECOMX6) += mx6.o
