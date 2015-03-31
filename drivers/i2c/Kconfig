@@ -19,6 +19,15 @@ config DM_I2C_COMPAT
 	  to convert all code for a board in a single commit. It should not
 	  be enabled for any board in an official release.
 
+config DM_I2C_GPIO
+	bool "Enable Driver Model for software emulated I2C bus driver"
+	depends on DM_I2C && DM_GPIO
+	help
+	  Enable the i2c bus driver emulation by using the GPIOs. The bus GPIO
+	  configuration is given by the device tree. Kernel-style device tree
+	  bindings are supported.
+	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
+
 config SYS_I2C_UNIPHIER
 	bool "UniPhier I2C driver"
 	depends on ARCH_UNIPHIER && DM_I2C
