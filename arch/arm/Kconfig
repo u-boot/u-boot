@@ -406,6 +406,8 @@ config TARGET_BAV335X
 	bool "Support bav335x"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
 	help
 	  The BAV335x OEM Network Processor integrates all the functions of an
 	  embedded network computer in a small, easy to use SODIMM module which
