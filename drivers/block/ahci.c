@@ -785,7 +785,7 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 
 		/* Read/Write from ahci */
 		if (ahci_device_data_io(pccb->target, (u8 *) &fis, sizeof(fis),
-					user_buffer, user_buffer_size,
+					user_buffer, transfer_size,
 					is_write)) {
 			debug("scsi_ahci: SCSI %s10 command failure.\n",
 			      is_write ? "WRITE" : "READ");
