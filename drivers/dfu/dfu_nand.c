@@ -64,7 +64,7 @@ static int nand_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			return ret;
 		/* then write */
 		ret = nand_write_skip_bad(nand, start, &count, &actual,
-				lim, buf, 0);
+				lim, buf, WITH_WR_VERIFY);
 	}
 
 	if (ret != 0) {
