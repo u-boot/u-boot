@@ -590,11 +590,7 @@ int gpio_request_list_by_name_nodev(const void *blob, int node,
 	int count;
 	int ret;
 
-	for (count = 0; ; count++) {
-		if (count >= max_count) {
-			ret = -ENOSPC;
-			goto err;
-		}
+	for (count = 0; count < max_count; count++) {
 		ret = _gpio_request_by_name_nodev(blob, node, list_name, count,
 						  &desc[count], flags, true);
 		if (ret == -ENOENT)
