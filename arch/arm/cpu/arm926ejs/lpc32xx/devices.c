@@ -44,3 +44,9 @@ void lpc32xx_mac_init(void)
 	writel(CLK_MAC_REG | CLK_MAC_SLAVE | CLK_MAC_MASTER
 		| CLK_MAC_MII, &clk->macclk_ctrl);
 }
+
+void lpc32xx_mlc_nand_init(void)
+{
+	/* Enable NAND interface */
+	writel(CLK_NAND_MLC | CLK_NAND_MLC_INT, &clk->flashclk_ctrl);
+}

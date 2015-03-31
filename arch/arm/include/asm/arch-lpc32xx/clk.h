@@ -147,6 +147,10 @@ struct clk_pm_regs {
 /* DMA Clock Control Register bits */
 #define CLK_DMA_ENABLE			(1 << 0)
 
+/* NAND Clock Control Register bits */
+#define CLK_NAND_MLC			(1 << 1)
+#define CLK_NAND_MLC_INT		(1 << 5)
+
 unsigned int get_sys_clk_rate(void);
 unsigned int get_hclk_pll_rate(void);
 unsigned int get_hclk_clk_div(void);
