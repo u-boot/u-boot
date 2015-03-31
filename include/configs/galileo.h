@@ -63,10 +63,6 @@
 #define CONFIG_PHYLIB
 
 /* Environment configuration */
-#undef CONFIG_ENV_IS_NOWHERE
-#undef CONFIG_ENV_SIZE
-#define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SIZE			0x1000
 #define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_ENV_OFFSET		0
 

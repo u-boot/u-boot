@@ -69,4 +69,8 @@
 /* Avoid a warning in the Realtek Ethernet driver */
 #define CONFIG_SYS_CACHELINE_SIZE 16
 
+/* Environment in SPI flash is unsupported for now */
+#undef CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_IS_NOWHERE
+
 #endif	/* __CONFIG_H */
