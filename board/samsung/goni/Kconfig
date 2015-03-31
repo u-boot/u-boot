@@ -12,13 +12,4 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "s5p_goni"
 
-config DM
-	default y
-
-config DM_GPIO
-	default y
-
-config DM_SERIAL
-	default y
-
 endif

@@ -293,6 +293,9 @@ config TARGET_MX35PDK
 
 config ARCH_BCM283X
 	bool "Broadcom BCM283X family"
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_INTEGRATORAP_CM946ES
 	bool "Support integratorap_cm946es"
@@ -330,21 +333,33 @@ config TARGET_CM_T335
 	bool "Support cm_t335"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_PEPPER
 	bool "Support pepper"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_AM335X_IGEP0033
 	bool "Support am335x_igep0033"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_PCM051
 	bool "Support pcm051"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_DRACO
 	bool "Support draco"
@@ -370,11 +385,17 @@ config TARGET_PENGWYN
 	bool "Support pengwyn"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_AM335X_EVM
 	bool "Support am335x_evm"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
@@ -419,10 +440,18 @@ config TARGET_BCMNSP
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
 	select CPU_V7
+	select DM
+	select DM_SPI_FLASH
+	select DM_SERIAL
+	select DM_SPI
+	select DM_GPIO
 
 config ARCH_S5PC1XX
 	bool "Samsung S5PC1XX"
 	select CPU_V7
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config ARCH_HIGHBANK
 	bool "Calxeda Highbank"
@@ -632,6 +661,12 @@ config TEGRA
 	select SPL
 	select OF_CONTROL
 	select CPU_V7
+	select DM
+	select DM_SPI_FLASH
+	select DM_SERIAL
+	select DM_I2C
+	select DM_SPI
+	select DM_GPIO
 
 config TARGET_VEXPRESS64_AEMV8A
 	bool "Support vexpress_aemv8a"

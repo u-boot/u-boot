@@ -65,21 +65,6 @@ endchoice
 config SYS_SOC
 	default "exynos"
 
-config DM
-	default y
-
-config DM_SERIAL
-	default y
-
-config DM_SPI
-	default y
-
-config DM_SPI_FLASH
-	default y
-
-config DM_GPIO
-	default y
-
 config DM_USB
 	default y
 

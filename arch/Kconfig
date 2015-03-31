@@ -70,6 +70,12 @@ config SANDBOX
 	select HAVE_GENERIC_BOARD
 	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
+	select DM
+	select DM_SPI_FLASH
+	select DM_SERIAL
+	select DM_I2C
+	select DM_SPI
+	select DM_GPIO
 
 config SH
 	bool "SuperH architecture"
@@ -84,6 +90,9 @@ config X86
 	select HAVE_GENERIC_BOARD
 	select SYS_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 endchoice
 

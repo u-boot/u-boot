@@ -38,13 +38,4 @@ config NOR_BOOT
 	  as the ROM only partially sets up pinmux.  We also default to using
 	  NOR for environment.
 
-config DM
-	default y
-
-config DM_GPIO
-	default y if DM
-
-config DM_SERIAL
-	default y if DM
-
 endif
