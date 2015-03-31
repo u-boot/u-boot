@@ -546,11 +546,15 @@ config TARGET_MX6QARM2
 config TARGET_MX6QSABREAUTO
 	bool "Support mx6qsabreauto"
 	select CPU_V7
+	select DM
+	select DM_THERMAL
 
 config TARGET_MX6SABRESD
 	bool "Support mx6sabresd"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
 
 config TARGET_MX6SLEVK
 	bool "Support mx6slevk"
@@ -560,6 +564,8 @@ config TARGET_MX6SXSABRESD
 	bool "Support mx6sxsabresd"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
 
 config TARGET_GW_VENTANA
 	bool "Support gw_ventana"
