@@ -8,24 +8,36 @@ config TARGET_ARMADILLO_800EVA
 
 config TARGET_GOSE
 	bool "Gose board"
+	select DM
+	select DM_SERIAL
 
 config TARGET_KOELSCH
 	bool "Koelsch board"
+	select DM
+	select DM_SERIAL
 
 config TARGET_LAGER
 	bool "Lager board"
+	select DM
+	select DM_SERIAL
 
 config TARGET_KZM9G
 	bool "KZM9D board"
 
 config TARGET_ALT
 	bool "Alt board"
+	select DM
+	select DM_SERIAL
 
 config TARGET_SILK
 	bool "Silk board"
+	select DM
+	select DM_SERIAL
 
 config TARGET_PORTER
 	bool "Porter board"
+	select DM
+	select DM_SERIAL
 
 endchoice
 
