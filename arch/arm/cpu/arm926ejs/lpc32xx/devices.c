@@ -9,6 +9,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/uart.h>
 #include <asm/io.h>
+#include <dm.h>
 
 static struct clk_pm_regs    *clk  = (struct clk_pm_regs *)CLK_PM_BASE;
 static struct uart_ctrl_regs *ctrl = (struct uart_ctrl_regs *)UART_CTRL_BASE;
@@ -61,3 +62,7 @@ void lpc32xx_i2c_init(unsigned int devnum)
 		ctrl |= CLK_I2C2_ENABLE;
 	writel(ctrl, &clk->i2cclk_ctrl);
 }
+
+U_BOOT_DEVICE(lpc32xx_gpios) = {
+	.name = "gpio_lpc32xx"
+};
