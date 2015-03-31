@@ -650,6 +650,7 @@ config ZYNQ
 	bool "Xilinx Zynq Platform"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
 
 config TARGET_XILINX_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
