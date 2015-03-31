@@ -235,6 +235,8 @@ config TARGET_SPEAR600
 config TARGET_STV0991
 	bool "Support stv0991"
 	select CPU_V7
+	select DM
+	select DM_SERIAL
 
 config TARGET_X600
 	bool "Support x600"
