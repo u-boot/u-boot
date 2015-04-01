@@ -45,20 +45,20 @@
 
 /* device request (setup) */
 struct devrequest {
-	unsigned char	requesttype;
-	unsigned char	request;
-	unsigned short	value;
-	unsigned short	index;
-	unsigned short	length;
+	__u8	requesttype;
+	__u8	request;
+	__le16	value;
+	__le16	index;
+	__le16	length;
 } __attribute__ ((packed));
 
 /* Interface */
 struct usb_interface {
 	struct usb_interface_descriptor desc;
 
-	unsigned char	no_of_ep;
-	unsigned char	num_altsetting;
-	unsigned char	act_altsetting;
+	__u8	no_of_ep;
+	__u8	num_altsetting;
+	__u8	act_altsetting;
 
 	struct usb_endpoint_descriptor ep_desc[USB_MAXENDPOINTS];
 	/*
@@ -73,7 +73,7 @@ struct usb_interface {
 struct usb_config {
 	struct usb_config_descriptor desc;
 
-	unsigned char	no_of_if;	/* number of interfaces */
+	__u8	no_of_if;	/* number of interfaces */
 	struct usb_interface if_desc[USB_MAXINTERFACES];
 } __attribute__ ((packed));
 
