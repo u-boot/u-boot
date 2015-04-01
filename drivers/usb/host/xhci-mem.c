@@ -31,7 +31,7 @@
  * @param len	the length of the cache line to be flushed
  * @return none
  */
-void xhci_flush_cache(uint32_t addr, u32 len)
+void xhci_flush_cache(uintptr_t addr, u32 len)
 {
 	BUG_ON((void *)addr == NULL || len == 0);
 
@@ -46,7 +46,7 @@ void xhci_flush_cache(uint32_t addr, u32 len)
  * @param len	the length of the cache line to be invalidated
  * @return none
  */
-void xhci_inval_cache(uint32_t addr, u32 len)
+void xhci_inval_cache(uintptr_t addr, u32 len)
 {
 	BUG_ON((void *)addr == NULL || len == 0);
 
@@ -175,7 +175,7 @@ static void *xhci_malloc(unsigned int size)
 	BUG_ON(!ptr);
 	memset(ptr, '\0', size);
 
-	xhci_flush_cache((uint32_t)ptr, size);
+	xhci_flush_cache((uintptr_t)ptr, size);
 
 	return ptr;
 }
@@ -400,8 +400,8 @@ int xhci_alloc_virt_device(struct usb_device *udev)
 	/* Point to output device context in dcbaa. */
 	ctrl->dcbaa->dev_context_ptrs[slot_id] = byte_64;
 
-	xhci_flush_cache((uint32_t)&ctrl->dcbaa->dev_context_ptrs[slot_id],
-							sizeof(__le64));
+	xhci_flush_cache((uintptr_t)&ctrl->dcbaa->dev_context_ptrs[slot_id],
+			 sizeof(__le64));
 	return 0;
 }
 
@@ -478,8 +478,8 @@ int xhci_mem_init(struct xhci_ctrl *ctrl, struct xhci_hccr *hccr,
 		entry->rsvd = 0;
 		seg = seg->next;
 	}
-	xhci_flush_cache((uint32_t)ctrl->erst.entries,
-			ERST_NUM_SEGS * sizeof(struct xhci_erst_entry));
+	xhci_flush_cache((uintptr_t)ctrl->erst.entries,
+			 ERST_NUM_SEGS * sizeof(struct xhci_erst_entry));
 
 	deq = (unsigned long)ctrl->event_ring->dequeue;
 
@@ -496,7 +496,7 @@ int xhci_mem_init(struct xhci_ctrl *ctrl, struct xhci_hccr *hccr,
 	/* this is the event ring segment table pointer */
 	val_64 = xhci_readq(&ctrl->ir_set->erst_base);
 	val_64 &= ERST_PTR_MASK;
-	val_64 |= ((u32)(ctrl->erst.entries) & ~ERST_PTR_MASK);
+	val_64 |= ((uintptr_t)(ctrl->erst.entries) & ~ERST_PTR_MASK);
 
 	xhci_writeq(&ctrl->ir_set->erst_base, val_64);
 
@@ -715,6 +715,6 @@ void xhci_setup_addressable_virt_dev(struct usb_device *udev)
 
 	/* Steps 7 and 8 were done in xhci_alloc_virt_device() */
 
-	xhci_flush_cache((uint32_t)ep0_ctx, sizeof(struct xhci_ep_ctx));
-	xhci_flush_cache((uint32_t)slot_ctx, sizeof(struct xhci_slot_ctx));
+	xhci_flush_cache((uintptr_t)ep0_ctx, sizeof(struct xhci_ep_ctx));
+	xhci_flush_cache((uintptr_t)slot_ctx, sizeof(struct xhci_slot_ctx));
 }
