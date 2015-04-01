@@ -347,8 +347,8 @@ static int us_one_transfer(struct us_data *us, int pipe, char *buf, int length)
 		/* set up the transfer loop */
 		do {
 			/* transfer the data */
-			debug("Bulk xfer 0x%x(%d) try #%d\n",
-			      (unsigned int)buf, this_xfer, 11 - maxtry);
+			debug("Bulk xfer %p(%d) try #%d\n",
+			      buf, this_xfer, 11 - maxtry);
 			result = usb_bulk_msg(us->pusb_dev, pipe, buf,
 					      this_xfer, &partial,
 					      USB_CNTL_TIMEOUT * 5);
@@ -525,6 +525,7 @@ static int usb_stor_BBB_comdat(ccb *srb, struct us_data *us)
 	cbw->bCDBLength = srb->cmdlen;
 	/* copy the command data into the CBW command data buffer */
 	/* DST SRC LEN!!! */
+
 	memcpy(cbw->CBWCDB, srb->cmd, srb->cmdlen);
 	result = usb_bulk_msg(us->pusb_dev, pipe, cbw, UMASS_BBB_CBW_SIZE,
 			      &actlen, USB_CNTL_TIMEOUT * 5);
@@ -614,7 +615,7 @@ static int usb_stor_CBI_get_status(ccb *srb, struct us_data *us)
 			(void *) &us->ip_data, us->irqmaxp, us->irqinterval);
 	timeout = 1000;
 	while (timeout--) {
-		if ((volatile int *) us->ip_wanted == NULL)
+		if (us->ip_wanted == 0)
 			break;
 		mdelay(10);
 	}
@@ -700,6 +701,7 @@ static int usb_stor_BBB_transport(ccb *srb, struct us_data *us)
 		pipe = pipein;
 	else
 		pipe = pipeout;
+
 	result = usb_bulk_msg(us->pusb_dev, pipe, srb->pdata, srb->datalen,
 			      &data_actlen, USB_CNTL_TIMEOUT * 5);
 	/* special handling of STALL in DATA phase */
@@ -1078,7 +1080,7 @@ unsigned long usb_stor_read(int device, lbaint_t blknr,
 
 	usb_disable_asynch(1); /* asynch transfer not allowed */
 	srb->lun = usb_dev_desc[device].lun;
-	buf_addr = (unsigned long)buffer;
+	buf_addr = (uintptr_t)buffer;
 	start = blknr;
 	blks = blkcnt;
 
@@ -1152,7 +1154,7 @@ unsigned long usb_stor_write(int device, lbaint_t blknr,
 	usb_disable_asynch(1); /* asynch transfer not allowed */
 
 	srb->lun = usb_dev_desc[device].lun;
-	buf_addr = (unsigned long)buffer;
+	buf_addr = (uintptr_t)buffer;
 	start = blknr;
 	blks = blkcnt;
 
@@ -1345,9 +1347,9 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 		      block_dev_desc_t *dev_desc)
 {
 	unsigned char perq, modi;
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned long, cap, 2);
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, usb_stor_buf, 36);
-	unsigned long *capacity, *blksz;
+	ALLOC_CACHE_ALIGN_BUFFER(u32, cap, 2);
+	ALLOC_CACHE_ALIGN_BUFFER(u8, usb_stor_buf, 36);
+	u32 capacity, blksz;
 	ccb *pccb = &usb_ccb;
 
 	pccb->pdata = usb_stor_buf;
@@ -1373,9 +1375,9 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 		/* drive is removable */
 		dev_desc->removable = 1;
 	}
-	memcpy(&dev_desc->vendor[0], (const void *) &usb_stor_buf[8], 8);
-	memcpy(&dev_desc->product[0], (const void *) &usb_stor_buf[16], 16);
-	memcpy(&dev_desc->revision[0], (const void *) &usb_stor_buf[32], 4);
+	memcpy(dev_desc->vendor, (const void *)&usb_stor_buf[8], 8);
+	memcpy(dev_desc->product, (const void *)&usb_stor_buf[16], 16);
+	memcpy(dev_desc->revision, (const void *)&usb_stor_buf[32], 4);
 	dev_desc->vendor[8] = 0;
 	dev_desc->product[16] = 0;
 	dev_desc->revision[4] = 0;
@@ -1396,7 +1398,7 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 		}
 		return 0;
 	}
-	pccb->pdata = (unsigned char *)&cap[0];
+	pccb->pdata = (unsigned char *)cap;
 	memset(pccb->pdata, 0, 8);
 	if (usb_read_capacity(pccb, ss) != 0) {
 		printf("READ_CAP ERROR\n");
@@ -1404,21 +1406,21 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 		cap[1] = 0x200;
 	}
 	ss->flags &= ~USB_READY;
-	debug("Read Capacity returns: 0x%lx, 0x%lx\n", cap[0], cap[1]);
+	debug("Read Capacity returns: 0x%08x, 0x%08x\n", cap[0], cap[1]);
 #if 0
 	if (cap[0] > (0x200000 * 10)) /* greater than 10 GByte */
 		cap[0] >>= 16;
-#endif
+
 	cap[0] = cpu_to_be32(cap[0]);
 	cap[1] = cpu_to_be32(cap[1]);
+#endif
 
-	/* this assumes bigendian! */
-	cap[0] += 1;
-	capacity = &cap[0];
-	blksz = &cap[1];
-	debug("Capacity = 0x%lx, blocksz = 0x%lx\n", *capacity, *blksz);
-	dev_desc->lba = *capacity;
-	dev_desc->blksz = *blksz;
+	capacity = be32_to_cpu(cap[0]) + 1;
+	blksz = be32_to_cpu(cap[1]);
+
+	debug("Capacity = 0x%08x, blocksz = 0x%08x\n", capacity, blksz);
+	dev_desc->lba = capacity;
+	dev_desc->blksz = blksz;
 	dev_desc->log2blksz = LOG2(dev_desc->blksz);
 	dev_desc->type = perq;
 	debug(" address %d\n", dev_desc->target);
