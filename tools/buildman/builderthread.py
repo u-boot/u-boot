@@ -203,7 +203,9 @@ class BuilderThread(threading.Thread):
                         src_dir = os.getcwd()
                     else:
                         args.append('O=build')
-                if not self.builder.verbose_build:
+                if self.builder.verbose_build:
+                    args.append('V=1')
+                else:
                     args.append('-s')
                 if self.builder.num_jobs is not None:
                     args.extend(['-j', str(self.builder.num_jobs)])
