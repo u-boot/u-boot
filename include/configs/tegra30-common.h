@@ -23,13 +23,9 @@
  */
 #define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */
 
-/* Environment information, boards can override if required */
-#define CONFIG_LOADADDR		0x80408000	/* def. location for kernel */
-
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LOAD_ADDR	0x80A00800	/* default */
 #define CONFIG_STACKBASE	0x82800000	/* 40MB */
 
 /*-----------------------------------------------------------------------
@@ -61,10 +57,11 @@
  * ramdisk_addr_r simply shouldn't overlap anything else. Choosing 33M allows
  *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
  */
+#define CONFIG_LOADADDR 0x81000000
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"scriptaddr=0x90000000\0" \
 	"pxefile_addr_r=0x90100000\0" \
-	"kernel_addr_r=0x81000000\0" \
+	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"fdt_addr_r=0x82000000\0" \
 	"ramdisk_addr_r=0x82100000\0"
 
