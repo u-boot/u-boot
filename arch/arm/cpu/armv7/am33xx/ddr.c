@@ -164,9 +164,9 @@ void config_sdram(const struct emif_regs *regs, int nr)
 		writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
 		writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl_shdw);
 	}
-	writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
 	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
 	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl_shdw);
+	writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
 }
 
 /**
