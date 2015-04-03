@@ -12,19 +12,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int arch_cpu_init(void)
 {
-#ifdef CONFIG_SYS_ICACHE_OFF
-	icache_disable();
-#else
-	icache_enable();
-	invalidate_icache_all();
-#endif
-
-	flush_dcache_all();
-#ifdef CONFIG_SYS_DCACHE_OFF
-	dcache_disable();
-#else
-	dcache_enable();
-#endif
 	timer_init();
 
 /* In simulation (ISS) "CHIPID" and "ARCNUM" are all "ff" */

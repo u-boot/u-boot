@@ -10,6 +10,25 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int copy_uboot_to_ram(void)
+{
+	size_t len = (size_t)&__image_copy_end - (size_t)&__image_copy_start;
+
+	memcpy((void *)gd->relocaddr, (void *)&__image_copy_start, len);
+
+	return 0;
+}
+
+int clear_bss(void)
+{
+	ulong dst_addr = (ulong)&__bss_start + gd->reloc_off;
+	size_t len = (size_t)&__bss_end - (size_t)&__bss_start;
+
+	memset((void *)dst_addr, 0x00, len);
+
+	return 0;
+}
+
 /*
  * Base functionality is taken from x86 version with added ARC-specifics
  */
