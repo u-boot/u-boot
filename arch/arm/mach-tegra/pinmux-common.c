@@ -108,6 +108,8 @@
 
 #define DRV_REG(group)	_R(TEGRA_PMX_SOC_DRV_GROUP_BASE_REG + ((group) * 4))
 
+#define MIPIPADCTRL_REG(group)	_R(TEGRA_PMX_SOC_MIPIPADCTRL_BASE_REG + ((group) * 4))
+
 /*
  * We could force arch-tegraNN/pinmux.h to define all of these. However,
  * that's a lot of defines, and for now it's manageable to just put a
@@ -695,4 +697,59 @@ void pinmux_config_drvgrp_table(const struct pmux_drvgrp_config *config,
 	for (i = 0; i < len; i++)
 		pinmux_config_drvgrp(&config[i]);
 }
-#endif /* TEGRA_PMX_HAS_DRVGRPS */
+#endif /* TEGRA_PMX_SOC_HAS_DRVGRPS */
+
+#ifdef TEGRA_PMX_SOC_HAS_MIPI_PAD_CTRL_GRPS
+
+#define pmux_mipipadctrlgrp_isvalid(pd) (((pd) >= 0) && ((pd) < PMUX_MIPIPADCTRLGRP_COUNT))
+
+static void pinmux_mipipadctrl_set_func(enum pmux_mipipadctrlgrp grp,
+	enum pmux_func func)
+{
+	u32 *reg = MIPIPADCTRL_REG(grp);
+	int i, mux = -1;
+	u32 val;
+
+	if (func == PMUX_FUNC_DEFAULT)
+		return;
+
+	/* Error check grp and func */
+	assert(pmux_mipipadctrlgrp_isvalid(grp));
+	assert(pmux_func_isvalid(func));
+
+	if (func >= PMUX_FUNC_RSVD1) {
+		mux = (func - PMUX_FUNC_RSVD1) & 1;
+	} else {
+		/* Search for the appropriate function */
+		for (i = 0; i < 2; i++) {
+			if (tegra_soc_mipipadctrl_groups[grp].funcs[i]
+			    == func) {
+				mux = i;
+				break;
+			}
+		}
+	}
+	assert(mux != -1);
+
+	val = readl(reg);
+	val &= ~(1 << 1);
+	val |= (mux << 1);
+	writel(val, reg);
+}
+
+static void pinmux_config_mipipadctrlgrp(const struct pmux_mipipadctrlgrp_config *config)
+{
+	enum pmux_mipipadctrlgrp grp = config->grp;
+
+	pinmux_mipipadctrl_set_func(grp, config->func);
+}
+
+void pinmux_config_mipipadctrlgrp_table(
+	const struct pmux_mipipadctrlgrp_config *config, int len)
+{
+	int i;
+
+	for (i = 0; i < len; i++)
+		pinmux_config_mipipadctrlgrp(&config[i]);
+}
+#endif /* TEGRA_PMX_SOC_HAS_MIPI_PAD_CTRL_GRPS */

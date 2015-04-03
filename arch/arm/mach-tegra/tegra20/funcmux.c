@@ -252,12 +252,14 @@ int funcmux_select(enum periph_id id, int config)
 			break;
 		case FUNCMUX_NDFLASH_KBC_8_BIT:
 			pinmux_set_func(PMUX_PINGRP_KBCA, PMUX_FUNC_NAND);
+			pinmux_set_func(PMUX_PINGRP_KBCB, PMUX_FUNC_NAND);
 			pinmux_set_func(PMUX_PINGRP_KBCC, PMUX_FUNC_NAND);
 			pinmux_set_func(PMUX_PINGRP_KBCD, PMUX_FUNC_NAND);
 			pinmux_set_func(PMUX_PINGRP_KBCE, PMUX_FUNC_NAND);
 			pinmux_set_func(PMUX_PINGRP_KBCF, PMUX_FUNC_NAND);
 
 			pinmux_tristate_disable(PMUX_PINGRP_KBCA);
+			pinmux_tristate_disable(PMUX_PINGRP_KBCB);
 			pinmux_tristate_disable(PMUX_PINGRP_KBCC);
 			pinmux_tristate_disable(PMUX_PINGRP_KBCD);
 			pinmux_tristate_disable(PMUX_PINGRP_KBCE);

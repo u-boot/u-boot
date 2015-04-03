@@ -8,6 +8,8 @@
 #ifndef __VEXPRESS_AEMV8A_H
 #define __VEXPRESS_AEMV8A_H
 
+#define CONFIG_DM
+
 /* We use generic board for v8 Versatile Express */
 #define CONFIG_SYS_GENERIC_BOARD
 
@@ -116,6 +118,7 @@
 #define CONFIG_SYS_MEMTEST_END		(V2M_BASE + 0x80000000)
 
 /* Size of malloc() pool */
+#define CONFIG_SYS_MALLOC_F_LEN		0x2000
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
 
 /* Ethernet Configuration */
@@ -131,6 +134,14 @@
 #endif
 
 /* PL011 Serial Configuration */
+#define CONFIG_BAUDRATE			115200
+#ifdef CONFIG_DM
+#define CONFIG_DM_SERIAL
+#define CONFIG_PL01X_SERIAL
+#else
+#define CONFIG_SYS_SERIAL0		V2M_UART0
+#define CONFIG_SYS_SERIAL1		V2M_UART1
+#define CONFIG_CONS_INDEX		0
 #define CONFIG_PL011_SERIAL
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
 #define CONFIG_PL011_CLOCK		7273800
@@ -139,7 +150,7 @@
 #endif
 #define CONFIG_PL01x_PORTS		{(void *)CONFIG_SYS_SERIAL0, \
 					 (void *)CONFIG_SYS_SERIAL1}
-#define CONFIG_CONS_INDEX		0
+#endif
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_SERIAL0		V2M_UART0

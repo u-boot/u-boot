@@ -11,8 +11,21 @@
 #include <netdev.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
+#include <dm/platdata.h>
+#include <dm/platform_data/serial_pl01x.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static const struct pl01x_serial_platdata serial_platdata = {
+	.base = V2M_UART0,
+	.type = TYPE_PL011,
+	.clock = 2400 * 1000,
+};
+
+U_BOOT_DEVICE(vexpress_serials) = {
+	.name = "serial_pl01x",
+	.platdata = &serial_platdata,
+};
 
 int board_init(void)
 {
