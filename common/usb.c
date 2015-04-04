@@ -956,7 +956,7 @@ int usb_new_device(struct usb_device *dev)
 	 */
 #ifndef CONFIG_USB_XHCI
 	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
-	if (err < 0) {
+	if (err < sizeof(struct usb_device_descriptor)) {
 		debug("usb_new_device: usb_get_descriptor() failed\n");
 		return -EIO;
 	}
@@ -996,6 +996,9 @@ int usb_new_device(struct usb_device *dev)
 	case 64:
 		dev->maxpacketsize = PACKET_SIZE_64;
 		break;
+	default:
+		printf("usb_new_device: invalid max packet size\n");
+		return -EIO;
 	}
 	dev->devnum = addr;
 
