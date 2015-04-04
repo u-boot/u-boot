@@ -344,7 +344,9 @@ int eth_rx(void)
 		ret = eth_get_ops(current)->recv(current, &packet);
 		if (ret > 0)
 			net_process_received_packet(packet, ret);
-		else
+		if (ret >= 0 && eth_get_ops(current)->free_pkt)
+			eth_get_ops(current)->free_pkt(current, packet, ret);
+		if (ret <= 0)
 			break;
 	}
 	if (ret == -EAGAIN)

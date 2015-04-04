@@ -97,7 +97,12 @@ struct eth_pdata {
  * send: Send the bytes passed in "packet" as a packet on the wire
  * recv: Check if the hardware received a packet. If so, set the pointer to the
  *	 packet buffer in the packetp parameter. If not, return an error or 0 to
- *	 indicate that the hardware receive FIFO is empty
+ *	 indicate that the hardware receive FIFO is empty. If 0 is returned, the
+ *	 network stack will not process the empty packet, but free_pkt() will be
+ *	 called if supplied
+ * free_pkt: Give the driver an opportunity to manage its packet buffer memory
+ *	     when the network stack is finished processing it. This will only be
+ *	     called when no error was returned from recv - optional
  * stop: Stop the hardware from looking for packets - may be called even if
  *	 state == PASSIVE
  * mcast: Join or leave a multicast group (for TFTP) - optional
@@ -113,6 +118,7 @@ struct eth_ops {
 	int (*start)(struct udevice *dev);
 	int (*send)(struct udevice *dev, void *packet, int length);
 	int (*recv)(struct udevice *dev, uchar **packetp);
+	int (*free_pkt)(struct udevice *dev, uchar *packet, int length);
 	void (*stop)(struct udevice *dev);
 #ifdef CONFIG_MCAST_TFTP
 	int (*mcast)(struct udevice *dev, const u8 *enetaddr, int join);
