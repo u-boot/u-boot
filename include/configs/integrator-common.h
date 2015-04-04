@@ -86,3 +86,25 @@
 				    CONFIG_SYS_INIT_RAM_SIZE - \
 				    GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR CONFIG_SYS_GBL_DATA_OFFSET
+
+/*
+ * FLASH and environment organization
+ * Top varies according to amount fitted
+ * Reserve top 4 blocks of flash
+ * - ARM Boot Monitor
+ * - Unused
+ * - SIB block
+ * - U-Boot environment
+ */
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_ARMFLASH
+#define CONFIG_SYS_FLASH_CFI		1
+#define CONFIG_FLASH_CFI_DRIVER		1
+#define CONFIG_SYS_FLASH_BASE		0x24000000
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+
+/* Timeout values in ticks */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Erase Timeout */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Write Timeout */
+#define CONFIG_SYS_FLASH_PROTECTION	/* The devices have real protection */
+#define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
