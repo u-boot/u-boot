@@ -95,18 +95,24 @@ int usb_init(void)
 		start_index = dev_index;
 		printf("scanning bus %d for devices... ", i);
 		dev = usb_alloc_new_device(ctrl);
+		if (!dev)
+			break;
+
 		/*
 		 * device 0 is always present
 		 * (root hub, so let it analyze)
 		 */
-		if (dev)
-			usb_new_device(dev);
+		ret = usb_new_device(dev);
+		if (ret)
+			usb_free_device();
 
-		if (start_index == dev_index)
+		if (start_index == dev_index) {
 			puts("No USB Device found\n");
-		else
+			continue;
+		} else {
 			printf("%d USB Device(s) found\n",
 				dev_index - start_index);
+		}
 
 		usb_started = 1;
 	}
