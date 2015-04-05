@@ -377,7 +377,7 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 		print_num("-> size",	bd->bi_dram[i].size);
 	}
 
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET) && !defined(CONFIG_DM_ETH)
 	print_eths();
 #endif
 	printf("baudrate    = %u bps\n", gd->baudrate);
