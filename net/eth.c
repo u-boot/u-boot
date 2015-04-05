@@ -82,6 +82,45 @@ static int eth_mac_skip(int index)
 
 static void eth_current_changed(void);
 
+/*
+ * CPU and board-specific Ethernet initializations.  Aliased function
+ * signals caller to move on
+ */
+static int __def_eth_init(bd_t *bis)
+{
+	return -1;
+}
+int cpu_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
+int board_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
+
+static void eth_common_init(void)
+{
+	bootstage_mark(BOOTSTAGE_ID_NET_ETH_START);
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
+	miiphy_init();
+#endif
+
+#ifdef CONFIG_PHYLIB
+	phy_init();
+#endif
+
+	eth_env_init();
+
+	/*
+	 * If board-specific initialization exists, call it.
+	 * If not, call a CPU-specific one
+	 */
+	if (board_eth_init != __def_eth_init) {
+		if (board_eth_init(gd->bd) < 0)
+			printf("Board Net Initialization Failed\n");
+	} else if (cpu_eth_init != __def_eth_init) {
+		if (cpu_eth_init(gd->bd) < 0)
+			printf("CPU Net Initialization Failed\n");
+	} else {
+		printf("Net Initialization Skipped\n");
+	}
+}
+
 #ifdef CONFIG_DM_ETH
 /**
  * struct eth_device_priv - private structure for each Ethernet device
@@ -392,8 +431,7 @@ int eth_initialize(void)
 	int num_devices = 0;
 	struct udevice *dev;
 
-	bootstage_mark(BOOTSTAGE_ID_NET_ETH_START);
-	eth_env_init();
+	eth_common_init();
 
 	/*
 	 * Devices need to write the hwaddr even if not started so that Linux
@@ -520,16 +558,6 @@ UCLASS_DRIVER(eth) = {
 #endif
 
 #ifndef CONFIG_DM_ETH
-/*
- * CPU and board-specific Ethernet initializations.  Aliased function
- * signals caller to move on
- */
-static int __def_eth_init(bd_t *bis)
-{
-	return -1;
-}
-int cpu_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
-int board_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
 
 #ifdef CONFIG_API
 static struct {
@@ -706,33 +734,10 @@ int eth_unregister(struct eth_device *dev)
 int eth_initialize(void)
 {
 	int num_devices = 0;
+
 	eth_devices = NULL;
 	eth_current = NULL;
-
-	bootstage_mark(BOOTSTAGE_ID_NET_ETH_START);
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-	miiphy_init();
-#endif
-
-#ifdef CONFIG_PHYLIB
-	phy_init();
-#endif
-
-	eth_env_init();
-
-	/*
-	 * If board-specific initialization exists, call it.
-	 * If not, call a CPU-specific one
-	 */
-	if (board_eth_init != __def_eth_init) {
-		if (board_eth_init(gd->bd) < 0)
-			printf("Board Net Initialization Failed\n");
-	} else if (cpu_eth_init != __def_eth_init) {
-		if (cpu_eth_init(gd->bd) < 0)
-			printf("CPU Net Initialization Failed\n");
-	} else {
-		printf("Net Initialization Skipped\n");
-	}
+	eth_common_init();
 
 	if (!eth_devices) {
 		puts("No ethernet found.\n");
