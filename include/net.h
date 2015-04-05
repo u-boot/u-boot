@@ -85,10 +85,12 @@ enum eth_state_t {
  *
  * @iobase: The base address of the hardware registers
  * @enetaddr: The Ethernet MAC address that is loaded from EEPROM or env
+ * @phy_interface: PHY interface to use - see PHY_INTERFACE_MODE_...
  */
 struct eth_pdata {
 	phys_addr_t iobase;
 	unsigned char enetaddr[6];
+	int phy_interface;
 };
 
 /**

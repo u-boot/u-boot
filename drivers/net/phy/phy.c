@@ -11,6 +11,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <dm.h>
 #include <malloc.h>
 #include <net.h>
 #include <command.h>
@@ -754,7 +755,11 @@ struct phy_device *phy_find_by_mask(struct mii_dev *bus, unsigned phy_mask,
 	return get_phy_device_by_mask(bus, phy_mask, interface);
 }
 
+#ifdef CONFIG_DM_ETH
+void phy_connect_dev(struct phy_device *phydev, struct udevice *dev)
+#else
 void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev)
+#endif
 {
 	/* Soft Reset the PHY */
 	phy_reset(phydev);
@@ -767,8 +772,13 @@ void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev)
 	debug("%s connected to %s\n", dev->name, phydev->drv->name);
 }
 
+#ifdef CONFIG_DM_ETH
+struct phy_device *phy_connect(struct mii_dev *bus, int addr,
+		struct udevice *dev, phy_interface_t interface)
+#else
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 		struct eth_device *dev, phy_interface_t interface)
+#endif
 {
 	struct phy_device *phydev;
 
@@ -812,4 +822,16 @@ int phy_shutdown(struct phy_device *phydev)
 		phydev->drv->shutdown(phydev);
 
 	return 0;
+}
+
+int phy_get_interface_by_name(const char *str)
+{
+	int i;
+
+	for (i = 0; i < PHY_INTERFACE_MODE_COUNT; i++) {
+		if (!strcmp(str, phy_interface_strings[i]))
+			return i;
+	}
+
+	return -1;
 }

@@ -51,7 +51,9 @@ typedef enum {
 	PHY_INTERFACE_MODE_RGMII_TXID,
 	PHY_INTERFACE_MODE_RTBI,
 	PHY_INTERFACE_MODE_XGMII,
-	PHY_INTERFACE_MODE_NONE	/* Must be last */
+	PHY_INTERFACE_MODE_NONE,	/* Must be last */
+
+	PHY_INTERFACE_MODE_COUNT,
 } phy_interface_t;
 
 static const char *phy_interface_strings[] = {
@@ -142,7 +144,11 @@ struct phy_device {
 	struct phy_driver *drv;
 	void *priv;
 
+#ifdef CONFIG_DM_ETH
+	struct udevice *dev;
+#else
 	struct eth_device *dev;
+#endif
 
 	/* forced speed & duplex (no autoneg)
 	 * partner speed & duplex & pause (autoneg)
@@ -205,10 +211,17 @@ int phy_init(void);
 int phy_reset(struct phy_device *phydev);
 struct phy_device *phy_find_by_mask(struct mii_dev *bus, unsigned phy_mask,
 		phy_interface_t interface);
+#ifdef CONFIG_DM_ETH
+void phy_connect_dev(struct phy_device *phydev, struct udevice *dev);
+struct phy_device *phy_connect(struct mii_dev *bus, int addr,
+				struct udevice *dev,
+				phy_interface_t interface);
+#else
 void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev);
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 				struct eth_device *dev,
 				phy_interface_t interface);
+#endif
 int phy_startup(struct phy_device *phydev);
 int phy_config(struct phy_device *phydev);
 int phy_shutdown(struct phy_device *phydev);
@@ -241,6 +254,14 @@ int phy_teranetics_init(void);
 int phy_vitesse_init(void);
 
 int board_phy_config(struct phy_device *phydev);
+
+/**
+ * phy_get_interface_by_name() - Look up a PHY interface name
+ *
+ * @str:	PHY interface name, e.g. "mii"
+ * @return PHY_INTERFACE_MODE_... value, or -1 if not found
+ */
+int phy_get_interface_by_name(const char *str);
 
 /* PHY UIDs for various PHYs that are referenced in external code */
 #define PHY_UID_CS4340  0x13e51002
