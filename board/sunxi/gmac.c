@@ -80,11 +80,15 @@ int sunxi_gmac_initialize(bd_t *bis)
 		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_GMAC);
 #endif
 
-#ifdef CONFIG_RGMII
-	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_RGMII);
-#elif defined CONFIG_GMII
-	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_GMII);
+#ifdef CONFIG_DM_ETH
+	return 0;
 #else
+# ifdef CONFIG_RGMII
+	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_RGMII);
+# elif defined CONFIG_GMII
+	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_GMII);
+# else
 	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_MII);
+# endif
 #endif
 }
