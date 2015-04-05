@@ -74,7 +74,6 @@
 
 /* Ethernet config options */
 #define CONFIG_MII
-#define CONFIG_DESIGNWARE_ETH
 #define CONFIG_NET_MULTI
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */

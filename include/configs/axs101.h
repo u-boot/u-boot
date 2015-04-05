@@ -116,7 +116,6 @@
 /*
  * Ethernet configuration
  */
-#define CONFIG_DESIGNWARE_ETH
 #define CONFIG_DW_AUTONEG
 #define CONFIG_NET_MULTI
 

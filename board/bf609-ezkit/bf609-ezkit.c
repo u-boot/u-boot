@@ -33,7 +33,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#ifdef CONFIG_DESIGNWARE_ETH
+#ifdef CONFIG_ETH_DESIGNWARE
 int board_eth_init(bd_t *bis)
 {
 	int ret = 0;

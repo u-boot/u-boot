@@ -39,4 +39,11 @@ config ETH_SANDBOX_RAW
 	  network traffic to be tested from within sandbox. See
 	  board/sandbox/README.sandbox for more details.
 
+config ETH_DESIGNWARE
+	bool "Synopsys Designware Ethernet MAC"
+	help
+	  This MAC is present in SoCs from various vendors. It supports
+	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
+	  provide the PHY (physical media interface).
+
 endif # NETDEVICES

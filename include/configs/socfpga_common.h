@@ -99,7 +99,6 @@
  * Ethernet on SoC (EMAC)
  */
 #if defined(CONFIG_CMD_NET) && !defined(CONFIG_SOCFPGA_VIRTUAL_TARGET)
-#define CONFIG_DESIGNWARE_ETH
 #define CONFIG_NET_MULTI
 #define CONFIG_DW_ALTDESCRIPTOR
 #define CONFIG_MII
