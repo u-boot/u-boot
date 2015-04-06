@@ -89,7 +89,7 @@ void spl_board_load_image(void)
 
 void s_init(void)
 {
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_A23
 	/* Magic (undocmented) value taken from boot0, without this DRAM
 	 * access gets messed up (seems cache related) */
 	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);

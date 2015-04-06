@@ -64,7 +64,7 @@ int print_cpuinfo(void)
 	}
 #elif defined CONFIG_MACH_SUN7I
 	puts("CPU:   Allwinner A20 (SUN7I)\n");
-#elif defined CONFIG_MACH_SUN8I
+#elif defined CONFIG_MACH_SUN8I_A23
 	puts("CPU:   Allwinner A23 (SUN8I)\n");
 #else
 #warning Please update cpu_info.c with correct CPU information
@@ -76,7 +76,7 @@ int print_cpuinfo(void)
 
 int sunxi_get_sid(unsigned int *sid)
 {
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_A23
 #ifdef CONFIG_AXP221_POWER
 	return axp221_get_sid(sid);
 #else

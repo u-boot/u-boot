@@ -46,13 +46,19 @@ config MACH_SUN7I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
-config MACH_SUN8I
+config MACH_SUN8I_A23
 	bool "sun8i (Allwinner A23)"
 	select CPU_V7
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
 endchoice
+
+# The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
+config MACH_SUN8I
+	bool
+	default y if MACH_SUN8I_A23 || MACH_SUN8I_A33
+
 
 config DRAM_CLK
 	int "sunxi dram clock speed"
