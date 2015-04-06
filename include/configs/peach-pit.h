@@ -16,6 +16,14 @@
 #define CONFIG_ENV_OFFSET	(FLASH_SIZE - CONFIG_BL2_SIZE)
 #define CONFIG_SPI_BOOTING
 
+#define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x10000000\0" \
+	"kernel_addr_r=0x22000000\0" \
+	"fdt_addr_r=0x23000000\0" \
+	"ramdisk_addr_r=0x23300000\0" \
+	"scriptaddr=0x30000000\0" \
+	"pxefile_addr_r=0x31000000\0"
+
 #include <configs/exynos5420-common.h>
 #include <configs/exynos5-dt-common.h>
 

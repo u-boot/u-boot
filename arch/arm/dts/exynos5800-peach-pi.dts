@@ -144,10 +144,13 @@
 		samsung,vl-vfpd = <10>;
 		samsung,vl-cmd-allow-len = <0xf>;
 
+		samsung,power-on-delay = <30000>;
 		samsung,winid = <3>;
 		samsung,interface-mode = <1>;
 		samsung,dp-enabled = <1>;
 		samsung,dual-lcd-enabled = <0>;
+
+		samsung,bl-en-gpio = <&gpx2 2 GPIO_ACTIVE_HIGH>;
 	};
 };
 

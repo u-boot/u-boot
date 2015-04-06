@@ -12,6 +12,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <fdtdec.h>
+#include <asm/gpio.h>
 
 /*
  * Initialization of the chip is a process of writing certaing values into
@@ -180,6 +181,8 @@ static int parade_write_regs(int base_addr, const struct reg_data *table)
 
 int parade_init(const void *blob)
 {
+	struct gpio_desc rst_gpio;
+	struct gpio_desc slp_gpio;
 	int bus, old_bus;
 	int parent;
 	int node;
@@ -200,6 +203,14 @@ int parade_init(const void *blob)
 		debug("%s: Could not find i2c address\n", __func__);
 		return -1;
 	}
+
+	gpio_request_by_name_nodev(blob, node, "sleep-gpio", 0, &slp_gpio,
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+
+	mdelay(10);
+
+	gpio_request_by_name_nodev(blob, node, "reset-gpio", 0, &rst_gpio,
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 
 	bus = i2c_get_bus_num_fdt(parent);
 	old_bus = i2c_get_bus_num();

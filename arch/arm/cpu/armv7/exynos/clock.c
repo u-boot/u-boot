@@ -14,7 +14,6 @@
 #define PLL_DIV_1024	1024
 #define PLL_DIV_65535	65535
 #define PLL_DIV_65536	65536
-
 /* *
  * This structure is to store the src bit, div bit and prediv bit
  * positions of the peripheral clocks of the src and div registers
@@ -423,8 +422,8 @@ static unsigned long exynos5_get_periph_rate(int peripheral)
 	case PERIPH_ID_I2C6:
 	case PERIPH_ID_I2C7:
 		src = EXYNOS_SRC_MPLL;
-		div = readl(&clk->div_top0);
-		sub_div = readl(&clk->div_top1);
+		div = readl(&clk->div_top1);
+		sub_div = readl(&clk->div_top0);
 		break;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
@@ -1028,6 +1027,40 @@ static unsigned long exynos5420_get_lcd_clk(void)
 	return pclk;
 }
 
+static unsigned long exynos5800_get_lcd_clk(void)
+{
+	struct exynos5420_clock *clk =
+		(struct exynos5420_clock *)samsung_get_base_clock();
+	unsigned long sclk;
+	unsigned int sel;
+	unsigned int ratio;
+
+	/*
+	 * CLK_SRC_DISP10
+	 * CLKMUX_FIMD1 [6:4]
+	 */
+	sel = (readl(&clk->src_disp10) >> 4) & 0x7;
+
+	if (sel) {
+		/*
+		 * Mapping of CLK_SRC_DISP10 CLKMUX_FIMD1 [6:4] values into
+		 * PLLs. The first element is a placeholder to bypass the
+		 * default settig.
+		 */
+		const int reg_map[] = {0, CPLL, DPLL, MPLL, SPLL, IPLL, EPLL,
+									RPLL};
+		sclk = get_pll_clk(reg_map[sel]);
+	} else
+		sclk = CONFIG_SYS_CLK_FREQ;
+	/*
+	 * CLK_DIV_DISP10
+	 * FIMD1_RATIO [3:0]
+	 */
+	ratio = readl(&clk->div_disp10) & 0xf;
+
+	return sclk / (ratio + 1);
+}
+
 void exynos4_set_lcd_clk(void)
 {
 	struct exynos4_clock *clk =
@@ -1157,6 +1190,28 @@ void exynos5420_set_lcd_clk(void)
 	cfg &= ~(0xf << 0);
 	cfg |= (0 << 0);
 	writel(cfg, &clk->div_disp10);
+}
+
+void exynos5800_set_lcd_clk(void)
+{
+	struct exynos5420_clock *clk =
+		(struct exynos5420_clock *)samsung_get_base_clock();
+	unsigned int cfg;
+
+	/*
+	 * Use RPLL for pixel clock
+	 * CLK_SRC_DISP10 CLKMUX_FIMD1 [6:4]
+	 * ==================
+	 * 111: SCLK_RPLL
+	 */
+	cfg = readl(&clk->src_disp10) | (0x7 << 4);
+	writel(cfg, &clk->src_disp10);
+
+	/*
+	 * CLK_DIV_DISP10
+	 * FIMD1_RATIO		[3:0]
+	 */
+	clrsetbits_le32(&clk->div_disp10, 0xf << 0, 0x0 << 0);
 }
 
 void exynos4_set_mipi_clk(void)
@@ -1646,8 +1701,10 @@ unsigned long get_lcd_clk(void)
 	if (cpu_is_exynos4())
 		return exynos4_get_lcd_clk();
 	else {
-		if (proid_is_exynos5420() || proid_is_exynos5800())
+		if (proid_is_exynos5420())
 			return exynos5420_get_lcd_clk();
+		else if (proid_is_exynos5800())
+			return exynos5800_get_lcd_clk();
 		else
 			return exynos5_get_lcd_clk();
 	}
@@ -1660,8 +1717,10 @@ void set_lcd_clk(void)
 	else {
 		if (proid_is_exynos5250())
 			exynos5_set_lcd_clk();
-		else if (proid_is_exynos5420() || proid_is_exynos5800())
+		else if (proid_is_exynos5420())
 			exynos5420_set_lcd_clk();
+		else
+			exynos5800_set_lcd_clk();
 	}
 }
 
