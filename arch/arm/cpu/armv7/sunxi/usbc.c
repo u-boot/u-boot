@@ -42,38 +42,22 @@ static struct sunxi_usbc_hcd {
 	int ahb_clk_mask;
 	int gpio_vbus;
 	int gpio_vbus_det;
-	int irq;
 	int id;
 } sunxi_usbc_hcd[] = {
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY0_RST | CCM_USB_CTRL_PHY0_CLK,
 		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB0,
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
-		.irq = 71,
-#else
-		.irq = 38,
-#endif
 		.id = 0,
 	},
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY1_RST | CCM_USB_CTRL_PHY1_CLK,
 		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0,
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
-		.irq = 72,
-#else
-		.irq = 39,
-#endif
 		.id = 1,
 	},
 #if (CONFIG_USB_MAX_CONTROLLER_COUNT > 1)
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY2_RST | CCM_USB_CTRL_PHY2_CLK,
 		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB_EHCI1,
-#ifdef CONFIG_MACH_SUN6I
-		.irq = 74,
-#else
-		.irq = 40,
-#endif
 		.id = 2,
 	}
 #endif
