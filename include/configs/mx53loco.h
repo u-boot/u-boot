@@ -24,8 +24,6 @@
 
 #define CONFIG_SYS_GENERIC_BOARD
 
-#define CONFIG_DISPLAY_CPUINFO
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 

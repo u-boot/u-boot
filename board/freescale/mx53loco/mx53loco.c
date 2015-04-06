@@ -389,7 +389,6 @@ int board_late_init(void)
 {
 	if (!power_init())
 		clock_1GHz();
-	print_cpuinfo();
 
 	return 0;
 }
