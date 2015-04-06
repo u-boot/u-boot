@@ -218,7 +218,7 @@ void sunxi_usbc_enable(int index)
 
 	setbits_le32(&ccm->usb_clk_cfg, sunxi_usbc->usb_rst_mask);
 	setbits_le32(&ccm->ahb_gate0, sunxi_usbc->ahb_clk_mask);
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	setbits_le32(&ccm->ahb_reset0_cfg, sunxi_usbc->ahb_clk_mask);
 #endif
 
@@ -238,7 +238,7 @@ void sunxi_usbc_disable(int index)
 	if (sunxi_usbc->id != 0)
 		sunxi_usb_passby(sunxi_usbc, !SUNXI_USB_PASSBY_EN);
 
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	clrbits_le32(&ccm->ahb_reset0_cfg, sunxi_usbc->ahb_clk_mask);
 #endif
 	clrbits_le32(&ccm->ahb_gate0, sunxi_usbc->ahb_clk_mask);

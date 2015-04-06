@@ -1,21 +1,40 @@
 if ARCH_SUNXI
 
+# Note only one of these may be selected at a time! But hidden choices are
+# not supported by Kconfig
+config SUNXI_GEN_SUN4I
+	bool
+	---help---
+	Select this for sunxi SoCs which have resets and clocks set up
+	as the original A10 (mach-sun4i).
+
+config SUNXI_GEN_SUN6I
+	bool
+	---help---
+	Select this for sunxi SoCs which have sun6i like periphery, like
+	separate ahb reset control registers, custom pmic bus, new style
+	watchdog, etc.
+
+
 choice
 	prompt "Sunxi SoC Variant"
 
 config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
 	select CPU_V7
+	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 
 config MACH_SUN5I
 	bool "sun5i (Allwinner A13)"
 	select CPU_V7
+	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 
 config MACH_SUN6I
 	bool "sun6i (Allwinner A31)"
 	select CPU_V7
+	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
 config MACH_SUN7I
@@ -23,12 +42,14 @@ config MACH_SUN7I
 	select CPU_V7
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
+	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
 config MACH_SUN8I
 	bool "sun8i (Allwinner A23)"
 	select CPU_V7
+	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
 endchoice

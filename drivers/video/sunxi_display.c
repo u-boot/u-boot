@@ -84,7 +84,7 @@ static int sunxi_hdmi_hpd_detect(int hpd_delay)
 			CCM_HDMI_CTRL_PLL3);
 
 	/* Set ahb gating to pass */
-#ifdef CONFIG_MACH_SUN6I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI);
 #endif
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_HDMI);
@@ -113,7 +113,7 @@ static void sunxi_hdmi_shutdown(void)
 	clrbits_le32(&hdmi->ctrl, SUNXI_HDMI_CTRL_ENABLE);
 	clrbits_le32(&ccm->hdmi_clk_cfg, CCM_HDMI_CTRL_GATE);
 	clrbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_HDMI);
-#ifdef CONFIG_MACH_SUN6I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	clrbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI);
 #endif
 	clock_set_pll3(0);
@@ -404,7 +404,7 @@ static void sunxi_composer_init(void)
 
 	sunxi_frontend_init();
 
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	/* Reset off */
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DE_BE0);
 #endif
@@ -549,7 +549,7 @@ static void sunxi_lcdc_init(void)
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
 
 	/* Reset off */
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_LCD0);
 #else
 	setbits_le32(&ccm->lcd0_ch0_clk_cfg, CCM_LCD_CH0_CTRL_RST);
@@ -942,7 +942,7 @@ static void sunxi_vga_enable(void)
 
 static void sunxi_drc_init(void)
 {
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 

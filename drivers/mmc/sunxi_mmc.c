@@ -151,8 +151,7 @@ static int mmc_clk_io_on(int sdc_no)
 	/* config ahb clock */
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
 
-#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I) || \
-    defined(CONFIG_MACH_SUN9I)
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	/* unassert reset */
 	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
 #endif
