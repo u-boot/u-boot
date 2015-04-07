@@ -19,6 +19,9 @@
 #endif
 
 #include "sleep.h"
+#ifdef CONFIG_U_QE
+#include "../../../drivers/qe/qe.h"
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -72,6 +75,9 @@ static void dp_resume_prepare(void)
 	board_sleep_prepare();
 	armv7_init_nonsec();
 	cleanup_before_linux();
+#ifdef CONFIG_U_QE
+	u_qe_resume();
+#endif
 }
 
 int fsl_dp_resume(void)
