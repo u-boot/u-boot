@@ -7,6 +7,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/mbox.h>
+#include <phys2bus.h>
 
 #define TIMEOUT 1000 /* ms */
 
@@ -110,10 +111,10 @@ int bcm2835_mbox_call_prop(u32 chan, struct bcm2835_mbox_hdr *buffer)
 	dump_buf(buffer);
 #endif
 
-	ret = bcm2835_mbox_call_raw(chan, (u32)buffer, &rbuffer);
+	ret = bcm2835_mbox_call_raw(chan, phys_to_bus((u32)buffer), &rbuffer);
 	if (ret)
 		return ret;
-	if (rbuffer != (u32)buffer) {
+	if (rbuffer != phys_to_bus((u32)buffer)) {
 		printf("mbox: Response buffer mismatch\n");
 		return -1;
 	}
