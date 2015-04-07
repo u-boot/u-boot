@@ -999,7 +999,7 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	ulong start, end;
 	vu_long *buf, *dummy;
-	int iteration_limit = 0;
+	ulong iteration_limit = 0;
 	int ret;
 	ulong errs = 0;	/* number of errors, or -1 if interrupted */
 	ulong pattern = 0;
