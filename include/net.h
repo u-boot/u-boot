@@ -518,8 +518,8 @@ extern struct in_addr net_ping_ip;	/* the ip address to ping */
 
 #if defined(CONFIG_CMD_CDP)
 /* when CDP completes these hold the return values */
-extern ushort CDPNativeVLAN;		/* CDP returned native VLAN */
-extern ushort CDPApplianceVLAN;		/* CDP returned appliance VLAN */
+extern ushort cdp_native_vlan;		/* CDP returned native VLAN */
+extern ushort cdp_appliance_vlan;	/* CDP returned appliance VLAN */
 
 /*
  * Check for a CDP packet by examining the received MAC address field

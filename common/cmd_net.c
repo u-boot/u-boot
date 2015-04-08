@@ -290,18 +290,19 @@ static void cdp_update_env(void)
 {
 	char tmp[16];
 
-	if (CDPApplianceVLAN != htons(-1)) {
-		printf("CDP offered appliance VLAN %d\n", ntohs(CDPApplianceVLAN));
-		VLAN_to_string(CDPApplianceVLAN, tmp);
+	if (cdp_appliance_vlan != htons(-1)) {
+		printf("CDP offered appliance VLAN %d\n",
+		       ntohs(cdp_appliance_vlan));
+		VLAN_to_string(cdp_appliance_vlan, tmp);
 		setenv("vlan", tmp);
-		NetOurVLAN = CDPApplianceVLAN;
+		NetOurVLAN = cdp_appliance_vlan;
 	}
 
-	if (CDPNativeVLAN != htons(-1)) {
-		printf("CDP offered native VLAN %d\n", ntohs(CDPNativeVLAN));
-		VLAN_to_string(CDPNativeVLAN, tmp);
+	if (cdp_native_vlan != htons(-1)) {
+		printf("CDP offered native VLAN %d\n", ntohs(cdp_native_vlan));
+		VLAN_to_string(cdp_native_vlan, tmp);
 		setenv("nvlan", tmp);
-		NetOurNativeVLAN = CDPNativeVLAN;
+		NetOurNativeVLAN = cdp_native_vlan;
 	}
 
 }

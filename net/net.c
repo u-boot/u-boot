@@ -412,7 +412,7 @@ restart:
 #endif
 #if defined(CONFIG_CMD_CDP)
 		case CDP:
-			CDPStart();
+			cdp_start();
 			break;
 #endif
 #if defined (CONFIG_NETCONSOLE) && !(CONFIG_SPL_BUILD)
