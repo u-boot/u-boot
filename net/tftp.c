@@ -197,8 +197,8 @@ store_block(int block, uchar *src, unsigned len)
 		ext2_set_bit(block, Bitmap);
 #endif
 
-	if (NetBootFileXferSize < newsize)
-		NetBootFileXferSize = newsize;
+	if (net_boot_file_size < newsize)
+		net_boot_file_size = newsize;
 }
 
 /* Clear our state ready for a new transfer */
@@ -227,7 +227,7 @@ static int load_block(unsigned block, uchar *dst, unsigned len)
 	ulong offset = ((int)block - 1) * len + TftpBlockWrapOffset;
 	ulong tosend = len;
 
-	tosend = min(NetBootFileXferSize - offset, tosend);
+	tosend = min(net_boot_file_size - offset, tosend);
 	(void)memcpy(dst, (void *)(save_addr + offset), tosend);
 	debug("%s: block=%d, offset=%ld, len=%d, tosend=%ld\n", __func__,
 		block, offset, len, tosend);
@@ -311,7 +311,7 @@ static void tftp_complete(void)
 	time_start = get_timer(time_start);
 	if (time_start > 0) {
 		puts("\n\t ");	/* Line up with "Loading: " */
-		print_size(NetBootFileXferSize /
+		print_size(net_boot_file_size /
 			time_start * 1000, "/s");
 	}
 	puts("\ndone\n");
@@ -361,8 +361,8 @@ TftpSend(void)
 		debug("send option \"timeout %s\"\n", (char *)pkt);
 		pkt += strlen((char *)pkt) + 1;
 #ifdef CONFIG_TFTP_TSIZE
-		pkt += sprintf((char *)pkt, "tsize%c%lu%c",
-				0, NetBootFileXferSize, 0);
+		pkt += sprintf((char *)pkt, "tsize%c%u%c",
+				0, net_boot_file_size, 0);
 #endif
 		/* try for more effic. blk size */
 		pkt += sprintf((char *)pkt, "blksize%c%d%c",
@@ -720,7 +720,7 @@ void TftpStart(enum proto_t protocol)
 		TftpBlkSizeOption, TftpTimeoutMSecs);
 
 	tftp_remote_ip = net_server_ip;
-	if (BootFile[0] == '\0') {
+	if (net_boot_file_name[0] == '\0') {
 		sprintf(default_filename, "%02X%02X%02X%02X.img",
 			net_ip.s_addr & 0xFF,
 			(net_ip.s_addr >>  8) & 0xFF,
@@ -733,13 +733,13 @@ void TftpStart(enum proto_t protocol)
 		printf("*** Warning: no boot file name; using '%s'\n",
 			tftp_filename);
 	} else {
-		char *p = strchr(BootFile, ':');
+		char *p = strchr(net_boot_file_name, ':');
 
 		if (p == NULL) {
-			strncpy(tftp_filename, BootFile, MAX_LEN);
+			strncpy(tftp_filename, net_boot_file_name, MAX_LEN);
 			tftp_filename[MAX_LEN-1] = 0;
 		} else {
-			tftp_remote_ip = string_to_ip(BootFile);
+			tftp_remote_ip = string_to_ip(net_boot_file_name);
 			strncpy(tftp_filename, p + 1, MAX_LEN);
 			tftp_filename[MAX_LEN-1] = 0;
 		}
@@ -768,9 +768,10 @@ void TftpStart(enum proto_t protocol)
 
 	printf("Filename '%s'.", tftp_filename);
 
-	if (NetBootFileSize) {
-		printf(" Size is 0x%x Bytes = ", NetBootFileSize<<9);
-		print_size(NetBootFileSize<<9, "");
+	if (net_boot_file_expected_size_in_blocks) {
+		printf(" Size is 0x%x Bytes = ",
+		       net_boot_file_expected_size_in_blocks << 9);
+		print_size(net_boot_file_expected_size_in_blocks << 9, "");
 	}
 
 	putc('\n');
@@ -779,7 +780,7 @@ void TftpStart(enum proto_t protocol)
 	if (TftpWriting) {
 		printf("Save address: 0x%lx\n", save_addr);
 		printf("Save size:    0x%lx\n", save_size);
-		NetBootFileXferSize = save_size;
+		net_boot_file_size = save_size;
 		puts("Saving: *\b");
 		TftpState = STATE_SEND_WRQ;
 		new_transfer();

@@ -60,7 +60,6 @@ struct Bootp_t {
 
 /* bootp.c */
 extern ulong	BootpID;		/* ID of cur BOOTP request	*/
-extern char	BootFile[128];		/* Boot file name		*/
 extern int	BootpTry;
 
 

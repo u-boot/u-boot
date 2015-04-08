@@ -476,9 +476,7 @@ extern struct in_addr net_dns_server2;
 extern char	NetOurNISDomain[32];	/* Our NIS domain */
 extern char	NetOurHostName[32];	/* Our hostname */
 extern char	NetOurRootPath[64];	/* Our root path */
-extern ushort	NetBootFileSize;	/* Our boot file size in blocks */
 /** END OF BOOTP EXTENTIONS **/
-extern ulong		NetBootFileXferSize;	/* size of bootfile in bytes */
 extern uchar		NetOurEther[6];		/* Our ethernet address */
 extern uchar		NetServerEther[6];	/* Boot server enet address */
 extern struct in_addr	net_ip;		/* Our    IP addr (0 = unknown) */
@@ -507,8 +505,11 @@ enum proto_t {
 	TFTPSRV, TFTPPUT, LINKLOCAL
 };
 
-/* from net/net.c */
-extern char	BootFile[128];			/* Boot File name */
+extern char	net_boot_file_name[128];/* Boot File name */
+/* The actual transferred size of the bootfile (in bytes) */
+extern u32	net_boot_file_size;
+/* Boot file size in blocks as reported by the DHCP server */
+extern u32	net_boot_file_expected_size_in_blocks;
 
 #if defined(CONFIG_CMD_DNS)
 extern char *NetDNSResolve;		/* The host to resolve  */

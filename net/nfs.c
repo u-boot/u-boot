@@ -100,8 +100,8 @@ store_block(uchar *src, unsigned offset, unsigned len)
 		unmap_sysmem(ptr);
 	}
 
-	if (NetBootFileXferSize < (offset+len))
-		NetBootFileXferSize = newsize;
+	if (net_boot_file_size < (offset + len))
+		net_boot_file_size = newsize;
 	return 0;
 }
 
@@ -724,7 +724,7 @@ NfsStart(void)
 		return;
 	}
 
-	if (BootFile[0] == '\0') {
+	if (net_boot_file_name[0] == '\0') {
 		sprintf(default_filename, "/nfsroot/%02X%02X%02X%02X.img",
 			net_ip.s_addr & 0xFF,
 			(net_ip.s_addr >>  8) & 0xFF,
@@ -735,16 +735,16 @@ NfsStart(void)
 		printf("*** Warning: no boot file name; using '%s'\n",
 			nfs_path);
 	} else {
-		char *p = BootFile;
+		char *p = net_boot_file_name;
 
 		p = strchr(p, ':');
 
 		if (p != NULL) {
-			nfs_server_ip = string_to_ip(BootFile);
+			nfs_server_ip = string_to_ip(net_boot_file_name);
 			++p;
 			strcpy(nfs_path, p);
 		} else {
-			strcpy(nfs_path, BootFile);
+			strcpy(nfs_path, net_boot_file_name);
 		}
 	}
 
@@ -769,9 +769,10 @@ NfsStart(void)
 	}
 	printf("\nFilename '%s/%s'.", nfs_path, nfs_filename);
 
-	if (NetBootFileSize) {
-		printf(" Size is 0x%x Bytes = ", NetBootFileSize<<9);
-		print_size(NetBootFileSize<<9, "");
+	if (net_boot_file_expected_size_in_blocks) {
+		printf(" Size is 0x%x Bytes = ",
+		       net_boot_file_expected_size_in_blocks << 9);
+		print_size(net_boot_file_expected_size_in_blocks << 9, "");
 	}
 	printf("\nLoad address: 0x%lx\n"
 		"Loading: *\b", load_addr);

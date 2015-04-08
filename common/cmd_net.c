@@ -201,11 +201,13 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 		if (end == (argv[1] + strlen(argv[1])))
 			load_addr = addr;
 		else
-			copy_filename(BootFile, argv[1], sizeof(BootFile));
+			copy_filename(net_boot_file_name, argv[1],
+				      sizeof(net_boot_file_name));
 		break;
 
 	case 3:	load_addr = simple_strtoul(argv[1], NULL, 16);
-		copy_filename(BootFile, argv[2], sizeof(BootFile));
+		copy_filename(net_boot_file_name, argv[2],
+			      sizeof(net_boot_file_name));
 
 		break;
 
@@ -216,7 +218,8 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 			printf("Invalid address/size\n");
 			return CMD_RET_USAGE;
 		}
-		copy_filename(BootFile, argv[3], sizeof(BootFile));
+		copy_filename(net_boot_file_name, argv[3],
+			      sizeof(net_boot_file_name));
 		break;
 #endif
 	default:

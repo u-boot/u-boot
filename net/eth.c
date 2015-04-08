@@ -66,7 +66,8 @@ static void eth_env_init(void)
 
 	s = getenv("bootfile");
 	if (s != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
+		copy_filename(net_boot_file_name, s,
+			      sizeof(net_boot_file_name));
 }
 
 static int eth_mac_skip(int index)

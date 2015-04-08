@@ -127,8 +127,6 @@ char		NetOurNISDomain[32] = {0,};
 char		NetOurHostName[32] = {0,};
 /* Our bootpath */
 char		NetOurRootPath[64] = {0,};
-/* Our bootfile size in blocks */
-ushort		NetBootFileSize;
 
 #ifdef CONFIG_MCAST_TFTP	/* Multicast TFTP */
 struct in_addr net_mcast_addr;
@@ -136,8 +134,6 @@ struct in_addr net_mcast_addr;
 
 /** END OF BOOTP EXTENTIONS **/
 
-/* The actual transferred size of the bootfile (in bytes) */
-ulong		NetBootFileXferSize;
 /* Our ethernet address */
 uchar		NetOurEther[6];
 /* Boot server enet address */
@@ -174,7 +170,11 @@ ushort		NetOurVLAN = 0xFFFF;
 ushort		NetOurNativeVLAN = 0xFFFF;
 
 /* Boot File name */
-char		BootFile[128];
+char net_boot_file_name[128];
+/* The actual transferred size of the bootfile (in bytes) */
+u32 net_boot_file_size;
+/* Boot file size in blocks as reported by the DHCP server */
+u32 net_boot_file_expected_size_in_blocks;
 
 #if defined(CONFIG_CMD_SNTP)
 /* NTP server IP address */
@@ -222,7 +222,8 @@ static int on_bootfile(const char *name, const char *value, enum env_op op,
 	switch (op) {
 	case env_op_create:
 	case env_op_overwrite:
-		copy_filename(BootFile, value, sizeof(BootFile));
+		copy_filename(net_boot_file_name, value,
+			      sizeof(net_boot_file_name));
 		break;
 	default:
 		break;
@@ -380,7 +381,7 @@ restart:
 
 	case 0:
 		NetDevExists = 1;
-		NetBootFileXferSize = 0;
+		net_boot_file_size = 0;
 		switch (protocol) {
 		case TFTPGET:
 #ifdef CONFIG_CMD_TFTPPUT
@@ -551,11 +552,10 @@ restart:
 
 		case NETLOOP_SUCCESS:
 			net_cleanup_loop();
-			if (NetBootFileXferSize > 0) {
-				printf("Bytes transferred = %ld (%lx hex)\n",
-					NetBootFileXferSize,
-					NetBootFileXferSize);
-				setenv_hex("filesize", NetBootFileXferSize);
+			if (net_boot_file_size > 0) {
+				printf("Bytes transferred = %d (%x hex)\n",
+				       net_boot_file_size, net_boot_file_size);
+				setenv_hex("filesize", net_boot_file_size);
 				setenv_hex("fileaddr", load_addr);
 			}
 			if (protocol != NETCONS)
@@ -565,7 +565,7 @@ restart:
 
 			eth_set_last_protocol(protocol);
 
-			ret = NetBootFileXferSize;
+			ret = net_boot_file_size;
 			debug_cond(DEBUG_INT_STATE, "--- NetLoop Success!\n");
 			goto done;
 

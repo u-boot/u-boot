@@ -58,7 +58,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	saved_timeout_msecs = TftpRRQTimeoutMSecs;
 	saved_timeout_count = TftpRRQTimeoutCountMax;
 	saved_netretry = strdup(getenv("netretry"));
-	saved_bootfile = strdup(BootFile);
+	saved_bootfile = strdup(net_boot_file_name);
 
 	/* set timeouts for auto-update */
 	TftpRRQTimeoutMSecs = msec_max;
@@ -69,7 +69,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 
 	/* download the update file */
 	load_addr = addr;
-	copy_filename(BootFile, filename, sizeof(BootFile));
+	copy_filename(net_boot_file_name, filename, sizeof(net_boot_file_name));
 	size = NetLoop(TFTPGET);
 
 	if (size < 0)
@@ -86,7 +86,8 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 		free(saved_netretry);
 
 	if (saved_bootfile != NULL) {
-		copy_filename(BootFile, saved_bootfile, sizeof(BootFile));
+		copy_filename(net_boot_file_name, saved_bootfile,
+			      sizeof(net_boot_file_name));
 		free(saved_bootfile);
 	}
 

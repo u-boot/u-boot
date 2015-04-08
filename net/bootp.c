@@ -146,16 +146,17 @@ static void BootpCopyNetParams(struct Bootp_t *bp)
 		net_copy_ip(&net_server_ip, &bp->bp_siaddr);
 	memcpy(NetServerEther, ((struct ethernet_hdr *)NetRxPacket)->et_src, 6);
 	if (strlen(bp->bp_file) > 0)
-		copy_filename(BootFile, bp->bp_file, sizeof(BootFile));
+		copy_filename(net_boot_file_name, bp->bp_file,
+			      sizeof(net_boot_file_name));
 
-	debug("Bootfile: %s\n", BootFile);
+	debug("net_boot_file_name: %s\n", net_boot_file_name);
 
 	/* Propagate to environment:
 	 * don't delete exising entry when BOOTP / DHCP reply does
 	 * not contain a new value
 	 */
-	if (*BootFile)
-		setenv("bootfile", BootFile);
+	if (*net_boot_file_name)
+		setenv("bootfile", net_boot_file_name);
 #endif
 	net_copy_ip(&net_ip, &bp->bp_yiaddr);
 }
@@ -179,7 +180,7 @@ static void BootpVendorFieldProcess(u8 *ext)
 	debug("[BOOTP] Processing extension %d... (%d bytes)\n", *ext,
 		*(ext + 1));
 
-	NetBootFileSize = 0;
+	net_boot_file_expected_size_in_blocks = 0;
 
 	switch (*ext) {
 		/* Fixed length fields */
@@ -228,9 +229,11 @@ static void BootpVendorFieldProcess(u8 *ext)
 		break;
 	case 13:		/* Boot file size */
 		if (size == 2)
-			NetBootFileSize = ntohs(*(ushort *) (ext + 2));
+			net_boot_file_expected_size_in_blocks =
+				ntohs(*(ushort *)(ext + 2));
 		else if (size == 4)
-			NetBootFileSize = ntohl(*(ulong *) (ext + 2));
+			net_boot_file_expected_size_in_blocks =
+				ntohl(*(ulong *)(ext + 2));
 		break;
 	case 14:		/* Merit dump file - Not yet supported */
 		break;
@@ -303,8 +306,9 @@ static void BootpVendorProcess(u8 *ext, int size)
 	if (net_gateway.s_addr)
 		debug("net_gateway	: %pI4", &net_gateway);
 
-	if (NetBootFileSize)
-		debug("NetBootFileSize : %d\n", NetBootFileSize);
+	if (net_boot_file_expected_size_in_blocks)
+		debug("net_boot_file_expected_size_in_blocks : %d\n",
+		      net_boot_file_expected_size_in_blocks);
 
 	if (NetOurHostName[0])
 		debug("NetOurHostName  : %s\n", NetOurHostName);
@@ -314,9 +318,6 @@ static void BootpVendorProcess(u8 *ext, int size)
 
 	if (NetOurNISDomain[0])
 		debug("NetOurNISDomain : %s\n", NetOurNISDomain);
-
-	if (NetBootFileSize)
-		debug("NetBootFileSize: %d\n", NetBootFileSize);
 
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
 	if (net_ntp_server)
@@ -716,7 +717,7 @@ BootpRequest(void)
 	net_write_ip(&bp->bp_siaddr, zero_ip);
 	net_write_ip(&bp->bp_giaddr, zero_ip);
 	memcpy(bp->bp_chaddr, NetOurEther, 6);
-	copy_filename(bp->bp_file, BootFile, sizeof(bp->bp_file));
+	copy_filename(bp->bp_file, net_boot_file_name, sizeof(bp->bp_file));
 
 	/* Request additional information from the BOOTP/DHCP server */
 #if defined(CONFIG_CMD_DHCP)
