@@ -151,10 +151,10 @@ ARM TI
 M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-ti.git
-F:	arch/arm/cpu/arm926ejs/davinci/
+F:	arch/arm/mach-davinci/
+F:	arch/arm/mach-keystone/
 F:	arch/arm/cpu/arm926ejs/omap/
 F:	arch/arm/cpu/armv7/omap*/
-F:	arch/arm/include/asm/arch-davinci/
 F:	arch/arm/include/asm/arch-omap*/
 F:	arch/arm/include/asm/ti-common/
 
