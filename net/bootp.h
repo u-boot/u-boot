@@ -29,7 +29,7 @@ extern u8 *dhcp_vendorex_proc(u8 *e); /*rtn next e if mine,else NULL  */
 #define OPT_FIELD_SIZE 64
 #endif
 
-struct Bootp_t {
+struct bootp_hdr {
 	uchar		bp_op;		/* Operation			*/
 # define OP_BOOTREQUEST	1
 # define OP_BOOTREPLY	2
@@ -51,7 +51,7 @@ struct Bootp_t {
 	char		bp_vend[OPT_FIELD_SIZE]; /* Vendor information	*/
 };
 
-#define BOOTP_HDR_SIZE	sizeof(struct Bootp_t)
+#define BOOTP_HDR_SIZE	sizeof(struct bootp_hdr)
 
 /**********************************************************************/
 /*
@@ -59,16 +59,16 @@ struct Bootp_t {
  */
 
 /* bootp.c */
-extern ulong	BootpID;		/* ID of cur BOOTP request	*/
-extern int	BootpTry;
+extern ulong	bootp_id;		/* ID of cur BOOTP request	*/
+extern int	bootp_try;
 
 
 /* Send a BOOTP request */
-extern void BootpReset(void);
-extern void BootpRequest(void);
+void bootp_reset(void);
+void bootp_request(void);
 
 /****************** DHCP Support *********************/
-extern void DhcpRequest(void);
+void dhcp_request(void);
 
 /* DHCP States */
 typedef enum { INIT,

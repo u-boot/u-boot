@@ -381,16 +381,16 @@ restart:
 #endif
 #if defined(CONFIG_CMD_DHCP)
 		case DHCP:
-			BootpReset();
+			bootp_reset();
 			net_ip.s_addr = 0;
-			DhcpRequest();		/* Basically same as BOOTP */
+			dhcp_request();		/* Basically same as BOOTP */
 			break;
 #endif
 
 		case BOOTP:
-			BootpReset();
+			bootp_reset();
 			net_ip.s_addr = 0;
-			BootpRequest();
+			bootp_request();
 			break;
 
 #if defined(CONFIG_CMD_RARP)

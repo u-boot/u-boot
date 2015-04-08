@@ -53,7 +53,7 @@
 
 ulong		bootp_ids[CONFIG_BOOTP_ID_CACHE_SIZE];
 unsigned int	bootp_num_ids;
-int		BootpTry;
+int		bootp_try;
 ulong		bootp_start;
 ulong		bootp_timeout;
 char net_nis_domain[32] = {0,}; /* Our NIS domain */
@@ -109,14 +109,14 @@ static bool bootp_match_id(ulong id)
 	return false;
 }
 
-static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
+static int check_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 {
-	struct Bootp_t *bp = (struct Bootp_t *) pkt;
+	struct bootp_hdr *bp = (struct bootp_hdr *)pkt;
 	int retval = 0;
 
 	if (dest != PORT_BOOTPC || src != PORT_BOOTPS)
 		retval = -1;
-	else if (len < sizeof(struct Bootp_t) - OPT_FIELD_SIZE)
+	else if (len < sizeof(struct bootp_hdr) - OPT_FIELD_SIZE)
 		retval = -2;
 	else if (bp->bp_op != OP_BOOTREQUEST &&
 			bp->bp_op != OP_BOOTREPLY &&
@@ -139,7 +139,7 @@ static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 /*
  * Copy parameters of interest from BOOTP_REPLY/DHCP_OFFER packet
  */
-static void BootpCopyNetParams(struct Bootp_t *bp)
+static void store_net_params(struct bootp_hdr *bp)
 {
 #if !defined(CONFIG_BOOTP_SERVERIP)
 	struct in_addr tmp_ip;
@@ -177,12 +177,12 @@ static int truncate_sz(const char *name, int maxlen, int curlen)
 
 #if !defined(CONFIG_CMD_DHCP)
 
-static void BootpVendorFieldProcess(u8 *ext)
+static void bootp_process_vendor_field(u8 *ext)
 {
 	int size = *(ext + 1);
 
 	debug("[BOOTP] Processing extension %d... (%d bytes)\n", *ext,
-		*(ext + 1));
+	      *(ext + 1));
 
 	net_boot_file_expected_size_in_blocks = 0;
 
@@ -285,7 +285,7 @@ static void BootpVendorFieldProcess(u8 *ext)
 	}
 }
 
-static void BootpVendorProcess(u8 *ext, int size)
+static void bootp_process_vendor(u8 *ext, int size)
 {
 	u8 *end = ext + size;
 
@@ -299,7 +299,7 @@ static void BootpVendorProcess(u8 *ext, int size)
 
 			ext += ext[1] + 2;
 			if (ext <= end)
-				BootpVendorFieldProcess(opt);
+				bootp_process_vendor_field(opt);
 		}
 	}
 
@@ -335,15 +335,15 @@ static void BootpVendorProcess(u8 *ext, int size)
 static void bootp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			  unsigned src, unsigned len)
 {
-	struct Bootp_t *bp;
+	struct bootp_hdr *bp;
 
 	debug("got BOOTP packet (src=%d, dst=%d, len=%d want_len=%zu)\n",
-		src, dest, len, sizeof(struct Bootp_t));
+	      src, dest, len, sizeof(struct bootp_hdr));
 
-	bp = (struct Bootp_t *)pkt;
+	bp = (struct bootp_hdr *)pkt;
 
 	/* Filter out pkts we don't want */
-	if (BootpCheckPkt(pkt, dest, src, len))
+	if (check_packet(pkt, dest, src, len))
 		return;
 
 	/*
@@ -353,11 +353,11 @@ static void bootp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
 #endif
 
-	BootpCopyNetParams(bp);		/* Store net parameters from reply */
+	store_net_params(bp);		/* Store net parameters from reply */
 
 	/* Retrieve extended information (we must parse the vendor area) */
 	if (NetReadLong((ulong *)&bp->bp_vend[0]) == htonl(BOOTP_VENDOR_MAGIC))
-		BootpVendorProcess((uchar *)&bp->bp_vend[4], len);
+		bootp_process_vendor((uchar *)&bp->bp_vend[4], len);
 
 	NetSetTimeout(0, (thand_f *)0);
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP, "bootp_stop");
@@ -371,8 +371,7 @@ static void bootp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 /*
  *	Timeout on BOOTP/DHCP request.
  */
-static void
-BootpTimeout(void)
+static void bootp_timeout_handler(void)
 {
 	ulong time_taken = get_timer(bootp_start);
 
@@ -388,8 +387,8 @@ BootpTimeout(void)
 		bootp_timeout *= 2;
 		if (bootp_timeout > 2000)
 			bootp_timeout = 2000;
-		NetSetTimeout(bootp_timeout, BootpTimeout);
-		BootpRequest();
+		NetSetTimeout(bootp_timeout, bootp_timeout_handler);
+		bootp_request();
 	}
 }
 
@@ -649,25 +648,24 @@ static int bootp_extended(u8 *e)
 }
 #endif
 
-void BootpReset(void)
+void bootp_reset(void)
 {
 	bootp_num_ids = 0;
-	BootpTry = 0;
+	bootp_try = 0;
 	bootp_start = get_timer(0);
 	bootp_timeout = 250;
 }
 
-void
-BootpRequest(void)
+void bootp_request(void)
 {
 	uchar *pkt, *iphdr;
-	struct Bootp_t *bp;
+	struct bootp_hdr *bp;
 	int extlen, pktlen, iplen;
 	int eth_hdr_size;
 #ifdef CONFIG_BOOTP_RANDOM_DELAY
 	ulong rand_ms;
 #endif
-	ulong BootpID;
+	ulong bootp_id;
 	struct in_addr zero_ip;
 	struct in_addr bcast_ip;
 
@@ -677,11 +675,11 @@ BootpRequest(void)
 #endif
 
 #ifdef CONFIG_BOOTP_RANDOM_DELAY		/* Random BOOTP delay */
-	if (BootpTry == 0)
+	if (bootp_try == 0)
 		srand_mac();
 
-	if (BootpTry <= 2)	/* Start with max 1024 * 1ms */
-		rand_ms = rand() >> (22 - BootpTry);
+	if (bootp_try <= 2)	/* Start with max 1024 * 1ms */
+		rand_ms = rand() >> (22 - bootp_try);
 	else		/* After 3rd BOOTP request max 8192 * 1ms */
 		rand_ms = rand() >> 19;
 
@@ -690,7 +688,7 @@ BootpRequest(void)
 
 #endif	/* CONFIG_BOOTP_RANDOM_DELAY */
 
-	printf("BOOTP broadcast %d\n", ++BootpTry);
+	printf("BOOTP broadcast %d\n", ++bootp_try);
 	pkt = net_tx_packet;
 	memset((void *)pkt, 0, PKTSIZE);
 
@@ -705,11 +703,11 @@ BootpRequest(void)
 	 * C. Hallinan, DS4.COM, Inc.
 	 */
 	/* net_set_udp_header(pkt, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC,
-		sizeof (struct Bootp_t)); */
+		sizeof (struct bootp_hdr)); */
 	iphdr = pkt;	/* We need this later for net_set_udp_header() */
 	pkt += IP_UDP_HDR_SIZE;
 
-	bp = (struct Bootp_t *)pkt;
+	bp = (struct bootp_hdr *)pkt;
 	bp->bp_op = OP_BOOTREQUEST;
 	bp->bp_htype = HWT_ETHER;
 	bp->bp_hlen = HWL_ETHER;
@@ -735,14 +733,14 @@ BootpRequest(void)
 	 *	Bootp ID is the lower 4 bytes of our ethernet address
 	 *	plus the current time in ms.
 	 */
-	BootpID = ((ulong)net_ethaddr[2] << 24)
+	bootp_id = ((ulong)net_ethaddr[2] << 24)
 		| ((ulong)net_ethaddr[3] << 16)
 		| ((ulong)net_ethaddr[4] << 8)
 		| (ulong)net_ethaddr[5];
-	BootpID += get_timer(0);
-	BootpID = htonl(BootpID);
-	bootp_add_id(BootpID);
-	NetCopyLong(&bp->bp_id, &BootpID);
+	bootp_id += get_timer(0);
+	bootp_id = htonl(bootp_id);
+	bootp_add_id(bootp_id);
+	NetCopyLong(&bp->bp_id, &bootp_id);
 
 	/*
 	 * Calculate proper packet lengths taking into account the
@@ -752,7 +750,7 @@ BootpRequest(void)
 	pktlen = eth_hdr_size + IP_UDP_HDR_SIZE + iplen;
 	bcast_ip.s_addr = 0xFFFFFFFFL;
 	net_set_udp_header(iphdr, bcast_ip, PORT_BOOTPS, PORT_BOOTPC, iplen);
-	NetSetTimeout(bootp_timeout, BootpTimeout);
+	NetSetTimeout(bootp_timeout, bootp_timeout_handler);
 
 #if defined(CONFIG_CMD_DHCP)
 	dhcp_state = SELECTING;
@@ -764,7 +762,7 @@ BootpRequest(void)
 }
 
 #if defined(CONFIG_CMD_DHCP)
-static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
+static void dhcp_process_options(uchar *popt, struct bootp_hdr *bp)
 {
 	uchar *end = popt + BOOTP_HDR_SIZE;
 	int oplen, size;
@@ -851,7 +849,7 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 				 * to me
 				 */
 				printf("*** WARNING: using vendor "
-					"optional boot file\n");
+				       "optional boot file\n");
 				memcpy(bp->bp_file, popt + 2, size);
 				bp->bp_file[size] = '\0';
 			}
@@ -862,14 +860,14 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 				break;
 #endif
 			printf("*** Unhandled DHCP Option in OFFER/ACK:"
-				" %d\n", *popt);
+			       " %d\n", *popt);
 			break;
 		}
 		popt += oplen + 2;	/* Process next option */
 	}
 }
 
-static int DhcpMessageType(unsigned char *popt)
+static int dhcp_message_type(unsigned char *popt)
 {
 	if (NetReadLong((ulong *)popt) != htonl(BOOTP_VENDOR_MAGIC))
 		return -1;
@@ -883,17 +881,17 @@ static int DhcpMessageType(unsigned char *popt)
 	return -1;
 }
 
-static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
+static void dhcp_send_request_packet(struct bootp_hdr *bp_offer)
 {
 	uchar *pkt, *iphdr;
-	struct Bootp_t *bp;
+	struct bootp_hdr *bp;
 	int pktlen, iplen, extlen;
 	int eth_hdr_size;
 	struct in_addr offered_ip;
 	struct in_addr zero_ip;
 	struct in_addr bcast_ip;
 
-	debug("DhcpSendRequestPkt: Sending DHCPREQUEST\n");
+	debug("dhcp_send_request_packet: Sending DHCPREQUEST\n");
 	pkt = net_tx_packet;
 	memset((void *)pkt, 0, PKTSIZE);
 
@@ -903,7 +901,7 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	iphdr = pkt;	/* We'll need this later to set proper pkt size */
 	pkt += IP_UDP_HDR_SIZE;
 
-	bp = (struct Bootp_t *)pkt;
+	bp = (struct bootp_hdr *)pkt;
 	bp->bp_op = OP_BOOTREQUEST;
 	bp->bp_htype = HWT_ETHER;
 	bp->bp_hlen = HWL_ETHER;
@@ -954,17 +952,17 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			 unsigned src, unsigned len)
 {
-	struct Bootp_t *bp = (struct Bootp_t *)pkt;
+	struct bootp_hdr *bp = (struct bootp_hdr *)pkt;
 
 	debug("DHCPHandler: got packet: (src=%d, dst=%d, len=%d) state: %d\n",
-		src, dest, len, dhcp_state);
+	      src, dest, len, dhcp_state);
 
 	/* Filter out pkts we don't want */
-	if (BootpCheckPkt(pkt, dest, src, len))
+	if (check_packet(pkt, dest, src, len))
 		return;
 
-	debug("DHCPHandler: got DHCP packet: (src=%d, dst=%d, len=%d) state:"
-		" %d\n", src, dest, len, dhcp_state);
+	debug("DHCPHandler: got DHCP packet: (src=%d, dst=%d, len=%d) state: "
+	      "%d\n", src, dest, len, dhcp_state);
 
 	switch (dhcp_state) {
 	case SELECTING:
@@ -986,10 +984,10 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 			if (NetReadLong((ulong *)&bp->bp_vend[0]) ==
 						htonl(BOOTP_VENDOR_MAGIC))
-				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
+				dhcp_process_options((u8 *)&bp->bp_vend[4], bp);
 
-			NetSetTimeout(5000, BootpTimeout);
-			DhcpSendRequestPkt(bp);
+			NetSetTimeout(5000, bootp_timeout_handler);
+			dhcp_send_request_packet(bp);
 #ifdef CONFIG_SYS_BOOTFILE_PREFIX
 		}
 #endif	/* CONFIG_SYS_BOOTFILE_PREFIX */
@@ -999,17 +997,17 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	case REQUESTING:
 		debug("DHCP State: REQUESTING\n");
 
-		if (DhcpMessageType((u8 *)bp->bp_vend) == DHCP_ACK) {
+		if (dhcp_message_type((u8 *)bp->bp_vend) == DHCP_ACK) {
 			if (NetReadLong((ulong *)&bp->bp_vend[0]) ==
 						htonl(BOOTP_VENDOR_MAGIC))
-				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
+				dhcp_process_options((u8 *)&bp->bp_vend[4], bp);
 			/* Store net params from reply */
-			BootpCopyNetParams(bp);
+			store_net_params(bp);
 			dhcp_state = BOUND;
 			printf("DHCP client bound to address %pI4 (%lu ms)\n",
-				&net_ip, get_timer(bootp_start));
+			       &net_ip, get_timer(bootp_start));
 			bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP,
-				"bootp_stop");
+					    "bootp_stop");
 
 			net_auto_load();
 			return;
@@ -1022,11 +1020,10 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		puts("DHCP: INVALID STATE\n");
 		break;
 	}
-
 }
 
-void DhcpRequest(void)
+void dhcp_request(void)
 {
-	BootpRequest();
+	bootp_request();
 }
 #endif	/* CONFIG_CMD_DHCP */
