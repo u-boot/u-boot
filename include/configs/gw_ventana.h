@@ -333,6 +333,7 @@
 	\
 	"fdt_high=0xffffffff\0" \
 	"fdt_addr=0x18000000\0" \
+	"initrd_high=0xffffffff\0" \
 	"loadfdt=" \
 		"if ${fsload} ${fdt_addr} boot/${fdt_file}; then " \
 			"echo Loaded DTB from boot/${fdt_file}; " \
