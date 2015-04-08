@@ -247,7 +247,7 @@ void net_auto_load(void)
 		net_set_state(NETLOOP_SUCCESS);
 		return;
 	}
-	TftpStart(TFTPGET);
+	tftp_start(TFTPGET);
 }
 
 static void NetInitLoop(void)
@@ -372,11 +372,11 @@ restart:
 		case TFTPPUT:
 #endif
 			/* always use ARP to get server ethernet address */
-			TftpStart(protocol);
+			tftp_start(protocol);
 			break;
 #ifdef CONFIG_CMD_TFTPSRV
 		case TFTPSRV:
-			TftpStartServer();
+			tftp_start_server();
 			break;
 #endif
 #if defined(CONFIG_CMD_DHCP)
