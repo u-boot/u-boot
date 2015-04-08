@@ -1430,15 +1430,8 @@ int checkboard(void)
 		return 0;
 
 	/* Display GSC firmware revision/CRC/status */
-	i2c_set_bus_num(CONFIG_I2C_GSC);
-	if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_FWVER, 1, buf, 1)) {
-		printf("GSC:   v%d", buf[0]);
-		if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_STATUS, 1, buf, 4)) {
-			printf(" 0x%04x", buf[2] | buf[3]<<8); /* CRC */
-			printf(" 0x%02x", buf[0]); /* irq status */
-		}
-		puts("\n");
-	}
+	gsc_info(0);
+
 	/* Display RTC */
 	if (!gsc_i2c_read(GSC_RTC_ADDR, 0x00, 1, buf, 4)) {
 		printf("RTC:   %d\n",
@@ -1574,13 +1567,6 @@ int misc_init_r(void)
 			puts("Error: could not disable GSC Watchdog\n");
 	} else {
 		puts("Error: could not disable GSC Watchdog\n");
-	}
-	if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_STATUS, 1, &reg, 1)) {
-		if (reg & (1 << GSC_SC_IRQ_WATCHDOG)) { /* watchdog timeout */
-			puts("GSC boot watchdog timeout detected\n");
-			reg &= ~(1 << GSC_SC_IRQ_WATCHDOG); /* clear flag */
-			gsc_i2c_write(GSC_SC_ADDR, GSC_SC_STATUS, 1, &reg, 1);
-		}
 	}
 
 	return 0;

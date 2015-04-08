@@ -19,12 +19,15 @@ enum {
 	GSC_SC_CTRL0		= 0x00,
 	GSC_SC_CTRL1		= 0x01,
 	GSC_SC_STATUS		= 0x0a,
+	GSC_SC_FWCRC		= 0x0c,
 	GSC_SC_FWVER		= 0x0e,
 };
 
 /* System Controller Control1 bits */
 enum {
-	GSC_SC_CTRL1_WDDIS	= 7, /* 1 = disable watchdog */
+	GSC_SC_CTRL1_WDTIME	= 4, /* 1 = 60s timeout, 0 = 30s timeout */
+	GSC_SC_CTRL1_WDEN	= 5, /* 1 = enable, 0 = disable */
+	GSC_SC_CTRL1_WDDIS	= 7, /* 1 = disable boot watchdog */
 };
 
 /* System Controller Interrupt bits */
@@ -62,5 +65,6 @@ enum {
  */
 int gsc_i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len);
 int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len);
+int gsc_info(int verbose);
 #endif
 

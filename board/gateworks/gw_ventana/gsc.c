@@ -59,7 +59,6 @@ int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 	return ret;
 }
 
-#ifdef CONFIG_CMD_GSC
 static void read_hwmon(const char *name, uint reg, uint size)
 {
 	unsigned char buf[3];
@@ -78,11 +77,29 @@ static void read_hwmon(const char *name, uint reg, uint size)
 	}
 }
 
-int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int gsc_info(int verbose)
 {
 	const char *model = getenv("model");
+	unsigned char buf[16];
 
 	i2c_set_bus_num(0);
+	if (gsc_i2c_read(GSC_SC_ADDR, 0, 1, buf, 16))
+		return CMD_RET_FAILURE;
+
+	printf("GSC:   v%d", buf[GSC_SC_FWVER]);
+	printf(" 0x%04x", buf[GSC_SC_FWCRC] | buf[GSC_SC_FWCRC+1]<<8);
+	printf(" WDT:%sabled", (buf[GSC_SC_CTRL1] & (1<<GSC_SC_CTRL1_WDEN))
+		? "en" : "dis");
+	if (buf[GSC_SC_STATUS] & (1 << GSC_SC_IRQ_WATCHDOG)) {
+		buf[GSC_SC_STATUS] &= ~(1 << GSC_SC_IRQ_WATCHDOG);
+		puts(" WDT_RESET");
+		gsc_i2c_write(GSC_SC_ADDR, GSC_SC_STATUS, 1,
+			      &buf[GSC_SC_STATUS], 1);
+	}
+	puts("\n");
+	if (!verbose)
+		return CMD_RET_SUCCESS;
+
 	read_hwmon("Temp",     GSC_HWMON_TEMP, 2);
 	read_hwmon("VIN",      GSC_HWMON_VIN, 3);
 	read_hwmon("VBATT",    GSC_HWMON_VBATT, 3);
@@ -115,9 +132,60 @@ int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-U_BOOT_CMD(gsc, 1, 1, do_gsc,
-	   "GSC test",
-	   ""
-);
+#ifdef CONFIG_CMD_GSC
+static int do_gsc_wd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	unsigned char reg;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	if (strcasecmp(argv[1], "enable") == 0) {
+		int timeout = 0;
+
+		if (argc > 2)
+			timeout = simple_strtoul(argv[2], NULL, 10);
+		i2c_set_bus_num(0);
+		if (gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+			return CMD_RET_FAILURE;
+		reg &= ~((1 << GSC_SC_CTRL1_WDEN) | (1 << GSC_SC_CTRL1_WDTIME));
+		if (timeout == 60)
+			reg |= (1 << GSC_SC_CTRL1_WDTIME);
+		else
+			timeout = 30;
+		reg |= (1 << GSC_SC_CTRL1_WDEN);
+		if (gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+			return CMD_RET_FAILURE;
+		printf("GSC Watchdog enabled with timeout=%d seconds\n",
+		       timeout);
+	} else if (strcasecmp(argv[1], "disable") == 0) {
+		i2c_set_bus_num(0);
+		if (gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+			return CMD_RET_FAILURE;
+		reg &= ~((1 << GSC_SC_CTRL1_WDEN) | (1 << GSC_SC_CTRL1_WDTIME));
+		if (gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+			return CMD_RET_FAILURE;
+		printf("GSC Watchdog disabled\n");
+	} else {
+		return CMD_RET_USAGE;
+	}
+	return CMD_RET_SUCCESS;
+}
+
+static int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (argc < 2)
+		return gsc_info(1);
+
+	if (strcasecmp(argv[1], "wd") == 0)
+		return do_gsc_wd(cmdtp, flag, --argc, ++argv);
+
+	return CMD_RET_USAGE;
+}
+
+U_BOOT_CMD(
+	gsc, 4, 1, do_gsc, "GSC configuration",
+	"[wd enable [30|60]]|[wd disable]\n"
+	);
 
 #endif /* CONFIG_CMD_GSC */
