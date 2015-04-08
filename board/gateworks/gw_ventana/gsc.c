@@ -13,8 +13,6 @@
 
 #include "gsc.h"
 
-#define MINMAX(n, percent)	((n)*(100-percent)/100), ((n)*(100+percent)/100)
-
 /*
  * The Gateworks System Controller will fail to ACK a master transaction if
  * it is busy, which can occur during its 1HZ timer tick while reading ADC's.
@@ -62,8 +60,7 @@ int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 }
 
 #ifdef CONFIG_CMD_GSC
-static void read_hwmon(const char *name, uint reg, uint size, uint low,
-		       uint high)
+static void read_hwmon(const char *name, uint reg, uint size)
 {
 	unsigned char buf[3];
 	uint ui;
@@ -75,15 +72,10 @@ static void read_hwmon(const char *name, uint reg, uint size, uint low,
 	} else {
 		ui = buf[0] | (buf[1]<<8) | (buf[2]<<16);
 		if (ui == 0xffffff)
-			printf("invalid");
-		else if (ui < low)
-			printf("%d Failed - Low", ui);
-		else if (ui > high)
-			printf("%d Failed - High", ui);
+			puts("invalid\n");
 		else
-			printf("%d", ui);
+			printf("%d\n", ui);
 	}
-	puts("\n");
 }
 
 int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -91,35 +83,34 @@ int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	const char *model = getenv("model");
 
 	i2c_set_bus_num(0);
-	read_hwmon("Temp",     GSC_HWMON_TEMP, 2, 0, 9000);
-	read_hwmon("VIN",      GSC_HWMON_VIN, 3, 8000, 60000);
-	read_hwmon("VBATT",    GSC_HWMON_VBATT, 3, 1800, 3500);
-	read_hwmon("VDD_3P3",  GSC_HWMON_VDD_3P3, 3, MINMAX(3300, 10));
-	read_hwmon("VDD_HIGH", GSC_HWMON_VDD_HIGH, 3, MINMAX(3000, 10));
-	read_hwmon("VDD_DDR",  GSC_HWMON_VDD_DDR, 3, MINMAX(1500, 10));
-	read_hwmon("VDD_5P0",  GSC_HWMON_VDD_5P0, 3, MINMAX(5000, 10));
-	read_hwmon("VDD_2P5",  GSC_HWMON_VDD_2P5, 3, MINMAX(2500, 10));
-	read_hwmon("VDD_1P8",  GSC_HWMON_VDD_1P8, 3, MINMAX(1800, 10));
-
+	read_hwmon("Temp",     GSC_HWMON_TEMP, 2);
+	read_hwmon("VIN",      GSC_HWMON_VIN, 3);
+	read_hwmon("VBATT",    GSC_HWMON_VBATT, 3);
+	read_hwmon("VDD_3P3",  GSC_HWMON_VDD_3P3, 3);
+	read_hwmon("VDD_HIGH", GSC_HWMON_VDD_HIGH, 3);
+	read_hwmon("VDD_DDR",  GSC_HWMON_VDD_DDR, 3);
+	read_hwmon("VDD_5P0",  GSC_HWMON_VDD_5P0, 3);
+	read_hwmon("VDD_2P5",  GSC_HWMON_VDD_2P5, 3);
+	read_hwmon("VDD_1P8",  GSC_HWMON_VDD_1P8, 3);
 	switch (model[3]) {
 	case '1': /* GW51xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3, MINMAX(1175, 10));
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3, MINMAX(1175, 10));
+		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3);
+		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3);
 		break;
 	case '2': /* GW52xx */
 	case '3': /* GW53xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3, MINMAX(1175, 10));
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3, MINMAX(1175, 10));
-		read_hwmon("VDD_1P0",  GSC_HWMON_VDD_1P0, 3, MINMAX(1000, 10));
+		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3);
+		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3);
+		read_hwmon("VDD_1P0",  GSC_HWMON_VDD_1P0, 3);
 		break;
 	case '4': /* GW54xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3, MINMAX(1375, 10));
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3, MINMAX(1375, 10));
-		read_hwmon("VDD_1P0",  GSC_HWMON_VDD_1P0, 3, MINMAX(1000, 10));
+		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3);
+		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3);
+		read_hwmon("VDD_1P0",  GSC_HWMON_VDD_1P0, 3);
 		break;
 	case '5': /* GW55xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3, MINMAX(1175, 10));
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3, MINMAX(1175, 10));
+		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3);
+		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3);
 		break;
 	}
 	return 0;
