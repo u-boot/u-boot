@@ -216,7 +216,7 @@ static const char *dtbmacaddr(u32 ifno)
 
 	node = fdt_path_offset((void *)dtbaddr, path);
 	mac = fdt_getprop((void *)dtbaddr, node, "mac-address", &len);
-	if (mac && is_valid_ether_addr((u8 *)mac))
+	if (mac && is_valid_ethaddr((u8 *)mac))
 		return mac;
 
 	return NULL;
@@ -595,7 +595,7 @@ int board_eth_init(bd_t *bis)
 		#endif
 		if (!mac) {
 			printf("<ethaddr> not set. validating E-fuse MAC ... ");
-			if (is_valid_ether_addr((const u8 *)mac_addr))
+			if (is_valid_ethaddr((const u8 *)mac_addr))
 				mac = (const char *)mac_addr;
 		}
 

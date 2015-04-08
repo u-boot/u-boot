@@ -593,7 +593,7 @@ int board_eth_init(bd_t *bis)
 	if (!getenv("ethaddr")) {
 		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
 
-		if (is_valid_ether_addr(mac_addr))
+		if (is_valid_ethaddr(mac_addr))
 			eth_setenv_enetaddr("ethaddr", mac_addr);
 	}
 
@@ -609,7 +609,7 @@ int board_eth_init(bd_t *bis)
 	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
 	if (!getenv("eth1addr")) {
-		if (is_valid_ether_addr(mac_addr))
+		if (is_valid_ethaddr(mac_addr))
 			eth_setenv_enetaddr("eth1addr", mac_addr);
 	}
 
@@ -658,7 +658,7 @@ int board_eth_init(bd_t *bis)
 #endif
 #if defined(CONFIG_USB_ETHER) && \
 	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USBETH_SUPPORT))
-	if (is_valid_ether_addr(mac_addr))
+	if (is_valid_ethaddr(mac_addr))
 		eth_setenv_enetaddr("usbnet_devaddr", mac_addr);
 
 	rv = usb_eth_initialize(bis);

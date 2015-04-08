@@ -117,7 +117,7 @@ static int refresh_settings_from_env(void)
 void NcStart(void)
 {
 	refresh_settings_from_env();
-	if (!output_packet_len || memcmp(nc_ether, NetEtherNullAddr, 6)) {
+	if (!output_packet_len || memcmp(nc_ether, net_null_ethaddr, 6)) {
 		/* going to check for input packet */
 		net_set_udp_handler(nc_handler);
 		NetSetTimeout(net_timeout, nc_timeout);
@@ -180,7 +180,7 @@ static void nc_send_packet(const char *buf, int len)
 	if (eth == NULL)
 		return;
 
-	if (!memcmp(nc_ether, NetEtherNullAddr, 6)) {
+	if (!memcmp(nc_ether, net_null_ethaddr, 6)) {
 		if (eth->state == ETH_STATE_ACTIVE)
 			return;	/* inside net loop */
 		output_packet = buf;

@@ -32,7 +32,7 @@ void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
 int eth_getenv_enetaddr(char *name, uchar *enetaddr)
 {
 	eth_parse_enetaddr(getenv(name), enetaddr);
-	return is_valid_ether_addr(enetaddr);
+	return is_valid_ethaddr(enetaddr);
 }
 
 int eth_setenv_enetaddr(char *name, const uchar *enetaddr)
@@ -369,7 +369,7 @@ static int eth_write_hwaddr(struct udevice *dev)
 
 	/* seq is valid since the device is active */
 	if (eth_get_ops(dev)->write_hwaddr && !eth_mac_skip(dev->seq)) {
-		if (!is_valid_ether_addr(pdata->enetaddr)) {
+		if (!is_valid_ethaddr(pdata->enetaddr)) {
 			printf("\nError: %s address %pM illegal value\n",
 			       dev->name, pdata->enetaddr);
 			return -EINVAL;
@@ -470,8 +470,8 @@ static int eth_post_probe(struct udevice *dev)
 		eth_get_ops(dev)->read_rom_hwaddr(dev);
 
 	eth_getenv_enetaddr_by_index("eth", dev->seq, env_enetaddr);
-	if (!is_zero_ether_addr(env_enetaddr)) {
-		if (!is_zero_ether_addr(pdata->enetaddr) &&
+	if (!is_zero_ethaddr(env_enetaddr)) {
+		if (!is_zero_ethaddr(pdata->enetaddr) &&
 		    memcmp(pdata->enetaddr, env_enetaddr, 6)) {
 			printf("\nWarning: %s MAC addresses don't match:\n",
 			       dev->name);
@@ -483,11 +483,11 @@ static int eth_post_probe(struct udevice *dev)
 
 		/* Override the ROM MAC address */
 		memcpy(pdata->enetaddr, env_enetaddr, 6);
-	} else if (is_valid_ether_addr(pdata->enetaddr)) {
+	} else if (is_valid_ethaddr(pdata->enetaddr)) {
 		eth_setenv_enetaddr_by_index("eth", dev->seq, pdata->enetaddr);
 		printf("\nWarning: %s using MAC address from ROM\n",
 		       dev->name);
-	} else if (is_zero_ether_addr(pdata->enetaddr)) {
+	} else if (is_zero_ethaddr(pdata->enetaddr)) {
 		printf("\nError: %s address not set.\n",
 		       dev->name);
 		return -EINVAL;
@@ -608,8 +608,8 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 
 	eth_getenv_enetaddr_by_index(base_name, eth_number, env_enetaddr);
 
-	if (!is_zero_ether_addr(env_enetaddr)) {
-		if (!is_zero_ether_addr(dev->enetaddr) &&
+	if (!is_zero_ethaddr(env_enetaddr)) {
+		if (!is_zero_ethaddr(dev->enetaddr) &&
 		    memcmp(dev->enetaddr, env_enetaddr, 6)) {
 			printf("\nWarning: %s MAC addresses don't match:\n",
 				dev->name);
@@ -620,19 +620,19 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		}
 
 		memcpy(dev->enetaddr, env_enetaddr, 6);
-	} else if (is_valid_ether_addr(dev->enetaddr)) {
+	} else if (is_valid_ethaddr(dev->enetaddr)) {
 		eth_setenv_enetaddr_by_index(base_name, eth_number,
 					     dev->enetaddr);
 		printf("\nWarning: %s using MAC address from net device\n",
 			dev->name);
-	} else if (is_zero_ether_addr(dev->enetaddr)) {
+	} else if (is_zero_ethaddr(dev->enetaddr)) {
 		printf("\nError: %s address not set.\n",
 		       dev->name);
 		return -EINVAL;
 	}
 
 	if (dev->write_hwaddr && !eth_mac_skip(eth_number)) {
-		if (!is_valid_ether_addr(dev->enetaddr)) {
+		if (!is_valid_ethaddr(dev->enetaddr)) {
 			printf("\nError: %s address %pM illegal value\n",
 				 dev->name, dev->enetaddr);
 			return -EINVAL;

@@ -637,7 +637,7 @@ eth_loopback_test (void)
 
 	puts ("FCC Ethernet External loopback test\n");
 
-	eth_getenv_enetaddr("ethaddr", NetOurEther);
+	eth_getenv_enetaddr("ethaddr", net_ethaddr);
 
 	/*
 	 * global initialisations for all FCC channels
@@ -721,7 +721,7 @@ eth_loopback_test (void)
 				BD_ENET_TX_LAST | BD_ENET_TX_TC;
 
 			memset ((void *)bp, patbytes[i], ELBT_BUFSZ);
-			NetSetEther (bp, NetBcastAddr, 0x8000);
+			NetSetEther(bp, net_bcast_ethaddr, 0x8000);
 		}
 		ecp->txbd[ELBT_NTXBD - 1].cbd_sc |= BD_ENET_TX_WRAP;
 
@@ -799,11 +799,9 @@ eth_loopback_test (void)
 		 * So, far we have only been given one Ethernet address. We use
 		 * the same address for all channels
 		 */
-#define ea NetOurEther
-		fpp->fen_paddrh = (ea[5] << 8) + ea[4];
-		fpp->fen_paddrm = (ea[3] << 8) + ea[2];
-		fpp->fen_paddrl = (ea[1] << 8) + ea[0];
-#undef ea
+		fpp->fen_paddrh = (net_ethaddr[5] << 8) + net_ethaddr[4];
+		fpp->fen_paddrm = (net_ethaddr[3] << 8) + net_ethaddr[2];
+		fpp->fen_paddrl = (net_ethaddr[1] << 8) + net_ethaddr[0];
 
 		fpp->fen_minflr = PKT_MINBUF_SIZE; /* min frame len register */
 		/*
@@ -1016,7 +1014,7 @@ eth_loopback_test (void)
 							&ecp->rxbufs[i][0];
 
 						ours = memcmp (ehp->et_src, \
-							NetOurEther, 6);
+							net_ethaddr, 6);
 
 						prot = swap16 (ehp->et_protlen);
 						tb = prot & 0x8000;

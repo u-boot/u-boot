@@ -477,8 +477,8 @@ extern char	net_nis_domain[32];	/* Our IS domain */
 extern char	net_hostname[32];	/* Our hostname */
 extern char	net_root_path[64];	/* Our root path */
 /** END OF BOOTP EXTENTIONS **/
-extern uchar		NetOurEther[6];		/* Our ethernet address */
-extern uchar		NetServerEther[6];	/* Boot server enet address */
+extern u8		net_ethaddr[6];		/* Our ethernet address */
+extern u8		net_server_ethaddr[6];	/* Boot server enet address */
 extern struct in_addr	net_ip;		/* Our    IP addr (0 = unknown) */
 extern struct in_addr	net_server_ip;	/* Server IP addr (0 = unknown) */
 extern uchar		*NetTxPacket;		/* THE transmit packet */
@@ -490,8 +490,8 @@ extern uchar		*NetRxPackets[PKTBUFSRX]; /* Receive packets */
 extern uchar		*NetRxPacket;		/* Current receive packet */
 extern int		NetRxPacketLen;		/* Current rx packet length */
 extern unsigned		NetIPID;		/* IP ID (counting) */
-extern uchar		NetBcastAddr[6];	/* Ethernet boardcast address */
-extern uchar		NetEtherNullAddr[6];
+extern const u8		net_bcast_ethaddr[6];	/* Ethernet broadcast address */
+extern const u8		net_null_ethaddr[6];
 
 #define VLAN_NONE	4095			/* untagged */
 #define VLAN_IDMASK	0x0fff			/* mask of valid vlan id */
@@ -528,11 +528,11 @@ extern ushort CDPApplianceVLAN;		/* CDP returned appliance VLAN */
 /*
  * Check for a CDP packet by examining the received MAC address field
  */
-static inline int is_cdp_packet(const uchar *et_addr)
+static inline int is_cdp_packet(const uchar *ethaddr)
 {
-	extern const uchar NetCDPAddr[6];
+	extern const u8 net_cdp_ethaddr[6];
 
-	return memcmp(et_addr, NetCDPAddr, 6) == 0;
+	return memcmp(ethaddr, net_cdp_ethaddr, 6) == 0;
 }
 #endif
 
@@ -559,7 +559,7 @@ int	NetStartAgain(void);
 int	NetEthHdrSize(void);
 
 /* Set ethernet header; returns the size of the header */
-int NetSetEther(uchar *, uchar *, uint);
+int NetSetEther(uchar *xet, const uchar *dest_ethaddr, uint prot);
 int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot);
 
 /* Set IP header */
@@ -722,42 +722,42 @@ static inline void NetCopyLong(ulong *to, ulong *from)
 }
 
 /**
- * is_zero_ether_addr - Determine if give Ethernet address is all zeros.
+ * is_zero_ethaddr - Determine if give Ethernet address is all zeros.
  * @addr: Pointer to a six-byte array containing the Ethernet address
  *
  * Return true if the address is all zeroes.
  */
-static inline int is_zero_ether_addr(const u8 *addr)
+static inline int is_zero_ethaddr(const u8 *addr)
 {
 	return !(addr[0] | addr[1] | addr[2] | addr[3] | addr[4] | addr[5]);
 }
 
 /**
- * is_multicast_ether_addr - Determine if the Ethernet address is a multicast.
+ * is_multicast_ethaddr - Determine if the Ethernet address is a multicast.
  * @addr: Pointer to a six-byte array containing the Ethernet address
  *
  * Return true if the address is a multicast address.
  * By definition the broadcast address is also a multicast address.
  */
-static inline int is_multicast_ether_addr(const u8 *addr)
+static inline int is_multicast_ethaddr(const u8 *addr)
 {
 	return 0x01 & addr[0];
 }
 
 /*
- * is_broadcast_ether_addr - Determine if the Ethernet address is broadcast
+ * is_broadcast_ethaddr - Determine if the Ethernet address is broadcast
  * @addr: Pointer to a six-byte array containing the Ethernet address
  *
  * Return true if the address is the broadcast address.
  */
-static inline int is_broadcast_ether_addr(const u8 *addr)
+static inline int is_broadcast_ethaddr(const u8 *addr)
 {
 	return (addr[0] & addr[1] & addr[2] & addr[3] & addr[4] & addr[5]) ==
 		0xff;
 }
 
 /*
- * is_valid_ether_addr - Determine if the given Ethernet address is valid
+ * is_valid_ethaddr - Determine if the given Ethernet address is valid
  * @addr: Pointer to a six-byte array containing the Ethernet address
  *
  * Check that the Ethernet address (MAC) is not 00:00:00:00:00:00, is not
@@ -765,21 +765,21 @@ static inline int is_broadcast_ether_addr(const u8 *addr)
  *
  * Return true if the address is valid.
  */
-static inline int is_valid_ether_addr(const u8 *addr)
+static inline int is_valid_ethaddr(const u8 *addr)
 {
 	/* FF:FF:FF:FF:FF:FF is a multicast address so we don't need to
 	 * explicitly check for it here. */
-	return !is_multicast_ether_addr(addr) && !is_zero_ether_addr(addr);
+	return !is_multicast_ethaddr(addr) && !is_zero_ethaddr(addr);
 }
 
 /**
- * eth_random_addr - Generate software assigned random Ethernet address
+ * net_random_ethaddr - Generate software assigned random Ethernet address
  * @addr: Pointer to a six-byte array containing the Ethernet address
  *
  * Generate a random Ethernet address (MAC) that is not multicast
  * and has the local assigned bit set.
  */
-static inline void eth_random_addr(uchar *addr)
+static inline void net_random_ethaddr(uchar *addr)
 {
 	int i;
 	unsigned int seed = get_timer(0);

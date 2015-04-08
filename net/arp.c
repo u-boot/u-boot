@@ -60,7 +60,7 @@ void arp_raw_request(struct in_addr source_ip, const uchar *targetEther,
 
 	pkt = NetArpTxPacket;
 
-	eth_hdr_size = NetSetEther(pkt, NetBcastAddr, PROT_ARP);
+	eth_hdr_size = NetSetEther(pkt, net_bcast_ethaddr, PROT_ARP);
 	pkt += eth_hdr_size;
 
 	arp = (struct arp_hdr *) pkt;
@@ -71,7 +71,7 @@ void arp_raw_request(struct in_addr source_ip, const uchar *targetEther,
 	arp->ar_pln = ARP_PLEN;
 	arp->ar_op = htons(ARPOP_REQUEST);
 
-	memcpy(&arp->ar_sha, NetOurEther, ARP_HLEN);	/* source ET addr */
+	memcpy(&arp->ar_sha, net_ethaddr, ARP_HLEN);	/* source ET addr */
 	net_write_ip(&arp->ar_spa, source_ip);		/* source IP addr */
 	memcpy(&arp->ar_tha, targetEther, ARP_HLEN);	/* target ET addr */
 	net_write_ip(&arp->ar_tpa, target_ip);		/* target IP addr */
@@ -93,7 +93,7 @@ void ArpRequest(void)
 		net_arp_wait_reply_ip = net_arp_wait_packet_ip;
 	}
 
-	arp_raw_request(net_ip, NetEtherNullAddr, net_arp_wait_reply_ip);
+	arp_raw_request(net_ip, net_null_ethaddr, net_arp_wait_reply_ip);
 }
 
 void ArpTimeoutCheck(void)
@@ -168,7 +168,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		arp->ar_op = htons(ARPOP_REPLY);
 		memcpy(&arp->ar_tha, &arp->ar_sha, ARP_HLEN);
 		net_copy_ip(&arp->ar_tpa, &arp->ar_spa);
-		memcpy(&arp->ar_sha, NetOurEther, ARP_HLEN);
+		memcpy(&arp->ar_sha, net_ethaddr, ARP_HLEN);
 		net_copy_ip(&arp->ar_spa, &net_ip);
 
 #ifdef CONFIG_CMD_LINK_LOCAL

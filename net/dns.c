@@ -89,7 +89,7 @@ DnsSend(void)
 
 	DnsOurPort = random_port();
 
-	NetSendUDPPacket(NetServerEther, net_dns_server, DNS_SERVICE_PORT,
+	NetSendUDPPacket(net_server_ethaddr, net_dns_server, DNS_SERVICE_PORT,
 			 DnsOurPort, n);
 	debug("DNS packet sent\n");
 }
@@ -203,7 +203,7 @@ DnsStart(void)
 	net_set_udp_handler(dns_handler);
 
 	/* Clear a previous MAC address, the server IP might have changed. */
-	memset(NetServerEther, 0, sizeof(NetServerEther));
+	memset(net_server_ethaddr, 0, sizeof(net_server_ethaddr));
 
 	DnsSend();
 }

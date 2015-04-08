@@ -32,7 +32,7 @@ int checkboard(void)
 static void board_init_enetaddr(uchar *mac_addr)
 {
 	puts("Warning: Generating 'random' MAC address\n");
-	eth_random_addr(mac_addr);
+	net_random_ethaddr(mac_addr);
 	eth_setenv_enetaddr("ethaddr", mac_addr);
 }
 

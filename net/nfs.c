@@ -211,7 +211,7 @@ rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 	else
 		sport = NfsSrvNfsPort;
 
-	NetSendUDPPacket(NetServerEther, nfs_server_ip, sport, NfsOurPort,
+	NetSendUDPPacket(net_server_ethaddr, nfs_server_ip, sport, NfsOurPort,
 			 pktlen);
 }
 
@@ -788,7 +788,7 @@ NfsStart(void)
 	NfsOurPort = 1000;
 
 	/* zero out server ether in case the server ip has changed */
-	memset(NetServerEther, 0, 6);
+	memset(net_server_ethaddr, 0, 6);
 
 	NfsSend();
 }

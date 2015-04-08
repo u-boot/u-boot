@@ -167,7 +167,7 @@ int board_late_init(void)
 	/* Read MAC address */
 	i2c_read(0x50, 0x0, 0, mac, 6);
 
-	if (is_valid_ether_addr(mac))
+	if (is_valid_ethaddr(mac))
 		eth_setenv_enetaddr("ethaddr", mac);
 
 	return 0;

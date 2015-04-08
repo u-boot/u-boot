@@ -18,7 +18,7 @@
 #include "cdp.h"
 
 /* Ethernet bcast address */
-const uchar NetCDPAddr[6] = { 0x01, 0x00, 0x0c, 0xcc, 0xcc, 0xcc };
+const u8 net_cdp_ethaddr[6] = { 0x01, 0x00, 0x0c, 0xcc, 0xcc, 0xcc };
 
 #define CDP_DEVICE_ID_TLV		0x0001
 #define CDP_ADDRESS_TLV			0x0002
@@ -124,8 +124,8 @@ CDPSendTrigger(void)
 	/* NOTE: trigger sent not on any VLAN */
 
 	/* form ethernet header */
-	memcpy(et->et_dest, NetCDPAddr, 6);
-	memcpy(et->et_src, NetOurEther, 6);
+	memcpy(et->et_dest, net_cdp_ethaddr, 6);
+	memcpy(et->et_src, net_ethaddr, 6);
 
 	pkt += ETHER_HDR_SIZE;
 
@@ -145,7 +145,7 @@ CDPSendTrigger(void)
 #ifdef CONFIG_CDP_DEVICE_ID
 	*s++ = htons(CDP_DEVICE_ID_TLV);
 	*s++ = htons(CONFIG_CDP_DEVICE_ID);
-	sprintf(buf, CONFIG_CDP_DEVICE_ID_PREFIX "%pm", NetOurEther);
+	sprintf(buf, CONFIG_CDP_DEVICE_ID_PREFIX "%pm", net_ethaddr);
 	memcpy((uchar *)s, buf, 16);
 	s += 16 / 2;
 #endif

@@ -129,9 +129,9 @@ struct in_addr net_mcast_addr;
 /** END OF BOOTP EXTENTIONS **/
 
 /* Our ethernet address */
-uchar		NetOurEther[6];
+u8 net_ethaddr[6];
 /* Boot server enet address */
-uchar		NetServerEther[6];
+u8 net_server_ethaddr[6];
 /* Our IP addr (0 = unknown) */
 struct in_addr	net_ip;
 /* Server IP addr (0 = unknown) */
@@ -143,8 +143,8 @@ int		NetRxPacketLen;
 /* IP packet ID */
 unsigned	NetIPID;
 /* Ethernet bcast address */
-uchar		NetBcastAddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-uchar		NetEtherNullAddr[6];
+const u8 net_bcast_ethaddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+const u8 net_null_ethaddr[6];
 #ifdef CONFIG_API
 void		(*push_packet)(void *, int len) = 0;
 #endif
@@ -274,7 +274,7 @@ static void NetInitLoop(void)
 		env_changed_id = env_id;
 	}
 	if (eth_get_dev())
-		memcpy(NetOurEther, eth_get_ethaddr(), 6);
+		memcpy(net_ethaddr, eth_get_ethaddr(), 6);
 
 	return;
 }
@@ -728,7 +728,7 @@ int NetSendUDPPacket(uchar *ether, struct in_addr dest, int dport, int sport,
 
 	/* if broadcast, make the ether address a broadcast and don't do ARP */
 	if (dest.s_addr == 0xFFFFFFFF)
-		ether = NetBcastAddr;
+		ether = (uchar *)net_bcast_ethaddr;
 
 	pkt = (uchar *)NetTxPacket;
 
@@ -738,7 +738,7 @@ int NetSendUDPPacket(uchar *ether, struct in_addr dest, int dport, int sport,
 	pkt_hdr_size = eth_hdr_size + IP_UDP_HDR_SIZE;
 
 	/* if MAC address was not discovered yet, do an ARP request */
-	if (memcmp(ether, NetEtherNullAddr, 6) == 0) {
+	if (memcmp(ether, net_null_ethaddr, 6) == 0) {
 		debug_cond(DEBUG_DEV_PKT, "sending ARP for %pI4\n", &dest);
 
 		/* save the ip and eth addr for the packet to send after arp */
@@ -1279,7 +1279,7 @@ common:
 	case CDP:
 	case DHCP:
 	case LINKLOCAL:
-		if (memcmp(NetOurEther, "\0\0\0\0\0\0", 6) == 0) {
+		if (memcmp(net_ethaddr, "\0\0\0\0\0\0", 6) == 0) {
 			int num = eth_get_dev_index();
 
 			switch (num) {
@@ -1320,7 +1320,7 @@ NetEthHdrSize(void)
 }
 
 int
-NetSetEther(uchar *xet, uchar * addr, uint prot)
+NetSetEther(uchar *xet, const uchar *dest_ethaddr, uint prot)
 {
 	struct ethernet_hdr *et = (struct ethernet_hdr *)xet;
 	ushort myvlanid;
@@ -1329,8 +1329,8 @@ NetSetEther(uchar *xet, uchar * addr, uint prot)
 	if (myvlanid == (ushort)-1)
 		myvlanid = VLAN_NONE;
 
-	memcpy(et->et_dest, addr, 6);
-	memcpy(et->et_src, NetOurEther, 6);
+	memcpy(et->et_dest, dest_ethaddr, 6);
+	memcpy(et->et_src, net_ethaddr, 6);
 	if ((myvlanid & VLAN_IDMASK) == VLAN_NONE) {
 		et->et_protlen = htons(prot);
 		return ETHER_HDR_SIZE;
@@ -1350,7 +1350,7 @@ int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot)
 	ushort protlen;
 
 	memcpy(et->et_dest, addr, 6);
-	memcpy(et->et_src, NetOurEther, 6);
+	memcpy(et->et_src, net_ethaddr, 6);
 	protlen = ntohs(et->et_protlen);
 	if (protlen == PROT_VLAN) {
 		struct vlan_ethernet_hdr *vet =

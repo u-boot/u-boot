@@ -87,7 +87,7 @@ eth_parse_enetaddr(addr, enetaddr);
 Look up an environment variable and convert the stored address.  If the address
 is valid, then the function returns 1.  Otherwise, the function returns 0.  In
 all cases, the enetaddr memory is initialized.  If the env var is not found,
-then it is set to all zeros.  The common function is_valid_ether_addr() is used
+then it is set to all zeros.  The common function is_valid_ethaddr() is used
 to determine address validity.
 uchar enetaddr[6];
 if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {

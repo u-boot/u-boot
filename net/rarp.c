@@ -46,7 +46,7 @@ void rarp_receive(struct ip_udp_hdr *ip, unsigned len)
 		net_copy_ip(&net_ip, &arp->ar_data[16]);
 		if (net_server_ip.s_addr == 0)
 			net_copy_ip(&net_server_ip, &arp->ar_data[6]);
-		memcpy(NetServerEther, &arp->ar_data[0], 6);
+		memcpy(net_server_ethaddr, &arp->ar_data[0], 6);
 		debug_cond(DEBUG_DEV_PKT, "Got good RARP\n");
 		net_auto_load();
 	}
@@ -77,7 +77,7 @@ void RarpRequest(void)
 	printf("RARP broadcast %d\n", ++RarpTry);
 	pkt = NetTxPacket;
 
-	eth_hdr_size = NetSetEther(pkt, NetBcastAddr, PROT_RARP);
+	eth_hdr_size = NetSetEther(pkt, net_bcast_ethaddr, PROT_RARP);
 	pkt += eth_hdr_size;
 
 	rarp = (struct arp_hdr *)pkt;
@@ -87,10 +87,10 @@ void RarpRequest(void)
 	rarp->ar_hln = 6;
 	rarp->ar_pln = 4;
 	rarp->ar_op  = htons(RARPOP_REQUEST);
-	memcpy(&rarp->ar_data[0],  NetOurEther, 6);	/* source ET addr */
+	memcpy(&rarp->ar_data[0],  net_ethaddr, 6);	/* source ET addr */
 	memcpy(&rarp->ar_data[6],  &net_ip,   4);	/* source IP addr */
 	/* dest ET addr = source ET addr ??*/
-	memcpy(&rarp->ar_data[10], NetOurEther, 6);
+	memcpy(&rarp->ar_data[10], net_ethaddr, 6);
 	/* dest IP addr set to broadcast */
 	memset(&rarp->ar_data[16], 0xff,        4);
 

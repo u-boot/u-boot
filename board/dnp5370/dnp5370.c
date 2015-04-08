@@ -46,7 +46,7 @@ static void board_init_enetaddr(uchar *mac_addr)
 	if (USE_MAC_IN_FLASH) {
 		/* we cram the MAC in the last flash sector */
 		uchar *board_mac_addr = (uchar *)0x202F0000;
-		if (is_valid_ether_addr(board_mac_addr)) {
+		if (is_valid_ethaddr(board_mac_addr)) {
 			memcpy(mac_addr, board_mac_addr, 6);
 			valid_mac = true;
 		}
@@ -54,7 +54,7 @@ static void board_init_enetaddr(uchar *mac_addr)
 
 	if (!valid_mac) {
 		puts("Warning: Generating 'random' MAC address\n");
-		eth_random_addr(mac_addr);
+		net_random_ethaddr(mac_addr);
 	}
 
 	eth_setenv_enetaddr("ethaddr", mac_addr);

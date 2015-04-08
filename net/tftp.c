@@ -435,7 +435,7 @@ TftpSend(void)
 		break;
 	}
 
-	NetSendUDPPacket(NetServerEther, tftp_remote_ip, TftpRemotePort,
+	NetSendUDPPacket(net_server_ethaddr, tftp_remote_ip, TftpRemotePort,
 			 TftpOurPort, len);
 }
 
@@ -816,7 +816,7 @@ void TftpStart(enum proto_t protocol)
 	TftpBlock = 0;
 
 	/* zero out server ether in case the server ip has changed */
-	memset(NetServerEther, 0, 6);
+	memset(net_server_ethaddr, 0, 6);
 	/* Revert TftpBlkSize to dflt */
 	TftpBlkSize = TFTP_BLOCK_SIZE;
 #ifdef CONFIG_MCAST_TFTP
@@ -861,7 +861,7 @@ TftpStartServer(void)
 	net_set_udp_handler(tftp_handler);
 
 	/* zero out server ether in case the server ip has changed */
-	memset(NetServerEther, 0, 6);
+	memset(net_server_ethaddr, 0, 6);
 }
 #endif /* CONFIG_CMD_TFTPSRV */
 

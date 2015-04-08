@@ -252,9 +252,9 @@ static int fec_recv (struct eth_device *dev)
 			length -= 4;
 
 #if defined(CONFIG_CMD_CDP)
-			if ((rx[0] & 1) != 0
-			    && memcmp ((uchar *) rx, NetBcastAddr, 6) != 0
-			    && !is_cdp_packet((uchar *)rx))
+			if ((rx[0] & 1) != 0 &&
+			    memcmp((uchar *)rx, net_bcast_ethaddr, 6) != 0 &&
+			    !is_cdp_packet((uchar *)rx))
 				rx = NULL;
 #endif
 			/*

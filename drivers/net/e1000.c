@@ -1197,7 +1197,7 @@ e1000_read_mac_addr(struct eth_device *nic)
 		nic->enetaddr[5] ^= 1;
 
 #ifdef CONFIG_E1000_FALLBACK_MAC
-	if (!is_valid_ether_addr(nic->enetaddr)) {
+	if (!is_valid_ethaddr(nic->enetaddr)) {
 		unsigned char fb_mac[NODE_ADDRESS_SIZE] = CONFIG_E1000_FALLBACK_MAC;
 
 		memcpy (nic->enetaddr, fb_mac, NODE_ADDRESS_SIZE);

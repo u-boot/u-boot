@@ -441,7 +441,7 @@ static int handle_mac_address(void)
 	if (rc)
 		return rc;
 
-	if (!is_valid_ether_addr(enetaddr))
+	if (!is_valid_ethaddr(enetaddr))
 		return -1;
 
 	return eth_setenv_enetaddr("ethaddr", enetaddr);

@@ -1645,13 +1645,13 @@ static int eth_start_xmit (struct sk_buff *skb, struct net_device *net)
 	if (!eth_is_promisc (dev)) {
 		u8		*dest = skb->data;
 
-		if (is_multicast_ether_addr(dest)) {
+		if (is_multicast_ethaddr(dest)) {
 			u16	type;
 
 			/* ignores USB_CDC_PACKET_TYPE_MULTICAST and host
 			 * SET_ETHERNET_MULTICAST_FILTERS requests
 			 */
-			if (is_broadcast_ether_addr(dest))
+			if (is_broadcast_ethaddr(dest))
 				type = USB_CDC_PACKET_TYPE_BROADCAST;
 			else
 				type = USB_CDC_PACKET_TYPE_ALL_MULTICAST;
@@ -1942,7 +1942,7 @@ static int is_eth_addr_valid(char *str)
 		}
 
 		/* Now check the contents. */
-		return is_valid_ether_addr(ea);
+		return is_valid_ethaddr(ea);
 	}
 	return 0;
 }
@@ -1971,7 +1971,7 @@ static int get_ether_addr(const char *str, u8 *dev_addr)
 			num |= (nibble(*str++));
 			dev_addr[i] = num;
 		}
-		if (is_valid_ether_addr(dev_addr))
+		if (is_valid_ethaddr(dev_addr))
 			return 0;
 	}
 	return 1;

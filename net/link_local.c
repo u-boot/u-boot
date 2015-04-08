@@ -139,7 +139,7 @@ static void link_local_timeout(void)
 			nprobes++;
 			debug_cond(DEBUG_LL_STATE, "probe/%u %s@%pI4\n",
 					nprobes, eth_get_name(), &ip);
-			arp_raw_request(zero_ip, NetEtherNullAddr, ip);
+			arp_raw_request(zero_ip, net_null_ethaddr, ip);
 			timeout_ms = PROBE_MIN * 1000;
 			timeout_ms += random_delay_ms(PROBE_MAX - PROBE_MIN);
 		} else {
@@ -148,7 +148,7 @@ static void link_local_timeout(void)
 			nclaims = 0;
 			debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
 					nclaims, eth_get_name(), &ip);
-			arp_raw_request(ip, NetOurEther, ip);
+			arp_raw_request(ip, net_ethaddr, ip);
 			timeout_ms = ANNOUNCE_INTERVAL * 1000;
 		}
 		break;
@@ -160,7 +160,7 @@ static void link_local_timeout(void)
 		nclaims = 0;
 		debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
 				nclaims, eth_get_name(), &ip);
-		arp_raw_request(ip, NetOurEther, ip);
+		arp_raw_request(ip, net_ethaddr, ip);
 		timeout_ms = ANNOUNCE_INTERVAL * 1000;
 		break;
 	case ANNOUNCE:
@@ -171,7 +171,7 @@ static void link_local_timeout(void)
 			nclaims++;
 			debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
 					nclaims, eth_get_name(), &ip);
-			arp_raw_request(ip, NetOurEther, ip);
+			arp_raw_request(ip, net_ethaddr, ip);
 			timeout_ms = ANNOUNCE_INTERVAL * 1000;
 		} else {
 			/* Switch to monitor state */
@@ -268,11 +268,9 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 	source_ip_conflict = 0;
 	target_ip_conflict = 0;
 
-	if (memcmp(&arp->ar_spa, &ip, ARP_PLEN) == 0
-	 && memcmp(&arp->ar_sha, NetOurEther, ARP_HLEN) != 0
-	) {
+	if (memcmp(&arp->ar_spa, &ip, ARP_PLEN) == 0 &&
+	    memcmp(&arp->ar_sha, net_ethaddr, ARP_HLEN) != 0)
 		source_ip_conflict = 1;
-	}
 
 	/*
 	 * According to RFC 3927, section 2.2.1:
@@ -284,7 +282,7 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 	if (arp->ar_op == htons(ARPOP_REQUEST) &&
 	    memcmp(&arp->ar_spa, &null_ip, ARP_PLEN) == 0 &&
 	    memcmp(&arp->ar_tpa, &ip, ARP_PLEN) == 0 &&
-	    memcmp(&arp->ar_sha, NetOurEther, ARP_HLEN) != 0) {
+	    memcmp(&arp->ar_sha, net_ethaddr, ARP_HLEN) != 0) {
 		target_ip_conflict = 1;
 	}
 
@@ -318,7 +316,7 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 			debug("monitor conflict -- defending\n");
 			state = DEFEND;
 			timeout_ms = DEFEND_INTERVAL * 1000;
-			arp_raw_request(ip, NetOurEther, ip);
+			arp_raw_request(ip, net_ethaddr, ip);
 		}
 		break;
 	case DEFEND:

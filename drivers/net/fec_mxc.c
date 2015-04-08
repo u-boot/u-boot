@@ -357,7 +357,7 @@ static int fec_get_hwaddr(struct eth_device *dev, int dev_id,
 						unsigned char *mac)
 {
 	imx_get_mac_from_fuse(dev_id, mac);
-	return !is_valid_ether_addr(mac);
+	return !is_valid_ethaddr(mac);
 }
 
 static int fec_set_hwaddr(struct eth_device *dev)

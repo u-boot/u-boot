@@ -225,7 +225,7 @@ int mac_read_from_eeprom(void)
 		break;
 	}
 
-	if (mac && is_valid_ether_addr(mac)) {
+	if (mac && is_valid_ethaddr(mac)) {
 		eth_setenv_enetaddr("ethaddr", mac);
 		if (mac_diag) {
 			mac_txt = getenv("ethaddr");

@@ -37,7 +37,7 @@ SntpSend(void)
 	SntpOurPort = 10000 + (get_timer(0) % 4096);
 	sport = NTP_SERVICE_PORT;
 
-	NetSendUDPPacket(NetServerEther, net_ntp_server, sport, SntpOurPort,
+	NetSendUDPPacket(net_server_ethaddr, net_ntp_server, sport, SntpOurPort,
 			 pktlen);
 }
 
@@ -85,7 +85,7 @@ SntpStart(void)
 
 	NetSetTimeout(SNTP_TIMEOUT, SntpTimeout);
 	net_set_udp_handler(sntp_handler);
-	memset(NetServerEther, 0, sizeof(NetServerEther));
+	memset(net_server_ethaddr, 0, sizeof(net_server_ethaddr));
 
 	SntpSend();
 }

@@ -595,7 +595,7 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	}
 
 	/* update the ethaddr */
-	if (is_valid_ether_addr(netdev->enetaddr)) {
+	if (is_valid_ethaddr(netdev->enetaddr)) {
 		macb_write_hwaddr(netdev);
 	} else {
 		printf("%s: mac address is not valid\n", netdev->name);
