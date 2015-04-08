@@ -5,7 +5,7 @@
  * Copyright (c) 2009 Robin Getz <rgetz@blackfin.uclinux.org>
  *
  * This is a simple DNS implementation for U-Boot. It will use the first IP
- * in the DNS response as NetServerIP. This can then be used for any other
+ * in the DNS response as net_server_ip. This can then be used for any other
  * network related activities.
  *
  * The packet handling is partly based on TADNS, original copyrights
@@ -89,8 +89,8 @@ DnsSend(void)
 
 	DnsOurPort = random_port();
 
-	NetSendUDPPacket(NetServerEther, NetOurDNSIP, DNS_SERVICE_PORT,
-		DnsOurPort, n);
+	NetSendUDPPacket(NetServerEther, net_dns_server, DNS_SERVICE_PORT,
+			 DnsOurPort, n);
 	debug("DNS packet sent\n");
 }
 
@@ -101,15 +101,15 @@ DnsTimeout(void)
 	net_set_state(NETLOOP_FAIL);
 }
 
-static void
-DnsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
+static void dns_handler(uchar *pkt, unsigned dest, struct in_addr sip,
+			unsigned src, unsigned len)
 {
 	struct header *header;
 	const unsigned char *p, *e, *s;
 	u16 type, i;
 	int found, stop, dlen;
 	char IPStr[22];
-	IPaddr_t IPAddress;
+	struct in_addr ip_addr;
 
 
 	debug("%s\n", __func__);
@@ -180,10 +180,10 @@ DnsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 
 		dlen = get_unaligned_be16(p+10);
 		p += 12;
-		memcpy(&IPAddress, p, 4);
+		memcpy(&ip_addr, p, 4);
 
 		if (p + dlen <= e) {
-			ip_to_string(IPAddress, IPStr);
+			ip_to_string(ip_addr, IPStr);
 			printf("%s\n", IPStr);
 			if (NetDNSenvvar)
 				setenv(NetDNSenvvar, IPStr);
@@ -200,7 +200,7 @@ DnsStart(void)
 	debug("%s\n", __func__);
 
 	NetSetTimeout(DNS_TIMEOUT, DnsTimeout);
-	net_set_udp_handler(DnsHandler);
+	net_set_udp_handler(dns_handler);
 
 	/* Clear a previous MAC address, the server IP might have changed. */
 	memset(NetServerEther, 0, sizeof(NetServerEther));

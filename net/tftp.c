@@ -65,7 +65,7 @@ enum {
 	TFTP_ERR_FILE_ALREADY_EXISTS = 6,
 };
 
-static IPaddr_t TftpRemoteIP;
+static struct in_addr tftp_remote_ip;
 /* The UDP port at their end */
 static int	TftpRemotePort;
 /* The UDP port at our end */
@@ -146,12 +146,14 @@ static void parse_multicast_oack(char *pkt, int len);
 static void
 mcast_cleanup(void)
 {
-	if (Mcast_addr)
-		eth_mcast_join(Mcast_addr, 0);
+	if (net_mcast_addr)
+		eth_mcast_join(net_mcast_addr, 0);
 	if (Bitmap)
 		free(Bitmap);
 	Bitmap = NULL;
-	Mcast_addr = Multicast = Mcast_port = 0;
+	net_mcast_addr.s_addr = 0;
+	Multicast = 0;
+	Mcast_port = 0;
 	TftpEndingBlock = -1;
 }
 
@@ -433,13 +435,14 @@ TftpSend(void)
 		break;
 	}
 
-	NetSendUDPPacket(NetServerEther, TftpRemoteIP, TftpRemotePort,
+	NetSendUDPPacket(NetServerEther, tftp_remote_ip, TftpRemotePort,
 			 TftpOurPort, len);
 }
 
 #ifdef CONFIG_CMD_TFTPPUT
 static void icmp_handler(unsigned type, unsigned code, unsigned dest,
-			 IPaddr_t sip, unsigned src, uchar *pkt, unsigned len)
+			 struct in_addr sip, unsigned src, uchar *pkt,
+			 unsigned len)
 {
 	if (type == ICMP_NOT_REACH && code == ICMP_NOT_REACH_PORT) {
 		/* Oh dear the other end has gone away */
@@ -448,9 +451,8 @@ static void icmp_handler(unsigned type, unsigned code, unsigned dest,
 }
 #endif
 
-static void
-TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
-	    unsigned len)
+static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
+			 unsigned src, unsigned len)
 {
 	__be16 proto;
 	__be16 *s;
@@ -507,7 +509,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 #ifdef CONFIG_CMD_TFTPSRV
 	case TFTP_WRQ:
 		debug("Got WRQ\n");
-		TftpRemoteIP = sip;
+		tftp_remote_ip = sip;
 		TftpRemotePort = src;
 		TftpOurPort = 1024 + (get_timer(0) % 3072);
 		new_transfer();
@@ -717,13 +719,13 @@ void TftpStart(enum proto_t protocol)
 	debug("TFTP blocksize = %i, timeout = %ld ms\n",
 		TftpBlkSizeOption, TftpTimeoutMSecs);
 
-	TftpRemoteIP = NetServerIP;
+	tftp_remote_ip = net_server_ip;
 	if (BootFile[0] == '\0') {
 		sprintf(default_filename, "%02X%02X%02X%02X.img",
-			NetOurIP & 0xFF,
-			(NetOurIP >>  8) & 0xFF,
-			(NetOurIP >> 16) & 0xFF,
-			(NetOurIP >> 24) & 0xFF);
+			net_ip.s_addr & 0xFF,
+			(net_ip.s_addr >>  8) & 0xFF,
+			(net_ip.s_addr >> 16) & 0xFF,
+			(net_ip.s_addr >> 24) & 0xFF);
 
 		strncpy(tftp_filename, default_filename, MAX_LEN);
 		tftp_filename[MAX_LEN-1] = 0;
@@ -737,7 +739,7 @@ void TftpStart(enum proto_t protocol)
 			strncpy(tftp_filename, BootFile, MAX_LEN);
 			tftp_filename[MAX_LEN-1] = 0;
 		} else {
-			TftpRemoteIP = string_to_ip(BootFile);
+			tftp_remote_ip = string_to_ip(BootFile);
 			strncpy(tftp_filename, p + 1, MAX_LEN);
 			tftp_filename[MAX_LEN-1] = 0;
 		}
@@ -750,16 +752,17 @@ void TftpStart(enum proto_t protocol)
 #else
 		"from",
 #endif
-		&TftpRemoteIP, &NetOurIP);
+		&tftp_remote_ip, &net_ip);
 
 	/* Check if we need to send across this subnet */
-	if (NetOurGatewayIP && NetOurSubnetMask) {
-		IPaddr_t OurNet	= NetOurIP    & NetOurSubnetMask;
-		IPaddr_t RemoteNet	= TftpRemoteIP & NetOurSubnetMask;
+	if (net_gateway.s_addr && net_netmask.s_addr) {
+		struct in_addr our_net;
+		struct in_addr remote_net;
 
-		if (OurNet != RemoteNet)
-			printf("; sending through gateway %pI4",
-			       &NetOurGatewayIP);
+		our_net.s_addr = net_ip.s_addr & net_netmask.s_addr;
+		remote_net.s_addr = tftp_remote_ip.s_addr & net_netmask.s_addr;
+		if (our_net.s_addr != remote_net.s_addr)
+			printf("; sending through gateway %pI4", &net_gateway);
 	}
 	putc('\n');
 
@@ -792,7 +795,7 @@ void TftpStart(enum proto_t protocol)
 	TftpTimeoutCountMax = TftpRRQTimeoutCountMax;
 
 	NetSetTimeout(TftpTimeoutMSecs, TftpTimeout);
-	net_set_udp_handler(TftpHandler);
+	net_set_udp_handler(tftp_handler);
 #ifdef CONFIG_CMD_TFTPPUT
 	net_set_icmp_handler(icmp_handler);
 #endif
@@ -833,7 +836,7 @@ TftpStartServer(void)
 	tftp_filename[0] = 0;
 
 	printf("Using %s device\n", eth_get_name());
-	printf("Listening for TFTP transfer on %pI4\n", &NetOurIP);
+	printf("Listening for TFTP transfer on %pI4\n", &net_ip);
 	printf("Load address: 0x%lx\n", load_addr);
 
 	puts("Loading: *\b");
@@ -854,7 +857,7 @@ TftpStartServer(void)
 #endif
 
 	TftpState = STATE_RECV_WRQ;
-	net_set_udp_handler(TftpHandler);
+	net_set_udp_handler(tftp_handler);
 
 	/* zero out server ether in case the server ip has changed */
 	memset(NetServerEther, 0, 6);
@@ -880,7 +883,7 @@ TftpStartServer(void)
 static void parse_multicast_oack(char *pkt, int len)
 {
 	int i;
-	IPaddr_t addr;
+	struct in_addr addr;
 	char *mc_adr, *port,  *mc;
 
 	mc_adr = port = mc = NULL;
@@ -935,11 +938,11 @@ static void parse_multicast_oack(char *pkt, int len)
 		Multicast = 1;
 	}
 	addr = string_to_ip(mc_adr);
-	if (Mcast_addr != addr) {
-		if (Mcast_addr)
-			eth_mcast_join(Mcast_addr, 0);
-		Mcast_addr = addr;
-		if (eth_mcast_join(Mcast_addr, 1)) {
+	if (net_mcast_addr.s_addr != addr.s_addr) {
+		if (net_mcast_addr.s_addr)
+			eth_mcast_join(net_mcast_addr, 0);
+		net_mcast_addr = addr;
+		if (eth_mcast_join(net_mcast_addr, 1)) {
 			printf("Fail to set mcast, revert to TFTP\n");
 			ProhibitMcast = 1;
 			mcast_cleanup();

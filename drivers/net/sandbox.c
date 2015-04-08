@@ -24,7 +24,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 struct eth_sandbox_priv {
 	uchar fake_host_hwaddr[ARP_HLEN];
-	IPaddr_t fake_host_ipaddr;
+	struct in_addr fake_host_ipaddr;
 	uchar *recv_packet_buffer;
 	int recv_packet_length;
 };
@@ -73,7 +73,7 @@ static int sb_eth_send(struct udevice *dev, void *packet, int length)
 			struct arp_hdr *arp_recv;
 
 			/* store this as the assumed IP of the fake host */
-			priv->fake_host_ipaddr = NetReadIP(&arp->ar_tpa);
+			priv->fake_host_ipaddr = net_read_ip(&arp->ar_tpa);
 			/* Formulate a fake response */
 			eth_recv = (void *)priv->recv_packet_buffer;
 			memcpy(eth_recv->et_dest, eth->et_src, ARP_HLEN);
@@ -90,9 +90,9 @@ static int sb_eth_send(struct udevice *dev, void *packet, int length)
 			arp_recv->ar_op = htons(ARPOP_REPLY);
 			memcpy(&arp_recv->ar_sha, priv->fake_host_hwaddr,
 			       ARP_HLEN);
-			NetWriteIP(&arp_recv->ar_spa, priv->fake_host_ipaddr);
+			net_write_ip(&arp_recv->ar_spa, priv->fake_host_ipaddr);
 			memcpy(&arp_recv->ar_tha, &arp->ar_sha, ARP_HLEN);
-			NetCopyIP(&arp_recv->ar_tpa, &arp->ar_spa);
+			net_copy_ip(&arp_recv->ar_tpa, &arp->ar_spa);
 
 			priv->recv_packet_length = ETHER_HDR_SIZE +
 				ARP_HDR_SIZE;
@@ -121,9 +121,9 @@ static int sb_eth_send(struct udevice *dev, void *packet, int length)
 				       ARP_HLEN);
 				ipr->ip_sum = 0;
 				ipr->ip_off = 0;
-				NetCopyIP((void *)&ipr->ip_dst, &ip->ip_src);
-				NetWriteIP((void *)&ipr->ip_src,
-					   priv->fake_host_ipaddr);
+				net_copy_ip((void *)&ipr->ip_dst, &ip->ip_src);
+				net_write_ip((void *)&ipr->ip_src,
+					     priv->fake_host_ipaddr);
 				ipr->ip_sum = compute_ip_checksum(ipr,
 					IP_HDR_SIZE);
 

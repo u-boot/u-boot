@@ -39,8 +39,9 @@
 #define PKTALIGN	ARCH_DMA_MINALIGN
 
 /* IPv4 addresses are always 32 bits in size */
-typedef __be32		IPaddr_t;
-
+struct in_addr {
+	__be32 s_addr;
+};
 
 /**
  * An incoming packet handler.
@@ -51,7 +52,7 @@ typedef __be32		IPaddr_t;
  * @param len    packet length
  */
 typedef void rxhand_f(uchar *pkt, unsigned dport,
-		      IPaddr_t sip, unsigned sport,
+		      struct in_addr sip, unsigned sport,
 		      unsigned len);
 
 /**
@@ -65,7 +66,7 @@ typedef void rxhand_f(uchar *pkt, unsigned dport,
  * @param len	packet length
  */
 typedef void rxhand_icmp_f(unsigned type, unsigned code, unsigned dport,
-		IPaddr_t sip, unsigned sport, uchar *pkt, unsigned len);
+		struct in_addr sip, unsigned sport, uchar *pkt, unsigned len);
 
 /*
  *	A timeout handler.  Called after time interval has expired.
@@ -243,7 +244,7 @@ void eth_halt(void);			/* stop SCC */
 const char *eth_get_name(void);		/* get name of current device */
 
 #ifdef CONFIG_MCAST_TFTP
-int eth_mcast_join(IPaddr_t mcast_addr, int join);
+int eth_mcast_join(struct in_addr mcast_addr, int join);
 u32 ether_crc(size_t len, unsigned char const *p);
 #endif
 
@@ -318,8 +319,8 @@ struct ip_hdr {
 	uchar		ip_ttl;		/* time to live			*/
 	uchar		ip_p;		/* protocol			*/
 	ushort		ip_sum;		/* checksum			*/
-	IPaddr_t	ip_src;		/* Source IP address		*/
-	IPaddr_t	ip_dst;		/* Destination IP address	*/
+	struct in_addr	ip_src;		/* Source IP address		*/
+	struct in_addr	ip_dst;		/* Destination IP address	*/
 };
 
 #define IP_OFFS		0x1fff /* ip offset *= 8 */
@@ -342,8 +343,8 @@ struct ip_udp_hdr {
 	uchar		ip_ttl;		/* time to live			*/
 	uchar		ip_p;		/* protocol			*/
 	ushort		ip_sum;		/* checksum			*/
-	IPaddr_t	ip_src;		/* Source IP address		*/
-	IPaddr_t	ip_dst;		/* Destination IP address	*/
+	struct in_addr	ip_src;		/* Source IP address		*/
+	struct in_addr	ip_dst;		/* Destination IP address	*/
 	ushort		udp_src;	/* UDP source port		*/
 	ushort		udp_dst;	/* UDP destination port		*/
 	ushort		udp_len;	/* Length of UDP packet		*/
@@ -458,17 +459,19 @@ struct icmp_hdr {
  *
  * Note:
  *
- * All variables of type IPaddr_t are stored in NETWORK byte order
+ * All variables of type struct in_addr are stored in NETWORK byte order
  * (big endian).
  */
 
 /* net.c */
 /** BOOTP EXTENTIONS **/
-extern IPaddr_t NetOurGatewayIP;	/* Our gateway IP address */
-extern IPaddr_t NetOurSubnetMask;	/* Our subnet mask (0 = unknown) */
-extern IPaddr_t NetOurDNSIP;	/* Our Domain Name Server (0 = unknown) */
+extern struct in_addr net_gateway;	/* Our gateway IP address */
+extern struct in_addr net_netmask;	/* Our subnet mask (0 = unknown) */
+/* Our Domain Name Server (0 = unknown) */
+extern struct in_addr net_dns_server;
 #if defined(CONFIG_BOOTP_DNS2)
-extern IPaddr_t NetOurDNS2IP;	/* Our 2nd Domain Name Server (0 = unknown) */
+/* Our 2nd Domain Name Server (0 = unknown) */
+extern struct in_addr net_dns_server2;
 #endif
 extern char	NetOurNISDomain[32];	/* Our NIS domain */
 extern char	NetOurHostName[32];	/* Our hostname */
@@ -478,8 +481,8 @@ extern ushort	NetBootFileSize;	/* Our boot file size in blocks */
 extern ulong		NetBootFileXferSize;	/* size of bootfile in bytes */
 extern uchar		NetOurEther[6];		/* Our ethernet address */
 extern uchar		NetServerEther[6];	/* Boot server enet address */
-extern IPaddr_t		NetOurIP;	/* Our    IP addr (0 = unknown) */
-extern IPaddr_t		NetServerIP;	/* Server IP addr (0 = unknown) */
+extern struct in_addr	net_ip;		/* Our    IP addr (0 = unknown) */
+extern struct in_addr	net_server_ip;	/* Server IP addr (0 = unknown) */
 extern uchar		*NetTxPacket;		/* THE transmit packet */
 #ifdef CONFIG_DM_ETH
 extern uchar		*net_rx_packets[PKTBUFSRX]; /* Receive packets */
@@ -513,7 +516,7 @@ extern char *NetDNSenvvar;		/* the env var to put the ip into */
 #endif
 
 #if defined(CONFIG_CMD_PING)
-extern IPaddr_t	NetPingIP;			/* the ip address to ping */
+extern struct in_addr net_ping_ip;	/* the ip address to ping */
 #endif
 
 #if defined(CONFIG_CMD_CDP)
@@ -533,12 +536,12 @@ static inline int is_cdp_packet(const uchar *et_addr)
 #endif
 
 #if defined(CONFIG_CMD_SNTP)
-extern IPaddr_t	NetNtpServerIP;			/* the ip address to NTP */
+extern struct in_addr	net_ntp_server;		/* the ip address to NTP */
 extern int NetTimeOffset;			/* offset time from UTC */
 #endif
 
 #if defined(CONFIG_MCAST_TFTP)
-extern IPaddr_t Mcast_addr;
+extern struct in_addr net_mcast_addr;
 #endif
 
 /* Initialize the network adapter */
@@ -559,8 +562,8 @@ int NetSetEther(uchar *, uchar *, uint);
 int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot);
 
 /* Set IP header */
-void net_set_ip_header(uchar *pkt, IPaddr_t dest, IPaddr_t source);
-void net_set_udp_header(uchar *pkt, IPaddr_t dest, int dport,
+void net_set_ip_header(uchar *pkt, struct in_addr dest, struct in_addr source);
+void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport,
 				int sport, int len);
 
 /**
@@ -633,7 +636,7 @@ static inline void NetSendPacket(uchar *pkt, int len)
  * @param sport Source UDP port
  * @param payload_len Length of data after the UDP header
  */
-int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport,
+int NetSendUDPPacket(uchar *ether, struct in_addr dest, int dport,
 			int sport, int payload_len);
 
 #ifndef CONFIG_DM_ETH
@@ -644,7 +647,7 @@ void net_process_received_packet(uchar *in_packet, int len);
 
 #ifdef CONFIG_NETCONSOLE
 void NcStart(void);
-int nc_input_packet(uchar *pkt, IPaddr_t src_ip, unsigned dest_port,
+int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 	unsigned src_port, unsigned len);
 #endif
 
@@ -682,9 +685,9 @@ void net_auto_load(void);
  * footprint in our tests.
  */
 /* return IP *in network byteorder* */
-static inline IPaddr_t NetReadIP(void *from)
+static inline struct in_addr net_read_ip(void *from)
 {
-	IPaddr_t ip;
+	struct in_addr ip;
 
 	memcpy((void *)&ip, (void *)from, sizeof(ip));
 	return ip;
@@ -700,15 +703,15 @@ static inline ulong NetReadLong(ulong *from)
 }
 
 /* write IP *in network byteorder* */
-static inline void NetWriteIP(void *to, IPaddr_t ip)
+static inline void net_write_ip(void *to, struct in_addr ip)
 {
 	memcpy(to, (void *)&ip, sizeof(ip));
 }
 
 /* copy IP */
-static inline void NetCopyIP(void *to, void *from)
+static inline void net_copy_ip(void *to, void *from)
 {
-	memcpy((void *)to, from, sizeof(IPaddr_t));
+	memcpy((void *)to, from, sizeof(struct in_addr));
 }
 
 /* copy ulong */
@@ -788,10 +791,10 @@ static inline void eth_random_addr(uchar *addr)
 }
 
 /* Convert an IP address to a string */
-void ip_to_string(IPaddr_t x, char *s);
+void ip_to_string(struct in_addr x, char *s);
 
 /* Convert a string to ip address */
-IPaddr_t string_to_ip(const char *s);
+struct in_addr string_to_ip(const char *s);
 
 /* Convert a VLAN id to a string */
 void VLAN_to_string(ushort x, char *s);

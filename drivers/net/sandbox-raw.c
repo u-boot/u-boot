@@ -16,7 +16,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static int reply_arp;
-static IPaddr_t arp_ip;
+static struct in_addr arp_ip;
 
 static int sb_eth_raw_start(struct udevice *dev)
 {
@@ -55,7 +55,7 @@ static int sb_eth_raw_send(struct udevice *dev, void *packet, int length)
 			 * localhost works on a higher-level API in Linux than
 			 * ARP packets, so fake it
 			 */
-			arp_ip = NetReadIP(&arp->ar_tpa);
+			arp_ip = net_read_ip(&arp->ar_tpa);
 			reply_arp = 1;
 			return 0;
 		}
@@ -93,9 +93,9 @@ static int sb_eth_raw_recv(struct udevice *dev, uchar **packetp)
 		/* Any non-zero MAC address will work */
 		memset(&arp->ar_sha, 0x01, ARP_HLEN);
 		/* Use whatever IP we were looking for (always 127.0.0.1?) */
-		NetWriteIP(&arp->ar_spa, arp_ip);
+		net_write_ip(&arp->ar_spa, arp_ip);
 		memcpy(&arp->ar_tha, pdata->enetaddr, ARP_HLEN);
-		NetWriteIP(&arp->ar_tpa, NetOurIP);
+		net_write_ip(&arp->ar_tpa, net_ip);
 		length = ARP_HDR_SIZE;
 	} else {
 		/* If local, the Ethernet header won't be included; skip it */

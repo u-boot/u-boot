@@ -27,8 +27,8 @@
 # define ARP_TIMEOUT_COUNT	CONFIG_NET_RETRY_COUNT
 #endif
 
-IPaddr_t	NetArpWaitPacketIP;
-static IPaddr_t	NetArpWaitReplyIP;
+struct in_addr net_arp_wait_packet_ip;
+static struct in_addr net_arp_wait_reply_ip;
 /* MAC address of waiting packet's destination */
 uchar	       *NetArpWaitPacketMAC;
 int		NetArpWaitTxPacketSize;
@@ -42,15 +42,15 @@ void ArpInit(void)
 {
 	/* XXX problem with bss workaround */
 	NetArpWaitPacketMAC = NULL;
-	NetArpWaitPacketIP = 0;
-	NetArpWaitReplyIP = 0;
+	net_arp_wait_packet_ip.s_addr = 0;
+	net_arp_wait_reply_ip.s_addr = 0;
 	NetArpWaitTxPacketSize = 0;
 	NetArpTxPacket = &NetArpPacketBuf[0] + (PKTALIGN - 1);
 	NetArpTxPacket -= (ulong)NetArpTxPacket % PKTALIGN;
 }
 
-void arp_raw_request(IPaddr_t sourceIP, const uchar *targetEther,
-	IPaddr_t targetIP)
+void arp_raw_request(struct in_addr source_ip, const uchar *targetEther,
+	struct in_addr target_ip)
 {
 	uchar *pkt;
 	struct arp_hdr *arp;
@@ -72,35 +72,35 @@ void arp_raw_request(IPaddr_t sourceIP, const uchar *targetEther,
 	arp->ar_op = htons(ARPOP_REQUEST);
 
 	memcpy(&arp->ar_sha, NetOurEther, ARP_HLEN);	/* source ET addr */
-	NetWriteIP(&arp->ar_spa, sourceIP);		/* source IP addr */
+	net_write_ip(&arp->ar_spa, source_ip);		/* source IP addr */
 	memcpy(&arp->ar_tha, targetEther, ARP_HLEN);	/* target ET addr */
-	NetWriteIP(&arp->ar_tpa, targetIP);		/* target IP addr */
+	net_write_ip(&arp->ar_tpa, target_ip);		/* target IP addr */
 
 	NetSendPacket(NetArpTxPacket, eth_hdr_size + ARP_HDR_SIZE);
 }
 
 void ArpRequest(void)
 {
-	if ((NetArpWaitPacketIP & NetOurSubnetMask) !=
-	    (NetOurIP & NetOurSubnetMask)) {
-		if (NetOurGatewayIP == 0) {
+	if ((net_arp_wait_packet_ip.s_addr & net_netmask.s_addr) !=
+	    (net_ip.s_addr & net_netmask.s_addr)) {
+		if (net_gateway.s_addr == 0) {
 			puts("## Warning: gatewayip needed but not set\n");
-			NetArpWaitReplyIP = NetArpWaitPacketIP;
+			net_arp_wait_reply_ip = net_arp_wait_packet_ip;
 		} else {
-			NetArpWaitReplyIP = NetOurGatewayIP;
+			net_arp_wait_reply_ip = net_gateway;
 		}
 	} else {
-		NetArpWaitReplyIP = NetArpWaitPacketIP;
+		net_arp_wait_reply_ip = net_arp_wait_packet_ip;
 	}
 
-	arp_raw_request(NetOurIP, NetEtherNullAddr, NetArpWaitReplyIP);
+	arp_raw_request(net_ip, NetEtherNullAddr, net_arp_wait_reply_ip);
 }
 
 void ArpTimeoutCheck(void)
 {
 	ulong t;
 
-	if (!NetArpWaitPacketIP)
+	if (!net_arp_wait_packet_ip.s_addr)
 		return;
 
 	t = get_timer(0);
@@ -123,7 +123,7 @@ void ArpTimeoutCheck(void)
 void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 {
 	struct arp_hdr *arp;
-	IPaddr_t reply_ip_addr;
+	struct in_addr reply_ip_addr;
 	uchar *pkt;
 	int eth_hdr_size;
 
@@ -152,10 +152,10 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 	if (arp->ar_pln != ARP_PLEN)
 		return;
 
-	if (NetOurIP == 0)
+	if (net_ip.s_addr == 0)
 		return;
 
-	if (NetReadIP(&arp->ar_tpa) != NetOurIP)
+	if (net_read_ip(&arp->ar_tpa).s_addr != net_ip.s_addr)
 		return;
 
 	switch (ntohs(arp->ar_op)) {
@@ -167,9 +167,9 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		pkt += eth_hdr_size;
 		arp->ar_op = htons(ARPOP_REPLY);
 		memcpy(&arp->ar_tha, &arp->ar_sha, ARP_HLEN);
-		NetCopyIP(&arp->ar_tpa, &arp->ar_spa);
+		net_copy_ip(&arp->ar_tpa, &arp->ar_spa);
 		memcpy(&arp->ar_sha, NetOurEther, ARP_HLEN);
-		NetCopyIP(&arp->ar_spa, &NetOurIP);
+		net_copy_ip(&arp->ar_spa, &net_ip);
 
 #ifdef CONFIG_CMD_LINK_LOCAL
 		/*
@@ -180,8 +180,8 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		 *   reply to ARP request so that our reply will overwrite
 		 *   the arp-proxy's instead of the other way around.
 		 */
-		if ((NetReadIP(&arp->ar_tpa) & NetOurSubnetMask) !=
-		    (NetReadIP(&arp->ar_spa) & NetOurSubnetMask))
+		if ((net_read_ip(&arp->ar_tpa).s_addr & net_netmask.s_addr) !=
+		    (net_read_ip(&arp->ar_spa).s_addr & net_netmask.s_addr))
 			udelay(5000);
 #endif
 		NetSendPacket((uchar *)et, eth_hdr_size + ARP_HDR_SIZE);
@@ -189,21 +189,21 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 
 	case ARPOP_REPLY:		/* arp reply */
 		/* are we waiting for a reply */
-		if (!NetArpWaitPacketIP)
+		if (!net_arp_wait_packet_ip.s_addr)
 			break;
 
 #ifdef CONFIG_KEEP_SERVERADDR
-		if (NetServerIP == NetArpWaitPacketIP) {
+		if (net_server_ip.s_addr == net_arp_wait_packet_ip.s_addr) {
 			char buf[20];
 			sprintf(buf, "%pM", &arp->ar_sha);
 			setenv("serveraddr", buf);
 		}
 #endif
 
-		reply_ip_addr = NetReadIP(&arp->ar_spa);
+		reply_ip_addr = net_read_ip(&arp->ar_spa);
 
 		/* matched waiting packet's address */
-		if (reply_ip_addr == NetArpWaitReplyIP) {
+		if (reply_ip_addr.s_addr == net_arp_wait_reply_ip.s_addr) {
 			debug_cond(DEBUG_DEV_PKT,
 				"Got ARP REPLY, set eth addr (%pM)\n",
 				arp->ar_data);
@@ -223,7 +223,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 			NetSendPacket(NetTxPacket, NetArpWaitTxPacketSize);
 
 			/* no arp request pending now */
-			NetArpWaitPacketIP = 0;
+			net_arp_wait_packet_ip.s_addr = 0;
 			NetArpWaitTxPacketSize = 0;
 			NetArpWaitPacketMAC = NULL;
 

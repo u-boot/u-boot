@@ -331,7 +331,7 @@ static int pxe_ipaddr_paths(cmd_tbl_t *cmdtp, void *pxefile_addr_r)
 	char ip_addr[9];
 	int mask_pos, err;
 
-	sprintf(ip_addr, "%08X", ntohl(NetOurIP));
+	sprintf(ip_addr, "%08X", ntohl(net_ip.s_addr));
 
 	for (mask_pos = 7; mask_pos >= 0;  mask_pos--) {
 		err = get_pxelinux_path(cmdtp, ip_addr, pxefile_addr_r);

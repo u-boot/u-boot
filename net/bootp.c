@@ -60,9 +60,9 @@ ulong		bootp_timeout;
 #if defined(CONFIG_CMD_DHCP)
 static dhcp_state_t dhcp_state = INIT;
 static unsigned long dhcp_leasetime;
-static IPaddr_t NetDHCPServerIP;
-static void DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
-			unsigned len);
+static struct in_addr dhcp_server_ip;
+static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
+			unsigned src, unsigned len);
 
 /* For Debug */
 #if 0
@@ -139,11 +139,11 @@ static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 static void BootpCopyNetParams(struct Bootp_t *bp)
 {
 #if !defined(CONFIG_BOOTP_SERVERIP)
-	IPaddr_t tmp_ip;
+	struct in_addr tmp_ip;
 
-	NetCopyIP(&tmp_ip, &bp->bp_siaddr);
-	if (tmp_ip != 0)
-		NetCopyIP(&NetServerIP, &bp->bp_siaddr);
+	net_copy_ip(&tmp_ip, &bp->bp_siaddr);
+	if (tmp_ip.s_addr != 0)
+		net_copy_ip(&net_server_ip, &bp->bp_siaddr);
 	memcpy(NetServerEther, ((struct ethernet_hdr *)NetRxPacket)->et_src, 6);
 	if (strlen(bp->bp_file) > 0)
 		copy_filename(BootFile, bp->bp_file, sizeof(BootFile));
@@ -157,7 +157,7 @@ static void BootpCopyNetParams(struct Bootp_t *bp)
 	if (*BootFile)
 		setenv("bootfile", BootFile);
 #endif
-	NetCopyIP(&NetOurIP, &bp->bp_yiaddr);
+	net_copy_ip(&net_ip, &bp->bp_yiaddr);
 }
 
 static int truncate_sz(const char *name, int maxlen, int curlen)
@@ -184,26 +184,28 @@ static void BootpVendorFieldProcess(u8 *ext)
 	switch (*ext) {
 		/* Fixed length fields */
 	case 1:			/* Subnet mask */
-		if (NetOurSubnetMask == 0)
-			NetCopyIP(&NetOurSubnetMask, (IPaddr_t *) (ext + 2));
+		if (net_netmask.s_addr == 0)
+			net_copy_ip(&net_netmask, (struct in_addr *)(ext + 2));
 		break;
 	case 2:			/* Time offset - Not yet supported */
 		break;
 		/* Variable length fields */
 	case 3:			/* Gateways list */
-		if (NetOurGatewayIP == 0)
-			NetCopyIP(&NetOurGatewayIP, (IPaddr_t *) (ext + 2));
+		if (net_gateway.s_addr == 0)
+			net_copy_ip(&net_gateway, (struct in_addr *)(ext + 2));
 		break;
 	case 4:			/* Time server - Not yet supported */
 		break;
 	case 5:			/* IEN-116 name server - Not yet supported */
 		break;
 	case 6:
-		if (NetOurDNSIP == 0)
-			NetCopyIP(&NetOurDNSIP, (IPaddr_t *) (ext + 2));
+		if (net_dns_server.s_addr == 0)
+			net_copy_ip(&net_dns_server,
+				    (struct in_addr *)(ext + 2));
 #if defined(CONFIG_BOOTP_DNS2)
-		if ((NetOurDNS2IP == 0) && (size > 4))
-			NetCopyIP(&NetOurDNS2IP, (IPaddr_t *) (ext + 2 + 4));
+		if ((net_dns_server2.s_addr == 0) && (size > 4))
+			net_copy_ip(&net_dns_server2,
+				    (struct in_addr *)(ext + 2 + 4));
 #endif
 		break;
 	case 7:			/* Log server - Not yet supported */
@@ -262,7 +264,7 @@ static void BootpVendorFieldProcess(u8 *ext)
 		break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
 	case 42:	/* NTP server IP */
-		NetCopyIP(&NetNtpServerIP, (IPaddr_t *) (ext + 2));
+		net_copy_ip(&net_ntp_server, (struct in_addr *)(ext + 2));
 		break;
 #endif
 		/* Application layer fields */
@@ -295,11 +297,11 @@ static void BootpVendorProcess(u8 *ext, int size)
 	}
 
 	debug("[BOOTP] Received fields:\n");
-	if (NetOurSubnetMask)
-		debug("NetOurSubnetMask : %pI4\n", &NetOurSubnetMask);
+	if (net_netmask.s_addr)
+		debug("net_netmask : %pI4\n", &net_netmask);
 
-	if (NetOurGatewayIP)
-		debug("NetOurGatewayIP	: %pI4", &NetOurGatewayIP);
+	if (net_gateway.s_addr)
+		debug("net_gateway	: %pI4", &net_gateway);
 
 	if (NetBootFileSize)
 		debug("NetBootFileSize : %d\n", NetBootFileSize);
@@ -317,17 +319,16 @@ static void BootpVendorProcess(u8 *ext, int size)
 		debug("NetBootFileSize: %d\n", NetBootFileSize);
 
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
-	if (NetNtpServerIP)
-		debug("NetNtpServerIP : %pI4\n", &NetNtpServerIP);
+	if (net_ntp_server)
+		debug("net_ntp_server : %pI4\n", &net_ntp_server);
 #endif
 }
 
 /*
  *	Handle a BOOTP received packet.
  */
-static void
-BootpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
-	     unsigned len)
+static void bootp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
+			  unsigned src, unsigned len)
 {
 	struct Bootp_t *bp;
 
@@ -400,8 +401,8 @@ BootpTimeout(void)
  *	Initialize BOOTP extension fields in the request.
  */
 #if defined(CONFIG_CMD_DHCP)
-static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID,
-			IPaddr_t RequestedIP)
+static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
+			struct in_addr requested_ip)
 {
 	u8 *start = e;
 	u8 *cnt;
@@ -431,8 +432,8 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID,
 	*e++ = (576 - 312 + OPT_FIELD_SIZE) >> 8;
 	*e++ = (576 - 312 + OPT_FIELD_SIZE) & 0xff;
 
-	if (ServerID) {
-		int tmp = ntohl(ServerID);
+	if (server_ip.s_addr) {
+		int tmp = ntohl(server_ip.s_addr);
 
 		*e++ = 54;	/* ServerID */
 		*e++ = 4;
@@ -442,8 +443,8 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID,
 		*e++ = tmp & 0xff;
 	}
 
-	if (RequestedIP) {
-		int tmp = ntohl(RequestedIP);
+	if (requested_ip.s_addr) {
+		int tmp = ntohl(requested_ip.s_addr);
 
 		*e++ = 50;	/* Requested IP */
 		*e++ = 4;
@@ -561,7 +562,7 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID,
 /*
  * Warning: no field size check - change CONFIG_BOOTP_* at your own risk!
  */
-static int BootpExtended(u8 *e)
+static int bootp_extended(u8 *e)
 {
 	u8 *start = e;
 
@@ -662,6 +663,8 @@ BootpRequest(void)
 	ulong rand_ms;
 #endif
 	ulong BootpID;
+	struct in_addr zero_ip;
+	struct in_addr bcast_ip;
 
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_START, "bootp_start");
 #if defined(CONFIG_CMD_DHCP)
@@ -707,18 +710,20 @@ BootpRequest(void)
 	bp->bp_hlen = HWL_ETHER;
 	bp->bp_hops = 0;
 	bp->bp_secs = htons(get_timer(0) / 1000);
-	NetWriteIP(&bp->bp_ciaddr, 0);
-	NetWriteIP(&bp->bp_yiaddr, 0);
-	NetWriteIP(&bp->bp_siaddr, 0);
-	NetWriteIP(&bp->bp_giaddr, 0);
+	zero_ip.s_addr = 0;
+	net_write_ip(&bp->bp_ciaddr, zero_ip);
+	net_write_ip(&bp->bp_yiaddr, zero_ip);
+	net_write_ip(&bp->bp_siaddr, zero_ip);
+	net_write_ip(&bp->bp_giaddr, zero_ip);
 	memcpy(bp->bp_chaddr, NetOurEther, 6);
 	copy_filename(bp->bp_file, BootFile, sizeof(bp->bp_file));
 
 	/* Request additional information from the BOOTP/DHCP server */
 #if defined(CONFIG_CMD_DHCP)
-	extlen = DhcpExtended((u8 *)bp->bp_vend, DHCP_DISCOVER, 0, 0);
+	extlen = dhcp_extended((u8 *)bp->bp_vend, DHCP_DISCOVER, zero_ip,
+			       zero_ip);
 #else
-	extlen = BootpExtended((u8 *)bp->bp_vend);
+	extlen = bootp_extended((u8 *)bp->bp_vend);
 #endif
 
 	/*
@@ -740,14 +745,15 @@ BootpRequest(void)
 	 */
 	iplen = BOOTP_HDR_SIZE - OPT_FIELD_SIZE + extlen;
 	pktlen = eth_hdr_size + IP_UDP_HDR_SIZE + iplen;
-	net_set_udp_header(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
+	bcast_ip.s_addr = 0xFFFFFFFFL;
+	net_set_udp_header(iphdr, bcast_ip, PORT_BOOTPS, PORT_BOOTPC, iplen);
 	NetSetTimeout(bootp_timeout, BootpTimeout);
 
 #if defined(CONFIG_CMD_DHCP)
 	dhcp_state = SELECTING;
-	net_set_udp_handler(DhcpHandler);
+	net_set_udp_handler(dhcp_handler);
 #else
-	net_set_udp_handler(BootpHandler);
+	net_set_udp_handler(bootp_handler);
 #endif
 	NetSendPacket(NetTxPacket, pktlen);
 }
@@ -765,7 +771,7 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 		oplen = *(popt + 1);
 		switch (*popt) {
 		case 1:
-			NetCopyIP(&NetOurSubnetMask, (popt + 2));
+			net_copy_ip(&net_netmask, (popt + 2));
 			break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
 		case 2:		/* Time offset	*/
@@ -775,13 +781,13 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 			break;
 #endif
 		case 3:
-			NetCopyIP(&NetOurGatewayIP, (popt + 2));
+			net_copy_ip(&net_gateway, (popt + 2));
 			break;
 		case 6:
-			NetCopyIP(&NetOurDNSIP, (popt + 2));
+			net_copy_ip(&net_dns_server, (popt + 2));
 #if defined(CONFIG_BOOTP_DNS2)
 			if (*(popt + 1) > 4)
-				NetCopyIP(&NetOurDNS2IP, (popt + 2 + 4));
+				net_copy_ip(&net_dns_server2, (popt + 2 + 4));
 #endif
 			break;
 		case 12:
@@ -802,7 +808,7 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 			break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
 		case 42:	/* NTP server IP */
-			NetCopyIP(&NetNtpServerIP, (popt + 2));
+			net_copy_ip(&net_ntp_server, (popt + 2));
 			break;
 #endif
 		case 51:
@@ -811,7 +817,7 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 		case 53:	/* Ignore Message Type Option */
 			break;
 		case 54:
-			NetCopyIP(&NetDHCPServerIP, (popt + 2));
+			net_copy_ip(&dhcp_server_ip, (popt + 2));
 			break;
 		case 58:	/* Ignore Renewal Time Option */
 			break;
@@ -878,7 +884,9 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	struct Bootp_t *bp;
 	int pktlen, iplen, extlen;
 	int eth_hdr_size;
-	IPaddr_t OfferedIP;
+	struct in_addr offered_ip;
+	struct in_addr zero_ip;
+	struct in_addr bcast_ip;
 
 	debug("DhcpSendRequestPkt: Sending DHCPREQUEST\n");
 	pkt = NetTxPacket;
@@ -903,7 +911,8 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	 * RFC3046 requires Relay Agents to discard packets with
 	 * nonzero and offered giaddr
 	 */
-	NetWriteIP(&bp->bp_giaddr, 0);
+	zero_ip.s_addr = 0;
+	net_write_ip(&bp->bp_giaddr, zero_ip);
 
 	memcpy(bp->bp_chaddr, NetOurEther, 6);
 
@@ -918,13 +927,14 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	 */
 
 	/* Copy offered IP into the parameters request list */
-	NetCopyIP(&OfferedIP, &bp_offer->bp_yiaddr);
-	extlen = DhcpExtended((u8 *)bp->bp_vend, DHCP_REQUEST,
-		NetDHCPServerIP, OfferedIP);
+	net_copy_ip(&offered_ip, &bp_offer->bp_yiaddr);
+	extlen = dhcp_extended((u8 *)bp->bp_vend, DHCP_REQUEST,
+		dhcp_server_ip, offered_ip);
 
 	iplen = BOOTP_HDR_SIZE - OPT_FIELD_SIZE + extlen;
 	pktlen = eth_hdr_size + IP_UDP_HDR_SIZE + iplen;
-	net_set_udp_header(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
+	bcast_ip.s_addr = 0xFFFFFFFFL;
+	net_set_udp_header(iphdr, bcast_ip, PORT_BOOTPS, PORT_BOOTPC, iplen);
 
 #ifdef CONFIG_BOOTP_DHCP_REQUEST_DELAY
 	udelay(CONFIG_BOOTP_DHCP_REQUEST_DELAY);
@@ -936,9 +946,8 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 /*
  *	Handle DHCP received packets.
  */
-static void
-DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
-	    unsigned len)
+static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
+			 unsigned src, unsigned len)
 {
 	struct Bootp_t *bp = (struct Bootp_t *)pkt;
 
@@ -993,7 +1002,7 @@ DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 			BootpCopyNetParams(bp);
 			dhcp_state = BOUND;
 			printf("DHCP client bound to address %pI4 (%lu ms)\n",
-				&NetOurIP, get_timer(bootp_start));
+				&net_ip, get_timer(bootp_start));
 			bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP,
 				"bootp_stop");
 

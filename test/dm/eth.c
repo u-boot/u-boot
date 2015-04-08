@@ -20,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int dm_test_eth(struct dm_test_state *dms)
 {
-	NetPingIP = string_to_ip("1.1.2.2");
+	net_ping_ip = string_to_ip("1.1.2.2");
 
 	setenv("ethact", "eth@10002000");
 	ut_assertok(NetLoop(PING));
@@ -40,7 +40,7 @@ DM_TEST(dm_test_eth, DM_TESTF_SCAN_FDT);
 
 static int dm_test_eth_alias(struct dm_test_state *dms)
 {
-	NetPingIP = string_to_ip("1.1.2.2");
+	net_ping_ip = string_to_ip("1.1.2.2");
 	setenv("ethact", "eth0");
 	ut_assertok(NetLoop(PING));
 	ut_asserteq_str("eth@10002000", getenv("ethact"));
@@ -64,7 +64,7 @@ DM_TEST(dm_test_eth_alias, DM_TESTF_SCAN_FDT);
 
 static int dm_test_eth_prime(struct dm_test_state *dms)
 {
-	NetPingIP = string_to_ip("1.1.2.2");
+	net_ping_ip = string_to_ip("1.1.2.2");
 
 	/* Expected to be "eth@10003000" because of ethprime variable */
 	setenv("ethact", NULL);
@@ -87,7 +87,7 @@ static int dm_test_eth_rotate(struct dm_test_state *dms)
 	char ethaddr[18];
 
 	/* Invalidate eth1's MAC address */
-	NetPingIP = string_to_ip("1.1.2.2");
+	net_ping_ip = string_to_ip("1.1.2.2");
 	strcpy(ethaddr, getenv("eth1addr"));
 	setenv("eth1addr", NULL);
 
@@ -126,7 +126,7 @@ DM_TEST(dm_test_eth_rotate, DM_TESTF_SCAN_FDT);
 
 static int dm_test_net_retry(struct dm_test_state *dms)
 {
-	NetPingIP = string_to_ip("1.1.2.2");
+	net_ping_ip = string_to_ip("1.1.2.2");
 
 	/*
 	 * eth1 is disabled and netretry is yes, so the ping should succeed and

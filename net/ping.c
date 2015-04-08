@@ -15,9 +15,9 @@
 static ushort PingSeqNo;
 
 /* The ip address to ping */
-IPaddr_t NetPingIP;
+struct in_addr net_ping_ip;
 
-static void set_icmp_header(uchar *pkt, IPaddr_t dest)
+static void set_icmp_header(uchar *pkt, struct in_addr dest)
 {
 	/*
 	 *	Construct an IP and ICMP header.
@@ -25,7 +25,7 @@ static void set_icmp_header(uchar *pkt, IPaddr_t dest)
 	struct ip_hdr *ip = (struct ip_hdr *)pkt;
 	struct icmp_hdr *icmp = (struct icmp_hdr *)(pkt + IP_HDR_SIZE);
 
-	net_set_ip_header(pkt, dest, NetOurIP);
+	net_set_ip_header(pkt, dest, net_ip);
 
 	ip->ip_len   = htons(IP_ICMP_HDR_SIZE);
 	ip->ip_p     = IPPROTO_ICMP;
@@ -46,14 +46,14 @@ static int ping_send(void)
 
 	/* XXX always send arp request */
 
-	debug_cond(DEBUG_DEV_PKT, "sending ARP for %pI4\n", &NetPingIP);
+	debug_cond(DEBUG_DEV_PKT, "sending ARP for %pI4\n", &net_ping_ip);
 
-	NetArpWaitPacketIP = NetPingIP;
+	net_arp_wait_packet_ip = net_ping_ip;
 
 	eth_hdr_size = NetSetEther(NetTxPacket, NetEtherNullAddr, PROT_IP);
 	pkt = (uchar *)NetTxPacket + eth_hdr_size;
 
-	set_icmp_header(pkt, NetPingIP);
+	set_icmp_header(pkt, net_ping_ip);
 
 	/* size of the waiting packet */
 	NetArpWaitTxPacketSize = eth_hdr_size + IP_ICMP_HDR_SIZE;
@@ -82,13 +82,13 @@ void ping_start(void)
 void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 {
 	struct icmp_hdr *icmph = (struct icmp_hdr *)&ip->udp_src;
-	IPaddr_t src_ip;
+	struct in_addr src_ip;
 	int eth_hdr_size;
 
 	switch (icmph->type) {
 	case ICMP_ECHO_REPLY:
-		src_ip = NetReadIP((void *)&ip->ip_src);
-		if (src_ip == NetPingIP)
+		src_ip = net_read_ip((void *)&ip->ip_src);
+		if (src_ip.s_addr == net_ping_ip.s_addr)
 			net_set_state(NETLOOP_SUCCESS);
 		return;
 	case ICMP_ECHO_REQUEST:
@@ -99,8 +99,8 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 
 		ip->ip_sum = 0;
 		ip->ip_off = 0;
-		NetCopyIP((void *)&ip->ip_dst, &ip->ip_src);
-		NetCopyIP((void *)&ip->ip_src, &NetOurIP);
+		net_copy_ip((void *)&ip->ip_dst, &ip->ip_src);
+		net_copy_ip((void *)&ip->ip_src, &net_ip);
 		ip->ip_sum = compute_ip_checksum(ip, IP_HDR_SIZE);
 
 		icmph->type = ICMP_ECHO_REPLY;

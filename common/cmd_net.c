@@ -114,13 +114,13 @@ static void netboot_update_env(void)
 {
 	char tmp[22];
 
-	if (NetOurGatewayIP) {
-		ip_to_string(NetOurGatewayIP, tmp);
+	if (net_gateway.s_addr) {
+		ip_to_string(net_gateway, tmp);
 		setenv("gatewayip", tmp);
 	}
 
-	if (NetOurSubnetMask) {
-		ip_to_string(NetOurSubnetMask, tmp);
+	if (net_netmask.s_addr) {
+		ip_to_string(net_netmask, tmp);
 		setenv("netmask", tmp);
 	}
 
@@ -130,8 +130,8 @@ static void netboot_update_env(void)
 	if (NetOurRootPath[0])
 		setenv("rootpath", NetOurRootPath);
 
-	if (NetOurIP) {
-		ip_to_string(NetOurIP, tmp);
+	if (net_ip.s_addr) {
+		ip_to_string(net_ip, tmp);
 		setenv("ipaddr", tmp);
 	}
 #if !defined(CONFIG_BOOTP_SERVERIP)
@@ -139,18 +139,18 @@ static void netboot_update_env(void)
 	 * Only attempt to change serverip if net/bootp.c:BootpCopyNetParams()
 	 * could have set it
 	 */
-	if (NetServerIP) {
-		ip_to_string(NetServerIP, tmp);
+	if (net_server_ip.s_addr) {
+		ip_to_string(net_server_ip, tmp);
 		setenv("serverip", tmp);
 	}
 #endif
-	if (NetOurDNSIP) {
-		ip_to_string(NetOurDNSIP, tmp);
+	if (net_dns_server.s_addr) {
+		ip_to_string(net_dns_server, tmp);
 		setenv("dnsip", tmp);
 	}
 #if defined(CONFIG_BOOTP_DNS2)
-	if (NetOurDNS2IP) {
-		ip_to_string(NetOurDNS2IP, tmp);
+	if (net_dns_server2.s_addr) {
+		ip_to_string(net_dns_server2, tmp);
 		setenv("dnsip2", tmp);
 	}
 #endif
@@ -166,8 +166,8 @@ static void netboot_update_env(void)
 #endif
 #if defined(CONFIG_CMD_SNTP) \
     && defined(CONFIG_BOOTP_NTPSERVER)
-	if (NetNtpServerIP) {
-		ip_to_string(NetNtpServerIP, tmp);
+	if (net_ntp_server.s_addr) {
+		ip_to_string(net_ntp_server, tmp);
 		setenv("ntpserverip", tmp);
 	}
 #endif
@@ -260,8 +260,8 @@ static int do_ping(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	NetPingIP = string_to_ip(argv[1]);
-	if (NetPingIP == 0)
+	net_ping_ip = string_to_ip(argv[1]);
+	if (net_ping_ip.s_addr == 0)
 		return CMD_RET_USAGE;
 
 	if (NetLoop(PING) < 0) {
@@ -331,14 +331,14 @@ int do_sntp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *toff;
 
 	if (argc < 2) {
-		NetNtpServerIP = getenv_IPaddr("ntpserverip");
-		if (NetNtpServerIP == 0) {
+		net_ntp_server = getenv_ip("ntpserverip");
+		if (net_ntp_server.s_addr == 0) {
 			printf("ntpserverip not set\n");
 			return CMD_RET_FAILURE;
 		}
 	} else {
-		NetNtpServerIP = string_to_ip(argv[1]);
-		if (NetNtpServerIP == 0) {
+		net_ntp_server = string_to_ip(argv[1]);
+		if (net_ntp_server.s_addr == 0) {
 			printf("Bad NTP server IP address\n");
 			return CMD_RET_FAILURE;
 		}
@@ -352,7 +352,7 @@ int do_sntp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (NetLoop(SNTP) < 0) {
 		printf("SNTP failed: host %pI4 not responding\n",
-			&NetNtpServerIP);
+			&net_ntp_server);
 		return CMD_RET_FAILURE;
 	}
 
@@ -421,14 +421,14 @@ static int do_link_local(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (NetLoop(LINKLOCAL) < 0)
 		return CMD_RET_FAILURE;
 
-	NetOurGatewayIP = 0;
-	ip_to_string(NetOurGatewayIP, tmp);
+	net_gateway.s_addr = 0;
+	ip_to_string(net_gateway, tmp);
 	setenv("gatewayip", tmp);
 
-	ip_to_string(NetOurSubnetMask, tmp);
+	ip_to_string(net_netmask, tmp);
 	setenv("netmask", tmp);
 
-	ip_to_string(NetOurIP, tmp);
+	ip_to_string(net_ip, tmp);
 	setenv("ipaddr", tmp);
 	setenv("llipaddr", tmp); /* store this for next time */
 

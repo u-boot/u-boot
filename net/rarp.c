@@ -43,9 +43,9 @@ void rarp_receive(struct ip_udp_hdr *ip, unsigned len)
 
 		puts("invalid RARP header\n");
 	} else {
-		NetCopyIP(&NetOurIP, &arp->ar_data[16]);
-		if (NetServerIP == 0)
-			NetCopyIP(&NetServerIP, &arp->ar_data[6]);
+		net_copy_ip(&net_ip, &arp->ar_data[16]);
+		if (net_server_ip.s_addr == 0)
+			net_copy_ip(&net_server_ip, &arp->ar_data[6]);
 		memcpy(NetServerEther, &arp->ar_data[0], 6);
 		debug_cond(DEBUG_DEV_PKT, "Got good RARP\n");
 		net_auto_load();
@@ -88,7 +88,7 @@ void RarpRequest(void)
 	rarp->ar_pln = 4;
 	rarp->ar_op  = htons(RARPOP_REQUEST);
 	memcpy(&rarp->ar_data[0],  NetOurEther, 6);	/* source ET addr */
-	memcpy(&rarp->ar_data[6],  &NetOurIP,   4);	/* source IP addr */
+	memcpy(&rarp->ar_data[6],  &net_ip,   4);	/* source IP addr */
 	/* dest ET addr = source ET addr ??*/
 	memcpy(&rarp->ar_data[10], NetOurEther, 6);
 	/* dest IP addr set to broadcast */

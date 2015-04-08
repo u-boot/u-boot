@@ -51,7 +51,7 @@ static char dirfh[NFS_FHSIZE];	/* file handle of directory */
 static char filefh[NFS_FHSIZE]; /* file handle of kernel image */
 
 static enum net_loop_state nfs_download_state;
-static IPaddr_t NfsServerIP;
+static struct in_addr nfs_server_ip;
 static int	NfsSrvMountPort;
 static int	NfsSrvNfsPort;
 static int	NfsOurPort;
@@ -211,8 +211,8 @@ rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 	else
 		sport = NfsSrvNfsPort;
 
-	NetSendUDPPacket(NetServerEther, NfsServerIP, sport, NfsOurPort,
-		pktlen);
+	NetSendUDPPacket(NetServerEther, nfs_server_ip, sport, NfsOurPort,
+			 pktlen);
 }
 
 /**************************************************************************
@@ -600,8 +600,8 @@ NfsTimeout(void)
 	}
 }
 
-static void
-NfsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
+static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
+			unsigned src, unsigned len)
 {
 	int rlen;
 	int reply;
@@ -715,7 +715,7 @@ NfsStart(void)
 	debug("%s\n", __func__);
 	nfs_download_state = NETLOOP_FAIL;
 
-	NfsServerIP = NetServerIP;
+	nfs_server_ip = net_server_ip;
 	nfs_path = (char *)nfs_path_buff;
 
 	if (nfs_path == NULL) {
@@ -726,10 +726,10 @@ NfsStart(void)
 
 	if (BootFile[0] == '\0') {
 		sprintf(default_filename, "/nfsroot/%02X%02X%02X%02X.img",
-			NetOurIP & 0xFF,
-			(NetOurIP >>  8) & 0xFF,
-			(NetOurIP >> 16) & 0xFF,
-			(NetOurIP >> 24) & 0xFF);
+			net_ip.s_addr & 0xFF,
+			(net_ip.s_addr >>  8) & 0xFF,
+			(net_ip.s_addr >> 16) & 0xFF,
+			(net_ip.s_addr >> 24) & 0xFF);
 		strcpy(nfs_path, default_filename);
 
 		printf("*** Warning: no boot file name; using '%s'\n",
@@ -740,7 +740,7 @@ NfsStart(void)
 		p = strchr(p, ':');
 
 		if (p != NULL) {
-			NfsServerIP = string_to_ip(BootFile);
+			nfs_server_ip = string_to_ip(BootFile);
 			++p;
 			strcpy(nfs_path, p);
 		} else {
@@ -753,17 +753,19 @@ NfsStart(void)
 
 	printf("Using %s device\n", eth_get_name());
 
-	printf("File transfer via NFS from server %pI4"
-		"; our IP address is %pI4", &NfsServerIP, &NetOurIP);
+	printf("File transfer via NFS from server %pI4; our IP address is %pI4",
+	       &nfs_server_ip, &net_ip);
 
 	/* Check if we need to send across this subnet */
-	if (NetOurGatewayIP && NetOurSubnetMask) {
-		IPaddr_t OurNet	    = NetOurIP	  & NetOurSubnetMask;
-		IPaddr_t ServerNet  = NetServerIP & NetOurSubnetMask;
+	if (net_gateway.s_addr && net_netmask.s_addr) {
+		struct in_addr our_net;
+		struct in_addr server_net;
 
-		if (OurNet != ServerNet)
+		our_net.s_addr = net_ip.s_addr & net_netmask.s_addr;
+		server_net.s_addr = net_server_ip.s_addr & net_netmask.s_addr;
+		if (our_net.s_addr != server_net.s_addr)
 			printf("; sending through gateway %pI4",
-				&NetOurGatewayIP);
+				&net_gateway);
 	}
 	printf("\nFilename '%s/%s'.", nfs_path, nfs_filename);
 
@@ -775,7 +777,7 @@ NfsStart(void)
 		"Loading: *\b", load_addr);
 
 	NetSetTimeout(nfs_timeout, NfsTimeout);
-	net_set_udp_handler(NfsHandler);
+	net_set_udp_handler(nfs_handler);
 
 	NfsTimeoutCount = 0;
 	NfsState = STATE_PRCLOOKUP_PROG_MOUNT_REQ;

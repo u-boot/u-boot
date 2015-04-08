@@ -49,7 +49,7 @@ static enum ll_state_t {
 	DISABLED
 } state = DISABLED;
 
-static IPaddr_t ip;
+static struct in_addr ip;
 static int timeout_ms = -1;
 static unsigned deadline_ms;
 static unsigned conflicts;
@@ -64,14 +64,16 @@ static void link_local_timeout(void);
  * Pick a random link local IP address on 169.254/16, except that
  * the first and last 256 addresses are reserved.
  */
-static IPaddr_t pick(void)
+static struct in_addr pick(void)
 {
 	unsigned tmp;
+	struct in_addr ip;
 
 	do {
 		tmp = rand_r(&seed) & IN_CLASSB_HOST;
 	} while (tmp > (IN_CLASSB_HOST - 0x0200));
-	return (IPaddr_t) htonl((LINKLOCAL_ADDR + 0x0100) + tmp);
+	ip.s_addr = htonl((LINKLOCAL_ADDR + 0x0100) + tmp);
+	return ip;
 }
 
 /**
@@ -102,16 +104,17 @@ static void configure_wait(void)
 
 void link_local_start(void)
 {
-	ip = getenv_IPaddr("llipaddr");
-	if (ip != 0 && (ntohl(ip) & IN_CLASSB_NET) != LINKLOCAL_ADDR) {
+	ip = getenv_ip("llipaddr");
+	if (ip.s_addr != 0 &&
+	    (ntohl(ip.s_addr) & IN_CLASSB_NET) != LINKLOCAL_ADDR) {
 		puts("invalid link address");
 		net_set_state(NETLOOP_FAIL);
 		return;
 	}
-	NetOurSubnetMask = IN_CLASSB_NET;
+	net_netmask.s_addr = IN_CLASSB_NET;
 
 	seed = seed_mac();
-	if (ip == 0)
+	if (ip.s_addr == 0)
 		ip = pick();
 
 	state = PROBE;
@@ -131,10 +134,12 @@ static void link_local_timeout(void)
 		/* timeouts in the PROBE state mean no conflicting ARP packets
 		   have been received, so we can progress through the states */
 		if (nprobes < PROBE_NUM) {
+			struct in_addr zero_ip = {.s_addr = 0};
+
 			nprobes++;
 			debug_cond(DEBUG_LL_STATE, "probe/%u %s@%pI4\n",
 					nprobes, eth_get_name(), &ip);
-			arp_raw_request(0, NetEtherNullAddr, ip);
+			arp_raw_request(zero_ip, NetEtherNullAddr, ip);
 			timeout_ms = PROBE_MIN * 1000;
 			timeout_ms += random_delay_ms(PROBE_MAX - PROBE_MIN);
 		} else {
@@ -172,7 +177,7 @@ static void link_local_timeout(void)
 			/* Switch to monitor state */
 			state = MONITOR;
 			printf("Successfully assigned %pI4\n", &ip);
-			NetCopyIP(&NetOurIP, &ip);
+			net_copy_ip(&net_ip, &ip);
 			ready = 1;
 			conflicts = 0;
 			timeout_ms = -1;
@@ -206,7 +211,7 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 {
 	int source_ip_conflict;
 	int target_ip_conflict;
-	IPaddr_t null_ip = 0;
+	struct in_addr null_ip = {.s_addr = 0};
 
 	if (state == DISABLED)
 		return;
@@ -322,7 +327,7 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 			state = PROBE;
 			debug("defend conflict -- starting over\n");
 			ready = 0;
-			NetOurIP = 0;
+			net_ip.s_addr = 0;
 
 			/* restart the whole protocol */
 			ip = pick();

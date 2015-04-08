@@ -768,14 +768,14 @@ int eth_initialize(void)
  * mcast_addr: multicast ipaddr from which multicast Mac is made
  * join: 1=join, 0=leave.
  */
-int eth_mcast_join(IPaddr_t mcast_ip, int join)
+int eth_mcast_join(struct in_addr mcast_ip, int join)
 {
 	u8 mcast_mac[6];
 	if (!eth_current || !eth_current->mcast)
 		return -1;
-	mcast_mac[5] = htonl(mcast_ip) & 0xff;
-	mcast_mac[4] = (htonl(mcast_ip)>>8) & 0xff;
-	mcast_mac[3] = (htonl(mcast_ip)>>16) & 0x7f;
+	mcast_mac[5] = htonl(mcast_ip.s_addr) & 0xff;
+	mcast_mac[4] = (htonl(mcast_ip.s_addr)>>8) & 0xff;
+	mcast_mac[3] = (htonl(mcast_ip.s_addr)>>16) & 0x7f;
 	mcast_mac[2] = 0x5e;
 	mcast_mac[1] = 0x0;
 	mcast_mac[0] = 0x1;

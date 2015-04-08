@@ -41,10 +41,10 @@ struct Bootp_t {
 	ulong		bp_id;		/* Transaction ID		*/
 	ushort		bp_secs;	/* Seconds since boot		*/
 	ushort		bp_spare1;	/* Alignment			*/
-	IPaddr_t	bp_ciaddr;	/* Client IP address		*/
-	IPaddr_t	bp_yiaddr;	/* Your (client) IP address	*/
-	IPaddr_t	bp_siaddr;	/* Server IP address		*/
-	IPaddr_t	bp_giaddr;	/* Gateway IP address		*/
+	struct in_addr	bp_ciaddr;	/* Client IP address		*/
+	struct in_addr	bp_yiaddr;	/* Your (client) IP address	*/
+	struct in_addr	bp_siaddr;	/* Server IP address		*/
+	struct in_addr	bp_giaddr;	/* Gateway IP address		*/
 	uchar		bp_chaddr[16];	/* Client hardware address	*/
 	char		bp_sname[64];	/* Server host name		*/
 	char		bp_file[128];	/* Boot file name		*/

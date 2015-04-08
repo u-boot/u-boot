@@ -23,7 +23,7 @@ static int input_recursion;
 static int output_recursion;
 static int net_timeout;
 static uchar nc_ether[6]; /* server enet address */
-static IPaddr_t nc_ip; /* server ip */
+static struct in_addr nc_ip; /* server ip */
 static short nc_out_port; /* target output port */
 static short nc_in_port; /* source input port */
 static const char *output_packet; /* used by first send udp */
@@ -35,14 +35,14 @@ static int output_packet_len;
 enum proto_t net_loop_last_protocol = BOOTP;
 
 static void nc_wait_arp_handler(uchar *pkt, unsigned dest,
-				 IPaddr_t sip, unsigned src,
+				 struct in_addr sip, unsigned src,
 				 unsigned len)
 {
 	net_set_state(NETLOOP_SUCCESS); /* got arp reply - quit net loop */
 }
 
-static void nc_handler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
-			unsigned len)
+static void nc_handler(uchar *pkt, unsigned dest, struct in_addr sip,
+		       unsigned src, unsigned len)
 {
 	if (input_size)
 		net_set_state(NETLOOP_SUCCESS); /* got input - quit net loop */
@@ -53,24 +53,25 @@ static void nc_timeout(void)
 	net_set_state(NETLOOP_SUCCESS);
 }
 
-static int is_broadcast(IPaddr_t ip)
+static int is_broadcast(struct in_addr ip)
 {
-	static IPaddr_t netmask;
-	static IPaddr_t our_ip;
+	static struct in_addr netmask;
+	static struct in_addr our_ip;
 	static int env_changed_id;
 	int env_id = get_env_id();
 
 	/* update only when the environment has changed */
 	if (env_changed_id != env_id) {
-		netmask = getenv_IPaddr("netmask");
-		our_ip = getenv_IPaddr("ipaddr");
+		netmask = getenv_ip("netmask");
+		our_ip = getenv_ip("ipaddr");
 
 		env_changed_id = env_id;
 	}
 
-	return (ip == ~0 ||				/* 255.255.255.255 */
-	    ((netmask & our_ip) == (netmask & ip) &&	/* on the same net */
-	    (netmask | ip) == ~0));		/* broadcast to our net */
+	return (ip.s_addr == ~0 || /* 255.255.255.255 (global bcast) */
+		((netmask.s_addr & our_ip.s_addr) ==
+		 (netmask.s_addr & ip.s_addr) && /* on the same net and */
+		 (netmask.s_addr | ip.s_addr) == ~0)); /* bcast to our net */
 }
 
 static int refresh_settings_from_env(void)
@@ -82,8 +83,8 @@ static int refresh_settings_from_env(void)
 	/* update only when the environment has changed */
 	if (env_changed_id != env_id) {
 		if (getenv("ncip")) {
-			nc_ip = getenv_IPaddr("ncip");
-			if (!nc_ip)
+			nc_ip = getenv_ip("ncip");
+			if (!nc_ip.s_addr)
 				return -1;	/* ncip is 0.0.0.0 */
 			p = strchr(getenv("ncip"), ':');
 			if (p != NULL) {
@@ -91,7 +92,7 @@ static int refresh_settings_from_env(void)
 				nc_in_port = nc_out_port;
 			}
 		} else
-			nc_ip = ~0; /* ncip is not set, so broadcast */
+			nc_ip.s_addr = ~0; /* ncip is not set, so broadcast */
 
 		p = getenv("ncoutport");
 		if (p != NULL)
@@ -131,7 +132,7 @@ void NcStart(void)
 	}
 }
 
-int nc_input_packet(uchar *pkt, IPaddr_t src_ip, unsigned dest_port,
+int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 	unsigned src_port, unsigned len)
 {
 	int end, chunk;
@@ -139,7 +140,7 @@ int nc_input_packet(uchar *pkt, IPaddr_t src_ip, unsigned dest_port,
 	if (dest_port != nc_in_port || !len)
 		return 0; /* not for us */
 
-	if (src_ip != nc_ip && !is_broadcast(nc_ip))
+	if (src_ip.s_addr != nc_ip.s_addr && !is_broadcast(nc_ip))
 		return 0; /* not from our client */
 
 	debug_cond(DEBUG_DEV_PKT, "input: \"%*.*s\"\n", len, len, pkt);
@@ -171,7 +172,7 @@ static void nc_send_packet(const char *buf, int len)
 	int inited = 0;
 	uchar *pkt;
 	uchar *ether;
-	IPaddr_t ip;
+	struct in_addr ip;
 
 	debug_cond(DEBUG_DEV_PKT, "output: \"%*.*s\"\n", len, len, buf);
 
