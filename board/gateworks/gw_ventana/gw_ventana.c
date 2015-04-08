@@ -1606,6 +1606,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 		{ "fsl,imx6q-gpmi-nand",  MTD_DEV_TYPE_NAND, }, /* NAND flash */
 	};
 	const char *model = getenv("model");
+	const char *display = getenv("display");
 	int i;
 	char rev = 0;
 
@@ -1625,6 +1626,13 @@ int ft_board_setup(void *blob, bd_t *bd)
 	/* Update partition nodes using info from mtdparts env var */
 	puts("   Updating MTD partitions...\n");
 	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+
+	/* Update display timings from display env var */
+	if (display) {
+		if (fdt_fixup_display(blob, fdt_get_alias(blob, "lvds0"),
+				      display) >= 0)
+			printf("   Set display timings for %s...\n", display);
+	}
 
 	if (!model) {
 		puts("invalid board info: Leaving FDT fully enabled\n");
