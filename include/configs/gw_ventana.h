@@ -115,11 +115,6 @@
 #define CONFIG_CMD_UBIFS
 #define CONFIG_DOS_PARTITION
 
-/* Network config - Allow larger/faster download for TFTP/NFS */
-#define CONFIG_IP_DEFRAG
-#define CONFIG_TFTP_BLOCKSIZE 4096
-#define CONFIG_NFS_READ_SIZE  4096
-
 /*
  * SATA Configs
  */
