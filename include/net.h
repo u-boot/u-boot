@@ -473,9 +473,9 @@ extern struct in_addr net_dns_server;
 /* Our 2nd Domain Name Server (0 = unknown) */
 extern struct in_addr net_dns_server2;
 #endif
-extern char	NetOurNISDomain[32];	/* Our NIS domain */
-extern char	NetOurHostName[32];	/* Our hostname */
-extern char	NetOurRootPath[64];	/* Our root path */
+extern char	net_nis_domain[32];	/* Our IS domain */
+extern char	net_hostname[32];	/* Our hostname */
+extern char	net_root_path[64];	/* Our root path */
 /** END OF BOOTP EXTENTIONS **/
 extern uchar		NetOurEther[6];		/* Our ethernet address */
 extern uchar		NetServerEther[6];	/* Boot server enet address */

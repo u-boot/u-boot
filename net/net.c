@@ -121,12 +121,6 @@ struct in_addr net_dns_server;
 /* Our 2nd DNS IP address */
 struct in_addr net_dns_server2;
 #endif
-/* Our NIS domain */
-char		NetOurNISDomain[32] = {0,};
-/* Our hostname */
-char		NetOurHostName[32] = {0,};
-/* Our bootpath */
-char		NetOurRootPath[64] = {0,};
 
 #ifdef CONFIG_MCAST_TFTP	/* Multicast TFTP */
 struct in_addr net_mcast_addr;

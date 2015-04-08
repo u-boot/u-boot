@@ -124,11 +124,11 @@ static void netboot_update_env(void)
 		setenv("netmask", tmp);
 	}
 
-	if (NetOurHostName[0])
-		setenv("hostname", NetOurHostName);
+	if (net_hostname[0])
+		setenv("hostname", net_hostname);
 
-	if (NetOurRootPath[0])
-		setenv("rootpath", NetOurRootPath);
+	if (net_root_path[0])
+		setenv("rootpath", net_root_path);
 
 	if (net_ip.s_addr) {
 		ip_to_string(net_ip, tmp);
@@ -154,8 +154,8 @@ static void netboot_update_env(void)
 		setenv("dnsip2", tmp);
 	}
 #endif
-	if (NetOurNISDomain[0])
-		setenv("domain", NetOurNISDomain);
+	if (net_nis_domain[0])
+		setenv("domain", net_nis_domain);
 
 #if defined(CONFIG_CMD_SNTP) \
     && defined(CONFIG_BOOTP_TIMEOFFSET)

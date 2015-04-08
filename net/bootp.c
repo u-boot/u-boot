@@ -56,6 +56,9 @@ unsigned int	bootp_num_ids;
 int		BootpTry;
 ulong		bootp_start;
 ulong		bootp_timeout;
+char net_nis_domain[32] = {0,}; /* Our NIS domain */
+char net_hostname[32] = {0,}; /* Our hostname */
+char net_root_path[64] = {0,}; /* Our bootpath */
 
 #if defined(CONFIG_CMD_DHCP)
 static dhcp_state_t dhcp_state = INIT;
@@ -220,11 +223,11 @@ static void BootpVendorFieldProcess(u8 *ext)
 	case 11:		/* RPL server - Not yet supported */
 		break;
 	case 12:		/* Host name */
-		if (NetOurHostName[0] == 0) {
+		if (net_hostname[0] == 0) {
 			size = truncate_sz("Host Name",
-				sizeof(NetOurHostName), size);
-			memcpy(&NetOurHostName, ext + 2, size);
-			NetOurHostName[size] = 0;
+				sizeof(net_hostname), size);
+			memcpy(&net_hostname, ext + 2, size);
+			net_hostname[size] = 0;
 		}
 		break;
 	case 13:		/* Boot file size */
@@ -242,11 +245,11 @@ static void BootpVendorFieldProcess(u8 *ext)
 	case 16:		/* Swap server - Not yet supported */
 		break;
 	case 17:		/* Root path */
-		if (NetOurRootPath[0] == 0) {
+		if (net_root_path[0] == 0) {
 			size = truncate_sz("Root Path",
-				sizeof(NetOurRootPath), size);
-			memcpy(&NetOurRootPath, ext + 2, size);
-			NetOurRootPath[size] = 0;
+				sizeof(net_root_path), size);
+			memcpy(&net_root_path, ext + 2, size);
+			net_root_path[size] = 0;
 		}
 		break;
 	case 18:		/* Extension path - Not yet supported */
@@ -258,11 +261,11 @@ static void BootpVendorFieldProcess(u8 *ext)
 		break;
 		/* IP host layer fields */
 	case 40:		/* NIS Domain name */
-		if (NetOurNISDomain[0] == 0) {
+		if (net_nis_domain[0] == 0) {
 			size = truncate_sz("NIS Domain Name",
-				sizeof(NetOurNISDomain), size);
-			memcpy(&NetOurNISDomain, ext + 2, size);
-			NetOurNISDomain[size] = 0;
+				sizeof(net_nis_domain), size);
+			memcpy(&net_nis_domain, ext + 2, size);
+			net_nis_domain[size] = 0;
 		}
 		break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
@@ -310,14 +313,14 @@ static void BootpVendorProcess(u8 *ext, int size)
 		debug("net_boot_file_expected_size_in_blocks : %d\n",
 		      net_boot_file_expected_size_in_blocks);
 
-	if (NetOurHostName[0])
-		debug("NetOurHostName  : %s\n", NetOurHostName);
+	if (net_hostname[0])
+		debug("net_hostname  : %s\n", net_hostname);
 
-	if (NetOurRootPath[0])
-		debug("NetOurRootPath  : %s\n", NetOurRootPath);
+	if (net_root_path[0])
+		debug("net_root_path  : %s\n", net_root_path);
 
-	if (NetOurNISDomain[0])
-		debug("NetOurNISDomain : %s\n", NetOurNISDomain);
+	if (net_nis_domain[0])
+		debug("net_nis_domain : %s\n", net_nis_domain);
 
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
 	if (net_ntp_server)
@@ -793,17 +796,17 @@ static void DhcpOptionsProcess(uchar *popt, struct Bootp_t *bp)
 			break;
 		case 12:
 			size = truncate_sz("Host Name",
-				sizeof(NetOurHostName), oplen);
-			memcpy(&NetOurHostName, popt + 2, size);
-			NetOurHostName[size] = 0;
+				sizeof(net_hostname), oplen);
+			memcpy(&net_hostname, popt + 2, size);
+			net_hostname[size] = 0;
 			break;
 		case 15:	/* Ignore Domain Name Option */
 			break;
 		case 17:
 			size = truncate_sz("Root Path",
-				sizeof(NetOurRootPath), oplen);
-			memcpy(&NetOurRootPath, popt + 2, size);
-			NetOurRootPath[size] = 0;
+				sizeof(net_root_path), oplen);
+			memcpy(&net_root_path, popt + 2, size);
+			net_root_path[size] = 0;
 			break;
 		case 28:	/* Ignore Broadcast Address Option */
 			break;
