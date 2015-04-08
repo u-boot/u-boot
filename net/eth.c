@@ -74,8 +74,10 @@ static int eth_mac_skip(int index)
 {
 	char enetvar[15];
 	char *skip_state;
+
 	sprintf(enetvar, index ? "eth%dmacskip" : "ethmacskip", index);
-	return ((skip_state = getenv(enetvar)) != NULL);
+	skip_state = getenv(enetvar);
+	return skip_state != NULL;
 }
 
 static void eth_current_changed(void);
@@ -275,8 +277,9 @@ int eth_init(void)
 				priv->state = ETH_STATE_ACTIVE;
 				return 0;
 			}
-		} else
+		} else {
 			ret = eth_errno;
+		}
 
 		debug("FAIL\n");
 
@@ -612,11 +615,11 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		if (!is_zero_ethaddr(dev->enetaddr) &&
 		    memcmp(dev->enetaddr, env_enetaddr, 6)) {
 			printf("\nWarning: %s MAC addresses don't match:\n",
-				dev->name);
+			       dev->name);
 			printf("Address in SROM is         %pM\n",
-				dev->enetaddr);
+			       dev->enetaddr);
 			printf("Address in environment is  %pM\n",
-				env_enetaddr);
+			       env_enetaddr);
 		}
 
 		memcpy(dev->enetaddr, env_enetaddr, 6);
@@ -624,7 +627,7 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		eth_setenv_enetaddr_by_index(base_name, eth_number,
 					     dev->enetaddr);
 		printf("\nWarning: %s using MAC address from net device\n",
-			dev->name);
+		       dev->name);
 	} else if (is_zero_ethaddr(dev->enetaddr)) {
 		printf("\nError: %s address not set.\n",
 		       dev->name);
@@ -634,13 +637,14 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 	if (dev->write_hwaddr && !eth_mac_skip(eth_number)) {
 		if (!is_valid_ethaddr(dev->enetaddr)) {
 			printf("\nError: %s address %pM illegal value\n",
-				 dev->name, dev->enetaddr);
+			       dev->name, dev->enetaddr);
 			return -EINVAL;
 		}
 
 		ret = dev->write_hwaddr(dev);
 		if (ret)
-			printf("\nWarning: %s failed to set MAC address\n", dev->name);
+			printf("\nWarning: %s failed to set MAC address\n",
+			       dev->name);
 	}
 
 	return ret;
@@ -654,7 +658,8 @@ int eth_register(struct eth_device *dev)
 	assert(strlen(dev->name) < sizeof(dev->name));
 
 	if (!eth_devices) {
-		eth_current = eth_devices = dev;
+		eth_devices = dev;
+		eth_current = dev;
 		eth_current_changed();
 	} else {
 		for (d = eth_devices; d->next != eth_devices; d = d->next)
@@ -725,8 +730,9 @@ int eth_initialize(void)
 	} else if (cpu_eth_init != __def_eth_init) {
 		if (cpu_eth_init(gd->bd) < 0)
 			printf("CPU Net Initialization Failed\n");
-	} else
+	} else {
 		printf("Net Initialization Skipped\n");
+	}
 
 	if (!eth_devices) {
 		puts("No ethernet found.\n");
