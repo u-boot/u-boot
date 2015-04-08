@@ -1515,6 +1515,16 @@ int ft_board_setup(void *blob, bd_t *bd)
 		{ "fsl,imx6q-gpmi-nand",  MTD_DEV_TYPE_NAND, }, /* NAND flash */
 	};
 	const char *model = getenv("model");
+	int i;
+	char rev = 0;
+
+	/* determine board revision */
+	for (i = sizeof(ventana_info.model) - 1; i > 0; i--) {
+		if (ventana_info.model[i] >= 'A') {
+			rev = ventana_info.model[i];
+			break;
+		}
+	}
 
 	if (getenv("fdt_noauto")) {
 		puts("   Skiping ft_board_setup (fdt_noauto defined)\n");
@@ -1538,6 +1548,17 @@ int ft_board_setup(void *blob, bd_t *bd)
 	/* board (model contains model from device-tree) */
 	fdt_setprop(blob, 0, "board", info->model,
 		    strlen((const char *)info->model) + 1);
+
+	/*
+	 * disable wdog1/wdog2 nodes for GW51xx below revC to work around
+	 * errata causing wdog timer to be unreliable.
+	 */
+	if (board_type == GW51xx && rev >= 'A' && rev < 'C') {
+		i = fdt_path_offset(blob,
+				    "/soc/aips-bus@02000000/wdog@020bc000");
+		if (i)
+			fdt_status_disabled(blob, i);
+	}
 
 	/*
 	 * Peripheral Config:
