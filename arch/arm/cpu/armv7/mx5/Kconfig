@@ -10,7 +10,18 @@ config MX51
 config MX53
 	bool
 
+choice
+	prompt "MX5 board select"
+
+config TARGET_USBARMORY
+	bool "Support USB armory"
+	select CPU_V7
+
+endchoice
+
 config SYS_SOC
 	default "mx5"
+
+source "board/inversepath/usbarmory/Kconfig"
 
 endif
