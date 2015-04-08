@@ -220,17 +220,6 @@ static struct mx6_ddr3_cfg mt41k256m16ha_125 = {
  * calibration - these are the various CPU/DDR3 combinations we support
  */
 
-static struct mx6_mmdc_calibration mx6dq_128x16_mmdc_calib = {
-	/* write leveling calibration determine */
-	.p0_mpwldectrl0 = 0x00190017,
-	/* Read DQS Gating calibration */
-	.p0_mpdgctrl0 = 0x43380347,
-	/* Read Calibration: DQS delay relative to DQ read access */
-	.p0_mprddlctl = 0x3C313539,
-	/* Write Calibration: DQ/DM delay relative to DQS write access */
-	.p0_mpwrdlctl = 0x36393C39,
-};
-
 static struct mx6_mmdc_calibration mx6dq_256x16_mmdc_calib = {
 	/* write leveling calibration determine */
 	.p0_mpwldectrl0 = 0x001B0016,
@@ -242,17 +231,6 @@ static struct mx6_mmdc_calibration mx6dq_256x16_mmdc_calib = {
 	.p0_mprddlctl = 0x40403438,
 	/* Write Calibration: DQ/DM delay relative to DQS write access */
 	.p0_mpwrdlctl = 0x40403D36,
-};
-
-static struct mx6_mmdc_calibration mx6sdl_128x16_mmdc_calib = {
-	/* write leveling calibration determine */
-	.p0_mpwldectrl0 = 0x00190017,
-	/* Read DQS Gating calibration */
-	.p0_mpdgctrl0 = 0x43380347,
-	/* Read Calibration: DQS delay relative to DQ read access */
-	.p0_mprddlctl = 0x3C313539,
-	/* Write Calibration: DQ/DM delay relative to DQS write access */
-	.p0_mpwrdlctl = 0x36393C39,
 };
 
 static struct mx6_mmdc_calibration mx6sdl_256x16_mmdc_calib = {
@@ -412,11 +390,12 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 	 *   mx6_ddr_cfg - chip specific timing/layout details
 	 */
 	if (width == 16 && size_mb == 256) {
+		/* 1x 2Gb density chip - same calib as 2x 2Gb */
 		mem = &mt41k128m16jt_125;
 		if (is_cpu_type(MXC_CPU_MX6Q))
-			calib = &mx6dq_128x16_mmdc_calib;
+			calib = &mx6dq_128x32_mmdc_calib;
 		else
-			calib = &mx6sdl_128x16_mmdc_calib;
+			calib = &mx6sdl_128x32_mmdc_calib;
 		debug("2gB density\n");
 	} else if (width == 16 && size_mb == 512) {
 		mem = &mt41k256m16ha_125;
