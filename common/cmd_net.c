@@ -157,15 +157,13 @@ static void netboot_update_env(void)
 	if (net_nis_domain[0])
 		setenv("domain", net_nis_domain);
 
-#if defined(CONFIG_CMD_SNTP) \
-    && defined(CONFIG_BOOTP_TIMEOFFSET)
+#if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
 	if (NetTimeOffset) {
 		sprintf(tmp, "%d", NetTimeOffset);
 		setenv("timeoffset", tmp);
 	}
 #endif
-#if defined(CONFIG_CMD_SNTP) \
-    && defined(CONFIG_BOOTP_NTPSERVER)
+#if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
 	if (net_ntp_server.s_addr) {
 		ip_to_string(net_ntp_server, tmp);
 		setenv("ntpserverip", tmp);
@@ -183,9 +181,9 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 	ulong addr;
 
 	/* pre-set load_addr */
-	if ((s = getenv("loadaddr")) != NULL) {
+	s = getenv("loadaddr");
+	if (s != NULL)
 		load_addr = simple_strtoul(s, NULL, 16);
-	}
 
 	switch (argc) {
 	case 1:
@@ -205,7 +203,8 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 				      sizeof(net_boot_file_name));
 		break;
 
-	case 3:	load_addr = simple_strtoul(argv[1], NULL, 16);
+	case 3:
+		load_addr = simple_strtoul(argv[1], NULL, 16);
 		copy_filename(net_boot_file_name, argv[2],
 			      sizeof(net_boot_file_name));
 
@@ -214,7 +213,7 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 #ifdef CONFIG_CMD_TFTPPUT
 	case 4:
 		if (strict_strtoul(argv[1], 16, &save_addr) < 0 ||
-			strict_strtoul(argv[2], 16, &save_size) < 0) {
+		    strict_strtoul(argv[2], 16, &save_size) < 0) {
 			printf("Invalid address/size\n");
 			return CMD_RET_USAGE;
 		}
@@ -228,7 +227,8 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 	}
 	bootstage_mark(BOOTSTAGE_ID_NET_START);
 
-	if ((size = NetLoop(proto)) < 0) {
+	size = NetLoop(proto);
+	if (size < 0) {
 		bootstage_error(BOOTSTAGE_ID_NET_NETLOOP_OK);
 		return CMD_RET_FAILURE;
 	}
@@ -293,18 +293,17 @@ static void cdp_update_env(void)
 	if (cdp_appliance_vlan != htons(-1)) {
 		printf("CDP offered appliance VLAN %d\n",
 		       ntohs(cdp_appliance_vlan));
-		VLAN_to_string(cdp_appliance_vlan, tmp);
+		vlan_to_string(cdp_appliance_vlan, tmp);
 		setenv("vlan", tmp);
-		NetOurVLAN = cdp_appliance_vlan;
+		net_our_vlan = cdp_appliance_vlan;
 	}
 
 	if (cdp_native_vlan != htons(-1)) {
 		printf("CDP offered native VLAN %d\n", ntohs(cdp_native_vlan));
-		VLAN_to_string(cdp_native_vlan, tmp);
+		vlan_to_string(cdp_native_vlan, tmp);
 		setenv("nvlan", tmp);
-		NetOurNativeVLAN = cdp_native_vlan;
+		net_native_vlan = cdp_native_vlan;
 	}
-
 }
 
 int do_cdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -356,7 +355,7 @@ int do_sntp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (NetLoop(SNTP) < 0) {
 		printf("SNTP failed: host %pI4 not responding\n",
-			&net_ntp_server);
+		       &net_ntp_server);
 		return CMD_RET_FAILURE;
 	}
 

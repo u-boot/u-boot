@@ -491,8 +491,8 @@ extern const u8		net_null_ethaddr[6];
 
 #define VLAN_NONE	4095			/* untagged */
 #define VLAN_IDMASK	0x0fff			/* mask of valid vlan id */
-extern ushort		NetOurVLAN;		/* Our VLAN */
-extern ushort		NetOurNativeVLAN;	/* Our Native VLAN */
+extern ushort		net_our_vlan;		/* Our VLAN */
+extern ushort		net_native_vlan;	/* Our Native VLAN */
 
 extern int		NetRestartWrap;		/* Tried all network devices */
 
@@ -791,13 +791,13 @@ void ip_to_string(struct in_addr x, char *s);
 struct in_addr string_to_ip(const char *s);
 
 /* Convert a VLAN id to a string */
-void VLAN_to_string(ushort x, char *s);
+void vlan_to_string(ushort x, char *s);
 
 /* Convert a string to a vlan id */
-ushort string_to_VLAN(const char *s);
+ushort string_to_vlan(const char *s);
 
 /* read a VLAN id from an environment variable */
-ushort getenv_VLAN(char *);
+ushort getenv_vlan(char *);
 
 /* copy a filename (allow for "..." notation, limit length) */
 void copy_filename(char *dst, const char *src, int size);

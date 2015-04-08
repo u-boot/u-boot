@@ -159,9 +159,9 @@ static int	NetDevExists;
 
 /* XXX in both little & big endian machines 0xFFFF == ntohs(-1) */
 /* default is without VLAN */
-ushort		NetOurVLAN = 0xFFFF;
+ushort		net_our_vlan = 0xFFFF;
 /* ditto */
-ushort		NetOurNativeVLAN = 0xFFFF;
+ushort		net_native_vlan = 0xFFFF;
 
 /* Boot File name */
 char net_boot_file_name[128];
@@ -261,8 +261,8 @@ static void NetInitLoop(void)
 		net_gateway = getenv_ip("gatewayip");
 		net_netmask = getenv_ip("netmask");
 		net_server_ip = getenv_ip("serverip");
-		NetOurNativeVLAN = getenv_VLAN("nvlan");
-		NetOurVLAN = getenv_VLAN("vlan");
+		net_native_vlan = getenv_vlan("nvlan");
+		net_our_vlan = getenv_vlan("vlan");
 #if defined(CONFIG_CMD_DNS)
 		net_dns_server = getenv_ip("dnsip");
 #endif
@@ -989,10 +989,10 @@ void net_process_received_packet(uchar *in_packet, int len)
 	iscdp = is_cdp_packet(et->et_dest);
 #endif
 
-	myvlanid = ntohs(NetOurVLAN);
+	myvlanid = ntohs(net_our_vlan);
 	if (myvlanid == (ushort)-1)
 		myvlanid = VLAN_NONE;
-	mynvlanid = ntohs(NetOurNativeVLAN);
+	mynvlanid = ntohs(net_native_vlan);
 	if (mynvlanid == (ushort)-1)
 		mynvlanid = VLAN_NONE;
 
@@ -1024,7 +1024,7 @@ void net_process_received_packet(uchar *in_packet, int len)
 			return;
 
 		/* if no VLAN active */
-		if ((ntohs(NetOurVLAN) & VLAN_IDMASK) == VLAN_NONE
+		if ((ntohs(net_our_vlan) & VLAN_IDMASK) == VLAN_NONE
 #if defined(CONFIG_CMD_CDP)
 				&& iscdp == 0
 #endif
@@ -1301,7 +1301,7 @@ net_eth_hdr_size(void)
 {
 	ushort myvlanid;
 
-	myvlanid = ntohs(NetOurVLAN);
+	myvlanid = ntohs(net_our_vlan);
 	if (myvlanid == (ushort)-1)
 		myvlanid = VLAN_NONE;
 
@@ -1314,7 +1314,7 @@ int net_set_ether(uchar *xet, const uchar *dest_ethaddr, uint prot)
 	struct ethernet_hdr *et = (struct ethernet_hdr *)xet;
 	ushort myvlanid;
 
-	myvlanid = ntohs(NetOurVLAN);
+	myvlanid = ntohs(net_our_vlan);
 	if (myvlanid == (ushort)-1)
 		myvlanid = VLAN_NONE;
 
@@ -1439,7 +1439,7 @@ void ip_to_string(struct in_addr x, char *s)
 	);
 }
 
-void VLAN_to_string(ushort x, char *s)
+void vlan_to_string(ushort x, char *s)
 {
 	x = ntohs(x);
 
@@ -1452,7 +1452,7 @@ void VLAN_to_string(ushort x, char *s)
 		sprintf(s, "%d", x & VLAN_IDMASK);
 }
 
-ushort string_to_VLAN(const char *s)
+ushort string_to_vlan(const char *s)
 {
 	ushort id;
 
@@ -1467,7 +1467,7 @@ ushort string_to_VLAN(const char *s)
 	return htons(id);
 }
 
-ushort getenv_VLAN(char *var)
+ushort getenv_vlan(char *var)
 {
-	return string_to_VLAN(getenv(var));
+	return string_to_vlan(getenv(var));
 }
