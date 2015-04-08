@@ -33,6 +33,7 @@
 #endif
 #include "bur_common.h"
 #include "../../../drivers/video/am335x-fb.h"
+#include <nand.h>
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
@@ -159,17 +160,22 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 #ifdef CONFIG_USE_FDT
 static int load_devicetree(void)
 {
-	char *dtbname = getenv("dtb");
-	char *dtbdev = getenv("dtbdev");
-	char *dtppart = getenv("dtbpart");
-	u32 dtbaddr = getenv_ulong("dtbaddr", 16, 0UL);
 	int rc;
 	loff_t dtbsize;
+	u32 dtbaddr = getenv_ulong("dtbaddr", 16, 0UL);
 
 	if (dtbaddr == 0) {
 		printf("%s: don't have a valid <dtbaddr> in env!\n", __func__);
 		return -1;
 	}
+#ifdef CONFIG_NAND
+	dtbsize = 0x20000;
+	rc = nand_read_skip_bad(&nand_info[0], 0x40000, (size_t *)&dtbsize,
+				NULL, 0x20000, (u_char *)dtbaddr);
+#else
+	char *dtbname = getenv("dtb");
+	char *dtbdev = getenv("dtbdev");
+	char *dtppart = getenv("dtbpart");
 	if (!dtbdev || !dtbdev || !dtbname) {
 		printf("%s: <dtbdev>/<dtbpart>/<dtb> missing.\n", __func__);
 		return -1;
@@ -180,6 +186,7 @@ static int load_devicetree(void)
 		return -1;
 	}
 	rc = fs_read(dtbname, (u32)dtbaddr, 0, 0, &dtbsize);
+#endif
 	if (rc == 0) {
 		gd->fdt_blob = (void *)dtbaddr;
 		gd->fdt_size = dtbsize;

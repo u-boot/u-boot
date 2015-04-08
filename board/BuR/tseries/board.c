@@ -128,6 +128,9 @@ void am33xx_spl_board_init(void)
 	i2c_set_bus_num(0);
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 	pmicsetup(0);
+
+	gpio_direction_output(64+29, 1); /* switch NAND_RnB to GPMC_WAIT1 */
+	gpio_direction_output(64+28, 1); /* switch MII2_CRS to GPMC_WAIT0 */
 }
 
 const struct dpll_params *get_dpll_ddr_params(void)

@@ -23,6 +23,8 @@
 #define CONFIG_HW_WATCHDOG
 #define CONFIG_OMAP_WATCHDOG
 #define CONFIG_SPL_WATCHDOG_SUPPORT
+
+#define CONFIG_SPL_GPIO_SUPPORT
 /* Bootcount using the RTC block */
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
 #define CONFIG_BOOTCOUNT_LIMIT
@@ -103,15 +105,16 @@
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
-		"root=${nandroot} " \
-		"rootfstype=${nandrootfstype}\0" \
-	"nandroot=ubi0:rootfs rw ubi.mtd=8,2048\0" \
-	"nandrootfstype=ubifs rootwait=1\0" \
-	"nandimgsize=0x500000\0" \
-	"nandboot=echo Booting from nand ...; " \
+		"root=mtd6 " \
+		"rootfstype=jffs2\0" \
+	"kernelsize=0x400000\0" \
+	"nandboot=echo booting from nand ...; " \
 		"run nandargs; " \
-		"nand read ${loadaddr} kernel ${nandimgsize}; " \
-		"bootz ${loadaddr}\0"
+		"nand read ${loadaddr} kernel ${kernelsize}; " \
+		"bootz ${loadaddr} - ${dtbaddr}\0" \
+	"defboot=run nandboot\0" \
+	"bootlimit=1\0" \
+	"altbootcmd=run usbscript\0"
 #else
 #define NANDARGS ""
 #endif /* CONFIG_NAND */
@@ -231,15 +234,15 @@ MMCARGS
 
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
 #define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:" \
-					"128k(SPL)," \
-					"128k(SPL.backup1)," \
-					"128k(SPL.backup2)," \
-					"128k(SPL.backup3)," \
-					"512k(u-boot)," \
-					"128k(u-boot-spl-os)," \
+					"128k(MLO)," \
+					"128k(MLO.backup)," \
+					"128k(dtb)," \
 					"128k(u-boot-env)," \
-					"5m(kernel),"\
-					"-(rootfs)"
+					"512k(u-boot)," \
+					"4m(kernel),"\
+					"128m(rootfs),"\
+					"-(user)"
+#define CONFIG_NAND_OMAP_GPMC_WSCFG	1
 #endif /* CONFIG_NAND */
 
 /* USB configuration */
@@ -298,7 +301,7 @@ MMCARGS
 #else
 #define CONFIG_ENV_IS_IN_NAND
 #endif
-#define CONFIG_ENV_OFFSET		0x120000 /* TODO: Adresse definieren */
+#define CONFIG_ENV_OFFSET		0x60000
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 #else
 #error "no storage for Environment defined!"
