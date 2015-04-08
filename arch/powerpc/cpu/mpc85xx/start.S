@@ -1201,73 +1201,7 @@ ProgramCheck:
 	/* No FPU on MPC85xx.  This exception is not supposed to happen.
 	*/
 	STD_EXCEPTION(0x0800, FPUnavailable, UnknownException)
-
-/*
- * r0 - SYSCALL number
- * r3-... arguments
- */
-SystemCall:
-	addis	r11,r0,0	/* get functions table addr */
-	ori	r11,r11,0	/* Note: this code is patched in trap_init */
-	addis	r12,r0,0	/* get number of functions */
-	ori	r12,r12,0
-
-	cmplw	0,r0,r12
-	bge	1f
-
-	rlwinm	r0,r0,2,0,31	/* fn_addr = fn_tbl[r0] */
-	add	r11,r11,r0
-	lwz	r11,0(r11)
-
-	li	r20,0xd00-4	/* Get stack pointer */
-	lwz	r12,0(r20)
-	subi	r12,r12,12	/* Adjust stack pointer */
-	li	r0,0xc00+_end_back-SystemCall
-	cmplw	0,r0,r12	/* Check stack overflow */
-	bgt	1f
-	stw	r12,0(r20)
-
-	mflr	r0
-	stw	r0,0(r12)
-	mfspr	r0,SRR0
-	stw	r0,4(r12)
-	mfspr	r0,SRR1
-	stw	r0,8(r12)
-
-	li	r12,0xc00+_back-SystemCall
-	mtlr	r12
-	mtspr	SRR0,r11
-
-1:	SYNC
-	rfi
-_back:
-
-	mfmsr	r11			/* Disable interrupts */
-	li	r12,0
-	ori	r12,r12,MSR_EE
-	andc	r11,r11,r12
-	SYNC				/* Some chip revs need this... */
-	mtmsr	r11
-	SYNC
-
-	li	r12,0xd00-4		/* restore regs */
-	lwz	r12,0(r12)
-
-	lwz	r11,0(r12)
-	mtlr	r11
-	lwz	r11,4(r12)
-	mtspr	SRR0,r11
-	lwz	r11,8(r12)
-	mtspr	SRR1,r11
-
-	addi	r12,r12,12		/* Adjust stack pointer */
-	li	r20,0xd00-4
-	stw	r12,0(r20)
-
-	SYNC
-	rfi
-_end_back:
-
+	STD_EXCEPTION(0x0900, SystemCall, UnknownException)
 	STD_EXCEPTION(0x0a00, Decrementer, timer_interrupt)
 	STD_EXCEPTION(0x0b00, IntervalTimer, UnknownException)
 	STD_EXCEPTION(0x0c00, WatchdogTimer, UnknownException)
@@ -1333,66 +1267,6 @@ int_return:
 	lwz	r1,GPR1(r1)
 	SYNC
 	rfi
-
-crit_return:
-	mfmsr	r28		/* Disable interrupts */
-	li	r4,0
-	ori	r4,r4,MSR_EE
-	andc	r28,r28,r4
-	SYNC			/* Some chip revs need this... */
-	mtmsr	r28
-	SYNC
-	lwz	r2,_CTR(r1)
-	lwz	r0,_LINK(r1)
-	mtctr	r2
-	mtlr	r0
-	lwz	r2,_XER(r1)
-	lwz	r0,_CCR(r1)
-	mtspr	XER,r2
-	mtcrf	0xFF,r0
-	REST_10GPRS(3, r1)
-	REST_10GPRS(13, r1)
-	REST_8GPRS(23, r1)
-	REST_GPR(31, r1)
-	lwz	r2,_NIP(r1)	/* Restore environment */
-	lwz	r0,_MSR(r1)
-	mtspr	SPRN_CSRR0,r2
-	mtspr	SPRN_CSRR1,r0
-	lwz	r0,GPR0(r1)
-	lwz	r2,GPR2(r1)
-	lwz	r1,GPR1(r1)
-	SYNC
-	rfci
-
-mck_return:
-	mfmsr	r28		/* Disable interrupts */
-	li	r4,0
-	ori	r4,r4,MSR_EE
-	andc	r28,r28,r4
-	SYNC			/* Some chip revs need this... */
-	mtmsr	r28
-	SYNC
-	lwz	r2,_CTR(r1)
-	lwz	r0,_LINK(r1)
-	mtctr	r2
-	mtlr	r0
-	lwz	r2,_XER(r1)
-	lwz	r0,_CCR(r1)
-	mtspr	XER,r2
-	mtcrf	0xFF,r0
-	REST_10GPRS(3, r1)
-	REST_10GPRS(13, r1)
-	REST_8GPRS(23, r1)
-	REST_GPR(31, r1)
-	lwz	r2,_NIP(r1)	/* Restore environment */
-	lwz	r0,_MSR(r1)
-	mtspr	SPRN_MCSRR0,r2
-	mtspr	SPRN_MCSRR1,r0
-	lwz	r0,GPR0(r1)
-	lwz	r2,GPR2(r1)
-	lwz	r1,GPR1(r1)
-	SYNC
-	rfmci
 
 /* Cache functions.
 */
@@ -1478,11 +1352,6 @@ dcache_status:
 	andi.	r3,r3,L1CSR0_DCE
 	blr
 
-	.globl get_pir
-get_pir:
-	mfspr	r3,PIR
-	blr
-
 	.globl get_pvr
 get_pvr:
 	mfspr	r3,PVR
@@ -1491,11 +1360,6 @@ get_pvr:
 	.globl get_svr
 get_svr:
 	mfspr	r3,SVR
-	blr
-
-	.globl wr_tcr
-wr_tcr:
-	mtspr	TCR,r3
 	blr
 
 /*------------------------------------------------------------------------------- */
