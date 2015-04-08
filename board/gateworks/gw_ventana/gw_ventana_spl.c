@@ -476,12 +476,14 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 		debug("4gB density\n");
 	}
 
-	if (!mem) {
-		puts("Error: Invalid Memory Configuration\n");
-		hang();
-	}
-	if (!calib) {
-		puts("Error: Invalid Board Calibration Configuration\n");
+	if (!(mem && calib)) {
+		puts("Error: Invalid Calibration/Board Configuration\n");
+		printf("MEM    : %s\n", mem ? "OKAY" : "NULL");
+		printf("CALIB  : %s\n", calib ? "OKAY" : "NULL");
+		printf("CPUTYPE: %s\n",
+		       is_cpu_type(MXC_CPU_MX6Q) ? "IMX6Q" : "IMX6DL");
+		printf("SIZE_MB: %d\n", size_mb);
+		printf("WIDTH  : %d\n", width);
 		hang();
 	}
 
