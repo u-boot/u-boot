@@ -1,5 +1,5 @@
 MCX BOARD
-M:	Ilya Yanok <yanok@emcraft.com>
+M:	Anatolij Gustschin <agust@denx.de>
 S:	Maintained
 F:	board/htkw/mcx/
 F:	include/configs/mcx.h
