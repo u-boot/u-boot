@@ -233,13 +233,15 @@ static struct mx6_mmdc_calibration mx6dq_128x16_mmdc_calib = {
 
 static struct mx6_mmdc_calibration mx6dq_256x16_mmdc_calib = {
 	/* write leveling calibration determine */
-	.p0_mpwldectrl0 = 0x00190017,
+	.p0_mpwldectrl0 = 0x001B0016,
+	.p0_mpwldectrl1 = 0x000C000E,
 	/* Read DQS Gating calibration */
-	.p0_mpdgctrl0 = 0x43380347,
+	.p0_mpdgctrl0 = 0x4324033A,
+	.p0_mpdgctrl1 = 0x00000000,
 	/* Read Calibration: DQS delay relative to DQ read access */
-	.p0_mprddlctl = 0x3C313539,
+	.p0_mprddlctl = 0x40403438,
 	/* Write Calibration: DQ/DM delay relative to DQS write access */
-	.p0_mpwrdlctl = 0x36393C39,
+	.p0_mpwrdlctl = 0x40403D36,
 };
 
 static struct mx6_mmdc_calibration mx6sdl_128x16_mmdc_calib = {
@@ -255,13 +257,15 @@ static struct mx6_mmdc_calibration mx6sdl_128x16_mmdc_calib = {
 
 static struct mx6_mmdc_calibration mx6sdl_256x16_mmdc_calib = {
 	/* write leveling calibration determine */
-	.p0_mpwldectrl0 = 0x00190017,
+	.p0_mpwldectrl0 = 0x00420043,
+	.p0_mpwldectrl1 = 0x0016001A,
 	/* Read DQS Gating calibration */
-	.p0_mpdgctrl0 = 0x43380347,
+	.p0_mpdgctrl0 = 0x4238023B,
+	.p0_mpdgctrl1 = 0x00000000,
 	/* Read Calibration: DQS delay relative to DQ read access */
-	.p0_mprddlctl = 0x3C313539,
+	.p0_mprddlctl = 0x40404849,
 	/* Write Calibration: DQ/DM delay relative to DQS write access */
-	.p0_mpwrdlctl = 0x36393C39,
+	.p0_mpwrdlctl = 0x40402E2F,
 };
 
 static struct mx6_mmdc_calibration mx6dq_128x32_mmdc_calib = {
