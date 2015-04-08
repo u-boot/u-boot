@@ -302,7 +302,7 @@ void net_init(void)
 			net_rx_packets[i] = net_tx_packet +
 				(i + 1) * PKTSIZE_ALIGN;
 		}
-		ArpInit();
+		arp_init();
 		net_clear_handlers();
 
 		/* Only need to setup buffer pointers once. */
@@ -495,7 +495,7 @@ restart:
 			goto done;
 		}
 
-		ArpTimeoutCheck();
+		arp_timeout_check();
 
 		/*
 		 *	Check for a timeout, and run the timeout handler
@@ -733,15 +733,15 @@ int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 
 		/* save the ip and eth addr for the packet to send after arp */
 		net_arp_wait_packet_ip = dest;
-		NetArpWaitPacketMAC = ether;
+		arp_wait_packet_ethaddr = ether;
 
 		/* size of the waiting packet */
-		NetArpWaitTxPacketSize = pkt_hdr_size + payload_len;
+		arp_wait_tx_packet_size = pkt_hdr_size + payload_len;
 
 		/* and do the ARP request */
-		NetArpWaitTry = 1;
-		NetArpWaitTimerStart = get_timer(0);
-		ArpRequest();
+		arp_wait_try = 1;
+		arp_wait_timer_start = get_timer(0);
+		arp_request();
 		return 1;	/* waiting */
 	} else {
 		debug_cond(DEBUG_DEV_PKT, "sending UDP to %pI4/%pM\n",
@@ -1059,7 +1059,7 @@ void net_process_received_packet(uchar *in_packet, int len)
 	switch (eth_proto) {
 
 	case PROT_ARP:
-		ArpReceive(et, ip, len);
+		arp_receive(et, ip, len);
 		break;
 
 #ifdef CONFIG_CMD_RARP

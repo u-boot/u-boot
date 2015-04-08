@@ -56,12 +56,12 @@ static int ping_send(void)
 	set_icmp_header(pkt, net_ping_ip);
 
 	/* size of the waiting packet */
-	NetArpWaitTxPacketSize = eth_hdr_size + IP_ICMP_HDR_SIZE;
+	arp_wait_tx_packet_size = eth_hdr_size + IP_ICMP_HDR_SIZE;
 
 	/* and do the ARP request */
-	NetArpWaitTry = 1;
-	NetArpWaitTimerStart = get_timer(0);
-	ArpRequest();
+	arp_wait_try = 1;
+	arp_wait_timer_start = get_timer(0);
+	arp_request();
 	return 1;	/* waiting */
 }
 
