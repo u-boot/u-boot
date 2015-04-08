@@ -137,9 +137,9 @@ struct in_addr	net_ip;
 /* Server IP addr (0 = unknown) */
 struct in_addr	net_server_ip;
 /* Current receive packet */
-uchar *NetRxPacket;
+uchar *net_rx_packet;
 /* Current rx packet length */
-int		NetRxPacketLen;
+int		net_rx_packet_len;
 /* IP packet ID */
 unsigned	NetIPID;
 /* Ethernet bcast address */
@@ -177,7 +177,7 @@ struct in_addr	net_ntp_server;
 int		NetTimeOffset;
 #endif
 
-static uchar PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
+static uchar net_pkt_buf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
 #ifdef CONFIG_DM_ETH
 /* Receive packets */
 uchar *net_rx_packets[PKTBUFSRX];
@@ -200,7 +200,7 @@ static ulong	timeStart;
 /* Current timeout value */
 static ulong	timeDelta;
 /* THE transmit packet */
-uchar *NetTxPacket;
+uchar *net_tx_packet;
 
 static int net_check_prereq(enum proto_t protocol);
 
@@ -301,16 +301,17 @@ void net_init(void)
 		 */
 		int i;
 
-		NetTxPacket = &PktBuf[0] + (PKTALIGN - 1);
-		NetTxPacket -= (ulong)NetTxPacket % PKTALIGN;
+		net_tx_packet = &net_pkt_buf[0] + (PKTALIGN - 1);
+		net_tx_packet -= (ulong)net_tx_packet % PKTALIGN;
 #ifdef CONFIG_DM_ETH
 		for (i = 0; i < PKTBUFSRX; i++) {
-			net_rx_packets[i] = NetTxPacket + (i + 1) *
-				PKTSIZE_ALIGN;
+			net_rx_packets[i] = net_tx_packet +
+				(i + 1) * PKTSIZE_ALIGN;
 		}
 #else
 		for (i = 0; i < PKTBUFSRX; i++)
-			NetRxPackets[i] = NetTxPacket + (i + 1) * PKTSIZE_ALIGN;
+			NetRxPackets[i] = net_tx_packet +
+				(i + 1) * PKTSIZE_ALIGN;
 #endif
 		ArpInit();
 		net_clear_handlers();
@@ -710,16 +711,16 @@ NetSetTimeout(ulong iv, thand_f *f)
 	}
 }
 
-int NetSendUDPPacket(uchar *ether, struct in_addr dest, int dport, int sport,
+int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 		int payload_len)
 {
 	uchar *pkt;
 	int eth_hdr_size;
 	int pkt_hdr_size;
 
-	/* make sure the NetTxPacket is initialized (NetInit() was called) */
-	assert(NetTxPacket != NULL);
-	if (NetTxPacket == NULL)
+	/* make sure the net_tx_packet is initialized (NetInit() was called) */
+	assert(net_tx_packet != NULL);
+	if (net_tx_packet == NULL)
 		return -1;
 
 	/* convert to new style broadcast */
@@ -730,9 +731,9 @@ int NetSendUDPPacket(uchar *ether, struct in_addr dest, int dport, int sport,
 	if (dest.s_addr == 0xFFFFFFFF)
 		ether = (uchar *)net_bcast_ethaddr;
 
-	pkt = (uchar *)NetTxPacket;
+	pkt = (uchar *)net_tx_packet;
 
-	eth_hdr_size = NetSetEther(pkt, ether, PROT_IP);
+	eth_hdr_size = net_set_ether(pkt, ether, PROT_IP);
 	pkt += eth_hdr_size;
 	net_set_udp_header(pkt, dest, dport, sport, payload_len);
 	pkt_hdr_size = eth_hdr_size + IP_UDP_HDR_SIZE;
@@ -756,7 +757,7 @@ int NetSendUDPPacket(uchar *ether, struct in_addr dest, int dport, int sport,
 	} else {
 		debug_cond(DEBUG_DEV_PKT, "sending UDP to %pI4/%pM\n",
 			&dest, ether);
-		NetSendPacket(NetTxPacket, pkt_hdr_size + payload_len);
+		net_send_packet(net_tx_packet, pkt_hdr_size + payload_len);
 		return 0;	/* transmitted */
 	}
 }
@@ -979,8 +980,8 @@ void net_process_received_packet(uchar *in_packet, int len)
 
 	debug_cond(DEBUG_NET_PKT, "packet received\n");
 
-	NetRxPacket = in_packet;
-	NetRxPacketLen = len;
+	net_rx_packet = in_packet;
+	net_rx_packet_len = len;
 	et = (struct ethernet_hdr *)in_packet;
 
 	/* too small packet? */
@@ -1307,7 +1308,7 @@ common:
 /**********************************************************************/
 
 int
-NetEthHdrSize(void)
+net_eth_hdr_size(void)
 {
 	ushort myvlanid;
 
@@ -1319,8 +1320,7 @@ NetEthHdrSize(void)
 		VLAN_ETHER_HDR_SIZE;
 }
 
-int
-NetSetEther(uchar *xet, const uchar *dest_ethaddr, uint prot)
+int net_set_ether(uchar *xet, const uchar *dest_ethaddr, uint prot)
 {
 	struct ethernet_hdr *et = (struct ethernet_hdr *)xet;
 	ushort myvlanid;

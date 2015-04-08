@@ -31,14 +31,14 @@ SntpSend(void)
 	pkt.vn = NTP_VERSION;
 	pkt.mode = NTP_MODE_CLIENT;
 
-	memcpy((char *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE,
-		(char *)&pkt, pktlen);
+	memcpy((char *)net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE,
+	       (char *)&pkt, pktlen);
 
 	SntpOurPort = 10000 + (get_timer(0) % 4096);
 	sport = NTP_SERVICE_PORT;
 
-	NetSendUDPPacket(net_server_ethaddr, net_ntp_server, sport, SntpOurPort,
-			 pktlen);
+	net_send_udp_packet(net_server_ethaddr, net_ntp_server, sport,
+			    SntpOurPort, pktlen);
 }
 
 static void

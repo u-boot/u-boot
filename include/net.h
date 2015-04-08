@@ -481,14 +481,14 @@ extern u8		net_ethaddr[6];		/* Our ethernet address */
 extern u8		net_server_ethaddr[6];	/* Boot server enet address */
 extern struct in_addr	net_ip;		/* Our    IP addr (0 = unknown) */
 extern struct in_addr	net_server_ip;	/* Server IP addr (0 = unknown) */
-extern uchar		*NetTxPacket;		/* THE transmit packet */
+extern uchar		*net_tx_packet;		/* THE transmit packet */
 #ifdef CONFIG_DM_ETH
 extern uchar		*net_rx_packets[PKTBUFSRX]; /* Receive packets */
 #else
 extern uchar		*NetRxPackets[PKTBUFSRX]; /* Receive packets */
 #endif
-extern uchar		*NetRxPacket;		/* Current receive packet */
-extern int		NetRxPacketLen;		/* Current rx packet length */
+extern uchar		*net_rx_packet;		/* Current receive packet */
+extern int		net_rx_packet_len;	/* Current rx packet length */
 extern unsigned		NetIPID;		/* IP ID (counting) */
 extern const u8		net_bcast_ethaddr[6];	/* Ethernet broadcast address */
 extern const u8		net_null_ethaddr[6];
@@ -556,10 +556,10 @@ void	NetStop(void);
 int	NetStartAgain(void);
 
 /* Get size of the ethernet header when we send */
-int	NetEthHdrSize(void);
+int net_eth_hdr_size(void);
 
 /* Set ethernet header; returns the size of the header */
-int NetSetEther(uchar *xet, const uchar *dest_ethaddr, uint prot);
+int net_set_ether(uchar *xet, const uchar *dest_ethaddr, uint prot);
 int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot);
 
 /* Set IP header */
@@ -621,14 +621,14 @@ static inline void net_set_state(enum net_loop_state state)
 }
 
 /* Transmit a packet */
-static inline void NetSendPacket(uchar *pkt, int len)
+static inline void net_send_packet(uchar *pkt, int len)
 {
 	/* Currently no way to return errors from eth_send() */
 	(void) eth_send(pkt, len);
 }
 
 /*
- * Transmit "NetTxPacket" as UDP packet, performing ARP request if needed
+ * Transmit "net_tx_packet" as UDP packet, performing ARP request if needed
  *  (ether will be populated)
  *
  * @param ether Raw packet buffer
@@ -637,7 +637,7 @@ static inline void NetSendPacket(uchar *pkt, int len)
  * @param sport Source UDP port
  * @param payload_len Length of data after the UDP header
  */
-int NetSendUDPPacket(uchar *ether, struct in_addr dest, int dport,
+int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport,
 			int sport, int payload_len);
 
 #ifndef CONFIG_DM_ETH

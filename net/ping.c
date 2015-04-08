@@ -50,8 +50,8 @@ static int ping_send(void)
 
 	net_arp_wait_packet_ip = net_ping_ip;
 
-	eth_hdr_size = NetSetEther(NetTxPacket, net_null_ethaddr, PROT_IP);
-	pkt = (uchar *)NetTxPacket + eth_hdr_size;
+	eth_hdr_size = net_set_ether(net_tx_packet, net_null_ethaddr, PROT_IP);
+	pkt = (uchar *)net_tx_packet + eth_hdr_size;
 
 	set_icmp_header(pkt, net_ping_ip);
 
@@ -106,7 +106,7 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		icmph->type = ICMP_ECHO_REPLY;
 		icmph->checksum = 0;
 		icmph->checksum = compute_ip_checksum(icmph, len - IP_HDR_SIZE);
-		NetSendPacket((uchar *)et, eth_hdr_size + len);
+		net_send_packet((uchar *)et, eth_hdr_size + len);
 		return;
 /*	default:
 		return;*/

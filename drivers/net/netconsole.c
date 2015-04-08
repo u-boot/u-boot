@@ -125,10 +125,11 @@ void NcStart(void)
 		/* send arp request */
 		uchar *pkt;
 		net_set_arp_handler(nc_wait_arp_handler);
-		pkt = (uchar *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE;
+		pkt = (uchar *)net_tx_packet + net_eth_hdr_size() +
+			IP_UDP_HDR_SIZE;
 		memcpy(pkt, output_packet, output_packet_len);
-		NetSendUDPPacket(nc_ether, nc_ip, nc_out_port, nc_in_port,
-			output_packet_len);
+		net_send_udp_packet(nc_ether, nc_ip, nc_out_port, nc_in_port,
+				    output_packet_len);
 	}
 }
 
@@ -202,11 +203,11 @@ static void nc_send_packet(const char *buf, int len)
 
 		inited = 1;
 	}
-	pkt = (uchar *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE;
+	pkt = (uchar *)net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE;
 	memcpy(pkt, buf, len);
 	ether = nc_ether;
 	ip = nc_ip;
-	NetSendUDPPacket(ether, ip, nc_out_port, nc_in_port, len);
+	net_send_udp_packet(ether, ip, nc_out_port, nc_in_port, len);
 
 	if (inited) {
 		if (eth_is_on_demand_init())
@@ -229,7 +230,7 @@ static int nc_start(struct stdio_dev *dev)
 
 	/*
 	 * Initialize the static IP settings and buffer pointers
-	 * incase we call NetSendUDPPacket before NetLoop
+	 * incase we call net_send_udp_packet before NetLoop
 	 */
 	net_init();
 

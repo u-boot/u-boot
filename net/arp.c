@@ -35,7 +35,7 @@ int		NetArpWaitTxPacketSize;
 ulong		NetArpWaitTimerStart;
 int		NetArpWaitTry;
 
-static uchar   *NetArpTxPacket;	/* THE ARP transmit packet */
+static uchar   *net_arp_tx_packet;	/* THE ARP transmit packet */
 static uchar	NetArpPacketBuf[PKTSIZE_ALIGN + PKTALIGN];
 
 void ArpInit(void)
@@ -45,8 +45,8 @@ void ArpInit(void)
 	net_arp_wait_packet_ip.s_addr = 0;
 	net_arp_wait_reply_ip.s_addr = 0;
 	NetArpWaitTxPacketSize = 0;
-	NetArpTxPacket = &NetArpPacketBuf[0] + (PKTALIGN - 1);
-	NetArpTxPacket -= (ulong)NetArpTxPacket % PKTALIGN;
+	net_arp_tx_packet = &NetArpPacketBuf[0] + (PKTALIGN - 1);
+	net_arp_tx_packet -= (ulong)net_arp_tx_packet % PKTALIGN;
 }
 
 void arp_raw_request(struct in_addr source_ip, const uchar *targetEther,
@@ -58,9 +58,9 @@ void arp_raw_request(struct in_addr source_ip, const uchar *targetEther,
 
 	debug_cond(DEBUG_DEV_PKT, "ARP broadcast %d\n", NetArpWaitTry);
 
-	pkt = NetArpTxPacket;
+	pkt = net_arp_tx_packet;
 
-	eth_hdr_size = NetSetEther(pkt, net_bcast_ethaddr, PROT_ARP);
+	eth_hdr_size = net_set_ether(pkt, net_bcast_ethaddr, PROT_ARP);
 	pkt += eth_hdr_size;
 
 	arp = (struct arp_hdr *) pkt;
@@ -76,7 +76,7 @@ void arp_raw_request(struct in_addr source_ip, const uchar *targetEther,
 	memcpy(&arp->ar_tha, targetEther, ARP_HLEN);	/* target ET addr */
 	net_write_ip(&arp->ar_tpa, target_ip);		/* target IP addr */
 
-	NetSendPacket(NetArpTxPacket, eth_hdr_size + ARP_HDR_SIZE);
+	net_send_packet(net_arp_tx_packet, eth_hdr_size + ARP_HDR_SIZE);
 }
 
 void ArpRequest(void)
@@ -184,7 +184,7 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		    (net_read_ip(&arp->ar_spa).s_addr & net_netmask.s_addr))
 			udelay(5000);
 #endif
-		NetSendPacket((uchar *)et, eth_hdr_size + ARP_HDR_SIZE);
+		net_send_packet((uchar *)et, eth_hdr_size + ARP_HDR_SIZE);
 		return;
 
 	case ARPOP_REPLY:		/* arp reply */
@@ -218,9 +218,9 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 
 			/* set the mac address in the waiting packet's header
 			   and transmit it */
-			memcpy(((struct ethernet_hdr *)NetTxPacket)->et_dest,
-				&arp->ar_sha, ARP_HLEN);
-			NetSendPacket(NetTxPacket, NetArpWaitTxPacketSize);
+			memcpy(((struct ethernet_hdr *)net_tx_packet)->et_dest,
+			       &arp->ar_sha, ARP_HLEN);
+			net_send_packet(net_tx_packet, NetArpWaitTxPacketSize);
 
 			/* no arp request pending now */
 			net_arp_wait_packet_ip.s_addr = 0;

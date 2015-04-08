@@ -201,8 +201,8 @@ rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 
 	pktlen = (char *)p + datalen*sizeof(uint32_t) - (char *)&pkt;
 
-	memcpy((char *)NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE,
-		(char *)&pkt, pktlen);
+	memcpy((char *)net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE,
+	       (char *)&pkt, pktlen);
 
 	if (rpc_prog == PROG_PORTMAP)
 		sport = SUNRPC_PORT;
@@ -211,8 +211,8 @@ rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 	else
 		sport = NfsSrvNfsPort;
 
-	NetSendUDPPacket(net_server_ethaddr, nfs_server_ip, sport, NfsOurPort,
-			 pktlen);
+	net_send_udp_packet(net_server_ethaddr, nfs_server_ip, sport,
+			    NfsOurPort, pktlen);
 }
 
 /**************************************************************************

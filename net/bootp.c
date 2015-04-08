@@ -147,8 +147,8 @@ static void BootpCopyNetParams(struct Bootp_t *bp)
 	net_copy_ip(&tmp_ip, &bp->bp_siaddr);
 	if (tmp_ip.s_addr != 0)
 		net_copy_ip(&net_server_ip, &bp->bp_siaddr);
-	memcpy(net_server_ethaddr, ((struct ethernet_hdr *)NetRxPacket)->et_src,
-	       6);
+	memcpy(net_server_ethaddr,
+	       ((struct ethernet_hdr *)net_rx_packet)->et_src, 6);
 	if (strlen(bp->bp_file) > 0)
 		copy_filename(net_boot_file_name, bp->bp_file,
 			      sizeof(net_boot_file_name));
@@ -691,10 +691,10 @@ BootpRequest(void)
 #endif	/* CONFIG_BOOTP_RANDOM_DELAY */
 
 	printf("BOOTP broadcast %d\n", ++BootpTry);
-	pkt = NetTxPacket;
+	pkt = net_tx_packet;
 	memset((void *)pkt, 0, PKTSIZE);
 
-	eth_hdr_size = NetSetEther(pkt, net_bcast_ethaddr, PROT_IP);
+	eth_hdr_size = net_set_ether(pkt, net_bcast_ethaddr, PROT_IP);
 	pkt += eth_hdr_size;
 
 	/*
@@ -760,7 +760,7 @@ BootpRequest(void)
 #else
 	net_set_udp_handler(bootp_handler);
 #endif
-	NetSendPacket(NetTxPacket, pktlen);
+	net_send_packet(net_tx_packet, pktlen);
 }
 
 #if defined(CONFIG_CMD_DHCP)
@@ -894,10 +894,10 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	struct in_addr bcast_ip;
 
 	debug("DhcpSendRequestPkt: Sending DHCPREQUEST\n");
-	pkt = NetTxPacket;
+	pkt = net_tx_packet;
 	memset((void *)pkt, 0, PKTSIZE);
 
-	eth_hdr_size = NetSetEther(pkt, net_bcast_ethaddr, PROT_IP);
+	eth_hdr_size = net_set_ether(pkt, net_bcast_ethaddr, PROT_IP);
 	pkt += eth_hdr_size;
 
 	iphdr = pkt;	/* We'll need this later to set proper pkt size */
@@ -945,7 +945,7 @@ static void DhcpSendRequestPkt(struct Bootp_t *bp_offer)
 	udelay(CONFIG_BOOTP_DHCP_REQUEST_DELAY);
 #endif	/* CONFIG_BOOTP_DHCP_REQUEST_DELAY */
 	debug("Transmitting DHCPREQUEST packet: len = %d\n", pktlen);
-	NetSendPacket(NetTxPacket, pktlen);
+	net_send_packet(net_tx_packet, pktlen);
 }
 
 /*

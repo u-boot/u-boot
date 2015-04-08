@@ -337,7 +337,7 @@ TftpSend(void)
 	 *	We will always be sending some sort of packet, so
 	 *	cobble together the packet headers now.
 	 */
-	pkt = NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE;
+	pkt = net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE;
 
 	switch (TftpState) {
 	case STATE_SEND_RRQ:
@@ -435,8 +435,8 @@ TftpSend(void)
 		break;
 	}
 
-	NetSendUDPPacket(net_server_ethaddr, tftp_remote_ip, TftpRemotePort,
-			 TftpOurPort, len);
+	net_send_udp_packet(net_server_ethaddr, tftp_remote_ip, TftpRemotePort,
+			    TftpOurPort, len);
 }
 
 #ifdef CONFIG_CMD_TFTPPUT

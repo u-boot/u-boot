@@ -118,7 +118,7 @@ CDPSendTrigger(void)
 	char buf[32];
 #endif
 
-	pkt = NetTxPacket;
+	pkt = net_tx_packet;
 	et = (struct ethernet_hdr *)pkt;
 
 	/* NOTE: trigger sent not on any VLAN */
@@ -207,17 +207,17 @@ CDPSendTrigger(void)
 #endif
 
 	/* length of ethernet packet */
-	len = (uchar *)s - ((uchar *)NetTxPacket + ETHER_HDR_SIZE);
+	len = (uchar *)s - ((uchar *)net_tx_packet + ETHER_HDR_SIZE);
 	et->et_protlen = htons(len);
 
 	len = ETHER_HDR_SIZE + sizeof(CDP_SNAP_hdr);
-	chksum = CDP_compute_csum((uchar *)NetTxPacket + len,
-				  (uchar *)s - (NetTxPacket + len));
+	chksum = CDP_compute_csum((uchar *)net_tx_packet + len,
+				  (uchar *)s - (net_tx_packet + len));
 	if (chksum == 0)
 		chksum = 0xFFFF;
 	*cp = htons(chksum);
 
-	NetSendPacket(NetTxPacket, (uchar *)s - NetTxPacket);
+	net_send_packet(net_tx_packet, (uchar *)s - net_tx_packet);
 	return 0;
 }
 

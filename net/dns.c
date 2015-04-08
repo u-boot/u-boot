@@ -45,7 +45,8 @@ DnsSend(void)
 	enum dns_query_type qtype = DNS_A_RECORD;
 
 	name = NetDNSResolve;
-	pkt = p = (uchar *)(NetTxPacket + NetEthHdrSize() + IP_UDP_HDR_SIZE);
+	pkt = (uchar *)(net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE);
+	p = pkt;
 
 	/* Prepare DNS packet header */
 	header           = (struct header *) pkt;
@@ -89,8 +90,8 @@ DnsSend(void)
 
 	DnsOurPort = random_port();
 
-	NetSendUDPPacket(net_server_ethaddr, net_dns_server, DNS_SERVICE_PORT,
-			 DnsOurPort, n);
+	net_send_udp_packet(net_server_ethaddr, net_dns_server,
+			    DNS_SERVICE_PORT, DnsOurPort, n);
 	debug("DNS packet sent\n");
 }
 

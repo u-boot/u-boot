@@ -720,8 +720,8 @@ eth_loopback_test (void)
 			bdp->cbd_sc = BD_ENET_TX_READY | BD_ENET_TX_PAD | \
 				BD_ENET_TX_LAST | BD_ENET_TX_TC;
 
-			memset ((void *)bp, patbytes[i], ELBT_BUFSZ);
-			NetSetEther(bp, net_bcast_ethaddr, 0x8000);
+			memset((void *)bp, patbytes[i], ELBT_BUFSZ);
+			net_set_ether(bp, net_bcast_ethaddr, 0x8000);
 		}
 		ecp->txbd[ELBT_NTXBD - 1].cbd_sc |= BD_ENET_TX_WRAP;
 

@@ -75,9 +75,9 @@ void RarpRequest(void)
 	int eth_hdr_size;
 
 	printf("RARP broadcast %d\n", ++RarpTry);
-	pkt = NetTxPacket;
+	pkt = net_tx_packet;
 
-	eth_hdr_size = NetSetEther(pkt, net_bcast_ethaddr, PROT_RARP);
+	eth_hdr_size = net_set_ether(pkt, net_bcast_ethaddr, PROT_RARP);
 	pkt += eth_hdr_size;
 
 	rarp = (struct arp_hdr *)pkt;
@@ -94,7 +94,7 @@ void RarpRequest(void)
 	/* dest IP addr set to broadcast */
 	memset(&rarp->ar_data[16], 0xff,        4);
 
-	NetSendPacket(NetTxPacket, eth_hdr_size + ARP_HDR_SIZE);
+	net_send_packet(net_tx_packet, eth_hdr_size + ARP_HDR_SIZE);
 
 	NetSetTimeout(TIMEOUT, RarpTimeout);
 }
