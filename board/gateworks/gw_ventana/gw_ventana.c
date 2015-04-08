@@ -1030,6 +1030,7 @@ static struct ventana gpio_cfg[] = {
 			IMX_GPIO_NR(4, 15),
 		},
 		.pcie_rst = IMX_GPIO_NR(1, 29),
+		.wdis = IMX_GPIO_NR(7, 12),
 	},
 };
 
