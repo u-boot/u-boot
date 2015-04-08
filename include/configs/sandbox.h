@@ -131,6 +131,15 @@
 /* include default commands */
 #include <config_cmd_default.h>
 
+#define CONFIG_KEEP_SERVERADDR
+#define CONFIG_UDP_CHECKSUM
+#define CONFIG_CMD_LINK_LOCAL
+#define CONFIG_CMD_CDP
+#define CONFIG_CMD_DNS
+#define CONFIG_CMD_NFS
+#define CONFIG_CMD_SNTP
+#define CONFIG_TIMESTAMP
+#define CONFIG_CMD_RARP
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_DNS
