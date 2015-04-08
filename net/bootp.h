@@ -38,7 +38,7 @@ struct bootp_hdr {
 	uchar		bp_hlen;	/* Hardware address length	*/
 # define HWL_ETHER	6
 	uchar		bp_hops;	/* Hop count (gateway thing)	*/
-	ulong		bp_id;		/* Transaction ID		*/
+	u32		bp_id;		/* Transaction ID		*/
 	ushort		bp_secs;	/* Seconds since boot		*/
 	ushort		bp_spare1;	/* Alignment			*/
 	struct in_addr	bp_ciaddr;	/* Client IP address		*/
@@ -59,7 +59,7 @@ struct bootp_hdr {
  */
 
 /* bootp.c */
-extern ulong	bootp_id;		/* ID of cur BOOTP request	*/
+extern u32	bootp_id;		/* ID of cur BOOTP request	*/
 extern int	bootp_try;
 
 

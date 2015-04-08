@@ -416,7 +416,7 @@ struct icmp_hdr {
 			ushort	id;
 			ushort	sequence;
 		} echo;
-		ulong	gateway;
+		u32	gateway;
 		struct {
 			ushort	unused;
 			ushort	mtu;
@@ -684,9 +684,9 @@ static inline struct in_addr net_read_ip(void *from)
 }
 
 /* return ulong *in network byteorder* */
-static inline ulong net_read_long(ulong *from)
+static inline u32 net_read_u32(u32 *from)
 {
-	ulong l;
+	u32 l;
 
 	memcpy((void *)&l, (void *)from, sizeof(l));
 	return l;
@@ -705,9 +705,9 @@ static inline void net_copy_ip(void *to, void *from)
 }
 
 /* copy ulong */
-static inline void net_copy_long(ulong *to, ulong *from)
+static inline void net_copy_u32(u32 *to, u32 *from)
 {
-	memcpy((void *)to, (void *)from, sizeof(ulong));
+	memcpy((void *)to, (void *)from, sizeof(u32));
 }
 
 /**
