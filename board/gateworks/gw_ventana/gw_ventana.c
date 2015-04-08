@@ -413,6 +413,15 @@ int board_eth_init(bd_t *bis)
 	usb_eth_initialize(bis);
 #endif
 
+	/* default to the first detected enet dev */
+	if (!getenv("ethprime")) {
+		struct eth_device *dev = eth_get_dev_by_index(0);
+		if (dev) {
+			setenv("ethprime", dev->name);
+			printf("set ethprime to %s\n", getenv("ethprime"));
+		}
+	}
+
 	return 0;
 }
 
