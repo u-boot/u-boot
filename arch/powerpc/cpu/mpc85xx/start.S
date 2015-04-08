@@ -252,39 +252,36 @@ l2_disabled:
 	lis	r1,CONFIG_SYS_MONITOR_BASE@h
 	mtspr	IVPR,r1
 
-	lis	r3,(CONFIG_SYS_MONITOR_BASE & 0xffff)@h
-	ori	r3,r3,(CONFIG_SYS_MONITOR_BASE & 0xffff)@l
-
-	addi	r4,r3,CriticalInput - _start + _START_OFFSET
+	li	r4,CriticalInput@l
 	mtspr	IVOR0,r4	/* 0: Critical input */
-	addi	r4,r3,MachineCheck - _start + _START_OFFSET
+	li	r4,MachineCheck@l
 	mtspr	IVOR1,r4	/* 1: Machine check */
-	addi	r4,r3,DataStorage - _start + _START_OFFSET
+	li	r4,DataStorage@l
 	mtspr	IVOR2,r4	/* 2: Data storage */
-	addi	r4,r3,InstStorage - _start + _START_OFFSET
+	li	r4,InstStorage@l
 	mtspr	IVOR3,r4	/* 3: Instruction storage */
-	addi	r4,r3,ExtInterrupt - _start + _START_OFFSET
+	li	r4,ExtInterrupt@l
 	mtspr	IVOR4,r4	/* 4: External interrupt */
-	addi	r4,r3,Alignment - _start + _START_OFFSET
+	li	r4,Alignment@l
 	mtspr	IVOR5,r4	/* 5: Alignment */
-	addi	r4,r3,ProgramCheck - _start + _START_OFFSET
+	li	r4,ProgramCheck@l
 	mtspr	IVOR6,r4	/* 6: Program check */
-	addi	r4,r3,FPUnavailable - _start + _START_OFFSET
+	li	r4,FPUnavailable@l
 	mtspr	IVOR7,r4	/* 7: floating point unavailable */
-	addi	r4,r3,SystemCall - _start + _START_OFFSET
+	li	r4,SystemCall@l
 	mtspr	IVOR8,r4	/* 8: System call */
 	/* 9: Auxiliary processor unavailable(unsupported) */
-	addi	r4,r3,Decrementer - _start + _START_OFFSET
+	li	r4,Decrementer@l
 	mtspr	IVOR10,r4	/* 10: Decrementer */
-	addi	r4,r3,IntervalTimer - _start + _START_OFFSET
+	li	r4,IntervalTimer@l
 	mtspr	IVOR11,r4	/* 11: Interval timer */
-	addi	r4,r3,WatchdogTimer - _start + _START_OFFSET
+	li	r4,WatchdogTimer@l
 	mtspr	IVOR12,r4	/* 12: Watchdog timer */
-	addi	r4,r3,DataTLBError - _start + _START_OFFSET
+	li	r4,DataTLBError@l
 	mtspr	IVOR13,r4	/* 13: Data TLB error */
-	addi	r4,r3,InstructionTLBError - _start + _START_OFFSET
+	li	r4,InstructionTLBError@l
 	mtspr	IVOR14,r4	/* 14: Instruction TLB error */
-	addi	r4,r3,DebugBreakpoint - _start + _START_OFFSET
+	li	r4,DebugBreakpoint@l
 	mtspr	IVOR15,r4	/* 15: Debug */
 #endif
 
@@ -1121,7 +1118,7 @@ switch_as:
 	/*--------------------------------------------------------------*/
 	lis	r3,CONFIG_SYS_MONITOR_BASE@h
 	ori	r3,r3,CONFIG_SYS_MONITOR_BASE@l
-	addi	r3,r3,_start_cont - _start + _START_OFFSET
+	addi	r3,r3,_start_cont - _start
 	mtlr	r3
 	blr
 #endif
@@ -1165,7 +1162,6 @@ _start_cont:
 	/* NOTREACHED - board_init_f() does not return */
 
 #ifndef MINIMAL_SPL
-	. = EXC_OFF_SYS_RESET
 	.globl	_start_of_vectors
 _start_of_vectors:
 
@@ -1185,7 +1181,6 @@ _start_of_vectors:
 	STD_EXCEPTION(0x0500, ExtInterrupt, ExtIntException)
 
 /* Alignment exception. */
-	. = 0x0600
 Alignment:
 	EXCEPTION_PROLOG(SRR0, SRR1)
 	mfspr	r4,DAR
@@ -1193,21 +1188,20 @@ Alignment:
 	mfspr	r5,DSISR
 	stw	r5,_DSISR(r21)
 	addi	r3,r1,STACK_FRAME_OVERHEAD
-	EXC_XFER_TEMPLATE(Alignment, AlignmentException, MSR_KERNEL, COPY_EE)
+	EXC_XFER_TEMPLATE(0x600, Alignment, AlignmentException,
+		MSR_KERNEL, COPY_EE)
 
 /* Program check exception */
-	. = 0x0700
 ProgramCheck:
 	EXCEPTION_PROLOG(SRR0, SRR1)
 	addi	r3,r1,STACK_FRAME_OVERHEAD
-	EXC_XFER_TEMPLATE(ProgramCheck, ProgramCheckException,
+	EXC_XFER_TEMPLATE(0x700, ProgramCheck, ProgramCheckException,
 		MSR_KERNEL, COPY_EE)
 
 	/* No FPU on MPC85xx.  This exception is not supposed to happen.
 	*/
 	STD_EXCEPTION(0x0800, FPUnavailable, UnknownException)
 
-	. = 0x0900
 /*
  * r0 - SYSCALL number
  * r3-... arguments
@@ -1293,32 +1287,22 @@ _end_of_vectors:
  * This code finishes saving the registers to the exception frame
  * and jumps to the appropriate handler for the exception.
  * Register r21 is pointer into trap frame, r1 has new stack pointer.
+ * r23 is the address of the handler.
  */
 	.globl	transfer_to_handler
 transfer_to_handler:
-	stw	r22,_NIP(r21)
-	lis	r22,MSR_POW@h
-	andc	r23,r23,r22
-	stw	r23,_MSR(r21)
 	SAVE_GPR(7, r21)
 	SAVE_4GPRS(8, r21)
 	SAVE_8GPRS(12, r21)
 	SAVE_8GPRS(24, r21)
 
-	mflr	r23
-	andi.	r24,r23,0x3f00		/* get vector offset */
-	stw	r24,TRAP(r21)
 	li	r22,0
 	stw	r22,RESULT(r21)
 	mtspr	SPRG2,r22		/* r1 is now kernel sp */
 
-	lwz	r24,0(r23)		/* virtual address of handler */
-	lwz	r23,4(r23)		/* where to go when done */
-	mtspr	SRR0,r24
-	mtspr	SRR1,r20
-	mtlr	r23
-	SYNC
-	rfi				/* jump to handler, enable MMU */
+	mtctr	r23			/* virtual address of handler */
+	mtmsr	r20
+	bctrl
 
 int_return:
 	mfmsr	r28		/* Disable interrupts */
@@ -1728,7 +1712,7 @@ relocate_code:
  * initialization, now running from RAM.
  */
 
-	addi	r0,r10,in_ram - _start + _START_OFFSET
+	addi	r0,r10,in_ram - _start
 
 	/*
 	 * As IVPR is going to point RAM address,
@@ -1816,89 +1800,41 @@ clear_bss:
 	 */
 	.globl	trap_init
 trap_init:
-	mflr	r4			/* save link register		*/
-	GET_GOT
-	lwz	r7,GOT(_start_of_vectors)
-	lwz	r8,GOT(_end_of_vectors)
+	/* Update IVORs as per relocation */
+	mtspr	IVPR,r3
 
-	li	r9,0x100		/* reset vector always at 0x100 */
-
-	cmplw	0,r7,r8
-	bgelr				/* return if r7>=r8 - just in case */
-1:
-	lwz	r0,0(r7)
-	stw	r0,0(r9)
-	addi	r7,r7,4
-	addi	r9,r9,4
-	cmplw	0,r7,r8
-	bne	1b
-
-	/*
-	 * relocate `hdlr' and `int_return' entries
-	 */
-	li	r7,.L_CriticalInput - _start + _START_OFFSET
-	bl	trap_reloc
-	li	r7,.L_MachineCheck - _start + _START_OFFSET
-	bl	trap_reloc
-	li	r7,.L_DataStorage - _start + _START_OFFSET
-	bl	trap_reloc
-	li	r7,.L_InstStorage - _start + _START_OFFSET
-	bl	trap_reloc
-	li	r7,.L_ExtInterrupt - _start + _START_OFFSET
-	bl	trap_reloc
-	li	r7,.L_Alignment - _start + _START_OFFSET
-	bl	trap_reloc
-	li	r7,.L_ProgramCheck - _start + _START_OFFSET
-	bl	trap_reloc
-	li	r7,.L_FPUnavailable - _start + _START_OFFSET
-	bl	trap_reloc
-	li	r7,.L_Decrementer - _start + _START_OFFSET
-	bl	trap_reloc
-	li	r7,.L_IntervalTimer - _start + _START_OFFSET
-	li	r8,_end_of_vectors - _start + _START_OFFSET
-2:
-	bl	trap_reloc
-	addi	r7,r7,0x100		/* next exception vector	*/
-	cmplw	0,r7,r8
-	blt	2b
-
-	/* Update IVORs as per relocated vector table address */
-	li	r7,0x0100
-	mtspr	IVOR0,r7	/* 0: Critical input */
-	li	r7,0x0200
-	mtspr	IVOR1,r7	/* 1: Machine check */
-	li	r7,0x0300
-	mtspr	IVOR2,r7	/* 2: Data storage */
-	li	r7,0x0400
-	mtspr	IVOR3,r7	/* 3: Instruction storage */
-	li	r7,0x0500
-	mtspr	IVOR4,r7	/* 4: External interrupt */
-	li	r7,0x0600
-	mtspr	IVOR5,r7	/* 5: Alignment */
-	li	r7,0x0700
-	mtspr	IVOR6,r7	/* 6: Program check */
-	li	r7,0x0800
-	mtspr	IVOR7,r7	/* 7: floating point unavailable */
-	li	r7,0x0900
-	mtspr	IVOR8,r7	/* 8: System call */
+	li	r4,CriticalInput@l
+	mtspr	IVOR0,r4	/* 0: Critical input */
+	li	r4,MachineCheck@l
+	mtspr	IVOR1,r4	/* 1: Machine check */
+	li	r4,DataStorage@l
+	mtspr	IVOR2,r4	/* 2: Data storage */
+	li	r4,InstStorage@l
+	mtspr	IVOR3,r4	/* 3: Instruction storage */
+	li	r4,ExtInterrupt@l
+	mtspr	IVOR4,r4	/* 4: External interrupt */
+	li	r4,Alignment@l
+	mtspr	IVOR5,r4	/* 5: Alignment */
+	li	r4,ProgramCheck@l
+	mtspr	IVOR6,r4	/* 6: Program check */
+	li	r4,FPUnavailable@l
+	mtspr	IVOR7,r4	/* 7: floating point unavailable */
+	li	r4,SystemCall@l
+	mtspr	IVOR8,r4	/* 8: System call */
 	/* 9: Auxiliary processor unavailable(unsupported) */
-	li	r7,0x0a00
-	mtspr	IVOR10,r7	/* 10: Decrementer */
-	li	r7,0x0b00
-	mtspr	IVOR11,r7	/* 11: Interval timer */
-	li	r7,0x0c00
-	mtspr	IVOR12,r7	/* 12: Watchdog timer */
-	li	r7,0x0d00
-	mtspr	IVOR13,r7	/* 13: Data TLB error */
-	li	r7,0x0e00
-	mtspr	IVOR14,r7	/* 14: Instruction TLB error */
-	li	r7,0x0f00
-	mtspr	IVOR15,r7	/* 15: Debug */
+	li	r4,Decrementer@l
+	mtspr	IVOR10,r4	/* 10: Decrementer */
+	li	r4,IntervalTimer@l
+	mtspr	IVOR11,r4	/* 11: Interval timer */
+	li	r4,WatchdogTimer@l
+	mtspr	IVOR12,r4	/* 12: Watchdog timer */
+	li	r4,DataTLBError@l
+	mtspr	IVOR13,r4	/* 13: Data TLB error */
+	li	r4,InstructionTLBError@l
+	mtspr	IVOR14,r4	/* 14: Instruction TLB error */
+	li	r4,DebugBreakpoint@l
+	mtspr	IVOR15,r4	/* 15: Debug */
 
-	lis	r7,0x0
-	mtspr	IVPR,r7
-
-	mtlr	r4			/* restore link register	*/
 	blr
 
 .globl unlock_ram_in_cache

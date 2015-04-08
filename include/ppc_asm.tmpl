@@ -12,6 +12,8 @@
 #ifndef	__PPC_ASM_TMPL__
 #define __PPC_ASM_TMPL__
 
+#include <config.h>
+
 /***************************************************************************
  *
  * These definitions simplify the ugly declarations necessary for GOT
@@ -243,6 +245,45 @@
  */
 #define COPY_EE(d, s)		rlwimi d,s,0,16,16
 #define NOCOPY(d, s)
+
+#ifdef CONFIG_E500
+#define EXC_XFER_TEMPLATE(n, label, hdlr, msr, copyee)	\
+	stw	r22,_NIP(r21);				\
+	stw	r23,_MSR(r21);				\
+	li	r23,n;					\
+	stw	r23,TRAP(r21);				\
+	li	r20,msr;				\
+	copyee(r20,r23);				\
+	rlwimi	r20,r23,0,25,25;			\
+	mtmsr	r20;					\
+	bl	1f;					\
+1:	mflr	r23;					\
+	addis	r23,r23,(hdlr - 1b)@ha;			\
+	addi	r23,r23,(hdlr - 1b)@l;			\
+	b	transfer_to_handler
+
+#define STD_EXCEPTION(n, label, hdlr)				\
+label:								\
+	EXCEPTION_PROLOG(SRR0, SRR1);				\
+	addi	r3,r1,STACK_FRAME_OVERHEAD;			\
+	EXC_XFER_TEMPLATE(n, label, hdlr, MSR_KERNEL, NOCOPY)	\
+
+#define CRIT_EXCEPTION(n, label, hdlr)				\
+label:								\
+	EXCEPTION_PROLOG(CSRR0, CSRR1);				\
+	addi	r3,r1,STACK_FRAME_OVERHEAD;			\
+	EXC_XFER_TEMPLATE(n, label, hdlr,			\
+	MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE), NOCOPY)		\
+
+#define MCK_EXCEPTION(n, label, hdlr)				\
+label:								\
+	EXCEPTION_PROLOG(MCSRR0, MCSRR1);			\
+	addi	r3,r1,STACK_FRAME_OVERHEAD;			\
+	EXC_XFER_TEMPLATE(n, label, hdlr,			\
+	MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE), NOCOPY)		\
+
+#else	/* !E500 */
+
 #define EXC_XFER_TEMPLATE(label, hdlr, msr, copyee)	\
 	bl	1f;					\
 1:	mflr    r20;					\
@@ -280,4 +321,5 @@ label:								\
 	EXC_XFER_TEMPLATE(label, hdlr,				\
 	MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE), NOCOPY)		\
 
+#endif	/* !E500 */
 #endif	/* __PPC_ASM_TMPL__ */
