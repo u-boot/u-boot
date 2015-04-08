@@ -1572,7 +1572,7 @@ static int mvneta_recv(struct eth_device *dev)
 		 * No cache invalidation needed here, since the rx_buffer's are
 		 * located in a uncached memory region
 		 */
-		NetReceive(data, rx_bytes);
+		net_process_received_packet(data, rx_bytes);
 	}
 
 	/* Update rxq management counters */

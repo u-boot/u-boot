@@ -423,7 +423,7 @@ static int ftgmac100_init(struct eth_device *dev, bd_t *bd)
 	for (i = 0; i < PKTBUFSRX; i++) {
 		/* RXBUF_BADR */
 		if (!rxdes[i].rxdes2) {
-			buf = NetRxPackets[i];
+			buf = net_rx_packets[i];
 			rxdes[i].rxdes3 = virt_to_phys(buf);
 			rxdes[i].rxdes2 = (uint)buf;
 		}
@@ -493,7 +493,7 @@ static int ftgmac100_recv(struct eth_device *dev)
 	dma_map_single((void *)curr_des->rxdes2, rxlen, DMA_FROM_DEVICE);
 
 	/* pass the packet up to the protocol layers. */
-	NetReceive((void *)curr_des->rxdes2, rxlen);
+	net_process_received_packet((void *)curr_des->rxdes2, rxlen);
 
 	/* release buffer to DMA */
 	curr_des->rxdes0 &= ~FTGMAC100_RXDES0_RXPKT_RDY;

@@ -700,8 +700,9 @@ static int davinci_eth_rcv_packet (struct eth_device *dev)
 			unsigned long tmp = (unsigned long)rx_curr_desc->buffer;
 
 			invalidate_dcache_range(tmp, tmp + EMAC_RXBUF_SIZE);
-			NetReceive (rx_curr_desc->buffer,
-				    (rx_curr_desc->buff_off_len & 0xffff));
+			net_process_received_packet(
+				rx_curr_desc->buffer,
+				rx_curr_desc->buff_off_len & 0xffff);
 			ret = rx_curr_desc->buff_off_len & 0xffff;
 		}
 

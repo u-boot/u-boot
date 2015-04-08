@@ -846,7 +846,7 @@ static int cpsw_init(struct eth_device *dev, bd_t *bis)
 
 	/* submit rx descs */
 	for (i = 0; i < PKTBUFSRX; i++) {
-		ret = cpdma_submit(priv, &priv->rx_chan, NetRxPackets[i],
+		ret = cpdma_submit(priv, &priv->rx_chan, net_rx_packets[i],
 				   PKTSIZE);
 		if (ret < 0) {
 			printf("error %d submitting rx desc\n", ret);
@@ -905,7 +905,7 @@ static int cpsw_recv(struct eth_device *dev)
 	while (cpdma_process(priv, &priv->rx_chan, &buffer, &len) >= 0) {
 		invalidate_dcache_range((unsigned long)buffer,
 					(unsigned long)buffer + PKTSIZE_ALIGN);
-		NetReceive(buffer, len);
+		net_process_received_packet(buffer, len);
 		cpdma_submit(priv, &priv->rx_chan, buffer, PKTSIZE);
 	}
 

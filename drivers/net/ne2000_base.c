@@ -665,7 +665,7 @@ void uboot_push_packet_len(int len) {
 	dp83902a_recv(&pbuf[0], len);
 
 	/*Just pass it to the upper layer*/
-	NetReceive(&pbuf[0], len);
+	net_process_received_packet(&pbuf[0], len);
 }
 
 void uboot_push_tx_done(int key, int val) {

@@ -127,7 +127,7 @@ int sh_eth_recv(struct eth_device *dev)
 			packet = (uchar *)
 				ADDR_TO_P2(port_info->rx_desc_cur->rd2);
 			invalidate_cache(packet, len);
-			NetReceive(packet, len);
+			net_process_received_packet(packet, len);
 		}
 
 		/* Make current descriptor available again */

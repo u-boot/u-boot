@@ -587,7 +587,8 @@ static int uli526x_rx_packet(struct eth_device *dev)
 					__FUNCTION__, i, rxptr->rx_buf_ptr[i]);
 #endif
 
-				NetReceive((uchar *)rxptr->rx_buf_ptr, rxlen);
+				net_process_received_packet(
+					(uchar *)rxptr->rx_buf_ptr, rxlen);
 				uli526x_reuse_buf(rxptr);
 
 			} else {
@@ -709,7 +710,7 @@ static void allocate_rx_buffer(struct uli526x_board_info *db)
 	u32 addr;
 
 	for (index = 0; index < RX_DESC_CNT; index++) {
-		addr = (u32)NetRxPackets[index];
+		addr = (u32)net_rx_packets[index];
 		addr += (16 - (addr & 15));
 		rxptr->rx_buf_ptr = (char *) addr;
 		rxptr->rdes2 = cpu_to_le32(addr);

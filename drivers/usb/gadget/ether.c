@@ -1522,7 +1522,7 @@ static int rx_submit(struct eth_dev *dev, struct usb_request *req,
 	 * RNDIS headers involve variable numbers of LE32 values.
 	 */
 
-	req->buf = (u8 *) NetRxPackets[0];
+	req->buf = (u8 *)net_rx_packets[0];
 	req->length = size;
 	req->complete = rx_complete;
 
@@ -2446,7 +2446,8 @@ static int usb_eth_recv(struct eth_device *netdev)
 	if (packet_received) {
 		debug("%s: packet received\n", __func__);
 		if (dev->rx_req) {
-			NetReceive(NetRxPackets[0], dev->rx_req->length);
+			net_process_received_packet(net_rx_packets[0],
+						    dev->rx_req->length);
 			packet_received = 0;
 
 			rx_submit(dev, dev->rx_req, 0);

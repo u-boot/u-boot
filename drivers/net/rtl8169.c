@@ -538,7 +538,7 @@ static int rtl_recv(struct eth_device *dev)
 				cpu_to_le32(bus_to_phys(tpc->RxBufferRing[cur_rx]));
 			rtl_flush_rx_desc(&tpc->RxDescArray[cur_rx]);
 
-			NetReceive(rxdata, length);
+			net_process_received_packet(rxdata, length);
 		} else {
 			puts("Error Rx");
 		}

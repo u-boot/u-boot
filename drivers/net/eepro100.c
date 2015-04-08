@@ -674,7 +674,8 @@ static int eepro100_recv (struct eth_device *dev)
 			/* Pass the packet up to the protocol
 			 * layers.
 			 */
-			NetReceive((u8 *)rx_ring[rx_next].data, length);
+			net_process_received_packet((u8 *)rx_ring[rx_next].data,
+						    length);
 		} else {
 			/* There was an error.
 			 */

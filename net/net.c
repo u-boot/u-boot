@@ -178,13 +178,8 @@ int		NetTimeOffset;
 #endif
 
 static uchar net_pkt_buf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
-#ifdef CONFIG_DM_ETH
 /* Receive packets */
 uchar *net_rx_packets[PKTBUFSRX];
-#else
-/* Receive packet */
-uchar *NetRxPackets[PKTBUFSRX];
-#endif
 /* Current UDP RX packet handler */
 static rxhand_f *udp_packet_handler;
 /* Current ARP RX packet handler */
@@ -303,16 +298,10 @@ void net_init(void)
 
 		net_tx_packet = &net_pkt_buf[0] + (PKTALIGN - 1);
 		net_tx_packet -= (ulong)net_tx_packet % PKTALIGN;
-#ifdef CONFIG_DM_ETH
 		for (i = 0; i < PKTBUFSRX; i++) {
 			net_rx_packets[i] = net_tx_packet +
 				(i + 1) * PKTSIZE_ALIGN;
 		}
-#else
-		for (i = 0; i < PKTBUFSRX; i++)
-			NetRxPackets[i] = net_tx_packet +
-				(i + 1) * PKTSIZE_ALIGN;
-#endif
 		ArpInit();
 		net_clear_handlers();
 

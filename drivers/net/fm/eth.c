@@ -530,7 +530,7 @@ static int fm_eth_recv(struct eth_device *dev)
 		if (!(status & RxBD_ERROR)) {
 			data = (u8 *)rxbd->buf_ptr_lo;
 			len = rxbd->len;
-			NetReceive(data, len);
+			net_process_received_packet(data, len);
 		} else {
 			printf("%s: Rx error\n", dev->name);
 			return 0;

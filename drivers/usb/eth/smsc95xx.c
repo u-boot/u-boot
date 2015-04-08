@@ -760,7 +760,8 @@ static int smsc95xx_recv(struct eth_device *eth)
 		}
 
 		/* Notify net stack */
-		NetReceive(buf_ptr + sizeof(packet_len), packet_len - 4);
+		net_process_received_packet(buf_ptr + sizeof(packet_len),
+					    packet_len - 4);
 
 		/* Adjust for next iteration */
 		actual_len -= sizeof(packet_len) + packet_len;

@@ -374,7 +374,7 @@ static int dw_eth_recv(struct eth_device *dev)
 		data_end = data_start + roundup(length, ARCH_DMA_MINALIGN);
 		invalidate_dcache_range(data_start, data_end);
 
-		NetReceive(desc_p->dmamac_addr, length);
+		net_process_received_packet(desc_p->dmamac_addr, length);
 
 		/*
 		 * Make the current descriptor valid again and go to

@@ -186,7 +186,7 @@ static int fec_recv(struct eth_device* dev)
 	}
 	else {
 	    /* Pass the packet up to the protocol layers. */
-	    NetReceive(NetRxPackets[rxIdx], length - 4);
+	    net_process_received_packet(net_rx_packets[rxIdx], length - 4);
 	}
 
 
@@ -263,7 +263,7 @@ static int fec_init(struct eth_device* dev, bd_t *bis)
     {
       rtx.rxbd[i].cbd_sc = BD_ENET_RX_EMPTY;
       rtx.rxbd[i].cbd_datlen = 0;
-      rtx.rxbd[i].cbd_bufaddr = (uint)NetRxPackets[i];
+      rtx.rxbd[i].cbd_bufaddr = (uint)net_rx_packets[i];
     }
     rtx.rxbd[PKTBUFSRX - 1].cbd_sc |= BD_ENET_RX_WRAP;
 

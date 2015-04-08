@@ -212,7 +212,7 @@ static void scc_init (int scc_index)
 	for (i = 0; i < PKTBUFSRX; i++) {
 		rtx->rxbd[i].cbd_sc = BD_ENET_RX_EMPTY;
 		rtx->rxbd[i].cbd_datlen = 0;	/* Reset */
-		rtx->rxbd[i].cbd_bufaddr = (uint) NetRxPackets[i];
+		rtx->rxbd[i].cbd_bufaddr = (uint) net_rx_packets[i];
 	}
 
 	rtx->rxbd[PKTBUFSRX - 1].cbd_sc |= BD_ENET_RX_WRAP;
@@ -405,8 +405,8 @@ static int scc_recv (int index, void *packet, int max_length)
 	if (!(rtx->rxbd[rxIdx].cbd_sc & 0x003f)) {
 		length = rtx->rxbd[rxIdx].cbd_datlen - 4;
 		memcpy (packet,
-				(void *) (NetRxPackets[rxIdx]),
-				length < max_length ? length : max_length);
+			(void *)(net_rx_packets[rxIdx]),
+			length < max_length ? length : max_length);
 	}
 
 	/* Give the buffer back to the SCC. */

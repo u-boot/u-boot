@@ -534,7 +534,8 @@ static int asix_recv(struct eth_device *eth)
 		}
 
 		/* Notify net stack */
-		NetReceive(buf_ptr + sizeof(packet_len), packet_len);
+		net_process_received_packet(buf_ptr + sizeof(packet_len),
+					    packet_len);
 
 		/* Adjust for next iteration. Packets are padded to 16-bits */
 		if (packet_len & 1)

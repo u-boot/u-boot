@@ -439,7 +439,7 @@ static int zynq_gem_recv(struct eth_device *dev)
 		u32 size = roundup(frame_len, ARCH_DMA_MINALIGN);
 		invalidate_dcache_range(addr, addr + size);
 
-		NetReceive((u8 *)addr, frame_len);
+		net_process_received_packet((u8 *)addr, frame_len);
 
 		if (current_bd->status & ZYNQ_GEM_RXBUF_SOF_MASK)
 			priv->rx_first_buf = priv->rxbd_current;

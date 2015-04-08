@@ -852,7 +852,7 @@ static int fec_recv(struct eth_device *dev)
 			swap_packet((uint32_t *)frame->data, frame_length);
 #endif
 			memcpy(buff, frame->data, frame_length);
-			NetReceive(buff, frame_length);
+			net_process_received_packet(buff, frame_length);
 			len = frame_length;
 		} else {
 			if (bd_status & FEC_RBD_ERR)

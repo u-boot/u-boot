@@ -188,12 +188,13 @@ static int dnet_recv(struct eth_device *netdev)
 	if (cmd_word & 0xDF180000)
 		printf("%s packet receive error %x\n", __func__, cmd_word);
 
-	data_ptr = (unsigned int *) NetRxPackets[0];
+	data_ptr = (unsigned int *)net_rx_packets[0];
 
 	for (i = 0; i < (pkt_len + 3) >> 2; i++)
 		*data_ptr++ = readl(&dnet->regs->RX_DATA_FIFO);
 
-	NetReceive(NetRxPackets[0], pkt_len + 5); /* ok + 5 ?? */
+	/* ok + 5 ?? */
+	net_process_received_packet(net_rx_packets[0], pkt_len + 5);
 
 	return 0;
 }

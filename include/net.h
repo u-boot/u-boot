@@ -482,11 +482,7 @@ extern u8		net_server_ethaddr[6];	/* Boot server enet address */
 extern struct in_addr	net_ip;		/* Our    IP addr (0 = unknown) */
 extern struct in_addr	net_server_ip;	/* Server IP addr (0 = unknown) */
 extern uchar		*net_tx_packet;		/* THE transmit packet */
-#ifdef CONFIG_DM_ETH
 extern uchar		*net_rx_packets[PKTBUFSRX]; /* Receive packets */
-#else
-extern uchar		*NetRxPackets[PKTBUFSRX]; /* Receive packets */
-#endif
 extern uchar		*net_rx_packet;		/* Current receive packet */
 extern int		net_rx_packet_len;	/* Current rx packet length */
 extern unsigned		NetIPID;		/* IP ID (counting) */
@@ -640,9 +636,6 @@ static inline void net_send_packet(uchar *pkt, int len)
 int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport,
 			int sport, int payload_len);
 
-#ifndef CONFIG_DM_ETH
-#define NetReceive(in_packet, len) net_process_received_packet(in_packet, len)
-#endif
 /* Processes a received packet */
 void net_process_received_packet(uchar *in_packet, int len);
 

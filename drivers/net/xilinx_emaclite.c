@@ -322,7 +322,7 @@ static int emaclite_recv(struct eth_device *dev)
 	out_be32 (baseaddress + XEL_RSR_OFFSET, reg);
 
 	debug("Packet receive from 0x%x, length %dB\n", baseaddress, length);
-	NetReceive((uchar *) etherrxbuff, length);
+	net_process_received_packet((uchar *)etherrxbuff, length);
 	return length;
 
 }

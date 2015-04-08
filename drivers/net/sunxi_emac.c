@@ -437,10 +437,10 @@ static int sunxi_emac_eth_recv(struct eth_device *dev)
 			printf("Received packet is too big (len=%d)\n", rx_len);
 		} else {
 			emac_inblk_32bit((void *)&regs->rx_io_data,
-					 NetRxPackets[0], rx_len);
+					 net_rx_packets[0], rx_len);
 
 			/* Pass to upper layer */
-			NetReceive(NetRxPackets[0], rx_len);
+			net_process_received_packet(net_rx_packets[0], rx_len);
 			return rx_len;
 		}
 	}

@@ -556,7 +556,7 @@ static int axiemac_recv(struct eth_device *dev)
 #endif
 	/* Pass the received frame up for processing */
 	if (length)
-		NetReceive(rxframe, length);
+		net_process_received_packet(rxframe, length);
 
 #ifdef DEBUG
 	/* It is useful to clear buffer to be sure that it is consistent */

@@ -303,16 +303,17 @@ static int tse_eth_rx(struct eth_device *dev)
 	    ALT_SGDMA_DESCRIPTOR_STATUS_TERMINATED_BY_EOP_MSK) {
 		debug("got packet\n");
 		packet_length = rx_desc->actual_bytes_transferred;
-		NetReceive(NetRxPackets[0], packet_length);
+		net_process_received_packet(net_rx_packets[0], packet_length);
 
 		/* start descriptor again */
-		flush_dcache_range((unsigned long)(NetRxPackets[0]),
-			(unsigned long)(NetRxPackets[0]) + PKTSIZE_ALIGN);
+		flush_dcache_range((unsigned long)(net_rx_packets[0]),
+				   (unsigned long)(net_rx_packets[0] +
+						   PKTSIZE_ALIGN));
 		alt_sgdma_construct_descriptor_burst(
 			(volatile struct alt_sgdma_descriptor *)&rx_desc[0],
 			(volatile struct alt_sgdma_descriptor *)&rx_desc[1],
 			(unsigned int)0x0,	/* read addr */
-			(unsigned int *)NetRxPackets[0],
+			(unsigned int *)net_rx_packets[0],
 			0x0,	/* length or EOP */
 			0x0,	/* gen eop */
 			0x0,	/* read fixed */
@@ -835,13 +836,13 @@ static int tse_eth_init(struct eth_device *dev, bd_t * bd)
 		0x0	/* channel */
 		);
 	debug("Configuring rx desc\n");
-	flush_dcache_range((unsigned long)(NetRxPackets[0]),
-			(unsigned long)(NetRxPackets[0]) + PKTSIZE_ALIGN);
+	flush_dcache_range((unsigned long)(net_rx_packets[0]),
+			   (unsigned long)(net_rx_packets[0]) + PKTSIZE_ALIGN);
 	alt_sgdma_construct_descriptor_burst(
 		(volatile struct alt_sgdma_descriptor *)&rx_desc[0],
 		(volatile struct alt_sgdma_descriptor *)&rx_desc[1],
 		(unsigned int)0x0,	/* read addr */
-		(unsigned int *)NetRxPackets[0],
+		(unsigned int *)net_rx_packets[0],
 		0x0,	/* length or EOP */
 		0x0,	/* gen eop */
 		0x0,	/* read fixed */

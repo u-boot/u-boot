@@ -347,7 +347,7 @@ static int ftmac110_recv(struct eth_device *dev)
 			printf("ftmac110: rx error\n");
 		} else {
 			dma_map_single(buf, len, DMA_FROM_DEVICE);
-			NetReceive(buf, len);
+			net_process_received_packet(buf, len);
 			rlen += len;
 		}
 

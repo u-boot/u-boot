@@ -5158,7 +5158,7 @@ e1000_poll(struct eth_device *nic)
 	invalidate_dcache_range((unsigned long)packet,
 				(unsigned long)packet +
 				roundup(len, ARCH_DMA_MINALIGN));
-	NetReceive((uchar *)packet, len);
+	net_process_received_packet((uchar *)packet, len);
 	fill_rx(hw);
 	return 1;
 }

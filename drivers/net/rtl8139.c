@@ -504,11 +504,11 @@ static int rtl_poll(struct eth_device *dev)
 		memcpy(rxdata, rx_ring + ring_offs + 4, semi_count);
 		memcpy(&(rxdata[semi_count]), rx_ring, rx_size-4-semi_count);
 
-		NetReceive(rxdata, length);
+		net_process_received_packet(rxdata, length);
 		debug_cond(DEBUG_RX, "rx packet %d+%d bytes",
 			semi_count, rx_size-4-semi_count);
 	} else {
-		NetReceive(rx_ring + ring_offs + 4, length);
+		net_process_received_packet(rx_ring + ring_offs + 4, length);
 		debug_cond(DEBUG_RX, "rx packet %d bytes", rx_size-4);
 	}
 	flush_cache((unsigned long)rx_ring, RX_BUF_LEN);
