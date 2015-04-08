@@ -89,16 +89,16 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 struct ventana_board_info ventana_info;
 
-int board_type;
+static int board_type;
 
 /* UART1: Function varies per baseboard */
-iomux_v3_cfg_t const uart1_pads[] = {
+static iomux_v3_cfg_t const uart1_pads[] = {
 	IOMUX_PADS(PAD_SD3_DAT6__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_DAT7__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
 
 /* UART2: Serial Console */
-iomux_v3_cfg_t const uart2_pads[] = {
+static iomux_v3_cfg_t const uart2_pads[] = {
 	IOMUX_PADS(PAD_SD4_DAT7__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD4_DAT4__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
@@ -106,7 +106,7 @@ iomux_v3_cfg_t const uart2_pads[] = {
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
 
 /* I2C1: GSC */
-struct i2c_pads_info mx6q_i2c_pad_info0 = {
+static struct i2c_pads_info mx6q_i2c_pad_info0 = {
 	.scl = {
 		.i2c_mode = MX6Q_PAD_EIM_D21__I2C1_SCL | PC,
 		.gpio_mode = MX6Q_PAD_EIM_D21__GPIO3_IO21 | PC,
@@ -118,7 +118,7 @@ struct i2c_pads_info mx6q_i2c_pad_info0 = {
 		.gp = IMX_GPIO_NR(3, 28)
 	}
 };
-struct i2c_pads_info mx6dl_i2c_pad_info0 = {
+static struct i2c_pads_info mx6dl_i2c_pad_info0 = {
 	.scl = {
 		.i2c_mode = MX6DL_PAD_EIM_D21__I2C1_SCL | PC,
 		.gpio_mode = MX6DL_PAD_EIM_D21__GPIO3_IO21 | PC,
@@ -132,7 +132,7 @@ struct i2c_pads_info mx6dl_i2c_pad_info0 = {
 };
 
 /* I2C2: PMIC/PCIe Switch/PCIe Clock/Mezz */
-struct i2c_pads_info mx6q_i2c_pad_info1 = {
+static struct i2c_pads_info mx6q_i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = MX6Q_PAD_KEY_COL3__I2C2_SCL | PC,
 		.gpio_mode = MX6Q_PAD_KEY_COL3__GPIO4_IO12 | PC,
@@ -144,7 +144,7 @@ struct i2c_pads_info mx6q_i2c_pad_info1 = {
 		.gp = IMX_GPIO_NR(4, 13)
 	}
 };
-struct i2c_pads_info mx6dl_i2c_pad_info1 = {
+static struct i2c_pads_info mx6dl_i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = MX6DL_PAD_KEY_COL3__I2C2_SCL | PC,
 		.gpio_mode = MX6DL_PAD_KEY_COL3__GPIO4_IO12 | PC,
@@ -158,7 +158,7 @@ struct i2c_pads_info mx6dl_i2c_pad_info1 = {
 };
 
 /* I2C3: Misc/Expansion */
-struct i2c_pads_info mx6q_i2c_pad_info2 = {
+static struct i2c_pads_info mx6q_i2c_pad_info2 = {
 	.scl = {
 		.i2c_mode = MX6Q_PAD_GPIO_3__I2C3_SCL | PC,
 		.gpio_mode = MX6Q_PAD_GPIO_3__GPIO1_IO03 | PC,
@@ -170,7 +170,7 @@ struct i2c_pads_info mx6q_i2c_pad_info2 = {
 		.gp = IMX_GPIO_NR(1, 6)
 	}
 };
-struct i2c_pads_info mx6dl_i2c_pad_info2 = {
+static struct i2c_pads_info mx6dl_i2c_pad_info2 = {
 	.scl = {
 		.i2c_mode = MX6DL_PAD_GPIO_3__I2C3_SCL | PC,
 		.gpio_mode = MX6DL_PAD_GPIO_3__GPIO1_IO03 | PC,
@@ -184,7 +184,7 @@ struct i2c_pads_info mx6dl_i2c_pad_info2 = {
 };
 
 /* MMC */
-iomux_v3_cfg_t const usdhc3_pads[] = {
+static iomux_v3_cfg_t const usdhc3_pads[] = {
 	IOMUX_PADS(PAD_SD3_CLK__SD3_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_DAT0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
@@ -196,7 +196,7 @@ iomux_v3_cfg_t const usdhc3_pads[] = {
 };
 
 /* ENET */
-iomux_v3_cfg_t const enet_pads[] = {
+static iomux_v3_cfg_t const enet_pads[] = {
 	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC    | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	IOMUX_PADS(PAD_RGMII_TXC__RGMII_TXC  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
@@ -220,7 +220,7 @@ iomux_v3_cfg_t const enet_pads[] = {
 };
 
 /* NAND */
-iomux_v3_cfg_t const nfc_pads[] = {
+static iomux_v3_cfg_t const nfc_pads[] = {
 	IOMUX_PADS(PAD_NANDF_CLE__NAND_CLE     | MUX_PAD_CTRL(NO_PAD_CTRL)),
 	IOMUX_PADS(PAD_NANDF_ALE__NAND_ALE     | MUX_PAD_CTRL(NO_PAD_CTRL)),
 	IOMUX_PADS(PAD_NANDF_WP_B__NAND_WP_B   | MUX_PAD_CTRL(NO_PAD_CTRL)),
@@ -285,7 +285,7 @@ static void setup_iomux_uart(void)
 }
 
 #ifdef CONFIG_USB_EHCI_MX6
-iomux_v3_cfg_t const usb_pads[] = {
+static iomux_v3_cfg_t const usb_pads[] = {
 	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID   | DIO_PAD_CFG),
 	IOMUX_PADS(PAD_KEY_COL4__USB_OTG_OC | DIO_PAD_CFG),
 	/* OTG PWR */
@@ -328,7 +328,7 @@ int board_ehci_power(int port, int on)
 #endif /* CONFIG_USB_EHCI_MX6 */
 
 #ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg usdhc_cfg = { USDHC3_BASE_ADDR };
+static struct fsl_esdhc_cfg usdhc_cfg = { USDHC3_BASE_ADDR };
 
 int board_mmc_getcd(struct mmc *mmc)
 {
@@ -734,7 +734,7 @@ struct ventana {
 	int wdis;
 };
 
-struct ventana gpio_cfg[] = {
+static struct ventana gpio_cfg[] = {
 	/* GW5400proto */
 	{
 		.gpio_pads = gw54xx_gpio_pads,
