@@ -12,7 +12,7 @@
 #include "ping.h"
 #include "arp.h"
 
-static ushort PingSeqNo;
+static ushort ping_seq_number;
 
 /* The ip address to ping */
 struct in_addr net_ping_ip;
@@ -35,7 +35,7 @@ static void set_icmp_header(uchar *pkt, struct in_addr dest)
 	icmp->code = 0;
 	icmp->checksum = 0;
 	icmp->un.echo.id = 0;
-	icmp->un.echo.sequence = htons(PingSeqNo++);
+	icmp->un.echo.sequence = htons(ping_seq_number++);
 	icmp->checksum = compute_ip_checksum(icmp, ICMP_HDR_SIZE);
 }
 
@@ -65,7 +65,7 @@ static int ping_send(void)
 	return 1;	/* waiting */
 }
 
-static void ping_timeout(void)
+static void ping_timeout_handler(void)
 {
 	eth_halt();
 	net_set_state(NETLOOP_FAIL);	/* we did not get the reply */
@@ -74,7 +74,7 @@ static void ping_timeout(void)
 void ping_start(void)
 {
 	printf("Using %s device\n", eth_get_name());
-	NetSetTimeout(10000UL, ping_timeout);
+	NetSetTimeout(10000UL, ping_timeout_handler);
 
 	ping_send();
 }
@@ -94,8 +94,9 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 	case ICMP_ECHO_REQUEST:
 		eth_hdr_size = net_update_ether(et, et->et_src, PROT_IP);
 
-		debug_cond(DEBUG_DEV_PKT, "Got ICMP ECHO REQUEST, return "
-			"%d bytes\n", eth_hdr_size + len);
+		debug_cond(DEBUG_DEV_PKT,
+			   "Got ICMP ECHO REQUEST, return %d bytes\n",
+			   eth_hdr_size + len);
 
 		ip->ip_sum = 0;
 		ip->ip_off = 0;
