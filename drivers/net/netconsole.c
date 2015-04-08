@@ -48,7 +48,7 @@ static void nc_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		net_set_state(NETLOOP_SUCCESS); /* got input - quit net loop */
 }
 
-static void nc_timeout(void)
+static void nc_timeout_handler(void)
 {
 	net_set_state(NETLOOP_SUCCESS);
 }
@@ -91,8 +91,9 @@ static int refresh_settings_from_env(void)
 				nc_out_port = simple_strtoul(p + 1, NULL, 10);
 				nc_in_port = nc_out_port;
 			}
-		} else
+		} else {
 			nc_ip.s_addr = ~0; /* ncip is not set, so broadcast */
+		}
 
 		p = getenv("ncoutport");
 		if (p != NULL)
@@ -114,13 +115,13 @@ static int refresh_settings_from_env(void)
 /**
  * Called from NetLoop in net/net.c before each packet
  */
-void NcStart(void)
+void nc_start(void)
 {
 	refresh_settings_from_env();
 	if (!output_packet_len || memcmp(nc_ether, net_null_ethaddr, 6)) {
 		/* going to check for input packet */
 		net_set_udp_handler(nc_handler);
-		NetSetTimeout(net_timeout, nc_timeout);
+		NetSetTimeout(net_timeout, nc_timeout_handler);
 	} else {
 		/* send arp request */
 		uchar *pkt;
@@ -198,8 +199,9 @@ static void nc_send_packet(const char *buf, int len)
 			if (eth_init() < 0)
 				return;
 			eth_set_last_protocol(NETCONS);
-		} else
+		} else {
 			eth_init_state_only();
+		}
 
 		inited = 1;
 	}
@@ -217,7 +219,7 @@ static void nc_send_packet(const char *buf, int len)
 	}
 }
 
-static int nc_start(struct stdio_dev *dev)
+static int nc_stdio_start(struct stdio_dev *dev)
 {
 	int retval;
 
@@ -237,7 +239,7 @@ static int nc_start(struct stdio_dev *dev)
 	return 0;
 }
 
-static void nc_putc(struct stdio_dev *dev, char c)
+static void nc_stdio_putc(struct stdio_dev *dev, char c)
 {
 	if (output_recursion)
 		return;
@@ -248,7 +250,7 @@ static void nc_putc(struct stdio_dev *dev, char c)
 	output_recursion = 0;
 }
 
-static void nc_puts(struct stdio_dev *dev, const char *s)
+static void nc_stdio_puts(struct stdio_dev *dev, const char *s)
 {
 	int len;
 
@@ -267,7 +269,7 @@ static void nc_puts(struct stdio_dev *dev, const char *s)
 	output_recursion = 0;
 }
 
-static int nc_getc(struct stdio_dev *dev)
+static int nc_stdio_getc(struct stdio_dev *dev)
 {
 	uchar c;
 
@@ -288,7 +290,7 @@ static int nc_getc(struct stdio_dev *dev)
 	return c;
 }
 
-static int nc_tstc(struct stdio_dev *dev)
+static int nc_stdio_tstc(struct stdio_dev *dev)
 {
 	struct eth_device *eth;
 
@@ -321,11 +323,11 @@ int drv_nc_init(void)
 
 	strcpy(dev.name, "nc");
 	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-	dev.start = nc_start;
-	dev.putc = nc_putc;
-	dev.puts = nc_puts;
-	dev.getc = nc_getc;
-	dev.tstc = nc_tstc;
+	dev.start = nc_stdio_start;
+	dev.putc = nc_stdio_putc;
+	dev.puts = nc_stdio_puts;
+	dev.getc = nc_stdio_getc;
+	dev.tstc = nc_stdio_tstc;
 
 	rc = stdio_register(&dev);
 

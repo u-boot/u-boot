@@ -640,7 +640,7 @@ int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport,
 void net_process_received_packet(uchar *in_packet, int len);
 
 #ifdef CONFIG_NETCONSOLE
-void NcStart(void);
+void nc_start(void);
 int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
 	unsigned src_port, unsigned len);
 #endif

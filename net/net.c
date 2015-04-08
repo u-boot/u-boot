@@ -417,7 +417,7 @@ restart:
 #endif
 #if defined (CONFIG_NETCONSOLE) && !(CONFIG_SPL_BUILD)
 		case NETCONS:
-			NcStart();
+			nc_start();
 			break;
 #endif
 #if defined(CONFIG_CMD_SNTP)
