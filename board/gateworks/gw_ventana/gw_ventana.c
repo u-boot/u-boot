@@ -397,11 +397,11 @@ int board_phy_config(struct phy_device *phydev)
 
 int board_eth_init(bd_t *bis)
 {
-	setup_iomux_enet();
-
 #ifdef CONFIG_FEC_MXC
-	if (board_type != GW551x && board_type != GW552x)
+	if (board_type != GW551x && board_type != GW552x) {
+		setup_iomux_enet();
 		cpu_eth_init(bis);
+	}
 #endif
 
 #ifdef CONFIG_E1000
