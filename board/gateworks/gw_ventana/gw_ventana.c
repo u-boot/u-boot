@@ -1025,22 +1025,32 @@ int power_init_board(void)
 		p = pmic_get("LTC3676_PMIC");
 		if (p && !pmic_probe(p)) {
 			puts("PMIC:  LTC3676\n");
-			/* set board-specific scalar to 1225mV for IMX6Q@1GHz */
-			if (is_cpu_type(MXC_CPU_MX6Q)) {
-				/* mask PGOOD during SW1 transition */
-				reg = 0x1d | LTC3676_PGOOD_MASK;
-				pmic_reg_write(p, LTC3676_DVB1B, reg);
-				/* set SW1 (VDD_SOC) to 1259mV */
-				reg = 0x1d;
-				pmic_reg_write(p, LTC3676_DVB1A, reg);
+			/*
+			 * set board-specific scalar for max CPU frequency
+			 * per CPU based on the LDO enabled Operating Ranges
+			 * defined in the respective IMX6DQ and IMX6SDL
+			 * datasheets. The voltage resulting from the R1/R2
+			 * feedback inputs on Ventana is 1308mV. Note that this
+			 * is a bit shy of the Vmin of 1350mV in the datasheet
+			 * for LDO enabled mode but is as high as we can go.
+			 *
+			 * We will rely on an OS kernel driver to properly
+			 * regulate these per CPU operating point and use LDO
+			 * bypass mode when using the higher frequency
+			 * operating points to compensate as LDO bypass mode
+			 * allows the rails be 125mV lower.
+			 */
+			/* mask PGOOD during SW1 transition */
+			pmic_reg_write(p, LTC3676_DVB1B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW1 (VDD_SOC) */
+			pmic_reg_write(p, LTC3676_DVB1A, 0x1f);
 
-				/* mask PGOOD during SW3 transition */
-				reg = 0x1d | LTC3676_PGOOD_MASK;
-				pmic_reg_write(p, LTC3676_DVB3B, reg);
-				/*set SW3 (VDD_ARM) to 1259mV */
-				reg = 0x1d;
-				pmic_reg_write(p, LTC3676_DVB3A, reg);
-			}
+			/* mask PGOOD during SW3 transition */
+			pmic_reg_write(p, LTC3676_DVB3B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW3 (VDD_ARM) */
+			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
 		}
 	}
 
