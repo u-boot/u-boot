@@ -1111,7 +1111,9 @@ static void setup_board_gpio(int board)
 
 	/* USBOTG Select (PCISKT or FrontPanel) */
 	if (gpio_cfg[board].usb_sel)
-		gpio_direction_output(gpio_cfg[board].usb_sel, 0);
+		gpio_direction_output(gpio_cfg[board].usb_sel,
+				      (hwconfig("usb_pcisel")) ? 1 : 0);
+
 
 	/* PCISKT_WDIS# (Wireless disable GPIO to miniPCIe sockets) */
 	if (gpio_cfg[board].wdis)
