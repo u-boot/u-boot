@@ -400,7 +400,7 @@ int board_eth_init(bd_t *bis)
 	setup_iomux_enet();
 
 #ifdef CONFIG_FEC_MXC
-	if (board_type != GW552x)
+	if (board_type != GW551x && board_type != GW552x)
 		cpu_eth_init(bis);
 #endif
 
@@ -679,6 +679,15 @@ static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_DISP0_DAT23__GPIO5_IO17 | DIO_PAD_CFG),
 };
 
+static iomux_v3_cfg_t const gw551x_gpio_pads[] = {
+	/* PANLED# */
+	IOMUX_PADS(PAD_KEY_ROW0__GPIO4_IO07 | DIO_PAD_CFG),
+	/* PCI_RST# */
+	IOMUX_PADS(PAD_GPIO_0__GPIO1_IO00 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
+};
+
 static iomux_v3_cfg_t const gw552x_gpio_pads[] = {
 	/* PANLEDG# */
 	IOMUX_PADS(PAD_KEY_COL0__GPIO4_IO06 | DIO_PAD_CFG),
@@ -720,6 +729,7 @@ struct ventana {
 	int num_pads;
 	/* DIO pinmux/val */
 	struct dio_cfg dio_cfg[4];
+	int num_gpios;
 	/* various gpios (0 if non-existent) */
 	int leds[3];
 	int pcie_rst;
@@ -765,6 +775,7 @@ static struct ventana gpio_cfg[] = {
 				4
 			},
 		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 10),
@@ -808,6 +819,7 @@ static struct ventana gpio_cfg[] = {
 				4
 			},
 		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 10),
@@ -850,6 +862,7 @@ static struct ventana gpio_cfg[] = {
 				0
 			},
 		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -894,6 +907,7 @@ static struct ventana gpio_cfg[] = {
 				0
 			},
 		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -937,6 +951,7 @@ static struct ventana gpio_cfg[] = {
 				4
 			},
 		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -952,10 +967,10 @@ static struct ventana gpio_cfg[] = {
 		.wdis = IMX_GPIO_NR(5, 17),
 	},
 
-	/* GW552x */
+	/* GW551x */
 	{
-		.gpio_pads = gw552x_gpio_pads,
-		.num_pads = ARRAY_SIZE(gw552x_gpio_pads)/2,
+		.gpio_pads = gw551x_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw551x_gpio_pads)/2,
 		.dio_cfg = {
 			{
 				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
@@ -976,12 +991,39 @@ static struct ventana gpio_cfg[] = {
 				3
 			},
 			{
-				{ IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
-				IMX_GPIO_NR(2, 10),
-				{ 0, 0 },
-				0
+				{ IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18) },
+				IMX_GPIO_NR(1, 18),
+				{ IOMUX_PADS(PAD_SD1_CMD__PWM4_OUT) },
+				4
 			},
 		},
+		.num_gpios = 2,
+		.leds = {
+			IMX_GPIO_NR(4, 7),
+		},
+		.pcie_rst = IMX_GPIO_NR(1, 0),
+		.wdis = IMX_GPIO_NR(7, 12),
+	},
+
+	/* GW552x */
+	{
+		.gpio_pads = gw552x_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw552x_gpio_pads)/2,
+		.dio_cfg = {
+			{
+				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+				IMX_GPIO_NR(1, 19),
+				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+				2
+			},
+			{
+				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+				IMX_GPIO_NR(1, 17),
+				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+				3
+			},
+		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -1138,6 +1180,8 @@ static void setup_board_gpio(int board)
 		iomux_v3_cfg_t ctrl = DIO_PAD_CFG;
 		unsigned cputype = is_cpu_type(MXC_CPU_MX6Q) ? 0 : 1;
 
+		if (!cfg->gpio_padmux[0] && !cfg->gpio_padmux[1])
+			continue;
 		sprintf(arg, "dio%d", i);
 		if (!hwconfig(arg))
 			continue;
@@ -1430,7 +1474,7 @@ int misc_init_r(void)
 				sprintf(fdt, "%s-%s.dtb", cputype, str);
 				setenv("fdt_file1", fdt);
 			}
-			if (board_type != GW552x)
+			if (board_type != GW551x && board_type != GW552x)
 				str[4] = 'x';
 			str[5] = 'x';
 			str[6] = 0;
