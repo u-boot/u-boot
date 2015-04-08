@@ -97,7 +97,7 @@ static void configure_wait(void)
 	deadline_ms = MONOTONIC_MS() + timeout_ms;
 
 	debug_cond(DEBUG_DEV_PKT, "...wait %d %s nprobes=%u, nclaims=%u\n",
-			timeout_ms, eth_get_name(), nprobes, nclaims);
+		   timeout_ms, eth_get_name(), nprobes, nclaims);
 
 	NetSetTimeout(timeout_ms, link_local_timeout);
 }
@@ -138,7 +138,7 @@ static void link_local_timeout(void)
 
 			nprobes++;
 			debug_cond(DEBUG_LL_STATE, "probe/%u %s@%pI4\n",
-					nprobes, eth_get_name(), &ip);
+				   nprobes, eth_get_name(), &ip);
 			arp_raw_request(zero_ip, net_null_ethaddr, ip);
 			timeout_ms = PROBE_MIN * 1000;
 			timeout_ms += random_delay_ms(PROBE_MAX - PROBE_MIN);
@@ -147,7 +147,7 @@ static void link_local_timeout(void)
 			state = ANNOUNCE;
 			nclaims = 0;
 			debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
-					nclaims, eth_get_name(), &ip);
+				   nclaims, eth_get_name(), &ip);
 			arp_raw_request(ip, net_ethaddr, ip);
 			timeout_ms = ANNOUNCE_INTERVAL * 1000;
 		}
@@ -159,7 +159,7 @@ static void link_local_timeout(void)
 		state = ANNOUNCE;
 		nclaims = 0;
 		debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
-				nclaims, eth_get_name(), &ip);
+			   nclaims, eth_get_name(), &ip);
 		arp_raw_request(ip, net_ethaddr, ip);
 		timeout_ms = ANNOUNCE_INTERVAL * 1000;
 		break;
@@ -170,7 +170,7 @@ static void link_local_timeout(void)
 		if (nclaims < ANNOUNCE_NUM) {
 			nclaims++;
 			debug_cond(DEBUG_LL_STATE, "announce/%u %s@%pI4\n",
-					nclaims, eth_get_name(), &ip);
+				   nclaims, eth_get_name(), &ip);
 			arp_raw_request(ip, net_ethaddr, ip);
 			timeout_ms = ANNOUNCE_INTERVAL * 1000;
 		} else {
@@ -224,7 +224,7 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 			/* Current time is greater than the expected timeout
 			   time. This should never happen */
 			debug_cond(DEBUG_LL_STATE,
-				"missed an expected timeout\n");
+				   "missed an expected timeout\n");
 			timeout_ms = 0;
 		} else {
 			debug_cond(DEBUG_INT_STATE, "adjusting timeout\n");
@@ -239,9 +239,8 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 			 * FIXME: links routinely go down;
 			 */
 			bb_error_msg("iface %s is down", eth_get_name());
-			if (ready) {
+			if (ready)
 				run(argv, "deconfig", &ip);
-			}
 			return EXIT_FAILURE;
 		}
 		continue;
@@ -249,18 +248,17 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 #endif
 
 	debug_cond(DEBUG_INT_STATE, "%s recv arp type=%d, op=%d,\n",
-		eth_get_name(), ntohs(arp->ar_pro),
-		ntohs(arp->ar_op));
+		   eth_get_name(), ntohs(arp->ar_pro),
+		   ntohs(arp->ar_op));
 	debug_cond(DEBUG_INT_STATE, "\tsource=%pM %pI4\n",
-		&arp->ar_sha,
-		&arp->ar_spa);
+		   &arp->ar_sha,
+		   &arp->ar_spa);
 	debug_cond(DEBUG_INT_STATE, "\ttarget=%pM %pI4\n",
-		&arp->ar_tha,
-		&arp->ar_tpa);
+		   &arp->ar_tha,
+		   &arp->ar_tpa);
 
-	if (arp->ar_op != htons(ARPOP_REQUEST)
-	 && arp->ar_op != htons(ARPOP_REPLY)
-	) {
+	if (arp->ar_op != htons(ARPOP_REQUEST) &&
+	    arp->ar_op != htons(ARPOP_REPLY)) {
 		configure_wait();
 		return;
 	}
@@ -287,8 +285,8 @@ void link_local_receive_arp(struct arp_hdr *arp, int len)
 	}
 
 	debug_cond(DEBUG_NET_PKT,
-		"state = %d, source ip conflict = %d, target ip conflict = "
-		"%d\n", state, source_ip_conflict, target_ip_conflict);
+		   "state = %d, source ip conflict = %d, target ip conflict = "
+		   "%d\n", state, source_ip_conflict, target_ip_conflict);
 	switch (state) {
 	case PROBE:
 	case ANNOUNCE:
