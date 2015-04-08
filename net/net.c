@@ -422,7 +422,7 @@ restart:
 #endif
 #if defined(CONFIG_CMD_SNTP)
 		case SNTP:
-			SntpStart();
+			sntp_start();
 			break;
 #endif
 #if defined(CONFIG_CMD_DNS)

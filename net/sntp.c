@@ -14,10 +14,9 @@
 
 #define SNTP_TIMEOUT 10000UL
 
-static int SntpOurPort;
+static int sntp_our_port;
 
-static void
-SntpSend(void)
+static void sntp_send(void)
 {
 	struct sntp_pkt_t pkt;
 	int pktlen = SNTP_PACKET_LEN;
@@ -34,15 +33,14 @@ SntpSend(void)
 	memcpy((char *)net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE,
 	       (char *)&pkt, pktlen);
 
-	SntpOurPort = 10000 + (get_timer(0) % 4096);
+	sntp_our_port = 10000 + (get_timer(0) % 4096);
 	sport = NTP_SERVICE_PORT;
 
 	net_send_udp_packet(net_server_ethaddr, net_ntp_server, sport,
-			    SntpOurPort, pktlen);
+			    sntp_our_port, pktlen);
 }
 
-static void
-SntpTimeout(void)
+static void sntp_timeout_handler(void)
 {
 	puts("Timeout\n");
 	net_set_state(NETLOOP_FAIL);
@@ -58,7 +56,7 @@ static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 	debug("%s\n", __func__);
 
-	if (dest != SntpOurPort)
+	if (dest != sntp_our_port)
 		return;
 
 	/*
@@ -72,20 +70,19 @@ static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	rtc_set(&tm);
 #endif
 	printf("Date: %4d-%02d-%02d Time: %2d:%02d:%02d\n",
-		tm.tm_year, tm.tm_mon, tm.tm_mday,
-		tm.tm_hour, tm.tm_min, tm.tm_sec);
+	       tm.tm_year, tm.tm_mon, tm.tm_mday,
+	       tm.tm_hour, tm.tm_min, tm.tm_sec);
 
 	net_set_state(NETLOOP_SUCCESS);
 }
 
-void
-SntpStart(void)
+void sntp_start(void)
 {
 	debug("%s\n", __func__);
 
-	NetSetTimeout(SNTP_TIMEOUT, SntpTimeout);
+	NetSetTimeout(SNTP_TIMEOUT, sntp_timeout_handler);
 	net_set_udp_handler(sntp_handler);
 	memset(net_server_ethaddr, 0, sizeof(net_server_ethaddr));
 
-	SntpSend();
+	sntp_send();
 }
