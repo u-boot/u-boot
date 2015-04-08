@@ -404,6 +404,10 @@ int board_eth_init(bd_t *bis)
 		cpu_eth_init(bis);
 #endif
 
+#ifdef CONFIG_E1000
+	e1000_initialize(bis);
+#endif
+
 #ifdef CONFIG_CI_UDC
 	/* For otg ethernet*/
 	usb_eth_initialize(bis);
