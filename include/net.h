@@ -508,8 +508,8 @@ extern u32	net_boot_file_size;
 extern u32	net_boot_file_expected_size_in_blocks;
 
 #if defined(CONFIG_CMD_DNS)
-extern char *NetDNSResolve;		/* The host to resolve  */
-extern char *NetDNSenvvar;		/* the env var to put the ip into */
+extern char *net_dns_resolve;		/* The host to resolve  */
+extern char *net_dns_env_var;		/* the env var to put the ip into */
 #endif
 
 #if defined(CONFIG_CMD_PING)

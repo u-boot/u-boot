@@ -427,7 +427,7 @@ restart:
 #endif
 #if defined(CONFIG_CMD_DNS)
 		case DNS:
-			DnsStart();
+			dns_start();
 			break;
 #endif
 #if defined(CONFIG_CMD_LINK_LOCAL)

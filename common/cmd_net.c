@@ -393,12 +393,12 @@ int do_dns(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_FAILURE;
 	}
 
-	NetDNSResolve = argv[1];
+	net_dns_resolve = argv[1];
 
 	if (argc == 3)
-		NetDNSenvvar = argv[2];
+		net_dns_env_var = argv[2];
 	else
-		NetDNSenvvar = NULL;
+		net_dns_env_var = NULL;
 
 	if (NetLoop(DNS) < 0) {
 		printf("dns lookup of %s failed, check setup\n", argv[1]);
