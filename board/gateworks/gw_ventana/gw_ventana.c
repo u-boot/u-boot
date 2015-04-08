@@ -1580,6 +1580,42 @@ int misc_init_r(void)
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 
+static int ft_sethdmiinfmt(void *blob, char *mode)
+{
+	int off;
+
+	if (!mode)
+		return -EINVAL;
+
+	off = fdt_node_offset_by_compatible(blob, -1, "nxp,tda1997x");
+	if (off < 0)
+		return off;
+
+	if (0 == strcasecmp(mode, "yuv422bt656")) {
+		u8 cfg[] = { 0x00, 0x00, 0x00, 0x82, 0x81, 0x00,
+			     0x00, 0x00, 0x00 };
+		mode = "422_ccir";
+		fdt_setprop(blob, off, "vidout_fmt", mode, strlen(mode) + 1);
+		fdt_setprop_u32(blob, off, "vidout_trc", 1);
+		fdt_setprop_u32(blob, off, "vidout_blc", 1);
+		fdt_setprop(blob, off, "vidout_portcfg", cfg, sizeof(cfg));
+		printf("   set HDMI input mode to %s\n", mode);
+	} else if (0 == strcasecmp(mode, "yuv422smp")) {
+		u8 cfg[] = { 0x00, 0x00, 0x00, 0x88, 0x87, 0x00,
+			     0x82, 0x81, 0x00 };
+		mode = "422_smp";
+		fdt_setprop(blob, off, "vidout_fmt", mode, strlen(mode) + 1);
+		fdt_setprop_u32(blob, off, "vidout_trc", 0);
+		fdt_setprop_u32(blob, off, "vidout_blc", 0);
+		fdt_setprop(blob, off, "vidout_portcfg", cfg, sizeof(cfg));
+		printf("   set HDMI input mode to %s\n", mode);
+	} else {
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 /*
  * called prior to booting kernel or by 'fdt boardsetup' command
  *
@@ -1639,6 +1675,9 @@ int ft_board_setup(void *blob, bd_t *bd)
 	/* board (model contains model from device-tree) */
 	fdt_setprop(blob, 0, "board", info->model,
 		    strlen((const char *)info->model) + 1);
+
+	/* set desired digital video capture format */
+	ft_sethdmiinfmt(blob, getenv("hdmiinfmt"));
 
 	/*
 	 * disable serial2 node for GW54xx for compatibility with older
