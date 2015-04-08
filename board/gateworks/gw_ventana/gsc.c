@@ -87,30 +87,29 @@ int do_gsc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	read_hwmon("VIN",      GSC_HWMON_VIN, 3);
 	read_hwmon("VBATT",    GSC_HWMON_VBATT, 3);
 	read_hwmon("VDD_3P3",  GSC_HWMON_VDD_3P3, 3);
+	read_hwmon("VDD_ARM",  GSC_HWMON_VDD_CORE, 3);
+	read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3);
 	read_hwmon("VDD_HIGH", GSC_HWMON_VDD_HIGH, 3);
 	read_hwmon("VDD_DDR",  GSC_HWMON_VDD_DDR, 3);
 	read_hwmon("VDD_5P0",  GSC_HWMON_VDD_5P0, 3);
 	read_hwmon("VDD_2P5",  GSC_HWMON_VDD_2P5, 3);
 	read_hwmon("VDD_1P8",  GSC_HWMON_VDD_1P8, 3);
+	read_hwmon("VDD_IO2",  GSC_HWMON_VDD_IO2, 3);
 	switch (model[3]) {
 	case '1': /* GW51xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3);
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3);
+		read_hwmon("VDD_IO3",  GSC_HWMON_VDD_IO4, 3); /* -C rev */
 		break;
 	case '2': /* GW52xx */
+		break;
 	case '3': /* GW53xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3);
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3);
-		read_hwmon("VDD_1P0",  GSC_HWMON_VDD_1P0, 3);
+		read_hwmon("VDD_IO4",  GSC_HWMON_VDD_IO4, 3); /* -C rev */
+		read_hwmon("VDD_GPS",  GSC_HWMON_VDD_IO3, 3);
 		break;
 	case '4': /* GW54xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3);
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3);
-		read_hwmon("VDD_1P0",  GSC_HWMON_VDD_1P0, 3);
+		read_hwmon("VDD_IO3",  GSC_HWMON_VDD_IO4, 3); /* -C rev */
+		read_hwmon("VDD_GPS",  GSC_HWMON_VDD_IO3, 3);
 		break;
 	case '5': /* GW55xx */
-		read_hwmon("VDD_CORE", GSC_HWMON_VDD_CORE, 3);
-		read_hwmon("VDD_SOC",  GSC_HWMON_VDD_SOC, 3);
 		break;
 	}
 	return 0;
