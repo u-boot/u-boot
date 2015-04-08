@@ -47,6 +47,19 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 			 const void *val, int len, int create);
 void fdt_fixup_qe_firmware(void *fdt);
 
+/**
+ * Update native-mode property of display-timings node to the phandle
+ * of the timings matching a display by name (case insensitive).
+ *
+ * see kernel Documentation/devicetree/bindings/video/display-timing.txt
+ *
+ * @param blob		FDT blob to update
+ * @param path		path within dt
+ * @param display	name of display timing to match
+ * @return 0 if ok, or -FDT_ERR_... on error
+ */
+int fdt_fixup_display(void *blob, const char *path, const char *display);
+
 #if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB)
 void fdt_fixup_dr_usb(void *blob, bd_t *bd);
 #else
