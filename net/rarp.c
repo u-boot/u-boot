@@ -20,7 +20,7 @@
 #define TIMEOUT_COUNT (CONFIG_NET_RETRY_COUNT)
 #endif
 
-int RarpTry;
+int rarp_try;
 
 /*
  *	Handle a RARP received packet.
@@ -37,10 +37,9 @@ void rarp_receive(struct ip_udp_hdr *ip, unsigned len)
 	}
 
 	if ((ntohs(arp->ar_op) != RARPOP_REPLY) ||
-		(ntohs(arp->ar_hrd) != ARP_ETHER)   ||
-		(ntohs(arp->ar_pro) != PROT_IP)     ||
-		(arp->ar_hln != 6) || (arp->ar_pln != 4)) {
-
+	    (ntohs(arp->ar_hrd) != ARP_ETHER)   ||
+	    (ntohs(arp->ar_pro) != PROT_IP)     ||
+	    (arp->ar_hln != 6) || (arp->ar_pln != 4)) {
 		puts("invalid RARP header\n");
 	} else {
 		net_copy_ip(&net_ip, &arp->ar_data[16]);
@@ -56,25 +55,25 @@ void rarp_receive(struct ip_udp_hdr *ip, unsigned len)
 /*
  *	Timeout on BOOTP request.
  */
-static void RarpTimeout(void)
+static void rarp_timeout_handler(void)
 {
-	if (RarpTry >= TIMEOUT_COUNT) {
+	if (rarp_try >= TIMEOUT_COUNT) {
 		puts("\nRetry count exceeded; starting again\n");
 		NetStartAgain();
 	} else {
-		NetSetTimeout(TIMEOUT, RarpTimeout);
-		RarpRequest();
+		NetSetTimeout(TIMEOUT, rarp_timeout_handler);
+		rarp_request();
 	}
 }
 
 
-void RarpRequest(void)
+void rarp_request(void)
 {
 	uchar *pkt;
 	struct arp_hdr *rarp;
 	int eth_hdr_size;
 
-	printf("RARP broadcast %d\n", ++RarpTry);
+	printf("RARP broadcast %d\n", ++rarp_try);
 	pkt = net_tx_packet;
 
 	eth_hdr_size = net_set_ether(pkt, net_bcast_ethaddr, PROT_RARP);
@@ -96,5 +95,5 @@ void RarpRequest(void)
 
 	net_send_packet(net_tx_packet, eth_hdr_size + ARP_HDR_SIZE);
 
-	NetSetTimeout(TIMEOUT, RarpTimeout);
+	NetSetTimeout(TIMEOUT, rarp_timeout_handler);
 }

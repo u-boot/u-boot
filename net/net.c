@@ -395,9 +395,9 @@ restart:
 
 #if defined(CONFIG_CMD_RARP)
 		case RARP:
-			RarpTry = 0;
+			rarp_try = 0;
 			net_ip.s_addr = 0;
-			RarpRequest();
+			rarp_request();
 			break;
 #endif
 #if defined(CONFIG_CMD_PING)
