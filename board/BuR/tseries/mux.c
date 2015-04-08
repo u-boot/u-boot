@@ -17,8 +17,10 @@
 #include <i2c.h>
 
 static struct module_pin_mux uart0_pin_mux[] = {
+	/* UART0_RTS */
+	{OFFSET(uart0_rtsn), (MODE(0) | PULLUDEN)},
 	/* UART0_CTS */
-	{OFFSET(uart0_ctsn), (MODE(7) | PULLUDEN | PULLUP_EN | RXACTIVE)},
+	{OFFSET(uart0_ctsn), (MODE(0) | PULLUDEN | PULLUP_EN | RXACTIVE)},
 	/* UART0_RXD */
 	{OFFSET(uart0_rxd), (MODE(0) | PULLUDEN | PULLUP_EN | RXACTIVE)},
 	/* UART0_TXD */
@@ -26,9 +28,13 @@ static struct module_pin_mux uart0_pin_mux[] = {
 	{-1},
 };
 static struct module_pin_mux uart1_pin_mux[] = {
-	/* UART0_RXD */
+	/* UART1_RTS as I2C2-SCL */
+	{OFFSET(uart1_rtsn), (MODE(3) | PULLUDEN | PULLUP_EN | RXACTIVE)},
+	/* UART1_CTS as I2C2-SDA */
+	{OFFSET(uart1_ctsn), (MODE(3) | PULLUDEN | PULLUP_EN | RXACTIVE)},
+	/* UART1_RXD */
 	{OFFSET(uart1_rxd), (MODE(0) | PULLUDEN | PULLUP_EN | RXACTIVE)},
-	/* UART0_TXD */
+	/* UART1_TXD */
 	{OFFSET(uart1_txd), (MODE(0) | PULLUDEN)},
 	{-1},
 };
