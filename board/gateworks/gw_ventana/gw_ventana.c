@@ -1610,6 +1610,41 @@ int ft_board_setup(void *blob, bd_t *bd)
 	}
 
 	/*
+	 * isolate CSI0_DATA_EN for GW551x below revB to work around
+	 * errata causing non functional digital video in (it is not hooked up)
+	 */
+	else if (board_type == GW551x && rev == 'A') {
+		u32 *range = NULL;
+		int len;
+		const u32 *handle = NULL;
+
+		i = fdt_node_offset_by_compatible(blob, -1,
+						  "fsl,imx-tda1997x-video");
+		if (i)
+			handle = fdt_getprop(blob, i, "pinctrl-0", NULL);
+		if (handle)
+			i = fdt_node_offset_by_phandle(blob,
+						       fdt32_to_cpu(*handle));
+		if (i)
+			range = (u32 *)fdt_getprop(blob, i, "fsl,pins", &len);
+		if (range) {
+			len /= sizeof(u32);
+			for (i = 0; i < len; i += 6) {
+				u32 mux_reg = fdt32_to_cpu(range[i+0]);
+				u32 conf_reg = fdt32_to_cpu(range[i+1]);
+				/* mux PAD_CSI0_DATA_EN to GPIO */
+				if (is_cpu_type(MXC_CPU_MX6Q) &&
+				    mux_reg == 0x260 && conf_reg == 0x630)
+					range[i+3] = cpu_to_fdt32(0x5);
+				else if (!is_cpu_type(MXC_CPU_MX6Q) &&
+				    mux_reg == 0x08c && conf_reg == 0x3a0)
+					range[i+3] = cpu_to_fdt32(0x5);
+			}
+			fdt_setprop_inplace(blob, i, "fsl,pins", range, len);
+		}
+	}
+
+	/*
 	 * Peripheral Config:
 	 *  remove nodes by alias path if EEPROM config tells us the
 	 *  peripheral is not loaded on the board.
