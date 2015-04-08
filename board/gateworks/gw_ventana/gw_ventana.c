@@ -1599,6 +1599,17 @@ int ft_board_setup(void *blob, bd_t *bd)
 		    strlen((const char *)info->model) + 1);
 
 	/*
+	 * disable serial2 node for GW54xx for compatibility with older
+	 * 3.10.x kernel that improperly had this node enabled in the DT
+	 */
+	if (board_type == GW54xx) {
+		i = fdt_path_offset(blob,
+				    "/soc/aips-bus@02100000/serial@021ec000");
+		if (i)
+			fdt_del_node(blob, i);
+	}
+
+	/*
 	 * disable wdog1/wdog2 nodes for GW51xx below revC to work around
 	 * errata causing wdog timer to be unreliable.
 	 */
