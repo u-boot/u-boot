@@ -188,7 +188,7 @@ struct mx6sdl_iomux_grp_regs mx6sdl_grp_ioregs = {
 	.grp_b7ds = 0x00000030,
 };
 
-/* MT41K128M16JT-125 */
+/* MT41K128M16JT-125 (2Gb density) */
 static struct mx6_ddr3_cfg mt41k128m16jt_125 = {
 	.mem_speed = 1600,
 	.density = 2,
@@ -202,7 +202,7 @@ static struct mx6_ddr3_cfg mt41k128m16jt_125 = {
 	.trasmin = 3500,
 };
 
-/* MT41K256M16HA-125 */
+/* MT41K256M16HA-125 (4Gb density) */
 static struct mx6_ddr3_cfg mt41k256m16ha_125 = {
 	.mem_speed = 1600,
 	.density = 4,
@@ -297,6 +297,19 @@ static struct mx6_mmdc_calibration mx6dq_256x32_mmdc_calib = {
 	.p0_mpwrdlctl = 0x32363934,
 };
 
+static struct mx6_mmdc_calibration mx6sdl_256x32_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0X00480047,
+	.p0_mpwldectrl1 = 0X003D003F,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0X423E0241,
+	.p0_mpdgctrl1 = 0X022B022C,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0X49454A4A,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0X2E372C32,
+};
+
 static struct mx6_mmdc_calibration mx6dq_256x64_mmdc_calib = {
 	/* write leveling calibration determine */
 	.p0_mpwldectrl0 = 0X00220021,
@@ -368,6 +381,8 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 		mem = &mt41k256m16ha_125;
 		if (is_cpu_type(MXC_CPU_MX6Q))
 			calib = &mx6dq_256x32_mmdc_calib;
+		else
+			calib = &mx6sdl_256x32_mmdc_calib;
 		debug("4gB density\n");
 	} else if (width == 64 && size_mb == 2048) {
 		mem = &mt41k256m16ha_125;
