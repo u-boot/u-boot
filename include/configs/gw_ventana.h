@@ -338,28 +338,29 @@
 	"fdt_high=0xffffffff\0" \
 	"fdt_addr=0x18000000\0" \
 	"initrd_high=0xffffffff\0" \
+	"bootdir=boot\0" \
 	"loadfdt=" \
-		"if ${fsload} ${fdt_addr} boot/${fdt_file}; then " \
-			"echo Loaded DTB from boot/${fdt_file}; " \
-		"elif ${fsload} ${fdt_addr} boot/${fdt_file1}; then " \
-			"echo Loaded DTB from boot/${fdt_file1}; " \
-		"elif ${fsload} ${fdt_addr} boot/${fdt_file2}; then " \
-				"echo Loaded DTB from boot/${fdt_file2}; " \
+		"if ${fsload} ${fdt_addr} ${bootdir}/${fdt_file}; then " \
+			"echo Loaded DTB from ${bootdir}/${fdt_file}; " \
+		"elif ${fsload} ${fdt_addr} ${bootdir}/${fdt_file1}; then " \
+			"echo Loaded DTB from ${bootdir}/${fdt_file1}; " \
+		"elif ${fsload} ${fdt_addr} ${bootdir}/${fdt_file2}; then " \
+			"echo Loaded DTB from ${bootdir}/${fdt_file2}; " \
 		"fi\0" \
 	\
-	"script=boot/6x_bootscript-ventana\0" \
+	"script=6x_bootscript-ventana\0" \
 	"loadscript=" \
-		"if ${fsload} ${loadaddr} ${script}; then " \
+		"if ${fsload} ${loadaddr} ${bootdir}/${script}; then " \
 			"source; " \
 		"fi\0" \
 	\
-	"uimage=boot/uImage\0" \
+	"uimage=uImage\0" \
 	"mmc_root=/dev/mmcblk0p1 rootfstype=ext4 rootwait rw\0" \
 	"mmc_boot=" \
 		"setenv fsload 'ext2load mmc 0:1'; " \
 		"mmc dev 0 && mmc rescan && " \
 		"run loadscript; " \
-		"if ${fsload} ${loadaddr} ${uimage}; then " \
+		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
 				"root=/dev/mmcblk0p1 rootfstype=ext4 " \
 				"rootwait rw ${video} ${extra}; " \
@@ -373,7 +374,7 @@
 	"sata_boot=" \
 		"setenv fsload 'ext2load sata 0:1'; sata init && " \
 		"run loadscript; " \
-		"if ${fsload} ${loadaddr} ${uimage}; then " \
+		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
 				"root=/dev/sda1 rootfstype=ext4 " \
 				"rootwait rw ${video} ${extra}; " \
@@ -386,7 +387,7 @@
 	"usb_boot=" \
 		"setenv fsload 'ext2load usb 0:1'; usb start && usb dev 0 && " \
 		"run loadscript; " \
-		"if ${fsload} ${loadaddr} ${uimage}; then " \
+		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
 				"root=/dev/sda1 rootfstype=ext4 " \
 				"rootwait rw ${video} ${extra}; " \
@@ -429,8 +430,8 @@
 #else
 	#define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_EXTRA_ENV_SETTINGS_COMMON \
-	"image_rootfs=openwrt-imx6-ventana-rootfs.ubi\0" \
 	\
+	"image_rootfs=openwrt-imx6-ventana-rootfs.ubi\0" \
 	"nand_update=echo Updating NAND from ${serverip}:${image_rootfs}...; " \
 		"tftp ${loadaddr} ${image_rootfs} && " \
 		"nand erase.part rootfs && " \
@@ -438,12 +439,21 @@
 	\
 	"flash_boot=" \
 		"setenv fsload 'ubifsload'; " \
-		"ubi part rootfs && ubifsmount ubi0:rootfs; " \
+		"ubi part rootfs; " \
+		"if ubi check boot; then " \
+			"ubifsmount ubi0:boot; " \
+			"setenv root ubi0:rootfs ubi.mtd=2 " \
+				"rootfstype=squashfs,ubifs; " \
+			"setenv bootdir; " \
+		"elif ubi check rootfs; then " \
+			"ubifsmount ubi0:rootfs; " \
+			"setenv root ubi0:rootfs ubi.mtd=2 " \
+				"rootfstype=ubifs; " \
+		"fi; " \
 		"run loadscript; " \
-		"if ${fsload} ${loadaddr} ${uimage}; then " \
+		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=ubi0:rootfs ubi.mtd=2 " \
-				"rootfstype=ubifs ${video} ${extra}; " \
+				"root=${root} ${video} ${extra}; " \
 			"if run loadfdt && fdt addr ${fdt_addr}; then " \
 				"ubifsumount; " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \
