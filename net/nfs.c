@@ -52,11 +52,11 @@ static char filefh[NFS_FHSIZE]; /* file handle of kernel image */
 
 static enum net_loop_state nfs_download_state;
 static struct in_addr nfs_server_ip;
-static int	NfsSrvMountPort;
-static int	NfsSrvNfsPort;
-static int	NfsOurPort;
-static int	NfsTimeoutCount;
-static int	NfsState;
+static int nfs_server_mount_port;
+static int nfs_server_port;
+static int nfs_our_port;
+static int nfs_timeout_count;
+static int nfs_state;
 #define STATE_PRCLOOKUP_PROG_MOUNT_REQ	1
 #define STATE_PRCLOOKUP_PROG_NFS_REQ	2
 #define STATE_MOUNT_REQ			3
@@ -70,8 +70,7 @@ static char *nfs_filename;
 static char *nfs_path;
 static char nfs_path_buff[2048];
 
-static inline int
-store_block(uchar *src, unsigned offset, unsigned len)
+static inline int store_block(uchar *src, unsigned offset, unsigned len)
 {
 	ulong newsize = offset + len;
 #ifdef CONFIG_SYS_DIRECT_FLASH_NFS
@@ -105,8 +104,7 @@ store_block(uchar *src, unsigned offset, unsigned len)
 	return 0;
 }
 
-static char*
-basename(char *path)
+static char *basename(char *path)
 {
 	char *fname;
 
@@ -121,8 +119,7 @@ basename(char *path)
 	return fname;
 }
 
-static char*
-dirname(char *path)
+static char *dirname(char *path)
 {
 	char *fname;
 
@@ -178,8 +175,7 @@ static long *rpc_add_credentials(long *p)
 /**************************************************************************
 RPC_LOOKUP - Lookup RPC Port numbers
 **************************************************************************/
-static void
-rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
+static void rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 {
 	struct rpc_t pkt;
 	unsigned long id;
@@ -207,19 +203,18 @@ rpc_req(int rpc_prog, int rpc_proc, uint32_t *data, int datalen)
 	if (rpc_prog == PROG_PORTMAP)
 		sport = SUNRPC_PORT;
 	else if (rpc_prog == PROG_MOUNT)
-		sport = NfsSrvMountPort;
+		sport = nfs_server_mount_port;
 	else
-		sport = NfsSrvNfsPort;
+		sport = nfs_server_port;
 
 	net_send_udp_packet(net_server_ethaddr, nfs_server_ip, sport,
-			    NfsOurPort, pktlen);
+			    nfs_our_port, pktlen);
 }
 
 /**************************************************************************
 RPC_LOOKUP - Lookup RPC Port numbers
 **************************************************************************/
-static void
-rpc_lookup_req(int prog, int ver)
+static void rpc_lookup_req(int prog, int ver)
 {
 	uint32_t data[16];
 
@@ -236,8 +231,7 @@ rpc_lookup_req(int prog, int ver)
 /**************************************************************************
 NFS_MOUNT - Mount an NFS Filesystem
 **************************************************************************/
-static void
-nfs_mount_req(char *path)
+static void nfs_mount_req(char *path)
 {
 	uint32_t data[1024];
 	uint32_t *p;
@@ -263,14 +257,13 @@ nfs_mount_req(char *path)
 /**************************************************************************
 NFS_UMOUNTALL - Unmount all our NFS Filesystems on the Server
 **************************************************************************/
-static void
-nfs_umountall_req(void)
+static void nfs_umountall_req(void)
 {
 	uint32_t data[1024];
 	uint32_t *p;
 	int len;
 
-	if ((NfsSrvMountPort == -1) || (!fs_mounted))
+	if ((nfs_server_mount_port == -1) || (!fs_mounted))
 		/* Nothing mounted, nothing to umount */
 		return;
 
@@ -289,8 +282,7 @@ nfs_umountall_req(void)
  * In case of successful readlink(), the dirname is manipulated,
  * so that inside the nfs() function a recursion can be done.
  **************************************************************************/
-static void
-nfs_readlink_req(void)
+static void nfs_readlink_req(void)
 {
 	uint32_t data[1024];
 	uint32_t *p;
@@ -310,8 +302,7 @@ nfs_readlink_req(void)
 /**************************************************************************
 NFS_LOOKUP - Lookup Pathname
 **************************************************************************/
-static void
-nfs_lookup_req(char *fname)
+static void nfs_lookup_req(char *fname)
 {
 	uint32_t data[1024];
 	uint32_t *p;
@@ -339,8 +330,7 @@ nfs_lookup_req(char *fname)
 /**************************************************************************
 NFS_READ - Read File on NFS Server
 **************************************************************************/
-static void
-nfs_read_req(int offset, int readlen)
+static void nfs_read_req(int offset, int readlen)
 {
 	uint32_t data[1024];
 	uint32_t *p;
@@ -363,13 +353,11 @@ nfs_read_req(int offset, int readlen)
 /**************************************************************************
 RPC request dispatcher
 **************************************************************************/
-
-static void
-NfsSend(void)
+static void nfs_send(void)
 {
 	debug("%s\n", __func__);
 
-	switch (NfsState) {
+	switch (nfs_state) {
 	case STATE_PRCLOOKUP_PROG_MOUNT_REQ:
 		rpc_lookup_req(PROG_MOUNT, 1);
 		break;
@@ -398,8 +386,7 @@ NfsSend(void)
 Handlers for the reply from server
 **************************************************************************/
 
-static int
-rpc_lookup_reply(int prog, uchar *pkt, unsigned len)
+static int rpc_lookup_reply(int prog, uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 
@@ -419,18 +406,17 @@ rpc_lookup_reply(int prog, uchar *pkt, unsigned len)
 
 	switch (prog) {
 	case PROG_MOUNT:
-		NfsSrvMountPort = ntohl(rpc_pkt.u.reply.data[0]);
+		nfs_server_mount_port = ntohl(rpc_pkt.u.reply.data[0]);
 		break;
 	case PROG_NFS:
-		NfsSrvNfsPort = ntohl(rpc_pkt.u.reply.data[0]);
+		nfs_server_port = ntohl(rpc_pkt.u.reply.data[0]);
 		break;
 	}
 
 	return 0;
 }
 
-static int
-nfs_mount_reply(uchar *pkt, unsigned len)
+static int nfs_mount_reply(uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 
@@ -455,8 +441,7 @@ nfs_mount_reply(uchar *pkt, unsigned len)
 	return 0;
 }
 
-static int
-nfs_umountall_reply(uchar *pkt, unsigned len)
+static int nfs_umountall_reply(uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 
@@ -480,8 +465,7 @@ nfs_umountall_reply(uchar *pkt, unsigned len)
 	return 0;
 }
 
-static int
-nfs_lookup_reply(uchar *pkt, unsigned len)
+static int nfs_lookup_reply(uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 
@@ -505,8 +489,7 @@ nfs_lookup_reply(uchar *pkt, unsigned len)
 	return 0;
 }
 
-static int
-nfs_readlink_reply(uchar *pkt, unsigned len)
+static int nfs_readlink_reply(uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 	int rlen;
@@ -533,7 +516,7 @@ nfs_readlink_reply(uchar *pkt, unsigned len)
 		strcat(nfs_path, "/");
 		pathlen = strlen(nfs_path);
 		memcpy(nfs_path + pathlen, (uchar *)&(rpc_pkt.u.reply.data[2]),
-			rlen);
+		       rlen);
 		nfs_path[pathlen + rlen] = 0;
 	} else {
 		memcpy(nfs_path, (uchar *)&(rpc_pkt.u.reply.data[2]), rlen);
@@ -542,8 +525,7 @@ nfs_readlink_reply(uchar *pkt, unsigned len)
 	return 0;
 }
 
-static int
-nfs_read_reply(uchar *pkt, unsigned len)
+static int nfs_read_reply(uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 	int rlen;
@@ -585,18 +567,16 @@ nfs_read_reply(uchar *pkt, unsigned len)
 /**************************************************************************
 Interfaces of U-BOOT
 **************************************************************************/
-
-static void
-NfsTimeout(void)
+static void nfs_timeout_handler(void)
 {
-	if (++NfsTimeoutCount > NFS_RETRY_COUNT) {
+	if (++nfs_timeout_count > NFS_RETRY_COUNT) {
 		puts("\nRetry count exceeded; starting again\n");
 		NetStartAgain();
 	} else {
 		puts("T ");
-		NetSetTimeout(nfs_timeout + NFS_TIMEOUT * NfsTimeoutCount,
-			      NfsTimeout);
-		NfsSend();
+		NetSetTimeout(nfs_timeout + NFS_TIMEOUT * nfs_timeout_count,
+			      nfs_timeout_handler);
+		nfs_send();
 	}
 }
 
@@ -608,44 +588,44 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 	debug("%s\n", __func__);
 
-	if (dest != NfsOurPort)
+	if (dest != nfs_our_port)
 		return;
 
-	switch (NfsState) {
+	switch (nfs_state) {
 	case STATE_PRCLOOKUP_PROG_MOUNT_REQ:
 		if (rpc_lookup_reply(PROG_MOUNT, pkt, len) == -NFS_RPC_DROP)
 			break;
-		NfsState = STATE_PRCLOOKUP_PROG_NFS_REQ;
-		NfsSend();
+		nfs_state = STATE_PRCLOOKUP_PROG_NFS_REQ;
+		nfs_send();
 		break;
 
 	case STATE_PRCLOOKUP_PROG_NFS_REQ:
 		if (rpc_lookup_reply(PROG_NFS, pkt, len) == -NFS_RPC_DROP)
 			break;
-		NfsState = STATE_MOUNT_REQ;
-		NfsSend();
+		nfs_state = STATE_MOUNT_REQ;
+		nfs_send();
 		break;
 
 	case STATE_MOUNT_REQ:
 		reply = nfs_mount_reply(pkt, len);
-		if (reply == -NFS_RPC_DROP)
+		if (reply == -NFS_RPC_DROP) {
 			break;
-		else if (reply == -NFS_RPC_ERR) {
+		} else if (reply == -NFS_RPC_ERR) {
 			puts("*** ERROR: Cannot mount\n");
 			/* just to be sure... */
-			NfsState = STATE_UMOUNT_REQ;
-			NfsSend();
+			nfs_state = STATE_UMOUNT_REQ;
+			nfs_send();
 		} else {
-			NfsState = STATE_LOOKUP_REQ;
-			NfsSend();
+			nfs_state = STATE_LOOKUP_REQ;
+			nfs_send();
 		}
 		break;
 
 	case STATE_UMOUNT_REQ:
 		reply = nfs_umountall_reply(pkt, len);
-		if (reply == -NFS_RPC_DROP)
+		if (reply == -NFS_RPC_DROP) {
 			break;
-		else if (reply == -NFS_RPC_ERR) {
+		} else if (reply == -NFS_RPC_ERR) {
 			puts("*** ERROR: Cannot umount\n");
 			net_set_state(NETLOOP_FAIL);
 		} else {
@@ -656,61 +636,60 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 	case STATE_LOOKUP_REQ:
 		reply = nfs_lookup_reply(pkt, len);
-		if (reply == -NFS_RPC_DROP)
+		if (reply == -NFS_RPC_DROP) {
 			break;
-		else if (reply == -NFS_RPC_ERR) {
+		} else if (reply == -NFS_RPC_ERR) {
 			puts("*** ERROR: File lookup fail\n");
-			NfsState = STATE_UMOUNT_REQ;
-			NfsSend();
+			nfs_state = STATE_UMOUNT_REQ;
+			nfs_send();
 		} else {
-			NfsState = STATE_READ_REQ;
+			nfs_state = STATE_READ_REQ;
 			nfs_offset = 0;
 			nfs_len = NFS_READ_SIZE;
-			NfsSend();
+			nfs_send();
 		}
 		break;
 
 	case STATE_READLINK_REQ:
 		reply = nfs_readlink_reply(pkt, len);
-		if (reply == -NFS_RPC_DROP)
+		if (reply == -NFS_RPC_DROP) {
 			break;
-		else if (reply == -NFS_RPC_ERR) {
+		} else if (reply == -NFS_RPC_ERR) {
 			puts("*** ERROR: Symlink fail\n");
-			NfsState = STATE_UMOUNT_REQ;
-			NfsSend();
+			nfs_state = STATE_UMOUNT_REQ;
+			nfs_send();
 		} else {
 			debug("Symlink --> %s\n", nfs_path);
 			nfs_filename = basename(nfs_path);
 			nfs_path     = dirname(nfs_path);
 
-			NfsState = STATE_MOUNT_REQ;
-			NfsSend();
+			nfs_state = STATE_MOUNT_REQ;
+			nfs_send();
 		}
 		break;
 
 	case STATE_READ_REQ:
 		rlen = nfs_read_reply(pkt, len);
-		NetSetTimeout(nfs_timeout, NfsTimeout);
+		NetSetTimeout(nfs_timeout, nfs_timeout_handler);
 		if (rlen > 0) {
 			nfs_offset += rlen;
-			NfsSend();
+			nfs_send();
 		} else if ((rlen == -NFSERR_ISDIR) || (rlen == -NFSERR_INVAL)) {
 			/* symbolic link */
-			NfsState = STATE_READLINK_REQ;
-			NfsSend();
+			nfs_state = STATE_READLINK_REQ;
+			nfs_send();
 		} else {
 			if (!rlen)
 				nfs_download_state = NETLOOP_SUCCESS;
-			NfsState = STATE_UMOUNT_REQ;
-			NfsSend();
+			nfs_state = STATE_UMOUNT_REQ;
+			nfs_send();
 		}
 		break;
 	}
 }
 
 
-void
-NfsStart(void)
+void nfs_start(void)
 {
 	debug("%s\n", __func__);
 	nfs_download_state = NETLOOP_FAIL;
@@ -733,7 +712,7 @@ NfsStart(void)
 		strcpy(nfs_path, default_filename);
 
 		printf("*** Warning: no boot file name; using '%s'\n",
-			nfs_path);
+		       nfs_path);
 	} else {
 		char *p = net_boot_file_name;
 
@@ -765,7 +744,7 @@ NfsStart(void)
 		server_net.s_addr = net_server_ip.s_addr & net_netmask.s_addr;
 		if (our_net.s_addr != server_net.s_addr)
 			printf("; sending through gateway %pI4",
-				&net_gateway);
+			       &net_gateway);
 	}
 	printf("\nFilename '%s/%s'.", nfs_path, nfs_filename);
 
@@ -777,18 +756,18 @@ NfsStart(void)
 	printf("\nLoad address: 0x%lx\n"
 		"Loading: *\b", load_addr);
 
-	NetSetTimeout(nfs_timeout, NfsTimeout);
+	NetSetTimeout(nfs_timeout, nfs_timeout_handler);
 	net_set_udp_handler(nfs_handler);
 
-	NfsTimeoutCount = 0;
-	NfsState = STATE_PRCLOOKUP_PROG_MOUNT_REQ;
+	nfs_timeout_count = 0;
+	nfs_state = STATE_PRCLOOKUP_PROG_MOUNT_REQ;
 
-	/*NfsOurPort = 4096 + (get_ticks() % 3072);*/
+	/*nfs_our_port = 4096 + (get_ticks() % 3072);*/
 	/*FIX ME !!!*/
-	NfsOurPort = 1000;
+	nfs_our_port = 1000;
 
 	/* zero out server ether in case the server ip has changed */
 	memset(net_server_ethaddr, 0, 6);
 
-	NfsSend();
+	nfs_send();
 }

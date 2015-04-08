@@ -235,7 +235,7 @@ void net_auto_load(void)
 		/*
 		 * Use NFS to load the bootfile.
 		 */
-		NfsStart();
+		nfs_start();
 		return;
 	}
 #endif
@@ -407,7 +407,7 @@ restart:
 #endif
 #if defined(CONFIG_CMD_NFS)
 		case NFS:
-			NfsStart();
+			nfs_start();
 			break;
 #endif
 #if defined(CONFIG_CMD_CDP)
