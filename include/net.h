@@ -259,9 +259,9 @@ u32 ether_crc(size_t len, unsigned char const *p);
  */
 
 struct ethernet_hdr {
-	uchar		et_dest[6];	/* Destination node		*/
-	uchar		et_src[6];	/* Source node			*/
-	ushort		et_protlen;	/* Protocol or length		*/
+	u8		et_dest[6];	/* Destination node		*/
+	u8		et_src[6];	/* Source node			*/
+	u16		et_protlen;	/* Protocol or length		*/
 };
 
 /* Ethernet header size */
@@ -270,16 +270,16 @@ struct ethernet_hdr {
 #define ETH_FCS_LEN	4		/* Octets in the FCS		*/
 
 struct e802_hdr {
-	uchar		et_dest[6];	/* Destination node		*/
-	uchar		et_src[6];	/* Source node			*/
-	ushort		et_protlen;	/* Protocol or length		*/
-	uchar		et_dsap;	/* 802 DSAP			*/
-	uchar		et_ssap;	/* 802 SSAP			*/
-	uchar		et_ctl;		/* 802 control			*/
-	uchar		et_snap1;	/* SNAP				*/
-	uchar		et_snap2;
-	uchar		et_snap3;
-	ushort		et_prot;	/* 802 protocol			*/
+	u8		et_dest[6];	/* Destination node		*/
+	u8		et_src[6];	/* Source node			*/
+	u16		et_protlen;	/* Protocol or length		*/
+	u8		et_dsap;	/* 802 DSAP			*/
+	u8		et_ssap;	/* 802 SSAP			*/
+	u8		et_ctl;		/* 802 control			*/
+	u8		et_snap1;	/* SNAP				*/
+	u8		et_snap2;
+	u8		et_snap3;
+	u16		et_prot;	/* 802 protocol			*/
 };
 
 /* 802 + SNAP + ethernet header size */
@@ -289,11 +289,11 @@ struct e802_hdr {
  *	Virtual LAN Ethernet header
  */
 struct vlan_ethernet_hdr {
-	uchar		vet_dest[6];	/* Destination node		*/
-	uchar		vet_src[6];	/* Source node			*/
-	ushort		vet_vlan_type;	/* PROT_VLAN			*/
-	ushort		vet_tag;	/* TAG of VLAN			*/
-	ushort		vet_type;	/* protocol type		*/
+	u8		vet_dest[6];	/* Destination node		*/
+	u8		vet_src[6];	/* Source node			*/
+	u16		vet_vlan_type;	/* PROT_VLAN			*/
+	u16		vet_tag;	/* TAG of VLAN			*/
+	u16		vet_type;	/* protocol type		*/
 };
 
 /* VLAN Ethernet header size */
@@ -311,14 +311,14 @@ struct vlan_ethernet_hdr {
  *	Internet Protocol (IP) header.
  */
 struct ip_hdr {
-	uchar		ip_hl_v;	/* header length and version	*/
-	uchar		ip_tos;		/* type of service		*/
-	ushort		ip_len;		/* total length			*/
-	ushort		ip_id;		/* identification		*/
-	ushort		ip_off;		/* fragment offset field	*/
-	uchar		ip_ttl;		/* time to live			*/
-	uchar		ip_p;		/* protocol			*/
-	ushort		ip_sum;		/* checksum			*/
+	u8		ip_hl_v;	/* header length and version	*/
+	u8		ip_tos;		/* type of service		*/
+	u16		ip_len;		/* total length			*/
+	u16		ip_id;		/* identification		*/
+	u16		ip_off;		/* fragment offset field	*/
+	u8		ip_ttl;		/* time to live			*/
+	u8		ip_p;		/* protocol			*/
+	u16		ip_sum;		/* checksum			*/
 	struct in_addr	ip_src;		/* Source IP address		*/
 	struct in_addr	ip_dst;		/* Destination IP address	*/
 };
@@ -335,20 +335,20 @@ struct ip_hdr {
  *	Internet Protocol (IP) + UDP header.
  */
 struct ip_udp_hdr {
-	uchar		ip_hl_v;	/* header length and version	*/
-	uchar		ip_tos;		/* type of service		*/
-	ushort		ip_len;		/* total length			*/
-	ushort		ip_id;		/* identification		*/
-	ushort		ip_off;		/* fragment offset field	*/
-	uchar		ip_ttl;		/* time to live			*/
-	uchar		ip_p;		/* protocol			*/
-	ushort		ip_sum;		/* checksum			*/
+	u8		ip_hl_v;	/* header length and version	*/
+	u8		ip_tos;		/* type of service		*/
+	u16		ip_len;		/* total length			*/
+	u16		ip_id;		/* identification		*/
+	u16		ip_off;		/* fragment offset field	*/
+	u8		ip_ttl;		/* time to live			*/
+	u8		ip_p;		/* protocol			*/
+	u16		ip_sum;		/* checksum			*/
 	struct in_addr	ip_src;		/* Source IP address		*/
 	struct in_addr	ip_dst;		/* Destination IP address	*/
-	ushort		udp_src;	/* UDP source port		*/
-	ushort		udp_dst;	/* UDP destination port		*/
-	ushort		udp_len;	/* Length of UDP packet		*/
-	ushort		udp_xsum;	/* Checksum			*/
+	u16		udp_src;	/* UDP source port		*/
+	u16		udp_dst;	/* UDP destination port		*/
+	u16		udp_len;	/* Length of UDP packet		*/
+	u16		udp_xsum;	/* Checksum			*/
 };
 
 #define IP_UDP_HDR_SIZE		(sizeof(struct ip_udp_hdr))
@@ -358,14 +358,14 @@ struct ip_udp_hdr {
  *	Address Resolution Protocol (ARP) header.
  */
 struct arp_hdr {
-	ushort		ar_hrd;		/* Format of hardware address	*/
+	u16		ar_hrd;		/* Format of hardware address	*/
 #   define ARP_ETHER	    1		/* Ethernet  hardware address	*/
-	ushort		ar_pro;		/* Format of protocol address	*/
-	uchar		ar_hln;		/* Length of hardware address	*/
+	u16		ar_pro;		/* Format of protocol address	*/
+	u8		ar_hln;		/* Length of hardware address	*/
 #   define ARP_HLEN	6
-	uchar		ar_pln;		/* Length of protocol address	*/
+	u8		ar_pln;		/* Length of protocol address	*/
 #   define ARP_PLEN	4
-	ushort		ar_op;		/* Operation			*/
+	u16		ar_op;		/* Operation			*/
 #   define ARPOP_REQUEST    1		/* Request  to resolve  address	*/
 #   define ARPOP_REPLY	    2		/* Response to previous request	*/
 
@@ -377,16 +377,16 @@ struct arp_hdr {
 	 * the sizes above, and are defined as appropriate for
 	 * specific hardware/protocol combinations.
 	 */
-	uchar		ar_data[0];
+	u8		ar_data[0];
 #define ar_sha		ar_data[0]
 #define ar_spa		ar_data[ARP_HLEN]
 #define ar_tha		ar_data[ARP_HLEN + ARP_PLEN]
 #define ar_tpa		ar_data[ARP_HLEN + ARP_PLEN + ARP_HLEN]
 #if 0
-	uchar		ar_sha[];	/* Sender hardware address	*/
-	uchar		ar_spa[];	/* Sender protocol address	*/
-	uchar		ar_tha[];	/* Target hardware address	*/
-	uchar		ar_tpa[];	/* Target protocol address	*/
+	u8		ar_sha[];	/* Sender hardware address	*/
+	u8		ar_spa[];	/* Sender protocol address	*/
+	u8		ar_tha[];	/* Target hardware address	*/
+	u8		ar_tpa[];	/* Target protocol address	*/
 #endif /* 0 */
 };
 
@@ -408,20 +408,20 @@ struct arp_hdr {
 #define ICMP_NOT_REACH_PORT	3	/* Port unreachable		*/
 
 struct icmp_hdr {
-	uchar		type;
-	uchar		code;
-	ushort		checksum;
+	u8		type;
+	u8		code;
+	u16		checksum;
 	union {
 		struct {
-			ushort	id;
-			ushort	sequence;
+			u16	id;
+			u16	sequence;
 		} echo;
 		u32	gateway;
 		struct {
-			ushort	unused;
-			ushort	mtu;
+			u16	unused;
+			u16	mtu;
 		} frag;
-		uchar data[0];
+		u8 data[0];
 	} un;
 };
 
