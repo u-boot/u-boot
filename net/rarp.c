@@ -59,9 +59,9 @@ static void rarp_timeout_handler(void)
 {
 	if (rarp_try >= TIMEOUT_COUNT) {
 		puts("\nRetry count exceeded; starting again\n");
-		NetStartAgain();
+		net_start_again();
 	} else {
-		NetSetTimeout(TIMEOUT, rarp_timeout_handler);
+		net_set_timeout_handler(TIMEOUT, rarp_timeout_handler);
 		rarp_request();
 	}
 }
@@ -95,5 +95,5 @@ void rarp_request(void)
 
 	net_send_packet(net_tx_packet, eth_hdr_size + ARP_HDR_SIZE);
 
-	NetSetTimeout(TIMEOUT, rarp_timeout_handler);
+	net_set_timeout_handler(TIMEOUT, rarp_timeout_handler);
 }

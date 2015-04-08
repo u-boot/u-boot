@@ -65,7 +65,7 @@ static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	 */
 	memcpy(&seconds, &rpktp->transmit_timestamp, sizeof(ulong));
 
-	to_tm(ntohl(seconds) - 2208988800UL + NetTimeOffset, &tm);
+	to_tm(ntohl(seconds) - 2208988800UL + net_ntp_time_offset, &tm);
 #if defined(CONFIG_CMD_DATE)
 	rtc_set(&tm);
 #endif
@@ -80,7 +80,7 @@ void sntp_start(void)
 {
 	debug("%s\n", __func__);
 
-	NetSetTimeout(SNTP_TIMEOUT, sntp_timeout_handler);
+	net_set_timeout_handler(SNTP_TIMEOUT, sntp_timeout_handler);
 	net_set_udp_handler(sntp_handler);
 	memset(net_server_ethaddr, 0, sizeof(net_server_ethaddr));
 

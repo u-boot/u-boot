@@ -224,14 +224,14 @@ static void cdp_timeout_handler(void)
 	cdp_seq++;
 
 	if (cdp_seq < 3) {
-		NetSetTimeout(CDP_TIMEOUT, cdp_timeout_handler);
+		net_set_timeout_handler(CDP_TIMEOUT, cdp_timeout_handler);
 		cdp_send_trigger();
 		return;
 	}
 
 	/* if not OK try again */
 	if (!cdp_ok)
-		NetStartAgain();
+		net_start_again();
 	else
 		net_set_state(NETLOOP_SUCCESS);
 }
@@ -357,7 +357,7 @@ void cdp_start(void)
 	cdp_native_vlan = htons(-1);
 	cdp_appliance_vlan = htons(-1);
 
-	NetSetTimeout(CDP_TIMEOUT, cdp_timeout_handler);
+	net_set_timeout_handler(CDP_TIMEOUT, cdp_timeout_handler);
 
 	cdp_send_trigger();
 }

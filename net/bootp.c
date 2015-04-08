@@ -128,7 +128,7 @@ static int check_packet(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 		retval = -4;
 	else if (bp->bp_hlen != HWL_ETHER)
 		retval = -5;
-	else if (!bootp_match_id(NetReadLong((ulong *)&bp->bp_id)))
+	else if (!bootp_match_id(net_read_long((ulong *)&bp->bp_id)))
 		retval = -6;
 
 	debug("Filtering pkt = %d\n", retval);
@@ -356,10 +356,11 @@ static void bootp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	store_net_params(bp);		/* Store net parameters from reply */
 
 	/* Retrieve extended information (we must parse the vendor area) */
-	if (NetReadLong((ulong *)&bp->bp_vend[0]) == htonl(BOOTP_VENDOR_MAGIC))
+	if (net_read_long((ulong *)&bp->bp_vend[0]) ==
+	    htonl(BOOTP_VENDOR_MAGIC))
 		bootp_process_vendor((uchar *)&bp->bp_vend[4], len);
 
-	NetSetTimeout(0, (thand_f *)0);
+	net_set_timeout_handler(0, (thand_f *)0);
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP, "bootp_stop");
 
 	debug("Got good BOOTP\n");
@@ -381,13 +382,13 @@ static void bootp_timeout_handler(void)
 		net_set_state(NETLOOP_FAIL);
 #else
 		puts("\nRetry time exceeded; starting again\n");
-		NetStartAgain();
+		net_start_again();
 #endif
 	} else {
 		bootp_timeout *= 2;
 		if (bootp_timeout > 2000)
 			bootp_timeout = 2000;
-		NetSetTimeout(bootp_timeout, bootp_timeout_handler);
+		net_set_timeout_handler(bootp_timeout, bootp_timeout_handler);
 		bootp_request();
 	}
 }
@@ -740,7 +741,7 @@ void bootp_request(void)
 	bootp_id += get_timer(0);
 	bootp_id = htonl(bootp_id);
 	bootp_add_id(bootp_id);
-	NetCopyLong(&bp->bp_id, &bootp_id);
+	net_copy_long(&bp->bp_id, &bootp_id);
 
 	/*
 	 * Calculate proper packet lengths taking into account the
@@ -750,7 +751,7 @@ void bootp_request(void)
 	pktlen = eth_hdr_size + IP_UDP_HDR_SIZE + iplen;
 	bcast_ip.s_addr = 0xFFFFFFFFL;
 	net_set_udp_header(iphdr, bcast_ip, PORT_BOOTPS, PORT_BOOTPC, iplen);
-	NetSetTimeout(bootp_timeout, bootp_timeout_handler);
+	net_set_timeout_handler(bootp_timeout, bootp_timeout_handler);
 
 #if defined(CONFIG_CMD_DHCP)
 	dhcp_state = SELECTING;
@@ -778,9 +779,9 @@ static void dhcp_process_options(uchar *popt, struct bootp_hdr *bp)
 			break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
 		case 2:		/* Time offset	*/
-			to_ptr = &NetTimeOffset;
-			NetCopyLong((ulong *)to_ptr, (ulong *)(popt + 2));
-			NetTimeOffset = ntohl(NetTimeOffset);
+			to_ptr = &net_ntp_time_offset;
+			net_copy_long((ulong *)to_ptr, (ulong *)(popt + 2));
+			net_ntp_time_offset = ntohl(net_ntp_time_offset);
 			break;
 #endif
 		case 3:
@@ -815,7 +816,7 @@ static void dhcp_process_options(uchar *popt, struct bootp_hdr *bp)
 			break;
 #endif
 		case 51:
-			NetCopyLong(&dhcp_leasetime, (ulong *) (popt + 2));
+			net_copy_long(&dhcp_leasetime, (ulong *)(popt + 2));
 			break;
 		case 53:	/* Ignore Message Type Option */
 			break;
@@ -869,7 +870,7 @@ static void dhcp_process_options(uchar *popt, struct bootp_hdr *bp)
 
 static int dhcp_message_type(unsigned char *popt)
 {
-	if (NetReadLong((ulong *)popt) != htonl(BOOTP_VENDOR_MAGIC))
+	if (net_read_long((ulong *)popt) != htonl(BOOTP_VENDOR_MAGIC))
 		return -1;
 
 	popt += 4;
@@ -923,7 +924,7 @@ static void dhcp_send_request_packet(struct bootp_hdr *bp_offer)
 	 * ID is the id of the OFFER packet
 	 */
 
-	NetCopyLong(&bp->bp_id, &bp_offer->bp_id);
+	net_copy_long(&bp->bp_id, &bp_offer->bp_id);
 
 	/*
 	 * Copy options from OFFER packet if present
@@ -982,11 +983,11 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			debug("TRANSITIONING TO REQUESTING STATE\n");
 			dhcp_state = REQUESTING;
 
-			if (NetReadLong((ulong *)&bp->bp_vend[0]) ==
+			if (net_read_long((ulong *)&bp->bp_vend[0]) ==
 						htonl(BOOTP_VENDOR_MAGIC))
 				dhcp_process_options((u8 *)&bp->bp_vend[4], bp);
 
-			NetSetTimeout(5000, bootp_timeout_handler);
+			net_set_timeout_handler(5000, bootp_timeout_handler);
 			dhcp_send_request_packet(bp);
 #ifdef CONFIG_SYS_BOOTFILE_PREFIX
 		}
@@ -998,7 +999,7 @@ static void dhcp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 		debug("DHCP State: REQUESTING\n");
 
 		if (dhcp_message_type((u8 *)bp->bp_vend) == DHCP_ACK) {
-			if (NetReadLong((ulong *)&bp->bp_vend[0]) ==
+			if (net_read_long((ulong *)&bp->bp_vend[0]) ==
 						htonl(BOOTP_VENDOR_MAGIC))
 				dhcp_process_options((u8 *)&bp->bp_vend[4], bp);
 			/* Store net params from reply */

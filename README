@@ -3340,9 +3340,9 @@ Legacy uImage format:
    65	net/eth.c		Ethernet found.
 
   -80	common/cmd_net.c	usage wrong
-   80	common/cmd_net.c	before calling NetLoop()
-  -81	common/cmd_net.c	some error in NetLoop() occurred
-   81	common/cmd_net.c	NetLoop() back without error
+   80	common/cmd_net.c	before calling net_loop()
+  -81	common/cmd_net.c	some error in net_loop() occurred
+   81	common/cmd_net.c	net_loop() back without error
   -82	common/cmd_net.c	size == 0 (File with size 0 loaded)
    82	common/cmd_net.c	trying automatic boot
    83	common/cmd_net.c	running "source" command

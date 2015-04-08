@@ -571,11 +571,12 @@ static void nfs_timeout_handler(void)
 {
 	if (++nfs_timeout_count > NFS_RETRY_COUNT) {
 		puts("\nRetry count exceeded; starting again\n");
-		NetStartAgain();
+		net_start_again();
 	} else {
 		puts("T ");
-		NetSetTimeout(nfs_timeout + NFS_TIMEOUT * nfs_timeout_count,
-			      nfs_timeout_handler);
+		net_set_timeout_handler(nfs_timeout +
+					NFS_TIMEOUT * nfs_timeout_count,
+					nfs_timeout_handler);
 		nfs_send();
 	}
 }
@@ -670,7 +671,7 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 	case STATE_READ_REQ:
 		rlen = nfs_read_reply(pkt, len);
-		NetSetTimeout(nfs_timeout, nfs_timeout_handler);
+		net_set_timeout_handler(nfs_timeout, nfs_timeout_handler);
 		if (rlen > 0) {
 			nfs_offset += rlen;
 			nfs_send();
@@ -756,7 +757,7 @@ void nfs_start(void)
 	printf("\nLoad address: 0x%lx\n"
 		"Loading: *\b", load_addr);
 
-	NetSetTimeout(nfs_timeout, nfs_timeout_handler);
+	net_set_timeout_handler(nfs_timeout, nfs_timeout_handler);
 	net_set_udp_handler(nfs_handler);
 
 	nfs_timeout_count = 0;

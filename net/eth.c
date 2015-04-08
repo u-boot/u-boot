@@ -965,7 +965,7 @@ void eth_try_another(int first_restart)
 	eth_current_changed();
 
 	if (first_failed == eth_get_dev())
-		NetRestartWrap = 1;
+		net_restart_wrap = 1;
 }
 
 void eth_set_current(void)

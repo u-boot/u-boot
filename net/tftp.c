@@ -275,7 +275,7 @@ static void restart(const char *msg)
 #ifdef CONFIG_MCAST_TFTP
 	mcast_cleanup();
 #endif
-	NetStartAgain();
+	net_start_again();
 }
 
 /*
@@ -589,7 +589,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 				printf("First block is not block 1 (%ld)\n",
 				       tftp_cur_block);
 				puts("Starting again\n\n");
-				NetStartAgain();
+				net_start_again();
 				break;
 			}
 		}
@@ -601,7 +601,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 		tftp_prev_block = tftp_cur_block;
 		timeout_count_max = TIMEOUT_COUNT;
-		NetSetTimeout(timeout_ms, tftp_timeout_handler);
+		net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
 
 		store_block(tftp_cur_block - 1, pkt + 2, len);
 
@@ -628,7 +628,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 					/* try to double it and retry */
 					tftp_mcast_bitmap_size <<= 1;
 					mcast_cleanup();
-					NetStartAgain();
+					net_start_again();
 					return;
 				}
 				tftp_prev_block = tftp_cur_block;
@@ -672,7 +672,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 #ifdef CONFIG_MCAST_TFTP
 			mcast_cleanup();
 #endif
-			NetStartAgain();
+			net_start_again();
 			break;
 		}
 		break;
@@ -686,7 +686,7 @@ static void tftp_timeout_handler(void)
 		restart("Retry count exceeded");
 	} else {
 		puts("T ");
-		NetSetTimeout(timeout_ms, tftp_timeout_handler);
+		net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
 		if (tftp_state != STATE_RECV_WRQ)
 			tftp_send();
 	}
@@ -794,7 +794,7 @@ void tftp_start(enum proto_t protocol)
 	time_start = get_timer(0);
 	timeout_count_max = tftp_timeout_count_max;
 
-	NetSetTimeout(timeout_ms, tftp_timeout_handler);
+	net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
 	net_set_udp_handler(tftp_handler);
 #ifdef CONFIG_CMD_TFTPPUT
 	net_set_icmp_handler(icmp_handler);
@@ -843,7 +843,7 @@ void tftp_start_server(void)
 	timeout_count_max = TIMEOUT_COUNT;
 	timeout_count = 0;
 	timeout_ms = TIMEOUT;
-	NetSetTimeout(timeout_ms, tftp_timeout_handler);
+	net_set_timeout_handler(timeout_ms, tftp_timeout_handler);
 
 	/* Revert tftp_block_size to dflt */
 	tftp_block_size = TFTP_BLOCK_SIZE;
@@ -951,7 +951,7 @@ static void parse_multicast_oack(char *pkt, int len)
 			printf("Fail to set mcast, revert to TFTP\n");
 			tftp_mcast_disabled = 1;
 			mcast_cleanup();
-			NetStartAgain();
+			net_start_again();
 		}
 	}
 	tftp_mcast_master_client = simple_strtoul((char *)mc, NULL, 10);

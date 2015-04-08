@@ -158,8 +158,8 @@ static void netboot_update_env(void)
 		setenv("domain", net_nis_domain);
 
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
-	if (NetTimeOffset) {
-		sprintf(tmp, "%d", NetTimeOffset);
+	if (net_ntp_time_offset) {
+		sprintf(tmp, "%d", net_ntp_time_offset);
 		setenv("timeoffset", tmp);
 	}
 #endif
@@ -227,14 +227,14 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 	}
 	bootstage_mark(BOOTSTAGE_ID_NET_START);
 
-	size = NetLoop(proto);
+	size = net_loop(proto);
 	if (size < 0) {
 		bootstage_error(BOOTSTAGE_ID_NET_NETLOOP_OK);
 		return CMD_RET_FAILURE;
 	}
 	bootstage_mark(BOOTSTAGE_ID_NET_NETLOOP_OK);
 
-	/* NetLoop ok, update environment */
+	/* net_loop ok, update environment */
 	netboot_update_env();
 
 	/* done if no file was loaded (no errors though) */
@@ -267,7 +267,7 @@ static int do_ping(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (net_ping_ip.s_addr == 0)
 		return CMD_RET_USAGE;
 
-	if (NetLoop(PING) < 0) {
+	if (net_loop(PING) < 0) {
 		printf("ping failed; host %s is not alive\n", argv[1]);
 		return CMD_RET_FAILURE;
 	}
@@ -310,7 +310,7 @@ int do_cdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int r;
 
-	r = NetLoop(CDP);
+	r = net_loop(CDP);
 	if (r < 0) {
 		printf("cdp failed; perhaps not a CISCO switch?\n");
 		return CMD_RET_FAILURE;
@@ -349,11 +349,11 @@ int do_sntp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	toff = getenv("timeoffset");
 	if (toff == NULL)
-		NetTimeOffset = 0;
+		net_ntp_time_offset = 0;
 	else
-		NetTimeOffset = simple_strtol(toff, NULL, 10);
+		net_ntp_time_offset = simple_strtol(toff, NULL, 10);
 
-	if (NetLoop(SNTP) < 0) {
+	if (net_loop(SNTP) < 0) {
 		printf("SNTP failed: host %pI4 not responding\n",
 		       &net_ntp_server);
 		return CMD_RET_FAILURE;
@@ -399,7 +399,7 @@ int do_dns(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	else
 		net_dns_env_var = NULL;
 
-	if (NetLoop(DNS) < 0) {
+	if (net_loop(DNS) < 0) {
 		printf("dns lookup of %s failed, check setup\n", argv[1]);
 		return CMD_RET_FAILURE;
 	}
@@ -421,7 +421,7 @@ static int do_link_local(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	char tmp[22];
 
-	if (NetLoop(LINKLOCAL) < 0)
+	if (net_loop(LINKLOCAL) < 0)
 		return CMD_RET_FAILURE;
 
 	net_gateway.s_addr = 0;

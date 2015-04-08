@@ -99,7 +99,7 @@ static void configure_wait(void)
 	debug_cond(DEBUG_DEV_PKT, "...wait %d %s nprobes=%u, nclaims=%u\n",
 		   timeout_ms, eth_get_name(), nprobes, nclaims);
 
-	NetSetTimeout(timeout_ms, link_local_timeout);
+	net_set_timeout_handler(timeout_ms, link_local_timeout);
 }
 
 void link_local_start(void)
@@ -182,7 +182,7 @@ static void link_local_timeout(void)
 			conflicts = 0;
 			timeout_ms = -1;
 			/* Never timeout in the monitor state */
-			NetSetTimeout(0, NULL);
+			net_set_timeout_handler(0, NULL);
 
 			/* NOTE: all other exit paths should deconfig ... */
 			net_set_state(NETLOOP_SUCCESS);

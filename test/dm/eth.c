@@ -23,15 +23,15 @@ static int dm_test_eth(struct dm_test_state *dms)
 	net_ping_ip = string_to_ip("1.1.2.2");
 
 	setenv("ethact", "eth@10002000");
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10002000", getenv("ethact"));
 
 	setenv("ethact", "eth@10003000");
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10003000", getenv("ethact"));
 
 	setenv("ethact", "eth@10004000");
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
 	return 0;
@@ -42,20 +42,20 @@ static int dm_test_eth_alias(struct dm_test_state *dms)
 {
 	net_ping_ip = string_to_ip("1.1.2.2");
 	setenv("ethact", "eth0");
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10002000", getenv("ethact"));
 
 	setenv("ethact", "eth1");
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
 	/* Expected to fail since eth2 is not defined in the device tree */
 	setenv("ethact", "eth2");
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10002000", getenv("ethact"));
 
 	setenv("ethact", "eth5");
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10003000", getenv("ethact"));
 
 	return 0;
@@ -69,13 +69,13 @@ static int dm_test_eth_prime(struct dm_test_state *dms)
 	/* Expected to be "eth@10003000" because of ethprime variable */
 	setenv("ethact", NULL);
 	setenv("ethprime", "eth5");
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10003000", getenv("ethact"));
 
 	/* Expected to be "eth@10002000" because it is first */
 	setenv("ethact", NULL);
 	setenv("ethprime", NULL);
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10002000", getenv("ethact"));
 
 	return 0;
@@ -93,13 +93,13 @@ static int dm_test_eth_rotate(struct dm_test_state *dms)
 
 	/* Make sure that the default is to rotate to the next interface */
 	setenv("ethact", "eth@10004000");
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10002000", getenv("ethact"));
 
 	/* If ethrotate is no, then we should fail on a bad MAC */
 	setenv("ethact", "eth@10004000");
 	setenv("ethrotate", "no");
-	ut_asserteq(-EINVAL, NetLoop(PING));
+	ut_asserteq(-EINVAL, net_loop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
 	/* Restore the env */
@@ -113,7 +113,7 @@ static int dm_test_eth_rotate(struct dm_test_state *dms)
 
 	/* Make sure we can skip invalid devices */
 	setenv("ethact", "eth@10004000");
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
 	/* Restore the env */
@@ -135,7 +135,7 @@ static int dm_test_net_retry(struct dm_test_state *dms)
 	sandbox_eth_disable_response(1, true);
 	setenv("ethact", "eth@10004000");
 	setenv("netretry", "yes");
-	ut_assertok(NetLoop(PING));
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10002000", getenv("ethact"));
 
 	/*
@@ -144,7 +144,7 @@ static int dm_test_net_retry(struct dm_test_state *dms)
 	 */
 	setenv("ethact", "eth@10004000");
 	setenv("netretry", "no");
-	ut_asserteq(-ETIMEDOUT, NetLoop(PING));
+	ut_asserteq(-ETIMEDOUT, net_loop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
 	/* Restore the env */

@@ -113,7 +113,7 @@ static int refresh_settings_from_env(void)
 }
 
 /**
- * Called from NetLoop in net/net.c before each packet
+ * Called from net_loop in net/net.c before each packet
  */
 void nc_start(void)
 {
@@ -121,7 +121,7 @@ void nc_start(void)
 	if (!output_packet_len || memcmp(nc_ether, net_null_ethaddr, 6)) {
 		/* going to check for input packet */
 		net_set_udp_handler(nc_handler);
-		NetSetTimeout(net_timeout, nc_timeout_handler);
+		net_set_timeout_handler(net_timeout, nc_timeout_handler);
 	} else {
 		/* send arp request */
 		uchar *pkt;
@@ -188,7 +188,7 @@ static void nc_send_packet(const char *buf, int len)
 		output_packet = buf;
 		output_packet_len = len;
 		input_recursion = 1;
-		NetLoop(NETCONS); /* wait for arp reply and send packet */
+		net_loop(NETCONS); /* wait for arp reply and send packet */
 		input_recursion = 0;
 		output_packet_len = 0;
 		return;
@@ -232,7 +232,7 @@ static int nc_stdio_start(struct stdio_dev *dev)
 
 	/*
 	 * Initialize the static IP settings and buffer pointers
-	 * incase we call net_send_udp_packet before NetLoop
+	 * incase we call net_send_udp_packet before net_loop
 	 */
 	net_init();
 
@@ -277,7 +277,7 @@ static int nc_stdio_getc(struct stdio_dev *dev)
 
 	net_timeout = 0;	/* no timeout */
 	while (!input_size)
-		NetLoop(NETCONS);
+		net_loop(NETCONS);
 
 	input_recursion = 0;
 
@@ -307,7 +307,7 @@ static int nc_stdio_tstc(struct stdio_dev *dev)
 	input_recursion = 1;
 
 	net_timeout = 1;
-	NetLoop(NETCONS);	/* kind of poll */
+	net_loop(NETCONS);	/* kind of poll */
 
 	input_recursion = 0;
 

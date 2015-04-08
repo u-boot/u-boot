@@ -70,7 +70,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	/* download the update file */
 	load_addr = addr;
 	copy_filename(net_boot_file_name, filename, sizeof(net_boot_file_name));
-	size = NetLoop(TFTPGET);
+	size = net_loop(TFTPGET);
 
 	if (size < 0)
 		rv = 1;

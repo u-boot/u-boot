@@ -28,7 +28,7 @@ void spl_net_load_image(const char *device)
 	}
 	if (device)
 		setenv("ethact", device);
-	rv = NetLoop(BOOTP);
+	rv = net_loop(BOOTP);
 	if (rv < 0) {
 		printf("Problem booting with BOOTP\n");
 		hang();

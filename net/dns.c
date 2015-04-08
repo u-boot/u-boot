@@ -197,7 +197,7 @@ void dns_start(void)
 {
 	debug("%s\n", __func__);
 
-	NetSetTimeout(DNS_TIMEOUT, dns_timeout_handler);
+	net_set_timeout_handler(DNS_TIMEOUT, dns_timeout_handler);
 	net_set_udp_handler(dns_handler);
 
 	/* Clear a previous MAC address, the server IP might have changed. */

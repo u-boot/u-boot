@@ -485,7 +485,6 @@ extern uchar		*net_tx_packet;		/* THE transmit packet */
 extern uchar		*net_rx_packets[PKTBUFSRX]; /* Receive packets */
 extern uchar		*net_rx_packet;		/* Current receive packet */
 extern int		net_rx_packet_len;	/* Current rx packet length */
-extern unsigned		NetIPID;		/* IP ID (counting) */
 extern const u8		net_bcast_ethaddr[6];	/* Ethernet broadcast address */
 extern const u8		net_null_ethaddr[6];
 
@@ -494,7 +493,7 @@ extern const u8		net_null_ethaddr[6];
 extern ushort		net_our_vlan;		/* Our VLAN */
 extern ushort		net_native_vlan;	/* Our Native VLAN */
 
-extern int		NetRestartWrap;		/* Tried all network devices */
+extern int		net_restart_wrap;	/* Tried all network devices */
 
 enum proto_t {
 	BOOTP, RARP, ARP, TFTPGET, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP,
@@ -534,7 +533,7 @@ static inline int is_cdp_packet(const uchar *ethaddr)
 
 #if defined(CONFIG_CMD_SNTP)
 extern struct in_addr	net_ntp_server;		/* the ip address to NTP */
-extern int NetTimeOffset;			/* offset time from UTC */
+extern int net_ntp_time_offset;			/* offset time from UTC */
 #endif
 
 #if defined(CONFIG_MCAST_TFTP)
@@ -543,13 +542,10 @@ extern struct in_addr net_mcast_addr;
 
 /* Initialize the network adapter */
 void net_init(void);
-int NetLoop(enum proto_t);
-
-/* Shutdown adapters and cleanup */
-void	NetStop(void);
+int net_loop(enum proto_t);
 
 /* Load failed.	 Start again. */
-int	NetStartAgain(void);
+int net_start_again(void);
 
 /* Get size of the ethernet header when we send */
 int net_eth_hdr_size(void);
@@ -599,7 +595,7 @@ void net_set_udp_handler(rxhand_f *);	/* Set UDP RX packet handler */
 rxhand_f *net_get_arp_handler(void);	/* Get ARP RX packet handler */
 void net_set_arp_handler(rxhand_f *);	/* Set ARP RX packet handler */
 void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
-void	NetSetTimeout(ulong, thand_f *);/* Set timeout handler */
+void net_set_timeout_handler(ulong, thand_f *);/* Set timeout handler */
 
 /* Network loop state */
 enum net_loop_state {
@@ -688,7 +684,7 @@ static inline struct in_addr net_read_ip(void *from)
 }
 
 /* return ulong *in network byteorder* */
-static inline ulong NetReadLong(ulong *from)
+static inline ulong net_read_long(ulong *from)
 {
 	ulong l;
 
@@ -709,7 +705,7 @@ static inline void net_copy_ip(void *to, void *from)
 }
 
 /* copy ulong */
-static inline void NetCopyLong(ulong *to, ulong *from)
+static inline void net_copy_long(ulong *to, ulong *from)
 {
 	memcpy((void *)to, (void *)from, sizeof(ulong));
 }
