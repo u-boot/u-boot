@@ -956,7 +956,22 @@ int usb_new_device(struct usb_device *dev)
 	 */
 #ifndef CONFIG_USB_XHCI
 	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
-	if (err < sizeof(struct usb_device_descriptor)) {
+	/*
+	 * Validate we've received only at least 8 bytes, not that we've
+	 * received the entire descriptor. The reasoning is:
+	 * - The code only uses fields in the first 8 bytes, so that's all we
+	 *   need to have fetched at this stage.
+	 * - The smallest maxpacket size is 8 bytes. Before we know the actual
+	 *   maxpacket the device uses, the USB controller may only accept a
+	 *   single packet. Consequently we are only guaranteed to receive 1
+	 *   packet (at least 8 bytes) even in a non-error case.
+	 *
+	 * At least the DWC2 controller needs to be programmed with the number
+	 * of packets in addition to the number of bytes. A request for 64
+	 * bytes of data with the maxpacket guessed as 64 (above) yields a
+	 * request for 1 packet.
+	 */
+	if (err < 8) {
 		debug("usb_new_device: usb_get_descriptor() failed\n");
 		return -EIO;
 	}
