@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <netdev.h>
 #include <phy.h>
+#include "axs10x.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -39,6 +40,19 @@ int board_eth_init(bd_t *bis)
 	if (designware_initialize(ARC_DWGMAC_BASE,
 				  PHY_INTERFACE_MODE_RGMII) >= 0)
 		return 1;
+
+	return 0;
+}
+
+
+#define AXS_MB_CREG	0xE0011000
+
+int board_early_init_f(void)
+{
+	if (readl((void __iomem *)AXS_MB_CREG + 0x234) & (1 << 28))
+		gd->board_type = AXS_MB_V3;
+	else
+		gd->board_type = AXS_MB_V2;
 
 	return 0;
 }
