@@ -148,7 +148,11 @@ enum sunxi_gpio_number {
 #define SUN6I_GPA_SDC2		5
 #define SUN6I_GPA_SDC3		4
 
-#define SUNXI_GPB_TWI0		2
+#define SUN4I_GPB_TWI0		2
+#define SUN4I_GPB_TWI1		2
+#define SUN5I_GPB_TWI1		2
+#define SUN4I_GPB_TWI2		2
+#define SUN5I_GPB_TWI2		2
 #define SUN4I_GPB_UART0		2
 #define SUN5I_GPB_UART0		2
 
@@ -160,6 +164,7 @@ enum sunxi_gpio_number {
 #define SUNXI_GPD_LVDS0		3
 
 #define SUN5I_GPE_SDC2		3
+#define SUN8I_GPE_TWI2		3
 
 #define SUNXI_GPF_SDC0		2
 #define SUNXI_GPF_UART0		4
@@ -169,12 +174,20 @@ enum sunxi_gpio_number {
 #define SUN5I_GPG_SDC1		2
 #define SUN6I_GPG_SDC1		2
 #define SUN8I_GPG_SDC1		2
+#define SUN6I_GPG_TWI3		2
 #define SUN5I_GPG_UART1		4
 
 #define SUN4I_GPH_SDC1		5
+#define SUN6I_GPH_TWI0		2
+#define SUN8I_GPH_TWI0		2
+#define SUN6I_GPH_TWI1		2
+#define SUN8I_GPH_TWI1		2
+#define SUN6I_GPH_TWI2		2
 #define SUN6I_GPH_UART0		2
 
 #define SUNXI_GPI_SDC3		2
+#define SUN7I_GPI_TWI3		3
+#define SUN7I_GPI_TWI4		3
 
 #define SUN6I_GPL0_R_P2WI_SCK	3
 #define SUN6I_GPL1_R_P2WI_SDA	3

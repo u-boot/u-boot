@@ -94,6 +94,13 @@
 #define SUNXI_TWI0_BASE			0x01c2ac00
 #define SUNXI_TWI1_BASE			0x01c2b000
 #define SUNXI_TWI2_BASE			0x01c2b400
+#ifdef CONFIG_MACH_SUN6I
+#define SUNXI_TWI3_BASE			0x01c0b800
+#endif
+#ifdef CONFIG_MACH_SUN7I
+#define SUNXI_TWI3_BASE			0x01c2b800
+#define SUNXI_TWI4_BASE			0x01c2c000
+#endif
 
 #define SUNXI_CAN_BASE			0x01c2bc00
 
