@@ -4,6 +4,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+extra-y	= start.o
 head-y := start.o
 obj-y += cache.o
 obj-y += cpu.o
