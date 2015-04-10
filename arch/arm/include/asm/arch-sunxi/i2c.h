@@ -8,7 +8,7 @@
 
 #include <asm/arch/cpu.h>
 
-#define CONFIG_I2C_MVTWSI_BASE	SUNXI_TWI0_BASE
+#define CONFIG_I2C_MVTWSI_BASE0	SUNXI_TWI0_BASE
 /* This is abp0-clk on sun4i/5i/7i / abp1-clk on sun6i/sun8i which is 24MHz */
 #define CONFIG_SYS_TCLK		24000000
 
