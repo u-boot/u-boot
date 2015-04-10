@@ -9,6 +9,9 @@
 #include <malloc.h>
 #include <nand.h>
 #include <asm/io.h>
+#include "axs10x.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define BUS_WIDTH	8		/* AXI data bus width in bytes	*/
 
@@ -231,6 +234,10 @@ int board_nand_init(struct nand_chip *nand)
 	nand->read_word = axs101_nand_read_word;
 	nand->write_buf = axs101_nand_write_buf;
 	nand->read_buf = axs101_nand_read_buf;
+
+	/* MBv3 has NAND IC with 16-bit data bus */
+	if (gd->board_type == AXS_MB_V3)
+		nand->options |= NAND_BUSWIDTH_16;
 
 	return 0;
 }
