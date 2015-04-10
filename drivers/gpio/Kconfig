@@ -7,3 +7,10 @@ config DM_GPIO
 	  the GPIO uclass. Drivers provide methods to query the
 	  particular GPIOs that they provide. The uclass interface
 	  is defined in include/asm-generic/gpio.h.
+
+config LPC32XX_GPIO
+	bool "LPC32XX GPIO driver"
+	depends on DM
+	default n
+	help
+	  Support for the LPC32XX GPIO driver.

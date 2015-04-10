@@ -1,0 +1,15 @@
+if TARGET_WORK_92105
+
+config SYS_BOARD
+	default "work_92105"
+
+config SYS_VENDOR
+	default "work-microwave"
+
+config SYS_SOC
+	default "lpc32xx"
+
+config SYS_CONFIG_NAME
+	default "work_92105"
+
+endif

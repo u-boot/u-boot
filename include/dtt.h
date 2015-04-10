@@ -12,13 +12,14 @@
 #define _DTT_H_
 
 #if defined(CONFIG_DTT_ADM1021)	|| \
-    defined(CONFIG_DTT_ADT7460)	|| \
-    defined(CONFIG_DTT_DS1621)	|| \
-    defined(CONFIG_DTT_DS1775)	|| \
-    defined(CONFIG_DTT_LM63)	|| \
-    defined(CONFIG_DTT_LM73)	|| \
-    defined(CONFIG_DTT_LM75)	|| \
-    defined(CONFIG_DTT_LM81)
+	defined(CONFIG_DTT_ADT7460)	|| \
+	defined(CONFIG_DTT_DS1621)	|| \
+	defined(CONFIG_DTT_DS1775)	|| \
+	defined(CONFIG_DTT_DS620)	|| \
+	defined(CONFIG_DTT_LM63)	|| \
+	defined(CONFIG_DTT_LM73)	|| \
+	defined(CONFIG_DTT_LM75)	|| \
+	defined(CONFIG_DTT_LM81)
 
 #define CONFIG_DTT				/* We have a DTT */
 

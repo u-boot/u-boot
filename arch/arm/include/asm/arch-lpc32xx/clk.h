@@ -71,6 +71,7 @@ struct clk_pm_regs {
 };
 
 /* HCLK Divider Control Register bits */
+#define CLK_HCLK_DDRAM_MASK		(0x3 << 7)
 #define CLK_HCLK_DDRAM_HALF		(0x2 << 7)
 #define CLK_HCLK_DDRAM_NOMINAL		(0x1 << 7)
 #define CLK_HCLK_DDRAM_STOPPED		(0x0 << 7)
@@ -123,6 +124,10 @@ struct clk_pm_regs {
 #define CLK_MAC_SLAVE			(1 << 1)
 #define CLK_MAC_REG			(1 << 0)
 
+/* I2C Clock Control Register bits	*/
+#define CLK_I2C2_ENABLE			(1 << 1)
+#define CLK_I2C1_ENABLE			(1 << 0)
+
 /* Timer Clock Control1 Register bits */
 #define CLK_TIMCLK_MOTOR		(1 << 6)
 #define CLK_TIMCLK_TIMER3		(1 << 5)
@@ -147,11 +152,22 @@ struct clk_pm_regs {
 /* DMA Clock Control Register bits */
 #define CLK_DMA_ENABLE			(1 << 0)
 
+/* NAND Clock Control Register bits */
+#define CLK_NAND_MLC			(1 << 1)
+#define CLK_NAND_MLC_INT		(1 << 5)
+
+/* SSP Clock Control Register bits */
+#define CLK_SSP0_ENABLE_CLOCK		(1 << 0)
+
+/* SDRAMCLK register bits */
+#define CLK_SDRAM_DDR_SEL		(1 << 1)
+
 unsigned int get_sys_clk_rate(void);
 unsigned int get_hclk_pll_rate(void);
 unsigned int get_hclk_clk_div(void);
 unsigned int get_hclk_clk_rate(void);
 unsigned int get_periph_clk_div(void);
 unsigned int get_periph_clk_rate(void);
+unsigned int get_sdram_clk_rate(void);
 
 #endif /* _LPC32XX_CLK_H */

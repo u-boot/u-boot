@@ -242,6 +242,7 @@ struct lmb;
 #define IH_TYPE_ATMELIMAGE	18	/* ATMEL ROM bootable Image	*/
 #define IH_TYPE_SOCFPGAIMAGE	19	/* Altera SOCFPGA Preloader	*/
 #define IH_TYPE_X86_SETUP	20	/* x86 setup.bin Image		*/
+#define IH_TYPE_LPC32XXIMAGE	21	/* x86 setup.bin Image		*/
 
 /*
  * Compression Types

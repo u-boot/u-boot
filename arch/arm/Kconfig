@@ -132,6 +132,11 @@ config TARGET_DEVKIT3250
 	bool "Support devkit3250"
 	select CPU_ARM926EJS
 
+config TARGET_WORK_92105
+	bool "Support work_92105"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
+
 config TARGET_MX25PDK
 	bool "Support mx25pdk"
 	select CPU_ARM926EJS
@@ -872,6 +877,7 @@ source "board/vpac270/Kconfig"
 source "board/wandboard/Kconfig"
 source "board/warp/Kconfig"
 source "board/woodburn/Kconfig"
+source "board/work-microwave/work_92105/Kconfig"
 source "board/xaeniax/Kconfig"
 source "board/xilinx/zynqmp/Kconfig"
 source "board/zipitz2/Kconfig"
