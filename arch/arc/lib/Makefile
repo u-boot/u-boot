@@ -4,6 +4,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+head-y := start.o
 obj-y += cache.o
 obj-y += cpu.o
 obj-y += interrupts.o
@@ -18,7 +19,6 @@ obj-y += memcpy-700.o
 obj-y += memset.o
 obj-y += reset.o
 obj-y += timer.o
-obj-y += start.o
 obj-y += ints_low.o
 obj-y += init_helpers.o
 

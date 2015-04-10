@@ -13,6 +13,7 @@ SECTIONS
 	.text :	{
 		*(.__text_start)
 		*(.__image_copy_start)
+		arch/arc/lib/start.o (.text*)
 		*(.text*)
 	}
 
