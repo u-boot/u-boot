@@ -77,6 +77,7 @@
 #define CONFIG_TI_SPI_MMAP
 #define CONFIG_SF_DEFAULT_SPEED                48000000
 #define CONFIG_DEFAULT_SPI_MODE                SPI_MODE_3
+#define CONFIG_QSPI_QUAD_SUPPORT
 
 /*
  * Default to using SPI for environment, etc.

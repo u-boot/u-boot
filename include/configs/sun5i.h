@@ -11,7 +11,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_CLK_FULL_SPEED		1008000000
 
 #ifdef CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_SUNXI

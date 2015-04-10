@@ -613,7 +613,7 @@ $ ./tools/buildman/buildman -b us-mem4 -sSdB
                  run_list_real                             1996    2000      +4
                  do_nandboot                                760     756      -4
                  do_mem_crc                                 168      68    -100
-            colibri_t20_iris:  all -9  rodata -29  text +20
+            colibri_t20    :  all -9  rodata -29  text +20
                u-boot: add: 1/0, grow: 2/-3 bytes: 140/-112 (28)
                  function                                   old     new   delta
                  hash_command                                80     160     +80

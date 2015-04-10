@@ -18,9 +18,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF547x_8x	/* define processor family */
-#define CONFIG_M548x		/* define processor type */
-#define CONFIG_M5485		/* define processor type */
 
 #define CONFIG_DISPLAY_BOARDINFO
 

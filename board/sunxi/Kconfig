@@ -132,6 +132,10 @@ endchoice
 
 endif
 
+config SYS_CLK_FREQ
+	default 912000000 if MACH_SUN7I
+	default 1008000000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
+
 config SYS_CONFIG_NAME
 	default "sun4i" if MACH_SUN4I
 	default "sun5i" if MACH_SUN5I

@@ -18,8 +18,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF532x		/* define processor family */
-#define CONFIG_M5373		/* define processor type */
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)

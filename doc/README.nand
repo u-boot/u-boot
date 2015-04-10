@@ -99,12 +99,6 @@ Configuration Options:
    CONFIG_CMD_NAND_TORTURE
       Enables the torture command (see description of this command below).
 
-   CONFIG_MTD_NAND_ECC_JFFS2
-      Define this if you want the Error Correction Code information in
-      the out-of-band data to be formatted to match the JFFS2 file system.
-      CONFIG_MTD_NAND_ECC_YAFFS would be another useful choice for
-      someone to implement.
-
    CONFIG_SYS_MAX_NAND_DEVICE
       The maximum number of NAND devices you want to support.
 
@@ -311,12 +305,6 @@ Platform specific options
 
 NOTE:
 =====
-
-The current NAND implementation is based on what is in recent
-Linux kernels.  The old legacy implementation has been removed.
-
-If you have board code which used CONFIG_NAND_LEGACY, you'll need
-to convert to the current NAND interface for it to continue to work.
 
 The Disk On Chip driver is currently broken and has been for some time.
 There is a driver in drivers/mtd/nand, taken from Linux, that works with

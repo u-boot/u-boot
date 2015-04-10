@@ -80,12 +80,6 @@ config DM_SPI_FLASH
 config DM_GPIO
 	default y
 
-config SYS_MALLOC_F
-	default y
-
-config SYS_MALLOC_F_LEN
-	default 0x400
-
 source "board/samsung/smdkv310/Kconfig"
 source "board/samsung/trats/Kconfig"
 source "board/samsung/universal_c210/Kconfig"

@@ -551,13 +551,7 @@ get_target_maintainers() {
 get_target_arch() {
 	local target=$1
 
-	# Automatic mode
-	local line=`awk '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
-
-	if [ -z "${line}" ] ; then echo "" ; return ; fi
-
-	set ${line}
-	echo "$2"
+	awk '$7 == "'$target'" { print $2 }' boards.cfg
 }
 
 list_target() {

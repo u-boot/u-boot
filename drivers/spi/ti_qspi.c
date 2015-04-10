@@ -109,10 +109,17 @@ static void ti_spi_setup_spi_register(struct ti_qspi_slave *qslave)
 	slave->op_mode_rx = 8;
 #endif
 
+#ifdef CONFIG_QSPI_QUAD_SUPPORT
+	memval |= (QSPI_CMD_READ_QUAD | QSPI_SETUP0_NUM_A_BYTES |
+			QSPI_SETUP0_NUM_D_BYTES_8_BITS |
+			QSPI_SETUP0_READ_QUAD | QSPI_CMD_WRITE |
+			QSPI_NUM_DUMMY_BITS);
+#else
 	memval |= QSPI_CMD_READ | QSPI_SETUP0_NUM_A_BYTES |
 			QSPI_SETUP0_NUM_D_BYTES_NO_BITS |
 			QSPI_SETUP0_READ_NORMAL | QSPI_CMD_WRITE |
 			QSPI_NUM_DUMMY_BITS;
+#endif
 
 	writel(memval, &qslave->base->setup0);
 }

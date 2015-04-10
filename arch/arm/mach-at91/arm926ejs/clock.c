@@ -195,50 +195,52 @@ int at91_clock_init(unsigned long main_clock)
 void at91_plla_init(u32 pllar)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-	int timeout = AT91_PLL_LOCK_TIMEOUT;
 
 	writel(pllar, &pmc->pllar);
-	while (!(readl(&pmc->sr) & (AT91_PMC_LOCKA | AT91_PMC_MCKRDY))) {
-		timeout--;
-		if (timeout == 0)
-			break;
-	}
+	while (!(readl(&pmc->sr) & AT91_PMC_LOCKA))
+		;
 }
 void at91_pllb_init(u32 pllbr)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-	int timeout = AT91_PLL_LOCK_TIMEOUT;
 
 	writel(pllbr, &pmc->pllbr);
-	while (!(readl(&pmc->sr) & (AT91_PMC_LOCKB | AT91_PMC_MCKRDY))) {
-		timeout--;
-		if (timeout == 0)
-			break;
-	}
+	while (!(readl(&pmc->sr) & AT91_PMC_LOCKB))
+		;
 }
 
 void at91_mck_init(u32 mckr)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
-	int timeout = AT91_PLL_LOCK_TIMEOUT;
 	u32 tmp;
 
 	tmp = readl(&pmc->mckr);
-	tmp &= ~(AT91_PMC_MCKR_PRES_MASK |
-		 AT91_PMC_MCKR_MDIV_MASK |
-		 AT91_PMC_MCKR_PLLADIV_MASK |
-		 AT91_PMC_MCKR_CSS_MASK);
-	tmp |= mckr & (AT91_PMC_MCKR_PRES_MASK |
-		       AT91_PMC_MCKR_MDIV_MASK |
-		       AT91_PMC_MCKR_PLLADIV_MASK |
-		       AT91_PMC_MCKR_CSS_MASK);
+	tmp &= ~AT91_PMC_MCKR_PRES_MASK;
+	tmp |= mckr & AT91_PMC_MCKR_PRES_MASK;
 	writel(tmp, &pmc->mckr);
+	while (!(readl(&pmc->sr) & AT91_PMC_MCKRDY))
+		;
 
-	while (!(readl(&pmc->sr) & AT91_PMC_MCKRDY)) {
-		timeout--;
-		if (timeout == 0)
-			break;
-	}
+	tmp = readl(&pmc->mckr);
+	tmp &= ~AT91_PMC_MCKR_MDIV_MASK;
+	tmp |= mckr & AT91_PMC_MCKR_MDIV_MASK;
+	writel(tmp, &pmc->mckr);
+	while (!(readl(&pmc->sr) & AT91_PMC_MCKRDY))
+		;
+
+	tmp = readl(&pmc->mckr);
+	tmp &= ~AT91_PMC_MCKR_PLLADIV_MASK;
+	tmp |= mckr & AT91_PMC_MCKR_PLLADIV_MASK;
+	writel(tmp, &pmc->mckr);
+	while (!(readl(&pmc->sr) & AT91_PMC_MCKRDY))
+		;
+
+	tmp = readl(&pmc->mckr);
+	tmp &= ~AT91_PMC_MCKR_CSS_MASK;
+	tmp |= mckr & AT91_PMC_MCKR_CSS_MASK;
+	writel(tmp, &pmc->mckr);
+	while (!(readl(&pmc->sr) & AT91_PMC_MCKRDY))
+		;
 }
 
 void at91_periph_clk_enable(int id)

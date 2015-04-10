@@ -11,9 +11,6 @@ endif
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x20000
 
-# Support generic board on m68k
-__HAVE_ARCH_GENERIC_BOARD := y
-
 PLATFORM_CPPFLAGS += -D__M68K__
 PLATFORM_LDFLAGS  += -n
 PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections

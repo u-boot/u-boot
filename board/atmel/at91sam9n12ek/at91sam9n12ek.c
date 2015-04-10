@@ -257,3 +257,76 @@ int dram_init(void)
 					CONFIG_SYS_SDRAM_SIZE);
 	return 0;
 }
+
+#if defined(CONFIG_SPL_BUILD)
+#include <spl.h>
+#include <nand.h>
+
+void at91_spl_board_init(void)
+{
+#ifdef CONFIG_SYS_USE_MMC
+	at91_mci_hw_init();
+#elif CONFIG_SYS_USE_NANDFLASH
+	at91sam9n12ek_nand_hw_init();
+#elif CONFIG_SYS_USE_SPIFLASH
+	at91_spi0_hw_init(1 << 4);
+#endif
+}
+
+#include <asm/arch/atmel_mpddrc.h>
+static void ddr2_conf(struct atmel_mpddr *ddr2)
+{
+	ddr2->md = (ATMEL_MPDDRC_MD_DBW_16_BITS | ATMEL_MPDDRC_MD_DDR2_SDRAM);
+
+	ddr2->cr = (ATMEL_MPDDRC_CR_NC_COL_10 |
+		    ATMEL_MPDDRC_CR_NR_ROW_13 |
+		    ATMEL_MPDDRC_CR_CAS_DDR_CAS3 |
+		    ATMEL_MPDDRC_CR_NB_8BANKS |
+		    ATMEL_MPDDRC_CR_DECOD_INTERLEAVED);
+
+	ddr2->rtr = 0x411;
+
+	ddr2->tpr0 = (6 << ATMEL_MPDDRC_TPR0_TRAS_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TRCD_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TWR_OFFSET |
+		      8 << ATMEL_MPDDRC_TPR0_TRC_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TRP_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TRRD_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TWTR_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TMRD_OFFSET);
+
+	ddr2->tpr1 = (2 << ATMEL_MPDDRC_TPR1_TXP_OFFSET |
+		      200 << ATMEL_MPDDRC_TPR1_TXSRD_OFFSET |
+		      19 << ATMEL_MPDDRC_TPR1_TXSNR_OFFSET |
+		      18 << ATMEL_MPDDRC_TPR1_TRFC_OFFSET);
+
+	ddr2->tpr2 = (2 << ATMEL_MPDDRC_TPR2_TRTP_OFFSET |
+		      3 << ATMEL_MPDDRC_TPR2_TRPA_OFFSET |
+		      7 << ATMEL_MPDDRC_TPR2_TXARDS_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR2_TXARD_OFFSET);
+}
+
+void mem_init(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
+	struct atmel_mpddr ddr2;
+	unsigned long csa;
+
+	ddr2_conf(&ddr2);
+
+	/* enable DDR2 clock */
+	writel(0x4, &pmc->scer);
+
+	/* Chip select 1 is for DDR2/SDRAM */
+	csa = readl(&matrix->ebicsa);
+	csa |= AT91_MATRIX_EBI_CS1A_SDRAMC;
+	csa &= ~AT91_MATRIX_EBI_DBPU_OFF;
+	csa |= AT91_MATRIX_EBI_DBPD_OFF;
+	csa |= AT91_MATRIX_EBI_EBI_IOSR_NORMAL;
+	writel(csa, &matrix->ebicsa);
+
+	/* DDRAM2 Controller initialize */
+	ddr2_init(ATMEL_BASE_CS1, &ddr2);
+}
+#endif

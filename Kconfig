@@ -54,7 +54,7 @@ config CC_OPTIMIZE_FOR_SIZE
 
 config SYS_MALLOC_F
 	bool "Enable malloc() pool before relocation"
-	default 0x400
+	default y if DM
 	help
 	  Before relocation memory is very limited on many platforms. Still,
 	  we can provide a small malloc() pool if needed. Driver model in
@@ -184,7 +184,7 @@ config SYS_TEXT_BASE
 	  TODO: Move CONFIG_SYS_TEXT_BASE for all the architecture
 
 config SYS_CLK_FREQ
-	depends on ARC
+	depends on ARC || ARCH_SUNXI
 	int "CPU clock frequency"
 	help
 	  TODO: Move CONFIG_SYS_CLK_FREQ for all the architecture

@@ -405,18 +405,6 @@ static int nand_davinci_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 		goto err;
 	}
 
-#ifdef CONFIG_MTD_NAND_VERIFY_WRITE
-	/* Send command to read back the data */
-	chip->cmdfunc(mtd, NAND_CMD_READ0, 0, page);
-
-	if (chip->verify_buf(mtd, buf, mtd->writesize)) {
-		ret = -EIO;
-		goto err;
-	}
-
-	/* Make sure the next page prog is preceded by a status read */
-	chip->cmdfunc(mtd, NAND_CMD_STATUS, -1, -1);
-#endif
 err:
 	/* restore ECC layout */
 	if (page < CONFIG_KEYSTONE_NAND_MAX_RBL_PAGE) {

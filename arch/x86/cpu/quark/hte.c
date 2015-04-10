@@ -20,9 +20,9 @@
  */
 static void hte_enable_all_errors(void)
 {
-	msg_port_write(HTE, 0x000200A2, 0xFFFFFFFF);
-	msg_port_write(HTE, 0x000200A3, 0x000000FF);
-	msg_port_write(HTE, 0x000200A4, 0x00000000);
+	msg_port_write(HTE, 0x000200a2, 0xffffffff);
+	msg_port_write(HTE, 0x000200a3, 0x000000ff);
+	msg_port_write(HTE, 0x000200a4, 0x00000000);
 }
 
 /**
@@ -32,7 +32,7 @@ static void hte_enable_all_errors(void)
  */
 static u32 hte_check_errors(void)
 {
-	return msg_port_read(HTE, 0x000200A7);
+	return msg_port_read(HTE, 0x000200a7);
 }
 
 /**
@@ -44,11 +44,11 @@ static void hte_wait_for_complete(void)
 
 	ENTERFN();
 
-	do {} while ((msg_port_read(HTE, 0x00020012) & BIT30) != 0);
+	do {} while ((msg_port_read(HTE, 0x00020012) & (1 << 30)) != 0);
 
 	tmp = msg_port_read(HTE, 0x00020011);
-	tmp |= BIT9;
-	tmp &= ~(BIT12 | BIT13);
+	tmp |= (1 << 9);
+	tmp &= ~((1 << 12) | (1 << 13));
 	msg_port_write(HTE, 0x00020011, tmp);
 
 	LEAVEFN();
@@ -65,9 +65,9 @@ static void hte_clear_error_regs(void)
 	 * Clear all HTE errors and enable error checking
 	 * for burst and chunk.
 	 */
-	tmp = msg_port_read(HTE, 0x000200A1);
-	tmp |= BIT8;
-	msg_port_write(HTE, 0x000200A1, tmp);
+	tmp = msg_port_read(HTE, 0x000200a1);
+	tmp |= (1 << 8);
+	msg_port_write(HTE, 0x000200a1, tmp);
 }
 
 /**
@@ -91,25 +91,25 @@ static u16 hte_basic_data_cmp(struct mrc_params *mrc_params, u32 addr,
 	u32 offset;
 
 	if (first_run) {
-		msg_port_write(HTE, 0x00020020, 0x01B10021);
+		msg_port_write(HTE, 0x00020020, 0x01b10021);
 		msg_port_write(HTE, 0x00020021, 0x06000000);
 		msg_port_write(HTE, 0x00020022, addr >> 6);
 		msg_port_write(HTE, 0x00020062, 0x00800015);
-		msg_port_write(HTE, 0x00020063, 0xAAAAAAAA);
-		msg_port_write(HTE, 0x00020064, 0xCCCCCCCC);
-		msg_port_write(HTE, 0x00020065, 0xF0F0F0F0);
+		msg_port_write(HTE, 0x00020063, 0xaaaaaaaa);
+		msg_port_write(HTE, 0x00020064, 0xcccccccc);
+		msg_port_write(HTE, 0x00020065, 0xf0f0f0f0);
 		msg_port_write(HTE, 0x00020061, 0x00030008);
 
 		if (mode == WRITE_TRAIN)
-			pattern = 0xC33C0000;
+			pattern = 0xc33c0000;
 		else /* READ_TRAIN */
-			pattern = 0xAA5555AA;
+			pattern = 0xaa5555aa;
 
-		for (offset = 0x80; offset <= 0x8F; offset++)
+		for (offset = 0x80; offset <= 0x8f; offset++)
 			msg_port_write(HTE, offset, pattern);
 	}
 
-	msg_port_write(HTE, 0x000200A1, 0xFFFF1000);
+	msg_port_write(HTE, 0x000200a1, 0xffff1000);
 	msg_port_write(HTE, 0x00020011, 0x00011000);
 	msg_port_write(HTE, 0x00020011, 0x00011100);
 
@@ -119,7 +119,7 @@ static u16 hte_basic_data_cmp(struct mrc_params *mrc_params, u32 addr,
 	 * Return bits 15:8 of HTE_CH0_ERR_XSTAT to check for
 	 * any bytelane errors.
 	 */
-	return (hte_check_errors() >> 8) & 0xFF;
+	return (hte_check_errors() >> 8) & 0xff;
 }
 
 /**
@@ -153,7 +153,7 @@ static u16 hte_rw_data_cmp(struct mrc_params *mrc_params, u32 addr,
 		msg_port_write(HTE, 0x00020024, 0x06070000);
 		msg_port_write(HTE, 0x00020022, addr >> 6);
 		msg_port_write(HTE, 0x00020025, addr >> 6);
-		msg_port_write(HTE, 0x00020062, 0x0000002A);
+		msg_port_write(HTE, 0x00020062, 0x0000002a);
 		msg_port_write(HTE, 0x00020063, seed_victim);
 		msg_port_write(HTE, 0x00020064, seed_aggressor);
 		msg_port_write(HTE, 0x00020065, seed_victim);
@@ -163,21 +163,21 @@ static u16 hte_rw_data_cmp(struct mrc_params *mrc_params, u32 addr,
 		 *
 		 * Start with bit0
 		 */
-		for (offset = 0x80; offset <= 0x8F; offset++) {
+		for (offset = 0x80; offset <= 0x8f; offset++) {
 			if ((offset % 8) == victim_bit)
 				msg_port_write(HTE, offset, 0x55555555);
 			else
-				msg_port_write(HTE, offset, 0xCCCCCCCC);
+				msg_port_write(HTE, offset, 0xcccccccc);
 		}
 
 		msg_port_write(HTE, 0x00020061, 0x00000000);
 		msg_port_write(HTE, 0x00020066, 0x03440000);
-		msg_port_write(HTE, 0x000200A1, 0xFFFF1000);
+		msg_port_write(HTE, 0x000200a1, 0xffff1000);
 	}
 
 	tmp = 0x10001000 | (loop_cnt << 16);
 	msg_port_write(HTE, 0x00020011, tmp);
-	msg_port_write(HTE, 0x00020011, tmp | BIT8);
+	msg_port_write(HTE, 0x00020011, tmp | (1 << 8));
 
 	hte_wait_for_complete();
 
@@ -185,7 +185,7 @@ static u16 hte_rw_data_cmp(struct mrc_params *mrc_params, u32 addr,
 	 * Return bits 15:8 of HTE_CH0_ERR_XSTAT to check for
 	 * any bytelane errors.
 	 */
-	return (hte_check_errors() >> 8) & 0xFF;
+	return (hte_check_errors() >> 8) & 0xff;
 }
 
 /**
@@ -219,14 +219,14 @@ u32 hte_mem_init(struct mrc_params *mrc_params, u8 flag)
 
 	msg_port_write(HTE, 0x00020062, 0x00000015);
 
-	for (offset = 0x80; offset <= 0x8F; offset++)
-		msg_port_write(HTE, offset, ((offset & 1) ? 0xA55A : 0x5AA5));
+	for (offset = 0x80; offset <= 0x8f; offset++)
+		msg_port_write(HTE, offset, ((offset & 1) ? 0xa55a : 0x5aa5));
 
 	msg_port_write(HTE, 0x00020021, 0x00000000);
 	msg_port_write(HTE, 0x00020022, (mrc_params->mem_size >> 6) - 1);
-	msg_port_write(HTE, 0x00020063, 0xAAAAAAAA);
-	msg_port_write(HTE, 0x00020064, 0xCCCCCCCC);
-	msg_port_write(HTE, 0x00020065, 0xF0F0F0F0);
+	msg_port_write(HTE, 0x00020063, 0xaaaaaaaa);
+	msg_port_write(HTE, 0x00020064, 0xcccccccc);
+	msg_port_write(HTE, 0x00020065, 0xf0f0f0f0);
 	msg_port_write(HTE, 0x00020066, 0x03000000);
 
 	switch (flag) {
@@ -243,7 +243,7 @@ u32 hte_mem_init(struct mrc_params *mrc_params, u8 flag)
 		break;
 	default:
 		DPF(D_INFO, "Unknown parameter for flag: %d\n", flag);
-		return 0xFFFFFFFF;
+		return 0xffffffff;
 	}
 
 	DPF(D_INFO, "hte_mem_init");
@@ -379,16 +379,16 @@ void hte_mem_op(u32 addr, u8 first_run, u8 is_write)
 		msg_port_write(HTE, 0x00020021, 0x06000000);
 		msg_port_write(HTE, 0x00020022, addr >> 6);
 		msg_port_write(HTE, 0x00020062, 0x00800015);
-		msg_port_write(HTE, 0x00020063, 0xAAAAAAAA);
-		msg_port_write(HTE, 0x00020064, 0xCCCCCCCC);
-		msg_port_write(HTE, 0x00020065, 0xF0F0F0F0);
+		msg_port_write(HTE, 0x00020063, 0xaaaaaaaa);
+		msg_port_write(HTE, 0x00020064, 0xcccccccc);
+		msg_port_write(HTE, 0x00020065, 0xf0f0f0f0);
 		msg_port_write(HTE, 0x00020061, 0x00030008);
 
-		for (offset = 0x80; offset <= 0x8F; offset++)
-			msg_port_write(HTE, offset, 0xC33C0000);
+		for (offset = 0x80; offset <= 0x8f; offset++)
+			msg_port_write(HTE, offset, 0xc33c0000);
 	}
 
-	msg_port_write(HTE, 0x000200A1, 0xFFFF1000);
+	msg_port_write(HTE, 0x000200a1, 0xffff1000);
 	msg_port_write(HTE, 0x00020011, 0x00011000);
 	msg_port_write(HTE, 0x00020011, 0x00011100);
 

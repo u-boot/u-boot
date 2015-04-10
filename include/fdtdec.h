@@ -347,7 +347,10 @@ int fdtdec_get_pci_vendev(const void *blob, int node,
 
 /**
  * Look at the pci address of a device node that represents a PCI device
- * and parse the bus, device and function number from it.
+ * and parse the bus, device and function number from it. For some cases
+ * like the bus number encoded in reg property is not correct after pci
+ * enumeration, this function looks through the node's compatible strings
+ * to get these numbers extracted instead.
  *
  * @param blob		FDT blob
  * @param node		node to examine

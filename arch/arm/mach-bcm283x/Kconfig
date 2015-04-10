@@ -1,0 +1,40 @@
+menu "Broadcom BCM283X family"
+	depends on ARCH_BCM283X
+
+choice
+	prompt "Broadcom BCM283X board select"
+
+config TARGET_RPI
+	bool "Raspberry Pi"
+	select CPU_ARM1176
+
+config TARGET_RPI_2
+	bool "Raspberry Pi 2"
+	select CPU_V7
+
+endchoice
+
+config DM
+	default y
+
+config DM_SERIAL
+	default y
+
+config DM_GPIO
+	default y
+
+config SYS_BOARD
+	default "rpi" if TARGET_RPI
+	default "rpi_2" if TARGET_RPI_2
+
+config SYS_VENDOR
+	default "raspberrypi"
+
+config SYS_SOC
+	default "bcm283x"
+
+config SYS_CONFIG_NAME
+	default "rpi" if TARGET_RPI
+	default "rpi_2" if TARGET_RPI_2
+
+endmenu

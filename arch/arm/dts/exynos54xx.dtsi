@@ -168,6 +168,7 @@
 	fimd@14400000 {
 		/* sysmmu is not used in U-Boot */
 		samsung,disable-sysmmu;
+		samsung,pwm-out-gpio = <&gpb2 0 GPIO_ACTIVE_HIGH>;
 	};
 
 	dp@145b0000 {

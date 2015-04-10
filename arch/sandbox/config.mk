@@ -2,7 +2,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 
 PLATFORM_CPPFLAGS += -D__SANDBOX__ -U_FORTIFY_SOURCE
-PLATFORM_CPPFLAGS += -DCONFIG_ARCH_MAP_SYSMEM -DCONFIG_SYS_GENERIC_BOARD
+PLATFORM_CPPFLAGS += -DCONFIG_ARCH_MAP_SYSMEM
 PLATFORM_LIBS += -lrt
 
 # Define this to avoid linking with SDL, which requires SDL libraries
@@ -15,9 +15,6 @@ PLATFORM_LIBS += $(shell sdl-config --libs)
 PLATFORM_CPPFLAGS += $(shell sdl-config --cflags)
 endif
 endif
-
-# Support generic board on sandbox
-__HAVE_ARCH_GENERIC_BOARD := y
 
 cmd_u-boot__ = $(CC) -o $@ -T u-boot.lds \
 	-Wl,--start-group $(u-boot-main) -Wl,--end-group \

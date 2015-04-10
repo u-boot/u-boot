@@ -453,7 +453,7 @@ static void mxs_nand_read_buf(struct mtd_info *mtd, uint8_t *buf, int length)
 	d->cmd.data =
 		MXS_DMA_DESC_COMMAND_NO_DMAXFER | MXS_DMA_DESC_IRQ |
 		MXS_DMA_DESC_NAND_WAIT_4_READY | MXS_DMA_DESC_DEC_SEM |
-		MXS_DMA_DESC_WAIT4END | (4 << MXS_DMA_DESC_PIO_WORDS_OFFSET);
+		MXS_DMA_DESC_WAIT4END | (1 << MXS_DMA_DESC_PIO_WORDS_OFFSET);
 
 	d->cmd.address = 0;
 
@@ -510,7 +510,7 @@ static void mxs_nand_write_buf(struct mtd_info *mtd, const uint8_t *buf,
 	d->cmd.data =
 		MXS_DMA_DESC_COMMAND_DMA_READ | MXS_DMA_DESC_IRQ |
 		MXS_DMA_DESC_DEC_SEM | MXS_DMA_DESC_WAIT4END |
-		(4 << MXS_DMA_DESC_PIO_WORDS_OFFSET) |
+		(1 << MXS_DMA_DESC_PIO_WORDS_OFFSET) |
 		(length << MXS_DMA_DESC_BYTES_OFFSET);
 
 	d->cmd.address = (dma_addr_t)nand_info->data_buf;

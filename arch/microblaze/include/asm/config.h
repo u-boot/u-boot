@@ -12,6 +12,5 @@
 #endif
 
 #define CONFIG_NR_DRAM_BANKS	1
-#define CONFIG_SYS_GENERIC_BOARD
 
 #endif

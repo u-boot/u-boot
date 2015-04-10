@@ -46,6 +46,7 @@ obj-$(CONFIG_DRIVER_NE2000) += ne2000.o ne2000_base.o
 obj-$(CONFIG_DRIVER_AX88796L) += ax88796.o ne2000_base.o
 obj-$(CONFIG_NETCONSOLE) += netconsole.o
 obj-$(CONFIG_NS8382X) += ns8382x.o
+obj-$(CONFIG_PCH_GBE) += pch_gbe.o
 obj-$(CONFIG_PCNET) += pcnet.o
 obj-$(CONFIG_RTL8139) += rtl8139.o
 obj-$(CONFIG_RTL8169) += rtl8169.o

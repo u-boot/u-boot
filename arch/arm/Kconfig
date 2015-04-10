@@ -286,13 +286,8 @@ config TARGET_MX35PDK
 	bool "Support mx35pdk"
 	select CPU_ARM1136
 
-config TARGET_RPI
-	bool "Support rpi"
-	select CPU_ARM1176
-
-config TARGET_RPI_2
-	bool "Support rpi_2"
-	select CPU_V7
+config ARCH_BCM283X
+	bool "Broadcom BCM283X family"
 
 config TARGET_INTEGRATORAP_CM946ES
 	bool "Support integratorap_cm946es"
@@ -432,6 +427,10 @@ config ARCH_KEYSTONE
 	bool "TI Keystone"
 	select CPU_V7
 	select SUPPORT_SPL
+
+config ARCH_MX6
+	bool "Freescale MX6"
+	select CPU_V7
 
 config TARGET_M53EVK
 	bool "Support m53evk"
@@ -723,9 +722,9 @@ endchoice
 
 source "arch/arm/mach-at91/Kconfig"
 
-source "arch/arm/mach-davinci/Kconfig"
+source "arch/arm/mach-bcm283x/Kconfig"
 
-source "arch/arm/cpu/arm1176/bcm2835/Kconfig"
+source "arch/arm/mach-davinci/Kconfig"
 
 source "arch/arm/cpu/armv7/exynos/Kconfig"
 
@@ -734,6 +733,8 @@ source "arch/arm/mach-highbank/Kconfig"
 source "arch/arm/mach-keystone/Kconfig"
 
 source "arch/arm/mach-kirkwood/Kconfig"
+
+source "arch/arm/cpu/armv7/mx6/Kconfig"
 
 source "arch/arm/mach-nomadik/Kconfig"
 
@@ -760,6 +761,8 @@ source "arch/arm/cpu/armv7/zynq/Kconfig"
 source "arch/arm/cpu/armv7/Kconfig"
 
 source "arch/arm/cpu/armv8/Kconfig"
+
+source "arch/arm/imx-common/Kconfig"
 
 source "board/aristainetos/Kconfig"
 source "board/BuR/kwb/Kconfig"
@@ -834,8 +837,6 @@ source "board/palmtreo680/Kconfig"
 source "board/phytec/pcm051/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
 source "board/pxa255_idp/Kconfig"
-source "board/raspberrypi/rpi/Kconfig"
-source "board/raspberrypi/rpi_2/Kconfig"
 source "board/samsung/smdk2410/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
 source "board/scb9328/Kconfig"

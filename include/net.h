@@ -191,6 +191,8 @@ struct ethernet_hdr {
 /* Ethernet header size */
 #define ETHER_HDR_SIZE	(sizeof(struct ethernet_hdr))
 
+#define ETH_FCS_LEN	4		/* Octets in the FCS		*/
+
 struct e802_hdr {
 	uchar		et_dest[6];	/* Destination node		*/
 	uchar		et_src[6];	/* Source node			*/

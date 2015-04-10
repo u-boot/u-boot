@@ -193,6 +193,9 @@
 #define cpu_is_sama5d44()	(cpu_is_sama5d4() && \
 		(get_extension_chip_id() == ARCH_EXID_SAMA5D44))
 
+/* Timer */
+#define CONFIG_SYS_TIMER_COUNTER	0xfc06863c
+
 /*
  * No PMECC Galois table in ROM
  */

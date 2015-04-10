@@ -1,7 +1,7 @@
 VERSION = 2015
 PATCHLEVEL = 04
 SUBLEVEL =
-EXTRAVERSION = -rc4
+EXTRAVERSION = -rc5
 NAME =
 
 # *DOCUMENTATION*
@@ -469,10 +469,10 @@ KBUILD_DEFCONFIG := sandbox_defconfig
 export KBUILD_DEFCONFIG KBUILD_KCONFIG
 
 config: scripts_basic outputmakefile FORCE
-	+$(Q)$(CONFIG_SHELL) $(srctree)/scripts/multiconfig.sh $@
+	$(Q)$(MAKE) $(build)=scripts/kconfig $@
 
 %config: scripts_basic outputmakefile FORCE
-	+$(Q)$(CONFIG_SHELL) $(srctree)/scripts/multiconfig.sh $@
+	$(Q)$(MAKE) $(build)=scripts/kconfig $@
 
 else
 # ===========================================================================
@@ -496,6 +496,15 @@ $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
 # we execute the config step to be sure to catch updated Kconfig files
 include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+	@# If the following part fails, include/config/auto.conf should be
+	@# deleted so "make silentoldconfig" will be re-run on the next build.
+	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.autoconf || \
+		{ rm -f include/config/auto.conf; false; }
+	@# include/config.h has been updated after "make silentoldconfig".
+	@# We need to touch include/config/auto.conf so it gets newer
+	@# than include/config.h.
+	@# Otherwise, 'make silentoldconfig' would be invoked twice.
+	$(Q)touch include/config/auto.conf
 
 -include include/autoconf.mk
 -include include/autoconf.mk.dep
@@ -504,11 +513,15 @@ include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 # is up-to-date. When we switch to a different board configuration, old CONFIG
 # macros are still remaining in include/config/auto.conf. Without the following
 # gimmick, wrong config.mk would be included leading nasty warnings/errors.
-autoconf_is_current := $(if $(wildcard $(KCONFIG_CONFIG)),$(shell find . \
-		-path ./include/config/auto.conf -newer $(KCONFIG_CONFIG)))
-ifneq ($(autoconf_is_current),)
+ifneq ($(wildcard $(KCONFIG_CONFIG)),)
+ifneq ($(wildcard include/config/auto.conf),)
+autoconf_is_old := $(shell find . -path ./$(KCONFIG_CONFIG) -newer \
+						include/config/auto.conf)
+ifeq ($(autoconf_is_old),)
 include $(srctree)/config.mk
 include $(srctree)/arch/$(ARCH)/Makefile
+endif
+endif
 endif
 
 # If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
@@ -1154,7 +1167,7 @@ prepare2: prepare3 outputmakefile
 
 prepare1: prepare2 $(version_h) $(timestamp_h) \
                    include/config/auto.conf
-ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
+ifeq ($(CONFIG_HAVE_GENERIC_BOARD),)
 ifeq ($(CONFIG_SYS_GENERIC_BOARD),y)
 	@echo >&2 "  Your architecture does not support generic board."
 	@echo >&2 "  Please undefine CONFIG_SYS_GENERIC_BOARD in your board config file."

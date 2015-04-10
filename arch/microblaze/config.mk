@@ -19,4 +19,3 @@ PLATFORM_CPPFLAGS += -ffixed-r31 -D__microblaze__
 ifeq ($(CONFIG_SPL_BUILD),)
 PLATFORM_CPPFLAGS += -fPIC
 endif
-__HAVE_ARCH_GENERIC_BOARD := y

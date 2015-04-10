@@ -32,9 +32,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!ds)
 		return NULL;
 
-	ds->slave.bus = bus;
-	ds->slave.cs = cs;
-
 	switch (bus) {
 	case SPI0_BUS:
 		ds->regs = (struct davinci_spi_regs *)SPI0_BASE;

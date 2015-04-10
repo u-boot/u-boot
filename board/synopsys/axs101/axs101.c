@@ -27,9 +27,9 @@ int board_mmc_init(bd_t *bis)
 	host->ioaddr = (void *)ARC_DWMMC_BASE;
 	host->buswidth = 4;
 	host->dev_index = 0;
-	host->bus_hz = 25000000;
+	host->bus_hz = 50000000;
 
-	add_dwmci(host, 52000000, 400000);
+	add_dwmci(host, host->bus_hz, 400000);
 
 	return 0;
 }

@@ -136,7 +136,6 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND
 #define CONFIG_NAND_FSL_ELBC
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)

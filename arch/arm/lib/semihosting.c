@@ -13,7 +13,7 @@
  * for them.
  */
 #include <common.h>
-#include <asm/semihosting.h>
+#include <command.h>
 
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02
@@ -26,7 +26,7 @@
 /*
  * Call the handler
  */
-static long smh_trap(unsigned int sysnum, void *addr)
+static noinline long smh_trap(unsigned int sysnum, void *addr)
 {
 	register long result asm("r0");
 #if defined(CONFIG_ARM64)
@@ -144,93 +144,71 @@ static long smh_len_fd(long fd)
 	return ret;
 }
 
-/*
- * Open, load a file into memory, and close it. Check that the available space
- * is sufficient to store the entire file. Return the bytes actually read from
- * the file as seen by the read function. The verbose flag enables some extra
- * printing of successful read status.
- */
-int smh_load(const char *fname, void *memp, int avail, int verbose)
+static int smh_load_file(const char * const name, ulong load_addr,
+			 ulong *end_addr)
 {
-	long ret;
 	long fd;
-	size_t len;
+	long len;
+	long ret;
 
-	ret = -1;
-
-	debug("%s: fname \'%s\', avail %u, memp %p\n", __func__, fname,
-	      avail, memp);
-
-	/* Open the file */
-	fd = smh_open(fname, "rb");
+	fd = smh_open(name, "rb");
 	if (fd == -1)
 		return -1;
 
-	/* Get the file length */
-	ret = smh_len_fd(fd);
-	if (ret == -1) {
-		smh_close(fd);
-		return -1;
-	}
-
-	/* Check that the file will fit in the supplied buffer */
-	if (ret > avail) {
-		printf("%s: ERROR ret %ld, avail %u\n", __func__, ret,
-		       avail);
-		smh_close(fd);
-		return -1;
-	}
-
-	len = ret;
-
-	/* Read the file into the buffer */
-	ret = smh_read(fd, memp, len);
-	if (ret == 0) {
-		/* Print successful load information if requested */
-		if (verbose) {
-			printf("\n%s\n", fname);
-			printf("    0x%8p dest\n", memp);
-			printf("    0x%08lx size\n", len);
-			printf("    0x%08x avail\n", avail);
-		}
-	}
-
-	/* Close the file */
-	smh_close(fd);
-
-	return ret;
-}
-
-/*
- * Get the file length from the filename
- */
-long smh_len(const char *fname)
-{
-	long ret;
-	long fd;
-	long len;
-
-	debug("%s: file \'%s\'\n", __func__, fname);
-
-	/* Open the file */
-	fd = smh_open(fname, "rb");
-	if (fd < 0)
-		return fd;
-
-	/* Get the file length */
 	len = smh_len_fd(fd);
 	if (len < 0) {
 		smh_close(fd);
-		return len;
+		return -1;
 	}
 
-	/* Close the file */
-	ret = smh_close(fd);
-	if (ret < 0)
-		return ret;
+	ret = smh_read(fd, (void *)load_addr, len);
+	smh_close(fd);
 
-	debug("%s: returning len %ld\n", __func__, len);
+	if (ret == 0) {
+		*end_addr = load_addr + len - 1;
+		printf("loaded file %s from %08lX to %08lX, %08lX bytes\n",
+		       name,
+		       load_addr,
+		       *end_addr,
+		       len);
+	} else {
+		printf("read failed\n");
+		return 0;
+	}
 
-	/* Return the file length (or -1 error indication) */
-	return len;
+	return 0;
 }
+
+static int do_smhload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (argc == 3 || argc == 4) {
+		ulong load_addr;
+		ulong end_addr = 0;
+		ulong ret;
+		char end_str[64];
+
+		load_addr = simple_strtoul(argv[2], NULL, 16);
+		if (!load_addr)
+			return -1;
+
+		ret = smh_load_file(argv[1], load_addr, &end_addr);
+		if (ret < 0)
+			return 1;
+
+		/* Optionally save returned end to the environment */
+		if (argc == 4) {
+			sprintf(end_str, "0x%08lx", end_addr);
+			setenv(argv[3], end_str);
+		}
+	} else {
+		return CMD_RET_USAGE;
+	}
+	return 0;
+}
+
+U_BOOT_CMD(smhload, 4, 0, do_smhload, "load a file using semihosting",
+	   "<file> 0x<address> [end var]\n"
+	   "    - load a semihosted file to the address specified\n"
+	   "      if the optional [end var] is specified, the end\n"
+	   "      address of the file will be stored in this environment\n"
+	   "      variable.\n");

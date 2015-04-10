@@ -441,29 +441,11 @@ void lcd_enable(void)
 #error "LCD-support with a suitable FB-Driver is mandatory !"
 #endif /* CONFIG_LCD */
 
-void blink(u32 blinks, u32 intervall, u32 pin)
-{
-	gpio_direction_output(pin, 0);
-	int val = 0;
-
-	do {
-		val ^= 0x01;
-		gpio_set_value(pin, val);
-		mdelay(intervall);
-	} while (blinks--);
-
-	gpio_set_value(pin, 0);
-}
-
 #ifdef CONFIG_SPL_BUILD
 void pmicsetup(u32 mpupll)
 {
 	int mpu_vdd;
 	int usb_cur_lim;
-
-	/* setup I2C */
-	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 
 	if (i2c_probe(TPS65217_CHIP_PM)) {
 		puts("PMIC (0x24) not found! skip further initalization.\n");

@@ -18,9 +18,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF52x2			/* define processor family */
-#define CONFIG_M5249			/* define processor type */
-
 #define CONFIG_MCFTMR
 
 #define CONFIG_MCFUART

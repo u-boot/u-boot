@@ -17,9 +17,6 @@ config TEGRA124
 
 endchoice
 
-config SYS_MALLOC_F
-	default y
-
 config SYS_MALLOC_F_LEN
 	default 0x1800
 

@@ -57,6 +57,3 @@ LDFLAGS_FINAL += -pie
 
 # Load address for standalone apps
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x82000000
-
-# Support generic board on ARC
-__HAVE_ARCH_GENERIC_BOARD := y

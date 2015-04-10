@@ -18,8 +18,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF5441x	/* define processor family */
-#define CONFIG_M54418		/* define processor type */
 #define CONFIG_M54418TWR	/* M54418TWR board */
 
 #define CONFIG_MCFUART
@@ -55,7 +53,6 @@
 #define CONFIG_CMD_MISC
 #define CONFIG_CMD_MII
 #undef CONFIG_CMD_NAND
-#undef CONFIG_CMD_NAND_YAFFS
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING

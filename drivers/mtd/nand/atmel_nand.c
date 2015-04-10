@@ -1456,6 +1456,9 @@ int board_nand_init(struct nand_chip *nand)
 	nand->dev_ready = at91_nand_wait_ready;
 #endif
 	nand->chip_delay = 20;
+#ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
+	nand->bbt_options |= NAND_BBT_USE_FLASH;
+#endif
 
 #ifdef CONFIG_ATMEL_NAND_HWECC
 #ifdef CONFIG_ATMEL_NAND_HW_PMECC
@@ -1522,6 +1525,9 @@ int atmel_nand_chip_init(int devnum, ulong base_addr)
 	nand->dev_ready = at91_nand_ready;
 #endif
 	nand->chip_delay = 75;
+#ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
+	nand->bbt_options |= NAND_BBT_USE_FLASH;
+#endif
 
 	ret = nand_scan_ident(mtd, CONFIG_SYS_NAND_MAX_CHIPS, NULL);
 	if (ret)

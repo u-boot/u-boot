@@ -106,12 +106,6 @@ config DM_GPIO
 config DM_SERIAL
 	default y if DM
 
-config SYS_MALLOC_F
-	default y if DM
-
-config SYS_MALLOC_F_LEN
-	default 0x400 if DM
-
 config SYS_SOC
 	default "omap3"
 
