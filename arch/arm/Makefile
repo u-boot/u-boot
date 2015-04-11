@@ -2,6 +2,11 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TEGRA),yy)
+CONFIG_CPU_V7=
+CONFIG_CPU_ARM720T=y
+endif
+
 # This selects which instruction set is used.
 arch-$(CONFIG_CPU_ARM720T)	=-march=armv4
 arch-$(CONFIG_CPU_ARM920T)	=-march=armv4
