@@ -398,15 +398,18 @@ static void dwc_otg_core_init(struct dwc2_core_regs *regs)
  * @param hc Information needed to initialize the host channel
  */
 static void dwc_otg_hc_init(struct dwc2_core_regs *regs, uint8_t hc_num,
-		uint8_t dev_addr, uint8_t ep_num, uint8_t ep_is_in,
-		uint8_t ep_type, uint16_t max_packet)
+		struct usb_device *dev, uint8_t dev_addr, uint8_t ep_num,
+		uint8_t ep_is_in, uint8_t ep_type, uint16_t max_packet)
 {
 	struct dwc2_hc_regs *hc_regs = &regs->hc_regs[hc_num];
-	const uint32_t hcchar = (dev_addr << DWC2_HCCHAR_DEVADDR_OFFSET) |
-				(ep_num << DWC2_HCCHAR_EPNUM_OFFSET) |
-				(ep_is_in << DWC2_HCCHAR_EPDIR_OFFSET) |
-				(ep_type << DWC2_HCCHAR_EPTYPE_OFFSET) |
-				(max_packet << DWC2_HCCHAR_MPS_OFFSET);
+	uint32_t hcchar = (dev_addr << DWC2_HCCHAR_DEVADDR_OFFSET) |
+			  (ep_num << DWC2_HCCHAR_EPNUM_OFFSET) |
+			  (ep_is_in << DWC2_HCCHAR_EPDIR_OFFSET) |
+			  (ep_type << DWC2_HCCHAR_EPTYPE_OFFSET) |
+			  (max_packet << DWC2_HCCHAR_MPS_OFFSET);
+
+	if (dev->speed == USB_SPEED_LOW)
+		hcchar |= DWC2_HCCHAR_LSPDDEV;
 
 	/* Clear old interrupt conditions for this host channel. */
 	writel(0x3fff, &hc_regs->hcint);
@@ -766,8 +769,8 @@ int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
 
 	do {
 		/* Initialize channel */
-		dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, devnum, ep, in, eptype,
-				max);
+		dwc_otg_hc_init(regs, DWC2_HC_CHANNEL, dev, devnum, ep, in,
+				eptype, max);
 
 		xfer_len = len - done;
 		if (xfer_len > CONFIG_DWC2_MAX_TRANSFER_SIZE)
