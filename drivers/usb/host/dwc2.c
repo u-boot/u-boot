@@ -904,9 +904,8 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		   int len, int interval)
 {
-	printf("dev = %p pipe = %#lx buf = %p size = %d int = %d\n",
-	       dev, pipe, buffer, len, interval);
-	return -ENOSYS;
+	/* FIXME: what is interval? */
+	return submit_bulk_msg(dev, pipe, buffer, len);
 }
 
 /* U-Boot USB control interface */
