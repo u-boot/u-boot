@@ -723,6 +723,8 @@ int wait_for_chhltd(uint32_t *sub, int *toggle, bool ignore_ack)
 		return ret;
 
 	hcint = readl(&hc_regs->hcint);
+	if (hcint & (DWC2_HCINT_NAK | DWC2_HCINT_FRMOVRUN))
+		return -EAGAIN;
 	if (ignore_ack)
 		hcint &= ~DWC2_HCINT_ACK;
 	else
@@ -758,7 +760,7 @@ int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
 	int max = usb_maxpacket(dev, pipe);
 	int eptype = dwc2_eptype[usb_pipetype(pipe)];
 	int done = 0;
-	int ret;
+	int ret = 0;
 	uint32_t sub;
 	uint32_t xfer_len;
 	uint32_t num_packets;
@@ -813,10 +815,8 @@ int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
 				DWC2_HCCHAR_CHEN);
 
 		ret = wait_for_chhltd(&sub, pid, ignore_ack);
-		if (ret) {
-			stop_transfer = 1;
+		if (ret)
 			break;
-		}
 
 		if (in) {
 			xfer_len -= sub;
@@ -835,7 +835,7 @@ int chunk_msg(struct usb_device *dev, unsigned long pipe, int *pid, int in,
 	dev->status = 0;
 	dev->act_len = done;
 
-	return 0;
+	return ret;
 }
 
 /* U-Boot USB transmission interface */
@@ -904,8 +904,21 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		   int len, int interval)
 {
+	unsigned long timeout;
+	int ret;
+
 	/* FIXME: what is interval? */
-	return submit_bulk_msg(dev, pipe, buffer, len);
+
+	timeout = get_timer(0) + USB_TIMEOUT_MS(pipe);
+	for (;;) {
+		if (get_timer(0) > timeout) {
+			printf("Timeout poll on interrupt endpoint\n");
+			return -ETIMEDOUT;
+		}
+		ret = submit_bulk_msg(dev, pipe, buffer, len);
+		if (ret != -EAGAIN)
+			return ret;
+	}
 }
 
 /* U-Boot USB control interface */
