@@ -42,13 +42,11 @@ F:	configs/Ippo_q8h_v1_2_defconfig
 A20-OLINUXINO-LIME BOARD
 M:	FUKAUMI Naoki <naobsd@gmail.com>
 S:	Maintained
-F:	board/sunxi/dram_a20_olinuxino_l.c
 F:	configs/A20-OLinuXino-Lime_defconfig
 
 A20-OLINUXINO-LIME2 BOARD
 M:	Iain Paton <ipaton0@gmail.com>
 S:	Maintained
-F:	board/sunxi/dram_a20_olinuxino_l2.c
 F:	configs/A20-OLinuXino-Lime2_defconfig
 
 AINOL AW1 BOARD
@@ -92,7 +90,6 @@ F:	configs/Hummingbird_A31_defconfig
 INET-86VS BOARD
 M:	Michal Suchanek <hramrach@gmail.com>
 S:	Maintained
-F:	board/sunxi/dram_inet_86vs.c
 F:	configs/Inet_86VS_defconfig
 
 IPPO-Q8H-V5 BOARD
