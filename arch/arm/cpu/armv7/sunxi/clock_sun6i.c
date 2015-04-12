@@ -170,6 +170,24 @@ void clock_set_pll5(unsigned int clk, bool sigma_delta_enable)
 	udelay(5500);
 }
 
+#ifdef CONFIG_MACH_SUN8I_A33
+void clock_set_pll11(unsigned int clk, bool sigma_delta_enable)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	if (sigma_delta_enable)
+		writel(CCM_PLL11_PATTERN, &ccm->pll5_pattern_cfg);
+
+	writel(CCM_PLL11_CTRL_EN | CCM_PLL11_CTRL_UPD |
+	       (sigma_delta_enable ? CCM_PLL11_CTRL_SIGMA_DELTA_EN : 0) |
+	       CCM_PLL11_CTRL_N(clk / 24000000), &ccm->pll11_cfg);
+
+	while (readl(&ccm->pll11_cfg) & CCM_PLL11_CTRL_UPD)
+		;
+}
+#endif
+
 unsigned int clock_get_pll6(void)
 {
 	struct sunxi_ccm_reg *const ccm =
