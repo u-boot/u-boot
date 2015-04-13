@@ -10,6 +10,8 @@
 #include <sandboxblockdev.h>
 #include <asm/errno.h>
 
+static int host_curr_device = -1;
+
 static int do_host_load(cmd_tbl_t *cmdtp, int flag, int argc,
 			   char * const argv[])
 {
@@ -85,12 +87,53 @@ static int do_host_info(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_host_dev(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
+{
+	int dev;
+	char *ep;
+	block_dev_desc_t *blk_dev;
+	int ret;
+
+	if (argc < 1 || argc > 3)
+		return CMD_RET_USAGE;
+
+	if (argc == 1) {
+		if (host_curr_device < 0) {
+			printf("No current host device\n");
+			return 1;
+		}
+		printf("Current host device %d\n", host_curr_device);
+		return 0;
+	}
+
+	dev = simple_strtoul(argv[1], &ep, 16);
+	if (*ep) {
+		printf("** Bad device specification %s **\n", argv[2]);
+		return CMD_RET_USAGE;
+	}
+
+	ret = host_get_dev_err(dev, &blk_dev);
+	if (ret) {
+		if (ret == -ENOENT)
+			puts("Not bound to a backing file\n");
+		else if (ret == -ENODEV)
+			puts("Invalid host device number\n");
+
+		return 1;
+	}
+
+	host_curr_device = dev;
+	return 0;
+}
+
 static cmd_tbl_t cmd_host_sub[] = {
 	U_BOOT_CMD_MKENT(load, 7, 0, do_host_load, "", ""),
 	U_BOOT_CMD_MKENT(ls, 3, 0, do_host_ls, "", ""),
 	U_BOOT_CMD_MKENT(save, 6, 0, do_host_save, "", ""),
 	U_BOOT_CMD_MKENT(bind, 3, 0, do_host_bind, "", ""),
 	U_BOOT_CMD_MKENT(info, 3, 0, do_host_info, "", ""),
+	U_BOOT_CMD_MKENT(dev, 0, 1, do_host_dev, "", ""),
 };
 
 static int do_host(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -126,6 +169,7 @@ U_BOOT_CMD(
 		"save a file to host\n"
 	"host bind <dev> [<filename>] - bind \"host\" device to file\n"
 	"host info [<dev>]            - show device binding & info\n"
+	"host dev [<dev>] - Set or retrieve the current host device\n"
 	"host commands use the \"hostfs\" device. The \"host\" device is used\n"
 	"with standard IO commands such as fatls or ext2load"
 );
