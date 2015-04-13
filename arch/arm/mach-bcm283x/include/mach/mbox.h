@@ -132,7 +132,7 @@ struct bcm2835_mbox_tag_hdr {
  * 0x2..0xf from:
  * http://raspberryalphaomega.org.uk/2013/02/06/automatic-raspberry-pi-board-revision-detection-model-a-b1-and-b2/
  * http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=32733
- * 0x10, 0x11 from swarren's testing
+ * http://git.drogon.net/?p=wiringPi;a=blob_plain;f=wiringPi/wiringPi.c;hb=5edd177112c99416f68ba3e8c6c4db6ed942e796
  */
 #define BCM2835_BOARD_REV_B_I2C0_2	0x2
 #define BCM2835_BOARD_REV_B_I2C0_3	0x3
@@ -148,6 +148,8 @@ struct bcm2835_mbox_tag_hdr {
 #define BCM2835_BOARD_REV_B_PLUS	0x10
 #define BCM2835_BOARD_REV_CM		0x11
 #define BCM2835_BOARD_REV_A_PLUS	0x12
+#define BCM2835_BOARD_REV_B_PLUS_13	0x13
+#define BCM2835_BOARD_REV_CM_14		0x14
 #endif
 
 struct bcm2835_mbox_tag_get_board_rev {

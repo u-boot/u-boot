@@ -165,6 +165,16 @@ static const struct {
 		"bcm2835-rpi-a-plus.dtb",
 		false,
 	},
+	[BCM2835_BOARD_REV_B_PLUS_13] = {
+		"Model B+",
+		"bcm2835-rpi-b-plus.dtb",
+		true,
+	},
+	[BCM2835_BOARD_REV_CM_14] = {
+		"Compute Module",
+		"bcm2835-rpi-cm.dtb",
+		false,
+	},
 #endif
 };
 
