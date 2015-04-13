@@ -1873,12 +1873,6 @@ CBFS (Coreboot Filesystem) support
 		boot.  See the documentation file README.video for a
 		description of this variable.
 
-		CONFIG_VIDEO_VGA
-
-		Enable the VGA video / BIOS for x86. The alternative if you
-		are using coreboot is to use the coreboot frame buffer
-		driver.
-
 
 - Keyboard Support:
 		CONFIG_KEYBOARD
