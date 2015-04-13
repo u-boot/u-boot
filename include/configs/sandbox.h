@@ -73,7 +73,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_COMMAND_HISTORY
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_ENV_SIZE		8192
 #define CONFIG_ENV_IS_NOWHERE
@@ -120,25 +119,30 @@
 
 /* include default commands */
 #include <config_cmd_default.h>
+#include <config_distro_defaults.h>
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(HOST, host, 1) \
+	func(HOST, host, 0)
+
+#include <config_distro_bootcmd.h>
 
 #define CONFIG_KEEP_SERVERADDR
 #define CONFIG_UDP_CHECKSUM
 #define CONFIG_CMD_LINK_LOCAL
 #define CONFIG_CMD_CDP
 #define CONFIG_CMD_DNS
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
 #define CONFIG_TIMESTAMP
 #define CONFIG_CMD_RARP
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_SERVERIP
-#define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_IP_DEFRAG
+
+/* Can't boot elf images */
+#undef CONFIG_CMD_ELF
 
 #define CONFIG_CMD_HASH
 #define CONFIG_HASH_VERIFY
@@ -182,8 +186,19 @@
 					"eth5addr=00:00:11:22:33:46\0" \
 					"ipaddr=1.2.3.4\0"
 
-#define CONFIG_EXTRA_ENV_SETTINGS	SANDBOX_SERIAL_SETTINGS \
-					SANDBOX_ETH_SETTINGS
+#define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x10000000\0" \
+	"kernel_addr_r=0x1000000\0" \
+	"fdt_addr_r=0xc00000\0" \
+	"ramdisk_addr_r=0x2000000\0" \
+	"scriptaddr=0x1000\0" \
+	"pxefile_addr_r=0x2000\0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	SANDBOX_SERIAL_SETTINGS \
+	SANDBOX_ETH_SETTINGS \
+	BOOTENV \
+	MEM_LAYOUT_ENV_SETTINGS
 
 #define CONFIG_GZIP_COMPRESSED
 #define CONFIG_BZIP2
