@@ -49,18 +49,6 @@ unsigned long __attribute__((no_instrument_function)) timer_get_us(void)
 	return os_get_nsec() / 1000;
 }
 
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
-{
-	if (flag & (BOOTM_STATE_OS_GO | BOOTM_STATE_OS_FAKE_GO)) {
-		bootstage_mark(BOOTSTAGE_ID_RUN_OS);
-		printf("## Transferring control to Linux (at address %08lx)...\n",
-		       images->ep);
-		reset_cpu(0);
-	}
-
-	return 0;
-}
-
 int cleanup_before_linux(void)
 {
 	return 0;
