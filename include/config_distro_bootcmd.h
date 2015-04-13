@@ -48,6 +48,18 @@
 #define BOOTENV_DEV_NAME_BLKDEV(devtypeu, devtypel, instance) \
 	#devtypel #instance " "
 
+#ifdef CONFIG_SANDBOX
+#define BOOTENV_SHARED_HOST	BOOTENV_SHARED_BLKDEV(host)
+#define BOOTENV_DEV_HOST	BOOTENV_DEV_BLKDEV
+#define BOOTENV_DEV_NAME_HOST	BOOTENV_DEV_NAME_BLKDEV
+#else
+#define BOOTENV_SHARED_HOST
+#define BOOTENV_DEV_HOST \
+	BOOT_TARGET_DEVICES_references_HOST_without_CONFIG_SANDBOX
+#define BOOTENV_DEV_NAME_HOST \
+	BOOT_TARGET_DEVICES_references_HOST_without_CONFIG_SANDBOX
+#endif
+
 #ifdef CONFIG_CMD_MMC
 #define BOOTENV_SHARED_MMC	BOOTENV_SHARED_BLKDEV(mmc)
 #define BOOTENV_DEV_MMC		BOOTENV_DEV_BLKDEV
@@ -167,6 +179,7 @@
 #define BOOTENV_DEV(devtypeu, devtypel, instance) \
 	BOOTENV_DEV_##devtypeu(devtypeu, devtypel, instance)
 #define BOOTENV \
+	BOOTENV_SHARED_HOST \
 	BOOTENV_SHARED_MMC \
 	BOOTENV_SHARED_USB \
 	BOOTENV_SHARED_SATA \
