@@ -56,3 +56,33 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_ISA_ARCV2
+#define RESET_VECTOR_ADDR	0x0
+
+void smp_set_core_boot_addr(unsigned long addr, int corenr)
+{
+	/* All cores have reset vector pointing to 0 */
+	writel(addr, (void __iomem *)RESET_VECTOR_ADDR);
+
+	/* Make sure other cores see written value in memory */
+	flush_dcache_range(RESET_VECTOR_ADDR, RESET_VECTOR_ADDR + sizeof(int));
+}
+
+void smp_kick_all_cpus(void)
+{
+/* CPU start CREG */
+#define AXC003_CREG_CPU_START	0xF0001400
+
+/* Bits positions in CPU start CREG */
+#define BITS_START	0
+#define BITS_POLARITY	8
+#define BITS_CORE_SEL	9
+#define BITS_MULTICORE	12
+
+#define CMD	(1 << BITS_MULTICORE) | (1 << BITS_CORE_SEL) | \
+		(1 << BITS_POLARITY) | (1 << BITS_START)
+
+	writel(CMD, (void __iomem *)AXC003_CREG_CPU_START);
+}
+#endif
