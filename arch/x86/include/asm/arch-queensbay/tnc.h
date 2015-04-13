@@ -9,7 +9,6 @@
 
 #include <pci.h>
 
-/* PCI Configuration Space (D31:F0): LPC */
-#define PCH_LPC_DEV	PCI_BDF(0, 0x1f, 0)
+#define TNC_LPC		PCI_BDF(0, 31, 0)
 
 #endif /* _X86_ARCH_TNC_H_ */
