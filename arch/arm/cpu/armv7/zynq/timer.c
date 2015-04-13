@@ -93,7 +93,9 @@ ulong get_timer_masked(void)
 		gd->arch.tbl += gd->arch.lastinc - now;
 	} else {
 		/* We have an overflow ... */
-		gd->arch.tbl += gd->arch.lastinc + TIMER_LOAD_VAL - now + 1;
+		gd->arch.tbl += gd->arch.lastinc + (TIMER_LOAD_VAL /
+				(gd->arch.timer_rate_hz / CONFIG_SYS_HZ)) -
+				now + 1;
 	}
 	gd->arch.lastinc = now;
 
