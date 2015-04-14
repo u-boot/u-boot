@@ -13,6 +13,7 @@
 #else
 #include <config.h>
 #endif
+#include <generated/autoconf.h>
 
 /*
  * To build the utility with the static configuration
