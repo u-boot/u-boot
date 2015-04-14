@@ -19,7 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static const struct pl01x_serial_platdata serial_platdata = {
 	.base = V2M_UART0,
 	.type = TYPE_PL011,
-	.clock = 2400 * 1000,
+	.clock = CONFIG_PL011_CLOCK,
 };
 
 U_BOOT_DEVICE(vexpress_serials) = {
