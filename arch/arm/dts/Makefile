@@ -44,6 +44,7 @@ dtb-$(CONFIG_ZYNQ) += zynq-zc702.dtb \
 	zynq-zed.dtb \
 	zynq-zybo.dtb \
 	zynq-microzed.dtb \
+	zynq-picozed.dtb \
 	zynq-zc770-xm010.dtb \
 	zynq-zc770-xm012.dtb \
 	zynq-zc770-xm013.dtb

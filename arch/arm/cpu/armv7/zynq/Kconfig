@@ -9,6 +9,9 @@ config TARGET_ZYNQ_ZED
 config TARGET_ZYNQ_MICROZED
 	bool "Zynq MicroZed"
 
+config TARGET_ZYNQ_PICOZED
+	bool "Zynq PicoZed"
+
 config TARGET_ZYNQ_ZC70X
 	bool "Zynq ZC702/ZC706 Board"
 
@@ -32,6 +35,7 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "zynq_zed" if TARGET_ZYNQ_ZED
 	default "zynq_microzed" if TARGET_ZYNQ_MICROZED
+	default "zynq_picozed" if TARGET_ZYNQ_PICOZED
 	default "zynq_zc70x" if TARGET_ZYNQ_ZC70X
 	default "zynq_zc770" if TARGET_ZYNQ_ZC770
 	default "zynq_zybo" if TARGET_ZYNQ_ZYBO
