@@ -156,6 +156,17 @@ void reset_cmplx_set_enable(int cpu, int which, int reset);
 void clock_ll_set_source(enum periph_id periph_id, unsigned source);
 
 /**
+ * This function is similar to clock_ll_set_source() except that it can be
+ * used for clocks with more than 2 mux bits.
+ *
+ * @param periph_id	peripheral to adjust
+ * @param mux_bits	number of mux bits for the clock
+ * @param source	source clock (0-15 depending on mux_bits)
+ */
+int clock_ll_set_source_bits(enum periph_id periph_id, int mux_bits,
+			     unsigned source);
+
+/**
  * Set the source and divisor for a peripheral clock. This sets the
  * clock rate. You need to look up the datasheet to see the meaning of the
  * source parameter as it changes for each peripheral.
