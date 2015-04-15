@@ -156,6 +156,36 @@ int uclass_find_device(enum uclass_id id, int index, struct udevice **devp)
 	return -ENODEV;
 }
 
+int uclass_find_first_device(enum uclass_id id, struct udevice **devp)
+{
+	struct uclass *uc;
+	int ret;
+
+	*devp = NULL;
+	ret = uclass_get(id, &uc);
+	if (ret)
+		return ret;
+	if (list_empty(&uc->dev_head))
+		return 0;
+
+	*devp = list_first_entry(&uc->dev_head, struct udevice, uclass_node);
+
+	return 0;
+}
+
+int uclass_find_next_device(struct udevice **devp)
+{
+	struct udevice *dev = *devp;
+
+	*devp = NULL;
+	if (list_is_last(&dev->uclass_node, &dev->uclass->dev_head))
+		return 0;
+
+	*devp = list_entry(dev->uclass_node.next, struct udevice, uclass_node);
+
+	return 0;
+}
+
 int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 			      bool find_req_seq, struct udevice **devp)
 {
@@ -274,24 +304,12 @@ int uclass_get_device_by_of_offset(enum uclass_id id, int node,
 
 int uclass_first_device(enum uclass_id id, struct udevice **devp)
 {
-	struct uclass *uc;
 	struct udevice *dev;
 	int ret;
 
 	*devp = NULL;
-	ret = uclass_get(id, &uc);
-	if (ret)
-		return ret;
-	if (list_empty(&uc->dev_head))
-		return 0;
-
-	dev = list_first_entry(&uc->dev_head, struct udevice, uclass_node);
-	ret = device_probe(dev);
-	if (ret)
-		return ret;
-	*devp = dev;
-
-	return 0;
+	ret = uclass_find_first_device(id, &dev);
+	return uclass_get_device_tail(dev, ret, devp);
 }
 
 int uclass_next_device(struct udevice **devp)
@@ -300,17 +318,8 @@ int uclass_next_device(struct udevice **devp)
 	int ret;
 
 	*devp = NULL;
-	if (list_is_last(&dev->uclass_node, &dev->uclass->dev_head))
-		return 0;
-
-	dev = list_entry(dev->uclass_node.next, struct udevice,
-			 uclass_node);
-	ret = device_probe(dev);
-	if (ret)
-		return ret;
-	*devp = dev;
-
-	return 0;
+	ret = uclass_find_next_device(&dev);
+	return uclass_get_device_tail(dev, ret, devp);
 }
 
 int uclass_bind_device(struct udevice *dev)

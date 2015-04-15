@@ -24,6 +24,28 @@
 int uclass_find_device(enum uclass_id id, int index, struct udevice **devp);
 
 /**
+ * uclass_find_first_device() - Return the first device in a uclass
+ * @id:		Id number of the uclass
+ * #devp:	Returns pointer to device, or NULL on error
+ *
+ * The device is not prepared for use - this is an internal function
+ *
+ * @return 0 if OK (found or not found), -1 on error
+ */
+int uclass_find_first_device(enum uclass_id id, struct udevice **devp);
+
+/**
+ * uclass_find_next_device() - Return the next device in a uclass
+ * @devp: On entry, pointer to device to lookup. On exit, returns pointer
+ * to the next device in the same uclass, or NULL if none
+ *
+ * The device is not prepared for use - this is an internal function
+ *
+ * @return 0 if OK (found or not found), -1 on error
+ */
+int uclass_find_next_device(struct udevice **devp);
+
+/**
  * uclass_bind_device() - Associate device with a uclass
  *
  * Connect the device into uclass's list of devices.
