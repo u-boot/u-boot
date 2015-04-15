@@ -138,7 +138,7 @@ struct emac_bd {
 	u32 status;
 };
 
-#define RX_BUF 3
+#define RX_BUF 32
 /* Page table entries are set to 1MB, or multiples of 1MB
  * (not < 1MB). driver uses less bd's so use 1MB bdspace.
  */
