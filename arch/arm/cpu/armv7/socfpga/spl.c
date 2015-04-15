@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/pl310.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <image.h>
@@ -18,6 +19,9 @@
 #include <asm/arch/sdram.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static struct pl310_regs *const pl310 =
+	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 
 #define MAIN_VCO_BASE (					\
 	(CONFIG_HPS_MAINPLLGRP_VCO_DENOM <<		\
@@ -43,6 +47,31 @@ DECLARE_GLOBAL_DATA_PTR;
 	(CONFIG_HPS_SDRPLLGRP_VCO_NUMER <<		\
 		CLKMGR_SDRPLLGRP_VCO_NUMER_OFFSET)	\
 	)
+
+void board_init_f(ulong dummy)
+{
+	struct socfpga_system_manager *sysmgr_regs =
+		(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
+	unsigned long reg;
+	/*
+	 * First C code to run. Clear fake OCRAM ECC first as SBE
+	 * and DBE might triggered during power on
+	 */
+	reg = readl(&sysmgr_regs->eccgrp_ocram);
+	if (reg & SYSMGR_ECC_OCRAM_SERR)
+		writel(SYSMGR_ECC_OCRAM_SERR | SYSMGR_ECC_OCRAM_EN,
+		       &sysmgr_regs->eccgrp_ocram);
+	if (reg & SYSMGR_ECC_OCRAM_DERR)
+		writel(SYSMGR_ECC_OCRAM_DERR  | SYSMGR_ECC_OCRAM_EN,
+		       &sysmgr_regs->eccgrp_ocram);
+
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	/* Remap SDRAM to 0x0 */
+	writel(0x1, &pl310->pl310_addr_filter_start);
+
+	board_init_r(NULL, 0);
+}
 
 u32 spl_boot_device(void)
 {
