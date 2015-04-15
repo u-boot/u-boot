@@ -95,3 +95,11 @@ config DISPLAY_PORT
 	   eDP (Embedded DisplayPort) is a standard widely used in laptops
 	   to drive LCD panels. This framework provides support for enabling
 	   these displays where supported by the video hardware.
+
+config VIDEO_TEGRA124
+	bool "Enable video support on Tegra124"
+	help
+	   Tegra124 supports many video output options including eDP and
+	   HDMI. At present only eDP is supported by U-Boot. This option
+	   enables this support which can be used on devices which
+	   have an eDP display connected.
