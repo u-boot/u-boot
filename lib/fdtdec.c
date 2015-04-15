@@ -1037,6 +1037,98 @@ int fdtdec_decode_memory_region(const void *blob, int config_node,
 	return 0;
 }
 
+static int decode_timing_property(const void *blob, int node, const char *name,
+				  struct timing_entry *result)
+{
+	int length, ret = 0;
+	const u32 *prop;
+
+	prop = fdt_getprop(blob, node, name, &length);
+	if (!prop) {
+		debug("%s: could not find property %s\n",
+		      fdt_get_name(blob, node, NULL), name);
+		return length;
+	}
+
+	if (length == sizeof(u32)) {
+		result->typ = fdtdec_get_int(blob, node, name, 0);
+		result->min = result->typ;
+		result->max = result->typ;
+	} else {
+		ret = fdtdec_get_int_array(blob, node, name, &result->min, 3);
+	}
+
+	return ret;
+}
+
+int fdtdec_decode_display_timing(const void *blob, int parent, int index,
+				 struct display_timing *dt)
+{
+	int i, node, timings_node;
+	u32 val = 0;
+	int ret = 0;
+
+	timings_node = fdt_subnode_offset(blob, parent, "display-timings");
+	if (timings_node < 0)
+		return timings_node;
+
+	for (i = 0, node = fdt_first_subnode(blob, timings_node);
+	     node > 0 && i != index;
+	     node = fdt_next_subnode(blob, node))
+		i++;
+
+	if (node < 0)
+		return node;
+
+	memset(dt, 0, sizeof(*dt));
+
+	ret |= decode_timing_property(blob, node, "hback-porch",
+				      &dt->hback_porch);
+	ret |= decode_timing_property(blob, node, "hfront-porch",
+				      &dt->hfront_porch);
+	ret |= decode_timing_property(blob, node, "hactive", &dt->hactive);
+	ret |= decode_timing_property(blob, node, "hsync-len", &dt->hsync_len);
+	ret |= decode_timing_property(blob, node, "vback-porch",
+				      &dt->vback_porch);
+	ret |= decode_timing_property(blob, node, "vfront-porch",
+				      &dt->vfront_porch);
+	ret |= decode_timing_property(blob, node, "vactive", &dt->vactive);
+	ret |= decode_timing_property(blob, node, "vsync-len", &dt->vsync_len);
+	ret |= decode_timing_property(blob, node, "clock-frequency",
+				      &dt->pixelclock);
+
+	dt->flags = 0;
+	val = fdtdec_get_int(blob, node, "vsync-active", -1);
+	if (val != -1) {
+		dt->flags |= val ? DISPLAY_FLAGS_VSYNC_HIGH :
+				DISPLAY_FLAGS_VSYNC_LOW;
+	}
+	val = fdtdec_get_int(blob, node, "hsync-active", -1);
+	if (val != -1) {
+		dt->flags |= val ? DISPLAY_FLAGS_HSYNC_HIGH :
+				DISPLAY_FLAGS_HSYNC_LOW;
+	}
+	val = fdtdec_get_int(blob, node, "de-active", -1);
+	if (val != -1) {
+		dt->flags |= val ? DISPLAY_FLAGS_DE_HIGH :
+				DISPLAY_FLAGS_DE_LOW;
+	}
+	val = fdtdec_get_int(blob, node, "pixelclk-active", -1);
+	if (val != -1) {
+		dt->flags |= val ? DISPLAY_FLAGS_PIXDATA_POSEDGE :
+				DISPLAY_FLAGS_PIXDATA_NEGEDGE;
+	}
+
+	if (fdtdec_get_bool(blob, node, "interlaced"))
+		dt->flags |= DISPLAY_FLAGS_INTERLACED;
+	if (fdtdec_get_bool(blob, node, "doublescan"))
+		dt->flags |= DISPLAY_FLAGS_DOUBLESCAN;
+	if (fdtdec_get_bool(blob, node, "doubleclk"))
+		dt->flags |= DISPLAY_FLAGS_DOUBLECLK;
+
+	return 0;
+}
+
 int fdtdec_setup(void)
 {
 #ifdef CONFIG_OF_CONTROL
