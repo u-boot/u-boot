@@ -8,12 +8,13 @@
 #ifndef _SYS_PROTO_H_
 #define _SYS_PROTO_H_
 
-struct tegra_sysinfo {
-	char *board_string;
-};
-
 void invalidate_dcache(void);
 
-extern const struct tegra_sysinfo sysinfo;
+/**
+ * tegra_board_id() - Get the board iD
+ *
+ * @return a board ID, or -ve on error
+ */
+int tegra_board_id(void);
 
 #endif

@@ -81,10 +81,20 @@ static void power_det_init(void)
 #endif
 }
 
+__weak int tegra_board_id(void)
+{
+	return -1;
+}
+
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard(void)
 {
-	printf("Board: %s\n", CONFIG_TEGRA_BOARD_STRING);
+	int board_id = tegra_board_id();
+
+	printf("Board: %s", CONFIG_TEGRA_BOARD_STRING);
+	if (board_id != -1)
+		printf(", ID: %d\n", board_id);
+	printf("\n");
 
 	return 0;
 }
