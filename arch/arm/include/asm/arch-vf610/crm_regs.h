@@ -199,6 +199,7 @@ struct anadig_reg {
 #define CCM_CCGR2_PORTD_CTRL_MASK		(0x3 << 24)
 #define CCM_CCGR2_PORTE_CTRL_MASK		(0x3 << 26)
 #define CCM_CCGR3_ANADIG_CTRL_MASK		0x3
+#define CCM_CCGR3_SCSC_CTRL_MASK        (0x3 << 4)
 #define CCM_CCGR4_WKUP_CTRL_MASK		(0x3 << 20)
 #define CCM_CCGR4_CCM_CTRL_MASK			(0x3 << 22)
 #define CCM_CCGR4_GPC_CTRL_MASK			(0x3 << 24)

@@ -65,7 +65,7 @@
 #define QSPI0_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00044000)
 #define IOMUXC_BASE_ADDR	(AIPS0_BASE_ADDR + 0x00048000)
 #define ANADIG_BASE_ADDR	(AIPS0_BASE_ADDR + 0x00050000)
-#define SCSCM_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00052000)
+#define SCSC_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00052000)
 #define ASRC_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00060000)
 #define SPDIF_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00061000)
 #define ESAI_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00062000)
@@ -264,6 +264,9 @@
 #define SRC_SRSR_WDOG_A5				(0x1 << 3)
 #define SRC_SRSR_POR_RST				(0x1 << 0)
 
+/* Slow Clock Source Controller Module (SCSC) */
+#define SCSC_SOSC_CTR_SOSC_EN            0x1
+
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
 
@@ -446,6 +449,12 @@ struct mscm_ir {
 	u32 rsvd2[23];
 	u16 irsprc[112];
 	u16 rsvd3[848];
+};
+
+/* SCSC */
+struct scsc_reg {
+	u32 sirc_ctr;
+	u32 sosc_ctr;
 };
 
 #endif	/* __ASSEMBLER__*/

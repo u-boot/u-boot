@@ -227,7 +227,7 @@ static void clock_init(void)
 		CCM_CCGR2_PORTD_CTRL_MASK | CCM_CCGR2_PORTE_CTRL_MASK |
 		CCM_CCGR2_QSPI0_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr3, CCM_REG_CTRL_MASK,
-		CCM_CCGR3_ANADIG_CTRL_MASK);
+		CCM_CCGR3_ANADIG_CTRL_MASK | CCM_CCGR3_SCSC_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr4, CCM_REG_CTRL_MASK,
 		CCM_CCGR4_WKUP_CTRL_MASK | CCM_CCGR4_CCM_CTRL_MASK |
 		CCM_CCGR4_GPC_CTRL_MASK | CCM_CCGR4_I2C0_CTRL_MASK);
@@ -308,8 +308,19 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	struct scsc_reg *scsc = (struct scsc_reg *)SCSC_BASE_ADDR;
+
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+
+	/*
+	 * Enable external 32K Oscillator
+	 *
+	 * The internal clock experiences significant drift
+	 * so we must use the external oscillator in order
+	 * to maintain correct time in the hwclock
+	 */
+	setbits_le32(&scsc->sosc_ctr, SCSC_SOSC_CTR_SOSC_EN);
 
 	return 0;
 }
