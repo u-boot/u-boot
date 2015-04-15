@@ -202,9 +202,13 @@ struct clk_rst_ctlr {
 	uint crc_reserved52[1];		/* _reserved_52, 0x554 */
 	uint crc_super_gr3d_clk_div;	/* _SUPER_GR3D_CLK_DIVIDER_0, 0x558 */
 	uint crc_spare_reg0;		/* _SPARE_REG0_0, 0x55C */
-
-	/* Tegra124 - skip to 0x600 here for new CLK_SOURCE_ regs */
-	uint crc_reserved60[40];	/* _reserved_60, 0x560 - 0x5FC */
+	u32 _rsv32[4];                  /*                    0x560-0x56c */
+	u32 crc_plld2_ss_cfg;		/* _PLLD2_SS_CFG            0x570 */
+	u32 _rsv32_1[7];		/*                      0x574-58c */
+	struct clk_pll_simple plldp;	/* _PLLDP_BASE, 0x590 _PLLDP_MISC */
+	u32 crc_plldp_ss_cfg;		/* _PLLDP_SS_CFG, 0x598 */
+	u32 _rsrv32_2[25];
+	/* Tegra124 */
 	uint crc_clk_src_x[TEGRA_CLK_SOURCES_X]; /* XUSB, etc, 0x600-0x678 */
 };
 
@@ -439,5 +443,10 @@ enum {
 /* CLK_RST_CONTROLLER_PLLX_MISC_3 */
 #define PLLX_IDDQ_SHIFT			3
 #define PLLX_IDDQ_MASK			(1U << PLLX_IDDQ_SHIFT)
+
+/* CLK_RST_PLLDP_SS_CFG */
+#define PLLDP_SS_CFG_CLAMP		(1 << 22)
+#define PLLDP_SS_CFG_UNDOCUMENTED	(1 << 24)
+#define PLLDP_SS_CFG_DITHER		(1 << 28)
 
 #endif	/* _TEGRA_CLK_RST_H_ */

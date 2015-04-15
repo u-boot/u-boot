@@ -25,6 +25,7 @@ enum clock_id {
 	CLOCK_ID_XCPU = CLOCK_ID_FIRST_SIMPLE,
 	CLOCK_ID_EPCI,
 	CLOCK_ID_SFROM32KHZ,
+	CLOCK_ID_DP,	/* Special for Tegra124 */
 
 	/* These are the base clocks (inputs to the Tegra SoC) */
 	CLOCK_ID_32KHZ,
@@ -424,7 +425,7 @@ enum periphc_internal_id {
 
 	/* 0x58 */
 	PERIPHC_58h,
-	PERIPHC_59h,
+	PERIPHC_SOR,
 	PERIPHC_5ah,
 	PERIPHC_5bh,
 	PERIPHC_SATAOOB,
