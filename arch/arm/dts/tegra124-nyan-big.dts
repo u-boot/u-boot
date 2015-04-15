@@ -29,6 +29,35 @@
 		reg = <0x80000000 0x80000000>;
 	};
 
+	host1x@50000000 {
+		dc@54200000 {
+			display-timings {
+				timing@0 {
+					clock-frequency = <69500000>;
+					hactive = <1366>;
+					vactive = <768>;
+					hsync-len = <32>;
+					hfront-porch = <48>;
+					hback-porch = <20>;
+					vfront-porch = <3>;
+					vback-porch = <13>;
+					vsync-len = <6>;
+				};
+			};
+		};
+
+		sor@54540000 {
+			status = "okay";
+
+			nvidia,dpaux = <&dpaux>;
+			nvidia,panel = <&panel>;
+		};
+
+		dpaux@545c0000 {
+			status = "okay";
+		};
+	};
+
 	serial@70006000 {
 		/* Debug connector on the bottom of the board near SD card. */
 		status = "okay";
@@ -258,6 +287,7 @@
 		compatible = "pwm-backlight";
 
 		enable-gpios = <&gpio TEGRA_GPIO(H, 2) GPIO_ACTIVE_HIGH>;
+		power-supply = <&vdd_led>;
 		pwms = <&pwm 1 1000000>;
 
 		default-brightness-level = <224>;
@@ -339,6 +369,19 @@
 		compatible = "auo,b133xtn01";
 
 		backlight = <&backlight>;
+	};
+
+	regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		vdd_led: regulator@5 {
+			compatible = "regulator-fixed";
+			reg = <5>;
+			regulator-name = "+VDD_LED";
+			gpio = <&gpio TEGRA_GPIO(P, 2) GPIO_ACTIVE_HIGH>;
+			enable-active-high;
+		};
 	};
 
 	sound {
