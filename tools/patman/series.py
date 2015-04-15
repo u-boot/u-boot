@@ -254,6 +254,12 @@ class Series(dict):
         Return:
             Patch string, like 'RFC PATCH v5' or just 'PATCH'
         """
+        git_prefix = gitutil.GetDefaultSubjectPrefix()
+        if git_prefix:
+	    git_prefix = '%s][' % git_prefix
+        else:
+            git_prefix = ''
+
         version = ''
         if self.get('version'):
             version = ' v%s' % self['version']
@@ -262,4 +268,4 @@ class Series(dict):
         prefix = ''
         if self.get('prefix'):
             prefix = '%s ' % self['prefix']
-        return '%sPATCH%s' % (prefix, version)
+        return '%s%sPATCH%s' % (git_prefix, prefix, version)
