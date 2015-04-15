@@ -36,7 +36,7 @@
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT	0
 #endif
 #define	MXS_NAND_METADATA_SIZE			10
-
+#define	MXS_NAND_BITS_PER_ECC_LEVEL		13
 #define	MXS_NAND_COMMAND_BUFFER_SIZE		32
 
 #define	MXS_NAND_BCH_TIMEOUT			10000
@@ -135,7 +135,7 @@ static uint32_t mxs_nand_ecc_chunk_cnt(uint32_t page_data_size)
 
 static uint32_t mxs_nand_ecc_size_in_bits(uint32_t ecc_strength)
 {
-	return ecc_strength * 13;
+	return ecc_strength * MXS_NAND_BITS_PER_ECC_LEVEL;
 }
 
 static uint32_t mxs_nand_aux_status_offset(void)
@@ -157,7 +157,8 @@ static inline uint32_t mxs_nand_get_ecc_strength(uint32_t page_data_size,
 	 *		(page oob size - meta data size) * (bits per byte)
 	 */
 	ecc_strength = ((page_oob_size - MXS_NAND_METADATA_SIZE) * 8)
-			/ (13 * mxs_nand_ecc_chunk_cnt(page_data_size));
+			/ (MXS_NAND_BITS_PER_ECC_LEVEL *
+				mxs_nand_ecc_chunk_cnt(page_data_size));
 
 	return round_down(ecc_strength, 2);
 }

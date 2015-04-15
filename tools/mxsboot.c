@@ -48,6 +48,7 @@ static uint32_t sd_sector = 2048;
 #define	MXS_NAND_DMA_DESCRIPTOR_COUNT		4
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE		512
 #define	MXS_NAND_METADATA_SIZE			10
+#define	MXS_NAND_BITS_PER_ECC_LEVEL		13
 #define	MXS_NAND_COMMAND_BUFFER_SIZE		32
 
 struct mx28_nand_fcb {
@@ -127,7 +128,7 @@ struct mx28_sd_config_block {
 
 static inline uint32_t mx28_nand_ecc_size_in_bits(uint32_t ecc_strength)
 {
-	return ecc_strength * 13;
+	return ecc_strength * MXS_NAND_BITS_PER_ECC_LEVEL;
 }
 
 static inline uint32_t mx28_nand_get_ecc_strength(uint32_t page_data_size,
