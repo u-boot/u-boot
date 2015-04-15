@@ -24,7 +24,10 @@ void pwm_enable(unsigned channel, int rate, int pulse_width, int freq_divider)
 	assert(channel < PWM_NUM_CHANNELS);
 
 	/* TODO: Can we use clock_adjust_periph_pll_div() here? */
-	clock_start_periph_pll(PERIPH_ID_PWM, CLOCK_ID_SFROM32KHZ, rate);
+	if (rate) {
+		clock_start_periph_pll(PERIPH_ID_PWM, CLOCK_ID_SFROM32KHZ,
+				       rate);
+	}
 
 	reg = PWM_ENABLE_MASK;
 	reg |= pulse_width << PWM_WIDTH_SHIFT;

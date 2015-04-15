@@ -31,7 +31,7 @@ struct pwm_ctlr {
  * Program the PWM with the given parameters.
  *
  * @param channel	PWM channel to update
- * @param rate		Clock rate to use for PWM
+ * @param rate		Clock rate to use for PWM, or 0 to leave alone
  * @param pulse_width	high pulse width: 0=always low, 1=1/256 pulse high,
  *			n = n/256 pulse high
  * @param freq_divider	frequency divider value (1 to use rate as is)
