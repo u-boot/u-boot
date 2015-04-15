@@ -499,6 +499,14 @@ ulong dev_get_driver_data(struct udevice *dev)
 	return dev->driver_data;
 }
 
+const void *dev_get_driver_ops(struct udevice *dev)
+{
+	if (!dev || !dev->driver->ops)
+		return NULL;
+
+	return dev->driver->ops;
+}
+
 enum uclass_id device_get_uclass_id(struct udevice *dev)
 {
 	return dev->uclass->uc_drv->id;

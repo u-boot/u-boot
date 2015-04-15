@@ -280,6 +280,17 @@ void *dev_get_uclass_priv(struct udevice *dev);
  */
 ulong dev_get_driver_data(struct udevice *dev);
 
+/**
+ * dev_get_driver_ops() - get the device's driver's operations
+ *
+ * This checks that dev is not NULL, and returns the pointer to device's
+ * driver's operations.
+ *
+ * @dev:	Device to check
+ * @return void pointer to driver's operations or NULL for NULL-dev or NULL-ops
+ */
+const void *dev_get_driver_ops(struct udevice *dev);
+
 /*
  * device_get_uclass_id() - return the uclass ID of a device
  *
