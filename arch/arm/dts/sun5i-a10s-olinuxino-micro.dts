@@ -1,6 +1,7 @@
 /*
- * Copyright 2014 Zoltan HERPAI
- * Zoltan HERPAI <wigyori@uid0.hu>
+ * Copyright 2013 Maxime Ripard
+ *
+ * Maxime Ripard <maxime.ripard@free-electrons.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -47,20 +48,21 @@
  */
 
 /dts-v1/;
-#include "sun7i-a20.dtsi"
+#include "sun5i-a10s.dtsi"
 #include "sunxi-common-regulators.dtsi"
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
-#include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/pinctrl/sun4i-a10.h>
 
 / {
-	model = "LinkSprite pcDuino3";
-	compatible = "linksprite,pcduino3", "allwinner,sun7i-a20";
+	model = "Olimex A10s-Olinuxino Micro";
+	compatible = "olimex,a10s-olinuxino-micro", "allwinner,sun5i-a10s";
 
 	aliases {
 		serial0 = &uart0;
+		serial1 = &uart2;
+		serial2 = &uart3;
 	};
 
 	chosen {
@@ -70,65 +72,93 @@
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_pcduino3>;
+		pinctrl-0 = <&led_pins_olinuxino>;
 
-		tx {
-			label = "pcduino3:green:tx";
-			gpios = <&pio 7 15 GPIO_ACTIVE_LOW>;
-		};
-
-		rx {
-			label = "pcduino3:green:rx";
-			gpios = <&pio 7 16 GPIO_ACTIVE_LOW>;
+		green {
+			label = "a10s-olinuxino-micro:green:usr";
+			gpios = <&pio 4 3 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
 		};
 	};
-
-	gpio_keys {
-		compatible = "gpio-keys";
-		pinctrl-names = "default";
-		pinctrl-0 = <&key_pins_pcduino3>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-		button@0 {
-			label = "Key Back";
-			linux,code = <KEY_BACK>;
-			gpios = <&pio 7 17 GPIO_ACTIVE_LOW>;
-		};
-		button@1 {
-			label = "Key Home";
-			linux,code = <KEY_HOME>;
-			gpios = <&pio 7 18 GPIO_ACTIVE_LOW>;
-		};
-		button@2 {
-			label = "Key Menu";
-			linux,code = <KEY_MENU>;
-			gpios = <&pio 7 19 GPIO_ACTIVE_LOW>;
-		};
-	};
-};
-
-&ahci {
-	target-supply = <&reg_ahci_5v>;
-	status = "okay";
-};
-
-&ahci_pwr_pin_a {
-	allwinner,pins = "PH2";
 };
 
 &ehci0 {
 	status = "okay";
 };
 
-&ehci1 {
+&emac {
+	pinctrl-names = "default";
+	pinctrl-0 = <&emac_pins_a>;
+	phy = <&phy1>;
 	status = "okay";
 };
 
-&gmac {
+&i2c0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&gmac_pins_mii_a>;
-	phy = <&phy1>;
-	phy-mode = "mii";
+	pinctrl-0 = <&i2c0_pins_a>;
+	status = "okay";
+};
+
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins_a>;
+	status = "okay";
+
+	at24@50 {
+		compatible = "at,24c16";
+		pagesize = <16>;
+		reg = <0x50>;
+		read-only;
+	};
+};
+
+&i2c2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c2_pins_a>;
+	status = "okay";
+};
+
+&lradc {
+	vref-supply = <&reg_vcc3v0>;
+	status = "okay";
+
+	button@191 {
+		label = "Volume Up";
+		linux,code = <KEY_VOLUMEUP>;
+		channel = <0>;
+		voltage = <191274>;
+	};
+
+	button@392 {
+		label = "Volume Down";
+		linux,code = <KEY_VOLUMEDOWN>;
+		channel = <0>;
+		voltage = <392644>;
+	};
+
+	button@601 {
+		label = "Menu";
+		linux,code = <KEY_MENU>;
+		channel = <0>;
+		voltage = <601151>;
+	};
+
+	button@795 {
+		label = "Enter";
+		linux,code = <KEY_ENTER>;
+		channel = <0>;
+		voltage = <795090>;
+	};
+
+	button@987 {
+		label = "Home";
+		linux,code = <KEY_HOMEPAGE>;
+		channel = <0>;
+		voltage = <987387>;
+	};
+};
+
+&mdio {
 	status = "okay";
 
 	phy1: ethernet-phy@1 {
@@ -136,34 +166,22 @@
 	};
 };
 
-&i2c0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2c0_pins_a>;
-	status = "okay";
-
-	axp209: pmic@34 {
-		compatible = "x-powers,axp209";
-		reg = <0x34>;
-		interrupt-parent = <&nmi_intc>;
-		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-
-		interrupt-controller;
-		#interrupt-cells = <1>;
-	};
-};
-
-&ir0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&ir0_pins_a>;
-	status = "okay";
-};
-
 &mmc0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_reference_design>;
+	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_olinuxino_micro>;
 	vmmc-supply = <&reg_vcc3v3>;
 	bus-width = <4>;
-	cd-gpios = <&pio 7 1 GPIO_ACTIVE_HIGH>; /* PH1 */
+	cd-gpios = <&pio 6 1 GPIO_ACTIVE_HIGH>; /* PG1 */
+	cd-inverted;
+	status = "okay";
+};
+
+&mmc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc1_pins_a>, <&mmc1_cd_pin_olinuxino_micro>;
+	vmmc-supply = <&reg_vcc3v3>;
+	bus-width = <4>;
+	cd-gpios = <&pio 6 13 GPIO_ACTIVE_HIGH>; /* PG13 */
 	cd-inverted;
 	status = "okay";
 };
@@ -172,36 +190,39 @@
 	status = "okay";
 };
 
-&ohci1 {
-	status = "okay";
-};
-
 &pio {
-	led_pins_pcduino3: led_pins@0 {
-		allwinner,pins = "PH15", "PH16";
+	mmc0_cd_pin_olinuxino_micro: mmc0_cd_pin@0 {
+		allwinner,pins = "PG1";
+		allwinner,function = "gpio_in";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+	};
+
+	mmc1_cd_pin_olinuxino_micro: mmc1_cd_pin@0 {
+		allwinner,pins = "PG13";
+		allwinner,function = "gpio_in";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+	};
+
+	led_pins_olinuxino: led_pins@0 {
+		allwinner,pins = "PE3";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_20_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+
+	usb1_vbus_pin_olinuxino_m: usb1_vbus_pin@0 {
+		allwinner,pins = "PB10";
 		allwinner,function = "gpio_out";
 		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
-
-	key_pins_pcduino3: key_pins@0 {
-		allwinner,pins = "PH17", "PH18", "PH19";
-		allwinner,function = "gpio_in";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-	};
-};
-
-&reg_ahci_5v {
-	gpio = <&pio 7 2 GPIO_ACTIVE_HIGH>;
-	status = "okay";
 };
 
 &reg_usb1_vbus {
-	status = "okay";
-};
-
-&reg_usb2_vbus {
+	pinctrl-0 = <&usb1_vbus_pin_olinuxino_m>;
+	gpio = <&pio 1 10 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
 
@@ -211,8 +232,20 @@
 	status = "okay";
 };
 
-&usbphy {
-	usb1_vbus-supply = <&reg_usb1_vbus>;
-	usb2_vbus-supply = <&reg_usb2_vbus>;
+&uart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart2_pins_a>;
 	status = "okay";
 };
+
+&uart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart3_pins_a>;
+	status = "okay";
+};
+
+&usbphy {
+	usb1_vbus-supply = <&reg_usb1_vbus>;
+	status = "okay";
+};
+

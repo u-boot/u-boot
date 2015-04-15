@@ -1,6 +1,7 @@
 /*
- * Copyright 2014 Zoltan HERPAI
- * Zoltan HERPAI <wigyori@uid0.hu>
+ * Copyright 2013 Wills Wang
+ *
+ * Wills Wang <wills.wang.open@gmail.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -51,69 +52,51 @@
 #include "sunxi-common-regulators.dtsi"
 
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/input/input.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/pinctrl/sun4i-a10.h>
 
 / {
-	model = "LinkSprite pcDuino3";
-	compatible = "linksprite,pcduino3", "allwinner,sun7i-a20";
+	model = "Merrii A20 Hummingbird";
+	compatible = "merrii,a20-hummingbird", "allwinner,sun7i-a20";
 
 	aliases {
 		serial0 = &uart0;
+		serial1 = &uart2;
+		serial2 = &uart3;
+		serial3 = &uart4;
+		serial4 = &uart5;
 	};
 
 	chosen {
 		stdout-path = "serial0:115200n8";
 	};
 
-	leds {
-		compatible = "gpio-leds";
+	reg_mmc3_vdd: mmc3_vdd {
+		compatible = "regulator-fixed";
 		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_pcduino3>;
-
-		tx {
-			label = "pcduino3:green:tx";
-			gpios = <&pio 7 15 GPIO_ACTIVE_LOW>;
-		};
-
-		rx {
-			label = "pcduino3:green:rx";
-			gpios = <&pio 7 16 GPIO_ACTIVE_LOW>;
-		};
+		pinctrl-0 = <&mmc3_vdd_pin_a20_hummingbird>;
+		regulator-name = "mmc3_vdd";
+		regulator-min-microvolt = <3000000>;
+		regulator-max-microvolt = <3000000>;
+		enable-active-high;
+		gpio = <&pio 7 9 GPIO_ACTIVE_HIGH>; /* PH9 */
 	};
 
-	gpio_keys {
-		compatible = "gpio-keys";
+	reg_gmac_vdd: gmac_vdd {
+		compatible = "regulator-fixed";
 		pinctrl-names = "default";
-		pinctrl-0 = <&key_pins_pcduino3>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-		button@0 {
-			label = "Key Back";
-			linux,code = <KEY_BACK>;
-			gpios = <&pio 7 17 GPIO_ACTIVE_LOW>;
-		};
-		button@1 {
-			label = "Key Home";
-			linux,code = <KEY_HOME>;
-			gpios = <&pio 7 18 GPIO_ACTIVE_LOW>;
-		};
-		button@2 {
-			label = "Key Menu";
-			linux,code = <KEY_MENU>;
-			gpios = <&pio 7 19 GPIO_ACTIVE_LOW>;
-		};
+		pinctrl-0 = <&gmac_vdd_pin_a20_hummingbird>;
+		regulator-name = "gmac_vdd";
+		regulator-min-microvolt = <3000000>;
+		regulator-max-microvolt = <3000000>;
+		enable-active-high;
+		gpio = <&pio 7 16 GPIO_ACTIVE_HIGH>; /* PH16 */
 	};
 };
 
 &ahci {
 	target-supply = <&reg_ahci_5v>;
 	status = "okay";
-};
-
-&ahci_pwr_pin_a {
-	allwinner,pins = "PH2";
 };
 
 &ehci0 {
@@ -126,9 +109,15 @@
 
 &gmac {
 	pinctrl-names = "default";
-	pinctrl-0 = <&gmac_pins_mii_a>;
+	pinctrl-0 = <&gmac_pins_rgmii_a>;
 	phy = <&phy1>;
-	phy-mode = "mii";
+	phy-mode = "rgmii";
+	phy-supply = <&reg_gmac_vdd>;
+	/* phy reset config */
+	snps,reset-gpio = <&pio 0 17 GPIO_ACTIVE_HIGH>; /* PA17 */
+	snps,reset-active-low;
+	/* wait 1s after reset, otherwise fail to read phy id */
+	snps,reset-delays-us = <0 10000 1000000>;
 	status = "okay";
 
 	phy1: ethernet-phy@1 {
@@ -146,10 +135,27 @@
 		reg = <0x34>;
 		interrupt-parent = <&nmi_intc>;
 		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-
 		interrupt-controller;
 		#interrupt-cells = <1>;
 	};
+};
+
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins_a>;
+	status = "okay";
+};
+
+&i2c2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c2_pins_a>;
+	status = "okay";
+};
+
+&i2c3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c3_pins_a>;
+	status = "okay";
 };
 
 &ir0 {
@@ -161,10 +167,19 @@
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_reference_design>;
-	vmmc-supply = <&reg_vcc3v3>;
+	vmmc-supply = <&reg_vcc3v0>;
 	bus-width = <4>;
 	cd-gpios = <&pio 7 1 GPIO_ACTIVE_HIGH>; /* PH1 */
 	cd-inverted;
+	status = "okay";
+};
+
+&mmc3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc3_pins_a>;
+	vmmc-supply = <&reg_mmc3_vdd>;
+	bus-width = <4>;
+	non-removable;
 	status = "okay";
 };
 
@@ -177,27 +192,50 @@
 };
 
 &pio {
-	led_pins_pcduino3: led_pins@0 {
-		allwinner,pins = "PH15", "PH16";
+	ahci_pwr_pin_a20_hummingbird: ahci_pwr_pin@0 {
+		allwinner,pins = "PH15";
 		allwinner,function = "gpio_out";
 		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
 
-	key_pins_pcduino3: key_pins@0 {
-		allwinner,pins = "PH17", "PH18", "PH19";
-		allwinner,function = "gpio_in";
+	usb1_vbus_pin_a20_hummingbird: usb1_vbus_pin@0 {
+		allwinner,pins = "PH2";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+
+	mmc3_vdd_pin_a20_hummingbird: mmc3_vdd_pin@0 {
+		allwinner,pins = "PH9";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+
+	gmac_vdd_pin_a20_hummingbird: gmac_vdd_pin@0 {
+		allwinner,pins = "PH16";
+		allwinner,function = "gpio_out";
 		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
 };
 
+&pwm {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pwm0_pins_a>;
+	status = "okay";
+};
+
 &reg_ahci_5v {
-	gpio = <&pio 7 2 GPIO_ACTIVE_HIGH>;
+	pinctrl-0 = <&ahci_pwr_pin_a20_hummingbird>;
+	gpio = <&pio 7 15 GPIO_ACTIVE_HIGH>; /* PH15 */
 	status = "okay";
 };
 
 &reg_usb1_vbus {
+	pinctrl-0 = <&usb1_vbus_pin_a20_hummingbird>;
+	gpio = <&pio 7 2 GPIO_ACTIVE_HIGH>; /* PH2 */
 	status = "okay";
 };
 
@@ -205,9 +243,39 @@
 	status = "okay";
 };
 
+&spi2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi2_pins_b>;
+	status = "okay";
+};
+
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pins_a>;
+	status = "okay";
+};
+
+&uart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart2_pins_a>;
+	status = "okay";
+};
+
+&uart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart3_pins_a>;
+	status = "okay";
+};
+
+&uart4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart4_pins_a>;
+	status = "okay";
+};
+
+&uart5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart5_pins_a>;
 	status = "okay";
 };
 

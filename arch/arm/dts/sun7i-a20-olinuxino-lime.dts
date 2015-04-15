@@ -1,6 +1,8 @@
 /*
- * Copyright 2014 Zoltan HERPAI
- * Zoltan HERPAI <wigyori@uid0.hu>
+ * This is based on sun4i-a10-olinuxino-lime.dts
+ *
+ * Copyright 2014 - Hans de Goede <hdegoede@redhat.com>
+ * Copyright (c) 2014 FUKAUMI Naoki <naobsd@gmail.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -51,13 +53,12 @@
 #include "sunxi-common-regulators.dtsi"
 
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/input/input.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/pinctrl/sun4i-a10.h>
 
 / {
-	model = "LinkSprite pcDuino3";
-	compatible = "linksprite,pcduino3", "allwinner,sun7i-a20";
+	model = "Olimex A20-OLinuXino-LIME";
+	compatible = "olimex,a20-olinuxino-lime", "allwinner,sun7i-a20";
 
 	aliases {
 		serial0 = &uart0;
@@ -70,39 +71,12 @@
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_pcduino3>;
+		pinctrl-0 = <&led_pins_olinuxinolime>;
 
-		tx {
-			label = "pcduino3:green:tx";
-			gpios = <&pio 7 15 GPIO_ACTIVE_LOW>;
-		};
-
-		rx {
-			label = "pcduino3:green:rx";
-			gpios = <&pio 7 16 GPIO_ACTIVE_LOW>;
-		};
-	};
-
-	gpio_keys {
-		compatible = "gpio-keys";
-		pinctrl-names = "default";
-		pinctrl-0 = <&key_pins_pcduino3>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-		button@0 {
-			label = "Key Back";
-			linux,code = <KEY_BACK>;
-			gpios = <&pio 7 17 GPIO_ACTIVE_LOW>;
-		};
-		button@1 {
-			label = "Key Home";
-			linux,code = <KEY_HOME>;
-			gpios = <&pio 7 18 GPIO_ACTIVE_LOW>;
-		};
-		button@2 {
-			label = "Key Menu";
-			linux,code = <KEY_MENU>;
-			gpios = <&pio 7 19 GPIO_ACTIVE_LOW>;
+		green {
+			label = "a20-olinuxino-lime:green:usr";
+			gpios = <&pio 7 2 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
 		};
 	};
 };
@@ -110,10 +84,6 @@
 &ahci {
 	target-supply = <&reg_ahci_5v>;
 	status = "okay";
-};
-
-&ahci_pwr_pin_a {
-	allwinner,pins = "PH2";
 };
 
 &ehci0 {
@@ -152,12 +122,6 @@
 	};
 };
 
-&ir0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&ir0_pins_a>;
-	status = "okay";
-};
-
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_reference_design>;
@@ -177,23 +141,24 @@
 };
 
 &pio {
-	led_pins_pcduino3: led_pins@0 {
-		allwinner,pins = "PH15", "PH16";
+	ahci_pwr_pin_olinuxinolime: ahci_pwr_pin@1 {
+		allwinner,pins = "PC3";
 		allwinner,function = "gpio_out";
 		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
 
-	key_pins_pcduino3: key_pins@0 {
-		allwinner,pins = "PH17", "PH18", "PH19";
-		allwinner,function = "gpio_in";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+	led_pins_olinuxinolime: led_pins@0 {
+		allwinner,pins = "PH2";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_20_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
 };
 
 &reg_ahci_5v {
-	gpio = <&pio 7 2 GPIO_ACTIVE_HIGH>;
+	pinctrl-0 = <&ahci_pwr_pin_olinuxinolime>;
+	gpio = <&pio 2 3 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
 

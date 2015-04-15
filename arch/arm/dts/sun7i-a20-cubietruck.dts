@@ -1,6 +1,7 @@
 /*
- * Copyright 2014 Zoltan HERPAI
- * Zoltan HERPAI <wigyori@uid0.hu>
+ * Copyright 2013 Oliver Schinagl
+ *
+ * Oliver Schinagl <oliver@schinagl.nl>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -51,13 +52,12 @@
 #include "sunxi-common-regulators.dtsi"
 
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/input/input.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/pinctrl/sun4i-a10.h>
 
 / {
-	model = "LinkSprite pcDuino3";
-	compatible = "linksprite,pcduino3", "allwinner,sun7i-a20";
+	model = "Cubietech Cubietruck";
+	compatible = "cubietech,cubietruck", "allwinner,sun7i-a20";
 
 	aliases {
 		serial0 = &uart0;
@@ -70,40 +70,38 @@
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_pcduino3>;
+		pinctrl-0 = <&led_pins_cubietruck>;
 
-		tx {
-			label = "pcduino3:green:tx";
-			gpios = <&pio 7 15 GPIO_ACTIVE_LOW>;
+		blue {
+			label = "cubietruck:blue:usr";
+			gpios = <&pio 7 21 GPIO_ACTIVE_HIGH>;
 		};
 
-		rx {
-			label = "pcduino3:green:rx";
-			gpios = <&pio 7 16 GPIO_ACTIVE_LOW>;
+		orange {
+			label = "cubietruck:orange:usr";
+			gpios = <&pio 7 20 GPIO_ACTIVE_HIGH>;
+		};
+
+		white {
+			label = "cubietruck:white:usr";
+			gpios = <&pio 7 11 GPIO_ACTIVE_HIGH>;
+		};
+
+		green {
+			label = "cubietruck:green:usr";
+			gpios = <&pio 7 7 GPIO_ACTIVE_HIGH>;
 		};
 	};
 
-	gpio_keys {
-		compatible = "gpio-keys";
+	reg_vmmc3: vmmc3 {
+		compatible = "regulator-fixed";
 		pinctrl-names = "default";
-		pinctrl-0 = <&key_pins_pcduino3>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-		button@0 {
-			label = "Key Back";
-			linux,code = <KEY_BACK>;
-			gpios = <&pio 7 17 GPIO_ACTIVE_LOW>;
-		};
-		button@1 {
-			label = "Key Home";
-			linux,code = <KEY_HOME>;
-			gpios = <&pio 7 18 GPIO_ACTIVE_LOW>;
-		};
-		button@2 {
-			label = "Key Menu";
-			linux,code = <KEY_MENU>;
-			gpios = <&pio 7 19 GPIO_ACTIVE_LOW>;
-		};
+		pinctrl-0 = <&vmmc3_pin_cubietruck>;
+		regulator-name = "vmmc3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		enable-active-high;
+		gpio = <&pio 7 9 GPIO_ACTIVE_HIGH>;
 	};
 };
 
@@ -112,8 +110,8 @@
 	status = "okay";
 };
 
-&ahci_pwr_pin_a {
-	allwinner,pins = "PH2";
+&cpu0 {
+	cpu-supply = <&reg_dcdc2>;
 };
 
 &ehci0 {
@@ -126,9 +124,9 @@
 
 &gmac {
 	pinctrl-names = "default";
-	pinctrl-0 = <&gmac_pins_mii_a>;
+	pinctrl-0 = <&gmac_pins_rgmii_a>;
 	phy = <&phy1>;
-	phy-mode = "mii";
+	phy-mode = "rgmii";
 	status = "okay";
 
 	phy1: ethernet-phy@1 {
@@ -142,14 +140,22 @@
 	status = "okay";
 
 	axp209: pmic@34 {
-		compatible = "x-powers,axp209";
 		reg = <0x34>;
 		interrupt-parent = <&nmi_intc>;
 		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-
-		interrupt-controller;
-		#interrupt-cells = <1>;
 	};
+};
+
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins_a>;
+	status = "okay";
+};
+
+&i2c2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c2_pins_a>;
+	status = "okay";
 };
 
 &ir0 {
@@ -168,6 +174,28 @@
 	status = "okay";
 };
 
+&mmc3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc3_pins_a>;
+	vmmc-supply = <&reg_vmmc3>;
+	bus-width = <4>;
+	non-removable;
+	status = "okay";
+
+	brcmf: bcrmf@1 {
+		reg = <1>;
+		compatible = "brcm,bcm4329-fmac";
+		interrupt-parent = <&pio>;
+		interrupts = <10 IRQ_TYPE_LEVEL_LOW>; /* PH10 / EINT10 */
+		interrupt-names = "host-wake";
+	};
+};
+
+&mmc3_pins_a {
+	/* AP6210 requires pull-up */
+	allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+};
+
 &ohci0 {
 	status = "okay";
 };
@@ -177,23 +205,77 @@
 };
 
 &pio {
-	led_pins_pcduino3: led_pins@0 {
-		allwinner,pins = "PH15", "PH16";
+	vmmc3_pin_cubietruck: vmmc3_pin@0 {
+		allwinner,pins = "PH9";
 		allwinner,function = "gpio_out";
 		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
 
-	key_pins_pcduino3: key_pins@0 {
-		allwinner,pins = "PH17", "PH18", "PH19";
-		allwinner,function = "gpio_in";
+	ahci_pwr_pin_cubietruck: ahci_pwr_pin@1 {
+		allwinner,pins = "PH12";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+
+	led_pins_cubietruck: led_pins@0 {
+		allwinner,pins = "PH7", "PH11", "PH20", "PH21";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+
+	usb0_vbus_pin_a: usb0_vbus_pin@0 {
+		allwinner,pins = "PH17";
+		allwinner,function = "gpio_out";
 		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
 };
 
+&pwm {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pwm0_pins_a>, <&pwm1_pins_a>;
+	status = "okay";
+};
+
 &reg_ahci_5v {
-	gpio = <&pio 7 2 GPIO_ACTIVE_HIGH>;
+	pinctrl-0 = <&ahci_pwr_pin_cubietruck>;
+	gpio = <&pio 7 12 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
+#include "axp209.dtsi"
+
+&reg_dcdc2 {
+	regulator-always-on;
+	regulator-min-microvolt = <1000000>;
+	regulator-max-microvolt = <1450000>;
+	regulator-name = "vdd-cpu";
+};
+
+&reg_dcdc3 {
+	regulator-always-on;
+	regulator-min-microvolt = <1000000>;
+	regulator-max-microvolt = <1400000>;
+	regulator-name = "vdd-int-dll";
+};
+
+&reg_ldo1 {
+	regulator-name = "vdd-rtc";
+};
+
+&reg_ldo2 {
+	regulator-always-on;
+	regulator-min-microvolt = <3000000>;
+	regulator-max-microvolt = <3000000>;
+	regulator-name = "avcc";
+};
+
+&reg_usb0_vbus {
+	pinctrl-0 = <&usb0_vbus_pin_a>;
+	gpio = <&pio 7 17 GPIO_ACTIVE_HIGH>;
 	status = "okay";
 };
 
@@ -212,6 +294,7 @@
 };
 
 &usbphy {
+	usb0_vbus-supply = <&reg_usb0_vbus>;
 	usb1_vbus-supply = <&reg_usb1_vbus>;
 	usb2_vbus-supply = <&reg_usb2_vbus>;
 	status = "okay";
