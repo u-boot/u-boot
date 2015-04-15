@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
@@ -16,6 +17,8 @@ unsigned long get_uart_clk(int dev_id)
 	u32 ver = zynqmp_get_silicon_version();
 
 	switch (ver) {
+	case ZYNQMP_CSU_VERSION_VELOCE:
+		return 48000;
 	case ZYNQMP_CSU_VERSION_EP108:
 		return 25000000;
 	}

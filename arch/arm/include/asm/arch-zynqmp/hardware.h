@@ -84,6 +84,7 @@ struct apu_regs {
 /* Board version value */
 #define ZYNQMP_CSU_VERSION_SILICON	0x0
 #define ZYNQMP_CSU_VERSION_EP108	0x1
+#define ZYNQMP_CSU_VERSION_VELOCE	0x2
 #define ZYNQMP_CSU_VERSION_QEMU		0x3
 
 #endif /* _ASM_ARCH_HARDWARE_H */

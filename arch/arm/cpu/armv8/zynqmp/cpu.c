@@ -20,6 +20,8 @@ unsigned int zynqmp_get_silicon_version(void)
 	gd->cpu_clk = get_tbclk();
 
 	switch (gd->cpu_clk) {
+	case 0 ... 1000000:
+		return ZYNQMP_CSU_VERSION_VELOCE;
 	case 50000000:
 		return ZYNQMP_CSU_VERSION_QEMU;
 	}
