@@ -5,6 +5,10 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+ifdef CONFIG_DM
+obj-$(CONFIG_DISPLAY_PORT) += dp-uclass.o
+endif
+
 obj-$(CONFIG_ATI_RADEON_FB) += ati_radeon_fb.o videomodes.o
 obj-$(CONFIG_ATMEL_HLCD) += atmel_hlcdfb.o
 obj-$(CONFIG_ATMEL_LCD) += atmel_lcdfb.o

@@ -27,6 +27,7 @@ enum uclass_id {
 	/* U-Boot uclasses start here - in alphabetical order */
 	UCLASS_CPU,		/* CPU, typically part of an SoC */
 	UCLASS_CROS_EC,		/* Chrome OS EC */
+	UCLASS_DISPLAY_PORT,	/* Display port video */
 	UCLASS_ETH,		/* Ethernet device */
 	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */
 	UCLASS_I2C,		/* I2C bus */

@@ -88,3 +88,10 @@ config VIDEO_LCD_SPI_MISO
 	hardware and LCD panel id retrieval (if the panel can report it). The
 	option takes a string in the format understood by 'name_to_gpio'
 	function, e.g. PH1 for pin 1 of port H.
+
+config DISPLAY_PORT
+	bool "Enable DisplayPort support"
+	help
+	   eDP (Embedded DisplayPort) is a standard widely used in laptops
+	   to drive LCD panels. This framework provides support for enabling
+	   these displays where supported by the video hardware.
