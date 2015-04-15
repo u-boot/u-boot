@@ -495,22 +495,54 @@ int gpio_get_status(struct udevice *dev, int offset, char *buf, int buffsize)
 	return 0;
 }
 
+int gpio_claim_vector(const int *gpio_num_array, const char *fmt)
+{
+	int i, ret;
+	int gpio;
+
+	for (i = 0; i < 32; i++) {
+		gpio = gpio_num_array[i];
+		if (gpio == -1)
+			break;
+		ret = gpio_requestf(gpio, fmt, i);
+		if (ret)
+			goto err;
+		ret = gpio_direction_input(gpio);
+		if (ret) {
+			gpio_free(gpio);
+			goto err;
+		}
+	}
+
+	return 0;
+err:
+	for (i--; i >= 0; i--)
+		gpio_free(gpio_num_array[i]);
+
+	return ret;
+}
+
 /*
  * get a number comprised of multiple GPIO values. gpio_num_array points to
  * the array of gpio pin numbers to scan, terminated by -1.
  */
-unsigned gpio_get_values_as_int(const int *gpio_num_array)
+int gpio_get_values_as_int(const int *gpio_list)
 {
 	int gpio;
 	unsigned bitmask = 1;
 	unsigned vector = 0;
+	int ret;
 
 	while (bitmask &&
-	       ((gpio = *gpio_num_array++) != -1)) {
-		if (gpio_get_value(gpio))
+	       ((gpio = *gpio_list++) != -1)) {
+		ret = gpio_get_value(gpio);
+		if (ret < 0)
+			return ret;
+		else if (ret)
 			vector |= bitmask;
 		bitmask <<= 1;
 	}
+
 	return vector;
 }
 
