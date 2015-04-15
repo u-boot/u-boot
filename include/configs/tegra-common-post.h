@@ -34,7 +34,7 @@
 #define STDIN_KBD_USB ""
 #endif
 
-#ifdef CONFIG_VIDEO_TEGRA
+#ifdef CONFIG_LCD
 #define STDOUT_LCD ",lcd"
 #else
 #define STDOUT_LCD ""
