@@ -298,6 +298,17 @@ int uclass_get_device(enum uclass_id id, int index, struct udevice **devp)
 	return uclass_get_device_tail(dev, ret, devp);
 }
 
+int uclass_get_device_by_name(enum uclass_id id, const char *name,
+			      struct udevice **devp)
+{
+	struct udevice *dev;
+	int ret;
+
+	*devp = NULL;
+	ret = uclass_find_device_by_name(id, name, &dev);
+	return uclass_get_device_tail(dev, ret, devp);
+}
+
 int uclass_get_device_by_seq(enum uclass_id id, int seq, struct udevice **devp)
 {
 	struct udevice *dev;

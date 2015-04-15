@@ -130,6 +130,21 @@ int uclass_get(enum uclass_id key, struct uclass **ucp);
 int uclass_get_device(enum uclass_id id, int index, struct udevice **devp);
 
 /**
+ * uclass_get_device_by_name() - Get a uclass device by it's name
+ *
+ * This searches the devices in the uclass for one with the given name.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @id: ID to look up
+ * @name: name of a device to get
+ * @devp: Returns pointer to device (the first one with the name)
+ * @return 0 if OK, -ve on error
+ */
+int uclass_get_device_by_name(enum uclass_id id, const char *name,
+			      struct udevice **devp);
+
+/**
  * uclass_get_device_by_seq() - Get a uclass device based on an ID and sequence
  *
  * If an active device has this sequence it will be returned. If there is no
