@@ -656,8 +656,40 @@ static int dm_test_uclass_before_ready(struct dm_test_state *dms)
 
 	return 0;
 }
-
 DM_TEST(dm_test_uclass_before_ready, 0);
+
+static int dm_test_uclass_devices_find(struct dm_test_state *dms)
+{
+	struct udevice *dev;
+	int ret;
+
+	for (ret = uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_find_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assert(dev);
+	}
+
+	return 0;
+}
+DM_TEST(dm_test_uclass_devices_find, DM_TESTF_SCAN_PDATA);
+
+static int dm_test_uclass_devices_get(struct dm_test_state *dms)
+{
+	struct udevice *dev;
+	int ret;
+
+	for (ret = uclass_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     ret = uclass_next_device(&dev)) {
+		ut_assert(!ret);
+		ut_assert(dev);
+		ut_assert(device_active(dev));
+	}
+
+	return 0;
+}
+DM_TEST(dm_test_uclass_devices_get, DM_TESTF_SCAN_PDATA);
 
 static int dm_test_device_get_uclass_id(struct dm_test_state *dms)
 {
