@@ -30,8 +30,17 @@ int test_ping(struct udevice *dev, int pingval, int *pingret)
 
 static int test_post_bind(struct udevice *dev)
 {
+	struct dm_test_perdev_uc_pdata *uc_pdata;
+
 	dm_testdrv_op_count[DM_TEST_OP_POST_BIND]++;
 	ut_assert(!device_active(dev));
+
+	uc_pdata = dev_get_uclass_platdata(dev);
+	ut_assert(uc_pdata);
+
+	uc_pdata->intval1 = TEST_UC_PDATA_INTVAL1;
+	uc_pdata->intval2 = TEST_UC_PDATA_INTVAL2;
+	uc_pdata->intval3 = TEST_UC_PDATA_INTVAL3;
 
 	return 0;
 }
@@ -115,4 +124,6 @@ UCLASS_DRIVER(test) = {
 	.destroy	= test_destroy,
 	.priv_auto_alloc_size	= sizeof(struct dm_test_uclass_priv),
 	.per_device_auto_alloc_size = sizeof(struct dm_test_uclass_perdev_priv),
+	.per_device_platdata_auto_alloc_size =
+					sizeof(struct dm_test_perdev_uc_pdata),
 };

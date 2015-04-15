@@ -129,6 +129,61 @@ static int dm_test_autobind(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_autobind, 0);
 
+/* Test that binding with uclass platdata allocation occurs correctly */
+static int dm_test_autobind_uclass_pdata_alloc(struct dm_test_state *dms)
+{
+	struct dm_test_perdev_uc_pdata *uc_pdata;
+	struct udevice *dev;
+	struct uclass *uc;
+
+	ut_assertok(uclass_get(UCLASS_TEST, &uc));
+	ut_assert(uc);
+
+	/**
+	 * Test if test uclass driver requires allocation for the uclass
+	 * platform data and then check the dev->uclass_platdata pointer.
+	 */
+	ut_assert(uc->uc_drv->per_device_platdata_auto_alloc_size);
+
+	for (uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     uclass_find_next_device(&dev)) {
+		ut_assert(dev);
+
+		uc_pdata = dev_get_uclass_platdata(dev);
+		ut_assert(uc_pdata);
+	}
+
+	return 0;
+}
+DM_TEST(dm_test_autobind_uclass_pdata_alloc, DM_TESTF_SCAN_PDATA);
+
+/* Test that binding with uclass platdata setting occurs correctly */
+static int dm_test_autobind_uclass_pdata_valid(struct dm_test_state *dms)
+{
+	struct dm_test_perdev_uc_pdata *uc_pdata;
+	struct udevice *dev;
+
+	/**
+	 * In the test_postbind() method of test uclass driver, the uclass
+	 * platform data should be set to three test int values - test it.
+	 */
+	for (uclass_find_first_device(UCLASS_TEST, &dev);
+	     dev;
+	     uclass_find_next_device(&dev)) {
+		ut_assert(dev);
+
+		uc_pdata = dev_get_uclass_platdata(dev);
+		ut_assert(uc_pdata);
+		ut_assert(uc_pdata->intval1 == TEST_UC_PDATA_INTVAL1);
+		ut_assert(uc_pdata->intval2 == TEST_UC_PDATA_INTVAL2);
+		ut_assert(uc_pdata->intval3 == TEST_UC_PDATA_INTVAL3);
+	}
+
+	return 0;
+}
+DM_TEST(dm_test_autobind_uclass_pdata_valid, DM_TESTF_SCAN_PDATA);
+
 /* Test that autoprobe finds all the expected devices */
 static int dm_test_autoprobe(struct dm_test_state *dms)
 {
