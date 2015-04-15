@@ -14,6 +14,10 @@
 
 #include "compiler.h"
 
+/* Taken from <linux/kernel.h> */
+#define __round_mask(x, y) ((__typeof__(x))((y)-1))
+#define round_down(x, y) ((x) & ~__round_mask(x, y))
+
 /*
  * Default BCB layout.
  *
@@ -126,6 +130,11 @@ struct mx28_sd_config_block {
 	struct mx28_sd_drive_info	drv_info[1];
 };
 
+static inline uint32_t mx28_nand_ecc_chunk_cnt(uint32_t page_data_size)
+{
+	return page_data_size / MXS_NAND_CHUNK_DATA_CHUNK_SIZE;
+}
+
 static inline uint32_t mx28_nand_ecc_size_in_bits(uint32_t ecc_strength)
 {
 	return ecc_strength * MXS_NAND_BITS_PER_ECC_LEVEL;
@@ -134,21 +143,21 @@ static inline uint32_t mx28_nand_ecc_size_in_bits(uint32_t ecc_strength)
 static inline uint32_t mx28_nand_get_ecc_strength(uint32_t page_data_size,
 						uint32_t page_oob_size)
 {
-	if (page_data_size == 2048)
-		return 8;
+	int ecc_strength;
 
-	if (page_data_size == 4096) {
-		if (page_oob_size == 128)
-			return 8;
+	/*
+	 * Determine the ECC layout with the formula:
+	 *	ECC bits per chunk = (total page spare data bits) /
+	 *		(bits per ECC level) / (chunks per page)
+	 * where:
+	 *	total page spare data bits =
+	 *		(page oob size - meta data size) * (bits per byte)
+	 */
+	ecc_strength = ((page_oob_size - MXS_NAND_METADATA_SIZE) * 8)
+			/ (MXS_NAND_BITS_PER_ECC_LEVEL *
+				mx28_nand_ecc_chunk_cnt(page_data_size));
 
-		if (page_oob_size == 218)
-			return 16;
-
-		if (page_oob_size == 224)
-			return 16;
-	}
-
-	return 0;
+	return round_down(ecc_strength, 2);
 }
 
 static inline uint32_t mx28_nand_get_mark_offset(uint32_t page_data_size,
