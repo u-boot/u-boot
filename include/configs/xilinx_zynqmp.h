@@ -71,6 +71,13 @@
 #define CONFIG_CMD_ELF
 #define CONFIG_MP
 
+/* SPI */
+#ifdef CONFIG_ZYNQ_SPI
+# define CONFIG_SPI_FLASH
+# define CONFIG_SPI_FLASH_SST
+# define CONFIG_CMD_SF
+#endif
+
 #if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
 # define CONFIG_MMC
 # define CONFIG_GENERIC_MMC
