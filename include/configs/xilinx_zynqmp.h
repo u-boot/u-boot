@@ -68,6 +68,8 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_MEMORY
 #define CONFIG_DOS_PARTITION
+#define CONFIG_CMD_ELF
+#define CONFIG_MP
 
 #if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
 # define CONFIG_MMC
