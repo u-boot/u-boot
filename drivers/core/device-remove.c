@@ -92,6 +92,10 @@ int device_unbind(struct udevice *dev)
 		free(dev->platdata);
 		dev->platdata = NULL;
 	}
+	if (dev->flags & DM_FLAG_ALLOC_UCLASS_PDATA) {
+		free(dev->uclass_platdata);
+		dev->uclass_platdata = NULL;
+	}
 	if (dev->flags & DM_FLAG_ALLOC_PARENT_PDATA) {
 		free(dev->parent_platdata);
 		dev->parent_platdata = NULL;

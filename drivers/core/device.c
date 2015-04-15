@@ -30,7 +30,7 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 {
 	struct udevice *dev;
 	struct uclass *uc;
-	int ret = 0;
+	int size, ret = 0;
 
 	*devp = NULL;
 	if (!name)
@@ -79,9 +79,19 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 			goto fail_alloc1;
 		}
 	}
-	if (parent) {
-		int size = parent->driver->per_child_platdata_auto_alloc_size;
 
+	size = uc->uc_drv->per_device_platdata_auto_alloc_size;
+	if (size) {
+		dev->flags |= DM_FLAG_ALLOC_UCLASS_PDATA;
+		dev->uclass_platdata = calloc(1, size);
+		if (!dev->uclass_platdata) {
+			ret = -ENOMEM;
+			goto fail_alloc2;
+		}
+	}
+
+	if (parent) {
+		size = parent->driver->per_child_platdata_auto_alloc_size;
 		if (!size) {
 			size = parent->uclass->uc_drv->
 					per_child_platdata_auto_alloc_size;
@@ -91,7 +101,7 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 			dev->parent_platdata = calloc(1, size);
 			if (!dev->parent_platdata) {
 				ret = -ENOMEM;
-				goto fail_alloc2;
+				goto fail_alloc3;
 			}
 		}
 	}
@@ -138,6 +148,11 @@ fail_uclass_bind:
 	if (dev->flags & DM_FLAG_ALLOC_PARENT_PDATA) {
 		free(dev->parent_platdata);
 		dev->parent_platdata = NULL;
+	}
+fail_alloc3:
+	if (dev->flags & DM_FLAG_ALLOC_UCLASS_PDATA) {
+		free(dev->uclass_platdata);
+		dev->uclass_platdata = NULL;
 	}
 fail_alloc2:
 	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
@@ -312,6 +327,16 @@ void *dev_get_parent_platdata(struct udevice *dev)
 	}
 
 	return dev->parent_platdata;
+}
+
+void *dev_get_uclass_platdata(struct udevice *dev)
+{
+	if (!dev) {
+		dm_warn("%s: null device", __func__);
+		return NULL;
+	}
+
+	return dev->uclass_platdata;
 }
 
 void *dev_get_priv(struct udevice *dev)

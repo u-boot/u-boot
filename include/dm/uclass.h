@@ -65,6 +65,9 @@ struct udevice;
  * @per_device_auto_alloc_size: Each device can hold private data owned
  * by the uclass. If required this will be automatically allocated if this
  * value is non-zero.
+ * @per_device_platdata_auto_alloc_size: Each device can hold platform data
+ * owned by the uclass as 'dev->uclass_platdata'. If the value is non-zero,
+ * then this will be automatically allocated.
  * @per_child_auto_alloc_size: Each child device (of a parent in this
  * uclass) can hold parent data for the device/uclass. This value is only
  * used as a falback if this member is 0 in the driver.
@@ -90,6 +93,7 @@ struct uclass_driver {
 	int (*destroy)(struct uclass *class);
 	int priv_auto_alloc_size;
 	int per_device_auto_alloc_size;
+	int per_device_platdata_auto_alloc_size;
 	int per_child_auto_alloc_size;
 	int per_child_platdata_auto_alloc_size;
 	const void *ops;
