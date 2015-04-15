@@ -53,10 +53,6 @@ U_BOOT_DEVICE(tegra_gpios) = {
 };
 #endif
 
-const struct tegra_sysinfo sysinfo = {
-	CONFIG_TEGRA_BOARD_STRING
-};
-
 __weak void pinmux_init(void) {}
 __weak void pin_mux_usb(void) {}
 __weak void pin_mux_spi(void) {}
@@ -84,6 +80,15 @@ static void power_det_init(void)
 	writel(0, &pmc->pmc_pwr_det);
 #endif
 }
+
+#ifdef CONFIG_DISPLAY_BOARDINFO
+int checkboard(void)
+{
+	printf("Board: %s\n", CONFIG_TEGRA_BOARD_STRING);
+
+	return 0;
+}
+#endif	/* CONFIG_DISPLAY_BOARDINFO */
 
 /*
  * Routine: board_init
