@@ -1,5 +1,5 @@
 /*
- * Tegra2 pulse width frequency modulator definitions
+ * Tegra pulse width frequency modulator definitions
  *
  * Copyright (c) 2011 The Chromium OS Authors.
  *
