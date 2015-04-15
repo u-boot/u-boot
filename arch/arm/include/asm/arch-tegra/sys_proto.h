@@ -17,4 +17,12 @@ void invalidate_dcache(void);
  */
 int tegra_board_id(void);
 
+/**
+ * tegra_lcd_pmic_init() - Set up the PMIC for a board
+ *
+ * @board_id: Board ID which may be used to select LCD type
+ * @return 0 if OK, -ve on error
+ */
+int tegra_lcd_pmic_init(int board_id);
+
 #endif
