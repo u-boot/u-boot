@@ -446,7 +446,7 @@ int pch_gbe_register(bd_t *bis)
 	dev->iobase = iobase;
 	priv->mac_regs = (struct pch_gbe_regs *)iobase;
 
-	sprintf(dev->name, "pch_gbe.%x", iobase);
+	sprintf(dev->name, "pch_gbe");
 
 	/* Read MAC address from SROM and initialize dev->enetaddr with it */
 	pch_gbe_mac_read(priv->mac_regs, dev->enetaddr);
