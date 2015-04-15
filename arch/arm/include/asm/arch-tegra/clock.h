@@ -265,6 +265,9 @@ void clock_early_init(void);
 /* Returns a pointer to the clock source register for a peripheral */
 u32 *get_periph_source_reg(enum periph_id periph_id);
 
+/* Returns a pointer to the given 'simple' PLL */
+struct clk_pll_simple *clock_get_simple_pll(enum clock_id clkid);
+
 /**
  * Given a peripheral ID and the required source clock, this returns which
  * value should be programmed into the source mux for that peripheral.

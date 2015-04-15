@@ -81,7 +81,16 @@ static struct clk_pll *get_pll(enum clock_id clkid)
 			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
 
 	assert(clock_id_is_pll(clkid));
+	if (clkid >= (enum clock_id)TEGRA_CLK_PLLS) {
+		debug("%s: Invalid PLL\n", __func__);
+		return NULL;
+	}
 	return &clkrst->crc_pll[clkid];
+}
+
+__weak struct clk_pll_simple *clock_get_simple_pll(enum clock_id clkid)
+{
+	return NULL;
 }
 
 int clock_ll_read_pll(enum clock_id clkid, u32 *divm, u32 *divn,
@@ -110,7 +119,7 @@ unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 		u32 divp, u32 cpcon, u32 lfcon)
 {
 	struct clk_pll *pll = get_pll(clkid);
-	u32 data;
+	u32 misc_data, data;
 
 	/*
 	 * We cheat by treating all PLL (except PLLU) in the same fashion.
@@ -119,8 +128,7 @@ unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 	 * - DCCON is always 0, doesn't conflict
 	 * - M,N, P of PLLP values are ignored for PLLP
 	 */
-	data = (cpcon << PLL_CPCON_SHIFT) | (lfcon << PLL_LFCON_SHIFT);
-	writel(data, &pll->pll_misc);
+	misc_data = (cpcon << PLL_CPCON_SHIFT) | (lfcon << PLL_LFCON_SHIFT);
 
 	data = (divm << PLL_DIVM_SHIFT) | (divn << PLL_DIVN_SHIFT) |
 			(0 << PLL_BYPASS_SHIFT) | (1 << PLL_ENABLE_SHIFT);
@@ -129,7 +137,19 @@ unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 		data |= divp << PLLU_VCO_FREQ_SHIFT;
 	else
 		data |= divp << PLL_DIVP_SHIFT;
-	writel(data, &pll->pll_base);
+	if (pll) {
+		writel(misc_data, &pll->pll_misc);
+		writel(data, &pll->pll_base);
+	} else {
+		struct clk_pll_simple *pll = clock_get_simple_pll(clkid);
+
+		if (!pll) {
+			debug("%s: Uknown simple PLL %d\n", __func__, clkid);
+			return 0;
+		}
+		writel(misc_data, &pll->pll_misc);
+		writel(data, &pll->pll_base);
+	}
 
 	/* calculate the stable time */
 	return timer_get_us() + CLOCK_PLL_STABLE_DELAY_US;
@@ -431,6 +451,8 @@ unsigned clock_get_rate(enum clock_id clkid)
 		return parent_rate;
 
 	pll = get_pll(clkid);
+	if (!pll)
+		return 0;
 	base = readl(&pll->pll_base);
 
 	/* Oh for bf_unpack()... */
