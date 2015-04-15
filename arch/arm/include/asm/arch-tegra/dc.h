@@ -564,6 +564,10 @@ enum {
 #define V_DDA_INC_SHIFT		16
 #define V_DDA_INC_MASK		(0xFFFF << V_DDA_INC_SHIFT)
 
+#define DC_POLL_TIMEOUT_MS		50
+#define DC_N_WINDOWS			5
+#define DC_REG_SAVE_SPACE		(DC_N_WINDOWS + 5)
+
 struct display_timing;
 
 int display_init(void *lcdbase, int fb_bits_per_pixel,

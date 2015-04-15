@@ -128,6 +128,183 @@ struct dpaux_ctlr {
 #define DP_AUX_TIMEOUT_MS		40
 #define DP_DPCP_RETRY_SLEEP_NS		400
 
+static const u32 tegra_dp_vs_regs[][4][4] = {
+	/* postcursor2 L0 */
+	{
+		/* pre-emphasis: L0, L1, L2, L3 */
+		{0x13, 0x19, 0x1e, 0x28}, /* voltage swing: L0 */
+		{0x1e, 0x25, 0x2d}, /* L1 */
+		{0x28, 0x32}, /* L2 */
+		{0x3c}, /* L3 */
+	},
+
+	/* postcursor2 L1 */
+	{
+		{0x12, 0x17, 0x1b, 0x25},
+		{0x1c, 0x23, 0x2a},
+		{0x25, 0x2f},
+		{0x39},
+	},
+
+	/* postcursor2 L2 */
+	{
+		{0x12, 0x16, 0x1a, 0x22},
+		{0x1b, 0x20, 0x27},
+		{0x24, 0x2d},
+		{0x36},
+	},
+
+	/* postcursor2 L3 */
+	{
+		{0x11, 0x14, 0x17, 0x1f},
+		{0x19, 0x1e, 0x24},
+		{0x22, 0x2a},
+		{0x32},
+	},
+};
+
+static const u32 tegra_dp_pe_regs[][4][4] = {
+	/* postcursor2 L0 */
+	{
+		/* pre-emphasis: L0, L1, L2, L3 */
+		{0x00, 0x09, 0x13, 0x25}, /* voltage swing: L0 */
+		{0x00, 0x0f, 0x1e}, /* L1 */
+		{0x00, 0x14}, /* L2 */
+		{0x00}, /* L3 */
+	},
+
+	/* postcursor2 L1 */
+	{
+		{0x00, 0x0a, 0x14, 0x28},
+		{0x00, 0x0f, 0x1e},
+		{0x00, 0x14},
+		{0x00},
+	},
+
+	/* postcursor2 L2 */
+	{
+		{0x00, 0x0a, 0x14, 0x28},
+		{0x00, 0x0f, 0x1e},
+		{0x00, 0x14},
+		{0x00},
+	},
+
+	/* postcursor2 L3 */
+	{
+		{0x00, 0x0a, 0x14, 0x28},
+		{0x00, 0x0f, 0x1e},
+		{0x00, 0x14},
+		{0x00},
+	},
+};
+
+static const u32 tegra_dp_pc_regs[][4][4] = {
+	/* postcursor2 L0 */
+	{
+		/* pre-emphasis: L0, L1, L2, L3 */
+		{0x00, 0x00, 0x00, 0x00}, /* voltage swing: L0 */
+		{0x00, 0x00, 0x00}, /* L1 */
+		{0x00, 0x00}, /* L2 */
+		{0x00}, /* L3 */
+	},
+
+	/* postcursor2 L1 */
+	{
+		{0x02, 0x02, 0x04, 0x05},
+		{0x02, 0x04, 0x05},
+		{0x04, 0x05},
+		{0x05},
+	},
+
+	/* postcursor2 L2 */
+	{
+		{0x04, 0x05, 0x08, 0x0b},
+		{0x05, 0x09, 0x0b},
+		{0x08, 0x0a},
+		{0x0b},
+	},
+
+	/* postcursor2 L3 */
+	{
+		{0x05, 0x09, 0x0b, 0x12},
+		{0x09, 0x0d, 0x12},
+		{0x0b, 0x0f},
+		{0x12},
+	},
+};
+
+static const u32 tegra_dp_tx_pu[][4][4] = {
+	/* postcursor2 L0 */
+	{
+		/* pre-emphasis: L0, L1, L2, L3 */
+		{0x20, 0x30, 0x40, 0x60}, /* voltage swing: L0 */
+		{0x30, 0x40, 0x60}, /* L1 */
+		{0x40, 0x60}, /* L2 */
+		{0x60}, /* L3 */
+	},
+
+	/* postcursor2 L1 */
+	{
+		{0x20, 0x20, 0x30, 0x50},
+		{0x30, 0x40, 0x50},
+		{0x40, 0x50},
+		{0x60},
+	},
+
+	/* postcursor2 L2 */
+	{
+		{0x20, 0x20, 0x30, 0x40},
+		{0x30, 0x30, 0x40},
+		{0x40, 0x50},
+		{0x60},
+	},
+
+	/* postcursor2 L3 */
+	{
+		{0x20, 0x20, 0x20, 0x40},
+		{0x30, 0x30, 0x40},
+		{0x40, 0x40},
+		{0x60},
+	},
+};
+
+enum {
+	DRIVECURRENT_LEVEL0 = 0,
+	DRIVECURRENT_LEVEL1 = 1,
+	DRIVECURRENT_LEVEL2 = 2,
+	DRIVECURRENT_LEVEL3 = 3,
+};
+
+enum {
+	PREEMPHASIS_DISABLED = 0,
+	PREEMPHASIS_LEVEL1   = 1,
+	PREEMPHASIS_LEVEL2   = 2,
+	PREEMPHASIS_LEVEL3   = 3,
+};
+
+enum {
+	POSTCURSOR2_LEVEL0 = 0,
+	POSTCURSOR2_LEVEL1 = 1,
+	POSTCURSOR2_LEVEL2 = 2,
+	POSTCURSOR2_LEVEL3 = 3,
+	POSTCURSOR2_SUPPORTED
+};
+
+static inline int tegra_dp_is_max_vs(u32 pe, u32 vs)
+{
+	return (vs < (DRIVECURRENT_LEVEL3 - pe)) ? 0 : 1;
+}
+
+static inline int tegra_dp_is_max_pe(u32 pe, u32 vs)
+{
+	return (pe < (PREEMPHASIS_LEVEL3 - vs)) ? 0 : 1;
+}
+
+static inline int tegra_dp_is_max_pc(u32 pc)
+{
+	return (pc < POSTCURSOR2_LEVEL3) ? 0 : 1;
+}
+
 /* DPCD definitions which are not defined in drm_dp_helper.h */
 #define DP_DPCD_REV_MAJOR_SHIFT				4
 #define DP_DPCD_REV_MAJOR_MASK				(0xf << 4)
@@ -141,7 +318,15 @@ struct dpaux_ctlr {
 #define DP_MAX_LANE_COUNT_LANE_1			0x1
 #define DP_MAX_LANE_COUNT_LANE_2			0x2
 #define DP_MAX_LANE_COUNT_LANE_4			0x4
+#define DP_MAX_LANE_COUNT_TPS3_SUPPORTED_YES		(1 << 6)
 #define DP_MAX_LANE_COUNT_ENHANCED_FRAMING_YES		(1 << 7)
+
+#define NV_DPCD_TRAINING_LANEX_SET_DC_SHIFT		0
+#define NV_DPCD_TRAINING_LANEX_SET_DC_MAX_REACHED_T	(0x00000001 << 2)
+#define NV_DPCD_TRAINING_LANEX_SET_DC_MAX_REACHED_F     (0x00000000 << 2)
+#define NV_DPCD_TRAINING_LANEX_SET_PE_SHIFT		3
+#define NV_DPCD_TRAINING_LANEX_SET_PE_MAX_REACHED_T	(0x00000001 << 5)
+#define NV_DPCD_TRAINING_LANEX_SET_PE_MAX_REACHED_F	(0x00000000 << 5)
 
 #define DP_MAX_DOWNSPREAD_VAL_NONE			0
 #define DP_MAX_DOWNSPREAD_VAL_0_5_PCT			1
@@ -153,6 +338,8 @@ struct dpaux_ctlr {
 #define DP_LANE_COUNT_SET_ENHANCEDFRAMING_T		(1 << 7)
 
 #define DP_TRAINING_PATTERN_SET_SC_DISABLED_T		(1 << 5)
+#define NV_DPCD_TRAINING_PATTERN_SET_SC_DISABLED_F	(0x00000000 << 5)
+#define NV_DPCD_TRAINING_PATTERN_SET_SC_DISABLED_T	(0x00000001 << 5)
 
 #define DP_MAIN_LINK_CHANNEL_CODING_SET_ASC_RESET_DISABLE	0
 #define DP_MAIN_LINK_CHANNEL_CODING_SET_ASC_RESET_ENABLE	1
@@ -160,7 +347,11 @@ struct dpaux_ctlr {
 #define NV_DPCD_TRAINING_LANE0_1_SET2			0x10f
 #define NV_DPCD_TRAINING_LANE2_3_SET2			0x110
 #define NV_DPCD_LANEX_SET2_PC2_MAX_REACHED_T		(1 << 2)
+#define NV_DPCD_LANEX_SET2_PC2_MAX_REACHED_F		(0 << 2)
 #define NV_DPCD_LANEXPLUS1_SET2_PC2_MAX_REACHED_T	(1 << 6)
+#define NV_DPCD_LANEXPLUS1_SET2_PC2_MAX_REACHED_F	(0 << 6)
+#define NV_DPCD_LANEX_SET2_PC2_SHIFT			0
+#define NV_DPCD_LANEXPLUS1_SET2_PC2_SHIFT		4
 
 #define NV_DPCD_STATUS_LANEX_CR_DONE_SHIFT		0
 #define NV_DPCD_STATUS_LANEX_CR_DONE_NO			(0x00000000)
@@ -181,4 +372,41 @@ struct dpaux_ctlr {
 #define NV_DPCD_STATUS_LANEXPLUS1_SYMBOL_LOCKED_NO	(0x00000000 << 6)
 #define NV_DPCD_STATUS_LANEXPLUS1_SYMBOL_LOCKED_YES	(0x00000001 << 6)
 
+#define NV_DPCD_LANE_ALIGN_STATUS_UPDATED		(0x00000204)
+#define NV_DPCD_LANE_ALIGN_STATUS_UPDATED_DONE_NO	(0x00000000)
+#define NV_DPCD_LANE_ALIGN_STATUS_UPDATED_DONE_YES	(0x00000001)
+
+#define NV_DPCD_STATUS_LANEX_CR_DONE_SHIFT		0
+#define NV_DPCD_STATUS_LANEX_CR_DONE_NO			(0x00000000)
+#define NV_DPCD_STATUS_LANEX_CR_DONE_YES		(0x00000001)
+#define NV_DPCD_STATUS_LANEX_CHN_EQ_DONE_SHIFT		1
+#define NV_DPCD_STATUS_LANEX_CHN_EQ_DONE_NO		(0x00000000 << 1)
+#define NV_DPCD_STATUS_LANEX_CHN_EQ_DONE_YES		(0x00000001 << 1)
+#define NV_DPCD_STATUS_LANEX_SYMBOL_LOCKED_SHFIT	2
+#define NV_DPCD_STATUS_LANEX_SYMBOL_LOCKED_NO		(0x00000000 << 2)
+#define NV_DPCD_STATUS_LANEX_SYMBOL_LOCKED_YES		(0x00000001 << 2)
+#define NV_DPCD_STATUS_LANEXPLUS1_CR_DONE_SHIFT		4
+#define NV_DPCD_STATUS_LANEXPLUS1_CR_DONE_NO		(0x00000000 << 4)
+#define NV_DPCD_STATUS_LANEXPLUS1_CR_DONE_YES		(0x00000001 << 4)
+#define NV_DPCD_STATUS_LANEXPLUS1_CHN_EQ_DONE_SHIFT	5
+#define NV_DPCD_STATUS_LANEXPLUS1_CHN_EQ_DONE_NO	(0x00000000 << 5)
+#define NV_DPCD_STATUS_LANEXPLUS1_CHN_EQ_DONE_YES	(0x00000001 << 5)
+#define NV_DPCD_STATUS_LANEXPLUS1_SYMBOL_LOCKED_SHIFT	6
+#define NV_DPCD_STATUS_LANEXPLUS1_SYMBOL_LOCKED_NO	(0x00000000 << 6)
+#define NV_DPCD_STATUS_LANEXPLUS1_SYMBOL_LOCKED_YES	(0x00000001 << 6)
+
+#define NV_DPCD_ADJUST_REQ_LANEX_DC_SHIFT		0
+#define NV_DPCD_ADJUST_REQ_LANEX_DC_MASK		0x3
+#define NV_DPCD_ADJUST_REQ_LANEX_PE_SHIFT		2
+#define NV_DPCD_ADJUST_REQ_LANEX_PE_MASK		(0x3 << 2)
+#define NV_DPCD_ADJUST_REQ_LANEXPLUS1_DC_SHIFT		4
+#define NV_DPCD_ADJUST_REQ_LANEXPLUS1_DC_MASK		(0x3 << 4)
+#define NV_DPCD_ADJUST_REQ_LANEXPLUS1_PE_SHIFT		6
+#define NV_DPCD_ADJUST_REQ_LANEXPLUS1_PE_MASK		(0x3 << 6)
+#define NV_DPCD_ADJUST_REQ_POST_CURSOR2			(0x0000020C)
+#define NV_DPCD_ADJUST_REQ_POST_CURSOR2_LANE_MASK	0x3
+#define NV_DPCD_ADJUST_REQ_POST_CURSOR2_LANE_SHIFT(i)	(i*2)
+
+#define NV_DPCD_TRAINING_AUX_RD_INTERVAL		(0x0000000E)
+#define NV_DPCD_TRAINING_LANEX_SET_DC_MAX_REACHED_F     (0x00000000 << 2)
 #endif

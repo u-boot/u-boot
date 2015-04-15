@@ -95,6 +95,120 @@ static int update_display_mode(struct dc_ctlr *disp_ctrl,
 	return 0;
 }
 
+static u32 tegra_dc_poll_register(void *reg,
+	u32 mask, u32 exp_val, u32 poll_interval_us, u32 timeout_us)
+{
+	u32 temp = timeout_us;
+	u32 reg_val = 0;
+
+	do {
+		udelay(poll_interval_us);
+		reg_val = readl(reg);
+		if (timeout_us > poll_interval_us)
+			timeout_us -= poll_interval_us;
+		else
+			break;
+	} while ((reg_val & mask) != exp_val);
+
+	if ((reg_val & mask) == exp_val)
+		return 0;	/* success */
+
+	return temp;
+}
+
+int tegra_dc_sor_general_act(struct dc_ctlr *disp_ctrl)
+{
+	writel(GENERAL_ACT_REQ, &disp_ctrl->cmd.state_ctrl);
+
+	if (tegra_dc_poll_register(&disp_ctrl->cmd.state_ctrl,
+				   GENERAL_ACT_REQ, 0, 100,
+				   DC_POLL_TIMEOUT_MS * 1000)) {
+		debug("dc timeout waiting for DC to stop\n");
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
+static struct display_timing min_mode = {
+	.hsync_len = { .typ = 1 },
+	.vsync_len = { .typ = 1 },
+	.hback_porch = { .typ = 20 },
+	.vback_porch = { .typ = 0 },
+	.hactive = { .typ = 16 },
+	.vactive = { .typ = 16 },
+	.hfront_porch = { .typ = 1 },
+	.vfront_porch = { .typ = 2 },
+};
+
+/* Disable windows and set minimum raster timings */
+void tegra_dc_sor_disable_win_short_raster(struct dc_ctlr *disp_ctrl,
+					   int *dc_reg_ctx)
+{
+	const int href_to_sync = 0, vref_to_sync = 1;
+	int selected_windows, i;
+
+	selected_windows = readl(&disp_ctrl->cmd.disp_win_header);
+
+	/* Store and clear window options */
+	for (i = 0; i < DC_N_WINDOWS; ++i) {
+		writel(WINDOW_A_SELECT << i, &disp_ctrl->cmd.disp_win_header);
+		dc_reg_ctx[i] = readl(&disp_ctrl->win.win_opt);
+		writel(0, &disp_ctrl->win.win_opt);
+		writel(WIN_A_ACT_REQ << i, &disp_ctrl->cmd.state_ctrl);
+	}
+
+	writel(selected_windows, &disp_ctrl->cmd.disp_win_header);
+
+	/* Store current raster timings and set minimum timings */
+	dc_reg_ctx[i++] = readl(&disp_ctrl->disp.ref_to_sync);
+	writel(href_to_sync | (vref_to_sync << 16),
+	       &disp_ctrl->disp.ref_to_sync);
+
+	dc_reg_ctx[i++] = readl(&disp_ctrl->disp.sync_width);
+	writel(min_mode.hsync_len.typ | (min_mode.vsync_len.typ << 16),
+	       &disp_ctrl->disp.sync_width);
+
+	dc_reg_ctx[i++] = readl(&disp_ctrl->disp.back_porch);
+	writel(min_mode.hback_porch.typ | (min_mode.vback_porch.typ << 16),
+	       &disp_ctrl->disp.back_porch);
+
+	dc_reg_ctx[i++] = readl(&disp_ctrl->disp.front_porch);
+	writel(min_mode.hfront_porch.typ | (min_mode.vfront_porch.typ << 16),
+	       &disp_ctrl->disp.front_porch);
+
+	dc_reg_ctx[i++] = readl(&disp_ctrl->disp.disp_active);
+	writel(min_mode.hactive.typ | (min_mode.vactive.typ << 16),
+	       &disp_ctrl->disp.disp_active);
+
+	writel(GENERAL_ACT_REQ, &disp_ctrl->cmd.state_ctrl);
+}
+
+/* Restore previous windows status and raster timings */
+void tegra_dc_sor_restore_win_and_raster(struct dc_ctlr *disp_ctrl,
+					 int *dc_reg_ctx)
+{
+	int selected_windows, i;
+
+	selected_windows = readl(&disp_ctrl->cmd.disp_win_header);
+
+	for (i = 0; i < DC_N_WINDOWS; ++i) {
+		writel(WINDOW_A_SELECT << i, &disp_ctrl->cmd.disp_win_header);
+		writel(dc_reg_ctx[i], &disp_ctrl->win.win_opt);
+		writel(WIN_A_ACT_REQ << i, &disp_ctrl->cmd.state_ctrl);
+	}
+
+	writel(selected_windows, &disp_ctrl->cmd.disp_win_header);
+
+	writel(dc_reg_ctx[i++], &disp_ctrl->disp.ref_to_sync);
+	writel(dc_reg_ctx[i++], &disp_ctrl->disp.sync_width);
+	writel(dc_reg_ctx[i++], &disp_ctrl->disp.back_porch);
+	writel(dc_reg_ctx[i++], &disp_ctrl->disp.front_porch);
+	writel(dc_reg_ctx[i++], &disp_ctrl->disp.disp_active);
+
+	writel(GENERAL_UPDATE, &disp_ctrl->cmd.state_ctrl);
+}
+
 static int tegra_depth_for_bpp(int bpp)
 {
 	switch (bpp) {

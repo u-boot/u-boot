@@ -264,6 +264,7 @@
 #define DP_LINK_STATUS_UPDATED		    (1 << 7)
 
 #define DP_SINK_STATUS			    0x205
+#define DP_SINK_STATUS_PORT0_IN_SYNC	    (1 << 0)
 
 #define DP_RECEIVE_PORT_0_STATUS	    (1 << 0)
 #define DP_RECEIVE_PORT_1_STATUS	    (1 << 1)
