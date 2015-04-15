@@ -457,6 +457,18 @@ struct scsc_reg {
 	u32 sosc_ctr;
 };
 
+/* MSCM */
+struct mscm {
+	u32 cpxtype;
+	u32 cpxnum;
+	u32 cpxmaster;
+	u32 cpxcount;
+	u32 cpxcfg0;
+	u32 cpxcfg1;
+	u32 cpxcfg2;
+	u32 cpxcfg3;
+};
+
 #endif	/* __ASSEMBLER__*/
 
 #endif	/* __ASM_ARCH_IMX_REGS_H__ */
