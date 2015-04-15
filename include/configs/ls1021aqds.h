@@ -19,6 +19,11 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
 
+#define CONFIG_DEEP_SLEEP
+#if defined(CONFIG_DEEP_SLEEP)
+#define CONFIG_SILENT_CONSOLE
+#endif
+
 /*
  * Size of malloc() pool
  */
@@ -72,7 +77,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SPL_PAD_TO		0x1c000
 #define CONFIG_SYS_TEXT_BASE		0x82000000
 
-#define CONFIG_SYS_SPL_MALLOC_START	0x80200000
+#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE + \
+		CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
@@ -245,7 +251,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
@@ -365,11 +370,16 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Serial Port
  */
+#ifdef CONFIG_LPUART
+#define CONFIG_FSL_LPUART
+#define CONFIG_LPUART_32B_REG
+#else
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#endif
 
 #define CONFIG_BAUDRATE			115200
 
@@ -385,6 +395,7 @@ unsigned long get_board_ddr_clk(void);
  */
 #define I2C_MUX_PCA_ADDR_PRI		0x77
 #define I2C_MUX_CH_DEFAULT		0x8
+#define I2C_MUX_CH_CH7301		0xC
 
 /*
  * MMC
@@ -424,6 +435,25 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_CMD_EXT2
 #endif
+#endif
+
+/*
+ * Video
+ */
+#define CONFIG_FSL_DCU_FB
+
+#ifdef CONFIG_FSL_DCU_FB
+#define CONFIG_VIDEO
+#define CONFIG_CMD_BMP
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+
+#define CONFIG_FSL_DIU_CH7301
+#define CONFIG_SYS_I2C_DVI_BUS_NUM	0
+#define CONFIG_SYS_I2C_QIXIS_ADDR	0x66
+#define CONFIG_SYS_I2C_DVI_ADDR		0x75
 #endif
 
 /*
@@ -479,6 +509,30 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 #define FSL_PCIE_COMPAT "fsl,ls1021a-pcie"
 
+#define CONFIG_SYS_PCI_64BIT
+
+#define CONFIG_SYS_PCIE_CFG0_PHYS_OFF	0x00000000
+#define CONFIG_SYS_PCIE_CFG0_SIZE	0x00001000	/* 4k */
+#define CONFIG_SYS_PCIE_CFG1_PHYS_OFF	0x00001000
+#define CONFIG_SYS_PCIE_CFG1_SIZE	0x00001000	/* 4k */
+
+#define CONFIG_SYS_PCIE_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE_IO_PHYS_OFF	0x00010000
+#define CONFIG_SYS_PCIE_IO_SIZE		0x00010000	/* 64k */
+
+#define CONFIG_SYS_PCIE_MEM_BUS		0x08000000
+#define CONFIG_SYS_PCIE_MEM_PHYS_OFF	0x04000000
+#define CONFIG_SYS_PCIE_MEM_SIZE	0x08000000	/* 128M */
+
+#ifdef CONFIG_PCI
+#define CONFIG_NET_MULTI
+#define CONFIG_PCI_PNP
+#define CONFIG_E1000
+#define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_NET
+#endif
+
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
@@ -508,11 +562,19 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_SYS_QE_FW_ADDR     0x67f40000
 
+#ifdef CONFIG_LPUART
+#define CONFIG_EXTRA_ENV_SETTINGS       \
+	"bootargs=root=/dev/ram0 rw console=ttyLP0,115200\0" \
+	"fdt_high=0xcfffffff\0"         \
+	"initrd_high=0xcfffffff\0"      \
+	"hwconfig=fsl_ddr:ctlr_intlv=null,bank_intlv=null\0"
+#else
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0" \
 	"fdt_high=0xcfffffff\0"		\
 	"initrd_high=0xcfffffff\0"      \
 	"hwconfig=fsl_ddr:ctlr_intlv=null,bank_intlv=null\0"
+#endif
 
 /*
  * Miscellaneous configurable options

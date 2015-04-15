@@ -43,3 +43,7 @@ void cpld_write(unsigned int reg, u8 value);
 #define CPLD_LBMAP_RESET	0xFF
 #define CPLD_LBMAP_SHIFT	0x03
 #define CPLD_BOOT_SEL	   0x80
+
+#define CPLD_PCIE_SGMII_MUX	0x80
+#define CPLD_OVERRIDE_BOOT_EN	0x01
+#define CPLD_OVERRIDE_MUX_EN	0x02 /* PCIE/2.5G-SGMII mux override enable */

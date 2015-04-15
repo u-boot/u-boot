@@ -7,10 +7,6 @@
 #ifndef _ASM_CONFIG_H_
 #define _ASM_CONFIG_H_
 
-#ifdef __aarch64__
-#define CONFIG_SYS_GENERIC_GLOBAL_DATA
-#endif
-
 #define CONFIG_LMB
 #define CONFIG_SYS_BOOT_RAMDISK_HIGH
 

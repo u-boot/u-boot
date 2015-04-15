@@ -11,10 +11,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_CLK_FULL_SPEED		1008000000
-
-#define CONFIG_SYS_PROMPT		"sun5i# "
-#define CONFIG_MACH_TYPE		4138
 
 #ifdef CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_SUNXI
@@ -25,5 +21,7 @@
  * Include common sunxi configuration where most the settings are
  */
 #include <configs/sunxi-common.h>
+
+#define CONFIG_MACH_TYPE	(4138 | ((CONFIG_MACH_TYPE_COMPAT_REV) << 28))
 
 #endif /* __CONFIG_H */

@@ -88,8 +88,8 @@
 #define AIPS2_ARB_BASE_ADDR             0x02100000
 #define AIPS2_ARB_END_ADDR              0x021FFFFF
 #ifdef CONFIG_MX6SX
-#define AIPS3_BASE_ADDR			0x02200000
-#define AIPS3_END_ADDR			0x022FFFFF
+#define AIPS3_ARB_BASE_ADDR             0x02200000
+#define AIPS3_ARB_END_ADDR              0x022FFFFF
 #define WEIM_ARB_BASE_ADDR              0x50000000
 #define WEIM_ARB_END_ADDR               0x57FFFFFF
 #define QSPI0_AMBA_BASE                0x60000000
@@ -215,6 +215,10 @@
 #define AIPS2_OFF_BASE_ADDR         (ATZ2_BASE_ADDR + 0x80000)
 #define CAAM_BASE_ADDR              (ATZ2_BASE_ADDR)
 #define ARM_BASE_ADDR		    (ATZ2_BASE_ADDR + 0x40000)
+
+#define CONFIG_SYS_FSL_SEC_ADDR     CAAM_BASE_ADDR
+#define CONFIG_SYS_FSL_JR0_ADDR     (CAAM_BASE_ADDR + 0x1000)
+
 #define USB_PL301_BASE_ADDR         (AIPS2_OFF_BASE_ADDR + 0x0000)
 #define USB_BASE_ADDR               (AIPS2_OFF_BASE_ADDR + 0x4000)
 
@@ -624,12 +628,16 @@ struct fuse_bank0_regs {
 	u32	rsvd1[3];
 	u32	uid_high;
 	u32	rsvd2[3];
-	u32	rsvd3[4];
-	u32	rsvd4[4];
-	u32	rsvd5[4];
+	u32	cfg2;
+	u32	rsvd3[3];
+	u32	cfg3;
+	u32	rsvd4[3];
+	u32	cfg4;
+	u32	rsvd5[3];
 	u32	cfg5;
 	u32	rsvd6[3];
-	u32	rsvd7[4];
+	u32	cfg6;
+	u32	rsvd7[3];
 };
 
 #ifdef CONFIG_MX6SX

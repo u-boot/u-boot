@@ -122,7 +122,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_SYS_L2CACHE_OFF		1
 #define CONFIG_INITRD_TAG		1
-
+#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_OF_LIBFDT		1
 
 /* Size of malloc() pool */
@@ -188,7 +188,6 @@
 #define CONFIG_BOOTP_PXE_CLIENTARCH	0x100
 
 /* Miscellaneous configurable options */
-#undef	CONFIG_SYS_CLKS_IN_HZ
 #define CONFIG_SYS_LOAD_ADDR		(V2M_BASE + 0x8000)
 #define LINUX_BOOT_PARAM_ADDR		(V2M_BASE + 0x2000)
 #define CONFIG_BOOTDELAY		2

@@ -38,13 +38,13 @@ static int is_printable_string(const void *data, int len);
  */
 struct fdt_header *working_fdt;
 
-void set_working_fdt_addr(void *addr)
+void set_working_fdt_addr(ulong addr)
 {
 	void *buf;
 
-	buf = map_sysmem((ulong)addr, 0);
+	buf = map_sysmem(addr, 0);
 	working_fdt = buf;
-	setenv_addr("fdtaddr", addr);
+	setenv_ulong("fdtaddr", addr);
 }
 
 /*
@@ -111,7 +111,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (!blob || !fdt_valid(&blob))
 				return 1;
 			printf("The address of the fdt is %#08lx\n",
-			       control ? (ulong)blob :
+			       control ? (ulong)map_to_sysmem(blob) :
 					getenv_hex("fdtaddr", 0));
 			return 0;
 		}
@@ -123,7 +123,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (control)
 			gd->fdt_blob = blob;
 		else
-			set_working_fdt_addr((void *)blob);
+			set_working_fdt_addr(addr);
 
 		if (argc >= 2) {
 			int  len;

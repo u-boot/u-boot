@@ -252,6 +252,8 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 
+	writel(regs->ref_ctrl, &emif->emif_sdram_ref_ctrl);
+	writel(regs->sdram_config_init, &emif->emif_sdram_config);
 	/*
 	 * Set SDRAM_CONFIG and PHY control registers to locked frequency
 	 * and RL =7. As the default values of the Mode Registers are not
@@ -265,7 +267,6 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	writel(regs->sdram_tim2, &emif->emif_sdram_tim_2);
 	writel(regs->sdram_tim3, &emif->emif_sdram_tim_3);
 
-	writel(regs->ref_ctrl, &emif->emif_sdram_ref_ctrl);
 	writel(regs->read_idle_ctrl, &emif->emif_read_idlectrl);
 
 	/*
@@ -274,6 +275,7 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	 */
 	if (is_dra7xx()) {
 		do_ext_phy_settings(base, regs);
+		writel(regs->ref_ctrl_final, &emif->emif_sdram_ref_ctrl);
 		writel(regs->sdram_config2, &emif->emif_lpddr2_nvm_config);
 		writel(regs->sdram_config_init, &emif->emif_sdram_config);
 	} else {

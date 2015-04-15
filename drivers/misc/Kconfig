@@ -1,0 +1,63 @@
+config CMD_CROS_EC
+	bool "Enable crosec command"
+	depends on CROS_EC
+	help
+	  Enable command-line access to the Chrome OS EC (Embedded
+	  Controller). This provides the 'crosec' command which has
+	  a number of sub-commands for performing EC tasks such as
+	  updating its flash, accessing a small saved context area
+	  and talking to the I2C bus behind the EC (if there is one).
+
+config CROS_EC
+	bool "Enable Chrome OS EC"
+	help
+	  Enable access to the Chrome OS EC. This is a separate
+	  microcontroller typically available on a SPI bus on Chromebooks. It
+	  provides access to the keyboard, some internal storage and may
+	  control access to the battery and main PMIC depending on the
+	  device. You can use the 'crosec' command to access it.
+
+config CROS_EC_I2C
+	bool "Enable Chrome OS EC I2C driver"
+	depends on CROS_EC
+	help
+	  Enable I2C access to the Chrome OS EC. This is used on older
+	  ARM Chromebooks such as snow and spring before the standard bus
+	  changed to SPI. The EC will accept commands across the I2C using
+	  a special message protocol, and provide responses.
+
+config CROS_EC_LPC
+	bool "Enable Chrome OS EC LPC driver"
+	depends on CROS_EC
+	help
+	  Enable I2C access to the Chrome OS EC. This is used on x86
+	  Chromebooks such as link and falco. The keyboard is provided
+	  through a legacy port interface, so on x86 machines the main
+	  function of the EC is power and thermal management.
+
+config CROS_EC_SPI
+	bool "Enable Chrome OS EC SPI driver"
+	depends on CROS_EC
+	help
+	  Enable SPI access to the Chrome OS EC. This is used on newer
+	  ARM Chromebooks such as pit, pi and nyan-big. The SPI interface
+	  provides a faster and more robust interface than I2C but the bugs
+	  are less interesting.
+
+config DM_CROS_EC
+	bool "Enable Driver Model for Chrome OS EC"
+	depends on DM
+	help
+	  Enable driver model for the Chrome OS EC interface. This
+	  allows the cros_ec SPI driver to operate with CONFIG_DM_SPI
+	  but otherwise makes few changes. Since cros_ec also supports
+	  LPC (which doesn't support driver model yet), a full
+	  conversion is not yet possible.
+
+config CONFIG_FSL_SEC_MON
+	bool "Enable FSL SEC_MON Driver"
+	help
+	  Freescale Security Monitor block is responsible for monitoring
+	  system states.
+	  Security Monitor can be transitioned on any security failures,
+	  like software violations or hardware security violations.

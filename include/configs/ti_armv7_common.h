@@ -127,7 +127,11 @@
  * we are on so we do not need to rely on the command prompt.  We set a
  * console baudrate of 115200 and use the default baud rate table.
  */
-#define CONFIG_SYS_MALLOC_LEN		(16 << 20)
+#ifdef CONFIG_DFU_MMC
+#define CONFIG_SYS_MALLOC_LEN	((16 << 20) + CONFIG_SYS_DFU_DATA_BUF_SIZE)
+#else
+#define CONFIG_SYS_MALLOC_LEN	(16 << 20)
+#endif
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT		"U-Boot# "
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
@@ -213,10 +217,9 @@
  * SPLs).  We have our BSS be placed 2MiB after this, to allow for the
  * default Linux kernel address of 0x80008000 to work with most sized
  * kernels, in the Falcon Mode case.  We have the SPL malloc pool at the
- * end of the BSS area.  We place our stack at 32MiB after the start of
- * DRAM to allow room for all of the above.
+ * end of the BSS area.  We suggest that the stack be placed at 32MiB after
+ * the start of DRAM to allow room for all of the above (handled in Kconfig).
  */
-#define CONFIG_SPL_STACK		(CONFIG_SYS_SDRAM_BASE + (32 << 20))
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		0x80800000
 #endif

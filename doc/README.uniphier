@@ -1,0 +1,86 @@
+U-Boot for UniPhier SoC family
+==============================
+
+
+Tested toolchains
+-----------------
+
+ (a) Ubuntu packages  (CROSS_COMPILE=arm-linux-gnueabi-)
+
+  If you are building U-Boot on Ubuntu, its standard package is recommended.
+  You can install it as follows:
+
+    $ sudo apt-get install gcc-arm-linux-gnueabi-
+
+ (b) Linaro compilers  (CROSS_COMPILE=arm-linux-gnueabihf-)
+
+  You can download pre-built toolchains from:
+
+    http://www.linaro.org/downloads/
+
+ (c) kernel.org compilers  (CROSS_COMPILE=arm-unknown-linux-gnueabi-)
+
+  You can download pre-built toolchains from:
+
+    ftp://www.kernel.org/pub/tools/crosstool/files/bin/
+
+
+Compile the source
+------------------
+
+PH1-Pro4:
+    $ make ph1_pro4_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi-
+
+PH1-LD4:
+    $ make ph1_ld4_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi-
+
+PH1-sLD8:
+    $ make ph1_sld8_defconfig
+    $ make CROSS_COMPILE=arm-linux-gnueabi-
+
+You may wish to change the "CROSS_COMPILE=arm-linux-gnueabi-"
+to use your favorite compiler.
+
+
+Burn U-Boot images to NAND
+--------------------------
+
+Write two files to the NAND device as follows:
+ - spl/u-boot-spl.bin at the offset address 0x00000000
+ - u-boot-dtb.img     at the offset address 0x00010000
+
+If a TFTP server is available, the images can be easily updated.
+Just copy the u-boot-spl.bin and u-boot-dtb.img to the TFTP public directory,
+and then run the following command at the U-Boot command line:
+
+  => run nandupdate
+
+
+UniPhier specific commands
+--------------------------
+
+ - pinmon (enabled by CONFIG_CMD_PINMON)
+     shows the boot mode pins that has been latched at the power-on reset
+
+ - ddrphy (enabled by CONFIG_CMD_DDRPHY_DUMP)
+     shows the DDR PHY parameters set by the PHY training
+
+
+Supported devices
+-----------------
+
+ - UART (on-chip)
+ - NAND
+ - USB 2.0 (EHCI)
+ - USB 3.0 (xHCI)
+ - LAN (on-board SMSC9118)
+ - I2C
+ - EEPROM (connected to the on-board I2C bus)
+ - Support card (SRAM, NOR flash, some peripherals)
+
+
+--
+Masahiro Yamada <yamada.m@jp.panasonic.com>
+Feb. 2015

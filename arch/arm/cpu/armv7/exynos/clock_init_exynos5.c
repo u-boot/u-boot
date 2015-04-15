@@ -179,10 +179,10 @@ struct mem_timings mem_timings[] = {
 		.spll_mdiv = 0xc8,
 		.spll_pdiv = 0x3,
 		.spll_sdiv = 0x2,
-		/* RPLL @70.5Mhz */
+		/* RPLL @141Mhz */
 		.rpll_mdiv = 0x5E,
 		.rpll_pdiv = 0x2,
-		.rpll_sdiv = 0x4,
+		.rpll_sdiv = 0x3,
 
 		.direct_cmd_msr = {
 			0x00020018, 0x00030000, 0x00010046, 0x00000d70,

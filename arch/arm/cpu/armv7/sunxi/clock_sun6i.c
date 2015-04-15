@@ -45,10 +45,10 @@ void clock_init_safe(void)
 
 void clock_init_uart(void)
 {
+#if CONFIG_CONS_INDEX < 5
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-#if CONFIG_CONS_INDEX < 5
 	/* uart clock source is apb2 */
 	writel(APB2_CLK_SRC_OSC24M|
 	       APB2_CLK_RATE_N_1|
@@ -68,9 +68,6 @@ void clock_init_uart(void)
 	/* enable R_PIO and R_UART clocks, and de-assert resets */
 	prcm_apb0_enable(PRCM_APB0_GATE_PIO | PRCM_APB0_GATE_UART);
 #endif
-
-	/* Dup with clock_init_safe(), drop once sun6i SPL support lands */
-	writel(PLL6_CFG_DEFAULT, &ccm->pll6_cfg);
 }
 
 int clock_twi_onoff(int port, int state)
@@ -97,6 +94,7 @@ void clock_set_pll1(unsigned int clk)
 {
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	const int p = 0;
 	int k = 1;
 	int m = 1;
 
@@ -113,8 +111,11 @@ void clock_set_pll1(unsigned int clk)
 	       CPU_CLK_SRC_OSC24M << CPU_CLK_SRC_SHIFT,
 	       &ccm->cpu_axi_cfg);
 
-	/* PLL1 rate = 24000000 * n * k / m */
-	writel(CCM_PLL1_CTRL_EN | CCM_PLL1_CTRL_MAGIC |
+	/*
+	 * sun6i: PLL1 rate = ((24000000 * n * k) >> 0) / m   (p is ignored)
+	 * sun8i: PLL1 rate = ((24000000 * n * k) >> p) / m
+	 */
+	writel(CCM_PLL1_CTRL_EN | CCM_PLL1_CTRL_P(p) |
 	       CCM_PLL1_CTRL_N(clk / (24000000 * k / m)) |
 	       CCM_PLL1_CTRL_K(k) | CCM_PLL1_CTRL_M(m), &ccm->pll1_cfg);
 	sdelay(200);
@@ -144,15 +145,25 @@ void clock_set_pll3(unsigned int clk)
 	       &ccm->pll3_cfg);
 }
 
-void clock_set_pll5(unsigned int clk)
+void clock_set_pll5(unsigned int clk, bool sigma_delta_enable)
 {
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-	const int k = 2;
-	const int m = 1;
+	const int max_n = 32;
+	int k = 1, m = 2;
+
+	if (sigma_delta_enable)
+		writel(CCM_PLL5_PATTERN, &ccm->pll5_pattern_cfg);
 
 	/* PLL5 rate = 24000000 * n * k / m */
-	writel(CCM_PLL5_CTRL_EN | CCM_PLL5_CTRL_UPD |
+	if (clk > 24000000 * k * max_n / m) {
+		m = 1;
+		if (clk > 24000000 * k * max_n / m)
+			k = 2;
+	}
+	writel(CCM_PLL5_CTRL_EN |
+	       (sigma_delta_enable ? CCM_PLL5_CTRL_SIGMA_DELTA_EN : 0) |
+	       CCM_PLL5_CTRL_UPD |
 	       CCM_PLL5_CTRL_N(clk / (24000000 * k / m)) |
 	       CCM_PLL5_CTRL_K(k) | CCM_PLL5_CTRL_M(m), &ccm->pll5_cfg);
 

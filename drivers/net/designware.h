@@ -68,7 +68,9 @@ struct eth_dma_regs {
 	u32 status;		/* 0x14 */
 	u32 opmode;		/* 0x18 */
 	u32 intenable;		/* 0x1c */
-	u8 reserved[40];
+	u32 reserved1[2];
+	u32 axibus;		/* 0x28 */
+	u32 reserved2[7];
 	u32 currhosttxdesc;	/* 0x48 */
 	u32 currhostrxdesc;	/* 0x4c */
 	u32 currhosttxbuffaddr;	/* 0x50 */

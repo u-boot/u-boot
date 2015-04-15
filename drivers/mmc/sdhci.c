@@ -194,13 +194,13 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 #ifdef CONFIG_MMC_SDMA
 		if (data->flags == MMC_DATA_READ)
-			start_addr = (unsigned int)data->dest;
+			start_addr = (unsigned long)data->dest;
 		else
-			start_addr = (unsigned int)data->src;
+			start_addr = (unsigned long)data->src;
 		if ((host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR) &&
 				(start_addr & 0x7) != 0x0) {
 			is_aligned = 0;
-			start_addr = (unsigned int)aligned_buffer;
+			start_addr = (unsigned long)aligned_buffer;
 			if (data->flags != MMC_DATA_READ)
 				memcpy(aligned_buffer, data->src, trans_bytes);
 		}
@@ -374,7 +374,8 @@ static void sdhci_set_ios(struct mmc *mmc)
 				(host->quirks & SDHCI_QUIRK_USE_WIDE8))
 			ctrl |= SDHCI_CTRL_8BITBUS;
 	} else {
-		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
+		if ((SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) ||
+				(host->quirks & SDHCI_QUIRK_USE_WIDE8))
 			ctrl &= ~SDHCI_CTRL_8BITBUS;
 		if (mmc->bus_width == 4)
 			ctrl |= SDHCI_CTRL_4BITBUS;
@@ -411,7 +412,7 @@ static int sdhci_init(struct mmc *mmc)
 	if (host->quirks & SDHCI_QUIRK_NO_CD) {
 		unsigned int status;
 
-		sdhci_writel(host, SDHCI_CTRL_CD_TEST_INS | SDHCI_CTRL_CD_TEST,
+		sdhci_writeb(host, SDHCI_CTRL_CD_TEST_INS | SDHCI_CTRL_CD_TEST,
 			SDHCI_HOST_CONTROL);
 
 		status = sdhci_readl(host, SDHCI_PRESENT_STATE);

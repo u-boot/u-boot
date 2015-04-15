@@ -29,14 +29,14 @@ static void set_icmp_header(uchar *pkt, IPaddr_t dest)
 
 	ip->ip_len   = htons(IP_ICMP_HDR_SIZE);
 	ip->ip_p     = IPPROTO_ICMP;
-	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE >> 1);
+	ip->ip_sum   = compute_ip_checksum(ip, IP_HDR_SIZE);
 
 	icmp->type = ICMP_ECHO_REQUEST;
 	icmp->code = 0;
 	icmp->checksum = 0;
 	icmp->un.echo.id = 0;
 	icmp->un.echo.sequence = htons(PingSeqNo++);
-	icmp->checksum = ~NetCksum((uchar *)icmp, ICMP_HDR_SIZE	>> 1);
+	icmp->checksum = compute_ip_checksum(icmp, ICMP_HDR_SIZE);
 }
 
 static int ping_send(void)
@@ -101,13 +101,11 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		ip->ip_off = 0;
 		NetCopyIP((void *)&ip->ip_dst, &ip->ip_src);
 		NetCopyIP((void *)&ip->ip_src, &NetOurIP);
-		ip->ip_sum = ~NetCksum((uchar *)ip,
-				       IP_HDR_SIZE >> 1);
+		ip->ip_sum = compute_ip_checksum(ip, IP_HDR_SIZE);
 
 		icmph->type = ICMP_ECHO_REPLY;
 		icmph->checksum = 0;
-		icmph->checksum = ~NetCksum((uchar *)icmph,
-			(len - IP_HDR_SIZE) >> 1);
+		icmph->checksum = compute_ip_checksum(icmph, len - IP_HDR_SIZE);
 		NetSendPacket((uchar *)et, eth_hdr_size + len);
 		return;
 /*	default:

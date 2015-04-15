@@ -23,21 +23,21 @@ DECLARE_GLOBAL_DATA_PTR;
 struct mmu_vm_range mmu_vmr_table[CONFIG_SYS_NR_VM_REGIONS] = {
 	{
 		/* Atmel AT49BV640D 8 MiB x16 NOR flash on NCS0 */
-		.virt_pgno	= CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT,
-		.nr_pages	= CONFIG_SYS_FLASH_SIZE >> PAGE_SHIFT,
-		.phys		= (CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT)
+		.virt_pgno	= CONFIG_SYS_FLASH_BASE >> MMU_PAGE_SHIFT,
+		.nr_pages	= CONFIG_SYS_FLASH_SIZE >> MMU_PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_FLASH_BASE >> MMU_PAGE_SHIFT)
 					| MMU_VMR_CACHE_NONE,
 	}, {
 		/* Micron MT29F2G16AAD 256 MiB x16 NAND flash on NCS3 */
-		.virt_pgno	= EBI_SRAM_CS3_BASE >> PAGE_SHIFT,
-		.nr_pages	= EBI_SRAM_CS3_SIZE >> PAGE_SHIFT,
-		.phys		= (EBI_SRAM_CS3_BASE >> PAGE_SHIFT)
+		.virt_pgno	= EBI_SRAM_CS3_BASE >> MMU_PAGE_SHIFT,
+		.nr_pages	= EBI_SRAM_CS3_SIZE >> MMU_PAGE_SHIFT,
+		.phys		= (EBI_SRAM_CS3_BASE >> MMU_PAGE_SHIFT)
 					| MMU_VMR_CACHE_NONE,
 	}, {
 		/* 2x16-bit ISSI IS42S16320B 64 MiB SDRAM (128 MiB total) */
-		.virt_pgno	= CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT,
-		.nr_pages	= EBI_SDRAM_SIZE >> PAGE_SHIFT,
-		.phys		= (CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT)
+		.virt_pgno	= CONFIG_SYS_SDRAM_BASE >> MMU_PAGE_SHIFT,
+		.nr_pages	= EBI_SDRAM_SIZE >> MMU_PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_SDRAM_BASE >> MMU_PAGE_SHIFT)
 					| MMU_VMR_CACHE_WRBACK,
 	},
 };
@@ -69,6 +69,9 @@ int board_early_init_f(void)
 	portmux_select_gpio(PORTMUX_PORT_E, 1 << 23,
 			PORTMUX_DIR_OUTPUT | PORTMUX_INIT_HIGH
 			| PORTMUX_DRIVE_MIN);
+
+	sdram_init(uncached(EBI_SDRAM_BASE), &sdram_config);
+
 	portmux_enable_usart1(PORTMUX_DRIVE_MIN);
 
 #if defined(CONFIG_MACB)
@@ -83,24 +86,6 @@ int board_early_init_f(void)
 #endif
 
 	return 0;
-}
-
-phys_size_t initdram(int board_type)
-{
-	unsigned long expected_size;
-	unsigned long actual_size;
-	void *sdram_base;
-
-	sdram_base = uncached(EBI_SDRAM_BASE);
-
-	expected_size = sdram_init(sdram_base, &sdram_config);
-	actual_size = get_ram_size(sdram_base, expected_size);
-
-	if (expected_size != actual_size)
-		printf("Warning: Only %lu of %lu MiB SDRAM is working\n",
-				actual_size >> 20, expected_size >> 20);
-
-	return actual_size;
 }
 
 int board_early_init_r(void)

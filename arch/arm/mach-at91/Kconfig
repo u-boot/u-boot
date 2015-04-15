@@ -1,0 +1,171 @@
+if ARCH_AT91
+
+choice
+	prompt "Atmel AT91 board select"
+
+config TARGET_AT91RM9200EK
+	bool "Atmel AT91RM9200 evaluation kit"
+	select CPU_ARM920T
+
+config TARGET_EB_CPUX9K2
+	bool "Support eb_cpux9k2"
+	select CPU_ARM920T
+
+config TARGET_CPUAT91
+	bool "Support cpuat91"
+	select CPU_ARM920T
+
+config TARGET_AT91SAM9260EK
+	bool "Atmel at91sam9260 reference board"
+	select CPU_ARM926EJS
+
+config TARGET_ETHERNUT5
+	bool "Ethernut5 board"
+	select CPU_ARM926EJS
+
+config TARGET_TNY_A9260
+	bool "Caloa TNY A9260 board"
+	select CPU_ARM926EJS
+
+config TARGET_SNAPPER9260
+	bool "Support snapper9260"
+	select CPU_ARM926EJS
+
+config TARGET_AFEB9260
+	bool "Support afeb9260"
+	select CPU_ARM926EJS
+
+config TARGET_AT91SAM9261EK
+	bool "Atmel at91sam9261 reference board"
+	select CPU_ARM926EJS
+
+config TARGET_PM9261
+	bool "Ronetix pm9261 board"
+	select CPU_ARM926EJS
+
+config TARGET_AT91SAM9263EK
+	bool "Atmel at91sam9263 reference board"
+	select CPU_ARM926EJS
+
+config TARGET_USB_A9263
+	bool "Caloa USB A9260 board"
+	select CPU_ARM926EJS
+
+config TARGET_PM9263
+	bool "Ronetix pm9263 board"
+	select CPU_ARM926EJS
+
+config TARGET_SBC35_A9G20
+	bool "Support sbc35_a9g20"
+	select CPU_ARM926EJS
+
+config TARGET_STAMP9G20
+	bool "Support stamp9g20"
+	select CPU_ARM926EJS
+
+config TARGET_AT91SAM9M10G45EK
+	bool "Atmel AT91SAM9M10G45-EK board"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
+
+config TARGET_PM9G45
+	bool "Ronetix pm9g45 board"
+	select CPU_ARM926EJS
+
+config TARGET_AT91SAM9N12EK
+	bool "Atmel AT91SAM9N12-EK board"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
+
+config TARGET_AT91SAM9RLEK
+	bool "Atmel at91sam9rl reference board"
+	select CPU_ARM926EJS
+
+config TARGET_AT91SAM9X5EK
+	bool "Atmel AT91SAM9X5-EK board"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
+
+config TARGET_SAMA5D3_XPLAINED
+	bool "SAMA5D3 Xplained board"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_SAMA5D3XEK
+	bool "SAMA5D3X-EK board"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_SAMA5D4_XPLAINED
+	bool "SAMA5D4 Xplained board"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_SAMA5D4EK
+	bool "SAMA5D4 Evaluation Kit"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_VL_MA2SC
+	bool "Support vl_ma2sc"
+	select CPU_ARM926EJS
+
+config TARGET_MEESC
+	bool "Support meesc"
+	select CPU_ARM926EJS
+
+config TARGET_OTC570
+	bool "Support otc570"
+	select CPU_ARM926EJS
+
+config TARGET_CPU9260
+	bool "Support cpu9260"
+	select CPU_ARM926EJS
+
+config TARGET_CORVUS
+	bool "Support corvus"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
+
+config TARGET_TAURUS
+	bool "Support taurus"
+	select CPU_ARM926EJS
+	select SUPPORT_SPL
+
+endchoice
+
+config SYS_SOC
+	default "at91"
+
+source "board/atmel/at91rm9200ek/Kconfig"
+source "board/atmel/at91sam9260ek/Kconfig"
+source "board/atmel/at91sam9261ek/Kconfig"
+source "board/atmel/at91sam9263ek/Kconfig"
+source "board/atmel/at91sam9m10g45ek/Kconfig"
+source "board/atmel/at91sam9n12ek/Kconfig"
+source "board/atmel/at91sam9rlek/Kconfig"
+source "board/atmel/at91sam9x5ek/Kconfig"
+source "board/atmel/sama5d3_xplained/Kconfig"
+source "board/atmel/sama5d3xek/Kconfig"
+source "board/atmel/sama5d4_xplained/Kconfig"
+source "board/atmel/sama5d4ek/Kconfig"
+source "board/BuS/eb_cpux9k2/Kconfig"
+source "board/eukrea/cpuat91/Kconfig"
+source "board/afeb9260/Kconfig"
+source "board/bluewater/snapper9260/Kconfig"
+source "board/BuS/vl_ma2sc/Kconfig"
+source "board/calao/sbc35_a9g20/Kconfig"
+source "board/calao/tny_a9260/Kconfig"
+source "board/calao/usb_a9263/Kconfig"
+source "board/egnite/ethernut5/Kconfig"
+source "board/esd/meesc/Kconfig"
+source "board/esd/otc570/Kconfig"
+source "board/eukrea/cpu9260/Kconfig"
+source "board/ronetix/pm9261/Kconfig"
+source "board/ronetix/pm9263/Kconfig"
+source "board/ronetix/pm9g45/Kconfig"
+source "board/siemens/corvus/Kconfig"
+source "board/siemens/taurus/Kconfig"
+source "board/taskit/stamp9g20/Kconfig"
+
+endif

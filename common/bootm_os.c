@@ -404,6 +404,32 @@ static int do_bootm_integrity(int flag, int argc, char * const argv[],
 }
 #endif
 
+#ifdef CONFIG_BOOTM_OPENRTOS
+static int do_bootm_openrtos(int flag, int argc, char * const argv[],
+			   bootm_headers_t *images)
+{
+	void (*entry_point)(void);
+
+	if (flag != BOOTM_STATE_OS_GO)
+		return 0;
+
+	entry_point = (void (*)(void))images->ep;
+
+	printf("## Transferring control to OpenRTOS (at address %08lx) ...\n",
+		(ulong)entry_point);
+
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+
+	/*
+	 * OpenRTOS Parameters:
+	 *   None
+	 */
+	(*entry_point)();
+
+	return 1;
+}
+#endif
+
 static boot_os_fn *boot_os[] = {
 	[IH_OS_U_BOOT] = do_bootm_standalone,
 #ifdef CONFIG_BOOTM_LINUX
@@ -433,6 +459,9 @@ static boot_os_fn *boot_os[] = {
 #endif
 #ifdef CONFIG_INTEGRITY
 	[IH_OS_INTEGRITY] = do_bootm_integrity,
+#endif
+#ifdef CONFIG_BOOTM_OPENRTOS
+	[IH_OS_OPENRTOS] = do_bootm_openrtos,
 #endif
 };
 

@@ -321,6 +321,7 @@ static int omap2430_musb_init(struct musb *musb)
 {
 	u32 l;
 	int status = 0;
+	unsigned long int start;
 #ifndef __UBOOT__
 	struct device *dev = musb->controller;
 	struct omap2430_glue *glue = dev_get_drvdata(dev->parent);
@@ -331,6 +332,21 @@ static int omap2430_musb_init(struct musb *musb)
 		(struct omap_musb_board_data *)musb->controller;
 #endif
 
+	/* Reset the controller */
+	musb_writel(musb->mregs, OTG_SYSCONFIG, SOFTRST);
+
+	start = get_timer(0);
+
+	while (1) {
+		l = musb_readl(musb->mregs, OTG_SYSCONFIG);
+		if ((l & SOFTRST) == 0)
+			break;
+
+		if (get_timer(start) > (CONFIG_SYS_HZ / 1000)) {
+			dev_err(musb->controller, "MUSB reset is taking too long\n");
+			return -ENODEV;
+		}
+	}
 
 #ifndef __UBOOT__
 	/* We require some kind of external transceiver, hooked

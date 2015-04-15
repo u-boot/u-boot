@@ -175,7 +175,7 @@
 		"if i2c probe 0x10; then " \
 			"setenv bootargs ${bootargs} " \
 				"video=mxcfb${nextcon}:dev=lcd,800x480@60," \
-					"if=RGB666; " \
+					"if=RGB666,bpp=32; " \
 			"if test 0 -eq ${nextcon}; then " \
 				"setenv fbmem fbmem=10M; " \
 			"else " \
@@ -249,9 +249,6 @@
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256
-
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS	       16
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 

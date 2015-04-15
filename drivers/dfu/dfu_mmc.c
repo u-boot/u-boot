@@ -16,8 +16,7 @@
 #include <fat.h>
 #include <mmc.h>
 
-static unsigned char __aligned(CONFIG_SYS_CACHELINE_SIZE)
-				dfu_file_buf[CONFIG_SYS_DFU_MAX_FILE_SIZE];
+static unsigned char *dfu_file_buf;
 static long dfu_file_buf_len;
 
 static int mmc_access_part(struct dfu_entity *dfu, struct mmc *mmc, int part)
@@ -211,7 +210,7 @@ int dfu_flush_medium_mmc(struct dfu_entity *dfu)
 
 	if (dfu->layout != DFU_RAW_ADDR) {
 		/* Do stuff here. */
-		ret = mmc_file_op(DFU_OP_WRITE, dfu, &dfu_file_buf,
+		ret = mmc_file_op(DFU_OP_WRITE, dfu, dfu_file_buf,
 				&dfu_file_buf_len);
 
 		/* Now that we're done */
@@ -261,6 +260,14 @@ int dfu_read_medium_mmc(struct dfu_entity *dfu, u64 offset, void *buf,
 	}
 
 	return ret;
+}
+
+void dfu_free_entity_mmc(struct dfu_entity *dfu)
+{
+	if (dfu_file_buf) {
+		free(dfu_file_buf);
+		dfu_file_buf = NULL;
+	}
 }
 
 /*
@@ -370,6 +377,18 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s)
 	dfu->write_medium = dfu_write_medium_mmc;
 	dfu->flush_medium = dfu_flush_medium_mmc;
 	dfu->inited = 0;
+	dfu->free_entity = dfu_free_entity_mmc;
+
+	/* Check if file buffer is ready */
+	if (!dfu_file_buf) {
+		dfu_file_buf = memalign(CONFIG_SYS_CACHELINE_SIZE,
+					CONFIG_SYS_DFU_MAX_FILE_SIZE);
+		if (!dfu_file_buf) {
+			error("Could not memalign 0x%x bytes",
+			      CONFIG_SYS_DFU_MAX_FILE_SIZE);
+			return -ENOMEM;
+		}
+	}
 
 	return 0;
 }

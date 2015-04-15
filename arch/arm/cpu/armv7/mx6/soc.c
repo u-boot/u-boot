@@ -21,7 +21,6 @@
 #include <stdbool.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/bootm.h>
 #include <dm.h>
 #include <imx_thermal.h>
 
@@ -109,7 +108,7 @@ void init_aips(void)
 	aips1 = (struct aipstz_regs *)AIPS1_BASE_ADDR;
 	aips2 = (struct aipstz_regs *)AIPS2_BASE_ADDR;
 #ifdef CONFIG_MX6SX
-	aips3 = (struct aipstz_regs *)AIPS3_BASE_ADDR;
+	aips3 = (struct aipstz_regs *)AIPS3_CONFIG_BASE_ADDR;
 #endif
 
 	/*
@@ -230,6 +229,11 @@ static void imx_set_wdog_powerdown(bool enable)
 	struct wdog_regs *wdog1 = (struct wdog_regs *)WDOG1_BASE_ADDR;
 	struct wdog_regs *wdog2 = (struct wdog_regs *)WDOG2_BASE_ADDR;
 
+#ifdef CONFIG_MX6SX
+	struct wdog_regs *wdog3 = (struct wdog_regs *)WDOG3_BASE_ADDR;
+	writew(enable, &wdog3->wmcr);
+#endif
+
 	/* Write to the PDE (Power Down Enable) bit */
 	writew(enable, &wdog1->wmcr);
 	writew(enable, &wdog2->wmcr);
@@ -255,6 +259,23 @@ static void clear_mmdc_ch_mask(void)
 	writel(0, &mxc_ccm->ccdr);
 }
 
+static void init_bandgap(void)
+{
+	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
+	/*
+	 * Ensure the bandgap has stabilized.
+	 */
+	while (!(readl(&anatop->ana_misc0) & 0x80))
+		;
+	/*
+	 * For best noise performance of the analog blocks using the
+	 * outputs of the bandgap, the reftop_selfbiasoff bit should
+	 * be set.
+	 */
+	writel(BM_ANADIG_ANA_MISC0_REFTOP_SELBIASOFF, &anatop->ana_misc0_set);
+}
+
+
 #ifdef CONFIG_MX6SL
 static void set_preclk_from_osc(void)
 {
@@ -267,12 +288,35 @@ static void set_preclk_from_osc(void)
 }
 #endif
 
+#define SRC_SCR_WARM_RESET_ENABLE	0
+
+static void init_src(void)
+{
+	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
+	u32 val;
+
+	/*
+	 * force warm reset sources to generate cold reset
+	 * for a more reliable restart
+	 */
+	val = readl(&src_regs->scr);
+	val &= ~(1 << SRC_SCR_WARM_RESET_ENABLE);
+	writel(val, &src_regs->scr);
+}
+
 int arch_cpu_init(void)
 {
 	init_aips();
 
 	/* Need to clear MMDC_CHx_MASK to make warm reset work. */
 	clear_mmdc_ch_mask();
+
+	/*
+	 * Disable self-bias circuit in the analog bandap.
+	 * The self-bias circuit is used by the bandgap during startup.
+	 * This bit should be set after the bandgap has initialized.
+	 */
+	init_bandgap();
 
 	/*
 	 * When low freq boot is enabled, ROM will not set AHB
@@ -293,6 +337,8 @@ int arch_cpu_init(void)
 	/* Start APBH DMA */
 	mxs_dma_init();
 #endif
+
+	init_src();
 
 	return 0;
 }

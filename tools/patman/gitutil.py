@@ -61,6 +61,52 @@ def CountCommitsToBranch():
     patch_count = int(stdout)
     return patch_count
 
+def NameRevision(commit_hash):
+    """Gets the revision name for a commit
+
+    Args:
+        commit_hash: Commit hash to look up
+
+    Return:
+        Name of revision, if any, else None
+    """
+    pipe = ['git', 'name-rev', commit_hash]
+    stdout = command.RunPipe([pipe], capture=True, oneline=True).stdout
+
+    # We expect a commit, a space, then a revision name
+    name = stdout.split(' ')[1].strip()
+    return name
+
+def GuessUpstream(git_dir, branch):
+    """Tries to guess the upstream for a branch
+
+    This lists out top commits on a branch and tries to find a suitable
+    upstream. It does this by looking for the first commit where
+    'git name-rev' returns a plain branch name, with no ! or ^ modifiers.
+
+    Args:
+        git_dir: Git directory containing repo
+        branch: Name of branch
+
+    Returns:
+        Tuple:
+            Name of upstream branch (e.g. 'upstream/master') or None if none
+            Warning/error message, or None if none
+    """
+    pipe = [LogCmd(branch, git_dir=git_dir, oneline=True, count=100)]
+    result = command.RunPipe(pipe, capture=True, capture_stderr=True,
+                             raise_on_error=False)
+    if result.return_code:
+        return None, "Branch '%s' not found" % branch
+    for line in result.stdout.splitlines()[1:]:
+        commit_hash = line.split(' ')[0]
+        name = NameRevision(commit_hash)
+        if '~' not in name and '^' not in name:
+            if name.startswith('remotes/'):
+                name = name[8:]
+            return name, "Guessing upstream as '%s'" % name
+    return None, "Cannot find a suitable upstream for branch '%s'" % branch
+
 def GetUpstream(git_dir, branch):
     """Returns the name of the upstream for a branch
 
@@ -69,7 +115,9 @@ def GetUpstream(git_dir, branch):
         branch: Name of branch
 
     Returns:
-        Name of upstream branch (e.g. 'upstream/master') or None if none
+        Tuple:
+            Name of upstream branch (e.g. 'upstream/master') or None if none
+            Warning/error message, or None if none
     """
     try:
         remote = command.OutputOneLine('git', '--git-dir', git_dir, 'config',
@@ -77,13 +125,14 @@ def GetUpstream(git_dir, branch):
         merge = command.OutputOneLine('git', '--git-dir', git_dir, 'config',
                                       'branch.%s.merge' % branch)
     except:
-        return None
+        upstream, msg = GuessUpstream(git_dir, branch)
+        return upstream, msg
 
     if remote == '.':
-        return merge
+        return merge, None
     elif remote and merge:
         leaf = merge.split('/')[-1]
-        return '%s/%s' % (remote, leaf)
+        return '%s/%s' % (remote, leaf), None
     else:
         raise ValueError, ("Cannot determine upstream branch for branch "
                 "'%s' remote='%s', merge='%s'" % (branch, remote, merge))
@@ -99,10 +148,29 @@ def GetRangeInBranch(git_dir, branch, include_upstream=False):
         Expression in the form 'upstream..branch' which can be used to
         access the commits. If the branch does not exist, returns None.
     """
-    upstream = GetUpstream(git_dir, branch)
+    upstream, msg = GetUpstream(git_dir, branch)
     if not upstream:
-        return None
-    return '%s%s..%s' % (upstream, '~' if include_upstream else '', branch)
+        return None, msg
+    rstr = '%s%s..%s' % (upstream, '~' if include_upstream else '', branch)
+    return rstr, msg
+
+def CountCommitsInRange(git_dir, range_expr):
+    """Returns the number of commits in the given range.
+
+    Args:
+        git_dir: Directory containing git repo
+        range_expr: Range to check
+    Return:
+        Number of patches that exist in the supplied rangem or None if none
+        were found
+    """
+    pipe = [LogCmd(range_expr, git_dir=git_dir, oneline=True)]
+    result = command.RunPipe(pipe, capture=True, capture_stderr=True,
+                             raise_on_error=False)
+    if result.return_code:
+        return None, "Range '%s' not found or is invalid" % range_expr
+    patch_count = len(result.stdout.splitlines())
+    return patch_count, None
 
 def CountCommitsInBranch(git_dir, branch, include_upstream=False):
     """Returns the number of commits in the given branch.
@@ -114,14 +182,10 @@ def CountCommitsInBranch(git_dir, branch, include_upstream=False):
         Number of patches that exist on top of the branch, or None if the
         branch does not exist.
     """
-    range_expr = GetRangeInBranch(git_dir, branch, include_upstream)
+    range_expr, msg = GetRangeInBranch(git_dir, branch, include_upstream)
     if not range_expr:
-        return None
-    pipe = [LogCmd(range_expr, git_dir=git_dir, oneline=True),
-            ['wc', '-l']]
-    result = command.RunPipe(pipe, capture=True, oneline=True)
-    patch_count = int(result.stdout)
-    return patch_count
+        return None, msg
+    return CountCommitsInRange(git_dir, range_expr)
 
 def CountCommits(commit_range):
     """Returns the number of commits in the given range.
@@ -328,7 +392,8 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
                    "Or do something like this\n"
                    "git config sendemail.to u-boot@lists.denx.de")
             return
-    cc = BuildEmailList(series.get('cc'), '--cc', alias, raise_on_error)
+    cc = BuildEmailList(list(set(series.get('cc')) - set(series.get('to'))),
+                        '--cc', alias, raise_on_error)
     if self_only:
         to = BuildEmailList([os.getenv('USER')], '--to', alias, raise_on_error)
         cc = []

@@ -29,13 +29,26 @@ struct memory_info {
 	struct memory_area area[CONFIG_NR_DRAM_BANKS];
 };
 
+#define MAX_MTRR_REQUESTS	8
+
+/**
+ * A request for a memory region to be set up in a particular way. These
+ * requests are processed before board_init_r() is called. They are generally
+ * optional and can be ignored with some performance impact.
+ */
+struct mtrr_request {
+	int type;		/* MTRR_TYPE_... */
+	uint64_t start;
+	uint64_t size;
+};
+
 /* Architecture-specific global data */
 struct arch_global_data {
-	struct global_data *gd_addr;		/* Location of Global Data */
-	uint8_t  x86;			/* CPU family */
-	uint8_t  x86_vendor;		/* CPU vendor */
-	uint8_t  x86_model;
-	uint8_t  x86_mask;
+	struct global_data *gd_addr;	/* Location of Global Data */
+	uint8_t x86;			/* CPU family */
+	uint8_t x86_vendor;		/* CPU vendor */
+	uint8_t x86_model;
+	uint8_t x86_mask;
 	uint32_t x86_device;
 	uint64_t tsc_base;		/* Initial value returned by rdtsc() */
 	uint32_t tsc_base_kclocks;	/* Initial tsc as a kclocks value */
@@ -43,13 +56,18 @@ struct arch_global_data {
 	uint32_t tsc_mhz;		/* TSC frequency in MHz */
 	void *new_fdt;			/* Relocated FDT */
 	uint32_t bist;			/* Built-in self test value */
-	struct pci_controller *hose;	/* PCI hose for early use */
 	enum pei_boot_mode_t pei_boot_mode;
 	const struct pch_gpio_map *gpio_map;	/* board GPIO map */
 	struct memory_info meminfo;	/* Memory information */
 #ifdef CONFIG_HAVE_FSP
-	void	*hob_list;		/* FSP HOB list */
+	void *hob_list;			/* FSP HOB list */
 #endif
+	struct mtrr_request mtrr_req[MAX_MTRR_REQUESTS];
+	int mtrr_req_count;
+	int has_mtrr;
+	/* MRC training data to save for the next boot */
+	char *mrc_output;
+	unsigned int mrc_output_len;
 };
 
 #endif

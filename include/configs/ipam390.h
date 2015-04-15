@@ -18,6 +18,7 @@
 /*
  * Board
  */
+#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DRIVER_TI_EMAC
 #define CONFIG_BARIX_IPAM390
 

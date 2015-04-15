@@ -25,16 +25,6 @@
 #define _CONFIG_COBRA5272_H
 
 /* ---
- * Define processor
- * possible values for Sentec board: only Coldfire M5272 processor supported
- * (please do not change)
- * ---
- */
-
-#define CONFIG_MCF52x2			/* define processor family */
-#define CONFIG_M5272			/* define processor type */
-
-/* ---
  * Defines processor clock - important for correct timings concerning serial
  * interface etc.
  * ---

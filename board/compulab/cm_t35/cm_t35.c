@@ -19,6 +19,7 @@
 #include <i2c.h>
 #include <usb.h>
 #include <mmc.h>
+#include <splash.h>
 #include <twl4030.h>
 #include <linux/compiler.h>
 
@@ -59,11 +60,18 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 }
 #endif
 
-#define CM_T35_SPLASH_NAND_OFFSET 0x100000
+struct splash_location splash_locations[] = {
+	{
+		.name = "nand",
+		.storage = SPLASH_STORAGE_NAND,
+		.offset = 0x100000,
+	},
+};
 
 int splash_screen_prepare(void)
 {
-	return cl_splash_screen_prepare(CM_T35_SPLASH_NAND_OFFSET);
+	return splash_source_load(splash_locations,
+				  ARRAY_SIZE(splash_locations));
 }
 
 /*
@@ -429,7 +437,7 @@ static int handle_mac_address(void)
 	if (rc)
 		return 0;
 
-	rc = cl_eeprom_read_mac_addr(enetaddr);
+	rc = cl_eeprom_read_mac_addr(enetaddr, CONFIG_SYS_I2C_EEPROM_BUS);
 	if (rc)
 		return rc;
 

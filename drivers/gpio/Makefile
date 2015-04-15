@@ -8,6 +8,10 @@
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_DM_GPIO)		+= gpio-uclass.o
 endif
+/* TODO(sjg@chromium.org): Only tegra supports driver model in SPL */
+ifdef CONFIG_TEGRA_GPIO
+obj-$(CONFIG_DM_GPIO)		+= gpio-uclass.o
+endif
 
 obj-$(CONFIG_AT91_GPIO)	+= at91_gpio.o
 obj-$(CONFIG_INTEL_ICH6_GPIO)	+= intel_ich6_gpio.o
@@ -37,4 +41,5 @@ obj-$(CONFIG_ADI_GPIO2)	+= adi_gpio2.o
 obj-$(CONFIG_TCA642X)		+= tca642x.o
 oby-$(CONFIG_SX151X)		+= sx151x.o
 obj-$(CONFIG_SUNXI_GPIO)	+= sunxi_gpio.o
+obj-$(CONFIG_LPC32XX_GPIO)	+= lpc32xx_gpio.o
 obj-$(CONFIG_ZYNQ_GPIO)		+= zynq_gpio.o

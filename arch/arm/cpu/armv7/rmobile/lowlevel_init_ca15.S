@@ -40,7 +40,7 @@ do_lowlevel_init:
 	and	r1, r1, #0x7F00
 	lsrs	r1, r1, #8
 	cmp	r1, #0x4C		/* 0x4C is ID of r8a7794 */
-	beq	_exit_init_l2_a15
+	beq	_enable_actlr_smp
 
 	/* surpress wfe if ca15 */
 	tst r4, #4
@@ -64,6 +64,16 @@ do_lowlevel_init:
 	orrne r0, r0, #0x20		/* L2CTLR[5] */
 #endif
 	mcrne p15, 1, r0, c9, c0, 2
+
+	b	_exit_init_l2_a15
+
+_enable_actlr_smp: /* R8A7794 only (CA7) */
+#ifndef CONFIG_DCACHE_OFF
+	mrc    p15, 0, r0, c1, c0, 1
+	orr    r0, r0, #0x40
+	mcr    p15, 0, r0, c1, c0, 1
+#endif
+
 _exit_init_l2_a15:
 	ldr	r3, =(CONFIG_SYS_INIT_SP_ADDR)
 	sub	sp, r3, #4

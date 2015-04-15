@@ -234,7 +234,6 @@
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(1024 * 1024)
 
@@ -580,5 +579,7 @@
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
+
+#include <asm/fsl_secure_boot.h>
 
 #endif	/* __CONFIG_H */

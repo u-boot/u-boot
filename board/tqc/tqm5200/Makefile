@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= tqm5200.o cmd_stk52xx.o cmd_tb5200.o cam5200_flash.o
+obj-y	:= tqm5200.o cmd_stk52xx.o cam5200_flash.o

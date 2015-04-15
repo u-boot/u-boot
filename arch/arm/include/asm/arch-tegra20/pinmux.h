@@ -233,6 +233,7 @@ enum pmux_func {
 	PMUX_FUNC_COUNT,
 };
 
+#define TEGRA_PMX_SOC_DRV_GROUP_BASE_REG 0x868
 #include <asm/arch-tegra/pinmux.h>
 
 #endif /* _TEGRA20_PINMUX_H_ */

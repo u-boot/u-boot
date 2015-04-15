@@ -18,6 +18,8 @@
  */
 #include <asm/hardware.h>
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /* ARM asynchronous clock */
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO

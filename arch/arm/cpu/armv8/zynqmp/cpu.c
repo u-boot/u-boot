@@ -49,7 +49,7 @@ unsigned int zynqmp_get_silicon_version(void)
 				TCR_ORGN_WBWA | \
 				TCR_T0SZ(ZYNQMO_VA_BITS)
 
-#define MEMORY_ATTR	PMD_SECT_AF | PMD_SECT_S |	\
+#define MEMORY_ATTR	PMD_SECT_AF | PMD_SECT_INNER_SHARE |	\
 			PMD_ATTRINDX(MT_NORMAL) |	\
 			PMD_TYPE_SECT
 #define DEVICE_ATTR	PMD_SECT_AF | PMD_SECT_PXN |	\

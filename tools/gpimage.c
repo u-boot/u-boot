@@ -60,18 +60,17 @@ static void gpimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 /*
  * gpimage parameters
  */
-static struct image_type_params gpimage_params = {
-	.name		= "TI KeyStone GP Image support",
-	.header_size	= GPIMAGE_HDR_SIZE,
-	.hdr		= (void *)&gpimage_header,
-	.check_image_type = gpimage_check_image_types,
-	.verify_header	= gpimage_verify_header,
-	.print_header	= gpimage_print_header,
-	.set_header	= gpimage_set_header,
-	.check_params	= gpimage_check_params,
-};
-
-void init_gpimage_type(void)
-{
-	register_image_type(&gpimage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	gpimage,
+	"TI KeyStone GP Image support",
+	GPIMAGE_HDR_SIZE,
+	(void *)&gpimage_header,
+	gpimage_check_params,
+	gpimage_verify_header,
+	gpimage_print_header,
+	gpimage_set_header,
+	NULL,
+	gpimage_check_image_types,
+	NULL,
+	NULL
+);

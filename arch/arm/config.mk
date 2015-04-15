@@ -19,9 +19,6 @@ PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections \
 PLATFORM_RELFLAGS += $(call cc-option, -msoft-float) \
       $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
 
-# Support generic board on ARM
-__HAVE_ARCH_GENERIC_BOARD := y
-
 PLATFORM_CPPFLAGS += -D__ARM__
 
 # Choose between ARM/Thumb instruction sets

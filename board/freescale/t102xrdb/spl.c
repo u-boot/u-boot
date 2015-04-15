@@ -11,6 +11,7 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <spi_flash.h>
+#include "../common/sleep.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -41,6 +42,12 @@ void board_init_f(ulong bootflag)
 	gd = (gd_t *)(CONFIG_SPL_GD_ADDR);
 
 	console_init_f();
+
+#ifdef CONFIG_DEEP_SLEEP
+	/* disable the console if boot from deep sleep */
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
 
 	/* initialize selected port with appropriate baud rate */
 	sys_clk = get_board_sys_clk();

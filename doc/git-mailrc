@@ -31,7 +31,7 @@ alias luka           Luka Perkov <luka.perkov@sartura.hr>
 alias lukma          Lukasz Majewski <l.majewski@samsung.com>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
-alias masahiro       Masahiro Yamada <yamada.m@jp.panasonic.com>
+alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias panto          Pantelis Antoniou <panto@antoniou-consulting.com>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
@@ -45,7 +45,7 @@ alias sjg            Simon Glass <sjg@chromium.org>
 alias smcnutt        Scott McNutt <smcnutt@psyent.com>
 alias sonic          Sonic Zhang <sonic.adi@gmail.com>
 alias stroese        Stefan Roese <sr@denx.de>
-alias trini          Tom Rini <trini@ti.com>
+alias trini          Tom Rini <trini@konsulko.com>
 alias vapier         Mike Frysinger <vapier@gentoo.org>
 alias wd             Wolfgang Denk <wd@denx.de>
 
@@ -98,8 +98,6 @@ alias mpc83xx        uboot, kimphill
 alias mpc85xx        uboot, afleming, galak
 alias mpc86xx        uboot, afleming, galak
 alias ppc4xx         uboot, stroese
-alias ppc7xx         uboot, wd
-alias ppc74xx        uboot, wd
 
 alias sandbox        sjg
 alias sb             sandbox

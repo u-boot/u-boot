@@ -13,6 +13,11 @@
 #define CONFIG_FSL_LSCH3
 #define CONFIG_LS2085A
 #define CONFIG_GICV3
+#define CONFIG_FSL_TZPC_BP147
+
+/* Errata fixes */
+#define CONFIG_ARM_ERRATA_828024
+#define CONFIG_ARM_ERRATA_826974
 
 /* Link Definitions */
 #define CONFIG_SYS_TEXT_BASE		0x30001000
@@ -25,9 +30,6 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F	1
-
-#define CONFIG_IDENT_STRING		" LS2085A-EMU"
-#define CONFIG_BOOTP_VCI_STRING		"U-boot.LS2085A-EMU"
 
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_LIBFDT
@@ -189,7 +191,6 @@
 
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
@@ -209,12 +210,10 @@
 #define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE	(512UL * 1024 * 1024)
 #define CONFIG_SYS_LS_MC_FW_IN_NOR
 #define CONFIG_SYS_LS_MC_FW_ADDR	0x580200000ULL
-/* TODO Actual FW length needs to be determined at runtime from FW header */
-#define CONFIG_SYS_LS_MC_FW_LENGTH	(4U * 1024 * 1024)
 #define CONFIG_SYS_LS_MC_DPL_IN_NOR
 #define CONFIG_SYS_LS_MC_DPL_ADDR	0x5806C0000ULL
 /* TODO Actual DPL max length needs to be confirmed with the MC FW team */
-#define CONFIG_SYS_LS_MC_DPL_LENGTH	4096
+#define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH	(256 * 1024)
 #define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET    0xe00000
 
 /* Carve the MC private DRAM block from the end of DRAM */
@@ -248,7 +247,8 @@
 /* Physical Memory Map */
 /* fixme: these need to be checked against the board */
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
-#define CONFIG_SYS_CLK_FREQ	133333333
+#define CONFIG_SYS_CLK_FREQ	100000000
+#define CONFIG_DDR_CLK_FREQ	133333333
 
 
 #define CONFIG_NR_DRAM_BANKS		3
@@ -268,12 +268,14 @@
 	"fdt_high=0xffffffffffffffff\0"		\
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_start=0x581200000\0"		\
-	"kernel_load=0x806f0000\0"		\
+	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x1000000\0"		\
 	"console=ttyAMA0,38400n8\0"
 
-#define CONFIG_BOOTARGS			"console=ttyS1,115200 root=/dev/ram0 " \
-					"earlyprintk=uart8250-8bit,0x21c0600"
+#define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
+				"earlycon=uart8250,mmio,0x21c0600,115200 " \
+				"default_hugepagesz=2m hugepagesz=2m " \
+				"hugepages=16"
 #define CONFIG_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
 					"$kernel_size && bootm $kernel_load"
 #define CONFIG_BOOTDELAY		1

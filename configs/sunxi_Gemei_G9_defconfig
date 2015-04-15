@@ -1,0 +1,20 @@
+# Gemei G9 is an A10 based tablet, with 1G RAM, 16G NAND,
+# 1024x768 IPS LCD display, stereo speakers, 1.3MP front camera and 5 MP
+# rear camera, 8000mAh battery, GT901 2+1 touchscreen, Bosch BMA250
+# accelerometer and RTL8188CUS USB wifi. It also has MicroSD slot, MiniHDMI,
+# 1 x MicroUSB OTG port and 1 x MicroUSB host port and 3.5mm headphone jack.
+# More details are available at: http://linux-sunxi.org/Gemei_G9
+CONFIG_SPL=y
+CONFIG_SYS_EXTRA_OPTIONS="AXP209_POWER,USB_EHCI"
+CONFIG_FDTFILE="sun4i-gemei-g9.dtb"
+CONFIG_VIDEO_LCD_MODE="x:1024,y:768,depth:18,pclk_khz:100000,le:799,ri:260,up:15,lo:16,hs:1,vs:1,sync:3,vmode:0"
+CONFIG_VIDEO_LCD_PANEL_LVDS=y
+CONFIG_VIDEO_LCD_POWER="PH8"
+CONFIG_VIDEO_LCD_BL_EN="PH7"
+CONFIG_VIDEO_LCD_BL_PWM="PB2"
+CONFIG_ARM=y
+CONFIG_ARCH_SUNXI=y
+CONFIG_MACH_SUN4I=y
+CONFIG_DRAM_CLK=432
+CONFIG_DRAM_ZQ=123
+CONFIG_DRAM_EMR1=4

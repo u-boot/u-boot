@@ -236,7 +236,36 @@ struct smc91111_priv{
 					  *(__b2 + __i) = SMC_inb((a),(r));  \
 					};  \
 				}while(0)
-
+#elif defined(CONFIG_MS7206SE)
+#define SWAB7206(x) ({ word __x = x; ((__x << 8)|(__x >> 8)); })
+#define SMC_inw(a, r) *((volatile word*)((a)->iobase + (r)))
+#define SMC_inb(a, r) (*((volatile byte*)((a)->iobase + ((r) ^ 0x01))))
+#define SMC_insw(a, r, b, l) \
+	do { \
+		int __i; \
+		word *__b2 = (word *)(b);		  \
+		for (__i = 0; __i < (l); __i++) { \
+			*__b2++ = SWAB7206(SMC_inw(a, r));	\
+		} \
+	} while (0)
+#define	SMC_outw(a, d, r)	(*((volatile word *)((a)->iobase+(r))) = d)
+#define	SMC_outb(a, d, r)	({	word __d = (byte)(d);  \
+				word __w = SMC_inw((a), ((r)&(~1)));	\
+				if (((r) & 1)) \
+					__w = (__w & 0x00ff) | (__d << 8); \
+				else \
+					__w = (__w & 0xff00) | (__d); \
+				SMC_outw((a), __w, ((r)&(~1)));	      \
+			})
+#define SMC_outsw(a, r, b, l) \
+	do { \
+		int __i; \
+		word *__b2 = (word *)(b);		  \
+		for (__i = 0; __i < (l); __i++) { \
+			SMC_outw(a, SWAB7206(*__b2), r);	  \
+			__b2++; \
+		} \
+	} while (0)
 #else			/* if not CONFIG_CPU_PXA25X and not CONFIG_LEON */
 
 #ifndef CONFIG_SMC_USE_IOFUNCS /* these macros don't work on some boards */

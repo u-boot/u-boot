@@ -1,1 +1,229 @@
-link.dts
+/dts-v1/;
+
+/include/ "skeleton.dtsi"
+/include/ "serial.dtsi"
+
+/ {
+	model = "Google Link";
+	compatible = "google,link", "intel,celeron-ivybridge";
+
+	aliases {
+		spi0 = "/spi";
+	};
+
+	config {
+	       silent_console = <0>;
+	};
+
+	gpioa {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0 0x10>;
+		bank-name = "A";
+	};
+
+	gpiob {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x30 0x10>;
+		bank-name = "B";
+	};
+
+	gpioc {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x40 0x10>;
+		bank-name = "C";
+	};
+
+	chosen {
+		stdout-path = "/serial";
+	};
+
+	spd {
+		compatible = "memory-spd";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		elpida_4Gb_1600_x16 {
+			reg = <0>;
+			data = [92 10 0b 03 04 19 02 02
+				03 52 01 08 0a 00 fe 00
+				69 78 69 3c 69 11 18 81
+				20 08 3c 3c 01 40 83 81
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 0f 11 42 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 02 fe 00
+				11 52 00 00 00 07 7f 37
+				45 42 4a 32 30 55 47 36
+				45 42 55 30 2d 47 4e 2d
+				46 20 30 20 02 fe 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00];
+		};
+		samsung_4Gb_1600_1.35v_x16 {
+			reg = <1>;
+			data = [92 11 0b 03 04 19 02 02
+				03 11 01 08 0a 00 fe 00
+				69 78 69 3c 69 11 18 81
+				f0 0a 3c 3c 01 40 83 01
+				00 80 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 0f 11 02 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 80 ce 01
+				00 00 00 00 00 00 6a 04
+				4d 34 37 31 42 35 36 37
+				34 42 48 30 2d 59 4b 30
+				20 20 00 00 80 ce 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00];
+			};
+		micron_4Gb_1600_1.35v_x16 {
+			reg = <2>;
+			data = [92 11 0b 03 04 19 02 02
+				03 11 01 08 0a 00 fe 00
+				69 78 69 3c 69 11 18 81
+				20 08 3c 3c 01 40 83 05
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 0f 01 02 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 80 2c 00
+				00 00 00 00 00 00 ad 75
+				34 4b 54 46 32 35 36 36
+				34 48 5a 2d 31 47 36 45
+				31 20 45 31 80 2c 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				00 00 00 00 00 00 00 00
+				ff ff ff ff ff ff ff ff
+				ff ff ff ff ff ff ff ff
+				ff ff ff ff ff ff ff ff
+				ff ff ff ff ff ff ff ff
+				ff ff ff ff ff ff ff ff
+				ff ff ff ff ff ff ff ff
+				ff ff ff ff ff ff ff ff
+				ff ff ff ff ff ff ff ff
+				ff ff ff ff ff ff ff ff
+				ff ff ff ff ff ff ff ff];
+		};
+	};
+
+	spi {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "intel,ich-spi";
+		spi-flash@0 {
+			#size-cells = <1>;
+			#address-cells = <1>;
+			reg = <0>;
+			compatible = "winbond,w25q64", "spi-flash";
+			memory-map = <0xff800000 0x00800000>;
+			rw-mrc-cache {
+				label = "rw-mrc-cache";
+				/* Alignment: 4k (for updating) */
+				reg = <0x003e0000 0x00010000>;
+				type = "wiped";
+				wipe-value = [ff];
+			};
+		};
+	};
+
+	pci {
+		sata {
+			compatible = "intel,pantherpoint-ahci";
+			intel,sata-mode = "ahci";
+			intel,sata-port-map = <1>;
+			intel,sata-port0-gen3-tx = <0x00880a7f>;
+		};
+
+		gma {
+			compatible = "intel,gma";
+			intel,dp_hotplug = <0 0 0x06>;
+			intel,panel-port-select = <1>;
+			intel,panel-power-cycle-delay = <6>;
+			intel,panel-power-up-delay = <2000>;
+			intel,panel-power-down-delay = <500>;
+			intel,panel-power-backlight-on-delay = <2000>;
+			intel,panel-power-backlight-off-delay = <2000>;
+			intel,cpu-backlight = <0x00000200>;
+			intel,pch-backlight = <0x04000000>;
+		};
+
+		lpc {
+			compatible = "intel,lpc";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			gen-dec = <0x800 0xfc 0x900 0xfc>;
+			intel,gen-dec = <0x800 0xfc 0x900 0xfc>;
+			intel,pirq-routing = <0x8b 0x8a 0x8b 0x8b
+						0x80 0x80 0x80 0x80>;
+			intel,gpi-routing = <0 0 0 0 0 0 0 2
+						1 0 0 0 0 0 0 0>;
+			/* Enable EC SMI source */
+			intel,alt-gp-smi-enable = <0x0100>;
+
+			cros-ec@200 {
+				compatible = "google,cros-ec";
+				reg = <0x204 1 0x200 1 0x880 0x80>;
+
+				/* Describes the flash memory within the EC */
+				#address-cells = <1>;
+				#size-cells = <1>;
+				flash@8000000 {
+					reg = <0x08000000 0x20000>;
+					erase-value = <0xff>;
+				};
+			};
+		};
+	};
+
+	microcode {
+		update@0 {
+#include "microcode/m12306a9_0000001b.dtsi"
+		};
+	};
+
+};

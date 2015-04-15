@@ -1,0 +1,8 @@
+config DM_TEST
+	bool "Enable driver model test command"
+	depends on SANDBOX && CMD_DM
+	help
+	  This enables the 'dm test' command which runs a series of unit
+	  tests on the driver model code. Each subsystem (uclass) is tested.
+	  If all is well then all tests pass although there will be a few
+	  messages printed along the way.

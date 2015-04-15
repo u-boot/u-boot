@@ -21,14 +21,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_DM_CROS_EC
 int cros_ec_spi_packet(struct udevice *udev, int out_bytes, int in_bytes)
 {
 	struct cros_ec_dev *dev = udev->uclass_priv;
-#else
-int cros_ec_spi_packet(struct cros_ec_dev *dev, int out_bytes, int in_bytes)
-{
-#endif
 	struct spi_slave *slave = dev_get_parentdata(dev->dev);
 	int rv;
 
@@ -67,18 +62,11 @@ int cros_ec_spi_packet(struct cros_ec_dev *dev, int out_bytes, int in_bytes)
  * @param din_len	Maximum size of response in bytes
  * @return number of bytes in response, or -1 on error
  */
-#ifdef CONFIG_DM_CROS_EC
 int cros_ec_spi_command(struct udevice *udev, uint8_t cmd, int cmd_version,
 		     const uint8_t *dout, int dout_len,
 		     uint8_t **dinp, int din_len)
 {
 	struct cros_ec_dev *dev = udev->uclass_priv;
-#else
-int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
-		     const uint8_t *dout, int dout_len,
-		     uint8_t **dinp, int din_len)
-{
-#endif
 	struct spi_slave *slave = dev_get_parentdata(dev->dev);
 	int in_bytes = din_len + 4;	/* status, length, checksum, trailer */
 	uint8_t *out;
@@ -166,65 +154,12 @@ int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 	return len;
 }
 
-#ifndef CONFIG_DM_CROS_EC
-int cros_ec_spi_decode_fdt(struct cros_ec_dev *dev, const void *blob)
+static int cros_ec_probe(struct udevice *dev)
 {
-	/* Decode interface-specific FDT params */
-	dev->max_frequency = fdtdec_get_int(blob, dev->node,
-					    "spi-max-frequency", 500000);
-	dev->cs = fdtdec_get_int(blob, dev->node, "reg", 0);
-
-	return 0;
-}
-
-/**
- * Initialize SPI protocol.
- *
- * @param dev		CROS_EC device
- * @param blob		Device tree blob
- * @return 0 if ok, -1 on error
- */
-int cros_ec_spi_init(struct cros_ec_dev *dev, const void *blob)
-{
-	int ret;
-
-	ret = spi_setup_slave_fdt(blob, dev->node, dev->parent_node,
-				  &slave);
-	if (ret) {
-		debug("%s: Could not setup SPI slave\n", __func__);
-		return ret;
-	}
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_DM_CROS_EC
-int cros_ec_probe(struct udevice *dev)
-{
-	struct spi_slave *slave = dev_get_parentdata(dev);
-	int ret;
-
-	/*
-	 * TODO(sjg@chromium.org)
-	 *
-	 * This is really horrible at present. It is an artifact of removing
-	 * the child_pre_probe() method for SPI. Everything here could go in
-	 * an automatic function, except that spi_get_bus_and_cs() wants to
-	 * set it up manually and call device_probe_child().
-	 *
-	 * The solution may be to re-enable the child_pre_probe() method for
-	 * SPI and have it do nothing if the child is already passed in via
-	 * device_probe_child().
-	 */
-	slave->dev = dev;
-	ret = spi_ofdata_to_platdata(gd->fdt_blob, dev->of_offset, slave);
-	if (ret)
-		return ret;
 	return cros_ec_register(dev);
 }
 
-struct dm_cros_ec_ops cros_ec_ops = {
+static struct dm_cros_ec_ops cros_ec_ops = {
 	.packet = cros_ec_spi_packet,
 	.command = cros_ec_spi_command,
 };
@@ -241,4 +176,3 @@ U_BOOT_DRIVER(cros_ec_spi) = {
 	.probe		= cros_ec_probe,
 	.ops		= &cros_ec_ops,
 };
-#endif

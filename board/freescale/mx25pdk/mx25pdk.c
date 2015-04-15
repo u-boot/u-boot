@@ -146,8 +146,8 @@ int board_late_init(void)
 	if (!p)
 		return -ENODEV;
 
-	/* Turn on Ethernet PHY supply */
-	pmic_reg_write(p, MC34704_GENERAL2_REG, ONOFFE);
+	/* Turn on Ethernet PHY and LCD supplies */
+	pmic_reg_write(p, MC34704_GENERAL2_REG, ONOFFE | ONOFFA);
 
 	return 0;
 }

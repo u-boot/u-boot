@@ -271,6 +271,19 @@ static int asix_read_mac(struct eth_device *eth)
 	return 0;
 }
 
+static int asix_write_mac(struct eth_device *eth)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+	int ret;
+
+	ret = asix_write_cmd(dev, AX_ACCESS_MAC, AX_NODE_ID, ETH_ALEN,
+				 ETH_ALEN, eth->enetaddr);
+	if (ret < 0)
+		debug("Failed to set MAC address: %02x\n", ret);
+
+	return ret;
+}
+
 static int asix_basic_reset(struct ueth_data *dev)
 {
 	struct asix_private *dev_priv = (struct asix_private *)dev->dev_priv;
@@ -686,6 +699,7 @@ int ax88179_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 	eth->send = asix_send;
 	eth->recv = asix_recv;
 	eth->halt = asix_halt;
+	eth->write_hwaddr = asix_write_mac;
 	eth->priv = ss;
 
 	if (asix_basic_reset(ss))

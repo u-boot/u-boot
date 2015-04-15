@@ -39,6 +39,7 @@
 /* VTP Base address */
 #define VTP0_CTRL_ADDR			0x44E10E0C
 #define VTP1_CTRL_ADDR			0x48140E10
+#define PRM_DEVICE_INST			0x44E00F00
 
 /* DDR Base address */
 #define DDR_PHY_CMD_ADDR		0x44E12000

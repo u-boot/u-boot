@@ -73,7 +73,7 @@ typedef struct global_data {
 	const void *fdt_blob;	/* Our device tree, NULL if none */
 	void *new_fdt;		/* Relocated FDT */
 	unsigned long fdt_size;	/* Space reserved for relocated FDT */
-	void **jt;		/* jump table */
+	struct jt_funcs *jt;		/* jump table */
 	char env_buf[32];	/* buffer for getenv() before reloc. */
 #ifdef CONFIG_TRACE
 	void		*trace_buff;	/* The trace buffer */
@@ -90,6 +90,12 @@ typedef struct global_data {
 	unsigned long malloc_base;	/* base address of early malloc() */
 	unsigned long malloc_limit;	/* limit address */
 	unsigned long malloc_ptr;	/* current address */
+#endif
+#ifdef CONFIG_PCI
+	struct pci_controller *hose;	/* PCI hose for early use */
+#endif
+#ifdef CONFIG_PCI_BOOTDELAY
+	int pcidelay_done;
 #endif
 	struct udevice *cur_serial_dev;	/* current serial device */
 	struct arch_global_data arch;	/* architecture-specific data */

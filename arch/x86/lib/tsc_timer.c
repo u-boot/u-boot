@@ -78,7 +78,7 @@ static int match_cpu(u8 family, u8 model)
  *
  * Returns the calibration value or 0 if MSR calibration failed.
  */
-static unsigned long try_msr_calibrate_tsc(void)
+static unsigned long __maybe_unused try_msr_calibrate_tsc(void)
 {
 	u32 lo, hi, ratio, freq_id, freq;
 	unsigned long res;
@@ -199,7 +199,7 @@ static inline int pit_expect_msb(unsigned char val, u64 *tscp,
 #define MAX_QUICK_PIT_MS 50
 #define MAX_QUICK_PIT_ITERATIONS (MAX_QUICK_PIT_MS * PIT_TICK_RATE / 1000 / 256)
 
-static unsigned long quick_pit_calibrate(void)
+static unsigned long __maybe_unused quick_pit_calibrate(void)
 {
 	int i;
 	u64 tsc, delta;
@@ -306,6 +306,9 @@ unsigned __attribute__((no_instrument_function)) long get_tbclk_mhz(void)
 	if (gd->arch.tsc_mhz)
 		return gd->arch.tsc_mhz;
 
+#ifdef CONFIG_TSC_CALIBRATION_BYPASS
+	fast_calibrate = CONFIG_TSC_FREQ_IN_MHZ;
+#else
 	fast_calibrate = try_msr_calibrate_tsc();
 	if (!fast_calibrate) {
 
@@ -313,6 +316,7 @@ unsigned __attribute__((no_instrument_function)) long get_tbclk_mhz(void)
 		if (!fast_calibrate)
 			panic("TSC frequency is ZERO");
 	}
+#endif
 
 	gd->arch.tsc_mhz = fast_calibrate;
 	return fast_calibrate;

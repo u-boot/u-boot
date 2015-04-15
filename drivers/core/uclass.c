@@ -319,18 +319,29 @@ int uclass_bind_device(struct udevice *dev)
 	int ret;
 
 	uc = dev->uclass;
-
 	list_add_tail(&dev->uclass_node, &uc->dev_head);
 
+	if (dev->parent) {
+		struct uclass_driver *uc_drv = dev->parent->uclass->uc_drv;
+
+		if (uc_drv->child_post_bind) {
+			ret = uc_drv->child_post_bind(dev);
+			if (ret)
+				goto err;
+		}
+	}
 	if (uc->uc_drv->post_bind) {
 		ret = uc->uc_drv->post_bind(dev);
-		if (ret) {
-			list_del(&dev->uclass_node);
-			return ret;
-		}
+		if (ret)
+			goto err;
 	}
 
 	return 0;
+err:
+	/* There is no need to undo the parent's post_bind call */
+	list_del(&dev->uclass_node);
+
+	return ret;
 }
 
 int uclass_unbind_device(struct udevice *dev)
@@ -378,6 +389,19 @@ int uclass_resolve_seq(struct udevice *dev)
 			return ret;
 	}
 	return seq;
+}
+
+int uclass_pre_probe_child(struct udevice *dev)
+{
+	struct uclass_driver *uc_drv;
+
+	if (!dev->parent)
+		return 0;
+	uc_drv = dev->parent->uclass->uc_drv;
+	if (uc_drv->child_pre_probe)
+		return uc_drv->child_pre_probe(dev);
+
+	return 0;
 }
 
 int uclass_post_probe_device(struct udevice *dev)

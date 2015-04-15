@@ -141,8 +141,8 @@ $ git clone git://git.denx.de/u-boot.git .
 $ git checkout -b my-branch origin/master
 $ # Add some commits to the branch, reading for testing
 
-2. Create ~/.buildman to tell buildman where to find tool chains. As an
-example:
+2. Create ~/.buildman to tell buildman where to find tool chains (see 'The
+.buildman file' later for details). As an example:
 
 # Buildman settings file
 
@@ -171,7 +171,16 @@ The toolchain-alias section indicates that the i386 toolchain should be used
 to build x86 commits.
 
 
-2. Check the available toolchains
+3. Make sure you have the require Python pre-requisites
+
+Buildman uses multiprocessing, Queue, shutil, StringIO, ConfigParser and
+urllib2. These should normally be available, but if you get an error like
+this then you will need to obtain those modules:
+
+    ImportError: No module named multiprocessing
+
+
+4. Check the available toolchains
 
 Run this check to make sure that you have a toolchain for every architecture.
 
@@ -301,6 +310,47 @@ You can see that everything is covered, even some strange ones that won't
 be used (c88 and c99). This is a feature.
 
 
+5. Install new toolchains if needed
+
+You can download toolchains and update the [toolchain] section of the
+settings file to find them.
+
+To make this easier, buildman can automatically download and install
+toolchains from kernel.org. First list the available architectures:
+
+$ ./tools/buildman/buildman sandbox --fetch-arch list
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.3/
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.2/
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.5.1/
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.2.4/
+Available architectures: alpha am33_2.0 arm avr32 bfin cris crisv32 frv h8300
+hppa hppa64 i386 ia64 m32r m68k mips mips64 or32 powerpc powerpc64 s390x sh4
+sparc sparc64 tilegx x86_64 xtensa
+
+Then pick one and download it:
+
+$ ./tools/buildman/buildman sandbox --fetch-arch or32
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.3/
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.2/
+Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.5.1/
+Downloading: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.5.1//x86_64-gcc-4.5.1-nolibc_or32-linux.tar.xz
+Unpacking to: /home/sjg/.buildman-toolchains
+Testing
+      - looking in '/home/sjg/.buildman-toolchains/gcc-4.5.1-nolibc/or32-linux/.'
+      - looking in '/home/sjg/.buildman-toolchains/gcc-4.5.1-nolibc/or32-linux/bin'
+         - found '/home/sjg/.buildman-toolchains/gcc-4.5.1-nolibc/or32-linux/bin/or32-linux-gcc'
+Tool chain test:  OK
+
+Buildman should now be set up to use your new toolchain.
+
+At the time of writing, U-Boot has these architectures:
+
+   arc, arm, avr32, blackfin, m68k, microblaze, mips, nds32, nios2, openrisc
+   powerpc, sandbox, sh, sparc, x86
+
+Of these, only arc, microblaze and nds32 are not available at kernel.org..
+
+
 How to run it
 =============
 
@@ -310,8 +360,9 @@ branch with a valid upstream)
 $ ./tools/buildman/buildman -b <branch> -n
 
 If it can't detect the upstream branch, try checking out the branch, and
-doing something like 'git branch --set-upstream <branch> upstream/master'
-or something similar.
+doing something like 'git branch --set-upstream-to upstream/master'
+or something similar. Buildman will try to guess a suitable upstream branch
+if it can't find one (you will see a message like" Guessing upstream as ...).
 
 As an example:
 
@@ -562,7 +613,7 @@ $ ./tools/buildman/buildman -b us-mem4 -sSdB
                  run_list_real                             1996    2000      +4
                  do_nandboot                                760     756      -4
                  do_mem_crc                                 168      68    -100
-            colibri_t20_iris:  all -9  rodata -29  text +20
+            colibri_t20    :  all -9  rodata -29  text +20
                u-boot: add: 1/0, grow: 2/-3 bytes: 140/-112 (28)
                  function                                   old     new   delta
                  hash_command                                80     160     +80
@@ -665,28 +716,62 @@ It is common when refactoring code for the rodata to decrease as the text size
 increases, and vice versa.
 
 
-Providing 'make' flags
-======================
+The .buildman file
+==================
 
-U-Boot's build system supports a few flags (such as BUILD_TAG) which affect
-the build product. These flags can be specified in the buildman settings
-file. They can also be useful when building U-Boot against other open source
-software.
+The .buildman file provides information about the available toolchains and
+also allows build flags to be passed to 'make'. It consists of several
+sections, with the section name in square brackets. Within each section are
+a set of (tag, value) pairs.
 
-[make-flags]
-at91-boards=ENABLE_AT91_TEST=1
-snapper9260=${at91-boards} BUILD_TAG=442
-snapper9g45=${at91-boards} BUILD_TAG=443
+'[toolchain]' section
 
-This will use 'make ENABLE_AT91_TEST=1 BUILD_TAG=442' for snapper9260
-and 'make ENABLE_AT91_TEST=1 BUILD_TAG=443' for snapper9g45. A special
-variable ${target} is available to access the target name (snapper9260 and
-snapper9g20 in this case). Variables are resolved recursively. Note that
-variables can only contain the characters A-Z, a-z, 0-9, hyphen (-) and
-underscore (_).
+    This lists the available toolchains. The tag here doesn't matter, but
+    make sure it is unique. The value is the path to the toolchain. Buildman
+    will look in that path for a file ending in 'gcc'. It will then execute
+    it to check that it is a C compiler, passing only the --version flag to
+    it. If the return code is 0, buildman assumes that it is a valid C
+    compiler. It uses the first part of the name as the architecture and
+    strips off the last part when setting the CROSS_COMPILE environment
+    variable (parts are delimited with a hyphen).
 
-It is expected that any variables added are dealt with in U-Boot's
-config.mk file and documented in the README.
+    For example powerpc-linux-gcc will be noted as a toolchain for 'powerpc'
+    and CROSS_COMPILE will be set to powerpc-linux- when using it.
+
+'[toolchain-alias]' section
+
+    This converts toolchain architecture names to U-Boot names. For example,
+    if an x86 toolchains is called i386-linux-gcc it will not normally be
+    used for architecture 'x86'. Adding 'x86: i386 x86_64' to this section
+    will tell buildman that the i386 and x86_64 toolchains can be used for
+    the x86 architecture.
+
+'[make-flags]' section
+
+    U-Boot's build system supports a few flags (such as BUILD_TAG) which
+    affect the build product. These flags can be specified in the buildman
+    settings file. They can also be useful when building U-Boot against other
+    open source software.
+
+    [make-flags]
+    at91-boards=ENABLE_AT91_TEST=1
+    snapper9260=${at91-boards} BUILD_TAG=442
+    snapper9g45=${at91-boards} BUILD_TAG=443
+
+    This will use 'make ENABLE_AT91_TEST=1 BUILD_TAG=442' for snapper9260
+    and 'make ENABLE_AT91_TEST=1 BUILD_TAG=443' for snapper9g45. A special
+    variable ${target} is available to access the target name (snapper9260
+    and snapper9g20 in this case). Variables are resolved recursively. Note
+    that variables can only contain the characters A-Z, a-z, 0-9, hyphen (-)
+    and underscore (_).
+
+    It is expected that any variables added are dealt with in U-Boot's
+    config.mk file and documented in the README.
+
+    Note that you can pass ad-hoc options to the build using environment
+    variables, for example:
+
+       SOME_OPTION=1234 ./tools/buildman/buildman my_board
 
 
 Quick Sanity Check
@@ -696,6 +781,17 @@ If you have made changes and want to do a quick sanity check of the
 currently checked-out source, run buildman without the -b flag. This will
 build the selected boards and display build status as it runs (i.e. -v is
 enabled automatically). Use -e to see errors/warnings as well.
+
+
+Building Ranges
+===============
+
+You can build a range of commits by specifying a range instead of a branch
+when using the -b flag. For example:
+
+    upstream/master..us-buildman
+
+will build commits in us-buildman that are not in upstream/master.
 
 
 Other options

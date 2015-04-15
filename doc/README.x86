@@ -18,11 +18,11 @@ U-Boot supports running as a coreboot [1] payload on x86. So far only Link
 on other x86 boards since coreboot deals with most of the low-level details.
 
 U-Boot also supports booting directly from x86 reset vector without coreboot,
-aka raw support or bare support. Currently Link and Intel Crown Bay board
-support running U-Boot 'bare metal'.
+aka raw support or bare support. Currently Link, Intel Crown Bay, Intel
+Minnowboard Max and Intel Galileo support running U-Boot 'bare metal'.
 
-As for loading OS, U-Boot supports directly booting a 32-bit or 64-bit Linux
-kernel as part of a FIT image. It also supports a compressed zImage.
+As for loading an OS, U-Boot supports directly booting a 32-bit or 64-bit
+Linux kernel as part of a FIT image. It also supports a compressed zImage.
 
 Build Instructions
 ------------------
@@ -32,13 +32,30 @@ on other architectures, like below:
 $ make coreboot-x86_defconfig
 $ make all
 
-Building ROM version of U-Boot (hereafter referred to as u-boot.rom) is a
+Note this default configuration will build a U-Boot payload for the Link board.
+To build a coreboot payload against another board, you can change the build
+configuration during the 'make menuconfig' process.
+
+x86 architecture  --->
+	...
+	(chromebook_link) Board configuration file
+	(chromebook_link) Board Device Tree Source (dts) file
+	(0x19200000) Board specific Cache-As-RAM (CAR) address
+	(0x4000) Board specific Cache-As-RAM (CAR) size
+
+Change the 'Board configuration file' and 'Board Device Tree Source (dts) file'
+to point to a new board. You can also change the Cache-As-RAM (CAR) related
+settings here if the default values do not fit your new board.
+
+Building a ROM version of U-Boot (hereafter referred to as u-boot.rom) is a
 little bit tricky, as generally it requires several binary blobs which are not
 shipped in the U-Boot source tree. Due to this reason, the u-boot.rom build is
 not turned on by default in the U-Boot source tree. Firstly, you need turn it
-on by uncommenting the following line in the main U-Boot Makefile:
+on by enabling the ROM build:
 
-# ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
+$ export BUILD_ROM=y
+
+This tells the Makefile to build u-boot.rom as a target.
 
 Link-specific instructions:
 
@@ -88,14 +105,95 @@ in this FSP package too.
 Rename the first one to fsp.bin and second one to cmc.bin and put them in the
 board directory.
 
-Now you can build U-Boot and obtaim u-boot.rom
+Note the FSP release version 001 has a bug which could cause random endless
+loop during the FspInit call. This bug was published by Intel although Intel
+did not describe any details. We need manually apply the patch to the FSP
+binary using any hex editor (eg: bvi). Go to the offset 0x1fcd8 of the FSP
+binary, change the following five bytes values from orginally E8 42 FF FF FF
+to B8 00 80 0B 00.
+
+Now you can build U-Boot and obtain u-boot.rom
 
 $ make crownbay_defconfig
 $ make all
 
+Intel Minnowboard Max instructions:
+
+This uses as FSP as with Crown Bay, except it is for the Atom E3800 series.
+Download this and get the .fd file (BAYTRAIL_FSP_GOLD_003_16-SEP-2014.fd at
+the time of writing). Put it in the board directory:
+board/intel/minnowmax/fsp.bin
+
+Obtain the VGA RAM (Vga.dat at the time of writing) and put it into the same
+directory: board/intel/minnowmax/vga.bin
+
+You still need two more binary blobs. These come from the sample SPI image
+provided in the FSP (SPI.bin at the time of writing).
+
+Use ifdtool in the U-Boot tools directory to extract the images from that
+file, for example:
+
+   $ ./tools/ifdtool -x BayleyBay/SPI.bin
+   $ cp flashregion_2_intel_me.bin board/intel/minnowmax/me.bin
+   $ cp flashregion_0_flashdescriptor.bin board/intel/minnowmax/descriptor.bin
+
+Now you can build U-Boot and obtain u-boot.rom
+
+$ make minnowmax_defconfig
+$ make all
+
+Intel Galileo instructions:
+
+Only one binary blob is needed for Remote Management Unit (RMU) within Intel
+Quark SoC. Not like FSP, U-Boot does not call into the binary. The binary is
+needed by the Quark SoC itself.
+
+You can get the binary blob from Quark Board Support Package from Intel website:
+
+* ./QuarkSocPkg/QuarkNorthCluster/Binary/QuarkMicrocode/RMU.bin
+
+Rename the file and put it to the board directory by:
+
+   $ cp RMU.bin board/intel/galileo/rmu.bin
+
+Now you can build U-Boot and obtain u-boot.rom
+
+$ make galileo_defconfig
+$ make all
+
+Test with coreboot
+------------------
+For testing U-Boot as the coreboot payload, there are things that need be paid
+attention to. coreboot supports loading an ELF executable and a 32-bit plain
+binary, as well as other supported payloads. With the default configuration,
+U-Boot is set up to use a separate Device Tree Blob (dtb). As of today, the
+generated u-boot-dtb.bin needs to be packaged by the cbfstool utility (a tool
+provided by coreboot) manually as coreboot's 'make menuconfig' does not provide
+this capability yet. The command is as follows:
+
+# in the coreboot root directory
+$ ./build/util/cbfstool/cbfstool build/coreboot.rom add-flat-binary \
+  -f u-boot-dtb.bin -n fallback/payload -c lzma -l 0x1110000 -e 0x1110015
+
+Make sure 0x1110000 matches CONFIG_SYS_TEXT_BASE and 0x1110015 matches the
+symbol address of _start (in arch/x86/cpu/start.S).
+
+If you want to use ELF as the coreboot payload, change U-Boot configuration to
+use CONFIG_OF_EMBED instead of CONFIG_OF_SEPARATE.
+
+To enable video you must enable these options in coreboot:
+
+   - Set framebuffer graphics resolution (1280x1024 32k-color (1:5:5))
+   - Keep VESA framebuffer
+
+At present it seems that for Minnowboard Max, coreboot does not pass through
+the video information correctly (it always says the resolution is 0x0). This
+works correctly for link though.
+
+
 CPU Microcode
 -------------
-Modern CPU usually requires a special bit stream called microcode [5] to be
+Modern CPUs usually require a special bit stream called microcode [5] to be
 loaded on the processor after power up in order to function properly. U-Boot
 has already integrated these as hex dumps in the source tree.
 
@@ -106,13 +204,92 @@ x86 has been converted to use driver model for serial and GPIO.
 Device Tree
 -----------
 x86 uses device tree to configure the board thus requires CONFIG_OF_CONTROL to
-be turned on. Not every device on the board is configured via devie tree, but
+be turned on. Not every device on the board is configured via device tree, but
 more and more devices will be added as time goes by. Check out the directory
 arch/x86/dts/ for these device tree source files.
 
+Useful Commands
+---------------
+
+In keeping with the U-Boot philosophy of providing functions to check and
+adjust internal settings, there are several x86-specific commands that may be
+useful:
+
+hob  - Display information about Firmware Support Package (FSP) Hand-off
+	 Block. This is only available on platforms which use FSP, mostly
+	 Atom.
+iod  - Display I/O memory
+iow  - Write I/O memory
+mtrr - List and set the Memory Type Range Registers (MTRR). These are used to
+	 tell the CPU whether memory is cacheable and if so the cache write
+	 mode to use. U-Boot sets up some reasonable values but you can
+	 adjust then with this command.
+
+Development Flow
+----------------
+These notes are for those who want to port U-Boot to a new x86 platform.
+
+Since x86 CPUs boot from SPI flash, a SPI flash emulator is a good investment.
+The Dediprog em100 can be used on Linux. The em100 tool is available here:
+
+   http://review.coreboot.org/p/em100.git
+
+On Minnowboard Max the following command line can be used:
+
+   sudo em100 -s -p LOW -d u-boot.rom -c W25Q64DW -r
+
+A suitable clip for connecting over the SPI flash chip is here:
+
+   http://www.dediprog.com/pd/programmer-accessories/EM-TC-8
+
+This allows you to override the SPI flash contents for development purposes.
+Typically you can write to the em100 in around 1200ms, considerably faster
+than programming the real flash device each time. The only important
+limitation of the em100 is that it only supports SPI bus speeds up to 20MHz.
+This means that images must be set to boot with that speed. This is an
+Intel-specific feature - e.g. tools/ifttool has an option to set the SPI
+speed in the SPI descriptor region.
+
+If your chip/board uses an Intel Firmware Support Package (FSP) it is fairly
+easy to fit it in. You can follow the Minnowboard Max implementation, for
+example. Hopefully you will just need to create new files similar to those
+in arch/x86/cpu/baytrail which provide Bay Trail support.
+
+If you are not using an FSP you have more freedom and more responsibility.
+The ivybridge support works this way, although it still uses a ROM for
+graphics and still has binary blobs containing Intel code. You should aim to
+support all important peripherals on your platform including video and storage.
+Use the device tree for configuration where possible.
+
+For the microcode you can create a suitable device tree file using the
+microcode tool:
+
+  ./tools/microcode-tool -d microcode.dat create <model>
+
+or if you only have header files and not the full Intel microcode.dat database:
+
+  ./tools/microcode-tool -H BAY_TRAIL_FSP_KIT/Microcode/M0130673322.h \
+	-H BAY_TRAIL_FSP_KIT/Microcode/M0130679901.h \
+	create all
+
+These are written to arch/x86/dts/microcode/ by default.
+
+Note that it is possible to just add the micrcode for your CPU if you know its
+model. U-Boot prints this information when it starts
+
+   CPU: x86_64, vendor Intel, device 30673h
+
+so here we can use the M0130673322 file.
+
+If you platform can display POST codes on two little 7-segment displays on
+the board, then you can use post_code() calls from C or assembler to monitor
+boot progress. This can be good for debugging.
+
+If not, you can try to get serial working as early as possible. The early
+debug serial port may be useful here. See setup_early_uart() for an example.
+
 TODO List
 ---------
-- MTRR support (for performance)
 - Audio
 - Chrome OS verified boot
 - SMI and ACPI support, to provide platform info and facilities to Linux

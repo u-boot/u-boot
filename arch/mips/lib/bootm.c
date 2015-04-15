@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <image.h>
+#include <fdt_support.h>
 #include <asm/addrspace.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -18,6 +19,18 @@ DECLARE_GLOBAL_DATA_PTR;
 #define mips_boot_malta		1
 #else
 #define mips_boot_malta		0
+#endif
+
+#if defined(CONFIG_MIPS_BOOT_CMDLINE_LEGACY)
+#define mips_boot_cmdline_legacy	1
+#else
+#define mips_boot_cmdline_legacy	0
+#endif
+
+#if defined(CONFIG_MIPS_BOOT_ENV_LEGACY)
+#define mips_boot_env_legacy	1
+#else
+#define mips_boot_env_legacy	0
 #endif
 
 static int linux_argc;
@@ -60,7 +73,37 @@ static int boot_setup_linux(bootm_headers_t *images)
 	if (ret)
 		return ret;
 
+#if defined(CONFIG_MIPS_BOOT_FDT) && defined(CONFIG_OF_LIBFDT)
+	if (images->ft_len) {
+		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
+
+		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
+			&images->ft_len);
+		if (ret)
+			return ret;
+	}
+#endif
+
 	return 0;
+}
+
+static void boot_setup_fdt(bootm_headers_t *images)
+{
+#if defined(CONFIG_MIPS_BOOT_FDT) && defined(CONFIG_OF_LIBFDT)
+	u64 mem_start = 0;
+	u64 mem_size = gd->ram_size;
+
+	debug("## setup FDT\n");
+
+	fdt_chosen(images->ft_addr, 1);
+	fdt_fixup_memory_banks(images->ft_addr, &mem_start, &mem_size, 1);
+	fdt_fixup_ethernet(images->ft_addr);
+	fdt_initrd(images->ft_addr, images->initrd_start, images->initrd_end, 1);
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+	ft_board_setup(images->ft_addr, gd->bd);
+#endif
+#endif
 }
 
 static void linux_cmdline_init(void)
@@ -92,7 +135,7 @@ static void linux_cmdline_dump(void)
 		debug("   arg %03d: %s\n", i, linux_argv[i]);
 }
 
-static void boot_cmdline_linux(bootm_headers_t *images)
+static void linux_cmdline_legacy(bootm_headers_t *images)
 {
 	const char *bootargs, *next, *quote;
 
@@ -130,8 +173,40 @@ static void boot_cmdline_linux(bootm_headers_t *images)
 
 		bootargs = next;
 	}
+}
 
-	linux_cmdline_dump();
+static void linux_cmdline_append(bootm_headers_t *images)
+{
+	char buf[24];
+	ulong mem, rd_start, rd_size;
+
+	/* append mem */
+	mem = gd->ram_size >> 20;
+	sprintf(buf, "mem=%luM", mem);
+	linux_cmdline_set(buf, strlen(buf));
+
+	/* append rd_start and rd_size */
+	rd_start = images->initrd_start;
+	rd_size = images->initrd_end - images->initrd_start;
+
+	if (rd_size) {
+		sprintf(buf, "rd_start=0x%08lX", rd_start);
+		linux_cmdline_set(buf, strlen(buf));
+		sprintf(buf, "rd_size=0x%lX", rd_size);
+		linux_cmdline_set(buf, strlen(buf));
+	}
+}
+
+static void boot_cmdline_linux(bootm_headers_t *images)
+{
+	if (mips_boot_cmdline_legacy && !images->ft_len) {
+		linux_cmdline_legacy(images);
+
+		if (!mips_boot_env_legacy)
+			linux_cmdline_append(images);
+
+		linux_cmdline_dump();
+	}
 }
 
 static void linux_env_init(void)
@@ -165,7 +240,7 @@ static void linux_env_set(const char *env_name, const char *env_val)
 	}
 }
 
-static void boot_prep_linux(bootm_headers_t *images)
+static void linux_env_legacy(bootm_headers_t *images)
 {
 	char env_buf[12];
 	const char *cp;
@@ -213,6 +288,15 @@ static void boot_prep_linux(bootm_headers_t *images)
 	}
 }
 
+static void boot_prep_linux(bootm_headers_t *images)
+{
+	if (mips_boot_env_legacy && !images->ft_len)
+		linux_env_legacy(images);
+
+	if (images->ft_len)
+		boot_setup_fdt(images);
+}
+
 static void boot_jump_linux(bootm_headers_t *images)
 {
 	typedef void __noreturn (*kernel_entry_t)(int, ulong, ulong, ulong);
@@ -226,8 +310,12 @@ static void boot_jump_linux(bootm_headers_t *images)
 	if (mips_boot_malta)
 		linux_extra = gd->ram_size;
 
-	/* we assume that the kernel is in place */
-	printf("\nStarting kernel ...\n\n");
+#ifdef CONFIG_BOOTSTAGE_FDT
+	bootstage_fdt_add_report();
+#endif
+#ifdef CONFIG_BOOTSTAGE_REPORT
+	bootstage_report();
+#endif
 
 	kernel(linux_argc, (ulong)linux_argv, (ulong)linux_env, linux_extra);
 }

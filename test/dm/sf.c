@@ -29,7 +29,7 @@ static int dm_test_spi_flash(struct dm_test_state *dms)
 	 * benefit is worth the extra complexity.
 	 */
 	ut_asserteq(0, run_command_list(
-		"sb save hostfs - spi.bin 0 200000;"
+		"sb save hostfs - 0 spi.bin 200000;"
 		"sf probe;"
 		"sf test 0 10000", -1,  0));
 	/*

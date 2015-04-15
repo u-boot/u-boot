@@ -13,7 +13,6 @@
 #include <config.h>
 #include <common.h>
 #include <asm/macro.h>
-#include <version.h>
 
 /*
  * Jump vector table for EVIC mode

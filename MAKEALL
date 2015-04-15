@@ -316,12 +316,6 @@ LIST_85xx="$(targets_by_cpu mpc85xx)"
 LIST_86xx="$(targets_by_cpu mpc86xx)"
 
 #########################################################################
-## 74xx/7xx Systems
-#########################################################################
-
-LIST_74xx_7xx="$(targets_by_cpu 74xx_7xx)"
-
-#########################################################################
 ## PowerPC groups
 #########################################################################
 
@@ -342,7 +336,6 @@ LIST_powerpc="		\
 	${LIST_85xx}	\
 	${LIST_86xx}	\
 	${LIST_4xx}	\
-	${LIST_74xx_7xx}\
 "
 
 # Alias "ppc" -> "powerpc" to not break compatibility with older scripts
@@ -558,13 +551,7 @@ get_target_maintainers() {
 get_target_arch() {
 	local target=$1
 
-	# Automatic mode
-	local line=`awk '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
-
-	if [ -z "${line}" ] ; then echo "" ; return ; fi
-
-	set ${line}
-	echo "$2"
+	awk '$7 == "'$target'" { print $2 }' boards.cfg
 }
 
 list_target() {
@@ -662,6 +649,13 @@ build_target() {
 		RC=1
 	fi
 
+	OBJS=${output_dir}/u-boot
+	if [ -e ${output_dir}/spl/u-boot-spl ]; then
+		OBJS="${OBJS} ${output_dir}/spl/u-boot-spl"
+	fi
+
+	${CROSS_COMPILE}size ${OBJS} | tee -a ${LOG_DIR}/$target.MAKELOG
+
 	if [ $BUILD_MANY == 1 ] ; then
 		trap - TERM
 
@@ -685,13 +679,6 @@ build_target() {
 			rm ${LOG_DIR}/${target}.ERR
 		fi
 	fi
-
-	OBJS=${output_dir}/u-boot
-	if [ -e ${output_dir}/spl/u-boot-spl ]; then
-		OBJS="${OBJS} ${output_dir}/spl/u-boot-spl"
-	fi
-
-	${CROSS_COMPILE}size ${OBJS} | tee -a ${LOG_DIR}/$target.MAKELOG
 
 	[ -e "${LOG_DIR}/${target}.ERR" ] && cat "${LOG_DIR}/${target}.ERR"
 

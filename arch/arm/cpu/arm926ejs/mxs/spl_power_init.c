@@ -14,6 +14,13 @@
 
 #include "mxs_init.h"
 
+#ifdef CONFIG_SYS_MXS_VDD5V_ONLY
+#define DCDC4P2_DROPOUT_CONFIG	POWER_DCDC4P2_DROPOUT_CTRL_100MV | \
+				POWER_DCDC4P2_DROPOUT_CTRL_SRC_4P2
+#else
+#define DCDC4P2_DROPOUT_CONFIG	POWER_DCDC4P2_DROPOUT_CTRL_100MV | \
+				POWER_DCDC4P2_DROPOUT_CTRL_SRC_SEL
+#endif
 /**
  * mxs_power_clock2xtal() - Switch CPU core clock source to 24MHz XTAL
  *
@@ -25,6 +32,8 @@ static void mxs_power_clock2xtal(void)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
+
+	debug("SPL: Switching CPU clock to 24MHz XTAL\n");
 
 	/* Set XTAL as CPU reference clock */
 	writel(CLKCTRL_CLKSEQ_BYPASS_CPU,
@@ -43,9 +52,23 @@ static void mxs_power_clock2pll(void)
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 
+	debug("SPL: Switching CPU core clock source to PLL\n");
+
+	/*
+	 * TODO: Are we really? It looks like we turn on PLL0, but we then
+	 * set the CLKCTRL_CLKSEQ_BYPASS_CPU bit of the (which was already
+	 * set by mxs_power_clock2xtal()). Clearing this bit here seems to
+	 * introduce some instability (causing the CPU core to hang). Maybe
+	 * we aren't giving PLL0 enough time to stabilise?
+	 */
 	setbits_le32(&clkctrl_regs->hw_clkctrl_pll0ctrl0,
 			CLKCTRL_PLL0CTRL0_POWER);
 	early_delay(100);
+
+	/*
+	 * TODO: Should the PLL0 FORCE_LOCK bit be set here followed be a
+	 * wait on the PLL0 LOCK bit?
+	 */
 	setbits_le32(&clkctrl_regs->hw_clkctrl_clkseq,
 			CLKCTRL_CLKSEQ_BYPASS_CPU);
 }
@@ -61,6 +84,8 @@ static void mxs_power_set_auto_restart(void)
 {
 	struct mxs_rtc_regs *rtc_regs =
 		(struct mxs_rtc_regs *)MXS_RTC_BASE;
+
+	debug("SPL: Setting auto-restart bit\n");
 
 	writel(RTC_CTRL_SFTRST, &rtc_regs->hw_rtc_ctrl_clr);
 	while (readl(&rtc_regs->hw_rtc_ctrl) & RTC_CTRL_SFTRST)
@@ -101,14 +126,17 @@ static void mxs_power_set_linreg(void)
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 
 	/* Set linear regulator 25mV below switching converter */
+	debug("SPL: Setting VDDD 25mV below DC-DC converters\n");
 	clrsetbits_le32(&power_regs->hw_power_vdddctrl,
 			POWER_VDDDCTRL_LINREG_OFFSET_MASK,
 			POWER_VDDDCTRL_LINREG_OFFSET_1STEPS_BELOW);
 
+	debug("SPL: Setting VDDA 25mV below DC-DC converters\n");
 	clrsetbits_le32(&power_regs->hw_power_vddactrl,
 			POWER_VDDACTRL_LINREG_OFFSET_MASK,
 			POWER_VDDACTRL_LINREG_OFFSET_1STEPS_BELOW);
 
+	debug("SPL: Setting VDDIO 25mV below DC-DC converters\n");
 	clrsetbits_le32(&power_regs->hw_power_vddioctrl,
 			POWER_VDDIOCTRL_LINREG_OFFSET_MASK,
 			POWER_VDDIOCTRL_LINREG_OFFSET_1STEPS_BELOW);
@@ -127,6 +155,8 @@ static int mxs_get_batt_volt(void)
 	volt &= POWER_BATTMONITOR_BATT_VAL_MASK;
 	volt >>= POWER_BATTMONITOR_BATT_VAL_OFFSET;
 	volt *= 8;
+
+	debug("SPL: Battery Voltage = %dmV\n", volt);
 	return volt;
 }
 
@@ -154,8 +184,10 @@ static int mxs_is_batt_good(void)
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 	uint32_t volt = mxs_get_batt_volt();
 
-	if ((volt >= 2400) && (volt <= 4300))
+	if ((volt >= 2400) && (volt <= 4300)) {
+		debug("SPL: Battery is good\n");
 		return 1;
+	}
 
 	clrsetbits_le32(&power_regs->hw_power_5vctrl,
 		POWER_5VCTRL_CHARGE_4P2_ILIMIT_MASK,
@@ -175,16 +207,21 @@ static int mxs_is_batt_good(void)
 
 	volt = mxs_get_batt_volt();
 
-	if (volt >= 3500)
+	if (volt >= 3500) {
+		debug("SPL: Battery Voltage too high\n");
 		return 0;
+	}
 
-	if (volt >= 2400)
+	if (volt >= 2400) {
+		debug("SPL: Battery is good\n");
 		return 1;
+	}
 
 	writel(POWER_CHARGE_STOP_ILIMIT_MASK | POWER_CHARGE_BATTCHRG_I_MASK,
 		&power_regs->hw_power_charge_clr);
 	writel(POWER_CHARGE_PWD_BATTCHRG, &power_regs->hw_power_charge_set);
 
+	debug("SPL: Battery Voltage too low\n");
 	return 0;
 }
 
@@ -203,6 +240,7 @@ static void mxs_power_setup_5v_detect(void)
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 
 	/* Start 5V detection */
+	debug("SPL: Starting 5V input detection comparator\n");
 	clrsetbits_le32(&power_regs->hw_power_5vctrl,
 			POWER_5VCTRL_VBUSVALID_TRSH_MASK,
 			POWER_5VCTRL_VBUSVALID_TRSH_4V4 |
@@ -219,6 +257,8 @@ static void mxs_src_power_init(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	debug("SPL: Pre-Configuring power block\n");
 
 	/* Improve efficieny and reduce transient ripple */
 	writel(POWER_LOOPCTRL_TOGGLE_DIF | POWER_LOOPCTRL_EN_CM_HYST |
@@ -257,6 +297,8 @@ static void mxs_power_init_4p2_params(void)
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 
+	debug("SPL: Configuring common 4P2 regulator params\n");
+
 	/* Setup 4P2 parameters */
 	clrsetbits_le32(&power_regs->hw_power_dcdc4p2,
 		POWER_DCDC4P2_CMPTRIP_MASK | POWER_DCDC4P2_TRG_MASK,
@@ -268,8 +310,7 @@ static void mxs_power_init_4p2_params(void)
 
 	clrsetbits_le32(&power_regs->hw_power_dcdc4p2,
 		POWER_DCDC4P2_DROPOUT_CTRL_MASK,
-		POWER_DCDC4P2_DROPOUT_CTRL_100MV |
-		POWER_DCDC4P2_DROPOUT_CTRL_SRC_SEL);
+		DCDC4P2_DROPOUT_CONFIG);
 
 	clrsetbits_le32(&power_regs->hw_power_5vctrl,
 		POWER_5VCTRL_CHARGE_4P2_ILIMIT_MASK,
@@ -288,6 +329,8 @@ static void mxs_enable_4p2_dcdc_input(int xfer)
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 	uint32_t tmp, vbus_thresh, vbus_5vdetect, pwd_bo;
 	uint32_t prev_5v_brnout, prev_5v_droop;
+
+	debug("SPL: %s 4P2 DC-DC Input\n", xfer ? "Enabling" : "Disabling");
 
 	prev_5v_brnout = readl(&power_regs->hw_power_5vctrl) &
 				POWER_5VCTRL_PWDN_5VBRNOUT;
@@ -390,6 +433,8 @@ static void mxs_power_init_4p2_regulator(void)
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 	uint32_t tmp, tmp2;
 
+	debug("SPL: Enabling 4P2 regulator\n");
+
 	setbits_le32(&power_regs->hw_power_dcdc4p2, POWER_DCDC4P2_ENABLE_4P2);
 
 	writel(POWER_CHARGE_ENABLE_LOAD, &power_regs->hw_power_charge_set);
@@ -407,6 +452,7 @@ static void mxs_power_init_4p2_regulator(void)
 	 * gradually to avoid large inrush current from the 5V cable which can
 	 * cause transients/problems
 	 */
+	debug("SPL: Charging 4P2 capacitor\n");
 	mxs_enable_4p2_dcdc_input(0);
 
 	if (readl(&power_regs->hw_power_ctrl) & POWER_CTRL_VBUS_VALID_IRQ) {
@@ -420,6 +466,8 @@ static void mxs_power_init_4p2_regulator(void)
 			POWER_DCDC4P2_ENABLE_DCDC);
 		writel(POWER_5VCTRL_PWD_CHARGE_4P2_MASK,
 			&power_regs->hw_power_5vctrl_set);
+
+		debug("SPL: Unable to recover from mx23 errata 5837\n");
 		hang();
 	}
 
@@ -433,6 +481,7 @@ static void mxs_power_init_4p2_regulator(void)
 	 * current limit until the brownout status is false or until we've
 	 * reached our maximum defined 4p2 current limit.
 	 */
+	debug("SPL: Setting 4P2 brownout level\n");
 	clrsetbits_le32(&power_regs->hw_power_dcdc4p2,
 			POWER_DCDC4P2_BO_MASK,
 			22 << POWER_DCDC4P2_BO_OFFSET);	/* 4.15V */
@@ -479,8 +528,11 @@ static void mxs_power_init_dcdc_4p2_source(void)
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 
+	debug("SPL: Switching DC-DC converters to 4P2\n");
+
 	if (!(readl(&power_regs->hw_power_dcdc4p2) &
 		POWER_DCDC4P2_ENABLE_DCDC)) {
+		debug("SPL: Already switched - aborting\n");
 		hang();
 	}
 
@@ -508,6 +560,8 @@ static void mxs_power_enable_4p2(void)
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 	uint32_t vdddctrl, vddactrl, vddioctrl;
 	uint32_t tmp;
+
+	debug("SPL: Powering up 4P2 regulator\n");
 
 	vdddctrl = readl(&power_regs->hw_power_vdddctrl);
 	vddactrl = readl(&power_regs->hw_power_vddactrl);
@@ -559,6 +613,8 @@ static void mxs_power_enable_4p2(void)
 	if (tmp)
 		writel(POWER_CHARGE_ENABLE_LOAD,
 			&power_regs->hw_power_charge_clr);
+
+	debug("SPL: 4P2 regulator powered-up\n");
 }
 
 /**
@@ -573,6 +629,8 @@ static void mxs_boot_valid_5v(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	debug("SPL: Booting from 5V supply\n");
 
 	/*
 	 * Use VBUSVALID level instead of VDD5V_GT_VDDIO level to trigger a 5V
@@ -601,6 +659,9 @@ static void mxs_powerdown(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	debug("Powering Down\n");
+
 	writel(POWER_RESET_UNLOCK_KEY, &power_regs->hw_power_reset);
 	writel(POWER_RESET_UNLOCK_KEY | POWER_RESET_PWD_OFF,
 		&power_regs->hw_power_reset);
@@ -616,6 +677,8 @@ static void mxs_batt_boot(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	debug("SPL: Configuring power block to boot from battery\n");
 
 	clrbits_le32(&power_regs->hw_power_5vctrl, POWER_5VCTRL_PWDN_5VBRNOUT);
 	clrbits_le32(&power_regs->hw_power_5vctrl, POWER_5VCTRL_ENABLE_DCDC);
@@ -672,6 +735,8 @@ static void mxs_handle_5v_conflict(void)
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 	uint32_t tmp;
 
+	debug("SPL: Resolving 5V conflict\n");
+
 	setbits_le32(&power_regs->hw_power_vddioctrl,
 			POWER_VDDIOCTRL_BO_OFFSET_MASK);
 
@@ -683,19 +748,27 @@ static void mxs_handle_5v_conflict(void)
 			 * VDDIO has a brownout, then the VDD5V_GT_VDDIO becomes
 			 * unreliable
 			 */
+			debug("SPL: VDDIO has a brownout\n");
 			mxs_powerdown();
 			break;
 		}
 
 		if (tmp & POWER_STS_VDD5V_GT_VDDIO) {
+			debug("SPL: POWER_STS_VDD5V_GT_VDDIO is set\n");
 			mxs_boot_valid_5v();
 			break;
 		} else {
+			debug("SPL: POWER_STS_VDD5V_GT_VDDIO is not set\n");
 			mxs_powerdown();
 			break;
 		}
 
+		/*
+		 * TODO: I can't see this being reached. We'll either
+		 * powerdown or boot from a stable 5V supply.
+		 */
 		if (tmp & POWER_STS_PSWITCH_MASK) {
+			debug("SPL: POWER_STS_PSWITCH_MASK is set\n");
 			mxs_batt_boot();
 			break;
 		}
@@ -713,21 +786,26 @@ static void mxs_5v_boot(void)
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 
+	debug("SPL: Configuring power block to boot from 5V input\n");
+
 	/*
 	 * NOTE: In original IMX-Bootlets, this also checks for VBUSVALID,
 	 * but their implementation always returns 1 so we omit it here.
 	 */
 	if (readl(&power_regs->hw_power_sts) & POWER_STS_VDD5V_GT_VDDIO) {
+		debug("SPL: 5V VDD good\n");
 		mxs_boot_valid_5v();
 		return;
 	}
 
 	early_delay(1000);
 	if (readl(&power_regs->hw_power_sts) & POWER_STS_VDD5V_GT_VDDIO) {
+		debug("SPL: 5V VDD good (after delay)\n");
 		mxs_boot_valid_5v();
 		return;
 	}
 
+	debug("SPL: 5V VDD not good\n");
 	mxs_handle_5v_conflict();
 }
 
@@ -741,6 +819,8 @@ static void mxs_init_batt_bo(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	debug("SPL: Initialising battery brown-out level to 3.0V\n");
 
 	/* Brownout at 3V */
 	clrsetbits_le32(&power_regs->hw_power_battmonitor,
@@ -761,6 +841,8 @@ static void mxs_switch_vddd_to_dcdc_source(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	debug("SPL: Switching VDDD to DC-DC converters\n");
 
 	clrsetbits_le32(&power_regs->hw_power_vdddctrl,
 		POWER_VDDDCTRL_LINREG_OFFSET_MASK,
@@ -788,6 +870,8 @@ static void mxs_power_configure_power_source(void)
 	struct mxs_lradc_regs *lradc_regs =
 		(struct mxs_lradc_regs *)MXS_LRADC_BASE;
 
+	debug("SPL: Configuring power source\n");
+
 	mxs_src_power_init();
 
 	if (readl(&power_regs->hw_power_sts) & POWER_STS_VDD5V_GT_VDDIO) {
@@ -811,6 +895,10 @@ static void mxs_power_configure_power_source(void)
 		mxs_batt_boot();
 	}
 
+	/*
+	 * TODO: Do not switch CPU clock to PLL if we are VDD5V is sourced
+	 * from USB VBUS
+	 */
 	mxs_power_clock2pll();
 
 	mxs_init_batt_bo();
@@ -819,6 +907,7 @@ static void mxs_power_configure_power_source(void)
 
 #ifdef CONFIG_MX23
 	/* Fire up the VDDMEM LinReg now that we're all set. */
+	debug("SPL: Enabling mx23 VDDMEM linear regulator\n");
 	writel(POWER_VDDMEMCTRL_ENABLE_LINREG | POWER_VDDMEMCTRL_ENABLE_ILIMIT,
 		&power_regs->hw_power_vddmemctrl);
 #endif
@@ -837,6 +926,8 @@ static void mxs_enable_output_rail_protection(void)
 {
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
+
+	debug("SPL: Enabling output rail protection\n");
 
 	writel(POWER_CTRL_VDDD_BO_IRQ | POWER_CTRL_VDDA_BO_IRQ |
 		POWER_CTRL_VDDIO_BO_IRQ, &power_regs->hw_power_ctrl_clr);
@@ -1077,6 +1168,8 @@ static void mxs_power_set_vddx(const struct mxs_vddx_cfg *cfg,
  */
 static void mxs_setup_batt_detect(void)
 {
+	debug("SPL: Starting battery voltage measurement logic\n");
+
 	mxs_lradc_init();
 	mxs_lradc_enable_batt_measurement();
 	early_delay(10);
@@ -1111,6 +1204,8 @@ void mxs_power_init(void)
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 
+	debug("SPL: Initialising Power Block\n");
+
 	mxs_ungate_power();
 
 	mxs_power_clock2xtal();
@@ -1123,9 +1218,13 @@ void mxs_power_init(void)
 	mxs_power_configure_power_source();
 	mxs_enable_output_rail_protection();
 
+	debug("SPL: Setting VDDIO to 3V3 (brownout @ 3v15)\n");
 	mxs_power_set_vddx(&mxs_vddio_cfg, 3300, 3150);
+
+	debug("SPL: Setting VDDD to 1V5 (brownout @ 1v0)\n");
 	mxs_power_set_vddx(&mxs_vddd_cfg, 1500, 1000);
 #ifdef CONFIG_MX23
+	debug("SPL: Setting mx23 VDDMEM to 2V5 (brownout @ 1v7)\n");
 	mxs_power_set_vddx(&mxs_vddmem_cfg, 2500, 1700);
 #endif
 	writel(POWER_CTRL_VDDD_BO_IRQ | POWER_CTRL_VDDA_BO_IRQ |
@@ -1150,6 +1249,7 @@ void mxs_power_wait_pswitch(void)
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 
+	debug("SPL: Waiting for power switch input\n");
 	while (!(readl(&power_regs->hw_power_sts) & POWER_STS_PSWITCH_MASK))
 		;
 }

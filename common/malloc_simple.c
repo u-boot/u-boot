@@ -19,7 +19,7 @@ void *malloc_simple(size_t bytes)
 
 	new_ptr = gd->malloc_ptr + bytes;
 	if (new_ptr > gd->malloc_limit)
-		panic("Out of pre-reloc memory");
+		return NULL;
 	ptr = map_sysmem(gd->malloc_base + gd->malloc_ptr, bytes);
 	gd->malloc_ptr = ALIGN(new_ptr, sizeof(new_ptr));
 	return ptr;

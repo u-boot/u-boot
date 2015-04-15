@@ -90,11 +90,13 @@ static int jr_init(void)
 	jr.liodn = DEFAULT_JR_LIODN;
 #endif
 	jr.size = JR_SIZE;
-	jr.input_ring = (dma_addr_t *)malloc(JR_SIZE * sizeof(dma_addr_t));
+	jr.input_ring = (dma_addr_t *)memalign(ARCH_DMA_MINALIGN,
+				JR_SIZE * sizeof(dma_addr_t));
 	if (!jr.input_ring)
 		return -1;
 	jr.output_ring =
-	    (struct op_ring *)malloc(JR_SIZE * sizeof(struct op_ring));
+	    (struct op_ring *)memalign(ARCH_DMA_MINALIGN,
+				JR_SIZE * sizeof(struct op_ring));
 	if (!jr.output_ring)
 		return -1;
 
@@ -163,12 +165,22 @@ static int jr_enqueue(uint32_t *desc_addr,
 	    CIRC_SPACE(jr.head, jr.tail, jr.size) <= 0)
 		return -1;
 
-	jr.input_ring[head] = desc_phys_addr;
 	jr.info[head].desc_phys_addr = desc_phys_addr;
 	jr.info[head].desc_addr = (uint32_t)desc_addr;
 	jr.info[head].callback = (void *)callback;
 	jr.info[head].arg = arg;
 	jr.info[head].op_done = 0;
+
+	unsigned long start = (unsigned long)&jr.info[head] &
+					~(ARCH_DMA_MINALIGN - 1);
+	unsigned long end = ALIGN(start + sizeof(struct jr_info),
+					ARCH_DMA_MINALIGN);
+	flush_dcache_range(start, end);
+
+	jr.input_ring[head] = desc_phys_addr;
+	start = (unsigned long)&jr.input_ring[head] & ~(ARCH_DMA_MINALIGN - 1);
+	end = ALIGN(start + sizeof(dma_addr_t), ARCH_DMA_MINALIGN);
+	flush_dcache_range(start, end);
 
 	jr.head = (head + 1) & (jr.size - 1);
 
@@ -187,6 +199,13 @@ static int jr_dequeue(void)
 	void *arg = NULL;
 
 	while (sec_in32(&regs->orsf) && CIRC_CNT(jr.head, jr.tail, jr.size)) {
+		unsigned long start = (unsigned long)jr.output_ring &
+					~(ARCH_DMA_MINALIGN - 1);
+		unsigned long end = ALIGN(start +
+					  sizeof(struct op_ring)*JR_SIZE,
+					  ARCH_DMA_MINALIGN);
+		invalidate_dcache_range(start, end);
+
 		found = 0;
 
 		dma_addr_t op_desc = jr.output_ring[jr.tail].desc;
@@ -333,13 +352,17 @@ static int instantiate_rng(void)
 
 	memset(&op, 0, sizeof(struct result));
 
-	desc = malloc(sizeof(int) * 6);
+	desc = memalign(ARCH_DMA_MINALIGN, sizeof(uint32_t) * 6);
 	if (!desc) {
 		printf("cannot allocate RNG init descriptor memory\n");
 		return -1;
 	}
 
 	inline_cnstr_jobdesc_rng_instantiation(desc);
+	int size = roundup(sizeof(uint32_t) * 6, ARCH_DMA_MINALIGN);
+	flush_dcache_range((unsigned long)desc,
+			   (unsigned long)desc + size);
+
 	ret = run_descriptor_jr(desc);
 
 	if (ret)

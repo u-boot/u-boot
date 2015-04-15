@@ -1,0 +1,6 @@
+config CROS_EC_KEYB
+	bool "Enable Chrome OS EC keyboard support"
+	help
+	  Most ARM Chromebooks use an EC to provide access to the keyboard.
+	  Messages are used to request key scans from the EC and these are
+	  then decoded into keys by this driver.

@@ -10,7 +10,6 @@
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <mmc.h>
-#include <version.h>
 #include <image.h>
 #include <fat.h>
 #include <fpga.h>

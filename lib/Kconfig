@@ -27,4 +27,42 @@ config SYS_HZ
 	  get_timer() must operate in milliseconds and this option must be
 	  set to 1000.
 
+source lib/rsa/Kconfig
+
+menu "Hashing Support"
+
+config SHA1
+	bool "Enable SHA1 support"
+	help
+	  This option enables support of hashing using SHA1 algorithm.
+	  The hash is calculated in software.
+	  The SHA1 algorithm produces a 160-bit (20-byte) hash value
+	  (digest).
+
+config SHA256
+	bool "Enable SHA256 support"
+	help
+	  This option enables support of hashing using SHA256 algorithm.
+	  The hash is calculated in software.
+	  The SHA256 algorithm produces a 256-bit (32-byte) hash value
+	  (digest).
+
+config SHA_HW_ACCEL
+	bool "Enable hashing using hardware"
+	help
+	  This option enables hardware acceleration
+	  for SHA1/SHA256 hashing.
+	  This affects the 'hash' command and also the
+	  hash_lookup_algo() function.
+
+config SHA_PROG_HW_ACCEL
+	bool "Enable Progressive hashing support using hardware"
+	depends on SHA_HW_ACCEL
+	help
+	  This option enables hardware-acceleration for
+	  SHA1/SHA256 progressive hashing.
+	  Data can be streamed in a block at a time and the hashing
+	  is performed in hardware.
+endmenu
+
 endmenu

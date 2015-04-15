@@ -7,7 +7,6 @@
 #include <config.h>
 #include <command.h>
 #include <asm/ppc4xx.h>
-#include <version.h>
 
 #define CONFIG_405GP 1		/* needed for Linux kernel header files */
 

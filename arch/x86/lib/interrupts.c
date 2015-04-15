@@ -130,7 +130,7 @@ int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("Interrupt-Information:\n");
 	printf("Nr  Routine   Arg       Count\n");
 
-	for (irq = 0; irq <= CONFIG_SYS_NUM_IRQS; irq++) {
+	for (irq = 0; irq < CONFIG_SYS_NUM_IRQS; irq++) {
 		if (irq_handlers[irq].handler != NULL) {
 			printf("%02d  %08lx  %08lx  %d\n",
 					irq,

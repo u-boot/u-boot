@@ -11,6 +11,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/kconfig.h>
+
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
@@ -19,10 +21,10 @@
  * and Arches dual (460GT)
  */
 #ifdef CONFIG_CANYONLANDS
-#define CONFIG_460EX		1	/* Specific PPC460EX		*/
+#define CONFIG_460EX			/* Specific PPC460EX		*/
 #define CONFIG_HOSTNAME		canyonlands
 #else
-#define CONFIG_460GT		1	/* Specific PPC460GT		*/
+#define CONFIG_460GT			/* Specific PPC460GT		*/
 #ifdef CONFIG_GLACIER
 #define CONFIG_HOSTNAME		glacier
 #else
@@ -32,7 +34,7 @@
 #endif
 #endif
 
-#define CONFIG_440		1
+#define CONFIG_440
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xFFF80000
@@ -45,10 +47,10 @@
 
 #define CONFIG_SYS_CLK_FREQ	66666667	/* external freq to pll	*/
 
-#define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_early_init_f */
-#define CONFIG_BOARD_EARLY_INIT_R	1	/* Call board_early_init_r */
-#define CONFIG_MISC_INIT_R		1	/* Call misc_init_r */
-#define CONFIG_BOARD_TYPES		1	/* support board types */
+#define CONFIG_BOARD_EARLY_INIT_F		/* Call board_early_init_f */
+#define CONFIG_BOARD_EARLY_INIT_R		/* Call board_early_init_r */
+#define CONFIG_MISC_INIT_R			/* Call misc_init_r */
+#define CONFIG_BOARD_TYPES			/* support board types */
 
 /*-----------------------------------------------------------------------
  * Base addresses -- Note these are effective addresses where the
@@ -134,7 +136,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_FLASH_CFI			/* The flash is CFI compatible	*/
 #define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
-#define CONFIG_SYS_FLASH_CFI_AMD_RESET	1	/* Use AMD (Spansion) reset cmd */
+#define CONFIG_SYS_FLASH_CFI_AMD_RESET	/* Use AMD (Spansion) reset cmd */
 
 #define CONFIG_SYS_FLASH_BANKS_LIST    {CONFIG_SYS_FLASH_BASE}
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks		*/
@@ -172,9 +174,9 @@
  * I2C SPD DIMM autodetection/calibration doesn't fit into the 4k of boot
  * code.
  */
-#define CONFIG_SPD_EEPROM	1	/* Use SPD EEPROM for setup	*/
+#define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for setup	*/
 #define SPD_EEPROM_ADDRESS	{0x50, 0x51}	/* SPD i2c spd addresses*/
-#define CONFIG_DDR_ECC		1	/* with ECC support		*/
+#define CONFIG_DDR_ECC			/* with ECC support		*/
 #define CONFIG_DDR_RQDC_FIXED	0x80000038 /* fixed value for RQDC	*/
 
 #else /* defined(CONFIG_ARCHES) */
@@ -262,8 +264,8 @@
 #define CONFIG_4xx_CONFIG_BLOCKSIZE		16
 
 /* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
-#define CONFIG_DTT_LM75		1		/* ON Semi's LM75	*/
-#define CONFIG_DTT_AD7414	1		/* use AD7414		*/
+#define CONFIG_DTT_LM75				/* ON Semi's LM75	*/
+#define CONFIG_DTT_AD7414			/* use AD7414		*/
 #define CONFIG_DTT_SENSORS	{0}		/* Sensor addresses	*/
 #define CONFIG_SYS_DTT_MAX_TEMP	70
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
@@ -275,14 +277,14 @@
 
 #if !defined(CONFIG_ARCHES)
 /* RTC configuration */
-#define CONFIG_RTC_M41T62	1
+#define CONFIG_RTC_M41T62
 #define CONFIG_SYS_I2C_RTC_ADDR	0x68
 #endif
 
 /*-----------------------------------------------------------------------
  * Ethernet
  *----------------------------------------------------------------------*/
-#define CONFIG_IBM_EMAC4_V4	1
+#define CONFIG_IBM_EMAC4_V4
 
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
@@ -322,9 +324,9 @@
 #define CONFIG_GPCS_PHY2_ADDR   0xC
 #endif	/* !defined(CONFIG_ARCHES) */
 
-#define CONFIG_PHY_RESET	1	/* reset phy upon startup	*/
-#define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
-#define CONFIG_PHY_DYNAMIC_ANEG	1
+#define CONFIG_PHY_RESET		/* reset phy upon startup	*/
+#define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
+#define CONFIG_PHY_DYNAMIC_ANEG
 
 /*-----------------------------------------------------------------------
  * USB-OHCI

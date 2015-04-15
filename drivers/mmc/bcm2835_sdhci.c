@@ -39,8 +39,8 @@
 #include <common.h>
 #include <malloc.h>
 #include <sdhci.h>
-#include <asm/arch/timer.h>
-#include <asm/arch-bcm2835/sdhci.h>
+#include <mach/timer.h>
+#include <mach/sdhci.h>
 
 /* 400KHz is max freq for card ID etc. Use that as min */
 #define MIN_FREQ 400000

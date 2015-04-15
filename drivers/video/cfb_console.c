@@ -117,22 +117,9 @@
  * Defines for the SED13806 driver
  */
 #ifdef CONFIG_VIDEO_SED13806
-
-#ifndef CONFIG_TOTAL5200
 #define VIDEO_FB_LITTLE_ENDIAN
-#endif
 #define VIDEO_HW_RECTFILL
 #define VIDEO_HW_BITBLT
-#endif
-
-/*
- * Defines for the SED13806 driver
- */
-#ifdef CONFIG_VIDEO_SM501
-
-#ifdef CONFIG_HH405
-#define VIDEO_FB_LITTLE_ENDIAN
-#endif
 #endif
 
 #ifdef CONFIG_VIDEO_MXS
@@ -312,7 +299,11 @@ void console_cursor(int state);
 #define CONSOLE_ROW_SECOND	(video_console_address + CONSOLE_ROW_SIZE)
 #define CONSOLE_ROW_LAST	(video_console_address + CONSOLE_SIZE - CONSOLE_ROW_SIZE)
 #define CONSOLE_SIZE		(CONSOLE_ROW_SIZE * CONSOLE_ROWS)
-#define CONSOLE_SCROLL_SIZE	(CONSOLE_SIZE - CONSOLE_ROW_SIZE)
+
+/* By default we scroll by a single line */
+#ifndef CONFIG_CONSOLE_SCROLL_LINES
+#define CONFIG_CONSOLE_SCROLL_LINES 1
+#endif
 
 /* Macros */
 #ifdef	VIDEO_FB_LITTLE_ENDIAN
@@ -753,26 +744,33 @@ static void console_clear_line(int line, int begin, int end)
 
 static void console_scrollup(void)
 {
+	const int rows = CONFIG_CONSOLE_SCROLL_LINES;
+	int i;
+
 	/* copy up rows ignoring the first one */
 
 #ifdef VIDEO_HW_BITBLT
 	video_hw_bitblt(VIDEO_PIXEL_SIZE,	/* bytes per pixel */
 			0,			/* source pos x */
 			video_logo_height +
-				VIDEO_FONT_HEIGHT, /* source pos y */
+				VIDEO_FONT_HEIGHT * rows, /* source pos y */
 			0,			/* dest pos x */
 			video_logo_height,	/* dest pos y */
 			VIDEO_VISIBLE_COLS,	/* frame width */
 			VIDEO_VISIBLE_ROWS
 			- video_logo_height
-			- VIDEO_FONT_HEIGHT	/* frame height */
+			- VIDEO_FONT_HEIGHT * rows	/* frame height */
 		);
 #else
-	memcpyl(CONSOLE_ROW_FIRST, CONSOLE_ROW_SECOND,
-		CONSOLE_SCROLL_SIZE >> 2);
+	memcpyl(CONSOLE_ROW_FIRST, CONSOLE_ROW_FIRST + rows * CONSOLE_ROW_SIZE,
+		(CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows) >> 2);
 #endif
 	/* clear the last one */
-	console_clear_line(CONSOLE_ROWS - 1, 0, CONSOLE_COLS - 1);
+	for (i = 1; i <= rows; i++)
+		console_clear_line(CONSOLE_ROWS - i, 0, CONSOLE_COLS - 1);
+
+	/* Decrement row number */
+	console_row -= rows;
 }
 
 static void console_back(void)
@@ -884,9 +882,6 @@ static void console_newline(int n)
 	if (console_row >= CONSOLE_ROWS) {
 		/* Scroll everything up */
 		console_scrollup();
-
-		/* Decrement row number */
-		console_row = CONSOLE_ROWS - 1;
 	}
 }
 

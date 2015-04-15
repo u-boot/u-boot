@@ -366,22 +366,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if defined(CONFIG_DISPLAY_CPUINFO)
-int print_cpuinfo(void)
-{
-	u32 cpurev;
-
-	cpurev = get_cpu_rev();
-	printf("CPU:   Freescale i.MX%x family rev%d.%d at %d MHz\n",
-		(cpurev & 0xFF000) >> 12,
-		(cpurev & 0x000F0) >> 4,
-		(cpurev & 0x0000F) >> 0,
-		mxc_get_clock(MXC_ARM_CLK) / 1000000);
-	printf("Reset cause: %s\n", get_reset_cause());
-	return 0;
-}
-#endif
-
 /*
  * Do not overwrite the console
  * Use always serial for U-Boot console
@@ -405,7 +389,6 @@ int board_late_init(void)
 {
 	if (!power_init())
 		clock_1GHz();
-	print_cpuinfo();
 
 	return 0;
 }

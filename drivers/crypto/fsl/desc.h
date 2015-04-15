@@ -12,11 +12,18 @@
 #ifndef DESC_H
 #define DESC_H
 
+#define KEY_BLOB_SIZE		32
+#define MAC_SIZE			16
+
 /* Max size of any CAAM descriptor in 32-bit words, inclusive of header */
 #define MAX_CAAM_DESCSIZE	64
 
+/* Size of DEK Blob  descriptor, inclusive of header */
+#define DEK_BLOB_DESCSIZE	9
+
 /* Block size of any entity covered/uncovered with a KEK/TKEK */
 #define KEK_BLOCKSIZE		16
+
 /*
  * Supported descriptor command types as they show up
  * inside a descriptor command word.
@@ -273,6 +280,13 @@
 #define LDLEN_SET_OFIFO_OFFSET_MASK	(3 << LDLEN_SET_OFIFO_OFFSET_SHIFT)
 
 /*
+ * AAD Definitions
+ */
+#define AES_KEY_SHIFT		8
+#define LD_CCM_MODE		0x66
+#define KEY_AES_SRC		(0x55 << AES_KEY_SHIFT)
+
+/*
  * FIFO_LOAD/FIFO_STORE/SEQ_FIFO_LOAD/SEQ_FIFO_STORE
  * Command Constructs
  */
@@ -418,6 +432,7 @@
 #define OP_PCLID_MASK		(0xff << 16)
 
 /* Assuming OP_TYPE = OP_TYPE_UNI_PROTOCOL */
+#define OP_PCLID_SECMEM		0x08
 #define OP_PCLID_BLOB		(0x0d << OP_PCLID_SHIFT)
 #define OP_PCLID_SECRETKEY	(0x11 << OP_PCLID_SHIFT)
 #define OP_PCLID_PUBLICKEYPAIR	(0x14 << OP_PCLID_SHIFT)

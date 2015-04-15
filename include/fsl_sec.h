@@ -135,7 +135,7 @@ typedef struct ccsr_sec {
 #define CONFIG_JRSTARTR_JR0		0x00000001
 
 struct jr_regs {
-#ifdef CONFIG_SYS_FSL_SEC_LE
+#if defined(CONFIG_SYS_FSL_SEC_LE) && !defined(CONFIG_MX6)
 	u32 irba_l;
 	u32 irba_h;
 #else
@@ -148,7 +148,7 @@ struct jr_regs {
 	u32 irsa;
 	u32 rsvd3;
 	u32 irja;
-#ifdef CONFIG_SYS_FSL_SEC_LE
+#if defined(CONFIG_SYS_FSL_SEC_LE) && !defined(CONFIG_MX6)
 	u32 orba_l;
 	u32 orba_h;
 #else
@@ -175,7 +175,105 @@ struct jr_regs {
 	u32 jrcr;
 };
 
+/*
+ * Scatter Gather Entry - Specifies the the Scatter Gather Format
+ * related information
+ */
+struct sg_entry {
+#if defined(CONFIG_SYS_FSL_SEC_LE) && !defined(CONFIG_MX6)
+	uint32_t addr_lo;	/* Memory Address - lo */
+	uint16_t addr_hi;	/* Memory Address of start of buffer - hi */
+	uint16_t reserved_zero;
+#else
+	uint16_t reserved_zero;
+	uint16_t addr_hi;	/* Memory Address of start of buffer - hi */
+	uint32_t addr_lo;	/* Memory Address - lo */
+#endif
+
+	uint32_t len_flag;	/* Length of the data in the frame */
+#define SG_ENTRY_LENGTH_MASK	0x3FFFFFFF
+#define SG_ENTRY_EXTENSION_BIT	0x80000000
+#define SG_ENTRY_FINAL_BIT	0x40000000
+	uint32_t bpid_offset;
+#define SG_ENTRY_BPID_MASK	0x00FF0000
+#define SG_ENTRY_BPID_SHIFT	16
+#define SG_ENTRY_OFFSET_MASK	0x00001FFF
+#define SG_ENTRY_OFFSET_SHIFT	0
+};
+
+#ifdef CONFIG_MX6
+/* CAAM Job Ring 0 Registers */
+/* Secure Memory Partition Owner register */
+#define SMCSJR_PO		(3 << 6)
+/* JR Allocation Error */
+#define SMCSJR_AERR		(3 << 12)
+/* Secure memory partition 0 page 0 owner register */
+#define CAAM_SMPO_0		CONFIG_SYS_FSL_SEC_ADDR + 0x1FBC
+/* Secure memory command register */
+#define CAAM_SMCJR0		CONFIG_SYS_FSL_SEC_ADDR + 0x10f4
+/* Secure memory command status register */
+#define CAAM_SMCSJR0		CONFIG_SYS_FSL_SEC_ADDR + 0x10fc
+/* Secure memory access permissions register */
+#define CAAM_SMAPJR0(y)	(CONFIG_SYS_FSL_SEC_ADDR + 0x1104 + y*16)
+/* Secure memory access group 2 register */
+#define CAAM_SMAG2JR0(y)	(CONFIG_SYS_FSL_SEC_ADDR + 0x1108 + y*16)
+/* Secure memory access group 1 register */
+#define CAAM_SMAG1JR0(y)	(CONFIG_SYS_FSL_SEC_ADDR + 0x110C + y*16)
+
+/* Commands and macros for secure memory */
+#define CMD_PAGE_ALLOC		0x1
+#define CMD_PAGE_DEALLOC	0x2
+#define CMD_PART_DEALLOC	0x3
+#define CMD_INQUIRY		0x5
+#define CMD_COMPLETE		(3 << 14)
+#define PAGE_AVAILABLE		0
+#define PAGE_OWNED		(3 << 6)
+#define PAGE(x)			(x << 16)
+#define PARTITION(x)		(x << 8)
+#define PARTITION_OWNER(x)	(0x3 << (x*2))
+
+/* Address of secure 4kbyte pages */
+#define SEC_MEM_PAGE0		CAAM_ARB_BASE_ADDR
+#define SEC_MEM_PAGE1		(CAAM_ARB_BASE_ADDR + 0x1000)
+#define SEC_MEM_PAGE2		(CAAM_ARB_BASE_ADDR + 0x2000)
+#define SEC_MEM_PAGE3		(CAAM_ARB_BASE_ADDR + 0x3000)
+
+#define JR_MID			2               /* Matches ROM configuration */
+#define KS_G1			(1 << JR_MID)   /* CAAM only */
+#define PERM			0x0000B008      /* Clear on release, lock SMAP
+						 * lock SMAG group 1 Blob */
+
+#define BLOB_SIZE(x)       (x + 32 + 16) /* Blob buffer size */
+
+/* HAB WRAPPED KEY header */
+#define WRP_HDR_SIZE		0x08
+#define HDR_TAG			0x81
+#define HDR_PAR			0x41
+/* HAB WRAPPED KEY Data */
+#define HAB_MOD			0x66
+#define HAB_ALG			0x55
+#define HAB_FLG			0x00
+
+/* Partition and Page IDs */
+#define PARTITION_1	1
+#define PAGE_1			1
+
+#define ERROR_IN_PAGE_ALLOC	1
+#define ECONSTRJDESC   -1
+
+#endif
+
 int sec_init(void);
+
+/* blob_dek:
+ * Encapsulates the src in a secure blob and stores it dst
+ * @src: reference to the plaintext
+ * @dst: reference to the output adrress
+ * @len: size in bytes of src
+ * @return: 0 on success, error otherwise
+ */
+int blob_dek(const u8 *src, u8 *dst, u8 len);
+
 #endif
 
 #endif /* __FSL_SEC_H */

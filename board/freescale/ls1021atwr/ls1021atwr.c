@@ -263,6 +263,7 @@ int config_serdes_mux(void)
 int board_early_init_f(void)
 {
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
 
 #ifdef CONFIG_TSEC_ENET
 	out_be32(&scfg->etsecdmamcr, SCFG_ETSECDMAMCR_LE_BD_FR);
@@ -281,15 +282,26 @@ int board_early_init_f(void)
 	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
 #endif
 
+	/*
+	 * Enable snoop requests and DVM message requests for
+	 * Slave insterface S4 (A7 core cluster)
+	 */
+	out_le32(&cci->slave[4].snoop_ctrl,
+		 CCI400_DVM_MESSAGE_REQ_EN | CCI400_SNOOP_REQ_EN);
+
+	/*
+	 * Set CCI-400 Slave interface S1, S2 Shareable Override Register
+	 * All transactions are treated as non-shareable
+	 */
+	out_le32(&cci->slave[1].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+	out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
+
 	return 0;
 }
 
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong dummy)
 {
-	/* Set global data pointer */
-	gd = &gdata;
-
 	/* Clear the BSS */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
@@ -389,6 +401,25 @@ static struct csu_ns_dev ns_dev[] = {
 };
 #endif
 
+struct liodn_id_table sec_liodn_tbl[] = {
+	SET_SEC_JR_LIODN_ENTRY(0, 0x10, 0x10),
+	SET_SEC_JR_LIODN_ENTRY(1, 0x10, 0x10),
+	SET_SEC_JR_LIODN_ENTRY(2, 0x10, 0x10),
+	SET_SEC_JR_LIODN_ENTRY(3, 0x10, 0x10),
+	SET_SEC_RTIC_LIODN_ENTRY(a, 0x10),
+	SET_SEC_RTIC_LIODN_ENTRY(b, 0x10),
+	SET_SEC_RTIC_LIODN_ENTRY(c, 0x10),
+	SET_SEC_RTIC_LIODN_ENTRY(d, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(0, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(1, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(2, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(3, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(4, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(5, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(6, 0x10, 0x10),
+	SET_SEC_DECO_LIODN_ENTRY(7, 0x10, 0x10),
+};
+
 struct smmu_stream_id dev_stream_id[] = {
 	{ 0x100, 0x01, "ETSEC MAC1" },
 	{ 0x104, 0x02, "ETSEC MAC2" },
@@ -408,16 +439,6 @@ struct smmu_stream_id dev_stream_id[] = {
 
 int board_init(void)
 {
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)CONFIG_SYS_CCI400_ADDR;
-
-	/*
-	 * Set CCI-400 Slave interface S0, S1, S2 Shareable Override Register
-	 * All transactions are treated as non-shareable
-	 */
-	out_le32(&cci->slave[0].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
-	out_le32(&cci->slave[1].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
-	out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
-
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	fsl_serdes_init();
 #ifndef CONFIG_QSPI_BOOT
@@ -425,6 +446,8 @@ int board_init(void)
 #endif
 #endif
 
+	ls1021x_config_caam_stream_id(sec_liodn_tbl,
+				      ARRAY_SIZE(sec_liodn_tbl));
 	ls102xa_config_smmu_stream_id(dev_stream_id,
 				      ARRAY_SIZE(dev_stream_id));
 

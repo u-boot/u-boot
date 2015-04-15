@@ -14,6 +14,11 @@
 
 #include <configs/bur_am335x_common.h>
 /* ------------------------------------------------------------------------- */
+#define CONFIG_AM335X_LCD
+#define CONFIG_LCD
+#define CONFIG_LCD_NOSTDOUT
+#define CONFIG_SYS_WHITE_ON_BLACK
+#define LCD_BPP				LCD_COLOR32
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -38,57 +43,71 @@
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS		0x200 /* 256 KB */
 #define CONFIG_SPL_MMC_SUPPORT
 
-#undef CONFIG_SPL_OS_BOOT
-#ifdef CONFIG_SPL_OS_BOOT
-#define CONFIG_SYS_SPL_ARGS_ADDR		0x80F80000
-
-/* RAW SD card / eMMC */
-#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x900	/* address 0x120000 */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x80	/* address 0x10000 */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0x80	/* 64KiB */
-
-#endif /* CONFIG_SPL_OS_BOOT */
-
-/* Always 128 KiB env size */
-#define CONFIG_ENV_SIZE			(128 << 10)
+/* Always 64 KiB env size */
+#define CONFIG_ENV_SIZE			(64 << 10)
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"autoload=0\0" \
-	"loadaddr=0x80100000\0" \
-	"bootfile=arimg\0" \
-	"usbboot=echo Booting from USB-Stick ...; " \
-		"usb start; " \
-		"fatload usb 0 ${loadaddr} ${bootfile}; " \
-		"usb stop; " \
-		"go ${loadaddr};\0" \
-	"netboot=echo Booting from network ...; " \
-		"setenv autoload 0; " \
-		"dhcp; " \
-		"tftp ${loadaddr} arimg; " \
-		"go ${loadaddr}\0" \
-	"usbupdate=echo Updating UBOOT from USB-Stick ...; " \
-		"usb start; " \
-		"fatload usb 0 0x80000000 updateubootusb.img; " \
-		"source;\0" \
-	"netupdate=echo Updating UBOOT from Network (TFTP) ...; " \
-		"setenv autoload 0; " \
-		"dhcp;" \
-		"tftp 0x80000000 updateUBOOT.img;" \
-		"source;\0"
+BUR_COMMON_ENV \
+"vx_romfsbase=0x800E0000\0" \
+"vx_romfssize=0x20000\0" \
+"vx_memtop=0x8FBEF000\0" \
+"loadromfs=mmc read ${vx_romfsbase} 700 100\0" \
+"autoload=0\0" \
+"loadaddr=0x80100000\0" \
+"logoaddr=0x82000000\0" \
+"defaultARlen=0x8000\0" \
+"loaddefaultAR=mmc read ${loadaddr} 800 ${defaultARlen}\0" \
+"defaultAR=run loadromfs; run loaddefaultAR; go ${loadaddr}\0" \
+"logo0=fatload mmc 0:1 ${logoaddr} SYSTEM/ADDON/Bootlogo/Bootlogo.bmp.gz && " \
+	"bmp display ${logoaddr} 0 0\0" \
+"logo1=fatload mmc 0:1 ${logoaddr} SYSTEM/BASE/Bootlogo/Bootlogo.bmp.gz && " \
+	"bmp display ${logoaddr} 0 0\0" \
+"mmcboot=echo booting AR from eMMC-flash ...; "\
+	"run logo0 || run logo1; " \
+	"run loadromfs; " \
+	"fatload mmc 0:1 ${loadaddr} arimg && go ${loadaddr}; " \
+	"run defaultAR;\0" \
+"netboot=echo booting AR from network ...; " \
+	"run loadromfs; " \
+	"tftp ${loadaddr} arimg && go ${loadaddr}; " \
+	"puts 'networkboot failed!';\0" \
+"usbupdate=echo updating u-boot from usb ...; " \
+	"usb start; " \
+	"fatload usb 0 0x80000000 updateubootusb.img && source; " \
+	"puts 'usbupdate failed!'\0" \
+"netscript=echo running script from network (tftp) ...; " \
+	"tftp 0x80000000 netscript.img && source; " \
+	"puts 'netscript load failed!'\0" \
+"netupdate=tftp ${loadddr} MLO && mmc write ${loadaddr} 100 100; " \
+	"tftp ${loadaddr} u-boot.img && mmc write ${loadaddr} 300 300\0" \
+"netupdatedefaultAR=echo updating defaultAR from network (tftp) ...; " \
+	"if tftp 0x80100000 arimg.bin; " \
+	"then mmc write 0x80100000 800 ${defaultARlen}; " \
+	"else setcurs 1 8; puts 'defAR update failed (tftp)!'; fi;\0" \
+"netupdateROMFS=echo updating romfs from network (tftp) ...; " \
+	"if tftp 0x80100000 romfs.bin; " \
+	"then mmc write 0x80100000 700 100; " \
+	"else setcurs 1 8; puts 'romfs update failed (tftp)!'; fi;\0"
+
 #endif /* !CONFIG_SPL_BUILD*/
 
 #define CONFIG_BOOTCOMMAND \
 	"run usbupdate;"
-#define CONFIG_BOOTDELAY		1 /* TODO: für release auf 0 setzen */
+#define CONFIG_BOOTDELAY		0
 
 /* undefine command which we not need here */
-#undef	CONFIG_BOOTM_LINUX
 #undef	CONFIG_BOOTM_NETBSD
 #undef	CONFIG_BOOTM_PLAN9
 #undef	CONFIG_BOOTM_RTEMS
-#undef	CONFIG_GZIP
-#undef	CONFIG_ZLIB
+#undef CONFIG_CMD_CRC32
+
+/* Support both device trees and ATAGs. */
+#define CONFIG_OF_LIBFDT
+#define CONFIG_CMDLINE_TAG
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
+#define CONFIG_CMD_BOOTZ
 
 /* USB configuration */
 #define CONFIG_USB_MUSB_DSPS
@@ -100,6 +119,8 @@
 #define CONFIG_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_HOST
+#define CONFIG_AM335X_USB1
+#define CONFIG_AM335X_USB1_MODE	MUSB_HOST
 
 #ifdef CONFIG_MUSB_HOST
 #define CONFIG_CMD_USB

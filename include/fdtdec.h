@@ -15,6 +15,7 @@
  */
 
 #include <libfdt.h>
+#include <pci.h>
 
 /*
  * A typedef for a physical address. Note that fdt data is always big
@@ -50,6 +51,49 @@ struct fdt_resource {
 	fdt_addr_t end;
 };
 
+enum fdt_pci_space {
+	FDT_PCI_SPACE_CONFIG = 0,
+	FDT_PCI_SPACE_IO = 0x01000000,
+	FDT_PCI_SPACE_MEM32 = 0x02000000,
+	FDT_PCI_SPACE_MEM64 = 0x03000000,
+	FDT_PCI_SPACE_MEM32_PREF = 0x42000000,
+	FDT_PCI_SPACE_MEM64_PREF = 0x43000000,
+};
+
+#define FDT_PCI_ADDR_CELLS	3
+#define FDT_PCI_SIZE_CELLS	2
+#define FDT_PCI_REG_SIZE	\
+	((FDT_PCI_ADDR_CELLS + FDT_PCI_SIZE_CELLS) * sizeof(u32))
+
+/*
+ * The Open Firmware spec defines PCI physical address as follows:
+ *
+ *          bits# 31 .... 24 23 .... 16 15 .... 08 07 .... 00
+ *
+ * phys.hi  cell:  npt000ss   bbbbbbbb   dddddfff   rrrrrrrr
+ * phys.mid cell:  hhhhhhhh   hhhhhhhh   hhhhhhhh   hhhhhhhh
+ * phys.lo  cell:  llllllll   llllllll   llllllll   llllllll
+ *
+ * where:
+ *
+ * n:        is 0 if the address is relocatable, 1 otherwise
+ * p:        is 1 if addressable region is prefetchable, 0 otherwise
+ * t:        is 1 if the address is aliased (for non-relocatable I/O) below 1MB
+ *           (for Memory), or below 64KB (for relocatable I/O)
+ * ss:       is the space code, denoting the address space
+ * bbbbbbbb: is the 8-bit Bus Number
+ * ddddd:    is the 5-bit Device Number
+ * fff:      is the 3-bit Function Number
+ * rrrrrrrr: is the 8-bit Register Number
+ * hhhhhhhh: is a 32-bit unsigned number
+ * llllllll: is a 32-bit unsigned number
+ */
+struct fdt_pci_addr {
+	u32	phys_hi;
+	u32	phys_mid;
+	u32	phys_lo;
+};
+
 /**
  * Compute the size of a resource.
  *
@@ -71,9 +115,6 @@ enum fdt_compat_id {
 	COMPAT_NVIDIA_TEGRA20_USB,	/* Tegra20 USB port */
 	COMPAT_NVIDIA_TEGRA30_USB,	/* Tegra30 USB port */
 	COMPAT_NVIDIA_TEGRA114_USB,	/* Tegra114 USB port */
-	COMPAT_NVIDIA_TEGRA114_I2C,	/* Tegra114 I2C w/single clock source */
-	COMPAT_NVIDIA_TEGRA20_I2C,	/* Tegra20 i2c */
-	COMPAT_NVIDIA_TEGRA20_DVC,	/* Tegra20 dvc (really just i2c) */
 	COMPAT_NVIDIA_TEGRA20_EMC,	/* Tegra20 memory controller */
 	COMPAT_NVIDIA_TEGRA20_EMC_TABLE, /* Tegra20 memory timing table */
 	COMPAT_NVIDIA_TEGRA20_KBC,	/* Tegra20 Keyboard */
@@ -83,9 +124,6 @@ enum fdt_compat_id {
 	COMPAT_NVIDIA_TEGRA124_SDMMC,	/* Tegra124 SDMMC controller */
 	COMPAT_NVIDIA_TEGRA30_SDMMC,	/* Tegra30 SDMMC controller */
 	COMPAT_NVIDIA_TEGRA20_SDMMC,	/* Tegra20 SDMMC controller */
-	COMPAT_NVIDIA_TEGRA20_SFLASH,	/* Tegra 2 SPI flash controller */
-	COMPAT_NVIDIA_TEGRA20_SLINK,	/* Tegra 2 SPI SLINK controller */
-	COMPAT_NVIDIA_TEGRA114_SPI,	/* Tegra 114 SPI controller */
 	COMPAT_NVIDIA_TEGRA124_PCIE,	/* Tegra 124 PCIe controller */
 	COMPAT_NVIDIA_TEGRA30_PCIE,	/* Tegra 30 PCIe controller */
 	COMPAT_NVIDIA_TEGRA20_PCIE,	/* Tegra 20 PCIe controller */
@@ -96,7 +134,6 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_S3C2440_I2C,	/* Exynos I2C Controller */
 	COMPAT_SAMSUNG_EXYNOS5_SOUND,	/* Exynos Sound */
 	COMPAT_WOLFSON_WM8994_CODEC,	/* Wolfson WM8994 Sound Codec */
-	COMPAT_SAMSUNG_EXYNOS_SPI,	/* Exynos SPI */
 	COMPAT_GOOGLE_CROS_EC,		/* Google CROS_EC Protocol */
 	COMPAT_GOOGLE_CROS_EC_KEYB,	/* Google CROS_EC Keyboard */
 	COMPAT_SAMSUNG_EXYNOS_EHCI,	/* Exynos EHCI controller */
@@ -129,42 +166,65 @@ enum fdt_compat_id {
 	COMPAT_INTEL_MODEL_206AX,	/* Intel Model 206AX CPU */
 	COMPAT_INTEL_GMA,		/* Intel Graphics Media Accelerator */
 	COMPAT_AMS_AS3722,		/* AMS AS3722 PMIC */
+	COMPAT_INTEL_ICH_SPI,		/* Intel ICH7/9 SPI controller */
+	COMPAT_INTEL_QRK_MRC,		/* Intel Quark MRC */
+	COMPAT_SOCIONEXT_XHCI,		/* Socionext UniPhier xHCI */
 
 	COMPAT_COUNT,
 };
 
-/* GPIOs are numbered from 0 */
-enum {
-	FDT_GPIO_NONE = -1U,	/* an invalid GPIO used to end our list */
-
-	FDT_GPIO_ACTIVE_LOW = 1 << 0,	/* input is active low (else high) */
+#define MAX_PHANDLE_ARGS 16
+struct fdtdec_phandle_args {
+	int node;
+	int args_count;
+	uint32_t args[MAX_PHANDLE_ARGS];
 };
 
-/* This is the state of a GPIO pin as defined by the fdt */
-struct fdt_gpio_state {
-	const char *name;	/* name of the fdt property defining this */
-	uint gpio;		/* GPIO number, or FDT_GPIO_NONE if none */
-	u8 flags;		/* FDT_GPIO_... flags */
-};
-
-/* This tells us whether a fdt_gpio_state record is valid or not */
-#define fdt_gpio_isvalid(x) ((x)->gpio != FDT_GPIO_NONE)
-
 /**
- * Read the GPIO taking into account the polarity of the pin.
+ * fdtdec_parse_phandle_with_args() - Find a node pointed by phandle in a list
  *
- * @param gpio		pointer to the decoded gpio
- * @return value of the gpio if successful, < 0 if unsuccessful
- */
-int fdtdec_get_gpio(struct fdt_gpio_state *gpio);
-
-/**
- * Write the GPIO taking into account the polarity of the pin.
+ * This function is useful to parse lists of phandles and their arguments.
  *
- * @param gpio		pointer to the decoded gpio
- * @return 0 if successful
+ * Example:
+ *
+ * phandle1: node1 {
+ *	#list-cells = <2>;
+ * }
+ *
+ * phandle2: node2 {
+ *	#list-cells = <1>;
+ * }
+ *
+ * node3 {
+ *	list = <&phandle1 1 2 &phandle2 3>;
+ * }
+ *
+ * To get a device_node of the `node2' node you may call this:
+ * fdtdec_parse_phandle_with_args(blob, node3, "list", "#list-cells", 0, 1,
+ *				  &args);
+ *
+ * (This function is a modified version of __of_parse_phandle_with_args() from
+ * Linux 3.18)
+ *
+ * @blob:	Pointer to device tree
+ * @src_node:	Offset of device tree node containing a list
+ * @list_name:	property name that contains a list
+ * @cells_name:	property name that specifies the phandles' arguments count,
+ *		or NULL to use @cells_count
+ * @cells_count: Cell count to use if @cells_name is NULL
+ * @index:	index of a phandle to parse out
+ * @out_args:	optional pointer to output arguments structure (will be filled)
+ * @return 0 on success (with @out_args filled out if not NULL), -ENOENT if
+ *	@list_name does not exist, a phandle was not found, @cells_name
+ *	could not be found, the arguments were truncated or there were too
+ *	many arguments.
+ *
  */
-int fdtdec_set_gpio(struct fdt_gpio_state *gpio, int val);
+int fdtdec_parse_phandle_with_args(const void *blob, int src_node,
+				   const char *list_name,
+				   const char *cells_name,
+				   int cell_count, int index,
+				   struct fdtdec_phandle_args *out_args);
 
 /**
  * Find the next numbered alias for a peripheral. This is used to enumerate
@@ -256,6 +316,63 @@ fdt_addr_t fdtdec_get_addr(const void *blob, int node,
  */
 fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
 		const char *prop_name, fdt_size_t *sizep);
+
+/**
+ * Look at an address property in a node and return the pci address which
+ * corresponds to the given type in the form of fdt_pci_addr.
+ * The property must hold one fdt_pci_addr with a lengh.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param type		pci address type (FDT_PCI_SPACE_xxx)
+ * @param prop_name	name of property to find
+ * @param addr		returns pci address in the form of fdt_pci_addr
+ * @return 0 if ok, negative on error
+ */
+int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
+		const char *prop_name, struct fdt_pci_addr *addr);
+
+/**
+ * Look at the compatible property of a device node that represents a PCI
+ * device and extract pci vendor id and device id from it.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param vendor	vendor id of the pci device
+ * @param device	device id of the pci device
+ * @return 0 if ok, negative on error
+ */
+int fdtdec_get_pci_vendev(const void *blob, int node,
+		u16 *vendor, u16 *device);
+
+/**
+ * Look at the pci address of a device node that represents a PCI device
+ * and parse the bus, device and function number from it. For some cases
+ * like the bus number encoded in reg property is not correct after pci
+ * enumeration, this function looks through the node's compatible strings
+ * to get these numbers extracted instead.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param addr		pci address in the form of fdt_pci_addr
+ * @param bdf		returns bus, device, function triplet
+ * @return 0 if ok, negative on error
+ */
+int fdtdec_get_pci_bdf(const void *blob, int node,
+		struct fdt_pci_addr *addr, pci_dev_t *bdf);
+
+/**
+ * Look at the pci address of a device node that represents a PCI device
+ * and return base address of the pci device's registers.
+ *
+ * @param blob		FDT blob
+ * @param node		node to examine
+ * @param addr		pci address in the form of fdt_pci_addr
+ * @param bar		returns base address of the pci device's registers
+ * @return 0 if ok, negative on error
+ */
+int fdtdec_get_pci_bar32(const void *blob, int node,
+		struct fdt_pci_addr *addr, u32 *bar);
 
 /**
  * Look up a 32-bit integer property in a node and return it. The property
@@ -493,50 +610,6 @@ const u32 *fdtdec_locate_array(const void *blob, int node,
 int fdtdec_get_bool(const void *blob, int node, const char *prop_name);
 
 /**
- * Decode a single GPIOs from an FDT.
- *
- * If the property is not found, then the GPIO structure will still be
- * initialised, with gpio set to FDT_GPIO_NONE. This makes it easy to
- * provide optional GPIOs.
- *
- * @param blob		FDT blob to use
- * @param node		Node to look at
- * @param prop_name	Node property name
- * @param gpio		gpio elements to fill from FDT
- * @return 0 if ok, -FDT_ERR_NOTFOUND if the property is missing.
- */
-int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
-		struct fdt_gpio_state *gpio);
-
-/**
- * Decode a list of GPIOs from an FDT. This creates a list of GPIOs with no
- * terminating item.
- *
- * @param blob         FDT blob to use
- * @param node         Node to look at
- * @param prop_name    Node property name
- * @param gpio         Array of gpio elements to fill from FDT. This will be
- *                     untouched if either 0 or an error is returned
- * @param max_count    Maximum number of elements allowed
- * @return number of GPIOs read if ok, -FDT_ERR_BADLAYOUT if max_count would
- * be exceeded, or -FDT_ERR_NOTFOUND if the property is missing.
- */
-int fdtdec_decode_gpios(const void *blob, int node, const char *prop_name,
-		struct fdt_gpio_state *gpio, int max_count);
-
-/**
- * Set up a GPIO pin according to the provided gpio information. At present this
- * just requests the GPIO.
- *
- * If the gpio is FDT_GPIO_NONE, no action is taken. This makes it easy to
- * deal with optional GPIOs.
- *
- * @param gpio		GPIO info to use for set up
- * @return 0 if all ok or gpio was FDT_GPIO_NONE; -1 on error
- */
-int fdtdec_setup_gpio(struct fdt_gpio_state *gpio);
-
-/**
  * Look in the FDT for a config item with the given name and return its value
  * as a 32-bit integer. The property must have at least 4 bytes of data. The
  * value of the first cell is returned.
@@ -681,17 +754,6 @@ int fdt_get_resource(const void *fdt, int node, const char *property,
 int fdt_get_named_resource(const void *fdt, int node, const char *property,
 			   const char *prop_names, const char *name,
 			   struct fdt_resource *res);
-
-/**
- * Look at the reg property of a device node that represents a PCI device
- * and parse the bus, device and function number from it.
- *
- * @param fdt		FDT blob
- * @param node		node to examine
- * @param bdf		returns bus, device, function triplet
- * @return 0 if ok, negative on error
- */
-int fdtdec_pci_get_bdf(const void *fdt, int node, int *bdf);
 
 /**
  * Decode a named region within a memory bank of a given type.

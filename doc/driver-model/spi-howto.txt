@@ -3,7 +3,8 @@ How to port a SPI driver to driver model
 
 Here is a rough step-by-step guide. It is based around converting the
 exynos SPI driver to driver model (DM) and the example code is based
-around U-Boot v2014.10-rc2 (commit be9f643).
+around U-Boot v2014.10-rc2 (commit be9f643). This has been updated for
+v2015.04.
 
 It is quite long since it includes actual code examples.
 
@@ -39,8 +40,8 @@ with only minor changes:
 
 Add these to your board config:
 
-#define CONFIG_DM_SPI
-#define CONFIG_DM_SPI_FLASH
+CONFIG_DM_SPI
+CONFIG_DM_SPI_FLASH
 
 
 2. Add the skeleton
@@ -262,8 +263,8 @@ U_BOOT_DEVICE(board_spi0) = {
 	.platdata = &platdata_spi0,
 };
 
-You will unfortunately need to put the struct into a header file in this
-case so that your board file can use it.
+You will unfortunately need to put the struct definition into a header file
+in this case so that your board file can use it.
 
 
 9. Add the device private data
@@ -592,3 +593,36 @@ board.
 
 You can use 'tools/patman/patman' to prepare, check and send patches for
 your work. See the README for details.
+
+20. A little note about SPI uclass features:
+
+The SPI uclass keeps some information about each device 'dev' on the bus:
+
+   struct dm_spi_slave_platdata - this is device_get_parent_platdata(dev)
+		This is where the chip select number is stored, along with
+		the default bus speed and mode. It is automatically read
+		from the device tree in spi_child_post_bind(). It must not
+		be changed at run-time after being set up because platform
+		data is supposed to be immutable at run-time.
+   struct spi_slave - this is device_get_parentdata(dev)
+		Already mentioned above. It holds run-time information about
+		the device.
+
+There are also some SPI uclass methods that get called behind the scenes:
+
+   spi_post_bind() - called when a new bus is bound
+		This scans the device tree for devices on the bus, and binds
+		each one. This in turn causes spi_child_post_bind() to be
+		called for each, which reads the device tree information
+		into the parent (per-child) platform data.
+   spi_child_post_bind() - called when a new child is bound
+		As mentioned above this reads the device tree information
+		into the per-child platform data
+   spi_child_pre_probe() - called before a new child is probed
+		This sets up the mode and speed in struct spi_slave by
+		copying it from the parent's platform data for this child.
+		It also sets the 'dev' pointer, needed to permit passing
+		'struct spi_slave' around the place without needing a
+		separate 'struct udevice' pointer.
+
+The above housekeeping makes it easier to write your SPI driver.

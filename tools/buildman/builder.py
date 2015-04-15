@@ -174,7 +174,8 @@ class Builder:
             self.func_sizes = func_sizes
 
     def __init__(self, toolchains, base_dir, git_dir, num_threads, num_jobs,
-                 gnu_make='make', checkout=True, show_unknown=True, step=1):
+                 gnu_make='make', checkout=True, show_unknown=True, step=1,
+                 no_subdirs=False, full_path=False, verbose_build=False):
         """Create a new Builder object
 
         Args:
@@ -188,6 +189,11 @@ class Builder:
                 This is used for testing.
             show_unknown: Show unknown boards (those not built) in summary
             step: 1 to process every commit, n to process every nth commit
+            no_subdirs: Don't create subdirectories when building current
+                source for a single board
+            full_path: Return the full path in CROSS_COMPILE and don't set
+                PATH
+            verbose_build: Run build with V=1 and don't use 'make -s'
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
@@ -213,6 +219,9 @@ class Builder:
         self._step = step
         self.in_tree = False
         self._error_lines = 0
+        self.no_subdirs = no_subdirs
+        self.full_path = full_path
+        self.verbose_build = verbose_build
 
         self.col = terminal.Color()
 
@@ -392,15 +401,17 @@ class Builder:
         Args:
             commit_upto: Commit number to use (0..self.count-1)
         """
+        commit_dir = None
         if self.commits:
             commit = self.commits[commit_upto]
             subject = commit.subject.translate(trans_valid_chars)
             commit_dir = ('%02d_of_%02d_g%s_%s' % (commit_upto + 1,
                     self.commit_count, commit.hash, subject[:20]))
-        else:
+        elif not self.no_subdirs:
             commit_dir = 'current'
-        output_dir = os.path.join(self.base_dir, commit_dir)
-        return output_dir
+        if not commit_dir:
+            return self.base_dir
+        return os.path.join(self.base_dir, commit_dir)
 
     def GetBuildDir(self, commit_upto, target):
         """Get the name of the build directory for a commit number
@@ -653,7 +664,7 @@ class Builder:
                 arch = 'unknown'
             str = self.col.Color(color, ' ' + target)
             if not arch in done_arch:
-                str = self.col.Color(color, char) + '  ' + str
+                str = ' %s  %s' % (self.col.Color(color, char), str)
                 done_arch[arch] = True
             if not arch in arch_list:
                 arch_list[arch] = str
@@ -1115,6 +1126,8 @@ class Builder:
         create. Having left over directories is confusing when the user wants
         to check the output manually.
         """
+        if not self.commits:
+            return
         dir_list = []
         for commit_upto in range(self.commit_count):
             dir_list.append(self._GetOutputDir(commit_upto))

@@ -182,7 +182,6 @@ Directory Hierarchy:
     /lib		Architecture specific library files
   /powerpc		Files generic to PowerPC architecture
     /cpu		CPU specific files
-      /74xx_7xx		Files specific to Freescale MPC74xx and 7xx CPUs
       /mpc5xx		Files specific to Freescale MPC5xx CPUs
       /mpc5xxx		Files specific to Freescale MPC5xxx CPUs
       /mpc8xx		Files specific to Freescale MPC8xx CPUs
@@ -272,6 +271,75 @@ specific to be undertaken on a native platform. The sandbox is also used to
 run some of U-Boot's tests.
 
 See board/sandbox/README.sandbox for more details.
+
+
+Board Initialisation Flow:
+--------------------------
+
+This is the intended start-up flow for boards. This should apply for both
+SPL and U-Boot proper (i.e. they both follow the same rules). At present SPL
+mostly uses a separate code path, but the funtion names and roles of each
+function are the same. Some boards or architectures may not conform to this.
+At least most ARM boards which use CONFIG_SPL_FRAMEWORK conform to this.
+
+Execution starts with start.S with three functions called during init after
+that. The purpose and limitations of each is described below.
+
+lowlevel_init():
+	- purpose: essential init to permit execution to reach board_init_f()
+	- no global_data or BSS
+	- there is no stack (ARMv7 may have one but it will soon be removed)
+	- must not set up SDRAM or use console
+	- must only do the bare minimum to allow execution to continue to
+		board_init_f()
+	- this is almost never needed
+	- return normally from this function
+
+board_init_f():
+	- purpose: set up the machine ready for running board_init_r():
+		i.e. SDRAM and serial UART
+	- global_data is available
+	- stack is in SRAM
+	- BSS is not available, so you cannot use global/static variables,
+		only stack variables and global_data
+
+	Non-SPL-specific notes:
+	- dram_init() is called to set up DRAM. If already done in SPL this
+		can do nothing
+
+	SPL-specific notes:
+	- you can override the entire board_init_f() function with your own
+		version as needed.
+	- preloader_console_init() can be called here in extremis
+	- should set up SDRAM, and anything needed to make the UART work
+	- these is no need to clear BSS, it will be done by crt0.S
+	- must return normally from this function (don't call board_init_r()
+		directly)
+
+Here the BSS is cleared. For SPL, if CONFIG_SPL_STACK_R is defined, then at
+this point the stack and global_data are relocated to below
+CONFIG_SPL_STACK_R_ADDR. For non-SPL, U-Boot is relocated to run at the top of
+memory.
+
+board_init_r():
+	- purpose: main execution, common code
+	- global_data is available
+	- SDRAM is available
+	- BSS is available, all static/global variables can be used
+	- execution eventually continues to main_loop()
+
+	Non-SPL-specific notes:
+	- U-Boot is relocated to the top of memory and is now running from
+		there.
+
+	SPL-specific notes:
+	- stack is optionally in SDRAM, if CONFIG_SPL_STACK_R is defined and
+		CONFIG_SPL_STACK_R_ADDR points into SDRAM
+	- preloader_console_init() can be called here - typically this is
+		done by defining CONFIG_SPL_BOARD_INIT and then supplying a
+		spl_board_init() function containing this call
+	- loads U-Boot or (in falcon mode) Linux
+
 
 
 Configuration Options:
@@ -622,119 +690,20 @@ The following options need to be configured:
 		exists, unlike the similar options in the Linux kernel. Do not
 		set these options unless they apply!
 
-- Driver Model
-		Driver model is a new framework for devices in U-Boot
-		introduced in early 2014. U-Boot is being progressively
-		moved over to this. It offers a consistent device structure,
-		supports grouping devices into classes and has built-in
-		handling of platform data and device tree.
+		NOTE: The following can be machine specific errata. These
+		do have ability to provide rudimentary version and machine
+		specific checks, but expect no product checks.
+		CONFIG_ARM_ERRATA_430973
+		CONFIG_ARM_ERRATA_454179
+		CONFIG_ARM_ERRATA_621766
+		CONFIG_ARM_ERRATA_798870
 
-		To enable transition to driver model in a relatively
-		painful fashion, each subsystem can be independently
-		switched between the legacy/ad-hoc approach and the new
-		driver model using the options below. Also, many uclass
-		interfaces include compatibility features which may be
-		removed once the conversion of that subsystem is complete.
-		As a result, the API provided by the subsystem may in fact
-		not change with driver model.
+- Tegra SoC options:
+		CONFIG_TEGRA_SUPPORT_NON_SECURE
 
-		See doc/driver-model/README.txt for more information.
-
-		CONFIG_DM
-
-		Enable driver model. This brings in the core support,
-		including scanning of platform data on start-up. If
-		CONFIG_OF_CONTROL is enabled, the device tree will be
-		scanned also when available.
-
-		CONFIG_CMD_DM
-
-		Enable driver model test commands. These allow you to print
-		out the driver model tree and the uclasses.
-
-		CONFIG_DM_DEMO
-
-		Enable some demo devices and the 'demo' command. These are
-		really only useful for playing around while trying to
-		understand driver model in sandbox.
-
-		CONFIG_SPL_DM
-
-		Enable driver model in SPL. You will need to provide a
-		suitable malloc() implementation. If you are not using the
-		full malloc() enabled by CONFIG_SYS_SPL_MALLOC_START,
-		consider using CONFIG_SYS_MALLOC_SIMPLE. In that case you
-		must provide CONFIG_SYS_MALLOC_F_LEN to set the size.
-		In most cases driver model will only allocate a few uclasses
-		and devices in SPL, so 1KB should be enable. See
-		CONFIG_SYS_MALLOC_F_LEN for more details on how to enable
-		it.
-
-		CONFIG_DM_SERIAL
-
-		Enable driver model for serial. This replaces
-		drivers/serial/serial.c with the serial uclass, which
-		implements serial_putc() etc. The uclass interface is
-		defined in include/serial.h.
-
-		CONFIG_DM_GPIO
-
-		Enable driver model for GPIO access. The standard GPIO
-		interface (gpio_get_value(), etc.) is then implemented by
-		the GPIO uclass. Drivers provide methods to query the
-		particular GPIOs that they provide. The uclass interface
-		is defined in include/asm-generic/gpio.h.
-
-		CONFIG_DM_SPI
-
-		Enable driver model for SPI. The SPI slave interface
-		(spi_setup_slave(), spi_xfer(), etc.) is then implemented by
-		the SPI uclass. Drivers provide methods to access the SPI
-		buses that they control. The uclass interface is defined in
-		include/spi.h. The existing spi_slave structure is attached
-		as 'parent data' to every slave on each bus. Slaves
-		typically use driver-private data instead of extending the
-		spi_slave structure.
-
-		CONFIG_DM_SPI_FLASH
-
-		Enable driver model for SPI flash. This SPI flash interface
-		(spi_flash_probe(), spi_flash_write(), etc.) is then
-		implemented by the SPI flash uclass. There is one standard
-		SPI flash driver which knows how to probe most chips
-		supported by U-Boot. The uclass interface is defined in
-		include/spi_flash.h, but is currently fully compatible
-		with the old interface to avoid confusion and duplication
-		during the transition parent. SPI and SPI flash must be
-		enabled together (it is not possible to use driver model
-		for one and not the other).
-
-		CONFIG_DM_CROS_EC
-
-		Enable driver model for the Chrome OS EC interface. This
-		allows the cros_ec SPI driver to operate with CONFIG_DM_SPI
-		but otherwise makes few changes. Since cros_ec also supports
-		I2C and LPC (which don't support driver model yet), a full
-		conversion is not yet possible.
-
-
-		** Code size options: The following options are enabled by
-		default except in SPL. Enable them explicitly to get these
-		features in SPL.
-
-		CONFIG_DM_WARN
-
-		Enable the dm_warn() function. This can use up quite a bit
-		of space for its strings.
-
-		CONFIG_DM_STDIO
-
-		Enable registering a serial device with the stdio library.
-
-		CONFIG_DM_DEVICE_REMOVE
-
-		Enable removing of devices.
-
+		Support executing U-Boot in non-secure (NS) mode. Certain
+		impossible actions will be skipped if the CPU is in NS mode,
+		such as ARM architectural timer initialization.
 
 - Linux Kernel Interface:
 		CONFIG_CLOCKS_IN_MHZ
@@ -1260,6 +1229,9 @@ The following options need to be configured:
 		When using a watchdog circuitry external to the used
 		SoC, then define this variable and provide board
 		specific code for the "hw_watchdog_reset" function.
+
+		CONFIG_AT91_HW_WDT_TIMEOUT
+		specify the timeout in seconds. default 2 seconds.
 
 - U-Boot Version:
 		CONFIG_VERSION_VARIABLE
@@ -3153,8 +3125,18 @@ CBFS (Coreboot Filesystem) support
 		Enable the hash verify command (hash -v). This adds to code
 		size a little.
 
-		CONFIG_SHA1 - support SHA1 hashing
-		CONFIG_SHA256 - support SHA256 hashing
+		CONFIG_SHA1 - This option enables support of hashing using SHA1
+		algorithm. The hash is calculated in software.
+		CONFIG_SHA256 - This option enables support of hashing using
+		SHA256 algorithm. The hash is calculated in software.
+		CONFIG_SHA_HW_ACCEL - This option enables hardware acceleration
+		for SHA1/SHA256 hashing.
+		This affects the 'hash' command and also the
+		hash_lookup_algo() function.
+		CONFIG_SHA_PROG_HW_ACCEL - This option enables
+		hardware-acceleration for SHA1/SHA256 progressive hashing.
+		Data can be streamed in a block at a time and the hashing
+		is performed in hardware.
 
 		Note: There is also a sha1sum command, which should perhaps
 		be deprecated in favour of 'hash sha1'.
@@ -3180,8 +3162,13 @@ CBFS (Coreboot Filesystem) support
 		This enables the RSA algorithm used for FIT image verification
 		in U-Boot. See doc/uImage.FIT/signature.txt for more information.
 
+		The Modular Exponentiation algorithm in RSA is implemented using
+		driver model. So CONFIG_DM needs to be enabled by default for this
+		library to function.
+
 		The signing part is build into mkimage regardless of this
-		option.
+		option. The software based modular exponentiation is built into
+		mkimage irrespective of this option.
 
 - bootcount support:
 		CONFIG_BOOTCOUNT_LIMIT
@@ -3443,8 +3430,10 @@ FIT uImage format:
 
 		CONFIG_FIT_SIGNATURE
 		This option enables signature verification of FIT uImages,
-		using a hash signed and verified using RSA. See
-		doc/uImage.FIT/signature.txt for more details.
+		using a hash signed and verified using RSA. If
+		CONFIG_SHA_PROG_HW_ACCEL is defined, i.e support for progressive
+		hashing is available using hardware, RSA library will use it.
+		See doc/uImage.FIT/signature.txt for more details.
 
 		WARNING: When relying on signed FIT images with required
 		signature check the legacy image format is default
@@ -3496,9 +3485,6 @@ FIT uImage format:
 
 		Adds the MTD partitioning infrastructure from the Linux
 		kernel. Needed for UBI support.
-
-		CONFIG_MTD_NAND_VERIFY_WRITE
-		verify if the written data is correct reread.
 
 - UBI support
 		CONFIG_CMD_UBI
@@ -3623,6 +3609,16 @@ FIT uImage format:
 
 		CONFIG_SPL_STACK
 		Adress of the start of the stack SPL will use
+
+		CONFIG_SPL_PANIC_ON_RAW_IMAGE
+		When defined, SPL will panic() if the image it has
+		loaded does not have a signature.
+		Defining this is useful when code which loads images
+		in SPL cannot guarantee that absolutely all read errors
+		will be caught.
+		An example is the LPC32XX MLC NAND driver, which will
+		consider that a completely unreadable NAND block is bad,
+		and thus should be skipped silently.
 
 		CONFIG_SPL_RELOC_STACK
 		Adress of the start of the stack SPL will use after
@@ -4204,9 +4200,9 @@ Configuration Settings:
 	to this new framework over time. Defining this will disable the
 	arch/foo/lib/board.c file and use common/board_f.c and
 	common/board_r.c instead. To use this option your architecture
-	must support it (i.e. must define __HAVE_ARCH_GENERIC_BOARD in
-	its config.mk file). If you find problems enabling this option on
-	your board please report the problem and send patches!
+	must support it (i.e. must select HAVE_GENERIC_BOARD in arch/Kconfig).
+	If you find problems enabling this option on your board please report
+	the problem and send patches!
 
 - CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC (OMAP only)
 	This is set by OMAP boards for the max time that reset should
@@ -4336,6 +4332,9 @@ to save the current settings.
 	- CONFIG_SYS_I2C_EEPROM_ADDR:
 	  If defined, specified the chip address of the EEPROM device.
 	  The default address is zero.
+
+	- CONFIG_SYS_I2C_EEPROM_BUS:
+	  If defined, specified the i2c bus of the EEPROM device.
 
 	- CONFIG_SYS_EEPROM_PAGE_WRITE_BITS:
 	  If defined, the number of bits used to address bytes in a
@@ -4911,6 +4910,9 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_FSL_DDR_INTERACTIVE
 		Enable interactive DDR debugging. See doc/README.fsl-ddr.
+
+- CONFIG_FSL_DDR_SYNC_REFRESH
+		Enable sync of refresh for multiple controllers.
 
 - CONFIG_SYS_83XX_DDR_USES_CS0
 		Only for 83xx systems. If specified, then DDR should
@@ -5903,9 +5905,10 @@ option performs the converse operation of the mkimage's second form (the "-d"
 option). Given an image built by mkimage, the dumpimage extracts a "data file"
 from the image:
 
-	tools/dumpimage -i image -p position data_file
-	  -i ==> extract from the 'image' a specific 'data_file', \
-	   indexed by 'position'
+	tools/dumpimage -i image -T type -p position data_file
+	  -i ==> extract from the 'image' a specific 'data_file'
+	  -T ==> set image type to 'type'
+	  -p ==> 'position' (starting at 0) of the 'data_file' inside the 'image'
 
 
 Installing a Linux Image:

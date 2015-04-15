@@ -29,8 +29,112 @@ config MACH_SUN7I
 config MACH_SUN8I
 	bool "sun8i (Allwinner A23)"
 	select CPU_V7
+	select SUPPORT_SPL
 
 endchoice
+
+config DRAM_CLK
+	int "sunxi dram clock speed"
+	default 312 if MACH_SUN6I || MACH_SUN8I
+	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	---help---
+	Set the dram clock speed, valid range 240 - 480, must be a multiple
+	of 24.
+
+if MACH_SUN5I || MACH_SUN7I
+config DRAM_MBUS_CLK
+	int "sunxi mbus clock speed"
+	default 300
+	---help---
+	Set the mbus clock speed. The maximum on sun5i hardware is 300MHz.
+
+endif
+
+config DRAM_ZQ
+	int "sunxi dram zq value"
+	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
+	default 127 if MACH_SUN7I
+	---help---
+	Set the dram zq value.
+
+if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+config DRAM_EMR1
+	int "sunxi dram emr1 value"
+	default 0 if MACH_SUN4I
+	default 4 if MACH_SUN5I || MACH_SUN7I
+	---help---
+	Set the dram controller emr1 value.
+
+config DRAM_ODT_EN
+	int "sunxi dram odt_en value"
+	default 0
+	---help---
+	Set the dram controller odt_en parameter. This can be used to
+	enable/disable the ODT feature.
+
+config DRAM_TPR3
+	hex "sunxi dram tpr3 value"
+	default 0
+	---help---
+	Set the dram controller tpr3 parameter. This parameter configures
+	the delay on the command lane and also phase shifts, which are
+	applied for sampling incoming read data. The default value 0
+	means that no phase/delay adjustments are necessary. Properly
+	configuring this parameter increases reliability at high DRAM
+	clock speeds.
+
+config DRAM_DQS_GATING_DELAY
+	hex "sunxi dram dqs_gating_delay value"
+	default 0
+	---help---
+	Set the dram controller dqs_gating_delay parmeter. Each byte
+	encodes the DQS gating delay for each byte lane. The delay
+	granularity is 1/4 cycle. For example, the value 0x05060606
+	means that the delay is 5 quarter-cycles for one lane (1.25
+	cycles) and 6 quarter-cycles (1.5 cycles) for 3 other lanes.
+	The default value 0 means autodetection. The results of hardware
+	autodetection are not very reliable and depend on the chip
+	temperature (sometimes producing different results on cold start
+	and warm reboot). But the accuracy of hardware autodetection
+	is usually good enough, unless running at really high DRAM
+	clocks speeds (up to 600MHz). If unsure, keep as 0.
+
+choice
+	prompt "sunxi dram timings"
+	default DRAM_TIMINGS_VENDOR_MAGIC
+	---help---
+	Select the timings of the DDR3 chips.
+
+config DRAM_TIMINGS_VENDOR_MAGIC
+	bool "Magic vendor timings from Android"
+	---help---
+	The same DRAM timings as in the Allwinner boot0 bootloader.
+
+config DRAM_TIMINGS_DDR3_1066F_1333H
+	bool "JEDEC DDR3-1333H with down binning to DDR3-1066F"
+	---help---
+	Use the timings of the standard JEDEC DDR3-1066F speed bin for
+	DRAM_CLK <= 533MHz and the timings of the DDR3-1333H speed bin
+	for DRAM_CLK > 533MHz. This covers the majority of DDR3 chips
+	used in Allwinner A10/A13/A20 devices. In the case of DDR3-1333
+	or DDR3-1600 chips, be sure to check the DRAM datasheet to confirm
+	that down binning to DDR3-1066F is supported (because DDR3-1066F
+	uses a bit faster timings than DDR3-1333H).
+
+config DRAM_TIMINGS_DDR3_800E_1066G_1333J
+	bool "JEDEC DDR3-800E / DDR3-1066G / DDR3-1333J"
+	---help---
+	Use the timings of the slowest possible JEDEC speed bin for the
+	selected DRAM_CLK. Depending on the DRAM_CLK value, it may be
+	DDR3-800E, DDR3-1066G or DDR3-1333J.
+
+endchoice
+
+endif
+
+config SYS_CLK_FREQ
+	default 912000000 if MACH_SUN7I
+	default 1008000000 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 
 config SYS_CONFIG_NAME
 	default "sun4i" if MACH_SUN4I
@@ -38,111 +142,6 @@ config SYS_CONFIG_NAME
 	default "sun6i" if MACH_SUN6I
 	default "sun7i" if MACH_SUN7I
 	default "sun8i" if MACH_SUN8I
-
-choice
-	prompt "Board"
-
-config TARGET_A10_OLINUXINO_L
-	bool "A10_OLINUXINO_L"
-	depends on MACH_SUN4I
-
-config TARGET_A10S_OLINUXINO_M
-	bool "A10S_OLINUXINO_M"
-	depends on MACH_SUN5I
-
-config TARGET_A13_OLINUXINOM
-	bool "A13_OLINUXINOM"
-	depends on MACH_SUN5I
-
-config TARGET_A13_OLINUXINO
-	bool "A13_OLINUXINO"
-	depends on MACH_SUN5I
-
-config TARGET_A20_OLINUXINO_L2
-	bool "A20_OLINUXINO_L2"
-	depends on MACH_SUN7I
-
-config TARGET_A20_OLINUXINO_L
-	bool "A20_OLINUXINO_L"
-	depends on MACH_SUN7I
-
-config TARGET_A20_OLINUXINO_M
-	bool "A20_OLINUXINO_M"
-	depends on MACH_SUN7I
-
-config TARGET_AUXTEK_T004
-	bool "AUXTEK_T004"
-	depends on MACH_SUN5I
-
-config TARGET_BANANAPI
-	bool "BANANAPI"
-	depends on MACH_SUN7I
-
-config TARGET_COLOMBUS
-	bool "COLOMBUS"
-	depends on MACH_SUN6I
-
-config TARGET_CUBIEBOARD2
-	bool "CUBIEBOARD2"
-	depends on MACH_SUN7I
-
-config TARGET_CUBIEBOARD
-	bool "CUBIEBOARD"
-	depends on MACH_SUN4I
-
-config TARGET_CUBIETRUCK
-	bool "CUBIETRUCK"
-	depends on MACH_SUN7I
-
-config TARGET_IPPO_Q8H_V5
-	bool "IPPO_Q8H_V5"
-	depends on MACH_SUN8I
-
-config TARGET_PCDUINO3
-	bool "PCDUINO3"
-	depends on MACH_SUN7I
-
-config TARGET_MELE_A1000G
-	bool "MELE_A1000G"
-	depends on MACH_SUN4I
-
-config TARGET_MELE_A1000
-	bool "MELE_A1000"
-	depends on MACH_SUN4I
-
-config TARGET_MELE_M3
-	bool "MELE_M3"
-	depends on MACH_SUN7I
-
-config TARGET_MELE_M9
-	bool "MELE_M9"
-	depends on MACH_SUN6I
-
-config TARGET_MINI_X_1GB
-	bool "MINI_X_1GB"
-	depends on MACH_SUN4I
-
-config TARGET_MINI_X
-	bool "MINI_X"
-	depends on MACH_SUN4I
-
-config TARGET_BA10_TV_BOX
-	bool "BA10_TV_BOX"
-	depends on MACH_SUN4I
-
-config TARGET_I12_TVBOX
-	bool "I12_TVBOX"
-	depends on MACH_SUN7I
-
-config TARGET_QT840A
-	bool "QT840A"
-	depends on MACH_SUN7I
-
-config TARGET_R7DONGLE
-	bool "R7DONGLE"
-	depends on MACH_SUN5I
-
-endchoice
 
 config SYS_BOARD
 	default "sunxi"
@@ -154,6 +153,28 @@ config SPL_FEL
 	bool "SPL/FEL mode support"
 	depends on SPL
 	default n
+	help
+	  This enables support for Fast Early Loader (FEL) mode. This
+	  allows U-Boot to be loaded to the board over USB by the on-chip
+	  boot rom. U-Boot should be sent in two parts: SPL first, with
+	  'fel write 0x2000 u-boot-spl.bin; fel exe 0x2000' then U-Boot with
+	  'fel write 0x4a000000 u-boot.bin; fel exe 0x4a000000'. This option
+	  shrinks the amount of SRAM available to SPL, so only enable it if
+	  you need FEL. Note that enabling this option only allows FEL to be
+	  used; it is still possible to boot U-Boot from boot media. U-Boot
+	  SPL detects when it is being loaded using FEL.
+
+config UART0_PORT_F
+	bool "UART0 on MicroSD breakout board"
+	depends on SPL_FEL
+	default n
+	---help---
+	Repurpose the SD card slot for getting access to the UART0 serial
+	console. Primarily useful only for low level u-boot debugging on
+	tablets, where normal UART0 is difficult to access and requires
+	device disassembly and/or soldering. As the SD card can't be used
+	at the same time, the system can be only booted in the FEL mode.
+	Only enable this if you really know what you are doing.
 
 config FDTFILE
 	string "Default fdtfile env setting for this board"
@@ -199,6 +220,21 @@ config MMC_SUNXI_SLOT_EXTRA
 	slot or emmc on mmc1 - mmc3. Setting this to 1, 2 or 3 will enable
 	support for this.
 
+config USB0_VBUS_PIN
+	string "Vbus enable pin for usb0 (otg)"
+	default ""
+	---help---
+	Set the Vbus enable pin for usb0 (otg). This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
+config USB0_VBUS_DET
+	string "Vbus detect pin for usb0 (otg)"
+	depends on USB_MUSB_SUNXI
+	default ""
+	---help---
+	Set the Vbus detect pin for usb0 (otg). This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
 config USB1_VBUS_PIN
 	string "Vbus enable pin for usb1 (ehci0)"
 	default "PH6" if MACH_SUN4I || MACH_SUN7I
@@ -216,17 +252,203 @@ config USB2_VBUS_PIN
 	See USB1_VBUS_PIN help text.
 
 config VIDEO
-	boolean "Enable graphical uboot console on HDMI"
+	boolean "Enable graphical uboot console on HDMI, LCD or VGA"
 	default y
 	---help---
-	Say Y here to add support for using a cfb console on the HDMI output
-	found on most sunxi devices.
+	Say Y here to add support for using a cfb console on the HDMI, LCD
+	or VGA output found on most sunxi devices. See doc/README.video for
+	info on how to select the video output and mode.
+
+config VIDEO_HDMI
+	boolean "HDMI output support"
+	depends on VIDEO && !MACH_SUN8I
+	default y
+	---help---
+	Say Y here to add support for outputting video over HDMI.
+
+config VIDEO_VGA
+	boolean "VGA output support"
+	depends on VIDEO && (MACH_SUN4I || MACH_SUN7I)
+	default n
+	---help---
+	Say Y here to add support for outputting video over VGA.
+
+config VIDEO_VGA_VIA_LCD
+	boolean "VGA via LCD controller support"
+	depends on VIDEO && (MACH_SUN5I || MACH_SUN6I || MACH_SUN8I)
+	default n
+	---help---
+	Say Y here to add support for external DACs connected to the parallel
+	LCD interface driving a VGA connector, such as found on the
+	Olimex A13 boards.
+
+config VIDEO_VGA_VIA_LCD_FORCE_SYNC_ACTIVE_HIGH
+	boolean "Force sync active high for VGA via LCD controller support"
+	depends on VIDEO_VGA_VIA_LCD
+	default n
+	---help---
+	Say Y here if you've a board which uses opendrain drivers for the vga
+	hsync and vsync signals. Opendrain drivers cannot generate steep enough
+	positive edges for a stable video output, so on boards with opendrain
+	drivers the sync signals must always be active high.
+
+config VIDEO_VGA_EXTERNAL_DAC_EN
+	string "LCD panel power enable pin"
+	depends on VIDEO_VGA_VIA_LCD
+	default ""
+	---help---
+	Set the enable pin for the external VGA DAC. This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
+config VIDEO_LCD_MODE
+	string "LCD panel timing details"
+	depends on VIDEO
+	default ""
+	---help---
+	LCD panel timing details string, leave empty if there is no LCD panel.
+	This is in drivers/video/videomodes.c: video_get_params() format, e.g.
+	x:800,y:480,depth:18,pclk_khz:33000,le:16,ri:209,up:22,lo:22,hs:30,vs:1,sync:0,vmode:0
+
+config VIDEO_LCD_DCLK_PHASE
+	int "LCD panel display clock phase"
+	depends on VIDEO
+	default 1
+	---help---
+	Select LCD panel display clock phase shift, range 0-3.
+
+config VIDEO_LCD_POWER
+	string "LCD panel power enable pin"
+	depends on VIDEO
+	default ""
+	---help---
+	Set the power enable pin for the LCD panel. This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
+config VIDEO_LCD_RESET
+	string "LCD panel reset pin"
+	depends on VIDEO
+	default ""
+	---help---
+	Set the reset pin for the LCD panel. This takes a string in the format
+	understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
+config VIDEO_LCD_BL_EN
+	string "LCD panel backlight enable pin"
+	depends on VIDEO
+	default ""
+	---help---
+	Set the backlight enable pin for the LCD panel. This takes a string in the
+	the format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of
+	port H.
+
+config VIDEO_LCD_BL_PWM
+	string "LCD panel backlight pwm pin"
+	depends on VIDEO
+	default ""
+	---help---
+	Set the backlight pwm pin for the LCD panel. This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
+config VIDEO_LCD_BL_PWM_ACTIVE_LOW
+	bool "LCD panel backlight pwm is inverted"
+	depends on VIDEO
+	default y
+	---help---
+	Set this if the backlight pwm output is active low.
+
+config VIDEO_LCD_PANEL_I2C
+	bool "LCD panel needs to be configured via i2c"
+	depends on VIDEO
+	default n
+	---help---
+	Say y here if the LCD panel needs to be configured via i2c. This
+	will add a bitbang i2c controller using gpios to talk to the LCD.
+
+config VIDEO_LCD_PANEL_I2C_SDA
+	string "LCD panel i2c interface SDA pin"
+	depends on VIDEO_LCD_PANEL_I2C
+	default "PG12"
+	---help---
+	Set the SDA pin for the LCD i2c interface. This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
+config VIDEO_LCD_PANEL_I2C_SCL
+	string "LCD panel i2c interface SCL pin"
+	depends on VIDEO_LCD_PANEL_I2C
+	default "PG10"
+	---help---
+	Set the SCL pin for the LCD i2c interface. This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
+
+# Note only one of these may be selected at a time! But hidden choices are
+# not supported by Kconfig
+config VIDEO_LCD_IF_PARALLEL
+	bool
+
+config VIDEO_LCD_IF_LVDS
+	bool
+
+
+choice
+	prompt "LCD panel support"
+	depends on VIDEO
+	---help---
+	Select which type of LCD panel to support.
+
+config VIDEO_LCD_PANEL_PARALLEL
+	bool "Generic parallel interface LCD panel"
+	select VIDEO_LCD_IF_PARALLEL
+
+config VIDEO_LCD_PANEL_LVDS
+	bool "Generic lvds interface LCD panel"
+	select VIDEO_LCD_IF_LVDS
+
+config VIDEO_LCD_PANEL_MIPI_4_LANE_513_MBPS_VIA_SSD2828
+	bool "MIPI 4-lane, 513Mbps LCD panel via SSD2828 bridge chip"
+	select VIDEO_LCD_SSD2828
+	select VIDEO_LCD_IF_PARALLEL
+	---help---
+	 7.85" 768x1024 LCD panels, such as LG LP079X01 or AUO B079XAN01.0
+
+config VIDEO_LCD_PANEL_HITACHI_TX18D42VM
+	bool "Hitachi tx18d42vm LCD panel"
+	select VIDEO_LCD_HITACHI_TX18D42VM
+	select VIDEO_LCD_IF_LVDS
+	---help---
+	7.85" 1024x768 Hitachi tx18d42vm LCD panel support
+
+config VIDEO_LCD_TL059WV5C0
+	bool "tl059wv5c0 LCD panel"
+	select VIDEO_LCD_PANEL_I2C
+	select VIDEO_LCD_IF_PARALLEL
+	---help---
+	6" 480x800 tl059wv5c0 panel support, as used on the Utoo P66 and
+	Aigo M60/M608/M606 tablets.
+
+endchoice
+
+
+config USB_MUSB_SUNXI
+	bool "Enable sunxi OTG / DRC USB controller in host mode"
+	default n
+	---help---
+	Say y here to enable support for the sunxi OTG / DRC USB controller
+	used on almost all sunxi boards. Note currently u-boot can only have
+	one usb host controller enabled at a time, so enabling this on boards
+	which also use the ehci host controller will result in build errors.
 
 config USB_KEYBOARD
 	boolean "Enable USB keyboard support"
 	default y
 	---help---
 	Say Y here to add support for using a USB keyboard (typically used
-	in combination with a graphical console on HDMI).
+	in combination with a graphical console).
+
+config GMAC_TX_DELAY
+	int "GMAC Transmit Clock Delay Chain"
+	default 0
+	---help---
+	Set the GMAC Transmit Clock Delay Chain value.
 
 endif

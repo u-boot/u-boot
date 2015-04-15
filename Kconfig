@@ -8,15 +8,13 @@ config UBOOTVERSION
 	string
 	option env="UBOOTVERSION"
 
-config KCONFIG_OBJDIR
-	string
-	option env="KCONFIG_OBJDIR"
+# Allow defaults in arch-specific code to override any given here
+source "arch/Kconfig"
 
 menu "General setup"
 
 config LOCALVERSION
 	string "Local version - append to U-Boot release"
-	depends on !SPL_BUILD
 	help
 	  Append an extra string to the end of your U-Boot version.
 	  This will show up on your boot log, for example.
@@ -27,7 +25,6 @@ config LOCALVERSION
 
 config LOCALVERSION_AUTO
 	bool "Automatically append version information to the version string"
-	depends on !SPL_BUILD
 	default y
 	help
 	  This will try to automatically determine if the current tree is a
@@ -48,7 +45,6 @@ config LOCALVERSION_AUTO
 
 config CC_OPTIMIZE_FOR_SIZE
 	bool "Optimize for size"
-	depends on !SPL_BUILD
 	default y
 	help
 	  Enabling this option will pass "-Os" instead of "-O2" to gcc
@@ -56,27 +52,54 @@ config CC_OPTIMIZE_FOR_SIZE
 
 	  This option is enabled by default for U-Boot.
 
-menuconfig EXPERT
-        bool "Configure standard U-Boot features (expert users)"
-        help
-          This option allows certain base U-Boot options and settings
-          to be disabled or tweaked. This is for specialized
-          environments which can tolerate a "non-standard" U-Boot.
-          Only use this if you really know what you are doing.
+config SYS_MALLOC_F
+	bool "Enable malloc() pool before relocation"
+	default y if DM
+	help
+	  Before relocation memory is very limited on many platforms. Still,
+	  we can provide a small malloc() pool if needed. Driver model in
+	  particular needs this to operate, so that it can allocate the
+	  initial serial device and any others that are needed.
 
+config SYS_MALLOC_F_LEN
+	hex "Size of malloc() pool before relocation"
+	depends on SYS_MALLOC_F
+	default 0x400
+	help
+	  Before relocation memory is very limited on many platforms. Still,
+	  we can provide a small malloc() pool if needed. Driver model in
+	  particular needs this to operate, so that it can allocate the
+	  initial serial device and any others that are needed.
+
+menuconfig EXPERT
+	bool "Configure standard U-Boot features (expert users)"
+	default y
+	help
+	  This option allows certain base U-Boot options and settings
+	  to be disabled or tweaked. This is for specialized
+	  environments which can tolerate a "non-standard" U-Boot.
+	  Only use this if you really know what you are doing.
+
+if EXPERT
+	config SYS_MALLOC_CLEAR_ON_INIT
+	bool "Init with zeros the memory reserved for malloc (slow)"
+	default y
+	help
+	  This setting is enabled by default. The reserved malloc
+	  memory is initialized with zeros, so first malloc calls
+	  will return the pointer to the zeroed memory. But this
+	  slows the boot time.
+
+	  It is recommended to disable it, when CONFIG_SYS_MALLOC_LEN
+	  value, has more than few MiB, e.g. when uses bzip2 or bmp logo.
+	  Then the boot time can be significantly reduced.
+	  Warning:
+	  When disabling this, please check if malloc calls, maybe
+	  should be replaced by calloc - if expects zeroed memory.
+endif
 endmenu		# General setup
 
 menu "Boot images"
-
-config SPL_BUILD
-	bool
-	depends on $KCONFIG_OBJDIR="spl" || $KCONFIG_OBJDIR="tpl"
-	default y
-
-config TPL_BUILD
-	bool
-	depends on $KCONFIG_OBJDIR="tpl"
-	default y
 
 config SUPPORT_SPL
 	bool
@@ -87,23 +110,37 @@ config SUPPORT_TPL
 config SPL
 	bool
 	depends on SUPPORT_SPL
-	prompt "Enable SPL" if !SPL_BUILD
-	default y if SPL_BUILD
+	prompt "Enable SPL"
 	help
 	  If you want to build SPL as well as the normal image, say Y.
+
+config SPL_STACK_R
+	depends on SPL
+	bool "Enable SDRAM location for SPL stack"
+	help
+	  SPL starts off execution in SRAM and thus typically has only a small
+	  stack available. Since SPL sets up DRAM while in its board_init_f()
+	  function, it is possible for the stack to move there before
+	  board_init_r() is reached. This option enables a special SDRAM
+	  location for the SPL stack. U-Boot SPL switches to this after
+	  board_init_f() completes, and before board_init_r() starts.
+
+config SPL_STACK_R_ADDR
+	depends on SPL_STACK_R
+	hex "SDRAM location for SPL stack"
+	help
+	  Specify the address in SDRAM for the SPL stack. This will be set up
+	  before board_init_r() is called.
 
 config TPL
 	bool
 	depends on SPL && SUPPORT_TPL
-	prompt "Enable TPL" if !SPL_BUILD
-	default y if TPL_BUILD
-	default n
+	prompt "Enable TPL"
 	help
 	  If you want to build TPL as well as the normal image and SPL, say Y.
 
 config FIT
 	bool "Support Flattened Image Tree"
-	depends on !SPL_BUILD
 	help
 	  This option allows to boot the new uImage structrure,
 	  Flattened Image Tree.  FIT is formally a FDT, which can include
@@ -116,16 +153,19 @@ config FIT_VERBOSE
 	depends on FIT
 
 config FIT_SIGNATURE
-	bool "Enabel signature verification of FIT uImages"
+	bool "Enable signature verification of FIT uImages"
 	depends on FIT
+	depends on DM
+	select RSA
 	help
 	  This option enables signature verification of FIT uImages,
-	  using a hash signed and verified using RSA.
+	  using a hash signed and verified using RSA. If
+	  CONFIG_SHA_PROG_HW_ACCEL is defined, i.e support for progressive
+	  hashing is available using hardware, RSA library will use it.
 	  See doc/uImage.FIT/signature.txt for more details.
 
 config SYS_EXTRA_OPTIONS
 	string "Extra Options (DEPRECATED)"
-	depends on !SPL_BUILD
 	help
 	  The old configuration infrastructure (= mkconfig + boards.cfg)
 	  provided the extra options field. If you have something like
@@ -138,14 +178,18 @@ config SYS_EXTRA_OPTIONS
 	  new boards should not use this option.
 
 config SYS_TEXT_BASE
-	depends on SPARC
+	depends on SPARC || ARC
 	hex "Text Base"
 	help
 	  TODO: Move CONFIG_SYS_TEXT_BASE for all the architecture
 
-endmenu		# Boot images
+config SYS_CLK_FREQ
+	depends on ARC || ARCH_SUNXI
+	int "CPU clock frequency"
+	help
+	  TODO: Move CONFIG_SYS_CLK_FREQ for all the architecture
 
-source "arch/Kconfig"
+endmenu		# Boot images
 
 source "common/Kconfig"
 
@@ -158,3 +202,5 @@ source "drivers/Kconfig"
 source "fs/Kconfig"
 
 source "lib/Kconfig"
+
+source "test/Kconfig"

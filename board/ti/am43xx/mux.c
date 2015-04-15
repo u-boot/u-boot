@@ -131,7 +131,7 @@ void enable_board_pin_mux(void)
 #if defined(CONFIG_NAND)
 		configure_module_pin_mux(nand_pin_mux);
 #endif
-	} else if (board_is_sk()) {
+	} else if (board_is_sk() || board_is_idk()) {
 		configure_module_pin_mux(rgmii1_pin_mux);
 #if defined(CONFIG_NAND)
 		printf("Error: NAND flash not present on this board\n");

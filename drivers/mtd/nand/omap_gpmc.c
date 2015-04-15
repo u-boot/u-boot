@@ -30,13 +30,22 @@ static u8  bch8_polynomial[] = {0xef, 0x51, 0x2e, 0x09, 0xed, 0x93, 0x9a, 0xc2,
 static uint8_t cs_next;
 static __maybe_unused struct nand_ecclayout omap_ecclayout;
 
+#if defined(CONFIG_NAND_OMAP_GPMC_WSCFG)
+static const int8_t wscfg[CONFIG_SYS_MAX_NAND_DEVICE] =
+	{ CONFIG_NAND_OMAP_GPMC_WSCFG };
+#else
+/* wscfg is preset to zero since its a static variable */
+static const int8_t wscfg[CONFIG_SYS_MAX_NAND_DEVICE];
+#endif
+
 /*
  * Driver configurations
  */
 struct omap_nand_info {
 	struct bch_control *control;
 	enum omap_ecc ecc_scheme;
-	int cs;
+	uint8_t cs;
+	uint8_t ws;		/* wait status pin (0,1) */
 };
 
 /* We are wasting a bit of memory but al least we are safe */
@@ -76,7 +85,9 @@ static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 /* Check wait pin as dev ready indicator */
 static int omap_dev_ready(struct mtd_info *mtd)
 {
-	return gpmc_cfg->status & (1 << 8);
+	register struct nand_chip *this = mtd->priv;
+	struct omap_nand_info *info = this->priv;
+	return gpmc_cfg->status & (1 << (8 + info->ws));
 }
 
 /*
@@ -441,6 +452,115 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	return (err) ? err : error_count;
 }
 
+#ifdef CONFIG_NAND_OMAP_GPMC_PREFETCH
+
+#define PREFETCH_CONFIG1_CS_SHIFT	24
+#define PREFETCH_FIFOTHRESHOLD_MAX	0x40
+#define PREFETCH_FIFOTHRESHOLD(val)	((val) << 8)
+#define PREFETCH_STATUS_COUNT(val)	(val & 0x00003fff)
+#define PREFETCH_STATUS_FIFO_CNT(val)	((val >> 24) & 0x7F)
+#define ENABLE_PREFETCH			(1 << 7)
+
+/**
+ * omap_prefetch_enable - configures and starts prefetch transfer
+ * @fifo_th: fifo threshold to be used for read/ write
+ * @count: number of bytes to be transferred
+ * @is_write: prefetch read(0) or write post(1) mode
+ * @cs: chip select to use
+ */
+static int omap_prefetch_enable(int fifo_th, unsigned int count, int is_write, int cs)
+{
+	uint32_t val;
+
+	if (fifo_th > PREFETCH_FIFOTHRESHOLD_MAX)
+		return -EINVAL;
+
+	if (readl(&gpmc_cfg->prefetch_control))
+		return -EBUSY;
+
+	/* Set the amount of bytes to be prefetched */
+	writel(count, &gpmc_cfg->prefetch_config2);
+
+	val = (cs << PREFETCH_CONFIG1_CS_SHIFT) | (is_write & 1) |
+		PREFETCH_FIFOTHRESHOLD(fifo_th) | ENABLE_PREFETCH;
+	writel(val, &gpmc_cfg->prefetch_config1);
+
+	/*  Start the prefetch engine */
+	writel(1, &gpmc_cfg->prefetch_control);
+
+	return 0;
+}
+
+/**
+ * omap_prefetch_reset - disables and stops the prefetch engine
+ */
+static void omap_prefetch_reset(void)
+{
+	writel(0, &gpmc_cfg->prefetch_control);
+	writel(0, &gpmc_cfg->prefetch_config1);
+}
+
+static int __read_prefetch_aligned(struct nand_chip *chip, uint32_t *buf, int len)
+{
+	int ret;
+	uint32_t cnt;
+	struct omap_nand_info *info = chip->priv;
+
+	ret = omap_prefetch_enable(PREFETCH_FIFOTHRESHOLD_MAX, len, 0, info->cs);
+	if (ret < 0)
+		return ret;
+
+	do {
+		int i;
+
+		cnt = readl(&gpmc_cfg->prefetch_status);
+		cnt = PREFETCH_STATUS_FIFO_CNT(cnt);
+
+		for (i = 0; i < cnt / 4; i++) {
+			*buf++ = readl(CONFIG_SYS_NAND_BASE);
+			len -= 4;
+		}
+	} while (len);
+
+	omap_prefetch_reset();
+
+	return 0;
+}
+
+static void omap_nand_read_prefetch8(struct mtd_info *mtd, uint8_t *buf, int len)
+{
+	int ret;
+	uint32_t head, tail;
+	struct nand_chip *chip = mtd->priv;
+
+	/*
+	 * If the destination buffer is unaligned, start with reading
+	 * the overlap byte-wise.
+	 */
+	head = ((uint32_t) buf) % 4;
+	if (head) {
+		nand_read_buf(mtd, buf, head);
+		buf += head;
+		len -= head;
+	}
+
+	/*
+	 * Only transfer multiples of 4 bytes in a pre-fetched fashion.
+	 * If there's a residue, care for it byte-wise afterwards.
+	 */
+	tail = len % 4;
+
+	ret = __read_prefetch_aligned(chip, (uint32_t *) buf, len - tail);
+	if (ret < 0) {
+		/* fallback in case the prefetch engine is busy */
+		nand_read_buf(mtd, buf, len);
+	} else if (tail) {
+		buf += len - tail;
+		nand_read_buf(mtd, buf, tail);
+	}
+}
+#endif /* CONFIG_NAND_OMAP_GPMC_PREFETCH */
+
 /**
  * omap_read_page_bch - hardware ecc based page read function
  * @mtd:	mtd info structure
@@ -792,8 +912,18 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 			return -EINVAL;
 		}
 	} else {
-		err = omap_select_ecc_scheme(nand, OMAP_ECC_HAM1_CODE_SW,
+		if (eccstrength == 1) {
+			err = omap_select_ecc_scheme(nand,
+					OMAP_ECC_HAM1_CODE_SW,
 					mtd->writesize, mtd->oobsize);
+		} else if (eccstrength == 8) {
+			err = omap_select_ecc_scheme(nand,
+					OMAP_ECC_BCH8_CODE_HW_DETECTION_SW,
+					mtd->writesize, mtd->oobsize);
+		} else {
+			printf("nand: error: unsupported ECC scheme\n");
+			return -EINVAL;
+		}
 	}
 
 	/* Update NAND handling after ECC mode switch */
@@ -853,6 +983,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->IO_ADDR_W = (void __iomem *)&gpmc_cfg->cs[cs].nand_cmd;
 	omap_nand_info[cs].control = NULL;
 	omap_nand_info[cs].cs = cs;
+	omap_nand_info[cs].ws = wscfg[cs];
 	nand->priv	= &omap_nand_info[cs];
 	nand->cmd_ctrl	= omap_nand_hwcontrol;
 	nand->options	|= NAND_NO_PADDING | NAND_CACHEPRG;
@@ -880,9 +1011,13 @@ int board_nand_init(struct nand_chip *nand)
 	if (err)
 		return err;
 
-#ifdef CONFIG_SPL_BUILD
+	/* TODO: Implement for 16-bit bus width */
 	if (nand->options & NAND_BUSWIDTH_16)
 		nand->read_buf = nand_read_buf16;
+#ifdef CONFIG_NAND_OMAP_GPMC_PREFETCH
+	else
+		nand->read_buf = omap_nand_read_prefetch8;
+#else
 	else
 		nand->read_buf = nand_read_buf;
 #endif

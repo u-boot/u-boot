@@ -51,56 +51,64 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
-		interrupts = <0 0 0>;
+		reg = <0x13860000 0x100>;
+		interrupts = <0 56 0>;
 	};
 
 	i2c@13870000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
-		interrupts = <1 1 0>;
+		reg = <0x13870000 0x100>;
+		interrupts = <1 57 0>;
 	};
 
 	i2c@13880000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
-		interrupts = <2 2 0>;
+		reg = <0x13880000 0x100>;
+		interrupts = <2 58 0>;
 	};
 
 	i2c@13890000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
-		interrupts = <3 3 0>;
+		reg = <0x13890000 0x100>;
+		interrupts = <3 59 0>;
 	};
 
 	i2c@138a0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
-		interrupts = <4 4 0>;
+		reg = <0x138a0000 0x100>;
+		interrupts = <4 60 0>;
 	};
 
 	i2c@138b0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
-		interrupts = <5 5 0>;
+		reg = <0x138b0000 0x100>;
+		interrupts = <5 61 0>;
 	};
 
 	i2c@138c0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
-		interrupts = <6 6 0>;
+		reg = <0x138c0000 0x100>;
+		interrupts = <6 62 0>;
 	};
 
 	i2c@138d0000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "samsung,s3c2440-i2c";
-		interrupts = <7 7 0>;
+		reg = <0x138d0000 0x100>;
+		interrupts = <7 63 0>;
 	};
 
 	sdhci@12510000 {
@@ -143,11 +151,4 @@
 		interrupts = <0 131 0>;
 	};
 
-	gpio: gpio {
-		gpio-controller;
-		#gpio-cells = <2>;
-
-		interrupt-controller;
-		#interrupt-cells = <2>;
-	};
 };

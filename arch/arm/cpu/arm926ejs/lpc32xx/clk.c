@@ -98,6 +98,40 @@ unsigned int get_periph_clk_rate(void)
 	return get_hclk_pll_rate() / get_periph_clk_div();
 }
 
+unsigned int get_sdram_clk_rate(void)
+{
+	unsigned int src_clk;
+
+	if (!(readl(&clk->pwr_ctrl) & CLK_PWR_NORMAL_RUN))
+		return get_sys_clk_rate();
+
+	src_clk = get_hclk_pll_rate();
+
+	if (readl(&clk->sdramclk_ctrl) & CLK_SDRAM_DDR_SEL) {
+		/* using DDR */
+		switch (readl(&clk->hclkdiv_ctrl) & CLK_HCLK_DDRAM_MASK) {
+		case CLK_HCLK_DDRAM_HALF:
+			return src_clk/2;
+		case CLK_HCLK_DDRAM_NOMINAL:
+			return src_clk;
+		default:
+			return 0;
+		}
+	} else {
+		/* using SDR */
+		switch (readl(&clk->hclkdiv_ctrl) & CLK_HCLK_ARM_PLL_DIV_MASK) {
+		case CLK_HCLK_ARM_PLL_DIV_4:
+			return src_clk/4;
+		case CLK_HCLK_ARM_PLL_DIV_2:
+			return src_clk/2;
+		case CLK_HCLK_ARM_PLL_DIV_1:
+			return src_clk;
+		default:
+			return 0;
+		}
+	}
+}
+
 int get_serial_clock(void)
 {
 	return get_periph_clk_rate();

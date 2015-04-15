@@ -10,6 +10,8 @@
 #ifndef _CONFIG_SHEEVAPLUG_H
 #define _CONFIG_SHEEVAPLUG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * Version number information
  */
@@ -31,6 +33,11 @@
 #define CONFIG_LZO
 
 /*
+ * Enable device tree support
+ */
+#define CONFIG_OF_LIBFDT
+
+/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
@@ -49,6 +56,7 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
+
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
@@ -139,6 +147,5 @@
 #define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_CMD_MTDPARTS
-#define CONFIG_LZO
 
 #endif /* _CONFIG_SHEEVAPLUG_H */

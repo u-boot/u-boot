@@ -8,27 +8,19 @@
 #ifndef __VEXPRESS_AEMV8A_H
 #define __VEXPRESS_AEMV8A_H
 
+#define CONFIG_DM
+
 /* We use generic board for v8 Versatile Express */
 #define CONFIG_SYS_GENERIC_BOARD
 
-#ifdef CONFIG_BASE_FVP
+#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #ifndef CONFIG_SEMIHOSTING
-#error CONFIG_BASE_FVP requires CONFIG_SEMIHOSTING
+#error CONFIG_TARGET_VEXPRESS64_BASE_FVP requires CONFIG_SEMIHOSTING
 #endif
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_ARMV8_SWITCH_TO_EL1
 #endif
 
 #define CONFIG_REMAKE_ELF
-
-#ifndef CONFIG_BASE_FVP
-/* Base FVP not using GICv3 yet */
-#define CONFIG_GICV3
-#endif
-
-/*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
-
-#define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_SUPPORT_RAW_INITRD
 
@@ -40,25 +32,19 @@
 #define CONFIG_BOOTP_VCI_STRING		"U-boot.armv8.vexpress_aemv8a"
 
 /* Link Definitions */
-#ifdef CONFIG_BASE_FVP
+#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 /* ATF loads u-boot here for BASE_FVP model */
 #define CONFIG_SYS_TEXT_BASE		0x88000000
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x03f00000)
-#else
-#define CONFIG_SYS_TEXT_BASE		0x80000000
+#elif CONFIG_TARGET_VEXPRESS64_JUNO
+#define CONFIG_SYS_TEXT_BASE		0xe0000000
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+#else
+#error "Unknown board variant"
 #endif
 
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_LIBFDT
-
-
-/* SMP Spin Table Definitions */
-#ifdef CONFIG_BASE_FVP
-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x03f00000)
-#else
-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
-#endif
 
 /* CS register bases for the original memory map. */
 #define V2M_PA_CS0			0x00000000
@@ -75,23 +61,21 @@
 
 #define V2M_BASE			0x80000000
 
-/*
- * Physical addresses, offset from V2M_PA_CS0-3
- */
-#define V2M_NOR0			(V2M_PA_CS0)
-#define V2M_NOR1			(V2M_PA_CS4)
-#define V2M_SRAM			(V2M_PA_CS1)
-
 /* Common peripherals relative to CS7. */
 #define V2M_AACI			(V2M_PA_CS3 + V2M_PERIPH_OFFSET(4))
 #define V2M_MMCI			(V2M_PA_CS3 + V2M_PERIPH_OFFSET(5))
 #define V2M_KMI0			(V2M_PA_CS3 + V2M_PERIPH_OFFSET(6))
 #define V2M_KMI1			(V2M_PA_CS3 + V2M_PERIPH_OFFSET(7))
 
+#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
+#define V2M_UART0			0x7ff80000
+#define V2M_UART1			0x7ff70000
+#else /* Not Juno */
 #define V2M_UART0			(V2M_PA_CS3 + V2M_PERIPH_OFFSET(9))
 #define V2M_UART1			(V2M_PA_CS3 + V2M_PERIPH_OFFSET(10))
 #define V2M_UART2			(V2M_PA_CS3 + V2M_PERIPH_OFFSET(11))
 #define V2M_UART3			(V2M_PA_CS3 + V2M_PERIPH_OFFSET(12))
+#endif
 
 #define V2M_WDT				(V2M_PA_CS3 + V2M_PERIPH_OFFSET(15))
 
@@ -119,31 +103,54 @@
 #define GICR_BASE			(0x2f100000)
 #else
 
-#ifdef CONFIG_BASE_FVP
+#ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #define GICD_BASE			(0x2f000000)
 #define GICC_BASE			(0x2c000000)
+#elif CONFIG_TARGET_VEXPRESS64_JUNO
+#define GICD_BASE			(0x2C010000)
+#define GICC_BASE			(0x2C02f000)
 #else
-#define GICD_BASE			(0x2C001000)
-#define GICC_BASE			(0x2C002000)
+#error "Unknown board variant"
 #endif
-#endif
+#endif /* !CONFIG_GICV3 */
 
 #define CONFIG_SYS_MEMTEST_START	V2M_BASE
 #define CONFIG_SYS_MEMTEST_END		(V2M_BASE + 0x80000000)
 
 /* Size of malloc() pool */
+#define CONFIG_SYS_MALLOC_F_LEN		0x2000
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
 
-/* SMSC91C111 Ethernet Configuration */
+/* Ethernet Configuration */
+#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
+/* The real hardware Versatile express uses SMSC9118 */
+#define CONFIG_SMC911X			1
+#define CONFIG_SMC911X_32_BIT		1
+#define CONFIG_SMC911X_BASE		(0x018000000)
+#else
+/* The Vexpress64 simulators use SMSC91C111 */
 #define CONFIG_SMC91111			1
 #define CONFIG_SMC91111_BASE		(0x01A000000)
+#endif
 
 /* PL011 Serial Configuration */
+#define CONFIG_BAUDRATE			115200
+#ifdef CONFIG_DM
+#define CONFIG_DM_SERIAL
+#define CONFIG_PL01X_SERIAL
+#else
+#define CONFIG_SYS_SERIAL0		V2M_UART0
+#define CONFIG_SYS_SERIAL1		V2M_UART1
+#define CONFIG_CONS_INDEX		0
 #define CONFIG_PL011_SERIAL
+#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
+#define CONFIG_PL011_CLOCK		7273800
+#else
 #define CONFIG_PL011_CLOCK		24000000
+#endif
 #define CONFIG_PL01x_PORTS		{(void *)CONFIG_SYS_SERIAL0, \
 					 (void *)CONFIG_SYS_SERIAL1}
-#define CONFIG_CONS_INDEX		0
+#endif
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_SERIAL0		V2M_UART0
@@ -159,8 +166,8 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PXE
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_IMI
+#define CONFIG_CMD_LOADB
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
@@ -191,14 +198,41 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Initial environment variables */
-#ifdef CONFIG_BASE_FVP
+#ifdef CONFIG_TARGET_VEXPRESS64_JUNO
+/*
+ * Defines where the kernel and FDT exist in NOR flash and where it will
+ * be copied into DRAM
+ */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-				"kernel_name=uImage\0"	\
-				"kernel_addr_r=0x80000000\0"	\
+				"kernel_name=Image\0"	\
+				"kernel_addr=0x80000000\0" \
+				"fdt_name=juno\0" \
+				"fdt_addr=0x83000000\0" \
+				"fdt_high=0xffffffffffffffff\0" \
+				"initrd_high=0xffffffffffffffff\0" \
+
+/* Assume we boot with root on the first partition of a USB stick */
+#define CONFIG_BOOTARGS		"console=ttyAMA0,115200n8 " \
+				"root=/dev/sda1 rw " \
+				"earlyprintk=pl011,0x7ff80000 debug user_debug=31 "\
+				"loglevel=9"
+
+/* Copy the kernel and FDT to DRAM memory and boot */
+#define CONFIG_BOOTCOMMAND	"afs load ${kernel_name} ${kernel_addr} ; " \
+				"afs load  ${fdt_name} ${fdt_addr} ; " \
+				"fdt addr ${fdt_addr}; fdt resize; " \
+				"booti ${kernel_addr} - ${fdt_addr}"
+
+#define CONFIG_BOOTDELAY		1
+
+#elif CONFIG_TARGET_VEXPRESS64_BASE_FVP
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+				"kernel_name=uImage\0"		\
+				"kernel_addr=0x80000000\0"	\
 				"initrd_name=ramdisk.img\0"	\
-				"initrd_addr_r=0x88000000\0"	\
-				"fdt_name=devtree.dtb\0"		\
-				"fdt_addr_r=0x83000000\0"		\
+				"initrd_addr=0x88000000\0"	\
+				"fdt_name=devtree.dtb\0"	\
+				"fdt_addr=0x83000000\0"		\
 				"fdt_high=0xffffffffffffffff\0"	\
 				"initrd_high=0xffffffffffffffff\0"
 
@@ -206,24 +240,17 @@
 				"0x1c090000 debug user_debug=31 "\
 				"loglevel=9"
 
-#define CONFIG_BOOTCOMMAND	"fdt addr $fdt_addr_r; fdt resize; " \
-				"fdt chosen $initrd_addr_r $initrd_end; " \
-				"bootm $kernel_addr_r - $fdt_addr_r"
+#define CONFIG_BOOTCOMMAND	"smhload ${kernel_name} ${kernel_addr}; " \
+				"smhload ${fdt_name} $fdt_addr; " \
+				"smhload ${initrd_name} $initrd_addr initrd_end; " \
+				"fdt addr $fdt_addr; fdt resize; " \
+				"fdt chosen $initrd_addr $initrd_end; " \
+				"bootm $kernel_addr - $fdt_addr"
 
 #define CONFIG_BOOTDELAY		1
 
 #else
-
-#define CONFIG_EXTRA_ENV_SETTINGS	\
-					"kernel_addr_r=0x80000000\0"	\
-					"initrd_addr_r=0x88000000\0"	\
-					"fdt_addr_r=0x83000000\0"		\
-					"fdt_high=0xa0000000\0"
-
-#define CONFIG_BOOTARGS			"console=ttyAMA0 root=/dev/ram0"
-#define CONFIG_BOOTCOMMAND		"bootm $kernel_addr_r " \
-					"$initrd_addr_r:$initrd_size $fdt_addr_r"
-#define CONFIG_BOOTDELAY		-1
+#error "Unknown board variant"
 #endif
 
 /* Do not preserve environment */
@@ -240,5 +267,29 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
+
+/* Flash memory is available on the Juno board only */
+#ifndef CONFIG_TARGET_VEXPRESS64_JUNO
+#define CONFIG_SYS_NO_FLASH
+#else
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_ARMFLASH
+#define CONFIG_SYS_FLASH_CFI		1
+#define CONFIG_FLASH_CFI_DRIVER		1
+#define CONFIG_SYS_FLASH_BASE		0x08000000
+#define CONFIG_SYS_FLASH_SIZE		0x04000000 /* 64 MiB */
+#define CONFIG_SYS_MAX_FLASH_BANKS	2
+
+/* Timeout values in ticks */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Erase Timeout */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Write Timeout */
+
+/* 255 0x40000 sectors + first or last sector may have 4 erase regions = 259 */
+#define CONFIG_SYS_MAX_FLASH_SECT	259		/* Max sectors */
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes */
+#define CONFIG_SYS_FLASH_PROTECTION	/* The devices have real protection */
+#define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
+
+#endif
 
 #endif /* __VEXPRESS_AEMV8A_H */

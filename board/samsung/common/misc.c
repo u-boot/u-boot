@@ -22,7 +22,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SET_DFU_ALT_INFO
-void set_dfu_alt_info(void)
+void set_dfu_alt_info(char *interface, char *devstr)
 {
 	size_t buf_size = CONFIG_SET_DFU_ALT_BUF_LEN;
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, buf_size);
@@ -34,13 +34,13 @@ void set_dfu_alt_info(void)
 
 	puts("DFU alt info setting: ");
 
-	alt_setting = get_dfu_alt_boot();
+	alt_setting = get_dfu_alt_boot(interface, devstr);
 	if (alt_setting) {
 		setenv("dfu_alt_boot", alt_setting);
 		offset = snprintf(buf, buf_size, "%s", alt_setting);
 	}
 
-	alt_setting = get_dfu_alt_system();
+	alt_setting = get_dfu_alt_system(interface, devstr);
 	if (alt_setting) {
 		if (offset)
 			alt_sep = ";";

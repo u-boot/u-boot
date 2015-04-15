@@ -32,4 +32,6 @@
 
 #define QIXIS_SRDS1CLK_100		0x0
 
+#define QIXIS_DCU_BRDCFG5		0x55
+
 #endif

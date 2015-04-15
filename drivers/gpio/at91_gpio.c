@@ -451,7 +451,7 @@ struct at91_port_priv {
 /* set GPIO pin 'gpio' as an input */
 static int at91_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
-	struct at91_port_priv *port = dev_get_platdata(dev);
+	struct at91_port_priv *port = dev_get_priv(dev);
 
 	at91_set_port_input(port->regs, offset, 0);
 
@@ -462,7 +462,7 @@ static int at91_gpio_direction_input(struct udevice *dev, unsigned offset)
 static int at91_gpio_direction_output(struct udevice *dev, unsigned offset,
 				       int value)
 {
-	struct at91_port_priv *port = dev_get_platdata(dev);
+	struct at91_port_priv *port = dev_get_priv(dev);
 
 	at91_set_port_output(port->regs, offset, value);
 
@@ -472,7 +472,7 @@ static int at91_gpio_direction_output(struct udevice *dev, unsigned offset,
 /* read GPIO IN value of pin 'gpio' */
 static int at91_gpio_get_value(struct udevice *dev, unsigned offset)
 {
-	struct at91_port_priv *port = dev_get_platdata(dev);
+	struct at91_port_priv *port = dev_get_priv(dev);
 
 	return at91_get_port_value(port->regs, offset);
 }
@@ -481,7 +481,7 @@ static int at91_gpio_get_value(struct udevice *dev, unsigned offset)
 static int at91_gpio_set_value(struct udevice *dev, unsigned offset,
 			       int value)
 {
-	struct at91_port_priv *port = dev_get_platdata(dev);
+	struct at91_port_priv *port = dev_get_priv(dev);
 
 	at91_set_port_value(port->regs, offset, value);
 
@@ -490,7 +490,7 @@ static int at91_gpio_set_value(struct udevice *dev, unsigned offset,
 
 static int at91_gpio_get_function(struct udevice *dev, unsigned offset)
 {
-	struct at91_port_priv *port = dev_get_platdata(dev);
+	struct at91_port_priv *port = dev_get_priv(dev);
 
 	/* GPIOF_FUNC is not implemented yet */
 	if (at91_get_port_output(port->regs, offset))

@@ -39,6 +39,26 @@ static int do_demo_status(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_demo_light(cmd_tbl_t *cmdtp, int flag, int argc,
+			 char * const argv[])
+{
+	int light;
+	int ret;
+
+	if (argc) {
+		light = simple_strtoul(argv[0], NULL, 16);
+		ret = demo_set_light(demo_dev, light);
+	} else {
+		ret = demo_get_light(demo_dev);
+		if (ret >= 0) {
+			printf("Light: %x\n", ret);
+			ret = 0;
+		}
+	}
+
+	return ret;
+}
+
 int do_demo_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct udevice *dev;
@@ -61,6 +81,7 @@ int do_demo_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static cmd_tbl_t demo_commands[] = {
 	U_BOOT_CMD_MKENT(list, 0, 1, do_demo_list, "", ""),
 	U_BOOT_CMD_MKENT(hello, 2, 1, do_demo_hello, "", ""),
+	U_BOOT_CMD_MKENT(light, 2, 1, do_demo_light, "", ""),
 	U_BOOT_CMD_MKENT(status, 1, 1, do_demo_status, "", ""),
 };
 
@@ -76,7 +97,9 @@ static int do_demo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				ARRAY_SIZE(demo_commands));
 	argc -= 2;
 	argv += 2;
-	if (!demo_cmd || argc > demo_cmd->maxargs)
+
+	if ((!demo_cmd || argc > demo_cmd->maxargs) ||
+	    ((demo_cmd->name[0] != 'l') && (argc < 1)))
 		return CMD_RET_USAGE;
 
 	if (argc) {
@@ -86,6 +109,10 @@ static int do_demo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return cmd_process_error(cmdtp, ret);
 		argc--;
 		argv++;
+	} else {
+		demo_dev = NULL;
+		if (demo_cmd->cmd != do_demo_list)
+			return CMD_RET_USAGE;
 	}
 
 	ret = demo_cmd->cmd(demo_cmd, flag, argc, argv);
@@ -98,5 +125,7 @@ U_BOOT_CMD(
 	"Driver model (dm) demo operations",
 	"list                     List available demo devices\n"
 	"demo hello <num> [<char>]     Say hello\n"
-	"demo status <num>             Get demo device status"
+	"demo light [<num>]            Set or get the lights\n"
+	"demo status <num>             Get demo device status\n"
+	"demo list                     List available demo devices"
 );

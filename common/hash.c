@@ -10,17 +10,26 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#ifndef USE_HOSTCC
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
 #include <hw_sha.h>
-#include <hash.h>
-#include <u-boot/sha1.h>
-#include <u-boot/sha256.h>
 #include <asm/io.h>
 #include <asm/errno.h>
+#else
+#include "mkimage.h"
+#include <time.h>
+#include <image.h>
+#endif /* !USE_HOSTCC*/
 
-#ifdef CONFIG_CMD_SHA1SUM
+#include <hash.h>
+#include <u-boot/crc.h>
+#include <u-boot/sha1.h>
+#include <u-boot/sha256.h>
+#include <u-boot/md5.h>
+
+#ifdef CONFIG_SHA1
 static int hash_init_sha1(struct hash_algo *algo, void **ctxp)
 {
 	sha1_context *ctx = malloc(sizeof(sha1_context));
@@ -118,19 +127,24 @@ static struct hash_algo hash_algo[] = {
 		SHA1_SUM_LEN,
 		hw_sha1,
 		CHUNKSZ_SHA1,
+#ifdef CONFIG_SHA_PROG_HW_ACCEL
+		hw_sha_init,
+		hw_sha_update,
+		hw_sha_finish,
+#endif
 	}, {
 		"sha256",
 		SHA256_SUM_LEN,
 		hw_sha256,
 		CHUNKSZ_SHA256,
+#ifdef CONFIG_SHA_PROG_HW_ACCEL
+		hw_sha_init,
+		hw_sha_update,
+		hw_sha_finish,
+#endif
 	},
 #endif
-	/*
-	 * This is CONFIG_CMD_SHA1SUM instead of CONFIG_SHA1 since otherwise
-	 * it bloats the code for boards which use SHA1 but not the 'hash'
-	 * or 'sha1sum' commands.
-	 */
-#ifdef CONFIG_CMD_SHA1SUM
+#ifdef CONFIG_SHA1
 	{
 		"sha1",
 		SHA1_SUM_LEN,
@@ -140,7 +154,6 @@ static struct hash_algo hash_algo[] = {
 		hash_update_sha1,
 		hash_finish_sha1,
 	},
-#define MULTI_HASH
 #endif
 #ifdef CONFIG_SHA256
 	{
@@ -152,7 +165,6 @@ static struct hash_algo hash_algo[] = {
 		hash_update_sha256,
 		hash_finish_sha256,
 	},
-#define MULTI_HASH
 #endif
 	{
 		"crc32",
@@ -165,6 +177,10 @@ static struct hash_algo hash_algo[] = {
 	},
 };
 
+#if defined(CONFIG_SHA256) || defined(CONFIG_CMD_SHA1SUM)
+#define MULTI_HASH
+#endif
+
 #if defined(CONFIG_HASH_VERIFY) || defined(CONFIG_CMD_HASH)
 #define MULTI_HASH
 #endif
@@ -176,6 +192,40 @@ static struct hash_algo hash_algo[] = {
 #define multi_hash()	0
 #endif
 
+int hash_lookup_algo(const char *algo_name, struct hash_algo **algop)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
+		if (!strcmp(algo_name, hash_algo[i].name)) {
+			*algop = &hash_algo[i];
+			return 0;
+		}
+	}
+
+	debug("Unknown hash algorithm '%s'\n", algo_name);
+	return -EPROTONOSUPPORT;
+}
+
+int hash_progressive_lookup_algo(const char *algo_name,
+				 struct hash_algo **algop)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
+		if (!strcmp(algo_name, hash_algo[i].name)) {
+			if (hash_algo[i].hash_init) {
+				*algop = &hash_algo[i];
+				return 0;
+			}
+		}
+	}
+
+	debug("Unknown hash algorithm '%s'\n", algo_name);
+	return -EPROTONOSUPPORT;
+}
+
+#ifndef USE_HOSTCC
 /**
  * store_result: Store the resulting sum to an address or variable
  *
@@ -296,21 +346,6 @@ static int parse_verify_sum(struct hash_algo *algo, char *verify_str,
 	return 0;
 }
 
-int hash_lookup_algo(const char *algo_name, struct hash_algo **algop)
-{
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
-		if (!strcmp(algo_name, hash_algo[i].name)) {
-			*algop = &hash_algo[i];
-			return 0;
-		}
-	}
-
-	debug("Unknown hash algorithm '%s'\n", algo_name);
-	return -EPROTONOSUPPORT;
-}
-
 void hash_show(struct hash_algo *algo, ulong addr, ulong len, uint8_t *output)
 {
 	int i;
@@ -424,3 +459,4 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 
 	return 0;
 }
+#endif

@@ -13,7 +13,9 @@
 #include <libfdt.h>
 #include <asm/cpu.h>
 #include <asm/msr.h>
+#include <asm/msr-index.h>
 #include <asm/processor.h>
+#include <asm/arch/microcode.h>
 
 /**
  * struct microcode_update - standard microcode header from Intel
@@ -40,8 +42,8 @@ static int microcode_decode_node(const void *blob, int node,
 	update->data = fdt_getprop(blob, node, "data", &update->size);
 	if (!update->data)
 		return -EINVAL;
-	update->data += 48;
-	update->size -= 48;
+	update->data += UCODE_HEADER_LEN;
+	update->size -= UCODE_HEADER_LEN;
 
 	update->header_version = fdtdec_get_int(blob, node,
 						"intel,header-version", 0);
@@ -71,15 +73,16 @@ static inline uint32_t microcode_read_rev(void)
 	asm volatile (
 		"xorl %%eax, %%eax\n"
 		"xorl %%edx, %%edx\n"
-		"movl $0x8b, %%ecx\n"
+		"movl %2, %%ecx\n"
 		"wrmsr\n"
 		"movl $0x01, %%eax\n"
 		"cpuid\n"
-		"movl $0x8b, %%ecx\n"
+		"movl %2, %%ecx\n"
 		"rdmsr\n"
 		: /* outputs */
 		"=a" (low), "=d" (high)
 		: /* inputs */
+		"i" (MSR_IA32_UCODE_REV)
 		: /* clobbers */
 		 "ebx", "ecx"
 	);
@@ -94,9 +97,9 @@ static void microcode_read_cpu(struct microcode_update *cpu)
 	struct cpuid_result result;
 	uint32_t low, high;
 
-	wrmsr(0x8b, 0, 0);
+	wrmsr(MSR_IA32_UCODE_REV, 0, 0);
 	result = cpuid(1);
-	rdmsr(0x8b, low, cpu->update_revision);
+	rdmsr(MSR_IA32_UCODE_REV, low, cpu->update_revision);
 	x86_model = (result.eax >> 4) & 0x0f;
 	x86_family = (result.eax >> 8) & 0x0f;
 	cpu->processor_signature = result.eax;
@@ -120,6 +123,7 @@ int microcode_update_intel(void)
 	int count;
 	int node;
 	int ret;
+	int rev;
 
 	microcode_read_cpu(&cpu);
 	node = 0;
@@ -147,12 +151,16 @@ int microcode_update_intel(void)
 			skipped++;
 			continue;
 		}
-		ret = microcode_read_rev();
-		wrmsr(0x79, (ulong)update.data, 0);
+		wrmsr(MSR_IA32_UCODE_WRITE, (ulong)update.data, 0);
+		rev = microcode_read_rev();
 		debug("microcode: updated to revision 0x%x date=%04x-%02x-%02x\n",
-		      microcode_read_rev(), update.date_code & 0xffff,
+		      rev, update.date_code & 0xffff,
 		      (update.date_code >> 24) & 0xff,
 		      (update.date_code >> 16) & 0xff);
+		if (update.update_revision != rev) {
+			printf("Microcode update failed\n");
+			return -EFAULT;
+		}
 		count++;
 	} while (1);
 }

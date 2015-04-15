@@ -8,7 +8,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 
 	/* Reset using CM control register */
 .global reset_cpu

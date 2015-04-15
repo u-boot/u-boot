@@ -16,14 +16,34 @@ enum {
 
 	PFUZE100_SW1ABVOL	= 0x20,
 	PFUZE100_SW1ABSTBY	= 0x21,
+	PFUZE100_SW1ABOFF	= 0x22,
+	PFUZE100_SW1ABMODE	= 0x23,
 	PUZE_100_SW1ABCONF	= 0x24,
 	PFUZE100_SW1CVOL	= 0x2e,
 	PFUZE100_SW1CSTBY	= 0x2f,
+	PFUZE100_SW1COFF	= 0x30,
+	PFUZE100_SW1CMODE	= 0x31,
 	PFUZE100_SW1CCONF	= 0x32,
 	PFUZE100_SW2VOL		= 0x35,
+	PFUZE100_SW2STBY	= 0x36,
+	PFUZE100_SW2OFF		= 0x37,
+	PFUZE100_SW2MODE	= 0x38,
+	PFUZE100_SW2CONF	= 0x39,
 	PFUZE100_SW3AVOL	= 0x3c,
+	PFUZE100_SW3ASTBY	= 0x3D,
+	PFUZE100_SW3AOFF	= 0x3E,
+	PFUZE100_SW3AMODE	= 0x3F,
+	PFUZE100_SW3ACONF	= 0x40,
 	PFUZE100_SW3BVOL	= 0x43,
+	PFUZE100_SW3BSTBY	= 0x44,
+	PFUZE100_SW3BOFF	= 0x45,
+	PFUZE100_SW3BMODE	= 0x46,
+	PFUZE100_SW3BCONF	= 0x47,
 	PFUZE100_SW4VOL		= 0x4a,
+	PFUZE100_SW4STBY	= 0x4b,
+	PFUZE100_SW4OFF		= 0x4c,
+	PFUZE100_SW4MODE	= 0x4d,
+	PFUZE100_SW4CONF	= 0x4e,
 	PFUZE100_SWBSTCON1	= 0x66,
 	PFUZE100_VREFDDRCON	= 0x6a,
 	PFUZE100_VSNVSVOL	= 0x6b,
@@ -40,6 +60,8 @@ enum {
 /*
  * Buck Regulators
  */
+
+#define PFUZE100_SW1ABC_SETP(x)	((x - 3000) / 250)
 
 /* SW1A/B/C Output Voltage Configuration */
 #define SW1x_0_300V 0
@@ -176,6 +198,41 @@ enum {
 #define SWBST_MODE_PFM	(2 << 1)
 #define SWBST_MODE_AUTO	(2 << 2)
 #define SWBST_MODE_APS	(2 << 3)
+
+/*
+ * Regulator Mode Control
+ *
+ * OFF: The regulator is switched off and the output voltage is discharged.
+ * PFM: In this mode, the regulator is always in PFM mode, which is useful
+ *      at light loads for optimized efficiency.
+ * PWM: In this mode, the regulator is always in PWM mode operation
+ *	regardless of load conditions.
+ * APS: In this mode, the regulator moves automatically between pulse
+ *	skipping mode and PWM mode depending on load conditions.
+ *
+ * SWxMODE[3:0]
+ * Normal Mode  |  Standby Mode	|      value
+ *   OFF		OFF		0x0
+ *   PWM		OFF		0x1
+ *   PFM		OFF		0x3
+ *   APS		OFF		0x4
+ *   PWM		PWM		0x5
+ *   PWM		APS		0x6
+ *   APS		APS		0x8
+ *   APS		PFM		0xc
+ *   PWM		PFM		0xd
+ */
+#define OFF_OFF		0x0
+#define PWM_OFF		0x1
+#define PFM_OFF		0x3
+#define APS_OFF		0x4
+#define PWM_PWM		0x5
+#define PWM_APS		0x6
+#define APS_APS		0x8
+#define APS_PFM		0xc
+#define PWM_PFM		0xd
+
+#define SWITCH_SIZE	0x7
 
 int power_pfuze100_init(unsigned char bus);
 #endif

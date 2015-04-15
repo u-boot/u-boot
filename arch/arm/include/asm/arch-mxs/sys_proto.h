@@ -74,6 +74,23 @@ static const struct mxs_pair mxs_boot_modes[] = {
 #endif
 };
 
+#define MXS_BM_USB			0x00
+#define MXS_BM_I2C_MASTER_3V3		0x01
+#define MXS_BM_I2C_MASTER_1V8		0x11
+#define MXS_BM_SPI2_MASTER_3V3_NOR	0x02
+#define MXS_BM_SPI2_MASTER_1V8_NOR	0x12
+#define MXS_BM_SPI3_MASTER_3V3_NOR	0x03
+#define MXS_BM_SPI3_MASTER_1V8_NOR	0x13
+#define MXS_BM_NAND_3V3			0x04
+#define MXS_BM_NAND_1V8			0x14
+#define MXS_BM_JTAG			0x06
+#define MXS_BM_SPI3_MASTER_3V3_EEPROM	0x08
+#define MXS_BM_SPI3_MASTER_1V8_EEPROM	0x18
+#define MXS_BM_SDMMC0_3V3		0x09
+#define MXS_BM_SDMMC0_1V8		0x19
+#define MXS_BM_SDMMC1_3V3		0x0a
+#define MXS_BM_SDMMC1_1V8		0x1a
+
 struct mxs_spl_data {
 	uint8_t		boot_mode_idx;
 	uint32_t	mem_dram_size;

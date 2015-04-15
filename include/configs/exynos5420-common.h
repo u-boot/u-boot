@@ -38,4 +38,20 @@
 
 #define CONFIG_BOARD_REV_GPIO_COUNT	2
 
+#define CONFIG_PHY_IRAM_BASE		0x02020000
+
+/* Address for relocating helper code (Last 4 KB of IRAM) */
+#define CONFIG_EXYNOS_RELOCATE_CODE_BASE	(CONFIG_IRAM_TOP - 0x1000)
+
+/*
+ * Low Power settings
+ */
+#define CONFIG_LOWPOWER_FLAG		0x02020028
+#define CONFIG_LOWPOWER_ADDR		0x0202002C
+
+/*
+ * Number of CPUs available
+ */
+#define CONFIG_CORE_COUNT		0x8
+
 #endif	/* __CONFIG_EXYNOS5420_H */

@@ -7,9 +7,6 @@ config SYS_ARCH
 choice
 	prompt "CPU select"
 
-config 74xx_7xx
-	bool "74xx"
-
 config MPC512X
 	bool "MPC512X"
 
@@ -39,7 +36,6 @@ config 4xx
 
 endchoice
 
-source "arch/powerpc/cpu/74xx_7xx/Kconfig"
 source "arch/powerpc/cpu/mpc512x/Kconfig"
 source "arch/powerpc/cpu/mpc5xx/Kconfig"
 source "arch/powerpc/cpu/mpc5xxx/Kconfig"

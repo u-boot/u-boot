@@ -4,17 +4,148 @@ menu "ARC architecture"
 config SYS_ARCH
 	default "arc"
 
+config USE_PRIVATE_LIBGCC
+	default y
+
+config SYS_CPU
+	default "arcv1" if ISA_ARCOMPACT
+	default "arcv2" if ISA_ARCV2
+
+choice
+	prompt "ARC Instruction Set"
+	default ISA_ARCOMPACT
+
+config ISA_ARCOMPACT
+	bool "ARCompact ISA"
+	help
+	  The original ARC ISA of ARC600/700 cores
+
+config ISA_ARCV2
+	bool "ARC ISA v2"
+	help
+	  ISA for the Next Generation ARC-HS cores
+
+endchoice
+
+choice
+	prompt "CPU selection"
+	default CPU_ARC770D if ISA_ARCOMPACT
+	default CPU_ARCHS38 if ISA_ARCV2
+
+config CPU_ARC750D
+	bool "ARC 750D"
+	select ARC_MMU_V2
+	depends on ISA_ARCOMPACT
+	help
+	  Choose this option to build an U-Boot for ARC750D CPU.
+
+config CPU_ARC770D
+	bool "ARC 770D"
+	select ARC_MMU_V3
+	depends on ISA_ARCOMPACT
+	help
+	  Choose this option to build an U-Boot for ARC770D CPU.
+
+config CPU_ARCEM6
+	bool "ARC EM6"
+	select ARC_MMU_ABSENT
+	depends on ISA_ARCV2
+	help
+	  Next Generation ARC Core based on ISA-v2 ISA without MMU.
+
+config CPU_ARCHS36
+	bool "ARC HS36"
+	select ARC_MMU_ABSENT
+	depends on ISA_ARCV2
+	help
+	  Next Generation ARC Core based on ISA-v2 ISA without MMU.
+
+config CPU_ARCHS38
+	bool "ARC HS38"
+	select ARC_MMU_V4
+	depends on ISA_ARCV2
+	help
+	  Next Generation ARC Core based on ISA-v2 ISA with MMU.
+
+endchoice
+
+choice
+	prompt "MMU Version"
+	default ARC_MMU_V3 if CPU_ARC770D
+	default ARC_MMU_V2 if CPU_ARC750D
+	default ARC_MMU_ABSENT if CPU_ARCEM6
+	default ARC_MMU_ABSENT if CPU_ARCHS36
+	default ARC_MMU_V4 if CPU_ARCHS38
+
+config ARC_MMU_ABSENT
+	bool "No MMU"
+	help
+	  No MMU
+
+config ARC_MMU_V2
+	bool "MMU v2"
+	depends on CPU_ARC750D
+	help
+	  Fixed the deficiency of v1 - possible thrashing in memcpy sceanrio
+	  when 2 D-TLB and 1 I-TLB entries index into same 2way set.
+
+config ARC_MMU_V3
+	bool "MMU v3"
+	depends on CPU_ARC770D
+	help
+	  Introduced with ARC700 4.10: New Features
+	  Variable Page size (1k-16k), var JTLB size 128 x (2 or 4)
+	  Shared Address Spaces (SASID)
+
+config ARC_MMU_V4
+	bool "MMU v4"
+	depends on CPU_ARCHS38
+	help
+	  Introduced as a part of ARC HS38 release.
+
+endchoice
+
+config CPU_BIG_ENDIAN
+	bool "Enable Big Endian Mode"
+	default n
+	help
+	  Build kernel for Big Endian Mode of ARC CPU
+
+config SYS_ICACHE_OFF
+	bool "Do not use Instruction Cache"
+	default n
+
+config SYS_DCACHE_OFF
+	bool "Do not use Data Cache"
+	default n
+
+config ARC_CACHE_LINE_SHIFT
+	int "Cache Line Length (as power of 2)"
+	range 5 7
+	default "6"
+	depends on !SYS_DCACHE_OFF || !SYS_ICACHE_OFF
+	help
+	  Starting with ARC700 4.9, Cache line length is configurable,
+	  This option specifies "N", with Line-len = 2 power N
+	  So line lengths of 32, 64, 128 are specified by 5,6,7, respectively
+	  Linux only supports same line lengths for I and D caches.
+
 choice
 	prompt "Target select"
+
+config TARGET_DUMMY
+	bool "Dummy target"
+	help
+	  Please select one of real target boards below!
+	  This target is only meant to force "makedefconfig" to put
+	  TARGET_xxx in defconfig even this is the first target from the list
+	  below.
 
 config TARGET_TB100
 	bool "Support tb100"
 
 config TARGET_ARCANGEL4
 	bool "Support arcangel4"
-
-config TARGET_ARCANGEL4_BE
-	bool "Support arcangel4-be"
 
 config TARGET_AXS101
 	bool "Support axs101"

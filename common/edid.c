@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <edid.h>
+#include <errno.h>
 #include <linux/ctype.h>
 #include <linux/string.h>
 
@@ -27,6 +28,17 @@ int edid_check_info(struct edid1_info *edid_info)
 		return -1;
 
 	return 0;
+}
+
+int edid_check_checksum(u8 *edid_block)
+{
+	u8 checksum = 0;
+	int i;
+
+	for (i = 0; i < 128; i++)
+		checksum += edid_block[i];
+
+	return (checksum == 0) ? 0 : -EINVAL;
 }
 
 int edid_get_ranges(struct edid1_info *edid, unsigned int *hmin,

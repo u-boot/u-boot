@@ -20,6 +20,9 @@ import struct
 import sys
 import tempfile
 
+# Enable printing of all U-Boot output
+DEBUG = True
+
 # The 'command' library in patman is convenient for running commands
 base_path = os.path.dirname(sys.argv[0])
 patman = os.path.join(base_path, '../../tools/patman')
@@ -97,11 +100,15 @@ sb load hostfs 0 %(fit_addr)x %(fit)s
 fdt addr %(fit_addr)x
 bootm start %(fit_addr)x
 bootm loados
-sb save hostfs 0 %(kernel_out)s %(kernel_addr)x %(kernel_size)x
-sb save hostfs 0 %(fdt_out)s %(fdt_addr)x %(fdt_size)x
-sb save hostfs 0 %(ramdisk_out)s %(ramdisk_addr)x %(ramdisk_size)x
+sb save hostfs 0 %(kernel_addr)x %(kernel_out)s %(kernel_size)x
+sb save hostfs 0 %(fdt_addr)x %(fdt_out)s %(fdt_size)x
+sb save hostfs 0 %(ramdisk_addr)x %(ramdisk_out)s %(ramdisk_size)x
 reset
 '''
+
+def debug_stdout(stdout):
+    if DEBUG:
+        print stdout
 
 def make_fname(leaf):
     """Make a temporary filename
@@ -328,6 +335,7 @@ def run_fit_test(mkimage, u_boot):
     # We could perhaps reduce duplication with some loss of readability
     set_test('Kernel load')
     stdout = command.Output(u_boot, '-d', control_dtb, '-c', cmd)
+    debug_stdout(stdout)
     if read_file(kernel) != read_file(kernel_out):
         fail('Kernel not loaded', stdout)
     if read_file(control_dtb) == read_file(fdt_out):
@@ -352,6 +360,7 @@ def run_fit_test(mkimage, u_boot):
     params['fdt_load'] = 'load = <%#x>;' % params['fdt_addr']
     fit = make_fit(mkimage, params)
     stdout = command.Output(u_boot, '-d', control_dtb, '-c', cmd)
+    debug_stdout(stdout)
     if read_file(kernel) != read_file(kernel_out):
         fail('Kernel not loaded', stdout)
     if read_file(control_dtb) != read_file(fdt_out):
@@ -365,6 +374,7 @@ def run_fit_test(mkimage, u_boot):
     params['ramdisk_load'] = 'load = <%#x>;' % params['ramdisk_addr']
     fit = make_fit(mkimage, params)
     stdout = command.Output(u_boot, '-d', control_dtb, '-c', cmd)
+    debug_stdout(stdout)
     if read_file(ramdisk) != read_file(ramdisk_out):
         fail('Ramdisk not loaded', stdout)
 

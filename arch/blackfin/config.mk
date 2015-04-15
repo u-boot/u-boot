@@ -20,9 +20,6 @@ CONFIG_BFIN_CPU := $(strip $(CONFIG_BFIN_CPU:"%"=%))
 endif
 CONFIG_BFIN_BOOT_MODE := $(strip $(CONFIG_BFIN_BOOT_MODE:"%"=%))
 
-# Support generic board on Blackfin
-__HAVE_ARCH_GENERIC_BOARD := y
-
 PLATFORM_RELFLAGS += -ffixed-P3 -fomit-frame-pointer -mno-fdpic
 
 LDFLAGS_FINAL += --gc-sections

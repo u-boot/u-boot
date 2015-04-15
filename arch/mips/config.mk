@@ -43,8 +43,6 @@ PLATFORM_CPPFLAGS += $(cpuflags-y)
 
 PLATFORM_CPPFLAGS += -D__MIPS__
 
-__HAVE_ARCH_GENERIC_BOARD := y
-
 #
 # From Linux arch/mips/Makefile
 #

@@ -53,6 +53,10 @@
 # define CONFIG_PHYLIB
 # define CONFIG_PHY_MARVELL
 # define CONFIG_SYS_ENET
+# define CONFIG_BOOTP_SERVERIP
+# define CONFIG_BOOTP_BOOTPATH
+# define CONFIG_BOOTP_GATEWAY
+# define CONFIG_BOOTP_HOSTNAME
 # define CONFIG_BOOTP_MAY_FAIL
 # if !defined(CONFIG_ZYNQ_GEM_EMIO0)
 #  define CONFIG_ZYNQ_GEM_EMIO0	0
@@ -415,8 +419,6 @@
 #define CONFIG_OF_LIBFDT
 
 /* FIT support */
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 #define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */
 
 /* FDT support */
@@ -448,7 +450,9 @@
 #endif
 
 #if defined(CONFIG_CMD_ZYNQ_RSA)
-#define CONFIG_RSA
+# ifndef CONFIG_RSA
+#  define CONFIG_RSA
+# endif
 #define CONFIG_SHA256
 #define CONFIG_CMD_ZYNQ_AES
 #endif

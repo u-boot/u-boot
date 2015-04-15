@@ -320,7 +320,6 @@ combinations. this should be removed later
 /* NAND */
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
@@ -675,6 +674,7 @@ combinations. this should be removed later
 #define CONFIG_UBOOTPATH	"u-boot.bin"
 
 #define CONFIG_BAUDRATE		115200
+#define CONFIG_BOOTDELAY	10 /* -1 disable auto-boot */
 
 #ifdef CONFIG_SDCARD
 #define CONFIG_DEF_HWCONFIG	"hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"

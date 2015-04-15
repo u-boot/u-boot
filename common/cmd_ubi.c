@@ -114,7 +114,7 @@ static int ubi_check(char *name)
 			return 0;
 	}
 
-	return -EEXIST;
+	return 1;
 }
 
 

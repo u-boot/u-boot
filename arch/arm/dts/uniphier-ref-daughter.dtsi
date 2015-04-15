@@ -1,0 +1,17 @@
+/*
+ * Device Tree Source for UniPhier Reference Daughter Board
+ *
+ * Copyright (C) 2014-2015 Panasonic Corporation
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+&i2c0 {
+	eeprom {
+		compatible = "i2c-eeprom";
+		reg = <0x50>;
+		u-boot,i2c-offset-len = <2>;
+	};
+};

@@ -17,18 +17,15 @@
 #include <linux/sizes.h>
 
 #define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_DM
-#define CONFIG_CMD_DM
-#define CONFIG_DM_GPIO
-#define CONFIG_DM_SERIAL
-#define CONFIG_DM_SPI
-#define CONFIG_DM_SPI_FLASH
 
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
+
+#define CONFIG_USE_ARCH_MEMCPY
+#define CONFIG_USE_ARCH_MEMSET
 
 /* Keep L2 Cache Disabled */
 #define CONFIG_CMD_CACHE
@@ -42,7 +39,6 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* Size of malloc() pool before and after relocation */
-#define CONFIG_SYS_MALLOC_F_LEN		(1 << 10)
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 << 20))
 
 /* select serial console configuration */

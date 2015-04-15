@@ -41,8 +41,9 @@ subdir-ccflags-y :=
 
 # Read auto.conf if it exists, otherwise ignore
 # Modified for U-Boot
--include $(prefix)/include/config/auto.conf
+-include include/config/auto.conf
 -include $(prefix)/include/autoconf.mk
+include scripts/Makefile.uncmd_spl
 
 include scripts/Kbuild.include
 

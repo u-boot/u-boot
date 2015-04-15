@@ -10,7 +10,6 @@
 #define _ORIGEN_SETUP_H
 
 #include <config.h>
-#include <version.h>
 #include <asm/arch/cpu.h>
 
 #ifdef CONFIG_CLK_800_330_165

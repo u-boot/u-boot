@@ -8,3 +8,9 @@ F:	include/configs/smdk5420.h
 F:	configs/smdk5420_defconfig
 F:	include/configs/peach-pi.h
 F:	configs/peach-pi_defconfig
+
+ODROID-XU3 BOARD
+M:	Przemyslaw Marczak <p.marczak@samsung.com>
+S:	Maintained
+F:	board/samsung/smdk5420/
+F:	include/configs/odroid_xu3.h

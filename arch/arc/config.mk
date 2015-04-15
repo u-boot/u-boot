@@ -4,21 +4,50 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifndef CONFIG_SYS_BIG_ENDIAN
+ifndef CONFIG_CPU_BIG_ENDIAN
 CONFIG_SYS_LITTLE_ENDIAN = 1
+else
+CONFIG_SYS_BIG_ENDIAN = 1
 endif
 
 ifdef CONFIG_SYS_LITTLE_ENDIAN
 ARC_CROSS_COMPILE := arc-buildroot-linux-uclibc-
+PLATFORM_LDFLAGS += -EL
+PLATFORM_CPPFLAGS += -mlittle-endian
 endif
 
 ifdef CONFIG_SYS_BIG_ENDIAN
 ARC_CROSS_COMPILE := arceb-buildroot-linux-uclibc-
 PLATFORM_LDFLAGS += -EB
+PLATFORM_CPPFLAGS += -mbig-endian
 endif
 
 ifeq ($(CROSS_COMPILE),)
 CROSS_COMPILE := $(ARC_CROSS_COMPILE)
+endif
+
+ifdef CONFIG_ARC_MMU_VER
+CONFIG_MMU = 1
+endif
+
+ifdef CONFIG_CPU_ARC750D
+PLATFORM_CPPFLAGS += -marc700
+endif
+
+ifdef CONFIG_CPU_ARC770D
+PLATFORM_CPPFLAGS += -marc700 -mlock -mswape
+endif
+
+ifdef CONFIG_CPU_ARCEM6
+PLATFORM_CPPFLAGS += -marcem
+endif
+
+ifdef CONFIG_CPU_ARCHS34
+PLATFORM_CPPFLAGS += -marchs
+endif
+
+ifdef CONFIG_CPU_ARCHS38
+PLATFORM_CPPFLAGS += -marchs
 endif
 
 PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -gdwarf-2
@@ -28,6 +57,3 @@ LDFLAGS_FINAL += -pie
 
 # Load address for standalone apps
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x82000000
-
-# Support generic board on ARC
-__HAVE_ARCH_GENERIC_BOARD := y

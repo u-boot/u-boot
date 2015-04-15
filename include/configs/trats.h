@@ -51,8 +51,10 @@
 #define MACH_TYPE_TRATS			3928
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRATS
 
+#define CONFIG_FIT
+#define CONFIG_FIT_VERBOSE
 #define CONFIG_BOOTARGS			"Please use defined boot"
-#define CONFIG_BOOTCOMMAND		"run mmcboot"
+#define CONFIG_BOOTCOMMAND		"run autoboot"
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
@@ -106,7 +108,8 @@
 	""PARTS_ROOT" part 0 5;" \
 	""PARTS_DATA" part 0 6;" \
 	""PARTS_UMS" part 0 7;" \
-	"params.bin raw 0x38 0x8\0"
+	"params.bin raw 0x38 0x8;" \
+	"/Image.itb ext4 0 2\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
@@ -172,6 +175,7 @@
 		   "setenv spl_imgsize;" \
 		   "setenv spl_imgaddr;" \
 		   "setenv spl_addr_tmp;\0" \
+	CONFIG_EXTRA_ENV_ITB \
 	"fdtaddr=40800000\0" \
 
 /* Falcon mode definitions */

@@ -15,6 +15,8 @@
 #include <fsl_esdhc.h>
 #endif
 #include <tsec.h>
+#include <asm/arch/immap_ls102xa.h>
+#include <fsl_sec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -77,8 +79,23 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	int off;
 	int val;
 	const char *sysclk_path;
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	unsigned int svr;
+	svr = in_be32(&gur->svr);
 
 	unsigned long busclk = get_bus_freq(0);
+
+	/* delete crypto node if not on an E-processor */
+	if (!IS_E_PROCESSOR(svr))
+		fdt_fixup_crypto_node(blob, 0);
+#if CONFIG_SYS_FSL_SEC_COMPAT >= 4
+	else {
+		ccsr_sec_t __iomem *sec;
+
+		sec = (void __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
+		fdt_fixup_crypto_node(blob, sec_in32(&sec->secvid_ms));
+	}
+#endif
 
 	fdt_fixup_ethernet(blob);
 
@@ -107,6 +124,25 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_compat_u32(blob, "fsl,qoriq-sysclk-2.0",
 			       "clock-frequency", CONFIG_SYS_CLK_FREQ, 1);
 
+#if defined(CONFIG_DEEP_SLEEP) && defined(CONFIG_SD_BOOT)
+#define UBOOT_HEAD_LEN	0x1000
+	/*
+	 * Reserved memory in SD boot deep sleep case.
+	 * Second stage uboot binary and malloc space should be reserved.
+	 * If the memory they occupied has not been reserved, then this
+	 * space would be used by kernel and overwritten in uboot when
+	 * deep sleep resume, which cause deep sleep failed.
+	 * Since second uboot binary has a head, that space need to be
+	 * reserved either(assuming its size is less than 0x1000).
+	 */
+	off = fdt_add_mem_rsv(blob, CONFIG_SYS_TEXT_BASE - UBOOT_HEAD_LEN,
+			CONFIG_SYS_MONITOR_LEN + CONFIG_SYS_SPL_MALLOC_SIZE +
+			UBOOT_HEAD_LEN);
+	if (off < 0)
+		printf("Failed to reserve memory for SD boot deep sleep: %s\n",
+		       fdt_strerror(off));
+#endif
+
 #if defined(CONFIG_FSL_ESDHC)
 	fdt_fixup_esdhc(blob, bd);
 #endif
@@ -133,4 +169,17 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 	do_fixup_by_compat_u32(blob, "fsl, ls1021a-flexcan",
 			       "clock-frequency", busclk / 2, 1);
+
+#ifdef CONFIG_QSPI_BOOT
+	off = fdt_node_offset_by_compat_reg(blob, FSL_IFC_COMPAT,
+					    CONFIG_SYS_IFC_ADDR);
+	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
+#else
+	off = fdt_node_offset_by_compat_reg(blob, FSL_QSPI_COMPAT,
+					    QSPI0_BASE_ADDR);
+	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
+	off = fdt_node_offset_by_compat_reg(blob, FSL_DSPI_COMPAT,
+					    DSPI1_BASE_ADDR);
+	fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
+#endif
 }

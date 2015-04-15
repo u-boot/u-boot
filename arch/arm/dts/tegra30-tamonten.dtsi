@@ -55,8 +55,8 @@
 
 	/* SD slot on the base board */
 	sdhci@78000400 {
-		cd-gpios = <&gpio 69 1>; /* gpio PI5 */
-		wp-gpios = <&gpio 67 0>; /* gpio PI3 */
+		cd-gpios = <&gpio TEGRA_GPIO(I, 5) GPIO_ACTIVE_LOW>;
+		wp-gpios = <&gpio TEGRA_GPIO(I, 3) GPIO_ACTIVE_HIGH>;
 		bus-width = <4>;
 	};
 

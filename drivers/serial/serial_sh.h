@@ -2,17 +2,15 @@
  * Copy and modify from linux/drivers/serial/sh-sci.h
  */
 
+#include <dm/platform_data/serial_sh.h>
+
 struct uart_port {
 	unsigned long	iobase;		/* in/out[bwl] */
 	unsigned char	*membase;	/* read/write[bwl] */
 	unsigned long	mapbase;	/* for ioremap */
-	unsigned int	type;		/* port type */
+	enum sh_serial_type type;	/* port type */
+	enum sh_clk_mode clk_mode;	/* clock mode */
 };
-
-#define PORT_SCI	52
-#define PORT_SCIF	53
-#define PORT_SCIFA	83
-#define PORT_SCIFB	93
 
 #if defined(CONFIG_H83007) || defined(CONFIG_H83068)
 #include <asm/regs306x.h>
@@ -229,7 +227,8 @@ struct uart_port {
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
 	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 # define SCIF_ORER	0x0001
-# define SCSCR_INIT(port)	0x32	/* TIE=0,RIE=0,TE=1,RE=1,REIE=0, */
+# define SCSCR_INIT(port)	(port->clk_mode == EXT_CLK ? 0x32 : 0x30)
+				/* TIE=0,RIE=0,TE=1,RE=1,REIE=0, */
 #else
 # error CPU subtype not defined
 #endif
@@ -526,6 +525,7 @@ SCIF_FNS(SCFDR,  0x1c, 16)
 SCIF_FNS(SCxTDR, 0x20,  8)
 SCIF_FNS(SCxRDR, 0x24,  8)
 SCIF_FNS(SCLSR,  0x00,  0)
+SCIF_FNS(DL,	 0x00,  0) /* dummy */
 #elif defined(CONFIG_ARCH_SH7372) || \
 	defined(CONFIG_R8A7740)
 SCIF_FNS(SCSMR,  0x00, 16)
@@ -541,6 +541,7 @@ SCIF_FNS(SCRFDR, 0x3c, 16)
 SCIx_FNS(SCxTDR, 0x20,  8, 0x40,  8)
 SCIx_FNS(SCxRDR, 0x24,  8, 0x60,  8)
 SCIF_FNS(SCLSR,  0x00,  0)
+SCIF_FNS(DL,	 0x00,  0) /* dummy */
 #elif defined(CONFIG_CPU_SH7723) ||\
 	defined(CONFIG_CPU_SH7724)
 SCIx_FNS(SCSMR,  0x00, 16, 0x00, 16)
@@ -555,6 +556,7 @@ SCIF_FNS(SCFER,  0x10, 16)
 SCIF_FNS(SCFCR,  0x18, 16)
 SCIF_FNS(SCFDR,  0x1c, 16)
 SCIF_FNS(SCLSR,  0x24, 16)
+SCIF_FNS(DL,	 0x00,  0) /* dummy */
 #else
 /*      reg      SCI/SH3   SCI/SH4  SCIF/SH3   SCIF/SH4  SCI/H8*/
 /*      name     off  sz   off  sz   off  sz   off  sz   off  sz*/
@@ -583,18 +585,21 @@ SCIF_FNS(SCRFDR,		     0x0e, 16, 0x20, 16)
 SCIF_FNS(SCSPTR,			0,  0, 0x24, 16)
 SCIF_FNS(SCLSR,				0,  0, 0x28, 16)
 #else
+
 SCIF_FNS(SCFDR,                      0x0e, 16, 0x1C, 16)
 #if defined(CONFIG_CPU_SH7722)
 SCIF_FNS(SCSPTR,                        0,  0, 0, 0)
 #else
 SCIF_FNS(SCSPTR,                        0,  0, 0x20, 16)
 #endif
+SCIF_FNS(SCLSR,                         0,  0, 0x24, 16)
+#endif
 #if defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
 	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 SCIF_FNS(DL,				0,  0, 0x30, 16)
 SCIF_FNS(CKS,				0,  0, 0x34, 16)
-#endif
-SCIF_FNS(SCLSR,                         0,  0, 0x24, 16)
+#else
+SCIF_FNS(DL,				0,  0, 0x0,  0) /* dummy */
 #endif
 #endif
 #define sci_in(port, reg) sci_##reg##_in(port)
@@ -725,20 +730,24 @@ static inline int sci_rxd_in(struct uart_port *port)
 #define SCBRR_VALUE(bps, clk) (((clk*2)+16*bps)/(32*bps)-1)
 #elif defined(CONFIG_CPU_SH7723) ||\
 	defined(CONFIG_CPU_SH7724)
-static inline int scbrr_calc(struct uart_port port, int bps, int clk)
+static inline int scbrr_calc(struct uart_port *port, int bps, int clk)
 {
-	if (port.type == PORT_SCIF)
+	if (port->type == PORT_SCIF)
 		return (clk+16*bps)/(32*bps)-1;
 	else
 		return ((clk*2)+16*bps)/(16*bps)-1;
 }
-#define SCBRR_VALUE(bps, clk) scbrr_calc(sh_sci, bps, clk)
+#define SCBRR_VALUE(bps, clk) scbrr_calc(port, bps, clk)
 #elif defined(__H8300H__) || defined(__H8300S__)
 #define SCBRR_VALUE(bps, clk) (((clk*1000/32)/bps)-1)
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
 	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
 #define DL_VALUE(bps, clk) (clk / bps / 16) /* External Clock */
-#define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1) /* Internal Clock */
+#define SCBRR_VALUE(bps, clk) (clk / bps / 32 - 1) /* Internal Clock */
 #else /* Generic SH */
 #define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
+#endif
+
+#ifndef DL_VALUE
+#define DL_VALUE(bps, clk) 0
 #endif

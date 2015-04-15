@@ -26,20 +26,6 @@ config CACHE_MRC_SIZE_KB
 	int
 	default 256
 
-config MRC_CACHE_BASE
-	hex
-	default 0xff800000
-
-config MRC_CACHE_LOCATION
-	hex
-	depends on !CHROMEOS
-	default 0x1ec000
-
-config MRC_CACHE_SIZE
-	hex
-	depends on !CHROMEOS
-	default 0x10000
-
 config DCACHE_RAM_BASE
 	hex
 	default 0xff7f0000
@@ -63,20 +49,6 @@ config EXTERNAL_MRC_BLOB
 config CACHE_MRC_SIZE_KB
 	int
 	default 512
-
-config MRC_CACHE_BASE
-	hex
-	default 0xff800000
-
-config MRC_CACHE_LOCATION
-	hex
-	depends on !CHROMEOS
-	default 0x370000
-
-config MRC_CACHE_SIZE
-	hex
-	depends on !CHROMEOS
-	default 0x10000
 
 config DCACHE_RAM_BASE
 	hex

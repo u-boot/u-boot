@@ -9,4 +9,8 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "taishan"
 
+config DISPLAY_BOARDINFO
+	bool
+	default y
+
 endif

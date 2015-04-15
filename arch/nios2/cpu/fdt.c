@@ -34,7 +34,5 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	 * Note: aliases in the dts are required for this
 	 */
 	fdt_fixup_ethernet(blob);
-
-	return 0;
 }
 #endif /* CONFIG_OF_LIBFDT && CONFIG_OF_BOARD_SETUP */

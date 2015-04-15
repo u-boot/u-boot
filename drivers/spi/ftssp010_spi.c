@@ -431,7 +431,9 @@ free_out:
 
 void spi_free_slave(struct spi_slave *slave)
 {
-	free(slave);
+	struct ftssp010_spi *chip = to_ftssp010_spi(slave);
+
+	free(chip);
 }
 
 int spi_claim_bus(struct spi_slave *slave)

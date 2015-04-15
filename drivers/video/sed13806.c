@@ -18,13 +18,8 @@
 #define writeByte(ptrReg,value) \
     *(volatile unsigned char *)(sed13806.isaBase + ptrReg) = value
 
-#ifdef CONFIG_TOTAL5200
-#define writeWord(ptrReg,value) \
-    (*(volatile unsigned short *)(sed13806.isaBase + ptrReg) = value)
-#else
 #define writeWord(ptrReg,value) \
     (*(volatile unsigned short *)(sed13806.isaBase + ptrReg) = ((value >> 8 ) & 0xff) | ((value << 8) & 0xff00))
-#endif
 
 GraphicDevice sed13806;
 

@@ -1,0 +1,48 @@
+This file contains information for VSC9953, a Vitesse L2 Switch IP
+which is integrated in the T1040/T1020 Freescale SoCs.
+
+About Device:
+=============
+VSC9953 is an 8-port Gigabit Ethernet switch supports the following features:
+	-	8192 MAC addresses
+	-	Static Address provisioning
+	-	Dynamic learning of MAC addresses and aging
+	-	4096 VLANs
+	-	Independent and shared VLAN learning (IVL, SVL)
+	-	Policing with storm control and MC/BC protection
+	-	IPv4 and IPv6 multicast
+	-	Jumbo frames (9.6 KB)
+	-	Access Control List
+	-	VLAN editing, translation and remarking
+	-	RMON counters per port
+
+Switch interfaces:
+	-	8 Gigabit switch ports (ports 0 to 7) are external and are connected to external PHYs
+	-	2 switch ports (ports 8 and 9) of 2.5 G are connected (fixed links)
+		to FMan ports (FM1@DTSEC1 and FM1@DTSEC2)
+
+Commands Overview:
+=============
+Commands supported
+	- enable/disable a port
+	- check a port's link speed, duplexity and status.
+
+Commands syntax
+	ethsw port <port_nr> enable|disable		- enable/disable an l2 switch port
+	ethsw port <port_nr> show			- show an l2 switch port's configuration
+
+	port_nr=0..9; use "all" for all ports
+
+=> ethsw port all show
+    Port   Status     Link    Speed   Duplex
+       0  enabled     down       10     half
+       1  enabled     down       10     half
+       2  enabled     down       10     half
+       3  enabled       up     1000     full
+       4 disabled     down        -     half
+       5 disabled     down        -     half
+       6 disabled     down        -     half
+       7 disabled     down        -     half
+       8  enabled       up     2500     full
+       9  enabled       up     2500     full
+=>

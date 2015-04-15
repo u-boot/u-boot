@@ -10,24 +10,11 @@
 /*
  *  CPU configuration
  */
-#define CONFIG_ARC700
-#define CONFIG_ARC_MMU_VER		3
-#define CONFIG_SYS_CACHELINE_SIZE	64
-#define CONFIG_SYS_CLK_FREQ		70000000
 #define CONFIG_SYS_TIMER_RATE		CONFIG_SYS_CLK_FREQ
-
-/*
- * Board configuration
- */
-#define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is in RAM already */
-
-#define CONFIG_ARCH_EARLY_INIT_R
 
 /*
  * Memory configuration
  */
-#define CONFIG_SYS_TEXT_BASE		0x81000000
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000

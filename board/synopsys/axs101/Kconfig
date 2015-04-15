@@ -1,8 +1,5 @@
 if TARGET_AXS101
 
-config SYS_CPU
-	default "arc700"
-
 config SYS_BOARD
 	default "axs101"
 

@@ -13,6 +13,7 @@
 #include <ec_commands.h>
 #include <fdtdec.h>
 #include <cros_ec_message.h>
+#include <asm/gpio.h>
 
 #ifndef CONFIG_DM_CROS_EC
 /* Which interface is the device on? */
@@ -39,7 +40,7 @@ struct cros_ec_dev {
 	unsigned int bus_num;		/* Bus number (for I2C) */
 	unsigned int max_frequency;	/* Maximum interface frequency */
 #endif
-	struct fdt_gpio_state ec_int;	/* GPIO used as EC interrupt line */
+	struct gpio_desc ec_int;	/* GPIO used as EC interrupt line */
 	int protocol_version;           /* Protocol version to use */
 	int optimise_flash_write;	/* Don't write erased flash blocks */
 

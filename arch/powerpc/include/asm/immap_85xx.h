@@ -17,6 +17,7 @@
 #include <asm/fsl_i2c.h>
 #include <fsl_ifc.h>
 #include <fsl_sec.h>
+#include <fsl_sfp.h>
 #include <asm/fsl_lbc.h>
 #include <asm/fsl_fman.h>
 #include <fsl_immap.h>
@@ -2823,21 +2824,6 @@ struct ccsr_pman {
 	u8	res_f4[0xf0c];
 };
 #endif
-#ifdef CONFIG_SYS_FSL_SFP_VER_3_0
-struct ccsr_sfp_regs {
-	u32 ospr;		/* 0x200 */
-	u32 reserved0[14];
-	u32 srk_hash[8];	/* 0x23c Super Root Key Hash */
-	u32 oem_uid;		/* 0x9c OEM Unique ID */
-	u8 reserved2[0x04];
-	u32 ovpr;			/* 0xA4  Intent To Secure */
-	u8 reserved4[0x08];
-	u32 fsl_uid;		/* 0xB0  FSL Unique ID */
-	u8 reserved5[0x04];
-	u32 fsl_spfr0;		/* Scratch Pad Fuse Register 0 */
-	u32 fsl_spfr1;		/* Scratch Pad Fuse Register 1 */
-};
-#endif
 
 #ifdef CONFIG_FSL_CORENET
 #define CONFIG_SYS_FSL_CORENET_CCM_OFFSET	0x0000
@@ -2897,6 +2883,7 @@ struct ccsr_sfp_regs {
 #define CONFIG_SYS_MPC85xx_SATA2_OFFSET		0x221000
 #define CONFIG_SYS_FSL_SEC_OFFSET		0x300000
 #define CONFIG_SYS_FSL_JR0_OFFSET		0x301000
+#define CONFIG_SYS_SEC_MON_OFFSET		0x314000
 #define CONFIG_SYS_FSL_CORENET_PME_OFFSET	0x316000
 #define CONFIG_SYS_FSL_QMAN_OFFSET		0x318000
 #define CONFIG_SYS_FSL_BMAN_OFFSET		0x31a000
@@ -2964,7 +2951,7 @@ struct ccsr_sfp_regs {
 #endif
 #define CONFIG_SYS_MPC85xx_SERDES2_OFFSET	0xE3100
 #define CONFIG_SYS_MPC85xx_SERDES1_OFFSET	0xE3000
-#define CONFIG_SYS_SNVS_OFFSET			0xE6000
+#define CONFIG_SYS_SEC_MON_OFFSET		0xE6000
 #define CONFIG_SYS_SFP_OFFSET			0xE7000
 #define CONFIG_SYS_MPC85xx_CPM_OFFSET		0x80000
 #define CONFIG_SYS_FSL_QMAN_OFFSET		0x88000
@@ -3093,6 +3080,9 @@ struct ccsr_sfp_regs {
 
 #define CONFIG_SYS_SFP_ADDR  \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_SFP_OFFSET)
+
+#define CONFIG_SYS_SEC_MON_ADDR  \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_SEC_MON_OFFSET)
 
 #define TSEC_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_TSEC1_OFFSET)
 #define MDIO_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_MDIO1_OFFSET)

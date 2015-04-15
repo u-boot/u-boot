@@ -426,7 +426,7 @@ step2:
 	bus_width = 3 - ((ddr->sdram_cfg & SDRAM_CFG_DBW_MASK)
 			>> SDRAM_CFG_DBW_SHIFT);
 	timeout = ((total_gb_size_per_controller << (6 - bus_width)) * 100 /
-		(get_ddr_freq(0) >> 20)) << 1;
+		(get_ddr_freq(ctrl_num) >> 20)) << 1;
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
 	timeout_save = timeout;
 #endif
@@ -538,12 +538,14 @@ step2:
 		case 1:
 			out_be32(&ddr->cs1_bnds, regs->cs[csn].bnds);
 			break;
+#if CONFIG_CHIP_SELECTS_PER_CTRL > 2
 		case 2:
 			out_be32(&ddr->cs2_bnds, regs->cs[csn].bnds);
 			break;
 		case 3:
 			out_be32(&ddr->cs3_bnds, regs->cs[csn].bnds);
 			break;
+#endif
 		}
 		clrbits_be32(&ddr->sdram_cfg, 0x2);
 	}

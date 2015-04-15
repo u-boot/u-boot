@@ -10,6 +10,7 @@
 #include <asm/arch/sys_proto.h>
 #include <u-boot/md5.h>
 #include <u-boot/rsa.h>
+#include <u-boot/rsa-mod-exp.h>
 #include <u-boot/sha256.h>
 #include <spi_flash.h>
 #include <zynqpl.h>

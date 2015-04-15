@@ -6,11 +6,10 @@
 
 /dts-v1/;
 
-/include/ "coreboot.dtsi"
+/include/ "skeleton.dtsi"
+/include/ "serial.dtsi"
 
 / {
-	#address-cells = <1>;
-	#size-cells = <1>;
 	model = "Intel Crown Bay";
 	compatible = "intel,crownbay", "intel,queensbay";
 
@@ -32,13 +31,17 @@
 		bank-name = "B";
 	};
 
-	serial {
-		reg = <0x3f8 8>;
-		clock-frequency = <115200>;
+	chosen {
+		/*
+		 * By default the legacy superio serial port is used as the
+		 * U-Boot serial console. If we want to use UART from Topcliff
+		 * PCH as the console, change this property to &pciuart#.
+		 *
+		 * For example, stdout-path = &pciuart0 will use the first
+		 * UART on Topcliff PCH.
+		 */
+		stdout-path = "/serial";
 	};
-
-	chosen { };
-	memory { device_type = "memory"; reg = <0 0>; };
 
 	spi {
 		#address-cells = <1>;
@@ -54,6 +57,79 @@
 	microcode {
 		update@0 {
 #include "microcode/m0220661105_cv.dtsi"
+		};
+	};
+
+	pci {
+		#address-cells = <3>;
+		#size-cells = <2>;
+		compatible = "intel,pci";
+		device_type = "pci";
+
+		pcie@17,0 {
+			#address-cells = <3>;
+			#size-cells = <2>;
+			compatible = "intel,pci";
+			device_type = "pci";
+
+			topcliff@0,0 {
+				#address-cells = <3>;
+				#size-cells = <2>;
+				compatible = "intel,pci";
+				device_type = "pci";
+
+				pciuart0: uart@a,1 {
+					compatible = "pci8086,8811.00",
+							"pci8086,8811",
+							"pciclass,070002",
+							"pciclass,0700",
+							"x86-uart";
+					reg = <0x00025100 0x0 0x0 0x0 0x0
+					       0x01025110 0x0 0x0 0x0 0x0>;
+					reg-shift = <0>;
+					clock-frequency = <1843200>;
+					current-speed = <115200>;
+				};
+
+				pciuart1: uart@a,2 {
+					compatible = "pci8086,8812.00",
+							"pci8086,8812",
+							"pciclass,070002",
+							"pciclass,0700",
+							"x86-uart";
+					reg = <0x00025200 0x0 0x0 0x0 0x0
+					       0x01025210 0x0 0x0 0x0 0x0>;
+					reg-shift = <0>;
+					clock-frequency = <1843200>;
+					current-speed = <115200>;
+				};
+
+				pciuart2: uart@a,3 {
+					compatible = "pci8086,8813.00",
+							"pci8086,8813",
+							"pciclass,070002",
+							"pciclass,0700",
+							"x86-uart";
+					reg = <0x00025300 0x0 0x0 0x0 0x0
+					       0x01025310 0x0 0x0 0x0 0x0>;
+					reg-shift = <0>;
+					clock-frequency = <1843200>;
+					current-speed = <115200>;
+				};
+
+				pciuart3: uart@a,4 {
+					compatible = "pci8086,8814.00",
+							"pci8086,8814",
+							"pciclass,070002",
+							"pciclass,0700",
+							"x86-uart";
+					reg = <0x00025400 0x0 0x0 0x0 0x0
+					       0x01025410 0x0 0x0 0x0 0x0>;
+					reg-shift = <0>;
+					clock-frequency = <1843200>;
+					current-speed = <115200>;
+				};
+			};
 		};
 	};
 

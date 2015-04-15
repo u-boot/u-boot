@@ -24,18 +24,11 @@ int sunxi_gmac_initialize(bd_t *bis)
 #ifdef CONFIG_RGMII
 	setbits_le32(&ccm->gmac_clk_cfg, CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII |
 		CCM_GMAC_CTRL_GPIT_RGMII);
+	setbits_le32(&ccm->gmac_clk_cfg,
+		     CCM_GMAC_CTRL_TX_CLK_DELAY(CONFIG_GMAC_TX_DELAY));
 #else
 	setbits_le32(&ccm->gmac_clk_cfg, CCM_GMAC_CTRL_TX_CLK_SRC_MII |
 		CCM_GMAC_CTRL_GPIT_MII);
-#endif
-
-	/*
-	 * In order for the gmac nic to work reliable on the Bananapi, we
-	 * need to set bits 10-12 GTXDC "GMAC Transmit Clock Delay Chain"
-	 * of the GMAC clk register to 3.
-	 */
-#ifdef CONFIG_TARGET_BANANAPI
-	setbits_le32(&ccm->gmac_clk_cfg, 0x3 << 10);
 #endif
 
 #ifndef CONFIG_MACH_SUN6I

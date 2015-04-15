@@ -23,9 +23,15 @@
 #ifdef CONFIG_SYS_FSL_DDR_LE
 #define ddr_in32(a)	in_le32(a)
 #define ddr_out32(a, v)	out_le32(a, v)
+#define ddr_setbits32(a, v)	setbits_le32(a, v)
+#define ddr_clrbits32(a, v)	clrbits_le32(a, v)
+#define ddr_clrsetbits32(a, clear, set)	clrsetbits_le32(a, clear, set)
 #else
 #define ddr_in32(a)	in_be32(a)
 #define ddr_out32(a, v)	out_be32(a, v)
+#define ddr_setbits32(a, v)	setbits_be32(a, v)
+#define ddr_clrbits32(a, v)	clrbits_be32(a, v)
+#define ddr_clrsetbits32(a, clear, set)	clrsetbits_be32(a, clear, set)
 #endif
 
 #define _DDR_ADDR CONFIG_SYS_FSL_DDR_ADDR
@@ -38,11 +44,12 @@ u32 fsl_ddr_get_version(void);
  * to this specific DDR technology.
  */
 static __inline__ int
-compute_dimm_parameters(const generic_spd_eeprom_t *spd,
+compute_dimm_parameters(const unsigned int ctrl_num,
+			const generic_spd_eeprom_t *spd,
 			dimm_params_t *pdimm,
 			unsigned int dimm_number)
 {
-	return ddr_compute_dimm_parameters(spd, pdimm, dimm_number);
+	return ddr_compute_dimm_parameters(ctrl_num, spd, pdimm, dimm_number);
 }
 #endif
 
@@ -86,13 +93,15 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 				       unsigned int size_only);
 const char *step_to_string(unsigned int step);
 
-unsigned int compute_fsl_memctl_config_regs(const memctl_options_t *popts,
+unsigned int compute_fsl_memctl_config_regs(const unsigned int ctrl_num,
+			       const memctl_options_t *popts,
 			       fsl_ddr_cfg_regs_t *ddr,
 			       const common_timing_params_t *common_dimm,
 			       const dimm_params_t *dimm_parameters,
 			       unsigned int dbw_capacity_adjust,
 			       unsigned int size_only);
 unsigned int compute_lowest_common_dimm_parameters(
+				const unsigned int ctrl_num,
 				const dimm_params_t *dimm_params,
 				common_timing_params_t *outpdimm,
 				unsigned int number_of_dimms);
@@ -102,13 +111,15 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 				unsigned int ctrl_num);
 void check_interleaving_options(fsl_ddr_info_t *pinfo);
 
-unsigned int mclk_to_picos(unsigned int mclk);
-unsigned int get_memory_clk_period_ps(void);
-unsigned int picos_to_mclk(unsigned int picos);
+unsigned int mclk_to_picos(const unsigned int ctrl_num, unsigned int mclk);
+unsigned int get_memory_clk_period_ps(const unsigned int ctrl_num);
+unsigned int picos_to_mclk(const unsigned int ctrl_num, unsigned int picos);
 void fsl_ddr_set_lawbar(
 		const common_timing_params_t *memctl_common_params,
 		unsigned int memctl_interleaved,
 		unsigned int ctrl_num);
+void fsl_ddr_sync_memctl_refresh(unsigned int first_ctrl,
+				 unsigned int last_ctrl);
 
 int fsl_ddr_interactive_env_var_exists(void);
 unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set);

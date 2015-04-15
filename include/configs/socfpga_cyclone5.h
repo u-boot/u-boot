@@ -21,6 +21,7 @@
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_CACHE
+#define CONFIG_CMD_DFU
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
@@ -33,6 +34,8 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SETEXPR
+#define CONFIG_CMD_USB
+#define CONFIG_CMD_USB_MASS_STORAGE
 
 #define CONFIG_REGEX			/* Enable regular expression support */
 
@@ -65,6 +68,12 @@
 #define CONFIG_KSZ9021_DATA_SKEW_VAL	0x0
 
 #endif
+
+/* USB */
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_DWC2_REG_ADDR	SOCFPGA_USB1_ADDRESS
+#endif
+#define CONFIG_G_DNL_MANUFACTURER      "Altera"
 
 /* Extra Environment */
 #define CONFIG_HOSTNAME		socfpga_cyclone5

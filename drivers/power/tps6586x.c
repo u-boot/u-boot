@@ -37,7 +37,7 @@ static int tps6586x_read(int reg)
 	int	retval = -1;
 
 	for (i = 0; i < MAX_I2C_RETRY; ++i) {
-		if (!i2c_read(tps6586x_dev, reg,  &data, 1)) {
+		if (!dm_i2c_read(tps6586x_dev, reg,  &data, 1)) {
 			retval = (int)data;
 			goto exit;
 		}
@@ -60,7 +60,7 @@ static int tps6586x_write(int reg, uchar *data, uint len)
 	int	retval = -1;
 
 	for (i = 0; i < MAX_I2C_RETRY; ++i) {
-		if (!i2c_write(tps6586x_dev, reg, data, len)) {
+		if (!dm_i2c_write(tps6586x_dev, reg, data, len)) {
 			retval = 0;
 			goto exit;
 		}

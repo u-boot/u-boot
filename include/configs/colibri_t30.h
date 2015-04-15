@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Stefan Agner
+ * Copyright (c) 2013-2015 Stefan Agner
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -11,17 +11,16 @@
 
 #include "tegra30-common.h"
 
+/* High-level configuration options */
 #define V_PROMPT			"Colibri T30 # "
 #define CONFIG_TEGRA_BOARD_STRING	"Toradex Colibri T30"
 
-/* Board-specific config */
+/* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_COLIBRI_T30
-
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
@@ -53,6 +52,25 @@
 /* General networking support */
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
+
+/* Miscellaneous commands */
+#define CONFIG_CMD_SETEXPR
+#define CONFIG_FAT_WRITE
+
+/* Increase console I/O buffer size */
+#undef CONFIG_SYS_CBSIZE
+#define CONFIG_SYS_CBSIZE		1024
+
+/* Increase arguments buffer size */
+#undef CONFIG_SYS_BARGSIZE
+#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
+
+/* Increase print buffer size */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+
+/* Increase maximum number of arguments */
+#undef CONFIG_SYS_MAXARGS
+#define CONFIG_SYS_MAXARGS		32
 
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"

@@ -11,7 +11,7 @@
  */
 
 #include <common.h>
-
+#include <errno.h>
 #include <pci.h>
 
 #undef DEBUG
@@ -191,15 +191,44 @@ void pciauto_setup_device(struct pci_controller *hose,
 	pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, 0x80);
 }
 
+int pciauto_setup_rom(struct pci_controller *hose, pci_dev_t dev)
+{
+	pci_addr_t bar_value;
+	pci_size_t bar_size;
+	u32 bar_response;
+	u16 cmdstat = 0;
+
+	pci_hose_write_config_dword(hose, dev, PCI_ROM_ADDRESS, 0xfffffffe);
+	pci_hose_read_config_dword(hose, dev, PCI_ROM_ADDRESS, &bar_response);
+	if (!bar_response)
+		return -ENOENT;
+
+	bar_size = -(bar_response & ~1);
+	DEBUGF("PCI Autoconfig: ROM, size=%#x, ", bar_size);
+	if (pciauto_region_allocate(hose->pci_mem, bar_size, &bar_value) == 0) {
+		pci_hose_write_config_dword(hose, dev, PCI_ROM_ADDRESS,
+					    bar_value);
+	}
+	DEBUGF("\n");
+	pci_hose_read_config_word(hose, dev, PCI_COMMAND, &cmdstat);
+	cmdstat |= PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+	pci_hose_write_config_word(hose, dev, PCI_COMMAND, cmdstat);
+
+	return 0;
+}
+
 void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 					 pci_dev_t dev, int sub_bus)
 {
 	struct pci_region *pci_mem = hose->pci_mem;
 	struct pci_region *pci_prefetch = hose->pci_prefetch;
 	struct pci_region *pci_io = hose->pci_io;
-	u16 cmdstat;
+	u16 cmdstat, prefechable_64;
 
 	pci_hose_read_config_word(hose, dev, PCI_COMMAND, &cmdstat);
+	pci_hose_read_config_word(hose, dev, PCI_PREF_MEMORY_BASE,
+				&prefechable_64);
+	prefechable_64 &= PCI_PREF_RANGE_TYPE_MASK;
 
 	/* Configure bus number registers */
 	pci_hose_write_config_byte(hose, dev, PCI_PRIMARY_BUS,
@@ -226,12 +255,26 @@ void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 		/* Set up memory and I/O filter limits, assume 32-bit I/O space */
 		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_BASE,
 					(pci_prefetch->bus_lower & 0xfff00000) >> 16);
+		if (prefechable_64 == PCI_PREF_RANGE_TYPE_64)
+#ifdef CONFIG_SYS_PCI_64BIT
+			pci_hose_write_config_dword(hose, dev,
+					PCI_PREF_BASE_UPPER32,
+					pci_prefetch->bus_lower >> 32);
+#else
+			pci_hose_write_config_dword(hose, dev,
+					PCI_PREF_BASE_UPPER32,
+					0x0);
+#endif
 
 		cmdstat |= PCI_COMMAND_MEMORY;
 	} else {
 		/* We don't support prefetchable memory for now, so disable */
 		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_BASE, 0x1000);
 		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_LIMIT, 0x0);
+		if (prefechable_64 == PCI_PREF_RANGE_TYPE_64) {
+			pci_hose_write_config_word(hose, dev, PCI_PREF_BASE_UPPER32, 0x0);
+			pci_hose_write_config_word(hose, dev, PCI_PREF_LIMIT_UPPER32, 0x0);
+		}
 	}
 
 	if (pci_io) {
@@ -271,11 +314,28 @@ void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 	}
 
 	if (pci_prefetch) {
+		u16 prefechable_64;
+
+		pci_hose_read_config_word(hose, dev,
+					PCI_PREF_MEMORY_LIMIT,
+					&prefechable_64);
+		prefechable_64 &= PCI_PREF_RANGE_TYPE_MASK;
+
 		/* Round memory allocator to 1MB boundary */
 		pciauto_region_align(pci_prefetch, 0x100000);
 
 		pci_hose_write_config_word(hose, dev, PCI_PREF_MEMORY_LIMIT,
 				(pci_prefetch->bus_lower - 1) >> 16);
+		if (prefechable_64 == PCI_PREF_RANGE_TYPE_64)
+#ifdef CONFIG_SYS_PCI_64BIT
+			pci_hose_write_config_dword(hose, dev,
+					PCI_PREF_LIMIT_UPPER32,
+					(pci_prefetch->bus_lower - 1) >> 32);
+#else
+			pci_hose_write_config_dword(hose, dev,
+					PCI_PREF_LIMIT_UPPER32,
+					0x0);
+#endif
 	}
 
 	if (pci_io) {

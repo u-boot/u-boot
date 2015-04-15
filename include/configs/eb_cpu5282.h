@@ -15,9 +15,6 @@
  * High Level Configuration Options (easy to change)                    *
  *----------------------------------------------------------------------*/
 
-#define	CONFIG_MCF52x2			/* define processor family */
-#define CONFIG_M5282			/* define processor type */
-
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_MCFUART

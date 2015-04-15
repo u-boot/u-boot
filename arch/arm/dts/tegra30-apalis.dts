@@ -18,6 +18,10 @@
 		sdhci0 = "/sdhci@78000600";
 		sdhci1 = "/sdhci@78000400";
 		sdhci2 = "/sdhci@78000000";
+		spi0 = "/spi@7000d400";
+		spi1 = "/spi@7000dc00";
+		spi2 = "/spi@7000de00";
+		spi3 = "/spi@7000da00";
 		usb0 = "/usb@7d000000";
 		usb1 = "/usb@7d004000";
 		usb2 = "/usb@7d008000";
@@ -243,13 +247,15 @@
 	sdhci@78000000 {
 		status = "okay";
 		bus-width = <4>;
-		cd-gpios = <&gpio 229 1>; /* PCC5, SD1_CD# */
+		/* SD1_CD# */
+		cd-gpios = <&gpio TEGRA_GPIO(CC, 5) GPIO_ACTIVE_LOW>;
 	};
 
 	sdhci@78000400 {
 		status = "okay";
 		bus-width = <8>;
-		cd-gpios = <&gpio 171 1>; /* PV3, MMC1_CD# */
+		/* MMC1_CD# */
+		cd-gpios = <&gpio TEGRA_GPIO(V, 3) GPIO_ACTIVE_LOW>;
 	};
 
 	sdhci@78000600 {
@@ -262,20 +268,23 @@
 	usb@7d000000 {
 		status = "okay";
 		dr_mode = "peripheral";
-		nvidia,vbus-gpio = <&gpio 157 0>;	/* PT5, USBO1_EN */
+		/* USBO1_EN */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(T, 5) GPIO_ACTIVE_HIGH>;
 	};
 
 	/* EHCI instance 1: USB2_DP/N -> USBH2_DP/N */
 	usb@7d004000 {
 		status = "okay";
-		nvidia,vbus-gpio = <&gpio 233 0>;	/* PDD1, USBH_EN */
+		/* USBH_EN */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(DD, 1) GPIO_ACTIVE_HIGH>;
 		phy_type = "utmi";
 	};
 
 	/* EHCI instance 2: USB3_DP/N -> USBH3_DP/N */
 	usb@7d008000 {
 		status = "okay";
-		nvidia,vbus-gpio = <&gpio 233 0>;	/* PDD1, USBH_EN */
+		/* USBH_EN */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(DD, 1) GPIO_ACTIVE_HIGH>;
 	};
 
 	regulators {

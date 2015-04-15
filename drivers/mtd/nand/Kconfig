@@ -6,8 +6,6 @@ config SYS_NAND_SELF_INIT
 	  This option, if enabled, provides more flexible and linux-like
 	  NAND initialization process.
 
-if !SPL_BUILD
-
 config NAND_DENALI
 	bool "Support Denali NAND controller"
 	select SYS_NAND_SELF_INIT
@@ -34,9 +32,7 @@ config NAND_DENALI_SPARE_AREA_SKIP_BYTES
 	  of OOB area before last ECC sector data starts.  This is potentially
 	  used to preserve the bad block marker in the OOB area.
 
-endif
-
-if SPL_BUILD
+if SPL
 
 config SPL_NAND_DENALI
 	bool "Support Denali NAND controller for SPL"

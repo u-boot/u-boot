@@ -16,7 +16,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include <version.h>
 
 #ifndef CONFIG_SYS_PHY_UBOOT_BASE
 #define CONFIG_SYS_PHY_UBOOT_BASE	CONFIG_SYS_UBOOT_BASE
@@ -96,28 +95,6 @@ mmu_disable:
 	mov	pc, r2
 mmu_disable_phys:
 
-#ifdef CONFIG_DISABLE_TCM
-	/*
-	 * Disable the TCMs
-	 */
-	mrc	p15, 0, r0, c0, c0, 2	/* Return TCM details */
-	cmp	r0, #0
-	beq	skip_tcmdisable
-	mov	r1, #0
-	mov	r2, #1
-	tst	r0, r2
-	mcrne	p15, 0, r1, c9, c1, 1	/* Disable Instruction TCM if present*/
-	tst	r0, r2, LSL #16
-	mcrne	p15, 0, r1, c9, c1, 0	/* Disable Data TCM if present*/
-skip_tcmdisable:
-#endif
-#endif
-
-#ifdef CONFIG_PERIPORT_REMAP
-	/* Peri port setup */
-	ldr	r0, =CONFIG_PERIPORT_BASE
-	orr	r0, r0, #CONFIG_PERIPORT_SIZE
-	mcr	p15,0,r0,c15,c2,4
 #endif
 
 	/*

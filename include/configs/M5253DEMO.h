@@ -7,8 +7,6 @@
 #ifndef _M5253DEMO_H
 #define _M5253DEMO_H
 
-#define CONFIG_MCF52x2		/* define processor family */
-#define CONFIG_M5253		/* define processor type */
 #define CONFIG_M5253DEMO	/* define board type */
 
 #define CONFIG_MCFTMR

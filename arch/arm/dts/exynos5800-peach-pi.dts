@@ -17,7 +17,7 @@
 		"google,peach", "samsung,exynos5800", "samsung,exynos5";
 
 	config {
-		google,bad-wake-gpios = <&gpio 0x56 0>; /* gpx0-6 */
+		google,bad-wake-gpios = <&gpx0 6 GPIO_ACTIVE_HIGH>;
 		hwid = "PIT TEST A-A 7848";
 		lazy-init = <1>;
 	};
@@ -32,7 +32,7 @@
 		mem-manuf = "samsung";
 		mem-type = "ddr3";
 		clock-frequency = <800000000>;
-		arm-frequency = <1700000000>;
+		arm-frequency = <900000000>;
 	};
 
 	tmu@10060000 {
@@ -102,7 +102,7 @@
 			spi-half-duplex;
 			spi-max-timeout-ms = <1100>;
 			spi-frame-header = <0xec>;
-			ec-interrupt = <&gpio 93 1>; /* GPX1_5 */
+			ec-interrupt = <&gpx1 5 GPIO_ACTIVE_LOW>;
 
 			/*
 			 * This describes the flash memory within the EC. Note
@@ -118,11 +118,11 @@
 	};
 
 	xhci@12000000 {
-		samsung,vbus-gpio = <&gpio 0x40 0>; /* H00 */
+		samsung,vbus-gpio = <&gph0 0 GPIO_ACTIVE_HIGH>;
 	};
 
 	xhci@12400000 {
-		samsung,vbus-gpio = <&gpio 0x41 0>; /* H01 */
+		samsung,vbus-gpio = <&gph0 1 GPIO_ACTIVE_HIGH>;
 	};
 
 	fimd@14400000 {
@@ -144,10 +144,13 @@
 		samsung,vl-vfpd = <10>;
 		samsung,vl-cmd-allow-len = <0xf>;
 
+		samsung,power-on-delay = <30000>;
 		samsung,winid = <3>;
 		samsung,interface-mode = <1>;
 		samsung,dp-enabled = <1>;
 		samsung,dual-lcd-enabled = <0>;
+
+		samsung,bl-en-gpio = <&gpx2 2 GPIO_ACTIVE_HIGH>;
 	};
 };
 

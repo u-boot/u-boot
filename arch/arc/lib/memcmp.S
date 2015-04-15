@@ -29,6 +29,7 @@ memcmp:
 	ld.a	%r4, [%r0, 8]
 	ld.a	%r5, [%r1, 8]
 	brne	WORD2, %r12, .Lodd
+	nop
 .Loop_end:
 	asl_s	SHIFT, SHIFT, 3
 	bhs_s	.Last_cmp
@@ -105,6 +106,7 @@ memcmp:
 	ldb.a	%r4, [%r0, 2]
 	ldb.a	%r5, [%r1, 2]
 	brne	%r3, %r12, .Lbyte_odd
+	nop
 .Lbyte_end:
 	bcc	.Lbyte_even
 	brne	%r4, %r5, .Lbyte_even

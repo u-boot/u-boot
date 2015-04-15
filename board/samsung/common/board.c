@@ -82,13 +82,19 @@ int board_init(void)
 	}
 	boot_temp_check();
 #endif
+#ifdef CONFIG_TZSW_RESERVED_DRAM_SIZE
+	/* The last few MB of memory can be reserved for secure firmware */
+	ulong size = CONFIG_TZSW_RESERVED_DRAM_SIZE;
 
+	gd->ram_size -= size;
+	gd->bd->bi_dram[CONFIG_NR_DRAM_BANKS - 1].size -= size;
+#endif
 	return exynos_init();
 }
 
 int dram_init(void)
 {
-	int i;
+	unsigned int i;
 	u32 addr;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -100,7 +106,7 @@ int dram_init(void)
 
 void dram_init_banksize(void)
 {
-	int i;
+	unsigned int i;
 	u32 addr, size;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -338,9 +344,6 @@ int arch_early_init_r(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-#ifdef CONFIG_SET_DFU_ALT_INFO
-	set_dfu_alt_info();
-#endif
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info();
 #endif
@@ -355,3 +358,31 @@ int misc_init_r(void)
 	return 0;
 }
 #endif
+
+void reset_misc(void)
+{
+	struct gpio_desc gpio = {};
+	int node;
+
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, 0,
+			"samsung,emmc-reset");
+	if (node < 0)
+		return;
+
+	gpio_request_by_name_nodev(gd->fdt_blob, node, "reset-gpio", 0, &gpio,
+				   GPIOD_IS_OUT);
+
+	if (dm_gpio_is_valid(&gpio)) {
+		/*
+		 * Reset eMMC
+		 *
+		 * FIXME: Need to optimize delay time. Minimum 1usec pulse is
+		 *	  required by 'JEDEC Standard No.84-A441' (eMMC)
+		 *	  document but real delay time is expected to greater
+		 *	  than 1usec.
+		 */
+		dm_gpio_set_value(&gpio, 0);
+		mdelay(10);
+		dm_gpio_set_value(&gpio, 1);
+	}
+}

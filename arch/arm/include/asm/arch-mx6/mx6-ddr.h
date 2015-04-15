@@ -62,6 +62,49 @@ struct mmdc_p_regs {
 	u32 mpmur0;
 };
 
+#define MX6SX_IOM_DDR_BASE	0x020e0200
+struct mx6sx_iomux_ddr_regs {
+	u32 res1[59];
+	u32 dram_dqm0;
+	u32 dram_dqm1;
+	u32 dram_dqm2;
+	u32 dram_dqm3;
+	u32 dram_ras;
+	u32 dram_cas;
+	u32 res2[2];
+	u32 dram_sdwe_b;
+	u32 dram_odt0;
+	u32 dram_odt1;
+	u32 dram_sdba0;
+	u32 dram_sdba1;
+	u32 dram_sdba2;
+	u32 dram_sdcke0;
+	u32 dram_sdcke1;
+	u32 dram_sdclk_0;
+	u32 dram_sdqs0;
+	u32 dram_sdqs1;
+	u32 dram_sdqs2;
+	u32 dram_sdqs3;
+	u32 dram_reset;
+};
+
+#define MX6SX_IOM_GRP_BASE	0x020e0500
+struct mx6sx_iomux_grp_regs {
+	u32 res1[61];
+	u32 grp_addds;
+	u32 grp_ddrmode_ctl;
+	u32 grp_ddrpke;
+	u32 grp_ddrpk;
+	u32 grp_ddrhys;
+	u32 grp_ddrmode;
+	u32 grp_b0ds;
+	u32 grp_b1ds;
+	u32 grp_ctlds;
+	u32 grp_ddr_type;
+	u32 grp_b2ds;
+	u32 grp_b3ds;
+};
+
 /*
  * MMDC iomux registers (pinctl/padctl) - (different for IMX6DQ vs IMX6SDL)
  */
@@ -243,6 +286,9 @@ void mx6dq_dram_iocfg(unsigned width,
 void mx6sdl_dram_iocfg(unsigned width,
 		       const struct mx6sdl_iomux_ddr_regs *,
 		       const struct mx6sdl_iomux_grp_regs *);
+void mx6sx_dram_iocfg(unsigned width,
+		      const struct mx6sx_iomux_ddr_regs *,
+		      const struct mx6sx_iomux_grp_regs *);
 
 /* configure mx6 mmdc registers */
 void mx6_dram_cfg(const struct mx6_ddr_sysinfo *,

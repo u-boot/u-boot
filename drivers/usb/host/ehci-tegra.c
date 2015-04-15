@@ -72,8 +72,8 @@ struct fdt_usb {
 	enum usb_init_type init_type;
 	enum dr_mode dr_mode;	/* dual role mode */
 	enum periph_id periph_id;/* peripheral id */
-	struct fdt_gpio_state vbus_gpio;	/* GPIO for vbus enable */
-	struct fdt_gpio_state phy_reset_gpio; /* GPIO to reset ULPI phy */
+	struct gpio_desc vbus_gpio;	/* GPIO for vbus enable */
+	struct gpio_desc phy_reset_gpio; /* GPIO to reset ULPI phy */
 };
 
 static struct fdt_usb port[USB_PORTS_MAX];	/* List of valid USB ports */
@@ -252,17 +252,14 @@ static void set_up_vbus(struct fdt_usb *config, enum usb_init_type init)
 		return;
 	}
 
-	if (fdt_gpio_isvalid(&config->vbus_gpio)) {
+	if (dm_gpio_is_valid(&config->vbus_gpio)) {
 		int vbus_value;
 
-		fdtdec_setup_gpio(&config->vbus_gpio);
+		vbus_value = (init == USB_INIT_HOST);
+		dm_gpio_set_value(&config->vbus_gpio, vbus_value);
 
-		vbus_value = (init == USB_INIT_HOST) ^
-			     !!(config->vbus_gpio.flags & FDT_GPIO_ACTIVE_LOW);
-		gpio_direction_output(config->vbus_gpio.gpio, vbus_value);
-
-		debug("set_up_vbus: GPIO %d %d\n", config->vbus_gpio.gpio,
-		      vbus_value);
+		debug("set_up_vbus: GPIO %d %d\n",
+		      gpio_get_number(&config->vbus_gpio), vbus_value);
 	}
 }
 
@@ -360,7 +357,7 @@ static int init_utmi_usb_controller(struct fdt_usb *config,
 	 * mux must be switched to actually use a_sess_vld threshold.
 	 */
 	if (config->dr_mode == DR_MODE_OTG &&
-	    fdt_gpio_isvalid(&config->vbus_gpio))
+	    dm_gpio_is_valid(&config->vbus_gpio))
 		clrsetbits_le32(&usbctlr->usb1_legacy_ctrl,
 			VBUS_SENSE_CTL_MASK,
 			VBUS_SENSE_CTL_A_SESS_VLD << VBUS_SENSE_CTL_SHIFT);
@@ -569,11 +566,10 @@ static int init_ulpi_usb_controller(struct fdt_usb *config,
 	clock_set_pllout(CLOCK_ID_PERIPH, PLL_OUT4, CONFIG_ULPI_REF_CLK);
 
 	/* reset ULPI phy */
-	if (fdt_gpio_isvalid(&config->phy_reset_gpio)) {
-		fdtdec_setup_gpio(&config->phy_reset_gpio);
-		gpio_direction_output(config->phy_reset_gpio.gpio, 0);
+	if (dm_gpio_is_valid(&config->phy_reset_gpio)) {
+		dm_gpio_set_value(&config->phy_reset_gpio, 0);
 		mdelay(5);
-		gpio_set_value(config->phy_reset_gpio.gpio, 1);
+		dm_gpio_set_value(&config->phy_reset_gpio, 1);
 	}
 
 	/* Reset the usb controller */
@@ -685,14 +681,16 @@ static int fdt_decode_usb(const void *blob, int node, struct fdt_usb *config)
 		debug("%s: Missing/invalid peripheral ID\n", __func__);
 		return -FDT_ERR_NOTFOUND;
 	}
-	fdtdec_decode_gpio(blob, node, "nvidia,vbus-gpio", &config->vbus_gpio);
-	fdtdec_decode_gpio(blob, node, "nvidia,phy-reset-gpio",
-			&config->phy_reset_gpio);
+	gpio_request_by_name_nodev(blob, node, "nvidia,vbus-gpio", 0,
+				   &config->vbus_gpio, GPIOD_IS_OUT);
+	gpio_request_by_name_nodev(blob, node, "nvidia,phy-reset-gpio", 0,
+				   &config->phy_reset_gpio, GPIOD_IS_OUT);
 	debug("enabled=%d, legacy_mode=%d, utmi=%d, ulpi=%d, periph_id=%d, "
 		"vbus=%d, phy_reset=%d, dr_mode=%d\n",
 		config->enabled, config->has_legacy_mode, config->utmi,
-		config->ulpi, config->periph_id, config->vbus_gpio.gpio,
-		config->phy_reset_gpio.gpio, config->dr_mode);
+		config->ulpi, config->periph_id,
+		gpio_get_number(&config->vbus_gpio),
+		gpio_get_number(&config->phy_reset_gpio), config->dr_mode);
 
 	return 0;
 }

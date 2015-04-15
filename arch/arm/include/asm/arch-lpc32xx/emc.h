@@ -76,4 +76,25 @@ struct emc_regs {
 #define EMC_STAT_WAITWR(n)		(((n) - 2) & 0x1F)
 #define EMC_STAT_WAITTURN(n)		(((n) - 1) & 0x0F)
 
+/* EMC settings for DRAM */
+struct emc_dram_settings {
+	u32	cmddelay;
+	u32	config0;
+	u32	rascas0;
+	u32	rdconfig;
+	u32	trp;
+	u32	tras;
+	u32	tsrex;
+	u32	twr;
+	u32	trc;
+	u32	trfc;
+	u32	txsr;
+	u32	trrd;
+	u32	tmrd;
+	u32	tcdlr;
+	u32	refresh;
+	u32	mode;
+	u32	emode;
+};
+
 #endif /* _LPC32XX_EMC_H */

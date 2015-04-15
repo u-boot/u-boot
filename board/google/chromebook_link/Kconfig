@@ -14,6 +14,7 @@ config SYS_CONFIG_NAME
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
+	select X86_RESET_VECTOR
 	select CPU_INTEL_SOCKET_RPGA989
 	select NORTHBRIDGE_INTEL_IVYBRIDGE
 	select SOUTHBRIDGE_INTEL_C216
@@ -21,12 +22,19 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select MARK_GRAPHICS_MEM_WRCOMB
 	select BOARD_ROMSIZE_KB_8192
 
-config MMCONF_BASE_ADDRESS
-	hex
+config PCIE_ECAM_BASE
 	default 0xf0000000
 
 config EARLY_POST_CROS_EC
 	bool "Enable early post to Chrome OS EC"
 	default y
+
+config SYS_CAR_ADDR
+	hex
+	default 0xff7e0000
+
+config SYS_CAR_SIZE
+	hex
+	default 0x20000
 
 endif

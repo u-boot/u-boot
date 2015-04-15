@@ -13,7 +13,7 @@
 #define __OMAP3_EVM_QUICK_NAND_H
 
 #include <asm/arch/cpu.h>
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 
 /* ----------------------------------------------------------------------------
  * Supported U-boot commands

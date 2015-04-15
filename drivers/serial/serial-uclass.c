@@ -16,8 +16,6 @@
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 
-#include <ns16550.h>
-
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -258,6 +256,22 @@ static int serial_post_probe(struct udevice *dev)
 #endif
 	int ret;
 
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
+	if (ops->setbrg)
+		ops->setbrg += gd->reloc_off;
+	if (ops->getc)
+		ops->getc += gd->reloc_off;
+	if (ops->putc)
+		ops->putc += gd->reloc_off;
+	if (ops->pending)
+		ops->pending += gd->reloc_off;
+	if (ops->clear)
+		ops->clear += gd->reloc_off;
+#if CONFIG_POST & CONFIG_SYS_POST_UART
+	if (ops->loop)
+		ops->loop += gd->reloc_off
+#endif
+#endif
 	/* Set the baud rate */
 	if (ops->setbrg) {
 		ret = ops->setbrg(dev, gd->baudrate);
@@ -297,6 +311,7 @@ static int serial_pre_remove(struct udevice *dev)
 UCLASS_DRIVER(serial) = {
 	.id		= UCLASS_SERIAL,
 	.name		= "serial",
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_probe	= serial_post_probe,
 	.pre_remove	= serial_pre_remove,
 	.per_device_auto_alloc_size = sizeof(struct serial_dev_priv),

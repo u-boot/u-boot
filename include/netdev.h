@@ -55,9 +55,9 @@ int ftmac100_initialize(bd_t *bits);
 int ftmac110_initialize(bd_t *bits);
 int greth_initialize(bd_t *bis);
 void gt6426x_eth_initialize(bd_t *bis);
-int ks8695_eth_initialize(void);
 int ks8851_mll_initialize(u8 dev_num, int base_addr);
 int lan91c96_initialize(u8 dev_num, int base_addr);
+int lpc32xx_eth_initialize(bd_t *bis);
 int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
 int mcdmafec_initialize(bd_t *bis);
 int mcffec_initialize(bd_t *bis);
@@ -70,6 +70,7 @@ int natsemi_initialize(bd_t *bis);
 int ne2k_register(void);
 int npe_initialize(bd_t *bis);
 int ns8382x_initialize(bd_t *bis);
+int pch_gbe_register(bd_t *bis);
 int pcnet_initialize(bd_t *bis);
 int ppc_4xx_eth_initialize (bd_t *bis);
 int rtl8139_initialize(bd_t *bis);
@@ -123,6 +124,9 @@ static inline int pci_eth_init(bd_t *bis)
 #endif
 #ifdef CONFIG_E1000
 	num += e1000_initialize(bis);
+#endif
+#ifdef CONFIG_PCH_GBE
+	num += pch_gbe_register(bis);
 #endif
 #ifdef CONFIG_PCNET
 	num += pcnet_initialize(bis);

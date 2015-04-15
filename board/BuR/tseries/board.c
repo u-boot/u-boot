@@ -27,14 +27,14 @@
 #include <i2c.h>
 #include <power/tps65217.h>
 #include "../common/bur_common.h"
+#include <lcd.h>
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 /* --------------------------------------------------------------------------*/
 /* -- defines for GPIO -- */
-#define	ETHLED_ORANGE	(96+16)	/* GPIO3_16 */
 #define	REPSWITCH	(0+20)	/* GPIO0_20 */
-
 
 #if defined(CONFIG_SPL_BUILD)
 /* TODO: check ram-timing ! */
@@ -82,7 +82,6 @@ static const struct ctrl_ioregs ddr3_ioregs = {
 int spl_start_uboot(void)
 {
 	if (0 == gpio_get_value(REPSWITCH)) {
-		blink(5, 125, ETHLED_ORANGE);
 		mdelay(1000);
 		printf("SPL: entering u-boot instead kernel image.\n");
 		return 1;
@@ -96,7 +95,39 @@ static const struct dpll_params dpll_ddr3 = { 400, OSC-1, 1, -1, -1, -1, -1};
 
 void am33xx_spl_board_init(void)
 {
-	pmicsetup(1000);
+	struct cm_perpll *const cmper = (struct cm_perpll *)CM_PER;
+	/*struct cm_wkuppll *const cmwkup = (struct cm_wkuppll *)CM_WKUP;*/
+	struct cm_dpll *const cmdpll = (struct cm_dpll *)CM_DPLL;
+
+	/*
+	 * in TRM they write a reset value of 1 (=CLK_M_OSC) for the
+	 * CLKSEL_TIMER6_CLK Register, in fact reset value is 0, so we need set
+	 * the source of timer6 clk to CLK_M_OSC
+	 */
+	writel(0x01, &cmdpll->clktimer6clk);
+
+	/* enable additional clocks of modules which are accessed later */
+	u32 *const clk_domains[] = {
+		&cmper->lcdcclkstctrl,
+		0
+	};
+
+	u32 *const clk_modules_tsspecific[] = {
+		&cmper->lcdclkctrl,
+		&cmper->timer5clkctrl,
+		&cmper->timer6clkctrl,
+		0
+	};
+	do_enable_clocks(clk_domains, clk_modules_tsspecific, 1);
+
+	/* setup LCD-Pixel Clock */
+	writel(0x2, &cmdpll->clklcdcpixelclk);	/* clock comes from perPLL M2 */
+
+	/* setup I2C */
+	enable_i2c_pin_mux();
+	i2c_set_bus_num(0);
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
+	pmicsetup(0);
 }
 
 const struct dpll_params *get_dpll_ddr_params(void)
@@ -116,6 +147,9 @@ void sdram_init(void)
 /* Basic board specific setup.  Pinmux has been handled already. */
 int board_init(void)
 {
+#if defined(CONFIG_HW_WATCHDOG)
+	hw_watchdog_init();
+#endif
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 #ifdef CONFIG_NAND
 	gpmc_init();
@@ -126,24 +160,12 @@ int board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
-	gpio_direction_output(ETHLED_ORANGE, 0);
-
 	if (0 == gpio_get_value(REPSWITCH)) {
-		printf("\n\n\n"
-		"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-		"!!!!!!! recovery switch activated !!!!!!!\n"
-		"!!!!!!!     running usbupdate     !!!!!!!\n"
-		"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n\n");
-		setenv("bootcmd", "sleep 2; run netupdate;");
+		lcd_position_cursor(1, 8);
+		lcd_puts(
+		"switching to network-console ...       ");
+		setenv("bootcmd", "run netconsole");
 	}
-
-	printf("turning on display power+backlight ... ");
-	tps65217_reg_write(TPS65217_PROT_LEVEL_NONE, TPS65217_WLEDCTRL1,
-			   0x09, TPS65217_MASK_ALL_BITS);	/* 200 Hz, ON */
-	tps65217_reg_write(TPS65217_PROT_LEVEL_NONE, TPS65217_WLEDCTRL2,
-			   0x62, TPS65217_MASK_ALL_BITS);	/* 100% */
-	printf("ok.\n");
-
 	return 0;
 }
 #endif /* CONFIG_BOARD_LATE_INIT */

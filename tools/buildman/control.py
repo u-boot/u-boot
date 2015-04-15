@@ -118,21 +118,45 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         print
         return 0
 
+    if options.fetch_arch:
+        if options.fetch_arch == 'list':
+            sorted_list = toolchains.ListArchs()
+            print 'Available architectures: %s\n' % ' '.join(sorted_list)
+            return 0
+        else:
+            fetch_arch = options.fetch_arch
+            if fetch_arch == 'all':
+                fetch_arch = ','.join(toolchains.ListArchs())
+                print 'Downloading toolchains: %s\n' % fetch_arch
+            for arch in fetch_arch.split(','):
+                ret = toolchains.FetchAndInstall(arch)
+                if ret:
+                    return ret
+            return 0
+
     # Work out how many commits to build. We want to build everything on the
     # branch. We also build the upstream commit as a control so we can see
     # problems introduced by the first commit on the branch.
     col = terminal.Color()
     count = options.count
+    has_range = options.branch and '..' in options.branch
     if count == -1:
         if not options.branch:
             count = 1
         else:
-            count = gitutil.CountCommitsInBranch(options.git_dir,
-                                                 options.branch)
+            if has_range:
+                count, msg = gitutil.CountCommitsInRange(options.git_dir,
+                                                         options.branch)
+            else:
+                count, msg = gitutil.CountCommitsInBranch(options.git_dir,
+                                                          options.branch)
             if count is None:
-                str = ("Branch '%s' not found or has no upstream" %
-                       options.branch)
-                sys.exit(col.Color(col.RED, str))
+                sys.exit(col.Color(col.RED, msg))
+            elif count == 0:
+                sys.exit(col.Color(col.RED, "Range '%s' has no commits" %
+                                   options.branch))
+            if msg:
+                print col.Color(col.YELLOW, msg)
             count += 1   # Build upstream commit also
 
     if not count:
@@ -172,8 +196,11 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     # to overwrite earlier ones by setting allow_overwrite=True
     if options.branch:
         if count == -1:
-            range_expr = gitutil.GetRangeInBranch(options.git_dir,
-                                                  options.branch)
+            if has_range:
+                range_expr = options.branch
+            else:
+                range_expr = gitutil.GetRangeInBranch(options.git_dir,
+                                                      options.branch)
             upstream_commit = gitutil.GetUpstream(options.git_dir,
                                                   options.branch)
             series = patchstream.GetMetaDataForList(upstream_commit,
@@ -188,6 +215,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     else:
         series = None
         options.verbose = True
+        if not options.summary:
+            options.show_errors = True
 
     # By default we have one thread per CPU. But if there are not enough jobs
     # we can have fewer threads and use a high '-j' value for make.
@@ -205,17 +234,22 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
     if not gnu_make:
         sys.exit('GNU Make not found')
 
-    # Create a new builder with the selected options
+    # Create a new builder with the selected options.
+    output_dir = options.output_dir
     if options.branch:
         dirname = options.branch.replace('/', '_')
-    else:
-        dirname = 'current'
-    output_dir = os.path.join(options.output_dir, dirname)
-    if clean_dir and os.path.exists(output_dir):
+        # As a special case allow the board directory to be placed in the
+        # output directory itself rather than any subdirectory.
+        if not options.no_subdirs:
+            output_dir = os.path.join(options.output_dir, dirname)
+    if (clean_dir and output_dir != options.output_dir and
+            os.path.exists(output_dir)):
         shutil.rmtree(output_dir)
     builder = Builder(toolchains, output_dir, options.git_dir,
             options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
-            show_unknown=options.show_unknown, step=options.step)
+            show_unknown=options.show_unknown, step=options.step,
+            no_subdirs=options.no_subdirs, full_path=options.full_path,
+            verbose_build=options.verbose_build)
     builder.force_config_on_failure = not options.quick
     if make_func:
         builder.do_make = make_func

@@ -58,9 +58,6 @@
 /* U-Boot general configurations */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
-#define CONFIG_SYS_PBSIZE	\
-	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-						/* Print buffer size */
 #define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
@@ -116,7 +113,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x20000000
 
 #define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
-#define CONFIG_SYS_MALLOC_F_LEN		(1 << 10)
 
 /* SPL */
 #define CONFIG_SPL_FAT_SUPPORT

@@ -45,9 +45,13 @@
  *
  * sun8i has 1 bank:
  * PL0 - PL11
+ *
+ * sun9i has 3 banks:
+ * PL0 - PL9  | PM0 - PM15  | PN0 - PN1
  */
 #define SUNXI_GPIO_L	11
 #define SUNXI_GPIO_M	12
+#define SUNXI_GPIO_N	13
 
 struct sunxi_gpio {
 	u32 cfg[4];
@@ -114,6 +118,8 @@ enum sunxi_gpio_number {
 	SUNXI_GPIO_I_START = SUNXI_GPIO_NEXT(SUNXI_GPIO_H),
 	SUNXI_GPIO_L_START = 352,
 	SUNXI_GPIO_M_START = SUNXI_GPIO_NEXT(SUNXI_GPIO_L),
+	SUNXI_GPIO_N_START = SUNXI_GPIO_NEXT(SUNXI_GPIO_M),
+	SUNXI_GPIO_AXP0_START = 1024,
 };
 
 /* SUNXI GPIO number definitions */
@@ -128,6 +134,9 @@ enum sunxi_gpio_number {
 #define SUNXI_GPI(_nr)	(SUNXI_GPIO_I_START + (_nr))
 #define SUNXI_GPL(_nr)	(SUNXI_GPIO_L_START + (_nr))
 #define SUNXI_GPM(_nr)	(SUNXI_GPIO_M_START + (_nr))
+#define SUNXI_GPN(_nr)	(SUNXI_GPIO_N_START + (_nr))
+
+#define SUNXI_GPAXP0(_nr)	(SUNXI_GPIO_AXP0_START + (_nr))
 
 /* GPIO pin function config */
 #define SUNXI_GPIO_INPUT	0
@@ -145,12 +154,10 @@ enum sunxi_gpio_number {
 #define SUN5I_GPB19_UART0_TX	2
 #define SUN5I_GPB20_UART0_RX	2
 
-#define SUN5I_GPG3_SDC1		2
-
-#define SUN5I_GPG3_UART1_TX	4
-#define SUN5I_GPG4_UART1_RX	4
-
 #define SUNXI_GPC6_SDC2		3
+
+#define SUNXI_GPD0_LCD0		2
+#define SUNXI_GPD0_LVDS0	3
 
 #define SUNXI_GPF0_SDC0		2
 
@@ -166,6 +173,11 @@ enum sunxi_gpio_number {
 
 #define SUN4I_GPG0_SDC1		4
 
+#define SUN5I_GPG3_SDC1		2
+
+#define SUN5I_GPG3_UART1_TX	4
+#define SUN5I_GPG4_UART1_RX	4
+
 #define SUN4I_GPH22_SDC1	5
 
 #define SUN6I_GPH20_UART0_TX	2
@@ -173,11 +185,16 @@ enum sunxi_gpio_number {
 
 #define SUN4I_GPI4_SDC3		2
 
-#define SUNXI_GPL0_R_P2WI_SCK	3
-#define SUNXI_GPL1_R_P2WI_SDA	3
+#define SUN6I_GPL0_R_P2WI_SCK	3
+#define SUN6I_GPL1_R_P2WI_SDA	3
 
+#define SUN8I_GPL0_R_RSB_SCK	2
+#define SUN8I_GPL1_R_RSB_SDA	2
 #define SUN8I_GPL2_R_UART_TX	2
 #define SUN8I_GPL3_R_UART_RX	2
+
+#define SUN9I_GPN0_R_RSB_SCK	3
+#define SUN9I_GPN1_R_RSB_SDA    3
 
 /* GPIO pin pull-up/down config */
 #define SUNXI_GPIO_PULL_DISABLE	0

@@ -16,14 +16,14 @@
 #define CONFIG_SYS_CACHELINE_SIZE	64
 #define CONFIG_EXYNOS_SPL
 
-/* Allow tracing to be enabled */
+#ifdef FTRACE
 #define CONFIG_TRACE
 #define CONFIG_CMD_TRACE
 #define CONFIG_TRACE_BUFFER_SIZE	(16 << 20)
 #define CONFIG_TRACE_EARLY_SIZE		(8 << 20)
 #define CONFIG_TRACE_EARLY
 #define CONFIG_TRACE_EARLY_ADDR		0x50000000
-
+#endif
 
 /* Enable ACE acceleration for SHA1 and SHA256 */
 #define CONFIG_EXYNOS_ACE_SHA
@@ -126,12 +126,13 @@
 #define SPI_FLASH_UBOOT_POS	(CONFIG_SEC_FW_SIZE + CONFIG_BL1_SIZE)
 
 /* I2C */
-#define CONFIG_SYS_I2C_INIT_BOARD
-#define CONFIG_SYS_I2C
+
+/* TODO(sjg@chromium.org): Move these two options to Kconfig */
+#define CONFIG_DM_I2C
+#define CONFIG_DM_I2C_COMPAT
 #define CONFIG_CMD_I2C
-#define CONFIG_SYS_I2C_S3C24X0_SPEED	100000		/* 100 Kbps */
 #define CONFIG_SYS_I2C_S3C24X0
-#define CONFIG_I2C_MULTI_BUS
+#define CONFIG_SYS_I2C_S3C24X0_SPEED	100000		/* 100 Kbps */
 #define CONFIG_SYS_I2C_S3C24X0_SLAVE    0x0
 #define CONFIG_I2C_EDID
 

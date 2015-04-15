@@ -1,0 +1,23 @@
+# The MSI Primo73 is an A20 based tablet, with 1G RAM, 16G NAND,
+# 1024x600 TN LCD display, mono speaker, 0.3 MP front camera, 2.0 MP
+# rear camera, 3000 mAh battery, gt911 touchscreen, mma8452 accelerometer
+# and rtl8188etv usb wifi. Has "power", "volume+" and "volume-" buttons
+# (both volume buttons are also connected to the UBOOT_SEL pin). The
+# external connectors are represented by MicroSD slot, MiniHDMI, MicroUSB
+# OTG and 3.5mm headphone jack. More details are available at
+#    http://linux-sunxi.org/MSI_Primo73
+CONFIG_SPL=y
+CONFIG_SYS_EXTRA_OPTIONS="AXP209_POWER"
+CONFIG_FDTFILE="sun7i-a20-primo73.dtb"
+CONFIG_VIDEO_LCD_MODE="x:1024,y:600,depth:18,pclk_khz:60000,le:60,ri:160,up:13,lo:12,hs:100,vs:10,sync:3,vmode:0"
+CONFIG_VIDEO_LCD_DCLK_PHASE=0
+CONFIG_VIDEO_LCD_POWER="PH8"
+CONFIG_VIDEO_LCD_BL_EN="PH7"
+CONFIG_VIDEO_LCD_BL_PWM="PB2"
+CONFIG_USB_KEYBOARD=n
+CONFIG_ARM=y
+CONFIG_ARCH_SUNXI=y
+CONFIG_MACH_SUN7I=y
+CONFIG_DRAM_CLK=384
+CONFIG_DRAM_ZQ=127
+CONFIG_DRAM_EMR1=4

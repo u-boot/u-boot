@@ -31,6 +31,8 @@
 #include <linux/backing-dev.h>
 #include "ubifs-media.h"
 #else
+#include <asm/atomic.h>
+#include <asm-generic/atomic-long.h>
 #include <ubi_uboot.h>
 
 #include <linux/ctype.h>
@@ -62,16 +64,6 @@ struct page {
 };
 
 void iput(struct inode *inode);
-
-/*
- * The atomic operations are used for budgeting etc which is not
- * needed for the read-only U-Boot implementation:
- */
-#define atomic_long_inc(a)
-#define atomic_long_dec(a)
-#define	atomic_long_sub(a, b)
-
-typedef unsigned long atomic_long_t;
 
 /* linux/include/time.h */
 #define NSEC_PER_SEC	1000000000L

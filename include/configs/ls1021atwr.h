@@ -186,11 +186,16 @@
 /*
  * Serial Port
  */
+#ifdef CONFIG_LPUART
+#define CONFIG_FSL_LPUART
+#define CONFIG_LPUART_32B_REG
+#else
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+#endif
 
 #define CONFIG_BAUDRATE			115200
 
@@ -298,6 +303,30 @@
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 #define FSL_PCIE_COMPAT "fsl,ls1021a-pcie"
 
+#define CONFIG_SYS_PCI_64BIT
+
+#define CONFIG_SYS_PCIE_CFG0_PHYS_OFF	0x00000000
+#define CONFIG_SYS_PCIE_CFG0_SIZE	0x00001000	/* 4k */
+#define CONFIG_SYS_PCIE_CFG1_PHYS_OFF	0x00001000
+#define CONFIG_SYS_PCIE_CFG1_SIZE	0x00001000	/* 4k */
+
+#define CONFIG_SYS_PCIE_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE_IO_PHYS_OFF	0x00010000
+#define CONFIG_SYS_PCIE_IO_SIZE		0x00010000	/* 64k */
+
+#define CONFIG_SYS_PCIE_MEM_BUS		0x08000000
+#define CONFIG_SYS_PCIE_MEM_PHYS_OFF	0x04000000
+#define CONFIG_SYS_PCIE_MEM_SIZE	0x08000000	/* 128M */
+
+#ifdef CONFIG_PCI
+#define CONFIG_NET_MULTI
+#define CONFIG_PCI_PNP
+#define CONFIG_E1000
+#define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_NET
+#endif
+
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
@@ -325,10 +354,17 @@
 
 #define CONFIG_BOOTDELAY		3
 
+#ifdef CONFIG_LPUART
+#define CONFIG_EXTRA_ENV_SETTINGS       \
+	"bootargs=root=/dev/ram0 rw console=ttyLP0,115200\0" \
+	"initrd_high=0xcfffffff\0"      \
+	"fdt_high=0xcfffffff\0"
+#else
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"bootargs=root=/dev/ram0 rw console=ttyS0,115200\0" \
 	"initrd_high=0xcfffffff\0"      \
 	"fdt_high=0xcfffffff\0"
+#endif
 
 /*
  * Miscellaneous configurable options

@@ -14,10 +14,8 @@
 #include <configs/x86-common.h>
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
-#define CONFIG_SYS_X86_START16		0xfffff800
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_X86_RESET_VECTOR
 #define CONFIG_NR_DRAM_BANKS		1
 
 #define CONFIG_X86_SERIAL
@@ -54,8 +52,20 @@
 #define CONFIG_MMC_SDMA
 #define CONFIG_CMD_MMC
 
+/* Topcliff Gigabit Ethernet */
+#define CONFIG_PCH_GBE
+#define CONFIG_PHYLIB
+
 /* Video is not supported */
 #undef CONFIG_VIDEO
 #undef CONFIG_CFB_CONSOLE
+
+/* Environment configuration */
+#undef CONFIG_ENV_IS_NOWHERE
+#undef CONFIG_ENV_SIZE
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_ENV_SECT_SIZE		0x1000
+#define CONFIG_ENV_OFFSET		0
 
 #endif	/* __CONFIG_H */

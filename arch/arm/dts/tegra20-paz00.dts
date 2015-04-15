@@ -61,9 +61,9 @@
 
 	sdhci@c8000000 {
 		status = "okay";
-		cd-gpios = <&gpio 173 1>; /* gpio PV5 */
-		wp-gpios = <&gpio 57 0>; /* gpio PH1 */
-		power-gpios = <&gpio 169 0>; /* gpio PV1 */
+		cd-gpios = <&gpio TEGRA_GPIO(V, 5) GPIO_ACTIVE_LOW>;
+		wp-gpios = <&gpio TEGRA_GPIO(H, 1) GPIO_ACTIVE_HIGH>;
+		power-gpios = <&gpio TEGRA_GPIO(V, 1) GPIO_ACTIVE_HIGH>;
 		bus-width = <4>;
 	};
 
@@ -86,10 +86,14 @@
 		hsync-active-high;
 		nvidia,bits-per-pixel = <16>;
 		nvidia,pwm = <&pwm 0 0>;
-		nvidia,backlight-enable-gpios = <&gpio 164 0>;	/* PU4 */
-		nvidia,lvds-shutdown-gpios = <&gpio 102 0>;	/* PM6 */
-		nvidia,backlight-vdd-gpios = <&gpio 176 0>;	/* PW0 */
-		nvidia,panel-vdd-gpios = <&gpio 4 0>;		/* PA4 */
+		nvidia,backlight-enable-gpios = <&gpio TEGRA_GPIO(U, 4)
+							GPIO_ACTIVE_HIGH>;
+		nvidia,lvds-shutdown-gpios = <&gpio TEGRA_GPIO(M, 6)
+							GPIO_ACTIVE_HIGH>;
+		nvidia,backlight-vdd-gpios = <&gpio TEGRA_GPIO(W, 0)
+							GPIO_ACTIVE_HIGH>;
+		nvidia,panel-vdd-gpios = <&gpio TEGRA_GPIO(A, 4)
+							GPIO_ACTIVE_HIGH>;
 		nvidia,panel-timings = <400 4 203 17 15>;
 	};
 };

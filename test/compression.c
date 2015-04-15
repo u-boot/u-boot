@@ -7,8 +7,10 @@
 #define DEBUG
 
 #include <common.h>
+#include <bootm.h>
 #include <command.h>
 #include <malloc.h>
+#include <asm/io.h>
 
 #include <u-boot/zlib.h>
 #include <bzlib.h>
@@ -313,9 +315,8 @@ out:
 	return ret;
 }
 
-
-static int do_test_compression(cmd_tbl_t *cmdtp, int flag, int argc,
-			       char * const argv[])
+static int do_ut_compression(cmd_tbl_t *cmdtp, int flag, int argc,
+			     char *const argv[])
 {
 	int err = 0;
 
@@ -324,12 +325,94 @@ static int do_test_compression(cmd_tbl_t *cmdtp, int flag, int argc,
 	err += run_test("lzma", compress_using_lzma, uncompress_using_lzma);
 	err += run_test("lzo", compress_using_lzo, uncompress_using_lzo);
 
-	printf("test_compression %s\n", err == 0 ? "ok" : "FAILED");
+	printf("ut_compression %s\n", err == 0 ? "ok" : "FAILED");
 
 	return err;
 }
 
+static int compress_using_none(void *in, unsigned long in_size,
+			       void *out, unsigned long out_max,
+			       unsigned long *out_size)
+{
+	/* Here we just copy */
+	memcpy(out, in, in_size);
+	*out_size = in_size;
+
+	return 0;
+}
+
+/**
+ * run_bootm_test() - Run tests on the bootm decopmression function
+ *
+ * @comp_type:	Compression type to test
+ * @compress:	Our function to compress data
+ * @return 0 if OK, non-zero on failure
+ */
+static int run_bootm_test(int comp_type, mutate_func compress)
+{
+	ulong compress_size = 1024;
+	void *compress_buff;
+	int unc_len;
+	int err = 0;
+	const ulong image_start = 0;
+	const ulong load_addr = 0x1000;
+	ulong load_end;
+
+	printf("Testing: %s\n", genimg_get_comp_name(comp_type));
+	compress_buff = map_sysmem(image_start, 0);
+	unc_len = strlen(plain);
+	compress((void *)plain, unc_len, compress_buff, compress_size,
+		 &compress_size);
+	err = bootm_decomp_image(comp_type, load_addr, image_start,
+				 IH_TYPE_KERNEL, map_sysmem(load_addr, 0),
+				 compress_buff, compress_size, unc_len,
+				 &load_end);
+	if (err)
+		return err;
+	err = bootm_decomp_image(comp_type, load_addr, image_start,
+				 IH_TYPE_KERNEL, map_sysmem(load_addr, 0),
+				 compress_buff, compress_size, unc_len - 1,
+				 &load_end);
+	if (!err)
+		return -EINVAL;
+
+	/* We can't detect corruption when not decompressing */
+	if (comp_type == IH_COMP_NONE)
+		return 0;
+	memset(compress_buff + compress_size / 2, '\x49',
+	       compress_size / 2);
+	err = bootm_decomp_image(comp_type, load_addr, image_start,
+				 IH_TYPE_KERNEL, map_sysmem(load_addr, 0),
+				 compress_buff, compress_size, 0x10000,
+				 &load_end);
+	if (!err)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int do_ut_image_decomp(cmd_tbl_t *cmdtp, int flag, int argc,
+			      char *const argv[])
+{
+	int err = 0;
+
+	err = run_bootm_test(IH_COMP_GZIP, compress_using_gzip);
+	err |= run_bootm_test(IH_COMP_BZIP2, compress_using_bzip2);
+	err |= run_bootm_test(IH_COMP_LZMA, compress_using_lzma);
+	err |= run_bootm_test(IH_COMP_LZO, compress_using_lzo);
+	err |= run_bootm_test(IH_COMP_NONE, compress_using_none);
+
+	printf("ut_image_decomp %s\n", err == 0 ? "ok" : "FAILED");
+
+	return 0;
+}
+
 U_BOOT_CMD(
-	test_compression,	5,	1,	do_test_compression,
+	ut_compression,	5,	1,	do_ut_compression,
 	"Basic test of compressors: gzip bzip2 lzma lzo", ""
+);
+
+U_BOOT_CMD(
+	ut_image_decomp,	5,	1, do_ut_image_decomp,
+	"Basic test of bootm decompression", ""
 );

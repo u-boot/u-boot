@@ -6,6 +6,7 @@
  */
 
 #include "skeleton.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	compatible = "samsung,exynos5";
@@ -246,8 +247,5 @@
 		interrupts = <0 54 0>;
 		u-boot,dm-pre-reloc;
 		id = <3>;
-	};
-
-	gpio: gpio {
 	};
 };

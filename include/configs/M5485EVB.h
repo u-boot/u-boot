@@ -18,15 +18,14 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF547x_8x	/* define processor family */
-#define CONFIG_M548x		/* define processor type */
-#define CONFIG_M5485		/* define processor type */
+
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
 #define CONFIG_BAUDRATE		115200
 
-#define CONFIG_HW_WATCHDOG
+#undef CONFIG_HW_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
 
 /* Command line configuration */

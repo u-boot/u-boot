@@ -164,13 +164,13 @@ static void spi_hw_init(struct dw_spi_priv *priv)
 	if (!priv->fifo_len) {
 		u32 fifo;
 
-		for (fifo = 2; fifo <= 256; fifo++) {
+		for (fifo = 1; fifo < 256; fifo++) {
 			dw_writew(priv, DW_SPI_TXFLTR, fifo);
 			if (fifo != dw_readw(priv, DW_SPI_TXFLTR))
 				break;
 		}
 
-		priv->fifo_len = (fifo == 2) ? 0 : fifo - 1;
+		priv->fifo_len = (fifo == 1) ? 0 : fifo;
 		dw_writew(priv, DW_SPI_TXFLTR, 0);
 	}
 	debug("%s: fifo_len=%d\n", __func__, priv->fifo_len);
@@ -421,6 +421,5 @@ U_BOOT_DRIVER(dw_spi) = {
 	.ofdata_to_platdata = dw_spi_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct dw_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct dw_spi_priv),
-	.per_child_auto_alloc_size = sizeof(struct spi_slave),
 	.probe = dw_spi_probe,
 };

@@ -163,7 +163,7 @@ static int cm_t3517_handle_mac_address(void)
 	if (ret)
 		return 0;
 
-	ret = cl_eeprom_read_mac_addr(enetaddr);
+	ret = cl_eeprom_read_mac_addr(enetaddr, CONFIG_SYS_I2C_EEPROM_BUS);
 	if (ret) {
 		ret = am3517_get_efuse_enetaddr(enetaddr);
 		if (ret)

@@ -13,6 +13,8 @@
 #include <pci.h>
 #include <asm/pci.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static void config_pci_bridge(struct pci_controller *hose, pci_dev_t dev,
 			      struct pci_config_table *table)
 {
@@ -35,7 +37,31 @@ void board_pci_setup_hose(struct pci_controller *hose)
 	hose->first_busno = 0;
 	hose->last_busno = 0;
 
-	pci_set_region(hose->regions + 0, 0x0, 0x0, 0xffffffff,
+	/* PCI memory space */
+	pci_set_region(hose->regions + 0,
+		       CONFIG_PCI_MEM_BUS,
+		       CONFIG_PCI_MEM_PHYS,
+		       CONFIG_PCI_MEM_SIZE,
 		       PCI_REGION_MEM);
-	hose->region_count = 1;
+
+	/* PCI IO space */
+	pci_set_region(hose->regions + 1,
+		       CONFIG_PCI_IO_BUS,
+		       CONFIG_PCI_IO_PHYS,
+		       CONFIG_PCI_IO_SIZE,
+		       PCI_REGION_IO);
+
+	pci_set_region(hose->regions + 2,
+		       CONFIG_PCI_PREF_BUS,
+		       CONFIG_PCI_PREF_PHYS,
+		       CONFIG_PCI_PREF_SIZE,
+		       PCI_REGION_PREFETCH);
+
+	pci_set_region(hose->regions + 3,
+		       0,
+		       0,
+		       gd->ram_size,
+		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
+
+	hose->region_count = 4;
 }

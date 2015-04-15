@@ -102,7 +102,7 @@
 # define ERR_PRINTF(x)		printf(x)
 # define ERR_PRINTF2(x, y)	printf(x, y)
 
-#ifdef CONFIG_X86EMU_DEBUG103
+#ifdef CONFIG_X86EMU_DEBUG
 
 
 # define DECODE_PRINTF(x)	if (DEBUG_DECODE()) \

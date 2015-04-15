@@ -21,13 +21,15 @@ _dummy := $(shell [ -d $(obj) ] || mkdir -p $(obj))
 
 include $(srctree)/scripts/Kbuild.include
 
-UBOOTINCLUDE := -I$(obj)/include $(UBOOTINCLUDE)
-
--include $(obj)/include/config/auto.conf
+-include include/config/auto.conf
 -include $(obj)/include/autoconf.mk
 
+KBUILD_CPPFLAGS += -DCONFIG_SPL_BUILD
 ifeq ($(CONFIG_TPL_BUILD),y)
-export CONFIG_TPL_BUILD
+KBUILD_CPPFLAGS += -DCONFIG_TPL_BUILD
+endif
+
+ifeq ($(CONFIG_TPL_BUILD),y)
 SPL_BIN := u-boot-tpl
 else
 SPL_BIN := u-boot-spl
@@ -57,6 +59,7 @@ libs-$(CONFIG_SPL_I2C_SUPPORT) += drivers/i2c/
 libs-$(CONFIG_SPL_GPIO_SUPPORT) += drivers/gpio/
 libs-$(CONFIG_SPL_MMC_SUPPORT) += drivers/mmc/
 libs-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += drivers/ddr/fsl/
+libs-$(CONFIG_SYS_MVEBU_DDR) += drivers/ddr/mvebu/
 libs-$(CONFIG_SPL_SERIAL_SUPPORT) += drivers/serial/
 libs-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += drivers/mtd/spi/
 libs-$(CONFIG_SPL_SPI_SUPPORT) += drivers/spi/
@@ -154,9 +157,7 @@ ALL-y	+= $(obj)/$(BOARD)-spl.bin
 endif
 
 ifdef CONFIG_SUNXI
-ifndef CONFIG_SPL_FEL
 ALL-y	+= $(obj)/sunxi-spl.bin
-endif
 endif
 
 ifeq ($(CONFIG_SYS_SOC),"at91")

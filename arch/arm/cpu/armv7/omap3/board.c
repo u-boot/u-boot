@@ -35,7 +35,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* Declarations */
 extern omap3_sysinfo sysinfo;
-static void omap3_setup_aux_cr(void);
 #ifndef CONFIG_SYS_L2CACHE_OFF
 static void omap3_invalidate_l2_cache_secure(void);
 #endif
@@ -119,6 +118,7 @@ int board_mmc_init(bd_t *bis)
 
 void spl_board_init(void)
 {
+	preloader_console_init();
 #if defined(CONFIG_SPL_NAND_SUPPORT) || defined(CONFIG_SPL_ONENAND_SUPPORT)
 	gpmc_init();
 #endif
@@ -239,14 +239,9 @@ void try_unlock_memory(void)
  *****************************************************************************/
 void s_init(void)
 {
-	int in_sdram = is_running_in_sdram();
-
 	watchdog_init();
 
 	try_unlock_memory();
-
-	/* Errata workarounds */
-	omap3_setup_aux_cr();
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
 	/* Invalidate L2-cache from secure mode */
@@ -263,18 +258,14 @@ void s_init(void)
 #ifdef CONFIG_USB_EHCI_OMAP
 	ehci_clocks_enable();
 #endif
+}
 
 #ifdef CONFIG_SPL_BUILD
-	gd = &gdata;
-
-	preloader_console_init();
-
-	timer_init();
-#endif
-
-	if (!in_sdram)
-		mem_init();
+void board_init_f(ulong dummy)
+{
+	mem_init();
 }
+#endif
 
 /*
  * Routine: misc_init_r
@@ -352,7 +343,16 @@ static int do_switch_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 				goto usage;
 		}
 	} else if (strncmp(argv[1], "sw", 2) == 0) {
-		omap_nand_switch_ecc(0, 0);
+		if (argc == 2) {
+			omap_nand_switch_ecc(0, 1);
+		} else {
+			if (strncmp(argv[2], "hamming", 7) == 0)
+				omap_nand_switch_ecc(0, 1);
+			else if (strncmp(argv[2], "bch8", 4) == 0)
+				omap_nand_switch_ecc(0, 8);
+			else
+				goto usage;
+		}
 	} else {
 		goto usage;
 	}
@@ -415,38 +415,29 @@ static void omap3_emu_romcode_call(u32 service_id, u32 *parameters)
 	do_omap3_emu_romcode_call(service_id, OMAP3_PUBLIC_SRAM_SCRATCH_AREA);
 }
 
-static void omap3_update_aux_cr_secure(u32 set_bits, u32 clear_bits)
+void __weak omap3_set_aux_cr_secure(u32 acr)
 {
-	u32 acr;
+	struct emu_hal_params emu_romcode_params;
 
-	/* Read ACR */
-	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
-	acr &= ~clear_bits;
-	acr |= set_bits;
-
-	if (get_device_type() == GP_DEVICE) {
-		omap3_gp_romcode_call(OMAP3_GP_ROMCODE_API_WRITE_ACR,
-				       acr);
-	} else {
-		struct emu_hal_params emu_romcode_params;
-		emu_romcode_params.num_params = 1;
-		emu_romcode_params.param1 = acr;
-		omap3_emu_romcode_call(OMAP3_EMU_HAL_API_WRITE_ACR,
-				       (u32 *)&emu_romcode_params);
-	}
+	emu_romcode_params.num_params = 1;
+	emu_romcode_params.param1 = acr;
+	omap3_emu_romcode_call(OMAP3_EMU_HAL_API_WRITE_ACR,
+			       (u32 *)&emu_romcode_params);
 }
 
-static void omap3_setup_aux_cr(void)
+void v7_arch_cp15_set_acr(u32 acr, u32 cpu_midr, u32 cpu_rev_comb,
+			  u32 cpu_variant, u32 cpu_rev)
 {
-	/* Workaround for Cortex-A8 errata: #454179 #430973
-	 *	Set "IBE" bit
-	 *	Set "Disable Branch Size Mispredicts" bit
-	 * Workaround for erratum #621766
-	 *	Enable L1NEON bit
-	 * ACR |= (IBE | DBSM | L1NEON) => ACR |= 0xE0
-	 */
-	omap3_update_aux_cr_secure(0xE0, 0);
+	/* Write ACR - affects secure banked bits */
+	if (get_device_type() == GP_DEVICE)
+		omap_smc1(OMAP3_GP_ROMCODE_API_WRITE_ACR, acr);
+	else
+		omap3_set_aux_cr_secure(acr);
+
+	/* Write ACR - affects non-secure banked bits - some erratas need it */
+	asm volatile ("mcr p15, 0, %0, c1, c0, 1" : : "r" (acr));
 }
+
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
 static void omap3_update_aux_cr(u32 set_bits, u32 clear_bits)
@@ -457,17 +448,15 @@ static void omap3_update_aux_cr(u32 set_bits, u32 clear_bits)
 	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
 	acr &= ~clear_bits;
 	acr |= set_bits;
+	v7_arch_cp15_set_acr(acr, 0, 0, 0, 0);
 
-	/* Write ACR - affects non-secure banked bits */
-	asm volatile ("mcr p15, 0, %0, c1, c0, 1" : : "r" (acr));
 }
 
 /* Invalidate the entire L2 cache from secure mode */
 static void omap3_invalidate_l2_cache_secure(void)
 {
 	if (get_device_type() == GP_DEVICE) {
-		omap3_gp_romcode_call(OMAP3_GP_ROMCODE_API_L2_INVAL,
-				      0);
+		omap_smc1(OMAP3_GP_ROMCODE_API_L2_INVAL, 0);
 	} else {
 		struct emu_hal_params emu_romcode_params;
 		emu_romcode_params.num_params = 1;
@@ -479,10 +468,9 @@ static void omap3_invalidate_l2_cache_secure(void)
 
 void v7_outer_cache_enable(void)
 {
-	/* Set L2EN */
-	omap3_update_aux_cr_secure(0x2, 0);
 
 	/*
+	 * Set L2EN
 	 * On some revisions L2EN bit is banked on some revisions it's not
 	 * No harm in setting both banked bits(in fact this is required
 	 * by an erratum)
@@ -492,10 +480,8 @@ void v7_outer_cache_enable(void)
 
 void omap3_outer_cache_disable(void)
 {
-	/* Clear L2EN */
-	omap3_update_aux_cr_secure(0, 0x2);
-
 	/*
+	 * Clear L2EN
 	 * On some revisions L2EN bit is banked on some revisions it's not
 	 * No harm in clearing both banked bits(in fact this is required
 	 * by an erratum)

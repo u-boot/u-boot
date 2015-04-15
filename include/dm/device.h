@@ -12,6 +12,7 @@
 #define _DM_DEVICE_H
 
 #include <dm/uclass-id.h>
+#include <fdtdec.h>
 #include <linker_lists.h>
 #include <linux/list.h>
 
@@ -25,6 +26,9 @@ struct driver_info;
 
 /* DM should init this device prior to relocation */
 #define DM_FLAG_PRE_RELOC	(1 << 2)
+
+/* DM is responsible for allocating and freeing parent_platdata */
+#define DM_FLAG_ALLOC_PARENT_PDATA	(1 << 3)
 
 /**
  * struct udevice - An instance of a driver
@@ -46,6 +50,7 @@ struct driver_info;
  * @driver: The driver used by this device
  * @name: Name of device, typically the FDT node name
  * @platdata: Configuration data for this device
+ * @parent_platdata: The parent bus's configuration data for this device
  * @of_offset: Device tree node offset for this device (- for none)
  * @of_id: Pointer to the udevice_id structure which created the device
  * @parent: Parent of this device, or NULL for the top level device
@@ -65,6 +70,7 @@ struct udevice {
 	struct driver *driver;
 	const char *name;
 	void *platdata;
+	void *parent_platdata;
 	int of_offset;
 	const struct udevice_id *of_id;
 	struct udevice *parent;
@@ -127,6 +133,7 @@ struct udevice_id {
  * @remove: Called to remove a device, i.e. de-activate it
  * @unbind: Called to unbind a device from its driver
  * @ofdata_to_platdata: Called before probe to decode device tree data
+ * @child_post_bind: Called after a new child has been bound
  * @child_pre_probe: Called before a child device is probed. The device has
  * memory allocated but it has not yet been probed.
  * @child_post_remove: Called after a child device is removed. The device
@@ -146,6 +153,9 @@ struct udevice_id {
  * device_probe_child() pass it in. So far the use case for allocating it
  * is SPI, but I found that unsatisfactory. Since it is here I will leave it
  * until things are clearer.
+ * @per_child_platdata_auto_alloc_size: A bus likes to store information about
+ * its children. If non-zero this is the size of this data, to be allocated
+ * in the child's parent_platdata pointer.
  * @ops: Driver-specific operations. This is typically a list of function
  * pointers defined by the driver, to implement driver functions required by
  * the uclass.
@@ -160,11 +170,13 @@ struct driver {
 	int (*remove)(struct udevice *dev);
 	int (*unbind)(struct udevice *dev);
 	int (*ofdata_to_platdata)(struct udevice *dev);
+	int (*child_post_bind)(struct udevice *dev);
 	int (*child_pre_probe)(struct udevice *dev);
 	int (*child_post_remove)(struct udevice *dev);
 	int priv_auto_alloc_size;
 	int platdata_auto_alloc_size;
 	int per_child_auto_alloc_size;
+	int per_child_platdata_auto_alloc_size;
 	const void *ops;	/* driver-specific operations */
 	uint32_t flags;
 };
@@ -182,6 +194,16 @@ struct driver {
  * @return platform data, or NULL if none
  */
 void *dev_get_platdata(struct udevice *dev);
+
+/**
+ * dev_get_parent_platdata() - Get the parent platform data for a device
+ *
+ * This checks that dev is not NULL, but no other checks for now
+ *
+ * @dev		Device to check
+ * @return parent's platform data, or NULL if none
+ */
+void *dev_get_parent_platdata(struct udevice *dev);
 
 /**
  * dev_get_parentdata() - Get the parent data for a device
@@ -223,6 +245,14 @@ struct udevice *dev_get_parent(struct udevice *child);
  * returns the associated data value for that compatible string
  */
 ulong dev_get_of_data(struct udevice *dev);
+
+/*
+ * device_get_uclass_id() - return the uclass ID of a device
+ *
+ * @dev:	Device to check
+ * @return uclass ID for the device
+ */
+enum uclass_id device_get_uclass_id(struct udevice *dev);
 
 /**
  * device_get_child() - Get the child of a device by index
@@ -321,5 +351,14 @@ int device_find_first_child(struct udevice *parent, struct udevice **devp);
  * @return 0
  */
 int device_find_next_child(struct udevice **devp);
+
+/**
+ * dev_get_addr() - Get the reg property of a device
+ *
+ * @dev: Pointer to a device
+ *
+ * @return addr
+ */
+fdt_addr_t dev_get_addr(struct udevice *dev);
 
 #endif

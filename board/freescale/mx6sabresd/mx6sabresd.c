@@ -631,11 +631,15 @@ int board_init(void)
 int power_init_board(void)
 {
 	struct pmic *p;
-	unsigned int reg;
+	unsigned int reg, ret;
 
 	p = pfuze_common_init(I2C_PMIC);
 	if (!p)
 		return -ENODEV;
+
+	ret = pfuze_mode_init(p, APS_PFM);
+	if (ret < 0)
+		return ret;
 
 	/* Increase VGEN3 from 2.5 to 2.8V */
 	pmic_reg_read(p, PFUZE100_VGEN3VOL, &reg);

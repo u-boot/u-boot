@@ -11,6 +11,11 @@
 
 #include <asm/linkage.h>
 
+/* Some toolchains use other characters (e.g. '`') to mark new line in macro */
+#ifndef ASM_NL
+#define ASM_NL		 ;
+#endif
+
 #ifdef __cplusplus
 #define CPP_ASMLINKAGE		extern "C"
 #else
@@ -43,15 +48,15 @@
 #define ALIGN_STR		__ALIGN_STR
 
 #define LENTRY(name) \
-	ALIGN; \
+	ALIGN ASM_NL \
 	SYMBOL_NAME_LABEL(name)
 
 #define ENTRY(name) \
-	.globl SYMBOL_NAME(name); \
+	.globl SYMBOL_NAME(name) ASM_NL \
 	LENTRY(name)
 
 #define WEAK(name) \
-	.weak SYMBOL_NAME(name); \
+	.weak SYMBOL_NAME(name) ASM_NL \
 	LENTRY(name)
 
 #ifndef END
@@ -61,7 +66,7 @@
 
 #ifndef ENDPROC
 #define ENDPROC(name) \
-	.type name STT_FUNC; \
+	.type name STT_FUNC ASM_NL \
 	END(name)
 #endif
 

@@ -25,9 +25,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
-#define CONFIG_DM
-#define CONFIG_DM_THERMAL
-#define CONFIG_SYS_MALLOC_F_LEN	(1 << 10)
 #define CONFIG_IMX6_THERMAL
 
 #define CONFIG_SYS_GENERIC_BOARD
@@ -56,6 +53,8 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
 #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
@@ -112,12 +111,10 @@
 			"setenv get_cmd tftp; " \
 		"fi; " \
 		"if ${get_cmd} ${update_sd_firmware_filename}; then " \
-			"if mmc dev ${emmcdev} && " \
-				"mmc open ${emmcdev} 1; then "	\
+			"if mmc dev ${emmcdev} 1; then "	\
 				"setexpr fw_sz ${filesize} / 0x200; " \
 				"setexpr fw_sz ${fw_sz} + 1; "	\
 				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
-				"mmc close ${emmcdev} 1; " \
 			"fi; "	\
 		"fi\0"
 #else
@@ -278,5 +275,21 @@
 #define CONFIG_IPUV3_CLK 260000000
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+
+#ifndef CONFIG_SPL
+#define CONFIG_CI_UDC
+#define CONFIG_USBD_HS
+#define CONFIG_USB_GADGET_DUALSPEED
+
+#define CONFIG_USB_GADGET
+#define CONFIG_CMD_USB_MASS_STORAGE
+#define CONFIG_USB_GADGET_MASS_STORAGE
+#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
+
+#define CONFIG_G_DNL_VENDOR_NUM		0x0525
+#define CONFIG_G_DNL_PRODUCT_NUM	0xa4a5
+#define CONFIG_G_DNL_MANUFACTURER	"FSL"
+#endif
 
 #endif                         /* __MX6QSABRE_COMMON_CONFIG_H */

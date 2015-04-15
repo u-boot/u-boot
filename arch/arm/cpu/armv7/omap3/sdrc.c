@@ -135,6 +135,9 @@ void do_sdrc_init(u32 cs, u32 early)
 	sdrc_actim_base0 = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
 	sdrc_actim_base1 = (struct sdrc_actim *)SDRC_ACTIM_CTRL1_BASE;
 
+	/* set some default timings */
+	timings.sharing = SDRC_SHARING;
+
 	/*
 	 * When called in the early context this may be SPL and we will
 	 * need to set all of the timings.  This ends up being board
@@ -145,6 +148,7 @@ void do_sdrc_init(u32 cs, u32 early)
 	 * setup CS1.
 	 */
 #ifdef CONFIG_SPL_BUILD
+	/* set/modify board-specific timings */
 	get_board_mem_timings(&timings);
 #endif
 	if (early) {
@@ -155,7 +159,7 @@ void do_sdrc_init(u32 cs, u32 early)
 		writel(0, &sdrc_base->sysconfig);
 
 		/* setup sdrc to ball mux */
-		writel(SDRC_SHARING, &sdrc_base->sharing);
+		writel(timings.sharing, &sdrc_base->sharing);
 
 		/* Disable Power Down of CKE because of 1 CKE on combo part */
 		writel(WAKEUPPROC | SRFRONRESET | PAGEPOLICY_HIGH,

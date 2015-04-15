@@ -341,6 +341,17 @@ static void omap3_emu_romcode_call(u32 service_id, u32 *parameters)
 	do_omap3_emu_romcode_call(service_id, OMAP3_PUBLIC_SRAM_SCRATCH_AREA);
 }
 
+void omap3_set_aux_cr_secure(u32 acr)
+{
+	struct emu_hal_params_rx51 emu_romcode_params = { 0, };
+
+	emu_romcode_params.num_params = 2;
+	emu_romcode_params.param1 = acr;
+
+	omap3_emu_romcode_call(OMAP3_EMU_HAL_API_WRITE_ACR,
+			       (u32 *)&emu_romcode_params);
+}
+
 /*
  * Routine: omap3_update_aux_cr_secure_rx51
  * Description: Modify the contents Auxiliary Control Register.
@@ -350,19 +361,13 @@ static void omap3_emu_romcode_call(u32 service_id, u32 *parameters)
  */
 static void omap3_update_aux_cr_secure_rx51(u32 set_bits, u32 clear_bits)
 {
-	struct emu_hal_params_rx51 emu_romcode_params = { 0, };
 	u32 acr;
 
 	/* Read ACR */
 	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
 	acr &= ~clear_bits;
 	acr |= set_bits;
-
-	emu_romcode_params.num_params = 2;
-	emu_romcode_params.param1 = acr;
-
-	omap3_emu_romcode_call(OMAP3_EMU_HAL_API_WRITE_ACR,
-				(u32 *)&emu_romcode_params);
+	omap3_set_aux_cr_secure(acr);
 }
 
 /*

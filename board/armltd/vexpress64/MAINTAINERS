@@ -9,3 +9,8 @@ VEXPRESS_AEMV8A_SEMI BOARD
 M:	Linus Walleij <linus.walleij@linaro.org>
 S:	Maintained
 F:	configs/vexpress_aemv8a_semi_defconfig
+
+JUNO DEVELOPMENT PLATFORM BOARD
+M:	Linus Walleij <linus.walleij@linaro.org>
+S:	Maintained
+F:	configs/vexpress_aemv8a_juno_defconfig

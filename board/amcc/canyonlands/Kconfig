@@ -9,4 +9,34 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "canyonlands"
 
+choice BOARD_TYPE
+	prompt "Select which board to build for"
+
+config CANYONLANDS
+	bool "Glacier"
+	help
+	  Select this to build for the Canyonlands 460EX board.
+
+config GLACIER
+	bool "Glacier"
+	help
+	  Select this to build for the Glacier 460GT board.
+
+config ARCHES
+	bool "Arches"
+	help
+	  Select this to build for the Arches dual 460GT board.
+
+endchoice
+
+config DISPLAY_BOARDINFO
+	bool
+	default y
+
+config DM
+	default y
+
+config DM_SERIAL
+	default y
+
 endif

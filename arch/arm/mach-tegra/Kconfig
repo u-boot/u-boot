@@ -1,0 +1,52 @@
+if TEGRA
+
+choice
+	prompt "Tegra SoC select"
+
+config TEGRA20
+	bool "Tegra20 family"
+
+config TEGRA30
+	bool "Tegra30 family"
+
+config TEGRA114
+	bool "Tegra114 family"
+
+config TEGRA124
+	bool "Tegra124 family"
+
+endchoice
+
+config SYS_MALLOC_F_LEN
+	default 0x1800
+
+config USE_PRIVATE_LIBGCC
+	default y
+
+config DM
+	default y
+
+config SPL_DM
+	default y
+
+config DM_SERIAL
+	default y
+
+config DM_SPI
+	default y
+
+config DM_SPI_FLASH
+	default y
+
+config DM_I2C
+	default y
+
+config DM_GPIO
+	default y
+
+source "arch/arm/mach-tegra/tegra20/Kconfig"
+source "arch/arm/mach-tegra/tegra30/Kconfig"
+source "arch/arm/mach-tegra/tegra114/Kconfig"
+source "arch/arm/mach-tegra/tegra124/Kconfig"
+
+endif

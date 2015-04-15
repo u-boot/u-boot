@@ -348,6 +348,5 @@ U_BOOT_DRIVER(tegra20_sflash) = {
 	.ofdata_to_platdata = tegra20_sflash_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct tegra_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct tegra20_sflash_priv),
-	.per_child_auto_alloc_size	= sizeof(struct spi_slave),
 	.probe	= tegra20_sflash_probe,
 };

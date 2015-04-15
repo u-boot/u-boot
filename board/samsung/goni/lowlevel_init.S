@@ -8,7 +8,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/power.h>

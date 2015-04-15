@@ -309,4 +309,3 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	while (1)
 		;
 }
-void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3) {}

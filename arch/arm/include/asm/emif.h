@@ -650,8 +650,8 @@ struct emif_reg_struct {
 	u32 emif_rd_wr_exec_thresh;
 	u32 emif_cos_config;
 	u32 padding9[6];
-	u32 emif_ddr_phy_status[21];
-	u32 padding10[27];
+	u32 emif_ddr_phy_status[28];
+	u32 padding10[20];
 	u32 emif_ddr_ext_phy_ctrl_1;
 	u32 emif_ddr_ext_phy_ctrl_1_shdw;
 	u32 emif_ddr_ext_phy_ctrl_2;
@@ -700,9 +700,36 @@ struct emif_reg_struct {
 	u32 emif_ddr_ext_phy_ctrl_23_shdw;
 	u32 emif_ddr_ext_phy_ctrl_24;
 	u32 emif_ddr_ext_phy_ctrl_24_shdw;
-	u32 padding[22];
-	u32 emif_ddr_fifo_misaligned_clear_1;
-	u32 emif_ddr_fifo_misaligned_clear_2;
+	u32 emif_ddr_ext_phy_ctrl_25;
+	u32 emif_ddr_ext_phy_ctrl_25_shdw;
+	u32 emif_ddr_ext_phy_ctrl_26;
+	u32 emif_ddr_ext_phy_ctrl_26_shdw;
+	u32 emif_ddr_ext_phy_ctrl_27;
+	u32 emif_ddr_ext_phy_ctrl_27_shdw;
+	u32 emif_ddr_ext_phy_ctrl_28;
+	u32 emif_ddr_ext_phy_ctrl_28_shdw;
+	u32 emif_ddr_ext_phy_ctrl_29;
+	u32 emif_ddr_ext_phy_ctrl_29_shdw;
+	u32 emif_ddr_ext_phy_ctrl_30;
+	u32 emif_ddr_ext_phy_ctrl_30_shdw;
+	u32 emif_ddr_ext_phy_ctrl_31;
+	u32 emif_ddr_ext_phy_ctrl_31_shdw;
+	u32 emif_ddr_ext_phy_ctrl_32;
+	u32 emif_ddr_ext_phy_ctrl_32_shdw;
+	u32 emif_ddr_ext_phy_ctrl_33;
+	u32 emif_ddr_ext_phy_ctrl_33_shdw;
+	u32 emif_ddr_ext_phy_ctrl_34;
+	u32 emif_ddr_ext_phy_ctrl_34_shdw;
+	u32 emif_ddr_ext_phy_ctrl_35;
+	u32 emif_ddr_ext_phy_ctrl_35_shdw;
+	union {
+		u32 emif_ddr_ext_phy_ctrl_36;
+		u32 emif_ddr_fifo_misaligned_clear_1;
+	};
+	union {
+		u32 emif_ddr_ext_phy_ctrl_36_shdw;
+		u32 emif_ddr_fifo_misaligned_clear_2;
+	};
 };
 
 struct dmm_lisa_map_regs {
@@ -1122,6 +1149,7 @@ struct emif_regs {
 	u32 sdram_config;
 	u32 sdram_config2;
 	u32 ref_ctrl;
+	u32 ref_ctrl_final;
 	u32 sdram_tim1;
 	u32 sdram_tim2;
 	u32 sdram_tim3;

@@ -732,10 +732,19 @@ void per_clocks_enable(void)
 	setbits_le32(&prcm_base->iclken_per, 0x08);	/* ICKen GPT2 */
 	setbits_le32(&prcm_base->fclken_per, 0x08);	/* FCKen GPT2 */
 
+	/* Enable GP9 timer. */
+	setbits_le32(&prcm_base->clksel_per, 0x80);	/* GPT9 = 32kHz clk */
+	setbits_le32(&prcm_base->iclken_per, 0x400);	/* ICKen GPT9 */
+	setbits_le32(&prcm_base->fclken_per, 0x400);	/* FCKen GPT9 */
+
 #ifdef CONFIG_SYS_NS16550
 	/* Enable UART1 clocks */
 	setbits_le32(&prcm_base->fclken1_core, 0x00002000);
 	setbits_le32(&prcm_base->iclken1_core, 0x00002000);
+
+	/* Enable UART2 clocks */
+	setbits_le32(&prcm_base->fclken1_core, 0x00004000);
+	setbits_le32(&prcm_base->iclken1_core, 0x00004000);
 
 	/* UART 3 Clocks */
 	setbits_le32(&prcm_base->fclken_per, 0x00000800);

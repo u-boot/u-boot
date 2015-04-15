@@ -76,9 +76,7 @@ ARM ATMEL AT91
 M:	Andreas Bießmann <andreas.devel@googlemail.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-atmel.git
-F:	arch/arm/cpu/armv7/at91/
-F:	arch/arm/cpu/at91-common/
-F:	arch/arm/include/asm/arch-at91/
+F:	arch/arm/mach-at91/
 
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
@@ -100,8 +98,7 @@ M:	Prafulla Wadaskar <prafulla@marvell.com>
 M:	Luka Perkov <luka.perkov@sartura.hr>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-marvell.git
-F:	arch/arm/cpu/arm926ejs/kirkwood/
-F:	arch/arm/include/asm/arch-kirkwood/
+F:	arch/arm/mach-kirkwood/
 
 ARM MARVELL PXA
 M:	Marek Vasut <marex@denx.de>
@@ -147,30 +144,27 @@ ARM TEGRA
 M:	Tom Warren <twarren@nvidia.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-tegra.git
-F:	arch/arm/cpu/arm720t/tegra*/
-F:	arch/arm/cpu/armv7/tegra*/
-F:	arch/arm/cpu/tegra*/
+F:	arch/arm/mach-tegra/
 F:	arch/arm/include/asm/arch-tegra*/
 
 ARM TI
-M:	Tom Rini <trini@ti.com>
+M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-ti.git
-F:	arch/arm/cpu/arm926ejs/davinci/
+F:	arch/arm/mach-davinci/
+F:	arch/arm/mach-keystone/
 F:	arch/arm/cpu/arm926ejs/omap/
 F:	arch/arm/cpu/armv7/omap*/
-F:	arch/arm/include/asm/arch-davinci/
 F:	arch/arm/include/asm/arch-omap*/
 F:	arch/arm/include/asm/ti-common/
 
 ARM UNIPHIER
-M:	Masahiro Yamada <yamada.m@jp.panasonic.com>
+M:	Masahiro Yamada <yamada.masahiro@socionext.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-uniphier.git
-F:	arch/arm/cpu/armv7/uniphier/
-F:	arch/arm/include/asm/arch-uniphier/
+F:	arch/arm/mach-uniphier/
 F:	configs/ph1_*_defconfig
-F:	drivers/serial/serial_uniphier.c
+N:	uniphier
 
 ARM ZYNQ
 M:	Michal Simek <monstr@monstr.eu>
@@ -220,10 +214,12 @@ M:	Lukasz Majewski <l.majewski@samsung.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-dfu.git
 F:	drivers/dfu/
+F:	drivers/usb/gadget/
 
 DRIVER MODEL
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
+T:	git git://git.denx.de/u-boot-dm.git
 F:	drivers/core/
 F:	include/dm/
 F:	test/dm/
@@ -325,12 +321,6 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-mpc86xx.git
 F:	arch/powerpc/cpu/mpc86xx/
 
-POWERPC PPC74XX PPC7XX
-M:	Wolfgang Denk <wd@denx.de>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-74xx-7xx.git
-F:	arch/powerpc/cpu/74xx_7xx/
-
 POWERPC PPC4XX
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
@@ -428,7 +418,7 @@ T:	git git://git.denx.de/u-boot-x86.git
 F:	arch/x86/
 
 THE REST
-M:	Tom Rini <trini@ti.com>
+M:	Tom Rini <trini@konsulko.com>
 L:	u-boot@lists.denx.de
 Q:	http://patchwork.ozlabs.org/project/uboot/list/
 S:	Maintained

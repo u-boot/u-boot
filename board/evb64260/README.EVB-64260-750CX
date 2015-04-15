@@ -1,7 +1,0 @@
-The EVB-64260-750CX is quite similar to the EVB-64260-BP already
-supported except the following differences:
-* It has an IBM-750CXe soldiered on board instead of the slot-1 in the
-   BP.
-* It has a single PCI male connector instead of the 4 PCI female
-   connectors on the BP. It also gets power trough the PCI connector.
-* It has only a single DIMM slot instead of the 2 slots in the BP.

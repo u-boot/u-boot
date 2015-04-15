@@ -26,14 +26,8 @@ unsigned long get_tbclk_mhz(void);
 void timer_set_base(uint64_t base);
 int pcat_timer_init(void);
 
-/* Architecture specific DRAM init */
-int dram_init(void);
-
 /* cpu/.../interrupts.c */
 int cpu_init_interrupts(void);
-
-/* board/.../... */
-int dram_init(void);
 
 int cleanup_before_linux(void);
 int x86_cleanup_before_linux(void);
@@ -44,6 +38,9 @@ void reset_cpu(ulong addr);
 ulong board_get_usable_ram_top(ulong total_size);
 void dram_init_banksize(void);
 int default_print_cpuinfo(void);
+
+/* Set up a UART which can be used with printch(), printhex8(), etc. */
+int setup_early_uart(void);
 
 void setup_pcat_compatibility(void);
 
@@ -69,5 +66,7 @@ void timer_set_tsc_base(uint64_t new_base);
 uint64_t timer_get_tsc(void);
 
 void quick_ram_check(void);
+
+#define PCI_VGA_RAM_IMAGE_START		0xc0000
 
 #endif	/* _U_BOOT_I386_H_ */

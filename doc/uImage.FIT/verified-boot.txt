@@ -64,7 +64,7 @@ software from updatable memory.
 
 It is critical that the public key be secure and cannot be tampered with.
 It can be stored in read-only memory, or perhaps protected by other on-chip
-crypto provided by some modern SOCs. If the public key can ben changed, then
+crypto provided by some modern SOCs. If the public key can be changed, then
 the verification is worthless.
 
 
@@ -87,7 +87,7 @@ affect the whole change.
 
 Flattened Image Tree (FIT)
 --------------------------
-The FIT format is alreay widely used in U-Boot. It is a flattened device
+The FIT format is already widely used in U-Boot. It is a flattened device
 tree (FDT) in a particular format, with images contained within. FITs
 include hashes to verify images, so it is relatively straightforward to
 add signatures as well.

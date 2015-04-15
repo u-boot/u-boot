@@ -55,21 +55,11 @@
  */
 #define CONFIG_SYS_PROMPT	"Integrator-AP # "	/* Monitor Command Prompt   */
 
-#define CONFIG_SYS_FLASH_BASE	0x24000000
-
-/*-----------------------------------------------------------------------
- * FLASH and environment organization
- */
-#define CONFIG_SYS_FLASH_CFI		1
-#define CONFIG_FLASH_CFI_DRIVER		1
-#define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_SYS_MAX_FLASH_BANKS	1		/* max number of memory banks */
-/* timeout values are in ticks */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(2*CONFIG_SYS_HZ)	/* Timeout for Flash Erase */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(2*CONFIG_SYS_HZ)	/* Timeout for Flash Write */
+/* Flash settings */
+#define CONFIG_SYS_FLASH_SIZE		0x02000000 /* 32 MiB */
 #define CONFIG_SYS_MAX_FLASH_SECT	128
+#define CONFIG_ENV_IS_NOWHERE		1
 #define CONFIG_ENV_SIZE			32768
-
 
 /*-----------------------------------------------------------------------
  * PCI definitions

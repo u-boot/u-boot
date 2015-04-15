@@ -18,16 +18,6 @@
 
 #include <asm/arch/tegra.h>		/* get chip and board defs */
 
-#define CONFIG_DM
-#define CONFIG_CMD_DM
-#define CONFIG_DM_GPIO
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_DM_SERIAL
-#endif
-#define CONFIG_DM_SPI
-#define CONFIG_DM_SPI_FLASH
-#define CONFIG_DM_I2C
-
 #define CONFIG_SYS_TIMER_RATE		1000000
 #define CONFIG_SYS_TIMER_COUNTER	NV_PA_TMRUS_BASE
 
@@ -46,21 +36,19 @@
 /*
  * Size of malloc() pool
  */
+#ifdef CONFIG_DFU_MMC
+#define CONFIG_SYS_MALLOC_LEN		((4 << 20) + \
+					CONFIG_SYS_DFU_DATA_BUF_SIZE)
+#else
 #define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* 4MB  */
-#define CONFIG_SYS_MALLOC_F_LEN		(1 << 10)
+#endif
 
 #define CONFIG_SYS_NONCACHED_MEMORY	(1 << 20)       /* 1 MiB */
 
 /*
  * NS16550 Configuration
  */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
-#else
 #define CONFIG_TEGRA_SERIAL
-#endif
 #define CONFIG_SYS_NS16550
 
 /*
@@ -162,6 +150,8 @@
 #define CONFIG_SPL_GPIO_SUPPORT
 
 #define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 
 /* Misc utility code */
 #define CONFIG_BOUNCE_BUFFER

@@ -13,7 +13,7 @@
  * High Level Board Configuration Options
  */
 #define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
-#define	CONFIG_BALLOON3		1	/* Balloon3 board */
+#define	CONFIG_BALLOON3			1	/* Balloon3 board */
 
 /*
  * Environment settings
@@ -84,18 +84,17 @@
 /*
  * Clock Configuration
  */
-#undef	CONFIG_SYS_CLKS_IN_HZ
 #define	CONFIG_SYS_CPUSPEED		0x290		/* 520MHz */
 
 /*
  * DRAM Map
  */
-#define	CONFIG_NR_DRAM_BANKS		3		/* 2 banks of DRAM */
+#define	CONFIG_NR_DRAM_BANKS		3		/* 3 banks of DRAM */
 #define	PHYS_SDRAM_1			0xa0000000	/* SDRAM Bank #1 */
 #define	PHYS_SDRAM_1_SIZE		0x08000000	/* 128 MB */
 #define	PHYS_SDRAM_2			0xb0000000	/* SDRAM Bank #2 */
 #define	PHYS_SDRAM_2_SIZE		0x08000000	/* 128 MB */
-#define	PHYS_SDRAM_3			0x80000000	/* SDRAM Bank #2 */
+#define	PHYS_SDRAM_3			0x80000000	/* SDRAM Bank #3 */
 #define	PHYS_SDRAM_3_SIZE		0x08000000	/* 128 MB */
 
 #define	CONFIG_SYS_DRAM_BASE		0xa0000000	/* CS0 */
@@ -135,7 +134,7 @@
 #define	CONFIG_ENV_IS_IN_FLASH
 #else
 #define	CONFIG_SYS_NO_FLASH
-#define	CONFIG_SYS_ENV_IS_NOWHERE
+#define	CONFIG_ENV_IS_NOWHERE
 #endif
 
 #define	CONFIG_SYS_MONITOR_BASE		0x000000
@@ -191,7 +190,6 @@
 #define	CONFIG_SYS_MDMRS_VAL	0x00220022
 #define	CONFIG_SYS_FLYCNFG_VAL	0x00000000
 #define	CONFIG_SYS_SXCNFG_VAL	0x00000000
-#define	CONFIG_SYS_MEM_BUF_IMP	0x0f
 
 /*
  * PCMCIA and CF Interfaces

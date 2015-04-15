@@ -1148,7 +1148,7 @@ disable_periodic(struct ehci_ctrl *ctrl)
 
 struct int_queue *
 create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
-		 int elementsize, void *buffer)
+		 int elementsize, void *buffer, int interval)
 {
 	struct ehci_ctrl *ctrl = dev->controller;
 	struct int_queue *result = NULL;
@@ -1398,7 +1398,7 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	debug("dev=%p, pipe=%lu, buffer=%p, length=%d, interval=%d",
 	      dev, pipe, buffer, length, interval);
 
-	queue = create_int_queue(dev, pipe, 1, length, buffer);
+	queue = create_int_queue(dev, pipe, 1, length, buffer, interval);
 	if (!queue)
 		return -1;
 

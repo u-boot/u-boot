@@ -2,18 +2,22 @@
  * Toradex Colibri PXA270 configuration file
  *
  * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
+ * Copyright (C) 2015 Marcel Ziswiler <marcel@ziswiler.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef	__CONFIG_H
+#define	__CONFIG_H
 
 /*
  * High Level Board Configuration Options
  */
 #define	CONFIG_CPU_PXA27X		1	/* Marvell PXA270 CPU */
+#define CONFIG_SYS_GENERIC_BOARD
 #define	CONFIG_SYS_TEXT_BASE		0x0
+/* Avoid overwriting factory configuration block */
+#define CONFIG_BOARD_SIZE_LIMIT		0x40000
 
 /*
  * Environment settings
@@ -22,13 +26,13 @@
 #define	CONFIG_SYS_MALLOC_LEN		(128 * 1024)
 #define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_BOOTCOMMAND						\
-	"if mmc init && fatload mmc 0 0xa0000000 uImage; then "		\
+	"if fatload mmc 0 0xa0000000 uImage; then "			\
 		"bootm 0xa0000000; "					\
 	"fi; "								\
 	"if usb reset && fatload usb 0 0xa0000000 uImage; then "	\
 		"bootm 0xa0000000; "					\
 	"fi; "								\
-	"bootm 0x80000;"
+	"bootm 0xc0000;"
 #define	CONFIG_BOOTARGS			"console=tty0 console=ttyS0,115200"
 #define	CONFIG_TIMESTAMP
 #define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
@@ -50,6 +54,8 @@
  */
 #include <config_cmd_default.h>
 
+#undef CONFIG_CMD_LOADB			/* Both together */
+#undef CONFIG_CMD_LOADS			/* saves 10 KB */
 #define	CONFIG_CMD_NET
 #define	CONFIG_CMD_ENV
 #undef	CONFIG_CMD_IMLS
@@ -59,7 +65,6 @@
 
 /*
  * Networking Configuration
- *  chip on the Voipac PXA270 board
  */
 #ifdef	CONFIG_CMD_NET
 #define	CONFIG_CMD_PING
@@ -82,7 +87,7 @@
  */
 #define	CONFIG_SYS_HUSH_PARSER		1
 
-#define	CONFIG_SYS_LONGHELP
+#undef	CONFIG_SYS_LONGHELP		/* Saves 10 KB */
 #ifdef	CONFIG_SYS_HUSH_PARSER
 #define	CONFIG_SYS_PROMPT		"$ "
 #else
@@ -95,7 +100,6 @@
 #define	CONFIG_SYS_DEVICE_NULLDEV	1
 #define	CONFIG_CMDLINE_EDITING		1
 #define	CONFIG_AUTO_COMPLETE		1
-
 
 /*
  * Clock Configuration
@@ -142,25 +146,24 @@
 
 #else	/* No flash */
 #define	CONFIG_SYS_NO_FLASH
-#define	CONFIG_SYS_ENV_IS_NOWHERE
+#define	CONFIG_ENV_IS_NOWHERE
 #endif
 
 #define	CONFIG_SYS_MONITOR_BASE		0x0
-#define	CONFIG_SYS_MONITOR_LEN		0x80000
+#define	CONFIG_SYS_MONITOR_LEN		0x40000
 
+/* Skip factory configuration block */
 #define	CONFIG_ENV_ADDR			\
-			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
+			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN + 0x40000)
 #define	CONFIG_ENV_SIZE			0x40000
 #define	CONFIG_ENV_SECT_SIZE		0x40000
-#define CONFIG_ENV_ADDR_REDUND		(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
 
 /*
  * GPIO settings
  */
 #define	CONFIG_SYS_GPSR0_VAL	0x00000000
 #define	CONFIG_SYS_GPSR1_VAL	0x00020000
-#define	CONFIG_SYS_GPSR2_VAL	0x0002C000
+#define	CONFIG_SYS_GPSR2_VAL	0x0002c000
 #define	CONFIG_SYS_GPSR3_VAL	0x00000000
 
 #define	CONFIG_SYS_GPCR0_VAL	0x00000000
@@ -168,19 +171,19 @@
 #define	CONFIG_SYS_GPCR2_VAL	0x00000000
 #define	CONFIG_SYS_GPCR3_VAL	0x00000000
 
-#define	CONFIG_SYS_GPDR0_VAL	0x08000000
-#define	CONFIG_SYS_GPDR1_VAL	0x0002A981
-#define	CONFIG_SYS_GPDR2_VAL	0x0202FC00
-#define	CONFIG_SYS_GPDR3_VAL	0x00000000
+#define	CONFIG_SYS_GPDR0_VAL	0xc8008000
+#define	CONFIG_SYS_GPDR1_VAL	0xfc02a981
+#define	CONFIG_SYS_GPDR2_VAL	0x92c3ffff
+#define	CONFIG_SYS_GPDR3_VAL	0x0061e804
 
-#define	CONFIG_SYS_GAFR0_L_VAL	0x00100000
-#define	CONFIG_SYS_GAFR0_U_VAL	0x00C00010
-#define	CONFIG_SYS_GAFR1_L_VAL	0x999A901A
-#define	CONFIG_SYS_GAFR1_U_VAL	0xAAA00008
-#define	CONFIG_SYS_GAFR2_L_VAL	0xAAAAAAAA
-#define	CONFIG_SYS_GAFR2_U_VAL	0x0109A000
-#define	CONFIG_SYS_GAFR3_L_VAL	0x54000300
-#define	CONFIG_SYS_GAFR3_U_VAL	0x00024001
+#define	CONFIG_SYS_GAFR0_L_VAL	0x80100000
+#define	CONFIG_SYS_GAFR0_U_VAL	0xa5c00010
+#define	CONFIG_SYS_GAFR1_L_VAL	0x6992901a
+#define	CONFIG_SYS_GAFR1_U_VAL	0xaaa50008
+#define	CONFIG_SYS_GAFR2_L_VAL	0xaaaaaaaa
+#define	CONFIG_SYS_GAFR2_U_VAL	0x4109a002
+#define	CONFIG_SYS_GAFR3_L_VAL	0x54000310
+#define	CONFIG_SYS_GAFR3_U_VAL	0x00005401
 
 #define	CONFIG_SYS_PSSR_VAL	0x30
 
@@ -193,26 +196,26 @@
 /*
  * Memory settings
  */
-#define	CONFIG_SYS_MSC0_VAL	0x000095f2
-#define	CONFIG_SYS_MSC1_VAL	0x00007ff4
-#define	CONFIG_SYS_MSC2_VAL	0x00000000
-#define	CONFIG_SYS_MDCNFG_VAL	0x08000ac9
-#define	CONFIG_SYS_MDREFR_VAL	0x2013e01e
-#define	CONFIG_SYS_MDMRS_VAL	0x00320032
-#define	CONFIG_SYS_FLYCNFG_VAL	0x00000000
+#define	CONFIG_SYS_MSC0_VAL	0x9ee1c5f2
+#define	CONFIG_SYS_MSC1_VAL	0x9ee1f994
+#define	CONFIG_SYS_MSC2_VAL	0x9ee19ee1
+#define	CONFIG_SYS_MDCNFG_VAL	0x090009c9
+#define	CONFIG_SYS_MDREFR_VAL	0x2003a031
+#define	CONFIG_SYS_MDMRS_VAL	0x00220022
+#define	CONFIG_SYS_FLYCNFG_VAL	0x00010001
 #define	CONFIG_SYS_SXCNFG_VAL	0x40044004
 
 /*
  * PCMCIA and CF Interfaces
  */
-#define	CONFIG_SYS_MECR_VAL	0x00000001
-#define	CONFIG_SYS_MCMEM0_VAL	0x00014307
+#define	CONFIG_SYS_MECR_VAL	0x00000000
+#define	CONFIG_SYS_MCMEM0_VAL	0x00028307
 #define	CONFIG_SYS_MCMEM1_VAL	0x00014307
-#define	CONFIG_SYS_MCATT0_VAL	0x0001c787
+#define	CONFIG_SYS_MCATT0_VAL	0x00038787
 #define	CONFIG_SYS_MCATT1_VAL	0x0001c787
-#define	CONFIG_SYS_MCIO0_VAL	0x0001430f
+#define	CONFIG_SYS_MCIO0_VAL	0x0002830f
 #define	CONFIG_SYS_MCIO1_VAL	0x0001430f
 
 #include "pxa-common.h"
 
-#endif	/* __CONFIG_H */
+#endif /* __CONFIG_H */

@@ -39,6 +39,7 @@
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_TPS65218
+#define CONFIG_POWER_TPS62362
 
 /* SPL defines. */
 #define CONFIG_SPL_TEXT_BASE		0x40300350
@@ -235,6 +236,8 @@
 			"setenv fdtfile am437x-gp-evm.dtb; fi; " \
 		"if test $board_name = AM43__SK; then " \
 			"setenv fdtfile am437x-sk-evm.dtb; fi; " \
+		"if test $board_name = AM43_IDK; then " \
+			"setenv fdtfile am437x-idk-evm.dtb; fi; " \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree; fi; \0"
 

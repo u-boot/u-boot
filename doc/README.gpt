@@ -157,11 +157,13 @@ To restore GUID partition table one needs to:
      "partitions=uuid_disk=${uuid_gpt_disk};name=${uboot_name},
 	size=${uboot_size},uuid=${uboot_uuid};"
 
-   Fields 'name', 'size' and 'uuid' are mandatory for every partition.
+   The fields 'name' and 'size' are mandatory for every partition.
    The field 'start' is optional.
 
-   option: CONFIG_RANDOM_UUID
-   If any partition "UUID" no exists then it is randomly generated.
+   The fields 'uuid' and 'uuid_disk' are optional if CONFIG_RANDOM_UUID is
+   enabled. A random uuid will be used if omitted or they point to an empty/
+   non-existent environment variable. The environment variable will be set to
+   the generated UUID.
 
 2. Define 'CONFIG_EFI_PARTITION' and 'CONFIG_CMD_GPT'
 

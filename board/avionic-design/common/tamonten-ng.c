@@ -55,12 +55,12 @@ void pmu_write(uchar reg, uchar data)
 	struct udevice *dev;
 	int ret;
 
-	ret = i2c_get_chip_for_busnum(4, PMU_I2C_ADDRESS, &dev);
+	ret = i2c_get_chip_for_busnum(4, PMU_I2C_ADDRESS, 1, &dev);
 	if (ret) {
 		debug("%s: Cannot find PMIC I2C chip\n", __func__);
 		return;
 	}
-	i2c_write(dev, reg, &data, 1);
+	dm_i2c_write(dev, reg, &data, 1);
 }
 
 /*

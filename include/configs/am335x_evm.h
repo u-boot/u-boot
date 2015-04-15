@@ -19,13 +19,11 @@
 #include <configs/ti_am335x_common.h>
 
 #ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_FIT
 # define CONFIG_FIT
+#endif
 # define CONFIG_TIMESTAMP
 # define CONFIG_LZO
-# ifdef CONFIG_ENABLE_VBOOT
-#  define CONFIG_FIT_SIGNATURE
-#  define CONFIG_RSA
-# endif
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
@@ -239,6 +237,7 @@
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
 /* NAND: driver related configs */
 #define CONFIG_NAND_OMAP_GPMC
+#define CONFIG_NAND_OMAP_GPMC_PREFETCH
 #define CONFIG_NAND_OMAP_ELM
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
@@ -341,6 +340,12 @@
 #endif /* CONFIG_MUSB_GADGET */
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
+/* Remove other SPL modes. */
+#undef CONFIG_SPL_YMODEM_SUPPORT
+#undef CONFIG_SPL_NAND_SUPPORT
+#undef CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_ENV_IS_NOWHERE
+#undef CONFIG_ENV_IS_IN_NAND
 /* disable host part of MUSB in SPL */
 #undef CONFIG_MUSB_HOST
 /* disable EFI partitions and partition UUID support */

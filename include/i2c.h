@@ -25,22 +25,21 @@
  * enough as to be incompatible for compilation purposes.
  */
 
-#ifdef CONFIG_DM_I2C
-
 enum dm_i2c_chip_flags {
 	DM_I2C_CHIP_10BIT	= 1 << 0, /* Use 10-bit addressing */
 	DM_I2C_CHIP_RD_ADDRESS	= 1 << 1, /* Send address for each read byte */
 	DM_I2C_CHIP_WR_ADDRESS	= 1 << 2, /* Send address for each write byte */
 };
 
+struct udevice;
 /**
  * struct dm_i2c_chip - information about an i2c chip
  *
  * An I2C chip is a device on the I2C bus. It sits at a particular address
  * and normally supports 7-bit or 10-bit addressing.
  *
- * To obtain this structure, use dev_get_parentdata(dev) where dev is the
- * chip to examine.
+ * To obtain this structure, use dev_get_parent_platdata(dev) where dev is
+ * the chip to examine.
  *
  * @chip_addr:	Chip address on bus
  * @offset_len: Length of offset in bytes. A single byte offset can
@@ -75,7 +74,7 @@ struct dm_i2c_bus {
 };
 
 /**
- * i2c_read() - read bytes from an I2C chip
+ * dm_i2c_read() - read bytes from an I2C chip
  *
  * To obtain an I2C device (called a 'chip') given the I2C bus address you
  * can use i2c_get_chip(). To obtain a bus by bus number use
@@ -91,13 +90,12 @@ struct dm_i2c_bus {
  *
  * @return 0 on success, -ve on failure
  */
-int i2c_read(struct udevice *dev, uint offset, uint8_t *buffer,
-	     int len);
+int dm_i2c_read(struct udevice *dev, uint offset, uint8_t *buffer, int len);
 
 /**
- * i2c_write() - write bytes to an I2C chip
+ * dm_i2c_write() - write bytes to an I2C chip
  *
- * See notes for i2c_read() above.
+ * See notes for dm_i2c_read() above.
  *
  * @dev:	Chip to write to
  * @offset:	Offset within chip to start writing
@@ -106,11 +104,11 @@ int i2c_read(struct udevice *dev, uint offset, uint8_t *buffer,
  *
  * @return 0 on success, -ve on failure
  */
-int i2c_write(struct udevice *dev, uint offset, const uint8_t *buffer,
-	      int len);
+int dm_i2c_write(struct udevice *dev, uint offset, const uint8_t *buffer,
+		 int len);
 
 /**
- * i2c_probe() - probe a particular chip address
+ * dm_i2c_probe() - probe a particular chip address
  *
  * This can be useful to check for the existence of a chip on the bus.
  * It is typically implemented by writing the chip address to the bus
@@ -122,25 +120,25 @@ int i2c_write(struct udevice *dev, uint offset, const uint8_t *buffer,
  * @devp:	Returns the device found, or NULL if none
  * @return 0 if a chip was found at that address, -ve if not
  */
-int i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
-	      struct udevice **devp);
+int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
+		 struct udevice **devp);
 
 /**
- * i2c_set_bus_speed() - set the speed of a bus
+ * dm_i2c_set_bus_speed() - set the speed of a bus
  *
  * @bus:	Bus to adjust
  * @speed:	Requested speed in Hz
  * @return 0 if OK, -EINVAL for invalid values
  */
-int i2c_set_bus_speed(struct udevice *bus, unsigned int speed);
+int dm_i2c_set_bus_speed(struct udevice *bus, unsigned int speed);
 
 /**
- * i2c_get_bus_speed() - get the speed of a bus
+ * dm_i2c_get_bus_speed() - get the speed of a bus
  *
  * @bus:	Bus to check
  * @return speed of selected I2C bus in Hz, -ve on error
  */
-int i2c_get_bus_speed(struct udevice *bus);
+int dm_i2c_get_bus_speed(struct udevice *bus);
 
 /**
  * i2c_set_chip_flags() - set flags for a chip
@@ -184,6 +182,80 @@ int i2c_set_chip_offset_len(struct udevice *dev, uint offset_len);
  * @return 0 if OK, -ve on error
  */
 int i2c_deblock(struct udevice *bus);
+
+#ifdef CONFIG_DM_I2C_COMPAT
+/**
+ * i2c_probe() - Compatibility function for driver model
+ *
+ * Calls dm_i2c_probe() on the current bus
+ */
+int i2c_probe(uint8_t chip_addr);
+
+/**
+ * i2c_read() - Compatibility function for driver model
+ *
+ * Calls dm_i2c_read() with the device corresponding to @chip_addr, and offset
+ * set to @addr. @alen must match the current setting for the device.
+ */
+int i2c_read(uint8_t chip_addr, unsigned int addr, int alen, uint8_t *buffer,
+	     int len);
+
+/**
+ * i2c_write() - Compatibility function for driver model
+ *
+ * Calls dm_i2c_write() with the device corresponding to @chip_addr, and offset
+ * set to @addr. @alen must match the current setting for the device.
+ */
+int i2c_write(uint8_t chip_addr, unsigned int addr, int alen, uint8_t *buffer,
+	      int len);
+
+/**
+ * i2c_get_bus_num_fdt() - Compatibility function for driver model
+ *
+ * @return the bus number associated with the given device tree node
+ */
+int i2c_get_bus_num_fdt(int node);
+
+/**
+ * i2c_get_bus_num() - Compatibility function for driver model
+ *
+ * @return the 'current' bus number
+ */
+unsigned int i2c_get_bus_num(void);
+
+/**
+ * i2c_set_bus_num() - Compatibility function for driver model
+ *
+ * Sets the 'current' bus
+ */
+int i2c_set_bus_num(unsigned int bus);
+
+static inline void I2C_SET_BUS(unsigned int bus)
+{
+	i2c_set_bus_num(bus);
+}
+
+static inline unsigned int I2C_GET_BUS(void)
+{
+	return i2c_get_bus_num();
+}
+
+/**
+ * i2c_init() - Compatibility function for driver model
+ *
+ * This function does nothing.
+ */
+void i2c_init(int speed, int slaveaddr);
+
+/**
+ * board_i2c_init() - Compatibility function for driver model
+ *
+ * @param blob  Device tree blbo
+ * @return the number of I2C bus
+ */
+void board_i2c_init(const void *blob);
+
+#endif
 
 /*
  * Not all of these flags are implemented in the U-Boot API
@@ -330,10 +402,12 @@ struct dm_i2c_ops {
  *
  * @bus:	Bus to examine
  * @chip_addr:	Chip address for the new device
+ * @offset_len:	Length of a register offset in bytes (normally 1)
  * @devp:	Returns pointer to new device if found or -ENODEV if not
  *		found
  */
-int i2c_get_chip(struct udevice *bus, uint chip_addr, struct udevice **devp);
+int i2c_get_chip(struct udevice *bus, uint chip_addr, uint offset_len,
+		 struct udevice **devp);
 
 /**
  * i2c_get_chip() - get a device to use to access a chip on a bus number
@@ -343,10 +417,12 @@ int i2c_get_chip(struct udevice *bus, uint chip_addr, struct udevice **devp);
  *
  * @busnum:	Bus number to examine
  * @chip_addr:	Chip address for the new device
+ * @offset_len:	Length of a register offset in bytes (normally 1)
  * @devp:	Returns pointer to new device if found or -ENODEV if not
  *		found
  */
-int i2c_get_chip_for_busnum(int busnum, int chip_addr, struct udevice **devp);
+int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
+			    struct udevice **devp);
 
 /**
  * i2c_chip_ofdata_to_platdata() - Decode standard I2C platform data
@@ -361,8 +437,6 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, struct udevice **devp);
  */
 int i2c_chip_ofdata_to_platdata(const void *blob, int node,
 				struct dm_i2c_chip *chip);
-
-#endif
 
 #ifndef CONFIG_DM_I2C
 

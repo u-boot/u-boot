@@ -64,7 +64,7 @@
 	sdhci@78000200 {
 		status = "okay";
 		bus-width = <4>;
-		cd-gpios = <&gpio 23 1>; /* PC7, MMCD */
+		cd-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>; /* MMCD */
 	};
 
 	sdhci@78000600 {
@@ -83,12 +83,14 @@
 	usb@7d004000 {
 		status = "okay";
 		phy_type = "utmi";
-		nvidia,vbus-gpio = <&gpio 234 0>;	/* PDD2, VBUS_LAN */
+		/* VBUS_LAN */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(DD, 2) GPIO_ACTIVE_HIGH>;
 	};
 
 	/* EHCI instance 2: USB3_DP/N -> USBH_P/N */
 	usb@7d008000 {
 		status = "okay";
-		nvidia,vbus-gpio = <&gpio 178 1>;	/* PW2, USBH_PEN */
+		/* USBH_PEN */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(W, 2) GPIO_ACTIVE_LOW>;
 	};
 };

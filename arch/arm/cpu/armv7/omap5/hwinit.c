@@ -304,6 +304,21 @@ void config_data_eye_leveling_samples(u32 emif_base)
 		       (*ctrl)->control_emif2_sdram_config_ext);
 }
 
+void init_cpu_configuration(void)
+{
+	u32 l2actlr;
+
+	asm volatile("mrc p15, 1, %0, c15, c0, 0" : "=r"(l2actlr));
+	/*
+	 * L2ACTLR: Ensure to enable the following:
+	 * 3: Disable clean/evict push to external
+	 * 4: Disable WriteUnique and WriteLineUnique transactions from master
+	 * 8: Disable DVM/CMO message broadcast
+	 */
+	l2actlr |= 0x118;
+	omap_smc1(OMAP5_SERVICE_L2ACTLR_SET, l2actlr);
+}
+
 void init_omap_revision(void)
 {
 	/*
@@ -342,6 +357,7 @@ void init_omap_revision(void)
 	default:
 		*omap_si_rev = OMAP5430_SILICON_ID_INVALID;
 	}
+	init_cpu_configuration();
 }
 
 void reset_cpu(ulong ignored)
@@ -380,4 +396,11 @@ void setup_warmreset_time(void)
 	rst_val = readl((*prcm)->prm_rsttime) & ~RSTTIME1_MASK;
 	rst_val |= rst_time;
 	writel(rst_val, (*prcm)->prm_rsttime);
+}
+
+void v7_arch_cp15_set_l2aux_ctrl(u32 l2auxctrl, u32 cpu_midr,
+				 u32 cpu_rev_comb, u32 cpu_variant,
+				 u32 cpu_rev)
+{
+	omap_smc1(OMAP5_SERVICE_L2ACTLR_SET, l2auxctrl);
 }

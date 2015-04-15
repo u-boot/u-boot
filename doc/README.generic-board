@@ -44,16 +44,18 @@ The following architectures are supported now:
 
    arc
    arm
+   avr32
+   blackfin
+   m68k
+   microblaze
    mips
+   nios2
    powerpc
    sandbox
    x86
 
-If your architecture is not supported, you need to adjust your
-arch/<arch>/config.mk file to include:
-
-   __HAVE_ARCH_GENERIC_BOARD := y
-
+If your architecture is not supported, you need to select
+HAVE_GENERIC_BOARD in arch/Kconfig
 and test it with a suitable board, as follows.
 
 

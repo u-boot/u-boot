@@ -11,8 +11,6 @@
 #include <fdtdec.h>
 #include <linux/ctype.h>
 
-#include <asm/gpio.h>
-
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -26,9 +24,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(NVIDIA_TEGRA20_USB, "nvidia,tegra20-ehci"),
 	COMPAT(NVIDIA_TEGRA30_USB, "nvidia,tegra30-ehci"),
 	COMPAT(NVIDIA_TEGRA114_USB, "nvidia,tegra114-ehci"),
-	COMPAT(NVIDIA_TEGRA114_I2C, "nvidia,tegra114-i2c"),
-	COMPAT(NVIDIA_TEGRA20_I2C, "nvidia,tegra20-i2c"),
-	COMPAT(NVIDIA_TEGRA20_DVC, "nvidia,tegra20-i2c-dvc"),
 	COMPAT(NVIDIA_TEGRA20_EMC, "nvidia,tegra20-emc"),
 	COMPAT(NVIDIA_TEGRA20_EMC_TABLE, "nvidia,tegra20-emc-table"),
 	COMPAT(NVIDIA_TEGRA20_KBC, "nvidia,tegra20-kbc"),
@@ -38,9 +33,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(NVIDIA_TEGRA124_SDMMC, "nvidia,tegra124-sdhci"),
 	COMPAT(NVIDIA_TEGRA30_SDMMC, "nvidia,tegra30-sdhci"),
 	COMPAT(NVIDIA_TEGRA20_SDMMC, "nvidia,tegra20-sdhci"),
-	COMPAT(NVIDIA_TEGRA20_SFLASH, "nvidia,tegra20-sflash"),
-	COMPAT(NVIDIA_TEGRA20_SLINK, "nvidia,tegra20-slink"),
-	COMPAT(NVIDIA_TEGRA114_SPI, "nvidia,tegra114-spi"),
 	COMPAT(NVIDIA_TEGRA124_PCIE, "nvidia,tegra124-pcie"),
 	COMPAT(NVIDIA_TEGRA30_PCIE, "nvidia,tegra30-pcie"),
 	COMPAT(NVIDIA_TEGRA20_PCIE, "nvidia,tegra20-pcie"),
@@ -50,7 +42,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SAMSUNG_S3C2440_I2C, "samsung,s3c2440-i2c"),
 	COMPAT(SAMSUNG_EXYNOS5_SOUND, "samsung,exynos-sound"),
 	COMPAT(WOLFSON_WM8994_CODEC, "wolfson,wm8994-codec"),
-	COMPAT(SAMSUNG_EXYNOS_SPI, "samsung,exynos-spi"),
 	COMPAT(GOOGLE_CROS_EC, "google,cros-ec"),
 	COMPAT(GOOGLE_CROS_EC_KEYB, "google,cros-ec-keyb"),
 	COMPAT(SAMSUNG_EXYNOS_EHCI, "samsung,exynos-ehci"),
@@ -83,6 +74,9 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(INTEL_MODEL_206AX, "intel,model-206ax"),
 	COMPAT(INTEL_GMA, "intel,gma"),
 	COMPAT(AMS_AS3722, "ams,as3722"),
+	COMPAT(INTEL_ICH_SPI, "intel,ich-spi"),
+	COMPAT(INTEL_QRK_MRC, "intel,quark-mrc"),
+	COMPAT(SOCIONEXT_XHCI, "socionext,uniphier-xhci"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
@@ -125,6 +119,163 @@ fdt_addr_t fdtdec_get_addr(const void *blob, int node,
 {
 	return fdtdec_get_addr_size(blob, node, prop_name, NULL);
 }
+
+#ifdef CONFIG_PCI
+int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
+		const char *prop_name, struct fdt_pci_addr *addr)
+{
+	const u32 *cell;
+	int len;
+	int ret = -ENOENT;
+
+	debug("%s: %s: ", __func__, prop_name);
+
+	/*
+	 * If we follow the pci bus bindings strictly, we should check
+	 * the value of the node's parent node's #address-cells and
+	 * #size-cells. They need to be 3 and 2 accordingly. However,
+	 * for simplicity we skip the check here.
+	 */
+	cell = fdt_getprop(blob, node, prop_name, &len);
+	if (!cell)
+		goto fail;
+
+	if ((len % FDT_PCI_REG_SIZE) == 0) {
+		int num = len / FDT_PCI_REG_SIZE;
+		int i;
+
+		for (i = 0; i < num; i++) {
+			debug("pci address #%d: %08lx %08lx %08lx\n", i,
+			      (ulong)fdt_addr_to_cpu(cell[0]),
+			      (ulong)fdt_addr_to_cpu(cell[1]),
+			      (ulong)fdt_addr_to_cpu(cell[2]));
+			if ((fdt_addr_to_cpu(*cell) & type) == type) {
+				addr->phys_hi = fdt_addr_to_cpu(cell[0]);
+				addr->phys_mid = fdt_addr_to_cpu(cell[1]);
+				addr->phys_lo = fdt_addr_to_cpu(cell[2]);
+				break;
+			} else {
+				cell += (FDT_PCI_ADDR_CELLS +
+					 FDT_PCI_SIZE_CELLS);
+			}
+		}
+
+		if (i == num)
+			goto fail;
+
+		return 0;
+	} else {
+		ret = -EINVAL;
+	}
+
+fail:
+	debug("(not found)\n");
+	return ret;
+}
+
+int fdtdec_get_pci_vendev(const void *blob, int node, u16 *vendor, u16 *device)
+{
+	const char *list, *end;
+	int len;
+
+	list = fdt_getprop(blob, node, "compatible", &len);
+	if (!list)
+		return -ENOENT;
+
+	end = list + len;
+	while (list < end) {
+		char *s;
+
+		len = strlen(list);
+		if (len >= strlen("pciVVVV,DDDD")) {
+			s = strstr(list, "pci");
+
+			/*
+			 * check if the string is something like pciVVVV,DDDD.RR
+			 * or just pciVVVV,DDDD
+			 */
+			if (s && s[7] == ',' &&
+			    (s[12] == '.' || s[12] == 0)) {
+				s += 3;
+				*vendor = simple_strtol(s, NULL, 16);
+
+				s += 5;
+				*device = simple_strtol(s, NULL, 16);
+
+				return 0;
+			}
+		} else {
+			list += (len + 1);
+		}
+	}
+
+	return -ENOENT;
+}
+
+int fdtdec_get_pci_bdf(const void *blob, int node,
+		struct fdt_pci_addr *addr, pci_dev_t *bdf)
+{
+	u16 dt_vendor, dt_device, vendor, device;
+	int ret;
+
+	/* get vendor id & device id from the compatible string */
+	ret = fdtdec_get_pci_vendev(blob, node, &dt_vendor, &dt_device);
+	if (ret)
+		return ret;
+
+	/* extract the bdf from fdt_pci_addr */
+	*bdf = addr->phys_hi & 0xffff00;
+
+	/* read vendor id & device id based on bdf */
+	pci_read_config_word(*bdf, PCI_VENDOR_ID, &vendor);
+	pci_read_config_word(*bdf, PCI_DEVICE_ID, &device);
+
+	/*
+	 * Note there are two places in the device tree to fully describe
+	 * a pci device: one is via compatible string with a format of
+	 * "pciVVVV,DDDD" and the other one is the bdf numbers encoded in
+	 * the device node's reg address property. We read the vendor id
+	 * and device id based on bdf and compare the values with the
+	 * "VVVV,DDDD". If they are the same, then we are good to use bdf
+	 * to read device's bar. But if they are different, we have to rely
+	 * on the vendor id and device id extracted from the compatible
+	 * string and locate the real bdf by pci_find_device(). This is
+	 * because normally we may only know device's device number and
+	 * function number when writing device tree. The bus number is
+	 * dynamically assigned during the pci enumeration process.
+	 */
+	if ((dt_vendor != vendor) || (dt_device != device)) {
+		*bdf = pci_find_device(dt_vendor, dt_device, 0);
+		if (*bdf == -1)
+			return -ENODEV;
+	}
+
+	return 0;
+}
+
+int fdtdec_get_pci_bar32(const void *blob, int node,
+		struct fdt_pci_addr *addr, u32 *bar)
+{
+	pci_dev_t bdf;
+	int barnum;
+	int ret;
+
+	/* get pci devices's bdf */
+	ret = fdtdec_get_pci_bdf(blob, node, addr, &bdf);
+	if (ret)
+		return ret;
+
+	/* extract the bar number from fdt_pci_addr */
+	barnum = addr->phys_hi & 0xff;
+	if ((barnum < PCI_BASE_ADDRESS_0) || (barnum > PCI_CARDBUS_CIS))
+		return -EINVAL;
+
+	barnum = (barnum - PCI_BASE_ADDRESS_0) / 4;
+	*bar = pci_read_bar32(pci_bus_to_hose(PCI_BUS(bdf)), bdf, barnum);
+
+	return 0;
+}
+#endif
 
 uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,
 		uint64_t default_val)
@@ -521,99 +672,128 @@ int fdtdec_get_bool(const void *blob, int node, const char *prop_name)
 	return cell != NULL;
 }
 
-/**
- * Decode a list of GPIOs from an FDT. This creates a list of GPIOs with no
- * terminating item.
- *
- * @param blob		FDT blob to use
- * @param node		Node to look at
- * @param prop_name	Node property name
- * @param gpio		Array of gpio elements to fill from FDT. This will be
- *			untouched if either 0 or an error is returned
- * @param max_count	Maximum number of elements allowed
- * @return number of GPIOs read if ok, -FDT_ERR_BADLAYOUT if max_count would
- * be exceeded, or -FDT_ERR_NOTFOUND if the property is missing.
- */
-int fdtdec_decode_gpios(const void *blob, int node, const char *prop_name,
-		struct fdt_gpio_state *gpio, int max_count)
+int fdtdec_parse_phandle_with_args(const void *blob, int src_node,
+				   const char *list_name,
+				   const char *cells_name,
+				   int cell_count, int index,
+				   struct fdtdec_phandle_args *out_args)
 {
-	const struct fdt_property *prop;
-	const u32 *cell;
-	const char *name;
-	int len, i;
+	const __be32 *list, *list_end;
+	int rc = 0, size, cur_index = 0;
+	uint32_t count = 0;
+	int node = -1;
+	int phandle;
 
-	debug("%s: %s\n", __func__, prop_name);
-	assert(max_count > 0);
-	prop = fdt_get_property(blob, node, prop_name, &len);
-	if (!prop) {
-		debug("%s: property '%s' missing\n", __func__, prop_name);
-		return -FDT_ERR_NOTFOUND;
+	/* Retrieve the phandle list property */
+	list = fdt_getprop(blob, src_node, list_name, &size);
+	if (!list)
+		return -ENOENT;
+	list_end = list + size / sizeof(*list);
+
+	/* Loop over the phandles until all the requested entry is found */
+	while (list < list_end) {
+		rc = -EINVAL;
+		count = 0;
+
+		/*
+		 * If phandle is 0, then it is an empty entry with no
+		 * arguments.  Skip forward to the next entry.
+		 */
+		phandle = be32_to_cpup(list++);
+		if (phandle) {
+			/*
+			 * Find the provider node and parse the #*-cells
+			 * property to determine the argument length.
+			 *
+			 * This is not needed if the cell count is hard-coded
+			 * (i.e. cells_name not set, but cell_count is set),
+			 * except when we're going to return the found node
+			 * below.
+			 */
+			if (cells_name || cur_index == index) {
+				node = fdt_node_offset_by_phandle(blob,
+								  phandle);
+				if (!node) {
+					debug("%s: could not find phandle\n",
+					      fdt_get_name(blob, src_node,
+							   NULL));
+					goto err;
+				}
+			}
+
+			if (cells_name) {
+				count = fdtdec_get_int(blob, node, cells_name,
+						       -1);
+				if (count == -1) {
+					debug("%s: could not get %s for %s\n",
+					      fdt_get_name(blob, src_node,
+							   NULL),
+					      cells_name,
+					      fdt_get_name(blob, node,
+							   NULL));
+					goto err;
+				}
+			} else {
+				count = cell_count;
+			}
+
+			/*
+			 * Make sure that the arguments actually fit in the
+			 * remaining property data length
+			 */
+			if (list + count > list_end) {
+				debug("%s: arguments longer than property\n",
+				      fdt_get_name(blob, src_node, NULL));
+				goto err;
+			}
+		}
+
+		/*
+		 * All of the error cases above bail out of the loop, so at
+		 * this point, the parsing is successful. If the requested
+		 * index matches, then fill the out_args structure and return,
+		 * or return -ENOENT for an empty entry.
+		 */
+		rc = -ENOENT;
+		if (cur_index == index) {
+			if (!phandle)
+				goto err;
+
+			if (out_args) {
+				int i;
+
+				if (count > MAX_PHANDLE_ARGS) {
+					debug("%s: too many arguments %d\n",
+					      fdt_get_name(blob, src_node,
+							   NULL), count);
+					count = MAX_PHANDLE_ARGS;
+				}
+				out_args->node = node;
+				out_args->args_count = count;
+				for (i = 0; i < count; i++) {
+					out_args->args[i] =
+							be32_to_cpup(list++);
+				}
+			}
+
+			/* Found it! return success */
+			return 0;
+		}
+
+		node = -1;
+		list += count;
+		cur_index++;
 	}
 
-	/* We will use the name to tag the GPIO */
-	name = fdt_string(blob, fdt32_to_cpu(prop->nameoff));
-	cell = (u32 *)prop->data;
-	len /= sizeof(u32) * 3;		/* 3 cells per GPIO record */
-	if (len > max_count) {
-		debug(" %s: too many GPIOs / cells for "
-			"property '%s'\n", __func__, prop_name);
-		return -FDT_ERR_BADLAYOUT;
-	}
-
-	/* Read out the GPIO data from the cells */
-	for (i = 0; i < len; i++, cell += 3) {
-		gpio[i].gpio = fdt32_to_cpu(cell[1]);
-		gpio[i].flags = fdt32_to_cpu(cell[2]);
-		gpio[i].name = name;
-	}
-
-	return len;
-}
-
-int fdtdec_decode_gpio(const void *blob, int node, const char *prop_name,
-		struct fdt_gpio_state *gpio)
-{
-	int err;
-
-	debug("%s: %s\n", __func__, prop_name);
-	gpio->gpio = FDT_GPIO_NONE;
-	gpio->name = NULL;
-	err = fdtdec_decode_gpios(blob, node, prop_name, gpio, 1);
-	return err == 1 ? 0 : err;
-}
-
-int fdtdec_get_gpio(struct fdt_gpio_state *gpio)
-{
-	int val;
-
-	if (!fdt_gpio_isvalid(gpio))
-		return -1;
-
-	val = gpio_get_value(gpio->gpio);
-	return gpio->flags & FDT_GPIO_ACTIVE_LOW ? val ^ 1 : val;
-}
-
-int fdtdec_set_gpio(struct fdt_gpio_state *gpio, int val)
-{
-	if (!fdt_gpio_isvalid(gpio))
-		return -1;
-
-	val = gpio->flags & FDT_GPIO_ACTIVE_LOW ? val ^ 1 : val;
-	return gpio_set_value(gpio->gpio, val);
-}
-
-int fdtdec_setup_gpio(struct fdt_gpio_state *gpio)
-{
 	/*
-	 * Return success if there is no GPIO defined. This is used for
-	 * optional GPIOs)
+	 * Result will be one of:
+	 * -ENOENT : index is for empty phandle
+	 * -EINVAL : parsing error on data
+	 * [1..n]  : Number of phandle (count mode; when index = -1)
 	 */
-	if (!fdt_gpio_isvalid(gpio))
-		return 0;
-
-	if (gpio_request(gpio->gpio, gpio->name))
-		return -1;
-	return 0;
+	rc = index < 0 ? cur_index : -ENOENT;
+ err:
+	return rc;
 }
 
 int fdtdec_get_byte_array(const void *blob, int node, const char *prop_name,
@@ -793,20 +973,6 @@ int fdt_get_named_resource(const void *fdt, int node, const char *property,
 		return index;
 
 	return fdt_get_resource(fdt, node, property, index, res);
-}
-
-int fdtdec_pci_get_bdf(const void *fdt, int node, int *bdf)
-{
-	const fdt32_t *prop;
-	int len;
-
-	prop = fdt_getprop(fdt, node, "reg", &len);
-	if (!prop)
-		return len;
-
-	*bdf = fdt32_to_cpu(*prop) & 0xffffff;
-
-	return 0;
 }
 
 int fdtdec_decode_memory_region(const void *blob, int config_node,

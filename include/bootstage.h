@@ -86,9 +86,9 @@ enum bootstage_id {
 	BOOTSTAGE_ID_POST_FAIL_R,	/* Post failure reported after reloc */
 
 	/*
-	 * This set is reported ony by x86, and the meaning is different. In
+	 * This set is reported only by x86, and the meaning is different. In
 	 * this case we are reporting completion of a particular stage.
-	 * This should probably change in he x86 code (which doesn't report
+	 * This should probably change in the x86 code (which doesn't report
 	 * errors in any case), but discussion this can perhaps wait until we
 	 * have a generic board implementation.
 	 */
@@ -194,6 +194,7 @@ enum bootstage_id {
 	BOOTSTAGE_ID_MAIN_CPU_READY,
 
 	BOOTSTAGE_ID_ACCUM_LCD,
+	BOOTSTAGE_ID_ACCUM_SCSI,
 
 	/* a few spare for the user, from here */
 	BOOTSTAGE_ID_USER,

@@ -24,13 +24,16 @@
 #include <fsl_esdhc.h>
 #endif
 
-char *get_reset_cause(void)
+static u32 reset_cause = -1;
+
+static char *get_reset_cause(void)
 {
 	u32 cause;
 	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
 
 	cause = readl(&src_regs->srsr);
 	writel(cause, &src_regs->srsr);
+	reset_cause = cause;
 
 	switch (cause) {
 	case 0x00001:
@@ -51,6 +54,11 @@ char *get_reset_cause(void)
 	default:
 		return "unknown reset";
 	}
+}
+
+u32 get_imx_reset_cause(void)
+{
+	return reset_cause;
 }
 
 #if defined(CONFIG_MX53) || defined(CONFIG_MX6)

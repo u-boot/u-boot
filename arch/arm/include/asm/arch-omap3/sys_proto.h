@@ -23,6 +23,7 @@ struct emu_hal_params {
 
 /* Board SDRC timing values */
 struct board_sdrc_timings {
+	u32 sharing;
 	u32 mcfg;
 	u32 ctrla;
 	u32 ctrlb;
@@ -72,6 +73,6 @@ void power_init_r(void);
 void dieid_num_r(void);
 void get_dieid(u32 *id);
 void do_omap3_emu_romcode_call(u32 service_id, u32 parameters);
-void omap3_gp_romcode_call(u32 service_id, u32 parameter);
+void omap3_set_aux_cr_secure(u32 acr);
 u32 warm_reset(void);
 #endif

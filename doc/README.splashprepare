@@ -6,3 +6,16 @@ common/splash.c. It is called as part of the splash screen display
 sequence. It gives the board an opportunity to prepare the splash
 image data before it is processed and sent to the frame buffer by
 U-Boot.  Define your own version to use this feature.
+
+CONFIG_SPLASH_SOURCE
+
+Use the splash_source.c library. This library provides facilities to declare
+board specific splash image locations, routines for loading splash image from
+supported locations, and a way of controlling the selected splash location
+using the "splashsource" environment variable.
+
+splashsource works as follows:
+- If splashsource is set to a supported location name as defined by board code,
+  use that splash location.
+- If splashsource is undefined, use the first splash location as default.
+- If splashsource is set to an unsupported value, do not load a splash screen.

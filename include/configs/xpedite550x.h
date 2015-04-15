@@ -122,7 +122,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_NAND_BASE_LIST	{CONFIG_SYS_NAND_BASE, \
 					 CONFIG_SYS_NAND_BASE2}
 #define CONFIG_SYS_MAX_NAND_DEVICE	2
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_SYS_NAND_QUIET_TEST	/* 2nd NAND flash not always populated */
 #define CONFIG_NAND_FSL_ELBC
 

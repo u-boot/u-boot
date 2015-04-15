@@ -16,23 +16,17 @@
 #include <asm/io.h>
 #include <i2c.h>
 
-static struct module_pin_mux usb0_pin_mux[] = {
-	{OFFSET(usb0_id), (MODE(0) | RXACTIVE)},
-	/* USB0 DrvBus Receiver disable (from romcode 0x20) */
-	{OFFSET(usb0_drvvbus), (MODE(0))},
-	/* USB1 DrvBus as GPIO due to HW-Workaround */
-	{OFFSET(usb1_drvvbus), (MODE(7))},
-	{-1},
-};
-static struct module_pin_mux spi1_pin_mux[] = {
+static struct module_pin_mux spi0_pin_mux[] = {
 	/* SPI1_SCLK */
-	{OFFSET(mcasp0_aclkx), MODE(3) | PULLUDEN |             RXACTIVE},
+	{OFFSET(spi0_sclk),	MODE(0) | PULLUDEN | RXACTIVE},
 	/* SPI1_D0 */
-	{OFFSET(mcasp0_fsx),   MODE(3) | PULLUDEN |		RXACTIVE},
+	{OFFSET(spi0_d0),	MODE(0) | PULLUDEN | RXACTIVE},
 	/* SPI1_D1 */
-	{OFFSET(mcasp0_axr0),  MODE(3) | PULLUDEN |             RXACTIVE},
+	{OFFSET(spi0_d1),	MODE(0) | PULLUDEN | RXACTIVE},
 	/* SPI1_CS0 */
-	{OFFSET(mcasp0_ahclkr), MODE(3) | PULLUDEN | PULLUP_EN | RXACTIVE},
+	{OFFSET(spi0_cs0),	MODE(0) | PULLUDEN | PULLUP_EN | RXACTIVE},
+	/* SPI1_CS1 */
+	{OFFSET(spi0_cs1),	MODE(0) | PULLUDEN | PULLUP_EN | RXACTIVE},
 	{-1},
 };
 
@@ -53,30 +47,34 @@ static struct module_pin_mux dcan1_pin_mux[] = {
 };
 
 static struct module_pin_mux gpios[] = {
-	/* GPIO0_29 (RMII1_REFCLK) - eMMC nRST */
-	{OFFSET(rmii1_refclk), (MODE(7) | PULLUDDIS)},
-	/* GPIO0_4  (SPI D1) - TA602 */
-	{OFFSET(spi0_d1), (MODE(7) | PULLUDDIS | RXACTIVE)},
-	/* GPIO0_5  (SPI CS0) - DISPLAY_ON_OFF */
-	{OFFSET(spi0_cs0), (MODE(7) | PULLUDDIS)},
 	/* GPIO0_7  (PWW0 OUT) - CAN TERM */
 	{OFFSET(ecap0_in_pwm0_out), (MODE(7) | PULLUDDIS | RXACTIVE)},
-	/* GPIO0_19 (DMA_INTR0) - CLKOUT SYS */
-	{OFFSET(xdma_event_intr0), (MODE(7) | RXACTIVE)},
-	/* GPIO0_20 (DMA_INTR1) - SPI1 nCS1 */
-	{OFFSET(xdma_event_intr1), (MODE(7) | PULLUDEN | PULLUP_EN)},
+	/* GPIO0_19 (DMA_INTR0) - TA602 */
+	{OFFSET(xdma_event_intr0), (MODE(7) | PULLUDDIS | RXACTIVE)},
+	/* GPIO0_20 (DMA_INTR1) - SPI0 nCS1 */
+	{OFFSET(xdma_event_intr1), (MODE(7) | PULLUDDIS | RXACTIVE)},
+	/* GPIO0_29 (RMII1_REFCLK) - eMMC nRST */
+	{OFFSET(rmii1_refclk), (MODE(7) | PULLUDDIS)},
 	/* GPIO0_30 (GPMC_WAIT0) - TA601 */
 	{OFFSET(gpmc_wait0), (MODE(7) | PULLUDDIS | RXACTIVE)},
 	/* GPIO0_31 (GPMC_nWP) - SW601 PushButton */
 	{OFFSET(gpmc_wpn), (MODE(7) | PULLUDDIS | RXACTIVE)},
 	/* GPIO1_28 (GPMC_nWE) - FRAM_nWP */
 	{OFFSET(gpmc_be1n), (MODE(7) | PULLUDDIS)},
+	/* GPIO1_29 (gpmc_csn0) - MMC nRST */
+	{OFFSET(gpmc_csn0), (MODE(7) | PULLUDDIS)},
 	/* GPIO2_0  (GPMC_nCS3)	- VBAT_OK */
 	{OFFSET(gpmc_csn3), (MODE(7) | PULLUDDIS | RXACTIVE) },
 	/* GPIO2_2  (GPMC_nADV_ALE) - DCOK */
 	{OFFSET(gpmc_advn_ale), (MODE(7) | PULLUDDIS | RXACTIVE)},
 	/* GPIO2_4  (GPMC_nWE) - TST_BAST */
 	{OFFSET(gpmc_wen), (MODE(7) | PULLUDDIS)},
+	/* GPIO2_5  (gpmc_be0n_cle) - DISPLAY_ON_OFF */
+	{OFFSET(gpmc_be0n_cle), (MODE(7) | PULLUDDIS)},
+	/* GPIO3_16 (mcasp0_axr0) - ETH-LED green */
+	{OFFSET(mcasp0_axr0), (MODE(7) | PULLUDDIS | RXACTIVE)},
+	/* GPIO3_17 (mcasp0_ahclkr) - CAN_STB */
+	{OFFSET(mcasp0_ahclkr), (MODE(7) | PULLUDDIS | RXACTIVE)},
 	/* GPIO3_18 (MCASP0_ACLKR) - SW601 CNTup, mapped to Counter eQEB0A_in */
 	{OFFSET(mcasp0_aclkr), (MODE(1) | PULLUDDIS | RXACTIVE)},
 	/* GPIO3_19 (MCASP0_FSR) - SW601 CNTdown, mapped to Counter eQEB0B_in */
@@ -126,6 +124,10 @@ static struct module_pin_mux mii1_pin_mux[] = {
 };
 
 static struct module_pin_mux mmc1_pin_mux[] = {
+	{OFFSET(gpmc_ad7), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT7 */
+	{OFFSET(gpmc_ad6), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT6 */
+	{OFFSET(gpmc_ad5), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT5 */
+	{OFFSET(gpmc_ad4), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT4 */
 	{OFFSET(gpmc_ad3), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT3 */
 	{OFFSET(gpmc_ad2), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT2 */
 	{OFFSET(gpmc_ad1), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT1 */
@@ -178,7 +180,7 @@ void enable_uart0_pin_mux(void)
 	configure_module_pin_mux(uart0_pin_mux);
 }
 
-void enable_i2c0_pin_mux(void)
+void enable_i2c_pin_mux(void)
 {
 	configure_module_pin_mux(i2c0_pin_mux);
 }
@@ -187,8 +189,7 @@ void enable_board_pin_mux(void)
 {
 	configure_module_pin_mux(i2c0_pin_mux);
 	configure_module_pin_mux(mii1_pin_mux);
-	configure_module_pin_mux(usb0_pin_mux);
-	configure_module_pin_mux(spi1_pin_mux);
+	configure_module_pin_mux(spi0_pin_mux);
 	configure_module_pin_mux(dcan0_pin_mux);
 	configure_module_pin_mux(dcan1_pin_mux);
 	configure_module_pin_mux(mmc1_pin_mux);

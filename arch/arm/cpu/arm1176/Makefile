@@ -10,6 +10,3 @@
 
 extra-y	= start.o
 obj-y	= cpu.o
-
-obj-$(CONFIG_BCM2835) += bcm2835/
-obj-$(CONFIG_TNETV107X) += tnetv107x/

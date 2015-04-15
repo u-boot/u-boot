@@ -1,5 +1,8 @@
 #include <common.h>
 #include <watchdog.h>
+#ifdef CONFIG_ARCH_SUNXI
+#include <asm/arch/usbc.h>
+#endif
 #include <asm/errno.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
@@ -12,6 +15,11 @@
 #include "musb_gadget.h"
 
 #ifdef CONFIG_MUSB_HOST
+struct int_queue {
+	struct usb_host_endpoint hep;
+	struct urb urb;
+};
+
 static struct musb *host;
 static struct usb_hcd hcd;
 static enum usb_device_speed host_speed;
@@ -25,45 +33,42 @@ static void musb_host_complete_urb(struct urb *urb)
 static struct usb_host_endpoint hep;
 static struct urb urb;
 
-static struct urb *construct_urb(struct usb_device *dev, int endpoint_type,
-				unsigned long pipe, void *buffer, int len,
-				struct devrequest *setup, int interval)
+static void construct_urb(struct urb *urb, struct usb_host_endpoint *hep,
+			  struct usb_device *dev, int endpoint_type,
+			  unsigned long pipe, void *buffer, int len,
+			  struct devrequest *setup, int interval)
 {
 	int epnum = usb_pipeendpoint(pipe);
 	int is_in = usb_pipein(pipe);
 
-	memset(&urb, 0, sizeof(struct urb));
-	memset(&hep, 0, sizeof(struct usb_host_endpoint));
-	INIT_LIST_HEAD(&hep.urb_list);
-	INIT_LIST_HEAD(&urb.urb_list);
-	urb.ep = &hep;
-	urb.complete = musb_host_complete_urb;
-	urb.status = -EINPROGRESS;
-	urb.dev = dev;
-	urb.pipe = pipe;
-	urb.transfer_buffer = buffer;
-	urb.transfer_dma = (unsigned long)buffer;
-	urb.transfer_buffer_length = len;
-	urb.setup_packet = (unsigned char *)setup;
+	memset(urb, 0, sizeof(struct urb));
+	memset(hep, 0, sizeof(struct usb_host_endpoint));
+	INIT_LIST_HEAD(&hep->urb_list);
+	INIT_LIST_HEAD(&urb->urb_list);
+	urb->ep = hep;
+	urb->complete = musb_host_complete_urb;
+	urb->status = -EINPROGRESS;
+	urb->dev = dev;
+	urb->pipe = pipe;
+	urb->transfer_buffer = buffer;
+	urb->transfer_dma = (unsigned long)buffer;
+	urb->transfer_buffer_length = len;
+	urb->setup_packet = (unsigned char *)setup;
 
-	urb.ep->desc.wMaxPacketSize =
+	urb->ep->desc.wMaxPacketSize =
 		__cpu_to_le16(is_in ? dev->epmaxpacketin[epnum] :
 				dev->epmaxpacketout[epnum]);
-	urb.ep->desc.bmAttributes = endpoint_type;
-	urb.ep->desc.bEndpointAddress =
+	urb->ep->desc.bmAttributes = endpoint_type;
+	urb->ep->desc.bEndpointAddress =
 		(is_in ? USB_DIR_IN : USB_DIR_OUT) | epnum;
-	urb.ep->desc.bInterval = interval;
-
-	return &urb;
+	urb->ep->desc.bInterval = interval;
 }
-
-#define MUSB_HOST_TIMEOUT	0x3ffffff
 
 static int submit_urb(struct usb_hcd *hcd, struct urb *urb)
 {
 	struct musb *host = hcd->hcd_priv;
 	int ret;
-	int timeout;
+	unsigned long timeout;
 
 	ret = musb_urb_enqueue(hcd, urb, 0);
 	if (ret < 0) {
@@ -71,12 +76,16 @@ static int submit_urb(struct usb_hcd *hcd, struct urb *urb)
 		return ret;
 	}
 
-	timeout = MUSB_HOST_TIMEOUT;
+	timeout = get_timer(0) + USB_TIMEOUT_MS(urb->pipe);
 	do {
 		if (ctrlc())
 			return -EIO;
 		host->isr(0, host);
-	} while ((urb->dev->status & USB_ST_NOT_PROC) && --timeout);
+	} while (urb->status == -EINPROGRESS &&
+		 get_timer(0) < timeout);
+
+	if (urb->status == -EINPROGRESS)
+		musb_urb_dequeue(hcd, urb, -ETIME);
 
 	return urb->status;
 }
@@ -84,38 +93,128 @@ static int submit_urb(struct usb_hcd *hcd, struct urb *urb)
 int submit_control_msg(struct usb_device *dev, unsigned long pipe,
 			void *buffer, int len, struct devrequest *setup)
 {
-	struct urb *urb = construct_urb(dev, USB_ENDPOINT_XFER_CONTROL, pipe,
-					buffer, len, setup, 0);
+	construct_urb(&urb, &hep, dev, USB_ENDPOINT_XFER_CONTROL, pipe,
+		      buffer, len, setup, 0);
 
 	/* Fix speed for non hub-attached devices */
 	if (!dev->parent)
 		dev->speed = host_speed;
 
-	return submit_urb(&hcd, urb);
+	return submit_urb(&hcd, &urb);
 }
 
 
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 					void *buffer, int len)
 {
-	struct urb *urb = construct_urb(dev, USB_ENDPOINT_XFER_BULK, pipe,
-					buffer, len, NULL, 0);
-	return submit_urb(&hcd, urb);
+	construct_urb(&urb, &hep, dev, USB_ENDPOINT_XFER_BULK, pipe,
+		      buffer, len, NULL, 0);
+	return submit_urb(&hcd, &urb);
 }
 
 int submit_int_msg(struct usb_device *dev, unsigned long pipe,
 				void *buffer, int len, int interval)
 {
-	struct urb *urb = construct_urb(dev, USB_ENDPOINT_XFER_INT, pipe,
-					buffer, len, NULL, interval);
-	return submit_urb(&hcd, urb);
+	construct_urb(&urb, &hep, dev, USB_ENDPOINT_XFER_INT, pipe,
+		      buffer, len, NULL, interval);
+	return submit_urb(&hcd, &urb);
+}
+
+struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
+	int queuesize, int elementsize, void *buffer, int interval)
+{
+	struct int_queue *queue;
+	int ret, index = usb_pipein(pipe) * 16 + usb_pipeendpoint(pipe);
+
+	if (queuesize != 1) {
+		printf("ERROR musb int-queues only support queuesize 1\n");
+		return NULL;
+	}
+
+	if (dev->int_pending & (1 << index)) {
+		printf("ERROR int-urb is already pending on pipe %lx\n", pipe);
+		return NULL;
+	}
+
+	queue = malloc(sizeof(*queue));
+	if (!queue)
+		return NULL;
+
+	construct_urb(&queue->urb, &queue->hep, dev, USB_ENDPOINT_XFER_INT,
+		      pipe, buffer, elementsize, NULL, interval);
+
+	ret = musb_urb_enqueue(&hcd, &queue->urb, 0);
+	if (ret < 0) {
+		printf("Failed to enqueue URB to controller\n");
+		free(queue);
+		return NULL;
+	}
+
+	dev->int_pending |= 1 << index;
+	return queue;
+}
+
+int destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
+{
+	int index = usb_pipein(queue->urb.pipe) * 16 + 
+		    usb_pipeendpoint(queue->urb.pipe);
+
+	if (queue->urb.status == -EINPROGRESS)
+		musb_urb_dequeue(&hcd, &queue->urb, -ETIME);
+
+	dev->int_pending &= ~(1 << index);
+	free(queue);
+	return 0;
+}
+
+void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
+{
+	if (queue->urb.status != -EINPROGRESS)
+		return NULL; /* URB has already completed in a prev. poll */
+
+	host->isr(0, host);
+
+	if (queue->urb.status != -EINPROGRESS)
+		return queue->urb.transfer_buffer; /* Done */
+
+	return NULL; /* URB still pending */
+}
+
+void usb_reset_root_port(void)
+{
+	void *mbase = host->mregs;
+	u8 power;
+
+	power = musb_readb(mbase, MUSB_POWER);
+	power &= 0xf0;
+	musb_writeb(mbase, MUSB_POWER, MUSB_POWER_RESET | power);
+	mdelay(50);
+#ifdef CONFIG_ARCH_SUNXI
+	/*
+	 * sunxi phy has a bug and it will wrongly detect high speed squelch
+	 * when clearing reset on low-speed devices, temporary disable
+	 * squelch detection to work around this.
+	 */
+	sunxi_usbc_enable_squelch_detect(0, 0);
+#endif
+	power = musb_readb(mbase, MUSB_POWER);
+	musb_writeb(mbase, MUSB_POWER, ~MUSB_POWER_RESET & power);
+#ifdef CONFIG_ARCH_SUNXI
+	sunxi_usbc_enable_squelch_detect(0, 1);
+#endif
+	host->isr(0, host);
+	host_speed = (musb_readb(mbase, MUSB_POWER) & MUSB_POWER_HSMODE) ?
+			USB_SPEED_HIGH :
+			(musb_readb(mbase, MUSB_DEVCTL) & MUSB_DEVCTL_FSDEV) ?
+			USB_SPEED_FULL : USB_SPEED_LOW;
+	mdelay((host_speed == USB_SPEED_LOW) ? 200 : 50);
 }
 
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
-	u8 power;
 	void *mbase;
-	int timeout = MUSB_HOST_TIMEOUT;
+	/* USB spec says it may take up to 1 second for a device to connect */
+	unsigned long timeout = get_timer(0) + 1000;
 
 	if (!host) {
 		printf("MUSB host is not registered\n");
@@ -127,20 +226,11 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	do {
 		if (musb_readb(mbase, MUSB_DEVCTL) & MUSB_DEVCTL_HM)
 			break;
-	} while (--timeout);
-	if (!timeout)
+	} while (get_timer(0) < timeout);
+	if (get_timer(0) >= timeout)
 		return -ENODEV;
 
-	power = musb_readb(mbase, MUSB_POWER);
-	musb_writeb(mbase, MUSB_POWER, MUSB_POWER_RESET | power);
-	udelay(30000);
-	power = musb_readb(mbase, MUSB_POWER);
-	musb_writeb(mbase, MUSB_POWER, ~MUSB_POWER_RESET & power);
-	host->isr(0, host);
-	host_speed = (musb_readb(mbase, MUSB_POWER) & MUSB_POWER_HSMODE) ?
-			USB_SPEED_HIGH :
-			(musb_readb(mbase, MUSB_DEVCTL) & MUSB_DEVCTL_FSDEV) ?
-			USB_SPEED_FULL : USB_SPEED_LOW;
+	usb_reset_root_port();
 	host->is_active = 1;
 	hcd.hcd_priv = host;
 

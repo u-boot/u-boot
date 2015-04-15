@@ -40,7 +40,16 @@ def GetItems(section):
     try:
         return settings.items(section)
     except ConfigParser.NoSectionError as e:
-        print e
         return []
     except:
         raise
+
+def SetItem(section, tag, value):
+    """Set an item and write it back to the settings file"""
+    global settings
+    global config_fname
+
+    settings.set(section, tag, value)
+    if config_fname is not None:
+        with open(config_fname, 'w') as fd:
+            settings.write(fd)

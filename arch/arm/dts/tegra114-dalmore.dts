@@ -57,7 +57,7 @@
 	};
 
 	sdhci@78000400 {
-		cd-gpios = <&gpio 170 1>; /* gpio PV2 */
+		cd-gpios = <&gpio TEGRA_GPIO(V, 2) GPIO_ACTIVE_LOW>;
 		bus-width = <4>;
 		status = "okay";
 	};
@@ -68,8 +68,7 @@
 	};
 
 	usb@7d008000 {
-		/* SPDIF_IN: USB_VBUS_EN1 */
-		nvidia,vbus-gpio = <&gpio 86 0>;
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(K, 6) GPIO_ACTIVE_HIGH>;
 		status = "okay";
 	};
 };

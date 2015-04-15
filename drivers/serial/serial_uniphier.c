@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2012-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2012-2015 Panasonic Corporation
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -13,30 +14,24 @@
 #include <serial.h>
 #include <fdtdec.h>
 
-#define UART_REG(x)					\
-	u8 x;						\
-	u8 postpad_##x[3];
-
 /*
  * Note: Register map is slightly different from that of 16550.
  */
 struct uniphier_serial {
-	UART_REG(rbr);		/* 0x00 */
-	UART_REG(ier);		/* 0x04 */
-	UART_REG(iir);		/* 0x08 */
-	UART_REG(fcr);		/* 0x0c */
-	u8 mcr;			/* 0x10 */
-	u8 lcr;
-	u16 __postpad;
-	UART_REG(lsr);		/* 0x14 */
-	UART_REG(msr);		/* 0x18 */
-	u32 __none1;
-	u32 __none2;
-	u16 dlr;
-	u16 __postpad2;
+	u32 rx;			/* In:  Receive buffer */
+#define tx rx			/* Out: Transmit buffer */
+	u32 ier;		/* Interrupt Enable Register */
+	u32 iir;		/* In: Interrupt ID Register */
+	u32 char_fcr;		/* Charactor / FIFO Control Register */
+	u32 lcr_mcr;		/* Line/Modem Control Register */
+#define LCR_SHIFT	8
+#define LCR_MASK	(0xff << (LCR_SHIFT))
+	u32 lsr;		/* In: Line Status Register */
+	u32 msr;		/* In: Modem Status Register */
+	u32 __rsv0;
+	u32 __rsv1;
+	u32 dlr;		/* Divisor Latch Register */
 };
-
-#define thr rbr
 
 struct uniphier_serial_private_data {
 	struct uniphier_serial __iomem *membase;
@@ -52,11 +47,9 @@ static int uniphier_serial_setbrg(struct udevice *dev, int baudrate)
 	const unsigned int mode_x_div = 16;
 	unsigned int divisor;
 
-	writeb(UART_LCR_WLEN8, &port->lcr);
-
 	divisor = DIV_ROUND_CLOSEST(plat->uartclk, mode_x_div * baudrate);
 
-	writew(divisor, &port->dlr);
+	writel(divisor, &port->dlr);
 
 	return 0;
 }
@@ -65,20 +58,20 @@ static int uniphier_serial_getc(struct udevice *dev)
 {
 	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
 
-	if (!(readb(&port->lsr) & UART_LSR_DR))
+	if (!(readl(&port->lsr) & UART_LSR_DR))
 		return -EAGAIN;
 
-	return readb(&port->rbr);
+	return readl(&port->rx);
 }
 
 static int uniphier_serial_putc(struct udevice *dev, const char c)
 {
 	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
 
-	if (!(readb(&port->lsr) & UART_LSR_THRE))
+	if (!(readl(&port->lsr) & UART_LSR_THRE))
 		return -EAGAIN;
 
-	writeb(c, &port->thr);
+	writel(c, &port->tx);
 
 	return 0;
 }
@@ -88,20 +81,28 @@ static int uniphier_serial_pending(struct udevice *dev, bool input)
 	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
 
 	if (input)
-		return readb(&port->lsr) & UART_LSR_DR;
+		return readl(&port->lsr) & UART_LSR_DR;
 	else
-		return !(readb(&port->lsr) & UART_LSR_THRE);
+		return !(readl(&port->lsr) & UART_LSR_THRE);
 }
 
 static int uniphier_serial_probe(struct udevice *dev)
 {
+	u32 tmp;
 	struct uniphier_serial_private_data *priv = dev_get_priv(dev);
 	struct uniphier_serial_platform_data *plat = dev_get_platdata(dev);
+	struct uniphier_serial __iomem *port;
 
-	priv->membase = map_sysmem(plat->base, sizeof(struct uniphier_serial));
-
-	if (!priv->membase)
+	port = map_sysmem(plat->base, sizeof(struct uniphier_serial));
+	if (!port)
 		return -ENOMEM;
+
+	priv->membase = port;
+
+	tmp = readl(&port->lcr_mcr);
+	tmp &= ~LCR_MASK;
+	tmp |= UART_LCR_WLEN8 << LCR_SHIFT;
+	writel(tmp, &port->lcr_mcr);
 
 	return 0;
 }
@@ -115,8 +116,8 @@ static int uniphier_serial_remove(struct udevice *dev)
 
 #ifdef CONFIG_OF_CONTROL
 static const struct udevice_id uniphier_uart_of_match[] = {
-	{ .compatible = "panasonic,uniphier-uart" },
-	{},
+	{ .compatible = "socionext,uniphier-uart" },
+	{ /* sentinel */ }
 };
 
 static int uniphier_serial_ofdata_to_platdata(struct udevice *dev)

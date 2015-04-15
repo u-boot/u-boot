@@ -2,5 +2,15 @@ config DM_GPIO
 	bool "Enable Driver Model for GPIO drivers"
 	depends on DM
 	help
-	  If you want to use driver model for GPIO drivers, say Y.
-	  To use legacy GPIO drivers, say N.
+	  Enable driver model for GPIO access. The standard GPIO
+	  interface (gpio_get_value(), etc.) is then implemented by
+	  the GPIO uclass. Drivers provide methods to query the
+	  particular GPIOs that they provide. The uclass interface
+	  is defined in include/asm-generic/gpio.h.
+
+config LPC32XX_GPIO
+	bool "LPC32XX GPIO driver"
+	depends on DM
+	default n
+	help
+	  Support for the LPC32XX GPIO driver.

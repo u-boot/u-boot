@@ -78,7 +78,8 @@ static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 
-	if (state != BOOTM_STATE_START && images.state >= state) {
+	if (((state & BOOTM_STATE_START) != BOOTM_STATE_START) &&
+	    images.state >= state) {
 		printf("Trying to execute a command out of order\n");
 		return CMD_RET_USAGE;
 	}
@@ -185,6 +186,9 @@ static char bootm_help_text[] =
 	"\tcmdline - OS specific command line processing/setup\n"
 	"\tbdt     - OS specific bd_t processing\n"
 	"\tprep    - OS specific prep before relocation or go\n"
+#if defined(CONFIG_TRACE)
+	"\tfake    - OS specific fake start without go\n"
+#endif
 	"\tgo      - start OS";
 #endif
 

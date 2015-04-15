@@ -17,5 +17,3 @@ PLATFORM_CPPFLAGS += -G0
 
 LDFLAGS_FINAL += --gc-sections
 PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections
-
-__HAVE_ARCH_GENERIC_BOARD := y

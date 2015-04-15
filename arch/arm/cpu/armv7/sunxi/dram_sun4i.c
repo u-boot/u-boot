@@ -36,24 +36,11 @@
 #define CPU_CFG_CHIP_REV_B 0x3
 
 /*
- * Wait up to 1s for value to be set in given part of reg.
- */
-static void await_completion(u32 *reg, u32 mask, u32 val)
-{
-	unsigned long tmo = timer_get_us() + 1000000;
-
-	while ((readl(reg) & mask) != val) {
-		if (timer_get_us() > tmo)
-			panic("Timeout initialising DRAM\n");
-	}
-}
-
-/*
  * Wait up to 1s for mask to be clear in given reg.
  */
 static inline void await_bits_clear(u32 *reg, u32 mask)
 {
-	await_completion(reg, mask, 0);
+	mctl_await_completion(reg, mask, 0);
 }
 
 /*
@@ -61,7 +48,7 @@ static inline void await_bits_clear(u32 *reg, u32 mask)
  */
 static inline void await_bits_set(u32 *reg, u32 mask)
 {
-	await_completion(reg, mask, mask);
+	mctl_await_completion(reg, mask, mask);
 }
 
 /*

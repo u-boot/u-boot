@@ -1,18 +1,20 @@
 /*
  * Device Tree Source for UniPhier PH1-sLD3 Reference Board
  *
- * Copyright (C) 2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2014-2015 Panasonic Corporation
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;
 /include/ "uniphier-ph1-sld3.dtsi"
+/include/ "uniphier-ref-daughter.dtsi"
 
 / {
-	model = "Panasonic UniPhier PH1-sLD3 Reference Board";
-	compatible = "panasonic,ph1-sld3-ref", "panasonic,ph1-sld3";
+	model = "UniPhier PH1-sLD3 Reference Board";
+	compatible = "socionext,ph1-sld3-ref", "socionext,ph1-sld3";
 
 	memory {
 		device_type = "memory";
@@ -45,10 +47,6 @@
 
 &i2c0 {
 	status = "okay";
-	eeprom {
-		compatible = "i2c-eeprom";
-		reg = <0x50>;
-	};
 };
 
 &usb0 {

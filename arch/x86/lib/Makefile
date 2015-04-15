@@ -14,6 +14,7 @@ obj-$(CONFIG_HAVE_FSP) += cmd_hob.o
 obj-y	+= gcc.o
 obj-y	+= init_helpers.o
 obj-y	+= interrupts.o
+obj-y += cmd_mtrr.o
 obj-$(CONFIG_SYS_PCAT_INTERRUPTS) += pcat_interrupts.o
 obj-$(CONFIG_SYS_PCAT_TIMER) += pcat_timer.o
 obj-$(CONFIG_PCI) += pci_type1.o
@@ -24,6 +25,7 @@ obj-y	+= string.o
 obj-$(CONFIG_SYS_X86_TSC_TIMER)	+= tsc_timer.o
 obj-$(CONFIG_VIDEO_VGA)	+= video.o
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
+obj-$(CONFIG_HAVE_FSP) += fsp/
 
 extra-$(CONFIG_USE_PRIVATE_LIBGCC) := lib.a
 

@@ -28,8 +28,16 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/usbc.h>
 #include <asm/io.h>
+#include <linux/usb/musb.h>
 #include <net.h>
+
+#if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
+/* So that we can use pin names in Kconfig and sunxi_name_to_gpio() */
+int soft_i2c_gpio_sda;
+int soft_i2c_gpio_scl;
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -150,6 +158,10 @@ void i2c_init_board(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUNXI_GPB0_TWI0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUNXI_GPB0_TWI0);
 	clock_twi_onoff(0, 1);
+#if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
+	soft_i2c_gpio_sda = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SDA);
+	soft_i2c_gpio_scl = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SCL);
+#endif
 }
 
 #ifdef CONFIG_SPL_BUILD
@@ -175,26 +187,21 @@ void sunxi_board_init(void)
 #endif
 #ifdef CONFIG_AXP221_POWER
 	power_failed = axp221_init();
-	power_failed |= axp221_set_dcdc1(3000);
-	power_failed |= axp221_set_dcdc2(1200);
-	power_failed |= axp221_set_dcdc3(1200);
-	power_failed |= axp221_set_dcdc4(1200);
-	power_failed |= axp221_set_dcdc5(1500);
-#if CONFIG_AXP221_DLDO1_VOLT != -1
+	power_failed |= axp221_set_dcdc1(CONFIG_AXP221_DCDC1_VOLT);
+	power_failed |= axp221_set_dcdc2(1200); /* A31:VDD-GPU, A23:VDD-SYS */
+	power_failed |= axp221_set_dcdc3(1200); /* VDD-CPU */
+#ifdef CONFIG_MACH_SUN6I
+	power_failed |= axp221_set_dcdc4(1200); /* A31:VDD-SYS */
+#else
+	power_failed |= axp221_set_dcdc4(0);    /* A23:unused */
+#endif
+	power_failed |= axp221_set_dcdc5(1500); /* VCC-DRAM */
 	power_failed |= axp221_set_dldo1(CONFIG_AXP221_DLDO1_VOLT);
-#endif
-#if CONFIG_AXP221_DLDO4_VOLT != -1
 	power_failed |= axp221_set_dldo4(CONFIG_AXP221_DLDO4_VOLT);
-#endif
-#if CONFIG_AXP221_ALDO1_VOLT != -1
 	power_failed |= axp221_set_aldo1(CONFIG_AXP221_ALDO1_VOLT);
-#endif
-#if CONFIG_AXP221_ALDO2_VOLT != -1
 	power_failed |= axp221_set_aldo2(CONFIG_AXP221_ALDO2_VOLT);
-#endif
-#if CONFIG_AXP221_ALDO3_VOLT != -1
 	power_failed |= axp221_set_aldo3(CONFIG_AXP221_ALDO3_VOLT);
-#endif
+	power_failed |= axp221_set_eldo(3, CONFIG_AXP221_ELDO3_VOLT);
 #endif
 
 	printf("DRAM:");
@@ -208,33 +215,54 @@ void sunxi_board_init(void)
 	 * assured it's being powered with suitable core voltage
 	 */
 	if (!power_failed)
-		clock_set_pll1(CONFIG_CLK_FULL_SPEED);
+		clock_set_pll1(CONFIG_SYS_CLK_FREQ);
 	else
 		printf("Failed to set core voltage! Can't set CPU frequency\n");
 }
 #endif
 
+#if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
+static struct musb_hdrc_config musb_config = {
+	.multipoint     = 1,
+	.dyn_fifo       = 1,
+	.num_eps        = 6,
+	.ram_bits       = 11,
+};
+
+static struct musb_hdrc_platform_data musb_plat = {
+#if defined(CONFIG_MUSB_HOST)
+	.mode           = MUSB_HOST,
+#else
+	.mode		= MUSB_PERIPHERAL,
+#endif
+	.config         = &musb_config,
+	.power          = 250,
+	.platform_ops	= &sunxi_musb_ops,
+};
+#endif
+
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-	if (!getenv("ethaddr")) {
-		uint32_t reg_val = readl(SUNXI_SID_BASE);
+	unsigned int sid[4];
 
-		if (reg_val) {
-			uint8_t mac_addr[6];
+	if (!getenv("ethaddr") && sunxi_get_sid(sid) == 0 &&
+			sid[0] != 0 && sid[3] != 0) {
+		uint8_t mac_addr[6];
 
-			mac_addr[0] = 0x02; /* Non OUI / registered MAC address */
-			mac_addr[1] = (reg_val >>  0) & 0xff;
-			reg_val = readl(SUNXI_SID_BASE + 0x0c);
-			mac_addr[2] = (reg_val >> 24) & 0xff;
-			mac_addr[3] = (reg_val >> 16) & 0xff;
-			mac_addr[4] = (reg_val >>  8) & 0xff;
-			mac_addr[5] = (reg_val >>  0) & 0xff;
+		mac_addr[0] = 0x02; /* Non OUI / registered MAC address */
+		mac_addr[1] = (sid[0] >>  0) & 0xff;
+		mac_addr[2] = (sid[3] >> 24) & 0xff;
+		mac_addr[3] = (sid[3] >> 16) & 0xff;
+		mac_addr[4] = (sid[3] >>  8) & 0xff;
+		mac_addr[5] = (sid[3] >>  0) & 0xff;
 
-			eth_setenv_enetaddr("ethaddr", mac_addr);
-		}
+		eth_setenv_enetaddr("ethaddr", mac_addr);
 	}
 
+#if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
+	musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);
+#endif
 	return 0;
 }
 #endif

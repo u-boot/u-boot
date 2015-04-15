@@ -281,46 +281,46 @@ int do_ymv(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 U_BOOT_CMD(ytrace, 2, 0, do_ytrace,
 	   "show/set yaffs trace mask",
-	   "ytrace [new_mask]  show/set yaffs trace mask");
+	   "[new_mask]  show/set yaffs trace mask");
 
 U_BOOT_CMD(ydevls, 1, 0, do_ydevls,
 	   "list yaffs mount points", "list yaffs mount points");
 
 U_BOOT_CMD(ydevconfig, 5, 0, do_ydevconfig,
 	   "configure yaffs mount point",
-	   "ydevconfig mtpoint mtd_id start_block end_block   configures a yaffs2 mount point");
+	   "mtpoint mtd_id start_block end_block   configures a yaffs2 mount point");
 
 U_BOOT_CMD(ymount, 2, 0, do_ymount,
-	   "mount yaffs", "ymount mtpoint  mounts a yaffs2 mount point");
+	   "mount yaffs", "mtpoint  mounts a yaffs2 mount point");
 
 U_BOOT_CMD(yumount, 2, 0, do_yumount,
-	   "unmount yaffs", "yunmount mtpoint  unmounts a yaffs2 mount point");
+	   "unmount yaffs", "mtpoint  unmounts a yaffs2 mount point");
 
-U_BOOT_CMD(yls, 3, 0, do_yls, "yaffs ls", "yls [-l] dirname");
+U_BOOT_CMD(yls, 3, 0, do_yls, "yaffs ls", "[-l] dirname");
 
 U_BOOT_CMD(yrd, 2, 0, do_yrd,
-	   "read file from yaffs", "yrd path   read file from yaffs");
+	   "read file from yaffs", "path   read file from yaffs");
 
 U_BOOT_CMD(ywr, 4, 0, do_ywr,
 	   "write file to yaffs",
-	   "ywr filename value num_vlues   write values to yaffs file");
+	   "filename value num_vlues   write values to yaffs file");
 
 U_BOOT_CMD(yrdm, 3, 0, do_yrdm,
 	   "read file to memory from yaffs",
-	   "yrdm filename offset    reads yaffs file into memory");
+	   "filename offset    reads yaffs file into memory");
 
 U_BOOT_CMD(ywrm, 4, 0, do_ywrm,
 	   "write file from memory to yaffs",
-	   "ywrm filename offset size  writes memory to yaffs file");
+	   "filename offset size  writes memory to yaffs file");
 
 U_BOOT_CMD(ymkdir, 2, 0, do_ymkdir,
-	   "YAFFS mkdir", "ymkdir dir    create a yaffs directory");
+	   "YAFFS mkdir", "dir    create a yaffs directory");
 
 U_BOOT_CMD(yrmdir, 2, 0, do_yrmdir,
-	   "YAFFS rmdir", "yrmdir dirname   removes a yaffs directory");
+	   "YAFFS rmdir", "dirname   removes a yaffs directory");
 
-U_BOOT_CMD(yrm, 2, 0, do_yrm, "YAFFS rm", "yrm path   removes a yaffs file");
+U_BOOT_CMD(yrm, 2, 0, do_yrm, "YAFFS rm", "path   removes a yaffs file");
 
 U_BOOT_CMD(ymv, 4, 0, do_ymv,
 	   "YAFFS mv",
-	   "ymv old_path new_path   moves/rename files within a yaffs mount point");
+	   "old_path new_path   moves/rename files within a yaffs mount point");

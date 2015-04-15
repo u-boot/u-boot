@@ -173,7 +173,7 @@ struct sunxi_ccm_reg {
 #define CCM_PLL1_CTRL_M(n)		((((n) - 1) & 0x3) << 0)
 #define CCM_PLL1_CTRL_K(n)		((((n) - 1) & 0x3) << 4)
 #define CCM_PLL1_CTRL_N(n)		((((n) - 1) & 0x1f) << 8)
-#define CCM_PLL1_CTRL_MAGIC		(0x1 << 16)
+#define CCM_PLL1_CTRL_P(n)		(((n) & 0x3) << 16)
 #define CCM_PLL1_CTRL_EN		(0x1 << 31)
 
 #define CCM_PLL3_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
@@ -185,6 +185,7 @@ struct sunxi_ccm_reg {
 #define CCM_PLL5_CTRL_K(n)		((((n) - 1) & 0x3) << 4)
 #define CCM_PLL5_CTRL_N(n)		((((n) - 1) & 0x1f) << 8)
 #define CCM_PLL5_CTRL_UPD		(0x1 << 20)
+#define CCM_PLL5_CTRL_SIGMA_DELTA_EN	(0x1 << 24)
 #define CCM_PLL5_CTRL_EN		(0x1 << 31)
 
 #define PLL6_CFG_DEFAULT		0x90041811 /* 600 MHz */
@@ -203,6 +204,7 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_USB_OHCI0	29
 #define AHB_GATE_OFFSET_USB_EHCI1	27
 #define AHB_GATE_OFFSET_USB_EHCI0	26
+#define AHB_GATE_OFFSET_USB0		24
 #define AHB_GATE_OFFSET_MCTL		14
 #define AHB_GATE_OFFSET_GMAC		17
 #define AHB_GATE_OFFSET_MMC3		11
@@ -210,6 +212,7 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_MMC1		9
 #define AHB_GATE_OFFSET_MMC0		8
 #define AHB_GATE_OFFSET_MMC(n)		(AHB_GATE_OFFSET_MMC0 + (n))
+#define AHB_GATE_OFFSET_SS		5
 
 /* ahb_gate1 offsets */
 #define AHB_GATE_OFFSET_DRC0		25
@@ -218,15 +221,20 @@ struct sunxi_ccm_reg {
 #define AHB_GATE_OFFSET_LCD1		5
 #define AHB_GATE_OFFSET_LCD0		4
 
-#define CCM_MMC_CTRL_OSCM24 (0x0 << 24)
-#define CCM_MMC_CTRL_PLL6   (0x1 << 24)
+#define CCM_MMC_CTRL_M(x)		((x) - 1)
+#define CCM_MMC_CTRL_OCLK_DLY(x)	((x) << 8)
+#define CCM_MMC_CTRL_N(x)		((x) << 16)
+#define CCM_MMC_CTRL_SCLK_DLY(x)	((x) << 20)
+#define CCM_MMC_CTRL_OSCM24		(0x0 << 24)
+#define CCM_MMC_CTRL_PLL6		(0x1 << 24)
+#define CCM_MMC_CTRL_ENABLE		(0x1 << 31)
 
-#define CCM_MMC_CTRL_ENABLE (0x1 << 31)
-
+#define CCM_USB_CTRL_PHY0_RST (0x1 << 0)
 #define CCM_USB_CTRL_PHY1_RST (0x1 << 1)
 #define CCM_USB_CTRL_PHY2_RST (0x1 << 2)
 /* There is no global phy clk gate on sun6i, define as 0 */
 #define CCM_USB_CTRL_PHYGATE 0
+#define CCM_USB_CTRL_PHY0_CLK (0x1 << 8)
 #define CCM_USB_CTRL_PHY1_CLK (0x1 << 9)
 #define CCM_USB_CTRL_PHY2_CLK (0x1 << 10)
 
@@ -235,6 +243,8 @@ struct sunxi_ccm_reg {
 #define CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII 0x2
 #define CCM_GMAC_CTRL_GPIT_MII		(0x0 << 2)
 #define CCM_GMAC_CTRL_GPIT_RGMII	(0x1 << 2)
+#define CCM_GMAC_CTRL_RX_CLK_DELAY(x)	((x) << 5)
+#define CCM_GMAC_CTRL_TX_CLK_DELAY(x)	((x) << 10)
 
 #define MDFS_CLK_DEFAULT		0x81000002 /* PLL6 / 3 */
 
@@ -250,6 +260,8 @@ struct sunxi_ccm_reg {
 #define CCM_LCD_CH0_CTRL_PLL3_2X	(2 << 24)
 #define CCM_LCD_CH0_CTRL_PLL7_2X	(3 << 24)
 #define CCM_LCD_CH0_CTRL_MIPI_PLL	(4 << 24)
+/* No reset bit in ch0_clk_cfg (reset is controlled through ahb_reset1) */
+#define CCM_LCD_CH0_CTRL_RST		0
 #define CCM_LCD_CH0_CTRL_GATE		(0x1 << 31)
 
 #define CCM_LCD_CH1_CTRL_M(n)		((((n) - 1) & 0xf) << 0)
@@ -268,7 +280,13 @@ struct sunxi_ccm_reg {
 #define CCM_HDMI_CTRL_DDC_GATE		(0x1 << 30)
 #define CCM_HDMI_CTRL_GATE		(0x1 << 31)
 
+#ifndef CONFIG_MACH_SUN8I
 #define MBUS_CLK_DEFAULT		0x81000001 /* PLL6 / 2 */
+#else
+#define MBUS_CLK_DEFAULT		0x81000003 /* PLL6 / 4 */
+#endif
+
+#define CCM_PLL5_PATTERN		0xd1303333
 
 /* ahb_reset0 offsets */
 #define AHB_RESET_OFFSET_GMAC		17
@@ -278,8 +296,9 @@ struct sunxi_ccm_reg {
 #define AHB_RESET_OFFSET_MMC1		9
 #define AHB_RESET_OFFSET_MMC0		8
 #define AHB_RESET_OFFSET_MMC(n)		(AHB_RESET_OFFSET_MMC0 + (n))
+#define AHB_RESET_OFFSET_SS		5
 
-/* ahb_reset0 offsets */
+/* ahb_reset1 offsets */
 #define AHB_RESET_OFFSET_DRC0		25
 #define AHB_RESET_OFFSET_DE_BE0		12
 #define AHB_RESET_OFFSET_HDMI		11
@@ -302,5 +321,12 @@ struct sunxi_ccm_reg {
 #define CCM_DE_CTRL_PLL9		(4 << 24)
 #define CCM_DE_CTRL_PLL10		(5 << 24)
 #define CCM_DE_CTRL_GATE		(1 << 31)
+
+#ifndef __ASSEMBLY__
+void clock_set_pll1(unsigned int hz);
+void clock_set_pll3(unsigned int hz);
+void clock_set_pll5(unsigned int clk, bool sigma_delta_enable);
+unsigned int clock_get_pll6(void);
+#endif
 
 #endif /* _SUNXI_CLOCK_SUN6I_H */

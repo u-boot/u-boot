@@ -12,6 +12,8 @@
 #ifndef _CONFIG_DOCKSTAR_H
 #define _CONFIG_DOCKSTAR_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
  * Version number information
  */

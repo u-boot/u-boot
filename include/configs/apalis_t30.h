@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Marcel Ziswiler
+ * Copyright (c) 2014-2015 Marcel Ziswiler
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -21,8 +21,6 @@
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_APALIS_T30
-
-#define CONFIG_BOARD_EARLY_INIT_F
 
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
@@ -47,12 +45,8 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_USB
 
-/* USB networking support */
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-
 /* PCI host support */
-#undef CONFIG_PCI	/* just define once Tegra PCIe support got merged */
+#define CONFIG_PCI
 #define CONFIG_PCI_TEGRA
 #define CONFIG_PCI_PNP
 #define CONFIG_CMD_PCI
@@ -60,11 +54,30 @@
 
 /* PCI networking support */
 #define CONFIG_E1000
-#undef CONFIG_E1000_NO_NVM	/* just define once E1000 driver got fixed */
+#define CONFIG_E1000_NO_NVM
 
 /* General networking support */
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
+
+/* Miscellaneous commands */
+#define CONFIG_CMD_SETEXPR
+#define CONFIG_FAT_WRITE
+
+/* Increase console I/O buffer size */
+#undef CONFIG_SYS_CBSIZE
+#define CONFIG_SYS_CBSIZE		1024
+
+/* Increase arguments buffer size */
+#undef CONFIG_SYS_BARGSIZE
+#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
+
+/* Increase print buffer size */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+
+/* Increase maximum number of arguments */
+#undef CONFIG_SYS_MAXARGS
+#define CONFIG_SYS_MAXARGS		32
 
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"

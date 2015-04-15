@@ -1,0 +1,45 @@
+/*
+ * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+/include/ "skeleton.dtsi"
+/include/ "serial.dtsi"
+
+/ {
+	model = "Intel Minnowboard Max";
+	compatible = "intel,minnowmax", "intel,baytrail";
+
+	aliases {
+		serial0 = &serial;
+	};
+
+	config {
+		silent_console = <0>;
+	};
+
+	chosen {
+		stdout-path = "/serial";
+	};
+
+	spi {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "intel,ich";
+		spi-flash@0 {
+			reg = <0>;
+			compatible = "sst,25vf016b", "spi-flash";
+			memory-map = <0xff800000 0x00800000>;
+		};
+	};
+
+	microcode {
+		update@0 {
+#include "microcode/m0130673322.dtsi"
+		};
+	};
+
+};

@@ -1,5 +1,5 @@
 VERSION = 2015
-PATCHLEVEL = 01
+PATCHLEVEL = 04
 SUBLEVEL =
 EXTRAVERSION =
 NAME =
@@ -281,6 +281,11 @@ os_x_before	= $(shell if [ $(DARWIN_MAJOR_VERSION) -le $(1) -a \
 HOSTCC       = $(call os_x_before, 10, 5, "cc", "gcc")
 HOSTCFLAGS  += $(call os_x_before, 10, 4, "-traditional-cpp")
 HOSTLDFLAGS += $(call os_x_before, 10, 5, "-multiply_defined suppress")
+
+# since Lion (10.7) ASLR is on by default, but we use linker generated lists
+# in some host tools which is a problem then ... so disable ASLR for these
+# tools
+HOSTLDFLAGS += $(call os_x_before, 10, 7, "", "-Xlinker -no_pie")
 endif
 
 # Decide whether to build built-in, modular, or both.
@@ -464,10 +469,10 @@ KBUILD_DEFCONFIG := sandbox_defconfig
 export KBUILD_DEFCONFIG KBUILD_KCONFIG
 
 config: scripts_basic outputmakefile FORCE
-	+$(Q)$(CONFIG_SHELL) $(srctree)/scripts/multiconfig.sh $@
+	$(Q)$(MAKE) $(build)=scripts/kconfig $@
 
 %config: scripts_basic outputmakefile FORCE
-	+$(Q)$(CONFIG_SHELL) $(srctree)/scripts/multiconfig.sh $@
+	$(Q)$(MAKE) $(build)=scripts/kconfig $@
 
 else
 # ===========================================================================
@@ -491,6 +496,15 @@ $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
 # we execute the config step to be sure to catch updated Kconfig files
 include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+	@# If the following part fails, include/config/auto.conf should be
+	@# deleted so "make silentoldconfig" will be re-run on the next build.
+	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.autoconf || \
+		{ rm -f include/config/auto.conf; false; }
+	@# include/config.h has been updated after "make silentoldconfig".
+	@# We need to touch include/config/auto.conf so it gets newer
+	@# than include/config.h.
+	@# Otherwise, 'make silentoldconfig' would be invoked twice.
+	$(Q)touch include/config/auto.conf
 
 -include include/autoconf.mk
 -include include/autoconf.mk.dep
@@ -499,11 +513,15 @@ include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 # is up-to-date. When we switch to a different board configuration, old CONFIG
 # macros are still remaining in include/config/auto.conf. Without the following
 # gimmick, wrong config.mk would be included leading nasty warnings/errors.
-autoconf_is_current := $(if $(wildcard $(KCONFIG_CONFIG)),$(shell find . \
-		-path ./include/config/auto.conf -newer $(KCONFIG_CONFIG)))
-ifneq ($(autoconf_is_current),)
+ifneq ($(wildcard $(KCONFIG_CONFIG)),)
+ifneq ($(wildcard include/config/auto.conf),)
+autoconf_is_old := $(shell find . -path ./$(KCONFIG_CONFIG) -newer \
+						include/config/auto.conf)
+ifeq ($(autoconf_is_old),)
 include $(srctree)/config.mk
 include $(srctree)/arch/$(ARCH)/Makefile
+endif
+endif
 endif
 
 # If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
@@ -729,8 +747,9 @@ ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
 ALL-$(CONFIG_REMAKE_ELF) += u-boot.elf
 
-# We can't do this yet due to the need for binary blobs
-# ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
+ifneq ($(BUILD_ROM),)
+ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
+endif
 
 # enable combined SPL/u-boot/dtb rules for tegra
 ifneq ($(CONFIG_TEGRA),)
@@ -780,6 +799,13 @@ ifneq ($(CONFIG_SYS_GENERIC_BOARD),y)
 	@echo "Please convert this board to generic board."
 	@echo "Otherwise it will be removed by the end of 2014."
 	@echo "See doc/README.generic-board for further information"
+	@echo "===================================================="
+endif
+ifeq ($(CONFIG_DM_I2C_COMPAT),y)
+	@echo "===================== WARNING ======================"
+	@echo "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
+	@echo "(possibly in a subsequent patch in your series)"
+	@echo "before sending patches to the mailing list."
 	@echo "===================================================="
 endif
 
@@ -855,10 +881,16 @@ MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
 MKIMAGEFLAGS_u-boot.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
 	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
 
+MKIMAGEFLAGS_u-boot-spl.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
+	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
+
 MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
 
 u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
+	$(call if_changed,mkimage)
+
+u-boot-spl.kwb: u-boot.img spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 
 MKIMAGEFLAGS_u-boot-dtb.img = $(MKIMAGEFLAGS_u-boot.img)
@@ -882,6 +914,26 @@ OBJCOPYFLAGS_u-boot-with-spl.bin = -I binary -O binary \
 				   --pad-to=$(CONFIG_SPL_PAD_TO)
 u-boot-with-spl.bin: spl/u-boot-spl.bin $(SPL_PAYLOAD) FORCE
 	$(call if_changed,pad_cat)
+
+MKIMAGEFLAGS_lpc32xx-spl.img = -T lpc32xximage -a $(CONFIG_SPL_TEXT_BASE)
+
+lpc32xx-spl.img: spl/u-boot-spl.bin FORCE
+	$(call if_changed,mkimage)
+
+OBJCOPYFLAGS_lpc32xx-boot-0.bin = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO)
+
+lpc32xx-boot-0.bin: lpc32xx-spl.img
+	$(call if_changed,objcopy)
+
+OBJCOPYFLAGS_lpc32xx-boot-1.bin = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO)
+
+lpc32xx-boot-1.bin: lpc32xx-spl.img
+	$(call if_changed,objcopy)
+
+lpc32xx-full.bin: lpc32xx-boot-0.bin lpc32xx-boot-1.bin u-boot.img
+	$(call if_changed,cat)
+
+CLEAN_FILES += lpc32xx-*
 
 OBJCOPYFLAGS_u-boot-with-tpl.bin = -I binary -O binary \
 				   --pad-to=$(CONFIG_TPL_PAD_TO)
@@ -1144,7 +1196,7 @@ prepare2: prepare3 outputmakefile
 
 prepare1: prepare2 $(version_h) $(timestamp_h) \
                    include/config/auto.conf
-ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
+ifeq ($(CONFIG_HAVE_GENERIC_BOARD),)
 ifeq ($(CONFIG_SYS_GENERIC_BOARD),y)
 	@echo >&2 "  Your architecture does not support generic board."
 	@echo >&2 "  Please undefine CONFIG_SYS_GENERIC_BOARD in your board config file."
@@ -1287,7 +1339,7 @@ CLEAN_DIRS  += $(MODVERDIR) \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
 CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
-	       u-boot* MLO* SPL System.map
+	       boot* u-boot* MLO* SPL System.map
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \

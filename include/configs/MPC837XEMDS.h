@@ -8,6 +8,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * High Level Configuration Options
  */
@@ -280,7 +283,6 @@
  * NAND Flash on the Local Bus
  */
 #define CONFIG_CMD_NAND		1
-#define CONFIG_MTD_NAND_VERIFY_WRITE	1
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_NAND_FSL_ELBC	1
 

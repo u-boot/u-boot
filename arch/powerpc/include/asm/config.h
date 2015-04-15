@@ -75,6 +75,7 @@
  * SEC (crypto unit) major compatible version determination
  */
 #if defined(CONFIG_MPC83xx)
+#define CONFIG_SYS_FSL_SEC_BE
 #define CONFIG_SYS_FSL_SEC_COMPAT	2
 #endif
 

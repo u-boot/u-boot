@@ -142,6 +142,9 @@ static inline uint32_t mx28_nand_get_ecc_strength(uint32_t page_data_size,
 
 		if (page_oob_size == 218)
 			return 16;
+
+		if (page_oob_size == 224)
+			return 16;
 	}
 
 	return 0;
@@ -267,6 +270,9 @@ static struct mx28_nand_fcb *mx28_nand_get_fcb(uint32_t size)
 			fcb->ecc_block_n_ecc_type =	4;
 			fcb->ecc_block_0_ecc_type =	4;
 		} else if (nand_oobsize == 218) {
+			fcb->ecc_block_n_ecc_type =	8;
+			fcb->ecc_block_0_ecc_type =	8;
+		} else if (nand_oobsize == 224) {
 			fcb->ecc_block_n_ecc_type =	8;
 			fcb->ecc_block_0_ecc_type =	8;
 		}

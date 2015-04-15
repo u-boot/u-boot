@@ -1,0 +1,30 @@
+# The MSI Primo81 is an A31s based tablet, with 1G RAM, 16G NAND,
+# 1024x768 IPS LCD display, mono speaker, 0.3 MP front camera, 2.0 MP
+# rear camera, 3500 mAh battery, gt911 touchscreen, mma8452 accelerometer
+# and rtl8188etv usb wifi. Has "power", "volume+" and "volume-" buttons
+# (both volume buttons are also connected to the UBOOT_SEL pin). The
+# external connectors are represented by MicroSD slot, MiniHDMI, MicroUSB
+# OTG and 3.5mm headphone jack. More details are available at
+#     http://linux-sunxi.org/MSI_Primo81
+
+CONFIG_SPL=y
+CONFIG_SYS_EXTRA_OPTIONS=""
+CONFIG_FDTFILE="sun6i-a31s-primo81.dtb"
+CONFIG_VIDEO_LCD_MODE="x:768,y:1024,depth:18,pclk_khz:66000,le:56,ri:60,up:30,lo:36,hs:64,vs:50,sync:3,vmode:0"
+CONFIG_VIDEO_LCD_PANEL_MIPI_4_LANE_513_MBPS_VIA_SSD2828=y
+CONFIG_VIDEO_LCD_SSD2828_TX_CLK=27
+CONFIG_VIDEO_LCD_SSD2828_RESET="PA26"
+CONFIG_VIDEO_LCD_SPI_CS="PH9"
+CONFIG_VIDEO_LCD_SPI_SCLK="PH10"
+CONFIG_VIDEO_LCD_SPI_MOSI="PH11"
+CONFIG_VIDEO_LCD_SPI_MISO="PH12"
+CONFIG_VIDEO_LCD_BL_EN="PA25"
+CONFIG_VIDEO_LCD_BL_PWM="PH13"
+CONFIG_USB_KEYBOARD=n
+CONFIG_ARM=y
+CONFIG_ARCH_SUNXI=y
+CONFIG_MACH_SUN6I=y
+CONFIG_DRAM_CLK=360
+CONFIG_DRAM_ZQ=122
+# Wifi power
+CONFIG_AXP221_DLDO1_VOLT=3300

@@ -1,4 +1,3 @@
-
 /*
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
@@ -8,6 +7,14 @@
 
 #ifndef _PCI_I386_H_
 #define _PCI_I386_H_
+
+/* bus mapping constants (used for PCI core initialization) */
+#define PCI_REG_ADDR	0xcf8
+#define PCI_REG_DATA	0xcfc
+
+#define PCI_CFG_EN	0x80000000
+
+#ifndef __ASSEMBLY__
 
 #define DEFINE_PCI_DEVICE_TABLE(_table) \
 	const struct pci_device_id _table[]
@@ -29,7 +36,7 @@ void board_pci_setup_hose(struct pci_controller *hose);
  * pci_early_init_hose() - Set up PCI host before relocation
  *
  * This allocates memory for, sets up and returns the PCI hose. It can be
- * called before relocation. The hose will be stored in gd->arch.hose for
+ * called before relocation. The hose will be stored in gd->hose for
  * later use, but will become invalid one DRAM is available.
  */
 int pci_early_init_hose(struct pci_controller **hosep);
@@ -49,4 +56,6 @@ void pci_write_config8(pci_dev_t dev, unsigned where, unsigned value);
 void pci_write_config16(pci_dev_t dev, unsigned where, unsigned value);
 void pci_write_config32(pci_dev_t dev, unsigned where, unsigned value);
 
-#endif
+#endif /* __ASSEMBLY__ */
+
+#endif /* _PCI_I386_H_ */

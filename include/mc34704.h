@@ -40,6 +40,7 @@ enum {
 /* GENERAL2 register fields */
 #define ONOFFE		(1 << 0)
 #define ONOFFD		(1 << 1)
+#define ONOFFA		(1 << 3)
 #define ALLOFF		(1 << 4)
 
 #endif /* __MC34704_H__ */

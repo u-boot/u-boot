@@ -127,6 +127,12 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 	memset((void *)gd->fb_base, 0, 0x20);
 	*(unsigned int *)gd->fb_base = 0x4000;
 
+	/* turn ON display through powercontrol function if accessible */
+	if (0 != panel->panel_power_ctrl)
+		panel->panel_power_ctrl(1);
+
+	debug("am335x-fb: wait for stable power ...\n");
+	mdelay(panel->pup_delay);
 	lcdhw->clkc_enable = LCD_CORECLKEN | LCD_LIDDCLKEN | LCD_DMACLKEN;
 	lcdhw->raster_ctrl = 0;
 	lcdhw->ctrl = LCD_CLK_DIVISOR(panel->pxl_clk_div) | LCD_RASTER_MODE;
@@ -159,11 +165,8 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 
 	gd->fb_base += 0x20;	/* point fb behind palette */
 
-	/* turn ON display through powercontrol function if accessible */
-	if (0 != panel->panel_power_ctrl) {
-		mdelay(panel->pon_delay);
-		panel->panel_power_ctrl(1);
-	}
+	debug("am335x-fb: waiting picture to be stable.\n.");
+	mdelay(panel->pon_delay);
 
 	return 0;
 }

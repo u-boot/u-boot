@@ -15,6 +15,7 @@
 #include <asm/cache.h>
 #include <asm/cpu.h>
 #include <asm/io.h>
+#include <asm/mtrr.h>
 #include <asm/arch/tables.h>
 #include <asm/arch/sysinfo.h>
 #include <asm/arch/timestamp.h>
@@ -64,11 +65,6 @@ int board_eth_init(bd_t *bis)
 	return pci_eth_init(bis);
 }
 
-#define MTRR_TYPE_WP          5
-#define MTRRcap_MSR           0xfe
-#define MTRRphysBase_MSR(reg) (0x200 + 2 * (reg))
-#define MTRRphysMask_MSR(reg) (0x200 + 2 * (reg) + 1)
-
 void board_final_cleanup(void)
 {
 	/* Un-cache the ROM so the kernel has one
@@ -77,15 +73,17 @@ void board_final_cleanup(void)
 	 * Coreboot should have assigned this to the
 	 * top available variable MTRR.
 	 */
-	u8 top_mtrr = (native_read_msr(MTRRcap_MSR) & 0xff) - 1;
-	u8 top_type = native_read_msr(MTRRphysBase_MSR(top_mtrr)) & 0xff;
+	u8 top_mtrr = (native_read_msr(MTRR_CAP_MSR) & 0xff) - 1;
+	u8 top_type = native_read_msr(MTRR_PHYS_BASE_MSR(top_mtrr)) & 0xff;
 
 	/* Make sure this MTRR is the correct Write-Protected type */
-	if (top_type == MTRR_TYPE_WP) {
-		disable_caches();
-		wrmsrl(MTRRphysBase_MSR(top_mtrr), 0);
-		wrmsrl(MTRRphysMask_MSR(top_mtrr), 0);
-		enable_caches();
+	if (top_type == MTRR_TYPE_WRPROT) {
+		struct mtrr_state state;
+
+		mtrr_open(&state);
+		wrmsrl(MTRR_PHYS_BASE_MSR(top_mtrr), 0);
+		wrmsrl(MTRR_PHYS_MASK_MSR(top_mtrr), 0);
+		mtrr_close(&state);
 	}
 
 	/* Issue SMI to Coreboot to lock down ME and registers */
@@ -100,4 +98,9 @@ void panic_puts(const char *str)
 	NS16550_init(port, 1);
 	while (*str)
 		NS16550_putc(port, *str++);
+}
+
+int misc_init_r(void)
+{
+	return 0;
 }

@@ -5,36 +5,39 @@ F:	board/sunxi/
 F:	include/configs/sun4i.h
 F:	configs/A10-OLinuXino-Lime_defconfig
 F:	configs/ba10_tv_box_defconfig
+F:	configs/Chuwi_V7_CW0825_defconfig
 F:	configs/Cubieboard_defconfig
+F:	configs/Hyundai_A7HD_defconfig
+F:	configs/jesurun_q5_defconfig
 F:	configs/Mele_A1000_defconfig
-F:	configs/Mele_A1000G_defconfig
 F:	configs/Mele_M3_defconfig
-F:	configs/Mele_M9_defconfig
 F:	configs/Mini-X_defconfig
-F:	configs/Mini-X-1Gb_defconfig
+F:	configs/mk802_defconfig
+F:	configs/mk802ii_defconfig
 F:	include/configs/sun5i.h
 F:	configs/A10s-OLinuXino-M_defconfig
 F:	configs/A13-OLinuXino_defconfig
 F:	configs/A13-OLinuXinoM_defconfig
 F:	configs/Auxtek-T004_defconfig
+F:	configs/mk802_a10s_defconfig
 F:	configs/r7-tv-dongle_defconfig
+F:	configs/UTOO_P66_defconfig
+F:	include/configs/sun6i.h
+F:	configs/CSQ_CS908_defconfig
+F:	configs/Mele_M9_defconfig
 F:	include/configs/sun7i.h
 F:	configs/A20-OLinuXino_MICRO_defconfig
 F:	configs/Bananapi_defconfig
+F:	configs/Bananapro_defconfig
 F:	configs/i12-tvbox_defconfig
 F:	configs/Linksprite_pcDuino3_defconfig
 F:	configs/Linksprite_pcDuino3_fdt_defconfig
+F:	configs/Orangepi_defconfig
+F:	configs/Orangepi_mini_defconfig
 F:	configs/qt840a_defconfig
-
-CUBIEBOARD2 BOARD
-M:	Ian Campbell <ijc@hellion.org.uk>
-M:	Hans de Goede <hdegoede@redhat.com>
-S:	Maintained
-F:	include/configs/sun7i.h
-F:	configs/Cubieboard2_defconfig
-F:	configs/Cubieboard2_FEL_defconfig
-F:	configs/Cubietruck_defconfig
-F:	configs/Cubietruck_FEL_defconfig
+F:	configs/Wits_Pro_A20_DKT_defconfig
+F:	include/configs/sun8i.h
+F:	configs/Ippo_q8h_v1_2_defconfig
 
 A20-OLINUXINO-LIME BOARD
 M:	FUKAUMI Naoki <naobsd@gmail.com>
@@ -48,12 +51,96 @@ S:	Maintained
 F:	board/sunxi/dram_a20_olinuxino_l2.c
 F:	configs/A20-OLinuXino-Lime2_defconfig
 
+AMPE A76 BOARD
+M:	Paul Kocialkowski <contact@paulk.fr>
+S:	Maintained
+F:	configs/Ampe_A76_defconfig
+
 COLOMBUS BOARD
 M:	Maxime Ripard <maxime.ripard@free-electrons.com>
 S:	Maintained
 F:	configs/Colombus_defconfig
 
+CUBIEBOARD2 BOARD
+M:	Ian Campbell <ijc@hellion.org.uk>
+M:	Hans de Goede <hdegoede@redhat.com>
+S:	Maintained
+F:	include/configs/sun7i.h
+F:	configs/Cubieboard2_defconfig
+F:	configs/Cubietruck_defconfig
+
+FORFUN-Q88DB TABLET
+M:	Jens Lucius <info@jenslucius.com>
+S:	Maintained
+F:	configs/forfun_q88db_defconfig
+
+GEMEI-G9 TABLET
+M:	Priit Laes <plaes@plaes.org>
+S:	Maintained
+F:	configs/sunxi_Gemei_G9_defconfig
+
+HUMMINGBIRD-A31 BOARD
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/Hummingbird_A31_defconfig
+
+INET-86VS BOARD
+M:	Michal Suchanek <hramrach@gmail.com>
+S:	Maintained
+F:	board/sunxi/dram_inet_86vs.c
+F:	configs/Inet_86VS_defconfig
+
 IPPO-Q8H-V5 BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/Ippo_q8h_v5_defconfig
+
+LINKSPRITE-PCDUINO BOARD
+M:	Zoltan Herpai <wigyori@uid0.hu>
+S:	Maintained
+F:	configs/Linksprite_pcDuino_defconfig
+
+LINKSPRITE-PCDUINO3-NANO BOARD
+M:	Adam Sampson <ats@offog.org>
+S:	Maintained
+F:	configs/Linksprite_pcDuino3_Nano_defconfig
+
+MARSBOARD-A10 BOARD
+M:	Aleksei Mamlin <mamlinav@gmail.com>
+S:	Maintained
+F:	configs/Marsboard_A10_defconfig
+
+MELE I7 BOARD
+M:	Marcus Cooper <codekipper@gmail.com>
+S:	Maintained
+F:	configs/Mele_I7_defconfig
+
+MELE M5 BOARD
+M:	Ian Campbell <ijc@hellion.org.uk>
+S:	Maintained
+F:	configs/Mele_M5_defconfig
+
+MK808C BOARD
+M:	Marcus Cooper <codekipper@gmail.com>
+S:	Maintained
+F:	configs/MK808C_defconfig
+
+MSI-PRIMO73 BOARD
+M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
+S:	Maintained
+F:	configs/MSI_Primo73_defconfig
+
+MSI-PRIMO81 BOARD
+M:	Siarhei Siamashka <siarhei.siamashka@gmail.com>
+S:	Maintained
+F:	configs/MSI_Primo81_defconfig
+
+TZX-Q8-713B7 BOARD
+M:	Paul Kocialkowski <contact@paulk.fr>
+S:	Maintained
+F:	configs/TZX-Q8-713B7_defconfig
+
+WEXLER-TAB7200 BOARD
+M:	Aleksei Mamlin <mamlinav@gmail.com>
+S:	Maintained
+F:	configs/Wexler_TAB7200_defconfig

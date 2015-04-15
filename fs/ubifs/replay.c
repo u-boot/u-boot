@@ -78,7 +78,6 @@ struct bud_entry {
 	int dirty;
 };
 
-#ifndef __UBOOT__
 /**
  * set_bud_lprops - set free and dirty space used by a bud.
  * @c: UBIFS file-system description object
@@ -432,7 +431,6 @@ static int insert_dent(struct ubifs_info *c, int lnum, int offs, int len,
 	list_add_tail(&r->list, &c->replay_list);
 	return 0;
 }
-#endif
 
 /**
  * ubifs_validate_entry - validate directory or extended attribute entry node.
@@ -466,7 +464,6 @@ int ubifs_validate_entry(struct ubifs_info *c,
 	return 0;
 }
 
-#ifndef __UBOOT__
 /**
  * is_last_bud - check if the bud is the last in the journal head.
  * @c: UBIFS file-system description object
@@ -1063,4 +1060,3 @@ out:
 	c->replaying = 0;
 	return err;
 }
-#endif

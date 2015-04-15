@@ -86,6 +86,10 @@ struct edid_detailed_timing {
 	GET_BITS((_x).flags, 4, 3)
 #define EDID_DETAILED_TIMING_FLAG_POLARITY(_x) \
 	GET_BITS((_x).flags, 2, 1)
+#define EDID_DETAILED_TIMING_FLAG_VSYNC_POLARITY(_x) \
+	GET_BIT((_x).flags, 2)
+#define EDID_DETAILED_TIMING_FLAG_HSYNC_POLARITY(_x) \
+	GET_BIT((_x).flags, 1)
 #define EDID_DETAILED_TIMING_FLAG_INTERLEAVED(_x) \
 	GET_BIT((_x).flags, 0)
 } __attribute__ ((__packed__));
@@ -226,6 +230,25 @@ struct edid1_info {
 	unsigned char checksum;
 } __attribute__ ((__packed__));
 
+struct edid_cea861_info {
+	unsigned char extension_tag;
+#define EDID_CEA861_EXTENSION_TAG	0x02
+	unsigned char revision;
+	unsigned char dtd_offset;
+	unsigned char dtd_count;
+#define EDID_CEA861_SUPPORTS_UNDERSCAN(_x) \
+	GET_BIT(((_x).dtd_count), 7)
+#define EDID_CEA861_SUPPORTS_BASIC_AUDIO(_x) \
+	GET_BIT(((_x).dtd_count), 6)
+#define EDID_CEA861_SUPPORTS_YUV444(_x) \
+	GET_BIT(((_x).dtd_count), 5)
+#define EDID_CEA861_SUPPORTS_YUV422(_x) \
+	GET_BIT(((_x).dtd_count), 4)
+#define EDID_CEA861_DTD_COUNT(_x) \
+	GET_BITS(((_x).dtd_count), 3, 0)
+	unsigned char data[124];
+} __attribute__ ((__packed__));
+
 /**
  * Print the EDID info.
  *
@@ -240,6 +263,15 @@ void edid_print_info(struct edid1_info *edid_info);
  * @return 0 on valid, or -1 on invalid
  */
 int edid_check_info(struct edid1_info *info);
+
+/**
+ * Check checksum of a 128 bytes EDID data block
+ *
+ * @param edid_block	EDID block data
+ *
+ * @return 0 on success, or a negative errno on error
+ */
+int edid_check_checksum(u8 *edid_block);
 
 /**
  * Get the horizontal and vertical rate ranges of the monitor.

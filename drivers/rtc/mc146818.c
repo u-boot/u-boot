@@ -14,7 +14,6 @@
 #include <common.h>
 #include <command.h>
 #include <rtc.h>
-#include <version.h>
 
 #if defined(__I386__) || defined(CONFIG_MALTA)
 #include <asm/io.h>
@@ -26,9 +25,6 @@
 
 /* Set this to 1 to clear the CMOS RAM */
 #define CLEAR_CMOS 0
-
-static uchar rtc_read  (uchar reg);
-static void  rtc_write (uchar reg, uchar val);
 
 #define RTC_PORT_MC146818	CONFIG_SYS_ISA_IO_BASE_ADDRESS +  0x70
 #define RTC_SECONDS		0x00
@@ -60,24 +56,24 @@ int rtc_get (struct rtc_time *tmp)
 {
 	uchar sec, min, hour, mday, wday, mon, year;
   /* here check if rtc can be accessed */
-	while((rtc_read(RTC_CONFIG_A)&0x80)==0x80);
-	sec	= rtc_read (RTC_SECONDS);
-	min	= rtc_read (RTC_MINUTES);
-	hour	= rtc_read (RTC_HOURS);
-	mday	= rtc_read (RTC_DATE_OF_MONTH);
-	wday	= rtc_read (RTC_DAY_OF_WEEK);
-	mon	= rtc_read (RTC_MONTH);
-	year	= rtc_read (RTC_YEAR);
+	while ((rtc_read8(RTC_CONFIG_A) & 0x80) == 0x80);
+	sec	= rtc_read8(RTC_SECONDS);
+	min	= rtc_read8(RTC_MINUTES);
+	hour	= rtc_read8(RTC_HOURS);
+	mday	= rtc_read8(RTC_DATE_OF_MONTH);
+	wday	= rtc_read8(RTC_DAY_OF_WEEK);
+	mon	= rtc_read8(RTC_MONTH);
+	year	= rtc_read8(RTC_YEAR);
 #ifdef RTC_DEBUG
 	printf ( "Get RTC year: %02x mon/cent: %02x mday: %02x wday: %02x "
 		"hr: %02x min: %02x sec: %02x\n",
 		year, mon, mday, wday,
 		hour, min, sec );
 	printf ( "Alarms: month: %02x hour: %02x min: %02x sec: %02x\n",
-		rtc_read (RTC_CONFIG_D) & 0x3F,
-		rtc_read (RTC_HOURS_ALARM),
-		rtc_read (RTC_MINUTES_ALARM),
-		rtc_read (RTC_SECONDS_ALARM) );
+		rtc_read8(RTC_CONFIG_D) & 0x3F,
+		rtc_read8(RTC_HOURS_ALARM),
+		rtc_read8(RTC_MINUTES_ALARM),
+		rtc_read8(RTC_SECONDS_ALARM));
 #endif
 	tmp->tm_sec  = bcd2bin (sec  & 0x7F);
 	tmp->tm_min  = bcd2bin (min  & 0x7F);
@@ -108,80 +104,108 @@ int rtc_set (struct rtc_time *tmp)
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 #endif
-	rtc_write(RTC_CONFIG_B,0x82); /* disables the RTC to update the regs */
+	rtc_write8(RTC_CONFIG_B, 0x82); /* disable the RTC to update the regs */
 
-	rtc_write (RTC_YEAR, bin2bcd(tmp->tm_year % 100));
-	rtc_write (RTC_MONTH, bin2bcd(tmp->tm_mon));
-	rtc_write (RTC_DAY_OF_WEEK, bin2bcd(tmp->tm_wday));
-	rtc_write (RTC_DATE_OF_MONTH, bin2bcd(tmp->tm_mday));
-	rtc_write (RTC_HOURS, bin2bcd(tmp->tm_hour));
-	rtc_write (RTC_MINUTES, bin2bcd(tmp->tm_min ));
-	rtc_write (RTC_SECONDS, bin2bcd(tmp->tm_sec ));
-	rtc_write(RTC_CONFIG_B,0x02); /* enables the RTC to update the regs */
+	rtc_write8(RTC_YEAR, bin2bcd(tmp->tm_year % 100));
+	rtc_write8(RTC_MONTH, bin2bcd(tmp->tm_mon));
+	rtc_write8(RTC_DAY_OF_WEEK, bin2bcd(tmp->tm_wday));
+	rtc_write8(RTC_DATE_OF_MONTH, bin2bcd(tmp->tm_mday));
+	rtc_write8(RTC_HOURS, bin2bcd(tmp->tm_hour));
+	rtc_write8(RTC_MINUTES, bin2bcd(tmp->tm_min));
+	rtc_write8(RTC_SECONDS, bin2bcd(tmp->tm_sec));
+	rtc_write8(RTC_CONFIG_B, 0x02); /* enable the RTC to update the regs */
 
 	return 0;
 }
 
 void rtc_reset (void)
 {
-	rtc_write(RTC_CONFIG_B,0x82); /* disables the RTC to update the regs */
-	rtc_write(RTC_CONFIG_A,0x20); /* Normal OP */
-	rtc_write(RTC_CONFIG_B,0x00);
-	rtc_write(RTC_CONFIG_B,0x00);
-	rtc_write(RTC_CONFIG_B,0x02); /* enables the RTC to update the regs */
+	rtc_write8(RTC_CONFIG_B, 0x82); /* disable the RTC to update the regs */
+	rtc_write8(RTC_CONFIG_A, 0x20); /* Normal OP */
+	rtc_write8(RTC_CONFIG_B, 0x00);
+	rtc_write8(RTC_CONFIG_B, 0x00);
+	rtc_write8(RTC_CONFIG_B, 0x02); /* enable the RTC to update the regs */
 }
 
 /* ------------------------------------------------------------------------- */
 
-#ifdef CONFIG_SYS_RTC_REG_BASE_ADDR
 /*
  * use direct memory access
  */
-static uchar rtc_read (uchar reg)
+int rtc_read8(int reg)
 {
+#ifdef CONFIG_SYS_RTC_REG_BASE_ADDR
 	return in8(CONFIG_SYS_RTC_REG_BASE_ADDR + reg);
-}
-
-static void rtc_write (uchar reg, uchar val)
-{
-	out8(CONFIG_SYS_RTC_REG_BASE_ADDR + reg, val);
-}
 #else
-static uchar rtc_read (uchar reg)
-{
-	out8(RTC_PORT_MC146818,reg);
-	return in8(RTC_PORT_MC146818 + 1);
+	int ofs = 0;
+
+	if (reg >= 128) {
+		ofs = 2;
+		reg -= 128;
+	}
+	out8(RTC_PORT_MC146818 + ofs, reg);
+
+	return in8(RTC_PORT_MC146818 + ofs + 1);
+#endif
 }
 
-static void rtc_write (uchar reg, uchar val)
+void rtc_write8(int reg, uchar val)
 {
-	out8(RTC_PORT_MC146818,reg);
-	out8(RTC_PORT_MC146818+1, val);
-}
+#ifdef CONFIG_SYS_RTC_REG_BASE_ADDR
+	out8(CONFIG_SYS_RTC_REG_BASE_ADDR + reg, val);
+#else
+	int ofs = 0;
+
+	if (reg >= 128) {
+		ofs = 2;
+		reg -= 128;
+	}
+	out8(RTC_PORT_MC146818 + ofs, reg);
+	out8(RTC_PORT_MC146818 + ofs + 1, val);
 #endif
+}
+
+u32 rtc_read32(int reg)
+{
+	u32 value = 0;
+	int i;
+
+	for (i = 0; i < sizeof(value); i++)
+		value |= rtc_read8(reg + i) << (i << 3);
+
+	return value;
+}
+
+void rtc_write32(int reg, u32 value)
+{
+	int i;
+
+	for (i = 0; i < sizeof(value); i++)
+		rtc_write8(reg + i, (value >> (i << 3)) & 0xff);
+}
 
 void rtc_init(void)
 {
 #if CLEAR_CMOS
 	int i;
 
-	rtc_write(RTC_SECONDS_ALARM, 0);
-	rtc_write(RTC_MINUTES_ALARM, 0);
-	rtc_write(RTC_HOURS_ALARM, 0);
+	rtc_write8(RTC_SECONDS_ALARM, 0);
+	rtc_write8(RTC_MINUTES_ALARM, 0);
+	rtc_write8(RTC_HOURS_ALARM, 0);
 	for (i = RTC_CONFIG_A; i < RTC_REG_SIZE; i++)
-		rtc_write(i, 0);
+		rtc_write8(i, 0);
 	printf("RTC: zeroing CMOS RAM\n");
 #endif
 
 	/* Setup the real time clock */
-	rtc_write(RTC_CONFIG_B, RTC_CONFIG_B_24H);
+	rtc_write8(RTC_CONFIG_B, RTC_CONFIG_B_24H);
 	/* Setup the frequency it operates at */
-	rtc_write(RTC_CONFIG_A, RTC_CONFIG_A_REF_CLCK_32KHZ |
+	rtc_write8(RTC_CONFIG_A, RTC_CONFIG_A_REF_CLCK_32KHZ |
 		  RTC_CONFIG_A_RATE_1024HZ);
 	/* Ensure all reserved bits are 0 in register D */
-	rtc_write(RTC_CONFIG_D, RTC_CONFIG_D_VALID_RAM_AND_TIME);
+	rtc_write8(RTC_CONFIG_D, RTC_CONFIG_D_VALID_RAM_AND_TIME);
 
 	/* Clear any pending interrupts */
-	rtc_read(RTC_CONFIG_C);
+	rtc_read8(RTC_CONFIG_C);
 }
 #endif

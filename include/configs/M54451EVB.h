@@ -18,9 +18,9 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF5445x		/* define processor family */
-#define CONFIG_M54451		/* define processor type */
 #define CONFIG_M54451EVB	/* M54451EVB board */
+
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)

@@ -177,7 +177,7 @@ class BuilderThread(threading.Thread):
                     commit = 'current'
 
                 # Set up the environment and command line
-                env = self.toolchain.MakeEnvironment()
+                env = self.toolchain.MakeEnvironment(self.builder.full_path)
                 Mkdir(out_dir)
                 args = []
                 cwd = work_dir
@@ -197,7 +197,8 @@ class BuilderThread(threading.Thread):
                         src_dir = os.getcwd()
                     else:
                         args.append('O=build')
-                args.append('-s')
+                if not self.builder.verbose_build:
+                    args.append('-s')
                 if self.builder.num_jobs is not None:
                     args.extend(['-j', str(self.builder.num_jobs)])
                 config_args = ['%s_defconfig' % brd.target]
@@ -284,7 +285,7 @@ class BuilderThread(threading.Thread):
                 print >>fd, 'path', result.toolchain.path
 
             # Write out the image and function size information and an objdump
-            env = result.toolchain.MakeEnvironment()
+            env = result.toolchain.MakeEnvironment(self.builder.full_path)
             lines = []
             for fname in ['u-boot', 'spl/u-boot-spl']:
                 cmd = ['%snm' % self.toolchain.cross, '--size-sort', fname]

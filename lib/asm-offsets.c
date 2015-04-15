@@ -32,15 +32,11 @@ int main(void)
 	DEFINE(GD_MALLOC_BASE, offsetof(struct global_data, malloc_base));
 #endif
 
-#if defined(CONFIG_ARM)
-
 	DEFINE(GD_RELOCADDR, offsetof(struct global_data, relocaddr));
 
 	DEFINE(GD_RELOC_OFF, offsetof(struct global_data, reloc_off));
 
 	DEFINE(GD_START_ADDR_SP, offsetof(struct global_data, start_addr_sp));
-
-#endif
 
 	return 0;
 }

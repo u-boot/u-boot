@@ -11,7 +11,6 @@
 #define _TRATS_SETUP_H
 
 #include <config.h>
-#include <version.h>
 #include <asm/arch/cpu.h>
 
 /* CLK_SRC_CPU: APLL(1), MPLL(1), CORE(0), HPM(0) */

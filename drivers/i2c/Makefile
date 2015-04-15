@@ -5,6 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 obj-$(CONFIG_DM_I2C) += i2c-uclass.o
+obj-$(CONFIG_DM_I2C_COMPAT) += i2c-uclass-compat.o
 
 obj-$(CONFIG_SYS_I2C_ADI) += adi_i2c.o
 obj-$(CONFIG_I2C_MV) += mv_i2c.o
@@ -19,6 +20,7 @@ obj-$(CONFIG_SYS_I2C_FSL) += fsl_i2c.o
 obj-$(CONFIG_SYS_I2C_FTI2C010) += fti2c010.o
 obj-$(CONFIG_SYS_I2C_IHS) += ihs_i2c.o
 obj-$(CONFIG_SYS_I2C_KONA) += kona_i2c.o
+obj-$(CONFIG_SYS_I2C_LPC32XX) += lpc32xx_i2c.o
 obj-$(CONFIG_SYS_I2C_MVTWSI) += mvtwsi.o
 obj-$(CONFIG_SYS_I2C_MXC) += mxc_i2c.o
 obj-$(CONFIG_SYS_I2C_MXS) += mxs_i2c.o
@@ -31,4 +33,6 @@ obj-$(CONFIG_SYS_I2C_SANDBOX) += sandbox_i2c.o i2c-emul-uclass.o
 obj-$(CONFIG_SYS_I2C_SH) += sh_i2c.o
 obj-$(CONFIG_SYS_I2C_SOFT) += soft_i2c.o
 obj-$(CONFIG_SYS_I2C_TEGRA) += tegra_i2c.o
+obj-$(CONFIG_SYS_I2C_UNIPHIER) += i2c-uniphier.o
+obj-$(CONFIG_SYS_I2C_UNIPHIER_F) += i2c-uniphier-f.o
 obj-$(CONFIG_SYS_I2C_ZYNQ) += zynq_i2c.o

@@ -14,9 +14,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF520x		/* define processor family */
-#define CONFIG_M5208		/* define processor type */
-
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
 #define CONFIG_BAUDRATE			115200

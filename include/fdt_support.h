@@ -100,7 +100,7 @@ void ft_pci_setup(void *blob, bd_t *bd);
  */
 int ft_system_setup(void *blob, bd_t *bd);
 
-void set_working_fdt_addr(void *addr);
+void set_working_fdt_addr(ulong addr);
 int fdt_shrink_to_minimum(void *blob);
 int fdt_increase_size(void *fdt, int add_len);
 

@@ -12,6 +12,31 @@
 #ifndef _CONFIG_EDMINIV2_H
 #define _CONFIG_EDMINIV2_H
 
+/* general settings */
+#define CONFIG_SYS_GENERIC_BOARD
+
+/*
+ * SPL
+ */
+
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_NOR_SUPPORT
+#define CONFIG_SPL_TEXT_BASE		0xffff0000
+#define CONFIG_SPL_MAX_SIZE		0x0000fff0
+#define CONFIG_SPL_STACK		0x00020000
+#define CONFIG_SPL_BSS_START_ADDR	0x00020000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x0001ffff
+#define CONFIG_SYS_SPL_MALLOC_START	0x00040000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x0001ffff
+#define CONFIG_SPL_LDSCRIPT            "$(CPUDIR)/orion5x/u-boot-spl.lds"
+#define CONFIG_SPL_BOARD_INIT
+#define CONFIG_SYS_UBOOT_BASE		0xfff90000
+#define CONFIG_SYS_UBOOT_START		0x00800000
+#define CONFIG_SYS_TEXT_BASE 		0x00800000
+
 /*
  * Version number information
  */
@@ -89,13 +114,9 @@
 
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_FLASH_CFI_LEGACY
 #define CONFIG_SYS_MAX_FLASH_BANKS	1  /* max num of flash banks       */
 #define CONFIG_SYS_MAX_FLASH_SECT	11 /* max num of sects on one chip */
 #define CONFIG_SYS_FLASH_BASE		0xfff80000
-#define CONFIG_SYS_FLASH_SECTSZ \
-	{16384, 8192, 8192, 32768, \
-	 65536, 65536, 65536, 65536, 65536, 65536, 65536}
 
 /* auto boot */
 #define CONFIG_BOOTDELAY	3	/* default enable autoboot */

@@ -219,6 +219,12 @@ struct cm_dpll {
 	unsigned int resv4[2];
 	unsigned int clklcdcpixelclk;	/* offset 0x34 */
 };
+
+struct prm_device_inst {
+	unsigned int prm_rstctrl;
+	unsigned int prm_rsttime;
+	unsigned int prm_rstst;
+};
 #else
 /* Encapsulating core pll registers */
 struct cm_wkuppll {
@@ -386,9 +392,16 @@ struct cm_device_inst {
 	unsigned int cm_dll_ctrl;
 };
 
+struct prm_device_inst {
+	unsigned int prm_rstctrl;
+	unsigned int prm_rstst;
+};
+
 struct cm_dpll {
 	unsigned int resv1;
 	unsigned int clktimer2clk;	/* offset 0x04 */
+	unsigned int resv2[11];
+	unsigned int clkselmacclk;	/* offset 0x34 */ 
 };
 #endif /* CONFIG_AM43XX */
 

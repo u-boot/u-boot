@@ -31,7 +31,7 @@
 #endif
 
 /* All transfers are described by this data structure */
-struct i2c_msg {
+struct mv_i2c_msg {
 	u8 condition;
 	u8 acknack;
 	u8 direction;
@@ -73,7 +73,7 @@ static void i2c_board_init(struct mv_i2c *base)
 }
 
 #ifdef CONFIG_I2C_MULTI_BUS
-static u32 i2c_regs[CONFIG_MV_I2C_NUM] = CONFIG_MV_I2C_REG;
+static unsigned long i2c_regs[CONFIG_MV_I2C_NUM] = CONFIG_MV_I2C_REG;
 static unsigned int bus_initialized[CONFIG_MV_I2C_NUM];
 static unsigned int current_bus;
 
@@ -157,7 +157,7 @@ static int i2c_isr_set_cleared(unsigned long set_mask,
  *          -5: illegal parameters
  *          -6: bus is busy and couldn't be aquired
  */
-int i2c_transfer(struct i2c_msg *msg)
+int i2c_transfer(struct mv_i2c_msg *msg)
 {
 	int ret;
 
@@ -286,7 +286,7 @@ void i2c_init(int speed, int slaveaddr)
  */
 int i2c_probe(uchar chip)
 {
-	struct i2c_msg msg;
+	struct mv_i2c_msg msg;
 
 	i2c_reset();
 
@@ -322,7 +322,7 @@ int i2c_probe(uchar chip)
  */
 int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
-	struct i2c_msg msg;
+	struct mv_i2c_msg msg;
 	u8 addr_bytes[3]; /* lowest...highest byte of data address */
 
 	PRINTD(("i2c_read(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
@@ -410,7 +410,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
  */
 int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
-	struct i2c_msg msg;
+	struct mv_i2c_msg msg;
 	u8 addr_bytes[3]; /* lowest...highest byte of data address */
 
 	PRINTD(("i2c_write(chip=0x%02x, addr=0x%02x, alen=0x%02x, "

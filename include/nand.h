@@ -82,33 +82,7 @@ static inline int nand_erase(nand_info_t *info, loff_t off, size_t size)
  * declarations from nand_util.c
  ****************************************************************************/
 
-struct nand_write_options {
-	u_char *buffer;		/* memory block containing image to write */
-	ulong length;		/* number of bytes to write */
-	ulong offset;		/* start address in NAND */
-	int quiet;		/* don't display progress messages */
-	int autoplace;		/* if true use auto oob layout */
-	int forcejffs2;		/* force jffs2 oob layout */
-	int forceyaffs;		/* force yaffs oob layout */
-	int noecc;		/* write without ecc */
-	int writeoob;		/* image contains oob data */
-	int pad;		/* pad to page size */
-	int blockalign;		/* 1|2|4 set multiple of eraseblocks
-				 * to align to */
-};
-
-typedef struct nand_write_options nand_write_options_t;
 typedef struct mtd_oob_ops mtd_oob_ops_t;
-
-struct nand_read_options {
-	u_char *buffer;		/* memory block in which read image is written*/
-	ulong length;		/* number of bytes to read */
-	ulong offset;		/* start address in NAND */
-	int quiet;		/* don't display progress messages */
-	int readoob;		/* put oob data in image */
-};
-
-typedef struct nand_read_options nand_read_options_t;
 
 struct nand_erase_options {
 	loff_t length;		/* number of bytes to erase */
@@ -130,15 +104,16 @@ typedef struct nand_erase_options nand_erase_options_t;
 int nand_read_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 		       size_t *actual, loff_t lim, u_char *buffer);
 
-#define WITH_YAFFS_OOB	(1 << 0) /* whether write with yaffs format. This flag
-				  * is a 'mode' meaning it cannot be mixed with
-				  * other flags */
-#define WITH_DROP_FFS	(1 << 1) /* drop trailing all-0xff pages */
+#define WITH_DROP_FFS	(1 << 0) /* drop trailing all-0xff pages */
+#define WITH_WR_VERIFY	(1 << 1) /* verify data was written correctly */
 
 int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 			size_t *actual, loff_t lim, u_char *buffer, int flags);
 int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts);
 int nand_torture(nand_info_t *nand, loff_t offset);
+int nand_verify_page_oob(nand_info_t *nand, struct mtd_oob_ops *ops,
+			loff_t ofs);
+int nand_verify(nand_info_t *nand, loff_t ofs, size_t len, u_char *buf);
 
 #define NAND_LOCK_STATUS_TIGHT	0x01
 #define NAND_LOCK_STATUS_UNLOCK 0x04

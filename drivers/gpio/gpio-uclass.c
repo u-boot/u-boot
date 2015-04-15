@@ -7,20 +7,25 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <fdtdec.h>
 #include <malloc.h>
 #include <asm/gpio.h>
 #include <linux/ctype.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /**
  * gpio_to_device() - Convert global GPIO number to device, number
- * gpio:	The numeric representation of the GPIO
  *
  * Convert the GPIO number to an entry in the list of GPIOs
  * or GPIO blocks registered with the GPIO controller. Returns
  * entry on success, NULL on error.
+ *
+ * @gpio:	The numeric representation of the GPIO
+ * @desc:	Returns description (desc->flags will always be 0)
+ * @return 0 if found, -ENOENT if not found
  */
-static int gpio_to_device(unsigned int gpio, struct udevice **devp,
-			  unsigned int *offset)
+static int gpio_to_device(unsigned int gpio, struct gpio_desc *desc)
 {
 	struct gpio_dev_priv *uc_priv;
 	struct udevice *dev;
@@ -32,14 +37,15 @@ static int gpio_to_device(unsigned int gpio, struct udevice **devp,
 		uc_priv = dev->uclass_priv;
 		if (gpio >= uc_priv->gpio_base &&
 		    gpio < uc_priv->gpio_base + uc_priv->gpio_count) {
-			*devp = dev;
-			*offset = gpio - uc_priv->gpio_base;
+			desc->dev = dev;
+			desc->offset = gpio - uc_priv->gpio_base;
+			desc->flags = 0;
 			return 0;
 		}
 	}
 
 	/* No such GPIO */
-	return ret ? ret : -EINVAL;
+	return ret ? ret : -ENOENT;
 }
 
 int gpio_lookup_name(const char *name, struct udevice **devp,
@@ -88,6 +94,57 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 	return 0;
 }
 
+static int gpio_find_and_xlate(struct gpio_desc *desc,
+			       struct fdtdec_phandle_args *args)
+{
+	struct dm_gpio_ops *ops = gpio_get_ops(desc->dev);
+
+	/* Use the first argument as the offset by default */
+	if (args->args_count > 0)
+		desc->offset = args->args[0];
+	else
+		desc->offset = -1;
+	desc->flags = 0;
+
+	return ops->xlate ? ops->xlate(desc->dev, desc, args) : 0;
+}
+
+static int dm_gpio_request(struct gpio_desc *desc, const char *label)
+{
+	struct udevice *dev = desc->dev;
+	struct gpio_dev_priv *uc_priv;
+	char *str;
+	int ret;
+
+	uc_priv = dev->uclass_priv;
+	if (uc_priv->name[desc->offset])
+		return -EBUSY;
+	str = strdup(label);
+	if (!str)
+		return -ENOMEM;
+	if (gpio_get_ops(dev)->request) {
+		ret = gpio_get_ops(dev)->request(dev, desc->offset, label);
+		if (ret) {
+			free(str);
+			return ret;
+		}
+	}
+	uc_priv->name[desc->offset] = str;
+
+	return 0;
+}
+
+static int dm_gpio_requestf(struct gpio_desc *desc, const char *fmt, ...)
+{
+	va_list args;
+	char buf[40];
+
+	va_start(args, fmt);
+	vscnprintf(buf, sizeof(buf), fmt, args);
+	va_end(args);
+	return dm_gpio_request(desc, buf);
+}
+
 /**
  * gpio_request() - [COMPAT] Request GPIO
  * gpio:	GPIO number
@@ -102,32 +159,14 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
  */
 int gpio_request(unsigned gpio, const char *label)
 {
-	struct gpio_dev_priv *uc_priv;
-	unsigned int offset;
-	struct udevice *dev;
-	char *str;
+	struct gpio_desc desc;
 	int ret;
 
-	ret = gpio_to_device(gpio, &dev, &offset);
+	ret = gpio_to_device(gpio, &desc);
 	if (ret)
 		return ret;
 
-	uc_priv = dev->uclass_priv;
-	if (uc_priv->name[offset])
-		return -EBUSY;
-	str = strdup(label);
-	if (!str)
-		return -ENOMEM;
-	if (gpio_get_ops(dev)->request) {
-		ret = gpio_get_ops(dev)->request(dev, offset, label);
-		if (ret) {
-			free(str);
-			return ret;
-		}
-	}
-	uc_priv->name[offset] = str;
-
-	return 0;
+	return dm_gpio_request(&desc, label);
 }
 
 /**
@@ -151,24 +190,10 @@ int gpio_requestf(unsigned gpio, const char *fmt, ...)
 	return gpio_request(gpio, buf);
 }
 
-/**
- * gpio_free() - [COMPAT] Relinquish GPIO
- * gpio:	GPIO number
- *
- * This function implements the API that's compatible with current
- * GPIO API used in U-Boot. The request is forwarded to particular
- * GPIO driver. Returns 0 on success, negative value on error.
- */
-int gpio_free(unsigned gpio)
+int _dm_gpio_free(struct udevice *dev, uint offset)
 {
 	struct gpio_dev_priv *uc_priv;
-	unsigned int offset;
-	struct udevice *dev;
 	int ret;
-
-	ret = gpio_to_device(gpio, &dev, &offset);
-	if (ret)
-		return ret;
 
 	uc_priv = dev->uclass_priv;
 	if (!uc_priv->name[offset])
@@ -185,15 +210,35 @@ int gpio_free(unsigned gpio)
 	return 0;
 }
 
-static int check_reserved(struct udevice *dev, unsigned offset,
-			  const char *func)
+/**
+ * gpio_free() - [COMPAT] Relinquish GPIO
+ * gpio:	GPIO number
+ *
+ * This function implements the API that's compatible with current
+ * GPIO API used in U-Boot. The request is forwarded to particular
+ * GPIO driver. Returns 0 on success, negative value on error.
+ */
+int gpio_free(unsigned gpio)
 {
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_desc desc;
+	int ret;
 
-	if (!uc_priv->name[offset]) {
+	ret = gpio_to_device(gpio, &desc);
+	if (ret)
+		return ret;
+
+	return _dm_gpio_free(desc.dev, desc.offset);
+}
+
+static int check_reserved(struct gpio_desc *desc, const char *func)
+{
+	struct gpio_dev_priv *uc_priv = desc->dev->uclass_priv;
+
+	if (!uc_priv->name[desc->offset]) {
 		printf("%s: %s: error: gpio %s%d not reserved\n",
-		       dev->name, func,
-		       uc_priv->bank_name ? uc_priv->bank_name : "", offset);
+		       desc->dev->name, func,
+		       uc_priv->bank_name ? uc_priv->bank_name : "",
+		       desc->offset);
 		return -EBUSY;
 	}
 
@@ -210,16 +255,17 @@ static int check_reserved(struct udevice *dev, unsigned offset,
  */
 int gpio_direction_input(unsigned gpio)
 {
-	unsigned int offset;
-	struct udevice *dev;
+	struct gpio_desc desc;
 	int ret;
 
-	ret = gpio_to_device(gpio, &dev, &offset);
+	ret = gpio_to_device(gpio, &desc);
 	if (ret)
 		return ret;
-	ret = check_reserved(dev, offset, "dir_input");
+	ret = check_reserved(&desc, "dir_input");
+	if (ret)
+		return ret;
 
-	return ret ? ret : gpio_get_ops(dev)->direction_input(dev, offset);
+	return gpio_get_ops(desc.dev)->direction_input(desc.dev, desc.offset);
 }
 
 /**
@@ -233,17 +279,81 @@ int gpio_direction_input(unsigned gpio)
  */
 int gpio_direction_output(unsigned gpio, int value)
 {
-	unsigned int offset;
-	struct udevice *dev;
+	struct gpio_desc desc;
 	int ret;
 
-	ret = gpio_to_device(gpio, &dev, &offset);
+	ret = gpio_to_device(gpio, &desc);
 	if (ret)
 		return ret;
-	ret = check_reserved(dev, offset, "dir_output");
+	ret = check_reserved(&desc, "dir_output");
+	if (ret)
+		return ret;
 
-	return ret ? ret :
-		gpio_get_ops(dev)->direction_output(dev, offset, value);
+	return gpio_get_ops(desc.dev)->direction_output(desc.dev,
+							desc.offset, value);
+}
+
+int dm_gpio_get_value(struct gpio_desc *desc)
+{
+	int value;
+	int ret;
+
+	ret = check_reserved(desc, "get_value");
+	if (ret)
+		return ret;
+
+	value = gpio_get_ops(desc->dev)->get_value(desc->dev, desc->offset);
+
+	return desc->flags & GPIOD_ACTIVE_LOW ? !value : value;
+}
+
+int dm_gpio_set_value(struct gpio_desc *desc, int value)
+{
+	int ret;
+
+	ret = check_reserved(desc, "set_value");
+	if (ret)
+		return ret;
+
+	if (desc->flags & GPIOD_ACTIVE_LOW)
+		value = !value;
+	gpio_get_ops(desc->dev)->set_value(desc->dev, desc->offset, value);
+	return 0;
+}
+
+int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags)
+{
+	struct udevice *dev = desc->dev;
+	struct dm_gpio_ops *ops = gpio_get_ops(dev);
+	int ret;
+
+	ret = check_reserved(desc, "set_dir");
+	if (ret)
+		return ret;
+
+	if (flags & GPIOD_IS_OUT) {
+		int value = flags & GPIOD_IS_OUT_ACTIVE ? 1 : 0;
+
+		if (flags & GPIOD_ACTIVE_LOW)
+			value = !value;
+		ret = ops->direction_output(dev, desc->offset, value);
+	} else  if (flags & GPIOD_IS_IN) {
+		ret = ops->direction_input(dev, desc->offset);
+	}
+	if (ret)
+		return ret;
+	/*
+	 * Update desc->flags here, so that GPIO_ACTIVE_LOW is honoured in
+	 * futures
+	 */
+	desc->flags = flags;
+
+	return 0;
+}
+
+int dm_gpio_set_dir(struct gpio_desc *desc)
+{
+	return dm_gpio_set_dir_flags(desc, desc->flags);
 }
 
 /**
@@ -257,16 +367,14 @@ int gpio_direction_output(unsigned gpio, int value)
  */
 int gpio_get_value(unsigned gpio)
 {
-	unsigned int offset;
-	struct udevice *dev;
 	int ret;
 
-	ret = gpio_to_device(gpio, &dev, &offset);
+	struct gpio_desc desc;
+
+	ret = gpio_to_device(gpio, &desc);
 	if (ret)
 		return ret;
-	ret = check_reserved(dev, offset, "get_value");
-
-	return ret ? ret : gpio_get_ops(dev)->get_value(dev, offset);
+	return dm_gpio_get_value(&desc);
 }
 
 /**
@@ -280,16 +388,13 @@ int gpio_get_value(unsigned gpio)
  */
 int gpio_set_value(unsigned gpio, int value)
 {
-	unsigned int offset;
-	struct udevice *dev;
+	struct gpio_desc desc;
 	int ret;
 
-	ret = gpio_to_device(gpio, &dev, &offset);
+	ret = gpio_to_device(gpio, &desc);
 	if (ret)
 		return ret;
-	ret = check_reserved(dev, offset, "set_value");
-
-	return ret ? ret : gpio_get_ops(dev)->set_value(dev, offset, value);
+	return dm_gpio_set_value(&desc, value);
 }
 
 const char *gpio_get_bank_info(struct udevice *dev, int *bit_count)
@@ -407,6 +512,155 @@ unsigned gpio_get_values_as_int(const int *gpio_num_array)
 		bitmask <<= 1;
 	}
 	return vector;
+}
+
+static int _gpio_request_by_name_nodev(const void *blob, int node,
+				       const char *list_name, int index,
+				       struct gpio_desc *desc, int flags,
+				       bool add_index)
+{
+	struct fdtdec_phandle_args args;
+	int ret;
+
+	desc->dev = NULL;
+	desc->offset = 0;
+	ret = fdtdec_parse_phandle_with_args(blob, node, list_name,
+					     "#gpio-cells", 0, index, &args);
+	if (ret) {
+		debug("%s: fdtdec_parse_phandle_with_args failed\n", __func__);
+		goto err;
+	}
+
+	ret = uclass_get_device_by_of_offset(UCLASS_GPIO, args.node,
+					     &desc->dev);
+	if (ret) {
+		debug("%s: uclass_get_device_by_of_offset failed\n", __func__);
+		goto err;
+	}
+	ret = gpio_find_and_xlate(desc, &args);
+	if (ret) {
+		debug("%s: gpio_find_and_xlate failed\n", __func__);
+		goto err;
+	}
+	ret = dm_gpio_requestf(desc, add_index ? "%s.%s%d" : "%s.%s",
+			       fdt_get_name(blob, node, NULL),
+			       list_name, index);
+	if (ret) {
+		debug("%s: dm_gpio_requestf failed\n", __func__);
+		goto err;
+	}
+	ret = dm_gpio_set_dir_flags(desc, flags | desc->flags);
+	if (ret) {
+		debug("%s: dm_gpio_set_dir failed\n", __func__);
+		goto err;
+	}
+
+	return 0;
+err:
+	debug("%s: Node '%s', property '%s', failed to request GPIO index %d: %d\n",
+	      __func__, fdt_get_name(blob, node, NULL), list_name, index, ret);
+	return ret;
+}
+
+int gpio_request_by_name_nodev(const void *blob, int node,
+			       const char *list_name, int index,
+			       struct gpio_desc *desc, int flags)
+{
+	return _gpio_request_by_name_nodev(blob, node, list_name, index, desc,
+					   flags, index > 0);
+}
+
+int gpio_request_by_name(struct udevice *dev,  const char *list_name, int index,
+			 struct gpio_desc *desc, int flags)
+{
+	/*
+	 * This isn't ideal since we don't use dev->name in the debug()
+	 * calls in gpio_request_by_name(), but we can do this until
+	 * gpio_request_by_name_nodev() can be dropped.
+	 */
+	return gpio_request_by_name_nodev(gd->fdt_blob, dev->of_offset,
+					  list_name, index, desc, flags);
+}
+
+int gpio_request_list_by_name_nodev(const void *blob, int node,
+				    const char *list_name,
+				    struct gpio_desc *desc, int max_count,
+				    int flags)
+{
+	int count;
+	int ret;
+
+	for (count = 0; ; count++) {
+		if (count >= max_count) {
+			ret = -ENOSPC;
+			goto err;
+		}
+		ret = _gpio_request_by_name_nodev(blob, node, list_name, count,
+						  &desc[count], flags, true);
+		if (ret == -ENOENT)
+			break;
+		else if (ret)
+			goto err;
+	}
+
+	/* We ran out of GPIOs in the list */
+	return count;
+
+err:
+	gpio_free_list_nodev(desc, count - 1);
+
+	return ret;
+}
+
+int gpio_request_list_by_name(struct udevice *dev, const char *list_name,
+			      struct gpio_desc *desc, int max_count,
+			      int flags)
+{
+	/*
+	 * This isn't ideal since we don't use dev->name in the debug()
+	 * calls in gpio_request_by_name(), but we can do this until
+	 * gpio_request_list_by_name_nodev() can be dropped.
+	 */
+	return gpio_request_list_by_name_nodev(gd->fdt_blob, dev->of_offset,
+					       list_name, desc, max_count,
+					       flags);
+}
+
+int gpio_get_list_count(struct udevice *dev, const char *list_name)
+{
+	int ret;
+
+	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, dev->of_offset,
+					     list_name, "#gpio-cells", 0, -1,
+					     NULL);
+	if (ret) {
+		debug("%s: Node '%s', property '%s', GPIO count failed: %d\n",
+		      __func__, dev->name, list_name, ret);
+	}
+
+	return ret;
+}
+
+int dm_gpio_free(struct udevice *dev, struct gpio_desc *desc)
+{
+	/* For now, we don't do any checking of dev */
+	return _dm_gpio_free(desc->dev, desc->offset);
+}
+
+int gpio_free_list(struct udevice *dev, struct gpio_desc *desc, int count)
+{
+	int i;
+
+	/* For now, we don't do any checking of dev */
+	for (i = 0; i < count; i++)
+		dm_gpio_free(dev, &desc[i]);
+
+	return 0;
+}
+
+int gpio_free_list_nodev(struct gpio_desc *desc, int count)
+{
+	return gpio_free_list(NULL, desc, count);
 }
 
 /* We need to renumber the GPIOs when any driver is probed/removed */

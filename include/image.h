@@ -152,6 +152,7 @@ struct lmb;
 #define IH_OS_INTEGRITY		21	/* INTEGRITY	*/
 #define IH_OS_OSE		22	/* OSE		*/
 #define IH_OS_PLAN9		23	/* Plan 9	*/
+#define IH_OS_OPENRTOS		24	/* OpenRTOS	*/
 
 /*
  * CPU Architecture Codes (supported by Linux)
@@ -241,6 +242,7 @@ struct lmb;
 #define IH_TYPE_ATMELIMAGE	18	/* ATMEL ROM bootable Image	*/
 #define IH_TYPE_SOCFPGAIMAGE	19	/* Altera SOCFPGA Preloader	*/
 #define IH_TYPE_X86_SETUP	20	/* x86 setup.bin Image		*/
+#define IH_TYPE_LPC32XXIMAGE	21	/* x86 setup.bin Image		*/
 
 /*
  * Compression Types
@@ -750,6 +752,7 @@ int fit_parse_conf(const char *spec, ulong addr_curr,
 int fit_parse_subimage(const char *spec, ulong addr_curr,
 		ulong *addr, const char **image_name);
 
+int fit_get_subimage_count(const void *fit, int images_noffset);
 void fit_print_contents(const void *fit);
 void fit_image_print(const void *fit, int noffset, const char *p);
 
@@ -926,8 +929,9 @@ struct checksum_algo {
 #if IMAGE_ENABLE_SIGN
 	const EVP_MD *(*calculate_sign)(void);
 #endif
-	void (*calculate)(const struct image_region region[],
-			  int region_count, uint8_t *checksum);
+	int (*calculate)(const char *name,
+			 const struct image_region region[],
+			 int region_count, uint8_t *checksum);
 	const uint8_t *rsa_padding;
 };
 

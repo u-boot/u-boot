@@ -102,8 +102,10 @@ int lzop_decompress(const unsigned char *src, size_t src_len,
 		tmp = dlen;
 		r = lzo1x_decompress_safe((u8 *) src, slen, dst, &tmp);
 
-		if (r != LZO_E_OK)
+		if (r != LZO_E_OK) {
+			*dst_len = dst - start;
 			return r;
+		}
 
 		if (dlen != tmp)
 			return LZO_E_ERROR;

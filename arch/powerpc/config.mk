@@ -12,13 +12,11 @@ endif
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x40000
 LDFLAGS_FINAL += --gc-sections
 LDFLAGS_FINAL += --bss-plt
-PLATFORM_RELFLAGS += -fpic -mrelocatable -ffunction-sections -fdata-sections \
-								-meabi
-PLATFORM_CPPFLAGS += -D__powerpc__ -ffixed-r2
-PLATFORM_LDFLAGS  += -n
+PLATFORM_RELFLAGS += -fpic -mrelocatable -ffunction-sections \
+-fdata-sections -mcall-linux
 
-# Support generic board on PPC
-__HAVE_ARCH_GENERIC_BOARD := y
+PLATFORM_CPPFLAGS += -D__powerpc__ -ffixed-r2 -m32
+PLATFORM_LDFLAGS  += -m32 -melf32ppclinux
 
 #
 # When cross-compiling on NetBSD, we have to define __PPC__ or else we

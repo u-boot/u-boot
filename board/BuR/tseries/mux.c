@@ -25,6 +25,13 @@ static struct module_pin_mux uart0_pin_mux[] = {
 	{OFFSET(uart0_txd), (MODE(0) | PULLUDEN)},
 	{-1},
 };
+static struct module_pin_mux uart1_pin_mux[] = {
+	/* UART0_RXD */
+	{OFFSET(uart1_rxd), (MODE(0) | PULLUDEN | PULLUP_EN | RXACTIVE)},
+	/* UART0_TXD */
+	{OFFSET(uart1_txd), (MODE(0) | PULLUDEN)},
+	{-1},
+};
 #ifdef CONFIG_MMC
 static struct module_pin_mux mmc1_pin_mux[] = {
 	{OFFSET(gpmc_ad7), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT7 */
@@ -131,9 +138,9 @@ static struct module_pin_mux gpIOs[] = {
 	{OFFSET(spi0_cs1),  (MODE(7) | PULLUDEN | PULLUP_EN | RXACTIVE)},
 	/* TIMER5   (MMC0_DAT3) - TIMER5 (Buzzer) */
 	{OFFSET(mmc0_dat3), (MODE(3) | PULLUDEN | RXACTIVE)},
-	/* TIMER6   (MMC0_DAT2) - PWM_BACK_3V3, later used as MODE3 for PWM */
-	{OFFSET(mmc0_dat2), (MODE(7) | PULLUDEN | RXACTIVE)},
-	/* GPIO2_27 (MMC0_DAT1)	 - MII_nNAND */
+	/* TIMER6   (MMC0_DAT2) - PWM_BACK_3V3 */
+	{OFFSET(mmc0_dat2), (MODE(3) | PULLUDEN | RXACTIVE)},
+	/* GPIO2_28 (MMC0_DAT1)	 - MII_nNAND */
 	{OFFSET(mmc0_dat1), (MODE(7) | PULLUDEN | RXACTIVE)},
 	/* GPIO2_29 (MMC0_DAT0)	 - NAND_1n0 */
 	{OFFSET(mmc0_dat0), (MODE(7) | PULLUDEN | RXACTIVE)},
@@ -168,7 +175,14 @@ static struct module_pin_mux gpIOs[] = {
 	{OFFSET(mcasp0_axr0),  (MODE(7) | PULLUDDIS) },
 	/* GPIO3_17 (MCASP0_AHCLKR) - ETH2_LEDY */
 	{OFFSET(mcasp0_ahclkr), (MODE(7) | PULLUDDIS) },
-
+#ifndef CONFIG_NAND
+	/* GPIO2_3 - NAND_OE */
+	{OFFSET(gpmc_oen_ren), (MODE(7) | PULLDOWN_EN | RXACTIVE)},
+	/* GPIO2_4 - NAND_WEN */
+	{OFFSET(gpmc_wen), (MODE(7) | PULLDOWN_EN | RXACTIVE)},
+	/* GPIO2_5 - NAND_BE_CLE */
+	{OFFSET(gpmc_be0n_cle), (MODE(7) | PULLDOWN_EN | RXACTIVE)},
+#endif
 	{-1},
 };
 
@@ -212,7 +226,7 @@ void enable_uart0_pin_mux(void)
 	configure_module_pin_mux(uart0_pin_mux);
 }
 
-void enable_i2c0_pin_mux(void)
+void enable_i2c_pin_mux(void)
 {
 	configure_module_pin_mux(i2c0_pin_mux);
 }
@@ -229,5 +243,6 @@ void enable_board_pin_mux(void)
 #endif
 	configure_module_pin_mux(spi0_pin_mux);
 	configure_module_pin_mux(lcd_pin_mux);
+	configure_module_pin_mux(uart1_pin_mux);
 	configure_module_pin_mux(gpIOs);
 }

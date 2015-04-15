@@ -101,10 +101,22 @@ void spl_parse_image_header(const struct image_header *header)
 			(int)sizeof(spl_image.name), spl_image.name,
 			spl_image.load_addr, spl_image.size);
 	} else {
+#ifdef CONFIG_SPL_PANIC_ON_RAW_IMAGE
+		/*
+		 * CONFIG_SPL_PANIC_ON_RAW_IMAGE is defined when the
+		 * code which loads images in SPL cannot guarantee that
+		 * absolutely all read errors will be reported.
+		 * An example is the LPC32XX MLC NAND driver, which
+		 * will consider that a completely unreadable NAND block
+		 * is bad, and thus should be skipped silently.
+		 */
+		panic("** no mkimage signature but raw image not supported");
+#else
 		/* Signature not found - assume u-boot.bin */
 		debug("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
 		spl_set_header_raw_uboot();
+#endif
 	}
 }
 
@@ -229,9 +241,14 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		spl_sata_load_image();
 		break;
 #endif
+#ifdef CONFIG_SPL_BOARD_LOAD_IMAGE
+	case BOOT_DEVICE_BOARD:
+		spl_board_load_image();
+		break;
+#endif
 	default:
 #if defined(CONFIG_SPL_SERIAL_SUPPORT) && defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-		printf("SPL: Unsupported Boot Device %d\n", boot_device);
+		puts("SPL: Unsupported Boot Device!\n");
 #endif
 		hang();
 	}
@@ -274,5 +291,40 @@ void preloader_console_init(void)
 			U_BOOT_TIME ")\n");
 #ifdef CONFIG_SPL_DISPLAY_PRINT
 	spl_display_print();
+#endif
+}
+
+/**
+ * spl_relocate_stack_gd() - Relocate stack ready for board_init_r() execution
+ *
+ * Sometimes board_init_f() runs with a stack in SRAM but we want to use SDRAM
+ * for the main board_init_r() execution. This is typically because we need
+ * more stack space for things like the MMC sub-system.
+ *
+ * This function calculates the stack position, copies the global_data into
+ * place and returns the new stack position. The caller is responsible for
+ * setting up the sp register.
+ *
+ * @return new stack location, or 0 to use the same stack
+ */
+ulong spl_relocate_stack_gd(void)
+{
+#ifdef CONFIG_SPL_STACK_R
+	gd_t *new_gd;
+	ulong ptr;
+
+	/* Get stack position: use 8-byte alignment for ABI compliance */
+	ptr = CONFIG_SPL_STACK_R - sizeof(gd_t);
+	ptr &= ~7;
+	new_gd = (gd_t *)ptr;
+	memcpy(new_gd, (void *)gd, sizeof(gd_t));
+	gd = new_gd;
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	return ptr;
+#else
+	return 0;
 #endif
 }

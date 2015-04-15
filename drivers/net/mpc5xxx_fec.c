@@ -407,13 +407,8 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 	 */
 	if (fec->xcv_type == SEVENWIRE) {
 		/*  10MBit with 7-wire operation */
-#if defined(CONFIG_TOTAL5200)
-		/* 7-wire and USB2 on Ethernet */
-		*(vu_long *)MPC5XXX_GPS_PORT_CONFIG |= 0x00030000;
-#else	/* !CONFIG_TOTAL5200 */
 		/* 7-wire only */
 		*(vu_long *)MPC5XXX_GPS_PORT_CONFIG |= 0x00020000;
-#endif	/* CONFIG_TOTAL5200 */
 	} else {
 		/* 100MBit with MD operation */
 		*(vu_long *)MPC5XXX_GPS_PORT_CONFIG |= 0x00050000;

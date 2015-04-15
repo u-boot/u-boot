@@ -5,6 +5,12 @@
 PHONY += oldconfig xconfig gconfig menuconfig config silentoldconfig update-po-config \
 	localmodconfig localyesconfig
 
+# Added for U-Boot
+#  Linux has defconfig files in arch/$(SRCARCH)/configs/,
+#  on the other hand, U-Boot does in configs/.
+#  Set SRCARCH to .. fake this Makefile.
+SRCARCH := ..
+
 ifdef KBUILD_KCONFIG
 Kconfig := $(KBUILD_KCONFIG)
 else
@@ -103,6 +109,10 @@ endif
 
 %_defconfig: $(obj)/conf
 	$(Q)$< --defconfig=arch/$(SRCARCH)/configs/$@ $(Kconfig)
+
+# Added for U-Boot (backward compatibility)
+%_config: %_defconfig
+	@:
 
 configfiles=$(wildcard $(srctree)/kernel/configs/$(1).config $(srctree)/arch/$(SRCARCH)/configs/$(1).config)
 

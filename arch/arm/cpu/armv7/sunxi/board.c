@@ -27,28 +27,18 @@
 
 #include <linux/compiler.h>
 
-#ifdef CONFIG_SPL_BUILD
-/* Pointer to the global data structure for SPL */
-DECLARE_GLOBAL_DATA_PTR;
+struct fel_stash {
+	uint32_t sp;
+	uint32_t lr;
+	uint32_t cpsr;
+	uint32_t sctlr;
+	uint32_t vbar;
+	uint32_t cr;
+};
 
-/* The sunxi internal brom will try to loader external bootloader
- * from mmc0, nand flash, mmc2.
- * Unfortunately we can't check how SPL was loaded so assume
- * it's always the first SD/MMC controller
- */
-u32 spl_boot_device(void)
-{
-	return BOOT_DEVICE_MMC1;
-}
+struct fel_stash fel_stash __attribute__((section(".data")));
 
-/* No confirmation data available in SPL yet. Hardcode bootmode */
-u32 spl_boot_mode(void)
-{
-	return MMCSD_MODE_RAW;
-}
-#endif
-
-int gpio_init(void)
+static int gpio_init(void)
 {
 #if CONFIG_CONS_INDEX == 1 && defined(CONFIG_UART0_PORT_F)
 #if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I)
@@ -86,6 +76,95 @@ int gpio_init(void)
 	return 0;
 }
 
+void spl_board_load_image(void)
+{
+	debug("Returning to FEL sp=%x, lr=%x\n", fel_stash.sp, fel_stash.lr);
+	return_to_fel(fel_stash.sp, fel_stash.lr);
+}
+
+void s_init(void)
+{
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+	/* Magic (undocmented) value taken from boot0, without this DRAM
+	 * access gets messed up (seems cache related) */
+	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
+#endif
+#if !defined CONFIG_SPL_BUILD && (defined CONFIG_MACH_SUN7I || \
+		defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I)
+	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
+	asm volatile(
+		"mrc p15, 0, r0, c1, c0, 1\n"
+		"orr r0, r0, #1 << 6\n"
+		"mcr p15, 0, r0, c1, c0, 1\n");
+#endif
+
+	clock_init();
+	timer_init();
+	gpio_init();
+	i2c_init_board();
+}
+
+#ifdef CONFIG_SPL_BUILD
+/* The sunxi internal brom will try to loader external bootloader
+ * from mmc0, nand flash, mmc2.
+ * Unfortunately we can't check how SPL was loaded so assume
+ * it's always the first SD/MMC controller
+ */
+u32 spl_boot_device(void)
+{
+#ifdef CONFIG_SPL_FEL
+	/*
+	 * This is the legacy compile time configuration for a special FEL
+	 * enabled build. It has many restrictions and can only boot over USB.
+	 */
+	return BOOT_DEVICE_BOARD;
+#else
+	/*
+	 * When booting from the SD card, the "eGON.BT0" signature is expected
+	 * to be found in memory at the address 0x0004 (see the "mksunxiboot"
+	 * tool, which generates this header).
+	 *
+	 * When booting in the FEL mode over USB, this signature is patched in
+	 * memory and replaced with something else by the 'fel' tool. This other
+	 * signature is selected in such a way, that it can't be present in a
+	 * valid bootable SD card image (because the BROM would refuse to
+	 * execute the SPL in this case).
+	 *
+	 * This branch is just making a decision at runtime whether to load
+	 * the main u-boot binary from the SD card (if the "eGON.BT0" signature
+	 * is found) or return to the FEL code in the BROM to wait and receive
+	 * the main u-boot binary over USB.
+	 */
+	if (readl(4) == 0x4E4F4765 && readl(8) == 0x3054422E) /* eGON.BT0 */
+		return BOOT_DEVICE_MMC1;
+	else
+		return BOOT_DEVICE_BOARD;
+#endif
+}
+
+/* No confirmation data available in SPL yet. Hardcode bootmode */
+u32 spl_boot_mode(void)
+{
+	return MMCSD_MODE_RAW;
+}
+
+void board_init_f(ulong dummy)
+{
+	preloader_console_init();
+
+#ifdef CONFIG_SPL_I2C_SUPPORT
+	/* Needed early by sunxi_board_init if PMU is enabled */
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
+	sunxi_board_init();
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	board_init_r(NULL, 0);
+}
+#endif
+
 void reset_cpu(ulong addr)
 {
 #if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN5I) || defined(CONFIG_MACH_SUN7I)
@@ -108,40 +187,6 @@ void reset_cpu(ulong addr)
 	writel(WDT_CFG_RESET, &wdog->cfg);
 	writel(WDT_MODE_EN, &wdog->mode);
 	writel(WDT_CTRL_KEY | WDT_CTRL_RESTART, &wdog->ctl);
-#endif
-}
-
-/* do some early init */
-void s_init(void)
-{
-#if defined CONFIG_SPL_BUILD && defined CONFIG_MACH_SUN6I
-	/* Magic (undocmented) value taken from boot0, without this DRAM
-	 * access gets messed up (seems cache related) */
-	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
-#endif
-#if !defined CONFIG_SPL_BUILD && (defined CONFIG_MACH_SUN7I || \
-		defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I)
-	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
-	asm volatile(
-		"mrc p15, 0, r0, c1, c0, 1\n"
-		"orr r0, r0, #1 << 6\n"
-		"mcr p15, 0, r0, c1, c0, 1\n");
-#endif
-
-	clock_init();
-	timer_init();
-	gpio_init();
-	i2c_init_board();
-
-#ifdef CONFIG_SPL_BUILD
-	gd = &gdata;
-	preloader_console_init();
-
-#ifdef CONFIG_SPL_I2C_SUPPORT
-	/* Needed early by sunxi_board_init if PMU is enabled */
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-#endif
-	sunxi_board_init();
 #endif
 }
 

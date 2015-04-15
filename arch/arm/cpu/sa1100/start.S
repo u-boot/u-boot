@@ -11,7 +11,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include <version.h>
 
 /*
  *************************************************************************

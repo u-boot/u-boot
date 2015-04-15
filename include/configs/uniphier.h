@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2012-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2012-2015 Panasonic Corporation
+ * Copyright (C) 2015      Socionext Inc.
+ *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -43,6 +44,9 @@
 #define CONFIG_SDRAM1_SIZE	0x10000000
 #endif
 
+#define CONFIG_I2C_EEPROM
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  10
+
 /*
  * Support card address map
  */
@@ -77,8 +81,6 @@
 #define CONFIG_SMC911X_BASE		CONFIG_SUPPORT_CARD_ETHER_BASE
 #define CONFIG_SMC911X_32_BIT
 
-#define CONFIG_SYS_MALLOC_F_LEN  0x2000
-
 /*-----------------------------------------------------------------------
  * MMU and Cache Setting
  *----------------------------------------------------------------------*/
@@ -87,11 +89,15 @@
 /* #define CONFIG_SYS_ICACHE_OFF */
 /* #define CONFIG_SYS_DCACHE_OFF */
 
+#define CONFIG_SYS_CACHELINE_SIZE	32
+
 /* Comment out the following to enable L2 cache */
 #define CONFIG_UNIPHIER_L2CACHE_ON
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_MISC_INIT_F
+#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_BOARD_LATE_INIT
 
@@ -183,11 +189,10 @@
 
 /* USB */
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	4
 #define CONFIG_CMD_FAT
 #define CONFIG_FAT_WRITE
 #define CONFIG_DOS_PARTITION
-
-#define CONFIG_CMD_DM
 
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
@@ -232,11 +237,16 @@
 	"image_offset=0x00080000\0"		\
 	"image_size=0x00f00000\0"		\
 	"verify=n\0"				\
-	"norboot=run add_default_bootargs;"				\
+	"nandupdate=nand erase 0 0x100000 &&"				\
+		   "tftpboot u-boot-spl.bin &&"				\
+		   "nand write $loadaddr 0 0x10000 &&"			\
+		   "tftpboot u-boot-dtb.img &&"				\
+		   "nand write $loadaddr 0x10000 0xf0000\0"		\
+	"norboot=run add_default_bootargs &&"				\
 		"bootm $image_offset\0"					\
-	"nandboot=run add_default_bootargs;"				\
-		"nand read $loadaddr $image_offset $image_size;"	\
-		"bootm\0"						\
+	"nandboot=run add_default_bootargs &&"				\
+		 "nand read $loadaddr $image_offset $image_size &&"	\
+		 "bootm\0"						\
 	"add_default_bootargs=setenv bootargs $bootargs"		\
 		" console=ttyS0,$baudrate\0"				\
 
@@ -266,22 +276,13 @@
 #define CONFIG_SPL_TEXT_BASE		0x00100000
 #endif
 
-#define CONFIG_BOARD_POSTCLK_INIT
+#define CONFIG_SPL_STACK		(0x0ff08000)
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
 
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
-
-#define CONFIG_SYS_SPL_MALLOC_START	(0x0ff00000)
-#define CONFIG_SYS_SPL_MALLOC_SIZE	(0x00004000)
-
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_INIT_SP_ADDR		(0x0ff08000)
-#else
-#define CONFIG_SYS_INIT_SP_ADDR		((CONFIG_SYS_TEXT_BASE) - 0x00001000)
-#endif
+#define CONFIG_PANIC_HANG
 
 #define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_NAND_SUPPORT
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT	/* for mem_malloc_init */
@@ -290,5 +291,7 @@
 #define CONFIG_SPL_BOARD_INIT
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x10000
+
+#define CONFIG_SPL_MAX_FOOTPRINT		0x10000
 
 #endif /* __CONFIG_UNIPHIER_COMMON_H__ */

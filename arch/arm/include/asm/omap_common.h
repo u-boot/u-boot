@@ -579,6 +579,8 @@ s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb);
 
 void usb_fake_mac_from_die_id(u32 *id);
 
+void omap_smc1(u32 service, u32 val);
+
 /* ABB */
 #define OMAP_ABB_NOMINAL_OPP		0
 #define OMAP_ABB_FAST_OPP		1

@@ -16,21 +16,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
-		unsigned int controller_number,
-		unsigned int dimm_number)
-{
-	const char dimm_model[] = "RAW timing DDR";
-
-	if ((controller_number == 0) && (dimm_number == 0)) {
-		memcpy(pdimm, &ddr_raw_timing, sizeof(dimm_params_t));
-		memset(pdimm->mpart, 0, sizeof(pdimm->mpart));
-		memcpy(pdimm->mpart, dimm_model, sizeof(dimm_model) - 1);
-	}
-
-	return 0;
-}
-
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,
 				unsigned int ctrl_num)

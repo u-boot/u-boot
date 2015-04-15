@@ -346,7 +346,7 @@ U_BOOT_CMD(fpga, 6, 1, do_fpga,
 	   "loadable FPGA image support",
 	   "[operation type] [device number] [image address] [image size]\n"
 	   "fpga operations:\n"
-	   "  dump\t[dev]\t\t\tLoad device to memory buffer\n"
+	   "  dump\t[dev] [address] [size]\tLoad device to memory buffer\n"
 	   "  info\t[dev]\t\t\tlist known device information\n"
 	   "  load\t[dev] [address] [size]\tLoad device from memory buffer\n"
 #if defined(CONFIG_CMD_FPGA_LOADP)

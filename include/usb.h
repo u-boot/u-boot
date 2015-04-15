@@ -120,6 +120,7 @@ struct usb_device {
 	 * Each instance needs its own set of data structures.
 	 */
 	unsigned long status;
+	unsigned long int_pending;	/* 1 bit per ep, used by int_queue */
 	int act_len;			/* transfered bytes */
 	int maxchild;			/* Number of ports if hub */
 	int portnr;
@@ -154,11 +155,16 @@ enum usb_init_type {
 	defined(CONFIG_USB_OMAP3) || defined(CONFIG_USB_DA8XX) || \
 	defined(CONFIG_USB_BLACKFIN) || defined(CONFIG_USB_AM35X) || \
 	defined(CONFIG_USB_MUSB_DSPS) || defined(CONFIG_USB_MUSB_AM35X) || \
-	defined(CONFIG_USB_MUSB_OMAP2PLUS) || defined(CONFIG_USB_XHCI) || \
-	defined(CONFIG_USB_DWC2)
+	defined(CONFIG_USB_MUSB_OMAP2PLUS) || defined(CONFIG_USB_MUSB_SUNXI) || \
+	defined(CONFIG_USB_XHCI) || defined(CONFIG_USB_DWC2)
 
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller);
 int usb_lowlevel_stop(int index);
+#ifdef CONFIG_MUSB_HOST
+void usb_reset_root_port(void);
+#else
+#define usb_reset_root_port()
+#endif
 
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 			void *buffer, int transfer_len);
@@ -167,9 +173,9 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, int interval);
 
-#ifdef CONFIG_USB_EHCI /* Only the ehci code has pollable int support */
+#if defined CONFIG_USB_EHCI || defined CONFIG_MUSB_HOST
 struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
-	int queuesize, int elementsize, void *buffer);
+	int queuesize, int elementsize, void *buffer, int interval);
 int destroy_int_queue(struct usb_device *dev, struct int_queue *queue);
 void *poll_int_queue(struct usb_device *dev, struct int_queue *queue);
 #endif

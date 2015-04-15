@@ -79,6 +79,7 @@ static inline int fs_uuid_unsupported(char *uuid_str)
 
 struct fstype_info {
 	int fstype;
+	char *name;
 	/*
 	 * Is it legal to pass NULL as .probe()'s  fs_dev_desc parameter? This
 	 * should be false in most cases. For "virtual" filesystems which
@@ -105,6 +106,7 @@ static struct fstype_info fstypes[] = {
 #ifdef CONFIG_FS_FAT
 	{
 		.fstype = FS_TYPE_FAT,
+		.name = "fat",
 		.null_dev_desc_ok = false,
 		.probe = fat_set_blk_dev,
 		.close = fat_close,
@@ -123,6 +125,7 @@ static struct fstype_info fstypes[] = {
 #ifdef CONFIG_FS_EXT4
 	{
 		.fstype = FS_TYPE_EXT,
+		.name = "ext4",
 		.null_dev_desc_ok = false,
 		.probe = ext4fs_probe,
 		.close = ext4fs_close,
@@ -141,6 +144,7 @@ static struct fstype_info fstypes[] = {
 #ifdef CONFIG_SANDBOX
 	{
 		.fstype = FS_TYPE_SANDBOX,
+		.name = "sandbox",
 		.null_dev_desc_ok = true,
 		.probe = sandbox_fs_set_blk_dev,
 		.close = sandbox_fs_close,
@@ -154,6 +158,7 @@ static struct fstype_info fstypes[] = {
 #endif
 	{
 		.fstype = FS_TYPE_ANY,
+		.name = "unsupported",
 		.null_dev_desc_ok = true,
 		.probe = fs_probe_unsupported,
 		.close = fs_close_unsupported,
@@ -190,6 +195,7 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 	if (!relocated) {
 		for (i = 0, info = fstypes; i < ARRAY_SIZE(fstypes);
 				i++, info++) {
+			info->name += gd->reloc_off;
 			info->probe += gd->reloc_off;
 			info->close += gd->reloc_off;
 			info->ls += gd->reloc_off;
@@ -503,3 +509,24 @@ int do_fs_uuid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 
 	return CMD_RET_SUCCESS;
 }
+
+int do_fs_type(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	struct fstype_info *info;
+
+	if (argc < 3 || argc > 4)
+		return CMD_RET_USAGE;
+
+	if (fs_set_blk_dev(argv[1], argv[2], FS_TYPE_ANY))
+		return 1;
+
+	info = fs_get_info(fs_type);
+
+	if (argc == 4)
+		setenv(argv[3], info->name);
+	else
+		printf("%s\n", info->name);
+
+	return CMD_RET_SUCCESS;
+}
+

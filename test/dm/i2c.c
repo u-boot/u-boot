@@ -35,8 +35,8 @@ static int dm_test_i2c_find(struct dm_test_state *dms)
 	 * remove the emulation and the slave device.
 	 */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
-	ut_assertok(i2c_probe(bus, chip, 0, &dev));
-	ut_asserteq(-ENODEV, i2c_probe(bus, no_chip, 0, &dev));
+	ut_assertok(dm_i2c_probe(bus, chip, 0, &dev));
+	ut_asserteq(-ENODEV, dm_i2c_probe(bus, no_chip, 0, &dev));
 	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_I2C, 1, &bus));
 
 	return 0;
@@ -49,11 +49,11 @@ static int dm_test_i2c_read_write(struct dm_test_state *dms)
 	uint8_t buf[5];
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
-	ut_assertok(i2c_get_chip(bus, chip, &dev));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(i2c_get_chip(bus, chip, 1, &dev));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "\0\0\0\0\0", sizeof(buf)));
-	ut_assertok(i2c_write(dev, 2, (uint8_t *)"AB", 2));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_write(dev, 2, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "\0\0AB\0", sizeof(buf)));
 
 	return 0;
@@ -66,13 +66,13 @@ static int dm_test_i2c_speed(struct dm_test_state *dms)
 	uint8_t buf[5];
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
-	ut_assertok(i2c_get_chip(bus, chip, &dev));
-	ut_assertok(i2c_set_bus_speed(bus, 100000));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
-	ut_assertok(i2c_set_bus_speed(bus, 400000));
-	ut_asserteq(400000, i2c_get_bus_speed(bus));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
-	ut_asserteq(-EINVAL, i2c_write(dev, 0, buf, 5));
+	ut_assertok(i2c_get_chip(bus, chip, 1, &dev));
+	ut_assertok(dm_i2c_set_bus_speed(bus, 100000));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_set_bus_speed(bus, 400000));
+	ut_asserteq(400000, dm_i2c_get_bus_speed(bus));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
+	ut_asserteq(-EINVAL, dm_i2c_write(dev, 0, buf, 5));
 
 	return 0;
 }
@@ -84,9 +84,9 @@ static int dm_test_i2c_offset_len(struct dm_test_state *dms)
 	uint8_t buf[5];
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
-	ut_assertok(i2c_get_chip(bus, chip, &dev));
+	ut_assertok(i2c_get_chip(bus, chip, 1, &dev));
 	ut_assertok(i2c_set_chip_offset_len(dev, 1));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 
 	/* This is not supported by the uclass */
 	ut_asserteq(-EINVAL, i2c_set_chip_offset_len(dev, 5));
@@ -100,7 +100,7 @@ static int dm_test_i2c_probe_empty(struct dm_test_state *dms)
 	struct udevice *bus, *dev;
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
-	ut_assertok(i2c_probe(bus, SANDBOX_I2C_TEST_ADDR, 0, &dev));
+	ut_assertok(dm_i2c_probe(bus, SANDBOX_I2C_TEST_ADDR, 0, &dev));
 
 	return 0;
 }
@@ -113,8 +113,8 @@ static int dm_test_i2c_bytewise(struct dm_test_state *dms)
 	uint8_t buf[5];
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
-	ut_assertok(i2c_get_chip(bus, chip, &dev));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(i2c_get_chip(bus, chip, 1, &dev));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "\0\0\0\0\0", sizeof(buf)));
 
 	/* Tell the EEPROM to only read/write one register at a time */
@@ -123,34 +123,34 @@ static int dm_test_i2c_bytewise(struct dm_test_state *dms)
 	sandbox_i2c_eeprom_set_test_mode(eeprom, SIE_TEST_MODE_SINGLE_BYTE);
 
 	/* Now we only get the first byte - the rest will be 0xff */
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "\0\xff\xff\xff\xff", sizeof(buf)));
 
 	/* If we do a separate transaction for each byte, it works */
 	ut_assertok(i2c_set_chip_flags(dev, DM_I2C_CHIP_RD_ADDRESS));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "\0\0\0\0\0", sizeof(buf)));
 
 	/* This will only write A */
 	ut_assertok(i2c_set_chip_flags(dev, 0));
-	ut_assertok(i2c_write(dev, 2, (uint8_t *)"AB", 2));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_write(dev, 2, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "\0\xff\xff\xff\xff", sizeof(buf)));
 
 	/* Check that the B was ignored */
 	ut_assertok(i2c_set_chip_flags(dev, DM_I2C_CHIP_RD_ADDRESS));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "\0\0A\0\0\0", sizeof(buf)));
 
 	/* Now write it again with the new flags, it should work */
 	ut_assertok(i2c_set_chip_flags(dev, DM_I2C_CHIP_WR_ADDRESS));
-	ut_assertok(i2c_write(dev, 2, (uint8_t *)"AB", 2));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_write(dev, 2, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "\0\xff\xff\xff\xff", sizeof(buf)));
 
 	ut_assertok(i2c_set_chip_flags(dev, DM_I2C_CHIP_WR_ADDRESS |
 						DM_I2C_CHIP_RD_ADDRESS));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "\0\0AB\0\0", sizeof(buf)));
 
 	/* Restore defaults */
@@ -167,45 +167,45 @@ static int dm_test_i2c_offset(struct dm_test_state *dms)
 	struct udevice *dev;
 	uint8_t buf[5];
 
-	ut_assertok(i2c_get_chip_for_busnum(busnum, chip, &dev));
+	ut_assertok(i2c_get_chip_for_busnum(busnum, chip, 1, &dev));
 
 	/* Do a transfer so we can find the emulator */
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(uclass_first_device(UCLASS_I2C_EMUL, &eeprom));
 
 	/* Offset length 0 */
 	sandbox_i2c_eeprom_set_offset_len(eeprom, 0);
 	ut_assertok(i2c_set_chip_offset_len(dev, 0));
-	ut_assertok(i2c_write(dev, 10 /* ignored */, (uint8_t *)"AB", 2));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_write(dev, 10 /* ignored */, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "AB\0\0\0\0", sizeof(buf)));
 
 	/* Offset length 1 */
 	sandbox_i2c_eeprom_set_offset_len(eeprom, 1);
 	ut_assertok(i2c_set_chip_offset_len(dev, 1));
-	ut_assertok(i2c_write(dev, 2, (uint8_t *)"AB", 2));
-	ut_assertok(i2c_read(dev, 0, buf, 5));
+	ut_assertok(dm_i2c_write(dev, 2, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_assertok(memcmp(buf, "ABAB\0", sizeof(buf)));
 
 	/* Offset length 2 */
 	sandbox_i2c_eeprom_set_offset_len(eeprom, 2);
 	ut_assertok(i2c_set_chip_offset_len(dev, 2));
-	ut_assertok(i2c_write(dev, 0x210, (uint8_t *)"AB", 2));
-	ut_assertok(i2c_read(dev, 0x210, buf, 5));
+	ut_assertok(dm_i2c_write(dev, 0x210, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0x210, buf, 5));
 	ut_assertok(memcmp(buf, "AB\0\0\0", sizeof(buf)));
 
 	/* Offset length 3 */
 	sandbox_i2c_eeprom_set_offset_len(eeprom, 2);
 	ut_assertok(i2c_set_chip_offset_len(dev, 2));
-	ut_assertok(i2c_write(dev, 0x410, (uint8_t *)"AB", 2));
-	ut_assertok(i2c_read(dev, 0x410, buf, 5));
+	ut_assertok(dm_i2c_write(dev, 0x410, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0x410, buf, 5));
 	ut_assertok(memcmp(buf, "AB\0\0\0", sizeof(buf)));
 
 	/* Offset length 4 */
 	sandbox_i2c_eeprom_set_offset_len(eeprom, 2);
 	ut_assertok(i2c_set_chip_offset_len(dev, 2));
-	ut_assertok(i2c_write(dev, 0x420, (uint8_t *)"AB", 2));
-	ut_assertok(i2c_read(dev, 0x420, buf, 5));
+	ut_assertok(dm_i2c_write(dev, 0x420, (uint8_t *)"AB", 2));
+	ut_assertok(dm_i2c_read(dev, 0x420, buf, 5));
 	ut_assertok(memcmp(buf, "AB\0\0\0", sizeof(buf)));
 
 	/* Restore defaults */

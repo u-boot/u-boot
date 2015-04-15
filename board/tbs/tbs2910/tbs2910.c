@@ -326,21 +326,25 @@ static void setup_display(void)
 	reg &= ~BM_ANADIG_PLL_VIDEO_BYPASS;
 	writel(reg, &ccm->analog_pll_video);
 
-	/* select video pll for ldb_di0_clk */
-	reg = readl(&ccm->cs2cdr);
-	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK);
-	writel(reg, &ccm->cs2cdr);
+	/* gate ipu1_di0_clk */
+	reg = readl(&ccm->CCGR3);
+	reg &= ~MXC_CCM_CCGR3_LDB_DI0_MASK;
+	writel(reg, &ccm->CCGR3);
 
-	/* select ldb_di0_clk / 7 for ldb_di0_ipu_clk */
-	reg = readl(&ccm->cscmr2);
-	reg |= MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV;
-	writel(reg, &ccm->cscmr2);
-
-	/* select ldb_di0_ipu_clk for ipu1_di0_clk -> 65MHz pixclock */
+	/* select video_pll clock / 7  for ipu1_di0_clk -> 65MHz pixclock */
 	reg = readl(&ccm->chsccdr);
-	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
-		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
+	reg &= ~(MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_MASK |
+		 MXC_CCM_CHSCCDR_IPU1_DI0_PODF_MASK |
+		 MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_MASK);
+	reg |= (2 << MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_OFFSET) |
+	       (6 << MXC_CCM_CHSCCDR_IPU1_DI0_PODF_OFFSET) |
+	       (0 << MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
 	writel(reg, &ccm->chsccdr);
+
+	/* enable ipu1_di0_clk */
+	reg = readl(&ccm->CCGR3);
+	reg |= MXC_CCM_CCGR3_LDB_DI0_MASK;
+	writel(reg, &ccm->CCGR3);
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 

@@ -31,7 +31,10 @@
 #include <asm/arch/tzpc.h>
 #include <asm/arch/periph.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch/system.h>
+#include <asm/armv7.h>
 #include "common_setup.h"
+#include "exynos5_setup.h"
 
 /* These are the things we can do during low-level init */
 enum {
@@ -42,12 +45,156 @@ enum {
 	DO_POWER	= 1 << 4,
 };
 
+#ifdef CONFIG_EXYNOS5420
+/*
+ * Power up secondary CPUs.
+ */
+static void secondary_cpu_start(void)
+{
+	v7_enable_smp(EXYNOS5420_INFORM_BASE);
+	svc32_mode_en();
+	branch_bx(CONFIG_EXYNOS_RELOCATE_CODE_BASE);
+}
+
+/*
+ * This is the entry point of hotplug-in and
+ * cluster switching.
+ */
+static void low_power_start(void)
+{
+	uint32_t val, reg_val;
+
+	reg_val = readl(EXYNOS5420_SPARE_BASE);
+	if (reg_val != CPU_RST_FLAG_VAL) {
+		writel(0x0, CONFIG_LOWPOWER_FLAG);
+		branch_bx(0x0);
+	}
+
+	reg_val = readl(CONFIG_PHY_IRAM_BASE + 0x4);
+	if (reg_val != (uint32_t)&low_power_start) {
+		/* Store jump address as low_power_start if not present */
+		writel((uint32_t)&low_power_start, CONFIG_PHY_IRAM_BASE + 0x4);
+		dsb();
+		sev();
+	}
+
+	/* Set the CPU to SVC32 mode */
+	svc32_mode_en();
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+	/* Read MIDR for Primary Part Number */
+	mrc_midr(val);
+	val = (val >> 4);
+	val &= 0xf;
+
+	if (val == 0xf) {
+		configure_l2_ctlr();
+		configure_l2_actlr();
+		v7_enable_l2_hazard_detect();
+	}
+#endif
+
+	/* Invalidate L1 & TLB */
+	val = 0x0;
+	mcr_tlb(val);
+	mcr_icache(val);
+
+	/* Disable MMU stuff and caches */
+	mrc_sctlr(val);
+
+	val &= ~((0x2 << 12) | 0x7);
+	val |= ((0x1 << 12) | (0x8 << 8) | 0x2);
+	mcr_sctlr(val);
+
+	/* CPU state is hotplug or reset */
+	secondary_cpu_start();
+
+	/* Core should not enter into WFI here */
+	wfi();
+}
+
+/*
+ * Pointer to this function is stored in iRam which is used
+ * for jump and power down of a specific core.
+ */
+static void power_down_core(void)
+{
+	uint32_t tmp, core_id, core_config;
+
+	/* Get the unique core id */
+	/*
+	 * Multiprocessor Affinity Register
+	 * [11:8]	Cluster ID
+	 * [1:0]	CPU ID
+	 */
+	mrc_mpafr(core_id);
+	tmp = core_id & 0x3;
+	core_id = (core_id >> 6) & ~3;
+	core_id |= tmp;
+	core_id &= 0x3f;
+
+	/* Set the status of the core to low */
+	core_config = (core_id * CPU_CONFIG_STATUS_OFFSET);
+	core_config += EXYNOS5420_CPU_CONFIG_BASE;
+	writel(0x0, core_config);
+
+	/* Core enter WFI */
+	wfi();
+}
+
+/*
+ * Configurations for secondary cores are inapt at this stage.
+ * Reconfigure secondary cores. Shutdown and change the status
+ * of all cores except the primary core.
+ */
+static void secondary_cores_configure(void)
+{
+	/* Clear secondary boot iRAM base */
+	writel(0x0, (CONFIG_EXYNOS_RELOCATE_CODE_BASE + 0x1C));
+
+	/* set lowpower flag and address */
+	writel(CPU_RST_FLAG_VAL, CONFIG_LOWPOWER_FLAG);
+	writel((uint32_t)&low_power_start, CONFIG_LOWPOWER_ADDR);
+	writel(CPU_RST_FLAG_VAL, EXYNOS5420_SPARE_BASE);
+	/* Store jump address for power down */
+	writel((uint32_t)&power_down_core, CONFIG_PHY_IRAM_BASE + 0x4);
+
+	/* Need all core power down check */
+	dsb();
+	sev();
+}
+
+extern void relocate_wait_code(void);
+#endif
+
 int do_lowlevel_init(void)
 {
 	uint32_t reset_status;
 	int actions = 0;
 
 	arch_cpu_init();
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+	/*
+	 * Init L2 cache parameters here for use by boot and resume
+	 *
+	 * These are here instead of in v7_outer_cache_enable() so that the
+	 * L2 cache settings get properly set even at resume time or if we're
+	 * running U-Boot with the cache off.  The kernel still needs us to
+	 * set these for it.
+	 */
+	configure_l2_ctlr();
+	configure_l2_actlr();
+	dsb();
+	isb();
+#endif
+
+#ifdef CONFIG_EXYNOS5420
+	relocate_wait_code();
+
+	/* Reconfigure secondary cores */
+	secondary_cores_configure();
+#endif
 
 	reset_status = get_reset_status();
 

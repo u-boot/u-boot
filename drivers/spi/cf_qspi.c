@@ -20,7 +20,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define clamp(x, low, high) (min(max(low, x), high))
-#define to_cf_qspi_slave(s) container_of(s, struct cf_qspi_slave, s)
+#define to_cf_qspi_slave(s) container_of(s, struct cf_qspi_slave, slave)
 
 struct cf_qspi_slave {
 	struct spi_slave slave;	/* Specific bus:cs ID for each device */

@@ -7,7 +7,7 @@
 #include <common.h>
 #include <command.h>
 #include <linux/compiler.h>
-#include <asm/arch/fsp/fsp_support.h>
+#include <asm/fsp/fsp_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -28,20 +28,20 @@ static char *hob_type[] = {
 
 int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	union hob_pointers hob;
-	u16 type;
+	const struct hob_header *hdr;
+	uint type;
 	char *desc;
 	int i = 0;
 
-	hob.raw = (u8 *)gd->arch.hob_list;
+	hdr = gd->arch.hob_list;
 
-	printf("HOB list address: 0x%08x\n\n", (unsigned int)hob.raw);
+	printf("HOB list address: 0x%08x\n\n", (unsigned int)hdr);
 
 	printf("No. | Address  | Type                | Length in Bytes\n");
 	printf("----|----------|---------------------|----------------\n");
-	while (!end_of_hob(hob)) {
-		printf("%-3d | %08x | ", i, (unsigned int)hob.raw);
-		type = get_hob_type(hob);
+	while (!end_of_hob(hdr)) {
+		printf("%-3d | %08x | ", i, (unsigned int)hdr);
+		type = hdr->type;
 		if (type == HOB_TYPE_UNUSED)
 			desc = "*Unused*";
 		else if (type == HOB_TYPE_EOH)
@@ -50,8 +50,8 @@ int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			desc = hob_type[type];
 		else
 			desc = "*Invalid Type*";
-		printf("%-19s | %-15d\n", desc, get_hob_length(hob));
-		hob.raw = get_next_hob(hob);
+		printf("%-19s | %-15d\n", desc, hdr->len);
+		hdr = get_next_hob(hdr);
 		i++;
 	}
 

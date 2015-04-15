@@ -161,6 +161,9 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 #if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 		spi_read (addr, alen, buffer, len);
 #else
+#if defined(CONFIG_SYS_I2C_EEPROM_BUS)
+		i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
+#endif
 		if (i2c_read(addr[0], offset, alen - 1, buffer, len))
 			rcode = 1;
 #endif
@@ -338,6 +341,9 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 		}
 		/* Write is enabled ... now write eeprom value.
 		 */
+#endif
+#if defined(CONFIG_SYS_I2C_EEPROM_BUS)
+		i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
 #endif
 		if (i2c_write(addr[0], offset, alen - 1, buffer, len))
 			rcode = 1;

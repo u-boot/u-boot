@@ -308,19 +308,17 @@ int pblimage_check_params(struct image_tool_params *params)
 };
 
 /* pblimage parameters */
-static struct image_type_params pblimage_params = {
-	.name		= "Freescale PBL Boot Image support",
-	.header_size	= sizeof(struct pbl_header),
-	.hdr		= (void *)&pblimage_header,
-	.check_image_type = pblimage_check_image_types,
-	.check_params	= pblimage_check_params,
-	.verify_header	= pblimage_verify_header,
-	.print_header	= pblimage_print_header,
-	.set_header	= pblimage_set_header,
-};
-
-void init_pbl_image_type(void)
-{
-	pbl_size = 0;
-	register_image_type(&pblimage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	pblimage,
+	"Freescale PBL Boot Image support",
+	sizeof(struct pbl_header),
+	(void *)&pblimage_header,
+	pblimage_check_params,
+	pblimage_verify_header,
+	pblimage_print_header,
+	pblimage_set_header,
+	NULL,
+	pblimage_check_image_types,
+	NULL,
+	NULL
+);

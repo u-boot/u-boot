@@ -38,7 +38,7 @@ struct checksum_algo checksum_algos[] = {
 #if IMAGE_ENABLE_SIGN
 		EVP_sha1,
 #endif
-		sha1_calculate,
+		hash_calculate,
 		padding_sha1_rsa2048,
 	},
 	{
@@ -48,7 +48,7 @@ struct checksum_algo checksum_algos[] = {
 #if IMAGE_ENABLE_SIGN
 		EVP_sha256,
 #endif
-		sha256_calculate,
+		hash_calculate,
 		padding_sha256_rsa2048,
 	},
 	{
@@ -58,7 +58,7 @@ struct checksum_algo checksum_algos[] = {
 #if IMAGE_ENABLE_SIGN
 		EVP_sha256,
 #endif
-		sha256_calculate,
+		hash_calculate,
 		padding_sha256_rsa4096,
 	}
 
@@ -212,9 +212,7 @@ static int fit_image_verify_sig(const void *fit, int image_noffset,
 	int ret;
 
 	/* Process all hash subnodes of the component image node */
-	for (noffset = fdt_first_subnode(fit, image_noffset);
-	     noffset >= 0;
-	     noffset = fdt_next_subnode(fit, noffset)) {
+	fdt_for_each_subnode(fit, noffset, image_noffset) {
 		const char *name = fit_get_name(fit, noffset, NULL);
 
 		if (!strncmp(name, FIT_SIG_NODENAME,
@@ -262,9 +260,7 @@ int fit_image_verify_required_sigs(const void *fit, int image_noffset,
 		return 0;
 	}
 
-	for (noffset = fdt_first_subnode(sig_blob, sig_node);
-	     noffset >= 0;
-	     noffset = fdt_next_subnode(sig_blob, noffset)) {
+	fdt_for_each_subnode(sig_blob, noffset, sig_node) {
 		const char *required;
 		int ret;
 
@@ -397,9 +393,7 @@ static int fit_config_verify_sig(const void *fit, int conf_noffset,
 	int ret;
 
 	/* Process all hash subnodes of the component conf node */
-	for (noffset = fdt_first_subnode(fit, conf_noffset);
-	     noffset >= 0;
-	     noffset = fdt_next_subnode(fit, noffset)) {
+	fdt_for_each_subnode(fit, noffset, conf_noffset) {
 		const char *name = fit_get_name(fit, noffset, NULL);
 
 		if (!strncmp(name, FIT_SIG_NODENAME,
@@ -444,9 +438,7 @@ int fit_config_verify_required_sigs(const void *fit, int conf_noffset,
 		return 0;
 	}
 
-	for (noffset = fdt_first_subnode(sig_blob, sig_node);
-	     noffset >= 0;
-	     noffset = fdt_next_subnode(sig_blob, noffset)) {
+	fdt_for_each_subnode(sig_blob, noffset, sig_node) {
 		const char *required;
 		int ret;
 

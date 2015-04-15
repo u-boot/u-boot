@@ -5,7 +5,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <asm/arch/imx-regs.h>
 
 .globl lowlevel_init

@@ -100,9 +100,6 @@ struct arch_global_data {
 #if defined(CONFIG_4xx)
 	u32 uart_clk;
 #endif /* CONFIG_4xx */
-#if defined(CONFIG_SYS_GT_6426x)
-	unsigned int mirror_hack[16];
-#endif
 #ifdef CONFIG_SYS_FPGA_COUNT
 	unsigned fpga_state[CONFIG_SYS_FPGA_COUNT];
 #endif

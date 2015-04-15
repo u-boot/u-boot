@@ -24,7 +24,7 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-trimslice.dtb \
 	tegra20-ventana.dtb \
 	tegra20-whistler.dtb \
-	tegra20-colibri_t20_iris.dtb \
+	tegra20-colibri.dtb \
 	tegra30-apalis.dtb \
 	tegra30-beaver.dtb \
 	tegra30-cardhu.dtb \
@@ -51,7 +51,10 @@ dtb-$(CONFIG_ZYNQ) += zynq-zc702.dtb \
 	zynq-zc770-xm013.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb
 
-dtb-$(CONFIG_SOCFPGA) += socfpga_cyclone5_socrates.dtb
+dtb-$(CONFIG_SOCFPGA) +=				\
+	socfpga_arria5_socdk.dtb			\
+	socfpga_cyclone5_socdk.dtb			\
+	socfpga_cyclone5_socrates.dtb
 
 targets += $(dtb-y)
 

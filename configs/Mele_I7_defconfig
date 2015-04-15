@@ -1,0 +1,26 @@
+# The Mele I7 is a Allwinner based Android TV box.
+#
+# It features a A31 SOC, 1G RAM, 8GB NAND, HDMI out, A/V out,
+# SPDIF, IrDA, 3 USB A, 1 USB micro OTG and Wireless LAN.
+#
+# For more details see: http://linux-sunxi.org/Mele_I7
+CONFIG_SPL=y
+CONFIG_SYS_EXTRA_OPTIONS="USB_EHCI,SUNXI_GMAC"
+CONFIG_FDTFILE="sun6i-a31-i7.dtb"
+CONFIG_ARM=y
+CONFIG_ARCH_SUNXI=y
+CONFIG_MACH_SUN6I=y
+CONFIG_DRAM_CLK=312
+CONFIG_DRAM_ZQ=120
+# The Mele I7 uses 3.3V for general IO
+CONFIG_AXP221_DCDC1_VOLT=3300
+# Ethernet phy power
+CONFIG_AXP221_DLDO1_VOLT=3300
+# USB hub power
+CONFIG_AXP221_DLDO4_VOLT=3300
+# Wifi power
+CONFIG_AXP221_ALDO1_VOLT=3300
+# Vbus gpio for usb1
+CONFIG_USB1_VBUS_PIN="PC27"
+# No Vbus gpio for usb2
+CONFIG_USB2_VBUS_PIN=""

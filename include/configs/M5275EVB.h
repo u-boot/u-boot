@@ -21,8 +21,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF52x2			/* define processor family */
-#define CONFIG_M5275			/* define processor type */
 #define CONFIG_M5275EVB			/* define board type */
 
 #define CONFIG_MCFTMR

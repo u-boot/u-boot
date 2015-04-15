@@ -134,6 +134,10 @@ static unsigned char mmc_board_init(struct mmc *mmc)
 
 	pbias_lite = readl(&t2_base->pbias_lite);
 	pbias_lite &= ~(PBIASLITEPWRDNZ1 | PBIASLITEPWRDNZ0);
+#ifdef CONFIG_TARGET_OMAP3_CAIRO
+	/* for cairo board, we need to set up 1.8 Volt bias level on MMC1 */
+	pbias_lite &= ~PBIASLITEVMODE0;
+#endif
 	writel(pbias_lite, &t2_base->pbias_lite);
 
 	writel(pbias_lite | PBIASLITEPWRDNZ1 |

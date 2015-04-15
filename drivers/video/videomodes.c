@@ -58,6 +58,8 @@
 ****************************************************************************/
 
 #include <common.h>
+#include <edid.h>
+#include <errno.h>
 #include <linux/ctype.h>
 
 #include "videomodes.h"
@@ -84,13 +86,26 @@ const struct ctfb_vesa_modes vesa_modes[VESA_MODES_COUNT] = {
 	{0x31B, RES_MODE_1280x1024, 24},
 };
 const struct ctfb_res_modes res_mode_init[RES_MODES_COUNT] = {
-	/* x	 y pixclk   le	ri  up	lo   hs vs  s  vmode */
-	{640, 480, 39721, 40, 24, 32, 11, 96, 2, 0, FB_VMODE_NONINTERLACED},
-	{800, 600, 27778, 64, 24, 22, 1, 72, 2, 0, FB_VMODE_NONINTERLACED},
-	{1024, 768, 15384, 168, 8, 29, 3, 144, 4, 0, FB_VMODE_NONINTERLACED},
-	{960, 720, 13100, 160, 40, 32, 8, 80, 4, 0, FB_VMODE_NONINTERLACED},
-	{1152, 864, 12004, 200, 64, 32, 16, 80, 4, 0, FB_VMODE_NONINTERLACED},
-	{1280, 1024, 9090, 200, 48, 26, 1, 184, 3, 0, FB_VMODE_NONINTERLACED},
+	/*  x     y  hz  pixclk ps/kHz   le   ri  up  lo   hs vs  s  vmode */
+#ifndef CONFIG_VIDEO_STD_TIMINGS
+	{ 640,  480, 60, 39721,  25180,  40,  24, 32, 11,  96, 2, 0, FB_VMODE_NONINTERLACED},
+	{ 800,  600, 60, 27778,  36000,  64,  24, 22,  1,  72, 2, 0, FB_VMODE_NONINTERLACED},
+	{1024,  768, 60, 15384,  65000, 168,   8, 29,  3, 144, 4, 0, FB_VMODE_NONINTERLACED},
+	{ 960,  720, 80, 13100,  76335, 160,  40, 32,  8,  80, 4, 0, FB_VMODE_NONINTERLACED},
+	{1152,  864, 60, 12004,  83300, 200,  64, 32, 16,  80, 4, 0, FB_VMODE_NONINTERLACED},
+	{1280, 1024, 60,  9090, 110000, 200,  48, 26,  1, 184, 3, 0, FB_VMODE_NONINTERLACED},
+#else
+	{ 640,  480, 60, 39683,  25200,  48,  16, 33, 10,  96, 2, 0, FB_VMODE_NONINTERLACED},
+	{ 800,  600, 60, 25000,  40000,  88,  40, 23,  1, 128, 4, FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED},
+	{1024,  768, 60, 15384,  65000, 160,  24, 29,  3, 136, 6, 0, FB_VMODE_NONINTERLACED},
+	{ 960,  720, 75, 13468,  74250, 176,  72, 27,  1, 112, 2, 0, FB_VMODE_NONINTERLACED},
+	{1152,  864, 75,  9259, 108000, 256,  64, 32,  1, 128, 3, FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED},
+	{1280, 1024, 60,  9259, 108000, 248,  48, 38,  1, 112, 3, FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED},
+#endif
+	{1280,  720, 60, 13468,  74250, 220, 110, 20,  5,  40, 5, FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED},
+	{1360,  768, 60, 11696,  85500, 256,  64, 17,  3, 112, 7, 0, FB_VMODE_NONINTERLACED},
+	{1920, 1080, 60,  6734, 148500, 148,  88, 36,  4,  44, 5, FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED},
+	{1920, 1200, 60,  6494, 154000,  80,  48, 26,  3,  32, 6, FB_SYNC_HOR_HIGH_ACT, FB_VMODE_NONINTERLACED},
 };
 
 /************************************************************************
@@ -100,7 +115,7 @@ const struct ctfb_res_modes res_mode_init[RES_MODES_COUNT] = {
  * returns the length to the next seperator
  */
 static int
-video_get_param_len (char *start, char sep)
+video_get_param_len(const char *start, char sep)
 {
 	int i = 0;
 	while ((*start != 0) && (*start != sep)) {
@@ -183,6 +198,7 @@ int video_get_params (struct ctfb_res_modes *pPar, char *penv)
 	while ((i = video_get_param_len (p, ',')) != 0) {
 		GET_OPTION ("x:", pPar->xres)
 			GET_OPTION ("y:", pPar->yres)
+			GET_OPTION ("refresh:", pPar->refresh)
 			GET_OPTION ("le:", pPar->left_margin)
 			GET_OPTION ("ri:", pPar->right_margin)
 			GET_OPTION ("up:", pPar->upper_margin)
@@ -192,6 +208,7 @@ int video_get_params (struct ctfb_res_modes *pPar, char *penv)
 			GET_OPTION ("sync:", pPar->sync)
 			GET_OPTION ("vmode:", pPar->vmode)
 			GET_OPTION ("pclk:", pPar->pixclock)
+			GET_OPTION ("pclk_khz:", pPar->pixclock_khz)
 			GET_OPTION ("depth:", bpp)
 			p += i;
 		if (*p != 0)
@@ -259,4 +276,172 @@ int video_get_video_mode(unsigned int *xres, unsigned int *yres,
 	*options = p ? p + 1 : NULL;
 
 	return 1;
+}
+
+/*
+ * Parse the 'video-mode' environment variable using video_get_video_mode()
+ * and lookup the matching ctfb_res_modes in res_mode_init.
+ *
+ * @default_mode: RES_MODE_##x## define for the mode to store in mode_ret
+ *   when 'video-mode' is not set or does not contain a valid mode
+ * @default_depth: depth to set when 'video-mode' is not set
+ * @mode_ret: pointer where the mode will be stored
+ * @depth_ret: pointer where the depth will be stored
+ * @options: pointer to any remaining options, or NULL
+ */
+void video_get_ctfb_res_modes(int default_mode, unsigned int default_depth,
+			      const struct ctfb_res_modes **mode_ret,
+			      unsigned int *depth_ret,
+			      const char **options)
+{
+	unsigned int i, xres, yres, depth, refresh;
+
+	*mode_ret = &res_mode_init[default_mode];
+	*depth_ret = default_depth;
+	*options = NULL;
+
+	if (!video_get_video_mode(&xres, &yres, &depth, &refresh, options))
+		return;
+
+	for (i = 0; i < RES_MODES_COUNT; i++) {
+		if (res_mode_init[i].xres == xres &&
+		    res_mode_init[i].yres == yres &&
+		    res_mode_init[i].refresh == refresh) {
+			*mode_ret = &res_mode_init[i];
+			*depth_ret = depth;
+			return;
+		}
+	}
+
+	printf("video-mode %dx%d-%d@%d not available, falling back to %dx%d-%d@%d\n",
+	       xres, yres, depth, refresh, (*mode_ret)->xres,
+	       (*mode_ret)->yres, *depth_ret, (*mode_ret)->refresh);
+}
+
+/*
+ * Find the named string option within the ',' separated options string, and
+ * store its value in dest.
+ *
+ * @options: ',' separated options string
+ * @name: name of the option to look for
+ * @dest: destination buffer to store the value of the option in
+ * @dest_len: length of dest
+ * @def: value to store in dest if the option is not present in options
+ */
+void video_get_option_string(const char *options, const char *name,
+			     char *dest, int dest_len, const char *def)
+{
+	const char *p = options;
+	const int name_len = strlen(name);
+	int i, len;
+
+	while (p && (i = video_get_param_len(p, ',')) != 0) {
+		if (strncmp(p, name, name_len) == 0 && p[name_len] == '=') {
+			len = i - (name_len + 1);
+			if (len >= dest_len)
+				len = dest_len - 1;
+			memcpy(dest, &p[name_len + 1], len);
+			dest[len] = 0;
+			return;
+		}
+		p += i;
+		if (*p != 0)
+			p++;	/* skip ',' */
+	}
+	strcpy(dest, def);
+}
+
+/*
+ * Find the named integer option within the ',' separated options string, and
+ * return its value.
+ *
+ * @options: ',' separated options string
+ * @name: name of the option to look for
+ * @def: value to return if the option is not present in options
+ */
+int video_get_option_int(const char *options, const char *name, int def)
+{
+	const char *p = options;
+	const int name_len = strlen(name);
+	int i;
+
+	while (p && (i = video_get_param_len(p, ',')) != 0) {
+		if (strncmp(p, name, name_len) == 0 && p[name_len] == '=')
+			return simple_strtoul(&p[name_len + 1], NULL, 10);
+
+		p += i;
+		if (*p != 0)
+			p++;	/* skip ',' */
+	}
+	return def;
+}
+
+/**
+ * Convert an EDID detailed timing to a struct ctfb_res_modes
+ *
+ * @param t		The EDID detailed timing to be converted
+ * @param mode		Returns the converted timing
+ *
+ * @return 0 on success, or a negative errno on error
+ */
+int video_edid_dtd_to_ctfb_res_modes(struct edid_detailed_timing *t,
+				     struct ctfb_res_modes *mode)
+{
+	int margin, h_total, v_total;
+
+	/* Check all timings are non 0 */
+	if (EDID_DETAILED_TIMING_PIXEL_CLOCK(*t) == 0 ||
+	    EDID_DETAILED_TIMING_HORIZONTAL_ACTIVE(*t) == 0 ||
+	    EDID_DETAILED_TIMING_HORIZONTAL_BLANKING(*t) == 0 ||
+	    EDID_DETAILED_TIMING_VERTICAL_ACTIVE(*t) == 0 ||
+	    EDID_DETAILED_TIMING_VERTICAL_BLANKING(*t) == 0 ||
+	    EDID_DETAILED_TIMING_HSYNC_OFFSET(*t) == 0 ||
+	    EDID_DETAILED_TIMING_HSYNC_PULSE_WIDTH(*t) == 0 ||
+	    EDID_DETAILED_TIMING_VSYNC_OFFSET(*t) == 0 ||
+	    EDID_DETAILED_TIMING_VSYNC_PULSE_WIDTH(*t) == 0 ||
+	    /* 3d formats are not supported*/
+	    EDID_DETAILED_TIMING_FLAG_STEREO(*t) != 0)
+		return -EINVAL;
+
+	mode->xres = EDID_DETAILED_TIMING_HORIZONTAL_ACTIVE(*t);
+	mode->yres = EDID_DETAILED_TIMING_VERTICAL_ACTIVE(*t);
+
+	h_total = mode->xres + EDID_DETAILED_TIMING_HORIZONTAL_BLANKING(*t);
+	v_total = mode->yres + EDID_DETAILED_TIMING_VERTICAL_BLANKING(*t);
+	mode->refresh = EDID_DETAILED_TIMING_PIXEL_CLOCK(*t) /
+			(h_total * v_total);
+
+	mode->pixclock_khz = EDID_DETAILED_TIMING_PIXEL_CLOCK(*t) / 1000;
+	mode->pixclock = 1000000000L / mode->pixclock_khz;
+
+	mode->right_margin = EDID_DETAILED_TIMING_HSYNC_OFFSET(*t);
+	mode->hsync_len = EDID_DETAILED_TIMING_HSYNC_PULSE_WIDTH(*t);
+	margin = EDID_DETAILED_TIMING_HORIZONTAL_BLANKING(*t) -
+			(mode->right_margin + mode->hsync_len);
+	if (margin <= 0)
+		return -EINVAL;
+
+	mode->left_margin = margin;
+
+	mode->lower_margin = EDID_DETAILED_TIMING_VSYNC_OFFSET(*t);
+	mode->vsync_len = EDID_DETAILED_TIMING_VSYNC_PULSE_WIDTH(*t);
+	margin = EDID_DETAILED_TIMING_VERTICAL_BLANKING(*t) -
+			(mode->lower_margin + mode->vsync_len);
+	if (margin <= 0)
+		return -EINVAL;
+
+	mode->upper_margin = margin;
+
+	mode->sync = 0;
+	if (EDID_DETAILED_TIMING_FLAG_HSYNC_POLARITY(*t))
+		mode->sync |= FB_SYNC_HOR_HIGH_ACT;
+	if (EDID_DETAILED_TIMING_FLAG_VSYNC_POLARITY(*t))
+		mode->sync |= FB_SYNC_VERT_HIGH_ACT;
+
+	if (EDID_DETAILED_TIMING_FLAG_INTERLACED(*t))
+		mode->vmode = FB_VMODE_INTERLACED;
+	else
+		mode->vmode = FB_VMODE_NONINTERLACED;
+
+	return 0;
 }

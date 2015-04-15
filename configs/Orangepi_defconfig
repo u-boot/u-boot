@@ -1,0 +1,20 @@
+# The Orangepi is a development board using the Allwinner A20 SoC, with 1G
+# RAM, microsd slot, HDMI, 1Gbit ethernet, USB wifi, Micro USB (otg), sata,
+# 4 USB A ports, ir receiver and a headphones jack.
+#
+# Also see:
+# http://linux-sunxi.org/Xunlong_Orange_Pi
+# http://www.orangepi.org/
+CONFIG_SPL=y
+CONFIG_SYS_EXTRA_OPTIONS="AXP209_POWER,SUNXI_GMAC,RGMII,MACPWR=SUNXI_GPH(23),AHCI,USB_EHCI"
+CONFIG_FDTFILE="sun7i-a20-orangepi.dtb"
+CONFIG_GMAC_TX_DELAY=3
+CONFIG_USB1_VBUS_PIN="PH26"
+CONFIG_USB2_VBUS_PIN="PH22"
+CONFIG_VIDEO_VGA=y
+CONFIG_ARM=y
+CONFIG_ARCH_SUNXI=y
+CONFIG_MACH_SUN7I=y
+CONFIG_DRAM_CLK=432
+CONFIG_DRAM_ZQ=127
+CONFIG_DRAM_EMR1=4

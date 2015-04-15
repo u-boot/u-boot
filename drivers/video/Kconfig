@@ -1,0 +1,90 @@
+config VIDEO_VESA
+	bool "Enable VESA video driver support"
+	depends on X86
+	default n
+	help
+	  Turn on this option to enable a very simple driver which uses vesa
+	  to discover the video mode and then provides a frame buffer for use
+	  by U-Boot. This can in principle be used with any platform that
+	  supports PCI and video cards that support VESA BIOS Extension (VBE).
+
+config VIDEO_LCD_SSD2828
+	bool "SSD2828 bridge chip"
+	default n
+	---help---
+	Support for the SSD2828 bridge chip, which can take pixel data coming
+	from a parallel LCD interface and translate it on the fly into MIPI DSI
+	interface for driving a MIPI compatible LCD panel. It uses SPI for
+	configuration.
+
+config VIDEO_LCD_SSD2828_TX_CLK
+	int "SSD2828 TX_CLK frequency (in MHz)"
+	depends on VIDEO_LCD_SSD2828
+	default 0
+	---help---
+	The frequency of the crystal, which is clocking SSD2828. It may be
+	anything in the 8MHz-30MHz range and the exact value should be
+	retrieved from the board schematics. Or in the case of Allwinner
+	hardware, it can be usually found as 'lcd_xtal_freq' variable in
+	FEX files. It can be also set to 0 for selecting PCLK from the
+	parallel LCD interface instead of TX_CLK as the PLL clock source.
+
+config VIDEO_LCD_SSD2828_RESET
+	string "RESET pin of SSD2828"
+	depends on VIDEO_LCD_SSD2828
+	default ""
+	---help---
+	The reset pin of SSD2828 chip. This takes a string in the format
+	understood by 'name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+
+config VIDEO_LCD_HITACHI_TX18D42VM
+	bool "Hitachi tx18d42vm LVDS LCD panel support"
+	depends on VIDEO
+	default n
+	---help---
+	Support for Hitachi tx18d42vm LVDS LCD panels, these panels have a
+	lcd controller which needs to be initialized over SPI, once that is
+	done they work like a regular LVDS panel.
+
+config VIDEO_LCD_SPI_CS
+	string "SPI CS pin for LCD related config job"
+	depends on VIDEO_LCD_SSD2828 || VIDEO_LCD_HITACHI_TX18D42VM
+	default ""
+	---help---
+	This is one of the SPI communication pins, involved in setting up a
+	working LCD configuration. The exact role of SPI may differ for
+	different hardware setups. The option takes a string in the format
+	understood by 'name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+
+config VIDEO_LCD_SPI_SCLK
+	string "SPI SCLK pin for LCD related config job"
+	depends on VIDEO_LCD_SSD2828 || VIDEO_LCD_HITACHI_TX18D42VM
+	default ""
+	---help---
+	This is one of the SPI communication pins, involved in setting up a
+	working LCD configuration. The exact role of SPI may differ for
+	different hardware setups. The option takes a string in the format
+	understood by 'name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+
+config VIDEO_LCD_SPI_MOSI
+	string "SPI MOSI pin for LCD related config job"
+	depends on VIDEO_LCD_SSD2828 || VIDEO_LCD_HITACHI_TX18D42VM
+	default ""
+	---help---
+	This is one of the SPI communication pins, involved in setting up a
+	working LCD configuration. The exact role of SPI may differ for
+	different hardware setups. The option takes a string in the format
+	understood by 'name_to_gpio' function, e.g. PH1 for pin 1 of port H.
+
+config VIDEO_LCD_SPI_MISO
+	string "SPI MISO pin for LCD related config job (optional)"
+	depends on VIDEO_LCD_SSD2828
+	default ""
+	---help---
+	This is one of the SPI communication pins, involved in setting up a
+	working LCD configuration. The exact role of SPI may differ for
+	different hardware setups. If wired up, this pin may provide additional
+	useful functionality. Such as bi-directional communication with the
+	hardware and LCD panel id retrieval (if the panel can report it). The
+	option takes a string in the format understood by 'name_to_gpio'
+	function, e.g. PH1 for pin 1 of port H.

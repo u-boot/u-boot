@@ -183,6 +183,7 @@ typedef void (interrupt_handler_t)(void *);
 /*
  * Function Prototypes
  */
+int dram_init(void);
 
 void	hang		(void) __attribute__ ((noreturn));
 
@@ -228,12 +229,13 @@ int run_command_list(const char *cmd, int len, int flag);
 extern char console_buffer[];
 
 /* arch/$(ARCH)/lib/board.c */
-void	board_init_f(ulong);
-void	board_init_r  (gd_t *, ulong) __attribute__ ((noreturn));
-int	checkboard    (void);
-int	checkflash    (void);
-int	checkdram     (void);
-int	last_stage_init(void);
+void board_init_f(ulong);
+void board_init_r(gd_t *, ulong) __attribute__ ((noreturn));
+int checkboard(void);
+int show_board_info(void);
+int checkflash(void);
+int checkdram(void);
+int last_stage_init(void);
 extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
@@ -249,6 +251,24 @@ static inline int print_cpuinfo(void)
 #endif
 int update_flash_size(int flash_size);
 int arch_early_init_r(void);
+
+/**
+ * Reserve all necessary stacks
+ *
+ * This is used in generic board init sequence in common/board_f.c. Each
+ * architecture could provide this function to tailor the required stacks.
+ *
+ * On entry gd->start_addr_sp is pointing to the suggested top of the stack.
+ * The callee ensures gd->start_add_sp is 16-byte aligned, so architectures
+ * require only this can leave it untouched.
+ *
+ * On exit gd->start_addr_sp and gd->irq_sp should be set to the respective
+ * positions of the stack. The stack pointer(s) will be set to this later.
+ * gd->irq_sp is only required, if the architecture needs it.
+ *
+ * @return 0 if no error
+ */
+__weak int arch_reserve_stacks(void);
 
 /**
  * Show the DRAM size in a board-specific way
@@ -435,13 +455,6 @@ extern ssize_t spi_read	 (uchar *, int, uchar *, int);
 extern ssize_t spi_write (uchar *, int, uchar *, int);
 #endif
 
-#ifdef CONFIG_EVB64260
-void  evb64260_init(void);
-void  debug_led(int, int);
-void  display_mem_map(void);
-void  perform_soft_reset(void);
-#endif
-
 /* $(BOARD)/$(BOARD).c */
 int board_early_init_f (void);
 int board_late_init (void);
@@ -486,10 +499,6 @@ ulong	get_endaddr   (void);
 void	trap_init     (ulong);
 #if defined (CONFIG_4xx)	|| \
     defined (CONFIG_MPC5xxx)	|| \
-    defined (CONFIG_74xx_7xx)	|| \
-    defined (CONFIG_74x)	|| \
-    defined (CONFIG_75x)	|| \
-    defined (CONFIG_74xx)	|| \
     defined (CONFIG_MPC85xx)	|| \
     defined (CONFIG_MPC86xx)	|| \
     defined (CONFIG_MPC83xx)
@@ -544,7 +553,9 @@ static inline int cpumask_next(int cpu, unsigned int mask)
 		iter++, cpu = cpumask_next(cpu, mask)) \
 
 int	cpu_numcores  (void);
+int	cpu_num_dspcores(void);
 u32	cpu_mask      (void);
+u32	cpu_dsp_mask(void);
 int	is_core_valid (unsigned int);
 int	probecpu      (void);
 int	checkcpu      (void);

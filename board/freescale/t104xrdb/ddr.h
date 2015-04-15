@@ -6,35 +6,6 @@
 
 #ifndef __DDR_H__
 #define __DDR_H__
-dimm_params_t ddr_raw_timing = {
-	.n_ranks = 2,
-	.rank_density = 2147483648u,
-	.capacity = 4294967296u,
-	.primary_sdram_width = 64,
-	.ec_sdram_width = 8,
-	.registered_dimm = 0,
-	.mirrored_dimm = 0,
-	.n_row_addr = 15,
-	.n_col_addr = 10,
-	.n_banks_per_sdram_device = 8,
-	.edc_config = 2,	/* ECC */
-	.burst_lengths_bitmask = 0x0c,
-	.tckmin_x_ps = 1071,
-	.caslat_x = 0xfe << 4,	/* 5,6,7,8,9,10,11 */
-	.taa_ps = 13125,
-	.twr_ps = 15000,
-	.trcd_ps = 13125,
-	.trrd_ps = 6000,
-	.trp_ps = 13125,
-	.tras_ps = 34000,
-	.trc_ps = 48125,
-	.trfc_ps = 260000,
-	.twtr_ps = 7500,
-	.trtp_ps = 7500,
-	.refresh_rate_ps = 7800000,
-	.tfaw_ps = 35000,
-};
-
 struct board_specific_parameters {
 	u32 n_ranks;
 	u32 datarate_mhz_high;

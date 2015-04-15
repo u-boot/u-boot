@@ -65,7 +65,8 @@
 /*
  * Section
  */
-#define PMD_SECT_S		(3 << 8)
+#define PMD_SECT_OUTER_SHARE	(2 << 8)
+#define PMD_SECT_INNER_SHARE	(3 << 8)
 #define PMD_SECT_AF		(1 << 10)
 #define PMD_SECT_NG		(1 << 11)
 #define PMD_SECT_PXN		(UL(1) << 53)

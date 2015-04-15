@@ -313,7 +313,6 @@ void board_init_f(ulong dummy)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 
-	gd = &gdata;
 	/*
 	 * We don't use DMA in SPL, but we do need it in U-Boot. U-Boot
 	 * initializes DMA very early (before all board code), so the only

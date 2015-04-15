@@ -11,10 +11,10 @@
 #define _EEPROM_
 
 #ifdef CONFIG_SYS_I2C
-int cl_eeprom_read_mac_addr(uchar *buf);
+int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus);
 u32 cl_eeprom_get_board_rev(void);
 #else
-static inline int cl_eeprom_read_mac_addr(uchar *buf)
+static inline int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus)
 {
 	return 1;
 }

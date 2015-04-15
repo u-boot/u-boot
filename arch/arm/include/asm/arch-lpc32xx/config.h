@@ -1,13 +1,15 @@
 /*
  * Common definitions for LPC32XX board configurations
  *
- * Copyright (C) 2011 Vladimir Zapolskiy <vz@mleia.com>
+ * Copyright (C) 2011-2015 Vladimir Zapolskiy <vz@mleia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _LPC32XX_CONFIG_H
 #define _LPC32XX_CONFIG_H
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* Basic CPU architecture */
 #define CONFIG_ARCH_CPU_INIT
@@ -49,6 +51,9 @@
 
 #define CONFIG_SYS_BAUDRATE_TABLE	\
 		{ 9600, 19200, 38400, 57600, 115200, 230400, 460800 }
+
+/* Ethernet */
+#define LPC32XX_ETH_BASE ETHERNET_BASE
 
 /* NOR Flash */
 #if defined(CONFIG_SYS_FLASH_CFI)

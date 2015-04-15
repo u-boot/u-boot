@@ -1,0 +1,23 @@
+# The Orangepi mini is a development board using the Allwinner A20 SoC,
+# with 1G RAM, 2 microsd slots (use the top side one for booting), HDMI,
+# 1Gbit ethernet, USB wifi, Micro USB (otg), sata, 2 USB A ports,
+# ir receiver and a headphones jack.
+#
+# Also see:
+# http://linux-sunxi.org/Xunlong_Orange_Pi_Mini
+# http://www.orangepi.org/
+CONFIG_SPL=y
+CONFIG_SYS_EXTRA_OPTIONS="AXP209_POWER,SUNXI_GMAC,RGMII,MACPWR=SUNXI_GPH(23),AHCI,USB_EHCI"
+CONFIG_FDTFILE="sun7i-a20-orangepi-mini.dtb"
+CONFIG_MMC_SUNXI_SLOT_EXTRA=3
+CONFIG_MMC0_CD_PIN="PH10"
+CONFIG_MMC3_CD_PIN="PH11"
+CONFIG_GMAC_TX_DELAY=3
+CONFIG_USB1_VBUS_PIN="PH26"
+CONFIG_USB2_VBUS_PIN="PH22"
+CONFIG_ARM=y
+CONFIG_ARCH_SUNXI=y
+CONFIG_MACH_SUN7I=y
+CONFIG_DRAM_CLK=432
+CONFIG_DRAM_ZQ=127
+CONFIG_DRAM_EMR1=4

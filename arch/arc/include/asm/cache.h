@@ -9,15 +9,33 @@
 
 #include <config.h>
 
-/*
- * The current upper bound for ARC L1 data cache line sizes is 128 bytes.
- * We use that value for aligning DMA buffers unless the board config has
- * specified an alternate cache line size.
- */
-#ifdef CONFIG_SYS_CACHELINE_SIZE
-#define ARCH_DMA_MINALIGN	CONFIG_SYS_CACHELINE_SIZE
+#ifdef CONFIG_ARC_CACHE_LINE_SHIFT
+#define CONFIG_SYS_CACHELINE_SIZE	(1 << CONFIG_ARC_CACHE_LINE_SHIFT)
+#define ARCH_DMA_MINALIGN		CONFIG_SYS_CACHELINE_SIZE
 #else
-#define ARCH_DMA_MINALIGN	128
+/* Satisfy users of ARCH_DMA_MINALIGN */
+#define ARCH_DMA_MINALIGN		128
 #endif
+
+#if defined(ARC_MMU_ABSENT)
+#define CONFIG_ARC_MMU_VER 0
+#elif defined(CONFIG_ARC_MMU_V2)
+#define CONFIG_ARC_MMU_VER 2
+#elif defined(CONFIG_ARC_MMU_V3)
+#define CONFIG_ARC_MMU_VER 3
+#elif defined(CONFIG_ARC_MMU_V4)
+#define CONFIG_ARC_MMU_VER 4
+#endif
+
+#ifndef __ASSEMBLY__
+
+#ifdef CONFIG_ISA_ARCV2
+void slc_enable(void);
+void slc_disable(void);
+void slc_flush(void);
+void slc_invalidate(void);
+#endif
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* __ASM_ARC_CACHE_H */

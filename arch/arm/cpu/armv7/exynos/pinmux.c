@@ -266,22 +266,33 @@ static void exynos5_sromc_config(int flags)
 
 static void exynos5_i2c_config(int peripheral, int flags)
 {
+	int func01, func23;
+
+	 /* High-Speed I2C */
+	if (flags & PINMUX_FLAG_HS_MODE) {
+		func01 = 4;
+		func23 = 4;
+	} else {
+		func01 = 2;
+		func23 = 3;
+	}
+
 	switch (peripheral) {
 	case PERIPH_ID_I2C0:
-		gpio_cfg_pin(EXYNOS5_GPIO_B30, S5P_GPIO_FUNC(0x2));
-		gpio_cfg_pin(EXYNOS5_GPIO_B31, S5P_GPIO_FUNC(0x2));
+		gpio_cfg_pin(EXYNOS5_GPIO_B30, S5P_GPIO_FUNC(func01));
+		gpio_cfg_pin(EXYNOS5_GPIO_B31, S5P_GPIO_FUNC(func01));
 		break;
 	case PERIPH_ID_I2C1:
-		gpio_cfg_pin(EXYNOS5_GPIO_B32, S5P_GPIO_FUNC(0x2));
-		gpio_cfg_pin(EXYNOS5_GPIO_B33, S5P_GPIO_FUNC(0x2));
+		gpio_cfg_pin(EXYNOS5_GPIO_B32, S5P_GPIO_FUNC(func01));
+		gpio_cfg_pin(EXYNOS5_GPIO_B33, S5P_GPIO_FUNC(func01));
 		break;
 	case PERIPH_ID_I2C2:
-		gpio_cfg_pin(EXYNOS5_GPIO_A06, S5P_GPIO_FUNC(0x3));
-		gpio_cfg_pin(EXYNOS5_GPIO_A07, S5P_GPIO_FUNC(0x3));
+		gpio_cfg_pin(EXYNOS5_GPIO_A06, S5P_GPIO_FUNC(func23));
+		gpio_cfg_pin(EXYNOS5_GPIO_A07, S5P_GPIO_FUNC(func23));
 		break;
 	case PERIPH_ID_I2C3:
-		gpio_cfg_pin(EXYNOS5_GPIO_A12, S5P_GPIO_FUNC(0x3));
-		gpio_cfg_pin(EXYNOS5_GPIO_A13, S5P_GPIO_FUNC(0x3));
+		gpio_cfg_pin(EXYNOS5_GPIO_A12, S5P_GPIO_FUNC(func23));
+		gpio_cfg_pin(EXYNOS5_GPIO_A13, S5P_GPIO_FUNC(func23));
 		break;
 	case PERIPH_ID_I2C4:
 		gpio_cfg_pin(EXYNOS5_GPIO_A20, S5P_GPIO_FUNC(0x3));

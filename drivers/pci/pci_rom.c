@@ -66,6 +66,7 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 	struct pci_rom_header *rom_header;
 	struct pci_rom_data *rom_data;
 	u16 vendor, device;
+	u16 rom_vendor, rom_device;
 	u32 vendev;
 	u32 mapped_vendev;
 	u32 rom_address;
@@ -80,7 +81,12 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 #ifdef CONFIG_X86_OPTION_ROM_ADDR
 	rom_address = CONFIG_X86_OPTION_ROM_ADDR;
 #else
-	pci_write_config_dword(dev, PCI_ROM_ADDRESS, (u32)PCI_ROM_ADDRESS_MASK);
+
+	if (pciauto_setup_rom(pci_bus_to_hose(PCI_BUS(dev)), dev)) {
+		debug("Cannot find option ROM\n");
+		return -ENOENT;
+	}
+
 	pci_read_config_dword(dev, PCI_ROM_ADDRESS, &rom_address);
 	if (rom_address == 0x00000000 || rom_address == 0xffffffff) {
 		debug("%s: rom_address=%x\n", __func__, rom_address);
@@ -92,29 +98,31 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 			       rom_address | PCI_ROM_ADDRESS_ENABLE);
 #endif
 	debug("Option ROM address %x\n", rom_address);
-	rom_header = (struct pci_rom_header *)rom_address;
+	rom_header = (struct pci_rom_header *)(unsigned long)rom_address;
 
 	debug("PCI expansion ROM, signature %#04x, INIT size %#04x, data ptr %#04x\n",
-	      le32_to_cpu(rom_header->signature),
-	      rom_header->size * 512, le32_to_cpu(rom_header->data));
+	      le16_to_cpu(rom_header->signature),
+	      rom_header->size * 512, le16_to_cpu(rom_header->data));
 
-	if (le32_to_cpu(rom_header->signature) != PCI_ROM_HDR) {
+	if (le16_to_cpu(rom_header->signature) != PCI_ROM_HDR) {
 		printf("Incorrect expansion ROM header signature %04x\n",
-		       le32_to_cpu(rom_header->signature));
+		       le16_to_cpu(rom_header->signature));
 		return -EINVAL;
 	}
 
-	rom_data = (((void *)rom_header) + le32_to_cpu(rom_header->data));
+	rom_data = (((void *)rom_header) + le16_to_cpu(rom_header->data));
+	rom_vendor = le16_to_cpu(rom_data->vendor);
+	rom_device = le16_to_cpu(rom_data->device);
 
 	debug("PCI ROM image, vendor ID %04x, device ID %04x,\n",
-	      rom_data->vendor, rom_data->device);
+	      rom_vendor, rom_device);
 
 	/* If the device id is mapped, a mismatch is expected */
-	if ((vendor != rom_data->vendor || device != rom_data->device) &&
+	if ((vendor != rom_vendor || device != rom_device) &&
 	    (vendev == mapped_vendev)) {
 		printf("ID mismatch: vendor ID %04x, device ID %04x\n",
-		       rom_data->vendor, rom_data->device);
-		return -EPERM;
+		       rom_vendor, rom_device);
+		/* Continue anyway */
 	}
 
 	debug("PCI ROM image, Class Code %04x%02x, Code Type %02x\n",
@@ -144,18 +152,26 @@ int pci_rom_load(uint16_t class, struct pci_rom_header *rom_header,
 							    image_size);
 
 		rom_data = (struct pci_rom_data *)((void *)rom_header +
-				le32_to_cpu(rom_header->data));
+				le16_to_cpu(rom_header->data));
 
-		image_size = le32_to_cpu(rom_data->ilen) * 512;
-	} while ((rom_data->type != 0) && (rom_data->indicator != 0));
+		image_size = le16_to_cpu(rom_data->ilen) * 512;
+	} while ((rom_data->type != 0) && (rom_data->indicator == 0));
 
 	if (rom_data->type != 0)
 		return -EACCES;
 
 	rom_size = rom_header->size * 512;
 
+#ifdef PCI_VGA_RAM_IMAGE_START
 	target = (void *)PCI_VGA_RAM_IMAGE_START;
+#else
+	target = (void *)malloc(rom_size);
+	if (!target)
+		return -ENOMEM;
+#endif
 	if (target != rom_header) {
+		ulong start = get_timer(0);
+
 		debug("Copying VGA ROM Image from %p to %p, 0x%x bytes\n",
 		      rom_header, target, rom_size);
 		memcpy(target, rom_header, rom_size);
@@ -163,6 +179,7 @@ int pci_rom_load(uint16_t class, struct pci_rom_header *rom_header,
 			printf("VGA ROM copy failed\n");
 			return -EFAULT;
 		}
+		debug("Copy took %lums\n", get_timer(start));
 	}
 	*ram_headerp = target;
 
@@ -205,17 +222,18 @@ int vbe_get_video_info(struct graphic_device *gdev)
 	gdev->vprBase = vesa->phys_base_ptr;
 	gdev->cprBase = vesa->phys_base_ptr;
 
-	return 0;
+	return gdev->winSizeX ? 0 : -ENOSYS;
 #else
 	return -ENOSYS;
 #endif
 }
 
-int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
+int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), int exec_method)
 {
 	struct pci_rom_header *rom, *ram;
 	int vesa_mode = -1;
 	uint16_t class;
+	bool emulate;
 	int ret;
 
 	/* Only execute VGA ROMs */
@@ -244,7 +262,30 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
 		defined(CONFIG_FRAMEBUFFER_VESA_MODE)
 	vesa_mode = CONFIG_FRAMEBUFFER_VESA_MODE;
 #endif
-	debug("Selected vesa mode %d\b", vesa_mode);
+	debug("Selected vesa mode %#x\n", vesa_mode);
+
+	if (exec_method & PCI_ROM_USE_NATIVE) {
+#ifdef CONFIG_X86
+		emulate = false;
+#else
+		if (!(exec_method & PCI_ROM_ALLOW_FALLBACK)) {
+			printf("BIOS native execution is only available on x86\n");
+			return -ENOSYS;
+		}
+		emulate = true;
+#endif
+	} else {
+#ifdef CONFIG_BIOSEMU
+		emulate = true;
+#else
+		if (!(exec_method & PCI_ROM_ALLOW_FALLBACK)) {
+			printf("BIOS emulation not available - see CONFIG_BIOSEMU\n");
+			return -ENOSYS;
+		}
+		emulate = false;
+#endif
+	}
+
 	if (emulate) {
 #ifdef CONFIG_BIOSEMU
 		BE_VGAInfo *info;
@@ -257,9 +298,6 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
 				  vesa_mode, &mode_info);
 		if (ret)
 			return ret;
-#else
-		printf("BIOS emulation not available - see CONFIG_BIOSEMU\n");
-		return -ENOSYS;
 #endif
 	} else {
 #ifdef CONFIG_X86
@@ -267,12 +305,9 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), bool emulate)
 
 		bios_run_on_x86(dev, (unsigned long)ram, vesa_mode,
 				&mode_info);
-#else
-		printf("BIOS native execution is only available on x86\n");
-		return -ENOSYS;
 #endif
 	}
-	debug("Final vesa mode %d\n", mode_info.video_mode);
+	debug("Final vesa mode %#x\n", mode_info.video_mode);
 
 	return 0;
 }

@@ -74,10 +74,34 @@ lr	.req	x30
 .endm
 
 /*
+ * Branch if current processor is a Cortex-A57 core.
+ */
+.macro	branch_if_a57_core, xreg, a57_label
+	mrs	\xreg, midr_el1
+	lsr	\xreg, \xreg, #4
+	and	\xreg, \xreg, #0x00000FFF
+	cmp	\xreg, #0xD07		/* Cortex-A57 MPCore processor. */
+	b.eq	\a57_label
+.endm
+
+/*
+ * Branch if current processor is a Cortex-A53 core.
+ */
+.macro	branch_if_a53_core, xreg, a53_label
+	mrs	\xreg, midr_el1
+	lsr	\xreg, \xreg, #4
+	and	\xreg, \xreg, #0x00000FFF
+	cmp	\xreg, #0xD03		/* Cortex-A53 MPCore processor. */
+	b.eq	\a53_label
+.endm
+
+/*
  * Branch if current processor is a slave,
  * choose processor with all zero affinity value as the master.
  */
 .macro	branch_if_slave, xreg, slave_label
+#ifdef CONFIG_ARMV8_MULTIENTRY
+	/* NOTE: MPIDR handling will be erroneous on multi-cluster machines */
 	mrs	\xreg, mpidr_el1
 	tst	\xreg, #0xff		/* Test Affinity 0 */
 	b.ne	\slave_label
@@ -90,6 +114,7 @@ lr	.req	x30
 	lsr	\xreg, \xreg, #16
 	tst	\xreg, #0xff		/* Test Affinity 3 */
 	b.ne	\slave_label
+#endif
 .endm
 
 /*
@@ -97,12 +122,17 @@ lr	.req	x30
  * choose processor with all zero affinity value as the master.
  */
 .macro	branch_if_master, xreg1, xreg2, master_label
+#ifdef CONFIG_ARMV8_MULTIENTRY
+	/* NOTE: MPIDR handling will be erroneous on multi-cluster machines */
 	mrs	\xreg1, mpidr_el1
 	lsr	\xreg2, \xreg1, #32
 	lsl	\xreg1, \xreg1, #40
 	lsr	\xreg1, \xreg1, #40
 	orr	\xreg1, \xreg1, \xreg2
 	cbz	\xreg1, \master_label
+#else
+	b 	\master_label
+#endif
 .endm
 
 .macro armv8_switch_to_el2_m, xreg1

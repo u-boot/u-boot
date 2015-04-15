@@ -54,7 +54,10 @@ enum {
 
 #define TPS65218_MASK_ALL_BITS			0xFF
 
+#define TPS65218_DCDC_VOLT_SEL_0950MV		0x0a
 #define TPS65218_DCDC_VOLT_SEL_1100MV		0x19
+#define TPS65218_DCDC_VOLT_SEL_1200MV		0x23
+#define TPS65218_DCDC_VOLT_SEL_1260MV		0x29
 #define TPS65218_DCDC_VOLT_SEL_1330MV		0x30
 
 int tps65218_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,

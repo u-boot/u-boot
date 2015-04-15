@@ -22,7 +22,6 @@ struct sunxi_mmc_host {
 	unsigned mmc_no;
 	uint32_t *mclkreg;
 	unsigned fatal_err;
-	unsigned mod_clk;
 	struct sunxi_mmc *reg;
 	struct mmc_config cfg;
 };
@@ -73,16 +72,77 @@ static int mmc_resource_init(int sdc_no)
 	mmchost->mmc_no = sdc_no;
 
 	cd_pin = sunxi_mmc_getcd_gpio(sdc_no);
-	if (cd_pin != -1)
+	if (cd_pin != -1) {
 		ret = gpio_request(cd_pin, "mmc_cd");
+		if (!ret)
+			ret = gpio_direction_input(cd_pin);
+	}
 
 	return ret;
 }
 
+static int mmc_set_mod_clk(struct sunxi_mmc_host *mmchost, unsigned int hz)
+{
+	unsigned int pll, pll_hz, div, n, oclk_dly, sclk_dly;
+
+	if (hz <= 24000000) {
+		pll = CCM_MMC_CTRL_OSCM24;
+		pll_hz = 24000000;
+	} else {
+#ifdef CONFIG_MACH_SUN9I
+		pll = CCM_MMC_CTRL_PLL_PERIPH0;
+		pll_hz = clock_get_pll4_periph0();
+#else
+		pll = CCM_MMC_CTRL_PLL6;
+		pll_hz = clock_get_pll6();
+#endif
+	}
+
+	div = pll_hz / hz;
+	if (pll_hz % hz)
+		div++;
+
+	n = 0;
+	while (div > 16) {
+		n++;
+		div = (div + 1) / 2;
+	}
+
+	if (n > 3) {
+		printf("mmc %u error cannot set clock to %u\n",
+		       mmchost->mmc_no, hz);
+		return -1;
+	}
+
+	/* determine delays */
+	if (hz <= 400000) {
+		oclk_dly = 0;
+		sclk_dly = 7;
+	} else if (hz <= 25000000) {
+		oclk_dly = 0;
+		sclk_dly = 5;
+	} else if (hz <= 50000000) {
+		oclk_dly = 3;
+		sclk_dly = 5;
+	} else {
+		/* hz > 50000000 */
+		oclk_dly = 2;
+		sclk_dly = 4;
+	}
+
+	writel(CCM_MMC_CTRL_ENABLE | pll | CCM_MMC_CTRL_SCLK_DLY(sclk_dly) |
+	       CCM_MMC_CTRL_N(n) | CCM_MMC_CTRL_OCLK_DLY(oclk_dly) |
+	       CCM_MMC_CTRL_M(div), mmchost->mclkreg);
+
+	debug("mmc %u set mod-clk req %u parent %u n %u m %u rate %u\n",
+	      mmchost->mmc_no, hz, pll_hz, 1u << n, div,
+	      pll_hz / (1u << n) / div);
+
+	return 0;
+}
+
 static int mmc_clk_io_on(int sdc_no)
 {
-	unsigned int pll_clk;
-	unsigned int divider;
 	struct sunxi_mmc_host *mmchost = &mmc_host[sdc_no];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
@@ -91,20 +151,18 @@ static int mmc_clk_io_on(int sdc_no)
 	/* config ahb clock */
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
 
-#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I)
+#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN8I) || \
+    defined(CONFIG_MACH_SUN9I)
 	/* unassert reset */
 	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
 #endif
+#if defined(CONFIG_MACH_SUN9I)
+	/* sun9i has a mmc-common module, also set the gate and reset there */
+	writel(SUNXI_MMC_COMMON_CLK_GATE | SUNXI_MMC_COMMON_RESET,
+	       SUNXI_MMC_COMMON_BASE + 4 * sdc_no);
+#endif
 
-	/* config mod clock */
-	pll_clk = clock_get_pll6();
-	/* should be close to 100 MHz but no more, so round up */
-	divider = ((pll_clk + 99999999) / 100000000) - 1;
-	writel(CCM_MMC_CTRL_ENABLE | CCM_MMC_CTRL_PLL6 | divider,
-	       mmchost->mclkreg);
-	mmchost->mod_clk = pll_clk / (divider + 1);
-
-	return 0;
+	return mmc_set_mod_clk(mmchost, 24000000);
 }
 
 static int mmc_update_clk(struct mmc *mmc)
@@ -129,7 +187,7 @@ static int mmc_update_clk(struct mmc *mmc)
 	return 0;
 }
 
-static int mmc_config_clock(struct mmc *mmc, unsigned div)
+static int mmc_config_clock(struct mmc *mmc)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
 	unsigned rval = readl(&mmchost->reg->clkcr);
@@ -140,37 +198,34 @@ static int mmc_config_clock(struct mmc *mmc, unsigned div)
 	if (mmc_update_clk(mmc))
 		return -1;
 
-	/* Change Divider Factor */
-	rval &= ~SUNXI_MMC_CLK_DIVIDER_MASK;
-	rval |= div;
-	writel(rval, &mmchost->reg->clkcr);
-	if (mmc_update_clk(mmc))
+	/* Set mod_clk to new rate */
+	if (mmc_set_mod_clk(mmchost, mmc->clock))
 		return -1;
+
+	/* Clear internal divider */
+	rval &= ~SUNXI_MMC_CLK_DIVIDER_MASK;
+	writel(rval, &mmchost->reg->clkcr);
+
 	/* Re-enable Clock */
 	rval |= SUNXI_MMC_CLK_ENABLE;
 	writel(rval, &mmchost->reg->clkcr);
-
 	if (mmc_update_clk(mmc))
 		return -1;
 
 	return 0;
 }
 
-static void mmc_set_ios(struct mmc *mmc)
+static void sunxi_mmc_set_ios(struct mmc *mmc)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
-	unsigned int clkdiv = 0;
 
-	debug("set ios: bus_width: %x, clock: %d, mod_clk: %d\n",
-	      mmc->bus_width, mmc->clock, mmchost->mod_clk);
+	debug("set ios: bus_width: %x, clock: %d\n",
+	      mmc->bus_width, mmc->clock);
 
 	/* Change clock first */
-	clkdiv = (mmchost->mod_clk + (mmc->clock >> 1)) / mmc->clock / 2;
-	if (mmc->clock) {
-		if (mmc_config_clock(mmc, clkdiv)) {
-			mmchost->fatal_err = 1;
-			return;
-		}
+	if (mmc->clock && mmc_config_clock(mmc) != 0) {
+		mmchost->fatal_err = 1;
+		return;
 	}
 
 	/* Change bus width */
@@ -182,7 +237,7 @@ static void mmc_set_ios(struct mmc *mmc)
 		writel(0x0, &mmchost->reg->width);
 }
 
-static int mmc_core_init(struct mmc *mmc)
+static int sunxi_mmc_core_init(struct mmc *mmc)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
 
@@ -243,8 +298,8 @@ static int mmc_rint_wait(struct mmc *mmc, unsigned int timeout_msecs,
 	return 0;
 }
 
-static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			struct mmc_data *data)
+static int sunxi_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+			      struct mmc_data *data)
 {
 	struct sunxi_mmc_host *mmchost = mmc->priv;
 	unsigned int cmdval = SUNXI_MMC_CMD_START;
@@ -311,7 +366,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		}
 	}
 
-	error = mmc_rint_wait(mmc, 0xfffff, SUNXI_MMC_RINT_COMMAND_DONE, "cmd");
+	error = mmc_rint_wait(mmc, 1000, SUNXI_MMC_RINT_COMMAND_DONE, "cmd");
 	if (error)
 		goto out;
 
@@ -373,13 +428,13 @@ static int sunxi_mmc_getcd(struct mmc *mmc)
 	if (cd_pin == -1)
 		return 1;
 
-	return !gpio_direction_input(cd_pin);
+	return !gpio_get_value(cd_pin);
 }
 
 static const struct mmc_ops sunxi_mmc_ops = {
-	.send_cmd	= mmc_send_cmd,
-	.set_ios	= mmc_set_ios,
-	.init		= mmc_core_init,
+	.send_cmd	= sunxi_mmc_send_cmd,
+	.set_ios	= sunxi_mmc_set_ios,
+	.init		= sunxi_mmc_core_init,
 	.getcd		= sunxi_mmc_getcd,
 };
 
@@ -394,10 +449,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
-	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-#if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || defined(CONFIG_MACH_SUN8I)
-	cfg->host_caps |= MMC_MODE_HC;
-#endif
+	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	cfg->f_min = 400000;

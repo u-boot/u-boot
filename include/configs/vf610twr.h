@@ -60,11 +60,8 @@
 /* UBI */
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_RBTREE
 #define CONFIG_LZO
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 
 /* Dynamic MTD partition support */
 #define CONFIG_CMD_MTDPARTS

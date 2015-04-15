@@ -45,7 +45,9 @@ int cleanup_before_linux (void)
 /* flush I/D-cache */
 static void cache_flush (void)
 {
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	unsigned long i = 0;
 
 	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));
+#endif
 }

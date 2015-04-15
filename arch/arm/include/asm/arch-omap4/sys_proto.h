@@ -37,7 +37,6 @@ void do_set_mux(u32 base, struct pad_conf_entry const *array, int size);
 void set_muxconf_regs_essential(void);
 u32 wait_on_value(u32, u32, void *, u32);
 void sdelay(unsigned long);
-void set_pl310_ctrl_reg(u32 val);
 void setup_clocks_for_console(void);
 void prcm_init(void);
 void bypass_dpll(u32 const base);
@@ -57,4 +56,7 @@ int omap_vc_bypass_send_value(u8 sa, u8 reg_addr, u8 reg_data);
 u32 warm_reset(void);
 void force_emif_self_refresh(void);
 void setup_warmreset_time(void);
+
+#define OMAP4_SERVICE_PL310_CONTROL_REG_SET	0x102
+
 #endif

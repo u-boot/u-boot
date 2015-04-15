@@ -21,6 +21,7 @@
 #include "board.h"
 #include <power/pmic.h>
 #include <power/tps65218.h>
+#include <power/tps62362.h>
 #include <miiphy.h>
 #include <cpsw.h>
 
@@ -81,12 +82,12 @@ static int read_eeprom(struct am43xx_board_id *header)
 
 const struct dpll_params dpll_mpu[NUM_CRYSTAL_FREQ][NUM_OPPS] = {
 	{	/* 19.2 MHz */
-		{-1, -1, -1, -1, -1, -1, -1},	/* OPP 50 */
+		{125, 3, 2, -1, -1, -1, -1},	/* OPP 50 */
 		{-1, -1, -1, -1, -1, -1, -1},	/* OPP RESERVED	*/
-		{-1, -1, -1, -1, -1, -1, -1},	/* OPP 100 */
-		{-1, -1, -1, -1, -1, -1, -1},	/* OPP 120 */
-		{-1, -1, -1, -1, -1, -1, -1},	/* OPP TB */
-		{-1, -1, -1, -1, -1, -1, -1}	/* OPP NT */
+		{125, 3, 1, -1, -1, -1, -1},	/* OPP 100 */
+		{150, 3, 1, -1, -1, -1, -1},	/* OPP 120 */
+		{125, 2, 1, -1, -1, -1, -1},	/* OPP TB */
+		{625, 11, 1, -1, -1, -1, -1}	/* OPP NT */
 	},
 	{	/* 24 MHz */
 		{300, 23, 1, -1, -1, -1, -1},	/* OPP 50 */
@@ -115,24 +116,32 @@ const struct dpll_params dpll_mpu[NUM_CRYSTAL_FREQ][NUM_OPPS] = {
 };
 
 const struct dpll_params dpll_core[NUM_CRYSTAL_FREQ] = {
-		{-1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+		{625, 11, -1, -1, 10, 8, 4},	/* 19.2 MHz */
 		{1000, 23, -1, -1, 10, 8, 4},	/* 24 MHz */
 		{1000, 24, -1, -1, 10, 8, 4},	/* 25 MHz */
 		{1000, 25, -1, -1, 10, 8, 4}	/* 26 MHz */
 };
 
 const struct dpll_params dpll_per[NUM_CRYSTAL_FREQ] = {
-		{-1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-		{960, 23, 5, -1, -1, -1, -1},	/* 24 MHz */
-		{960, 24, 5, -1, -1, -1, -1},	/* 25 MHz */
-		{960, 25, 5, -1, -1, -1, -1}	/* 26 MHz */
+		{400, 7, 5, -1, -1, -1, -1},	/* 19.2 MHz */
+		{400, 9, 5, -1, -1, -1, -1},	/* 24 MHz */
+		{384, 9, 5, -1, -1, -1, -1},	/* 25 MHz */
+		{480, 12, 5, -1, -1, -1, -1}	/* 26 MHz */
 };
 
-const struct dpll_params epos_evm_dpll_ddr = {
-		266, 24, 1, -1, 1, -1, -1};
+const struct dpll_params epos_evm_dpll_ddr[NUM_CRYSTAL_FREQ] = {
+		{665, 47, 1, -1, 4, -1, -1}, /*19.2*/
+		{133, 11, 1, -1, 4, -1, -1}, /* 24 MHz */
+		{266, 24, 1, -1, 4, -1, -1}, /* 25 MHz */
+		{133, 12, 1, -1, 4, -1, -1}  /* 26 MHz */
+};
 
 const struct dpll_params gp_evm_dpll_ddr = {
-		400, 23, 1, -1, 1, -1, -1};
+		50, 2, 1, -1, 2, -1, -1};
+
+static const struct dpll_params idk_dpll_ddr = {
+	400, 23, 1, -1, 2, -1, -1
+};
 
 const struct ctrl_ioregs ioregs_lpddr2 = {
 	.cm0ioctl		= LPDDR2_ADDRCTRL_IOCTRL_VALUE,
@@ -157,7 +166,7 @@ const struct emif_regs emif_regs_lpddr2 = {
 	.emif_rd_wr_lvl_rmp_win		= 0x0,
 	.emif_rd_wr_lvl_rmp_ctl		= 0x0,
 	.emif_rd_wr_lvl_ctl		= 0x0,
-	.emif_ddr_phy_ctlr_1		= 0x0E084006,
+	.emif_ddr_phy_ctlr_1		= 0x0E284006,
 	.emif_rd_wr_exec_thresh		= 0x80000405,
 	.emif_ddr_ext_phy_ctrl_1	= 0x04010040,
 	.emif_ddr_ext_phy_ctrl_2	= 0x00500050,
@@ -170,29 +179,6 @@ const struct emif_regs emif_regs_lpddr2 = {
 	.emif_cos_config			= 0x000FFFFF
 };
 
-const u32 ext_phy_ctrl_const_base_lpddr2[] = {
-	0x00500050,
-	0x00350035,
-	0x00350035,
-	0x00350035,
-	0x00350035,
-	0x00350035,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x40001000,
-	0x08102040
-};
-
 const struct ctrl_ioregs ioregs_ddr3 = {
 	.cm0ioctl		= DDR3_ADDRCTRL_IOCTRL_VALUE,
 	.cm1ioctl		= DDR3_ADDRCTRL_WD0_IOCTRL_VALUE,
@@ -201,7 +187,7 @@ const struct ctrl_ioregs ioregs_ddr3 = {
 	.dt1ioctl		= DDR3_DATA0_IOCTRL_VALUE,
 	.dt2ioctrl		= DDR3_DATA0_IOCTRL_VALUE,
 	.dt3ioctrl		= DDR3_DATA0_IOCTRL_VALUE,
-	.emif_sdram_config_ext	= 0x0143,
+	.emif_sdram_config_ext	= 0xc163,
 };
 
 const struct emif_regs ddr3_emif_regs_400Mhz = {
@@ -301,149 +287,31 @@ static const struct emif_regs ddr3_sk_emif_regs_400Mhz = {
 	.emif_cos_config		= 0x000FFFFF
 };
 
-const u32 ext_phy_ctrl_const_base_ddr3[] = {
-	0x00400040,
-	0x00350035,
-	0x00350035,
-	0x00350035,
-	0x00350035,
-	0x00350035,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00340034,
-	0x00340034,
-	0x00340034,
-	0x00340034,
-	0x00340034,
-	0x0,
-	0x0,
-	0x40000000,
-	0x08102040
+static const struct emif_regs ddr3_idk_emif_regs_400Mhz = {
+	.sdram_config			= 0x61a11b32,
+	.sdram_config2			= 0x00000000,
+	.ref_ctrl			= 0x00000c30,
+	.sdram_tim1			= 0xeaaad4db,
+	.sdram_tim2			= 0x266b7fda,
+	.sdram_tim3			= 0x107f8678,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x50074be4,
+	.temp_alert_config		= 0x00000000,
+	.emif_ddr_phy_ctlr_1		= 0x00008009,
+	.emif_ddr_ext_phy_ctrl_1	= 0x08020080,
+	.emif_ddr_ext_phy_ctrl_2	= 0x00000040,
+	.emif_ddr_ext_phy_ctrl_3	= 0x0000003e,
+	.emif_ddr_ext_phy_ctrl_4	= 0x00000051,
+	.emif_ddr_ext_phy_ctrl_5	= 0x00000051,
+	.emif_rd_wr_lvl_rmp_win		= 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl		= 0x00000000,
+	.emif_rd_wr_lvl_ctl		= 0x00000000,
+	.emif_rd_wr_exec_thresh		= 0x00000405,
+	.emif_prio_class_serv_map	= 0x00000000,
+	.emif_connect_id_serv_1_map	= 0x00000000,
+	.emif_connect_id_serv_2_map	= 0x00000000,
+	.emif_cos_config		= 0x00ffffff
 };
-
-const u32 ext_phy_ctrl_const_base_ddr3_beta[] = {
-	0x00000000,
-	0x00000045,
-	0x00000046,
-	0x00000048,
-	0x00000047,
-	0x00000000,
-	0x0000004C,
-	0x00000070,
-	0x00000085,
-	0x000000A3,
-	0x00000000,
-	0x0000000C,
-	0x00000030,
-	0x00000045,
-	0x00000063,
-	0x00000000,
-	0x0,
-	0x0,
-	0x40000000,
-	0x08102040
-};
-
-const u32 ext_phy_ctrl_const_base_ddr3_production[] = {
-	0x00000000,
-	0x00000044,
-	0x00000044,
-	0x00000046,
-	0x00000046,
-	0x00000000,
-	0x00000059,
-	0x00000077,
-	0x00000093,
-	0x000000A8,
-	0x00000000,
-	0x00000019,
-	0x00000037,
-	0x00000053,
-	0x00000068,
-	0x00000000,
-	0x0,
-	0x0,
-	0x40000000,
-	0x08102040
-};
-
-static const u32 ext_phy_ctrl_const_base_ddr3_sk[] = {
-	/* first 5 are taken care by emif_regs */
-	0x00700070,
-
-	0x00350035,
-	0x00350035,
-	0x00350035,
-	0x00350035,
-	0x00350035,
-
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-
-	0x00150015,
-	0x00150015,
-	0x00150015,
-	0x00150015,
-	0x00150015,
-
-	0x00800080,
-	0x00800080,
-
-	0x40000000,
-
-	0x08102040,
-
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-};
-
-void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
-{
-	if (board_is_eposevm()) {
-		*regs = ext_phy_ctrl_const_base_lpddr2;
-		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_lpddr2);
-	} else if (board_is_evm_14_or_later()) {
-		*regs = ext_phy_ctrl_const_base_ddr3_production;
-		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_ddr3_production);
-	} else if (board_is_evm_12_or_later()) {
-		*regs = ext_phy_ctrl_const_base_ddr3_beta;
-		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_ddr3_beta);
-	} else if (board_is_gpevm()) {
-		*regs = ext_phy_ctrl_const_base_ddr3;
-		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_ddr3);
-	} else if (board_is_sk()) {
-		*regs = ext_phy_ctrl_const_base_ddr3_sk;
-		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_ddr3_sk);
-	}
-
-	return;
-}
-
-const struct dpll_params *get_dpll_ddr_params(void)
-{
-	if (board_is_eposevm())
-		return &epos_evm_dpll_ddr;
-	else if (board_is_gpevm() || board_is_sk())
-		return &gp_evm_dpll_ddr;
-
-	printf(" Board '%s' not supported\n", am43xx_board_name);
-	return NULL;
-}
 
 /*
  * get_sys_clk_index : returns the index of the sys_clk read from
@@ -463,6 +331,22 @@ static u32 get_sys_clk_index(void)
 		return ((ind & CTRL_SYSBOOT_15_14_MASK) >>
 			CTRL_SYSBOOT_15_14_SHIFT);
 }
+
+const struct dpll_params *get_dpll_ddr_params(void)
+{
+	int ind = get_sys_clk_index();
+
+	if (board_is_eposevm())
+		return &epos_evm_dpll_ddr[ind];
+	else if (board_is_gpevm() || board_is_sk())
+		return &gp_evm_dpll_ddr;
+	else if (board_is_idk())
+		return &idk_dpll_ddr;
+
+	printf(" Board '%s' not supported\n", am43xx_board_name);
+	return NULL;
+}
+
 
 /*
  * get_opp_offset:
@@ -513,10 +397,86 @@ const struct dpll_params *get_dpll_per_params(void)
 	return &dpll_per[ind];
 }
 
+void scale_vcores_generic(u32 m)
+{
+	int mpu_vdd;
+
+	if (i2c_probe(TPS65218_CHIP_PM))
+		return;
+
+	switch (m) {
+	case 1000:
+		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1330MV;
+		break;
+	case 800:
+		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1260MV;
+		break;
+	case 720:
+		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1200MV;
+		break;
+	case 600:
+		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1100MV;
+		break;
+	case 300:
+		mpu_vdd = TPS65218_DCDC_VOLT_SEL_0950MV;
+		break;
+	default:
+		puts("Unknown MPU clock, not scaling\n");
+		return;
+	}
+
+	/* Set DCDC1 (CORE) voltage to 1.1V */
+	if (tps65218_voltage_update(TPS65218_DCDC1,
+				    TPS65218_DCDC_VOLT_SEL_1100MV)) {
+		printf("%s failure\n", __func__);
+		return;
+	}
+
+	/* Set DCDC2 (MPU) voltage */
+	if (tps65218_voltage_update(TPS65218_DCDC2, mpu_vdd)) {
+		printf("%s failure\n", __func__);
+		return;
+	}
+}
+
+void scale_vcores_idk(u32 m)
+{
+	int mpu_vdd;
+
+	if (i2c_probe(TPS62362_I2C_ADDR))
+		return;
+
+	switch (m) {
+	case 1000:
+		mpu_vdd = TPS62362_DCDC_VOLT_SEL_1330MV;
+		break;
+	case 800:
+		mpu_vdd = TPS62362_DCDC_VOLT_SEL_1260MV;
+		break;
+	case 720:
+		mpu_vdd = TPS62362_DCDC_VOLT_SEL_1200MV;
+		break;
+	case 600:
+		mpu_vdd = TPS62362_DCDC_VOLT_SEL_1100MV;
+		break;
+	case 300:
+		mpu_vdd = TPS62362_DCDC_VOLT_SEL_1330MV;
+		break;
+	default:
+		puts("Unknown MPU clock, not scaling\n");
+		return;
+	}
+
+	/* Set VDD_MPU voltage */
+	if (tps62362_voltage_update(TPS62362_SET3, mpu_vdd)) {
+		printf("%s failure\n", __func__);
+		return;
+	}
+}
+
 void scale_vcores(void)
 {
 	const struct dpll_params *mpu_params;
-	int mpu_vdd;
 	struct am43xx_board_id header;
 
 	enable_i2c0_pin_mux();
@@ -527,30 +487,10 @@ void scale_vcores(void)
 	/* Get the frequency */
 	mpu_params = get_dpll_mpu_params();
 
-	if (i2c_probe(TPS65218_CHIP_PM))
-		return;
-
-	if (mpu_params->m == 1000) {
-		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1330MV;
-	} else if (mpu_params->m == 600) {
-		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1100MV;
-	} else {
-		puts("Unknown MPU clock, not scaling\n");
-		return;
-	}
-
-	/* Set DCDC1 (CORE) voltage to 1.1V */
-	if (tps65218_voltage_update(TPS65218_DCDC1,
-				    TPS65218_DCDC_VOLT_SEL_1100MV)) {
-		puts("tps65218_voltage_update failure\n");
-		return;
-	}
-
-	/* Set DCDC2 (MPU) voltage */
-	if (tps65218_voltage_update(TPS65218_DCDC2, mpu_vdd)) {
-		puts("tps65218_voltage_update failure\n");
-		return;
-	}
+	if (board_is_idk())
+		scale_vcores_idk(mpu_params->m);
+	else
+		scale_vcores_generic(mpu_params->m);
 }
 
 void set_uart_mux_conf(void)
@@ -602,6 +542,9 @@ void sdram_init(void)
 	} else if (board_is_sk()) {
 		config_ddr(400, &ioregs_ddr3, NULL, NULL,
 			   &ddr3_sk_emif_regs_400Mhz, 0);
+	} else if (board_is_idk()) {
+		config_ddr(400, &ioregs_ddr3, NULL, NULL,
+			   &ddr3_idk_emif_regs_400Mhz, 0);
 	}
 }
 #endif
@@ -611,10 +554,17 @@ int power_init_board(void)
 {
 	struct pmic *p;
 
-	power_tps65218_init(I2C_PMIC);
-	p = pmic_get("TPS65218_PMIC");
-	if (p && !pmic_probe(p))
-		puts("PMIC:  TPS65218\n");
+	if (board_is_idk()) {
+		power_tps62362_init(I2C_PMIC);
+		p = pmic_get("TPS62362");
+		if (p && !pmic_probe(p))
+			puts("PMIC:  TPS62362\n");
+	} else {
+		power_tps65218_init(I2C_PMIC);
+		p = pmic_get("TPS65218_PMIC");
+		if (p && !pmic_probe(p))
+			puts("PMIC:  TPS65218\n");
+	}
 
 	return 0;
 }
@@ -771,6 +721,10 @@ int board_eth_init(bd_t *bis)
 		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RGMII;
 		cpsw_slaves[0].phy_addr = 4;
 		cpsw_slaves[1].phy_addr = 5;
+	} else if (board_is_idk()) {
+		writel(RGMII_MODE_ENABLE, &cdev->miisel);
+		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RGMII;
+		cpsw_slaves[0].phy_addr = 0;
 	} else {
 		writel(RGMII_MODE_ENABLE, &cdev->miisel);
 		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RGMII;

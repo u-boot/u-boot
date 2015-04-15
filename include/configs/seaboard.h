@@ -27,13 +27,7 @@
 #define CONFIG_TEGRA_ENABLE_UARTD
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
-/* On Seaboard: GPIO_PI3 = Port I = 8, bit = 3 */
-#define CONFIG_UART_DISABLE_GPIO	GPIO_PI3
-
 #define CONFIG_MACH_TYPE		MACH_TYPE_SEABOARD
-
-#define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_BOARD_LATE_INIT		/* Make sure LCD init is complete */
 
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA

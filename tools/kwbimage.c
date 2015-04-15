@@ -498,6 +498,7 @@ static void *image_create_v1(size_t *imagesz, struct image_tool_params *params,
 		binhdrsz = sizeof(struct opt_hdr_v1) +
 			(binarye->binary.nargs + 1) * sizeof(unsigned int) +
 			s.st_size;
+		binhdrsz = ALIGN_SUP(binhdrsz, 32);
 		hdr->headersz_lsb = binhdrsz & 0xFFFF;
 		hdr->headersz_msb = (binhdrsz & 0xFFFF0000) >> 16;
 
@@ -868,6 +869,16 @@ static int kwbimage_generate(struct image_tool_params *params,
 			sizeof(struct ext_hdr_v0);
 	} else {
 		alloc_len = image_headersz_v1(params, NULL);
+#if defined(CONFIG_SYS_SPI_U_BOOT_OFFS)
+		if (alloc_len > CONFIG_SYS_SPI_U_BOOT_OFFS) {
+			fprintf(stderr, "Error: Image header (incl. SPL image) too big!\n");
+			fprintf(stderr, "header=0x%x CONFIG_SYS_SPI_U_BOOT_OFFS=0x%x!\n",
+				alloc_len, CONFIG_SYS_SPI_U_BOOT_OFFS);
+			fprintf(stderr, "Increase CONFIG_SYS_SPI_U_BOOT_OFFS!\n");
+		} else {
+			alloc_len = CONFIG_SYS_SPI_U_BOOT_OFFS;
+		}
+#endif
 	}
 
 	hdr = malloc(alloc_len);
@@ -905,19 +916,17 @@ static int kwbimage_check_params(struct image_tool_params *params)
 /*
  * kwbimage type parameters definition
  */
-static struct image_type_params kwbimage_params = {
-	.name		= "Marvell MVEBU Boot Image support",
-	.header_size	= 0,		/* no fixed header size */
-	.hdr		= NULL,
-	.vrec_header	= kwbimage_generate,
-	.check_image_type = kwbimage_check_image_types,
-	.verify_header	= kwbimage_verify_header,
-	.print_header	= kwbimage_print_header,
-	.set_header	= kwbimage_set_header,
-	.check_params	= kwbimage_check_params,
-};
-
-void init_kwb_image_type (void)
-{
-	register_image_type(&kwbimage_params);
-}
+U_BOOT_IMAGE_TYPE(
+	kwbimage,
+	"Marvell MVEBU Boot Image support",
+	0,
+	NULL,
+	kwbimage_check_params,
+	kwbimage_verify_header,
+	kwbimage_print_header,
+	kwbimage_set_header,
+	NULL,
+	kwbimage_check_image_types,
+	NULL,
+	kwbimage_generate
+);

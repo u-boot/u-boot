@@ -47,7 +47,10 @@
 
 /* support deep sleep */
 #define CONFIG_DEEP_SLEEP
+#if defined(CONFIG_DEEP_SLEEP)
 #define CONFIG_SILENT_CONSOLE
+#define CONFIG_BOARD_EARLY_INIT_F
+#endif
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xeff40000
@@ -305,7 +308,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NAND_DDR_LAW		11
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
@@ -688,6 +690,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ETHPRIME		"FM1@DTSEC1"
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
+
+/* Enable VSC9953 L2 Switch driver */
+#define CONFIG_VSC9953
+#define CONFIG_VSC9953_CMD
+#define CONFIG_SYS_FM1_QSGMII11_PHY_ADDR	0x14
+#define CONFIG_SYS_FM1_QSGMII21_PHY_ADDR	0x18
 
 /*
  * Dynamic MTD Partition support with mtdparts

@@ -1,0 +1,20 @@
+# The Jesurun Q5 has a black plastic casing with the approximate dimensions of
+# 100mm x 100mm x 24mm with rounded edges. In terms of hardware it features an
+# Allwinner A10 SoC with 1GB RAM and 8GB of NAND flash. The storage capacity
+# can be extended up to 32GB with a MicroSD card. The external connectors are:
+# 2x USB-A female supporting USB2.0, 3.5mm female jack for audio, HDMI female,
+# SPDIF, RJ45 LAN and Power. In addition the device has 1x red LED (hard wired
+# to power) and an programmable green led. On the board there is also an
+# unpopulated IR receiver and the UART. The device is equipped with an
+# AXP209 PMU.
+#
+# For more details see: http://linux-sunxi.org/Jesurun_Q5
+CONFIG_SPL=y
+CONFIG_SYS_EXTRA_OPTIONS="AXP209_POWER,SUNXI_EMAC,USB_EHCI,MACPWR=SUNXI_GPH(19)"
+CONFIG_FDTFILE="sun4i-a10-jesurun-q5.dtb"
+CONFIG_ARM=y
+CONFIG_ARCH_SUNXI=y
+CONFIG_MACH_SUN4I=y
+CONFIG_DRAM_CLK=312
+CONFIG_DRAM_ZQ=123
+CONFIG_DRAM_EMR1=0

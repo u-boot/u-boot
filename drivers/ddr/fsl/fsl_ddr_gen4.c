@@ -32,24 +32,44 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	u32 temp_sdram_cfg;
 	u32 total_gb_size_per_controller;
 	int timeout;
+#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
+	u32 *eddrtqcr1;
+#endif
 
 	switch (ctrl_num) {
 	case 0:
 		ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
+		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR_ADDR + 0x800;
+#endif
 		break;
 #if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	case 1:
 		ddr = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
+#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
+		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR2_ADDR + 0x800;
+#endif
 		break;
 #endif
 #if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
 	case 2:
 		ddr = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
+#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
+		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR3_ADDR + 0x800;
+#endif
 		break;
 #endif
 #if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
 	case 3:
 		ddr = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
+#if defined(CONFIG_SYS_FSL_ERRATUM_A008336) || \
+	defined(CONFIG_SYS_FSL_ERRATUM_A008514)
+		eddrtqcr1 = (void *)CONFIG_SYS_FSL_DCSR_DDR4_ADDR + 0x800;
+#endif
 		break;
 #endif
 	default:
@@ -60,6 +80,20 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	if (step == 2)
 		goto step2;
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008336
+#ifdef CONFIG_LS2085A
+	/* A008336 only applies to general DDR controllers */
+	if ((ctrl_num == 0) || (ctrl_num == 1))
+#endif
+		ddr_out32(eddrtqcr1, 0x63b30002);
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008514
+#ifdef CONFIG_LS2085A
+	/* A008514 only applies to DP-DDR controler */
+	if (ctrl_num == 2)
+#endif
+		ddr_out32(eddrtqcr1, 0x63b20002);
+#endif
 	if (regs->ddr_eor)
 		ddr_out32(&ddr->eor, regs->ddr_eor);
 
@@ -171,6 +205,14 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			ddr_out32(&ddr->debug[i], regs->debug[i]);
 		}
 	}
+#ifdef CONFIG_SYS_FSL_ERRATUM_A008378
+	/* Erratum applies when accumulated ECC is used, or DBI is enabled */
+#define IS_ACC_ECC_EN(v) ((v) & 0x4)
+#define IS_DBI(v) ((((v) >> 12) & 0x3) == 0x2)
+	if (IS_ACC_ECC_EN(regs->ddr_sdram_cfg) ||
+	    IS_DBI(regs->ddr_sdram_cfg_3))
+		ddr_setbits32(ddr->debug[28], 0x9 << 20);
+#endif
 
 	/*
 	 * For RDIMMs, JEDEC spec requires clocks to be stable before reset is
@@ -245,7 +287,7 @@ step2:
 	bus_width = 3 - ((ddr_in32(&ddr->sdram_cfg) & SDRAM_CFG_DBW_MASK)
 			>> SDRAM_CFG_DBW_SHIFT);
 	timeout = ((total_gb_size_per_controller << (6 - bus_width)) * 100 /
-		(get_ddr_freq(0) >> 20)) << 2;
+		(get_ddr_freq(ctrl_num) >> 20)) << 2;
 	total_gb_size_per_controller >>= 4;	/* shift down to gb size */
 	debug("total %d GB\n", total_gb_size_per_controller);
 	debug("Need to wait up to %d * 10ms\n", timeout);

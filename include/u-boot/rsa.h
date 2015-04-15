@@ -105,8 +105,6 @@ static inline int rsa_verify(struct image_sign_info *info,
 }
 #endif
 
-int zynq_pow_mod(uint32_t *keyptr, uint32_t *inout);
-
 #define RSA2048_BYTES	(2048 / 8)
 #define RSA4096_BYTES	(4096 / 8)
 

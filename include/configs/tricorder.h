@@ -19,6 +19,10 @@
 /* High Level Configuration Options */
 #define CONFIG_OMAP			/* in a TI OMAP core */
 #define CONFIG_OMAP_COMMON
+/* Common ARM Erratas */
+#define CONFIG_ARM_ERRATA_454179
+#define CONFIG_ARM_ERRATA_430973
+#define CONFIG_ARM_ERRATA_621766
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRICORDER
 /*
@@ -32,7 +36,7 @@
 #define CONFIG_SDRC			/* The chip has SDRC controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
-#include <asm/arch/omap3.h>
+#include <asm/arch/omap.h>
 
 #define CONFIG_SYS_GENERIC_BOARD
 
@@ -354,7 +358,6 @@
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
 #define CONFIG_SPL_MAX_SIZE		(57 * 1024)	/* 7 KB for stack */
-#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000 /*CONFIG_SYS_SDRAM_BASE*/
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000

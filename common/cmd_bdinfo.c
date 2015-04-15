@@ -183,8 +183,14 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
-	print_num("mem start      ",	(ulong)bd->bi_memstart);
-	print_lnum("mem size       ",	(u64)bd->bi_memsize);
+	int i;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
+		print_num("DRAM bank",	i);
+		print_num("-> start",	bd->bi_dram[i].start);
+		print_num("-> size",	bd->bi_dram[i].size);
+	}
+
 	print_num("flash start    ",	(ulong)bd->bi_flashstart);
 	print_num("flash size     ",	(ulong)bd->bi_flashsize);
 	print_num("flash offset   ",	(ulong)bd->bi_flashoffset);
@@ -196,6 +202,12 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_eths();
 #endif
 	printf("baudrate    = %u bps\n", gd->baudrate);
+	print_num("relocaddr", gd->relocaddr);
+	print_num("reloc off", gd->reloc_off);
+	print_num("fdt_blob", (ulong)gd->fdt_blob);
+	print_num("new_fdt", (ulong)gd->new_fdt);
+	print_num("fdt_size", (ulong)gd->fdt_size);
+
 	return 0;
 }
 
@@ -333,8 +345,8 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_num("boot_params",	(ulong)bd->bi_boot_params);
-	print_num("memstart",		(ulong)bd->bi_memstart);
-	print_lnum("memsize",		(u64)bd->bi_memsize);
+	print_num("memstart",		(ulong)bd->bi_dram[0].start);
+	print_lnum("memsize",		(u64)bd->bi_dram[0].size);
 	print_num("flashstart",		(ulong)bd->bi_flashstart);
 	print_num("flashsize",		(ulong)bd->bi_flashsize);
 	print_num("flashoffset",	(ulong)bd->bi_flashoffset);
