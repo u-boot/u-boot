@@ -512,6 +512,14 @@ enum uclass_id device_get_uclass_id(struct udevice *dev)
 	return dev->uclass->uc_drv->id;
 }
 
+const char *dev_get_uclass_name(struct udevice *dev)
+{
+	if (!dev)
+		return NULL;
+
+	return dev->uclass->uc_drv->name;
+}
+
 #ifdef CONFIG_OF_CONTROL
 fdt_addr_t dev_get_addr(struct udevice *dev)
 {

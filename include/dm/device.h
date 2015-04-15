@@ -299,6 +299,16 @@ const void *dev_get_driver_ops(struct udevice *dev);
  */
 enum uclass_id device_get_uclass_id(struct udevice *dev);
 
+/*
+ * dev_get_uclass_name() - return the uclass name of a device
+ *
+ * This checks that dev is not NULL.
+ *
+ * @dev:	Device to check
+ * @return  pointer to the uclass name for the device
+ */
+const char *dev_get_uclass_name(struct udevice *dev);
+
 /**
  * device_get_child() - Get the child of a device by index
  *
