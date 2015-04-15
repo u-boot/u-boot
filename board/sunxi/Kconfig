@@ -543,4 +543,16 @@ config GMAC_TX_DELAY
 	---help---
 	Set the GMAC Transmit Clock Delay Chain value.
 
+config NET
+	default y
+
+config NETDEVICES
+	default y
+
+config DM_ETH
+	default y
+
+config DM_SERIAL
+	default y
+
 endif
