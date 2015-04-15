@@ -23,5 +23,8 @@ int as3722_gpio_configure(struct udevice *pmic, unsigned int gpio,
 			  unsigned long flags);
 int as3722_gpio_direction_output(struct udevice *pmic, unsigned int gpio,
 				 unsigned int level);
+int as3722_read(struct udevice *pmic, u8 reg, u8 *value);
+int as3722_write(struct udevice *pmic, u8 reg, u8 value);
+int as3722_get(struct udevice **devp);
 
 #endif /* __POWER_AS3722_H__ */
