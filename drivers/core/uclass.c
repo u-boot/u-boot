@@ -186,6 +186,30 @@ int uclass_find_next_device(struct udevice **devp)
 	return 0;
 }
 
+int uclass_find_device_by_name(enum uclass_id id, const char *name,
+			       struct udevice **devp)
+{
+	struct uclass *uc;
+	struct udevice *dev;
+	int ret;
+
+	*devp = NULL;
+	if (!name)
+		return -EINVAL;
+	ret = uclass_get(id, &uc);
+	if (ret)
+		return ret;
+
+	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+		if (!strncmp(dev->name, name, strlen(name))) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
 int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 			      bool find_req_seq, struct udevice **devp)
 {
