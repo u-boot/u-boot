@@ -13,6 +13,10 @@
 	model = "Intel Crown Bay";
 	compatible = "intel,crownbay", "intel,queensbay";
 
+	aliases {
+		spi0 = "/spi";
+	};
+
 	config {
 		silent_console = <0>;
 	};
@@ -46,7 +50,7 @@
 	spi {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "intel,ich7";
+		compatible = "intel,ich-spi";
 		spi-flash@0 {
 			reg = <0>;
 			compatible = "sst,25vf016b", "spi-flash";

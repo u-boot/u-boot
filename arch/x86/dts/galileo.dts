@@ -14,6 +14,10 @@
 	model = "Intel Galileo";
 	compatible = "intel,galileo", "intel,quark";
 
+	aliases {
+		spi0 = "/spi";
+	};
+
 	config {
 		silent_console = <0>;
 	};

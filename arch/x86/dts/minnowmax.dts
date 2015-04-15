@@ -15,6 +15,7 @@
 
 	aliases {
 		serial0 = &serial;
+		spi0 = "/spi";
 	};
 
 	config {
@@ -28,7 +29,7 @@
 	spi {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "intel,ich";
+		compatible = "intel,ich-spi";
 		spi-flash@0 {
 			reg = <0>;
 			compatible = "sst,25vf016b", "spi-flash";
