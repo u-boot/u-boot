@@ -640,6 +640,10 @@ config TARGET_VF610TWR
 	bool "Support vf610twr"
 	select CPU_V7
 
+config TARGET_COLIBRI_VF
+	bool "Support Colibri VF50/61"
+	select CPU_V7
+
 config ZYNQ
 	bool "Xilinx Zynq Platform"
 	select CPU_V7
@@ -914,6 +918,7 @@ source "board/ti/ti814x/Kconfig"
 source "board/ti/ti816x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
+source "board/toradex/colibri_vf/Kconfig"
 source "board/tqc/tqma6/Kconfig"
 source "board/trizepsiv/Kconfig"
 source "board/ttcontrol/vision2/Kconfig"

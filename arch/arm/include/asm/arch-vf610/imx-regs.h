@@ -263,6 +263,11 @@
 #define SRC_SRSR_WDOG_M4				(0x1 << 4)
 #define SRC_SRSR_WDOG_A5				(0x1 << 3)
 #define SRC_SRSR_POR_RST				(0x1 << 0)
+#define SRC_SBMR2_BMOD_MASK             (0x3 << 24)
+#define SRC_SBMR2_BMOD_SHIFT            24
+#define SRC_SBMR2_BMOD_FUSES            0x0
+#define SRC_SBMR2_BMOD_SERIAL           0x1
+#define SRC_SBMR2_BMOD_RCON             0x2
 
 /* Slow Clock Source Controller Module (SCSC) */
 #define SCSC_SOSC_CTR_SOSC_EN            0x1

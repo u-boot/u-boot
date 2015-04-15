@@ -1,0 +1,6 @@
+Colibri VFxx
+M:	Stefan Agner <stefan.agner@toradex.com>
+S:	Maintained
+F:	board/toradex/colibri_vf/
+F:	include/configs/colibri_vf.h
+F:	configs/colibri_vf_defconfig

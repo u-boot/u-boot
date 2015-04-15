@@ -1,0 +1,18 @@
+if TARGET_COLIBRI_VF
+
+config SYS_CPU
+	default "armv7"
+
+config SYS_BOARD
+	default "colibri_vf"
+
+config SYS_VENDOR
+	default "toradex"
+
+config SYS_SOC
+	default "vf610"
+
+config SYS_CONFIG_NAME
+	default "colibri_vf"
+
+endif
