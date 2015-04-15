@@ -342,3 +342,19 @@ int get_clocks(void)
 #endif
 	return 0;
 }
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+#if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
+	enum dcache_option option = DCACHE_WRITETHROUGH;
+#else
+	enum dcache_option option = DCACHE_WRITEBACK;
+#endif
+	dcache_enable();
+	icache_enable();
+
+    /* Enable caching on OCRAM */
+	mmu_set_region_dcache_behaviour(IRAM_BASE_ADDR, IRAM_SIZE, option);
+}
+#endif
