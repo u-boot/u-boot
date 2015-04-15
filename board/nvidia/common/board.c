@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <errno.h>
 #include <ns16550.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
@@ -40,6 +41,7 @@
 #include <asm/arch-tegra/mmc.h>
 #endif
 #include <asm/arch-tegra/xusb-padctl.h>
+#include <power/as3722.h>
 #include <i2c.h>
 #include <spi.h>
 #include "emc.h"
@@ -145,6 +147,11 @@ int board_init(void)
 		debug("Memory controller init failed: %d\n", err);
 #  endif
 # endif /* CONFIG_TEGRA_PMU */
+#ifdef CONFIG_AS3722_POWER
+	err = as3722_init(NULL);
+	if (err && err != -ENODEV)
+		return err;
+#endif
 #endif /* CONFIG_SYS_I2C_TEGRA */
 
 #ifdef CONFIG_USB_EHCI_TEGRA
