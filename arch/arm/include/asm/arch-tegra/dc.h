@@ -234,7 +234,7 @@ struct dc_disp_reg {
 	uint cursor_pos_ns;		/* _DISP_CURSOR_POSITION_NS_0 */
 	uint seq_ctrl;			/* _DISP_INIT_SEQ_CONTROL_0 */
 
-	/* Address 0x442 ~ 0x446 */
+	/* Address 0x443 ~ 0x446 */
 	uint spi_init_seq_data_a;	/* _DISP_SPI_INIT_SEQ_DATA_A_0 */
 	uint spi_init_seq_data_b;	/* _DISP_SPI_INIT_SEQ_DATA_B_0 */
 	uint spi_init_seq_data_c;	/* _DISP_SPI_INIT_SEQ_DATA_C_0 */
@@ -254,6 +254,11 @@ struct dc_disp_reg {
 	/* Address 0x4c0 ~ 0x4c1 */
 	uint dac_crt_ctrl;		/* _DISP_DAC_CRT_CTRL_0 */
 	uint disp_misc_ctrl;		/* _DISP_DISP_MISC_CONTROL_0 */
+
+	u32 rsvd_4c2[34];		/* 4c2 - 4e3 */
+
+	/* Address 0x4e4 */
+	u32 blend_background_color;	/* _DISP_BLEND_BACKGROUND_COLOR_0 */
 };
 
 enum dc_winc_filter_p {
@@ -289,9 +294,9 @@ struct dc_winc_reg {
 	uint v_filter_p[WINC_FILTER_COUNT];
 };
 
-/* WIN A/B/C Register 0x700 ~ 0x714*/
+/* WIN A/B/C Register 0x700 ~ 0x719*/
 struct dc_win_reg {
-	/* Address 0x700 ~ 0x714 */
+	/* Address 0x700 ~ 0x719 */
 	uint win_opt;			/* _WIN_WIN_OPTIONS_0 */
 	uint byte_swap;			/* _WIN_BYTE_SWAP_0 */
 	uint buffer_ctrl;		/* _WIN_BUFFER_CONTROL_0 */
@@ -313,11 +318,16 @@ struct dc_win_reg {
 	uint blend_2win_y;		/* _WIN_BLEND_2WIN_Y_0 */
 	uint blend_3win_xy;		/* _WIN_BLEND_3WIN_XY_0 */
 	uint hp_fetch_ctrl;		/* _WIN_HP_FETCH_CONTROL_0 */
+	uint global_alpha;		/* _WIN_GLOBAL_ALPHA */
+	uint blend_layer_ctrl;		/* _WINBUF_BLEND_LAYER_CONTROL_0 */
+	uint blend_match_select;	/* _WINBUF_BLEND_MATCH_SELECT_0 */
+	uint blend_nomatch_select;	/* _WINBUF_BLEND_NOMATCH_SELECT_0 */
+	uint blend_alpha_1bit;		/* _WINBUF_BLEND_ALPHA_1BIT_0 */
 };
 
-/* WINBUF A/B/C Register 0x800 ~ 0x80a */
+/* WINBUF A/B/C Register 0x800 ~ 0x80d */
 struct dc_winbuf_reg {
-	/* Address 0x800 ~ 0x80a */
+	/* Address 0x800 ~ 0x80d */
 	uint start_addr;		/* _WINBUF_START_ADDR_0 */
 	uint start_addr_ns;		/* _WINBUF_START_ADDR_NS_0 */
 	uint start_addr_u;		/* _WINBUF_START_ADDR_U_0 */
@@ -329,6 +339,9 @@ struct dc_winbuf_reg {
 	uint addr_v_offset;		/* _WINBUF_ADDR_V_OFFSET_0 */
 	uint addr_v_offset_ns;		/* _WINBUF_ADDR_V_OFFSET_NS_0 */
 	uint uflow_status;		/* _WINBUF_UFLOW_STATUS_0 */
+	uint buffer_surface_kind;	/* DC_WIN_BUFFER_SURFACE_KIND */
+	uint rsvd_80c;
+	uint start_addr_hi;		/* DC_WINBUF_START_ADDR_HI_0 */
 };
 
 /* Display Controller (DC_) regs */
@@ -339,16 +352,16 @@ struct dc_ctlr {
 	struct dc_com_reg com;		/* COM register 0x300 ~ 0x329 */
 	uint reserved1[0xd6];
 
-	struct dc_disp_reg disp;	/* DISP register 0x400 ~ 0x4c1 */
-	uint reserved2[0x3e];
+	struct dc_disp_reg disp;	/* DISP register 0x400 ~ 0x4e4 */
+	uint reserved2[0x1b];
 
 	struct dc_winc_reg winc;	/* Window A/B/C 0x500 ~ 0x628 */
 	uint reserved3[0xd7];
 
-	struct dc_win_reg win;		/* WIN A/B/C 0x700 ~ 0x714*/
-	uint reserved4[0xeb];
+	struct dc_win_reg win;		/* WIN A/B/C 0x700 ~ 0x719*/
+	uint reserved4[0xe6];
 
-	struct dc_winbuf_reg winbuf;	/* WINBUF A/B/C 0x800 ~ 0x80a */
+	struct dc_winbuf_reg winbuf;	/* WINBUF A/B/C 0x800 ~ 0x80d */
 };
 
 #define BIT(pos)	(1U << pos)
@@ -399,20 +412,45 @@ enum win_color_depth_id {
 #define SPI_ENABLE		BIT(24)
 #define HSPI_ENABLE		BIT(25)
 
+/* DC_CMD_STATE_ACCESS 0x040 */
+#define  READ_MUX_ASSEMBLY	(0 << 0)
+#define  READ_MUX_ACTIVE	(1 << 0)
+#define  WRITE_MUX_ASSEMBLY	(0 << 2)
+#define  WRITE_MUX_ACTIVE	(1 << 2)
+
 /* DC_CMD_STATE_CONTROL 0x041 */
 #define GENERAL_ACT_REQ		BIT(0)
 #define WIN_A_ACT_REQ		BIT(1)
 #define WIN_B_ACT_REQ		BIT(2)
 #define WIN_C_ACT_REQ		BIT(3)
+#define WIN_D_ACT_REQ		BIT(4)
+#define WIN_H_ACT_REQ		BIT(5)
+#define CURSOR_ACT_REQ		BIT(7)
 #define GENERAL_UPDATE		BIT(8)
 #define WIN_A_UPDATE		BIT(9)
 #define WIN_B_UPDATE		BIT(10)
 #define WIN_C_UPDATE		BIT(11)
+#define WIN_D_UPDATE		BIT(12)
+#define WIN_H_UPDATE		BIT(13)
+#define CURSOR_UPDATE		BIT(15)
+#define NC_HOST_TRIG		BIT(24)
 
 /* DC_CMD_DISPLAY_WINDOW_HEADER 0x042 */
 #define WINDOW_A_SELECT		BIT(4)
 #define WINDOW_B_SELECT		BIT(5)
 #define WINDOW_C_SELECT		BIT(6)
+#define	WINDOW_D_SELECT		BIT(7)
+#define	WINDOW_H_SELECT		BIT(8)
+
+/* DC_DISP_DISP_WIN_OPTIONS 0x402 */
+#define	CURSOR_ENABLE		BIT(16)
+#define	SOR_ENABLE		BIT(25)
+#define	TVO_ENABLE		BIT(28)
+#define	DSI_ENABLE		BIT(29)
+#define	HDMI_ENABLE		BIT(30)
+
+/* DC_DISP_DISP_TIMING_OPTIONS 0x405 */
+#define	VSYNC_H_POSITION(x)	((x) & 0xfff)
 
 /* DC_DISP_DISP_CLOCK_CONTROL 0x42e */
 #define SHIFT_CLK_DIVIDER_SHIFT	0
@@ -525,5 +563,10 @@ enum {
 #define H_DDA_INC_MASK		(0xFFFF << H_DDA_INC_SHIFT)
 #define V_DDA_INC_SHIFT		16
 #define V_DDA_INC_MASK		(0xFFFF << V_DDA_INC_SHIFT)
+
+struct display_timing;
+
+int display_init(void *lcdbase, int fb_bits_per_pixel,
+		 struct display_timing *timing);
 
 #endif /* __ASM_ARCH_TEGRA_DC_H */
