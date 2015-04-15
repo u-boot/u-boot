@@ -227,9 +227,6 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	debug("spi_xfer: bus:%i cs:%i bitlen:%i len:%i flags:%lx\n",
 	      slave->bus, slave->cs, bitlen, len, flags);
 
-	if (bitlen == 0)
-		return -1;
-
 	if (bitlen % 8) {
 		debug("spi_xfer: Non byte aligned SPI transfer\n");
 		return -1;
