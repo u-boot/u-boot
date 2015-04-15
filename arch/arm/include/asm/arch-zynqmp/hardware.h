@@ -45,7 +45,8 @@ struct iou_scntr {
 
 /* Bootmode setting values */
 #define BOOT_MODES_MASK	0x0000000F
-#define SD_MODE		0x00000005
+#define SD_MODE		0x00000003
+#define EMMC_MODE	0x00000006
 #define JTAG_MODE	0x00000000
 
 #define ZYNQMP_RPU_BASEADDR	0xFF9A0000

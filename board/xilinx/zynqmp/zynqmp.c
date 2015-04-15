@@ -83,6 +83,7 @@ int board_late_init(void)
 
 	switch (bootmode) {
 	case SD_MODE:
+	case EMMC_MODE:
 		setenv("modeboot", "sdboot");
 		break;
 	default:
