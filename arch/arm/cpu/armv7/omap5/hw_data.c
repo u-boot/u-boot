@@ -460,7 +460,7 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l4per_gpio6_clkctrl,
 		(*prcm)->cm_l4per_gpio7_clkctrl,
 		(*prcm)->cm_l4per_gpio8_clkctrl,
-#ifdef CONFIG_USB_DWC3
+#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
 		(*prcm)->cm_l3init_ocp2scp1_clkctrl,
 		(*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
 #endif
@@ -495,7 +495,7 @@ void enable_basic_clocks(void)
 	setbits_le32((*prcm)->cm_l3init_hsmmc2_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_MASK);
 
-#ifdef CONFIG_USB_DWC3
+#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
 	/* Enable 960 MHz clock for dwc3 */
 	setbits_le32((*prcm)->cm_l3init_usb_otg_ss1_clkctrl,
 		     OPTFCLKEN_REFCLK960M);
