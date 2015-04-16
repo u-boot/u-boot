@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <asm/arch/p2wi.h>
 #include <asm/arch/rsb.h>
+#include <asm/arch/gpio.h>
 #include <axp221.h>
 
 /*
@@ -385,54 +386,66 @@ int axp221_get_sid(unsigned int *sid)
 	return 0;
 }
 
-int axp_get_vbus(void)
+int axp_gpio_direction_input(unsigned int pin)
+{
+	switch (pin) {
+	case SUNXI_GPIO_AXP0_VBUS_DETECT:
+		return 0;
+	default:
+		return -EINVAL;
+	}
+}
+
+int axp_gpio_direction_output(unsigned int pin, unsigned int val)
+{
+	int ret;
+
+	switch (pin) {
+	case SUNXI_GPIO_AXP0_VBUS_ENABLE:
+		ret = axp221_clrbits(AXP221_MISC_CTRL,
+				     AXP221_MISC_CTRL_N_VBUSEN_FUNC);
+		if (ret)
+			return ret;
+
+		return axp_gpio_set_value(pin, val);
+	default:
+		return -EINVAL;
+	}
+}
+
+int axp_gpio_get_value(unsigned int pin)
 {
 	int ret;
 	u8 val;
 
-	ret = axp221_init();
-	if (ret)
-		return ret;
+	switch (pin) {
+	case SUNXI_GPIO_AXP0_VBUS_DETECT:
+		ret = pmic_bus_read(AXP221_POWER_STATUS, &val);
+		if (ret)
+			return ret;
 
-	ret = pmic_bus_read(AXP221_POWER_STATUS, &val);
-	if (ret)
-		return ret;
-
-	return (val & AXP221_POWER_STATUS_VBUS_USABLE) ? 1 : 0;
+		return !!(val & AXP221_POWER_STATUS_VBUS_AVAIL);
+	default:
+		return -EINVAL;
+	}
 }
 
-static int axp_drivebus_setup(void)
+int axp_gpio_set_value(unsigned int pin, unsigned int val)
 {
 	int ret;
 
-	ret = axp221_init();
-	if (ret)
-		return ret;
+	switch (pin) {
+	case SUNXI_GPIO_AXP0_VBUS_ENABLE:
+		if (val)
+			ret = axp221_setbits(AXP221_VBUS_IPSOUT,
+					     AXP221_VBUS_IPSOUT_DRIVEBUS);
+		else
+			ret = axp221_clrbits(AXP221_VBUS_IPSOUT,
+					     AXP221_VBUS_IPSOUT_DRIVEBUS);
 
-	/* Set N_VBUSEN pin to output / DRIVEBUS function */
-	return axp221_clrbits(AXP221_MISC_CTRL, AXP221_MISC_CTRL_N_VBUSEN_FUNC);
-}
+		if (ret)
+			return ret;
+	}
 
-int axp_drivebus_enable(void)
-{
-	int ret;
-
-	ret = axp_drivebus_setup();
-	if (ret)
-		return ret;
-
-	/* Set DRIVEBUS high */
-	return axp221_setbits(AXP221_VBUS_IPSOUT, AXP221_VBUS_IPSOUT_DRIVEBUS);
-}
-
-int axp_drivebus_disable(void)
-{
-	int ret;
-
-	ret = axp_drivebus_setup();
-	if (ret)
-		return ret;
-
-	/* Set DRIVEBUS low */
-	return axp221_clrbits(AXP221_VBUS_IPSOUT, AXP221_VBUS_IPSOUT_DRIVEBUS);
+	return 0;
 }

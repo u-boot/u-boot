@@ -62,11 +62,7 @@
 /* Page 1 addresses */
 #define AXP221_SID		0x20
 
-/* We support vbus detection */
-#define AXP_VBUS_DETECT
-
-/* We support drivebus control */
-#define AXP_DRIVEBUS
+#define AXP_GPIO
 
 int axp221_set_dcdc1(unsigned int mvolt);
 int axp221_set_dcdc2(unsigned int mvolt);
@@ -83,6 +79,8 @@ int axp221_set_aldo3(unsigned int mvolt);
 int axp221_set_eldo(int eldo_num, unsigned int mvolt);
 int axp221_init(void);
 int axp221_get_sid(unsigned int *sid);
-int axp_get_vbus(void);
-int axp_drivebus_enable(void);
-int axp_drivebus_disable(void);
+
+int axp_gpio_direction_input(unsigned int pin);
+int axp_gpio_direction_output(unsigned int pin, unsigned int val);
+int axp_gpio_get_value(unsigned int pin);
+int axp_gpio_set_value(unsigned int pin, unsigned int val);

@@ -196,7 +196,11 @@
 #endif
 
 #define CONFIG_SYS_I2C
+#if defined CONFIG_I2C0_ENABLE || defined CONFIG_I2C1_ENABLE || \
+    defined CONFIG_I2C2_ENABLE || defined CONFIG_I2C3_ENABLE || \
+    defined CONFIG_I2C4_ENABLE
 #define CONFIG_SYS_I2C_MVTWSI
+#endif
 #define CONFIG_SYS_I2C_SPEED		400000
 #define CONFIG_SYS_I2C_SLAVE		0x7f
 
