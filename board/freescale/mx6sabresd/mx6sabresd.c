@@ -753,10 +753,11 @@ const struct mx6_mmdc_calibration mx6_mmcd_calib = {
 	.p1_mpwrdlctl =  0x48254A36,
 };
 
+/* MT41K128M16JT-125 */
 static struct mx6_ddr3_cfg mem_ddr = {
 	.mem_speed = 1600,
-	.density = 4,
-	.width = 64,
+	.density = 2,
+	.width = 16,
 	.banks = 8,
 	.rowaddr = 14,
 	.coladdr = 10,
@@ -798,7 +799,7 @@ static void spl_dram_init(void)
 {
 	struct mx6_ddr_sysinfo sysinfo = {
 		/* width of data bus:0=16,1=32,2=64 */
-		.dsize = mem_ddr.width/32,
+		.dsize = 2,
 		/* config for full 4GB range so that get_mem_size() works */
 		.cs_density = 32, /* 32Gb per CS */
 		/* single chip select */
@@ -818,7 +819,7 @@ static void spl_dram_init(void)
 		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
 	};
 
-	mx6dq_dram_iocfg(mem_ddr.width, &mx6_ddr_ioregs, &mx6_grp_ioregs);
+	mx6dq_dram_iocfg(64, &mx6_ddr_ioregs, &mx6_grp_ioregs);
 	mx6_dram_cfg(&sysinfo, &mx6_mmcd_calib, &mem_ddr);
 }
 
