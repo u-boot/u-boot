@@ -26,6 +26,13 @@ void board_init_f(ulong dummy)
 	/* Linux expects the internal registers to be at 0xf1000000 */
 	arch_cpu_init();
 
+	/*
+	 * Pin muxing needs to be done before UART output, since
+	 * on A38x the UART pins need some re-muxing for output
+	 * to work.
+	 */
+	board_early_init_f();
+
 	preloader_console_init();
 
 	timer_init();
