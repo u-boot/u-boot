@@ -154,9 +154,9 @@ int bcm2835_sdhci_init(u32 regbase, u32 emmc_freq)
 	struct bcm2835_sdhci_host *bcm_host;
 	struct sdhci_host *host;
 
-	bcm_host = malloc(sizeof(*bcm_host));
+	bcm_host = calloc(1, sizeof(*bcm_host));
 	if (!bcm_host) {
-		printf("sdhci_host malloc fail!\n");
+		printf("sdhci_host calloc fail!\n");
 		return 1;
 	}
 
