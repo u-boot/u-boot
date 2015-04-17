@@ -806,11 +806,7 @@ static void spl_dram_init(void)
 		.ncs = 1,
 		.cs1_mirror = 0,
 		.rtt_wr = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Wr = RZQ/4 */
-#ifdef RTT_NOM_120OHM
-		.rtt_nom = 2 /*DDR3_RTT_120_OHM*/,	/* RTT_Nom = RZQ/2 */
-#else
 		.rtt_nom = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Nom = RZQ/4 */
-#endif
 		.walat = 1,	/* Write additional latency */
 		.ralat = 5,	/* Read additional latency */
 		.mif3_mode = 3,	/* Command prediction working mode */
