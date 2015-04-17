@@ -28,7 +28,17 @@
 /* SOC specific definations */
 #define INTREG_BASE		0xd0000000
 #define INTREG_BASE_ADDR_REG	(INTREG_BASE + 0x20080)
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SYS_MVEBU_DDR_A38X)
+/*
+ * On A38x switching the regs base address without running from
+ * SDRAM doesn't seem to work. So let the SPL still use the
+ * default base address and switch to the new address in the
+ * main u-boot later.
+ */
+#define SOC_REGS_PHY_BASE	0xd0000000
+#else
 #define SOC_REGS_PHY_BASE	0xf1000000
+#endif
 #define MVEBU_REGISTER(x)	(SOC_REGS_PHY_BASE + x)
 
 #define MVEBU_SDRAM_SCRATCH	(MVEBU_REGISTER(0x01504))
