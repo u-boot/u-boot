@@ -146,6 +146,8 @@
 
 #define CONFIG_BOOTCOMMAND "run ubiboot; run sdboot; run nfsboot"
 
+#define DFU_ALT_NAND_INFO "vf-bcb part 0,1;u-boot part 0,2;ubi part 0,4"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"kernel_addr_r=0x82000000\0" \
 	"fdt_addr_r=0x84000000\0" \
@@ -165,6 +167,7 @@
 	"source ${loadaddr}\0" \
 	"setupdate=run setsdupdate || run setusbupdate\0" \
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
 	SD_BOOTCMD \
 	NFS_BOOTCMD \
 	UBI_BOOTCMD
@@ -230,5 +233,39 @@
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_SYS_CACHELINE_SIZE 32
+
+/* USB Host Support */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_VF
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+
+/* USB Client Support */
+#define CONFIG_USB_GADGET
+#define CONFIG_CI_UDC
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW      2
+#define CONFIG_TRDX_VID                  0x1B67
+#define CONFIG_TRDX_PID_COLIBRI_VF50     0x0016
+#define CONFIG_TRDX_PID_COLIBRI_VF61     0x0017
+#define CONFIG_TRDX_PID_COLIBRI_VF61IT   0x0018
+#define CONFIG_TRDX_PID_COLIBRI_VF50IT   0x0019
+#define CONFIG_G_DNL_MANUFACTURER        "Toradex"
+#define CONFIG_G_DNL_VENDOR_NUM          CONFIG_TRDX_VID
+#define CONFIG_G_DNL_PRODUCT_NUM         CONFIG_TRDX_PID_COLIBRI_VF50
+
+/* USB DFU */
+#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_CMD_DFU
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_NAND
+#define CONFIG_DFU_MMC
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE (1024 * 1024)
+
+/* USB Storage */
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_GADGET_MASS_STORAGE
+#define CONFIG_CMD_USB_MASS_STORAGE
 
 #endif /* __CONFIG_H */

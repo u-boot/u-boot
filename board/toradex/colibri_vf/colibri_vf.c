@@ -216,6 +216,14 @@ static void clock_init(void)
 	clrsetbits_le32(&ccm->ccgr10, CCM_REG_CTRL_MASK,
 			CCM_CCGR10_NFC_CTRL_MASK);
 
+#ifdef CONFIG_CI_UDC
+	setbits_le32(&ccm->ccgr1, CCM_CCGR1_USBC0_CTRL_MASK);
+#endif
+
+#ifdef CONFIG_USB_EHCI
+	setbits_le32(&ccm->ccgr7, CCM_CCGR7_USBC1_CTRL_MASK);
+#endif
+
 	clrsetbits_le32(&anadig->pll5_ctrl, ANADIG_PLL5_CTRL_BYPASS |
 			ANADIG_PLL5_CTRL_POWERDOWN, ANADIG_PLL5_CTRL_ENABLE |
 			ANADIG_PLL5_CTRL_DIV_SELECT);
@@ -356,6 +364,22 @@ int checkboard(void)
 		puts("Board: Colibri VF61\n");
 	else
 		puts("Board: Colibri VF50\n");
+
+	return 0;
+}
+
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
+{
+	unsigned short usb_pid;
+
+	put_unaligned(CONFIG_TRDX_VID, &dev->idVendor);
+
+	if (is_colibri_vf61())
+		usb_pid = CONFIG_TRDX_PID_COLIBRI_VF61IT;
+	else
+		usb_pid = CONFIG_TRDX_PID_COLIBRI_VF50IT;
+
+	put_unaligned(usb_pid, &dev->idProduct);
 
 	return 0;
 }
