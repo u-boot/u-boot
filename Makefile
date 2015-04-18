@@ -729,7 +729,7 @@ DO_STATIC_RELA =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin System.map binary_size_check
+ALL-y += u-boot.srec u-boot.bin System.map u-boot.cfg binary_size_check
 
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
@@ -871,6 +871,11 @@ ifndef CONFIG_SYS_UBOOT_START
 CONFIG_SYS_UBOOT_START := 0
 endif
 
+# Create a file containing the configuration options the image was built with
+quiet_cmd_cpp_cfg = CFG     $@
+cmd_cpp_cfg = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
+		-D__ASSEMBLY__ -x assembler-with-cpp -P -dM -E -o $@ $<
+
 MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
@@ -900,6 +905,9 @@ u-boot.sha1:	u-boot.bin
 
 u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
+
+u-boot.cfg:	include/config.h
+	$(call if_changed,cpp_cfg)
 
 ifdef CONFIG_TPL
 SPL_PAYLOAD := tpl/u-boot-with-tpl.bin
