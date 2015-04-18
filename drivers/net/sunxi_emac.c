@@ -309,9 +309,9 @@ static void emac_setup(struct emac_eth_dev *priv)
 	writel(EMAC_MAC_MFL, &regs->mac_maxf);
 }
 
-static void emac_reset(struct eth_device *dev)
+static void emac_reset(struct emac_eth_dev *priv)
 {
-	struct emac_regs *regs = (struct emac_regs *)dev->iobase;
+	struct emac_regs *regs = priv->regs;
 
 	debug("resetting device\n");
 
@@ -323,10 +323,9 @@ static void emac_reset(struct eth_device *dev)
 	udelay(200);
 }
 
-static int sunxi_emac_eth_init(struct eth_device *dev, bd_t *bd)
+static int _sunxi_emac_eth_init(struct emac_eth_dev *priv, u8 *enetaddr)
 {
-	struct emac_regs *regs = (struct emac_regs *)dev->iobase;
-	struct emac_eth_dev *priv = dev->priv;
+	struct emac_regs *regs = priv->regs;
 	int ret;
 
 	/* Init EMAC */
@@ -347,14 +346,14 @@ static int sunxi_emac_eth_init(struct eth_device *dev, bd_t *bd)
 	/* Set up EMAC */
 	emac_setup(priv);
 
-	writel(dev->enetaddr[0] << 16 | dev->enetaddr[1] << 8 |
-	       dev->enetaddr[2], &regs->mac_a1);
-	writel(dev->enetaddr[3] << 16 | dev->enetaddr[4] << 8 |
-	       dev->enetaddr[5], &regs->mac_a0);
+	writel(enetaddr[0] << 16 | enetaddr[1] << 8 | enetaddr[2],
+	       &regs->mac_a1);
+	writel(enetaddr[3] << 16 | enetaddr[4] << 8 | enetaddr[5],
+	       &regs->mac_a0);
 
 	mdelay(1);
 
-	emac_reset(dev);
+	emac_reset(priv);
 
 	/* PHY POWER UP */
 	ret = phy_startup(priv->phydev);
@@ -390,14 +389,9 @@ static int sunxi_emac_eth_init(struct eth_device *dev, bd_t *bd)
 	return 0;
 }
 
-static void sunxi_emac_eth_halt(struct eth_device *dev)
+static int _sunxi_emac_eth_recv(struct emac_eth_dev *priv, void *packet)
 {
-	/* Nothing to do here */
-}
-
-static int sunxi_emac_eth_recv(struct eth_device *dev)
-{
-	struct emac_regs *regs = (struct emac_regs *)dev->iobase;
+	struct emac_regs *regs = priv->regs;
 	struct emac_rxhdr rxhdr;
 	u32 rxcount;
 	u32 reg_val;
@@ -415,7 +409,7 @@ static int sunxi_emac_eth_recv(struct eth_device *dev)
 		/* Had one stuck? */
 		rxcount = readl(&regs->rx_fbc);
 		if (!rxcount)
-			return 0;
+			return -EAGAIN;
 	}
 
 	reg_val = readl(&regs->rx_io_data);
@@ -431,7 +425,7 @@ static int sunxi_emac_eth_recv(struct eth_device *dev)
 		/* Enable RX */
 		setbits_le32(&regs->ctl, 0x1 << 2);
 
-		return 0;
+		return -EAGAIN;
 	}
 
 	/* A packet ready now
@@ -463,22 +457,19 @@ static int sunxi_emac_eth_recv(struct eth_device *dev)
 	if (good_packet) {
 		if (rx_len > DMA_CPU_TRRESHOLD) {
 			printf("Received packet is too big (len=%d)\n", rx_len);
-		} else {
-			emac_inblk_32bit((void *)&regs->rx_io_data,
-					 net_rx_packets[0], rx_len);
-
-			/* Pass to upper layer */
-			net_process_received_packet(net_rx_packets[0], rx_len);
-			return rx_len;
+			return -EMSGSIZE;
 		}
+		emac_inblk_32bit((void *)&regs->rx_io_data, packet, rx_len);
+		return rx_len;
 	}
 
-	return 0;
+	return -EIO; /* Bad packet */
 }
 
-static int sunxi_emac_eth_send(struct eth_device *dev, void *packet, int len)
+static int _sunxi_emac_eth_send(struct emac_eth_dev *priv, void *packet,
+				int len)
 {
-	struct emac_regs *regs = (struct emac_regs *)dev->iobase;
+	struct emac_regs *regs = priv->regs;
 
 	/* Select channel 0 */
 	writel(0, &regs->tx_ins);
@@ -495,17 +486,64 @@ static int sunxi_emac_eth_send(struct eth_device *dev, void *packet, int len)
 	return 0;
 }
 
-int sunxi_emac_initialize(void)
+static void sunxi_emac_board_setup(struct emac_eth_dev *priv)
 {
 	struct sunxi_ccm_reg *const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	struct sunxi_sramc_regs *sram =
 		(struct sunxi_sramc_regs *)SUNXI_SRAMC_BASE;
+	struct emac_regs *regs = priv->regs;
+	int pin;
+
+	/* Map SRAM to EMAC */
+	setbits_le32(&sram->ctrl1, 0x5 << 2);
+
+	/* Configure pin mux settings for MII Ethernet */
+	for (pin = SUNXI_GPA(0); pin <= SUNXI_GPA(17); pin++)
+		sunxi_gpio_set_cfgpin(pin, SUNXI_GPA_EMAC);
+
+	/* Set up clock gating */
+	setbits_le32(&ccm->ahb_gate0, 0x1 << AHB_GATE_OFFSET_EMAC);
+
+	/* Set MII clock */
+	clrsetbits_le32(&regs->mac_mcfg, 0xf << 2, 0xd << 2);
+}
+
+static int sunxi_emac_eth_init(struct eth_device *dev, bd_t *bis)
+{
+	return _sunxi_emac_eth_init(dev->priv, dev->enetaddr);
+}
+
+static void sunxi_emac_eth_halt(struct eth_device *dev)
+{
+	/* Nothing to do here */
+}
+
+static int sunxi_emac_eth_recv(struct eth_device *dev)
+{
+	int rx_len;
+
+	rx_len = _sunxi_emac_eth_recv(dev->priv, net_rx_packets[0]);
+	if (rx_len <= 0)
+		return 0;
+
+	/* Pass to upper layer */
+	net_process_received_packet(net_rx_packets[0], rx_len);
+
+	return rx_len;
+}
+
+static int sunxi_emac_eth_send(struct eth_device *dev, void *packet, int length)
+{
+	return _sunxi_emac_eth_send(dev->priv, packet, length);
+}
+
+int sunxi_emac_initialize(void)
+{
 	struct emac_regs *regs =
 		(struct emac_regs *)SUNXI_EMAC_BASE;
 	struct eth_device *dev;
 	struct emac_eth_dev *priv;
-	int pin;
 
 	dev = malloc(sizeof(*dev));
 	if (dev == NULL)
@@ -520,19 +558,6 @@ int sunxi_emac_initialize(void)
 	memset(dev, 0, sizeof(*dev));
 	memset(priv, 0, sizeof(struct emac_eth_dev));
 
-	/* Map SRAM to EMAC */
-	setbits_le32(&sram->ctrl1, 0x5 << 2);
-
-	/* Configure pin mux settings for MII Ethernet */
-	for (pin = SUNXI_GPA(0); pin <= SUNXI_GPA(17); pin++)
-		sunxi_gpio_set_cfgpin(pin, SUNXI_GPA_EMAC);
-
-	/* Set up clock gating */
-	setbits_le32(&ccm->ahb_gate0, 0x1 << AHB_GATE_OFFSET_EMAC);
-
-	/* Set MII clock */
-	clrsetbits_le32(&regs->mac_mcfg, 0xf << 2, 0xd << 2);
-
 	priv->regs = regs;
 	dev->iobase = (int)regs;
 	dev->priv = priv;
@@ -541,6 +566,8 @@ int sunxi_emac_initialize(void)
 	dev->send = sunxi_emac_eth_send;
 	dev->recv = sunxi_emac_eth_recv;
 	strcpy(dev->name, "emac");
+
+	sunxi_emac_board_setup(priv);
 
 	eth_register(dev);
 
