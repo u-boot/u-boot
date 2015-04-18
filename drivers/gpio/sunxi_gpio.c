@@ -172,6 +172,17 @@ int sunxi_name_to_gpio(const char *name)
 #endif
 
 #ifdef CONFIG_DM_GPIO
+/* TODO(sjg@chromium.org): Remove this function and use device tree */
+int sunxi_name_to_gpio(const char *name)
+{
+	unsigned int gpio;
+	int ret;
+
+	ret = gpio_lookup_name(name, NULL, NULL, &gpio);
+
+	return ret ? ret : gpio;
+}
+
 static int sunxi_gpio_direction_input(struct udevice *dev, unsigned offset)
 {
 	struct sunxi_gpio_platdata *plat = dev_get_platdata(dev);
