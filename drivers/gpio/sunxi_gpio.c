@@ -249,10 +249,11 @@ static char *gpio_bank_name(int bank)
 {
 	char *name;
 
-	name = malloc(2);
+	name = malloc(3);
 	if (name) {
-		name[0] = 'A' + bank;
-		name[1] = '\0';
+		name[0] = 'P';
+		name[1] = 'A' + bank;
+		name[2] = '\0';
 	}
 
 	return name;
