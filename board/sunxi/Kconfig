@@ -209,9 +209,6 @@ config UART0_PORT_F
 	at the same time, the system can be only booted in the FEL mode.
 	Only enable this if you really know what you are doing.
 
-config FDTFILE
-	string "Default fdtfile env setting for this board"
-
 config OLD_SUNXI_KERNEL_COMPAT
 	boolean "Enable workarounds for booting old kernels"
 	default n

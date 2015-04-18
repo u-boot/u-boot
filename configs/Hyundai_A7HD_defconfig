@@ -3,7 +3,7 @@
 # headphones port for details see: http://linux-sunxi.org/Hyundai_A7HD
 CONFIG_SPL=y
 CONFIG_SYS_EXTRA_OPTIONS="AXP209_POWER"
-CONFIG_FDTFILE="sun4i-a10-hyundai-a7hd.dtb"
+CONFIG_DEFAULT_DEVICE_TREE="sun4i-a10-hyundai-a7hd"
 CONFIG_USB_MUSB_SUNXI=y
 CONFIG_USB0_VBUS_PIN="PB09"
 CONFIG_USB0_VBUS_DET="PH5"
