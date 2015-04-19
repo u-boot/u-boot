@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <linux/err.h>
 #include <malloc.h>
 #include <miiphy.h>
@@ -160,6 +161,9 @@ struct emac_eth_dev {
 	struct mii_dev *bus;
 	struct phy_device *phydev;
 	int link_printed;
+#ifdef CONFIG_DM_ETH
+	uchar rx_buf[EMAC_RX_BUFSIZE];
+#endif
 };
 
 struct emac_rxhdr {
@@ -509,6 +513,7 @@ static void sunxi_emac_board_setup(struct emac_eth_dev *priv)
 	clrsetbits_le32(&regs->mac_mcfg, 0xf << 2, 0xd << 2);
 }
 
+#ifndef CONFIG_DM_ETH
 static int sunxi_emac_eth_init(struct eth_device *dev, bd_t *bis)
 {
 	return _sunxi_emac_eth_init(dev->priv, dev->enetaddr);
@@ -573,3 +578,79 @@ int sunxi_emac_initialize(void)
 
 	return sunxi_emac_init_phy(priv, dev);
 }
+#endif
+
+#ifdef CONFIG_DM_ETH
+static int sunxi_emac_eth_start(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	return _sunxi_emac_eth_init(dev->priv, pdata->enetaddr);
+}
+
+static int sunxi_emac_eth_send(struct udevice *dev, void *packet, int length)
+{
+	struct emac_eth_dev *priv = dev_get_priv(dev);
+
+	return _sunxi_emac_eth_send(priv, packet, length);
+}
+
+static int sunxi_emac_eth_recv(struct udevice *dev, uchar **packetp)
+{
+	struct emac_eth_dev *priv = dev_get_priv(dev);
+	int rx_len;
+
+	rx_len = _sunxi_emac_eth_recv(priv, priv->rx_buf);
+	*packetp = priv->rx_buf;
+
+	return rx_len;
+}
+
+static void sunxi_emac_eth_stop(struct udevice *dev)
+{
+	/* Nothing to do here */
+}
+
+static int sunxi_emac_eth_probe(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct emac_eth_dev *priv = dev_get_priv(dev);
+
+	priv->regs = (struct emac_regs *)pdata->iobase;
+	sunxi_emac_board_setup(priv);
+
+	return sunxi_emac_init_phy(priv, dev);
+}
+
+static const struct eth_ops sunxi_emac_eth_ops = {
+	.start			= sunxi_emac_eth_start,
+	.send			= sunxi_emac_eth_send,
+	.recv			= sunxi_emac_eth_recv,
+	.stop			= sunxi_emac_eth_stop,
+};
+
+static int sunxi_emac_eth_ofdata_to_platdata(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	pdata->iobase = dev_get_addr(dev);
+
+	return 0;
+}
+
+static const struct udevice_id sunxi_emac_eth_ids[] = {
+	{ .compatible = "allwinner,sun4i-a10-emac" },
+	{ }
+};
+
+U_BOOT_DRIVER(eth_sunxi_emac) = {
+	.name	= "eth_sunxi_emac",
+	.id	= UCLASS_ETH,
+	.of_match = sunxi_emac_eth_ids,
+	.ofdata_to_platdata = sunxi_emac_eth_ofdata_to_platdata,
+	.probe	= sunxi_emac_eth_probe,
+	.ops	= &sunxi_emac_eth_ops,
+	.priv_auto_alloc_size = sizeof(struct emac_eth_dev),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+#endif

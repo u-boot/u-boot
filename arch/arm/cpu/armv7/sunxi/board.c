@@ -12,7 +12,9 @@
 
 #include <common.h>
 #include <i2c.h>
+#ifndef CONFIG_DM_ETH
 #include <netdev.h>
+#endif
 #include <miiphy.h>
 #include <serial.h>
 #ifdef CONFIG_SPL_BUILD
@@ -219,7 +221,7 @@ int cpu_eth_init(bd_t *bis)
 	mdelay(200);
 #endif
 
-#ifdef CONFIG_SUNXI_EMAC
+#if defined CONFIG_SUNXI_EMAC && !defined CONFIG_DM_ETH
 	rc = sunxi_emac_initialize(bis);
 	if (rc < 0) {
 		printf("sunxi: failed to initialize emac\n");
