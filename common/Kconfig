@@ -300,11 +300,6 @@ config CMD_DNS
 	help
 	  Lookup the IP of a hostname
 
-config CMD_DNS
-	bool "dns"
-	help
-	  Lookup the IP of a hostname
-
 config CMD_LINK_LOCAL
 	bool "linklocal"
 	help
