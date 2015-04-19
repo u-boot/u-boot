@@ -959,8 +959,6 @@ static int get_descriptor_len(struct usb_device *dev, int len, int expect_len)
 
 static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 {
-	__maybe_unused struct usb_device_descriptor *desc;
-
 	/*
 	 * This is a Windows scheme of initialization sequence, with double
 	 * reset of the device (Linux uses the same sequence)
