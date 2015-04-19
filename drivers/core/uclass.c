@@ -99,10 +99,18 @@ fail_mem:
 int uclass_destroy(struct uclass *uc)
 {
 	struct uclass_driver *uc_drv;
-	struct udevice *dev, *tmp;
+	struct udevice *dev;
 	int ret;
 
-	list_for_each_entry_safe(dev, tmp, &uc->dev_head, uclass_node) {
+	/*
+	 * We cannot use list_for_each_entry_safe() here. If a device in this
+	 * uclass has a child device also in this uclass, it will be also be
+	 * unbound (by the recursion in the call to device_unbind() below).
+	 * We can loop until the list is empty.
+	 */
+	while (!list_empty(&uc->dev_head)) {
+		dev = list_first_entry(&uc->dev_head, struct udevice,
+				       uclass_node);
 		ret = device_remove(dev);
 		if (ret)
 			return ret;
