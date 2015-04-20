@@ -348,7 +348,7 @@ At the time of writing, U-Boot has these architectures:
    arc, arm, avr32, blackfin, m68k, microblaze, mips, nds32, nios2, openrisc
    powerpc, sandbox, sh, sparc, x86
 
-Of these, only arc, microblaze and nds32 are not available at kernel.org..
+Of these, only arc and nds32 are not available at kernel.org..
 
 
 How to run it
