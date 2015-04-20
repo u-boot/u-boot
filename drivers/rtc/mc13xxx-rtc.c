@@ -51,8 +51,7 @@ int rtc_set(struct rtc_time *rtc)
 	if (!p)
 		return -1;
 
-	time = mktime(rtc->tm_year, rtc->tm_mon, rtc->tm_mday,
-		      rtc->tm_hour, rtc->tm_min, rtc->tm_sec);
+	time = rtc_mktime(rtc);
 	day = time / 86400;
 	time %= 86400;
 

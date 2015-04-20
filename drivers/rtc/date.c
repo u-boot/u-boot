@@ -128,22 +128,23 @@ int rtc_to_tm(int tim, struct rtc_time *tm)
  * machines were long is 32-bit! (However, as time_t is signed, we
  * will already get problems at other places on 2038-01-19 03:14:08)
  */
-unsigned long
-mktime (unsigned int year, unsigned int mon,
-	unsigned int day, unsigned int hour,
-	unsigned int min, unsigned int sec)
+unsigned long rtc_mktime(const struct rtc_time *tm)
 {
-	if (0 >= (int) (mon -= 2)) {	/* 1..12 -> 11,12,1..10 */
+	int mon = tm->tm_mon;
+	int year = tm->tm_year;
+	int days, hours;
+
+	mon -= 2;
+	if (0 >= (int)mon) {	/* 1..12 -> 11,12,1..10 */
 		mon += 12;		/* Puts Feb last since it has leap day */
 		year -= 1;
 	}
 
-	return (((
-		(unsigned long) (year/4 - year/100 + year/400 + 367*mon/12 + day) +
-			year*365 - 719499
-	    )*24 + hour /* now have hours */
-	  )*60 + min /* now have minutes */
-	)*60 + sec; /* finally seconds */
+	days = (unsigned long)(year / 4 - year / 100 + year / 400 +
+			367 * mon / 12 + tm->tm_mday) +
+			year * 365 - 719499;
+	hours = days * 24 + tm->tm_hour;
+	return (hours * 60 + tm->tm_min) * 60 + tm->tm_sec;
 }
 
 #endif

@@ -180,8 +180,7 @@ int rtc_set (struct rtc_time *tmp)
 	{
 		ulong tim;
 
-		tim = mktime (tmp->tm_year, tmp->tm_mon, tmp->tm_mday,
-			      tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+		tim = rtc_mktime(tmp);
 
 		immap->im_sitk.sitk_rtck = KAPWR_KEY;
 		immap->im_sit.sit_rtc = tim;

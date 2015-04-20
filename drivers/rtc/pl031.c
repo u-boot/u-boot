@@ -72,8 +72,7 @@ int rtc_set(struct rtc_time *tmp)
 	}
 
 	/* Calculate number of seconds this incoming time represents */
-	tim = mktime(tmp->tm_year, tmp->tm_mon, tmp->tm_mday,
-			tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+	tim = rtc_mktime(tmp);
 
 	RTC_WRITE_REG(RTC_LR, tim);
 

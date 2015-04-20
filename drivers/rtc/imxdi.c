@@ -209,8 +209,7 @@ int rtc_set(struct rtc_time *tmp)
 			goto err;
 	}
 
-	now = mktime(tmp->tm_year, tmp->tm_mon, tmp->tm_mday,
-		     tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+	now = rtc_mktime(tmp);
 	/* zero the fractional part first */
 	rc = DI_WRITE_WAIT(0, dtclr);
 	if (rc == 0)
