@@ -34,3 +34,14 @@ U_BOOT_DRIVER(pci_x86_drv) = {
 	.of_match	= pci_x86_ids,
 	.ops		= &pci_x86_ops,
 };
+
+static const struct udevice_id generic_pch_ids[] = {
+	{ .compatible = "intel,pch" },
+	{ }
+};
+
+U_BOOT_DRIVER(generic_pch_drv) = {
+	.name		= "pch",
+	.id		= UCLASS_PCH,
+	.of_match	= generic_pch_ids,
+};

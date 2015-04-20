@@ -181,7 +181,7 @@
 
 		pch {
 			reg = <0x0000f800 0 0 0 0>;
-			compatible = "intel,bd82x6x";
+			compatible = "intel,bd82x6x", "intel,pch";
 			u-boot,dm-pre-reloc;
 			#address-cells = <1>;
 			#size-cells = <1>;
