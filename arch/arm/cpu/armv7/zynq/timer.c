@@ -78,91 +78,10 @@ int timer_init(void)
 }
 
 /*
- * This function is derived from PowerPC code (read timebase as long long).
- * On ARM it just returns the timer value.
- */
-ulong get_timer_masked(void)
-{
-	ulong now;
-
-	now = readl(&timer_base->counter) /
-			(gd->arch.timer_rate_hz / CONFIG_SYS_HZ);
-
-	if (gd->arch.lastinc >= now) {
-		/* Normal mode */
-		gd->arch.tbl += gd->arch.lastinc - now;
-	} else {
-		/* We have an overflow ... */
-		gd->arch.tbl += gd->arch.lastinc + (TIMER_LOAD_VAL /
-				(gd->arch.timer_rate_hz / CONFIG_SYS_HZ)) -
-				now + 1;
-	}
-	gd->arch.lastinc = now;
-
-	return gd->arch.tbl;
-}
-
-void __udelay(unsigned long usec)
-{
-	u32 countticks;
-	u32 timeend;
-	u32 timediff;
-	u32 timenow;
-
-	if (usec == 0)
-		return;
-
-	countticks = lldiv(((unsigned long long)gd->arch.timer_rate_hz * usec),
-			   1000000);
-
-	/* decrementing timer */
-	timeend = readl(&timer_base->counter) - countticks;
-
-#if TIMER_LOAD_VAL != 0xFFFFFFFF
-	/* do not manage multiple overflow */
-	if (countticks >= TIMER_LOAD_VAL)
-		countticks = TIMER_LOAD_VAL - 1;
-#endif
-
-	do {
-		timenow = readl(&timer_base->counter);
-
-		if (timenow >= timeend) {
-			/* normal case */
-			timediff = timenow - timeend;
-		} else {
-			if ((TIMER_LOAD_VAL - timeend + timenow) <=
-								countticks) {
-				/* overflow */
-				timediff = TIMER_LOAD_VAL - timeend + timenow;
-			} else {
-				/* missed the exact match */
-				break;
-			}
-		}
-	} while (timediff > 0);
-}
-
-/* Timer without interrupts */
-ulong get_timer(ulong base)
-{
-	return get_timer_masked() - base;
-}
-
-/*
- * This function is derived from PowerPC code (read timebase as long long).
- * On ARM it just returns the timer value.
- */
-unsigned long long get_ticks(void)
-{
-	return get_timer(0);
-}
-
-/*
  * This function is derived from PowerPC code (timebase clock frequency).
  * On ARM it returns the number of timer ticks per second.
  */
 ulong get_tbclk(void)
 {
-	return CONFIG_SYS_HZ;
+	return gd->arch.timer_rate_hz;
 }
