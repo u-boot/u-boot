@@ -122,11 +122,17 @@ enum {
 	MAX77686_REG_PMIC_BBAT		= 0x7e,
 	MAX77686_REG_PMIC_32KHZ,
 
-	PMIC_NUM_OF_REGS,
+	MAX77686_NUM_OF_REGS,
 };
 
 /* I2C device address for pmic max77686 */
-#define MAX77686_I2C_ADDR (0x12 >> 1)
+#define MAX77686_I2C_ADDR	(0x12 >> 1)
+#define MAX77686_LDO_NUM	26
+#define MAX77686_BUCK_NUM	9
+
+/* Drivers name */
+#define MAX77686_LDO_DRIVER	"max77686_ldo"
+#define MAX77686_BUCK_DRIVER	"max77686_buck"
 
 enum {
 	REG_DISABLE = 0,
