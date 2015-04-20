@@ -44,7 +44,7 @@ int rtc_get (struct rtc_time *tmp)
 	} while (tim!=tim2);
 	off = readl(&gpbr->reg[AT91_GPBR_INDEX_TIMEOFF]);
 	/* off==0 means time is invalid, but we ignore that */
-	to_tm (tim+off, tmp);
+	rtc_to_tm(tim+off, tmp);
 	return 0;
 }
 

@@ -114,7 +114,7 @@ int rtc_get(struct rtc_time *tmp)
 
 	/* Calculate the total number of seconds since epoch */
 	time_in_sec = (tm_sec) + MIN_TO_SECS(tm_min) + HRS_TO_SECS(tm_hr) + DAYS_TO_SECS(tm_day);
-	to_tm(time_in_sec, tmp);
+	rtc_to_tm(time_in_sec, tmp);
 
 	return 0;
 }

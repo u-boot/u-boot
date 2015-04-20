@@ -63,7 +63,7 @@ static void rtc_post_restore (struct rtc_time *tm, unsigned int sec)
 					   tm->tm_min, tm->tm_sec) + sec;
 	struct rtc_time ntm;
 
-	to_tm (t, &ntm);
+	rtc_to_tm(t, &ntm);
 
 	rtc_set (&ntm);
 }
@@ -119,7 +119,7 @@ int rtc_post_test (int flags)
 		time_t t = mktime (ynl, i + 1, daysnl[i], 23, 59, 59);
 		struct rtc_time tm;
 
-		to_tm (t, &tm);
+		rtc_to_tm(t, &tm);
 		rtc_set (&tm);
 
 		skipped++;
@@ -143,7 +143,7 @@ int rtc_post_test (int flags)
 		time_t t = mktime (yl, i + 1, daysl[i], 23, 59, 59);
 		struct rtc_time tm;
 
-		to_tm (t, &tm);
+		rtc_to_tm(t, &tm);
 		rtc_set (&tm);
 
 		skipped++;

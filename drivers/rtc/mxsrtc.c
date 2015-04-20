@@ -43,7 +43,7 @@ int rtc_get(struct rtc_time *time)
 	uint32_t secs;
 
 	secs = readl(&rtc_regs->hw_rtc_seconds);
-	to_tm(secs, time);
+	rtc_to_tm(secs, time);
 
 	return 0;
 }

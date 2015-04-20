@@ -71,7 +71,7 @@ int rtc_calc_weekday(struct rtc_time *tm)
 	return 0;
 }
 
-void to_tm(int tim, struct rtc_time * tm)
+int rtc_to_tm(int tim, struct rtc_time *tm)
 {
 	register int    i;
 	register long   hms, day;
@@ -103,10 +103,14 @@ void to_tm(int tim, struct rtc_time * tm)
 	/* Days are what is left over (+1) from all that. */
 	tm->tm_mday = day + 1;
 
+	/* Zero unused fields */
+	tm->tm_yday = 0;
+	tm->tm_isdst = 0;
+
 	/*
 	 * Determine the day of week
 	 */
-	rtc_calc_weekday(tm);
+	return rtc_calc_weekday(tm);
 }
 
 /* Converts Gregorian date to seconds since 1970-01-01 00:00:00.

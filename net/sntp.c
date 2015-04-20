@@ -68,7 +68,7 @@ static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	 */
 	memcpy(&seconds, &rpktp->transmit_timestamp, sizeof(ulong));
 
-	to_tm(ntohl(seconds) - 2208988800UL + net_ntp_time_offset, &tm);
+	rtc_to_tm(ntohl(seconds) - 2208988800UL + net_ntp_time_offset, &tm);
 #if defined(CONFIG_CMD_DATE)
 	rtc_set(&tm);
 #endif

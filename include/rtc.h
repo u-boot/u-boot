@@ -45,7 +45,6 @@ int rtc_get (struct rtc_time *);
 int rtc_set (struct rtc_time *);
 void rtc_reset (void);
 
-void to_tm (int, struct rtc_time *);
 unsigned long mktime (unsigned int, unsigned int, unsigned int,
 		      unsigned int, unsigned int, unsigned int);
 
@@ -96,5 +95,19 @@ void rtc_init(void);
  * @return 0 if OK, -EINVAL if the weekday could not be determined
  */
 int rtc_calc_weekday(struct rtc_time *time);
+
+/**
+ * rtc_to_tm() - Convert a time_t value into a broken-out time
+ *
+ * The following fields are set up by this function:
+ *	tm_sec, tm_min, tm_hour, tm_mday, tm_mon, tm_year, tm_wday
+ *
+ * Note that tm_yday and tm_isdst are set to 0.
+ *
+ * @time_t:	Number of seconds since 1970-01-01 00:00:00
+ * @time:	Place to put the broken-out time
+ * @return 0 if OK, -EINVAL if the weekday could not be determined
+ */
+int rtc_to_tm(int time_t, struct rtc_time *time);
 
 #endif	/* _RTC_H_ */

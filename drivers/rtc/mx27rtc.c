@@ -30,7 +30,7 @@ int rtc_get(struct rtc_time *time)
 
 	sec += min * 60 + hour * 3600 + day * 24 * 3600;
 
-	to_tm(sec, time);
+	rtc_to_tm(sec, time);
 
 	return 0;
 }

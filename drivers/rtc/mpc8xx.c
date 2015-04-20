@@ -26,7 +26,7 @@ int rtc_get (struct rtc_time *tmp)
 
 	tim = immr->im_sit.sit_rtc;
 
-	to_tm (tim, tmp);
+	rtc_to_tm(tim, tmp);
 
 	debug ( "Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,

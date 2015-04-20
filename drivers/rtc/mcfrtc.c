@@ -38,7 +38,7 @@ int rtc_get(struct rtc_time *tmp)
 	tim = (tim * 60) + rtc_mins;
 	tim = (tim * 60) + rtc->seconds;
 
-	to_tm(tim, tmp);
+	rtc_to_tm(tim, tmp);
 
 	tmp->tm_yday = 0;
 	tmp->tm_isdst = 0;

@@ -192,7 +192,7 @@ int rtc_get(struct rtc_time *tmp)
 	}
 
 	now = __raw_readl(&data.regs->dtcmr);
-	to_tm(now, tmp);
+	rtc_to_tm(now, tmp);
 
 err:
 	return rc;
