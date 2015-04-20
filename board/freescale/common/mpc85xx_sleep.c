@@ -43,16 +43,16 @@ void fsl_dp_disable_console(void)
  */
 static void dp_ddr_restore(void)
 {
-	volatile u64 *src, *dst;
+	u64 *src, *dst;
 	int i;
 	struct ccsr_scfg __iomem *scfg = (void *)CONFIG_SYS_MPC85xx_SCFG;
 
 	/* get the address of ddr date from SPARECR3 */
-	src = (u64 *)in_be32(&scfg->sparecr[2]);
-	dst = (u64 *)CONFIG_SYS_SDRAM_BASE;
+	src = (u64 *)(in_be32(&scfg->sparecr[2]) + DDR_BUFF_LEN - 8);
+	dst = (u64 *)(CONFIG_SYS_SDRAM_BASE + DDR_BUFF_LEN - 8);
 
 	for (i = 0; i < DDR_BUFF_LEN / 8; i++)
-		*dst++ = *src++;
+		*dst-- = *src--;
 
 	flush_dcache();
 }
