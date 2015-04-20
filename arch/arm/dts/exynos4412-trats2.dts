@@ -41,7 +41,7 @@
 		status = "okay";
 
 		max77686_pmic@09 {
-			compatible = "maxim,max77686_pmic";
+			compatible = "maxim,max77686";
 			interrupts = <7 0>;
 			reg = <0x09 0 0>;
 			#clock-cells = <1>;
