@@ -674,6 +674,43 @@ static int dm_test_uclass_devices_find(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_uclass_devices_find, DM_TESTF_SCAN_PDATA);
 
+static int dm_test_uclass_devices_find_by_name(struct dm_test_state *dms)
+{
+	struct udevice *finddev;
+	struct udevice *testdev;
+	int findret, ret;
+
+	/*
+	 * For each test device found in fdt like: "a-test", "b-test", etc.,
+	 * use its name and try to find it by uclass_find_device_by_name().
+	 * Then, on success check if:
+	 * - current 'testdev' name is equal to the returned 'finddev' name
+	 * - current 'testdev' pointer is equal to the returned 'finddev'
+	 *
+	 * We assume that, each uclass's device name is unique, so if not, then
+	 * this will fail on checking condition: testdev == finddev, since the
+	 * uclass_find_device_by_name(), returns the first device by given name.
+	*/
+	for (ret = uclass_find_first_device(UCLASS_TEST_FDT, &testdev);
+	     testdev;
+	     ret = uclass_find_next_device(&testdev)) {
+		ut_assertok(ret);
+		ut_assert(testdev);
+
+		findret = uclass_find_device_by_name(UCLASS_TEST_FDT,
+						     testdev->name,
+						     &finddev);
+
+		ut_assertok(findret);
+		ut_assert(testdev);
+		ut_asserteq_str(testdev->name, finddev->name);
+		ut_asserteq_ptr(testdev, finddev);
+	}
+
+	return 0;
+}
+DM_TEST(dm_test_uclass_devices_find_by_name, DM_TESTF_SCAN_FDT);
+
 static int dm_test_uclass_devices_get(struct dm_test_state *dms)
 {
 	struct udevice *dev;
@@ -690,6 +727,50 @@ static int dm_test_uclass_devices_get(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_uclass_devices_get, DM_TESTF_SCAN_PDATA);
+
+static int dm_test_uclass_devices_get_by_name(struct dm_test_state *dms)
+{
+	struct udevice *finddev;
+	struct udevice *testdev;
+	int ret, findret;
+
+	/*
+	 * For each test device found in fdt like: "a-test", "b-test", etc.,
+	 * use its name and try to get it by uclass_get_device_by_name().
+	 * On success check if:
+	 * - returned finddev' is active
+	 * - current 'testdev' name is equal to the returned 'finddev' name
+	 * - current 'testdev' pointer is equal to the returned 'finddev'
+	 *
+	 * We asserts that the 'testdev' is active on each loop entry, so we
+	 * could be sure that the 'finddev' is activated too, but for sure
+	 * we check it again.
+	 *
+	 * We assume that, each uclass's device name is unique, so if not, then
+	 * this will fail on checking condition: testdev == finddev, since the
+	 * uclass_get_device_by_name(), returns the first device by given name.
+	*/
+	for (ret = uclass_first_device(UCLASS_TEST_FDT, &testdev);
+	     testdev;
+	     ret = uclass_next_device(&testdev)) {
+		ut_assertok(ret);
+		ut_assert(testdev);
+		ut_assert(device_active(testdev));
+
+		findret = uclass_get_device_by_name(UCLASS_TEST_FDT,
+						    testdev->name,
+						    &finddev);
+
+		ut_assertok(findret);
+		ut_assert(finddev);
+		ut_assert(device_active(finddev));
+		ut_asserteq_str(testdev->name, finddev->name);
+		ut_asserteq_ptr(testdev, finddev);
+	}
+
+	return 0;
+}
+DM_TEST(dm_test_uclass_devices_get_by_name, DM_TESTF_SCAN_FDT);
 
 static int dm_test_device_get_uclass_id(struct dm_test_state *dms)
 {
