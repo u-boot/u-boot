@@ -46,4 +46,25 @@ void sandbox_i2c_eeprom_set_offset_len(struct udevice *dev, int offset_len);
  */
 void sandbox_timer_add_offset(unsigned long offset);
 
+/**
+ * sandbox_i2c_rtc_set_offset() - set the time offset from system/base time
+ *
+ * @dev:		RTC device to adjust
+ * @use_system_time:	true to use system time, false to use @base_time
+ * @offset:		RTC offset from current system/base time (-1 for no
+ *			change)
+ * @return old value of RTC offset
+ */
+long sandbox_i2c_rtc_set_offset(struct udevice *dev, bool use_system_time,
+				int offset);
+
+/**
+ * sandbox_i2c_rtc_get_set_base_time() - get and set the base time
+ *
+ * @dev:		RTC device to adjust
+ * @base_time:		New base system time (set to -1 for no change)
+ * @return old base time
+ */
+long sandbox_i2c_rtc_get_set_base_time(struct udevice *dev, long base_time);
+
 #endif

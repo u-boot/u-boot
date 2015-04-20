@@ -26,6 +26,7 @@ obj-$(CONFIG_RTC_DS164x) += ds164x.o
 obj-$(CONFIG_RTC_DS174x) += ds174x.o
 obj-$(CONFIG_RTC_DS3231) += ds3231.o
 obj-$(CONFIG_RTC_FTRTC010) += ftrtc010.o
+obj-$(CONFIG_SANDBOX) += i2c_rtc_emul.o
 obj-$(CONFIG_RTC_IMXDI) += imxdi.o
 obj-$(CONFIG_RTC_ISL1208) += isl1208.o
 obj-$(CONFIG_RTC_M41T11) += m41t11.o
