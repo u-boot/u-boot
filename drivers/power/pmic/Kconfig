@@ -1,0 +1,11 @@
+config DM_PMIC
+	bool "Enable Driver Model for PMIC drivers (UCLASS_PMIC)"
+	depends on DM
+	---help---
+	This config enables the driver-model PMIC support.
+	UCLASS_PMIC - designed to provide an I/O interface for PMIC devices.
+	For the multi-function PMIC devices, this can be used as parent I/O
+	device for each IC's interface. Then, each children uses its parent
+	for read/write. For detailed description, please refer to the files:
+	- 'drivers/power/pmic/pmic-uclass.c'
+	- 'include/power/pmic.h'
