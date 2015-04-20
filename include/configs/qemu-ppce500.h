@@ -50,8 +50,14 @@
 /* Physical address should be a function call */
 #ifndef __ASSEMBLY__
 extern unsigned long long get_phys_ccsrbar_addr_early(void);
+#define CONFIG_SYS_CCSRBAR_PHYS_HIGH (get_phys_ccsrbar_addr_early() >> 32)
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW get_phys_ccsrbar_addr_early()
+#else
+#define CONFIG_SYS_CCSRBAR_PHYS_HIGH 0x0
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW CONFIG_SYS_CCSRBAR
 #endif
-#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
+
+#define CONFIG_PHYS_64BIT
 
 /* Virtual address range for PCI region maps */
 #define CONFIG_SYS_PCI_MAP_START	0x80000000

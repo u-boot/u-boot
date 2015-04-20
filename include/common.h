@@ -482,7 +482,6 @@ int testdram(void);
     defined(CONFIG_8xx)
 uint	get_immr      (uint);
 #endif
-uint	get_pir	      (void);
 #if defined(CONFIG_MPC5xxx)
 uint	get_svr       (void);
 #endif

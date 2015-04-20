@@ -6,10 +6,6 @@
 #ifndef	__MPC85xx_H__
 #define __MPC85xx_H__
 
-/* define for common ppc_asm.tmpl */
-#define EXC_OFF_SYS_RESET	0x100	/* System reset */
-#define _START_OFFSET		0
-
 #if defined(CONFIG_E500)
 #include <e500.h>
 #endif
