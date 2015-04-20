@@ -82,4 +82,12 @@ config SHA_PROG_HW_ACCEL
 	  is performed in hardware.
 endmenu
 
+config ERRNO_STR
+	bool "Enable function for getting errno-related string message"
+	help
+	  The function errno_str(int errno), returns a pointer to the errno
+	  corresponding text message:
+	  - if errno is null or positive number - a pointer to "Success" message
+	  - if errno is negative - a pointer to errno related message
+
 endmenu
