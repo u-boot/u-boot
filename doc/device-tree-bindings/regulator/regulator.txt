@@ -1,0 +1,54 @@
+Voltage/Current regulator
+
+Binding:
+The regulator devices don't use the "compatible" property. The binding is done
+by the prefix of regulator node's name. Usually the pmic I/O driver will provide
+the array of 'struct pmic_child_info' with the prefixes and compatible drivers.
+The bind is done by calling function: pmic_bind_childs().
+Example drivers:
+pmic: drivers/power/pmic/max77686.c
+regulator: drivers/power/regulator/max77686.c
+
+For the node name e.g.: "prefix[:alpha:]num { ... }":
+- the driver prefix should be: "prefix" or "PREFIX" - case insensitive
+- the node name's "num" is set as "dev->driver_data" on bind
+
+Example the prefix "ldo" will pass for: "ldo1", "ldo@1", "LDO1", "LDOREG@1"...
+
+Required properties:
+- regulator-name: a string, required by the regulator uclass
+
+Note
+The "regulator-name" constraint is used for setting the device's uclass
+platform data '.name' field. And the regulator device name is set from
+it's node name.
+
+Optional properties:
+- regulator-min-microvolt: a minimum allowed Voltage value
+- regulator-max-microvolt: a maximum allowed Voltage value
+- regulator-min-microamp: a minimum allowed Current value
+- regulator-max-microamp: a maximum allowed Current value
+- regulator-always-on: regulator should never be disabled
+- regulator-boot-on: enabled by bootloader/firmware
+
+Other kernel-style properties, are currently not used.
+
+Note:
+For the regulator autoset from constraints, the framework expects that:
+- regulator-min-microvolt is equal to regulator-max-microvolt
+- regulator-min-microamp is equal to regulator-max-microamp
+- regulator-always-on or regulator-boot-on is set
+
+Example:
+ldo0 {
+	/* Mandatory */
+	regulator-name = "VDDQ_EMMC_1.8V";
+
+	/* Optional */
+	regulator-min-microvolt = <1800000>;
+	regulator-max-microvolt = <1800000>;
+	regulator-min-microamp = <100000>;
+	regulator-max-microamp = <100000>;
+	regulator-always-on;
+	regulator-boot-on;
+};

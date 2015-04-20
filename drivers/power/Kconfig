@@ -2,6 +2,8 @@ menu "Power"
 
 source "drivers/power/pmic/Kconfig"
 
+source "drivers/power/regulator/Kconfig"
+
 config AXP221_POWER
 	boolean "axp221 / axp223 pmic support"
 	depends on MACH_SUN6I || MACH_SUN8I

@@ -1,0 +1,17 @@
+config DM_REGULATOR
+	bool "Enable Driver Model for REGULATOR drivers (UCLASS_REGULATOR)"
+	depends on DM
+	---help---
+	This config enables the driver model regulator support.
+	UCLASS_REGULATOR - designed to provide a common API for basic regulator's
+	functions, like get/set Voltage or Current value, enable state, etc...
+	Note:
+	When enabling this, please read the description, found in the files:
+	- 'include/power/pmic.h'
+	- 'include/power/regulator.h'
+	- 'drivers/power/pmic/pmic-uclass.c'
+	- 'drivers/power/pmic/regulator-uclass.c'
+	It's important to call the device_bind() with the proper node offset,
+	when binding the regulator devices. The pmic_bind_childs() can be used
+	for this purpose if PMIC I/O driver is implemented or dm_scan_fdt_node()
+	otherwise. Detailed informations can be found in the header file.

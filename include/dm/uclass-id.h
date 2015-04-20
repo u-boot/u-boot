@@ -51,6 +51,7 @@ enum uclass_id {
 
 	/* Power Management */
 	UCLASS_PMIC,		/* PMIC I/O device */
+	UCLASS_REGULATOR,	/* REGULATOR device */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
