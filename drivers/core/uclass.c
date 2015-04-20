@@ -263,17 +263,7 @@ static int uclass_find_device_by_of_offset(enum uclass_id id, int node,
 	return -ENODEV;
 }
 
-/**
- * uclass_get_device_tail() - handle the end of a get_device call
- *
- * This handles returning an error or probing a device as needed.
- *
- * @dev: Device that needs to be probed
- * @ret: Error to return. If non-zero then the device is not probed
- * @devp: Returns the value of 'dev' if there is no error
- * @return ret, if non-zero, else the result of the device_probe() call
- */
-static int uclass_get_device_tail(struct udevice *dev, int ret,
+int uclass_get_device_tail(struct udevice *dev, int ret,
 				  struct udevice **devp)
 {
 	if (ret)

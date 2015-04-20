@@ -11,12 +11,25 @@
 #define _DM_UCLASS_INTERNAL_H
 
 /**
+ * uclass_get_device_tail() - handle the end of a get_device call
+ *
+ * This handles returning an error or probing a device as needed.
+ *
+ * @dev: Device that needs to be probed
+ * @ret: Error to return. If non-zero then the device is not probed
+ * @devp: Returns the value of 'dev' if there is no error
+ * @return ret, if non-zero, else the result of the device_probe() call
+ */
+int uclass_get_device_tail(struct udevice *dev, int ret, struct udevice **devp);
+
+/**
  * uclass_find_device() - Return n-th child of uclass
  * @id:		Id number of the uclass
  * @index:	Position of the child in uclass's list
  * #devp:	Returns pointer to device, or NULL on error
  *
- * The device is not prepared for use - this is an internal function
+ * The device is not prepared for use - this is an internal function.
+ * The function uclass_get_device_tail() can be used to probe the device.
  *
  * @return the uclass pointer of a child at the given index or
  * return NULL on error.
@@ -28,7 +41,8 @@ int uclass_find_device(enum uclass_id id, int index, struct udevice **devp);
  * @id:		Id number of the uclass
  * #devp:	Returns pointer to device, or NULL on error
  *
- * The device is not prepared for use - this is an internal function
+ * The device is not prepared for use - this is an internal function.
+ * The function uclass_get_device_tail() can be used to probe the device.
  *
  * @return 0 if OK (found or not found), -1 on error
  */
@@ -39,7 +53,8 @@ int uclass_find_first_device(enum uclass_id id, struct udevice **devp);
  * @devp: On entry, pointer to device to lookup. On exit, returns pointer
  * to the next device in the same uclass, or NULL if none
  *
- * The device is not prepared for use - this is an internal function
+ * The device is not prepared for use - this is an internal function.
+ * The function uclass_get_device_tail() can be used to probe the device.
  *
  * @return 0 if OK (found or not found), -1 on error
  */
