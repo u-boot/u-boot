@@ -20,6 +20,7 @@ obj-y	+= timer.o
 obj-$(CONFIG_SPL_BUILD) += spl.o
 obj-$(CONFIG_SPL_BUILD) += lowlevel_spl.o
 
+obj-$(CONFIG_SYS_MVEBU_DDR_A38X) += serdes/a38x/
 obj-$(CONFIG_SYS_MVEBU_DDR_AXP)	+= serdes/axp/
 
 endif
