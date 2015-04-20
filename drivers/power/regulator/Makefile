@@ -7,3 +7,4 @@
 
 obj-$(CONFIG_DM_REGULATOR) += regulator-uclass.o
 obj-$(CONFIG_DM_REGULATOR_MAX77686) += max77686.o
+obj-$(CONFIG_DM_REGULATOR_FIXED) += fixed.o

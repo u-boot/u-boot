@@ -23,3 +23,11 @@ config DM_REGULATOR_MAX77686
 	This config enables implementation of driver-model regulator uclass
 	features for REGULATOR MAX77686. The driver implements get/set api for:
 	value, enable and mode.
+
+config DM_REGULATOR_FIXED
+	bool "Enable Driver Model for REGULATOR Fixed value"
+	depends on DM_REGULATOR
+	---help---
+	This config enables implementation of driver-model regulator uclass
+	features for fixed value regulators. The driver implements get/set api
+	for enable and get only for voltage value.
