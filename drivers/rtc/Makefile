@@ -7,6 +7,8 @@
 
 #ccflags-y += -DDEBUG
 
+obj-$(CONFIG_DM_RTC) += rtc-uclass.o
+
 obj-$(CONFIG_RTC_AT91SAM9_RTT) += at91sam9_rtt.o
 obj-$(CONFIG_RTC_BFIN) += bfin_rtc.o
 obj-y += date.o
