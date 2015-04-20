@@ -52,7 +52,5 @@ obj-$(CONFIG_RTC_RTC4543) += rtc4543.o
 obj-$(CONFIG_RTC_RV3029) += rv3029.o
 obj-$(CONFIG_RTC_RX8025) += rx8025.o
 obj-$(CONFIG_RTC_S3C24X0) += s3c24x0_rtc.o
-ifdef CONFIG_DM_RTC
 obj-$(CONFIG_SANDBOX) += sandbox_rtc.o
-endif
 obj-$(CONFIG_RTC_X1205) += x1205.o

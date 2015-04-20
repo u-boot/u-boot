@@ -207,5 +207,6 @@
 
 #define CONFIG_CMD_LZMADEC
 #define CONFIG_CMD_USB
+#define CONFIG_CMD_DATE
 
 #endif
