@@ -13,6 +13,7 @@
 
 #include <linux/types.h>
 
+struct rtc_time;
 struct sandbox_state;
 
 /**
@@ -276,5 +277,15 @@ int os_read_ram_buf(const char *fname);
  * @param size		Size of buffer
  */
 int os_jump_to_image(const void *dest, int size);
+
+/**
+ * Read the current system time
+ *
+ * This reads the current Local Time and places it into the provided
+ * structure.
+ *
+ * @param rt		Place to put system time
+ */
+void os_localtime(struct rtc_time *rt);
 
 #endif
