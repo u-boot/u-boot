@@ -16,6 +16,7 @@
 typedef struct vidinfo {
 	ushort	vl_col;		/* Number of columns (i.e. 640) */
 	ushort	vl_row;		/* Number of rows (i.e. 480) */
+	ushort  vl_rot;		/* Rotation of Display (0, 1, 2, 3) */
 	ushort	vl_width;	/* Width of display area in millimeters */
 	ushort	vl_height;	/* Height of display area in millimeters */
 

@@ -69,4 +69,8 @@ void video_clear(void);
 int kwh043st20_f01_spi_startup(unsigned int bus, unsigned int cs,
 	unsigned int max_hz, unsigned int spi_mode);
 #endif
+#if defined(CONFIG_LG4573)
+int lg4573_spi_startup(unsigned int bus, unsigned int cs,
+	unsigned int max_hz, unsigned int spi_mode);
+#endif
 #endif
