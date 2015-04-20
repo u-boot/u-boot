@@ -15,3 +15,11 @@ config DM_REGULATOR
 	when binding the regulator devices. The pmic_bind_childs() can be used
 	for this purpose if PMIC I/O driver is implemented or dm_scan_fdt_node()
 	otherwise. Detailed informations can be found in the header file.
+
+config DM_REGULATOR_MAX77686
+	bool "Enable Driver Model for REGULATOR MAX77686"
+	depends on DM_REGULATOR && DM_PMIC_MAX77686
+	---help---
+	This config enables implementation of driver-model regulator uclass
+	features for REGULATOR MAX77686. The driver implements get/set api for:
+	value, enable and mode.

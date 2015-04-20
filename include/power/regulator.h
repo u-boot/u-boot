@@ -170,7 +170,7 @@ struct dm_regulator_ops {
 	 * @dev          - regulator device
 	 * Sets:
 	 * @uV           - set the output value [micro Volts]
-	 * Returns: output value [uV] on success or negative errno if fail.
+	 * @return output value [uV] on success or negative errno if fail.
 	 */
 	int (*get_value)(struct udevice *dev);
 	int (*set_value)(struct udevice *dev, int uV);
@@ -182,7 +182,7 @@ struct dm_regulator_ops {
 	 * @dev            - regulator device
 	 * Sets:
 	 * @uA           - set the output current [micro Amps]
-	 * Returns: output value [uA] on success or negative errno if fail.
+	 * @return output value [uA] on success or negative errno if fail.
 	 */
 	int (*get_current)(struct udevice *dev);
 	int (*set_current)(struct udevice *dev, int uA);
@@ -194,13 +194,13 @@ struct dm_regulator_ops {
 	 * @dev           - regulator device
 	 * Sets:
 	 * @enable         - set true - enable or false - disable
-	 * Returns: true/false for get; or 0 / -errno for set.
+	 * @return true/false for get; or 0 / -errno for set.
 	 */
 	bool (*get_enable)(struct udevice *dev);
 	int (*set_enable)(struct udevice *dev, bool enable);
 
 	/**
-	 * The 'get/set_mode()' function calls should operate on a driver
+	 * The 'get/set_mode()' function calls should operate on a driver-
 	 * specific mode definitions, which should be found in:
 	 * field 'mode' of struct mode_desc.
 	 *
@@ -208,7 +208,7 @@ struct dm_regulator_ops {
 	 * @dev         - regulator device
 	 * Sets
 	 * @mode_id     - set output mode id (struct dm_regulator_mode->id)
-	 * Returns: id/0 for get/set on success or negative errno if fail.
+	 * @return id/0 for get/set on success or negative errno if fail.
 	 * Note:
 	 * The field 'id' of struct type 'dm_regulator_mode', should be always
 	 * positive number, since the negative is reserved for the error.
@@ -222,7 +222,7 @@ struct dm_regulator_ops {
  *
  * @dev        - pointer to the regulator device
  * @modep      - pointer to the returned mode info array
- * Returns     - count of modep entries on success or negative errno if fail.
+ * @return     - count of modep entries on success or negative errno if fail.
  */
 int regulator_mode(struct udevice *dev, struct dm_regulator_mode **modep);
 
@@ -230,7 +230,7 @@ int regulator_mode(struct udevice *dev, struct dm_regulator_mode **modep);
  * regulator_get_value: get microvoltage voltage value of a given regulator
  *
  * @dev    - pointer to the regulator device
- * Returns - positive output value [uV] on success or negative errno if fail.
+ * @return - positive output value [uV] on success or negative errno if fail.
  */
 int regulator_get_value(struct udevice *dev);
 
@@ -239,7 +239,7 @@ int regulator_get_value(struct udevice *dev);
  *
  * @dev    - pointer to the regulator device
  * @uV     - the output value to set [micro Volts]
- * Returns - 0 on success or -errno val if fails
+ * @return - 0 on success or -errno val if fails
  */
 int regulator_set_value(struct udevice *dev, int uV);
 
@@ -247,7 +247,7 @@ int regulator_set_value(struct udevice *dev, int uV);
  * regulator_get_current: get microampere value of a given regulator
  *
  * @dev    - pointer to the regulator device
- * Returns - positive output current [uA] on success or negative errno if fail.
+ * @return - positive output current [uA] on success or negative errno if fail.
  */
 int regulator_get_current(struct udevice *dev);
 
@@ -256,7 +256,7 @@ int regulator_get_current(struct udevice *dev);
  *
  * @dev    - pointer to the regulator device
  * @uA     - set the output current [micro Amps]
- * Returns - 0 on success or -errno val if fails
+ * @return - 0 on success or -errno val if fails
  */
 int regulator_set_current(struct udevice *dev, int uA);
 
@@ -264,7 +264,7 @@ int regulator_set_current(struct udevice *dev, int uA);
  * regulator_get_enable: get regulator device enable state.
  *
  * @dev    - pointer to the regulator device
- * Returns - true/false of enable state
+ * @return - true/false of enable state
  */
 bool regulator_get_enable(struct udevice *dev);
 
@@ -273,7 +273,7 @@ bool regulator_get_enable(struct udevice *dev);
  *
  * @dev    - pointer to the regulator device
  * @enable - set true or false
- * Returns - 0 on success or -errno val if fails
+ * @return - 0 on success or -errno val if fails
  */
 int regulator_set_enable(struct udevice *dev, bool enable);
 
@@ -281,7 +281,7 @@ int regulator_set_enable(struct udevice *dev, bool enable);
  * regulator_get_mode: get mode of a given device regulator
  *
  * @dev    - pointer to the regulator device
- * Returns - positive  mode number on success or -errno val if fails
+ * @return - positive  mode number on success or -errno val if fails
  * Note:
  * The regulator driver should return one of defined, mode number rather, than
  * the raw register value. The struct type 'mode_desc' provides a field 'mode'
@@ -294,7 +294,7 @@ int regulator_get_mode(struct udevice *dev);
  *
  * @dev    - pointer to the regulator device
  * @mode   - mode type (field 'mode' of struct mode_desc)
- * Returns - 0 on success or -errno value if fails
+ * @return - 0 on success or -errno value if fails
  * Note:
  * The regulator driver should take one of defined, mode number rather
  * than a raw register value. The struct type 'regulator_mode_desc' has
@@ -308,14 +308,14 @@ int regulator_set_mode(struct udevice *dev, int mode);
  * in device's uclass's platform data (struct dm_regulator_uclass_platdata):
  * - Voltage value - will set - if '.min_uV' and '.max_uV' values are equal
  * - Current limit - will set - if '.min_uA' and '.max_uA' values are equal
- * - Enable - will set - if '.always_on' or '.boot_on' are set to true
+ * - Enable - will set - if any of: '.always_on' or '.boot_on', is set to true
  *
  * The function returns on first encountered error.
  *
  * @platname - expected string for dm_regulator_uclass_platdata .name field
  * @devp      - returned pointer to the regulator device - if non-NULL passed
  * @verbose   - (true/false) print regulator setup info, or be quiet
- * Returns: 0 on success or negative value of errno.
+ * @return: 0 on success or negative value of errno.
  *
  * The returned 'regulator' device can be used with:
  * - regulator_get/set_*
@@ -340,7 +340,7 @@ int regulator_by_platname_autoset_and_enable(const char *platname,
  * @list_devp     - an array of returned pointers to the successfully setup
  *                  regulator devices if non-NULL passed
  * @verbose       - (true/false) print each regulator setup info, or be quiet
- * Returns: 0 on successfully setup of all list entries or 1 otwerwise.
+ * @return 0 on successfully setup of all list entries or 1 otwerwise.
  *
  * The returned 'regulator' devices can be used with:
  * - regulator_get/set_*
@@ -360,8 +360,8 @@ int regulator_by_platname_list_autoset_and_enable(const char *list_platname[],
  *                       Search by name, found in regulator device's name.
  *
  * @devname - expected string for 'dev->name' of regulator device
- * @devp     - returned pointer to the regulator device
- * Returns: 0 on success or negative value of errno.
+ * @devp    - returned pointer to the regulator device
+ * @return 0 on success or negative value of errno.
  *
  * The returned 'regulator' device can be used with:
  * - regulator_get/set_*
@@ -372,9 +372,9 @@ int regulator_by_devname(const char *devname, struct udevice **devp);
  * regulator_by_platname: returns the pointer to the pmic regulator device.
  *                        Search by name, found in regulator uclass platdata.
  *
- * @platname - expected string for dm_regulator_uclass_platdata .name field
+ * @platname - expected string for uc_pdata->name of regulator uclass platdata
  * @devp     - returned pointer to the regulator device
- * Returns: 0 on success or negative value of errno.
+ * @return 0 on success or negative value of errno.
  *
  * The returned 'regulator' device can be used with:
  * - regulator_get/set_*
