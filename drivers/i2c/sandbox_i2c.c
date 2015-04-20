@@ -73,8 +73,10 @@ static int sandbox_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 	 * 400KHz for reads
 	 */
 	is_read = nmsgs > 1;
-	if (i2c->speed_hz > (is_read ? 400000 : 100000))
+	if (i2c->speed_hz > (is_read ? 400000 : 100000)) {
+		debug("%s: Max speed exceeded\n", __func__);
 		return -EINVAL;
+	}
 	return ops->xfer(emul, msg, nmsgs);
 }
 
