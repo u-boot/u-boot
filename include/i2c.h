@@ -54,6 +54,7 @@ struct dm_i2c_chip {
 	uint flags;
 #ifdef CONFIG_SANDBOX
 	struct udevice *emul;
+	bool test_mode;
 #endif
 };
 

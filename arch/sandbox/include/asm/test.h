@@ -17,6 +17,16 @@
 #define SANDBOX_PCI_CLASS_CODE		PCI_CLASS_CODE_COMM
 #define SANDBOX_PCI_CLASS_SUB_CODE	PCI_CLASS_SUB_CODE_COMM_SERIAL
 
+/**
+ * sandbox_i2c_set_test_mode() - set test mode for running unit tests
+ *
+ * See sandbox_i2c_xfer() for the behaviour changes.
+ *
+ * @bus:	sandbox I2C bus to adjust
+ * @test_mode:	true to select test mode, false to run normally
+ */
+void sandbox_i2c_set_test_mode(struct udevice *bus, bool test_mode);
+
 enum sandbox_i2c_eeprom_test_mode {
 	SIE_TEST_MODE_NONE,
 	/* Permits read/write of only one byte per I2C transaction */

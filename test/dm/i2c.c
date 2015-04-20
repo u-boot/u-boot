@@ -66,6 +66,9 @@ static int dm_test_i2c_speed(struct dm_test_state *dms)
 	uint8_t buf[5];
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
+
+	/* Use test mode so we create the required errors for invalid speeds */
+	sandbox_i2c_set_test_mode(bus, true);
 	ut_assertok(i2c_get_chip(bus, chip, 1, &dev));
 	ut_assertok(dm_i2c_set_bus_speed(bus, 100000));
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
@@ -73,6 +76,7 @@ static int dm_test_i2c_speed(struct dm_test_state *dms)
 	ut_asserteq(400000, dm_i2c_get_bus_speed(bus));
 	ut_assertok(dm_i2c_read(dev, 0, buf, 5));
 	ut_asserteq(-EINVAL, dm_i2c_write(dev, 0, buf, 5));
+	sandbox_i2c_set_test_mode(bus, false);
 
 	return 0;
 }
@@ -100,7 +104,11 @@ static int dm_test_i2c_probe_empty(struct dm_test_state *dms)
 	struct udevice *bus, *dev;
 
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
+
+	/* Use test mode so that this chip address will always probe */
+	sandbox_i2c_set_test_mode(bus, true);
 	ut_assertok(dm_i2c_probe(bus, SANDBOX_I2C_TEST_ADDR, 0, &dev));
+	sandbox_i2c_set_test_mode(bus, false);
 
 	return 0;
 }
