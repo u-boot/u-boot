@@ -460,4 +460,18 @@ config BOOTSTAGE_STASH_SIZE
 
 endmenu
 
+menu "Power commands"
+config CMD_PMIC
+	bool "Enable Driver Model PMIC command"
+	depends on DM_PMIC
+	help
+	  This is the pmic command, based on a driver model pmic's API.
+	  Command features are unchanged:
+	  - list               - list pmic devices
+	  - pmic dev <id>      - show or [set] operating pmic device (NEW)
+	  - pmic dump          - dump registers
+	  - pmic read address  - read byte of register at address
+	  - pmic write address - write byte to register at address
+	  The only one change for this command is 'dev' subcommand.
+endmenu
 endmenu
