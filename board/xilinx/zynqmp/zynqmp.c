@@ -115,7 +115,7 @@ int board_late_init(void)
 
 	switch (ver) {
 	case ZYNQMP_CSU_VERSION_VELOCE:
-		setenv("baudrate", "9600");
+		setenv("baudrate", "4800");
 		setenv("bootcmd", "run veloce");
 	case ZYNQMP_CSU_VERSION_EP108:
 		setenv("serverip", "10.10.70.101");

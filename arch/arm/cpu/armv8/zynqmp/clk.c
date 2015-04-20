@@ -18,7 +18,7 @@ unsigned long get_uart_clk(int dev_id)
 
 	switch (ver) {
 	case ZYNQMP_CSU_VERSION_VELOCE:
-		return 96000;
+		return 48000;
 	case ZYNQMP_CSU_VERSION_EP108:
 		return 25000000;
 	}
