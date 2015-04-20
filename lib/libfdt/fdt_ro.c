@@ -113,6 +113,25 @@ int fdt_subnode_offset(const void *fdt, int parentoffset,
 	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
 }
 
+/*
+ * Find the next of path seperator, note we need to search for both '/' and ':'
+ * and then take the first one so that we do the rigth thing for e.g.
+ * "foo/bar:option" and "bar:option/otheroption", both of which happen, so
+ * first searching for either ':' or '/' does not work.
+ */
+static const char *fdt_path_next_seperator(const char *path)
+{
+	const char *sep1 = strchr(path, '/');
+	const char *sep2 = strchr(path, ':');
+
+	if (sep1 && sep2)
+		return (sep1 < sep2) ? sep1 : sep2;
+	else if (sep1)
+		return sep1;
+	else
+		return sep2;
+}
+
 int fdt_path_offset(const void *fdt, const char *path)
 {
 	const char *end = path + strlen(path);
@@ -123,7 +142,7 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 	/* see if we have an alias */
 	if (*path != '/') {
-		const char *q = strchr(path, '/');
+		const char *q = fdt_path_next_seperator(path);
 
 		if (!q)
 			q = end;
@@ -141,9 +160,9 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 		while (*p == '/')
 			p++;
-		if (! *p)
+		if (*p == '\0' || *p == ':')
 			return offset;
-		q = strchr(p, '/');
+		q = fdt_path_next_seperator(p);
 		if (! q)
 			q = end;
 
