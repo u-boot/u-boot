@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <rtc.h>
 
 #if defined(CONFIG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
@@ -30,13 +31,15 @@ static int month_days[12] = {
 /*
  * This only works for the Gregorian calendar - i.e. after 1752 (in the UK)
  */
-void GregorianDay(struct rtc_time * tm)
+int rtc_calc_weekday(struct rtc_time *tm)
 {
 	int leapsToDate;
 	int lastYear;
 	int day;
 	int MonthOffset[] = { 0,31,59,90,120,151,181,212,243,273,304,334 };
 
+	if (tm->tm_year < 1753)
+		return -EINVAL;
 	lastYear=tm->tm_year-1;
 
 	/*
@@ -64,6 +67,8 @@ void GregorianDay(struct rtc_time * tm)
 	day += lastYear*365 + leapsToDate + MonthOffset[tm->tm_mon-1] + tm->tm_mday;
 
 	tm->tm_wday=day%7;
+
+	return 0;
 }
 
 void to_tm(int tim, struct rtc_time * tm)
@@ -101,7 +106,7 @@ void to_tm(int tim, struct rtc_time * tm)
 	/*
 	 * Determine the day of week
 	 */
-	GregorianDay(tm);
+	rtc_calc_weekday(tm);
 }
 
 /* Converts Gregorian date to seconds since 1970-01-01 00:00:00.

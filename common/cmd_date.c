@@ -201,7 +201,7 @@ int mk_date (const char *datestr, struct rtc_time *tmp)
 		tmp->tm_min  = val;
 
 		/* calculate day of week */
-		GregorianDay (tmp);
+		rtc_calc_weekday(tmp);
 
 		return (0);
 	default:

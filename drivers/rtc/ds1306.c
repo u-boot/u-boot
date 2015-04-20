@@ -110,7 +110,7 @@ int rtc_get (struct rtc_time *tmp)
 	immap->im_cpm.cp_pbdat &= ~PB_SPI_CE;	/* Disable DS1306 Chip */
 	udelay (10);
 
-	GregorianDay (tmp);	/* Determine the day of week */
+	rtc_calc_weekday(tmp);	/* Determine the day of week */
 
 	debug ("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,

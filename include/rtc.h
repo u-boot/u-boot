@@ -45,7 +45,6 @@ int rtc_get (struct rtc_time *);
 int rtc_set (struct rtc_time *);
 void rtc_reset (void);
 
-void GregorianDay (struct rtc_time *);
 void to_tm (int, struct rtc_time *);
 unsigned long mktime (unsigned int, unsigned int, unsigned int,
 		      unsigned int, unsigned int, unsigned int);
@@ -86,5 +85,16 @@ void rtc_write32(int reg, u32 value);
  * rtc_init() - Set up the real time clock ready for use
  */
 void rtc_init(void);
+
+/**
+ * rtc_calc_weekday() - Work out the weekday from a time
+ *
+ * This only works for the Gregorian calendar - i.e. after 1752 (in the UK).
+ * It sets time->tm_wdaay to the correct day of the week.
+ *
+ * @time:	Time to inspect. tm_wday is updated
+ * @return 0 if OK, -EINVAL if the weekday could not be determined
+ */
+int rtc_calc_weekday(struct rtc_time *time);
 
 #endif	/* _RTC_H_ */
