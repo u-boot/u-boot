@@ -21,9 +21,9 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
 #include <asm/arch/system.h>
-#include <power/pmic.h>
 #include <asm/arch/sromc.h>
 #include <lcd.h>
+#include <i2c.h>
 #include <samsung/misc.h>
 #include <usb.h>
 
@@ -169,7 +169,7 @@ int board_early_init_f(void)
 }
 #endif
 
-#if defined(CONFIG_POWER)
+#if defined(CONFIG_POWER) || defined(CONFIG_DM_PMIC)
 int power_init_board(void)
 {
 	set_ps_hold_ctrl();
