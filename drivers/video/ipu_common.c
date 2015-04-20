@@ -1198,3 +1198,11 @@ ipu_color_space_t format_to_colorspace(uint32_t fmt)
 	}
 	return RGB;
 }
+
+/* should be removed when clk framework is availiable */
+int ipu_set_ldb_clock(int rate)
+{
+	ldb_clk.rate = rate;
+
+	return 0;
+}
