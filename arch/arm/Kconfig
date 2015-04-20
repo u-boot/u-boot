@@ -523,6 +523,11 @@ config TARGET_MX6SABRESD
 	select CPU_V7
 	select SUPPORT_SPL
 
+config TARGET_MX6CUBOXI
+	bool "Support Solid-run mx6 boards"
+	select CPU_V7
+	select SUPPORT_SPL
+
 config TARGET_MX6SLEVK
 	bool "Support mx6slevk"
 	select CPU_V7
@@ -856,6 +861,7 @@ source "board/siemens/draco/Kconfig"
 source "board/siemens/pxm2/Kconfig"
 source "board/siemens/rut/Kconfig"
 source "board/silica/pengwyn/Kconfig"
+source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/solidrun/hummingboard/Kconfig"
 source "board/spear/spear300/Kconfig"
 source "board/spear/spear310/Kconfig"
