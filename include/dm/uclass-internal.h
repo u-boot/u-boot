@@ -63,7 +63,7 @@ int uclass_find_next_device(struct udevice **devp);
 /**
  * uclass_find_device_by_name() - Find uclass device based on ID and name
  *
- * This searches for a device with the given name.
+ * This searches for a device with the exactly given name.
  *
  * The device is NOT probed, it is merely returned.
  *
