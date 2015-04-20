@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <net.h>
 #include <rtc.h>
 
@@ -70,7 +71,18 @@ static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 
 	rtc_to_tm(ntohl(seconds) - 2208988800UL + net_ntp_time_offset, &tm);
 #if defined(CONFIG_CMD_DATE)
+#  ifdef CONFIG_DM_RTC
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_RTC, 0, &dev);
+	if (ret)
+		printf("SNTP: cannot find RTC: err=%d\n", ret);
+	else
+		dm_rtc_set(dev, &tm);
+#  else
 	rtc_set(&tm);
+#  endif
 #endif
 	printf("Date: %4d-%02d-%02d Time: %2d:%02d:%02d\n",
 	       tm.tm_year, tm.tm_mon, tm.tm_mday,
