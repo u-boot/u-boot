@@ -9,8 +9,12 @@ config ARCH_INTEGRATOR_AP
 
 config ARCH_INTEGRATOR_CP
 	bool "Support Integrator/CP platform"
+	select ARCH_CINTEGRATOR
 
 endchoice
+
+config ARCH_CINTEGRATOR
+	bool
 
 choice
 	prompt "Integrator core module select"

@@ -18,7 +18,6 @@
 #include "integrator-common.h"
 
 /* Integrator CP-specific configuration */
-#define CONFIG_ARCH_CINTEGRATOR
 #define CONFIG_SYS_HZ_CLOCK		1000000	/* Timer 1 is clocked at 1Mhz */
 
 /*
