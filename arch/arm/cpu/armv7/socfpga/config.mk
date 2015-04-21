@@ -6,6 +6,3 @@
 ifndef CONFIG_SPL_BUILD
 ALL-y	+= u-boot.img
 endif
-
-# Added for handoff support
-PLATFORM_RELFLAGS += -Iboard/$(VENDOR)/$(BOARD)
