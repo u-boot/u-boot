@@ -249,6 +249,7 @@ static uint last_addr_lo;
 static uint last_addr_hi;
 static uint last_reg_lo;
 static uint last_reg_hi;
+static uint last_mask;
 
 static void extract_range(
 	char * input,
@@ -272,7 +273,7 @@ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char		op[2];
 	unsigned char	addrlo, addrhi, reglo, reghi;
 	unsigned char	addr, reg;
-	unsigned short	data;
+	unsigned short	data, mask;
 	int		rcode = 0;
 	const char	*devname;
 
@@ -294,6 +295,7 @@ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	reglo  = last_reg_lo;
 	reghi  = last_reg_hi;
 	data   = last_data;
+	mask   = last_mask;
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
 		op[0] = argv[1][0];
@@ -307,7 +309,9 @@ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (argc >= 4)
 			extract_range(argv[3], &reglo, &reghi);
 		if (argc >= 5)
-			data = simple_strtoul (argv[4], NULL, 16);
+			data = simple_strtoul(argv[4], NULL, 16);
+		if (argc >= 6)
+			mask = simple_strtoul(argv[5], NULL, 16);
 	}
 
 	/* use current device */
@@ -375,6 +379,28 @@ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				}
 			}
 		}
+	} else if (op[0] == 'm') {
+		for (addr = addrlo; addr <= addrhi; addr++) {
+			for (reg = reglo; reg <= reghi; reg++) {
+				unsigned short val = 0;
+				if (miiphy_read(devname, addr,
+						reg, &val)) {
+					printf("Error reading from the PHY");
+					printf(" addr=%02x", addr);
+					printf(" reg=%02x\n", reg);
+					rcode = 1;
+				} else {
+					val = (val & ~mask) | (data & mask);
+					if (miiphy_write(devname, addr,
+							 reg, val)) {
+						printf("Error writing to the PHY");
+						printf(" addr=%02x", addr);
+						printf(" reg=%02x\n", reg);
+						rcode = 1;
+					}
+				}
+			}
+		}
 	} else if (strncmp(op, "du", 2) == 0) {
 		ushort regs[6];
 		int ok = 1;
@@ -417,6 +443,7 @@ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	last_reg_lo  = reglo;
 	last_reg_hi  = reghi;
 	last_data    = data;
+	last_mask    = mask;
 
 	return rcode;
 }
@@ -424,13 +451,15 @@ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 /***************************************************/
 
 U_BOOT_CMD(
-	mii,	5,	1,	do_mii,
+	mii, 6, 1, do_mii,
 	"MII utility commands",
-	"device                     - list available devices\n"
-	"mii device <devname>           - set current device\n"
-	"mii info   <addr>              - display MII PHY info\n"
-	"mii read   <addr> <reg>        - read  MII PHY <addr> register <reg>\n"
-	"mii write  <addr> <reg> <data> - write MII PHY <addr> register <reg>\n"
-	"mii dump   <addr> <reg>        - pretty-print <addr> <reg> (0-5 only)\n"
+	"device                            - list available devices\n"
+	"mii device <devname>                  - set current device\n"
+	"mii info   <addr>                     - display MII PHY info\n"
+	"mii read   <addr> <reg>               - read  MII PHY <addr> register <reg>\n"
+	"mii write  <addr> <reg> <data>        - write MII PHY <addr> register <reg>\n"
+	"mii modify <addr> <reg> <data> <mask> - modify MII PHY <addr> register <reg>\n"
+	"                                        updating bits identified in <mask>\n"
+	"mii dump   <addr> <reg>               - pretty-print <addr> <reg> (0-5 only)\n"
 	"Addr and/or reg may be ranges, e.g. 2-7."
 );
