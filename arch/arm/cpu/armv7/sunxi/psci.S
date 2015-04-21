@@ -139,8 +139,11 @@ out:	mcr	p15, 0, r7, c1, c1, 0
 	@ r2 = target PC
 .globl	psci_cpu_on
 psci_cpu_on:
-	ldr	r0, =_psci_target_pc
-	str	r2, [r0]
+	push	{lr}
+
+	mov	r0, r1
+	bl	psci_get_cpu_stack_top	@ get stack top of target CPU
+	str	r2, [r0]		@ store target PC at stack top
 	dsb
 
 	movw	r0, #(SUN7I_CPUCFG_BASE & 0xffff)
@@ -195,7 +198,7 @@ psci_cpu_on:
 	str	r6, [r0, #0x1e4]
 
 	mov	r0, #ARM_PSCI_RET_SUCCESS	@ Return PSCI_RET_SUCCESS
-	mov	pc, lr
+	pop	{pc}
 
 .globl	psci_cpu_off
 psci_cpu_off:
