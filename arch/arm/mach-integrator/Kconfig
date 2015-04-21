@@ -2,39 +2,38 @@ menu "Integrator Options"
 	depends on ARCH_INTEGRATOR
 
 choice
-	prompt "ARM Ltd. Integrator board select"
+	prompt "Integrator platform select"
 
-config TARGET_INTEGRATORAP_CM720T
-	bool "Support integratorap_cm720t"
+config ARCH_INTEGRATOR_AP
+	bool "Support Integrator/AP platform"
+
+config ARCH_INTEGRATOR_CP
+	bool "Support Integrator/CP platform"
+
+endchoice
+
+choice
+	prompt "Integrator core module select"
+
+config CM720T
+	bool "Core Module for ARM720T"
 	select CPU_ARM720T
 
-config TARGET_INTEGRATORAP_CM920T
-	bool "Support integratorap_cm920t"
+config CM920T
+	bool "Core Module for ARM920T"
 	select CPU_ARM920T
 
-config TARGET_INTEGRATORCP_CM920T
-	bool "Support integratorcp_cm920t"
-	select CPU_ARM920T
-
-config TARGET_INTEGRATORAP_CM926EJS
-	bool "Support integratorap_cm926ejs"
+config CM926EJ_S
+	bool "Core Module for ARM926EJ-STM"
 	select CPU_ARM926EJS
 
-config TARGET_INTEGRATORCP_CM926EJS
-	bool "Support integratorcp_cm926ejs"
-	select CPU_ARM926EJS
+config CM946ES
+	bool "Core Module for ARM946E-STM"
+	select CPU_ARM946ES
 
-config TARGET_INTEGRATORCP_CM1136
-	bool "Support integratorcp_cm1136"
+config CM1136
+	bool "Core Module for ARM1136JF-STM"
 	select CPU_ARM1136
-
-config TARGET_INTEGRATORAP_CM946ES
-	bool "Support integratorap_cm946es"
-	select CPU_ARM946ES
-
-config TARGET_INTEGRATORCP_CM946ES
-	bool "Support integratorcp_cm946es"
-	select CPU_ARM946ES
 
 endchoice
 
@@ -45,13 +44,7 @@ config SYS_VENDOR
 	default "armltd"
 
 config SYS_CONFIG_NAME
-	default "integratorap" if TARGET_INTEGRATORAP_CM720T || \
-				  TARGET_INTEGRATORAP_CM920T || \
-				  TARGET_INTEGRATORAP_CM926EJS || \
-				  TARGET_INTEGRATORAP_CM946ES
-	default "integratorcp" if TARGET_INTEGRATORCP_CM920T || \
-				  TARGET_INTEGRATORCP_CM926EJS || \
-				  TARGET_INTEGRATORCP_CM946ES || \
-				  TARGET_INTEGRATORCP_CM1136
+	default "integratorap" if ARCH_INTEGRATOR_AP
+	default "integratorcp" if ARCH_INTEGRATOR_CP
 
 endmenu
