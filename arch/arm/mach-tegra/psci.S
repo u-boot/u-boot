@@ -51,11 +51,24 @@ ENTRY(psci_arch_init)
 	str	r5, [r4]
 
 	bl	psci_get_cpu_id		@ CPU ID => r0
+
+	adr	r5, _sys_clock_freq
+	cmp	r0, #0
+
+	mrceq	p15, 0, r7, c14, c0, 0	@ read CNTFRQ from CPU0
+	streq	r7, [r5]
+
+	ldrne	r7, [r5]
+	mcrne	p15, 0, r7, c14, c0, 0	@ write CNTFRQ to CPU1..3
+
 	bl	psci_get_cpu_stack_top	@ stack top => r0
 	mov	sp, r0
 
 	bx	r6
 ENDPROC(psci_arch_init)
+
+_sys_clock_freq:
+	.word	0
 
 ENTRY(psci_cpu_off)
 	bl	psci_cpu_off_common
