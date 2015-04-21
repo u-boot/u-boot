@@ -67,3 +67,4 @@ BSD 3-clause "New" or "Revised" License		BSD-3-Clause	Y		bsd-3-clause.txt	http:/
 IBM PIBS (PowerPC Initialization and		IBM-pibs			ibm-pibs.txt
 	Boot Software) license
 ISC License					ISC		Y		isc.txt			https://spdx.org/licenses/ISC
+X11 License					X11				x11.txt			https://spdx.org/licenses/X11.html
