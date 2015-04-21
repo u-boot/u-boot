@@ -90,7 +90,7 @@ static int fdt_psci(void *fdt)
 
 int psci_update_dt(void *fdt)
 {
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+#ifdef CONFIG_ARMV7_NONSEC
 	if (!armv7_boot_nonsec())
 		return 0;
 #endif

@@ -18,7 +18,7 @@ obj-y	+= lowlevel_init.o
 endif
 endif
 
-ifneq ($(CONFIG_ARMV7_NONSEC)$(CONFIG_ARMV7_VIRT),)
+ifneq ($(CONFIG_ARMV7_NONSEC),)
 obj-y	+= nonsec_virt.o
 obj-y	+= virt-v7.o
 obj-y	+= virt-dt.o

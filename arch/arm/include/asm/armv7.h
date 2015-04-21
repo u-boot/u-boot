@@ -131,7 +131,7 @@ void v7_outer_cache_inval_all(void);
 void v7_outer_cache_flush_range(u32 start, u32 end);
 void v7_outer_cache_inval_range(u32 start, u32 end);
 
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+#ifdef CONFIG_ARMV7_NONSEC
 
 int armv7_init_nonsec(void);
 bool armv7_boot_nonsec(void);
@@ -145,7 +145,7 @@ void _smp_pen(void);
 extern char __secure_start[];
 extern char __secure_end[];
 
-#endif /* CONFIG_ARMV7_NONSEC || CONFIG_ARMV7_VIRT */
+#endif /* CONFIG_ARMV7_NONSEC */
 
 void v7_arch_cp15_set_l2aux_ctrl(u32 l2auxctrl, u32 cpu_midr,
 				 u32 cpu_rev_comb, u32 cpu_variant,

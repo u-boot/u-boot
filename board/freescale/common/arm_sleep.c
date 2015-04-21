@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#if !defined(CONFIG_ARMV7_NONSEC) || !defined(CONFIG_ARMV7_VIRT)
+#ifndef CONFIG_ARMV7_NONSEC
 #error " Deep sleep needs non-secure mode support. "
 #else
 #include <asm/secure.h>
