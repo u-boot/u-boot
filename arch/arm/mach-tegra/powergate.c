@@ -44,7 +44,7 @@ static int tegra_powergate_set(enum tegra_powergate id, bool state)
 	return -ETIMEDOUT;
 }
 
-static int tegra_powergate_power_on(enum tegra_powergate id)
+int tegra_powergate_power_on(enum tegra_powergate id)
 {
 	return tegra_powergate_set(id, true);
 }
