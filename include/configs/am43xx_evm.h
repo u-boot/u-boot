@@ -295,6 +295,7 @@
 			"setenv fdtfile am437x-idk-evm.dtb; fi; " \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree; fi; \0" \
+	NETARGS \
 	DFUARGS \
 
 #define CONFIG_BOOTCOMMAND \

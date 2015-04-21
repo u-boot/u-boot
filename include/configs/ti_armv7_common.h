@@ -279,4 +279,29 @@
 #endif
 #endif /* !CONFIG_NOR_BOOT */
 
+/* Generic Environment Variables */
+
+#ifdef CONFIG_CMD_NET
+#define NETARGS \
+	"static_ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}" \
+		"::off\0" \
+	"nfsopts=nolock\0" \
+	"rootpath=/export/rootfs\0" \
+	"netloadimage=tftp ${loadaddr} ${bootfile}\0" \
+	"netloadfdt=tftp ${fdtaddr} ${fdtfile}\0" \
+	"netargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=/dev/nfs " \
+		"nfsroot=${serverip}:${rootpath},${nfsopts} rw " \
+		"ip=dhcp\0" \
+	"netboot=echo Booting from network ...; " \
+		"setenv autoload no; " \
+		"dhcp; " \
+		"run netloadimage; " \
+		"run netloadfdt; " \
+		"run netargs; " \
+		"bootz ${loadaddr} - ${fdtaddr}\0"
+
+#endif
+
 #endif	/* __CONFIG_TI_ARMV7_COMMON_H__ */
