@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/gp_padctrl.h>
+#include <asm/arch/mc.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/clock.h>
 #include <asm/arch-tegra/fuse.h>
@@ -153,6 +154,20 @@ static void init_pmc_scratch(void)
 	odmdata = get_odmdata();
 	writel(odmdata, &pmc->pmc_scratch20);
 }
+
+#ifdef CONFIG_ARMV7_SECURE_RESERVE_SIZE
+void protect_secure_section(void)
+{
+	struct mc_ctlr *mc = (struct mc_ctlr *)NV_PA_MC_BASE;
+
+	/* Must be MB aligned */
+	BUILD_BUG_ON(CONFIG_ARMV7_SECURE_BASE & 0xFFFFF);
+	BUILD_BUG_ON(CONFIG_ARMV7_SECURE_RESERVE_SIZE & 0xFFFFF);
+
+	writel(CONFIG_ARMV7_SECURE_BASE, &mc->mc_security_cfg0);
+	writel(CONFIG_ARMV7_SECURE_RESERVE_SIZE >> 20, &mc->mc_security_cfg1);
+}
+#endif
 
 void s_init(void)
 {

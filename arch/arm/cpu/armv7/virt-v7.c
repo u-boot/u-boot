@@ -46,6 +46,10 @@ static unsigned long get_gicd_base_address(void)
 #endif
 }
 
+/* Define a specific version of this function to enable any available
+ * hardware protections for the reserved region */
+void __weak protect_secure_section(void) {}
+
 static void relocate_secure_section(void)
 {
 #ifdef CONFIG_ARMV7_SECURE_BASE
@@ -54,6 +58,7 @@ static void relocate_secure_section(void)
 	memcpy((void *)CONFIG_ARMV7_SECURE_BASE, __secure_start, sz);
 	flush_dcache_range(CONFIG_ARMV7_SECURE_BASE,
 			   CONFIG_ARMV7_SECURE_BASE + sz + 1);
+	protect_secure_section();
 	invalidate_icache_all();
 #endif
 }
