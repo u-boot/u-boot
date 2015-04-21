@@ -12,4 +12,6 @@
 
 void sandbox_eth_disable_response(int index, bool disable);
 
+void sandbox_eth_skip_timeout(void);
+
 #endif /* __ETH_H */
