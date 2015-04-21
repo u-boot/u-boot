@@ -1,0 +1,57 @@
+menu "Integrator Options"
+	depends on ARCH_INTEGRATOR
+
+choice
+	prompt "ARM Ltd. Integrator board select"
+
+config TARGET_INTEGRATORAP_CM720T
+	bool "Support integratorap_cm720t"
+	select CPU_ARM720T
+
+config TARGET_INTEGRATORAP_CM920T
+	bool "Support integratorap_cm920t"
+	select CPU_ARM920T
+
+config TARGET_INTEGRATORCP_CM920T
+	bool "Support integratorcp_cm920t"
+	select CPU_ARM920T
+
+config TARGET_INTEGRATORAP_CM926EJS
+	bool "Support integratorap_cm926ejs"
+	select CPU_ARM926EJS
+
+config TARGET_INTEGRATORCP_CM926EJS
+	bool "Support integratorcp_cm926ejs"
+	select CPU_ARM926EJS
+
+config TARGET_INTEGRATORCP_CM1136
+	bool "Support integratorcp_cm1136"
+	select CPU_ARM1136
+
+config TARGET_INTEGRATORAP_CM946ES
+	bool "Support integratorap_cm946es"
+	select CPU_ARM946ES
+
+config TARGET_INTEGRATORCP_CM946ES
+	bool "Support integratorcp_cm946es"
+	select CPU_ARM946ES
+
+endchoice
+
+config SYS_BOARD
+	default "integrator"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	default "integratorap" if TARGET_INTEGRATORAP_CM720T || \
+				  TARGET_INTEGRATORAP_CM920T || \
+				  TARGET_INTEGRATORAP_CM926EJS || \
+				  TARGET_INTEGRATORAP_CM946ES
+	default "integratorcp" if TARGET_INTEGRATORCP_CM920T || \
+				  TARGET_INTEGRATORCP_CM926EJS || \
+				  TARGET_INTEGRATORCP_CM946ES || \
+				  TARGET_INTEGRATORCP_CM1136
+
+endmenu

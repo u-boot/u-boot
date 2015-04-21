@@ -18,7 +18,6 @@
 #include "integrator-common.h"
 
 /* Integrator/AP-specific configuration */
-#define CONFIG_ARCH_INTEGRATOR
 #define CONFIG_SYS_HZ_CLOCK		24000000	/* Timer 1 is clocked at 24Mhz */
 
 /*

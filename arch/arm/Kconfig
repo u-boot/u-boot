@@ -65,18 +65,6 @@ config SEMIHOSTING
 choice
 	prompt "Target select"
 
-config TARGET_INTEGRATORAP_CM720T
-	bool "Support integratorap_cm720t"
-	select CPU_ARM720T
-
-config TARGET_INTEGRATORAP_CM920T
-	bool "Support integratorap_cm920t"
-	select CPU_ARM920T
-
-config TARGET_INTEGRATORCP_CM920T
-	bool "Support integratorcp_cm920t"
-	select CPU_ARM920T
-
 config ARCH_AT91
 	bool "Atmel AT91"
 
@@ -95,14 +83,6 @@ config TARGET_VCMA9
 config TARGET_SMDK2410
 	bool "Support smdk2410"
 	select CPU_ARM920T
-
-config TARGET_INTEGRATORAP_CM926EJS
-	bool "Support integratorap_cm926ejs"
-	select CPU_ARM926EJS
-
-config TARGET_INTEGRATORCP_CM926EJS
-	bool "Support integratorcp_cm926ejs"
-	select CPU_ARM926EJS
 
 config TARGET_ASPENITE
 	bool "Support aspenite"
@@ -251,10 +231,6 @@ config ARCH_VERSATILE
 	bool "ARM Ltd. Versatile family"
 	select CPU_ARM926EJS
 
-config TARGET_INTEGRATORCP_CM1136
-	bool "Support integratorcp_cm1136"
-	select CPU_ARM1136
-
 config TARGET_IMX31_PHYCORE
 	bool "Support imx31_phycore"
 	select CPU_ARM1136
@@ -302,14 +278,6 @@ config ARCH_BCM283X
 	select DM
 	select DM_SERIAL
 	select DM_GPIO
-
-config TARGET_INTEGRATORAP_CM946ES
-	bool "Support integratorap_cm946es"
-	select CPU_ARM946ES
-
-config TARGET_INTEGRATORCP_CM946ES
-	bool "Support integratorcp_cm946es"
-	select CPU_ARM946ES
 
 config TARGET_VEXPRESS_CA15_TC2
 	bool "Support vexpress_ca15_tc2"
@@ -464,6 +432,9 @@ config ARCH_S5PC1XX
 config ARCH_HIGHBANK
 	bool "Calxeda Highbank"
 	select CPU_V7
+
+config ARCH_INTEGRATOR
+	bool "ARM Ltd. Integrator family"
 
 config ARCH_KEYSTONE
 	bool "TI Keystone"
@@ -805,6 +776,8 @@ source "arch/arm/cpu/armv7/exynos/Kconfig"
 
 source "arch/arm/mach-highbank/Kconfig"
 
+source "arch/arm/mach-integrator/Kconfig"
+
 source "arch/arm/mach-keystone/Kconfig"
 
 source "arch/arm/mach-kirkwood/Kconfig"
@@ -850,7 +823,6 @@ source "board/Marvell/db-mv784mp-gp/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
 source "board/altera/socfpga/Kconfig"
 source "board/armadeus/apf27/Kconfig"
-source "board/armltd/integrator/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/bachmann/ot1200/Kconfig"
