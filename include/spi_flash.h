@@ -62,11 +62,9 @@ struct spi_slave;
  * return 0 - Success, 1 - Failure
  */
 struct spi_flash {
+	struct spi_slave *spi;
 #ifdef CONFIG_DM_SPI_FLASH
-	struct spi_slave *spi;
 	struct udevice *dev;
-#else
-	struct spi_slave *spi;
 #endif
 	const char *name;
 	u8 dual_flash;
@@ -91,13 +89,13 @@ struct spi_flash {
 #ifndef CONFIG_DM_SPI_FLASH
 	/*
 	 * These are not strictly needed for driver model, but keep them here
-	 * whilt the transition is in progress.
+	 * while the transition is in progress.
 	 *
 	 * Normally each driver would provide its own operations, but for
 	 * SPI flash most chips use the same algorithms. One approach is
 	 * to create a 'common' SPI flash device which knows how to talk
 	 * to most devices, and then allow other drivers to be used instead
-	 * if requird, perhaps with a way of scanning through the list to
+	 * if required, perhaps with a way of scanning through the list to
 	 * find the driver that matches the device.
 	 */
 	int (*read)(struct spi_flash *flash, u32 offset, size_t len, void *buf);
