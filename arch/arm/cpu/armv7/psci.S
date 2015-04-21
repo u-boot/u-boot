@@ -165,6 +165,15 @@ ENTRY(psci_disable_smp)
 ENDPROC(psci_disable_smp)
 .weak psci_disable_smp
 
+ENTRY(psci_enable_smp)
+	mrc	p15, 0, r0, c1, c0, 1		@ ACTLR
+	orr	r0, r0, #(1 << 6)		@ Set SMP bit
+	mcr	p15, 0, r0, c1, c0, 1		@ ACTLR
+	isb
+	bx	lr
+ENDPROC(psci_enable_smp)
+.weak psci_enable_smp
+
 ENTRY(psci_cpu_off_common)
 	push	{lr}
 
@@ -183,5 +192,19 @@ ENTRY(psci_cpu_off_common)
 	pop	{lr}
 	bx	lr
 ENDPROC(psci_cpu_off_common)
+
+ENTRY(psci_cpu_entry)
+	bl	psci_enable_smp
+
+	bl	_nonsec_init
+
+	adr	r0, _psci_target_pc
+	ldr	r0, [r0]
+	b	_do_nonsec_entry
+ENDPROC(psci_cpu_entry)
+
+.globl _psci_target_pc
+_psci_target_pc:
+	.word	0
 
 	.popsection

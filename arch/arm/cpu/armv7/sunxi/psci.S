@@ -139,7 +139,7 @@ out:	mcr	p15, 0, r7, c1, c1, 0
 	@ r2 = target PC
 .globl	psci_cpu_on
 psci_cpu_on:
-	adr	r0, _target_pc
+	ldr	r0, =_psci_target_pc
 	str	r2, [r0]
 	dsb
 
@@ -151,7 +151,7 @@ psci_cpu_on:
 	mov	r4, #1
 	lsl	r4, r4, r1
 
-	adr	r6, _sunxi_cpu_entry
+	ldr	r6, =psci_cpu_entry
 	str	r6, [r0, #0x1a4] @ PRIVATE_REG (boot vector)
 
 	@ Assert reset on target CPU
@@ -196,22 +196,6 @@ psci_cpu_on:
 
 	mov	r0, #ARM_PSCI_RET_SUCCESS	@ Return PSCI_RET_SUCCESS
 	mov	pc, lr
-
-_target_pc:
-	.word	0
-
-_sunxi_cpu_entry:
-	@ Set SMP bit
-	mrc	p15, 0, r0, c1, c0, 1
-	orr	r0, r0, #0x40
-	mcr	p15, 0, r0, c1, c0, 1
-	isb
-
-	bl	_nonsec_init
-
-	adr	r0, _target_pc
-	ldr	r0, [r0]
-	b	_do_nonsec_entry
 
 .globl	psci_cpu_off
 psci_cpu_off:
