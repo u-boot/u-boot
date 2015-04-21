@@ -25,7 +25,6 @@ struct board_specific_parameters {
  * for each n_ranks group.
  */
 
-#ifdef CONFIG_T4240QDS
 static const struct board_specific_parameters udimm0[] = {
 	/*
 	 * memory controller 0
@@ -62,31 +61,6 @@ static const struct board_specific_parameters rdimm0[] = {
 	{1,  2140, 0, 4,    12, 0x0b090807, 0x080a0b07,   0xff,    2,  0},
 	{}
 };
-
-#else	/* CONFIG_T4240EMU */
-static const struct board_specific_parameters udimm0[] = {
-	/*
-	 * memory controller 0
-	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl | cpo  |wrdata|2T
-	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3  |      |delay |
-	 */
-	{2,  2140, 0, 4,     8, 0x0, 0x0,   0xff,    2,  0},
-	{1,  2140, 0, 4,     8, 0x0, 0x0,   0xff,    2,  0},
-	{}
-};
-
-static const struct board_specific_parameters rdimm0[] = {
-	/*
-	 * memory controller 0
-	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl | cpo  |wrdata|2T
-	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3  |      |delay |
-	 */
-	{4,  2140, 0, 5,     8, 0x0, 0x0,   0xff,    2,  0},
-	{2,  2140, 0, 5,     8, 0x0, 0x0,   0xff,    2,  0},
-	{1,  2140, 0, 4,     8, 0x0, 0x0,   0xff,    2,  0},
-	{}
-};
-#endif	/* CONFIG_T4240EMU */
 
 /*
  * The three slots have slightly different timing. The center values are good

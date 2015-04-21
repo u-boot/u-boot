@@ -122,9 +122,6 @@ config TARGET_T208XRDB
 	bool "Support T208xRDB"
 	select SUPPORT_SPL
 
-config TARGET_T4240EMU
-	bool "Support T4240EMU"
-
 config TARGET_T4240QDS
 	bool "Support T4240QDS"
 	select SUPPORT_SPL
