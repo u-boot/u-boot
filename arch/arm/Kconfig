@@ -619,16 +619,8 @@ config TARGET_CM_FX6
 	select DM_SERIAL
 	select DM_GPIO
 
-config TARGET_SOCFPGA_ARRIA5
-	bool "Support socfpga_arria5"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SPI_FLASH
-	select DM_SPI
-
-config TARGET_SOCFPGA_CYCLONE5
-	bool "Support socfpga_cyclone5"
+config ARCH_SOCFPGA
+	bool "Altera SOCFPGA family"
 	select CPU_V7
 	select SUPPORT_SPL
 	select DM
@@ -841,6 +833,8 @@ source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
 source "arch/arm/cpu/armv7/s5pc1xx/Kconfig"
 
+source "arch/arm/mach-socfpga/Kconfig"
+
 source "arch/arm/mach-tegra/Kconfig"
 
 source "arch/arm/mach-uniphier/Kconfig"
@@ -863,7 +857,6 @@ source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/db-88f6820-gp/Kconfig"
 source "board/Marvell/db-mv784mp-gp/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
-source "board/altera/socfpga/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
