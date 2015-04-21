@@ -241,17 +241,12 @@ psci_arch_init:
 	mcr	p15, 0, r5, c1, c1, 0	@ Write SCR
 	isb
 
-	bl	psci_get_cpu_id
-	mov	r5, #0x400		@ 1kB of stack per CPU
-	mul	r0, r0, r5
-
-	adr	r5, text_end		@ end of text
-	add	r5, r5, #0x2000		@ Skip two pages
-	lsr	r5, r5, #12		@ Align to start of page
-	lsl	r5, r5, #12
-	sub	sp, r5, r0		@ here's our stack!
+	bl	psci_get_cpu_id		@ CPU ID => r0
+	bl	psci_get_cpu_stack_top	@ stack top => r0
+	mov	sp, r0
 
 	bx	r6
 
-text_end:
+	.globl psci_text_end
+psci_text_end:
 	.popsection

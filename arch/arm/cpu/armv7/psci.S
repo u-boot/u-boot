@@ -193,6 +193,20 @@ ENTRY(psci_cpu_off_common)
 	bx	lr
 ENDPROC(psci_cpu_off_common)
 
+@ expects CPU ID in r0 and returns stack top in r0
+ENTRY(psci_get_cpu_stack_top)
+	mov	r5, #0x400			@ 1kB of stack per CPU
+	mul	r0, r0, r5
+
+	ldr	r5, =psci_text_end		@ end of monitor text
+	add	r5, r5, #0x2000			@ Skip two pages
+	lsr	r5, r5, #12			@ Align to start of page
+	lsl	r5, r5, #12
+	sub	r0, r5, r0			@ here's our stack!
+
+	bx	lr
+ENDPROC(psci_get_cpu_stack_top)
+
 ENTRY(psci_cpu_entry)
 	bl	psci_enable_smp
 
