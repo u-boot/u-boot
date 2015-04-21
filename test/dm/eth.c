@@ -135,6 +135,7 @@ static int dm_test_net_retry(struct dm_test_state *dms)
 	sandbox_eth_disable_response(1, true);
 	setenv("ethact", "eth@10004000");
 	setenv("netretry", "yes");
+	sandbox_eth_skip_timeout();
 	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10002000", getenv("ethact"));
 
@@ -144,6 +145,7 @@ static int dm_test_net_retry(struct dm_test_state *dms)
 	 */
 	setenv("ethact", "eth@10004000");
 	setenv("netretry", "no");
+	sandbox_eth_skip_timeout();
 	ut_asserteq(-ETIMEDOUT, net_loop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
