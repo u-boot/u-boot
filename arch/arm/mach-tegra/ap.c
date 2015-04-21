@@ -169,6 +169,43 @@ void protect_secure_section(void)
 }
 #endif
 
+#if defined(CONFIG_ARMV7_NONSEC)
+static void smmu_flush(struct mc_ctlr *mc)
+{
+	(void)readl(&mc->mc_smmu_config);
+}
+
+static void smmu_enable(void)
+{
+	struct mc_ctlr *mc = (struct mc_ctlr *)NV_PA_MC_BASE;
+	u32 value;
+
+	/*
+	 * Enable translation for all clients since access to this register
+	 * is restricted to TrustZone-secured requestors. The kernel will use
+	 * the per-SWGROUP enable bits to enable or disable translations.
+	 */
+	writel(0xffffffff, &mc->mc_smmu_translation_enable_0);
+	writel(0xffffffff, &mc->mc_smmu_translation_enable_1);
+	writel(0xffffffff, &mc->mc_smmu_translation_enable_2);
+	writel(0xffffffff, &mc->mc_smmu_translation_enable_3);
+
+	/*
+	 * Enable SMMU globally since access to this register is restricted
+	 * to TrustZone-secured requestors.
+	 */
+	value = readl(&mc->mc_smmu_config);
+	value |= TEGRA_MC_SMMU_CONFIG_ENABLE;
+	writel(value, &mc->mc_smmu_config);
+
+	smmu_flush(mc);
+}
+#else
+static void smmu_enable(void)
+{
+}
+#endif
+
 void s_init(void)
 {
 	/* Init PMC scratch memory */
@@ -178,6 +215,9 @@ void s_init(void)
 
 	/* init the cache */
 	config_cache();
+
+	/* enable SMMU */
+	smmu_enable();
 
 	/* init vpr */
 	config_vpr();

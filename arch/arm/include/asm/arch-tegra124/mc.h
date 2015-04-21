@@ -74,6 +74,8 @@ struct mc_ctlr {
 	u32 mc_video_protect_reg_ctrl;		/* offset 0x650 */
 };
 
+#define TEGRA_MC_SMMU_CONFIG_ENABLE (1 << 0)
+
 #define TEGRA_MC_VIDEO_PROTECT_REG_WRITE_ACCESS_ENABLED		(0 << 0)
 #define TEGRA_MC_VIDEO_PROTECT_REG_WRITE_ACCESS_DISABLED	(1 << 0)
 
