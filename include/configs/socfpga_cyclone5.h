@@ -37,7 +37,6 @@
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_USB_MASS_STORAGE
 
-#define CONFIG_REGEX			/* Enable regular expression support */
 
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on SoCDK */

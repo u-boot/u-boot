@@ -36,6 +36,14 @@ config SYS_VSNPRINTF
 	  Thumb-2, about 420 bytes). Enable this option for safety when
 	  using sprintf() with data you do not control.
 
+config REGEX
+	bool "Enable regular expression support"
+	help
+	  If this variable is defined, U-Boot is linked against the
+	  SLRE (Super Light Regular Expression) library, which adds
+	  regex support to some commands, for example "env grep" and
+	  "setexpr".
+
 source lib/rsa/Kconfig
 
 menu "Hashing Support"

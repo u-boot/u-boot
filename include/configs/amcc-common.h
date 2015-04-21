@@ -106,7 +106,6 @@
 #define CONFIG_LOADS_ECHO		/* echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change	*/
 
-#define CONFIG_REGEX			/* Enable regular expression support */
 /*
  * BOOTP options
  */

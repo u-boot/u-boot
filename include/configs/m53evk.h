@@ -51,7 +51,6 @@
 #define CONFIG_CMD_USB
 #define CONFIG_VIDEO
 
-#define CONFIG_REGEX			/* Enable regular expression support */
 
 /*
  * Memory configurations

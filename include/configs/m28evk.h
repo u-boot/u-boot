@@ -49,7 +49,6 @@
 #define CONFIG_CMD_USB
 #define	CONFIG_VIDEO
 
-#define CONFIG_REGEX			/* Enable regular expression support */
 
 /* Memory configuration */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
