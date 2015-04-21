@@ -75,6 +75,10 @@ void __weak smp_kick_all_cpus(void)
 	kick_secondary_cpus_gic(gic_dist_addr);
 }
 
+__weak void psci_board_init(void)
+{
+}
+
 int armv7_init_nonsec(void)
 {
 	unsigned int reg;
@@ -111,6 +115,8 @@ int armv7_init_nonsec(void)
 	 */
 	for (i = 1; i <= itlinesnr; i++)
 		writel((unsigned)-1, gic_dist_addr + GICD_IGROUPRn + 4 * i);
+
+	psci_board_init();
 
 	/*
 	 * Relocate secure section before any cpu runs in secure ram.
