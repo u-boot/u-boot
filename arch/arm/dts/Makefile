@@ -49,7 +49,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-zc770-xm013.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb
 
-dtb-$(CONFIG_SOCFPGA) +=				\
+dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_arria5_socdk.dtb			\
 	socfpga_cyclone5_socdk.dtb			\
 	socfpga_cyclone5_socrates.dtb

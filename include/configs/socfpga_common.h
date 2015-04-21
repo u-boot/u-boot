@@ -13,8 +13,6 @@
 
 #define CONFIG_SYS_THUMB_BUILD
 
-#define CONFIG_SOCFPGA
-
 /*
  * High level configuration
  */
