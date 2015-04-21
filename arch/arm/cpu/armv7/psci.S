@@ -99,4 +99,12 @@ _smc_psci:
 	pop	{r4-r7, lr}
 	movs	pc, lr			@ Return to the kernel
 
+@ Requires dense and single-cluster CPU ID space
+ENTRY(psci_get_cpu_id)
+	mrc	p15, 0, r0, c0, c0, 5	/* read MPIDR */
+	and	r0, r0, #0xff		/* return CPU ID in cluster */
+	bx	lr
+ENDPROC(psci_get_cpu_id)
+.weak psci_get_cpu_id
+
 	.popsection

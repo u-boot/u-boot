@@ -19,6 +19,7 @@
 
 #include <config.h>
 #include <asm/gic.h>
+#include <asm/macro.h>
 #include <asm/psci.h>
 #include <asm/arch/cpu.h>
 
@@ -290,6 +291,8 @@ psci_cpu_off:
 
 .globl	psci_arch_init
 psci_arch_init:
+	mov	r6, lr
+
 	movw	r4, #(GICD_BASE & 0xffff)
 	movt	r4, #(GICD_BASE >> 16)
 
@@ -315,18 +318,17 @@ psci_arch_init:
 	mcr	p15, 0, r5, c1, c1, 0	@ Write SCR
 	isb
 
-	mrc	p15, 0, r4, c0, c0, 5	@ MPIDR
-	and	r4, r4, #3		@ cpu number in cluster
+	bl	psci_get_cpu_id
 	mov	r5, #0x400		@ 1kB of stack per CPU
-	mul	r4, r4, r5
+	mul	r0, r0, r5
 
 	adr	r5, text_end		@ end of text
 	add	r5, r5, #0x2000		@ Skip two pages
 	lsr	r5, r5, #12		@ Align to start of page
 	lsl	r5, r5, #12
-	sub	sp, r5, r4		@ here's our stack!
+	sub	sp, r5, r0		@ here's our stack!
 
-	bx	lr
+	bx	r6
 
 text_end:
 	.popsection
