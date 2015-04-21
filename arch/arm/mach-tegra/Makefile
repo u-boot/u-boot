@@ -26,6 +26,10 @@ obj-y += xusb-padctl.o
 obj-$(CONFIG_DISPLAY_CPUINFO) += sys_info.o
 obj-$(CONFIG_TEGRA124) += vpr.o
 
+ifndef CONFIG_SPL_BUILD
+obj-$(CONFIG_ARMV7_PSCI) += psci.o
+endif
+
 obj-$(CONFIG_TEGRA20) += tegra20/
 obj-$(CONFIG_TEGRA30) += tegra30/
 obj-$(CONFIG_TEGRA114) += tegra114/
