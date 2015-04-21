@@ -16,7 +16,7 @@ config ARMV7_NONSEC
 config ARMV7_BOOT_SEC_DEFAULT
 	boolean "Boot in secure mode by default" if EXPERT
 	depends on ARMV7_NONSEC
-	default n
+	default y if TEGRA
 	---help---
 	Say Y here to boot in secure mode by default even if non-secure mode
 	is supported. This option is useful to boot kernels which do not
