@@ -506,11 +506,47 @@ static void set_sysctl(struct mmc *mmc, uint clock)
 	esdhc_setbits32(&regs->sysctl, clk);
 }
 
+#ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
+static void esdhc_clock_control(struct mmc *mmc, bool enable)
+{
+	struct fsl_esdhc_cfg *cfg = mmc->priv;
+	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
+	u32 value;
+	u32 time_out;
+
+	value = esdhc_read32(&regs->sysctl);
+
+	if (enable)
+		value |= SYSCTL_CKEN;
+	else
+		value &= ~SYSCTL_CKEN;
+
+	esdhc_write32(&regs->sysctl, value);
+
+	time_out = 20;
+	value = PRSSTAT_SDSTB;
+	while (!(esdhc_read32(&regs->prsstat) & value)) {
+		if (time_out == 0) {
+			printf("fsl_esdhc: Internal clock never stabilised.\n");
+			break;
+		}
+		time_out--;
+		mdelay(1);
+	}
+}
+#endif
+
 static void esdhc_set_ios(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = mmc->priv;
 	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 
+#ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
+	/* Select to use peripheral clock */
+	esdhc_clock_control(mmc, false);
+	esdhc_setbits32(&regs->scr, ESDHCCTL_PCS);
+	esdhc_clock_control(mmc, true);
+#endif
 	/* Set the clock speed */
 	set_sysctl(mmc, mmc->clock);
 
@@ -740,8 +776,13 @@ void fdt_fixup_esdhc(void *blob, bd_t *bd)
 	}
 #endif
 
+#ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
+	do_fixup_by_compat_u32(blob, compat, "peripheral-frequency",
+			       gd->arch.sdhc_clk, 1);
+#else
 	do_fixup_by_compat_u32(blob, compat, "clock-frequency",
 			       gd->arch.sdhc_clk, 1);
+#endif
 #ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
 	do_fixup_by_compat_u32(blob, compat, "adapter-type",
 			       (u32)(gd->arch.sdhc_adapter), 1);
