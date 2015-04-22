@@ -265,24 +265,40 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	u16 tdllk = 0x1ff; /* DLL locking time: 512 cycles (JEDEC DDR3) */
 	u8 coladdr;
 	int clkper; /* clock period in picoseconds */
-	int clock; /* clock freq in mHz */
+	int clock; /* clock freq in MHz */
 	int cs;
+	u16 mem_speed = ddr3_cfg->mem_speed;
 
 	mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
 #ifndef CONFIG_MX6SX
 	mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
 #endif
 
-	/* MX6D/MX6Q: 1066 MHz memory clock, clkper = 1.894ns = 1894ps */
+	/* Limit mem_speed for MX6D/MX6Q */
 	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) {
-		clock = 528;
+		if (mem_speed > 1066)
+			mem_speed = 1066; /* 1066 MT/s */
+
 		tcwl = 4;
 	}
-	/* MX6S/MX6DL: 800 MHz memory clock, clkper = 2.5ns = 2500ps */
+	/* Limit mem_speed for MX6S/MX6DL */
 	else {
-		clock = 400;
+		if (mem_speed > 800)
+			mem_speed = 800;  /* 800 MT/s */
+
 		tcwl = 3;
 	}
+
+	clock = mem_speed / 2;
+	/*
+	 * Data rate of 1066 MT/s requires 533 MHz DDR3 clock, but MX6D/Q supports
+	 * up to 528 MHz, so reduce the clock to fit chip specs
+	 */
+	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) {
+		if (clock > 528)
+			clock = 528; /* 528 MHz */
+	}
+
 	clkper = (1000 * 1000) / clock; /* pico seconds */
 	todtlon = tcwl;
 	taxpd = tcwl;
@@ -313,7 +329,7 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	}
 	txpr = txs;
 
-	switch (ddr3_cfg->mem_speed) {
+	switch (mem_speed) {
 	case 800:
 		txp = DIV_ROUND_UP(max(3 * clkper, 7500), clkper) - 1;
 		tcke = DIV_ROUND_UP(max(3 * clkper, 7500), clkper) - 1;
@@ -382,7 +398,7 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	debug("density:%d Gb (%d Gb per chip)\n",
 	      sysinfo->cs_density, ddr3_cfg->density);
 	debug("clock: %dMHz (%d ps)\n", clock, clkper);
-	debug("memspd:%d\n", ddr3_cfg->mem_speed);
+	debug("memspd:%d\n", mem_speed);
 	debug("tcke=%d\n", tcke);
 	debug("tcksrx=%d\n", tcksrx);
 	debug("tcksre=%d\n", tcksre);
