@@ -9,6 +9,11 @@
 #include <common.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pmic_bus.h>
+#include <asm/gpio.h>
+#include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
+#include <dm/root.h>
 #include <errno.h>
 
 #ifdef CONFIG_AXP152_POWER
@@ -135,13 +140,48 @@ int axp_gpio_set_value(struct udevice *dev, unsigned pin, int val)
 	}
 }
 
+#ifdef CONFIG_DM_GPIO
+static const struct dm_gpio_ops gpio_axp_ops = {
+	.direction_input	= axp_gpio_direction_input,
+	.direction_output	= axp_gpio_direction_output,
+	.get_value		= axp_gpio_get_value,
+	.set_value		= axp_gpio_set_value,
+};
+
+static int gpio_axp_probe(struct udevice *dev)
+{
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	/* Tell the uclass how many GPIOs we have */
+	uc_priv->bank_name = strdup(SUNXI_GPIO_AXP0_PREFIX);
+	uc_priv->gpio_count = SUNXI_GPIO_AXP0_GPIO_COUNT;
+
+	return 0;
+}
+
+U_BOOT_DRIVER(gpio_axp) = {
+	.name	= "gpio_axp",
+	.id	= UCLASS_GPIO,
+	.ops	= &gpio_axp_ops,
+	.probe	= gpio_axp_probe,
+};
+#endif
+
 int axp_gpio_init(void)
 {
+	__maybe_unused struct udevice *dev;
 	int ret;
 
 	ret = pmic_bus_init();
 	if (ret)
 		return ret;
+
+#ifdef CONFIG_DM_GPIO
+	/* There is no devicetree support for the axp yet, so bind directly */
+	ret = device_bind_driver(dm_root(), "gpio_axp", "AXP-gpio", &dev);
+	if (ret)
+		return ret;
+#endif
 
 	return 0;
 }

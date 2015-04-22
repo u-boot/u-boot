@@ -203,8 +203,10 @@ enum sunxi_gpio_number {
 #define SUNXI_GPIO_PULL_DOWN	2
 
 /* Virtual AXP0 GPIOs */
-#define SUNXI_GPIO_AXP0_VBUS_DETECT	8
-#define SUNXI_GPIO_AXP0_VBUS_ENABLE	9
+#define SUNXI_GPIO_AXP0_PREFIX "AXP0-"
+#define SUNXI_GPIO_AXP0_VBUS_DETECT	4
+#define SUNXI_GPIO_AXP0_VBUS_ENABLE	5
+#define SUNXI_GPIO_AXP0_GPIO_COUNT	6
 
 void sunxi_gpio_set_cfgbank(struct sunxi_gpio *pio, int bank_offset, u32 val);
 void sunxi_gpio_set_cfgpin(u32 pin, u32 val);
