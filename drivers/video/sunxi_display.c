@@ -600,19 +600,19 @@ static void sunxi_lcdc_panel_enable(void)
 	 * white while the lcd inits.
 	 */
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_EN);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "lcd_backlight_enable");
 		gpio_direction_output(pin, 0);
 	}
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_PWM);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "lcd_backlight_pwm");
 		gpio_direction_output(pin, PWM_OFF);
 	}
 
 	reset_pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_RESET);
-	if (reset_pin != -1) {
+	if (reset_pin >= 0) {
 		gpio_request(reset_pin, "lcd_reset");
 		gpio_direction_output(reset_pin, 0); /* Assert reset */
 	}
@@ -620,12 +620,12 @@ static void sunxi_lcdc_panel_enable(void)
 	/* Give the backlight some time to turn off and power up the panel. */
 	mdelay(40);
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_POWER);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "lcd_power");
 		gpio_direction_output(pin, 1);
 	}
 
-	if (reset_pin != -1)
+	if (reset_pin >= 0)
 		gpio_direction_output(reset_pin, 1); /* De-assert reset */
 }
 
@@ -640,11 +640,11 @@ static void sunxi_lcdc_backlight_enable(void)
 	mdelay(40);
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_EN);
-	if (pin != -1)
+	if (pin >= 0)
 		gpio_direction_output(pin, 1);
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_PWM);
-	if (pin != -1)
+	if (pin >= 0)
 		gpio_direction_output(pin, PWM_ON);
 }
 
@@ -961,7 +961,7 @@ static void sunxi_vga_external_dac_enable(void)
 	int pin;
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_VGA_EXTERNAL_DAC_EN);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "vga_enable");
 		gpio_direction_output(pin, 1);
 	}
