@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <asm/io.h>
@@ -37,7 +38,7 @@ static int sunxi_mmc_getcd_gpio(int sdc_no)
 	case 2: return sunxi_name_to_gpio(CONFIG_MMC2_CD_PIN);
 	case 3: return sunxi_name_to_gpio(CONFIG_MMC3_CD_PIN);
 	}
-	return -1;
+	return -EINVAL;
 }
 
 static int mmc_resource_init(int sdc_no)
@@ -72,7 +73,7 @@ static int mmc_resource_init(int sdc_no)
 	mmchost->mmc_no = sdc_no;
 
 	cd_pin = sunxi_mmc_getcd_gpio(sdc_no);
-	if (cd_pin != -1) {
+	if (cd_pin >= 0) {
 		ret = gpio_request(cd_pin, "mmc_cd");
 		if (!ret)
 			ret = gpio_direction_input(cd_pin);
@@ -424,7 +425,7 @@ static int sunxi_mmc_getcd(struct mmc *mmc)
 	int cd_pin;
 
 	cd_pin = sunxi_mmc_getcd_gpio(mmchost->mmc_no);
-	if (cd_pin == -1)
+	if (cd_pin < 0)
 		return 1;
 
 	return !gpio_get_value(cd_pin);
