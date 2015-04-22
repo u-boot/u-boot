@@ -694,6 +694,39 @@ int fsl_esdhc_mmc_init(bd_t *bis)
 	return fsl_esdhc_initialize(bis, cfg);
 }
 
+#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
+void mmc_adapter_card_type_ident(void)
+{
+	u8 card_id;
+	u8 value;
+
+	card_id = QIXIS_READ(present) & QIXIS_SDID_MASK;
+	gd->arch.sdhc_adapter = card_id;
+
+	switch (card_id) {
+	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC45:
+		break;
+	case QIXIS_ESDHC_ADAPTER_TYPE_SDMMC_LEGACY:
+		break;
+	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC44:
+		value = QIXIS_READ(brdcfg[5]);
+		value |= (QIXIS_SDCLKIN | QIXIS_SDCLKOUT);
+		QIXIS_WRITE(brdcfg[5], value);
+		break;
+	case QIXIS_ESDHC_ADAPTER_TYPE_RSV:
+		break;
+	case QIXIS_ESDHC_ADAPTER_TYPE_MMC:
+		break;
+	case QIXIS_ESDHC_ADAPTER_TYPE_SD:
+		break;
+	case QIXIS_ESDHC_NO_ADAPTER:
+		break;
+	default:
+		break;
+	}
+}
+#endif
+
 #ifdef CONFIG_OF_LIBFDT
 void fdt_fixup_esdhc(void *blob, bd_t *bd)
 {
@@ -709,7 +742,10 @@ void fdt_fixup_esdhc(void *blob, bd_t *bd)
 
 	do_fixup_by_compat_u32(blob, compat, "clock-frequency",
 			       gd->arch.sdhc_clk, 1);
-
+#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
+	do_fixup_by_compat_u32(blob, compat, "adapter-type",
+			       (u32)(gd->arch.sdhc_adapter), 1);
+#endif
 	do_fixup_by_compat(blob, compat, "status", "okay",
 			   4 + 1, 1);
 }

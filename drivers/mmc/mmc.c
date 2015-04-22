@@ -1588,6 +1588,9 @@ int mmc_start_init(struct mmc *mmc)
 	if (mmc->has_init)
 		return 0;
 
+#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
+	mmc_adapter_card_type_ident();
+#endif
 	board_mmc_power_init();
 
 	/* made sure it's not NULL earlier */
@@ -1739,6 +1742,9 @@ static void do_preinit(void)
 	list_for_each(entry, &mmc_devices) {
 		m = list_entry(entry, struct mmc, link);
 
+#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
+		mmc_set_preinit(m, 1);
+#endif
 		if (m->preinit)
 			mmc_start_init(m);
 	}
