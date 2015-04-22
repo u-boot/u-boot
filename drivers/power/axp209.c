@@ -167,7 +167,7 @@ static u8 axp209_get_gpio_ctrl_reg(unsigned int pin)
 	return 0;
 }
 
-int axp_gpio_direction_input(unsigned int pin)
+int axp_gpio_direction_input(struct udevice *dev, unsigned pin)
 {
 	if (pin == SUNXI_GPIO_AXP0_VBUS_DETECT)
 		return 0;
@@ -179,7 +179,7 @@ int axp_gpio_direction_input(unsigned int pin)
 	return axp209_write(reg, val);
 }
 
-int axp_gpio_direction_output(unsigned int pin, unsigned int val)
+int axp_gpio_direction_output(struct udevice *dev, unsigned pin, int val)
 {
 	u8 reg = axp209_get_gpio_ctrl_reg(pin);
 
@@ -194,7 +194,7 @@ int axp_gpio_direction_output(unsigned int pin, unsigned int val)
 	return axp209_write(reg, val);
 }
 
-int axp_gpio_get_value(unsigned int pin)
+int axp_gpio_get_value(struct udevice *dev, unsigned pin)
 {
 	u8 val, mask;
 	int rc;
@@ -215,7 +215,7 @@ int axp_gpio_get_value(unsigned int pin)
 	return (val & mask) ? 1 : 0;
 }
 
-int axp_gpio_set_value(unsigned int pin, unsigned int val)
+int axp_gpio_set_value(struct udevice *dev, unsigned pin, int val)
 {
-	return axp_gpio_direction_output(pin, val);
+	return axp_gpio_direction_output(dev, pin, val);
 }

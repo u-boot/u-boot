@@ -386,7 +386,7 @@ int axp221_get_sid(unsigned int *sid)
 	return 0;
 }
 
-int axp_gpio_direction_input(unsigned int pin)
+int axp_gpio_direction_input(struct udevice *dev, unsigned pin)
 {
 	switch (pin) {
 	case SUNXI_GPIO_AXP0_VBUS_DETECT:
@@ -396,7 +396,7 @@ int axp_gpio_direction_input(unsigned int pin)
 	}
 }
 
-int axp_gpio_direction_output(unsigned int pin, unsigned int val)
+int axp_gpio_direction_output(struct udevice *dev, unsigned pin, int val)
 {
 	int ret;
 
@@ -407,13 +407,13 @@ int axp_gpio_direction_output(unsigned int pin, unsigned int val)
 		if (ret)
 			return ret;
 
-		return axp_gpio_set_value(pin, val);
+		return axp_gpio_set_value(dev, pin, val);
 	default:
 		return -EINVAL;
 	}
 }
 
-int axp_gpio_get_value(unsigned int pin)
+int axp_gpio_get_value(struct udevice *dev, unsigned pin)
 {
 	int ret;
 	u8 val;
@@ -430,7 +430,7 @@ int axp_gpio_get_value(unsigned int pin)
 	}
 }
 
-int axp_gpio_set_value(unsigned int pin, unsigned int val)
+int axp_gpio_set_value(struct udevice *dev, unsigned pin, int val)
 {
 	int ret;
 

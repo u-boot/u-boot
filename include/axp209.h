@@ -4,6 +4,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+struct udevice;
+
 enum axp209_reg {
 	AXP209_POWER_STATUS = 0x00,
 	AXP209_CHIP_VERSION = 0x03,
@@ -53,7 +55,7 @@ extern int axp209_init(void);
 extern int axp209_poweron_by_dc(void);
 extern int axp209_power_button(void);
 
-extern int axp_gpio_direction_input(unsigned int pin);
-extern int axp_gpio_direction_output(unsigned int pin, unsigned int val);
-extern int axp_gpio_get_value(unsigned int pin);
-extern int axp_gpio_set_value(unsigned int pin, unsigned int val);
+extern int axp_gpio_direction_input(struct udevice *dev, unsigned offset);
+extern int axp_gpio_direction_output(struct udevice *dev, unsigned offset, int val);
+extern int axp_gpio_get_value(struct udevice *dev, unsigned offset);
+extern int axp_gpio_set_value(struct udevice *dev, unsigned offset, int val);

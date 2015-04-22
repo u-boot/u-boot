@@ -81,7 +81,7 @@ int gpio_direction_input(unsigned gpio)
 {
 #ifdef AXP_GPIO
 	if (gpio >= SUNXI_GPIO_AXP0_START)
-		return axp_gpio_direction_input(gpio - SUNXI_GPIO_AXP0_START);
+		return axp_gpio_direction_input(NULL, gpio - SUNXI_GPIO_AXP0_START);
 #endif
 	sunxi_gpio_set_cfgpin(gpio, SUNXI_GPIO_INPUT);
 
@@ -92,7 +92,7 @@ int gpio_direction_output(unsigned gpio, int value)
 {
 #ifdef AXP_GPIO
 	if (gpio >= SUNXI_GPIO_AXP0_START)
-		return axp_gpio_direction_output(gpio - SUNXI_GPIO_AXP0_START,
+		return axp_gpio_direction_output(NULL, gpio - SUNXI_GPIO_AXP0_START,
 						 value);
 #endif
 	sunxi_gpio_set_cfgpin(gpio, SUNXI_GPIO_OUTPUT);
@@ -104,7 +104,7 @@ int gpio_get_value(unsigned gpio)
 {
 #ifdef AXP_GPIO
 	if (gpio >= SUNXI_GPIO_AXP0_START)
-		return axp_gpio_get_value(gpio - SUNXI_GPIO_AXP0_START);
+		return axp_gpio_get_value(NULL, gpio - SUNXI_GPIO_AXP0_START);
 #endif
 	return sunxi_gpio_input(gpio);
 }
@@ -113,7 +113,7 @@ int gpio_set_value(unsigned gpio, int value)
 {
 #ifdef AXP_GPIO
 	if (gpio >= SUNXI_GPIO_AXP0_START)
-		return axp_gpio_set_value(gpio - SUNXI_GPIO_AXP0_START, value);
+		return axp_gpio_set_value(NULL, gpio - SUNXI_GPIO_AXP0_START, value);
 #endif
 	return sunxi_gpio_output(gpio, value);
 }

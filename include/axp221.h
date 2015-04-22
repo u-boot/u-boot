@@ -6,6 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+struct udevice;
+
 #define AXP221_CHIP_ADDR 0x68
 #define AXP221_CTRL_ADDR 0x3e
 #define AXP221_INIT_DATA 0x3e
@@ -80,7 +82,7 @@ int axp221_set_eldo(int eldo_num, unsigned int mvolt);
 int axp221_init(void);
 int axp221_get_sid(unsigned int *sid);
 
-int axp_gpio_direction_input(unsigned int pin);
-int axp_gpio_direction_output(unsigned int pin, unsigned int val);
-int axp_gpio_get_value(unsigned int pin);
-int axp_gpio_set_value(unsigned int pin, unsigned int val);
+int axp_gpio_direction_input(struct udevice *dev, unsigned offset);
+int axp_gpio_direction_output(struct udevice *dev, unsigned offset, int val);
+int axp_gpio_get_value(struct udevice *dev, unsigned offset);
+int axp_gpio_set_value(struct udevice *dev, unsigned offset, int val);
