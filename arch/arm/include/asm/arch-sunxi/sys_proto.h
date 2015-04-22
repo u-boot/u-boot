@@ -23,4 +23,7 @@ void sdelay(unsigned long);
  */
 void return_to_fel(uint32_t lr, uint32_t sp);
 
+/* Board / SoC level designware gmac init */
+int sunxi_gmac_initialize(bd_t *bis);
+
 #endif
