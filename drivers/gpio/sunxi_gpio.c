@@ -322,7 +322,14 @@ static int gpio_sunxi_bind(struct udevice *parent)
 }
 
 static const struct udevice_id sunxi_gpio_ids[] = {
+	{ .compatible = "allwinner,sun4i-a10-pinctrl" },
+	{ .compatible = "allwinner,sun5i-a10s-pinctrl" },
+	{ .compatible = "allwinner,sun5i-a13-pinctrl" },
+	{ .compatible = "allwinner,sun6i-a31-pinctrl" },
+	{ .compatible = "allwinner,sun6i-a31s-pinctrl" },
 	{ .compatible = "allwinner,sun7i-a20-pinctrl" },
+	{ .compatible = "allwinner,sun8i-a23-pinctrl" },
+	{ .compatible = "allwinner,sun9i-a80-pinctrl" },
 	{ }
 };
 
