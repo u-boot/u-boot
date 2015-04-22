@@ -16,6 +16,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/param.h>
+#include <sys/types.h>
 
 #include <compiler.h>
 #include <trace.h>
