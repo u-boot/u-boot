@@ -513,74 +513,6 @@ static void sunxi_emac_board_setup(struct emac_eth_dev *priv)
 	clrsetbits_le32(&regs->mac_mcfg, 0xf << 2, 0xd << 2);
 }
 
-#ifndef CONFIG_DM_ETH
-static int sunxi_emac_eth_init(struct eth_device *dev, bd_t *bis)
-{
-	return _sunxi_emac_eth_init(dev->priv, dev->enetaddr);
-}
-
-static void sunxi_emac_eth_halt(struct eth_device *dev)
-{
-	/* Nothing to do here */
-}
-
-static int sunxi_emac_eth_recv(struct eth_device *dev)
-{
-	int rx_len;
-
-	rx_len = _sunxi_emac_eth_recv(dev->priv, net_rx_packets[0]);
-	if (rx_len <= 0)
-		return 0;
-
-	/* Pass to upper layer */
-	net_process_received_packet(net_rx_packets[0], rx_len);
-
-	return rx_len;
-}
-
-static int sunxi_emac_eth_send(struct eth_device *dev, void *packet, int length)
-{
-	return _sunxi_emac_eth_send(dev->priv, packet, length);
-}
-
-int sunxi_emac_initialize(void)
-{
-	struct emac_regs *regs =
-		(struct emac_regs *)SUNXI_EMAC_BASE;
-	struct eth_device *dev;
-	struct emac_eth_dev *priv;
-
-	dev = malloc(sizeof(*dev));
-	if (dev == NULL)
-		return -ENOMEM;
-
-	priv = (struct emac_eth_dev *)malloc(sizeof(struct emac_eth_dev));
-	if (!priv) {
-		free(dev);
-		return -ENOMEM;
-	}
-
-	memset(dev, 0, sizeof(*dev));
-	memset(priv, 0, sizeof(struct emac_eth_dev));
-
-	priv->regs = regs;
-	dev->iobase = (int)regs;
-	dev->priv = priv;
-	dev->init = sunxi_emac_eth_init;
-	dev->halt = sunxi_emac_eth_halt;
-	dev->send = sunxi_emac_eth_send;
-	dev->recv = sunxi_emac_eth_recv;
-	strcpy(dev->name, "emac");
-
-	sunxi_emac_board_setup(priv);
-
-	eth_register(dev);
-
-	return sunxi_emac_init_phy(priv, dev);
-}
-#endif
-
-#ifdef CONFIG_DM_ETH
 static int sunxi_emac_eth_start(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
@@ -653,4 +585,3 @@ U_BOOT_DRIVER(eth_sunxi_emac) = {
 	.priv_auto_alloc_size = sizeof(struct emac_eth_dev),
 	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
 };
-#endif

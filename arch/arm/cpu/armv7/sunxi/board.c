@@ -12,10 +12,6 @@
 
 #include <common.h>
 #include <i2c.h>
-#ifndef CONFIG_DM_ETH
-#include <netdev.h>
-#endif
-#include <miiphy.h>
 #include <serial.h>
 #ifdef CONFIG_SPL_BUILD
 #include <spl.h>
@@ -219,14 +215,6 @@ int cpu_eth_init(bd_t *bis)
 #ifdef CONFIG_MACPWR
 	gpio_direction_output(CONFIG_MACPWR, 1);
 	mdelay(200);
-#endif
-
-#if defined CONFIG_SUNXI_EMAC && !defined CONFIG_DM_ETH
-	rc = sunxi_emac_initialize(bis);
-	if (rc < 0) {
-		printf("sunxi: failed to initialize emac\n");
-		return rc;
-	}
 #endif
 
 #ifdef CONFIG_SUNXI_GMAC
