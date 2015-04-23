@@ -411,7 +411,7 @@ class TestBuild(unittest.TestCase):
 
     def testToolchainDownload(self):
         """Test that we can download toolchains"""
-        self.assertEqual('https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.3/x86_64-gcc-4.6.3-nolibc_arm-unknown-linux-gnueabi.tar.xz',
+        self.assertEqual('https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.9.0/x86_64-gcc-4.9.0-nolibc_arm-unknown-linux-gnueabi.tar.xz',
             self.toolchains.LocateArchUrl('arm'))
 
 

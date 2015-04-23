@@ -339,7 +339,7 @@ class Toolchains:
         """
         arch = command.OutputOneLine('uname', '-m')
         base = 'https://www.kernel.org/pub/tools/crosstool/files/bin'
-        versions = ['4.6.3', '4.6.2', '4.5.1', '4.2.4']
+        versions = ['4.9.0', '4.6.3', '4.6.2', '4.5.1', '4.2.4']
         links = []
         for version in versions:
             url = '%s/%s/%s/' % (base, arch, version)
