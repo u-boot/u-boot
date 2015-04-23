@@ -383,11 +383,6 @@ F:	drivers/mtd/spi/
 F:	drivers/spi/
 F:	include/spi*
 
-TESTING
-M:	Detlev Zundel <dzu@denx.de>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-testing.git
-
 TQ GROUP
 M:	Martin Krause <martin.krause@tq-systems.de>
 S:	Maintained
