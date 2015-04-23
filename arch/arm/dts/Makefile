@@ -66,6 +66,7 @@ dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-hackberry.dtb \
 	sun4i-a10-hyundai-a7hd.dtb \
 	sun4i-a10-inet97fv2.dtb \
+	sun4i-a10-jesurun-q5.dtb \
 	sun4i-a10-marsboard.dtb \
 	sun4i-a10-mini-xplus.dtb \
 	sun4i-a10-mk802.dtb \
@@ -103,6 +104,7 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-orangepi-mini.dtb \
 	sun7i-a20-pcduino3.dtb \
 	sun7i-a20-pcduino3-nano.dtb \
+	sun7i-a20-primo73.dtb \
 	sun7i-a20-wexler-tab7200.dtb
 dtb-$(CONFIG_MACH_SUN8I_A23) += \
 	sun8i-a23-ippo-q8h-v5.dtb \
