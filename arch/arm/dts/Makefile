@@ -65,6 +65,8 @@ dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-gemei-g9.dtb \
 	sun4i-a10-hackberry.dtb \
 	sun4i-a10-hyundai-a7hd.dtb \
+	sun4i-a10-inet-3f.dtb \
+	sun4i-a10-inet-3w.dtb \
 	sun4i-a10-inet97fv2.dtb \
 	sun4i-a10-jesurun-q5.dtb \
 	sun4i-a10-marsboard.dtb \
@@ -78,9 +80,13 @@ dtb-$(CONFIG_MACH_SUN5I) += \
 	sun5i-a10s-mk802.dtb \
 	sun5i-a10s-olinuxino-micro.dtb \
 	sun5i-a10s-r7-tv-dongle.dtb \
+	sun5i-a13-ampe-a76.dtb \
+	sun5i-a13-forfun-q88db.dtb \
 	sun5i-a13-hsg-h702.dtb \
+	sun5i-a13-inet-86vs.dtb \
 	sun5i-a13-olinuxino.dtb \
 	sun5i-a13-olinuxino-micro.dtb \
+	sun5i-a13-tzx-q8-713b7.dtb \
 	sun5i-a13-utoo-p66.dtb
 dtb-$(CONFIG_MACH_SUN6I) += \
 	sun6i-a31-app4-evb1.dtb \
@@ -88,8 +94,11 @@ dtb-$(CONFIG_MACH_SUN6I) += \
 	sun6i-a31-hummingbird.dtb \
 	sun6i-a31-i7.dtb \
 	sun6i-a31-m9.dtb \
-	sun6i-a31s-cs908.dtb
+	sun6i-a31-mixtile-loftq.dtb \
+	sun6i-a31s-cs908.dtb \
+	sun6i-a31s-primo81.dtb
 dtb-$(CONFIG_MACH_SUN7I) += \
+	sun7i-a20-ainol-aw1.dtb \
 	sun7i-a20-bananapi.dtb \
 	sun7i-a20-bananapro.dtb \
 	sun7i-a20-cubieboard2.dtb \
@@ -97,6 +106,8 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-hummingbird.dtb \
 	sun7i-a20-i12-tvbox.dtb \
 	sun7i-a20-m3.dtb \
+	sun7i-a20-m5.dtb \
+	sun7i-a20-mk808c.dtb \
 	sun7i-a20-olinuxino-lime.dtb \
 	sun7i-a20-olinuxino-lime2.dtb \
 	sun7i-a20-olinuxino-micro.dtb \
@@ -105,10 +116,15 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-pcduino3.dtb \
 	sun7i-a20-pcduino3-nano.dtb \
 	sun7i-a20-primo73.dtb \
-	sun7i-a20-wexler-tab7200.dtb
+	sun7i-a20-wexler-tab7200.dtb \
+	sun7i-a20-wits-pro-a20-dkt.dtb \
+	sun7i-a20-yones-toptech-bd1078.dtb
 dtb-$(CONFIG_MACH_SUN8I_A23) += \
 	sun8i-a23-ippo-q8h-v5.dtb \
 	sun8i-a23-ippo-q8h-v1.2.dtb
+dtb-$(CONFIG_MACH_SUN8I_A33) += \
+	sun8i-a33-astar-mid756.dtb \
+	sun8i-a33-ippo-q8h-v1.2-lcd1024x600.dtb
 dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-optimus.dtb \
 	sun9i-a80-cubieboard4.dtb
