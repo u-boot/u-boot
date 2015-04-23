@@ -95,43 +95,82 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 29 driver model tests
+    Running 53 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
+    Test: dm_test_bus_child_post_bind
+    Test: dm_test_bus_child_post_bind_uclass
+    Test: dm_test_bus_child_pre_probe_uclass
     Test: dm_test_bus_children
-    Device 'd-test': seq 3 is in use by 'b-test'
-    Device 'c-test@0': seq 0 is in use by 'a-test'
-    Device 'c-test@1': seq 1 is in use by 'd-test'
+    Device 'c-test@0': seq 0 is in use by 'd-test'
+    Device 'c-test@1': seq 1 is in use by 'f-test'
     Test: dm_test_bus_children_funcs
     Test: dm_test_bus_children_iterators
     Test: dm_test_bus_parent_data
+    Test: dm_test_bus_parent_data_uclass
     Test: dm_test_bus_parent_ops
+    Test: dm_test_bus_parent_platdata
+    Test: dm_test_bus_parent_platdata_uclass
     Test: dm_test_children
+    Test: dm_test_device_get_uclass_id
+    Test: dm_test_eth
+    Using eth@10002000 device
+    Using eth@10003000 device
+    Using eth@10004000 device
+    Test: dm_test_eth_alias
+    Using eth@10002000 device
+    Using eth@10004000 device
+    Using eth@10002000 device
+    Using eth@10003000 device
+    Test: dm_test_eth_prime
+    Using eth@10003000 device
+    Using eth@10002000 device
+    Test: dm_test_eth_rotate
+
+    Error: eth@10004000 address not set.
+
+    Error: eth@10004000 address not set.
+    Using eth@10002000 device
+
+    Error: eth@10004000 address not set.
+
+    Error: eth@10004000 address not set.
+    Using eth@10004000 device
     Test: dm_test_fdt
-    Device 'd-test': seq 3 is in use by 'b-test'
     Test: dm_test_fdt_offset
     Test: dm_test_fdt_pre_reloc
     Test: dm_test_fdt_uclass_seq
-    Device 'd-test': seq 3 is in use by 'b-test'
-    Device 'a-test': seq 0 is in use by 'd-test'
     Test: dm_test_gpio
     extra-gpios: get_value: error: gpio b5 not reserved
     Test: dm_test_gpio_anon
     Test: dm_test_gpio_copy
     Test: dm_test_gpio_leak
     extra-gpios: get_value: error: gpio b5 not reserved
+    Test: dm_test_gpio_phandles
     Test: dm_test_gpio_requestf
+    Test: dm_test_i2c_bytewise
+    Test: dm_test_i2c_find
+    Test: dm_test_i2c_offset
+    Test: dm_test_i2c_offset_len
+    Test: dm_test_i2c_probe_empty
+    Test: dm_test_i2c_read_write
+    Test: dm_test_i2c_speed
     Test: dm_test_leak
     Test: dm_test_lifecycle
+    Test: dm_test_net_retry
+    Using eth@10004000 device
+    Using eth@10002000 device
+    Using eth@10004000 device
     Test: dm_test_operations
     Test: dm_test_ordering
+    Test: dm_test_pci_base
+    Test: dm_test_pci_swapcase
     Test: dm_test_platdata
     Test: dm_test_pre_reloc
     Test: dm_test_remove
     Test: dm_test_spi_find
     Invalid chip select 0:0 (err=-19)
     SF: Failed to get idcodes
-    Device 'name-emul': seq 0 is in use by 'name-emul'
     SF: Detected M25P16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB
     Test: dm_test_spi_flash
     2097152 bytes written in 0 ms
@@ -150,6 +189,9 @@ You should see something like this:
     SF: Detected M25P16 with page size 256 Bytes, erase size 64 KiB, total 2 MiB
     Test: dm_test_uclass
     Test: dm_test_uclass_before_ready
+    Test: dm_test_usb_base
+    Test: dm_test_usb_flash
+    USB-1:   scanning bus 1 for devices... 2 USB Device(s) found
     Failures: 0
 
 

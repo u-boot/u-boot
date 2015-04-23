@@ -39,8 +39,31 @@ int strict_strtoul(const char *cp, unsigned int base, unsigned long *res);
 unsigned long long simple_strtoull(const char *cp, char **endp,
 					unsigned int base);
 long simple_strtol(const char *cp, char **endp, unsigned int base);
+
+/**
+ * panic() - Print a message and reset/hang
+ *
+ * Prints a message on the console(s) and then resets. If CONFIG_PANIC_HANG is
+ * defined, then it will hang instead of reseting.
+ *
+ * @param fmt:	printf() format string for message, which should not include
+ *		\n, followed by arguments
+ */
 void panic(const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2), noreturn));
+
+/**
+ * panic_str() - Print a message and reset/hang
+ *
+ * Prints a message on the console(s) and then resets. If CONFIG_PANIC_HANG is
+ * defined, then it will hang instead of reseting.
+ *
+ * This function can be used instead of panic() when your board does not
+ * already use printf(), * to keep code size small.
+ *
+ * @param fmt:	string to display, which should not include \n
+ */
+void panic_str(const char *str) __attribute__ ((noreturn));
 
 /**
  * Format a string and place it in a buffer

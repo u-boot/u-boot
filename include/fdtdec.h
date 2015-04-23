@@ -41,6 +41,16 @@ struct fdt_memory {
 	fdt_addr_t end;
 };
 
+#ifdef CONFIG_OF_CONTROL
+# if defined(CONFIG_SPL_BUILD) && defined(SPL_DISABLE_OF_CONTROL)
+#  define OF_CONTROL 0
+# else
+#  define OF_CONTROL 1
+# endif
+#else
+# define OF_CONTROL 0
+#endif
+
 /*
  * Information about a resource. start is the first address of the resource
  * and end is the last address (inclusive). The length of the resource will
@@ -793,4 +803,10 @@ int fdt_get_named_resource(const void *fdt, int node, const char *property,
 int fdtdec_decode_memory_region(const void *blob, int node,
 				const char *mem_type, const char *suffix,
 				fdt_addr_t *basep, fdt_size_t *sizep);
+
+/**
+ * Set up the device tree ready for use
+ */
+int fdtdec_setup(void);
+
 #endif

@@ -23,6 +23,7 @@
 #include <i2c.h>
 #include <initcall.h>
 #include <logbuff.h>
+#include <malloc.h>
 #include <mapmem.h>
 
 /* TODO: Can we move these into arch/ headers? */
@@ -282,49 +283,6 @@ __weak int arch_cpu_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_OF_HOSTFILE
-
-static int read_fdt_from_file(void)
-{
-	struct sandbox_state *state = state_get_current();
-	const char *fname = state->fdt_fname;
-	void *blob;
-	loff_t size;
-	int err;
-	int fd;
-
-	blob = map_sysmem(CONFIG_SYS_FDT_LOAD_ADDR, 0);
-	if (!state->fdt_fname) {
-		err = fdt_create_empty_tree(blob, 256);
-		if (!err)
-			goto done;
-		printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
-		return -EINVAL;
-	}
-
-	err = os_get_filesize(fname, &size);
-	if (err < 0) {
-		printf("Failed to file FDT file '%s'\n", fname);
-		return err;
-	}
-	fd = os_open(fname, OS_O_RDONLY);
-	if (fd < 0) {
-		printf("Failed to open FDT file '%s'\n", fname);
-		return -EACCES;
-	}
-	if (os_read(fd, blob, size) != size) {
-		os_close(fd);
-		return -EIO;
-	}
-	os_close(fd);
-
-done:
-	gd->fdt_blob = blob;
-
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_SANDBOX
 static int setup_ram_buf(void)
 {
@@ -336,28 +294,6 @@ static int setup_ram_buf(void)
 	return 0;
 }
 #endif
-
-static int setup_fdt(void)
-{
-#ifdef CONFIG_OF_CONTROL
-# ifdef CONFIG_OF_EMBED
-	/* Get a pointer to the FDT */
-	gd->fdt_blob = __dtb_dt_begin;
-# elif defined CONFIG_OF_SEPARATE
-	/* FDT is at end of image */
-	gd->fdt_blob = (ulong *)&_end;
-# elif defined(CONFIG_OF_HOSTFILE)
-	if (read_fdt_from_file()) {
-		puts("Failed to read control FDT\n");
-		return -1;
-	}
-# endif
-	/* Allow the early environment to override the fdt address */
-	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
-						(uintptr_t)gd->fdt_blob);
-#endif
-	return 0;
-}
 
 /* Get the top of usable RAM */
 __weak ulong board_get_usable_ram_top(ulong total_size)
@@ -786,17 +722,6 @@ static int mark_bootstage(void)
 	return 0;
 }
 
-static int initf_malloc(void)
-{
-#ifdef CONFIG_SYS_MALLOC_F_LEN
-	assert(gd->malloc_base);	/* Set up by crt0.S */
-	gd->malloc_limit = gd->malloc_base + CONFIG_SYS_MALLOC_F_LEN;
-	gd->malloc_ptr = 0;
-#endif
-
-	return 0;
-}
-
 static int initf_dm(void)
 {
 #if defined(CONFIG_DM) && defined(CONFIG_SYS_MALLOC_F_LEN)
@@ -826,7 +751,9 @@ static init_fnc_t init_sequence_f[] = {
 	setup_ram_buf,
 #endif
 	setup_mon_len,
-	setup_fdt,
+#ifdef CONFIG_OF_CONTROL
+	fdtdec_setup,
+#endif
 #ifdef CONFIG_TRACE
 	trace_early_init,
 #endif
@@ -837,9 +764,6 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 	arch_cpu_init,		/* basic arch cpu dependent setup */
 	mark_bootstage,
-#ifdef CONFIG_OF_CONTROL
-	fdtdec_check_fdt,
-#endif
 	initf_dm,
 	arch_cpu_init_dm,
 #if defined(CONFIG_BOARD_EARLY_INIT_F)

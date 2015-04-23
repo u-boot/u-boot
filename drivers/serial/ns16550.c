@@ -57,7 +57,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_DM_SERIAL
 
-static inline void serial_out_shift(unsigned char *addr, int shift, int value)
+static inline void serial_out_shift(void *addr, int shift, int value)
 {
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
 	outb(value, (ulong)addr);
@@ -72,7 +72,7 @@ static inline void serial_out_shift(unsigned char *addr, int shift, int value)
 #endif
 }
 
-static inline int serial_in_shift(unsigned char *addr, int shift)
+static inline int serial_in_shift(void *addr, int shift)
 {
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
 	return inb((ulong)addr);
@@ -114,9 +114,11 @@ static int ns16550_readb(NS16550_t port, int offset)
 
 /* We can clean these up once everything is moved to driver model */
 #define serial_out(value, addr)	\
-	ns16550_writeb(com_port, addr - (unsigned char *)com_port, value)
+	ns16550_writeb(com_port, \
+		(unsigned char *)addr - (unsigned char *)com_port, value)
 #define serial_in(addr) \
-	ns16550_readb(com_port, addr - (unsigned char *)com_port)
+	ns16550_readb(com_port, \
+		(unsigned char *)addr - (unsigned char *)com_port)
 #endif
 
 static inline int calc_divisor(NS16550_t port, int clock, int baudrate)
@@ -173,7 +175,6 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 			defined(CONFIG_TI81XX) || defined(CONFIG_AM43XX)
 	serial_out(0x7, &com_port->mdr1);	/* mode select reset TL16C750*/
 #endif
-	NS16550_setbrg(com_port, 0);
 	serial_out(UART_MCRVAL, &com_port->mcr);
 	serial_out(UART_FCRVAL, &com_port->fcr);
 	if (baud_divisor != -1)
@@ -254,15 +255,20 @@ void debug_uart_init(void)
 	 */
 	baud_divisor = calc_divisor(com_port, CONFIG_DEBUG_UART_CLOCK,
 				    CONFIG_BAUDRATE);
+	baud_divisor = 13;
+	serial_out_shift(&com_port->ier, CONFIG_DEBUG_UART_SHIFT,
+			 CONFIG_SYS_NS16550_IER);
+	serial_out_shift(&com_port->mcr, CONFIG_DEBUG_UART_SHIFT, UART_MCRVAL);
+	serial_out_shift(&com_port->fcr, CONFIG_DEBUG_UART_SHIFT, UART_FCRVAL);
 
-	serial_out_shift(&com_port->ier, 0, CONFIG_SYS_NS16550_IER);
-	serial_out_shift(&com_port->mcr, 0, UART_MCRVAL);
-	serial_out_shift(&com_port->fcr, 0, UART_FCRVAL);
-
-	serial_out_shift(&com_port->lcr, 0, UART_LCR_BKSE | UART_LCRVAL);
-	serial_out_shift(&com_port->dll, 0, baud_divisor & 0xff);
-	serial_out_shift(&com_port->dlm, 0, (baud_divisor >> 8) & 0xff);
-	serial_out_shift(&com_port->lcr, 0, UART_LCRVAL);
+	serial_out_shift(&com_port->lcr, CONFIG_DEBUG_UART_SHIFT,
+			 UART_LCR_BKSE | UART_LCRVAL);
+	serial_out_shift(&com_port->dll, CONFIG_DEBUG_UART_SHIFT,
+			 baud_divisor & 0xff);
+	serial_out_shift(&com_port->dlm, CONFIG_DEBUG_UART_SHIFT,
+			 (baud_divisor >> 8) & 0xff);
+	serial_out_shift(&com_port->lcr, CONFIG_DEBUG_UART_SHIFT,
+			 UART_LCRVAL);
 }
 
 static inline void _debug_uart_putc(int ch)
@@ -271,7 +277,7 @@ static inline void _debug_uart_putc(int ch)
 
 	while (!(serial_in_shift(&com_port->lsr, 0) & UART_LSR_THRE))
 		;
-	serial_out_shift(&com_port->thr, 0, ch);
+	serial_out_shift(&com_port->thr, CONFIG_DEBUG_UART_SHIFT, ch);
 }
 
 DEBUG_UART_FUNCS

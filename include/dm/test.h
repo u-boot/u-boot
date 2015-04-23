@@ -98,6 +98,26 @@ struct dm_test_parent_data {
 	int flag;
 };
 
+/* Test values for test device's uclass platform data */
+enum {
+	TEST_UC_PDATA_INTVAL1 = 2,
+	TEST_UC_PDATA_INTVAL2 = 334,
+	TEST_UC_PDATA_INTVAL3 = 789452,
+};
+
+/**
+ * struct dm_test_uclass_platda - uclass's information on each device
+ *
+ * @intval1: set to TEST_UC_PDATA_INTVAL1 in .post_bind method of test uclass
+ * @intval2: set to TEST_UC_PDATA_INTVAL2 in .post_bind method of test uclass
+ * @intval3: set to TEST_UC_PDATA_INTVAL3 in .post_bind method of test uclass
+ */
+struct dm_test_perdev_uc_pdata {
+	int intval1;
+	int intval2;
+	int intval3;
+};
+
 /*
  * Operation counts for the test driver, used to check that each method is
  * called correctly

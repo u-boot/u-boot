@@ -65,6 +65,9 @@ struct udevice;
  * @per_device_auto_alloc_size: Each device can hold private data owned
  * by the uclass. If required this will be automatically allocated if this
  * value is non-zero.
+ * @per_device_platdata_auto_alloc_size: Each device can hold platform data
+ * owned by the uclass as 'dev->uclass_platdata'. If the value is non-zero,
+ * then this will be automatically allocated.
  * @per_child_auto_alloc_size: Each child device (of a parent in this
  * uclass) can hold parent data for the device/uclass. This value is only
  * used as a falback if this member is 0 in the driver.
@@ -90,6 +93,7 @@ struct uclass_driver {
 	int (*destroy)(struct uclass *class);
 	int priv_auto_alloc_size;
 	int per_device_auto_alloc_size;
+	int per_device_platdata_auto_alloc_size;
 	int per_child_auto_alloc_size;
 	int per_child_platdata_auto_alloc_size;
 	const void *ops;
@@ -124,6 +128,21 @@ int uclass_get(enum uclass_id key, struct uclass **ucp);
  * @return 0 if OK, -ve on error
  */
 int uclass_get_device(enum uclass_id id, int index, struct udevice **devp);
+
+/**
+ * uclass_get_device_by_name() - Get a uclass device by it's name
+ *
+ * This searches the devices in the uclass for one with the exactly given name.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @id: ID to look up
+ * @name: name of a device to get
+ * @devp: Returns pointer to device (the first one with the name)
+ * @return 0 if OK, -ve on error
+ */
+int uclass_get_device_by_name(enum uclass_id id, const char *name,
+			      struct udevice **devp);
 
 /**
  * uclass_get_device_by_seq() - Get a uclass device based on an ID and sequence

@@ -75,4 +75,12 @@ int pci_unmap_physmem(const void *addr, unsigned long len,
  */
 void sandbox_set_enable_pci_map(int enable);
 
+/**
+ * sandbox_read_fdt_from_file() - Read a device tree from a file
+ *
+ * Read a device tree file from a host file and set it up for use as the
+ * control FDT.
+ */
+int sandbox_read_fdt_from_file(void);
+
 #endif	/* _U_BOOT_SANDBOX_H_ */

@@ -30,8 +30,11 @@ struct driver_info;
 /* DM is responsible for allocating and freeing parent_platdata */
 #define DM_FLAG_ALLOC_PARENT_PDATA	(1 << 3)
 
+/* DM is responsible for allocating and freeing uclass_platdata */
+#define DM_FLAG_ALLOC_UCLASS_PDATA	(1 << 4)
+
 /* Allocate driver private data on a DMA boundary */
-#define DM_FLAG_ALLOC_PRIV_DMA	(1 << 4)
+#define DM_FLAG_ALLOC_PRIV_DMA	(1 << 5)
 
 /**
  * struct udevice - An instance of a driver
@@ -54,6 +57,7 @@ struct driver_info;
  * @name: Name of device, typically the FDT node name
  * @platdata: Configuration data for this device
  * @parent_platdata: The parent bus's configuration data for this device
+ * @uclass_platdata: The uclass's configuration data for this device
  * @of_offset: Device tree node offset for this device (- for none)
  * @driver_data: Driver data word for the entry that matched this device with
  *		its driver
@@ -75,6 +79,7 @@ struct udevice {
 	const char *name;
 	void *platdata;
 	void *parent_platdata;
+	void *uclass_platdata;
 	int of_offset;
 	ulong driver_data;
 	struct udevice *parent;
@@ -210,6 +215,16 @@ void *dev_get_platdata(struct udevice *dev);
 void *dev_get_parent_platdata(struct udevice *dev);
 
 /**
+ * dev_get_uclass_platdata() - Get the uclass platform data for a device
+ *
+ * This checks that dev is not NULL, but no other checks for now
+ *
+ * @dev		Device to check
+ * @return uclass's platform data, or NULL if none
+ */
+void *dev_get_uclass_platdata(struct udevice *dev);
+
+/**
  * dev_get_parentdata() - Get the parent data for a device
  *
  * The parent data is data stored in the device but owned by the parent.
@@ -265,6 +280,17 @@ void *dev_get_uclass_priv(struct udevice *dev);
  */
 ulong dev_get_driver_data(struct udevice *dev);
 
+/**
+ * dev_get_driver_ops() - get the device's driver's operations
+ *
+ * This checks that dev is not NULL, and returns the pointer to device's
+ * driver's operations.
+ *
+ * @dev:	Device to check
+ * @return void pointer to driver's operations or NULL for NULL-dev or NULL-ops
+ */
+const void *dev_get_driver_ops(struct udevice *dev);
+
 /*
  * device_get_uclass_id() - return the uclass ID of a device
  *
@@ -272,6 +298,16 @@ ulong dev_get_driver_data(struct udevice *dev);
  * @return uclass ID for the device
  */
 enum uclass_id device_get_uclass_id(struct udevice *dev);
+
+/*
+ * dev_get_uclass_name() - return the uclass name of a device
+ *
+ * This checks that dev is not NULL.
+ *
+ * @dev:	Device to check
+ * @return  pointer to the uclass name for the device
+ */
+const char *dev_get_uclass_name(struct udevice *dev);
 
 /**
  * device_get_child() - Get the child of a device by index

@@ -30,7 +30,7 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 {
 	struct udevice *dev;
 	struct uclass *uc;
-	int ret = 0;
+	int size, ret = 0;
 
 	*devp = NULL;
 	if (!name)
@@ -56,21 +56,23 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 
 	dev->seq = -1;
 	dev->req_seq = -1;
-#ifdef CONFIG_OF_CONTROL
-	/*
-	 * Some devices, such as a SPI bus, I2C bus and serial ports are
-	 * numbered using aliases.
-	 *
-	 * This is just a 'requested' sequence, and will be
-	 * resolved (and ->seq updated) when the device is probed.
-	 */
-	if (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS) {
-		if (uc->uc_drv->name && of_offset != -1) {
-			fdtdec_get_alias_seq(gd->fdt_blob, uc->uc_drv->name,
-					     of_offset, &dev->req_seq);
+	if (IS_ENABLED(CONFIG_OF_CONTROL) && IS_ENABLED(CONFIG_DM_SEQ_ALIAS)) {
+		/*
+		* Some devices, such as a SPI bus, I2C bus and serial ports
+		* are numbered using aliases.
+		*
+		* This is just a 'requested' sequence, and will be
+		* resolved (and ->seq updated) when the device is probed.
+		*/
+		if (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS) {
+			if (uc->uc_drv->name && of_offset != -1) {
+				fdtdec_get_alias_seq(gd->fdt_blob,
+						uc->uc_drv->name, of_offset,
+						&dev->req_seq);
+			}
 		}
 	}
-#endif
+
 	if (!dev->platdata && drv->platdata_auto_alloc_size) {
 		dev->flags |= DM_FLAG_ALLOC_PDATA;
 		dev->platdata = calloc(1, drv->platdata_auto_alloc_size);
@@ -79,9 +81,19 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 			goto fail_alloc1;
 		}
 	}
-	if (parent) {
-		int size = parent->driver->per_child_platdata_auto_alloc_size;
 
+	size = uc->uc_drv->per_device_platdata_auto_alloc_size;
+	if (size) {
+		dev->flags |= DM_FLAG_ALLOC_UCLASS_PDATA;
+		dev->uclass_platdata = calloc(1, size);
+		if (!dev->uclass_platdata) {
+			ret = -ENOMEM;
+			goto fail_alloc2;
+		}
+	}
+
+	if (parent) {
+		size = parent->driver->per_child_platdata_auto_alloc_size;
 		if (!size) {
 			size = parent->uclass->uc_drv->
 					per_child_platdata_auto_alloc_size;
@@ -91,7 +103,7 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 			dev->parent_platdata = calloc(1, size);
 			if (!dev->parent_platdata) {
 				ret = -ENOMEM;
-				goto fail_alloc2;
+				goto fail_alloc3;
 			}
 		}
 	}
@@ -123,21 +135,32 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 	return 0;
 
 fail_child_post_bind:
-	if (drv->unbind && drv->unbind(dev)) {
-		dm_warn("unbind() method failed on dev '%s' on error path\n",
-			dev->name);
+	if (IS_ENABLED(DM_DEVICE_REMOVE)) {
+		if (drv->unbind && drv->unbind(dev)) {
+			dm_warn("unbind() method failed on dev '%s' on error path\n",
+				dev->name);
+		}
 	}
 
 fail_bind:
-	if (uclass_unbind_device(dev)) {
-		dm_warn("Failed to unbind dev '%s' on error path\n",
-			dev->name);
+	if (IS_ENABLED(DM_DEVICE_REMOVE)) {
+		if (uclass_unbind_device(dev)) {
+			dm_warn("Failed to unbind dev '%s' on error path\n",
+				dev->name);
+		}
 	}
 fail_uclass_bind:
-	list_del(&dev->sibling_node);
-	if (dev->flags & DM_FLAG_ALLOC_PARENT_PDATA) {
-		free(dev->parent_platdata);
-		dev->parent_platdata = NULL;
+	if (IS_ENABLED(DM_DEVICE_REMOVE)) {
+		list_del(&dev->sibling_node);
+		if (dev->flags & DM_FLAG_ALLOC_PARENT_PDATA) {
+			free(dev->parent_platdata);
+			dev->parent_platdata = NULL;
+		}
+	}
+fail_alloc3:
+	if (dev->flags & DM_FLAG_ALLOC_UCLASS_PDATA) {
+		free(dev->uclass_platdata);
+		dev->uclass_platdata = NULL;
 	}
 fail_alloc2:
 	if (dev->flags & DM_FLAG_ALLOC_PDATA) {
@@ -314,6 +337,16 @@ void *dev_get_parent_platdata(struct udevice *dev)
 	return dev->parent_platdata;
 }
 
+void *dev_get_uclass_platdata(struct udevice *dev)
+{
+	if (!dev) {
+		dm_warn("%s: null device", __func__);
+		return NULL;
+	}
+
+	return dev->uclass_platdata;
+}
+
 void *dev_get_priv(struct udevice *dev)
 {
 	if (!dev) {
@@ -474,9 +507,25 @@ ulong dev_get_driver_data(struct udevice *dev)
 	return dev->driver_data;
 }
 
+const void *dev_get_driver_ops(struct udevice *dev)
+{
+	if (!dev || !dev->driver->ops)
+		return NULL;
+
+	return dev->driver->ops;
+}
+
 enum uclass_id device_get_uclass_id(struct udevice *dev)
 {
 	return dev->uclass->uc_drv->id;
+}
+
+const char *dev_get_uclass_name(struct udevice *dev)
+{
+	if (!dev)
+		return NULL;
+
+	return dev->uclass->uc_drv->name;
 }
 
 #ifdef CONFIG_OF_CONTROL

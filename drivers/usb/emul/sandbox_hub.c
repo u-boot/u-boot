@@ -32,6 +32,7 @@ static struct usb_string hub_strings[] = {
 	{STRING_MANUFACTURER,	"sandbox"},
 	{STRING_PRODUCT,	"hub"},
 	{STRING_SERIAL,		"2345"},
+	{},
 };
 
 static struct usb_device_descriptor hub_device_desc = {

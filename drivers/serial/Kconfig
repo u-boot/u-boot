@@ -66,6 +66,16 @@ config DEBUG_UART_CLOCK
 	  A default should be provided by your board, but if not you will need
 	  to use the correct value here.
 
+config DEBUG_UART_SHIFT
+	int "UART register shift"
+	depends on DEBUG_UART
+	default 0 if DEBUG_UART
+	help
+	  Some UARTs (notably ns16550) support different register layouts
+	  where the registers are spaced either as bytes, words or some other
+	  value. Use this value to specify the shift to use, where 0=byte
+	  registers, 2=32-bit word registers, etc.
+
 config UNIPHIER_SERIAL
 	bool "UniPhier on-chip UART support"
 	depends on ARCH_UNIPHIER && DM_SERIAL

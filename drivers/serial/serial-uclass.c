@@ -70,7 +70,7 @@ static void serial_find_console_or_panic(void)
 	if (uclass_get_device_by_seq(UCLASS_SERIAL, INDEX, &dev) &&
 	    uclass_get_device(UCLASS_SERIAL, INDEX, &dev) &&
 	    (uclass_first_device(UCLASS_SERIAL, &dev) || !dev))
-		panic("No serial driver found");
+		panic_str("No serial driver found");
 #undef INDEX
 	gd->cur_serial_dev = dev;
 }
