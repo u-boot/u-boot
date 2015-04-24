@@ -34,6 +34,7 @@
 #include "bur_common.h"
 #include "../../../drivers/video/am335x-fb.h"
 #include <nand.h>
+#include <fdt_simplefb.h>
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
@@ -47,6 +48,64 @@ DECLARE_GLOBAL_DATA_PTR;
 /* --------------------------------------------------------------------------*/
 #if defined(CONFIG_LCD) && defined(CONFIG_AM335X_LCD) && \
 	!defined(CONFIG_SPL_BUILD)
+void lcdbacklight(int on)
+{
+#ifdef CONFIG_USE_FDT
+	if (gd->fdt_blob == NULL) {
+		printf("%s: don't have a valid gd->fdt_blob!\n", __func__);
+		return;
+	}
+	unsigned int driver = FDTPROP(PATHINF, "brightdrv");
+	unsigned int bright = FDTPROP(PATHINF, "brightdef");
+	unsigned int pwmfrq = FDTPROP(PATHINF, "brightfdim");
+#else
+	unsigned int driver = getenv_ulong("ds1_bright_drv", 16, 0UL);
+	unsigned int bright = getenv_ulong("ds1_bright_def", 10, 50);
+	unsigned int pwmfrq = getenv_ulong("ds1_pwmfreq", 10, ~0UL);
+#endif
+	unsigned int tmp;
+
+	struct gptimer *const timerhw = (struct gptimer *)DM_TIMER6_BASE;
+
+	if (on)
+		bright = bright != ~0UL ? bright : 50;
+	else
+		bright = 0;
+
+	switch (driver) {
+	case 0:	/* PMIC LED-Driver */
+		/* brightness level */
+		tps65217_reg_write(TPS65217_PROT_LEVEL_NONE,
+				   TPS65217_WLEDCTRL2, bright, 0xFF);
+		/* current sink */
+		tps65217_reg_write(TPS65217_PROT_LEVEL_NONE,
+				   TPS65217_WLEDCTRL1,
+				   bright != 0 ? 0x0A : 0x02,
+				   0xFF);
+		break;
+	case 1: /* PWM using timer6 */
+		if (pwmfrq != ~0UL) {
+			timerhw->tiocp_cfg = TCFG_RESET;
+			udelay(10);
+			while (timerhw->tiocp_cfg & TCFG_RESET)
+				;
+			tmp = ~0UL-(V_OSCK/pwmfrq);	/* bottom value */
+			timerhw->tldr = tmp;
+			timerhw->tcrr = tmp;
+			tmp = tmp + ((V_OSCK/pwmfrq)/100) * bright;
+			timerhw->tmar = tmp;
+			timerhw->tclr = (TCLR_PT | (2 << TCLR_TRG_SHIFT) |
+					TCLR_CE | TCLR_AR | TCLR_ST);
+		} else {
+			puts("invalid pwmfrq in env/dtb! skip PWM-setup.\n");
+		}
+		break;
+	default:
+		puts("no suitable backlightdriver in env/dtb!\n");
+		break;
+	}
+}
+
 int load_lcdtiming(struct am335x_lcdpanel *panel)
 {
 	struct am335x_lcdpanel pnltmp;
@@ -304,6 +363,32 @@ int ft_board_setup(void *blob, bd_t *bd)
 		puts("set bootloader version 'bl-version' prop. not in dtb!\n");
 		return -1;
 	}
+	/*
+	 * if no simplefb is requested through environment, we don't set up
+	 * one, instead we turn off backlight.
+	 */
+	if (getenv_ulong("simplefb", 10, 0) == 0) {
+		lcdbacklight(0);
+		return 0;
+	}
+	/* Setup simplefb devicetree node, also adapt memory-node,
+	 * upper limit for kernel e.g. linux is memtop-framebuffer alligned
+	 * to a full megabyte.
+	 */
+	u64 start = gd->bd->bi_dram[0].start;
+	u64 size = (gd->fb_base - start) & ~0xFFFFF;
+	int rc = fdt_fixup_memory_banks(blob, &start, &size, 1);
+
+	if (rc) {
+		puts("cannot setup simplefb: Error reserving memory!\n");
+		return rc;
+	}
+	rc = lcd_dt_simplefb_enable_existing_node(blob);
+	if (rc) {
+		puts("cannot setup simplefb: error enabling simplefb node!\n");
+		return rc;
+	}
+
 	return 0;
 }
 #else
@@ -412,55 +497,8 @@ void lcd_ctrl_init(void *lcdbase)
 
 void lcd_enable(void)
 {
-#ifdef CONFIG_USE_FDT
-	if (gd->fdt_blob == NULL) {
-		printf("%s: don't have a valid gd->fdt_blob!\n", __func__);
-		return;
-	}
-	unsigned int driver = FDTPROP(PATHINF, "brightdrv");
-	unsigned int bright = FDTPROP(PATHINF, "brightdef");
-	unsigned int pwmfrq = FDTPROP(PATHINF, "brightfdim");
-#else
-	unsigned int driver = getenv_ulong("ds1_bright_drv", 16, 0UL);
-	unsigned int bright = getenv_ulong("ds1_bright_def", 10, 50);
-	unsigned int pwmfrq = getenv_ulong("ds1_pwmfreq", 10, ~0UL);
-#endif
-	unsigned int tmp;
-	struct gptimer *const timerhw = (struct gptimer *)DM_TIMER6_BASE;
-
-	bright = bright != ~0UL ? bright : 50;
-
-	switch (driver) {
-	case 0:	/* PMIC LED-Driver */
-		/* brightness level */
-		tps65217_reg_write(TPS65217_PROT_LEVEL_NONE,
-				   TPS65217_WLEDCTRL2, bright, 0xFF);
-		/* turn on light */
-		tps65217_reg_write(TPS65217_PROT_LEVEL_NONE,
-				   TPS65217_WLEDCTRL1, 0x0A, 0xFF);
-		break;
-	case 1: /* PWM using timer6 */
-		if (pwmfrq != ~0UL) {
-			timerhw->tiocp_cfg = TCFG_RESET;
-			udelay(10);
-			while (timerhw->tiocp_cfg & TCFG_RESET)
-				;
-			tmp = ~0UL-(V_OSCK/pwmfrq);	/* bottom value */
-			timerhw->tldr = tmp;
-			timerhw->tcrr = tmp;
-			tmp = tmp + ((V_OSCK/pwmfrq)/100) * bright;
-			timerhw->tmar = tmp;
-			timerhw->tclr = (TCLR_PT | (2 << TCLR_TRG_SHIFT) |
-					TCLR_CE | TCLR_AR | TCLR_ST);
-		} else {
-			puts("invalid pwmfrq in env/dtb! skip PWM-setup.\n");
-		}
-		break;
-	default:
-		puts("no suitable backlightdriver in env/dtb!\n");
-		break;
-	}
 	br_summaryscreen();
+	lcdbacklight(1);
 }
 #elif CONFIG_SPL_BUILD
 #else

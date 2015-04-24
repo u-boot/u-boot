@@ -17,6 +17,7 @@
 #define CONFIG_AM335X_LCD
 #define CONFIG_LCD
 #define CONFIG_LCD_ROTATION
+#define CONFIG_LCD_DT_SIMPLEFB
 #define CONFIG_SYS_WHITE_ON_BLACK
 #define LCD_BPP				LCD_COLOR32
 
@@ -115,6 +116,7 @@
 		"bootz ${loadaddr} - ${dtbaddr}\0" \
 	"defboot=run nandboot\0" \
 	"bootlimit=1\0" \
+	"simplefb=1\0 " \
 	"altbootcmd=run usbscript\0"
 #else
 #define NANDARGS ""
@@ -132,10 +134,12 @@
 "mmcroot1=setenv bootargs ${optargs_rot} ${optargs} console=${console} " \
 	"root=/dev/mmcblk0p2 rootfstype=ext4\0" \
 "mmcboot0=echo booting Updatesystem from mmc (ext4-fs) ...; " \
+	"setenv simplefb 1; " \
 	"ext4load mmc 0:1 ${loadaddr} /${kernel}; " \
 	"ext4load mmc 0:1 ${ramaddr} /${ramdisk}; " \
 	"run mmcroot0; bootz ${loadaddr} ${ramaddr} ${dtbaddr};\0" \
 "mmcboot1=echo booting PPT-OS from mmc (ext4-fs) ...; " \
+	"setenv simplefb 0; " \
 	"ext4load mmc 0:2 ${loadaddr} /boot/${kernel}; " \
 	"run mmcroot1; bootz ${loadaddr} - ${dtbaddr};\0" \
 "defboot=run logo0 || run logo1; " \
