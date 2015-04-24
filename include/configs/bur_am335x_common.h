@@ -30,12 +30,6 @@
 "setenv stdout nc;setenv stdin nc;setenv stderr nc\0"
 
 #define CONFIG_CMD_TIME
-#define CONFIG_VIDEO_BMP_GZIP
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(1366*767*4)
-#define CONFIG_CMD_UNZIP
-#define CONFIG_CMD_BMP
-#define CONFIG_BMP_24BMP
-#define CONFIG_BMP_32BPP
 
 #define CONFIG_SYS_GENERIC_BOARD
 

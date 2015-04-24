@@ -126,10 +126,6 @@
 #define MMCARGS \
 "dtbdev=mmc\0" \
 "dtbpart=0:1\0" \
-"logo0=ext4load mmc 0:3 ${loadaddr} /PPTLogo.bmp.gz && " \
-	"bmp display ${loadaddr} 0 0\0" \
-"logo1=ext4load mmc 0:1 ${loadaddr} /PPTLogo.bmp.gz && " \
-	"bmp display ${loadaddr} 0 0\0" \
 "mmcroot0=setenv bootargs ${optargs_rot} ${optargs} console=${console}\0" \
 "mmcroot1=setenv bootargs ${optargs_rot} ${optargs} console=${console} " \
 	"root=/dev/mmcblk0p2 rootfstype=ext4\0" \
@@ -142,13 +138,11 @@
 	"setenv simplefb 0; " \
 	"ext4load mmc 0:2 ${loadaddr} /boot/${kernel}; " \
 	"run mmcroot1; bootz ${loadaddr} - ${dtbaddr};\0" \
-"defboot=run logo0 || run logo1; " \
-	"ext4load mmc 0:2 ${loadaddr} /boot/PPTImage.md5 && run mmcboot1; " \
+"defboot=ext4load mmc 0:2 ${loadaddr} /boot/PPTImage.md5 && run mmcboot1; " \
 	"ext4load mmc 0:1 ${dtbaddr} /$dtb && run mmcboot0; " \
 	"run ramboot; run usbupdate;\0" \
 "bootlimit=1\0" \
-"altbootcmd=run logo0 || run logo1; " \
-	"run mmcboot0;\0" \
+"altbootcmd=run mmcboot0;\0" \
 "upduboot=dhcp; " \
 	"tftp ${loadaddr} MLO && mmc write ${loadaddr} 100 100; " \
 	"tftp ${loadaddr} u-boot.img && mmc write ${loadaddr} 300 400;\0"

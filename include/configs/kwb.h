@@ -19,6 +19,14 @@
 #define CONFIG_LCD_NOSTDOUT
 #define CONFIG_SYS_WHITE_ON_BLACK
 #define LCD_BPP				LCD_COLOR32
+
+#define CONFIG_VIDEO_BMP_GZIP
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(1366*767*4)
+#define CONFIG_CMD_UNZIP
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_24BMP
+#define CONFIG_BMP_32BPP
+
 /* Clock Defines */
 #define V_OSCK				26000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
