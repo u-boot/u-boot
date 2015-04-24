@@ -135,7 +135,7 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 	return 0;
 
 fail_child_post_bind:
-	if (IS_ENABLED(DM_DEVICE_REMOVE)) {
+	if (IS_ENABLED(CONFIG_DM_DEVICE_REMOVE)) {
 		if (drv->unbind && drv->unbind(dev)) {
 			dm_warn("unbind() method failed on dev '%s' on error path\n",
 				dev->name);
@@ -143,14 +143,14 @@ fail_child_post_bind:
 	}
 
 fail_bind:
-	if (IS_ENABLED(DM_DEVICE_REMOVE)) {
+	if (IS_ENABLED(CONFIG_DM_DEVICE_REMOVE)) {
 		if (uclass_unbind_device(dev)) {
 			dm_warn("Failed to unbind dev '%s' on error path\n",
 				dev->name);
 		}
 	}
 fail_uclass_bind:
-	if (IS_ENABLED(DM_DEVICE_REMOVE)) {
+	if (IS_ENABLED(CONFIG_DM_DEVICE_REMOVE)) {
 		list_del(&dev->sibling_node);
 		if (dev->flags & DM_FLAG_ALLOC_PARENT_PDATA) {
 			free(dev->parent_platdata);
