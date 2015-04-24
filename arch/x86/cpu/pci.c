@@ -151,3 +151,24 @@ int pci_x86_write_config(struct udevice *bus, pci_dev_t bdf, uint offset,
 
 	return 0;
 }
+
+void pci_assign_irqs(int bus, int device, int func, u8 irq[4])
+{
+	pci_dev_t bdf;
+	u8 pin, line;
+
+	bdf = PCI_BDF(bus, device, func);
+
+	pin = x86_pci_read_config8(bdf, PCI_INTERRUPT_PIN);
+
+	/* PCI spec says all values except 1..4 are reserved */
+	if ((pin < 1) || (pin > 4))
+		return;
+
+	line = irq[pin - 1];
+
+	debug("Assigning IRQ %d to PCI device %d.%x.%d (INT%c)\n",
+	      line, bus, device, func, 'A' + pin - 1);
+
+	x86_pci_write_config8(bdf, PCI_INTERRUPT_LINE, line);
+}
