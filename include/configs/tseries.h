@@ -140,7 +140,7 @@
 	"run mmcroot1; bootz ${loadaddr} - ${dtbaddr};\0" \
 "defboot=ext4load mmc 0:2 ${loadaddr} /boot/PPTImage.md5 && run mmcboot1; " \
 	"ext4load mmc 0:1 ${dtbaddr} /$dtb && run mmcboot0; " \
-	"run ramboot; run usbupdate;\0" \
+	"run ramboot; run usbscript;\0" \
 "bootlimit=1\0" \
 "altbootcmd=run mmcboot0;\0" \
 "upduboot=dhcp; " \
@@ -185,8 +185,6 @@ BUR_COMMON_ENV \
 	"then; else tftp ${dtbaddr} ${dtb}; fi;" \
 	"run mmcroot0; " \
 	"bootz ${loadaddr} ${ramaddr} ${dtbaddr}; fi;\0" \
-"usbupdate=echo Updating UBOOT from USB-Stick ...; " \
-	"usb start && fatload usb 0 0x80000000 updateubootusb.img && source\0" \
 "netupdate=echo Updating UBOOT from Network (TFTP) ...; " \
 	"setenv autoload 0; " \
 	"dhcp && tftp 0x80000000 updateUBOOT.img && source;\0" \

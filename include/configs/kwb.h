@@ -80,10 +80,6 @@ BUR_COMMON_ENV \
 	"run loadromfs; " \
 	"tftp ${loadaddr} arimg && go ${loadaddr}; " \
 	"puts 'networkboot failed!';\0" \
-"usbupdate=echo updating u-boot from usb ...; " \
-	"usb start; " \
-	"fatload usb 0 0x80000000 updateubootusb.img && source; " \
-	"puts 'usbupdate failed!'\0" \
 "netscript=echo running script from network (tftp) ...; " \
 	"tftp 0x80000000 netscript.img && source; " \
 	"puts 'netscript load failed!'\0" \
@@ -101,7 +97,7 @@ BUR_COMMON_ENV \
 #endif /* !CONFIG_SPL_BUILD*/
 
 #define CONFIG_BOOTCOMMAND \
-	"run usbupdate;"
+	"run usbscript;"
 #define CONFIG_BOOTDELAY		0
 
 /* undefine command which we not need here */

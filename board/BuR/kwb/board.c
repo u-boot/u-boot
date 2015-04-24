@@ -214,8 +214,8 @@ int board_late_init(void)
 			    gpio_get_value(PUSH_KEY) && 1 == cnt) {
 				lcd_position_cursor(1, 8);
 				lcd_puts(
-				"updating U-BOOT from USB ...           ");
-				setenv("bootcmd", "run usbupdate");
+				"starting u-boot script from USB ...    ");
+				setenv("bootcmd", "run usbscript");
 				cnt = 4;
 				break;
 			} else if ((!gpio_get_value(ESC_KEY) &&

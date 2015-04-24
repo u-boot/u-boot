@@ -13,6 +13,7 @@
 #define __BUR_AM335X_COMMON_H__
 /* ------------------------------------------------------------------------- */
 #define BUR_COMMON_ENV \
+"usbscript=usb start && fatload usb 0 0x80000000 usbscript.img && source\0" \
 "defaultip=192.168.60.253\0" \
 "defaultsip=192.168.60.254\0" \
 "netconsole=echo switching to network console ...; " \
