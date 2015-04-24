@@ -52,6 +52,9 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 	struct am335x_lcdpanel pnltmp;
 #ifdef CONFIG_USE_FDT
 	u32 dtbprop;
+	char buf[32];
+	const char *nodep = 0;
+	int nodeoff;
 
 	if (gd->fdt_blob == NULL) {
 		printf("%s: don't have a valid gd->fdt_blob!\n", __func__);
@@ -97,6 +100,25 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 	dtbprop = FDTPROP(PATHTIM, "de-active");
 	if (dtbprop == 0)
 		pnltmp.pol |= DE_INVERT;
+
+	nodeoff = fdt_path_offset(gd->fdt_blob, "/factory-settings");
+	if (nodeoff >= 0) {
+		nodep = fdt_getprop(gd->fdt_blob, nodeoff, "rotation", NULL);
+		if (nodep != 0) {
+			if (strcmp(nodep, "cw") == 0)
+				panel_info.vl_rot = 1;
+			else if (strcmp(nodep, "ud") == 0)
+				panel_info.vl_rot = 2;
+			else if (strcmp(nodep, "ccw") == 0)
+				panel_info.vl_rot = 3;
+			else
+				panel_info.vl_rot = 0;
+		}
+	} else {
+		puts("no 'factory-settings / rotation' in dtb!\n");
+	}
+	snprintf(buf, sizeof(buf), "fbcon=rotate:%d", panel_info.vl_rot);
+	setenv("optargs_rot", buf);
 #else
 	pnltmp.hactive = getenv_ulong("ds1_hactive", 10, ~0UL);
 	pnltmp.vactive = getenv_ulong("ds1_vactive", 10, ~0UL);
@@ -111,6 +133,7 @@ int load_lcdtiming(struct am335x_lcdpanel *panel)
 	pnltmp.pol = getenv_ulong("ds1_pol", 16, ~0UL);
 	pnltmp.pup_delay = getenv_ulong("ds1_pupdelay", 10, ~0UL);
 	pnltmp.pon_delay = getenv_ulong("ds1_tondelay", 10, ~0UL);
+	panel_info.vl_rot = getenv_ulong("ds1_rotation", 10, 0);
 #endif
 	if (
 	   ~0UL == (pnltmp.hactive) ||

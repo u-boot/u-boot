@@ -17,6 +17,7 @@
 #define CONFIG_AM335X_LCD
 #define CONFIG_LCD
 #define CONFIG_LCD_NOSTDOUT
+#define CONFIG_LCD_ROTATION
 #define CONFIG_SYS_WHITE_ON_BLACK
 #define LCD_BPP				LCD_COLOR32
 
@@ -105,6 +106,7 @@
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"nandargs=setenv bootargs console=${console} " \
 		"${optargs} " \
+		"${optargs_rot} " \
 		"root=mtd6 " \
 		"rootfstype=jffs2\0" \
 	"kernelsize=0x400000\0" \
@@ -127,9 +129,9 @@
 	"bmp display ${loadaddr} 0 0\0" \
 "logo1=ext4load mmc 0:1 ${loadaddr} /PPTLogo.bmp.gz && " \
 	"bmp display ${loadaddr} 0 0\0" \
-"mmcroot0=setenv bootargs ${optargs} console=${console}\0" \
-"mmcroot1=setenv bootargs ${optargs} console=${console} root=/dev/mmcblk0p2 " \
-	"rootfstype=ext4\0" \
+"mmcroot0=setenv bootargs ${optargs_rot} ${optargs} console=${console}\0" \
+"mmcroot1=setenv bootargs ${optargs_rot} ${optargs} console=${console} " \
+	"root=/dev/mmcblk0p2 rootfstype=ext4\0" \
 "mmcboot0=echo booting Updatesystem from mmc (ext4-fs) ...; " \
 	"ext4load mmc 0:1 ${loadaddr} /${kernel}; " \
 	"ext4load mmc 0:1 ${ramaddr} /${ramdisk}; " \
