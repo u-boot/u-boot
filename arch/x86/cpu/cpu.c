@@ -29,6 +29,7 @@
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <asm/interrupt.h>
+#include <asm/tables.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -593,3 +594,12 @@ void show_boot_progress(int val)
 #endif
 	outb(val, POST_PORT);
 }
+
+#ifndef CONFIG_SYS_COREBOOT
+int last_stage_init(void)
+{
+	write_tables();
+
+	return 0;
+}
+#endif
