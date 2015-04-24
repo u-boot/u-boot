@@ -446,6 +446,15 @@ int spi_flash_std_write(struct udevice *dev, u32 offset, size_t len,
 {
 	struct spi_flash *flash = dev_get_uclass_priv(dev);
 
+#if defined(CONFIG_SPI_FLASH_SST)
+	if (flash->flags & SST_WR) {
+		if (flash->spi->op_mode_tx & SPI_OPM_TX_BP)
+			return sst_write_bp(flash, offset, len, buf);
+		else
+			return sst_write_wp(flash, offset, len, buf);
+	}
+#endif
+
 	return spi_flash_cmd_write_ops(flash, offset, len, buf);
 }
 
