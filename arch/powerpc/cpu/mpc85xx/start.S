@@ -1664,41 +1664,46 @@ clear_bss:
 	 */
 	.globl	trap_init
 trap_init:
+	mflr	r11
+	bl	_GLOBAL_OFFSET_TABLE_-4
+	mflr	r12
+
 	/* Update IVORs as per relocation */
 	mtspr	IVPR,r3
 
-	li	r4,CriticalInput@l
+	lwz	r4,CriticalInput@got(r12)
 	mtspr	IVOR0,r4	/* 0: Critical input */
-	li	r4,MachineCheck@l
+	lwz	r4,MachineCheck@got(r12)
 	mtspr	IVOR1,r4	/* 1: Machine check */
-	li	r4,DataStorage@l
+	lwz	r4,DataStorage@got(r12)
 	mtspr	IVOR2,r4	/* 2: Data storage */
-	li	r4,InstStorage@l
+	lwz	r4,InstStorage@got(r12)
 	mtspr	IVOR3,r4	/* 3: Instruction storage */
-	li	r4,ExtInterrupt@l
+	lwz	r4,ExtInterrupt@got(r12)
 	mtspr	IVOR4,r4	/* 4: External interrupt */
-	li	r4,Alignment@l
+	lwz	r4,Alignment@got(r12)
 	mtspr	IVOR5,r4	/* 5: Alignment */
-	li	r4,ProgramCheck@l
+	lwz	r4,ProgramCheck@got(r12)
 	mtspr	IVOR6,r4	/* 6: Program check */
-	li	r4,FPUnavailable@l
+	lwz	r4,FPUnavailable@got(r12)
 	mtspr	IVOR7,r4	/* 7: floating point unavailable */
-	li	r4,SystemCall@l
+	lwz	r4,SystemCall@got(r12)
 	mtspr	IVOR8,r4	/* 8: System call */
 	/* 9: Auxiliary processor unavailable(unsupported) */
-	li	r4,Decrementer@l
+	lwz	r4,Decrementer@got(r12)
 	mtspr	IVOR10,r4	/* 10: Decrementer */
-	li	r4,IntervalTimer@l
+	lwz	r4,IntervalTimer@got(r12)
 	mtspr	IVOR11,r4	/* 11: Interval timer */
-	li	r4,WatchdogTimer@l
+	lwz	r4,WatchdogTimer@got(r12)
 	mtspr	IVOR12,r4	/* 12: Watchdog timer */
-	li	r4,DataTLBError@l
+	lwz	r4,DataTLBError@got(r12)
 	mtspr	IVOR13,r4	/* 13: Data TLB error */
-	li	r4,InstructionTLBError@l
+	lwz	r4,InstructionTLBError@got(r12)
 	mtspr	IVOR14,r4	/* 14: Instruction TLB error */
-	li	r4,DebugBreakpoint@l
+	lwz	r4,DebugBreakpoint@got(r12)
 	mtspr	IVOR15,r4	/* 15: Debug */
 
+	mtlr	r11
 	blr
 
 .globl unlock_ram_in_cache
