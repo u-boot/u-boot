@@ -1,0 +1,16 @@
+
+if TARGET_LS2085AQDS
+
+config SYS_BOARD
+	default "ls2085aqds"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "fsl-lsch3"
+
+config SYS_CONFIG_NAME
+	default "ls2085aqds"
+
+endif

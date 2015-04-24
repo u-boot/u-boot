@@ -53,7 +53,8 @@ struct mc_ccsr_registers {
 	u32 reg_error[];
 };
 
-int mc_init(bd_t *bis);
-
 int get_mc_boot_status(void);
+unsigned long mc_get_dram_block_size(void);
+int fsl_mc_ldpaa_init(bd_t *bis);
+void fsl_mc_ldpaa_exit(bd_t *bis);
 #endif

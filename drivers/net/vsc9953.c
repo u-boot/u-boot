@@ -9,7 +9,7 @@
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <fm_eth.h>
-#include <asm/fsl_memac.h>
+#include <fsl_memac.h>
 #include <vsc9953.h>
 
 static struct vsc9953_info vsc9953_l2sw = {

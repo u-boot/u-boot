@@ -77,10 +77,9 @@ struct cpld_data {
 int board_early_init_f(void)
 {
 	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
-	struct fsl_ifc *ifc = (void *)CONFIG_SYS_IFC_ADDR;
-
+	struct fsl_ifc ifc = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 	/* Clock configuration to access CPLD using IFC(GPCM) */
-	setbits_be32(&ifc->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT);
+	setbits_be32(&ifc.gregs->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT);
 	/*
 	* Reset PCIe slots via GPIO4
 	*/

@@ -20,7 +20,7 @@ void get_sys_info(struct sys_info *sys_info)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 #ifdef CONFIG_FSL_IFC
-	struct fsl_ifc *ifc_regs = (void *)CONFIG_SYS_IFC_ADDR;
+	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 	u32 ccr;
 #endif
 	struct ccsr_clk *clk = (void *)(CONFIG_SYS_FSL_LS1_CLK_ADDR);
@@ -74,7 +74,7 @@ void get_sys_info(struct sys_info *sys_info)
 	}
 
 #if defined(CONFIG_FSL_IFC)
-	ccr = in_be32(&ifc_regs->ifc_ccr);
+	ccr = in_be32(&ifc_regs.gregs->ifc_ccr);
 	ccr = ((ccr & IFC_CCR_CLK_DIV_MASK) >> IFC_CCR_CLK_DIV_SHIFT) + 1;
 
 	sys_info->freq_localbus = sys_info->freq_systembus / ccr;

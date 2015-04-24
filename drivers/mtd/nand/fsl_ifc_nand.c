@@ -46,7 +46,7 @@ struct fsl_ifc_ctrl {
 	struct fsl_ifc_mtd *chips[MAX_BANKS];
 
 	/* device info */
-	struct fsl_ifc *regs;
+	struct fsl_ifc regs;
 	uint8_t __iomem *addr;   /* Address of assigned IFC buffer        */
 	unsigned int cs_nand;    /* On which chipsel NAND is connected	  */
 	unsigned int page;       /* Last page written to / read from      */
@@ -225,7 +225,7 @@ static void set_addr(struct mtd_info *mtd, int column, int page_addr, int oob)
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_ifc_mtd *priv = chip->priv;
 	struct fsl_ifc_ctrl *ctrl = priv->ctrl;
-	struct fsl_ifc *ifc = ctrl->regs;
+	struct fsl_ifc_runtime *ifc = ctrl->regs.rregs;
 	int buf_num;
 
 	ctrl->page = page_addr;
@@ -289,10 +289,10 @@ static int fsl_ifc_run_command(struct mtd_info *mtd)
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_ifc_mtd *priv = chip->priv;
 	struct fsl_ifc_ctrl *ctrl = priv->ctrl;
-	struct fsl_ifc *ifc = ctrl->regs;
+	struct fsl_ifc_runtime *ifc = ctrl->regs.rregs;
 	u32 timeo = (CONFIG_SYS_HZ * 10) / 1000;
 	u32 time_start;
-	u32 eccstat[4] = {0};
+	u32 eccstat[8] = {0};
 	int i;
 
 	/* set the chip select for NAND Transaction */
@@ -325,8 +325,15 @@ static int fsl_ifc_run_command(struct mtd_info *mtd)
 		int sector = bufnum * chip->ecc.steps;
 		int sector_end = sector + chip->ecc.steps - 1;
 
-		for (i = sector / 4; i <= sector_end / 4; i++)
+		for (i = sector / 4; i <= sector_end / 4; i++) {
+			if (i >= ARRAY_SIZE(eccstat)) {
+				printf("%s: eccstat too small for %d\n",
+				       __func__, i);
+				return -EIO;
+			}
+
 			eccstat[i] = ifc_in32(&ifc->ifc_nand.nand_eccstat[i]);
+		}
 
 		for (i = sector; i <= sector_end; i++) {
 			errors = check_read_ecc(mtd, ctrl, eccstat, i);
@@ -362,7 +369,7 @@ static void fsl_ifc_do_read(struct nand_chip *chip,
 {
 	struct fsl_ifc_mtd *priv = chip->priv;
 	struct fsl_ifc_ctrl *ctrl = priv->ctrl;
-	struct fsl_ifc *ifc = ctrl->regs;
+	struct fsl_ifc_runtime *ifc = ctrl->regs.rregs;
 
 	/* Program FIR/IFC_NAND_FCR0 for Small/Large page */
 	if (mtd->writesize > 512) {
@@ -400,7 +407,7 @@ static void fsl_ifc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_ifc_mtd *priv = chip->priv;
 	struct fsl_ifc_ctrl *ctrl = priv->ctrl;
-	struct fsl_ifc *ifc = ctrl->regs;
+	struct fsl_ifc_runtime *ifc = ctrl->regs.rregs;
 
 	/* clear the read buffer */
 	ctrl->read_bytes = 0;
@@ -690,7 +697,7 @@ static int fsl_ifc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 {
 	struct fsl_ifc_mtd *priv = chip->priv;
 	struct fsl_ifc_ctrl *ctrl = priv->ctrl;
-	struct fsl_ifc *ifc = ctrl->regs;
+	struct fsl_ifc_runtime *ifc = ctrl->regs.rregs;
 	u32 nand_fsr;
 
 	if (ctrl->status != IFC_NAND_EVTER_STAT_OPC)
@@ -747,24 +754,33 @@ static int fsl_ifc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
 
 static void fsl_ifc_ctrl_init(void)
 {
+	uint32_t ver = 0;
 	ifc_ctrl = kzalloc(sizeof(*ifc_ctrl), GFP_KERNEL);
 	if (!ifc_ctrl)
 		return;
 
-	ifc_ctrl->regs = IFC_BASE_ADDR;
+	ifc_ctrl->regs.gregs = IFC_FCM_BASE_ADDR;
+
+	ver = ifc_in32(&ifc_ctrl->regs.gregs->ifc_rev);
+	if (ver >= FSL_IFC_V2_0_0)
+		ifc_ctrl->regs.rregs =
+			(void *)CONFIG_SYS_IFC_ADDR + IFC_RREGS_64KOFFSET;
+	else
+		ifc_ctrl->regs.rregs =
+			(void *)CONFIG_SYS_IFC_ADDR + IFC_RREGS_4KOFFSET;
 
 	/* clear event registers */
-	ifc_out32(&ifc_ctrl->regs->ifc_nand.nand_evter_stat, ~0U);
-	ifc_out32(&ifc_ctrl->regs->ifc_nand.pgrdcmpl_evt_stat, ~0U);
+	ifc_out32(&ifc_ctrl->regs.rregs->ifc_nand.nand_evter_stat, ~0U);
+	ifc_out32(&ifc_ctrl->regs.rregs->ifc_nand.pgrdcmpl_evt_stat, ~0U);
 
 	/* Enable error and event for any detected errors */
-	ifc_out32(&ifc_ctrl->regs->ifc_nand.nand_evter_en,
+	ifc_out32(&ifc_ctrl->regs.rregs->ifc_nand.nand_evter_en,
 		  IFC_NAND_EVTER_EN_OPC_EN |
 		  IFC_NAND_EVTER_EN_PGRDCMPL_EN |
 		  IFC_NAND_EVTER_EN_FTOER_EN |
 		  IFC_NAND_EVTER_EN_WPER_EN);
 
-	ifc_out32(&ifc_ctrl->regs->ifc_nand.ncfgr, 0x0);
+	ifc_out32(&ifc_ctrl->regs.rregs->ifc_nand.ncfgr, 0x0);
 }
 
 static void fsl_ifc_select_chip(struct mtd_info *mtd, int chip)
@@ -773,7 +789,7 @@ static void fsl_ifc_select_chip(struct mtd_info *mtd, int chip)
 
 static int fsl_ifc_sram_init(uint32_t ver)
 {
-	struct fsl_ifc *ifc = ifc_ctrl->regs;
+	struct fsl_ifc_runtime *ifc = ifc_ctrl->regs.rregs;
 	uint32_t cs = 0, csor = 0, csor_8k = 0, csor_ext = 0;
 	uint32_t ncfgr = 0;
 	u32 timeo = (CONFIG_SYS_HZ * 10) / 1000;
@@ -799,13 +815,13 @@ static int fsl_ifc_sram_init(uint32_t ver)
 	cs = ifc_ctrl->cs_nand >> IFC_NAND_CSEL_SHIFT;
 
 	/* Save CSOR and CSOR_ext */
-	csor = ifc_in32(&ifc_ctrl->regs->csor_cs[cs].csor);
-	csor_ext = ifc_in32(&ifc_ctrl->regs->csor_cs[cs].csor_ext);
+	csor = ifc_in32(&ifc_ctrl->regs.gregs->csor_cs[cs].csor);
+	csor_ext = ifc_in32(&ifc_ctrl->regs.gregs->csor_cs[cs].csor_ext);
 
 	/* chage PageSize 8K and SpareSize 1K*/
 	csor_8k = (csor & ~(CSOR_NAND_PGS_MASK)) | 0x0018C000;
-	ifc_out32(&ifc_ctrl->regs->csor_cs[cs].csor, csor_8k);
-	ifc_out32(&ifc_ctrl->regs->csor_cs[cs].csor_ext, 0x0000400);
+	ifc_out32(&ifc_ctrl->regs.gregs->csor_cs[cs].csor, csor_8k);
+	ifc_out32(&ifc_ctrl->regs.gregs->csor_cs[cs].csor_ext, 0x0000400);
 
 	/* READID */
 	ifc_out32(&ifc->ifc_nand.nand_fir0,
@@ -845,8 +861,8 @@ static int fsl_ifc_sram_init(uint32_t ver)
 	ifc_out32(&ifc->ifc_nand.nand_evter_stat, ifc_ctrl->status);
 
 	/* Restore CSOR and CSOR_ext */
-	ifc_out32(&ifc_ctrl->regs->csor_cs[cs].csor, csor);
-	ifc_out32(&ifc_ctrl->regs->csor_cs[cs].csor_ext, csor_ext);
+	ifc_out32(&ifc_ctrl->regs.gregs->csor_cs[cs].csor, csor);
+	ifc_out32(&ifc_ctrl->regs.gregs->csor_cs[cs].csor_ext, csor_ext);
 
 	return 0;
 }
@@ -857,6 +873,7 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 	struct nand_chip *nand;
 	struct fsl_ifc_mtd *priv;
 	struct nand_ecclayout *layout;
+	struct fsl_ifc_fcm *gregs = NULL;
 	uint32_t cspr = 0, csor = 0, ver = 0;
 	int ret = 0;
 
@@ -872,14 +889,15 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 
 	priv->ctrl = ifc_ctrl;
 	priv->vbase = addr;
+	gregs = ifc_ctrl->regs.gregs;
 
 	/* Find which chip select it is connected to.
 	 */
 	for (priv->bank = 0; priv->bank < MAX_BANKS; priv->bank++) {
 		phys_addr_t phys_addr = virt_to_phys(addr);
 
-		cspr = ifc_in32(&ifc_ctrl->regs->cspr_cs[priv->bank].cspr);
-		csor = ifc_in32(&ifc_ctrl->regs->csor_cs[priv->bank].csor);
+		cspr = ifc_in32(&gregs->cspr_cs[priv->bank].cspr);
+		csor = ifc_in32(&gregs->csor_cs[priv->bank].csor);
 
 		if ((cspr & CSPR_V) && (cspr & CSPR_MSEL) == CSPR_MSEL_NAND &&
 		    (cspr & CSPR_BA) == CSPR_PHYS_ADDR(phys_addr)) {
@@ -998,7 +1016,7 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 		nand->ecc.mode = NAND_ECC_SOFT;
 	}
 
-	ver = ifc_in32(&ifc_ctrl->regs->ifc_rev);
+	ver = ifc_in32(&gregs->ifc_rev);
 	if (ver >= FSL_IFC_V1_1_0)
 		ret = fsl_ifc_sram_init(ver);
 	if (ret)

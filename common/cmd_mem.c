@@ -36,9 +36,9 @@ static int mod_mem(cmd_tbl_t *, int, int, int, char * const []);
 /* Display values from last command.
  * Memory modify remembered values are different from display memory.
  */
-static uint	dp_last_addr, dp_last_size;
-static uint	dp_last_length = 0x40;
-static uint	mm_last_addr, mm_last_size;
+static ulong	dp_last_addr, dp_last_size;
+static ulong	dp_last_length = 0x40;
+static ulong	mm_last_addr, mm_last_size;
 
 static	ulong	base_address = 0;
 

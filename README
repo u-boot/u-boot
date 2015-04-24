@@ -690,6 +690,14 @@ The following options need to be configured:
 		exists, unlike the similar options in the Linux kernel. Do not
 		set these options unless they apply!
 
+		COUNTER_FREQUENCY
+		Generic timer clock source frequency.
+
+		COUNTER_FREQUENCY_REAL
+		Generic timer clock source frequency if the real clock is
+		different from COUNTER_FREQUENCY, and can only be determined
+		at run time.
+
 		NOTE: The following can be machine specific errata. These
 		do have ability to provide rudimentary version and machine
 		specific checks, but expect no product checks.
@@ -2395,6 +2403,8 @@ CBFS (Coreboot Filesystem) support
 		  - define slave for bus 3 with CONFIG_SYS_MXC_I2C3_SLAVE
 		If those defines are not set, default value is 100000
 		for speed, and 0 for slave.
+		  - enable bus 3 with CONFIG_SYS_I2C_MXC_I2C3
+		  - enable bus 4 with CONFIG_SYS_I2C_MXC_I2C4
 
 		- drivers/i2c/rcar_i2c.c:
 		  - activate this driver with CONFIG_SYS_I2C_RCAR
@@ -4881,6 +4891,9 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_FSL_DDR_SYNC_REFRESH
 		Enable sync of refresh for multiple controllers.
+
+- CONFIG_FSL_DDR_BIST
+		Enable built-in memory test for Freescale DDR controllers.
 
 - CONFIG_SYS_83XX_DDR_USES_CS0
 		Only for 83xx systems. If specified, then DDR should

@@ -26,6 +26,7 @@
 #define id_to_core(x)	((x & 3) | (x >> 6))
 #ifndef __ASSEMBLY__
 extern u64 __spin_table[];
+extern u64 __real_cntfrq;
 extern u64 *secondary_boot_code;
 extern size_t __secondary_boot_code_size;
 int fsl_lsch3_wake_seconday_cores(void);

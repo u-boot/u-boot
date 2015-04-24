@@ -10,7 +10,12 @@
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
 #include <asm/arch-fsl-lsch3/immap_lsch3.h>
+#include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
+#include <asm/arch/fsl_serdes.h>
+#ifdef CONFIG_FSL_ESDHC
+#include <fsl_esdhc.h>
+#endif
 #include "cpu.h"
 #include "mp.h"
 #include "speed.h"
@@ -24,8 +29,9 @@ DECLARE_GLOBAL_DATA_PTR;
  * levels of translation tables here to cover 40-bit address space.
  * We use 4KB granule size, with 40 bits physical address, T0SZ=24
  * Level 0 IA[39], table address @0
- * Level 1 IA[31:30], table address @01000, 0x2000
- * Level 2 IA[29:21], table address @0x3000
+ * Level 1 IA[31:30], table address @0x1000, 0x2000
+ * Level 2 IA[29:21], table address @0x3000, 0x4000
+ * Address above 0x5000 is free for other purpose.
  */
 
 #define SECTION_SHIFT_L0	39UL
@@ -60,12 +66,12 @@ static inline void early_mmu_setup(void)
 {
 	int el;
 	u64 i;
-	u64 section_l1t0, section_l1t1, section_l2;
+	u64 section_l1t0, section_l1t1, section_l2t0, section_l2t1;
 	u64 *level0_table = (u64 *)CONFIG_SYS_FSL_OCRAM_BASE;
 	u64 *level1_table_0 = (u64 *)(CONFIG_SYS_FSL_OCRAM_BASE + 0x1000);
 	u64 *level1_table_1 = (u64 *)(CONFIG_SYS_FSL_OCRAM_BASE + 0x2000);
-	u64 *level2_table = (u64 *)(CONFIG_SYS_FSL_OCRAM_BASE + 0x3000);
-
+	u64 *level2_table_0 = (u64 *)(CONFIG_SYS_FSL_OCRAM_BASE + 0x3000);
+	u64 *level2_table_1 = (u64 *)(CONFIG_SYS_FSL_OCRAM_BASE + 0x4000);
 
 	level0_table[0] =
 		(u64)level1_table_0 | PMD_TYPE_TABLE;
@@ -79,21 +85,25 @@ static inline void early_mmu_setup(void)
 	 */
 	section_l1t0 = 0;
 	section_l1t1 = BLOCK_SIZE_L0;
-	section_l2 = 0;
+	section_l2t0 = 0;
+	section_l2t1 = CONFIG_SYS_FLASH_BASE;
 	for (i = 0; i < 512; i++) {
 		set_pgtable_section(level1_table_0, i, section_l1t0,
 				    MT_DEVICE_NGNRNE);
 		set_pgtable_section(level1_table_1, i, section_l1t1,
 				    MT_NORMAL);
-		set_pgtable_section(level2_table, i, section_l2,
+		set_pgtable_section(level2_table_0, i, section_l2t0,
+				    MT_DEVICE_NGNRNE);
+		set_pgtable_section(level2_table_1, i, section_l2t1,
 				    MT_DEVICE_NGNRNE);
 		section_l1t0 += BLOCK_SIZE_L1;
 		section_l1t1 += BLOCK_SIZE_L1;
-		section_l2 += BLOCK_SIZE_L2;
+		section_l2t0 += BLOCK_SIZE_L2;
+		section_l2t1 += BLOCK_SIZE_L2;
 	}
 
 	level1_table_0[0] =
-		(u64)level2_table | PMD_TYPE_TABLE;
+		(u64)level2_table_0 | PMD_TYPE_TABLE;
 	level1_table_0[1] =
 		0x40000000 | PMD_SECT_AF | PMD_TYPE_SECT |
 		PMD_ATTRINDX(MT_DEVICE_NGNRNE);
@@ -104,17 +114,34 @@ static inline void early_mmu_setup(void)
 		0xc0000000 | PMD_SECT_AF | PMD_TYPE_SECT |
 		PMD_ATTRINDX(MT_NORMAL);
 
-	/* Rewrite table to enable cache */
-	set_pgtable_section(level2_table,
+	/* Rewerite table to enable cache for OCRAM */
+	set_pgtable_section(level2_table_0,
 			    CONFIG_SYS_FSL_OCRAM_BASE >> SECTION_SHIFT_L2,
 			    CONFIG_SYS_FSL_OCRAM_BASE,
 			    MT_NORMAL);
-	for (i = CONFIG_SYS_IFC_BASE >> SECTION_SHIFT_L2;
-	     i < (CONFIG_SYS_IFC_BASE + CONFIG_SYS_IFC_SIZE)
-	     >> SECTION_SHIFT_L2; i++) {
-		section_l2 = i << SECTION_SHIFT_L2;
-		set_pgtable_section(level2_table, i,
-				    section_l2, MT_NORMAL);
+
+#if defined(CONFIG_SYS_NOR0_CSPR_EARLY) && defined(CONFIG_SYS_NOR_AMASK_EARLY)
+	/* Rewrite table to enable cache for two entries (4MB) */
+	section_l2t1 = CONFIG_SYS_IFC_BASE;
+	set_pgtable_section(level2_table_0,
+			    section_l2t1 >> SECTION_SHIFT_L2,
+			    section_l2t1,
+			    MT_NORMAL);
+	section_l2t1 += BLOCK_SIZE_L2;
+	set_pgtable_section(level2_table_0,
+			    section_l2t1 >> SECTION_SHIFT_L2,
+			    section_l2t1,
+			    MT_NORMAL);
+#endif
+
+	/* Create a mapping for 256MB IFC region to final flash location */
+	level1_table_0[CONFIG_SYS_FLASH_BASE >> SECTION_SHIFT_L1] =
+		(u64)level2_table_1 | PMD_TYPE_TABLE;
+	section_l2t1 = CONFIG_SYS_IFC_BASE;
+	for (i = 0; i < 0x10000000 >> SECTION_SHIFT_L2; i++) {
+		set_pgtable_section(level2_table_1, i,
+				    section_l2t1, MT_DEVICE_NGNRNE);
+		section_l2t1 += BLOCK_SIZE_L2;
 	}
 
 	el = current_el();
@@ -347,6 +374,7 @@ u32 fsl_qoriq_core_to_type(unsigned int core)
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	struct sys_info sysinfo;
 	char buf[32];
 	unsigned int i, core;
@@ -370,7 +398,27 @@ int print_cpuinfo(void)
 	printf("     DP-DDR:   %-4s MHz", strmhz(buf, sysinfo.freq_ddrbus2));
 	puts("\n");
 
+	/* Display the RCW, so that no one gets confused as to what RCW
+	 * we're actually using for this boot.
+	 */
+	puts("Reset Configuration Word (RCW):");
+	for (i = 0; i < ARRAY_SIZE(gur->rcwsr); i++) {
+		u32 rcw = in_le32(&gur->rcwsr[i]);
+
+		if ((i % 4) == 0)
+			printf("\n       %02x:", i * 4);
+		printf(" %08x", rcw);
+	}
+	puts("\n");
+
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_FSL_ESDHC
+int cpu_mmc_init(bd_t *bis)
+{
+	return fsl_esdhc_mmc_init(bis);
 }
 #endif
 
@@ -379,11 +427,10 @@ int cpu_eth_init(bd_t *bis)
 	int error = 0;
 
 #ifdef CONFIG_FSL_MC_ENET
-	error = mc_init(bis);
+	error = fsl_mc_ldpaa_init(bis);
 #endif
 	return error;
 }
-
 
 int arch_early_init_r(void)
 {
@@ -393,5 +440,43 @@ int arch_early_init_r(void)
 	if (rv)
 		printf("Did not wake secondary cores\n");
 
+#ifdef CONFIG_SYS_HAS_SERDES
+	fsl_serdes_init();
+#endif
 	return 0;
+}
+
+int timer_init(void)
+{
+	u32 __iomem *cntcr = (u32 *)CONFIG_SYS_FSL_TIMER_ADDR;
+	u32 __iomem *cltbenr = (u32 *)CONFIG_SYS_FSL_PMU_CLTBENR;
+#ifdef COUNTER_FREQUENCY_REAL
+	unsigned long cntfrq = COUNTER_FREQUENCY_REAL;
+
+	/* Update with accurate clock frequency */
+	asm volatile("msr cntfrq_el0, %0" : : "r" (cntfrq) : "memory");
+#endif
+
+	/* Enable timebase for all clusters.
+	 * It is safe to do so even some clusters are not enabled.
+	 */
+	out_le32(cltbenr, 0xf);
+
+	/* Enable clock for timer
+	 * This is a global setting.
+	 */
+	out_le32(cntcr, 0x1);
+
+	return 0;
+}
+
+void reset_cpu(ulong addr)
+{
+	u32 __iomem *rstcr = (u32 *)CONFIG_SYS_FSL_RST_ADDR;
+	u32 val;
+
+	/* Raise RESET_REQ_B */
+	val = in_le32(rstcr);
+	val |= 0x02;
+	out_le32(rstcr, val);
 }

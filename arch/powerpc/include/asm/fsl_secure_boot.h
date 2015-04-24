@@ -67,5 +67,24 @@
 #define CONFIG_FSL_ISBC_KEY_EXT
 #endif
 
+#ifndef CONFIG_FIT_SIGNATURE
+/* The bootscript header address is different for B4860 because the NOR
+ * mapping is different on B4 due to reduced NOR size.
+ */
+#if defined(CONFIG_B4860QDS)
+#define CONFIG_BOOTSCRIPT_HDR_ADDR	0xecc00000
+#elif defined(CONFIG_FSL_CORENET)
+#define CONFIG_BOOTSCRIPT_HDR_ADDR	0xe8e00000
+#elif defined(CONFIG_BSC9132QDS)
+#define CONFIG_BOOTSCRIPT_HDR_ADDR	0x88020000
+#elif defined(CONFIG_C29XPCIE)
+#define CONFIG_BOOTSCRIPT_HDR_ADDR	0xec020000
+#else
+#define CONFIG_BOOTSCRIPT_HDR_ADDR	0xee020000
+#endif
+
+#include <config_fsl_secboot.h>
+#endif
+
 #endif
 #endif

@@ -24,6 +24,18 @@
 #endif
 #endif
 
+#ifdef CONFIG_LS102XA
+#define QE_MURAM_SIZE          0x6000UL
+#define MAX_QE_RISC            1
+#define QE_NUM_OF_SNUM         28
+#endif
+
+#ifdef CONFIG_PPC
+#define QE_IMMR_OFFSET		0x00140000
+#else
+#define QE_IMMR_OFFSET		0x01400000
+#endif
+
 /* QE I-RAM */
 typedef struct qe_iram {
 	u32 iadd;		/* I-RAM Address Register */
