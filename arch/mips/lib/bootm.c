@@ -317,7 +317,11 @@ static void boot_jump_linux(bootm_headers_t *images)
 	bootstage_report();
 #endif
 
-	kernel(linux_argc, (ulong)linux_argv, (ulong)linux_env, linux_extra);
+	if (images->ft_len)
+		kernel(-2, (ulong)images->ft_addr, 0, 0);
+	else
+		kernel(linux_argc, (ulong)linux_argv, (ulong)linux_env,
+			linux_extra);
 }
 
 int do_bootm_linux(int flag, int argc, char * const argv[],
