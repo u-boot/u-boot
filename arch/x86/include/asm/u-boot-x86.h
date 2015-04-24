@@ -53,6 +53,8 @@ int video_bios_init(void);
 void	board_init_f_r_trampoline(ulong) __attribute__ ((noreturn));
 void	board_init_f_r(void) __attribute__ ((noreturn));
 
+int arch_misc_init(void);
+
 /* Read the time stamp counter */
 static inline __attribute__((no_instrument_function)) uint64_t rdtsc(void)
 {

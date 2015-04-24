@@ -8,7 +8,8 @@
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/post.h>
-#include <asm/arch/tnc.h>
+#include <asm/arch/device.h>
+#include <asm/arch/irq.h>
 #include <asm/fsp/fsp_support.h>
 #include <asm/processor.h>
 
@@ -40,6 +41,13 @@ int arch_cpu_init(void)
 		return ret;
 
 	unprotect_spi_flash();
+
+	return 0;
+}
+
+int arch_misc_init(void)
+{
+	pirq_init();
 
 	return 0;
 }
