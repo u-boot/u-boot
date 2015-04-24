@@ -139,7 +139,7 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 	return 0;
 }
 
-int pci_rom_load(uint16_t class, struct pci_rom_header *rom_header,
+int pci_rom_load(struct pci_rom_header *rom_header,
 		 struct pci_rom_header **ram_headerp)
 {
 	struct pci_rom_data *rom_data;
@@ -253,7 +253,7 @@ int pci_run_vga_bios(pci_dev_t dev, int (*int15_handler)(void), int exec_method)
 	if (ret)
 		return ret;
 
-	ret = pci_rom_load(class, rom, &ram);
+	ret = pci_rom_load(rom, &ram);
 	if (ret)
 		return ret;
 
