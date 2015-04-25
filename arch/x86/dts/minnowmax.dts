@@ -74,7 +74,7 @@
 		compatible = "intel,ich-spi";
 		spi-flash@0 {
 			reg = <0>;
-			compatible = "sst,25vf016b", "spi-flash";
+			compatible = "stmicro,n25q064a", "spi-flash";
 			memory-map = <0xff800000 0x00800000>;
 		};
 	};
