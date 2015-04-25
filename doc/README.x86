@@ -127,15 +127,32 @@ board/intel/minnowmax/fsp.bin
 Obtain the VGA RAM (Vga.dat at the time of writing) and put it into the same
 directory: board/intel/minnowmax/vga.bin
 
-You still need two more binary blobs. These come from the sample SPI image
-provided in the FSP (SPI.bin at the time of writing).
+You still need two more binary blobs. The first comes from the original
+firmware image available from:
+
+http://firmware.intel.com/sites/default/files/2014-WW42.4-MinnowBoardMax.73-64-bit.bin_Release.zip
+
+Unzip it:
+
+   $ unzip 2014-WW42.4-MinnowBoardMax.73-64-bit.bin_Release.zip
 
 Use ifdtool in the U-Boot tools directory to extract the images from that
 file, for example:
 
+   $ ./tools/ifdtool -x MNW2MAX1.X64.0073.R02.1409160934.bin
+
+This will provide the descriptor file - copy this into the correct place:
+
+   $ cp flashregion_0_flashdescriptor.bin board/intel/minnowmax/descriptor.bin
+
+Then do the same with the sample SPI image provided in the FSP (SPI.bin at
+the time of writing) to obtain the last image. Note that this will also
+produce a flash descriptor file, but it does not seem to work, probably
+because it is not designed for the Minnowmax. That is why you need to get
+the flash descriptor from the original firmware as above.
+
    $ ./tools/ifdtool -x BayleyBay/SPI.bin
    $ cp flashregion_2_intel_me.bin board/intel/minnowmax/me.bin
-   $ cp flashregion_0_flashdescriptor.bin board/intel/minnowmax/descriptor.bin
 
 Now you can build U-Boot and obtain u-boot.rom
 
