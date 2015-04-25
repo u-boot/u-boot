@@ -8,8 +8,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _ASM_ARCH_ARMADA_XP_H
-#define _ASM_ARCH_ARMADA_XP_H
+#ifndef _MVEBU_SOC_H
+#define _MVEBU_SOC_H
 
 #define SOC_MV78460_ID		0x7846
 
@@ -49,9 +49,9 @@
 /* Armada XP GbE controller has 4 ports */
 #define MAX_MVNETA_DEVS		4
 
-/* Kirkwood CPU memory windows */
+/* MVEBU CPU memory windows */
 #define MVCPU_WIN_CTRL_DATA	CPU_WIN_CTRL_DATA
 #define MVCPU_WIN_ENABLE	CPU_WIN_ENABLE
 #define MVCPU_WIN_DISABLE	CPU_WIN_DISABLE
 
-#endif /* _ASM_ARCH_ARMADA_XP_H */
+#endif /* _MVEBU_SOC_H */

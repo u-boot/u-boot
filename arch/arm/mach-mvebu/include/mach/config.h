@@ -12,8 +12,8 @@
  * It supports common definitions for Armada XP platforms
  */
 
-#ifndef _ARMADA_XP_CONFIG_H
-#define _ARMADA_XP_CONFIG_H
+#ifndef _MVEBU_CONFIG_H
+#define _MVEBU_CONFIG_H
 
 #include <asm/arch/soc.h>
 
@@ -83,4 +83,4 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 #endif
 
-#endif /* _ARMADA_XP_CONFIG_H */
+#endif /* __MVEBU_CONFIG_H */

@@ -6,8 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _ARMADA_XP_CPU_H
-#define _ARMADA_XP_CPU_H
+#ifndef _MVEBU_CPU_H
+#define _MVEBU_CPU_H
 
 #include <asm/system.h>
 
@@ -120,4 +120,4 @@ int serdes_phy_config(void);
  */
 int ddr3_init(void);
 #endif /* __ASSEMBLY__ */
-#endif /* _ARMADA_XP_CPU_H */
+#endif /* _MVEBU_CPU_H */
