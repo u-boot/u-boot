@@ -277,6 +277,7 @@ int uclass_get_device_tail(struct udevice *dev, int ret,
 	if (ret)
 		return ret;
 
+	assert(dev);
 	ret = device_probe(dev);
 	if (ret)
 		return ret;
@@ -342,6 +343,8 @@ int uclass_first_device(enum uclass_id id, struct udevice **devp)
 
 	*devp = NULL;
 	ret = uclass_find_first_device(id, &dev);
+	if (!dev)
+		return 0;
 	return uclass_get_device_tail(dev, ret, devp);
 }
 
@@ -352,6 +355,8 @@ int uclass_next_device(struct udevice **devp)
 
 	*devp = NULL;
 	ret = uclass_find_next_device(&dev);
+	if (!dev)
+		return 0;
 	return uclass_get_device_tail(dev, ret, devp);
 }
 
