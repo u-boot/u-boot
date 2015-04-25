@@ -175,7 +175,7 @@ int checkboard(void)
 
 #ifdef CONFIG_SPL_BUILD
 #include <asm/arch/mx6-ddr.h>
-static const struct mx6dq_iomux_ddr_regs mx6_ddr_ioregs = {
+static const struct mx6dq_iomux_ddr_regs mx6q_ddr_ioregs = {
 	.dram_sdclk_0 =  0x00020030,
 	.dram_sdclk_1 =  0x00020030,
 	.dram_cas =  0x00020030,
@@ -204,7 +204,36 @@ static const struct mx6dq_iomux_ddr_regs mx6_ddr_ioregs = {
 	.dram_dqm7 =  0x00020030,
 };
 
-static const struct mx6dq_iomux_grp_regs mx6_grp_ioregs = {
+static const struct mx6sdl_iomux_ddr_regs mx6dl_ddr_ioregs = {
+	.dram_sdclk_0 = 0x00000028,
+	.dram_sdclk_1 = 0x00000028,
+	.dram_cas =	0x00000028,
+	.dram_ras =	0x00000028,
+	.dram_reset =	0x000c0028,
+	.dram_sdcke0 =	0x00003000,
+	.dram_sdcke1 =	0x00003000,
+	.dram_sdba2 =	0x00000000,
+	.dram_sdodt0 =	0x00003030,
+	.dram_sdodt1 =	0x00003030,
+	.dram_sdqs0 =	0x00000028,
+	.dram_sdqs1 =	0x00000028,
+	.dram_sdqs2 =	0x00000028,
+	.dram_sdqs3 =	0x00000028,
+	.dram_sdqs4 =	0x00000028,
+	.dram_sdqs5 =	0x00000028,
+	.dram_sdqs6 =	0x00000028,
+	.dram_sdqs7 =	0x00000028,
+	.dram_dqm0 =	0x00000028,
+	.dram_dqm1 =	0x00000028,
+	.dram_dqm2 =	0x00000028,
+	.dram_dqm3 =	0x00000028,
+	.dram_dqm4 =	0x00000028,
+	.dram_dqm5 =	0x00000028,
+	.dram_dqm6 =	0x00000028,
+	.dram_dqm7 =	0x00000028,
+};
+
+static const struct mx6dq_iomux_grp_regs mx6q_grp_ioregs = {
 	.grp_ddr_type =  0x000C0000,
 	.grp_ddrmode_ctl =  0x00020000,
 	.grp_ddrpke =  0x00000000,
@@ -221,7 +250,25 @@ static const struct mx6dq_iomux_grp_regs mx6_grp_ioregs = {
 	.grp_b7ds =  0x00000030,
 };
 
-static const struct mx6_mmdc_calibration mx6_mmcd_calib = {
+static const struct mx6sdl_iomux_grp_regs mx6sdl_grp_ioregs = {
+	.grp_ddr_type = 0x000c0000,
+	.grp_ddrmode_ctl = 0x00020000,
+	.grp_ddrpke = 0x00000000,
+	.grp_addds = 0x00000028,
+	.grp_ctlds = 0x00000028,
+	.grp_ddrmode = 0x00020000,
+	.grp_b0ds = 0x00000028,
+	.grp_b1ds = 0x00000028,
+	.grp_b2ds = 0x00000028,
+	.grp_b3ds = 0x00000028,
+	.grp_b4ds = 0x00000028,
+	.grp_b5ds = 0x00000028,
+	.grp_b6ds = 0x00000028,
+	.grp_b7ds = 0x00000028,
+};
+
+/* microSOM with Dual processor and 1GB memory */
+static const struct mx6_mmdc_calibration mx6q_1g_mmcd_calib = {
 	.p0_mpwldectrl0 =  0x00000000,
 	.p0_mpwldectrl1 =  0x00000000,
 	.p1_mpwldectrl0 =  0x00000000,
@@ -236,7 +283,49 @@ static const struct mx6_mmdc_calibration mx6_mmcd_calib = {
 	.p1_mpwrdlctl =    0x422a423c,
 };
 
-static struct mx6_ddr3_cfg mem_ddr = {
+/* microSOM with Quad processor and 2GB memory */
+static const struct mx6_mmdc_calibration mx6q_2g_mmcd_calib = {
+	.p0_mpwldectrl0 =  0x00000000,
+	.p0_mpwldectrl1 =  0x00000000,
+	.p1_mpwldectrl0 =  0x00000000,
+	.p1_mpwldectrl1 =  0x00000000,
+	.p0_mpdgctrl0 =    0x0314031c,
+	.p0_mpdgctrl1 =    0x023e0304,
+	.p1_mpdgctrl0 =    0x03240330,
+	.p1_mpdgctrl1 =    0x03180260,
+	.p0_mprddlctl =    0x3630323c,
+	.p1_mprddlctl =    0x3436283a,
+	.p0_mpwrdlctl =    0x36344038,
+	.p1_mpwrdlctl =    0x422a423c,
+};
+
+/* microSOM with Solo processor and 512MB memory */
+static const struct mx6_mmdc_calibration mx6dl_512m_mmcd_calib = {
+	.p0_mpwldectrl0 = 0x0045004D,
+	.p0_mpwldectrl1 = 0x003A0047,
+	.p0_mpdgctrl0 =   0x023C0224,
+	.p0_mpdgctrl1 =   0x02000220,
+	.p0_mprddlctl =   0x44444846,
+	.p0_mpwrdlctl =   0x32343032,
+};
+
+/* microSOM with Dual lite processor and 1GB memory */
+static const struct mx6_mmdc_calibration mx6dl_1g_mmcd_calib = {
+	.p0_mpwldectrl0 =  0x0045004D,
+	.p0_mpwldectrl1 =  0x003A0047,
+	.p1_mpwldectrl0 =  0x001F001F,
+	.p1_mpwldectrl1 =  0x00210035,
+	.p0_mpdgctrl0 =    0x023C0224,
+	.p0_mpdgctrl1 =    0x02000220,
+	.p1_mpdgctrl0 =    0x02200220,
+	.p1_mpdgctrl1 =    0x02000220,
+	.p0_mprddlctl =    0x44444846,
+	.p1_mprddlctl =    0x4042463C,
+	.p0_mpwrdlctl =    0x32343032,
+	.p1_mpwrdlctl =    0x36363430,
+};
+
+static struct mx6_ddr3_cfg mem_ddr_2g = {
 	.mem_speed = 1600,
 	.density   = 2,
 	.width     = 16,
@@ -248,6 +337,19 @@ static struct mx6_ddr3_cfg mem_ddr = {
 	.trcmin    = 4875,
 	.trasmin   = 3500,
 	.SRT       = 1,
+};
+
+static struct mx6_ddr3_cfg mem_ddr_4g = {
+	.mem_speed = 1600,
+	.density = 4,
+	.width = 16,
+	.banks = 8,
+	.rowaddr = 15,
+	.coladdr = 10,
+	.pagesz = 2,
+	.trcd = 1375,
+	.trcmin = 4875,
+	.trasmin = 3500,
 };
 
 static void ccgr_init(void)
@@ -278,11 +380,11 @@ static void gpr_init(void)
  * This section requires the differentiation between Solidrun mx6 boards, but
  * for now, it will configure only for the mx6dual hummingboard version.
  */
-static void spl_dram_init(void)
+static void spl_dram_init(int width)
 {
 	struct mx6_ddr_sysinfo sysinfo = {
 		/* width of data bus: 0=16, 1=32, 2=64 */
-		.dsize = 2,
+		.dsize = width / 32,
 		/* config for full 4GB range so that get_mem_size() works */
 		.cs_density = 32,	/* 32Gb per CS */
 		.ncs = 1,		/* single chip select */
@@ -297,8 +399,19 @@ static void spl_dram_init(void)
 		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
 	};
 
-	mx6dq_dram_iocfg(64, &mx6_ddr_ioregs, &mx6_grp_ioregs);
-	mx6_dram_cfg(&sysinfo, &mx6_mmcd_calib, &mem_ddr);
+	if (is_cpu_type(MXC_CPU_MX6D) || is_cpu_type(MXC_CPU_MX6Q))
+		mx6dq_dram_iocfg(width, &mx6q_ddr_ioregs, &mx6q_grp_ioregs);
+	else
+		mx6sdl_dram_iocfg(width, &mx6dl_ddr_ioregs, &mx6sdl_grp_ioregs);
+
+	if (is_cpu_type(MXC_CPU_MX6D))
+		mx6_dram_cfg(&sysinfo, &mx6q_1g_mmcd_calib, &mem_ddr_2g);
+	else if (is_cpu_type(MXC_CPU_MX6Q))
+		mx6_dram_cfg(&sysinfo, &mx6q_2g_mmcd_calib, &mem_ddr_4g);
+	else if (is_cpu_type(MXC_CPU_MX6DL))
+		mx6_dram_cfg(&sysinfo, &mx6q_1g_mmcd_calib, &mem_ddr_2g);
+	else if (is_cpu_type(MXC_CPU_MX6SOLO))
+		mx6_dram_cfg(&sysinfo, &mx6dl_512m_mmcd_calib, &mem_ddr_2g);
 }
 
 void board_init_f(ulong dummy)
@@ -319,7 +432,10 @@ void board_init_f(ulong dummy)
 	preloader_console_init();
 
 	/* DDR initialization */
-	spl_dram_init();
+	if (is_cpu_type(MXC_CPU_MX6SOLO))
+		spl_dram_init(32);
+	else
+		spl_dram_init(64);
 
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
