@@ -86,7 +86,8 @@ int checkboard(void)
 /* Configure and enable MV88E1545 PHY */
 void reset_phy(void)
 {
-	u16 devadr = CONFIG_PHY_BASE_ADDR;
+	u8 phy_addr[] = CONFIG_PHY_ADDR;
+	u16 devadr = phy_addr[0];
 	char *name = "neta0";
 	u16 reg;
 

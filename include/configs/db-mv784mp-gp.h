@@ -53,7 +53,7 @@
 #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
 
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */
-#define CONFIG_PHY_BASE_ADDR	0x10
+#define CONFIG_PHY_ADDR			{ 0x10, 0x11, 0x12, 0x13 }
 #define CONFIG_SYS_NETA_INTERFACE_TYPE	PHY_INTERFACE_MODE_QSGMII
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 #define CONFIG_RESET_PHY_R
