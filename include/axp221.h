@@ -8,13 +8,6 @@
 
 struct udevice;
 
-#define AXP221_CHIP_ADDR 0x68
-#define AXP221_CTRL_ADDR 0x3e
-#define AXP221_INIT_DATA 0x3e
-
-#define AXP223_DEVICE_ADDR 0x3a3
-#define AXP223_RUNTIME_ADDR 0x2d
-
 /* Page 0 addresses */
 #define AXP221_POWER_STATUS	0x00
 #define AXP221_POWER_STATUS_VBUS_AVAIL	(1 << 5)
