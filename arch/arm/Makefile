@@ -86,7 +86,7 @@ libs-y += arch/arm/imx-common/
 endif
 endif
 
-ifneq (,$(filter $(SOC), armada-xp kirkwood))
+ifneq (,$(filter $(SOC), mvebu kirkwood))
 libs-y += arch/arm/mvebu-common/
 endif
 
