@@ -12,7 +12,12 @@
 #include <common.h>
 #include <asm/arch/p2wi.h>
 #include <asm/arch/rsb.h>
+#include <i2c.h>
 #include <asm/arch/pmic_bus.h>
+
+#define AXP152_I2C_ADDR			0x30
+
+#define AXP209_I2C_ADDR			0x34
 
 #define AXP221_CHIP_ADDR		0x68
 #define AXP221_CTRL_ADDR		0x3e
@@ -25,24 +30,26 @@ int pmic_bus_init(void)
 {
 	/* This cannot be 0 because it is used in SPL before BSS is ready */
 	static int needs_init = 1;
-	int ret;
+	__maybe_unused int ret;
 
 	if (!needs_init)
 		return 0;
 
-#ifdef CONFIG_MACH_SUN6I
+#ifdef CONFIG_AXP221_POWER
+# ifdef CONFIG_MACH_SUN6I
 	p2wi_init();
 	ret = p2wi_change_to_p2wi_mode(AXP221_CHIP_ADDR, AXP221_CTRL_ADDR,
 				       AXP221_INIT_DATA);
-#else
+# else
 	ret = rsb_init();
 	if (ret)
 		return ret;
 
 	ret = rsb_set_device_address(AXP223_DEVICE_ADDR, AXP223_RUNTIME_ADDR);
-#endif
+# endif
 	if (ret)
 		return ret;
+#endif
 
 	needs_init = 0;
 	return 0;
@@ -50,19 +57,31 @@ int pmic_bus_init(void)
 
 int pmic_bus_read(u8 reg, u8 *data)
 {
-#ifdef CONFIG_MACH_SUN6I
+#ifdef CONFIG_AXP152_POWER
+	return i2c_read(AXP152_I2C_ADDR, reg, 1, data, 1);
+#elif defined CONFIG_AXP209_POWER
+	return i2c_read(AXP209_I2C_ADDR, reg, 1, data, 1);
+#elif defined CONFIG_AXP221_POWER
+# ifdef CONFIG_MACH_SUN6I
 	return p2wi_read(reg, data);
-#else
+# else
 	return rsb_read(AXP223_RUNTIME_ADDR, reg, data);
+# endif
 #endif
 }
 
 int pmic_bus_write(u8 reg, u8 data)
 {
-#ifdef CONFIG_MACH_SUN6I
+#ifdef CONFIG_AXP152_POWER
+	return i2c_write(AXP152_I2C_ADDR, reg, 1, &data, 1);
+#elif defined CONFIG_AXP209_POWER
+	return i2c_write(AXP209_I2C_ADDR, reg, 1, &data, 1);
+#elif defined CONFIG_AXP221_POWER
+# ifdef CONFIG_MACH_SUN6I
 	return p2wi_write(reg, data);
-#else
+# else
 	return rsb_write(AXP223_RUNTIME_ADDR, reg, data);
+# endif
 #endif
 }
 
