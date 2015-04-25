@@ -48,6 +48,7 @@ machine-$(CONFIG_ARCH_HIGHBANK)		+= highbank
 machine-$(CONFIG_ARCH_KEYSTONE)		+= keystone
 # TODO: rename CONFIG_KIRKWOOD -> CONFIG_ARCH_KIRKWOOD
 machine-$(CONFIG_KIRKWOOD)		+= kirkwood
+machine-$(CONFIG_ARMADA_XP)		+= mvebu
 # TODO: rename CONFIG_TEGRA -> CONFIG_ARCH_TEGRA
 machine-$(CONFIG_ARCH_NOMADIK)		+= nomadik
 # TODO: rename CONFIG_ORION5X -> CONFIG_ARCH_ORION5X
