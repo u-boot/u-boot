@@ -153,7 +153,7 @@ struct sunxi_sramc_regs {
 #define EMAC_CRCERR		(0x1 << 4)
 #define EMAC_LENERR		(0x3 << 5)
 
-#define DMA_CPU_TRRESHOLD	2000
+#define EMAC_RX_BUFSIZE		2000
 
 struct emac_eth_dev {
 	struct emac_regs *regs;
@@ -455,7 +455,7 @@ static int _sunxi_emac_eth_recv(struct emac_eth_dev *priv, void *packet)
 
 	/* Move data from EMAC */
 	if (good_packet) {
-		if (rx_len > DMA_CPU_TRRESHOLD) {
+		if (rx_len > EMAC_RX_BUFSIZE) {
 			printf("Received packet is too big (len=%d)\n", rx_len);
 			return -EMSGSIZE;
 		}
