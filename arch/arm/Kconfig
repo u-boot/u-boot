@@ -102,6 +102,11 @@ config KIRKWOOD
 	bool "Marvell Kirkwood"
 	select CPU_ARM926EJS
 
+config TARGET_DB_88F6820_GP
+	bool "Support DB-88F6820-GP"
+	select CPU_V7
+	select SUPPORT_SPL
+
 config TARGET_DB_MV784MP_GP
 	bool "Support db-mv784mp-gp"
 	select CPU_V7
@@ -850,6 +855,7 @@ source "board/BuR/kwb/Kconfig"
 source "board/BuR/tseries/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
+source "board/Marvell/db-88f6820-gp/Kconfig"
 source "board/Marvell/db-mv784mp-gp/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
 source "board/altera/socfpga/Kconfig"
