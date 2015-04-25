@@ -3,4 +3,4 @@ M:	Fabio Estevam <fabio.estevam@freescale.com>
 S:	Maintained
 F:	board/solidrun/mx6cuboxi/
 F:	include/configs/mx6cuboxi.h
-F:	configs/mx6cuboxi_spl_defconfig
+F:	configs/mx6cuboxi_defconfig
