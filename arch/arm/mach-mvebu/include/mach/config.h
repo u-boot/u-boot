@@ -85,4 +85,9 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 #endif
 
+/* Common SPL configuration */
+#ifndef CONFIG_SPL_LDSCRIPT
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-mvebu/u-boot-spl.lds"
+#endif
+
 #endif /* __MVEBU_CONFIG_H */
