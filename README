@@ -5473,7 +5473,7 @@ loaded to, and "Flash Location" gives the image's address in NOR
 flash or offset in NAND flash.
 
 *Note* - these variables don't have to be defined for all boards, some
-boards currenlty use other variables for these purposes, and some
+boards currently use other variables for these purposes, and some
 boards use these variables for other purposes.
 
 Image		    File Name	     RAM Address       Flash Location
