@@ -255,7 +255,6 @@ void debug_uart_init(void)
 	 */
 	baud_divisor = calc_divisor(com_port, CONFIG_DEBUG_UART_CLOCK,
 				    CONFIG_BAUDRATE);
-	baud_divisor = 13;
 	serial_out_shift(&com_port->ier, CONFIG_DEBUG_UART_SHIFT,
 			 CONFIG_SYS_NS16550_IER);
 	serial_out_shift(&com_port->mcr, CONFIG_DEBUG_UART_SHIFT, UART_MCRVAL);
