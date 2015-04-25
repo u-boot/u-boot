@@ -46,9 +46,6 @@
 #define SDRAM_MAX_CS		4
 #define SDRAM_ADDR_MASK		0xFF000000
 
-/* Armada XP GbE controller has 4 ports */
-#define MAX_MVNETA_DEVS		4
-
 /* MVEBU CPU memory windows */
 #define MVCPU_WIN_CTRL_DATA	CPU_WIN_CTRL_DATA
 #define MVCPU_WIN_ENABLE	CPU_WIN_ENABLE
