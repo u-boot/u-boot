@@ -86,8 +86,8 @@ libs-y += arch/arm/imx-common/
 endif
 endif
 
-ifneq (,$(filter $(SOC), mvebu kirkwood))
-libs-y += arch/arm/mvebu-common/
+ifneq (,$(filter $(SOC), kirkwood))
+libs-y += arch/arm/mach-mvebu/
 endif
 
 # deprecated

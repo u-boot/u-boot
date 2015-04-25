@@ -100,7 +100,7 @@
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/mvebu-common/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-mvebu/u-boot-spl.lds"
 
 /* SPL related SPI defines */
 #define CONFIG_SPL_SPI_SUPPORT
