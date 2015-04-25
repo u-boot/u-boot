@@ -71,6 +71,12 @@ static iomux_v3_cfg_t const usdhc2_pads[] = {
 	IOMUX_PADS(PAD_SD2_DAT3__SD2_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
 
+static iomux_v3_cfg_t const hb_cbi_sense[] = {
+	/* These pins are for sensing if it is a CuBox-i or a HummingBoard */
+	IOMUX_PADS(PAD_KEY_ROW1__GPIO4_IO09  | MUX_PAD_CTRL(UART_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_DA4__GPIO3_IO04   | MUX_PAD_CTRL(UART_PAD_CTRL)),
+};
+
 static void setup_iomux_uart(void)
 {
 	SETUP_IOMUX_PADS(uart1_pads);
@@ -167,9 +173,42 @@ int board_init(void)
 	return 0;
 }
 
+static bool is_hummingboard(void)
+{
+	int val1, val2;
+
+	SETUP_IOMUX_PADS(hb_cbi_sense);
+
+	gpio_direction_input(IMX_GPIO_NR(4, 9));
+	gpio_direction_input(IMX_GPIO_NR(3, 4));
+
+	val1 = gpio_get_value(IMX_GPIO_NR(4, 9));
+	val2 = gpio_get_value(IMX_GPIO_NR(3, 4));
+
+	/*
+	 * Machine selection -
+	 * Machine        val1, val2
+	 * -------------------------
+	 * HB rev 3.x     x     0
+	 * CBi            0     1
+	 * HB             1     1
+	 */
+
+	if (val2 == 0)
+		return true;
+	else if (val1 == 0)
+		return false;
+	else
+		return true;
+}
+
 int checkboard(void)
 {
-	puts("Board: MX6 Hummingboard\n");
+	if (is_hummingboard())
+		puts("Board: MX6 Hummingboard\n");
+	else
+		puts("Board: MX6 Cubox-i\n");
+
 	return 0;
 }
 
