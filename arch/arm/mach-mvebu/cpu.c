@@ -240,6 +240,9 @@ int cpu_eth_init(bd_t *bis)
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
+	/* Avoid problem with e.g. neta ethernet driver */
+	invalidate_dcache_all();
+
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
 }
