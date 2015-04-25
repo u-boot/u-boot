@@ -80,7 +80,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* add board specific code here */
 int board_init(void)
 {
-	int id_pfr1;
+	int id_pfr1, ret;
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_0 + 0x100);
 
@@ -92,6 +92,10 @@ int board_init(void)
 		/* CNTFRQ == 24 MHz */
 		asm volatile("mcr p15, 0, %0, c14, c0, 0" : : "r"(24000000));
 	}
+
+	ret = axp_gpio_init();
+	if (ret)
+		return ret;
 
 	/* Uses dm gpio code so do this here and not in i2c_init_board() */
 	return soft_i2c_board_init();

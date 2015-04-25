@@ -4,8 +4,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-struct udevice;
-
 enum axp209_reg {
 	AXP209_POWER_STATUS = 0x00,
 	AXP209_CHIP_VERSION = 0x03,
@@ -20,11 +18,6 @@ enum axp209_reg {
 	AXP209_IRQ_ENABLE5 = 0x44,
 	AXP209_IRQ_STATUS5 = 0x4c,
 	AXP209_SHUTDOWN = 0x32,
-	AXP209_GPIO0_CTRL = 0x90,
-	AXP209_GPIO1_CTRL = 0x92,
-	AXP209_GPIO2_CTRL = 0x93,
-	AXP209_GPIO_STATE = 0x94,
-	AXP209_GPIO3_CTRL = 0x95,
 };
 
 #define AXP209_POWER_STATUS_ON_BY_DC	(1 << 0)
@@ -35,16 +28,17 @@ enum axp209_reg {
 
 #define AXP209_POWEROFF			(1 << 7)
 
-#define AXP209_GPIO_OUTPUT_LOW		0x00 /* Drive pin low */
-#define AXP209_GPIO_OUTPUT_HIGH		0x01 /* Drive pin high */
-#define AXP209_GPIO_INPUT		0x02 /* Float pin */
-
-/* GPIO3 is different from the others */
-#define AXP209_GPIO3_OUTPUT_LOW		0x00 /* Drive pin low, Output mode */
-#define AXP209_GPIO3_OUTPUT_HIGH	0x02 /* Float pin, Output mode */
-#define AXP209_GPIO3_INPUT		0x06 /* Float pin, Input mode */
-
-#define AXP_GPIO
+/* For axp_gpio.c */
+#define AXP_POWER_STATUS		0x00
+#define AXP_POWER_STATUS_VBUS_PRESENT		(1 << 5)
+#define AXP_GPIO0_CTRL			0x90
+#define AXP_GPIO1_CTRL			0x92
+#define AXP_GPIO2_CTRL			0x93
+#define AXP_GPIO_CTRL_OUTPUT_LOW		0x00 /* Drive pin low */
+#define AXP_GPIO_CTRL_OUTPUT_HIGH		0x01 /* Drive pin high */
+#define AXP_GPIO_CTRL_INPUT			0x02 /* Input */
+#define AXP_GPIO_STATE			0x94
+#define AXP_GPIO_STATE_OFFSET			4
 
 extern int axp209_set_dcdc2(int mvolt);
 extern int axp209_set_dcdc3(int mvolt);
@@ -54,8 +48,3 @@ extern int axp209_set_ldo4(int mvolt);
 extern int axp209_init(void);
 extern int axp209_poweron_by_dc(void);
 extern int axp209_power_button(void);
-
-extern int axp_gpio_direction_input(struct udevice *dev, unsigned offset);
-extern int axp_gpio_direction_output(struct udevice *dev, unsigned offset, int val);
-extern int axp_gpio_get_value(struct udevice *dev, unsigned offset);
-extern int axp_gpio_set_value(struct udevice *dev, unsigned offset, int val);

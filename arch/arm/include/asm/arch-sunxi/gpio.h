@@ -216,4 +216,17 @@ int sunxi_name_to_gpio_bank(const char *name);
 int sunxi_name_to_gpio(const char *name);
 #define name_to_gpio(name) sunxi_name_to_gpio(name)
 
+#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
+int axp_gpio_init(void);
+#else
+static inline int axp_gpio_init(void) { return 0; }
+#endif
+
+struct udevice;
+
+int axp_gpio_direction_input(struct udevice *dev, unsigned offset);
+int axp_gpio_direction_output(struct udevice *dev, unsigned offset, int val);
+int axp_gpio_get_value(struct udevice *dev, unsigned offset);
+int axp_gpio_set_value(struct udevice *dev, unsigned offset, int val);
+
 #endif /* _SUNXI_GPIO_H */

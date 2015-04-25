@@ -7,6 +7,7 @@
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_DM_GPIO)		+= gpio-uclass.o
+obj-$(CONFIG_AXP_GPIO)		+= axp_gpio.o
 endif
 /* TODO(sjg@chromium.org): Only tegra supports driver model in SPL */
 ifdef CONFIG_TEGRA_GPIO

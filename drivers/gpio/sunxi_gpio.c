@@ -15,15 +15,10 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
+#include <asm/arch/gpio.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <dm/device-internal.h>
-#ifdef CONFIG_AXP209_POWER
-#include <axp209.h>
-#endif
-#ifdef CONFIG_AXP221_POWER
-#include <axp221.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -79,7 +74,7 @@ int gpio_free(unsigned gpio)
 
 int gpio_direction_input(unsigned gpio)
 {
-#ifdef AXP_GPIO
+#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
 	if (gpio >= SUNXI_GPIO_AXP0_START)
 		return axp_gpio_direction_input(NULL, gpio - SUNXI_GPIO_AXP0_START);
 #endif
@@ -90,7 +85,7 @@ int gpio_direction_input(unsigned gpio)
 
 int gpio_direction_output(unsigned gpio, int value)
 {
-#ifdef AXP_GPIO
+#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
 	if (gpio >= SUNXI_GPIO_AXP0_START)
 		return axp_gpio_direction_output(NULL, gpio - SUNXI_GPIO_AXP0_START,
 						 value);
@@ -102,7 +97,7 @@ int gpio_direction_output(unsigned gpio, int value)
 
 int gpio_get_value(unsigned gpio)
 {
-#ifdef AXP_GPIO
+#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
 	if (gpio >= SUNXI_GPIO_AXP0_START)
 		return axp_gpio_get_value(NULL, gpio - SUNXI_GPIO_AXP0_START);
 #endif
@@ -111,7 +106,7 @@ int gpio_get_value(unsigned gpio)
 
 int gpio_set_value(unsigned gpio, int value)
 {
-#ifdef AXP_GPIO
+#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
 	if (gpio >= SUNXI_GPIO_AXP0_START)
 		return axp_gpio_set_value(NULL, gpio - SUNXI_GPIO_AXP0_START, value);
 #endif
@@ -125,7 +120,7 @@ int sunxi_name_to_gpio(const char *name)
 	long pin;
 	char *eptr;
 
-#ifdef AXP_GPIO
+#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
 	if (strncasecmp(name, "AXP0-", 5) == 0) {
 		name += 5;
 		if (strcmp(name, "VBUS-DETECT") == 0)
