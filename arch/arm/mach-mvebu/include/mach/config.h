@@ -9,7 +9,7 @@
 /*
  * This file should be included in board config header file.
  *
- * It supports common definitions for Armada XP platforms
+ * It supports common definitions for MVEBU platforms
  */
 
 #ifndef _MVEBU_CONFIG_H
@@ -17,7 +17,9 @@
 
 #include <asm/arch/soc.h>
 
+#if defined(CONFIG_ARMADA_XP)
 #define MV88F78X60 /* for the DDR training bin_hdr code */
+#endif
 
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
