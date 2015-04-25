@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2014-2015 Stefan Roese <sr@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -40,6 +40,20 @@ void reset_cpu(unsigned long ignored)
 		;
 }
 
+int mvebu_soc_family(void)
+{
+	u16 devid = (readl(MVEBU_REG_PCIE_DEVID) >> 16) & 0xffff;
+
+	if (devid == SOC_MV78460_ID)
+		return MVEBU_SOC_AXP;
+
+	if (devid == SOC_88F6810_ID || devid == SOC_88F6820_ID ||
+	    devid == SOC_88F6828_ID)
+		return MVEBU_SOC_A38X;
+
+	return MVEBU_SOC_UNKNOWN;
+}
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
@@ -52,21 +66,46 @@ int print_cpuinfo(void)
 	case SOC_MV78460_ID:
 		puts("MV78460-");
 		break;
+	case SOC_88F6810_ID:
+		puts("MV88F6810-");
+		break;
+	case SOC_88F6820_ID:
+		puts("MV88F6820-");
+		break;
+	case SOC_88F6828_ID:
+		puts("MV88F6828-");
+		break;
 	default:
 		puts("Unknown-");
 		break;
 	}
 
-	switch (revid) {
-	case 1:
-		puts("A0\n");
-		break;
-	case 2:
-		puts("B0\n");
-		break;
-	default:
-		puts("??\n");
-		break;
+	if (mvebu_soc_family() == MVEBU_SOC_AXP) {
+		switch (revid) {
+		case 1:
+			puts("A0\n");
+			break;
+		case 2:
+			puts("B0\n");
+			break;
+		default:
+			printf("?? (%x)\n", revid);
+			break;
+		}
+	}
+
+	if (mvebu_soc_family() == MVEBU_SOC_A38X) {
+		switch (revid) {
+		case MV_88F68XX_Z1_ID:
+			puts("Z1\n");
+			break;
+		case MV_88F68XX_A0_ID:
+			puts("A0\n");
+			break;
+		default:
+			printf("?? (%x)\n", revid);
+			break;
+		}
 	}
 
 	return 0;
@@ -145,11 +184,13 @@ int arch_cpu_init(void)
 	 */
 	mvebu_mbus_probe(NULL, 0);
 
-	/*
-	 * Now the SDRAM access windows can be reconfigured using
-	 * the information in the SDRAM scratch pad registers
-	 */
-	update_sdram_window_sizes();
+	if (mvebu_soc_family() == MVEBU_SOC_AXP) {
+		/*
+		 * Now the SDRAM access windows can be reconfigured using
+		 * the information in the SDRAM scratch pad registers
+		 */
+		update_sdram_window_sizes();
+	}
 
 	/*
 	 * Finally the mbus windows can be configured with the
