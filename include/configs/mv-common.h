@@ -57,6 +57,7 @@
 					  115200,230400, 460800, 921600 }
 /* auto boot */
 #define CONFIG_BOOTDELAY	3	/* default enable autoboot */
+#define CONFIG_PREBOOT
 
 /*
  * For booting Linux, the board info and command line data
