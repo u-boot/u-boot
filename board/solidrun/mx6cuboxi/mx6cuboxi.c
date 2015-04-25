@@ -212,6 +212,31 @@ int checkboard(void)
 	return 0;
 }
 
+static bool is_mx6q(void)
+{
+	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
+		return true;
+	else
+		return false;
+}
+
+int board_late_init(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	if (is_hummingboard())
+		setenv("board_name", "HUMMINGBOARD");
+	else
+		setenv("board_name", "CUBOXI");
+
+	if (is_mx6q())
+		setenv("board_rev", "MX6Q");
+	else
+		setenv("board_rev", "MX6DL");
+#endif
+
+	return 0;
+}
+
 #ifdef CONFIG_SPL_BUILD
 #include <asm/arch/mx6-ddr.h>
 static const struct mx6dq_iomux_ddr_regs mx6q_ddr_ioregs = {
