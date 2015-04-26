@@ -41,18 +41,19 @@ static int i2c_gpio_sda_get(struct gpio_desc *sda)
 
 static void i2c_gpio_sda_set(struct gpio_desc *sda, int bit)
 {
-	if (bit) {
+	if (bit)
 		dm_gpio_set_dir_flags(sda, GPIOD_IS_IN);
-	} else {
+	else
 		dm_gpio_set_dir_flags(sda, GPIOD_IS_OUT);
-		dm_gpio_set_value(sda, 0);
-	}
 }
 
 static void i2c_gpio_scl_set(struct gpio_desc *scl, int bit)
 {
-	dm_gpio_set_dir_flags(scl, GPIOD_IS_OUT);
-	dm_gpio_set_value(scl, bit);
+	ulong flags = GPIOD_IS_OUT;
+
+	if (bit)
+		flags |= GPIOD_IS_OUT_ACTIVE;
+	dm_gpio_set_dir_flags(scl, flags);
 }
 
 static void i2c_gpio_write_bit(struct gpio_desc *scl, struct gpio_desc *sda,
