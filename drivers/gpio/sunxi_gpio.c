@@ -74,10 +74,6 @@ int gpio_free(unsigned gpio)
 
 int gpio_direction_input(unsigned gpio)
 {
-#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
-	if (gpio >= SUNXI_GPIO_AXP0_START)
-		return axp_gpio_direction_input(NULL, gpio - SUNXI_GPIO_AXP0_START);
-#endif
 	sunxi_gpio_set_cfgpin(gpio, SUNXI_GPIO_INPUT);
 
 	return 0;
@@ -85,11 +81,6 @@ int gpio_direction_input(unsigned gpio)
 
 int gpio_direction_output(unsigned gpio, int value)
 {
-#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
-	if (gpio >= SUNXI_GPIO_AXP0_START)
-		return axp_gpio_direction_output(NULL, gpio - SUNXI_GPIO_AXP0_START,
-						 value);
-#endif
 	sunxi_gpio_set_cfgpin(gpio, SUNXI_GPIO_OUTPUT);
 
 	return sunxi_gpio_output(gpio, value);
@@ -97,19 +88,11 @@ int gpio_direction_output(unsigned gpio, int value)
 
 int gpio_get_value(unsigned gpio)
 {
-#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
-	if (gpio >= SUNXI_GPIO_AXP0_START)
-		return axp_gpio_get_value(NULL, gpio - SUNXI_GPIO_AXP0_START);
-#endif
 	return sunxi_gpio_input(gpio);
 }
 
 int gpio_set_value(unsigned gpio, int value)
 {
-#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
-	if (gpio >= SUNXI_GPIO_AXP0_START)
-		return axp_gpio_set_value(NULL, gpio - SUNXI_GPIO_AXP0_START, value);
-#endif
 	return sunxi_gpio_output(gpio, value);
 }
 
@@ -120,21 +103,6 @@ int sunxi_name_to_gpio(const char *name)
 	long pin;
 	char *eptr;
 
-#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
-	if (strncasecmp(name, "AXP0-", 5) == 0) {
-		name += 5;
-		if (strcmp(name, "VBUS-DETECT") == 0)
-			return SUNXI_GPIO_AXP0_START +
-				SUNXI_GPIO_AXP0_VBUS_DETECT;
-		if (strcmp(name, "VBUS-ENABLE") == 0)
-			return SUNXI_GPIO_AXP0_START +
-				SUNXI_GPIO_AXP0_VBUS_ENABLE;
-		pin = simple_strtol(name, &eptr, 10);
-		if (!*name || *eptr)
-			return -1;
-		return SUNXI_GPIO_AXP0_START + pin;
-	}
-#endif
 	if (*name == 'P' || *name == 'p')
 		name++;
 	if (*name >= 'A') {

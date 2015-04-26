@@ -224,11 +224,4 @@ int axp_gpio_init(void);
 static inline int axp_gpio_init(void) { return 0; }
 #endif
 
-struct udevice;
-
-int axp_gpio_direction_input(struct udevice *dev, unsigned offset);
-int axp_gpio_direction_output(struct udevice *dev, unsigned offset, int val);
-int axp_gpio_get_value(struct udevice *dev, unsigned offset);
-int axp_gpio_set_value(struct udevice *dev, unsigned offset, int val);
-
 #endif /* _SUNXI_GPIO_H */

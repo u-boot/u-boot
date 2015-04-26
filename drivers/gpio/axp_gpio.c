@@ -26,6 +26,8 @@
 #error Unknown AXP model
 #endif
 
+static int axp_gpio_set_value(struct udevice *dev, unsigned pin, int val);
+
 static u8 axp_get_gpio_ctrl_reg(unsigned pin)
 {
 	switch (pin) {
@@ -41,7 +43,7 @@ static u8 axp_get_gpio_ctrl_reg(unsigned pin)
 	return 0;
 }
 
-int axp_gpio_direction_input(struct udevice *dev, unsigned pin)
+static int axp_gpio_direction_input(struct udevice *dev, unsigned pin)
 {
 	u8 reg;
 
@@ -59,7 +61,8 @@ int axp_gpio_direction_input(struct udevice *dev, unsigned pin)
 	}
 }
 
-int axp_gpio_direction_output(struct udevice *dev, unsigned pin, int val)
+static int axp_gpio_direction_output(struct udevice *dev, unsigned pin,
+				     int val)
 {
 	__maybe_unused int ret;
 	u8 reg;
@@ -84,7 +87,7 @@ int axp_gpio_direction_output(struct udevice *dev, unsigned pin, int val)
 	}
 }
 
-int axp_gpio_get_value(struct udevice *dev, unsigned pin)
+static int axp_gpio_get_value(struct udevice *dev, unsigned pin)
 {
 	u8 reg, val, mask;
 	int ret;
@@ -116,7 +119,7 @@ int axp_gpio_get_value(struct udevice *dev, unsigned pin)
 	return (val & mask) ? 1 : 0;
 }
 
-int axp_gpio_set_value(struct udevice *dev, unsigned pin, int val)
+static int axp_gpio_set_value(struct udevice *dev, unsigned pin, int val)
 {
 	u8 reg;
 
@@ -140,7 +143,6 @@ int axp_gpio_set_value(struct udevice *dev, unsigned pin, int val)
 	}
 }
 
-#ifdef CONFIG_DM_GPIO
 static const struct dm_gpio_ops gpio_axp_ops = {
 	.direction_input	= axp_gpio_direction_input,
 	.direction_output	= axp_gpio_direction_output,
@@ -165,23 +167,20 @@ U_BOOT_DRIVER(gpio_axp) = {
 	.ops	= &gpio_axp_ops,
 	.probe	= gpio_axp_probe,
 };
-#endif
 
 int axp_gpio_init(void)
 {
-	__maybe_unused struct udevice *dev;
+	struct udevice *dev;
 	int ret;
 
 	ret = pmic_bus_init();
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_DM_GPIO
 	/* There is no devicetree support for the axp yet, so bind directly */
 	ret = device_bind_driver(dm_root(), "gpio_axp", "AXP-gpio", &dev);
 	if (ret)
 		return ret;
-#endif
 
 	return 0;
 }
