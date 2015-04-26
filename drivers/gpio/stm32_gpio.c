@@ -69,22 +69,14 @@ int stm32_gpio_config(const struct stm32_gpio_dsc *dsc,
 	setbits_le32(&STM32_RCC->ahb1enr, 1 << dsc->port);
 
 	i = (dsc->pin & 0x07) * 4;
-	clrbits_le32(&gpio_regs->afr[dsc->pin >> 3], (0xF << i));
-	setbits_le32(&gpio_regs->afr[dsc->pin >> 3], ctl->af << i);
+	clrsetbits_le32(&gpio_regs->afr[dsc->pin >> 3], 0xF << i, ctl->af << i);
 
 	i = dsc->pin * 2;
 
-	clrbits_le32(&gpio_regs->moder, (0x3 << i));
-	setbits_le32(&gpio_regs->moder, ctl->mode << i);
-
-	clrbits_le32(&gpio_regs->otyper, (0x3 << i));
-	setbits_le32(&gpio_regs->otyper, ctl->otype << i);
-
-	clrbits_le32(&gpio_regs->ospeedr, (0x3 << i));
-	setbits_le32(&gpio_regs->ospeedr, ctl->speed << i);
-
-	clrbits_le32(&gpio_regs->pupdr, (0x3 << i));
-	setbits_le32(&gpio_regs->pupdr, ctl->pupd << i);
+	clrsetbits_le32(&gpio_regs->moder, 0x3 << i, ctl->mode << i);
+	clrsetbits_le32(&gpio_regs->otyper, 0x3 << i, ctl->otype << i);
+	clrsetbits_le32(&gpio_regs->ospeedr, 0x3 << i, ctl->speed << i);
+	clrsetbits_le32(&gpio_regs->pupdr, 0x3 << i, ctl->pupd << i);
 
 	rv = 0;
 out:
