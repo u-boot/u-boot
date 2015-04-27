@@ -11,78 +11,24 @@ config SYS_VSNPRINTF
 	default y
 
 choice
-	prompt "Target select"
+	prompt "Mainboard vendor"
+	default VENDOR_COREBOOT
 
-config TARGET_COREBOOT
-	bool "Support coreboot"
-	help
-	  This target is used for running U-Boot on top of Coreboot. In
-	  this case Coreboot does the early inititalisation, and U-Boot
-	  takes over once the RAM, video and CPU are fully running.
-	  U-Boot is loaded as a fallback payload from Coreboot, in
-	  Coreboot terminology. This method was used for the Chromebook
-	  Pixel when launched.
+config VENDOR_COREBOOT
+	bool "coreboot"
 
-config TARGET_CHROMEBOOK_LINK
-	bool "Support Chromebook link"
-	help
-	  This is the Chromebook Pixel released in 2013. It uses an Intel
-	  i5 Ivybridge which is a die-shrink of Sandybridge, with 4GB of
-	  SDRAM. It has a Panther Point platform controller hub, PCIe
-	  WiFi and Bluetooth. It also includes a 720p webcam, USB SD
-	  reader, microphone and speakers, display port and 32GB SATA
-	  solid state drive. There is a Chrome OS EC connected on LPC,
-	  and it provides a 2560x1700 high resolution touch-enabled LCD
-	  display.
+config VENDOR_GOOGLE
+	bool "Google"
 
-config TARGET_CHROMEBOX_PANTHER
-	bool "Support Chromebox panther (not available)"
-	select n
-	help
-	  Note: At present this must be used with Coreboot. See README.x86
-	  for instructions.
-
-	  This is the Asus Chromebox CN60 released in 2014. It uses an Intel
-	  Haswell Celeron 2955U Dual Core CPU with 2GB of SDRAM. It has a
-	  Lynx Point platform controller hub, PCIe WiFi and Bluetooth. It also
-	  includes a USB SD reader, four USB3 ports, display port and HDMI
-	  video output and a 16GB SATA solid state drive. There is no Chrome
-	  OS EC on this model.
-
-config TARGET_CROWNBAY
-	bool "Support Intel Crown Bay CRB"
-	help
-	  This is the Intel Crown Bay Customer Reference Board. It contains
-	  the Intel Atom Processor E6xx populated on the COM Express module
-	  with 1GB DDR2 soldered down memory and a carrier board with the
-	  Intel Platform Controller Hub EG20T, other system components and
-	  peripheral connectors for PCIe/SATA/USB/LAN/SD/UART/Audio/LVDS.
-
-config TARGET_MINNOWMAX
-	bool "Support Intel Minnowboard MAX"
-	help
-	  This is the Intel Minnowboard MAX. It contains an Atom E3800
-	  processor in a small form factor with Ethernet, micro-SD, USB 2,
-	  USB 3, SATA, serial console, some GPIOs and HDMI 1.3 video out.
-	  It requires some binary blobs - see README.x86 for details.
-
-	  Note that PCIE_ECAM_BASE is set up by the FSP so the value used
-	  by U-Boot matches that value.
-
-config TARGET_GALILEO
-	bool "Support Intel Galileo"
-	help
-	  This is the Intel Galileo board, which is the first in a family of
-	  Arduino-certified development and prototyping boards based on Intel
-	  architecture. It includes an Intel Quark SoC X1000 processor, a 32-bit
-	  single-core, single-thread, Intel Pentium processor instrunction set
-	  architecture (ISA) compatible, operating at speeds up to 400Mhz,
-	  along with 256MB DDR3 memory. It supports a wide range of industry
-	  standard I/O interfaces, including a full-sized mini-PCIe slot,
-	  one 100Mb Ethernet port, a microSD card slot, a USB host port and
-	  a USB client port.
+config VENDOR_INTEL
+	bool "Intel"
 
 endchoice
+
+# board-specific options below
+source "board/coreboot/Kconfig"
+source "board/google/Kconfig"
+source "board/intel/Kconfig"
 
 config DM_SPI
 	default y
@@ -472,18 +418,6 @@ config IRQ_SLOT_COUNT
 	  which in turns forms a table of exact 4KiB. The default value 128
 	  should be enough for most boards. If this does not fit your board,
 	  change it according to your needs.
-
-source "board/coreboot/coreboot/Kconfig"
-
-source "board/google/chromebook_link/Kconfig"
-
-source "board/google/chromebox_panther/Kconfig"
-
-source "board/intel/crownbay/Kconfig"
-
-source "board/intel/minnowmax/Kconfig"
-
-source "board/intel/galileo/Kconfig"
 
 config PCIE_ECAM_BASE
 	hex
