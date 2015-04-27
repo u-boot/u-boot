@@ -21,6 +21,13 @@
 
 /* Port 0x03: Host Bridge Message Port Registers */
 
+/* Host Miscellaneous Controls 2 */
+#define HMISC2			0x03
+
+#define HMISC2_SEGE		0x00000002
+#define HMISC2_SEGF		0x00000004
+#define HMISC2_SEGAB		0x00000010
+
 /* Host Memory I/O Boundary */
 #define HM_BOUND		0x08
 
