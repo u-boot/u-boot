@@ -45,6 +45,8 @@ static struct sunxi_usb_phy {
 	int gpio_vbus;
 	int gpio_vbus_det;
 	int id;
+	int init_count;
+	int power_on_count;
 } sunxi_usb_phy[] = {
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY0_RST | CCM_USB_CTRL_PHY0_CLK,
@@ -170,6 +172,10 @@ void sunxi_usb_phy_init(int index)
 	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
+	phy->init_count++;
+	if (phy->init_count != 1)
+		return;
+
 	setbits_le32(&ccm->usb_clk_cfg, phy->usb_rst_mask);
 
 	sunxi_usb_phy_config(phy);
@@ -183,6 +189,10 @@ void sunxi_usb_phy_exit(int index)
 	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
+	phy->init_count--;
+	if (phy->init_count != 0)
+		return;
+
 	if (phy->id != 0)
 		sunxi_usb_phy_passby(index, !SUNXI_USB_PASSBY_EN);
 
@@ -193,6 +203,10 @@ void sunxi_usb_phy_power_on(int index)
 {
 	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 
+	phy->power_on_count++;
+	if (phy->power_on_count != 1)
+		return;
+
 	if (phy->gpio_vbus >= 0)
 		gpio_set_value(phy->gpio_vbus, 1);
 }
@@ -200,6 +214,10 @@ void sunxi_usb_phy_power_on(int index)
 void sunxi_usb_phy_power_off(int index)
 {
 	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
+
+	phy->power_on_count--;
+	if (phy->power_on_count != 0)
+		return;
 
 	if (phy->gpio_vbus >= 0)
 		gpio_set_value(phy->gpio_vbus, 0);
