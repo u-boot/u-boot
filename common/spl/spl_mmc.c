@@ -196,8 +196,13 @@ void spl_mmc_load_image(void)
 				return;
 		}
 #endif
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
+		err = mmc_load_image_raw_partition(mmc,
+			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);
+#else
 		err = mmc_load_image_raw_sector(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
+#endif
 		if (!err)
 			return;
 #endif
