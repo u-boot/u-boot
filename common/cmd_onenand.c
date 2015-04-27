@@ -24,15 +24,8 @@ static struct mtd_info *mtd;
 static loff_t next_ofs;
 static loff_t skip_ofs;
 
-static inline int str2long(char *p, ulong *num)
-{
-	char *endptr;
-
-	*num = simple_strtoul(p, &endptr, 16);
-	return (*p != '\0' && *endptr == '\0') ? 1 : 0;
-}
-
-static int arg_off_size(int argc, char * const argv[], ulong *off, size_t *size)
+static int arg_off_size_onenand(int argc, char * const argv[], ulong *off,
+				size_t *size)
 {
 	if (argc >= 1) {
 		if (!(str2long(argv[0], off))) {
@@ -399,7 +392,7 @@ static int do_onenand_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 	addr = (ulong)simple_strtoul(argv[1], NULL, 16);
 
 	printf("\nOneNAND read: ");
-	if (arg_off_size(argc - 2, argv + 2, &ofs, &len) != 0)
+	if (arg_off_size_onenand(argc - 2, argv + 2, &ofs, &len) != 0)
 		return 1;
 
 	ret = onenand_block_read(ofs, len, &retlen, (u8 *)addr, oob);
@@ -425,7 +418,7 @@ static int do_onenand_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	addr = (ulong)simple_strtoul(argv[1], NULL, 16);
 
 	printf("\nOneNAND write: ");
-	if (arg_off_size(argc - 2, argv + 2, &ofs, &len) != 0)
+	if (arg_off_size_onenand(argc - 2, argv + 2, &ofs, &len) != 0)
 		return 1;
 
 	ret = onenand_block_write(ofs, len, &retlen, (u8 *)addr, withoob);
@@ -461,7 +454,7 @@ static int do_onenand_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const 
 	printf("\nOneNAND erase: ");
 
 	/* skip first two or three arguments, look for offset and size */
-	if (arg_off_size(argc, argv, &ofs, &len) != 0)
+	if (arg_off_size_onenand(argc, argv, &ofs, &len) != 0)
 		return 1;
 
 	ret = onenand_block_erase(ofs, len, force);
@@ -486,7 +479,7 @@ static int do_onenand_test(cmd_tbl_t * cmdtp, int flag, int argc, char * const a
 	printf("\nOneNAND test: ");
 
 	/* skip first two or three arguments, look for offset and size */
-	if (arg_off_size(argc - 1, argv + 1, &ofs, &len) != 0)
+	if (arg_off_size_onenand(argc - 1, argv + 1, &ofs, &len) != 0)
 		return 1;
 
 	ret = onenand_block_test(ofs, len);
