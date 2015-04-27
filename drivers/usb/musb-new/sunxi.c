@@ -24,7 +24,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/usbc.h>
+#include <asm/arch/usb_phy.h>
 #include <asm-generic/gpio.h>
 #include "linux-compat.h"
 #include "musb_core.h"

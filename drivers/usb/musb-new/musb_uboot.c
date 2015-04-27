@@ -1,7 +1,7 @@
 #include <common.h>
 #include <watchdog.h>
 #ifdef CONFIG_ARCH_SUNXI
-#include <asm/arch/usbc.h>
+#include <asm/arch/usb_phy.h>
 #endif
 #include <asm/errno.h>
 #include <linux/usb/ch9.h>

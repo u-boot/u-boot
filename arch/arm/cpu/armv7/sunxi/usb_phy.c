@@ -13,7 +13,7 @@
 #include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/usbc.h>
+#include <asm/arch/usb_phy.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <errno.h>
