@@ -250,15 +250,10 @@ static int sunxi_musb_init(struct musb *musb)
 
 	pr_debug("%s():\n", __func__);
 
-	err = sunxi_usb_phy_probe(0);
-	if (err)
-		return err;
-
 	if (is_host_enabled(musb)) {
 		err = sunxi_usb_phy_vbus_detect(0);
 		if (err) {
 			eprintf("Error: A charger is plugged into the OTG\n");
-			sunxi_usb_phy_remove(0);
 			return -EIO;
 		}
 	}
@@ -296,7 +291,7 @@ static int sunxi_musb_exit(struct musb *musb)
 	sunxi_usb_phy_power_off(0);
 	sunxi_usb_phy_exit(0);
 
-	return sunxi_usb_phy_remove(0);
+	return 0;
 }
 
 const struct musb_platform_ops sunxi_musb_ops = {

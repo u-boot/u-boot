@@ -20,11 +20,7 @@ int ehci_hcd_init(int index, enum usb_init_type init, struct ehci_hccr **hccr,
 		struct ehci_hcor **hcor)
 {
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-	int ahb_gate_offset, err;
-
-	err = sunxi_usb_phy_probe(index + 1);
-	if (err)
-		return err;
+	int ahb_gate_offset;
 
 	ahb_gate_offset = index ? AHB_GATE_OFFSET_USB_EHCI1 :
 				  AHB_GATE_OFFSET_USB_EHCI0;
@@ -66,5 +62,5 @@ int ehci_hcd_stop(int index)
 #endif
 	clrbits_le32(&ccm->ahb_gate0, 1 << ahb_gate_offset);
 
-	return sunxi_usb_phy_remove(index + 1);
+	return 0;
 }

@@ -510,6 +510,10 @@ int misc_init_r(void)
 		}
 	}
 
+	ret = sunxi_usb_phy_probe();
+	if (ret)
+		return ret;
+
 #if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
 	musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);
 #endif

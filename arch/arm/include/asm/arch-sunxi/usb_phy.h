@@ -10,8 +10,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-int sunxi_usb_phy_probe(int index);
-int sunxi_usb_phy_remove(int index);
+int sunxi_usb_phy_probe(void);
+int sunxi_usb_phy_remove(void);
 void sunxi_usb_phy_init(int index);
 void sunxi_usb_phy_exit(int index);
 void sunxi_usb_phy_power_on(int index);

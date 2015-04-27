@@ -54,15 +54,13 @@ static struct sunxi_usb_phy {
 		.usb_rst_mask = CCM_USB_CTRL_PHY1_RST | CCM_USB_CTRL_PHY1_CLK,
 		.id = 1,
 	},
-#if (CONFIG_USB_MAX_CONTROLLER_COUNT > 1)
+#if CONFIG_SUNXI_USB_PHYS >= 3
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY2_RST | CCM_USB_CTRL_PHY2_CLK,
 		.id = 2,
 	}
 #endif
 };
-
-static int sunxi_usb_phy_enabled_count;
 
 static int get_vbus_gpio(int index)
 {
@@ -167,48 +165,10 @@ void sunxi_usb_phy_enable_squelch_detect(int index, int enable)
 	usb_phy_write(phy, 0x3c, enable ? 0 : 2, 2);
 }
 
-int sunxi_usb_phy_probe(int index)
-{
-	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
-	int ret = 0;
-
-	phy->gpio_vbus = get_vbus_gpio(index);
-	if (phy->gpio_vbus >= 0) {
-		ret |= gpio_request(phy->gpio_vbus, "usbc_vbus");
-		ret |= gpio_direction_output(phy->gpio_vbus, 0);
-	}
-
-	phy->gpio_vbus_det = get_vbus_detect_gpio(index);
-	if (phy->gpio_vbus_det >= 0) {
-		ret |= gpio_request(phy->gpio_vbus_det, "usbc_vbus_det");
-		ret |= gpio_direction_input(phy->gpio_vbus_det);
-	}
-
-	return ret;
-}
-
-int sunxi_usb_phy_remove(int index)
-{
-	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
-	int ret = 0;
-
-	if (phy->gpio_vbus >= 0)
-		ret |= gpio_free(phy->gpio_vbus);
-
-	if (phy->gpio_vbus_det >= 0)
-		ret |= gpio_free(phy->gpio_vbus_det);
-
-	return ret;
-}
-
 void sunxi_usb_phy_init(int index)
 {
 	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-
-	/* enable common PHY only once */
-	if (sunxi_usb_phy_enabled_count == 0)
-		setbits_le32(&ccm->usb_clk_cfg, CCM_USB_CTRL_PHYGATE);
 
 	setbits_le32(&ccm->usb_clk_cfg, phy->usb_rst_mask);
 
@@ -216,8 +176,6 @@ void sunxi_usb_phy_init(int index)
 
 	if (phy->id != 0)
 		sunxi_usb_phy_passby(index, SUNXI_USB_PASSBY_EN);
-
-	sunxi_usb_phy_enabled_count++;
 }
 
 void sunxi_usb_phy_exit(int index)
@@ -229,12 +187,6 @@ void sunxi_usb_phy_exit(int index)
 		sunxi_usb_phy_passby(index, !SUNXI_USB_PASSBY_EN);
 
 	clrbits_le32(&ccm->usb_clk_cfg, phy->usb_rst_mask);
-
-	/* disable common PHY only once, for the last enabled phy */
-	if (sunxi_usb_phy_enabled_count == 1)
-		clrbits_le32(&ccm->usb_clk_cfg, CCM_USB_CTRL_PHYGATE);
-
-	sunxi_usb_phy_enabled_count--;
 }
 
 void sunxi_usb_phy_power_on(int index)
@@ -275,4 +227,60 @@ int sunxi_usb_phy_vbus_detect(int index)
 	}
 
 	return err;
+}
+
+int sunxi_usb_phy_probe(void)
+{
+	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct sunxi_usb_phy *phy;
+	int i, ret = 0;
+
+	for (i = 0; i < CONFIG_SUNXI_USB_PHYS; i++) {
+		phy = &sunxi_usb_phy[i];
+
+		phy->gpio_vbus = get_vbus_gpio(i);
+		if (phy->gpio_vbus >= 0) {
+			ret = gpio_request(phy->gpio_vbus, "usb_vbus");
+			if (ret)
+				return ret;
+			ret = gpio_direction_output(phy->gpio_vbus, 0);
+			if (ret)
+				return ret;
+		}
+
+		phy->gpio_vbus_det = get_vbus_detect_gpio(i);
+		if (phy->gpio_vbus_det >= 0) {
+			ret = gpio_request(phy->gpio_vbus_det, "usb_vbus_det");
+			if (ret)
+				return ret;
+			ret = gpio_direction_input(phy->gpio_vbus_det);
+			if (ret)
+				return ret;
+		}
+	}
+
+	setbits_le32(&ccm->usb_clk_cfg, CCM_USB_CTRL_PHYGATE);
+
+	return 0;
+}
+
+int sunxi_usb_phy_remove(void)
+{
+	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	struct sunxi_usb_phy *phy;
+	int i;
+
+	clrbits_le32(&ccm->usb_clk_cfg, CCM_USB_CTRL_PHYGATE);
+
+	for (i = 0; i < CONFIG_SUNXI_USB_PHYS; i++) {
+		phy = &sunxi_usb_phy[i];
+
+		if (phy->gpio_vbus >= 0)
+			gpio_free(phy->gpio_vbus);
+
+		if (phy->gpio_vbus_det >= 0)
+			gpio_free(phy->gpio_vbus_det);
+	}
+
+	return 0;
 }
