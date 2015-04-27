@@ -22,6 +22,7 @@
  */
 #include <common.h>
 #include <asm/arch/cpu.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/usbc.h>
 #include <asm-generic/gpio.h>
@@ -219,11 +220,24 @@ static void sunxi_musb_enable(struct musb *musb)
 
 static void sunxi_musb_disable(struct musb *musb)
 {
+	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
 	pr_debug("%s():\n", __func__);
 
 	/* Put the controller back in a pristane state for "usb reset" */
 	if (musb->is_active) {
 		sunxi_usbc_disable(0);
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+		clrbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
+#endif
+		clrbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+
+		mdelay(10);
+
+		setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+		setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
+#endif
 		sunxi_usbc_enable(0);
 		musb->is_active = 0;
 	}
@@ -231,6 +245,7 @@ static void sunxi_musb_disable(struct musb *musb)
 
 static int sunxi_musb_init(struct musb *musb)
 {
+	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	int err;
 
 	pr_debug("%s():\n", __func__);
@@ -249,6 +264,11 @@ static int sunxi_musb_init(struct musb *musb)
 	}
 
 	musb->isr = sunxi_musb_interrupt;
+
+	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
+#endif
 	sunxi_usbc_enable(0);
 
 	USBC_ConfigFIFO_Base();

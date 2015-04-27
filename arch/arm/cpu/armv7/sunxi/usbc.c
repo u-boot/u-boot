@@ -11,12 +11,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/usbc.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <common.h>
 #include <errno.h>
 #ifdef CONFIG_AXP152_POWER
 #include <axp152.h>
@@ -44,25 +44,21 @@
 static struct sunxi_usbc_hcd {
 	struct usb_hcd *hcd;
 	int usb_rst_mask;
-	int ahb_clk_mask;
 	int gpio_vbus;
 	int gpio_vbus_det;
 	int id;
 } sunxi_usbc_hcd[] = {
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY0_RST | CCM_USB_CTRL_PHY0_CLK,
-		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB0,
 		.id = 0,
 	},
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY1_RST | CCM_USB_CTRL_PHY1_CLK,
-		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB_EHCI0,
 		.id = 1,
 	},
 #if (CONFIG_USB_MAX_CONTROLLER_COUNT > 1)
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY2_RST | CCM_USB_CTRL_PHY2_CLK,
-		.ahb_clk_mask = 1 << AHB_GATE_OFFSET_USB_EHCI1,
 		.id = 2,
 	}
 #endif
@@ -227,10 +223,6 @@ void sunxi_usbc_enable(int index)
 		setbits_le32(&ccm->usb_clk_cfg, CCM_USB_CTRL_PHYGATE);
 
 	setbits_le32(&ccm->usb_clk_cfg, sunxi_usbc->usb_rst_mask);
-	setbits_le32(&ccm->ahb_gate0, sunxi_usbc->ahb_clk_mask);
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-	setbits_le32(&ccm->ahb_reset0_cfg, sunxi_usbc->ahb_clk_mask);
-#endif
 
 	sunxi_usb_phy_init(sunxi_usbc);
 
@@ -248,10 +240,6 @@ void sunxi_usbc_disable(int index)
 	if (sunxi_usbc->id != 0)
 		sunxi_usb_passby(sunxi_usbc, !SUNXI_USB_PASSBY_EN);
 
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-	clrbits_le32(&ccm->ahb_reset0_cfg, sunxi_usbc->ahb_clk_mask);
-#endif
-	clrbits_le32(&ccm->ahb_gate0, sunxi_usbc->ahb_clk_mask);
 	clrbits_le32(&ccm->usb_clk_cfg, sunxi_usbc->usb_rst_mask);
 
 	/* disable common PHY only once, for the last enabled hcd */
