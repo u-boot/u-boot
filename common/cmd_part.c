@@ -128,7 +128,7 @@ static int do_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	part,	CONFIG_SYS_MAXARGS,	1,	do_part,
 	"disk partition related commands",
-	"part uuid <interface> <dev>:<part>\n"
+	"uuid <interface> <dev>:<part>\n"
 	"    - print partition UUID\n"
 	"part uuid <interface> <dev>:<part> <varname>\n"
 	"    - set environment variable to partition UUID\n"
