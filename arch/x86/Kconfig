@@ -30,6 +30,15 @@ source "board/coreboot/Kconfig"
 source "board/google/Kconfig"
 source "board/intel/Kconfig"
 
+# platform-specific options below
+source "arch/x86/cpu/baytrail/Kconfig"
+source "arch/x86/cpu/coreboot/Kconfig"
+source "arch/x86/cpu/ivybridge/Kconfig"
+source "arch/x86/cpu/quark/Kconfig"
+source "arch/x86/cpu/queensbay/Kconfig"
+
+# architecture-specific options below
+
 config DM_SPI
 	default y
 
@@ -357,16 +366,6 @@ config FSP_TEMP_RAM_ADDR
 	help
 	  Stack top address which is used in FspInit after DRAM is ready and
 	  CAR is disabled.
-
-source "arch/x86/cpu/baytrail/Kconfig"
-
-source "arch/x86/cpu/coreboot/Kconfig"
-
-source "arch/x86/cpu/ivybridge/Kconfig"
-
-source "arch/x86/cpu/quark/Kconfig"
-
-source "arch/x86/cpu/queensbay/Kconfig"
 
 config TSC_CALIBRATION_BYPASS
 	bool "Bypass Time-Stamp Counter (TSC) calibration"
