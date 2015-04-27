@@ -39,12 +39,6 @@ source "arch/x86/cpu/queensbay/Kconfig"
 
 # architecture-specific options below
 
-config DM_SPI
-	default y
-
-config DM_SPI_FLASH
-	default y
-
 config SYS_MALLOC_F_LEN
 	default 0x800
 
