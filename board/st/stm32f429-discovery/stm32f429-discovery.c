@@ -33,21 +33,21 @@ const struct stm32_gpio_ctl gpio_ctl_usart = {
 	.otype = STM32_GPIO_OTYPE_PP,
 	.speed = STM32_GPIO_SPEED_50M,
 	.pupd = STM32_GPIO_PUPD_UP,
-	.af = STM32_GPIO_AF7
+	.af = STM32_GPIO_USART
 };
 
-static const struct stm32_gpio_dsc usart1_gpio[] = {
-	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_9},	/* TX */
-	{STM32_GPIO_PORT_A, STM32_GPIO_PIN_10},	/* RX */
+static const struct stm32_gpio_dsc usart_gpio[] = {
+	{STM32_GPIO_PORT_X, STM32_GPIO_PIN_TX},	/* TX */
+	{STM32_GPIO_PORT_X, STM32_GPIO_PIN_RX},	/* RX */
 };
 
-int uart1_setup_gpio(void)
+int uart_setup_gpio(void)
 {
 	int i;
 	int rv = 0;
 
-	for (i = 0; i < ARRAY_SIZE(usart1_gpio); i++) {
-		rv = stm32_gpio_config(&usart1_gpio[i], &gpio_ctl_usart);
+	for (i = 0; i < ARRAY_SIZE(usart_gpio); i++) {
+		rv = stm32_gpio_config(&usart_gpio[i], &gpio_ctl_usart);
 		if (rv)
 			goto out;
 	}
@@ -272,7 +272,7 @@ int board_early_init_f(void)
 {
 	int res;
 
-	res = uart1_setup_gpio();
+	res = uart_setup_gpio();
 	if (res)
 		return res;
 

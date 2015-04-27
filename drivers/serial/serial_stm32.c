@@ -10,11 +10,34 @@
 #include <serial.h>
 #include <asm/arch/stm32.h>
 
+/*
+ * Set up the usart port
+ */
+#if (CONFIG_STM32_USART >= 1) && (CONFIG_STM32_USART <= 6)
+#define USART_PORT	(CONFIG_STM32_USART - 1)
+#else
+#define USART_PORT	0
+#endif
+/*
+ * Set up the usart base address
+ *
+ * --STM32_USARTD_BASE means default setting
+ */
 #define STM32_USART1_BASE	(STM32_APB2PERIPH_BASE + 0x1000)
-#define RCC_APB2ENR_USART1EN	(1 << 4)
-
-#define USART_BASE		STM32_USART1_BASE
-#define RCC_USART_ENABLE	RCC_APB2ENR_USART1EN
+#define STM32_USART2_BASE	(STM32_APB1PERIPH_BASE + 0x4400)
+#define STM32_USART3_BASE	(STM32_APB1PERIPH_BASE + 0x4800)
+#define STM32_USART6_BASE	(STM32_APB2PERIPH_BASE + 0x1400)
+#define STM32_USARTD_BASE	STM32_USART1_BASE
+/*
+ * RCC USART specific definitions
+ *
+ * --RCC_ENR_USARTDEN means default setting
+ */
+#define RCC_ENR_USART1EN	(1 << 4)
+#define RCC_ENR_USART2EN	(1 << 17)
+#define RCC_ENR_USART3EN	(1 << 18)
+#define RCC_ENR_USART6EN	(1 <<  5)
+#define RCC_ENR_USARTDEN	RCC_ENR_USART1EN
 
 struct stm32_serial {
 	u32 sr;
@@ -39,6 +62,24 @@ struct stm32_serial {
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static const unsigned long usart_base[] = {
+	STM32_USART1_BASE,
+	STM32_USART2_BASE,
+	STM32_USART3_BASE,
+	STM32_USARTD_BASE,
+	STM32_USARTD_BASE,
+	STM32_USART6_BASE
+};
+
+static const unsigned long rcc_enr_en[] = {
+	RCC_ENR_USART1EN,
+	RCC_ENR_USART2EN,
+	RCC_ENR_USART3EN,
+	RCC_ENR_USARTDEN,
+	RCC_ENR_USARTDEN,
+	RCC_ENR_USART6EN
+};
+
 static void stm32_serial_setbrg(void)
 {
 	serial_init();
@@ -46,14 +87,17 @@ static void stm32_serial_setbrg(void)
 
 static int stm32_serial_init(void)
 {
-	struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
+	struct stm32_serial *usart =
+		(struct stm32_serial *)usart_base[USART_PORT];
 	u32 clock, int_div, frac_div, tmp;
 
-	if ((USART_BASE & STM32_BUS_MASK) == STM32_APB1PERIPH_BASE) {
-		setbits_le32(&STM32_RCC->apb1enr, RCC_USART_ENABLE);
+	if ((usart_base[USART_PORT] & STM32_BUS_MASK) ==
+			STM32_APB1PERIPH_BASE) {
+		setbits_le32(&STM32_RCC->apb1enr, rcc_enr_en[USART_PORT]);
 		clock = clock_get(CLOCK_APB1);
-	} else if ((USART_BASE & STM32_BUS_MASK) == STM32_APB2PERIPH_BASE) {
-		setbits_le32(&STM32_RCC->apb2enr, RCC_USART_ENABLE);
+	} else if ((usart_base[USART_PORT] & STM32_BUS_MASK) ==
+			STM32_APB2PERIPH_BASE) {
+		setbits_le32(&STM32_RCC->apb2enr, rcc_enr_en[USART_PORT]);
 		clock = clock_get(CLOCK_APB2);
 	} else {
 		return -1;
@@ -72,7 +116,8 @@ static int stm32_serial_init(void)
 
 static int stm32_serial_getc(void)
 {
-	struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
+	struct stm32_serial *usart =
+		(struct stm32_serial *)usart_base[USART_PORT];
 	while ((readl(&usart->sr) & USART_SR_FLAG_RXNE) == 0)
 		;
 	return readl(&usart->dr);
@@ -80,7 +125,8 @@ static int stm32_serial_getc(void)
 
 static void stm32_serial_putc(const char c)
 {
-	struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
+	struct stm32_serial *usart =
+		(struct stm32_serial *)usart_base[USART_PORT];
 
 	if (c == '\n')
 		stm32_serial_putc('\r');
@@ -92,7 +138,8 @@ static void stm32_serial_putc(const char c)
 
 static int stm32_serial_tstc(void)
 {
-	struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
+	struct stm32_serial *usart =
+		(struct stm32_serial *)usart_base[USART_PORT];
 	u8 ret;
 
 	ret = readl(&usart->sr) & USART_SR_FLAG_RXNE;
