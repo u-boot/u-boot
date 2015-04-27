@@ -135,7 +135,12 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 
 	flash = dev_get_uclass_priv(new);
 #else
+	if (flash)
+		spi_flash_free(flash);
+
 	new = spi_flash_probe(bus, cs, speed, mode);
+	flash = new;
+
 	if (!new) {
 		printf("Failed to initialize SPI flash at %u:%u\n", bus, cs);
 		return 1;
