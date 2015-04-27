@@ -81,6 +81,10 @@ static int stm32_serial_getc(void)
 static void stm32_serial_putc(const char c)
 {
 	struct stm32_serial *usart = (struct stm32_serial *)USART_BASE;
+
+	if (c == '\n')
+		stm32_serial_putc('\r');
+
 	while ((readl(&usart->sr) & USART_SR_FLAG_TXE) == 0)
 		;
 	writel(c, &usart->dr);
