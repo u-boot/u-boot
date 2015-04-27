@@ -1,7 +1,8 @@
 /*
- * Copyright (C) 2014 Roman Byshko
+ * Sunxi ehci glue
  *
- * Roman Byshko <rbyshko@gmail.com>
+ * Copyright (C) 2015 Hans de Goede <hdegoede@redhat.com>
+ * Copyright (C) 2014 Roman Byshko <rbyshko@gmail.com>
  *
  * Based on code from
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
@@ -21,7 +22,7 @@ int ehci_hcd_init(int index, enum usb_init_type init, struct ehci_hccr **hccr,
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	int ahb_gate_offset, err;
 
-	err = sunxi_usbc_request_resources(index + 1);
+	err = sunxi_usb_phy_probe(index + 1);
 	if (err)
 		return err;
 
@@ -32,8 +33,8 @@ int ehci_hcd_init(int index, enum usb_init_type init, struct ehci_hccr **hccr,
 	setbits_le32(&ccm->ahb_reset0_cfg, 1 << ahb_gate_offset);
 #endif
 
-	sunxi_usbc_enable(index + 1);
-	sunxi_usbc_vbus_enable(index + 1);
+	sunxi_usb_phy_init(index + 1);
+	sunxi_usb_phy_power_on(index + 1);
 
 	if (index == 0)
 		*hccr = (void *)SUNXI_USB1_BASE;
@@ -55,8 +56,8 @@ int ehci_hcd_stop(int index)
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	int ahb_gate_offset;
 
-	sunxi_usbc_vbus_disable(index + 1);
-	sunxi_usbc_disable(index + 1);
+	sunxi_usb_phy_power_off(index + 1);
+	sunxi_usb_phy_exit(index + 1);
 
 	ahb_gate_offset = index ? AHB_GATE_OFFSET_USB_EHCI1 :
 				  AHB_GATE_OFFSET_USB_EHCI0;
@@ -65,5 +66,5 @@ int ehci_hcd_stop(int index)
 #endif
 	clrbits_le32(&ccm->ahb_gate0, 1 << ahb_gate_offset);
 
-	return sunxi_usbc_free_resources(index + 1);
+	return sunxi_usb_phy_remove(index + 1);
 }

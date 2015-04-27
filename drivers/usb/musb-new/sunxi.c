@@ -214,7 +214,7 @@ static void sunxi_musb_enable(struct musb *musb)
 
 	if (is_host_enabled(musb)) {
 		/* port power on */
-		sunxi_usbc_vbus_enable(0);
+		sunxi_usb_phy_power_on(0);
 	}
 }
 
@@ -226,7 +226,7 @@ static void sunxi_musb_disable(struct musb *musb)
 
 	/* Put the controller back in a pristane state for "usb reset" */
 	if (musb->is_active) {
-		sunxi_usbc_disable(0);
+		sunxi_usb_phy_exit(0);
 #ifdef CONFIG_SUNXI_GEN_SUN6I
 		clrbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
 #endif
@@ -238,7 +238,7 @@ static void sunxi_musb_disable(struct musb *musb)
 #ifdef CONFIG_SUNXI_GEN_SUN6I
 		setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
 #endif
-		sunxi_usbc_enable(0);
+		sunxi_usb_phy_init(0);
 		musb->is_active = 0;
 	}
 }
@@ -250,15 +250,15 @@ static int sunxi_musb_init(struct musb *musb)
 
 	pr_debug("%s():\n", __func__);
 
-	err = sunxi_usbc_request_resources(0);
+	err = sunxi_usb_phy_probe(0);
 	if (err)
 		return err;
 
 	if (is_host_enabled(musb)) {
-		err = sunxi_usbc_vbus_detect(0);
+		err = sunxi_usb_phy_vbus_detect(0);
 		if (err) {
 			eprintf("Error: A charger is plugged into the OTG\n");
-			sunxi_usbc_free_resources(0);
+			sunxi_usb_phy_remove(0);
 			return -EIO;
 		}
 	}
@@ -269,7 +269,7 @@ static int sunxi_musb_init(struct musb *musb)
 #ifdef CONFIG_SUNXI_GEN_SUN6I
 	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
 #endif
-	sunxi_usbc_enable(0);
+	sunxi_usb_phy_init(0);
 
 	USBC_ConfigFIFO_Base();
 	USBC_EnableDpDmPullUp(musb->mregs);
@@ -293,10 +293,10 @@ static int sunxi_musb_exit(struct musb *musb)
 
 	USBC_DisableDpDmPullUp(musb->mregs);
 	USBC_DisableIdPullUp(musb->mregs);
-	sunxi_usbc_vbus_disable(0);
-	sunxi_usbc_disable(0);
+	sunxi_usb_phy_power_off(0);
+	sunxi_usb_phy_exit(0);
 
-	return sunxi_usbc_free_resources(0);
+	return sunxi_usb_phy_remove(0);
 }
 
 const struct musb_platform_ops sunxi_musb_ops = {

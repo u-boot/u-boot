@@ -452,6 +452,8 @@ void sunxi_board_init(void)
 #endif
 
 #if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
+extern const struct musb_platform_ops sunxi_musb_ops;
+
 static struct musb_hdrc_config musb_config = {
 	.multipoint     = 1,
 	.dyn_fifo       = 1,

@@ -1,9 +1,8 @@
 /*
- * Sunxi usb-controller code shared between the ehci and musb controllers
+ * Sunxi usb-phy code
  *
- * Copyright (C) 2014 Roman Byshko
- *
- * Roman Byshko <rbyshko@gmail.com>
+ * Copyright (C) 2015 Hans de Goede <hdegoede@redhat.com>
+ * Copyright (C) 2014 Roman Byshko <rbyshko@gmail.com>
  *
  * Based on code from
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
@@ -41,13 +40,12 @@
 #define SUNXI_EHCI_AHB_INCRX_ALIGN_EN	(1 << 8)
 #define SUNXI_EHCI_ULPI_BYPASS_EN	(1 << 0)
 
-static struct sunxi_usbc_hcd {
-	struct usb_hcd *hcd;
+static struct sunxi_usb_phy {
 	int usb_rst_mask;
 	int gpio_vbus;
 	int gpio_vbus_det;
 	int id;
-} sunxi_usbc_hcd[] = {
+} sunxi_usb_phy[] = {
 	{
 		.usb_rst_mask = CCM_USB_CTRL_PHY0_RST | CCM_USB_CTRL_PHY0_CLK,
 		.id = 0,
@@ -64,7 +62,7 @@ static struct sunxi_usbc_hcd {
 #endif
 };
 
-static int enabled_hcd_count;
+static int sunxi_usb_phy_enabled_count;
 
 static int get_vbus_gpio(int index)
 {
@@ -84,7 +82,7 @@ static int get_vbus_detect_gpio(int index)
 	return -EINVAL;
 }
 
-static void usb_phy_write(struct sunxi_usbc_hcd *sunxi_usbc, int addr,
+static void usb_phy_write(struct sunxi_usb_phy *phy, int addr,
 			  int data, int len)
 {
 	int j = 0, usbc_bit = 0;
@@ -95,7 +93,7 @@ static void usb_phy_write(struct sunxi_usbc_hcd *sunxi_usbc, int addr,
 	writel(0, dest);
 #endif
 
-	usbc_bit = 1 << (sunxi_usbc->id * 2);
+	usbc_bit = 1 << (phy->id * 2);
 	for (j = 0; j < len; j++) {
 		/* set the bit address to be written */
 		clrbits_le32(dest, 0xff << 8);
@@ -116,24 +114,24 @@ static void usb_phy_write(struct sunxi_usbc_hcd *sunxi_usbc, int addr,
 	}
 }
 
-static void sunxi_usb_phy_init(struct sunxi_usbc_hcd *sunxi_usbc)
+static void sunxi_usb_phy_config(struct sunxi_usb_phy *phy)
 {
 	/* The following comments are machine
 	 * translated from Chinese, you have been warned!
 	 */
 
 	/* Regulation 45 ohms */
-	if (sunxi_usbc->id == 0)
-		usb_phy_write(sunxi_usbc, 0x0c, 0x01, 1);
+	if (phy->id == 0)
+		usb_phy_write(phy, 0x0c, 0x01, 1);
 
 	/* adjust PHY's magnitude and rate */
-	usb_phy_write(sunxi_usbc, 0x20, 0x14, 5);
+	usb_phy_write(phy, 0x20, 0x14, 5);
 
 	/* threshold adjustment disconnect */
 #if defined CONFIG_MACH_SUN4I || defined CONFIG_MACH_SUN6I
-	usb_phy_write(sunxi_usbc, 0x2a, 3, 2);
+	usb_phy_write(phy, 0x2a, 3, 2);
 #else
-	usb_phy_write(sunxi_usbc, 0x2a, 2, 2);
+	usb_phy_write(phy, 0x2a, 2, 2);
 #endif
 
 	return;
@@ -162,110 +160,110 @@ static void sunxi_usb_phy_passby(int index, int enable)
 	return;
 }
 
-void sunxi_usbc_enable_squelch_detect(int index, int enable)
+void sunxi_usb_phy_enable_squelch_detect(int index, int enable)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 
-	usb_phy_write(sunxi_usbc, 0x3c, enable ? 0 : 2, 2);
+	usb_phy_write(phy, 0x3c, enable ? 0 : 2, 2);
 }
 
-int sunxi_usbc_request_resources(int index)
+int sunxi_usb_phy_probe(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 	int ret = 0;
 
-	sunxi_usbc->gpio_vbus = get_vbus_gpio(index);
-	if (sunxi_usbc->gpio_vbus >= 0) {
-		ret |= gpio_request(sunxi_usbc->gpio_vbus, "usbc_vbus");
-		ret |= gpio_direction_output(sunxi_usbc->gpio_vbus, 0);
+	phy->gpio_vbus = get_vbus_gpio(index);
+	if (phy->gpio_vbus >= 0) {
+		ret |= gpio_request(phy->gpio_vbus, "usbc_vbus");
+		ret |= gpio_direction_output(phy->gpio_vbus, 0);
 	}
 
-	sunxi_usbc->gpio_vbus_det = get_vbus_detect_gpio(index);
-	if (sunxi_usbc->gpio_vbus_det >= 0) {
-		ret |= gpio_request(sunxi_usbc->gpio_vbus_det, "usbc_vbus_det");
-		ret |= gpio_direction_input(sunxi_usbc->gpio_vbus_det);
+	phy->gpio_vbus_det = get_vbus_detect_gpio(index);
+	if (phy->gpio_vbus_det >= 0) {
+		ret |= gpio_request(phy->gpio_vbus_det, "usbc_vbus_det");
+		ret |= gpio_direction_input(phy->gpio_vbus_det);
 	}
 
 	return ret;
 }
 
-int sunxi_usbc_free_resources(int index)
+int sunxi_usb_phy_remove(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 	int ret = 0;
 
-	if (sunxi_usbc->gpio_vbus >= 0)
-		ret |= gpio_free(sunxi_usbc->gpio_vbus);
+	if (phy->gpio_vbus >= 0)
+		ret |= gpio_free(phy->gpio_vbus);
 
-	if (sunxi_usbc->gpio_vbus_det >= 0)
-		ret |= gpio_free(sunxi_usbc->gpio_vbus_det);
+	if (phy->gpio_vbus_det >= 0)
+		ret |= gpio_free(phy->gpio_vbus_det);
 
 	return ret;
 }
 
-void sunxi_usbc_enable(int index)
+void sunxi_usb_phy_init(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	/* enable common PHY only once */
-	if (enabled_hcd_count == 0)
+	if (sunxi_usb_phy_enabled_count == 0)
 		setbits_le32(&ccm->usb_clk_cfg, CCM_USB_CTRL_PHYGATE);
 
-	setbits_le32(&ccm->usb_clk_cfg, sunxi_usbc->usb_rst_mask);
+	setbits_le32(&ccm->usb_clk_cfg, phy->usb_rst_mask);
 
-	sunxi_usb_phy_init(sunxi_usbc);
+	sunxi_usb_phy_config(phy);
 
-	if (sunxi_usbc->id != 0)
+	if (phy->id != 0)
 		sunxi_usb_phy_passby(index, SUNXI_USB_PASSBY_EN);
 
-	enabled_hcd_count++;
+	sunxi_usb_phy_enabled_count++;
 }
 
-void sunxi_usbc_disable(int index)
+void sunxi_usb_phy_exit(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
-	if (sunxi_usbc->id != 0)
+	if (phy->id != 0)
 		sunxi_usb_phy_passby(index, !SUNXI_USB_PASSBY_EN);
 
-	clrbits_le32(&ccm->usb_clk_cfg, sunxi_usbc->usb_rst_mask);
+	clrbits_le32(&ccm->usb_clk_cfg, phy->usb_rst_mask);
 
-	/* disable common PHY only once, for the last enabled hcd */
-	if (enabled_hcd_count == 1)
+	/* disable common PHY only once, for the last enabled phy */
+	if (sunxi_usb_phy_enabled_count == 1)
 		clrbits_le32(&ccm->usb_clk_cfg, CCM_USB_CTRL_PHYGATE);
 
-	enabled_hcd_count--;
+	sunxi_usb_phy_enabled_count--;
 }
 
-void sunxi_usbc_vbus_enable(int index)
+void sunxi_usb_phy_power_on(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 
-	if (sunxi_usbc->gpio_vbus >= 0)
-		gpio_set_value(sunxi_usbc->gpio_vbus, 1);
+	if (phy->gpio_vbus >= 0)
+		gpio_set_value(phy->gpio_vbus, 1);
 }
 
-void sunxi_usbc_vbus_disable(int index)
+void sunxi_usb_phy_power_off(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 
-	if (sunxi_usbc->gpio_vbus >= 0)
-		gpio_set_value(sunxi_usbc->gpio_vbus, 0);
+	if (phy->gpio_vbus >= 0)
+		gpio_set_value(phy->gpio_vbus, 0);
 }
 
-int sunxi_usbc_vbus_detect(int index)
+int sunxi_usb_phy_vbus_detect(int index)
 {
-	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 	int err, retries = 3;
 
-	if (sunxi_usbc->gpio_vbus_det < 0) {
+	if (phy->gpio_vbus_det < 0) {
 		eprintf("Error: invalid vbus detection pin\n");
-		return sunxi_usbc->gpio_vbus_det;
+		return phy->gpio_vbus_det;
 	}
 
-	err = gpio_get_value(sunxi_usbc->gpio_vbus_det);
+	err = gpio_get_value(phy->gpio_vbus_det);
 	/*
 	 * Vbus may have been provided by the board and just been turned of
 	 * some milliseconds ago on reset, what we're measuring then is a
@@ -273,7 +271,7 @@ int sunxi_usbc_vbus_detect(int index)
 	 */
 	while (err > 0 && retries--) {
 		mdelay(100);
-		err = gpio_get_value(sunxi_usbc->gpio_vbus_det);
+		err = gpio_get_value(phy->gpio_vbus_det);
 	}
 
 	return err;

@@ -1,9 +1,8 @@
 /*
- * Sunxi usb-controller code shared between the ehci and musb controllers
+ * Sunxi usb-phy code
  *
- * Copyright (C) 2014 Roman Byshko
- *
- * Roman Byshko <rbyshko@gmail.com>
+ * Copyright (C) 2015 Hans de Goede <hdegoede@redhat.com>
+ * Copyright (C) 2014 Roman Byshko <rbyshko@gmail.com>
  *
  * Based on code from
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
@@ -11,13 +10,11 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-extern const struct musb_platform_ops sunxi_musb_ops;
-
-int sunxi_usbc_request_resources(int index);
-int sunxi_usbc_free_resources(int index);
-void sunxi_usbc_enable(int index);
-void sunxi_usbc_disable(int index);
-void sunxi_usbc_vbus_enable(int index);
-void sunxi_usbc_vbus_disable(int index);
-int sunxi_usbc_vbus_detect(int index);
-void sunxi_usbc_enable_squelch_detect(int index, int enable);
+int sunxi_usb_phy_probe(int index);
+int sunxi_usb_phy_remove(int index);
+void sunxi_usb_phy_init(int index);
+void sunxi_usb_phy_exit(int index);
+void sunxi_usb_phy_power_on(int index);
+void sunxi_usb_phy_power_off(int index);
+int sunxi_usb_phy_vbus_detect(int index);
+void sunxi_usb_phy_enable_squelch_detect(int index, int enable);
