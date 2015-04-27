@@ -119,7 +119,8 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
  * @name:		Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO])
  * @jedec:		Device jedec ID (0x[1byte_manuf_id][2byte_dev_id])
  * @ext_jedec:		Device ext_jedec ID
- * @sector_size:	Sector size of this device
+ * @sector_size:	Isn't necessarily a sector size from vendor,
+ *			the size listed here is what works with CMD_ERASE_64K
  * @nr_sectors:	No.of sectors on this device
  * @e_rd_cmd:		Enum list for read commands
  * @flags:		Important param, for flash specific behaviour

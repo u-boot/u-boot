@@ -187,6 +187,9 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 		flash->erase_size = flash->sector_size;
 	}
 
+	/* Now erase size becomes valid sector size */
+	flash->sector_size = flash->erase_size;
+
 	/* Look for the fastest read cmd */
 	cmd = fls(params->e_rd_cmd & flash->spi->op_mode_rx);
 	if (cmd) {
