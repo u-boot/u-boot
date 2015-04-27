@@ -178,7 +178,7 @@ config SYS_EXTRA_OPTIONS
 	  new boards should not use this option.
 
 config SYS_TEXT_BASE
-	depends on SPARC || ARC
+	depends on SPARC || ARC || X86
 	hex "Text Base"
 	help
 	  TODO: Move CONFIG_SYS_TEXT_BASE for all the architecture

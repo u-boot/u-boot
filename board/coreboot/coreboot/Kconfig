@@ -9,6 +9,9 @@ config SYS_VENDOR
 config SYS_SOC
 	default "coreboot"
 
+config SYS_TEXT_BASE
+	default 0x01110000
+
 comment "coreboot-specific options"
 
 config SYS_CONFIG_NAME

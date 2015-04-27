@@ -12,6 +12,9 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "minnowmax"
 
+config SYS_TEXT_BASE
+	default 0xfff00000
+
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select X86_RESET_VECTOR
