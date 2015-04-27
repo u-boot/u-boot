@@ -66,20 +66,6 @@ static struct sunxi_usbc_hcd {
 
 static int enabled_hcd_count;
 
-void *sunxi_usbc_get_io_base(int index)
-{
-	switch (index) {
-	case 0:
-		return (void *)SUNXI_USB0_BASE;
-	case 1:
-		return (void *)SUNXI_USB1_BASE;
-	case 2:
-		return (void *)SUNXI_USB2_BASE;
-	default:
-		return NULL;
-	}
-}
-
 static int get_vbus_gpio(int index)
 {
 	switch (index) {
@@ -102,7 +88,7 @@ static void usb_phy_write(struct sunxi_usbc_hcd *sunxi_usbc, int addr,
 			  int data, int len)
 {
 	int j = 0, usbc_bit = 0;
-	void *dest = sunxi_usbc_get_io_base(0) + SUNXI_USB_CSR;
+	void *dest = (void *)SUNXI_USB0_BASE + SUNXI_USB_CSR;
 
 #ifdef CONFIG_MACH_SUN8I_A33
 	/* CSR needs to be explicitly initialized to 0 on A33 */
@@ -153,11 +139,15 @@ static void sunxi_usb_phy_init(struct sunxi_usbc_hcd *sunxi_usbc)
 	return;
 }
 
-static void sunxi_usb_passby(struct sunxi_usbc_hcd *sunxi_usbc, int enable)
+static void sunxi_usb_phy_passby(int index, int enable)
 {
 	unsigned long bits = 0;
-	void *addr = sunxi_usbc_get_io_base(sunxi_usbc->id) +
-		     SUNXI_USB_PMU_IRQ_ENABLE;
+	void *addr;
+
+	if (index == 1)
+		addr = (void *)SUNXI_USB1_BASE + SUNXI_USB_PMU_IRQ_ENABLE;
+	else
+		addr = (void *)SUNXI_USB2_BASE + SUNXI_USB_PMU_IRQ_ENABLE;
 
 	bits = SUNXI_EHCI_AHB_ICHR8_EN |
 		SUNXI_EHCI_AHB_INCR4_BURST_EN |
@@ -227,7 +217,7 @@ void sunxi_usbc_enable(int index)
 	sunxi_usb_phy_init(sunxi_usbc);
 
 	if (sunxi_usbc->id != 0)
-		sunxi_usb_passby(sunxi_usbc, SUNXI_USB_PASSBY_EN);
+		sunxi_usb_phy_passby(index, SUNXI_USB_PASSBY_EN);
 
 	enabled_hcd_count++;
 }
@@ -238,7 +228,7 @@ void sunxi_usbc_disable(int index)
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	if (sunxi_usbc->id != 0)
-		sunxi_usb_passby(sunxi_usbc, !SUNXI_USB_PASSBY_EN);
+		sunxi_usb_phy_passby(index, !SUNXI_USB_PASSBY_EN);
 
 	clrbits_le32(&ccm->usb_clk_cfg, sunxi_usbc->usb_rst_mask);
 

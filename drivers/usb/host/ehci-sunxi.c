@@ -35,7 +35,10 @@ int ehci_hcd_init(int index, enum usb_init_type init, struct ehci_hccr **hccr,
 	sunxi_usbc_enable(index + 1);
 	sunxi_usbc_vbus_enable(index + 1);
 
-	*hccr = sunxi_usbc_get_io_base(index + 1);
+	if (index == 0)
+		*hccr = (void *)SUNXI_USB1_BASE;
+	else
+		*hccr = (void *)SUNXI_USB2_BASE;
 
 	*hcor = (struct ehci_hcor *)((uint32_t) *hccr
 				+ HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
