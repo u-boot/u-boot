@@ -3090,6 +3090,15 @@ CBFS (Coreboot Filesystem) support
 		memories can be connected with a given cs line.
 		Currently Xilinx Zynq qspi supports these type of connections.
 
+		CONFIG_SPI_FLASH_MTD		spi-flash MTD layer
+
+		Define this option to use mtd support for spi flash layer, this
+		adapter is for translating mtd_read/mtd_write commands into
+		spi_flash_read/spi_flash_write commands. It is not intended to
+		use it within sf_cmd or the SPI flash subsystem. Such an adapter
+		is needed for subsystems like UBI which can only operate on top
+		of the MTD layer.
+
 - SystemACE Support:
 		CONFIG_SYSTEMACE
 

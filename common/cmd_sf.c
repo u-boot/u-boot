@@ -139,8 +139,6 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 		return 1;
 	}
 
-	if (flash)
-		spi_flash_free(flash);
 	flash = new;
 #endif
 

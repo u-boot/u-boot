@@ -218,4 +218,9 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		size_t len, void *data);
 
+#ifdef CONFIG_SPI_FLASH_MTD
+int spi_flash_mtd_register(struct spi_flash *flash);
+void spi_flash_mtd_unregister(void);
+#endif
+
 #endif /* _SF_INTERNAL_H_ */
