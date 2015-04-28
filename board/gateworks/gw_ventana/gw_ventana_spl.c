@@ -188,7 +188,21 @@ struct mx6sdl_iomux_grp_regs mx6sdl_grp_ioregs = {
 	.grp_b7ds = 0x00000030,
 };
 
-/* MT41K128M16JT-125 */
+/* MT41K64M16JT-125 (1Gb density) */
+static struct mx6_ddr3_cfg mt41k64m16jt_125 = {
+	.mem_speed = 1600,
+	.density = 1,
+	.width = 16,
+	.banks = 8,
+	.rowaddr = 13,
+	.coladdr = 10,
+	.pagesz = 2,
+	.trcd = 1375,
+	.trcmin = 4875,
+	.trasmin = 3500,
+};
+
+/* MT41K128M16JT-125 (2Gb density) */
 static struct mx6_ddr3_cfg mt41k128m16jt_125 = {
 	.mem_speed = 1600,
 	.density = 2,
@@ -202,7 +216,7 @@ static struct mx6_ddr3_cfg mt41k128m16jt_125 = {
 	.trasmin = 3500,
 };
 
-/* MT41K256M16HA-125 */
+/* MT41K256M16HA-125 (4Gb density) */
 static struct mx6_ddr3_cfg mt41k256m16ha_125 = {
 	.mem_speed = 1600,
 	.density = 4,
@@ -219,6 +233,44 @@ static struct mx6_ddr3_cfg mt41k256m16ha_125 = {
 /*
  * calibration - these are the various CPU/DDR3 combinations we support
  */
+static struct mx6_mmdc_calibration mx6sdl_64x16_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x004C004E,
+	.p0_mpwldectrl1 = 0x00440044,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x42440247,
+	.p0_mpdgctrl1 = 0x02310232,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x45424746,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x33382C31,
+};
+
+static struct mx6_mmdc_calibration mx6dq_256x16_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x001B0016,
+	.p0_mpwldectrl1 = 0x000C000E,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x4324033A,
+	.p0_mpdgctrl1 = 0x00000000,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x40403438,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x40403D36,
+};
+
+static struct mx6_mmdc_calibration mx6sdl_256x16_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x00420043,
+	.p0_mpwldectrl1 = 0x0016001A,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x4238023B,
+	.p0_mpdgctrl1 = 0x00000000,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x40404849,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x40402E2F,
+};
 
 static struct mx6_mmdc_calibration mx6dq_128x32_mmdc_calib = {
 	/* write leveling calibration determine */
@@ -297,6 +349,19 @@ static struct mx6_mmdc_calibration mx6dq_256x32_mmdc_calib = {
 	.p0_mpwrdlctl = 0x32363934,
 };
 
+static struct mx6_mmdc_calibration mx6sdl_256x32_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0X00480047,
+	.p0_mpwldectrl1 = 0X003D003F,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0X423E0241,
+	.p0_mpdgctrl1 = 0X022B022C,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0X49454A4A,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0X2E372C32,
+};
+
 static struct mx6_mmdc_calibration mx6dq_256x64_mmdc_calib = {
 	/* write leveling calibration determine */
 	.p0_mpwldectrl0 = 0X00220021,
@@ -340,6 +405,7 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 		.bi_on = 1,	/* Bank interleaving enabled */
 		.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
 		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
+		.pd_fast_exit = 1, /* enable precharge power-down fast exit */
 	};
 
 	/*
@@ -349,13 +415,53 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 	 *   mx6_ddr_sysinfo - board-specific memory architecture (width/cs/etc)
 	 *   mx6_ddr_cfg - chip specific timing/layout details
 	 */
-	if (width == 32 && size_mb == 512) {
+	if (width == 16 && size_mb == 128) {
+		mem = &mt41k64m16jt_125;
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			;
+		else
+			calib = &mx6sdl_64x16_mmdc_calib;
+		debug("1gB density\n");
+	} else if (width == 16 && size_mb == 256) {
+		/* 1x 2Gb density chip - same calib as 2x 2Gb */
 		mem = &mt41k128m16jt_125;
 		if (is_cpu_type(MXC_CPU_MX6Q))
 			calib = &mx6dq_128x32_mmdc_calib;
 		else
 			calib = &mx6sdl_128x32_mmdc_calib;
 		debug("2gB density\n");
+	} else if (width == 16 && size_mb == 512) {
+		mem = &mt41k256m16ha_125;
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			calib = &mx6dq_256x16_mmdc_calib;
+		else
+			calib = &mx6sdl_256x16_mmdc_calib;
+		debug("4gB density\n");
+	} else if (width == 32 && size_mb == 256) {
+		/* Same calib as width==16, size==128 */
+		mem = &mt41k64m16jt_125;
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			;
+		else
+			calib = &mx6sdl_64x16_mmdc_calib;
+		debug("1gB density\n");
+	} else if (width == 32 && size_mb == 512) {
+		mem = &mt41k128m16jt_125;
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			calib = &mx6dq_128x32_mmdc_calib;
+		else
+			calib = &mx6sdl_128x32_mmdc_calib;
+		debug("2gB density\n");
+	}  else if (width == 32 && size_mb == 1024) {
+		mem = &mt41k256m16ha_125;
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			calib = &mx6dq_256x32_mmdc_calib;
+		else
+			calib = &mx6sdl_256x32_mmdc_calib;
+		debug("4gB density\n");
+	} else if (width == 64 && size_mb == 512) {
+		mem = &mt41k64m16jt_125;
+		debug("1gB density\n");
 	} else if (width == 64 && size_mb == 1024) {
 		mem = &mt41k128m16jt_125;
 		if (is_cpu_type(MXC_CPU_MX6Q))
@@ -363,11 +469,6 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 		else
 			calib = &mx6sdl_128x64_mmdc_calib;
 		debug("2gB density\n");
-	} else if (width == 32 && size_mb == 1024) {
-		mem = &mt41k256m16ha_125;
-		if (is_cpu_type(MXC_CPU_MX6Q))
-			calib = &mx6dq_256x32_mmdc_calib;
-		debug("4gB density\n");
 	} else if (width == 64 && size_mb == 2048) {
 		mem = &mt41k256m16ha_125;
 		if (is_cpu_type(MXC_CPU_MX6Q))
@@ -375,12 +476,14 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 		debug("4gB density\n");
 	}
 
-	if (!mem) {
-		puts("Error: Invalid Memory Configuration\n");
-		hang();
-	}
-	if (!calib) {
-		puts("Error: Invalid Board Calibration Configuration\n");
+	if (!(mem && calib)) {
+		puts("Error: Invalid Calibration/Board Configuration\n");
+		printf("MEM    : %s\n", mem ? "OKAY" : "NULL");
+		printf("CALIB  : %s\n", calib ? "OKAY" : "NULL");
+		printf("CPUTYPE: %s\n",
+		       is_cpu_type(MXC_CPU_MX6Q) ? "IMX6Q" : "IMX6DL");
+		printf("SIZE_MB: %d\n", size_mb);
+		printf("WIDTH  : %d\n", width);
 		hang();
 	}
 

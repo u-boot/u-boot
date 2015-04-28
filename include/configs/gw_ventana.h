@@ -99,6 +99,7 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_I2C_GSC			0
 #define CONFIG_I2C_PMIC			1
+#define CONFIG_I2C_EDID
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC
@@ -112,14 +113,11 @@
 
 /* Filesystem support */
 #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_UBIFS
 #define CONFIG_DOS_PARTITION
-
-/* Network config - Allow larger/faster download for TFTP/NFS */
-#define CONFIG_IP_DEFRAG
-#define CONFIG_TFTP_BLOCKSIZE 4096
-#define CONFIG_NFS_READ_SIZE  4096
 
 /*
  * SATA Configs
@@ -180,10 +178,10 @@
 
 /* Ethernet support */
 #define CONFIG_FEC_MXC
+#define CONFIG_E1000
 #define CONFIG_MII
 #define IMX_FEC_BASE             ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE      RGMII
-#define CONFIG_ETHPRIME          "FEC"
 #define CONFIG_FEC_MXC_PHYADDR   0
 #define CONFIG_PHYLIB
 #define CONFIG_ARP_TIMEOUT       200UL
@@ -208,6 +206,18 @@
 #define CONFIG_USB_ETH_CDC
 #define CONFIG_NETCONSOLE
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
+
+/* USB Mass Storage Gadget */
+#define CONFIG_USB_GADGET
+#define CONFIG_CMD_USB_MASS_STORAGE
+#define CONFIG_USB_GADGET_MASS_STORAGE
+#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_USB_GADGET_VBUS_DRAW    2
+
+/* Netchip IDs */
+#define CONFIG_G_DNL_VENDOR_NUM 0x0525
+#define CONFIG_G_DNL_PRODUCT_NUM 0xa4a5
+#define CONFIG_G_DNL_MANUFACTURER "Gateworks"
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO
@@ -317,6 +327,7 @@
 	"dio0:mode=gpio;dio1:mode=gpio;dio2:mode=gpio;dio3:mode=gpio\0" \
 
 #define CONFIG_EXTRA_ENV_SETTINGS_COMMON \
+	"usb_pgood_delay=2000\0" \
 	"console=ttymxc1\0" \
 	"bootdevs=usb mmc sata flash\0" \
 	HWCONFIG_DEFAULT \
@@ -327,28 +338,30 @@
 	\
 	"fdt_high=0xffffffff\0" \
 	"fdt_addr=0x18000000\0" \
+	"initrd_high=0xffffffff\0" \
+	"bootdir=boot\0" \
 	"loadfdt=" \
-		"if ${fsload} ${fdt_addr} boot/${fdt_file}; then " \
-			"echo Loaded DTB from boot/${fdt_file}; " \
-		"elif ${fsload} ${fdt_addr} boot/${fdt_file1}; then " \
-			"echo Loaded DTB from boot/${fdt_file1}; " \
-		"elif ${fsload} ${fdt_addr} boot/${fdt_file2}; then " \
-				"echo Loaded DTB from boot/${fdt_file2}; " \
+		"if ${fsload} ${fdt_addr} ${bootdir}/${fdt_file}; then " \
+			"echo Loaded DTB from ${bootdir}/${fdt_file}; " \
+		"elif ${fsload} ${fdt_addr} ${bootdir}/${fdt_file1}; then " \
+			"echo Loaded DTB from ${bootdir}/${fdt_file1}; " \
+		"elif ${fsload} ${fdt_addr} ${bootdir}/${fdt_file2}; then " \
+			"echo Loaded DTB from ${bootdir}/${fdt_file2}; " \
 		"fi\0" \
 	\
-	"script=boot/6x_bootscript-ventana\0" \
+	"script=6x_bootscript-ventana\0" \
 	"loadscript=" \
-		"if ${fsload} ${loadaddr} ${script}; then " \
+		"if ${fsload} ${loadaddr} ${bootdir}/${script}; then " \
 			"source; " \
 		"fi\0" \
 	\
-	"uimage=boot/uImage\0" \
+	"uimage=uImage\0" \
 	"mmc_root=/dev/mmcblk0p1 rootfstype=ext4 rootwait rw\0" \
 	"mmc_boot=" \
 		"setenv fsload 'ext2load mmc 0:1'; " \
 		"mmc dev 0 && mmc rescan && " \
 		"run loadscript; " \
-		"if ${fsload} ${loadaddr} ${uimage}; then " \
+		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
 				"root=/dev/mmcblk0p1 rootfstype=ext4 " \
 				"rootwait rw ${video} ${extra}; " \
@@ -362,7 +375,7 @@
 	"sata_boot=" \
 		"setenv fsload 'ext2load sata 0:1'; sata init && " \
 		"run loadscript; " \
-		"if ${fsload} ${loadaddr} ${uimage}; then " \
+		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
 				"root=/dev/sda1 rootfstype=ext4 " \
 				"rootwait rw ${video} ${extra}; " \
@@ -375,7 +388,7 @@
 	"usb_boot=" \
 		"setenv fsload 'ext2load usb 0:1'; usb start && usb dev 0 && " \
 		"run loadscript; " \
-		"if ${fsload} ${loadaddr} ${uimage}; then " \
+		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
 				"root=/dev/sda1 rootfstype=ext4 " \
 				"rootwait rw ${video} ${extra}; " \
@@ -418,8 +431,8 @@
 #else
 	#define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_EXTRA_ENV_SETTINGS_COMMON \
-	"image_rootfs=openwrt-imx6-ventana-rootfs.ubi\0" \
 	\
+	"image_rootfs=openwrt-imx6-ventana-rootfs.ubi\0" \
 	"nand_update=echo Updating NAND from ${serverip}:${image_rootfs}...; " \
 		"tftp ${loadaddr} ${image_rootfs} && " \
 		"nand erase.part rootfs && " \
@@ -427,12 +440,21 @@
 	\
 	"flash_boot=" \
 		"setenv fsload 'ubifsload'; " \
-		"ubi part rootfs && ubifsmount ubi0:rootfs; " \
+		"ubi part rootfs; " \
+		"if ubi check boot; then " \
+			"ubifsmount ubi0:boot; " \
+			"setenv root ubi0:rootfs ubi.mtd=2 " \
+				"rootfstype=squashfs,ubifs; " \
+			"setenv bootdir; " \
+		"elif ubi check rootfs; then " \
+			"ubifsmount ubi0:rootfs; " \
+			"setenv root ubi0:rootfs ubi.mtd=2 " \
+				"rootfstype=ubifs; " \
+		"fi; " \
 		"run loadscript; " \
-		"if ${fsload} ${loadaddr} ${uimage}; then " \
+		"if ${fsload} ${loadaddr} ${bootdir}/${uimage}; then " \
 			"setenv bootargs console=${console},${baudrate} " \
-				"root=ubi0:rootfs ubi.mtd=2 " \
-				"rootfstype=ubifs ${video} ${extra}; " \
+				"root=${root} ${video} ${extra}; " \
 			"if run loadfdt && fdt addr ${fdt_addr}; then " \
 				"ubifsumount; " \
 				"bootm ${loadaddr} - ${fdt_addr}; " \

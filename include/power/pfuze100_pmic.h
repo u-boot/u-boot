@@ -180,7 +180,7 @@ enum {
 #define LDOB_3_30V	15
 
 #define LDO_VOL_MASK	0xf
-#define LDO_EN		4
+#define LDO_EN		(1 << 4)
 
 /*
  * Boost Regulator

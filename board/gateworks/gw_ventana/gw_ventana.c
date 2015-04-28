@@ -89,16 +89,16 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 struct ventana_board_info ventana_info;
 
-int board_type;
+static int board_type;
 
 /* UART1: Function varies per baseboard */
-iomux_v3_cfg_t const uart1_pads[] = {
+static iomux_v3_cfg_t const uart1_pads[] = {
 	IOMUX_PADS(PAD_SD3_DAT6__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_DAT7__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
 
 /* UART2: Serial Console */
-iomux_v3_cfg_t const uart2_pads[] = {
+static iomux_v3_cfg_t const uart2_pads[] = {
 	IOMUX_PADS(PAD_SD4_DAT7__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD4_DAT4__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
@@ -106,7 +106,7 @@ iomux_v3_cfg_t const uart2_pads[] = {
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
 
 /* I2C1: GSC */
-struct i2c_pads_info mx6q_i2c_pad_info0 = {
+static struct i2c_pads_info mx6q_i2c_pad_info0 = {
 	.scl = {
 		.i2c_mode = MX6Q_PAD_EIM_D21__I2C1_SCL | PC,
 		.gpio_mode = MX6Q_PAD_EIM_D21__GPIO3_IO21 | PC,
@@ -118,7 +118,7 @@ struct i2c_pads_info mx6q_i2c_pad_info0 = {
 		.gp = IMX_GPIO_NR(3, 28)
 	}
 };
-struct i2c_pads_info mx6dl_i2c_pad_info0 = {
+static struct i2c_pads_info mx6dl_i2c_pad_info0 = {
 	.scl = {
 		.i2c_mode = MX6DL_PAD_EIM_D21__I2C1_SCL | PC,
 		.gpio_mode = MX6DL_PAD_EIM_D21__GPIO3_IO21 | PC,
@@ -132,7 +132,7 @@ struct i2c_pads_info mx6dl_i2c_pad_info0 = {
 };
 
 /* I2C2: PMIC/PCIe Switch/PCIe Clock/Mezz */
-struct i2c_pads_info mx6q_i2c_pad_info1 = {
+static struct i2c_pads_info mx6q_i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = MX6Q_PAD_KEY_COL3__I2C2_SCL | PC,
 		.gpio_mode = MX6Q_PAD_KEY_COL3__GPIO4_IO12 | PC,
@@ -144,7 +144,7 @@ struct i2c_pads_info mx6q_i2c_pad_info1 = {
 		.gp = IMX_GPIO_NR(4, 13)
 	}
 };
-struct i2c_pads_info mx6dl_i2c_pad_info1 = {
+static struct i2c_pads_info mx6dl_i2c_pad_info1 = {
 	.scl = {
 		.i2c_mode = MX6DL_PAD_KEY_COL3__I2C2_SCL | PC,
 		.gpio_mode = MX6DL_PAD_KEY_COL3__GPIO4_IO12 | PC,
@@ -158,7 +158,7 @@ struct i2c_pads_info mx6dl_i2c_pad_info1 = {
 };
 
 /* I2C3: Misc/Expansion */
-struct i2c_pads_info mx6q_i2c_pad_info2 = {
+static struct i2c_pads_info mx6q_i2c_pad_info2 = {
 	.scl = {
 		.i2c_mode = MX6Q_PAD_GPIO_3__I2C3_SCL | PC,
 		.gpio_mode = MX6Q_PAD_GPIO_3__GPIO1_IO03 | PC,
@@ -170,7 +170,7 @@ struct i2c_pads_info mx6q_i2c_pad_info2 = {
 		.gp = IMX_GPIO_NR(1, 6)
 	}
 };
-struct i2c_pads_info mx6dl_i2c_pad_info2 = {
+static struct i2c_pads_info mx6dl_i2c_pad_info2 = {
 	.scl = {
 		.i2c_mode = MX6DL_PAD_GPIO_3__I2C3_SCL | PC,
 		.gpio_mode = MX6DL_PAD_GPIO_3__GPIO1_IO03 | PC,
@@ -184,7 +184,7 @@ struct i2c_pads_info mx6dl_i2c_pad_info2 = {
 };
 
 /* MMC */
-iomux_v3_cfg_t const usdhc3_pads[] = {
+static iomux_v3_cfg_t const usdhc3_pads[] = {
 	IOMUX_PADS(PAD_SD3_CLK__SD3_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_DAT0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
@@ -196,7 +196,7 @@ iomux_v3_cfg_t const usdhc3_pads[] = {
 };
 
 /* ENET */
-iomux_v3_cfg_t const enet_pads[] = {
+static iomux_v3_cfg_t const enet_pads[] = {
 	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC    | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	IOMUX_PADS(PAD_RGMII_TXC__RGMII_TXC  | MUX_PAD_CTRL(ENET_PAD_CTRL)),
@@ -220,7 +220,7 @@ iomux_v3_cfg_t const enet_pads[] = {
 };
 
 /* NAND */
-iomux_v3_cfg_t const nfc_pads[] = {
+static iomux_v3_cfg_t const nfc_pads[] = {
 	IOMUX_PADS(PAD_NANDF_CLE__NAND_CLE     | MUX_PAD_CTRL(NO_PAD_CTRL)),
 	IOMUX_PADS(PAD_NANDF_ALE__NAND_ALE     | MUX_PAD_CTRL(NO_PAD_CTRL)),
 	IOMUX_PADS(PAD_NANDF_WP_B__NAND_WP_B   | MUX_PAD_CTRL(NO_PAD_CTRL)),
@@ -285,7 +285,7 @@ static void setup_iomux_uart(void)
 }
 
 #ifdef CONFIG_USB_EHCI_MX6
-iomux_v3_cfg_t const usb_pads[] = {
+static iomux_v3_cfg_t const usb_pads[] = {
 	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID   | DIO_PAD_CFG),
 	IOMUX_PADS(PAD_KEY_COL4__USB_OTG_OC | DIO_PAD_CFG),
 	/* OTG PWR */
@@ -328,7 +328,7 @@ int board_ehci_power(int port, int on)
 #endif /* CONFIG_USB_EHCI_MX6 */
 
 #ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg usdhc_cfg = { USDHC3_BASE_ADDR };
+static struct fsl_esdhc_cfg usdhc_cfg = { USDHC3_BASE_ADDR };
 
 int board_mmc_getcd(struct mmc *mmc)
 {
@@ -397,17 +397,30 @@ int board_phy_config(struct phy_device *phydev)
 
 int board_eth_init(bd_t *bis)
 {
-	setup_iomux_enet();
-
 #ifdef CONFIG_FEC_MXC
-	if (board_type != GW552x)
+	if (board_type != GW551x && board_type != GW552x) {
+		setup_iomux_enet();
 		cpu_eth_init(bis);
+	}
+#endif
+
+#ifdef CONFIG_E1000
+	e1000_initialize(bis);
 #endif
 
 #ifdef CONFIG_CI_UDC
 	/* For otg ethernet*/
 	usb_eth_initialize(bis);
 #endif
+
+	/* default to the first detected enet dev */
+	if (!getenv("ethprime")) {
+		struct eth_device *dev = eth_get_dev_by_index(0);
+		if (dev) {
+			setenv("ethprime", dev->name);
+			printf("set ethprime to %s\n", getenv("ethprime"));
+		}
+	}
 
 	return 0;
 }
@@ -474,6 +487,48 @@ struct display_info_t const displays[] = {{
 		.xres           = 1024,
 		.yres           = 768,
 		.pixclock       = 15385,
+		.left_margin    = 220,
+		.right_margin   = 40,
+		.upper_margin   = 21,
+		.lower_margin   = 7,
+		.hsync_len      = 60,
+		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
+	/* DLC700JMG-T-4 */
+	.bus	= 0,
+	.addr	= 0,
+	.detect	= NULL,
+	.enable	= enable_lvds,
+	.pixfmt	= IPU_PIX_FMT_LVDS666,
+	.mode	= {
+		.name           = "DLC700JMGT4",
+		.refresh        = 60,
+		.xres           = 1024,		/* 1024x600active pixels */
+		.yres           = 600,
+		.pixclock       = 15385,	/* 64MHz */
+		.left_margin    = 220,
+		.right_margin   = 40,
+		.upper_margin   = 21,
+		.lower_margin   = 7,
+		.hsync_len      = 60,
+		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
+	/* DLC800FIG-T-3 */
+	.bus	= 0,
+	.addr	= 0,
+	.detect	= NULL,
+	.enable	= enable_lvds,
+	.pixfmt	= IPU_PIX_FMT_LVDS666,
+	.mode	= {
+		.name           = "DLC800FIGT3",
+		.refresh        = 60,
+		.xres           = 1024,		/* 1024x768 active pixels */
+		.yres           = 768,
+		.pixclock       = 15385,	/* 64MHz */
 		.left_margin    = 220,
 		.right_margin   = 40,
 		.upper_margin   = 21,
@@ -614,6 +669,8 @@ static iomux_v3_cfg_t const gw52xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
 	/* PCI_RST# */
 	IOMUX_PADS(PAD_ENET_TXD1__GPIO1_IO29 | DIO_PAD_CFG),
+	/* PCI_RST# (GW522x) */
+	IOMUX_PADS(PAD_EIM_D23__GPIO3_IO23 | DIO_PAD_CFG),
 	/* PCIESKT_WDIS# */
 	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
@@ -658,14 +715,21 @@ static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_KEY_ROW1__GPIO4_IO09 | MUX_PAD_CTRL(IRQ_PAD_CTRL)),
 	/* DIOI2C_DIS# */
 	IOMUX_PADS(PAD_GPIO_19__GPIO4_IO05 | DIO_PAD_CFG),
-	/* PCICK_SSON */
-	IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20 | DIO_PAD_CFG),
 	/* PCI_RST# */
 	IOMUX_PADS(PAD_ENET_TXD1__GPIO1_IO29 | DIO_PAD_CFG),
 	/* VID_EN */
 	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
 	/* PCIESKT_WDIS# */
 	IOMUX_PADS(PAD_DISP0_DAT23__GPIO5_IO17 | DIO_PAD_CFG),
+};
+
+static iomux_v3_cfg_t const gw551x_gpio_pads[] = {
+	/* PANLED# */
+	IOMUX_PADS(PAD_KEY_ROW0__GPIO4_IO07 | DIO_PAD_CFG),
+	/* PCI_RST# */
+	IOMUX_PADS(PAD_GPIO_0__GPIO1_IO00 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
 
 static iomux_v3_cfg_t const gw552x_gpio_pads[] = {
@@ -709,6 +773,7 @@ struct ventana {
 	int num_pads;
 	/* DIO pinmux/val */
 	struct dio_cfg dio_cfg[4];
+	int num_gpios;
 	/* various gpios (0 if non-existent) */
 	int leds[3];
 	int pcie_rst;
@@ -723,7 +788,7 @@ struct ventana {
 	int wdis;
 };
 
-struct ventana gpio_cfg[] = {
+static struct ventana gpio_cfg[] = {
 	/* GW5400proto */
 	{
 		.gpio_pads = gw54xx_gpio_pads,
@@ -754,6 +819,7 @@ struct ventana gpio_cfg[] = {
 				4
 			},
 		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 10),
@@ -797,6 +863,7 @@ struct ventana gpio_cfg[] = {
 				4
 			},
 		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 10),
@@ -839,6 +906,7 @@ struct ventana gpio_cfg[] = {
 				0
 			},
 		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -883,6 +951,7 @@ struct ventana gpio_cfg[] = {
 				0
 			},
 		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -926,6 +995,7 @@ struct ventana gpio_cfg[] = {
 				4
 			},
 		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
@@ -941,10 +1011,10 @@ struct ventana gpio_cfg[] = {
 		.wdis = IMX_GPIO_NR(5, 17),
 	},
 
-	/* GW552x */
+	/* GW551x */
 	{
-		.gpio_pads = gw552x_gpio_pads,
-		.num_pads = ARRAY_SIZE(gw552x_gpio_pads)/2,
+		.gpio_pads = gw551x_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw551x_gpio_pads)/2,
 		.dio_cfg = {
 			{
 				{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
@@ -965,18 +1035,46 @@ struct ventana gpio_cfg[] = {
 				3
 			},
 			{
-				{ IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
-				IMX_GPIO_NR(2, 10),
-				{ 0, 0 },
-				0
+				{ IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18) },
+				IMX_GPIO_NR(1, 18),
+				{ IOMUX_PADS(PAD_SD1_CMD__PWM4_OUT) },
+				4
 			},
 		},
+		.num_gpios = 2,
+		.leds = {
+			IMX_GPIO_NR(4, 7),
+		},
+		.pcie_rst = IMX_GPIO_NR(1, 0),
+		.wdis = IMX_GPIO_NR(7, 12),
+	},
+
+	/* GW552x */
+	{
+		.gpio_pads = gw552x_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw552x_gpio_pads)/2,
+		.dio_cfg = {
+			{
+				{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+				IMX_GPIO_NR(1, 19),
+				{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+				2
+			},
+			{
+				{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+				IMX_GPIO_NR(1, 17),
+				{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+				3
+			},
+		},
+		.num_gpios = 4,
 		.leds = {
 			IMX_GPIO_NR(4, 6),
 			IMX_GPIO_NR(4, 7),
 			IMX_GPIO_NR(4, 15),
 		},
 		.pcie_rst = IMX_GPIO_NR(1, 29),
+		.wdis = IMX_GPIO_NR(7, 12),
 	},
 };
 
@@ -1014,22 +1112,32 @@ int power_init_board(void)
 		p = pmic_get("LTC3676_PMIC");
 		if (p && !pmic_probe(p)) {
 			puts("PMIC:  LTC3676\n");
-			/* set board-specific scalar to 1225mV for IMX6Q@1GHz */
-			if (is_cpu_type(MXC_CPU_MX6Q)) {
-				/* mask PGOOD during SW1 transition */
-				reg = 0x1d | LTC3676_PGOOD_MASK;
-				pmic_reg_write(p, LTC3676_DVB1B, reg);
-				/* set SW1 (VDD_SOC) to 1259mV */
-				reg = 0x1d;
-				pmic_reg_write(p, LTC3676_DVB1A, reg);
+			/*
+			 * set board-specific scalar for max CPU frequency
+			 * per CPU based on the LDO enabled Operating Ranges
+			 * defined in the respective IMX6DQ and IMX6SDL
+			 * datasheets. The voltage resulting from the R1/R2
+			 * feedback inputs on Ventana is 1308mV. Note that this
+			 * is a bit shy of the Vmin of 1350mV in the datasheet
+			 * for LDO enabled mode but is as high as we can go.
+			 *
+			 * We will rely on an OS kernel driver to properly
+			 * regulate these per CPU operating point and use LDO
+			 * bypass mode when using the higher frequency
+			 * operating points to compensate as LDO bypass mode
+			 * allows the rails be 125mV lower.
+			 */
+			/* mask PGOOD during SW1 transition */
+			pmic_reg_write(p, LTC3676_DVB1B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW1 (VDD_SOC) */
+			pmic_reg_write(p, LTC3676_DVB1A, 0x1f);
 
-				/* mask PGOOD during SW3 transition */
-				reg = 0x1d | LTC3676_PGOOD_MASK;
-				pmic_reg_write(p, LTC3676_DVB3B, reg);
-				/*set SW3 (VDD_ARM) to 1259mV */
-				reg = 0x1d;
-				pmic_reg_write(p, LTC3676_DVB3A, reg);
-			}
+			/* mask PGOOD during SW3 transition */
+			pmic_reg_write(p, LTC3676_DVB3B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW3 (VDD_ARM) */
+			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
 		}
 	}
 
@@ -1062,6 +1170,10 @@ static void setup_board_gpio(int board)
 	}
 
 #if !defined(CONFIG_CMD_PCI)
+	/* GW522x Uses GPIO3_IO23 for PCIE_RST# */
+	if (board_type == GW52xx && info->model[4] == '2')
+		gpio_cfg[board].pcie_rst = IMX_GPIO_NR(3, 23);
+
 	/* assert PCI_RST# (released by OS when clock is valid) */
 	gpio_direction_output(gpio_cfg[board].pcie_rst, 0);
 #endif
@@ -1100,7 +1212,9 @@ static void setup_board_gpio(int board)
 
 	/* USBOTG Select (PCISKT or FrontPanel) */
 	if (gpio_cfg[board].usb_sel)
-		gpio_direction_output(gpio_cfg[board].usb_sel, 0);
+		gpio_direction_output(gpio_cfg[board].usb_sel,
+				      (hwconfig("usb_pcisel")) ? 1 : 0);
+
 
 	/* PCISKT_WDIS# (Wireless disable GPIO to miniPCIe sockets) */
 	if (gpio_cfg[board].wdis)
@@ -1115,6 +1229,8 @@ static void setup_board_gpio(int board)
 		iomux_v3_cfg_t ctrl = DIO_PAD_CFG;
 		unsigned cputype = is_cpu_type(MXC_CPU_MX6Q) ? 0 : 1;
 
+		if (!cfg->gpio_padmux[0] && !cfg->gpio_padmux[1])
+			continue;
 		sprintf(arg, "dio%d", i);
 		if (!hwconfig(arg))
 			continue;
@@ -1320,15 +1436,8 @@ int checkboard(void)
 		return 0;
 
 	/* Display GSC firmware revision/CRC/status */
-	i2c_set_bus_num(CONFIG_I2C_GSC);
-	if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_FWVER, 1, buf, 1)) {
-		printf("GSC:   v%d", buf[0]);
-		if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_STATUS, 1, buf, 4)) {
-			printf(" 0x%04x", buf[2] | buf[3]<<8); /* CRC */
-			printf(" 0x%02x", buf[0]); /* irq status */
-		}
-		puts("\n");
-	}
+	gsc_info(0);
+
 	/* Display RTC */
 	if (!gsc_i2c_read(GSC_RTC_ADDR, 0x00, 1, buf, 4)) {
 		printf("RTC:   %d\n",
@@ -1407,7 +1516,7 @@ int misc_init_r(void)
 				sprintf(fdt, "%s-%s.dtb", cputype, str);
 				setenv("fdt_file1", fdt);
 			}
-			if (board_type != GW552x)
+			if (board_type != GW551x && board_type != GW552x)
 				str[4] = 'x';
 			str[5] = 'x';
 			str[6] = 0;
@@ -1430,6 +1539,10 @@ int misc_init_r(void)
 		/* board serial-number */
 		sprintf(str, "%6d", info->serial);
 		setenv("serial#", str);
+
+		/* memory MB */
+		sprintf(str, "%d", (int) (gd->ram_size >> 20));
+		setenv("mem_mb", str);
 	}
 
 
@@ -1461,18 +1574,47 @@ int misc_init_r(void)
 	} else {
 		puts("Error: could not disable GSC Watchdog\n");
 	}
-	if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_STATUS, 1, &reg, 1)) {
-		if (reg & (1 << GSC_SC_IRQ_WATCHDOG)) { /* watchdog timeout */
-			puts("GSC boot watchdog timeout detected\n");
-			reg &= ~(1 << GSC_SC_IRQ_WATCHDOG); /* clear flag */
-			gsc_i2c_write(GSC_SC_ADDR, GSC_SC_STATUS, 1, &reg, 1);
-		}
-	}
 
 	return 0;
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+
+static int ft_sethdmiinfmt(void *blob, char *mode)
+{
+	int off;
+
+	if (!mode)
+		return -EINVAL;
+
+	off = fdt_node_offset_by_compatible(blob, -1, "nxp,tda1997x");
+	if (off < 0)
+		return off;
+
+	if (0 == strcasecmp(mode, "yuv422bt656")) {
+		u8 cfg[] = { 0x00, 0x00, 0x00, 0x82, 0x81, 0x00,
+			     0x00, 0x00, 0x00 };
+		mode = "422_ccir";
+		fdt_setprop(blob, off, "vidout_fmt", mode, strlen(mode) + 1);
+		fdt_setprop_u32(blob, off, "vidout_trc", 1);
+		fdt_setprop_u32(blob, off, "vidout_blc", 1);
+		fdt_setprop(blob, off, "vidout_portcfg", cfg, sizeof(cfg));
+		printf("   set HDMI input mode to %s\n", mode);
+	} else if (0 == strcasecmp(mode, "yuv422smp")) {
+		u8 cfg[] = { 0x00, 0x00, 0x00, 0x88, 0x87, 0x00,
+			     0x82, 0x81, 0x00 };
+		mode = "422_smp";
+		fdt_setprop(blob, off, "vidout_fmt", mode, strlen(mode) + 1);
+		fdt_setprop_u32(blob, off, "vidout_trc", 0);
+		fdt_setprop_u32(blob, off, "vidout_blc", 0);
+		fdt_setprop(blob, off, "vidout_portcfg", cfg, sizeof(cfg));
+		printf("   set HDMI input mode to %s\n", mode);
+	} else {
+		return -EINVAL;
+	}
+
+	return 0;
+}
 
 /*
  * called prior to booting kernel or by 'fdt boardsetup' command
@@ -1492,6 +1634,17 @@ int ft_board_setup(void *blob, bd_t *bd)
 		{ "fsl,imx6q-gpmi-nand",  MTD_DEV_TYPE_NAND, }, /* NAND flash */
 	};
 	const char *model = getenv("model");
+	const char *display = getenv("display");
+	int i;
+	char rev = 0;
+
+	/* determine board revision */
+	for (i = sizeof(ventana_info.model) - 1; i > 0; i--) {
+		if (ventana_info.model[i] >= 'A') {
+			rev = ventana_info.model[i];
+			break;
+		}
+	}
 
 	if (getenv("fdt_noauto")) {
 		puts("   Skiping ft_board_setup (fdt_noauto defined)\n");
@@ -1501,6 +1654,13 @@ int ft_board_setup(void *blob, bd_t *bd)
 	/* Update partition nodes using info from mtdparts env var */
 	puts("   Updating MTD partitions...\n");
 	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+
+	/* Update display timings from display env var */
+	if (display) {
+		if (fdt_fixup_display(blob, fdt_get_alias(blob, "lvds0"),
+				      display) >= 0)
+			printf("   Set display timings for %s...\n", display);
+	}
 
 	if (!model) {
 		puts("invalid board info: Leaving FDT fully enabled\n");
@@ -1515,6 +1675,91 @@ int ft_board_setup(void *blob, bd_t *bd)
 	/* board (model contains model from device-tree) */
 	fdt_setprop(blob, 0, "board", info->model,
 		    strlen((const char *)info->model) + 1);
+
+	/* set desired digital video capture format */
+	ft_sethdmiinfmt(blob, getenv("hdmiinfmt"));
+
+	/*
+	 * disable serial2 node for GW54xx for compatibility with older
+	 * 3.10.x kernel that improperly had this node enabled in the DT
+	 */
+	if (board_type == GW54xx) {
+		i = fdt_path_offset(blob,
+				    "/soc/aips-bus@02100000/serial@021ec000");
+		if (i)
+			fdt_del_node(blob, i);
+	}
+
+	/*
+	 * disable wdog1/wdog2 nodes for GW51xx below revC to work around
+	 * errata causing wdog timer to be unreliable.
+	 */
+	if (board_type == GW51xx && rev >= 'A' && rev < 'C') {
+		i = fdt_path_offset(blob,
+				    "/soc/aips-bus@02000000/wdog@020bc000");
+		if (i)
+			fdt_status_disabled(blob, i);
+	}
+
+	/* GW522x Uses GPIO3_IO23 instead of GPIO1_IO29 */
+	else if (board_type == GW52xx && info->model[4] == '2') {
+		u32 handle = 0;
+		u32 *range = NULL;
+
+		i = fdt_node_offset_by_compatible(blob, -1, "fsl,imx6q-pcie");
+		if (i)
+			range = (u32 *)fdt_getprop(blob, i, "reset-gpio",
+						   NULL);
+
+		if (range) {
+			i = fdt_path_offset(blob,
+					    "/soc/aips-bus@02000000/gpio@020a4000");
+			if (i)
+				handle = fdt_get_phandle(blob, i);
+			if (handle) {
+				range[0] = cpu_to_fdt32(handle);
+				range[1] = cpu_to_fdt32(23);
+			}
+		}
+	}
+
+	/*
+	 * isolate CSI0_DATA_EN for GW551x below revB to work around
+	 * errata causing non functional digital video in (it is not hooked up)
+	 */
+	else if (board_type == GW551x && rev == 'A') {
+		u32 *range = NULL;
+		int len;
+		const u32 *handle = NULL;
+
+		i = fdt_node_offset_by_compatible(blob, -1,
+						  "fsl,imx-tda1997x-video");
+		if (i)
+			handle = fdt_getprop(blob, i, "pinctrl-0", NULL);
+		if (handle)
+			i = fdt_node_offset_by_phandle(blob,
+						       fdt32_to_cpu(*handle));
+		if (i)
+			range = (u32 *)fdt_getprop(blob, i, "fsl,pins", &len);
+		if (range) {
+			len /= sizeof(u32);
+			for (i = 0; i < len; i += 6) {
+				u32 mux_reg = fdt32_to_cpu(range[i+0]);
+				u32 conf_reg = fdt32_to_cpu(range[i+1]);
+				/* mux PAD_CSI0_DATA_EN to GPIO */
+				if (is_cpu_type(MXC_CPU_MX6Q) &&
+				    mux_reg == 0x260 && conf_reg == 0x630)
+					range[i+3] = cpu_to_fdt32(0x5);
+				else if (!is_cpu_type(MXC_CPU_MX6Q) &&
+				    mux_reg == 0x08c && conf_reg == 0x3a0)
+					range[i+3] = cpu_to_fdt32(0x5);
+			}
+			fdt_setprop_inplace(blob, i, "fsl,pins", range, len);
+		}
+
+		/* set BT656 video format */
+		ft_sethdmiinfmt(blob, "yuv422bt656");
+	}
 
 	/*
 	 * Peripheral Config:
