@@ -287,6 +287,7 @@ int misc_init_r(void)
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		MUX_GUMSTIX();
+		setenv("expansionname", "tobiduo");
 		break;
 	case GUMSTIX_PALO35:
 		printf("Recognized Palo35 expansion board (rev %d %s)\n",
