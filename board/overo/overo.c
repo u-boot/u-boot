@@ -295,6 +295,7 @@ int misc_init_r(void)
 			expansion_config.fab_revision);
 		MUX_GUMSTIX();
 		setenv("defaultdisplay", "lcd35");
+		setenv("expansionname", "palo35");
 		break;
 	case GUMSTIX_PALO43:
 		printf("Recognized Palo43 expansion board (rev %d %s)\n",
