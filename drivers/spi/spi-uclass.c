@@ -67,7 +67,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	if (ret)
 		return ret;
 
-	return ops->claim_bus ? ops->claim_bus(bus) : 0;
+	return ops->claim_bus ? ops->claim_bus(dev) : 0;
 }
 
 void spi_release_bus(struct spi_slave *slave)
@@ -77,7 +77,7 @@ void spi_release_bus(struct spi_slave *slave)
 	struct dm_spi_ops *ops = spi_get_ops(bus);
 
 	if (ops->release_bus)
-		ops->release_bus(bus);
+		ops->release_bus(dev);
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
