@@ -12,4 +12,6 @@
 #ifndef __ASM_ARCH_MX85XX_GPIO_H
 #define __ASM_ARCH_MX85XX_GPIO_H
 
+#include <asm/mpc85xx_gpio.h>
+
 #endif
