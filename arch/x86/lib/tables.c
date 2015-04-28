@@ -23,7 +23,7 @@ void write_tables(void)
 {
 	u32 __maybe_unused rom_table_end = ROM_TABLE_ADDR;
 
-#if CONFIG_GENERATE_PIRQ_TABLE
+#ifdef CONFIG_GENERATE_PIRQ_TABLE
 	rom_table_end = write_pirq_routing_table(rom_table_end);
 	rom_table_end = ALIGN(rom_table_end, 1024);
 #endif
