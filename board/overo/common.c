@@ -310,20 +310,6 @@ int get_board_revision(void)
 {
 	int revision;
 
-#ifdef CONFIG_SYS_I2C_OMAP34XX
-	unsigned char data;
-
-	/* board revisions <= R2410 connect 4030 irq_1 to gpio112             */
-	/* these boards should return a revision number of 0                  */
-	/* the code below forces a 4030 RTC irq to ensure that gpio112 is low */
-	i2c_set_bus_num(TWL4030_I2C_BUS);
-	data = 0x01;
-	i2c_write(0x4B, 0x29, 1, &data, 1);
-	data = 0x0c;
-	i2c_write(0x4B, 0x2b, 1, &data, 1);
-	i2c_read(0x4B, 0x2a, 1, &data, 1);
-#endif
-
 	if (!gpio_request(112, "") &&
 	    !gpio_request(113, "") &&
 	    !gpio_request(115, "")) {
