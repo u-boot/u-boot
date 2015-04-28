@@ -132,6 +132,9 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	flash->name = params->name;
 	flash->memory_map = spi->memory_map;
 	flash->dual_flash = flash->spi->option;
+#ifdef CONFIG_DM_SPI_FLASH
+	flash->flags = params->flags;
+#endif
 
 	/* Assign spi_flash ops */
 #ifndef CONFIG_DM_SPI_FLASH

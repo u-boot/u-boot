@@ -65,6 +65,7 @@ struct spi_flash {
 	struct spi_slave *spi;
 #ifdef CONFIG_DM_SPI_FLASH
 	struct udevice *dev;
+	u16 flags;
 #endif
 	const char *name;
 	u8 dual_flash;
