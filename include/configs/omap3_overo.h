@@ -140,6 +140,8 @@
 		"bootm ${loadaddr}\0" \
 	"loadzimage=load mmc ${mmcdev}:2 ${loadaddr} ${bootdir}/${bootfile}\0" \
 	"loadfdt=load mmc ${mmcdev}:2 ${fdtaddr} ${bootdir}/${fdtfile}\0" \
+	"loadubizimage=ubifsload ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadubifdt=ubifsload ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"mmcbootfdt=echo Booting with DT from mmc ...; " \
 		"run mmcargs; " \
 		"bootz ${loadaddr} - ${fdtaddr}\0" \
@@ -148,6 +150,13 @@
 		"if nand read ${loadaddr} linux; then " \
 			"bootm ${loadaddr};" \
 		"fi;\0" \
+	"nanddtsboot=echo Booting from nand with DTS...; " \
+		"run nandargs; " \
+		"ubi part rootfs; "\
+		"ubifsmount ubi0:rootfs; "\
+		"run loadubifdt; "\
+		"run loadubizimage; "\
+		"bootz ${loadaddr} - ${fdtaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
@@ -175,6 +184,10 @@
 		"fi;" \
 	"fi;" \
 	"run nandboot; " \
+	"if test -z \"${fdtfile}\"; then "\
+		"setenv fdtfile omap3-${boardname}-${expansionname}.dtb;" \
+	"fi;" \
+	"run nanddtsboot; " \
 
 /*
  * Miscellaneous configurable options
