@@ -16,7 +16,6 @@ static struct pci_device_id mmc_supported[] = {
 
 int cpu_mmc_init(bd_t *bis)
 {
-	printf("mmc init\n");
 	return pci_mmc_init("ValleyView SDHCI", mmc_supported,
 			    ARRAY_SIZE(mmc_supported));
 }
