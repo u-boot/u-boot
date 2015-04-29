@@ -192,22 +192,8 @@ int	cpu_init(void);
 
 /* */
 phys_size_t initdram (int);
-int	display_options (void);
 
-/**
- * print_size() - Print a size with a suffic
- *
- * print sizes as "xxx KiB", "xxx.y KiB", "xxx MiB", "xxx.y MiB",
- * xxx GiB, xxx.y GiB, etc as needed; allow for optional trailing string
- * (like "\n")
- *
- * @size:	Size to print
- * @suffix	String to print after the size
- */
-void print_size(uint64_t size, const char *suffix);
-
-int print_buffer(ulong addr, const void *data, uint width, uint count,
-		 uint linelen);
+#include <display_options.h>
 
 /* common/main.c */
 void	main_loop	(void);
