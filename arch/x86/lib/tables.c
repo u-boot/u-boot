@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <asm/sfi.h>
 #include <asm/tables.h>
 
 u8 table_compute_checksum(void *v, int len)
@@ -25,6 +26,10 @@ void write_tables(void)
 
 #ifdef CONFIG_GENERATE_PIRQ_TABLE
 	rom_table_end = write_pirq_routing_table(rom_table_end);
+	rom_table_end = ALIGN(rom_table_end, 1024);
+#endif
+#ifdef CONFIG_GENERATE_SFI_TABLE
+	rom_table_end = write_sfi_table(rom_table_end);
 	rom_table_end = ALIGN(rom_table_end, 1024);
 #endif
 }

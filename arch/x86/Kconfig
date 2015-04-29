@@ -393,6 +393,20 @@ config GENERATE_PIRQ_TABLE
 	  It specifies the interrupt router information as well how all the PCI
 	  devices' interrupt pins are wired to PIRQs.
 
+config GENERATE_SFI_TABLE
+	bool "Generate a SFI (Simple Firmware Interface) table"
+	help
+	  The Simple Firmware Interface (SFI) provides a lightweight method
+	  for platform firmware to pass information to the operating system
+	  via static tables in memory.  Kernel SFI support is required to
+	  boot on SFI-only platforms.  If you have ACPI tables then these are
+	  used instead.
+
+	  U-Boot writes this table in write_sfi_table() just before booting
+	  the OS.
+
+	  For more information, see http://simplefirmware.org
+
 endmenu
 
 config MAX_PIRQ_LINKS
