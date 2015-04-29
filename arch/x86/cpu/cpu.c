@@ -133,6 +133,7 @@ static void load_gdt(const u64 *boot_gdt, u16 num_entries)
 
 void setup_gdt(gd_t *id, u64 *gdt_addr)
 {
+	id->arch.gdt = gdt_addr;
 	/* CS: code, read/execute, 4 GB, base 0 */
 	gdt_addr[X86_GDT_ENTRY_32BIT_CS] = GDT_ENTRY(0xc09b, 0, 0xfffff);
 
