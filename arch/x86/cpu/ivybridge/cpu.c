@@ -92,7 +92,7 @@ static int set_flex_ratio_to_tdp_nominal(void)
 
 	/* Issue warm reset, will be "CPU only" due to soft reset data */
 	outb(0x0, PORT_RESET);
-	outb(0x6, PORT_RESET);
+	outb(SYS_RST | RST_CPU, PORT_RESET);
 	cpu_hlt();
 
 	/* Not reached */
@@ -286,8 +286,7 @@ int print_cpuinfo(void)
 
 		/* System is not happy after keyboard reset... */
 		debug("Issuing CF9 warm reset\n");
-		outb(0x6, 0xcf9);
-		cpu_hlt();
+		reset_cpu(0);
 	}
 
 	/* Early chipset init required before RAM init can work */

@@ -117,7 +117,6 @@ static inline void set_global_reset(int enable)
 
 int intel_early_me_init_done(u8 status)
 {
-	u8 reset;
 	int count;
 	u32 mebase_l, mebase_h;
 	struct me_hfs hfs;
@@ -156,7 +155,6 @@ int intel_early_me_init_done(u8 status)
 	/* Check status after acknowledgement */
 	intel_early_me_status();
 
-	reset = 0;
 	switch (hfs.ack_data) {
 	case ME_HFS_ACK_CONTINUE:
 		/* Continue to boot */
@@ -164,17 +162,17 @@ int intel_early_me_init_done(u8 status)
 	case ME_HFS_ACK_RESET:
 		/* Non-power cycle reset */
 		set_global_reset(0);
-		reset = 0x06;
+		reset_cpu(0);
 		break;
 	case ME_HFS_ACK_PWR_CYCLE:
 		/* Power cycle reset */
 		set_global_reset(0);
-		reset = 0x0e;
+		x86_full_reset();
 		break;
 	case ME_HFS_ACK_GBL_RESET:
 		/* Global reset */
 		set_global_reset(1);
-		reset = 0x0e;
+		x86_full_reset();
 		break;
 	case ME_HFS_ACK_S3:
 	case ME_HFS_ACK_S4:
@@ -182,10 +180,5 @@ int intel_early_me_init_done(u8 status)
 		break;
 	}
 
-	/* Perform the requested reset */
-	if (reset) {
-		outb(reset, 0xcf9);
-		cpu_hlt();
-	}
 	return -1;
 }

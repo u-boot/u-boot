@@ -393,8 +393,7 @@ int sdram_initialise(struct pei_data *pei_data)
 	/* If MRC data is not found we cannot continue S3 resume. */
 	if (pei_data->boot_mode == PEI_BOOT_RESUME && !pei_data->mrc_input) {
 		debug("Giving up in sdram_initialize: No MRC data\n");
-		outb(0x6, PORT_RESET);
-		cpu_hlt();
+		reset_cpu(0);
 	}
 
 	/* Pass console handler in pei_data */
