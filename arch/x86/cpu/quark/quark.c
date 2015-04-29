@@ -122,7 +122,7 @@ int print_cpuinfo(void)
 void reset_cpu(ulong addr)
 {
 	/* cold reset */
-	outb(0x08, PORT_RESET);
+	x86_full_reset();
 }
 
 int cpu_mmc_init(bd_t *bis)
