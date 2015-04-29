@@ -113,3 +113,27 @@ void socfpga_spim_enable(void)
 	clrbits_le32(reset, (1 << RSTMGR_PERMODRST_SPIM0_LSB) |
 		     (1 << RSTMGR_PERMODRST_SPIM1_LSB));
 }
+
+/* Bring UART0 out of reset. */
+void socfpga_uart0_enable(void)
+{
+	const void *reset = &reset_manager_base->per_mod_reset;
+
+	clrbits_le32(reset, 1 << RSTMGR_PERMODRST_UART0_LSB);
+}
+
+/* Bring SDRAM controller out of reset. */
+void socfpga_sdram_enable(void)
+{
+	const void *reset = &reset_manager_base->per_mod_reset;
+
+	clrbits_le32(reset, 1 << RSTMGR_PERMODRST_SDR_LSB);
+}
+
+/* Bring OSC1 timer out of reset. */
+void socfpga_osc1timer_enable(void)
+{
+	const void *reset = &reset_manager_base->per_mod_reset;
+
+	clrbits_le32(reset, 1 << RSTMGR_PERMODRST_OSC1TIMER0_LSB);
+}

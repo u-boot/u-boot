@@ -36,7 +36,7 @@
 
 /* Peripheral PLL */
 #define CONFIG_HPS_PERPLLGRP_VCO_DENOM			(1)
-#define CONFIG_HPS_PERPLLGRP_VCO_NUMER			(39)
+#define CONFIG_HPS_PERPLLGRP_VCO_NUMER			(79)
 /*
  * To tell where is the VCOs source:
  * 0 = EOSC1

@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/pl310.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <image.h>
@@ -15,8 +16,12 @@
 #include <asm/arch/freeze_controller.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/scan_manager.h>
+#include <asm/arch/sdram.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static struct pl310_regs *const pl310 =
+	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 
 #define MAIN_VCO_BASE (					\
 	(CONFIG_HPS_MAINPLLGRP_VCO_DENOM <<		\
@@ -43,6 +48,31 @@ DECLARE_GLOBAL_DATA_PTR;
 		CLKMGR_SDRPLLGRP_VCO_NUMER_OFFSET)	\
 	)
 
+void board_init_f(ulong dummy)
+{
+	struct socfpga_system_manager *sysmgr_regs =
+		(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
+	unsigned long reg;
+	/*
+	 * First C code to run. Clear fake OCRAM ECC first as SBE
+	 * and DBE might triggered during power on
+	 */
+	reg = readl(&sysmgr_regs->eccgrp_ocram);
+	if (reg & SYSMGR_ECC_OCRAM_SERR)
+		writel(SYSMGR_ECC_OCRAM_SERR | SYSMGR_ECC_OCRAM_EN,
+		       &sysmgr_regs->eccgrp_ocram);
+	if (reg & SYSMGR_ECC_OCRAM_DERR)
+		writel(SYSMGR_ECC_OCRAM_DERR  | SYSMGR_ECC_OCRAM_EN,
+		       &sysmgr_regs->eccgrp_ocram);
+
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	/* Remap SDRAM to 0x0 */
+	writel(0x1, &pl310->pl310_addr_filter_start);
+
+	board_init_r(NULL, 0);
+}
+
 u32 spl_boot_device(void)
 {
 	return BOOT_DEVICE_RAM;
@@ -53,6 +83,7 @@ u32 spl_boot_device(void)
  */
 void spl_board_init(void)
 {
+	unsigned long sdram_size;
 #ifndef CONFIG_SOCFPGA_VIRTUAL_TARGET
 	cm_config_t cm_default_cfg = {
 		/* main group */
@@ -144,9 +175,18 @@ void spl_board_init(void)
 	/* freeze all IO banks */
 	sys_mgr_frzctrl_freeze_req();
 
+	socfpga_sdram_enable();
+	socfpga_uart0_enable();
+	socfpga_osc1timer_enable();
+
+	timer_init();
+
 	debug("Reconfigure Clock Manager\n");
 	/* reconfigure the PLLs */
 	cm_basic_init(&cm_default_cfg);
+
+	/* Enable bootrom to configure IOs. */
+	sysmgr_enable_warmrstcfgio();
 
 	/* configure the IOCSR / IO buffer settings */
 	if (scan_mgr_configure_iocsr())
@@ -165,4 +205,25 @@ void spl_board_init(void)
 
 	/* enable console uart printing */
 	preloader_console_init();
+
+	if (sdram_mmr_init_full(0xffffffff) != 0) {
+		puts("SDRAM init failed.\n");
+		hang();
+	}
+
+	debug("SDRAM: Calibrating PHY\n");
+	/* SDRAM calibration */
+	if (sdram_calibration_full() == 0) {
+		puts("SDRAM calibration failed.\n");
+		hang();
+	}
+
+	sdram_size = sdram_calculate_size();
+	debug("SDRAM: %ld MiB\n", sdram_size >> 20);
+
+	/* Sanity check ensure correct SDRAM size specified */
+	if (get_ram_size(0, sdram_size) != sdram_size) {
+		puts("SDRAM size check failed!\n");
+		hang();
+	}
 }

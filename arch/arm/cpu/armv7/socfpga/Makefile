@@ -7,7 +7,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= lowlevel_init.o
 obj-y	+= misc.o timer.o reset_manager.o system_manager.o clock_manager.o \
 	   fpga_manager.o
 obj-$(CONFIG_SPL_BUILD) += spl.o freeze_controller.o scan_manager.o
