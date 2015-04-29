@@ -151,6 +151,9 @@ config TARGET_XPEDITE537X
 config TARGET_XPEDITE550X
 	bool "Support xpedite550x"
 
+config TARGET_UCP1020
+	bool "Support uCP1020"
+
 endchoice
 
 source "board/freescale/b4860qds/Kconfig"
@@ -192,5 +195,6 @@ source "board/stx/stxssa/Kconfig"
 source "board/xes/xpedite520x/Kconfig"
 source "board/xes/xpedite537x/Kconfig"
 source "board/xes/xpedite550x/Kconfig"
+source "board/Arcturus/ucp1020/Kconfig"
 
 endmenu
