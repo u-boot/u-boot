@@ -380,21 +380,17 @@ void  flush_cache(unsigned long dummy1, unsigned long dummy2)
 	asm("wbinvd\n");
 }
 
-void __attribute__ ((regparm(0))) generate_gpf(void);
-
-/* segment 0x70 is an arbitrary segment which does not exist */
-asm(".globl generate_gpf\n"
-	".hidden generate_gpf\n"
-	".type generate_gpf, @function\n"
-	"generate_gpf:\n"
-	"ljmp   $0x70, $0x47114711\n");
-
 __weak void reset_cpu(ulong addr)
 {
-	printf("Resetting using x86 Triple Fault\n");
-	set_vector(13, generate_gpf);	/* general protection fault handler */
-	set_vector(8, generate_gpf);	/* double fault handler */
-	generate_gpf();			/* start the show */
+	/* Do a hard reset through the chipset's reset control register */
+	outb(SYS_RST | RST_CPU, PORT_RESET);
+	for (;;)
+		cpu_hlt();
+}
+
+void x86_full_reset(void)
+{
+	outb(FULL_RST | SYS_RST | RST_CPU, PORT_RESET);
 }
 
 int dcache_status(void)
