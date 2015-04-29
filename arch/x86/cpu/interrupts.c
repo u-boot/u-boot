@@ -147,6 +147,11 @@ int cpu_init_interrupts(void)
 	return 0;
 }
 
+void *x86_get_idt(void)
+{
+	return &idt_ptr;
+}
+
 void __do_irq(int irq)
 {
 	printf("Unhandled IRQ : %d\n", irq);
