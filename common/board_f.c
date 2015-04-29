@@ -73,7 +73,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 /*
- * sjg: IMO this code should be
+ * TODO(sjg@chromium.org): IMO this code should be
  * refactored to a single function, something like:
  *
  * void led_set_state(enum led_colour_t colour, int on);
@@ -300,7 +300,7 @@ __weak ulong board_get_usable_ram_top(ulong total_size)
 {
 #ifdef CONFIG_SYS_SDRAM_BASE
 	/*
-	 * Detect whether we have so much RAM it goes past the end of our
+	 * Detect whether we have so much RAM that it goes past the end of our
 	 * 32-bit address space. If so, clip the usable RAM so it doesn't.
 	 */
 	if (gd->ram_top < CONFIG_SYS_SDRAM_BASE)
@@ -507,7 +507,7 @@ static int reserve_global_data(void)
 static int reserve_fdt(void)
 {
 	/*
-	 * If the device tree is sitting immediate above our image then we
+	 * If the device tree is sitting immediately above our image then we
 	 * must relocate it. If it is embedded in the data section, then it
 	 * will be relocated with other data.
 	 */
@@ -535,7 +535,7 @@ static int reserve_stacks(void)
 	gd->start_addr_sp &= ~0xf;
 
 	/*
-	 * let the architecture specific code tailor gd->start_addr_sp and
+	 * let the architecture-specific code tailor gd->start_addr_sp and
 	 * gd->irq_sp
 	 */
 	return arch_reserve_stacks();
@@ -556,7 +556,6 @@ static int setup_board_part1(void)
 	/*
 	 * Save local variables to board info struct
 	 */
-
 	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;	/* start of memory */
 	bd->bi_memsize = gd->ram_size;			/* size in bytes */
 
