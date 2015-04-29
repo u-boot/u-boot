@@ -2,6 +2,8 @@ menu "Device Drivers"
 
 source "drivers/core/Kconfig"
 
+source "drivers/cpu/Kconfig"
+
 source "drivers/demo/Kconfig"
 
 source "drivers/pci/Kconfig"

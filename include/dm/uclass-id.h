@@ -45,6 +45,7 @@ enum uclass_id {
 	UCLASS_USB_HUB,		/* USB hub */
 	UCLASS_USB_DEV_GENERIC,	/* USB generic device */
 	UCLASS_MASS_STORAGE,	/* Mass storage device */
+	UCLASS_CPU,		/* CPU, typically part of an SoC */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
