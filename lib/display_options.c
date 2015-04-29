@@ -7,6 +7,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <div64.h>
 #include <inttypes.h>
 #include <version.h>
 #include <linux/ctype.h>
@@ -20,6 +21,47 @@ int display_options (void)
 	printf ("\n\n%s\n\n", version_string);
 #endif
 	return 0;
+}
+
+void print_freq(uint64_t freq, const char *s)
+{
+	unsigned long m = 0, n;
+	uint32_t f;
+	static const char names[] = {'G', 'M', 'K'};
+	unsigned long d = 1e9;
+	char c = 0;
+	unsigned int i;
+
+	for (i = 0; i < ARRAY_SIZE(names); i++, d /= 1000) {
+		if (freq >= d) {
+			c = names[i];
+			break;
+		}
+	}
+
+	if (!c) {
+		printf("%" PRIu64 " Hz%s", freq, s);
+		return;
+	}
+
+	f = do_div(freq, d);
+	n = freq;
+
+	/* If there's a remainder, show the first few digits */
+	if (f) {
+		m = f;
+		while (m > 1000)
+			m /= 10;
+		while (m && !(m % 10))
+			m /= 10;
+		if (m >= 100)
+			m = (m / 10) + (m % 100 >= 50);
+	}
+
+	printf("%lu", n);
+	if (m)
+		printf(".%ld", m);
+	printf(" %cHz%s", c, s);
 }
 
 void print_size(uint64_t size, const char *s)

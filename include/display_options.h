@@ -23,6 +23,17 @@
 void print_size(uint64_t size, const char *suffix);
 
 /**
+ * print_freq() - Print a frequency with a suffix
+ *
+ * Print frequencies as "x.xx GHz", "xxx KHz", etc as needed; allow for
+ * optional trailing string (like "\n")
+ *
+ * @freq:	Frequency to print in Hz
+ * @suffix	String to print after the frequency
+ */
+void print_freq(uint64_t freq, const char *suffix);
+
+/**
  * print_buffer() - Print data buffer in hex and ascii form
  *
  * Data reads are buffered so that each memory address is only read once.
