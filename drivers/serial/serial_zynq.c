@@ -53,7 +53,7 @@ static void uart_zynq_serial_setbrg(const int port)
 	struct uart_zynq *regs = uart_zynq_ports[port];
 
 	/* Covering case where input clock is so slow */
-	if (clock < 1000000 && gd->baudrate > 9600)
+	if (clock < 1000000 && gd->baudrate > 4800)
 		gd->baudrate = 4800;
 
 	baud = gd->baudrate;
