@@ -151,6 +151,11 @@ static inline int flag_is_changeable_p(uint32_t flag)
 	return ((f1^f2) & flag) != 0;
 }
 
+static inline void mfence(void)
+{
+	__asm__ __volatile__("mfence" : : : "memory");
+}
+
 /**
  * cpu_enable_paging_pae() - Enable PAE-paging
  *
