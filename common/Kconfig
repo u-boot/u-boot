@@ -31,6 +31,14 @@ config CMD_CONSOLE
 	help
 	  Print console devices and information.
 
+config CMD_CPU
+	bool "cpu"
+	help
+	  Print information about available CPUs. This normally shows the
+	  number of CPUs, type (e.g. manufacturer, architecture, product or
+	  internal name) and clock frequency. Other information may be
+	  available depending on the CPU driver.
+
 config CMD_LICENSE
 	bool "license"
 	help
