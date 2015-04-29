@@ -48,9 +48,15 @@ static void uart_zynq_serial_setbrg(const int port)
 	/* Calculation results. */
 	unsigned int calc_bauderror, bdiv, bgen;
 	unsigned long calc_baud = 0;
-	unsigned long baud = gd->baudrate;
+	unsigned long baud;
 	unsigned long clock = get_uart_clk(port);
 	struct uart_zynq *regs = uart_zynq_ports[port];
+
+	/* Covering case where input clock is so slow */
+	if (clock < 1000000 && gd->baudrate > 4800)
+		gd->baudrate = 4800;
+
+	baud = gd->baudrate;
 
 	/*                master clock
 	 * Baud rate = ------------------

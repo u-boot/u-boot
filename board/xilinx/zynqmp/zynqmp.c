@@ -56,14 +56,18 @@ int board_mmc_init(bd_t *bd)
 {
 	int ret = 0;
 
+	u32 ver = zynqmp_get_silicon_version();
+
+	if (ver != ZYNQMP_CSU_VERSION_VELOCE) {
 #if defined(CONFIG_ZYNQ_SDHCI)
 # if defined(CONFIG_ZYNQ_SDHCI0)
-	ret = zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR0);
+		ret = zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR0);
 # endif
 # if defined(CONFIG_ZYNQ_SDHCI1)
-	ret |= zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR1);
+		ret |= zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR1);
 # endif
 #endif
+	}
 
 	return ret;
 }
@@ -79,6 +83,7 @@ int board_late_init(void)
 
 	switch (bootmode) {
 	case SD_MODE:
+	case EMMC_MODE:
 		setenv("modeboot", "sdboot");
 		break;
 	default:

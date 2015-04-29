@@ -39,11 +39,12 @@ dtb-$(CONFIG_ARCH_UNIPHIER) += \
 	uniphier-ph1-pro4-ref.dtb \
 	uniphier-ph1-ld4-ref.dtb \
 	uniphier-ph1-sld8-ref.dtb
-dtb-$(CONFIG_ZYNQ) += zynq-zc702.dtb \
+dtb-$(CONFIG_ARCH_ZYNQ) += zynq-zc702.dtb \
 	zynq-zc706.dtb \
 	zynq-zed.dtb \
 	zynq-zybo.dtb \
 	zynq-microzed.dtb \
+	zynq-picozed.dtb \
 	zynq-zc770-xm010.dtb \
 	zynq-zc770-xm012.dtb \
 	zynq-zc770-xm013.dtb

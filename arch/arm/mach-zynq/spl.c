@@ -85,6 +85,6 @@ __weak void ps7_init(void)
 {
 	/*
 	 * This function is overridden by the one in
-	 * board/xilinx/zynq/ps7_init.c, if it exists.
+	 * board/xilinx/zynq/ps7_init_gpl.c, if it exists.
 	 */
 }
