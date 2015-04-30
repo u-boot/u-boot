@@ -81,6 +81,7 @@
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+#define CONFIG_CONSOLE_MUX
 
 /* USB */
 #define CONFIG_CMD_USB
@@ -91,6 +92,9 @@
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_MXC_USB_FLAGS		0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+#define CONFIG_USB_KEYBOARD
+#define CONFIG_SYS_USB_EVENT_POLL
+#define CONFIG_PREBOOT			"usb start"
 
 #define CONFIG_SYS_NO_FLASH
 
@@ -113,6 +117,9 @@
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"stdin=serial,usbkbd\0" \
+	"stdout=serial,vga\0" \
+	"stderr=serial,vga\0" \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"fdtfile=undefined\0" \
