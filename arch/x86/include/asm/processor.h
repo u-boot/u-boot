@@ -23,6 +23,9 @@
 
 #define X86_GDT_SIZE		(X86_GDT_NUM_ENTRIES * X86_GDT_ENTRY_SIZE)
 
+/* Length of the public header on Intel microcode blobs */
+#define UCODE_HEADER_LEN	0x30
+
 #ifndef __ASSEMBLY__
 
 /*

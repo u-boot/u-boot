@@ -7,9 +7,6 @@
 #ifndef __ASM_ARCH_MICROCODE_H
 #define __ASM_ARCH_MICROCODE_H
 
-/* Length of the public header on Intel microcode blobs */
-#define UCODE_HEADER_LEN	0x30
-
 #ifndef __ASSEMBLY__
 
 /**
