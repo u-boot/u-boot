@@ -18,9 +18,11 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
+#include <asm/arch/mxc_hdmi.h>
 #include <asm/errno.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/video.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
@@ -159,10 +161,107 @@ int board_eth_init(bd_t *bis)
 	return cpu_eth_init(bis);
 }
 
+#ifdef CONFIG_VIDEO_IPUV3
+static void do_enable_hdmi(struct display_info_t const *dev)
+{
+	imx_enable_hdmi_phy();
+}
+
+struct display_info_t const displays[] = {
+	{
+		.bus	= -1,
+		.addr	= 0,
+		.pixfmt	= IPU_PIX_FMT_RGB24,
+		.detect	= detect_hdmi,
+		.enable	= do_enable_hdmi,
+		.mode	= {
+			.name           = "HDMI",
+			/* 1024x768@60Hz (VESA)*/
+			.refresh        = 60,
+			.xres           = 1024,
+			.yres           = 768,
+			.pixclock       = 15384,
+			.left_margin    = 160,
+			.right_margin   = 24,
+			.upper_margin   = 29,
+			.lower_margin   = 3,
+			.hsync_len      = 136,
+			.vsync_len      = 6,
+			.sync           = FB_SYNC_EXT,
+			.vmode          = FB_VMODE_NONINTERLACED
+		}
+	}
+};
+
+size_t display_count = ARRAY_SIZE(displays);
+
+static int setup_display(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	int reg;
+	int timeout = 100000;
+
+	enable_ipu_clock();
+	imx_setup_hdmi();
+
+	/* set video pll to 455MHz (24MHz * (37+11/12) / 2) */
+	setbits_le32(&ccm->analog_pll_video, BM_ANADIG_PLL_VIDEO_POWERDOWN);
+
+	reg = readl(&ccm->analog_pll_video);
+	reg &= ~BM_ANADIG_PLL_VIDEO_DIV_SELECT;
+	reg |= BF_ANADIG_PLL_VIDEO_DIV_SELECT(37);
+	reg &= ~BM_ANADIG_PLL_VIDEO_POST_DIV_SELECT;
+	reg |= BF_ANADIG_PLL_VIDEO_POST_DIV_SELECT(1);
+	writel(reg, &ccm->analog_pll_video);
+
+	writel(BF_ANADIG_PLL_VIDEO_NUM_A(11), &ccm->analog_pll_video_num);
+	writel(BF_ANADIG_PLL_VIDEO_DENOM_B(12), &ccm->analog_pll_video_denom);
+
+	reg &= ~BM_ANADIG_PLL_VIDEO_POWERDOWN;
+	writel(reg, &ccm->analog_pll_video);
+
+	while (timeout--)
+		if (readl(&ccm->analog_pll_video) & BM_ANADIG_PLL_VIDEO_LOCK)
+			break;
+	if (timeout < 0) {
+		printf("Warning: video pll lock timeout!\n");
+		return -ETIMEDOUT;
+	}
+
+	reg = readl(&ccm->analog_pll_video);
+	reg |= BM_ANADIG_PLL_VIDEO_ENABLE;
+	reg &= ~BM_ANADIG_PLL_VIDEO_BYPASS;
+	writel(reg, &ccm->analog_pll_video);
+
+	/* gate ipu1_di0_clk */
+	clrbits_le32(&ccm->CCGR3, MXC_CCM_CCGR3_LDB_DI0_MASK);
+
+	/* select video_pll clock / 7  for ipu1_di0_clk -> 65MHz pixclock */
+	reg = readl(&ccm->chsccdr);
+	reg &= ~(MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_MASK |
+		 MXC_CCM_CHSCCDR_IPU1_DI0_PODF_MASK |
+		 MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_MASK);
+	reg |= (2 << MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_OFFSET) |
+	       (6 << MXC_CCM_CHSCCDR_IPU1_DI0_PODF_OFFSET) |
+	       (0 << MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
+	writel(reg, &ccm->chsccdr);
+
+	/* enable ipu1_di0_clk */
+	setbits_le32(&ccm->CCGR3, MXC_CCM_CCGR3_LDB_DI0_MASK);
+
+	return 0;
+}
+#endif /* CONFIG_VIDEO_IPUV3 */
+
 int board_early_init_f(void)
 {
+	int ret = 0;
 	setup_iomux_uart();
-	return 0;
+
+#ifdef CONFIG_VIDEO_IPUV3
+	ret = setup_display();
+#endif
+	return ret;
 }
 
 int board_init(void)
