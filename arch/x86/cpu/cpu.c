@@ -21,6 +21,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <cpu.h>
+#include <dm.h>
 #include <errno.h>
 #include <malloc.h>
 #include <asm/control_regs.h>
@@ -518,6 +520,16 @@ char *cpu_get_name(char *name)
 	return ptr;
 }
 
+int x86_cpu_get_desc(struct udevice *dev, char *buf, int size)
+{
+	if (size < CPU_MAX_NAME_LEN)
+		return -ENOSPC;
+
+	cpu_get_name(buf);
+
+	return 0;
+}
+
 int default_print_cpuinfo(void)
 {
 	printf("CPU: %s, vendor %s, device %xh\n",
@@ -600,3 +612,29 @@ int last_stage_init(void)
 	return 0;
 }
 #endif
+
+__weak int x86_init_cpus(void)
+{
+	return 0;
+}
+
+int cpu_init_r(void)
+{
+	return x86_init_cpus();
+}
+
+static const struct cpu_ops cpu_x86_ops = {
+	.get_desc	= x86_cpu_get_desc,
+};
+
+static const struct udevice_id cpu_x86_ids[] = {
+	{ .compatible = "cpu-x86" },
+	{ }
+};
+
+U_BOOT_DRIVER(cpu_x86_drv) = {
+	.name		= "cpu_x86",
+	.id		= UCLASS_CPU,
+	.of_match	= cpu_x86_ids,
+	.ops		= &cpu_x86_ops,
+};
