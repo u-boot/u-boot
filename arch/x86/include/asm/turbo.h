@@ -12,9 +12,6 @@
 #define CPUID_LEAF_PM		6
 #define PM_CAP_TURBO_MODE	(1 << 1)
 
-#define MSR_IA32_MISC_ENABLES	0x1a0
-#define H_MISC_DISABLE_TURBO	(1 << 6)
-
 enum {
 	TURBO_UNKNOWN,
 	TURBO_UNAVAILABLE,

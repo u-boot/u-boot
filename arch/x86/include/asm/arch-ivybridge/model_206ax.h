@@ -37,7 +37,6 @@
 #define MSR_MISC_PWR_MGMT		0x1aa
 #define  MISC_PWR_MGMT_EIST_HW_DIS	(1 << 0)
 #define MSR_TURBO_RATIO_LIMIT		0x1ad
-#define MSR_POWER_CTL			0x1fc
 
 #define MSR_PKGC3_IRTL			0x60a
 #define MSR_PKGC6_IRTL			0x60b
@@ -63,7 +62,6 @@
 #define MSR_PP1_CURRENT_CONFIG		0x602
 #define  PP1_CURRENT_LIMIT_SNB		(35 << 3) /* 35 A */
 #define  PP1_CURRENT_LIMIT_IVB		(50 << 3) /* 50 A */
-#define MSR_PKG_POWER_SKU_UNIT		0x606
 #define MSR_PKG_POWER_SKU		0x614
 
 #define IVB_CONFIG_TDP_MIN_CPUID	0x306a2
