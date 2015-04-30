@@ -31,6 +31,8 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <spl.h>
+#include <usb.h>
+#include <usb/ehci-fsl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -52,6 +54,7 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
 
 #define ETH_PHY_RESET	IMX_GPIO_NR(4, 15)
+#define USB_H1_VBUS	IMX_GPIO_NR(1, 0)
 
 int dram_init(void)
 {
@@ -77,6 +80,10 @@ static iomux_v3_cfg_t const hb_cbi_sense[] = {
 	/* These pins are for sensing if it is a CuBox-i or a HummingBoard */
 	IOMUX_PADS(PAD_KEY_ROW1__GPIO4_IO09  | MUX_PAD_CTRL(UART_PAD_CTRL)),
 	IOMUX_PADS(PAD_EIM_DA4__GPIO3_IO04   | MUX_PAD_CTRL(UART_PAD_CTRL)),
+};
+
+static iomux_v3_cfg_t const usb_pads[] = {
+	IOMUX_PADS(PAD_GPIO_0__GPIO1_IO00 | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 static void setup_iomux_uart(void)
@@ -253,6 +260,21 @@ static int setup_display(void)
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
+#ifdef CONFIG_USB_EHCI_MX6
+static void setup_usb(void)
+{
+	SETUP_IOMUX_PADS(usb_pads);
+}
+
+int board_ehci_hcd_init(int port)
+{
+	if (port == 1)
+		gpio_direction_output(USB_H1_VBUS, 1);
+
+	return 0;
+}
+#endif
+
 int board_early_init_f(void)
 {
 	int ret = 0;
@@ -260,6 +282,10 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_VIDEO_IPUV3
 	ret = setup_display();
+#endif
+
+#ifdef CONFIG_USB_EHCI_MX6
+	setup_usb();
 #endif
 	return ret;
 }
