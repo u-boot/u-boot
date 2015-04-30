@@ -68,6 +68,26 @@
 		stdout-path = "/serial";
 	};
 
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "intel,baytrail-cpu";
+			reg = <0>;
+			intel,apic-id = <0>;
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "intel,baytrail-cpu";
+			reg = <1>;
+			intel,apic-id = <4>;
+		};
+
+	};
+
 	spi {
 		#address-cells = <1>;
 		#size-cells = <0>;
