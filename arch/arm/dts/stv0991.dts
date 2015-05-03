@@ -1,0 +1,23 @@
+/dts-v1/;
+
+/ {
+	model = "ST STV0991 application board";
+	compatible = "st,stv0991";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	chosen {
+		stdout-path = &uart0;
+	};
+
+	memory {
+		device_type="memory";
+		reg = <0x0 0x198000>;
+	};
+
+	uart0: serial@0x80406000 {
+		compatible = "arm,pl011", "arm,primecell";
+		reg = <0x80406000 0x1000>;
+		clock = <2700000>;
+	};
+};

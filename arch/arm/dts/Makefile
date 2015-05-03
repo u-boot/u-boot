@@ -53,6 +53,7 @@ dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_arria5_socdk.dtb			\
 	socfpga_cyclone5_socdk.dtb			\
 	socfpga_cyclone5_socrates.dtb
+dtb-$(CONFIG_TARGET_STV0991) += stv0991.dtb
 
 dtb-$(CONFIG_LS102XA) += ls1021a-qds.dtb \
 	ls1021a-twr.dtb

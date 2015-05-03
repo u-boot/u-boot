@@ -79,5 +79,7 @@
 #define CONFIG_AUTOBOOT_STOP_STR               " "
 #define CONFIG_AUTOBOOT_PROMPT                 \
 	"Hit SPACE in %d seconds to stop autoboot.\n", bootdelay
-
+#define CONFIG_OF_SEPARATE
+#define CONFIG_OF_CONTROL
+#define CONFIG_OF_LIBFDT
 #endif /* __CONFIG_H */
