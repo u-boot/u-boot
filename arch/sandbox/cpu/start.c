@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <os.h>
 #include <cli.h>
 #include <malloc.h>
