@@ -79,7 +79,7 @@
 	i2c@12e10000 { /* i2c9 */
 		clock-frequency = <400000>;
                 tpm@20 {
-                        compatible = "infineon,slb9645-tpm";
+                        compatible = "infineon,slb9645tt";
                         reg = <0x20>;
 		};
 	};
