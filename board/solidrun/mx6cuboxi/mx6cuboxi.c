@@ -25,6 +25,7 @@
 #include <asm/imx-common/video.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
+#include <malloc.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/arch/crm_regs.h>
@@ -152,9 +153,14 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
+/* On Cuboxi Ethernet PHY can be located at addresses 0x0 or 0x4 */
+#define ETH_PHY_MASK	((1 << 0x0) | (1 << 0x4))
+
 int board_eth_init(bd_t *bis)
 {
 	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	struct mii_dev *bus;
+	struct phy_device *phydev;
 
 	int ret = enable_fec_anatop_clock(ENET_25MHZ);
 	if (ret)
@@ -165,7 +171,28 @@ int board_eth_init(bd_t *bis)
 
 	setup_iomux_enet();
 
-	return cpu_eth_init(bis);
+	bus = fec_get_miibus(IMX_FEC_BASE, -1);
+	if (!bus)
+		return -EINVAL;
+
+	phydev = phy_find_by_mask(bus, ETH_PHY_MASK, PHY_INTERFACE_MODE_RGMII);
+	if (!phydev) {
+		ret = -EINVAL;
+		goto free_bus;
+	}
+
+	debug("using phy at address %d\n", phydev->addr);
+	ret = fec_probe(bis, -1, IMX_FEC_BASE, bus, phydev);
+	if (ret)
+		goto free_phydev;
+
+	return 0;
+
+free_phydev:
+	free(phydev);
+free_bus:
+	free(bus);
+	return ret;
 }
 
 #ifdef CONFIG_VIDEO_IPUV3
