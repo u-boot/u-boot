@@ -152,7 +152,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 			else
 				x = lb.uc[i] = *(volatile uint8_t *)data;
 #ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
-			printf(" %0*" PRIx64, width * 2, x);
+			printf(" %0*llx", width * 2, (long long)x);
 #else
 			printf(" %0*x", width * 2, x);
 #endif
