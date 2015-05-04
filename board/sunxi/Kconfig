@@ -1,21 +1,40 @@
 if ARCH_SUNXI
 
+# Note only one of these may be selected at a time! But hidden choices are
+# not supported by Kconfig
+config SUNXI_GEN_SUN4I
+	bool
+	---help---
+	Select this for sunxi SoCs which have resets and clocks set up
+	as the original A10 (mach-sun4i).
+
+config SUNXI_GEN_SUN6I
+	bool
+	---help---
+	Select this for sunxi SoCs which have sun6i like periphery, like
+	separate ahb reset control registers, custom pmic bus, new style
+	watchdog, etc.
+
+
 choice
 	prompt "Sunxi SoC Variant"
 
 config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
 	select CPU_V7
+	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 
 config MACH_SUN5I
 	bool "sun5i (Allwinner A13)"
 	select CPU_V7
+	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 
 config MACH_SUN6I
 	bool "sun6i (Allwinner A31)"
 	select CPU_V7
+	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
 config MACH_SUN7I
@@ -23,15 +42,29 @@ config MACH_SUN7I
 	select CPU_V7
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
+	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
-config MACH_SUN8I
+config MACH_SUN8I_A23
 	bool "sun8i (Allwinner A23)"
 	select CPU_V7
+	select SUNXI_GEN_SUN6I
+	select SUPPORT_SPL
+
+config MACH_SUN8I_A33
+	bool "sun8i (Allwinner A33)"
+	select CPU_V7
+	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
 endchoice
+
+# The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
+config MACH_SUN8I
+	bool
+	default y if MACH_SUN8I_A23 || MACH_SUN8I_A33
+
 
 config DRAM_CLK
 	int "sunxi dram clock speed"
@@ -176,9 +209,6 @@ config UART0_PORT_F
 	at the same time, the system can be only booted in the FEL mode.
 	Only enable this if you really know what you are doing.
 
-config FDTFILE
-	string "Default fdtfile env setting for this board"
-
 config OLD_SUNXI_KERNEL_COMPAT
 	boolean "Enable workarounds for booting old kernels"
 	default n
@@ -306,6 +336,12 @@ config I2C4_ENABLE
 	---help---
 	See I2C0_ENABLE help text.
 endif
+
+config AXP_GPIO
+	boolean "Enable support for gpio-s on axp PMICs"
+	default n
+	---help---
+	Say Y here to enable support for the gpio pins of the axp PMIC ICs.
 
 config VIDEO
 	boolean "Enable graphical uboot console on HDMI, LCD or VGA"
@@ -506,5 +542,17 @@ config GMAC_TX_DELAY
 	default 0
 	---help---
 	Set the GMAC Transmit Clock Delay Chain value.
+
+config NET
+	default y
+
+config NETDEVICES
+	default y
+
+config DM_ETH
+	default y
+
+config DM_SERIAL
+	default y
 
 endif

@@ -17,6 +17,8 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #endif
 
+#define CONFIG_SUNXI_USB_PHYS	3
+
 /*
  * Include common sunxi configuration where most the settings are
  */

@@ -1,7 +1,8 @@
 /*
- * Copyright (C) 2014 Roman Byshko
+ * Sunxi ehci glue
  *
- * Roman Byshko <rbyshko@gmail.com>
+ * Copyright (C) 2015 Hans de Goede <hdegoede@redhat.com>
+ * Copyright (C) 2014 Roman Byshko <rbyshko@gmail.com>
  *
  * Based on code from
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
@@ -9,23 +10,32 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <asm/arch/usbc.h>
 #include <common.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/usb_phy.h>
+#include <asm/io.h>
 #include "ehci.h"
 
 int ehci_hcd_init(int index, enum usb_init_type init, struct ehci_hccr **hccr,
 		struct ehci_hcor **hcor)
 {
-	int err;
+	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	int ahb_gate_offset;
 
-	err = sunxi_usbc_request_resources(index + 1);
-	if (err)
-		return err;
+	ahb_gate_offset = index ? AHB_GATE_OFFSET_USB_EHCI1 :
+				  AHB_GATE_OFFSET_USB_EHCI0;
+	setbits_le32(&ccm->ahb_gate0, 1 << ahb_gate_offset);
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+	setbits_le32(&ccm->ahb_reset0_cfg, 1 << ahb_gate_offset);
+#endif
 
-	sunxi_usbc_enable(index + 1);
-	sunxi_usbc_vbus_enable(index + 1);
+	sunxi_usb_phy_init(index + 1);
+	sunxi_usb_phy_power_on(index + 1);
 
-	*hccr = sunxi_usbc_get_io_base(index + 1);
+	if (index == 0)
+		*hccr = (void *)SUNXI_USB1_BASE;
+	else
+		*hccr = (void *)SUNXI_USB2_BASE;
 
 	*hcor = (struct ehci_hcor *)((uint32_t) *hccr
 				+ HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
@@ -39,8 +49,18 @@ int ehci_hcd_init(int index, enum usb_init_type init, struct ehci_hccr **hccr,
 
 int ehci_hcd_stop(int index)
 {
-	sunxi_usbc_vbus_disable(index + 1);
-	sunxi_usbc_disable(index + 1);
+	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	int ahb_gate_offset;
 
-	return sunxi_usbc_free_resources(index + 1);
+	sunxi_usb_phy_power_off(index + 1);
+	sunxi_usb_phy_exit(index + 1);
+
+	ahb_gate_offset = index ? AHB_GATE_OFFSET_USB_EHCI1 :
+				  AHB_GATE_OFFSET_USB_EHCI0;
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+	clrbits_le32(&ccm->ahb_reset0_cfg, 1 << ahb_gate_offset);
+#endif
+	clrbits_le32(&ccm->ahb_gate0, 1 << ahb_gate_offset);
+
+	return 0;
 }

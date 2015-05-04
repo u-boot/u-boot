@@ -84,7 +84,7 @@ static int sunxi_hdmi_hpd_detect(int hpd_delay)
 			CCM_HDMI_CTRL_PLL3);
 
 	/* Set ahb gating to pass */
-#ifdef CONFIG_MACH_SUN6I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI);
 #endif
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_HDMI);
@@ -113,7 +113,7 @@ static void sunxi_hdmi_shutdown(void)
 	clrbits_le32(&hdmi->ctrl, SUNXI_HDMI_CTRL_ENABLE);
 	clrbits_le32(&ccm->hdmi_clk_cfg, CCM_HDMI_CTRL_GATE);
 	clrbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_HDMI);
-#ifdef CONFIG_MACH_SUN6I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	clrbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_HDMI);
 #endif
 	clock_set_pll3(0);
@@ -404,7 +404,7 @@ static void sunxi_composer_init(void)
 
 	sunxi_frontend_init();
 
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	/* Reset off */
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DE_BE0);
 #endif
@@ -549,7 +549,7 @@ static void sunxi_lcdc_init(void)
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
 
 	/* Reset off */
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_LCD0);
 #else
 	setbits_le32(&ccm->lcd0_ch0_clk_cfg, CCM_LCD_CH0_CTRL_RST);
@@ -600,19 +600,19 @@ static void sunxi_lcdc_panel_enable(void)
 	 * white while the lcd inits.
 	 */
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_EN);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "lcd_backlight_enable");
 		gpio_direction_output(pin, 0);
 	}
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_PWM);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "lcd_backlight_pwm");
 		gpio_direction_output(pin, PWM_OFF);
 	}
 
 	reset_pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_RESET);
-	if (reset_pin != -1) {
+	if (reset_pin >= 0) {
 		gpio_request(reset_pin, "lcd_reset");
 		gpio_direction_output(reset_pin, 0); /* Assert reset */
 	}
@@ -620,12 +620,12 @@ static void sunxi_lcdc_panel_enable(void)
 	/* Give the backlight some time to turn off and power up the panel. */
 	mdelay(40);
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_POWER);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "lcd_power");
 		gpio_direction_output(pin, 1);
 	}
 
-	if (reset_pin != -1)
+	if (reset_pin >= 0)
 		gpio_direction_output(reset_pin, 1); /* De-assert reset */
 }
 
@@ -640,11 +640,11 @@ static void sunxi_lcdc_backlight_enable(void)
 	mdelay(40);
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_EN);
-	if (pin != -1)
+	if (pin >= 0)
 		gpio_direction_output(pin, 1);
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_BL_PWM);
-	if (pin != -1)
+	if (pin >= 0)
 		gpio_direction_output(pin, PWM_ON);
 }
 
@@ -942,11 +942,14 @@ static void sunxi_vga_enable(void)
 
 static void sunxi_drc_init(void)
 {
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	/* On sun6i the drc must be clocked even when in pass-through mode */
+#ifdef CONFIG_MACH_SUN8I_A33
+	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_SAT);
+#endif
 	setbits_le32(&ccm->ahb_reset1_cfg, 1 << AHB_RESET_OFFSET_DRC0);
 	clock_set_de_mod_clock(&ccm->iep_drc0_clk_cfg, 300000000);
 #endif
@@ -958,7 +961,7 @@ static void sunxi_vga_external_dac_enable(void)
 	int pin;
 
 	pin = sunxi_name_to_gpio(CONFIG_VIDEO_VGA_EXTERNAL_DAC_EN);
-	if (pin != -1) {
+	if (pin >= 0) {
 		gpio_request(pin, "vga_enable");
 		gpio_direction_output(pin, 1);
 	}

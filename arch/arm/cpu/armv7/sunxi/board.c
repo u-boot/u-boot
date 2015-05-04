@@ -12,8 +12,6 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <netdev.h>
-#include <miiphy.h>
 #include <serial.h>
 #ifdef CONFIG_SPL_BUILD
 #include <spl.h>
@@ -89,13 +87,14 @@ void spl_board_load_image(void)
 
 void s_init(void)
 {
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_A23
 	/* Magic (undocmented) value taken from boot0, without this DRAM
 	 * access gets messed up (seems cache related) */
 	setbits_le32(SUNXI_SRAMC_BASE + 0x44, 0x1800);
 #endif
-#if !defined CONFIG_SPL_BUILD && (defined CONFIG_MACH_SUN7I || \
-		defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I)
+#if defined CONFIG_MACH_SUN6I || \
+    defined CONFIG_MACH_SUN7I || \
+    defined CONFIG_MACH_SUN8I
 	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
 	asm volatile(
 		"mrc p15, 0, r0, c1, c0, 1\n"
@@ -172,7 +171,7 @@ void board_init_f(ulong dummy)
 
 void reset_cpu(ulong addr)
 {
-#if defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN5I) || defined(CONFIG_MACH_SUN7I)
+#ifdef CONFIG_SUNXI_GEN_SUN4I
 	static const struct sunxi_wdog *wdog =
 		 &((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
 
@@ -184,7 +183,8 @@ void reset_cpu(ulong addr)
 		/* sun5i sometimes gets stuck without this */
 		writel(WDT_MODE_RESET_EN | WDT_MODE_EN, &wdog->mode);
 	}
-#else /* CONFIG_MACH_SUN6I || CONFIG_MACH_SUN8I || .. */
+#endif
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	static const struct sunxi_wdog *wdog =
 		 ((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
 
@@ -215,14 +215,6 @@ int cpu_eth_init(bd_t *bis)
 #ifdef CONFIG_MACPWR
 	gpio_direction_output(CONFIG_MACPWR, 1);
 	mdelay(200);
-#endif
-
-#ifdef CONFIG_SUNXI_EMAC
-	rc = sunxi_emac_initialize(bis);
-	if (rc < 0) {
-		printf("sunxi: failed to initialize emac\n");
-		return rc;
-	}
 #endif
 
 #ifdef CONFIG_SUNXI_GMAC

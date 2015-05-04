@@ -38,6 +38,7 @@ F:	configs/qt840a_defconfig
 F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
 F:	configs/Ippo_q8h_v1_2_defconfig
+F:	configs/Ippo_q8h_v1_2_a33_1024x600_defconfig
 
 A20-OLINUXINO-LIME BOARD
 M:	FUKAUMI Naoki <naobsd@gmail.com>
@@ -58,6 +59,11 @@ AMPE A76 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
 S:	Maintained
 F:	configs/Ampe_A76_defconfig
+
+Astar MID756 BOARD
+M:	VishnuPatekar <vishnupatekar0510@gmail.com>
+S:	Maintained
+F:	configs/Astar_MID756_defconfig
 
 COLOMBUS BOARD
 M:	Maxime Ripard <maxime.ripard@free-electrons.com>

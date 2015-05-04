@@ -632,6 +632,11 @@ config TARGET_SOCFPGA_CYCLONE5
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
+	select DM
+	select DM_GPIO
+	select OF_CONTROL
+	select OF_SEPARATE
+	select SPL_DISABLE_OF_CONTROL
 
 config TARGET_SNOWBALL
 	bool "Support snowball"

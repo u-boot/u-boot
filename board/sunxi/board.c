@@ -28,7 +28,8 @@
 #include <asm/arch/dram.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
-#include <asm/arch/usbc.h>
+#include <asm/arch/usb_phy.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <linux/usb/musb.h>
 #include <net.h>
@@ -37,6 +38,41 @@
 /* So that we can use pin names in Kconfig and sunxi_name_to_gpio() */
 int soft_i2c_gpio_sda;
 int soft_i2c_gpio_scl;
+
+static int soft_i2c_board_init(void)
+{
+	int ret;
+
+	soft_i2c_gpio_sda = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SDA);
+	if (soft_i2c_gpio_sda < 0) {
+		printf("Error invalid soft i2c sda pin: '%s', err %d\n",
+		       CONFIG_VIDEO_LCD_PANEL_I2C_SDA, soft_i2c_gpio_sda);
+		return soft_i2c_gpio_sda;
+	}
+	ret = gpio_request(soft_i2c_gpio_sda, "soft-i2c-sda");
+	if (ret) {
+		printf("Error requesting soft i2c sda pin: '%s', err %d\n",
+		       CONFIG_VIDEO_LCD_PANEL_I2C_SDA, ret);
+		return ret;
+	}
+
+	soft_i2c_gpio_scl = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SCL);
+	if (soft_i2c_gpio_scl < 0) {
+		printf("Error invalid soft i2c scl pin: '%s', err %d\n",
+		       CONFIG_VIDEO_LCD_PANEL_I2C_SCL, soft_i2c_gpio_scl);
+		return soft_i2c_gpio_scl;
+	}
+	ret = gpio_request(soft_i2c_gpio_scl, "soft-i2c-scl");
+	if (ret) {
+		printf("Error requesting soft i2c scl pin: '%s', err %d\n",
+		       CONFIG_VIDEO_LCD_PANEL_I2C_SCL, ret);
+		return ret;
+	}
+
+	return 0;
+}
+#else
+static int soft_i2c_board_init(void) { return 0; }
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -44,7 +80,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* add board specific code here */
 int board_init(void)
 {
-	int id_pfr1;
+	int id_pfr1, ret;
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_0 + 0x100);
 
@@ -57,7 +93,12 @@ int board_init(void)
 		asm volatile("mcr p15, 0, %0, c14, c0, 0" : : "r"(24000000));
 	}
 
-	return 0;
+	ret = axp_gpio_init();
+	if (ret)
+		return ret;
+
+	/* Uses dm gpio code so do this here and not in i2c_init_board() */
+	return soft_i2c_board_init();
 }
 
 int dram_init(void)
@@ -351,11 +392,6 @@ void i2c_init_board(void)
 	clock_twi_onoff(4, 1);
 #endif
 #endif
-
-#if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
-	soft_i2c_gpio_sda = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SDA);
-	soft_i2c_gpio_scl = sunxi_name_to_gpio(CONFIG_VIDEO_LCD_PANEL_I2C_SCL);
-#endif
 }
 
 #ifdef CONFIG_SPL_BUILD
@@ -416,6 +452,8 @@ void sunxi_board_init(void)
 #endif
 
 #if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
+extern const struct musb_platform_ops sunxi_musb_ops;
+
 static struct musb_hdrc_config musb_config = {
 	.multipoint     = 1,
 	.dyn_fifo       = 1,
@@ -471,6 +509,10 @@ int misc_init_r(void)
 			setenv("serial#", serial_string);
 		}
 	}
+
+	ret = sunxi_usb_phy_probe();
+	if (ret)
+		return ret;
 
 #if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
 	musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);

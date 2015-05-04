@@ -13,11 +13,11 @@ int sunxi_gmac_initialize(bd_t *bis)
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	/* Set up clock gating */
-#ifndef CONFIG_MACH_SUN6I
-	setbits_le32(&ccm->ahb_gate1, 0x1 << AHB_GATE_OFFSET_GMAC);
-#else
+#ifdef CONFIG_SUNXI_GEN_SUN6I
 	setbits_le32(&ccm->ahb_reset0_cfg, 0x1 << AHB_RESET_OFFSET_GMAC);
 	setbits_le32(&ccm->ahb_gate0, 0x1 << AHB_GATE_OFFSET_GMAC);
+#else
+	setbits_le32(&ccm->ahb_gate1, 0x1 << AHB_GATE_OFFSET_GMAC);
 #endif
 
 	/* Set MII clock */

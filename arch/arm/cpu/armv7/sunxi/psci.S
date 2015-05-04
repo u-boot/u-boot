@@ -254,7 +254,6 @@ _sunxi_cpu_entry:
 	isb
 
 	bl	_nonsec_init
-	bl	psci_arch_init
 
 	adr	r0, _target_pc
 	ldr	r0, [r0]
