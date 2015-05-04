@@ -115,7 +115,7 @@ struct gpio_desc {
 	unsigned long flags;
 #define GPIOD_REQUESTED		(1 << 0)	/* Requested/claimed */
 #define GPIOD_IS_OUT		(1 << 1)	/* GPIO is an output */
-#define GPIOD_IS_IN		(1 << 2)	/* GPIO is an output */
+#define GPIOD_IS_IN		(1 << 2)	/* GPIO is an input */
 #define GPIOD_ACTIVE_LOW	(1 << 3)	/* value has active low */
 #define GPIOD_IS_OUT_ACTIVE	(1 << 4)	/* set output active */
 
