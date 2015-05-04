@@ -72,8 +72,8 @@
 
 	lcd {
 		compatible = "sandbox,lcd-sdl";
-		xres = <800>;
-		yres = <600>;
+		xres = <1366>;
+		yres = <768>;
 	};
 
 	gpio_a: gpios@0 {
