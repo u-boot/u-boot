@@ -459,6 +459,8 @@ static int process_cmd(struct ec_state *ec,
 	case EC_CMD_MKBP_STATE:
 		len = cros_ec_keyscan(ec, resp_data);
 		break;
+	case EC_CMD_ENTERING_MODE:
+		break;
 	default:
 		printf("   ** Unknown EC command %#02x\n", req_hdr->command);
 		return -1;
