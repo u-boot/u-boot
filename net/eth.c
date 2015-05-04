@@ -538,9 +538,15 @@ static int eth_post_probe(struct udevice *dev)
 		printf("\nWarning: %s using MAC address from ROM\n",
 		       dev->name);
 	} else if (is_zero_ethaddr(pdata->enetaddr)) {
+#ifdef CONFIG_NET_RANDOM_ETHADDR
+		net_random_ethaddr(pdata->enetaddr);
+		printf("\nWarning: %s (eth%d) using random MAC address - %pM\n",
+		       dev->name, dev->seq, pdata->enetaddr);
+#else
 		printf("\nError: %s address not set.\n",
 		       dev->name);
 		return -EINVAL;
+#endif
 	}
 
 	return 0;
@@ -666,9 +672,15 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		printf("\nWarning: %s using MAC address from net device\n",
 		       dev->name);
 	} else if (is_zero_ethaddr(dev->enetaddr)) {
+#ifdef CONFIG_NET_RANDOM_ETHADDR
+		net_random_ethaddr(dev->enetaddr);
+		printf("\nWarning: %s (eth%d) using random MAC address - %pM\n",
+		       dev->name, eth_number, dev->enetaddr);
+#else
 		printf("\nError: %s address not set.\n",
 		       dev->name);
 		return -EINVAL;
+#endif
 	}
 
 	if (dev->write_hwaddr && !eth_mac_skip(eth_number)) {

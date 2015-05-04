@@ -5623,7 +5623,8 @@ o If both the SROM and the environment contain a MAC address, and the
   warning is printed.
 
 o If neither SROM nor the environment contain a MAC address, an error
-  is raised.
+  is raised. If CONFIG_NET_RANDOM_ETHADDR is defined, then in this case
+  a random, locally-assigned MAC is used.
 
 If Ethernet drivers implement the 'write_hwaddr' function, valid MAC addresses
 will be programmed into hardware as part of the initialization process.	 This

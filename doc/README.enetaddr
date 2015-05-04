@@ -37,6 +37,8 @@ Correct flow of setting up the MAC address (summarized):
    environment variable will be used unchanged.
    If the environment variable is not set, it will be initialized from
    eth_device->enetaddr, and a warning will be printed.
+   If both are invalid and CONFIG_NET_RANDOM_ETHADDR is defined, a random,
+   locally-assigned MAC is written to eth_device->enetaddr.
 4. Program the address into hardware if the following conditions are met:
 	a) The relevant driver has a 'write_addr' function
 	b) The user hasn't set an 'ethmacskip' environment variable
