@@ -35,8 +35,6 @@
 /* Add target to build it automatically upon "make" */
 #ifdef CONFIG_SPL
 #define CONFIG_BUILD_TARGET	"u-boot-spl.kwb"
-#else
-#define CONFIG_BUILD_TARGET	"u-boot.kwb"
 #endif
 
 /* end of 16M scrubbed by training in bootrom */
