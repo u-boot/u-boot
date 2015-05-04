@@ -1623,6 +1623,27 @@ int do_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 }
 #endif /* CONFIG_I2C_EDID */
 
+#ifdef CONFIG_DM_I2C
+static void show_bus(struct udevice *bus)
+{
+	struct udevice *dev;
+
+	printf("Bus %d:\t%s", bus->req_seq, bus->name);
+	if (device_active(bus))
+		printf("  (active %d)", bus->seq);
+	printf("\n");
+	for (device_find_first_child(bus, &dev);
+	     dev;
+	     device_find_next_child(&dev)) {
+		struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+
+		printf("   %02x: %s, offset len %x, flags %x\n",
+		       chip->chip_addr, dev->name, chip->offset_len,
+		       chip->flags);
+	}
+}
+#endif
+
 /**
  * do_i2c_show_bus() - Handle the "i2c bus" command-line command
  * @cmdtp:	Command data struct pointer
@@ -1632,20 +1653,30 @@ int do_edid(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
  *
  * Returns zero always.
  */
-#if defined(CONFIG_SYS_I2C)
+#if defined(CONFIG_SYS_I2C) || defined(CONFIG_DM_I2C)
 static int do_i2c_show_bus(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
-	int	i;
-#ifndef CONFIG_SYS_I2C_DIRECT_BUS
-	int	j;
-#endif
-
 	if (argc == 1) {
 		/* show all busses */
+#ifdef CONFIG_DM_I2C
+		struct udevice *bus;
+		struct uclass *uc;
+		int ret;
+
+		ret = uclass_get(UCLASS_I2C, &uc);
+		if (ret)
+			return CMD_RET_FAILURE;
+		uclass_foreach_dev(bus, uc)
+			show_bus(bus);
+#else
+		int i;
+
 		for (i = 0; i < CONFIG_SYS_NUM_I2C_BUSES; i++) {
 			printf("Bus %d:\t%s", i, I2C_ADAP_NR(i)->name);
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
+			int j;
+
 			for (j = 0; j < CONFIG_SYS_I2C_MAX_HOPS; j++) {
 				if (i2c_bus[i].next_hop[j].chip == 0)
 					break;
@@ -1657,15 +1688,30 @@ static int do_i2c_show_bus(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 			printf("\n");
 		}
+#endif
 	} else {
+		int i;
+
 		/* show specific bus */
 		i = simple_strtoul(argv[1], NULL, 10);
+#ifdef CONFIG_DM_I2C
+		struct udevice *bus;
+		int ret;
+
+		ret = uclass_get_device_by_seq(UCLASS_I2C, i, &bus);
+		if (ret) {
+			printf("Invalid bus %d: err=%d\n", i, ret);
+			return CMD_RET_FAILURE;
+		}
+		show_bus(bus);
+#else
 		if (i >= CONFIG_SYS_NUM_I2C_BUSES) {
 			printf("Invalid bus %d\n", i);
 			return -1;
 		}
 		printf("Bus %d:\t%s", i, I2C_ADAP_NR(i)->name);
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
+			int j;
 			for (j = 0; j < CONFIG_SYS_I2C_MAX_HOPS; j++) {
 				if (i2c_bus[i].next_hop[j].chip == 0)
 					break;
@@ -1676,6 +1722,7 @@ static int do_i2c_show_bus(cmd_tbl_t *cmdtp, int flag, int argc,
 			}
 #endif
 		printf("\n");
+#endif
 	}
 
 	return 0;
@@ -1835,7 +1882,7 @@ static int do_i2c_reset(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv
 }
 
 static cmd_tbl_t cmd_i2c_sub[] = {
-#if defined(CONFIG_SYS_I2C)
+#if defined(CONFIG_SYS_I2C) || defined(CONFIG_DM_I2C)
 	U_BOOT_CMD_MKENT(bus, 1, 1, do_i2c_show_bus, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(crc32, 3, 1, do_i2c_crc, "", ""),
@@ -1902,7 +1949,7 @@ static int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 /***************************************************/
 #ifdef CONFIG_SYS_LONGHELP
 static char i2c_help_text[] =
-#if defined(CONFIG_SYS_I2C)
+#if defined(CONFIG_SYS_I2C) || defined(CONFIG_DM_I2C)
 	"bus [muxtype:muxaddr:muxchannel] - show I2C bus info\n"
 #endif
 	"crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
