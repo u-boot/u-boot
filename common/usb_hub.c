@@ -79,7 +79,7 @@ static int usb_get_hub_status(struct usb_device *dev, void *data)
 			data, sizeof(struct usb_hub_status), USB_CNTL_TIMEOUT);
 }
 
-static int usb_get_port_status(struct usb_device *dev, int port, void *data)
+int usb_get_port_status(struct usb_device *dev, int port, void *data)
 {
 	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 			USB_REQ_GET_STATUS, USB_DIR_IN | USB_RT_PORT, 0, port,

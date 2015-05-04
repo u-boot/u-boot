@@ -265,6 +265,7 @@ int usb_kbd_deregister(int force);
 /* routines */
 int usb_init(void); /* initialize the USB Controller */
 int usb_stop(void); /* stop the USB Controller */
+int usb_detect_change(void); /* detect if a USB device has been (un)plugged */
 
 
 int usb_set_protocol(struct usb_device *dev, int ifnum, int protocol);
@@ -290,6 +291,7 @@ int usb_get_class_descriptor(struct usb_device *dev, int ifnum,
 int usb_clear_halt(struct usb_device *dev, int pipe);
 int usb_string(struct usb_device *dev, int index, char *buf, size_t size);
 int usb_set_interface(struct usb_device *dev, int interface, int alternate);
+int usb_get_port_status(struct usb_device *dev, int port, void *data);
 
 /* big endian -> little endian conversion */
 /* some CPUs are already little endian e.g. the ARM920T */

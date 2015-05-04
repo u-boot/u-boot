@@ -148,6 +148,32 @@ int usb_stop(void)
 	return 0;
 }
 
+/******************************************************************************
+ * Detect if a USB device has been plugged or unplugged.
+ */
+int usb_detect_change(void)
+{
+	int i, j;
+	int change = 0;
+
+	for (j = 0; j < USB_MAX_DEVICE; j++) {
+		for (i = 0; i < usb_dev[j].maxchild; i++) {
+			struct usb_port_status status;
+
+			if (usb_get_port_status(&usb_dev[j], i + 1,
+						&status) < 0)
+				/* USB request failed */
+				continue;
+
+			if (le16_to_cpu(status.wPortChange) &
+			    USB_PORT_STAT_C_CONNECTION)
+				change++;
+		}
+	}
+
+	return change;
+}
+
 /*
  * disables the asynch behaviour of the control message. This is used for data
  * transfers that uses the exclusiv access to the control and bulk messages.
