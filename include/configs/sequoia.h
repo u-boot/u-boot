@@ -100,15 +100,6 @@
 #if defined(CONFIG_SYS_RAMBOOT)
 #define CONFIG_ENV_IS_NOWHERE		/* Store env in memory only	*/
 #define CONFIG_ENV_SIZE		(8 << 10)
-/*
- * In RAM-booting version, we have no environment storage. So we need to
- * provide at least preliminary MAC addresses for the 4xx EMAC driver to
- * register the interfaces. Those two addresses are generated via the
- * tools/gen_eth_addr tool and should only be used in a closed laboratory
- * environment.
- */
-#define	CONFIG_ETHADDR		4a:56:49:22:3e:43
-#define	CONFIG_ETH1ADDR		02:93:53:d5:06:98
 #else
 #define CONFIG_ENV_IS_IN_FLASH		/* use FLASH for environ vars	*/
 #endif

@@ -76,9 +76,6 @@
 #define CONFIG_HOSTNAME		blackstamp
 #define CONFIG_ROOTPATH		"/checkout/uClinux-dist/romfs"
 #define CONFIG_SYS_AUTOLOAD		"no"
-
-/* To remove hardcoding and enable MAC storage in EEPROM  */
-/* #define CONFIG_ETHADDR		02:80:ad:20:31:b8 */
 #endif
 
 #define CONFIG_ENV_IS_IN_SPI_FLASH

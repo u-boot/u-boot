@@ -69,8 +69,6 @@
 #endif
 #define CONFIG_HOSTNAME		pr1
 #define CONFIG_TFTP_BLOCKSIZE	4404
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
 
 
 /*

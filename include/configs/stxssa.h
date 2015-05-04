@@ -13,7 +13,7 @@
 /* mpc8560ads board configuration file */
 /* please refer to doc/README.mpc85xx for more info */
 /* make sure you change the MAC address and other network params first,
- * search for CONFIG_ETHADDR,CONFIG_SERVERIP,etc in this file
+ * search for CONFIG_SERVERIP, etc. in this file
  */
 
 #ifndef __CONFIG_H
@@ -377,14 +377,10 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #endif
 
-/*Note: change below for your network setting!!! */
 #if defined(CONFIG_TSEC_ENET) || defined(CONFIG_ETHER_ON_FCC)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR	 00:e0:0c:07:9b:8a
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR  00:e0:0c:07:9b:8b
 #define CONFIG_HAS_ETH2
-#define CONFIG_ETH2ADDR  00:e0:0c:07:9b:8c
 #endif
 
 /*

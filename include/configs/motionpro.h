@@ -85,8 +85,6 @@
 #define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
 #define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
-#define CONFIG_ETHADDR		00:50:C2:40:10:00
-#define CONFIG_OVERWRITE_ETHADDR_ONCE	1
 #define CONFIG_VERSION_VARIABLE	1	/* include version env variable */
 
 /*

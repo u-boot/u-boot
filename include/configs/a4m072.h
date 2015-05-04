@@ -165,7 +165,6 @@
 			"setenv bootargs ${bootargs} no_ethaddr;"	\
 		"fi\0"							\
 	"hostname=CPUP0\0"						\
-	"ethaddr=00:00:00:00:00:00\0"					\
 	"netdev=eth0\0"							\
 	"bootcmd=run bootcmd_nor\0" 					\
 	""

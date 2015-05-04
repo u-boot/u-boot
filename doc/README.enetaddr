@@ -15,7 +15,7 @@ Here are the places where MAC addresses might be stored:
  - board-specific location (eeprom, dedicated flash, ...)
 	Note: only used when mandatory due to hardware design etc...
 
- - environment ("ethaddr", "eth1addr", ...) (see CONFIG_ETHADDR)
+ - environment ("ethaddr", "eth1addr", ...)
 	Note: this is the preferred way to permanently store MAC addresses
 
  - ethernet data (struct eth_device -> enetaddr)

@@ -67,8 +67,6 @@
 #define CONFIG_SMC911X_BASE	0x24008000 /* AMS1 */
 #define CONFIG_SMC911X_16_BIT
 #define CONFIG_HOSTNAME		cm-bf561
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:20:31:cf */
 
 
 /*

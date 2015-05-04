@@ -65,8 +65,6 @@
 #define CONFIG_RMII
 #endif
 #define CONFIG_HOSTNAME		bf537-pnav
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:24:21:18 */
 #define CONFIG_LIB_RAND
 
 /*

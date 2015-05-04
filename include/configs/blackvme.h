@@ -85,9 +85,6 @@
 #define CFG_AUTOLOAD		"no"
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
-#define CONFIG_ENV_OVERWRITE	1	/* enable changing MAC at runtime */
-/* Comment out hardcoded MAC to enable MAC storage in EEPROM */
-/* # define CONFIG_ETHADDR	ff:ee:dd:cc:bb:aa */
 
 /*
  * SDRAM settings & memory map

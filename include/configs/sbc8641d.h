@@ -14,7 +14,7 @@
  * SBC8641D board configuration file
  *
  * Make sure you change the MAC address and other network params first,
- * search for CONFIG_ETHADDR, CONFIG_SERVERIP, etc in this file.
+ * search for CONFIG_SERVERIP, etc in this file.
  */
 
 #ifndef __CONFIG_H
@@ -527,14 +527,6 @@
 /*
  * Environment Configuration
  */
-
-/* The mac addresses for all ethernet interface */
-#if defined(CONFIG_TSEC_ENET)
-#define CONFIG_ETHADDR   02:E0:0C:00:00:01
-#define CONFIG_ETH1ADDR  02:E0:0C:00:01:FD
-#define CONFIG_ETH2ADDR  02:E0:0C:00:02:FD
-#define CONFIG_ETH3ADDR  02:E0:0C:00:03:FD
-#endif
 
 #define CONFIG_HAS_ETH0		1
 #define CONFIG_HAS_ETH1		1

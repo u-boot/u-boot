@@ -725,12 +725,6 @@ static int smc_get_ethaddr(bd_t *bd, struct eth_device *dev)
 
 static int get_rom_mac(struct eth_device *dev, unsigned char *v_rom_mac)
 {
-#ifdef HARDCODE_MAC	/* used for testing or to supress run time warnings */
-	char hw_mac_addr[] = { 0x02, 0x80, 0xad, 0x20, 0x31, 0xb8 };
-
-	memcpy (v_rom_mac, hw_mac_addr, 6);
-	return (1);
-#else
 	int i;
 	SMC_SELECT_BANK(dev, 1);
 	for (i=0; i<6; i++)
@@ -738,7 +732,6 @@ static int get_rom_mac(struct eth_device *dev, unsigned char *v_rom_mac)
 		v_rom_mac[i] = SMC_inb(dev, LAN91C96_IA0 + i);
 	}
 	return (1);
-#endif
 }
 
 /* Structure to detect the device IDs */
