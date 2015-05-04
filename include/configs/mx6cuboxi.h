@@ -80,6 +80,7 @@
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_HDMI
+#define CONFIG_CMD_HDMIDETECT
 #define CONFIG_IMX_VIDEO_SKIP
 #define CONFIG_CONSOLE_MUX
 
@@ -94,7 +95,17 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_USB_KEYBOARD
 #define CONFIG_SYS_USB_EVENT_POLL
-#define CONFIG_PREBOOT			"usb start"
+#define CONFIG_PREBOOT \
+	"if hdmidet; then " \
+		"usb start; "		       \
+		"setenv stdin  serial,usbkbd; "\
+		"setenv stdout serial,vga; "   \
+		"setenv stderr serial,vga; "   \
+	"else " \
+		"setenv stdin  serial; " \
+		"setenv stdout serial; " \
+		"setenv stderr serial; " \
+	"fi;"
 
 #define CONFIG_SYS_NO_FLASH
 
@@ -117,9 +128,6 @@
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"stdin=serial,usbkbd\0" \
-	"stdout=serial,vga\0" \
-	"stderr=serial,vga\0" \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"fdtfile=undefined\0" \
