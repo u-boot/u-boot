@@ -343,13 +343,7 @@ static int dm9000_init(struct eth_device *dev, bd_t *bd)
 
 	printf("MAC: %pM\n", dev->enetaddr);
 	if (!is_valid_ethaddr(dev->enetaddr)) {
-#ifdef CONFIG_RANDOM_MACADDR
-		printf("Bad MAC address (uninitialized EEPROM?), randomizing\n");
-		net_random_ethaddr(dev->enetaddr);
-		printf("MAC: %pM\n", dev->enetaddr);
-#else
 		printf("WARNING: Bad MAC address (uninitialized EEPROM?)\n");
-#endif
 	}
 
 	/* fill device MAC address registers */
