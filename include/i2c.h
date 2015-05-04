@@ -193,8 +193,15 @@ int i2c_get_chip_flags(struct udevice *dev, uint *flagsp);
  *
  * @offset_len:	New offset length value (typically 1 or 2)
  */
-
 int i2c_set_chip_offset_len(struct udevice *dev, uint offset_len);
+
+/**
+ * i2c_get_offset_len() - get the offset length for a chip
+ *
+ * @return:	Current offset length value (typically 1 or 2)
+ */
+int i2c_get_chip_offset_len(struct udevice *dev);
+
 /**
  * i2c_deblock() - recover a bus that is in an unknown state
  *

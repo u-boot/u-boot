@@ -415,6 +415,13 @@ int i2c_set_chip_offset_len(struct udevice *dev, uint offset_len)
 	return 0;
 }
 
+int i2c_get_chip_offset_len(struct udevice *dev)
+{
+	struct dm_i2c_chip *chip = dev_get_parent_platdata(dev);
+
+	return chip->offset_len;
+}
+
 int i2c_deblock(struct udevice *bus)
 {
 	struct dm_i2c_ops *ops = i2c_get_ops(bus);
