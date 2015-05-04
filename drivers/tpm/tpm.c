@@ -34,6 +34,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <dm.h>
 #include <linux/compiler.h>
 #include <fdtdec.h>
 #include <i2c.h>
@@ -48,10 +49,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* TPM configuration */
 struct tpm {
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev;
+#else
 	int i2c_bus;
 	int slave_addr;
-	char inited;
 	int old_bus;
+#endif
+	char inited;
 } tpm;
 
 /* Global structure for tpm chip data */
@@ -372,7 +377,7 @@ static unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip,
 
 static ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 {
-	ssize_t rc;
+	int rc;
 	u32 count, ordinal;
 	unsigned long start, stop;
 
@@ -391,9 +396,11 @@ static ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 		return -E2BIG;
 	}
 
+	debug("Calling send\n");
 	rc = chip->vendor.send(chip, (u8 *)buf, count);
+	debug("   ... done calling send\n");
 	if (rc < 0) {
-		error("tpm_transmit: tpm_send: error %zd\n", rc);
+		error("tpm_transmit: tpm_send: error %d\n", rc);
 		goto out;
 	}
 
@@ -403,7 +410,7 @@ static ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 	start = get_timer(0);
 	stop = tpm_calc_ordinal_duration(chip, ordinal);
 	do {
-		debug("waiting for status...\n");
+		debug("waiting for status... %ld %ld\n", start, stop);
 		u8 status = chip->vendor.status(chip);
 		if ((status & chip->vendor.req_complete_mask) ==
 		    chip->vendor.req_complete_val) {
@@ -428,15 +435,30 @@ out_recv:
 	debug("out_recv: reading response...\n");
 	rc = chip->vendor.recv(chip, (u8 *)buf, TPM_BUFSIZE);
 	if (rc < 0)
-		error("tpm_transmit: tpm_recv: error %zd\n", rc);
+		error("tpm_transmit: tpm_recv: error %d\n", rc);
 
 out:
 	return rc;
 }
 
+#ifdef CONFIG_DM_I2C
+static int tpm_open_dev(struct udevice *dev)
+{
+	int rc;
+
+	debug("%s: start\n", __func__);
+	if (g_chip.is_open)
+		return -EBUSY;
+	rc = tpm_vendor_init_dev(dev);
+	if (rc < 0)
+		g_chip.is_open = 0;
+	return rc;
+}
+#else
 static int tpm_open(uint32_t dev_addr)
 {
 	int rc;
+
 	if (g_chip.is_open)
 		return -EBUSY;
 	rc = tpm_vendor_init(dev_addr);
@@ -444,7 +466,7 @@ static int tpm_open(uint32_t dev_addr)
 		g_chip.is_open = 0;
 	return rc;
 }
-
+#endif
 static void tpm_close(void)
 {
 	if (g_chip.is_open) {
@@ -455,6 +477,7 @@ static void tpm_close(void)
 
 static int tpm_select(void)
 {
+#ifndef CONFIG_DM_I2C
 	int ret;
 
 	tpm.old_bus = i2c_get_bus_num();
@@ -466,11 +489,13 @@ static int tpm_select(void)
 			return -1;
 		}
 	}
+#endif
 	return 0;
 }
 
 static int tpm_deselect(void)
 {
+#ifndef CONFIG_DM_I2C
 	int ret;
 
 	if (tpm.old_bus != i2c_get_bus_num()) {
@@ -482,6 +507,7 @@ static int tpm_deselect(void)
 		}
 	}
 	tpm.old_bus = -1;
+#endif
 	return 0;
 }
 
@@ -493,10 +519,9 @@ static int tpm_deselect(void)
  */
 static int tpm_decode_config(struct tpm *dev)
 {
-#ifdef CONFIG_OF_CONTROL
 	const void *blob = gd->fdt_blob;
-	int node, parent;
-	int i2c_bus;
+	int parent;
+	int node;
 
 	node = fdtdec_next_compatible(blob, 0, COMPAT_INFINEON_SLB9635_TPM);
 	if (node < 0) {
@@ -512,15 +537,48 @@ static int tpm_decode_config(struct tpm *dev)
 		debug("%s: Cannot find node parent\n", __func__);
 		return -1;
 	}
+#ifdef CONFIG_DM_I2C
+	struct udevice *bus;
+	int chip_addr;
+	int ret;
+
+	/*
+	 * TODO(sjg@chromium.org): Remove this when driver model supports
+	 * TPMs
+	 */
+	ret = uclass_get_device_by_of_offset(UCLASS_I2C, parent, &bus);
+	if (ret) {
+		debug("Cannot find bus for node '%s: ret=%d'\n",
+		      fdt_get_name(blob, parent, NULL), ret);
+		return ret;
+	}
+
+	chip_addr = fdtdec_get_int(blob, node, "reg", -1);
+	if (chip_addr == -1) {
+		debug("Cannot find reg property for node '%s: ret=%d'\n",
+		      fdt_get_name(blob, node, NULL), ret);
+		return ret;
+	}
+	/*
+	 * TODO(sjg@chromium.org): Older TPMs will need to use the older method
+	 * in iic_tpm_read() so the offset length needs to be 0 here.
+	 */
+	ret = i2c_get_chip(bus, chip_addr, 1, &dev->dev);
+	if (ret) {
+		debug("Cannot find device for node '%s: ret=%d'\n",
+		      fdt_get_name(blob, node, NULL), ret);
+		return ret;
+	}
+#else
+	int i2c_bus;
+
 	i2c_bus = i2c_get_bus_num_fdt(parent);
 	if (i2c_bus < 0)
 		return -1;
 	dev->i2c_bus = i2c_bus;
 	dev->slave_addr = fdtdec_get_addr(blob, node, "reg");
-#else
-	dev->i2c_bus = CONFIG_TPM_TIS_I2C_BUS_NUMBER;
-	dev->slave_addr = CONFIG_TPM_TIS_I2C_SLAVE_ADDRESS;
 #endif
+
 	return 0;
 }
 
@@ -547,6 +605,7 @@ int tis_init(void)
 	if (tpm_select())
 		return -1;
 
+#ifndef CONFIG_DM_I2C
 	/*
 	 * Probe TPM twice; the first probing might fail because TPM is asleep,
 	 * and the probing can wake up TPM.
@@ -556,8 +615,10 @@ int tis_init(void)
 		      tpm.slave_addr);
 		return -1;
 	}
+#endif
 
 	tpm_deselect();
+	debug("%s: done\n", __func__);
 
 	tpm.inited = 1;
 
@@ -574,7 +635,11 @@ int tis_open(void)
 	if (tpm_select())
 		return -1;
 
+#ifdef CONFIG_DM_I2C
+	rc = tpm_open_dev(tpm.dev);
+#else
 	rc = tpm_open(tpm.slave_addr);
+#endif
 
 	tpm_deselect();
 
