@@ -948,6 +948,9 @@ The following options need to be configured:
 		bytes are output before the console is initialised, the
 		earlier bytes are discarded.
 
+		Note that when printing the buffer a copy is made on the
+		stack so CONFIG_PRE_CON_BUF_SZ must fit on the stack.
+
 		'Sane' compilers will generate smaller code if
 		CONFIG_PRE_CON_BUF_SZ is a power of 2
 

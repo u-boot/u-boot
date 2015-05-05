@@ -200,15 +200,15 @@ static void console_putc(int file, const char c)
 }
 
 #ifdef CONFIG_PRE_CONSOLE_BUFFER
-static void console_putc_noserial(int file, const char c)
+static void console_puts_noserial(int file, const char *s)
 {
 	int i;
 	struct stdio_dev *dev;
 
 	for (i = 0; i < cd_count[file]; i++) {
 		dev = console_devices[file][i];
-		if (dev->putc != NULL && strcmp(dev->name, "serial") != 0)
-			dev->putc(dev, c);
+		if (dev->puts != NULL && strcmp(dev->name, "serial") != 0)
+			dev->puts(dev, s);
 	}
 }
 #endif
@@ -251,10 +251,10 @@ static inline void console_putc(int file, const char c)
 }
 
 #ifdef CONFIG_PRE_CONSOLE_BUFFER
-static inline void console_putc_noserial(int file, const char c)
+static inline void console_puts_noserial(int file, const char *s)
 {
 	if (strcmp(stdio_devices[file]->name, "serial") != 0)
-		stdio_devices[file]->putc(stdio_devices[file], c);
+		stdio_devices[file]->puts(stdio_devices[file], s);
 }
 #endif
 
@@ -425,22 +425,26 @@ static void pre_console_puts(const char *s)
 
 static void print_pre_console_buffer(int flushpoint)
 {
-	unsigned long i = 0;
-	char *buffer = (char *)CONFIG_PRE_CON_BUF_ADDR;
+	unsigned long in = 0, out = 0;
+	char *buf_in = (char *)CONFIG_PRE_CON_BUF_ADDR;
+	char buf_out[CONFIG_PRE_CON_BUF_SZ + 1];
 
 	if (gd->precon_buf_idx > CONFIG_PRE_CON_BUF_SZ)
-		i = gd->precon_buf_idx - CONFIG_PRE_CON_BUF_SZ;
+		in = gd->precon_buf_idx - CONFIG_PRE_CON_BUF_SZ;
 
-	while (i < gd->precon_buf_idx)
-		switch (flushpoint) {
-		case PRE_CONSOLE_FLUSHPOINT1_SERIAL:
-			putc(buffer[CIRC_BUF_IDX(i++)]);
-			break;
-		case PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL:
-			console_putc_noserial(stdout,
-					      buffer[CIRC_BUF_IDX(i++)]);
-			break;
-		}
+	while (in < gd->precon_buf_idx)
+		buf_out[out++] = buf_in[CIRC_BUF_IDX(in++)];
+
+	buf_out[out] = 0;
+
+	switch (flushpoint) {
+	case PRE_CONSOLE_FLUSHPOINT1_SERIAL:
+		puts(buf_out);
+		break;
+	case PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL:
+		console_puts_noserial(stdout, buf_out);
+		break;
+	}
 }
 #else
 static inline void pre_console_putc(const char c) {}
