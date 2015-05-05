@@ -125,14 +125,7 @@ static struct descriptor {
 static struct ehci_ctrl *ehci_get_ctrl(struct usb_device *udev)
 {
 #ifdef CONFIG_DM_USB
-	struct udevice *dev;
-
-	/* Find the USB controller */
-	for (dev = udev->dev;
-	     device_get_uclass_id(dev) != UCLASS_USB;
-	     dev = dev->parent)
-		;
-	return dev_get_priv(dev);
+	return dev_get_priv(usb_get_bus(udev->dev));
 #else
 	return udev->controller;
 #endif
