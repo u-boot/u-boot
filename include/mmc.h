@@ -55,13 +55,12 @@
 #define MMC_MODE_4BIT		(1 << 2)
 #define MMC_MODE_8BIT		(1 << 3)
 #define MMC_MODE_SPI		(1 << 4)
-#define MMC_MODE_HC		(1 << 5)
-#define MMC_MODE_DDR_52MHz	(1 << 6)
+#define MMC_MODE_DDR_52MHz	(1 << 5)
 
 #define SD_DATA_4BIT	0x00040000
 
 #define IS_SD(x)	((x)->version & SD_VERSION_SD)
-#define IS_MMC(x)	((x)->version & SD_VERSION_MMC)
+#define IS_MMC(x)	((x)->version & MMC_VERSION_MMC)
 
 #define MMC_DATA_READ		1
 #define MMC_DATA_WRITE		2
@@ -70,8 +69,7 @@
 #define UNUSABLE_ERR		-17 /* Unusable Card */
 #define COMM_ERR		-18 /* Communications Error */
 #define TIMEOUT			-19
-#define IN_PROGRESS		-20 /* operation is in progress */
-#define SWITCH_ERR		-21 /* Card reports failure to switch mode */
+#define SWITCH_ERR		-20 /* Card reports failure to switch mode */
 
 #define MMC_CMD_GO_IDLE_STATE		0
 #define MMC_CMD_SEND_OP_COND		1
@@ -356,7 +354,6 @@ struct mmc {
 	char op_cond_pending;	/* 1 if we are waiting on an op_cond command */
 	char init_in_progress;	/* 1 if we have done mmc_start_init() */
 	char preinit;		/* start init as early as possible */
-	uint op_cond_response;	/* the response byte from the last op_cond */
 	int ddr_mode;
 };
 

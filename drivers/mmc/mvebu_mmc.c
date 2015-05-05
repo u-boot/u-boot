@@ -418,7 +418,7 @@ static struct mmc_config mvebu_mmc_cfg = {
 	.f_min		= MVEBU_MMC_BASE_FAST_CLOCK / MVEBU_MMC_BASE_DIV_MAX,
 	.f_max		= MVEBU_MMC_CLOCKRATE_MAX,
 	.voltages	= MMC_VDD_32_33 | MMC_VDD_33_34,
-	.host_caps	= MMC_MODE_4BIT | MMC_MODE_HS | MMC_MODE_HC |
+	.host_caps	= MMC_MODE_4BIT | MMC_MODE_HS |
 			  MMC_MODE_HS_52MHz,
 	.part_type	= PART_TYPE_DOS,
 	.b_max		= CONFIG_SYS_MMC_MAX_BLK_COUNT,

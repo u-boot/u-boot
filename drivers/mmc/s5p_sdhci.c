@@ -76,7 +76,6 @@ static int s5p_sdhci_core_init(struct sdhci_host *host)
 	host->set_control_reg = &s5p_sdhci_set_control_reg;
 	host->set_clock = set_mmc_clk;
 
-	host->host_caps = MMC_MODE_HC;
 	if (host->bus_width == 8)
 		host->host_caps |= MMC_MODE_8BIT;
 

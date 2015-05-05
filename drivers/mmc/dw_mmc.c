@@ -388,7 +388,7 @@ int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk)
 		host->cfg.host_caps |= MMC_MODE_4BIT;
 		host->cfg.host_caps &= ~MMC_MODE_8BIT;
 	}
-	host->cfg.host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_HC;
+	host->cfg.host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz;
 
 	host->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
