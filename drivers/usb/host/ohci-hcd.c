@@ -111,8 +111,6 @@ struct ohci_hcca ghcca[1];
 struct ohci_hcca *phcca;
 /* this allocates EDs for all possible endpoints */
 struct ohci_device ohci_dev;
-/* device which was disconnected */
-struct usb_device *devgone;
 
 static inline u32 roothub_a(struct ohci *hc)
 	{ return ohci_readl(&hc->regs->roothub.a); }
@@ -1379,12 +1377,6 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	urb->transfer_buffer = buffer;
 	urb->transfer_buffer_length = transfer_len;
 	urb->interval = interval;
-
-	/* device pulled? Shortcut the action. */
-	if (devgone == dev) {
-		dev->status = USB_ST_CRC_ERR;
-		return 0;
-	}
 
 #ifdef DEBUG
 	urb->actual_length = 0;
