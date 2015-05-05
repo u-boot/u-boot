@@ -1579,11 +1579,14 @@ int ehci_register(struct udevice *dev, struct ehci_hccr *hccr,
 		  struct ehci_hcor *hcor, const struct ehci_ops *ops,
 		  uint tweaks, enum usb_init_type init)
 {
+	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct ehci_ctrl *ctrl = dev_get_priv(dev);
 	int ret;
 
 	debug("%s: dev='%s', ctrl=%p, hccr=%p, hcor=%p, init=%d\n", __func__,
 	      dev->name, ctrl, hccr, hcor, init);
+
+	priv->desc_before_addr = true;
 
 	ehci_setup_ops(ctrl, ops);
 	ctrl->hccr = hccr;
