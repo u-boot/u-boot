@@ -49,7 +49,7 @@ void enable_caches(void)
 /*
  * DesignWare Ethernet initialization
  */
-#ifdef CONFIG_DESIGNWARE_ETH
+#ifdef CONFIG_ETH_DESIGNWARE
 int cpu_eth_init(bd_t *bis)
 {
 #if CONFIG_EMAC_BASE == SOCFPGA_EMAC0_ADDRESS

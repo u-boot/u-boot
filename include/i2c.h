@@ -64,8 +64,8 @@ struct dm_i2c_chip {
  * bus can operate at different speeds (measured in Hz, typically 100KHz
  * or 400KHz).
  *
- * To obtain this structure, use bus->uclass_priv where bus is the I2C
- * bus udevice.
+ * To obtain this structure, use dev_get_uclass_priv(bus) where bus is the
+ * I2C bus udevice.
  *
  * @speed_hz: Bus speed in hertz (typically 100000)
  */
@@ -340,7 +340,7 @@ struct dm_i2c_ops {
 	 * The bus speed value will be updated by the uclass if this function
 	 * does not return an error. This method is optional - if it is not
 	 * provided then the driver can read the speed from
-	 * bus->uclass_priv->speed_hz
+	 * dev_get_uclass_priv(bus)->speed_hz
 	 *
 	 * @bus:	Bus to adjust
 	 * @speed:	Requested speed in Hz
@@ -354,7 +354,7 @@ struct dm_i2c_ops {
 	 * Normally this can be provided by the uclass, but if you want your
 	 * driver to check the bus speed by looking at the hardware, you can
 	 * implement that here. This method is optional. This method would
-	 * normally be expected to return bus->uclass_priv->speed_hz.
+	 * normally be expected to return dev_get_uclass_priv(bus)->speed_hz.
 	 *
 	 * @bus:	Bus to check
 	 * @return speed of selected I2C bus in Hz, -ve on error

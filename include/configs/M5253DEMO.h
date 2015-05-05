@@ -32,6 +32,10 @@
 #	define CONFIG_ENV_IS_IN_FLASH	1
 #endif
 
+#define LDS_BOARD_TEXT \
+        . = DEFINED(env_offset) ? env_offset : .; \
+        common/env_embedded.o (.text*);
+
 /*
  * Command line configuration.
  */

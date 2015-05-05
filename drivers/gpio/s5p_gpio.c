@@ -296,7 +296,7 @@ static const struct dm_gpio_ops gpio_exynos_ops = {
 
 static int gpio_exynos_probe(struct udevice *dev)
 {
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct exynos_bank_info *priv = dev->priv;
 	struct exynos_gpio_platdata *plat = dev->platdata;
 

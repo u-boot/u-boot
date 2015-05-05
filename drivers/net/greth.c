@@ -533,7 +533,7 @@ int greth_recv(struct eth_device *dev)
 			sparc_dcache_flush_all();
 
 			/* pass packet on to network subsystem */
-			NetReceive((void *)d, len);
+			net_process_received_packet((void *)d, len);
 
 			/* bump stats counters */
 			greth->stats.rx_packets++;

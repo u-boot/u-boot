@@ -151,7 +151,7 @@ struct ahci_probe_ent {
 	u32	hard_port_no;
 	u32	host_flags;
 	u32	host_set_flags;
-	u32	mmio_base;
+	void __iomem *mmio_base;
 	u32     pio_mask;
 	u32	udma_mask;
 	u32	flags;
@@ -160,7 +160,7 @@ struct ahci_probe_ent {
 	u32	link_port_map; /*linkup port map*/
 };
 
-int ahci_init(u32 base);
-int ahci_reset(u32 base);
+int ahci_init(void __iomem *base);
+int ahci_reset(void __iomem *base);
 
 #endif

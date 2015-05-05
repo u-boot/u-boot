@@ -166,10 +166,10 @@ static int handle_mac_address(void)
 		return 0;
 
 	ret = cl_eeprom_read_mac_addr(enetaddr, CONFIG_SYS_I2C_EEPROM_BUS);
-	if (ret || !is_valid_ether_addr(enetaddr))
+	if (ret || !is_valid_ethaddr(enetaddr))
 		generate_mac_addr(enetaddr);
 
-	if (!is_valid_ether_addr(enetaddr))
+	if (!is_valid_ethaddr(enetaddr))
 		return -1;
 
 	return eth_setenv_enetaddr("usbethaddr", enetaddr);

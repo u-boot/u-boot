@@ -21,6 +21,9 @@
 #ifdef CONFIG_AXP209_POWER
 #include <axp209.h>
 #endif
+#ifdef CONFIG_AXP221_POWER
+#include <axp221.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -115,6 +118,20 @@ int gpio_set_value(unsigned gpio, int value)
 	return sunxi_gpio_output(gpio, value);
 }
 
+int sunxi_name_to_gpio_bank(const char *name)
+{
+	int group = 0;
+
+	if (*name == 'P' || *name == 'p')
+		name++;
+	if (*name >= 'A') {
+		group = *name - (*name > 'a' ? 'a' : 'A');
+		return group;
+	}
+
+	return -1;
+}
+
 int sunxi_name_to_gpio(const char *name)
 {
 	int group = 0;
@@ -125,6 +142,12 @@ int sunxi_name_to_gpio(const char *name)
 #ifdef AXP_GPIO
 	if (strncasecmp(name, "AXP0-", 5) == 0) {
 		name += 5;
+		if (strcmp(name, "VBUS-DETECT") == 0)
+			return SUNXI_GPIO_AXP0_START +
+				SUNXI_GPIO_AXP0_VBUS_DETECT;
+		if (strcmp(name, "VBUS-ENABLE") == 0)
+			return SUNXI_GPIO_AXP0_START +
+				SUNXI_GPIO_AXP0_VBUS_ENABLE;
 		pin = simple_strtol(name, &eptr, 10);
 		if (!*name || *eptr)
 			return -1;
@@ -238,7 +261,7 @@ static char *gpio_bank_name(int bank)
 static int gpio_sunxi_probe(struct udevice *dev)
 {
 	struct sunxi_gpio_platdata *plat = dev_get_platdata(dev);
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	/* Tell the uclass how many GPIOs we have */
 	if (plat) {

@@ -505,7 +505,7 @@ static int keystone2_eth_rcv_packet(struct eth_device *dev)
 	if (hd == NULL)
 		return 0;
 
-	NetReceive((uchar *)pkt, pkt_size);
+	net_process_received_packet((uchar *)pkt, pkt_size);
 
 	ksnav_release_rxhd(&netcp_pktdma, hd);
 

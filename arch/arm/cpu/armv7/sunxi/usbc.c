@@ -41,6 +41,7 @@ static struct sunxi_usbc_hcd {
 	int usb_rst_mask;
 	int ahb_clk_mask;
 	int gpio_vbus;
+	int gpio_vbus_det;
 	int irq;
 	int id;
 } sunxi_usbc_hcd[] = {
@@ -80,12 +81,6 @@ static struct sunxi_usbc_hcd {
 
 static int enabled_hcd_count;
 
-static bool use_axp_drivebus(int index)
-{
-	return index == 0 &&
-	       strcmp(CONFIG_USB0_VBUS_PIN, "axp_drivebus") == 0;
-}
-
 void *sunxi_usbc_get_io_base(int index)
 {
 	switch (index) {
@@ -102,13 +97,18 @@ void *sunxi_usbc_get_io_base(int index)
 
 static int get_vbus_gpio(int index)
 {
-	if (use_axp_drivebus(index))
-		return -1;
-
 	switch (index) {
 	case 0: return sunxi_name_to_gpio(CONFIG_USB0_VBUS_PIN);
 	case 1: return sunxi_name_to_gpio(CONFIG_USB1_VBUS_PIN);
 	case 2: return sunxi_name_to_gpio(CONFIG_USB2_VBUS_PIN);
+	}
+	return -1;
+}
+
+static int get_vbus_detect_gpio(int index)
+{
+	switch (index) {
+	case 0: return sunxi_name_to_gpio(CONFIG_USB0_VBUS_DET);
 	}
 	return -1;
 }
@@ -192,22 +192,35 @@ void sunxi_usbc_enable_squelch_detect(int index, int enable)
 int sunxi_usbc_request_resources(int index)
 {
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	int ret = 0;
 
 	sunxi_usbc->gpio_vbus = get_vbus_gpio(index);
-	if (sunxi_usbc->gpio_vbus != -1)
-		return gpio_request(sunxi_usbc->gpio_vbus, "usbc_vbus");
+	if (sunxi_usbc->gpio_vbus != -1) {
+		ret |= gpio_request(sunxi_usbc->gpio_vbus, "usbc_vbus");
+		ret |= gpio_direction_output(sunxi_usbc->gpio_vbus, 0);
+	}
 
-	return 0;
+	sunxi_usbc->gpio_vbus_det = get_vbus_detect_gpio(index);
+	if (sunxi_usbc->gpio_vbus_det != -1) {
+		ret |= gpio_request(sunxi_usbc->gpio_vbus_det, "usbc_vbus_det");
+		ret |= gpio_direction_input(sunxi_usbc->gpio_vbus_det);
+	}
+
+	return ret;
 }
 
 int sunxi_usbc_free_resources(int index)
 {
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	int ret = 0;
 
 	if (sunxi_usbc->gpio_vbus != -1)
-		return gpio_free(sunxi_usbc->gpio_vbus);
+		ret |= gpio_free(sunxi_usbc->gpio_vbus);
 
-	return 0;
+	if (sunxi_usbc->gpio_vbus_det != -1)
+		ret |= gpio_free(sunxi_usbc->gpio_vbus_det);
+
+	return ret;
 }
 
 void sunxi_usbc_enable(int index)
@@ -258,22 +271,38 @@ void sunxi_usbc_vbus_enable(int index)
 {
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 
-#ifdef AXP_DRIVEBUS
-	if (use_axp_drivebus(index))
-		axp_drivebus_enable();
-#endif
 	if (sunxi_usbc->gpio_vbus != -1)
-		gpio_direction_output(sunxi_usbc->gpio_vbus, 1);
+		gpio_set_value(sunxi_usbc->gpio_vbus, 1);
 }
 
 void sunxi_usbc_vbus_disable(int index)
 {
 	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
 
-#ifdef AXP_DRIVEBUS
-	if (use_axp_drivebus(index))
-		axp_drivebus_disable();
-#endif
 	if (sunxi_usbc->gpio_vbus != -1)
-		gpio_direction_output(sunxi_usbc->gpio_vbus, 0);
+		gpio_set_value(sunxi_usbc->gpio_vbus, 0);
+}
+
+int sunxi_usbc_vbus_detect(int index)
+{
+	struct sunxi_usbc_hcd *sunxi_usbc = &sunxi_usbc_hcd[index];
+	int err, retries = 3;
+
+	if (sunxi_usbc->gpio_vbus_det == -1) {
+		eprintf("Error: invalid vbus detection pin\n");
+		return -1;
+	}
+
+	err = gpio_get_value(sunxi_usbc->gpio_vbus_det);
+	/*
+	 * Vbus may have been provided by the board and just been turned of
+	 * some milliseconds ago on reset, what we're measuring then is a
+	 * residual charge on Vbus, sleep a bit and try again.
+	 */
+	while (err > 0 && retries--) {
+		mdelay(100);
+		err = gpio_get_value(sunxi_usbc->gpio_vbus_det);
+	}
+
+	return err;
 }

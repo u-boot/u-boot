@@ -145,7 +145,7 @@ int misc_init_r(void)
 	 */
 	if (!enetaddr_found) {
 		if (!spi_mac_read) {
-			if (is_valid_ether_addr(buff)) {
+			if (is_valid_ethaddr(buff)) {
 				if (eth_setenv_enetaddr("ethaddr", buff)) {
 					printf("Warning: Failed to "
 					"set MAC address from SPI flash\n");
@@ -160,8 +160,8 @@ int misc_init_r(void)
 		 * MAC address present in environment compare it with
 		 * the MAC address in SPI flash and warn on mismatch
 		 */
-		if (!spi_mac_read && is_valid_ether_addr(buff) &&
-						memcmp(env_enetaddr, buff, 6))
+		if (!spi_mac_read && is_valid_ethaddr(buff) &&
+		    memcmp(env_enetaddr, buff, 6))
 			printf("Warning: MAC address in SPI flash don't match "
 					"with the MAC address in the environment\n");
 			printf("Default using MAC address from environment\n");

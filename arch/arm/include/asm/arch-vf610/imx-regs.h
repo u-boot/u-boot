@@ -52,6 +52,7 @@
 #define SAI2_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00031000)
 #define SAI3_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00032000)
 #define CRC_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00033000)
+#define USBC0_BASE_ADDR     (AIPS0_BASE_ADDR + 0x00034000)
 #define PDB_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00036000)
 #define PIT_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00037000)
 #define FTM0_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00038000)
@@ -65,7 +66,9 @@
 #define QSPI0_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00044000)
 #define IOMUXC_BASE_ADDR	(AIPS0_BASE_ADDR + 0x00048000)
 #define ANADIG_BASE_ADDR	(AIPS0_BASE_ADDR + 0x00050000)
-#define SCSCM_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00052000)
+#define USB_PHY0_BASE_ADDR  (AIPS0_BASE_ADDR + 0x00050800)
+#define USB_PHY1_BASE_ADDR  (AIPS0_BASE_ADDR + 0x00050C00)
+#define SCSC_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00052000)
 #define ASRC_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00060000)
 #define SPDIF_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00061000)
 #define ESAI_BASE_ADDR		(AIPS0_BASE_ADDR + 0x00062000)
@@ -84,6 +87,7 @@
 #define DDR_BASE_ADDR		(AIPS1_BASE_ADDR + 0x0002E000)
 #define ESDHC0_BASE_ADDR	(AIPS1_BASE_ADDR + 0x00031000)
 #define ESDHC1_BASE_ADDR	(AIPS1_BASE_ADDR + 0x00032000)
+#define USBC1_BASE_ADDR     (AIPS1_BASE_ADDR + 0x00034000)
 #define ENET_BASE_ADDR		(AIPS1_BASE_ADDR + 0x00050000)
 #define ENET1_BASE_ADDR		(AIPS1_BASE_ADDR + 0x00051000)
 #define NFC_BASE_ADDR		(AIPS1_BASE_ADDR + 0x00060000)
@@ -196,8 +200,8 @@
 #define DDRMC_CR96_WLMRD(v)				(((v) & 0x3f) << 8)
 #define DDRMC_CR96_WLDQSEN(v)				((v) & 0x3f)
 #define DDRMC_CR97_WRLVL_EN				(1 << 24)
-#define DDRMC_CR98_WRLVL_DL_0				(0)
-#define DDRMC_CR99_WRLVL_DL_1				(0)
+#define DDRMC_CR98_WRLVL_DL_0(v)			((v) & 0xffff)
+#define DDRMC_CR99_WRLVL_DL_1(v)			((v) & 0xffff)
 #define DDRMC_CR102_RDLVL_GT_REGEN			(1 << 16)
 #define DDRMC_CR102_RDLVL_REG_EN			(1 << 8)
 #define DDRMC_CR105_RDLVL_DL_0(v)			(((v) & 0xff) << 8)
@@ -263,6 +267,14 @@
 #define SRC_SRSR_WDOG_M4				(0x1 << 4)
 #define SRC_SRSR_WDOG_A5				(0x1 << 3)
 #define SRC_SRSR_POR_RST				(0x1 << 0)
+#define SRC_SBMR2_BMOD_MASK             (0x3 << 24)
+#define SRC_SBMR2_BMOD_SHIFT            24
+#define SRC_SBMR2_BMOD_FUSES            0x0
+#define SRC_SBMR2_BMOD_SERIAL           0x1
+#define SRC_SBMR2_BMOD_RCON             0x2
+
+/* Slow Clock Source Controller Module (SCSC) */
+#define SCSC_SOSC_CTR_SOSC_EN            0x1
 
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
@@ -446,6 +458,24 @@ struct mscm_ir {
 	u32 rsvd2[23];
 	u16 irsprc[112];
 	u16 rsvd3[848];
+};
+
+/* SCSC */
+struct scsc_reg {
+	u32 sirc_ctr;
+	u32 sosc_ctr;
+};
+
+/* MSCM */
+struct mscm {
+	u32 cpxtype;
+	u32 cpxnum;
+	u32 cpxmaster;
+	u32 cpxcount;
+	u32 cpxcfg0;
+	u32 cpxcfg1;
+	u32 cpxcfg2;
+	u32 cpxcfg3;
 };
 
 #endif	/* __ASSEMBLER__*/

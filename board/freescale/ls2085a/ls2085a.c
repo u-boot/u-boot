@@ -12,8 +12,10 @@
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <libfdt.h>
+#include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
+#include <asm/arch-fsl-lsch3/soc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -30,8 +32,7 @@ int board_init(void)
 
 int board_early_init_f(void)
 {
-	init_early_memctl_regs();	/* tighten IFC timing */
-
+	fsl_lsch3_early_init_f();
 	return 0;
 }
 
@@ -54,29 +55,32 @@ int dram_init(void)
 	return 0;
 }
 
-int timer_init(void)
+#if defined(CONFIG_ARCH_MISC_INIT)
+int arch_misc_init(void)
 {
-	u32 __iomem *cntcr = (u32 *)CONFIG_SYS_FSL_TIMER_ADDR;
-	u32 __iomem *cltbenr = (u32 *)CONFIG_SYS_FSL_PMU_CLTBENR;
-
-	/* Enable timebase for all clusters.
-	 * It is safe to do so even some clusters are not enabled.
-	 */
-	out_le32(cltbenr, 0xf);
-
-	/* Enable clock for timer
-	 * This is a global setting.
-	 */
-	out_le32(cntcr, 0x1);
+#ifdef CONFIG_FSL_DEBUG_SERVER
+	debug_server_init();
+#endif
 
 	return 0;
 }
+#endif
 
-/*
- * Board specific reset that is system reset.
- */
-void reset_cpu(ulong addr)
+unsigned long get_dram_size_to_hide(void)
 {
+	unsigned long dram_to_hide = 0;
+
+/* Carve the Debug Server private DRAM block from the end of DRAM */
+#ifdef CONFIG_FSL_DEBUG_SERVER
+	dram_to_hide += debug_server_get_dram_block_size();
+#endif
+
+/* Carve the MC private DRAM block from the end of DRAM */
+#ifdef CONFIG_FSL_MC_ENET
+	dram_to_hide += mc_get_dram_block_size();
+#endif
+
+	return dram_to_hide;
 }
 
 int board_eth_init(bd_t *bis)
@@ -135,6 +139,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);
+	fsl_mc_ldpaa_exit(bd);
 #endif
 
 	return 0;

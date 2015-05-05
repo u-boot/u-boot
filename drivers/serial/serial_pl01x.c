@@ -95,7 +95,7 @@ static int pl01x_generic_serial_init(struct pl01x_regs *regs,
 	return 0;
 }
 
-static int set_line_control(struct pl01x_regs *regs)
+static int pl011_set_line_control(struct pl01x_regs *regs)
 {
 	unsigned int lcr;
 	/*
@@ -129,6 +129,9 @@ static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 	case TYPE_PL010: {
 		unsigned int divisor;
 
+		/* disable everything */
+		writel(0, &regs->pl010_cr);
+
 		switch (baudrate) {
 		case 9600:
 			divisor = UART_PL010_BAUD_9600;
@@ -152,6 +155,12 @@ static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 		writel((divisor & 0xf00) >> 8, &regs->pl010_lcrm);
 		writel(divisor & 0xff, &regs->pl010_lcrl);
 
+		/*
+		 * Set line control for the PL010 to be 8 bits, 1 stop bit,
+		 * no parity, fifo enabled
+		 */
+		writel(UART_PL010_LCRH_WLEN_8 | UART_PL010_LCRH_FEN,
+		       &regs->pl010_lcrh);
 		/* Finally, enable the UART */
 		writel(UART_PL010_CR_UARTEN, &regs->pl010_cr);
 		break;
@@ -178,7 +187,7 @@ static int pl01x_generic_setbrg(struct pl01x_regs *regs, enum pl01x_type type,
 		writel(divider, &regs->pl011_ibrd);
 		writel(fraction, &regs->pl011_fbrd);
 
-		set_line_control(regs);
+		pl011_set_line_control(regs);
 		/* Finally, enable the UART */
 		writel(UART_PL011_CR_UARTEN | UART_PL011_CR_TXE |
 		       UART_PL011_CR_RXE | UART_PL011_CR_RTS, &regs->pl011_cr);

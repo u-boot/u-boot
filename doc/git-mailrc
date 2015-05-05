@@ -24,7 +24,7 @@ alias ijc            Ian Campbell <ijc+uboot@hellion.org.uk>
 alias iwamatsu       Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 alias jagan          Jagannadha Sutradharudu Teki <jagannadh.teki@gmail.com>
 alias jasonjin       Jason Jin <jason.jin@freescale.com>
-alias jhersh         Joe Hershberger <joe.hershberger@gmail.com>
+alias jhersh         Joe Hershberger <joe.hershberger@ni.com>
 alias jwrdegoede     Hans de Goede <hdegoede@redhat.com>
 alias kimphill       Kim Phillips <kim.phillips@freescale.com>
 alias luka           Luka Perkov <luka.perkov@sartura.hr>
@@ -113,6 +113,7 @@ alias x86            uboot, sjg, gruss
 alias dm             uboot, sjg
 alias cfi            uboot, stroese
 alias dfu            uboot, lukma
+alias eth            uboot, jhersh
 alias kerneldoc      uboot, marex
 alias fdt            uboot, sjg
 alias i2c            uboot, hs
@@ -120,6 +121,7 @@ alias kconfig        uboot, masahiro
 alias mmc            uboot, panto
 alias nand           uboot, scottwood
 alias net            uboot, jhersh
+alias phy            uboot, jhersh
 alias spi            uboot, jagan
 alias ubi            uboot, hs
 alias usb            uboot, marex

@@ -26,4 +26,5 @@ extern struct display_info_t const displays[];
 extern size_t display_count;
 #endif
 
+int ipu_set_ldb_clock(int rate);
 #endif

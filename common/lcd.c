@@ -15,6 +15,7 @@
 #include <linux/types.h>
 #include <stdio_dev.h>
 #include <lcd.h>
+#include <mapmem.h>
 #include <watchdog.h>
 #include <asm/unaligned.h>
 #include <splash.h>
@@ -167,7 +168,6 @@ int drv_lcd_init(void)
 
 void lcd_clear(void)
 {
-	short console_rows, console_cols;
 	int bg_color;
 	char *s;
 	ulong addr;
@@ -211,16 +211,14 @@ void lcd_clear(void)
 	}
 #endif
 #endif
+	/* setup text-console */
+	debug("[LCD] setting up console...\n");
+	lcd_init_console(lcd_base,
+			 panel_info.vl_col,
+			 panel_info.vl_row,
+			 panel_info.vl_rot);
 	/* Paint the logo and retrieve LCD base address */
 	debug("[LCD] Drawing the logo...\n");
-#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
-	console_rows = (panel_info.vl_row - BMP_LOGO_HEIGHT);
-	console_rows /= VIDEO_FONT_HEIGHT;
-#else
-	console_rows = panel_info.vl_row / VIDEO_FONT_HEIGHT;
-#endif
-	console_cols = panel_info.vl_col / VIDEO_FONT_WIDTH;
-	lcd_init_console(lcd_base, console_rows, console_cols);
 	if (do_splash) {
 		s = getenv("splashimage");
 		if (s) {
@@ -236,7 +234,8 @@ void lcd_clear(void)
 	lcd_logo();
 #if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
 	addr = (ulong)lcd_base + BMP_LOGO_HEIGHT * lcd_line_length;
-	lcd_init_console((void *)addr, console_rows, console_cols);
+	lcd_init_console((void *)addr, panel_info.vl_row,
+			 panel_info.vl_col, panel_info.vl_rot);
 #endif
 	lcd_sync();
 }

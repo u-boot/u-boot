@@ -15,7 +15,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_A003399_NOR_WORKAROUND
 void setup_ifc(void)
 {
-	struct fsl_ifc *ifc_regs = (void *)CONFIG_SYS_IFC_ADDR;
+	struct fsl_ifc ifc_regs = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 	u32 _mas0, _mas1, _mas2, _mas3, _mas7;
 	phys_addr_t flash_phys = CONFIG_SYS_FLASH_BASE_PHYS;
 
@@ -70,9 +70,9 @@ void setup_ifc(void)
 #endif
 
 	/* Change flash's physical address */
-	ifc_out32(&(ifc_regs->cspr_cs[0].cspr), CONFIG_SYS_CSPR0);
-	ifc_out32(&(ifc_regs->csor_cs[0].csor), CONFIG_SYS_CSOR0);
-	ifc_out32(&(ifc_regs->amask_cs[0].amask), CONFIG_SYS_AMASK0);
+	ifc_out32(&(ifc_regs.gregs->cspr_cs[0].cspr), CONFIG_SYS_CSPR0);
+	ifc_out32(&(ifc_regs.gregs->csor_cs[0].csor), CONFIG_SYS_CSOR0);
+	ifc_out32(&(ifc_regs.gregs->amask_cs[0].amask), CONFIG_SYS_AMASK0);
 
 	return ;
 }

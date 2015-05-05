@@ -53,7 +53,7 @@ static void cache_flush (void)
 	asm ("mcr p15, 0, %0, c7, c6, 0": :"r" (i));
 }
 
-#ifndef CONFIG_INTEGRATOR
+#ifndef CONFIG_ARCH_INTEGRATOR
 
 __attribute__((noreturn)) void reset_cpu(ulong addr __attribute__((unused)))
 {
@@ -63,4 +63,4 @@ __attribute__((noreturn)) void reset_cpu(ulong addr __attribute__((unused)))
 		;
 }
 
-#endif	/* #ifdef CONFIG_INTEGRATOR */
+#endif	/* #ifdef CONFIG_ARCH_INTEGRATOR */

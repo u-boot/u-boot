@@ -514,17 +514,21 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 		/* MR2 */
 		val = (sysinfo->rtt_wr & 3) << 9 | (ddr3_cfg->SRT & 1) << 7 |
 		      ((tcwl - 3) & 3) << 3;
+		debug("MR2 CS%d: 0x%08x\n", cs, (u32)MR(val, 2, 3, cs));
 		mmdc0->mdscr = MR(val, 2, 3, cs);
 		/* MR3 */
+		debug("MR3 CS%d: 0x%08x\n", cs, (u32)MR(0, 3, 3, cs));
 		mmdc0->mdscr = MR(0, 3, 3, cs);
 		/* MR1 */
 		val = ((sysinfo->rtt_nom & 1) ? 1 : 0) << 2 |
 		      ((sysinfo->rtt_nom & 2) ? 1 : 0) << 6;
+		debug("MR1 CS%d: 0x%08x\n", cs, (u32)MR(val, 1, 3, cs));
 		mmdc0->mdscr = MR(val, 1, 3, cs);
 		/* MR0 */
 		val = ((tcl - 1) << 4) |	/* CAS */
 		      (1 << 8)   |		/* DLL Reset */
 		      ((twr - 3) << 9);		/* Write Recovery */
+		debug("MR0 CS%d: 0x%08x\n", cs, (u32)MR(val, 0, 3, cs));
 		mmdc0->mdscr = MR(val, 0, 3, cs);
 		/* ZQ calibration */
 		val = (1 << 10);
@@ -535,10 +539,11 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	mmdc0->mdpdc = (tcke & 0x7) << 16 |
 			5            << 12 |  /* PWDT_1: 256 cycles */
 			5            <<  8 |  /* PWDT_0: 256 cycles */
-			1            <<  7 |  /* SLOW_PD */
 			1            <<  6 |  /* BOTH_CS_PD */
 			(tcksrx & 0x7) << 3 |
 			(tcksre & 0x7);
+	if (!sysinfo->pd_fast_exit)
+		mmdc0->mdpdc |= (1 << 7); /* SLOW_PD */
 	mmdc0->mapsr = 0x00001006; /* ADOPT power down enabled */
 
 	/* Step 11: Configure ZQ calibration: one-time and periodic 1ms */

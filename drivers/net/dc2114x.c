@@ -333,9 +333,11 @@ static int dc21x4x_init(struct eth_device* dev, bd_t* bis)
 	for (i = 0; i < NUM_RX_DESC; i++) {
 		rx_ring[i].status = cpu_to_le32(R_OWN);
 		rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
-		rx_ring[i].buf = cpu_to_le32(phys_to_bus((u32) NetRxPackets[i]));
+		rx_ring[i].buf = cpu_to_le32(
+			phys_to_bus((u32)net_rx_packets[i]));
 #ifdef CONFIG_TULIP_FIX_DAVICOM
-		rx_ring[i].next = cpu_to_le32(phys_to_bus((u32) &rx_ring[(i+1) % NUM_RX_DESC]));
+		rx_ring[i].next = cpu_to_le32(
+			phys_to_bus((u32)&rx_ring[(i + 1) % NUM_RX_DESC]));
 #else
 		rx_ring[i].next = 0;
 #endif
@@ -448,7 +450,8 @@ static int dc21x4x_recv(struct eth_device* dev)
 				/* Pass the packet up to the protocol
 				 * layers.
 				 */
-				NetReceive(NetRxPackets[rx_new], length - 4);
+				net_process_received_packet(
+					net_rx_packets[rx_new], length - 4);
 			}
 
 			/* Change buffer ownership for this frame, back

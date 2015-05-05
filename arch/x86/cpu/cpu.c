@@ -163,7 +163,7 @@ void setup_gdt(gd_t *id, u64 *gdt_addr)
 int __weak x86_cleanup_before_linux(void)
 {
 #ifdef CONFIG_BOOTSTAGE_STASH
-	bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH,
+	bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
 			CONFIG_BOOTSTAGE_STASH_SIZE);
 #endif
 

@@ -39,6 +39,12 @@ static const led_tbl_t led_commands[] = {
 #ifdef STATUS_LED_BIT3
 	{ "3", STATUS_LED_BIT3, NULL, NULL, NULL },
 #endif
+#ifdef STATUS_LED_BIT4
+	{ "4", STATUS_LED_BIT4, NULL, NULL, NULL },
+#endif
+#ifdef STATUS_LED_BIT5
+	{ "5", STATUS_LED_BIT5, NULL, NULL, NULL },
+#endif
 #endif
 #ifdef STATUS_LED_GREEN
 	{ "green", STATUS_LED_GREEN, green_led_off, green_led_on, NULL },
@@ -55,30 +61,39 @@ static const led_tbl_t led_commands[] = {
 	{ NULL, 0, NULL, NULL, NULL }
 };
 
-enum led_cmd { LED_ON, LED_OFF, LED_TOGGLE };
+enum led_cmd { LED_ON, LED_OFF, LED_TOGGLE, LED_BLINK };
 
 enum led_cmd get_led_cmd(char *var)
 {
-	if (strcmp(var, "off") == 0) {
+	if (strcmp(var, "off") == 0)
 		return LED_OFF;
-	}
-	if (strcmp(var, "on") == 0) {
+	if (strcmp(var, "on") == 0)
 		return LED_ON;
-	}
 	if (strcmp(var, "toggle") == 0)
 		return LED_TOGGLE;
+	if (strcmp(var, "blink") == 0)
+		return LED_BLINK;
+
 	return -1;
+}
+
+/*
+ * LED drivers providing a blinking LED functionality, like the
+ * PCA9551, can override this empty weak function
+ */
+void __weak __led_blink(led_id_t mask, int freq)
+{
 }
 
 int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, match = 0;
 	enum led_cmd cmd;
+	int freq;
 
 	/* Validate arguments */
-	if ((argc != 3)) {
+	if ((argc < 3) || (argc > 4))
 		return CMD_RET_USAGE;
-	}
 
 	cmd = get_led_cmd(argv[2]);
 	if (cmd < 0) {
@@ -109,6 +124,13 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					led_commands[i].toggle();
 				else
 					__led_toggle(led_commands[i].mask);
+				break;
+			case LED_BLINK:
+				if (argc != 4)
+					return CMD_RET_USAGE;
+
+				freq = simple_strtoul(argv[3], NULL, 10);
+				__led_blink(led_commands[i].mask, freq);
 			}
 			/* Need to set only 1 led if led_name wasn't 'all' */
 			if (strcmp("all", argv[1]) != 0)
@@ -125,7 +147,7 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	led, 3, 1, do_led,
+	led, 4, 1, do_led,
 	"["
 #ifdef CONFIG_BOARD_SPECIFIC_LED
 #ifdef STATUS_LED_BIT
@@ -140,6 +162,12 @@ U_BOOT_CMD(
 #ifdef STATUS_LED_BIT3
 	"3|"
 #endif
+#ifdef STATUS_LED_BIT4
+	"4|"
+#endif
+#ifdef STATUS_LED_BIT5
+	"5|"
+#endif
 #endif
 #ifdef STATUS_LED_GREEN
 	"green|"
@@ -153,6 +181,6 @@ U_BOOT_CMD(
 #ifdef STATUS_LED_BLUE
 	"blue|"
 #endif
-	"all] [on|off|toggle]",
-	"[led_name] [on|off|toggle] sets or clears led(s)"
+	"all] [on|off|toggle|blink] [blink-freq in ms]",
+	"[led_name] [on|off|toggle|blink] sets or clears led(s)"
 );

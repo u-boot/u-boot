@@ -1,16 +1,21 @@
 /*
- * (C) Copyright 2001-2010
+ * (C) Copyright 2001-2015
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * Joe Hershberger, National Instruments
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <net.h>
 #include <miiphy.h>
 #include <phy.h>
 #include <asm/errno.h>
+#include <dm/device-internal.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
 {
@@ -27,7 +32,7 @@ void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
 int eth_getenv_enetaddr(char *name, uchar *enetaddr)
 {
 	eth_parse_enetaddr(getenv(name), enetaddr);
-	return is_valid_ether_addr(enetaddr);
+	return is_valid_ethaddr(enetaddr);
 }
 
 int eth_setenv_enetaddr(char *name, const uchar *enetaddr)
@@ -55,14 +60,27 @@ static inline int eth_setenv_enetaddr_by_index(const char *base_name, int index,
 	return eth_setenv_enetaddr(enetvar, enetaddr);
 }
 
+static void eth_env_init(void)
+{
+	const char *s;
+
+	s = getenv("bootfile");
+	if (s != NULL)
+		copy_filename(net_boot_file_name, s,
+			      sizeof(net_boot_file_name));
+}
 
 static int eth_mac_skip(int index)
 {
 	char enetvar[15];
 	char *skip_state;
+
 	sprintf(enetvar, index ? "eth%dmacskip" : "ethmacskip", index);
-	return ((skip_state = getenv(enetvar)) != NULL);
+	skip_state = getenv(enetvar);
+	return skip_state != NULL;
 }
+
+static void eth_current_changed(void);
 
 /*
  * CPU and board-specific Ethernet initializations.  Aliased function
@@ -75,6 +93,472 @@ static int __def_eth_init(bd_t *bis)
 int cpu_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
 int board_eth_init(bd_t *bis) __attribute__((weak, alias("__def_eth_init")));
 
+static void eth_common_init(void)
+{
+	bootstage_mark(BOOTSTAGE_ID_NET_ETH_START);
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
+	miiphy_init();
+#endif
+
+#ifdef CONFIG_PHYLIB
+	phy_init();
+#endif
+
+	eth_env_init();
+
+	/*
+	 * If board-specific initialization exists, call it.
+	 * If not, call a CPU-specific one
+	 */
+	if (board_eth_init != __def_eth_init) {
+		if (board_eth_init(gd->bd) < 0)
+			printf("Board Net Initialization Failed\n");
+	} else if (cpu_eth_init != __def_eth_init) {
+		if (cpu_eth_init(gd->bd) < 0)
+			printf("CPU Net Initialization Failed\n");
+	} else {
+		printf("Net Initialization Skipped\n");
+	}
+}
+
+#ifdef CONFIG_DM_ETH
+/**
+ * struct eth_device_priv - private structure for each Ethernet device
+ *
+ * @state: The state of the Ethernet MAC driver (defined by enum eth_state_t)
+ */
+struct eth_device_priv {
+	enum eth_state_t state;
+};
+
+/**
+ * struct eth_uclass_priv - The structure attached to the uclass itself
+ *
+ * @current: The Ethernet device that the network functions are using
+ */
+struct eth_uclass_priv {
+	struct udevice *current;
+};
+
+/* eth_errno - This stores the most recent failure code from DM functions */
+static int eth_errno;
+
+static struct eth_uclass_priv *eth_get_uclass_priv(void)
+{
+	struct uclass *uc;
+
+	uclass_get(UCLASS_ETH, &uc);
+	assert(uc);
+	return uc->priv;
+}
+
+static void eth_set_current_to_next(void)
+{
+	struct eth_uclass_priv *uc_priv;
+
+	uc_priv = eth_get_uclass_priv();
+	if (uc_priv->current)
+		uclass_next_device(&uc_priv->current);
+	if (!uc_priv->current)
+		uclass_first_device(UCLASS_ETH, &uc_priv->current);
+}
+
+/*
+ * Typically this will simply return the active device.
+ * In the case where the most recent active device was unset, this will attempt
+ * to return the first device. If that device doesn't exist or fails to probe,
+ * this function will return NULL.
+ */
+struct udevice *eth_get_dev(void)
+{
+	struct eth_uclass_priv *uc_priv;
+
+	uc_priv = eth_get_uclass_priv();
+	if (!uc_priv->current)
+		eth_errno = uclass_first_device(UCLASS_ETH,
+				    &uc_priv->current);
+	return uc_priv->current;
+}
+
+/*
+ * Typically this will just store a device pointer.
+ * In case it was not probed, we will attempt to do so.
+ * dev may be NULL to unset the active device.
+ */
+static void eth_set_dev(struct udevice *dev)
+{
+	if (dev && !device_active(dev))
+		eth_errno = device_probe(dev);
+	eth_get_uclass_priv()->current = dev;
+}
+
+/*
+ * Find the udevice that either has the name passed in as devname or has an
+ * alias named devname.
+ */
+struct udevice *eth_get_dev_by_name(const char *devname)
+{
+	int seq = -1;
+	char *endp = NULL;
+	const char *startp = NULL;
+	struct udevice *it;
+	struct uclass *uc;
+
+	/* Must be longer than 3 to be an alias */
+	if (strlen(devname) > strlen("eth")) {
+		startp = devname + strlen("eth");
+		seq = simple_strtoul(startp, &endp, 10);
+	}
+
+	uclass_get(UCLASS_ETH, &uc);
+	uclass_foreach_dev(it, uc) {
+		/*
+		 * We need the seq to be valid, so try to probe it.
+		 * If the probe fails, the seq will not match since it will be
+		 * -1 instead of what we are looking for.
+		 * We don't care about errors from probe here. Either they won't
+		 * match an alias or it will match a literal name and we'll pick
+		 * up the error when we try to probe again in eth_set_dev().
+		 */
+		device_probe(it);
+		/*
+		 * Check for the name or the sequence number to match
+		 */
+		if (strcmp(it->name, devname) == 0 ||
+		    (endp > startp && it->seq == seq))
+			return it;
+	}
+
+	return NULL;
+}
+
+unsigned char *eth_get_ethaddr(void)
+{
+	struct eth_pdata *pdata;
+
+	if (eth_get_dev()) {
+		pdata = eth_get_dev()->platdata;
+		return pdata->enetaddr;
+	}
+
+	return NULL;
+}
+
+/* Set active state without calling start on the driver */
+int eth_init_state_only(void)
+{
+	struct udevice *current;
+	struct eth_device_priv *priv;
+
+	current = eth_get_dev();
+	if (!current || !device_active(current))
+		return -EINVAL;
+
+	priv = current->uclass_priv;
+	priv->state = ETH_STATE_ACTIVE;
+
+	return 0;
+}
+
+/* Set passive state without calling stop on the driver */
+void eth_halt_state_only(void)
+{
+	struct udevice *current;
+	struct eth_device_priv *priv;
+
+	current = eth_get_dev();
+	if (!current || !device_active(current))
+		return;
+
+	priv = current->uclass_priv;
+	priv->state = ETH_STATE_PASSIVE;
+}
+
+int eth_get_dev_index(void)
+{
+	if (eth_get_dev())
+		return eth_get_dev()->seq;
+	return -1;
+}
+
+int eth_init(void)
+{
+	struct udevice *current;
+	struct udevice *old_current;
+	int ret = -ENODEV;
+
+	current = eth_get_dev();
+	if (!current) {
+		printf("No ethernet found.\n");
+		return -ENODEV;
+	}
+
+	old_current = current;
+	do {
+		debug("Trying %s\n", current->name);
+
+		if (device_active(current)) {
+			uchar env_enetaddr[6];
+			struct eth_pdata *pdata = current->platdata;
+
+			/* Sync environment with network device */
+			if (eth_getenv_enetaddr_by_index("eth", current->seq,
+							 env_enetaddr))
+				memcpy(pdata->enetaddr, env_enetaddr, 6);
+			else
+				memset(pdata->enetaddr, 0, 6);
+
+			ret = eth_get_ops(current)->start(current);
+			if (ret >= 0) {
+				struct eth_device_priv *priv =
+					current->uclass_priv;
+
+				priv->state = ETH_STATE_ACTIVE;
+				return 0;
+			}
+		} else {
+			ret = eth_errno;
+		}
+
+		debug("FAIL\n");
+
+		/*
+		 * If ethrotate is enabled, this will change "current",
+		 * otherwise we will drop out of this while loop immediately
+		 */
+		eth_try_another(0);
+		/* This will ensure the new "current" attempted to probe */
+		current = eth_get_dev();
+	} while (old_current != current);
+
+	return ret;
+}
+
+void eth_halt(void)
+{
+	struct udevice *current;
+	struct eth_device_priv *priv;
+
+	current = eth_get_dev();
+	if (!current || !device_active(current))
+		return;
+
+	eth_get_ops(current)->stop(current);
+	priv = current->uclass_priv;
+	priv->state = ETH_STATE_PASSIVE;
+}
+
+int eth_send(void *packet, int length)
+{
+	struct udevice *current;
+	int ret;
+
+	current = eth_get_dev();
+	if (!current)
+		return -ENODEV;
+
+	if (!device_active(current))
+		return -EINVAL;
+
+	ret = eth_get_ops(current)->send(current, packet, length);
+	if (ret < 0) {
+		/* We cannot completely return the error at present */
+		debug("%s: send() returned error %d\n", __func__, ret);
+	}
+	return ret;
+}
+
+int eth_rx(void)
+{
+	struct udevice *current;
+	uchar *packet;
+	int ret;
+	int i;
+
+	current = eth_get_dev();
+	if (!current)
+		return -ENODEV;
+
+	if (!device_active(current))
+		return -EINVAL;
+
+	/* Process up to 32 packets at one time */
+	for (i = 0; i < 32; i++) {
+		ret = eth_get_ops(current)->recv(current, &packet);
+		if (ret > 0)
+			net_process_received_packet(packet, ret);
+		if (ret >= 0 && eth_get_ops(current)->free_pkt)
+			eth_get_ops(current)->free_pkt(current, packet, ret);
+		if (ret <= 0)
+			break;
+	}
+	if (ret == -EAGAIN)
+		ret = 0;
+	if (ret < 0) {
+		/* We cannot completely return the error at present */
+		debug("%s: recv() returned error %d\n", __func__, ret);
+	}
+	return ret;
+}
+
+static int eth_write_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev->platdata;
+	int ret = 0;
+
+	if (!dev || !device_active(dev))
+		return -EINVAL;
+
+	/* seq is valid since the device is active */
+	if (eth_get_ops(dev)->write_hwaddr && !eth_mac_skip(dev->seq)) {
+		if (!is_valid_ethaddr(pdata->enetaddr)) {
+			printf("\nError: %s address %pM illegal value\n",
+			       dev->name, pdata->enetaddr);
+			return -EINVAL;
+		}
+
+		ret = eth_get_ops(dev)->write_hwaddr(dev);
+		if (ret)
+			printf("\nWarning: %s failed to set MAC address\n",
+			       dev->name);
+	}
+
+	return ret;
+}
+
+int eth_initialize(void)
+{
+	int num_devices = 0;
+	struct udevice *dev;
+
+	eth_common_init();
+
+	/*
+	 * Devices need to write the hwaddr even if not started so that Linux
+	 * will have access to the hwaddr that u-boot stored for the device.
+	 * This is accomplished by attempting to probe each device and calling
+	 * their write_hwaddr() operation.
+	 */
+	uclass_first_device(UCLASS_ETH, &dev);
+	if (!dev) {
+		printf("No ethernet found.\n");
+		bootstage_error(BOOTSTAGE_ID_NET_ETH_START);
+	} else {
+		char *ethprime = getenv("ethprime");
+		struct udevice *prime_dev = NULL;
+
+		if (ethprime)
+			prime_dev = eth_get_dev_by_name(ethprime);
+		if (prime_dev) {
+			eth_set_dev(prime_dev);
+			eth_current_changed();
+		} else {
+			eth_set_dev(NULL);
+		}
+
+		bootstage_mark(BOOTSTAGE_ID_NET_ETH_INIT);
+		do {
+			if (num_devices)
+				printf(", ");
+
+			printf("eth%d: %s", dev->seq, dev->name);
+
+			if (ethprime && dev == prime_dev)
+				printf(" [PRIME]");
+
+			eth_write_hwaddr(dev);
+
+			uclass_next_device(&dev);
+			num_devices++;
+		} while (dev);
+
+		putc('\n');
+	}
+
+	return num_devices;
+}
+
+static int eth_post_bind(struct udevice *dev)
+{
+	if (strchr(dev->name, ' ')) {
+		printf("\nError: eth device name \"%s\" has a space!\n",
+		       dev->name);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int eth_pre_unbind(struct udevice *dev)
+{
+	/* Don't hang onto a pointer that is going away */
+	if (dev == eth_get_uclass_priv()->current)
+		eth_set_dev(NULL);
+
+	return 0;
+}
+
+static int eth_post_probe(struct udevice *dev)
+{
+	struct eth_device_priv *priv = dev->uclass_priv;
+	struct eth_pdata *pdata = dev->platdata;
+	unsigned char env_enetaddr[6];
+
+	priv->state = ETH_STATE_INIT;
+
+	/* Check if the device has a MAC address in ROM */
+	if (eth_get_ops(dev)->read_rom_hwaddr)
+		eth_get_ops(dev)->read_rom_hwaddr(dev);
+
+	eth_getenv_enetaddr_by_index("eth", dev->seq, env_enetaddr);
+	if (!is_zero_ethaddr(env_enetaddr)) {
+		if (!is_zero_ethaddr(pdata->enetaddr) &&
+		    memcmp(pdata->enetaddr, env_enetaddr, 6)) {
+			printf("\nWarning: %s MAC addresses don't match:\n",
+			       dev->name);
+			printf("Address in SROM is         %pM\n",
+			       pdata->enetaddr);
+			printf("Address in environment is  %pM\n",
+			       env_enetaddr);
+		}
+
+		/* Override the ROM MAC address */
+		memcpy(pdata->enetaddr, env_enetaddr, 6);
+	} else if (is_valid_ethaddr(pdata->enetaddr)) {
+		eth_setenv_enetaddr_by_index("eth", dev->seq, pdata->enetaddr);
+		printf("\nWarning: %s using MAC address from ROM\n",
+		       dev->name);
+	} else if (is_zero_ethaddr(pdata->enetaddr)) {
+		printf("\nError: %s address not set.\n",
+		       dev->name);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int eth_pre_remove(struct udevice *dev)
+{
+	eth_get_ops(dev)->stop(dev);
+
+	return 0;
+}
+
+UCLASS_DRIVER(eth) = {
+	.name		= "eth",
+	.id		= UCLASS_ETH,
+	.post_bind	= eth_post_bind,
+	.pre_unbind	= eth_pre_unbind,
+	.post_probe	= eth_post_probe,
+	.pre_remove	= eth_pre_remove,
+	.priv_auto_alloc_size = sizeof(struct eth_uclass_priv),
+	.per_device_auto_alloc_size = sizeof(struct eth_device_priv),
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+};
+#endif
+
+#ifndef CONFIG_DM_ETH
+
 #ifdef CONFIG_API
 static struct {
 	uchar data[PKTSIZE];
@@ -86,6 +570,16 @@ static unsigned int eth_rcv_current, eth_rcv_last;
 
 static struct eth_device *eth_devices;
 struct eth_device *eth_current;
+
+static void eth_set_current_to_next(void)
+{
+	eth_current = eth_current->next;
+}
+
+static void eth_set_dev(struct eth_device *dev)
+{
+	eth_current = dev;
+}
 
 struct eth_device *eth_get_dev_by_name(const char *devname)
 {
@@ -137,27 +631,6 @@ int eth_get_dev_index(void)
 	return eth_current->index;
 }
 
-static void eth_current_changed(void)
-{
-	char *act = getenv("ethact");
-	/* update current ethernet name */
-	if (eth_current) {
-		if (act == NULL || strcmp(act, eth_current->name) != 0)
-			setenv("ethact", eth_current->name);
-	}
-	/*
-	 * remove the variable completely if there is no active
-	 * interface
-	 */
-	else if (act != NULL)
-		setenv("ethact", NULL);
-}
-
-static int eth_address_set(unsigned char *addr)
-{
-	return memcmp(addr, "\0\0\0\0\0\0", 6);
-}
-
 int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		   int eth_number)
 {
@@ -166,39 +639,40 @@ int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 
 	eth_getenv_enetaddr_by_index(base_name, eth_number, env_enetaddr);
 
-	if (eth_address_set(env_enetaddr)) {
-		if (eth_address_set(dev->enetaddr) &&
-				memcmp(dev->enetaddr, env_enetaddr, 6)) {
+	if (!is_zero_ethaddr(env_enetaddr)) {
+		if (!is_zero_ethaddr(dev->enetaddr) &&
+		    memcmp(dev->enetaddr, env_enetaddr, 6)) {
 			printf("\nWarning: %s MAC addresses don't match:\n",
-				dev->name);
+			       dev->name);
 			printf("Address in SROM is         %pM\n",
-				dev->enetaddr);
+			       dev->enetaddr);
 			printf("Address in environment is  %pM\n",
-				env_enetaddr);
+			       env_enetaddr);
 		}
 
 		memcpy(dev->enetaddr, env_enetaddr, 6);
-	} else if (is_valid_ether_addr(dev->enetaddr)) {
+	} else if (is_valid_ethaddr(dev->enetaddr)) {
 		eth_setenv_enetaddr_by_index(base_name, eth_number,
 					     dev->enetaddr);
 		printf("\nWarning: %s using MAC address from net device\n",
-			dev->name);
-	} else if (!(eth_address_set(dev->enetaddr))) {
+		       dev->name);
+	} else if (is_zero_ethaddr(dev->enetaddr)) {
 		printf("\nError: %s address not set.\n",
 		       dev->name);
 		return -EINVAL;
 	}
 
 	if (dev->write_hwaddr && !eth_mac_skip(eth_number)) {
-		if (!is_valid_ether_addr(dev->enetaddr)) {
+		if (!is_valid_ethaddr(dev->enetaddr)) {
 			printf("\nError: %s address %pM illegal value\n",
-				 dev->name, dev->enetaddr);
+			       dev->name, dev->enetaddr);
 			return -EINVAL;
 		}
 
 		ret = dev->write_hwaddr(dev);
 		if (ret)
-			printf("\nWarning: %s failed to set MAC address\n", dev->name);
+			printf("\nWarning: %s failed to set MAC address\n",
+			       dev->name);
 	}
 
 	return ret;
@@ -212,7 +686,8 @@ int eth_register(struct eth_device *dev)
 	assert(strlen(dev->name) < sizeof(dev->name));
 
 	if (!eth_devices) {
-		eth_current = eth_devices = dev;
+		eth_devices = dev;
+		eth_current = dev;
 		eth_current_changed();
 	} else {
 		for (d = eth_devices; d->next != eth_devices; d = d->next)
@@ -233,7 +708,7 @@ int eth_unregister(struct eth_device *dev)
 
 	/* No device */
 	if (!eth_devices)
-		return -1;
+		return -ENODEV;
 
 	for (cur = eth_devices; cur->next != eth_devices && cur->next != dev;
 	     cur = cur->next)
@@ -241,7 +716,7 @@ int eth_unregister(struct eth_device *dev)
 
 	/* Device not found */
 	if (cur->next != dev)
-		return -1;
+		return -ENODEV;
 
 	cur->next = dev->next;
 
@@ -256,43 +731,13 @@ int eth_unregister(struct eth_device *dev)
 	return 0;
 }
 
-static void eth_env_init(bd_t *bis)
-{
-	const char *s;
-
-	if ((s = getenv("bootfile")) != NULL)
-		copy_filename(BootFile, s, sizeof(BootFile));
-}
-
-int eth_initialize(bd_t *bis)
+int eth_initialize(void)
 {
 	int num_devices = 0;
+
 	eth_devices = NULL;
 	eth_current = NULL;
-
-	bootstage_mark(BOOTSTAGE_ID_NET_ETH_START);
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
-	miiphy_init();
-#endif
-
-#ifdef CONFIG_PHYLIB
-	phy_init();
-#endif
-
-	eth_env_init(bis);
-
-	/*
-	 * If board-specific initialization exists, call it.
-	 * If not, call a CPU-specific one
-	 */
-	if (board_eth_init != __def_eth_init) {
-		if (board_eth_init(bis) < 0)
-			printf("Board Net Initialization Failed\n");
-	} else if (cpu_eth_init != __def_eth_init) {
-		if (cpu_eth_init(bis) < 0)
-			printf("CPU Net Initialization Failed\n");
-	} else
-		printf("Net Initialization Skipped\n");
+	eth_common_init();
 
 	if (!eth_devices) {
 		puts("No ethernet found.\n");
@@ -335,14 +780,14 @@ int eth_initialize(bd_t *bis)
  * mcast_addr: multicast ipaddr from which multicast Mac is made
  * join: 1=join, 0=leave.
  */
-int eth_mcast_join(IPaddr_t mcast_ip, u8 join)
+int eth_mcast_join(struct in_addr mcast_ip, int join)
 {
 	u8 mcast_mac[6];
 	if (!eth_current || !eth_current->mcast)
 		return -1;
-	mcast_mac[5] = htonl(mcast_ip) & 0xff;
-	mcast_mac[4] = (htonl(mcast_ip)>>8) & 0xff;
-	mcast_mac[3] = (htonl(mcast_ip)>>16) & 0x7f;
+	mcast_mac[5] = htonl(mcast_ip.s_addr) & 0xff;
+	mcast_mac[4] = (htonl(mcast_ip.s_addr)>>8) & 0xff;
+	mcast_mac[3] = (htonl(mcast_ip.s_addr)>>16) & 0x7f;
 	mcast_mac[2] = 0x5e;
 	mcast_mac[1] = 0x0;
 	mcast_mac[0] = 0x1;
@@ -376,13 +821,13 @@ u32 ether_crc(size_t len, unsigned char const *p)
 #endif
 
 
-int eth_init(bd_t *bis)
+int eth_init(void)
 {
 	struct eth_device *old_current, *dev;
 
 	if (!eth_current) {
 		puts("No ethernet found.\n");
-		return -1;
+		return -ENODEV;
 	}
 
 	/* Sync environment with network devices */
@@ -401,7 +846,7 @@ int eth_init(bd_t *bis)
 	do {
 		debug("Trying %s\n", eth_current->name);
 
-		if (eth_current->init(eth_current, bis) >= 0) {
+		if (eth_current->init(eth_current, gd->bd) >= 0) {
 			eth_current->state = ETH_STATE_ACTIVE;
 
 			return 0;
@@ -411,7 +856,7 @@ int eth_init(bd_t *bis)
 		eth_try_another(0);
 	} while (old_current != eth_current);
 
-	return -1;
+	return -ETIMEDOUT;
 }
 
 void eth_halt(void)
@@ -427,7 +872,7 @@ void eth_halt(void)
 int eth_send(void *packet, int length)
 {
 	if (!eth_current)
-		return -1;
+		return -ENODEV;
 
 	return eth_current->send(eth_current, packet, length);
 }
@@ -435,10 +880,11 @@ int eth_send(void *packet, int length)
 int eth_rx(void)
 {
 	if (!eth_current)
-		return -1;
+		return -ENODEV;
 
 	return eth_current->recv(eth_current);
 }
+#endif /* ifndef CONFIG_DM_ETH */
 
 #ifdef CONFIG_API
 static void eth_save_packet(void *packet, int length)
@@ -484,9 +930,25 @@ int eth_receive(void *packet, int length)
 }
 #endif /* CONFIG_API */
 
+static void eth_current_changed(void)
+{
+	char *act = getenv("ethact");
+	/* update current ethernet name */
+	if (eth_get_dev()) {
+		if (act == NULL || strcmp(act, eth_get_name()) != 0)
+			setenv("ethact", eth_get_name());
+	}
+	/*
+	 * remove the variable completely if there is no active
+	 * interface
+	 */
+	else if (act != NULL)
+		setenv("ethact", NULL);
+}
+
 void eth_try_another(int first_restart)
 {
-	static struct eth_device *first_failed;
+	static void *first_failed;
 	char *ethrotate;
 
 	/*
@@ -497,48 +959,50 @@ void eth_try_another(int first_restart)
 	if ((ethrotate != NULL) && (strcmp(ethrotate, "no") == 0))
 		return;
 
-	if (!eth_current)
+	if (!eth_get_dev())
 		return;
 
 	if (first_restart)
-		first_failed = eth_current;
+		first_failed = eth_get_dev();
 
-	eth_current = eth_current->next;
+	eth_set_current_to_next();
 
 	eth_current_changed();
 
-	if (first_failed == eth_current)
-		NetRestartWrap = 1;
+	if (first_failed == eth_get_dev())
+		net_restart_wrap = 1;
 }
 
 void eth_set_current(void)
 {
 	static char *act;
 	static int  env_changed_id;
-	struct eth_device *old_current;
 	int	env_id;
-
-	if (!eth_current)	/* XXX no current */
-		return;
 
 	env_id = get_env_id();
 	if ((act == NULL) || (env_changed_id != env_id)) {
 		act = getenv("ethact");
 		env_changed_id = env_id;
 	}
-	if (act != NULL) {
-		old_current = eth_current;
-		do {
-			if (strcmp(eth_current->name, act) == 0)
-				return;
-			eth_current = eth_current->next;
-		} while (old_current != eth_current);
+
+	if (act == NULL) {
+		char *ethprime = getenv("ethprime");
+		void *dev = NULL;
+
+		if (ethprime)
+			dev = eth_get_dev_by_name(ethprime);
+		if (dev)
+			eth_set_dev(dev);
+		else
+			eth_set_dev(NULL);
+	} else {
+		eth_set_dev(eth_get_dev_by_name(act));
 	}
 
 	eth_current_changed();
 }
 
-char *eth_get_name(void)
+const char *eth_get_name(void)
 {
-	return eth_current ? eth_current->name : "unknown";
+	return eth_get_dev() ? eth_get_dev()->name : "unknown";
 }

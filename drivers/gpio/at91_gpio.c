@@ -511,7 +511,7 @@ static int at91_gpio_probe(struct udevice *dev)
 {
 	struct at91_port_priv *port = dev_get_priv(dev);
 	struct at91_port_platdata *plat = dev_get_platdata(dev);
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	uc_priv->bank_name = plat->bank_name;
 	uc_priv->gpio_count = GPIO_PER_BANK;

@@ -61,7 +61,11 @@ ENTRY(_main)
 /*
  * Set up initial C runtime environment and call board_init_f(0).
  */
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
+	ldr	x0, =(CONFIG_SPL_STACK)
+#else
 	ldr	x0, =(CONFIG_SYS_INIT_SP_ADDR)
+#endif
 	sub	x18, x0, #GD_SIZE	/* allocate one GD above SP */
 	bic	x18, x18, #0x7		/* 8-byte alignment for GD */
 zero_gd:
@@ -77,6 +81,7 @@ zero_gd:
 	mov	x0, #0
 	bl	board_init_f
 
+#if !defined(CONFIG_SPL_BUILD)
 /*
  * Set up intermediate environment (new sp and gd) and call
  * relocate_code(addr_moni). Trick here is that we'll return
@@ -118,5 +123,7 @@ clear_loop:
 	b	board_init_r			/* PC relative jump */
 
 	/* NOTREACHED - board_init_r() does not return */
+
+#endif /* !CONFIG_SPL_BUILD */
 
 ENDPROC(_main)

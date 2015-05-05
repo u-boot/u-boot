@@ -29,7 +29,7 @@ static inline void pci_read_dword_ptr(void *ptr, int offset)
 {
 	u32 dword;
 
-	dword = pci_read_config32(PCH_ME_DEV, offset);
+	dword = x86_pci_read_config32(PCH_ME_DEV, offset);
 	memcpy(ptr, &dword, sizeof(dword));
 }
 
@@ -37,7 +37,7 @@ static inline void pci_write_dword_ptr(void *ptr, int offset)
 {
 	u32 dword = 0;
 	memcpy(&dword, ptr, sizeof(dword));
-	pci_write_config32(PCH_ME_DEV, offset, dword);
+	x86_pci_write_config32(PCH_ME_DEV, offset, dword);
 }
 
 void intel_early_me_status(void)
@@ -101,7 +101,7 @@ static inline void set_global_reset(int enable)
 {
 	u32 etr3;
 
-	etr3 = pci_read_config32(PCH_LPC_DEV, ETR3);
+	etr3 = x86_pci_read_config32(PCH_LPC_DEV, ETR3);
 
 	/* Clear CF9 Without Resume Well Reset Enable */
 	etr3 &= ~ETR3_CWORWRE;
@@ -112,7 +112,7 @@ static inline void set_global_reset(int enable)
 	else
 		etr3 &= ~ETR3_CF9GR;
 
-	pci_write_config32(PCH_LPC_DEV, ETR3, etr3);
+	x86_pci_write_config32(PCH_LPC_DEV, ETR3, etr3);
 }
 
 int intel_early_me_init_done(u8 status)
@@ -127,8 +127,8 @@ int intel_early_me_init_done(u8 status)
 	};
 
 	/* MEBASE from MESEG_BASE[35:20] */
-	mebase_l = pci_read_config32(PCH_DEV, PCI_CPU_MEBASE_L);
-	mebase_h = pci_read_config32(PCH_DEV, PCI_CPU_MEBASE_H);
+	mebase_l = x86_pci_read_config32(PCH_DEV, PCI_CPU_MEBASE_L);
+	mebase_h = x86_pci_read_config32(PCH_DEV, PCI_CPU_MEBASE_H);
 	mebase_h &= 0xf;
 	did.uma_base = (mebase_l >> 20) | (mebase_h << 12);
 

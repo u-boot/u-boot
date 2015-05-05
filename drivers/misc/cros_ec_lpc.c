@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <command.h>
 #include <cros_ec.h>
 #include <asm/io.h>
@@ -40,10 +41,11 @@ static int wait_for_sync(struct cros_ec_dev *dev)
 	return 0;
 }
 
-int cros_ec_lpc_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
+int cros_ec_lpc_command(struct udevice *udev, uint8_t cmd, int cmd_version,
 		     const uint8_t *dout, int dout_len,
 		     uint8_t **dinp, int din_len)
 {
+	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
 	const int cmd_addr = EC_LPC_ADDR_HOST_CMD;
 	const int data_addr = EC_LPC_ADDR_HOST_DATA;
 	const int args_addr = EC_LPC_ADDR_HOST_ARGS;
@@ -178,7 +180,7 @@ int cros_ec_lpc_init(struct cros_ec_dev *dev, const void *blob)
  * seeing whether the EC sets the EC_HOST_ARGS_FLAG_FROM_HOST flag
  * in args when it responds.
  */
-int cros_ec_lpc_check_version(struct cros_ec_dev *dev)
+static int cros_ec_lpc_check_version(struct udevice *dev)
 {
 	if (inb(EC_LPC_ADDR_MEMMAP + EC_MEMMAP_ID) == 'E' &&
 			inb(EC_LPC_ADDR_MEMMAP + EC_MEMMAP_ID + 1)
@@ -192,3 +194,26 @@ int cros_ec_lpc_check_version(struct cros_ec_dev *dev)
 	printf("%s: ERROR: old EC interface not supported\n", __func__);
 	return -1;
 }
+
+static int cros_ec_probe(struct udevice *dev)
+{
+	return cros_ec_register(dev);
+}
+
+static struct dm_cros_ec_ops cros_ec_ops = {
+	.command = cros_ec_lpc_command,
+	.check_version = cros_ec_lpc_check_version,
+};
+
+static const struct udevice_id cros_ec_ids[] = {
+	{ .compatible = "google,cros-ec-lpc" },
+	{ }
+};
+
+U_BOOT_DRIVER(cros_ec_lpc) = {
+	.name		= "cros_ec_lpc",
+	.id		= UCLASS_CROS_EC,
+	.of_match	= cros_ec_ids,
+	.probe		= cros_ec_probe,
+	.ops		= &cros_ec_ops,
+};

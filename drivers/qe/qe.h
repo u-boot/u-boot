@@ -11,6 +11,9 @@
 #define __QE_H__
 
 #include "common.h"
+#ifdef CONFIG_U_QE
+#include <linux/immap_qe.h>
+#endif
 
 #define QE_NUM_OF_BRGS	16
 #define UCC_MAX_NUM	8
@@ -288,6 +291,9 @@ void qe_reset(void);
 #ifdef CONFIG_U_QE
 void u_qe_init(void);
 int u_qe_upload_firmware(const struct qe_firmware *firmware);
+void u_qe_resume(void);
+int u_qe_firmware_resume(const struct qe_firmware *firmware,
+			 qe_map_t *qe_immrr);
 #endif
 
 #endif /* __QE_H__ */

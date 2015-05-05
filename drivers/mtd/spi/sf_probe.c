@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/io.h>
@@ -131,6 +132,9 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 	flash->name = params->name;
 	flash->memory_map = spi->memory_map;
 	flash->dual_flash = flash->spi->option;
+#ifdef CONFIG_DM_SPI_FLASH
+	flash->flags = params->flags;
+#endif
 
 	/* Assign spi_flash ops */
 #ifndef CONFIG_DM_SPI_FLASH
@@ -182,6 +186,9 @@ static int spi_flash_validate_params(struct spi_slave *spi, u8 *idcode,
 		flash->erase_cmd = CMD_ERASE_64K;
 		flash->erase_size = flash->sector_size;
 	}
+
+	/* Now erase size becomes valid sector size */
+	flash->sector_size = flash->erase_size;
 
 	/* Look for the fastest read cmd */
 	cmd = fls(params->e_rd_cmd & flash->spi->op_mode_rx);
@@ -287,34 +294,6 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 }
 #endif /* CONFIG_OF_CONTROL */
 
-#ifdef CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
-/* enable the W#/Vpp signal to disable writing to the status register */
-static int spi_enable_wp_pin(struct spi_flash *flash)
-{
-	u8 status;
-	int ret;
-
-	ret = spi_flash_cmd_read_status(flash, &status);
-	if (ret < 0)
-		return ret;
-
-	ret = spi_flash_cmd_write_status(flash, STATUS_SRWD);
-	if (ret < 0)
-		return ret;
-
-	ret = spi_flash_cmd_write_disable(flash);
-	if (ret < 0)
-		return ret;
-
-	return 0;
-}
-#else
-static int spi_enable_wp_pin(struct spi_flash *flash)
-{
-	return 0;
-}
-#endif
-
 /**
  * spi_flash_probe_slave() - Probe for a SPI flash device on a bus
  *
@@ -393,8 +372,6 @@ int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 		puts(" Full access #define CONFIG_SPI_FLASH_BAR\n");
 	}
 #endif
-	if (spi_enable_wp_pin(flash))
-		puts("Enable WP pin failed\n");
 
 	/* Release spi bus */
 	spi_release_bus(spi);
@@ -433,6 +410,8 @@ struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
 	struct spi_slave *bus;
 
 	bus = spi_setup_slave(busnum, cs, max_hz, spi_mode);
+	if (!bus)
+		return NULL;
 	return spi_flash_probe_tail(bus);
 }
 
@@ -443,6 +422,8 @@ struct spi_flash *spi_flash_probe_fdt(const void *blob, int slave_node,
 	struct spi_slave *bus;
 
 	bus = spi_setup_slave_fdt(blob, slave_node, spi_node);
+	if (!bus)
+		return NULL;
 	return spi_flash_probe_tail(bus);
 }
 #endif
@@ -458,7 +439,7 @@ void spi_flash_free(struct spi_flash *flash)
 static int spi_flash_std_read(struct udevice *dev, u32 offset, size_t len,
 			      void *buf)
 {
-	struct spi_flash *flash = dev->uclass_priv;
+	struct spi_flash *flash = dev_get_uclass_priv(dev);
 
 	return spi_flash_cmd_read_ops(flash, offset, len, buf);
 }
@@ -466,14 +447,23 @@ static int spi_flash_std_read(struct udevice *dev, u32 offset, size_t len,
 int spi_flash_std_write(struct udevice *dev, u32 offset, size_t len,
 			const void *buf)
 {
-	struct spi_flash *flash = dev->uclass_priv;
+	struct spi_flash *flash = dev_get_uclass_priv(dev);
+
+#if defined(CONFIG_SPI_FLASH_SST)
+	if (flash->flags & SST_WR) {
+		if (flash->spi->op_mode_tx & SPI_OPM_TX_BP)
+			return sst_write_bp(flash, offset, len, buf);
+		else
+			return sst_write_wp(flash, offset, len, buf);
+	}
+#endif
 
 	return spi_flash_cmd_write_ops(flash, offset, len, buf);
 }
 
 int spi_flash_std_erase(struct udevice *dev, u32 offset, size_t len)
 {
-	struct spi_flash *flash = dev->uclass_priv;
+	struct spi_flash *flash = dev_get_uclass_priv(dev);
 
 	return spi_flash_cmd_erase_ops(flash, offset, len);
 }
@@ -484,7 +474,7 @@ int spi_flash_std_probe(struct udevice *dev)
 	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
 	struct spi_flash *flash;
 
-	flash = dev->uclass_priv;
+	flash = dev_get_uclass_priv(dev);
 	flash->dev = dev;
 	debug("%s: slave=%p, cs=%d\n", __func__, slave, plat->cs);
 	return spi_flash_probe_slave(slave, flash);

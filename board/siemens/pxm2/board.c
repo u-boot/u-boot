@@ -222,7 +222,7 @@ int board_eth_init(bd_t *bis)
 	struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 #ifdef CONFIG_FACTORYSET
 	int rv;
-	if (!is_valid_ether_addr(factory_dat.mac))
+	if (!is_valid_ethaddr(factory_dat.mac))
 		printf("Error: no valid mac address\n");
 	else
 		eth_setenv_enetaddr("ethaddr", factory_dat.mac);

@@ -379,6 +379,11 @@ struct usb_endpoint_descriptor {
 #define USB_DT_ENDPOINT_SIZE		7
 #define USB_DT_ENDPOINT_AUDIO_SIZE	9	/* Audio extension */
 
+/* Used to access common fields */
+struct usb_generic_descriptor {
+	__u8  bLength;
+	__u8  bDescriptorType;
+};
 
 /*
  * Endpoints
@@ -1001,5 +1006,18 @@ struct usb_set_sel_req {
  * http://compliance.usb.org/index.asp?UpdateFile=Electrical&Format=Standard#34
  */
 #define USB_SELF_POWER_VBUS_MAX_DRAW		100
+
+/**
+ * struct usb_string - wraps a C string and its USB id
+ * @id:the (nonzero) ID for this string
+ * @s:the string, in UTF-8 encoding
+ *
+ * If you're using usb_gadget_get_string(), use this to wrap a string
+ * together with its ID.
+ */
+struct usb_string {
+	u8 id;
+	const char *s;
+};
 
 #endif /* __LINUX_USB_CH9_H */

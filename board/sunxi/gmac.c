@@ -39,52 +39,56 @@ int sunxi_gmac_initialize(bd_t *bis)
 		if (pin == SUNXI_GPA(9) || pin == SUNXI_GPA(14))
 			continue;
 #endif
-		sunxi_gpio_set_cfgpin(pin, SUN7I_GPA0_GMAC);
+		sunxi_gpio_set_cfgpin(pin, SUN7I_GPA_GMAC);
 		sunxi_gpio_set_drv(pin, 3);
 	}
 #elif defined CONFIG_RGMII
 	/* Configure sun6i RGMII mode pin mux settings */
 	for (pin = SUNXI_GPA(0); pin <= SUNXI_GPA(3); pin++) {
-		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA0_GMAC);
+		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_GMAC);
 		sunxi_gpio_set_drv(pin, 3);
 	}
 	for (pin = SUNXI_GPA(9); pin <= SUNXI_GPA(14); pin++) {
-		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA0_GMAC);
+		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_GMAC);
 		sunxi_gpio_set_drv(pin, 3);
 	}
 	for (pin = SUNXI_GPA(19); pin <= SUNXI_GPA(20); pin++) {
-		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA0_GMAC);
+		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_GMAC);
 		sunxi_gpio_set_drv(pin, 3);
 	}
 	for (pin = SUNXI_GPA(25); pin <= SUNXI_GPA(27); pin++) {
-		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA0_GMAC);
+		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_GMAC);
 		sunxi_gpio_set_drv(pin, 3);
 	}
 #elif defined CONFIG_GMII
 	/* Configure sun6i GMII mode pin mux settings */
 	for (pin = SUNXI_GPA(0); pin <= SUNXI_GPA(27); pin++) {
-		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA0_GMAC);
+		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_GMAC);
 		sunxi_gpio_set_drv(pin, 2);
 	}
 #else
 	/* Configure sun6i MII mode pin mux settings */
 	for (pin = SUNXI_GPA(0); pin <= SUNXI_GPA(3); pin++)
-		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA0_GMAC);
+		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_GMAC);
 	for (pin = SUNXI_GPA(8); pin <= SUNXI_GPA(9); pin++)
-		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA0_GMAC);
+		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_GMAC);
 	for (pin = SUNXI_GPA(11); pin <= SUNXI_GPA(14); pin++)
-		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA0_GMAC);
+		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_GMAC);
 	for (pin = SUNXI_GPA(19); pin <= SUNXI_GPA(24); pin++)
-		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA0_GMAC);
+		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_GMAC);
 	for (pin = SUNXI_GPA(26); pin <= SUNXI_GPA(27); pin++)
-		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA0_GMAC);
+		sunxi_gpio_set_cfgpin(pin, SUN6I_GPA_GMAC);
 #endif
 
-#ifdef CONFIG_RGMII
-	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_RGMII);
-#elif defined CONFIG_GMII
-	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_GMII);
+#ifdef CONFIG_DM_ETH
+	return 0;
 #else
+# ifdef CONFIG_RGMII
+	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_RGMII);
+# elif defined CONFIG_GMII
+	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_GMII);
+# else
 	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_MII);
+# endif
 #endif
 }

@@ -154,7 +154,11 @@ Series-version: n
 
 Series-prefix: prefix
 	Sets the subject prefix. Normally empty but it can be RFC for
-	RFC patches, or RESEND if you are being ignored.
+	RFC patches, or RESEND if you are being ignored. The patch subject
+	is like [RFC PATCH] or [RESEND PATCH].
+	In the meantime, git format.subjectprefix option will be added as
+	well. If your format.subjectprefix is set to InternalProject, then
+	the patch shows like: [InternalProject][RFC/RESEND PATCH]
 
 Series-name: name
 	Sets the name of the series. You don't need to have a name, and

@@ -12,7 +12,7 @@ obj-y	+= cache_v7.o
 obj-y	+= cpu.o cp15.o
 obj-y	+= syslib.o
 
-ifneq ($(CONFIG_AM43XX)$(CONFIG_AM33XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(CONFIG_TEGRA)$(CONFIG_MX6)$(CONFIG_TI81XX)$(CONFIG_AT91FAMILY)$(CONFIG_SUNXI),)
+ifneq ($(CONFIG_AM43XX)$(CONFIG_AM33XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(CONFIG_TEGRA)$(CONFIG_MX6)$(CONFIG_TI81XX)$(CONFIG_AT91FAMILY)$(CONFIG_SUNXI)$(CONFIG_SOCFPGA),)
 ifneq ($(CONFIG_SKIP_LOWLEVEL_INIT),y)
 obj-y	+= lowlevel_init.o
 endif
@@ -56,4 +56,3 @@ obj-$(if $(filter stv0991,$(SOC)),y) += stv0991/
 obj-$(CONFIG_ARCH_SUNXI) += sunxi/
 obj-$(CONFIG_U8500) += u8500/
 obj-$(CONFIG_VF610) += vf610/
-obj-$(CONFIG_ZYNQ) += zynq/

@@ -39,8 +39,8 @@
 #define CONFIG_UPDATE_TFTP_CNT_MAX	0
 #endif
 
-extern ulong TftpRRQTimeoutMSecs;
-extern int TftpRRQTimeoutCountMax;
+extern ulong tftp_timeout_ms;
+extern int tftp_timeout_count_max;
 extern flash_info_t flash_info[];
 extern ulong load_addr;
 
@@ -55,22 +55,22 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 
 	rv = 0;
 	/* save used globals and env variable */
-	saved_timeout_msecs = TftpRRQTimeoutMSecs;
-	saved_timeout_count = TftpRRQTimeoutCountMax;
+	saved_timeout_msecs = tftp_timeout_ms;
+	saved_timeout_count = tftp_timeout_count_max;
 	saved_netretry = strdup(getenv("netretry"));
-	saved_bootfile = strdup(BootFile);
+	saved_bootfile = strdup(net_boot_file_name);
 
 	/* set timeouts for auto-update */
-	TftpRRQTimeoutMSecs = msec_max;
-	TftpRRQTimeoutCountMax = cnt_max;
+	tftp_timeout_ms = msec_max;
+	tftp_timeout_count_max = cnt_max;
 
 	/* we don't want to retry the connection if errors occur */
 	setenv("netretry", "no");
 
 	/* download the update file */
 	load_addr = addr;
-	copy_filename(BootFile, filename, sizeof(BootFile));
-	size = NetLoop(TFTPGET);
+	copy_filename(net_boot_file_name, filename, sizeof(net_boot_file_name));
+	size = net_loop(TFTPGET);
 
 	if (size < 0)
 		rv = 1;
@@ -78,15 +78,16 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 		flush_cache(addr, size);
 
 	/* restore changed globals and env variable */
-	TftpRRQTimeoutMSecs = saved_timeout_msecs;
-	TftpRRQTimeoutCountMax = saved_timeout_count;
+	tftp_timeout_ms = saved_timeout_msecs;
+	tftp_timeout_count_max = saved_timeout_count;
 
 	setenv("netretry", saved_netretry);
 	if (saved_netretry != NULL)
 		free(saved_netretry);
 
 	if (saved_bootfile != NULL) {
-		copy_filename(BootFile, saved_bootfile, sizeof(BootFile));
+		copy_filename(net_boot_file_name, saved_bootfile,
+			      sizeof(net_boot_file_name));
 		free(saved_bootfile);
 	}
 

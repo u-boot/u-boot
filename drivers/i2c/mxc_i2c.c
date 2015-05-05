@@ -114,6 +114,9 @@ static u16 i2c_clk_div[50][2] = {
 #ifndef CONFIG_SYS_MXC_I2C3_SPEED
 #define CONFIG_SYS_MXC_I2C3_SPEED 100000
 #endif
+#ifndef CONFIG_SYS_MXC_I2C4_SPEED
+#define CONFIG_SYS_MXC_I2C4_SPEED 100000
+#endif
 
 #ifndef CONFIG_SYS_MXC_I2C1_SLAVE
 #define CONFIG_SYS_MXC_I2C1_SLAVE 0
@@ -123,6 +126,9 @@ static u16 i2c_clk_div[50][2] = {
 #endif
 #ifndef CONFIG_SYS_MXC_I2C3_SLAVE
 #define CONFIG_SYS_MXC_I2C3_SLAVE 0
+#endif
+#ifndef CONFIG_SYS_MXC_I2C4_SLAVE
+#define CONFIG_SYS_MXC_I2C4_SLAVE 0
 #endif
 
 
@@ -543,12 +549,17 @@ U_BOOT_I2C_ADAP_COMPLETE(mxc1, mxc_i2c_init, mxc_i2c_probe,
 			 mxc_i2c_set_bus_speed,
 			 CONFIG_SYS_MXC_I2C2_SPEED,
 			 CONFIG_SYS_MXC_I2C2_SLAVE, 1)
-#if defined(CONFIG_MX31) || defined(CONFIG_MX35) ||\
-	defined(CONFIG_MX51) || defined(CONFIG_MX53) ||\
-	defined(CONFIG_MX6) || defined(CONFIG_LS102XA)
+#ifdef CONFIG_SYS_I2C_MXC_I2C3
 U_BOOT_I2C_ADAP_COMPLETE(mxc2, mxc_i2c_init, mxc_i2c_probe,
 			 mxc_i2c_read, mxc_i2c_write,
 			 mxc_i2c_set_bus_speed,
 			 CONFIG_SYS_MXC_I2C3_SPEED,
 			 CONFIG_SYS_MXC_I2C3_SLAVE, 2)
+#endif
+#ifdef CONFIG_SYS_I2C_MXC_I2C4
+U_BOOT_I2C_ADAP_COMPLETE(mxc3, mxc_i2c_init, mxc_i2c_probe,
+			 mxc_i2c_read, mxc_i2c_write,
+			 mxc_i2c_set_bus_speed,
+			 CONFIG_SYS_MXC_I2C4_SPEED,
+			 CONFIG_SYS_MXC_I2C4_SLAVE, 3)
 #endif

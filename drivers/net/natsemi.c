@@ -841,7 +841,8 @@ natsemi_poll(struct eth_device *dev)
 		     rx_status);
 		retstat = 0;
 	} else {		/* give packet to higher level routine */
-		NetReceive((rxb + cur_rx * RX_BUF_SIZE), length);
+		net_process_received_packet((rxb + cur_rx * RX_BUF_SIZE),
+					    length);
 		retstat = 1;
 	}
 

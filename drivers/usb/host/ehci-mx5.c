@@ -218,11 +218,23 @@ void __weak board_ehci_hcd_postinit(struct usb_ehci *ehci, int port)
 {
 }
 
+__weak void mx5_ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
+				   uint32_t *reg)
+{
+	mdelay(50);
+}
+
+static const struct ehci_ops mx5_ehci_ops = {
+	.powerup_fixup		= mx5_ehci_powerup_fixup,
+};
+
 int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct usb_ehci *ehci;
 
+	/* The only user for this is efikamx-usb */
+	ehci_set_controller_priv(index, NULL, &mx5_ehci_ops);
 	set_usboh3_clk();
 	enable_usboh3_clk(true);
 	set_usb_phy_clk();

@@ -10,7 +10,12 @@
 #define __ASM_TEST_H
 
 /* The sandbox driver always permits an I2C device with this address */
-#define SANDBOX_I2C_TEST_ADDR	0x59
+#define SANDBOX_I2C_TEST_ADDR		0x59
+
+#define SANDBOX_PCI_VENDOR_ID		0x1234
+#define SANDBOX_PCI_DEVICE_ID		0x5678
+#define SANDBOX_PCI_CLASS_CODE		PCI_CLASS_CODE_COMM
+#define SANDBOX_PCI_CLASS_SUB_CODE	PCI_CLASS_SUB_CODE_COMM_SERIAL
 
 enum sandbox_i2c_eeprom_test_mode {
 	SIE_TEST_MODE_NONE,

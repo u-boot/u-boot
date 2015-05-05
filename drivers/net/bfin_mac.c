@@ -189,8 +189,8 @@ static int bfin_EMAC_recv(struct eth_device *dev)
 
 		debug("%s: len = %d\n", __func__, length - 4);
 
-		NetRxPackets[rxIdx] = rxbuf[rxIdx]->FrmData->Dest;
-		NetReceive(NetRxPackets[rxIdx], length - 4);
+		net_rx_packets[rxIdx] = rxbuf[rxIdx]->FrmData->Dest;
+		net_process_received_packet(net_rx_packets[rxIdx], length - 4);
 		bfin_write_DMA1_IRQ_STATUS(DMA_DONE | DMA_ERR);
 		rxbuf[rxIdx]->StatusWord = 0x00000000;
 		if ((rxIdx + 1) >= PKTBUFSRX)

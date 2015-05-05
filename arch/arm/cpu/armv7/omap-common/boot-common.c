@@ -159,6 +159,16 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 #ifdef CONFIG_SCSI_AHCI_PLAT
 void arch_preboot_os(void)
 {
-	ahci_reset(DWC_AHSATA_BASE);
+	ahci_reset((void __iomem *)DWC_AHSATA_BASE);
+}
+#endif
+
+#if defined(CONFIG_CMD_FASTBOOT) && !defined(CONFIG_ENV_IS_NOWHERE)
+int fb_set_reboot_flag(void)
+{
+	printf("Setting reboot to fastboot flag ...\n");
+	setenv("dofastboot", "1");
+	saveenv();
+	return 0;
 }
 #endif

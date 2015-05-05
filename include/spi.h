@@ -38,11 +38,12 @@
 
 /* SPI RX operation modes */
 #define SPI_OPM_RX_AS		(1 << 0)
-#define SPI_OPM_RX_DOUT	(1 << 1)
-#define SPI_OPM_RX_DIO		(1 << 2)
-#define SPI_OPM_RX_QOF		(1 << 3)
-#define SPI_OPM_RX_QIOF	(1 << 4)
-#define SPI_OPM_RX_EXTN	(SPI_OPM_RX_AS | SPI_OPM_RX_DOUT | \
+#define SPI_OPM_RX_AF		(1 << 1)
+#define SPI_OPM_RX_DOUT		(1 << 2)
+#define SPI_OPM_RX_DIO		(1 << 3)
+#define SPI_OPM_RX_QOF		(1 << 4)
+#define SPI_OPM_RX_QIOF		(1 << 5)
+#define SPI_OPM_RX_EXTN	(SPI_OPM_RX_AS | SPI_OPM_RX_AF | SPI_OPM_RX_DOUT | \
 				SPI_OPM_RX_DIO | SPI_OPM_RX_QOF | \
 				SPI_OPM_RX_QIOF)
 
@@ -385,12 +386,12 @@ struct dm_spi_ops {
 	 * allowed to claim the same bus for several slaves without releasing
 	 * the bus in between.
 	 *
-	 * @bus:	The SPI slave
+	 * @dev:	The SPI slave
 	 *
 	 * Returns: 0 if the bus was claimed successfully, or a negative value
 	 * if it wasn't.
 	 */
-	int (*claim_bus)(struct udevice *bus);
+	int (*claim_bus)(struct udevice *dev);
 
 	/**
 	 * Release the SPI bus
@@ -399,9 +400,9 @@ struct dm_spi_ops {
 	 * all transfers have finished. It may disable any SPI hardware as
 	 * appropriate.
 	 *
-	 * @bus:	The SPI slave
+	 * @dev:	The SPI slave
 	 */
-	int (*release_bus)(struct udevice *bus);
+	int (*release_bus)(struct udevice *dev);
 
 	/**
 	 * Set the word length for SPI transactions
@@ -413,7 +414,7 @@ struct dm_spi_ops {
 	 *
 	 * Returns: 0 on success, -ve on failure.
 	 */
-	int (*set_wordlen)(struct udevice *bus, unsigned int wordlen);
+	int (*set_wordlen)(struct udevice *dev, unsigned int wordlen);
 
 	/**
 	 * SPI transfer

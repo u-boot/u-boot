@@ -89,11 +89,12 @@ void dram_init_banksize(void)
 	}
 }
 
-static int get_mrc_entry(struct spi_flash **sfp, struct fmap_entry *entry)
+static int get_mrc_entry(struct udevice **devp, struct fmap_entry *entry)
 {
 	const void *blob = gd->fdt_blob;
 	int node, spi_node, mrc_node;
 	int upto;
+	int ret;
 
 	/* Find the flash chip within the SPI controller node */
 	upto = 0;
@@ -112,10 +113,13 @@ static int get_mrc_entry(struct spi_flash **sfp, struct fmap_entry *entry)
 	if (fdtdec_read_fmap_entry(blob, mrc_node, "rm-mrc-cache", entry))
 		return -EINVAL;
 
-	if (sfp) {
-		*sfp = spi_flash_probe_fdt(blob, node, spi_node);
-		if (!*sfp)
-			return -EBADF;
+	if (devp) {
+		debug("getting sf\n");
+		ret = uclass_get_device_by_of_offset(UCLASS_SPI_FLASH, node,
+						     devp);
+		debug("ret = %d\n", ret);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
@@ -246,7 +250,7 @@ static int sdram_save_mrc_data(void)
 {
 	struct mrc_data_container *data;
 	struct fmap_entry entry;
-	struct spi_flash *sf;
+	struct udevice *sf;
 	int ret;
 
 	if (!gd->arch.mrc_output_len)
@@ -266,7 +270,6 @@ static int sdram_save_mrc_data(void)
 
 	free(data);
 err_data:
-	spi_flash_free(sf);
 err_entry:
 	if (ret)
 		debug("%s: Failed: %d\n", __func__, ret);
@@ -444,7 +447,7 @@ int sdram_initialise(struct pei_data *pei_data)
 	 * Send ME init done for SandyBridge here.  This is done inside the
 	 * SystemAgent binary on IvyBridge
 	 */
-	done = pci_read_config32(PCH_DEV, PCI_DEVICE_ID);
+	done = x86_pci_read_config32(PCH_DEV, PCI_DEVICE_ID);
 	done &= BASE_REV_MASK;
 	if (BASE_REV_SNB == done)
 		intel_early_me_init_done(ME_INIT_STATUS_SUCCESS);
@@ -615,24 +618,24 @@ static int sdram_find(pci_dev_t dev)
 	 */
 
 	/* Top of Upper Usable DRAM, including remap */
-	touud = pci_read_config32(dev, TOUUD+4);
+	touud = x86_pci_read_config32(dev, TOUUD+4);
 	touud <<= 32;
-	touud |= pci_read_config32(dev, TOUUD);
+	touud |= x86_pci_read_config32(dev, TOUUD);
 
 	/* Top of Lower Usable DRAM */
-	tolud = pci_read_config32(dev, TOLUD);
+	tolud = x86_pci_read_config32(dev, TOLUD);
 
 	/* Top of Memory - does not account for any UMA */
-	tom = pci_read_config32(dev, 0xa4);
+	tom = x86_pci_read_config32(dev, 0xa4);
 	tom <<= 32;
-	tom |= pci_read_config32(dev, 0xa0);
+	tom |= x86_pci_read_config32(dev, 0xa0);
 
 	debug("TOUUD %llx TOLUD %08x TOM %llx\n", touud, tolud, tom);
 
 	/* ME UMA needs excluding if total memory <4GB */
-	me_base = pci_read_config32(dev, 0x74);
+	me_base = x86_pci_read_config32(dev, 0x74);
 	me_base <<= 32;
-	me_base |= pci_read_config32(dev, 0x70);
+	me_base |= x86_pci_read_config32(dev, 0x70);
 
 	debug("MEBASE %llx\n", me_base);
 
@@ -650,7 +653,7 @@ static int sdram_find(pci_dev_t dev)
 	}
 
 	/* Graphics memory comes next */
-	ggc = pci_read_config16(dev, GGC);
+	ggc = x86_pci_read_config16(dev, GGC);
 	if (!(ggc & 2)) {
 		debug("IGD decoded, subtracting ");
 
@@ -670,7 +673,7 @@ static int sdram_find(pci_dev_t dev)
 	}
 
 	/* Calculate TSEG size from its base which must be below GTT */
-	tseg_base = pci_read_config32(dev, 0xb8);
+	tseg_base = x86_pci_read_config32(dev, 0xb8);
 	uma_size = (uma_memory_base - tseg_base) >> 10;
 	tomk -= uma_size;
 	uma_memory_base = tomk * 1024ULL;

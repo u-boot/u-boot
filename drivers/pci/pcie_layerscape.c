@@ -11,7 +11,6 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <malloc.h>
-#include <asm/pcie_layerscape.h>
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS CONFIG_SYS_SDRAM_BASE
@@ -50,11 +49,20 @@
 #define PCIE_ATU_FUNC(x)		(((x) & 0x7) << 16)
 #define PCIE_ATU_UPPER_TARGET		0x91C
 
+/* LUT registers */
+#define PCIE_LUT_BASE		0x80000
+#define PCIE_LUT_DBG		0x7FC
+
+#define PCIE_DBI_RO_WR_EN	0x8bc
+
 #define PCIE_LINK_CAP		0x7c
 #define PCIE_LINK_SPEED_MASK	0xf
 #define PCIE_LINK_STA		0x82
 
-#define PCIE_DBI_SIZE		(4 * 1024) /* 4K */
+#define LTSSM_STATE_MASK	0x3f
+#define LTSSM_PCIE_L0		0x11 /* L0 state */
+
+#define PCIE_DBI_SIZE		0x100000 /* 1M */
 
 struct ls_pcie {
 	int idx;
@@ -104,8 +112,6 @@ struct ls_pcie_info {
 
 /* PEX1/2 Misc Ports Status Register */
 #define LTSSM_STATE_SHIFT	20
-#define LTSSM_STATE_MASK	0x3f
-#define LTSSM_PCIE_L0		0x11 /* L0 state */
 
 static int ls_pcie_link_state(struct ls_pcie *pcie)
 {
@@ -122,18 +128,18 @@ static int ls_pcie_link_state(struct ls_pcie *pcie)
 	return 1;
 }
 #else
-#define PCIE_LDBG 0x7FC
-
 static int ls_pcie_link_state(struct ls_pcie *pcie)
 {
 	u32 state;
 
-	state = readl(pcie->dbi + PCIE_LDBG);
-	if (state)
-		return 1;
+	state = readl(pcie->dbi + PCIE_LUT_BASE + PCIE_LUT_DBG) &
+		LTSSM_STATE_MASK;
+	if (state < LTSSM_PCIE_L0) {
+		debug("....PCIe link error. LTSSM=0x%02x.\n", state);
+		return 0;
+	}
 
-	debug("....PCIe link error.\n");
-	return 0;
+	return 1;
 }
 #endif
 
@@ -149,7 +155,11 @@ static int ls_pcie_link_up(struct ls_pcie *pcie)
 	/* Try to download speed to gen1 */
 	cap = readl(pcie->dbi + PCIE_LINK_CAP);
 	writel((cap & (~PCIE_LINK_SPEED_MASK)) | 1, pcie->dbi + PCIE_LINK_CAP);
-	udelay(2000);
+	/*
+	 * Notice: the following delay has critical impact on link training
+	 * if too short (<30ms) the link doesn't get up.
+	 */
+	mdelay(100);
 	state = ls_pcie_link_state(pcie);
 	if (state)
 		return state;
@@ -251,6 +261,10 @@ static int ls_pcie_addr_valid(struct pci_controller *hose, pci_dev_t d)
 	if (PCI_DEV(d) > 0)
 		return -EINVAL;
 
+	/* Controller does not support multi-function in RC mode */
+	if ((PCI_BUS(d) == hose->first_busno) && (PCI_FUNC(d) > 0))
+		return -EINVAL;
+
 	return 0;
 }
 
@@ -327,8 +341,12 @@ static void ls_pcie_setup_ctrl(struct ls_pcie *pcie,
 	pci_hose_write_config_dword(hose, dev, PCI_BASE_ADDRESS_0, 0);
 
 	/* program correct class for RC */
+	writel(1, pcie->dbi + PCIE_DBI_RO_WR_EN);
 	pci_hose_write_config_word(hose, dev, PCI_CLASS_DEVICE,
 				   PCI_CLASS_BRIDGE_PCI);
+#ifndef CONFIG_LS102XA
+	writel(0, pcie->dbi + PCIE_DBI_RO_WR_EN);
+#endif
 }
 
 int ls_pcie_init_ctrl(int busno, enum srds_prtcl dev, struct ls_pcie_info *info)
@@ -417,9 +435,9 @@ int ls_pcie_init_ctrl(int busno, enum srds_prtcl dev, struct ls_pcie_info *info)
 	}
 
 	/* Print the negotiated PCIe link width */
-	pci_hose_read_config_word(hose, dev, PCIE_LINK_STA, &temp16);
-		printf("x%d gen%d, regs @ 0x%lx\n", (temp16 & 0x3f0) >> 4,
-		       (temp16 & 0xf), info->regs);
+	pci_hose_read_config_word(hose, pdev, PCIE_LINK_STA, &temp16);
+	printf("x%d gen%d, regs @ 0x%lx\n", (temp16 & 0x3f0) >> 4,
+	       (temp16 & 0xf), info->regs);
 
 	if (ep_mode)
 		return busno;
@@ -486,7 +504,7 @@ static void ft_pcie_ls_setup(void *blob, const char *pci_compat,
 		fdt_set_node_status(blob, off, FDT_STATUS_DISABLED, 0);
 }
 
-void ft_pcie_setup(void *blob, bd_t *bd)
+void ft_pci_setup(void *blob, bd_t *bd)
 {
 	#ifdef CONFIG_PCIE1
 	ft_pcie_ls_setup(blob, FSL_PCIE_COMPAT, CONFIG_SYS_PCIE1_ADDR, PCIE1);
@@ -506,7 +524,7 @@ void ft_pcie_setup(void *blob, bd_t *bd)
 }
 
 #else
-void ft_pcie_setup(void *blob, bd_t *bd)
+void ft_pci_setup(void *blob, bd_t *bd)
 {
 }
 #endif

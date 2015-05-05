@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <image.h>
 #include <libfdt.h>
+#include <mapmem.h>
 #include <asm/io.h>
 
 #ifndef CONFIG_SYS_FDT_PAD

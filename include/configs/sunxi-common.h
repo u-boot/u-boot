@@ -196,7 +196,11 @@
 #endif
 
 #define CONFIG_SYS_I2C
+#if defined CONFIG_I2C0_ENABLE || defined CONFIG_I2C1_ENABLE || \
+    defined CONFIG_I2C2_ENABLE || defined CONFIG_I2C3_ENABLE || \
+    defined CONFIG_I2C4_ENABLE
 #define CONFIG_SYS_I2C_MVTWSI
+#endif
 #define CONFIG_SYS_I2C_SPEED		400000
 #define CONFIG_SYS_I2C_SLAVE		0x7f
 
@@ -284,7 +288,6 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_SUNXI_GMAC
-#define CONFIG_DESIGNWARE_ETH		/* GMAC can use designware driver */
 #define CONFIG_DW_AUTONEG
 #define CONFIG_PHY_GIGE			/* GMAC can use gigabit PHY	*/
 #define CONFIG_PHY_ADDR		1

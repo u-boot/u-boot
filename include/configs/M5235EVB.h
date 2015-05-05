@@ -199,6 +199,11 @@
  * Environment is embedded in u-boot in the second sector of the flash
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
+
+#define LDS_BOARD_TEXT \
+	. = DEFINED(env_offset) ? env_offset : .; \
+	common/env_embedded.o (.text);
+
 #ifdef NORFLASH_PS32BIT
 #	define CONFIG_ENV_OFFSET		(0x8000)
 #	define CONFIG_ENV_SIZE		0x4000

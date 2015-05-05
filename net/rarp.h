@@ -17,11 +17,11 @@
  *	Global functions and variables.
  */
 
-extern int RarpTry;
+extern int rarp_try;
 
 /* Process the receipt of a RARP packet */
-extern void rarp_receive(struct ip_udp_hdr *ip, unsigned len);
-extern void RarpRequest(void);	/* Send a RARP request */
+void rarp_receive(struct ip_udp_hdr *ip, unsigned len);
+void rarp_request(void);	/* Send a RARP request */
 
 /**********************************************************************/
 

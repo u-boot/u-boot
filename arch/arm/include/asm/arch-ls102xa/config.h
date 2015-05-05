@@ -119,10 +119,6 @@
 
 #define DCU_LAYER_MAX_NUM			16
 
-#define QE_MURAM_SIZE          0x6000UL
-#define MAX_QE_RISC            1
-#define QE_NUM_OF_SNUM         28
-
 #define CONFIG_SYS_FSL_SRDS_1
 
 #ifdef CONFIG_LS102XA

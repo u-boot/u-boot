@@ -33,6 +33,9 @@ config CPU_V7
         bool
         select HAS_VBAR
 
+config CPU_V7M
+	bool
+
 config CPU_PXA
         bool
 
@@ -47,6 +50,7 @@ config SYS_CPU
         default "arm1136" if CPU_ARM1136
         default "arm1176" if CPU_ARM1176
         default "armv7" if CPU_V7
+        default "armv7m" if CPU_V7M
         default "pxa" if CPU_PXA
         default "sa1100" if CPU_SA1100
 	default "armv8" if ARM64
@@ -60,18 +64,6 @@ config SEMIHOSTING
 
 choice
 	prompt "Target select"
-
-config TARGET_INTEGRATORAP_CM720T
-	bool "Support integratorap_cm720t"
-	select CPU_ARM720T
-
-config TARGET_INTEGRATORAP_CM920T
-	bool "Support integratorap_cm920t"
-	select CPU_ARM920T
-
-config TARGET_INTEGRATORCP_CM920T
-	bool "Support integratorcp_cm920t"
-	select CPU_ARM920T
 
 config ARCH_AT91
 	bool "Atmel AT91"
@@ -91,14 +83,6 @@ config TARGET_VCMA9
 config TARGET_SMDK2410
 	bool "Support smdk2410"
 	select CPU_ARM920T
-
-config TARGET_INTEGRATORAP_CM926EJS
-	bool "Support integratorap_cm926ejs"
-	select CPU_ARM926EJS
-
-config TARGET_INTEGRATORCP_CM926EJS
-	bool "Support integratorcp_cm926ejs"
-	select CPU_ARM926EJS
 
 config TARGET_ASPENITE
 	bool "Support aspenite"
@@ -235,6 +219,8 @@ config TARGET_SPEAR600
 config TARGET_STV0991
 	bool "Support stv0991"
 	select CPU_V7
+	select DM
+	select DM_SERIAL
 
 config TARGET_X600
 	bool "Support x600"
@@ -244,10 +230,6 @@ config TARGET_X600
 config ARCH_VERSATILE
 	bool "ARM Ltd. Versatile family"
 	select CPU_ARM926EJS
-
-config TARGET_INTEGRATORCP_CM1136
-	bool "Support integratorcp_cm1136"
-	select CPU_ARM1136
 
 config TARGET_IMX31_PHYCORE
 	bool "Support imx31_phycore"
@@ -293,14 +275,9 @@ config TARGET_MX35PDK
 
 config ARCH_BCM283X
 	bool "Broadcom BCM283X family"
-
-config TARGET_INTEGRATORAP_CM946ES
-	bool "Support integratorap_cm946es"
-	select CPU_ARM946ES
-
-config TARGET_INTEGRATORCP_CM946ES
-	bool "Support integratorcp_cm946es"
-	select CPU_ARM946ES
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_VEXPRESS_CA15_TC2
 	bool "Support vexpress_ca15_tc2"
@@ -330,21 +307,33 @@ config TARGET_CM_T335
 	bool "Support cm_t335"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_PEPPER
 	bool "Support pepper"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_AM335X_IGEP0033
 	bool "Support am335x_igep0033"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_PCM051
 	bool "Support pcm051"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_DRACO
 	bool "Support draco"
@@ -370,11 +359,17 @@ config TARGET_PENGWYN
 	bool "Support pengwyn"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_AM335X_EVM
 	bool "Support am335x_evm"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_AM43XX_EVM
 	bool "Support am43xx_evm"
@@ -385,6 +380,8 @@ config TARGET_BAV335X
 	bool "Support bav335x"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
 	help
 	  The BAV335x OEM Network Processor integrates all the functions of an
 	  embedded network computer in a small, easy to use SODIMM module which
@@ -419,14 +416,25 @@ config TARGET_BCMNSP
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
 	select CPU_V7
+	select DM
+	select DM_SPI_FLASH
+	select DM_SERIAL
+	select DM_SPI
+	select DM_GPIO
 
 config ARCH_S5PC1XX
 	bool "Samsung S5PC1XX"
 	select CPU_V7
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config ARCH_HIGHBANK
 	bool "Calxeda Highbank"
 	select CPU_V7
+
+config ARCH_INTEGRATOR
+	bool "ARM Ltd. Integrator family"
 
 config ARCH_KEYSTONE
 	bool "TI Keystone"
@@ -517,9 +525,18 @@ config TARGET_MX6QARM2
 config TARGET_MX6QSABREAUTO
 	bool "Support mx6qsabreauto"
 	select CPU_V7
+	select DM
+	select DM_THERMAL
 
 config TARGET_MX6SABRESD
 	bool "Support mx6sabresd"
+	select CPU_V7
+	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
+
+config TARGET_MX6CUBOXI
+	bool "Support Solid-run mx6 boards"
 	select CPU_V7
 	select SUPPORT_SPL
 
@@ -531,6 +548,8 @@ config TARGET_MX6SXSABRESD
 	bool "Support mx6sxsabresd"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
 
 config TARGET_GW_VENTANA
 	bool "Support gw_ventana"
@@ -591,16 +610,25 @@ config TARGET_CM_FX6
 	bool "Support cm_fx6"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_SOCFPGA_ARRIA5
 	bool "Support socfpga_arria5"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SPI_FLASH
+	select DM_SPI
 
 config TARGET_SOCFPGA_CYCLONE5
 	bool "Support socfpga_cyclone5"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
+	select DM_SPI_FLASH
+	select DM_SPI
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
@@ -617,10 +645,15 @@ config TARGET_VF610TWR
 	bool "Support vf610twr"
 	select CPU_V7
 
-config ZYNQ
+config TARGET_COLIBRI_VF
+	bool "Support Colibri VF50/61"
+	select CPU_V7
+
+config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"
 	select CPU_V7
 	select SUPPORT_SPL
+	select DM
 
 config TARGET_XILINX_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
@@ -632,6 +665,12 @@ config TEGRA
 	select SPL
 	select OF_CONTROL
 	select CPU_V7
+	select DM
+	select DM_SPI_FLASH
+	select DM_SERIAL
+	select DM_I2C
+	select DM_SPI
+	select DM_GPIO
 
 config TARGET_VEXPRESS64_AEMV8A
 	bool "Support vexpress_aemv8a"
@@ -655,6 +694,28 @@ config TARGET_LS2085A_SIMU
 	bool "Support ls2085a_simu"
 	select ARM64
 	select ARMV8_MULTIENTRY
+
+config TARGET_LS2085AQDS
+	bool "Support ls2085aqds"
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select SUPPORT_SPL
+	help
+	  Support for Freescale LS2085AQDS platform
+	  The LS2085A Development System (QDS) is a high-performance
+	  development platform that supports the QorIQ LS2085A
+	  Layerscape Architecture processor.
+
+config TARGET_LS2085ARDB
+	bool "Support ls2085ardb"
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select SUPPORT_SPL
+	help
+	  Support for Freescale LS2085ARDB platform.
+	  The LS2085A Reference design board (RDB) is a high-performance
+	  development platform that supports the QorIQ LS2085A
+	  Layerscape Architecture processor.
 
 config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
@@ -726,6 +787,13 @@ config ARCH_UNIPHIER
 	select SUPPORT_SPL
 	select SPL
 	select OF_CONTROL
+	select DM
+	select DM_SERIAL
+	select DM_I2C
+
+config TARGET_STM32F429_DISCOVERY
+	bool "Support STM32F429 Discovery"
+	select CPU_V7M
 
 endchoice
 
@@ -738,6 +806,8 @@ source "arch/arm/mach-davinci/Kconfig"
 source "arch/arm/cpu/armv7/exynos/Kconfig"
 
 source "arch/arm/mach-highbank/Kconfig"
+
+source "arch/arm/mach-integrator/Kconfig"
 
 source "arch/arm/mach-keystone/Kconfig"
 
@@ -767,7 +837,7 @@ source "arch/arm/mach-uniphier/Kconfig"
 
 source "arch/arm/mach-versatile/Kconfig"
 
-source "arch/arm/cpu/armv7/zynq/Kconfig"
+source "arch/arm/mach-zynq/Kconfig"
 
 source "arch/arm/cpu/armv7/Kconfig"
 
@@ -784,7 +854,6 @@ source "board/Marvell/db-mv784mp-gp/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
 source "board/altera/socfpga/Kconfig"
 source "board/armadeus/apf27/Kconfig"
-source "board/armltd/integrator/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/bachmann/ot1200/Kconfig"
@@ -807,6 +876,8 @@ source "board/denx/m53evk/Kconfig"
 source "board/embest/mx6boards/Kconfig"
 source "board/esg/ima3-mx53/Kconfig"
 source "board/freescale/ls2085a/Kconfig"
+source "board/freescale/ls2085aqds/Kconfig"
+source "board/freescale/ls2085ardb/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
 source "board/freescale/mx23evk/Kconfig"
@@ -856,6 +927,7 @@ source "board/siemens/draco/Kconfig"
 source "board/siemens/pxm2/Kconfig"
 source "board/siemens/rut/Kconfig"
 source "board/silica/pengwyn/Kconfig"
+source "board/solidrun/mx6cuboxi/Kconfig"
 source "board/solidrun/hummingboard/Kconfig"
 source "board/spear/spear300/Kconfig"
 source "board/spear/spear310/Kconfig"
@@ -864,6 +936,7 @@ source "board/spear/spear600/Kconfig"
 source "board/spear/x600/Kconfig"
 source "board/st-ericsson/snowball/Kconfig"
 source "board/st-ericsson/u8500/Kconfig"
+source "board/st/stm32f429-discovery/Kconfig"
 source "board/st/stv0991/Kconfig"
 source "board/sunxi/Kconfig"
 source "board/syteco/zmx25/Kconfig"
@@ -875,6 +948,7 @@ source "board/ti/ti814x/Kconfig"
 source "board/ti/ti816x/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
+source "board/toradex/colibri_vf/Kconfig"
 source "board/tqc/tqma6/Kconfig"
 source "board/trizepsiv/Kconfig"
 source "board/ttcontrol/vision2/Kconfig"

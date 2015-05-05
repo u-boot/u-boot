@@ -10,69 +10,30 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <pci.h>
 #include <asm/pci.h>
+#include <asm/post.h>
 #include <asm/arch/bd82x6x.h>
 #include <asm/arch/pch.h>
 
-static void config_pci_bridge(struct pci_controller *hose, pci_dev_t dev,
-			      struct pci_config_table *table)
+static int pci_ivybridge_probe(struct udevice *bus)
 {
-	u8 secondary;
-
-	hose->read_byte(hose, dev, PCI_SECONDARY_BUS, &secondary);
-	if (secondary != 0)
-		pci_hose_scan_bus(hose, secondary);
-}
-
-static struct pci_config_table pci_ivybridge_config_table[] = {
-	/* vendor, device, class, bus, dev, func */
-	{ PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_BRIDGE_PCI,
-		PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, &config_pci_bridge },
-	{}
-};
-
-void board_pci_setup_hose(struct pci_controller *hose)
-{
-	hose->config_table = pci_ivybridge_config_table;
-	hose->first_busno = 0;
-	hose->last_busno = 0;
-
-	/* PCI memory space */
-	pci_set_region(hose->regions + 0,
-		       CONFIG_PCI_MEM_BUS,
-		       CONFIG_PCI_MEM_PHYS,
-		       CONFIG_PCI_MEM_SIZE,
-		       PCI_REGION_MEM);
-
-	/* PCI IO space */
-	pci_set_region(hose->regions + 1,
-		       CONFIG_PCI_IO_BUS,
-		       CONFIG_PCI_IO_PHYS,
-		       CONFIG_PCI_IO_SIZE,
-		       PCI_REGION_IO);
-
-	pci_set_region(hose->regions + 2,
-		       CONFIG_PCI_PREF_BUS,
-		       CONFIG_PCI_PREF_PHYS,
-		       CONFIG_PCI_PREF_SIZE,
-		       PCI_REGION_PREFETCH);
-
-	hose->region_count = 3;
-}
-
-int board_pci_pre_scan(struct pci_controller *hose)
-{
+	struct pci_controller *hose = dev_get_uclass_priv(bus);
 	pci_dev_t dev;
 	u16 reg16;
 
+	if (!(gd->flags & GD_FLG_RELOC))
+		return 0;
+	post_code(0x50);
 	bd82x6x_init();
+	post_code(0x51);
 
 	reg16 = 0xff;
 	dev = PCH_DEV;
-	reg16 = pci_read_config16(dev, PCI_COMMAND);
+	reg16 = x86_pci_read_config16(dev, PCI_COMMAND);
 	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_write_config16(dev, PCI_COMMAND, reg16);
+	x86_pci_write_config16(dev, PCI_COMMAND, reg16);
 
 	/*
 	* Clear non-reserved bits in status register.
@@ -82,19 +43,25 @@ int board_pci_pre_scan(struct pci_controller *hose)
 	pci_hose_write_config_byte(hose, dev, PCI_CACHE_LINE_SIZE, 0x08);
 
 	pci_write_bar32(hose, dev, 0, 0xf0000000);
+	post_code(0x52);
 
 	return 0;
 }
 
-int board_pci_post_scan(struct pci_controller *hose)
-{
-	int ret;
+static const struct dm_pci_ops pci_ivybridge_ops = {
+	.read_config	= pci_x86_read_config,
+	.write_config	= pci_x86_write_config,
+};
 
-	ret = bd82x6x_init_pci_devices();
-	if (ret) {
-		printf("bd82x6x_init_pci_devices() failed: %d\n", ret);
-		return ret;
-	}
+static const struct udevice_id pci_ivybridge_ids[] = {
+	{ .compatible = "intel,pci-ivybridge" },
+	{ }
+};
 
-	return 0;
-}
+U_BOOT_DRIVER(pci_ivybridge_drv) = {
+	.name		= "pci_ivybridge",
+	.id		= UCLASS_PCI,
+	.of_match	= pci_ivybridge_ids,
+	.ops		= &pci_ivybridge_ops,
+	.probe		= pci_ivybridge_probe,
+};

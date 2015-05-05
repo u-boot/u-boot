@@ -62,7 +62,6 @@
 /*
  * Ethernet configuration
  */
-#define CONFIG_DESIGNWARE_ETH
 #define ETH0_BASE_ADDRESS		0xFE100000
 #define ETH1_BASE_ADDRESS		0xFE110000
 

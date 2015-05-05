@@ -568,29 +568,30 @@ static int smc_rcv(struct eth_device *dev)
 		   to send the DWORDs or the bytes first, or some
 		   mixture.  A mixture might improve already slow PIO
 		   performance  */
-		SMC_insl(dev, LAN91C96_DATA_HIGH, NetRxPackets[0],
-				packet_length >> 2);
+		SMC_insl(dev, LAN91C96_DATA_HIGH, net_rx_packets[0],
+			 packet_length >> 2);
 		/* read the left over bytes */
 		if (packet_length & 3) {
 			int i;
 
-			byte *tail = (byte *) (NetRxPackets[0] + (packet_length & ~3));
+			byte *tail = (byte *)(net_rx_packets[0] +
+				(packet_length & ~3));
 			dword leftover = SMC_inl(dev, LAN91C96_DATA_HIGH);
 
 			for (i = 0; i < (packet_length & 3); i++)
 				*tail++ = (byte) (leftover >> (8 * i)) & 0xff;
 		}
 #else
-		PRINTK3 (" Reading %d words and %d byte(s) \n",
-				 (packet_length >> 1), packet_length & 1);
-		SMC_insw(dev, LAN91C96_DATA_HIGH, NetRxPackets[0],
-				packet_length >> 1);
+		PRINTK3(" Reading %d words and %d byte(s)\n",
+			(packet_length >> 1), packet_length & 1);
+		SMC_insw(dev, LAN91C96_DATA_HIGH, net_rx_packets[0],
+			 packet_length >> 1);
 
 #endif /* USE_32_BIT */
 
 #if	SMC_DEBUG > 2
 		printf ("Receiving Packet\n");
-		print_packet((byte *)NetRxPackets[0], packet_length);
+		print_packet((byte *)net_rx_packets[0], packet_length);
 #endif
 	} else {
 		/* error ... */
@@ -609,7 +610,7 @@ static int smc_rcv(struct eth_device *dev)
 
 	if (!is_error) {
 		/* Pass the packet up to the protocol layers. */
-		NetReceive (NetRxPackets[0], packet_length);
+		net_process_received_packet(net_rx_packets[0], packet_length);
 		return packet_length;
 	} else {
 		return 0;

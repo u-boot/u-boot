@@ -507,7 +507,7 @@ static int pcnet_recv (struct eth_device *dev)
 				buf = (*lp->rx_buf)[lp->cur_rx];
 				invalidate_dcache_range((unsigned long)buf,
 					(unsigned long)buf + pkt_len);
-				NetReceive(buf, pkt_len);
+				net_process_received_packet(buf, pkt_len);
 				PCNET_DEBUG2("Rx%d: %d bytes from 0x%p\n",
 					     lp->cur_rx, pkt_len, buf);
 			}

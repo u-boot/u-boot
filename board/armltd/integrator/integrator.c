@@ -54,8 +54,6 @@ int board_init (void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
 
-	gd->flags = 0;
-
 #ifdef CONFIG_CM_REMAP
 extern void cm_remap(void);
 	cm_remap();	/* remaps writeable memory to 0x00000000 */

@@ -23,12 +23,12 @@ void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
-	struct fsl_ifc *ifc = (void *)CONFIG_SYS_IFC_ADDR;
+	struct fsl_ifc ifc = {(void *)CONFIG_SYS_IFC_ADDR, (void *)NULL};
 
 	console_init_f();
 
 	/* Clock configuration to access CPLD using IFC(GPCM) */
-	setbits_be32(&ifc->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT);
+	setbits_be32(&ifc.gregs->ifc_gcr, 1 << IFC_GCR_TBCTL_TRN_TIME_SHIFT);
 
 #ifdef CONFIG_P1010RDB_PB
 	setbits_be32(&gur->pmuxcr2, MPC85xx_PMUXCR2_GPIO01_DRVVBUS);

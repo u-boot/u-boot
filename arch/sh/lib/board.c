@@ -178,7 +178,7 @@ void sh_generic_init(void)
 #endif
 #if defined(CONFIG_CMD_NET)
 	puts("Net:   ");
-	eth_initialize(gd->bd);
+	eth_initialize();
 #endif /* CONFIG_CMD_NET */
 
 	while (1) {

@@ -343,7 +343,7 @@ static int ahci_init_one(int pdev)
 				| ATA_FLAG_PIO_DMA
 				| ATA_FLAG_NO_ATAPI;
 
-	probe_ent->mmio_base = CONFIG_DWC_AHSATA_BASE_ADDR;
+	probe_ent->mmio_base = (void __iomem *)CONFIG_DWC_AHSATA_BASE_ADDR;
 
 	/* initialize adapter */
 	rc = ahci_host_init(probe_ent);

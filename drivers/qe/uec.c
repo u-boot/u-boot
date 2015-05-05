@@ -1333,7 +1333,7 @@ static int uec_recv(struct eth_device* dev)
 		if (!(status & RxBD_ERROR)) {
 			data = BD_DATA(bd);
 			len = BD_LENGTH(bd);
-			NetReceive(data, len);
+			net_process_received_packet(data, len);
 		} else {
 			printf("%s: Rx error\n", dev->name);
 		}

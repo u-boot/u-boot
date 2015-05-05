@@ -639,15 +639,16 @@ static int armdfec_recv(struct eth_device *dev)
 	} else {
 		/* !!! call higher layer processing */
 		debug("ARMD100 FEC: (%s) Sending Received packet to"
-			" upper layer (NetReceive)\n", __func__);
+		      " upper layer (net_process_received_packet)\n", __func__);
 
 		/*
 		 * let the upper layer handle the packet, subtract offset
 		 * as two dummy bytes are added in received buffer see
 		 * PORT_CONFIG_EXT register bit TWO_Byte_Stuff_Mode bit.
 		 */
-		NetReceive((p_rxdesc_curr->buf_ptr + RX_BUF_OFFSET),
-			   (int)(p_rxdesc_curr->byte_cnt - RX_BUF_OFFSET));
+		net_process_received_packet(
+			p_rxdesc_curr->buf_ptr + RX_BUF_OFFSET,
+			(int)(p_rxdesc_curr->byte_cnt - RX_BUF_OFFSET));
 	}
 	/*
 	 * free these descriptors and point next in the ring

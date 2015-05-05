@@ -1108,6 +1108,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_KZM9G                4140
 #define MACH_TYPE_COLIBRI_T30          4493
 #define MACH_TYPE_APALIS_T30           4513
+#define MACH_TYPE_OMAPL138_LCDK        2495
 
 #ifdef CONFIG_ARCH_EBSA110
 # ifdef machine_arch_type

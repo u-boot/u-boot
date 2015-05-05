@@ -20,6 +20,8 @@ enum uclass_id {
 	UCLASS_TEST_BUS,
 	UCLASS_SPI_EMUL,	/* sandbox SPI device emulator */
 	UCLASS_I2C_EMUL,	/* sandbox I2C device emulator */
+	UCLASS_PCI_EMUL,	/* sandbox PCI device emulator */
+	UCLASS_USB_EMUL,	/* sandbox USB bus device emulator */
 	UCLASS_SIMPLE_BUS,
 
 	/* U-Boot uclasses start here */
@@ -34,6 +36,15 @@ enum uclass_id {
 	UCLASS_I2C_GENERIC,	/* Generic I2C device */
 	UCLASS_I2C_EEPROM,	/* I2C EEPROM device */
 	UCLASS_MOD_EXP,		/* RSA Mod Exp device */
+	UCLASS_PCI,		/* PCI bus */
+	UCLASS_PCI_GENERIC,	/* Generic PCI bus device */
+	UCLASS_PCH,		/* x86 platform controller hub */
+	UCLASS_ETH,		/* Ethernet device */
+	UCLASS_LPC,		/* x86 'low pin count' interface */
+	UCLASS_USB,		/* USB bus */
+	UCLASS_USB_HUB,		/* USB hub */
+	UCLASS_USB_DEV_GENERIC,	/* USB generic device */
+	UCLASS_MASS_STORAGE,	/* Mass storage device */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,

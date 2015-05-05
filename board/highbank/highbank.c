@@ -57,7 +57,7 @@ void scsi_init(void)
 	u32 reg = readl(HB_SREG_A9_PWRDOM_STAT);
 
 	if (reg & PWRDOM_STAT_SATA) {
-		ahci_init(HB_AHCI_BASE);
+		ahci_init((void __iomem *)HB_AHCI_BASE);
 		scsi_scan(1);
 	}
 }

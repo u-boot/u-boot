@@ -16,7 +16,6 @@
  * (easy to change)
  */
 #define CONFIG_SHOW_BOOT_PROGRESS
-#define CONFIG_SYS_VSNPRINTF
 #define CONFIG_ZBOOT_32
 #define CONFIG_PHYSMEM
 #define CONFIG_DISPLAY_BOARDINFO_LATE
@@ -204,7 +203,6 @@
 #define CONFIG_CMD_SF_TEST
 #define CONFIG_CMD_SPI
 #define CONFIG_SPI
-#define CONFIG_OF_SPI_FLASH
 
 /*-----------------------------------------------------------------------
  * Environment configuration
@@ -237,9 +235,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
-#define CONFIG_BOOTSTAGE
-#define CONFIG_CMD_BOOTSTAGE
 
 #define CONFIG_CMD_USB
 

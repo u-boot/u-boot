@@ -389,6 +389,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 
 /*
  * I2C bus multiplexer
@@ -655,6 +656,7 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_SECURE_BOOT
 #define CONFIG_CMD_BLOB
+#include <asm/fsl_secure_boot.h>
 #endif
 
 #endif

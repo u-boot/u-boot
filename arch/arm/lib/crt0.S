@@ -9,6 +9,9 @@
 #include <config.h>
 #include <asm-offsets.h>
 #include <linux/linkage.h>
+#ifdef CONFIG_CPU_V7M
+#include <asm/armv7m.h>
+#endif
 
 /*
  * This file handles the target-independent stages of the U-Boot
@@ -66,15 +69,30 @@ ENTRY(_main)
 #else
 	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
 #endif
+#if defined(CONFIG_CPU_V7M)	/* v7M forbids using SP as BIC destination */
+	mov	r3, sp
+	bic	r3, r3, #7
+	mov	sp, r3
+#else
 	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
+#endif
 	mov	r2, sp
 	sub	sp, sp, #GD_SIZE	/* allocate one GD above SP */
+#if defined(CONFIG_CPU_V7M)	/* v7M forbids using SP as BIC destination */
+	mov	r3, sp
+	bic	r3, r3, #7
+	mov	sp, r3
+#else
 	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
+#endif
 	mov	r9, sp		/* GD is above SP */
 	mov	r1, sp
 	mov	r0, #0
 clr_gd:
 	cmp	r1, r2			/* while not at end of GD */
+#if defined(CONFIG_CPU_V7M)
+	itt	lo
+#endif
 	strlo	r0, [r1]		/* clear 32-bit GD word */
 	addlo	r1, r1, #4		/* move to next */
 	blo	clr_gd
@@ -94,13 +112,22 @@ clr_gd:
  */
 
 	ldr	sp, [r9, #GD_START_ADDR_SP]	/* sp = gd->start_addr_sp */
+#if defined(CONFIG_CPU_V7M)	/* v7M forbids using SP as BIC destination */
+	mov	r3, sp
+	bic	r3, r3, #7
+	mov	sp, r3
+#else
 	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
+#endif
 	ldr	r9, [r9, #GD_BD]		/* r9 = gd->bd */
 	sub	r9, r9, #GD_SIZE		/* new GD is below bd */
 
 	adr	lr, here
 	ldr	r0, [r9, #GD_RELOC_OFF]		/* r0 = gd->reloc_off */
 	add	lr, lr, r0
+#if defined(CONFIG_CPU_V7M)
+	orr	lr, #1				/* As required by Thumb-only */
+#endif
 	ldr	r0, [r9, #GD_RELOCADDR]		/* r0 = gd->relocaddr */
 	b	relocate_code
 here:
@@ -134,6 +161,9 @@ here:
 	mov	r2, #0x00000000		/* prepare zero to clear BSS */
 
 clbss_l:cmp	r0, r1			/* while not at end of BSS */
+#if defined(CONFIG_CPU_V7M)
+	itt	lo
+#endif
 	strlo	r2, [r0]		/* clear 32-bit BSS word */
 	addlo	r0, r0, #4		/* move to next */
 	blo	clbss_l

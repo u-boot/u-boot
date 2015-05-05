@@ -51,6 +51,7 @@ void lcd_set_flush_dcache(int flush);
 typedef struct vidinfo {
 	ushort	vl_col;		/* Number of columns (i.e. 160) */
 	ushort	vl_row;		/* Number of rows (i.e. 100) */
+	ushort	vl_rot;		/* Rotation of Display (0, 1, 2, 3) */
 	u_char	vl_bpix;	/* Bits per pixel, 0 = 1 */
 	ushort	*cmap;		/* Pointer to the colormap */
 	void	*priv;		/* Pointer to driver-specific data */
@@ -195,6 +196,14 @@ void lcd_sync(void);
 #define CONSOLE_COLOR_BLACK	0x0000
 #define CONSOLE_COLOR_WHITE	0xffff		/* Must remain last / highest */
 #endif /* color definitions */
+
+#if LCD_BPP == LCD_COLOR16
+#define fbptr_t ushort
+#elif LCD_BPP == LCD_COLOR32
+#define fbptr_t u32
+#else
+#define fbptr_t uchar
+#endif
 
 #ifndef PAGE_SIZE
 #define PAGE_SIZE	4096

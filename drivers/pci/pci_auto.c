@@ -432,13 +432,20 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 
 	switch (class) {
 	case PCI_CLASS_BRIDGE_PCI:
-		hose->current_busno++;
+		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n",
+		       PCI_DEV(dev));
+
 		pciauto_setup_device(hose, dev, 2, hose->pci_mem,
 			hose->pci_prefetch, hose->pci_io);
 
-		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n", PCI_DEV(dev));
-
+#ifdef CONFIG_DM_PCI
+		n = dm_pci_hose_probe_bus(hose, dev);
+		if (n < 0)
+			return n;
+		sub_bus = (unsigned int)n;
+#else
 		/* Passing in current_busno allows for sibling P2P bridges */
+		hose->current_busno++;
 		pciauto_prescan_setup_bridge(hose, dev, hose->current_busno);
 		/*
 		 * need to figure out if this is a subordinate bridge on the bus
@@ -451,6 +458,7 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		pciauto_postscan_setup_bridge(hose, dev, sub_bus);
 
 		sub_bus = hose->current_busno;
+#endif
 		break;
 
 	case PCI_CLASS_STORAGE_IDE:
@@ -475,7 +483,9 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		DEBUGF("PCI Autoconfig: Found P2CardBus bridge, device %d\n",
 			PCI_DEV(dev));
 
+#ifndef CONFIG_DM_PCI
 		hose->current_busno++;
+#endif
 		break;
 
 #if defined(CONFIG_PCIAUTO_SKIP_HOST_BRIDGE)

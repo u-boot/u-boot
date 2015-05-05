@@ -1,0 +1,24 @@
+# The Mixtile LOFT-Q is an A31 based board with 2G RAM, 8G EMMC, sdio wifi,
+# 1Gbit ethernet, HDMI display, toslink audio plug, 4 USB2.0 port, external
+# USB2SATA connector, sd card plug, 3x60 external fpic expansion connector,
+# NXP JN5168 zigbee gw, remote support.
+#
+# Also see http://focalcrest.com/en/pc.html#pro02
+CONFIG_SPL=y
+CONFIG_SYS_EXTRA_OPTIONS="USB_EHCI,SUNXI_GMAC,RGMII,MACPWR=SUNXI_GPA(21)"
+CONFIG_ARM=y
+CONFIG_ARCH_SUNXI=y
+CONFIG_MACH_SUN6I=y
+CONFIG_DRAM_CLK=312
+CONFIG_DRAM_ZQ=251
+CONFIG_MMC_SUNXI_SLOT=0
+CONFIG_MMC_SUNXI_SLOT_EXTRA=2
+# Wifi power
+CONFIG_AXP221_ALDO1_VOLT=3300
+# Vbus gpio for usb1
+CONFIG_USB1_VBUS_PIN="PH24"
+# No Vbus gpio for usb2
+CONFIG_USB2_VBUS_PIN=""
+CONFIG_ETH_DESIGNWARE=y
+CONFIG_NETDEVICES=y
+CONFIG_NET=y

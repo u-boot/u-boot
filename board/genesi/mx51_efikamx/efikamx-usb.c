@@ -173,7 +173,9 @@ int board_ehci_hcd_init(int port)
 	return 0;
 }
 
-void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+/* This overrides a weak function */
+void mx5_ehci_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
+			   uint32_t *reg)
 {
 	uint32_t port = OTG_BASE_ADDR + (0x200 * CONFIG_MXC_USB_PORT);
 	struct usb_ehci *ehci = (struct usb_ehci *)port;

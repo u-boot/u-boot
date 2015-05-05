@@ -23,7 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int cros_ec_spi_packet(struct udevice *udev, int out_bytes, int in_bytes)
 {
-	struct cros_ec_dev *dev = udev->uclass_priv;
+	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
 	struct spi_slave *slave = dev_get_parentdata(dev->dev);
 	int rv;
 
@@ -66,7 +66,7 @@ int cros_ec_spi_command(struct udevice *udev, uint8_t cmd, int cmd_version,
 		     const uint8_t *dout, int dout_len,
 		     uint8_t **dinp, int din_len)
 {
-	struct cros_ec_dev *dev = udev->uclass_priv;
+	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
 	struct spi_slave *slave = dev_get_parentdata(dev->dev);
 	int in_bytes = din_len + 4;	/* status, length, checksum, trailer */
 	uint8_t *out;
@@ -165,12 +165,12 @@ static struct dm_cros_ec_ops cros_ec_ops = {
 };
 
 static const struct udevice_id cros_ec_ids[] = {
-	{ .compatible = "google,cros-ec" },
+	{ .compatible = "google,cros-ec-spi" },
 	{ }
 };
 
 U_BOOT_DRIVER(cros_ec_spi) = {
-	.name		= "cros_ec",
+	.name		= "cros_ec_spi",
 	.id		= UCLASS_CROS_EC,
 	.of_match	= cros_ec_ids,
 	.probe		= cros_ec_probe,

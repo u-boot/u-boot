@@ -10,28 +10,26 @@ config SYS_BOARD
 config SYS_CONFIG_NAME
 	default "sandbox"
 
-config DM
-	default y
-
-config DM_GPIO
-	default y
-
-config DM_SERIAL
-	default y
-
-config DM_CROS_EC
-	default y
-
-config DM_SPI
-	default y
-
-config DM_SPI_FLASH
-	default y
-
-config DM_I2C
-	default y
-
 config DM_TEST
+	default y
+
+config PCI
+	bool "PCI support"
+	help
+	  Enable support for PCI (Peripheral Interconnect Bus), a type of bus
+	  used on some devices to allow the CPU to communicate with its
+	  peripherals.
+
+config NET
+	default y
+
+config NETDEVICES
+	default y
+
+config DM_ETH
+	default y
+
+config ETH_SANDBOX_RAW
 	default y
 
 endmenu

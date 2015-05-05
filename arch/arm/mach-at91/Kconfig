@@ -30,6 +30,9 @@ config TARGET_TNY_A9260
 config TARGET_SNAPPER9260
 	bool "Support snapper9260"
 	select CPU_ARM926EJS
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
 
 config TARGET_AFEB9260
 	bool "Support afeb9260"

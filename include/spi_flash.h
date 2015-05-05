@@ -62,11 +62,10 @@ struct spi_slave;
  * return 0 - Success, 1 - Failure
  */
 struct spi_flash {
+	struct spi_slave *spi;
 #ifdef CONFIG_DM_SPI_FLASH
-	struct spi_slave *spi;
 	struct udevice *dev;
-#else
-	struct spi_slave *spi;
+	u16 flags;
 #endif
 	const char *name;
 	u8 dual_flash;
@@ -91,13 +90,13 @@ struct spi_flash {
 #ifndef CONFIG_DM_SPI_FLASH
 	/*
 	 * These are not strictly needed for driver model, but keep them here
-	 * whilt the transition is in progress.
+	 * while the transition is in progress.
 	 *
 	 * Normally each driver would provide its own operations, but for
 	 * SPI flash most chips use the same algorithms. One approach is
 	 * to create a 'common' SPI flash device which knows how to talk
 	 * to most devices, and then allow other drivers to be used instead
-	 * if requird, perhaps with a way of scanning through the list to
+	 * if required, perhaps with a way of scanning through the list to
 	 * find the driver that matches the device.
 	 */
 	int (*read)(struct spi_flash *flash, u32 offset, size_t len, void *buf);
@@ -118,6 +117,41 @@ struct dm_spi_flash_ops {
 #define sf_get_ops(dev) ((struct dm_spi_flash_ops *)(dev)->driver->ops)
 
 #ifdef CONFIG_DM_SPI_FLASH
+/**
+ * spi_flash_read_dm() - Read data from SPI flash
+ *
+ * @dev:	SPI flash device
+ * @offset:	Offset into device in bytes to read from
+ * @len:	Number of bytes to read
+ * @buf:	Buffer to put the data that is read
+ * @return 0 if OK, -ve on error
+ */
+int spi_flash_read_dm(struct udevice *dev, u32 offset, size_t len, void *buf);
+
+/**
+ * spi_flash_write_dm() - Write data to SPI flash
+ *
+ * @dev:	SPI flash device
+ * @offset:	Offset into device in bytes to write to
+ * @len:	Number of bytes to write
+ * @buf:	Buffer containing bytes to write
+ * @return 0 if OK, -ve on error
+ */
+int spi_flash_write_dm(struct udevice *dev, u32 offset, size_t len,
+		       const void *buf);
+
+/**
+ * spi_flash_erase_dm() - Erase blocks of the SPI flash
+ *
+ * Note that @len must be a muiltiple of the flash sector size.
+ *
+ * @dev:	SPI flash device
+ * @offset:	Offset into device in bytes to start erasing
+ * @len:	Number of bytes to erase
+ * @return 0 if OK, -ve on error
+ */
+int spi_flash_erase_dm(struct udevice *dev, u32 offset, size_t len);
+
 int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 			   unsigned int max_hz, unsigned int spi_mode,
 			   struct udevice **devp);
@@ -132,21 +166,21 @@ void spi_flash_free(struct spi_flash *flash);
 int spi_flash_remove(struct udevice *flash);
 
 static inline int spi_flash_read(struct spi_flash *flash, u32 offset,
-		size_t len, void *buf)
+				 size_t len, void *buf)
 {
-	return sf_get_ops(flash->dev)->read(flash->dev, offset, len, buf);
+	return spi_flash_read_dm(flash->dev, offset, len, buf);
 }
 
 static inline int spi_flash_write(struct spi_flash *flash, u32 offset,
-		size_t len, const void *buf)
+				  size_t len, const void *buf)
 {
-	return sf_get_ops(flash->dev)->write(flash->dev, offset, len, buf);
+	return spi_flash_write_dm(flash->dev, offset, len, buf);
 }
 
 static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
-		size_t len)
+				  size_t len)
 {
-	return sf_get_ops(flash->dev)->erase(flash->dev, offset, len);
+	return spi_flash_erase_dm(flash->dev, offset, len);
 }
 
 struct sandbox_state;

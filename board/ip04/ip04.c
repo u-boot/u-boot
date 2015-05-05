@@ -32,7 +32,7 @@ int misc_init_r(void)
 	uchar enetaddr[6];
 	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
 		puts("Warning: Generating 'random' MAC address\n");
-		eth_random_addr(enetaddr);
+		net_random_ethaddr(enetaddr);
 		eth_setenv_enetaddr("ethaddr", enetaddr);
 	}
 

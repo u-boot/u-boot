@@ -70,14 +70,14 @@ static void report_pch_info(void)
 	u16 dev_id;
 	uint8_t rev_id;
 
-	dev_id = pci_read_config16(PCH_LPC_DEV, 2);
+	dev_id = x86_pci_read_config16(PCH_LPC_DEV, 2);
 	for (i = 0; i < ARRAY_SIZE(pch_table); i++) {
 		if (pch_table[i].dev_id == dev_id) {
 			pch_type = pch_table[i].dev_name;
 			break;
 		}
 	}
-	rev_id = pci_read_config8(PCH_LPC_DEV, 8);
+	rev_id = x86_pci_read_config8(PCH_LPC_DEV, 8);
 	debug("PCH type: %s, device id: %x, rev id %x\n", pch_type, dev_id,
 	      rev_id);
 }

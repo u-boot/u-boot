@@ -280,7 +280,7 @@ void reset_phy(void)
 	 * Initialize ethernet HW addr prior to starting Linux,
 	 * needed for nfsroot
 	 */
-	eth_init(gd->bd);
+	eth_init();
 #endif
 }
 #endif

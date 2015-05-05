@@ -34,7 +34,7 @@ static int gpio_to_device(unsigned int gpio, struct gpio_desc *desc)
 	for (ret = uclass_first_device(UCLASS_GPIO, &dev);
 	     dev;
 	     ret = uclass_next_device(&dev)) {
-		uc_priv = dev->uclass_priv;
+		uc_priv = dev_get_uclass_priv(dev);
 		if (gpio >= uc_priv->gpio_base &&
 		    gpio < uc_priv->gpio_base + uc_priv->gpio_count) {
 			desc->dev = dev;
@@ -65,7 +65,7 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 	     ret = uclass_next_device(&dev)) {
 		int len;
 
-		uc_priv = dev->uclass_priv;
+		uc_priv = dev_get_uclass_priv(dev);
 		if (numeric != -1) {
 			offset = numeric - uc_priv->gpio_base;
 			/* Allow GPIOs to be numbered from 0 */
@@ -116,7 +116,7 @@ static int dm_gpio_request(struct gpio_desc *desc, const char *label)
 	char *str;
 	int ret;
 
-	uc_priv = dev->uclass_priv;
+	uc_priv = dev_get_uclass_priv(dev);
 	if (uc_priv->name[desc->offset])
 		return -EBUSY;
 	str = strdup(label);
@@ -195,7 +195,7 @@ int _dm_gpio_free(struct udevice *dev, uint offset)
 	struct gpio_dev_priv *uc_priv;
 	int ret;
 
-	uc_priv = dev->uclass_priv;
+	uc_priv = dev_get_uclass_priv(dev);
 	if (!uc_priv->name[offset])
 		return -ENXIO;
 	if (gpio_get_ops(dev)->free) {
@@ -232,7 +232,7 @@ int gpio_free(unsigned gpio)
 
 static int check_reserved(struct gpio_desc *desc, const char *func)
 {
-	struct gpio_dev_priv *uc_priv = desc->dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(desc->dev);
 
 	if (!uc_priv->name[desc->offset]) {
 		printf("%s: %s: error: gpio %s%d not reserved\n",
@@ -402,7 +402,7 @@ const char *gpio_get_bank_info(struct udevice *dev, int *bit_count)
 	struct gpio_dev_priv *priv;
 
 	/* Must be called on an active device */
-	priv = dev->uclass_priv;
+	priv = dev_get_uclass_priv(dev);
 	assert(priv);
 
 	*bit_count = priv->gpio_count;
@@ -420,7 +420,7 @@ static const char * const gpio_function[GPIOF_COUNT] = {
 int get_function(struct udevice *dev, int offset, bool skip_unused,
 		 const char **namep)
 {
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct dm_gpio_ops *ops = gpio_get_ops(dev);
 
 	BUILD_BUG_ON(GPIOF_COUNT != ARRAY_SIZE(gpio_function));
@@ -468,7 +468,7 @@ int gpio_get_status(struct udevice *dev, int offset, char *buf, int buffsize)
 	BUILD_BUG_ON(GPIOF_COUNT != ARRAY_SIZE(gpio_function));
 
 	*buf = 0;
-	priv = dev->uclass_priv;
+	priv = dev_get_uclass_priv(dev);
 	ret = gpio_get_raw_function(dev, offset, NULL);
 	if (ret < 0)
 		return ret;
@@ -590,11 +590,7 @@ int gpio_request_list_by_name_nodev(const void *blob, int node,
 	int count;
 	int ret;
 
-	for (count = 0; ; count++) {
-		if (count >= max_count) {
-			ret = -ENOSPC;
-			goto err;
-		}
+	for (count = 0; count < max_count; count++) {
 		ret = _gpio_request_by_name_nodev(blob, node, list_name, count,
 						  &desc[count], flags, true);
 		if (ret == -ENOENT)
@@ -680,7 +676,7 @@ static int gpio_renumber(struct udevice *removed_dev)
 	base = 0;
 	uclass_foreach_dev(dev, uc) {
 		if (device_active(dev) && dev != removed_dev) {
-			uc_priv = dev->uclass_priv;
+			uc_priv = dev_get_uclass_priv(dev);
 			uc_priv->gpio_base = base;
 			base += uc_priv->gpio_count;
 		}
@@ -689,9 +685,21 @@ static int gpio_renumber(struct udevice *removed_dev)
 	return 0;
 }
 
+int gpio_get_number(struct gpio_desc *desc)
+{
+	struct udevice *dev = desc->dev;
+	struct gpio_dev_priv *uc_priv;
+
+	if (!dev)
+		return -1;
+	uc_priv = dev->uclass_priv;
+
+	return uc_priv->gpio_base + desc->offset;
+}
+
 static int gpio_post_probe(struct udevice *dev)
 {
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	uc_priv->name = calloc(uc_priv->gpio_count, sizeof(char *));
 	if (!uc_priv->name)
@@ -702,7 +710,7 @@ static int gpio_post_probe(struct udevice *dev)
 
 static int gpio_pre_remove(struct udevice *dev)
 {
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	int i;
 
 	for (i = 0; i < uc_priv->gpio_count; i++) {

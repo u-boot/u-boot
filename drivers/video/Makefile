@@ -45,5 +45,6 @@ obj-$(CONFIG_VIDEO_TEGRA) += tegra.o
 obj-$(CONFIG_VIDEO_VCXK) += bus_vcxk.o
 obj-$(CONFIG_VIDEO_VESA) += vesa_fb.o
 obj-$(CONFIG_FORMIKE) += formike.o
+obj-$(CONFIG_LG4573) += lg4573.o
 obj-$(CONFIG_AM335X_LCD) += am335x-fb.o
 obj-$(CONFIG_VIDEO_PARADE) += parade.o

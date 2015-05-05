@@ -38,6 +38,9 @@
 # define CONFIG_ZYNQ_SERIAL
 #endif
 
+#define CONFIG_ZYNQ_GPIO
+#define CONFIG_CMD_GPIO
+
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1)
 # define CONFIG_NET_MULTI
@@ -290,7 +293,7 @@
 # define CONFIG_SYS_MMC_MAX_DEVICE	1
 #endif
 
-#define CONFIG_SYS_LDSCRIPT  "arch/arm/cpu/armv7/zynq/u-boot.lds"
+#define CONFIG_SYS_LDSCRIPT  "arch/arm/mach-zynq/u-boot.lds"
 
 /* Commands */
 #include <config_cmd_default.h>
@@ -308,7 +311,7 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_BOARD_INIT
 
-#define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/armv7/zynq/u-boot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT	"arch/arm/mach-zynq/u-boot-spl.lds"
 
 /* MMC support */
 #ifdef CONFIG_ZYNQ_SDHCI0

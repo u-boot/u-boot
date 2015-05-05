@@ -31,6 +31,7 @@
 #include <search.h>
 #include <errno.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <watchdog.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>

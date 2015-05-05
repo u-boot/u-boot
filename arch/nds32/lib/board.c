@@ -383,7 +383,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #if defined(CONFIG_CMD_NET)
 	puts("Net:   ");
 
-	eth_initialize(gd->bd);
+	eth_initialize();
 #if defined(CONFIG_RESET_PHY_R)
 	debug("Reset Ethernet PHY\n");
 	reset_phy();

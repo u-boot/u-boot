@@ -437,10 +437,10 @@ static int sunxi_emac_eth_recv(struct eth_device *dev)
 			printf("Received packet is too big (len=%d)\n", rx_len);
 		} else {
 			emac_inblk_32bit((void *)&regs->rx_io_data,
-					 NetRxPackets[0], rx_len);
+					 net_rx_packets[0], rx_len);
 
 			/* Pass to upper layer */
-			NetReceive(NetRxPackets[0], rx_len);
+			net_process_received_packet(net_rx_packets[0], rx_len);
 			return rx_len;
 		}
 	}
@@ -497,7 +497,7 @@ int sunxi_emac_initialize(void)
 
 	/* Configure pin mux settings for MII Ethernet */
 	for (pin = SUNXI_GPA(0); pin <= SUNXI_GPA(17); pin++)
-		sunxi_gpio_set_cfgpin(pin, SUNXI_GPA0_EMAC);
+		sunxi_gpio_set_cfgpin(pin, SUNXI_GPA_EMAC);
 
 	/* Set up clock gating */
 	setbits_le32(&ccm->ahb_gate0, 0x1 << AHB_GATE_OFFSET_EMAC);

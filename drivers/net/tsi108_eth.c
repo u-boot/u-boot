@@ -804,11 +804,11 @@ static int tsi108_eth_probe (struct eth_device *dev, bd_t * bis)
 	rx_descr_current = rx_descr;
 	for (index = 0; index < NUM_RX_DESC; index++) {
 		/* make sure the receive buffers are not in cache */
-		invalidate_dcache_range((unsigned long)NetRxPackets[index],
-					(unsigned long)NetRxPackets[index] +
+		invalidate_dcache_range((unsigned long)net_rx_packets[index],
+					(unsigned long)net_rx_packets[index] +
 					RX_BUFFER_SIZE);
 		rx_descr->start_addr0 =
-		    cpu_to_le32((vuint32) NetRxPackets[index]);
+		    cpu_to_le32((vuint32) net_rx_packets[index]);
 		rx_descr->start_addr1 = 0;
 		rx_descr->next_descr_addr0 =
 		    cpu_to_le32((vuint32) (rx_descr + 1));
@@ -966,7 +966,7 @@ static int tsi108_eth_recv (struct eth_device *dev)
 
 			/*** process packet ***/
 			buffer = (uchar *)(le32_to_cpu(rx_descr->start_addr0));
-			NetReceive(buffer, length);
+			net_process_received_packet(buffer, length);
 
 			invalidate_dcache_range ((unsigned long)buffer,
 						(unsigned long)buffer +

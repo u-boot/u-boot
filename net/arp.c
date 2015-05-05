@@ -27,43 +27,43 @@
 # define ARP_TIMEOUT_COUNT	CONFIG_NET_RETRY_COUNT
 #endif
 
-IPaddr_t	NetArpWaitPacketIP;
-static IPaddr_t	NetArpWaitReplyIP;
+struct in_addr net_arp_wait_packet_ip;
+static struct in_addr net_arp_wait_reply_ip;
 /* MAC address of waiting packet's destination */
-uchar	       *NetArpWaitPacketMAC;
-int		NetArpWaitTxPacketSize;
-ulong		NetArpWaitTimerStart;
-int		NetArpWaitTry;
+uchar	       *arp_wait_packet_ethaddr;
+int		arp_wait_tx_packet_size;
+ulong		arp_wait_timer_start;
+int		arp_wait_try;
 
-static uchar   *NetArpTxPacket;	/* THE ARP transmit packet */
-static uchar	NetArpPacketBuf[PKTSIZE_ALIGN + PKTALIGN];
+static uchar   *arp_tx_packet;	/* THE ARP transmit packet */
+static uchar	arp_tx_packet_buf[PKTSIZE_ALIGN + PKTALIGN];
 
-void ArpInit(void)
+void arp_init(void)
 {
 	/* XXX problem with bss workaround */
-	NetArpWaitPacketMAC = NULL;
-	NetArpWaitPacketIP = 0;
-	NetArpWaitReplyIP = 0;
-	NetArpWaitTxPacketSize = 0;
-	NetArpTxPacket = &NetArpPacketBuf[0] + (PKTALIGN - 1);
-	NetArpTxPacket -= (ulong)NetArpTxPacket % PKTALIGN;
+	arp_wait_packet_ethaddr = NULL;
+	net_arp_wait_packet_ip.s_addr = 0;
+	net_arp_wait_reply_ip.s_addr = 0;
+	arp_wait_tx_packet_size = 0;
+	arp_tx_packet = &arp_tx_packet_buf[0] + (PKTALIGN - 1);
+	arp_tx_packet -= (ulong)arp_tx_packet % PKTALIGN;
 }
 
-void arp_raw_request(IPaddr_t sourceIP, const uchar *targetEther,
-	IPaddr_t targetIP)
+void arp_raw_request(struct in_addr source_ip, const uchar *target_ethaddr,
+	struct in_addr target_ip)
 {
 	uchar *pkt;
 	struct arp_hdr *arp;
 	int eth_hdr_size;
 
-	debug_cond(DEBUG_DEV_PKT, "ARP broadcast %d\n", NetArpWaitTry);
+	debug_cond(DEBUG_DEV_PKT, "ARP broadcast %d\n", arp_wait_try);
 
-	pkt = NetArpTxPacket;
+	pkt = arp_tx_packet;
 
-	eth_hdr_size = NetSetEther(pkt, NetBcastAddr, PROT_ARP);
+	eth_hdr_size = net_set_ether(pkt, net_bcast_ethaddr, PROT_ARP);
 	pkt += eth_hdr_size;
 
-	arp = (struct arp_hdr *) pkt;
+	arp = (struct arp_hdr *)pkt;
 
 	arp->ar_hrd = htons(ARP_ETHER);
 	arp->ar_pro = htons(PROT_IP);
@@ -71,59 +71,59 @@ void arp_raw_request(IPaddr_t sourceIP, const uchar *targetEther,
 	arp->ar_pln = ARP_PLEN;
 	arp->ar_op = htons(ARPOP_REQUEST);
 
-	memcpy(&arp->ar_sha, NetOurEther, ARP_HLEN);	/* source ET addr */
-	NetWriteIP(&arp->ar_spa, sourceIP);		/* source IP addr */
-	memcpy(&arp->ar_tha, targetEther, ARP_HLEN);	/* target ET addr */
-	NetWriteIP(&arp->ar_tpa, targetIP);		/* target IP addr */
+	memcpy(&arp->ar_sha, net_ethaddr, ARP_HLEN);	/* source ET addr */
+	net_write_ip(&arp->ar_spa, source_ip);		/* source IP addr */
+	memcpy(&arp->ar_tha, target_ethaddr, ARP_HLEN);	/* target ET addr */
+	net_write_ip(&arp->ar_tpa, target_ip);		/* target IP addr */
 
-	NetSendPacket(NetArpTxPacket, eth_hdr_size + ARP_HDR_SIZE);
+	net_send_packet(arp_tx_packet, eth_hdr_size + ARP_HDR_SIZE);
 }
 
-void ArpRequest(void)
+void arp_request(void)
 {
-	if ((NetArpWaitPacketIP & NetOurSubnetMask) !=
-	    (NetOurIP & NetOurSubnetMask)) {
-		if (NetOurGatewayIP == 0) {
+	if ((net_arp_wait_packet_ip.s_addr & net_netmask.s_addr) !=
+	    (net_ip.s_addr & net_netmask.s_addr)) {
+		if (net_gateway.s_addr == 0) {
 			puts("## Warning: gatewayip needed but not set\n");
-			NetArpWaitReplyIP = NetArpWaitPacketIP;
+			net_arp_wait_reply_ip = net_arp_wait_packet_ip;
 		} else {
-			NetArpWaitReplyIP = NetOurGatewayIP;
+			net_arp_wait_reply_ip = net_gateway;
 		}
 	} else {
-		NetArpWaitReplyIP = NetArpWaitPacketIP;
+		net_arp_wait_reply_ip = net_arp_wait_packet_ip;
 	}
 
-	arp_raw_request(NetOurIP, NetEtherNullAddr, NetArpWaitReplyIP);
+	arp_raw_request(net_ip, net_null_ethaddr, net_arp_wait_reply_ip);
 }
 
-void ArpTimeoutCheck(void)
+void arp_timeout_check(void)
 {
 	ulong t;
 
-	if (!NetArpWaitPacketIP)
+	if (!net_arp_wait_packet_ip.s_addr)
 		return;
 
 	t = get_timer(0);
 
 	/* check for arp timeout */
-	if ((t - NetArpWaitTimerStart) > ARP_TIMEOUT) {
-		NetArpWaitTry++;
+	if ((t - arp_wait_timer_start) > ARP_TIMEOUT) {
+		arp_wait_try++;
 
-		if (NetArpWaitTry >= ARP_TIMEOUT_COUNT) {
+		if (arp_wait_try >= ARP_TIMEOUT_COUNT) {
 			puts("\nARP Retry count exceeded; starting again\n");
-			NetArpWaitTry = 0;
-			NetStartAgain();
+			arp_wait_try = 0;
+			net_start_again();
 		} else {
-			NetArpWaitTimerStart = t;
-			ArpRequest();
+			arp_wait_timer_start = t;
+			arp_request();
 		}
 	}
 }
 
-void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
+void arp_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 {
 	struct arp_hdr *arp;
-	IPaddr_t reply_ip_addr;
+	struct in_addr reply_ip_addr;
 	uchar *pkt;
 	int eth_hdr_size;
 
@@ -152,10 +152,10 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 	if (arp->ar_pln != ARP_PLEN)
 		return;
 
-	if (NetOurIP == 0)
+	if (net_ip.s_addr == 0)
 		return;
 
-	if (NetReadIP(&arp->ar_tpa) != NetOurIP)
+	if (net_read_ip(&arp->ar_tpa).s_addr != net_ip.s_addr)
 		return;
 
 	switch (ntohs(arp->ar_op)) {
@@ -167,9 +167,9 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		pkt += eth_hdr_size;
 		arp->ar_op = htons(ARPOP_REPLY);
 		memcpy(&arp->ar_tha, &arp->ar_sha, ARP_HLEN);
-		NetCopyIP(&arp->ar_tpa, &arp->ar_spa);
-		memcpy(&arp->ar_sha, NetOurEther, ARP_HLEN);
-		NetCopyIP(&arp->ar_spa, &NetOurIP);
+		net_copy_ip(&arp->ar_tpa, &arp->ar_spa);
+		memcpy(&arp->ar_sha, net_ethaddr, ARP_HLEN);
+		net_copy_ip(&arp->ar_spa, &net_ip);
 
 #ifdef CONFIG_CMD_LINK_LOCAL
 		/*
@@ -180,53 +180,52 @@ void ArpReceive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		 *   reply to ARP request so that our reply will overwrite
 		 *   the arp-proxy's instead of the other way around.
 		 */
-		if ((NetReadIP(&arp->ar_tpa) & NetOurSubnetMask) !=
-		    (NetReadIP(&arp->ar_spa) & NetOurSubnetMask))
+		if ((net_read_ip(&arp->ar_tpa).s_addr & net_netmask.s_addr) !=
+		    (net_read_ip(&arp->ar_spa).s_addr & net_netmask.s_addr))
 			udelay(5000);
 #endif
-		NetSendPacket((uchar *)et, eth_hdr_size + ARP_HDR_SIZE);
+		net_send_packet((uchar *)et, eth_hdr_size + ARP_HDR_SIZE);
 		return;
 
 	case ARPOP_REPLY:		/* arp reply */
 		/* are we waiting for a reply */
-		if (!NetArpWaitPacketIP)
+		if (!net_arp_wait_packet_ip.s_addr)
 			break;
 
 #ifdef CONFIG_KEEP_SERVERADDR
-		if (NetServerIP == NetArpWaitPacketIP) {
+		if (net_server_ip.s_addr == net_arp_wait_packet_ip.s_addr) {
 			char buf[20];
 			sprintf(buf, "%pM", &arp->ar_sha);
 			setenv("serveraddr", buf);
 		}
 #endif
 
-		reply_ip_addr = NetReadIP(&arp->ar_spa);
+		reply_ip_addr = net_read_ip(&arp->ar_spa);
 
 		/* matched waiting packet's address */
-		if (reply_ip_addr == NetArpWaitReplyIP) {
+		if (reply_ip_addr.s_addr == net_arp_wait_reply_ip.s_addr) {
 			debug_cond(DEBUG_DEV_PKT,
-				"Got ARP REPLY, set eth addr (%pM)\n",
-				arp->ar_data);
+				   "Got ARP REPLY, set eth addr (%pM)\n",
+				   arp->ar_data);
 
 			/* save address for later use */
-			if (NetArpWaitPacketMAC != NULL)
-				memcpy(NetArpWaitPacketMAC,
+			if (arp_wait_packet_ethaddr != NULL)
+				memcpy(arp_wait_packet_ethaddr,
 				       &arp->ar_sha, ARP_HLEN);
 
 			net_get_arp_handler()((uchar *)arp, 0, reply_ip_addr,
-				0, len);
+					      0, len);
 
 			/* set the mac address in the waiting packet's header
 			   and transmit it */
-			memcpy(((struct ethernet_hdr *)NetTxPacket)->et_dest,
-				&arp->ar_sha, ARP_HLEN);
-			NetSendPacket(NetTxPacket, NetArpWaitTxPacketSize);
+			memcpy(((struct ethernet_hdr *)net_tx_packet)->et_dest,
+			       &arp->ar_sha, ARP_HLEN);
+			net_send_packet(net_tx_packet, arp_wait_tx_packet_size);
 
 			/* no arp request pending now */
-			NetArpWaitPacketIP = 0;
-			NetArpWaitTxPacketSize = 0;
-			NetArpWaitPacketMAC = NULL;
-
+			net_arp_wait_packet_ip.s_addr = 0;
+			arp_wait_tx_packet_size = 0;
+			arp_wait_packet_ethaddr = NULL;
 		}
 		return;
 	default:

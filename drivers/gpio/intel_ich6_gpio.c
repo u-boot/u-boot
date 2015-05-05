@@ -64,13 +64,13 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 	pci_dev = PCI_BDF(0, 0x1f, 0);
 
 	/* Is the device present? */
-	tmpword = pci_read_config16(pci_dev, PCI_VENDOR_ID);
+	tmpword = x86_pci_read_config16(pci_dev, PCI_VENDOR_ID);
 	if (tmpword != PCI_VENDOR_ID_INTEL) {
 		debug("%s: wrong VendorID\n", __func__);
 		return -ENODEV;
 	}
 
-	tmpword = pci_read_config16(pci_dev, PCI_DEVICE_ID);
+	tmpword = x86_pci_read_config16(pci_dev, PCI_DEVICE_ID);
 	debug("Found %04x:%04x\n", PCI_VENDOR_ID_INTEL, tmpword);
 	/*
 	 * We'd like to validate the Device ID too, but pretty much any
@@ -80,34 +80,34 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 	 */
 
 	/* I/O should already be enabled (it's a RO bit). */
-	tmpword = pci_read_config16(pci_dev, PCI_COMMAND);
+	tmpword = x86_pci_read_config16(pci_dev, PCI_COMMAND);
 	if (!(tmpword & PCI_COMMAND_IO)) {
 		debug("%s: device IO not enabled\n", __func__);
 		return -ENODEV;
 	}
 
 	/* Header Type must be normal (bits 6-0 only; see spec.) */
-	tmpbyte = pci_read_config8(pci_dev, PCI_HEADER_TYPE);
+	tmpbyte = x86_pci_read_config8(pci_dev, PCI_HEADER_TYPE);
 	if ((tmpbyte & 0x7f) != PCI_HEADER_TYPE_NORMAL) {
 		debug("%s: invalid Header type\n", __func__);
 		return -ENODEV;
 	}
 
 	/* Base Class must be a bridge device */
-	tmpbyte = pci_read_config8(pci_dev, PCI_CLASS_CODE);
+	tmpbyte = x86_pci_read_config8(pci_dev, PCI_CLASS_CODE);
 	if (tmpbyte != PCI_CLASS_CODE_BRIDGE) {
 		debug("%s: invalid class\n", __func__);
 		return -ENODEV;
 	}
 	/* Sub Class must be ISA */
-	tmpbyte = pci_read_config8(pci_dev, PCI_CLASS_SUB_CODE);
+	tmpbyte = x86_pci_read_config8(pci_dev, PCI_CLASS_SUB_CODE);
 	if (tmpbyte != PCI_CLASS_SUB_CODE_BRIDGE_ISA) {
 		debug("%s: invalid subclass\n", __func__);
 		return -ENODEV;
 	}
 
 	/* Programming Interface must be 0x00 (no others exist) */
-	tmpbyte = pci_read_config8(pci_dev, PCI_CLASS_PROG);
+	tmpbyte = x86_pci_read_config8(pci_dev, PCI_CLASS_PROG);
 	if (tmpbyte != 0x00) {
 		debug("%s: invalid interface type\n", __func__);
 		return -ENODEV;
@@ -123,7 +123,7 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 	 * while on the Ivybridge the bit0 is used to indicate it is an
 	 * I/O space.
 	 */
-	tmplong = pci_read_config32(pci_dev, PCI_CFG_GPIOBASE);
+	tmplong = x86_pci_read_config32(pci_dev, PCI_CFG_GPIOBASE);
 	if (tmplong == 0x00000000 || tmplong == 0xffffffff) {
 		debug("%s: unexpected GPIOBASE value\n", __func__);
 		return -ENODEV;
@@ -151,7 +151,7 @@ static int gpio_ich6_ofdata_to_platdata(struct udevice *dev)
 static int ich6_gpio_probe(struct udevice *dev)
 {
 	struct ich6_bank_platdata *plat = dev_get_platdata(dev);
-	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct ich6_bank_priv *bank = dev_get_priv(dev);
 
 	if (gd->arch.gpio_map) {

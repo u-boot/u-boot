@@ -37,7 +37,7 @@
 #define SCSI_DEV_LIST {SCSI_VEND_ID, SCSI_DEV_ID}
 #endif
 
-#ifdef CONFIG_PCI
+#if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT)
 const struct pci_device_id scsi_device_list[] = { SCSI_DEV_LIST };
 #endif
 static ccb tempccb;	/* temporary scsi command buffer */
@@ -179,7 +179,7 @@ int scsi_get_disk_count(void)
 	return scsi_max_devs;
 }
 
-#ifdef CONFIG_PCI
+#if defined(CONFIG_PCI) && !defined(CONFIG_SCSI_AHCI_PLAT)
 void scsi_init(void)
 {
 	int busdevfunc;

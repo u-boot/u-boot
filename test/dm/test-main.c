@@ -65,7 +65,7 @@ static int dm_test_destroy(struct dm_test_state *dms)
 	return 0;
 }
 
-int dm_test_main(void)
+int dm_test_main(const char *test_name)
 {
 	struct dm_test *tests = ll_entry_start(struct dm_test, dm_test);
 	const int n_ents = ll_entry_count(struct dm_test, dm_test);
@@ -83,9 +83,12 @@ int dm_test_main(void)
 		ut_assert(gd->fdt_blob);
 	}
 
-	printf("Running %d driver model tests\n", n_ents);
+	if (!test_name)
+		printf("Running %d driver model tests\n", n_ents);
 
 	for (test = tests; test < tests + n_ents; test++) {
+		if (test_name && strcmp(test_name, test->name))
+			continue;
 		printf("Test: %s\n", test->name);
 		ut_assertok(dm_test_init(dms));
 

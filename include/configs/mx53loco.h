@@ -76,6 +76,7 @@
 /* I2C Configs */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 
 /* PMIC Controller */
 #define CONFIG_POWER

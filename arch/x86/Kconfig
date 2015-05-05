@@ -7,6 +7,9 @@ config SYS_ARCH
 config USE_PRIVATE_LIBGCC
 	default y
 
+config SYS_VSNPRINTF
+	default y
+
 choice
 	prompt "Target select"
 
@@ -31,6 +34,20 @@ config TARGET_CHROMEBOOK_LINK
 	  solid state drive. There is a Chrome OS EC connected on LPC,
 	  and it provides a 2560x1700 high resolution touch-enabled LCD
 	  display.
+
+config TARGET_CHROMEBOX_PANTHER
+	bool "Support Chromebox panther (not available)"
+	select n
+	help
+	  Note: At present this must be used with Coreboot. See README.x86
+	  for instructions.
+
+	  This is the Asus Chromebox CN60 released in 2014. It uses an Intel
+	  Haswell Celeron 2955U Dual Core CPU with 2GB of SDRAM. It has a
+	  Lynx Point platform controller hub, PCIe WiFi and Bluetooth. It also
+	  includes a USB SD reader, four USB3 ports, display port and HDMI
+	  video output and a 16GB SATA solid state drive. There is no Chrome
+	  OS EC on this model.
 
 config TARGET_CROWNBAY
 	bool "Support Intel Crown Bay CRB"
@@ -67,13 +84,10 @@ config TARGET_GALILEO
 
 endchoice
 
-config DM
+config DM_SPI
 	default y
 
-config DM_GPIO
-	default y
-
-config DM_SERIAL
+config DM_SPI_FLASH
 	default y
 
 config SYS_MALLOC_F_LEN
@@ -432,6 +446,8 @@ source "board/coreboot/coreboot/Kconfig"
 
 source "board/google/chromebook_link/Kconfig"
 
+source "board/google/chromebox_panther/Kconfig"
+
 source "board/intel/crownbay/Kconfig"
 
 source "board/intel/minnowmax/Kconfig"
@@ -451,5 +467,14 @@ config PCIE_ECAM_BASE
 	  should be set to a region that does not conflict with memory
 	  assigned to PCI devices - i.e. the memory and prefetch regions, as
 	  passed to pci_set_region().
+
+config BOOTSTAGE
+	default y
+
+config BOOTSTAGE_REPORT
+	default y
+
+config CMD_BOOTSTAGE
+	default y
 
 endmenu

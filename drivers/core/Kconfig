@@ -46,3 +46,12 @@ config DM_STDIO
 	  Normally serial drivers register with stdio so that they can be used
 	  as normal output devices. In SPL we don't normally use stdio, so
 	  we can omit this feature.
+
+config DM_SEQ_ALIAS
+	bool "Support numbered aliases in device tree"
+	depends on DM
+	default y
+	help
+	  Most boards will have a '/aliases' node containing the path to
+	  numbered devices (e.g. serial0 = &serial0). This feature can be
+	  disabled if it is not required, to save code space in SPL.

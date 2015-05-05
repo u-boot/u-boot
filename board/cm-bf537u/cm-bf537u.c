@@ -31,7 +31,7 @@ static void board_init_enetaddr(char *var)
 		return;
 
 	printf("Warning: %s: generating 'random' MAC address\n", var);
-	eth_random_addr(enetaddr);
+	net_random_ethaddr(enetaddr);
 	eth_setenv_enetaddr(var, enetaddr);
 }
 

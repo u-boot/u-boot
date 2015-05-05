@@ -22,6 +22,9 @@ ifeq ($(SOC),$(filter $(SOC),mx6))
 obj-$(CONFIG_CMD_SATA) += sata.o
 obj-$(CONFIG_IMX_VIDEO_SKIP) += video.o
 endif
+ifeq ($(SOC),$(filter $(SOC),vf610))
+obj-y += ddrmc-vf610.o
+endif
 obj-$(CONFIG_CMD_BMODE) += cmd_bmode.o
 obj-$(CONFIG_CMD_HDMIDETECT) += cmd_hdmidet.o
 obj-$(CONFIG_CMD_DEKBLOB) += cmd_dek.o

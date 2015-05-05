@@ -159,7 +159,8 @@ static int scc_recv (struct eth_device *dev)
 #endif
 		} else {
 			/* Pass the packet up to the protocol layers. */
-			NetReceive (NetRxPackets[rxIdx], length - 4);
+			net_process_received_packet(net_rx_packets[rxIdx],
+						    length - 4);
 		}
 
 
@@ -280,7 +281,7 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	for (i = 0; i < PKTBUFSRX; i++) {
 		rtx->rxbd[i].cbd_sc = BD_ENET_RX_EMPTY;
 		rtx->rxbd[i].cbd_datlen = 0;	/* Reset */
-		rtx->rxbd[i].cbd_bufaddr = (uint) NetRxPackets[i];
+		rtx->rxbd[i].cbd_bufaddr = (uint) net_rx_packets[i];
 	}
 
 	rtx->rxbd[PKTBUFSRX - 1].cbd_sc |= BD_ENET_RX_WRAP;
@@ -339,7 +340,7 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	pram_ptr->sen_gaddr3 = 0x0;	/* Group Address Filter 3 (unused) */
 	pram_ptr->sen_gaddr4 = 0x0;	/* Group Address Filter 4 (unused) */
 
-#define ea eth_get_dev()->enetaddr
+#define ea eth_get_ethaddr()
 	pram_ptr->sen_paddrh = (ea[5] << 8) + ea[4];
 	pram_ptr->sen_paddrm = (ea[3] << 8) + ea[2];
 	pram_ptr->sen_paddrl = (ea[1] << 8) + ea[0];

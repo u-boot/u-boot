@@ -132,7 +132,7 @@ static int am3517_get_efuse_enetaddr(u8 *enetaddr)
 	enetaddr[4] = (u8)((lsb >> 8)  & 0xff);
 	enetaddr[5] = (u8)(lsb & 0xff);
 
-	return is_valid_ether_addr(enetaddr);
+	return is_valid_ethaddr(enetaddr);
 }
 
 static inline int cm_t3517_init_emac(bd_t *bis)
@@ -170,7 +170,7 @@ static int cm_t3517_handle_mac_address(void)
 			return ret;
 	}
 
-	if (!is_valid_ether_addr(enetaddr))
+	if (!is_valid_ethaddr(enetaddr))
 		return -1;
 
 	return eth_setenv_enetaddr("ethaddr", enetaddr);

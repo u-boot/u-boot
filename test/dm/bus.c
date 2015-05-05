@@ -273,20 +273,22 @@ DM_TEST(dm_test_bus_parent_data, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 /* As above but the size is controlled by the uclass */
 static int dm_test_bus_parent_data_uclass(struct dm_test_state *dms)
 {
+	struct driver *drv;
 	struct udevice *bus;
 	int size;
 	int ret;
 
 	/* Set the driver size to 0 so that the uclass size is used */
 	ut_assertok(uclass_find_device(UCLASS_TEST_BUS, 0, &bus));
-	size = bus->driver->per_child_auto_alloc_size;
+	drv = (struct driver *)bus->driver;
+	size = drv->per_child_auto_alloc_size;
 	bus->uclass->uc_drv->per_child_auto_alloc_size = size;
-	bus->driver->per_child_auto_alloc_size = 0;
+	drv->per_child_auto_alloc_size = 0;
 	ret = test_bus_parent_data(dms);
 	if (ret)
 		return ret;
 	bus->uclass->uc_drv->per_child_auto_alloc_size = 0;
-	bus->driver->per_child_auto_alloc_size = size;
+	drv->per_child_auto_alloc_size = size;
 
 	return 0;
 }
@@ -414,19 +416,21 @@ DM_TEST(dm_test_bus_parent_platdata, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 static int dm_test_bus_parent_platdata_uclass(struct dm_test_state *dms)
 {
 	struct udevice *bus;
+	struct driver *drv;
 	int size;
 	int ret;
 
 	/* Set the driver size to 0 so that the uclass size is used */
 	ut_assertok(uclass_find_device(UCLASS_TEST_BUS, 0, &bus));
-	size = bus->driver->per_child_platdata_auto_alloc_size;
+	drv = (struct driver *)bus->driver;
+	size = drv->per_child_platdata_auto_alloc_size;
 	bus->uclass->uc_drv->per_child_platdata_auto_alloc_size = size;
-	bus->driver->per_child_platdata_auto_alloc_size = 0;
+	drv->per_child_platdata_auto_alloc_size = 0;
 	ret = test_bus_parent_platdata(dms);
 	if (ret)
 		return ret;
 	bus->uclass->uc_drv->per_child_platdata_auto_alloc_size = 0;
-	bus->driver->per_child_platdata_auto_alloc_size = size;
+	drv->per_child_platdata_auto_alloc_size = size;
 
 	return 0;
 }

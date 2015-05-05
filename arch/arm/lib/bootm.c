@@ -18,6 +18,7 @@
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
 #include <libfdt.h>
+#include <mapmem.h>
 #include <fdt_support.h>
 #include <asm/bootm.h>
 #include <asm/secure.h>

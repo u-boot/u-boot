@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  *
- * Copyright 2010-2011 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011, 2015 Freescale Semiconductor, Inc.
  * author Andy Fleming
  */
 #include <config.h>
@@ -21,11 +21,27 @@
 #define MIIM_RTL8211x_PHYSTAT_SPDDONE  0x0800
 #define MIIM_RTL8211x_PHYSTAT_LINK     0x0400
 
+/* RTL8211x PHY Interrupt Enable Register */
+#define MIIM_RTL8211x_PHY_INER         0x12
+#define MIIM_RTL8211x_PHY_INTR_ENA     0x9f01
+#define MIIM_RTL8211x_PHY_INTR_DIS     0x0000
+
+/* RTL8211x PHY Interrupt Status Register */
+#define MIIM_RTL8211x_PHY_INSR         0x13
 
 /* RealTek RTL8211x */
 static int rtl8211x_config(struct phy_device *phydev)
 {
 	phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, BMCR_RESET);
+
+	/* mask interrupt at init; if the interrupt is
+	 * needed indeed, it should be explicitly enabled
+	 */
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211x_PHY_INER,
+		  MIIM_RTL8211x_PHY_INTR_DIS);
+
+	/* read interrupt status just to clear it */
+	phy_read(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211x_PHY_INER);
 
 	genphy_config_aneg(phydev);
 

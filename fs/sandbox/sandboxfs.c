@@ -10,7 +10,11 @@
 
 int sandbox_fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
 {
-	return 0;
+	/*
+	 * Only accept a NULL block_dev_desc_t for the sandbox, which is when
+	 * hostfs interface is used
+	 */
+	return rbdd != NULL;
 }
 
 int sandbox_fs_read_at(const char *filename, loff_t pos, void *buffer,

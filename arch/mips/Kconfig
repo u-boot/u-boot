@@ -141,15 +141,12 @@ config MIPS_BOOT_ENV_LEGACY
 	  The address of the enviroment is stored in register $a2.
 
 config MIPS_BOOT_FDT
-	bool "Hand over a flattened device tree to Linux kernel (INCOMPLETE)"
+	bool "Hand over a flattened device tree to Linux kernel"
 	default n
 	help
 	  Enable this option if you want U-Boot to hand over a flattened
-	  device tree to the kernel.
-
-	  Note: the final hand over to the kernel is not yet implemented. After
-	        the community agreed on the MIPS boot interface for device trees,
-	        the corresponding code will be added.
+	  device tree to the kernel. According to UHI register $a0 will be set
+	  to -2 and the FDT address is stored in $a1.
 
 endmenu
 

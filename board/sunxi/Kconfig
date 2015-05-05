@@ -212,6 +212,25 @@ config MMC3_CD_PIN
 	---help---
 	See MMC0_CD_PIN help text.
 
+config MMC1_PINS
+	string "Pins for mmc1"
+	default ""
+	---help---
+	Set the pins used for mmc1, when applicable. This takes a string in the
+	format understood by sunxi_name_to_gpio_bank, e.g. PH for port H.
+
+config MMC2_PINS
+	string "Pins for mmc2"
+	default ""
+	---help---
+	See MMC1_PINS help text.
+
+config MMC3_PINS
+	string "Pins for mmc3"
+	default ""
+	---help---
+	See MMC1_PINS help text.
+
 config MMC_SUNXI_SLOT_EXTRA
 	int "mmc extra slot number"
 	default -1
@@ -229,7 +248,6 @@ config USB0_VBUS_PIN
 
 config USB0_VBUS_DET
 	string "Vbus detect pin for usb0 (otg)"
-	depends on USB_MUSB_SUNXI
 	default ""
 	---help---
 	Set the Vbus detect pin for usb0 (otg). This takes a string in the
@@ -250,6 +268,44 @@ config USB2_VBUS_PIN
 	default "PH24" if MACH_SUN6I
 	---help---
 	See USB1_VBUS_PIN help text.
+
+config I2C0_ENABLE
+	bool "Enable I2C/TWI controller 0"
+	default y if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	default n if MACH_SUN6I || MACH_SUN8I
+	---help---
+	This allows enabling I2C/TWI controller 0 by muxing its pins, enabling
+	its clock and setting up the bus. This is especially useful on devices
+	with slaves connected to the bus or with pins exposed through e.g. an
+	expansion port/header.
+
+config I2C1_ENABLE
+	bool "Enable I2C/TWI controller 1"
+	default n
+	---help---
+	See I2C0_ENABLE help text.
+
+config I2C2_ENABLE
+	bool "Enable I2C/TWI controller 2"
+	default n
+	---help---
+	See I2C0_ENABLE help text.
+
+if MACH_SUN6I || MACH_SUN7I
+config I2C3_ENABLE
+	bool "Enable I2C/TWI controller 3"
+	default n
+	---help---
+	See I2C0_ENABLE help text.
+endif
+
+if MACH_SUN7I
+config I2C4_ENABLE
+	bool "Enable I2C/TWI controller 4"
+	default n
+	---help---
+	See I2C0_ENABLE help text.
+endif
 
 config VIDEO
 	boolean "Enable graphical uboot console on HDMI, LCD or VGA"

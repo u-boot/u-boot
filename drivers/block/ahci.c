@@ -137,10 +137,10 @@ static void sunxi_dma_init(volatile u8 *port_mmio)
 }
 #endif
 
-int ahci_reset(u32 base)
+int ahci_reset(void __iomem *base)
 {
 	int i = 1000;
-	u32 host_ctl_reg = base + HOST_CTL;
+	u32 __iomem *host_ctl_reg = base + HOST_CTL;
 	u32 tmp = readl(host_ctl_reg); /* global controller reset */
 
 	if ((tmp & HOST_RESET) == 0)
@@ -419,8 +419,9 @@ static int ahci_init_one(pci_dev_t pdev)
 	probe_ent->pio_mask = 0x1f;
 	probe_ent->udma_mask = 0x7f;	/*Fixme,assume to support UDMA6 */
 
-	pci_read_config_dword(pdev, PCI_BASE_ADDRESS_5, &probe_ent->mmio_base);
-	debug("ahci mmio_base=0x%08x\n", probe_ent->mmio_base);
+	probe_ent->mmio_base = pci_map_bar(pdev, PCI_BASE_ADDRESS_5,
+					   PCI_REGION_MEM);
+	debug("ahci mmio_base=0x%p\n", probe_ent->mmio_base);
 
 	/* Take from kernel:
 	 * JMicron-specific fixup:
@@ -939,7 +940,7 @@ void scsi_low_level_init(int busdevfunc)
 }
 
 #ifdef CONFIG_SCSI_AHCI_PLAT
-int ahci_init(u32 base)
+int ahci_init(void __iomem *base)
 {
 	int i, rc = 0;
 	u32 linkmap;

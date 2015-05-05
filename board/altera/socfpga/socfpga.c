@@ -18,6 +18,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+void s_init(void) {}
+
 /*
  * Miscellaneous platform dependent initialisations
  */

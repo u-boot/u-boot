@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <asm/cpu.h>
@@ -116,23 +117,32 @@ static void set_spi_speed(void)
 
 int arch_cpu_init(void)
 {
-	const void *blob = gd->fdt_blob;
-	struct pci_controller *hose;
-	int node;
-	int ret;
-
 	post_code(POST_CPU_INIT);
 	timer_set_base(rdtsc());
 
-	ret = x86_cpu_init_f();
+	return x86_cpu_init_f();
+}
+
+int arch_cpu_init_dm(void)
+{
+	const void *blob = gd->fdt_blob;
+	struct pci_controller *hose;
+	struct udevice *bus;
+	int node;
+	int ret;
+
+	post_code(0x70);
+	ret = uclass_get_device(UCLASS_PCI, 0, &bus);
+	post_code(0x71);
 	if (ret)
 		return ret;
+	post_code(0x72);
+	hose = dev_get_uclass_priv(bus);
 
-	ret = pci_early_init_hose(&hose);
-	if (ret)
-		return ret;
+	/* TODO(sjg@chromium.org): Get rid of gd->hose */
+	gd->hose = hose;
 
-	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_LPC);
+	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_PCH);
 	if (node < 0)
 		return -ENOENT;
 	ret = lpc_early_init(gd->fdt_blob, node, PCH_LPC_DEV);
@@ -167,21 +177,21 @@ static int enable_smbus(void)
 	dev = PCI_BDF(0x0, 0x1f, 0x3);
 
 	/* Check to make sure we've got the right device. */
-	value = pci_read_config16(dev, 0x0);
+	value = x86_pci_read_config16(dev, 0x0);
 	if (value != 0x8086) {
 		printf("SMBus controller not found\n");
 		return -ENOSYS;
 	}
 
 	/* Set SMBus I/O base. */
-	pci_write_config32(dev, SMB_BASE,
-			   SMBUS_IO_BASE | PCI_BASE_ADDRESS_SPACE_IO);
+	x86_pci_write_config32(dev, SMB_BASE,
+			       SMBUS_IO_BASE | PCI_BASE_ADDRESS_SPACE_IO);
 
 	/* Set SMBus enable. */
-	pci_write_config8(dev, HOSTC, HST_EN);
+	x86_pci_write_config8(dev, HOSTC, HST_EN);
 
 	/* Set SMBus I/O space enable. */
-	pci_write_config16(dev, PCI_COMMAND, PCI_COMMAND_IO);
+	x86_pci_write_config16(dev, PCI_COMMAND, PCI_COMMAND_IO);
 
 	/* Disable interrupt generation. */
 	outb(0, SMBUS_IO_BASE + SMBHSTCTL);
@@ -214,25 +224,25 @@ static void enable_usb_bar(void)
 	u32 cmd;
 
 	/* USB Controller 1 */
-	pci_write_config32(usb0, PCI_BASE_ADDRESS_0,
-			   PCH_EHCI0_TEMP_BAR0);
-	cmd = pci_read_config32(usb0, PCI_COMMAND);
+	x86_pci_write_config32(usb0, PCI_BASE_ADDRESS_0,
+			       PCH_EHCI0_TEMP_BAR0);
+	cmd = x86_pci_read_config32(usb0, PCI_COMMAND);
 	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_write_config32(usb0, PCI_COMMAND, cmd);
+	x86_pci_write_config32(usb0, PCI_COMMAND, cmd);
 
 	/* USB Controller 1 */
-	pci_write_config32(usb1, PCI_BASE_ADDRESS_0,
-			   PCH_EHCI1_TEMP_BAR0);
-	cmd = pci_read_config32(usb1, PCI_COMMAND);
+	x86_pci_write_config32(usb1, PCI_BASE_ADDRESS_0,
+			       PCH_EHCI1_TEMP_BAR0);
+	cmd = x86_pci_read_config32(usb1, PCI_COMMAND);
 	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_write_config32(usb1, PCI_COMMAND, cmd);
+	x86_pci_write_config32(usb1, PCI_COMMAND, cmd);
 
 	/* USB3 Controller */
-	pci_write_config32(usb3, PCI_BASE_ADDRESS_0,
-			   PCH_XHCI_TEMP_BAR0);
-	cmd = pci_read_config32(usb3, PCI_COMMAND);
+	x86_pci_write_config32(usb3, PCI_BASE_ADDRESS_0,
+			       PCH_XHCI_TEMP_BAR0);
+	cmd = x86_pci_read_config32(usb3, PCI_COMMAND);
 	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_write_config32(usb3, PCI_COMMAND, cmd);
+	x86_pci_write_config32(usb3, PCI_COMMAND, cmd);
 }
 
 static int report_bist_failure(void)
@@ -320,8 +330,8 @@ int print_cpuinfo(void)
 	gd->arch.pei_boot_mode = boot_mode;
 
 	/* TODO: Move this to the board or driver */
-	pci_write_config32(PCH_LPC_DEV, GPIO_BASE, DEFAULT_GPIOBASE | 1);
-	pci_write_config32(PCH_LPC_DEV, GPIO_CNTL, 0x10);
+	x86_pci_write_config32(PCH_LPC_DEV, GPIO_BASE, DEFAULT_GPIOBASE | 1);
+	x86_pci_write_config32(PCH_LPC_DEV, GPIO_CNTL, 0x10);
 
 	/* Print processor name */
 	name = cpu_get_name(processor_name);

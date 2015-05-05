@@ -186,8 +186,8 @@ void cs4340_upload_firmware(struct phy_device *phydev)
 		while (*addr != 0x0a) {
 			line_temp[i++] = *addr++;
 			if (0x50 < i) {
-				printf("Not found Cortina PHY ucode at 0x%x\n",
-				       CONFIG_CORTINA_FW_ADDR);
+				printf("Not found Cortina PHY ucode at 0x%p\n",
+				       (char *)CONFIG_CORTINA_FW_ADDR);
 				return;
 			}
 		}

@@ -102,7 +102,7 @@ static int ftmac100_init (struct eth_device *dev, bd_t *bd)
 
 	for (i = 0; i < PKTBUFSRX; i++) {
 		/* RXBUF_BADR */
-		rxdes[i].rxdes2 = (unsigned int)NetRxPackets[i];
+		rxdes[i].rxdes2 = (unsigned int)net_rx_packets[i];
 		rxdes[i].rxdes1 |= FTMAC100_RXDES1_RXBUF_SIZE (PKTSIZE_ALIGN);
 		rxdes[i].rxdes0 = FTMAC100_RXDES0_RXDMA_OWN;
 	}
@@ -164,7 +164,7 @@ static int ftmac100_recv (struct eth_device *dev)
 
 	/* pass the packet up to the protocol layers. */
 
-	NetReceive ((void *)curr_des->rxdes2, rxlen);
+	net_process_received_packet((void *)curr_des->rxdes2, rxlen);
 
 	/* release buffer to DMA */
 

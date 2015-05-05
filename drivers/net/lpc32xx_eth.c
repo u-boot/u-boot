@@ -419,10 +419,12 @@ static int lpc32xx_eth_recv(struct eth_device *dev)
 	rx_index = readl(&regs->rxconsumeindex);
 
 	/* if data was valid, pass it on */
-	if (!(bufs->rx_stat[rx_index].statusinfo & RX_STAT_ERRORS))
-		NetReceive(&(bufs->rx_buf[rx_index*PKTSIZE_ALIGN]),
-			   (bufs->rx_stat[rx_index].statusinfo
-			    & RX_STAT_RXSIZE) + 1);
+	if (!(bufs->rx_stat[rx_index].statusinfo & RX_STAT_ERRORS)) {
+		net_process_received_packet(
+			&(bufs->rx_buf[rx_index * PKTSIZE_ALIGN]),
+			(bufs->rx_stat[rx_index].statusinfo
+			 & RX_STAT_RXSIZE) + 1);
+	}
 
 	/* pass receive slot back to DMA engine */
 	rx_index = (rx_index + 1) % RX_BUF_COUNT;

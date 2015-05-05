@@ -144,13 +144,20 @@
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile};\0" \
 	DFUARGS \
 
+
 #define CONFIG_BOOTCOMMAND \
+	"if test ${dofastboot} -eq 1; then " \
+		"echo Boot fastboot requested, resetting dofastboot ...;" \
+		"setenv dofastboot 0; saveenv;" \
+		"echo Booting into fastboot ...; fastboot;" \
+	"fi;" \
 	"run findfdt; " \
 	"run mmcboot;" \
 	"setenv mmcdev 1; " \
 	"setenv bootpart 1:2; " \
 	"setenv mmcroot /dev/mmcblk0p2 rw; " \
 	"run mmcboot;" \
+	""
 
 
 /*

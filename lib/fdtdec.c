@@ -9,6 +9,7 @@
 #include <serial.h>
 #include <libfdt.h>
 #include <fdtdec.h>
+#include <asm/sections.h>
 #include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -42,7 +43,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SAMSUNG_S3C2440_I2C, "samsung,s3c2440-i2c"),
 	COMPAT(SAMSUNG_EXYNOS5_SOUND, "samsung,exynos-sound"),
 	COMPAT(WOLFSON_WM8994_CODEC, "wolfson,wm8994-codec"),
-	COMPAT(GOOGLE_CROS_EC, "google,cros-ec"),
 	COMPAT(GOOGLE_CROS_EC_KEYB, "google,cros-ec-keyb"),
 	COMPAT(SAMSUNG_EXYNOS_EHCI, "samsung,exynos-ehci"),
 	COMPAT(SAMSUNG_EXYNOS5_XHCI, "samsung,exynos5250-xhci"),
@@ -61,13 +61,11 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(INFINEON_SLB9635_TPM, "infineon,slb9635-tpm"),
 	COMPAT(INFINEON_SLB9645_TPM, "infineon,slb9645-tpm"),
 	COMPAT(SAMSUNG_EXYNOS5_I2C, "samsung,exynos5-hsi2c"),
-	COMPAT(SANDBOX_HOST_EMULATION, "sandbox,host-emulation"),
 	COMPAT(SANDBOX_LCD_SDL, "sandbox,lcd-sdl"),
 	COMPAT(TI_TPS65090, "ti,tps65090"),
 	COMPAT(COMPAT_NXP_PTN3460, "nxp,ptn3460"),
 	COMPAT(SAMSUNG_EXYNOS_SYSMMU, "samsung,sysmmu-v3.3"),
 	COMPAT(PARADE_PS8625, "parade,ps8625"),
-	COMPAT(COMPAT_INTEL_LPC, "intel,lpc"),
 	COMPAT(INTEL_MICROCODE, "intel,microcode"),
 	COMPAT(MEMORY_SPD, "memory-spd"),
 	COMPAT(INTEL_PANTHERPOINT_AHCI, "intel,pantherpoint-ahci"),
@@ -77,6 +75,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(INTEL_ICH_SPI, "intel,ich-spi"),
 	COMPAT(INTEL_QRK_MRC, "intel,quark-mrc"),
 	COMPAT(SOCIONEXT_XHCI, "socionext,uniphier-xhci"),
+	COMPAT(COMPAT_INTEL_PCH, "intel,bd82x6x"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
@@ -160,8 +159,10 @@ int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
 			}
 		}
 
-		if (i == num)
+		if (i == num) {
+			ret = -ENXIO;
 			goto fail;
+		}
 
 		return 0;
 	} else {
@@ -565,9 +566,11 @@ int fdtdec_prepare_fdt(void)
 {
 	if (!gd->fdt_blob || ((uintptr_t)gd->fdt_blob & 3) ||
 	    fdt_check_header(gd->fdt_blob)) {
-		printf("No valid FDT found - please append one to U-Boot "
-			"binary, use u-boot-dtb.bin or define "
-			"CONFIG_OF_EMBED. For sandbox, use -d <file.dtb>\n");
+#ifdef CONFIG_SPL_BUILD
+		puts("Missing DTB\n");
+#else
+		puts("No valid device tree binary found - please append one to U-Boot binary, use u-boot-dtb.bin or define CONFIG_OF_EMBED. For sandbox, use -d <file.dtb>\n");
+#endif
 		return -1;
 	}
 	return 0;
@@ -918,7 +921,7 @@ int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
 	return 0;
 }
 
-static u64 fdtdec_get_number(const fdt32_t *ptr, unsigned int cells)
+u64 fdtdec_get_number(const fdt32_t *ptr, unsigned int cells)
 {
 	u64 number = 0;
 
@@ -1035,4 +1038,34 @@ int fdtdec_decode_memory_region(const void *blob, int config_node,
 
 	return 0;
 }
+
+int fdtdec_setup(void)
+{
+#ifdef CONFIG_OF_CONTROL
+# ifdef CONFIG_OF_EMBED
+	/* Get a pointer to the FDT */
+	gd->fdt_blob = __dtb_dt_begin;
+# elif defined CONFIG_OF_SEPARATE
+#  ifdef CONFIG_SPL_BUILD
+	/* FDT is at end of BSS */
+	gd->fdt_blob = (ulong *)&__bss_end;
+#  else
+	/* FDT is at end of image */
+	gd->fdt_blob = (ulong *)&_end;
 #endif
+# elif defined(CONFIG_OF_HOSTFILE)
+	if (sandbox_read_fdt_from_file()) {
+		puts("Failed to read control FDT\n");
+		return -1;
+	}
+# endif
+# ifndef CONFIG_SPL_BUILD
+	/* Allow the early environment to override the fdt address */
+	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
+						(uintptr_t)gd->fdt_blob);
+# endif
+#endif
+	return fdtdec_prepare_fdt();
+}
+
+#endif /* !USE_HOSTCC */

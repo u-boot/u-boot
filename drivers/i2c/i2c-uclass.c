@@ -330,7 +330,7 @@ int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
 int dm_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 {
 	struct dm_i2c_ops *ops = i2c_get_ops(bus);
-	struct dm_i2c_bus *i2c = bus->uclass_priv;
+	struct dm_i2c_bus *i2c = dev_get_uclass_priv(bus);
 	int ret;
 
 	/*
@@ -351,7 +351,7 @@ int dm_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 int dm_i2c_get_bus_speed(struct udevice *bus)
 {
 	struct dm_i2c_ops *ops = i2c_get_ops(bus);
-	struct dm_i2c_bus *i2c = bus->uclass_priv;
+	struct dm_i2c_bus *i2c = dev_get_uclass_priv(bus);
 
 	if (!ops->get_bus_speed)
 		return i2c->speed_hz;
@@ -432,7 +432,7 @@ int i2c_chip_ofdata_to_platdata(const void *blob, int node,
 
 static int i2c_post_probe(struct udevice *dev)
 {
-	struct dm_i2c_bus *i2c = dev->uclass_priv;
+	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
 
 	i2c->speed_hz = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 				     "clock-frequency", 100000);

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+import math
 import os
 import re
 import shutil
@@ -468,8 +469,10 @@ def InsertCoverLetter(fname, series, count):
     prefix = series.GetPatchPrefix()
     for line in lines:
         if line.startswith('Subject:'):
-            # TODO: if more than 10 patches this should save 00/xx, not 0/xx
-            line = 'Subject: [%s 0/%d] %s\n' % (prefix, count, text[0])
+            # if more than 10 or 100 patches, it should say 00/xx, 000/xxx, etc
+            zero_repeat = int(math.log10(count)) + 1
+            zero = '0' * zero_repeat
+            line = 'Subject: [%s %s/%d] %s\n' % (prefix, zero, count, text[0])
 
         # Insert our cover letter
         elif line.startswith('*** BLURB HERE ***'):

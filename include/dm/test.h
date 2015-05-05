@@ -44,6 +44,7 @@ enum {
 	/* For uclass */
 	DM_TEST_OP_POST_BIND,
 	DM_TEST_OP_PRE_UNBIND,
+	DM_TEST_OP_PRE_PROBE,
 	DM_TEST_OP_POST_PROBE,
 	DM_TEST_OP_PRE_REMOVE,
 	DM_TEST_OP_INIT,
@@ -95,6 +96,26 @@ struct dm_test_uclass_priv {
 struct dm_test_parent_data {
 	int sum;
 	int flag;
+};
+
+/* Test values for test device's uclass platform data */
+enum {
+	TEST_UC_PDATA_INTVAL1 = 2,
+	TEST_UC_PDATA_INTVAL2 = 334,
+	TEST_UC_PDATA_INTVAL3 = 789452,
+};
+
+/**
+ * struct dm_test_uclass_platda - uclass's information on each device
+ *
+ * @intval1: set to TEST_UC_PDATA_INTVAL1 in .post_bind method of test uclass
+ * @intval2: set to TEST_UC_PDATA_INTVAL2 in .post_bind method of test uclass
+ * @intval3: set to TEST_UC_PDATA_INTVAL3 in .post_bind method of test uclass
+ */
+struct dm_test_perdev_uc_pdata {
+	int intval1;
+	int intval2;
+	int intval3;
 };
 
 /*
@@ -204,12 +225,13 @@ void dm_leak_check_start(struct dm_test_state *dms);
 
 
 /**
- * dm_test_main() - Run all the tests
+ * dm_test_main() - Run all or one of the tests
  *
- * This runs all available driver model tests
+ * This runs all available driver model tests, or a selected one
  *
+ * @test_name:	Name of test to run, or NULL for all
  * @return 0 if OK, -ve on error
  */
-int dm_test_main(void);
+int dm_test_main(const char *test_name);
 
 #endif

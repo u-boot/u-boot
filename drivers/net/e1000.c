@@ -1197,7 +1197,7 @@ e1000_read_mac_addr(struct eth_device *nic)
 		nic->enetaddr[5] ^= 1;
 
 #ifdef CONFIG_E1000_FALLBACK_MAC
-	if (!is_valid_ether_addr(nic->enetaddr)) {
+	if (!is_valid_ethaddr(nic->enetaddr)) {
 		unsigned char fb_mac[NODE_ADDRESS_SIZE] = CONFIG_E1000_FALLBACK_MAC;
 
 		memcpy (nic->enetaddr, fb_mac, NODE_ADDRESS_SIZE);
@@ -2174,7 +2174,7 @@ e1000_copper_link_preconfig(struct e1000_hw *hw)
 		DEBUGOUT("Error, did not detect valid phy.\n");
 		return ret_val;
 	}
-	DEBUGOUT("Phy ID = %x \n", hw->phy_id);
+	DEBUGOUT("Phy ID = %x\n", hw->phy_id);
 
 	/* Set PHY to class A mode (if necessary) */
 	ret_val = e1000_set_phy_mode(hw);
@@ -3485,11 +3485,11 @@ e1000_config_fc_after_link_up(struct e1000_hw *hw)
 		 * some "sticky" (latched) bits.
 		 */
 		if (e1000_read_phy_reg(hw, PHY_STATUS, &mii_status_reg) < 0) {
-			DEBUGOUT("PHY Read Error \n");
+			DEBUGOUT("PHY Read Error\n");
 			return -E1000_ERR_PHY;
 		}
 		if (e1000_read_phy_reg(hw, PHY_STATUS, &mii_status_reg) < 0) {
-			DEBUGOUT("PHY Read Error \n");
+			DEBUGOUT("PHY Read Error\n");
 			return -E1000_ERR_PHY;
 		}
 
@@ -5152,13 +5152,13 @@ e1000_poll(struct eth_device *nic)
 
 	if (!(le32_to_cpu(rd->status)) & E1000_RXD_STAT_DD)
 		return 0;
-	/*DEBUGOUT("recv: packet len=%d \n", rd->length); */
+	/* DEBUGOUT("recv: packet len=%d\n", rd->length); */
 	/* Packet received, make sure the data are re-loaded from RAM. */
 	len = le32_to_cpu(rd->length);
 	invalidate_dcache_range((unsigned long)packet,
 				(unsigned long)packet +
 				roundup(len, ARCH_DMA_MINALIGN));
-	NetReceive((uchar *)packet, len);
+	net_process_received_packet((uchar *)packet, len);
 	fill_rx(hw);
 	return 1;
 }

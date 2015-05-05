@@ -36,7 +36,7 @@
 #define CPU_RELEASE_ADDR	0xFFFFFF0
 
 /* Cache Definitions */
-#define CONFIG_SYS_DCACHE_OFF
+#define CONFIG_SYS_CACHELINE_SIZE	64
 
 #define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
 
@@ -61,13 +61,25 @@
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
 
+#define CONFIG_ZYNQ_SDHCI0
+
 /* Command line configuration */
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_MEMORY
 #define CONFIG_DOS_PARTITION
+#define CONFIG_CMD_ELF
+#define CONFIG_MP
+
+/* SPI */
+#ifdef CONFIG_ZYNQ_SPI
+# define CONFIG_SPI_FLASH
+# define CONFIG_SPI_FLASH_SST
+# define CONFIG_CMD_SF
+#endif
 
 #if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
 # define CONFIG_MMC
@@ -90,8 +102,8 @@
 	"kernel_addr=0x80000\0" \
 	"fdt_addr=0x7000000\0" \
 	"fdt_high=0x10000000\0" \
-	"sdboot=mmcinfo && fatload mmc 0:0 $fdt_addr system.dtb && " \
-		"fatload mmc 0:0 $kernel_addr Image && booti $kernel_addr - $fdt_addr\0"
+	"sdboot=mmcinfo && load mmc 0:0 $fdt_addr system.dtb && " \
+		"load mmc 0:0 $kernel_addr Image && booti $kernel_addr - $fdt_addr\0"
 
 #define CONFIG_BOOTARGS		"setenv bootargs console=ttyPS0,${baudrate} " \
 				"earlycon=cdns,mmio,0xff000000,${baudrate}n8"
@@ -116,6 +128,29 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_MAXARGS		64
+
+#define CONFIG_ZYNQ_I2C0
+#define CONFIG_SYS_I2C_ZYNQ
+
+/* I2C */
+#if defined(CONFIG_SYS_I2C_ZYNQ)
+# define CONFIG_CMD_I2C
+# define CONFIG_SYS_I2C
+# define CONFIG_SYS_I2C_ZYNQ_SPEED		100000
+# define CONFIG_SYS_I2C_ZYNQ_SLAVE		0
+#endif
+
+#define CONFIG_ZYNQMP_EEPROM
+
+/* EEPROM */
+#ifdef CONFIG_ZYNQMP_EEPROM
+# define CONFIG_CMD_EEPROM
+# define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
+# define CONFIG_SYS_I2C_EEPROM_ADDR		0x54
+# define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
+# define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
+# define CONFIG_SYS_EEPROM_SIZE			(64 * 1024)
+#endif
 
 #define CONFIG_FIT
 #define CONFIG_FIT_VERBOSE       /* enable fit_format_{error,warning}() */

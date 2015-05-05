@@ -8,7 +8,7 @@
 	compatible = "google,link", "intel,celeron-ivybridge";
 
 	aliases {
-		spi0 = "/spi";
+		spi0 = "/pci/pch/spi";
 	};
 
 	config {
@@ -151,27 +151,14 @@
 		};
 	};
 
-	spi {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		compatible = "intel,ich-spi";
-		spi-flash@0 {
-			#size-cells = <1>;
-			#address-cells = <1>;
-			reg = <0>;
-			compatible = "winbond,w25q64", "spi-flash";
-			memory-map = <0xff800000 0x00800000>;
-			rw-mrc-cache {
-				label = "rw-mrc-cache";
-				/* Alignment: 4k (for updating) */
-				reg = <0x003e0000 0x00010000>;
-				type = "wiped";
-				wipe-value = [ff];
-			};
-		};
-	};
-
 	pci {
+		compatible = "intel,pci-ivybridge", "pci-x86";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		u-boot,dm-pre-reloc;
+		ranges = <0x02000000 0x0 0xe0000000 0xe0000000 0 0x10000000
+			0x42000000 0x0 0xd0000000 0xd0000000 0 0x10000000
+			0x01000000 0x0 0x1000 0x1000 0 0xefff>;
 		sata {
 			compatible = "intel,pantherpoint-ahci";
 			intel,sata-mode = "ahci";
@@ -192,8 +179,10 @@
 			intel,pch-backlight = <0x04000000>;
 		};
 
-		lpc {
-			compatible = "intel,lpc";
+		pch {
+			reg = <0x0000f800 0 0 0 0>;
+			compatible = "intel,bd82x6x";
+			u-boot,dm-pre-reloc;
 			#address-cells = <1>;
 			#size-cells = <1>;
 			gen-dec = <0x800 0xfc 0x900 0xfc>;
@@ -204,17 +193,44 @@
 						1 0 0 0 0 0 0 0>;
 			/* Enable EC SMI source */
 			intel,alt-gp-smi-enable = <0x0100>;
-
-			cros-ec@200 {
-				compatible = "google,cros-ec";
-				reg = <0x204 1 0x200 1 0x880 0x80>;
-
-				/* Describes the flash memory within the EC */
+			spi {
 				#address-cells = <1>;
-				#size-cells = <1>;
-				flash@8000000 {
-					reg = <0x08000000 0x20000>;
-					erase-value = <0xff>;
+				#size-cells = <0>;
+				compatible = "intel,ich-spi";
+				spi-flash@0 {
+					#size-cells = <1>;
+					#address-cells = <1>;
+					reg = <0>;
+					compatible = "winbond,w25q64",
+							"spi-flash";
+					memory-map = <0xff800000 0x00800000>;
+					rw-mrc-cache {
+						label = "rw-mrc-cache";
+						reg = <0x003e0000 0x00010000>;
+						type = "wiped";
+						wipe-value = [ff];
+					};
+				};
+			};
+
+			lpc {
+				compatible = "intel,bd82x6x-lpc";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				cros-ec@200 {
+					compatible = "google,cros-ec";
+					reg = <0x204 1 0x200 1 0x880 0x80>;
+
+					/*
+					 * Describes the flash memory within
+					 * the EC
+					 */
+					#address-cells = <1>;
+					#size-cells = <1>;
+					flash@8000000 {
+						reg = <0x08000000 0x20000>;
+						erase-value = <0xff>;
+					};
 				};
 			};
 		};

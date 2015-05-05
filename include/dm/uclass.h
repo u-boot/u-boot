@@ -53,6 +53,7 @@ struct udevice;
  * @id: ID number of this uclass
  * @post_bind: Called after a new device is bound to this uclass
  * @pre_unbind: Called before a device is unbound from this uclass
+ * @pre_probe: Called before a new device is probed
  * @post_probe: Called after a new device is probed
  * @pre_remove: Called before a device is removed
  * @child_post_bind: Called after a child is bound to a device in this uclass
@@ -64,6 +65,9 @@ struct udevice;
  * @per_device_auto_alloc_size: Each device can hold private data owned
  * by the uclass. If required this will be automatically allocated if this
  * value is non-zero.
+ * @per_device_platdata_auto_alloc_size: Each device can hold platform data
+ * owned by the uclass as 'dev->uclass_platdata'. If the value is non-zero,
+ * then this will be automatically allocated.
  * @per_child_auto_alloc_size: Each child device (of a parent in this
  * uclass) can hold parent data for the device/uclass. This value is only
  * used as a falback if this member is 0 in the driver.
@@ -80,6 +84,7 @@ struct uclass_driver {
 	enum uclass_id id;
 	int (*post_bind)(struct udevice *dev);
 	int (*pre_unbind)(struct udevice *dev);
+	int (*pre_probe)(struct udevice *dev);
 	int (*post_probe)(struct udevice *dev);
 	int (*pre_remove)(struct udevice *dev);
 	int (*child_post_bind)(struct udevice *dev);
@@ -88,6 +93,7 @@ struct uclass_driver {
 	int (*destroy)(struct uclass *class);
 	int priv_auto_alloc_size;
 	int per_device_auto_alloc_size;
+	int per_device_platdata_auto_alloc_size;
 	int per_child_auto_alloc_size;
 	int per_child_platdata_auto_alloc_size;
 	const void *ops;
@@ -122,6 +128,21 @@ int uclass_get(enum uclass_id key, struct uclass **ucp);
  * @return 0 if OK, -ve on error
  */
 int uclass_get_device(enum uclass_id id, int index, struct udevice **devp);
+
+/**
+ * uclass_get_device_by_name() - Get a uclass device by it's name
+ *
+ * This searches the devices in the uclass for one with the exactly given name.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @id: ID to look up
+ * @name: name of a device to get
+ * @devp: Returns pointer to device (the first one with the name)
+ * @return 0 if OK, -ve on error
+ */
+int uclass_get_device_by_name(enum uclass_id id, const char *name,
+			      struct udevice **devp);
 
 /**
  * uclass_get_device_by_seq() - Get a uclass device based on an ID and sequence

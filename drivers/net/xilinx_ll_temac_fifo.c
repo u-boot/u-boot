@@ -48,7 +48,7 @@ int ll_temac_reset_fifo(struct eth_device *dev)
 int ll_temac_recv_fifo(struct eth_device *dev)
 {
 	int i, length = 0;
-	u32 *buf = (u32 *)NetRxPackets[0];
+	u32 *buf = (u32 *)net_rx_packets[0];
 	struct ll_temac *ll_temac = dev->priv;
 	struct fifo_ctrl *fifo_ctrl = (void *)ll_temac->ctrladdr;
 
@@ -93,7 +93,7 @@ int ll_temac_recv_fifo(struct eth_device *dev)
 		for (i = 0; i < length; i += 4)
 			*buf++ = in_be32(&fifo_ctrl->rdfd);
 
-		NetReceive(NetRxPackets[0], length);
+		net_process_received_packet(net_rx_packets[0], length);
 	}
 
 	return 0;

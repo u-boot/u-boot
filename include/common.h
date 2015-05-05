@@ -253,6 +253,17 @@ int update_flash_size(int flash_size);
 int arch_early_init_r(void);
 
 /**
+ * arch_cpu_init_dm() - init CPU after driver model is available
+ *
+ * This is called immediately after driver model is available before
+ * relocation. This is similar to arch_cpu_init() but is able to reference
+ * devices
+ *
+ * @return 0 if OK, -ve on error
+ */
+int arch_cpu_init_dm(void);
+
+/**
  * Reserve all necessary stacks
  *
  * This is used in generic board init sequence in common/board_f.c. Each
@@ -471,7 +482,6 @@ int testdram(void);
     defined(CONFIG_8xx)
 uint	get_immr      (uint);
 #endif
-uint	get_pir	      (void);
 #if defined(CONFIG_MPC5xxx)
 uint	get_svr       (void);
 #endif
@@ -733,6 +743,45 @@ int gunzip(void *, int, unsigned char *, unsigned long *);
 int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
 						int stoponerr, int offset);
 
+/**
+ * gzwrite progress indicators: defined weak to allow board-specific
+ * overrides:
+ *
+ *	gzwrite_progress_init called on startup
+ *	gzwrite_progress called during decompress/write loop
+ *	gzwrite_progress_finish called at end of loop to
+ *		indicate success (retcode=0) or failure
+ */
+void gzwrite_progress_init(u64 expected_size);
+
+void gzwrite_progress(int iteration,
+		     u64 bytes_written,
+		     u64 total_bytes);
+
+void gzwrite_progress_finish(int retcode,
+			     u64 totalwritten,
+			     u64 totalsize,
+			     u32 expected_crc,
+			     u32 calculated_crc);
+
+/**
+ * decompress and write gzipped image from memory to block device
+ *
+ * @param	src		compressed image address
+ * @param	len		compressed image length in bytes
+ * @param	dev		block device descriptor
+ * @param	szwritebuf	bytes per write (pad to erase size)
+ * @param	startoffs	offset in bytes of first write
+ * @param	szexpected	expected uncompressed length
+ *				may be zero to use gzip trailer
+ *				for files under 4GiB
+ */
+int gzwrite(unsigned char *src, int len,
+	    struct block_dev_desc *dev,
+	    unsigned long szwritebuf,
+	    u64 startoffs,
+	    u64 szexpected);
+
 /* lib/qsort.c */
 void qsort(void *base, size_t nmemb, size_t size,
 	   int(*compar)(const void *, const void *));
@@ -815,7 +864,7 @@ int zzip(void *dst, unsigned long *lenp, unsigned char *src,
 
 /* lib/net_utils.c */
 #include <net.h>
-static inline IPaddr_t getenv_IPaddr(char *var)
+static inline struct in_addr getenv_ip(char *var)
 {
 	return string_to_ip(getenv(var));
 }
@@ -846,23 +895,6 @@ int cpu_reset(int nr);
 int cpu_disable(int nr);
 int cpu_release(int nr, int argc, char * const argv[]);
 #endif
-
-/* Define a null map_sysmem() if the architecture doesn't use it */
-# ifndef CONFIG_ARCH_MAP_SYSMEM
-static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
-{
-	return (void *)(uintptr_t)paddr;
-}
-
-static inline void unmap_sysmem(const void *vaddr)
-{
-}
-
-static inline phys_addr_t map_to_sysmem(const void *ptr)
-{
-	return (phys_addr_t)(uintptr_t)ptr;
-}
-# endif
 
 #endif /* __ASSEMBLY__ */
 

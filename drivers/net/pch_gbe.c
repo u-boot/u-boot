@@ -297,7 +297,7 @@ static int pch_gbe_recv(struct eth_device *dev)
 
 	buffer_addr = pci_mem_to_phys(priv->bdf, rx_desc->buffer_addr);
 	length = rx_desc->rx_words_eob - 3 - ETH_FCS_LEN;
-	NetReceive((uchar *)buffer_addr, length);
+	net_process_received_packet((uchar *)buffer_addr, length);
 
 	/* Test the wrap-around condition */
 	if (++priv->rx_idx >= PCH_GBE_DESC_NUM)
@@ -446,7 +446,7 @@ int pch_gbe_register(bd_t *bis)
 	dev->iobase = iobase;
 	priv->mac_regs = (struct pch_gbe_regs *)iobase;
 
-	sprintf(dev->name, "pch_gbe.%x", iobase);
+	sprintf(dev->name, "pch_gbe");
 
 	/* Read MAC address from SROM and initialize dev->enetaddr with it */
 	pch_gbe_mac_read(priv->mac_regs, dev->enetaddr);

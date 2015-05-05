@@ -180,7 +180,7 @@ int ll_temac_init_sdma(struct eth_device *dev)
 		memset(rx_dp, 0, sizeof(*rx_dp));
 		rx_dp->next_p = rx_dp;
 		rx_dp->buf_len = PKTSIZE_ALIGN;
-		rx_dp->phys_buf_p = (u8 *)NetRxPackets[i];
+		rx_dp->phys_buf_p = (u8 *)net_rx_packets[i];
 		flush_cache((u32)rx_dp->phys_buf_p, PKTSIZE_ALIGN);
 	}
 	flush_cache((u32)cdmac_bd.rx, sizeof(cdmac_bd.rx));
@@ -316,7 +316,7 @@ int ll_temac_recv_sdma(struct eth_device *dev)
 	ll_temac->out32(ra[RX_TAILDESC_PTR], (int)&cdmac_bd.rx[rx_idx]);
 
 	if (length > 0 && pb_idx != -1)
-		NetReceive(NetRxPackets[pb_idx], length);
+		net_process_received_packet(net_rx_packets[pb_idx], length);
 
 	return 0;
 }

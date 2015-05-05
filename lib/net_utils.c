@@ -12,23 +12,25 @@
 
 #include <common.h>
 
-IPaddr_t string_to_ip(const char *s)
+struct in_addr string_to_ip(const char *s)
 {
-	IPaddr_t addr;
+	struct in_addr addr;
 	char *e;
 	int i;
 
+	addr.s_addr = 0;
 	if (s == NULL)
-		return(0);
+		return addr;
 
-	for (addr=0, i=0; i<4; ++i) {
+	for (addr.s_addr = 0, i = 0; i < 4; ++i) {
 		ulong val = s ? simple_strtoul(s, &e, 10) : 0;
-		addr <<= 8;
-		addr |= (val & 0xFF);
+		addr.s_addr <<= 8;
+		addr.s_addr |= (val & 0xFF);
 		if (s) {
 			s = (*e) ? e+1 : e;
 		}
 	}
 
-	return (htonl(addr));
+	addr.s_addr = htonl(addr.s_addr);
+	return addr;
 }

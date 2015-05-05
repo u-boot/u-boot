@@ -439,7 +439,7 @@ static int zynq_gem_recv(struct eth_device *dev)
 		u32 size = roundup(frame_len, ARCH_DMA_MINALIGN);
 		invalidate_dcache_range(addr, addr + size);
 
-		NetReceive((u8 *)addr, frame_len);
+		net_process_received_packet((u8 *)addr, frame_len);
 
 		if (current_bd->status & ZYNQ_GEM_RXBUF_SOF_MASK)
 			priv->rx_first_buf = priv->rxbd_current;
@@ -513,7 +513,8 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 
 	/* Align bd_space to 1MB */
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
-	mmu_set_region_dcache_behaviour((u32)bd_space, BD_SPACE, DCACHE_OFF);
+	mmu_set_region_dcache_behaviour((phys_addr_t)bd_space,
+					BD_SPACE, DCACHE_OFF);
 
 	/* Initialize the bd spaces for tx and rx bd's */
 	priv->tx_bd = (struct emac_bd *)bd_space;

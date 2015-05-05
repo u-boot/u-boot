@@ -70,7 +70,7 @@ static void serial_find_console_or_panic(void)
 	if (uclass_get_device_by_seq(UCLASS_SERIAL, INDEX, &dev) &&
 	    uclass_get_device(UCLASS_SERIAL, INDEX, &dev) &&
 	    (uclass_first_device(UCLASS_SERIAL, &dev) || !dev))
-		panic("No serial driver found");
+		panic_str("No serial driver found");
 #undef INDEX
 	gd->cur_serial_dev = dev;
 }
@@ -251,7 +251,7 @@ static int serial_post_probe(struct udevice *dev)
 {
 	struct dm_serial_ops *ops = serial_get_ops(dev);
 #ifdef CONFIG_DM_STDIO
-	struct serial_dev_priv *upriv = dev->uclass_priv;
+	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
 	struct stdio_dev sdev;
 #endif
 	int ret;
@@ -299,7 +299,7 @@ static int serial_post_probe(struct udevice *dev)
 static int serial_pre_remove(struct udevice *dev)
 {
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
-	struct serial_dev_priv *upriv = dev->uclass_priv;
+	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
 
 	if (stdio_deregister_dev(upriv->sdev, 0))
 		return -EPERM;

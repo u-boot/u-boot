@@ -353,7 +353,7 @@ static void giveback_first_trb(struct usb_device *udev, int ep_index,
 				int start_cycle,
 				struct xhci_generic_trb *start_trb)
 {
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 
 	/*
 	 * Pass all the TRBs to the hardware at once and make sure this write
@@ -477,7 +477,7 @@ union xhci_trb *xhci_wait_for_event(struct xhci_ctrl *ctrl, trb_type expected)
  */
 static void abort_td(struct usb_device *udev, int ep_index)
 {
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	struct xhci_ring *ring =  ctrl->devs[udev->slot_id]->eps[ep_index].ring;
 	union xhci_trb *event;
 	u32 field;
@@ -554,7 +554,7 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
 	int start_cycle;
 	u32 field = 0;
 	u32 length_field = 0;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	int slot_id = udev->slot_id;
 	int ep_index;
 	struct xhci_virt_device *virt_dev;
@@ -748,7 +748,7 @@ int xhci_ctrl_tx(struct usb_device *udev, unsigned long pipe,
 	u32 length_field;
 	u64 buf_64 = 0;
 	struct xhci_generic_trb *start_trb;
-	struct xhci_ctrl *ctrl = udev->controller;
+	struct xhci_ctrl *ctrl = xhci_get_ctrl(udev);
 	int slot_id = udev->slot_id;
 	int ep_index;
 	u32 trb_fields[4];

@@ -47,7 +47,7 @@ used under the terms of either of these licenses, i. e. with
 
 	SPDX-License-Identifier:	GPL-2.0+	BSD-3-Clause
 
-you can chose between GPL-2.0+ and BSD-3-Clause licensing.
+you can choose between GPL-2.0+ and BSD-3-Clause licensing.
 
 We use the SPDX Unique License Identifiers here; these are available
 at [2].
@@ -67,3 +67,4 @@ BSD 3-clause "New" or "Revised" License		BSD-3-Clause	Y		bsd-3-clause.txt	http:/
 IBM PIBS (PowerPC Initialization and		IBM-pibs			ibm-pibs.txt
 	Boot Software) license
 ISC License					ISC		Y		isc.txt			https://spdx.org/licenses/ISC
+X11 License					X11				x11.txt			https://spdx.org/licenses/X11.html

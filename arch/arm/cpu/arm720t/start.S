@@ -9,7 +9,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include <asm/hardware.h>
 
 /*
  *************************************************************************

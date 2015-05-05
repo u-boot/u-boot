@@ -41,6 +41,16 @@ struct fdt_memory {
 	fdt_addr_t end;
 };
 
+#ifdef CONFIG_OF_CONTROL
+# if defined(CONFIG_SPL_BUILD) && defined(SPL_DISABLE_OF_CONTROL)
+#  define OF_CONTROL 0
+# else
+#  define OF_CONTROL 1
+# endif
+#else
+# define OF_CONTROL 0
+#endif
+
 /*
  * Information about a resource. start is the first address of the resource
  * and end is the last address (inclusive). The length of the resource will
@@ -134,7 +144,6 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_S3C2440_I2C,	/* Exynos I2C Controller */
 	COMPAT_SAMSUNG_EXYNOS5_SOUND,	/* Exynos Sound */
 	COMPAT_WOLFSON_WM8994_CODEC,	/* Wolfson WM8994 Sound Codec */
-	COMPAT_GOOGLE_CROS_EC,		/* Google CROS_EC Protocol */
 	COMPAT_GOOGLE_CROS_EC_KEYB,	/* Google CROS_EC Keyboard */
 	COMPAT_SAMSUNG_EXYNOS_EHCI,	/* Exynos EHCI controller */
 	COMPAT_SAMSUNG_EXYNOS5_XHCI,	/* Exynos5 XHCI controller */
@@ -153,13 +162,11 @@ enum fdt_compat_id {
 	COMPAT_INFINEON_SLB9635_TPM,	/* Infineon SLB9635 TPM */
 	COMPAT_INFINEON_SLB9645_TPM,	/* Infineon SLB9645 TPM */
 	COMPAT_SAMSUNG_EXYNOS5_I2C,	/* Exynos5 High Speed I2C Controller */
-	COMPAT_SANDBOX_HOST_EMULATION,	/* Sandbox emulation of a function */
 	COMPAT_SANDBOX_LCD_SDL,		/* Sandbox LCD emulation with SDL */
 	COMPAT_TI_TPS65090,		/* Texas Instrument TPS65090 */
 	COMPAT_NXP_PTN3460,		/* NXP PTN3460 DP/LVDS bridge */
 	COMPAT_SAMSUNG_EXYNOS_SYSMMU,	/* Exynos sysmmu */
 	COMPAT_PARADE_PS8625,		/* Parade PS8622 EDP->LVDS bridge */
-	COMPAT_INTEL_LPC,		/* Intel Low Pin Count I/F */
 	COMPAT_INTEL_MICROCODE,		/* Intel microcode update */
 	COMPAT_MEMORY_SPD,		/* Memory SPD information */
 	COMPAT_INTEL_PANTHERPOINT_AHCI,	/* Intel Pantherpoint AHCI */
@@ -169,6 +176,7 @@ enum fdt_compat_id {
 	COMPAT_INTEL_ICH_SPI,		/* Intel ICH7/9 SPI controller */
 	COMPAT_INTEL_QRK_MRC,		/* Intel Quark MRC */
 	COMPAT_SOCIONEXT_XHCI,		/* Socionext UniPhier xHCI */
+	COMPAT_INTEL_PCH,		/* Intel PCH */
 
 	COMPAT_COUNT,
 };
@@ -327,7 +335,9 @@ fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
  * @param type		pci address type (FDT_PCI_SPACE_xxx)
  * @param prop_name	name of property to find
  * @param addr		returns pci address in the form of fdt_pci_addr
- * @return 0 if ok, negative on error
+ * @return 0 if ok, -ENOENT if the property did not exist, -EINVAL if the
+ *		format of the property was invalid, -ENXIO if the requested
+ *		address type was not found
  */
 int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
 		const char *prop_name, struct fdt_pci_addr *addr);
@@ -387,6 +397,17 @@ int fdtdec_get_pci_bar32(const void *blob, int node,
  */
 s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,
 		s32 default_val);
+
+/**
+ * Get a variable-sized number from a property
+ *
+ * This reads a number from one or more cells.
+ *
+ * @param ptr	Pointer to property
+ * @param cells	Number of cells containing the number
+ * @return the value in the cells
+ */
+u64 fdtdec_get_number(const fdt32_t *ptr, unsigned int cells);
 
 /**
  * Look up a 64-bit integer property in a node and return it. The property
@@ -782,4 +803,10 @@ int fdt_get_named_resource(const void *fdt, int node, const char *property,
 int fdtdec_decode_memory_region(const void *blob, int node,
 				const char *mem_type, const char *suffix,
 				fdt_addr_t *basep, fdt_size_t *sizep);
+
+/**
+ * Set up the device tree ready for use
+ */
+int fdtdec_setup(void);
+
 #endif

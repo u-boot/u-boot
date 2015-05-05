@@ -87,6 +87,7 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <version.h>
 #include <malloc.h>
 #include <linux/compiler.h>
@@ -2251,6 +2252,7 @@ int drv_video_init(void)
 {
 	int skip_dev_init;
 	struct stdio_dev console_dev;
+	bool have_keyboard;
 
 	/* Check if video initialization should be skipped */
 	if (board_video_skip())
@@ -2262,11 +2264,20 @@ int drv_video_init(void)
 	if (board_cfb_skip())
 		return 0;
 
-#if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
-	debug("KBD: Keyboard init ...\n");
-	skip_dev_init |= (VIDEO_KBD_INIT_FCT == -1);
+#if defined(CONFIG_VGA_AS_SINGLE_DEVICE)
+	have_keyboard = false;
+#elif defined(CONFIG_OF_CONTROL)
+	have_keyboard = !fdtdec_get_config_bool(gd->fdt_blob,
+						"u-boot,no-keyboard");
+#else
+	have_keyboard = true;
 #endif
-
+	if (have_keyboard) {
+		debug("KBD: Keyboard init ...\n");
+#if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
+		skip_dev_init |= (VIDEO_KBD_INIT_FCT == -1);
+#endif
+	}
 	if (skip_dev_init)
 		return 0;
 
@@ -2279,11 +2290,13 @@ int drv_video_init(void)
 	console_dev.puts = video_puts;	/* 'puts' function */
 
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
-	/* Also init console device */
-	console_dev.flags |= DEV_FLAGS_INPUT;
-	console_dev.tstc = VIDEO_TSTC_FCT;	/* 'tstc' function */
-	console_dev.getc = VIDEO_GETC_FCT;	/* 'getc' function */
-#endif /* CONFIG_VGA_AS_SINGLE_DEVICE */
+	if (have_keyboard) {
+		/* Also init console device */
+		console_dev.flags |= DEV_FLAGS_INPUT;
+		console_dev.tstc = VIDEO_TSTC_FCT;	/* 'tstc' function */
+		console_dev.getc = VIDEO_GETC_FCT;	/* 'getc' function */
+	}
+#endif
 
 	if (stdio_register(&console_dev) != 0)
 		return 0;

@@ -16,6 +16,7 @@
 #else
 #include <common.h>
 #include <errno.h>
+#include <mapmem.h>
 #include <asm/io.h>
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/

@@ -50,7 +50,7 @@ static int get_emul(struct udevice *dev, struct udevice **devp,
 static int sandbox_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 			    int nmsgs)
 {
-	struct dm_i2c_bus *i2c = bus->uclass_priv;
+	struct dm_i2c_bus *i2c = dev_get_uclass_priv(bus);
 	struct dm_i2c_ops *ops;
 	struct udevice *emul, *dev;
 	bool is_read;

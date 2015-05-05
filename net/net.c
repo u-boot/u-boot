@@ -84,6 +84,7 @@
 #include <common.h>
 #include <command.h>
 #include <environment.h>
+#include <errno.h>
 #include <net.h>
 #if defined(CONFIG_STATUS_LED)
 #include <miiphy.h>
@@ -111,82 +112,74 @@ DECLARE_GLOBAL_DATA_PTR;
 /** BOOTP EXTENTIONS **/
 
 /* Our subnet mask (0=unknown) */
-IPaddr_t	NetOurSubnetMask;
+struct in_addr net_netmask;
 /* Our gateways IP address */
-IPaddr_t	NetOurGatewayIP;
+struct in_addr net_gateway;
 /* Our DNS IP address */
-IPaddr_t	NetOurDNSIP;
+struct in_addr net_dns_server;
 #if defined(CONFIG_BOOTP_DNS2)
 /* Our 2nd DNS IP address */
-IPaddr_t	NetOurDNS2IP;
+struct in_addr net_dns_server2;
 #endif
-/* Our NIS domain */
-char		NetOurNISDomain[32] = {0,};
-/* Our hostname */
-char		NetOurHostName[32] = {0,};
-/* Our bootpath */
-char		NetOurRootPath[64] = {0,};
-/* Our bootfile size in blocks */
-ushort		NetBootFileSize;
 
 #ifdef CONFIG_MCAST_TFTP	/* Multicast TFTP */
-IPaddr_t Mcast_addr;
+struct in_addr net_mcast_addr;
 #endif
 
 /** END OF BOOTP EXTENTIONS **/
 
-/* The actual transferred size of the bootfile (in bytes) */
-ulong		NetBootFileXferSize;
 /* Our ethernet address */
-uchar		NetOurEther[6];
+u8 net_ethaddr[6];
 /* Boot server enet address */
-uchar		NetServerEther[6];
+u8 net_server_ethaddr[6];
 /* Our IP addr (0 = unknown) */
-IPaddr_t	NetOurIP;
+struct in_addr	net_ip;
 /* Server IP addr (0 = unknown) */
-IPaddr_t	NetServerIP;
+struct in_addr	net_server_ip;
 /* Current receive packet */
-uchar *NetRxPacket;
+uchar *net_rx_packet;
 /* Current rx packet length */
-int		NetRxPacketLen;
+int		net_rx_packet_len;
 /* IP packet ID */
-unsigned	NetIPID;
+static unsigned	net_ip_id;
 /* Ethernet bcast address */
-uchar		NetBcastAddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-uchar		NetEtherNullAddr[6];
+const u8 net_bcast_ethaddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+const u8 net_null_ethaddr[6];
 #ifdef CONFIG_API
-void		(*push_packet)(void *, int len) = 0;
+void (*push_packet)(void *, int len) = 0;
 #endif
 /* Network loop state */
 enum net_loop_state net_state;
 /* Tried all network devices */
-int		NetRestartWrap;
+int		net_restart_wrap;
 /* Network loop restarted */
-static int	NetRestarted;
+static int	net_restarted;
 /* At least one device configured */
-static int	NetDevExists;
+static int	net_dev_exists;
 
 /* XXX in both little & big endian machines 0xFFFF == ntohs(-1) */
 /* default is without VLAN */
-ushort		NetOurVLAN = 0xFFFF;
+ushort		net_our_vlan = 0xFFFF;
 /* ditto */
-ushort		NetOurNativeVLAN = 0xFFFF;
+ushort		net_native_vlan = 0xFFFF;
 
 /* Boot File name */
-char		BootFile[128];
+char net_boot_file_name[128];
+/* The actual transferred size of the bootfile (in bytes) */
+u32 net_boot_file_size;
+/* Boot file size in blocks as reported by the DHCP server */
+u32 net_boot_file_expected_size_in_blocks;
 
 #if defined(CONFIG_CMD_SNTP)
 /* NTP server IP address */
-IPaddr_t	NetNtpServerIP;
+struct in_addr	net_ntp_server;
 /* offset time from UTC */
-int		NetTimeOffset;
+int		net_ntp_time_offset;
 #endif
 
-static uchar PktBuf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
-
-/* Receive packet */
-uchar *NetRxPackets[PKTBUFSRX];
-
+static uchar net_pkt_buf[(PKTBUFSRX+1) * PKTSIZE_ALIGN + PKTALIGN];
+/* Receive packets */
+uchar *net_rx_packets[PKTBUFSRX];
 /* Current UDP RX packet handler */
 static rxhand_f *udp_packet_handler;
 /* Current ARP RX packet handler */
@@ -196,17 +189,17 @@ static rxhand_f *arp_packet_handler;
 static rxhand_icmp_f *packet_icmp_handler;
 #endif
 /* Current timeout handler */
-static thand_f *timeHandler;
+static thand_f *time_handler;
 /* Time base value */
-static ulong	timeStart;
+static ulong	time_start;
 /* Current timeout value */
-static ulong	timeDelta;
+static ulong	time_delta;
 /* THE transmit packet */
-uchar *NetTxPacket;
+uchar *net_tx_packet;
 
 static int net_check_prereq(enum proto_t protocol);
 
-static int NetTryCount;
+static int net_try_count;
 
 int __maybe_unused net_busy_flag;
 
@@ -218,7 +211,8 @@ static int on_bootfile(const char *name, const char *value, enum env_op op,
 	switch (op) {
 	case env_op_create:
 	case env_op_overwrite:
-		copy_filename(BootFile, value, sizeof(BootFile));
+		copy_filename(net_boot_file_name, value,
+			      sizeof(net_boot_file_name));
 		break;
 	default:
 		break;
@@ -241,7 +235,7 @@ void net_auto_load(void)
 		/*
 		 * Use NFS to load the bootfile.
 		 */
-		NfsStart();
+		nfs_start();
 		return;
 	}
 #endif
@@ -253,29 +247,29 @@ void net_auto_load(void)
 		net_set_state(NETLOOP_SUCCESS);
 		return;
 	}
-	TftpStart(TFTPGET);
+	tftp_start(TFTPGET);
 }
 
-static void NetInitLoop(void)
+static void net_init_loop(void)
 {
 	static int env_changed_id;
 	int env_id = get_env_id();
 
 	/* update only when the environment has changed */
 	if (env_changed_id != env_id) {
-		NetOurIP = getenv_IPaddr("ipaddr");
-		NetOurGatewayIP = getenv_IPaddr("gatewayip");
-		NetOurSubnetMask = getenv_IPaddr("netmask");
-		NetServerIP = getenv_IPaddr("serverip");
-		NetOurNativeVLAN = getenv_VLAN("nvlan");
-		NetOurVLAN = getenv_VLAN("vlan");
+		net_ip = getenv_ip("ipaddr");
+		net_gateway = getenv_ip("gatewayip");
+		net_netmask = getenv_ip("netmask");
+		net_server_ip = getenv_ip("serverip");
+		net_native_vlan = getenv_vlan("nvlan");
+		net_our_vlan = getenv_vlan("vlan");
 #if defined(CONFIG_CMD_DNS)
-		NetOurDNSIP = getenv_IPaddr("dnsip");
+		net_dns_server = getenv_ip("dnsip");
 #endif
 		env_changed_id = env_id;
 	}
 	if (eth_get_dev())
-		memcpy(NetOurEther, eth_get_dev()->enetaddr, 6);
+		memcpy(net_ethaddr, eth_get_ethaddr(), 6);
 
 	return;
 }
@@ -284,7 +278,7 @@ static void net_clear_handlers(void)
 {
 	net_set_udp_handler(NULL);
 	net_set_arp_handler(NULL);
-	NetSetTimeout(0, NULL);
+	net_set_timeout_handler(0, NULL);
 }
 
 static void net_cleanup_loop(void)
@@ -302,19 +296,20 @@ void net_init(void)
 		 */
 		int i;
 
-		NetTxPacket = &PktBuf[0] + (PKTALIGN - 1);
-		NetTxPacket -= (ulong)NetTxPacket % PKTALIGN;
-		for (i = 0; i < PKTBUFSRX; i++)
-			NetRxPackets[i] = NetTxPacket + (i + 1) * PKTSIZE_ALIGN;
-
-		ArpInit();
+		net_tx_packet = &net_pkt_buf[0] + (PKTALIGN - 1);
+		net_tx_packet -= (ulong)net_tx_packet % PKTALIGN;
+		for (i = 0; i < PKTBUFSRX; i++) {
+			net_rx_packets[i] = net_tx_packet +
+				(i + 1) * PKTSIZE_ALIGN;
+		}
+		arp_init();
 		net_clear_handlers();
 
 		/* Only need to setup buffer pointers once. */
 		first_call = 0;
 	}
 
-	NetInitLoop();
+	net_init_loop();
 }
 
 /**********************************************************************/
@@ -322,28 +317,28 @@ void net_init(void)
  *	Main network processing loop.
  */
 
-int NetLoop(enum proto_t protocol)
+int net_loop(enum proto_t protocol)
 {
-	bd_t *bd = gd->bd;
-	int ret = -1;
+	int ret = -EINVAL;
 
-	NetRestarted = 0;
-	NetDevExists = 0;
-	NetTryCount = 1;
-	debug_cond(DEBUG_INT_STATE, "--- NetLoop Entry\n");
+	net_restarted = 0;
+	net_dev_exists = 0;
+	net_try_count = 1;
+	debug_cond(DEBUG_INT_STATE, "--- net_loop Entry\n");
 
 	bootstage_mark_name(BOOTSTAGE_ID_ETH_START, "eth_start");
 	net_init();
 	if (eth_is_on_demand_init() || protocol != NETCONS) {
 		eth_halt();
 		eth_set_current();
-		if (eth_init(bd) < 0) {
+		ret = eth_init();
+		if (ret < 0) {
 			eth_halt();
-			return -1;
+			return ret;
 		}
-	} else
-		eth_init_state_only(bd);
-
+	} else {
+		eth_init_state_only();
+	}
 restart:
 #ifdef CONFIG_USB_KEYBOARD
 	net_busy_flag = 0;
@@ -355,54 +350,54 @@ restart:
 	 *	here on, this code is a state machine driven by received
 	 *	packets and timer events.
 	 */
-	debug_cond(DEBUG_INT_STATE, "--- NetLoop Init\n");
-	NetInitLoop();
+	debug_cond(DEBUG_INT_STATE, "--- net_loop Init\n");
+	net_init_loop();
 
 	switch (net_check_prereq(protocol)) {
 	case 1:
 		/* network not configured */
 		eth_halt();
-		return -1;
+		return -ENODEV;
 
 	case 2:
 		/* network device not configured */
 		break;
 
 	case 0:
-		NetDevExists = 1;
-		NetBootFileXferSize = 0;
+		net_dev_exists = 1;
+		net_boot_file_size = 0;
 		switch (protocol) {
 		case TFTPGET:
 #ifdef CONFIG_CMD_TFTPPUT
 		case TFTPPUT:
 #endif
 			/* always use ARP to get server ethernet address */
-			TftpStart(protocol);
+			tftp_start(protocol);
 			break;
 #ifdef CONFIG_CMD_TFTPSRV
 		case TFTPSRV:
-			TftpStartServer();
+			tftp_start_server();
 			break;
 #endif
 #if defined(CONFIG_CMD_DHCP)
 		case DHCP:
-			BootpReset();
-			NetOurIP = 0;
-			DhcpRequest();		/* Basically same as BOOTP */
+			bootp_reset();
+			net_ip.s_addr = 0;
+			dhcp_request();		/* Basically same as BOOTP */
 			break;
 #endif
 
 		case BOOTP:
-			BootpReset();
-			NetOurIP = 0;
-			BootpRequest();
+			bootp_reset();
+			net_ip.s_addr = 0;
+			bootp_request();
 			break;
 
 #if defined(CONFIG_CMD_RARP)
 		case RARP:
-			RarpTry = 0;
-			NetOurIP = 0;
-			RarpRequest();
+			rarp_try = 0;
+			net_ip.s_addr = 0;
+			rarp_request();
 			break;
 #endif
 #if defined(CONFIG_CMD_PING)
@@ -412,27 +407,27 @@ restart:
 #endif
 #if defined(CONFIG_CMD_NFS)
 		case NFS:
-			NfsStart();
+			nfs_start();
 			break;
 #endif
 #if defined(CONFIG_CMD_CDP)
 		case CDP:
-			CDPStart();
+			cdp_start();
 			break;
 #endif
-#if defined (CONFIG_NETCONSOLE) && !(CONFIG_SPL_BUILD)
+#if defined(CONFIG_NETCONSOLE) && !(CONFIG_SPL_BUILD)
 		case NETCONS:
-			NcStart();
+			nc_start();
 			break;
 #endif
 #if defined(CONFIG_CMD_SNTP)
 		case SNTP:
-			SntpStart();
+			sntp_start();
 			break;
 #endif
 #if defined(CONFIG_CMD_DNS)
 		case DNS:
-			DnsStart();
+			dns_start();
 			break;
 #endif
 #if defined(CONFIG_CMD_LINK_LOCAL)
@@ -476,6 +471,8 @@ restart:
 		/*
 		 *	Check the ethernet for a new packet.  The ethernet
 		 *	receive routine will process it.
+		 *	Most drivers return the most recent packet size, but not
+		 *	errors that may have happened.
 		 */
 		eth_rx();
 
@@ -484,7 +481,7 @@ restart:
 		 */
 		if (ctrlc()) {
 			/* cancel any ARP that may not have completed */
-			NetArpWaitPacketIP = 0;
+			net_arp_wait_packet_ip.s_addr = 0;
 
 			net_cleanup_loop();
 			eth_halt();
@@ -494,17 +491,18 @@ restart:
 			puts("\nAbort\n");
 			/* include a debug print as well incase the debug
 			   messages are directed to stderr */
-			debug_cond(DEBUG_INT_STATE, "--- NetLoop Abort!\n");
+			debug_cond(DEBUG_INT_STATE, "--- net_loop Abort!\n");
 			goto done;
 		}
 
-		ArpTimeoutCheck();
+		arp_timeout_check();
 
 		/*
 		 *	Check for a timeout, and run the timeout handler
 		 *	if we have one.
 		 */
-		if (timeHandler && ((get_timer(0) - timeStart) > timeDelta)) {
+		if (time_handler &&
+		    ((get_timer(0) - time_start) > time_delta)) {
 			thand_f *x;
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
@@ -515,33 +513,32 @@ restart:
 			 * Echo the inverted link state to the fault LED.
 			 */
 			if (miiphy_link(eth_get_dev()->name,
-				       CONFIG_SYS_FAULT_MII_ADDR)) {
+					CONFIG_SYS_FAULT_MII_ADDR))
 				status_led_set(STATUS_LED_RED, STATUS_LED_OFF);
-			} else {
+			else
 				status_led_set(STATUS_LED_RED, STATUS_LED_ON);
-			}
 #endif /* CONFIG_SYS_FAULT_ECHO_LINK_DOWN, ... */
 #endif /* CONFIG_MII, ... */
-			debug_cond(DEBUG_INT_STATE, "--- NetLoop timeout\n");
-			x = timeHandler;
-			timeHandler = (thand_f *)0;
+			debug_cond(DEBUG_INT_STATE, "--- net_loop timeout\n");
+			x = time_handler;
+			time_handler = (thand_f *)0;
 			(*x)();
 		}
 
+		if (net_state == NETLOOP_FAIL)
+			ret = net_start_again();
 
 		switch (net_state) {
-
 		case NETLOOP_RESTART:
-			NetRestarted = 1;
+			net_restarted = 1;
 			goto restart;
 
 		case NETLOOP_SUCCESS:
 			net_cleanup_loop();
-			if (NetBootFileXferSize > 0) {
-				printf("Bytes transferred = %ld (%lx hex)\n",
-					NetBootFileXferSize,
-					NetBootFileXferSize);
-				setenv_hex("filesize", NetBootFileXferSize);
+			if (net_boot_file_size > 0) {
+				printf("Bytes transferred = %d (%x hex)\n",
+				       net_boot_file_size, net_boot_file_size);
+				setenv_hex("filesize", net_boot_file_size);
 				setenv_hex("fileaddr", load_addr);
 			}
 			if (protocol != NETCONS)
@@ -551,15 +548,15 @@ restart:
 
 			eth_set_last_protocol(protocol);
 
-			ret = NetBootFileXferSize;
-			debug_cond(DEBUG_INT_STATE, "--- NetLoop Success!\n");
+			ret = net_boot_file_size;
+			debug_cond(DEBUG_INT_STATE, "--- net_loop Success!\n");
 			goto done;
 
 		case NETLOOP_FAIL:
 			net_cleanup_loop();
 			/* Invalidate the last protocol */
 			eth_set_last_protocol(BOOTP);
-			debug_cond(DEBUG_INT_STATE, "--- NetLoop Fail!\n");
+			debug_cond(DEBUG_INT_STATE, "--- net_loop Fail!\n");
 			goto done;
 
 		case NETLOOP_CONTINUE:
@@ -581,17 +578,17 @@ done:
 
 /**********************************************************************/
 
-static void
-startAgainTimeout(void)
+static void start_again_timeout_handler(void)
 {
 	net_set_state(NETLOOP_RESTART);
 }
 
-void NetStartAgain(void)
+int net_start_again(void)
 {
 	char *nretry;
 	int retry_forever = 0;
 	unsigned long retrycnt = 0;
+	int ret;
 
 	nretry = getenv("netretry");
 	if (nretry) {
@@ -603,26 +600,33 @@ void NetStartAgain(void)
 			retrycnt = 1;
 		else
 			retrycnt = simple_strtoul(nretry, NULL, 0);
-	} else
-		retry_forever = 1;
-
-	if ((!retry_forever) && (NetTryCount >= retrycnt)) {
-		eth_halt();
-		net_set_state(NETLOOP_FAIL);
-		return;
+	} else {
+		retrycnt = 0;
+		retry_forever = 0;
 	}
 
-	NetTryCount++;
+	if ((!retry_forever) && (net_try_count >= retrycnt)) {
+		eth_halt();
+		net_set_state(NETLOOP_FAIL);
+		/*
+		 * We don't provide a way for the protocol to return an error,
+		 * but this is almost always the reason.
+		 */
+		return -ETIMEDOUT;
+	}
+
+	net_try_count++;
 
 	eth_halt();
 #if !defined(CONFIG_NET_DO_NOT_TRY_ANOTHER)
-	eth_try_another(!NetRestarted);
+	eth_try_another(!net_restarted);
 #endif
-	eth_init(gd->bd);
-	if (NetRestartWrap) {
-		NetRestartWrap = 0;
-		if (NetDevExists) {
-			NetSetTimeout(10000UL, startAgainTimeout);
+	ret = eth_init();
+	if (net_restart_wrap) {
+		net_restart_wrap = 0;
+		if (net_dev_exists) {
+			net_set_timeout_handler(10000UL,
+						start_again_timeout_handler);
 			net_set_udp_handler(NULL);
 		} else {
 			net_set_state(NETLOOP_FAIL);
@@ -630,6 +634,7 @@ void NetStartAgain(void)
 	} else {
 		net_set_state(NETLOOP_RESTART);
 	}
+	return ret;
 }
 
 /**********************************************************************/
@@ -638,7 +643,7 @@ void NetStartAgain(void)
  */
 
 static void dummy_handler(uchar *pkt, unsigned dport,
-			IPaddr_t sip, unsigned sport,
+			struct in_addr sip, unsigned sport,
 			unsigned len)
 {
 }
@@ -650,7 +655,7 @@ rxhand_f *net_get_udp_handler(void)
 
 void net_set_udp_handler(rxhand_f *f)
 {
-	debug_cond(DEBUG_INT_STATE, "--- NetLoop UDP handler set (%p)\n", f);
+	debug_cond(DEBUG_INT_STATE, "--- net_loop UDP handler set (%p)\n", f);
 	if (f == NULL)
 		udp_packet_handler = dummy_handler;
 	else
@@ -664,7 +669,7 @@ rxhand_f *net_get_arp_handler(void)
 
 void net_set_arp_handler(rxhand_f *f)
 {
-	debug_cond(DEBUG_INT_STATE, "--- NetLoop ARP handler set (%p)\n", f);
+	debug_cond(DEBUG_INT_STATE, "--- net_loop ARP handler set (%p)\n", f);
 	if (f == NULL)
 		arp_packet_handler = dummy_handler;
 	else
@@ -678,69 +683,68 @@ void net_set_icmp_handler(rxhand_icmp_f *f)
 }
 #endif
 
-void
-NetSetTimeout(ulong iv, thand_f *f)
+void net_set_timeout_handler(ulong iv, thand_f *f)
 {
 	if (iv == 0) {
 		debug_cond(DEBUG_INT_STATE,
-			"--- NetLoop timeout handler cancelled\n");
-		timeHandler = (thand_f *)0;
+			   "--- net_loop timeout handler cancelled\n");
+		time_handler = (thand_f *)0;
 	} else {
 		debug_cond(DEBUG_INT_STATE,
-			"--- NetLoop timeout handler set (%p)\n", f);
-		timeHandler = f;
-		timeStart = get_timer(0);
-		timeDelta = iv * CONFIG_SYS_HZ / 1000;
+			   "--- net_loop timeout handler set (%p)\n", f);
+		time_handler = f;
+		time_start = get_timer(0);
+		time_delta = iv * CONFIG_SYS_HZ / 1000;
 	}
 }
 
-int NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport,
+int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 		int payload_len)
 {
 	uchar *pkt;
 	int eth_hdr_size;
 	int pkt_hdr_size;
 
-	/* make sure the NetTxPacket is initialized (NetInit() was called) */
-	assert(NetTxPacket != NULL);
-	if (NetTxPacket == NULL)
+	/* make sure the net_tx_packet is initialized (net_init() was called) */
+	assert(net_tx_packet != NULL);
+	if (net_tx_packet == NULL)
 		return -1;
 
 	/* convert to new style broadcast */
-	if (dest == 0)
-		dest = 0xFFFFFFFF;
+	if (dest.s_addr == 0)
+		dest.s_addr = 0xFFFFFFFF;
 
 	/* if broadcast, make the ether address a broadcast and don't do ARP */
-	if (dest == 0xFFFFFFFF)
-		ether = NetBcastAddr;
+	if (dest.s_addr == 0xFFFFFFFF)
+		ether = (uchar *)net_bcast_ethaddr;
 
-	pkt = (uchar *)NetTxPacket;
+	pkt = (uchar *)net_tx_packet;
 
-	eth_hdr_size = NetSetEther(pkt, ether, PROT_IP);
+	eth_hdr_size = net_set_ether(pkt, ether, PROT_IP);
 	pkt += eth_hdr_size;
 	net_set_udp_header(pkt, dest, dport, sport, payload_len);
 	pkt_hdr_size = eth_hdr_size + IP_UDP_HDR_SIZE;
 
 	/* if MAC address was not discovered yet, do an ARP request */
-	if (memcmp(ether, NetEtherNullAddr, 6) == 0) {
+	if (memcmp(ether, net_null_ethaddr, 6) == 0) {
 		debug_cond(DEBUG_DEV_PKT, "sending ARP for %pI4\n", &dest);
 
 		/* save the ip and eth addr for the packet to send after arp */
-		NetArpWaitPacketIP = dest;
-		NetArpWaitPacketMAC = ether;
+		net_arp_wait_packet_ip = dest;
+		arp_wait_packet_ethaddr = ether;
 
 		/* size of the waiting packet */
-		NetArpWaitTxPacketSize = pkt_hdr_size + payload_len;
+		arp_wait_tx_packet_size = pkt_hdr_size + payload_len;
 
 		/* and do the ARP request */
-		NetArpWaitTry = 1;
-		NetArpWaitTimerStart = get_timer(0);
-		ArpRequest();
+		arp_wait_try = 1;
+		arp_wait_timer_start = get_timer(0);
+		arp_request();
 		return 1;	/* waiting */
 	} else {
 		debug_cond(DEBUG_DEV_PKT, "sending UDP to %pI4/%pM\n",
-			&dest, ether);
-		NetSendPacket(NetTxPacket, pkt_hdr_size + payload_len);
+			   &dest, ether);
+		net_send_packet(net_tx_packet, pkt_hdr_size + payload_len);
 		return 0;	/* transmitted */
 	}
 }
@@ -778,7 +782,7 @@ struct hole {
 	u16 unused;
 };
 
-static struct ip_udp_hdr *__NetDefragment(struct ip_udp_hdr *ip, int *lenp)
+static struct ip_udp_hdr *__net_defragment(struct ip_udp_hdr *ip, int *lenp)
 {
 	static uchar pkt_buff[IP_PKTSIZE] __aligned(PKTALIGN);
 	static u16 first_hole, total_len;
@@ -898,17 +902,19 @@ static struct ip_udp_hdr *__NetDefragment(struct ip_udp_hdr *ip, int *lenp)
 	return localip;
 }
 
-static inline struct ip_udp_hdr *NetDefragment(struct ip_udp_hdr *ip, int *lenp)
+static inline struct ip_udp_hdr *net_defragment(struct ip_udp_hdr *ip,
+	int *lenp)
 {
 	u16 ip_off = ntohs(ip->ip_off);
 	if (!(ip_off & (IP_OFFS | IP_FLAGS_MFRAG)))
 		return ip; /* not a fragment */
-	return __NetDefragment(ip, lenp);
+	return __net_defragment(ip, lenp);
 }
 
 #else /* !CONFIG_IP_DEFRAG */
 
-static inline struct ip_udp_hdr *NetDefragment(struct ip_udp_hdr *ip, int *lenp)
+static inline struct ip_udp_hdr *net_defragment(struct ip_udp_hdr *ip,
+	int *lenp)
 {
 	u16 ip_off = ntohs(ip->ip_off);
 	if (!(ip_off & (IP_OFFS | IP_FLAGS_MFRAG)))
@@ -924,7 +930,7 @@ static inline struct ip_udp_hdr *NetDefragment(struct ip_udp_hdr *ip, int *lenp)
  * @parma ip	IP packet containing the ICMP
  */
 static void receive_icmp(struct ip_udp_hdr *ip, int len,
-			IPaddr_t src_ip, struct ethernet_hdr *et)
+			struct in_addr src_ip, struct ethernet_hdr *et)
 {
 	struct icmp_hdr *icmph = (struct icmp_hdr *)&ip->udp_src;
 
@@ -933,7 +939,7 @@ static void receive_icmp(struct ip_udp_hdr *ip, int len,
 		if (icmph->code != ICMP_REDIR_HOST)
 			return;
 		printf(" ICMP Host Redirect to %pI4 ",
-			&icmph->un.gateway);
+		       &icmph->un.gateway);
 		break;
 	default:
 #if defined(CONFIG_CMD_PING)
@@ -942,20 +948,20 @@ static void receive_icmp(struct ip_udp_hdr *ip, int len,
 #ifdef CONFIG_CMD_TFTPPUT
 		if (packet_icmp_handler)
 			packet_icmp_handler(icmph->type, icmph->code,
-				ntohs(ip->udp_dst), src_ip, ntohs(ip->udp_src),
-				icmph->un.data, ntohs(ip->udp_len));
+					    ntohs(ip->udp_dst), src_ip,
+					    ntohs(ip->udp_src), icmph->un.data,
+					    ntohs(ip->udp_len));
 #endif
 		break;
 	}
 }
 
-void
-NetReceive(uchar *inpkt, int len)
+void net_process_received_packet(uchar *in_packet, int len)
 {
 	struct ethernet_hdr *et;
 	struct ip_udp_hdr *ip;
-	IPaddr_t dst_ip;
-	IPaddr_t src_ip;
+	struct in_addr dst_ip;
+	struct in_addr src_ip;
 	int eth_proto;
 #if defined(CONFIG_CMD_CDP)
 	int iscdp;
@@ -964,9 +970,9 @@ NetReceive(uchar *inpkt, int len)
 
 	debug_cond(DEBUG_NET_PKT, "packet received\n");
 
-	NetRxPacket = inpkt;
-	NetRxPacketLen = len;
-	et = (struct ethernet_hdr *)inpkt;
+	net_rx_packet = in_packet;
+	net_rx_packet_len = len;
+	et = (struct ethernet_hdr *)in_packet;
 
 	/* too small packet? */
 	if (len < ETHER_HDR_SIZE)
@@ -974,7 +980,7 @@ NetReceive(uchar *inpkt, int len)
 
 #ifdef CONFIG_API
 	if (push_packet) {
-		(*push_packet)(inpkt, len);
+		(*push_packet)(in_packet, len);
 		return;
 	}
 #endif
@@ -984,10 +990,10 @@ NetReceive(uchar *inpkt, int len)
 	iscdp = is_cdp_packet(et->et_dest);
 #endif
 
-	myvlanid = ntohs(NetOurVLAN);
+	myvlanid = ntohs(net_our_vlan);
 	if (myvlanid == (ushort)-1)
 		myvlanid = VLAN_NONE;
-	mynvlanid = ntohs(NetOurNativeVLAN);
+	mynvlanid = ntohs(net_native_vlan);
 	if (mynvlanid == (ushort)-1)
 		mynvlanid = VLAN_NONE;
 
@@ -1001,11 +1007,11 @@ NetReceive(uchar *inpkt, int len)
 		 */
 		eth_proto = ntohs(et802->et_prot);
 
-		ip = (struct ip_udp_hdr *)(inpkt + E802_HDR_SIZE);
+		ip = (struct ip_udp_hdr *)(in_packet + E802_HDR_SIZE);
 		len -= E802_HDR_SIZE;
 
 	} else if (eth_proto != PROT_VLAN) {	/* normal packet */
-		ip = (struct ip_udp_hdr *)(inpkt + ETHER_HDR_SIZE);
+		ip = (struct ip_udp_hdr *)(in_packet + ETHER_HDR_SIZE);
 		len -= ETHER_HDR_SIZE;
 
 	} else {			/* VLAN packet */
@@ -1019,7 +1025,7 @@ NetReceive(uchar *inpkt, int len)
 			return;
 
 		/* if no VLAN active */
-		if ((ntohs(NetOurVLAN) & VLAN_IDMASK) == VLAN_NONE
+		if ((ntohs(net_our_vlan) & VLAN_IDMASK) == VLAN_NONE
 #if defined(CONFIG_CMD_CDP)
 				&& iscdp == 0
 #endif
@@ -1030,7 +1036,7 @@ NetReceive(uchar *inpkt, int len)
 		vlanid = cti & VLAN_IDMASK;
 		eth_proto = ntohs(vet->vet_type);
 
-		ip = (struct ip_udp_hdr *)(inpkt + VLAN_ETHER_HDR_SIZE);
+		ip = (struct ip_udp_hdr *)(in_packet + VLAN_ETHER_HDR_SIZE);
 		len -= VLAN_ETHER_HDR_SIZE;
 	}
 
@@ -1052,9 +1058,8 @@ NetReceive(uchar *inpkt, int len)
 	}
 
 	switch (eth_proto) {
-
 	case PROT_ARP:
-		ArpReceive(et, ip, len);
+		arp_receive(et, ip, len);
 		break;
 
 #ifdef CONFIG_CMD_RARP
@@ -1067,7 +1072,7 @@ NetReceive(uchar *inpkt, int len)
 		/* Before we start poking the header, make sure it is there */
 		if (len < IP_UDP_HDR_SIZE) {
 			debug("len bad %d < %lu\n", len,
-				(ulong)IP_UDP_HDR_SIZE);
+			      (ulong)IP_UDP_HDR_SIZE);
 			return;
 		}
 		/* Check the packet length */
@@ -1077,7 +1082,7 @@ NetReceive(uchar *inpkt, int len)
 		}
 		len = ntohs(ip->ip_len);
 		debug_cond(DEBUG_NET_PKT, "len=%d, v=%02x\n",
-			len, ip->ip_hl_v & 0xff);
+			   len, ip->ip_hl_v & 0xff);
 
 		/* Can't deal with anything except IPv4 */
 		if ((ip->ip_hl_v & 0xf0) != 0x40)
@@ -1091,21 +1096,22 @@ NetReceive(uchar *inpkt, int len)
 			return;
 		}
 		/* If it is not for us, ignore it */
-		dst_ip = NetReadIP(&ip->ip_dst);
-		if (NetOurIP && dst_ip != NetOurIP && dst_ip != 0xFFFFFFFF) {
+		dst_ip = net_read_ip(&ip->ip_dst);
+		if (net_ip.s_addr && dst_ip.s_addr != net_ip.s_addr &&
+		    dst_ip.s_addr != 0xFFFFFFFF) {
 #ifdef CONFIG_MCAST_TFTP
-			if (Mcast_addr != dst_ip)
+			if (net_mcast_addr != dst_ip)
 #endif
 				return;
 		}
 		/* Read source IP address for later use */
-		src_ip = NetReadIP(&ip->ip_src);
+		src_ip = net_read_ip(&ip->ip_src);
 		/*
 		 * The function returns the unchanged packet if it's not
 		 * a fragment, and either the complete packet or NULL if
 		 * it is a fragment (if !CONFIG_IP_DEFRAG, it returns NULL)
 		 */
-		ip = NetDefragment(ip, &len);
+		ip = net_defragment(ip, &len);
 		if (!ip)
 			return;
 		/*
@@ -1137,8 +1143,8 @@ NetReceive(uchar *inpkt, int len)
 		}
 
 		debug_cond(DEBUG_DEV_PKT,
-			"received UDP (to=%pI4, from=%pI4, len=%d)\n",
-			&dst_ip, &src_ip, len);
+			   "received UDP (to=%pI4, from=%pI4, len=%d)\n",
+			   &dst_ip, &src_ip, len);
 
 #ifdef CONFIG_UDP_CHECKSUM
 		if (ip->udp_xsum != 0) {
@@ -1148,13 +1154,13 @@ NetReceive(uchar *inpkt, int len)
 
 			xsum  = ip->ip_p;
 			xsum += (ntohs(ip->udp_len));
-			xsum += (ntohl(ip->ip_src) >> 16) & 0x0000ffff;
-			xsum += (ntohl(ip->ip_src) >>  0) & 0x0000ffff;
-			xsum += (ntohl(ip->ip_dst) >> 16) & 0x0000ffff;
-			xsum += (ntohl(ip->ip_dst) >>  0) & 0x0000ffff;
+			xsum += (ntohl(ip->ip_src.s_addr) >> 16) & 0x0000ffff;
+			xsum += (ntohl(ip->ip_src.s_addr) >>  0) & 0x0000ffff;
+			xsum += (ntohl(ip->ip_dst.s_addr) >> 16) & 0x0000ffff;
+			xsum += (ntohl(ip->ip_dst.s_addr) >>  0) & 0x0000ffff;
 
 			sumlen = ntohs(ip->udp_len);
-			sumptr = (ushort *) &(ip->udp_src);
+			sumptr = (ushort *)&(ip->udp_src);
 
 			while (sumlen > 1) {
 				ushort sumdata;
@@ -1166,7 +1172,7 @@ NetReceive(uchar *inpkt, int len)
 			if (sumlen > 0) {
 				ushort sumdata;
 
-				sumdata = *(unsigned char *) sumptr;
+				sumdata = *(unsigned char *)sumptr;
 				sumdata = (sumdata << 8) & 0xff00;
 				xsum += sumdata;
 			}
@@ -1176,32 +1182,30 @@ NetReceive(uchar *inpkt, int len)
 			}
 			if ((xsum != 0x00000000) && (xsum != 0x0000ffff)) {
 				printf(" UDP wrong checksum %08lx %08x\n",
-					xsum, ntohs(ip->udp_xsum));
+				       xsum, ntohs(ip->udp_xsum));
 				return;
 			}
 		}
 #endif
 
-
-#if defined (CONFIG_NETCONSOLE) && !(CONFIG_SPL_BUILD)
+#if defined(CONFIG_NETCONSOLE) && !(CONFIG_SPL_BUILD)
 		nc_input_packet((uchar *)ip + IP_UDP_HDR_SIZE,
-					src_ip,
-					ntohs(ip->udp_dst),
-					ntohs(ip->udp_src),
-					ntohs(ip->udp_len) - UDP_HDR_SIZE);
-#endif
-		/*
-		 *	IP header OK.  Pass the packet to the current handler.
-		 */
-		(*udp_packet_handler)((uchar *)ip + IP_UDP_HDR_SIZE,
-				ntohs(ip->udp_dst),
 				src_ip,
+				ntohs(ip->udp_dst),
 				ntohs(ip->udp_src),
 				ntohs(ip->udp_len) - UDP_HDR_SIZE);
+#endif
+		/*
+		 * IP header OK.  Pass the packet to the current handler.
+		 */
+		(*udp_packet_handler)((uchar *)ip + IP_UDP_HDR_SIZE,
+				      ntohs(ip->udp_dst),
+				      src_ip,
+				      ntohs(ip->udp_src),
+				      ntohs(ip->udp_len) - UDP_HDR_SIZE);
 		break;
 	}
 }
-
 
 /**********************************************************************/
 
@@ -1211,7 +1215,7 @@ static int net_check_prereq(enum proto_t protocol)
 		/* Fall through */
 #if defined(CONFIG_CMD_PING)
 	case PING:
-		if (NetPingIP == 0) {
+		if (net_ping_ip.s_addr == 0) {
 			puts("*** ERROR: ping address not given\n");
 			return 1;
 		}
@@ -1219,7 +1223,7 @@ static int net_check_prereq(enum proto_t protocol)
 #endif
 #if defined(CONFIG_CMD_SNTP)
 	case SNTP:
-		if (NetNtpServerIP == 0) {
+		if (net_ntp_server.s_addr == 0) {
 			puts("*** ERROR: NTP server address not given\n");
 			return 1;
 		}
@@ -1227,7 +1231,7 @@ static int net_check_prereq(enum proto_t protocol)
 #endif
 #if defined(CONFIG_CMD_DNS)
 	case DNS:
-		if (NetOurDNSIP == 0) {
+		if (net_dns_server.s_addr == 0) {
 			puts("*** ERROR: DNS server address not given\n");
 			return 1;
 		}
@@ -1236,9 +1240,10 @@ static int net_check_prereq(enum proto_t protocol)
 #if defined(CONFIG_CMD_NFS)
 	case NFS:
 #endif
+		/* Fall through */
 	case TFTPGET:
 	case TFTPPUT:
-		if (NetServerIP == 0) {
+		if (net_server_ip.s_addr == 0) {
 			puts("*** ERROR: `serverip' not set\n");
 			return 1;
 		}
@@ -1250,7 +1255,7 @@ common:
 
 	case NETCONS:
 	case TFTPSRV:
-		if (NetOurIP == 0) {
+		if (net_ip.s_addr == 0) {
 			puts("*** ERROR: `ipaddr' not set\n");
 			return 1;
 		}
@@ -1263,7 +1268,7 @@ common:
 	case CDP:
 	case DHCP:
 	case LINKLOCAL:
-		if (memcmp(NetOurEther, "\0\0\0\0\0\0", 6) == 0) {
+		if (memcmp(net_ethaddr, "\0\0\0\0\0\0", 6) == 0) {
 			int num = eth_get_dev_index();
 
 			switch (num) {
@@ -1275,11 +1280,11 @@ common:
 				break;
 			default:
 				printf("*** ERROR: `eth%daddr' not set\n",
-					num);
+				       num);
 				break;
 			}
 
-			NetStartAgain();
+			net_start_again();
 			return 2;
 		}
 		/* Fall through */
@@ -1291,11 +1296,11 @@ common:
 /**********************************************************************/
 
 int
-NetEthHdrSize(void)
+net_eth_hdr_size(void)
 {
 	ushort myvlanid;
 
-	myvlanid = ntohs(NetOurVLAN);
+	myvlanid = ntohs(net_our_vlan);
 	if (myvlanid == (ushort)-1)
 		myvlanid = VLAN_NONE;
 
@@ -1303,18 +1308,17 @@ NetEthHdrSize(void)
 		VLAN_ETHER_HDR_SIZE;
 }
 
-int
-NetSetEther(uchar *xet, uchar * addr, uint prot)
+int net_set_ether(uchar *xet, const uchar *dest_ethaddr, uint prot)
 {
 	struct ethernet_hdr *et = (struct ethernet_hdr *)xet;
 	ushort myvlanid;
 
-	myvlanid = ntohs(NetOurVLAN);
+	myvlanid = ntohs(net_our_vlan);
 	if (myvlanid == (ushort)-1)
 		myvlanid = VLAN_NONE;
 
-	memcpy(et->et_dest, addr, 6);
-	memcpy(et->et_src, NetOurEther, 6);
+	memcpy(et->et_dest, dest_ethaddr, 6);
+	memcpy(et->et_src, net_ethaddr, 6);
 	if ((myvlanid & VLAN_IDMASK) == VLAN_NONE) {
 		et->et_protlen = htons(prot);
 		return ETHER_HDR_SIZE;
@@ -1334,7 +1338,7 @@ int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot)
 	ushort protlen;
 
 	memcpy(et->et_dest, addr, 6);
-	memcpy(et->et_src, NetOurEther, 6);
+	memcpy(et->et_src, net_ethaddr, 6);
 	protlen = ntohs(et->et_protlen);
 	if (protlen == PROT_VLAN) {
 		struct vlan_ethernet_hdr *vet =
@@ -1352,7 +1356,7 @@ int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot)
 	}
 }
 
-void net_set_ip_header(uchar *pkt, IPaddr_t dest, IPaddr_t source)
+void net_set_ip_header(uchar *pkt, struct in_addr dest, struct in_addr source)
 {
 	struct ip_udp_hdr *ip = (struct ip_udp_hdr *)pkt;
 
@@ -1363,17 +1367,17 @@ void net_set_ip_header(uchar *pkt, IPaddr_t dest, IPaddr_t source)
 	ip->ip_hl_v  = 0x45;
 	ip->ip_tos   = 0;
 	ip->ip_len   = htons(IP_HDR_SIZE);
-	ip->ip_id    = htons(NetIPID++);
+	ip->ip_id    = htons(net_ip_id++);
 	ip->ip_off   = htons(IP_FLAGS_DFRAG);	/* Don't fragment */
 	ip->ip_ttl   = 255;
 	ip->ip_sum   = 0;
 	/* already in network byte order */
-	NetCopyIP((void *)&ip->ip_src, &source);
+	net_copy_ip((void *)&ip->ip_src, &source);
 	/* already in network byte order */
-	NetCopyIP((void *)&ip->ip_dst, &dest);
+	net_copy_ip((void *)&ip->ip_dst, &dest);
 }
 
-void net_set_udp_header(uchar *pkt, IPaddr_t dest, int dport, int sport,
+void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport, int sport,
 			int len)
 {
 	struct ip_udp_hdr *ip = (struct ip_udp_hdr *)pkt;
@@ -1386,7 +1390,7 @@ void net_set_udp_header(uchar *pkt, IPaddr_t dest, int dport, int sport,
 	if (len & 1)
 		pkt[IP_UDP_HDR_SIZE + len] = 0;
 
-	net_set_ip_header(pkt, dest, NetOurIP);
+	net_set_ip_header(pkt, dest, net_ip);
 	ip->ip_len   = htons(IP_UDP_HDR_SIZE + len);
 	ip->ip_p     = IPPROTO_UDP;
 	ip->ip_sum   = compute_ip_checksum(ip, IP_HDR_SIZE);
@@ -1423,17 +1427,18 @@ unsigned int random_port(void)
 }
 #endif
 
-void ip_to_string(IPaddr_t x, char *s)
+void ip_to_string(struct in_addr x, char *s)
 {
-	x = ntohl(x);
+	x.s_addr = ntohl(x.s_addr);
 	sprintf(s, "%d.%d.%d.%d",
-		(int) ((x >> 24) & 0xff),
-		(int) ((x >> 16) & 0xff),
-		(int) ((x >> 8) & 0xff), (int) ((x >> 0) & 0xff)
+		(int) ((x.s_addr >> 24) & 0xff),
+		(int) ((x.s_addr >> 16) & 0xff),
+		(int) ((x.s_addr >> 8) & 0xff),
+		(int) ((x.s_addr >> 0) & 0xff)
 	);
 }
 
-void VLAN_to_string(ushort x, char *s)
+void vlan_to_string(ushort x, char *s)
 {
 	x = ntohs(x);
 
@@ -1446,7 +1451,7 @@ void VLAN_to_string(ushort x, char *s)
 		sprintf(s, "%d", x & VLAN_IDMASK);
 }
 
-ushort string_to_VLAN(const char *s)
+ushort string_to_vlan(const char *s)
 {
 	ushort id;
 
@@ -1461,7 +1466,7 @@ ushort string_to_VLAN(const char *s)
 	return htons(id);
 }
 
-ushort getenv_VLAN(char *var)
+ushort getenv_vlan(char *var)
 {
-	return string_to_VLAN(getenv(var));
+	return string_to_vlan(getenv(var));
 }

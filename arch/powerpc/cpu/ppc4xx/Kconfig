@@ -43,6 +43,8 @@ config TARGET_BUBINGA
 
 config TARGET_CANYONLANDS
 	bool "Support canyonlands"
+	select DM
+	select DM_SERIAL
 
 config TARGET_EBONY
 	bool "Support ebony"

@@ -39,14 +39,14 @@ static void board_init_enetaddr(uchar *mac_addr)
 		for (ret = 0; ret < 6; ++ret)
 			mac_addr[ret] = otp_mac_p[5 - ret];
 
-		if (is_valid_ether_addr(mac_addr))
+		if (is_valid_ethaddr(mac_addr))
 			valid_mac = true;
 	}
 #endif
 
 	if (!valid_mac) {
 		puts("Warning: Generating 'random' MAC address\n");
-		eth_random_addr(mac_addr);
+		net_random_ethaddr(mac_addr);
 	}
 
 	eth_setenv_enetaddr("ethaddr", mac_addr);

@@ -27,6 +27,8 @@ static const char * const weekdays[] = {
 
 int mk_date (const char *, struct rtc_time *);
 
+static struct rtc_time default_tm = { 0, 0, 0, 1, 1, 2000, 6, 0, 0 };
+
 static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct rtc_time tm;
@@ -47,6 +49,9 @@ static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (strcmp(argv[1],"reset") == 0) {
 			puts ("Reset RTC...\n");
 			rtc_reset ();
+			rcode = rtc_set(&default_tm);
+			if (rcode)
+				puts("## Failed to set date after RTC reset\n");
 		} else {
 			/* initialize tm with current time */
 			rcode = rtc_get (&tm);

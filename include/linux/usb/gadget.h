@@ -859,19 +859,6 @@ void usb_del_gadget_udc(struct usb_gadget *gadget);
 /* utility to simplify dealing with string descriptors */
 
 /**
- * struct usb_string - wraps a C string and its USB id
- * @id:the (nonzero) ID for this string
- * @s:the string, in UTF-8 encoding
- *
- * If you're using usb_gadget_get_string(), use this to wrap a string
- * together with its ID.
- */
-struct usb_string {
-	u8			id;
-	const char		*s;
-};
-
-/**
  * struct usb_gadget_strings - a set of USB strings in a given language
  * @language:identifies the strings' language (0x0409 for en-us)
  * @strings:array of strings with their ids

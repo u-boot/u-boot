@@ -10,6 +10,7 @@
 		console = &uart0;
 		i2c0 = "/i2c@0";
 		spi0 = "/spi@0";
+		pci0 = &pci;
 		testfdt6 = "/e-test";
 		testbus3 = "/some-bus";
 		testfdt0 = "/some-bus/c-test@0";
@@ -17,6 +18,11 @@
 		testfdt3 = "/b-test";
 		testfdt5 = "/some-bus/c-test@5";
 		testfdt8 = "/a-test";
+		eth0 = "/eth@10002000";
+		eth5 = &eth_5;
+		usb0 = &usb_0;
+		usb1 = &usb_1;
+		usb2 = &usb_2;
 	};
 
 	uart0: serial {
@@ -135,6 +141,22 @@
 		};
 	};
 
+	pci: pci-controller {
+		compatible = "sandbox,pci";
+		device_type = "pci";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		ranges = <0x02000000 0 0x10000000 0x10000000 0 0x2000
+				0x01000000 0 0x20000000 0x20000000 0 0x2000>;
+		pci@1f,0 {
+			compatible = "pci-generic";
+			reg = <0xf800 0 0 0 0>;
+			emul@1f,0 {
+				compatible = "sandbox,swap-case";
+			};
+		};
+	};
+
 	spi@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -147,6 +169,62 @@
 			spi-max-frequency = <40000000>;
 			sandbox,filename = "spi.bin";
 		};
+	};
+
+	eth@10002000 {
+		compatible = "sandbox,eth";
+		reg = <0x10002000 0x1000>;
+		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x00>;
+	};
+
+	eth_5: eth@10003000 {
+		compatible = "sandbox,eth";
+		reg = <0x10003000 0x1000>;
+		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x11>;
+	};
+
+	eth@10004000 {
+		compatible = "sandbox,eth";
+		reg = <0x10004000 0x1000>;
+		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x22>;
+	};
+
+	usb_0: usb@0 {
+		compatible = "sandbox,usb";
+		status = "disabled";
+		hub {
+			compatible = "sandbox,usb-hub";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			flash-stick {
+				reg = <0>;
+				compatible = "sandbox,usb-flash";
+			};
+		};
+	};
+
+	usb_1: usb@1 {
+		compatible = "sandbox,usb";
+		hub {
+			compatible = "usb-hub";
+			usb,device-class = <9>;
+			hub-emul {
+				compatible = "sandbox,usb-hub";
+				#address-cells = <1>;
+				#size-cells = <0>;
+				flash-stick {
+					reg = <0>;
+					compatible = "sandbox,usb-flash";
+					sandbox,filepath = "testflash.bin";
+				};
+
+			};
+		};
+	};
+
+	usb_2: usb@2 {
+		compatible = "sandbox,usb";
+		status = "disabled";
 	};
 
 };

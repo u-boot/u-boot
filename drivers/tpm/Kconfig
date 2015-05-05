@@ -1,0 +1,7 @@
+config TPM_TIS_SANDBOX
+	bool "Enable sandbox TPM driver"
+	help
+	  This driver emulates a TPM, providing access to base functions
+	  such as reading and writing TPM private data. This is enough to
+	  support Chrome OS verified boot. Extend functionality is not
+	  implemented.

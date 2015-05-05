@@ -89,11 +89,3 @@ int init_bd_struct_r(void)
 
 	return 0;
 }
-
-int init_func_spi(void)
-{
-	puts("SPI:   ");
-	spi_init();
-	puts("ready\n");
-	return 0;
-}

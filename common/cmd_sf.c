@@ -10,6 +10,7 @@
 #include <div64.h>
 #include <dm.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <spi.h>
 #include <spi_flash.h>
 
@@ -130,7 +131,7 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 		return 1;
 	}
 
-	flash = new->uclass_priv;
+	flash = dev_get_uclass_priv(new);
 #else
 	new = spi_flash_probe(bus, cs, speed, mode);
 	if (!new) {
@@ -163,6 +164,8 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
 		size_t len, const char *buf, char *cmp_buf, size_t *skipped)
 {
+	char *ptr = (char *)buf;
+
 	debug("offset=%#x, sector_size=%#x, len=%#zx\n",
 	      offset, flash->sector_size, len);
 	/* Read the entire sector so to allow for rewriting */
@@ -178,16 +181,14 @@ static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
 	/* Erase the entire sector */
 	if (spi_flash_erase(flash, offset, flash->sector_size))
 		return "erase";
-	/* Write the initial part of the block from the source */
-	if (spi_flash_write(flash, offset, len, buf))
-		return "write";
-	/* If it's a partial sector, rewrite the existing part */
+	/* If it's a partial sector, copy the data into the temp-buffer */
 	if (len != flash->sector_size) {
-		/* Rewrite the original data to the end of the sector */
-		if (spi_flash_write(flash, offset + len,
-				    flash->sector_size - len, &cmp_buf[len]))
-			return "write";
+		memcpy(cmp_buf, buf, len);
+		ptr = cmp_buf;
 	}
+	/* Write one complete sector */
+	if (spi_flash_write(flash, offset, flash->sector_size, ptr))
+		return "write";
 
 	return NULL;
 }

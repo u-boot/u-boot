@@ -356,7 +356,7 @@ int board_eth_init(bd_t *bis)
 	if (!getenv("ethaddr")) {
 		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
 
-		if (is_valid_ether_addr(mac_addr))
+		if (is_valid_ethaddr(mac_addr))
 			eth_setenv_enetaddr("ethaddr", mac_addr);
 	}
 
@@ -370,7 +370,7 @@ int board_eth_init(bd_t *bis)
 	mac_addr[5] = mac_lo & 0xFF;
 
 	if (!getenv("eth1addr")) {
-		if (is_valid_ether_addr(mac_addr))
+		if (is_valid_ethaddr(mac_addr))
 			eth_setenv_enetaddr("eth1addr", mac_addr);
 	}
 
@@ -383,15 +383,5 @@ int board_eth_init(bd_t *bis)
 		printf("Error %d registering CPSW switch\n", ret);
 
 	return ret;
-}
-#endif
-
-#ifdef CONFIG_USB_XHCI_OMAP
-int board_usb_init(int index, enum usb_init_type init)
-{
-	setbits_le32((*prcm)->cm_l3init_usb_otg_ss_clkctrl,
-			OTG_SS_CLKCTRL_MODULEMODE_HW | OPTFCLKEN_REFCLK960M);
-
-	return 0;
 }
 #endif

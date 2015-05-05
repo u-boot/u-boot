@@ -1,0 +1,55 @@
+config SOUND
+	bool "Enable sound support"
+	help
+	  Support making sounds through an audio codec. This is normally a
+	  beep at a chosen frequency for a selected length of time. However
+	  the drivers support playing arbitrary sound samples using a
+	  PCM interface.
+
+	  Note: At present the sound setup is somewhat tangled up in that the
+	  audio codecs are called from the sound-i2s code. This could be
+	  converted to driver model.
+
+config I2S
+	bool "Enable I2S support"
+	depends on SOUND
+	help
+	  I2S is a serial bus often used to transmit audio data from the
+	  SoC to the audio codec. This option enables sound support using
+	  I2S. It calls either of the two supported codecs (no use is made
+	  of driver model at present).
+
+config I2S_SAMSUNG
+	bool "Enable I2C support for Samsung SoCs"
+	depends on SOUND
+	help
+	  Samsung Exynos SoCs support an I2S interface for sending audio
+	  data to an audio codec. This option enables support for this,
+	  using one of the available audio codec drivers. Enabling this
+	  option provides an implementation for sound_init() and
+	  sound_play().
+
+config SOUND_MAX98095
+	bool "Support Maxim max98095 audio codec"
+	depends on I2S_SAMSUNG
+	help
+	  Enable the max98095 audio codec. This is connected via I2S for
+	  audio data and I2C for codec control. At present it only works
+	  with the Samsung I2S driver.
+
+config SOUND_SANDBOX
+	bool "Support sandbox emulated audio codec"
+	depends on SANDBOX && SOUND
+	help
+	  U-Boot sandbox can emulate a sound device using SDL, playing the
+	  sound on the host machine. This option implements the sound_init()
+	  and sound_play() functions for sandbox. Note that you must install
+	  the SDL libraries for this to work.
+
+config SOUND_WM8994
+	bool "Support Wolfson Micro wm8994 audio codec"
+	depends on I2S_SAMSUNG
+	help
+	  Enable the wm8994 audio codec. This is connected via I2S for
+	  audio data and I2C for codec control. At present it only works
+	  with the Samsung I2S driver.

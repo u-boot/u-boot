@@ -545,6 +545,17 @@ def GetDefaultUserEmail():
     uemail = command.OutputOneLine('git', 'config', '--global', 'user.email')
     return uemail
 
+def GetDefaultSubjectPrefix():
+    """Gets the format.subjectprefix from local .git/config file.
+
+    Returns:
+        Subject prefix found in local .git/config file, or None if none
+    """
+    sub_prefix = command.OutputOneLine('git', 'config', 'format.subjectprefix',
+                 raise_on_error=False)
+
+    return sub_prefix
+
 def Setup():
     """Set up git utils, by reading the alias files."""
     # Check for a git alias file also

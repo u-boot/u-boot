@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <malloc.h>
 #include <spi.h>
@@ -19,154 +20,99 @@
 #define SPI_OPCODE_WREN      0x06
 #define SPI_OPCODE_FAST_READ 0x0b
 
-struct ich_ctlr {
+struct ich_spi_platdata {
 	pci_dev_t dev;		/* PCI device number */
 	int ich_version;	/* Controller version, 7 or 9 */
 	bool use_sbase;		/* Use SBASE instead of RCB */
-	int ichspi_lock;
-	int locked;
-	uint8_t *opmenu;
-	int menubytes;
-	void *base;		/* Base of register set */
-	uint16_t *preop;
-	uint16_t *optype;
-	uint32_t *addr;
-	uint8_t *data;
-	unsigned databytes;
-	uint8_t *status;
-	uint16_t *control;
-	uint32_t *bbar;
-	uint32_t *pr;		/* only for ich9 */
-	uint8_t *speed;		/* pointer to speed control */
-	ulong max_speed;	/* Maximum bus speed in MHz */
 };
 
-struct ich_ctlr ctlr;
+struct ich_spi_priv {
+	int ichspi_lock;
+	int locked;
+	int opmenu;
+	int menubytes;
+	void *base;		/* Base of register set */
+	int preop;
+	int optype;
+	int addr;
+	int data;
+	unsigned databytes;
+	int status;
+	int control;
+	int bbar;
+	uint32_t *pr;		/* only for ich9 */
+	int speed;		/* pointer to speed control */
+	ulong max_speed;	/* Maximum bus speed in MHz */
+	ulong cur_speed;	/* Current bus speed */
+	struct spi_trans trans;	/* current transaction in progress */
+};
 
-static inline struct ich_spi_slave *to_ich_spi(struct spi_slave *slave)
+static u8 ich_readb(struct ich_spi_priv *priv, int reg)
 {
-	return container_of(slave, struct ich_spi_slave, slave);
-}
+	u8 value = readb(priv->base + reg);
 
-static unsigned int ich_reg(const void *addr)
-{
-	return (unsigned)(addr - ctlr.base) & 0xffff;
-}
-
-static u8 ich_readb(const void *addr)
-{
-	u8 value = readb(addr);
-
-	debug("read %2.2x from %4.4x\n", value, ich_reg(addr));
+	debug("read %2.2x from %4.4x\n", value, reg);
 
 	return value;
 }
 
-static u16 ich_readw(const void *addr)
+static u16 ich_readw(struct ich_spi_priv *priv, int reg)
 {
-	u16 value = readw(addr);
+	u16 value = readw(priv->base + reg);
 
-	debug("read %4.4x from %4.4x\n", value, ich_reg(addr));
+	debug("read %4.4x from %4.4x\n", value, reg);
 
 	return value;
 }
 
-static u32 ich_readl(const void *addr)
+static u32 ich_readl(struct ich_spi_priv *priv, int reg)
 {
-	u32 value = readl(addr);
+	u32 value = readl(priv->base + reg);
 
-	debug("read %8.8x from %4.4x\n", value, ich_reg(addr));
+	debug("read %8.8x from %4.4x\n", value, reg);
 
 	return value;
 }
 
-static void ich_writeb(u8 value, void *addr)
+static void ich_writeb(struct ich_spi_priv *priv, u8 value, int reg)
 {
-	writeb(value, addr);
-	debug("wrote %2.2x to %4.4x\n", value, ich_reg(addr));
+	writeb(value, priv->base + reg);
+	debug("wrote %2.2x to %4.4x\n", value, reg);
 }
 
-static void ich_writew(u16 value, void *addr)
+static void ich_writew(struct ich_spi_priv *priv, u16 value, int reg)
 {
-	writew(value, addr);
-	debug("wrote %4.4x to %4.4x\n", value, ich_reg(addr));
+	writew(value, priv->base + reg);
+	debug("wrote %4.4x to %4.4x\n", value, reg);
 }
 
-static void ich_writel(u32 value, void *addr)
+static void ich_writel(struct ich_spi_priv *priv, u32 value, int reg)
 {
-	writel(value, addr);
-	debug("wrote %8.8x to %4.4x\n", value, ich_reg(addr));
+	writel(value, priv->base + reg);
+	debug("wrote %8.8x to %4.4x\n", value, reg);
 }
 
-static void write_reg(const void *value, void *dest, uint32_t size)
+static void write_reg(struct ich_spi_priv *priv, const void *value,
+		      int dest_reg, uint32_t size)
 {
-	memcpy_toio(dest, value, size);
+	memcpy_toio(priv->base + dest_reg, value, size);
 }
 
-static void read_reg(const void *src, void *value, uint32_t size)
+static void read_reg(struct ich_spi_priv *priv, int src_reg, void *value,
+		     uint32_t size)
 {
-	memcpy_fromio(value, src, size);
+	memcpy_fromio(value, priv->base + src_reg, size);
 }
 
-static void ich_set_bbar(struct ich_ctlr *ctlr, uint32_t minaddr)
+static void ich_set_bbar(struct ich_spi_priv *ctlr, uint32_t minaddr)
 {
 	const uint32_t bbar_mask = 0x00ffff00;
 	uint32_t ichspi_bbar;
 
 	minaddr &= bbar_mask;
-	ichspi_bbar = ich_readl(ctlr->bbar) & ~bbar_mask;
+	ichspi_bbar = ich_readl(ctlr, ctlr->bbar) & ~bbar_mask;
 	ichspi_bbar |= minaddr;
-	ich_writel(ichspi_bbar, ctlr->bbar);
-}
-
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	puts("spi_cs_is_valid used but not implemented\n");
-	return 0;
-}
-
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
-{
-	struct ich_spi_slave *ich;
-
-	ich = spi_alloc_slave(struct ich_spi_slave, bus, cs);
-	if (!ich) {
-		puts("ICH SPI: Out of memory\n");
-		return NULL;
-	}
-
-	/*
-	 * Yes this controller can only write a small number of bytes at
-	 * once! The limit is typically 64 bytes.
-	 */
-	ich->slave.max_write_size = ctlr.databytes;
-	ich->speed = max_hz;
-
-	/*
-	 * ICH 7 SPI controller only supports array read command
-	 * and byte program command for SST flash
-	 */
-	if (ctlr.ich_version == 7 || ctlr.use_sbase) {
-		ich->slave.op_mode_rx = SPI_OPM_RX_AS;
-		ich->slave.op_mode_tx = SPI_OPM_TX_BP;
-	}
-
-	return &ich->slave;
-}
-
-struct spi_slave *spi_setup_slave_fdt(const void *blob, int slave_node,
-				      int spi_node)
-{
-	/* We only support a single SPI at present */
-	return spi_setup_slave(0, 0, 20000000, 0);
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct ich_spi_slave *ich = to_ich_spi(slave);
-
-	free(ich);
+	ich_writel(ctlr, ichspi_bbar, ctlr->bbar);
 }
 
 /*
@@ -185,7 +131,8 @@ static int get_ich_version(uint16_t device_id)
 	     device_id <= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX) ||
 	    (device_id >= PCI_DEVICE_ID_INTEL_PANTHERPOINT_LPC_MIN &&
 	     device_id <= PCI_DEVICE_ID_INTEL_PANTHERPOINT_LPC_MAX) ||
-	    device_id == PCI_DEVICE_ID_INTEL_VALLEYVIEW_LPC)
+	    device_id == PCI_DEVICE_ID_INTEL_VALLEYVIEW_LPC ||
+	    device_id == PCI_DEVICE_ID_INTEL_LYNXPOINT_LPC)
 		return 9;
 
 	return 0;
@@ -208,7 +155,7 @@ static int ich9_can_do_33mhz(pci_dev_t dev)
 	return speed == 1;
 }
 
-static int ich_find_spi_controller(struct ich_ctlr *ich)
+static int ich_find_spi_controller(struct ich_spi_platdata *ich)
 {
 	int last_bus = pci_last_busno();
 	int bus;
@@ -241,129 +188,75 @@ static int ich_find_spi_controller(struct ich_ctlr *ich)
 	return -ENODEV;
 }
 
-static int ich_init_controller(struct ich_ctlr *ctlr)
+static int ich_init_controller(struct ich_spi_platdata *plat,
+			       struct ich_spi_priv *ctlr)
 {
 	uint8_t *rcrb; /* Root Complex Register Block */
 	uint32_t rcba; /* Root Complex Base Address */
 	uint32_t sbase_addr;
 	uint8_t *sbase;
 
-	pci_read_config_dword(ctlr->dev, 0xf0, &rcba);
+	pci_read_config_dword(plat->dev, 0xf0, &rcba);
 	/* Bits 31-14 are the base address, 13-1 are reserved, 0 is enable. */
 	rcrb = (uint8_t *)(rcba & 0xffffc000);
 
 	/* SBASE is similar */
-	pci_read_config_dword(ctlr->dev, 0x54, &sbase_addr);
+	pci_read_config_dword(plat->dev, 0x54, &sbase_addr);
 	sbase = (uint8_t *)(sbase_addr & 0xfffffe00);
 
-	if (ctlr->ich_version == 7) {
+	if (plat->ich_version == 7) {
 		struct ich7_spi_regs *ich7_spi;
 
 		ich7_spi = (struct ich7_spi_regs *)(rcrb + 0x3020);
-		ctlr->ichspi_lock = ich_readw(&ich7_spi->spis) & SPIS_LOCK;
-		ctlr->opmenu = ich7_spi->opmenu;
+		ctlr->ichspi_lock = readw(&ich7_spi->spis) & SPIS_LOCK;
+		ctlr->opmenu = offsetof(struct ich7_spi_regs, opmenu);
 		ctlr->menubytes = sizeof(ich7_spi->opmenu);
-		ctlr->optype = &ich7_spi->optype;
-		ctlr->addr = &ich7_spi->spia;
-		ctlr->data = (uint8_t *)ich7_spi->spid;
+		ctlr->optype = offsetof(struct ich7_spi_regs, optype);
+		ctlr->addr = offsetof(struct ich7_spi_regs, spia);
+		ctlr->data = offsetof(struct ich7_spi_regs, spid);
 		ctlr->databytes = sizeof(ich7_spi->spid);
-		ctlr->status = (uint8_t *)&ich7_spi->spis;
-		ctlr->control = &ich7_spi->spic;
-		ctlr->bbar = &ich7_spi->bbar;
-		ctlr->preop = &ich7_spi->preop;
+		ctlr->status = offsetof(struct ich7_spi_regs, spis);
+		ctlr->control = offsetof(struct ich7_spi_regs, spic);
+		ctlr->bbar = offsetof(struct ich7_spi_regs, bbar);
+		ctlr->preop = offsetof(struct ich7_spi_regs, preop);
 		ctlr->base = ich7_spi;
-	} else if (ctlr->ich_version == 9) {
+	} else if (plat->ich_version == 9) {
 		struct ich9_spi_regs *ich9_spi;
 
-		if (ctlr->use_sbase)
+		if (plat->use_sbase)
 			ich9_spi = (struct ich9_spi_regs *)sbase;
 		else
 			ich9_spi = (struct ich9_spi_regs *)(rcrb + 0x3800);
-		ctlr->ichspi_lock = ich_readw(&ich9_spi->hsfs) & HSFS_FLOCKDN;
-		ctlr->opmenu = ich9_spi->opmenu;
+		ctlr->ichspi_lock = readw(&ich9_spi->hsfs) & HSFS_FLOCKDN;
+		ctlr->opmenu = offsetof(struct ich9_spi_regs, opmenu);
 		ctlr->menubytes = sizeof(ich9_spi->opmenu);
-		ctlr->optype = &ich9_spi->optype;
-		ctlr->addr = &ich9_spi->faddr;
-		ctlr->data = (uint8_t *)ich9_spi->fdata;
+		ctlr->optype = offsetof(struct ich9_spi_regs, optype);
+		ctlr->addr = offsetof(struct ich9_spi_regs, faddr);
+		ctlr->data = offsetof(struct ich9_spi_regs, fdata);
 		ctlr->databytes = sizeof(ich9_spi->fdata);
-		ctlr->status = &ich9_spi->ssfs;
-		ctlr->control = (uint16_t *)ich9_spi->ssfc;
-		ctlr->speed = ich9_spi->ssfc + 2;
-		ctlr->bbar = &ich9_spi->bbar;
-		ctlr->preop = &ich9_spi->preop;
+		ctlr->status = offsetof(struct ich9_spi_regs, ssfs);
+		ctlr->control = offsetof(struct ich9_spi_regs, ssfc);
+		ctlr->speed = ctlr->control + 2;
+		ctlr->bbar = offsetof(struct ich9_spi_regs, bbar);
+		ctlr->preop = offsetof(struct ich9_spi_regs, preop);
 		ctlr->pr = &ich9_spi->pr[0];
 		ctlr->base = ich9_spi;
 	} else {
-		debug("ICH SPI: Unrecognized ICH version %d.\n",
-		      ctlr->ich_version);
-		return -1;
+		debug("ICH SPI: Unrecognised ICH version %d\n",
+		      plat->ich_version);
+		return -EINVAL;
 	}
 
 	/* Work out the maximum speed we can support */
 	ctlr->max_speed = 20000000;
-	if (ctlr->ich_version == 9 && ich9_can_do_33mhz(ctlr->dev))
+	if (plat->ich_version == 9 && ich9_can_do_33mhz(plat->dev))
 		ctlr->max_speed = 33000000;
 	debug("ICH SPI: Version %d detected at %p, speed %ld\n",
-	      ctlr->ich_version, ctlr->base, ctlr->max_speed);
+	      plat->ich_version, ctlr->base, ctlr->max_speed);
 
 	ich_set_bbar(ctlr, 0);
 
 	return 0;
-}
-
-void spi_init(void)
-{
-	uint8_t bios_cntl;
-
-	if (ich_find_spi_controller(&ctlr)) {
-		printf("ICH SPI: Cannot find device\n");
-		return;
-	}
-
-	if (ich_init_controller(&ctlr)) {
-		printf("ICH SPI: Cannot setup controller\n");
-		return;
-	}
-
-	/*
-	 * Disable the BIOS write protect so write commands are allowed.  On
-	 * v9, deassert SMM BIOS Write Protect Disable.
-	 */
-	if (ctlr.use_sbase) {
-		struct ich9_spi_regs *ich9_spi;
-
-		ich9_spi = (struct ich9_spi_regs *)ctlr.base;
-		bios_cntl = ich_readb(&ich9_spi->bcr);
-		bios_cntl &= ~(1 << 5);	/* clear Enable InSMM_STS (EISS) */
-		bios_cntl |= 1;		/* Write Protect Disable (WPD) */
-		ich_writeb(bios_cntl, &ich9_spi->bcr);
-	} else {
-		pci_read_config_byte(ctlr.dev, 0xdc, &bios_cntl);
-		if (ctlr.ich_version == 9)
-			bios_cntl &= ~(1 << 5);
-		pci_write_config_byte(ctlr.dev, 0xdc, bios_cntl | 0x1);
-	}
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	/* Handled by ICH automatically. */
-	return 0;
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-	/* Handled by ICH automatically. */
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	/* Handled by ICH automatically. */
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	/* Handled by ICH automatically. */
 }
 
 static inline void spi_use_out(struct spi_trans *trans, unsigned bytes)
@@ -411,19 +304,19 @@ static void spi_setup_type(struct spi_trans *trans, int data_bytes)
 	}
 }
 
-static int spi_setup_opcode(struct spi_trans *trans)
+static int spi_setup_opcode(struct ich_spi_priv *ctlr, struct spi_trans *trans)
 {
 	uint16_t optypes;
-	uint8_t opmenu[ctlr.menubytes];
+	uint8_t opmenu[ctlr->menubytes];
 
 	trans->opcode = trans->out[0];
 	spi_use_out(trans, 1);
-	if (!ctlr.ichspi_lock) {
+	if (!ctlr->ichspi_lock) {
 		/* The lock is off, so just use index 0. */
-		ich_writeb(trans->opcode, ctlr.opmenu);
-		optypes = ich_readw(ctlr.optype);
+		ich_writeb(ctlr, trans->opcode, ctlr->opmenu);
+		optypes = ich_readw(ctlr, ctlr->optype);
 		optypes = (optypes & 0xfffc) | (trans->type & 0x3);
-		ich_writew(optypes, ctlr.optype);
+		ich_writew(ctlr, optypes, ctlr->optype);
 		return 0;
 	} else {
 		/* The lock is on. See if what we need is on the menu. */
@@ -434,20 +327,20 @@ static int spi_setup_opcode(struct spi_trans *trans)
 		if (trans->opcode == SPI_OPCODE_WREN)
 			return 0;
 
-		read_reg(ctlr.opmenu, opmenu, sizeof(opmenu));
-		for (opcode_index = 0; opcode_index < ctlr.menubytes;
+		read_reg(ctlr, ctlr->opmenu, opmenu, sizeof(opmenu));
+		for (opcode_index = 0; opcode_index < ctlr->menubytes;
 				opcode_index++) {
 			if (opmenu[opcode_index] == trans->opcode)
 				break;
 		}
 
-		if (opcode_index == ctlr.menubytes) {
+		if (opcode_index == ctlr->menubytes) {
 			printf("ICH SPI: Opcode %x not found\n",
 			       trans->opcode);
-			return -1;
+			return -EINVAL;
 		}
 
-		optypes = ich_readw(ctlr.optype);
+		optypes = ich_readw(ctlr, ctlr->optype);
 		optype = (optypes >> (opcode_index * 2)) & 0x3;
 		if (trans->type == SPI_OPCODE_TYPE_WRITE_NO_ADDRESS &&
 		    optype == SPI_OPCODE_TYPE_WRITE_WITH_ADDRESS &&
@@ -458,7 +351,7 @@ static int spi_setup_opcode(struct spi_trans *trans)
 		if (optype != trans->type) {
 			printf("ICH SPI: Transaction doesn't fit type %d\n",
 			       optype);
-			return -1;
+			return -ENOSPC;
 		}
 		return opcode_index;
 	}
@@ -480,7 +373,7 @@ static int spi_setup_offset(struct spi_trans *trans)
 		return 1;
 	default:
 		printf("Unrecognized SPI transaction type %#x\n", trans->type);
-		return -1;
+		return -EPROTO;
 	}
 }
 
@@ -491,16 +384,19 @@ static int spi_setup_offset(struct spi_trans *trans)
  *
  * Return the last read status value on success or -1 on failure.
  */
-static int ich_status_poll(u16 bitmask, int wait_til_set)
+static int ich_status_poll(struct ich_spi_priv *ctlr, u16 bitmask,
+			   int wait_til_set)
 {
 	int timeout = 600000; /* This will result in 6s */
 	u16 status = 0;
 
 	while (timeout--) {
-		status = ich_readw(ctlr.status);
+		status = ich_readw(ctlr, ctlr->status);
 		if (wait_til_set ^ ((status & bitmask) == 0)) {
-			if (wait_til_set)
-				ich_writew((status & bitmask), ctlr.status);
+			if (wait_til_set) {
+				ich_writew(ctlr, status & bitmask,
+					   ctlr->status);
+			}
 			return status;
 		}
 		udelay(10);
@@ -508,30 +404,28 @@ static int ich_status_poll(u16 bitmask, int wait_til_set)
 
 	printf("ICH SPI: SCIP timeout, read %x, expected %x\n",
 	       status, bitmask);
-	return -1;
+	return -ETIMEDOUT;
 }
 
-/*
-int spi_xfer(struct spi_slave *slave, const void *dout,
-		unsigned int bitsout, void *din, unsigned int bitsin)
-*/
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
-		void *din, unsigned long flags)
+static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
+			const void *dout, void *din, unsigned long flags)
 {
-	struct ich_spi_slave *ich = to_ich_spi(slave);
+	struct udevice *bus = dev_get_parent(dev);
+	struct ich_spi_priv *ctlr = dev_get_priv(bus);
 	uint16_t control;
 	int16_t opcode_index;
 	int with_address;
 	int status;
 	int bytes = bitlen / 8;
-	struct spi_trans *trans = &ich->trans;
+	struct spi_trans *trans = &ctlr->trans;
 	unsigned type = flags & (SPI_XFER_BEGIN | SPI_XFER_END);
 	int using_cmd = 0;
+	int ret;
 
 	/* Ee don't support writing partial bytes. */
 	if (bitlen % 8) {
 		debug("ICH SPI: Accessing partial bytes not supported\n");
-		return -1;
+		return -EPROTONOSUPPORT;
 	}
 
 	/* An empty end transaction can be ignored */
@@ -545,7 +439,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	if (dout && type == SPI_XFER_BEGIN) {
 		if (bytes > ICH_MAX_CMD_LEN) {
 			debug("ICH SPI: Command length limit exceeded\n");
-			return -1;
+			return -ENOSPC;
 		}
 		memcpy(trans->cmd, dout, bytes);
 		trans->cmd_len = bytes;
@@ -576,21 +470,22 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	/* There has to always at least be an opcode. */
 	if (!trans->bytesout) {
 		debug("ICH SPI: No opcode for transfer\n");
-		return -1;
+		return -EPROTO;
 	}
 
-	if (ich_status_poll(SPIS_SCIP, 0) == -1)
-		return -1;
+	ret = ich_status_poll(ctlr, SPIS_SCIP, 0);
+	if (ret < 0)
+		return ret;
 
-	ich_writew(SPIS_CDS | SPIS_FCERR, ctlr.status);
+	ich_writew(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
 
 	spi_setup_type(trans, using_cmd ? bytes : 0);
-	opcode_index = spi_setup_opcode(trans);
+	opcode_index = spi_setup_opcode(ctlr, trans);
 	if (opcode_index < 0)
-		return -1;
+		return -EINVAL;
 	with_address = spi_setup_offset(trans);
 	if (with_address < 0)
-		return -1;
+		return -EINVAL;
 
 	if (trans->opcode == SPI_OPCODE_WREN) {
 		/*
@@ -598,20 +493,20 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		 * in order to prevent the Management Engine from
 		 * issuing a transaction between WREN and DATA.
 		 */
-		if (!ctlr.ichspi_lock)
-			ich_writew(trans->opcode, ctlr.preop);
+		if (!ctlr->ichspi_lock)
+			ich_writew(ctlr, trans->opcode, ctlr->preop);
 		return 0;
 	}
 
-	if (ctlr.speed && ctlr.max_speed >= 33000000) {
+	if (ctlr->speed && ctlr->max_speed >= 33000000) {
 		int byte;
 
-		byte = ich_readb(ctlr.speed);
-		if (ich->speed >= 33000000)
+		byte = ich_readb(ctlr, ctlr->speed);
+		if (ctlr->cur_speed >= 33000000)
 			byte |= SSFC_SCF_33MHZ;
 		else
 			byte &= ~SSFC_SCF_33MHZ;
-		ich_writeb(byte, ctlr.speed);
+		ich_writeb(ctlr, byte, ctlr->speed);
 	}
 
 	/* See if we have used up the command data */
@@ -622,35 +517,36 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	}
 
 	/* Preset control fields */
-	control = ich_readw(ctlr.control);
+	control = ich_readw(ctlr, ctlr->control);
 	control &= ~SSFC_RESERVED;
 	control = SPIC_SCGO | ((opcode_index & 0x07) << 4);
 
 	/* Issue atomic preop cycle if needed */
-	if (ich_readw(ctlr.preop))
+	if (ich_readw(ctlr, ctlr->preop))
 		control |= SPIC_ACS;
 
 	if (!trans->bytesout && !trans->bytesin) {
 		/* SPI addresses are 24 bit only */
-		if (with_address)
-			ich_writel(trans->offset & 0x00FFFFFF, ctlr.addr);
-
+		if (with_address) {
+			ich_writel(ctlr, trans->offset & 0x00FFFFFF,
+				   ctlr->addr);
+		}
 		/*
 		 * This is a 'no data' command (like Write Enable), its
 		 * bitesout size was 1, decremented to zero while executing
 		 * spi_setup_opcode() above. Tell the chip to send the
 		 * command.
 		 */
-		ich_writew(control, ctlr.control);
+		ich_writew(ctlr, control, ctlr->control);
 
 		/* wait for the result */
-		status = ich_status_poll(SPIS_CDS | SPIS_FCERR, 1);
-		if (status == -1)
-			return -1;
+		status = ich_status_poll(ctlr, SPIS_CDS | SPIS_FCERR, 1);
+		if (status < 0)
+			return status;
 
 		if (status & SPIS_FCERR) {
 			debug("ICH SPI: Command transaction error\n");
-			return -1;
+			return -EIO;
 		}
 
 		return 0;
@@ -663,9 +559,9 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	 * and followed by other SPI commands, and this sequence is controlled
 	 * by the SPI chip driver.
 	 */
-	if (trans->bytesout > ctlr.databytes) {
+	if (trans->bytesout > ctlr->databytes) {
 		debug("ICH SPI: Too much to write. This should be prevented by the driver's max_write_size?\n");
-		return -1;
+		return -EPROTO;
 	}
 
 	/*
@@ -676,41 +572,41 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		uint32_t data_length;
 
 		/* SPI addresses are 24 bit only */
-		ich_writel(trans->offset & 0x00FFFFFF, ctlr.addr);
+		ich_writel(ctlr, trans->offset & 0x00FFFFFF, ctlr->addr);
 
 		if (trans->bytesout)
-			data_length = min(trans->bytesout, ctlr.databytes);
+			data_length = min(trans->bytesout, ctlr->databytes);
 		else
-			data_length = min(trans->bytesin, ctlr.databytes);
+			data_length = min(trans->bytesin, ctlr->databytes);
 
 		/* Program data into FDATA0 to N */
 		if (trans->bytesout) {
-			write_reg(trans->out, ctlr.data, data_length);
+			write_reg(ctlr, trans->out, ctlr->data, data_length);
 			spi_use_out(trans, data_length);
 			if (with_address)
 				trans->offset += data_length;
 		}
 
 		/* Add proper control fields' values */
-		control &= ~((ctlr.databytes - 1) << 8);
+		control &= ~((ctlr->databytes - 1) << 8);
 		control |= SPIC_DS;
 		control |= (data_length - 1) << 8;
 
 		/* write it */
-		ich_writew(control, ctlr.control);
+		ich_writew(ctlr, control, ctlr->control);
 
 		/* Wait for Cycle Done Status or Flash Cycle Error. */
-		status = ich_status_poll(SPIS_CDS | SPIS_FCERR, 1);
-		if (status == -1)
-			return -1;
+		status = ich_status_poll(ctlr, SPIS_CDS | SPIS_FCERR, 1);
+		if (status < 0)
+			return status;
 
 		if (status & SPIS_FCERR) {
 			debug("ICH SPI: Data transaction error\n");
-			return -1;
+			return -EIO;
 		}
 
 		if (trans->bytesin) {
-			read_reg(ctlr.data, trans->in, data_length);
+			read_reg(ctlr, ctlr->data, trans->in, data_length);
 			spi_use_in(trans, data_length);
 			if (with_address)
 				trans->offset += data_length;
@@ -718,7 +614,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	}
 
 	/* Clear atomic preop now that xfer is done */
-	ich_writew(0, ctlr.preop);
+	ich_writew(ctlr, 0, ctlr->preop);
 
 	return 0;
 }
@@ -730,15 +626,18 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
  * don't actually take effect until the HSFS[FLOCKDN] bit is set, but that's
  * done elsewhere.
  */
-int spi_write_protect_region(uint32_t lower_limit, uint32_t length, int hint)
+int spi_write_protect_region(struct udevice *dev, uint32_t lower_limit,
+			     uint32_t length, int hint)
 {
+	struct udevice *bus = dev->parent;
+	struct ich_spi_priv *ctlr = dev_get_priv(bus);
 	uint32_t tmplong;
 	uint32_t upper_limit;
 
-	if (!ctlr.pr) {
+	if (!ctlr->pr) {
 		printf("%s: operation not supported on this chipset\n",
 		       __func__);
-		return -1;
+		return -ENOSYS;
 	}
 
 	if (length == 0 ||
@@ -746,7 +645,7 @@ int spi_write_protect_region(uint32_t lower_limit, uint32_t length, int hint)
 	    hint < 0 || hint > 4) {
 		printf("%s(0x%x, 0x%x, %d): invalid args\n", __func__,
 		       lower_limit, length, hint);
-		return -1;
+		return -EPERM;
 	}
 
 	upper_limit = lower_limit + length - 1;
@@ -765,8 +664,121 @@ int spi_write_protect_region(uint32_t lower_limit, uint32_t length, int hint)
 		((lower_limit & 0x01fff000) >> 12);
 
 	printf("%s: writing 0x%08x to %p\n", __func__, tmplong,
-	       &ctlr.pr[hint]);
-	ctlr.pr[hint] = tmplong;
+	       &ctlr->pr[hint]);
+	ctlr->pr[hint] = tmplong;
 
 	return 0;
 }
+
+static int ich_spi_probe(struct udevice *bus)
+{
+	struct ich_spi_platdata *plat = dev_get_platdata(bus);
+	struct ich_spi_priv *priv = dev_get_priv(bus);
+	uint8_t bios_cntl;
+	int ret;
+
+	ret = ich_init_controller(plat, priv);
+	if (ret)
+		return ret;
+	/*
+	 * Disable the BIOS write protect so write commands are allowed.  On
+	 * v9, deassert SMM BIOS Write Protect Disable.
+	 */
+	if (plat->use_sbase) {
+		struct ich9_spi_regs *ich9_spi;
+
+		ich9_spi = priv->base;
+		bios_cntl = ich_readb(priv, ich9_spi->bcr);
+		bios_cntl &= ~(1 << 5);	/* clear Enable InSMM_STS (EISS) */
+		bios_cntl |= 1;		/* Write Protect Disable (WPD) */
+		ich_writeb(priv, bios_cntl, ich9_spi->bcr);
+	} else {
+		pci_read_config_byte(plat->dev, 0xdc, &bios_cntl);
+		if (plat->ich_version == 9)
+			bios_cntl &= ~(1 << 5);
+		pci_write_config_byte(plat->dev, 0xdc, bios_cntl | 0x1);
+	}
+
+	priv->cur_speed = priv->max_speed;
+
+	return 0;
+}
+
+static int ich_spi_ofdata_to_platdata(struct udevice *bus)
+{
+	struct ich_spi_platdata *plat = dev_get_platdata(bus);
+	int ret;
+
+	ret = ich_find_spi_controller(plat);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int ich_spi_set_speed(struct udevice *bus, uint speed)
+{
+	struct ich_spi_priv *priv = dev_get_priv(bus);
+
+	priv->cur_speed = speed;
+
+	return 0;
+}
+
+static int ich_spi_set_mode(struct udevice *bus, uint mode)
+{
+	debug("%s: mode=%d\n", __func__, mode);
+
+	return 0;
+}
+
+static int ich_spi_child_pre_probe(struct udevice *dev)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct ich_spi_platdata *plat = dev_get_platdata(bus);
+	struct ich_spi_priv *priv = dev_get_priv(bus);
+	struct spi_slave *slave = dev_get_parentdata(dev);
+
+	/*
+	 * Yes this controller can only write a small number of bytes at
+	 * once! The limit is typically 64 bytes.
+	 */
+	slave->max_write_size = priv->databytes;
+	/*
+	 * ICH 7 SPI controller only supports array read command
+	 * and byte program command for SST flash
+	 */
+	if (plat->ich_version == 7) {
+		slave->op_mode_rx = SPI_OPM_RX_AS;
+		slave->op_mode_tx = SPI_OPM_TX_BP;
+	}
+
+	return 0;
+}
+
+static const struct dm_spi_ops ich_spi_ops = {
+	.xfer		= ich_spi_xfer,
+	.set_speed	= ich_spi_set_speed,
+	.set_mode	= ich_spi_set_mode,
+	/*
+	 * cs_info is not needed, since we require all chip selects to be
+	 * in the device tree explicitly
+	 */
+};
+
+static const struct udevice_id ich_spi_ids[] = {
+	{ .compatible = "intel,ich-spi" },
+	{ }
+};
+
+U_BOOT_DRIVER(ich_spi) = {
+	.name	= "ich_spi",
+	.id	= UCLASS_SPI,
+	.of_match = ich_spi_ids,
+	.ops	= &ich_spi_ops,
+	.ofdata_to_platdata = ich_spi_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct ich_spi_platdata),
+	.priv_auto_alloc_size = sizeof(struct ich_spi_priv),
+	.child_pre_probe = ich_spi_child_pre_probe,
+	.probe	= ich_spi_probe,
+};

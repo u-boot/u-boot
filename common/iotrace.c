@@ -7,6 +7,7 @@
 #define IOTRACE_IMPL
 
 #include <common.h>
+#include <mapmem.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;

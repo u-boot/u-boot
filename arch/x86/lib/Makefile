@@ -14,10 +14,14 @@ obj-$(CONFIG_HAVE_FSP) += cmd_hob.o
 obj-y	+= gcc.o
 obj-y	+= init_helpers.o
 obj-y	+= interrupts.o
+obj-y	+= lpc-uclass.o
 obj-y += cmd_mtrr.o
 obj-$(CONFIG_SYS_PCAT_INTERRUPTS) += pcat_interrupts.o
 obj-$(CONFIG_SYS_PCAT_TIMER) += pcat_timer.o
+ifndef CONFIG_DM_PCI
 obj-$(CONFIG_PCI) += pci_type1.o
+endif
+obj-y	+= pch-uclass.o
 obj-y	+= relocate.o
 obj-y += physmem.o
 obj-$(CONFIG_X86_RAMTEST) += ramtest.o

@@ -40,9 +40,9 @@
 	};
 
 	i2c4: i2c@12ca0000 {
-		cros-ec@1e {
+		cros_ec: cros-ec@1e {
 			reg = <0x1e>;
-			compatible = "google,cros-ec";
+			compatible = "google,cros-ec-i2c";
 			i2c-max-frequency = <100000>;
 			u-boot,i2c-offset-len = <0>;
 			ec-interrupt = <&gpx1 6 GPIO_ACTIVE_LOW>;
@@ -65,9 +65,10 @@
 	spi@131b0000 {
 		spi-max-frequency = <1000000>;
 		spi-deactivate-delay = <100>;
-		cros_ec: cros-ec@0 {
-			reg = <0>;
-			compatible = "google,cros-ec";
+
+		embedded-controller {
+			compatible = "google,cros-ec-i2c";
+			reg = <0x1e>;
 			spi-max-frequency = <5000000>;
 			ec-interrupt = <&gpx1 6 GPIO_ACTIVE_LOW>;
 			optimise-flash-write;
@@ -133,6 +134,7 @@
 
 	ehci@12110000 {
 		samsung,vbus-gpio = <&gpx1 1 GPIO_ACTIVE_HIGH>;
+		status = "okay";
 	};
 
 	xhci@12000000 {

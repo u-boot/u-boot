@@ -1,9 +1,6 @@
 #
 # Device Tree Control
 #
-# TODO:
-#   This feature is not currently supported for SPL,
-#    but this restriction should be removed in the future.
 
 config SUPPORT_OF_CONTROL
 	bool
@@ -16,6 +13,14 @@ config OF_CONTROL
 	help
 	  This feature provides for run-time configuration of U-Boot
 	  via a flattened device tree.
+
+config SPL_DISABLE_OF_CONTROL
+	bool "Disable run-time configuration via Device Tree in SPL"
+	depends on OF_CONTROL
+	help
+	  Some boards use device tree in U-Boot but only have 4KB of SRAM
+	  which is not enough to support device tree. Enable this option to
+	  allow such boards to be supported by U-Boot SPL.
 
 choice
 	prompt "Provider of DTB for DT control"

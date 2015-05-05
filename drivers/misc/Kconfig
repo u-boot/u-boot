@@ -35,6 +35,15 @@ config CROS_EC_LPC
 	  through a legacy port interface, so on x86 machines the main
 	  function of the EC is power and thermal management.
 
+config CROS_EC_SANDBOX
+	bool "Enable Chrome OS EC sandbox driver"
+	depends on CROS_EC && SANDBOX
+	help
+	  Enable a sandbox emulation of the Chrome OS EC. This supports
+	  keyboard (use the -l flag to enable the LCD), verified boot context,
+	  EC flash read/write/erase support and a few other things. It is
+	  enough to perform a Chrome OS verified boot on sandbox.
+
 config CROS_EC_SPI
 	bool "Enable Chrome OS EC SPI driver"
 	depends on CROS_EC
@@ -43,16 +52,6 @@ config CROS_EC_SPI
 	  ARM Chromebooks such as pit, pi and nyan-big. The SPI interface
 	  provides a faster and more robust interface than I2C but the bugs
 	  are less interesting.
-
-config DM_CROS_EC
-	bool "Enable Driver Model for Chrome OS EC"
-	depends on DM
-	help
-	  Enable driver model for the Chrome OS EC interface. This
-	  allows the cros_ec SPI driver to operate with CONFIG_DM_SPI
-	  but otherwise makes few changes. Since cros_ec also supports
-	  LPC (which doesn't support driver model yet), a full
-	  conversion is not yet possible.
 
 config CONFIG_FSL_SEC_MON
 	bool "Enable FSL SEC_MON Driver"
