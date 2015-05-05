@@ -462,7 +462,7 @@ phys_size_t getenv_bootm_size(void)
 		tmp = 0;
 
 
-#if defined(CONFIG_ARM)
+#if defined(CONFIG_ARM) && defined(CONFIG_NR_DRAM_BANKS)
 	return gd->bd->bi_dram[0].size - tmp;
 #else
 	return gd->bd->bi_memsize - tmp;
