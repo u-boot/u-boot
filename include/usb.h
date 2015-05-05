@@ -571,20 +571,23 @@ struct usb_platdata {
  * This is used by sandbox to provide emulation data also.
  *
  * @id:		ID used to match this device
- * @speed:	Stores the speed associated with a USB device
  * @devnum:	Device address on the USB bus
- * @slot_id:	USB3 slot ID, which is separate from the device address
- * @portnr:	Port number of this device on its parent hub, numbered from 1
- *		(0 mean this device is the root hub)
+ * @udev:	usb-uclass internal use only do NOT use
  * @strings:	List of descriptor strings (for sandbox emulation purposes)
  * @desc_list:	List of descriptors (for sandbox emulation purposes)
  */
 struct usb_dev_platdata {
 	struct usb_device_id id;
-	enum usb_device_speed speed;
 	int devnum;
-	int slot_id;
-	int portnr;	/* Hub port number, 1..n */
+	/*
+	 * This pointer is used to pass the usb_device used in usb_scan_device,
+	 * to get the usb descriptors before the driver is known, to the
+	 * actual udevice once the driver is known and the udevice is created.
+	 * This will be NULL except during probe, do NOT use.
+	 *
+	 * This should eventually go away.
+	 */
+	struct usb_device *udev;
 #ifdef CONFIG_SANDBOX
 	struct usb_string *strings;
 	/* NULL-terminated list of descriptor pointers */
