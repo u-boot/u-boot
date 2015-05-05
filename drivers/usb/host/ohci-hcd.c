@@ -1572,7 +1572,8 @@ static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 				dbg("*");
 
 		} else {
-			err("CTL:TIMEOUT ");
+			if (!usb_pipeint(pipe))
+				err("CTL:TIMEOUT ");
 			dbg("submit_common_msg: TO status %x\n", stat);
 			urb->finished = 1;
 			stat = USB_ST_CRC_ERR;
