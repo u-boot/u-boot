@@ -544,6 +544,9 @@ config GMAC_TX_DELAY
 	---help---
 	Set the GMAC Transmit Clock Delay Chain value.
 
+config SYS_MALLOC_CLEAR_ON_INIT
+	default n
+
 config NET
 	default y
 
