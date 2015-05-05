@@ -49,6 +49,7 @@ struct rng4tst {
 		u32 rttotsam;	/* PRGM=0: total samples register */
 	};
 	u32 rtfreqmin;		/* frequency count min. limit register */
+#define RTFRQMAX_DISABLE       (1 << 20)
 	union {
 		u32 rtfreqmax;	/* PRGM=1: freq. count max. limit register */
 		u32 rtfreqcnt;	/* PRGM=0: freq. count register */

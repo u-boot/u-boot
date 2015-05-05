@@ -406,8 +406,8 @@ static void kick_trng(int ent_delay)
 	sec_out32(&rng->rtsdctl, val);
 	/* min. freq. count, equal to 1/4 of the entropy sample length */
 	sec_out32(&rng->rtfreqmin, ent_delay >> 2);
-	/* max. freq. count, equal to 8 times the entropy sample length */
-	sec_out32(&rng->rtfreqmax, ent_delay << 3);
+	/* disable maximum frequency count */
+	sec_out32(&rng->rtfreqmax, RTFRQMAX_DISABLE);
 	/* put RNG4 into run mode */
 	sec_clrbits32(&rng->rtmctl, RTMCTL_PRGM);
 }
