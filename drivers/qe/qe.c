@@ -313,9 +313,10 @@ static void qe_upload_microcode(const void *base,
 
 	if (ucode->major || ucode->minor || ucode->revision)
 		printf("QE: uploading microcode '%s' version %u.%u.%u\n",
-			ucode->id, ucode->major, ucode->minor, ucode->revision);
+		       (char *)ucode->id, (u16)ucode->major, (u16)ucode->minor,
+		       (u16)ucode->revision);
 	else
-		printf("QE: uploading microcode '%s'\n", ucode->id);
+		printf("QE: uploading microcode '%s'\n", (char *)ucode->id);
 
 	/* Use auto-increment */
 	out_be32(&qe_immr->iram.iadd, be32_to_cpu(ucode->iram_offset) |
