@@ -447,7 +447,7 @@ int sohci_submit_job(ohci_t *ohci, ohci_dev_t *ohci_dev, urb_priv_t *urb,
 	/* allocate the TDs */
 	/* note that td[0] was allocated in ep_add_ed */
 	for (i = 0; i < size; i++) {
-		purb_priv->td[i] = td_alloc(dev);
+		purb_priv->td[i] = td_alloc(ohci_dev, dev);
 		if (!purb_priv->td[i]) {
 			purb_priv->length = i;
 			urb_free_priv(purb_priv);
@@ -760,7 +760,7 @@ static ed_t *ep_add_ed(ohci_dev_t *ohci_dev, struct usb_device *usb_dev,
 
 	if (ed->state == ED_NEW) {
 		/* dummy td; end of td list for ed */
-		td = td_alloc(usb_dev);
+		td = td_alloc(ohci_dev, usb_dev);
 		ed->hwTailP = m32_swap((unsigned long)td);
 		ed->hwHeadP = ed->hwTailP;
 		ed->state = ED_UNLINK;
@@ -1762,12 +1762,6 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	}
 	phcca = &ghcca[0];
 	info("aligned ghcca %p", phcca);
-	memset(gtd, 0, sizeof(td_t) * (NUM_TD + 1));
-	if ((__u32)gtd & 0x7) {
-		err("TDs not aligned!!");
-		return -1;
-	}
-	ptd = gtd;
 	gohci.hcca = phcca;
 	memset(phcca, 0, sizeof(struct ohci_hcca));
 

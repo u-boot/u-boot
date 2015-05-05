@@ -410,8 +410,11 @@ typedef struct
 
 #define NUM_EDS 8		/* num of preallocated endpoint descriptors */
 
+#define NUM_TD 64		/* we need more TDs than EDs */
+
 typedef struct ohci_device {
 	ed_t ed[NUM_EDS] __aligned(16);
+	td_t tds[NUM_TD] __aligned(32);
 	int ed_cnt;
 } ohci_dev_t;
 
@@ -425,7 +428,7 @@ typedef struct ohci_device {
 
 typedef struct ohci {
 	/* this allocates EDs for all possible endpoints */
-	struct ohci_device ohci_dev __aligned(16);
+	struct ohci_device ohci_dev __aligned(32);
 	struct ohci_hcca *hcca;		/* hcca */
 	/*dma_addr_t hcca_dma;*/
 
@@ -457,17 +460,9 @@ static ed_t *ep_add_ed(ohci_dev_t *ohci_dev, struct usb_device *usb_dev,
 
 /*-------------------------------------------------------------------------*/
 
-/* we need more TDs than EDs */
-#define NUM_TD 64
-
-/* +1 so we can align the storage */
-td_t gtd[NUM_TD+1];
-/* pointers to aligned storage */
-td_t *ptd;
-
 /* TDs ... */
 static inline struct td *
-td_alloc (struct usb_device *usb_dev)
+td_alloc (ohci_dev_t *ohci_dev, struct usb_device *usb_dev)
 {
 	int i;
 	struct td	*td;
@@ -475,9 +470,9 @@ td_alloc (struct usb_device *usb_dev)
 	td = NULL;
 	for (i = 0; i < NUM_TD; i++)
 	{
-		if (ptd[i].usb_dev == NULL)
+		if (ohci_dev->tds[i].usb_dev == NULL)
 		{
-			td = &ptd[i];
+			td = &ohci_dev->tds[i];
 			td->usb_dev = usb_dev;
 			break;
 		}
