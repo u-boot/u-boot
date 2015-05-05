@@ -108,6 +108,61 @@ static ohci_t gohci;
 /* this must be aligned to a 256 byte boundary */
 struct ohci_hcca ghcca[1];
 
+/* mapping of the OHCI CC status to error codes */
+static int cc_to_error[16] = {
+	/* No  Error  */	       0,
+	/* CRC Error  */	       USB_ST_CRC_ERR,
+	/* Bit Stuff  */	       USB_ST_BIT_ERR,
+	/* Data Togg  */	       USB_ST_CRC_ERR,
+	/* Stall      */	       USB_ST_STALLED,
+	/* DevNotResp */	       -1,
+	/* PIDCheck   */	       USB_ST_BIT_ERR,
+	/* UnExpPID   */	       USB_ST_BIT_ERR,
+	/* DataOver   */	       USB_ST_BUF_ERR,
+	/* DataUnder  */	       USB_ST_BUF_ERR,
+	/* reservd    */	       -1,
+	/* reservd    */	       -1,
+	/* BufferOver */	       USB_ST_BUF_ERR,
+	/* BuffUnder  */	       USB_ST_BUF_ERR,
+	/* Not Access */	       -1,
+	/* Not Access */	       -1
+};
+
+static const char *cc_to_string[16] = {
+	"No Error",
+	"CRC: Last data packet from endpoint contained a CRC error.",
+	"BITSTUFFING: Last data packet from endpoint contained a bit " \
+		     "stuffing violation",
+	"DATATOGGLEMISMATCH: Last packet from endpoint had data toggle PID\n" \
+		     "that did not match the expected value.",
+	"STALL: TD was moved to the Done Queue because the endpoint returned" \
+		     " a STALL PID",
+	"DEVICENOTRESPONDING: Device did not respond to token (IN) or did\n" \
+		     "not provide a handshake (OUT)",
+	"PIDCHECKFAILURE: Check bits on PID from endpoint failed on data PID\n"\
+		     "(IN) or handshake (OUT)",
+	"UNEXPECTEDPID: Receive PID was not valid when encountered or PID\n" \
+		     "value is not defined.",
+	"DATAOVERRUN: The amount of data returned by the endpoint exceeded\n" \
+		     "either the size of the maximum data packet allowed\n" \
+		     "from the endpoint (found in MaximumPacketSize field\n" \
+		     "of ED) or the remaining buffer size.",
+	"DATAUNDERRUN: The endpoint returned less than MaximumPacketSize\n" \
+		     "and that amount was not sufficient to fill the\n" \
+		     "specified buffer",
+	"reserved1",
+	"reserved2",
+	"BUFFEROVERRUN: During an IN, HC received data from endpoint faster\n" \
+		     "than it could be written to system memory",
+	"BUFFERUNDERRUN: During an OUT, HC could not retrieve data from\n" \
+		     "system memory fast enough to keep up with data USB " \
+		     "data rate.",
+	"NOT ACCESSED: This code is set by software before the TD is placed" \
+		     "on a list to be processed by the HC.(1)",
+	"NOT ACCESSED: This code is set by software before the TD is placed" \
+		     "on a list to be processed by the HC.(2)",
+};
+
 static inline u32 roothub_a(struct ohci *hc)
 	{ return ohci_readl(&hc->regs->roothub.a); }
 static inline u32 roothub_b(struct ohci *hc)
@@ -123,6 +178,37 @@ static void td_submit_job(ohci_t *ohci, struct usb_device *dev,
 			  unsigned long pipe, void *buffer, int transfer_len,
 			  struct devrequest *setup, urb_priv_t *urb,
 			  int interval);
+static int ep_link(ohci_t * ohci, ed_t * ed);
+static int ep_unlink(ohci_t * ohci, ed_t * ed);
+static ed_t *ep_add_ed(ohci_dev_t *ohci_dev, struct usb_device *usb_dev,
+		       unsigned long pipe, int interval, int load);
+
+/*-------------------------------------------------------------------------*/
+
+/* TDs ... */
+static struct td *td_alloc(ohci_dev_t *ohci_dev, struct usb_device *usb_dev)
+{
+	int i;
+	struct td *td;
+
+	td = NULL;
+	for (i = 0; i < NUM_TD; i++)
+	{
+		if (ohci_dev->tds[i].usb_dev == NULL)
+		{
+			td = &ohci_dev->tds[i];
+			td->usb_dev = usb_dev;
+			break;
+		}
+	}
+
+	return td;
+}
+
+static inline void ed_free(struct ed *ed)
+{
+	ed->usb_dev = NULL;
+}
 
 /*-------------------------------------------------------------------------*
  * URB support functions
