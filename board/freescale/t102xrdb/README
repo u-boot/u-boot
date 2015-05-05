@@ -98,6 +98,30 @@ T1024RDB board Overview
      - Four I2C ports
 
 
+T1023RDB board Overview
+-----------------------
+- T1023 SoC integrating two 64-bit e5500 cores up to 1.4GHz
+- CoreNet fabric supporting coherent and noncoherent transactions with
+  prioritization and bandwidth allocation
+- SDRAM memory: 2GB Micron MT40A512M8HX unbuffered 32-bit DDR4 w/o ECC
+- Accelerator: DPAA components consist of FMan, BMan, QMan, DCE and SEC
+- Ethernet interfaces:
+  - one 1G RGMII port on-board(RTL8211FS PHY)
+  - one 1G SGMII port on-board(RTL8211FS PHY)
+  - one 2.5G SGMII port on-board(AQR105 PHY)
+- PCIe: Two Mini-PCIe connectors on-board.
+- SerDes: 4 lanes up to 10.3125GHz
+- NOR:  128MB S29GL01GS110TFIV10 Spansion NOR Flash
+- NAND: 512MB S34MS04G200BFI000 Spansion NAND Flash
+- eSPI: 64MB S25FL512SAGMFI010 Spansion SPI flash.
+- USB: one Type-A USB 2.0 port with internal PHY
+- eSDHC: support SD/MMC and eMMC card
+- 256Kbit M24256 I2C EEPROM
+- RTC: Real-time clock DS1339U on I2C bus
+- UART: one serial port on-board with RJ45 connector
+- Debugging: JTAG/COP for T1023 debugging
+
+
 Memory map on T1024RDB
 ----------------------
 Start Address  End Address      Description			Size
@@ -117,29 +141,39 @@ Start Address  End Address      Description			Size
 0x0_0000_0000  0x0_ffff_ffff    DDR				4GB
 
 
-128MB NOR Flash memory Map
---------------------------
+128MB NOR Flash Memory Layout
+-----------------------------
 Start Address   End Address     Definition			Max size
 0xEFF40000      0xEFFFFFFF      u-boot (current bank)		768KB
 0xEFF20000      0xEFF3FFFF      u-boot env (current bank)	128KB
 0xEFF00000      0xEFF1FFFF      FMAN Ucode (current bank)	128KB
 0xEFE00000      0xEFE3FFFF      QE firmware (current bank)	256KB
-0xED300000      0xEFEFFFFF      rootfs (alt bank)		44MB
+0xED300000      0xEFDFFFFF      rootfs (alt bank)		44MB
+0xED000000      0xED2FFFFF      Guest image #3 (alternate bank) 3MB
+0xECD00000      0xECFFFFFF      Guest image #2 (alternate bank) 3MB
+0xECA00000	0xECCFFFFF	Guest image #1 (alternate bank) 3MB
+0xEC900000	0xEC9FFFFF	HV config device tree(alt bank)	1MB
 0xEC800000      0xEC8FFFFF      Hardware device tree (alt bank) 1MB
-0xEC020000      0xEC7FFFFF      Linux.uImage (alt bank)		7MB + 875KB
+0xEC700000	0xEC7FFFFF	HV.uImage (alternate bank)	1MB
+0xEC020000      0xEC6FFFFF      Linux.uImage (alt bank)		~7MB
 0xEC000000      0xEC01FFFF      RCW (alt bank)			128KB
 0xEBF40000      0xEBFFFFFF      u-boot (alt bank)		768KB
 0xEBF20000      0xEBF3FFFF      u-boot env (alt bank)		128KB
 0xEBF00000      0xEBF1FFFF      FMAN ucode (alt bank)		128KB
 0xEBE00000      0xEBE3FFFF      QE firmware (alt bank)		256KB
-0xE9300000      0xEBEFFFFF      rootfs (current bank)		44MB
+0xE9300000      0xEBDFFFFF      rootfs (current bank)		44MB
+0xE9000000      0xE92FFFFF      Guest image #3 (current bank)   3MB
+0xE8D00000      0xE8FFFFFF      Guest image #2 (current bank)   3MB
+0xE8A00000	0xE8CFFFFF	Guest image #1 (current bank)	3MB
+0xE8900000	0xE89FFFFF	HV config device tree(cur bank) 1MB
 0xE8800000      0xE88FFFFF      Hardware device tree (cur bank) 1MB
-0xE8020000      0xE86FFFFF      Linux.uImage (current bank)	7MB + 875KB
+0xE8700000	0xE87FFFFF	HV.uImage (current bank)	1MB
+0xE8020000      0xE86FFFFF      Linux.uImage (current bank)	~7MB
 0xE8000000      0xE801FFFF      RCW (current bank)		128KB
 
 
-T1024 Clock frequency
----------------------
+T1024/T1023 Clock frequency
+---------------------------
 BIN   Core     DDR       Platform  FMan
 Bin1: 1400MHz  1600MT/s  400MHz    700MHz
 Bin2: 1200MHz  1600MT/s  400MHz    600MHz
@@ -155,16 +189,27 @@ Software configurations and board settings
    b. program u-boot.bin image to NOR flash
 	=> tftp 1000000 u-boot.bin
 	=> pro off all;era eff40000 efffffff;cp.b 1000000 eff40000 $filesize
-	set SW1[1:8] = '00010011', SW2[1] = '1', SW3[4] = '0' for NOR boot
+	on T1024RDB:
+	   set SW1[1:8] = '00010011', SW2[1] = '1', SW3[4] = '0' for NOR boot
+	on T1023RDB:
+	   set SW1[1:8] = '00010110', SW2[1] = '0', SW3[4] = '0' for NOR boot
 
    Switching between default bank0 and alternate bank4 on NOR flash
    To change boot source to vbank4:
-        via software:   run command 'cpld reset altbank' in u-boot.
-        via DIP-switch: set SW3[5:7] = '100'
+   on T1024RDB:
+	via software:   run command 'cpld reset altbank' in u-boot.
+	via DIP-switch: set SW3[5:7] = '100'
+   on T1023RDB:
+	via software:   run command 'gpio vbank4' in u-boot.
+	via DIP-switch: set SW3[5:7] = '100'
 
    To change boot source to vbank0:
-        via software:   run command 'cpld reset' in u-boot.
-        via DIP-Switch: set SW3[5:7] = '000'
+   on T1024RDB:
+	via software:   run command 'cpld reset' in u-boot.
+	via DIP-Switch: set SW3[5:7] = '000'
+   on T1023RDB:
+	via software:   run command 'gpio vbank0' in u-boot.
+	via DIP-switch: set SW3[5:7] = '000'
 
 2. NAND Boot:
    a. build PBL image for NAND boot
@@ -183,8 +228,11 @@ Software configurations and board settings
    b. program u-boot-with-spl-pbl.bin to SPI flash
 	=> tftp 1000000 u-boot-with-spl-pbl.bin
 	=> sf probe 0
-	=> sf erase 0 f0000
+	=> sf erase 0 100000
 	=> sf write 1000000 0 $filesize
+	=> tftp 1000000 fsl_fman_ucode_t1024_xx.bin
+	=> sf erase 100000 100000
+	=> sf write 1000000 110000 20000
 	set SW1[1:8] = '00100010', SW2[1] ='1' for SPI boot
 
 4. SD Boot:
@@ -236,23 +284,34 @@ Start		End		Definition	Size
 0x200000	0x27FFFF	QE Firmware	512KB(1 block)
 
 
+NAND Flash memory Map on T1023RDB
+----------------------------------------------------
+Start		End		Definition	Size
+0x000000	0x0FFFFF	u-boot		1MB
+0x100000	0x15FFFF	u-boot env	8KB
+0x160000	0x17FFFF	FMAN Ucode	128KB
+
+
 SD Card memory Map on T1024RDB
 ----------------------------------------------------
 Block		#blocks		Definition	Size
 0x008		2048		u-boot img	1MB
 0x800		0016		u-boot env	8KB
 0x820		0256		FMAN Ucode	128KB
-0x920		0256		QE Firmware	128KB
+0x920		0256		QE Firmware	128KB(only T1024RDB)
 
 
-SPI Flash memory Map on T1024RDB
+64MB SPI Flash memory Map on T102xRDB
 ----------------------------------------------------
 Start		End		Definition	Size
 0x000000	0x0FFFFF	u-boot img	1MB
 0x100000	0x101FFF	u-boot env	8KB
 0x110000	0x12FFFF	FMAN Ucode	128KB
-0x130000	0x14FFFF	QE Firmware	128KB
+0x130000	0x14FFFF	QE Firmware	128KB(only T1024RDB)
+0x300000	0x3FFFFF	device tree	128KB
+0x400000	0x9FFFFF	Linux kernel    6MB
+0xa00000	0x3FFFFFF	rootfs		54MB
 
 
-For more details, please refer to T1024RDB Reference Manual and access
-website www.freescale.com and Freescale QorIQ SDK Infocenter document.
+For more details, please refer to T1024RDB Reference Manual
+and Freescale QorIQ SDK Infocenter document.

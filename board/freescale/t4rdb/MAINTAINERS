@@ -5,3 +5,4 @@ F:	board/freescale/t4rdb/
 F:	include/configs/T4240RDB.h
 F:	configs/T4160RDB_defconfig
 F:	configs/T4240RDB_defconfig
+F:	configs/T4240RDB_SDCARD_defconfig

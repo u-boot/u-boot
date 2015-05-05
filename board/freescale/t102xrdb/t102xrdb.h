@@ -9,5 +9,7 @@
 
 void fdt_fixup_board_enet(void *blob);
 void pci_of_setup(void *blob, bd_t *bd);
-
+#ifdef CONFIG_T1023RDB
+static u32 t1023rdb_gpio_ctrl(u32 ctrl_type);
+#endif
 #endif

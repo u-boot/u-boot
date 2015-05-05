@@ -15,6 +15,9 @@
 struct arch_global_data {
 #if defined(CONFIG_FSL_ESDHC)
 	u32 sdhc_clk;
+#if defined(CONFIG_FSL_ESDHC_ADAPTER_IDENT)
+	u8 sdhc_adapter;
+#endif
 #endif
 #if defined(CONFIG_8xx)
 	unsigned long brg_clk;

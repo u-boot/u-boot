@@ -122,15 +122,13 @@ config TARGET_T208XRDB
 	bool "Support T208xRDB"
 	select SUPPORT_SPL
 
-config TARGET_T4240EMU
-	bool "Support T4240EMU"
-
 config TARGET_T4240QDS
 	bool "Support T4240QDS"
 	select SUPPORT_SPL
 
 config TARGET_T4240RDB
 	bool "Support T4240RDB"
+	select SUPPORT_SPL
 
 config TARGET_CONTROLCENTERD
 	bool "Support controlcenterd"
@@ -152,6 +150,9 @@ config TARGET_XPEDITE537X
 
 config TARGET_XPEDITE550X
 	bool "Support xpedite550x"
+
+config TARGET_UCP1020
+	bool "Support uCP1020"
 
 endchoice
 
@@ -194,5 +195,6 @@ source "board/stx/stxssa/Kconfig"
 source "board/xes/xpedite520x/Kconfig"
 source "board/xes/xpedite537x/Kconfig"
 source "board/xes/xpedite550x/Kconfig"
+source "board/Arcturus/ucp1020/Kconfig"
 
 endmenu

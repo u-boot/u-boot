@@ -107,6 +107,13 @@ unsigned long get_board_ddr_clk(void)
 
 int misc_init_r(void)
 {
+	u8 reg;
+
+	/* Reset CS4315 PHY */
+	reg = CPLD_READ(reset_ctl);
+	reg |= CPLD_RSTCON_EDC_RST;
+	CPLD_WRITE(reset_ctl, reg);
+
 	return 0;
 }
 

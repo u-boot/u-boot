@@ -115,4 +115,18 @@ void qixis_write_i2c(unsigned int reg, u8 value);
 			qixis_write_i2c(offsetof(struct qixis, reg), value)
 #endif
 
+/* Use for SDHC adapter card type identification and operation */
+#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
+#define QIXIS_SDID_MASK                         0x07
+#define QIXIS_ESDHC_ADAPTER_TYPE_EMMC45         0x1	/* eMMC Card Rev4.5 */
+#define QIXIS_ESDHC_ADAPTER_TYPE_SDMMC_LEGACY   0x2	/* SD/MMC Legacy Card */
+#define QIXIS_ESDHC_ADAPTER_TYPE_EMMC44         0x3	/* eMMC Card Rev4.4 */
+#define QIXIS_ESDHC_ADAPTER_TYPE_RSV            0x4	/* Reserved */
+#define QIXIS_ESDHC_ADAPTER_TYPE_MMC            0x5	/* MMC Card */
+#define QIXIS_ESDHC_ADAPTER_TYPE_SD             0x6	/* SD Card Rev2.0 3.0 */
+#define QIXIS_ESDHC_NO_ADAPTER                  0x7	/* No Card is Present*/
+#define QIXIS_SDCLKIN		0x08
+#define QIXIS_SDCLKOUT		0x02
+#endif
+
 #endif
