@@ -107,8 +107,6 @@ static struct pci_device_id ehci_pci_ids[] = {
 static ohci_t gohci;
 /* this must be aligned to a 256 byte boundary */
 struct ohci_hcca ghcca[1];
-/* a pointer to the aligned storage */
-struct ohci_hcca *phcca;
 
 static inline u32 roothub_a(struct ohci *hc)
 	{ return ohci_readl(&hc->regs->roothub.a); }
@@ -1760,10 +1758,9 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 		err("HCCA not aligned!!");
 		return -1;
 	}
-	phcca = &ghcca[0];
-	info("aligned ghcca %p", phcca);
-	gohci.hcca = phcca;
-	memset(phcca, 0, sizeof(struct ohci_hcca));
+	gohci.hcca = &ghcca[0];
+	info("aligned ghcca %p", gohci.hcca);
+	memset(gohci.hcca, 0, sizeof(struct ohci_hcca));
 
 	gohci.disabled = 1;
 	gohci.sleeping = 0;
