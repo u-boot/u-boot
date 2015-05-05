@@ -476,9 +476,7 @@ int usb_scan_device(struct udevice *parent, int port,
 
 	*devp = NULL;
 	memset(udev, '\0', sizeof(*udev));
-	ret = usb_get_bus(parent, &udev->controller_dev);
-	if (ret)
-		return ret;
+	udev->controller_dev = usb_get_bus(parent);
 	priv = dev_get_uclass_priv(udev->controller_dev);
 
 	/*
@@ -578,35 +576,28 @@ int usb_child_post_bind(struct udevice *dev)
 	return 0;
 }
 
-int usb_get_bus(struct udevice *dev, struct udevice **busp)
+struct udevice *usb_get_bus(struct udevice *dev)
 {
 	struct udevice *bus;
 
-	*busp = NULL;
 	for (bus = dev; bus && device_get_uclass_id(bus) != UCLASS_USB; )
 		bus = bus->parent;
 	if (!bus) {
 		/* By design this cannot happen */
 		assert(bus);
 		debug("USB HUB '%s' does not have a controller\n", dev->name);
-		return -EXDEV;
 	}
-	*busp = bus;
 
-	return 0;
+	return bus;
 }
 
 int usb_child_pre_probe(struct udevice *dev)
 {
-	struct udevice *bus;
 	struct usb_device *udev = dev_get_parentdata(dev);
 	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
 	int ret;
 
-	ret = usb_get_bus(dev, &bus);
-	if (ret)
-		return ret;
-	udev->controller_dev = bus;
+	udev->controller_dev = usb_get_bus(dev);
 	udev->dev = dev;
 	udev->devnum = plat->devnum;
 	udev->slot_id = plat->slot_id;

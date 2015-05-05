@@ -742,11 +742,10 @@ int usb_scan_device(struct udevice *parent, int port,
  * will be a device with uclass UCLASS_USB.
  *
  * @dev:	Device to check
- * @busp:	Returns bus, or NULL if not found
- * @return 0 if OK, -EXDEV is somehow this bus does not have a controller (this
- *	indicates a critical error in the USB stack
+ * @return The bus, or NULL if not found (this indicates a critical error in
+ *	the USB stack
  */
-int usb_get_bus(struct udevice *dev, struct udevice **busp);
+struct udevice *usb_get_bus(struct udevice *dev);
 
 /**
  * usb_select_config() - Set up a device ready for use
