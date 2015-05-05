@@ -988,7 +988,7 @@ static void td_submit_job(ohci_t *ohci, struct usb_device *dev,
 		}
 
 		/* Status phase */
-		info = usb_pipeout(pipe)?
+		info = (usb_pipeout(pipe) || data_len == 0) ?
 			TD_CC | TD_DP_IN | TD_T_DATA1:
 			TD_CC | TD_DP_OUT | TD_T_DATA1;
 		td_fill(ohci, info, data, 0, dev, cnt++, urb);
