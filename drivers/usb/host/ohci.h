@@ -408,6 +408,13 @@ typedef struct
 } urb_priv_t;
 #define URB_DEL 1
 
+#define NUM_EDS 8		/* num of preallocated endpoint descriptors */
+
+typedef struct ohci_device {
+	ed_t ed[NUM_EDS] __aligned(16);
+	int ed_cnt;
+} ohci_dev_t;
+
 /*
  * This is the full ohci controller description
  *
@@ -417,6 +424,8 @@ typedef struct
 
 
 typedef struct ohci {
+	/* this allocates EDs for all possible endpoints */
+	struct ohci_device ohci_dev __aligned(16);
 	struct ohci_hcca *hcca;		/* hcca */
 	/*dma_addr_t hcca_dma;*/
 
@@ -439,19 +448,12 @@ typedef struct ohci {
 	const char	*slot_name;
 } ohci_t;
 
-#define NUM_EDS 8		/* num of preallocated endpoint descriptors */
-
-struct ohci_device {
-	ed_t	ed[NUM_EDS];
-	int ed_cnt;
-};
-
 /* hcd */
 /* endpoint */
 static int ep_link(ohci_t * ohci, ed_t * ed);
 static int ep_unlink(ohci_t * ohci, ed_t * ed);
-static ed_t * ep_add_ed(struct usb_device * usb_dev, unsigned long pipe,
-		int interval, int load);
+static ed_t *ep_add_ed(ohci_dev_t *ohci_dev, struct usb_device *usb_dev,
+		       unsigned long pipe, int interval, int load);
 
 /*-------------------------------------------------------------------------*/
 

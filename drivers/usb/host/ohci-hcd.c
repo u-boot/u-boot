@@ -109,8 +109,6 @@ static ohci_t gohci;
 struct ohci_hcca ghcca[1];
 /* a pointer to the aligned storage */
 struct ohci_hcca *phcca;
-/* this allocates EDs for all possible endpoints */
-struct ohci_device ohci_dev;
 
 static inline u32 roothub_a(struct ohci *hc)
 	{ return ohci_readl(&hc->regs->roothub.a); }
@@ -389,7 +387,8 @@ static void ohci_dump(ohci_t *controller, int verbose)
 
 /* get a transfer request */
 
-int sohci_submit_job(ohci_t *ohci, urb_priv_t *urb, struct devrequest *setup)
+int sohci_submit_job(ohci_t *ohci, ohci_dev_t *ohci_dev, urb_priv_t *urb,
+		     struct devrequest *setup)
 {
 	ed_t *ed;
 	urb_priv_t *purb_priv = urb;
@@ -412,7 +411,7 @@ int sohci_submit_job(ohci_t *ohci, urb_priv_t *urb, struct devrequest *setup)
 	urb->finished = 0;
 
 	/* every endpoint has a ed, locate and fill it */
-	ed = ep_add_ed(dev, pipe, interval, 1);
+	ed = ep_add_ed(ohci_dev, dev, pipe, interval, 1);
 	if (!ed) {
 		err("sohci_submit_job: ENOMEM");
 		return -1;
@@ -743,14 +742,14 @@ static int ep_unlink(ohci_t *ohci, ed_t *edi)
  * info fields are setted anyway even though most of them should not
  * change
  */
-static ed_t *ep_add_ed(struct usb_device *usb_dev, unsigned long pipe,
-			int interval, int load)
+static ed_t *ep_add_ed(ohci_dev_t *ohci_dev, struct usb_device *usb_dev,
+		       unsigned long pipe, int interval, int load)
 {
 	td_t *td;
 	ed_t *ed_ret;
 	volatile ed_t *ed;
 
-	ed = ed_ret = &ohci_dev.ed[(usb_pipeendpoint(pipe) << 1) |
+	ed = ed_ret = &ohci_dev->ed[(usb_pipeendpoint(pipe) << 1) |
 			(usb_pipecontrol(pipe)? 0: usb_pipeout(pipe))];
 
 	if ((ed->state & ED_DEL) || (ed->state & ED_URB_DEL)) {
@@ -766,7 +765,7 @@ static ed_t *ep_add_ed(struct usb_device *usb_dev, unsigned long pipe,
 		ed->hwHeadP = ed->hwTailP;
 		ed->state = ED_UNLINK;
 		ed->type = usb_pipetype(pipe);
-		ohci_dev.ed_cnt++;
+		ohci_dev->ed_cnt++;
 	}
 
 	ed->hwINFO = m32_swap(usb_pipedevice(pipe)
@@ -1386,7 +1385,7 @@ static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 		return -1;
 	}
 
-	if (sohci_submit_job(ohci, urb, setup) < 0) {
+	if (sohci_submit_job(ohci, &ohci->ohci_dev, urb, setup) < 0) {
 		err("sohci_submit_job failed");
 		return -1;
 	}
@@ -1763,11 +1762,6 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	}
 	phcca = &ghcca[0];
 	info("aligned ghcca %p", phcca);
-	memset(&ohci_dev, 0, sizeof(struct ohci_device));
-	if ((__u32)&ohci_dev.ed[0] & 0x7) {
-		err("EDs not aligned!!");
-		return -1;
-	}
 	memset(gtd, 0, sizeof(td_t) * (NUM_TD + 1));
 	if ((__u32)gtd & 0x7) {
 		err("TDs not aligned!!");
