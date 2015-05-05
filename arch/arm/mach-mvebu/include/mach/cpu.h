@@ -6,8 +6,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _ARMADA_XP_CPU_H
-#define _ARMADA_XP_CPU_H
+#ifndef _MVEBU_CPU_H
+#define _MVEBU_CPU_H
 
 #include <asm/system.h>
 
@@ -54,6 +54,12 @@ enum cpu_attrib {
 	CPU_ATTR_DEV_CS1 = 0x3d,
 	CPU_ATTR_DEV_CS2 = 0x3b,
 	CPU_ATTR_DEV_CS3 = 0x37,
+};
+
+enum {
+	MVEBU_SOC_AXP,
+	MVEBU_SOC_A38X,
+	MVEBU_SOC_UNKNOWN,
 };
 
 /*
@@ -106,6 +112,7 @@ unsigned int mvebu_sdram_bar(enum memory_bank bank);
 unsigned int mvebu_sdram_bs(enum memory_bank bank);
 void mvebu_sdram_size_adjust(enum memory_bank bank);
 int mvebu_mbus_probe(struct mbus_win windows[], int count);
+int mvebu_soc_family(void);
 
 /*
  * Highspeed SERDES PHY config init, ported from bin_hdr
@@ -120,4 +127,4 @@ int serdes_phy_config(void);
  */
 int ddr3_init(void);
 #endif /* __ASSEMBLY__ */
-#endif /* _ARMADA_XP_CPU_H */
+#endif /* _MVEBU_CPU_H */

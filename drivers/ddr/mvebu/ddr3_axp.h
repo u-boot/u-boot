@@ -35,7 +35,7 @@
 
 #define ECC_SUPPORT
 #define NEW_FABRIC_TWSI_ADDR		0x4E
-#ifdef DB_784MP_GP
+#ifdef CONFIG_DB_784MP_GP
 #define BUS_WIDTH_ECC_TWSI_ADDR		0x4E
 #else
 #define BUS_WIDTH_ECC_TWSI_ADDR		0x4F

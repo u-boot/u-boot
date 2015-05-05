@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2014-2015 Stefan Roese <sr@denx.de>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -40,6 +40,20 @@ void reset_cpu(unsigned long ignored)
 		;
 }
 
+int mvebu_soc_family(void)
+{
+	u16 devid = (readl(MVEBU_REG_PCIE_DEVID) >> 16) & 0xffff;
+
+	if (devid == SOC_MV78460_ID)
+		return MVEBU_SOC_AXP;
+
+	if (devid == SOC_88F6810_ID || devid == SOC_88F6820_ID ||
+	    devid == SOC_88F6828_ID)
+		return MVEBU_SOC_A38X;
+
+	return MVEBU_SOC_UNKNOWN;
+}
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
@@ -52,21 +66,46 @@ int print_cpuinfo(void)
 	case SOC_MV78460_ID:
 		puts("MV78460-");
 		break;
+	case SOC_88F6810_ID:
+		puts("MV88F6810-");
+		break;
+	case SOC_88F6820_ID:
+		puts("MV88F6820-");
+		break;
+	case SOC_88F6828_ID:
+		puts("MV88F6828-");
+		break;
 	default:
 		puts("Unknown-");
 		break;
 	}
 
-	switch (revid) {
-	case 1:
-		puts("A0\n");
-		break;
-	case 2:
-		puts("B0\n");
-		break;
-	default:
-		puts("??\n");
-		break;
+	if (mvebu_soc_family() == MVEBU_SOC_AXP) {
+		switch (revid) {
+		case 1:
+			puts("A0\n");
+			break;
+		case 2:
+			puts("B0\n");
+			break;
+		default:
+			printf("?? (%x)\n", revid);
+			break;
+		}
+	}
+
+	if (mvebu_soc_family() == MVEBU_SOC_A38X) {
+		switch (revid) {
+		case MV_88F68XX_Z1_ID:
+			puts("Z1\n");
+			break;
+		case MV_88F68XX_A0_ID:
+			puts("A0\n");
+			break;
+		default:
+			printf("?? (%x)\n", revid);
+			break;
+		}
 	}
 
 	return 0;
@@ -145,11 +184,13 @@ int arch_cpu_init(void)
 	 */
 	mvebu_mbus_probe(NULL, 0);
 
-	/*
-	 * Now the SDRAM access windows can be reconfigured using
-	 * the information in the SDRAM scratch pad registers
-	 */
-	update_sdram_window_sizes();
+	if (mvebu_soc_family() == MVEBU_SOC_AXP) {
+		/*
+		 * Now the SDRAM access windows can be reconfigured using
+		 * the information in the SDRAM scratch pad registers
+		 */
+		update_sdram_window_sizes();
+	}
 
 	/*
 	 * Finally the mbus windows can be configured with the
@@ -175,10 +216,22 @@ int arch_misc_init(void)
 #ifdef CONFIG_MVNETA
 int cpu_eth_init(bd_t *bis)
 {
-	mvneta_initialize(bis, MVEBU_EGIGA0_BASE, 0, CONFIG_PHY_BASE_ADDR + 0);
-	mvneta_initialize(bis, MVEBU_EGIGA1_BASE, 1, CONFIG_PHY_BASE_ADDR + 1);
-	mvneta_initialize(bis, MVEBU_EGIGA2_BASE, 2, CONFIG_PHY_BASE_ADDR + 2);
-	mvneta_initialize(bis, MVEBU_EGIGA3_BASE, 3, CONFIG_PHY_BASE_ADDR + 3);
+	u32 enet_base[] = { MVEBU_EGIGA0_BASE, MVEBU_EGIGA1_BASE,
+			    MVEBU_EGIGA2_BASE, MVEBU_EGIGA3_BASE };
+	u8 phy_addr[] = CONFIG_PHY_ADDR;
+	int i;
+
+	/*
+	 * Only Armada XP supports all 4 ethernet interfaces. A38x has
+	 * slightly different base addresses for its 2-3 interfaces.
+	 */
+	if (mvebu_soc_family() != MVEBU_SOC_AXP) {
+		enet_base[1] = MVEBU_EGIGA2_BASE;
+		enet_base[2] = MVEBU_EGIGA3_BASE;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(phy_addr); i++)
+		mvneta_initialize(bis, enet_base[i], i, phy_addr[i]);
 
 	return 0;
 }
@@ -187,6 +240,9 @@ int cpu_eth_init(bd_t *bis)
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
+	/* Avoid problem with e.g. neta ethernet driver */
+	invalidate_dcache_all();
+
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
 }

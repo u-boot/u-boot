@@ -1,7 +1,7 @@
-if TARGET_DB_MV784MP_GP
+if TARGET_DB_88F6820_GP
 
 config SYS_BOARD
-	default "db-mv784mp-gp"
+	default "db-88f6820-gp"
 
 config SYS_VENDOR
 	default "Marvell"
@@ -10,6 +10,6 @@ config SYS_SOC
 	default "mvebu"
 
 config SYS_CONFIG_NAME
-	default "db-mv784mp-gp"
+	default "db-88f6820-gp"
 
 endif

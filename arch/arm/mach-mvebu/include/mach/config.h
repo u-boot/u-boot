@@ -9,15 +9,17 @@
 /*
  * This file should be included in board config header file.
  *
- * It supports common definitions for Armada XP platforms
+ * It supports common definitions for MVEBU platforms
  */
 
-#ifndef _ARMADA_XP_CONFIG_H
-#define _ARMADA_XP_CONFIG_H
+#ifndef _MVEBU_CONFIG_H
+#define _MVEBU_CONFIG_H
 
 #include <asm/arch/soc.h>
 
+#if defined(CONFIG_ARMADA_XP)
 #define MV88F78X60 /* for the DDR training bin_hdr code */
+#endif
 
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
@@ -33,8 +35,6 @@
 /* Add target to build it automatically upon "make" */
 #ifdef CONFIG_SPL
 #define CONFIG_BUILD_TARGET	"u-boot-spl.kwb"
-#else
-#define CONFIG_BUILD_TARGET	"u-boot.kwb"
 #endif
 
 /* end of 16M scrubbed by training in bootrom */
@@ -83,4 +83,9 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 #endif
 
-#endif /* _ARMADA_XP_CONFIG_H */
+/* Common SPL configuration */
+#ifndef CONFIG_SPL_LDSCRIPT
+#define CONFIG_SPL_LDSCRIPT		"arch/arm/mach-mvebu/u-boot-spl.lds"
+#endif
+
+#endif /* __MVEBU_CONFIG_H */

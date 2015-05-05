@@ -341,9 +341,6 @@ static void mvebu_mbus_default_setup_cpu_target(struct mvebu_mbus_state *mbus)
 			w = &mbus_dram_info.cs[cs++];
 			w->cs_index = i;
 			w->mbus_attr = 0xf & ~(1 << i);
-#if defined(CONFIG_ARMADA_XP)
-			w->mbus_attr |= ATTR_HW_COHERENCY;
-#endif
 			w->base = base & DDR_BASE_CS_LOW_MASK;
 			w->size = (size | ~DDR_SIZE_MASK) + 1;
 		}

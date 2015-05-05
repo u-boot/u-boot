@@ -8,10 +8,17 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _ASM_ARCH_ARMADA_XP_H
-#define _ASM_ARCH_ARMADA_XP_H
+#ifndef _MVEBU_SOC_H
+#define _MVEBU_SOC_H
 
 #define SOC_MV78460_ID		0x7846
+#define SOC_88F6810_ID		0x6810
+#define SOC_88F6820_ID		0x6820
+#define SOC_88F6828_ID		0x6828
+
+/* A38x revisions */
+#define MV_88F68XX_Z1_ID	0x0
+#define MV_88F68XX_A0_ID	0x4
 
 /* TCLK Core Clock definition */
 #ifndef CONFIG_SYS_TCLK
@@ -25,6 +32,8 @@
 #define MVEBU_REGISTER(x)	(SOC_REGS_PHY_BASE + x)
 
 #define MVEBU_SDRAM_SCRATCH	(MVEBU_REGISTER(0x01504))
+#define MVEBU_L2_CACHE_BASE	(MVEBU_REGISTER(0x08000))
+#define CONFIG_SYS_PL310_BASE	MVEBU_L2_CACHE_BASE
 #define MVEBU_SPI_BASE		(MVEBU_REGISTER(0x10600))
 #define MVEBU_TWSI_BASE		(MVEBU_REGISTER(0x11000))
 #define MVEBU_UART0_BASE	(MVEBU_REGISTER(0x12000))
@@ -46,12 +55,9 @@
 #define SDRAM_MAX_CS		4
 #define SDRAM_ADDR_MASK		0xFF000000
 
-/* Armada XP GbE controller has 4 ports */
-#define MAX_MVNETA_DEVS		4
-
-/* Kirkwood CPU memory windows */
+/* MVEBU CPU memory windows */
 #define MVCPU_WIN_CTRL_DATA	CPU_WIN_CTRL_DATA
 #define MVCPU_WIN_ENABLE	CPU_WIN_ENABLE
 #define MVCPU_WIN_DISABLE	CPU_WIN_DISABLE
 
-#endif /* _ASM_ARCH_ARMADA_XP_H */
+#endif /* _MVEBU_SOC_H */

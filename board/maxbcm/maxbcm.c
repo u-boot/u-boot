@@ -12,7 +12,7 @@
 #include <linux/mbus.h>
 
 #include "../drivers/ddr/mvebu/ddr3_hw_training.h"
-#include "../arch/arm/mvebu-common/serdes/high_speed_env_spec.h"
+#include "../arch/arm/mach-mvebu/serdes/high_speed_env_spec.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
