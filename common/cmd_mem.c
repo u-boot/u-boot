@@ -1227,7 +1227,7 @@ static int do_mem_crc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ac = argc - 1;
 #ifdef CONFIG_HASH_VERIFY
 	if (strcmp(*av, "-v") == 0) {
-		flags |= HASH_FLAG_VERIFY;
+		flags |= HASH_FLAG_VERIFY | HASH_FLAG_ENV;
 		av++;
 		ac--;
 	}
