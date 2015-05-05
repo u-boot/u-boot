@@ -39,8 +39,6 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SYS_PBSIZE \
-	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
