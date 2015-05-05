@@ -18,6 +18,18 @@
 # define ohci_writel(a, b) (*((volatile u32 *)(b)) = ((volatile u32)a))
 #endif /* CONFIG_SYS_OHCI_SWAP_REG_ACCESS */
 
+#if defined CONFIG_DM_USB && ARCH_DMA_MINALIGN > 16
+#define ED_ALIGNMENT ARCH_DMA_MINALIGN
+#else
+#define ED_ALIGNMENT 16
+#endif
+
+#if defined CONFIG_DM_USB && ARCH_DMA_MINALIGN > 32
+#define TD_ALIGNMENT ARCH_DMA_MINALIGN
+#else
+#define TD_ALIGNMENT 32
+#endif
+
 /* functions for doing board or CPU specific setup/cleanup */
 int usb_board_stop(void);
 
@@ -52,7 +64,7 @@ struct ed {
 	struct usb_device *usb_dev;
 	void *purb;
 	__u32 unused[2];
-} __attribute__((aligned(16)));
+} __attribute__((aligned(ED_ALIGNMENT)));
 typedef struct ed ed_t;
 
 
@@ -112,7 +124,7 @@ struct td {
 	__u32 data;
 
 	__u32 unused2[2];
-} __attribute__((aligned(32)));
+} __attribute__((aligned(TD_ALIGNMENT)));
 typedef struct td td_t;
 
 #define OHCI_ED_SKIP	(1 << 14)
@@ -356,8 +368,8 @@ typedef struct
 #define NUM_TD 64		/* we need more TDs than EDs */
 
 typedef struct ohci_device {
-	ed_t ed[NUM_EDS] __aligned(16);
-	td_t tds[NUM_TD] __aligned(32);
+	ed_t ed[NUM_EDS] __aligned(ED_ALIGNMENT);
+	td_t tds[NUM_TD] __aligned(TD_ALIGNMENT);
 	int ed_cnt;
 } ohci_dev_t;
 
@@ -371,7 +383,7 @@ typedef struct ohci_device {
 
 typedef struct ohci {
 	/* this allocates EDs for all possible endpoints */
-	struct ohci_device ohci_dev __aligned(32);
+	struct ohci_device ohci_dev __aligned(TD_ALIGNMENT);
 	struct ohci_hcca *hcca;		/* hcca */
 	/*dma_addr_t hcca_dma;*/
 

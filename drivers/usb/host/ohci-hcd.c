@@ -103,6 +103,32 @@ static struct pci_device_id ehci_pci_ids[] = {
 # define m32_swap(x) cpu_to_le32(x)
 #endif /* CONFIG_SYS_OHCI_BE_CONTROLLER */
 
+#ifdef CONFIG_DM_USB
+/*
+ * We really should do proper cache flushing everywhere, but for now we only
+ * do it for new (driver-model) usb code to avoid regressions.
+ */
+#define flush_dcache_buffer(addr, size) \
+	flush_dcache_range((unsigned long)(addr), \
+		ALIGN((unsigned long)(addr) + size, ARCH_DMA_MINALIGN))
+#define invalidate_dcache_buffer(addr, size) \
+	invalidate_dcache_range((unsigned long)(addr), \
+		ALIGN((unsigned long)(addr) + size, ARCH_DMA_MINALIGN))
+#else
+#define flush_dcache_buffer(addr, size)
+#define invalidate_dcache_buffer(addr, size)
+#endif
+
+/* Do not use sizeof(ed / td) as our ed / td structs contain extra members */
+#define flush_dcache_ed(addr) flush_dcache_buffer(addr, 16)
+#define flush_dcache_td(addr) flush_dcache_buffer(addr, 16)
+#define flush_dcache_iso_td(addr) flush_dcache_buffer(addr, 32)
+#define flush_dcache_hcca(addr) flush_dcache_buffer(addr, 256)
+#define invalidate_dcache_ed(addr) invalidate_dcache_buffer(addr, 16)
+#define invalidate_dcache_td(addr) invalidate_dcache_buffer(addr, 16)
+#define invalidate_dcache_iso_td(addr) invalidate_dcache_buffer(addr, 32)
+#define invalidate_dcache_hcca(addr) invalidate_dcache_buffer(addr, 256)
+
 /* global ohci_t */
 static ohci_t gohci;
 /* this must be aligned to a 256 byte boundary */
@@ -293,9 +319,11 @@ void ep_print_int_eds(ohci_t *ohci, char *str)
 		ed_p = &(ohci->hcca->int_table [i]);
 		if (*ed_p == 0)
 		    continue;
+		invalidate_dcache_ed(ed_p);
 		printf(__FILE__ ": %s branch int %2d(%2x):", str, i, i);
 		while (*ed_p != 0 && j--) {
 			ed_t *ed = (ed_t *)m32_swap(ed_p);
+			invalidate_dcache_ed(ed);
 			printf(" ed: %4x;", ed->hwINFO);
 			ed_p = &ed->hwNextED;
 		}
@@ -326,6 +354,7 @@ static void maybe_print_eds(char *label, __u32 value)
 
 	if (value) {
 		dbg("%s %08x", label, value);
+		invalidate_dcache_ed(edp);
 		dbg("%08x", edp->hwINFO);
 		dbg("%08x", edp->hwTailP);
 		dbg("%08x", edp->hwHeadP);
@@ -460,6 +489,7 @@ static void ohci_dump(ohci_t *controller, int verbose)
 	ohci_dump_status(controller);
 	if (verbose)
 		ep_print_int_eds(controller, "hcca");
+	invalidate_dcache_hcca(controller->hcca);
 	dbg("hcca frame #%04x", controller->hcca->frame_no);
 	ohci_dump_roothub(controller, 1);
 }
@@ -597,6 +627,7 @@ static inline int sohci_return_job(struct ohci *hc, urb_priv_t *urb)
 /* tell us the current USB frame number */
 static int sohci_get_current_frame_number(ohci_t *ohci)
 {
+	invalidate_dcache_hcca(ohci->hcca);
 	return m16_swap(ohci->hcca->frame_no);
 }
 #endif
@@ -675,6 +706,7 @@ static int ep_link(ohci_t *ohci, ed_t *edi)
 	switch (ed->type) {
 	case PIPE_CONTROL:
 		ed->hwNextED = 0;
+		flush_dcache_ed(ed);
 		if (ohci->ed_controltail == NULL)
 			ohci_writel(ed, &ohci->regs->ed_controlhead);
 		else
@@ -692,6 +724,7 @@ static int ep_link(ohci_t *ohci, ed_t *edi)
 
 	case PIPE_BULK:
 		ed->hwNextED = 0;
+		flush_dcache_ed(ed);
 		if (ohci->ed_bulktail == NULL)
 			ohci_writel(ed, &ohci->regs->ed_bulkhead);
 		else
@@ -724,7 +757,9 @@ static int ep_link(ohci_t *ohci, ed_t *edi)
 					inter = ep_rev(6,
 						 ((ed_t *)ed_p)->int_interval);
 			ed->hwNextED = *ed_p;
+			flush_dcache_ed(ed);
 			*ed_p = m32_swap((unsigned long)ed);
+			flush_dcache_hcca(ohci->hcca);
 		}
 		break;
 	}
@@ -737,6 +772,8 @@ static int ep_link(ohci_t *ohci, ed_t *edi)
 static void periodic_unlink(struct ohci *ohci, volatile struct ed *ed,
 			    unsigned index, unsigned period)
 {
+	__maybe_unused unsigned long aligned_ed_p;
+
 	for (; index < NUM_INTS; index += period) {
 		__u32	*ed_p = &ohci->hcca->int_table [index];
 
@@ -745,6 +782,12 @@ static void periodic_unlink(struct ohci *ohci, volatile struct ed *ed,
 			if (((struct ed *)
 					m32_swap((unsigned long)ed_p)) == ed) {
 				*ed_p = ed->hwNextED;
+#ifdef CONFIG_DM_USB
+				aligned_ed_p = (unsigned long)ed_p;
+				aligned_ed_p &= ~(ARCH_DMA_MINALIGN - 1);
+				flush_dcache_range(aligned_ed_p,
+					aligned_ed_p + ARCH_DMA_MINALIGN);
+#endif
 				break;
 			}
 			ed_p = &(((struct ed *)
@@ -764,6 +807,7 @@ static int ep_unlink(ohci_t *ohci, ed_t *edi)
 	int i;
 
 	ed->hwINFO |= m32_swap(OHCI_ED_SKIP);
+	flush_dcache_ed(ed);
 
 	switch (ed->type) {
 	case PIPE_CONTROL:
@@ -777,6 +821,7 @@ static int ep_unlink(ohci_t *ohci, ed_t *edi)
 				&ohci->regs->ed_controlhead);
 		} else {
 			ed->ed_prev->hwNextED = ed->hwNextED;
+			flush_dcache_ed(ed->ed_prev);
 		}
 		if (ohci->ed_controltail == ed) {
 			ohci->ed_controltail = ed->ed_prev;
@@ -797,6 +842,7 @@ static int ep_unlink(ohci_t *ohci, ed_t *edi)
 			       &ohci->regs->ed_bulkhead);
 		} else {
 			ed->ed_prev->hwNextED = ed->hwNextED;
+			flush_dcache_ed(ed->ed_prev);
 		}
 		if (ohci->ed_bulktail == ed) {
 			ohci->ed_bulktail = ed->ed_prev;
@@ -865,6 +911,8 @@ static ed_t *ep_add_ed(ohci_dev_t *ohci_dev, struct usb_device *usb_dev,
 		ed->int_load = load;
 	}
 
+	flush_dcache_ed(ed);
+
 	return ed_ret;
 }
 
@@ -890,6 +938,7 @@ static void td_fill(ohci_t *ohci, unsigned int info,
 	/* use this td as the next dummy */
 	td_pt = urb_priv->td [index];
 	td_pt->hwNextTD = 0;
+	flush_dcache_td(td_pt);
 
 	/* fill the old dummy TD */
 	td = urb_priv->td [index] =
@@ -917,9 +966,11 @@ static void td_fill(ohci_t *ohci, unsigned int info,
 		td->hwBE = 0;
 
 	td->hwNextTD = m32_swap((unsigned long)td_pt);
+	flush_dcache_td(td);
 
 	/* append to queue */
 	td->ed->hwTailP = td->hwNextTD;
+	flush_dcache_ed(td->ed);
 }
 
 /*-------------------------------------------------------------------------*/
@@ -936,6 +987,8 @@ static void td_submit_job(ohci_t *ohci, struct usb_device *dev,
 	int cnt = 0;
 	__u32 info = 0;
 	unsigned int toggle = 0;
+
+	flush_dcache_buffer(buffer, data_len);
 
 	/* OHCI handles the DATA-toggles itself, we just use the USB-toggle
 	 * bits for reseting */
@@ -976,6 +1029,7 @@ static void td_submit_job(ohci_t *ohci, struct usb_device *dev,
 	case PIPE_CONTROL:
 		/* Setup phase */
 		info = TD_CC | TD_DP_SETUP | TD_T_DATA0;
+		flush_dcache_buffer(setup, 8);
 		td_fill(ohci, info, setup, 8, dev, cnt++, urb);
 
 		/* Optional Data phase */
@@ -1047,6 +1101,7 @@ static void check_status(td_t *td_list)
 	if (cc) {
 		err(" USB-error: %s (%x)", cc_to_string[cc], cc);
 
+		invalidate_dcache_ed(td_list->ed);
 		if (*phwHeadP & m32_swap(0x1)) {
 			if (lurb_priv &&
 			    ((td_list->index + 1) < urb_len)) {
@@ -1059,9 +1114,11 @@ static void check_status(td_t *td_list)
 						     td_list->index - 1;
 			} else
 				*phwHeadP &= m32_swap(0xfffffff2);
+			flush_dcache_ed(td_list->ed);
 		}
 #ifdef CONFIG_MPC5200
 		td_list->hwNextTD = 0;
+		flush_dcache_td(td_list);
 #endif
 	}
 }
@@ -1074,11 +1131,14 @@ static td_t *dl_reverse_done_list(ohci_t *ohci)
 	td_t *td_rev = NULL;
 	td_t *td_list = NULL;
 
+	invalidate_dcache_hcca(ohci->hcca);
 	td_list_hc = m32_swap(ohci->hcca->done_head) & 0xfffffff0;
 	ohci->hcca->done_head = 0;
+	flush_dcache_hcca(ohci->hcca);
 
 	while (td_list_hc) {
 		td_list = (td_t *)td_list_hc;
+		invalidate_dcache_td(td_list);
 		check_status(td_list);
 		td_list->next_dl_td = td_rev;
 		td_rev = td_list;
@@ -1113,6 +1173,7 @@ static int takeback_td(ohci_t *ohci, td_t *td_list)
 	urb_priv_t *lurb_priv;
 	__u32 tdINFO, edHeadP, edTailP;
 
+	invalidate_dcache_td(td_list);
 	tdINFO = m32_swap(td_list->hwINFO);
 
 	ed = td_list->ed;
@@ -1138,6 +1199,7 @@ static int takeback_td(ohci_t *ohci, td_t *td_list)
 		lurb_priv->td_cnt, lurb_priv->length);
 
 	if (ed->state != ED_NEW && (!usb_pipeint(lurb_priv->pipe))) {
+		invalidate_dcache_ed(ed);
 		edHeadP = m32_swap(ed->hwHeadP) & 0xfffffff0;
 		edTailP = m32_swap(ed->hwTailP);
 
@@ -1521,6 +1583,9 @@ static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 	dev->status = stat;
 	dev->act_len = urb->actual_length;
 
+	if (usb_pipein(pipe) && dev->status == 0 && dev->act_len)
+		invalidate_dcache_buffer(buffer, dev->act_len);
+
 #ifdef DEBUG
 	pkt_print(ohci, urb, dev, pipe, buffer, transfer_len,
 		  setup, "RET(ctlr)", usb_pipein(pipe));
@@ -1726,6 +1791,8 @@ static int hc_interrupt(ohci_t *ohci)
 	struct ohci_regs *regs = ohci->regs;
 	int ints;
 	int stat = -1;
+
+	invalidate_dcache_hcca(ohci->hcca);
 
 	if ((ohci->hcca->done_head != 0) &&
 				!(m32_swap(ohci->hcca->done_head) & 0x01)) {
