@@ -29,9 +29,9 @@
 #include <common.h>
 #include <serial.h>
 
-#if defined(CONFIG_CPU_V6)
+#if defined(CONFIG_CPU_V6) || defined(CONFIG_CPU_V7)
 /*
- * ARMV6
+ * ARMV6 & ARMV7
  */
 #define DCC_RBIT	(1 << 30)
 #define DCC_WBIT	(1 << 29)

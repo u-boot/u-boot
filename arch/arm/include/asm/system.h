@@ -196,6 +196,28 @@ static inline void set_dacr(unsigned int val)
 	isb();
 }
 
+#ifdef CONFIG_ARMV7
+/* Short-Descriptor Translation Table Level 1 Bits */
+#define TTB_SECT_NS_MASK	(1 << 19)
+#define TTB_SECT_NG_MASK	(1 << 17)
+#define TTB_SECT_S_MASK		(1 << 16)
+/* Note: TTB AP bits are set elsewhere */
+#define TTB_SECT_TEX(x)		((x & 0x7) << 12)
+#define TTB_SECT_DOMAIN(x)	((x & 0xf) << 5)
+#define TTB_SECT_XN_MASK	(1 << 4)
+#define TTB_SECT_C_MASK		(1 << 3)
+#define TTB_SECT_B_MASK		(1 << 2)
+#define TTB_SECT			(2 << 0)
+
+/* options available for data cache on each page */
+enum dcache_option {
+	DCACHE_OFF = TTB_SECT_S_MASK | TTB_SECT_DOMAIN(0) |
+					TTB_SECT_XN_MASK | TTB_SECT,
+	DCACHE_WRITETHROUGH = DCACHE_OFF | TTB_SECT_C_MASK,
+	DCACHE_WRITEBACK = DCACHE_WRITETHROUGH | TTB_SECT_B_MASK,
+	DCACHE_WRITEALLOC = DCACHE_WRITEBACK | TTB_SECT_TEX(1),
+};
+#else
 /* options available for data cache on each page */
 enum dcache_option {
 	DCACHE_OFF = 0x12,
@@ -203,12 +225,27 @@ enum dcache_option {
 	DCACHE_WRITEBACK = 0x1e,
 	DCACHE_WRITEALLOC = 0x16,
 };
+#endif
 
 /* Size of an MMU section */
 enum {
 	MMU_SECTION_SHIFT	= 20,
 	MMU_SECTION_SIZE	= 1 << MMU_SECTION_SHIFT,
 };
+
+#ifdef CONFIG_ARMV7
+/* TTBR0 bits */
+#define TTBR0_BASE_ADDR_MASK	0xFFFFC000
+#define TTBR0_RGN_NC			(0 << 3)
+#define TTBR0_RGN_WBWA			(1 << 3)
+#define TTBR0_RGN_WT			(2 << 3)
+#define TTBR0_RGN_WB			(3 << 3)
+/* TTBR0[6] is IRGN[0] and TTBR[0] is IRGN[1] */
+#define TTBR0_IRGN_NC			(0 << 0 | 0 << 6)
+#define TTBR0_IRGN_WBWA			(0 << 0 | 1 << 6)
+#define TTBR0_IRGN_WT			(1 << 0 | 0 << 6)
+#define TTBR0_IRGN_WB			(1 << 0 | 1 << 6)
+#endif
 
 /**
  * Change the cache settings for a region.

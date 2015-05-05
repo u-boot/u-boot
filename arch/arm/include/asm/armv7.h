@@ -70,6 +70,16 @@
 #define CP15DSB	asm volatile ("mcr     p15, 0, %0, c7, c10, 4" : : "r" (0))
 #define CP15DMB	asm volatile ("mcr     p15, 0, %0, c7, c10, 5" : : "r" (0))
 
+#ifdef __ARM_ARCH_7A__
+#define ISB	asm volatile ("isb" : : : "memory")
+#define DSB	asm volatile ("dsb" : : : "memory")
+#define DMB	asm volatile ("dmb" : : : "memory")
+#else
+#define ISB	CP15ISB
+#define DSB	CP15DSB
+#define DMB	CP15DMB
+#endif
+
 /*
  * Workaround for ARM errata # 798870
  * Set L2ACTLR[7] to reissue any memory transaction in the L2 that has been
