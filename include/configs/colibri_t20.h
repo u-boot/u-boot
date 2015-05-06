@@ -60,7 +60,6 @@
 #define CONFIG_CMD_CACHE
 
 /* Miscellaneous commands */
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_FAT_WRITE
 
 /* Increase console I/O buffer size */

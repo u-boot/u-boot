@@ -51,7 +51,6 @@
 
 /* *** Command definition *** */
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_MEMTEST
 #define CONFIG_CMD_TIME
 

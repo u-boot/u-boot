@@ -484,7 +484,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)

@@ -27,7 +27,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MTDPARTS
-#define CONFIG_CMD_SETEXPR
 
 #undef	CONFIG_WATCHDOG		/* disable platform specific watchdog */
 

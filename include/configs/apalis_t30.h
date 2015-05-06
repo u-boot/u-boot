@@ -61,7 +61,6 @@
 #define CONFIG_CMD_DHCP
 
 /* Miscellaneous commands */
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_FAT_WRITE
 
 /* Increase console I/O buffer size */

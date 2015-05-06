@@ -353,7 +353,6 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SETEXPR
 
 /*
  * Miscellaneous configurable options

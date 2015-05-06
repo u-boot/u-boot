@@ -105,7 +105,6 @@
 
 /* Miscellaneous commands */
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_SETEXPR
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO

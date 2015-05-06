@@ -47,7 +47,6 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SATA
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_USB
 #define CONFIG_VIDEO
 

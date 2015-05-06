@@ -81,7 +81,6 @@
 	"fi;"
 
 /* Command definition */
-#define CONFIG_CMD_SETEXPR
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONSOLE_DEV	"ttymxc0"

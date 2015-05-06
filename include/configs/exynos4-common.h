@@ -31,7 +31,6 @@
 #undef CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_DFU
 #define CONFIG_CMD_GPT
-#define CONFIG_CMD_SETEXPR
 
 /* USB Composite download gadget - g_dnl */
 #define CONFIG_USBDOWNLOAD_GADGET

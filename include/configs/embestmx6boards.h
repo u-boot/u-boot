@@ -81,7 +81,6 @@
 #undef CONFIG_CMD_FPGA
 
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_SETEXPR
 
 #define CONFIG_ARP_TIMEOUT     200UL
 

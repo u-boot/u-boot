@@ -62,7 +62,6 @@
 /* commands to include */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_SETEXPR	/* Evaluate expressions		*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
 
 /* Disable some commands */

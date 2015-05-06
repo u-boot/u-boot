@@ -79,7 +79,6 @@
 #include <config_cmd_default.h>
 
 #undef CONFIG_CMD_IMLS
-#define CONFIG_CMD_SETEXPR
 
 #define CONFIG_BOOTDELAY	3
 

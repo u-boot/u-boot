@@ -868,7 +868,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_BDI
 
 #ifdef CONFIG_PCI

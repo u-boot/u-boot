@@ -116,7 +116,6 @@
 /* Command definition */
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_ITEST
-#define CONFIG_CMD_SETEXPR
 
 /* place code in last 4 MiB of RAM */
 #if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
