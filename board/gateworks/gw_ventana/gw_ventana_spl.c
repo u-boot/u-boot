@@ -530,10 +530,13 @@ void board_init_f(ulong dummy)
 	struct ventana_board_info ventana_info;
 	int board_model;
 
+	/* setup clock gating */
+	ccgr_init();
+
 	/* setup AIPS and disable watchdog */
 	arch_cpu_init();
 
-	ccgr_init();
+	/* setup AXI */
 	gpr_init();
 
 	/* iomux and setup of i2c */
