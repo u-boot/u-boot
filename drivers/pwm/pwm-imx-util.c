@@ -56,7 +56,7 @@ int pwm_imx_get_parms(int period_ns, int duty_ns, unsigned long *period_c,
 	*prescale = *period_c / 0x10000 + 1;
 
 	*period_c /= *prescale;
-	c = (unsigned long long)(*period_c * duty_ns);
+	c = *period_c * (unsigned long long)duty_ns;
 	do_div(c, period_ns);
 	*duty_c = c;
 
