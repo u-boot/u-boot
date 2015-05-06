@@ -24,6 +24,9 @@ config SYS_MALLOC_F_LEN
 config USE_PRIVATE_LIBGCC
 	default y
 
+config DM_USB
+	default y
+
 config SPL_DM
 	default y
 
