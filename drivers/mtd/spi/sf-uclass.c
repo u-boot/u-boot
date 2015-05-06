@@ -53,10 +53,10 @@ int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 {
 	struct spi_slave *slave;
 	struct udevice *bus;
-	char name[20], *str;
+	char name[30], *str;
 	int ret;
 
-	snprintf(name, sizeof(name), "%d:%d", busnum, cs);
+	snprintf(name, sizeof(name), "spi_flash@%d:%d", busnum, cs);
 	str = strdup(name);
 	ret = spi_get_bus_and_cs(busnum, cs, max_hz, spi_mode,
 				  "spi_flash_std", str, &bus, &slave);
