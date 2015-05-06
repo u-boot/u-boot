@@ -241,6 +241,8 @@ extern int soft_i2c_gpio_scl;
 #endif
 #elif CONFIG_CONS_INDEX == 2 && defined(CONFIG_MACH_SUN5I)
 #define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28400:115200"
+#elif CONFIG_CONS_INDEX == 3 && defined(CONFIG_MACH_SUN8I)
+#define OF_STDOUT_PATH		"/soc@01c00000/serial@01c28800:115200"
 #elif CONFIG_CONS_INDEX == 5 && defined(CONFIG_MACH_SUN8I)
 #define OF_STDOUT_PATH		"/soc@01c00000/serial@01f02800:115200"
 #else
