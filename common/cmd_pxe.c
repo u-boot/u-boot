@@ -1648,7 +1648,7 @@ static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	is_pxe = false;
 
-	if (strstr(argv[1], "-p")) {
+	if (argc > 1 && strstr(argv[1], "-p")) {
 		prompt = 1;
 		argc--;
 		argv++;
