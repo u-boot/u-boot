@@ -12,7 +12,7 @@ config SYS_VSNPRINTF
 
 choice
 	prompt "Mainboard vendor"
-	default VENDOR_COREBOOT
+	default VENDOR_EMULATION
 
 config VENDOR_COREBOOT
 	bool "coreboot"
