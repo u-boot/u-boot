@@ -1,0 +1,21 @@
+#
+# Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
+#
+# SPDX-License-Identifier:	GPL-2.0+
+#
+
+config QEMU
+	bool
+	select TSC_CALIBRATION_BYPASS
+
+if QEMU
+
+config SYS_CAR_ADDR
+	hex
+	default 0xd0000
+
+config SYS_CAR_SIZE
+	hex
+	default 0x10000
+
+endif

@@ -17,6 +17,9 @@ choice
 config VENDOR_COREBOOT
 	bool "coreboot"
 
+config VENDOR_EMULATION
+	bool "emulation"
+
 config VENDOR_GOOGLE
 	bool "Google"
 
@@ -27,6 +30,7 @@ endchoice
 
 # board-specific options below
 source "board/coreboot/Kconfig"
+source "board/emulation/Kconfig"
 source "board/google/Kconfig"
 source "board/intel/Kconfig"
 
@@ -34,6 +38,7 @@ source "board/intel/Kconfig"
 source "arch/x86/cpu/baytrail/Kconfig"
 source "arch/x86/cpu/coreboot/Kconfig"
 source "arch/x86/cpu/ivybridge/Kconfig"
+source "arch/x86/cpu/qemu/Kconfig"
 source "arch/x86/cpu/quark/Kconfig"
 source "arch/x86/cpu/queensbay/Kconfig"
 

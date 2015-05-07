@@ -14,6 +14,7 @@ obj-y	+= interrupts.o cpu.o call64.o
 
 obj-$(CONFIG_INTEL_BAYTRAIL) += baytrail/
 obj-$(CONFIG_SYS_COREBOOT) += coreboot/
+obj-$(CONFIG_QEMU) += qemu/
 obj-$(CONFIG_NORTHBRIDGE_INTEL_SANDYBRIDGE) += ivybridge/
 obj-$(CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE) += ivybridge/
 obj-$(CONFIG_INTEL_QUARK) += quark/
