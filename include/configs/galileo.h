@@ -16,8 +16,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_NR_DRAM_BANKS		1
-
 #define CONFIG_X86_SERIAL
 
 /* ns16550 UART is memory-mapped in Quark SoC */

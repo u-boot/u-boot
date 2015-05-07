@@ -15,8 +15,6 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 
-#define CONFIG_NR_DRAM_BANKS		1
-
 #define CONFIG_X86_SERIAL
 
 #define CONFIG_PCI_MEM_BUS		0xc0000000
