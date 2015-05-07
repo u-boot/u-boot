@@ -14,12 +14,13 @@ including supported boards, build instructions, todo list, etc.
 Status
 ------
 U-Boot supports running as a coreboot [1] payload on x86. So far only Link
-(Chromebook Pixel) has been tested, but it should work with minimal adjustments
-on other x86 boards since coreboot deals with most of the low-level details.
+(Chromebook Pixel) and QEMU [2] x86 targets have been tested, but it should
+work with minimal adjustments on other x86 boards since coreboot deals with
+most of the low-level details.
 
 U-Boot also supports booting directly from x86 reset vector without coreboot,
-aka raw support or bare support. Currently Link, Intel Crown Bay, Intel
-Minnowboard Max and Intel Galileo support running U-Boot 'bare metal'.
+aka raw support or bare support. Currently Link, QEMU x86 targets and all
+Intel boards support running U-Boot 'bare metal'.
 
 As for loading an OS, U-Boot supports directly booting a 32-bit or 64-bit
 Linux kernel as part of a FIT image. It also supports a compressed zImage.
@@ -32,15 +33,15 @@ on other architectures, like below:
 $ make coreboot-x86_defconfig
 $ make all
 
-Note this default configuration will build a U-Boot payload for the Link board.
+Note this default configuration will build a U-Boot payload for the QEMU board.
 To build a coreboot payload against another board, you can change the build
 configuration during the 'make menuconfig' process.
 
 x86 architecture  --->
 	...
-	(chromebook_link) Board configuration file
-	(chromebook_link) Board Device Tree Source (dts) file
-	(0x19200000) Board specific Cache-As-RAM (CAR) address
+	(qemu-x86) Board configuration file
+	(qemu-x86) Board Device Tree Source (dts) file
+	(0x01920000) Board specific Cache-As-RAM (CAR) address
 	(0x4000) Board specific Cache-As-RAM (CAR) size
 
 Change the 'Board configuration file' and 'Board Device Tree Source (dts) file'
@@ -78,7 +79,7 @@ Find the following files:
 * ./northbridge/intel/sandybridge/systemagent-r6.bin
 
 The 3rd one should be renamed to mrc.bin.
-As for the video ROM, you can get it here [2].
+As for the video ROM, you can get it here [3].
 Make sure all these binary blobs are put in the board directory.
 
 Now you can build U-Boot and obtain u-boot.rom:
@@ -88,8 +89,8 @@ $ make all
 
 Intel Crown Bay specific instructions:
 
-U-Boot support of Intel Crown Bay board [3] relies on a binary blob called
-Firmware Support Package [4] to perform all the necessary initialization steps
+U-Boot support of Intel Crown Bay board [4] relies on a binary blob called
+Firmware Support Package [5] to perform all the necessary initialization steps
 as documented in the BIOS Writer Guide, including initialization of the CPU,
 memory controller, chipset and certain bus interfaces.
 
@@ -178,6 +179,13 @@ Now you can build U-Boot and obtain u-boot.rom
 $ make galileo_defconfig
 $ make all
 
+QEMU x86 target instructions:
+
+To build u-boot.rom for QEMU x86 targets, just simply run
+
+$ make qemu-x86_defconfig
+$ make all
+
 Test with coreboot
 ------------------
 For testing U-Boot as the coreboot payload, there are things that need be paid
@@ -207,10 +215,33 @@ At present it seems that for Minnowboard Max, coreboot does not pass through
 the video information correctly (it always says the resolution is 0x0). This
 works correctly for link though.
 
+Test with QEMU
+--------------
+QEMU is a fancy emulator that can enable us to test U-Boot without access to
+a real x86 board. To launch QEMU with u-boot.rom, call QEMU as follows:
+
+$ qemu-system-i386 -nographic -bios path/to/u-boot.rom
+
+This will instantiate an emulated x86 board with i440FX and PIIX chipset. QEMU
+also supports emulating an x86 board with Q35 and ICH9 based chipset, which is
+also supported by U-Boot. To instantiate such a machine, call QEMU with:
+
+$ qemu-system-i386 -nographic -bios path/to/u-boot.rom -M q35
+
+Note by default QEMU instantiated boards only have 128 MiB system memory. But
+it is enough to have U-Boot boot and function correctly. You can increase the
+system memory by pass '-m' parameter to QEMU if you want more memory:
+
+$ qemu-system-i386 -nographic -bios path/to/u-boot.rom -m 1024
+
+This creates a board with 1 GiB system memory. Currently U-Boot for QEMU only
+supports 3 GiB maximum system memory and reserves the last 1 GiB address space
+for PCI device memory-mapped I/O and other stuff, so the maximum value of '-m'
+would be 3072.
 
 CPU Microcode
 -------------
-Modern CPUs usually require a special bit stream called microcode [5] to be
+Modern CPUs usually require a special bit stream called microcode [6] to be
 loaded on the processor after power up in order to function properly. U-Boot
 has already integrated these as hex dumps in the source tree.
 
@@ -227,7 +258,6 @@ arch/x86/dts/ for these device tree source files.
 
 Useful Commands
 ---------------
-
 In keeping with the U-Boot philosophy of providing functions to check and
 adjust internal settings, there are several x86-specific commands that may be
 useful:
@@ -314,7 +344,8 @@ TODO List
 References
 ----------
 [1] http://www.coreboot.org
-[2] http://www.coreboot.org/~stepan/pci8086,0166.rom
-[3] http://www.intel.com/content/www/us/en/embedded/design-tools/evaluation-platforms/atom-e660-eg20t-development-kit.html
-[4] http://www.intel.com/fsp
-[5] http://en.wikipedia.org/wiki/Microcode
+[2] http://www.qemu.org
+[3] http://www.coreboot.org/~stepan/pci8086,0166.rom
+[4] http://www.intel.com/content/www/us/en/embedded/design-tools/evaluation-platforms/atom-e660-eg20t-development-kit.html
+[5] http://www.intel.com/fsp
+[6] http://en.wikipedia.org/wiki/Microcode
