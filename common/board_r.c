@@ -480,17 +480,6 @@ static int initr_malloc_bootparams(void)
 }
 #endif
 
-#ifdef CONFIG_SC3
-/* TODO: with new initcalls, move this into the driver */
-extern void sc3_read_eeprom(void);
-
-static int initr_sc3_read_eeprom(void)
-{
-	sc3_read_eeprom();
-	return 0;
-}
-#endif
-
 static int initr_jumptable(void)
 {
 	jumptable_init();
@@ -804,9 +793,6 @@ init_fnc_t init_sequence_r[] = {
 #endif
 	INIT_FUNC_WATCHDOG_RESET
 	initr_secondary_cpu,
-#ifdef CONFIG_SC3
-	initr_sc3_read_eeprom,
-#endif
 #if defined(CONFIG_ID_EEPROM) || defined(CONFIG_SYS_I2C_MAC_OFFSET)
 	mac_read_from_eeprom,
 #endif
