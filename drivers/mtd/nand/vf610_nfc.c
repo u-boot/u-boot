@@ -527,7 +527,7 @@ static inline int vf610_nfc_correct_data(struct mtd_info *mtd, u_char *dat)
 	flip = count_written_bits(dat, nfc->chip.ecc.size, ecc_count);
 
 	/* ECC failed. */
-	if (flip > ecc_count)
+	if (flip > ecc_count && flip > (nfc->chip.ecc.strength / 2))
 		return -1;
 
 	/* Erased page. */
