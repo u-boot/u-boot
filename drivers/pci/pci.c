@@ -503,6 +503,10 @@ int pci_hose_scan(struct pci_controller *hose)
 	}
 #endif /* CONFIG_PCI_BOOTDELAY */
 
+#ifdef CONFIG_PCI_SCAN_SHOW
+	puts("PCI:\n");
+#endif
+
 	/*
 	 * Start scan at current_busno.
 	 * PCIe will start scan at first_busno+1.
