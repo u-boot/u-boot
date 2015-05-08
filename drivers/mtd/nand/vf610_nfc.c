@@ -345,24 +345,26 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 	nfc->alt_buf	= 0;
 
 	switch (command) {
+	case NAND_CMD_SEQIN:
+		/* Use valid column/page from preread... */
+		vf610_nfc_addr_cycle(mtd, column, page);
+		/*
+		 * SEQIN => data => PAGEPROG sequence is done by the controller
+		 * hence we do not need to issue the command here...
+		 */
+		return;
 	case NAND_CMD_PAGEPROG:
 		vf610_nfc_transfer_size(nfc->regs, nfc->page_sz);
 		vf610_nfc_send_commands(nfc->regs, NAND_CMD_SEQIN,
 					command, PROGRAM_PAGE_CMD_CODE);
-		vf610_nfc_addr_cycle(mtd, column, page);
 		break;
 
 	case NAND_CMD_RESET:
 		vf610_nfc_transfer_size(nfc->regs, 0);
 		vf610_nfc_send_command(nfc->regs, command, RESET_CMD_CODE);
 		break;
-	/*
-	 * NFC does not support sub-page reads and writes,
-	 * so emulate them using full page transfers.
-	 */
 	case NAND_CMD_READOOB:
 		nfc->spareonly = 1;
-	case NAND_CMD_SEQIN: /* Pre-read for partial writes. */
 	case NAND_CMD_READ0:
 		column = 0;
 		vf610_nfc_transfer_size(nfc->regs, nfc->page_sz);
