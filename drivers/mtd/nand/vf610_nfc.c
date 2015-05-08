@@ -145,8 +145,6 @@ struct vf610_nfc {
 	struct nand_chip   chip;
 	void __iomem	  *regs;
 	uint               column;
-	int                spareonly;
-	int		   page_sz;
 	/* Status and ID are in alternate locations. */
 	int                alt_buf;
 #define ALT_BUF_ID   1
@@ -319,14 +317,21 @@ static void vf610_nfc_addr_cycle(struct mtd_info *mtd, int column, int page)
 {
 	if (column != -1) {
 		struct vf610_nfc *nfc = mtd_to_nfc(mtd);
-		if (nfc->chip.options | NAND_BUSWIDTH_16)
-			column = column/2;
+		if (nfc->chip.options & NAND_BUSWIDTH_16)
+			column = column / 2;
 		vf610_nfc_set_field(mtd, NFC_COL_ADDR, COL_ADDR_MASK,
 				    COL_ADDR_SHIFT, column);
 	}
 	if (page != -1)
 		vf610_nfc_set_field(mtd, NFC_ROW_ADDR, ROW_ADDR_MASK,
 				    ROW_ADDR_SHIFT, page);
+}
+
+static inline void vf610_nfc_ecc_mode(struct mtd_info *mtd, int ecc_mode)
+{
+	vf610_nfc_set_field(mtd, NFC_FLASH_CONFIG,
+			    CONFIG_ECC_MODE_MASK,
+			    CONFIG_ECC_MODE_SHIFT, ecc_mode);
 }
 
 static inline void vf610_nfc_transfer_size(void __iomem *regbase, int size)
@@ -339,10 +344,10 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 			      int column, int page)
 {
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
+	int page_sz = nfc->chip.options & NAND_BUSWIDTH_16 ? 1 : 0;
 
-	nfc->column     = max(column, 0);
-	nfc->spareonly	= 0;
-	nfc->alt_buf	= 0;
+	nfc->column = max(column, 0);
+	nfc->alt_buf = 0;
 
 	switch (command) {
 	case NAND_CMD_SEQIN:
@@ -354,23 +359,36 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 		 */
 		return;
 	case NAND_CMD_PAGEPROG:
-		vf610_nfc_transfer_size(nfc->regs, nfc->page_sz);
+		page_sz += mtd->writesize + mtd->oobsize;
+		vf610_nfc_transfer_size(nfc->regs, page_sz);
 		vf610_nfc_send_commands(nfc->regs, NAND_CMD_SEQIN,
 					command, PROGRAM_PAGE_CMD_CODE);
+		vf610_nfc_ecc_mode(mtd, ECC_45_BYTE);
 		break;
 
 	case NAND_CMD_RESET:
 		vf610_nfc_transfer_size(nfc->regs, 0);
 		vf610_nfc_send_command(nfc->regs, command, RESET_CMD_CODE);
 		break;
+
 	case NAND_CMD_READOOB:
-		nfc->spareonly = 1;
-	case NAND_CMD_READ0:
-		column = 0;
-		vf610_nfc_transfer_size(nfc->regs, nfc->page_sz);
+		page_sz += mtd->oobsize;
+		column = mtd->writesize;
+		vf610_nfc_transfer_size(nfc->regs, page_sz);
 		vf610_nfc_send_commands(nfc->regs, NAND_CMD_READ0,
 					NAND_CMD_READSTART, READ_PAGE_CMD_CODE);
 		vf610_nfc_addr_cycle(mtd, column, page);
+		vf610_nfc_ecc_mode(mtd, ECC_BYPASS);
+		break;
+
+	case NAND_CMD_READ0:
+		page_sz += mtd->writesize + mtd->oobsize;
+		column = 0;
+		vf610_nfc_transfer_size(nfc->regs, page_sz);
+		vf610_nfc_send_commands(nfc->regs, NAND_CMD_READ0,
+					NAND_CMD_READSTART, READ_PAGE_CMD_CODE);
+		vf610_nfc_addr_cycle(mtd, column, page);
+		vf610_nfc_ecc_mode(mtd, ECC_45_BYTE);
 		break;
 
 	case NAND_CMD_ERASE1:
@@ -399,46 +417,25 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 	vf610_nfc_done(mtd);
 }
 
-static inline void vf610_nfc_read_spare(struct mtd_info *mtd, void *buf,
-					int len)
-{
-	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
-
-	len = min(mtd->oobsize, (uint)len);
-	if (len > 0)
-		vf610_nfc_memcpy(buf, nfc->regs + mtd->writesize, len);
-}
-
 /* Read data from NFC buffers */
 static void vf610_nfc_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 {
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
 	uint c = nfc->column;
-	uint l;
 
-	/* Handle main area */
-	if (!nfc->spareonly) {
-		l = min((uint)len, mtd->writesize - c);
-		nfc->column += l;
-
-		if (!nfc->alt_buf)
-			vf610_nfc_memcpy(buf, nfc->regs + NFC_MAIN_AREA(0) + c,
-					 l);
-		else
-			if (nfc->alt_buf & ALT_BUF_ID)
-				*buf = vf610_nfc_get_id(mtd, c);
-			else
-				*buf = vf610_nfc_get_status(mtd);
-
-		buf += l;
-		len -= l;
+	switch (nfc->alt_buf) {
+	case ALT_BUF_ID:
+		*buf = vf610_nfc_get_id(mtd, c);
+		break;
+	case ALT_BUF_STAT:
+		*buf = vf610_nfc_get_status(mtd);
+		break;
+	default:
+		vf610_nfc_memcpy(buf, nfc->regs + NFC_MAIN_AREA(0) + c, len);
+		break;
 	}
 
-	/* Handle spare area access */
-	if (len) {
-		nfc->column += len;
-		vf610_nfc_read_spare(mtd, buf, len);
-	}
+	nfc->column += len;
 }
 
 /* Write data to NFC buffers */
@@ -629,16 +626,8 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 	if (cfg.flash_bbt)
 		chip->bbt_options = NAND_BBT_USE_FLASH | NAND_BBT_CREATE;
 
-	/* Default to software ECC until flash ID. */
-	vf610_nfc_set_field(mtd, NFC_FLASH_CONFIG,
-			    CONFIG_ECC_MODE_MASK,
-			    CONFIG_ECC_MODE_SHIFT, ECC_BYPASS);
-
 	chip->bbt_td = &bbt_main_descr;
 	chip->bbt_md = &bbt_mirror_descr;
-
-	nfc->page_sz = PAGE_2K + OOB_64;
-	nfc->page_sz += cfg.width == 16 ? 1 : 0;
 
 	/* Set configuration register. */
 	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CONFIG_ADDR_AUTO_INCR_BIT);
@@ -667,15 +656,12 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 
 	chip->ecc.mode = NAND_ECC_SOFT; /* default */
 
-	nfc->page_sz = mtd->writesize + mtd->oobsize;
-
 	/* Single buffer only, max 256 OOB minus ECC status */
-	if (nfc->page_sz > PAGE_2K + 256 - 8) {
+	if (mtd->writesize + mtd->oobsize > PAGE_2K + 256 - 8) {
 		dev_err(nfc->dev, "Unsupported flash size\n");
 		err = -ENXIO;
 		goto error;
 	}
-	nfc->page_sz += cfg.width == 16 ? 1 : 0;
 
 	if (cfg.hardware_ecc) {
 		if (mtd->writesize != PAGE_2K && mtd->oobsize < 64) {
@@ -695,11 +681,6 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 		chip->ecc.bytes = 45;
 		chip->ecc.size = PAGE_2K;
 		chip->ecc.strength = 24;
-
-		/* set ECC mode to 45 bytes OOB with 24 bits correction */
-		vf610_nfc_set_field(mtd, NFC_FLASH_CONFIG,
-				    CONFIG_ECC_MODE_MASK,
-				    CONFIG_ECC_MODE_SHIFT, ECC_45_BYTE);
 
 		/* Enable ECC_STATUS */
 		vf610_nfc_set(mtd, NFC_FLASH_CONFIG, CONFIG_ECC_SRAM_REQ_BIT);
