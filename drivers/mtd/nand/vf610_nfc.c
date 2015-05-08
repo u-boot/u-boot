@@ -155,29 +155,6 @@ struct vf610_nfc {
 #define mtd_to_nfc(_mtd) \
 	(struct vf610_nfc *)((struct nand_chip *)_mtd->priv)->priv
 
-static u8 bbt_pattern[] = {'B', 'b', 't', '0' };
-static u8 mirror_pattern[] = {'1', 't', 'b', 'B' };
-
-static struct nand_bbt_descr bbt_main_descr = {
-	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
-		   NAND_BBT_2BIT | NAND_BBT_VERSION,
-	.offs =	11,
-	.len = 4,
-	.veroffs = 15,
-	.maxblocks = 4,
-	.pattern = bbt_pattern,
-};
-
-static struct nand_bbt_descr bbt_mirror_descr = {
-	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
-		   NAND_BBT_2BIT | NAND_BBT_VERSION,
-	.offs =	11,
-	.len = 4,
-	.veroffs = 15,
-	.maxblocks = 4,
-	.pattern = mirror_pattern,
-};
-
 static struct nand_ecclayout vf610_nfc_ecc45 = {
 	.eccbytes = 45,
 	.eccpos = {19, 20, 21, 22, 23,
@@ -624,10 +601,8 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 
 	/* Bad block options. */
 	if (cfg.flash_bbt)
-		chip->bbt_options = NAND_BBT_USE_FLASH | NAND_BBT_CREATE;
-
-	chip->bbt_td = &bbt_main_descr;
-	chip->bbt_md = &bbt_mirror_descr;
+		chip->bbt_options = NAND_BBT_USE_FLASH | NAND_BBT_NO_OOB |
+				    NAND_BBT_CREATE;
 
 	/* Set configuration register. */
 	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CONFIG_ADDR_AUTO_INCR_BIT);
