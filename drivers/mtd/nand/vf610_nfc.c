@@ -62,6 +62,7 @@
  * Briefly these are bitmasks of controller cycles.
  */
 #define READ_PAGE_CMD_CODE		0x7EE0
+#define READ_ONFI_PARAM_CMD_CODE	0x4860
 #define PROGRAM_PAGE_CMD_CODE		0x7FC0
 #define ERASE_CMD_CODE			0x4EC0
 #define READ_ID_CMD_CODE		0x4804
@@ -150,6 +151,7 @@ struct vf610_nfc {
 	int                alt_buf;
 #define ALT_BUF_ID   1
 #define ALT_BUF_STAT 2
+#define ALT_BUF_ONFI 3
 	struct clk        *clk;
 };
 
@@ -390,6 +392,16 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 		vf610_nfc_ecc_mode(mtd, ECC_HW_MODE);
 		break;
 
+	case NAND_CMD_PARAM:
+		nfc->alt_buf = ALT_BUF_ONFI;
+		vf610_nfc_transfer_size(nfc->regs, 768);
+		vf610_nfc_send_command(nfc->regs, NAND_CMD_PARAM,
+				       READ_ONFI_PARAM_CMD_CODE);
+		vf610_nfc_set_field(mtd, NFC_ROW_ADDR, ROW_ADDR_MASK,
+				    ROW_ADDR_SHIFT, column);
+		vf610_nfc_ecc_mode(mtd, ECC_BYPASS);
+		break;
+
 	case NAND_CMD_ERASE1:
 		vf610_nfc_transfer_size(nfc->regs, 0);
 		vf610_nfc_send_commands(nfc->regs, command,
@@ -399,8 +411,11 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 
 	case NAND_CMD_READID:
 		nfc->alt_buf = ALT_BUF_ID;
+		nfc->column = 0;
 		vf610_nfc_transfer_size(nfc->regs, 0);
 		vf610_nfc_send_command(nfc->regs, command, READ_ID_CMD_CODE);
+		vf610_nfc_set_field(mtd, NFC_ROW_ADDR, ROW_ADDR_MASK,
+				    ROW_ADDR_SHIFT, column);
 		break;
 
 	case NAND_CMD_STATUS:
@@ -422,17 +437,11 @@ static void vf610_nfc_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
 	uint c = nfc->column;
 
-	switch (nfc->alt_buf) {
-	case ALT_BUF_ID:
-		*buf = vf610_nfc_get_id(mtd, c);
-		break;
-	case ALT_BUF_STAT:
-		*buf = vf610_nfc_get_status(mtd);
-		break;
-	default:
-		vf610_nfc_memcpy(buf, nfc->regs + NFC_MAIN_AREA(0) + c, len);
-		break;
-	}
+	/* Alternate buffers are only supported through read_byte */
+	if (nfc->alt_buf)
+		return;
+
+	vf610_nfc_memcpy(buf, nfc->regs + NFC_MAIN_AREA(0) + c, len);
 
 	nfc->column += len;
 }
@@ -453,8 +462,29 @@ static void vf610_nfc_write_buf(struct mtd_info *mtd, const u_char *buf,
 /* Read byte from NFC buffers */
 static u8 vf610_nfc_read_byte(struct mtd_info *mtd)
 {
+	struct vf610_nfc *nfc = mtd_to_nfc(mtd);
 	u8 tmp;
-	vf610_nfc_read_buf(mtd, &tmp, sizeof(tmp));
+	uint c = nfc->column;
+
+	switch (nfc->alt_buf) {
+	case ALT_BUF_ID:
+		tmp = vf610_nfc_get_id(mtd, c);
+		break;
+	case ALT_BUF_STAT:
+		tmp = vf610_nfc_get_status(mtd);
+		break;
+	case ALT_BUF_ONFI:
+#ifdef __LITTLE_ENDIAN
+		/* Reverse byte since the controller uses big endianness */
+		c = nfc->column ^ 0x3;
+		tmp = *((u8 *)(nfc->regs + NFC_MAIN_AREA(0) + c));
+		break;
+#endif
+	default:
+		tmp = *((u8 *)(nfc->regs + NFC_MAIN_AREA(0) + c));
+		break;
+	}
+	nfc->column++;
 	return tmp;
 }
 
@@ -602,13 +632,11 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 	mtd->priv = chip;
 	chip->priv = nfc;
 
-	if (cfg.width == 16) {
+	if (cfg.width == 16)
 		chip->options |= NAND_BUSWIDTH_16;
-		vf610_nfc_set(mtd, NFC_FLASH_CONFIG, CONFIG_16BIT);
-	} else {
-		chip->options &= ~NAND_BUSWIDTH_16;
-		vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CONFIG_16BIT);
-	}
+
+	/* Use 8-bit mode during initialization */
+	vf610_nfc_clear(mtd, NFC_FLASH_CONFIG, CONFIG_16BIT);
 
 	/* Disable subpage writes as we do not provide ecc->hwctl */
 	chip->options |= NAND_NO_SUBPAGE_WRITE;
@@ -650,6 +678,9 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 		err = -ENXIO;
 		goto error;
 	}
+
+	if (cfg.width == 16)
+		vf610_nfc_set(mtd, NFC_FLASH_CONFIG, CONFIG_16BIT);
 
 	chip->ecc.mode = NAND_ECC_SOFT; /* default */
 
