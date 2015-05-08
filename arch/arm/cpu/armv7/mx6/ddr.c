@@ -352,28 +352,6 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 			trrd = DIV_ROUND_UP(max(4 * clkper, 10000), clkper) - 1;
 		}
 		break;
-	case 1333:
-		txp = DIV_ROUND_UP(max(3 * clkper, 6000), clkper) - 1;
-		tcke = DIV_ROUND_UP(max(3 * clkper, 5625), clkper) - 1;
-		if (ddr3_cfg->pagesz == 1) {
-			tfaw = DIV_ROUND_UP(30000, clkper) - 1;
-			trrd = DIV_ROUND_UP(max(4 * clkper, 6000), clkper) - 1;
-		} else {
-			tfaw = DIV_ROUND_UP(45000, clkper) - 1;
-			trrd = DIV_ROUND_UP(max(4 * clkper, 7500), clkper) - 1;
-		}
-		break;
-	case 1600:
-		txp = DIV_ROUND_UP(max(3 * clkper, 6000), clkper) - 1;
-		tcke = DIV_ROUND_UP(max(3 * clkper, 5000), clkper) - 1;
-		if (ddr3_cfg->pagesz == 1) {
-			tfaw = DIV_ROUND_UP(30000, clkper) - 1;
-			trrd = DIV_ROUND_UP(max(4 * clkper, 6000), clkper) - 1;
-		} else {
-			tfaw = DIV_ROUND_UP(40000, clkper) - 1;
-			trrd = DIV_ROUND_UP(max(4 * clkper, 7500), clkper) - 1;
-		}
-		break;
 	default:
 		puts("invalid memory speed\n");
 		hang();
