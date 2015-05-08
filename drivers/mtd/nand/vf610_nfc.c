@@ -147,7 +147,6 @@ struct vf610_nfc {
 	uint               column;
 	int                spareonly;
 	int		   page_sz;
-	int                page;
 	/* Status and ID are in alternate locations. */
 	int                alt_buf;
 #define ALT_BUF_ID   1
@@ -347,7 +346,6 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 
 	switch (command) {
 	case NAND_CMD_PAGEPROG:
-		nfc->page = -1;
 		vf610_nfc_transfer_size(nfc->regs, nfc->page_sz);
 		vf610_nfc_send_commands(nfc->regs, NAND_CMD_SEQIN,
 					command, PROGRAM_PAGE_CMD_CODE);
@@ -367,10 +365,6 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 	case NAND_CMD_SEQIN: /* Pre-read for partial writes. */
 	case NAND_CMD_READ0:
 		column = 0;
-		/* Already read? */
-		if (nfc->page == page)
-			return;
-		nfc->page = page;
 		vf610_nfc_transfer_size(nfc->regs, nfc->page_sz);
 		vf610_nfc_send_commands(nfc->regs, NAND_CMD_READ0,
 					NAND_CMD_READSTART, READ_PAGE_CMD_CODE);
@@ -378,7 +372,6 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 		break;
 
 	case NAND_CMD_ERASE1:
-		nfc->page = -1;
 		vf610_nfc_transfer_size(nfc->regs, 0);
 		vf610_nfc_send_commands(nfc->regs, command,
 					NAND_CMD_ERASE2, ERASE_CMD_CODE);
@@ -532,10 +525,8 @@ static inline int vf610_nfc_correct_data(struct mtd_info *mtd, u_char *dat)
 	flip = count_written_bits(dat, nfc->chip.ecc.size, ecc_count);
 
 	/* ECC failed. */
-	if (flip > ecc_count) {
-		nfc->page = -1;
+	if (flip > ecc_count)
 		return -1;
-	}
 
 	/* Erased page. */
 	memset(dat, 0xff, nfc->chip.ecc.size);
