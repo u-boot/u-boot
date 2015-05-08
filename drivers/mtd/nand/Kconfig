@@ -41,6 +41,21 @@ config NAND_VF610_NFC
 	  The driver supports a maximum 2k page size. The driver
 	  currently does not support hardware ECC.
 
+choice
+	prompt "Hardware ECC strength"
+	depends on NAND_VF610_NFC
+	default SYS_NAND_VF610_NFC_45_ECC_BYTES
+	help
+	  Select the ECC strength used in the hardware BCH ECC block.
+
+config SYS_NAND_VF610_NFC_45_ECC_BYTES
+	bool "24-error correction (45 ECC bytes)"
+
+config SYS_NAND_VF610_NFC_60_ECC_BYTES
+	bool "32-error correction (60 ECC bytes)"
+
+endchoice
+
 comment "Generic NAND options"
 
 # Enhance depends when converting drivers to Kconfig which use this config

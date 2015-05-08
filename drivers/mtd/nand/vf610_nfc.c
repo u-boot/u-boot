@@ -71,6 +71,7 @@
 /* NFC ECC mode define */
 #define ECC_BYPASS			0
 #define ECC_45_BYTE			6
+#define ECC_60_BYTE			7
 
 /*** Register Mask and bit definitions */
 
@@ -155,7 +156,10 @@ struct vf610_nfc {
 #define mtd_to_nfc(_mtd) \
 	(struct vf610_nfc *)((struct nand_chip *)_mtd->priv)->priv
 
-static struct nand_ecclayout vf610_nfc_ecc45 = {
+#if defined(CONFIG_SYS_NAND_VF610_NFC_45_ECC_BYTES)
+#define ECC_HW_MODE ECC_45_BYTE
+
+static struct nand_ecclayout vf610_nfc_ecc = {
 	.eccbytes = 45,
 	.eccpos = {19, 20, 21, 22, 23,
 		   24, 25, 26, 27, 28, 29, 30, 31,
@@ -167,6 +171,24 @@ static struct nand_ecclayout vf610_nfc_ecc45 = {
 		{.offset = 8,
 		 .length = 11} }
 };
+#elif defined(CONFIG_SYS_NAND_VF610_NFC_60_ECC_BYTES)
+#define ECC_HW_MODE ECC_60_BYTE
+
+static struct nand_ecclayout vf610_nfc_ecc = {
+	.eccbytes = 60,
+	.eccpos = { 4,  5,  6,  7,  8,  9, 10, 11,
+		   12, 13, 14, 15, 16, 17, 18, 19,
+		   20, 21, 22, 23, 24, 25, 26, 27,
+		   28, 29, 30, 31, 32, 33, 34, 35,
+		   36, 37, 38, 39, 40, 41, 42, 43,
+		   44, 45, 46, 47, 48, 49, 50, 51,
+		   52, 53, 54, 55, 56, 57, 58, 59,
+		   60, 61, 62, 63 },
+	.oobfree = {
+		{.offset = 2,
+		 .length = 2} }
+};
+#endif
 
 static inline u32 vf610_nfc_read(struct mtd_info *mtd, uint reg)
 {
@@ -340,7 +362,7 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 		vf610_nfc_transfer_size(nfc->regs, page_sz);
 		vf610_nfc_send_commands(nfc->regs, NAND_CMD_SEQIN,
 					command, PROGRAM_PAGE_CMD_CODE);
-		vf610_nfc_ecc_mode(mtd, ECC_45_BYTE);
+		vf610_nfc_ecc_mode(mtd, ECC_HW_MODE);
 		break;
 
 	case NAND_CMD_RESET:
@@ -365,7 +387,7 @@ static void vf610_nfc_command(struct mtd_info *mtd, unsigned command,
 		vf610_nfc_send_commands(nfc->regs, NAND_CMD_READ0,
 					NAND_CMD_READSTART, READ_PAGE_CMD_CODE);
 		vf610_nfc_addr_cycle(mtd, column, page);
-		vf610_nfc_ecc_mode(mtd, ECC_45_BYTE);
+		vf610_nfc_ecc_mode(mtd, ECC_HW_MODE);
 		break;
 
 	case NAND_CMD_ERASE1:
@@ -645,7 +667,9 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 			goto error;
 		}
 
-		chip->ecc.layout = &vf610_nfc_ecc45;
+		/* Current HW ECC layouts only use 64 bytes of OOB */
+		if (mtd->oobsize > 64)
+			mtd->oobsize = 64;
 
 		/* propagate ecc.layout to mtd_info */
 		mtd->ecclayout = chip->ecc.layout;
@@ -653,9 +677,15 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 		chip->ecc.write_page = vf610_nfc_write_page;
 		chip->ecc.mode = NAND_ECC_HW;
 
-		chip->ecc.bytes = 45;
 		chip->ecc.size = PAGE_2K;
+		chip->ecc.layout = &vf610_nfc_ecc;
+#if defined(CONFIG_SYS_NAND_VF610_NFC_45_ECC_BYTES)
 		chip->ecc.strength = 24;
+		chip->ecc.bytes = 45;
+#elif defined(CONFIG_SYS_NAND_VF610_NFC_60_ECC_BYTES)
+		chip->ecc.strength = 32;
+		chip->ecc.bytes = 60;
+#endif
 
 		/* Enable ECC_STATUS */
 		vf610_nfc_set(mtd, NFC_FLASH_CONFIG, CONFIG_ECC_SRAM_REQ_BIT);
