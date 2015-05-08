@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <rtc.h>
 
 #if defined(CONFIG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
@@ -30,13 +31,15 @@ static int month_days[12] = {
 /*
  * This only works for the Gregorian calendar - i.e. after 1752 (in the UK)
  */
-void GregorianDay(struct rtc_time * tm)
+int rtc_calc_weekday(struct rtc_time *tm)
 {
 	int leapsToDate;
 	int lastYear;
 	int day;
 	int MonthOffset[] = { 0,31,59,90,120,151,181,212,243,273,304,334 };
 
+	if (tm->tm_year < 1753)
+		return -EINVAL;
 	lastYear=tm->tm_year-1;
 
 	/*
@@ -64,9 +67,11 @@ void GregorianDay(struct rtc_time * tm)
 	day += lastYear*365 + leapsToDate + MonthOffset[tm->tm_mon-1] + tm->tm_mday;
 
 	tm->tm_wday=day%7;
+
+	return 0;
 }
 
-void to_tm(int tim, struct rtc_time * tm)
+int rtc_to_tm(int tim, struct rtc_time *tm)
 {
 	register int    i;
 	register long   hms, day;
@@ -98,10 +103,14 @@ void to_tm(int tim, struct rtc_time * tm)
 	/* Days are what is left over (+1) from all that. */
 	tm->tm_mday = day + 1;
 
+	/* Zero unused fields */
+	tm->tm_yday = 0;
+	tm->tm_isdst = 0;
+
 	/*
 	 * Determine the day of week
 	 */
-	GregorianDay(tm);
+	return rtc_calc_weekday(tm);
 }
 
 /* Converts Gregorian date to seconds since 1970-01-01 00:00:00.
@@ -119,22 +128,23 @@ void to_tm(int tim, struct rtc_time * tm)
  * machines were long is 32-bit! (However, as time_t is signed, we
  * will already get problems at other places on 2038-01-19 03:14:08)
  */
-unsigned long
-mktime (unsigned int year, unsigned int mon,
-	unsigned int day, unsigned int hour,
-	unsigned int min, unsigned int sec)
+unsigned long rtc_mktime(const struct rtc_time *tm)
 {
-	if (0 >= (int) (mon -= 2)) {	/* 1..12 -> 11,12,1..10 */
+	int mon = tm->tm_mon;
+	int year = tm->tm_year;
+	int days, hours;
+
+	mon -= 2;
+	if (0 >= (int)mon) {	/* 1..12 -> 11,12,1..10 */
 		mon += 12;		/* Puts Feb last since it has leap day */
 		year -= 1;
 	}
 
-	return (((
-		(unsigned long) (year/4 - year/100 + year/400 + 367*mon/12 + day) +
-			year*365 - 719499
-	    )*24 + hour /* now have hours */
-	  )*60 + min /* now have minutes */
-	)*60 + sec; /* finally seconds */
+	days = (unsigned long)(year / 4 - year / 100 + year / 400 +
+			367 * mon / 12 + tm->tm_mday) +
+			year * 365 - 719499;
+	hours = days * 24 + tm->tm_hour;
+	return (hours * 60 + tm->tm_min) * 60 + tm->tm_sec;
 }
 
 #endif

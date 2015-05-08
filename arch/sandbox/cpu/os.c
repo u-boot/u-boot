@@ -24,6 +24,7 @@
 #include <asm/sections.h>
 #include <asm/state.h>
 #include <os.h>
+#include <rtc_def.h>
 
 /* Operating System Interface */
 
@@ -536,4 +537,21 @@ int os_jump_to_image(const void *dest, int size)
 		return err;
 
 	return unlink(fname);
+}
+
+void os_localtime(struct rtc_time *rt)
+{
+	time_t t = time(NULL);
+	struct tm *tm;
+
+	tm = localtime(&t);
+	rt->tm_sec = tm->tm_sec;
+	rt->tm_min = tm->tm_min;
+	rt->tm_hour = tm->tm_hour;
+	rt->tm_mday = tm->tm_mday;
+	rt->tm_mon = tm->tm_mon + 1;
+	rt->tm_year = tm->tm_year + 1900;
+	rt->tm_wday = tm->tm_wday;
+	rt->tm_yday = tm->tm_yday;
+	rt->tm_isdst = tm->tm_isdst;
 }

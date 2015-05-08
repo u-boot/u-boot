@@ -26,7 +26,7 @@ int rtc_get (struct rtc_time *tmp)
 
 	tim = immr->im_sit.sit_rtc;
 
-	to_tm (tim, tmp);
+	rtc_to_tm(tim, tmp);
 
 	debug ( "Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
@@ -44,8 +44,7 @@ int rtc_set (struct rtc_time *tmp)
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 
-	tim = mktime (tmp->tm_year, tmp->tm_mon, tmp->tm_mday,
-		      tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+	tim = rtc_mktime(tmp);
 
 	immr->im_sitk.sitk_rtck = KAPWR_KEY;
 	immr->im_sit.sit_rtc = tim;

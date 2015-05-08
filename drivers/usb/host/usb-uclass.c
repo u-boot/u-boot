@@ -145,9 +145,8 @@ int usb_init(void)
 
 	uclass_foreach_dev(bus, uc) {
 		/* init low_level USB */
+		printf("USB%d:   ", count);
 		count++;
-		printf("USB");
-		printf("%d:   ", bus->seq);
 		ret = device_probe(bus);
 		if (ret == -ENODEV) {	/* No such device. */
 			puts("Port not available.\n");
@@ -477,9 +476,7 @@ int usb_scan_device(struct udevice *parent, int port,
 
 	*devp = NULL;
 	memset(udev, '\0', sizeof(*udev));
-	ret = usb_get_bus(parent, &udev->controller_dev);
-	if (ret)
-		return ret;
+	udev->controller_dev = usb_get_bus(parent);
 	priv = dev_get_uclass_priv(udev->controller_dev);
 
 	/*
@@ -536,11 +533,7 @@ int usb_scan_device(struct udevice *parent, int port,
 	plat = dev_get_parent_platdata(dev);
 	debug("%s: Probing '%s', plat=%p\n", __func__, dev->name, plat);
 	plat->devnum = udev->devnum;
-	plat->speed = udev->speed;
-	plat->slot_id = udev->slot_id;
-	plat->portnr = port;
-	debug("** device '%s': stashing slot_id=%d\n", dev->name,
-	      plat->slot_id);
+	plat->udev = udev;
 	priv->next_addr++;
 	ret = device_probe(dev);
 	if (ret) {
@@ -579,45 +572,55 @@ int usb_child_post_bind(struct udevice *dev)
 	return 0;
 }
 
-int usb_get_bus(struct udevice *dev, struct udevice **busp)
+struct udevice *usb_get_bus(struct udevice *dev)
 {
 	struct udevice *bus;
 
-	*busp = NULL;
 	for (bus = dev; bus && device_get_uclass_id(bus) != UCLASS_USB; )
 		bus = bus->parent;
 	if (!bus) {
 		/* By design this cannot happen */
 		assert(bus);
 		debug("USB HUB '%s' does not have a controller\n", dev->name);
-		return -EXDEV;
 	}
-	*busp = bus;
 
-	return 0;
+	return bus;
 }
 
 int usb_child_pre_probe(struct udevice *dev)
 {
-	struct udevice *bus;
 	struct usb_device *udev = dev_get_parentdata(dev);
 	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);
 	int ret;
 
-	ret = usb_get_bus(dev, &bus);
-	if (ret)
-		return ret;
-	udev->controller_dev = bus;
-	udev->dev = dev;
-	udev->devnum = plat->devnum;
-	udev->slot_id = plat->slot_id;
-	udev->portnr = plat->portnr;
-	udev->speed = plat->speed;
-	debug("** device '%s': getting slot_id=%d\n", dev->name, plat->slot_id);
+	if (plat->udev) {
+		/*
+		 * Copy over all the values set in the on stack struct
+		 * usb_device in usb_scan_device() to our final struct
+		 * usb_device for this dev.
+		 */
+		*udev = *(plat->udev);
+		/* And clear plat->udev as it will not be valid for long */
+		plat->udev = NULL;
+		udev->dev = dev;
+	} else {
+		/*
+		 * This happens with devices which are explicitly bound
+		 * instead of being discovered through usb_scan_device()
+		 * such as sandbox emul devices.
+		 */
+		udev->dev = dev;
+		udev->controller_dev = usb_get_bus(dev);
+		udev->devnum = plat->devnum;
 
-	ret = usb_select_config(udev);
-	if (ret)
-		return ret;
+		/*
+		 * udev did not go through usb_scan_device(), so we need to
+		 * select the config and read the config descriptors.
+		 */
+		ret = usb_select_config(udev);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }

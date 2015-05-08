@@ -7,6 +7,7 @@
 #include <cros_ec.h>
 #include <dm.h>
 #include <os.h>
+#include <asm/test.h>
 #include <asm/u-boot-sandbox.h>
 
 /*
@@ -25,9 +26,17 @@ void flush_cache(unsigned long start, unsigned long size)
 {
 }
 
+/* system timer offset in ms */
+static unsigned long sandbox_timer_offset;
+
+void sandbox_timer_add_offset(unsigned long offset)
+{
+	sandbox_timer_offset += offset;
+}
+
 unsigned long timer_read_counter(void)
 {
-	return os_get_nsec() / 1000;
+	return os_get_nsec() / 1000 + sandbox_timer_offset * 1000;
 }
 
 int dram_init(void)

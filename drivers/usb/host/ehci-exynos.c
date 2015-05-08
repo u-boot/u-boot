@@ -25,14 +25,12 @@
 /* Declare global data pointer */
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_DM_USB
 struct exynos_ehci_platdata {
 	struct usb_platdata usb_plat;
 	fdt_addr_t hcd_base;
 	fdt_addr_t phy_base;
 	struct gpio_desc vbus_gpio;
 };
-#endif
 
 /**
  * Contains pointers to register base addresses
@@ -42,16 +40,8 @@ struct exynos_ehci {
 	struct ehci_ctrl ctrl;
 	struct exynos_usb_phy *usb;
 	struct ehci_hccr *hcd;
-#ifndef CONFIG_DM_USB
-	struct gpio_desc vbus_gpio;
-#endif
 };
 
-#ifndef CONFIG_DM_USB
-static struct exynos_ehci exynos;
-#endif
-
-#ifdef CONFIG_DM_USB
 static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct exynos_ehci_platdata *plat = dev_get_platdata(dev);
@@ -91,55 +81,6 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 
 	return 0;
 }
-#else
-static int exynos_usb_parse_dt(const void *blob, struct exynos_ehci *exynos)
-{
-	fdt_addr_t addr;
-	unsigned int node;
-	int depth;
-
-	node = fdtdec_next_compatible(blob, 0, COMPAT_SAMSUNG_EXYNOS_EHCI);
-	if (node <= 0) {
-		debug("EHCI: Can't get device node for ehci\n");
-		return -ENODEV;
-	}
-
-	/*
-	 * Get the base address for EHCI controller from the device node
-	 */
-	addr = fdtdec_get_addr(blob, node, "reg");
-	if (addr == FDT_ADDR_T_NONE) {
-		debug("Can't get the EHCI register address\n");
-		return -ENXIO;
-	}
-
-	exynos->hcd = (struct ehci_hccr *)addr;
-
-	/* Vbus gpio */
-	gpio_request_by_name_nodev(blob, node, "samsung,vbus-gpio", 0,
-				   &exynos->vbus_gpio, GPIOD_IS_OUT);
-
-	depth = 0;
-	node = fdtdec_next_compatible_subnode(blob, node,
-					COMPAT_SAMSUNG_EXYNOS_USB_PHY, &depth);
-	if (node <= 0) {
-		debug("EHCI: Can't get device node for usb-phy controller\n");
-		return -ENODEV;
-	}
-
-	/*
-	 * Get the base address for usbphy from the device node
-	 */
-	exynos->usb = (struct exynos_usb_phy *)fdtdec_get_addr(blob, node,
-								"reg");
-	if (exynos->usb == NULL) {
-		debug("Can't get the usbphy register address\n");
-		return -ENXIO;
-	}
-
-	return 0;
-}
-#endif
 
 static void exynos5_setup_usb_phy(struct exynos_usb_phy *usb)
 {
@@ -270,63 +211,6 @@ static void reset_usb_phy(struct exynos_usb_phy *usb)
 	set_usbhost_phy_ctrl(POWER_USB_HOST_PHY_CTRL_DISABLE);
 }
 
-#ifndef CONFIG_DM_USB
-/*
- * EHCI-initialization
- * Create the appropriate control structures to manage
- * a new EHCI host controller.
- */
-int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
-{
-	struct exynos_ehci *ctx = &exynos;
-
-#ifdef CONFIG_OF_CONTROL
-	if (exynos_usb_parse_dt(gd->fdt_blob, ctx)) {
-		debug("Unable to parse device tree for ehci-exynos\n");
-		return -ENODEV;
-	}
-#else
-	ctx->usb = (struct exynos_usb_phy *)samsung_get_base_usb_phy();
-	ctx->hcd = (struct ehci_hccr *)samsung_get_base_usb_ehci();
-#endif
-
-#ifdef CONFIG_OF_CONTROL
-	/* setup the Vbus gpio here */
-	if (dm_gpio_is_valid(&ctx->vbus_gpio))
-		dm_gpio_set_value(&ctx->vbus_gpio, 1);
-#endif
-
-	setup_usb_phy(ctx->usb);
-
-	board_usb_init(index, init);
-
-	*hccr = ctx->hcd;
-	*hcor = (struct ehci_hcor *)((uint32_t) *hccr
-				+ HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
-
-	debug("Exynos5-ehci: init hccr %x and hcor %x hc_length %d\n",
-		(uint32_t)*hccr, (uint32_t)*hcor,
-		(uint32_t)HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
-
-	return 0;
-}
-
-/*
- * Destroy the appropriate control structures corresponding
- * the EHCI host controller.
- */
-int ehci_hcd_stop(int index)
-{
-	struct exynos_ehci *ctx = &exynos;
-
-	reset_usb_phy(ctx->usb);
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_DM_USB
 static int ehci_usb_probe(struct udevice *dev)
 {
 	struct exynos_ehci_platdata *plat = dev_get_platdata(dev);
@@ -377,4 +261,3 @@ U_BOOT_DRIVER(usb_ehci) = {
 	.platdata_auto_alloc_size = sizeof(struct exynos_ehci_platdata),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif

@@ -8,7 +8,9 @@
 
 	aliases {
 		eth5 = "/eth@90000000";
+		i2c0 = &i2c_0;
 		pci0 = &pci;
+		rtc0 = &rtc_0;
 	};
 
 	chosen {
@@ -90,7 +92,7 @@
 		num-gpios = <10>;
 	};
 
-	i2c@0 {
+	i2c_0: i2c@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0 0>;
@@ -103,6 +105,14 @@
 				compatible = "sandbox,i2c-eeprom";
 				sandbox,filename = "i2c.bin";
 				sandbox,size = <128>;
+			};
+		};
+
+		rtc_0: rtc@43 {
+			reg = <0x43>;
+			compatible = "sandbox-rtc";
+			emul {
+				compatible = "sandbox,i2c-rtc";
 			};
 		};
 	};

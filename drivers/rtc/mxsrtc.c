@@ -43,7 +43,7 @@ int rtc_get(struct rtc_time *time)
 	uint32_t secs;
 
 	secs = readl(&rtc_regs->hw_rtc_seconds);
-	to_tm(secs, time);
+	rtc_to_tm(secs, time);
 
 	return 0;
 }
@@ -52,8 +52,7 @@ int rtc_set(struct rtc_time *time)
 {
 	uint32_t secs;
 
-	secs = mktime(time->tm_year, time->tm_mon, time->tm_mday,
-		time->tm_hour, time->tm_min, time->tm_sec);
+	secs = rtc_mktime(time);
 
 	return mxs_rtc_set_time(secs);
 }

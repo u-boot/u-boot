@@ -45,11 +45,6 @@ void __udelay(unsigned long usec)
 	os_usleep(usec);
 }
 
-unsigned long __attribute__((no_instrument_function)) timer_get_us(void)
-{
-	return os_get_nsec() / 1000;
-}
-
 int cleanup_before_linux(void)
 {
 	return 0;

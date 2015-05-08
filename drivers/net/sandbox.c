@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <malloc.h>
 #include <net.h>
+#include <asm/test.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -30,6 +31,7 @@ struct eth_sandbox_priv {
 };
 
 static bool disabled[8] = {false};
+static bool skip_timeout;
 
 /*
  * sandbox_eth_disable_response()
@@ -40,6 +42,16 @@ static bool disabled[8] = {false};
 void sandbox_eth_disable_response(int index, bool disable)
 {
 	disabled[index] = disable;
+}
+
+/*
+ * sandbox_eth_skip_timeout()
+ *
+ * When the first packet read is attempted, fast-forward time
+ */
+void sandbox_eth_skip_timeout(void)
+{
+	skip_timeout = true;
 }
 
 static int sb_eth_start(struct udevice *dev)
@@ -143,6 +155,11 @@ static int sb_eth_send(struct udevice *dev, void *packet, int length)
 static int sb_eth_recv(struct udevice *dev, uchar **packetp)
 {
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
+
+	if (skip_timeout) {
+		sandbox_timer_add_offset(10000UL);
+		skip_timeout = false;
+	}
 
 	if (priv->recv_packet_length) {
 		int lcl_recv_packet_length = priv->recv_packet_length;

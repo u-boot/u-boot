@@ -533,7 +533,7 @@ void genimg_print_time(time_t timestamp)
 #ifndef USE_HOSTCC
 	struct rtc_time tm;
 
-	to_tm(timestamp, &tm);
+	rtc_to_tm(timestamp, &tm);
 	printf("%4d-%02d-%02d  %2d:%02d:%02d UTC\n",
 			tm.tm_year, tm.tm_mon, tm.tm_mday,
 			tm.tm_hour, tm.tm_min, tm.tm_sec);

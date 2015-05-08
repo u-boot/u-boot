@@ -59,11 +59,10 @@ static int rtc_post_skip (ulong * diff)
 
 static void rtc_post_restore (struct rtc_time *tm, unsigned int sec)
 {
-	time_t t = mktime (tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_hour,
-					   tm->tm_min, tm->tm_sec) + sec;
+	time_t t = rtc_mktime(tm) + sec;
 	struct rtc_time ntm;
 
-	to_tm (t, &ntm);
+	rtc_to_tm(t, &ntm);
 
 	rtc_set (&ntm);
 }
@@ -116,10 +115,17 @@ int rtc_post_test (int flags)
 	rtc_get (&svtm);
 
 	for (i = 0; i < 12; i++) {
-		time_t t = mktime (ynl, i + 1, daysnl[i], 23, 59, 59);
+		time_t t;
 		struct rtc_time tm;
 
-		to_tm (t, &tm);
+		tm.tm_year = ynl;
+		tm.tm_mon = i + 1;
+		tm.tm_mday = daysnl[i];
+		tm.tm_hour = 23;
+		tm.tm_min = 59;
+		tm.tm_sec = 59;
+		t = rtc_mktime(&tm);
+		rtc_to_tm(t, &tm);
 		rtc_set (&tm);
 
 		skipped++;
@@ -140,10 +146,18 @@ int rtc_post_test (int flags)
 	}
 
 	for (i = 0; i < 12; i++) {
-		time_t t = mktime (yl, i + 1, daysl[i], 23, 59, 59);
+		time_t t;
 		struct rtc_time tm;
 
-		to_tm (t, &tm);
+		tm.tm_year = yl;
+		tm.tm_mon = i + 1;
+		tm.tm_mday = daysl[i];
+		tm.tm_hour = 23;
+		tm.tm_min = 59;
+		tm.tm_sec = 59;
+		t = rtc_mktime(&tm);
+
+		rtc_to_tm(t, &tm);
 		rtc_set (&tm);
 
 		skipped++;

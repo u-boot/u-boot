@@ -125,14 +125,7 @@ static struct descriptor {
 static struct ehci_ctrl *ehci_get_ctrl(struct usb_device *udev)
 {
 #ifdef CONFIG_DM_USB
-	struct udevice *dev;
-
-	/* Find the USB controller */
-	for (dev = udev->dev;
-	     device_get_uclass_id(dev) != UCLASS_USB;
-	     dev = dev->parent)
-		;
-	return dev_get_priv(dev);
+	return dev_get_priv(usb_get_bus(udev->dev));
 #else
 	return udev->controller;
 #endif
@@ -310,23 +303,33 @@ static void ehci_update_endpt2_dev_n_port(struct usb_device *udev,
 	 * in the tree before that one!
 	 */
 #ifdef CONFIG_DM_USB
+	/*
+	 * When called from usb-uclass.c: usb_scan_device() udev->dev points
+	 * to the parent udevice, not the actual udevice belonging to the
+	 * udev as the device is not instantiated yet. So when searching
+	 * for the first usb-2 parent start with udev->dev not
+	 * udev->dev->parent .
+	 */
 	struct udevice *parent;
+	struct usb_device *uparent;
 
-	for (ttdev = udev; ; ) {
-		struct udevice *dev = ttdev->dev;
+	ttdev = udev;
+	parent = udev->dev;
+	uparent = dev_get_parentdata(parent);
 
-		if (dev->parent &&
-		    device_get_uclass_id(dev->parent) == UCLASS_USB_HUB)
-			parent = dev->parent;
-		else
-			parent = NULL;
-		if (!parent)
+	while (uparent->speed != USB_SPEED_HIGH) {
+		struct udevice *dev = parent;
+
+		if (device_get_uclass_id(dev->parent) != UCLASS_USB_HUB) {
+			printf("ehci: Error cannot find high speed parent of usb-1 device\n");
 			return;
-		ttdev = dev_get_parentdata(parent);
-		if (!ttdev->speed != USB_SPEED_HIGH)
-			break;
+		}
+
+		ttdev = dev_get_parentdata(dev);
+		parent = dev->parent;
+		uparent = dev_get_parentdata(parent);
 	}
-	parent_devnum = ttdev->devnum;
+	parent_devnum = uparent->devnum;
 #else
 	ttdev = udev;
 	while (ttdev->parent && ttdev->parent->speed != USB_SPEED_HIGH)
@@ -1576,11 +1579,14 @@ int ehci_register(struct udevice *dev, struct ehci_hccr *hccr,
 		  struct ehci_hcor *hcor, const struct ehci_ops *ops,
 		  uint tweaks, enum usb_init_type init)
 {
+	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct ehci_ctrl *ctrl = dev_get_priv(dev);
 	int ret;
 
 	debug("%s: dev='%s', ctrl=%p, hccr=%p, hcor=%p, init=%d\n", __func__,
 	      dev->name, ctrl, hccr, hcor, init);
+
+	priv->desc_before_addr = true;
 
 	ehci_setup_ops(ctrl, ops);
 	ctrl->hccr = hccr;

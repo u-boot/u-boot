@@ -118,7 +118,7 @@ int rtc_get (struct rtc_time *tm){
 
 	DEBUGR ("Get RTC s since 1.1.1970: %ld\n", time1);
 
-	to_tm(time1, tm); /* To Gregorian Date */
+	rtc_to_tm(time1, tm); /* To Gregorian Date */
 
 	if (rtc_read(RTC_SR_ADDR) & RTC_SR_BIT_OSF) {
 		printf ("### Warning: RTC oscillator has stopped\n");
@@ -147,9 +147,7 @@ int rtc_set (struct rtc_time *tmp){
 	if (tmp->tm_year < 1970 || tmp->tm_year > 2069)
 		printf("WARNING: year should be between 1970 and 2069!\n");
 
-	time = mktime(tmp->tm_year, tmp->tm_mon,
-			tmp->tm_mday, tmp->tm_hour,
-			tmp->tm_min, tmp->tm_sec);
+	time = rtc_mktime(tmp);
 
 	DEBUGR ("Set RTC s since 1.1.1970: %ld (0x%02lx)\n", time, time);
 
