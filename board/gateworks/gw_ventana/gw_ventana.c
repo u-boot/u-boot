@@ -268,14 +268,15 @@ static void setup_gpmi_nand(void)
 }
 #endif
 
-static void setup_iomux_enet(void)
+static void setup_iomux_enet(int gpio)
 {
 	SETUP_IOMUX_PADS(enet_pads);
 
 	/* toggle PHY_RST# */
-	gpio_direction_output(GP_PHY_RST, 0);
+	gpio_request(gpio, "phy_rst#");
+	gpio_direction_output(gpio, 0);
 	mdelay(2);
-	gpio_set_value(GP_PHY_RST, 1);
+	gpio_set_value(gpio, 1);
 }
 
 static void setup_iomux_uart(void)
@@ -295,6 +296,7 @@ static iomux_v3_cfg_t const usb_pads[] = {
 int board_ehci_hcd_init(int port)
 {
 	struct ventana_board_info *info = &ventana_info;
+	int gpio;
 
 	SETUP_IOMUX_PADS(usb_pads);
 
@@ -303,17 +305,21 @@ int board_ehci_hcd_init(int port)
 	case '3': /* GW53xx */
 	case '5': /* GW552x */
 		SETUP_IOMUX_PAD(PAD_GPIO_9__GPIO1_IO09 | DIO_PAD_CFG);
-		gpio_direction_output(IMX_GPIO_NR(1, 9), 0);
-		mdelay(2);
-		gpio_set_value(IMX_GPIO_NR(1, 9), 1);
+		gpio = (IMX_GPIO_NR(1, 9));
 		break;
 	case '4': /* GW54xx */
 		SETUP_IOMUX_PAD(PAD_SD1_DAT0__GPIO1_IO16 | DIO_PAD_CFG);
-		gpio_direction_output(IMX_GPIO_NR(1, 16), 0);
-		mdelay(2);
-		gpio_set_value(IMX_GPIO_NR(1, 16), 1);
+		gpio = (IMX_GPIO_NR(1, 16));
 		break;
+	default:
+		return 0;
 	}
+
+	/* request and toggle hub rst */
+	gpio_request(gpio, "usb_hub_rst#");
+	gpio_direction_output(gpio, 0);
+	mdelay(2);
+	gpio_set_value(gpio, 1);
 
 	return 0;
 }
@@ -322,6 +328,7 @@ int board_ehci_power(int port, int on)
 {
 	if (port)
 		return 0;
+	gpio_request(GP_USB_OTG_PWR, "usb_otg_pwr");
 	gpio_set_value(GP_USB_OTG_PWR, on);
 	return 0;
 }
@@ -333,6 +340,7 @@ static struct fsl_esdhc_cfg usdhc_cfg = { USDHC3_BASE_ADDR };
 int board_mmc_getcd(struct mmc *mmc)
 {
 	/* Card Detect */
+	gpio_request(GP_SD3_CD, "sd_cd");
 	gpio_direction_input(GP_SD3_CD);
 	return !gpio_get_value(GP_SD3_CD);
 }
@@ -364,6 +372,7 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 
 static void setup_spi(void)
 {
+	gpio_request(IMX_GPIO_NR(3, 19), "spi_cs");
 	gpio_direction_output(IMX_GPIO_NR(3, 19), 1);
 	SETUP_IOMUX_PADS(ecspi1_pads);
 }
@@ -399,7 +408,7 @@ int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_FEC_MXC
 	if (board_type != GW551x && board_type != GW552x) {
-		setup_iomux_enet();
+		setup_iomux_enet(GP_PHY_RST);
 		cpu_eth_init(bis);
 	}
 #endif
@@ -449,6 +458,7 @@ static void enable_lvds(struct display_info_t const *dev)
 	writel(reg, &iomux->gpr[2]);
 
 	/* Enable Backlight */
+	gpio_request(IMX_GPIO_NR(1, 18), "bklt_en");
 	SETUP_IOMUX_PAD(PAD_SD1_CMD__GPIO1_IO18 | DIO_PAD_CFG);
 	gpio_direction_output(IMX_GPIO_NR(1, 18), 1);
 }
@@ -588,6 +598,7 @@ static void setup_display(void)
 	writel(reg, &iomux->gpr[3]);
 
 	/* Backlight CABEN on LVDS connector */
+	gpio_request(IMX_GPIO_NR(1, 10), "bklt_gpio");
 	SETUP_IOMUX_PAD(PAD_SD2_CLK__GPIO1_IO10 | DIO_PAD_CFG);
 	gpio_direction_output(IMX_GPIO_NR(1, 10), 0);
 }
@@ -1158,9 +1169,11 @@ static void setup_board_gpio(int board)
 		return;
 
 	/* RS232_EN# */
+	gpio_request(GP_RS232_EN, "rs232_en");
 	gpio_direction_output(GP_RS232_EN, (hwconfig("rs232")) ? 0 : 1);
 
 	/* MSATA Enable */
+	gpio_request(GP_MSATA_SEL, "msata_en");
 	if (is_cpu_type(MXC_CPU_MX6Q) &&
 	    test_bit(EECONFIG_SATA, info->config)) {
 		gpio_direction_output(GP_MSATA_SEL,
@@ -1175,50 +1188,71 @@ static void setup_board_gpio(int board)
 		gpio_cfg[board].pcie_rst = IMX_GPIO_NR(3, 23);
 
 	/* assert PCI_RST# (released by OS when clock is valid) */
+	gpio_request(gpio_cfg[board].pcie_rst, "pci_rst#");
 	gpio_direction_output(gpio_cfg[board].pcie_rst, 0);
 #endif
 
 	/* turn off (active-high) user LED's */
 	for (i = 0; i < ARRAY_SIZE(gpio_cfg[board].leds); i++) {
-		if (gpio_cfg[board].leds[i])
+		if (gpio_cfg[board].leds[i]) {
+			gpio_requestf(gpio_cfg[board].leds[i], "led_user%d", i);
 			gpio_direction_output(gpio_cfg[board].leds[i], 1);
+		}
 	}
 
 	/* Expansion Mezzanine IO */
-	if (gpio_cfg[board].mezz_pwren)
+	if (gpio_cfg[board].mezz_pwren) {
+		gpio_request(gpio_cfg[board].mezz_pwren, "mezz_pwr");
 		gpio_direction_output(gpio_cfg[board].mezz_pwren, 0);
-	if (gpio_cfg[board].mezz_irq)
+	}
+	if (gpio_cfg[board].mezz_irq) {
+		gpio_request(gpio_cfg[board].mezz_irq, "mezz_irq#");
 		gpio_direction_input(gpio_cfg[board].mezz_irq);
+	}
 
 	/* RS485 Transmit Enable */
-	if (gpio_cfg[board].rs485en)
+	if (gpio_cfg[board].rs485en) {
+		gpio_request(gpio_cfg[board].rs485en, "rs485_en");
 		gpio_direction_output(gpio_cfg[board].rs485en, 0);
+	}
 
 	/* GPS_SHDN */
-	if (gpio_cfg[board].gps_shdn)
+	if (gpio_cfg[board].gps_shdn) {
+		gpio_request(gpio_cfg[board].gps_shdn, "gps_shdn");
 		gpio_direction_output(gpio_cfg[board].gps_shdn, 1);
+	}
 
 	/* Analog video codec power enable */
-	if (gpio_cfg[board].vidin_en)
+	if (gpio_cfg[board].vidin_en) {
+		gpio_request(gpio_cfg[board].vidin_en, "anavidin_en");
 		gpio_direction_output(gpio_cfg[board].vidin_en, 1);
+	}
 
 	/* DIOI2C_DIS# */
-	if (gpio_cfg[board].dioi2c_en)
+	if (gpio_cfg[board].dioi2c_en) {
+		gpio_request(gpio_cfg[board].dioi2c_en, "dioi2c_dis#");
 		gpio_direction_output(gpio_cfg[board].dioi2c_en, 0);
+	}
 
 	/* PCICK_SSON: disable spread-spectrum clock */
-	if (gpio_cfg[board].pcie_sson)
+	if (gpio_cfg[board].pcie_sson) {
+		gpio_request(gpio_cfg[board].pcie_sson, "pci_sson");
 		gpio_direction_output(gpio_cfg[board].pcie_sson, 0);
+	}
 
 	/* USBOTG Select (PCISKT or FrontPanel) */
-	if (gpio_cfg[board].usb_sel)
+	if (gpio_cfg[board].usb_sel) {
+		gpio_request(gpio_cfg[board].usb_sel, "usb_pcisel");
 		gpio_direction_output(gpio_cfg[board].usb_sel,
 				      (hwconfig("usb_pcisel")) ? 1 : 0);
+	}
 
 
 	/* PCISKT_WDIS# (Wireless disable GPIO to miniPCIe sockets) */
-	if (gpio_cfg[board].wdis)
+	if (gpio_cfg[board].wdis) {
+		gpio_request(gpio_cfg[board].wdis, "wlan_dis");
 		gpio_direction_output(gpio_cfg[board].wdis, 1);
+	}
 
 	/*
 	 * Configure DIO pinmux/padctl registers
@@ -1248,6 +1282,7 @@ static void setup_board_gpio(int board)
 			}
 			imx_iomux_v3_setup_pad(cfg->gpio_padmux[cputype] |
 					       ctrl);
+			gpio_requestf(cfg->gpio_param, "dio%d", i);
 			gpio_direction_input(cfg->gpio_param);
 		} else if (hwconfig_subarg_cmp("dio2", "mode", "pwm") &&
 			   cfg->pwm_padmux) {
@@ -1274,6 +1309,7 @@ int imx6_pcie_toggle_reset(void)
 {
 	if (board_type < GW_UNKNOWN) {
 		uint pin = gpio_cfg[board_type].pcie_rst;
+		gpio_request(pin, "pci_rst#");
 		gpio_direction_output(pin, 0);
 		mdelay(50);
 		gpio_direction_output(pin, 1);
@@ -1343,6 +1379,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
+
 	gpio_direction_output(GP_USB_OTG_PWR, 0); /* OTG power off */
 
 #if defined(CONFIG_VIDEO_IPUV3)
