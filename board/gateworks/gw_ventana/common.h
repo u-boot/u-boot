@@ -89,7 +89,7 @@ void setup_ventana_i2c(void);
 /* configure uart iomux */
 void setup_iomux_uart(void);
 /* conifgure PMIC */
-void setup_pmic(int board);
+void setup_pmic(void);
 /* configure gpio iomux/defaults */
 void setup_iomux_gpio(int board, struct ventana_board_info *);
 /* late setup of GPIO (configuration per baseboard and env) */

@@ -468,7 +468,7 @@ static void setup_display(void)
 /* setup board specific PMIC */
 int power_init_board(void)
 {
-	setup_pmic(board_type);
+	setup_pmic();
 	return 0;
 }
 

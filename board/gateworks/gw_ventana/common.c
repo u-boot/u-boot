@@ -759,13 +759,16 @@ void setup_board_gpio(int board, struct ventana_board_info *info)
 }
 
 /* setup board specific PMIC */
-void setup_pmic(int board)
+void setup_pmic(void)
 {
 	struct pmic *p;
 	u32 reg;
 
+	i2c_set_bus_num(CONFIG_I2C_PMIC);
+
 	/* configure PFUZE100 PMIC */
-	if (board == GW54xx || board == GW54proto) {
+	if (!i2c_probe(CONFIG_POWER_PFUZE100_I2C_ADDR)) {
+		debug("probed PFUZE100@0x%x\n", CONFIG_POWER_PFUZE100_I2C_ADDR);
 		power_pfuze100_init(CONFIG_I2C_PMIC);
 		p = pmic_get("PFUZE100");
 		if (p && !pmic_probe(p)) {
@@ -787,7 +790,8 @@ void setup_pmic(int board)
 	}
 
 	/* configure LTC3676 PMIC */
-	else {
+	else if (!i2c_probe(CONFIG_POWER_LTC3676_I2C_ADDR)) {
+		debug("probed LTC3676@0x%x\n", CONFIG_POWER_LTC3676_I2C_ADDR);
 		power_ltc3676_init(CONFIG_I2C_PMIC);
 		p = pmic_get("LTC3676_PMIC");
 		if (p && !pmic_probe(p)) {
