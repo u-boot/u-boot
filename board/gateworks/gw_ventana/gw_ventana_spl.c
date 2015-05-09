@@ -510,6 +510,9 @@ void board_init_f(ulong dummy)
 	/* read/validate EEPROM info to determine board model and SDRAM cfg */
 	board_model = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
 
+	/* configure model-specific gpio */
+	setup_iomux_gpio(board_model, &ventana_info);
+
 	/* provide some some default: 32bit 128MB */
 	if (GW_UNKNOWN == board_model) {
 		ventana_info.sdram_width = 2;
