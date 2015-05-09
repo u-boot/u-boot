@@ -45,6 +45,13 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
 
+/* Driver Model */
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_DM
+#define CONFIG_DM_GPIO
+#define CONFIG_CMD_DM
+#endif
+
 /* GPIO */
 #define CONFIG_MXC_GPIO
 #define CONFIG_CMD_GPIO
