@@ -6,10 +6,8 @@
  */
 
 #include <common.h>
-#include <i2c.h>
 #include <asm/io.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/arch/iomux.h>
 #include <asm/arch/mx6-ddr.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
@@ -18,54 +16,14 @@
 #include <asm/imx-common/mxc_i2c.h>
 #include <spl.h>
 
-#include "ventana_eeprom.h"
+#include "gsc.h"
+#include "common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #define RTT_NOM_120OHM /* use 120ohm Rtt_nom vs 60ohm (lower power) */
-#define I2C_GSC			0
-#define GSC_EEPROM_ADDR		0x51
 #define GSC_EEPROM_DDR_SIZE	0x2B	/* enum (512,1024,2048) MB */
 #define GSC_EEPROM_DDR_WIDTH	0x2D	/* enum (32,64) bit */
-#define I2C_PAD_CTRL  (PAD_CTL_PUS_100K_UP |                    \
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |   \
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-#define CONFIG_SYS_I2C_SPEED	100000
-
-/* I2C1: GSC */
-static struct i2c_pads_info mx6q_i2c_pad_info0 = {
-	.scl = {
-		.i2c_mode = MX6Q_PAD_EIM_D21__I2C1_SCL | PC,
-		.gpio_mode = MX6Q_PAD_EIM_D21__GPIO3_IO21 | PC,
-		.gp = IMX_GPIO_NR(3, 21)
-	},
-	.sda = {
-		.i2c_mode = MX6Q_PAD_EIM_D28__I2C1_SDA | PC,
-		.gpio_mode = MX6Q_PAD_EIM_D28__GPIO3_IO28 | PC,
-		.gp = IMX_GPIO_NR(3, 28)
-	}
-};
-static struct i2c_pads_info mx6dl_i2c_pad_info0 = {
-	.scl = {
-		.i2c_mode = MX6DL_PAD_EIM_D21__I2C1_SCL | PC,
-		.gpio_mode = MX6DL_PAD_EIM_D21__GPIO3_IO21 | PC,
-		.gp = IMX_GPIO_NR(3, 21)
-	},
-	.sda = {
-		.i2c_mode = MX6DL_PAD_EIM_D28__I2C1_SDA | PC,
-		.gpio_mode = MX6DL_PAD_EIM_D28__GPIO3_IO28 | PC,
-		.gp = IMX_GPIO_NR(3, 28)
-	}
-};
-
-static void i2c_setup_iomux(void)
-{
-	if (is_cpu_type(MXC_CPU_MX6Q))
-		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info0);
-	else
-		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info0);
-}
 
 /* configure MX6Q/DUAL mmdc DDR io registers */
 struct mx6dq_iomux_ddr_regs mx6dq_ddr_ioregs = {
@@ -540,8 +498,8 @@ void board_init_f(ulong dummy)
 	gpr_init();
 
 	/* iomux and setup of i2c */
-	board_early_init_f();
-	i2c_setup_iomux();
+	setup_iomux_uart();
+	setup_ventana_i2c();
 
 	/* setup GP timer */
 	timer_init();
@@ -550,7 +508,7 @@ void board_init_f(ulong dummy)
 	preloader_console_init();
 
 	/* read/validate EEPROM info to determine board model and SDRAM cfg */
-	board_model = read_eeprom(I2C_GSC, &ventana_info);
+	board_model = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
 
 	/* provide some some default: 32bit 128MB */
 	if (GW_UNKNOWN == board_model) {
