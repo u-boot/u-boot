@@ -50,12 +50,16 @@
 #define CONFIG_DM
 #define CONFIG_DM_GPIO
 #define CONFIG_DM_SERIAL
+#define CONFIG_DM_THERMAL
 #define CONFIG_CMD_DM
 #endif
 
 /* GPIO */
 #define CONFIG_MXC_GPIO
 #define CONFIG_CMD_GPIO
+
+/* Thermal */
+#define CONFIG_IMX6_THERMAL
 
 /* Serial */
 #define CONFIG_MXC_UART
