@@ -49,6 +49,7 @@
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_DM
 #define CONFIG_DM_GPIO
+#define CONFIG_DM_SERIAL
 #define CONFIG_CMD_DM
 #endif
 

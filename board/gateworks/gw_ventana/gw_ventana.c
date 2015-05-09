@@ -22,6 +22,7 @@
 #include <asm/imx-common/sata.h>
 #include <asm/imx-common/spi.h>
 #include <asm/imx-common/video.h>
+#include <dm/platform_data/serial_mxc.h>
 #include <jffs2/load_kernel.h>
 #include <hwconfig.h>
 #include <i2c.h>
@@ -1820,3 +1821,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 #endif /* defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP) */
 
+static struct mxc_serial_platdata ventana_mxc_serial_plat = {
+	.reg = (struct mxc_uart *)UART2_BASE,
+};
+
+U_BOOT_DEVICE(ventana_serial) = {
+	.name   = "serial_mxc",
+	.platdata = &ventana_mxc_serial_plat,
+};
