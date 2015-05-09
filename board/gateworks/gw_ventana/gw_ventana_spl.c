@@ -14,6 +14,7 @@
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/mxc_i2c.h>
+#include <environment.h>
 #include <spl.h>
 
 #include "gsc.h"
@@ -555,6 +556,25 @@ void spl_board_init(void)
 	/* PMIC init */
 	setup_pmic();
 }
+
+#ifdef CONFIG_SPL_OS_BOOT
+/* return 1 if we wish to boot to uboot vs os (falcon mode) */
+int spl_start_uboot(void)
+{
+	int ret = 1;
+
+	debug("%s\n", __func__);
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	env_init();
+	env_relocate_spec();
+	debug("boot_os=%s\n", getenv("boot_os"));
+	if (getenv_yesno("boot_os") == 1)
+		ret = 0;
+#endif
+	debug("%s booting %s\n", __func__, ret ? "uboot" : "linux");
+	return ret;
+}
+#endif
 
 void reset_cpu(ulong addr)
 {

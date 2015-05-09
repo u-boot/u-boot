@@ -17,6 +17,22 @@
 /* Location in NAND to read U-Boot from */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * SZ_1M)
 
+/* Falcon Mode */
+#define CONFIG_CMD_SPL
+#define CONFIG_SPL_OS_BOOT
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
+#define CONFIG_CMD_SPL_WRITE_SIZE	(128 * SZ_1K)
+
+/* Falcon Mode - NAND support: args@17MB kernel@18MB */
+#define CONFIG_CMD_SPL_NAND_OFS		(17 * SZ_1M)
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	(18 * SZ_1M)
+
+/* Falcon Mode - MMC support: args@1MB kernel@2MB */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x800	/* 1MB */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	(CONFIG_CMD_SPL_WRITE_SIZE / 512)
+#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x1000	/* 2MB */
+
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
 #define CONFIG_MX6
