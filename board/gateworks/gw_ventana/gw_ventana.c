@@ -1174,13 +1174,10 @@ static void setup_board_gpio(int board)
 	gpio_direction_output(GP_RS232_EN, (hwconfig("rs232")) ? 0 : 1);
 
 	/* MSATA Enable */
-	gpio_request(GP_MSATA_SEL, "msata_en");
 	if (is_cpu_type(MXC_CPU_MX6Q) &&
 	    test_bit(EECONFIG_SATA, info->config)) {
 		gpio_direction_output(GP_MSATA_SEL,
 				      (hwconfig("msata")) ?  1 : 0);
-	} else {
-		gpio_direction_output(GP_MSATA_SEL, 0);
 	}
 
 #if !defined(CONFIG_CMD_PCI)
@@ -1435,6 +1432,10 @@ int board_init(void)
 		/* GW522x Uses GPIO3_IO23 for PCIE_RST# */
 		if (board_type == GW52xx && ventana_info.model[4] == '2')
 			gpio_cfg[board_type].pcie_rst = IMX_GPIO_NR(3, 23);
+
+		/* MSATA Enable - default to PCI */
+		gpio_request(GP_MSATA_SEL, "msata_en");
+		gpio_direction_output(GP_MSATA_SEL, 0);
 	}
 
 	return 0;
