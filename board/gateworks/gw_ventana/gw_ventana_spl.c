@@ -570,6 +570,28 @@ void board_init_f(ulong dummy)
 	board_init_r(NULL, 0);
 }
 
+/* called from board_init_r after gd setup if CONFIG_SPL_BOARD_INIT defined */
+/* its our chance to print info about boot device */
+void spl_board_init(void)
+{
+	/* determine boot device from SRC_SBMR1 (BOOT_CFG[4:1]) or SRC_GPR9 */
+	u32 boot_device = spl_boot_device();
+
+	switch (boot_device) {
+	case BOOT_DEVICE_MMC1:
+		puts("Booting from MMC\n");
+		break;
+	case BOOT_DEVICE_NAND:
+		puts("Booting from NAND\n");
+		break;
+	case BOOT_DEVICE_SATA:
+		puts("Booting from SATA\n");
+		break;
+	default:
+		puts("Unknown boot device\n");
+	}
+}
+
 void reset_cpu(ulong addr)
 {
 }
