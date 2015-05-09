@@ -1184,10 +1184,6 @@ static void setup_board_gpio(int board)
 	}
 
 #if !defined(CONFIG_CMD_PCI)
-	/* GW522x Uses GPIO3_IO23 for PCIE_RST# */
-	if (board_type == GW52xx && info->model[4] == '2')
-		gpio_cfg[board].pcie_rst = IMX_GPIO_NR(3, 23);
-
 	/* assert PCI_RST# (released by OS when clock is valid) */
 	gpio_request(gpio_cfg[board].pcie_rst, "pci_rst#");
 	gpio_direction_output(gpio_cfg[board].pcie_rst, 0);
@@ -1435,6 +1431,10 @@ int board_init(void)
 		int count = gpio_cfg[board_type].num_pads;
 
 		imx_iomux_v3_setup_multiple_pads(p, count);
+
+		/* GW522x Uses GPIO3_IO23 for PCIE_RST# */
+		if (board_type == GW52xx && ventana_info.model[4] == '2')
+			gpio_cfg[board_type].pcie_rst = IMX_GPIO_NR(3, 23);
 	}
 
 	return 0;
