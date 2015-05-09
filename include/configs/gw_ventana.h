@@ -47,6 +47,7 @@
 
 /* GPIO */
 #define CONFIG_MXC_GPIO
+#define CONFIG_CMD_GPIO
 
 /* Serial */
 #define CONFIG_MXC_UART
