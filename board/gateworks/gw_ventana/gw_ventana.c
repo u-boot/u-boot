@@ -659,7 +659,6 @@ static const struct boot_mode board_boot_modes[] = {
 int misc_init_r(void)
 {
 	struct ventana_board_info *info = &ventana_info;
-	unsigned char reg;
 
 	/* set env vars based on EEPROM data */
 	if (ventana_info.model[0]) {
@@ -740,27 +739,8 @@ int misc_init_r(void)
 	add_board_boot_modes(board_boot_modes);
 #endif
 
-	/*
-	 *  The Gateworks System Controller implements a boot
-	 *  watchdog (always enabled) as a workaround for IMX6 boot related
-	 *  errata such as:
-	 *    ERR005768 - no fix scheduled
-	 *    ERR006282 - fixed in silicon r1.2
-	 *    ERR007117 - fixed in silicon r1.3
-	 *    ERR007220 - fixed in silicon r1.3
-	 *    ERR007926 - no fix scheduled
-	 *  see http://cache.freescale.com/files/32bit/doc/errata/IMX6DQCE.pdf
-	 *
-	 * Disable the boot watchdog and display/clear the timeout flag if set
-	 */
-	i2c_set_bus_num(CONFIG_I2C_GSC);
-	if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1)) {
-		reg |= (1 << GSC_SC_CTRL1_WDDIS);
-		if (gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
-			puts("Error: could not disable GSC Watchdog\n");
-	} else {
-		puts("Error: could not disable GSC Watchdog\n");
-	}
+	/* disable boot watchdog */
+	gsc_boot_wd_disable();
 
 	return 0;
 }

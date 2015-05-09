@@ -132,6 +132,33 @@ int gsc_info(int verbose)
 	return 0;
 }
 
+/*
+ *  The Gateworks System Controller implements a boot
+ *  watchdog (always enabled) as a workaround for IMX6 boot related
+ *  errata such as:
+ *    ERR005768 - no fix scheduled
+ *    ERR006282 - fixed in silicon r1.2
+ *    ERR007117 - fixed in silicon r1.3
+ *    ERR007220 - fixed in silicon r1.3
+ *    ERR007926 - no fix scheduled
+ *  see http://cache.freescale.com/files/32bit/doc/errata/IMX6DQCE.pdf
+ *
+ * Disable the boot watchdog
+ */
+int gsc_boot_wd_disable(void)
+{
+	u8 reg;
+
+	i2c_set_bus_num(CONFIG_I2C_GSC);
+	if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1)) {
+		reg |= (1 << GSC_SC_CTRL1_WDDIS);
+		if (!gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
+			return 0;
+	}
+	puts("Error: could not disable GSC Watchdog\n");
+	return 1;
+}
+
 #ifdef CONFIG_CMD_GSC
 static int do_gsc_wd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
