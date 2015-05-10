@@ -198,7 +198,7 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, int interval);
 
-#if defined CONFIG_USB_EHCI || defined CONFIG_MUSB_HOST
+#if defined CONFIG_USB_EHCI || defined CONFIG_MUSB_HOST || defined(CONFIG_DM_USB)
 struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
 	int queuesize, int elementsize, void *buffer, int interval);
 int destroy_int_queue(struct usb_device *dev, struct int_queue *queue);
@@ -660,6 +660,52 @@ struct dm_usb_ops {
 	int (*interrupt)(struct udevice *bus, struct usb_device *udev,
 			 unsigned long pipe, void *buffer, int length,
 			 int interval);
+
+	/**
+	 * create_int_queue() - Create and queue interrupt packets
+	 *
+	 * Create and queue @queuesize number of interrupt usb packets of
+	 * @elementsize bytes each. @buffer must be atleast @queuesize *
+	 * @elementsize bytes.
+	 *
+	 * Note some controllers only support a queuesize of 1.
+	 *
+	 * @interval: Interrupt interval
+	 *
+	 * @return A pointer to the created interrupt queue or NULL on error
+	 */
+	struct int_queue * (*create_int_queue)(struct udevice *bus,
+				struct usb_device *udev, unsigned long pipe,
+				int queuesize, int elementsize, void *buffer,
+				int interval);
+
+	/**
+	 * poll_int_queue() - Poll an interrupt queue for completed packets
+	 *
+	 * Poll an interrupt queue for completed packets. The return value
+	 * points to the part of the buffer passed to create_int_queue()
+	 * corresponding to the completed packet.
+	 *
+	 * @queue: queue to poll
+	 *
+	 * @return Pointer to the data of the first completed packet, or
+	 *         NULL if no packets are ready
+	 */
+	void * (*poll_int_queue)(struct udevice *bus, struct usb_device *udev,
+				 struct int_queue *queue);
+
+	/**
+	 * destroy_int_queue() - Destroy an interrupt queue
+	 *
+	 * Destroy an interrupt queue created by create_int_queue().
+	 *
+	 * @queue: queue to poll
+	 *
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*destroy_int_queue)(struct udevice *bus, struct usb_device *udev,
+				 struct int_queue *queue);
+
 	/**
 	 * alloc_device() - Allocate a new device context (XHCI)
 	 *

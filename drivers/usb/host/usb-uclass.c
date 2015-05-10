@@ -65,6 +65,42 @@ int submit_bulk_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
 	return ops->bulk(bus, udev, pipe, buffer, length);
 }
 
+struct int_queue *create_int_queue(struct usb_device *udev,
+		unsigned long pipe, int queuesize, int elementsize,
+		void *buffer, int interval)
+{
+	struct udevice *bus = udev->controller_dev;
+	struct dm_usb_ops *ops = usb_get_ops(bus);
+
+	if (!ops->create_int_queue)
+		return NULL;
+
+	return ops->create_int_queue(bus, udev, pipe, queuesize, elementsize,
+				     buffer, interval);
+}
+
+void *poll_int_queue(struct usb_device *udev, struct int_queue *queue)
+{
+	struct udevice *bus = udev->controller_dev;
+	struct dm_usb_ops *ops = usb_get_ops(bus);
+
+	if (!ops->poll_int_queue)
+		return NULL;
+
+	return ops->poll_int_queue(bus, udev, queue);
+}
+
+int destroy_int_queue(struct usb_device *udev, struct int_queue *queue)
+{
+	struct udevice *bus = udev->controller_dev;
+	struct dm_usb_ops *ops = usb_get_ops(bus);
+
+	if (!ops->destroy_int_queue)
+		return -ENOSYS;
+
+	return ops->destroy_int_queue(bus, udev, queue);
+}
+
 int usb_alloc_device(struct usb_device *udev)
 {
 	struct udevice *bus = udev->controller_dev;

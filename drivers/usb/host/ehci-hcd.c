@@ -1605,6 +1605,29 @@ static int ehci_submit_int_msg(struct udevice *dev, struct usb_device *udev,
 	return _ehci_submit_int_msg(udev, pipe, buffer, length, interval);
 }
 
+static struct int_queue *ehci_create_int_queue(struct udevice *dev,
+		struct usb_device *udev, unsigned long pipe, int queuesize,
+		int elementsize, void *buffer, int interval)
+{
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+	return _ehci_create_int_queue(udev, pipe, queuesize, elementsize,
+				      buffer, interval);
+}
+
+static void *ehci_poll_int_queue(struct udevice *dev, struct usb_device *udev,
+				 struct int_queue *queue)
+{
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+	return _ehci_poll_int_queue(udev, queue);
+}
+
+static int ehci_destroy_int_queue(struct udevice *dev, struct usb_device *udev,
+				  struct int_queue *queue)
+{
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+	return _ehci_destroy_int_queue(udev, queue);
+}
+
 int ehci_register(struct udevice *dev, struct ehci_hccr *hccr,
 		  struct ehci_hcor *hcor, const struct ehci_ops *ops,
 		  uint tweaks, enum usb_init_type init)
@@ -1653,6 +1676,9 @@ struct dm_usb_ops ehci_usb_ops = {
 	.control = ehci_submit_control_msg,
 	.bulk = ehci_submit_bulk_msg,
 	.interrupt = ehci_submit_int_msg,
+	.create_int_queue = ehci_create_int_queue,
+	.poll_int_queue = ehci_poll_int_queue,
+	.destroy_int_queue = ehci_destroy_int_queue,
 };
 
 #endif
