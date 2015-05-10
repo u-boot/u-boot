@@ -587,40 +587,6 @@ int sohci_submit_job(ohci_t *ohci, ohci_dev_t *ohci_dev, urb_priv_t *urb,
 	return 0;
 }
 
-static inline int sohci_return_job(struct ohci *hc, urb_priv_t *urb)
-{
-	struct ohci_regs *regs = hc->regs;
-
-	switch (usb_pipetype(urb->pipe)) {
-	case PIPE_INTERRUPT:
-		/* implicitly requeued */
-		if (urb->dev->irq_handle &&
-				(urb->dev->irq_act_len = urb->actual_length)) {
-			ohci_writel(OHCI_INTR_WDH, &regs->intrenable);
-			ohci_readl(&regs->intrenable); /* PCI posting flush */
-			urb->dev->irq_handle(urb->dev);
-			ohci_writel(OHCI_INTR_WDH, &regs->intrdisable);
-			ohci_readl(&regs->intrdisable); /* PCI posting flush */
-		}
-		urb->actual_length = 0;
-		td_submit_job(  hc,
-				urb->dev,
-				urb->pipe,
-				urb->transfer_buffer,
-				urb->transfer_buffer_length,
-				NULL,
-				urb,
-				urb->interval);
-		break;
-	case PIPE_CONTROL:
-	case PIPE_BULK:
-		break;
-	default:
-		return 0;
-	}
-	return 1;
-}
-
 /*-------------------------------------------------------------------------*/
 
 #ifdef DEBUG
@@ -1153,7 +1119,7 @@ static td_t *dl_reverse_done_list(ohci_t *ohci)
 static void finish_urb(ohci_t *ohci, urb_priv_t *urb, int status)
 {
 	if ((status & (ED_OPER | ED_UNLINK)) && (urb->state != URB_DEL))
-		urb->finished = sohci_return_job(ohci, urb);
+		urb->finished = 1;
 	else
 		dbg("finish_urb: strange.., ED state %x, \n", status);
 }
@@ -1593,10 +1559,7 @@ static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 #else
 	mdelay(1);
 #endif
-
-	/* free TDs in urb_priv */
-	if (!usb_pipeint(pipe))
-		urb_free_priv(urb);
+	urb_free_priv(urb);
 	return 0;
 }
 
