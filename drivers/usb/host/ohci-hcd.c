@@ -30,6 +30,8 @@
 
 #include <common.h>
 #include <asm/byteorder.h>
+#include <dm.h>
+#include <errno.h>
 
 #if defined(CONFIG_PCI_OHCI)
 # include <pci.h>
@@ -140,10 +142,12 @@ static struct pci_device_id ehci_pci_ids[] = {
 #define ohci_mdelay(x) mdelay(x)
 #endif
 
+#ifndef CONFIG_DM_USB
 /* global ohci_t */
 static ohci_t gohci;
 /* this must be aligned to a 256 byte boundary */
 struct ohci_hcca ghcca[1];
+#endif
 
 /* mapping of the OHCI CC status to error codes */
 static int cc_to_error[16] = {
@@ -1573,6 +1577,7 @@ static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 	return 0;
 }
 
+#ifndef CONFIG_DM_USB
 /* submit routines called from usb.c */
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		int transfer_len)
@@ -1589,6 +1594,7 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	return submit_common_msg(&gohci, dev, pipe, buffer, transfer_len, NULL,
 			interval);
 }
+#endif
 
 static int _ohci_submit_control_msg(ohci_t *ohci, struct usb_device *dev,
 	unsigned long pipe, void *buffer, int transfer_len,
@@ -1839,6 +1845,8 @@ static int hc_interrupt(ohci_t *ohci)
 
 /*-------------------------------------------------------------------------*/
 
+#ifndef CONFIG_DM_USB
+
 /*-------------------------------------------------------------------------*/
 
 /* De-allocate all resources.. */
@@ -1985,3 +1993,79 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe,
 	return _ohci_submit_control_msg(&gohci, dev, pipe, buffer,
 					transfer_len, setup);
 }
+#endif
+
+#ifdef CONFIG_DM_USB
+static int ohci_submit_control_msg(struct udevice *dev, struct usb_device *udev,
+				   unsigned long pipe, void *buffer, int length,
+				   struct devrequest *setup)
+{
+	ohci_t *ohci = dev_get_priv(usb_get_bus(dev));
+
+	return _ohci_submit_control_msg(ohci, udev, pipe, buffer,
+					length, setup);
+}
+
+static int ohci_submit_bulk_msg(struct udevice *dev, struct usb_device *udev,
+				unsigned long pipe, void *buffer, int length)
+{
+	ohci_t *ohci = dev_get_priv(usb_get_bus(dev));
+
+	return submit_common_msg(ohci, udev, pipe, buffer, length, NULL, 0);
+}
+
+static int ohci_submit_int_msg(struct udevice *dev, struct usb_device *udev,
+			       unsigned long pipe, void *buffer, int length,
+			       int interval)
+{
+	ohci_t *ohci = dev_get_priv(usb_get_bus(dev));
+
+	return submit_common_msg(ohci, udev, pipe, buffer, length,
+				 NULL, interval);
+}
+
+int ohci_register(struct udevice *dev, struct ohci_regs *regs)
+{
+	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
+	ohci_t *ohci = dev_get_priv(dev);
+	u32 reg;
+
+	priv->desc_before_addr = true;
+
+	ohci->regs = regs;
+	ohci->hcca = memalign(256, sizeof(struct ohci_hcca));
+	if (!ohci->hcca)
+		return -ENOMEM;
+	memset(ohci->hcca, 0, sizeof(struct ohci_hcca));
+
+	if (hc_reset(ohci) < 0)
+		return -EIO;
+
+	if (hc_start(ohci) < 0)
+		return -EIO;
+
+	reg = ohci_readl(&regs->revision);
+	printf("USB OHCI %x.%x\n", (reg >> 4) & 0xf, reg & 0xf);
+
+	return 0;
+}
+
+int ohci_deregister(struct udevice *dev)
+{
+	ohci_t *ohci = dev_get_priv(dev);
+
+	if (hc_reset(ohci) < 0)
+		return -EIO;
+
+	free(ohci->hcca);
+
+	return 0;
+}
+
+struct dm_usb_ops ohci_usb_ops = {
+	.control = ohci_submit_control_msg,
+	.bulk = ohci_submit_bulk_msg,
+	.interrupt = ohci_submit_int_msg,
+};
+
+#endif

@@ -405,3 +405,10 @@ typedef struct ohci {
 
 	const char	*slot_name;
 } ohci_t;
+
+#ifdef CONFIG_DM_USB
+extern struct dm_usb_ops ohci_usb_ops;
+
+int ohci_register(struct udevice *dev, struct ohci_regs *regs);
+int ohci_deregister(struct udevice *dev);
+#endif
