@@ -157,7 +157,7 @@ static inline char *portspeed(int portstatus)
 int legacy_hub_port_reset(struct usb_device *dev, int port,
 			unsigned short *portstat)
 {
-	int tries;
+	int err, tries;
 	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
 	unsigned short portstatus, portchange;
 
@@ -168,8 +168,10 @@ int legacy_hub_port_reset(struct usb_device *dev, int port,
 	debug("%s: resetting port %d...\n", __func__, port + 1);
 #endif
 	for (tries = 0; tries < MAX_TRIES; tries++) {
+		err = usb_set_port_feature(dev, port + 1, USB_PORT_FEAT_RESET);
+		if (err < 0)
+			return err;
 
-		usb_set_port_feature(dev, port + 1, USB_PORT_FEAT_RESET);
 		mdelay(200);
 
 		if (usb_get_port_status(dev, port + 1, portsts) < 0) {
