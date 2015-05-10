@@ -147,7 +147,7 @@ int usb_stop(void)
 	return err;
 }
 
-static int usb_scan_bus(struct udevice *bus, bool recurse)
+static void usb_scan_bus(struct udevice *bus, bool recurse)
 {
 	struct usb_bus_priv *priv;
 	struct udevice *dev;
@@ -157,11 +157,15 @@ static int usb_scan_bus(struct udevice *bus, bool recurse)
 
 	assert(recurse);	/* TODO: Support non-recusive */
 
+	printf("scanning bus %d for devices... ", bus->seq);
+	debug("\n");
 	ret = usb_scan_device(bus, 0, USB_SPEED_FULL, &dev);
 	if (ret)
-		return ret;
-
-	return priv->next_addr;
+		printf("failed, error %d\n", ret);
+	else if (priv->next_addr == 0)
+		printf("No USB Device found\n");
+	else
+		printf("%d USB Device(s) found\n", priv->next_addr);
 }
 
 int usb_init(void)
@@ -199,15 +203,7 @@ int usb_init(void)
 		 * i.e. search HUBs and configure them
 		 */
 		controllers_initialized++;
-		printf("scanning bus %d for devices... ", bus->seq);
-		debug("\n");
-		ret = usb_scan_bus(bus, true);
-		if (ret < 0)
-			printf("failed, error %d\n", ret);
-		else if (!ret)
-			printf("No USB Device found\n");
-		else
-			printf("%d USB Device(s) found\n", ret);
+		usb_scan_bus(bus, true);
 		usb_started = true;
 	}
 
