@@ -1,6 +1,5 @@
 config VIDEO_VESA
 	bool "Enable VESA video driver support"
-	depends on X86
 	default n
 	help
 	  Turn on this option to enable a very simple driver which uses vesa
