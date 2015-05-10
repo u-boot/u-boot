@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <pci.h>
+#include <pci_rom.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -45,5 +46,26 @@ void board_pci_setup_hose(struct pci_controller *hose)
 
 int board_pci_post_scan(struct pci_controller *hose)
 {
-	return 0;
+	int ret = 0;
+	ulong start;
+	pci_dev_t bdf;
+	struct pci_device_id graphic_card[] = { { 0x1234, 0x1111 } };
+
+	/*
+	 * QEMU emulated graphic card shows in the PCI configuration space with
+	 * PCI vendor id and device id as an artificial pair 0x1234:0x1111.
+	 * It is on PCI bus 0, function 0, but device number is not consistent
+	 * for the two x86 targets it supports. For i440FX and PIIX chipset
+	 * board, it shows as device 2, while for Q35 and ICH9 chipset board,
+	 * it shows as device 1. Here we locate its bdf at run-time based on
+	 * its vendor id and device id pair so we can support both boards.
+	 */
+	bdf = pci_find_devices(graphic_card, 0);
+	if (bdf != -1) {
+		start = get_timer(0);
+		ret = pci_run_vga_bios(bdf, NULL, PCI_ROM_USE_NATIVE);
+		debug("BIOS ran in %lums\n", get_timer(start));
+	}
+
+	return ret;
 }

@@ -218,7 +218,8 @@ works correctly for link though.
 Test with QEMU
 --------------
 QEMU is a fancy emulator that can enable us to test U-Boot without access to
-a real x86 board. To launch QEMU with u-boot.rom, call QEMU as follows:
+a real x86 board. Please make sure your QEMU version is 2.3.0 or above test
+U-Boot. To launch QEMU with u-boot.rom, call QEMU as follows:
 
 $ qemu-system-i386 -nographic -bios path/to/u-boot.rom
 
@@ -238,6 +239,10 @@ This creates a board with 1 GiB system memory. Currently U-Boot for QEMU only
 supports 3 GiB maximum system memory and reserves the last 1 GiB address space
 for PCI device memory-mapped I/O and other stuff, so the maximum value of '-m'
 would be 3072.
+
+QEMU emulates a graphic card which U-Boot supports. Removing '-nographic' will
+show QEMU's VGA console window. Note this will disable QEMU's serial output.
+If you want to check both consoles, use '-serial stdio'.
 
 CPU Microcode
 -------------

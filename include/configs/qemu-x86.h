@@ -32,9 +32,9 @@
 #define CONFIG_PCI_PNP
 #define CONFIG_E1000
 
-#define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial\0" \
-					"stdout=serial\0" \
-					"stderr=serial\0"
+#define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,vga\0" \
+					"stdout=serial,vga\0" \
+					"stderr=serial,vga\0"
 
 #define CONFIG_SCSI_DEV_LIST		\
 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371SB_1}
@@ -47,9 +47,5 @@
 #undef CONFIG_ICH_SPI
 #undef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_IS_NOWHERE
-
-/* Video is not supported */
-#undef CONFIG_VIDEO
-#undef CONFIG_CFB_CONSOLE
 
 #endif	/* __CONFIG_H */
