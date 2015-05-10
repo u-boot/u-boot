@@ -21,6 +21,10 @@ DECLARE_GLOBAL_DATA_PTR;
 extern bool usb_started; /* flag for the started/stopped USB status */
 static bool asynch_allowed;
 
+struct usb_uclass_priv {
+	int companion_device_count;
+};
+
 int usb_disable_asynch(int disable)
 {
 	int old_value = asynch_allowed;
@@ -46,11 +50,22 @@ int submit_control_msg(struct usb_device *udev, unsigned long pipe,
 {
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
+	struct usb_uclass_priv *uc_priv = bus->uclass->priv;
+	int err;
 
 	if (!ops->control)
 		return -ENOSYS;
 
-	return ops->control(bus, udev, pipe, buffer, length, setup);
+	err = ops->control(bus, udev, pipe, buffer, length, setup);
+	if (setup->request == USB_REQ_SET_FEATURE &&
+	    setup->requesttype == USB_RT_PORT &&
+	    setup->value == cpu_to_le16(USB_PORT_FEAT_RESET) &&
+	    err == -ENXIO) {
+		/* Device handed over to companion after port reset */
+		uc_priv->companion_device_count++;
+	}
+
+	return err;
 }
 
 int submit_bulk_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
@@ -117,12 +132,16 @@ int usb_stop(void)
 {
 	struct udevice *bus;
 	struct uclass *uc;
+	struct usb_uclass_priv *uc_priv;
 	int err = 0, ret;
 
 	/* De-activate any devices that have been activated */
 	ret = uclass_get(UCLASS_USB, &uc);
 	if (ret)
 		return ret;
+
+	uc_priv = uc->priv;
+
 	uclass_foreach_dev(bus, uc) {
 		ret = device_remove(bus);
 		if (ret && !err)
@@ -142,6 +161,7 @@ int usb_stop(void)
 #endif
 	usb_stor_reset();
 	usb_hub_reset();
+	uc_priv->companion_device_count = 0;
 	usb_started = 0;
 
 	return err;
@@ -171,6 +191,7 @@ static void usb_scan_bus(struct udevice *bus, bool recurse)
 int usb_init(void)
 {
 	int controllers_initialized = 0;
+	struct usb_uclass_priv *uc_priv;
 	struct usb_bus_priv *priv;
 	struct udevice *bus;
 	struct uclass *uc;
@@ -183,6 +204,8 @@ int usb_init(void)
 	ret = uclass_get(UCLASS_USB, &uc);
 	if (ret)
 		return ret;
+
+	uc_priv = uc->priv;
 
 	uclass_foreach_dev(bus, uc) {
 		/* init low_level USB */
@@ -219,15 +242,17 @@ int usb_init(void)
 	/*
 	 * Now that the primary controllers have been scanned and have handed
 	 * over any devices they do not understand to their companions, scan
-	 * the companions.
+	 * the companions if necessary.
 	 */
-	uclass_foreach_dev(bus, uc) {
-		if (!device_active(bus))
-			continue;
+	if (uc_priv->companion_device_count) {
+		uclass_foreach_dev(bus, uc) {
+			if (!device_active(bus))
+				continue;
 
-		priv = dev_get_uclass_priv(bus);
-		if (priv->companion)
-			usb_scan_bus(bus, true);
+			priv = dev_get_uclass_priv(bus);
+			if (priv->companion)
+				usb_scan_bus(bus, true);
+		}
 	}
 
 	debug("scan end\n");
@@ -685,6 +710,7 @@ UCLASS_DRIVER(usb) = {
 	.name		= "usb",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_bind	= usb_post_bind,
+	.priv_auto_alloc_size = sizeof(struct usb_uclass_priv),
 	.per_child_auto_alloc_size = sizeof(struct usb_device),
 	.per_device_auto_alloc_size = sizeof(struct usb_bus_priv),
 	.child_post_bind = usb_child_post_bind,
