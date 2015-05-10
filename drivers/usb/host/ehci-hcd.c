@@ -875,7 +875,7 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 				      port - 1);
 				reg |= EHCI_PS_PO;
 				ehci_writel(status_reg, reg);
-				break;
+				return -ENXIO;
 			} else {
 				int ret;
 
@@ -905,6 +905,7 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 						reg &= ~EHCI_PS_CLEAR;
 						reg |= EHCI_PS_PO;
 						ehci_writel(status_reg, reg);
+						return -ENXIO;
 					} else {
 						ctrl->portreset |= 1 << port;
 					}
