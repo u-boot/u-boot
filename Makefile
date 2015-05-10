@@ -1232,7 +1232,8 @@ endef
 
 define filechk_timestamp.h
 	(LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"'; \
-	LC_ALL=C date +'#define U_BOOT_TIME "%T"')
+	LC_ALL=C date +'#define U_BOOT_TIME "%T"'; \
+	LC_ALL=C date +'#define U_BOOT_TZ "%z"')
 endef
 
 $(version_h): include/config/uboot.release FORCE
