@@ -1338,7 +1338,6 @@ pkt_print(ohci, NULL, dev, pipe, buffer, transfer_len,
 			OK(0);
 		case (RH_PORT_POWER):
 			WR_RH_PORTSTAT(RH_PS_PPS);
-			mdelay(100);
 			OK(0);
 		case (RH_PORT_ENABLE): /* BUG IN HUP CODE *********/
 			if (RD_RH_PORTSTAT & RH_PS_CCS)
@@ -1736,9 +1735,6 @@ static int hc_start(ohci_t *ohci)
 		&ohci->regs->roothub.a);
 	ohci_writel(RH_HS_LPSC, &ohci->regs->roothub.status);
 #endif	/* OHCI_USE_NPS */
-
-	/* POTPGT delay is bits 24-31, in 2 ms units. */
-	mdelay((roothub_a(ohci) >> 23) & 0x1fe);
 
 	/* connect the virtual root hub */
 	ohci->rh.devnum = 0;
