@@ -171,6 +171,7 @@ static void usb_scan_bus(struct udevice *bus, bool recurse)
 int usb_init(void)
 {
 	int controllers_initialized = 0;
+	struct usb_bus_priv *priv;
 	struct udevice *bus;
 	struct uclass *uc;
 	int count = 0;
@@ -198,13 +199,35 @@ int usb_init(void)
 			printf("probe failed, error %d\n", ret);
 			continue;
 		}
-		/*
-		 * lowlevel init is OK, now scan the bus for devices
-		 * i.e. search HUBs and configure them
-		 */
 		controllers_initialized++;
-		usb_scan_bus(bus, true);
 		usb_started = true;
+	}
+
+	/*
+	 * lowlevel init done, now scan the bus for devices i.e. search HUBs
+	 * and configure them, first scan primary controllers.
+	 */
+	uclass_foreach_dev(bus, uc) {
+		if (!device_active(bus))
+			continue;
+
+		priv = dev_get_uclass_priv(bus);
+		if (!priv->companion)
+			usb_scan_bus(bus, true);
+	}
+
+	/*
+	 * Now that the primary controllers have been scanned and have handed
+	 * over any devices they do not understand to their companions, scan
+	 * the companions.
+	 */
+	uclass_foreach_dev(bus, uc) {
+		if (!device_active(bus))
+			continue;
+
+		priv = dev_get_uclass_priv(bus);
+		if (priv->companion)
+			usb_scan_bus(bus, true);
 	}
 
 	debug("scan end\n");

@@ -608,10 +608,13 @@ struct usb_dev_platdata {
  * @desc_before_addr:	true if we can read a device descriptor before it
  *		has been assigned an address. For XHCI this is not possible
  *		so this will be false.
+ * @companion:  True if this is a companion controller to another USB
+ *		controller
  */
 struct usb_bus_priv {
 	int next_addr;
 	bool desc_before_addr;
+	bool companion;
 };
 
 /**
