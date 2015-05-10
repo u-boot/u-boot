@@ -129,6 +129,17 @@ static struct pci_device_id ehci_pci_ids[] = {
 #define invalidate_dcache_iso_td(addr) invalidate_dcache_buffer(addr, 32)
 #define invalidate_dcache_hcca(addr) invalidate_dcache_buffer(addr, 256)
 
+#ifdef CONFIG_DM_USB
+/*
+ * The various ohci_mdelay(1) calls in the code seem unnecessary. We keep
+ * them around when building for older boards not yet converted to the dm
+ * just in case (to avoid regressions), for dm this turns them into nops.
+ */
+#define ohci_mdelay(x)
+#else
+#define ohci_mdelay(x) mdelay(x)
+#endif
+
 /* global ohci_t */
 static ohci_t gohci;
 /* this must be aligned to a 256 byte boundary */
@@ -1257,7 +1268,7 @@ static int ohci_submit_rh_msg(ohci_t *ohci, struct usb_device *dev,
 pkt_print(ohci, NULL, dev, pipe, buffer, transfer_len,
 	  cmd, "SUB(rh)", usb_pipein(pipe));
 #else
-	mdelay(1);
+	ohci_mdelay(1);
 #endif
 	if (usb_pipeint(pipe)) {
 		info("Root-Hub submit IRQ: NOT implemented");
@@ -1442,7 +1453,7 @@ pkt_print(ohci, NULL, dev, pipe, buffer, transfer_len,
 #ifdef	DEBUG
 	ohci_dump_roothub(ohci, 1);
 #else
-	mdelay(1);
+	ohci_mdelay(1);
 #endif
 
 	len = min_t(int, len, leni);
@@ -1455,7 +1466,7 @@ pkt_print(ohci, NULL, dev, pipe, buffer, transfer_len,
 	pkt_print(ohci, NULL, dev, pipe, buffer,
 		  transfer_len, cmd, "RET(rh)", 0/*usb_pipein(pipe)*/);
 #else
-	mdelay(1);
+	ohci_mdelay(1);
 #endif
 
 	return stat;
@@ -1488,7 +1499,7 @@ static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 	pkt_print(ohci, urb, dev, pipe, buffer, transfer_len,
 		  setup, "SUB", usb_pipein(pipe));
 #else
-	mdelay(1);
+	ohci_mdelay(1);
 #endif
 	if (!maxsize) {
 		err("submit_common_message: pipesize for pipe %lx is zero",
@@ -1556,7 +1567,7 @@ static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 	pkt_print(ohci, urb, dev, pipe, buffer, transfer_len,
 		  setup, "RET(ctlr)", usb_pipein(pipe));
 #else
-	mdelay(1);
+	ohci_mdelay(1);
 #endif
 	urb_free_priv(urb);
 	return 0;
@@ -1590,7 +1601,7 @@ static int _ohci_submit_control_msg(ohci_t *ohci, struct usb_device *dev,
 	pkt_print(ohci, NULL, dev, pipe, buffer, transfer_len,
 		  setup, "SUB", usb_pipein(pipe));
 #else
-	mdelay(1);
+	ohci_mdelay(1);
 #endif
 	if (!maxsize) {
 		err("submit_control_message: pipesize for pipe %lx is zero",
@@ -1787,7 +1798,7 @@ static int hc_interrupt(ohci_t *ohci)
 #ifdef	DEBUG
 		ohci_dump(ohci, 1);
 #else
-		mdelay(1);
+		ohci_mdelay(1);
 #endif
 		/* FIXME: be optimistic, hope that bug won't repeat often. */
 		/* Make some non-interrupt context restart the controller. */
@@ -1798,7 +1809,7 @@ static int hc_interrupt(ohci_t *ohci)
 	}
 
 	if (ints & OHCI_INTR_WDH) {
-		mdelay(1);
+		ohci_mdelay(1);
 		ohci_writel(OHCI_INTR_WDH, &regs->intrdisable);
 		(void)ohci_readl(&regs->intrdisable); /* flush */
 		stat = dl_done_list(ohci);
@@ -1935,7 +1946,7 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 #ifdef	DEBUG
 	ohci_dump(&gohci, 1);
 #else
-	mdelay(1);
+	ohci_mdelay(1);
 #endif
 	ohci_inited = 1;
 	return 0;
