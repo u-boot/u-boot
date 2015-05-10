@@ -192,6 +192,7 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 			void *data, unsigned short size, int timeout)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct devrequest, setup_packet, 1);
+	int err;
 
 	if ((timeout == 0) && (!asynch_allowed)) {
 		/* request for a asynch control pipe is not allowed */
@@ -209,8 +210,9 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 	      request, requesttype, value, index, size);
 	dev->status = USB_ST_NOT_PROC; /*not yet processed */
 
-	if (submit_control_msg(dev, pipe, data, size, setup_packet) < 0)
-		return -EIO;
+	err = submit_control_msg(dev, pipe, data, size, setup_packet);
+	if (err < 0)
+		return err;
 	if (timeout == 0)
 		return (int)size;
 
