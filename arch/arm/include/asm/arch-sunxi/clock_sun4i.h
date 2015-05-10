@@ -320,6 +320,8 @@ struct sunxi_ccm_reg {
 #define CCM_USB_CTRL_PHY0_RST (0x1 << 0)
 #define CCM_USB_CTRL_PHY1_RST (0x1 << 1)
 #define CCM_USB_CTRL_PHY2_RST (0x1 << 2)
+#define CCM_USB_CTRL_OHCI0_CLK (0x1 << 6)
+#define CCM_USB_CTRL_OHCI1_CLK (0x1 << 7)
 #define CCM_USB_CTRL_PHYGATE (0x1 << 8)
 /* These 3 are sun6i only, define them as 0 on sun4i */
 #define CCM_USB_CTRL_PHY0_CLK 0

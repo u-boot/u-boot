@@ -297,6 +297,9 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_EHCI
+#define CONFIG_USB_OHCI_NEW
+#define CONFIG_USB_OHCI_SUNXI
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 1
 #endif
 
@@ -314,7 +317,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_PREBOOT
 #define CONFIG_SYS_STDIO_DEREGISTER
-#define CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
+#define CONFIG_SYS_USB_EVENT_POLL
 #endif
 
 #if !defined CONFIG_ENV_IS_IN_MMC && \
