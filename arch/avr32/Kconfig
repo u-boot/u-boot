@@ -17,15 +17,6 @@ config TARGET_ATNGW100MKII
 config TARGET_ATSTK1002
 	bool "Support atstk1002"
 
-config TARGET_ATSTK1003
-	bool "Support atstk1003"
-
-config TARGET_ATSTK1004
-	bool "Support atstk1004"
-
-config TARGET_ATSTK1006
-	bool "Support atstk1006"
-
 config TARGET_GRASSHOPPER
 	bool "Support grasshopper"
 
