@@ -113,9 +113,6 @@
 #endif
 #endif /* !CONFIG_GICV3 */
 
-#define CONFIG_SYS_MEMTEST_START	V2M_BASE
-#define CONFIG_SYS_MEMTEST_END		(V2M_BASE + 0x80000000)
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_F_LEN		0x2000
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
@@ -182,8 +179,15 @@
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			(V2M_BASE)	/* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE		0x80000000	/* 2048 MB */
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+/* Top 16MB reserved for secure world use */
+#define DRAM_SEC_SIZE		0x01000000
+#define PHYS_SDRAM_1_SIZE	0x80000000 - DRAM_SEC_SIZE
+#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
+
+/* Enable memtest */
+#define CONFIG_CMD_MEMTEST
+#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
+#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE)
 
 /* Initial environment variables */
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
