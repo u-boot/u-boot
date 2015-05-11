@@ -1263,9 +1263,9 @@ disable_periodic(struct ehci_ctrl *ctrl)
 	return 0;
 }
 
-struct int_queue *
-create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
-		 int elementsize, void *buffer, int interval)
+static struct int_queue *_ehci_create_int_queue(struct usb_device *dev,
+			unsigned long pipe, int queuesize, int elementsize,
+			void *buffer, int interval)
 {
 	struct ehci_ctrl *ctrl = ehci_get_ctrl(dev);
 	struct int_queue *result = NULL;
@@ -1421,7 +1421,8 @@ fail1:
 	return NULL;
 }
 
-void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
+static void *_ehci_poll_int_queue(struct usb_device *dev,
+				  struct int_queue *queue)
 {
 	struct QH *cur = queue->current;
 	struct qTD *cur_td;
@@ -1456,8 +1457,8 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 }
 
 /* Do not free buffers associated with QHs, they're owned by someone else */
-int
-destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
+static int _ehci_destroy_int_queue(struct usb_device *dev,
+				   struct int_queue *queue)
 {
 	struct ehci_ctrl *ctrl = ehci_get_ctrl(dev);
 	int result = -1;
@@ -1514,12 +1515,12 @@ static int _ehci_submit_int_msg(struct usb_device *dev, unsigned long pipe,
 	debug("dev=%p, pipe=%lu, buffer=%p, length=%d, interval=%d",
 	      dev, pipe, buffer, length, interval);
 
-	queue = create_int_queue(dev, pipe, 1, length, buffer, interval);
+	queue = _ehci_create_int_queue(dev, pipe, 1, length, buffer, interval);
 	if (!queue)
 		return -1;
 
 	timeout = get_timer(0) + USB_TIMEOUT_MS(pipe);
-	while ((backbuffer = poll_int_queue(dev, queue)) == NULL)
+	while ((backbuffer = _ehci_poll_int_queue(dev, queue)) == NULL)
 		if (get_timer(0) > timeout) {
 			printf("Timeout poll on interrupt endpoint\n");
 			result = -ETIMEDOUT;
@@ -1532,7 +1533,7 @@ static int _ehci_submit_int_msg(struct usb_device *dev, unsigned long pipe,
 		return -EINVAL;
 	}
 
-	ret = destroy_int_queue(dev, queue);
+	ret = _ehci_destroy_int_queue(dev, queue);
 	if (ret < 0)
 		return ret;
 
@@ -1557,6 +1558,24 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe,
 		   void *buffer, int length, int interval)
 {
 	return _ehci_submit_int_msg(dev, pipe, buffer, length, interval);
+}
+
+struct int_queue *create_int_queue(struct usb_device *dev,
+		unsigned long pipe, int queuesize, int elementsize,
+		void *buffer, int interval)
+{
+	return _ehci_create_int_queue(dev, pipe, queuesize, elementsize,
+				      buffer, interval);
+}
+
+void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
+{
+	return _ehci_poll_int_queue(dev, queue);
+}
+
+int destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
+{
+	return _ehci_destroy_int_queue(dev, queue);
 }
 #endif
 
