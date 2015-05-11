@@ -32,9 +32,6 @@ config TARGET_GRASSHOPPER
 config TARGET_MIMC200
 	bool "Support mimc200"
 
-config TARGET_HAMMERHEAD
-	bool "Support hammerhead"
-
 endchoice
 
 source "board/atmel/atngw100/Kconfig"
@@ -42,6 +39,5 @@ source "board/atmel/atngw100mkii/Kconfig"
 source "board/atmel/atstk1000/Kconfig"
 source "board/in-circuit/grasshopper/Kconfig"
 source "board/mimc/mimc200/Kconfig"
-source "board/miromico/hammerhead/Kconfig"
 
 endmenu
