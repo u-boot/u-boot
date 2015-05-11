@@ -29,15 +29,11 @@ config TARGET_ATSTK1006
 config TARGET_GRASSHOPPER
 	bool "Support grasshopper"
 
-config TARGET_MIMC200
-	bool "Support mimc200"
-
 endchoice
 
 source "board/atmel/atngw100/Kconfig"
 source "board/atmel/atngw100mkii/Kconfig"
 source "board/atmel/atstk1000/Kconfig"
 source "board/in-circuit/grasshopper/Kconfig"
-source "board/mimc/mimc200/Kconfig"
 
 endmenu
