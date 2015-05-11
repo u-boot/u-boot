@@ -26,9 +26,6 @@ config TARGET_ATSTK1004
 config TARGET_ATSTK1006
 	bool "Support atstk1006"
 
-config TARGET_FAVR_32_EZKIT
-	bool "Support favr-32-ezkit"
-
 config TARGET_GRASSHOPPER
 	bool "Support grasshopper"
 
@@ -43,7 +40,6 @@ endchoice
 source "board/atmel/atngw100/Kconfig"
 source "board/atmel/atngw100mkii/Kconfig"
 source "board/atmel/atstk1000/Kconfig"
-source "board/earthlcd/favr-32-ezkit/Kconfig"
 source "board/in-circuit/grasshopper/Kconfig"
 source "board/mimc/mimc200/Kconfig"
 source "board/miromico/hammerhead/Kconfig"
