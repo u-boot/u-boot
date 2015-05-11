@@ -107,10 +107,12 @@ void os_exit(int exit_code)
 static struct termios orig_term;
 static bool term_setup;
 
-static void os_fd_restore(void)
+void os_fd_restore(void)
 {
-	if (term_setup)
+	if (term_setup) {
 		tcsetattr(0, TCSANOW, &orig_term);
+		term_setup = false;
+	}
 }
 
 /* Put tty into raw mode so <tab> and <ctrl+c> work */
@@ -120,7 +122,6 @@ void os_tty_raw(int fd, bool allow_sigs)
 
 	if (term_setup)
 		return;
-	term_setup = true;
 
 	/* If not a tty, don't complain */
 	if (tcgetattr(fd, &orig_term))
@@ -134,6 +135,7 @@ void os_tty_raw(int fd, bool allow_sigs)
 	if (tcsetattr(fd, TCSANOW, &term))
 		return;
 
+	term_setup = true;
 	atexit(os_fd_restore);
 }
 

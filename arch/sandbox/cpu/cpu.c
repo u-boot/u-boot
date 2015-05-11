@@ -22,6 +22,8 @@ unsigned long map_len;
 
 void reset_cpu(ulong ignored)
 {
+	/* Do this here while it still has an effect */
+	os_fd_restore();
 	if (state_uninit())
 		os_exit(2);
 
