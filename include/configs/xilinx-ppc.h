@@ -11,6 +11,9 @@
 
 #ifndef __CONFIG_XLX_H
 #define __CONFIG_XLX_H
+
+#define CONFIG_SYS_GENERIC_BOARD
+
 /*
 #define DEBUG
 #define ET_DEBUG
