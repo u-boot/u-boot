@@ -6,6 +6,7 @@ config SYS_ARCH
 
 choice
 	prompt "CPU select"
+	optional
 
 config MPC512X
 	bool "MPC512X"

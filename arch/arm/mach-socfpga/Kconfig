@@ -2,6 +2,7 @@ if ARCH_SOCFPGA
 
 choice
 	prompt "Altera SOCFPGA board select"
+	optional
 
 config TARGET_SOCFPGA_ARRIA5
 	bool "Altera SOCFPGA Arria V"

@@ -8,6 +8,7 @@ if VENDOR_INTEL
 
 choice
 	prompt "Mainboard model"
+	optional
 
 config TARGET_CROWNBAY
 	bool "Crown Bay"

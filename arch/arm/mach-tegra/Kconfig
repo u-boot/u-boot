@@ -2,6 +2,7 @@ if TEGRA
 
 choice
 	prompt "Tegra SoC select"
+	optional
 
 config TEGRA20
 	bool "Tegra20 family"

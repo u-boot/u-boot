@@ -13,6 +13,7 @@ menu "dbau1x00 board options"
 
 choice
 	prompt "Select au1x00 SoC type"
+	optional
 
 config DBAU1100
 	bool "Select AU1100"

@@ -2,6 +2,7 @@ if ARCH_AT91
 
 choice
 	prompt "Atmel AT91 board select"
+	optional
 
 config TARGET_AT91RM9200EK
 	bool "Atmel AT91RM9200 evaluation kit"

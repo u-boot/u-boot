@@ -2,6 +2,7 @@ if ARCH_DAVINCI
 
 choice
 	prompt "DaVinci board select"
+	optional
 
 config TARGET_ENBW_CMC
 	bool "EnBW CMC board"

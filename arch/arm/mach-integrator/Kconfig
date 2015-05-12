@@ -3,6 +3,7 @@ menu "Integrator Options"
 
 choice
 	prompt "Integrator platform select"
+	optional
 
 config ARCH_INTEGRATOR_AP
 	bool "Support Integrator/AP platform"
@@ -18,6 +19,7 @@ config ARCH_CINTEGRATOR
 
 choice
 	prompt "Integrator core module select"
+	optional
 
 config CM720T
 	bool "Core Module for ARM720T"

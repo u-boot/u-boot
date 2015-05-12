@@ -8,6 +8,7 @@ if VENDOR_GOOGLE
 
 choice
 	prompt "Mainboard model"
+	optional
 
 config TARGET_CHROMEBOOK_LINK
 	bool "Chromebook link"

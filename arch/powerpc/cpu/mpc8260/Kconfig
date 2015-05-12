@@ -6,6 +6,7 @@ config SYS_CPU
 
 choice
 	prompt "Target select"
+	optional
 
 config TARGET_KM82XX
 	bool "Support km82xx"

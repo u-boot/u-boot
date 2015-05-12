@@ -132,6 +132,7 @@ config ARC_CACHE_LINE_SHIFT
 
 choice
 	prompt "Target select"
+	optional
 
 config TARGET_DUMMY
 	bool "Dummy target"

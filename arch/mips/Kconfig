@@ -13,6 +13,7 @@ config USE_PRIVATE_LIBGCC
 
 choice
 	prompt "Target select"
+	optional
 
 config TARGET_QEMU_MIPS
 	bool "Support qemu-mips"

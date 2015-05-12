@@ -2,6 +2,7 @@ if ARCH_S5PC1XX
 
 choice
 	prompt "S5PC1XX board select"
+	optional
 
 config TARGET_S5P_GONI
 	bool "S5P Goni board"

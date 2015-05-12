@@ -8,6 +8,7 @@ if VENDOR_COREBOOT
 
 choice
 	prompt "Mainboard model"
+	optional
 
 config TARGET_COREBOOT
 	bool "coreboot"

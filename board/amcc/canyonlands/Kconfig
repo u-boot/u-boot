@@ -11,6 +11,7 @@ config SYS_CONFIG_NAME
 
 choice BOARD_TYPE
 	prompt "Select which board to build for"
+	optional
 
 config CANYONLANDS
 	bool "Glacier"

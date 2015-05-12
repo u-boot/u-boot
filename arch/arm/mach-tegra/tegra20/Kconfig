@@ -2,6 +2,7 @@ if TEGRA20
 
 choice
 	prompt "Tegra20 board select"
+	optional
 
 config TARGET_HARMONY
 	bool "NVIDIA Tegra20 Harmony evaluation board"

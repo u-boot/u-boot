@@ -6,6 +6,7 @@ config SYS_ARCH
 
 choice
 	prompt "Target select"
+	optional
 
 config TARGET_BCT_BRETTL2
 	bool "Support bct-brettl2"

@@ -2,6 +2,7 @@ if ARCH_EXYNOS
 
 choice
 	prompt "EXYNOS board select"
+	optional
 
 config TARGET_SMDKV310
 	select SUPPORT_SPL

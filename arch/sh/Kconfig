@@ -29,6 +29,7 @@ config SH_32BIT
 
 choice
 	prompt "Target select"
+	optional
 
 config TARGET_RSK7203
 	bool "RSK+ 7203"

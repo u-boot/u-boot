@@ -14,6 +14,7 @@ config LEON3
 
 choice
 	prompt "Board select"
+	optional
 
 config TARGET_GRSIM_LEON2
 	bool "GRSIM simulating a LEON2 board"

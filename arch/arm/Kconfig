@@ -64,6 +64,7 @@ config SEMIHOSTING
 
 choice
 	prompt "Target select"
+	optional
 
 config ARCH_AT91
 	bool "Atmel AT91"

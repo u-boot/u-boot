@@ -6,6 +6,7 @@ config SYS_CPU
 
 choice
 	prompt "Target select"
+	optional
 
 config TARGET_MPC8308_P1M
 	bool "Support mpc8308_p1m"
