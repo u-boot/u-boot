@@ -30,6 +30,9 @@ config DM_USB
 config SPL_DM
 	default y
 
+config SPL_DISABLE_OF_CONTROL
+	default y
+
 source "arch/arm/mach-tegra/tegra20/Kconfig"
 source "arch/arm/mach-tegra/tegra30/Kconfig"
 source "arch/arm/mach-tegra/tegra114/Kconfig"
