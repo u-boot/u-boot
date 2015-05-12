@@ -36,7 +36,7 @@ fields which are common to all architectures. Architecture-specific fields
 have been moved to separate structures.
 
 
-Supported Arcthitectures
+Supported Architectures
 ------------------------
 
 If you are unlucky then your architecture may not support generic board.
@@ -105,12 +105,12 @@ places.
 initialisation is painful since it must be independently added in 10
 places.
 
-3. As time goes by the architectures naturely diverge since there is limited
-pressure to compare features or even CONFIG options against simiilar things
+3. As time goes by the architectures naturally diverge since there is limited
+pressure to compare features or even CONFIG options against similar things
 in other board.c files.
 
 4. New architectures must implement all the features all over again, and
-sometimes in subtley different ways. This places an unfair burden on getting
+sometimes in subtle different ways. This places an unfair burden on getting
 a new architecture fully functional and running with U-Boot.
 
 5. While it is a bit of a tricky change, I believe it is worthwhile and
