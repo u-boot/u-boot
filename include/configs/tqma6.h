@@ -369,10 +369,6 @@
 	"panicboot=echo No boot device !!! reset\0"                            \
 	TQMA6_EXTRA_BOOTDEV_ENV_SETTINGS                                      \
 
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					 sizeof(CONFIG_SYS_PROMPT) + 16)
-
 #define CONFIG_STACKSIZE		(128u * SZ_1K)
 
 /* Physical Memory Map */
