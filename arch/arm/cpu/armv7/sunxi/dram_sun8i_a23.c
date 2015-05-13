@@ -26,12 +26,14 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/dram.h>
 #include <asm/arch/prcm.h>
+#include <linux/kconfig.h>
 
 static const struct dram_para dram_para = {
 	.clock = CONFIG_DRAM_CLK,
 	.type = 3,
 	.zq = CONFIG_DRAM_ZQ,
-	.odt_en = 1,
+	.odt_en = IS_ENABLED(CONFIG_DRAM_ODT_EN),
+	.odt_correction = CONFIG_DRAM_ODT_CORRECTION,
 	.para1 = 0, /* not used (only used when tpr13 bit 31 is set */
 	.para2 = 0, /* not used (only used when tpr13 bit 31 is set */
 	.mr0 = 6736,
@@ -97,7 +99,6 @@ static void mctl_init(u32 *bus_width)
 		(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
 	struct sunxi_mctl_phy_reg * const mctl_phy =
 		(struct sunxi_mctl_phy_reg *)SUNXI_DRAM_PHY0_BASE;
-	int correction;
 
 	if (dram_para.tpr13 & 0x20)
 		writel(0x40b, &mctl_phy->dcr);
@@ -138,7 +139,7 @@ static void mctl_init(u32 *bus_width)
 
 	writel(0x01000081, &mctl_phy->dtcr);
 
-	if (dram_para.clock <= 240 || !(dram_para.odt_en & 0x01)) {
+	if (dram_para.clock <= 240 || !dram_para.odt_en) {
 		clrbits_le32(&mctl_phy->dx0gcr, 0x600);
 		clrbits_le32(&mctl_phy->dx1gcr, 0x600);
 	}
@@ -251,13 +252,11 @@ static void mctl_init(u32 *bus_width)
 	} else
 		*bus_width = 16;
 
-	correction = (dram_para.odt_en >> 8) & 0xff;
-	if (correction) {
-		if (dram_para.odt_en & 0x80000000)
-			correction = -correction;
-
-		mctl_apply_odt_correction(&mctl_phy->dx0lcdlr1, correction);
-		mctl_apply_odt_correction(&mctl_phy->dx1lcdlr1, correction);
+	if (dram_para.odt_correction) {
+		mctl_apply_odt_correction(&mctl_phy->dx0lcdlr1,
+					  dram_para.odt_correction);
+		mctl_apply_odt_correction(&mctl_phy->dx1lcdlr1,
+					  dram_para.odt_correction);
 	}
 
 	mctl_await_completion(&mctl_ctl->statr, 0x01, 0x01);

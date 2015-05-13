@@ -508,7 +508,7 @@ static void mctl_ddr3_initialize(void)
 /*
  * Perform impedance calibration on the DRAM controller side of the wire.
  */
-static void mctl_set_impedance(u32 zq, u32 odt_en)
+static void mctl_set_impedance(u32 zq, bool odt_en)
 {
 	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
 	u32 reg_val;
@@ -556,7 +556,7 @@ static void mctl_set_impedance(u32 zq, u32 odt_en)
 	clrbits_le32(&dram->zqcr0, DRAM_ZQCR0_ZCAL);
 
 	/* Set I/O configure register */
-	writel(DRAM_IOCR_ODT_EN(odt_en), &dram->iocr);
+	writel(DRAM_IOCR_ODT_EN, &dram->iocr);
 }
 
 static unsigned long dramc_init_helper(struct dram_para *para)

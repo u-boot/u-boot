@@ -91,6 +91,13 @@ config DRAM_ZQ
 	---help---
 	Set the dram zq value.
 
+config DRAM_ODT_EN
+	bool "sunxi dram odt enable"
+	default n if !MACH_SUN8I_A23
+	default y if MACH_SUN8I_A23
+	---help---
+	Select this to enable dram odt (on die termination).
+
 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
 config DRAM_EMR1
 	int "sunxi dram emr1 value"
@@ -98,13 +105,6 @@ config DRAM_EMR1
 	default 4 if MACH_SUN5I || MACH_SUN7I
 	---help---
 	Set the dram controller emr1 value.
-
-config DRAM_ODT_EN
-	int "sunxi dram odt_en value"
-	default 0
-	---help---
-	Set the dram controller odt_en parameter. This can be used to
-	enable/disable the ODT feature.
 
 config DRAM_TPR3
 	hex "sunxi dram tpr3 value"
@@ -164,6 +164,17 @@ config DRAM_TIMINGS_DDR3_800E_1066G_1333J
 
 endchoice
 
+endif
+
+if MACH_SUN8I_A23
+config DRAM_ODT_CORRECTION
+	int "sunxi dram odt correction value"
+	default 0
+	---help---
+	Set the dram odt correction value (range -255 - 255). In allwinner
+	fex files, this option is found in bits 8-15 of the u32 odt_en variable
+	in the [dram] section. When bit 31 of the odt_en variable is set
+	then the correction is negative. Usually the value for this is 0.
 endif
 
 config SYS_CLK_FREQ

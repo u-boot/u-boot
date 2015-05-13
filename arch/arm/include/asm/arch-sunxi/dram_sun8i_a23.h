@@ -19,6 +19,7 @@ struct dram_para {
 	u32 type;
 	u32 zq;
 	u32 odt_en;
+	s32 odt_correction;
 	u32 para1;
 	u32 para2;
 	u32 mr0;
