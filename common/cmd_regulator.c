@@ -10,98 +10,70 @@
 #include <dm/uclass-internal.h>
 #include <power/regulator.h>
 
-#define LIMIT_SEQ	3
 #define LIMIT_DEVNAME	20
-#define LIMIT_OFNAME	20
-#define LIMIT_INFO	16
+#define LIMIT_OFNAME	32
+#define LIMIT_INFO	18
 
 static struct udevice *currdev;
 
-static int failed(const char *getset, const char *thing,
-		  const char *for_dev, int ret)
+static int failure(int ret)
 {
-	printf("Can't %s %s %s.\nError: %d (%s)\n", getset, thing, for_dev,
-						    ret, errno_str(ret));
+	printf("Error: %d (%s)\n", ret, errno_str(ret));
+
 	return CMD_RET_FAILURE;
-}
-
-static int regulator_get(bool list_only, int get_seq, struct udevice **devp)
-{
-	struct dm_regulator_uclass_platdata *uc_pdata;
-	struct udevice *dev;
-	int ret;
-
-	if (devp)
-		*devp = NULL;
-
-	for (ret = uclass_first_device(UCLASS_REGULATOR, &dev); dev;
-	     ret = uclass_next_device(&dev)) {
-		if (list_only) {
-			uc_pdata = dev_get_uclass_platdata(dev);
-			printf("|%*d | %*.*s @ %-*.*s| %s @ %s\n",
-			       LIMIT_SEQ, dev->seq,
-			       LIMIT_DEVNAME, LIMIT_DEVNAME, dev->name,
-			       LIMIT_OFNAME, LIMIT_OFNAME, uc_pdata->name,
-			       dev->parent->name,
-			       dev_get_uclass_name(dev->parent));
-			continue;
-		}
-
-		if (dev->seq == get_seq) {
-			if (devp)
-				*devp = dev;
-			else
-				return -EINVAL;
-
-			return 0;
-		}
-	}
-
-	if (list_only)
-		return ret;
-
-	return -ENODEV;
 }
 
 static int do_dev(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
-	int seq, ret = -ENXIO;
+	const char *name;
+	int ret = -ENXIO;
 
 	switch (argc) {
 	case 2:
-		seq = simple_strtoul(argv[1], NULL, 0);
-		ret = uclass_get_device_by_seq(UCLASS_REGULATOR, seq, &currdev);
-		if (ret && (ret = regulator_get(false, seq, &currdev)))
-			goto failed;
+		name = argv[1];
+		ret = regulator_get_by_platname(name, &currdev);
+		if (ret) {
+			printf("Can't get the regulator: %s!\n", name);
+			return failure(ret);
+		}
 	case 1:
-		uc_pdata = dev_get_uclass_platdata(currdev);
-		if (!uc_pdata)
-			goto failed;
+		if (!currdev) {
+			printf("Regulator device is not set!\n\n");
+			return CMD_RET_USAGE;
+		}
 
-		printf("dev: %d @ %s\n", currdev->seq, uc_pdata->name);
+		uc_pdata = dev_get_uclass_platdata(currdev);
+		if (!uc_pdata) {
+			printf("%s: no regulator platform data!\n", currdev->name);
+			return failure(ret);
+		}
+
+		printf("dev: %s @ %s\n", uc_pdata->name, currdev->name);
 	}
 
 	return CMD_RET_SUCCESS;
-failed:
-	return failed("get", "the", "device", ret);
 }
 
-static int get_curr_dev_and_pl(struct udevice **devp,
-			       struct dm_regulator_uclass_platdata **uc_pdata,
-			       bool allow_type_fixed)
+static int curr_dev_and_platdata(struct udevice **devp,
+				 struct dm_regulator_uclass_platdata **uc_pdata,
+				 bool allow_type_fixed)
 {
 	*devp = NULL;
 	*uc_pdata = NULL;
 
-	if (!currdev)
-		return failed("get", "current", "device", -ENODEV);
+	if (!currdev) {
+		printf("First, set the regulator device!\n");
+		return CMD_RET_FAILURE;
+	}
 
 	*devp = currdev;
 
 	*uc_pdata = dev_get_uclass_platdata(*devp);
-	if (!*uc_pdata)
-		return failed("get", "regulator", "platdata", -ENXIO);
+	if (!*uc_pdata) {
+		error("Regulator: %s - missing platform data!", currdev->name);
+		return CMD_RET_FAILURE;
+	}
 
 	if (!allow_type_fixed && (*uc_pdata)->type == REGULATOR_TYPE_FIXED) {
 		printf("Operation not allowed for fixed regulator!\n");
@@ -113,19 +85,28 @@ static int get_curr_dev_and_pl(struct udevice **devp,
 
 static int do_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	struct dm_regulator_uclass_platdata *uc_pdata;
+	struct udevice *dev;
 	int ret;
 
-	printf("|%*s | %*.*s @ %-*.*s| %s @ %s\n",
-	       LIMIT_SEQ, "Seq",
-	       LIMIT_DEVNAME, LIMIT_DEVNAME, "Name",
-	       LIMIT_OFNAME, LIMIT_OFNAME, "fdtname",
-	       "Parent", "uclass");
+	printf("| %-*.*s| %-*.*s| %s\n",
+	       LIMIT_DEVNAME, LIMIT_DEVNAME, "Device",
+	       LIMIT_OFNAME, LIMIT_OFNAME, "regulator-name",
+	       "Parent");
 
-	ret = regulator_get(true, 0, NULL);
-	if (ret)
-		return CMD_RET_FAILURE;
+	for (ret = uclass_find_first_device(UCLASS_REGULATOR, &dev); dev;
+	     ret = uclass_find_next_device(&dev)) {
+		if (ret)
+			continue;
 
-	return CMD_RET_SUCCESS;
+		uc_pdata = dev_get_uclass_platdata(dev);
+		printf("| %-*.*s| %-*.*s| %s\n",
+		       LIMIT_DEVNAME, LIMIT_DEVNAME, dev->name,
+		       LIMIT_OFNAME, LIMIT_OFNAME, uc_pdata->name,
+		       dev->parent->name);
+	}
+
+	return ret;
 }
 
 static int constraint(const char *name, int val, const char *val_name)
@@ -167,17 +148,18 @@ static int do_info(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int ret;
 	int i;
 
-	ret = get_curr_dev_and_pl(&dev, &uc_pdata, true);
+	ret = curr_dev_and_platdata(&dev, &uc_pdata, true);
 	if (ret)
 		return ret;
 
 	parent_uc = dev_get_uclass_name(dev->parent);
 
-	printf("Uclass regulator dev %d info:\n", dev->seq);
-	printf("%-*s %s @ %s\n%-*s %s\n%-*s %s\n%-*s\n",
-	       LIMIT_INFO, "* parent:", dev->parent->name, parent_uc,
-	       LIMIT_INFO, "* dev name:", dev->name,
-	       LIMIT_INFO, "* fdt name:", uc_pdata->name,
+	printf("%s\n%-*s %s\n%-*s %s\n%-*s %s\n%-*s %s\n%-*s\n",
+	       "Regulator info:",
+	       LIMIT_INFO, "* regulator-name:", uc_pdata->name,
+	       LIMIT_INFO, "* device name:", dev->name,
+	       LIMIT_INFO, "* parent name:", dev->parent->name,
+	       LIMIT_INFO, "* parent uclass:", parent_uc,
 	       LIMIT_INFO, "* constraints:");
 
 	constraint("  - min uV:", uc_pdata->min_uV, NULL);
@@ -206,9 +188,11 @@ static int do_status(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct udevice *dev;
 	bool enabled;
 
-	ret = get_curr_dev_and_pl(&dev, &uc_pdata, true);
+	ret = curr_dev_and_platdata(&dev, &uc_pdata, true);
 	if (ret)
 		return ret;
+
+	printf("Regulator %s status:\n", uc_pdata->name);
 
 	enabled = regulator_get_enable(dev);
 	constraint(" * enable:", enabled, enabled ? "true" : "false");
@@ -234,16 +218,19 @@ static int do_value(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int force;
 	int ret;
 
-	ret = get_curr_dev_and_pl(&dev, &uc_pdata, argc == 1);
+	ret = curr_dev_and_platdata(&dev, &uc_pdata, argc == 1);
 	if (ret)
 		return ret;
 
 	if (argc == 1) {
-		value = regulator_get_value(dev);
-		if (value < 0)
-			return failed("get", uc_pdata->name, "voltage", value);
+		ret = regulator_get_value(dev);
+		if (ret < 0) {
+			printf("Regulator: %s - can't get the Voltage!\n",
+			       uc_pdata->name);
+			return failure(ret);
+		}
 
-		printf("%d uV\n", value);
+		printf("%d uV\n", ret);
 		return CMD_RET_SUCCESS;
 	}
 
@@ -259,8 +246,11 @@ static int do_value(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	ret = regulator_set_value(dev, value);
-	if (ret)
-		return failed("set", uc_pdata->name, "voltage value", ret);
+	if (ret) {
+		printf("Regulator: %s - can't set the Voltage!\n",
+		       uc_pdata->name);
+		return failure(ret);
+	}
 
 	return CMD_RET_SUCCESS;
 }
@@ -272,16 +262,19 @@ static int do_current(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int current;
 	int ret;
 
-	ret = get_curr_dev_and_pl(&dev, &uc_pdata, argc == 1);
+	ret = curr_dev_and_platdata(&dev, &uc_pdata, argc == 1);
 	if (ret)
 		return ret;
 
 	if (argc == 1) {
-		current = regulator_get_current(dev);
-		if (current < 0)
-			return failed("get", uc_pdata->name, "current", current);
+		ret = regulator_get_current(dev);
+		if (ret < 0) {
+			printf("Regulator: %s - can't get the Current!\n",
+			       uc_pdata->name);
+			return failure(ret);
+		}
 
-		printf("%d uA\n", current);
+		printf("%d uA\n", ret);
 		return CMD_RET_SUCCESS;
 	}
 
@@ -292,8 +285,11 @@ static int do_current(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	ret = regulator_set_current(dev, current);
-	if (ret)
-		return failed("set", uc_pdata->name, "current value", ret);
+	if (ret) {
+		printf("Regulator: %s - can't set the Current!\n",
+		       uc_pdata->name);
+		return failure(ret);
+	}
 
 	return CMD_RET_SUCCESS;
 }
@@ -302,28 +298,33 @@ static int do_mode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct udevice *dev;
 	struct dm_regulator_uclass_platdata *uc_pdata;
-	int new_mode;
 	int mode;
 	int ret;
 
-	ret = get_curr_dev_and_pl(&dev, &uc_pdata, false);
+	ret = curr_dev_and_platdata(&dev, &uc_pdata, false);
 	if (ret)
 		return ret;
 
 	if (argc == 1) {
-		mode = regulator_get_mode(dev);
-		if (mode < 0)
-			return failed("get", uc_pdata->name, "mode", mode);
+		ret = regulator_get_mode(dev);
+		if (ret < 0) {
+			printf("Regulator: %s - can't get the operation mode!\n",
+			       uc_pdata->name);
+			return failure(ret);
+		}
 
-		printf("mode id: %d\n", mode);
+		printf("mode id: %d\n", ret);
 		return CMD_RET_SUCCESS;
 	}
 
-	new_mode = simple_strtoul(argv[1], NULL, 0);
+	mode = simple_strtoul(argv[1], NULL, 0);
 
-	ret = regulator_set_mode(dev, new_mode);
-	if (ret)
-		return failed("set", uc_pdata->name, "mode", ret);
+	ret = regulator_set_mode(dev, mode);
+	if (ret) {
+		printf("Regulator: %s - can't set the operation mode!\n",
+		       uc_pdata->name);
+		return failure(ret);
+	}
 
 	return CMD_RET_SUCCESS;
 }
@@ -334,13 +335,15 @@ static int do_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct dm_regulator_uclass_platdata *uc_pdata;
 	int ret;
 
-	ret = get_curr_dev_and_pl(&dev, &uc_pdata, true);
+	ret = curr_dev_and_platdata(&dev, &uc_pdata, true);
 	if (ret)
 		return ret;
 
 	ret = regulator_set_enable(dev, true);
-	if (ret)
-		return failed("enable", "regulator", uc_pdata->name, ret);
+	if (ret) {
+		printf("Regulator: %s - can't enable!\n", uc_pdata->name);
+		return failure(ret);
+	}
 
 	return CMD_RET_SUCCESS;
 }
@@ -351,13 +354,15 @@ static int do_disable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct dm_regulator_uclass_platdata *uc_pdata;
 	int ret;
 
-	ret = get_curr_dev_and_pl(&dev, &uc_pdata, true);
+	ret = curr_dev_and_platdata(&dev, &uc_pdata, true);
 	if (ret)
 		return ret;
 
 	ret = regulator_set_enable(dev, false);
-	if (ret)
-		return failed("disable", "regulator", uc_pdata->name, ret);
+	if (ret) {
+		printf("Regulator: %s - can't disable!\n", uc_pdata->name);
+		return failure(ret);
+	}
 
 	return CMD_RET_SUCCESS;
 }
@@ -391,13 +396,13 @@ static int do_regulator(cmd_tbl_t *cmdtp, int flag, int argc,
 
 U_BOOT_CMD(regulator, CONFIG_SYS_MAXARGS, 1, do_regulator,
 	"uclass operations",
-	"list         - list UCLASS regulator devices\n"
-	"regulator dev [id]     - show or [set] operating regulator device\n"
-	"regulator [info]       - print constraints info\n"
-	"regulator [status]     - print operating status\n"
-	"regulator [value] [-f] - print/[set] voltage value [uV] (force)\n"
-	"regulator [current]    - print/[set] current value [uA]\n"
-	"regulator [mode_id]    - print/[set] operating mode id\n"
-	"regulator [enable]     - enable the regulator output\n"
-	"regulator [disable]    - disable the regulator output\n"
+	"list             - list UCLASS regulator devices\n"
+	"regulator dev [regulator-name] - show/[set] operating regulator device\n"
+	"regulator info                 - print constraints info\n"
+	"regulator status               - print operating status\n"
+	"regulator value [val] [-f]     - print/[set] voltage value [uV] (force)\n"
+	"regulator current [val]        - print/[set] current value [uA]\n"
+	"regulator mode [id]            - print/[set] operating mode id\n"
+	"regulator enable               - enable the regulator output\n"
+	"regulator disable              - disable the regulator output\n"
 );
