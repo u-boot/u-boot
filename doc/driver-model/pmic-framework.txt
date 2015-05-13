@@ -79,7 +79,7 @@ use pmic read/write directly.
 
 3. Pmic uclass
 ==============
-The basic informations:
+The basic information:
 * Uclass:   'UCLASS_PMIC'
 * Header:   'include/power/pmic.h'
 * Core:     'drivers/power/pmic/pmic-uclass.c'
@@ -88,14 +88,13 @@ The basic informations:
   config:   'CONFIG_CMD_PMIC'
 * Example:  'drivers/power/pmic/max77686.c'
 
-This is still under the construction. So for the API description, please refer
-to the header file.
+For detailed API description, please refer to the header file.
 
 As an example of the pmic driver, please refer to the MAX77686 driver.
 
-Please pay attention for the driver's '.bind' method. Exactly the function call:
-'pmic_bind_childs()', which is used to bind the regulators by using the array of
-regulator's node, compatible prefixes.
+Please pay attention for the driver's bind() method. Exactly the function call:
+'pmic_bind_children()', which is used to bind the regulators by using the array
+of regulator's node, compatible prefixes.
 
 The 'pmic; command also supports the new API. So the pmic command can be enabled
 by adding CONFIG_CMD_PMIC.
@@ -108,11 +107,11 @@ The new pmic command allows to:
 This command can use only UCLASS_PMIC devices, since this uclass is designed
 for pmic I/O operations only.
 
-For more informations, please refer to the file: 'common/cmd_pmic.c'.
+For more information, please refer to the core file.
 
 4. Regulator uclass
 ===================
-The basic informations:
+The basic information:
 * Uclass:  'UCLASS_REGULATOR'
 * Header:  'include/power/regulator.h'
 * Core:    'drivers/power/regulator/regulator-uclass.c'
@@ -125,8 +124,7 @@ The basic informations:
 * Example: 'drivers/power/regulator/fixed.c'
   config"  'CONFIG_DM_REGULATOR_FIXED'
 
-This is still under the construction. So for the API description, please refer
-to the header file.
+For detailed API description, please refer to the header file.
 
 For the example regulator driver, please refer to the MAX77686 regulator driver,
 but this driver can't operate without pmic's example driver, which provides an
@@ -139,4 +137,4 @@ The 'regulator' command also supports the new API. The command allow:
 - choose the current device (like the mmc command)
 - do all regulator-specific operations
 
-For more informations, please refer to the file: 'common/cmd_regulator.c'
+For more information, please refer to the command file.
