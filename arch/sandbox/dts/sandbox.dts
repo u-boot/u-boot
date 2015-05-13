@@ -115,6 +115,9 @@
 				compatible = "sandbox,i2c-rtc";
 			};
 		};
+		sandbox_pmic: sandbox_pmic {
+			reg = <0x40>;
+		};
 	};
 
 	spi@0 {
@@ -205,3 +208,4 @@
 };
 
 #include "cros-ec-keyboard.dtsi"
+#include "sandbox_pmic.dtsi"

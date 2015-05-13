@@ -139,6 +139,10 @@
 				sandbox,size = <256>;
 			};
 		};
+
+		sandbox_pmic: sandbox_pmic {
+			reg = <0x40>;
+		};
 	};
 
 	pci: pci-controller {
@@ -228,3 +232,5 @@
 	};
 
 };
+
+#include "sandbox_pmic.dtsi"

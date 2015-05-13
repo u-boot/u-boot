@@ -1,0 +1,78 @@
+/*
+ *  Sandbox PMIC dts node
+ *
+ *  Copyright (C) 2015 Samsung Electronics
+ *  Przemyslaw Marczak  <p.marczak@samsung.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+#include <dt-bindings/pmic/sandbox_pmic.h>
+
+&sandbox_pmic {
+	compatible = "sandbox,pmic";
+
+	pmic_emul {
+		compatible = "sandbox,i2c-pmic";
+
+		/*
+		 * Default PMICs register values are set by macro
+		 * VAL2REG(min, step, value) [uV/uA]
+		 * VAL2OMREG(mode id)
+		 * reg-defaults - byte array
+		 */
+		reg-defaults = /bits/ 8 <
+			/* BUCK1 */
+			VAL2REG(800000, 25000, 1000000)
+			VAL2REG(150000, 25000, 150000)
+			VAL2OMREG(BUCK_OM_OFF)
+			/* BUCK2 */
+			VAL2REG(750000, 50000, 3000000)
+			VAL2REG(150000, 25000, 150000)
+			VAL2OMREG(0)
+			/* LDO1 */
+			VAL2REG(800000, 25000, 1600000)
+			VAL2REG(100000, 50000, 150000)
+			VAL2OMREG(LDO_OM_OFF)
+			/* LDO2 */
+			VAL2REG(750000, 50000, 3000000)
+			VAL2REG(150000, 25000, 150000)
+			VAL2OMREG(0)
+			/* reg[12:15] - not used */
+			0x00
+			0x00
+			0x00
+			0x00
+		>;
+	};
+
+	buck1 {
+		regulator-name = "SUPPLY_1.2V";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+		regulator-min-microamp = <200000>;
+		regulator-max-microamp = <200000>;
+		regulator-always-on;
+	};
+
+	buck2 {
+		regulator-name = "SUPPLY_3.3V";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	ldo1 {
+		regulator-name = "VDD_EMMC_1.8V";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-min-microamp = <100000>;
+		regulator-max-microamp = <100000>;
+		regulator-boot-on;
+	};
+
+	ldo2 {
+		regulator-name = "VDD_LCD_3.3V";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+};
