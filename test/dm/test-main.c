@@ -78,8 +78,7 @@ int dm_test_main(const char *test_name)
 	 */
 	if (!gd->fdt_blob || fdt_next_node(gd->fdt_blob, 0, NULL) < 0) {
 		puts("Please run with test device tree:\n"
-		     "     dtc -I dts -O dtb test/dm/test.dts  -o test/dm/test.dtb\n"
-		     "    ./u-boot -d test/dm/test.dtb\n");
+		     "    ./u-boot -d arch/sandbox/dts/test.dtb\n");
 		ut_assert(gd->fdt_blob);
 	}
 

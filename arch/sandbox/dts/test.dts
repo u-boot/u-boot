@@ -8,20 +8,18 @@
 
 	aliases {
 		console = &uart0;
-		eth0 = "/eth@10002000";
-		eth5 = &eth_5;
 		i2c0 = "/i2c@0";
-		pci0 = &pci;
 		spi0 = "/spi@0";
+		pci0 = &pci;
+		testfdt6 = "/e-test";
 		testbus3 = "/some-bus";
 		testfdt0 = "/some-bus/c-test@0";
 		testfdt1 = "/some-bus/c-test@1";
 		testfdt3 = "/b-test";
 		testfdt5 = "/some-bus/c-test@5";
-		testfdt6 = "/e-test";
 		testfdt8 = "/a-test";
-		rtc0 = &rtc_0;
-		rtc1 = &rtc_1;
+		eth0 = "/eth@10002000";
+		eth5 = &eth_5;
 		usb0 = &usb_0;
 		usb1 = &usb_1;
 		usb2 = &usb_2;
@@ -139,22 +137,6 @@
 				compatible = "sandbox,i2c-eeprom";
 				sandbox,filename = "i2c.bin";
 				sandbox,size = <256>;
-			};
-		};
-
-		rtc_0: rtc@43 {
-			reg = <0x43>;
-			compatible = "sandbox-rtc";
-			emul {
-				compatible = "sandbox,i2c-rtc";
-			};
-		};
-
-		rtc_1: rtc@61 {
-			reg = <0x61>;
-			compatible = "sandbox-rtc";
-			emul {
-				compatible = "sandbox,i2c-rtc";
 			};
 		};
 	};

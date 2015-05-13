@@ -1,4 +1,5 @@
 dtb-$(CONFIG_SANDBOX) += sandbox.dtb
+dtb-$(CONFIG_DM_TEST) += test.dtb
 
 targets += $(dtb-y)
 
