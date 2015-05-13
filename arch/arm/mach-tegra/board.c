@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
@@ -28,6 +29,21 @@ enum {
 	UARTE	= 1 << 4,
 	UART_COUNT = 5,
 };
+
+static bool from_spl __attribute__ ((section(".data")));
+
+#ifndef CONFIG_SPL_BUILD
+void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)
+{
+	from_spl = r0 != UBOOT_NOT_LOADED_FROM_SPL;
+	save_boot_params_ret();
+}
+#endif
+
+bool spl_was_boot_source(void)
+{
+	return from_spl;
+}
 
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 #if !defined(CONFIG_TEGRA124)
