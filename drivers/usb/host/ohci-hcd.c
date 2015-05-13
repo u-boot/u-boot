@@ -1505,6 +1505,26 @@ static ohci_dev_t *ohci_get_ohci_dev(ohci_t *ohci, int devnum, int intr)
 
 /* common code for handling submit messages - used for all but root hub */
 /* accesses. */
+static urb_priv_t *ohci_alloc_urb(struct usb_device *dev, unsigned long pipe,
+		void *buffer, int transfer_len, int interval)
+{
+	urb_priv_t *urb;
+
+	urb = calloc(1, sizeof(urb_priv_t));
+	if (!urb) {
+		printf("ohci: Error out of memory allocating urb\n");
+		return NULL;
+	}
+
+	urb->dev = dev;
+	urb->pipe = pipe;
+	urb->transfer_buffer = buffer;
+	urb->transfer_buffer_length = transfer_len;
+	urb->interval = interval;
+
+	return urb;
+}
+
 static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 		unsigned long pipe, void *buffer, int transfer_len,
 		struct devrequest *setup, int interval)
@@ -1515,14 +1535,9 @@ static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 	urb_priv_t *urb;
 	ohci_dev_t *ohci_dev;
 
-	urb = malloc(sizeof(urb_priv_t));
-	memset(urb, 0, sizeof(urb_priv_t));
-
-	urb->dev = dev;
-	urb->pipe = pipe;
-	urb->transfer_buffer = buffer;
-	urb->transfer_buffer_length = transfer_len;
-	urb->interval = interval;
+	urb = ohci_alloc_urb(dev, pipe, buffer, transfer_len, interval);
+	if (!urb)
+		return -ENOMEM;
 
 #ifdef DEBUG
 	urb->actual_length = 0;
