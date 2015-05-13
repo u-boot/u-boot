@@ -34,7 +34,7 @@
  * regulator constraints, like in the example below:
  *
  * ldo1 {
- *      regulator-name = "VDD_MMC_1.8V";     (mandatory for bind)
+ *      regulator-name = "VDD_MMC_1.8V";     (must be unique for proper bind)
  *      regulator-min-microvolt = <1000000>; (optional)
  *      regulator-max-microvolt = <1000000>; (optional)
  *      regulator-min-microamp = <1000>;     (optional)
@@ -43,19 +43,22 @@
  *      regulator-boot-on;                   (optional)
  * };
  *
- * Please take a notice, that for the proper operation at least name constraint
- * is needed, e.g. for call the device_by_platname(...).
+ * Note: For the proper operation, at least name constraint is needed, since
+ * it can be used when calling regulator_get_by_platname(). And the mandatory
+ * rule for this name is, that it must be globally unique for the single dts.
  *
  * Regulator bind:
  * For each regulator device, the device_bind() should be called with passed
  * device tree offset. This is required for this uclass's '.post_bind' method,
- * which do the scan on the device node, for the 'regulator-name' constraint.
+ * which does the scan on the device node, for the 'regulator-name' constraint.
  * If the parent is not a PMIC device, and the child is not bind by function:
  * 'pmic_bind_childs()', then it's recommended to bind the device by call to
  * dm_scan_fdt_node() - this is usually done automatically for bus devices,
  * as a post bind method.
+ *
+ * Regulator get:
  * Having the device's name constraint, we can call regulator_by_platname(),
- * to find interesting regulator. Before return, the regulator is probed,
+ * to find the required regulator. Before return, the regulator is probed,
  * and the rest of its constraints are put into the device's uclass platform
  * data, by the uclass regulator '.pre_probe' method.
  *
@@ -201,8 +204,8 @@ struct dm_regulator_ops {
 
 	/**
 	 * The 'get/set_mode()' function calls should operate on a driver-
-	 * specific mode definitions, which should be found in:
-	 * field 'mode' of struct mode_desc.
+	 * specific mode id definitions, which should be found in:
+	 * field 'id' of struct dm_regulator_mode.
 	 *
 	 * get/set_mode - get/set operation mode of the given output number
 	 * @dev         - regulator device
@@ -211,7 +214,7 @@ struct dm_regulator_ops {
 	 * @return id/0 for get/set on success or negative errno if fail.
 	 * Note:
 	 * The field 'id' of struct type 'dm_regulator_mode', should be always
-	 * positive number, since the negative is reserved for the error.
+	 * a positive number, since the negative is reserved for the error.
 	 */
 	int (*get_mode)(struct udevice *dev);
 	int (*set_mode)(struct udevice *dev, int mode_id);
@@ -278,107 +281,106 @@ bool regulator_get_enable(struct udevice *dev);
 int regulator_set_enable(struct udevice *dev, bool enable);
 
 /**
- * regulator_get_mode: get mode of a given device regulator
+ * regulator_get_mode: get active operation mode id of a given regulator
  *
  * @dev    - pointer to the regulator device
- * @return - positive  mode number on success or -errno val if fails
+ * @return - positive mode 'id' number on success or -errno val if fails
  * Note:
- * The regulator driver should return one of defined, mode number rather, than
- * the raw register value. The struct type 'mode_desc' provides a field 'mode'
- * for this purpose and register_value for a raw register value.
+ * The device can provide an array of operating modes, which is type of struct
+ * dm_regulator_mode. Each mode has it's own 'id', which should be unique inside
+ * that array. By calling this function, the driver should return an active mode
+ * id of the given regulator device.
  */
 int regulator_get_mode(struct udevice *dev);
 
 /**
- * regulator_set_mode: set given regulator mode
+ * regulator_set_mode: set the given regulator's, active mode id
  *
- * @dev    - pointer to the regulator device
- * @mode   - mode type (field 'mode' of struct mode_desc)
- * @return - 0 on success or -errno value if fails
+ * @dev     - pointer to the regulator device
+ * @mode_id - mode id to set ('id' field of struct type dm_regulator_mode)
+ * @return  - 0 on success or -errno value if fails
  * Note:
- * The regulator driver should take one of defined, mode number rather
- * than a raw register value. The struct type 'regulator_mode_desc' has
- * a mode field for this purpose and register_value for a raw register value.
+ * The device can provide an array of operating modes, which is type of struct
+ * dm_regulator_mode. Each mode has it's own 'id', which should be unique inside
+ * that array. By calling this function, the driver should set the active mode
+ * of a given regulator to given by "mode_id" argument.
  */
-int regulator_set_mode(struct udevice *dev, int mode);
+int regulator_set_mode(struct udevice *dev, int mode_id);
 
 /**
- * regulator_by_platname_autoset_and_enable: setup the regulator given by
- * its uclass's platform data '.name'. The setup depends on constraints found
- * in device's uclass's platform data (struct dm_regulator_uclass_platdata):
+ * regulator_autoset: setup the regulator given by its uclass's platform data
+ * name field. The setup depends on constraints found in device's uclass's
+ * platform data (struct dm_regulator_uclass_platdata):
+ * - Enable - will set - if any of: 'always_on' or 'boot_on' is set to true,
+ *   or if both are unset, then the function returns
  * - Voltage value - will set - if '.min_uV' and '.max_uV' values are equal
  * - Current limit - will set - if '.min_uA' and '.max_uA' values are equal
- * - Enable - will set - if any of: '.always_on' or '.boot_on', is set to true
  *
  * The function returns on first encountered error.
  *
  * @platname - expected string for dm_regulator_uclass_platdata .name field
- * @devp      - returned pointer to the regulator device - if non-NULL passed
- * @verbose   - (true/false) print regulator setup info, or be quiet
+ * @devp     - returned pointer to the regulator device - if non-NULL passed
+ * @verbose  - (true/false) print regulator setup info, or be quiet
  * @return: 0 on success or negative value of errno.
  *
  * The returned 'regulator' device can be used with:
  * - regulator_get/set_*
- * For shorter call name, the below macro regulator_autoset() can be used.
  */
-int regulator_by_platname_autoset_and_enable(const char *platname,
-					     struct udevice **devp,
-					     bool verbose);
-
-#define regulator_autoset(platname, devp, verbose) \
-	regulator_by_platname_autoset_and_enable(platname, devp, verbose)
+int regulator_autoset(const char *platname,
+		      struct udevice **devp,
+		      bool verbose);
 
 /**
- * regulator_by_platname_list_autoset_and_enable: setup the regulators given by
- * list of its uclass's platform data '.name'. The setup depends on constraints
- * found in device's uclass's platform data. The function loops with calls to:
- * regulator_by_platname_autoset_and_enable() for each name of list.
+ * regulator_list_autoset: setup the regulators given by list of their uclass's
+ * platform data name field. The setup depends on constraints found in device's
+ * uclass's platform data. The function loops with calls to:
+ * regulator_autoset() for each name from the list.
  *
  * @list_platname - an array of expected strings for .name field of each
  *                  regulator's uclass platdata
- * @list_entries  - number of regulator's name list entries
  * @list_devp     - an array of returned pointers to the successfully setup
  *                  regulator devices if non-NULL passed
  * @verbose       - (true/false) print each regulator setup info, or be quiet
- * @return 0 on successfully setup of all list entries or 1 otwerwise.
+ * @return 0 on successfully setup of all list entries, otherwise first error.
  *
  * The returned 'regulator' devices can be used with:
  * - regulator_get/set_*
- * For shorter call name, the below macro regulator_list_autoset() can be used.
+ *
+ * Note: The list must ends with NULL entry, like in the "platname" list below:
+ * char *my_regulators[] = {
+ *     "VCC_3.3V",
+ *     "VCC_1.8V",
+ *     NULL,
+ * };
  */
-int regulator_by_platname_list_autoset_and_enable(const char *list_platname[],
-						  int list_entries,
-						  struct udevice *list_devp[],
-						  bool verbose);
-
-#define regulator_list_autoset(namelist, entries, devlist, verbose)      \
-	regulator_by_platname_list_autoset_and_enable(namelist, entries, \
-						      devlist, verbose)
+int regulator_list_autoset(const char *list_platname[],
+			   struct udevice *list_devp[],
+			   bool verbose);
 
 /**
- * regulator_by_devname: returns the pointer to the pmic regulator device.
- *                       Search by name, found in regulator device's name.
+ * regulator_get_by_devname: returns the pointer to the pmic regulator device.
+ * Search by name, found in regulator device's name.
  *
  * @devname - expected string for 'dev->name' of regulator device
  * @devp    - returned pointer to the regulator device
  * @return 0 on success or negative value of errno.
  *
- * The returned 'regulator' device can be used with:
+ * The returned 'regulator' device is probed and can be used with:
  * - regulator_get/set_*
  */
-int regulator_by_devname(const char *devname, struct udevice **devp);
+int regulator_get_by_devname(const char *devname, struct udevice **devp);
 
 /**
- * regulator_by_platname: returns the pointer to the pmic regulator device.
- *                        Search by name, found in regulator uclass platdata.
+ * regulator_get_by_platname: returns the pointer to the pmic regulator device.
+ * Search by name, found in regulator uclass platdata.
  *
  * @platname - expected string for uc_pdata->name of regulator uclass platdata
  * @devp     - returned pointer to the regulator device
  * @return 0 on success or negative value of errno.
  *
- * The returned 'regulator' device can be used with:
+ * The returned 'regulator' device is probed and can be used with:
  * - regulator_get/set_*
  */
-int regulator_by_platname(const char *platname, struct udevice **devp);
+int regulator_get_by_platname(const char *platname, struct udevice **devp);
 
 #endif /* _INCLUDE_REGULATOR_H_ */

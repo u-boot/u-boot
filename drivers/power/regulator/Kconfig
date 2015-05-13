@@ -14,7 +14,7 @@ config DM_REGULATOR
 	It's important to call the device_bind() with the proper node offset,
 	when binding the regulator devices. The pmic_bind_childs() can be used
 	for this purpose if PMIC I/O driver is implemented or dm_scan_fdt_node()
-	otherwise. Detailed informations can be found in the header file.
+	otherwise. Detailed information can be found in the header file.
 
 config DM_REGULATOR_MAX77686
 	bool "Enable Driver Model for REGULATOR MAX77686"

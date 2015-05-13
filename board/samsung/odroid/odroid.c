@@ -37,6 +37,7 @@ static const char *mmc_regulators[] = {
 	"VDDQ_EMMC_1.8V",
 	"VDDQ_EMMC_2.8V",
 	"TFLASH_2.8V",
+	NULL,
 };
 
 void set_board_type(void)
@@ -427,9 +428,7 @@ int exynos_init(void)
 
 int exynos_power_init(void)
 {
-	int list_count = ARRAY_SIZE(mmc_regulators);
-
-	if (regulator_list_autoset(mmc_regulators, list_count, NULL, true))
+	if (regulator_list_autoset(mmc_regulators, NULL, true))
 		error("Unable to init all mmc regulators");
 
 	return 0;
@@ -441,7 +440,7 @@ static int s5pc210_phy_control(int on)
 	struct udevice *dev;
 	int ret;
 
-	ret = regulator_by_platname("VDD_UOTG_3.0V", &dev);
+	ret = regulator_get_by_platname("VDD_UOTG_3.0V", &dev);
 	if (ret) {
 		error("Regulator get error: %d", ret);
 		return ret;
@@ -487,7 +486,7 @@ int board_usb_init(int index, enum usb_init_type init)
 	/* Power off and on BUCK8 for LAN9730 */
 	debug("LAN9730 - Turning power buck 8 OFF and ON.\n");
 
-	ret = regulator_by_platname("VCC_P3V3_2.85V", &dev);
+	ret = regulator_get_by_platname("VCC_P3V3_2.85V", &dev);
 	if (ret) {
 		error("Regulator get error: %d", ret);
 		return ret;
