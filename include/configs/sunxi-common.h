@@ -317,7 +317,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_PREBOOT
 #define CONFIG_SYS_STDIO_DEREGISTER
-#define CONFIG_SYS_USB_EVENT_POLL
+#define CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
 #endif
 
 #if !defined CONFIG_ENV_IS_IN_MMC && \
