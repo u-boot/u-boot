@@ -448,8 +448,8 @@ static void draw_encoded_bitmap(ushort **fbp, ushort c, int cnt)
 /*
  * Do not call this function directly, must be called from lcd_display_bitmap.
  */
-static void lcd_display_rle8_bitmap(bmp_image_t *bmp, ushort *cmap, uchar *fb,
-				    int x_off, int y_off)
+static void lcd_display_rle8_bitmap(struct bmp_image *bmp, ushort *cmap,
+				    uchar *fb, int x_off, int y_off)
 {
 	uchar *bmap;
 	ulong width, height;
@@ -548,10 +548,10 @@ __weak void fb_put_word(uchar **fb, uchar **from)
 }
 #endif /* CONFIG_BMP_16BPP */
 
-__weak void lcd_set_cmap(bmp_image_t *bmp, unsigned colors)
+__weak void lcd_set_cmap(struct bmp_image *bmp, unsigned colors)
 {
 	int i;
-	bmp_color_table_entry_t cte;
+	struct bmp_color_table_entry cte;
 	ushort *cmap = configuration_get_cmap();
 
 	for (i = 0; i < colors; ++i) {
@@ -572,7 +572,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	ushort *cmap_base = NULL;
 	ushort i, j;
 	uchar *fb;
-	bmp_image_t *bmp = (bmp_image_t *)map_sysmem(bmp_image, 0);
+	struct bmp_image *bmp = (struct bmp_image *)map_sysmem(bmp_image, 0);
 	uchar *bmap;
 	ushort padded_width;
 	unsigned long width, height, byte_width;
