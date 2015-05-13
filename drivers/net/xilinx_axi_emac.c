@@ -14,12 +14,15 @@
 #include <phy.h>
 #include <miiphy.h>
 
+#if !defined(CONFIG_PHYLIB)
+# error AXI_ETHERNET requires PHYLIB
+#endif
+
 /* Link setup */
 #define XAE_EMMC_LINKSPEED_MASK	0xC0000000 /* Link speed */
 #define XAE_EMMC_LINKSPD_10	0x00000000 /* Link Speed mask for 10 Mbit */
 #define XAE_EMMC_LINKSPD_100	0x40000000 /* Link Speed mask for 100 Mbit */
 #define XAE_EMMC_LINKSPD_1000	0x80000000 /* Link Speed mask for 1000 Mbit */
-#define XAE_EMMC_RGMII		0x20000000 /* RGMII mode */
 
 /* Interrupt Status/Enable/Mask Registers bit definitions */
 #define XAE_INT_RXRJECT_MASK	0x00000008 /* Rx frame rejected */
@@ -48,8 +51,6 @@
 
 #define XAE_MDIO_DIV_DFT	29	/* Default MDIO clock divisor */
 
-#define XAE_PHYC_RGMII_MASK	0xF	/* Mask RGMII link setting */
-
 /* DMA macros */
 /* Bitmasks of XAXIDMA_CR_OFFSET register */
 #define XAXIDMA_CR_RUNSTOP_MASK	0x00000001 /* Start/stop DMA channel */
@@ -69,8 +70,7 @@
 
 #define DMAALIGN	128
 
-#define RX_BUF 2
-static u8 rxframe[PKTSIZE_ALIGN * RX_BUF] __attribute((aligned(DMAALIGN)));
+static u8 rxframe[PKTSIZE_ALIGN] __attribute((aligned(DMAALIGN)));
 
 /* Reflect dma offsets */
 struct axidma_reg {
@@ -86,11 +86,9 @@ struct axidma_priv {
 	struct axidma_reg *dmatx;
 	struct axidma_reg *dmarx;
 	int phyaddr;
-	u32 rxbd_current;
 
 	struct phy_device *phydev;
 	struct mii_dev *bus;
-	phy_interface_t interface;
 };
 
 /* BD descriptors */
@@ -127,8 +125,7 @@ struct axi_regs {
 	u32 tc; /* 0x408: Tx Configuration */
 	u32 reserved4;
 	u32 emmc; /* 0x410: EMAC mode configuration */
-	u32 phyc; /* 0x414: TEMAC RGMII/SGMII Configuration */
-	u32 reserved5[58];
+	u32 reserved5[59];
 	u32 mdio_mc; /* 0x500: MII Management Config */
 	u32 mdio_mcr; /* 0x504: MII Management Control */
 	u32 mdio_mwd; /* 0x508: MII Management Write Data */
@@ -221,47 +218,11 @@ static u32 phywrite(struct eth_device *dev, u32 phyaddress, u32 registernum,
 	return 0;
 }
 
-static void phy_detection(struct eth_device *dev)
-{
-	int i;
-	u16 phyreg;
-	struct axidma_priv *priv = dev->priv;
-
-	if (priv->phyaddr != -1 ) {
-		phyread(dev, priv->phyaddr, PHY_DETECT_REG, &phyreg);
-		if ((phyreg != 0xFFFF) &&
-			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
-			/* Found a valid PHY address */
-			debug("Default phy address %d is valid\n", priv->phyaddr);
-			return;
-		} else {
-			debug("PHY address is not setup correctly %d\n", priv->phyaddr);
-			priv->phyaddr = -1;
-		}
-	}
-
-	debug("detecting phy address\n");
-	if (priv->phyaddr == -1 ) {
-		/* detect the PHY address */
-		for (i = 31; i >= 0; i--) {
-			phyread(dev, i, PHY_DETECT_REG, &phyreg);
-			if ((phyreg != 0xFFFF) &&
-			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
-				/* Found a valid PHY address */
-				priv->phyaddr = i;
-				debug("Found valid phy address, %d\n", i);
-				return;
-			}
-		}
-	}
-	printf("PHY is not detected\n");
-}
-
 /* Setting axi emac and phy to proper setting */
 static int setup_phy(struct eth_device *dev)
 {
-#ifdef CONFIG_PHYLIB
-	u32 speed, emmc_reg;
+	u16 phyreg;
+	u32 i, speed, emmc_reg, ret;
 	struct axidma_priv *priv = dev->priv;
 	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
 	struct phy_device *phydev;
@@ -273,15 +234,23 @@ static int setup_phy(struct eth_device *dev)
 			SUPPORTED_1000baseT_Half |
 			SUPPORTED_1000baseT_Full;
 
-	phy_detection(dev);
-
-	if (in_be32(&regs->phyc) & XAE_PHYC_RGMII_MASK)
-		priv->interface = PHY_INTERFACE_MODE_RGMII;
-	else
-		priv->interface = PHY_INTERFACE_MODE_MII;
+	if (priv->phyaddr == -1) {
+		/* Detect the PHY address */
+		for (i = 31; i >= 0; i--) {
+			ret = phyread(dev, i, PHY_DETECT_REG, &phyreg);
+			if (!ret && (phyreg != 0xFFFF) &&
+			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+				/* Found a valid PHY address */
+				priv->phyaddr = i;
+				debug("axiemac: Found valid phy address, %x\n",
+									phyreg);
+				break;
+			}
+		}
+	}
 
 	/* Interface - look at tsec */
-	phydev = phy_connect(priv->bus, priv->phyaddr, dev, priv->interface);
+	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
 
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
@@ -313,8 +282,6 @@ static int setup_phy(struct eth_device *dev)
 
 	/* Setup the emac for the phy speed */
 	emmc_reg = in_be32(&regs->emmc);
-	if (priv->interface == PHY_INTERFACE_MODE_RGMII)
-		emmc_reg |= XAE_EMMC_RGMII;
 	emmc_reg &= ~XAE_EMMC_LINKSPEED_MASK;
 	emmc_reg |= speed;
 
@@ -329,65 +296,6 @@ static int setup_phy(struct eth_device *dev)
 	udelay(1);
 
 	return 1;
-#else
-	int i;
-	struct axidma_priv *priv = dev->priv;
-	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
-	unsigned retries = 100;
-	u16 phyreg;
-	u32 emmc_reg;
-
-
-	debug("waiting for the phy to be up\n");
-
-	/* wait for link up and autonegotiation completed */
-	phyread(dev, priv->phyaddr, PHY_DETECT_REG,  &phyreg);
-	while (retries-- && ((phyreg & 0x24) != 0x24))
-			phyread(dev, priv->phyaddr, PHY_DETECT_REG,  &phyreg);
-
-	phy_detection(dev);
-
-	/* get PHY id */
-	phyread(dev, priv->phyaddr, 2, &phyreg);
-	i = phyreg << 16;
-	phyread(dev, priv->phyaddr, 3, &phyreg);
-	i |= phyreg;
-	debug("axiemac: Phy ID 0x%x\n", i);
-
-	/* Marwell 88e1111 id - ml50x/sp605 */
-	if (i == 0x1410cc2) {
-		debug("Marvell PHY recognized\n");
-
-		/* Setup the emac for the phy speed */
-		emmc_reg = in_be32(&regs->emmc);
-		emmc_reg &= ~XAE_EMMC_LINKSPEED_MASK;
-
-		phyread(dev, priv->phyaddr, 17, &phyreg);
-
-		if ((phyreg & 0x8000) == 0x8000) {
-			emmc_reg |= XAE_EMMC_LINKSPD_1000;
-			printf("1000BASE-T\n");
-		} else if ((phyreg & 0x4000) == 0x4000) {
-			printf("100BASE-T\n");
-			emmc_reg |= XAE_EMMC_LINKSPD_100;
-		} else {
-			printf("10BASE-T\n");
-			emmc_reg |= XAE_EMMC_LINKSPD_10;
-		}
-
-		/* Write new speed setting out to Axi Ethernet */
-		out_be32(&regs->emmc, emmc_reg);
-
-		/*
-		 * Setting the operating speed of the MAC needs a delay. There
-		 * doesn't seem to be register to poll, so please consider this
-		 * during your application design.
-		 */
-		udelay(1);
-		return 1;
-	}
-	return 0;
-#endif
 }
 
 /* STOP DMA transfers */
@@ -494,7 +402,7 @@ static int axiemac_init(struct eth_device *dev, bd_t * bis)
 {
 	struct axidma_priv *priv = dev->priv;
 	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
-	u32 frame_addr, temp;
+	u32 temp;
 
 	debug("axiemac: Init started\n");
 	/*
@@ -517,23 +425,17 @@ static int axiemac_init(struct eth_device *dev, bd_t * bis)
 	/* Start DMA RX channel. Now it's ready to receive data.*/
 	out_be32(&priv->dmarx->current, (u32)&rx_bd);
 
-	/* Create the RxBD ring */
-	memset(&rxframe, 0, sizeof(rxframe));
-
-	/* Identify the rx buffer address */
-	frame_addr = rxframe + priv->rxbd_current * PKTSIZE_ALIGN;
-
 	/* Setup the BD. */
 	memset(&rx_bd, 0, sizeof(rx_bd));
 	rx_bd.next = (u32)&rx_bd;
-	rx_bd.phys = frame_addr;
-	rx_bd.cntrl = PKTSIZE_ALIGN;
+	rx_bd.phys = (u32)&rxframe;
+	rx_bd.cntrl = sizeof(rxframe);
 	/* Flush the last BD so DMA core could see the updates */
 	flush_cache((u32)&rx_bd, sizeof(rx_bd));
 
 	/* It is necessary to flush rxframe because if you don't do it
 	 * then cache can contain uninitialized data */
-	flush_cache(frame_addr, PKTSIZE_ALIGN);
+	flush_cache((u32)&rxframe, sizeof(rxframe));
 
 	/* Start the hardware */
 	temp = in_be32(&priv->dmarx->control);
@@ -635,7 +537,7 @@ static int axiemac_recv(struct eth_device *dev)
 {
 	u32 length;
 	struct axidma_priv *priv = dev->priv;
-	u32 frame_addr, nextframe_addr, temp;
+	u32 temp;
 
 	/* Wait for an incoming packet */
 	if (!isrxready(dev))
@@ -649,45 +551,35 @@ static int axiemac_recv(struct eth_device *dev)
 	out_be32(&priv->dmarx->control, temp);
 
 	length = rx_bd.app4 & 0xFFFF; /* max length mask */
-
-	frame_addr = rxframe + priv->rxbd_current * PKTSIZE_ALIGN;
+#ifdef DEBUG
+	print_buffer(&rxframe, &rxframe[0], 1, length, 16);
+#endif
+	/* Pass the received frame up for processing */
+	if (length)
+		NetReceive(rxframe, length);
 
 #ifdef DEBUG
-	print_buffer(frame_addr, frame_addr[0], 1, length, 16);
+	/* It is useful to clear buffer to be sure that it is consistent */
+	memset(rxframe, 0, sizeof(rxframe));
 #endif
-
-	if ((++priv->rxbd_current) >= RX_BUF)
-		priv->rxbd_current = 0;
-	/* Get next frame address */
-	nextframe_addr = rxframe + priv->rxbd_current * PKTSIZE_ALIGN;
-
 	/* Setup RxBD */
 	/* Clear the whole buffer and setup it again - all flags are cleared */
 	memset(&rx_bd, 0, sizeof(rx_bd));
 	rx_bd.next = (u32)&rx_bd;
-	rx_bd.phys = nextframe_addr;
-	rx_bd.cntrl = PKTSIZE_ALIGN;
+	rx_bd.phys = (u32)&rxframe;
+	rx_bd.cntrl = sizeof(rxframe);
 
 	/* Write bd to HW */
 	flush_cache((u32)&rx_bd, sizeof(rx_bd));
 
 	/* It is necessary to flush rxframe because if you don't do it
 	 * then cache will contain previous packet */
-	flush_cache(nextframe_addr, PKTSIZE_ALIGN);
+	flush_cache((u32)&rxframe, sizeof(rxframe));
 
 	/* Rx BD is ready - start again */
 	out_be32(&priv->dmarx->tail, (u32)&rx_bd);
 
 	debug("axiemac: RX completed, framelength = %d\n", length);
-
-	/* Pass the received frame up for processing */
-	if (length)
-		NetReceive((u8 *)(frame_addr), length);
-
-#ifdef DEBUG
-	/* It is useful to clear buffer to be sure that it is consistent */
-	memset((u8 *)(frame_addr), 0, PKTSIZE_ALIGN);
-#endif
 
 	return length;
 }
