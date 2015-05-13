@@ -367,10 +367,13 @@ typedef struct
 
 #define NUM_TD 64		/* we need more TDs than EDs */
 
+#define NUM_INT_DEVS 8		/* num of ohci_dev structs for int endpoints */
+
 typedef struct ohci_device {
 	ed_t ed[NUM_EDS] __aligned(ED_ALIGNMENT);
 	td_t tds[NUM_TD] __aligned(TD_ALIGNMENT);
 	int ed_cnt;
+	int devnum;
 } ohci_dev_t;
 
 /*
@@ -384,6 +387,7 @@ typedef struct ohci_device {
 typedef struct ohci {
 	/* this allocates EDs for all possible endpoints */
 	struct ohci_device ohci_dev __aligned(TD_ALIGNMENT);
+	struct ohci_device int_dev[NUM_INT_DEVS] __aligned(TD_ALIGNMENT);
 	struct ohci_hcca *hcca;		/* hcca */
 	/*dma_addr_t hcca_dma;*/
 

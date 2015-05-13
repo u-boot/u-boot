@@ -1478,6 +1478,31 @@ pkt_print(ohci, NULL, dev, pipe, buffer, transfer_len,
 
 /*-------------------------------------------------------------------------*/
 
+static ohci_dev_t *ohci_get_ohci_dev(ohci_t *ohci, int devnum, int intr)
+{
+	int i;
+
+	if (!intr)
+		return &ohci->ohci_dev;
+
+	/* First see if we already have an ohci_dev for this dev. */
+	for (i = 0; i < NUM_INT_DEVS; i++) {
+		if (ohci->int_dev[i].devnum == devnum)
+			return &ohci->int_dev[i];
+	}
+
+	/* If not then find a free one. */
+	for (i = 0; i < NUM_INT_DEVS; i++) {
+		if (ohci->int_dev[i].devnum == -1) {
+			ohci->int_dev[i].devnum = devnum;
+			return &ohci->int_dev[i];
+		}
+	}
+
+	printf("ohci: Error out of ohci_devs for interrupt endpoints\n");
+	return NULL;
+}
+
 /* common code for handling submit messages - used for all but root hub */
 /* accesses. */
 static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
@@ -1488,6 +1513,7 @@ static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 	int maxsize = usb_maxpacket(dev, pipe);
 	int timeout;
 	urb_priv_t *urb;
+	ohci_dev_t *ohci_dev;
 
 	urb = malloc(sizeof(urb_priv_t));
 	memset(urb, 0, sizeof(urb_priv_t));
@@ -1511,7 +1537,11 @@ static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 		return -1;
 	}
 
-	if (sohci_submit_job(ohci, &ohci->ohci_dev, urb, setup) < 0) {
+	ohci_dev = ohci_get_ohci_dev(ohci, dev->devnum, usb_pipeint(pipe));
+	if (!ohci_dev)
+		return -ENOMEM;
+
+	if (sohci_submit_job(ohci, ohci_dev, urb, setup) < 0) {
 		err("sohci_submit_job failed");
 		return -1;
 	}
@@ -1711,8 +1741,11 @@ static int hc_start(ohci_t *ohci)
 {
 	__u32 mask;
 	unsigned int fminterval;
+	int i;
 
 	ohci->disabled = 1;
+	for (i = 0; i < NUM_INT_DEVS; i++)
+		ohci->int_dev[i].devnum = -1;
 
 	/* Tell the controller where the control and bulk lists are
 	 * The lists are empty now. */
