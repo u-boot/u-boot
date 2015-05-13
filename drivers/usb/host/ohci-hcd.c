@@ -1622,6 +1622,91 @@ static int submit_common_msg(ohci_t *ohci, struct usb_device *dev,
 	return 0;
 }
 
+#define MAX_INT_QUEUESIZE 8
+
+struct int_queue {
+	int queuesize;
+	int curr_urb;
+	urb_priv_t *urb[MAX_INT_QUEUESIZE];
+};
+
+static struct int_queue *_ohci_create_int_queue(ohci_t *ohci,
+		struct usb_device *udev, unsigned long pipe, int queuesize,
+		int elementsize, void *buffer, int interval)
+{
+	struct int_queue *queue;
+	ohci_dev_t *ohci_dev;
+	int i;
+
+	if (queuesize > MAX_INT_QUEUESIZE)
+		return NULL;
+
+	ohci_dev = ohci_get_ohci_dev(ohci, udev->devnum, 1);
+	if (!ohci_dev)
+		return NULL;
+
+	queue = malloc(sizeof(*queue));
+	if (!queue) {
+		printf("ohci: Error out of memory allocating int queue\n");
+		return NULL;
+	}
+
+	for (i = 0; i < queuesize; i++) {
+		queue->urb[i] = ohci_alloc_urb(udev, pipe,
+					       buffer + i * elementsize,
+					       elementsize, interval);
+		if (!queue->urb[i])
+			break;
+
+		if (sohci_submit_job(ohci, ohci_dev, queue->urb[i], NULL)) {
+			printf("ohci: Error submitting int queue job\n");
+			urb_free_priv(queue->urb[i]);
+			break;
+		}
+	}
+	if (i == 0) {
+		/* We did not succeed in submitting even 1 urb */
+		free(queue);
+		return NULL;
+	}
+
+	queue->queuesize = i;
+	queue->curr_urb = 0;
+
+	return queue;
+}
+
+static void *_ohci_poll_int_queue(ohci_t *ohci, struct usb_device *udev,
+				  struct int_queue *queue)
+{
+	if (queue->curr_urb == queue->queuesize)
+		return NULL; /* Queue depleted */
+
+	if (hc_interrupt(ohci) < 0)
+		return NULL;
+
+	if (queue->urb[queue->curr_urb]->finished) {
+		void *ret = queue->urb[queue->curr_urb]->transfer_buffer;
+		queue->curr_urb++;
+		return ret;
+	}
+
+	return NULL;
+}
+
+static int _ohci_destroy_int_queue(ohci_t *ohci, struct usb_device *dev,
+				   struct int_queue *queue)
+{
+	int i;
+
+	for (i = 0; i < queue->queuesize; i++)
+		urb_free_priv(queue->urb[i]);
+
+	free(queue);
+
+	return 0;
+}
+
 #ifndef CONFIG_DM_USB
 /* submit routines called from usb.c */
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
@@ -1638,6 +1723,24 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	info("submit_int_msg");
 	return submit_common_msg(&gohci, dev, pipe, buffer, transfer_len, NULL,
 			interval);
+}
+
+struct int_queue *create_int_queue(struct usb_device *dev,
+		unsigned long pipe, int queuesize, int elementsize,
+		void *buffer, int interval)
+{
+	return _ohci_create_int_queue(&gohci, dev, pipe, queuesize,
+				      elementsize, buffer, interval);
+}
+
+void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
+{
+	return _ohci_poll_int_queue(&gohci, dev, queue);
+}
+
+int destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
+{
+	return _ohci_destroy_int_queue(&gohci, dev, queue);
 }
 #endif
 
@@ -2072,6 +2175,32 @@ static int ohci_submit_int_msg(struct udevice *dev, struct usb_device *udev,
 				 NULL, interval);
 }
 
+static struct int_queue *ohci_create_int_queue(struct udevice *dev,
+		struct usb_device *udev, unsigned long pipe, int queuesize,
+		int elementsize, void *buffer, int interval)
+{
+	ohci_t *ohci = dev_get_priv(usb_get_bus(dev));
+
+	return _ohci_create_int_queue(ohci, udev, pipe, queuesize, elementsize,
+				      buffer, interval);
+}
+
+static void *ohci_poll_int_queue(struct udevice *dev, struct usb_device *udev,
+				 struct int_queue *queue)
+{
+	ohci_t *ohci = dev_get_priv(usb_get_bus(dev));
+
+	return _ohci_poll_int_queue(ohci, udev, queue);
+}
+
+static int ohci_destroy_int_queue(struct udevice *dev, struct usb_device *udev,
+				  struct int_queue *queue)
+{
+	ohci_t *ohci = dev_get_priv(usb_get_bus(dev));
+
+	return _ohci_destroy_int_queue(ohci, udev, queue);
+}
+
 int ohci_register(struct udevice *dev, struct ohci_regs *regs)
 {
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
@@ -2114,6 +2243,9 @@ struct dm_usb_ops ohci_usb_ops = {
 	.control = ohci_submit_control_msg,
 	.bulk = ohci_submit_bulk_msg,
 	.interrupt = ohci_submit_int_msg,
+	.create_int_queue = ohci_create_int_queue,
+	.poll_int_queue = ohci_poll_int_queue,
+	.destroy_int_queue = ohci_destroy_int_queue,
 };
 
 #endif
