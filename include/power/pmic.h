@@ -11,9 +11,9 @@
 #ifndef __CORE_PMIC_H_
 #define __CORE_PMIC_H_
 
-#include <linux/list.h>
-#include <spi.h>
 #include <i2c.h>
+#include <spi.h>
+#include <linux/list.h>
 #include <power/power_chrg.h>
 
 enum { PMIC_I2C, PMIC_SPI, PMIC_NONE};
@@ -90,10 +90,10 @@ struct pmic {
  * U-Boot PMIC Framework
  * =====================
  *
- * UCLASS_PMIC - The is designed to provide an I/O interface for PMIC devices.
+ * UCLASS_PMIC - This is designed to provide an I/O interface for PMIC devices.
  *
  * For the multi-function PMIC devices, this can be used as parent I/O device
- * for each IC's interface. Then, each children uses its parent for read/write.
+ * for each IC's interface. Then, each child uses its parent for read/write.
  *
  * The driver model tree could look like this:
  *
@@ -112,8 +112,8 @@ struct pmic {
  * We can find two PMIC cases in boards design:
  * - single I/O interface
  * - multiple I/O interfaces
- * We bind single PMIC device for each interface, to provide an I/O as a parent,
- * of proper child devices. Each child usually implements a different function,
+ * We bind a single PMIC device for each interface, to provide an I/O for
+ * its child devices. And each child usually implements a different function,
  * controlled by the same interface.
  *
  * The binding should be done automatically. If device tree nodes/subnodes are
@@ -131,7 +131,7 @@ struct pmic {
  * Note:
  * Each PMIC interface driver should use a different compatible string.
  *
- * If each pmic child device driver need access the PMIC-specific registers,
+ * If a PMIC child device driver needs access the PMIC-specific registers,
  * it need know only the register address and the access can be done through
  * the parent pmic driver. Like in the example:
  *
@@ -141,10 +141,10 @@ struct pmic {
  * |   |_ dev: my_regulator (set value/etc..)  (is child)   - UCLASS_REGULATOR
  *
  * To ensure such device relationship, the pmic device driver should also bind
- * all its child devices, like in the example below. It should be done by call
- * the 'pmic_bind_childs()' - please refer to the description of this function
- * in this header file. This function, should be called in the driver's '.bind'
- * method.
+ * all its child devices, like in the example below. It can be done by calling
+ * the 'pmic_bind_children()' - please refer to the function description, which
+ * can be found in this header file. This function, should be called inside the
+ * driver's bind() method.
  *
  * For the example driver, please refer the MAX77686 driver:
  * - 'drivers/power/pmic/max77686.c'
@@ -156,18 +156,19 @@ struct pmic {
  * Should be implemented by UCLASS_PMIC device drivers. The standard
  * device operations provides the I/O interface for it's childs.
  *
- * @reg_count: devices register count
+ * @reg_count: device's register count
  * @read:      read 'len' bytes at "reg" and store it into the 'buffer'
  * @write:     write 'len' bytes from the 'buffer' to the register at 'reg' address
  */
 struct dm_pmic_ops {
-	int reg_count;
+	int (*reg_count)(struct udevice *dev);
 	int (*read)(struct udevice *dev, uint reg, uint8_t *buffer, int len);
 	int (*write)(struct udevice *dev, uint reg, const uint8_t *buffer,
 		     int len);
 };
 
-/* enum pmic_op_type - used for various pmic devices operation calls,
+/**
+ * enum pmic_op_type - used for various pmic devices operation calls,
  * for reduce a number of lines with the same code for read/write or get/set.
  *
  * @PMIC_OP_GET - get operation
@@ -181,7 +182,7 @@ enum pmic_op_type {
 /**
  * struct pmic_child_info - basic device's child info for bind child nodes with
  * the driver by the node name prefix and driver name. This is a helper struct
- * for function: pmic_bind_childs().
+ * for function: pmic_bind_children().
  *
  * @prefix - child node name prefix (or its name if is unique or single)
  * @driver - driver name for the sub-node with prefix
@@ -194,7 +195,7 @@ struct pmic_child_info {
 /* drivers/power/pmic-uclass.c */
 
 /**
- * pmic_bind_childs() - bind drivers for given parent pmic, using child info
+ * pmic_bind_children() - bind drivers for given parent pmic, using child info
  * found in 'child_info' array.
  *
  * @pmic       - pmic device - the parent of found child's
@@ -216,7 +217,7 @@ struct pmic_child_info {
  *     (pmic - bind automatically by compatible)
  *     compatible = "my_pmic";
  *     ...
- *     (pmic's childs - bind by pmic_bind_childs())
+ *     (pmic's childs - bind by pmic_bind_children())
  *     (nodes prefix: "ldo", driver: "my_regulator_ldo")
  *     ldo1 { ... };
  *     ldo2 { ... };
@@ -226,8 +227,8 @@ struct pmic_child_info {
  *     buck2 { ... };
  * };
  */
-int pmic_bind_childs(struct udevice *pmic, int offset,
-		     const struct pmic_child_info *child_info);
+int pmic_bind_children(struct udevice *pmic, int offset,
+		       const struct pmic_child_info *child_info);
 
 /**
  * pmic_get: get the pmic device using its name

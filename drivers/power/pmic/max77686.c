@@ -16,11 +16,16 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct pmic_child_info pmic_childs_info[] = {
+static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "ldo", .driver = MAX77686_LDO_DRIVER },
 	{ .prefix = "buck", .driver = MAX77686_BUCK_DRIVER },
 	{ },
 };
+
+static int max77686_reg_count(struct udevice *dev)
+{
+	return MAX77686_NUM_OF_REGS;
+}
 
 static int max77686_write(struct udevice *dev, uint reg, const uint8_t *buff,
 			  int len)
@@ -47,7 +52,7 @@ static int max77686_bind(struct udevice *dev)
 {
 	int regulators_node;
 	const void *blob = gd->fdt_blob;
-	int childs;
+	int children;
 
 	regulators_node = fdt_subnode_offset(blob, dev->of_offset,
 					     "voltage-regulators");
@@ -59,8 +64,8 @@ static int max77686_bind(struct udevice *dev)
 
 	debug("%s: '%s' - found regulators subnode\n", __func__, dev->name);
 
-	childs = pmic_bind_childs(dev, regulators_node, pmic_childs_info);
-	if (!childs)
+	children = pmic_bind_children(dev, regulators_node, pmic_children_info);
+	if (!children)
 		debug("%s: %s - no child found\n", __func__, dev->name);
 
 	/* Always return success for this device */
@@ -68,7 +73,7 @@ static int max77686_bind(struct udevice *dev)
 }
 
 static struct dm_pmic_ops max77686_ops = {
-	.reg_count = MAX77686_NUM_OF_REGS,
+	.reg_count = max77686_reg_count,
 	.read = max77686_read,
 	.write = max77686_write,
 };
