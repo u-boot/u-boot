@@ -195,7 +195,7 @@ static int mctl_train_dram(struct dram_para *para)
 		(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
 
 	mctl_data_train_cfg(para);
-	mctl_set_pir(0x1f3);
+	mctl_set_pir(0x5f3);
 
 	return ((readl(&mctl_ctl->pgsr0) >> 20) & 0xff) ? -EIO : 0;
 }
