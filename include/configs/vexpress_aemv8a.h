@@ -206,6 +206,7 @@
 /* Assume we boot with root on the first partition of a USB stick */
 #define CONFIG_BOOTARGS		"console=ttyAMA0,115200n8 " \
 				"root=/dev/sda1 rw " \
+				"rootwait "\
 				"earlyprintk=pl011,0x7ff80000 debug user_debug=31 "\
 				"loglevel=9"
 
