@@ -37,6 +37,7 @@ F:	configs/Orangepi_mini_defconfig
 F:	configs/qt840a_defconfig
 F:	configs/Wits_Pro_A20_DKT_defconfig
 F:	include/configs/sun8i.h
+F:	configs/ga10h_v1_1_defconfig
 F:	configs/Ippo_q8h_v1_2_defconfig
 F:	configs/Ippo_q8h_v1_2_a33_1024x600_defconfig
 
