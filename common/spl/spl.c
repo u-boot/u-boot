@@ -328,7 +328,7 @@ ulong spl_relocate_stack_gd(void)
 	ulong ptr;
 
 	/* Get stack position: use 8-byte alignment for ABI compliance */
-	ptr = CONFIG_SPL_STACK_R - sizeof(gd_t);
+	ptr = CONFIG_SPL_STACK_R_ADDR - sizeof(gd_t);
 	ptr &= ~7;
 	new_gd = (gd_t *)ptr;
 	memcpy(new_gd, (void *)gd, sizeof(gd_t));
