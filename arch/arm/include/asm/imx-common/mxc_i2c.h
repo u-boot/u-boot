@@ -19,6 +19,36 @@ struct i2c_pads_info {
 	struct i2c_pin_ctrl sda;
 };
 
+/*
+ * Information about i2c controller
+ * struct mxc_i2c_bus - information about the i2c[x] bus
+ * @index: i2c bus index
+ * @base: Address of I2C bus controller
+ * @driver_data: Flags for different platforms, such as I2C_QUIRK_FLAG.
+ * @speed: Speed of I2C bus
+ * @pads_info: pinctrl info for this i2c bus, will be used when pinctrl is ok.
+ * The following two is only to be compatible with non-DM part.
+ * @idle_bus_fn: function to force bus idle
+ * @idle_bus_data: parameter for idle_bus_fun
+ */
+struct mxc_i2c_bus {
+	/*
+	 * board file can use this index to locate which i2c_pads_info is for
+	 * i2c_idle_bus. When pinmux is implement, this entry can be
+	 * discarded. Here we do not use dev->seq, because we do not want to
+	 * export device to board file.
+	 */
+	int index;
+	ulong base;
+	ulong driver_data;
+	int speed;
+	struct i2c_pads_info *pads_info;
+#ifndef CONFIG_DM_I2C
+	int (*idle_bus_fn)(void *p);
+	void *idle_bus_data;
+#endif
+};
+
 #if defined(CONFIG_MX6QDL)
 #define I2C_PADS(name, scl_i2c, scl_gpio, scl_gp, sda_i2c, sda_gpio, sda_gp) \
 	struct i2c_pads_info mx6q_##name = {		\
@@ -54,10 +84,8 @@ struct i2c_pads_info {
 
 int setup_i2c(unsigned i2c_index, int speed, int slave_addr,
 	      struct i2c_pads_info *p);
-void bus_i2c_init(void *base, int speed, int slave_addr,
+void bus_i2c_init(int index, int speed, int slave_addr,
 		int (*idle_bus_fn)(void *p), void *p);
-int bus_i2c_read(void *base, uchar chip, uint addr, int alen, uchar *buf,
-		int len);
-int bus_i2c_write(void *base, uchar chip, uint addr, int alen,
-		const uchar *buf, int len);
+int force_idle_bus(void *priv);
+int i2c_idle_bus(struct mxc_i2c_bus *i2c_bus);
 #endif
