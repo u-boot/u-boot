@@ -529,9 +529,6 @@ void board_init_f(ulong dummy)
 
 	/* disable boot watchdog */
 	gsc_boot_wd_disable();
-
-	/* load/boot image from boot device */
-	board_init_r(NULL, 0);
 }
 
 /* called from board_init_r after gd setup if CONFIG_SPL_BOARD_INIT defined */
