@@ -331,6 +331,9 @@ struct sunxi_ccm_reg {
 #define AHB_RESET_OFFSET_LCD1		5
 #define AHB_RESET_OFFSET_LCD0		4
 
+/* ahb_reset2 offsets */
+#define AHB_RESET_OFFSET_LVDS		0
+
 /* apb2 reset */
 #define APB2_RESET_UART_SHIFT		(16)
 #define APB2_RESET_UART_MASK		(0xff << APB2_RESET_UART_SHIFT)

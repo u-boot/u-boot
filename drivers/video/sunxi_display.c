@@ -558,7 +558,11 @@ static void sunxi_lcdc_init(void)
 	/* Clock on */
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_LCD0);
 #ifdef CONFIG_VIDEO_LCD_IF_LVDS
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+	setbits_le32(&ccm->ahb_reset2_cfg, 1 << AHB_RESET_OFFSET_LVDS);
+#else
 	setbits_le32(&ccm->lvds_clk_cfg, CCM_LVDS_CTRL_RST);
+#endif
 #endif
 
 	/* Init lcdc */
@@ -582,12 +586,23 @@ static void sunxi_lcdc_enable(void)
 #ifdef CONFIG_VIDEO_LCD_IF_LVDS
 	setbits_le32(&lcdc->tcon0_lvds_intf, SUNXI_LCDC_TCON0_LVDS_INTF_ENABLE);
 	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0);
+#ifdef CONFIG_SUNXI_GEN_SUN6I
+	udelay(2); /* delay at least 1200 ns */
+	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_EN_MB);
+	udelay(2); /* delay at least 1200 ns */
+	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_DRVC);
+	if (sunxi_display.depth == 18)
+		setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_DRVD(0x7));
+	else
+		setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_DRVD(0xf));
+#else
 	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_UPDATE);
 	udelay(2); /* delay at least 1200 ns */
 	setbits_le32(&lcdc->lvds_ana1, SUNXI_LCDC_LVDS_ANA1_INIT1);
 	udelay(1); /* delay at least 120 ns */
 	setbits_le32(&lcdc->lvds_ana1, SUNXI_LCDC_LVDS_ANA1_INIT2);
 	setbits_le32(&lcdc->lvds_ana0, SUNXI_LCDC_LVDS_ANA0_UPDATE);
+#endif
 #endif
 }
 
@@ -706,7 +721,8 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 #endif
 #ifdef CONFIG_VIDEO_LCD_IF_LVDS
 	val = (sunxi_display.depth == 18) ? 1 : 0;
-	writel(SUNXI_LCDC_TCON0_LVDS_INTF_BITWIDTH(val), &lcdc->tcon0_lvds_intf);
+	writel(SUNXI_LCDC_TCON0_LVDS_INTF_BITWIDTH(val) |
+	       SUNXI_LCDC_TCON0_LVDS_CLK_SEL_TCON0, &lcdc->tcon0_lvds_intf);
 #endif
 
 	if (sunxi_display.depth == 18 || sunxi_display.depth == 16) {
