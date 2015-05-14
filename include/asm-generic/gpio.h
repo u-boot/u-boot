@@ -336,15 +336,24 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 		     unsigned int *offsetp, unsigned int *gpiop);
 
 /**
- * get_gpios() - Turn the values of a list of GPIOs into an integer
+ * gpio_get_values_as_int() - Turn the values of a list of GPIOs into an int
  *
  * This puts the value of the first GPIO into bit 0, the second into bit 1,
  * etc. then returns the resulting integer.
  *
  * @gpio_list: List of GPIOs to collect
- * @return resulting integer value
+ * @return resulting integer value, or -ve on error
  */
-unsigned gpio_get_values_as_int(const int *gpio_list);
+int gpio_get_values_as_int(const int *gpio_list);
+
+/**
+ * gpio_claim_vector() - claim a number of GPIOs for input
+ *
+ * @gpio_num_array:	array of gpios to claim, terminated by -1
+ * @fmt:		format string for GPIO names, e.g. "board_id%d"
+ * @return 0 if OK, -ve on error
+ */
+int gpio_claim_vector(const int *gpio_num_array, const char *fmt);
 
 /**
  * gpio_request_by_name() - Locate and request a GPIO by name

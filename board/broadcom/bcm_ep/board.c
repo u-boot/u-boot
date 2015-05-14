@@ -54,7 +54,7 @@ int board_early_init_f(void)
 	return status;
 }
 
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+#ifdef CONFIG_ARMV7_NONSEC
 void smp_set_core_boot_addr(unsigned long addr, int corenr)
 {
 }

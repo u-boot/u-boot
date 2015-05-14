@@ -27,7 +27,7 @@
 #define  AS3722_DEVICE_ID 0x0c
 #define AS3722_ASIC_ID2 0x91
 
-static int as3722_read(struct udevice *pmic, u8 reg, u8 *value)
+int as3722_read(struct udevice *pmic, u8 reg, u8 *value)
 {
 	int err;
 
@@ -38,7 +38,7 @@ static int as3722_read(struct udevice *pmic, u8 reg, u8 *value)
 	return 0;
 }
 
-static int as3722_write(struct udevice *pmic, u8 reg, u8 value)
+int as3722_write(struct udevice *pmic, u8 reg, u8 value)
 {
 	int err;
 
@@ -234,6 +234,15 @@ int as3722_gpio_direction_output(struct udevice *pmic, unsigned int gpio,
 	return 0;
 }
 
+/* Temporary function until we get the pmic framework */
+int as3722_get(struct udevice **devp)
+{
+	int bus = 0;
+	int address = 0x40;
+
+	return i2c_get_chip_for_busnum(bus, address, 1, devp);
+}
+
 int as3722_init(struct udevice **devp)
 {
 	struct udevice *pmic;
@@ -258,7 +267,8 @@ int as3722_init(struct udevice **devp)
 
 	debug("AS3722 revision %#x found on I2C bus %u, address %#x\n",
 	      revision, bus, address);
-	*devp = pmic;
+	if (devp)
+		*devp = pmic;
 
 	return 0;
 }

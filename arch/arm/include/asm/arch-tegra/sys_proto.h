@@ -8,12 +8,21 @@
 #ifndef _SYS_PROTO_H_
 #define _SYS_PROTO_H_
 
-struct tegra_sysinfo {
-	char *board_string;
-};
-
 void invalidate_dcache(void);
 
-extern const struct tegra_sysinfo sysinfo;
+/**
+ * tegra_board_id() - Get the board iD
+ *
+ * @return a board ID, or -ve on error
+ */
+int tegra_board_id(void);
+
+/**
+ * tegra_lcd_pmic_init() - Set up the PMIC for a board
+ *
+ * @board_id: Board ID which may be used to select LCD type
+ * @return 0 if OK, -ve on error
+ */
+int tegra_lcd_pmic_init(int board_id);
 
 #endif

@@ -19,6 +19,7 @@
 
 #include <config.h>
 #include <asm/gic.h>
+#include <asm/macro.h>
 #include <asm/psci.h>
 #include <asm/arch/cpu.h>
 
@@ -138,8 +139,11 @@ out:	mcr	p15, 0, r7, c1, c1, 0
 	@ r2 = target PC
 .globl	psci_cpu_on
 psci_cpu_on:
-	adr	r0, _target_pc
-	str	r2, [r0]
+	push	{lr}
+
+	mov	r0, r1
+	bl	psci_get_cpu_stack_top	@ get stack top of target CPU
+	str	r2, [r0]		@ store target PC at stack top
 	dsb
 
 	movw	r0, #(SUN7I_CPUCFG_BASE & 0xffff)
@@ -150,7 +154,7 @@ psci_cpu_on:
 	mov	r4, #1
 	lsl	r4, r4, r1
 
-	adr	r6, _sunxi_cpu_entry
+	ldr	r6, =psci_cpu_entry
 	str	r6, [r0, #0x1a4] @ PRIVATE_REG (boot vector)
 
 	@ Assert reset on target CPU
@@ -194,88 +198,11 @@ psci_cpu_on:
 	str	r6, [r0, #0x1e4]
 
 	mov	r0, #ARM_PSCI_RET_SUCCESS	@ Return PSCI_RET_SUCCESS
-	mov	pc, lr
-
-_target_pc:
-	.word	0
-
-/* Imported from Linux kernel */
-v7_flush_dcache_all:
-	dmb					@ ensure ordering with previous memory accesses
-	mrc	p15, 1, r0, c0, c0, 1		@ read clidr
-	ands	r3, r0, #0x7000000		@ extract loc from clidr
-	mov	r3, r3, lsr #23			@ left align loc bit field
-	beq	finished			@ if loc is 0, then no need to clean
-	mov	r10, #0				@ start clean at cache level 0
-flush_levels:
-	add	r2, r10, r10, lsr #1		@ work out 3x current cache level
-	mov	r1, r0, lsr r2			@ extract cache type bits from clidr
-	and	r1, r1, #7			@ mask of the bits for current cache only
-	cmp	r1, #2				@ see what cache we have at this level
-	blt	skip				@ skip if no cache, or just i-cache
-	mrs     r9, cpsr			@ make cssr&csidr read atomic
-	mcr	p15, 2, r10, c0, c0, 0		@ select current cache level in cssr
-	isb					@ isb to sych the new cssr&csidr
-	mrc	p15, 1, r1, c0, c0, 0		@ read the new csidr
-	msr     cpsr_c, r9
-	and	r2, r1, #7			@ extract the length of the cache lines
-	add	r2, r2, #4			@ add 4 (line length offset)
-	ldr	r4, =0x3ff
-	ands	r4, r4, r1, lsr #3		@ find maximum number on the way size
-	clz	r5, r4				@ find bit position of way size increment
-	ldr	r7, =0x7fff
-	ands	r7, r7, r1, lsr #13		@ extract max number of the index size
-loop1:
-	mov	r9, r7				@ create working copy of max index
-loop2:
-	orr	r11, r10, r4, lsl r5		@ factor way and cache number into r11
-	orr	r11, r11, r9, lsl r2		@ factor index number into r11
-	mcr	p15, 0, r11, c7, c14, 2		@ clean & invalidate by set/way
-	subs	r9, r9, #1			@ decrement the index
-	bge	loop2
-	subs	r4, r4, #1			@ decrement the way
-	bge	loop1
-skip:
-	add	r10, r10, #2			@ increment cache number
-	cmp	r3, r10
-	bgt	flush_levels
-finished:
-	mov	r10, #0				@ swith back to cache level 0
-	mcr	p15, 2, r10, c0, c0, 0		@ select current cache level in cssr
-	dsb	st
-	isb
-	bx	lr
-
-_sunxi_cpu_entry:
-	@ Set SMP bit
-	mrc	p15, 0, r0, c1, c0, 1
-	orr	r0, r0, #0x40
-	mcr	p15, 0, r0, c1, c0, 1
-	isb
-
-	bl	_nonsec_init
-
-	adr	r0, _target_pc
-	ldr	r0, [r0]
-	b	_do_nonsec_entry
+	pop	{pc}
 
 .globl	psci_cpu_off
 psci_cpu_off:
-	mrc	p15, 0, r0, c1, c0, 0		@ SCTLR
-	bic	r0, r0, #(1 << 2)		@ Clear C bit
-	mcr	p15, 0, r0, c1, c0, 0		@ SCTLR
-	isb
-	dsb
-
-	bl	v7_flush_dcache_all
-
-	clrex					@ Why???
-
-	mrc	p15, 0, r0, c1, c0, 1		@ ACTLR
-	bic	r0, r0, #(1 << 6)		@ Clear SMP bit
-	mcr	p15, 0, r0, c1, c0, 1		@ ACTLR
-	isb
-	dsb
+	bl	psci_cpu_off_common
 
 	@ Ask CPU0 to pull the rug...
 	movw	r0, #(GICD_BASE & 0xffff)
@@ -290,6 +217,8 @@ psci_cpu_off:
 
 .globl	psci_arch_init
 psci_arch_init:
+	mov	r6, lr
+
 	movw	r4, #(GICD_BASE & 0xffff)
 	movt	r4, #(GICD_BASE >> 16)
 
@@ -315,18 +244,12 @@ psci_arch_init:
 	mcr	p15, 0, r5, c1, c1, 0	@ Write SCR
 	isb
 
-	mrc	p15, 0, r4, c0, c0, 5	@ MPIDR
-	and	r4, r4, #3		@ cpu number in cluster
-	mov	r5, #0x400		@ 1kB of stack per CPU
-	mul	r4, r4, r5
+	bl	psci_get_cpu_id		@ CPU ID => r0
+	bl	psci_get_cpu_stack_top	@ stack top => r0
+	mov	sp, r0
 
-	adr	r5, text_end		@ end of text
-	add	r5, r5, #0x2000		@ Skip two pages
-	lsr	r5, r5, #12		@ Align to start of page
-	lsl	r5, r5, #12
-	sub	sp, r5, r4		@ here's our stack!
+	bx	r6
 
-	bx	lr
-
-text_end:
+	.globl psci_text_end
+psci_text_end:
 	.popsection

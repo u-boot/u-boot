@@ -34,7 +34,7 @@
 #define STDIN_KBD_USB ""
 #endif
 
-#ifdef CONFIG_VIDEO_TEGRA
+#ifdef CONFIG_LCD
 #define STDOUT_LCD ",lcd"
 #else
 #define STDOUT_LCD ""
@@ -49,6 +49,8 @@
 #ifndef BOARD_EXTRA_ENV_SETTINGS
 #define BOARD_EXTRA_ENV_SETTINGS
 #endif
+
+#define CONFIG_SYS_LOAD_ADDR CONFIG_LOADADDR
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	TEGRA_DEVICE_SETTINGS \

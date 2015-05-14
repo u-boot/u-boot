@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <errno.h>
 #include <ns16550.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
@@ -40,6 +41,7 @@
 #include <asm/arch-tegra/mmc.h>
 #endif
 #include <asm/arch-tegra/xusb-padctl.h>
+#include <power/as3722.h>
 #include <i2c.h>
 #include <spi.h>
 #include "emc.h"
@@ -52,10 +54,6 @@ U_BOOT_DEVICE(tegra_gpios) = {
 	"gpio_tegra"
 };
 #endif
-
-const struct tegra_sysinfo sysinfo = {
-	CONFIG_TEGRA_BOARD_STRING
-};
 
 __weak void pinmux_init(void) {}
 __weak void pin_mux_usb(void) {}
@@ -85,6 +83,30 @@ static void power_det_init(void)
 #endif
 }
 
+__weak int tegra_board_id(void)
+{
+	return -1;
+}
+
+#ifdef CONFIG_DISPLAY_BOARDINFO
+int checkboard(void)
+{
+	int board_id = tegra_board_id();
+
+	printf("Board: %s", CONFIG_TEGRA_BOARD_STRING);
+	if (board_id != -1)
+		printf(", ID: %d\n", board_id);
+	printf("\n");
+
+	return 0;
+}
+#endif	/* CONFIG_DISPLAY_BOARDINFO */
+
+__weak int tegra_lcd_pmic_init(int board_it)
+{
+	return 0;
+}
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -92,6 +114,7 @@ static void power_det_init(void)
 int board_init(void)
 {
 	__maybe_unused int err;
+	__maybe_unused int board_id;
 
 	/* Do clocks and UART first so that printf() works */
 	clock_init();
@@ -124,6 +147,11 @@ int board_init(void)
 		debug("Memory controller init failed: %d\n", err);
 #  endif
 # endif /* CONFIG_TEGRA_PMU */
+#ifdef CONFIG_AS3722_POWER
+	err = as3722_init(NULL);
+	if (err && err != -ENODEV)
+		return err;
+#endif
 #endif /* CONFIG_SYS_I2C_TEGRA */
 
 #ifdef CONFIG_USB_EHCI_TEGRA
@@ -132,6 +160,10 @@ int board_init(void)
 #endif
 
 #ifdef CONFIG_LCD
+	board_id = tegra_board_id();
+	err = tegra_lcd_pmic_init(board_id);
+	if (err)
+		return err;
 	tegra_lcd_check_next_stage(gd->fdt_blob, 0);
 #endif
 

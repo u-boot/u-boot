@@ -13,6 +13,7 @@
 #include <common.h>
 #include <edid.h>
 #include <errno.h>
+#include <fdtdec.h>
 #include <linux/ctype.h>
 #include <linux/string.h>
 
@@ -63,6 +64,110 @@ int edid_get_ranges(struct edid1_info *edid, unsigned int *hmin,
 		}
 	}
 	return -1;
+}
+
+/* Set all parts of a timing entry to the same value */
+static void set_entry(struct timing_entry *entry, u32 value)
+{
+	entry->min = value;
+	entry->typ = value;
+	entry->max = value;
+}
+
+/**
+ * decode_timing() - Decoding an 18-byte detailed timing record
+ *
+ * @buf:	Pointer to EDID detailed timing record
+ * @timing:	Place to put timing
+ */
+static void decode_timing(u8 *buf, struct display_timing *timing)
+{
+	uint x_mm, y_mm;
+	unsigned int ha, hbl, hso, hspw, hborder;
+	unsigned int va, vbl, vso, vspw, vborder;
+
+	/* Edid contains pixel clock in terms of 10KHz */
+	set_entry(&timing->pixelclock, (buf[0] + (buf[1] << 8)) * 10000);
+	x_mm = (buf[12] + ((buf[14] & 0xf0) << 4));
+	y_mm = (buf[13] + ((buf[14] & 0x0f) << 8));
+	ha = (buf[2] + ((buf[4] & 0xf0) << 4));
+	hbl = (buf[3] + ((buf[4] & 0x0f) << 8));
+	hso = (buf[8] + ((buf[11] & 0xc0) << 2));
+	hspw = (buf[9] + ((buf[11] & 0x30) << 4));
+	hborder = buf[15];
+	va = (buf[5] + ((buf[7] & 0xf0) << 4));
+	vbl = (buf[6] + ((buf[7] & 0x0f) << 8));
+	vso = ((buf[10] >> 4) + ((buf[11] & 0x0c) << 2));
+	vspw = ((buf[10] & 0x0f) + ((buf[11] & 0x03) << 4));
+	vborder = buf[16];
+
+	set_entry(&timing->hactive, ha);
+	set_entry(&timing->hfront_porch, hso);
+	set_entry(&timing->hback_porch, hbl - hso - hspw);
+	set_entry(&timing->hsync_len, hspw);
+
+	set_entry(&timing->vactive, va);
+	set_entry(&timing->vfront_porch, vso);
+	set_entry(&timing->vback_porch, vbl - vso - vspw);
+	set_entry(&timing->vsync_len, vspw);
+
+	debug("Detailed mode clock %u Hz, %d mm x %d mm\n"
+	      "               %04x %04x %04x %04x hborder %x\n"
+	      "               %04x %04x %04x %04x vborder %x\n",
+	      timing->pixelclock.typ,
+	      x_mm, y_mm,
+	      ha, ha + hso, ha + hso + hspw,
+	      ha + hbl, hborder,
+	      va, va + vso, va + vso + vspw,
+	      va + vbl, vborder);
+}
+
+int edid_get_timing(u8 *buf, int buf_size, struct display_timing *timing,
+		    int *panel_bits_per_colourp)
+{
+	struct edid1_info *edid = (struct edid1_info *)buf;
+	bool timing_done;
+	int i;
+
+	if (buf_size < sizeof(*edid) || edid_check_info(edid)) {
+		debug("%s: Invalid buffer\n", __func__);
+		return -EINVAL;
+	}
+
+	if (!EDID1_INFO_FEATURE_PREFERRED_TIMING_MODE(*edid)) {
+		debug("%s: No preferred timing\n", __func__);
+		return -ENOENT;
+	}
+
+	/* Look for detailed timing */
+	timing_done = false;
+	for (i = 0; i < 4; i++) {
+		struct edid_monitor_descriptor *desc;
+
+		desc = &edid->monitor_details.descriptor[i];
+		if (desc->zero_flag_1 != 0) {
+			decode_timing((u8 *)desc, timing);
+			timing_done = true;
+			break;
+		}
+	}
+	if (!timing_done)
+		return -EINVAL;
+
+	if (!EDID1_INFO_VIDEO_INPUT_DIGITAL(*edid)) {
+		debug("%s: Not a digital display\n", __func__);
+		return -ENOSYS;
+	}
+	if (edid->version != 1 || edid->revision < 4) {
+		debug("%s: EDID version %d.%d does not have required info\n",
+		      __func__, edid->version, edid->revision);
+		*panel_bits_per_colourp = -1;
+	} else  {
+		*panel_bits_per_colourp =
+			((edid->video_input_definition & 0x70) >> 3) + 4;
+	}
+
+	return 0;
 }
 
 /**

@@ -89,6 +89,9 @@
 
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_SYS_STDIO_DEREGISTER
+#endif
 
 /*
  * Miscellaneous configurable options

@@ -16,6 +16,7 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <stdio_dev.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
@@ -88,9 +89,37 @@ static int fdt_psci(void *fdt)
 	return 0;
 }
 
+int armv7_apply_memory_carveout(u64 *start, u64 *size)
+{
+#ifdef CONFIG_ARMV7_SECURE_RESERVE_SIZE
+	if (*start + *size < CONFIG_ARMV7_SECURE_BASE ||
+	    *start >= (u64)CONFIG_ARMV7_SECURE_BASE +
+		      CONFIG_ARMV7_SECURE_RESERVE_SIZE)
+		return 0;
+
+	/* carveout must be at the beginning or the end of the bank */
+	if (*start == CONFIG_ARMV7_SECURE_BASE ||
+	    *start + *size == (u64)CONFIG_ARMV7_SECURE_BASE +
+			      CONFIG_ARMV7_SECURE_RESERVE_SIZE) {
+		if (*size < CONFIG_ARMV7_SECURE_RESERVE_SIZE) {
+			debug("Secure monitor larger than RAM bank!?\n");
+			return -EINVAL;
+		}
+		*size -= CONFIG_ARMV7_SECURE_RESERVE_SIZE;
+		if (*start == CONFIG_ARMV7_SECURE_BASE)
+			*start += CONFIG_ARMV7_SECURE_RESERVE_SIZE;
+		return 0;
+	}
+	debug("Secure monitor not located at beginning or end of RAM bank\n");
+	return -EINVAL;
+#else /* !CONFIG_ARMV7_SECURE_RESERVE_SIZE */
+	return 0;
+#endif
+}
+
 int psci_update_dt(void *fdt)
 {
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+#ifdef CONFIG_ARMV7_NONSEC
 	if (!armv7_boot_nonsec())
 		return 0;
 #endif

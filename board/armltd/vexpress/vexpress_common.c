@@ -181,7 +181,7 @@ ulong get_board_rev(void){
 	return readl((u32 *)SYS_ID);
 }
 
-#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+#ifdef CONFIG_ARMV7_NONSEC
 /* Setting the address at which secondary cores start from.
  * Versatile Express uses one address for all cores, so ignore corenr
  */

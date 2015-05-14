@@ -8,5 +8,3 @@
 #
 
 obj-y	:= ../common/tamonten.o
-
-include $(srctree)/board/nvidia/common/common.mk

@@ -33,6 +33,7 @@ enum tegra_powergate {
 
 int tegra_powergate_sequence_power_up(enum tegra_powergate id,
 				      enum periph_id periph);
+int tegra_powergate_power_on(enum tegra_powergate id);
 int tegra_powergate_power_off(enum tegra_powergate id);
 
 #endif
