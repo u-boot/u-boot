@@ -22,6 +22,7 @@
 #include <tsec.h>
 #include <fsl_sec.h>
 #include <spl.h>
+#include "../common/sleep.h"
 #ifdef CONFIG_U_QE
 #include "../../../drivers/qe/qe.h"
 #endif
@@ -148,6 +149,7 @@ unsigned int get_soc_major_rev(void)
 void ddrmc_init(void)
 {
 	struct ccsr_ddr *ddr = (struct ccsr_ddr *)CONFIG_SYS_FSL_DDR_ADDR;
+	u32 temp_sdram_cfg;
 
 	out_be32(&ddr->sdram_cfg, DDR_SDRAM_CFG);
 
@@ -161,7 +163,22 @@ void ddrmc_init(void)
 	out_be32(&ddr->timing_cfg_4, DDR_TIMING_CFG_4);
 	out_be32(&ddr->timing_cfg_5, DDR_TIMING_CFG_5);
 
-	out_be32(&ddr->sdram_cfg_2,  DDR_SDRAM_CFG_2);
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot()) {
+		out_be32(&ddr->sdram_cfg_2,
+			 DDR_SDRAM_CFG_2 & ~SDRAM_CFG2_D_INIT);
+		out_be32(&ddr->init_addr, CONFIG_SYS_SDRAM_BASE);
+		out_be32(&ddr->init_ext_addr, (1 << 31));
+
+		/* DRAM VRef will not be trained */
+		out_be32(&ddr->ddr_cdr2,
+			 DDR_DDR_CDR2 & ~DDR_CDR2_VREF_TRAIN_EN);
+	} else
+#endif
+	{
+		out_be32(&ddr->sdram_cfg_2, DDR_SDRAM_CFG_2);
+		out_be32(&ddr->ddr_cdr2, DDR_DDR_CDR2);
+	}
 
 	out_be32(&ddr->sdram_mode, DDR_SDRAM_MODE);
 	out_be32(&ddr->sdram_mode_2, DDR_SDRAM_MODE_2);
@@ -174,14 +191,35 @@ void ddrmc_init(void)
 	out_be32(&ddr->ddr_wrlvl_cntl_3, DDR_DDR_WRLVL_CNTL_3);
 
 	out_be32(&ddr->ddr_cdr1, DDR_DDR_CDR1);
-	out_be32(&ddr->ddr_cdr2, DDR_DDR_CDR2);
 
 	out_be32(&ddr->sdram_clk_cntl, DDR_SDRAM_CLK_CNTL);
 	out_be32(&ddr->ddr_zq_cntl, DDR_DDR_ZQ_CNTL);
 
 	out_be32(&ddr->cs0_config_2, DDR_CS0_CONFIG_2);
 	udelay(1);
-	out_be32(&ddr->sdram_cfg, DDR_SDRAM_CFG | DDR_SDRAM_CFG_MEM_EN);
+
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot()) {
+		/* enter self-refresh */
+		temp_sdram_cfg = in_be32(&ddr->sdram_cfg_2);
+		temp_sdram_cfg |= SDRAM_CFG2_FRC_SR;
+		out_be32(&ddr->sdram_cfg_2, temp_sdram_cfg);
+
+		temp_sdram_cfg = (DDR_SDRAM_CFG_MEM_EN | SDRAM_CFG_BI);
+	} else
+#endif
+		temp_sdram_cfg = (DDR_SDRAM_CFG_MEM_EN & ~SDRAM_CFG_BI);
+
+	out_be32(&ddr->sdram_cfg, DDR_SDRAM_CFG | temp_sdram_cfg);
+
+#ifdef CONFIG_DEEP_SLEEP
+	if (is_warm_boot()) {
+		/* exit self-refresh */
+		temp_sdram_cfg = in_be32(&ddr->sdram_cfg_2);
+		temp_sdram_cfg &= ~SDRAM_CFG2_FRC_SR;
+		out_be32(&ddr->sdram_cfg_2, temp_sdram_cfg);
+	}
+#endif
 }
 
 int dram_init(void)
@@ -191,6 +229,11 @@ int dram_init(void)
 #endif
 
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+
+#if defined(CONFIG_DEEP_SLEEP) && !defined(CONFIG_SPL_BUILD)
+	fsl_dp_resume();
+#endif
+
 	return 0;
 }
 
@@ -388,6 +431,11 @@ int board_early_init_f(void)
 		out_le32(&cci->slave[2].sha_ord, CCI400_SHAORD_NON_SHAREABLE);
 	}
 
+#if defined(CONFIG_DEEP_SLEEP)
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
+
 	return 0;
 }
 
@@ -398,6 +446,11 @@ void board_init_f(ulong dummy)
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
 	get_clocks();
+
+#if defined(CONFIG_DEEP_SLEEP)
+	if (is_warm_boot())
+		fsl_dp_disable_console();
+#endif
 
 	preloader_console_init();
 
@@ -563,6 +616,15 @@ int misc_init_r(void)
 
 #ifdef CONFIG_FSL_CAAM
 	return sec_init();
+#endif
+}
+#endif
+
+#if defined(CONFIG_DEEP_SLEEP)
+void board_sleep_prepare(void)
+{
+#ifdef CONFIG_LS102XA_NS_ACCESS
+	enable_devices_ns_access(ns_dev, ARRAY_SIZE(ns_dev));
 #endif
 }
 #endif
