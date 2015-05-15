@@ -11,10 +11,6 @@
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_FAT_SUPPORT
-/*
-#define CONFIG_SPL_SATA_SUPPORT
-*/
 /* Location in NAND to read U-Boot from */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * 1024 * 1024)
 
