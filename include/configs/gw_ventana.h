@@ -7,12 +7,14 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/sizes.h>
+
 /* SPL */
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 /* Location in NAND to read U-Boot from */
-#define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * 1024 * 1024)
+#define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * SZ_1M)
 
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
@@ -35,7 +37,7 @@
 #define CONFIG_SYS_GENERIC_BOARD
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 
 /* Init Functions */
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -308,19 +310,19 @@
 #define CONFIG_ENV_IS_IN_NAND
 #endif
 #if defined(CONFIG_ENV_IS_IN_MMC)
-  #define CONFIG_ENV_OFFSET              (6 * 64 * 1024)
-  #define CONFIG_ENV_SIZE                (8 * 1024)
+  #define CONFIG_ENV_OFFSET              (384 * SZ_1K)
+  #define CONFIG_ENV_SIZE                (8 * SZ_1K)
   #define CONFIG_SYS_MMC_ENV_DEV         0
 #elif defined(CONFIG_ENV_IS_IN_NAND)
-  #define CONFIG_ENV_OFFSET              (16 << 20)
-  #define CONFIG_ENV_SECT_SIZE           (128 << 10)
+  #define CONFIG_ENV_OFFSET              (16 * SZ_1M)
+  #define CONFIG_ENV_SECT_SIZE           (128 * SZ_1K)
   #define CONFIG_ENV_SIZE                CONFIG_ENV_SECT_SIZE
-  #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + (512 << 10))
+  #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + (512 * SZ_1K))
   #define CONFIG_ENV_SIZE_REDUND         CONFIG_ENV_SIZE
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
-  #define CONFIG_ENV_OFFSET              (512 * 1024)
-  #define CONFIG_ENV_SECT_SIZE           (64 * 1024)
-  #define CONFIG_ENV_SIZE                (8 * 1024)
+  #define CONFIG_ENV_OFFSET		(512 * SZ_1K)
+  #define CONFIG_ENV_SECT_SIZE		(64 * SZ_1K)
+  #define CONFIG_ENV_SIZE		(8 * SZ_1K)
   #define CONFIG_ENV_SPI_BUS             CONFIG_SF_DEFAULT_BUS
   #define CONFIG_ENV_SPI_CS              CONFIG_SF_DEFAULT_CS
   #define CONFIG_ENV_SPI_MODE            CONFIG_SF_DEFAULT_MODE
