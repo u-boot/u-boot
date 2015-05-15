@@ -551,6 +551,9 @@ void spl_board_init(void)
 	default:
 		puts("Unknown boot device\n");
 	}
+
+	/* PMIC init */
+	setup_pmic();
 }
 
 void reset_cpu(ulong addr)
