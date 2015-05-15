@@ -12,9 +12,11 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-afeb9260         arm         arm926ejs      -           -           Sergey Lapin <slapin@ossfans.org>
-tny_a9260        arm         arm926ejs      -           -           Albin Tonnerre <albin.tonnerre@free-electrons.com>
-sbc35_a9g20      arm         arm926ejs      -           -           Albin Tonnerre <albin.tonnerre@free-electrons.com>
+afeb9260         arm         arm926ejs      f6b42c14    2015-05-13  Sergey Lapin <slapin@ossfans.org>
+tny_a9260        arm         arm926ejs      f6b42c14    2015-05-13  Albin Tonnerre <albin.tonnerre@free-electrons.com>
+sbc35_a9g20      arm         arm926ejs      f6b42c14    2015-05-13  Albin Tonnerre <albin.tonnerre@free-electrons.com>
+sc3              powerpc     ppc4xx         27e72156    2015-05-10  Heiko Schocher <hs@denx.de>
+T4240EMU         powerpc     mpc85xx        7fc63cca    2015-05-05  York Sun <yorksun@freescale.com>
 korat            powerpc     ppc4xx         5043045d    2015-03-17  Larry Johnson <lrj@acm.org>
 galaxy5200       powerpc     mpc5xxx        41eb4e5c    2015-03-17  Eric Millbrandt <emillbrandt@dekaresearch.com>
 W7OLMC           powerpc     ppc4xx         6beecd5d    2015-03-17  Erik Theisen <etheisen@mindspring.com>
