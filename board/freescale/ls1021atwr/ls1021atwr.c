@@ -582,6 +582,37 @@ struct smmu_stream_id dev_stream_id[] = {
 	{ 0x18c, 0x0e, "DEBUG" },
 };
 
+#ifdef CONFIG_DEEP_SLEEP
+/* program the regulator (MC34VR500) to support deep sleep */
+void ls1twr_program_regulator(void)
+{
+	unsigned int i2c_bus;
+	u8 i2c_device_id;
+
+#define LS1TWR_I2C_BUS_MC34VR500	1
+#define MC34VR500_ADDR			0x8
+#define MC34VR500_DEVICEID		0x4
+#define MC34VR500_DEVICEID_MASK		0x0f
+
+	i2c_bus = i2c_get_bus_num();
+	i2c_set_bus_num(LS1TWR_I2C_BUS_MC34VR500);
+	i2c_device_id = i2c_reg_read(MC34VR500_ADDR, 0x0) &
+					MC34VR500_DEVICEID_MASK;
+	if (i2c_device_id != MC34VR500_DEVICEID) {
+		printf("The regulator (MC34VR500) does not exist. The device does not support deep sleep.\n");
+		return;
+	}
+
+	i2c_reg_write(MC34VR500_ADDR, 0x31, 0x4);
+	i2c_reg_write(MC34VR500_ADDR, 0x4d, 0x4);
+	i2c_reg_write(MC34VR500_ADDR, 0x6d, 0x38);
+	i2c_reg_write(MC34VR500_ADDR, 0x6f, 0x37);
+	i2c_reg_write(MC34VR500_ADDR, 0x71, 0x30);
+
+	i2c_set_bus_num(i2c_bus);
+}
+#endif
+
 int board_init(void)
 {
 #ifndef CONFIG_SYS_FSL_NO_SERDES
@@ -604,6 +635,9 @@ int board_init(void)
 	u_qe_init();
 #endif
 
+#ifdef CONFIG_DEEP_SLEEP
+	ls1twr_program_regulator();
+#endif
 	return 0;
 }
 
