@@ -20,8 +20,6 @@
 #define DEBUGF(x...)
 #endif /* DEBUG */
 
-#define	PCIAUTO_IDE_MODE_MASK		0x05
-
 /* the user can define CONFIG_SYS_PCI_CACHE_LINE_SIZE to avoid problems */
 #ifndef CONFIG_SYS_PCI_CACHE_LINE_SIZE
 #define CONFIG_SYS_PCI_CACHE_LINE_SIZE	8
@@ -424,7 +422,6 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 {
 	unsigned int sub_bus = PCI_BUS(dev);
 	unsigned short class;
-	unsigned char prg_iface;
 	int n;
 
 	pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
@@ -458,17 +455,6 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 
 		sub_bus = hose->current_busno;
 #endif
-		break;
-
-	case PCI_CLASS_STORAGE_IDE:
-		pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &prg_iface);
-		if (!(prg_iface & PCIAUTO_IDE_MODE_MASK)) {
-			DEBUGF("PCI Autoconfig: Skipping legacy mode IDE controller\n");
-			return sub_bus;
-		}
-
-		pciauto_setup_device(hose, dev, 6, hose->pci_mem,
-			hose->pci_prefetch, hose->pci_io);
 		break;
 
 	case PCI_CLASS_BRIDGE_CARDBUS:
