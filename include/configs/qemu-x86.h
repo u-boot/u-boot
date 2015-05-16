@@ -36,8 +36,32 @@
 					"stdout=serial,vga\0" \
 					"stderr=serial,vga\0"
 
+/*
+ * ATA/SATA support for QEMU x86 targets
+ *   - Only legacy IDE controller is supported for QEMU '-M pc' target
+ *   - AHCI controller is supported for QEMU '-M q35' target
+ *
+ * Default configuraion is to support the QEMU default x86 target
+ * Undefine CONFIG_CMD_IDE to support q35 target
+ */
+#define CONFIG_CMD_IDE
+#ifdef CONFIG_CMD_IDE
+#define CONFIG_SYS_IDE_MAXBUS		2
+#define CONFIG_SYS_IDE_MAXDEVICE	4
+#define CONFIG_SYS_ATA_BASE_ADDR	0
+#define CONFIG_SYS_ATA_DATA_OFFSET	0
+#define CONFIG_SYS_ATA_REG_OFFSET	0
+#define CONFIG_SYS_ATA_ALT_OFFSET	0
+#define CONFIG_SYS_ATA_IDE0_OFFSET	0x1f0
+#define CONFIG_SYS_ATA_IDE1_OFFSET	0x170
+#define CONFIG_ATAPI
+
+#undef CONFIG_SCSI_AHCI
+#undef CONFIG_CMD_SCSI
+#else
 #define CONFIG_SCSI_DEV_LIST		\
-	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371SB_1}
+	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH9_AHCI}
+#endif
 
 /* GPIO is not supported */
 #undef CONFIG_INTEL_ICH6_GPIO
