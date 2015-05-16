@@ -37,6 +37,7 @@
 #define CONFIG_SCSI_AHCI
 #ifdef CONFIG_SCSI_AHCI
 #define CONFIG_LIBATA
+#define CONFIG_LBA48
 #define CONFIG_SYS_64BIT_LBA
 
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	2
@@ -76,10 +77,6 @@
 #define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_SUPPORT_VFAT
-/************************************************************
- * ATAPI support (experimental)
- ************************************************************/
-#define CONFIG_ATAPI
 
 /************************************************************
  * DISK Partition support
