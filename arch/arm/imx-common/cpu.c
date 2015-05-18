@@ -24,6 +24,7 @@
 #include <fsl_esdhc.h>
 #endif
 
+#if defined(CONFIG_DISPLAY_CPUINFO)
 static u32 reset_cause = -1;
 
 static char *get_reset_cause(void)
@@ -60,6 +61,7 @@ u32 get_imx_reset_cause(void)
 {
 	return reset_cause;
 }
+#endif
 
 #if defined(CONFIG_MX53) || defined(CONFIG_MX6)
 #if defined(CONFIG_MX53)
