@@ -45,9 +45,14 @@ config AUTOBOOT_PROMPT
 	  the responsibility of the user to select only such arguments
 	  that are valid in the given context.
 
+config AUTOBOOT_ENCRYPTION
+	bool "Enable encryption in autoboot stopping"
+	depends on AUTOBOOT_KEYED
+	default n
+
 config AUTOBOOT_DELAY_STR
 	string "Delay autobooting via specific input key / string"
-	depends on AUTOBOOT_KEYED
+	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
 	help
 	  This option delays the automatic boot feature by issuing
 	  a specific input key or string. If CONFIG_AUTOBOOT_DELAY_STR
@@ -59,7 +64,7 @@ config AUTOBOOT_DELAY_STR
 
 config AUTOBOOT_STOP_STR
 	string "Stop autobooting via specific input key / string"
-	depends on AUTOBOOT_KEYED
+	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
 	help
 	  This option enables stopping (aborting) of the automatic
 	  boot feature only by issuing a specific input key or
@@ -71,13 +76,22 @@ config AUTOBOOT_STOP_STR
 
 config AUTOBOOT_KEYED_CTRLC
 	bool "Enable Ctrl-C autoboot interruption"
-	depends on AUTOBOOT_KEYED
+	depends on AUTOBOOT_KEYED && !AUTOBOOT_ENCRYPTION
 	default n
 	help
 	  This option allows for the boot sequence to be interrupted
 	  by ctrl-c, in addition to the "bootdelaykey" and "bootstopkey".
 	  Setting this variable	provides an escape sequence from the
 	  limited "password" strings.
+
+config AUTOBOOT_STOP_STR_SHA256
+	string "Stop autobooting via SHA256 encrypted password"
+	depends on AUTOBOOT_KEYED && AUTOBOOT_ENCRYPTION
+	help
+	  This option adds the feature to only stop the autobooting,
+	  and therefore boot into the U-Boot prompt, when the input
+	  string / password matches a values that is encypted via
+	  a SHA256 hash and saved in the environment.
 
 endmenu
 
