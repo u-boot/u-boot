@@ -525,6 +525,10 @@ config TARGET_ARISTAINETOS
 	bool "Support aristainetos"
 	select CPU_V7
 
+config TARGET_ARISTAINETOS2
+	bool "Support aristainetos2"
+	select CPU_V7
+
 config TARGET_MX6QARM2
 	bool "Support mx6qarm2"
 	select CPU_V7
