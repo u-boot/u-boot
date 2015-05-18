@@ -63,9 +63,7 @@
 
 #define CONFIG_BOOT_RETRY_TIME		-1
 #define CONFIG_RESET_TO_RETRY
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT "Autobooting in %d seconds...\nPress <s> to stop or <d> to delay\n", bootdelay
-#define CONFIG_AUTOBOOT_KEYED_CTRLC
+
 /*
  * Miscellaneous configurable options
  */

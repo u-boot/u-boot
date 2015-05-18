@@ -123,10 +123,6 @@
 
 #define CONFIG_SYS_AUTOLOAD	"n"
 
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds\n", bootdelay
-#define CONFIG_AUTOBOOT_DELAY_STR	"asdfg"
-
 #undef	CONFIG_BOOTARGS
 #define CONFIG_PREBOOT				"run try_update"
 

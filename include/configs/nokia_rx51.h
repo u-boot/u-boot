@@ -396,7 +396,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"echo"
 
 #define CONFIG_BOOTDELAY 30
-#define CONFIG_AUTOBOOT_KEYED
 #define CONFIG_MENU
 #define CONFIG_MENU_SHOW
 

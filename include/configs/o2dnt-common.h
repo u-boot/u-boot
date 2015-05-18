@@ -98,18 +98,6 @@
 #error "CONFIG_SYS_TEXT_BASE value is invalid"
 #endif
 
-/*
- * Autobooting
- * Be selective on what keys can delay or stop the autoboot process
- * To stop use: "++++++++++"
- */
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT	"Autobooting in %d seconds, " \
-				"press password to stop\n", bootdelay
-#define CONFIG_AUTOBOOT_STOP_STR	"++++++++++"
-#undef CONFIG_AUTOBOOT_DELAY_STR
-#define DEBUG_BOOTKEYS		0
-
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 
 #define CONFIG_PREBOOT	"run master"

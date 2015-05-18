@@ -17,6 +17,70 @@ config SYS_HUSH_PARSER
 	help
 	  Backward compatibility.
 
+menu "Autoboot options"
+
+config AUTOBOOT_KEYED
+	bool "Stop autobooting via specific input key / string"
+	default n
+	help
+	  This option enables stopping (aborting) of the automatic
+	  boot feature only by issuing a specific input key or
+	  string. If not enabled, any input key will abort the
+	  U-Boot automatic booting process and bring the device
+	  to the U-Boot prompt for user input.
+
+config AUTOBOOT_PROMPT
+	string "Autoboot stop prompt"
+	depends on AUTOBOOT_KEYED
+	default "Autoboot in %d seconds\\n"
+	help
+	  This string is displayed before the boot delay selected by
+	  CONFIG_BOOTDELAY starts. If it is not defined	there is no
+	  output indicating that autoboot is in progress.
+
+	  Note that this define is used as the (only) argument to a
+	  printf() call, so it may contain '%' format specifications,
+	  provided that it also includes, sepearated by commas exactly
+	  like in a printf statement, the required arguments. It is
+	  the responsibility of the user to select only such arguments
+	  that are valid in the given context.
+
+config AUTOBOOT_DELAY_STR
+	string "Delay autobooting via specific input key / string"
+	depends on AUTOBOOT_KEYED
+	help
+	  This option delays the automatic boot feature by issuing
+	  a specific input key or string. If CONFIG_AUTOBOOT_DELAY_STR
+	  or the environment variable "bootdelaykey" is specified
+	  and this string is received from console input before
+	  autoboot starts booting, U-Boot gives a command prompt. The
+	  U-Boot prompt will time out if CONFIG_BOOT_RETRY_TIME is
+	  used, otherwise it never times out.
+
+config AUTOBOOT_STOP_STR
+	string "Stop autobooting via specific input key / string"
+	depends on AUTOBOOT_KEYED
+	help
+	  This option enables stopping (aborting) of the automatic
+	  boot feature only by issuing a specific input key or
+	  string. If CONFIG_AUTOBOOT_STOP_STR or the environment
+	  variable "bootstopkey" is specified and this string is
+	  received from console input before autoboot starts booting,
+	  U-Boot gives a command prompt. The U-Boot prompt never
+	  times out, even if CONFIG_BOOT_RETRY_TIME is used.
+
+config AUTOBOOT_KEYED_CTRLC
+	bool "Enable Ctrl-C autoboot interruption"
+	depends on AUTOBOOT_KEYED
+	default n
+	help
+	  This option allows for the boot sequence to be interrupted
+	  by ctrl-c, in addition to the "bootdelaykey" and "bootstopkey".
+	  Setting this variable	provides an escape sequence from the
+	  limited "password" strings.
+
+endmenu
+
 comment "Commands"
 
 menu "Info commands"

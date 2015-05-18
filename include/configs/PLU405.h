@@ -138,15 +138,6 @@
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds	*/
 
-/* Only interrupt boot if space is pressed */
-/* If a long serial cable is connected but */
-/* other end is dead, garbage will be read */
-#define CONFIG_AUTOBOOT_KEYED	1
-#define CONFIG_AUTOBOOT_PROMPT	\
-	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
-#undef CONFIG_AUTOBOOT_DELAY_STR
-#define CONFIG_AUTOBOOT_STOP_STR " "
-
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
 #define CONFIG_SYS_RX_ETH_BUFFER	16	/* use 16 rx buffer on 405 emac */

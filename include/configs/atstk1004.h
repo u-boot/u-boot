@@ -79,17 +79,7 @@
 #define CONFIG_BOOTCOMMAND						\
 	"mmc rescan; ext2load mmc 0:1 0x10200000 /boot/uImage; bootm"
 
-/*
- * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
- * data on the serial line may interrupt the boot sequence.
- */
 #define CONFIG_BOOTDELAY		1
-#define CONFIG_AUTOBOOT
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT		\
-	"Press SPACE to abort autoboot in %d seconds\n", bootdelay
-#define CONFIG_AUTOBOOT_DELAY_STR	"d"
-#define CONFIG_AUTOBOOT_STOP_STR	" "
 
 /*
  * Command line configuration.

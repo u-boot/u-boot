@@ -74,10 +74,7 @@
 
 #define CONFIG_BOOTDELAY                       3
 #define CONFIG_BOOTCOMMAND                     "go 0x40040000"
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR               " "
-#define CONFIG_AUTOBOOT_PROMPT                 \
-	"Hit SPACE in %d seconds to stop autoboot.\n", bootdelay
+
 #define CONFIG_OF_SEPARATE
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_LIBFDT

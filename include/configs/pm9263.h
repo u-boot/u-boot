@@ -339,7 +339,6 @@
 
 #define CONFIG_BOOTCOMMAND		"run flashboot"
 #define CONFIG_ROOTPATH			"/ronetix/rootfs"
-#define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds\n", bootdelay
 
 #define CONFIG_CON_ROT			"fbcon=rotate:3 "
 #define CONFIG_BOOTARGS			"root=/dev/mtdblock4 rootfstype=jffs2 "\

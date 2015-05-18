@@ -136,7 +136,6 @@
 /* Enable this if bootretry required; currently it's disabled */
 #define CONFIG_BOOT_RETRY_TIME	-1
 #define CONFIG_BOOTCOMMAND	"run nandboot"
-#define CONFIG_AUTOBOOT_PROMPT	"autoboot in %d seconds\n"
 
 
 /*

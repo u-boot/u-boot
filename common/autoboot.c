@@ -56,7 +56,11 @@ static int abortboot_keyed(int bootdelay)
 #endif
 
 #  ifdef CONFIG_AUTOBOOT_PROMPT
-	printf(CONFIG_AUTOBOOT_PROMPT);
+	/*
+	 * CONFIG_AUTOBOOT_PROMPT includes the %d for all boards.
+	 * To print the bootdelay value upon bootup.
+	 */
+	printf(CONFIG_AUTOBOOT_PROMPT, bootdelay);
 #  endif
 
 #  ifdef CONFIG_AUTOBOOT_DELAY_STR

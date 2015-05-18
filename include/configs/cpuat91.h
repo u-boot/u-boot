@@ -195,12 +195,6 @@
 #define CONFIG_DEVICE_NULLDEV
 #define CONFIG_SILENT_CONSOLE
 
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT		\
-	"Press SPACE to abort autoboot\n"
-#define CONFIG_AUTOBOOT_STOP_STR	" "
-#define CONFIG_AUTOBOOT_DELAY_STR	"d"
-
 #define CONFIG_VERSION_VARIABLE
 
 #define MTDIDS_DEFAULT			"nor0=physmap-flash.0"

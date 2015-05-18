@@ -490,8 +490,6 @@ int fpga_gpio_get(unsigned int bus, int pin);
 #define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks */
 
 #undef CONFIG_ZERO_BOOTDELAY_CHECK	/* ignore keypress on bootdelay==0 */
-#define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot */
-#define CONFIG_AUTOBOOT_STOP_STR " "
 
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size */
 

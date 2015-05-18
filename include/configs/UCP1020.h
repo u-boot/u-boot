@@ -626,17 +626,6 @@
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
 
-/*
- * Autobooting
- */
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR	"\x1b"
-#define DEBUG_BOOTKEYS			0
-#undef CONFIG_AUTOBOOT_DELAY_STR
-#undef CONFIG_BOOTARGS
-#define CONFIG_AUTOBOOT_PROMPT	"Autobooting in %d seconds, "	\
-				"press \"<Esc>\" to stop\n", bootdelay
-
 #define CONFIG_BOOTARGS	/* the boot command will set bootargs */
 
 #define CONFIG_BAUDRATE	115200

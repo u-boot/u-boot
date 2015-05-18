@@ -25,10 +25,6 @@
 
 #define CONFIG_MISC_INIT_R
 
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT	\
-	"\nEnter password - autoboot in %d seconds...\n", CONFIG_BOOTDELAY
-#define CONFIG_AUTOBOOT_DELAY_STR	"ids"
 #define CONFIG_BOOT_RETRY_TIME		900
 #define CONFIG_BOOT_RETRY_MIN		30
 #define CONFIG_BOOTDELAY		1

@@ -144,8 +144,6 @@
 #undef CONFIG_ENV_OVERWRITE	/* disallow overwriting serial# and ethaddr */
 #define CONFIG_BOOTDELAY		0
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR "S"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"silent=true\0" \
