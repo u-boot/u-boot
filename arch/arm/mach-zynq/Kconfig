@@ -1,5 +1,13 @@
 if ARCH_ZYNQ
 
+config ZYNQ_CUSTOM_INIT
+	bool "Use custom ps7_init provided by Xilinx tool"
+	help
+	  U-Boot includes ps7_init_gpl.[ch] for some Zynq board variants.
+	  If you want to override them with customized ones
+	  or ps7_init code for your board is missing, please say Y here
+	  and add ones into board/xilinx/zynq/custom_hw_platform/ directory.
+
 choice
 	prompt "Xilinx Zynq board select"
 	optional
@@ -15,6 +23,7 @@ config TARGET_ZYNQ_PICOZED
 
 config TARGET_ZYNQ_ZC70X
 	bool "Zynq ZC702/ZC706 Board (deprecated)"
+	select ZYNQ_CUSTOM_INIT
 	help
 	  This option is deprecated.  Use TARGET_ZYNQ_ZC702
 	  or TARGET_ZYNQ_706.
@@ -27,9 +36,11 @@ config TARGET_ZYNQ_ZC706
 
 config TARGET_ZYNQ_ZC770
 	bool "Zynq ZC770 Board"
+	select ZYNQ_CUSTOM_INIT
 
 config TARGET_ZYNQ_ZYBO
 	bool "Zynq Zybo Board"
+	select ZYNQ_CUSTOM_INIT
 
 endchoice
 
