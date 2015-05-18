@@ -17,9 +17,8 @@ Xilinx Zynq-7000 All Programmable SoCs enable extensive system level
 differentiation, integration, and flexibility through hardware, software,
 and I/O programmability.
 
-* zc70x
-  - zc702 (single qspi, gem0, mmc) [1]
-  - zc706 (dual parallel qspi, gem0, mmc) [2]
+* zc702 (single qspi, gem0, mmc) [1]
+* zc706 (dual parallel qspi, gem0, mmc) [2]
 * zed (single qspi, gem0, mmc) [3]
 * microzed (single qspi, gem0, mmc) [4]
 * zc770
@@ -30,15 +29,9 @@ and I/O programmability.
 
 3. Building
 
- # Configure for zc70x board
-   $ make zynq_zc70x_config
-     Configuring for zynq_zc70x board...
-
- # Building default dts for zc702 board
+ ex. configure and build for zc702 board
+   $ make zynq_zc702_config
    $ make
-
- # Building specified dts for zc706 board
-   $ make DEVICE_TREE=zynq-zc706
 
 4. Bootmode
 

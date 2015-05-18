@@ -14,7 +14,16 @@ config TARGET_ZYNQ_PICOZED
 	bool "Zynq PicoZed"
 
 config TARGET_ZYNQ_ZC70X
-	bool "Zynq ZC702/ZC706 Board"
+	bool "Zynq ZC702/ZC706 Board (deprecated)"
+	help
+	  This option is deprecated.  Use TARGET_ZYNQ_ZC702
+	  or TARGET_ZYNQ_706.
+
+config TARGET_ZYNQ_ZC702
+	bool "Zynq ZC702 Board"
+
+config TARGET_ZYNQ_ZC706
+	bool "Zynq ZC706 Board"
 
 config TARGET_ZYNQ_ZC770
 	bool "Zynq ZC770 Board"
@@ -37,7 +46,8 @@ config SYS_CONFIG_NAME
 	default "zynq_zed" if TARGET_ZYNQ_ZED
 	default "zynq_microzed" if TARGET_ZYNQ_MICROZED
 	default "zynq_picozed" if TARGET_ZYNQ_PICOZED
-	default "zynq_zc70x" if TARGET_ZYNQ_ZC70X
+	default "zynq_zc70x" if TARGET_ZYNQ_ZC702 || TARGET_ZYNQ_ZC706 \
+			        || TARGET_ZYNQ_ZC70X
 	default "zynq_zc770" if TARGET_ZYNQ_ZC770
 	default "zynq_zybo" if TARGET_ZYNQ_ZYBO
 
