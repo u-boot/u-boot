@@ -521,7 +521,8 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 		/* MR0 */
 		val = ((tcl - 1) << 4) |	/* CAS */
 		      (1 << 8)   |		/* DLL Reset */
-		      ((twr - 3) << 9);		/* Write Recovery */
+		      ((twr - 3) << 9) |	/* Write Recovery */
+		      (sysinfo->pd_fast_exit << 12); /* Precharge PD PLL on */
 		debug("MR0 CS%d: 0x%08x\n", cs, (u32)MR(val, 0, 3, cs));
 		mmdc0->mdscr = MR(val, 0, 3, cs);
 		/* ZQ calibration */
