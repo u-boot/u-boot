@@ -640,6 +640,25 @@ struct fuse_bank0_regs {
 	u32	rsvd7[3];
 };
 
+struct fuse_bank1_regs {
+	u32	mem0;
+	u32	rsvd0[3];
+	u32	mem1;
+	u32	rsvd1[3];
+	u32	mem2;
+	u32	rsvd2[3];
+	u32	mem3;
+	u32	rsvd3[3];
+	u32	mem4;
+	u32	rsvd4[3];
+	u32	ana0;
+	u32	rsvd5[3];
+	u32	ana1;
+	u32	rsvd6[3];
+	u32	ana2;
+	u32	rsvd7[3];
+};
+
 #ifdef CONFIG_MX6SX
 struct fuse_bank4_regs {
 	u32 sjc_resp_low;
