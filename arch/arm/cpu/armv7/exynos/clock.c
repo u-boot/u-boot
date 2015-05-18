@@ -1362,7 +1362,7 @@ int exynos5_set_i2s_clk_prescaler(unsigned int src_frq,
 		}
 		clrsetbits_le32(&clk->div_mau, AUDIO_0_RATIO_MASK,
 				(div & AUDIO_0_RATIO_MASK));
-	} else if(i2s_id == 1) {
+	} else if (i2s_id == 1) {
 		if (div > AUDIO_1_RATIO_MASK) {
 			debug("%s: Frequency ratio is out of range\n",
 			      __func__);
@@ -1579,45 +1579,49 @@ unsigned long get_pll_clk(int pllreg)
 		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos542x_get_pll_clk(pllreg);
 		return exynos5_get_pll_clk(pllreg);
-	} else {
+	} else if (cpu_is_exynos4()) {
 		if (proid_is_exynos4412())
 			return exynos4x12_get_pll_clk(pllreg);
 		return exynos4_get_pll_clk(pllreg);
 	}
+
+	return 0;
 }
 
 unsigned long get_arm_clk(void)
 {
-	if (cpu_is_exynos5())
+	if (cpu_is_exynos5()) {
 		return exynos5_get_arm_clk();
-	else {
+	} else if (cpu_is_exynos4()) {
 		if (proid_is_exynos4412())
 			return exynos4x12_get_arm_clk();
 		return exynos4_get_arm_clk();
 	}
+
+	return 0;
 }
 
 unsigned long get_i2c_clk(void)
 {
-	if (cpu_is_exynos5()) {
+	if (cpu_is_exynos5())
 		return clock_get_periph_rate(PERIPH_ID_I2C0);
-	} else if (cpu_is_exynos4()) {
+	else if (cpu_is_exynos4())
 		return exynos4_get_i2c_clk();
-	} else {
-		debug("I2C clock is not set for this CPU\n");
-		return 0;
-	}
+
+	return 0;
 }
 
 unsigned long get_pwm_clk(void)
 {
 	if (cpu_is_exynos5()) {
 		return clock_get_periph_rate(PERIPH_ID_PWM0);
-	} else {
+	} else if (cpu_is_exynos4()) {
 		if (proid_is_exynos4412())
 			return exynos4x12_get_pwm_clk();
 		return exynos4_get_pwm_clk();
 	}
+
+	return 0;
 }
 
 unsigned long get_uart_clk(int dev_index)
@@ -1644,11 +1648,13 @@ unsigned long get_uart_clk(int dev_index)
 
 	if (cpu_is_exynos5()) {
 		return clock_get_periph_rate(id);
-	} else {
+	} else if (cpu_is_exynos4()) {
 		if (proid_is_exynos4412())
 			return exynos4x12_get_uart_clk(dev_index);
 		return exynos4_get_uart_clk(dev_index);
 	}
+
+	return 0;
 }
 
 unsigned long get_mmc_clk(int dev_index)
@@ -1673,11 +1679,12 @@ unsigned long get_mmc_clk(int dev_index)
 		return -1;
 	}
 
-	if (cpu_is_exynos5()) {
+	if (cpu_is_exynos5())
 		return clock_get_periph_rate(id);
-	} else {
+	else if (cpu_is_exynos4())
 		return exynos4_get_mmc_clk(dev_index);
-	}
+
+	return 0;
 }
 
 void set_mmc_clk(int dev_index, unsigned int div)
@@ -1691,16 +1698,16 @@ void set_mmc_clk(int dev_index, unsigned int div)
 			exynos5420_set_mmc_clk(dev_index, div);
 		else
 			exynos5_set_mmc_clk(dev_index, div);
-	} else {
+	} else if (cpu_is_exynos4()) {
 		exynos4_set_mmc_clk(dev_index, div);
 	}
 }
 
 unsigned long get_lcd_clk(void)
 {
-	if (cpu_is_exynos4())
+	if (cpu_is_exynos4()) {
 		return exynos4_get_lcd_clk();
-	else {
+	} else if (cpu_is_exynos5()) {
 		if (proid_is_exynos5420())
 			return exynos5420_get_lcd_clk();
 		else if (proid_is_exynos5800())
@@ -1708,13 +1715,15 @@ unsigned long get_lcd_clk(void)
 		else
 			return exynos5_get_lcd_clk();
 	}
+
+	return 0;
 }
 
 void set_lcd_clk(void)
 {
-	if (cpu_is_exynos4())
+	if (cpu_is_exynos4()) {
 		exynos4_set_lcd_clk();
-	else {
+	} else if (cpu_is_exynos5()) {
 		if (proid_is_exynos5250())
 			exynos5_set_lcd_clk();
 		else if (proid_is_exynos5420())
@@ -1736,9 +1745,9 @@ int set_spi_clk(int periph_id, unsigned int rate)
 		if (proid_is_exynos5420() || proid_is_exynos5800())
 			return exynos5420_set_spi_clk(periph_id, rate);
 		return exynos5_set_spi_clk(periph_id, rate);
-	} else {
-		return 0;
 	}
+
+	return 0;
 }
 
 int set_i2s_clk_prescaler(unsigned int src_frq, unsigned int dst_frq,
@@ -1746,22 +1755,22 @@ int set_i2s_clk_prescaler(unsigned int src_frq, unsigned int dst_frq,
 {
 	if (cpu_is_exynos5())
 		return exynos5_set_i2s_clk_prescaler(src_frq, dst_frq, i2s_id);
-	else
-		return 0;
+
+	return 0;
 }
 
 int set_i2s_clk_source(unsigned int i2s_id)
 {
 	if (cpu_is_exynos5())
 		return exynos5_set_i2s_clk_source(i2s_id);
-	else
-		return 0;
+
+	return 0;
 }
 
 int set_epll_clk(unsigned long rate)
 {
 	if (cpu_is_exynos5())
 		return exynos5_set_epll_clk(rate);
-	else
-		return 0;
+
+	return 0;
 }
