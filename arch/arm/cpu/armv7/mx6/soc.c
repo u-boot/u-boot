@@ -124,6 +124,44 @@ u32 get_cpu_speed_grade_hz(void)
 	return 0;
 }
 
+/*
+ * OCOTP_MEM0[7:6] (see Fusemap Description Table offset 0x480)
+ * defines a 2-bit Temperature Grade
+ *
+ * return temperature grade and min/max temperature in celcius
+ */
+#define OCOTP_MEM0_TEMP_SHIFT          6
+
+u32 get_cpu_temp_grade(int *minc, int *maxc)
+{
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[1];
+	struct fuse_bank1_regs *fuse =
+		(struct fuse_bank1_regs *)bank->fuse_regs;
+	uint32_t val;
+
+	val = readl(&fuse->mem0);
+	val >>= OCOTP_MEM0_TEMP_SHIFT;
+	val &= 0x3;
+
+	if (minc && maxc) {
+		if (val == TEMP_AUTOMOTIVE) {
+			*minc = -40;
+			*maxc = 125;
+		} else if (val == TEMP_INDUSTRIAL) {
+			*minc = -40;
+			*maxc = 105;
+		} else if (val == TEMP_EXTCOMMERCIAL) {
+			*minc = -20;
+			*maxc = 105;
+		} else {
+			*minc = 0;
+			*maxc = 95;
+		}
+	}
+	return val;
+}
+
 #ifdef CONFIG_REVISION_TAG
 u32 __weak get_board_rev(void)
 {
