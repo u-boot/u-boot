@@ -517,6 +517,9 @@ static struct mxc_i2c_bus mxc_i2c_buses[] = {
 	{ 0, I2C1_BASE_ADDR },
 	{ 1, I2C2_BASE_ADDR },
 	{ 2, I2C3_BASE_ADDR },
+#if defined(CONFIG_MX6DL)
+	{ 3, I2C4_BASE_ADDR },
+#endif
 #elif defined(CONFIG_LS102XA)
 	{ 0, I2C1_BASE_ADDR, I2C_QUIRK_FLAG },
 	{ 1, I2C2_BASE_ADDR, I2C_QUIRK_FLAG },
