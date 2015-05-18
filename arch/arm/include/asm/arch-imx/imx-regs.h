@@ -42,7 +42,7 @@
 #define IMX_MMC_BASE               (0x14000 + IMX_IO_BASE)
 #define IMX_ASP_BASE               (0x15000 + IMX_IO_BASE)
 #define IMX_BTA_BASE               (0x16000 + IMX_IO_BASE)
-#define IMX_I2C_BASE               (0x17000 + IMX_IO_BASE)
+#define I2C1_BASE_ADDR             (0x17000 + IMX_IO_BASE)
 #define IMX_SSI_BASE               (0x18000 + IMX_IO_BASE)
 #define IMX_SPI2_BASE              (0x19000 + IMX_IO_BASE)
 #define IMX_MSHC_BASE              (0x1A000 + IMX_IO_BASE)
