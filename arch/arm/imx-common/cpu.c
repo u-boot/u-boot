@@ -16,6 +16,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
+#include <imx_thermal.h>
 #include <ipu_pixfmt.h>
 #include <thermal.h>
 #include <sata.h>
@@ -148,7 +149,7 @@ int print_cpuinfo(void)
 
 #if defined(CONFIG_MX6) && defined(CONFIG_IMX6_THERMAL)
 	struct udevice *thermal_dev;
-	int cpu_tmp, ret;
+	int cpu_tmp, minc, maxc, ret;
 #endif
 
 	cpurev = get_cpu_rev();
@@ -174,16 +175,32 @@ int print_cpuinfo(void)
 #endif
 
 #if defined(CONFIG_MX6) && defined(CONFIG_IMX6_THERMAL)
+	puts("CPU:   ");
+	switch (get_cpu_temp_grade(&minc, &maxc)) {
+	case TEMP_AUTOMOTIVE:
+		puts("Automotive temperature grade ");
+		break;
+	case TEMP_INDUSTRIAL:
+		puts("Industrial temperature grade ");
+		break;
+	case TEMP_EXTCOMMERCIAL:
+		puts("Extended Commercial temperature grade ");
+		break;
+	default:
+		puts("Commercial temperature grade ");
+		break;
+	}
+	printf("(%dC to %dC)", minc, maxc);
 	ret = uclass_get_device(UCLASS_THERMAL, 0, &thermal_dev);
 	if (!ret) {
 		ret = thermal_get_temp(thermal_dev, &cpu_tmp);
 
 		if (!ret)
-			printf("CPU:   Temperature %d C\n", cpu_tmp);
+			printf(" at %dC\n", cpu_tmp);
 		else
-			printf("CPU:   Temperature: invalid sensor data\n");
+			puts(" - invalid sensor data\n");
 	} else {
-		printf("CPU:   Temperature: Can't find sensor device\n");
+		puts(" - invalid sensor device\n");
 	}
 #endif
 
