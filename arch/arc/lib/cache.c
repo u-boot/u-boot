@@ -5,8 +5,12 @@
  */
 
 #include <config.h>
+#include <linux/compiler.h>
+#include <linux/kernel.h>
 #include <asm/arcregs.h>
 #include <asm/cache.h>
+
+#define CACHE_LINE_MASK		(~(CONFIG_SYS_CACHELINE_SIZE - 1))
 
 /* Bit values in IC_CTRL */
 #define IC_CTRL_CACHE_DISABLE	(1 << 0)
@@ -18,60 +22,186 @@
 #define CACHE_VER_NUM_MASK	0xF
 #define SLC_CTRL_SB		(1 << 2)
 
+#define OP_INV		0x1
+#define OP_FLUSH	0x2
+#define OP_INV_IC	0x3
+
+#ifdef CONFIG_ISA_ARCV2
+/*
+ * By default that variable will fall into .bss section.
+ * But .bss section is not relocated and so it will be initilized before
+ * relocation but will be used after being zeroed.
+ */
+int slc_line_sz __section(".data");
+int slc_exists __section(".data");
+
+static unsigned int __before_slc_op(const int op)
+{
+	unsigned int reg = reg;
+
+	if (op == OP_INV) {
+		/*
+		 * IM is set by default and implies Flush-n-inv
+		 * Clear it here for vanilla inv
+		 */
+		reg = read_aux_reg(ARC_AUX_SLC_CTRL);
+		write_aux_reg(ARC_AUX_SLC_CTRL, reg & ~DC_CTRL_INV_MODE_FLUSH);
+	}
+
+	return reg;
+}
+
+static void __after_slc_op(const int op, unsigned int reg)
+{
+	if (op & OP_FLUSH)	/* flush / flush-n-inv both wait */
+		while (read_aux_reg(ARC_AUX_SLC_CTRL) &
+		       DC_CTRL_FLUSH_STATUS)
+			;
+
+	/* Switch back to default Invalidate mode */
+	if (op == OP_INV)
+		write_aux_reg(ARC_AUX_SLC_CTRL, reg | DC_CTRL_INV_MODE_FLUSH);
+}
+
+static inline void __slc_line_loop(unsigned long paddr, unsigned long sz,
+				   const int op)
+{
+	unsigned int aux_cmd;
+	int num_lines;
+
+#define SLC_LINE_MASK	(~(slc_line_sz - 1))
+
+	aux_cmd = op & OP_INV ? ARC_AUX_SLC_IVDL : ARC_AUX_SLC_FLDL;
+
+	sz += paddr & ~SLC_LINE_MASK;
+	paddr &= SLC_LINE_MASK;
+
+	num_lines = DIV_ROUND_UP(sz, slc_line_sz);
+
+	while (num_lines-- > 0) {
+		write_aux_reg(aux_cmd, paddr);
+		paddr += slc_line_sz;
+	}
+}
+
+static inline void __slc_entire_op(const int cacheop)
+{
+	int aux;
+	unsigned int ctrl_reg = __before_slc_op(cacheop);
+
+	if (cacheop & OP_INV)	/* Inv or flush-n-inv use same cmd reg */
+		aux = ARC_AUX_SLC_INVALIDATE;
+	else
+		aux = ARC_AUX_SLC_FLUSH;
+
+	write_aux_reg(aux, 0x1);
+
+	__after_slc_op(cacheop, ctrl_reg);
+}
+
+static inline void __slc_line_op(unsigned long paddr, unsigned long sz,
+				 const int cacheop)
+{
+	unsigned int ctrl_reg = __before_slc_op(cacheop);
+	__slc_line_loop(paddr, sz, cacheop);
+	__after_slc_op(cacheop, ctrl_reg);
+}
+#else
+#define __slc_entire_op(cacheop)
+#define __slc_line_op(paddr, sz, cacheop)
+#endif
+
+static inline int icache_exists(void)
+{
+	/* Check if Instruction Cache is available */
+	if (read_aux_reg(ARC_BCR_IC_BUILD) & CACHE_VER_NUM_MASK)
+		return 1;
+	else
+		return 0;
+}
+
+static inline int dcache_exists(void)
+{
+	/* Check if Data Cache is available */
+	if (read_aux_reg(ARC_BCR_DC_BUILD) & CACHE_VER_NUM_MASK)
+		return 1;
+	else
+		return 0;
+}
+
+void cache_init(void)
+{
+#ifdef CONFIG_ISA_ARCV2
+	/* Check if System-Level Cache (SLC) is available */
+	if (read_aux_reg(ARC_BCR_SLC) & CACHE_VER_NUM_MASK) {
+#define LSIZE_OFFSET	4
+#define LSIZE_MASK	3
+		if (read_aux_reg(ARC_AUX_SLC_CONFIG) &
+		    (LSIZE_MASK << LSIZE_OFFSET))
+			slc_line_sz = 64;
+		else
+			slc_line_sz = 128;
+		slc_exists = 1;
+	} else {
+		slc_exists = 0;
+	}
+#endif
+}
+
 int icache_status(void)
 {
-	/* If no cache in CPU exit immediately */
-	if (!(read_aux_reg(ARC_BCR_IC_BUILD) & CACHE_VER_NUM_MASK))
+	if (!icache_exists())
 		return 0;
 
-	return (read_aux_reg(ARC_AUX_IC_CTRL) & IC_CTRL_CACHE_DISABLE) !=
-	       IC_CTRL_CACHE_DISABLE;
+	if (read_aux_reg(ARC_AUX_IC_CTRL) & IC_CTRL_CACHE_DISABLE)
+		return 0;
+	else
+		return 1;
 }
 
 void icache_enable(void)
 {
-	/* If no cache in CPU exit immediately */
-	if (!(read_aux_reg(ARC_BCR_IC_BUILD) & CACHE_VER_NUM_MASK))
-		return;
-
-	write_aux_reg(ARC_AUX_IC_CTRL, read_aux_reg(ARC_AUX_IC_CTRL) &
-		      ~IC_CTRL_CACHE_DISABLE);
+	if (icache_exists())
+		write_aux_reg(ARC_AUX_IC_CTRL, read_aux_reg(ARC_AUX_IC_CTRL) &
+			      ~IC_CTRL_CACHE_DISABLE);
 }
 
 void icache_disable(void)
 {
-	/* If no cache in CPU exit immediately */
-	if (!(read_aux_reg(ARC_BCR_IC_BUILD) & CACHE_VER_NUM_MASK))
-		return;
-
-	write_aux_reg(ARC_AUX_IC_CTRL, read_aux_reg(ARC_AUX_IC_CTRL) |
-		      IC_CTRL_CACHE_DISABLE);
+	if (icache_exists())
+		write_aux_reg(ARC_AUX_IC_CTRL, read_aux_reg(ARC_AUX_IC_CTRL) |
+			      IC_CTRL_CACHE_DISABLE);
 }
 
+#ifndef CONFIG_SYS_DCACHE_OFF
 void invalidate_icache_all(void)
 {
-	/* If no cache in CPU exit immediately */
-	if (!(read_aux_reg(ARC_BCR_IC_BUILD) & CACHE_VER_NUM_MASK))
-		return;
-
 	/* Any write to IC_IVIC register triggers invalidation of entire I$ */
-	write_aux_reg(ARC_AUX_IC_IVIC, 1);
+	if (icache_status()) {
+		write_aux_reg(ARC_AUX_IC_IVIC, 1);
+		read_aux_reg(ARC_AUX_IC_CTRL);	/* blocks */
+	}
 }
+#else
+void invalidate_icache_all(void)
+{
+}
+#endif
 
 int dcache_status(void)
 {
-	/* If no cache in CPU exit immediately */
-	if (!(read_aux_reg(ARC_BCR_DC_BUILD) & CACHE_VER_NUM_MASK))
+	if (!dcache_exists())
 		return 0;
 
-	return (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_CACHE_DISABLE) !=
-		DC_CTRL_CACHE_DISABLE;
+	if (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_CACHE_DISABLE)
+		return 0;
+	else
+		return 1;
 }
 
 void dcache_enable(void)
 {
-	/* If no cache in CPU exit immediately */
-	if (!(read_aux_reg(ARC_BCR_DC_BUILD) & CACHE_VER_NUM_MASK))
+	if (!dcache_exists())
 		return;
 
 	write_aux_reg(ARC_AUX_DC_CTRL, read_aux_reg(ARC_AUX_DC_CTRL) &
@@ -80,91 +210,123 @@ void dcache_enable(void)
 
 void dcache_disable(void)
 {
-	/* If no cache in CPU exit immediately */
-	if (!(read_aux_reg(ARC_BCR_DC_BUILD) & CACHE_VER_NUM_MASK))
+	if (!dcache_exists())
 		return;
 
 	write_aux_reg(ARC_AUX_DC_CTRL, read_aux_reg(ARC_AUX_DC_CTRL) |
 		      DC_CTRL_CACHE_DISABLE);
 }
 
-void flush_dcache_all(void)
-{
-	/* If no cache in CPU exit immediately */
-	if (!(read_aux_reg(ARC_BCR_DC_BUILD) & CACHE_VER_NUM_MASK))
-		return;
-
-	/* Do flush of entire cache */
-	write_aux_reg(ARC_AUX_DC_FLSH, 1);
-
-	/* Wait flush end */
-	while (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_FLUSH_STATUS)
-		;
-}
-
 #ifndef CONFIG_SYS_DCACHE_OFF
-static void dcache_flush_line(unsigned addr)
+/*
+ * Common Helper for Line Operations on {I,D}-Cache
+ */
+static inline void __cache_line_loop(unsigned long paddr, unsigned long sz,
+				     const int cacheop)
 {
+	unsigned int aux_cmd;
 #if (CONFIG_ARC_MMU_VER == 3)
-	write_aux_reg(ARC_AUX_DC_PTAG, addr);
+	unsigned int aux_tag;
 #endif
-	write_aux_reg(ARC_AUX_DC_FLDL, addr);
+	int num_lines;
 
-	/* Wait flush end */
-	while (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_FLUSH_STATUS)
-		;
-
-#ifndef CONFIG_SYS_ICACHE_OFF
-	/*
-	 * Invalidate I$ for addresses range just flushed from D$.
-	 * If we try to execute data flushed above it will be valid/correct
-	 */
+	if (cacheop == OP_INV_IC) {
+		aux_cmd = ARC_AUX_IC_IVIL;
 #if (CONFIG_ARC_MMU_VER == 3)
-	write_aux_reg(ARC_AUX_IC_PTAG, addr);
+		aux_tag = ARC_AUX_IC_PTAG;
 #endif
-	write_aux_reg(ARC_AUX_IC_IVIL, addr);
-#endif /* CONFIG_SYS_ICACHE_OFF */
+	} else {
+		/* d$ cmd: INV (discard or wback-n-discard) OR FLUSH (wback) */
+		aux_cmd = cacheop & OP_INV ? ARC_AUX_DC_IVDL : ARC_AUX_DC_FLDL;
+#if (CONFIG_ARC_MMU_VER == 3)
+		aux_tag = ARC_AUX_DC_PTAG;
+#endif
+	}
+
+	sz += paddr & ~CACHE_LINE_MASK;
+	paddr &= CACHE_LINE_MASK;
+
+	num_lines = DIV_ROUND_UP(sz, CONFIG_SYS_CACHELINE_SIZE);
+
+	while (num_lines-- > 0) {
+#if (CONFIG_ARC_MMU_VER == 3)
+		write_aux_reg(aux_tag, paddr);
+#endif
+		write_aux_reg(aux_cmd, paddr);
+		paddr += CONFIG_SYS_CACHELINE_SIZE;
+	}
 }
-#endif /* CONFIG_SYS_DCACHE_OFF */
 
-void flush_dcache_range(unsigned long start, unsigned long end)
+static unsigned int __before_dc_op(const int op)
 {
-#ifndef CONFIG_SYS_DCACHE_OFF
-	unsigned int addr;
+	unsigned int reg;
 
-	start = start & (~(CONFIG_SYS_CACHELINE_SIZE - 1));
-	end = end & (~(CONFIG_SYS_CACHELINE_SIZE - 1));
+	if (op == OP_INV) {
+		/*
+		 * IM is set by default and implies Flush-n-inv
+		 * Clear it here for vanilla inv
+		 */
+		reg = read_aux_reg(ARC_AUX_DC_CTRL);
+		write_aux_reg(ARC_AUX_DC_CTRL, reg & ~DC_CTRL_INV_MODE_FLUSH);
+	}
 
-	for (addr = start; addr <= end; addr += CONFIG_SYS_CACHELINE_SIZE)
-		dcache_flush_line(addr);
-#endif /* CONFIG_SYS_DCACHE_OFF */
+	return reg;
 }
+
+static void __after_dc_op(const int op, unsigned int reg)
+{
+	if (op & OP_FLUSH)	/* flush / flush-n-inv both wait */
+		while (read_aux_reg(ARC_AUX_DC_CTRL) & DC_CTRL_FLUSH_STATUS)
+			;
+
+	/* Switch back to default Invalidate mode */
+	if (op == OP_INV)
+		write_aux_reg(ARC_AUX_DC_CTRL, reg | DC_CTRL_INV_MODE_FLUSH);
+}
+
+static inline void __dc_entire_op(const int cacheop)
+{
+	int aux;
+	unsigned int ctrl_reg = __before_dc_op(cacheop);
+
+	if (cacheop & OP_INV)	/* Inv or flush-n-inv use same cmd reg */
+		aux = ARC_AUX_DC_IVDC;
+	else
+		aux = ARC_AUX_DC_FLSH;
+
+	write_aux_reg(aux, 0x1);
+
+	__after_dc_op(cacheop, ctrl_reg);
+}
+
+static inline void __dc_line_op(unsigned long paddr, unsigned long sz,
+				const int cacheop)
+{
+	unsigned int ctrl_reg = __before_dc_op(cacheop);
+	__cache_line_loop(paddr, sz, cacheop);
+	__after_dc_op(cacheop, ctrl_reg);
+}
+#else
+#define __dc_entire_op(cacheop)
+#define __dc_line_op(paddr, sz, cacheop)
+#endif /* !CONFIG_SYS_DCACHE_OFF */
 
 void invalidate_dcache_range(unsigned long start, unsigned long end)
 {
-#ifndef CONFIG_SYS_DCACHE_OFF
-	unsigned int addr;
-
-	start = start & (~(CONFIG_SYS_CACHELINE_SIZE - 1));
-	end = end & (~(CONFIG_SYS_CACHELINE_SIZE - 1));
-
-	for (addr = start; addr <= end; addr += CONFIG_SYS_CACHELINE_SIZE) {
-#if (CONFIG_ARC_MMU_VER == 3)
-		write_aux_reg(ARC_AUX_DC_PTAG, addr);
+	__dc_line_op(start, end - start, OP_INV);
+#ifdef CONFIG_ISA_ARCV2
+	if (slc_exists)
+		__slc_line_op(start, end - start, OP_INV);
 #endif
-		write_aux_reg(ARC_AUX_DC_IVDL, addr);
-	}
-#endif /* CONFIG_SYS_DCACHE_OFF */
 }
 
-void invalidate_dcache_all(void)
+void flush_dcache_range(unsigned long start, unsigned long end)
 {
-	/* If no cache in CPU exit immediately */
-	if (!(read_aux_reg(ARC_BCR_DC_BUILD) & CACHE_VER_NUM_MASK))
-		return;
-
-	/* Write 1 to DC_IVDC register triggers invalidation of entire D$ */
-	write_aux_reg(ARC_AUX_DC_IVDC, 1);
+	__dc_line_op(start, end - start, OP_FLUSH);
+#ifdef CONFIG_ISA_ARCV2
+	if (slc_exists)
+		__slc_line_op(start, end - start, OP_FLUSH);
+#endif
 }
 
 void flush_cache(unsigned long start, unsigned long size)
@@ -172,47 +334,20 @@ void flush_cache(unsigned long start, unsigned long size)
 	flush_dcache_range(start, start + size);
 }
 
+void invalidate_dcache_all(void)
+{
+	__dc_entire_op(OP_INV);
 #ifdef CONFIG_ISA_ARCV2
-void slc_enable(void)
-{
-	/* If SLC ver = 0, no SLC present in CPU */
-	if (!(read_aux_reg(ARC_BCR_SLC) & 0xff))
-		return;
-
-	write_aux_reg(ARC_AUX_SLC_CONTROL,
-		      read_aux_reg(ARC_AUX_SLC_CONTROL) & ~1);
+	if (slc_exists)
+		__slc_entire_op(OP_INV);
+#endif
 }
 
-void slc_disable(void)
+void flush_dcache_all(void)
 {
-	/* If SLC ver = 0, no SLC present in CPU */
-	if (!(read_aux_reg(ARC_BCR_SLC) & 0xff))
-		return;
-
-	write_aux_reg(ARC_AUX_SLC_CONTROL,
-		      read_aux_reg(ARC_AUX_SLC_CONTROL) | 1);
+	__dc_entire_op(OP_FLUSH);
+#ifdef CONFIG_ISA_ARCV2
+	if (slc_exists)
+		__slc_entire_op(OP_FLUSH);
+#endif
 }
-
-void slc_flush(void)
-{
-	/* If SLC ver = 0, no SLC present in CPU */
-	if (!(read_aux_reg(ARC_BCR_SLC) & 0xff))
-		return;
-
-	write_aux_reg(ARC_AUX_SLC_FLUSH, 1);
-
-	/* Wait flush end */
-	while (read_aux_reg(ARC_AUX_SLC_CONTROL) & SLC_CTRL_SB)
-		;
-}
-
-void slc_invalidate(void)
-{
-	/* If SLC ver = 0, no SLC present in CPU */
-	if (!(read_aux_reg(ARC_BCR_SLC) & 0xff))
-		return;
-
-	write_aux_reg(ARC_AUX_SLC_INVALIDATE, 1);
-}
-
-#endif /* CONFIG_ISA_ARCV2 */
