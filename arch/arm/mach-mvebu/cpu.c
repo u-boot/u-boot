@@ -7,6 +7,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <asm/io.h>
+#include <asm/pl310.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 
@@ -240,6 +241,13 @@ int cpu_eth_init(bd_t *bis)
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
+	struct pl310_regs *const pl310 =
+		(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+
+	/* First disable L2 cache - may still be enable from BootROM */
+	if (mvebu_soc_family() == MVEBU_SOC_A38X)
+		clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+
 	/* Avoid problem with e.g. neta ethernet driver */
 	invalidate_dcache_all();
 
