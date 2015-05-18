@@ -16,6 +16,7 @@
 
 u32 get_nr_cpus(void);
 u32 get_cpu_rev(void);
+u32 get_cpu_speed_grade_hz(void);
 
 /* returns MXC_CPU_ value */
 #define cpu_type(rev) (((rev) >> 12)&0xff)

@@ -83,6 +83,47 @@ u32 get_cpu_rev(void)
 	return (type << 12) | (reg + 0x10);
 }
 
+/*
+ * OCOTP_CFG3[17:16] (see Fusemap Description Table offset 0x440)
+ * defines a 2-bit SPEED_GRADING
+ */
+#define OCOTP_CFG3_SPEED_SHIFT	16
+#define OCOTP_CFG3_SPEED_800MHZ	0
+#define OCOTP_CFG3_SPEED_850MHZ	1
+#define OCOTP_CFG3_SPEED_1GHZ	2
+#define OCOTP_CFG3_SPEED_1P2GHZ	3
+
+u32 get_cpu_speed_grade_hz(void)
+{
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[0];
+	struct fuse_bank0_regs *fuse =
+		(struct fuse_bank0_regs *)bank->fuse_regs;
+	uint32_t val;
+
+	val = readl(&fuse->cfg3);
+	val >>= OCOTP_CFG3_SPEED_SHIFT;
+	val &= 0x3;
+
+	switch (val) {
+	/* Valid for IMX6DQ */
+	case OCOTP_CFG3_SPEED_1P2GHZ:
+		if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
+			return 1200000000;
+	/* Valid for IMX6SX/IMX6SDL/IMX6DQ */
+	case OCOTP_CFG3_SPEED_1GHZ:
+		return 996000000;
+	/* Valid for IMX6DQ */
+	case OCOTP_CFG3_SPEED_850MHZ:
+		if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D))
+			return 852000000;
+	/* Valid for IMX6SX/IMX6SDL/IMX6DQ */
+	case OCOTP_CFG3_SPEED_800MHZ:
+		return 792000000;
+	}
+	return 0;
+}
+
 #ifdef CONFIG_REVISION_TAG
 u32 __weak get_board_rev(void)
 {
