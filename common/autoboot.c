@@ -42,9 +42,7 @@ static int abortboot_keyed(int bootdelay)
 	}
 	delaykey[] = {
 		{ .str = getenv("bootdelaykey"),  .retry = 1 },
-		{ .str = getenv("bootdelaykey2"), .retry = 1 },
 		{ .str = getenv("bootstopkey"),   .retry = 0 },
-		{ .str = getenv("bootstopkey2"),  .retry = 0 },
 	};
 
 	char presskey[MAX_DELAY_STOP_STR];
@@ -65,17 +63,9 @@ static int abortboot_keyed(int bootdelay)
 	if (delaykey[0].str == NULL)
 		delaykey[0].str = CONFIG_AUTOBOOT_DELAY_STR;
 #  endif
-#  ifdef CONFIG_AUTOBOOT_DELAY_STR2
-	if (delaykey[1].str == NULL)
-		delaykey[1].str = CONFIG_AUTOBOOT_DELAY_STR2;
-#  endif
 #  ifdef CONFIG_AUTOBOOT_STOP_STR
-	if (delaykey[2].str == NULL)
-		delaykey[2].str = CONFIG_AUTOBOOT_STOP_STR;
-#  endif
-#  ifdef CONFIG_AUTOBOOT_STOP_STR2
-	if (delaykey[3].str == NULL)
-		delaykey[3].str = CONFIG_AUTOBOOT_STOP_STR2;
+	if (delaykey[1].str == NULL)
+		delaykey[1].str = CONFIG_AUTOBOOT_STOP_STR;
 #  endif
 
 	for (i = 0; i < sizeof(delaykey) / sizeof(delaykey[0]); i++) {

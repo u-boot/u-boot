@@ -78,13 +78,9 @@ What they do
   CONFIG_AUTOBOOT_PROMPT
   CONFIG_AUTOBOOT_DELAY_STR
   CONFIG_AUTOBOOT_STOP_STR
-  CONFIG_AUTOBOOT_DELAY_STR2
-  CONFIG_AUTOBOOT_STOP_STR2
 
   "bootdelaykey"  environment variable
   "bootstopkey"	  environment variable
-  "bootdelaykey2" environment variable
-  "bootstopkey2"  environment variable
 
 	These options give more control over stopping autoboot. When
 	they are used a specific character or string is required to
@@ -129,12 +125,6 @@ What they do
 	for a shorter partial match, so it's best if the first
 	character of a key string does not appear in the rest of the
 	string.
-
-	Using the CONFIG_AUTOBOOT_DELAY_STR2 #define or the
-	"bootdelaykey2" environment variable and/or the
-	CONFIG_AUTOBOOT_STOP_STR2 #define or the "bootstopkey"
-	environment variable you can specify a second, alternate
-	string (which allows you to have two "password" strings).
 
 	The CONFIG_AUTOBOOT_KEYED_CTRLC #define allows for the boot
 	sequence to be interrupted by ctrl-c, in addition to the
