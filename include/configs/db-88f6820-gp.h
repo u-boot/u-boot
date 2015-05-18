@@ -62,6 +62,11 @@
 #define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup */
 #define CONFIG_SYS_ALT_MEMTEST
 
+/* Keep device tree and initrd in lower memory so the kernel can access them */
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"fdt_high=0x10000000\0"		\
+	"initrd_high=0x10000000\0"
+
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
