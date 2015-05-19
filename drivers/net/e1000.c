@@ -126,6 +126,7 @@ static int e1000_detect_gig_phy(struct e1000_hw *hw);
 static void e1000_set_media_type(struct e1000_hw *hw);
 
 static int32_t e1000_swfw_sync_acquire(struct e1000_hw *hw, uint16_t mask);
+static void e1000_swfw_sync_release(struct e1000_hw *hw, uint16_t mask);
 static int32_t e1000_check_phy_reset_block(struct e1000_hw *hw);
 
 #ifndef CONFIG_E1000_NO_NVM
@@ -729,7 +730,10 @@ void e1000_release_eeprom(struct e1000_hw *hw)
 		eecd &= ~E1000_EECD_REQ;
 		E1000_WRITE_REG(hw, EECD, eecd);
 	}
+
+	e1000_swfw_sync_release(hw, E1000_SWFW_EEP_SM);
 }
+
 /******************************************************************************
  * Reads a 16 bit word from the EEPROM.
  *
@@ -1102,6 +1106,7 @@ e1000_get_hw_eeprom_semaphore(struct e1000_hw *hw)
 	return E1000_SUCCESS;
 }
 
+/* Take ownership of the PHY */
 static int32_t
 e1000_swfw_sync_acquire(struct e1000_hw *hw, uint16_t mask)
 {
@@ -1139,6 +1144,21 @@ e1000_swfw_sync_acquire(struct e1000_hw *hw, uint16_t mask)
 
 	e1000_put_hw_eeprom_semaphore(hw);
 	return E1000_SUCCESS;
+}
+
+static void e1000_swfw_sync_release(struct e1000_hw *hw, uint16_t mask)
+{
+	uint32_t swfw_sync = 0;
+
+	DEBUGFUNC();
+	while (e1000_get_hw_eeprom_semaphore(hw))
+		; /* Empty */
+
+	swfw_sync = E1000_READ_REG(hw, SW_FW_SYNC);
+	swfw_sync &= ~mask;
+	E1000_WRITE_REG(hw, SW_FW_SYNC, swfw_sync);
+
+	e1000_put_hw_eeprom_semaphore(hw);
 }
 
 static bool e1000_is_second_port(struct e1000_hw *hw)
@@ -4461,6 +4481,8 @@ e1000_phy_hw_reset(struct e1000_hw *hw)
 		led_ctrl |= (IGP_ACTIVITY_LED_ENABLE | IGP_LED3_MODE);
 		E1000_WRITE_REG(hw, LEDCTL, led_ctrl);
 	}
+
+	e1000_swfw_sync_release(hw, swfw);
 
 	/* Wait for FW to finish PHY configuration. */
 	ret_val = e1000_get_phy_cfg_done(hw);
