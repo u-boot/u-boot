@@ -348,11 +348,12 @@ def cleanup_headers(config_attrs, dry_run):
         patterns.append(re.compile(r'#\s*define\s+%s\W' % config))
         patterns.append(re.compile(r'#\s*undef\s+%s\W' % config))
 
-    for (dirpath, dirnames, filenames) in os.walk('include'):
-        for filename in filenames:
-            if not fnmatch.fnmatch(filename, '*~'):
-                cleanup_one_header(os.path.join(dirpath, filename), patterns,
-                                   dry_run)
+    for dir in 'include', 'arch', 'board':
+        for (dirpath, dirnames, filenames) in os.walk(dir):
+            for filename in filenames:
+                if not fnmatch.fnmatch(filename, '*~'):
+                    cleanup_one_header(os.path.join(dirpath, filename),
+                                       patterns, dry_run)
 
 ### classes ###
 class KconfigParser:
