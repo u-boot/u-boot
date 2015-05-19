@@ -716,6 +716,10 @@ class Slots:
                 print >> sys.stderr, color_text(self.options.color,
                                                 COLOR_LIGHT_RED, line)
 
+            with open('moveconfig.failed', 'w') as f:
+                for board in failed_boards:
+                    f.write(board + '\n')
+
 def move_config(config_attrs, options):
     """Move config options to defconfig files.
 
