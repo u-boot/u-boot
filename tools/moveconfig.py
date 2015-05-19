@@ -153,6 +153,9 @@ Available options
    Specify the number of threads to run simultaneously.  If not specified,
    the number of threads is the same as the number of CPU cores.
 
+ -v, --verbose
+   Show any build errors as boards are built
+
 To see the complete list of supported options, run
 
   $ tools/moveconfig.py -h
@@ -611,6 +614,9 @@ class Slot:
                                          COLOR_LIGHT_RED,
                                          self.defconfig,
                                          errmsg),
+            if self.options.verbose:
+                print >> sys.stderr, color_text(self.options.color,
+                                                COLOR_LIGHT_CYAN, errout)
             if self.options.exit_on_error:
                 sys.exit("Exit on error.")
             else:
@@ -875,6 +881,8 @@ def main():
                       help='only cleanup the headers')
     parser.add_option('-j', '--jobs', type='int', default=cpu_count,
                       help='the number of jobs to run simultaneously')
+    parser.add_option('-v', '--verbose', action='store_true', default=False,
+                      help='show any build errors as boards are built')
     parser.usage += ' recipe_file\n\n' + \
                     'The recipe_file should describe config options you want to move.\n' + \
                     'Each line should contain config_name, type, default_value\n\n' + \
