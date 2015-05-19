@@ -135,6 +135,9 @@ Available options
    Surround each portion of the log with escape sequences to display it
    in color on the terminal.
 
+ -d, --defconfigs
+  Specify a file containing a list of defconfigs to move
+
  -n, --dry-run
    Peform a trial run that does not make any changes.  It is useful to
    see what is going to happen before one actually runs it.
@@ -729,12 +732,21 @@ def move_config(config_attrs, options):
                                                 config_attr['type'],
                                                 config_attr['default'])
 
-    # All the defconfig files to be processed
-    defconfigs = []
-    for (dirpath, dirnames, filenames) in os.walk('configs'):
-        dirpath = dirpath[len('configs') + 1:]
-        for filename in fnmatch.filter(filenames, '*_defconfig'):
-            defconfigs.append(os.path.join(dirpath, filename))
+    if options.defconfigs:
+        defconfigs = [line.strip() for line in open(options.defconfigs)]
+        for i, defconfig in enumerate(defconfigs):
+            if not defconfig.endswith('_defconfig'):
+                defconfigs[i] = defconfig + '_defconfig'
+            if not os.path.exists(os.path.join('configs', defconfigs[i])):
+                sys.exit('%s - defconfig does not exist. Stopping.' %
+                         defconfigs[i])
+    else:
+        # All the defconfig files to be processed
+        defconfigs = []
+        for (dirpath, dirnames, filenames) in os.walk('configs'):
+            dirpath = dirpath[len('configs') + 1:]
+            for filename in fnmatch.filter(filenames, '*_defconfig'):
+                defconfigs.append(os.path.join(dirpath, filename))
 
     slots = Slots(config_attrs, options)
 
@@ -835,6 +847,8 @@ def main():
     # Add options here
     parser.add_option('-c', '--color', action='store_true', default=False,
                       help='display the log in color')
+    parser.add_option('-d', '--defconfigs', type='string',
+                      help='a file containing a list of defconfigs to move')
     parser.add_option('-n', '--dry-run', action='store_true', default=False,
                       help='perform a trial run (show log with no changes)')
     parser.add_option('-e', '--exit-on-error', action='store_true',
