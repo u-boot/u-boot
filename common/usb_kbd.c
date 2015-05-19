@@ -31,7 +31,7 @@ int overwrite_console(void)
 #endif
 
 /* Keyboard sampling rate */
-#define REPEAT_RATE	(40 / 4)	/* 40msec -> 25cps */
+#define REPEAT_RATE	40		/* 40msec -> 25cps */
 #define REPEAT_DELAY	10		/* 10 x REPEAT_RATE = 400msec */
 
 #define NUM_LOCK	0x53
@@ -103,6 +103,7 @@ struct usb_kbd_pdata {
 	unsigned long	intpipe;
 	int		intpktsize;
 	int		intinterval;
+	unsigned long	last_report;
 	struct int_queue *intq;
 
 	uint32_t	repeat_delay;
@@ -310,7 +311,7 @@ static int usb_kbd_irq(struct usb_device *dev)
 /* Interrupt polling */
 static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 {
-#if	defined(CONFIG_SYS_USB_EVENT_POLL)
+#if defined(CONFIG_SYS_USB_EVENT_POLL)
 	struct usb_kbd_pdata *data = dev->privptr;
 
 	/* Submit a interrupt transfer request */
@@ -318,15 +319,17 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 			   data->intinterval);
 
 	usb_kbd_irq_worker(dev);
-#elif	defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
+#elif defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP) || \
+      defined(CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE)
+#if defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
 	struct usb_interface *iface;
 	struct usb_kbd_pdata *data = dev->privptr;
 	iface = &dev->config.if_desc[0];
 	usb_get_report(dev, iface->desc.bInterfaceNumber,
 		       1, 0, data->new, USB_KBD_BOOT_REPORT_SIZE);
-	if (memcmp(data->old, data->new, USB_KBD_BOOT_REPORT_SIZE))
+	if (memcmp(data->old, data->new, USB_KBD_BOOT_REPORT_SIZE)) {
 		usb_kbd_irq_worker(dev);
-#elif	defined(CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE)
+#else
 	struct usb_kbd_pdata *data = dev->privptr;
 	if (poll_int_queue(dev, data->intq)) {
 		usb_kbd_irq_worker(dev);
@@ -335,6 +338,13 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 		data->intq = create_int_queue(dev, data->intpipe, 1,
 				      USB_KBD_BOOT_REPORT_SIZE, data->new,
 				      data->intinterval);
+#endif
+		data->last_report = get_timer(0);
+	/* Repeat last usb hid report every REPEAT_RATE ms for keyrepeat */
+	} else if (data->last_report != -1 &&
+		   get_timer(data->last_report) > REPEAT_RATE) {
+		usb_kbd_irq_worker(dev);
+		data->last_report = get_timer(0);
 	}
 #endif
 }
@@ -445,12 +455,16 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	data->intpktsize = min(usb_maxpacket(dev, data->intpipe),
 			       USB_KBD_BOOT_REPORT_SIZE);
 	data->intinterval = ep->bInterval;
+	data->last_report = -1;
 
 	/* We found a USB Keyboard, install it. */
 	usb_set_protocol(dev, iface->desc.bInterfaceNumber, 0);
 
+#if !defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP) && \
+    !defined(CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE)
 	debug("USB KBD: found set idle...\n");
-	usb_set_idle(dev, iface->desc.bInterfaceNumber, REPEAT_RATE, 0);
+	usb_set_idle(dev, iface->desc.bInterfaceNumber, REPEAT_RATE / 4, 0);
+#endif
 
 	debug("USB KBD: enable interrupt pipe...\n");
 #ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
