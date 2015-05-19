@@ -78,18 +78,16 @@ int print_cpuinfo(void)
 
 int sunxi_get_sid(unsigned int *sid)
 {
-#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_A23
 #ifdef CONFIG_AXP221_POWER
 	return axp221_get_sid(sid);
-#else
-	return -ENODEV;
-#endif
-#else
+#elif defined SUNXI_SID_BASE
 	int i;
 
 	for (i = 0; i< 4; i++)
 		sid[i] = readl(SUNXI_SID_BASE + 4 * i);
 
 	return 0;
+#else
+	return -ENODEV;
 #endif
 }
