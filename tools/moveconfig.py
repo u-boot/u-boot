@@ -628,6 +628,7 @@ class Slot:
         cmd = list(self.make_cmd)
         if cross_compile:
             cmd.append('CROSS_COMPILE=%s' % cross_compile)
+        cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
         cmd.append('include/config/auto.conf')
         self.ps = subprocess.Popen(cmd, stdout=self.devnull)
         self.state = STATE_AUTOCONF

@@ -58,7 +58,8 @@ quiet_cmd_autoconf = GEN     $@
 	$(CPP) $(c_flags) $2 -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && { \
 		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp |		\
 		while read line; do							\
-			if ! grep -q "$${line%=*}=" include/config/auto.conf; then	\
+			if [ -n "${KCONFIG_IGNORE_DUPLICATES}" ] ||			\
+			   ! grep -q "$${line%=*}=" include/config/auto.conf; then	\
 				echo "$$line";						\
 			fi								\
 		done > $@;								\
