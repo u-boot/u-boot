@@ -996,10 +996,6 @@ e1000_get_software_semaphore(struct e1000_hw *hw)
 
 	DEBUGFUNC();
 
-		swsm = E1000_READ_REG(hw, SWSM);
-		swsm &= ~E1000_SWSM_SMBI;
-		E1000_WRITE_REG(hw, SWSM, swsm);
-
 	if (hw->mac_type != e1000_80003es2lan)
 		return E1000_SUCCESS;
 
