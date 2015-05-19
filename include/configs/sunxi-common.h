@@ -162,13 +162,6 @@
 
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
 
-#ifdef CONFIG_SPL_FEL
-
-#define CONFIG_SPL_TEXT_BASE		0x2000
-#define CONFIG_SPL_MAX_SIZE		0x4000		/* 16 KiB */
-
-#else /* CONFIG_SPL */
-
 #define CONFIG_SPL_BSS_START_ADDR	0x4ff80000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KiB */
 
@@ -185,8 +178,6 @@
 
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	80	/* 40KiB */
 #define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
-
-#endif /* CONFIG_SPL */
 
 /* end of 32 KiB in sram */
 #define LOW_LEVEL_SRAM_STACK		0x00008000 /* End of sram */

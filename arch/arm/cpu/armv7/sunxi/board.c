@@ -120,13 +120,6 @@ void s_init(void)
  */
 u32 spl_boot_device(void)
 {
-#ifdef CONFIG_SPL_FEL
-	/*
-	 * This is the legacy compile time configuration for a special FEL
-	 * enabled build. It has many restrictions and can only boot over USB.
-	 */
-	return BOOT_DEVICE_BOARD;
-#else
 	/*
 	 * When booting from the SD card, the "eGON.BT0" signature is expected
 	 * to be found in memory at the address 0x0004 (see the "mksunxiboot"
@@ -147,7 +140,6 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_MMC1;
 	else
 		return BOOT_DEVICE_BOARD;
-#endif
 }
 
 /* No confirmation data available in SPL yet. Hardcode bootmode */
