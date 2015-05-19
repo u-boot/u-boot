@@ -146,6 +146,9 @@ Available options
    Exit immediately if Make exits with a non-zero status while processing
    a defconfig file.
 
+ -H, --headers-only
+   Only cleanup the headers; skip the defconfig processing
+
  -j, --jobs
    Specify the number of threads to run simultaneously.  If not specified,
    the number of threads is the same as the number of CPU cores.
@@ -720,8 +723,6 @@ def move_config(config_attrs, options):
                     the type, and the default value of the target config.
       options: option flags
     """
-    check_top_directory()
-
     if len(config_attrs) == 0:
         print 'Nothing to do. exit.'
         sys.exit(0)
@@ -764,8 +765,6 @@ def move_config(config_attrs, options):
         time.sleep(SLEEP_TIME)
 
     slots.show_failed_boards()
-
-    cleanup_headers(config_attrs, options.dry_run)
 
 def bad_recipe(filename, linenum, msg):
     """Print error message with the file name and the line number and exit."""
@@ -854,6 +853,9 @@ def main():
     parser.add_option('-e', '--exit-on-error', action='store_true',
                       default=False,
                       help='exit immediately on any error')
+    parser.add_option('-H', '--headers-only', dest='cleanup_headers_only',
+                      action='store_true', default=False,
+                      help='only cleanup the headers')
     parser.add_option('-j', '--jobs', type='int', default=cpu_count,
                       help='the number of jobs to run simultaneously')
     parser.usage += ' recipe_file\n\n' + \
@@ -874,7 +876,12 @@ def main():
 
     update_cross_compile()
 
-    move_config(config_attrs, options)
+    check_top_directory()
+
+    if not options.cleanup_headers_only:
+        move_config(config_attrs, options)
+
+    cleanup_headers(config_attrs, options.dry_run)
 
 if __name__ == '__main__':
     main()
