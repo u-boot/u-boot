@@ -13,6 +13,8 @@
 #ifndef _SUNXI_COMMON_CONFIG_H
 #define _SUNXI_COMMON_CONFIG_H
 
+#include <linux/stringify.h>
+
 #ifdef CONFIG_OLD_SUNXI_KERNEL_COMPAT
 /*
  * The U-Boot workarounds bugs in the outdated buggy sunxi-3.4 kernels at the
@@ -38,8 +40,6 @@
 #endif
 
 #include <asm/arch/cpu.h>	/* get chip and board defs */
-
-#define CONFIG_SYS_TEXT_BASE		0x4a000000
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_DM_SERIAL)
 # define CONFIG_DW_SERIAL
@@ -69,8 +69,34 @@
 /* CPU */
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
-/* DRAM Base */
+/*
+ * The DRAM Base differs between some models. We cannot use macros for the
+ * CONFIG_FOO defines which contain the DRAM base address since they end
+ * up unexpanded in include/autoconf.mk .
+ *
+ * So we have to have this #ifdef #else #endif block for these.
+ */
+#ifdef CONFIG_MACH_SUN9I
+#define SDRAM_OFFSET(x) 0x2##x
+#define CONFIG_SYS_SDRAM_BASE		0x20000000
+#define CONFIG_SYS_LOAD_ADDR		0x22000000 /* default load address */
+#define CONFIG_SYS_TEXT_BASE		0x2a000000
+#define CONFIG_PRE_CON_BUF_ADDR		0x2f000000
+#define CONFIG_SYS_SPL_MALLOC_START	0x2ff00000
+#define CONFIG_SPL_BSS_START_ADDR	0x2ff80000
+#else
+#define SDRAM_OFFSET(x) 0x4##x
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
+#define CONFIG_SYS_TEXT_BASE		0x4a000000
+#define CONFIG_PRE_CON_BUF_ADDR		0x4f000000
+#define CONFIG_SYS_SPL_MALLOC_START	0x4ff00000
+#define CONFIG_SPL_BSS_START_ADDR	0x4ff80000
+#endif
+
+#define CONFIG_SPL_BSS_MAX_SIZE		0x00080000 /* 512 KiB */
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000 /* 512 KiB */
+
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0
 #define CONFIG_SYS_INIT_RAM_SIZE	0x8000	/* 32 KiB */
 
@@ -129,10 +155,8 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
-
 /* standalone support */
-#define CONFIG_STANDALONE_LOAD_ADDR	0x42000000
+#define CONFIG_STANDALONE_LOAD_ADDR	CONFIG_SYS_LOAD_ADDR
 
 /* baudrate */
 #define CONFIG_BAUDRATE			115200
@@ -162,9 +186,6 @@
 
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
 
-#define CONFIG_SPL_BSS_START_ADDR	0x4ff80000
-#define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KiB */
-
 #define CONFIG_SPL_TEXT_BASE		0x20		/* sram start+header */
 #define CONFIG_SPL_MAX_SIZE		0x5fe0		/* 24KB on sun4i/sun7i */
 
@@ -182,8 +203,6 @@
 /* end of 32 KiB in sram */
 #define LOW_LEVEL_SRAM_STACK		0x00008000 /* End of sram */
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
-#define CONFIG_SYS_SPL_MALLOC_START	0x4ff00000
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000	/* 512 KiB */
 
 /* I2C */
 #if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER
@@ -333,8 +352,6 @@ extern int soft_i2c_gpio_scl;
 /* Enable pre-console buffer to get complete log on the VGA console */
 #define CONFIG_PRE_CONSOLE_BUFFER
 #define CONFIG_PRE_CON_BUF_SZ		4096 /* Aprox 2 80*25 screens */
-/* Use the room between the end of bootm_size and the framebuffer */
-#define CONFIG_PRE_CON_BUF_ADDR		0x4f000000
 
 /*
  * 240M RAM (256M minimum minus space for the framebuffer),
@@ -343,11 +360,11 @@ extern int soft_i2c_gpio_scl;
  */
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0xf000000\0" \
-	"kernel_addr_r=0x42000000\0" \
-	"fdt_addr_r=0x43000000\0" \
-	"scriptaddr=0x43100000\0" \
-	"pxefile_addr_r=0x43200000\0" \
-	"ramdisk_addr_r=0x43300000\0"
+	"kernel_addr_r=" __stringify(SDRAM_OFFSET(2000000)) "\0" \
+	"fdt_addr_r=" __stringify(SDRAM_OFFSET(3000000)) "\0" \
+	"scriptaddr=" __stringify(SDRAM_OFFSET(3100000)) "\0" \
+	"pxefile_addr_r=" __stringify(SDRAM_OFFSET(3200000)) "\0" \
+	"ramdisk_addr_r=" __stringify(SDRAM_OFFSET(3300000)) "\0"
 
 #ifdef CONFIG_MMC
 #define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)
