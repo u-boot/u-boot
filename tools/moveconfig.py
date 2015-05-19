@@ -559,7 +559,7 @@ class Slot:
                 pass
         shutil.rmtree(self.build_dir)
 
-    def add(self, defconfig):
+    def add(self, defconfig, num, total):
         """Assign a new subprocess for defconfig and add it to the slot.
 
         If the slot is vacant, create a new subprocess for processing the
@@ -580,6 +580,8 @@ class Slot:
                                    stderr=subprocess.PIPE)
         self.defconfig = defconfig
         self.state = STATE_DEFCONFIG
+        self.num = num
+        self.total = total
         return True
 
     def poll(self):
@@ -629,6 +631,9 @@ class Slot:
 
         if self.state == STATE_AUTOCONF:
             self.parser.update_defconfig(self.defconfig)
+
+            print ' %d defconfigs out of %d\r' % (self.num + 1, self.total),
+            sys.stdout.flush()
 
             """Save off the defconfig in a consistent way"""
             cmd = list(self.make_cmd)
@@ -683,7 +688,7 @@ class Slots:
         for i in range(options.jobs):
             self.slots.append(Slot(config_attrs, options, devnull, make_cmd))
 
-    def add(self, defconfig):
+    def add(self, defconfig, num, total):
         """Add a new subprocess if a vacant slot is found.
 
         Arguments:
@@ -693,7 +698,7 @@ class Slots:
           Return True on success or False on failure
         """
         for slot in self.slots:
-            if slot.add(defconfig):
+            if slot.add(defconfig, num, total):
                 return True
         return False
 
@@ -777,8 +782,8 @@ def move_config(config_attrs, options):
     # Main loop to process defconfig files:
     #  Add a new subprocess into a vacant slot.
     #  Sleep if there is no available slot.
-    for defconfig in defconfigs:
-        while not slots.add(defconfig):
+    for i, defconfig in enumerate(defconfigs):
+        while not slots.add(defconfig, i, len(defconfigs)):
             while not slots.available():
                 # No available slot: sleep for a while
                 time.sleep(SLEEP_TIME)
@@ -787,6 +792,7 @@ def move_config(config_attrs, options):
     while not slots.empty():
         time.sleep(SLEEP_TIME)
 
+    print ''
     slots.show_failed_boards()
 
 def bad_recipe(filename, linenum, msg):
