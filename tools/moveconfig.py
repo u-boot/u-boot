@@ -573,7 +573,8 @@ class Slot:
             return False
         cmd = list(self.make_cmd)
         cmd.append(defconfig)
-        self.ps = subprocess.Popen(cmd, stdout=self.devnull)
+        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
+                                   stderr=subprocess.PIPE)
         self.defconfig = defconfig
         self.state = STATE_DEFCONFIG
         return True
@@ -598,11 +599,18 @@ class Slot:
             return False
 
         if self.ps.poll() != 0:
-
+            errmsg = 'Failed to process.'
+            errout = self.ps.stderr.read()
+            if errout.find('gcc: command not found') != -1:
+                errmsg = 'Compiler not found ('
+                errmsg += color_text(self.options.color, COLOR_YELLOW,
+                                     self.cross_compile)
+                errmsg += color_text(self.options.color, COLOR_LIGHT_RED,
+                                     ')')
             print >> sys.stderr, log_msg(self.options.color,
                                          COLOR_LIGHT_RED,
                                          self.defconfig,
-                                         "failed to process.")
+                                         errmsg),
             if self.options.exit_on_error:
                 sys.exit("Exit on error.")
             else:
@@ -620,7 +628,7 @@ class Slot:
             cmd = list(self.make_cmd)
             cmd.append('savedefconfig')
             self.ps = subprocess.Popen(cmd, stdout=self.devnull,
-                                       stderr=self.devnull)
+                                       stderr=subprocess.PIPE)
             self.state = STATE_SAVEDEFCONFIG
             return False
 
@@ -631,13 +639,17 @@ class Slot:
             self.state = STATE_IDLE
             return True
 
-        cross_compile = self.parser.get_cross_compile()
+        self.cross_compile = self.parser.get_cross_compile()
         cmd = list(self.make_cmd)
-        if cross_compile:
-            cmd.append('CROSS_COMPILE=%s' % cross_compile)
+        if self.cross_compile:
+            cmd.append('CROSS_COMPILE=%s' % self.cross_compile)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
         cmd.append('include/config/auto.conf')
-        self.ps = subprocess.Popen(cmd, stdout=self.devnull)
+        """This will be screen-scraped, so be sure the expected text will be
+        returned consistently on every machine by setting LANG=C"""
+        self.ps = subprocess.Popen(cmd, stdout=self.devnull,
+                                   env=dict(os.environ, LANG='C'),
+                                   stderr=subprocess.PIPE)
         self.state = STATE_AUTOCONF
         return False
 
