@@ -1120,10 +1120,7 @@ e1000_swfw_sync_acquire(struct e1000_hw *hw, uint16_t mask)
 		if (e1000_get_hw_eeprom_semaphore(hw))
 			return -E1000_ERR_SWFW_SYNC;
 
-		if (hw->mac_type == e1000_igb)
-			swfw_sync = E1000_READ_REG(hw, I210_SW_FW_SYNC);
-		else
-			swfw_sync = E1000_READ_REG(hw, SW_FW_SYNC);
+		swfw_sync = E1000_READ_REG(hw, SW_FW_SYNC);
 		if (!(swfw_sync & (fwmask | swmask)))
 			break;
 
@@ -4458,6 +4455,7 @@ e1000_phy_hw_reset(struct e1000_hw *hw)
 
 		if (hw->mac_type >= e1000_82571)
 			mdelay(10);
+
 	} else {
 		/* Read the Extended Device Control Register, assert the PHY_RESET_DIR
 		 * bit to put the PHY into reset. Then, take it out of reset.
