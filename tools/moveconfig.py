@@ -46,6 +46,9 @@ should look like this:
   CONFIG_CMD_USB bool n
   CONFIG_SYS_TEXT_BASE hex 0x00000000
 
+Next you must edit the Kconfig to add the menu entries for the configs
+you are moving.
+
 And then run this tool giving the file name of the recipe
 
   $ tools/moveconfig.py recipe
@@ -193,6 +196,7 @@ CROSS_COMPILE = {
 STATE_IDLE = 0
 STATE_DEFCONFIG = 1
 STATE_AUTOCONF = 2
+STATE_SAVEDEFCONFIG = 3
 
 ACTION_MOVE = 0
 ACTION_DEFAULT_VALUE = 1
@@ -391,8 +395,7 @@ class KconfigParser:
 
         return CROSS_COMPILE.get(arch, '')
 
-    def parse_one_config(self, config_attr, defconfig_lines,
-                         dotconfig_lines, autoconf_lines):
+    def parse_one_config(self, config_attr, defconfig_lines, autoconf_lines):
         """Parse .config, defconfig, include/autoconf.mk for one config.
 
         This function looks for the config options in the lines from
@@ -403,7 +406,6 @@ class KconfigParser:
           config_attr: A dictionary including the name, the type,
                        and the default value of the target config.
           defconfig_lines: lines from the original defconfig file.
-          dotconfig_lines: lines from the .config file.
           autoconf_lines: lines from the include/autoconf.mk file.
 
         Returns:
@@ -419,7 +421,7 @@ class KconfigParser:
         else:
             default = config + '=' + config_attr['default']
 
-        for line in defconfig_lines + dotconfig_lines:
+        for line in defconfig_lines:
             line = line.rstrip()
             if line.startswith(config + '=') or line == not_set:
                 return (ACTION_ALREADY_EXIST, line)
@@ -464,15 +466,12 @@ class KconfigParser:
         with open(defconfig_path) as f:
             defconfig_lines = f.readlines()
 
-        with open(dotconfig_path) as f:
-            dotconfig_lines = f.readlines()
-
         with open(autoconf_path) as f:
             autoconf_lines = f.readlines()
 
         for config_attr in self.config_attrs:
             result = self.parse_one_config(config_attr, defconfig_lines,
-                                           dotconfig_lines, autoconf_lines)
+                                           autoconf_lines)
             results.append(result)
 
         log = ''
@@ -500,7 +499,7 @@ class KconfigParser:
         print log,
 
         if not self.options.dry_run:
-            with open(defconfig_path, 'a') as f:
+            with open(dotconfig_path, 'a') as f:
                 for (action, value) in results:
                     if action == ACTION_MOVE:
                         f.write(value + '\n')
@@ -609,6 +608,19 @@ class Slot:
 
         if self.state == STATE_AUTOCONF:
             self.parser.update_defconfig(self.defconfig)
+
+            """Save off the defconfig in a consistent way"""
+            cmd = list(self.make_cmd)
+            cmd.append('savedefconfig')
+            self.ps = subprocess.Popen(cmd, stdout=self.devnull,
+                                       stderr=self.devnull)
+            self.state = STATE_SAVEDEFCONFIG
+            return False
+
+        if self.state == STATE_SAVEDEFCONFIG:
+            defconfig_path = os.path.join(self.build_dir, 'defconfig')
+            shutil.move(defconfig_path,
+                        os.path.join('configs', self.defconfig))
             self.state = STATE_IDLE
             return True
 
