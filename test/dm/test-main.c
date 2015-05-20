@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <command.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>
@@ -70,7 +71,7 @@ static int dm_test_destroy(struct unit_test_state *uts)
 	return 0;
 }
 
-int dm_test_main(const char *test_name)
+static int dm_test_main(const char *test_name)
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test, dm_test);
 	const int n_ents = ll_entry_count(struct unit_test, dm_test);
@@ -114,4 +115,14 @@ int dm_test_main(const char *test_name)
 	printf("Failures: %d\n", uts->fail_count);
 
 	return 0;
+}
+
+int do_ut_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	const char *test_name = NULL;
+
+	if (argc > 1)
+		test_name = argv[1];
+
+	return dm_test_main(test_name);
 }

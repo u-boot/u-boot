@@ -8,4 +8,6 @@
 #ifndef __TEST_SUITES_H__
 #define __TEST_SUITES_H__
 
+int do_ut_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+
 #endif /* __TEST_SUITES_H__ */

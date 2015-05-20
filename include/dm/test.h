@@ -202,15 +202,4 @@ void dm_leak_check_start(struct unit_test_state *uts);
  * @dms: Overall test state
  */int dm_leak_check_end(struct unit_test_state *uts);
 
-
-/**
- * dm_test_main() - Run all or one of the tests
- *
- * This runs all available driver model tests, or a selected one
- *
- * @test_name:	Name of test to run, or NULL for all
- * @return 0 if OK, -ve on error
- */
-int dm_test_main(const char *test_name);
-
 #endif

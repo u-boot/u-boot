@@ -13,6 +13,9 @@ static int do_ut_all(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 static cmd_tbl_t cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(all, CONFIG_SYS_MAXARGS, 1, do_ut_all, "", ""),
+#if defined(CONFIG_UT_DM)
+	U_BOOT_CMD_MKENT(dm, CONFIG_SYS_MAXARGS, 1, do_ut_dm, "", ""),
+#endif
 };
 
 static int do_ut_all(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -53,6 +56,9 @@ static int do_ut(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_LONGHELP
 static char ut_help_text[] =
 	"all - execute all enabled tests\n"
+#ifdef CONFIG_UT_DM
+	"ut dm [test-name]\n"
+#endif
 	;
 #endif
 
