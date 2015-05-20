@@ -208,12 +208,11 @@ DONE:
  * Set a new environment variable,
  * or replace or delete an existing one.
  */
-static int _do_env_set(int flag, int argc, char * const argv[])
+static int _do_env_set(int flag, int argc, char * const argv[], int env_flag)
 {
 	int   i, len;
 	char  *name, *value, *s;
 	ENTRY e, *ep;
-	int env_flag = H_INTERACTIVE;
 
 	debug("Initial value for argc=%d\n", argc);
 	while (argc > 1 && **(argv + 1) == '-') {
@@ -291,9 +290,9 @@ int setenv(const char *varname, const char *varvalue)
 		return 1;
 
 	if (varvalue == NULL || varvalue[0] == '\0')
-		return _do_env_set(0, 2, (char * const *)argv);
+		return _do_env_set(0, 2, (char * const *)argv, H_PROGRAMMATIC);
 	else
-		return _do_env_set(0, 3, (char * const *)argv);
+		return _do_env_set(0, 3, (char * const *)argv, H_PROGRAMMATIC);
 }
 
 /**
@@ -347,7 +346,7 @@ static int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	return _do_env_set(flag, argc, argv);
+	return _do_env_set(flag, argc, argv, H_INTERACTIVE);
 }
 
 /*
@@ -422,7 +421,7 @@ int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	/* Continue calling setenv code */
-	return _do_env_set(flag, len, local_args);
+	return _do_env_set(flag, len, local_args, H_INTERACTIVE);
 }
 #endif
 
@@ -588,6 +587,10 @@ static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
+	/* before import into hashtable */
+	if (!(gd->flags & GD_FLG_ENV_READY))
+		return 1;
+
 	/* Set read buffer to initial value or empty sting */
 	init_val = getenv(argv[1]);
 	if (init_val)
@@ -598,7 +601,16 @@ static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (cli_readline_into_buffer("edit: ", buffer, 0) < 0)
 		return 1;
 
-	return setenv(argv[1], buffer);
+	if (buffer[0] == '\0') {
+		const char * const _argv[3] = { "setenv", argv[1], NULL };
+
+		return _do_env_set(0, 2, (char * const *)_argv, H_INTERACTIVE);
+	} else {
+		const char * const _argv[4] = { "setenv", argv[1], buffer,
+			NULL };
+
+		return _do_env_set(0, 3, (char * const *)_argv, H_INTERACTIVE);
+	}
 }
 #endif /* CONFIG_CMD_EDITENV */
 #endif /* CONFIG_SPL_BUILD */
