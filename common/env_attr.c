@@ -148,10 +148,10 @@ int env_attr_lookup(const char *attr_list, const char *name, char *attributes)
 
 	if (!attributes)
 		/* bad parameter */
-		return -1;
+		return -EINVAL;
 	if (!attr_list)
 		/* list not found */
-		return 1;
+		return -EINVAL;
 
 	entry = reverse_strstr(attr_list, name, NULL);
 	while (entry != NULL) {
@@ -209,5 +209,5 @@ int env_attr_lookup(const char *attr_list, const char *name, char *attributes)
 	}
 
 	/* not found in list */
-	return 2;
+	return -ENOENT;
 }
