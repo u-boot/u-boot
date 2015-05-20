@@ -11,6 +11,7 @@
 #include <linux/linux_string.h>
 #else
 #include <common.h>
+#include <slre.h>
 #endif
 
 #include <env_attr.h>
@@ -108,6 +109,89 @@ int env_attr_walk(const char *attr_list,
 
 	return 0;
 }
+
+#if defined(CONFIG_REGEX)
+struct regex_callback_priv {
+	const char *searched_for;
+	char *regex;
+	char *attributes;
+};
+
+static int regex_callback(const char *name, const char *attributes, void *priv)
+{
+	int retval = 0;
+	struct regex_callback_priv *cbp = (struct regex_callback_priv *)priv;
+	struct slre slre;
+	char regex[strlen(name) + 3];
+
+	/* Require the whole string to be described by the regex */
+	sprintf(regex, "^%s$", name);
+	if (slre_compile(&slre, regex)) {
+		struct cap caps[slre.num_caps + 2];
+
+		if (slre_match(&slre, cbp->searched_for,
+			       strlen(cbp->searched_for), caps)) {
+			free(cbp->regex);
+			cbp->regex = malloc(strlen(regex) + 1);
+			if (cbp->regex) {
+				strcpy(cbp->regex, regex);
+			} else {
+				retval = -ENOMEM;
+				goto done;
+			}
+
+			free(cbp->attributes);
+			cbp->attributes = malloc(strlen(attributes) + 1);
+			if (cbp->attributes) {
+				strcpy(cbp->attributes, attributes);
+			} else {
+				retval = -ENOMEM;
+				free(cbp->regex);
+				cbp->regex = NULL;
+				goto done;
+			}
+		}
+	} else {
+		printf("Error compiling regex: %s\n", slre.err_str);
+		retval = EINVAL;
+	}
+done:
+	return retval;
+}
+
+/*
+ * Retrieve the attributes string associated with a single name in the list
+ * There is no protection on attributes being too small for the value
+ */
+int env_attr_lookup(const char *attr_list, const char *name, char *attributes)
+{
+	if (!attributes)
+		/* bad parameter */
+		return -EINVAL;
+	if (!attr_list)
+		/* list not found */
+		return -EINVAL;
+
+	struct regex_callback_priv priv;
+	int retval;
+
+	priv.searched_for = name;
+	priv.regex = NULL;
+	priv.attributes = NULL;
+	retval = env_attr_walk(attr_list, regex_callback, &priv);
+	if (retval)
+		return retval; /* error */
+
+	if (priv.regex) {
+		strcpy(attributes, priv.attributes);
+		free(priv.attributes);
+		free(priv.regex);
+		/* success */
+		return 0;
+	}
+	return -ENOENT; /* not found in list */
+}
+#else
 
 /*
  * Search for the last exactly matching name in an attribute list
@@ -219,3 +303,4 @@ int env_attr_lookup(const char *attr_list, const char *name, char *attributes)
 	/* not found in list */
 	return -ENOENT;
 }
+#endif

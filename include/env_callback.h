@@ -31,12 +31,18 @@
 #define SPLASHIMAGE_CALLBACK
 #endif
 
+#ifdef CONFIG_REGEX
+#define ENV_DOT_ESCAPE "\\"
+#else
+#define ENV_DOT_ESCAPE
+#endif
+
 /*
  * This list of callback bindings is static, but may be overridden by defining
  * a new association in the ".callbacks" environment variable.
  */
-#define ENV_CALLBACK_LIST_STATIC ENV_CALLBACK_VAR ":callbacks," \
-	ENV_FLAGS_VAR ":flags," \
+#define ENV_CALLBACK_LIST_STATIC ENV_DOT_ESCAPE ENV_CALLBACK_VAR ":callbacks," \
+	ENV_DOT_ESCAPE ENV_FLAGS_VAR ":flags," \
 	"baudrate:baudrate," \
 	"bootfile:bootfile," \
 	"loadaddr:loadaddr," \

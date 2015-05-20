@@ -4142,6 +4142,10 @@ Configuration Settings:
 		list, simply add an entry for the same variable name to the
 		".flags" variable.
 
+	If CONFIG_REGEX is defined, the variable_name above is evaluated as a
+	regular expression. This allows multiple variables to define the same
+	flags without explicitly listing them for each variable.
+
 - CONFIG_ENV_ACCESS_IGNORE_FORCE
 	If defined, don't allow the -f switch to env set override variable
 	access flags.
@@ -5539,6 +5543,10 @@ with the same list format above.  Any association in ".callbacks" will
 override any association in the static list. You can define
 CONFIG_ENV_CALLBACK_LIST_DEFAULT to a list (string) to define the
 ".callbacks" environment variable in the default or embedded environment.
+
+If CONFIG_REGEX is defined, the variable_name above is evaluated as a
+regular expression. This allows multiple variables to be connected to
+the same callback without explicitly listing them all out.
 
 
 Command Line Parsing:
