@@ -11,15 +11,20 @@
 #include <dm/test.h>
 #include <dm/root.h>
 #include <dm/uclass-internal.h>
-#include <dm/ut.h>
+#include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct dm_test_state global_test_state;
+struct unit_test_state global_dm_test_state;
+static struct dm_test_state _global_priv_dm_test_state;
 
 /* Get ready for testing */
-static int dm_test_init(struct dm_test_state *dms)
+static int dm_test_init(struct unit_test_state *uts)
 {
+	struct dm_test_state *dms = uts->priv;
+
+	memset(uts, '\0', sizeof(*uts));
+	uts->priv = dms;
 	memset(dms, '\0', sizeof(*dms));
 	gd->dm_root = NULL;
 	memset(dm_testdrv_op_count, '\0', sizeof(dm_testdrv_op_count));
@@ -31,7 +36,7 @@ static int dm_test_init(struct dm_test_state *dms)
 }
 
 /* Ensure all the test devices are probed */
-static int do_autoprobe(struct dm_test_state *dms)
+static int do_autoprobe(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	int ret;
@@ -45,7 +50,7 @@ static int do_autoprobe(struct dm_test_state *dms)
 	return ret;
 }
 
-static int dm_test_destroy(struct dm_test_state *dms)
+static int dm_test_destroy(struct unit_test_state *uts)
 {
 	int id;
 
@@ -67,10 +72,11 @@ static int dm_test_destroy(struct dm_test_state *dms)
 
 int dm_test_main(const char *test_name)
 {
-	struct dm_test *tests = ll_entry_start(struct dm_test, dm_test);
-	const int n_ents = ll_entry_count(struct dm_test, dm_test);
-	struct dm_test_state *dms = &global_test_state;
-	struct dm_test *test;
+	struct unit_test *tests = ll_entry_start(struct unit_test, dm_test);
+	const int n_ents = ll_entry_count(struct unit_test, dm_test);
+	struct unit_test_state *uts = &global_dm_test_state;
+	uts->priv = &_global_priv_dm_test_state;
+	struct unit_test *test;
 
 	/*
 	 * If we have no device tree, or it only has a root node, then these
@@ -89,23 +95,23 @@ int dm_test_main(const char *test_name)
 		if (test_name && strcmp(test_name, test->name))
 			continue;
 		printf("Test: %s\n", test->name);
-		ut_assertok(dm_test_init(dms));
+		ut_assertok(dm_test_init(uts));
 
-		dms->start = mallinfo();
+		uts->start = mallinfo();
 		if (test->flags & DM_TESTF_SCAN_PDATA)
 			ut_assertok(dm_scan_platdata(false));
 		if (test->flags & DM_TESTF_PROBE_TEST)
-			ut_assertok(do_autoprobe(dms));
+			ut_assertok(do_autoprobe(uts));
 		if (test->flags & DM_TESTF_SCAN_FDT)
 			ut_assertok(dm_scan_fdt(gd->fdt_blob, false));
 
-		if (test->func(dms))
+		if (test->func(uts))
 			break;
 
-		ut_assertok(dm_test_destroy(dms));
+		ut_assertok(dm_test_destroy(uts));
 	}
 
-	printf("Failures: %d\n", dms->fail_count);
+	printf("Failures: %d\n", uts->fail_count);
 
 	return 0;
 }

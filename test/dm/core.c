@@ -13,10 +13,10 @@
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/root.h>
-#include <dm/ut.h>
 #include <dm/util.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
+#include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -67,14 +67,14 @@ static struct driver_info driver_info_pre_reloc = {
 	.platdata = &test_pdata_manual,
 };
 
-void dm_leak_check_start(struct dm_test_state *dms)
+void dm_leak_check_start(struct unit_test_state *uts)
 {
-	dms->start = mallinfo();
-	if (!dms->start.uordblks)
+	uts->start = mallinfo();
+	if (!uts->start.uordblks)
 		puts("Warning: Please add '#define DEBUG' to the top of common/dlmalloc.c\n");
 }
 
-int dm_leak_check_end(struct dm_test_state *dms)
+int dm_leak_check_end(struct unit_test_state *uts)
 {
 	struct mallinfo end;
 	int id;
@@ -90,14 +90,15 @@ int dm_leak_check_end(struct dm_test_state *dms)
 	}
 
 	end = mallinfo();
-	ut_asserteq(dms->start.uordblks, end.uordblks);
+	ut_asserteq(uts->start.uordblks, end.uordblks);
 
 	return 0;
 }
 
 /* Test that binding with platdata occurs correctly */
-static int dm_test_autobind(struct dm_test_state *dms)
+static int dm_test_autobind(struct unit_test_state *uts)
 {
+	struct dm_test_state *dms = uts->priv;
 	struct udevice *dev;
 
 	/*
@@ -130,7 +131,7 @@ static int dm_test_autobind(struct dm_test_state *dms)
 DM_TEST(dm_test_autobind, 0);
 
 /* Test that binding with uclass platdata allocation occurs correctly */
-static int dm_test_autobind_uclass_pdata_alloc(struct dm_test_state *dms)
+static int dm_test_autobind_uclass_pdata_alloc(struct unit_test_state *uts)
 {
 	struct dm_test_perdev_uc_pdata *uc_pdata;
 	struct udevice *dev;
@@ -159,7 +160,7 @@ static int dm_test_autobind_uclass_pdata_alloc(struct dm_test_state *dms)
 DM_TEST(dm_test_autobind_uclass_pdata_alloc, DM_TESTF_SCAN_PDATA);
 
 /* Test that binding with uclass platdata setting occurs correctly */
-static int dm_test_autobind_uclass_pdata_valid(struct dm_test_state *dms)
+static int dm_test_autobind_uclass_pdata_valid(struct unit_test_state *uts)
 {
 	struct dm_test_perdev_uc_pdata *uc_pdata;
 	struct udevice *dev;
@@ -185,8 +186,9 @@ static int dm_test_autobind_uclass_pdata_valid(struct dm_test_state *dms)
 DM_TEST(dm_test_autobind_uclass_pdata_valid, DM_TESTF_SCAN_PDATA);
 
 /* Test that autoprobe finds all the expected devices */
-static int dm_test_autoprobe(struct dm_test_state *dms)
+static int dm_test_autoprobe(struct unit_test_state *uts)
 {
+	struct dm_test_state *dms = uts->priv;
 	int expected_base_add;
 	struct udevice *dev;
 	struct uclass *uc;
@@ -252,7 +254,7 @@ static int dm_test_autoprobe(struct dm_test_state *dms)
 DM_TEST(dm_test_autoprobe, DM_TESTF_SCAN_PDATA);
 
 /* Check that we see the correct platdata in each device */
-static int dm_test_platdata(struct dm_test_state *dms)
+static int dm_test_platdata(struct unit_test_state *uts)
 {
 	const struct dm_test_pdata *pdata;
 	struct udevice *dev;
@@ -270,8 +272,9 @@ static int dm_test_platdata(struct dm_test_state *dms)
 DM_TEST(dm_test_platdata, DM_TESTF_SCAN_PDATA);
 
 /* Test that we can bind, probe, remove, unbind a driver */
-static int dm_test_lifecycle(struct dm_test_state *dms)
+static int dm_test_lifecycle(struct unit_test_state *uts)
 {
+	struct dm_test_state *dms = uts->priv;
 	int op_count[DM_TEST_OP_COUNT];
 	struct udevice *dev, *test_dev;
 	int pingret;
@@ -325,8 +328,9 @@ static int dm_test_lifecycle(struct dm_test_state *dms)
 DM_TEST(dm_test_lifecycle, DM_TESTF_SCAN_PDATA | DM_TESTF_PROBE_TEST);
 
 /* Test that we can bind/unbind and the lists update correctly */
-static int dm_test_ordering(struct dm_test_state *dms)
+static int dm_test_ordering(struct unit_test_state *uts)
 {
+	struct dm_test_state *dms = uts->priv;
 	struct udevice *dev, *dev_penultimate, *dev_last, *test_dev;
 	int pingret;
 
@@ -380,7 +384,7 @@ static int dm_test_ordering(struct dm_test_state *dms)
 DM_TEST(dm_test_ordering, DM_TESTF_SCAN_PDATA);
 
 /* Check that we can perform operations on a device (do a ping) */
-int dm_check_operations(struct dm_test_state *dms, struct udevice *dev,
+int dm_check_operations(struct unit_test_state *uts, struct udevice *dev,
 			uint32_t base, struct dm_test_priv *priv)
 {
 	int expected;
@@ -408,7 +412,7 @@ int dm_check_operations(struct dm_test_state *dms, struct udevice *dev,
 }
 
 /* Check that we can perform operations on devices */
-static int dm_test_operations(struct dm_test_state *dms)
+static int dm_test_operations(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	int i;
@@ -430,7 +434,7 @@ static int dm_test_operations(struct dm_test_state *dms)
 		base = test_pdata[i].ping_add;
 		debug("dev=%d, base=%d\n", i, base);
 
-		ut_assert(!dm_check_operations(dms, dev, base, dev->priv));
+		ut_assert(!dm_check_operations(uts, dev, base, dev->priv));
 	}
 
 	return 0;
@@ -438,7 +442,7 @@ static int dm_test_operations(struct dm_test_state *dms)
 DM_TEST(dm_test_operations, DM_TESTF_SCAN_PDATA);
 
 /* Remove all drivers and check that things work */
-static int dm_test_remove(struct dm_test_state *dms)
+static int dm_test_remove(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	int i;
@@ -460,7 +464,7 @@ static int dm_test_remove(struct dm_test_state *dms)
 DM_TEST(dm_test_remove, DM_TESTF_SCAN_PDATA | DM_TESTF_PROBE_TEST);
 
 /* Remove and recreate everything, check for memory leaks */
-static int dm_test_leak(struct dm_test_state *dms)
+static int dm_test_leak(struct unit_test_state *uts)
 {
 	int i;
 
@@ -469,7 +473,7 @@ static int dm_test_leak(struct dm_test_state *dms)
 		int ret;
 		int id;
 
-		dm_leak_check_start(dms);
+		dm_leak_check_start(uts);
 
 		ut_assertok(dm_scan_platdata(false));
 		ut_assertok(dm_scan_fdt(gd->fdt_blob, false));
@@ -483,7 +487,7 @@ static int dm_test_leak(struct dm_test_state *dms)
 			ut_assertok(ret);
 		}
 
-		ut_assertok(dm_leak_check_end(dms));
+		ut_assertok(dm_leak_check_end(uts));
 	}
 
 	return 0;
@@ -491,7 +495,7 @@ static int dm_test_leak(struct dm_test_state *dms)
 DM_TEST(dm_test_leak, 0);
 
 /* Test uclass init/destroy methods */
-static int dm_test_uclass(struct dm_test_state *dms)
+static int dm_test_uclass(struct unit_test_state *uts)
 {
 	struct uclass *uc;
 
@@ -520,7 +524,7 @@ DM_TEST(dm_test_uclass, 0);
  *		this array.
  * @return 0 if OK, -ve on error
  */
-static int create_children(struct dm_test_state *dms, struct udevice *parent,
+static int create_children(struct unit_test_state *uts, struct udevice *parent,
 			   int count, int key, struct udevice *child[])
 {
 	struct udevice *dev;
@@ -543,8 +547,9 @@ static int create_children(struct dm_test_state *dms, struct udevice *parent,
 
 #define NODE_COUNT	10
 
-static int dm_test_children(struct dm_test_state *dms)
+static int dm_test_children(struct unit_test_state *uts)
 {
+	struct dm_test_state *dms = uts->priv;
 	struct udevice *top[NODE_COUNT];
 	struct udevice *child[NODE_COUNT];
 	struct udevice *grandchild[NODE_COUNT];
@@ -559,15 +564,15 @@ static int dm_test_children(struct dm_test_state *dms)
 	ut_assert(NODE_COUNT > 5);
 
 	/* First create 10 top-level children */
-	ut_assertok(create_children(dms, dms->root, NODE_COUNT, 0, top));
+	ut_assertok(create_children(uts, dms->root, NODE_COUNT, 0, top));
 
 	/* Now a few have their own children */
-	ut_assertok(create_children(dms, top[2], NODE_COUNT, 2, NULL));
-	ut_assertok(create_children(dms, top[5], NODE_COUNT, 5, child));
+	ut_assertok(create_children(uts, top[2], NODE_COUNT, 2, NULL));
+	ut_assertok(create_children(uts, top[5], NODE_COUNT, 5, child));
 
 	/* And grandchildren */
 	for (i = 0; i < NODE_COUNT; i++)
-		ut_assertok(create_children(dms, child[i], NODE_COUNT, 50 * i,
+		ut_assertok(create_children(uts, child[i], NODE_COUNT, 50 * i,
 					    i == 2 ? grandchild : NULL));
 
 	/* Check total number of devices */
@@ -629,8 +634,9 @@ static int dm_test_children(struct dm_test_state *dms)
 DM_TEST(dm_test_children, 0);
 
 /* Test that pre-relocation devices work as expected */
-static int dm_test_pre_reloc(struct dm_test_state *dms)
+static int dm_test_pre_reloc(struct unit_test_state *uts)
 {
+	struct dm_test_state *dms = uts->priv;
 	struct udevice *dev;
 
 	/* The normal driver should refuse to bind before relocation */
@@ -645,7 +651,7 @@ static int dm_test_pre_reloc(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_pre_reloc, 0);
 
-static int dm_test_uclass_before_ready(struct dm_test_state *dms)
+static int dm_test_uclass_before_ready(struct unit_test_state *uts)
 {
 	struct uclass *uc;
 
@@ -661,7 +667,7 @@ static int dm_test_uclass_before_ready(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_uclass_before_ready, 0);
 
-static int dm_test_uclass_devices_find(struct dm_test_state *dms)
+static int dm_test_uclass_devices_find(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	int ret;
@@ -677,7 +683,7 @@ static int dm_test_uclass_devices_find(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_uclass_devices_find, DM_TESTF_SCAN_PDATA);
 
-static int dm_test_uclass_devices_find_by_name(struct dm_test_state *dms)
+static int dm_test_uclass_devices_find_by_name(struct unit_test_state *uts)
 {
 	struct udevice *finddev;
 	struct udevice *testdev;
@@ -714,7 +720,7 @@ static int dm_test_uclass_devices_find_by_name(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_uclass_devices_find_by_name, DM_TESTF_SCAN_FDT);
 
-static int dm_test_uclass_devices_get(struct dm_test_state *dms)
+static int dm_test_uclass_devices_get(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	int ret;
@@ -731,7 +737,7 @@ static int dm_test_uclass_devices_get(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_uclass_devices_get, DM_TESTF_SCAN_PDATA);
 
-static int dm_test_uclass_devices_get_by_name(struct dm_test_state *dms)
+static int dm_test_uclass_devices_get_by_name(struct unit_test_state *uts)
 {
 	struct udevice *finddev;
 	struct udevice *testdev;
@@ -775,7 +781,7 @@ static int dm_test_uclass_devices_get_by_name(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_uclass_devices_get_by_name, DM_TESTF_SCAN_FDT);
 
-static int dm_test_device_get_uclass_id(struct dm_test_state *dms)
+static int dm_test_device_get_uclass_id(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 

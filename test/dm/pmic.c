@@ -14,17 +14,17 @@
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/root.h>
-#include <dm/ut.h>
 #include <dm/util.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 #include <power/pmic.h>
 #include <power/sandbox_pmic.h>
+#include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Test PMIC get method */
-static int dm_test_power_pmic_get(struct dm_test_state *dms)
+static int dm_test_power_pmic_get(struct unit_test_state *uts)
 {
 	const char *name = "sandbox_pmic";
 	struct udevice *dev;
@@ -40,7 +40,7 @@ static int dm_test_power_pmic_get(struct dm_test_state *dms)
 DM_TEST(dm_test_power_pmic_get, DM_TESTF_SCAN_FDT);
 
 /* Test PMIC I/O */
-static int dm_test_power_pmic_io(struct dm_test_state *dms)
+static int dm_test_power_pmic_io(struct unit_test_state *uts)
 {
 	const char *name = "sandbox_pmic";
 	uint8_t out_buffer, in_buffer;

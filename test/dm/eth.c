@@ -9,16 +9,16 @@
 
 #include <common.h>
 #include <dm.h>
-#include <dm/test.h>
-#include <dm/ut.h>
 #include <fdtdec.h>
 #include <malloc.h>
 #include <net.h>
+#include <dm/test.h>
 #include <asm/eth.h>
+#include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int dm_test_eth(struct dm_test_state *dms)
+static int dm_test_eth(struct unit_test_state *uts)
 {
 	net_ping_ip = string_to_ip("1.1.2.2");
 
@@ -38,7 +38,7 @@ static int dm_test_eth(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_eth, DM_TESTF_SCAN_FDT);
 
-static int dm_test_eth_alias(struct dm_test_state *dms)
+static int dm_test_eth_alias(struct unit_test_state *uts)
 {
 	net_ping_ip = string_to_ip("1.1.2.2");
 	setenv("ethact", "eth0");
@@ -62,7 +62,7 @@ static int dm_test_eth_alias(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_eth_alias, DM_TESTF_SCAN_FDT);
 
-static int dm_test_eth_prime(struct dm_test_state *dms)
+static int dm_test_eth_prime(struct unit_test_state *uts)
 {
 	net_ping_ip = string_to_ip("1.1.2.2");
 
@@ -82,7 +82,7 @@ static int dm_test_eth_prime(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_eth_prime, DM_TESTF_SCAN_FDT);
 
-static int dm_test_eth_rotate(struct dm_test_state *dms)
+static int dm_test_eth_rotate(struct unit_test_state *uts)
 {
 	char ethaddr[18];
 
@@ -127,7 +127,7 @@ static int dm_test_eth_rotate(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_eth_rotate, DM_TESTF_SCAN_FDT);
 
-static int dm_test_net_retry(struct dm_test_state *dms)
+static int dm_test_net_retry(struct unit_test_state *uts)
 {
 	net_ping_ip = string_to_ip("1.1.2.2");
 

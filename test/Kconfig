@@ -1,3 +1,6 @@
+config UNIT_TEST
+	bool
+
 config CMD_UT_TIME
 	bool "Unit tests for time functions"
 	help

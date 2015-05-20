@@ -9,12 +9,12 @@
 #include <dm.h>
 #include <rtc.h>
 #include <asm/io.h>
-#include <dm/test.h>
-#include <dm/ut.h>
 #include <asm/test.h>
+#include <dm/test.h>
+#include <test/ut.h>
 
 /* Simple RTC sanity check */
-static int dm_test_rtc_base(struct dm_test_state *dms)
+static int dm_test_rtc_base(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 
@@ -52,7 +52,7 @@ static int cmp_times(struct rtc_time *expect, struct rtc_time *time, bool show)
 }
 
 /* Set and get the time */
-static int dm_test_rtc_set_get(struct dm_test_state *dms)
+static int dm_test_rtc_set_get(struct unit_test_state *uts)
 {
 	struct rtc_time now, time, cmp;
 	struct udevice *dev, *emul;
@@ -117,7 +117,7 @@ static int dm_test_rtc_set_get(struct dm_test_state *dms)
 DM_TEST(dm_test_rtc_set_get, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Reset the time */
-static int dm_test_rtc_reset(struct dm_test_state *dms)
+static int dm_test_rtc_reset(struct unit_test_state *uts)
 {
 	struct rtc_time now;
 	struct udevice *dev, *emul;
@@ -143,7 +143,7 @@ static int dm_test_rtc_reset(struct dm_test_state *dms)
 DM_TEST(dm_test_rtc_reset, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Check that two RTC devices can be used independently */
-static int dm_test_rtc_dual(struct dm_test_state *dms)
+static int dm_test_rtc_dual(struct unit_test_state *uts)
 {
 	struct rtc_time now1, now2, cmp;
 	struct udevice *dev1, *dev2;

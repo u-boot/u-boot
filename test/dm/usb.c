@@ -9,10 +9,10 @@
 #include <usb.h>
 #include <asm/io.h>
 #include <dm/test.h>
-#include <dm/ut.h>
+#include <test/ut.h>
 
 /* Test that sandbox USB works correctly */
-static int dm_test_usb_base(struct dm_test_state *dms)
+static int dm_test_usb_base(struct unit_test_state *uts)
 {
 	struct udevice *bus;
 
@@ -29,7 +29,7 @@ DM_TEST(dm_test_usb_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
  * covers scanning the bug, setting up a hub and a flash stick and reading
  * data from the flash stick.
  */
-static int dm_test_usb_flash(struct dm_test_state *dms)
+static int dm_test_usb_flash(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	block_dev_desc_t *dev_desc;

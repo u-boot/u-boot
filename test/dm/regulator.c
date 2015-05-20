@@ -14,13 +14,13 @@
 #include <malloc.h>
 #include <dm/device-internal.h>
 #include <dm/root.h>
-#include <dm/ut.h>
 #include <dm/util.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/sandbox_pmic.h>
+#include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -47,7 +47,7 @@ static const char *regulator_names[OUTPUT_COUNT][OUTPUT_NAME_COUNT] = {
 };
 
 /* Test regulator get method */
-static int dm_test_power_regulator_get(struct dm_test_state *dms)
+static int dm_test_power_regulator_get(struct unit_test_state *uts)
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
 	struct udevice *dev_by_devname;
@@ -92,7 +92,7 @@ static int dm_test_power_regulator_get(struct dm_test_state *dms)
 DM_TEST(dm_test_power_regulator_get, DM_TESTF_SCAN_FDT);
 
 /* Test regulator set and get Voltage method */
-static int dm_test_power_regulator_set_get_voltage(struct dm_test_state *dms)
+static int dm_test_power_regulator_set_get_voltage(struct unit_test_state *uts)
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
 	struct udevice *dev;
@@ -119,7 +119,7 @@ static int dm_test_power_regulator_set_get_voltage(struct dm_test_state *dms)
 DM_TEST(dm_test_power_regulator_set_get_voltage, DM_TESTF_SCAN_FDT);
 
 /* Test regulator set and get Current method */
-static int dm_test_power_regulator_set_get_current(struct dm_test_state *dms)
+static int dm_test_power_regulator_set_get_current(struct unit_test_state *uts)
 {
 	struct dm_regulator_uclass_platdata *uc_pdata;
 	struct udevice *dev;
@@ -158,7 +158,7 @@ static int dm_test_power_regulator_set_get_current(struct dm_test_state *dms)
 DM_TEST(dm_test_power_regulator_set_get_current, DM_TESTF_SCAN_FDT);
 
 /* Test regulator set and get Enable method */
-static int dm_test_power_regulator_set_get_enable(struct dm_test_state *dms)
+static int dm_test_power_regulator_set_get_enable(struct unit_test_state *uts)
 {
 	const char *platname;
 	struct udevice *dev;
@@ -177,7 +177,7 @@ static int dm_test_power_regulator_set_get_enable(struct dm_test_state *dms)
 DM_TEST(dm_test_power_regulator_set_get_enable, DM_TESTF_SCAN_FDT);
 
 /* Test regulator set and get mode method */
-static int dm_test_power_regulator_set_get_mode(struct dm_test_state *dms)
+static int dm_test_power_regulator_set_get_mode(struct unit_test_state *uts)
 {
 	const char *platname;
 	struct udevice *dev;
@@ -196,7 +196,7 @@ static int dm_test_power_regulator_set_get_mode(struct dm_test_state *dms)
 DM_TEST(dm_test_power_regulator_set_get_mode, DM_TESTF_SCAN_FDT);
 
 /* Test regulator autoset method */
-static int dm_test_power_regulator_autoset(struct dm_test_state *dms)
+static int dm_test_power_regulator_autoset(struct unit_test_state *uts)
 {
 	const char *platname;
 	struct udevice *dev, *dev_autoset;
@@ -276,7 +276,7 @@ static const struct setting expected_setting_list[] = {
 static int list_count = ARRAY_SIZE(expected_setting_list);
 
 /* Test regulator list autoset method */
-static int dm_test_power_regulator_autoset_list(struct dm_test_state *dms)
+static int dm_test_power_regulator_autoset_list(struct unit_test_state *uts)
 {
 	struct udevice *dev_list[2], *dev;
 	int i;

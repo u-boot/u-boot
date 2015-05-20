@@ -10,19 +10,19 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <i2c.h>
+#include <asm/state.h>
+#include <asm/test.h>
 #include <dm/device-internal.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
-#include <dm/ut.h>
 #include <dm/util.h>
-#include <asm/state.h>
-#include <asm/test.h>
+#include <test/ut.h>
 
 static const int busnum;
 static const int chip = 0x2c;
 
 /* Test that we can find buses and chips */
-static int dm_test_i2c_find(struct dm_test_state *dms)
+static int dm_test_i2c_find(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 	const int no_chip = 0x10;
@@ -43,7 +43,7 @@ static int dm_test_i2c_find(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_i2c_find, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_read_write(struct dm_test_state *dms)
+static int dm_test_i2c_read_write(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 	uint8_t buf[5];
@@ -60,7 +60,7 @@ static int dm_test_i2c_read_write(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_i2c_read_write, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_speed(struct dm_test_state *dms)
+static int dm_test_i2c_speed(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 	uint8_t buf[5];
@@ -82,7 +82,7 @@ static int dm_test_i2c_speed(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_i2c_speed, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_offset_len(struct dm_test_state *dms)
+static int dm_test_i2c_offset_len(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 	uint8_t buf[5];
@@ -99,7 +99,7 @@ static int dm_test_i2c_offset_len(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_i2c_offset_len, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_probe_empty(struct dm_test_state *dms)
+static int dm_test_i2c_probe_empty(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 
@@ -114,7 +114,7 @@ static int dm_test_i2c_probe_empty(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_i2c_probe_empty, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_bytewise(struct dm_test_state *dms)
+static int dm_test_i2c_bytewise(struct unit_test_state *uts)
 {
 	struct udevice *bus, *dev;
 	struct udevice *eeprom;
@@ -169,7 +169,7 @@ static int dm_test_i2c_bytewise(struct dm_test_state *dms)
 }
 DM_TEST(dm_test_i2c_bytewise, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
-static int dm_test_i2c_offset(struct dm_test_state *dms)
+static int dm_test_i2c_offset(struct unit_test_state *uts)
 {
 	struct udevice *eeprom;
 	struct udevice *dev;

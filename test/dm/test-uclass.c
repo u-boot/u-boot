@@ -11,12 +11,12 @@
 #include <malloc.h>
 #include <dm.h>
 #include <errno.h>
-#include <dm/test.h>
-#include <dm/ut.h>
 #include <asm/io.h>
+#include <dm/test.h>
 #include <linux/list.h>
+#include <test/ut.h>
 
-static struct dm_test_state *dms = &global_test_state;
+static struct unit_test_state *uts = &global_dm_test_state;
 
 int test_ping(struct udevice *dev, int pingval, int *pingret)
 {
@@ -70,6 +70,7 @@ static int test_post_probe(struct udevice *dev)
 
 	struct dm_test_uclass_perdev_priv *priv = dev_get_uclass_priv(dev);
 	struct uclass *uc = dev->uclass;
+	struct dm_test_state *dms = uts->priv;
 
 	dm_testdrv_op_count[DM_TEST_OP_POST_PROBE]++;
 	ut_assert(priv);

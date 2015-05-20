@@ -10,12 +10,10 @@ obj-$(CONFIG_DM_TEST) += test-driver.o
 obj-$(CONFIG_DM_TEST) += test-fdt.o
 obj-$(CONFIG_DM_TEST) += test-main.o
 obj-$(CONFIG_DM_TEST) += test-uclass.o
-obj-$(CONFIG_DM_TEST) += ut.o
 
 # Tests for particular subsystems - when enabling driver model for a new
 # subsystem you must add sandbox tests here.
 obj-$(CONFIG_DM_TEST) += core.o
-obj-$(CONFIG_DM_TEST) += ut.o
 ifneq ($(CONFIG_SANDBOX),)
 obj-$(CONFIG_DM_ETH) += eth.o
 obj-$(CONFIG_DM_GPIO) += gpio.o
