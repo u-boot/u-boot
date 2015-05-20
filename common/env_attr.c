@@ -26,7 +26,8 @@
  *	list = entry[,list]
  */
 int env_attr_walk(const char *attr_list,
-	int (*callback)(const char *name, const char *attributes))
+	int (*callback)(const char *name, const char *attributes, void *priv),
+	void *priv)
 {
 	const char *entry, *entry_end;
 	char *name, *attributes;
@@ -93,7 +94,7 @@ int env_attr_walk(const char *attr_list,
 			if (strlen(name) != 0) {
 				int retval = 0;
 
-				retval = callback(name, attributes);
+				retval = callback(name, attributes, priv);
 				if (retval) {
 					free(entry_cpy);
 					return retval;

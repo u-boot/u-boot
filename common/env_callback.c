@@ -90,7 +90,7 @@ static int clear_callback(ENTRY *entry)
 /*
  * Call for each element in the list that associates variables to callbacks
  */
-static int set_callback(const char *name, const char *value)
+static int set_callback(const char *name, const char *value, void *priv)
 {
 	ENTRY e, *ep;
 	struct env_clbk_tbl *clbkp;
@@ -126,9 +126,9 @@ static int on_callbacks(const char *name, const char *value, enum env_op op,
 	hwalk_r(&env_htab, clear_callback);
 
 	/* configure any static callback bindings */
-	env_attr_walk(ENV_CALLBACK_LIST_STATIC, set_callback);
+	env_attr_walk(ENV_CALLBACK_LIST_STATIC, set_callback, NULL);
 	/* configure any dynamic callback bindings */
-	env_attr_walk(value, set_callback);
+	env_attr_walk(value, set_callback, NULL);
 
 	return 0;
 }

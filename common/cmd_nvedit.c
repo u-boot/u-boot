@@ -427,7 +427,8 @@ int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 #if defined(CONFIG_CMD_ENV_CALLBACK)
-static int print_static_binding(const char *var_name, const char *callback_name)
+static int print_static_binding(const char *var_name, const char *callback_name,
+				void *priv)
 {
 	printf("\t%-20s %-20s\n", var_name, callback_name);
 
@@ -489,7 +490,7 @@ int do_env_callback(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	puts("Static callback bindings:\n");
 	printf("\t%-20s %-20s\n", "Variable Name", "Callback Name");
 	printf("\t%-20s %-20s\n", "-------------", "-------------");
-	env_attr_walk(ENV_CALLBACK_LIST_STATIC, print_static_binding);
+	env_attr_walk(ENV_CALLBACK_LIST_STATIC, print_static_binding, NULL);
 	puts("\n");
 
 	/* walk through each variable and print the callback if it has one */
@@ -502,7 +503,8 @@ int do_env_callback(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 #if defined(CONFIG_CMD_ENV_FLAGS)
-static int print_static_flags(const char *var_name, const char *flags)
+static int print_static_flags(const char *var_name, const char *flags,
+			      void *priv)
 {
 	enum env_flags_vartype type = env_flags_parse_vartype(flags);
 	enum env_flags_varaccess access = env_flags_parse_varaccess(flags);
@@ -559,7 +561,7 @@ int do_env_flags(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		"Variable Access");
 	printf("\t%-20s %-20s %-20s\n", "-------------", "-------------",
 		"---------------");
-	env_attr_walk(ENV_FLAGS_LIST_STATIC, print_static_flags);
+	env_attr_walk(ENV_FLAGS_LIST_STATIC, print_static_flags, NULL);
 	puts("\n");
 
 	/* walk through each variable and print the flags if non-default */
