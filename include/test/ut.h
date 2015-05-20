@@ -42,7 +42,7 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 #define ut_assert(cond)							\
 	if (!(cond)) {							\
 		ut_fail(uts, __FILE__, __LINE__, __func__, #cond);	\
-		return -1;						\
+		return CMD_RET_FAILURE;					\
 	}
 
 /* Assert that a condition is non-zero, with printf() string */
@@ -50,7 +50,7 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 	if (!(cond)) {							\
 		ut_failf(uts, __FILE__, __LINE__, __func__, #cond,	\
 			 fmt, ##args);					\
-		return -1;						\
+		return CMD_RET_FAILURE;					\
 	}
 
 /* Assert that two int expressions are equal */
@@ -61,7 +61,7 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 		ut_failf(uts, __FILE__, __LINE__, __func__,		\
 			 #expr1 " == " #expr2,				\
 			 "Expected %d, got %d", val1, val2);		\
-		return -1;						\
+		return CMD_RET_FAILURE;					\
 	}								\
 }
 
@@ -73,7 +73,7 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 		ut_failf(uts, __FILE__, __LINE__, __func__,		\
 			 #expr1 " = " #expr2,				\
 			 "Expected \"%s\", got \"%s\"", val1, val2);	\
-		return -1;						\
+		return CMD_RET_FAILURE;					\
 	}								\
 }
 
@@ -85,7 +85,7 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 		ut_failf(uts, __FILE__, __LINE__, __func__,		\
 			 #expr1 " = " #expr2,				\
 			 "Expected %p, got %p", val1, val2);		\
-		return -1;						\
+		return CMD_RET_FAILURE;					\
 	}								\
 }
 
@@ -97,7 +97,7 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 		ut_failf(uts, __FILE__, __LINE__, __func__,		\
 			 #expr " = NULL",				\
 			 "Expected non-null, got NULL");		\
-		return -1;						\
+		return CMD_RET_FAILURE;					\
 	}								\
 }
 
