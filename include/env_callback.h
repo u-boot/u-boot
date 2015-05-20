@@ -52,7 +52,8 @@
 	"serverip:serverip," \
 	"nvlan:nvlan," \
 	"vlan:vlan," \
-	DNS_CALLBACK
+	DNS_CALLBACK \
+	"eth\\d?addr:ethaddr,"
 #else
 #define NET_CALLBACKS
 #endif

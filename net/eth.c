@@ -9,11 +9,13 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <environment.h>
 #include <net.h>
 #include <miiphy.h>
 #include <phy.h>
 #include <asm/errno.h>
 #include <dm/device-internal.h>
+#include <dm/uclass-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -294,6 +296,33 @@ static int eth_write_hwaddr(struct udevice *dev)
 	return ret;
 }
 
+static int on_ethaddr(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	int index;
+	int retval;
+	struct udevice *dev;
+
+	/* look for an index after "eth" */
+	index = simple_strtoul(name + 3, NULL, 10);
+
+	retval = uclass_find_device_by_seq(UCLASS_ETH, index, false, &dev);
+	if (!retval) {
+		struct eth_pdata *pdata = dev->platdata;
+		switch (op) {
+		case env_op_create:
+		case env_op_overwrite:
+			eth_parse_enetaddr(value, pdata->enetaddr);
+			break;
+		case env_op_delete:
+			memset(pdata->enetaddr, 0, 6);
+		}
+	}
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(ethaddr, on_ethaddr);
+
 int eth_init(void)
 {
 	struct udevice *current;
@@ -311,25 +340,6 @@ int eth_init(void)
 		debug("Trying %s\n", current->name);
 
 		if (device_active(current)) {
-			uchar env_enetaddr[6];
-			struct eth_pdata *pdata = current->platdata;
-			int enetaddr_changed = 0;
-
-			/* Sync environment with network device */
-			if (eth_getenv_enetaddr_by_index("eth", current->seq,
-							 env_enetaddr)) {
-				enetaddr_changed = memcmp(pdata->enetaddr,
-					env_enetaddr, 6);
-				memcpy(pdata->enetaddr, env_enetaddr, 6);
-			} else {
-				memset(env_enetaddr, 0, 6);
-				enetaddr_changed = memcmp(pdata->enetaddr,
-					env_enetaddr, 6);
-				memset(pdata->enetaddr, 0, 6);
-			}
-			if (enetaddr_changed)
-				eth_write_hwaddr(current);
-
 			ret = eth_get_ops(current)->start(current);
 			if (ret >= 0) {
 				struct eth_device_priv *priv =
@@ -634,6 +644,36 @@ int eth_get_dev_index(void)
 	return eth_current->index;
 }
 
+static int on_ethaddr(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	int index;
+	struct eth_device *dev;
+
+	if (!eth_devices)
+		return 0;
+
+	/* look for an index after "eth" */
+	index = simple_strtoul(name + 3, NULL, 10);
+
+	dev = eth_devices;
+	do {
+		if (dev->index == index) {
+			switch (op) {
+			case env_op_create:
+			case env_op_overwrite:
+				eth_parse_enetaddr(value, dev->enetaddr);
+				break;
+			case env_op_delete:
+				memset(dev->enetaddr, 0, 6);
+			}
+		}
+	} while (dev != eth_devices);
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(ethaddr, on_ethaddr);
+
 int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
 		   int eth_number)
 {
@@ -832,35 +872,12 @@ u32 ether_crc(size_t len, unsigned char const *p)
 
 int eth_init(void)
 {
-	struct eth_device *old_current, *dev;
+	struct eth_device *old_current;
 
 	if (!eth_current) {
 		puts("No ethernet found.\n");
 		return -ENODEV;
 	}
-
-	/* Sync environment with network devices */
-	dev = eth_devices;
-	do {
-		uchar env_enetaddr[6];
-		int enetaddr_changed = 0;
-
-		if (eth_getenv_enetaddr_by_index("eth", dev->index,
-						 env_enetaddr)) {
-			enetaddr_changed = memcmp(dev->enetaddr,
-				env_enetaddr, 6);
-			memcpy(dev->enetaddr, env_enetaddr, 6);
-		} else {
-			memset(env_enetaddr, 0, 6);
-			enetaddr_changed = memcmp(dev->enetaddr,
-				env_enetaddr, 6);
-			memset(dev->enetaddr, 0, 6);
-		}
-		if (enetaddr_changed)
-			eth_write_hwaddr(dev, "eth", dev->index);
-
-		dev = dev->next;
-	} while (dev != eth_devices);
 
 	old_current = eth_current;
 	do {

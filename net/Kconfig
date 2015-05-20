@@ -4,6 +4,7 @@
 
 menuconfig NET
 	bool "Networking support"
+	select REGEX
 
 if NET
 
