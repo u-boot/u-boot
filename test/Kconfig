@@ -16,3 +16,4 @@ config UT_TIME
 	  this is a good place to start.
 
 source "test/dm/Kconfig"
+source "test/env/Kconfig"
