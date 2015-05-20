@@ -97,8 +97,20 @@
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00080000 /* 512 KiB */
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000 /* 512 KiB */
 
+#ifdef CONFIG_MACH_SUN9I
+/*
+ * The A80's A1 sram starts at 0x00010000 rather then at 0x00000000 and is
+ * slightly bigger. Note that it is possible to map the first 32 KiB of the
+ * A1 at 0x00000000 like with older SoCs by writing 0x16aa0001 to the
+ * undocumented 0x008000e0 SYS_CTRL register. Where the 16aa is a key and
+ * the 1 actually activates the mapping of the first 32 KiB to 0x00000000.
+ */
+#define CONFIG_SYS_INIT_RAM_ADDR	0x10000
+#define CONFIG_SYS_INIT_RAM_SIZE	0x0a000	/* 40 KiB */
+#else
 #define CONFIG_SYS_INIT_RAM_ADDR	0x0
 #define CONFIG_SYS_INIT_RAM_SIZE	0x8000	/* 32 KiB */
+#endif
 
 #define CONFIG_SYS_INIT_SP_OFFSET \
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
