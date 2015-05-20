@@ -60,16 +60,6 @@ static inline int eth_setenv_enetaddr_by_index(const char *base_name, int index,
 	return eth_setenv_enetaddr(enetvar, enetaddr);
 }
 
-static void eth_env_init(void)
-{
-	const char *s;
-
-	s = getenv("bootfile");
-	if (s != NULL)
-		copy_filename(net_boot_file_name, s,
-			      sizeof(net_boot_file_name));
-}
-
 static int eth_mac_skip(int index)
 {
 	char enetvar[15];
@@ -103,8 +93,6 @@ static void eth_common_init(void)
 #ifdef CONFIG_PHYLIB
 	phy_init();
 #endif
-
-	eth_env_init();
 
 	/*
 	 * If board-specific initialization exists, call it.
