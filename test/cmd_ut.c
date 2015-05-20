@@ -16,6 +16,9 @@ static cmd_tbl_t cmd_ut_sub[] = {
 #if defined(CONFIG_UT_DM)
 	U_BOOT_CMD_MKENT(dm, CONFIG_SYS_MAXARGS, 1, do_ut_dm, "", ""),
 #endif
+#ifdef CONFIG_UT_TIME
+	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
+#endif
 };
 
 static int do_ut_all(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -58,6 +61,9 @@ static char ut_help_text[] =
 	"all - execute all enabled tests\n"
 #ifdef CONFIG_UT_DM
 	"ut dm [test-name]\n"
+#endif
+#ifdef CONFIG_UT_TIME
+	"ut time - Very basic test of time functions\n"
 #endif
 	;
 #endif

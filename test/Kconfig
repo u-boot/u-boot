@@ -1,10 +1,11 @@
 config UNIT_TEST
 	bool
 
-config CMD_UT_TIME
+config UT_TIME
 	bool "Unit tests for time functions"
+	select UNIT_TEST
 	help
-	  Enables the 'ut_time' command which tests that the time functions
+	  Enables the 'ut time' command which tests that the time functions
 	  work correctly. The test is fairly simple and will not catch all
 	  problems. But if you are having problems with udelay() and the like,
 	  this is a good place to start.

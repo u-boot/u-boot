@@ -116,7 +116,7 @@ static int test_udelay(void)
 	return 0;
 }
 
-static int do_ut_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ut_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = 0;
 
@@ -129,9 +129,3 @@ static int do_ut_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
 }
-
-U_BOOT_CMD(
-	ut_time,	1,	1,	do_ut_time,
-	"Very basic test of time functions",
-	""
-);
