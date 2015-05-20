@@ -109,33 +109,59 @@ int env_attr_walk(const char *attr_list,
 }
 
 /*
- * Search for the last matching string in another string with the option to
- * start looking at a certain point (i.e. ignore anything beyond that point).
+ * Search for the last exactly matching name in an attribute list
  */
-static char *reverse_strstr(const char *searched, const char *search_for,
-	const char *searched_start)
+static int reverse_name_search(const char *searched, const char *search_for,
+	const char **result)
 {
-	char *result = NULL;
+	int result_size = 0;
+	const char *cur_searched = searched;
 
-	if (*search_for == '\0')
-		return (char *)searched;
+	if (result)
+		*result = NULL;
 
-	for (;;) {
-		char *match = strstr(searched, search_for);
-
-		/*
-		 * Stop looking if no new match is found or looking past the
-		 * searched_start pointer
-		 */
-		if (match == NULL || (searched_start != NULL &&
-		    match + strlen(search_for) > searched_start))
-			break;
-
-		result = match;
-		searched = match + 1;
+	if (*search_for == '\0') {
+		if (result)
+			*result = searched;
+		return strlen(searched);
 	}
 
-	return result;
+	for (;;) {
+		const char *match = strstr(cur_searched, search_for);
+		const char *prevch;
+		const char *nextch;
+
+		/* Stop looking if no new match is found */
+		if (match == NULL)
+			break;
+
+		prevch = match - 1;
+		nextch = match + strlen(search_for);
+
+		/* Skip spaces */
+		while (*prevch == ' ' && prevch >= searched)
+			prevch--;
+		while (*nextch == ' ')
+			nextch++;
+
+		/* Start looking past the current match so last is found */
+		cur_searched = match + 1;
+		/* Check for an exact match */
+		if (match != searched &&
+		    *prevch != ENV_ATTR_LIST_DELIM &&
+		    prevch != searched - 1)
+			continue;
+		if (*nextch != ENV_ATTR_SEP &&
+		    *nextch != ENV_ATTR_LIST_DELIM &&
+		    *nextch != '\0')
+			continue;
+
+		if (result)
+			*result = match;
+		result_size = strlen(search_for);
+	}
+
+	return result_size;
 }
 
 /*
@@ -145,6 +171,7 @@ static char *reverse_strstr(const char *searched, const char *search_for,
 int env_attr_lookup(const char *attr_list, const char *name, char *attributes)
 {
 	const char *entry = NULL;
+	int entry_len;
 
 	if (!attributes)
 		/* bad parameter */
@@ -153,32 +180,12 @@ int env_attr_lookup(const char *attr_list, const char *name, char *attributes)
 		/* list not found */
 		return -EINVAL;
 
-	entry = reverse_strstr(attr_list, name, NULL);
-	while (entry != NULL) {
-		const char *prevch = entry - 1;
-		const char *nextch = entry + strlen(name);
-
-		/* Skip spaces */
-		while (*prevch == ' ')
-			prevch--;
-		while (*nextch == ' ')
-			nextch++;
-
-		/* check for an exact match */
-		if ((entry == attr_list ||
-		     *prevch == ENV_ATTR_LIST_DELIM) &&
-		    (*nextch == ENV_ATTR_SEP ||
-		     *nextch == ENV_ATTR_LIST_DELIM ||
-		     *nextch == '\0'))
-			break;
-
-		entry = reverse_strstr(attr_list, name, entry);
-	}
+	entry_len = reverse_name_search(attr_list, name, &entry);
 	if (entry != NULL) {
 		int len;
 
 		/* skip the name */
-		entry += strlen(name);
+		entry += entry_len;
 		/* skip spaces */
 		while (*entry == ' ')
 			entry++;
