@@ -113,15 +113,12 @@
 				"::eth0:off:rw console=ttyS0,115200"
 #endif
 
-#define CONFIG_ETHADDR		00:e0:0c:bc:e5:60
-#define CONFIG_ETH1ADDR	00:e0:0c:bc:e5:61
 #define CONFIG_ETHPRIME	"FEC0"
 #define CONFIG_IPADDR		192.168.1.2
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_SERVERIP	192.168.1.1
 #define CONFIG_GATEWAYIP	192.168.1.1
 
-#define CONFIG_OVERWRITE_ETHADDR_ONCE
 #define CONFIG_SYS_FEC_BUF_USE_SRAM
 /* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
 #ifndef CONFIG_SYS_DISCOVER_PHY

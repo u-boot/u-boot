@@ -300,7 +300,6 @@
 
 #define CONFIG_ULI526X
 #ifdef CONFIG_ULI526X
-#define CONFIG_ETHADDR   00:E0:0C:00:00:01
 #endif
 
 /************************************************************

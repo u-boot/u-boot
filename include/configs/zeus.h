@@ -296,8 +296,6 @@
 #define CONFIG_IPADDR		192.168.1.10
 #define CONFIG_SERVERIP		192.168.1.100
 #define CONFIG_GATEWAYIP	192.168.1.100
-#define CONFIG_ETHADDR		50:00:00:00:06:00
-#define CONFIG_ETH1ADDR		50:00:00:00:06:01
 #if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled        */
 #else

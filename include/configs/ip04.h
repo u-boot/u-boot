@@ -131,7 +131,6 @@
  * Misc Settings
  */
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_MISC_INIT_R	/* needed for MAC address */
 #define CONFIG_UART_CONSOLE	0
 
 #undef CONFIG_SHOW_BOOT_PROGRESS

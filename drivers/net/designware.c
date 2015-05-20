@@ -243,10 +243,6 @@ static int _dw_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 		mdelay(100);
 	};
 
-	/* Soft reset above clears HW address registers.
-	 * So we have to set it here once again */
-	_dw_write_hwaddr(priv, enetaddr);
-
 	rx_descs_init(priv);
 	tx_descs_init(priv);
 

@@ -90,7 +90,6 @@
 	"machid=ffffffff\0" \
 	"fdt_high=0x87000000\0" \
 	"baudrate=115200\0" \
-	"ethaddr=00:50:C2:7E:90:F0\0" \
 	"fec_addr=00:50:C2:7E:90:F0\0" \
 	"netmask=255.255.255.0\0" \
 	"ipaddr=192.168.2.9\0" \

@@ -64,8 +64,6 @@
 #define CONFIG_DRIVER_AX88180	1
 #define AX88180_BASE		0x2c000000
 #define CONFIG_HOSTNAME		ibf-dsp561
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
 
 
 /*

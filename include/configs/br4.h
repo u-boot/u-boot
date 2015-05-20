@@ -69,9 +69,6 @@
 #endif
 #define CONFIG_HOSTNAME		br4
 #define CONFIG_TFTP_BLOCKSIZE	4404
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	5c:38:1a:80:a7:00 */
-
 
 /*
  * Flash Settings

@@ -64,8 +64,6 @@
 #define CONFIG_SMC91111_BASE	0x2C010300
 #define CONFIG_SMC_USE_32_BIT	1
 #define CONFIG_HOSTNAME		bf561-ezkit
-/* Uncomment next line to use fixed MAC address */
-/* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
 
 
 /*

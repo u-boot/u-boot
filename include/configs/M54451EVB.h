@@ -77,13 +77,11 @@
 
 #	define CONFIG_BOOTDELAY	1	/* autoboot after 5 seconds */
 #	define CONFIG_BOOTARGS		"root=/dev/mtdblock1 rw rootfstype=jffs2 ip=none mtdparts=physmap-flash.0:2M(kernel)ro,-(jffs2)"
-#	define CONFIG_ETHADDR		00:e0:0c:bc:e5:60
 #	define CONFIG_ETHPRIME		"FEC0"
 #	define CONFIG_IPADDR		192.162.1.2
 #	define CONFIG_NETMASK		255.255.255.0
 #	define CONFIG_SERVERIP		192.162.1.1
 #	define CONFIG_GATEWAYIP		192.162.1.1
-#	define CONFIG_OVERWRITE_ETHADDR_ONCE
 
 /* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
 #	ifndef CONFIG_SYS_DISCOVER_PHY

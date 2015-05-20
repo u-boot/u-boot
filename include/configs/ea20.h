@@ -242,7 +242,6 @@
 	"rootpath=/opt/eldk/arm\0"					\
 	"splashpos=230,180\0"						\
 	"testrfspath=/opt/eldk/test_arm\0"				\
-	"tempmac=setenv ethaddr 02:ea:20:ff:ff:ff\0"			\
 	"nandargs=setenv bootargs rootfstype=ubifs ro chk_data_crc "	\
 	"ubi.mtd=${as} root=ubi0:rootfs\0"				\
 	"nandrwargs=setenv bootargs rootfstype=ubifs rw chk_data_crc "	\
@@ -315,6 +314,6 @@
 		"fi;"							\
 		"else echo U-Boot not downloaded..exiting;fi\0"	\
 	"ubootupd_nand=echo run load_magic,run load_nand,run upd;\0"	\
-	"bootcmd=run tempmac;run net_testrfs\0"
+	"bootcmd=run net_testrfs\0"
 
 #endif /* __CONFIG_H */

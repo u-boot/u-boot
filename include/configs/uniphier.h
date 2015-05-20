@@ -209,7 +209,6 @@
 /*
  * Network Configuration
  */
-#define CONFIG_ETHADDR			00:21:83:24:00:00
 #define CONFIG_SERVERIP			192.168.11.1
 #define CONFIG_IPADDR			192.168.11.10
 #define CONFIG_GATEWAYIP		192.168.11.1

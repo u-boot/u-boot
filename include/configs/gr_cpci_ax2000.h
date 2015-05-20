@@ -280,7 +280,6 @@
 /*#define CONFIG_SHOW_ACTIVITY*/
 #define CONFIG_NET_RETRY_COUNT		10	/* # of retries          */
 
-#define CONFIG_ETHADDR   00:00:7a:cc:00:13
 #define CONFIG_PHY_ADDR	 0x00
 
 /*

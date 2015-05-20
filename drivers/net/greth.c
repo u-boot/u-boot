@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <net.h>
 #include <netdev.h>
 #include <malloc.h>
@@ -653,13 +654,8 @@ int greth_initialize(bd_t * bis)
 			}
 		}
 	} else {
-		/* HW Address not found in environment, Set default HW address */
-		addr[0] = GRETH_HWADDR_0;	/* MSB */
-		addr[1] = GRETH_HWADDR_1;
-		addr[2] = GRETH_HWADDR_2;
-		addr[3] = GRETH_HWADDR_3;
-		addr[4] = GRETH_HWADDR_4;
-		addr[5] = GRETH_HWADDR_5;	/* LSB */
+		/* No ethaddr set */
+		return -EINVAL;
 	}
 
 	/* set and remember MAC address */

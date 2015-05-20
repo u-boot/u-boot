@@ -350,7 +350,6 @@
 #define	CONFIG_IPADDR		192.168.0.3
 #define	CONFIG_SERVERIP		192.168.0.5
 #define	CONFIG_GATEWAYIP	192.168.0.1
-#define	CONFIG_ETHADDR		00:E0:0C:00:00:FD
 
 /* architecture dependent code */
 #define	CONFIG_SYS_USR_EXCEP	/* user exception */

@@ -2110,18 +2110,6 @@ CBFS (Coreboot Filesystem) support
 		Some PHY like Intel LXT971A need extra delay after
 		command issued before MII status register can be read
 
-- Ethernet address:
-		CONFIG_ETHADDR
-		CONFIG_ETH1ADDR
-		CONFIG_ETH2ADDR
-		CONFIG_ETH3ADDR
-		CONFIG_ETH4ADDR
-		CONFIG_ETH5ADDR
-
-		Define a default value for Ethernet address to use
-		for the respective Ethernet interface, in case this
-		is not determined automatically.
-
 - IP address:
 		CONFIG_IPADDR
 
@@ -2876,8 +2864,8 @@ CBFS (Coreboot Filesystem) support
 		completely disabled. Anybody can change or delete
 		these parameters.
 
-		Alternatively, if you #define _both_ CONFIG_ETHADDR
-		_and_ CONFIG_OVERWRITE_ETHADDR_ONCE, a default
+		Alternatively, if you define _both_ an ethaddr in the
+		default env _and_ CONFIG_OVERWRITE_ETHADDR_ONCE, a default
 		Ethernet address is installed in the environment,
 		which can be changed exactly ONCE by the user. [The
 		serial# is unaffected by this, i. e. it remains
@@ -5626,7 +5614,8 @@ o If both the SROM and the environment contain a MAC address, and the
   warning is printed.
 
 o If neither SROM nor the environment contain a MAC address, an error
-  is raised.
+  is raised. If CONFIG_NET_RANDOM_ETHADDR is defined, then in this case
+  a random, locally-assigned MAC is used.
 
 If Ethernet drivers implement the 'write_hwaddr' function, valid MAC addresses
 will be programmed into hardware as part of the initialization process.	 This

@@ -177,7 +177,6 @@ considered during boot */
 
 /* User network settings */
 
-#define CONFIG_ETHADDR 00:00:00:00:00:09	/* default ethernet MAC addr. */
 #define CONFIG_IPADDR 192.168.100.2		/* default board IP address */
 #define CONFIG_SERVERIP 192.168.100.1	/* default tftp server IP address */
 
