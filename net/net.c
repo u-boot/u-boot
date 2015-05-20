@@ -208,6 +208,9 @@ int __maybe_unused net_busy_flag;
 static int on_bootfile(const char *name, const char *value, enum env_op op,
 	int flags)
 {
+	if (flags & H_PROGRAMMATIC)
+		return 0;
+
 	switch (op) {
 	case env_op_create:
 	case env_op_overwrite:
@@ -221,6 +224,92 @@ static int on_bootfile(const char *name, const char *value, enum env_op op,
 	return 0;
 }
 U_BOOT_ENV_CALLBACK(bootfile, on_bootfile);
+
+static int on_ipaddr(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	if (flags & H_PROGRAMMATIC)
+		return 0;
+
+	net_ip = string_to_ip(value);
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(ipaddr, on_ipaddr);
+
+static int on_gatewayip(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	if (flags & H_PROGRAMMATIC)
+		return 0;
+
+	net_gateway = string_to_ip(value);
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(gatewayip, on_gatewayip);
+
+static int on_netmask(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	if (flags & H_PROGRAMMATIC)
+		return 0;
+
+	net_netmask = string_to_ip(value);
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(netmask, on_netmask);
+
+static int on_serverip(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	if (flags & H_PROGRAMMATIC)
+		return 0;
+
+	net_server_ip = string_to_ip(value);
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(serverip, on_serverip);
+
+static int on_nvlan(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	if (flags & H_PROGRAMMATIC)
+		return 0;
+
+	net_native_vlan = string_to_vlan(value);
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(nvlan, on_nvlan);
+
+static int on_vlan(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	if (flags & H_PROGRAMMATIC)
+		return 0;
+
+	net_our_vlan = string_to_vlan(value);
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(vlan, on_vlan);
+
+#if defined(CONFIG_CMD_DNS)
+static int on_dnsip(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	if (flags & H_PROGRAMMATIC)
+		return 0;
+
+	net_dns_server = string_to_ip(value);
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(dnsip, on_dnsip);
+#endif
 
 /*
  * Check if autoload is enabled. If so, use either NFS or TFTP to download
@@ -252,22 +341,6 @@ void net_auto_load(void)
 
 static void net_init_loop(void)
 {
-	static int env_changed_id;
-	int env_id = get_env_id();
-
-	/* update only when the environment has changed */
-	if (env_changed_id != env_id) {
-		net_ip = getenv_ip("ipaddr");
-		net_gateway = getenv_ip("gatewayip");
-		net_netmask = getenv_ip("netmask");
-		net_server_ip = getenv_ip("serverip");
-		net_native_vlan = getenv_vlan("nvlan");
-		net_our_vlan = getenv_vlan("vlan");
-#if defined(CONFIG_CMD_DNS)
-		net_dns_server = getenv_ip("dnsip");
-#endif
-		env_changed_id = env_id;
-	}
 	if (eth_get_dev())
 		memcpy(net_ethaddr, eth_get_ethaddr(), 6);
 

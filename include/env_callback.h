@@ -37,6 +37,26 @@
 #define ENV_DOT_ESCAPE
 #endif
 
+#ifdef CONFIG_CMD_DNS
+#define DNS_CALLBACK "dnsip:dnsip,"
+#else
+#define DNS_CALLBACK
+#endif
+
+#ifdef CONFIG_NET
+#define NET_CALLBACKS \
+	"bootfile:bootfile," \
+	"ipaddr:ipaddr," \
+	"gatewayip:gatewayip," \
+	"netmask:netmask," \
+	"serverip:serverip," \
+	"nvlan:nvlan," \
+	"vlan:vlan," \
+	DNS_CALLBACK
+#else
+#define NET_CALLBACKS
+#endif
+
 /*
  * This list of callback bindings is static, but may be overridden by defining
  * a new association in the ".callbacks" environment variable.
@@ -44,7 +64,7 @@
 #define ENV_CALLBACK_LIST_STATIC ENV_DOT_ESCAPE ENV_CALLBACK_VAR ":callbacks," \
 	ENV_DOT_ESCAPE ENV_FLAGS_VAR ":flags," \
 	"baudrate:baudrate," \
-	"bootfile:bootfile," \
+	NET_CALLBACKS \
 	"loadaddr:loadaddr," \
 	SILENT_CALLBACK \
 	SPLASHIMAGE_CALLBACK \
