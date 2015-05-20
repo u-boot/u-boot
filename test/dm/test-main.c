@@ -111,6 +111,11 @@ static int dm_test_main(const char *test_name)
 
 	printf("Failures: %d\n", uts->fail_count);
 
+	gd->dm_root = NULL;
+	ut_assertok(dm_init());
+	dm_scan_platdata(false);
+	dm_scan_fdt(gd->fdt_blob, false);
+
 	return uts->fail_count ? CMD_RET_FAILURE : 0;
 }
 
