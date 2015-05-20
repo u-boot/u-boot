@@ -89,6 +89,8 @@ static int dm_test_eth_rotate(struct dm_test_state *dms)
 	/* Invalidate eth1's MAC address */
 	net_ping_ip = string_to_ip("1.1.2.2");
 	strcpy(ethaddr, getenv("eth1addr"));
+	/* Must disable access protection for eth1addr before clearing */
+	setenv(".flags", "eth1addr");
 	setenv("eth1addr", NULL);
 
 	/* Make sure that the default is to rotate to the next interface */
@@ -108,6 +110,7 @@ static int dm_test_eth_rotate(struct dm_test_state *dms)
 
 	/* Invalidate eth0's MAC address */
 	strcpy(ethaddr, getenv("ethaddr"));
+	/* Must disable access protection for ethaddr before clearing */
 	setenv(".flags", "ethaddr");
 	setenv("ethaddr", NULL);
 

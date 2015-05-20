@@ -38,13 +38,18 @@ enum env_flags_varaccess {
 #endif
 
 #ifdef CONFIG_CMD_NET
+#ifdef CONFIG_REGEX
+#define ETHADDR_WILDCARD "\\d?"
+#else
+#define ETHADDR_WILDCARD
+#endif
 #ifdef CONFIG_ENV_OVERWRITE
-#define ETHADDR_FLAGS "ethaddr:ma,"
+#define ETHADDR_FLAGS "eth" ETHADDR_WILDCARD "addr:ma,"
 #else
 #ifdef CONFIG_OVERWRITE_ETHADDR_ONCE
-#define ETHADDR_FLAGS "ethaddr:mc,"
+#define ETHADDR_FLAGS "eth" ETHADDR_WILDCARD "addr:mc,"
 #else
-#define ETHADDR_FLAGS "ethaddr:mo,"
+#define ETHADDR_FLAGS "eth" ETHADDR_WILDCARD "addr:mo,"
 #endif
 #endif
 #else
