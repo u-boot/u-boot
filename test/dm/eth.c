@@ -82,17 +82,9 @@ static int dm_test_eth_prime(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_eth_prime, DM_TESTF_SCAN_FDT);
 
-static int dm_test_eth_rotate(struct unit_test_state *uts)
+/* The asserts include a return on fail; cleanup in the caller */
+static int _dm_test_eth_rotate1(struct unit_test_state *uts)
 {
-	char ethaddr[18];
-
-	/* Invalidate eth1's MAC address */
-	net_ping_ip = string_to_ip("1.1.2.2");
-	strcpy(ethaddr, getenv("eth1addr"));
-	/* Must disable access protection for eth1addr before clearing */
-	setenv(".flags", "eth1addr");
-	setenv("eth1addr", NULL);
-
 	/* Make sure that the default is to rotate to the next interface */
 	setenv("ethact", "eth@10004000");
 	ut_assertok(net_loop(PING));
@@ -104,33 +96,61 @@ static int dm_test_eth_rotate(struct unit_test_state *uts)
 	ut_asserteq(-EINVAL, net_loop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
-	/* Restore the env */
-	setenv("eth1addr", ethaddr);
-	setenv("ethrotate", NULL);
+	return 0;
+}
 
-	/* Invalidate eth0's MAC address */
-	strcpy(ethaddr, getenv("ethaddr"));
-	/* Must disable access protection for ethaddr before clearing */
-	setenv(".flags", "ethaddr");
-	setenv("ethaddr", NULL);
-
+static int _dm_test_eth_rotate2(struct unit_test_state *uts)
+{
 	/* Make sure we can skip invalid devices */
 	setenv("ethact", "eth@10004000");
 	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
+	return 0;
+}
+
+static int dm_test_eth_rotate(struct unit_test_state *uts)
+{
+	char ethaddr[18];
+	int retval;
+
+	/* Set target IP to mock ping */
+	net_ping_ip = string_to_ip("1.1.2.2");
+
+	/* Invalidate eth1's MAC address */
+	strcpy(ethaddr, getenv("eth1addr"));
+	/* Must disable access protection for eth1addr before clearing */
+	setenv(".flags", "eth1addr");
+	setenv("eth1addr", NULL);
+
+	retval = _dm_test_eth_rotate1(uts);
+
 	/* Restore the env */
-	setenv("ethaddr", ethaddr);
+	setenv("eth1addr", ethaddr);
+	setenv("ethrotate", NULL);
+
+	if (!retval) {
+		/* Invalidate eth0's MAC address */
+		strcpy(ethaddr, getenv("ethaddr"));
+		/* Must disable access protection for ethaddr before clearing */
+		setenv(".flags", "ethaddr");
+		setenv("ethaddr", NULL);
+
+		retval = _dm_test_eth_rotate2(uts);
+
+		/* Restore the env */
+		setenv("ethaddr", ethaddr);
+	}
+	/* Restore the env */
 	setenv(".flags", NULL);
 
-	return 0;
+	return retval;
 }
 DM_TEST(dm_test_eth_rotate, DM_TESTF_SCAN_FDT);
 
-static int dm_test_net_retry(struct unit_test_state *uts)
+/* The asserts include a return on fail; cleanup in the caller */
+static int _dm_test_net_retry(struct unit_test_state *uts)
 {
-	net_ping_ip = string_to_ip("1.1.2.2");
-
 	/*
 	 * eth1 is disabled and netretry is yes, so the ping should succeed and
 	 * the active device should be eth0
@@ -152,10 +172,21 @@ static int dm_test_net_retry(struct unit_test_state *uts)
 	ut_asserteq(-ETIMEDOUT, net_loop(PING));
 	ut_asserteq_str("eth@10004000", getenv("ethact"));
 
+	return 0;
+}
+
+static int dm_test_net_retry(struct unit_test_state *uts)
+{
+	int retval;
+
+	net_ping_ip = string_to_ip("1.1.2.2");
+
+	retval = _dm_test_net_retry(uts);
+
 	/* Restore the env */
 	setenv("netretry", NULL);
 	sandbox_eth_disable_response(1, false);
 
-	return 0;
+	return retval;
 }
 DM_TEST(dm_test_net_retry, DM_TESTF_SCAN_FDT);
