@@ -52,8 +52,17 @@ enum env_flags_varaccess {
 #define ETHADDR_FLAGS "eth" ETHADDR_WILDCARD "addr:mo,"
 #endif
 #endif
+#define NET_FLAGS \
+	"ipaddr:i," \
+	"gatewayip:i," \
+	"netmask:i," \
+	"serverip:i," \
+	"nvlan:i," \
+	"vlan:i," \
+	"dnsip:i,"
 #else
-#define ETHADDR_FLAGS ""
+#define ETHADDR_FLAGS
+#define NET_FLAGS
 #endif
 
 #ifndef CONFIG_ENV_OVERWRITE
@@ -64,6 +73,7 @@ enum env_flags_varaccess {
 
 #define ENV_FLAGS_LIST_STATIC \
 	ETHADDR_FLAGS \
+	NET_FLAGS \
 	SERIAL_FLAGS \
 	CONFIG_ENV_FLAGS_LIST_STATIC
 
