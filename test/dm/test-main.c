@@ -24,8 +24,6 @@ static int dm_test_init(struct unit_test_state *uts)
 {
 	struct dm_test_state *dms = uts->priv;
 
-	memset(uts, '\0', sizeof(*uts));
-	uts->priv = dms;
 	memset(dms, '\0', sizeof(*dms));
 	gd->dm_root = NULL;
 	memset(dm_testdrv_op_count, '\0', sizeof(dm_testdrv_op_count));
@@ -106,15 +104,14 @@ static int dm_test_main(const char *test_name)
 		if (test->flags & DM_TESTF_SCAN_FDT)
 			ut_assertok(dm_scan_fdt(gd->fdt_blob, false));
 
-		if (test->func(uts))
-			break;
+		test->func(uts);
 
 		ut_assertok(dm_test_destroy(uts));
 	}
 
 	printf("Failures: %d\n", uts->fail_count);
 
-	return 0;
+	return uts->fail_count ? CMD_RET_FAILURE : 0;
 }
 
 int do_ut_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
