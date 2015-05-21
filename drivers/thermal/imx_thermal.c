@@ -19,6 +19,8 @@
 #include <thermal.h>
 #include <imx_thermal.h>
 
+/* board will busyloop until this many degrees C below CPU max temperature */
+#define TEMPERATURE_HOT_DELTA   5 /* CPU maxT - 5C */
 #define FACTOR0			10000000
 #define FACTOR1			15976
 #define FACTOR2			4297157
@@ -34,7 +36,7 @@
 
 struct thermal_data {
 	unsigned int fuse;
-	int passive;
+	int critical;
 	int minc;
 	int maxc;
 };
@@ -129,9 +131,10 @@ int imx_thermal_get_temp(struct udevice *dev, int *temp)
 
 	cpu_tmp = read_cpu_temperature(dev);
 	while (cpu_tmp > priv->minc && cpu_tmp < priv->maxc) {
-		if (cpu_tmp >= priv->passive) {
-			printf("CPU Temperature is %d C, too hot to boot, waiting...\n",
-			       cpu_tmp);
+		if (cpu_tmp >= priv->critical) {
+			printf("CPU Temperature (%dC) too close to max (%dC)",
+			       cpu_tmp, priv->maxc);
+			puts(" waiting...\n");
 			udelay(5000000);
 			cpu_tmp = read_cpu_temperature(dev);
 		} else {
@@ -164,9 +167,9 @@ static int imx_thermal_probe(struct udevice *dev)
 		return -EPERM;
 	}
 
-	/* set passive cooling temp to max - 20C */
+	/* set critical cooling temp */
 	get_cpu_temp_grade(&priv->minc, &priv->maxc);
-	priv->passive = priv->maxc - 20;
+	priv->critical = priv->maxc - TEMPERATURE_HOT_DELTA;
 	priv->fuse = fuse;
 
 	enable_thermal_clk();
