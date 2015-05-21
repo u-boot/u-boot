@@ -3,6 +3,12 @@ U-Boot for the Gateworks Ventana Product Family boards
 This file contains information for the port of U-Boot to the Gateworks
 Ventana Product family boards.
 
+The entire Ventana product family (http://www.gateworks.com/product#ventana)
+is supported by a single bootloader build by using a common SPL and U-Boot
+that dynamically determines the characterstics of the board at runtime via
+information from an EEPROM on the board programmed at the factory and supports
+all of the various boot mediums available.
+
 1. Secondary Program Loader (SPL)
 ---------------------------------
 
@@ -28,8 +34,20 @@ To build U-Boot for the Gateworks Ventana product family:
  make
 
 
-3. Boot source, boot from NAND
-------------------------------
+3. Boot source:
+---------------
+
+The Gateworks Ventana boards support booting from NAND or micro-SD depending
+on the board model. The IMX6 BOOT ROM will choose a boot media based on eFUSE
+settings programmed at the factory.
+
+Boards with NAND flash will always boot from NAND, and NAND-less boards will
+always boot from micro-SD. However, it is possible to use the U-Boot bmode
+command (or the technique it uses) to essentially bootstrap to another boot
+media at runtime.
+
+3.1. boot from NAND
+-------------------
 
 The i.MX6 BOOT ROM expects some structures that provide details of NAND layout
 and bad block information (referred to as 'bootstreams') which are replicated
@@ -77,7 +95,57 @@ via the mtdparts env var:
  - rootfs: the rest
 
 This information is taken from:
-  http://trac.gateworks.com/wiki/ventana/bootloader#NANDFLASH
+  http://trac.gateworks.com/wiki/ventana/bootloader#nand
+
+More details about the i.MX6 BOOT ROM can be found in the IMX6 reference manual.
+
+3.1. boot from micro-SD
+-----------------------
+
+When the IMX6 eFUSE settings have been factory programmed to boot from
+micro-SD the SPL will be loaded from offset 0x400 (1KB). Once the SPL is
+booted, it will load and execute U-boot (u-boot.img) from offset 69KB
+on the micro-SD (defined by CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR).
+
+While it is technically possible to enable the SPL to be able to load
+U-Boot from a file on a FAT/EXT filesystem on the micro-SD, we chose to
+use raw micro-SD access to keep the code-size and boot time of the SPL down.
+
+For these reasons a micro-SD that will be used as an IMX6 primary boot
+device must be carefully partitioned and prepared.
+
+The following shell commands are executed on a Linux host (adjust DEV to the
+block storage device of your micro-SD):
+
+ DEV=/dev/sdc
+ # zero out 1MB of device
+ sudo dd if=/dev/zero of=$DEV count=1 bs=1M oflag=sync status=none && sync
+ # copy SPL to 1KB offset
+ sudo dd if=SPL of=$DEV bs=1K seek=1 oflag=sync status=none && sync
+ # copy U-Boot to 69KB offset
+ sudo dd if=u-boot.img of=$DEV bs=1K seek=69 oflag=sync status=none && sync
+ # create a partition table with a single rootfs partition starting at 1MB
+ printf "1,,L\n" | sudo sfdisk --in-order --no-reread -L -uM $DEV && sync
+ # format partition
+ sudo mkfs.ext4 -L root ${DEV}1
+ # mount the partition
+ sudo udisks --mount ${DEV}1
+ # extract filesystem
+ sudo tar xvf rootfs.tar.gz -C /media/root
+ # flush and unmount
+ sync && sudo umount /media/root
+
+The above assumes the default Ventana micro-SD partitioning scheme
+ - spl    :   1KB-69KB  (68KB)  required by IMX6 BOOT ROM
+ - uboot  :  69KB-709KB (640KB) defined by
+                                CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+ - env    : 709KB-965KB (256KB) defined by
+                                CONFIG_ENV_MMC_SIZE
+                                CONFIG_ENV_MMC_OFFSET_REDUND
+ - rootfs :   1MB-
+
+This information is taken from:
+  http://trac.gateworks.com/wiki/ventana/bootloader#microsd
 
 More details about the i.MX6 BOOT ROM can be found in the IMX6 reference manual.
 
