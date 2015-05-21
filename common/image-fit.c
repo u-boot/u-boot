@@ -1544,6 +1544,8 @@ static const char *fit_get_image_type_property(int type)
 		return FIT_RAMDISK_PROP;
 	case IH_TYPE_X86_SETUP:
 		return FIT_SETUP_PROP;
+	case IH_TYPE_LOADABLE:
+		return FIT_LOADABLE_PROP;
 	}
 
 	return "unknown";
@@ -1661,7 +1663,13 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	os_ok = image_type == IH_TYPE_FLATDT ||
 		fit_image_check_os(fit, noffset, IH_OS_LINUX) ||
 		fit_image_check_os(fit, noffset, IH_OS_OPENRTOS);
-	if (!type_ok || !os_ok) {
+
+	/*
+	 * If either of the checks fail, we should report an error, but
+	 * if the image type is coming from the "loadables" field, we
+	 * don't care what it is
+	 */
+	if ((!type_ok || !os_ok) && image_type != IH_TYPE_LOADABLE) {
 		fit_image_get_os(fit, noffset, &os);
 		printf("No %s %s %s Image\n",
 		       genimg_get_os_name(os),

@@ -240,6 +240,23 @@ static int bootm_find_fdt(int flag, int argc, char * const argv[])
 }
 #endif
 
+#if defined(CONFIG_FIT)
+static int bootm_find_loadables(int flag, int argc, char * const argv[])
+{
+	int ret;
+
+	/* find all of the loadables */
+	ret = boot_get_loadable(argc, argv, &images, IH_ARCH_DEFAULT,
+			       NULL, NULL);
+	if (ret) {
+		printf("Loadable(s) is corrupt or invalid\n");
+		return 1;
+	}
+
+	return 0;
+}
+#endif
+
 int bootm_find_ramdisk_fdt(int flag, int argc, char * const argv[])
 {
 	if (bootm_find_ramdisk(flag, argc, argv))
@@ -247,6 +264,11 @@ int bootm_find_ramdisk_fdt(int flag, int argc, char * const argv[])
 
 #if defined(CONFIG_OF_LIBFDT)
 	if (bootm_find_fdt(flag, argc, argv))
+		return 1;
+#endif
+
+#if defined(CONFIG_FIT)
+	if (bootm_find_loadables(flag, argc, argv))
 		return 1;
 #endif
 
