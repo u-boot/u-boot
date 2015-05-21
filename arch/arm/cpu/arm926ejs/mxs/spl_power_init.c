@@ -332,6 +332,11 @@ static void mxs_enable_4p2_dcdc_input(int xfer)
 
 	debug("SPL: %s 4P2 DC-DC Input\n", xfer ? "Enabling" : "Disabling");
 
+	if (xfer && (readl(&power_regs->hw_power_5vctrl) &
+			POWER_5VCTRL_ENABLE_DCDC)) {
+		return;
+	}
+
 	prev_5v_brnout = readl(&power_regs->hw_power_5vctrl) &
 				POWER_5VCTRL_PWDN_5VBRNOUT;
 	prev_5v_droop = readl(&power_regs->hw_power_ctrl) &
@@ -342,11 +347,6 @@ static void mxs_enable_4p2_dcdc_input(int xfer)
 		&power_regs->hw_power_reset);
 
 	clrbits_le32(&power_regs->hw_power_ctrl, POWER_CTRL_ENIRQ_VDD5V_DROOP);
-
-	if (xfer && (readl(&power_regs->hw_power_5vctrl) &
-			POWER_5VCTRL_ENABLE_DCDC)) {
-		return;
-	}
 
 	/*
 	 * Recording orignal values that will be modified temporarlily
