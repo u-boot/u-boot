@@ -227,8 +227,6 @@ static void erase_environment(void)
 
 static void rescue_mode(void)
 {
-	uchar enetaddr[6];
-
 	printf("Entering rescue mode..\n");
 	setenv("bootsource", "rescue");
 }
