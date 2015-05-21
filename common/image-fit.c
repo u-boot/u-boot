@@ -1436,6 +1436,7 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 	char *desc;
 	char *uname;
 	int ret;
+	int loadables_index;
 
 	/* Mandatory properties */
 	ret = fit_get_desc(fit, noffset, &desc);
@@ -1460,6 +1461,22 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 	uname = (char *)fdt_getprop(fit, noffset, FIT_FDT_PROP, NULL);
 	if (uname)
 		printf("%s  FDT:          %s\n", p, uname);
+
+	/* Print out all of the specified loadables */
+	for (loadables_index = 0;
+	     !fdt_get_string_index(fit, noffset,
+			FIT_LOADABLE_PROP,
+			loadables_index,
+			(const char **)&uname) > 0;
+	     loadables_index++)
+	{
+		if (loadables_index == 0) {
+			printf("%s  Loadables:    ", p);
+		} else {
+			printf("%s                ", p);
+		}
+		printf("%s\n", uname);
+	}
 }
 
 static int fit_image_select(const void *fit, int rd_noffset, int verify)

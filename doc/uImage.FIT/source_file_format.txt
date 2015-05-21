@@ -235,6 +235,7 @@ o config@1
   |- kernel = "kernel sub-node unit name"
   |- ramdisk = "ramdisk sub-node unit name"
   |- fdt = "fdt sub-node unit-name"
+  |- loadables = "loadables sub-node unit-name"
 
 
   Mandatory properties:
@@ -249,6 +250,9 @@ o config@1
     "fdt type").
   - setup : Unit name of the corresponding setup binary (used for booting
     an x86 kernel). This contains the setup.bin file built by the kernel.
+  - loadables : Unit name containing a list of additional binaries to be
+    loaded at their given locations.  "loadables" is a comma-separated list
+    of strings. U-Boot will load each binary at its given start-address.
 
 The FDT blob is required to properly boot FDT based kernel, so the minimal
 configuration for 2.6 FDT kernel is (kernel, fdt) pair.
