@@ -216,12 +216,7 @@ int cpu_release(int nr, int argc, char * const argv[])
 			printf("R5 lockstep mode\n");
 			set_r5_tcm_mode(LOCK);
 			set_r5_halt_mode(HALT, LOCK);
-
-			if (boot_addr == 0)
-				set_r5_start(0);
-			else
-				set_r5_start(1);
-
+			set_r5_start(boot_addr);
 			enable_clock_r5();
 			release_r5_reset(LOCK);
 			set_r5_halt_mode(RELEASE, LOCK);
