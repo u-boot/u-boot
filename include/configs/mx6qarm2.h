@@ -49,11 +49,6 @@
 
 /* Command definition */
 
-#define CONFIG_BOOTDELAY		3
-
-#define CONFIG_LOADADDR			0x12000000
-#define CONFIG_SYS_TEXT_BASE		0x17800000
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
@@ -141,8 +136,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x10000000
 #define CONFIG_SYS_MEMTEST_END		0x10010000
-
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 #define CONFIG_CMDLINE_EDITING
 

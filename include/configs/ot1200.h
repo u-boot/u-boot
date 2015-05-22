@@ -140,12 +140,7 @@
 
 /* Command definition */
 
-#define CONFIG_BOOTDELAY               2
-
 #define CONFIG_PREBOOT                 ""
-
-#define CONFIG_LOADADDR                0x12000000
-#define CONFIG_SYS_TEXT_BASE           0x17800000
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP
@@ -156,8 +151,6 @@
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS             16
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
-#define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
 
 #define CONFIG_CMDLINE_EDITING
 

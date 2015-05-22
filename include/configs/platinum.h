@@ -150,14 +150,10 @@
 /* Device tree support */
 #define CONFIG_OF_LIBFDT
 
-#define CONFIG_LOADADDR				0x12000000
-#define CONFIG_SYS_TEXT_BASE			0x17800000
-
 #define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
 #define CONFIG_SYS_MEMTEST_END			(CONFIG_SYS_MEMTEST_START + \
 						 PHYS_SDRAM_SIZE - (12 << 20))
 
-#define CONFIG_BOOTDELAY			3
 #define CONFIG_BOOTCOMMAND			"run bootubi_scr"
 
 /* Miscellaneous configurable options */
@@ -175,8 +171,6 @@
 						 sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS			16
 #define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
-
-#define CONFIG_SYS_LOAD_ADDR			CONFIG_LOADADDR
 
 /* MTD/UBI/UBIFS config */
 #define CONFIG_LZO

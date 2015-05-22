@@ -49,11 +49,6 @@
 
 /* Command definition */
 
-#define CONFIG_BOOTDELAY	       3
-
-#define CONFIG_LOADADDR			       0x12000000
-#define CONFIG_SYS_TEXT_BASE	       0x17800000
-
 #define CONFIG_DEFAULT_FDT_FILE "imx6q-congatec.dtb"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -124,8 +119,6 @@
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END	       0x10010000
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
-
-#define CONFIG_SYS_LOAD_ADDR	       CONFIG_LOADADDR
 
 #define CONFIG_CMDLINE_EDITING
 

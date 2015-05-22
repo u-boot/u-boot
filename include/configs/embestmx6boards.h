@@ -97,9 +97,6 @@
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_SETEXPR
 
-#define CONFIG_LOADADDR                        0x12000000
-#define CONFIG_SYS_TEXT_BASE           0x17800000
-
 #define CONFIG_ARP_TIMEOUT     200UL
 
 /* Miscellaneous configurable options */
@@ -114,8 +111,6 @@
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END         0x10010000
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
-
-#define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
 
 #define CONFIG_STACKSIZE               (128 * 1024)
 

@@ -270,8 +270,6 @@
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END	       0x10010000
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
-#define CONFIG_SYS_TEXT_BASE	         0x17800000
-#define CONFIG_SYS_LOAD_ADDR           0x12000000
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS           1
@@ -329,8 +327,6 @@
 #endif
 
 /* Environment */
-#define CONFIG_BOOTDELAY          3
-#define CONFIG_LOADADDR           CONFIG_SYS_LOAD_ADDR
 #define CONFIG_IPADDR             192.168.1.1
 #define CONFIG_SERVERIP           192.168.1.146
 #define HWCONFIG_DEFAULT \

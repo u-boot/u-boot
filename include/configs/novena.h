@@ -77,12 +77,9 @@
 #endif
 
 /* Booting Linux */
-#define CONFIG_BOOTDELAY		5
 #define CONFIG_BOOTFILE			"fitImage"
 #define CONFIG_BOOTARGS			"console=ttymxc1,115200 "
 #define CONFIG_BOOTCOMMAND		"run net_nfs"
-#define CONFIG_LOADADDR			0x18000000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_HOSTNAME			novena
 
 /* Physical Memory Map */
