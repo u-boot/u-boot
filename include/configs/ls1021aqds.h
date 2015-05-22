@@ -124,7 +124,7 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE		0x67f80000
+#define CONFIG_SYS_TEXT_BASE		0x60100000
 #endif
 
 #define CONFIG_NR_DRAM_BANKS		1

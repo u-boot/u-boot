@@ -87,9 +87,7 @@ struct ccsr_ddr {
 	u32	timing_cfg_9;		/* SDRAM Timing Configuration 9 */
 	u8	res_258[0x260-0x258];
 	u32	sdram_cfg_3;
-	u8	res_264[0x2a0-0x264];
-	u32	deskew_cntl;
-	u8	res_2a4[0x400-0x2a4];
+	u8	res_264[0x400-0x264];
 	u32	dq_map_0;
 	u32	dq_map_1;
 	u32	dq_map_2;
