@@ -274,7 +274,7 @@ __weak int arch_reserve_stacks(void);
  *
  * @param size	Size of DRAM (which should be displayed along with other info)
  */
-void board_show_dram(ulong size);
+void board_show_dram(phys_size_t size);
 
 /**
  * arch_fixup_fdt() - Write arch-specific information to fdt
