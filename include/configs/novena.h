@@ -25,7 +25,7 @@
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_SYS_NO_FLASH
 
-#include "configs/mx6_common.h"
+#include "mx6_common.h"
 #include <asm/arch/imx-regs.h>
 #include <asm/imx-common/gpio.h>
 #include <config_cmd_default.h>
