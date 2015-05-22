@@ -24,13 +24,7 @@
 #define CONFIG_MXC_OCOTP
 
 /* MMC Configs */
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_BOUNCE_BUFFER
 
 /* Ethernet Configuration */
 #define CONFIG_FEC_MXC

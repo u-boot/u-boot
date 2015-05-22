@@ -26,7 +26,6 @@
 #define CONFIG_CMD_FUSE
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
@@ -52,13 +51,8 @@
 #define CONFIG_SYS_I2C_SPEED			100000
 
 /* MMC config */
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR		0
 #define CONFIG_SYS_FSL_USDHC_NUM		1
-#define CONFIG_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_BOUNCE_BUFFER
 
 /* Ethernet config */
 #define CONFIG_FEC_MXC

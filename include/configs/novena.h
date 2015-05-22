@@ -27,7 +27,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_FUSE
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_MMC
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
@@ -118,15 +117,8 @@
 #endif
 
 /* MMC Configs */
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_BOUNCE_BUFFER
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	2
-#endif
 
 /* OCOTP Configs */
 #ifdef CONFIG_CMD_FUSE

@@ -93,4 +93,12 @@
 #define CONFIG_MXC_GPIO
 #define CONFIG_CMD_GPIO
 
+/* MMC */
+#define CONFIG_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_BOUNCE_BUFFER
+#define CONFIG_FSL_ESDHC
+#define CONFIG_FSL_USDHC
+
 #endif

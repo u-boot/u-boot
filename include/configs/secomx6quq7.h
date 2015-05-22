@@ -29,15 +29,8 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 500 * SZ_1M)
 
 /* MMC Configuration */
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_USDHC_NUM        2
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
-
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_BOUNCE_BUFFER
 
 /* Ethernet Configuration */
 #define CONFIG_CMD_PING
