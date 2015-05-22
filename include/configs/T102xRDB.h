@@ -395,7 +395,9 @@ unsigned long get_board_ddr_clk(void);
 				| CSOR_NAND_PB(64))	/*Pages Per Block = 64*/
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 #elif defined(CONFIG_T1023RDB)
-#define CONFIG_SYS_NAND_CSOR	(CSOR_NAND_RAL_3	/* RAL 3Bytes */ \
+#define CONFIG_SYS_NAND_CSOR	(CSOR_NAND_ECC_ENC_EN   /* ECC on encode */ \
+				| CSOR_NAND_ECC_DEC_EN  /* ECC on decode */ \
+				| CSOR_NAND_ECC_MODE_4	/* 4-bit ECC */ \
 				| CSOR_NAND_RAL_3	/* RAL 3Bytes */ \
 				| CSOR_NAND_PGS_2K	/* Page Size = 2K */ \
 				| CSOR_NAND_SPRZ_128	/* Spare size = 128 */ \
