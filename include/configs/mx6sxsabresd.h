@@ -12,10 +12,6 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_MX6
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-
 #ifdef CONFIG_SPL
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
@@ -26,7 +22,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(3 * SZ_1M)

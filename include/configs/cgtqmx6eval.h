@@ -13,12 +13,7 @@
 #ifndef __CONFIG_CGTQMX6EVAL_H
 #define __CONFIG_CGTQMX6EVAL_H
 
-#define CONFIG_MX6
-
 #include "mx6_common.h"
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_MACH_TYPE	4122
 

@@ -15,18 +15,11 @@
 
 #include "mx6_common.h"
 
-#define CONFIG_SYS_GENERIC_BOARD
-
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 #define CONFIG_CONSOLE_DEV		"ttymxc1"
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"
 
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
-
-#define CONFIG_MX6
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS

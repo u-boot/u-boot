@@ -9,12 +9,7 @@
 #ifndef __MX6QSABRE_COMMON_CONFIG_H
 #define __MX6QSABRE_COMMON_CONFIG_H
 
-#define CONFIG_MX6
-
 #include "mx6_common.h"
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -22,8 +17,6 @@
 #define CONFIG_REVISION_TAG
 
 #define CONFIG_IMX6_THERMAL
-
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)

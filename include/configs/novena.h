@@ -10,19 +10,15 @@
 #define __CONFIG_H
 
 /* System configurations */
-#define CONFIG_MX6
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MISC_INIT_R
-#define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE
 #define CONFIG_FIT
 #define CONFIG_KEYBOARD
 #define CONFIG_MXC_GPIO
 #define CONFIG_OF_LIBFDT
-#define CONFIG_SYS_GENERIC_BOARD
 
 #include "mx6_common.h"
 

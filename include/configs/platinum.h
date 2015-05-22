@@ -7,8 +7,6 @@
 #ifndef __PLATINUM_CONFIG_H__
 #define __PLATINUM_CONFIG_H__
 
-#define CONFIG_SYS_GENERIC_BOARD
-
 /* SPL */
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
@@ -145,10 +143,6 @@
 /*
  * U-Boot configuration
  */
-
-/* Console boot messages */
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 /* Tag config */
 #define CONFIG_CMDLINE_TAG

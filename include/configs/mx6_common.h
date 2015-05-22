@@ -38,4 +38,12 @@
 #include <asm/imx-common/gpio.h>
 #include <config_cmd_default.h>
 
+#ifndef CONFIG_MX6
+#define CONFIG_MX6
+#endif
+
+#define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_SYS_GENERIC_BOARD
+
 #endif

@@ -33,9 +33,6 @@
 
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
-#define CONFIG_MX6
-#define CONFIG_DISPLAY_CPUINFO         /* display cpu info */
-#define CONFIG_DISPLAY_BOARDINFO_LATE  /* display board info (after reloc) */
 
 #define CONFIG_MACH_TYPE	4520   /* Gateworks Ventana Platform */
 
@@ -45,8 +42,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_SERIAL_TAG
 #define CONFIG_REVISION_TAG
-
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)

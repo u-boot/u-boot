@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MX6
-
 /* SPL */
 /* #if defined(CONFIG_SPL_BUILD) */
 
@@ -31,10 +29,6 @@
 #elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
 #define PHYS_SDRAM_SIZE			(1024u * SZ_1M)
 #endif
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS

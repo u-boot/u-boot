@@ -13,18 +13,11 @@
 #ifndef __ARISTAINETOS_COMMON_CONFIG_H
 #define __ARISTAINETOS_COMMON_CONFIG_H
 
-#define CONFIG_MX6
-
 #include "mx6_common.h"
-
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_MACH_TYPE	4501
 #define CONFIG_MMCROOT		"/dev/mmcblk0p1"
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
-
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(64 * SZ_1M)

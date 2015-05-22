@@ -12,8 +12,6 @@
 #define CONFIG_PLATINUM_PROJECT			"titanium"
 #define CONFIG_PLATINUM_CPU			"imx6q"
 
-#define CONFIG_MX6
-
 #define PHYS_SDRAM_SIZE				(512 << 20)
 #define CONFIG_SYS_NAND_MAX_CHIPS		1
 
