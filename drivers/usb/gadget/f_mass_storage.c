@@ -671,7 +671,7 @@ static int sleep_thread(struct fsg_common *common)
 		if (common->thread_wakeup_needed)
 			break;
 
-		if (++i == 50000) {
+		if (++i == 20000) {
 			busy_indicator();
 			i = 0;
 			k++;
