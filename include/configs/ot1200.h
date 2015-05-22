@@ -15,7 +15,6 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
-#define CONFIG_MXC_GPIO
 
 /* FUSE Configs */
 #define CONFIG_CMD_FUSE

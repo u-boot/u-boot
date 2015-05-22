@@ -52,4 +52,8 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
+/* GPIO */
+#define CONFIG_MXC_GPIO
+#define CONFIG_CMD_GPIO
+
 #endif

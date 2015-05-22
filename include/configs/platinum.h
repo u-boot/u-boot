@@ -26,7 +26,6 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FUSE
-#define CONFIG_CMD_GPIO
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
@@ -43,9 +42,6 @@
 /*
  * Hardware configuration
  */
-
-/* GPIO config */
-#define CONFIG_MXC_GPIO
 
 /* UART config */
 #define CONFIG_MXC_UART

@@ -17,7 +17,6 @@
 #define CONFIG_FAT_WRITE
 #define CONFIG_FIT
 #define CONFIG_KEYBOARD
-#define CONFIG_MXC_GPIO
 #define CONFIG_OF_LIBFDT
 
 #include "mx6_common.h"
