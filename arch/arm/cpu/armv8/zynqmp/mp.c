@@ -183,6 +183,29 @@ static void set_r5_start(u8 high)
 	writel(tmp, &rpu_base->rpu1_cfg);
 }
 
+static void write_tcm_boot_trampoline(u32 boot_addr)
+{
+	if (boot_addr) {
+		/*
+		 * Boot trampoline is simple ASM code below.
+		 *
+		 *		b over;
+		 *	label:
+		 *	.word	0
+		 *	over:	ldr	r0, =label
+		 *		ldr	r1, [r0]
+		 *		bx	r1
+		 */
+		debug("Write boot trampoline for %x\n", boot_addr);
+		writel(0xea000000, ZYNQMP_TCM_START_ADDRESS);
+		writel(boot_addr, ZYNQMP_TCM_START_ADDRESS + 0x4);
+		writel(0xe59f0004, ZYNQMP_TCM_START_ADDRESS + 0x8);
+		writel(0xe5901000, ZYNQMP_TCM_START_ADDRESS + 0xc);
+		writel(0xe12fff11, ZYNQMP_TCM_START_ADDRESS + 0x10);
+		writel(0x00000004, ZYNQMP_TCM_START_ADDRESS + 0x14); // address for
+	}
+}
+
 int cpu_release(int nr, int argc, char * const argv[])
 {
 	if (nr >= ZYNQMP_CORE_APU0 && nr <= ZYNQMP_CORE_APU3) {
@@ -205,11 +228,18 @@ int cpu_release(int nr, int argc, char * const argv[])
 		}
 
 		u32 boot_addr = simple_strtoul(argv[0], NULL, 16);
+		u32 boot_addr_uniq = 0;
 		if (!(boot_addr == ZYNQMP_R5_LOVEC_ADDR ||
 		      boot_addr == ZYNQMP_R5_HIVEC_ADDR)) {
-			printf("Invalid starting address 0x%x\n", boot_addr);
-			printf("0 or 0xffff0000 are permitted\n");
-			return 1;
+			printf("Using TCM jump trampoline for address 0x%x\n",
+			       boot_addr);
+			/* Save boot address for later usage */
+			boot_addr_uniq = boot_addr;
+			/*
+			 * R5 needs to start from LOVEC at TCM
+			 * OCM will be probably occupied by ATF
+			 */
+			boot_addr = ZYNQMP_R5_LOVEC_ADDR;
 		}
 
 		if (!strncmp(argv[1], "lockstep", 8)) {
@@ -219,6 +249,7 @@ int cpu_release(int nr, int argc, char * const argv[])
 			set_r5_start(boot_addr);
 			enable_clock_r5();
 			release_r5_reset(LOCK);
+			write_tcm_boot_trampoline(boot_addr_uniq);
 			set_r5_halt_mode(RELEASE, LOCK);
 		} else if (!strncmp(argv[1], "split", 5)) {
 			printf("R5 split mode\n");
@@ -226,6 +257,7 @@ int cpu_release(int nr, int argc, char * const argv[])
 			set_r5_halt_mode(HALT, SPLIT);
 			enable_clock_r5();
 			release_r5_reset(SPLIT);
+			write_tcm_boot_trampoline(boot_addr_uniq);
 			set_r5_halt_mode(RELEASE, SPLIT);
 		} else {
 			printf("Unsupported mode\n");
