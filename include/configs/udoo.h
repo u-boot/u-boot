@@ -14,11 +14,6 @@
 #define MACH_TYPE_UDOO		4800
 #define CONFIG_MACH_TYPE	MACH_TYPE_UDOO
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(2 * SZ_1M)
 
