@@ -248,23 +248,12 @@
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
-/* serial console (ttymxc1,115200) */
-#define CONFIG_CONS_INDEX              1
-#define CONFIG_BAUDRATE                115200
-
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT	             "Ventana > "
-#define CONFIG_SYS_CBSIZE	             1024
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_HWCONFIG
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS	           16
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 
 /* Memory configuration */
 #define CONFIG_SYS_MEMTEST_START       0x10000000
@@ -299,7 +288,6 @@
 #endif
 
 /* Persistent Environment Config */
-#define CONFIG_ENV_OVERWRITE    /* allow to overwrite serial and ethaddr */
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #else

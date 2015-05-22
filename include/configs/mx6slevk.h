@@ -60,13 +60,6 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
-
-/* Command definition */
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
@@ -142,18 +135,9 @@
 	   "else run netboot; fi"
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE		256
-
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + SZ_512M)
 
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_STACKSIZE		SZ_128K
 
 /* Physical Memory Map */

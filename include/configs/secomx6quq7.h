@@ -21,13 +21,7 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
-
 /* Command definition */
-
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_SETEXPR
 
@@ -93,23 +87,13 @@
 
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT		"SECO MX6Q uQ7 U-Boot > "
-
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE		256
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE +		\
 					 sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
 #define CONFIG_SYS_HZ			1000
-
-#define CONFIG_CMDLINE_EDITING
-
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1

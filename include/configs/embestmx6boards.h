@@ -86,11 +86,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_CONS_INDEX              1
-#define CONFIG_BAUDRATE                        115200
-
 /* Command definition */
 #undef CONFIG_CMD_FPGA
 
@@ -99,14 +94,8 @@
 
 #define CONFIG_ARP_TIMEOUT     200UL
 
-/* Miscellaneous configurable options */
-#define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
-#define CONFIG_SYS_CBSIZE              256
-
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS             16
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END         0x10010000

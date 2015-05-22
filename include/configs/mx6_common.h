@@ -62,6 +62,22 @@
 #define CONFIG_BOOTDELAY	3
 #endif
 
+/* allow to overwrite serial and ethaddr */
+#define CONFIG_ENV_OVERWRITE
+#define CONFIG_CONS_INDEX       1
+#define CONFIG_BAUDRATE         115200
+
+/* Miscellaneous configurable options */
+#define CONFIG_SYS_NO_FLASH
+#undef CONFIG_CMD_IMLS
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_SYS_CBSIZE	512
+#define CONFIG_SYS_MAXARGS	32
+#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
+
 /* GPIO */
 #define CONFIG_MXC_GPIO
 #define CONFIG_CMD_GPIO

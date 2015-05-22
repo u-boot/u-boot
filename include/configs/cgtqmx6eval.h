@@ -42,13 +42,6 @@
 /* Miscellaneous commands */
 #define CONFIG_CMD_BMODE
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_CONS_INDEX	       1
-#define CONFIG_BAUDRATE			       115200
-
-/* Command definition */
-
 #define CONFIG_DEFAULT_FDT_FILE "imx6q-congatec.dtb"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -105,22 +98,14 @@
 	   "else echo ERR: Fail to boot from mmc; fi"
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT	       "CGT-QMX6-Quad U-Boot > "
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE	       256
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS	       16
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END	       0x10010000
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
-
-#define CONFIG_CMDLINE_EDITING
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS	       1

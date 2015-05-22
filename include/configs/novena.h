@@ -46,18 +46,9 @@
 #define CONFIG_VIDEO
 
 /* U-Boot general configurations */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
-#define CONFIG_SYS_MAXARGS	32		/* Max number of command args */
-#define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-						/* Boot argument buffer size */
 #define CONFIG_VERSION_VARIABLE			/* U-BOOT version */
-#define CONFIG_AUTO_COMPLETE			/* Command auto complete */
-#define CONFIG_CMDLINE_EDITING			/* Command history etc */
-#define CONFIG_SYS_HUSH_PARSER
 
 /* U-Boot environment */
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_ENV_SIZE			(16 * 1024)
 /*
  * Environment is on MMC, starting at offset 512KiB from start of the card.
@@ -179,8 +170,6 @@
 /* UART */
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART2_BASE
-#define CONFIG_BAUDRATE			115200
-#define CONFIG_CONS_INDEX		1
 
 /* USB Configs */
 #ifdef CONFIG_CMD_USB

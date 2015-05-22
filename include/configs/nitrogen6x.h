@@ -139,13 +139,6 @@
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_CONS_INDEX	       1
-#define CONFIG_BAUDRATE			       115200
-
-/* Command definition */
-
 #define CONFIG_PREBOOT                 ""
 
 #ifdef CONFIG_CMD_SATA
@@ -302,19 +295,9 @@
 
 #endif
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT	       "U-Boot > "
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE	       1024
-#define CONFIG_SYS_MAXARGS	       48
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END	       0x10010000
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
-
-#define CONFIG_CMDLINE_EDITING
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS	       1

@@ -127,11 +127,6 @@
 #define CONFIG_TFTP_BLOCKSIZE	4096
 #define CONFIG_NFS_READ_SIZE	4096
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
-
 /* Command definition */
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_BOOTZ
@@ -389,21 +384,10 @@
 	"panicboot=echo No boot device !!! reset\0"                            \
 	TQMA6_EXTRA_BOOTDEV_ENV_SETTINGS                                      \
 
-/* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE		512
-
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					 sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_STACKSIZE		(128u * SZ_1K)
 
 /* Physical Memory Map */

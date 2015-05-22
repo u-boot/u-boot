@@ -66,11 +66,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
 
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_CONS_INDEX              1
-#define CONFIG_BAUDRATE                        115200
-
 /* Command definition */
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_BOOTZ
@@ -186,20 +181,10 @@
 
 #define CONFIG_ARP_TIMEOUT     200UL
 
-/* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE              256
-#define CONFIG_SYS_MAXARGS             16
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END         0x10010000
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
 
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_STACKSIZE               (128 * 1024)
 
 /* Physical Memory Map */

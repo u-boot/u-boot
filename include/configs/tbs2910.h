@@ -18,13 +18,7 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT		"Matrix U-Boot> "
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
