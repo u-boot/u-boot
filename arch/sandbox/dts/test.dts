@@ -8,9 +8,11 @@
 
 	aliases {
 		console = &uart0;
+		eth0 = "/eth@10002000";
+		eth5 = &eth_5;
 		i2c0 = "/i2c@0";
-		spi0 = "/spi@0";
 		pci0 = &pci;
+		spi0 = "/spi@0";
 		testfdt6 = "/e-test";
 		testbus3 = "/some-bus";
 		testfdt0 = "/some-bus/c-test@0";
@@ -18,16 +20,9 @@
 		testfdt3 = "/b-test";
 		testfdt5 = "/some-bus/c-test@5";
 		testfdt8 = "/a-test";
-		eth0 = "/eth@10002000";
-		eth5 = &eth_5;
 		usb0 = &usb_0;
 		usb1 = &usb_1;
 		usb2 = &usb_2;
-	};
-
-	uart0: serial {
-		compatible = "sandbox,serial";
-		u-boot,dm-pre-reloc;
 	};
 
 	a-test {
@@ -108,6 +103,24 @@
 		compatible = "denx,u-boot-fdt-test";
 	};
 
+	eth@10002000 {
+		compatible = "sandbox,eth";
+		reg = <0x10002000 0x1000>;
+		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x00>;
+	};
+
+	eth_5: eth@10003000 {
+		compatible = "sandbox,eth";
+		reg = <0x10003000 0x1000>;
+		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x11>;
+	};
+
+	eth@10004000 {
+		compatible = "sandbox,eth";
+		reg = <0x10004000 0x1000>;
+		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x22>;
+	};
+
 	gpio_a: base-gpios {
 		compatible = "sandbox,gpio";
 		gpio-controller;
@@ -175,22 +188,9 @@
 		};
 	};
 
-	eth@10002000 {
-		compatible = "sandbox,eth";
-		reg = <0x10002000 0x1000>;
-		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x00>;
-	};
-
-	eth_5: eth@10003000 {
-		compatible = "sandbox,eth";
-		reg = <0x10003000 0x1000>;
-		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x11>;
-	};
-
-	eth@10004000 {
-		compatible = "sandbox,eth";
-		reg = <0x10004000 0x1000>;
-		fake-host-hwaddr = <0x00 0x00 0x66 0x44 0x22 0x22>;
+	uart0: serial {
+		compatible = "sandbox,serial";
+		u-boot,dm-pre-reloc;
 	};
 
 	usb_0: usb@0 {
