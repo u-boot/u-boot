@@ -12,6 +12,8 @@
 		eth5 = &eth_5;
 		i2c0 = "/i2c@0";
 		pci0 = &pci;
+		rtc0 = &rtc_0;
+		rtc1 = &rtc_1;
 		spi0 = "/spi@0";
 		testfdt6 = "/e-test";
 		testbus3 = "/some-bus";
@@ -150,6 +152,22 @@
 				compatible = "sandbox,i2c-eeprom";
 				sandbox,filename = "i2c.bin";
 				sandbox,size = <256>;
+			};
+		};
+
+		rtc_0: rtc@43 {
+			reg = <0x43>;
+			compatible = "sandbox-rtc";
+			emul {
+				compatible = "sandbox,i2c-rtc";
+			};
+		};
+
+		rtc_1: rtc@61 {
+			reg = <0x61>;
+			compatible = "sandbox-rtc";
+			emul {
+				compatible = "sandbox,i2c-rtc";
 			};
 		};
 
