@@ -104,13 +104,6 @@
 #define CONFIG_MXC_OCOTP
 #define CONFIG_CMD_FUSE
 
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_DOS_PARTITION
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
@@ -129,7 +122,6 @@
 
 /* Command definition */
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_ITEST
 #define CONFIG_CMD_SETEXPR
 

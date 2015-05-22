@@ -29,8 +29,6 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
@@ -140,9 +138,6 @@
 #define CONFIG_ENV_SIZE			(8 * 1024)
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		1
-
-#define CONFIG_OF_LIBFDT
-#define CONFIG_CMD_BOOTZ
 
 /* USB Configs */
 #define CONFIG_CMD_USB

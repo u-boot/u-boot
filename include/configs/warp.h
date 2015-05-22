@@ -35,11 +35,6 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 
 /* Command definition */
 #undef CONFIG_CMD_NET
@@ -76,9 +71,6 @@
 
 /* VDD voltage 1.65 - 1.95 */
 #define CONFIG_SYS_SD_VOLTAGE		0x00000080
-
-#define CONFIG_OF_LIBFDT
-#define CONFIG_CMD_BOOTZ
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 #define CONFIG_CMD_CACHE

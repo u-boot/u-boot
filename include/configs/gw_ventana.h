@@ -127,12 +127,7 @@
 #define CONFIG_BOUNCE_BUFFER
 
 /* Filesystem support */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_UBIFS
-#define CONFIG_DOS_PARTITION
 
 /*
  * SATA Configs
@@ -177,12 +172,10 @@
 #define CONFIG_CMD_BMODE         /* set eFUSE shadow for a boot dev and reset */
 #define CONFIG_CMD_HDMIDETECT    /* detect HDMI output device */
 #define CONFIG_CMD_SETEXPR
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_GSC
 #define CONFIG_CMD_EECONFIG      /* Gateworks EEPROM config cmd */
 #define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
-#define CONFIG_LZO
 #define CONFIG_CMD_FUSE          /* eFUSE read/write support */
 #ifdef CONFIG_CMD_FUSE
 #define CONFIG_MXC_OCOTP
@@ -275,6 +268,7 @@
 /*
  * MTD Command for mtdparts
  */
+#define CONFIG_LZO
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
@@ -467,7 +461,6 @@
 
 /* Device Tree Support */
 #define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_LIBFDT
 #define CONFIG_FDT_FIXUP_PARTITIONS
 
 #ifndef CONFIG_SYS_DCACHE_OFF

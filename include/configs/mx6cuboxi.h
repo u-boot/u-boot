@@ -31,10 +31,6 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 
 /* Ethernet Configuration */
 #define CONFIG_FEC_MXC
@@ -91,7 +87,6 @@
 	"fi;"
 
 /* Command definition */
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_SETEXPR
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE
@@ -223,7 +218,6 @@
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(8 * 64 * 1024)
 
-#define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_CACHE
 
 #endif                         /* __MX6CUBOXI_CONFIG_H */

@@ -67,6 +67,17 @@
 #define CONFIG_CONS_INDEX       1
 #define CONFIG_BAUDRATE         115200
 
+/* Filesystems and image support */
+#define CONFIG_OF_LIBFDT
+#define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
+#define CONFIG_CMD_FS_GENERIC
+#define CONFIG_DOS_PARTITION
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
+#define CONFIG_CMD_FAT
+
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_NO_FLASH
 #undef CONFIG_CMD_IMLS

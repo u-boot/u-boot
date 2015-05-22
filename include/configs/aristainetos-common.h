@@ -38,9 +38,6 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
@@ -67,7 +64,6 @@
 
 /* Command definition */
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_SETEXPR
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -204,8 +200,6 @@
 #define CONFIG_ENV_OFFSET		(0x0d0000)
 #define CONFIG_ENV_OFFSET_REDUND	(0x0e0000)
 
-#define CONFIG_OF_LIBFDT
-
 #define CONFIG_CMD_CACHE
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
@@ -241,7 +235,6 @@
 
 /* USB Configs */
 #define CONFIG_CMD_USB
-#define CONFIG_CMD_FAT
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_STORAGE
@@ -251,11 +244,11 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 /* UBI support */
+#define CONFIG_LZO
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_RBTREE
-#define CONFIG_LZO
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 

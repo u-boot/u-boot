@@ -38,9 +38,6 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 
 /* Ethernet Configuration */
 #define CONFIG_CMD_PING
@@ -117,9 +114,6 @@
 	#define CONFIG_SYS_MMC_ENV_DEV		0
 	#define CONFIG_DYNAMIC_MMC_DEVNO
 #endif
-
-#define CONFIG_OF_LIBFDT
-#define CONFIG_CMD_BOOTZ
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 #define CONFIG_CMD_CACHE

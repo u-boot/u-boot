@@ -35,11 +35,6 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
@@ -68,7 +63,6 @@
 
 /* Command definition */
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_SETEXPR
 
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
@@ -208,8 +202,6 @@
 #if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_ENV_OFFSET		(8 * 64 * 1024)
 #endif
-
-#define CONFIG_OF_LIBFDT
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 #define CONFIG_CMD_CACHE

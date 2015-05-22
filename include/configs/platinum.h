@@ -23,8 +23,6 @@
 
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_FUSE
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
@@ -61,7 +59,6 @@
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
-#define CONFIG_DOS_PARTITION
 
 /* Ethernet config */
 #define CONFIG_FEC_MXC
@@ -141,9 +138,6 @@
 /* Board startup config */
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
-
-/* Device tree support */
-#define CONFIG_OF_LIBFDT
 
 #define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
 #define CONFIG_SYS_MEMTEST_END			(CONFIG_SYS_MEMTEST_START + \
