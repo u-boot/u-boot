@@ -17,7 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 {
-	unsigned long err;
+	unsigned long count;
 	u32 image_size_sectors;
 	struct image_header *header;
 
@@ -25,8 +25,8 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 					 sizeof(struct image_header));
 
 	/* read image header to find the image size & load address */
-	err = mmc->block_dev.block_read(0, sector, 1, header);
-	if (err == 0)
+	count = mmc->block_dev.block_read(0, sector, 1, header);
+	if (count == 0)
 		goto end;
 
 	if (image_get_magic(header) != IH_MAGIC)
@@ -39,24 +39,29 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 			     mmc->read_bl_len;
 
 	/* Read the header too to avoid extra memcpy */
-	err = mmc->block_dev.block_read(0, sector, image_size_sectors,
-					(void *)spl_image.load_addr);
+	count = mmc->block_dev.block_read(0, sector, image_size_sectors,
+					  (void *) spl_image.load_addr);
 
 end:
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-	if (err == 0)
+	if (count == 0)
 		printf("spl: mmc block read error\n");
 #endif
 
-	return (err == 0);
+	if (count == 0)
+		return -1;
+
+	return 0;
 }
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
 static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
 {
 	disk_partition_t info;
+	int err;
 
-	if (get_partition_info(&mmc->block_dev, partition, &info)) {
+	err = get_partition_info(&mmc->block_dev, partition, &info);
+	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("spl: partition error\n");
 #endif
@@ -70,13 +75,13 @@ static int mmc_load_image_raw_partition(struct mmc *mmc, int partition)
 #ifdef CONFIG_SPL_OS_BOOT
 static int mmc_load_image_raw_os(struct mmc *mmc)
 {
-	unsigned long err;
+	unsigned long count;
 
-	err = mmc->block_dev.block_read(0,
-					CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
-					CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS,
-					(void *)CONFIG_SYS_SPL_ARGS_ADDR);
-	if (err == 0) {
+	count = mmc->block_dev.block_read(0,
+		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
+		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS,
+		(void *) CONFIG_SYS_SPL_ARGS_ADDR);
+	if (count == 0) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("spl: mmc block read error\n");
 #endif
