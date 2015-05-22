@@ -14,8 +14,6 @@
 #define __CONFIG_H
 
 #include "mx6_common.h"
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
 
 #define CONFIG_MX6
 #define CONFIG_MX6Q
@@ -93,9 +91,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_BOOTDELAY		3
 
@@ -210,9 +205,6 @@
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
 
 /* Enable NAND support */
 #define CONFIG_CMD_NAND

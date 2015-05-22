@@ -13,11 +13,7 @@
 #ifndef __RIOTBOARD_CONFIG_H
 #define __RIOTBOARD_CONFIG_H
 
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
-
 #include "mx6_common.h"
-#include <linux/sizes.h>
 
 #define CONFIG_SYS_GENERIC_BOARD
 
@@ -108,12 +104,10 @@
 #define CONFIG_BAUDRATE                        115200
 
 /* Command definition */
-#include <config_cmd_default.h>
 #undef CONFIG_CMD_FPGA
 
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_SETEXPR
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_LOADADDR                        0x12000000
 #define CONFIG_SYS_TEXT_BASE           0x17800000
@@ -150,9 +144,7 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
+/* Environment organization */
 #define CONFIG_ENV_SIZE			(8 * 1024)
 
 #if defined(CONFIG_ENV_IS_IN_MMC)

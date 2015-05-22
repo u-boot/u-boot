@@ -11,8 +11,6 @@
 #ifndef __CONFIG_CM_FX6_H
 #define __CONFIG_CM_FX6_H
 
-#include <asm/arch/imx-regs.h>
-#include <config_distro_defaults.h>
 #include "mx6_common.h"
 
 /* Machine config */
@@ -30,14 +28,11 @@
 #define CONFIG_TIMESTAMP
 
 /* CMD */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_GREPENV
-#undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_LOADB
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_XIMG
 #undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_IMLS
 
 /* MMC */
 #define CONFIG_MMC
@@ -77,7 +72,6 @@
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* SPI flash */
-#define CONFIG_SYS_NO_FLASH
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0

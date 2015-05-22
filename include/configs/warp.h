@@ -13,8 +13,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/arch/imx-regs.h>
-#include <linux/sizes.h>
 #include "mx6_common.h"
 
 #define CONFIG_MX6
@@ -59,11 +57,7 @@
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_BAUDRATE			115200
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
 /* Command definition */
-#include <config_cmd_default.h>
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 

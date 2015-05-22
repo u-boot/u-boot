@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <linux/sizes.h>
-
 /* SPL */
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_SUPPORT
@@ -40,9 +38,6 @@
 #define CONFIG_DISPLAY_BOARDINFO_LATE  /* display board info (after reloc) */
 
 #define CONFIG_MACH_TYPE	4520   /* Gateworks Ventana Platform */
-
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
 
 /* ATAGs */
 #define CONFIG_CMDLINE_TAG
@@ -184,8 +179,6 @@
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
@@ -300,9 +293,6 @@
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH  /* no NOR flash */
 
 /*
  * MTD Command for mtdparts

@@ -23,12 +23,8 @@
 #define CONFIG_MXC_GPIO
 #define CONFIG_OF_LIBFDT
 #define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_SYS_NO_FLASH
 
 #include "mx6_common.h"
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
-#include <config_cmd_default.h>
 
 /* U-Boot Commands */
 #define CONFIG_CMD_ASKENV

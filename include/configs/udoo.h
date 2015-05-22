@@ -10,9 +10,6 @@
 #define __CONFIG_H
 
 #include "mx6_common.h"
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
-#include <linux/sizes.h>
 
 #define CONFIG_MX6
 #define CONFIG_DISPLAY_CPUINFO
@@ -71,9 +68,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_SETEXPR
@@ -216,9 +210,7 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
+/* Environment organization */
 #define CONFIG_ENV_SIZE			(8 * 1024)
 
 #define CONFIG_ENV_IS_IN_MMC

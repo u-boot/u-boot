@@ -10,8 +10,6 @@
 #define __TBS2910_CONFIG_H
 
 #include "mx6_common.h"
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
 
 /* General configuration */
 #define CONFIG_MX6
@@ -72,10 +70,6 @@
 #define CONFIG_CONS_INDEX		1
 
 /* *** Command definition *** */
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_IMLS
-
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_MEMTEST
@@ -220,9 +214,7 @@
 #define CONFIG_CMD_CACHE
 #endif
 
-/* Flash and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
+/* Environment organization */
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		2
 #define CONFIG_SYS_MMC_ENV_PART		1

@@ -18,14 +18,11 @@
 
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
 
 /*
  * Console configuration
  */
 
-#include <config_cmd_default.h>
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT2
@@ -33,7 +30,6 @@
 #define CONFIG_CMD_FUSE
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_I2C
-#undef  CONFIG_CMD_IMLS
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_MTDPARTS
@@ -107,9 +103,6 @@
 						 CONFIG_SYS_INIT_SP_OFFSET)
 
 #define CONFIG_SYS_MALLOC_LEN			(16 * 1024 * 1024)
-
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
 
 #ifdef CONFIG_CMD_NAND
 

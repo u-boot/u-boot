@@ -16,13 +16,9 @@
 #define CONFIG_MX6
 
 #include "mx6_common.h"
-#include <linux/sizes.h>
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
-
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
 
 #define CONFIG_MACH_TYPE	4501
 #define CONFIG_MMCROOT		"/dev/mmcblk0p1"
@@ -83,12 +79,9 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_SETEXPR
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_BOOTDELAY		3
 
@@ -229,9 +222,7 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
+/* Environment organization */
 #define CONFIG_ENV_SIZE			(12 * 1024)
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT

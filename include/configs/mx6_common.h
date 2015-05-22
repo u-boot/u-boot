@@ -31,4 +31,11 @@
 #define CONFIG_MP
 #define CONFIG_MXC_GPT_HCLK
 
+#define CONFIG_SYS_NO_FLASH
+
+#include <linux/sizes.h>
+#include <asm/arch/imx-regs.h>
+#include <asm/imx-common/gpio.h>
+#include <config_cmd_default.h>
+
 #endif

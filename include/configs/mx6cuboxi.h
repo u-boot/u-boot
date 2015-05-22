@@ -8,9 +8,6 @@
 #ifndef __MX6CUBOXI_CONFIG_H
 #define __MX6CUBOXI_CONFIG_H
 
-#include <linux/sizes.h>
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
 #include "mx6_common.h"
 
 #define CONFIG_MX6
@@ -107,11 +104,7 @@
 		"setenv stderr serial; " \
 	"fi;"
 
-#define CONFIG_SYS_NO_FLASH
-
 /* Command definition */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_SETEXPR
 
