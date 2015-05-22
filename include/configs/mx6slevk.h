@@ -162,10 +162,6 @@
 #define CONFIG_ENV_IS_IN_MMC
 #endif
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
-#endif
-
 #define CONFIG_CMD_SF
 #ifdef CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH

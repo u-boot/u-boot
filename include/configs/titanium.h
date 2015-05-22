@@ -209,8 +209,4 @@
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
-#endif
-
 #endif			       /* __CONFIG_H */

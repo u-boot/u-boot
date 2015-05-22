@@ -21,7 +21,6 @@
 /* U-Boot Commands */
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C

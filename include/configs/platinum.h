@@ -164,10 +164,6 @@
 				"512k(res2),512k(res3),-(ubi1)"
 #endif
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
-#endif
-
 /*
  * Environment configuration
  */

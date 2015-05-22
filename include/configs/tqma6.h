@@ -393,10 +393,6 @@
 #define CONFIG_FIT
 #define CONFIG_FIT_VERBOSE
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
-#endif
-
 /*
  * All the defines above are for the TQMa6 SoM
  *

@@ -65,10 +65,6 @@
 /* VDD voltage 1.65 - 1.95 */
 #define CONFIG_SYS_SD_VOLTAGE		0x00000080
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
-#endif
-
 /* USB Configs */
 #define CONFIG_CMD_USB
 #ifdef CONFIG_CMD_USB

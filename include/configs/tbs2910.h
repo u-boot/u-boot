@@ -175,10 +175,6 @@
 #define CONFIG_MXC_OCOTP
 #endif
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
-#endif
-
 /* Environment organization */
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		2

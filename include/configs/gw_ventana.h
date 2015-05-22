@@ -457,8 +457,4 @@
 #define CONFIG_OF_BOARD_SETUP
 #define CONFIG_FDT_FIXUP_PARTITIONS
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-  #define CONFIG_CMD_CACHE
-#endif
-
 #endif			       /* __CONFIG_H */

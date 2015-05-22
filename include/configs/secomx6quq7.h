@@ -108,8 +108,4 @@
 	#define CONFIG_DYNAMIC_MMC_DEVNO
 #endif
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
-#endif
-
 #endif /* __CONFIG_H */

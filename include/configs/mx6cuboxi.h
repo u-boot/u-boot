@@ -212,6 +212,4 @@
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(8 * 64 * 1024)
 
-#define CONFIG_CMD_CACHE
-
 #endif                         /* __MX6CUBOXI_CONFIG_H */
