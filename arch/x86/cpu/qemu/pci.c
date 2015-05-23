@@ -7,6 +7,8 @@
 #include <common.h>
 #include <pci.h>
 #include <pci_rom.h>
+#include <asm/pci.h>
+#include <asm/arch/qemu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -50,6 +52,8 @@ int board_pci_post_scan(struct pci_controller *hose)
 	ulong start;
 	pci_dev_t bdf;
 	struct pci_device_id graphic_card[] = { { 0x1234, 0x1111 } };
+	u16 device;
+	int pam, i;
 
 	/*
 	 * QEMU emulated graphic card shows in the PCI configuration space with
@@ -66,6 +70,22 @@ int board_pci_post_scan(struct pci_controller *hose)
 		ret = pci_run_vga_bios(bdf, NULL, PCI_ROM_USE_NATIVE);
 		debug("BIOS ran in %lums\n", get_timer(start));
 	}
+
+	/*
+	 * i440FX and Q35 chipset have different PAM register offset, but with
+	 * the same bitfield layout. Here we determine the offset based on its
+	 * PCI device ID.
+	 */
+	device = x86_pci_read_config16(PCI_BDF(0, 0, 0), PCI_DEVICE_ID);
+	pam = (device == PCI_DEVICE_ID_INTEL_82441) ? I440FX_PAM : Q35_PAM;
+
+	/*
+	 * Initialize Programmable Attribute Map (PAM) Registers
+	 *
+	 * Configure legacy segments C/D/E/F to system RAM
+	 */
+	for (i = 0; i < PAM_NUM; i++)
+		x86_pci_write_config8(PCI_BDF(0, 0, 0), pam + i, PAM_RW);
 
 	return ret;
 }

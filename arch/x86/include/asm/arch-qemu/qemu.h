@@ -7,6 +7,12 @@
 #ifndef _ARCH_QEMU_H_
 #define _ARCH_QEMU_H_
 
+/* Programmable Attribute Map (PAM) Registers */
+#define I440FX_PAM		0x59
+#define Q35_PAM			0x90
+#define PAM_NUM			7
+#define PAM_RW			0x33
+
 /* I/O Ports */
 #define CMOS_ADDR_PORT		0x70
 #define CMOS_DATA_PORT		0x71
