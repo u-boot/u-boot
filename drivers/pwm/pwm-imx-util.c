@@ -21,16 +21,12 @@ struct pwm_regs *pwm_id_to_reg(int pwm_id)
 	switch (pwm_id) {
 	case 0:
 		return (struct pwm_regs *)PWM1_BASE_ADDR;
-		break;
 	case 1:
 		return (struct pwm_regs *)PWM2_BASE_ADDR;
-		break;
 	case 2:
 		return (struct pwm_regs *)PWM3_BASE_ADDR;
-		break;
 	case 3:
 		return (struct pwm_regs *)PWM4_BASE_ADDR;
-		break;
 	default:
 		printf("unknown pwm_id: %d\n", pwm_id);
 		break;
