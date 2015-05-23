@@ -14,6 +14,10 @@
 #define CONFIG_AT32AP7000
 #define CONFIG_ATNGW100
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_EARLY_INIT_R
+
 /*
  * Set up the PLL to run at 140 MHz, the CPU to run at the PLL
  * frequency, the HSB and PBB busses to run at 1/2 the PLL frequency
