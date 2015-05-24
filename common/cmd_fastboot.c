@@ -47,7 +47,7 @@ static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			break;
 		if (ctrlc())
 			break;
-		usb_gadget_handle_interrupts(0);
+		usb_gadget_handle_interrupts(controller_index);
 	}
 
 	ret = CMD_RET_SUCCESS;
