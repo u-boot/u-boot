@@ -13,6 +13,11 @@
 #define PAM_NUM			7
 #define PAM_RW			0x33
 
+/* IDE Timing Register */
+#define IDE0_TIM		0x40
+#define IDE1_TIM		0x42
+#define IDE_DECODE_EN		0x8000
+
 /* I/O Ports */
 #define CMOS_ADDR_PORT		0x70
 #define CMOS_DATA_PORT		0x71

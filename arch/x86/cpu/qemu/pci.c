@@ -8,6 +8,7 @@
 #include <pci.h>
 #include <pci_rom.h>
 #include <asm/pci.h>
+#include <asm/arch/device.h>
 #include <asm/arch/qemu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -86,6 +87,19 @@ int board_pci_post_scan(struct pci_controller *hose)
 	 */
 	for (i = 0; i < PAM_NUM; i++)
 		x86_pci_write_config8(PCI_BDF(0, 0, 0), pam + i, PAM_RW);
+
+	if (device == PCI_DEVICE_ID_INTEL_82441) {
+		/*
+		 * Enable legacy IDE I/O ports decode
+		 *
+		 * Note: QEMU always decode legacy IDE I/O port on PIIX chipset.
+		 * However Linux ata_piix driver does sanity check on these two
+		 * registers to see whether legacy ports decode is turned on.
+		 * This is to make Linux ata_piix driver happy.
+		 */
+		x86_pci_write_config16(PIIX_IDE, IDE0_TIM, IDE_DECODE_EN);
+		x86_pci_write_config16(PIIX_IDE, IDE1_TIM, IDE_DECODE_EN);
+	}
 
 	return ret;
 }
