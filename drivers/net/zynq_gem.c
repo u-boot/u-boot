@@ -569,10 +569,8 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 
 	eth_register(dev);
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 	miiphy_register(dev->name, zynq_gem_miiphyread, zynq_gem_miiphy_write);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
-#endif
 
 	return 1;
 }
