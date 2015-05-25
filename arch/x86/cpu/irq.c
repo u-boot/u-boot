@@ -209,5 +209,8 @@ void pirq_init(void)
 
 u32 write_pirq_routing_table(u32 addr)
 {
+	if (!pirq_routing_table)
+		return addr;
+
 	return copy_pirq_routing_table(addr, pirq_routing_table);
 }
