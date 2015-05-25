@@ -56,7 +56,6 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 
-#define CONFIG_LIB_RAND
 #endif
 
 /*

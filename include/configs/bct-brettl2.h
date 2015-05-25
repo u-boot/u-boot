@@ -73,7 +73,6 @@
 #define CONFIG_GATEWAYIP	192.168.233.1
 #define CONFIG_SERVERIP		192.168.233.53
 #define CONFIG_ROOTPATH		"/romfs/brettl2"
-#define CONFIG_LIB_RAND
 #endif
 
 

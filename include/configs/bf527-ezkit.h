@@ -83,7 +83,6 @@
 #define CONFIG_NETCONSOLE	1
 #endif
 #define CONFIG_HOSTNAME		bf527-ezkit
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings

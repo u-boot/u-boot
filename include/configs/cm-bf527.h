@@ -83,7 +83,6 @@
 #define CONFIG_NETCONSOLE	1
 #endif
 #define CONFIG_HOSTNAME		cm-bf527
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings

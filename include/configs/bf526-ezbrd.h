@@ -85,7 +85,6 @@
 #define CONFIG_NETCONSOLE	1
 #endif
 #define CONFIG_HOSTNAME		bf526-ezbrd
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings

@@ -87,7 +87,6 @@
 #endif
 #define CONFIG_HOSTNAME		bf518f-ezbrd
 #define CONFIG_PHY_ADDR		3
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings

@@ -86,7 +86,6 @@
 
 #define CONFIG_SYS_AUTOLOAD	"no"
 #define CONFIG_ROOTPATH		"/romfs"
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings
