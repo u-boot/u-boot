@@ -50,27 +50,10 @@ void board_pci_setup_hose(struct pci_controller *hose)
 int board_pci_post_scan(struct pci_controller *hose)
 {
 	int ret = 0;
-	ulong start;
-	pci_dev_t bdf;
-	struct pci_device_id graphic_card[] = { { 0x1234, 0x1111 } };
 	u16 device;
 	int pam, i;
-
-	/*
-	 * QEMU emulated graphic card shows in the PCI configuration space with
-	 * PCI vendor id and device id as an artificial pair 0x1234:0x1111.
-	 * It is on PCI bus 0, function 0, but device number is not consistent
-	 * for the two x86 targets it supports. For i440FX and PIIX chipset
-	 * board, it shows as device 2, while for Q35 and ICH9 chipset board,
-	 * it shows as device 1. Here we locate its bdf at run-time based on
-	 * its vendor id and device id pair so we can support both boards.
-	 */
-	bdf = pci_find_devices(graphic_card, 0);
-	if (bdf != -1) {
-		start = get_timer(0);
-		ret = pci_run_vga_bios(bdf, NULL, PCI_ROM_USE_NATIVE);
-		debug("BIOS ran in %lums\n", get_timer(start));
-	}
+	pci_dev_t vga;
+	ulong start;
 
 	/*
 	 * i440FX and Q35 chipset have different PAM register offset, but with
@@ -100,6 +83,19 @@ int board_pci_post_scan(struct pci_controller *hose)
 		x86_pci_write_config16(PIIX_IDE, IDE0_TIM, IDE_DECODE_EN);
 		x86_pci_write_config16(PIIX_IDE, IDE1_TIM, IDE_DECODE_EN);
 	}
+
+	/*
+	 * QEMU emulated graphic card shows in the PCI configuration space with
+	 * PCI vendor id and device id as an artificial pair 0x1234:0x1111.
+	 * It is on PCI bus 0, function 0, but device number is not consistent
+	 * for the two x86 targets it supports. For i440FX and PIIX chipset
+	 * board, it shows as device 2, while for Q35 and ICH9 chipset board,
+	 * it shows as device 1.
+	 */
+	vga = (device == PCI_DEVICE_ID_INTEL_82441) ? I440FX_VGA : Q35_VGA;
+	start = get_timer(0);
+	ret = pci_run_vga_bios(vga, NULL, PCI_ROM_USE_NATIVE);
+	debug("BIOS ran in %lums\n", get_timer(start));
 
 	return ret;
 }
