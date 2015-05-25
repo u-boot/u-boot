@@ -76,4 +76,19 @@
 #define LB_BC			0xd8
 #define LB_RCBA			0xf0
 
+#ifndef __ASSEMBLY__
+
+/* Root Complex Register Block */
+struct quark_rcba {
+	u32	rctl;
+	u32	esd;
+	u32	rsvd1[3150];
+	u16	rmu_ir;
+	u16	d23_ir;
+	u16	core_ir;
+	u16	d20d21_ir;
+};
+
+#endif /* __ASSEMBLY__ */
+
 #endif /* _QUARK_H_ */
