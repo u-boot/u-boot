@@ -483,7 +483,7 @@ int nand_verify_page_oob(nand_info_t *nand, struct mtd_oob_ops *ops, loff_t ofs)
 
 	memcpy(&vops, ops, sizeof(vops));
 
-	vops.datbuf = malloc(verlen);
+	vops.datbuf = memalign(ARCH_DMA_MINALIGN, verlen);
 
 	if (!vops.datbuf)
 		return -ENOMEM;
@@ -520,7 +520,7 @@ int nand_verify(nand_info_t *nand, loff_t ofs, size_t len, u_char *buf)
 	int rval = 0;
 	size_t verofs;
 	size_t verlen = nand->writesize;
-	uint8_t *verbuf = malloc(verlen);
+	uint8_t *verbuf = memalign(ARCH_DMA_MINALIGN, verlen);
 
 	if (!verbuf)
 		return -ENOMEM;
