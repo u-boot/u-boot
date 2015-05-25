@@ -178,6 +178,7 @@ enum fdt_compat_id {
 	COMPAT_INTEL_QRK_MRC,		/* Intel Quark MRC */
 	COMPAT_SOCIONEXT_XHCI,		/* Socionext UniPhier xHCI */
 	COMPAT_INTEL_PCH,		/* Intel PCH */
+	COMPAT_INTEL_IRQ_ROUTER,	/* Intel Interrupt Router */
 
 	COMPAT_COUNT,
 };
