@@ -695,18 +695,14 @@ int misc_init_r(void)
 			*p++ = 0;
 
 			setenv("model_base", str);
-			if (!getenv("fdt_file1")) {
-				sprintf(fdt, "%s-%s.dtb", cputype, str);
-				setenv("fdt_file1", fdt);
-			}
+			sprintf(fdt, "%s-%s.dtb", cputype, str);
+			setenv("fdt_file1", fdt);
 			if (board_type != GW551x && board_type != GW552x)
 				str[4] = 'x';
 			str[5] = 'x';
 			str[6] = 0;
-			if (!getenv("fdt_file2")) {
-				sprintf(fdt, "%s-%s.dtb", cputype, str);
-				setenv("fdt_file2", fdt);
-			}
+			sprintf(fdt, "%s-%s.dtb", cputype, str);
+			setenv("fdt_file2", fdt);
 		}
 
 		/* initialize env from EEPROM */
