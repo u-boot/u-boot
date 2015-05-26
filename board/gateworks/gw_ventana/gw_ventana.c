@@ -157,20 +157,18 @@ static iomux_v3_cfg_t const usb_pads[] = {
 
 int board_ehci_hcd_init(int port)
 {
-	struct ventana_board_info *info = &ventana_info;
 	int gpio;
 
 	SETUP_IOMUX_PADS(usb_pads);
 
-	/* Reset USB HUB (present on GW54xx/GW53xx) */
-	switch (info->model[3]) {
-	case '3': /* GW53xx */
-	case '5': /* GW552x */
-		SETUP_IOMUX_PAD(PAD_GPIO_9__GPIO1_IO09 | DIO_PAD_CFG);
+	/* Reset USB HUB */
+	switch (board_type) {
+	case GW53xx:
+	case GW552x:
 		gpio = (IMX_GPIO_NR(1, 9));
 		break;
-	case '4': /* GW54xx */
-		SETUP_IOMUX_PAD(PAD_SD1_DAT0__GPIO1_IO16 | DIO_PAD_CFG);
+	case GW54proto:
+	case GW54xx:
 		gpio = (IMX_GPIO_NR(1, 16));
 		break;
 	default:
