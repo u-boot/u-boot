@@ -170,6 +170,9 @@ static int bus_i2c_set_bus_speed(struct mxc_i2c_bus *i2c_bus, int speed)
 	u8 idx = i2c_clk_div[clk_idx][1];
 	int reg_shift = quirk ? VF610_I2C_REGSHIFT : IMX_I2C_REGSHIFT;
 
+	if (!base)
+		return -ENODEV;
+
 	/* Store divider value */
 	writeb(idx, base + (IFDR << reg_shift));
 
@@ -351,6 +354,10 @@ static int i2c_init_transfer(struct mxc_i2c_bus *i2c_bus, u8 chip,
 	int ret;
 	int reg_shift = i2c_bus->driver_data & I2C_QUIRK_FLAG ?
 			VF610_I2C_REGSHIFT : IMX_I2C_REGSHIFT;
+
+	if (!i2c_bus->base)
+		return -ENODEV;
+
 	for (retry = 0; retry < 3; retry++) {
 		ret = i2c_init_transfer_(i2c_bus, chip, addr, alen);
 		if (ret >= 0)
@@ -503,35 +510,30 @@ static int bus_i2c_write(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 	return ret;
 }
 
+#if !defined(I2C2_BASE_ADDR)
+#define I2C2_BASE_ADDR	0
+#endif
+
+#if !defined(I2C3_BASE_ADDR)
+#define I2C3_BASE_ADDR	0
+#endif
+
+#if !defined(I2C4_BASE_ADDR)
+#define I2C4_BASE_ADDR	0
+#endif
+
 static struct mxc_i2c_bus mxc_i2c_buses[] = {
-#if defined(CONFIG_MX25)
-	{ 0, IMX_I2C_BASE },
-	{ 1, IMX_I2C2_BASE },
-	{ 2, IMX_I2C3_BASE },
-#elif defined(CONFIG_MX27)
-	{ 0, IMX_I2C1_BASE },
-	{ 1, IMX_I2C2_BASE },
-#elif defined(CONFIG_MX31) || defined(CONFIG_MX35) || \
-	defined(CONFIG_MX51) || defined(CONFIG_MX53) ||	\
-	defined(CONFIG_MX6)
-	{ 0, I2C1_BASE_ADDR },
-	{ 1, I2C2_BASE_ADDR },
-	{ 2, I2C3_BASE_ADDR },
-#elif defined(CONFIG_LS102XA)
-	{ 0, I2C1_BASE_ADDR, I2C_QUIRK_FLAG },
-	{ 1, I2C2_BASE_ADDR, I2C_QUIRK_FLAG },
-	{ 2, I2C3_BASE_ADDR, I2C_QUIRK_FLAG },
-#elif defined(CONFIG_VF610)
-	{ 0, I2C0_BASE_ADDR, I2C_QUIRK_FLAG },
-#elif defined(CONFIG_FSL_LSCH3)
+#if defined(CONFIG_LS102XA) || defined(CONFIG_FSL_LSCH3)
 	{ 0, I2C1_BASE_ADDR, I2C_QUIRK_FLAG },
 	{ 1, I2C2_BASE_ADDR, I2C_QUIRK_FLAG },
 	{ 2, I2C3_BASE_ADDR, I2C_QUIRK_FLAG },
 	{ 3, I2C4_BASE_ADDR, I2C_QUIRK_FLAG },
 #else
-#error "architecture not supported"
+	{ 0, I2C1_BASE_ADDR, 0 },
+	{ 1, I2C2_BASE_ADDR, 0 },
+	{ 2, I2C3_BASE_ADDR, 0 },
+	{ 3, I2C4_BASE_ADDR, 0 },
 #endif
-	{ }
 };
 
 struct mxc_i2c_bus *i2c_get_base(struct i2c_adapter *adap)

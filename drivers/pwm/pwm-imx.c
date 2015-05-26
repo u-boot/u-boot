@@ -18,6 +18,9 @@ int pwm_init(int pwm_id, int div, int invert)
 {
 	struct pwm_regs *pwm = (struct pwm_regs *)pwm_id_to_reg(pwm_id);
 
+	if (!pwm)
+		return -1;
+
 	writel(0, &pwm->ir);
 	return 0;
 }
@@ -27,6 +30,9 @@ int pwm_config(int pwm_id, int duty_ns, int period_ns)
 	struct pwm_regs *pwm = (struct pwm_regs *)pwm_id_to_reg(pwm_id);
 	unsigned long period_cycles, duty_cycles, prescale;
 	u32 cr;
+
+	if (!pwm)
+		return -1;
 
 	pwm_imx_get_parms(period_ns, duty_ns, &period_cycles, &duty_cycles,
 			  &prescale);
@@ -47,6 +53,9 @@ int pwm_enable(int pwm_id)
 {
 	struct pwm_regs *pwm = (struct pwm_regs *)pwm_id_to_reg(pwm_id);
 
+	if (!pwm)
+		return -1;
+
 	setbits_le32(&pwm->cr, PWMCR_EN);
 	return 0;
 }
@@ -54,6 +63,9 @@ int pwm_enable(int pwm_id)
 void pwm_disable(int pwm_id)
 {
 	struct pwm_regs *pwm = (struct pwm_regs *)pwm_id_to_reg(pwm_id);
+
+	if (!pwm)
+		return;
 
 	clrbits_le32(&pwm->cr, PWMCR_EN);
 }

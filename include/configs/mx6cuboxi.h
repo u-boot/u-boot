@@ -8,45 +8,23 @@
 #ifndef __MX6CUBOXI_CONFIG_H
 #define __MX6CUBOXI_CONFIG_H
 
-#include <linux/sizes.h>
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
 #include "mx6_common.h"
 
-#define CONFIG_MX6
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #include "imx6_spl.h"
 
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
 #define CONFIG_IMX6_THERMAL
-#define CONFIG_SYS_GENERIC_BOARD
 
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
-#define CONFIG_MXC_GPIO
 #define CONFIG_MXC_UART
 #define CONFIG_CMD_FUSE
 #define CONFIG_MXC_OCOTP
 
 /* MMC Configs */
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_BOUNCE_BUFFER
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 
 /* Ethernet Configuration */
 #define CONFIG_FEC_MXC
@@ -60,11 +38,6 @@
 #define CONFIG_FEC_MXC_PHYADDR		0
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
 
 /* Framebuffer */
 #define CONFIG_VIDEO
@@ -107,18 +80,8 @@
 		"setenv stderr serial; " \
 	"fi;"
 
-#define CONFIG_SYS_NO_FLASH
-
 /* Command definition */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_SETEXPR
-
-#define CONFIG_BOOTDELAY		1
-
-#define CONFIG_LOADADDR			0x12000000
-#define CONFIG_SYS_TEXT_BASE		0x17800000
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONSOLE_DEV	"ttymxc0"
@@ -229,11 +192,7 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_CBSIZE              256
-#define CONFIG_SYS_MAXARGS             16
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
-#define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
 
 #define CONFIG_CMDLINE_EDITING
 
@@ -252,8 +211,5 @@
 #define CONFIG_ENV_SIZE			(8 * 1024)
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(8 * 64 * 1024)
-
-#define CONFIG_OF_LIBFDT
-#define CONFIG_CMD_CACHE
 
 #endif                         /* __MX6CUBOXI_CONFIG_H */

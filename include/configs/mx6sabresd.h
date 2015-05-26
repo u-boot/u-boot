@@ -9,9 +9,6 @@
 #ifndef __MX6QSABRESD_CONFIG_H
 #define __MX6QSABRESD_CONFIG_H
 
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
-
 #ifdef CONFIG_SPL
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT

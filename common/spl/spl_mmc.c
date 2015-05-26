@@ -76,7 +76,7 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 					CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
 					CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS,
 					(void *)CONFIG_SYS_SPL_ARGS_ADDR);
-	if (err) {
+	if (err == 0) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("spl: mmc block read error\n");
 #endif

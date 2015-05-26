@@ -71,10 +71,10 @@ struct pmic *pfuze_common_init(unsigned char i2cbus)
 	pmic_reg_write(p, PFUZE100_SW1ABSTBY, reg);
 
 	/* Set SW1AB/VDDARM step ramp up time from 16us to 4us/25mV */
-	pmic_reg_read(p, PUZE_100_SW1ABCONF, &reg);
+	pmic_reg_read(p, PFUZE100_SW1ABCONF, &reg);
 	reg &= ~SW1xCONF_DVSSPEED_MASK;
 	reg |= SW1xCONF_DVSSPEED_4US;
-	pmic_reg_write(p, PUZE_100_SW1ABCONF, reg);
+	pmic_reg_write(p, PFUZE100_SW1ABCONF, reg);
 
 	/* Set SW1C standby voltage to 0.975V */
 	pmic_reg_read(p, PFUZE100_SW1CSTBY, &reg);

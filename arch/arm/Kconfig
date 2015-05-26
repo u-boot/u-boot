@@ -499,6 +499,7 @@ config TARGET_UDOO
 config TARGET_WANDBOARD
 	bool "Support wandboard"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_WARP
 	bool "Support WaRP"
@@ -522,6 +523,10 @@ config TARGET_EMBESTMX6BOARDS
 
 config TARGET_ARISTAINETOS
 	bool "Support aristainetos"
+	select CPU_V7
+
+config TARGET_ARISTAINETOS2
+	bool "Support aristainetos2"
 	select CPU_V7
 
 config TARGET_MX6QARM2

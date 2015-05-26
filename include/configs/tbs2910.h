@@ -10,35 +10,15 @@
 #define __TBS2910_CONFIG_H
 
 #include "mx6_common.h"
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
 
 /* General configuration */
-#define CONFIG_MX6
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 #define CONFIG_SYS_THUMB_BUILD
 
 #define CONFIG_MACH_TYPE		3980
 
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
-#define CONFIG_REVISION_TAG
-#define CONFIG_SYS_GENERIC_BOARD
-
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_MXC_GPIO
-#define CONFIG_CMD_GPIO
 
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT		"Matrix U-Boot> "
-#define CONFIG_BOOTDELAY		3
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
@@ -58,9 +38,7 @@
 #define CONFIG_SYS_MEMTEST_END \
 	(CONFIG_SYS_MEMTEST_START + 500 * 1024 * 1024)
 
-#define CONFIG_SYS_TEXT_BASE		0x80000000
 #define CONFIG_SYS_BOOTMAPSZ		0x6C000000
-#define CONFIG_SYS_LOAD_ADDR		0x10800000
 
 /* Serial console */
 #define CONFIG_MXC_UART
@@ -72,38 +50,19 @@
 #define CONFIG_CONS_INDEX		1
 
 /* *** Command definition *** */
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_IMLS
-
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_MEMTEST
 #define CONFIG_CMD_TIME
 
 /* Filesystems / image support */
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_FAT
-#define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
-#define CONFIG_CMD_FS_GENERIC
-
-#define CONFIG_OF_LIBFDT
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_SUPPORT_RAW_INITRD
 #define CONFIG_FIT
 
 /* MMC */
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 #define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC4_BASE_ADDR
-
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
 #define CONFIG_SUPPORT_EMMC_BOOT
-#define CONFIG_BOUNCE_BUFFER
 
 /* Ethernet */
 #define CONFIG_FEC_MXC
@@ -216,13 +175,7 @@
 #define CONFIG_MXC_OCOTP
 #endif
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-#define CONFIG_CMD_CACHE
-#endif
-
-/* Flash and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
+/* Environment organization */
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		2
 #define CONFIG_SYS_MMC_ENV_PART		1

@@ -11,35 +11,36 @@
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_FAT_SUPPORT
-/*
-#define CONFIG_SPL_SATA_SUPPORT
-*/
+#define CONFIG_SPL_POWER_SUPPORT
 /* Location in NAND to read U-Boot from */
-#define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * 1024 * 1024)
+#define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * SZ_1M)
+
+/* Falcon Mode */
+#define CONFIG_CMD_SPL
+#define CONFIG_SPL_OS_BOOT
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SYS_SPL_ARGS_ADDR	0x18000000
+#define CONFIG_CMD_SPL_WRITE_SIZE	(128 * SZ_1K)
+
+/* Falcon Mode - NAND support: args@17MB kernel@18MB */
+#define CONFIG_CMD_SPL_NAND_OFS		(17 * SZ_1M)
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	(18 * SZ_1M)
+
+/* Falcon Mode - MMC support: args@1MB kernel@2MB */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x800	/* 1MB */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	(CONFIG_CMD_SPL_WRITE_SIZE / 512)
+#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x1000	/* 2MB */
 
 #include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
-#define CONFIG_MX6
-#define CONFIG_DISPLAY_CPUINFO         /* display cpu info */
-#define CONFIG_DISPLAY_BOARDINFO_LATE  /* display board info (after reloc) */
 
 #define CONFIG_MACH_TYPE	4520   /* Gateworks Ventana Platform */
 
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
-
-/* ATAGs */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_INITRD_TAG
+/* Serial ATAG */
 #define CONFIG_SERIAL_TAG
-#define CONFIG_REVISION_TAG
-
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 
 /* Init Functions */
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -116,22 +117,11 @@
 #define CONFIG_I2C_EDID
 
 /* MMC Configs */
-#define CONFIG_FSL_ESDHC
-#define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 #define CONFIG_SYS_FSL_USDHC_NUM       1
-#define CONFIG_MMC
-#define CONFIG_CMD_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_BOUNCE_BUFFER
 
 /* Filesystem support */
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
-#define CONFIG_CMD_FAT
 #define CONFIG_CMD_UBIFS
-#define CONFIG_DOS_PARTITION
 
 /*
  * SATA Configs
@@ -169,8 +159,6 @@
 #define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
@@ -178,12 +166,10 @@
 #define CONFIG_CMD_BMODE         /* set eFUSE shadow for a boot dev and reset */
 #define CONFIG_CMD_HDMIDETECT    /* detect HDMI output device */
 #define CONFIG_CMD_SETEXPR
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_GSC
 #define CONFIG_CMD_EECONFIG      /* Gateworks EEPROM config cmd */
 #define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
-#define CONFIG_LZO
 #define CONFIG_CMD_FUSE          /* eFUSE read/write support */
 #ifdef CONFIG_CMD_FUSE
 #define CONFIG_MXC_OCOTP
@@ -249,30 +235,17 @@
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
-/* serial console (ttymxc1,115200) */
-#define CONFIG_CONS_INDEX              1
-#define CONFIG_BAUDRATE                115200
-
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT	             "Ventana > "
-#define CONFIG_SYS_CBSIZE	             1024
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_HWCONFIG
 
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS	           16
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 
 /* Memory configuration */
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END	       0x10010000
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
-#define CONFIG_SYS_TEXT_BASE	         0x17800000
-#define CONFIG_SYS_LOAD_ADDR           0x12000000
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS           1
@@ -286,12 +259,10 @@
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-/* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH  /* no NOR flash */
-
 /*
  * MTD Command for mtdparts
  */
+#define CONFIG_LZO
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
@@ -305,26 +276,26 @@
 #endif
 
 /* Persistent Environment Config */
-#define CONFIG_ENV_OVERWRITE    /* allow to overwrite serial and ethaddr */
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #else
 #define CONFIG_ENV_IS_IN_NAND
 #endif
 #if defined(CONFIG_ENV_IS_IN_MMC)
-  #define CONFIG_ENV_OFFSET              (6 * 64 * 1024)
-  #define CONFIG_ENV_SIZE                (8 * 1024)
   #define CONFIG_SYS_MMC_ENV_DEV         0
+  #define CONFIG_ENV_OFFSET              (709 * SZ_1K)
+  #define CONFIG_ENV_SIZE                (128 * SZ_1K)
+  #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + (128 * SZ_1K))
 #elif defined(CONFIG_ENV_IS_IN_NAND)
-  #define CONFIG_ENV_OFFSET              (16 << 20)
-  #define CONFIG_ENV_SECT_SIZE           (128 << 10)
+  #define CONFIG_ENV_OFFSET              (16 * SZ_1M)
+  #define CONFIG_ENV_SECT_SIZE           (128 * SZ_1K)
   #define CONFIG_ENV_SIZE                CONFIG_ENV_SECT_SIZE
-  #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + (512 << 10))
+  #define CONFIG_ENV_OFFSET_REDUND       (CONFIG_ENV_OFFSET + (512 * SZ_1K))
   #define CONFIG_ENV_SIZE_REDUND         CONFIG_ENV_SIZE
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
-  #define CONFIG_ENV_OFFSET              (512 * 1024)
-  #define CONFIG_ENV_SECT_SIZE           (64 * 1024)
-  #define CONFIG_ENV_SIZE                (8 * 1024)
+  #define CONFIG_ENV_OFFSET		(512 * SZ_1K)
+  #define CONFIG_ENV_SECT_SIZE		(64 * SZ_1K)
+  #define CONFIG_ENV_SIZE		(8 * SZ_1K)
   #define CONFIG_ENV_SPI_BUS             CONFIG_SF_DEFAULT_BUS
   #define CONFIG_ENV_SPI_CS              CONFIG_SF_DEFAULT_CS
   #define CONFIG_ENV_SPI_MODE            CONFIG_SF_DEFAULT_MODE
@@ -332,8 +303,6 @@
 #endif
 
 /* Environment */
-#define CONFIG_BOOTDELAY          3
-#define CONFIG_LOADADDR           CONFIG_SYS_LOAD_ADDR
 #define CONFIG_IPADDR             192.168.1.1
 #define CONFIG_SERVERIP           192.168.1.146
 #define HWCONFIG_DEFAULT \
@@ -486,11 +455,6 @@
 
 /* Device Tree Support */
 #define CONFIG_OF_BOARD_SETUP
-#define CONFIG_OF_LIBFDT
 #define CONFIG_FDT_FIXUP_PARTITIONS
-
-#ifndef CONFIG_SYS_DCACHE_OFF
-  #define CONFIG_CMD_CACHE
-#endif
 
 #endif			       /* __CONFIG_H */
