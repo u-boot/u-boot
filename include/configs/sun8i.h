@@ -20,6 +20,12 @@
 
 #define CONFIG_SUNXI_USB_PHYS	2
 
+#if defined(CONFIG_MACH_SUN8I_A23)
+#define CONFIG_NAND_SUNXI_GPC_PORTS	{16, 17, 18}
+#elif defined(CONFIG_MACH_SUN8I_A33)
+#define CONFIG_NAND_SUNXI_GPC_PORTS	{16}
+#endif
+
 /*
  * Include common sunxi configuration where most the settings are
  */

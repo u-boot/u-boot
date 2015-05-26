@@ -22,6 +22,8 @@
 
 #define CONFIG_SUNXI_USB_PHYS	3
 
+#define CONFIG_NAND_SUNXI_GPC_PORTS	{24, 25, 26}
+
 /*
  * Include common sunxi configuration where most the settings are
  */
