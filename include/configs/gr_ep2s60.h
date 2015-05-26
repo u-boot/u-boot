@@ -259,6 +259,7 @@
 
 /* USE GRETH Ethernet Driver */
 #define CONFIG_GRETH	1
+#endif
 
 #define CONFIG_PHY_ADDR	 0x00
 
