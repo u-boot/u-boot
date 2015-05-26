@@ -811,9 +811,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 		return 0;
 	}
 
-	/* Update partition nodes using info from mtdparts env var */
-	puts("   Updating MTD partitions...\n");
-	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+	if (test_bit(EECONFIG_NAND, info->config)) {
+		/* Update partition nodes using info from mtdparts env var */
+		puts("   Updating MTD partitions...\n");
+		fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+	}
 
 	/* Update display timings from display env var */
 	if (display) {
