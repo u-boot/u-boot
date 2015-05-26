@@ -25,6 +25,11 @@
 # define CONFIG_SYS_PL310_BASE		0xf8f02000
 #endif
 
+#define ZYNQ_SCUTIMER_BASEADDR		0xF8F00600
+#define CONFIG_SYS_TIMERBASE		ZYNQ_SCUTIMER_BASEADDR
+#define CONFIG_SYS_TIMER_COUNTS_DOWN
+#define CONFIG_SYS_TIMER_COUNTER	(CONFIG_SYS_TIMERBASE + 0x4)
+
 /* Serial drivers */
 #define CONFIG_BAUDRATE		115200
 /* The following table includes the supported baudrates */
