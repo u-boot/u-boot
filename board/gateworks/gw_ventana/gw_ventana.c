@@ -685,8 +685,7 @@ int misc_init_r(void)
 		memset(str, 0, sizeof(str));
 		for (i = 0; i < (sizeof(str)-1) && info->model[i]; i++)
 			str[i] = tolower(info->model[i]);
-		if (!getenv("model"))
-			setenv("model", str);
+		setenv("model", str);
 		if (!getenv("fdt_file")) {
 			sprintf(fdt, "%s-%s.dtb", cputype, str);
 			setenv("fdt_file", fdt);
@@ -827,10 +826,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 			printf("   Set display timings for %s...\n", display);
 	}
 
-	if (!model) {
-		puts("invalid board info: Leaving FDT fully enabled\n");
-		return 0;
-	}
 	printf("   Adjusting FDT per EEPROM for %s...\n", model);
 
 	/* board serial number */
