@@ -515,10 +515,8 @@ void board_init_f(ulong dummy)
 	setup_iomux_gpio(board_model, &ventana_info);
 
 	/* provide some some default: 32bit 128MB */
-	if (GW_UNKNOWN == board_model) {
-		ventana_info.sdram_width = 2;
-		ventana_info.sdram_size = 3;
-	}
+	if (GW_UNKNOWN == board_model)
+		hang();
 
 	/* configure MMDC for SDRAM width/size and per-model calibration */
 	spl_dram_init(8 << ventana_info.sdram_width,
