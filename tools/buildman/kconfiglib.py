@@ -429,7 +429,15 @@ class Config():
         If the environment variable 'srctree' was set when the Config was
         created, get_defconfig_filename() will first look relative to that
         directory before looking in the current directory; see
-        Config.__init__()."""
+        Config.__init__().
+
+        WARNING: A wart here is that scripts/kconfig/Makefile sometimes uses the
+        --defconfig=<defconfig> option when calling the C implementation of e.g.
+        'make defconfig'. This option overrides the 'option defconfig_list'
+        symbol, meaning the result from get_defconfig_filename() might not
+        match what 'make defconfig' would use. That probably ought to be worked
+        around somehow, so that this function always gives the "expected"
+        result."""
 
         if self.defconfig_sym is None:
             return None
@@ -506,7 +514,7 @@ class Config():
         For example, if FOO and BAR are tristate symbols at least one of which
         has the value "y", then config.eval("y && (FOO || BAR)") => "y"
 
-        This functions always yields a tristate value. To get the value of
+        This function always yields a tristate value. To get the value of
         non-bool, non-tristate symbols, use Symbol.get_value().
 
         The result of this function is consistent with how evaluation works for
@@ -1066,7 +1074,7 @@ class Config():
                 choice.block = self._parse_block(line_feeder,
                                                  T_ENDCHOICE,
                                                  choice,
-                                                 None,
+                                                 deps,
                                                  visible_if_deps)
 
                 choice._determine_actual_symbols()
@@ -1326,9 +1334,20 @@ error, and you should e-mail kconfiglib@gmail.com.
                 elif tokens.check(T_MODULES):
                     self._warn("the 'modules' option is not supported. "
                                "Let me know if this is a problem for you; "
-                               "it shouldn't be that hard to implement.",
+                               "it shouldn't be that hard to implement. "
+                               "(Note that modules are still supported -- "
+                               "Kconfiglib just assumes the symbol name "
+                               "MODULES.)",
                                filename,
                                linenr)
+
+                elif tokens.check(T_ALLNOCONFIG_Y):
+                    if not isinstance(stmt, Symbol):
+                        _parse_error(line,
+                                     "the 'allnoconfig_y' option is only valid for symbols.",
+                                     filename,
+                                     linenr)
+                    stmt.allnoconfig_y = True
 
                 else:
                     _parse_error(line, "unrecognized option.", filename, linenr)
@@ -2023,8 +2042,8 @@ def _make_and(e1, e2):
  T_OPTIONAL, T_PROMPT, T_DEFAULT,
  T_BOOL, T_TRISTATE, T_HEX, T_INT, T_STRING,
  T_DEF_BOOL, T_DEF_TRISTATE,
- T_SELECT, T_RANGE, T_OPTION, T_ENV,
- T_DEFCONFIG_LIST, T_MODULES, T_VISIBLE) = range(0, 38)
+ T_SELECT, T_RANGE, T_OPTION, T_ALLNOCONFIG_Y, T_ENV,
+ T_DEFCONFIG_LIST, T_MODULES, T_VISIBLE) = range(0, 39)
 
 # Keyword to token map
 keywords = {
@@ -2056,6 +2075,7 @@ keywords = {
         "select"         : T_SELECT,
         "range"          : T_RANGE,
         "option"         : T_OPTION,
+        "allnoconfig_y"  : T_ALLNOCONFIG_Y,
         "env"            : T_ENV,
         "defconfig_list" : T_DEFCONFIG_LIST,
         "modules"        : T_MODULES,
@@ -2080,7 +2100,7 @@ set_re   = re.compile(r"CONFIG_(\w+)=(.*)")
 unset_re = re.compile(r"# CONFIG_(\w+) is not set")
 
 # Regular expression for finding $-references to symbols in strings
-sym_ref_re = re.compile(r"\$[A-Za-z_]+")
+sym_ref_re = re.compile(r"\$[A-Za-z0-9_]+")
 
 # Integers representing symbol types
 UNKNOWN, BOOL, TRISTATE, STRING, HEX, INT = range(0, 6)
@@ -2765,6 +2785,11 @@ class Symbol(Item, _HasVisibility):
         and sym.get_parent().get_selection() is sym'."""
         return self.is_choice_symbol_ and self.parent.get_selection() is self
 
+    def is_allnoconfig_y(self):
+        """Returns True if the symbol has the 'allnoconfig_y' option set;
+        otherwise, returns False."""
+        return self.allnoconfig_y
+
     def __str__(self):
         """Returns a string containing various information about the symbol."""
         return self.config._get_sym_or_choice_str(self)
@@ -2861,6 +2886,9 @@ class Symbol(Item, _HasVisibility):
 
         # Does the symbol get its value from the environment?
         self.is_from_env = False
+
+        # Does the symbol have the 'allnoconfig_y' option set?
+        self.allnoconfig_y = False
 
     def _invalidate(self):
         if self.is_special_:
