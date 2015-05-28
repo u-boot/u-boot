@@ -135,6 +135,13 @@ static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 __attribute__((weak, alias("__get_spd")))
 void get_spd(generic_spd_eeprom_t *spd, u8 i2c_address);
 
+/* This function allows boards to update SPD address */
+__weak void update_spd_address(unsigned int ctrl_num,
+			       unsigned int slot,
+			       unsigned int *addr)
+{
+}
+
 void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
 		      unsigned int ctrl_num, unsigned int dimm_slots_per_ctrl)
 {
@@ -148,6 +155,7 @@ void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
 
 	for (i = 0; i < dimm_slots_per_ctrl; i++) {
 		i2c_address = spd_i2c_addr[ctrl_num][i];
+		update_spd_address(ctrl_num, i, &i2c_address);
 		get_spd(&(ctrl_dimms_spd[i]), i2c_address);
 	}
 }
