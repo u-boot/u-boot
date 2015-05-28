@@ -28,8 +28,8 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #define SPD_EEPROM_ADDRESS1	0x51
 #define SPD_EEPROM_ADDRESS2	0x52
-#define SPD_EEPROM_ADDRESS3	0x54
-#define SPD_EEPROM_ADDRESS4	0x53	/* Board error */
+#define SPD_EEPROM_ADDRESS3	0x53
+#define SPD_EEPROM_ADDRESS4	0x54
 #define SPD_EEPROM_ADDRESS5	0x55
 #define SPD_EEPROM_ADDRESS6	0x56	/* dummy address */
 #define SPD_EEPROM_ADDRESS	SPD_EEPROM_ADDRESS1

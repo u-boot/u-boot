@@ -273,3 +273,22 @@ void qixis_dump_switch(void)
 		printf("SW%d = (0x%02x)\n", i, QIXIS_READ(cms[1]));
 	}
 }
+
+/*
+ * Board rev C and earlier has duplicated I2C addresses for 2nd controller.
+ * Both slots has 0x54, resulting 2nd slot unusable.
+ */
+void update_spd_address(unsigned int ctrl_num,
+			unsigned int slot,
+			unsigned int *addr)
+{
+	u8 sw;
+
+	sw = QIXIS_READ(arch);
+	if ((sw & 0xf) < 0x3) {
+		if (ctrl_num == 1 && slot == 0)
+			*addr = SPD_EEPROM_ADDRESS4;
+		else if (ctrl_num == 1 && slot == 1)
+			*addr = SPD_EEPROM_ADDRESS3;
+	}
+}
