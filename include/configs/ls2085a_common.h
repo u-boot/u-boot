@@ -237,13 +237,13 @@ unsigned long long get_qixis_addr(void);
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_start=0x581200000\0"		\
 	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x1000000\0"		\
+	"kernel_size=0x2000000\0"		\
 	"console=ttyAMA0,38400n8\0"
 
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
 				"earlycon=uart8250,mmio,0x21c0600,115200 " \
-				"default_hugepagesz=2m hugepagesz=2m " \
-				"hugepages=16"
+				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
+				" hugepagesz=2m hugepages=16"
 #define CONFIG_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
 					"$kernel_size && bootm $kernel_load"
 #define CONFIG_BOOTDELAY		10
@@ -289,5 +289,8 @@ unsigned long get_dram_size_to_hide(void);
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
 #define CONFIG_SYS_SPL_MALLOC_START	0x80200000
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
+
+#define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
+
 
 #endif /* __LS2_COMMON_H */
