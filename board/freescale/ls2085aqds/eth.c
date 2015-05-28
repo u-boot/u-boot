@@ -53,7 +53,7 @@ static int riser_phy_addr[] = {
 #define EMI1_SLOT5	4
 #define EMI1_SLOT6	5
 #define EMI2		6
-#define SFP_TX		1
+#define SFP_TX		0
 
 static const char * const mdio_names[] = {
 	"LS2085A_QDS_MDIO0",
