@@ -9,9 +9,6 @@
 
 #include "ls2085a_common.h"
 
-#define CONFIG_IDENT_STRING		" LS2085A-QDS"
-#define CONFIG_BOOTP_VCI_STRING		"U-boot.LS2085A-QDS"
-
 #define CONFIG_DISPLAY_BOARDINFO
 
 #ifndef __ASSEMBLY__

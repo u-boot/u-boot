@@ -49,10 +49,14 @@ int checkboard(void)
 					    "100 separate SSCG"};
 	int clock;
 
+	cpu_name(buf);
+	printf("Board: %s-QDS, ", buf);
+
 	sw = QIXIS_READ(arch);
-	printf("Board: %s, ", CONFIG_IDENT_STRING);
 	printf("Board Arch: V%d, ", sw >> 4);
 	printf("Board version: %c, boot from ", (sw & 0xf) + 'A' - 1);
+
+	memset((u8 *)buf, 0x00, ARRAY_SIZE(buf));
 
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;

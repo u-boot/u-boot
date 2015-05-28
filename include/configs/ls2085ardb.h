@@ -8,8 +8,6 @@
 #define __LS2_RDB_H
 
 #include "ls2085a_common.h"
-#define CONFIG_IDENT_STRING		" LS2085A-RDB"
-#define CONFIG_BOOTP_VCI_STRING		"U-boot.LS2085A-RDB"
 
 #undef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX       2

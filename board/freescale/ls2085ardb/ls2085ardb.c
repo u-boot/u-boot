@@ -52,9 +52,12 @@ unsigned long long get_qixis_addr(void)
 int checkboard(void)
 {
 	u8 sw;
+	char buf[15];
+
+	cpu_name(buf);
+	printf("Board: %s-RDB, ", buf);
 
 	sw = QIXIS_READ(arch);
-	printf("Board: %s, ", CONFIG_IDENT_STRING);
 	printf("Board Arch: V%d, ", sw >> 4);
 	printf("Board version: %c, boot from ", (sw & 0xf) + 'A');
 
