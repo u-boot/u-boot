@@ -298,4 +298,27 @@ unsigned long get_board_sys_clk(void);
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x1000000\0"
 
+/* MAC/PHY configuration */
+#ifdef CONFIG_FSL_MC_ENET
+#define CONFIG_PHYLIB_10G
+#define CONFIG_PHY_CORTINA
+#define CONFIG_PHYLIB
+#define	CONFIG_SYS_CORTINA_FW_IN_NOR
+#define CONFIG_CORTINA_FW_ADDR		0x581000000
+#define CONFIG_CORTINA_FW_LENGTH	0x40000
+
+#define CORTINA_PHY_ADDR1	0x10
+#define CORTINA_PHY_ADDR2	0x11
+#define CORTINA_PHY_ADDR3	0x12
+#define CORTINA_PHY_ADDR4	0x13
+#define AQ_PHY_ADDR1		0x00
+#define AQ_PHY_ADDR2		0x01
+#define AQ_PHY_ADDR3		0x02
+#define AQ_PHY_ADDR4		0x03
+
+#define CONFIG_MII
+#define CONFIG_ETHPRIME		"DPNI1"
+#define CONFIG_PHY_GIGE
+#endif
+
 #endif /* __LS2_RDB_H */
