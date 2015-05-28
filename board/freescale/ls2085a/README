@@ -14,3 +14,14 @@ Memory map from core's view
 
 Other addresses are either reserved, or not used directly by u-boot.
 This list should be updated when more addresses are used.
+
+Booting Linux flavors which do not support 48-bit VA (< Linux 3.18)
+-------------------------------------------------------------------
+One needs to use appropriate bootargs to boot Linux flavors which do
+not support 48-bit VA (for e.g. < Linux 3.18) by appending mem=2048M, as shown
+below:
+
+=> setenv bootargs 'console=ttyS1,115200 root=/dev/ram
+   earlycon=uart8250,mmio,0x21c0600,115200 default_hugepagesz=2m hugepagesz=2m
+   hugepages=16 mem=2048M'
+
