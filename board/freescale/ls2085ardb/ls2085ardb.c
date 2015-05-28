@@ -56,7 +56,7 @@ int checkboard(void)
 	sw = QIXIS_READ(arch);
 	printf("Board: %s, ", CONFIG_IDENT_STRING);
 	printf("Board Arch: V%d, ", sw >> 4);
-	printf("Board version: %c, boot from ", (sw & 0xf) + 'A' - 1);
+	printf("Board version: %c, boot from ", (sw & 0xf) + 'A');
 
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
