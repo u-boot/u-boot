@@ -163,6 +163,7 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
 
 /* Debug Server firmware */
+#define CONFIG_FSL_DEBUG_SERVER
 /* 2 sec timeout */
 #define CONFIG_SYS_DEBUG_SERVER_TIMEOUT			(2 * 1000 * 1000)
 
