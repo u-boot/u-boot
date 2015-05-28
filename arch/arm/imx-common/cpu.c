@@ -145,12 +145,11 @@ const char *get_imx_type(u32 imxtype)
 
 int print_cpuinfo(void)
 {
-	u32 cpurev;
+	u32 cpurev, max_freq;
 
 #if defined(CONFIG_MX6) && defined(CONFIG_IMX6_THERMAL)
 	struct udevice *thermal_dev;
 	int cpu_tmp, minc, maxc, ret;
-	u32 max_freq;
 #endif
 
 	cpurev = get_cpu_rev();
