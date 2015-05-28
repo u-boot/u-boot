@@ -115,18 +115,18 @@ apply_a57_core_errata:
 #ifdef CONFIG_ARM_ERRATA_828024
 	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
 	/* Disable non-allocate hint of w-b-n-a memory type */
-	mov	x0, #0x1 << 49
+	orr	x0, x0, #1 << 49
 	/* Disable write streaming no L1-allocate threshold */
-	mov	x0, #0x3 << 25
+	orr	x0, x0, #3 << 25
 	/* Disable write streaming no-allocate threshold */
-	mov	x0, #0x3 << 27
+	orr	x0, x0, #3 << 27
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_826974
 	mrs	x0, S3_1_c15_c2_0	/* cpuactlr_el1 */
 	/* Disable speculative load execution ahead of a DMB */
-	mov	x0, #0x1 << 59
+	orr	x0, x0, #1 << 59
 	msr	S3_1_c15_c2_0, x0	/* cpuactlr_el1 */
 #endif
 
