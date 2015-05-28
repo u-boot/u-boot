@@ -69,6 +69,10 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 			       "clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
 #endif
 
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif
+
 #if defined(CONFIG_FSL_ESDHC)
 	fdt_fixup_esdhc(blob, bd);
 #endif
