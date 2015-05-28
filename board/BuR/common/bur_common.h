@@ -3,7 +3,7 @@
  *
  * common board information header for B&R boards
  *
- * Copyright (C) 2013 Hannes Petermaier <oe5hpm@oevsv.at>
+ * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at>
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
  *
  * SPDX-License-Identifier:	GPL-2.0+
