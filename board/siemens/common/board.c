@@ -43,6 +43,11 @@ void set_mux_conf_regs(void)
 	/* Initalize the board header */
 	enable_i2c0_pin_mux();
 	i2c_set_bus_num(0);
+
+	/* enable early the console */
+	gd->baudrate = CONFIG_BAUDRATE;
+	serial_init();
+	gd->have_console = 1;
 	if (read_eeprom() < 0)
 		puts("Could not get board ID.\n");
 
