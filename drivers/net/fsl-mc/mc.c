@@ -9,7 +9,6 @@
 #include <fsl-mc/fsl_mc_sys.h>
 #include <fsl-mc/fsl_mc_private.h>
 #include <fsl-mc/fsl_dpmng.h>
-#include <fsl_debug_server.h>
 #include <fsl-mc/fsl_dprc.h>
 #include <fsl-mc/fsl_dpio.h>
 #include <fsl-mc/fsl_qbman_portal.h>
@@ -402,13 +401,6 @@ int mc_init(void)
 		mc_ram_addr =
 			gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;
 	}
-
-#ifdef CONFIG_FSL_DEBUG_SERVER
-	/*
-	 * FIXME: I don't think this is right. See get_dram_size_to_hide()
-	 */
-		mc_ram_addr -= debug_server_get_dram_block_size();
-#endif
 
 	error = calculate_mc_private_ram_params(mc_ram_addr,
 						mc_ram_size,
