@@ -37,6 +37,7 @@ ifndef CONFIG_SPL_BUILD
 ifdef CONFIG_ARMV7_PSCI
 obj-$(CONFIG_MACH_SUN6I)	+= psci_sun6i.o
 obj-$(CONFIG_MACH_SUN7I)	+= psci_sun7i.o
+obj-$(CONFIG_MACH_SUN8I)	+= psci_sun6i.o
 endif
 endif
 
