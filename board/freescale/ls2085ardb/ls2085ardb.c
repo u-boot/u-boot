@@ -10,6 +10,7 @@
 #include <fsl_ifc.h>
 #include <fsl_ddr.h>
 #include <asm/io.h>
+#include <hwconfig.h>
 #include <fdt_support.h>
 #include <libfdt.h>
 #include <fsl_debug_server.h>
@@ -21,7 +22,14 @@
 #include "../common/qixis.h"
 #include "ls2085ardb_qixis.h"
 
+#define PIN_MUX_SEL_SDHC	0x00
+
+#define SET_SDHC_MUX_SEL(reg, value)	((reg & 0xf0) | value)
 DECLARE_GLOBAL_DATA_PTR;
+
+enum {
+	MUX_TYPE_SDHC,
+};
 
 unsigned long long get_qixis_addr(void)
 {
@@ -126,6 +134,34 @@ int board_init(void)
 int board_early_init_f(void)
 {
 	fsl_lsch3_early_init_f();
+	return 0;
+}
+
+int config_board_mux(int ctrl_type)
+{
+	u8 reg5;
+
+	reg5 = QIXIS_READ(brdcfg[5]);
+
+	switch (ctrl_type) {
+	case MUX_TYPE_SDHC:
+		reg5 = SET_SDHC_MUX_SEL(reg5, PIN_MUX_SEL_SDHC);
+		break;
+	default:
+		printf("Wrong mux interface type\n");
+		return -1;
+	}
+
+	QIXIS_WRITE(brdcfg[5], reg5);
+
+	return 0;
+}
+
+int misc_init_r(void)
+{
+	if (hwconfig("sdhc"))
+		config_board_mux(MUX_TYPE_SDHC);
+
 	return 0;
 }
 

@@ -284,6 +284,8 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_DOS_PARTITION
 #endif
 
+#define CONFIG_MISC_INIT_R
+
 /* Initial environment variables */
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS		\
