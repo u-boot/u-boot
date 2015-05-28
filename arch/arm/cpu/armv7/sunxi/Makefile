@@ -35,7 +35,7 @@ obj-$(CONFIG_AXP221_POWER)	+= pmic_bus.o
 
 ifndef CONFIG_SPL_BUILD
 ifdef CONFIG_ARMV7_PSCI
-obj-y	+= psci.o
+obj-$(CONFIG_MACH_SUN7I)	+= psci_sun7i.o
 endif
 endif
 
