@@ -210,6 +210,7 @@ static void initialize_dpmac_to_slot(void)
 	switch (serdes2_prtcl) {
 	case 0x07:
 	case 0x08:
+	case 0x49:
 		printf("qds: WRIOP: Supported SerDes Protocol 0x%02x\n",
 		       serdes2_prtcl);
 		lane_to_slot_fsm2[0] = EMI1_SLOT4;
@@ -247,6 +248,7 @@ void ls2085a_handle_phy_interface_sgmii(int dpmac_id)
 	switch (serdes2_prtcl) {
 	case 0x07:
 	case 0x08:
+	case 0x49:
 		lane = serdes_get_first_lane(FSL_SRDS_2, SGMII9 +
 							(dpmac_id - 9));
 		slot = lane_to_slot_fsm2[lane];
