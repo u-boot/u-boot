@@ -186,7 +186,8 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_PCIE2		/* PCIE controler 2 */
 #define CONFIG_PCIE3		/* PCIE controler 3 */
 #define CONFIG_PCIE4		/* PCIE controler 4 */
-#define FSL_PCIE_COMPAT "fsl,20851a-pcie"
+#define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
+#define FSL_PCIE_COMPAT "fsl,ls2085a-pcie"
 
 #define CONFIG_SYS_PCI_64BIT
 
