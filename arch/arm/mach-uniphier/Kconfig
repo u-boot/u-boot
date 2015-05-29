@@ -8,7 +8,7 @@ config UNIPHIER_SMP
 
 choice
 	prompt "UniPhier SoC select"
-	optional
+	default MACH_PH1_PRO4
 
 config MACH_PH1_PRO4
 	bool "PH1-Pro4"
