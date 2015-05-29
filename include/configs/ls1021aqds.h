@@ -432,18 +432,30 @@ unsigned long get_board_ddr_clk(void);
 /*
  * USB
  */
-#define CONFIG_HAS_FSL_DR_USB
+/* EHCI Support - disbaled by default */
+/*#define CONFIG_HAS_FSL_DR_USB*/
 
 #ifdef CONFIG_HAS_FSL_DR_USB
 #define CONFIG_USB_EHCI
-
-#ifdef CONFIG_USB_EHCI
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#define CONFIG_CMD_EXT2
 #endif
+
+/*XHCI Support - enabled by default*/
+#define CONFIG_HAS_FSL_XHCI_USB
+
+#ifdef CONFIG_HAS_FSL_XHCI_USB
+#define CONFIG_USB_XHCI_FSL
+#define CONFIG_USB_XHCI_DWC3
+#define CONFIG_USB_XHCI
+#define CONFIG_USB_MAX_CONTROLLER_COUNT		1
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
+#endif
+
+#if defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_XHCI_USB)
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#define CONFIG_CMD_EXT2
 #endif
 
 /*
