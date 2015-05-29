@@ -250,6 +250,8 @@
 /* Open Firmware flat tree */
 #define CONFIG_OF_LIBFDT
 
+#define CONFIG_LIB_RAND
+
 #define CONFIG_HAVE_ARM_SECURE
 
 /* Memory Size & Mapping */
