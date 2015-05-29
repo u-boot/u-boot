@@ -1,8 +1,7 @@
 /*
  * UniPhier DDR PHY registers
  *
- * Copyright (C) 2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -37,7 +36,10 @@ struct ddrphy {
 	u32 dtar[4];		/* Data Training Address Register */
 	u32 dtdr[2];		/* Data Training Data Register */
 	u32 dtedr[2];		/* Data Training Eye Data Register */
-	u32 rsv0[13];		/* Reserved */
+	u32 pgcr2;		/* PHY General Configuration Register 2 */
+	u32 rsv0[8];		/* Reserved */
+	u32 rdimmgcr[2];	/* RDIMM General Configuration Register */
+	u32 rdimmcr0[2];	/* RDIMM Control Register */
 	u32 dcuar;		/* DCU Address Register */
 	u32 dcudr;		/* DCU Data Register */
 	u32 dcurr;		/* DCU Run Register */
@@ -70,7 +72,8 @@ struct ddrphy {
 		u32 lcdlr[3];	/* Local Calibrated Delay Line Register */
 		u32 mdlr;	/* Master Delay Line Register */
 		u32 gtr;	/* General Timing Register */
-		u32 rsv[3];	/* Reserved */
+		u32 gsr2;	/* General Status Register 2 */
+		u32 rsv[2];	/* Reserved */
 	} dx[9];
 };
 
