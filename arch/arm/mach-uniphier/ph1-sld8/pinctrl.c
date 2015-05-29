@@ -45,7 +45,7 @@ void pin_init(void)
 	sg_set_pinsel(42, 0);	/* USB0OD   -> USB0OD */
 	sg_set_pinsel(43, 0);	/* USB1VBUS -> USB1VBUS */
 	sg_set_pinsel(44, 0);	/* USB1OD   -> USB1OD */
-	/* sg_set_pinsel(114, 4); */ /* TXD1 -> USB2VBUS (shared with UART) */
-	/* sg_set_pinsel(115, 4); */ /* RXD1 -> USB2OD */
+	/* sg_set_pinsel(114, 1); */ /* TXD1 -> USB2VBUS (shared with UART) */
+	/* sg_set_pinsel(115, 1); */ /* RXD1 -> USB2OD */
 #endif
 }
