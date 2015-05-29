@@ -77,7 +77,8 @@ config DEBUG_UART_SHIFT
 	  registers, 2=32-bit word registers, etc.
 
 config UNIPHIER_SERIAL
-	bool "UniPhier on-chip UART support"
+	bool "Support for UniPhier on-chip UART"
 	depends on ARCH_UNIPHIER && DM_SERIAL
 	help
-	  Support for the on-chip UARTs on the Panasonic UniPhier platform.
+	  If you have a UniPhier based board and want to use the on-chip
+	  serial ports, say Y to this option. If unsure, say N.

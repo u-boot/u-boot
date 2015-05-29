@@ -786,7 +786,7 @@ config TARGET_JORNADA
 	select CPU_SA1100
 
 config ARCH_UNIPHIER
-	bool "Panasonic UniPhier platform"
+	bool "Socionext UniPhier SoCs"
 	select CPU_V7
 	select SUPPORT_SPL
 	select SPL
@@ -794,6 +794,9 @@ config ARCH_UNIPHIER
 	select DM
 	select DM_SERIAL
 	select DM_I2C
+	help
+	  Support for UniPhier SoC family developed by Socionext Inc.
+	  (formerly, System LSI Business Division of Panasonic Corporation)
 
 config TARGET_STM32F429_DISCOVERY
 	bool "Support STM32F429 Discovery"
