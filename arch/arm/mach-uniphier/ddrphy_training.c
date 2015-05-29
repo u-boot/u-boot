@@ -1,12 +1,11 @@
 /*
- * Copyright (C) 2011-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <asm/io.h>
+#include <linux/io.h>
 #include <mach/ddrphy-regs.h>
 
 void ddrphy_prepare_training(struct ddrphy __iomem *phy, int rank)

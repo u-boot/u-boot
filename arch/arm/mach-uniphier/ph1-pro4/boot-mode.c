@@ -1,13 +1,12 @@
 /*
- * Copyright (C) 2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <spl.h>
-#include <asm/io.h>
+#include <linux/io.h>
 #include <mach/boot-device.h>
 #include <mach/sg-regs.h>
 #include <mach/sbc-regs.h>

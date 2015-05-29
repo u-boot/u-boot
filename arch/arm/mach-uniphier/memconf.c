@@ -1,13 +1,12 @@
 /*
- * Copyright (C) 2011-2015 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <linux/sizes.h>
-#include <asm/io.h>
+#include <linux/io.h>
 #include <mach/sg-regs.h>
 
 static inline u32 sg_memconf_val_ch0(unsigned long size, int num)
