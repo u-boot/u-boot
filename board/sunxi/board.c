@@ -299,12 +299,8 @@ int board_mmc_init(bd_t *bis)
 	 * Both mmc0 and mmc2 are bootable, figure out where we're booting
 	 * from. Try mmc0 first, just like the brom does.
 	 */
-	if (mmc_getcd(mmc0) && mmc_init(mmc0) == 0 &&
-	    mmc0->block_dev.block_read(0, 16, 1, buf) == 1) {
-		buf[12] = 0;
-		if (strcmp(&buf[4], "eGON.BT0") == 0)
-			return 0;
-	}
+	if (sunxi_mmc_has_egon_boot_signature(mmc0))
+		return 0;
 
 	/* no bootable card in mmc0, so we must be booting from mmc2, swap */
 	mmc0->block_dev.dev = 1;
