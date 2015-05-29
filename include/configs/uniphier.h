@@ -1,7 +1,5 @@
 /*
- * Copyright (C) 2012-2015 Panasonic Corporation
- * Copyright (C) 2015      Socionext Inc.
- *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -265,8 +263,6 @@
 #define CONFIG_NR_DRAM_BANKS		2
 #define CONFIG_SYS_SDRAM_SIZE	(CONFIG_SDRAM0_SIZE)
 #endif
-
-#define CONFIG_SYS_TEXT_BASE		0x84000000
 
 #if defined(CONFIG_MACH_PH1_LD4) || defined(CONFIG_MACH_PH1_SLD8)
 #define CONFIG_SPL_TEXT_BASE		0x00040000
