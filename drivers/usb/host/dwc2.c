@@ -932,7 +932,8 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	snpsid = readl(&regs->gsnpsid);
 	printf("Core Release: %x.%03x\n", snpsid >> 12 & 0xf, snpsid & 0xfff);
 
-	if ((snpsid & DWC2_SNPSID_DEVID_MASK) != DWC2_SNPSID_DEVID_VER_2xx) {
+	if ((snpsid & DWC2_SNPSID_DEVID_MASK) != DWC2_SNPSID_DEVID_VER_2xx &&
+	    (snpsid & DWC2_SNPSID_DEVID_MASK) != DWC2_SNPSID_DEVID_VER_3xx) {
 		printf("SNPSID invalid (not DWC2 OTG device): %08x\n", snpsid);
 		return -ENODEV;
 	}

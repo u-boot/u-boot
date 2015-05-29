@@ -50,6 +50,8 @@
 /* For each endpoint, we need 2 QTDs, one for each of IN and OUT */
 #define ILIST_SZ		(NUM_ENDPOINTS * 2 * ILIST_ENT_SZ)
 
+#define EP_MAX_LENGTH_TRANSFER	0x4000
+
 #ifndef DEBUG
 #define DBG(x...) do {} while (0)
 #else
@@ -102,13 +104,28 @@ static struct usb_ep_ops ci_ep_ops = {
 };
 
 /* Init values for USB endpoints. */
-static const struct usb_ep ci_ep_init[2] = {
+static const struct usb_ep ci_ep_init[5] = {
 	[0] = {	/* EP 0 */
 		.maxpacket	= 64,
 		.name		= "ep0",
 		.ops		= &ci_ep_ops,
 	},
-	[1] = {	/* EP 1..n */
+	[1] = {
+		.maxpacket	= 512,
+		.name		= "ep1in-bulk",
+		.ops		= &ci_ep_ops,
+	},
+	[2] = {
+		.maxpacket	= 512,
+		.name		= "ep2out-bulk",
+		.ops		= &ci_ep_ops,
+	},
+	[3] = {
+		.maxpacket	= 512,
+		.name		= "ep3in-int",
+		.ops		= &ci_ep_ops,
+	},
+	[4] = {
 		.maxpacket	= 512,
 		.name		= "ep-",
 		.ops		= &ci_ep_ops,
@@ -197,6 +214,19 @@ static void ci_flush_qtd(int ep_num)
 }
 
 /**
+ * ci_flush_td - flush cache over queue item
+ * @td:	td pointer
+ *
+ * This function flushes cache for particular transfer descriptor.
+ */
+static void ci_flush_td(struct ept_queue_item *td)
+{
+	const uint32_t  start = (uint32_t)td;
+	const uint32_t end = (uint32_t) td + ILIST_ENT_SZ;
+	flush_dcache_range(start, end);
+}
+
+/**
  * ci_invalidate_qtd - invalidate cache over queue item
  * @ep_num:	Endpoint number
  *
@@ -208,6 +238,19 @@ static void ci_invalidate_qtd(int ep_num)
 	const unsigned long start = (unsigned long)item;
 	const unsigned long end = start + 2 * ILIST_ENT_SZ;
 
+	invalidate_dcache_range(start, end);
+}
+
+/**
+ * ci_invalidate_td - invalidate cache over queue item
+ * @td:	td pointer
+ *
+ * This function invalidates cache for particular transfer descriptor.
+ */
+static void ci_invalidate_td(struct ept_queue_item *td)
+{
+	const uint32_t start = (uint32_t)td;
+	const uint32_t end = start + ILIST_ENT_SZ;
 	invalidate_dcache_range(start, end);
 }
 
@@ -376,6 +419,9 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 	struct ept_queue_head *head;
 	int bit, num, len, in;
 	struct ci_req *ci_req;
+	u8 *buf;
+	uint32_t length, actlen;
+	struct ept_queue_item *dtd, *qtd;
 
 	ci_ep->req_primed = true;
 
@@ -387,16 +433,41 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 	ci_req = list_first_entry(&ci_ep->queue, struct ci_req, queue);
 	len = ci_req->req.length;
 
-	item->info = INFO_BYTES(len) | INFO_ACTIVE;
-	item->page0 = (unsigned long)ci_req->hw_buf;
-	item->page1 = ((unsigned long)ci_req->hw_buf & 0xfffff000) + 0x1000;
-	item->page2 = ((unsigned long)ci_req->hw_buf & 0xfffff000) + 0x2000;
-	item->page3 = ((unsigned long)ci_req->hw_buf & 0xfffff000) + 0x3000;
-	item->page4 = ((unsigned long)ci_req->hw_buf & 0xfffff000) + 0x4000;
-
 	head->next = (unsigned long)item;
 	head->info = 0;
 
+	ci_req->dtd_count = 0;
+	buf = ci_req->hw_buf;
+	actlen = 0;
+	dtd = item;
+
+	do {
+		length = min(ci_req->req.length - actlen,
+			     (unsigned)EP_MAX_LENGTH_TRANSFER);
+
+		dtd->info = INFO_BYTES(length) | INFO_ACTIVE;
+		dtd->page0 = (unsigned long)buf;
+		dtd->page1 = ((unsigned long)buf & 0xfffff000) + 0x1000;
+		dtd->page2 = ((unsigned long)buf & 0xfffff000) + 0x2000;
+		dtd->page3 = ((unsigned long)buf & 0xfffff000) + 0x3000;
+		dtd->page4 = ((unsigned long)buf & 0xfffff000) + 0x4000;
+
+		len -= length;
+		actlen += length;
+		buf += length;
+
+		if (len) {
+			qtd = (struct ept_queue_item *)
+			       memalign(ILIST_ALIGN, ILIST_ENT_SZ);
+			dtd->next = (uint32_t)qtd;
+			dtd = qtd;
+			memset(dtd, 0, ILIST_ENT_SZ);
+		}
+
+		ci_req->dtd_count++;
+	} while (len);
+
+	item = dtd;
 	/*
 	 * When sending the data for an IN transaction, the attached host
 	 * knows that all data for the IN is sent when one of the following
@@ -431,6 +502,12 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 	item->info |= INFO_IOC;
 
 	ci_flush_qtd(num);
+
+	item = (struct ept_queue_item *)head->next;
+	while (item->next != TERMINATE) {
+		ci_flush_td((struct ept_queue_item *)item->next);
+		item = (struct ept_queue_item *)item->next;
+	}
 
 	DBG("ept%d %s queue len %x, req %p, buffer %p\n",
 	    num, in ? "in" : "out", len, ci_req, ci_req->hw_buf);
@@ -497,21 +574,31 @@ static void flip_ep0_direction(void)
 
 static void handle_ep_complete(struct ci_ep *ci_ep)
 {
-	struct ept_queue_item *item;
-	int num, in, len;
+	struct ept_queue_item *item, *next_td;
+	int num, in, len, j;
 	struct ci_req *ci_req;
 
 	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (ci_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
 	item = ci_get_qtd(num, in);
 	ci_invalidate_qtd(num);
-
-	len = (item->info >> 16) & 0x7fff;
-	if (item->info & 0xff)
-		printf("EP%d/%s FAIL info=%x pg0=%x\n",
-		       num, in ? "in" : "out", item->info, item->page0);
-
 	ci_req = list_first_entry(&ci_ep->queue, struct ci_req, queue);
+
+	next_td = item;
+	len = 0;
+	for (j = 0; j < ci_req->dtd_count; j++) {
+		ci_invalidate_td(next_td);
+		item = next_td;
+		len += (item->info >> 16) & 0x7fff;
+		if (item->info & 0xff)
+			printf("EP%d/%s FAIL info=%x pg0=%x\n",
+			       num, in ? "in" : "out", item->info, item->page0);
+		if (j != ci_req->dtd_count - 1)
+			next_td = (struct ept_queue_item *)item->next;
+		if (j != 0)
+			free(item);
+	}
+
 	list_del_init(&ci_req->queue);
 	ci_ep->req_primed = false;
 
@@ -852,9 +939,19 @@ static int ci_udc_probe(void)
 	controller.gadget.ep0 = &controller.ep[0].ep;
 	INIT_LIST_HEAD(&controller.gadget.ep0->ep_list);
 
-	/* Init EP 1..n */
-	for (i = 1; i < NUM_ENDPOINTS; i++) {
-		memcpy(&controller.ep[i].ep, &ci_ep_init[1],
+	/* Init EP 1..3 */
+	for (i = 1; i < 4; i++) {
+		memcpy(&controller.ep[i].ep, &ci_ep_init[i],
+		       sizeof(*ci_ep_init));
+		INIT_LIST_HEAD(&controller.ep[i].queue);
+		controller.ep[i].req_primed = false;
+		list_add_tail(&controller.ep[i].ep.ep_list,
+			      &controller.gadget.ep_list);
+	}
+
+	/* Init EP 4..n */
+	for (i = 4; i < NUM_ENDPOINTS; i++) {
+		memcpy(&controller.ep[i].ep, &ci_ep_init[4],
 		       sizeof(*ci_ep_init));
 		INIT_LIST_HEAD(&controller.ep[i].queue);
 		controller.ep[i].req_primed = false;
