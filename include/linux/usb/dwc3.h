@@ -191,4 +191,10 @@ struct dwc3 {					/* offset: 0xC100 */
 #define DWC3_DCTL_CSFTRST			(1 << 30)
 #define DWC3_DCTL_LSFTRST			(1 << 29)
 
+#ifdef CONFIG_USB_XHCI_DWC3
+void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode);
+void dwc3_core_soft_reset(struct dwc3 *dwc3_reg);
+int dwc3_core_init(struct dwc3 *dwc3_reg);
+void usb_phy_reset(struct dwc3 *dwc3_reg);
+#endif
 #endif /* __DWC3_H_ */
