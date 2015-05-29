@@ -115,10 +115,8 @@ int ddrphy_training(struct ddrphy __iomem *phy)
 
 	do {
 		if (--timeout < 0) {
-#ifndef CONFIG_SPL_BUILD
 			printf("%s: error: timeout during DDR training\n",
 								__func__);
-#endif
 			return -1;
 		}
 		udelay(1);
@@ -127,10 +125,8 @@ int ddrphy_training(struct ddrphy __iomem *phy)
 
 	for (i = 0; i < ARRAY_SIZE(init_sequence); i++) {
 		if (pgsr0 & init_sequence[i].err_flag) {
-#ifndef CONFIG_SPL_BUILD
 			printf("%s: error: %s failed\n", __func__,
 						init_sequence[i].description);
-#endif
 			return -1;
 		}
 	}
