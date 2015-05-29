@@ -223,24 +223,6 @@ void usb_phy_power(int on)
 }
 #endif /* CONFIG_AM437X_USB2PHY2_HOST */
 
-void omap_reset_usb_phy(struct dwc3 *dwc3_reg)
-{
-	/* Assert USB3 PHY reset */
-	setbits_le32(&dwc3_reg->g_usb3pipectl[0], DWC3_GUSB3PIPECTL_PHYSOFTRST);
-
-	/* Assert USB2 PHY reset */
-	setbits_le32(&dwc3_reg->g_usb2phycfg, DWC3_GUSB2PHYCFG_PHYSOFTRST);
-
-	mdelay(100);
-
-	/* Clear USB3 PHY reset */
-	clrbits_le32(&dwc3_reg->g_usb3pipectl[0], DWC3_GUSB3PIPECTL_PHYSOFTRST);
-
-	/* Clear USB2 PHY reset */
-	clrbits_le32(&dwc3_reg->g_usb2phycfg, DWC3_GUSB2PHYCFG_PHYSOFTRST);
-
-}
-
 void omap_enable_phy(struct omap_xhci *omap)
 {
 #ifdef CONFIG_OMAP_USB2PHY2_HOST
