@@ -536,7 +536,7 @@ static const struct mx6_mmdc_calibration mx6dl_1g_mmcd_calib = {
 	.p0_mpdgctrl0 =    0x023C0224,
 	.p0_mpdgctrl1 =    0x02000220,
 	.p1_mpdgctrl0 =    0x02200220,
-	.p1_mpdgctrl1 =    0x02000220,
+	.p1_mpdgctrl1 =    0x02040208,
 	.p0_mprddlctl =    0x44444846,
 	.p1_mprddlctl =    0x4042463C,
 	.p0_mpwrdlctl =    0x32343032,
@@ -627,7 +627,7 @@ static void spl_dram_init(int width)
 	else if (is_cpu_type(MXC_CPU_MX6Q))
 		mx6_dram_cfg(&sysinfo, &mx6q_2g_mmcd_calib, &mem_ddr_4g);
 	else if (is_cpu_type(MXC_CPU_MX6DL))
-		mx6_dram_cfg(&sysinfo, &mx6q_1g_mmcd_calib, &mem_ddr_2g);
+		mx6_dram_cfg(&sysinfo, &mx6dl_1g_mmcd_calib, &mem_ddr_2g);
 	else if (is_cpu_type(MXC_CPU_MX6SOLO))
 		mx6_dram_cfg(&sysinfo, &mx6dl_512m_mmcd_calib, &mem_ddr_2g);
 }
