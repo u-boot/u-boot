@@ -21,6 +21,8 @@
 #define CONFIG_SYS_PROMPT		"Matrix U-Boot> "
 #define CONFIG_SYS_HZ			1000
 
+#define CONFIG_IMX6_THERMAL
+
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		MMDC0_ARB_BASE_ADDR
