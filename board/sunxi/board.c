@@ -294,17 +294,19 @@ int board_mmc_init(bd_t *bis)
 		return -1;
 #endif
 
-#if CONFIG_MMC_SUNXI_SLOT == 0 && CONFIG_MMC_SUNXI_SLOT_EXTRA == 2
+#if !defined(CONFIG_SPL_BUILD) && CONFIG_MMC_SUNXI_SLOT_EXTRA == 2
 	/*
-	 * Both mmc0 and mmc2 are bootable, figure out where we're booting
-	 * from. Try mmc0 first, just like the brom does.
+	 * On systems with an emmc (mmc2), figure out if we are booting from
+	 * the emmc and if we are make it "mmc dev 0" so that boot.scr, etc.
+	 * are searched there first. Note we only do this for u-boot proper,
+	 * not for the SPL, see spl_boot_device().
 	 */
-	if (sunxi_mmc_has_egon_boot_signature(mmc0))
-		return 0;
-
-	/* no bootable card in mmc0, so we must be booting from mmc2, swap */
-	mmc0->block_dev.dev = 1;
-	mmc1->block_dev.dev = 0;
+	if (!sunxi_mmc_has_egon_boot_signature(mmc0) &&
+	    sunxi_mmc_has_egon_boot_signature(mmc1)) {
+		/* Booting from emmc / mmc2, swap */
+		mmc0->block_dev.dev = 1;
+		mmc1->block_dev.dev = 0;
+	}
 #endif
 
 	return 0;
