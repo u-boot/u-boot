@@ -369,6 +369,14 @@ config TARGET_PENGWYN
 	select DM_SERIAL
 	select DM_GPIO
 
+config TARGET_AM335X_BALTOS
+	bool "Support am335x_baltos"
+	select CPU_V7
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
 config TARGET_AM335X_EVM
 	bool "Support am335x_evm"
 	select CPU_V7
@@ -964,6 +972,7 @@ source "board/trizepsiv/Kconfig"
 source "board/ttcontrol/vision2/Kconfig"
 source "board/udoo/Kconfig"
 source "board/vpac270/Kconfig"
+source "board/vscom/baltos/Kconfig"
 source "board/wandboard/Kconfig"
 source "board/warp/Kconfig"
 source "board/woodburn/Kconfig"
