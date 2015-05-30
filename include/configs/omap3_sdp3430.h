@@ -158,7 +158,6 @@
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_NET
 
 /* Disabled commands */
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/

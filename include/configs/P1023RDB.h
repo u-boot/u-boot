@@ -280,7 +280,6 @@ extern unsigned long get_clock_freq(void);
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 /*

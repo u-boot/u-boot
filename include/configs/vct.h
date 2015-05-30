@@ -98,7 +98,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SNTP
 #else
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 #endif
 
@@ -312,7 +311,6 @@ int vct_gpio_get(int pin);
 #undef CONFIG_CMD_LOADY
 #undef CONFIG_CMD_MII
 #undef CONFIG_CMD_MISC
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_PING
 #undef CONFIG_CMD_REGINFO
 #undef CONFIG_CMD_SNTP

@@ -632,7 +632,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 /*

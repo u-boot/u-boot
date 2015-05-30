@@ -110,7 +110,6 @@
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_PING

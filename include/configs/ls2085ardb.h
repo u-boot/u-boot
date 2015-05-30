@@ -274,7 +274,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_E1000
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 /*  MMC  */

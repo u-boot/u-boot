@@ -134,7 +134,6 @@
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_FAT_WRITE
 
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 
 #endif /* __BCM28155_AP_H */

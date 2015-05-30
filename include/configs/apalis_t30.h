@@ -57,7 +57,6 @@
 #define CONFIG_E1000_NO_NVM
 
 /* General networking support */
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
 /* Miscellaneous commands */

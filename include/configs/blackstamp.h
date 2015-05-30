@@ -108,7 +108,6 @@
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_PING
 #else
-# undef CONFIG_CMD_NET
 #endif
 
 #ifdef CONFIG_SYS_I2C_SOFT

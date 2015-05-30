@@ -24,7 +24,6 @@
 #include <config_cmd_default.h>
 #undef CONFIG_CMD_AES
 #undef CONFIG_CMD_BOOTD
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_XIMG

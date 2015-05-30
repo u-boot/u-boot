@@ -41,7 +41,6 @@
  */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_CACHE
-#undef CONFIG_CMD_NET
 
 #define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
 

@@ -531,13 +531,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_E1000
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING

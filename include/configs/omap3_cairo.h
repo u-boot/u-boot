@@ -67,7 +67,6 @@
 /* Disable some commands */
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #undef CONFIG_CMD_IMI		/* iminfo			*/
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 
 /*
  * TWL4030

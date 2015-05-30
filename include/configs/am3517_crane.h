@@ -150,7 +150,6 @@
 #define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 #define CONFIG_SYS_I2C_OMAP34XX
 
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 /*
  * Board NAND Info.

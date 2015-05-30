@@ -123,7 +123,6 @@
 #include <config_cmd_default.h>
 
 #ifndef CONFIG_BFIN_MAC
-# undef CONFIG_CMD_NET
 # undef CONFIG_CMD_NFS
 #endif
 

@@ -162,7 +162,6 @@
 #define CONFIG_CMD_UBIFS		/* UBIFS commands */
 #define CONFIG_LZO			/* LZO is needed for UBIFS */
 
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_FPGA			/* FPGA configuration Support */
 #undef CONFIG_CMD_IMI			/* iminfo */

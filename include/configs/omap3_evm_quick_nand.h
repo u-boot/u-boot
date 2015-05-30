@@ -27,7 +27,6 @@
  * When revision is statically configured via CONFIG_STATIC_BOARD_REV,
  * this option can be removed. Generated binary is leaner by ~16Kbytes.
  */
-#define CONFIG_CMD_NET
 
 /* ----------------------------------------------------------------------------
  * Supported U-boot features

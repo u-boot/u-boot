@@ -37,7 +37,6 @@
 #define CONFIG_CMD_DHCP
 
 #include <configs/ti_omap4_common.h>
-#define CONFIG_CMD_NET
 
 /* GPIO */
 #define CONFIG_CMD_GPIO

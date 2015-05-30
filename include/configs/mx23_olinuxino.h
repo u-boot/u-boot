@@ -23,7 +23,6 @@
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_LED
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_USB
 
 /* Memory configuration */

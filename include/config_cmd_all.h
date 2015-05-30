@@ -66,7 +66,6 @@
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_MTDPARTS	/* mtd parts support		*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #define CONFIG_CMD_NFS		/* NFS support			*/
 #define CONFIG_CMD_ONENAND	/* OneNAND support		*/
 #define CONFIG_CMD_PCI		/* pciinfo			*/

@@ -26,7 +26,6 @@
 #  endif
 # else
 #  undef CONFIG_CMD_BOOTD
-#  undef CONFIG_CMD_NET
 #  undef CONFIG_CMD_NFS
 # endif
 # ifdef CONFIG_LIBATA

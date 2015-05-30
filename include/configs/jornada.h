@@ -46,7 +46,6 @@
 #include <config_cmd_default.h>
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_JFFS2
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_MISC

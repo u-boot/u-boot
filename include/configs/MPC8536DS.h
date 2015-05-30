@@ -648,7 +648,6 @@
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */

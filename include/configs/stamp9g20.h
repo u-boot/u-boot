@@ -248,7 +248,6 @@
 # define CONFIG_CMD_DHCP
 #else
 # undef CONFIG_CMD_BOOTD
-# undef CONFIG_CMD_NET
 # undef CONFIG_CMD_NFS
 #endif /* CONFIG_MACB */
 

@@ -51,7 +51,6 @@
  */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_CACHE
-#undef CONFIG_CMD_NET
 #define CONFIG_CMD_LOADB
 #define CONFIG_CMD_LOADS
 #define CONFIG_CMD_EXT2

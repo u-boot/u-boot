@@ -49,7 +49,6 @@
  */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
 

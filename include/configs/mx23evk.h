@@ -16,7 +16,6 @@
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
 #include <config_cmd_default.h>
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 
 #define CONFIG_DISPLAY_CPUINFO

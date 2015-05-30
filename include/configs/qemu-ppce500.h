@@ -170,7 +170,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #endif
 
 /*
