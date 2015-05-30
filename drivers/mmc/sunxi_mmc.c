@@ -75,8 +75,10 @@ static int mmc_resource_init(int sdc_no)
 	cd_pin = sunxi_mmc_getcd_gpio(sdc_no);
 	if (cd_pin >= 0) {
 		ret = gpio_request(cd_pin, "mmc_cd");
-		if (!ret)
+		if (!ret) {
+			sunxi_gpio_set_pull(cd_pin, SUNXI_GPIO_PULL_UP);
 			ret = gpio_direction_input(cd_pin);
+		}
 	}
 
 	return ret;
