@@ -415,7 +415,17 @@ static int __read_prefetch_aligned(struct nand_chip *chip, uint32_t *buf, int le
 	return 0;
 }
 
-static void omap_nand_read_prefetch8(struct mtd_info *mtd, uint8_t *buf, int len)
+static inline void omap_nand_read(struct mtd_info *mtd, uint8_t *buf, int len)
+{
+	struct nand_chip *chip = mtd->priv;
+
+	if (chip->options & NAND_BUSWIDTH_16)
+		nand_read_buf16(mtd, buf, len);
+	else
+		nand_read_buf(mtd, buf, len);
+}
+
+static void omap_nand_read_prefetch(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	int ret;
 	uint32_t head, tail;
@@ -427,7 +437,7 @@ static void omap_nand_read_prefetch8(struct mtd_info *mtd, uint8_t *buf, int len
 	 */
 	head = ((uint32_t) buf) % 4;
 	if (head) {
-		nand_read_buf(mtd, buf, head);
+		omap_nand_read(mtd, buf, head);
 		buf += head;
 		len -= head;
 	}
@@ -438,13 +448,13 @@ static void omap_nand_read_prefetch8(struct mtd_info *mtd, uint8_t *buf, int len
 	 */
 	tail = len % 4;
 
-	ret = __read_prefetch_aligned(chip, (uint32_t *) buf, len - tail);
+	ret = __read_prefetch_aligned(chip, (uint32_t *)buf, len - tail);
 	if (ret < 0) {
 		/* fallback in case the prefetch engine is busy */
-		nand_read_buf(mtd, buf, len);
+		omap_nand_read(mtd, buf, len);
 	} else if (tail) {
 		buf += len - tail;
-		nand_read_buf(mtd, buf, tail);
+		omap_nand_read(mtd, buf, tail);
 	}
 }
 #endif /* CONFIG_NAND_OMAP_GPMC_PREFETCH */
@@ -1011,13 +1021,11 @@ int board_nand_init(struct nand_chip *nand)
 	if (err)
 		return err;
 
-	/* TODO: Implement for 16-bit bus width */
+#ifdef CONFIG_NAND_OMAP_GPMC_PREFETCH
+	nand->read_buf = omap_nand_read_prefetch;
+#else
 	if (nand->options & NAND_BUSWIDTH_16)
 		nand->read_buf = nand_read_buf16;
-#ifdef CONFIG_NAND_OMAP_GPMC_PREFETCH
-	else
-		nand->read_buf = omap_nand_read_prefetch8;
-#else
 	else
 		nand->read_buf = nand_read_buf;
 #endif
