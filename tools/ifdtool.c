@@ -462,7 +462,7 @@ static int write_regions(char *image, int size)
 		if (ret)
 			return ret;
 		dump_region(i, frba);
-		if (region.size == 0)
+		if (region.size <= 0)
 			continue;
 		region_fd = open(region_filename(i),
 				 O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR |
