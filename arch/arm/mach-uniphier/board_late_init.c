@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -8,7 +7,7 @@
 #include <common.h>
 #include <spl.h>
 #include <nand.h>
-#include <asm/io.h>
+#include <linux/io.h>
 #include <../drivers/mtd/nand/denali.h>
 
 static void nand_denali_wp_disable(void)

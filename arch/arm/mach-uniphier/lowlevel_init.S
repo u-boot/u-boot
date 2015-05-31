@@ -1,7 +1,5 @@
 /*
- * Copyright (C) 2012-2015 Panasonic Corporation
- * Copyright (C) 2015      Socionext Inc.
- *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2012-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -67,20 +65,6 @@ secondary_startup:
 	 *  jump to Linux
 	 *  kick secondaries   ---(sev)--->    jump to Linux
 	 */
-	/*
-	 * ACTLR (Auxiliary Control Register) for Cortex-A9
-	 * bit[9]  Parity on
-	 * bit[8]  Alloc in one way
-	 * bit[7]  EXCL (Exclusive cache bit)
-	 * bit[6]  SMP
-	 * bit[3]  Write full line of zeros mode
-	 * bit[2]  L1 prefetch enable
-	 * bit[1]  L2 prefetch enable
-	 * bit[0]  FW (Cache and TLB maintenance broadcast)
-	 */
-	mrc	p15, 0, r0, c1, c0, 1	@ ACTLR (Auxiliary Control Register)
-	orr	r0, r0, #0x41		@ enable SMP, FW bit
-	mcr	p15, 0, r0, c1, c0, 1
 
 	/* branch by CPU ID */
 	mrc	p15, 0, r0, c0, c0, 5	@ MPIDR (Multiprocessor Affinity Register)
@@ -112,12 +96,6 @@ primary_cpu:
 	str	r0, [r1]
 	ldr	r0, [r1]		@ make sure str is complete before sev
 	sev				@ kick the secondary CPU
-	mrc	p15, 4, r1, c15, c0, 0	@ Configuration Base Address Register
-	bfc	r1, #0, #13		@ clear bit 12-0
-	mov	r0, #-1
-	str	r0, [r1, #SCU_INV_ALL]	@ SCU Invalidate All Register
-	mov	r0, #1			@ SCU enable
-	str	r0, [r1, #SCU_CTRL]	@ SCU Control Register
 #endif
 
 	bl	setup_init_ram		@ RAM area for temporary stack pointer

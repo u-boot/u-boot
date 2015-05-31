@@ -1,7 +1,7 @@
 /*
  * UniPhier SBC (System Bus Controller) registers
  *
- * Copyright (C) 2011-2014 Panasonic Corporation
+ * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -99,7 +99,7 @@
 #define ROM_BOOT_ROMRSV2		0x59801208
 
 #ifndef __ASSEMBLY__
-#include <asm/io.h>
+#include <linux/io.h>
 static inline int boot_is_swapped(void)
 {
 	return !(readl(SBBASE0) & SBBASE_BANK_ENABLE);

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -17,8 +16,8 @@
 
 	.macro		init_debug_uart, ra, rb, rc
 	addruart	\ra, \rb, \rc
-	mov		\rb, #UART_LCR_WLEN8
-	strb		\rb, [\ra, #0x11]
+	mov		\rb, #UART_LCR_WLEN8 << 8
+	str		\rb, [\ra, #0x10]
 	ldr		\rb, =DIVISOR
 	str		\rb, [\ra, #0x24]
 	.endm

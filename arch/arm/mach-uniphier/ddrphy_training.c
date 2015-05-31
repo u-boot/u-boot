@@ -1,12 +1,11 @@
 /*
- * Copyright (C) 2011-2014 Panasonic Corporation
- *   Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
+ * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <asm/io.h>
+#include <linux/io.h>
 #include <mach/ddrphy-regs.h>
 
 void ddrphy_prepare_training(struct ddrphy __iomem *phy, int rank)
@@ -116,10 +115,8 @@ int ddrphy_training(struct ddrphy __iomem *phy)
 
 	do {
 		if (--timeout < 0) {
-#ifndef CONFIG_SPL_BUILD
 			printf("%s: error: timeout during DDR training\n",
 								__func__);
-#endif
 			return -1;
 		}
 		udelay(1);
@@ -128,10 +125,8 @@ int ddrphy_training(struct ddrphy __iomem *phy)
 
 	for (i = 0; i < ARRAY_SIZE(init_sequence); i++) {
 		if (pgsr0 & init_sequence[i].err_flag) {
-#ifndef CONFIG_SPL_BUILD
 			printf("%s: error: %s failed\n", __func__,
 						init_sequence[i].description);
-#endif
 			return -1;
 		}
 	}

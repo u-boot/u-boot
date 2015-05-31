@@ -63,13 +63,13 @@ config SYS_I2C_UNIPHIER
 	depends on ARCH_UNIPHIER && DM_I2C
 	default y
 	help
-	  Support for Panasonic UniPhier I2C controller driver.  This I2C
-	  controller is used on PH1-LD4, PH1-sLD8 or older UniPhier SoCs.
+	  Support for UniPhier I2C controller driver.  This I2C controller
+	  is used on PH1-LD4, PH1-sLD8 or older UniPhier SoCs.
 
 config SYS_I2C_UNIPHIER_F
 	bool "UniPhier FIFO-builtin I2C driver"
 	depends on ARCH_UNIPHIER && DM_I2C
 	default y
 	help
-	  Support for Panasonic UniPhier FIFO-builtin I2C controller driver.
+	  Support for UniPhier FIFO-builtin I2C controller driver.
 	  This I2C controller is used on PH1-Pro4 or newer UniPhier SoCs.
