@@ -22,6 +22,9 @@
 #ifdef CONFIG_AXP221_POWER
 #include <axp221.h>
 #endif
+#ifdef CONFIG_NAND_SUNXI
+#include <nand.h>
+#endif
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/display.h>
@@ -315,6 +318,21 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+#ifdef CONFIG_NAND
+void board_nand_init(void)
+{
+	unsigned int pin;
+	static u8 ports[] = CONFIG_NAND_SUNXI_GPC_PORTS;
+
+	/* Configure AHB muxes to connect output pins with NAND controller */
+	for (pin = 0; pin < 16; pin++)
+		sunxi_gpio_set_cfgpin(SUNXI_GPC(pin), SUNXI_GPC_NAND);
+
+	for (pin = 0; pin < ARRAY_SIZE(ports); pin++)
+		sunxi_gpio_set_cfgpin(SUNXI_GPC(ports[pin]), SUNXI_GPC_NAND);
+}
+#endif
+
 void i2c_init_board(void)
 {
 #ifdef CONFIG_I2C0_ENABLE
@@ -530,10 +548,11 @@ int misc_init_r(void)
 		}
 	}
 
+#ifndef CONFIG_MACH_SUN9I
 	ret = sunxi_usb_phy_probe();
 	if (ret)
 		return ret;
-
+#endif
 #if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
 	musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);
 #endif

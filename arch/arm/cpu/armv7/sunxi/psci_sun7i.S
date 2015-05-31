@@ -165,12 +165,12 @@ psci_cpu_on:
 	str	r6, [r5]	@ Reset CPU
 
 	@ l1 invalidate
-	ldr	r6, [r0, #0x184]
+	ldr	r6, [r0, #0x184] @ CPUCFG_GEN_CTRL_REG
 	bic	r6, r6, r4
 	str	r6, [r0, #0x184]
 
-	@ Lock CPU
-	ldr	r6, [r0, #0x1e4]
+	@ Lock CPU (Disable external debug access)
+	ldr	r6, [r0, #0x1e4] @ CPUCFG_DBG_CTL1_REG
 	bic	r6, r6, r4
 	str	r6, [r0, #0x1e4]
 
@@ -178,13 +178,13 @@ psci_cpu_on:
 	movw	r6, #0x1ff
 	movt	r6, #0
 1:	lsrs	r6, r6, #1
-	str	r6, [r0, #0x1b0]
+	str	r6, [r0, #0x1b0] @ CPU1_PWR_CLAMP
 	bne	1b
 
 	timer_wait r1, TEN_MS
 
 	@ Clear power gating
-	ldr	r6, [r0, #0x1b4]
+	ldr	r6, [r0, #0x1b4] @ CPU1_PWROFF_REG
 	bic	r6, r6, #1
 	str	r6, [r0, #0x1b4]
 
@@ -192,8 +192,8 @@ psci_cpu_on:
 	mov	r6, #3
 	str	r6, [r5]
 
-	@ Unlock CPU
-	ldr	r6, [r0, #0x1e4]
+	@ Unlock CPU (Enable external debug access)
+	ldr	r6, [r0, #0x1e4] @ CPUCFG_DBG_CTL1_REG
 	orr	r6, r6, r4
 	str	r6, [r0, #0x1e4]
 

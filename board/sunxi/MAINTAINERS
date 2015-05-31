@@ -40,6 +40,8 @@ F:	include/configs/sun8i.h
 F:	configs/ga10h_v1_1_defconfig
 F:	configs/Ippo_q8h_v1_2_defconfig
 F:	configs/Ippo_q8h_v1_2_a33_1024x600_defconfig
+F:	include/configs/sun9i.h
+F:	configs/Merrii_A80_Optimus_defconfig
 
 A20-OLINUXINO-LIME BOARD
 M:	FUKAUMI Naoki <naobsd@gmail.com>

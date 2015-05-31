@@ -42,7 +42,7 @@ struct sunxi_ccm_reg {
 	u32 clk_output_b;	/* 0x184 clk_output_a */
 	u8 reserved5[0x278];	/* 0x188 */
 
-	u32 nand0_clk_cfg0;	/* 0x400 nand0 clock configuration0 */
+	u32 nand0_clk_cfg;	/* 0x400 nand0 clock configuration0 */
 	u32 nand0_clk_cfg1;	/* 0x404 nand1 clock configuration */
 	u8 reserved6[0x08];	/* 0x408 */
 	u32 sd0_clk_cfg;	/* 0x410 sd0 clock configuration */
@@ -113,7 +113,11 @@ struct sunxi_ccm_reg {
 
 /* ahb_gate0 fields */
 /* On sun9i all sdc-s share their ahb gate, so ignore (x) */
+#define AHB_GATE_OFFSET_NAND0		13
 #define AHB_GATE_OFFSET_MMC(x)		8
+
+/* ahb gate1 field */
+#define AHB_GATE_OFFSET_DMA		24
 
 /* apb1_gate fields */
 #define APB1_GATE_UART_SHIFT		16

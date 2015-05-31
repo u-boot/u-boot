@@ -64,6 +64,10 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(20), SUN6I_GPH_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(21), SUN6I_GPH_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPH(21), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN9I)
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(12), SUN9I_GPH_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(13), SUN9I_GPH_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPH(13), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 2 && defined(CONFIG_MACH_SUN5I)
 	sunxi_gpio_set_cfgpin(SUNXI_GPG(3), SUN5I_GPG_UART1);
 	sunxi_gpio_set_cfgpin(SUNXI_GPG(4), SUN5I_GPG_UART1);
@@ -115,17 +119,19 @@ void s_init(void)
 #ifdef CONFIG_SPL_BUILD
 /* The sunxi internal brom will try to loader external bootloader
  * from mmc0, nand flash, mmc2.
- * Unfortunately we can't check how SPL was loaded so assume
- * it's always the first SD/MMC controller
+ *
+ * Unfortunately we can't check how SPL was loaded so assume it's
+ * always the first SD/MMC controller, unless it was explicitly
+ * stated that SPL is on nand flash.
  */
 u32 spl_boot_device(void)
 {
-#ifdef CONFIG_SPL_FEL
+#if defined(CONFIG_SPL_NAND_SUPPORT)
 	/*
-	 * This is the legacy compile time configuration for a special FEL
-	 * enabled build. It has many restrictions and can only boot over USB.
+	 * This is compile time configuration informing SPL, that it
+	 * was loaded from nand flash.
 	 */
-	return BOOT_DEVICE_BOARD;
+	return BOOT_DEVICE_NAND;
 #else
 	/*
 	 * When booting from the SD card, the "eGON.BT0" signature is expected
