@@ -272,4 +272,11 @@
 #define CONFIG_USB_GADGET_MASS_STORAGE
 #define CONFIG_CMD_USB_MASS_STORAGE
 
+/* Enable SPI support */
+#ifdef CONFIG_OF_CONTROL
+#define CONFIG_DM_SPI
+#define CONFIG_CMD_SPI
+#define CONFIG_FSL_DSPI
+#endif
+
 #endif /* __CONFIG_H */
