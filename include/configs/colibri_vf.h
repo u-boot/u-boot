@@ -54,6 +54,11 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
 
+/* GPIO support */
+#define CONFIG_DM_GPIO
+#define CONFIG_CMD_GPIO
+#define CONFIG_VYBRID_GPIO
+
 /* Dynamic MTD partition support */
 #define CONFIG_CMD_MTDPARTS	/* Enable 'mtdparts' command line support */
 #define CONFIG_MTD_PARTITIONS
