@@ -198,6 +198,11 @@ static u32 get_i2c_clk(void)
 	return get_ipg_clk();
 }
 
+static u32 get_dspi_clk(void)
+{
+	return get_ipg_clk();
+}
+
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {
@@ -215,6 +220,8 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 		return get_fec_clk();
 	case MXC_I2C_CLK:
 		return get_i2c_clk();
+	case MXC_DSPI_CLK:
+		return get_dspi_clk();
 	default:
 		break;
 	}
