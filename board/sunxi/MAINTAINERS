@@ -10,6 +10,7 @@ F:	configs/Cubieboard_defconfig
 F:	configs/Hyundai_A7HD_defconfig
 F:	configs/jesurun_q5_defconfig
 F:	configs/Mele_A1000_defconfig
+F:	configs/Mele_A1000G_quad_defconfig
 F:	configs/Mele_M3_defconfig
 F:	configs/Mini-X_defconfig
 F:	configs/mk802_defconfig

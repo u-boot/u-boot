@@ -1,3 +1,13 @@
+# The Mele M9 is yet another Allwinnner based Android top set box from Mele.
+#
+# It uses the same PCB as the A1000G quad, but in a new case without a
+# USM sata storage slot, and the space on the PCB for the usb to sata
+# bridge connected to the otg controller is not populated, possible
+# making the micro usb otg connector functional (untested)
+#
+# It features an A31 SoC, 2G RAM, 16G Nand, 100Mbit ethernet, HDMI out,
+# 3 USB A receptacles, 3.5 mm jack for analog audio out, optical spdif,
+# micro USB B receptacle, RTL R8188EU (USB) and a full size sdcard slot
 CONFIG_ARM=y
 CONFIG_ARCH_SUNXI=y
 CONFIG_MACH_SUN6I=y
