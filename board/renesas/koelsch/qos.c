@@ -13,7 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/rmobile.h>
 
-/* QoS version 0.240 for ES1 and version 0.334 for ES2 */
+/* QoS version 0.240 for ES1 and version 0.411 for ES2 */
 #if defined(CONFIG_RMOBILE_EXTRAM_BOOT)
 enum {
 	DBSC3_00, DBSC3_01, DBSC3_02, DBSC3_03, DBSC3_04,
@@ -99,6 +99,24 @@ static u32 dbsc3_1_w_qos_addr[DBSC3_NR] = {
 	[DBSC3_15] = DBSC3_1_QOS_W15_BASE,
 };
 
+#if defined(CONFIG_QOS_PRI_MEDIA)
+#define is_qos_pri_media()	1
+#else
+#define is_qos_pri_media()	0
+#endif
+
+#if defined(CONFIG_QOS_PRI_NORMAL)
+#define is_qos_pri_normal()	1
+#else
+#define is_qos_pri_normal()	0
+#endif
+
+#if defined(CONFIG_QOS_PRI_GFX)
+#define is_qos_pri_gfx()	1
+#else
+#define is_qos_pri_gfx()	0
+#endif
+
 void qos_init(void)
 {
 	int i;
@@ -124,8 +142,17 @@ void qos_init(void)
 		/* writel(0x00DF1B0C, &s3c->s3cadsplcr); */
 		/* Ssplit All mode */
 		/* writel(0x00FF1B0C, &s3c->s3cadsplcr); */
-		writel(0x1F0B0908, &s3c->s3crorr);
-		writel(0x1F0C0A08, &s3c->s3cworr);
+
+		if (is_qos_pri_media()) {
+			writel(0x1F0B0604, &s3c->s3crorr);
+			writel(0x1F0E0705, &s3c->s3cworr);
+		} else if (is_qos_pri_normal()) {
+			writel(0x1F0B0908, &s3c->s3crorr);
+			writel(0x1F0E0A08, &s3c->s3cworr);
+		} else if (is_qos_pri_gfx()) {
+			writel(0x1F0B0B0B, &s3c->s3crorr);
+			writel(0x1F0E0C0C, &s3c->s3cworr);
+		}
 	} else {
 		writel(0x00FF1B1D, &s3c->s3cadsplcr);
 		writel(0x1F0D0C0C, &s3c->s3crorr);
@@ -136,26 +163,67 @@ void qos_init(void)
 	writel(0x00890089, &s3c_qos->s3cqos0);
 	writel(0x20960010, &s3c_qos->s3cqos1);
 	writel(0x20302030, &s3c_qos->s3cqos2);
-	writel(0x20AA2200, &s3c_qos->s3cqos3);
+
+	if (IS_R8A7791_ES2()) {
+		if (is_qos_pri_media())
+			writel(0x20AA2300, &s3c_qos->s3cqos3);
+		else if (is_qos_pri_normal())
+			writel(0x20AA2200, &s3c_qos->s3cqos3);
+		else if (is_qos_pri_gfx())
+			writel(0x20AA2100, &s3c_qos->s3cqos3);
+	} else {
+		writel(0x20AA2200, &s3c_qos->s3cqos3);
+	}
 	writel(0x00002032, &s3c_qos->s3cqos4);
 	writel(0x20960010, &s3c_qos->s3cqos5);
 	writel(0x20302030, &s3c_qos->s3cqos6);
-	writel(0x20AA2200, &s3c_qos->s3cqos7);
+
+	if (IS_R8A7791_ES2()) {
+		if (is_qos_pri_media())
+			writel(0x20AA2300, &s3c_qos->s3cqos7);
+		else if (is_qos_pri_normal())
+			writel(0x20AA2200, &s3c_qos->s3cqos7);
+		else if (is_qos_pri_gfx())
+			writel(0x20AA2100, &s3c_qos->s3cqos7);
+	} else {
+		writel(0x20AA2200, &s3c_qos->s3cqos7);
+	}
 	writel(0x00002032, &s3c_qos->s3cqos8);
 
 	s3c_qos = (struct rcar_s3c_qos *)S3C_QOS_CCI1_BASE;
 	writel(0x00890089, &s3c_qos->s3cqos0);
 	writel(0x20960010, &s3c_qos->s3cqos1);
 	writel(0x20302030, &s3c_qos->s3cqos2);
-	writel(0x20AA2200, &s3c_qos->s3cqos3);
+	if (IS_R8A7791_ES2()) {
+		if (is_qos_pri_media())
+			writel(0x20AA2300, &s3c_qos->s3cqos3);
+		else if (is_qos_pri_normal())
+			writel(0x20AA2200, &s3c_qos->s3cqos3);
+		else if (is_qos_pri_gfx())
+			writel(0x20AA2100, &s3c_qos->s3cqos3);
+	} else {
+		writel(0x20AA2200, &s3c_qos->s3cqos3);
+	}
 	writel(0x00002032, &s3c_qos->s3cqos4);
 	writel(0x20960010, &s3c_qos->s3cqos5);
 	writel(0x20302030, &s3c_qos->s3cqos6);
-	writel(0x20AA2200, &s3c_qos->s3cqos7);
+	if (IS_R8A7791_ES2()) {
+		if (is_qos_pri_media())
+			writel(0x20AA2300, &s3c_qos->s3cqos7);
+		else if (is_qos_pri_normal())
+			writel(0x20AA2200, &s3c_qos->s3cqos7);
+		else if (is_qos_pri_gfx())
+			writel(0x20AA2100, &s3c_qos->s3cqos7);
+	} else {
+		writel(0x20AA2200, &s3c_qos->s3cqos7);
+	}
 	writel(0x00002032, &s3c_qos->s3cqos8);
 
 	s3c_qos = (struct rcar_s3c_qos *)S3C_QOS_MXI_BASE;
-	writel(0x00820082, &s3c_qos->s3cqos0);
+	if (IS_R8A7791_ES2())
+		writel(0x80928092, &s3c_qos->s3cqos0);
+	else
+		writel(0x00820082, &s3c_qos->s3cqos0);
 	writel(0x20960020, &s3c_qos->s3cqos1);
 	writel(0x20302030, &s3c_qos->s3cqos2);
 	writel(0x20AA20DC, &s3c_qos->s3cqos3);
@@ -166,7 +234,10 @@ void qos_init(void)
 	writel(0x00002032, &s3c_qos->s3cqos8);
 
 	s3c_qos = (struct rcar_s3c_qos *)S3C_QOS_AXI_BASE;
-	writel(0x00820082, &s3c_qos->s3cqos0);
+	if (IS_R8A7791_ES2())
+		writel(0x80928092, &s3c_qos->s3cqos0);
+	else
+		writel(0x00820082, &s3c_qos->s3cqos0);
 	writel(0x20960020, &s3c_qos->s3cqos1);
 	writel(0x20302030, &s3c_qos->s3cqos2);
 	writel(0x20AA20FA, &s3c_qos->s3cqos3);
@@ -245,9 +316,15 @@ void qos_init(void)
 
 	/* MXI -QoS */
 	/* Transaction Control (MXI) */
-	mxi = (struct rcar_mxi *)MXI_BASE;
+	mxi = (struct rcar_mxi *)XI_BASE;
 	writel(0x00000013, &mxi->mxrtcr);
-	writel(0x00000013, &mxi->mxwtcr);
+	if (IS_R8A7791_ES2()) {
+		writel(0x00000016, &mxi->mxwtcr);
+		writel(0x00780080, &mxi->mxsaar0);
+		writel(0x02000800, &mxi->mxsaar1);
+	} else {
+		writel(0x00000013, &mxi->mxwtcr);
+	}
 
 	/* QoS Control (MXI) */
 	mxi_qos = (struct rcar_mxi_qos *)MXI_QOS_BASE;
@@ -632,7 +709,10 @@ void qos_init(void)
 
 	/* QoS Register (RT-AXI) */
 	axi_qos = (struct rcar_axi_qos *)RT_AXI_SHX_BASE;
-	writel(0x00000000, &axi_qos->qosconf);
+	if (IS_R8A7791_ES2())
+		writel(0x00000001, &axi_qos->qosconf);
+	else
+		writel(0x00000000, &axi_qos->qosconf);
 	writel(0x00002053, &axi_qos->qosctset0);
 	writel(0x00002096, &axi_qos->qosctset1);
 	writel(0x00002030, &axi_qos->qosctset2);
