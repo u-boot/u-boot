@@ -146,6 +146,20 @@ static void setup_iomux_nfc(void)
 }
 #endif
 
+#ifdef CONFIG_FSL_DSPI
+static void setup_iomux_dspi(void)
+{
+	static const iomux_v3_cfg_t dspi1_pads[] = {
+		VF610_PAD_PTD5__DSPI1_CS0,
+		VF610_PAD_PTD6__DSPI1_SIN,
+		VF610_PAD_PTD7__DSPI1_SOUT,
+		VF610_PAD_PTD8__DSPI1_SCK,
+	};
+
+	imx_iomux_v3_setup_multiple_pads(dspi1_pads, ARRAY_SIZE(dspi1_pads));
+}
+#endif
+
 #ifdef CONFIG_VYBRID_GPIO
 static void setup_iomux_gpio(void)
 {
@@ -252,6 +266,9 @@ static void clock_init(void)
 
 	clrsetbits_le32(&ccm->ccgr0, CCM_REG_CTRL_MASK,
 			CCM_CCGR0_UART0_CTRL_MASK);
+#ifdef CONFIG_FSL_DSPI
+	setbits_le32(&ccm->ccgr0, CCM_CCGR0_DSPI1_CTRL_MASK);
+#endif
 	clrsetbits_le32(&ccm->ccgr1, CCM_REG_CTRL_MASK,
 			CCM_CCGR1_PIT_CTRL_MASK | CCM_CCGR1_WDOGA5_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr2, CCM_REG_CTRL_MASK,
@@ -362,6 +379,10 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_VYBRID_GPIO
 	setup_iomux_gpio();
+#endif
+
+#ifdef CONFIG_FSL_DSPI
+	setup_iomux_dspi();
 #endif
 
 	return 0;
