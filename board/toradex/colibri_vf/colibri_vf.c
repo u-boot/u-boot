@@ -20,6 +20,7 @@
 #include <netdev.h>
 #include <i2c.h>
 #include <g_dnl.h>
+#include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,6 +32,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ENET_PAD_CTRL	(PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_HIGH | \
 			PAD_CTL_DSE_50ohm | PAD_CTL_OBE_IBE_ENABLE)
+
+#define USB_PEN_GPIO           83
+
+static const iomux_v3_cfg_t usb_pads[] = {
+	VF610_PAD_PTD4__GPIO_83,
+};
 
 int dram_init(void)
 {
@@ -464,3 +471,21 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 
 	return 0;
 }
+
+#ifdef CONFIG_USB_EHCI_VF
+int board_ehci_hcd_init(int port)
+{
+	imx_iomux_v3_setup_multiple_pads(usb_pads, ARRAY_SIZE(usb_pads));
+
+	switch (port) {
+	case 0:
+		/* USBC does not have PEN, also configured as USB client only */
+		break;
+	case 1:
+		gpio_request(USB_PEN_GPIO, "usb-pen-gpio");
+		gpio_direction_output(USB_PEN_GPIO, 0);
+		break;
+	}
+	return 0;
+}
+#endif
