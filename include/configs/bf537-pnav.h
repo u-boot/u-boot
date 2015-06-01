@@ -65,7 +65,6 @@
 #define CONFIG_RMII
 #endif
 #define CONFIG_HOSTNAME		bf537-pnav
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings

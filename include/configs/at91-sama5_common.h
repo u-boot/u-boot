@@ -54,7 +54,6 @@
 #undef CONFIG_CMD_LOADS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_SETEXPR
 
 #ifdef CONFIG_SYS_USE_MMC
 #define CONFIG_BOOTARGS							\

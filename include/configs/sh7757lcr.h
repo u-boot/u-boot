@@ -18,7 +18,6 @@
 #define CONFIG_SYS_LDSCRIPT	"board/renesas/sh7757lcr/u-boot.lds"
 
 #define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_NFS

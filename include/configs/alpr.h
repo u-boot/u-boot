@@ -228,7 +228,6 @@
 #undef CONFIG_CMD_LOADS
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
 

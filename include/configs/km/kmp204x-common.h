@@ -406,7 +406,6 @@ int get_scl(void);
  * additionnal command line configuration.
  */
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_ERRATA
 
 /* we don't need flash support */

@@ -155,7 +155,6 @@
 /* commands not needed from config_cmd_default.h */
 #undef CONFIG_CMD_FPGA			/* FPGA configuration Support */
 #undef CONFIG_CMD_IMI			/* iminfo */
-#undef CONFIG_CMD_NET			/* bootp, tftpboot, rarpboot */
 #undef CONFIG_CMD_NFS			/* NFS support */
 #undef CONFIG_CMD_SAVEENV		/* saveenv */
 #undef CONFIG_CMD_SETGETDCR		/* DCR support on 4xx */

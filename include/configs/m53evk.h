@@ -44,10 +44,8 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SATA
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_USB
 #define CONFIG_VIDEO
 

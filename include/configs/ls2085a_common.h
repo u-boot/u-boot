@@ -213,7 +213,6 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_CMD_LOADB
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_RUN

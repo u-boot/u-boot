@@ -45,7 +45,6 @@
 
 /* CPSW Ethernet */
 #define CONFIG_CMD_NFS
-#define CONFIG_CMD_NET			/* 'bootp' and 'tftp' */
 #define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_DNS2

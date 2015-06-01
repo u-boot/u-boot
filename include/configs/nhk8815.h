@@ -19,7 +19,6 @@
 /* commands */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NFS

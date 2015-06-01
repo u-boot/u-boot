@@ -76,7 +76,6 @@
 #undef CONFIG_CMD_IMI
 #undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_NFS		/* NFS support */
-#undef CONFIG_CMD_NET		/* network support */
 
 /* turn on command-line edit/hist/auto */
 #define CONFIG_COMMAND_HISTORY

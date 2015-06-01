@@ -18,7 +18,6 @@
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_RUN
 #define CONFIG_CMD_LOADS
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP

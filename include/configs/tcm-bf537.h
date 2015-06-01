@@ -71,7 +71,6 @@
 #define CONFIG_NETCONSOLE	1
 #endif
 #define CONFIG_HOSTNAME		tcm-bf537
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings

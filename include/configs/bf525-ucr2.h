@@ -96,7 +96,6 @@
 
 /* this sets up the default list of enabled commands */
 #include <config_cmd_default.h>
-#undef CONFIG_CMD_NET	/* bootp, tftpboot, rarpboot */
 #undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_IMLS
 

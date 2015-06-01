@@ -90,7 +90,6 @@
 
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_LOADB
-#define CONFIG_CMD_NET
 
 #undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_IDE

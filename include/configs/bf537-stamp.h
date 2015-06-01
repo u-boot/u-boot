@@ -65,7 +65,6 @@
 #define CONFIG_NETCONSOLE	1
 #endif
 #define CONFIG_HOSTNAME		bf537-stamp
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings

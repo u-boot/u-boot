@@ -77,7 +77,6 @@
 #define DM9000_IO		CONFIG_DM9000_BASE
 #define DM9000_DATA		(CONFIG_DM9000_BASE + 2)
 
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings

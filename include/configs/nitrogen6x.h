@@ -76,7 +76,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 #define CONFIG_FEC_MXC
 #define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -105,7 +104,6 @@
 
 /* Miscellaneous commands */
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_SETEXPR
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO

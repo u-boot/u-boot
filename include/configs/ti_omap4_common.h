@@ -79,7 +79,6 @@
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 
 /* Per-Soc commands */
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 
 /*

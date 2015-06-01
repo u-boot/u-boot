@@ -87,7 +87,6 @@
 #define CONFIG_SYS_AUTOLOAD	"no"
 #define CONFIG_ROOTPATH		"/romfs"
 
-#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings
@@ -153,7 +152,6 @@
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_PING
 #else
-# undef CONFIG_CMD_NET
 # undef CONFIG_CMD_NFS
 #endif
 

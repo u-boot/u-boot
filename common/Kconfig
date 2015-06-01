@@ -252,12 +252,21 @@ config CMD_SOURCE
 	help
 	  Run script from memory
 
+config CMD_SETEXPR
+	bool "setexpr"
+	help
+	  Evaluate boolean and math expressions and store the result in an env
+	    variable.
+	  Also supports loading the value at a memory location into a variable.
+	  If CONFIG_REGEX is enabled, setexpr also supports a gsub function.
+
 endmenu
 
 menu "Network commands"
 
 config CMD_NET
 	bool "bootp, tftpboot"
+        select NET
 	help
 	  Network commands.
 	  bootp - boot image via network using BOOTP/TFTP protocol

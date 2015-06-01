@@ -86,7 +86,6 @@
 #define CONFIG_CMD_NAND_TRIMFFS
 #define CONFIG_CMD_NFS		/* NFS support			*/
 #define CONFIG_CMD_PING		/* ping support			*/
-#define CONFIG_CMD_SETEXPR	/* setexpr support		*/
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 

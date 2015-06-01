@@ -30,7 +30,6 @@
 #define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 
 /* Command definition */
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 
 /* Watchdog */

@@ -58,7 +58,6 @@
 #define CONFIG_SYS_NS16550_CLK		48000000
 
 /* Per-SoC commands */
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 
 /*

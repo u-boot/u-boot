@@ -87,7 +87,6 @@
 #define CONFIG_RTL8169
 
 /* General networking support */
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
 #include "tegra-common-post.h"

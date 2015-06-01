@@ -354,7 +354,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_SETEXPR
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

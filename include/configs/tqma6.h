@@ -100,7 +100,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -116,7 +115,6 @@
 /* Command definition */
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_ITEST
-#define CONFIG_CMD_SETEXPR
 
 /* place code in last 4 MiB of RAM */
 #if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)

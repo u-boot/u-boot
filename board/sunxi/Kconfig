@@ -569,9 +569,6 @@ config GMAC_TX_DELAY
 config SYS_MALLOC_CLEAR_ON_INIT
 	default n
 
-config NET
-	default y
-
 config NETDEVICES
 	default y
 

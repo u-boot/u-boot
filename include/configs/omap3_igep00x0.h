@@ -75,7 +75,6 @@
 #endif
 #if (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0020) || \
     (CONFIG_MACH_TYPE == MACH_TYPE_IGEP0032)
-#define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #endif
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING

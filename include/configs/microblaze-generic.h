@@ -260,7 +260,6 @@
 #endif
 
 #ifndef CONFIG_SYS_ENET
-# undef CONFIG_CMD_NET
 # undef CONFIG_CMD_NFS
 #else
 # define CONFIG_CMD_PING

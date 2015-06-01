@@ -57,11 +57,9 @@
 #define CONFIG_E1000_NO_NVM
 
 /* General networking support */
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
 /* Miscellaneous commands */
-#define CONFIG_CMD_SETEXPR
 #define CONFIG_FAT_WRITE
 
 /* Increase console I/O buffer size */

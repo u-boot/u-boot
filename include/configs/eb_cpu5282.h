@@ -72,7 +72,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_LED
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 
 #define CONFIG_MCFTMR
 

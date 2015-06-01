@@ -17,7 +17,6 @@
 #  define CONFIG_BOOTP_DNS
 #  define CONFIG_BOOTP_NTPSERVER
 #  define CONFIG_BOOTP_RANDOM_DELAY
-#  define CONFIG_LIB_RAND
 #  define CONFIG_KEEP_SERVERADDR
 #  define CONFIG_CMD_DNS
 #  define CONFIG_CMD_PING
@@ -26,7 +25,6 @@
 #  endif
 # else
 #  undef CONFIG_CMD_BOOTD
-#  undef CONFIG_CMD_NET
 #  undef CONFIG_CMD_NFS
 # endif
 # ifdef CONFIG_LIBATA

@@ -102,7 +102,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MMC
-#define CONFIG_CMD_NET
 
 #define CONFIG_ATMEL_USART
 #define CONFIG_MACB

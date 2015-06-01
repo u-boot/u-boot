@@ -68,7 +68,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -79,7 +78,6 @@
 #include <config_cmd_default.h>
 
 #undef CONFIG_CMD_IMLS
-#define CONFIG_CMD_SETEXPR
 
 #define CONFIG_BOOTDELAY	3
 

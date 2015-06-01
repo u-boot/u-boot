@@ -45,7 +45,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_NET
 
 /* MMC SPL */
 #define CONFIG_SKIP_LOWLEVEL_INIT

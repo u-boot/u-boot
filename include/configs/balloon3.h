@@ -48,7 +48,6 @@
  */
 #include <config_cmd_default.h>
 
-#undef	CONFIG_CMD_NET
 #undef	CONFIG_CMD_NFS
 #undef	CONFIG_CMD_ENV
 #undef	CONFIG_CMD_IMLS

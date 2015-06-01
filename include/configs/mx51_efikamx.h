@@ -41,7 +41,6 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_DATE
 #undef CONFIG_CMD_IMLS
 
