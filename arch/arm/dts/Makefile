@@ -122,10 +122,11 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-wits-pro-a20-dkt.dtb \
 	sun7i-a20-yones-toptech-bd1078.dtb
 dtb-$(CONFIG_MACH_SUN8I_A23) += \
+	sun8i-a23-evb.dtb \
 	sun8i-a23-ippo-q8h-v5.dtb \
 	sun8i-a23-ippo-q8h-v1.2.dtb
 dtb-$(CONFIG_MACH_SUN8I_A33) += \
-	sun8i-a33-astar-mid756.dtb \
+	sun8i-a33-et-q8-v1.6.dtb \
 	sun8i-a33-ippo-q8h-v1.2-lcd1024x600.dtb
 dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-optimus.dtb \

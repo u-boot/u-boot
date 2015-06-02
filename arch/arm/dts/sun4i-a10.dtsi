@@ -17,11 +17,6 @@
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public
- *     License along with this library; if not, write to the Free
- *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
- *     MA 02110-1301 USA
- *
  * Or, alternatively,
  *
  *  b) Permission is hereby granted, free of charge, to any person
@@ -66,7 +61,8 @@
 		ranges;
 
 		framebuffer@0 {
-			compatible = "allwinner,simple-framebuffer", "simple-framebuffer";
+			compatible = "allwinner,simple-framebuffer",
+				     "simple-framebuffer";
 			allwinner,pipeline = "de_be0-lcd0-hdmi";
 			clocks = <&pll5 1>, <&ahb_gates 36>, <&ahb_gates 43>,
 				 <&ahb_gates 44>;
@@ -74,7 +70,8 @@
 		};
 
 		framebuffer@1 {
-			compatible = "allwinner,simple-framebuffer", "simple-framebuffer";
+			compatible = "allwinner,simple-framebuffer",
+				     "simple-framebuffer";
 			allwinner,pipeline = "de_fe0-de_be0-lcd0-hdmi";
 			clocks = <&pll5 1>, <&ahb_gates 36>, <&ahb_gates 43>,
 				 <&ahb_gates 44>, <&ahb_gates 46>;
@@ -110,11 +107,11 @@
 			clocks = <&cpu>;
 			clock-latency = <244144>; /* 8 32k periods */
 			operating-points = <
-				/* kHz    uV */
+				/* kHz	  uV */
 				1008000 1400000
-				912000  1350000
-				864000  1300000
-				624000  1250000
+				912000	1350000
+				864000	1300000
+				624000	1250000
 				>;
 			#cooling-cells = <2>;
 			cooling-min-level = <0>;
@@ -434,11 +431,12 @@
 
 		usb_clk: clk@01c200cc {
 			#clock-cells = <1>;
-		        #reset-cells = <1>;
+			#reset-cells = <1>;
 			compatible = "allwinner,sun4i-a10-usb-clk";
 			reg = <0x01c200cc 0x4>;
 			clocks = <&pll6 1>;
-			clock-output-names = "usb_ohci0", "usb_ohci1", "usb_phy";
+			clock-output-names = "usb_ohci0", "usb_ohci1",
+					     "usb_phy";
 		};
 
 		spi3_clk: clk@01c200d4 {
@@ -450,44 +448,46 @@
 		};
 	};
 
-	/*
-	 * Note we use the address where the mmio registers start, not where
-	 * the SRAM blocks start, this cannot be changed because that would be
-	 * a devicetree ABI change.
-	 */
 	soc@01c00000 {
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
 
-		sram@00000000 {
-			compatible = "allwinner,sun4i-a10-sram";
-			reg = <0x00000000 0x4000>;
-			allwinner,sram-name = "A1";
-		};
-
-		sram@00004000 {
-			compatible = "allwinner,sun4i-a10-sram";
-			reg = <0x00004000 0x4000>;
-			allwinner,sram-name = "A2";
-		};
-
-		sram@00008000 {
-			compatible = "allwinner,sun4i-a10-sram";
-			reg = <0x00008000 0x4000>;
-			allwinner,sram-name = "A3-A4";
-		};
-
-		sram@00010000 {
-			compatible = "allwinner,sun4i-a10-sram";
-			reg = <0x00010000 0x1000>;
-			allwinner,sram-name = "D";
-		};
-
 		sram-controller@01c00000 {
 			compatible = "allwinner,sun4i-a10-sram-controller";
 			reg = <0x01c00000 0x30>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+
+			sram_a: sram@00000000 {
+				compatible = "mmio-sram";
+				reg = <0x00000000 0xc000>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+				ranges = <0 0x00000000 0xc000>;
+
+				emac_sram: sram-section@8000 {
+					compatible = "allwinner,sun4i-a10-sram-a3-a4";
+					reg = <0x8000 0x4000>;
+					status = "disabled";
+				};
+			};
+
+			sram_d: sram@00010000 {
+				compatible = "mmio-sram";
+				reg = <0x00010000 0x1000>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+				ranges = <0 0x00010000 0x1000>;
+
+				otg_sram: sram-section@0000 {
+					compatible = "allwinner,sun4i-a10-sram-d";
+					reg = <0x0000 0x1000>;
+					status = "disabled";
+				};
+			};
 		};
 
 		dma: dma-controller@01c02000 {
@@ -531,6 +531,7 @@
 			reg = <0x01c0b000 0x1000>;
 			interrupts = <55>;
 			clocks = <&ahb_gates 17>;
+			allwinner,sram = <&emac_sram 1>;
 			status = "disabled";
 		};
 
@@ -784,7 +785,8 @@
 			};
 
 			mmc0_pins_a: mmc0@0 {
-				allwinner,pins = "PF0","PF1","PF2","PF3","PF4","PF5";
+				allwinner,pins = "PF0", "PF1", "PF2",
+						 "PF3", "PF4", "PF5";
 				allwinner,function = "mmc0";
 				allwinner,drive = <SUN4I_PINCTRL_30_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
@@ -797,43 +799,85 @@
 				allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
 			};
 
-			ir0_pins_a: ir0@0 {
-				allwinner,pins = "PB3","PB4";
+			ir0_rx_pins_a: ir0@0 {
+				allwinner,pins = "PB4";
 				allwinner,function = "ir0";
 				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
 
-			ir1_pins_a: ir1@0 {
-				allwinner,pins = "PB22","PB23";
+			ir0_tx_pins_a: ir0@1 {
+				allwinner,pins = "PB3";
+				allwinner,function = "ir0";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			ir1_rx_pins_a: ir1@0 {
+				allwinner,pins = "PB23";
+				allwinner,function = "ir1";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			ir1_tx_pins_a: ir1@1 {
+				allwinner,pins = "PB22";
 				allwinner,function = "ir1";
 				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
 
 			spi0_pins_a: spi0@0 {
-				allwinner,pins = "PI10", "PI11", "PI12", "PI13";
+				allwinner,pins = "PI11", "PI12", "PI13";
+				allwinner,function = "spi0";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			spi0_cs0_pins_a: spi0_cs0@0 {
+				allwinner,pins = "PI10";
 				allwinner,function = "spi0";
 				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
 
 			spi1_pins_a: spi1@0 {
-				allwinner,pins = "PI16", "PI17", "PI18", "PI19";
+				allwinner,pins = "PI17", "PI18", "PI19";
+				allwinner,function = "spi1";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			spi1_cs0_pins_a: spi1_cs0@0 {
+				allwinner,pins = "PI16";
 				allwinner,function = "spi1";
 				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
 
 			spi2_pins_a: spi2@0 {
-				allwinner,pins = "PB14", "PB15", "PB16", "PB17";
+				allwinner,pins = "PC20", "PC21", "PC22";
 				allwinner,function = "spi2";
 				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
 
 			spi2_pins_b: spi2@1 {
-				allwinner,pins = "PC19", "PC20", "PC21", "PC22";
+				allwinner,pins = "PB15", "PB16", "PB17";
+				allwinner,function = "spi2";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			spi2_cs0_pins_a: spi2_cs0@0 {
+				allwinner,pins = "PC19";
+				allwinner,function = "spi2";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			spi2_cs0_pins_b: spi2_cs0@1 {
+				allwinner,pins = "PB14";
 				allwinner,function = "spi2";
 				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;

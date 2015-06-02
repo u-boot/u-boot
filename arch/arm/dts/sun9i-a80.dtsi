@@ -18,11 +18,6 @@
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public
- *     License along with this file; if not, write to the Free
- *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
- *     MA 02110-1301 USA
- *
  * Or, alternatively,
  *
  *  b) Permission is hereby granted, free of charge, to any person
@@ -289,7 +284,7 @@
 					"ahb0_ss", "ahb0_sd", "ahb0_nand1",
 					"ahb0_nand0", "ahb0_sdram",
 					"ahb0_mipi_hsi", "ahb0_sata", "ahb0_ts",
-					"ahb0_spi0","ahb0_spi1", "ahb0_spi2",
+					"ahb0_spi0", "ahb0_spi1", "ahb0_spi2",
 					"ahb0_spi3";
 		};
 
@@ -568,6 +563,12 @@
 				     <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
 
 			clocks = <&osc24M>;
+		};
+
+		wdt: watchdog@06000ca0 {
+			compatible = "allwinner,sun6i-a31-wdt";
+			reg = <0x06000ca0 0x20>;
+			interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
 		pio: pinctrl@06000800 {
