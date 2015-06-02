@@ -1,3 +1,5 @@
+#include <linux/linkage.h>
+
 .macro ARM_DIV_BODY dividend, divisor, result, curbit
 
 #if __LINUX_ARM_ARCH__ >= 5
@@ -95,9 +97,8 @@
 
 	.align	5
 .globl __divsi3
-.globl __aeabi_idiv
 __divsi3:
-__aeabi_idiv:
+ENTRY(__aeabi_idiv)
 	cmp	r1, #0
 	eor	ip, r0, r1			@ save the sign of the result.
 	beq	Ldiv0
@@ -139,3 +140,4 @@ Ldiv0:
 	bl	__div0
 	mov	r0, #0			@ About as wrong as it could be.
 	ldr	pc, [sp], #4
+ENDPROC(__aeabi_idiv)
