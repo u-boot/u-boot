@@ -163,21 +163,27 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
 
 /* Debug Server firmware */
-#define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(512UL * 1024 * 1024)
 /* 2 sec timeout */
 #define CONFIG_SYS_DEBUG_SERVER_TIMEOUT			(2 * 1000 * 1000)
 
 /* MC firmware */
 #define CONFIG_FSL_MC_ENET
-#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE	(512UL * 1024 * 1024)
 /* TODO Actual DPL max length needs to be confirmed with the MC FW team */
 #define CONFIG_SYS_LS_MC_DPC_MAX_LENGTH	    0x20000
 #define CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET    0x00F00000
 #define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH	    0x20000
 #define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET    0x00F20000
 
-/* Carve out a DDR region which will not be used by u-boot/Linux */
+/*
+ * Carve out a DDR region which will not be used by u-boot/Linux
+ *
+ * It will be used by MC and Debug Server. The MC region must be
+ * 512MB aligned, so the min size to hide is 512MB.
+ */
 #if defined(CONFIG_FSL_MC_ENET) || defined(CONFIG_FSL_DEBUG_SERVER)
+#define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(256UL * 1024 * 1024)
+#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(256UL * 1024 * 1024)
+#define CONFIG_SYS_MEM_TOP_HIDE_MIN			(512UL * 1024 * 1024)
 #define CONFIG_SYS_MEM_TOP_HIDE		get_dram_size_to_hide()
 #endif
 

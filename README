@@ -5063,6 +5063,21 @@ within that device.
 	normal addressable memory via the LBC. CONFIG_SYS_LS_MC_FW_ADDR is the
 	virtual address in NOR flash.
 
+Freescale Layerscape Debug Server Support:
+-------------------------------------------
+The Freescale Layerscape Debug Server Support supports the loading of
+"Debug Server firmware" and triggering SP boot-rom.
+This firmware often needs to be loaded during U-Boot booting.
+
+- CONFIG_FSL_DEBUG_SERVER
+	Enable the Debug Server for Layerscape SoCs.
+
+- CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE
+	Define minimum DDR size required for debug server image
+
+- CONFIG_SYS_MEM_TOP_HIDE_MIN
+	Define minimum DDR size to be hided from top of the DDR memory
+
 Building the Software:
 ======================
 

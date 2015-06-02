@@ -215,7 +215,7 @@ unsigned long get_dram_size_to_hide(void)
 	dram_to_hide += mc_get_dram_block_size();
 #endif
 
-	return dram_to_hide;
+	return roundup(dram_to_hide, CONFIG_SYS_MEM_TOP_HIDE_MIN);
 }
 
 #ifdef CONFIG_FSL_MC_ENET
