@@ -69,7 +69,6 @@
  */
 #define ADI_CMDS_NETWORK
 #define CONFIG_NETCONSOLE
-#define CONFIG_NET_MULTI
 #define CONFIG_HOSTNAME		"bf609-ezkit"
 #define CONFIG_PHY_ADDR		1
 #define CONFIG_DW_PORTS		1

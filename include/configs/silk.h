@@ -50,7 +50,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 /* SH Ether */
-#define	CONFIG_NET_MULTI
 #define CONFIG_SH_ETHER
 #define CONFIG_SH_ETHER_USE_PORT	0
 #define CONFIG_SH_ETHER_PHY_ADDR	0x1

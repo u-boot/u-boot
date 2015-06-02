@@ -117,7 +117,6 @@
  * Ethernet configuration
  */
 #define CONFIG_DW_AUTONEG
-#define CONFIG_NET_MULTI
 
 /*
  * Command line configuration

@@ -81,7 +81,6 @@
 /*
  * Ethernet
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_PHY_MAX_ADDR	32	/* this comes from <linux/phy.h> */
 #define CONFIG_SYS_DISCOVER_PHY
 #define CONFIG_FTGMAC100

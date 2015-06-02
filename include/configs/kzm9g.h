@@ -127,7 +127,6 @@
 #define TMU_CLK_DIVIDER		(4)	/* 4 (default), 16, 64, 256 or 1024 */
 
 /* Ether */
-#define CONFIG_NET_MULTI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_SMC911X

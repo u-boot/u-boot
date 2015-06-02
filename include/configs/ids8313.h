@@ -171,7 +171,6 @@
 #define CONFIG_TSEC1
 #define CONFIG_TSEC2
 #define CONFIG_TSEC_ENET
-#define CONFIG_NET_MULTI
 #define CONFIG_HARD_SPI
 #define CONFIG_HARD_I2C
 

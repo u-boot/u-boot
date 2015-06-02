@@ -269,7 +269,6 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
 
 #ifdef CONFIG_PCI
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP
 #define CONFIG_E1000
 #define CONFIG_PCI_SCAN_SHOW

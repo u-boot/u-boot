@@ -142,7 +142,6 @@
 #define CONFIG_MII_SUPPRESS_PREAMBLE
 #define CONFIG_MII
 #define CONFIG_PHY_ADDR		1
-#define CONFIG_NET_MULTI
 #undef CONFIG_NETCONSOLE
 
 /* SDRAM configuration */

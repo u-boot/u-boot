@@ -526,7 +526,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_PCIE_MEM_SIZE	0x08000000	/* 128M */
 
 #ifdef CONFIG_PCI
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP
 #define CONFIG_E1000
 #define CONFIG_PCI_SCAN_SHOW

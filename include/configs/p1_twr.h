@@ -302,7 +302,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xffc00000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP	/* do pci plug-and-play */
 #define CONFIG_E1000	/* Defind e1000 pci Ethernet card*/
 #define CONFIG_CMD_PCI
@@ -312,10 +311,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif /* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI
-#endif
 
 #define CONFIG_MII		/* MII PHY management */
 #define CONFIG_TSEC1
