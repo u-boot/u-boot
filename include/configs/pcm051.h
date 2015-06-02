@@ -163,9 +163,6 @@
 #define CONFIG_USB_ETH_RNDIS
 #endif /* CONFIG_MUSB_GADGET */
 
-/* Unsupported features */
-#undef CONFIG_USE_IRQ
-
 #define CONFIG_NET_MULTI
 #define CONFIG_PHY_GIGE
 #define CONFIG_PHYLIB
