@@ -75,6 +75,11 @@
 #define CONFIG_SYS_PL310_BASE		SOCFPGA_MPUL2_ADDRESS
 
 /*
+ * SDRAM controller
+ */
+#define CONFIG_ALTERA_SDRAM
+
+/*
  * EPCS/EPCQx1 Serial Flash Controller
  */
 #ifdef CONFIG_ALTERA_SPI
