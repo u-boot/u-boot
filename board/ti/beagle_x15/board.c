@@ -68,7 +68,13 @@ static const struct emif_regs beagle_x15_emif1_ddr3_532mhz_emif_regs = {
 	.emif_rd_wr_exec_thresh	= 0x00000305
 };
 
+/* Ext phy ctrl regs 1-35 */
 static const u32 beagle_x15_emif1_ddr3_ext_phy_ctrl_const_regs[] = {
+	0x10040100,
+	0x00740074,
+	0x00780078,
+	0x007c007c,
+	0x007b007b,
 	0x00800080,
 	0x00360036,
 	0x00340034,
@@ -90,7 +96,7 @@ static const u32 beagle_x15_emif1_ddr3_ext_phy_ctrl_const_regs[] = {
 
 	0x00000000,
 	0x00600020,
-	0x40010080,
+	0x40011080,
 	0x08102040,
 
 	0x00400040,
@@ -126,6 +132,11 @@ static const struct emif_regs beagle_x15_emif2_ddr3_532mhz_emif_regs = {
 };
 
 static const u32 beagle_x15_emif2_ddr3_ext_phy_ctrl_const_regs[] = {
+	0x10040100,
+	0x00820082,
+	0x008b008b,
+	0x00800080,
+	0x007e007e,
 	0x00800080,
 	0x00370037,
 	0x00390039,
@@ -145,7 +156,7 @@ static const u32 beagle_x15_emif2_ddr3_ext_phy_ctrl_const_regs[] = {
 
 	0x00000000,
 	0x00600020,
-	0x40010080,
+	0x40011080,
 	0x08102040,
 
 	0x00400040,

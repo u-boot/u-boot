@@ -421,8 +421,14 @@ const u32 ddr3_ext_phy_ctrl_const_base_es2[] = {
 	0x0
 };
 
+/* Ext phy ctrl 1-35 regs */
 const u32
 dra_ddr3_ext_phy_ctrl_const_base_es1_emif1[] = {
+	0x10040100,
+	0x00910091,
+	0x00950095,
+	0x009B009B,
+	0x009E009E,
 	0x00980098,
 	0x00340034,
 	0x00350035,
@@ -441,7 +447,7 @@ dra_ddr3_ext_phy_ctrl_const_base_es1_emif1[] = {
 	0x00500050,
 	0x00000000,
 	0x00600020,
-	0x40010080,
+	0x40011080,
 	0x08102040,
 	0x0,
 	0x0,
@@ -450,8 +456,14 @@ dra_ddr3_ext_phy_ctrl_const_base_es1_emif1[] = {
 	0x0
 };
 
+/* Ext phy ctrl 1-35 regs */
 const u32
 dra_ddr3_ext_phy_ctrl_const_base_es1_emif2[] = {
+	0x10040100,
+	0x00910091,
+	0x00950095,
+	0x009B009B,
+	0x009E009E,
 	0x00980098,
 	0x00330033,
 	0x00330033,
@@ -470,7 +482,7 @@ dra_ddr3_ext_phy_ctrl_const_base_es1_emif2[] = {
 	0x00500050,
 	0x00000000,
 	0x00600020,
-	0x40010080,
+	0x40011080,
 	0x08102040,
 	0x0,
 	0x0,
@@ -479,8 +491,14 @@ dra_ddr3_ext_phy_ctrl_const_base_es1_emif2[] = {
 	0x0
 };
 
+/* Ext phy ctrl 1-35 regs */
 const u32
 dra_ddr3_ext_phy_ctrl_const_base_666MHz[] = {
+	0x10040100,
+	0x00A400A4,
+	0x00A900A9,
+	0x00B000B0,
+	0x00B000B0,
 	0x00A400A4,
 	0x00390039,
 	0x00320032,
@@ -562,7 +580,7 @@ void get_lpddr2_mr_regs(const struct lpddr2_mr_regs **regs)
 	*regs = &mr_regs;
 }
 
-void do_ext_phy_settings(u32 base, const struct emif_regs *regs)
+static void do_ext_phy_settings_omap5(u32 base, const struct emif_regs *regs)
 {
 	u32 *ext_phy_ctrl_base = 0;
 	u32 *emif_ext_phy_ctrl_base = 0;
@@ -599,6 +617,58 @@ void do_ext_phy_settings(u32 base, const struct emif_regs *regs)
 		writel(ext_phy_ctrl_const_regs[i],
 		       emif_ext_phy_ctrl_base++);
 	}
+}
+
+static void do_ext_phy_settings_dra7(u32 base, const struct emif_regs *regs)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+	u32 *emif_ext_phy_ctrl_base = 0;
+	u32 emif_nr;
+	const u32 *ext_phy_ctrl_const_regs;
+	u32 i, hw_leveling, size;
+
+	emif_nr = (base == EMIF1_BASE) ? 1 : 2;
+
+	hw_leveling = regs->emif_rd_wr_lvl_rmp_ctl >> EMIF_REG_RDWRLVL_EN_SHIFT;
+
+	emif_ext_phy_ctrl_base = (u32 *)&(emif->emif_ddr_ext_phy_ctrl_1);
+
+	emif_get_ext_phy_ctrl_const_regs(emif_nr,
+					 &ext_phy_ctrl_const_regs, &size);
+
+	writel(ext_phy_ctrl_const_regs[0], &emif_ext_phy_ctrl_base[0]);
+	writel(ext_phy_ctrl_const_regs[0], &emif_ext_phy_ctrl_base[1]);
+
+	if (!hw_leveling) {
+		/*
+		 * Copy the predefined PHY register values
+		 * in case of sw leveling
+		 */
+		for (i = 1; i < 25; i++) {
+			writel(ext_phy_ctrl_const_regs[i],
+			       &emif_ext_phy_ctrl_base[i * 2]);
+			writel(ext_phy_ctrl_const_regs[i],
+			       &emif_ext_phy_ctrl_base[i * 2 + 1]);
+		}
+	} else {
+		/*
+		 * Write the init value for HW levling to occur
+		 */
+		for (i = 21; i < 35; i++) {
+			writel(ext_phy_ctrl_const_regs[i],
+			       &emif_ext_phy_ctrl_base[i * 2]);
+			writel(ext_phy_ctrl_const_regs[i],
+			       &emif_ext_phy_ctrl_base[i * 2 + 1]);
+		}
+	}
+}
+
+void do_ext_phy_settings(u32 base, const struct emif_regs *regs)
+{
+	if (is_omap54xx())
+		do_ext_phy_settings_omap5(base, regs);
+	else
+		do_ext_phy_settings_dra7(base, regs);
 }
 
 #ifndef CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
