@@ -592,11 +592,11 @@ const struct ctrl_ioregs ioregs_dra7xx_es1 = {
 	.ctrl_ddrch = 0x40404040,
 	.ctrl_lpddr2ch = 0x40404040,
 	.ctrl_ddr3ch = 0x80808080,
-	.ctrl_ddrio_0 = 0xA2084210,
-	.ctrl_ddrio_1 = 0x84210840,
+	.ctrl_ddrio_0 = 0x00094A40,
+	.ctrl_ddrio_1 = 0x04A52000,
 	.ctrl_ddrio_2 = 0x84210000,
-	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
-	.ctrl_emif_sdram_config_ext_final = 0x0001C1A7,
+	.ctrl_emif_sdram_config_ext = 0x0001C127,
+	.ctrl_emif_sdram_config_ext_final = 0x0001C127,
 	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
 };
 
@@ -604,11 +604,11 @@ const struct ctrl_ioregs ioregs_dra72x_es1 = {
 	.ctrl_ddrch = 0x40404040,
 	.ctrl_lpddr2ch = 0x40404040,
 	.ctrl_ddr3ch = 0x60606080,
-	.ctrl_ddrio_0 = 0xA2084210,
-	.ctrl_ddrio_1 = 0x84210840,
+	.ctrl_ddrio_0 = 0x00094A40,
+	.ctrl_ddrio_1 = 0x04A52000,
 	.ctrl_ddrio_2 = 0x84210000,
-	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
-	.ctrl_emif_sdram_config_ext_final = 0x0001C1A7,
+	.ctrl_emif_sdram_config_ext = 0x0001C127,
+	.ctrl_emif_sdram_config_ext_final = 0x0001C127,
 	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
 };
 
