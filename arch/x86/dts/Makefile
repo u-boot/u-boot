@@ -3,7 +3,8 @@ dtb-y += chromebook_link.dtb \
 	crownbay.dtb \
 	galileo.dtb \
 	minnowmax.dtb \
-	qemu-x86.dtb
+	qemu-x86_i440fx.dtb \
+	qemu-x86_q35.dtb
 
 targets += $(dtb-y)
 

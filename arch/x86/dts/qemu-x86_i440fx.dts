@@ -10,7 +10,7 @@
 /include/ "serial.dtsi"
 
 / {
-	model = "QEMU x86";
+	model = "QEMU x86 (I440FX)";
 	compatible = "qemu,x86";
 
 	config {

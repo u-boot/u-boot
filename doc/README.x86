@@ -40,7 +40,7 @@ configuration during the 'make menuconfig' process.
 x86 architecture  --->
 	...
 	(qemu-x86) Board configuration file
-	(qemu-x86) Board Device Tree Source (dts) file
+	(qemu-x86_i440fx) Board Device Tree Source (dts) file
 	(0x01920000) Board specific Cache-As-RAM (CAR) address
 	(0x4000) Board specific Cache-As-RAM (CAR) size
 
@@ -185,6 +185,14 @@ To build u-boot.rom for QEMU x86 targets, just simply run
 
 $ make qemu-x86_defconfig
 $ make all
+
+Note this default configuration will build a U-Boot for the QEMU x86 i440FX
+board. To build a U-Boot against QEMU x86 Q35 board, you can change the build
+configuration during the 'make menuconfig' process like below:
+
+Device Tree Control  --->
+	...
+	(qemu-x86_q35) Default Device Tree for DT control
 
 Test with coreboot
 ------------------

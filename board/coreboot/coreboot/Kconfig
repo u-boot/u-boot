@@ -23,7 +23,7 @@ config SYS_CONFIG_NAME
 
 config DEFAULT_DEVICE_TREE
 	string "Board Device Tree Source (dts) file"
-	default "qemu-x86"
+	default "qemu-x86_i440fx"
 	help
 	  This option selects the board Device Tree Source (dts) file in
 	  arch/x86/dts/ directory to be used to build U-Boot for coreboot.
