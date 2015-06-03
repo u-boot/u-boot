@@ -75,16 +75,20 @@ static void io_settings_ddr3(void)
 
 	writel(ioregs->ctrl_ddrio_0, (*ctrl)->control_ddrio_0);
 	writel(ioregs->ctrl_ddrio_1, (*ctrl)->control_ddrio_1);
-	writel(ioregs->ctrl_ddrio_2, (*ctrl)->control_ddrio_2);
+
+	if (!is_dra7xx()) {
+		writel(ioregs->ctrl_ddrio_2, (*ctrl)->control_ddrio_2);
+		writel(ioregs->ctrl_lpddr2ch, (*ctrl)->control_lpddr2ch1_1);
+	}
 
 	/* omap5432 does not use lpddr2 */
 	writel(ioregs->ctrl_lpddr2ch, (*ctrl)->control_lpddr2ch1_0);
-	writel(ioregs->ctrl_lpddr2ch, (*ctrl)->control_lpddr2ch1_1);
 
 	writel(ioregs->ctrl_emif_sdram_config_ext,
 	       (*ctrl)->control_emif1_sdram_config_ext);
-	writel(ioregs->ctrl_emif_sdram_config_ext,
-	       (*ctrl)->control_emif2_sdram_config_ext);
+	if (!is_dra72x())
+		writel(ioregs->ctrl_emif_sdram_config_ext,
+		       (*ctrl)->control_emif2_sdram_config_ext);
 
 	if (is_omap54xx()) {
 		/* Disable DLL select */
