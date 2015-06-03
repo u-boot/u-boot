@@ -55,15 +55,15 @@ static const struct emif_regs beagle_x15_emif1_ddr3_532mhz_emif_regs = {
 	.read_idle_ctrl		= 0x00050001,
 	.zq_config		= 0x0007190b,
 	.temp_alert_config	= 0x00000000,
-	.emif_ddr_phy_ctlr_1_init = 0x0e24400a,
-	.emif_ddr_phy_ctlr_1	= 0x0e24400a,
+	.emif_ddr_phy_ctlr_1_init = 0x0024400b,
+	.emif_ddr_phy_ctlr_1	= 0x0e24400b,
 	.emif_ddr_ext_phy_ctrl_1 = 0x10040100,
 	.emif_ddr_ext_phy_ctrl_2 = 0x00740074,
 	.emif_ddr_ext_phy_ctrl_3 = 0x00780078,
 	.emif_ddr_ext_phy_ctrl_4 = 0x007c007c,
 	.emif_ddr_ext_phy_ctrl_5 = 0x007b007b,
 	.emif_rd_wr_lvl_rmp_win	= 0x00000000,
-	.emif_rd_wr_lvl_rmp_ctl	= 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl	= 0x80000000,
 	.emif_rd_wr_lvl_ctl	= 0x00000000,
 	.emif_rd_wr_exec_thresh	= 0x00000305
 };
@@ -103,7 +103,12 @@ static const u32 beagle_x15_emif1_ddr3_ext_phy_ctrl_const_regs[] = {
 	0x00400040,
 	0x00400040,
 	0x00400040,
-	0x00400040
+	0x00400040,
+	0x0,
+	0x0,
+	0x0,
+	0x0,
+	0x0
 };
 
 static const struct emif_regs beagle_x15_emif2_ddr3_532mhz_emif_regs = {
@@ -118,15 +123,15 @@ static const struct emif_regs beagle_x15_emif2_ddr3_532mhz_emif_regs = {
 	.read_idle_ctrl		= 0x00050001,
 	.zq_config		= 0x0007190b,
 	.temp_alert_config	= 0x00000000,
-	.emif_ddr_phy_ctlr_1_init = 0x0e24400a,
-	.emif_ddr_phy_ctlr_1	= 0x0e24400a,
+	.emif_ddr_phy_ctlr_1_init = 0x0024400b,
+	.emif_ddr_phy_ctlr_1	= 0x0e24400b,
 	.emif_ddr_ext_phy_ctrl_1 = 0x10040100,
 	.emif_ddr_ext_phy_ctrl_2 = 0x00820082,
 	.emif_ddr_ext_phy_ctrl_3 = 0x008b008b,
 	.emif_ddr_ext_phy_ctrl_4 = 0x00800080,
 	.emif_ddr_ext_phy_ctrl_5 = 0x007e007e,
 	.emif_rd_wr_lvl_rmp_win	= 0x00000000,
-	.emif_rd_wr_lvl_rmp_ctl	= 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl	= 0x80000000,
 	.emif_rd_wr_lvl_ctl	= 0x00000000,
 	.emif_rd_wr_exec_thresh	= 0x00000305
 };
@@ -163,7 +168,12 @@ static const u32 beagle_x15_emif2_ddr3_ext_phy_ctrl_const_regs[] = {
 	0x00400040,
 	0x00400040,
 	0x00400040,
-	0x00400040
+	0x00400040,
+	0x0,
+	0x0,
+	0x0,
+	0x0,
+	0x0
 };
 
 void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
