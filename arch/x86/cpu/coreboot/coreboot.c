@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/msr.h>
@@ -74,9 +75,14 @@ void board_final_cleanup(void)
 		mtrr_close(&state);
 	}
 
-	/* Issue SMI to Coreboot to lock down ME and registers */
-	printf("Finalizing Coreboot\n");
-	outb(0xcb, 0xb2);
+	if (!fdtdec_get_config_bool(gd->fdt_blob, "u-boot,no-apm-finalize")) {
+		/*
+		 * Issue SMI to coreboot to lock down ME and registers
+		 * when allowed via device tree
+		 */
+		printf("Finalizing coreboot\n");
+		outb(0xcb, 0xb2);
+	}
 }
 
 int misc_init_r(void)

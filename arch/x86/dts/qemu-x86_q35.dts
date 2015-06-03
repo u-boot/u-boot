@@ -15,6 +15,7 @@
 
 	config {
 		silent_console = <0>;
+		u-boot,no-apm-finalize;
 	};
 
 	chosen {
