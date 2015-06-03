@@ -122,6 +122,20 @@ static void setup_iomux_features(void)
 
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
 
+/* I2C2 - EEPROM */
+static struct i2c_pads_info i2c_pad_info1 = {
+	.scl = {
+		.i2c_mode = MX6_PAD_EIM_EB2__I2C2_SCL | PC,
+		.gpio_mode = MX6_PAD_EIM_EB2__GPIO2_IO30 | PC,
+		.gp = IMX_GPIO_NR(2, 30)
+	},
+	.sda = {
+		.i2c_mode = MX6_PAD_EIM_D16__I2C2_SDA | PC,
+		.gpio_mode = MX6_PAD_EIM_D16__GPIO3_IO16 | PC,
+		.gp = IMX_GPIO_NR(3, 16)
+	}
+};
+
 /* I2C3 - IO expander  */
 static struct i2c_pads_info i2c_pad_info2 = {
 	.scl = {
@@ -138,6 +152,7 @@ static struct i2c_pads_info i2c_pad_info2 = {
 
 static void setup_iomux_i2c(void)
 {
+	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
 }
 
