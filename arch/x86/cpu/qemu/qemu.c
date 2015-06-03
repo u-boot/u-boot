@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <asm/irq.h>
 #include <asm/post.h>
 #include <asm/processor.h>
 
@@ -34,4 +35,11 @@ void reset_cpu(ulong addr)
 {
 	/* cold reset */
 	x86_full_reset();
+}
+
+int arch_misc_init(void)
+{
+	pirq_init();
+
+	return 0;
 }
