@@ -62,6 +62,7 @@ libs-$(CONFIG_SPL_MMC_SUPPORT) += drivers/mmc/
 libs-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += drivers/ddr/fsl/
 libs-$(CONFIG_SYS_MVEBU_DDR_A38X) += drivers/ddr/marvell/a38x/
 libs-$(CONFIG_SYS_MVEBU_DDR_AXP) += drivers/ddr/marvell/axp/
+libs-$(CONFIG_ALTERA_SDRAM) += drivers/ddr/altera/
 libs-$(CONFIG_SPL_SERIAL_SUPPORT) += drivers/serial/
 libs-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += drivers/mtd/spi/
 libs-$(CONFIG_SPL_SPI_SUPPORT) += drivers/spi/
