@@ -16,7 +16,6 @@ void init_gd(gd_t *id, u64 *gdt_addr);
 void setup_gdt(gd_t *id, u64 *gdt_addr);
 int init_cache(void);
 int cleanup_before_linux(void);
-void panic_puts(const char *str);
 
 /* cpu/.../timer.c */
 void timer_isr(void *);
