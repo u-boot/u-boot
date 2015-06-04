@@ -313,6 +313,7 @@ struct prcm_regs {
 	u32 prm_rstctrl;
 	u32 prm_rstst;
 	u32 prm_rsttime;
+	u32 prm_io_pmctrl;
 	u32 prm_vc_val_bypass;
 	u32 prm_vc_cfg_i2c_mode;
 	u32 prm_vc_cfg_i2c_clk;
@@ -455,6 +456,8 @@ struct omap_sys_ctrl_regs {
 	u32 control_efuse_12;
 	u32 control_efuse_13;
 	u32 control_padconf_wkup_base;
+	u32 iodelay_config_base;
+	u32 ctrl_core_sma_sw_0;
 };
 
 struct dpll_params {
@@ -583,6 +586,7 @@ s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb);
 
 void usb_fake_mac_from_die_id(u32 *id);
 void usb_set_serial_num_from_die_id(u32 *id);
+void recalibrate_iodelay(void);
 
 void omap_smc1(u32 service, u32 val);
 

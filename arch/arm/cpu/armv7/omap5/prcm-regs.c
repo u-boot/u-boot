@@ -378,6 +378,7 @@ struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_status				= 0x4A002134,
 	.control_phy_power_usb			= 0x4A002370,
 	.control_phy_power_sata			= 0x4A002374,
+	.ctrl_core_sma_sw_0			= 0x4A0023FC,
 	.control_core_mac_id_0_lo		= 0x4A002514,
 	.control_core_mac_id_0_hi		= 0x4A002518,
 	.control_core_mac_id_1_lo		= 0x4A00251C,
@@ -457,6 +458,7 @@ struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_efuse_3			= 0x4AE0C5D0,
 	.control_efuse_4			= 0x4AE0C5D4,
 	.control_efuse_13			= 0x4AE0C5F0,
+	.iodelay_config_base			= 0x4844A000,
 };
 
 struct prcm_regs const omap5_es2_prcm = {
@@ -976,6 +978,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.prm_rstctrl				= 0x4ae07d00,
 	.prm_rstst				= 0x4ae07d04,
 	.prm_rsttime				= 0x4ae07d08,
+	.prm_io_pmctrl				= 0x4ae07d20,
 	.prm_vc_val_bypass			= 0x4ae07da0,
 	.prm_vc_cfg_i2c_mode			= 0x4ae07db4,
 	.prm_vc_cfg_i2c_clk			= 0x4ae07db8,
