@@ -117,9 +117,17 @@ void set_muxconf_regs_essential(void)
 #ifdef CONFIG_IODELAY_RECALIBRATION
 void recalibrate_iodelay(void)
 {
-	__recalibrate_iodelay(core_padconf_array_essential,
-			      ARRAY_SIZE(core_padconf_array_essential),
-			      iodelay_cfg_array, ARRAY_SIZE(iodelay_cfg_array));
+	if (is_dra72x()) {
+		__recalibrate_iodelay(core_padconf_array_essential,
+				      ARRAY_SIZE(core_padconf_array_essential),
+				      iodelay_cfg_array,
+				      ARRAY_SIZE(iodelay_cfg_array));
+	} else {
+		__recalibrate_iodelay(dra74x_core_padconf_array,
+				      ARRAY_SIZE(dra74x_core_padconf_array),
+				      dra742_iodelay_cfg_array,
+				      ARRAY_SIZE(dra742_iodelay_cfg_array));
+	}
 }
 #endif
 
