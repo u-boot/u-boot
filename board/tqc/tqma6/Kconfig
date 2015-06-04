@@ -33,4 +33,8 @@ config TQMA6S
 
 endchoice
 
+config IMX_CONFIG
+	default "board/tqc/tqma6/tqma6q.cfg" if TQMA6Q
+	default "board/tqc/tqma6/tqma6s.cfg" if TQMA6S
+
 endif
