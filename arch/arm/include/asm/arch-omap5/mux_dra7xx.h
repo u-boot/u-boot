@@ -26,6 +26,21 @@
 #define WKEN	(1 << 24)
 #define WKDIS	(0 << 24)
 
+#define PULL_ENA		(0 << 16)
+#define PULL_DIS		(1 << 16)
+#define PULL_UP			(1 << 17)
+#define INPUT_EN		(1 << 18)
+#define SLEWCONTROL		(1 << 19)
+
+/* Active pin states */
+#define PIN_OUTPUT		(0 | PULL_DIS)
+#define PIN_OUTPUT_PULLUP	(PULL_UP)
+#define PIN_OUTPUT_PULLDOWN	(0)
+#define PIN_INPUT		(INPUT_EN | PULL_DIS)
+#define PIN_INPUT_SLEW		(INPUT_EN | SLEWCONTROL)
+#define PIN_INPUT_PULLUP	(PULL_ENA | INPUT_EN | PULL_UP)
+#define PIN_INPUT_PULLDOWN	(PULL_ENA | INPUT_EN)
+
 #define M0	0
 #define M1	1
 #define M2	2
