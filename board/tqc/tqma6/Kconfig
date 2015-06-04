@@ -33,6 +33,25 @@ config TQMA6S
 
 endchoice
 
+choice
+	prompt "TQMa6 boot configuration"
+	default TQMA6X_MMC_BOOT
+	help
+	  Configure boot device. This is also used to implement environment
+	  location.
+
+config TQMA6X_MMC_BOOT
+	bool "MMC / SD Boot"
+	help
+	  Boot from eMMC / SD Card
+
+config TQMA6X_SPI_BOOT
+	bool "SPI NOR Boot"
+	help
+	  Boot from on board SPI NOR flash
+
+endchoice
+
 config IMX_CONFIG
 	default "board/tqc/tqma6/tqma6q.cfg" if TQMA6Q
 	default "board/tqc/tqma6/tqma6s.cfg" if TQMA6S
