@@ -17,6 +17,7 @@
 #include <usb.h>
 #include <linux/usb/gadget.h>
 #include <asm/arch/gpio.h>
+#include <asm/arch/dra7xx_iodelay.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sata.h>
@@ -110,10 +111,17 @@ int board_late_init(void)
 void set_muxconf_regs_essential(void)
 {
 	do_set_mux32((*ctrl)->control_padconf_core_base,
-		     core_padconf_array_essential,
-		     sizeof(core_padconf_array_essential) /
-		     sizeof(struct pad_conf_entry));
+		     early_padconf, ARRAY_SIZE(early_padconf));
 }
+
+#ifdef CONFIG_IODELAY_RECALIBRATION
+void recalibrate_iodelay(void)
+{
+	__recalibrate_iodelay(core_padconf_array_essential,
+			      ARRAY_SIZE(core_padconf_array_essential),
+			      iodelay_cfg_array, ARRAY_SIZE(iodelay_cfg_array));
+}
+#endif
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_GENERIC_MMC)
 int board_mmc_init(bd_t *bis)
