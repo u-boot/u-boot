@@ -35,6 +35,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+void cphy_disable_overrides(void);
+
 /*
  * Miscellaneous platform dependent initialisations
  */
@@ -62,6 +64,7 @@ void scsi_init(void)
 {
 	u32 reg = readl(HB_SREG_A9_PWRDOM_STAT);
 
+	cphy_disable_overrides();
 	if (reg & PWRDOM_STAT_SATA) {
 		ahci_init((void __iomem *)HB_AHCI_BASE);
 		scsi_scan(1);
@@ -135,4 +138,13 @@ void reset_cpu(ulong addr)
 		writel(0x1, HB_SREG_A15_PWR_CTRL);
 
 	wfi();
+}
+
+/*
+ * turn off the override before transferring control to Linux, since Linux
+ * may not support spread spectrum.
+ */
+void arch_preboot_os(void)
+{
+	cphy_disable_overrides();
 }
