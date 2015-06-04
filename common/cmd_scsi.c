@@ -54,10 +54,10 @@ static block_dev_desc_t scsi_dev_desc[CONFIG_SYS_SCSI_MAX_DEVICE];
  *  forward declerations of some Setup Routines
  */
 void scsi_setup_test_unit_ready(ccb * pccb);
-void scsi_setup_read6(ccb * pccb, unsigned long start, unsigned short blocks);
-void scsi_setup_read_ext(ccb * pccb, unsigned long start, unsigned short blocks);
-static void scsi_setup_write_ext(ccb *pccb, unsigned long start,
-			  unsigned short blocks);
+void scsi_setup_read6(ccb * pccb, lbaint_t start, unsigned short blocks);
+void scsi_setup_read_ext(ccb * pccb, lbaint_t start, unsigned short blocks);
+static void scsi_setup_write_ext(ccb *pccb, lbaint_t start,
+				unsigned short blocks);
 void scsi_setup_inquiry(ccb * pccb);
 void scsi_ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
 
@@ -579,7 +579,7 @@ void scsi_setup_test_unit_ready(ccb * pccb)
 	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
 }
 
-void scsi_setup_read_ext(ccb * pccb, unsigned long start, unsigned short blocks)
+void scsi_setup_read_ext(ccb * pccb, lbaint_t start, unsigned short blocks)
 {
 	pccb->cmd[0]=SCSI_READ10;
 	pccb->cmd[1]=pccb->lun<<5;
@@ -599,7 +599,7 @@ void scsi_setup_read_ext(ccb * pccb, unsigned long start, unsigned short blocks)
 		pccb->cmd[7],pccb->cmd[8]);
 }
 
-void scsi_setup_write_ext(ccb *pccb, unsigned long start, unsigned short blocks)
+void scsi_setup_write_ext(ccb *pccb, lbaint_t start, unsigned short blocks)
 {
 	pccb->cmd[0] = SCSI_WRITE10;
 	pccb->cmd[1] = pccb->lun << 5;
@@ -620,7 +620,7 @@ void scsi_setup_write_ext(ccb *pccb, unsigned long start, unsigned short blocks)
 	      pccb->cmd[7], pccb->cmd[8]);
 }
 
-void scsi_setup_read6(ccb * pccb, unsigned long start, unsigned short blocks)
+void scsi_setup_read6(ccb * pccb, lbaint_t start, unsigned short blocks)
 {
 	pccb->cmd[0]=SCSI_READ6;
 	pccb->cmd[1]=pccb->lun<<5 | (((unsigned char)(start>>16))&0x1f);
