@@ -41,43 +41,6 @@ const struct omap_sysinfo sysinfo = {
 	"Board: DRA7xx\n"
 };
 
-/*
- * Adjust I/O delays on the Tx control and data lines of each MAC port. This
- * is a workaround in order to work properly with the DP83865 PHYs on the EVM.
- * In 3COM RGMII mode this PHY applies it's own internal clock delay, so we
- * essentially need to counteract the DRA7xx internal delay, and we do this
- * by delaying the control and data lines. If not using this PHY, you probably
- * don't need to do this stuff!
- */
-static void dra7xx_adj_io_delay(const struct io_delay *io_dly)
-{
-	int i = 0;
-	u32 reg_val;
-	u32 delta;
-	u32 coarse;
-	u32 fine;
-
-	writel(CFG_IO_DELAY_UNLOCK_KEY, CFG_IO_DELAY_LOCK);
-
-	while(io_dly[i].addr) {
-		writel(CFG_IO_DELAY_ACCESS_PATTERN & ~CFG_IO_DELAY_LOCK_MASK,
-		       io_dly[i].addr);
-		delta = io_dly[i].dly;
-		reg_val = readl(io_dly[i].addr) & 0x3ff;
-		coarse = ((reg_val >> 5) & 0x1F) + ((delta >> 5) & 0x1F);
-		coarse = (coarse > 0x1F) ? (0x1F) : (coarse);
-		fine = (reg_val & 0x1F) + (delta & 0x1F);
-		fine = (fine > 0x1F) ? (0x1F) : (fine);
-		reg_val = CFG_IO_DELAY_ACCESS_PATTERN |
-				CFG_IO_DELAY_LOCK_MASK |
-				((coarse << 5) | (fine));
-		writel(reg_val, io_dly[i].addr);
-		i++;
-	}
-
-	writel(CFG_IO_DELAY_LOCK_KEY, CFG_IO_DELAY_LOCK);
-}
-
 /**
  * @brief board_init
  *
@@ -263,19 +226,6 @@ int spl_start_uboot(void)
 #endif
 
 #ifdef CONFIG_DRIVER_TI_CPSW
-
-/* Delay value to add to calibrated value */
-#define RGMII0_TXCTL_DLY_VAL		((0x3 << 5) + 0x8)
-#define RGMII0_TXD0_DLY_VAL		((0x3 << 5) + 0x8)
-#define RGMII0_TXD1_DLY_VAL		((0x3 << 5) + 0x2)
-#define RGMII0_TXD2_DLY_VAL		((0x4 << 5) + 0x0)
-#define RGMII0_TXD3_DLY_VAL		((0x4 << 5) + 0x0)
-#define VIN2A_D13_DLY_VAL		((0x3 << 5) + 0x8)
-#define VIN2A_D17_DLY_VAL		((0x3 << 5) + 0x8)
-#define VIN2A_D16_DLY_VAL		((0x3 << 5) + 0x2)
-#define VIN2A_D15_DLY_VAL		((0x4 << 5) + 0x0)
-#define VIN2A_D14_DLY_VAL		((0x4 << 5) + 0x0)
-
 extern u32 *const omap_si_rev;
 
 static void cpsw_control(int enabled)
@@ -323,22 +273,6 @@ int board_eth_init(bd_t *bis)
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
 	uint32_t ctrl_val;
-	const struct io_delay io_dly[] = {
-		{CFG_RGMII0_TXCTL, RGMII0_TXCTL_DLY_VAL},
-		{CFG_RGMII0_TXD0, RGMII0_TXD0_DLY_VAL},
-		{CFG_RGMII0_TXD1, RGMII0_TXD1_DLY_VAL},
-		{CFG_RGMII0_TXD2, RGMII0_TXD2_DLY_VAL},
-		{CFG_RGMII0_TXD3, RGMII0_TXD3_DLY_VAL},
-		{CFG_VIN2A_D13, VIN2A_D13_DLY_VAL},
-		{CFG_VIN2A_D17, VIN2A_D17_DLY_VAL},
-		{CFG_VIN2A_D16, VIN2A_D16_DLY_VAL},
-		{CFG_VIN2A_D15, VIN2A_D15_DLY_VAL},
-		{CFG_VIN2A_D14, VIN2A_D14_DLY_VAL},
-		{0}
-	};
-
-	/* Adjust IO delay for RGMII tx path */
-	dra7xx_adj_io_delay(io_dly);
 
 	/* try reading mac address from efuse */
 	mac_lo = readl((*ctrl)->control_core_mac_id_0_lo);
