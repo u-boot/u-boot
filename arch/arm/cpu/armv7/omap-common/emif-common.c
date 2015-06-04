@@ -1170,7 +1170,7 @@ static void do_sdram_init(u32 base)
 	 * Changing the timing registers in EMIF can happen(going from one
 	 * OPP to another)
 	 */
-	if (!(in_sdram || warm_reset())) {
+	if (!in_sdram && (!warm_reset() || is_dra7xx())) {
 		if (emif_sdram_type(regs->sdram_config) ==
 		    EMIF_SDRAM_TYPE_LPDDR2)
 			lpddr2_init(base, regs);
@@ -1178,7 +1178,7 @@ static void do_sdram_init(u32 base)
 			ddr3_init(base, regs);
 	}
 	if (warm_reset() && (emif_sdram_type(regs->sdram_config) ==
-	    EMIF_SDRAM_TYPE_DDR3)) {
+	    EMIF_SDRAM_TYPE_DDR3) && !is_dra7xx()) {
 		set_lpmode_selfrefresh(base);
 		emif_reset_phy(base);
 		omap5_ddr3_leveling(base, regs);
