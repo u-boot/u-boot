@@ -52,6 +52,20 @@ config TQMA6X_SPI_BOOT
 
 endchoice
 
+choice
+	prompt "TQMa6 base board variant"
+	default MBA6
+	help
+	  Select base board for TQMa6
+
+config MBA6
+	bool "TQMa6 on MBa6 Starterkit"
+	help
+	  Select the MBa6 starterkit. This features a GigE Phy, USB, SD-Card
+	  etc.
+
+endchoice
+
 config IMX_CONFIG
 	default "board/tqc/tqma6/tqma6q.cfg" if TQMA6Q
 	default "board/tqc/tqma6/tqma6s.cfg" if TQMA6S
