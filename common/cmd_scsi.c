@@ -56,6 +56,8 @@ static block_dev_desc_t scsi_dev_desc[CONFIG_SYS_SCSI_MAX_DEVICE];
 void scsi_setup_test_unit_ready(ccb * pccb);
 void scsi_setup_read6(ccb * pccb, lbaint_t start, unsigned short blocks);
 void scsi_setup_read_ext(ccb * pccb, lbaint_t start, unsigned short blocks);
+void scsi_setup_read16(ccb * pccb, lbaint_t start, unsigned long blocks);
+
 static void scsi_setup_write_ext(ccb *pccb, lbaint_t start,
 				unsigned short blocks);
 void scsi_setup_inquiry(ccb * pccb);
@@ -357,7 +359,9 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * scsi_read
  */
 
-#define SCSI_MAX_READ_BLK 0xFFFF /* almost the maximum amount of the scsi_ext command.. */
+/* almost the maximum amount of the scsi_ext command.. */
+#define SCSI_MAX_READ_BLK 0xFFFF
+#define SCSI_LBA48_READ	0xFFFFFFF
 
 static ulong scsi_read(int device, lbaint_t blknr, lbaint_t blkcnt,
 		       void *buffer)
@@ -379,7 +383,17 @@ static ulong scsi_read(int device, lbaint_t blknr, lbaint_t blkcnt,
 	      device, start, blks, (unsigned long)buffer);
 	do {
 		pccb->pdata=(unsigned char *)buf_addr;
-		if(blks>SCSI_MAX_READ_BLK) {
+#ifdef CONFIG_SYS_64BIT_LBA
+		if (start > SCSI_LBA48_READ) {
+			unsigned long blocks;
+			blocks = min_t(lbaint_t, blks, SCSI_MAX_READ_BLK);
+			pccb->datalen = scsi_dev_desc[device].blksz * blocks;
+			scsi_setup_read16(pccb, start, blocks);
+			start += blocks;
+			blks -= blocks;
+		} else 
+#endif
+		if (blks > SCSI_MAX_READ_BLK) {
 			pccb->datalen=scsi_dev_desc[device].blksz * SCSI_MAX_READ_BLK;
 			smallblks=SCSI_MAX_READ_BLK;
 			scsi_setup_read_ext(pccb,start,smallblks);
@@ -578,6 +592,37 @@ void scsi_setup_test_unit_ready(ccb * pccb)
 	pccb->cmdlen=6;
 	pccb->msgout[0]=SCSI_IDENTIFY; /* NOT USED */
 }
+
+#ifdef CONFIG_SYS_64BIT_LBA
+void scsi_setup_read16(ccb * pccb, lbaint_t start, unsigned long blocks)
+{
+	pccb->cmd[0] = SCSI_READ16;
+	pccb->cmd[1] = pccb->lun<<5;
+	pccb->cmd[2] = ((unsigned char) (start >> 56)) & 0xff;
+	pccb->cmd[3] = ((unsigned char) (start >> 48)) & 0xff;
+	pccb->cmd[4] = ((unsigned char) (start >> 40)) & 0xff;
+	pccb->cmd[5] = ((unsigned char) (start >> 32)) & 0xff;
+	pccb->cmd[6] = ((unsigned char) (start >> 24)) & 0xff;
+	pccb->cmd[7] = ((unsigned char) (start >> 16)) & 0xff;
+	pccb->cmd[8] = ((unsigned char) (start >> 8)) & 0xff;
+	pccb->cmd[9] = ((unsigned char) (start)) & 0xff;
+	pccb->cmd[10] = 0;
+	pccb->cmd[11] = ((unsigned char) (blocks >> 24)) & 0xff;
+	pccb->cmd[12] = ((unsigned char) (blocks >> 16)) & 0xff;
+	pccb->cmd[13] = ((unsigned char) (blocks >> 8)) & 0xff;
+	pccb->cmd[14] = (unsigned char) blocks & 0xff;
+	pccb->cmd[15] = 0;
+	pccb->cmdlen = 16;
+	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
+	debug ("scsi_setup_read16: cmd: %02X %02X "
+	       "startblk %02X%02X%02X%02X%02X%02X%02X%02X "
+	       "blccnt %02X%02X%02X%02X\n",
+		pccb->cmd[0], pccb->cmd[1],
+		pccb->cmd[2], pccb->cmd[3], pccb->cmd[4], pccb->cmd[5],
+		pccb->cmd[6], pccb->cmd[7], pccb->cmd[8], pccb->cmd[9],
+		pccb->cmd[11], pccb->cmd[12], pccb->cmd[13], pccb->cmd[14]);
+}
+#endif
 
 void scsi_setup_read_ext(ccb * pccb, lbaint_t start, unsigned short blocks)
 {

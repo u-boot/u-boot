@@ -726,18 +726,25 @@ static int ata_scsiop_inquiry(ccb *pccb)
  */
 static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 {
-	u32 lba = 0;
+	lbaint_t lba = 0;
 	u16 blocks = 0;
 	u8 fis[20];
 	u8 *user_buffer = pccb->pdata;
 	u32 user_buffer_size = pccb->datalen;
 
 	/* Retrieve the base LBA number from the ccb structure. */
-	memcpy(&lba, pccb->cmd + 2, sizeof(lba));
-	lba = be32_to_cpu(lba);
+	if (pccb->cmd[0] == SCSI_READ16) {
+		memcpy(&lba, pccb->cmd + 2, 8);
+		lba = be64_to_cpu(lba);
+	} else {
+		u32 temp;
+		memcpy(&temp, pccb->cmd + 2, 4);
+		lba = be32_to_cpu(temp);
+	}
 
 	/*
-	 * And the number of blocks.
+	 * Retrieve the base LBA number and the block count from
+	 * the ccb structure.
 	 *
 	 * For 10-byte and 16-byte SCSI R/W commands, transfer
 	 * length 0 means transfer 0 block of data.
@@ -746,10 +753,13 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 	 *
 	 * WARNING: one or two older ATA drives treat 0 as 0...
 	 */
-	blocks = (((u16)pccb->cmd[7]) << 8) | ((u16) pccb->cmd[8]);
+	if (pccb->cmd[0] == SCSI_READ16)
+		blocks = (((u16)pccb->cmd[13]) << 8) | ((u16) pccb->cmd[14]);
+	else
+		blocks = (((u16)pccb->cmd[7]) << 8) | ((u16) pccb->cmd[8]);
 
-	debug("scsi_ahci: %s %d blocks starting from lba 0x%x\n",
-	      is_write ?  "write" : "read", (unsigned)lba, blocks);
+	debug("scsi_ahci: %s %u blocks starting from lba 0x" LBAFU "\n",
+	      is_write ?  "write" : "read", blocks, lba);
 
 	/* Preset the FIS */
 	memset(fis, 0, sizeof(fis));
@@ -770,14 +780,23 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 			return -EIO;
 		}
 
-		/* LBA48 SATA command but only use 32bit address range within
-		 * that. The next smaller command range (28bit) is too small.
+		/*
+		 * LBA48 SATA command but only use 32bit address range within
+		 * that (unless we've enabled 64bit LBA support). The next
+		 * smaller command range (28bit) is too small.
 		 */
 		fis[4] = (lba >> 0) & 0xff;
 		fis[5] = (lba >> 8) & 0xff;
 		fis[6] = (lba >> 16) & 0xff;
 		fis[7] = 1 << 6; /* device reg: set LBA mode */
 		fis[8] = ((lba >> 24) & 0xff);
+#ifdef CONFIG_SYS_64BIT_LBA
+		if (pccb->cmd[0] == SCSI_READ16) {
+			fis[9] = ((lba >> 32) & 0xff);
+			fis[10] = ((lba >> 40) & 0xff);
+		}
+#endif
+
 		fis[3] = 0xe0; /* features */
 
 		/* Block (sector) count */
@@ -883,6 +902,7 @@ int scsi_exec(ccb *pccb)
 	int ret;
 
 	switch (pccb->cmd[0]) {
+	case SCSI_READ16:
 	case SCSI_READ10:
 		ret = ata_scsiop_read_write(pccb, 0);
 		break;
