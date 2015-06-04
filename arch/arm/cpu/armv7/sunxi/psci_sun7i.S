@@ -18,6 +18,8 @@
  */
 
 #include <config.h>
+
+#include <asm/arch-armv7/generictimer.h>
 #include <asm/gic.h>
 #include <asm/macro.h>
 #include <asm/psci.h>
@@ -42,26 +44,6 @@
 #define	TEN_MS			(10 * ONE_MS)
 #define	GICD_BASE		0x1c81000
 #define	GICC_BASE		0x1c82000
-
-.macro	timer_wait	reg, ticks
-	@ Program CNTP_TVAL
-	movw	\reg, #(\ticks & 0xffff)
-	movt	\reg, #(\ticks >> 16)
-	mcr	p15, 0, \reg, c14, c2, 0
-	isb
-	@ Enable physical timer, mask interrupt
-	mov	\reg, #3
-	mcr	p15, 0, \reg, c14, c2, 1
-	@ Poll physical timer until ISTATUS is on
-1:	isb
-	mrc	p15, 0, \reg, c14, c2, 1
-	ands	\reg, \reg, #4
-	bne	1b
-	@ Disable timer
-	mov	\reg, #0
-	mcr	p15, 0, \reg, c14, c2, 1
-	isb
-.endm
 
 .globl	psci_fiq_enter
 psci_fiq_enter:
