@@ -13,6 +13,7 @@
 #include <asm/arch/omap.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/mux_dra7xx.h>
 #include <asm/omap_common.h>
 
 static int isolate_io(u32 isolate)
@@ -80,7 +81,94 @@ static int update_delay_mechanism(u32 base)
 	return 0;
 }
 
-void __recalibrate_iodelay(struct pad_conf_entry const *pad, int npads)
+static u32 calculate_delay(u32 base, u16 offset, u16 den)
+{
+	u16 refclk_period, dly_cnt, ref_cnt;
+	u32 reg, q, r;
+
+	refclk_period = readl(base + CFG_REG_2_OFFSET) &
+			      CFG_REG_REFCLK_PERIOD_MASK;
+
+	reg = readl(base + offset);
+	dly_cnt = (reg & CFG_REG_DLY_CNT_MASK) >> CFG_REG_DLY_CNT_SHIFT;
+	ref_cnt = (reg & CFG_REG_REF_CNT_MASK) >> CFG_REG_REF_CNT_SHIFT;
+
+	if (!dly_cnt || !den)
+		return 0;
+
+	/*
+	 * To avoid overflow and integer truncation, delay value
+	 * is calculated as quotient + remainder.
+	 */
+	q = 5 * ((ref_cnt * refclk_period) / (dly_cnt * den));
+	r = (10 * ((ref_cnt * refclk_period) % (dly_cnt * den))) /
+		(2 * dly_cnt * den);
+
+	return q + r;
+}
+
+static u32 get_cfg_reg(u16 a_delay, u16 g_delay, u32 cpde, u32 fpde)
+{
+	u32 g_delay_coarse, g_delay_fine;
+	u32 a_delay_coarse, a_delay_fine;
+	u32 c_elements, f_elements;
+	u32 total_delay, reg = 0;
+
+	g_delay_coarse = g_delay / 920;
+	g_delay_fine = ((g_delay % 920) * 10) / 60;
+
+	a_delay_coarse = a_delay / cpde;
+	a_delay_fine = ((a_delay % cpde) * 10) / fpde;
+
+	c_elements = g_delay_coarse + a_delay_coarse;
+	f_elements = (g_delay_fine + a_delay_fine) / 10;
+
+	if (f_elements > 22) {
+		total_delay = c_elements * cpde + f_elements * fpde;
+
+		c_elements = total_delay / cpde;
+		f_elements = (total_delay % cpde) / fpde;
+	}
+
+	reg = (c_elements << CFG_X_COARSE_DLY_SHIFT) & CFG_X_COARSE_DLY_MASK;
+	reg |= (f_elements << CFG_X_FINE_DLY_SHIFT) & CFG_X_FINE_DLY_MASK;
+	reg |= CFG_X_SIGNATURE << CFG_X_SIGNATURE_SHIFT;
+	reg |= CFG_X_LOCK << CFG_X_LOCK_SHIFT;
+
+	return reg;
+}
+
+static int do_set_iodelay(u32 base, struct iodelay_cfg_entry const *array,
+			   int niodelays)
+{
+	struct iodelay_cfg_entry *iodelay = (struct iodelay_cfg_entry *)array;
+	u32 reg, cpde, fpde, i;
+
+	if (!niodelays)
+		return 0;
+
+	cpde = calculate_delay((*ctrl)->iodelay_config_base, CFG_REG_3_OFFSET,
+			       88);
+	if (!cpde)
+		return ERR_CPDE;
+
+	fpde = calculate_delay((*ctrl)->iodelay_config_base, CFG_REG_4_OFFSET,
+			       264);
+	if (!fpde)
+		return ERR_FPDE;
+
+	for (i = 0; i < niodelays; i++, iodelay++) {
+		reg = get_cfg_reg(iodelay->a_delay, iodelay->g_delay, cpde,
+				  fpde);
+		writel(reg, base + iodelay->offset);
+	}
+
+	return 0;
+}
+
+void __recalibrate_iodelay(struct pad_conf_entry const *pad, int npads,
+			   struct iodelay_cfg_entry const *iodelay,
+			   int niodelays)
 {
 	int ret = 0;
 
@@ -109,6 +197,11 @@ void __recalibrate_iodelay(struct pad_conf_entry const *pad, int npads)
 	/* Configure Mux settings */
 	do_set_mux32((*ctrl)->control_padconf_core_base, pad, npads);
 
+	/* Configure Manual IO timing modes */
+	ret = do_set_iodelay((*ctrl)->iodelay_config_base, iodelay, niodelays);
+	if (ret)
+		goto err;
+
 	ret = isolate_io(DEISOLATE_IO);
 
 err:
@@ -132,6 +225,12 @@ err:
 		break;
 	case ERR_DEISOLATE_IO:
 		puts("IODELAY: De-isolation of Device IOs failed\n");
+		break;
+	case ERR_CPDE:
+		puts("IODELAY: CPDE calculation failed\n");
+		break;
+	case ERR_FPDE:
+		puts("IODELAY: FPDE calculation failed\n");
 		break;
 	default:
 		debug("IODELAY: IO delay recalibration successfully completed\n");

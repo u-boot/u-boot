@@ -18,6 +18,18 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * Structure for Iodelay configuration registers.
+ * Theoretical max for g_delay is 21560 ps.
+ * Theoretical max for a_delay is 1/3rd of g_delay max.
+ * So using u16 for both a/g_delay.
+ */
+struct iodelay_cfg_entry {
+	u16 offset;
+	u16 a_delay;
+	u16 g_delay;
+};
+
 struct pad_conf_entry {
 	u32 offset;
 	u32 val;

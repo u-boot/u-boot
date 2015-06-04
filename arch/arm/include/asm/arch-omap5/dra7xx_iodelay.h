@@ -35,6 +35,14 @@
 #define CFG_IODELAY_UNLOCK_KEY		0x0000AAAA
 #define CFG_IODELAY_LOCK_KEY		0x0000AAAB
 
+/* CONFIG_REG_3/4 */
+#define CFG_REG_3_OFFSET	0x18
+#define CFG_REG_4_OFFSET	0x1C
+#define CFG_REG_DLY_CNT_SHIFT	16
+#define CFG_REG_DLY_CNT_MASK	(0xFFFF << 16)
+#define CFG_REG_REF_CNT_SHIFT	0
+#define CFG_REG_REF_CNT_MASK	(0xFFFF << 0)
+
 /* CTRL_CORE_SMA_SW_0 */
 #define CTRL_ISOLATE_SHIFT		2
 #define CTRL_ISOLATE_MASK		(1 << 2)
@@ -53,6 +61,23 @@
 #define ERR_DEISOLATE_IO		0x2
 #define ERR_ISOLATE_IO			0x4
 #define ERR_UPDATE_DELAY		0x8
+#define ERR_CPDE			0x3
+#define ERR_FPDE			0x5
 
-void __recalibrate_iodelay(struct pad_conf_entry const *array, int npads);
+/* CFG_XXX */
+#define CFG_X_SIGNATURE_SHIFT		12
+#define CFG_X_SIGNATURE_MASK		(0x3F << 12)
+#define CFG_X_LOCK_SHIFT		10
+#define CFG_X_LOCK_MASK			(0x1 << 10)
+#define CFG_X_COARSE_DLY_SHIFT		5
+#define CFG_X_COARSE_DLY_MASK		(0x1F << 5)
+#define CFG_X_FINE_DLY_SHIFT		0
+#define CFG_X_FINE_DLY_MASK		(0x1F << 0)
+#define CFG_X_SIGNATURE			0x29
+#define CFG_X_LOCK			1
+
+void __recalibrate_iodelay(struct pad_conf_entry const *pad, int npads,
+			   struct iodelay_cfg_entry const *iodelay,
+			   int niodelays);
+
 #endif
