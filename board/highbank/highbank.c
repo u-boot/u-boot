@@ -14,6 +14,7 @@
 
 #define HB_AHCI_BASE			0xffe08000
 
+#define HB_SCU_A9_PWR_STATUS		0xfff10008
 #define HB_SREG_A9_PWR_REQ		0xfff3cf00
 #define HB_SREG_A9_BOOT_SRC_STAT	0xfff3cf04
 #define HB_SREG_A9_PWRDOM_STAT		0xfff3cf20
@@ -26,6 +27,10 @@
 #define PWRDOM_STAT_SATA		0x80000000
 #define PWRDOM_STAT_PCI			0x40000000
 #define PWRDOM_STAT_EMMC		0x20000000
+
+#define HB_SCU_A9_PWR_NORMAL		0
+#define HB_SCU_A9_PWR_DORMANT		2
+#define HB_SCU_A9_PWR_OFF		3
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -114,6 +119,7 @@ int ft_board_setup(void *fdt, bd_t *bd)
 void reset_cpu(ulong addr)
 {
 	writel(HB_PWR_HARD_RESET, HB_SREG_A9_PWR_REQ);
+	writeb(HB_SCU_A9_PWR_OFF, HB_SCU_A9_PWR_STATUS);
 
 	wfi();
 }
