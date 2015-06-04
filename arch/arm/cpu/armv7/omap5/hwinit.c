@@ -40,6 +40,15 @@ static struct gpio_bank gpio_bank_54xx[8] = {
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_54xx;
 
+void do_set_mux32(u32 base, struct pad_conf_entry const *array, int size)
+{
+	int i;
+	struct pad_conf_entry *pad = (struct pad_conf_entry *)array;
+
+	for (i = 0; i < size; i++, pad++)
+		writel(pad->val, base + pad->offset);
+}
+
 #ifdef CONFIG_SPL_BUILD
 /* LPDDR2 specific IO settings */
 static void io_settings_lpddr2(void)

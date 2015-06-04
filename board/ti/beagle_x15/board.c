@@ -261,16 +261,6 @@ int board_late_init(void)
 	return 0;
 }
 
-static void do_set_mux32(u32 base,
-			 struct pad_conf_entry const *array, int size)
-{
-	int i;
-	struct pad_conf_entry *pad = (struct pad_conf_entry *)array;
-
-	for (i = 0; i < size; i++, pad++)
-		writel(pad->val, base + pad->offset);
-}
-
 void set_muxconf_regs_essential(void)
 {
 	do_set_mux32((*ctrl)->control_padconf_core_base,
