@@ -18,6 +18,7 @@
 #define HB_SREG_A9_PWR_REQ		0xfff3cf00
 #define HB_SREG_A9_BOOT_SRC_STAT	0xfff3cf04
 #define HB_SREG_A9_PWRDOM_STAT		0xfff3cf20
+#define HB_SREG_A15_PWR_CTRL		0xfff3c200
 
 #define HB_PWR_SUSPEND			0
 #define HB_PWR_SOFT_RESET		1
@@ -116,10 +117,22 @@ int ft_board_setup(void *fdt, bd_t *bd)
 }
 #endif
 
+static int is_highbank(void)
+{
+	uint32_t midr;
+
+	asm volatile ("mrc p15, 0, %0, c0, c0, 0\n" : "=r"(midr));
+
+	return (midr & 0xfff0) == 0xc090;
+}
+
 void reset_cpu(ulong addr)
 {
 	writel(HB_PWR_HARD_RESET, HB_SREG_A9_PWR_REQ);
-	writeb(HB_SCU_A9_PWR_OFF, HB_SCU_A9_PWR_STATUS);
+	if (is_highbank())
+		writeb(HB_SCU_A9_PWR_OFF, HB_SCU_A9_PWR_STATUS);
+	else
+		writel(0x1, HB_SREG_A15_PWR_CTRL);
 
 	wfi();
 }
