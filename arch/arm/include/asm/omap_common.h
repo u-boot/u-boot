@@ -345,6 +345,10 @@ struct prcm_regs {
 	/* GMAC Clk Ctrl */
 	u32 cm_gmac_gmac_clkctrl;
 	u32 cm_gmac_clkstctrl;
+
+	/* IPU */
+	u32 cm_ipu_clkstctrl;
+	u32 cm_ipu_i2c5_clkctrl;
 };
 
 struct omap_sys_ctrl_regs {

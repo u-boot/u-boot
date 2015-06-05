@@ -817,6 +817,10 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_dsp_clkstctrl			= 0x4a005400,
 	.cm_dsp_dsp_clkctrl			= 0x4a005420,
 
+	/* cm IPU */
+	.cm_ipu_clkstctrl			= 0x4a005540,
+	.cm_ipu_i2c5_clkctrl			= 0x4a005578,
+
 	/* prm irqstatus regs */
 	.prm_irqstatus_mpu_2			= 0x4ae06014,
 
