@@ -26,6 +26,12 @@ struct flow_ctlr {
 	u32 cpu_pwr_csr;	/* offset 0x38 */
 	u32 mpid;		/* offset 0x3c */
 	u32 ram_repair;		/* offset 0x40 */
+	u32 flow_dbg_sel;	/* offset 0x44 */
+	u32 flow_dbg_cnt0;	/* offset 0x48 */
+	u32 flow_dbg_cnt1;	/* offset 0x4c */
+	u32 flow_dbg_qual;	/* offset 0x50 */
+	u32 flow_ctlr_spare;	/* offset 0x54 */
+	u32 ram_repair_cluster1;/* offset 0x58 */
 };
 
 /* HALT_COP_EVENTS_0, 0x04 */
@@ -42,5 +48,11 @@ struct flow_ctlr {
 #define CSR_IMMEDIATE_WAKE	(1 << 3)
 #define CSR_WAIT_WFI_SHIFT	8
 #define CSR_PWR_OFF_STS		(1 << 16)
+
+/* RAM_REPAIR, 0x40, 0x58 */
+enum {
+	RAM_REPAIR_REQ = 0x1 << 0,
+	RAM_REPAIR_STS = 0x1 << 1,
+};
 
 #endif	/*  _TEGRA124_FLOW_H_ */
