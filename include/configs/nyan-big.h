@@ -47,6 +47,7 @@
 #define CONFIG_AS3722_POWER
 #define LCD_BPP				LCD_COLOR16
 #define CONFIG_SYS_WHITE_ON_BLACK
+#define CONFIG_CMD_BMP
 
 /* Align LCD to 1MB boundary */
 #define CONFIG_LCD_ALIGNMENT	MMU_SECTION_SIZE
@@ -77,9 +78,13 @@
 #define CONFIG_CMD_DHCP
 
 #define CONFIG_FIT
+#define CONFIG_FIT_BEST_MATCH
 #define CONFIG_OF_LIBFDT
 
 #define CONFIG_KEYBOARD
+
+#undef CONFIG_LOADADDR
+#define CONFIG_LOADADDR		0x82408000
 
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
