@@ -107,6 +107,11 @@ __weak int tegra_lcd_pmic_init(int board_it)
 	return 0;
 }
 
+__weak int nvidia_board_init(void)
+{
+	return 0;
+}
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -180,8 +185,7 @@ int board_init(void)
 	/* prepare the WB code to LP0 location */
 	warmboot_prepare_code(TEGRA_LP0_ADDR, TEGRA_LP0_SIZE);
 #endif
-
-	return 0;
+	return nvidia_board_init();
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
