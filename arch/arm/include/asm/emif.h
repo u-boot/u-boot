@@ -1209,12 +1209,10 @@ static inline u32 get_emif_rev(u32 base)
  * which is typically the case. So it is sufficient to get
  * SDRAM type from EMIF1.
  */
-static inline u32 emif_sdram_type(void)
+static inline u32 emif_sdram_type(u32 sdram_config)
 {
-	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
-
-	return (readl(&emif->emif_sdram_config) &
-		EMIF_REG_SDRAM_TYPE_MASK) >> EMIF_REG_SDRAM_TYPE_SHIFT;
+	return (sdram_config & EMIF_REG_SDRAM_TYPE_MASK)
+	       >> EMIF_REG_SDRAM_TYPE_SHIFT;
 }
 
 /* assert macros */
@@ -1244,6 +1242,5 @@ extern u32 *const T_den;
 #endif
 
 void config_data_eye_leveling_samples(u32 emif_base);
-u32 emif_sdram_type(void);
 const struct read_write_regs *get_bug_regs(u32 *iterations);
 #endif

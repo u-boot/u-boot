@@ -122,6 +122,7 @@ static void io_settings_ddr3(void)
 void do_io_settings(void)
 {
 	u32 io_settings = 0, mask = 0;
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
 
 	/* Impedance settings EMMC, C2C 1,2, hsi2 */
 	mask = (ds_mask << 2) | (ds_mask << 8) |
@@ -177,7 +178,7 @@ void do_io_settings(void)
 		       (sc_fast << 17) | (sc_fast << 14);
 	writel(io_settings, (*ctrl)->control_smart3io_padconf_1);
 
-	if (emif_sdram_type() == EMIF_SDRAM_TYPE_LPDDR2)
+	if (emif_sdram_type(emif->emif_sdram_config) == EMIF_SDRAM_TYPE_LPDDR2)
 		io_settings_lpddr2();
 	else
 		io_settings_ddr3();

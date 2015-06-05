@@ -372,6 +372,7 @@ static void setup_dplls(void)
 {
 	u32 temp;
 	const struct dpll_params *params;
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
 
 	debug("setup_dplls\n");
 
@@ -382,7 +383,8 @@ static void setup_dplls(void)
 	 * Core DPLL will be locked after setting up EMIF
 	 * using the FREQ_UPDATE method(freq_update_core())
 	 */
-	if (emif_sdram_type() == EMIF_SDRAM_TYPE_LPDDR2)
+	if (emif_sdram_type(readl(&emif->emif_sdram_config)) ==
+	    EMIF_SDRAM_TYPE_LPDDR2)
 		do_setup_dpll((*prcm)->cm_clkmode_dpll_core, params,
 							DPLL_NO_LOCK, "core");
 	else

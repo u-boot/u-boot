@@ -1171,12 +1171,14 @@ static void do_sdram_init(u32 base)
 	 * OPP to another)
 	 */
 	if (!(in_sdram || warm_reset())) {
-		if (emif_sdram_type() == EMIF_SDRAM_TYPE_LPDDR2)
+		if (emif_sdram_type(regs->sdram_config) ==
+		    EMIF_SDRAM_TYPE_LPDDR2)
 			lpddr2_init(base, regs);
 		else
 			ddr3_init(base, regs);
 	}
-	if (warm_reset() && (emif_sdram_type() == EMIF_SDRAM_TYPE_DDR3)) {
+	if (warm_reset() && (emif_sdram_type(regs->sdram_config) ==
+	    EMIF_SDRAM_TYPE_DDR3)) {
 		set_lpmode_selfrefresh(base);
 		emif_reset_phy(base);
 		omap5_ddr3_leveling(base, regs);
@@ -1398,7 +1400,8 @@ static void do_bug0039_workaround(u32 base)
 void sdram_init(void)
 {
 	u32 in_sdram, size_prog, size_detect;
-	u32 sdram_type = emif_sdram_type();
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
+	u32 sdram_type = emif_sdram_type(emif->emif_sdram_config);
 
 	debug(">>sdram_init()\n");
 
