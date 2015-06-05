@@ -336,4 +336,12 @@ void arch_timer_init(void);
 
 void tegra30_set_up_pllp(void);
 
+/**
+ * Enable output clock for external peripherals
+ *
+ * @param clk_id	Clock ID to output (1, 2 or 3)
+ * @return 0 if OK. -ve on error
+ */
+int clock_external_output(int clk_id);
+
 #endif  /* _TEGRA_CLOCK_H_ */

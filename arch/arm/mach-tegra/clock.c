@@ -17,11 +17,13 @@
 /* Tegra SoC common clock control functions */
 
 #include <common.h>
+#include <errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/timer.h>
 #include <div64.h>
 #include <fdtdec.h>
@@ -701,4 +703,19 @@ void tegra30_set_up_pllp(void)
 	writel(reg, &clkrst->crc_pll[CLOCK_ID_PERIPH].pll_out[1]);
 
 	set_avp_clock_source(SCLK_SOURCE_PLLP_OUT4);
+}
+
+int clock_external_output(int clk_id)
+{
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
+
+	if (clk_id >= 1 && clk_id <= 3) {
+		setbits_le32(&pmc->pmc_clk_out_cntrl,
+			     1 << (2 + (clk_id - 1) * 8));
+	} else {
+		printf("%s: Unknown output clock id %d\n", __func__, clk_id);
+		return -EINVAL;
+	}
+
+	return 0;
 }
