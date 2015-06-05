@@ -378,7 +378,7 @@
 					"256k(NAND.u-boot-env)," \
 					"256k(NAND.u-boot-env.backup1)," \
 					"7m(NAND.kernel)," \
-					"-(NAND.rootfs)"
+					"-(NAND.file-system)"
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x00180000
 /* NAND: SPL related configs */
 #ifdef CONFIG_SPL_NAND_SUPPORT
