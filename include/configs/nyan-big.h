@@ -79,6 +79,8 @@
 #define CONFIG_FIT
 #define CONFIG_OF_LIBFDT
 
+#define CONFIG_KEYBOARD
+
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
