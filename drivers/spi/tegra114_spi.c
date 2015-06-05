@@ -144,6 +144,7 @@ static int tegra114_spi_probe(struct udevice *bus)
 	struct tegra_spi_platdata *plat = dev_get_platdata(bus);
 	struct tegra114_spi_priv *priv = dev_get_priv(bus);
 	struct spi_regs *regs;
+	ulong rate;
 
 	priv->regs = (struct spi_regs *)plat->base;
 	regs = priv->regs;
@@ -152,9 +153,20 @@ static int tegra114_spi_probe(struct udevice *bus)
 	priv->freq = plat->frequency;
 	priv->periph_id = plat->periph_id;
 
-	/* Change SPI clock to correct frequency, PLLP_OUT0 source */
-	clock_start_periph_pll(priv->periph_id, CLOCK_ID_PERIPH,
-			       priv->freq);
+	/*
+	 * Change SPI clock to correct frequency, PLLP_OUT0 source, falling
+	 * back to the oscillator if that is too fast.
+	 */
+	rate = clock_start_periph_pll(priv->periph_id, CLOCK_ID_PERIPH,
+				      priv->freq);
+	if (rate > priv->freq + 100000) {
+		rate = clock_start_periph_pll(priv->periph_id, CLOCK_ID_OSC,
+					      priv->freq);
+		if (rate != priv->freq) {
+			printf("Warning: SPI '%s' requested clock %u, actual clock %lu\n",
+			       bus->name, priv->freq, rate);
+		}
+	}
 
 	/* Clear stale status here */
 	setbits_le32(&regs->fifo_status,
