@@ -21,6 +21,17 @@ static int dm_test_pci_base(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_pci_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
+/* Test that sandbox PCI bus numbering works correctly */
+static int dm_test_pci_busnum(struct unit_test_state *uts)
+{
+	struct udevice *bus;
+
+	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 0, &bus));
+
+	return 0;
+}
+DM_TEST(dm_test_pci_busnum, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
 /* Test that we can use the swapcase device correctly */
 static int dm_test_pci_swapcase(struct unit_test_state *uts)
 {

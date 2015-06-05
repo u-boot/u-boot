@@ -112,6 +112,14 @@ void os_exit(int exit_code) __attribute__((noreturn));
 void os_tty_raw(int fd, bool allow_sigs);
 
 /**
+ * Restore the tty to its original mode
+ *
+ * Call this to restore the original terminal mode, after it has been changed
+ * by os_tty_raw(). This is an internal function.
+ */
+void os_fd_restore(void);
+
+/**
  * Acquires some memory from the underlying os.
  *
  * \param length	Number of bytes to be allocated

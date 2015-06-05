@@ -39,19 +39,17 @@ enum uclass_id {
 	UCLASS_PCH,		/* x86 platform controller hub */
 	UCLASS_PCI,		/* PCI bus */
 	UCLASS_PCI_GENERIC,	/* Generic PCI bus device */
+	UCLASS_PMIC,		/* PMIC I/O device */
+	UCLASS_REGULATOR,	/* Regulator device */
 	UCLASS_RTC,		/* Real time clock device */
 	UCLASS_SERIAL,		/* Serial UART */
 	UCLASS_SPI,		/* SPI bus */
-	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
 	UCLASS_SPI_FLASH,	/* SPI flash */
+	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
 	UCLASS_THERMAL,		/* Thermal sensor */
 	UCLASS_USB,		/* USB bus */
 	UCLASS_USB_DEV_GENERIC,	/* USB generic device */
 	UCLASS_USB_HUB,		/* USB hub */
-
-	/* Power Management */
-	UCLASS_PMIC,		/* PMIC I/O device */
-	UCLASS_REGULATOR,	/* REGULATOR device */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
