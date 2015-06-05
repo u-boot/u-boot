@@ -194,6 +194,31 @@ static inline int fdt_setprop_uxx(void *fdt, int nodeoffset, const char *name,
 		return fdt_setprop_u32(fdt, nodeoffset, name, (uint32_t)val);
 }
 
+int fdt_root(void *fdt)
+{
+	char *serial;
+	int err;
+
+	err = fdt_check_header(fdt);
+	if (err < 0) {
+		printf("fdt_root: %s\n", fdt_strerror(err));
+		return err;
+	}
+
+	serial = getenv("serial#");
+	if (serial) {
+		err = fdt_setprop(fdt, 0, "serial-number", serial,
+				  strlen(serial) + 1);
+
+		if (err < 0) {
+			printf("WARNING: could not set serial-number %s.\n",
+			       fdt_strerror(err));
+			return err;
+		}
+	}
+
+	return 0;
+}
 
 int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end)
 {
