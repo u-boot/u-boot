@@ -6,6 +6,9 @@ choice
 config TARGET_ZYNQMP_EP
 	bool "ZynqMP EP Board"
 
+config TARGET_ZYNQMP_MINI
+	bool "ZynqMP MINI"
+
 endchoice
 
 config SYS_BOARD
@@ -19,6 +22,7 @@ config SYS_SOC
 
 config SYS_CONFIG_NAME
 	default "xilinx_zynqmp_ep" if TARGET_ZYNQMP_EP
+	default "xilinx_zynqmp_mini" if TARGET_ZYNQMP_MINI
 
 config SECURE_IOU
 	bool "Configure ZynqMP secure IOU"

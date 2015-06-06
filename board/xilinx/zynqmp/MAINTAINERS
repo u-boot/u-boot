@@ -4,4 +4,6 @@ S:	Maintained
 F:	board/xilinx/zynqmp/
 F:	include/configs/xilinx_zynqmp.h
 F:	include/configs/xilinx_zynqmp_ep.h
+F:	include/configs/xilinx_zynqmp_mini.h
 F:	configs/xilinx_zynqmp_ep_defconfig
+F:	configs/xilinx_zynqmp_mini_qspi_defconfig
