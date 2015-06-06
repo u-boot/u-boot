@@ -55,17 +55,12 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 0x800000)
 
 /* Serial setup */
-#define CONFIG_ZYNQ_SERIAL_UART0
 #define CONFIG_ZYNQ_SERIAL
 
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{ 4800, 9600, 19200, 38400, 57600, 115200 }
-
-#define CONFIG_ZYNQMP_QSPI
-#define CONFIG_ZYNQ_SDHCI0
-#define CONFIG_NAND_ARASAN
 
 /* Command line configuration */
 #define CONFIG_CMD_ENV
@@ -191,9 +186,6 @@
 /* max command args */
 #define CONFIG_SYS_MAXARGS		64
 
-#define CONFIG_ZYNQ_GEM0
-#define CONFIG_ZYNQ_GEM_PHY_ADDR0	7
-
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1) || \
 	defined(CONFIG_ZYNQ_GEM2) || defined(CONFIG_ZYNQ_GEM3)
@@ -205,9 +197,6 @@
 # define CONFIG_PHY_MARVELL
 #endif
 
-#define CONFIG_ZYNQ_I2C0
-#define CONFIG_SYS_I2C_ZYNQ
-
 /* I2C */
 #if defined(CONFIG_SYS_I2C_ZYNQ)
 # define CONFIG_CMD_I2C
@@ -215,8 +204,6 @@
 # define CONFIG_SYS_I2C_ZYNQ_SPEED		100000
 # define CONFIG_SYS_I2C_ZYNQ_SLAVE		0
 #endif
-
-#define CONFIG_ZYNQMP_EEPROM
 
 /* EEPROM */
 #ifdef CONFIG_ZYNQMP_EEPROM
@@ -239,7 +226,6 @@
 #define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_CLOCKS
 
-#define CONFIG_AHCI
 #ifdef CONFIG_AHCI
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI

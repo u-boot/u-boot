@@ -1,4 +1,12 @@
-if TARGET_XILINX_ZYNQMP
+if ARCH_ZYNQMP
+
+choice
+	prompt "Xilinx ZynqMP board select"
+
+config TARGET_ZYNQMP_EP
+	bool "ZynqMP EP Board"
+
+endchoice
 
 config SYS_BOARD
 	default "zynqmp"
@@ -10,6 +18,6 @@ config SYS_SOC
 	default "zynqmp"
 
 config SYS_CONFIG_NAME
-	default "xilinx_zynqmp"
+	default "xilinx_zynqmp_ep" if TARGET_ZYNQMP_EP
 
 endif

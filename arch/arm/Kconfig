@@ -622,7 +622,7 @@ config ZYNQ
 	select CPU_V7
 	select SUPPORT_SPL
 
-config TARGET_XILINX_ZYNQMP
+config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
 	select ARM64
 
