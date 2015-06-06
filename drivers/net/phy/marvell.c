@@ -336,6 +336,25 @@ static int m88e1518_config(struct phy_device *phydev)
 	return m88e1111s_config(phydev);
 }
 
+/* Marvell 88E1510 */
+static int m88e1510_config(struct phy_device *phydev)
+{
+	/* Select page 3 */
+	phy_write(phydev, MDIO_DEVAD_NONE, 22, 3);
+
+	/* Enable INTn output on LED[2] */
+	m88e1518_phy_writebits(phydev, 18, 7, 1, 1);
+
+	/* Configure LEDs */
+	m88e1518_phy_writebits(phydev, 16, 0, 4, 3); /* LED[0]:0011 (ACT) */
+	m88e1518_phy_writebits(phydev, 16, 4, 4, 6); /* LED[1]:0110 (LINK) */
+
+	/* Reset page selection */
+	phy_write(phydev, MDIO_DEVAD_NONE, 22, 0);
+
+	return m88e1518_config(phydev);
+}
+
 /* Marvell 88E1118 */
 static int m88e1118_config(struct phy_device *phydev)
 {
@@ -548,6 +567,16 @@ static struct phy_driver M88E1149S_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver M88E1510_driver = {
+	.name = "Marvell 88E1510",
+	.uid = 0x1410dd0,
+	.mask = 0xffffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &m88e1510_config,
+	.startup = &m88e1011s_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 static struct phy_driver M88E1518_driver = {
 	.name = "Marvell 88E1518",
 	.uid = 0x1410dd1,
@@ -578,6 +607,7 @@ int phy_marvell_init(void)
 	phy_register(&M88E1118R_driver);
 	phy_register(&M88E1111S_driver);
 	phy_register(&M88E1011S_driver);
+	phy_register(&M88E1510_driver);
 	phy_register(&M88E1518_driver);
 
 	return 0;
