@@ -19,13 +19,11 @@
 #define CONFIG_ZYNQ_GEM_PHY_ADDR0	7
 
 #define CONFIG_ZYNQ_SERIAL_UART0
-#define CONFIG_ZYNQMP_QSPI
 #define CONFIG_ZYNQ_SDHCI0
 #define CONFIG_ZYNQ_I2C0
 #define CONFIG_SYS_I2C_ZYNQ
 #define CONFIG_ZYNQ_EEPROM
 #define CONFIG_AHCI
-#define CONFIG_NAND_ARASAN
 
 #include <configs/xilinx_zynqmp.h>
 
