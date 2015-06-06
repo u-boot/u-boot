@@ -18,11 +18,6 @@
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public
- *     License along with this library; if not, write to the Free
- *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
- *     MA 02110-1301 USA
- *
  * Or, alternatively,
  *
  *  b) Permission is hereby granted, free of charge, to any person
@@ -67,7 +62,8 @@
 		ranges;
 
 		framebuffer@0 {
-			compatible = "allwinner,simple-framebuffer", "simple-framebuffer";
+			compatible = "allwinner,simple-framebuffer",
+				     "simple-framebuffer";
 			allwinner,pipeline = "de_be0-lcd0-hdmi";
 			clocks = <&pll5 1>, <&ahb_gates 36>, <&ahb_gates 43>,
 				 <&ahb_gates 44>;
@@ -89,13 +85,17 @@
 			compatible = "allwinner,sun5i-a10s-ahb-gates-clk";
 			reg = <0x01c20060 0x8>;
 			clocks = <&ahb>;
-			clock-output-names = "ahb_usbotg", "ahb_ehci", "ahb_ohci",
-				"ahb_ss", "ahb_dma", "ahb_bist", "ahb_mmc0",
-				"ahb_mmc1", "ahb_mmc2", "ahb_nand", "ahb_sdram",
-				"ahb_emac", "ahb_ts", "ahb_spi0", "ahb_spi1",
-				"ahb_spi2", "ahb_gps", "ahb_stimer", "ahb_ve",
-				"ahb_tve", "ahb_lcd", "ahb_csi", "ahb_hdmi",
-				"ahb_de_be", "ahb_de_fe", "ahb_iep", "ahb_mali400";
+			clock-output-names = "ahb_usbotg", "ahb_ehci",
+					     "ahb_ohci", "ahb_ss", "ahb_dma",
+					     "ahb_bist", "ahb_mmc0", "ahb_mmc1",
+					     "ahb_mmc2", "ahb_nand",
+					     "ahb_sdram", "ahb_emac", "ahb_ts",
+					     "ahb_spi0", "ahb_spi1", "ahb_spi2",
+					     "ahb_gps", "ahb_stimer", "ahb_ve",
+					     "ahb_tve", "ahb_lcd", "ahb_csi",
+					     "ahb_hdmi", "ahb_de_be",
+					     "ahb_de_fe", "ahb_iep",
+					     "ahb_mali400";
 		};
 
 		apb0_gates: clk@01c20068 {
@@ -103,8 +103,9 @@
 			compatible = "allwinner,sun5i-a10s-apb0-gates-clk";
 			reg = <0x01c20068 0x4>;
 			clocks = <&apb0>;
-			clock-output-names = "apb0_codec", "apb0_iis", "apb0_pio",
-				"apb0_ir", "apb0_keypad";
+			clock-output-names = "apb0_codec", "apb0_iis",
+					     "apb0_pio", "apb0_ir",
+					     "apb0_keypad";
 		};
 
 		apb1_gates: clk@01c2006c {
@@ -124,6 +125,7 @@
 			reg = <0x01c0b000 0x1000>;
 			interrupts = <55>;
 			clocks = <&ahb_gates 17>;
+			allwinner,sram = <&emac_sram 1>;
 			status = "disabled";
 		};
 
@@ -193,9 +195,18 @@
 	};
 
 	mmc1_pins_a: mmc1@0 {
-		allwinner,pins = "PG3","PG4","PG5","PG6","PG7","PG8";
+		allwinner,pins = "PG3", "PG4", "PG5",
+				 "PG6", "PG7", "PG8";
 		allwinner,function = "mmc1";
 		allwinner,drive = <SUN4I_PINCTRL_30_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+};
+
+&sram_a {
+	emac_sram: sram-section@8000 {
+		compatible = "allwinner,sun4i-a10-sram-a3-a4";
+		reg = <0x8000 0x4000>;
+		status = "disabled";
 	};
 };
