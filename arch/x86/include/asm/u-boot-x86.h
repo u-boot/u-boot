@@ -8,12 +8,19 @@
 #ifndef _U_BOOT_I386_H_
 #define _U_BOOT_I386_H_	1
 
+extern char gdt_rom[];
+
 /* cpu/.../cpu.c */
 int arch_cpu_init(void);
 int x86_cpu_init_f(void);
 int cpu_init_f(void);
 void init_gd(gd_t *id, u64 *gdt_addr);
 void setup_gdt(gd_t *id, u64 *gdt_addr);
+/*
+ * Setup FSP execution environment GDT to use the one we used in
+ * arch/x86/cpu/start16.S and reload the segment registers.
+ */
+void setup_fsp_gdt(void);
 int init_cache(void);
 int cleanup_before_linux(void);
 

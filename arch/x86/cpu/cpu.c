@@ -164,6 +164,26 @@ void setup_gdt(gd_t *id, u64 *gdt_addr)
 	load_fs(X86_GDT_ENTRY_32BIT_FS);
 }
 
+#ifdef CONFIG_HAVE_FSP
+/*
+ * Setup FSP execution environment GDT
+ *
+ * Per Intel FSP external architecture specification, before calling any FSP
+ * APIs, we need make sure the system is in flat 32-bit mode and both the code
+ * and data selectors should have full 4GB access range. Here we reuse the one
+ * we used in arch/x86/cpu/start16.S, and reload the segement registers.
+ */
+void setup_fsp_gdt(void)
+{
+	load_gdt((const u64 *)(gdt_rom + CONFIG_RESET_SEG_START), 4);
+	load_ds(X86_GDT_ENTRY_32BIT_DS);
+	load_ss(X86_GDT_ENTRY_32BIT_DS);
+	load_es(X86_GDT_ENTRY_32BIT_DS);
+	load_fs(X86_GDT_ENTRY_32BIT_DS);
+	load_gs(X86_GDT_ENTRY_32BIT_DS);
+}
+#endif
+
 int __weak x86_cleanup_before_linux(void)
 {
 #ifdef CONFIG_BOOTSTAGE_STASH
