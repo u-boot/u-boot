@@ -513,6 +513,16 @@ struct pci_controller {
 
 	int indirect_type;
 
+	/*
+	 * TODO(sjg@chromium.org): With driver model we use struct
+	 * pci_controller for both the controller and any bridge devices
+	 * attached to it. But there is only one region list and it is in the
+	 * top-level controller.
+	 *
+	 * This could be changed so that struct pci_controller is only used
+	 * for PCI controllers and a separate UCLASS (or perhaps
+	 * UCLASS_PCI_GENERIC) is used for bridges.
+	 */
 	struct pci_region regions[MAX_PCI_REGIONS];
 	int region_count;
 
