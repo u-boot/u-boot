@@ -56,28 +56,10 @@ temp_ram_init_ret:
 
 	/* stack grows down from top of CAR */
 	movl	%edx, %esp
+	subl	$4, %esp
 
-	/*
-	 * TODO:
-	 *
-	 * According to FSP architecture spec, the fsp_init() will not return
-	 * to its caller, instead it requires the bootloader to provide a
-	 * so-called continuation function to pass into the FSP as a parameter
-	 * of fsp_init, and fsp_init() will call that continuation function
-	 * directly.
-	 *
-	 * The call to fsp_init() may need to be moved out of the car_init()
-	 * to cpu_init_f() with the help of some inline assembly codes.
-	 * Note there is another issue that fsp_init() will setup another stack
-	 * using the fsp_init parameter stack_top after DRAM is initialized,
-	 * which means any data on the previous stack (on the CAR) gets lost
-	 * (ie: U-Boot global_data). FSP is supposed to support such scenario,
-	 * however it does not work. This should be revisited in the future.
-	 */
-	movl	$CONFIG_FSP_TEMP_RAM_ADDR, %eax
-	xorl	%edx, %edx
-	xorl	%ecx, %ecx
-	call	fsp_init
+	xor	%esi, %esi
+	jmp	car_init_done
 
 .global fsp_init_done
 fsp_init_done:
@@ -86,6 +68,8 @@ fsp_init_done:
 	 * Save eax to esi temporarily.
 	 */
 	movl	%eax, %esi
+
+car_init_done:
 	/*
 	 * Re-initialize the ebp (BIST) to zero, as we already reach here
 	 * which means we passed BIST testing before.

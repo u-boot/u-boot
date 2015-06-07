@@ -753,6 +753,9 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_OF_CONTROL
 	fdtdec_setup,
 #endif
+#if defined(CONFIG_X86) && defined(CONFIG_HAVE_FSP)
+	x86_fsp_init,
+#endif
 #ifdef CONFIG_TRACE
 	trace_early_init,
 #endif
