@@ -422,7 +422,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	int using_cmd = 0;
 	int ret;
 
-	/* Ee don't support writing partial bytes. */
+	/* We don't support writing partial bytes */
 	if (bitlen % 8) {
 		debug("ICH SPI: Accessing partial bytes not supported\n");
 		return -EPROTONOSUPPORT;
@@ -601,7 +601,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			return status;
 
 		if (status & SPIS_FCERR) {
-			debug("ICH SPI: Data transaction error\n");
+			debug("ICH SPI: Data transaction error %x\n", status);
 			return -EIO;
 		}
 
@@ -618,7 +618,6 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	return 0;
 }
-
 
 /*
  * This uses the SPI controller from the Intel Cougar Point and Panther Point
