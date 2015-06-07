@@ -334,7 +334,7 @@ int dm_pci_hose_probe_bus(struct pci_controller *hose, pci_dev_t bdf)
 
 	sub_bus = pci_get_bus_max() + 1;
 	debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
-	pciauto_prescan_setup_bridge(hose, bdf, bus->seq);
+	pciauto_prescan_setup_bridge(hose, bdf, sub_bus);
 
 	ret = device_probe(bus);
 	if (ret) {
