@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013, 2014 Markus Niebel <Markus.Niebel@tq-group.com>
+ * Copyright (C) 2013 - 2015 Markus Niebel <Markus.Niebel@tq-group.com>
  *
  * Configuration settings for the TQ Systems TQMa6<Q,S> module.
  *
@@ -11,7 +11,7 @@
 
 #if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
 #define CONFIG_DEFAULT_FDT_FILE		"imx6dl-mba6x.dtb"
-#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6Q)
+#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
 #define CONFIG_DEFAULT_FDT_FILE		"imx6q-mba6x.dtb"
 #endif
 

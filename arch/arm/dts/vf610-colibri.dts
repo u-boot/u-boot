@@ -1,0 +1,18 @@
+/*
+ * Copyright 2014 Toradex AG
+ *
+ * SPDX-License-Identifier:     GPL-2.0+ or X11
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ */
+
+/dts-v1/;
+#include "vf-colibri.dtsi"
+
+/ {
+	model = "Toradex Colibri VF61";
+	compatible = "toradex,vf610-colibri_vf61", "toradex,vf610-colibri_vf61", "fsl,vf610";
+};

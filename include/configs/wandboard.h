@@ -192,10 +192,14 @@
 			"bootz; " \
 		"fi;\0" \
 	"findfdt="\
-		"if test $board_rev = MX6Q ; then " \
+		"if test $board_name = C1 && test $board_rev = MX6Q ; then " \
 			"setenv fdtfile imx6q-wandboard.dtb; fi; " \
-		"if test $board_rev = MX6DL ; then " \
+		"if test $board_name = C1 && test $board_rev = MX6DL ; then " \
 			"setenv fdtfile imx6dl-wandboard.dtb; fi; " \
+		"if test $board_name = B1 && test $board_rev = MX6Q ; then " \
+			"setenv fdtfile imx6q-wandboard-revb1.dtb; fi; " \
+		"if test $board_name = B1 && test $board_rev = MX6DL ; then " \
+			"setenv fdtfile imx6dl-wandboard-revb1.dtb; fi; " \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine dtb to use; fi; \0" \
 

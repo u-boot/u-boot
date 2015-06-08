@@ -50,6 +50,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define USDHC1_CD_GPIO		IMX_GPIO_NR(1, 2)
 #define USDHC3_CD_GPIO		IMX_GPIO_NR(3, 9)
 #define ETH_PHY_RESET		IMX_GPIO_NR(3, 29)
+#define REV_DETECTION		IMX_GPIO_NR(2, 28)
 
 int dram_init(void)
 {
@@ -103,6 +104,10 @@ static iomux_v3_cfg_t const enet_pads[] = {
 	IOMUX_PADS(PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	/* AR8031 PHY Reset */
 	IOMUX_PADS(PAD_EIM_D29__GPIO3_IO29    | MUX_PAD_CTRL(NO_PAD_CTRL)),
+};
+
+static iomux_v3_cfg_t const rev_detection_pad[] = {
+	IOMUX_PADS(PAD_EIM_EB0__GPIO2_IO28  | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 static void setup_iomux_uart(void)
@@ -393,6 +398,17 @@ static const struct boot_mode board_boot_modes[] = {
 };
 #endif
 
+static bool is_revc1(void)
+{
+	SETUP_IOMUX_PADS(rev_detection_pad);
+	gpio_direction_input(REV_DETECTION);
+
+	if (gpio_get_value(REV_DETECTION))
+		return true;
+	else
+		return false;
+}
+
 int board_late_init(void)
 {
 #ifdef CONFIG_CMD_BMODE
@@ -404,6 +420,11 @@ int board_late_init(void)
 		setenv("board_rev", "MX6Q");
 	else
 		setenv("board_rev", "MX6DL");
+
+	if (is_revc1())
+		setenv("board_name", "C1");
+	else
+		setenv("board_name", "B1");
 #endif
 	return 0;
 }
@@ -424,7 +445,10 @@ int board_init(void)
 
 int checkboard(void)
 {
-	puts("Board: Wandboard\n");
+	if (is_revc1())
+		puts("Board: Wandboard rev C1\n");
+	else
+		puts("Board: Wandboard rev B1\n");
 
 	return 0;
 }

@@ -22,6 +22,13 @@
 
 /* #endif */
 
+/* place code in last 4 MiB of RAM */
+#if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
+#define CONFIG_SYS_TEXT_BASE		0x2fc00000
+#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
+#define CONFIG_SYS_TEXT_BASE		0x4fc00000
+#endif
+
 #include "mx6_common.h"
 
 #if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
@@ -115,13 +122,6 @@
 /* Command definition */
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_ITEST
-
-/* place code in last 4 MiB of RAM */
-#if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
-#define CONFIG_SYS_TEXT_BASE		0x2fc00000
-#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
-#define CONFIG_SYS_TEXT_BASE		0x4fc00000
-#endif
 
 #define CONFIG_ENV_SIZE			(SZ_8K)
 /* Size of malloc() pool */
@@ -366,10 +366,6 @@
 		"echo ... failed\0"                                            \
 	"panicboot=echo No boot device !!! reset\0"                            \
 	TQMA6_EXTRA_BOOTDEV_ENV_SETTINGS                                      \
-
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					 sizeof(CONFIG_SYS_PROMPT) + 16)
 
 #define CONFIG_STACKSIZE		(128u * SZ_1K)
 

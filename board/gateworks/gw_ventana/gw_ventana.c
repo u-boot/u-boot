@@ -157,20 +157,18 @@ static iomux_v3_cfg_t const usb_pads[] = {
 
 int board_ehci_hcd_init(int port)
 {
-	struct ventana_board_info *info = &ventana_info;
 	int gpio;
 
 	SETUP_IOMUX_PADS(usb_pads);
 
-	/* Reset USB HUB (present on GW54xx/GW53xx) */
-	switch (info->model[3]) {
-	case '3': /* GW53xx */
-	case '5': /* GW552x */
-		SETUP_IOMUX_PAD(PAD_GPIO_9__GPIO1_IO09 | DIO_PAD_CFG);
+	/* Reset USB HUB */
+	switch (board_type) {
+	case GW53xx:
+	case GW552x:
 		gpio = (IMX_GPIO_NR(1, 9));
 		break;
-	case '4': /* GW54xx */
-		SETUP_IOMUX_PAD(PAD_SD1_DAT0__GPIO1_IO16 | DIO_PAD_CFG);
+	case GW54proto:
+	case GW54xx:
 		gpio = (IMX_GPIO_NR(1, 16));
 		break;
 	default:
@@ -687,8 +685,7 @@ int misc_init_r(void)
 		memset(str, 0, sizeof(str));
 		for (i = 0; i < (sizeof(str)-1) && info->model[i]; i++)
 			str[i] = tolower(info->model[i]);
-		if (!getenv("model"))
-			setenv("model", str);
+		setenv("model", str);
 		if (!getenv("fdt_file")) {
 			sprintf(fdt, "%s-%s.dtb", cputype, str);
 			setenv("fdt_file", fdt);
@@ -698,18 +695,14 @@ int misc_init_r(void)
 			*p++ = 0;
 
 			setenv("model_base", str);
-			if (!getenv("fdt_file1")) {
-				sprintf(fdt, "%s-%s.dtb", cputype, str);
-				setenv("fdt_file1", fdt);
-			}
+			sprintf(fdt, "%s-%s.dtb", cputype, str);
+			setenv("fdt_file1", fdt);
 			if (board_type != GW551x && board_type != GW552x)
 				str[4] = 'x';
 			str[5] = 'x';
 			str[6] = 0;
-			if (!getenv("fdt_file2")) {
-				sprintf(fdt, "%s-%s.dtb", cputype, str);
-				setenv("fdt_file2", fdt);
-			}
+			sprintf(fdt, "%s-%s.dtb", cputype, str);
+			setenv("fdt_file2", fdt);
 		}
 
 		/* initialize env from EEPROM */
@@ -818,9 +811,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 		return 0;
 	}
 
-	/* Update partition nodes using info from mtdparts env var */
-	puts("   Updating MTD partitions...\n");
-	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+	if (test_bit(EECONFIG_NAND, info->config)) {
+		/* Update partition nodes using info from mtdparts env var */
+		puts("   Updating MTD partitions...\n");
+		fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+	}
 
 	/* Update display timings from display env var */
 	if (display) {
@@ -829,10 +824,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 			printf("   Set display timings for %s...\n", display);
 	}
 
-	if (!model) {
-		puts("invalid board info: Leaving FDT fully enabled\n");
-		return 0;
-	}
 	printf("   Adjusting FDT per EEPROM for %s...\n", model);
 
 	/* board serial number */

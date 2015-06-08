@@ -34,7 +34,7 @@ Then U-boot should start and its messages will appear in the console program.
 Use the default environment variables:
 
 => env default -f -a
-=> save
+=> saveenv
 
 Run the DFU command:
 => dfu 0 mmc 0

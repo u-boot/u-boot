@@ -20,6 +20,7 @@
 #include <netdev.h>
 #include <i2c.h>
 #include <g_dnl.h>
+#include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,6 +32,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ENET_PAD_CTRL	(PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_HIGH | \
 			PAD_CTL_DSE_50ohm | PAD_CTL_OBE_IBE_ENABLE)
+
+#define USB_PEN_GPIO           83
+
+static const iomux_v3_cfg_t usb_pads[] = {
+	VF610_PAD_PTD4__GPIO_83,
+};
 
 int dram_init(void)
 {
@@ -146,6 +153,76 @@ static void setup_iomux_nfc(void)
 }
 #endif
 
+#ifdef CONFIG_FSL_DSPI
+static void setup_iomux_dspi(void)
+{
+	static const iomux_v3_cfg_t dspi1_pads[] = {
+		VF610_PAD_PTD5__DSPI1_CS0,
+		VF610_PAD_PTD6__DSPI1_SIN,
+		VF610_PAD_PTD7__DSPI1_SOUT,
+		VF610_PAD_PTD8__DSPI1_SCK,
+	};
+
+	imx_iomux_v3_setup_multiple_pads(dspi1_pads, ARRAY_SIZE(dspi1_pads));
+}
+#endif
+
+#ifdef CONFIG_VYBRID_GPIO
+static void setup_iomux_gpio(void)
+{
+	static const iomux_v3_cfg_t gpio_pads[] = {
+		VF610_PAD_PTA17__GPIO_7,
+		VF610_PAD_PTA20__GPIO_10,
+		VF610_PAD_PTA21__GPIO_11,
+		VF610_PAD_PTA30__GPIO_20,
+		VF610_PAD_PTA31__GPIO_21,
+		VF610_PAD_PTB0__GPIO_22,
+		VF610_PAD_PTB1__GPIO_23,
+		VF610_PAD_PTB6__GPIO_28,
+		VF610_PAD_PTB7__GPIO_29,
+		VF610_PAD_PTB8__GPIO_30,
+		VF610_PAD_PTB9__GPIO_31,
+		VF610_PAD_PTB12__GPIO_34,
+		VF610_PAD_PTB13__GPIO_35,
+		VF610_PAD_PTB16__GPIO_38,
+		VF610_PAD_PTB17__GPIO_39,
+		VF610_PAD_PTB18__GPIO_40,
+		VF610_PAD_PTB21__GPIO_43,
+		VF610_PAD_PTB22__GPIO_44,
+		VF610_PAD_PTC0__GPIO_45,
+		VF610_PAD_PTC1__GPIO_46,
+		VF610_PAD_PTC2__GPIO_47,
+		VF610_PAD_PTC3__GPIO_48,
+		VF610_PAD_PTC4__GPIO_49,
+		VF610_PAD_PTC5__GPIO_50,
+		VF610_PAD_PTC6__GPIO_51,
+		VF610_PAD_PTC7__GPIO_52,
+		VF610_PAD_PTC8__GPIO_53,
+		VF610_PAD_PTD31__GPIO_63,
+		VF610_PAD_PTD30__GPIO_64,
+		VF610_PAD_PTD29__GPIO_65,
+		VF610_PAD_PTD28__GPIO_66,
+		VF610_PAD_PTD27__GPIO_67,
+		VF610_PAD_PTD26__GPIO_68,
+		VF610_PAD_PTD25__GPIO_69,
+		VF610_PAD_PTD24__GPIO_70,
+		VF610_PAD_PTD9__GPIO_88,
+		VF610_PAD_PTD10__GPIO_89,
+		VF610_PAD_PTD11__GPIO_90,
+		VF610_PAD_PTD12__GPIO_91,
+		VF610_PAD_PTD13__GPIO_92,
+		VF610_PAD_PTB23__GPIO_93,
+		VF610_PAD_PTB26__GPIO_96,
+		VF610_PAD_PTB28__GPIO_98,
+		VF610_PAD_PTC29__GPIO_102,
+		VF610_PAD_PTC30__GPIO_103,
+		VF610_PAD_PTA7__GPIO_134,
+	};
+
+	imx_iomux_v3_setup_multiple_pads(gpio_pads, ARRAY_SIZE(gpio_pads));
+}
+#endif
+
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[1] = {
 	{ESDHC1_BASE_ADDR},
@@ -196,6 +273,9 @@ static void clock_init(void)
 
 	clrsetbits_le32(&ccm->ccgr0, CCM_REG_CTRL_MASK,
 			CCM_CCGR0_UART0_CTRL_MASK);
+#ifdef CONFIG_FSL_DSPI
+	setbits_le32(&ccm->ccgr0, CCM_CCGR0_DSPI1_CTRL_MASK);
+#endif
 	clrsetbits_le32(&ccm->ccgr1, CCM_REG_CTRL_MASK,
 			CCM_CCGR1_PIT_CTRL_MASK | CCM_CCGR1_WDOGA5_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr2, CCM_REG_CTRL_MASK,
@@ -304,6 +384,14 @@ int board_early_init_f(void)
 	setup_iomux_nfc();
 #endif
 
+#ifdef CONFIG_VYBRID_GPIO
+	setup_iomux_gpio();
+#endif
+
+#ifdef CONFIG_FSL_DSPI
+	setup_iomux_dspi();
+#endif
+
 	return 0;
 }
 
@@ -383,3 +471,21 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 
 	return 0;
 }
+
+#ifdef CONFIG_USB_EHCI_VF
+int board_ehci_hcd_init(int port)
+{
+	imx_iomux_v3_setup_multiple_pads(usb_pads, ARRAY_SIZE(usb_pads));
+
+	switch (port) {
+	case 0:
+		/* USBC does not have PEN, also configured as USB client only */
+		break;
+	case 1:
+		gpio_request(USB_PEN_GPIO, "usb-pen-gpio");
+		gpio_direction_output(USB_PEN_GPIO, 0);
+		break;
+	}
+	return 0;
+}
+#endif

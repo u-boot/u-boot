@@ -54,6 +54,11 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
 
+/* GPIO support */
+#define CONFIG_DM_GPIO
+#define CONFIG_CMD_GPIO
+#define CONFIG_VYBRID_GPIO
+
 /* Dynamic MTD partition support */
 #define CONFIG_CMD_MTDPARTS	/* Enable 'mtdparts' command line support */
 #define CONFIG_MTD_PARTITIONS
@@ -265,5 +270,12 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_GADGET_MASS_STORAGE
 #define CONFIG_CMD_USB_MASS_STORAGE
+
+/* Enable SPI support */
+#ifdef CONFIG_OF_CONTROL
+#define CONFIG_DM_SPI
+#define CONFIG_CMD_SPI
+#define CONFIG_FSL_DSPI
+#endif
 
 #endif /* __CONFIG_H */
