@@ -19,6 +19,10 @@
 #define MV_MISC_REGS_BASE		MISC_REGS_OFFSET
 #define SOC_CTRL_REG			(MV_MISC_REGS_BASE + 0x4)
 
+#define PEX_IF_REGS_OFFSET(if)		((if) > 0 ?			\
+					 (0x40000 + ((if) - 1) * 0x4000) : \
+					 0x80000)
+#define PEX_IF_REGS_BASE(if)		(PEX_IF_REGS_OFFSET(if))
 #define PEX_CAPABILITIES_REG(if)	((PEX_IF_REGS_BASE(if)) + 0x60)
 #define PEX_LINK_CTRL_STATUS2_REG(if)	((PEX_IF_REGS_BASE(if)) + 0x90)
 #define PEX_CTRL_REG(if)		((PEX_IF_REGS_BASE(if)) + 0x1a00)
