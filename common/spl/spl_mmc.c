@@ -130,19 +130,21 @@ void spl_mmc_load_image(void)
 				return;
 		}
 #endif
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
+#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION)
 		err = mmc_load_image_raw_partition(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);
-#else
-		err = mmc_load_image_raw_sector(mmc,
-			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
-#endif
 		if (!err)
 			return;
-#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+#elif defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR)
+		err = mmc_load_image_raw_sector(mmc,
+			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
+		if (!err)
+			return;
+#endif
 	case MMCSD_MODE_FS:
 		debug("spl: mmc boot mode: fs\n");
 
+#ifdef CONFIG_SYS_MMCSD_FS_BOOT_PARTITION
 #ifdef CONFIG_SPL_FAT_SUPPORT
 #ifdef CONFIG_SPL_OS_BOOT
 		if (!spl_start_uboot()) {
@@ -152,11 +154,13 @@ void spl_mmc_load_image(void)
 				return;
 		}
 #endif
+#ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
 		err = spl_load_image_fat(&mmc->block_dev,
 					 CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
 					 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 		if (!err)
 			return;
+#endif
 #endif
 #ifdef CONFIG_SPL_EXT_SUPPORT
 #ifdef CONFIG_SPL_OS_BOOT
@@ -167,11 +171,13 @@ void spl_mmc_load_image(void)
 				return;
 		}
 #endif
+#ifdef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
 		err = spl_load_image_ext(&mmc->block_dev,
 					 CONFIG_SYS_MMCSD_FS_BOOT_PARTITION,
 					 CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
 		if (!err)
 			return;
+#endif
 #endif
 #endif
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
@@ -200,15 +206,17 @@ void spl_mmc_load_image(void)
 				return;
 		}
 #endif
-#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
+#if defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION)
 		err = mmc_load_image_raw_partition(mmc,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION);
-#else
-		err = mmc_load_image_raw_sector(mmc,
-			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
-#endif
 		if (!err)
 			return;
+#elif defined(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR)
+		err = mmc_load_image_raw_sector(mmc,
+			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
+		if (!err)
+			return;
+#endif
 #endif
 	case MMCSD_MODE_UNDEFINED:
 	default:
