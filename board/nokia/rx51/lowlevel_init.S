@@ -105,10 +105,6 @@ fix_start:
 	/* r6 - maximal u-boot size */
 	ldr	r6, imagesize
 
-	/* fix return address */
-	subhi	lr, lr, r5
-	addlo	lr, lr, r5
-
 	/* r1 - start of u-boot after */
 	ldr	r1, startaddr
 
