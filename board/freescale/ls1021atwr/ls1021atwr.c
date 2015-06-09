@@ -368,6 +368,9 @@ int board_early_init_f(void)
 	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
 #endif
 
+	/* Configure Little endian for SAI, ASRC and SPDIF */
+	out_be32(&scfg->endiancr, SCFG_ENDIANCR_LE);
+
 	/*
 	 * Enable snoop requests and DVM message requests for
 	 * Slave insterface S4 (A7 core cluster)
