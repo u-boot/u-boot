@@ -681,7 +681,7 @@ config ARCH_ZYNQ
 	select DM_SPI
 	select DM_SPI_FLASH
 
-config TARGET_XILINX_ZYNQMP
+config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
 	select ARM64
 
