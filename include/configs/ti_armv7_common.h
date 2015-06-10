@@ -301,7 +301,8 @@
 		"run netloadfdt; " \
 		"run netargs; " \
 		"bootz ${loadaddr} - ${fdtaddr}\0"
-
+#else
+#define NETARGS ""
 #endif
 
 #endif	/* __CONFIG_TI_ARMV7_COMMON_H__ */
