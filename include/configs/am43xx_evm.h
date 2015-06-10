@@ -17,7 +17,7 @@
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SYS_CACHELINE_SIZE       32
-#define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
+#define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 21)	/* 2GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 
 #include <asm/arch/omap.h>
