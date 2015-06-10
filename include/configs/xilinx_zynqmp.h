@@ -40,7 +40,6 @@
 
 #define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
 
-#define CONFIG_SYS_TEXT_BASE		0x8000000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
 /* Flat Device Tree Definitions */
