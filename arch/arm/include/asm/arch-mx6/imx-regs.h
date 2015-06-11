@@ -312,6 +312,7 @@
 #define CHIP_REV_1_0                 0x10
 #define CHIP_REV_1_2                 0x12
 #define CHIP_REV_1_5                 0x15
+#define CHIP_REV_2_0                 0x20
 #ifndef CONFIG_MX6SX
 #define IRAM_SIZE                    0x00040000
 #else
