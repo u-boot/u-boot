@@ -237,6 +237,7 @@ config FSP_TEMP_RAM_ADDR
 
 config MAX_CPUS
         int "Maximum number of CPUs permitted"
+        depends on SMP
         default 4
         help
           When using multi-CPU chips it is possible for U-Boot to start up
@@ -258,6 +259,7 @@ config SMP
 
 config AP_STACK_SIZE
 	hex
+	depends on SMP
 	default 0x1000
 	help
 	  Each additional CPU started by U-Boot requires its own stack. This
