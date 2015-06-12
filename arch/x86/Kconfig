@@ -235,18 +235,6 @@ config FSP_TEMP_RAM_ADDR
 	  Stack top address which is used in FspInit after DRAM is ready and
 	  CAR is disabled.
 
-config MAX_CPUS
-        int "Maximum number of CPUs permitted"
-        depends on SMP
-        default 4
-        help
-          When using multi-CPU chips it is possible for U-Boot to start up
-          more than one CPU. The stack memory used by all of these CPUs is
-          pre-allocated so at present U-Boot wants to know the maximum
-          number of CPUs that may be present. Set this to at least as high
-          as the number of CPUs in your system (it uses about 4KB of RAM for
-          each CPU).
-
 config SMP
 	bool "Enable Symmetric Multiprocessing"
 	default n
@@ -256,6 +244,18 @@ config SMP
 	  obtained using the 'cpu' command. If this option is disabled, then
 	  only one CPU will be enabled regardless of the number of CPUs
 	  available.
+
+config MAX_CPUS
+	int "Maximum number of CPUs permitted"
+	depends on SMP
+	default 4
+	help
+	  When using multi-CPU chips it is possible for U-Boot to start up
+	  more than one CPU. The stack memory used by all of these CPUs is
+	  pre-allocated so at present U-Boot wants to know the maximum
+	  number of CPUs that may be present. Set this to at least as high
+	  as the number of CPUs in your system (it uses about 4KB of RAM for
+	  each CPU).
 
 config AP_STACK_SIZE
 	hex
