@@ -10,7 +10,7 @@
 
 extra-y	= start.o
 obj-$(CONFIG_X86_RESET_VECTOR) += resetvec.o start16.o
-obj-y	+= interrupts.o cpu.o call64.o
+obj-y	+= interrupts.o cpu.o cpu_x86.o call64.o
 
 obj-$(CONFIG_INTEL_BAYTRAIL) += baytrail/
 obj-$(CONFIG_SYS_COREBOOT) += coreboot/

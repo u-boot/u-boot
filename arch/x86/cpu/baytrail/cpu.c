@@ -10,6 +10,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <asm/cpu.h>
+#include <asm/cpu_x86.h>
 #include <asm/lapic.h>
 #include <asm/mp.h>
 #include <asm/msr.h>
@@ -175,18 +176,8 @@ static int baytrail_get_info(struct udevice *dev, struct cpu_info *info)
 	return 0;
 }
 
-static int cpu_x86_baytrail_bind(struct udevice *dev)
-{
-	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
-
-	plat->cpu_id = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
-				      "intel,apic-id", -1);
-
-	return 0;
-}
-
 static const struct cpu_ops cpu_x86_baytrail_ops = {
-	.get_desc	= x86_cpu_get_desc,
+	.get_desc	= cpu_x86_get_desc,
 	.get_info	= baytrail_get_info,
 };
 
@@ -199,7 +190,7 @@ U_BOOT_DRIVER(cpu_x86_baytrail_drv) = {
 	.name		= "cpu_x86_baytrail",
 	.id		= UCLASS_CPU,
 	.of_match	= cpu_x86_baytrail_ids,
-	.bind		= cpu_x86_baytrail_bind,
+	.bind		= cpu_x86_bind,
 	.probe		= cpu_x86_baytrail_probe,
 	.ops		= &cpu_x86_baytrail_ops,
 };
