@@ -26,7 +26,7 @@ int cpu_get_info(struct udevice *dev, struct cpu_info *info)
 {
 	struct cpu_ops *ops = cpu_get_ops(dev);
 
-	if (!ops->get_desc)
+	if (!ops->get_info)
 		return -ENOSYS;
 
 	return ops->get_info(dev, info);
