@@ -1716,6 +1716,9 @@ The following options need to be configured:
 		sending again an USB request to the device.
 
 - USB Device Android Fastboot support:
+		CONFIG_USB_FUNCTION_FASTBOOT
+		This enables the USB part of the fastboot gadget
+
 		CONFIG_CMD_FASTBOOT
 		This enables the command "fastboot" which enables the Android
 		fastboot mode for the platform's USB device. Fastboot is a USB
