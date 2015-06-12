@@ -249,7 +249,7 @@
 #endif /* CONFIG_MUSB_GADGET */
 
 #define CONFIG_USB_GADGET
-#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_USB_GADGET_DOWNLOAD
 
 /* USB DRACO ID as default */
 #define CONFIG_USBD_HS
@@ -258,7 +258,7 @@
 #define CONFIG_G_DNL_MANUFACTURER "Siemens AG"
 
 /* USB Device Firmware Update support */
-#define CONFIG_DFU_FUNCTION
+#define CONFIG_USB_FUNCTION_DFU
 #define CONFIG_DFU_NAND
 #define CONFIG_CMD_DFU
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	(1 << 20)
