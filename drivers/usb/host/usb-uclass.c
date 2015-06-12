@@ -628,6 +628,49 @@ int usb_scan_device(struct udevice *parent, int port,
 	return 0;
 }
 
+/*
+ * Detect if a USB device has been plugged or unplugged.
+ */
+int usb_detect_change(void)
+{
+	struct udevice *hub;
+	struct uclass *uc;
+	int change = 0;
+	int ret;
+
+	ret = uclass_get(UCLASS_USB_HUB, &uc);
+	if (ret)
+		return ret;
+
+	uclass_foreach_dev(hub, uc) {
+		struct usb_device *udev;
+		struct udevice *dev;
+
+		if (!device_active(hub))
+			continue;
+		for (device_find_first_child(hub, &dev);
+		     dev;
+		     device_find_next_child(&dev)) {
+			struct usb_port_status status;
+
+			if (!device_active(dev))
+				continue;
+
+			udev = dev_get_parentdata(dev);
+			if (usb_get_port_status(udev, udev->portnr, &status)
+					< 0)
+				/* USB request failed */
+				continue;
+
+			if (le16_to_cpu(status.wPortChange) &
+			    USB_PORT_STAT_C_CONNECTION)
+				change++;
+		}
+	}
+
+	return change;
+}
+
 int usb_child_post_bind(struct udevice *dev)
 {
 	struct usb_dev_platdata *plat = dev_get_parent_platdata(dev);

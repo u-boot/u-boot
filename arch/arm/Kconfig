@@ -668,6 +668,7 @@ config TEGRA
 	select SUPPORT_SPL
 	select SPL
 	select OF_CONTROL
+	select SPL_DISABLE_OF_CONTROL
 	select CPU_V7
 	select DM
 	select DM_SPI_FLASH
@@ -794,6 +795,7 @@ config ARCH_UNIPHIER
 	select DM
 	select DM_SERIAL
 	select DM_I2C
+	select SPL_DISABLE_OF_CONTROL
 	help
 	  Support for UniPhier SoC family developed by Socionext Inc.
 	  (formerly, System LSI Business Division of Panasonic Corporation)

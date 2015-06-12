@@ -161,7 +161,6 @@ int board_init(void)
 
 #ifdef CONFIG_USB_EHCI_TEGRA
 	pin_mux_usb();
-	usb_process_devicetree(gd->fdt_blob);
 #endif
 
 #ifdef CONFIG_LCD

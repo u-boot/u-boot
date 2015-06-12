@@ -24,7 +24,13 @@ config SYS_MALLOC_F_LEN
 config USE_PRIVATE_LIBGCC
 	default y
 
+config DM_USB
+	default y
+
 config SPL_DM
+	default y
+
+config SPL_DISABLE_OF_CONTROL
 	default y
 
 source "arch/arm/mach-tegra/tegra20/Kconfig"

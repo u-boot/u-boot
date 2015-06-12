@@ -11,6 +11,8 @@
 #include <linux/compiler.h>
 #include <asm/spl.h>
 
+/* Value in r0 indicates we booted from U-Boot */
+#define UBOOT_NOT_LOADED_FROM_SPL	0x13578642
 
 /* Boot type */
 #define MMCSD_MODE_UNDEFINED	0
@@ -82,4 +84,15 @@ int spl_load_image_ext_os(block_dev_desc_t *block_dev, int partition);
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void);
 #endif
+
+/**
+ * spl_was_boot_source() - check if U-Boot booted from SPL
+ *
+ * This will normally be true, but if U-Boot jumps to second U-Boot, it will
+ * be false. This should be implemented by board-specific code.
+ *
+ * @return true if U-Boot booted from SPL, else false
+ */
+bool spl_was_boot_source(void);
+
 #endif
