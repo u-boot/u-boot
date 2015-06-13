@@ -12,10 +12,12 @@
 #ifndef __CONFIG_OMAP5_EVM_H
 #define __CONFIG_OMAP5_EVM_H
 
+#ifndef CONFIG_SPL_BUILD
 /* Define the default GPT table for eMMC */
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}"
+#endif
 
 #include <configs/ti_omap5_common.h>
 

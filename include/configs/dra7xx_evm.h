@@ -42,6 +42,7 @@
 
 #define CONFIG_SYS_OMAP_ABE_SYSCK
 
+#ifndef CONFIG_SPL_BUILD
 /* Define the default GPT table for eMMC */
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
@@ -95,6 +96,7 @@
 #define CONFIG_USB_FASTBOOT_BUF_SIZE    0x2F000000
 #define CONFIG_FASTBOOT_FLASH
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
+#endif
 
 #include <configs/ti_omap5_common.h>
 
