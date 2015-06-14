@@ -105,32 +105,12 @@ static void USBC_EnableIdPullUp(__iomem void *base)
 	musb_writel(base, USBC_REG_o_ISCR, reg_val);
 }
 
-static void USBC_DisableIdPullUp(__iomem void *base)
-{
-	u32 reg_val;
-
-	reg_val = musb_readl(base, USBC_REG_o_ISCR);
-	reg_val &= ~(1 << USBC_BP_ISCR_ID_PULLUP_EN);
-	reg_val = USBC_WakeUp_ClearChangeDetect(reg_val);
-	musb_writel(base, USBC_REG_o_ISCR, reg_val);
-}
-
 static void USBC_EnableDpDmPullUp(__iomem void *base)
 {
 	u32 reg_val;
 
 	reg_val = musb_readl(base, USBC_REG_o_ISCR);
 	reg_val |= (1 << USBC_BP_ISCR_DPDM_PULLUP_EN);
-	reg_val = USBC_WakeUp_ClearChangeDetect(reg_val);
-	musb_writel(base, USBC_REG_o_ISCR, reg_val);
-}
-
-static void USBC_DisableDpDmPullUp(__iomem void *base)
-{
-	u32 reg_val;
-
-	reg_val = musb_readl(base, USBC_REG_o_ISCR);
-	reg_val &= ~(1 << USBC_BP_ISCR_DPDM_PULLUP_EN);
 	reg_val = USBC_WakeUp_ClearChangeDetect(reg_val);
 	musb_writel(base, USBC_REG_o_ISCR, reg_val);
 }
@@ -292,22 +272,8 @@ static int sunxi_musb_init(struct musb *musb)
 	return 0;
 }
 
-static int sunxi_musb_exit(struct musb *musb)
-{
-	pr_debug("%s():\n", __func__);
-
-	USBC_DisableDpDmPullUp(musb->mregs);
-	USBC_DisableIdPullUp(musb->mregs);
-	sunxi_usb_phy_power_off(0);
-	sunxi_usb_phy_exit(0);
-
-	return 0;
-}
-
 const struct musb_platform_ops sunxi_musb_ops = {
 	.init		= sunxi_musb_init,
-	.exit		= sunxi_musb_exit,
-
 	.enable		= sunxi_musb_enable,
 	.disable	= sunxi_musb_disable,
 };
