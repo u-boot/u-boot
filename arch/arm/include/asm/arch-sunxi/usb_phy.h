@@ -17,4 +17,5 @@ void sunxi_usb_phy_exit(int index);
 void sunxi_usb_phy_power_on(int index);
 void sunxi_usb_phy_power_off(int index);
 int sunxi_usb_phy_vbus_detect(int index);
+int sunxi_usb_phy_id_detect(int index);
 void sunxi_usb_phy_enable_squelch_detect(int index, int enable);

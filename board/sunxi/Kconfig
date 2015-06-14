@@ -294,6 +294,13 @@ config USB0_VBUS_DET
 	Set the Vbus detect pin for usb0 (otg). This takes a string in the
 	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
 
+config USB0_ID_DET
+	string "ID detect pin for usb0 (otg)"
+	default ""
+	---help---
+	Set the ID detect pin for usb0 (otg). This takes a string in the
+	format understood by sunxi_name_to_gpio, e.g. PH1 for pin 1 of port H.
+
 config USB1_VBUS_PIN
 	string "Vbus enable pin for usb1 (ehci0)"
 	default "PH6" if MACH_SUN4I || MACH_SUN7I
