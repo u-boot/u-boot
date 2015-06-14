@@ -217,6 +217,11 @@ static int sunxi_musb_enable(struct musb *musb)
 			printf("A charger is plugged into the OTG: ");
 			return -ENODEV;
 		}
+		ret = sunxi_usb_phy_id_detect(0);
+		if (ret == 1) {
+			printf("No host cable detected: ");
+			return -ENODEV;
+		}
 		sunxi_usb_phy_power_on(0); /* port power on */
 	}
 
