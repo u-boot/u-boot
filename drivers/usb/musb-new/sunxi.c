@@ -157,6 +157,17 @@ static void USBC_ForceIdToHigh(__iomem void *base)
 	musb_writel(base, USBC_REG_o_ISCR, reg_val);
 }
 
+static void USBC_ForceVbusValidToLow(__iomem void *base)
+{
+	u32 reg_val;
+
+	reg_val = musb_readl(base, USBC_REG_o_ISCR);
+	reg_val &= ~(0x03 << USBC_BP_ISCR_FORCE_VBUS_VALID);
+	reg_val |= (0x02 << USBC_BP_ISCR_FORCE_VBUS_VALID);
+	reg_val = USBC_WakeUp_ClearChangeDetect(reg_val);
+	musb_writel(base, USBC_REG_o_ISCR, reg_val);
+}
+
 static void USBC_ForceVbusValidToHigh(__iomem void *base)
 {
 	u32 reg_val;
@@ -205,42 +216,41 @@ static irqreturn_t sunxi_musb_interrupt(int irq, void *__hci)
 	return retval;
 }
 
+/* musb_core does not call enable / disable in a balanced manner <sigh> */
+static bool enabled = false;
+
 static void sunxi_musb_enable(struct musb *musb)
 {
 	pr_debug("%s():\n", __func__);
 
+	if (enabled)
+		return;
+
 	/* select PIO mode */
 	musb_writeb(musb->mregs, USBC_REG_o_VEND0, 0);
 
-	if (is_host_enabled(musb)) {
-		/* port power on */
-		sunxi_usb_phy_power_on(0);
-	}
+	if (is_host_enabled(musb))
+		sunxi_usb_phy_power_on(0); /* port power on */
+
+	USBC_ForceVbusValidToHigh(musb->mregs);
+
+	enabled = true;
 }
 
 static void sunxi_musb_disable(struct musb *musb)
 {
-	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-
 	pr_debug("%s():\n", __func__);
 
-	/* Put the controller back in a pristane state for "usb reset" */
-	if (musb->is_active) {
-		sunxi_usb_phy_exit(0);
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-		clrbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
-#endif
-		clrbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
+	if (!enabled)
+		return;
 
-		mdelay(10);
+	if (is_host_enabled(musb))
+		sunxi_usb_phy_power_off(0); /* port power off */
 
-		setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_USB0);
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-		setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_GATE_OFFSET_USB0);
-#endif
-		sunxi_usb_phy_init(0);
-		musb->is_active = 0;
-	}
+	USBC_ForceVbusValidToLow(musb->mregs);
+	mdelay(200); /* Wait for the current session to timeout */
+
+	enabled = false;
 }
 
 static int sunxi_musb_init(struct musb *musb)
