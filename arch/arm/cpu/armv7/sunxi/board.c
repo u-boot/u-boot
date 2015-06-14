@@ -202,6 +202,7 @@ void reset_cpu(ulong addr)
 	writel(WDT_CFG_RESET, &wdog->cfg);
 	writel(WDT_MODE_EN, &wdog->mode);
 	writel(WDT_CTRL_KEY | WDT_CTRL_RESTART, &wdog->ctl);
+	while (1) { }
 #endif
 }
 
