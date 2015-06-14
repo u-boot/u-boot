@@ -201,6 +201,8 @@ static bool enabled = false;
 
 static int sunxi_musb_enable(struct musb *musb)
 {
+	int ret;
+
 	pr_debug("%s():\n", __func__);
 
 	if (enabled)
@@ -209,8 +211,14 @@ static int sunxi_musb_enable(struct musb *musb)
 	/* select PIO mode */
 	musb_writeb(musb->mregs, USBC_REG_o_VEND0, 0);
 
-	if (is_host_enabled(musb))
+	if (is_host_enabled(musb)) {
+		ret = sunxi_usb_phy_vbus_detect(0);
+		if (ret) {
+			printf("A charger is plugged into the OTG: ");
+			return -ENODEV;
+		}
 		sunxi_usb_phy_power_on(0); /* port power on */
+	}
 
 	USBC_ForceVbusValidToHigh(musb->mregs);
 
@@ -237,17 +245,8 @@ static void sunxi_musb_disable(struct musb *musb)
 static int sunxi_musb_init(struct musb *musb)
 {
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-	int err;
 
 	pr_debug("%s():\n", __func__);
-
-	if (is_host_enabled(musb)) {
-		err = sunxi_usb_phy_vbus_detect(0);
-		if (err) {
-			eprintf("Error: A charger is plugged into the OTG\n");
-			return -EIO;
-		}
-	}
 
 	musb->isr = sunxi_musb_interrupt;
 
