@@ -25,4 +25,11 @@ int tegra_board_id(void);
  */
 int tegra_lcd_pmic_init(int board_id);
 
+/**
+ * nvidia_board_init() - perform any board-specific init
+ *
+ * @return 0 if OK, -ve on error
+ */
+int nvidia_board_init(void);
+
 #endif

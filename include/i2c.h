@@ -284,6 +284,12 @@ void i2c_init(int speed, int slaveaddr);
  */
 void board_i2c_init(const void *blob);
 
+/*
+ * Compatibility functions for driver model.
+ */
+uint8_t i2c_reg_read(uint8_t addr, uint8_t reg);
+void i2c_reg_write(uint8_t addr, uint8_t reg, uint8_t val);
+
 #endif
 
 /*

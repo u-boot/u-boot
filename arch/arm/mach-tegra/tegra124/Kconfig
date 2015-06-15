@@ -10,7 +10,7 @@ config TARGET_JETSON_TK1
 	select CPU_V7_HAS_VIRT if !SPL_BUILD
 
 config TARGET_NYAN_BIG
-	bool "Google/NVIDIA Nyan-big Chrombook"
+	bool "Google/NVIDIA Nyan-big Chromebook"
 	help
 	  Nyan Big is a Tegra124 clamshell board that is very similar
 	  to venice2, but it has a different panel, the sdcard CD and WP

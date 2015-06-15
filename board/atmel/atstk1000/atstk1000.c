@@ -30,32 +30,12 @@ struct mmu_vm_range mmu_vmr_table[CONFIG_SYS_NR_VM_REGIONS] = {
 };
 
 static const struct sdram_config sdram_config = {
-#if defined(CONFIG_ATSTK1006)
-	/* Dual MT48LC16M16A2-7E (64 MB) on daughterboard */
 	.data_bits	= SDRAM_DATA_32BIT,
-	.row_bits	= 13,
-	.col_bits	= 9,
-	.bank_bits	= 2,
-	.cas		= 2,
-	.twr		= 2,
-	.trc		= 7,
-	.trp		= 2,
-	.trcd		= 2,
-	.tras		= 4,
-	.txsr		= 7,
-	/* 7.81 us */
-	.refresh_period	= (781 * (SDRAMC_BUS_HZ / 1000)) / 100000,
-#else
-	/* MT48LC2M32B2P-5 (8 MB) on motherboard */
-#ifdef CONFIG_ATSTK1004
-	.data_bits	= SDRAM_DATA_16BIT,
-#else
-	.data_bits	= SDRAM_DATA_32BIT,
-#endif
 #ifdef CONFIG_ATSTK1000_16MB_SDRAM
 	/* MT48LC4M32B2P-6 (16 MB) on mod'ed motherboard */
 	.row_bits	= 12,
 #else
+	/* MT48LC2M32B2P-5 (8 MB) on motherboard */
 	.row_bits	= 11,
 #endif
 	.col_bits	= 8,
@@ -69,7 +49,6 @@ static const struct sdram_config sdram_config = {
 	.txsr		= 5,
 	/* 15.6 us */
 	.refresh_period	= (156 * (SDRAMC_BUS_HZ / 1000)) / 10000,
-#endif
 };
 
 int board_early_init_f(void)

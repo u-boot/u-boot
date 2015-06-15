@@ -51,15 +51,13 @@ static int tegra124_lcd_init(void *lcdbase)
 	int ret;
 
 	clock_set_up_plldp();
-	clock_adjust_periph_pll_div(PERIPH_ID_HOST1X, CLOCK_ID_PERIPH,
-				    408000000, NULL);
+	clock_start_periph_pll(PERIPH_ID_HOST1X, CLOCK_ID_PERIPH, 408000000);
 
 	clock_enable(PERIPH_ID_HOST1X);
 	clock_enable(PERIPH_ID_DISP1);
 	clock_enable(PERIPH_ID_PWM);
 	clock_enable(PERIPH_ID_DPAUX);
 	clock_enable(PERIPH_ID_SOR0);
-
 	udelay(2);
 
 	reset_set_enable(PERIPH_ID_HOST1X, 0);

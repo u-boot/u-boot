@@ -45,7 +45,9 @@ config REGEX
 	  "setexpr".
 
 config LIB_RAND
-	bool
+	bool "Pseudo-random library support "
+	help
+	  This library provides pseudo-random number generator functions.
 
 source lib/rsa/Kconfig
 

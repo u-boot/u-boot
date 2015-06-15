@@ -34,12 +34,12 @@ static int bmp_info (ulong addr);
  * didn't contain a valid BMP signature.
  */
 #ifdef CONFIG_VIDEO_BMP_GZIP
-bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp,
-			void **alloc_addr)
+struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
+			     void **alloc_addr)
 {
 	void *dst;
 	unsigned long len;
-	bmp_image_t *bmp;
+	struct bmp_image *bmp;
 
 	/*
 	 * Decompress bmp image
@@ -55,7 +55,7 @@ bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp,
 	bmp = dst;
 
 	/* align to 32-bit-aligned-address + 2 */
-	bmp = (bmp_image_t *)((((unsigned int)dst + 1) & ~3) + 2);
+	bmp = (struct bmp_image *)((((unsigned int)dst + 1) & ~3) + 2);
 
 	if (gunzip(bmp, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE, (uchar *)addr, &len) != 0) {
 		free(dst);
@@ -80,8 +80,8 @@ bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp,
 	return bmp;
 }
 #else
-bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp,
-			void **alloc_addr)
+struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
+			     void **alloc_addr)
 {
 	return NULL;
 }
@@ -187,7 +187,7 @@ U_BOOT_CMD(
  */
 static int bmp_info(ulong addr)
 {
-	bmp_image_t *bmp=(bmp_image_t *)addr;
+	struct bmp_image *bmp = (struct bmp_image *)addr;
 	void *bmp_alloc_addr = NULL;
 	unsigned long len;
 
@@ -224,7 +224,7 @@ static int bmp_info(ulong addr)
 int bmp_display(ulong addr, int x, int y)
 {
 	int ret;
-	bmp_image_t *bmp = (bmp_image_t *)addr;
+	struct bmp_image *bmp = (struct bmp_image *)addr;
 	void *bmp_alloc_addr = NULL;
 	unsigned long len;
 

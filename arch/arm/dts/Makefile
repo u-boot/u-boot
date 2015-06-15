@@ -138,7 +138,8 @@ dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 
 targets += $(dtb-y)
 
-DTC_FLAGS += -R 4 -p 0x1000
+# Add any required device tree compiler flags here
+DTC_FLAGS +=
 
 PHONY += dtbs
 dtbs: $(addprefix $(obj)/, $(dtb-y))

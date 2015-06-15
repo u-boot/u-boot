@@ -163,12 +163,15 @@
 
 	spi@7000d400 {
 		status = "okay";
+		spi-deactivate-delay = <200>;
+		spi-max-frequency = <3000000>;
 
 		cros_ec: cros-ec@0 {
 			compatible = "google,cros-ec-spi";
 			spi-max-frequency = <3000000>;
 			interrupt-parent = <&gpio>;
 			interrupts = <TEGRA_GPIO(C, 7) IRQ_TYPE_LEVEL_LOW>;
+			ec-interrupt = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>;
 			reg = <0>;
 
 			google,cros-ec-spi-msg-delay = <2000>;

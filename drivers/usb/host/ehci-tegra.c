@@ -35,12 +35,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	#endif
 #endif
 
-#ifndef CONFIG_DM_USB
-enum {
-	USB_PORTS_MAX	= 3,		/* Maximum ports we allow */
-};
-#endif
-
 /* Parameters we need for USB */
 enum {
 	PARAM_DIVN,                     /* PLL FEEDBACK DIVIDer */
@@ -82,9 +76,6 @@ struct fdt_usb {
 	unsigned ulpi:1;	/* 1 if port has external ULPI transceiver */
 	unsigned enabled:1;	/* 1 to enable, 0 to disable */
 	unsigned has_legacy_mode:1; /* 1 if this port has legacy mode */
-#ifndef CONFIG_DM_USB
-	unsigned initialized:1; /* has this port already been initialized? */
-#endif
 	enum usb_ctlr_type type;
 	enum usb_init_type init_type;
 	enum dr_mode dr_mode;	/* dual role mode */
@@ -92,11 +83,6 @@ struct fdt_usb {
 	struct gpio_desc vbus_gpio;	/* GPIO for vbus enable */
 	struct gpio_desc phy_reset_gpio; /* GPIO to reset ULPI phy */
 };
-
-#ifndef CONFIG_DM_USB
-static struct fdt_usb port[USB_PORTS_MAX];	/* List of valid USB ports */
-static unsigned port_count;			/* Number of available ports */
-#endif
 
 /*
  * This table has USB timing parameters for each Oscillator frequency we
@@ -173,8 +159,6 @@ static const u8 utmip_elastic_limit = 16;
 static const u8 utmip_hs_sync_start_delay = 9;
 
 struct fdt_usb_controller {
-	/* TODO(sjg@chromium.org): Remove when we only use driver model */
-	int compat;
 	/* flag to determine whether controller supports hostpc register */
 	u32 has_hostpc:1;
 	const unsigned *pll_parameter;
@@ -182,17 +166,14 @@ struct fdt_usb_controller {
 
 static struct fdt_usb_controller fdt_usb_controllers[USB_CTRL_COUNT] = {
 	{
-		.compat		= COMPAT_NVIDIA_TEGRA20_USB,
 		.has_hostpc	= 0,
 		.pll_parameter	= (const unsigned *)T20_usb_pll,
 	},
 	{
-		.compat		= COMPAT_NVIDIA_TEGRA30_USB,
 		.has_hostpc	= 1,
 		.pll_parameter	= (const unsigned *)T30_usb_pll,
 	},
 	{
-		.compat		= COMPAT_NVIDIA_TEGRA114_USB,
 		.has_hostpc	= 1,
 		.pll_parameter	= (const unsigned *)T114_usb_pll,
 	},
@@ -754,12 +735,6 @@ int usb_common_init(struct fdt_usb *config, enum usb_init_type init)
 		return -1;
 	}
 
-#ifndef CONFIG_DM_USB
-	/* skip init, if the port is already initialized */
-	if (config->initialized && config->init_type == init)
-		return 0;
-#endif
-
 	debug("%d, %d\n", config->utmi, config->ulpi);
 	if (config->utmi)
 		ret = init_utmi_usb_controller(config, init);
@@ -796,130 +771,6 @@ static const struct ehci_ops tegra_ehci_ops = {
 	.powerup_fixup		= tegra_ehci_powerup_fixup,
 };
 
-#ifndef CONFIG_DM_USB
-/*
- * process_usb_nodes() - Process a list of USB nodes, adding them to our list
- *			of USB ports.
- * @blob:	fdt blob
- * @node_list:	list of nodes to process (any <=0 are ignored)
- * @count:	number of nodes to process
- * @id:		controller type (enum usb_ctlr_type)
- *
- * Return:	0 - ok, -1 - error
- */
-static int process_usb_nodes(const void *blob, int node_list[], int count,
-			     enum usb_ctlr_type id)
-{
-	struct fdt_usb config;
-	int node, i;
-	int clk_done = 0;
-
-	port_count = 0;
-	for (i = 0; i < count; i++) {
-		if (port_count == USB_PORTS_MAX) {
-			printf("tegrausb: Cannot register more than %d ports\n",
-				USB_PORTS_MAX);
-			return -1;
-		}
-
-		debug("USB %d: ", i);
-		node = node_list[i];
-		if (!node)
-			continue;
-		if (fdt_decode_usb(blob, node, &config)) {
-			debug("Cannot decode USB node %s\n",
-			      fdt_get_name(blob, node, NULL));
-			return -1;
-		}
-		if (!clk_done) {
-			config_clock(get_pll_timing(
-					&fdt_usb_controllers[id]));
-			clk_done = 1;
-		}
-		config.type = id;
-		config.initialized = 0;
-
-		/* add new USB port to the list of available ports */
-		port[port_count++] = config;
-	}
-
-	return 0;
-}
-
-int usb_process_devicetree(const void *blob)
-{
-	int node_list[USB_PORTS_MAX];
-	int count, err = 0;
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(fdt_usb_controllers); i++) {
-		count = fdtdec_find_aliases_for_id(blob, "usb",
-			fdt_usb_controllers[i].compat, node_list,
-			USB_PORTS_MAX);
-		if (count) {
-			err = process_usb_nodes(blob, node_list, count, i);
-			if (err)
-				printf("%s: Error processing USB node!\n",
-				       __func__);
-			return err;
-		}
-	}
-
-	return err;
-}
-
-/**
- * Start up the given port number (ports are numbered from 0 on each board).
- * This returns values for the appropriate hccr and hcor addresses to use for
- * USB EHCI operations.
- *
- * @param index	port number to start
- * @param hccr		returns start address of EHCI HCCR registers
- * @param hcor		returns start address of EHCI HCOR registers
- * @return 0 if ok, -1 on error (generally invalid port number)
- */
-int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
-{
-	struct fdt_usb *config;
-	struct usb_ctlr *usbctlr;
-	int ret;
-
-	if (index >= port_count)
-		return -1;
-
-	config = &port[index];
-	ehci_set_controller_priv(index, config, &tegra_ehci_ops);
-
-	ret = usb_common_init(config, init);
-	if (ret) {
-		printf("tegrausb: Cannot init port %d\n", index);
-		return ret;
-	}
-
-	config->initialized = 1;
-
-	usbctlr = config->reg;
-	*hccr = (struct ehci_hccr *)&usbctlr->cap_length;
-	*hcor = (struct ehci_hcor *)&usbctlr->usb_cmd;
-
-	return 0;
-}
-
-/*
- * Bring down the specified USB controller
- */
-int ehci_hcd_stop(int index)
-{
-	usb_common_uninit(&port[index]);
-
-	port[index].initialized = 0;
-
-	return 0;
-}
-#endif /* !CONFIG_DM_USB */
-
-#ifdef CONFIG_DM_USB
 static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct fdt_usb *priv = dev_get_priv(dev);
@@ -987,4 +838,3 @@ U_BOOT_DRIVER(usb_ehci) = {
 	.priv_auto_alloc_size = sizeof(struct fdt_usb),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif

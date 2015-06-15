@@ -9,7 +9,7 @@
 
 #include <asm/io.h>
 #include <asm/types.h>
-
+#include <asm/arch/flow.h>
 #include <asm/arch/powergate.h>
 #include <asm/arch/tegra.h>
 
@@ -75,11 +75,29 @@ static int tegra_powergate_remove_clamping(enum tegra_powergate id)
 	return 0;
 }
 
+static void tegra_powergate_ram_repair(void)
+{
+#ifdef CONFIG_TEGRA124
+	struct flow_ctlr *flow = (struct flow_ctlr *)NV_PA_FLOW_BASE;
+
+	/* Request RAM repair for cluster 0 and wait until complete */
+	setbits_le32(&flow->ram_repair, RAM_REPAIR_REQ);
+	while (!(readl(&flow->ram_repair) & RAM_REPAIR_STS))
+		;
+
+	/* Same for cluster 1 */
+	setbits_le32(&flow->ram_repair_cluster1, RAM_REPAIR_REQ);
+	while (!(readl(&flow->ram_repair_cluster1) & RAM_REPAIR_STS))
+		;
+#endif
+}
+
 int tegra_powergate_sequence_power_up(enum tegra_powergate id,
 				      enum periph_id periph)
 {
 	int err;
 
+	tegra_powergate_ram_repair();
 	reset_set_enable(periph, 1);
 
 	err = tegra_powergate_power_on(id);

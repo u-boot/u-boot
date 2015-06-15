@@ -81,12 +81,12 @@ void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue)
 #endif
 }
 
-void lcd_set_cmap(bmp_image_t *bmp, unsigned colors)
+void lcd_set_cmap(struct bmp_image *bmp, unsigned colors)
 {
 	int i;
 
 	for (i = 0; i < colors; ++i) {
-		bmp_color_table_entry_t cte = bmp->color_table[i];
+		struct bmp_color_table_entry cte = bmp->color_table[i];
 		lcd_setcolreg(i, cte.red, cte.green, cte.blue);
 	}
 }
