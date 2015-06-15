@@ -346,8 +346,8 @@ config TARGET_DRACO
 	select CPU_V7
 	select SUPPORT_SPL
 
-config TARGET_DXR2
-	bool "Support dxr2"
+config TARGET_THUBAN
+	bool "Support thuban"
 	select CPU_V7
 	select SUPPORT_SPL
 

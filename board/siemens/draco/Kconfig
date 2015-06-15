@@ -14,7 +14,7 @@ config SYS_CONFIG_NAME
 
 endif
 
-if TARGET_DXR2
+if TARGET_THUBAN
 
 config SYS_BOARD
 	default "draco"
@@ -26,7 +26,7 @@ config SYS_SOC
 	default "am33xx"
 
 config SYS_CONFIG_NAME
-	default "dxr2"
+	default "thuban"
 
 endif
 

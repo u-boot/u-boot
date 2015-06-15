@@ -10,12 +10,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_DXR2_H
-#define __CONFIG_DXR2_H
-
-#define CONFIG_SIEMENS_DXR2
-#define MACH_TYPE_DXR2			4315
-#define CONFIG_SIEMENS_MACH_TYPE	MACH_TYPE_DXR2
+#ifndef __CONFIG_THUBAN_H
+#define __CONFIG_THUBAN_H
 
 #include "siemens-am33x-common.h"
 
@@ -24,9 +20,7 @@
 #define DDR_PLL_FREQ	303
 #undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
-#define BOARD_DFU_BUTTON_GPIO	27
-#define BOARD_DFU_BUTTON_LED	64	/* red LED */
-#define BOARD_STATUS_LED	103	/* green LED */
+#define BOARD_DFU_BUTTON_GPIO	27	/* Use as default */
 #define GPIO_LAN9303_NRST	88	/* GPIO2_24 = gpio88 */
 
 #define CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
@@ -65,9 +59,9 @@
 #define CONFIG_OMAP_WATCHDOG
 
 /* Define own nand partitions */
-#define CONFIG_ENV_OFFSET_REDUND	0x2E0000
-#define CONFIG_ENV_SIZE_REDUND		0x2000
-#define CONFIG_ENV_RANGE		(4 * CONFIG_SYS_ENV_SECT_SIZE)
+#define CONFIG_ENV_OFFSET_REDUND    0x2E0000
+#define CONFIG_ENV_SIZE_REDUND      0x2000
+#define CONFIG_ENV_RANGE        (4 * CONFIG_SYS_ENV_SECT_SIZE)
 
 
 #define MTDPARTS_DEFAULT	MTDPARTS_DEFAULT_V2
@@ -76,7 +70,7 @@
 
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"hostname=dxr2\0" \
+	"hostname=thuban\0" \
 	"nand_img_size=0x400000\0" \
 	"optargs=\0" \
 	"preboot=draco_led 0\0" \
@@ -109,4 +103,4 @@
 	"fi"
 #endif
 #endif	/* CONFIG_SPL_BUILD */
-#endif	/* ! __CONFIG_DXR2_H */
+#endif	/* ! __CONFIG_THUBAN_H */
