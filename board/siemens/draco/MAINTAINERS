@@ -6,3 +6,5 @@ F:	include/configs/draco.h
 F:	configs/draco_defconfig
 F:	include/configs/dxr2.h
 F:	configs/dxr2_defconfig
+F:	include/configs/rastaban.h
+F:	configs/rastaban_defconfig

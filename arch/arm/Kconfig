@@ -351,6 +351,11 @@ config TARGET_DXR2
 	select CPU_V7
 	select SUPPORT_SPL
 
+config TARGET_RASTABAN
+	bool "Support rastaban"
+	select CPU_V7
+	select SUPPORT_SPL
+
 config TARGET_PXM2
 	bool "Support pxm2"
 	select CPU_V7

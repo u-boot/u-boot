@@ -31,7 +31,9 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_SYS_NO_FLASH
+#ifdef CONFIG_SIEMENS_MACH_TYPE
 #define CONFIG_MACH_TYPE		CONFIG_SIEMENS_MACH_TYPE
+#endif
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -571,6 +573,36 @@
 		"tftpboot ${kloadaddr} ${serverip}:${bootfile}; " \
 		"tftpboot ${loadaddr} ${serverip}:${bootdtb}; " \
 		"bootm ${kloadaddr} - ${loadaddr}\0"
+
+/*
+ * Variant 3 partition layout
+ * chip-size = 512MiB
+ *|         name |        size |           address area |
+ *-------------------------------------------------------
+ *|          spl | 128.000 KiB | 0x       0..0x   1ffff |
+ *|  spl.backup1 | 128.000 KiB | 0x   20000..0x   3ffff |
+ *|  spl.backup2 | 128.000 KiB | 0x   40000..0x   5ffff |
+ *|  spl.backup3 | 128.000 KiB | 0x   60000..0x   7ffff |
+ *|       u-boot |   1.875 MiB | 0x   80000..0x  25ffff |
+ *|   uboot.env0 | 512.000 KiB | 0x  260000..0x  2Dffff |
+ *|   uboot.env1 | 512.000 KiB | 0x  2E0000..0x  35ffff |
+ *|       rootfs | 300.000 MiB | 0x  360000..0x12f5ffff |
+ *|      mtdoops | 512.000 KiB | 0x12f60000..0x12fdffff |
+ *|configuration | 104.125 MiB | 0x12fe0000..0x1fffffff |
+ *-------------------------------------------------------
+ */
+
+#define MTDPARTS_DEFAULT_V3	"mtdparts=" MTDIDS_NAME_STR ":" \
+					"128k(spl),"		\
+					"128k(spl.backup1),"	\
+					"128k(spl.backup2),"	\
+					"128k(spl.backup3),"	\
+					"1920k(u-boot),"	\
+					"512k(u-boot.env0),"	\
+					"512k(u-boot.env1),"	\
+					"300m(rootfs),"		\
+					"512k(mtdoops),"	\
+					"-(configuration)"
 
 
 #define CONFIG_NAND_OMAP_GPMC
