@@ -420,6 +420,18 @@ static size_t image_headersz_v1(struct image_tool_params *params,
 			*hasext = 1;
 	}
 
+#if defined(CONFIG_SYS_SPI_U_BOOT_OFFS)
+	if (headersz > CONFIG_SYS_SPI_U_BOOT_OFFS) {
+		fprintf(stderr, "Error: Image header (incl. SPL image) too big!\n");
+		fprintf(stderr, "header=0x%x CONFIG_SYS_SPI_U_BOOT_OFFS=0x%x!\n",
+			(int)headersz, CONFIG_SYS_SPI_U_BOOT_OFFS);
+		fprintf(stderr, "Increase CONFIG_SYS_SPI_U_BOOT_OFFS!\n");
+		return 0;
+	} else {
+		headersz = CONFIG_SYS_SPI_U_BOOT_OFFS;
+	}
+#endif
+
 	/*
 	 * The payload should be aligned on some reasonable
 	 * boundary
@@ -869,16 +881,6 @@ static int kwbimage_generate(struct image_tool_params *params,
 			sizeof(struct ext_hdr_v0);
 	} else {
 		alloc_len = image_headersz_v1(params, NULL);
-#if defined(CONFIG_SYS_SPI_U_BOOT_OFFS)
-		if (alloc_len > CONFIG_SYS_SPI_U_BOOT_OFFS) {
-			fprintf(stderr, "Error: Image header (incl. SPL image) too big!\n");
-			fprintf(stderr, "header=0x%x CONFIG_SYS_SPI_U_BOOT_OFFS=0x%x!\n",
-				alloc_len, CONFIG_SYS_SPI_U_BOOT_OFFS);
-			fprintf(stderr, "Increase CONFIG_SYS_SPI_U_BOOT_OFFS!\n");
-		} else {
-			alloc_len = CONFIG_SYS_SPI_U_BOOT_OFFS;
-		}
-#endif
 	}
 
 	hdr = malloc(alloc_len);

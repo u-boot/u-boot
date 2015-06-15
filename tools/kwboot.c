@@ -657,7 +657,7 @@ static void
 kwboot_usage(FILE *stream, char *progname)
 {
 	fprintf(stream,
-		"Usage: %s [-d | -a | -b <image> | -D <image> ] [ -t ] [-B <baud> ] <TTY>\n",
+		"Usage: %s [-d | -a | -q <req-delay> | -s <resp-timeo> | -b <image> | -D <image> ] [ -t ] [-B <baud> ] <TTY>\n",
 		progname);
 	fprintf(stream, "\n");
 	fprintf(stream,
@@ -667,6 +667,8 @@ kwboot_usage(FILE *stream, char *progname)
 		"  -D <image>: boot <image> without preamble (Dove)\n");
 	fprintf(stream, "  -d: enter debug mode\n");
 	fprintf(stream, "  -a: use timings for Armada XP\n");
+	fprintf(stream, "  -q <req-delay>:  use specific request-delay\n");
+	fprintf(stream, "  -s <resp-timeo>: use specific response-timeout\n");
 	fprintf(stream, "\n");
 	fprintf(stream, "  -t: mini terminal\n");
 	fprintf(stream, "\n");
@@ -699,7 +701,7 @@ main(int argc, char **argv)
 	kwboot_verbose = isatty(STDOUT_FILENO);
 
 	do {
-		int c = getopt(argc, argv, "hb:ptaB:dD:");
+		int c = getopt(argc, argv, "hb:ptaB:dD:q:s:");
 		if (c < 0)
 			break;
 
@@ -729,6 +731,14 @@ main(int argc, char **argv)
 		case 'a':
 			msg_req_delay = KWBOOT_MSG_REQ_DELAY_AXP;
 			msg_rsp_timeo = KWBOOT_MSG_RSP_TIMEO_AXP;
+			break;
+
+		case 'q':
+			msg_req_delay = atoi(optarg);
+			break;
+
+		case 's':
+			msg_rsp_timeo = atoi(optarg);
 			break;
 
 		case 'B':
