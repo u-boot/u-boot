@@ -88,7 +88,7 @@ static int do_part_list(int argc, char * const argv[])
 	if (var != NULL) {
 		int p;
 		char str[512] = { '\0', };
-	  disk_partition_t info;
+		disk_partition_t info;
 
 		for (p = 1; p < 128; p++) {
 			char t[5];
