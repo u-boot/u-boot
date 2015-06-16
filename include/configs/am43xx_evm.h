@@ -42,7 +42,16 @@
 #define CONFIG_POWER_TPS62362
 
 /* SPL defines. */
+#ifdef CONFIG_SPL_USB_HOST_SUPPORT
+/*
+ * For USB host boot, ROM uses DMA for copying MLO from USB storage
+ * and ARM internal ram is not accessible for DMA, so SPL text base
+ * should be in OCMC ram
+ */
+#define CONFIG_SPL_TEXT_BASE		0x40300350
+#else
 #define CONFIG_SPL_TEXT_BASE		0x402F4000
+#endif
 #define CONFIG_SPL_MAX_SIZE		(220 << 10)	/* 220KB */
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
@@ -95,8 +104,8 @@
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
 /* SPL USB Support */
+#ifdef CONFIG_SPL_USB_HOST_SUPPORT
 #define CONFIG_SPL_USB_SUPPORT
-#define CONFIG_SPL_USB_HOST_SUPPORT
 #define CONFIG_SYS_USB_FAT_BOOT_PARTITION		1
 
 #define CONFIG_CMD_USB
@@ -108,6 +117,7 @@
 
 #define CONFIG_OMAP_USB_PHY
 #define CONFIG_AM437X_USB2PHY2_HOST
+#endif
 
 /* USB GADGET */
 #if !defined(CONFIG_SPL_BUILD) || \
