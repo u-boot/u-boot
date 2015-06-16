@@ -33,3 +33,5 @@ CORENET_DS_SECURE_BOOT BOARD
 M:	Aneesh Bansal <aneesh.bansal@freescale.com>
 S:	Maintained
 F:	configs/P3041DS_NAND_SECURE_BOOT_defconfig
+F:	configs/P5020DS_NAND_SECURE_BOOT_defconfig
+F:	configs/P5040DS_NAND_SECURE_BOOT_defconfig
