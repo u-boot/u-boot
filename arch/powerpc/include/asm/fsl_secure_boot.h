@@ -75,6 +75,18 @@
 #endif
 
 #ifndef CONFIG_FIT_SIGNATURE
+/* If Boot Script is not on NOR and is required to be copied on RAM */
+#ifdef CONFIG_BOOTSCRIPT_COPY_RAM
+#define CONFIG_BS_HDR_ADDR_RAM		0x00010000
+#define CONFIG_BS_HDR_ADDR_FLASH	0x00800000
+#define CONFIG_BS_HDR_SIZE		0x00002000
+#define CONFIG_BS_ADDR_RAM		0x00012000
+#define CONFIG_BS_ADDR_FLASH		0x00802000
+#define CONFIG_BS_SIZE			0x00001000
+
+#define CONFIG_BOOTSCRIPT_HDR_ADDR	CONFIG_BS_HDR_ADDR_RAM
+#else
+
 /* The bootscript header address is different for B4860 because the NOR
  * mapping is different on B4 due to reduced NOR size.
  */
@@ -88,6 +100,8 @@
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0xec020000
 #else
 #define CONFIG_BOOTSCRIPT_HDR_ADDR	0xee020000
+#endif
+
 #endif
 
 #include <config_fsl_secboot.h>
