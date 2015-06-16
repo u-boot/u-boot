@@ -186,14 +186,6 @@
 		"fi; " \
 	"else run netboot; fi"
 
-/* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
-
-#define CONFIG_CMDLINE_EDITING
-
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS           1
 #define CONFIG_SYS_SDRAM_BASE          MMDC0_ARB_BASE_ADDR
