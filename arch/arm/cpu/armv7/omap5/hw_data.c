@@ -602,8 +602,8 @@ const struct ctrl_ioregs ioregs_dra7xx_es1 = {
 	.ctrl_ddrio_0 = 0x00094A40,
 	.ctrl_ddrio_1 = 0x04A52000,
 	.ctrl_ddrio_2 = 0x84210000,
-	.ctrl_emif_sdram_config_ext = 0x0001C127,
-	.ctrl_emif_sdram_config_ext_final = 0x0001C127,
+	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
+	.ctrl_emif_sdram_config_ext_final = 0x0001C1A7,
 	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
 };
 
@@ -614,8 +614,8 @@ const struct ctrl_ioregs ioregs_dra72x_es1 = {
 	.ctrl_ddrio_0 = 0x00094A40,
 	.ctrl_ddrio_1 = 0x04A52000,
 	.ctrl_ddrio_2 = 0x84210000,
-	.ctrl_emif_sdram_config_ext = 0x0001C127,
-	.ctrl_emif_sdram_config_ext_final = 0x0001C127,
+	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
+	.ctrl_emif_sdram_config_ext_final = 0x0001C1A7,
 	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
 };
 
