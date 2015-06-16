@@ -48,6 +48,11 @@
 #define CONFIG_SYS_INIT_L3_ADDR			0xbff00000
 #endif
 
+#if defined(CONFIG_RAMBOOT_PBL)
+#undef CONFIG_SYS_INIT_L3_ADDR
+#define CONFIG_SYS_INIT_L3_ADDR			0xbff00000
+#endif
+
 #if defined(CONFIG_C29XPCIE)
 #define CONFIG_KEY_REVOCATION
 #endif
