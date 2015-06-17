@@ -23,6 +23,26 @@
 		silent_console = <0>;
 	};
 
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "cpu-x86";
+			reg = <0>;
+			intel,apic-id = <0>;
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "cpu-x86";
+			reg = <1>;
+			intel,apic-id = <1>;
+		};
+
+	};
+
 	gpioa {
 		compatible = "intel,ich6-gpio";
 		u-boot,dm-pre-reloc;
