@@ -32,6 +32,16 @@ int cpu_get_info(struct udevice *dev, struct cpu_info *info)
 	return ops->get_info(dev, info);
 }
 
+int cpu_get_count(struct udevice *dev)
+{
+	struct cpu_ops *ops = cpu_get_ops(dev);
+
+	if (!ops->get_count)
+		return -ENOSYS;
+
+	return ops->get_count(dev);
+}
+
 U_BOOT_DRIVER(cpu_bus) = {
 	.name	= "cpu_bus",
 	.id	= UCLASS_SIMPLE_BUS,
