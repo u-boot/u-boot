@@ -630,12 +630,11 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		     bus;
 		     uclass_next_device(&bus)) {
 			struct usb_device *udev;
-			struct udevice *hub;
+			struct udevice *dev;
 
-			device_find_first_child(bus, &hub);
-			if (device_get_uclass_id(hub) == UCLASS_USB_HUB &&
-			    device_active(hub)) {
-				udev = dev_get_parentdata(hub);
+			device_find_first_child(bus, &dev);
+			if (dev && device_active(dev)) {
+				udev = dev_get_parentdata(dev);
 				usb_show_tree(udev);
 			}
 		}

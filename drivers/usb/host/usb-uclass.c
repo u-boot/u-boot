@@ -303,14 +303,14 @@ static struct usb_device *find_child_devnum(struct udevice *parent, int devnum)
 
 struct usb_device *usb_get_dev_index(struct udevice *bus, int index)
 {
-	struct udevice *hub;
+	struct udevice *dev;
 	int devnum = index + 1; /* Addresses are allocated from 1 on USB */
 
-	device_find_first_child(bus, &hub);
-	if (device_get_uclass_id(hub) == UCLASS_USB_HUB)
-		return find_child_devnum(hub, devnum);
+	device_find_first_child(bus, &dev);
+	if (!dev)
+		return NULL;
 
-	return NULL;
+	return find_child_devnum(dev, devnum);
 }
 
 int usb_post_bind(struct udevice *dev)
