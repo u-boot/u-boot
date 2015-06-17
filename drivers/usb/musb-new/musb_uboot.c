@@ -90,7 +90,7 @@ static int submit_urb(struct usb_hcd *hcd, struct urb *urb)
 	return urb->status;
 }
 
-int submit_control_msg(struct usb_device *dev, unsigned long pipe,
+static int _musb_submit_control_msg(struct usb_device *dev, unsigned long pipe,
 			void *buffer, int len, struct devrequest *setup)
 {
 	construct_urb(&urb, &hep, dev, USB_ENDPOINT_XFER_CONTROL, pipe,
@@ -103,8 +103,7 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe,
 	return submit_urb(&hcd, &urb);
 }
 
-
-int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
+static int _musb_submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 					void *buffer, int len)
 {
 	construct_urb(&urb, &hep, dev, USB_ENDPOINT_XFER_BULK, pipe,
@@ -112,7 +111,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 	return submit_urb(&hcd, &urb);
 }
 
-int submit_int_msg(struct usb_device *dev, unsigned long pipe,
+static int _musb_submit_int_msg(struct usb_device *dev, unsigned long pipe,
 				void *buffer, int len, int interval)
 {
 	construct_urb(&urb, &hep, dev, USB_ENDPOINT_XFER_INT, pipe,
@@ -120,8 +119,9 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe,
 	return submit_urb(&hcd, &urb);
 }
 
-struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
-	int queuesize, int elementsize, void *buffer, int interval)
+static struct int_queue *_musb_create_int_queue(struct usb_device *dev,
+			unsigned long pipe, int queuesize, int elementsize,
+			void *buffer, int interval)
 {
 	struct int_queue *queue;
 	int ret, index = usb_pipein(pipe) * 16 + usb_pipeendpoint(pipe);
@@ -154,7 +154,8 @@ struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
 	return queue;
 }
 
-int destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
+static int _musb_destroy_int_queue(struct usb_device *dev,
+				   struct int_queue *queue)
 {
 	int index = usb_pipein(queue->urb.pipe) * 16 + 
 		    usb_pipeendpoint(queue->urb.pipe);
@@ -167,7 +168,8 @@ int destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
 	return 0;
 }
 
-void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
+static void *_musb_poll_int_queue(struct usb_device *dev,
+				  struct int_queue *queue)
 {
 	if (queue->urb.status != -EINPROGRESS)
 		return NULL; /* URB has already completed in a prev. poll */
@@ -180,7 +182,7 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 	return NULL; /* URB still pending */
 }
 
-int usb_reset_root_port(struct usb_device *dev)
+static int _musb_reset_root_port(struct usb_device *dev)
 {
 	void *mbase = host->mregs;
 	u8 power;
@@ -212,7 +214,7 @@ int usb_reset_root_port(struct usb_device *dev)
 	return 0;
 }
 
-int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
+int musb_lowlevel_init(void)
 {
 	void *mbase;
 	/* USB spec says it may take up to 1 second for a device to connect */
@@ -236,7 +238,7 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	if (get_timer(0) >= timeout)
 		return -ENODEV;
 
-	usb_reset_root_port(NULL);
+	_musb_reset_root_port(NULL);
 	host->is_active = 1;
 	hcd.hcd_priv = host;
 
@@ -252,6 +254,52 @@ int usb_lowlevel_stop(int index)
 
 	musb_stop(host);
 	return 0;
+}
+
+int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
+			    void *buffer, int length)
+{
+	return _musb_submit_bulk_msg(dev, pipe, buffer, length);
+}
+
+int submit_control_msg(struct usb_device *dev, unsigned long pipe,
+		       void *buffer, int length, struct devrequest *setup)
+{
+	return _musb_submit_control_msg(dev, pipe, buffer, length, setup);
+}
+
+int submit_int_msg(struct usb_device *dev, unsigned long pipe,
+		   void *buffer, int length, int interval)
+{
+	return _musb_submit_int_msg(dev, pipe, buffer, length, interval);
+}
+
+struct int_queue *create_int_queue(struct usb_device *dev,
+		unsigned long pipe, int queuesize, int elementsize,
+		void *buffer, int interval)
+{
+	return _musb_create_int_queue(dev, pipe, queuesize, elementsize,
+				      buffer, interval);
+}
+
+void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
+{
+	return _musb_poll_int_queue(dev, queue);
+}
+
+int destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
+{
+	return _musb_destroy_int_queue(dev, queue);
+}
+
+int usb_reset_root_port(struct usb_device *dev)
+{
+	return _musb_reset_root_port(dev);
+}
+
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
+{
+	return musb_lowlevel_init();
 }
 #endif /* CONFIG_MUSB_HOST */
 
