@@ -265,7 +265,7 @@ int usb_init(void)
 	return usb_started ? 0 : -1;
 }
 
-int usb_reset_root_port(void)
+int usb_reset_root_port(struct usb_device *udev)
 {
 	return -ENOSYS;
 }

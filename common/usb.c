@@ -924,7 +924,7 @@ static int usb_hub_port_reset(struct usb_device *dev, struct usb_device *hub)
 			return err;
 		}
 	} else {
-		usb_reset_root_port();
+		usb_reset_root_port(dev);
 	}
 
 	return 0;

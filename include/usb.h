@@ -175,9 +175,9 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller);
 int usb_lowlevel_stop(int index);
 
 #if defined(CONFIG_MUSB_HOST) || defined(CONFIG_DM_USB)
-int usb_reset_root_port(void);
+int usb_reset_root_port(struct usb_device *dev);
 #else
-#define usb_reset_root_port()
+#define usb_reset_root_port(dev)
 #endif
 
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
@@ -709,10 +709,6 @@ struct dm_usb_ops {
 
 #define usb_get_ops(dev)	((struct dm_usb_ops *)(dev)->driver->ops)
 #define usb_get_emul_ops(dev)	((struct dm_usb_ops *)(dev)->driver->ops)
-
-#ifdef CONFIG_MUSB_HOST
-int usb_reset_root_port(void);
-#endif
 
 /**
  * usb_get_dev_index() - look up a device index number

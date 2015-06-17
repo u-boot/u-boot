@@ -180,7 +180,7 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 	return NULL; /* URB still pending */
 }
 
-int usb_reset_root_port(void)
+int usb_reset_root_port(struct usb_device *dev)
 {
 	void *mbase = host->mregs;
 	u8 power;
@@ -232,7 +232,7 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	if (get_timer(0) >= timeout)
 		return -ENODEV;
 
-	usb_reset_root_port();
+	usb_reset_root_port(NULL);
 	host->is_active = 1;
 	hcd.hcd_priv = host;
 
