@@ -42,7 +42,7 @@ if test -e '${boardname}'; then
 	setenv initrd_addr ;
 	setenv kerneladdr  0x42000000;
 	setenv kernelname  Image.itb;
-	setenv itbcfg      \#'${boardname}';
+	setenv itbcfg      "\"#${boardname}\"";
 	setenv imgbootcmd  bootm;
 else
 	echo Warning! Variable: \$boardname is undefined!;
