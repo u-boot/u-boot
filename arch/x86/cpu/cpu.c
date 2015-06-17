@@ -640,8 +640,6 @@ static int x86_mp_init(void)
 {
 	struct mp_params mp_params;
 
-	lapic_setup();
-
 	mp_params.parallel_microcode_load = 0,
 	mp_params.flight_plan = &mp_steps[0];
 	mp_params.num_records = ARRAY_SIZE(mp_steps);

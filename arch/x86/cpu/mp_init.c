@@ -418,7 +418,7 @@ static int init_bsp(struct udevice **devp)
 	cpu_get_name(processor_name);
 	debug("CPU: %s.\n", processor_name);
 
-	enable_lapic();
+	lapic_setup();
 
 	apic_id = lapicid();
 	ret = find_cpu_by_apid_id(apic_id, devp);
