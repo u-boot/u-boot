@@ -1030,7 +1030,7 @@ static int usb_setup_descriptor(struct usb_device *dev, bool do_read)
 }
 
 static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
-			      struct usb_device *parent, int portnr)
+			      struct usb_device *parent)
 {
 	int err;
 
@@ -1048,7 +1048,7 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 	err = usb_setup_descriptor(dev, do_read);
 	if (err)
 		return err;
-	err = usb_legacy_port_reset(parent, portnr);
+	err = usb_legacy_port_reset(parent, dev->portnr);
 	if (err)
 		return err;
 
@@ -1126,7 +1126,7 @@ int usb_select_config(struct usb_device *dev)
 }
 
 int usb_setup_device(struct usb_device *dev, bool do_read,
-		     struct usb_device *parent, int portnr)
+		     struct usb_device *parent)
 {
 	int addr;
 	int ret;
@@ -1135,7 +1135,7 @@ int usb_setup_device(struct usb_device *dev, bool do_read,
 	addr = dev->devnum;
 	dev->devnum = 0;
 
-	ret = usb_prepare_device(dev, addr, do_read, parent, portnr);
+	ret = usb_prepare_device(dev, addr, do_read, parent);
 	if (ret)
 		return ret;
 	ret = usb_select_config(dev);
@@ -1165,7 +1165,7 @@ int usb_new_device(struct usb_device *dev)
 #ifdef CONFIG_USB_XHCI
 	do_read = false;
 #endif
-	err = usb_setup_device(dev, do_read, dev->parent, dev->portnr);
+	err = usb_setup_device(dev, do_read, dev->parent);
 	if (err)
 		return err;
 

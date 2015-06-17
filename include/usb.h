@@ -734,14 +734,14 @@ struct usb_device *usb_get_dev_index(struct udevice *bus, int index);
  *
  * @dev:	USB device pointer. This need not be a real device - it is
  *		common for it to just be a local variable with its ->dev
- *		member (i.e. @dev->dev) set to the parent device
+ *		member (i.e. @dev->dev) set to the parent device and
+ *		dev->portnr set to the port number on the hub (1=first)
  * @do_read:	true to read the device descriptor before an address is set
  *		(should be false for XHCI buses, true otherwise)
  * @parent:	Parent device (either UCLASS_USB or UCLASS_USB_HUB)
- * @portnr:	Port number on hub (1=first) or 0 for none
  * @return 0 if OK, -ve on error */
 int usb_setup_device(struct usb_device *dev, bool do_read,
-		     struct usb_device *parent, int portnr);
+		     struct usb_device *parent);
 
 /**
  * usb_hub_scan() - Scan a hub and find its devices

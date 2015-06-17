@@ -565,7 +565,7 @@ int usb_scan_device(struct udevice *parent, int port,
 	debug("Calling usb_setup_device(), portnr=%d\n", udev->portnr);
 	parent_udev = device_get_uclass_id(parent) == UCLASS_USB_HUB ?
 		dev_get_parentdata(parent) : NULL;
-	ret = usb_setup_device(udev, priv->desc_before_addr, parent_udev, port);
+	ret = usb_setup_device(udev, priv->desc_before_addr, parent_udev);
 	debug("read_descriptor for '%s': ret=%d\n", parent->name, ret);
 	if (ret)
 		return ret;
