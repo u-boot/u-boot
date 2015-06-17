@@ -355,12 +355,12 @@ static void usb_show_tree_graph(struct usb_device *dev, char *pre)
 #endif
 	/* check if we are the last one */
 #ifdef CONFIG_DM_USB
-	last_child = device_is_last_sibling(dev->dev);
+	/* Not the root of the usb tree? */
+	if (device_get_uclass_id(dev->dev->parent) != UCLASS_USB) {
+		last_child = device_is_last_sibling(dev->dev);
 #else
-	last_child = (dev->parent != NULL);
-#endif
-	if (last_child) {
-#ifndef CONFIG_DM_USB
+	if (dev->parent != NULL) { /* not root? */
+		last_child = 1;
 		for (i = 0; i < dev->parent->maxchild; i++) {
 			/* search for children */
 			if (dev->parent->children[i] == dev) {
