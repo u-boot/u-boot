@@ -97,7 +97,7 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe,
 		      buffer, len, setup, 0);
 
 	/* Fix speed for non hub-attached devices */
-	if (!dev->parent)
+	if (!usb_dev_get_parent(dev))
 		dev->speed = host_speed;
 
 	return submit_urb(&hcd, &urb);

@@ -1,6 +1,7 @@
 #ifndef __USB_COMPAT_H__
 #define __USB_COMPAT_H__
 
+#include <dm.h>
 #include "usb.h"
 
 struct usb_hcd {
@@ -66,6 +67,68 @@ static inline int usb_hcd_unmap_urb_for_dma(struct usb_hcd *hcd,
 	return 0;
 }
 
+#ifdef CONFIG_DM_USB
+static inline u16 find_tt(struct usb_device *udev)
+{
+	struct udevice *parent;
+	struct usb_device *uparent, *ttdev;
+
+	/*
+	 * When called from usb-uclass.c: usb_scan_device() udev->dev points
+	 * to the parent udevice, not the actual udevice belonging to the
+	 * udev as the device is not instantiated yet. So when searching
+	 * for the first usb-2 parent start with udev->dev not
+	 * udev->dev->parent .
+	 */
+	ttdev = udev;
+	parent = udev->dev;
+	uparent = dev_get_parentdata(parent);
+
+	while (uparent->speed != USB_SPEED_HIGH) {
+		struct udevice *dev = parent;
+
+		if (device_get_uclass_id(dev->parent) != UCLASS_USB_HUB) {
+			printf("musb: Error cannot find high speed parent of usb-1 device\n");
+			return 0;
+		}
+
+		ttdev = dev_get_parentdata(dev);
+		parent = dev->parent;
+		uparent = dev_get_parentdata(parent);
+	}
+
+	return (uparent->devnum << 8) | (ttdev->portnr - 1);
+}
+
+static inline struct usb_device *usb_dev_get_parent(struct usb_device *udev)
+{
+	struct udevice *parent = udev->dev->parent;
+
+	/*
+	 * When called from usb-uclass.c: usb_scan_device() udev->dev points
+	 * to the parent udevice, not the actual udevice belonging to the
+	 * udev as the device is not instantiated yet.
+	 *
+	 * If dev is an usb-bus, then we are called from usb_scan_device() for
+	 * an usb-device plugged directly into the root port, return NULL.
+	 */
+	if (device_get_uclass_id(udev->dev) == UCLASS_USB)
+		return NULL;
+
+	/*
+	 * If these 2 are not the same we are being called from
+	 * usb_scan_device() and udev itself is the parent.
+	 */
+	if (dev_get_parentdata(udev->dev) != udev)
+		return udev;
+
+	/* We are being called normally, use the parent pointer */
+	if (device_get_uclass_id(parent) == UCLASS_USB_HUB)
+		return dev_get_parentdata(parent);
+
+	return NULL;
+}
+#else
 static inline u16 find_tt(struct usb_device *dev)
 {
 	u8 chid;
@@ -86,4 +149,11 @@ static inline u16 find_tt(struct usb_device *dev)
 
 	return (hub << 8) | chid;
 }
+
+static inline struct usb_device *usb_dev_get_parent(struct usb_device *dev)
+{
+	return dev->parent;
+}
+#endif
+
 #endif /* __USB_COMPAT_H__ */
