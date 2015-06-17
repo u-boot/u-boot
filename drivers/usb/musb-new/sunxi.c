@@ -26,9 +26,12 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/usb_phy.h>
 #include <asm-generic/gpio.h>
+#include <dm/lists.h>
+#include <dm/root.h>
 #include <linux/usb/musb.h>
 #include "linux-compat.h"
 #include "musb_core.h"
+#include "musb_uboot.h"
 
 /******************************************************************************
  ******************************************************************************
@@ -293,7 +296,61 @@ static struct musb_hdrc_platform_data musb_plat = {
 	.platform_ops	= &sunxi_musb_ops,
 };
 
+#ifdef CONFIG_MUSB_HOST
+int musb_usb_probe(struct udevice *dev)
+{
+	struct musb_host_data *host = dev_get_priv(dev);
+	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
+
+	priv->desc_before_addr = true;
+
+	if (!host->host) {
+		host->host = musb_init_controller(&musb_plat, NULL,
+						  (void *)SUNXI_USB0_BASE);
+		if (!host->host) {
+			printf("Failed to init the controller\n");
+			return -EIO;
+		}
+	}
+
+	printf("MUSB OTG in host-mode\n");
+
+	return musb_lowlevel_init(host);
+}
+
+int musb_usb_remove(struct udevice *dev)
+{
+	struct musb_host_data *host = dev_get_priv(dev);
+
+	musb_stop(host->host);
+
+	return 0;
+}
+
+U_BOOT_DRIVER(usb_musb) = {
+	.name	= "sunxi-musb",
+	.id	= UCLASS_USB,
+	.probe = musb_usb_probe,
+	.remove = musb_usb_remove,
+	.ops	= &musb_usb_ops,
+	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+	.priv_auto_alloc_size = sizeof(struct musb_host_data),
+};
+#endif
+
 void sunxi_musb_board_init(void)
 {
+#ifdef CONFIG_MUSB_HOST
+	struct udevice *dev;
+
+	/*
+	 * Bind the driver directly for now as musb linux kernel support is
+	 * still pending upstream so our dts files do not have the necessary
+	 * nodes yet. TODO: Remove this as soon as the dts nodes are in place
+	 * and bind by compatible instead.
+	 */
+	device_bind_driver(dm_root(), "sunxi-musb", "sunxi-musb", &dev);
+#else
 	musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);
+#endif
 }
