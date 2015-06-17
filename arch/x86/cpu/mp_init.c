@@ -22,6 +22,9 @@
 #include <dm/uclass-internal.h>
 #include <linux/linkage.h>
 
+/* Total CPUs include BSP */
+static int num_cpus;
+
 /* This also needs to match the sipi.S assembly code for saved MSR encoding */
 struct saved_msr {
 	uint32_t index;
@@ -383,7 +386,7 @@ static int bsp_do_flight_plan(struct udevice *cpu, struct mp_params *mp_params)
 	int ret = 0;
 	const int timeout_us = 100000;
 	const int step_us = 100;
-	int num_aps = mp_params->num_cpus - 1;
+	int num_aps = num_cpus - 1;
 
 	for (i = 0; i < mp_params->num_records; i++) {
 		struct mp_flight_record *rec = &mp_params->flight_plan[i];
@@ -451,7 +454,16 @@ int mp_init(struct mp_params *p)
 		return -1;
 	}
 
-	ret = check_cpu_devices(p->num_cpus);
+	num_cpus = cpu_get_count(cpu);
+	if (num_cpus < 0) {
+		debug("Cannot get number of CPUs: err=%d\n", num_cpus);
+		return num_cpus;
+	}
+
+	if (num_cpus < 2)
+		debug("Warning: Only 1 CPU is detected\n");
+
+	ret = check_cpu_devices(num_cpus);
 	if (ret)
 		debug("Warning: Device tree does not describe all CPUs. Extra ones will not be started correctly\n");
 
@@ -471,7 +483,7 @@ int mp_init(struct mp_params *p)
 	wbinvd();
 
 	/* Start the APs providing number of APs and the cpus_entered field */
-	num_aps = p->num_cpus - 1;
+	num_aps = num_cpus - 1;
 	ret = start_aps(num_aps, ap_count);
 	if (ret) {
 		mdelay(1000);

@@ -21,10 +21,13 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <errno.h>
 #include <malloc.h>
 #include <asm/control_regs.h>
 #include <asm/cpu.h>
+#include <asm/lapic.h>
+#include <asm/mp.h>
 #include <asm/post.h>
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
@@ -621,8 +624,45 @@ int last_stage_init(void)
 }
 #endif
 
+#ifdef CONFIG_SMP
+static int enable_smis(struct udevice *cpu, void *unused)
+{
+	return 0;
+}
+
+static struct mp_flight_record mp_steps[] = {
+	MP_FR_BLOCK_APS(mp_init_cpu, NULL, mp_init_cpu, NULL),
+	/* Wait for APs to finish initialization before proceeding */
+	MP_FR_BLOCK_APS(NULL, NULL, enable_smis, NULL),
+};
+
+static int x86_mp_init(void)
+{
+	struct mp_params mp_params;
+
+	lapic_setup();
+
+	mp_params.parallel_microcode_load = 0,
+	mp_params.flight_plan = &mp_steps[0];
+	mp_params.num_records = ARRAY_SIZE(mp_steps);
+	mp_params.microcode_pointer = 0;
+
+	if (mp_init(&mp_params)) {
+		printf("Warning: MP init failure\n");
+		return -EIO;
+	}
+
+	return 0;
+}
+#endif
+
 __weak int x86_init_cpus(void)
 {
+#ifdef CONFIG_SMP
+	debug("Init additional CPUs\n");
+	x86_mp_init();
+#endif
+
 	return 0;
 }
 
