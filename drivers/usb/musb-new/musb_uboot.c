@@ -217,13 +217,17 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	void *mbase;
 	/* USB spec says it may take up to 1 second for a device to connect */
 	unsigned long timeout = get_timer(0) + 1000;
+	int ret;
 
 	if (!host) {
 		printf("MUSB host is not registered\n");
 		return -ENODEV;
 	}
 
-	musb_start(host);
+	ret = musb_start(host);
+	if (ret)
+		return ret;
+
 	mbase = host->mregs;
 	do {
 		if (musb_readb(mbase, MUSB_DEVCTL) & MUSB_DEVCTL_HM)

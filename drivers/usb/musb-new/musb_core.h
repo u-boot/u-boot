@@ -231,7 +231,11 @@ struct musb_platform_ops {
 	int	(*init)(struct musb *musb);
 	int	(*exit)(struct musb *musb);
 
+#ifndef __UBOOT__
 	void	(*enable)(struct musb *musb);
+#else
+	int	(*enable)(struct musb *musb);
+#endif
 	void	(*disable)(struct musb *musb);
 
 	int	(*set_mode)(struct musb *musb, u8 mode);
@@ -546,7 +550,11 @@ static inline void musb_configure_ep0(struct musb *musb)
 
 extern const char musb_driver_name[];
 
+#ifndef __UBOOT__
 extern void musb_start(struct musb *musb);
+#else
+extern int musb_start(struct musb *musb);
+#endif
 extern void musb_stop(struct musb *musb);
 
 extern void musb_write_fifo(struct musb_hw_ep *ep, u16 len, const u8 *src);
@@ -564,11 +572,21 @@ static inline void musb_platform_set_vbus(struct musb *musb, int is_on)
 		musb->ops->set_vbus(musb, is_on);
 }
 
+#ifndef __UBOOT__
 static inline void musb_platform_enable(struct musb *musb)
 {
 	if (musb->ops->enable)
 		musb->ops->enable(musb);
 }
+#else
+static inline int musb_platform_enable(struct musb *musb)
+{
+	if (!musb->ops->enable)
+		return 0;
+
+	return musb->ops->enable(musb);
+}
+#endif
 
 static inline void musb_platform_disable(struct musb *musb)
 {

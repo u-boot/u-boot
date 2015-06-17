@@ -156,7 +156,11 @@ struct dsps_glue {
 /**
  * dsps_musb_enable - enable interrupts
  */
+#ifndef __UBOOT__
 static void dsps_musb_enable(struct musb *musb)
+#else
+static int dsps_musb_enable(struct musb *musb)
+#endif
 {
 #ifndef __UBOOT__
 	struct device *dev = musb->controller;
@@ -181,6 +185,8 @@ static void dsps_musb_enable(struct musb *musb)
 	if (is_otg_enabled(musb))
 		dsps_writel(reg_base, wrp->coreintr_set,
 			    (1 << wrp->drvvbus) << wrp->usb_shift);
+#else
+	return 0;
 #endif
 }
 

@@ -199,12 +199,12 @@ static irqreturn_t sunxi_musb_interrupt(int irq, void *__hci)
 /* musb_core does not call enable / disable in a balanced manner <sigh> */
 static bool enabled = false;
 
-static void sunxi_musb_enable(struct musb *musb)
+static int sunxi_musb_enable(struct musb *musb)
 {
 	pr_debug("%s():\n", __func__);
 
 	if (enabled)
-		return;
+		return 0;
 
 	/* select PIO mode */
 	musb_writeb(musb->mregs, USBC_REG_o_VEND0, 0);
@@ -215,6 +215,7 @@ static void sunxi_musb_enable(struct musb *musb)
 	USBC_ForceVbusValidToHigh(musb->mregs);
 
 	enabled = true;
+	return 0;
 }
 
 static void sunxi_musb_disable(struct musb *musb)
