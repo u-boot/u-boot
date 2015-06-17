@@ -643,6 +643,7 @@ config ARCH_SOCFPGA
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
+	select CMD_USB
 	select DM
 	select DM_GPIO
 	select DM_ETH
@@ -652,6 +653,7 @@ config ARCH_SUNXI
 	select OF_SEPARATE
 	select SPL_DISABLE_OF_CONTROL
 	select USB
+	select USB_STORAGE
 
 config TARGET_SNOWBALL
 	bool "Support snowball"

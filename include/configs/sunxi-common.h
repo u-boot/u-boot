@@ -330,11 +330,6 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_MUSB_PIO_ONLY
 #endif
 
-#if defined CONFIG_USB_EHCI || defined CONFIG_USB_MUSB_SUNXI
-#define CONFIG_CMD_USB
-#define CONFIG_USB_STORAGE
-#endif
-
 #ifdef CONFIG_USB_KEYBOARD
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_PREBOOT
