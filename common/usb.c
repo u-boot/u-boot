@@ -911,16 +911,16 @@ __weak int usb_alloc_device(struct usb_device *udev)
 }
 #endif /* !CONFIG_DM_USB */
 
-static int usb_legacy_port_reset(struct usb_device *hub, int portnr)
+static int usb_hub_port_reset(struct usb_device *dev, struct usb_device *hub)
 {
 	if (hub) {
 		unsigned short portstatus;
 		int err;
 
 		/* reset the port for the second time */
-		err = legacy_hub_port_reset(hub, portnr - 1, &portstatus);
+		err = legacy_hub_port_reset(hub, dev->portnr - 1, &portstatus);
 		if (err < 0) {
-			printf("\n     Couldn't reset port %i\n", portnr);
+			printf("\n     Couldn't reset port %i\n", dev->portnr);
 			return err;
 		}
 	} else {
@@ -1048,7 +1048,7 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 	err = usb_setup_descriptor(dev, do_read);
 	if (err)
 		return err;
-	err = usb_legacy_port_reset(parent, dev->portnr);
+	err = usb_hub_port_reset(dev, parent);
 	if (err)
 		return err;
 
