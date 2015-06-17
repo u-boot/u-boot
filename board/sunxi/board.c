@@ -31,7 +31,6 @@
 #include <asm/arch/usb_phy.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <linux/usb/musb.h>
 #include <net.h>
 
 #if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
@@ -449,28 +448,6 @@ void sunxi_board_init(void)
 }
 #endif
 
-#if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
-extern const struct musb_platform_ops sunxi_musb_ops;
-
-static struct musb_hdrc_config musb_config = {
-	.multipoint     = 1,
-	.dyn_fifo       = 1,
-	.num_eps        = 6,
-	.ram_bits       = 11,
-};
-
-static struct musb_hdrc_platform_data musb_plat = {
-#if defined(CONFIG_MUSB_HOST)
-	.mode           = MUSB_HOST,
-#else
-	.mode		= MUSB_PERIPHERAL,
-#endif
-	.config         = &musb_config,
-	.power          = 250,
-	.platform_ops	= &sunxi_musb_ops,
-};
-#endif
-
 #ifdef CONFIG_USB_GADGET
 int g_dnl_board_usb_cable_connected(void)
 {
@@ -533,9 +510,8 @@ int misc_init_r(void)
 	if (ret)
 		return ret;
 #endif
-#if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
-	musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);
-#endif
+	sunxi_musb_board_init();
+
 	return 0;
 }
 #endif

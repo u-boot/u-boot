@@ -26,17 +26,9 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/usb_phy.h>
 #include <asm-generic/gpio.h>
+#include <linux/usb/musb.h>
 #include "linux-compat.h"
 #include "musb_core.h"
-#ifdef CONFIG_AXP152_POWER
-#include <axp152.h>
-#endif
-#ifdef CONFIG_AXP209_POWER
-#include <axp209.h>
-#endif
-#ifdef CONFIG_AXP221_POWER
-#include <axp221.h>
-#endif
 
 /******************************************************************************
  ******************************************************************************
@@ -277,8 +269,31 @@ static int sunxi_musb_init(struct musb *musb)
 	return 0;
 }
 
-const struct musb_platform_ops sunxi_musb_ops = {
+static const struct musb_platform_ops sunxi_musb_ops = {
 	.init		= sunxi_musb_init,
 	.enable		= sunxi_musb_enable,
 	.disable	= sunxi_musb_disable,
 };
+
+static struct musb_hdrc_config musb_config = {
+	.multipoint     = 1,
+	.dyn_fifo       = 1,
+	.num_eps        = 6,
+	.ram_bits       = 11,
+};
+
+static struct musb_hdrc_platform_data musb_plat = {
+#if defined(CONFIG_MUSB_HOST)
+	.mode           = MUSB_HOST,
+#else
+	.mode		= MUSB_PERIPHERAL,
+#endif
+	.config         = &musb_config,
+	.power          = 250,
+	.platform_ops	= &sunxi_musb_ops,
+};
+
+void sunxi_musb_board_init(void)
+{
+	musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);
+}
