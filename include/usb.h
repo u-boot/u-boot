@@ -705,6 +705,11 @@ struct dm_usb_ops {
 	 * is read). This should be NULL for EHCI, which does not need this.
 	 */
 	int (*alloc_device)(struct udevice *bus, struct usb_device *udev);
+
+	/**
+	 * reset_root_port() - Reset usb root port
+	 */
+	int (*reset_root_port)(struct udevice *bus, struct usb_device *udev);
 };
 
 #define usb_get_ops(dev)	((struct dm_usb_ops *)(dev)->driver->ops)

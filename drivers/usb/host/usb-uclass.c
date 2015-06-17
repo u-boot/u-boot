@@ -128,6 +128,17 @@ int usb_alloc_device(struct usb_device *udev)
 	return ops->alloc_device(bus, udev);
 }
 
+int usb_reset_root_port(struct usb_device *udev)
+{
+	struct udevice *bus = udev->controller_dev;
+	struct dm_usb_ops *ops = usb_get_ops(bus);
+
+	if (!ops->reset_root_port)
+		return -ENOSYS;
+
+	return ops->reset_root_port(bus, udev);
+}
+
 int usb_stop(void)
 {
 	struct udevice *bus;
@@ -266,11 +277,6 @@ int usb_init(void)
 		printf("USB error: all controllers failed lowlevel init\n");
 
 	return usb_started ? 0 : -1;
-}
-
-int usb_reset_root_port(struct usb_device *udev)
-{
-	return -ENOSYS;
 }
 
 static struct usb_device *find_child_devnum(struct udevice *parent, int devnum)
