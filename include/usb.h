@@ -730,14 +730,6 @@ int usb_reset_root_port(void);
 struct usb_device *usb_get_dev_index(struct udevice *bus, int index);
 
 /**
- * usb_legacy_port_reset() - Legacy function to reset a hub port
- *
- * @hub:	Hub device
- * @portnr:	Port number (1=first)
- */
-int usb_legacy_port_reset(struct usb_device *hub, int portnr);
-
-/**
  * usb_setup_device() - set up a device ready for use
  *
  * @dev:	USB device pointer. This need not be a real device - it is

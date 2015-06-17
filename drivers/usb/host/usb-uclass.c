@@ -310,35 +310,6 @@ int usb_post_bind(struct udevice *dev)
 	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
 }
 
-int usb_port_reset(struct usb_device *parent, int portnr)
-{
-	unsigned short portstatus;
-	int ret;
-
-	debug("%s: start\n", __func__);
-
-	if (parent) {
-		/* reset the port for the second time */
-		assert(portnr > 0);
-		debug("%s: reset %d\n", __func__, portnr - 1);
-		ret = legacy_hub_port_reset(parent, portnr - 1, &portstatus);
-		if (ret < 0) {
-			printf("\n     Couldn't reset port %i\n", portnr);
-			return ret;
-		}
-	} else {
-		debug("%s: reset root\n", __func__);
-		usb_reset_root_port();
-	}
-
-	return 0;
-}
-
-int usb_legacy_port_reset(struct usb_device *parent, int portnr)
-{
-	return usb_port_reset(parent, portnr);
-}
-
 int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp)
 {
 	struct usb_platdata *plat;

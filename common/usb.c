@@ -911,8 +911,7 @@ __weak int usb_alloc_device(struct usb_device *udev)
 }
 #endif /* !CONFIG_DM_USB */
 
-#ifndef CONFIG_DM_USB
-int usb_legacy_port_reset(struct usb_device *hub, int portnr)
+static int usb_legacy_port_reset(struct usb_device *hub, int portnr)
 {
 	if (hub) {
 		unsigned short portstatus;
@@ -930,7 +929,6 @@ int usb_legacy_port_reset(struct usb_device *hub, int portnr)
 
 	return 0;
 }
-#endif
 
 static int get_descriptor_len(struct usb_device *dev, int len, int expect_len)
 {
