@@ -21,7 +21,9 @@ struct int_queue {
 	struct urb urb;
 };
 
+#ifndef CONFIG_DM_USB
 struct musb_host_data musb_host;
+#endif
 
 static void musb_host_complete_urb(struct urb *urb)
 {
@@ -244,6 +246,7 @@ int musb_lowlevel_init(struct musb_host_data *host)
 	return 0;
 }
 
+#ifndef CONFIG_DM_USB
 int usb_lowlevel_stop(int index)
 {
 	if (!musb_host.host) {
@@ -300,6 +303,71 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
 	return musb_lowlevel_init(&musb_host);
 }
+#endif /* !CONFIG_DM_USB */
+
+#ifdef CONFIG_DM_USB
+static int musb_submit_control_msg(struct udevice *dev, struct usb_device *udev,
+				   unsigned long pipe, void *buffer, int length,
+				   struct devrequest *setup)
+{
+	struct musb_host_data *host = dev_get_priv(dev);
+	return _musb_submit_control_msg(host, udev, pipe, buffer, length, setup);
+}
+
+static int musb_submit_bulk_msg(struct udevice *dev, struct usb_device *udev,
+				unsigned long pipe, void *buffer, int length)
+{
+	struct musb_host_data *host = dev_get_priv(dev);
+	return _musb_submit_bulk_msg(host, udev, pipe, buffer, length);
+}
+
+static int musb_submit_int_msg(struct udevice *dev, struct usb_device *udev,
+			       unsigned long pipe, void *buffer, int length,
+			       int interval)
+{
+	struct musb_host_data *host = dev_get_priv(dev);
+	return _musb_submit_int_msg(host, udev, pipe, buffer, length, interval);
+}
+
+static struct int_queue *musb_create_int_queue(struct udevice *dev,
+		struct usb_device *udev, unsigned long pipe, int queuesize,
+		int elementsize, void *buffer, int interval)
+{
+	struct musb_host_data *host = dev_get_priv(dev);
+	return _musb_create_int_queue(host, udev, pipe, queuesize, elementsize,
+				      buffer, interval);
+}
+
+static void *musb_poll_int_queue(struct udevice *dev, struct usb_device *udev,
+				 struct int_queue *queue)
+{
+	struct musb_host_data *host = dev_get_priv(dev);
+	return _musb_poll_int_queue(host, udev, queue);
+}
+
+static int musb_destroy_int_queue(struct udevice *dev, struct usb_device *udev,
+				  struct int_queue *queue)
+{
+	struct musb_host_data *host = dev_get_priv(dev);
+	return _musb_destroy_int_queue(host, udev, queue);
+}
+
+static int musb_reset_root_port(struct udevice *dev, struct usb_device *udev)
+{
+	struct musb_host_data *host = dev_get_priv(dev);
+	return _musb_reset_root_port(host, udev);
+}
+
+struct dm_usb_ops musb_usb_ops = {
+	.control = musb_submit_control_msg,
+	.bulk = musb_submit_bulk_msg,
+	.interrupt = musb_submit_int_msg,
+	.create_int_queue = musb_create_int_queue,
+	.poll_int_queue = musb_poll_int_queue,
+	.destroy_int_queue = musb_destroy_int_queue,
+	.reset_root_port = musb_reset_root_port,
+};
+#endif /* CONFIG_DM_USB */
 #endif /* CONFIG_MUSB_HOST */
 
 #ifdef CONFIG_MUSB_GADGET
@@ -360,7 +428,7 @@ int musb_register(struct musb_hdrc_platform_data *plat, void *bdata,
 	struct musb **musbp;
 
 	switch (plat->mode) {
-#ifdef CONFIG_MUSB_HOST
+#if defined(CONFIG_MUSB_HOST) && !defined(CONFIG_DM_USB)
 	case MUSB_HOST:
 		musbp = &musb_host.host;
 		break;

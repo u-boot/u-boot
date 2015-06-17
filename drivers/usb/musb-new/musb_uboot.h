@@ -21,4 +21,8 @@ struct musb_host_data {
 	struct urb urb;
 };
 
+extern struct dm_usb_ops musb_usb_ops;
+
+int musb_lowlevel_init(struct musb_host_data *host);
+
 #endif
