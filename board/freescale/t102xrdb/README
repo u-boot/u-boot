@@ -70,6 +70,7 @@ Deep Sleep:	yes    no
 I2C controller: 4      3
 DDR:		64-bit 32-bit
 IFC:		32-bit 28-bit
+Package:	23x23  19x19
 
 
 T1024RDB board Overview
@@ -192,7 +193,7 @@ Software configurations and board settings
 	on T1024RDB:
 	   set SW1[1:8] = '00010011', SW2[1] = '1', SW3[4] = '0' for NOR boot
 	on T1023RDB:
-	   set SW1[1:8] = '00010110', SW2[1] = '0', SW3[4] = '0' for NOR boot
+	   set SW1[1:8] = '00010111', SW2[1] = '1', SW3[4] = '0' for NOR boot
 
    Switching between default bank0 and alternate bank4 on NOR flash
    To change boot source to vbank4:
@@ -200,7 +201,7 @@ Software configurations and board settings
 	via software:   run command 'cpld reset altbank' in u-boot.
 	via DIP-switch: set SW3[5:7] = '100'
    on T1023RDB:
-	via software:   run command 'gpio vbank4' in u-boot.
+	via software:   run command 'switch bank4' in u-boot.
 	via DIP-switch: set SW3[5:7] = '100'
 
    To change boot source to vbank0:
@@ -208,7 +209,7 @@ Software configurations and board settings
 	via software:   run command 'cpld reset' in u-boot.
 	via DIP-Switch: set SW3[5:7] = '000'
    on T1023RDB:
-	via software:   run command 'gpio vbank0' in u-boot.
+	via software:   run command 'switch bank0' in u-boot.
 	via DIP-switch: set SW3[5:7] = '000'
 
 2. NAND Boot:
@@ -219,7 +220,7 @@ Software configurations and board settings
 	=> tftp 1000000 u-boot-with-spl-pbl.bin
 	=> nand erase 0 $filesize
 	=> nand write 1000000 0 $filesize
-	set SW1[1:8] = '10001000', SW2[1] = '1', SW3[4] = '1' for NAND boot
+	set SW1[1:8] = '10000010', SW2[1] = '1', SW3[4] = '1' for NAND boot
 
 3. SPI Boot:
    a. build PBL image for SPI boot
@@ -241,10 +242,13 @@ Software configurations and board settings
 	$ make
    b. program u-boot-with-spl-pbl.bin to SD/MMC card
 	=> tftp 1000000 u-boot-with-spl-pbl.bin
-	=> mmc write 1000000 8 0x800
+	=> mmc write 1000000 8 0x7f0
 	=> tftp 1000000 fsl_fman_ucode_t1024_xx.bin
 	=> mmc write 1000000 0x820 80
 	set SW1[1:8] = '00100000', SW2[1] = '0' for SD boot
+
+   SW3[3] = '1' for SD card(or 'switch sd' by software)
+   SW3[3] = '0' for eMMC (or 'switch emmc' by software)
 
 
 2-stage NAND/SPI/SD boot loader
@@ -292,7 +296,7 @@ Start		End		Definition	Size
 0x160000	0x17FFFF	FMAN Ucode	128KB
 
 
-SD Card memory Map on T1024RDB
+SD Card memory Map on T102xRDB
 ----------------------------------------------------
 Block		#blocks		Definition	Size
 0x008		2048		u-boot img	1MB
@@ -313,5 +317,5 @@ Start		End		Definition	Size
 0xa00000	0x3FFFFFF	rootfs		54MB
 
 
-For more details, please refer to T1024RDB Reference Manual
+For more details, please refer to T1024RDB/T1023RDB User Guide
 and Freescale QorIQ SDK Infocenter document.

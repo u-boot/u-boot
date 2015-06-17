@@ -20,6 +20,9 @@
 #include "t102xrdb.h"
 #ifdef CONFIG_T1024RDB
 #include "cpld.h"
+#elif defined(CONFIG_T1023RDB)
+#include <i2c.h>
+#include <mmc.h>
 #endif
 #include "../common/sleep.h"
 
@@ -27,13 +30,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_T1023RDB
 enum {
-	GPIO1_SD_SEL    = 0x00020000, /* GPIO1_14, 0: EMMC, 1:SD/MMC */
+	GPIO1_SD_SEL    = 0x00020000, /* GPIO1_14, 0: eMMC, 1:SD/MMC */
 	GPIO1_EMMC_SEL,
-	GPIO1_VBANK0,
-	GPIO1_VBANK4    = 0x00008000, /* GPIO1_16/20/22,  100:vBank4 */
-	GPIO1_VBANK_MASK = 0x00008a00,
-	GPIO1_DIR_OUTPUT = 0x00028a00,
-	GPIO1_GET_VAL,
+	GPIO3_GET_VERSION,	       /* GPIO3_4/5, 00:RevB, 01: RevC */
+	GPIO3_BRD_VER_MASK = 0x0c000000,
+	GPIO3_OFFSET = 0x2000,
+	I2C_GET_BANK,
+	I2C_SET_BANK0,
+	I2C_SET_BANK4,
 };
 #endif
 
@@ -48,9 +52,11 @@ int checkboard(void)
 	srds_s1 >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
 
 	printf("Board: %sRDB, ", cpu->name);
-#ifdef CONFIG_T1024RDB
+#if defined(CONFIG_T1024RDB)
 	printf("Board rev: 0x%02x CPLD ver: 0x%02x, ",
 	       CPLD_READ(hw_ver), CPLD_READ(sw_ver));
+#elif defined(CONFIG_T1023RDB)
+	printf("Rev%c, ", t1023rdb_ctrl(GPIO3_GET_VERSION) + 'B');
 #endif
 	printf("boot from ");
 
@@ -73,8 +79,7 @@ int checkboard(void)
 #ifdef CONFIG_NAND
 	puts("NAND\n");
 #else
-	printf("NOR vBank%d\n", (t1023rdb_gpio_ctrl(GPIO1_GET_VAL) &
-	       GPIO1_VBANK4) >> 15 ? 4 : 0);
+	printf("NOR vBank%d\n", t1023rdb_ctrl(I2C_GET_BANK));
 #endif
 #endif
 
@@ -196,64 +201,126 @@ int ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_board_enet(blob);
 #endif
 
+#ifdef CONFIG_T1023RDB
+	if (t1023rdb_ctrl(GPIO3_GET_VERSION) > 0)
+		fdt_enable_nor(blob);
+#endif
+
 	return 0;
 }
 
-
 #ifdef CONFIG_T1023RDB
-static u32 t1023rdb_gpio_ctrl(u32 ctrl_type)
+/* Enable NOR flash for RevC */
+static void fdt_enable_nor(void *blob)
 {
-	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
-	u32 gpioval;
+	int nodeoff = fdt_node_offset_by_compatible(blob, 0, "cfi-flash");
 
-	setbits_be32(&pgpio->gpdir, GPIO1_DIR_OUTPUT);
-	gpioval = in_be32(&pgpio->gpdat);
+	if (nodeoff >= 0)
+		fdt_status_okay(blob, nodeoff);
+	else
+		printf("WARNING unable to set status for NOR\n");
+}
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	ccsr_gpio_t __iomem *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	u32 val = in_be32(&pgpio->gpdat);
+
+	/* GPIO1_14, 0: eMMC, 1: SD/MMC */
+	val &= GPIO1_SD_SEL;
+
+	return val ? -1 : 1;
+}
+
+int board_mmc_getwp(struct mmc *mmc)
+{
+	ccsr_gpio_t __iomem *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	u32 val = in_be32(&pgpio->gpdat);
+
+	val &= GPIO1_SD_SEL;
+
+	return val ? -1 : 0;
+}
+
+static u32 t1023rdb_ctrl(u32 ctrl_type)
+{
+	ccsr_gpio_t __iomem *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	ccsr_gur_t __iomem  *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 val, orig_bus = i2c_get_bus_num();
+	u8 tmp;
 
 	switch (ctrl_type) {
 	case GPIO1_SD_SEL:
-		gpioval |= GPIO1_SD_SEL;
+		val = in_be32(&pgpio->gpdat);
+		val |= GPIO1_SD_SEL;
+		out_be32(&pgpio->gpdat, val);
+		setbits_be32(&pgpio->gpdir, GPIO1_SD_SEL);
 		break;
 	case GPIO1_EMMC_SEL:
-		gpioval &= ~GPIO1_SD_SEL;
+		val = in_be32(&pgpio->gpdat);
+		val &= ~GPIO1_SD_SEL;
+		out_be32(&pgpio->gpdat, val);
+		setbits_be32(&pgpio->gpdir, GPIO1_SD_SEL);
 		break;
-	case GPIO1_VBANK0:
-		gpioval &= ~GPIO1_VBANK_MASK;
+	case GPIO3_GET_VERSION:
+		pgpio = (ccsr_gpio_t *)(CONFIG_SYS_MPC85xx_GPIO_ADDR
+			 + GPIO3_OFFSET);
+		val = in_be32(&pgpio->gpdat);
+		val = ((val & GPIO3_BRD_VER_MASK) >> 26) & 0x3;
+		if (val == 0x3) /* GPIO3_4/5 not used on RevB */
+			val = 0;
+		return val;
+	case I2C_GET_BANK:
+		i2c_set_bus_num(I2C_PCA6408_BUS_NUM);
+		i2c_read(I2C_PCA6408_ADDR, 0, 1, &tmp, 1);
+		tmp &= 0x7;
+		tmp = ((tmp & 1) << 2) | (tmp & 2) | ((tmp & 4) >> 2);
+		i2c_set_bus_num(orig_bus);
+		return tmp;
+	case I2C_SET_BANK0:
+		i2c_set_bus_num(I2C_PCA6408_BUS_NUM);
+		tmp = 0x0;
+		i2c_write(I2C_PCA6408_ADDR, 1, 1, &tmp, 1);
+		tmp = 0xf8;
+		i2c_write(I2C_PCA6408_ADDR, 3, 1, &tmp, 1);
+		/* asserting HRESET_REQ */
+		out_be32(&gur->rstcr, 0x2);
 		break;
-	case GPIO1_VBANK4:
-		gpioval &= ~GPIO1_VBANK_MASK;
-		gpioval |= GPIO1_VBANK4;
+	case I2C_SET_BANK4:
+		i2c_set_bus_num(I2C_PCA6408_BUS_NUM);
+		tmp = 0x1;
+		i2c_write(I2C_PCA6408_ADDR, 1, 1, &tmp, 1);
+		tmp = 0xf8;
+		i2c_write(I2C_PCA6408_ADDR, 3, 1, &tmp, 1);
+		out_be32(&gur->rstcr, 0x2);
 		break;
-	case GPIO1_GET_VAL:
-		return gpioval;
 	default:
 		break;
 	}
-	out_be32(&pgpio->gpdat, gpioval);
-
 	return 0;
 }
 
-static int gpio_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
+static int switch_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
 		    char * const argv[])
 {
 	if (argc < 2)
 		return CMD_RET_USAGE;
-	if (!strcmp(argv[1], "vbank0"))
-		t1023rdb_gpio_ctrl(GPIO1_VBANK0);
-	else if (!strcmp(argv[1], "vbank4"))
-		t1023rdb_gpio_ctrl(GPIO1_VBANK4);
+	if (!strcmp(argv[1], "bank0"))
+		t1023rdb_ctrl(I2C_SET_BANK0);
+	else if (!strcmp(argv[1], "bank4") || !strcmp(argv[1], "altbank"))
+		t1023rdb_ctrl(I2C_SET_BANK4);
 	else if (!strcmp(argv[1], "sd"))
-		t1023rdb_gpio_ctrl(GPIO1_SD_SEL);
-	else if (!strcmp(argv[1], "EMMC"))
-		t1023rdb_gpio_ctrl(GPIO1_EMMC_SEL);
+		t1023rdb_ctrl(GPIO1_SD_SEL);
+	else if (!strcmp(argv[1], "emmc"))
+		t1023rdb_ctrl(GPIO1_EMMC_SEL);
 	else
 		return CMD_RET_USAGE;
 	return 0;
 }
 
 U_BOOT_CMD(
-	gpio, 2, 0, gpio_cmd,
-	"for vbank0/vbank4/SD/eMMC switch control in runtime",
-	"command (e.g. gpio vbank4)"
+	switch, 2, 0, switch_cmd,
+	"for bank0/bank4/sd/emmc switch control in runtime",
+	"command (e.g. switch bank4)"
 );
 #endif
