@@ -301,21 +301,22 @@ int musb_usb_probe(struct udevice *dev)
 {
 	struct musb_host_data *host = dev_get_priv(dev);
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
+	int ret;
 
 	priv->desc_before_addr = true;
 
 	if (!host->host) {
 		host->host = musb_init_controller(&musb_plat, NULL,
 						  (void *)SUNXI_USB0_BASE);
-		if (!host->host) {
-			printf("Failed to init the controller\n");
+		if (!host->host)
 			return -EIO;
-		}
 	}
 
-	printf("MUSB OTG in host-mode\n");
+	ret = musb_lowlevel_init(host);
+	if (ret == 0)
+		printf("MUSB OTG\n");
 
-	return musb_lowlevel_init(host);
+	return ret;
 }
 
 int musb_usb_remove(struct udevice *dev)
