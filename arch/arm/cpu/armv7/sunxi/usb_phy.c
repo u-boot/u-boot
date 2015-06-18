@@ -237,10 +237,8 @@ int sunxi_usb_phy_vbus_detect(int index)
 	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
 	int err, retries = 3;
 
-	if (phy->gpio_vbus_det < 0) {
-		eprintf("Error: invalid vbus detection pin\n");
+	if (phy->gpio_vbus_det < 0)
 		return phy->gpio_vbus_det;
-	}
 
 	err = gpio_get_value(phy->gpio_vbus_det);
 	/*

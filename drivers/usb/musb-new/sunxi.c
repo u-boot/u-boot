@@ -208,7 +208,7 @@ static int sunxi_musb_enable(struct musb *musb)
 
 	if (is_host_enabled(musb)) {
 		ret = sunxi_usb_phy_vbus_detect(0);
-		if (ret) {
+		if (ret == 1) {
 			printf("A charger is plugged into the OTG: ");
 			return -ENODEV;
 		}
