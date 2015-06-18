@@ -460,10 +460,12 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	/* We found a USB Keyboard, install it. */
 	usb_set_protocol(dev, iface->desc.bInterfaceNumber, 0);
 
+	debug("USB KBD: found set idle...\n");
 #if !defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP) && \
     !defined(CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE)
-	debug("USB KBD: found set idle...\n");
 	usb_set_idle(dev, iface->desc.bInterfaceNumber, REPEAT_RATE / 4, 0);
+#else
+	usb_set_idle(dev, iface->desc.bInterfaceNumber, 0, 0);
 #endif
 
 	debug("USB KBD: enable interrupt pipe...\n");
