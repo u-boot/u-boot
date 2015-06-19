@@ -171,17 +171,6 @@ enum usb_init_type {
  * this is how the lowlevel part communicate with the outer world
  */
 
-#if defined(CONFIG_USB_UHCI) || defined(CONFIG_USB_OHCI) || \
-	defined(CONFIG_USB_EHCI) || defined(CONFIG_USB_OHCI_NEW) || \
-	defined(CONFIG_USB_SL811HS) || defined(CONFIG_USB_ISP116X_HCD) || \
-	defined(CONFIG_USB_R8A66597_HCD) || defined(CONFIG_USB_DAVINCI) || \
-	defined(CONFIG_USB_OMAP3) || defined(CONFIG_USB_DA8XX) || \
-	defined(CONFIG_USB_BLACKFIN) || defined(CONFIG_USB_AM35X) || \
-	defined(CONFIG_USB_MUSB_DSPS) || defined(CONFIG_USB_MUSB_AM35X) || \
-	defined(CONFIG_USB_MUSB_OMAP2PLUS) || defined(CONFIG_USB_MUSB_SUNXI) || \
-	defined(CONFIG_USB_XHCI) || defined(CONFIG_USB_DWC2) || \
-	defined(CONFIG_USB_EMUL)
-
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller);
 int usb_lowlevel_stop(int index);
 
@@ -216,11 +205,7 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue);
  * in boards init functions e.g. udc_disconnect() used for
  * forced device disconnection from host.
  */
-#elif defined(CONFIG_USB_GADGET_PXA2XX)
-
 extern void udc_disconnect(void);
-
-#endif
 
 /*
  * board-specific hardware initialization, called by
