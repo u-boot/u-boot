@@ -129,6 +129,7 @@ typedef struct {
 	ivt_header_t header;
 	write_dcd_command_t write_dcd_command;
 	dcd_addr_data_t addr_data[MAX_HW_CFG_SIZE_V2];
+	uint32_t padding[1]; /* end up on an 8-byte boundary */
 } dcd_v2_t;
 
 typedef struct {
