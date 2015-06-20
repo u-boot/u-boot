@@ -96,12 +96,6 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size =  PHYS_SDRAM_1_SIZE;
-}
-
 #if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *fdt, bd_t *bd)
 {
