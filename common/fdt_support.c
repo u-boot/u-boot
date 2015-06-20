@@ -454,6 +454,9 @@ int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 		return err;
 	}
 
+	if (!banks)
+		return 0;
+
 	len = fdt_pack_reg(blob, tmp, start, size, banks);
 
 	err = fdt_setprop(blob, nodeoffset, "reg", tmp, len);
