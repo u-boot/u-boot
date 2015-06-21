@@ -18,15 +18,21 @@ config TARGET_SOCFPGA_CYCLONE5_SOCDK
 	bool "Altera SOCFPGA SoCDK (Cyclone V)"
 	select TARGET_SOCFPGA_CYCLONE5
 
+config TARGET_SOCFPGA_TERASIC_SOCKIT
+	bool "Terasic SoCkit (Cyclone V)"
+	select TARGET_SOCFPGA_CYCLONE5
+
 endchoice
 
 config SYS_BOARD
 	default "arria5-socdk" if TARGET_SOCFPGA_ARRIA5_SOCDK
 	default "cyclone5-socdk" if TARGET_SOCFPGA_CYCLONE5_SOCDK
+	default "sockit" if TARGET_SOCFPGA_TERASIC_SOCKIT
 
 config SYS_VENDOR
 	default "altera" if TARGET_SOCFPGA_ARRIA5_SOCDK
 	default "altera" if TARGET_SOCFPGA_CYCLONE5_SOCDK
+	default "terasic" if TARGET_SOCFPGA_TERASIC_SOCKIT
 
 config SYS_SOC
 	default "socfpga"
@@ -34,5 +40,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "socfpga_arria5" if TARGET_SOCFPGA_ARRIA5_SOCDK
 	default "socfpga_cyclone5" if TARGET_SOCFPGA_CYCLONE5_SOCDK
+	default "socfpga_sockit" if TARGET_SOCFPGA_TERASIC_SOCKIT
 
 endif
