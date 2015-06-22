@@ -10,7 +10,6 @@
 
 /* We use generic board and device manager for v8 Versatile Express */
 #define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_DM
 
 #ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #ifndef CONFIG_SEMIHOSTING
@@ -114,7 +113,6 @@
 #endif /* !CONFIG_GICV3 */
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_F_LEN		0x2000
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
 
 /* Ethernet Configuration */
@@ -130,7 +128,6 @@
 #endif
 
 /* PL011 Serial Configuration */
-#define CONFIG_DM_SERIAL
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_PL01X_SERIAL

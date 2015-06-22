@@ -4,12 +4,6 @@ menu "x86 architecture"
 config SYS_ARCH
 	default "x86"
 
-config USE_PRIVATE_LIBGCC
-	default y
-
-config SYS_VSNPRINTF
-	default y
-
 choice
 	prompt "Mainboard vendor"
 	default VENDOR_EMULATION
@@ -334,14 +328,5 @@ config PCIE_ECAM_BASE
 	  should be set to a region that does not conflict with memory
 	  assigned to PCI devices - i.e. the memory and prefetch regions, as
 	  passed to pci_set_region().
-
-config BOOTSTAGE
-	default y
-
-config BOOTSTAGE_REPORT
-	default y
-
-config CMD_BOOTSTAGE
-	default y
 
 endmenu

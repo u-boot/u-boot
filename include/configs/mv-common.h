@@ -121,7 +121,6 @@
  * Common SPI Flash configuration
  */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH		1
 #define CONFIG_SPI_FLASH_MACRONIX	1
 #endif
 

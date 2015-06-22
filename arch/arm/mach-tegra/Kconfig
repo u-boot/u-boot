@@ -21,18 +21,6 @@ endchoice
 config SYS_MALLOC_F_LEN
 	default 0x1800
 
-config USE_PRIVATE_LIBGCC
-	default y
-
-config DM_USB
-	default y
-
-config SPL_DM
-	default y
-
-config SPL_DISABLE_OF_CONTROL
-	default y
-
 source "arch/arm/mach-tegra/tegra20/Kconfig"
 source "arch/arm/mach-tegra/tegra30/Kconfig"
 source "arch/arm/mach-tegra/tegra114/Kconfig"

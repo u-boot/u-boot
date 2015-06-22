@@ -72,7 +72,6 @@
 
 /* SPI Configuration */
 #define CONFIG_SPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_DAVINCI_SPI
 #define CONFIG_CMD_SPI

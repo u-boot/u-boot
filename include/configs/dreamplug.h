@@ -73,7 +73,6 @@
 #endif
 
 #ifdef CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH		1
 #define CONFIG_HARD_SPI			1
 #define CONFIG_KIRKWOOD_SPI		1
 #define CONFIG_SPI_FLASH_MACRONIX	1

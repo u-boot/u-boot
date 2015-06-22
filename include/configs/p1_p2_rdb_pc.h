@@ -41,7 +41,6 @@
 #define CONFIG_BOARDNAME "P1020RDB-PC"
 #define CONFIG_NAND_FSL_ELBC
 #define CONFIG_P1020
-#define CONFIG_SPI_FLASH
 #define CONFIG_VSC7385_ENET
 #define CONFIG_SLIC
 #define __SW_BOOT_MASK		0x03
@@ -70,7 +69,6 @@
 #define CONFIG_BOARDNAME "P1020RDB-PD"
 #define CONFIG_NAND_FSL_ELBC
 #define CONFIG_P1020
-#define CONFIG_SPI_FLASH
 #define CONFIG_VSC7385_ENET
 #define CONFIG_SLIC
 #define __SW_BOOT_MASK		0x03
@@ -97,7 +95,6 @@
 #define CONFIG_NAND_FSL_ELBC
 #define CONFIG_P1021
 #define CONFIG_QE
-#define CONFIG_SPI_FLASH
 #define CONFIG_VSC7385_ENET
 #define CONFIG_SYS_LBC_LBCR	0x00080000	/* Implement conversion of
 						addresses in the LBC */
@@ -133,7 +130,6 @@
 #define CONFIG_NAND_FSL_ELBC
 #define CONFIG_P1024
 #define CONFIG_SLIC
-#define CONFIG_SPI_FLASH
 #define __SW_BOOT_MASK		0xf3
 #define __SW_BOOT_NOR		0x00
 #define __SW_BOOT_SPI		0x08
@@ -148,7 +144,6 @@
 #define CONFIG_P1025
 #define CONFIG_QE
 #define CONFIG_SLIC
-#define CONFIG_SPI_FLASH
 
 #define CONFIG_SYS_LBC_LBCR	0x00080000	/* Implement conversion of
 						addresses in the LBC */
@@ -164,7 +159,6 @@
 #define CONFIG_BOARDNAME "P2020RDB-PCA"
 #define CONFIG_NAND_FSL_ELBC
 #define CONFIG_P2020
-#define CONFIG_SPI_FLASH
 #define CONFIG_VSC7385_ENET
 #define __SW_BOOT_MASK		0x03
 #define __SW_BOOT_NOR		0xc8

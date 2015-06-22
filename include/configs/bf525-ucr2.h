@@ -67,7 +67,6 @@
 
 /* support for serial flash */
 #define CONFIG_BFIN_SPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_HZ	30000000
 #define CONFIG_SPI_FLASH_EON

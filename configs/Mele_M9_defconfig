@@ -1,13 +1,3 @@
-# The Mele M9 is yet another Allwinnner based Android top set box from Mele.
-#
-# It uses the same PCB as the A1000G quad, but in a new case without a
-# USM sata storage slot, and the space on the PCB for the usb to sata
-# bridge connected to the otg controller is not populated, possible
-# making the micro usb otg connector functional (untested)
-#
-# It features an A31 SoC, 2G RAM, 16G Nand, 100Mbit ethernet, HDMI out,
-# 3 USB A receptacles, 3.5 mm jack for analog audio out, optical spdif,
-# micro USB B receptacle, RTL R8188EU (USB) and a full size sdcard slot
 CONFIG_ARM=y
 CONFIG_ARCH_SUNXI=y
 CONFIG_MACH_SUN6I=y
@@ -15,10 +5,18 @@ CONFIG_DRAM_ZQ=120
 CONFIG_USB1_VBUS_PIN="PC27"
 CONFIG_USB2_VBUS_PIN=""
 CONFIG_DEFAULT_DEVICE_TREE="sun6i-a31-m9"
+# CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
 CONFIG_SPL=y
 CONFIG_SYS_EXTRA_OPTIONS="USB_EHCI,SUNXI_GMAC"
+CONFIG_CMD_SETEXPR=y
+CONFIG_CMD_NET=y
+CONFIG_DM_ETH=y
+CONFIG_NETDEVICES=y
 CONFIG_ETH_DESIGNWARE=y
+CONFIG_DM_SERIAL=y
 CONFIG_AXP221_DCDC1_VOLT=3300
 CONFIG_AXP221_DLDO1_VOLT=3300
 CONFIG_AXP221_DLDO4_VOLT=3300
 CONFIG_AXP221_ALDO1_VOLT=3300
+CONFIG_USB=y
+CONFIG_DM_USB=y

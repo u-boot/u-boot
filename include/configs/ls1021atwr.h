@@ -260,7 +260,6 @@
 #define FSL_QSPI_FLASH_NUM		2
 
 #define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #endif
 

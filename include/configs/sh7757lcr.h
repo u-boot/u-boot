@@ -103,7 +103,6 @@
 /* SPI */
 #define CONFIG_SH_SPI			1
 #define CONFIG_SH_SPI_BASE		0xfe002000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO	1
 
 /* MMCIF */

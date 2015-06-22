@@ -479,7 +479,6 @@
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_SPANSION
 
 #define CONFIG_HARD_SPI
