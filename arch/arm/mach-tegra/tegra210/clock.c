@@ -649,8 +649,8 @@ enum clock_osc_freq clock_get_osc_freq(void)
 	 */
 	if (reg == 5) {
 		debug("OSC_FREQ is 38.4MHz (%d) ...\n", reg);
-		/* Map it to 19.2MHz for now. 38.4MHz OSC support TBD */
-		return 1;
+		/* Map it to the 5th CLOCK_OSC_ enum, i.e. 4 */
+		return 4;
 	}
 
 	/*
@@ -929,6 +929,10 @@ void clock_early_init(void)
 	case CLOCK_OSC_FREQ_19_2:
 		clock_set_rate(CLOCK_ID_CGENERAL, 125, 4, 0, 0);
 		clock_set_rate(CLOCK_ID_DISPLAY, 96, 2, 0, 12);
+		break;
+	case CLOCK_OSC_FREQ_38_4:
+		clock_set_rate(CLOCK_ID_CGENERAL, 125, 8, 0, 0);
+		clock_set_rate(CLOCK_ID_DISPLAY, 96, 4, 0, 0);
 		break;
 	default:
 		/*
