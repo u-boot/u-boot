@@ -60,13 +60,7 @@
 #define CONFIG_NAND
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_NAND_LOCK_UNLOCK
-
-/* Disable some commands */
-#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMI		/* iminfo			*/
 
 /*
  * TWL4030

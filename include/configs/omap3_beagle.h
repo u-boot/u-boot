@@ -95,8 +95,6 @@
 #define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 
 #define CONFIG_CMD_CACHE

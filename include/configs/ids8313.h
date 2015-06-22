@@ -418,18 +418,13 @@
 /*
  * U-Boot environment setup
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_SNTP
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_CMD_EDITENV
 #define CONFIG_CMD_JFFS2
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY

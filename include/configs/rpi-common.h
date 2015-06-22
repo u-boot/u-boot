@@ -120,7 +120,6 @@
 #define CONFIG_COMMAND_HISTORY
 
 /* Commands */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MMC
 #define CONFIG_PARTITION_UUIDS
@@ -134,9 +133,6 @@
 #define CONFIG_INITRD_TAG
 
 #include <config_distro_defaults.h>
-
-/* Some things don't make sense on this HW or yet */
-#undef CONFIG_CMD_FPGA
 
 /* Environment */
 #define ENV_DEVICE_SETTINGS \

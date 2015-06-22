@@ -13,7 +13,6 @@
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
-#include <config_cmd_default.h>
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE
 #define CONFIG_HW_WATCHDOG
@@ -26,7 +25,6 @@
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
-#define CONFIG_CMD_FPGA
 #define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_MII

@@ -152,8 +152,6 @@
 #define CONFIG_CMDLINE_EDITING	1
 #define CONFIG_AUTO_COMPLETE	1
 
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_BOOTLDR
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_CPLBINFO
@@ -233,8 +231,6 @@
  * No Parallel Flash on this board
  */
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_JFFS2
-#undef CONFIG_CMD_FLASH
 
 #endif

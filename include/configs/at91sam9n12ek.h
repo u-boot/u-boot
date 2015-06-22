@@ -70,9 +70,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_FPGA
-
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP

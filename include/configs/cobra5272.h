@@ -120,12 +120,8 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_LOADB
 #undef CONFIG_CMD_MII
 
 #ifdef CONFIG_MCFFEC

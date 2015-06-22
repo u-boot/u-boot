@@ -177,11 +177,6 @@
 #define CONFIG_ENV_ADDR			0x80000100
 
 /*
- * U-Boot Commands
- */
-#include <config_cmd_default.h>
-
-/*
  * Boot Linux
  */
 #define CONFIG_CMDLINE_TAG

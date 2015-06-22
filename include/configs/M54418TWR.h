@@ -38,30 +38,20 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Command line configuration */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_BOOTD
 #define CONFIG_CMD_CACHE
 #undef CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
-#undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_I2C
 #undef CONFIG_CMD_JFFS2
 #undef CONFIG_CMD_UBI
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_MISC
 #define CONFIG_CMD_MII
 #undef CONFIG_CMD_NAND
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
-#undef CONFIG_CMD_IMLS
 
-#undef CONFIG_CMD_LOADB
-#undef CONFIG_CMD_LOADS
 
 /*
  * NAND FLASH

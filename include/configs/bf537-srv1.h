@@ -144,22 +144,16 @@
 # define CONFIG_BOOTDELAY	5
 #endif
 
-#include <config_cmd_default.h>
-
 #ifdef CONFIG_BFIN_MAC
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_PING
-#else
-# undef CONFIG_CMD_NFS
 #endif
 
 #define CONFIG_CMD_BOOTLDR
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_ELF
-#undef CONFIG_CMD_FLASH
 #define CONFIG_CMD_I2C
-#undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_SF
 
 #define CONFIG_BOOTCOMMAND	"run flashboot"

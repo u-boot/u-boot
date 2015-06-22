@@ -42,21 +42,11 @@
 /*
  * Command line configuration.
  */
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_LOADB
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_FLASH
-#define CONFIG_CMD_LOADS
-#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_BDI
-#define CONFIG_CMD_CONSOLE
-#define CONFIG_CMD_RUN
 #define CONFIG_CMD_BSP
-#define CONFIG_CMD_IMI
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_MISC
 
 
 #if 0

@@ -42,10 +42,7 @@
 #define CONFIG_SYS_CACHELINE_SIZE       64
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_ECHO
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_TIME
 

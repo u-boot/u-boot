@@ -25,9 +25,6 @@
  */
 #include "o2dnt-common.h"
 
-/* additional commands */
-#define CONFIG_CMD_ITEST
-
 /*
  * GPIO configuration:
  * CS1 SDRAM activate + no CAN + no PCI

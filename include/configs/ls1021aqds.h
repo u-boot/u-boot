@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <config_cmd_default.h>
-
 #define CONFIG_LS102XA
 
 #define CONFIG_SYS_GENERIC_BOARD
@@ -538,12 +536,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
 
-#ifdef CONFIG_QSPI_BOOT
-#undef CONFIG_CMD_IMLS
-#else
-#define CONFIG_CMD_IMLS
-#endif
-
 #define CONFIG_ARMV7_NONSEC
 #define CONFIG_ARMV7_VIRT
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
@@ -586,7 +578,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_CMD_ENV_EXISTS
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_MEMINFO
 #define CONFIG_CMD_MEMTEST

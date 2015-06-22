@@ -105,23 +105,17 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_FPGA
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_RUN
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_LZO
-
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <config_cmd_default.h>
 
 #define CONFIG_BOOTDELAY			3
 

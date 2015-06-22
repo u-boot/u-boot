@@ -26,7 +26,6 @@
 /*
  * U-Boot Commands
  */
-#include <config_cmd_default.h>
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE

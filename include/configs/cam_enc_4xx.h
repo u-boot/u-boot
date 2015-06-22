@@ -90,12 +90,6 @@
 #define CONFIG_MMC_MBLOCK
 
 /* U-Boot command configuration */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_BDI
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_SETGETDCR
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP

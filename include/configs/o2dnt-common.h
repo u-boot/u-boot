@@ -76,8 +76,6 @@
 /*
  * Supported commands
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C

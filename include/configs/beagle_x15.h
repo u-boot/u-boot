@@ -28,8 +28,6 @@
 #define FAT_ENV_DEVICE_AND_PART		"0:1"
 #define FAT_ENV_FILE			"uboot.env"
 
-#define CONFIG_CMD_SAVEENV
-
 #define CONSOLEDEV			"ttyO2"
 #define CONFIG_SYS_NS16550_COM1		UART1_BASE	/* Base EVM has UART0 */
 #define CONFIG_SYS_NS16550_COM2		UART2_BASE	/* UART2 */
@@ -50,7 +48,6 @@
 #define CONFIG_EFI_PARTITION
 
 /* CPSW Ethernet */
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_DNS2

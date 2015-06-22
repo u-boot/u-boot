@@ -120,7 +120,6 @@
 
 /* Command definition */
 #define CONFIG_CMD_BMODE
-#define CONFIG_CMD_ITEST
 
 #define CONFIG_ENV_SIZE			(SZ_8K)
 /* Size of malloc() pool */

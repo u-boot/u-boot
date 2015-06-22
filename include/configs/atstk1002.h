@@ -101,8 +101,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT2
@@ -110,10 +108,6 @@
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MMC
 
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_SETGETDCR
-#undef CONFIG_CMD_SOURCE
-#undef CONFIG_CMD_XIMG
 
 #define CONFIG_ATMEL_USART
 #define CONFIG_MACB

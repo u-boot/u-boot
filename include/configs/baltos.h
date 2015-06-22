@@ -196,8 +196,6 @@
 	"run mmcboot;" \
 	"run nandboot;"
 
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_NFS
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */

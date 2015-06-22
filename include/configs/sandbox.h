@@ -116,7 +116,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 /* include default commands */
-#include <config_cmd_default.h>
 #include <config_distro_defaults.h>
 
 #define BOOT_TARGET_DEVICES(func) \

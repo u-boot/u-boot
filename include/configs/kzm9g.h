@@ -24,7 +24,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_OF_LIBFDT
 
-#include <config_cmd_default.h>
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG

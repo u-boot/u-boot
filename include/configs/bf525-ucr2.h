@@ -93,9 +93,4 @@
 		"sf read 0x1000000 0x20000 0x300000;" \
 		"bootm 0x1000000\0"
 
-/* this sets up the default list of enabled commands */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_IMLS
-
 #endif

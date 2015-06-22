@@ -471,8 +471,6 @@ int fpga_gpio_get(unsigned int bus, int pin);
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI

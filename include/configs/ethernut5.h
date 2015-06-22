@@ -90,29 +90,13 @@
 #define CONFIG_AT91_GPIO
 
 /* Command line configuration */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_LOADS
-
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_SPI
 
-#ifdef MINIMAL_LOADER
-#undef CONFIG_CMD_CONSOLE
-#undef CONFIG_CMD_EDITENV
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_ITEST
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_LOADB
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_SETGETDCR
-#undef CONFIG_CMD_XIMG
-#else
+#ifndef MINIMAL_LOADER
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_CACHE

@@ -76,9 +76,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
 
-/* Command definition */
-#undef CONFIG_CMD_FPGA
-
 #define CONFIG_CMD_BMODE
 
 #define CONFIG_ARP_TIMEOUT     200UL

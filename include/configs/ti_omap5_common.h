@@ -57,9 +57,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		48000000
 
-/* Per-SoC commands */
-#undef CONFIG_CMD_NFS
-
 /*
  * Environment setup
  */

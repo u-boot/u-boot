@@ -104,7 +104,6 @@
 	"nand read 87A00000 100000 300000;"	\
 	"bootelf 87A00000"
 /* U-Boot commands */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
@@ -115,11 +114,6 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ELF	/* Needed to load Integrity kernel. */
-#undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_SETGETDCR
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
 
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS

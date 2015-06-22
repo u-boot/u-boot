@@ -33,7 +33,6 @@
 #define CONFIG_ENV_OFFSET		0xE0000
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_CMD_SAVEENV
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
@@ -61,7 +60,6 @@
 
 /* Enabled commands */
 #define CONFIG_CMD_DHCP		/* DHCP Support			*/
-#define CONFIG_CMD_NFS		/* NFS support			*/
 
 /* USB Networking options */
 #define CONFIG_USB_HOST_ETHER

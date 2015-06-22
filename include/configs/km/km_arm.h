@@ -124,14 +124,11 @@
  */
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_MTDPARTS
-#define CONFIG_CMD_NFS
 
 /*
  * Without NOR FLASH we need this
  */
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
 
 /*
  * NAND Flash configuration

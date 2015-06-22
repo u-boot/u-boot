@@ -67,16 +67,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_BAUDRATE			115200
 
-/* include default commands */
-#include <config_cmd_default.h>
-
-/* remove unused commands */
-#undef CONFIG_CMD_FLASH		/* flinfo, erase, protect */
-#undef CONFIG_CMD_FPGA		/* FPGA configuration support */
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_NFS		/* NFS support */
-
 /* turn on command-line edit/hist/auto */
 #define CONFIG_COMMAND_HISTORY
 

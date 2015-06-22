@@ -166,17 +166,7 @@
 #define CONFIG_CMD_MTDPARTS
 #endif
 
-/*
- * For commands to use, we take the default list and add a few other
- * useful commands.  Note that we must have set CONFIG_SYS_NO_FLASH
- * prior to this include, in order to skip a few commands.  When we do
- * have flash, if we expect these commands they must be enabled in that
- * config.  If desired, a specific list of desired commands can be used
- * instead.
- */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_ECHO
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
 

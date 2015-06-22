@@ -72,10 +72,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_IMLS
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_PING		1
 #define CONFIG_CMD_DHCP		1
@@ -96,7 +92,6 @@
 
 /* NOR flash, not available */
 #define CONFIG_SYS_NO_FLASH		1
-#undef CONFIG_CMD_FLASH
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND

@@ -108,16 +108,10 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_CACHE
 #undef CONFIG_CMD_USB
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_DHCP
 
 #ifdef CONFIG_SYS_I2C_SOFT

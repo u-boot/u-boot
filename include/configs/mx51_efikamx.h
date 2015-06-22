@@ -11,8 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <config_cmd_default.h>
-
 /*
  * High Level Board Configuration Options
  */
@@ -42,7 +40,6 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_DATE
-#undef CONFIG_CMD_IMLS
 
 /*
  * Environmental settings
@@ -197,9 +194,6 @@
  */
 #ifdef CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
-#ifdef	CONFIG_CMD_NET
-#define	CONFIG_CMD_NFS
-#endif
 #endif
 
 /*

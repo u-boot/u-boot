@@ -124,6 +124,7 @@
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO	      /* print 'E' for empty sector on flinfo */
 #define CONFIG_SYS_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash      */
+#endif /* CONFIG_CMD_FLASH */
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x20000	/* size of one complete sector	      */
@@ -134,7 +135,6 @@
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 #endif
-#endif /* CONFIG_CMD_FLASH */
 
 /*
  * DDR SDRAM

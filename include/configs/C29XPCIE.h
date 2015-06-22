@@ -495,8 +495,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_IRQ

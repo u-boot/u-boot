@@ -100,8 +100,6 @@
 #define CONFIG_USB_STORAGE
 
 /* commands to include */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
@@ -110,14 +108,10 @@
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_EEPROM
-
-#undef CONFIG_CMD_FLASH		/* only NAND on the SOM */
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_I2C

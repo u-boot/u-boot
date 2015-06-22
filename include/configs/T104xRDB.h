@@ -745,8 +745,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #ifdef CONFIG_T1042RDB_PI
 #define CONFIG_CMD_DATE
 #endif

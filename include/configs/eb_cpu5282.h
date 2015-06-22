@@ -64,9 +64,6 @@
  * Command line configuration.
  */
 #define CONFIG_CMDLINE_EDITING
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_LOADB
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C

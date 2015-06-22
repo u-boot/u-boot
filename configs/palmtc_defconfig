@@ -1,2 +1,5 @@
 CONFIG_ARM=y
 CONFIG_TARGET_PALMTC=y
+# CONFIG_CMD_SETEXPR is not set
+# CONFIG_CMD_NET is not set
+# CONFIG_CMD_NFS is not set

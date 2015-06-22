@@ -123,10 +123,7 @@
  * Command definition
  ***********************************************************/
 
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_SPI
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_BOOTDELAY        3
 

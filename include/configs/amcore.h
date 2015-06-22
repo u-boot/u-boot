@@ -21,12 +21,7 @@
 #define CONFIG_BOOTDELAY		1
 #define CONFIG_BOOTCOMMAND		"bootm ffc20000"
 
-#include <config_cmd_default.h>
 #undef CONFIG_CMD_AES
-#undef CONFIG_CMD_BOOTD
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_XIMG
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_TIMER
 #define CONFIG_CMD_DIAG

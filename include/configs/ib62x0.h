@@ -45,7 +45,6 @@
  */
 #define CONFIG_SYS_NO_FLASH		/* declare no flash (NOR/SPI) */
 #define CONFIG_SYS_MVFS
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_IDE

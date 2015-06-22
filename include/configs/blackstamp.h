@@ -102,8 +102,6 @@
 #define CONFIG_AUTO_COMPLETE	1
 #define CONFIG_ENV_OVERWRITE	1
 
-#include <config_cmd_default.h>
-
 #ifdef CONFIG_SMC91111
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_PING
@@ -236,8 +234,6 @@
  * hardware don't support Parallel Flash at all.
  */
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_JFFS2
-#undef CONFIG_CMD_FLASH
 
 #endif

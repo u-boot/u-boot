@@ -1,2 +1,12 @@
 CONFIG_ARM=y
 CONFIG_TARGET_U8500_HREF=y
+# CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_XIMG is not set
+# CONFIG_CMD_EDITENV is not set
+# CONFIG_CMD_ENV_EXISTS is not set
+# CONFIG_CMD_FLASH is not set
+# CONFIG_CMD_FPGA is not set
+# CONFIG_CMD_ITEST is not set
+# CONFIG_CMD_SETEXPR is not set
+# CONFIG_CMD_NET is not set
+# CONFIG_CMD_NFS is not set

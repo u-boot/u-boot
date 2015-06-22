@@ -134,8 +134,6 @@
 #define CONFIG_CMD_SCSI
 #endif
 
-#define CONFIG_CMD_MEMORY
-
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
@@ -160,7 +158,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_CMD_ECHO
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE	1024	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
@@ -187,9 +184,6 @@
 
 #define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_FPGA
 
 #define CONFIG_FAT_WRITE	/* enable write access */
 

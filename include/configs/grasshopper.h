@@ -92,12 +92,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
-/* remove unneeded commands */
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_SETGETDCR
-
 /* add useful commands */
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP

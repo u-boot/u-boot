@@ -118,11 +118,4 @@
 		"cp.b 0x01000000 0x20030000 0x2c0000\0" \
 	"runme=bootm 0x01000000\0"
 
-/* this sets up the default list of enabled commands */
-#include <config_cmd_default.h>
-
-#ifndef CONFIG_BFIN_MAC
-# undef CONFIG_CMD_NFS
-#endif
-
 #endif

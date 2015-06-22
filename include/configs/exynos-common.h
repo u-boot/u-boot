@@ -59,8 +59,6 @@
 #define CONFIG_PWM
 
 /* Command definition*/
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_FAT_WRITE
@@ -79,7 +77,6 @@
 
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_IMLS
 
 #include <config_distro_defaults.h>
 

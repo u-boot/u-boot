@@ -61,9 +61,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
 
-#include "config_cmd_default.h"
-#undef CONFIG_CMD_SAVEENV
-
 #define CONFIG_SYS_MEMTEST_START               0x0000
 #define CONFIG_SYS_MEMTEST_END                 1024*1024
 #define CONFIG_CMD_MEMTEST

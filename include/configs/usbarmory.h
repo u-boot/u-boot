@@ -20,13 +20,11 @@
 #define CONFIG_MXC_GPIO
 
 #include <asm/arch/imx-regs.h>
-#include <config_cmd_default.h>
 
 #include <config_distro_defaults.h>
 
 /* U-Boot commands */
 #define CONFIG_CMD_MEMTEST
-#undef CONFIG_CMD_IMLS
 
 /* U-Boot environment */
 #define CONFIG_ENV_OVERWRITE

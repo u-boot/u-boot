@@ -86,8 +86,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_I2C

@@ -147,7 +147,6 @@
 /*
  * U-Boot commands
  */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
@@ -155,7 +154,6 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_GPIO
 
@@ -171,8 +169,6 @@
 
 /* NAND Setup */
 #ifdef CONFIG_SYS_USE_NAND
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_NAND
 
 #define CONFIG_CMD_MTDPARTS
@@ -196,11 +192,8 @@
 
 /* SPI Flash */
 #ifdef CONFIG_USE_SPIFLASH
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_FLASH
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
-#define CONFIG_CMD_SAVEENV
 #endif
 
 #if !defined(CONFIG_SYS_USE_NAND) && \
@@ -209,7 +202,6 @@
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_SIZE		(16 << 10)
-#undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_ENV
 #endif
 
