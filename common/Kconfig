@@ -191,6 +191,12 @@ config CMD_SAVEENV
 	  Save all environment variables into the compiled-in persistent
 	  storage.
 
+config CMD_ENV_EXISTS
+	bool "env exists"
+	help
+	  Check if a variable is defined in the environment for use in
+	  shell scripting.
+
 endmenu
 
 menu "Memory commands"
