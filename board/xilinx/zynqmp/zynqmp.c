@@ -17,6 +17,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
+	printf("EL Level:\tEL%d\n", current_el());
+
 	return 0;
 }
 
