@@ -156,30 +156,31 @@ const struct pad_conf_entry early_padconf[] = {
 
 #ifdef CONFIG_IODELAY_RECALIBRATION
 const struct iodelay_cfg_entry iodelay_cfg_array[] = {
-	{0x6F0, 480, 0}, /* RGMMI0_RXC_IN */
-	{0x6FC, 111, 1641}, /* RGMMI0_RXCTL_IN */
-	{0x708, 272, 1116}, /* RGMMI0_RXD0_IN */
-	{0x714, 243, 1260}, /* RGMMI0_RXD1_IN */
-	{0x720, 0, 1614}, /* RGMMI0_RXD2_IN */
-	{0x72C, 105, 1673}, /* RGMMI0_RXD3_IN */
-	{0x740, 531, 120}, /* RGMMI0_TXC_OUT */
-	{0x74C, 11, 60}, /* RGMMI0_TXCTL_OUT */
-	{0x758, 7, 120}, /* RGMMI0_TXD0_OUT */
-	{0x764, 0, 0}, /* RGMMI0_TXD1_OUT */
-	{0x770, 276, 120}, /* RGMMI0_TXD2_OUT */
-	{0x77C, 440, 120}, /* RGMMI0_TXD3_OUT */
-	{0xAB0, 702, 0}, /* CFG_VIN2A_D18_IN */
-	{0xABC, 136, 976}, /* CFG_VIN2A_D19_IN */
-	{0xAD4, 210, 1357}, /* CFG_VIN2A_D20_IN */
-	{0xAE0, 189, 1462}, /* CFG_VIN2A_D21_IN */
-	{0xAEC, 232, 1278}, /* CFG_VIN2A_D22_IN */
-	{0xAF8, 0, 1397}, /* CFG_VIN2A_D23_IN */
-	{0xA70, 1551, 115}, /* CFG_VIN2A_D12_OUT */
-	{0xA7C, 816, 0}, /* CFG_VIN2A_D13_OUT */
-	{0xA88, 876, 0}, /* CFG_VIN2A_D14_OUT */
-	{0xA94, 312, 0}, /* CFG_VIN2A_D15_OUT */
-	{0xAA0, 58, 0}, /* CFG_VIN2A_D16_OUT */
-	{0xAAC, 0, 0}, /* CFG_VIN2A_D17_OUT */
+	{0x6F0, 359, 0}, /* RGMMI0_RXC_IN */
+	{0x6FC, 129, 1896}, /* RGMMI0_RXCTL_IN */
+	{0x708, 80, 1391}, /* RGMMI0_RXD0_IN */
+	{0x714, 196, 1522}, /* RGMMI0_RXD1_IN */
+	{0x720, 40, 1860}, /* RGMMI0_RXD2_IN */
+	{0x72C, 0, 1956}, /* RGMMI0_RXD3_IN */
+	{0x740, 0, 220}, /* RGMMI0_TXC_OUT */
+	{0x74C, 1820, 180}, /* RGMMI0_TXCTL_OUT */
+	{0x758, 1740, 440}, /* RGMMI0_TXD0_OUT */
+	{0x764, 1740, 240}, /* RGMMI0_TXD1_OUT */
+	{0x770, 1680, 380}, /* RGMMI0_TXD2_OUT */
+	{0x77C, 1740, 440}, /* RGMMI0_TXD3_OUT */
+	/* These values are for using RGMII1 configuration on VIN2a_x pins. */
+	{0xAB0, 596, 0}, /* CFG_VIN2A_D18_IN */
+	{0xABC, 314, 980}, /* CFG_VIN2A_D19_IN */
+	{0xAD4, 241, 1536}, /* CFG_VIN2A_D20_IN */
+	{0xAE0, 103, 1689}, /* CFG_VIN2A_D21_IN */
+	{0xAEC, 161, 1563}, /* CFG_VIN2A_D22_IN */
+	{0xAF8, 0, 1613}, /* CFG_VIN2A_D23_IN */
+	{0xA70, 0, 200}, /* CFG_VIN2A_D12_OUT */
+	{0xA7C, 1560, 140}, /* CFG_VIN2A_D13_OUT */
+	{0xA88, 1700, 0}, /* CFG_VIN2A_D14_OUT */
+	{0xA94, 1260, 0}, /* CFG_VIN2A_D15_OUT */
+	{0xAA0, 1400, 0}, /* CFG_VIN2A_D16_OUT */
+	{0xAAC, 1290, 0}, /* CFG_VIN2A_D17_OUT */
 };
 #endif
 
