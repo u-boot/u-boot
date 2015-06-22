@@ -188,7 +188,8 @@ config CMD_EDITENV
 config CMD_SAVEENV
 	bool "saveenv"
 	help
-	  Run the command in the given environment variable.
+	  Save all environment variables into the compiled-in persistent
+	  storage.
 
 endmenu
 
