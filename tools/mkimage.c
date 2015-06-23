@@ -75,6 +75,7 @@ int main(int argc, char **argv)
 	int retval = 0;
 	struct image_type_params *tparams = NULL;
 	int pad_len = 0;
+	int dfd;
 
 	params.cmdname = *argv;
 	params.addr = params.ep = 0;
@@ -310,6 +311,22 @@ NXTARG:		;
 		exit (retval);
 	}
 
+	dfd = open(params.datafile, O_RDONLY | O_BINARY);
+	if (dfd < 0) {
+		fprintf(stderr, "%s: Can't open %s: %s\n",
+			params.cmdname, params.datafile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	if (fstat(dfd, &sbuf) < 0) {
+		fprintf(stderr, "%s: Can't stat %s: %s\n",
+			params.cmdname, params.datafile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	params.file_size = sbuf.st_size + tparams->header_size;
+	close(dfd);
+
 	/*
 	 * In case there an header with a variable
 	 * length will be added, the corresponding
@@ -409,6 +426,7 @@ NXTARG:		;
 			params.cmdname, params.imagefile, strerror(errno));
 		exit (EXIT_FAILURE);
 	}
+	params.file_size = sbuf.st_size;
 
 	ptr = mmap(0, sbuf.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, ifd, 0);
 	if (ptr == MAP_FAILED) {
