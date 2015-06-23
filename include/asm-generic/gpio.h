@@ -434,6 +434,18 @@ int gpio_request_list_by_name(struct udevice *dev, const char *list_name,
 			      int flags);
 
 /**
+ * dm_gpio_request() - manually request a GPIO
+ *
+ * Note: This function should only be used for testing / debugging. Instead.
+ * use gpio_request_by_name() to pull GPIOs from the device tree.
+ *
+ * @desc:	GPIO description of GPIO to request (see dm_gpio_lookup_name())
+ * @label:	Label to attach to the GPIO while claimed
+ * @return 0 if OK, -ve on error
+ */
+int dm_gpio_request(struct gpio_desc *desc, const char *label);
+
+/**
  * gpio_get_list_count() - Returns the number of GPIOs in a list
  *
  * Counts the GPIOs in a list. See gpio_request_by_name() for additional

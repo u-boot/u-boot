@@ -127,7 +127,7 @@ static int gpio_find_and_xlate(struct gpio_desc *desc,
 	return ops->xlate ? ops->xlate(desc->dev, desc, args) : 0;
 }
 
-static int dm_gpio_request(struct gpio_desc *desc, const char *label)
+int dm_gpio_request(struct gpio_desc *desc, const char *label)
 {
 	struct udevice *dev = desc->dev;
 	struct gpio_dev_priv *uc_priv;
