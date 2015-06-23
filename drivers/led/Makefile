@@ -6,3 +6,4 @@
 #
 
 obj-$(CONFIG_LED) += led-uclass.o
+obj-$(CONFIG_LED_GPIO) += led_gpio.o
