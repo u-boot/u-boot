@@ -58,17 +58,28 @@ void pirq_assign_irq(int link, u8 irq)
 		writeb(irq, irq_router.ibase + LINK_N2V(link, base));
 }
 
-static inline void fill_irq_info(struct irq_info **slotp, int *entries, u8 bus,
-				 u8 device, u8 pin, u8 pirq)
+static struct irq_info *check_dup_entry(struct irq_info *slot_base,
+					int entry_num, int bus, int device)
 {
-	struct irq_info *slot = *slotp;
+	struct irq_info *slot = slot_base;
+	int i;
 
+	for (i = 0; i < entry_num; i++) {
+		if (slot->bus == bus && slot->devfn == (device << 3))
+			break;
+		slot++;
+	}
+
+	return (i == entry_num) ? NULL : slot;
+}
+
+static inline void fill_irq_info(struct irq_info *slot, int bus, int device,
+				 int pin, int pirq)
+{
 	slot->bus = bus;
 	slot->devfn = (device << 3) | 0;
 	slot->irq[pin - 1].link = LINK_N2V(pirq, irq_router.link_base);
 	slot->irq[pin - 1].bitmap = irq_router.irq_mask;
-	(*entries)++;
-	(*slotp)++;
 }
 
 __weak void cpu_irq_init(void)
@@ -84,7 +95,7 @@ static int create_pirq_routing_table(void)
 	int len, count;
 	const u32 *cell;
 	struct irq_routing_table *rt;
-	struct irq_info *slot;
+	struct irq_info *slot, *slot_base;
 	int irq_entries = 0;
 	int i;
 	int ret;
@@ -167,7 +178,7 @@ static int create_pirq_routing_table(void)
 	rt->rtr_vendor = PCI_VENDOR_ID_INTEL;
 	rt->rtr_device = PCI_DEVICE_ID_INTEL_ICH7_31;
 
-	slot = rt->slots;
+	slot_base = rt->slots;
 
 	/* Now fill in the irq_info entries in the PIRQ table */
 	for (i = 0; i < count; i++) {
@@ -181,8 +192,44 @@ static int create_pirq_routing_table(void)
 		      i, PCI_BUS(pr.bdf), PCI_DEV(pr.bdf),
 		      PCI_FUNC(pr.bdf), 'A' + pr.pin - 1,
 		      'A' + pr.pirq);
-		fill_irq_info(&slot, &irq_entries, PCI_BUS(pr.bdf),
-			      PCI_DEV(pr.bdf), pr.pin, pr.pirq);
+
+		slot = check_dup_entry(slot_base, irq_entries,
+				       PCI_BUS(pr.bdf), PCI_DEV(pr.bdf));
+		if (slot) {
+			debug("found entry for bus %d device %d, ",
+			      PCI_BUS(pr.bdf), PCI_DEV(pr.bdf));
+
+			if (slot->irq[pr.pin - 1].link) {
+				debug("skipping\n");
+
+				/*
+				 * Sanity test on the routed PIRQ pin
+				 *
+				 * If they don't match, show a warning to tell
+				 * there might be something wrong with the PIRQ
+				 * routing information in the device tree.
+				 */
+				if (slot->irq[pr.pin - 1].link !=
+					LINK_N2V(pr.pirq, irq_router.link_base))
+					debug("WARNING: Inconsistent PIRQ routing information\n");
+
+				cell += sizeof(struct pirq_routing) /
+					sizeof(u32);
+				continue;
+			} else {
+				debug("writing INT%c\n", 'A' + pr.pin - 1);
+				fill_irq_info(slot, PCI_BUS(pr.bdf),
+					      PCI_DEV(pr.bdf), pr.pin, pr.pirq);
+				cell += sizeof(struct pirq_routing) /
+					sizeof(u32);
+				continue;
+			}
+		}
+
+		slot = slot_base + irq_entries;
+		fill_irq_info(slot, PCI_BUS(pr.bdf), PCI_DEV(pr.bdf),
+			      pr.pin, pr.pirq);
+		irq_entries++;
 		cell += sizeof(struct pirq_routing) / sizeof(u32);
 	}
 
