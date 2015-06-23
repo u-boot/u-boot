@@ -139,6 +139,38 @@ int pmic_write(struct udevice *dev, uint reg, const uint8_t *buffer, int len)
 	return ops->write(dev, reg, buffer, len);
 }
 
+int pmic_reg_read(struct udevice *dev, uint reg)
+{
+	u8 byte;
+	int ret;
+
+	ret = pmic_read(dev, reg, &byte, 1);
+	debug("%s: reg=%x, value=%x\n", __func__, reg, byte);
+
+	return ret ? ret : byte;
+}
+
+int pmic_reg_write(struct udevice *dev, uint reg, uint value)
+{
+	u8 byte = value;
+
+	debug("%s: reg=%x, value=%x\n", __func__, reg, value);
+	return pmic_read(dev, reg, &byte, 1);
+}
+
+int pmic_clrsetbits(struct udevice *dev, uint reg, uint clr, uint set)
+{
+	u8 byte;
+	int ret;
+
+	ret = pmic_reg_read(dev, reg);
+	if (ret < 0)
+		return ret;
+	byte = (ret & ~clr) | set;
+
+	return pmic_reg_write(dev, reg, byte);
+}
+
 UCLASS_DRIVER(pmic) = {
 	.id		= UCLASS_PMIC,
 	.name		= "pmic",
