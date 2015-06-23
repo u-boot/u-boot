@@ -78,6 +78,7 @@ libs-$(CONFIG_SPL_NET_SUPPORT) += net/
 libs-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/
 libs-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/phy/
 libs-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/net/phy/
+libs-$(CONFIG_SPL_RAM_SUPPORT) += drivers/ram/
 libs-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/
 libs-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/
 libs-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/
