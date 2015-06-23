@@ -345,6 +345,7 @@
 			interrupt-parent = <&intc>;
 			interrupts = <0 8 4>;
 			reg = <0xf8007000 0x100>;
+			syscon = <&slcr>;
 		};
 
 		global_timer: timer@f8f00200 {
