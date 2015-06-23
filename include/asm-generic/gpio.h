@@ -322,6 +322,19 @@ struct gpio_dev_priv {
 const char *gpio_get_bank_info(struct udevice *dev, int *offset_count);
 
 /**
+ * dm_gpio_lookup_name() - Look up a named GPIO and return its description
+ *
+ * The name of a GPIO is typically its bank name followed by a number from 0.
+ * For example A0 is the first GPIO in bank A. Each bank is a separate driver
+ * model device.
+ *
+ * @name:	Name to look up
+ * @desc:	Returns description, on success
+ * @return 0 if OK, -ve on error
+ */
+int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc);
+
+/**
  * gpio_lookup_name - Look up a GPIO name and return its details
  *
  * This is used to convert a named GPIO into a device, offset and GPIO
