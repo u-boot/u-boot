@@ -1,0 +1,6 @@
+/ {
+	rtc {
+		compatible = "motorola,mc146818";
+		reg = <0x70 2>;
+	};
+};
