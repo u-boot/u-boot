@@ -9,3 +9,4 @@ ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_OF_CONTROL) += simple-bus.o
 endif
 obj-$(CONFIG_DM_DEVICE_REMOVE)	+= device-remove.o
+obj-$(CONFIG_DM)	+= dump.o
