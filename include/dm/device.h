@@ -390,6 +390,20 @@ int device_get_child_by_of_offset(struct udevice *parent, int seq,
 				  struct udevice **devp);
 
 /**
+ * device_get_global_by_of_offset() - Get a device based on FDT offset
+ *
+ * Locates a device by its device tree offset, searching globally throughout
+ * the all driver model devices.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @of_offset: Device tree offset to find
+ * @devp: Returns pointer to device if found, otherwise this is set to NULL
+ * @return 0 if OK, -ve on error
+ */
+int device_get_global_by_of_offset(int of_offset, struct udevice **devp);
+
+/**
  * device_find_first_child() - Find the first child of a device
  *
  * @parent: Parent device to search

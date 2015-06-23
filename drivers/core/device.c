@@ -470,6 +470,31 @@ int device_get_child_by_of_offset(struct udevice *parent, int seq,
 	return device_get_device_tail(dev, ret, devp);
 }
 
+static struct udevice *_device_find_global_by_of_offset(struct udevice *parent,
+							int of_offset)
+{
+	struct udevice *dev, *found;
+
+	if (parent->of_offset == of_offset)
+		return parent;
+
+	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+		found = _device_find_global_by_of_offset(dev, of_offset);
+		if (found)
+			return found;
+	}
+
+	return NULL;
+}
+
+int device_get_global_by_of_offset(int of_offset, struct udevice **devp)
+{
+	struct udevice *dev;
+
+	dev = _device_find_global_by_of_offset(gd->dm_root, of_offset);
+	return device_get_device_tail(dev, dev ? 0 : -ENOENT, devp);
+}
+
 int device_find_first_child(struct udevice *parent, struct udevice **devp)
 {
 	if (list_empty(&parent->child_head)) {
