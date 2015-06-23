@@ -250,14 +250,18 @@ static ulong mmc_bread(int dev_num, lbaint_t start, lbaint_t blkcnt, void *dst)
 		return 0;
 	}
 
-	if (mmc_set_blocklen(mmc, mmc->read_bl_len))
+	if (mmc_set_blocklen(mmc, mmc->read_bl_len)) {
+		debug("%s: Failed to set blocklen\n", __func__);
 		return 0;
+	}
 
 	do {
 		cur = (blocks_todo > mmc->cfg->b_max) ?
 			mmc->cfg->b_max : blocks_todo;
-		if(mmc_read_blocks(mmc, dst, start, cur) != cur)
+		if (mmc_read_blocks(mmc, dst, start, cur) != cur) {
+			debug("%s: Failed to read blocks\n", __func__);
 			return 0;
+		}
 		blocks_todo -= cur;
 		start += cur;
 		dst += cur * mmc->read_bl_len;
