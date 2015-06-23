@@ -59,12 +59,12 @@ void pirq_assign_irq(int link, u8 irq)
 }
 
 static inline void fill_irq_info(struct irq_info **slotp, int *entries, u8 bus,
-				 u8 device, u8 func, u8 pin, u8 pirq)
+				 u8 device, u8 pin, u8 pirq)
 {
 	struct irq_info *slot = *slotp;
 
 	slot->bus = bus;
-	slot->devfn = (device << 3) | func;
+	slot->devfn = (device << 3) | 0;
 	slot->irq[pin - 1].link = LINK_N2V(pirq, irq_router.link_base);
 	slot->irq[pin - 1].bitmap = irq_router.irq_mask;
 	(*entries)++;
@@ -182,8 +182,7 @@ static int create_pirq_routing_table(void)
 		      PCI_FUNC(pr.bdf), 'A' + pr.pin - 1,
 		      'A' + pr.pirq);
 		fill_irq_info(&slot, &irq_entries, PCI_BUS(pr.bdf),
-			      PCI_DEV(pr.bdf), PCI_FUNC(pr.bdf),
-			      pr.pin, pr.pirq);
+			      PCI_DEV(pr.bdf), pr.pin, pr.pirq);
 		cell += sizeof(struct pirq_routing) / sizeof(u32);
 	}
 
