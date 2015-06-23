@@ -95,13 +95,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	return spi_get_ops(bus)->xfer(dev, bitlen, dout, din, flags);
 }
 
-int spi_post_bind(struct udevice *dev)
+static int spi_post_bind(struct udevice *dev)
 {
 	/* Scan the bus for devices */
 	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
 }
 
-int spi_child_post_bind(struct udevice *dev)
+static int spi_child_post_bind(struct udevice *dev)
 {
 	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
 
@@ -111,7 +111,7 @@ int spi_child_post_bind(struct udevice *dev)
 	return spi_slave_ofdata_to_platdata(gd->fdt_blob, dev->of_offset, plat);
 }
 
-int spi_post_probe(struct udevice *bus)
+static int spi_post_probe(struct udevice *bus)
 {
 	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 
@@ -121,7 +121,7 @@ int spi_post_probe(struct udevice *bus)
 	return 0;
 }
 
-int spi_child_pre_probe(struct udevice *dev)
+static int spi_child_pre_probe(struct udevice *dev)
 {
 	struct dm_spi_slave_platdata *plat = dev_get_parent_platdata(dev);
 	struct spi_slave *slave = dev_get_parentdata(dev);
