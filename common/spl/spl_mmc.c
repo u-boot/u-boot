@@ -26,11 +26,14 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 
 	/* read image header to find the image size & load address */
 	count = mmc->block_dev.block_read(0, sector, 1, header);
+	debug("read sector %lx, count=%lu\n", sector, count);
 	if (count == 0)
 		goto end;
 
-	if (image_get_magic(header) != IH_MAGIC)
+	if (image_get_magic(header) != IH_MAGIC) {
+		puts("bad magic\n");
 		return -1;
+	}
 
 	spl_parse_image_header(header);
 
@@ -40,7 +43,9 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 
 	/* Read the header too to avoid extra memcpy */
 	count = mmc->block_dev.block_read(0, sector, image_size_sectors,
-					  (void *) spl_image.load_addr);
+					  (void *)spl_image.load_addr);
+	debug("read %x sectors to %x\n", image_size_sectors,
+	      spl_image.load_addr);
 
 end:
 	if (count == 0) {
