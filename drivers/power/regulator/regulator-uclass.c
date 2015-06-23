@@ -306,6 +306,28 @@ static int regulator_pre_probe(struct udevice *dev)
 	return 0;
 }
 
+int regulators_enable_boot_on(bool verbose)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(UCLASS_REGULATOR, &uc);
+	if (ret)
+		return ret;
+	for (uclass_first_device(UCLASS_REGULATOR, &dev);
+	     dev && !ret;
+	     uclass_next_device(&dev)) {
+		ret = regulator_autoset(dev);
+		if (ret == -EMEDIUMTYPE)
+			continue;
+		if (verbose)
+			regulator_show(dev, ret);
+	}
+
+	return ret;
+}
+
 UCLASS_DRIVER(regulator) = {
 	.id		= UCLASS_REGULATOR,
 	.name		= "regulator",
