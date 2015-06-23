@@ -543,6 +543,15 @@ void genimg_print_time(time_t timestamp)
 }
 #endif
 
+const table_entry_t *get_table_entry(const table_entry_t *table, int id)
+{
+	for (; table->id >= 0; ++table) {
+		if (table->id == id)
+			return table;
+	}
+	return NULL;
+}
+
 /**
  * get_table_entry_name - translate entry id to long name
  * @table: pointer to a translation table for entries of a specific type
@@ -559,15 +568,14 @@ void genimg_print_time(time_t timestamp)
  */
 char *get_table_entry_name(const table_entry_t *table, char *msg, int id)
 {
-	for (; table->id >= 0; ++table) {
-		if (table->id == id)
+	table = get_table_entry(table, id);
+	if (!table)
+		return msg;
 #if defined(USE_HOSTCC) || !defined(CONFIG_NEEDS_MANUAL_RELOC)
-			return table->lname;
+	return table->lname;
 #else
-			return table->lname + gd->reloc_off;
+	return table->lname + gd->reloc_off;
 #endif
-	}
-	return (msg);
 }
 
 const char *genimg_get_os_name(uint8_t os)
@@ -584,6 +592,20 @@ const char *genimg_get_arch_name(uint8_t arch)
 const char *genimg_get_type_name(uint8_t type)
 {
 	return (get_table_entry_name(uimage_type, "Unknown Image", type));
+}
+
+const char *genimg_get_type_short_name(uint8_t type)
+{
+	const table_entry_t *table;
+
+	table = get_table_entry(uimage_type, type);
+	if (!table)
+		return "unknown";
+#if defined(USE_HOSTCC) || !defined(CONFIG_NEEDS_MANUAL_RELOC)
+	return table->sname;
+#else
+	return table->sname + gd->reloc_off;
+#endif
 }
 
 const char *genimg_get_comp_name(uint8_t comp)
@@ -610,34 +632,18 @@ int get_table_entry_id(const table_entry_t *table,
 		const char *table_name, const char *name)
 {
 	const table_entry_t *t;
-#ifdef USE_HOSTCC
-	int first = 1;
 
-	for (t = table; t->id >= 0; ++t) {
-		if (t->sname && strcasecmp(t->sname, name) == 0)
-			return(t->id);
-	}
-
-	fprintf(stderr, "\nInvalid %s Type - valid names are", table_name);
-	for (t = table; t->id >= 0; ++t) {
-		if (t->sname == NULL)
-			continue;
-		fprintf(stderr, "%c %s", (first) ? ':' : ',', t->sname);
-		first = 0;
-	}
-	fprintf(stderr, "\n");
-#else
 	for (t = table; t->id >= 0; ++t) {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
-		if (t->sname && strcmp(t->sname + gd->reloc_off, name) == 0)
+		if (t->sname && strcasecmp(t->sname + gd->reloc_off, name) == 0)
 #else
-		if (t->sname && strcmp(t->sname, name) == 0)
+		if (t->sname && strcasecmp(t->sname, name) == 0)
 #endif
 			return (t->id);
 	}
 	debug("Invalid %s Type: %s\n", table_name, name);
-#endif /* USE_HOSTCC */
-	return (-1);
+
+	return -1;
 }
 
 int genimg_get_os_id(const char *name)
