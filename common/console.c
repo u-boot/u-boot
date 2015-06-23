@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <debug_uart.h>
 #include <stdarg.h>
 #include <iomux.h>
 #include <malloc.h>
@@ -460,6 +461,13 @@ void putc(const char c)
 		return;
 	}
 #endif
+#ifdef CONFIG_DEBUG_UART
+	/* if we don't have a console yet, use the debug UART */
+	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
+		printch(c);
+		return;
+	}
+#endif
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT)
 		return;
@@ -491,7 +499,18 @@ void puts(const char *s)
 		return;
 	}
 #endif
+#ifdef CONFIG_DEBUG_UART
+	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
+		while (*s) {
+			int ch = *s++;
 
+			printch(ch);
+			if (ch == '\n')
+				printch('\r');
+		}
+		return;
+	}
+#endif
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT)
 		return;
