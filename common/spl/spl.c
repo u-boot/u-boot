@@ -298,6 +298,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	      gd->malloc_ptr / 1024);
 #endif
 
+	debug("loaded - jumping to U-Boot...");
 	jump_to_image_no_args(&spl_image);
 }
 
