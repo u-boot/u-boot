@@ -319,6 +319,18 @@ static int regulator_pre_probe(struct udevice *dev)
 	uc_pdata->boot_on = fdtdec_get_bool(gd->fdt_blob, offset,
 					    "regulator-boot-on");
 
+	/* Those values are optional (-ENODATA if unset) */
+	if ((uc_pdata->min_uV != -ENODATA) &&
+	    (uc_pdata->max_uV != -ENODATA) &&
+	    (uc_pdata->min_uV == uc_pdata->max_uV))
+		uc_pdata->flags |= REGULATOR_FLAG_AUTOSET_UV;
+
+	/* Those values are optional (-ENODATA if unset) */
+	if ((uc_pdata->min_uA != -ENODATA) &&
+	    (uc_pdata->max_uA != -ENODATA) &&
+	    (uc_pdata->min_uA == uc_pdata->max_uA))
+		uc_pdata->flags |= REGULATOR_FLAG_AUTOSET_UA;
+
 	return 0;
 }
 

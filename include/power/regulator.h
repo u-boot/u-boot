@@ -128,6 +128,11 @@ struct dm_regulator_mode {
 	const char *name;
 };
 
+enum regulator_flag {
+	REGULATOR_FLAG_AUTOSET_UV	= 1 << 0,
+	REGULATOR_FLAG_AUTOSET_UA	= 1 << 1,
+};
+
 /**
  * struct dm_regulator_uclass_platdata - pointed by dev->uclass_platdata, and
  * allocated on each regulator bind. This structure holds an information
@@ -143,6 +148,8 @@ struct dm_regulator_mode {
  * @max_uA*    - maximum amperage (micro Amps)
  * @always_on* - bool type, true or false
  * @boot_on*   - bool type, true or false
+ * TODO(sjg@chromium.org): Consider putting the above two into @flags
+ * @flags:     - flags value (see REGULATOR_FLAG_...)
  * @name**     - fdt regulator name - should be taken from the device tree
  *
  * Note:
@@ -162,6 +169,7 @@ struct dm_regulator_uclass_platdata {
 	bool always_on;
 	bool boot_on;
 	const char *name;
+	int flags;
 };
 
 /* Regulator device operations */
