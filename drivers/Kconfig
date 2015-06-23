@@ -20,6 +20,8 @@ source "drivers/net/Kconfig"
 
 source "drivers/input/Kconfig"
 
+source "drivers/led/Kconfig"
+
 source "drivers/serial/Kconfig"
 
 source "drivers/tpm/Kconfig"

@@ -1,0 +1,17 @@
+config LED
+	bool "Enable LED support"
+	depends on DM
+	help
+	  Many boards have LEDs which can be used to signal status or alerts.
+	  U-Boot provides a uclass API to implement this feature. LED drivers
+	  can provide access to board-specific LEDs. Use of the device tree
+	  for configuration is encouraged.
+
+config SPL_LED_SUPPORT
+	bool "Enable LED support in SPL"
+	depends on LED
+	help
+	  The LED subsystem adds a small amount of overhead to the image.
+	  If this is acceptable and you have a need to use LEDs in SPL,
+	  enable this option. You will need to enable device tree in SPL
+	  for this to work.

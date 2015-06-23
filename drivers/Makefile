@@ -7,6 +7,7 @@ obj-$(CONFIG_CPU) += cpu/
 obj-y += crypto/
 obj-$(CONFIG_FPGA) += fpga/
 obj-y += hwmon/
+obj-$(CONFIG_LED) += led/
 obj-y += misc/
 obj-y += pcmcia/
 obj-y += dfu/
