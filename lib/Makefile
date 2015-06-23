@@ -37,6 +37,7 @@ obj-$(CONFIG_MD5) += md5.o
 obj-y += net_utils.o
 obj-$(CONFIG_PHYSMEM) += physmem.o
 obj-y += qsort.o
+obj-y += rc4.o
 obj-$(CONFIG_SHA1) += sha1.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += sha256.o
 obj-$(CONFIG_SHA256) += sha256.o
