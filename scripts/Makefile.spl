@@ -151,6 +151,8 @@ boot.bin: $(obj)/u-boot-spl.bin
 
 ALL-y	+= $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN).cfg
 
+ALL-$(CONFIG_OF_SEPARATE) += $(obj)/$(SPL_BIN)-pad.bin $(obj)/$(SPL_BIN)-dtb.bin
+
 ifdef CONFIG_SAMSUNG
 ALL-y	+= $(obj)/$(BOARD)-spl.bin
 endif
@@ -164,6 +166,32 @@ ALL-y	+= boot.bin
 endif
 
 all:	$(ALL-y)
+
+quiet_cmd_cat = CAT     $@
+cmd_cat = cat $(filter-out $(PHONY), $^) > $@
+
+$(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN).bin $(obj)/$(SPL_BIN)-pad.bin \
+		$(obj)/$(SPL_BIN).dtb FORCE
+	$(call if_changed,cat)
+
+# Create a file that pads from the end of u-boot-spl.bin to bss_end
+$(obj)/$(SPL_BIN)-pad.bin: $(obj)/$(SPL_BIN)
+	@bss_size_str=$(shell $(NM) $< | awk 'BEGIN {size = 0} /__bss_size/ {size = $$1} END {print "ibase=16; " toupper(size)}' | bc); \
+	dd if=/dev/zero of=$@ bs=1 count=$${bss_size_str} 2>/dev/null;
+
+# Pass the original device tree file through fdtgrep twice. The first pass
+# removes any unwanted nodes (i.e. those which don't have the
+# 'u-boot,dm-pre-reloc' property and thus are not needed by SPL. The second
+# pass removes various unused properties from the remaining nodes.
+# The output is typically a much smaller device tree file.
+quiet_cmd_fdtgrep = FDTGREP $@
+      cmd_fdtgrep = $(objtree)/tools/fdtgrep -b u-boot,dm-pre-reloc -RT $< \
+		-n /chosen -O dtb | \
+	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
+		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))
+
+$(obj)/$(SPL_BIN).dtb: dts/dt.dtb
+	$(call cmd,fdtgrep)
 
 quiet_cmd_cpp_cfg = CFG     $@
 cmd_cpp_cfg = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \

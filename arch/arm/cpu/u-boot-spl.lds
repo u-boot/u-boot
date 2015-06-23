@@ -66,7 +66,7 @@ SECTIONS
 		 . = ALIGN(4);
 		__bss_end = .;
 	}
-
+	__bss_size = __bss_end - __bss_start;
 	.dynsym _image_binary_end : { *(.dynsym) }
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }

@@ -56,4 +56,16 @@ config DEFAULT_DEVICE_TREE
 	  It can be overridden from the command line:
 	  $ make DEVICE_TREE=<device-tree-name>
 
+config OF_SPL_REMOVE_PROPS
+	string "List of device tree properties to drop for SPL"
+	depends on OF_CONTROL && SPL
+	default "pinctrl-0 pinctrl-names clocks clock-names interrupt-parent"
+	help
+	  Since SPL normally runs in a reduced memory space, the device tree
+	  is cut down to only what is needed to load and start U-Boot. Only
+	  nodes marked with the property "u-boot,dm-pre-reloc" will be
+	  included. In addition, some properties are not used by U-Boot and
+	  can be discarded. This option defines the list of properties to
+	  discard.
+
 endmenu
