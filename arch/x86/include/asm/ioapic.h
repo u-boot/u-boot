@@ -15,4 +15,28 @@
 #define IO_APIC_INDEX		(IO_APIC_ADDR + 0x00)
 #define IO_APIC_DATA		(IO_APIC_ADDR + 0x10)
 
+/* Indirect addressed register offset */
+#define IO_APIC_ID		0x00
+#define IO_APIC_VER		0x01
+
+/**
+ * io_apic_read() - Read I/O APIC register
+ *
+ * This routine reads I/O APIC indirect addressed register.
+ *
+ * @reg:	address of indirect addressed register
+ * @return:	register value to read
+ */
+u32 io_apic_read(u32 reg);
+
+/**
+ * io_apic_write() - Write I/O APIC register
+ *
+ * This routine writes I/O APIC indirect addressed register.
+ *
+ * @reg:	address of indirect addressed register
+ * @val:	register value to write
+ */
+void io_apic_write(u32 reg, u32 val);
+
 #endif
