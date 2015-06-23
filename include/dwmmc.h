@@ -129,8 +129,24 @@
 /* quirks */
 #define DWMCI_QUIRK_DISABLE_SMU		(1 << 0)
 
+/**
+ * struct dwmci_host - Information about a designware MMC host
+ *
+ * @name:	Device name
+ * @ioaddr:	Base I/O address of controller
+ * @quirks:	Quick flags - see DWMCI_QUIRK_...
+ * @caps:	Capabilities - see MMC_MODE_...
+ * @bus_hz:	Bus speed in Hz, if @get_mmc_clk() is NULL
+ * @div:	Arbitrary clock divider value for use by controller
+ * @dev_index:	Arbitrary device index for use by controller
+ * @dev_id:	Arbitrary device ID for use by controller
+ * @buswidth:	Bus width in bits (8 or 4)
+ * @fifoth_val:	Value for FIFOTH register (or 0 to leave unset)
+ * @mmc:	Pointer to generic MMC structure for this device
+ * @priv:	Private pointer for use by controller
+ */
 struct dwmci_host {
-	char *name;
+	const char *name;
 	void *ioaddr;
 	unsigned int quirks;
 	unsigned int caps;
