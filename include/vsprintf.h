@@ -41,6 +41,32 @@ unsigned long long simple_strtoull(const char *cp, char **endp,
 long simple_strtol(const char *cp, char **endp, unsigned int base);
 
 /**
+ * trailing_strtol() - extract a trailing integer from a string
+ *
+ * Given a string this finds a trailing number on the string and returns it.
+ * For example, "abc123" would return 123.
+ *
+ * @str:	String to exxamine
+ * @return training number if found, else -1
+ */
+long trailing_strtol(const char *str);
+
+/**
+ * trailing_strtoln() - extract a trailing integer from a fixed-length string
+ *
+ * Given a fixed-length string this finds a trailing number on the string
+ * and returns it. For example, "abc123" would return 123. Only the
+ * characters between @str and @end - 1 are examined. If @end is NULL, it is
+ * set to str + strlen(str).
+ *
+ * @str:	String to exxamine
+ * @end:	Pointer to end of string to examine, or NULL to use the
+ *		whole string
+ * @return training number if found, else -1
+ */
+long trailing_strtoln(const char *str, const char *end);
+
+/**
  * panic() - Print a message and reset/hang
  *
  * Prints a message on the console(s) and then resets. If CONFIG_PANIC_HANG is

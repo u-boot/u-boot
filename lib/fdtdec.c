@@ -505,8 +505,7 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 		const char *prop;
 		const char *name;
 		const char *slash;
-		const char *p;
-		int len;
+		int len, val;
 
 		prop = fdt_getprop_by_offset(blob, prop_offset, &name, &len);
 		debug("   - %s, %s\n", name, prop);
@@ -517,12 +516,11 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 		slash = strrchr(prop, '/');
 		if (strcmp(slash + 1, find_name))
 			continue;
-		for (p = name + strlen(name) - 1; p > name; p--) {
-			if (!isdigit(*p)) {
-				*seqp = simple_strtoul(p + 1, NULL, 10);
-				debug("Found seq %d\n", *seqp);
-				return 0;
-			}
+		val = trailing_strtol(name);
+		if (val != -1) {
+			*seqp = val;
+			debug("Found seq %d\n", *seqp);
+			return 0;
 		}
 	}
 
