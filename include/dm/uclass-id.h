@@ -36,6 +36,7 @@ enum uclass_id {
 	UCLASS_LED,		/* Light-emitting diode (LED) */
 	UCLASS_LPC,		/* x86 'low pin count' interface */
 	UCLASS_MASS_STORAGE,	/* Mass storage device */
+	UCLASS_MMC,		/* SD / MMC card or chip */
 	UCLASS_MOD_EXP,		/* RSA Mod Exp device */
 	UCLASS_PCH,		/* x86 platform controller hub */
 	UCLASS_PCI,		/* PCI bus */

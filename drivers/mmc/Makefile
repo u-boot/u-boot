@@ -5,6 +5,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-$(CONFIG_DM_MMC) += mmc-uclass.o
+
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o
 obj-$(CONFIG_BCM2835_SDHCI) += bcm2835_sdhci.o
 obj-$(CONFIG_BFIN_SDH) += bfin_sdh.o

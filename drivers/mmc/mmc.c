@@ -1761,8 +1761,10 @@ int mmc_initialize(bd_t *bis)
 	INIT_LIST_HEAD (&mmc_devices);
 	cur_dev_num = 0;
 
+#ifndef CONFIG_DM_MMC
 	if (board_mmc_init(bis) < 0)
 		cpu_mmc_init(bis);
+#endif
 
 #ifndef CONFIG_SPL_BUILD
 	print_mmc_devices(',');
