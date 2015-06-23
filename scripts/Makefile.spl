@@ -54,6 +54,7 @@ libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 libs-$(CONFIG_SPL_FRAMEWORK) += common/spl/
 libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/
 libs-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
+libs-$(CONFIG_SPL_CLK_SUPPORT) += drivers/clk/
 libs-$(CONFIG_SPL_DM) += drivers/core/
 libs-$(CONFIG_SPL_I2C_SUPPORT) += drivers/i2c/
 libs-$(CONFIG_SPL_GPIO_SUPPORT) += drivers/gpio/

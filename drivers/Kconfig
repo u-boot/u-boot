@@ -1,5 +1,7 @@
 menu "Device Drivers"
 
+source "drivers/clk/Kconfig"
+
 source "drivers/core/Kconfig"
 
 source "drivers/cpu/Kconfig"
