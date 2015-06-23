@@ -431,4 +431,14 @@ void mp_write_compat_address_space(struct mp_config_table *mc, int busid,
  */
 u32 mptable_finalize(struct mp_config_table *mc);
 
+/**
+ * write_mp_table() - Write MP table
+ *
+ * This writes MP table at a given address.
+ *
+ * @addr:	start address to write MP table
+ * @return:	end address of MP table
+ */
+u32 write_mp_table(u32 addr);
+
 #endif /* __ASM_MPSPEC_H */

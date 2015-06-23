@@ -9,12 +9,17 @@
 #include <common.h>
 #include <cpu.h>
 #include <dm.h>
+#include <errno.h>
+#include <fdtdec.h>
 #include <asm/cpu.h>
+#include <asm/irq.h>
 #include <asm/ioapic.h>
 #include <asm/lapic.h>
 #include <asm/mpspec.h>
 #include <asm/tables.h>
 #include <dm/uclass-internal.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 struct mp_config_table *mp_write_floating_table(struct mp_floating_table *mf)
 {
@@ -220,6 +225,158 @@ u32 mptable_finalize(struct mp_config_table *mc)
 	end = mp_next_mpe_entry(mc);
 
 	debug("Write the MP table at: %x - %x\n", (u32)mc, end);
+
+	return end;
+}
+
+static void mptable_add_isa_interrupts(struct mp_config_table *mc, int bus_isa,
+				       int apicid, int external_int2)
+{
+	int i;
+
+	mp_write_intsrc(mc, external_int2 ? MP_INT : MP_EXTINT,
+			MP_IRQ_TRIGGER_EDGE | MP_IRQ_POLARITY_HIGH,
+			bus_isa, 0, apicid, 0);
+	mp_write_intsrc(mc, MP_INT, MP_IRQ_TRIGGER_EDGE | MP_IRQ_POLARITY_HIGH,
+			bus_isa, 1, apicid, 1);
+	mp_write_intsrc(mc, external_int2 ? MP_EXTINT : MP_INT,
+			MP_IRQ_TRIGGER_EDGE | MP_IRQ_POLARITY_HIGH,
+			bus_isa, 0, apicid, 2);
+
+	for (i = 3; i < 16; i++)
+		mp_write_intsrc(mc, MP_INT,
+				MP_IRQ_TRIGGER_EDGE | MP_IRQ_POLARITY_HIGH,
+				bus_isa, i, apicid, i);
+}
+
+/*
+ * Check duplicated I/O interrupt assignment table entry, to make sure
+ * there is only one entry with the given bus, device and interrupt pin.
+ */
+static bool check_dup_entry(struct mpc_config_intsrc *intsrc_base,
+			    int entry_num, int bus, int device, int pin)
+{
+	struct mpc_config_intsrc *intsrc = intsrc_base;
+	int i;
+
+	for (i = 0; i < entry_num; i++) {
+		if (intsrc->mpc_srcbus == bus &&
+		    intsrc->mpc_srcbusirq == ((device << 2) | (pin - 1)))
+			break;
+		intsrc++;
+	}
+
+	return (i == entry_num) ? false : true;
+}
+
+static int mptable_add_intsrc(struct mp_config_table *mc,
+			      int bus_isa, int apicid)
+{
+	struct mpc_config_intsrc *intsrc_base;
+	int intsrc_entries = 0;
+	const void *blob = gd->fdt_blob;
+	int node;
+	int len, count;
+	const u32 *cell;
+	int i;
+
+	/* Legacy Interrupts */
+	debug("Writing ISA IRQs\n");
+	mptable_add_isa_interrupts(mc, bus_isa, apicid, 0);
+
+	/* Get I/O interrupt information from device tree */
+	node = fdtdec_next_compatible(blob, 0, COMPAT_INTEL_IRQ_ROUTER);
+	if (node < 0) {
+		debug("%s: Cannot find irq router node\n", __func__);
+		return -ENOENT;
+	}
+
+	cell = fdt_getprop(blob, node, "intel,pirq-routing", &len);
+	if (!cell)
+		return -ENOENT;
+
+	if ((len % sizeof(struct pirq_routing)) == 0)
+		count = len / sizeof(struct pirq_routing);
+	else
+		return -EINVAL;
+
+	intsrc_base = (struct mpc_config_intsrc *)mp_next_mpc_entry(mc);
+
+	for (i = 0; i < count; i++) {
+		struct pirq_routing pr;
+
+		pr.bdf = fdt_addr_to_cpu(cell[0]);
+		pr.pin = fdt_addr_to_cpu(cell[1]);
+		pr.pirq = fdt_addr_to_cpu(cell[2]);
+
+		if (check_dup_entry(intsrc_base, intsrc_entries,
+				    PCI_BUS(pr.bdf), PCI_DEV(pr.bdf), pr.pin)) {
+			debug("found entry for bus %d device %d INT%c, skipping\n",
+			      PCI_BUS(pr.bdf), PCI_DEV(pr.bdf),
+			      'A' + pr.pin - 1);
+			cell += sizeof(struct pirq_routing) / sizeof(u32);
+			continue;
+		}
+
+		/* PIRQ[A-H] are always connected to I/O APIC INTPIN#16-23 */
+		mp_write_pci_intsrc(mc, MP_INT, PCI_BUS(pr.bdf),
+				    PCI_DEV(pr.bdf), pr.pin, apicid,
+				    pr.pirq + 16);
+		intsrc_entries++;
+		cell += sizeof(struct pirq_routing) / sizeof(u32);
+	}
+
+	return 0;
+}
+
+static void mptable_add_lintsrc(struct mp_config_table *mc, int bus_isa)
+{
+	mp_write_lintsrc(mc, MP_EXTINT,
+			 MP_IRQ_TRIGGER_EDGE | MP_IRQ_POLARITY_HIGH,
+			 bus_isa, 0, MP_APIC_ALL, 0);
+	mp_write_lintsrc(mc, MP_NMI,
+			 MP_IRQ_TRIGGER_EDGE | MP_IRQ_POLARITY_HIGH,
+			 bus_isa, 0, MP_APIC_ALL, 1);
+}
+
+u32 write_mp_table(u32 addr)
+{
+	struct mp_config_table *mc;
+	int ioapic_id, ioapic_ver;
+	int bus_isa = 0xff;
+	int ret;
+	u32 end;
+
+	/* 16 byte align the table address */
+	addr = ALIGN(addr, 16);
+
+	/* Write floating table */
+	mc = mp_write_floating_table((struct mp_floating_table *)addr);
+
+	/* Write configuration table header */
+	mp_config_table_init(mc);
+
+	/* Write processor entry */
+	mp_write_processor(mc);
+
+	/* Write bus entry */
+	mp_write_bus(mc, bus_isa, BUSTYPE_ISA);
+
+	/* Write I/O APIC entry */
+	ioapic_id = io_apic_read(IO_APIC_ID) >> 24;
+	ioapic_ver = io_apic_read(IO_APIC_VER) & 0xff;
+	mp_write_ioapic(mc, ioapic_id, ioapic_ver, IO_APIC_ADDR);
+
+	/* Write I/O interrupt assignment entry */
+	ret = mptable_add_intsrc(mc, bus_isa, ioapic_id);
+	if (ret)
+		debug("Failed to write I/O interrupt assignment table\n");
+
+	/* Write local interrupt assignment entry */
+	mptable_add_lintsrc(mc, bus_isa);
+
+	/* Finalize the MP table */
+	end = mptable_finalize(mc);
 
 	return end;
 }

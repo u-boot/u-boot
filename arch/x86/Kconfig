@@ -313,6 +313,15 @@ config GENERATE_SFI_TABLE
 
 	  For more information, see http://simplefirmware.org
 
+config GENERATE_MP_TABLE
+	bool "Generate an MP (Multi-Processor) table"
+	default n
+	help
+	  Generate an MP (Multi-Processor) table for this board. The MP table
+	  provides a way for the operating system to support for symmetric
+	  multiprocessing as well as symmetric I/O interrupt handling with
+	  the local APIC and I/O APIC.
+
 endmenu
 
 config MAX_PIRQ_LINKS
