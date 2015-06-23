@@ -7,6 +7,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <dm.h>
 #include <spl.h>
 #include <linux/compiler.h>
 #include <asm/u-boot.h>
@@ -101,9 +102,18 @@ void spl_mmc_load_image(void)
 {
 	struct mmc *mmc;
 	u32 boot_mode;
-	int err;
+	int err = 0;
 	__maybe_unused int part;
 
+#ifdef CONFIG_DM_MMC
+	struct udevice *dev;
+
+	mmc_initialize(NULL);
+	err = uclass_get_device(UCLASS_MMC, 0, &dev);
+	mmc = NULL;
+	if (!err)
+		mmc = mmc_get_mmc_dev(dev);
+#else
 	mmc_initialize(gd->bd);
 
 	/* We register only one device. So, the dev id is always 0 */
@@ -114,8 +124,11 @@ void spl_mmc_load_image(void)
 #endif
 		hang();
 	}
+#endif
 
-	err = mmc_init(mmc);
+	if (!err)
+		err = mmc_init(mmc);
+
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("spl: mmc init failed with error: %d\n", err);
