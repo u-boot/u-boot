@@ -307,6 +307,7 @@
 		devcfg: devcfg@f8007000 {
 			compatible = "xlnx,zynq-devcfg-1.0";
 			reg = <0xf8007000 0x100>;
+			syscon = <&slcr>;
 		};
 
 		global_timer: timer@f8f00200 {
