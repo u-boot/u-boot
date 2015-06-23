@@ -386,7 +386,7 @@ int device_find_child_by_of_offset(struct udevice *parent, int of_offset,
  * @devp: Returns pointer to device if found, otherwise this is set to NULL
  * @return 0 if OK, -ve on error
  */
-int device_get_child_by_of_offset(struct udevice *parent, int seq,
+int device_get_child_by_of_offset(struct udevice *parent, int of_offset,
 				  struct udevice **devp);
 
 /**

@@ -459,14 +459,14 @@ int device_find_child_by_of_offset(struct udevice *parent, int of_offset,
 	return -ENODEV;
 }
 
-int device_get_child_by_of_offset(struct udevice *parent, int seq,
+int device_get_child_by_of_offset(struct udevice *parent, int node,
 				  struct udevice **devp)
 {
 	struct udevice *dev;
 	int ret;
 
 	*devp = NULL;
-	ret = device_find_child_by_of_offset(parent, seq, &dev);
+	ret = device_find_child_by_of_offset(parent, node, &dev);
 	return device_get_device_tail(dev, ret, devp);
 }
 
