@@ -161,7 +161,7 @@ static int create_pirq_routing_table(void)
 	/* Populate the PIRQ table fields */
 	rt->signature = PIRQ_SIGNATURE;
 	rt->version = PIRQ_VERSION;
-	rt->rtr_bus = 0;
+	rt->rtr_bus = PCI_BUS(irq_router.bdf);
 	rt->rtr_devfn = (PCI_DEV(irq_router.bdf) << 3) |
 			PCI_FUNC(irq_router.bdf);
 	rt->rtr_vendor = PCI_VENDOR_ID_INTEL;
