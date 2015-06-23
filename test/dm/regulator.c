@@ -210,7 +210,7 @@ static int dm_test_power_regulator_autoset(struct unit_test_state *uts)
 	 * Expected output state: uV=1200000; uA=200000; output enabled
 	 */
 	platname = regulator_names[BUCK1][PLATNAME];
-	ut_assertok(regulator_autoset(platname, &dev_autoset, false));
+	ut_assertok(regulator_autoset_by_name(platname, &dev_autoset));
 
 	/* Check, that the returned device is proper */
 	ut_assertok(regulator_get_by_platname(platname, &dev));

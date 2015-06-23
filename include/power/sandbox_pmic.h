@@ -117,11 +117,11 @@ enum {
 
 /*
  * Expected regulators setup after call of:
- * - regulator_autoset()
+ * - regulator_autoset_by_name()
  * - regulator_list_autoset()
  */
 
-/* BUCK1: for testing regulator_autoset() */
+/* BUCK1: for testing regulator_autoset_by_name() */
 #define SANDBOX_BUCK1_AUTOSET_EXPECTED_UV	1200000
 #define SANDBOX_BUCK1_AUTOSET_EXPECTED_UA	200000
 #define SANDBOX_BUCK1_AUTOSET_EXPECTED_ENABLE	true
