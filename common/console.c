@@ -456,6 +456,7 @@ static inline void print_pre_console_buffer(int flushpoint) {}
 void putc(const char c)
 {
 #ifdef CONFIG_SANDBOX
+	/* sandbox can send characters to stdout before it has a console */
 	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
 		os_putc(c);
 		return;
@@ -539,11 +540,6 @@ int printf(const char *fmt, ...)
 	va_list args;
 	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
-
-#if !defined(CONFIG_SANDBOX) && !defined(CONFIG_PRE_CONSOLE_BUFFER)
-	if (!gd->have_console)
-		return 0;
-#endif
 
 	va_start(args, fmt);
 
