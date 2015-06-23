@@ -16,20 +16,12 @@
 #ifndef __LINUX_MTD_NAND_H
 #define __LINUX_MTD_NAND_H
 
-#ifndef __UBOOT__
-#include <linux/wait.h>
-#include <linux/spinlock.h>
-#include <linux/mtd/mtd.h>
-#include <linux/mtd/flashchip.h>
-#include <linux/mtd/bbm.h>
-#else
 #include "config.h"
 
 #include "linux/compat.h"
 #include "linux/mtd/mtd.h"
 #include "linux/mtd/flashchip.h"
 #include "linux/mtd/bbm.h"
-#endif
 
 struct mtd_info;
 struct nand_flash_dev;
@@ -49,16 +41,6 @@ extern void nand_release(struct mtd_info *mtd);
 /* Internal helper for board drivers which need to override command function */
 extern void nand_wait_ready(struct mtd_info *mtd);
 
-#ifndef __UBOOT__
-/* locks all blocks present in the device */
-extern int nand_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
-
-/* unlocks specified locked blocks */
-extern int nand_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
-
-/* The maximum number of NAND chips in an array */
-#define NAND_MAX_CHIPS		8
-#else
 /*
  * This constant declares the max. oobsize / page, which
  * is supported now. If you add a chip with bigger oobsize/page
@@ -66,7 +48,6 @@ extern int nand_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
  */
 #define NAND_MAX_OOBSIZE       744
 #define NAND_MAX_PAGESIZE      8192
-#endif
 
 /*
  * Constants for hardware specific CLE/ALE/NCE function
@@ -473,9 +454,6 @@ struct nand_jedec_params {
 struct nand_hw_control {
 	spinlock_t lock;
 	struct nand_chip *active;
-#ifndef __UBOOT__
-	wait_queue_head_t wq;
-#endif
 };
 
 /**
@@ -557,16 +535,10 @@ struct nand_ecc_ctrl {
  * consecutive order.
  */
 struct nand_buffers {
-#ifndef __UBOOT__
-	uint8_t *ecccalc;
-	uint8_t *ecccode;
-	uint8_t *databuf;
-#else
 	uint8_t	ecccalc[ALIGN(NAND_MAX_OOBSIZE, ARCH_DMA_MINALIGN)];
 	uint8_t	ecccode[ALIGN(NAND_MAX_OOBSIZE, ARCH_DMA_MINALIGN)];
 	uint8_t databuf[ALIGN(NAND_MAX_PAGESIZE + NAND_MAX_OOBSIZE,
 			      ARCH_DMA_MINALIGN)];
-#endif
 };
 
 /**
@@ -734,9 +706,7 @@ struct nand_chip {
 
 	uint8_t *oob_poi;
 	struct nand_hw_control *controller;
-#ifdef __UBOOT__
 	struct nand_ecclayout *ecclayout;
-#endif
 
 	struct nand_ecc_ctrl ecc;
 	struct nand_buffers *buffers;
@@ -866,13 +836,11 @@ extern int nand_erase_nand(struct mtd_info *mtd, struct erase_info *instr,
 extern int nand_do_read(struct mtd_info *mtd, loff_t from, size_t len,
 			size_t *retlen, uint8_t *buf);
 
-#ifdef __UBOOT__
 /*
 * Constants for oob configuration
 */
 #define NAND_SMALL_BADBLOCK_POS		5
 #define NAND_LARGE_BADBLOCK_POS		0
-#endif
 
 /**
  * struct platform_nand_chip - chip level device structure
@@ -1008,12 +976,10 @@ static inline int jedec_feature(struct nand_chip *chip)
 		: 0;
 }
 
-#ifdef __UBOOT__
 /* Standard NAND functions from nand_base.c */
 void nand_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len);
 void nand_write_buf16(struct mtd_info *mtd, const uint8_t *buf, int len);
 void nand_read_buf(struct mtd_info *mtd, uint8_t *buf, int len);
 void nand_read_buf16(struct mtd_info *mtd, uint8_t *buf, int len);
 uint8_t nand_read_byte(struct mtd_info *mtd);
-#endif
 #endif /* __LINUX_MTD_NAND_H */

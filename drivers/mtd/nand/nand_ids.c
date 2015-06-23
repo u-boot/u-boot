@@ -8,13 +8,8 @@
  * published by the Free Software Foundation.
  *
  */
-#ifndef __UBOOT__
-#include <linux/module.h>
-#include <linux/mtd/nand.h>
-#else
 #include <common.h>
 #include <linux/mtd/nand.h>
-#endif
 #include <linux/sizes.h>
 
 #define LP_OPTIONS NAND_SAMSUNG_LP_OPTIONS

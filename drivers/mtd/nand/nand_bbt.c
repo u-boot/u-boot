@@ -59,30 +59,15 @@
  *
  */
 
-#ifndef __UBOOT__
-#include <linux/slab.h>
-#include <linux/types.h>
+#include <common.h>
+#include <malloc.h>
+#include <linux/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/bbm.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/nand_ecc.h>
 #include <linux/bitops.h>
-#include <linux/delay.h>
-#include <linux/vmalloc.h>
-#include <linux/export.h>
 #include <linux/string.h>
-#else
-#include <common.h>
-#include <malloc.h>
-#include <linux/compat.h>
-
- #include <linux/mtd/mtd.h>
- #include <linux/mtd/bbm.h>
- #include <linux/mtd/nand.h>
- #include <linux/mtd/nand_ecc.h>
- #include <linux/bitops.h>
- #include <linux/string.h>
-#endif
 
 #define BBT_BLOCK_GOOD		0x00
 #define BBT_BLOCK_WORN		0x01
@@ -541,11 +526,7 @@ static int search_bbt(struct mtd_info *mtd, uint8_t *buf, struct nand_bbt_descr 
 {
 	struct nand_chip *this = mtd->priv;
 	int i, chips;
-#ifndef __UBOOT__
-	int bits, startblock, block, dir;
-#else
 	int startblock, block, dir;
-#endif
 	int scanlen = mtd->writesize + mtd->oobsize;
 	int bbtblocks;
 	int blocktopage = this->bbt_erase_shift - this->page_shift;
@@ -568,11 +549,6 @@ static int search_bbt(struct mtd_info *mtd, uint8_t *buf, struct nand_bbt_descr 
 		chips = 1;
 		bbtblocks = mtd->size >> this->bbt_erase_shift;
 	}
-
-#ifndef __UBOOT__
-	/* Number of bits for each erase block in the bbt */
-	bits = td->options & NAND_BBT_NRBITS_MSK;
-#endif
 
 	for (i = 0; i < chips; i++) {
 		/* Reset version information */
