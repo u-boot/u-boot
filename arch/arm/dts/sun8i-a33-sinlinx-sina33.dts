@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Chen-Yu Tsai
+ * Copyright 2015 Chen-Yu Tsai
  *
  * Chen-Yu Tsai <wens@csie.org>
  *
@@ -42,56 +42,88 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sun8i-a23-a33.dtsi"
+/dts-v1/;
+#include "sun8i-a33.dtsi"
+#include "sunxi-common-regulators.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/pinctrl/sun4i-a10.h>
 
 / {
-	cpus {
-		cpu@2 {
-			compatible = "arm,cortex-a7";
-			device_type = "cpu";
-			reg = <2>;
-		};
+	model = "Sinlinx SinA33";
+	compatible = "sinlinx,sina33", "allwinner,sun8i-a33";
 
-		cpu@3 {
-			compatible = "arm,cortex-a7";
-			device_type = "cpu";
-			reg = <3>;
-		};
+	aliases {
+		serial0 = &uart0;
 	};
 
-	memory {
-		reg = <0x40000000 0x80000000>;
-	};
-
-	clocks {
-		/* Dummy clock for pll11 (DDR1) until actually implemented */
-		pll11: pll11_clk {
-			#clock-cells = <0>;
-			compatible = "fixed-clock";
-			clock-frequency = <0>;
-			clock-output-names = "pll11";
-		};
-
-		mbus_clk: clk@01c2015c {
-			#clock-cells = <0>;
-			compatible = "allwinner,sun8i-a23-mbus-clk";
-			reg = <0x01c2015c 0x4>;
-			clocks = <&osc24M>, <&pll6 1>, <&pll5>, <&pll11>;
-			clock-output-names = "mbus";
-		};
+	chosen {
+		stdout-path = "serial0:115200n8";
 	};
 };
 
-&pio {
-	compatible = "allwinner,sun8i-a33-pinctrl";
-	interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>,
-		     <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>;
+&lradc {
+	vref-supply = <&reg_vcc3v0>;
+	status = "okay";
 
-	uart0_pins_b: uart0@1 {
-		allwinner,pins = "PB0", "PB1";
-		allwinner,function = "uart0";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	button@200 {
+		label = "Volume Up";
+		linux,code = <KEY_VOLUMEUP>;
+		channel = <0>;
+		voltage = <191011>;
 	};
 
+	button@400 {
+		label = "Volume Down";
+		linux,code = <KEY_VOLUMEDOWN>;
+		channel = <0>;
+		voltage = <391304>;
+	};
+
+	button@600 {
+		label = "Home";
+		linux,code = <KEY_HOME>;
+		channel = <0>;
+		voltage = <600000>;
+	};
+};
+
+&mmc0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_sina33>;
+	vmmc-supply = <&reg_vcc3v0>;
+	bus-width = <4>;
+	cd-gpios = <&pio 1 4 GPIO_ACTIVE_HIGH>; /* PB4 */
+	cd-inverted;
+	status = "okay";
+};
+
+&mmc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc2_8bit_pins>;
+	vmmc-supply = <&reg_vcc3v0>;
+	bus-width = <8>;
+	non-removable;
+	status = "okay";
+};
+
+&mmc2_8bit_pins {
+	/* eMMC is missing pull-ups */
+	allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+};
+
+&pio {
+	mmc0_cd_pin_sina33: mmc0_cd_pin@0 {
+		allwinner,pins = "PB4";
+		allwinner,function = "gpio_in";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+	};
+};
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins_b>;
+	status = "okay";
 };
