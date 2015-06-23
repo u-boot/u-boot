@@ -148,18 +148,12 @@ static void spl_ram_load_image(void)
 }
 #endif
 
-void board_init_r(gd_t *dummy1, ulong dummy2)
+int spl_init(void)
 {
-	u32 boot_device;
 	int ret;
 
-	debug(">>spl:board_init_r()\n");
-
-#if defined(CONFIG_SYS_SPL_MALLOC_START)
-	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
-			CONFIG_SYS_SPL_MALLOC_SIZE);
-	gd->flags |= GD_FLG_FULL_MALLOC_INIT;
-#elif defined(CONFIG_SYS_MALLOC_F_LEN)
+	debug("spl_init()\n");
+#if defined(CONFIG_SYS_MALLOC_F_LEN)
 	gd->malloc_limit = CONFIG_SYS_MALLOC_F_LEN;
 	gd->malloc_ptr = 0;
 #endif
@@ -168,17 +162,36 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		ret = fdtdec_setup();
 		if (ret) {
 			debug("fdtdec_setup() returned error %d\n", ret);
-			hang();
+			return ret;
 		}
 	}
 	if (IS_ENABLED(CONFIG_SPL_DM)) {
 		ret = dm_init_and_scan(true);
 		if (ret) {
 			debug("dm_init_and_scan() returned error %d\n", ret);
-			hang();
+			return ret;
 		}
 	}
+	gd->flags |= GD_FLG_SPL_INIT;
 
+	return 0;
+}
+
+void board_init_r(gd_t *dummy1, ulong dummy2)
+{
+	u32 boot_device;
+
+	debug(">>spl:board_init_r()\n");
+
+#if defined(CONFIG_SYS_SPL_MALLOC_START)
+	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
+			CONFIG_SYS_SPL_MALLOC_SIZE);
+	gd->flags |= GD_FLG_FULL_MALLOC_INIT;
+#endif
+	if (!(gd->flags & GD_FLG_SPL_INIT)) {
+		if (spl_init())
+			hang();
+	}
 #ifndef CONFIG_PPC
 	/*
 	 * timer_init() does not exist on PPC systems. The timer is initialized

@@ -81,6 +81,18 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image);
 int spl_load_image_ext(block_dev_desc_t *block_dev, int partition, const char *filename);
 int spl_load_image_ext_os(block_dev_desc_t *block_dev, int partition);
 
+/**
+ * spl_init() - Set up device tree and driver model in SPL if enabled
+ *
+ * Call this function in board_init_f() if you want to use device tree and
+ * driver model early, before board_init_r() is called. This function will
+ * be called from board_init_r() if not called earlier.
+ *
+ * If this is not called, then driver model will be inactive in SPL's
+ * board_init_f(), and no device tree will be available.
+ */
+int spl_init(void);
+
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void);
 #endif
