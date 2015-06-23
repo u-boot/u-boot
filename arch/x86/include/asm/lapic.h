@@ -9,11 +9,6 @@
 #ifndef _ARCH_ASM_LAPIC_H
 #define _ARCH_ASM_LAPIC_H
 
-#include <asm/io.h>
-#include <asm/msr.h>
-#include <asm/msr-index.h>
-#include <asm/processor.h>
-
 #define LAPIC_DEFAULT_BASE		0xfee00000
 
 #define LAPIC_ID			0x020
@@ -66,126 +61,17 @@
 #define LAPIC_DELIVERY_MODE_NMI		(4 << 8)
 #define LAPIC_DELIVERY_MODE_EXTINT	(7 << 8)
 
-static inline __attribute__((always_inline))
-		unsigned long lapic_read(unsigned long reg)
-{
-	return readl(LAPIC_DEFAULT_BASE + reg);
-}
+unsigned long lapic_read(unsigned long reg);
 
-static inline __attribute__((always_inline))
-		void lapic_write(unsigned long reg, unsigned long val)
-{
-	writel(val, LAPIC_DEFAULT_BASE + reg);
-}
+void lapic_write(unsigned long reg, unsigned long v);
 
-static inline __attribute__((always_inline)) void lapic_wait_icr_idle(void)
-{
-	do { } while (lapic_read(LAPIC_ICR) & LAPIC_ICR_BUSY);
-}
+void enable_lapic(void);
 
-static inline void enable_lapic(void)
-{
-	msr_t msr;
+void disable_lapic(void);
 
-	msr = msr_read(MSR_IA32_APICBASE);
-	msr.hi &= 0xffffff00;
-	msr.lo |= MSR_IA32_APICBASE_ENABLE;
-	msr.lo &= ~MSR_IA32_APICBASE_BASE;
-	msr.lo |= LAPIC_DEFAULT_BASE;
-	msr_write(MSR_IA32_APICBASE, msr);
-}
+unsigned long lapicid(void);
 
-static inline void disable_lapic(void)
-{
-	msr_t msr;
-
-	msr = msr_read(MSR_IA32_APICBASE);
-	msr.lo &= ~MSR_IA32_APICBASE_ENABLE;
-	msr_write(MSR_IA32_APICBASE, msr);
-}
-
-static inline __attribute__((always_inline)) unsigned long lapicid(void)
-{
-	return lapic_read(LAPIC_ID) >> 24;
-}
-
-static inline __attribute__((always_inline)) void stop_this_cpu(void)
-{
-	/* Called by an AP when it is ready to halt and wait for a new task */
-	for (;;)
-		cpu_hlt();
-}
-
-#define xchg(ptr, v)	((__typeof__(*(ptr)))__xchg((unsigned long)(v), (ptr), \
-						    sizeof(*(ptr))))
-
-struct __xchg_dummy	{ unsigned long a[100]; };
-#define __xg(x)		((struct __xchg_dummy *)(x))
-
-/*
- * Note: no "lock" prefix even on SMP. xchg always implies lock anyway.
- *
- * Note 2: xchg has side effect, so that attribute volatile is necessary,
- *         but generally the primitive is invalid, *ptr is output argument.
- */
-static inline unsigned long __xchg(unsigned long x, volatile void *ptr,
-				   int size)
-{
-	switch (size) {
-	case 1:
-		__asm__ __volatile__("xchgb %b0,%1"
-			: "=q" (x)
-			: "m" (*__xg(ptr)), "0" (x)
-			: "memory");
-		break;
-	case 2:
-		__asm__ __volatile__("xchgw %w0,%1"
-			: "=r" (x)
-			: "m" (*__xg(ptr)), "0" (x)
-			: "memory");
-		break;
-	case 4:
-		__asm__ __volatile__("xchgl %0,%1"
-			: "=r" (x)
-			: "m" (*__xg(ptr)), "0" (x)
-			: "memory");
-		break;
-	}
-
-	return x;
-}
-
-static inline void lapic_write_atomic(unsigned long reg, unsigned long v)
-{
-	(void)xchg((volatile unsigned long *)(LAPIC_DEFAULT_BASE + reg), v);
-}
-
-#define lapic_read_around(x)		lapic_read(x)
-#define lapic_write_around(x, y)	lapic_write_atomic((x), (y))
-
-static inline int lapic_remote_read(int apicid, int reg, unsigned long *pvalue)
-{
-	int timeout;
-	unsigned long status;
-	int result;
-
-	lapic_wait_icr_idle();
-	lapic_write_around(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(apicid));
-	lapic_write_around(LAPIC_ICR, LAPIC_DM_REMRD | (reg >> 4));
-
-	timeout = 0;
-	do {
-		status = lapic_read(LAPIC_ICR) & LAPIC_ICR_RR_MASK;
-	} while (status == LAPIC_ICR_RR_INPROG && timeout++ < 1000);
-
-	result = -1;
-	if (status == LAPIC_ICR_RR_VALID) {
-		*pvalue = lapic_read(LAPIC_RRR);
-		result = 0;
-	}
-
-	return result;
-}
+int lapic_remote_read(int apicid, int reg, unsigned long *pvalue);
 
 void lapic_setup(void);
 

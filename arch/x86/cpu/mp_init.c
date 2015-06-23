@@ -16,7 +16,9 @@
 #include <asm/interrupt.h>
 #include <asm/lapic.h>
 #include <asm/mp.h>
+#include <asm/msr.h>
 #include <asm/mtrr.h>
+#include <asm/processor.h>
 #include <asm/sipi.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
@@ -57,6 +59,13 @@ static inline void release_barrier(atomic_t *b)
 {
 	mfence();
 	atomic_set(b, 1);
+}
+
+static inline void stop_this_cpu(void)
+{
+	/* Called by an AP when it is ready to halt and wait for a new task */
+	for (;;)
+		cpu_hlt();
 }
 
 /* Returns 1 if timeout waiting for APs. 0 if target APs found */
@@ -317,9 +326,9 @@ static int start_aps(int ap_count, atomic_t *num_aps)
 	}
 
 	/* Send INIT IPI to all but self */
-	lapic_write_around(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
-	lapic_write_around(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
-			   LAPIC_DM_INIT);
+	lapic_write(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
+	lapic_write(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
+		    LAPIC_DM_INIT);
 	debug("Waiting for 10ms after sending INIT.\n");
 	mdelay(10);
 
@@ -334,9 +343,9 @@ static int start_aps(int ap_count, atomic_t *num_aps)
 		}
 	}
 
-	lapic_write_around(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
-	lapic_write_around(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
-			   LAPIC_DM_STARTUP | sipi_vector);
+	lapic_write(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
+	lapic_write(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
+		    LAPIC_DM_STARTUP | sipi_vector);
 	debug("Waiting for 1st SIPI to complete...");
 	if (apic_wait_timeout(10000, 50)) {
 		debug("timed out.\n");
@@ -359,9 +368,9 @@ static int start_aps(int ap_count, atomic_t *num_aps)
 		}
 	}
 
-	lapic_write_around(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
-	lapic_write_around(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
-			   LAPIC_DM_STARTUP | sipi_vector);
+	lapic_write(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
+	lapic_write(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
+		    LAPIC_DM_STARTUP | sipi_vector);
 	debug("Waiting for 2nd SIPI to complete...");
 	if (apic_wait_timeout(10000, 50)) {
 		debug("timed out.\n");
