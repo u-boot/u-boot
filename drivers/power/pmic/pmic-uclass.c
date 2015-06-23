@@ -55,7 +55,7 @@ int pmic_bind_children(struct udevice *pmic, int offset,
 		child = NULL;
 		for (info = child_info; info->prefix && info->driver; info++) {
 			prefix_len = strlen(info->prefix);
-			if (strncasecmp(info->prefix, node_name, prefix_len))
+			if (strncmp(info->prefix, node_name, prefix_len))
 				continue;
 
 			debug("  - compatible prefix: '%s'\n", info->prefix);
