@@ -180,29 +180,29 @@
 				 * Note on the Crown Bay board, Topcliff chipset
 				 * is connected to TunnelCreek PCIe port 0, so
 				 * its bus number is 1 for its PCIe port and 2
-				 * for its PCI devices per U-Boot currnet PCI
+				 * for its PCI devices per U-Boot current PCI
 				 * bus enumeration algorithm.
 				 */
 				PCI_BDF(1, 0, 0) INTA PIRQA
 				PCI_BDF(2, 0, 1) INTA PIRQA
 				PCI_BDF(2, 0, 2) INTA PIRQA
-				PCI_BDF(2, 2, 0) INTB PIRQB
-				PCI_BDF(2, 2, 1) INTB PIRQB
-				PCI_BDF(2, 2, 2) INTB PIRQB
-				PCI_BDF(2, 2, 3) INTB PIRQB
-				PCI_BDF(2, 2, 4) INTB PIRQB
+				PCI_BDF(2, 2, 0) INTB PIRQD
+				PCI_BDF(2, 2, 1) INTB PIRQD
+				PCI_BDF(2, 2, 2) INTB PIRQD
+				PCI_BDF(2, 2, 3) INTB PIRQD
+				PCI_BDF(2, 2, 4) INTB PIRQD
 				PCI_BDF(2, 4, 0) INTC PIRQC
 				PCI_BDF(2, 4, 1) INTC PIRQC
-				PCI_BDF(2, 6, 0) INTD PIRQD
+				PCI_BDF(2, 6, 0) INTD PIRQB
 				PCI_BDF(2, 8, 0) INTA PIRQA
 				PCI_BDF(2, 8, 1) INTA PIRQA
 				PCI_BDF(2, 8, 2) INTA PIRQA
 				PCI_BDF(2, 8, 3) INTA PIRQA
-				PCI_BDF(2, 10, 0) INTB PIRQB
-				PCI_BDF(2, 10, 1) INTB PIRQB
-				PCI_BDF(2, 10, 2) INTB PIRQB
-				PCI_BDF(2, 10, 3) INTB PIRQB
-				PCI_BDF(2, 10, 4) INTB PIRQB
+				PCI_BDF(2, 10, 0) INTB PIRQD
+				PCI_BDF(2, 10, 1) INTB PIRQD
+				PCI_BDF(2, 10, 2) INTB PIRQD
+				PCI_BDF(2, 10, 3) INTB PIRQD
+				PCI_BDF(2, 10, 4) INTB PIRQD
 				PCI_BDF(2, 12, 0) INTC PIRQC
 				PCI_BDF(2, 12, 1) INTC PIRQC
 				PCI_BDF(2, 12, 2) INTC PIRQC
