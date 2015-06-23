@@ -9,6 +9,7 @@
 #include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>
+#include <vsprintf.h>
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
@@ -16,16 +17,6 @@
 #include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static ulong str_get_num(const char *ptr, const char *maxptr)
-{
-	if (!ptr || !maxptr)
-		return 0;
-
-	while (!isdigit(*ptr) && ptr++ < maxptr);
-
-	return simple_strtoul(ptr, NULL, 0);
-}
 
 int pmic_bind_children(struct udevice *pmic, int offset,
 		       const struct pmic_child_info *child_info)
@@ -35,7 +26,6 @@ int pmic_bind_children(struct udevice *pmic, int offset,
 	struct driver *drv;
 	struct udevice *child;
 	const char *node_name;
-	int node_name_len;
 	int bind_count = 0;
 	int node;
 	int prefix_len;
@@ -47,18 +37,18 @@ int pmic_bind_children(struct udevice *pmic, int offset,
 	for (node = fdt_first_subnode(blob, offset);
 	     node > 0;
 	     node = fdt_next_subnode(blob, node)) {
-		node_name = fdt_get_name(blob, node, &node_name_len);
+		node_name = fdt_get_name(blob, node, NULL);
 
 		debug("* Found child node: '%s' at offset:%d\n", node_name,
 								 node);
 
 		child = NULL;
 		for (info = child_info; info->prefix && info->driver; info++) {
+			debug("  - compatible prefix: '%s'\n", info->prefix);
+
 			prefix_len = strlen(info->prefix);
 			if (strncmp(info->prefix, node_name, prefix_len))
 				continue;
-
-			debug("  - compatible prefix: '%s'\n", info->prefix);
 
 			drv = lists_driver_lookup_name(info->driver);
 			if (!drv) {
@@ -78,10 +68,7 @@ int pmic_bind_children(struct udevice *pmic, int offset,
 
 			debug("  - bound child device: '%s'\n", child->name);
 
-			child->driver_data = str_get_num(node_name +
-							 prefix_len,
-							 node_name +
-							 node_name_len);
+			child->driver_data = trailing_strtol(node_name);
 
 			debug("  - set 'child->driver_data': %lu\n",
 			      child->driver_data);
