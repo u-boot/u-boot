@@ -58,6 +58,9 @@ static int fsl_xhci_core_init(struct fsl_xhci *fsl_xhci)
 	/* We are hard-coding DWC3 core to Host Mode */
 	dwc3_set_mode(fsl_xhci->dwc3_reg, DWC3_GCTL_PRTCAP_HOST);
 
+	/* Set GFLADJ_30MHZ as 20h as per XHCI spec default value */
+	dwc3_set_fladj(fsl_xhci->dwc3_reg, GFLADJ_30MHZ_DEFAULT);
+
 	return ret;
 }
 

@@ -89,3 +89,9 @@ int dwc3_core_init(struct dwc3 *dwc3_reg)
 
 	return 0;
 }
+
+void dwc3_set_fladj(struct dwc3 *dwc3_reg, u32 val)
+{
+	setbits_le32(&dwc3_reg->g_fladj, GFLADJ_30MHZ_REG_SEL |
+			GFLADJ_30MHZ(val));
+}
