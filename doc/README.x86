@@ -258,6 +258,17 @@ Modern CPUs usually require a special bit stream called microcode [6] to be
 loaded on the processor after power up in order to function properly. U-Boot
 has already integrated these as hex dumps in the source tree.
 
+SMP Support
+-----------
+On a multicore system, U-Boot is executed on the bootstrap processor (BSP).
+Additional application processors (AP) can be brought up by U-Boot. In order to
+have an SMP kernel to discover all of the available processors, U-Boot needs to
+prepare configuration tables which contain the multi-CPUs information before
+loading the OS kernel. Currently U-Boot supports generating two types of tables
+for SMP, called Simple Firmware Interface (SFI) [7] and Multi-Processor (MP) [8]
+tables. The writing of these two tables are controlled by two Kconfig options
+GENERATE_SFI_TABLE and GENERATE_MP_TABLE.
+
 Driver Model
 ------------
 x86 has been converted to use driver model for serial and GPIO.
@@ -362,3 +373,5 @@ References
 [4] http://www.intel.com/content/www/us/en/embedded/design-tools/evaluation-platforms/atom-e660-eg20t-development-kit.html
 [5] http://www.intel.com/fsp
 [6] http://en.wikipedia.org/wiki/Microcode
+[7] http://simplefirmware.org
+[8] http://www.intel.com/design/archives/processors/pro/docs/242016.htm
