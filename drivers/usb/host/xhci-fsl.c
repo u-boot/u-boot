@@ -91,12 +91,12 @@ int xhci_hcd_init(int index, struct xhci_hccr **hccr, struct xhci_hcor **hcor)
 	}
 
 	*hccr = (struct xhci_hccr *)ctx->hcd;
-	*hcor = (struct xhci_hcor *)((uint32_t) *hccr
+	*hcor = (struct xhci_hcor *)((uintptr_t) *hccr
 				+ HC_LENGTH(xhci_readl(&(*hccr)->cr_capbase)));
 
-	debug("fsl-xhci: init hccr %x and hcor %x hc_length %d\n",
-	      (uint32_t)*hccr, (uint32_t)*hcor,
-	      (uint32_t)HC_LENGTH(xhci_readl(&(*hccr)->cr_capbase)));
+	debug("fsl-xhci: init hccr %lx and hcor %lx hc_length %lx\n",
+	      (uintptr_t)*hccr, (uintptr_t)*hcor,
+	      (uintptr_t)HC_LENGTH(xhci_readl(&(*hccr)->cr_capbase)));
 
 	return ret;
 }
