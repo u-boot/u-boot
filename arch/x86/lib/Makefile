@@ -15,6 +15,7 @@ obj-y	+= gcc.o
 obj-y	+= init_helpers.o
 obj-y	+= interrupts.o
 obj-y	+= lpc-uclass.o
+obj-y	+= mpspec.o
 obj-y += cmd_mtrr.o
 obj-$(CONFIG_SYS_PCAT_INTERRUPTS) += pcat_interrupts.o
 obj-$(CONFIG_SYS_PCAT_TIMER) += pcat_timer.o
