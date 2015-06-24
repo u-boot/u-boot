@@ -11,7 +11,6 @@
 #include <common.h>
 #include <usb.h>
 #include <asm-generic/errno.h>
-#include <asm/arch-ls102xa/immap_ls102xa.h>
 #include <linux/compat.h>
 #include <linux/usb/xhci-fsl.h>
 #include <linux/usb/dwc3.h>
