@@ -173,12 +173,6 @@
 #define CONFIG_I2C_EDID
 #endif
 
-/* Fuses */
-#define CONFIG_CMD_FUSE
-#ifdef CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
-#endif
-
 /* Environment organization */
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		2

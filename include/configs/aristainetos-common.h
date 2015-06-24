@@ -26,9 +26,6 @@
 
 #define CONFIG_MXC_UART
 
-#define CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
-
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 

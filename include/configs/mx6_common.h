@@ -111,4 +111,8 @@
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_USDHC
 
+/* Fuses */
+#define CONFIG_CMD_FUSE
+#define CONFIG_MXC_OCOTP
+
 #endif

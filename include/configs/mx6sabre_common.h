@@ -21,11 +21,6 @@
 
 #define CONFIG_MXC_UART
 
-#define CONFIG_CMD_FUSE
-#if defined(CONFIG_CMD_FUSE) || defined(CONFIG_IMX6_THERMAL)
-#define CONFIG_MXC_OCOTP
-#endif
-
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
