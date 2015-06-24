@@ -359,7 +359,7 @@ const struct pad_conf_entry dra74x_core_padconf_array[] = {
 	{SPI2_D1, (M1 | PIN_INPUT_SLEW)},	/* spi2_d1.uart3_txd */
 	{SPI2_D0, (M1 | PIN_INPUT_SLEW)},	/* spi2_d0.uart3_ctsn */
 	{SPI2_CS0, (M1 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* spi2_cs0.uart3_rtsn */
-	{DCAN1_TX, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* dcan1_tx.dcan1_tx */
+	{DCAN1_TX, (M15 | PULL_UP)},	/* dcan1_tx.safe for dcan1_tx */
 	{DCAN1_RX, (M14 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* dcan1_rx.gpio1_15 */
 	{UART1_RXD, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* uart1_rxd.uart1_rxd */
 	{UART1_TXD, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* uart1_txd.uart1_txd */
@@ -371,7 +371,7 @@ const struct pad_conf_entry dra74x_core_padconf_array[] = {
 	{UART2_RTSN, (M3 | PIN_INPUT_PULLUP)},	/* uart2_rtsn.mmc4_dat3 */
 	{I2C2_SDA, (M0 | PIN_INPUT_PULLUP)},	/* i2c2_sda.i2c2_sda */
 	{I2C2_SCL, (M0 | PIN_INPUT_PULLUP)},	/* i2c2_scl.i2c2_scl */
-	{WAKEUP0, (M1 | PIN_OUTPUT)},	/* Wakeup0.dcan1_rx */
+	{WAKEUP0, (M15 | PULL_UP)},	/* Wakeup0.safe for dcan1_rx */
 	{WAKEUP2, (M14 | PIN_OUTPUT)},	/* Wakeup2.gpio1_2 */
 };
 
