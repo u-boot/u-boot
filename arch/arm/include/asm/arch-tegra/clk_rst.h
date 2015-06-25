@@ -249,17 +249,6 @@ struct clk_rst_ctlr {
 #define PLL_LOCK_SHIFT		27
 #define PLL_LOCK_MASK		(1U << PLL_LOCK_SHIFT)
 
-#define PLL_DIVP_SHIFT		20
-#define PLL_DIVP_MASK		(7U << PLL_DIVP_SHIFT)
-/* Special case for T210 PLLU DIVP */
-#define PLLU_DIVP_SHIFT		16
-
-#define PLL_DIVN_SHIFT		8
-#define PLL_DIVN_MASK		(0x3ffU << PLL_DIVN_SHIFT)
-
-#define PLL_DIVM_SHIFT		0
-#define PLL_DIVM_MASK		(0x1f << PLL_DIVM_SHIFT)
-
 /* CLK_RST_CONTROLLER_PLLx_OUTx_0 */
 #define PLL_OUT_RSTN		(1 << 0)
 #define PLL_OUT_CLKEN		(1 << 1)
@@ -271,24 +260,6 @@ struct clk_rst_ctlr {
 /* CLK_RST_CONTROLLER_PLLx_MISC_0 */
 #define PLL_DCCON_SHIFT		20
 #define PLL_DCCON_MASK		(1U << PLL_DCCON_SHIFT)
-
-#define PLL_LOCK_ENABLE_SHIFT	18
-#define PLL_LOCK_ENABLE_MASK	(1U << PLL_LOCK_ENABLE_SHIFT)
-
-#define PLL_CPCON_SHIFT		8
-#define PLL_CPCON_MASK		(15U << PLL_CPCON_SHIFT)
-
-#define PLL_LFCON_SHIFT		4
-#define PLL_LFCON_MASK		(15U << PLL_LFCON_SHIFT)
-
-/* CPCON/LFCON replaced by KCP/KVCO in T210 PLLU */
-#define PLLU_KVCO_SHIFT		24
-#define PLLU_KVCO_MASK		(3U << PLLU_KVCO_SHIFT)
-#define PLLU_KCP_SHIFT		25
-#define PLLU_KCP_MASK		(1U << PLLU_KCP_SHIFT)
-
-#define PLLU_VCO_FREQ_SHIFT	20
-#define PLLU_VCO_FREQ_MASK	(1U << PLLU_VCO_FREQ_SHIFT)
 
 #define PLLP_OUT1_OVR		(1 << 2)
 #define PLLP_OUT2_OVR		(1 << 18)
@@ -474,5 +445,8 @@ enum {
 #define PLLDP_SS_CFG_CLAMP		(1 << 22)
 #define PLLDP_SS_CFG_UNDOCUMENTED	(1 << 24)
 #define PLLDP_SS_CFG_DITHER		(1 << 28)
+
+/* CLK_RST_PLLD_MISC */
+#define PLLD_CLKENABLE			30
 
 #endif	/* _TEGRA_CLK_RST_H_ */

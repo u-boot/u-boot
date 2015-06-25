@@ -181,6 +181,7 @@ static inline void pllx_set_iddq(void)
 int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 		u32 divp, u32 cpcon)
 {
+	struct clk_pll_info *pllinfo = &tegra_pll_info_table[CLOCK_ID_XCPU];
 	int chip = tegra_get_chip();
 	u32 reg;
 	debug("%s entry\n", __func__);
@@ -194,17 +195,21 @@ int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 	pllx_set_iddq();
 
 	/* Set BYPASS, m, n and p to PLLX_BASE */
-	reg = PLL_BYPASS_MASK | (divm << PLL_DIVM_SHIFT);
-	reg |= ((divn << PLL_DIVN_SHIFT) | (divp << PLL_DIVP_SHIFT));
+	reg = PLL_BYPASS_MASK | (divm << pllinfo->m_shift);
+	reg |= (divn << pllinfo->n_shift) | (divp << pllinfo->p_shift);
 	writel(reg, &pll->pll_base);
 
 	/* Set cpcon to PLLX_MISC */
 	if (chip == CHIPID_TEGRA20 || chip == CHIPID_TEGRA30)
-		reg = (cpcon << PLL_CPCON_SHIFT);
+		reg = (cpcon << pllinfo->kcp_shift);
 	else
 		reg = 0;
 
-	/* Set dccon to PLLX_MISC if freq > 600MHz */
+	/*
+	 * TODO(twarren@nvidia.com) Check which SoCs use DCCON
+	 * and add to pllinfo table if needed!
+	 */
+	 /* Set dccon to PLLX_MISC if freq > 600MHz */
 	if (divn > 600)
 		reg |= (1 << PLL_DCCON_SHIFT);
 	writel(reg, &pll->pll_misc);
@@ -215,9 +220,10 @@ int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 	writel(reg, &pll->pll_base);
 	debug("%s: base = 0x%08X\n", __func__, reg);
 
-	/* Set lock_enable to PLLX_MISC */
+	/* Set lock_enable to PLLX_MISC if lock_ena is valid (i.e. 0-31) */
 	reg = readl(&pll->pll_misc);
-	reg |= PLL_LOCK_ENABLE_MASK;
+	if (pllinfo->lock_ena < 32)
+		reg |= (1 << pllinfo->lock_ena);
 	writel(reg, &pll->pll_misc);
 	debug("%s: misc = 0x%08X\n", __func__, reg);
 

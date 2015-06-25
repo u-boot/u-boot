@@ -101,6 +101,7 @@ int clock_ll_read_pll(enum clock_id clkid, u32 *divm, u32 *divn,
 		u32 *divp, u32 *cpcon, u32 *lfcon)
 {
 	struct clk_pll *pll = get_pll(clkid);
+	struct clk_pll_info *pllinfo = &tegra_pll_info_table[clkid];
 	u32 data;
 
 	assert(clkid != CLOCK_ID_USB);
@@ -109,17 +110,14 @@ int clock_ll_read_pll(enum clock_id clkid, u32 *divm, u32 *divn,
 	if (!clock_id_is_pll(clkid) || clkid == CLOCK_ID_USB)
 		return -1;
 	data = readl(&pll->pll_base);
-	*divm = (data & PLL_DIVM_MASK) >> PLL_DIVM_SHIFT;
-	*divn = (data & PLL_DIVN_MASK) >> PLL_DIVN_SHIFT;
-	*divp = (data & PLL_DIVP_MASK) >> PLL_DIVP_SHIFT;
+	*divm = (data >> pllinfo->m_shift) & pllinfo->m_mask;
+	*divn = (data >> pllinfo->n_shift) & pllinfo->n_mask;
+	*divp = (data >> pllinfo->p_shift) & pllinfo->p_mask;
 	data = readl(&pll->pll_misc);
-	*cpcon = (data & PLL_CPCON_MASK) >> PLL_CPCON_SHIFT;
-	*lfcon = (data & PLL_LFCON_MASK) >> PLL_LFCON_SHIFT;
-#if defined(CONFIG_TEGRA210)
-	/* T210 PLLU uses KCP/KVCO instead of CPCON/LFCON */
-	*cpcon = (data & PLLU_KCP_MASK) >> PLLU_KCP_SHIFT;
-	*lfcon = (data & PLLU_KVCO_MASK) >> PLLU_KVCO_SHIFT;
-#endif
+	/* NOTE: On T210, cpcon/lfcon no longer exist, moved to KCP/KVCO */
+	*cpcon = (data >> pllinfo->kcp_shift) & pllinfo->kcp_mask;
+	*lfcon = (data >> pllinfo->kvco_shift) & pllinfo->kvco_mask;
+
 	return 0;
 }
 
@@ -127,41 +125,25 @@ unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 		u32 divp, u32 cpcon, u32 lfcon)
 {
 	struct clk_pll *pll = NULL;
+	struct clk_pll_info *pllinfo = &tegra_pll_info_table[clkid];
 	u32 misc_data, data;
 
 	if (clkid < (enum clock_id)TEGRA_CLK_PLLS)
 		pll = get_pll(clkid);
 
 	/*
-	 * We cheat by treating all PLL (except PLLU) in the same fashion.
-	 * This works only because:
-	 * - same fields are always mapped at same offsets, except DCCON
-	 * - DCCON is always 0, doesn't conflict
-	 * - M,N, P of PLLP values are ignored for PLLP
-	 * NOTE: Above is no longer true with T210 - TBD: FIX THIS
+	 * pllinfo has the m/n/p and kcp/kvco mask and shift
+	 * values for all of the PLLs used in U-Boot, with any
+	 * SoC differences accounted for.
 	 */
-	misc_data = (cpcon << PLL_CPCON_SHIFT) | (lfcon << PLL_LFCON_SHIFT);
+	misc_data = readl(&pll->pll_misc);	/* preserve EN_LOCKDET, etc. */
+	misc_data &= ~(pllinfo->kcp_mask << pllinfo->kcp_shift) | (cpcon << pllinfo->kcp_shift);
+	misc_data &= ~(pllinfo->kvco_mask << pllinfo->kvco_shift) | (lfcon << pllinfo->kvco_shift);
 
-#if defined(CONFIG_TEGRA210)
-	/* T210 PLLU uses KCP/KVCO instead of cpcon/lfcon */
-	if (clkid == CLOCK_ID_USB) {
-		/* preserve EN_LOCKDET, set by default */
-		misc_data = readl(&pll->pll_misc);
-		misc_data |= (cpcon << PLLU_KCP_SHIFT) |
-			(lfcon << PLLU_KVCO_SHIFT);
-	}
-#endif
-	data = (divm << PLL_DIVM_SHIFT) | (divn << PLL_DIVN_SHIFT) |
-			(0 << PLL_BYPASS_SHIFT) | (1 << PLL_ENABLE_SHIFT);
+	data = (divm << pllinfo->m_shift) | (divn << pllinfo->n_shift);
+	data |= divp << pllinfo->p_shift;
+	data |= (1 << PLL_ENABLE_SHIFT);	/* BYPASS s/b 0 already */
 
-	if (clkid == CLOCK_ID_USB)
-#if defined(CONFIG_TEGRA210)
-		data |= divp << PLLU_DIVP_SHIFT;
-#else
-		data |= divp << PLLU_VCO_FREQ_SHIFT;
-#endif
-	else
-		data |= divp << PLL_DIVP_SHIFT;
 	if (pll) {
 		writel(misc_data, &pll->pll_misc);
 		writel(data, &pll->pll_base);
@@ -473,10 +455,9 @@ void reset_cmplx_set_enable(int cpu, int which, int reset)
 unsigned clock_get_rate(enum clock_id clkid)
 {
 	struct clk_pll *pll;
-	u32 base;
-	u32 divm;
-	u64 parent_rate;
-	u64 rate;
+	u32 base, divm;
+	u64 parent_rate, rate;
+	struct clk_pll_info *pllinfo = &tegra_pll_info_table[clkid];
 
 	parent_rate = osc_freq[clock_get_osc_freq()];
 	if (clkid == CLOCK_ID_OSC)
@@ -487,13 +468,13 @@ unsigned clock_get_rate(enum clock_id clkid)
 		return 0;
 	base = readl(&pll->pll_base);
 
-	/* Oh for bf_unpack()... */
-	rate = parent_rate * ((base & PLL_DIVN_MASK) >> PLL_DIVN_SHIFT);
-	divm = (base & PLL_DIVM_MASK) >> PLL_DIVM_SHIFT;
-	if (clkid == CLOCK_ID_USB)
-		divm <<= (base & PLLU_VCO_FREQ_MASK) >> PLLU_VCO_FREQ_SHIFT;
-	else
-		divm <<= (base & PLL_DIVP_MASK) >> PLL_DIVP_SHIFT;
+	rate = parent_rate * ((base >> pllinfo->n_shift) & pllinfo->n_mask);
+	divm = (base >> pllinfo->m_shift) & pllinfo->m_mask;
+	/*
+	 * PLLU uses p_mask/p_shift for VCO on all but T210,
+	 * T210 uses normal DIVP. Handled in pllinfo table.
+	 */
+	divm <<= (base >> pllinfo->p_shift) & pllinfo->p_mask;
 	do_div(rate, divm);
 	return rate;
 }
@@ -517,23 +498,23 @@ unsigned clock_get_rate(enum clock_id clkid)
  */
 int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon)
 {
-	u32 base_reg;
-	u32 misc_reg;
+	u32 base_reg, misc_reg;
 	struct clk_pll *pll;
+	struct clk_pll_info *pllinfo = &tegra_pll_info_table[clkid];
 
 	pll = get_pll(clkid);
 
 	base_reg = readl(&pll->pll_base);
 
 	/* Set BYPASS, m, n and p to PLL_BASE */
-	base_reg &= ~PLL_DIVM_MASK;
-	base_reg |= m << PLL_DIVM_SHIFT;
+	base_reg &= ~(pllinfo->m_mask << pllinfo->m_shift);
+	base_reg |= m << pllinfo->m_shift;
 
-	base_reg &= ~PLL_DIVN_MASK;
-	base_reg |= n << PLL_DIVN_SHIFT;
+	base_reg &= ~(pllinfo->n_mask << pllinfo->n_shift);
+	base_reg |= n << pllinfo->n_shift;
 
-	base_reg &= ~PLL_DIVP_MASK;
-	base_reg |= p << PLL_DIVP_SHIFT;
+	base_reg &= ~(pllinfo->p_mask << pllinfo->p_shift);
+	base_reg |= p << pllinfo->p_shift;
 
 	if (clkid == CLOCK_ID_PERIPH) {
 		/*
@@ -552,17 +533,10 @@ int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon)
 	base_reg |= PLL_BYPASS_MASK;
 	writel(base_reg, &pll->pll_base);
 
-	/* Set cpcon to PLL_MISC */
+	/* Set cpcon (KCP) to PLL_MISC */
 	misc_reg = readl(&pll->pll_misc);
-#if !defined(CONFIG_TEGRA210)
-	misc_reg &= ~PLL_CPCON_MASK;
-	misc_reg |= cpcon << PLL_CPCON_SHIFT;
-#else
-	/* T210 uses KCP instead, use the most common bit shift (PLLA/U/D2) */
-	misc_reg &= ~PLLU_KCP_MASK;
-	misc_reg |= cpcon << PLLU_KCP_SHIFT;
-#endif
-
+	misc_reg &= ~(pllinfo->kcp_mask << pllinfo->kcp_shift);
+	misc_reg |= cpcon << pllinfo->kcp_shift;
 	writel(misc_reg, &pll->pll_misc);
 
 	/* Enable PLL */

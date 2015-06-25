@@ -631,6 +631,34 @@ static s8 periph_id_to_internal_id[PERIPH_ID_COUNT] = {
 };
 
 /*
+ * PLL divider shift/mask tables for all PLL IDs.
+ */
+struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT] = {
+	/*
+	 * NOTE: If kcp_mask/kvco_mask == 0, they're not used in that PLL (PLLC, etc.)
+	 *       If lock_ena or lock_det are >31, they're not used in that PLL (PLLC, etc.)
+	 */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 10, .n_mask = 0xFF, .p_shift = 20, .p_mask = 0x1F,
+	  .lock_ena = 32,  .lock_det = 27, .kcp_shift = 0, .kcp_mask = 0, .kvco_shift = 0, .kvco_mask = 0 },	/* PLLC */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8,  .n_mask = 0xFF, .p_shift = 20, .p_mask = 0x1F,
+	  .lock_ena = 4,  .lock_det = 27, .kcp_shift = 1, .kcp_mask = 3, .kvco_shift = 0, .kvco_mask = 1 },	/* PLLM */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 10, .n_mask = 0xFF, .p_shift = 20, .p_mask = 0x1F,
+	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 0, .kcp_mask = 3, .kvco_shift = 2, .kvco_mask = 1 },	/* PLLP */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8,  .n_mask = 0xFF, .p_shift = 20, .p_mask = 0x1F,
+	  .lock_ena = 28, .lock_det = 27, .kcp_shift = 25, .kcp_mask = 3, .kvco_shift = 24, .kvco_mask = 1 },	/* PLLA */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8,  .n_mask = 0xFF, .p_shift = 16, .p_mask = 0x1F,
+	  .lock_ena = 29, .lock_det = 27, .kcp_shift = 25, .kcp_mask = 3, .kvco_shift = 24, .kvco_mask = 1 },	/* PLLU */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 11, .n_mask = 0xFF, .p_shift = 20, .p_mask = 0x07,
+	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 23, .kcp_mask = 3, .kvco_shift = 22, .kvco_mask = 1 },	/* PLLD */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8,  .n_mask = 0xFF, .p_shift = 20, .p_mask = 0x1F,
+	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 1, .kcp_mask = 3, .kvco_shift = 0, .kvco_mask = 1 },	/* PLLX */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8,  .n_mask = 0xFF, .p_shift = 0,  .p_mask = 0,
+	  .lock_ena = 9,  .lock_det = 11, .kcp_shift = 6, .kcp_mask = 3, .kvco_shift = 0, .kvco_mask = 1 },	/* PLLE */
+	{ .m_shift = 0, .m_mask = 0, .n_shift = 0, .n_mask = 0, .p_shift = 0, .p_mask = 0,
+	  .lock_ena = 0, .lock_det = 0, .kcp_shift = 0, .kcp_mask = 0, .kvco_shift = 0, .kvco_mask = 0 },	/* PLLS (gone)*/
+};
+
+/*
  * Get the oscillator frequency, from the corresponding hardware configuration
  * field. Note that Tegra30+ support 3 new higher freqs, but we map back
  * to the old T20 freqs. Support for the higher oscillators is TBD.
@@ -903,6 +931,7 @@ void clock_early_init(void)
 {
 	struct clk_rst_ctlr *clkrst =
 		(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	struct clk_pll_info *pllinfo = &tegra_pll_info_table[CLOCK_ID_DISPLAY];
 	u32 data;
 
 	tegra210_setup_pllp();
@@ -957,7 +986,7 @@ void clock_early_init(void)
 	udelay(2);
 
 	/* PLLD_MISC: Set CLKENABLE and LOCK_DETECT bits */
-	data = (1 << PLLD_ENABLE_CLK) | (1 << PLLD_EN_LCKDET);
+	data = (1 << PLLD_ENABLE_CLK) | (1 << pllinfo->lock_ena);
 	writel(data, &clkrst->crc_pll[CLOCK_ID_DISPLAY].pll_misc);
 	udelay(2);
 }

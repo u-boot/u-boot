@@ -338,6 +338,27 @@ void arch_timer_init(void);
 
 void tegra30_set_up_pllp(void);
 
+/* Number of PLL-based clocks (i.e. not OSC or 32KHz) */
+#define CLOCK_ID_PLL_COUNT	(CLOCK_ID_COUNT - 2)
+
+struct clk_pll_info {
+	u32	m_shift:5;	/* DIVM_SHIFT */
+	u32	n_shift:5;	/* DIVN_SHIFT */
+	u32	p_shift:5;	/* DIVP_SHIFT */
+	u32	kcp_shift:5;	/* KCP/cpcon SHIFT */
+	u32	kvco_shift:5;	/* KVCO/lfcon SHIFT */
+	u32	lock_ena:6;	/* LOCK_ENABLE/EN_LOCKDET shift */
+	u32	rsvd:1;
+	u32	m_mask:10;	/* DIVM_MASK */
+	u32	n_mask:12;	/* DIVN_MASK */
+	u32	p_mask:10;	/* DIVP_MASK or VCO_MASK */
+	u32	kcp_mask:10;	/* KCP/CPCON MASK */
+	u32	kvco_mask:10;	/* KVCO/LFCON MASK */
+	u32	lock_det:6;	/* LOCK_DETECT/LOCKED shift */
+	u32	rsvd2:6;
+};
+extern struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT];
+
 /**
  * Enable output clock for external peripherals
  *

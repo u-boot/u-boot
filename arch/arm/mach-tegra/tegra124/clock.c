@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2013
+ * (C) Copyright 2013-2015
  * NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:     GPL-2.0+
@@ -566,6 +566,36 @@ static s8 periph_id_to_internal_id[PERIPH_ID_COUNT] = {
 };
 
 /*
+ * PLL divider shift/mask tables for all PLL IDs.
+ */
+struct clk_pll_info tegra_pll_info_table[CLOCK_ID_PLL_COUNT] = {
+	/*
+	 * T124: same as T114, some deviations from T2x/T30.
+	 * NOTE: If kcp_mask/kvco_mask == 0, they're not used in that PLL (PLLX, etc.)
+	 *       If lock_ena or lock_det are >31, they're not used in that PLL.
+	 */
+
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8, .n_mask = 0xFF,  .p_shift = 20, .p_mask = 0x0F,
+	  .lock_ena = 24, .lock_det = 27, .kcp_shift = 28, .kcp_mask = 3, .kvco_shift = 27, .kvco_mask = 1 },	/* PLLC */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8, .n_mask = 0xFF,  .p_shift = 0,  .p_mask = 0,
+	  .lock_ena = 0,  .lock_det = 27, .kcp_shift = 1, .kcp_mask = 3, .kvco_shift = 0, .kvco_mask = 1 },	/* PLLM */
+	{ .m_shift = 0, .m_mask = 0x1F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
+	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLP */
+	{ .m_shift = 0, .m_mask = 0x1F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
+	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLA */
+	{ .m_shift = 0, .m_mask = 0x1F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x01,
+	  .lock_ena = 22, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLU */
+	{ .m_shift = 0, .m_mask = 0x1F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
+	  .lock_ena = 22, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLD */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8, .n_mask = 0xFF,  .p_shift = 20, .p_mask = 0x0F,
+	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 0, .kcp_mask = 0, .kvco_shift = 0, .kvco_mask = 0 },	/* PLLX */
+	{ .m_shift = 0, .m_mask = 0xFF, .n_shift = 8, .n_mask = 0xFF,  .p_shift = 0,  .p_mask = 0,
+	  .lock_ena = 9,  .lock_det = 11, .kcp_shift = 6, .kcp_mask = 3, .kvco_shift = 0, .kvco_mask = 1 },	/* PLLE */
+	{ .m_shift = 0, .m_mask = 0x0F, .n_shift = 8, .n_mask = 0x3FF, .p_shift = 20, .p_mask = 0x07,
+	  .lock_ena = 18, .lock_det = 27, .kcp_shift = 8, .kcp_mask = 0xF, .kvco_shift = 4, .kvco_mask = 0xF },	/* PLLS (RESERVED) */
+};
+
+/*
  * Get the oscillator frequency, from the corresponding hardware configuration
  * field. Note that Tegra30+ support 3 new higher freqs, but we map back
  * to the old T20 freqs. Support for the higher oscillators is TBD.
@@ -772,6 +802,8 @@ void clock_early_init(void)
 {
 	struct clk_rst_ctlr *clkrst =
 		(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	struct clk_pll_info *pllinfo;
+	u32 data;
 
 	tegra30_set_up_pllp();
 
@@ -808,11 +840,15 @@ void clock_early_init(void)
 	writel(0x00561600, &clkrst->crc_pll[CLOCK_ID_CGENERAL].pll_out[1]);
 
 	/* PLLC_MISC: Set LOCK_ENABLE */
-	writel(0x01000000, &clkrst->crc_pll[CLOCK_ID_CGENERAL].pll_misc);
+	pllinfo = &tegra_pll_info_table[CLOCK_ID_CGENERAL];
+	setbits_le32(&clkrst->crc_pll[CLOCK_ID_CGENERAL].pll_misc, (1 << pllinfo->lock_ena));
 	udelay(2);
 
-	/* PLLD_MISC: Set CLKENABLE, CPCON 12, LFCON 1 */
-	writel(0x40000C10, &clkrst->crc_pll[CLOCK_ID_DISPLAY].pll_misc);
+	/* PLLD_MISC: Set CLKENABLE, CPCON 12, LFCON 1, and enable lock */
+	pllinfo = &tegra_pll_info_table[CLOCK_ID_DISPLAY];
+	data = (12 << pllinfo->kcp_shift) | (1 << pllinfo->kvco_shift);
+	data |= (1 << PLLD_CLKENABLE) | (1 << pllinfo->lock_ena);
+	writel(data, &clkrst->crc_pll[CLOCK_ID_DISPLAY].pll_misc);
 	udelay(2);
 }
 
