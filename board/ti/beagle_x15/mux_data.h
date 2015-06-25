@@ -244,8 +244,8 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{SPI2_D1, (M14 | PIN_INPUT_PULLDOWN)},	/* spi2_d1.gpio7_15 */
 	{SPI2_D0, (M14 | PIN_INPUT_PULLUP)},	/* spi2_d0.gpio7_16 */
 	{SPI2_CS0, (M14 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* spi2_cs0.gpio7_17 */
-	{DCAN1_TX, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* dcan1_tx.dcan1_tx */
-	{DCAN1_RX, (M0 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* dcan1_rx.dcan1_rx */
+	{DCAN1_TX, (M15 | PULL_UP)},	/* dcan1_tx.safe for dcan1_tx */
+	{DCAN1_RX, (M15 | PULL_UP)},	/* dcan1_rx.safe for dcan1_rx */
 	{UART1_RXD, (M0 | PIN_INPUT_SLEW)},	/* uart1_rxd.uart1_rxd */
 	{UART1_TXD, (M0 | PIN_INPUT_SLEW)},	/* uart1_txd.uart1_txd */
 	{UART1_CTSN, (M15 | PIN_INPUT_PULLDOWN)},	/* uart1_ctsn.Driveroff */
