@@ -23,10 +23,8 @@
 #define CONFIG_ARMV7_PSCI		1
 #if defined(CONFIG_MACH_SUN8I_A23)
 #define CONFIG_ARMV7_PSCI_NR_CPUS	2
-#define CONFIG_NAND_SUNXI_GPC_PORTS	{16, 17, 18}
 #elif defined(CONFIG_MACH_SUN8I_A33)
 #define CONFIG_ARMV7_PSCI_NR_CPUS	4
-#define CONFIG_NAND_SUNXI_GPC_PORTS	{16}
 #else
 #error Unsupported sun8i variant
 #endif

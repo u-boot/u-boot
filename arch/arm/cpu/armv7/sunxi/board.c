@@ -119,20 +119,11 @@ void s_init(void)
 #ifdef CONFIG_SPL_BUILD
 /* The sunxi internal brom will try to loader external bootloader
  * from mmc0, nand flash, mmc2.
- *
- * Unfortunately we can't check how SPL was loaded so assume it's
- * always the first SD/MMC controller, unless it was explicitly
- * stated that SPL is on nand flash.
+ * Unfortunately we can't check how SPL was loaded so assume
+ * it's always the first SD/MMC controller
  */
 u32 spl_boot_device(void)
 {
-#if defined(CONFIG_SPL_NAND_SUPPORT)
-	/*
-	 * This is compile time configuration informing SPL, that it
-	 * was loaded from nand flash.
-	 */
-	return BOOT_DEVICE_NAND;
-#else
 	/*
 	 * When booting from the SD card, the "eGON.BT0" signature is expected
 	 * to be found in memory at the address 0x0004 (see the "mksunxiboot"
@@ -153,7 +144,6 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_MMC1;
 	else
 		return BOOT_DEVICE_BOARD;
-#endif
 }
 
 /* No confirmation data available in SPL yet. Hardcode bootmode */

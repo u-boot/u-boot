@@ -280,18 +280,6 @@ config MMC_SUNXI_SLOT_EXTRA
 	slot or emmc on mmc1 - mmc3. Setting this to 1, 2 or 3 will enable
 	support for this.
 
-config SPL_NAND_SUPPORT
-	bool "SPL/NAND mode support"
-	depends on SPL
-	default n
-	---help---
-	  This enables support for booting from NAND internal
-	  memory. U-Boot SPL doesn't detect where is it load from,
-	  therefore this option is needed to properly load image from
-	  flash. Option also disables MMC functionality on U-Boot due to
-	  initialization errors encountered, when both controllers are
-	  enabled.
-
 config USB0_VBUS_PIN
 	string "Vbus enable pin for usb0 (otg)"
 	default ""
