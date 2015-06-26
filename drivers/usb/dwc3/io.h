@@ -31,7 +31,8 @@ static inline u32 dwc3_readl(void __iomem *base, u32 offset)
 	 * space, see dwc3_probe in core.c.
 	 * However, the offsets are given starting from xHCI address space.
 	 */
-	value = readl(base + offs);
+	offs += base;
+	value = readl(offs);
 
 	return value;
 }
@@ -45,7 +46,8 @@ static inline void dwc3_writel(void __iomem *base, u32 offset, u32 value)
 	 * space, see dwc3_probe in core.c.
 	 * However, the offsets are given starting from xHCI address space.
 	 */
-	writel(value, base + offs);
+	offs += base;
+	writel(value, offs);
 }
 
 static inline void dwc3_flush_cache(int addr, int length)
