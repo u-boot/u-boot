@@ -362,4 +362,17 @@ unsigned long get_board_ddr_clk(void);
 
 #endif
 
+/*
+ * USB
+ */
+#define CONFIG_HAS_FSL_XHCI_USB
+#define CONFIG_USB_XHCI
+#define CONFIG_USB_XHCI_FSL
+#define CONFIG_USB_XHCI_DWC3
+#define CONFIG_USB_MAX_CONTROLLER_COUNT		2
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#define CONFIG_CMD_EXT2
+
 #endif /* __LS2_QDS_H */
