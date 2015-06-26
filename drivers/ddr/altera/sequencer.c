@@ -332,7 +332,7 @@ static void scc_mgr_initialize(void)
 	 */
 	uint32_t i;
 	for (i = 0; i < 16; i++) {
-		debug_cond(DLEVEL == 1, "%s:%d: Clearing SCC RFILE index %u",
+		debug_cond(DLEVEL == 1, "%s:%d: Clearing SCC RFILE index %u\n",
 			   __func__, __LINE__, i);
 		writel(0, SOCFPGA_SDR_ADDRESS + addr + (i << 2));
 	}
@@ -2386,7 +2386,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 	uint32_t write_group, write_test_bgn;
 	uint32_t failed_substage;
 
-	debug("%s:%d: %u %u", __func__, __LINE__, read_group, test_bgn);
+	debug("%s:%d: %u %u\n", __func__, __LINE__, read_group, test_bgn);
 
 	/* update info for sims */
 	reg_file_set_stage(CAL_STAGE_VFIFO);
@@ -3994,14 +3994,14 @@ int sdram_calibration_full(void)
 	printf("%s: Preparing to start memory calibration\n", __FILE__);
 
 	debug("%s:%d\n", __func__, __LINE__);
-	debug_cond(DLEVEL == 1, "DDR3 FULL_RATE ranks=%lu cs/dimm=%lu dq/dqs=%lu,%lu vg/dqs=%lu,%lu",
+	debug_cond(DLEVEL == 1, "DDR3 FULL_RATE ranks=%lu cs/dimm=%lu dq/dqs=%lu,%lu vg/dqs=%lu,%lu ",
 	       (long unsigned int)RW_MGR_MEM_NUMBER_OF_RANKS,
 	       (long unsigned int)RW_MGR_MEM_NUMBER_OF_CS_PER_DIMM,
 	       (long unsigned int)RW_MGR_MEM_DQ_PER_READ_DQS,
 	       (long unsigned int)RW_MGR_MEM_DQ_PER_WRITE_DQS,
 	       (long unsigned int)RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS,
 	       (long unsigned int)RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS);
-	debug_cond(DLEVEL == 1, "dqs=%lu,%lu dq=%lu dm=%lu ptap_delay=%lu dtap_delay=%lu",
+	debug_cond(DLEVEL == 1, "dqs=%lu,%lu dq=%lu dm=%lu ptap_delay=%lu dtap_delay=%lu ",
 	       (long unsigned int)RW_MGR_MEM_IF_READ_DQS_WIDTH,
 	       (long unsigned int)RW_MGR_MEM_IF_WRITE_DQS_WIDTH,
 	       (long unsigned int)RW_MGR_MEM_DATA_WIDTH,
@@ -4011,16 +4011,16 @@ int sdram_calibration_full(void)
 	debug_cond(DLEVEL == 1, "dtap_dqsen_delay=%lu, dll=%lu",
 	       (long unsigned int)IO_DELAY_PER_DQS_EN_DCHAIN_TAP,
 	       (long unsigned int)IO_DLL_CHAIN_LENGTH);
-	debug_cond(DLEVEL == 1, "max values: en_p=%lu dqdqs_p=%lu en_d=%lu dqs_in_d=%lu",
+	debug_cond(DLEVEL == 1, "max values: en_p=%lu dqdqs_p=%lu en_d=%lu dqs_in_d=%lu ",
 	       (long unsigned int)IO_DQS_EN_PHASE_MAX,
 	       (long unsigned int)IO_DQDQS_OUT_PHASE_MAX,
 	       (long unsigned int)IO_DQS_EN_DELAY_MAX,
 	       (long unsigned int)IO_DQS_IN_DELAY_MAX);
-	debug_cond(DLEVEL == 1, "io_in_d=%lu io_out1_d=%lu io_out2_d=%lu",
+	debug_cond(DLEVEL == 1, "io_in_d=%lu io_out1_d=%lu io_out2_d=%lu ",
 	       (long unsigned int)IO_IO_IN_DELAY_MAX,
 	       (long unsigned int)IO_IO_OUT1_DELAY_MAX,
 	       (long unsigned int)IO_IO_OUT2_DELAY_MAX);
-	debug_cond(DLEVEL == 1, "dqs_in_reserve=%lu dqs_out_reserve=%lu",
+	debug_cond(DLEVEL == 1, "dqs_in_reserve=%lu dqs_out_reserve=%lu\n",
 	       (long unsigned int)IO_DQS_IN_RESERVE,
 	       (long unsigned int)IO_DQS_OUT_RESERVE);
 
