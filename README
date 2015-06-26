@@ -3099,6 +3099,11 @@ CBFS (Coreboot Filesystem) support
 		is needed for subsystems like UBI which can only operate on top
 		of the MTD layer.
 
+		CONFIG_SPI_FLASH_DATAFLASH	SPI based Dataflash
+
+		Define this option to access AT45xxx Dataflash chips support
+		using spi flash interface.
+
 - SystemACE Support:
 		CONFIG_SYSTEMACE
 
