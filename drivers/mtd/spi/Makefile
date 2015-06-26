@@ -15,6 +15,7 @@ endif
 #ifndef CONFIG_DM_SPI
 obj-$(CONFIG_SPI_FLASH) += sf_probe.o
 #endif
+obj-$(CONFIG_SF_DATAFLASH) += sf_dataflash.o
 obj-$(CONFIG_CMD_SF) += sf.o
 obj-$(CONFIG_SPI_FLASH) += sf_ops.o sf_params.o
 obj-$(CONFIG_SPI_FLASH_SANDBOX) += sandbox.o
