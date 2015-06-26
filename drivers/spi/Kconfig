@@ -54,6 +54,12 @@ config CADENCE_QSPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Cadence IP core.
 
+config TI_QSPI
+	bool "TI QSPI driver"
+	help
+	  Enable the TI Quad-SPI (QSPI) driver for DRA7xx and AM43xx evms.
+	  This driver support spi flash single, quad and memory reads.
+
 config XILINX_SPI
 	bool "Xilinx SPI driver"
 	depends on DM_SPI
