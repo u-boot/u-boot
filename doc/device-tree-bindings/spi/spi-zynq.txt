@@ -11,6 +11,7 @@ Required properties:
 - clocks		: Clock phandles (see clock bindings for details).
 - clock-names		: List of input clock names - "ref_clk", "pclk"
 			  (See clock bindings for details).
+- spi-max-frequency	: Maximum SPI clocking speed of device in Hz
 
 Example:
 
@@ -22,6 +23,7 @@ Example:
 		interrupts = <0 26 4>;
 		clocks = <&clkc 25>, <&clkc 34>;
 		clock-names = "ref_clk", "pclk";
+		spi-max-frequency = <166666700>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 	} ;

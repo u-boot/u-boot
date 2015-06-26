@@ -13,8 +13,11 @@
 #include <errno.h>
 #include <malloc.h>
 #include <spi.h>
+#include <fdtdec.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* zynq spi register bit masks ZYNQ_SPI_<REG>_<BIT>_MASK */
 #define ZYNQ_SPI_CR_MSA_MASK		(1 << 15)	/* Manual start enb */
@@ -63,21 +66,21 @@ struct zynq_spi_priv {
 	u32 freq;		/* required frequency */
 };
 
-static inline struct zynq_spi_regs *get_zynq_spi_regs(struct udevice *bus)
-{
-	if (bus->seq)
-		return (struct zynq_spi_regs *)ZYNQ_SPI_BASEADDR1;
-	else
-		return (struct zynq_spi_regs *)ZYNQ_SPI_BASEADDR0;
-}
-
 static int zynq_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct zynq_spi_platdata *plat = bus->platdata;
+	const void *blob = gd->fdt_blob;
+	int node = bus->of_offset;
 
-	plat->regs = get_zynq_spi_regs(bus);
-	plat->frequency = 166666700;
+	plat->regs = (struct zynq_spi_regs *)fdtdec_get_addr(blob, node, "reg");
+
+	/* FIXME: Use 250MHz as a suitable default */
+	plat->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
+					250000000);
 	plat->speed_hz = plat->frequency / 2;
+
+	debug("zynq_spi_ofdata_to_platdata: regs=%p max-frequency=%d\n",
+	      plat->regs, plat->frequency);
 
 	return 0;
 }
