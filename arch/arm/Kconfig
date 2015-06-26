@@ -671,6 +671,8 @@ config ARCH_ZYNQ
 	select CPU_V7
 	select SUPPORT_SPL
 	select DM
+	select DM_SPI
+	select DM_SPI_FLASH
 
 config TARGET_XILINX_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
