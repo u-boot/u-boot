@@ -51,3 +51,11 @@ config CADENCE_QSPI
 	  Enable the Cadence Quad-SPI (QSPI) driver. This driver can be
 	  used to access the SPI NOR flash on platforms embedding this
 	  Cadence IP core.
+
+config ZYNQ_SPI
+	bool "Zynq SPI driver"
+	depends on DM_SPI && (ARCH_ZYNQ || TARGET_XILINX_ZYNQMP)
+	help
+	  Enable the Zynq SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this Zynq
+	  SPI IP core.
