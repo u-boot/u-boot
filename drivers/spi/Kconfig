@@ -54,6 +54,15 @@ config CADENCE_QSPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Cadence IP core.
 
+config XILINX_SPI
+	bool "Xilinx SPI driver"
+	depends on DM_SPI
+	help
+	  Enable the Xilinx SPI driver from the Xilinx EDK. This SPI
+	  controller support 8 bit SPI transfers only, with or w/o FIFO.
+	  For more info on Xilinx SPI Register Definitions and Overview
+	  see driver file - drivers/spi/xilinx_spi.c
+
 config ZYNQ_SPI
 	bool "Zynq SPI driver"
 	depends on DM_SPI && (ARCH_ZYNQ || TARGET_XILINX_ZYNQMP)
