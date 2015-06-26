@@ -8,38 +8,12 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+
 #include <common.h>
 #include <spi.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-
-struct davinci_spi_regs {
-	dv_reg	gcr0;		/* 0x00 */
-	dv_reg	gcr1;		/* 0x04 */
-	dv_reg	int0;		/* 0x08 */
-	dv_reg	lvl;		/* 0x0c */
-	dv_reg	flg;		/* 0x10 */
-	dv_reg	pc0;		/* 0x14 */
-	dv_reg	pc1;		/* 0x18 */
-	dv_reg	pc2;		/* 0x1c */
-	dv_reg	pc3;		/* 0x20 */
-	dv_reg	pc4;		/* 0x24 */
-	dv_reg	pc5;		/* 0x28 */
-	dv_reg	rsvd[3];
-	dv_reg	dat0;		/* 0x38 */
-	dv_reg	dat1;		/* 0x3c */
-	dv_reg	buf;		/* 0x40 */
-	dv_reg	emu;		/* 0x44 */
-	dv_reg	delay;		/* 0x48 */
-	dv_reg	def;		/* 0x4c */
-	dv_reg	fmt0;		/* 0x50 */
-	dv_reg	fmt1;		/* 0x54 */
-	dv_reg	fmt2;		/* 0x58 */
-	dv_reg	fmt3;		/* 0x5c */
-	dv_reg	intvec0;	/* 0x60 */
-	dv_reg	intvec1;	/* 0x64 */
-};
 
 #define BIT(x)			(1 << (x))
 
@@ -112,6 +86,35 @@ struct davinci_spi_regs {
 #define SPI2_BASE		CONFIG_SYS_SPI2_BASE
 #endif
 
+/* davinci spi register set */
+struct davinci_spi_regs {
+	dv_reg	gcr0;		/* 0x00 */
+	dv_reg	gcr1;		/* 0x04 */
+	dv_reg	int0;		/* 0x08 */
+	dv_reg	lvl;		/* 0x0c */
+	dv_reg	flg;		/* 0x10 */
+	dv_reg	pc0;		/* 0x14 */
+	dv_reg	pc1;		/* 0x18 */
+	dv_reg	pc2;		/* 0x1c */
+	dv_reg	pc3;		/* 0x20 */
+	dv_reg	pc4;		/* 0x24 */
+	dv_reg	pc5;		/* 0x28 */
+	dv_reg	rsvd[3];
+	dv_reg	dat0;		/* 0x38 */
+	dv_reg	dat1;		/* 0x3c */
+	dv_reg	buf;		/* 0x40 */
+	dv_reg	emu;		/* 0x44 */
+	dv_reg	delay;		/* 0x48 */
+	dv_reg	def;		/* 0x4c */
+	dv_reg	fmt0;		/* 0x50 */
+	dv_reg	fmt1;		/* 0x54 */
+	dv_reg	fmt2;		/* 0x58 */
+	dv_reg	fmt3;		/* 0x5c */
+	dv_reg	intvec0;	/* 0x60 */
+	dv_reg	intvec1;	/* 0x64 */
+};
+
+/* davinci spi slave */
 struct davinci_spi_slave {
 	struct spi_slave slave;
 	struct davinci_spi_regs *regs;
@@ -121,111 +124,6 @@ struct davinci_spi_slave {
 static inline struct davinci_spi_slave *to_davinci_spi(struct spi_slave *slave)
 {
 	return container_of(slave, struct davinci_spi_slave, slave);
-}
-
-void spi_init()
-{
-	/* do nothing */
-}
-
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-			unsigned int max_hz, unsigned int mode)
-{
-	struct davinci_spi_slave	*ds;
-
-	if (!spi_cs_is_valid(bus, cs))
-		return NULL;
-
-	ds = spi_alloc_slave(struct davinci_spi_slave, bus, cs);
-	if (!ds)
-		return NULL;
-
-	switch (bus) {
-	case SPI0_BUS:
-		ds->regs = (struct davinci_spi_regs *)SPI0_BASE;
-		break;
-#ifdef CONFIG_SYS_SPI1
-	case SPI1_BUS:
-		ds->regs = (struct davinci_spi_regs *)SPI1_BASE;
-		break;
-#endif
-#ifdef CONFIG_SYS_SPI2
-	case SPI2_BUS:
-		ds->regs = (struct davinci_spi_regs *)SPI2_BASE;
-		break;
-#endif
-	default: /* Invalid bus number */
-		return NULL;
-	}
-
-	ds->freq = max_hz;
-
-	return &ds->slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct davinci_spi_slave *ds = to_davinci_spi(slave);
-
-	free(ds);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	struct davinci_spi_slave *ds = to_davinci_spi(slave);
-	unsigned int scalar;
-
-	/* Enable the SPI hardware */
-	writel(SPIGCR0_SPIRST_MASK, &ds->regs->gcr0);
-	udelay(1000);
-	writel(SPIGCR0_SPIENA_MASK, &ds->regs->gcr0);
-
-	/* Set master mode, powered up and not activated */
-	writel(SPIGCR1_MASTER_MASK | SPIGCR1_CLKMOD_MASK, &ds->regs->gcr1);
-
-	/* CS, CLK, SIMO and SOMI are functional pins */
-	writel(((1 << slave->cs) | SPIPC0_CLKFUN_MASK |
-		SPIPC0_DOFUN_MASK | SPIPC0_DIFUN_MASK), &ds->regs->pc0);
-
-	/* setup format */
-	scalar = ((CONFIG_SYS_SPI_CLK / ds->freq) - 1) & 0xFF;
-
-	/*
-	 * Use following format:
-	 *   character length = 8,
-	 *   clock signal delayed by half clk cycle,
-	 *   clock low in idle state - Mode 0,
-	 *   MSB shifted out first
-	 */
-	writel(8 | (scalar << SPIFMT_PRESCALE_SHIFT) |
-		(1 << SPIFMT_PHASE_SHIFT), &ds->regs->fmt0);
-
-	/*
-	 * Including a minor delay. No science here. Should be good even with
-	 * no delay
-	 */
-	writel((50 << SPI_C2TDELAY_SHIFT) |
-		(50 << SPI_T2CDELAY_SHIFT), &ds->regs->delay);
-
-	/* default chip select register */
-	writel(SPIDEF_CSDEF0_MASK, &ds->regs->def);
-
-	/* no interrupts */
-	writel(0, &ds->regs->int0);
-	writel(0, &ds->regs->lvl);
-
-	/* enable SPI */
-	writel((readl(&ds->regs->gcr1) | SPIGCR1_SPIENA_MASK), &ds->regs->gcr1);
-
-	return 0;
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-	struct davinci_spi_slave *ds = to_davinci_spi(slave);
-
-	/* Disable the SPI hardware */
-	writel(SPIGCR0_SPIRST_MASK, &ds->regs->gcr0);
 }
 
 /*
@@ -343,6 +241,149 @@ static int davinci_spi_read_write(struct spi_slave *slave, unsigned int len,
 }
 #endif
 
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	int ret = 0;
+
+	switch (bus) {
+	case SPI0_BUS:
+		if (cs < SPI0_NUM_CS)
+			ret = 1;
+		break;
+#ifdef CONFIG_SYS_SPI1
+	case SPI1_BUS:
+		if (cs < SPI1_NUM_CS)
+			ret = 1;
+		break;
+#endif
+#ifdef CONFIG_SYS_SPI2
+	case SPI2_BUS:
+		if (cs < SPI2_NUM_CS)
+			ret = 1;
+		break;
+#endif
+	default:
+		/* Invalid bus number. Do nothing */
+		break;
+	}
+	return ret;
+}
+
+void spi_cs_activate(struct spi_slave *slave)
+{
+	/* do nothing */
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	/* do nothing */
+}
+
+void spi_init(void)
+{
+	/* do nothing */
+}
+
+struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
+			unsigned int max_hz, unsigned int mode)
+{
+	struct davinci_spi_slave	*ds;
+
+	if (!spi_cs_is_valid(bus, cs))
+		return NULL;
+
+	ds = spi_alloc_slave(struct davinci_spi_slave, bus, cs);
+	if (!ds)
+		return NULL;
+
+	switch (bus) {
+	case SPI0_BUS:
+		ds->regs = (struct davinci_spi_regs *)SPI0_BASE;
+		break;
+#ifdef CONFIG_SYS_SPI1
+	case SPI1_BUS:
+		ds->regs = (struct davinci_spi_regs *)SPI1_BASE;
+		break;
+#endif
+#ifdef CONFIG_SYS_SPI2
+	case SPI2_BUS:
+		ds->regs = (struct davinci_spi_regs *)SPI2_BASE;
+		break;
+#endif
+	default: /* Invalid bus number */
+		return NULL;
+	}
+
+	ds->freq = max_hz;
+
+	return &ds->slave;
+}
+
+void spi_free_slave(struct spi_slave *slave)
+{
+	struct davinci_spi_slave *ds = to_davinci_spi(slave);
+
+	free(ds);
+}
+
+int spi_claim_bus(struct spi_slave *slave)
+{
+	struct davinci_spi_slave *ds = to_davinci_spi(slave);
+	unsigned int scalar;
+
+	/* Enable the SPI hardware */
+	writel(SPIGCR0_SPIRST_MASK, &ds->regs->gcr0);
+	udelay(1000);
+	writel(SPIGCR0_SPIENA_MASK, &ds->regs->gcr0);
+
+	/* Set master mode, powered up and not activated */
+	writel(SPIGCR1_MASTER_MASK | SPIGCR1_CLKMOD_MASK, &ds->regs->gcr1);
+
+	/* CS, CLK, SIMO and SOMI are functional pins */
+	writel(((1 << slave->cs) | SPIPC0_CLKFUN_MASK |
+		SPIPC0_DOFUN_MASK | SPIPC0_DIFUN_MASK), &ds->regs->pc0);
+
+	/* setup format */
+	scalar = ((CONFIG_SYS_SPI_CLK / ds->freq) - 1) & 0xFF;
+
+	/*
+	 * Use following format:
+	 *   character length = 8,
+	 *   clock signal delayed by half clk cycle,
+	 *   clock low in idle state - Mode 0,
+	 *   MSB shifted out first
+	 */
+	writel(8 | (scalar << SPIFMT_PRESCALE_SHIFT) |
+		(1 << SPIFMT_PHASE_SHIFT), &ds->regs->fmt0);
+
+	/*
+	 * Including a minor delay. No science here. Should be good even with
+	 * no delay
+	 */
+	writel((50 << SPI_C2TDELAY_SHIFT) |
+		(50 << SPI_T2CDELAY_SHIFT), &ds->regs->delay);
+
+	/* default chip select register */
+	writel(SPIDEF_CSDEF0_MASK, &ds->regs->def);
+
+	/* no interrupts */
+	writel(0, &ds->regs->int0);
+	writel(0, &ds->regs->lvl);
+
+	/* enable SPI */
+	writel((readl(&ds->regs->gcr1) | SPIGCR1_SPIENA_MASK), &ds->regs->gcr1);
+
+	return 0;
+}
+
+void spi_release_bus(struct spi_slave *slave)
+{
+	struct davinci_spi_slave *ds = to_davinci_spi(slave);
+
+	/* Disable the SPI hardware */
+	writel(SPIGCR0_SPIRST_MASK, &ds->regs->gcr0);
+}
+
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	     const void *dout, void *din, unsigned long flags)
 {
@@ -385,42 +426,4 @@ out:
 		davinci_spi_write(slave, 1, &dummy, flags);
 	}
 	return 0;
-}
-
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	int ret = 0;
-
-	switch (bus) {
-	case SPI0_BUS:
-		if (cs < SPI0_NUM_CS)
-			ret = 1;
-		break;
-#ifdef CONFIG_SYS_SPI1
-	case SPI1_BUS:
-		if (cs < SPI1_NUM_CS)
-			ret = 1;
-		break;
-#endif
-#ifdef CONFIG_SYS_SPI2
-	case SPI2_BUS:
-		if (cs < SPI2_NUM_CS)
-			ret = 1;
-		break;
-#endif
-	default:
-		/* Invalid bus number. Do nothing */
-		break;
-	}
-	return ret;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	/* do nothing */
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	/* do nothing */
 }
