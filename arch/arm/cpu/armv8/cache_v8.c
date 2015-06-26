@@ -139,6 +139,37 @@ int dcache_status(void)
 	return (get_sctlr() & CR_C) != 0;
 }
 
+u64 *__weak arch_get_page_table(void) {
+	puts("No page table offset defined\n");
+
+	return NULL;
+}
+
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
+				     enum dcache_option option)
+{
+	u64 *page_table = arch_get_page_table();
+	u64 upto, end;
+
+	if (page_table == NULL)
+		return;
+
+	end = ALIGN(start + size, (1 << MMU_SECTION_SHIFT)) >>
+	      MMU_SECTION_SHIFT;
+	start = start >> MMU_SECTION_SHIFT;
+	for (upto = start; upto < end; upto++) {
+		page_table[upto] &= ~PMD_ATTRINDX_MASK;
+		page_table[upto] |= PMD_ATTRINDX(option);
+	}
+	asm volatile("dsb sy");
+	__asm_invalidate_tlb_all();
+	asm volatile("dsb sy");
+	asm volatile("isb");
+	start = start << MMU_SECTION_SHIFT;
+	end = end << MMU_SECTION_SHIFT;
+	flush_dcache_range(start, end);
+	asm volatile("dsb sy");
+}
 #else	/* CONFIG_SYS_DCACHE_OFF */
 
 void invalidate_dcache_all(void)
@@ -168,6 +199,11 @@ void dcache_disable(void)
 int dcache_status(void)
 {
 	return 0;
+}
+
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
+				     enum dcache_option option)
+{
 }
 
 #endif	/* CONFIG_SYS_DCACHE_OFF */
