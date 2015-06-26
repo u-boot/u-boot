@@ -664,8 +664,8 @@ static int fsl_dspi_ofdata_to_platdata(struct udevice *bus)
 	plat->speed_hz = fdtdec_get_int(blob,
 			node, "spi-max-frequency", FSL_DSPI_DEFAULT_SCK_FREQ);
 
-	debug("DSPI: regs=0x%x, max-frequency=%d, endianess=%s, num-cs=%d\n",
-	      plat->regs_addr, plat->speed_hz,
+	debug("DSPI: regs=0x%llx, max-frequency=%d, endianess=%s, num-cs=%d\n",
+	      (u64)plat->regs_addr, plat->speed_hz,
 	      plat->flags & DSPI_FLAG_REGMAP_ENDIAN_BIG ? "be" : "le",
 	      plat->num_chipselect);
 
