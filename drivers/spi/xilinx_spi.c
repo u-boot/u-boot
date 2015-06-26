@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <spi.h>
+#include <asm/io.h>
 
 /*
  * [0]: http://www.xilinx.com/support/documentation
