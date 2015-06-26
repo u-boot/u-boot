@@ -23,12 +23,14 @@
 #include "ls2085ardb_qixis.h"
 
 #define PIN_MUX_SEL_SDHC	0x00
+#define PIN_MUX_SEL_DSPI	0x0a
 
 #define SET_SDHC_MUX_SEL(reg, value)	((reg & 0xf0) | value)
 DECLARE_GLOBAL_DATA_PTR;
 
 enum {
 	MUX_TYPE_SDHC,
+	MUX_TYPE_DSPI,
 };
 
 unsigned long long get_qixis_addr(void)
@@ -120,9 +122,46 @@ int select_i2c_ch_pca9547(u8 ch)
 	return 0;
 }
 
+int config_board_mux(int ctrl_type)
+{
+	u8 reg5;
+
+	reg5 = QIXIS_READ(brdcfg[5]);
+
+	switch (ctrl_type) {
+	case MUX_TYPE_SDHC:
+		reg5 = SET_SDHC_MUX_SEL(reg5, PIN_MUX_SEL_SDHC);
+		break;
+	case MUX_TYPE_DSPI:
+		reg5 = SET_SDHC_MUX_SEL(reg5, PIN_MUX_SEL_DSPI);
+		break;
+	default:
+		printf("Wrong mux interface type\n");
+		return -1;
+	}
+
+	QIXIS_WRITE(brdcfg[5], reg5);
+
+	return 0;
+}
+
 int board_init(void)
 {
+	char *env_hwconfig;
+	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
+	u32 val;
+
 	init_final_memctl_regs();
+
+	val = in_le32(dcfg_ccsr + DCFG_RCWSR13 / 4);
+
+	env_hwconfig = getenv("hwconfig");
+
+	if (hwconfig_f("dspi", env_hwconfig) &&
+	    DCFG_RCWSR13_DSPI == (val & (u32)(0xf << 8)))
+		config_board_mux(MUX_TYPE_DSPI);
+	else
+		config_board_mux(MUX_TYPE_SDHC);
 
 #ifdef CONFIG_ENV_IS_NOWHERE
 	gd->env_addr = (ulong)&default_environment[0];
@@ -137,26 +176,6 @@ int board_init(void)
 int board_early_init_f(void)
 {
 	fsl_lsch3_early_init_f();
-	return 0;
-}
-
-int config_board_mux(int ctrl_type)
-{
-	u8 reg5;
-
-	reg5 = QIXIS_READ(brdcfg[5]);
-
-	switch (ctrl_type) {
-	case MUX_TYPE_SDHC:
-		reg5 = SET_SDHC_MUX_SEL(reg5, PIN_MUX_SEL_SDHC);
-		break;
-	default:
-		printf("Wrong mux interface type\n");
-		return -1;
-	}
-
-	QIXIS_WRITE(brdcfg[5], reg5);
-
 	return 0;
 }
 
