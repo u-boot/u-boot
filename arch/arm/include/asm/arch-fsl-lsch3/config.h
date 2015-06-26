@@ -10,6 +10,7 @@
 #include <fsl_ddrc_version.h>
 
 #define CONFIG_SYS_PAGE_SIZE		0x10000
+#define CONFIG_SYS_CACHELINE_SIZE	64
 
 #ifndef L1_CACHE_BYTES
 #define L1_CACHE_SHIFT		6
