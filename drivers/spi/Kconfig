@@ -83,6 +83,16 @@ config SANDBOX_SPI
 		};
 	  };
 
+config TEGRA114_SPI
+	bool "nVidia Tegra114 SPI driver"
+	help
+	  Enable the nVidia Tegra114 SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this nVidia Tegra114
+	  IP core.
+
+	  This controller is different than the older SoCs SPI controller and
+	  also register interface get changed with this controller.
+
 config XILINX_SPI
 	bool "Xilinx SPI driver"
 	help
