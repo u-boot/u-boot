@@ -51,6 +51,13 @@ config FSL_QSPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Freescale IP core.
 
+config ICH_SPI
+	bool "Intel ICH SPI driver"
+	help
+	  Enable the Intel ICH SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this Intel
+	  ICH IP core.
+
 config SANDBOX_SPI
 	bool "Sandbox SPI driver"
 	depends on SANDBOX && DM
