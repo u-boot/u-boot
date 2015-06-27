@@ -100,6 +100,13 @@ config TEGRA20_SFLASH
 	  can be used to access the SPI NOR flash on platforms embedding this
 	  nVidia Tegra20 IP core.
 
+config TEGRA20_SLINK
+	bool "nVidia Tegra20/Tegra30 SLINK driver"
+	help
+	  Enable the nVidia Tegra20/Tegra30 SLINK driver. This driver can
+	  be used to access the SPI NOR flash on platforms embedding this
+	  nVidia Tegra20/Tegra30 IP cores.
+
 config XILINX_SPI
 	bool "Xilinx SPI driver"
 	help
