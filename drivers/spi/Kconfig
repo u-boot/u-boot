@@ -13,6 +13,22 @@ config DM_SPI
 	  typically use driver-private data instead of extending the
 	  spi_slave structure.
 
+if DM_SPI
+
+config CADENCE_QSPI
+	bool "Cadence QSPI driver"
+	help
+	  Enable the Cadence Quad-SPI (QSPI) driver. This driver can be
+	  used to access the SPI NOR flash on platforms embedding this
+	  Cadence IP core.
+
+config DESIGNWARE_SPI
+	bool "Designware SPI driver"
+	help
+	  Enable the Designware SPI driver. This driver can be used to
+	  access the SPI NOR flash on platforms embedding this Designware
+	  IP core.
+
 config SANDBOX_SPI
 	bool "Sandbox SPI driver"
 	depends on SANDBOX && DM
@@ -36,33 +52,10 @@ config SANDBOX_SPI
 			spi-max-frequency = <40000000>;
 			sandbox,filename = "spi.bin";
 		};
-	};
-
-config DESIGNWARE_SPI
-	bool "Designware SPI driver"
-	depends on DM_SPI
-	help
-	  Enable the Designware SPI driver. This driver can be used to
-	  access the SPI NOR flash on platforms embedding this Designware
-	  IP core.
-
-config CADENCE_QSPI
-	bool "Cadence QSPI driver"
-	depends on DM_SPI
-	help
-	  Enable the Cadence Quad-SPI (QSPI) driver. This driver can be
-	  used to access the SPI NOR flash on platforms embedding this
-	  Cadence IP core.
-
-config TI_QSPI
-	bool "TI QSPI driver"
-	help
-	  Enable the TI Quad-SPI (QSPI) driver for DRA7xx and AM43xx evms.
-	  This driver support spi flash single, quad and memory reads.
+	  };
 
 config XILINX_SPI
 	bool "Xilinx SPI driver"
-	depends on DM_SPI
 	help
 	  Enable the Xilinx SPI driver from the Xilinx EDK. This SPI
 	  controller support 8 bit SPI transfers only, with or w/o FIFO.
@@ -71,10 +64,18 @@ config XILINX_SPI
 
 config ZYNQ_SPI
 	bool "Zynq SPI driver"
-	depends on DM_SPI && (ARCH_ZYNQ || TARGET_XILINX_ZYNQMP)
+	depends on ARCH_ZYNQ || TARGET_XILINX_ZYNQMP
 	help
 	  Enable the Zynq SPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this Zynq
 	  SPI IP core.
+
+endif # if DM_SPI
+
+config TI_QSPI
+	bool "TI QSPI driver"
+	help
+	  Enable the TI Quad-SPI (QSPI) driver for DRA7xx and AM43xx evms.
+	  This driver support spi flash single, quad and memory reads.
 
 endmenu # menu "SPI Support"
