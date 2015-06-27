@@ -29,6 +29,14 @@ config DESIGNWARE_SPI
 	  access the SPI NOR flash on platforms embedding this Designware
 	  IP core.
 
+config FSL_DSPI
+	bool "Freescale DSPI driver"
+	help
+	  Enable the Freescale DSPI driver. This driver can be used to
+	  access the SPI NOR flash and SPI Data flash on platforms embedding
+	  this Freescale DSPI IP core. LS102xA and Colibri VF50/VF61 platforms
+	  use this driver.
+
 config SANDBOX_SPI
 	bool "Sandbox SPI driver"
 	depends on SANDBOX && DM
