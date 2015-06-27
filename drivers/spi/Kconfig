@@ -37,6 +37,13 @@ config FSL_DSPI
 	  this Freescale DSPI IP core. LS102xA and Colibri VF50/VF61 platforms
 	  use this driver.
 
+config FSL_QSPI
+	bool "Freescale QSPI driver"
+	help
+	  Enable the Freescale Quad-SPI (QSPI) driver. This driver can be
+	  used to access the SPI NOR flash on platforms embedding this
+	  Freescale IP core.
+
 config SANDBOX_SPI
 	bool "Sandbox SPI driver"
 	depends on SANDBOX && DM
