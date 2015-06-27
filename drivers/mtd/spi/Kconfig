@@ -34,4 +34,16 @@ config SPI_FLASH
 
 	  If unsure, say N
 
+config SPI_FLASH_MTD
+	bool "SPI Flash MTD support"
+	depends on SPI_FLASH
+	help
+          Enable the MTD support for spi flash layer, this adapter is for
+	  translating mtd_read/mtd_write commands into spi_flash_read/write
+	  commands. It is not intended to use it within sf_cmd or the SPI
+	  flash subsystem. Such an adapter is needed for subsystems like
+	  UBI which can only operate on top of the MTD layer.
+
+	  If unsure, say N
+
 endmenu # menu "SPI Flash Support"
