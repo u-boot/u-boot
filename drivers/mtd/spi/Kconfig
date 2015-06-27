@@ -1,3 +1,5 @@
+menu "SPI Flash Support"
+
 config SPI_FLASH
 	bool "Enable SPI Flash support"
 	help
@@ -31,3 +33,5 @@ config SPI_FLASH_SANDBOX
 	  bus (see CONFIG_SANDBOX_SPI) and SPI traffic will be routed to this
 	  device. Typically the contents of the emulated SPI flash device is
 	  stored in a file on the host filesystem.
+
+endmenu # menu "SPI Flash Support"
