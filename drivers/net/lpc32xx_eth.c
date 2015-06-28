@@ -170,7 +170,7 @@ struct lpc32xx_eth_registers {
 #define COMMAND_PASSRUNTFRAME 0x00000040
 #define COMMAND_FULL_DUPLEX   0x00000400
 /* Helper: general reset */
-#define COMMAND_RESETS        0x0000001C
+#define COMMAND_RESETS        0x00000038
 
 /* STATUS register bitfields/masks and offsets (see Table 283) */
 #define STATUS_RXSTATUS 0x00000001
