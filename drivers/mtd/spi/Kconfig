@@ -1,14 +1,5 @@
 menu "SPI Flash Support"
 
-config SPI_FLASH
-	bool "Enable SPI Flash support"
-	help
-	  Enable the legacy SPI flash support. This will include basic
-	  standard support for things like probing, read / write, and
-	  erasing through the MTD layer.
-
-	  If unsure, say N
-
 config DM_SPI_FLASH
 	bool "Enable Driver Model for SPI flash"
 	depends on DM && DM_SPI
@@ -33,5 +24,14 @@ config SPI_FLASH_SANDBOX
 	  bus (see CONFIG_SANDBOX_SPI) and SPI traffic will be routed to this
 	  device. Typically the contents of the emulated SPI flash device is
 	  stored in a file on the host filesystem.
+
+config SPI_FLASH
+	bool "Legacy SPI Flash Interface support"
+	help
+	  Enable the legacy SPI flash support. This will include basic
+	  standard support for things like probing, read / write, and
+	  erasing through cmd_sf interface.
+
+	  If unsure, say N
 
 endmenu # menu "SPI Flash Support"
