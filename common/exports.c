@@ -16,6 +16,13 @@ unsigned long get_version(void)
 
 #define EXPORT_FUNC(f, a, x, ...)  gd->jt->x = f;
 
+#ifndef CONFIG_PHY_AQUANTIA
+# define mdio_get_current_dev		dummy
+# define phy_find_by_mask		dummy
+# define mdio_phydev_for_ethname	dummy
+# define miiphy_set_current_dev		dummy
+#endif
+
 void jumptable_init(void)
 {
 	gd->jt = malloc(sizeof(struct jt_funcs));

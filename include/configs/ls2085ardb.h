@@ -322,6 +322,7 @@ unsigned long get_board_sys_clk(void);
 #define CONFIG_MII
 #define CONFIG_ETHPRIME		"DPNI1"
 #define CONFIG_PHY_GIGE
+#define CONFIG_PHY_AQUANTIA
 #endif
 
 #endif /* __LS2_RDB_H */

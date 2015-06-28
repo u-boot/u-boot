@@ -14,9 +14,12 @@
 #include <phy.h>
 #include <fm_eth.h>
 #include <asm/io.h>
+#include <exports.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch-fsl-lsch3/immap_lsch3.h>
 #include <fsl-mc/ldpaa_wriop.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 int load_firmware_cortina(struct phy_device *phy_dev)
 {
@@ -129,5 +132,17 @@ int board_eth_init(bd_t *bis)
 	cpu_eth_init(bis);
 #endif /* CONFIG_FMAN_ENET */
 
+#ifdef CONFIG_PHY_AQUANTIA
+	/*
+	 * Export functions to be used by AQ firmware
+	 * upload application
+	 */
+	gd->jt->strcpy = strcpy;
+	gd->jt->mdelay = mdelay;
+	gd->jt->mdio_get_current_dev = mdio_get_current_dev;
+	gd->jt->phy_find_by_mask = phy_find_by_mask;
+	gd->jt->mdio_phydev_for_ethname = mdio_phydev_for_ethname;
+	gd->jt->miiphy_set_current_dev = miiphy_set_current_dev;
+#endif
 	return pci_eth_init(bis);
 }
