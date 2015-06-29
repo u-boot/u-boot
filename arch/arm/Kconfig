@@ -670,6 +670,8 @@ config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"
 	select CPU_V7
 	select SUPPORT_SPL
+	select OF_CONTROL
+	select SPL_DISABLE_OF_CONTROL
 	select DM
 	select DM_SPI
 	select DM_SPI_FLASH
