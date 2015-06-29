@@ -251,7 +251,11 @@ obj-$(CONFIG_DDR_SPD) += ddr_spd.o
 obj-$(CONFIG_SPD_EEPROM) += ddr_spd.o
 obj-$(CONFIG_HWCONFIG) += hwconfig.o
 obj-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
+ifdef CONFIG_SPL_BUILD
+obj-$(CONFIG_SPL_SERIAL_SUPPORT) += console.o
+else
 obj-y += console.o
+endif
 obj-$(CONFIG_CROS_EC) += cros_ec.o
 obj-y += dlmalloc.o
 ifdef CONFIG_SYS_MALLOC_F_LEN

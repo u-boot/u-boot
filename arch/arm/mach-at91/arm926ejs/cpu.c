@@ -42,7 +42,7 @@ void arch_preboot_os(void)
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
-	char buf[32];
+	char __maybe_unused buf[32];
 
 	printf("CPU: %s\n", ATMEL_CPU_NAME);
 	printf("Crystal frequency: %8s MHz\n",

@@ -40,6 +40,7 @@
 #define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
 #define CONFIG_SPL_MAX_SIZE	2048
 #define CONFIG_SPL_TEXT_BASE    0xA0000000
+#define CONFIG_SPL_SERIAL_SUPPORT
 
 /* NAND boot config */
 #define CONFIG_SPL_NAND_SUPPORT

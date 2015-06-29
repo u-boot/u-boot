@@ -54,6 +54,10 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 #include <u-boot/md5.h>
 #include <time.h>
 #include <image.h>
+
+#ifndef __maybe_unused
+# define __maybe_unused		/* unimplemented */
+#endif
 #endif /* !USE_HOSTCC*/
 
 #include <u-boot/crc.h>
@@ -274,7 +278,7 @@ void image_multi_getimg(const image_header_t *hdr, ulong idx,
 
 static void image_print_type(const image_header_t *hdr)
 {
-	const char *os, *arch, *type, *comp;
+	const char __maybe_unused *os, *arch, *type, *comp;
 
 	os = genimg_get_os_name(image_get_os(hdr));
 	arch = genimg_get_arch_name(image_get_arch(hdr));
@@ -299,7 +303,7 @@ static void image_print_type(const image_header_t *hdr)
 void image_print_contents(const void *ptr)
 {
 	const image_header_t *hdr = (const image_header_t *)ptr;
-	const char *p;
+	const char __maybe_unused *p;
 
 	p = IMAGE_INDENT_STRING;
 	printf("%sImage Name:   %.*s\n", p, IH_NMLEN, image_get_name(hdr));

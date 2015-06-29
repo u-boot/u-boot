@@ -68,7 +68,7 @@ void cli_simple_process_macros(const char *input, char *output)
 	/* 1 = waiting for '(' or '{' */
 	/* 2 = waiting for ')' or '}' */
 	/* 3 = waiting for '''  */
-	char *output_start = output;
+	char __maybe_unused *output_start = output;
 
 	debug_parser("[PROCESS_MACROS] INPUT len %zd: \"%s\"\n", strlen(input),
 		     input);
