@@ -10,6 +10,7 @@
 #include <asm/pl310.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <sdhci.h>
 
 #define DDR_BASE_CS_OFF(n)	(0x0000 + ((n) << 3))
 #define DDR_SIZE_CS_OFF(n)	(0x0004 + ((n) << 3))
@@ -240,6 +241,16 @@ int cpu_eth_init(bd_t *bis)
 
 	for (i = 0; i < ARRAY_SIZE(phy_addr); i++)
 		mvneta_initialize(bis, enet_base[i], i, phy_addr[i]);
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_MV_SDHCI
+int board_mmc_init(bd_t *bis)
+{
+	mv_sdh_init(MVEBU_SDIO_BASE, 0, 0,
+		    SDHCI_QUIRK_32BIT_DMA_ADDR | SDHCI_QUIRK_WAIT_SEND_CMD);
 
 	return 0;
 }
