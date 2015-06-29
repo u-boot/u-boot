@@ -4,6 +4,7 @@
  * Supports 8 bit SPI transfers only, with or w/o FIFO
  *
  * Based on bfin_spi.c, by way of altera_spi.c
+ * Copyright (c) 2015 Jagan Teki <jteki@openedev.com>
  * Copyright (c) 2012 Stephan Linz <linz@li-pro.net>
  * Copyright (c) 2010 Graeme Smecher <graeme.smecher@mail.mcgill.ca>
  * Copyright (c) 2010 Thomas Chou <thomas@wytron.com.tw>
@@ -14,6 +15,8 @@
 
 #include <config.h>
 #include <common.h>
+#include <dm.h>
+#include <errno.h>
 #include <malloc.h>
 #include <spi.h>
 
@@ -79,7 +82,7 @@
 #endif
 
 /* xilinx spi register set */
-struct xilinx_spi_reg {
+struct xilinx_spi_regs {
 	u32 __space0__[7];
 	u32 dgier;	/* Device Global Interrupt Enable Register (DGIER) */
 	u32 ipisr;	/* IP Interrupt Status Register (IPISR) */
@@ -97,113 +100,75 @@ struct xilinx_spi_reg {
 	u32 spirfor;	/* SPI Receive FIFO Occupancy Register (SPIRFOR) */
 };
 
-/* xilinx spi slave */
-struct xilinx_spi_slave {
-	struct spi_slave slave;
-	struct xilinx_spi_reg *regs;
+/* xilinx spi priv */
+struct xilinx_spi_priv {
+	struct xilinx_spi_regs *regs;
 	unsigned int freq;
 	unsigned int mode;
 };
 
-static inline struct xilinx_spi_slave *to_xilinx_spi_slave(
-			struct spi_slave *slave)
-{
-	return container_of(slave, struct xilinx_spi_slave, slave);
-}
-
 static unsigned long xilinx_spi_base_list[] = CONFIG_SYS_XILINX_SPI_LIST;
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+static int xilinx_spi_probe(struct udevice *bus)
 {
-	return bus < ARRAY_SIZE(xilinx_spi_base_list) && cs < 32;
-}
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
 
-void spi_cs_activate(struct spi_slave *slave)
-{
-	struct xilinx_spi_slave *xilspi = to_xilinx_spi_slave(slave);
+	priv->regs = (struct xilinx_spi_regs *)xilinx_spi_base_list[bus->seq];
 
-	writel(SPISSR_ACT(slave->cs), &xilspi->regs->spissr);
-}
+	writel(SPISSR_RESET_VALUE, &regs->srr);
 
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	struct xilinx_spi_slave *xilspi = to_xilinx_spi_slave(slave);
-
-	writel(SPISSR_OFF, &xilspi->regs->spissr);
-}
-
-void spi_init(void)
-{
-	/* do nothing */
-}
-
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-				  unsigned int max_hz, unsigned int mode)
-{
-	struct xilinx_spi_slave *xilspi;
-
-	if (!spi_cs_is_valid(bus, cs)) {
-		printf("XILSPI error: unsupported bus %d / cs %d\n", bus, cs);
-		return NULL;
-	}
-
-	xilspi = spi_alloc_slave(struct xilinx_spi_slave, bus, cs);
-	if (!xilspi) {
-		printf("XILSPI error: malloc of SPI structure failed\n");
-		return NULL;
-	}
-	xilspi->regs = (struct xilinx_spi_reg *)xilinx_spi_base_list[bus];
-	xilspi->freq = max_hz;
-	xilspi->mode = mode;
-	debug("spi_setup_slave: bus:%i cs:%i base:%p mode:%x max_hz:%d\n",
-	      bus, cs, xilspi->regs, xilspi->mode, xilspi->freq);
-
-	writel(SPISSR_RESET_VALUE, &xilspi->regs->srr);
-
-	return &xilspi->slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct xilinx_spi_slave *xilspi = to_xilinx_spi_slave(slave);
-
-	free(xilspi);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	struct xilinx_spi_slave *xilspi = to_xilinx_spi_slave(slave);
-	u32 spicr;
-
-	debug("spi_claim_bus: bus:%i cs:%i\n", slave->bus, slave->cs);
-	writel(SPISSR_OFF, &xilspi->regs->spissr);
-
-	spicr = XILSPI_SPICR_DFLT_ON;
-	if (xilspi->mode & SPI_LSB_FIRST)
-		spicr |= SPICR_LSB_FIRST;
-	if (xilspi->mode & SPI_CPHA)
-		spicr |= SPICR_CPHA;
-	if (xilspi->mode & SPI_CPOL)
-		spicr |= SPICR_CPOL;
-	if (xilspi->mode & SPI_LOOP)
-		spicr |= SPICR_LOOP;
-
-	writel(spicr, &xilspi->regs->spicr);
 	return 0;
 }
 
-void spi_release_bus(struct spi_slave *slave)
+static void spi_cs_activate(struct udevice *dev, uint cs)
 {
-	struct xilinx_spi_slave *xilspi = to_xilinx_spi_slave(slave);
+	struct udevice *bus = dev_get_parent(dev);
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
 
-	debug("spi_release_bus: bus:%i cs:%i\n", slave->bus, slave->cs);
-	writel(SPISSR_OFF, &xilspi->regs->spissr);
-	writel(XILSPI_SPICR_DFLT_OFF, &xilspi->regs->spicr);
+	writel(SPISSR_ACT(cs), &regs->spissr);
 }
 
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
-	     void *din, unsigned long flags)
+static void spi_cs_deactivate(struct udevice *dev)
 {
-	struct xilinx_spi_slave *xilspi = to_xilinx_spi_slave(slave);
+	struct udevice *bus = dev_get_parent(dev);
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
+
+	writel(SPISSR_OFF, &regs->spissr);
+}
+
+static int xilinx_spi_claim_bus(struct udevice *dev)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
+
+	writel(SPISSR_OFF, &regs->spissr);
+	writel(XILSPI_SPICR_DFLT_ON, &regs->spicr);
+
+	return 0;
+}
+
+static int xilinx_spi_release_bus(struct udevice *dev)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
+
+	writel(SPISSR_OFF, &regs->spissr);
+	writel(XILSPI_SPICR_DFLT_OFF, &regs->spicr);
+
+	return 0;
+}
+
+static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+			    const void *dout, void *din, unsigned long flags)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 	/* assume spi core configured to do 8 bit transfers */
 	unsigned int bytes = bitlen / XILSPI_MAX_XFER_BITS;
 	const unsigned char *txp = dout;
@@ -212,7 +177,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	unsigned global_timeout;
 
 	debug("spi_xfer: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n",
-	      slave->bus, slave->cs, bitlen, bytes, flags);
+	      bus->seq, slave_plat->cs, bitlen, bytes, flags);
 
 	if (bitlen == 0)
 		goto done;
@@ -225,8 +190,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	}
 
 	/* empty read buffer */
-	while (rxecount && !(readl(&xilspi->regs->spisr) & SPISR_RX_EMPTY)) {
-		readl(&xilspi->regs->spidrr);
+	while (rxecount && !(readl(&regs->spisr) & SPISR_RX_EMPTY)) {
+		readl(&regs->spidrr);
 		rxecount--;
 	}
 
@@ -236,11 +201,11 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	}
 
 	if (flags & SPI_XFER_BEGIN)
-		spi_cs_activate(slave);
+		spi_cs_activate(dev, slave_plat->cs);
 
 	/* at least 1usec or greater, leftover 1 */
-	global_timeout = xilspi->freq > XILSPI_MAX_XFER_BITS * 1000000 ? 2 :
-			(XILSPI_MAX_XFER_BITS * 1000000 / xilspi->freq) + 1;
+	global_timeout = priv->freq > XILSPI_MAX_XFER_BITS * 1000000 ? 2 :
+			(XILSPI_MAX_XFER_BITS * 1000000 / priv->freq) + 1;
 
 	while (bytes--) {
 		unsigned timeout = global_timeout;
@@ -249,8 +214,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		debug("spi_xfer: tx:%x ", d);
 
 		/* write out and wait for processing (receive data) */
-		writel(d & SPIDTR_8BIT_MASK, &xilspi->regs->spidtr);
-		while (timeout && readl(&xilspi->regs->spisr)
+		writel(d & SPIDTR_8BIT_MASK, &regs->spidtr);
+		while (timeout && readl(&regs->spisr)
 						& SPISR_RX_EMPTY) {
 			timeout--;
 			udelay(1);
@@ -262,7 +227,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		}
 
 		/* read Rx element and push into data in buffer */
-		d = readl(&xilspi->regs->spidrr) & SPIDRR_8BIT_MASK;
+		d = readl(&regs->spidrr) & SPIDRR_8BIT_MASK;
 		if (rxp)
 			*rxp++ = d;
 		debug("spi_xfer: rx:%x\n", d);
@@ -270,7 +235,66 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
  done:
 	if (flags & SPI_XFER_END)
-		spi_cs_deactivate(slave);
+		spi_cs_deactivate(dev);
 
 	return 0;
 }
+
+static int xilinx_spi_set_speed(struct udevice *bus, uint speed)
+{
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+
+	priv->freq = speed;
+
+	debug("xilinx_spi_set_speed: regs=%p, mode=%d\n", priv->regs,
+	      priv->freq);
+
+	return 0;
+}
+
+static int xilinx_spi_set_mode(struct udevice *bus, uint mode)
+{
+	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+	struct xilinx_spi_regs *regs = priv->regs;
+	uint32_t spicr;
+
+	spicr = readl(&regs->spicr);
+	if (priv->mode & SPI_LSB_FIRST)
+		spicr |= SPICR_LSB_FIRST;
+	if (priv->mode & SPI_CPHA)
+		spicr |= SPICR_CPHA;
+	if (priv->mode & SPI_CPOL)
+		spicr |= SPICR_CPOL;
+	if (priv->mode & SPI_LOOP)
+		spicr |= SPICR_LOOP;
+
+	writel(spicr, &regs->spicr);
+	priv->mode = mode;
+
+	debug("xilinx_spi_set_mode: regs=%p, mode=%d\n", priv->regs,
+	      priv->mode);
+
+	return 0;
+}
+
+static const struct dm_spi_ops xilinx_spi_ops = {
+	.claim_bus	= xilinx_spi_claim_bus,
+	.release_bus	= xilinx_spi_release_bus,
+	.xfer		= xilinx_spi_xfer,
+	.set_speed	= xilinx_spi_set_speed,
+	.set_mode	= xilinx_spi_set_mode,
+};
+
+static const struct udevice_id xilinx_spi_ids[] = {
+	{ .compatible = "xlnx,xilinx-spi" },
+	{ }
+};
+
+U_BOOT_DRIVER(xilinx_spi) = {
+	.name	= "xilinx_spi",
+	.id	= UCLASS_SPI,
+	.of_match = xilinx_spi_ids,
+	.ops	= &xilinx_spi_ops,
+	.priv_auto_alloc_size = sizeof(struct xilinx_spi_priv),
+	.probe	= xilinx_spi_probe,
+};
