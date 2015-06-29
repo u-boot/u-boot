@@ -630,7 +630,7 @@ int lpc32xx_eth_initialize(bd_t *bis)
 	eth_register(dev);
 
 #if defined(CONFIG_PHYLIB)
-	lpc32xx_eth_phylib_init(dev, 0);
+	lpc32xx_eth_phylib_init(dev, CONFIG_PHY_ADDR);
 #elif defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_register(dev->name, mii_reg_read, mii_reg_write);
 #endif
