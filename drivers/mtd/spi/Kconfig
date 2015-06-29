@@ -34,6 +34,14 @@ config SPI_FLASH
 
 	  If unsure, say N
 
+config SPI_FLASH_BAR
+	bool "SPI flash Bank/Extended address register support"
+	depends on SPI_FLASH
+	help
+	  Enable the SPI flash Bank/Extended address register support.
+	  Bank/Extended address registers are used to access the flash
+	  which has size > 16MiB in 3-byte addressing.
+
 config SPI_FLASH_DATAFLASH
 	bool "AT45xxx DataFlash support"
 	depends on SPI_FLASH && DM_SPI_FLASH
