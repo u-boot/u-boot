@@ -299,9 +299,6 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 
 		writel(1 << i, mmio + HOST_IRQ_STAT);
 
-		/* set irq mask (enables interrupts) */
-		writel(DEF_PORT_IRQ, port_mmio + PORT_IRQ_MASK);
-
 		/* register linkup ports */
 		tmp = readl(port_mmio + PORT_SCR_STAT);
 		debug("SATA port %d status: 0x%x\n", i, tmp);
