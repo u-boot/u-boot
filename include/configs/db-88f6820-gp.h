@@ -29,7 +29,12 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_MMC
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
@@ -47,6 +52,23 @@
 #define CONFIG_SF_DEFAULT_SPEED		1000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 #define CONFIG_SPI_FLASH_STMICRO
+
+/*
+ * SDIO/MMC Card Configuration
+ */
+#define CONFIG_MMC
+#define CONFIG_MMC_SDMA
+#define CONFIG_GENERIC_MMC
+#define CONFIG_SDHCI
+#define CONFIG_MV_SDHCI
+#define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
+
+/* Partition support */
+#define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+
+/* Additional FS support/configuration */
+#define CONFIG_SUPPORT_VFAT
 
 /* Environment in SPI NOR flash */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
