@@ -16,6 +16,7 @@
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
 #include <i2c.h>
+#include <rtc.h>
 #include <asm/arch-fsl-lsch3/soc.h>
 #include <hwconfig.h>
 
@@ -209,6 +210,7 @@ int board_init(void)
 	gd->env_addr = (ulong)&default_environment[0];
 #endif
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	rtc_enable_32khz_output();
 
 	return 0;
 }
