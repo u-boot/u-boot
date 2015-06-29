@@ -82,6 +82,12 @@ void cpu_name(char *name)
 			TCR_ORGN_NC		| \
 			TCR_IRGN_NC		| \
 			TCR_T0SZ(LSCH3_VA_BITS))
+#define LSCH3_TCR_FINAL	(TCR_TG0_4K		| \
+			TCR_EL2_PS_40BIT	| \
+			TCR_SHARED_OUTER	| \
+			TCR_ORGN_WBWA		| \
+			TCR_IRGN_WBWA		| \
+			TCR_T0SZ(LSCH3_VA_BITS))
 
 /*
  * Final MMU
@@ -266,21 +272,8 @@ static inline void final_mmu_setup(void)
 
 	/* point TTBR to the new table */
 	el = current_el();
-	asm volatile("dsb sy");
-	if (el == 1) {
-		asm volatile("msr ttbr0_el1, %0"
-			     : : "r" ((u64)level0_table) : "memory");
-	} else if (el == 2) {
-		asm volatile("msr ttbr0_el2, %0"
-			     : : "r" ((u64)level0_table) : "memory");
-	} else if (el == 3) {
-		asm volatile("msr ttbr0_el3, %0"
-			     : : "r" ((u64)level0_table) : "memory");
-	} else {
-		hang();
-	}
-	asm volatile("isb");
-
+	set_ttbr_tcr_mair(el, (u64)level0_table, LSCH3_TCR_FINAL,
+			  MEMORY_ATTRIBUTES);
 	/*
 	 * MMU is already enabled, just need to invalidate TLB to load the
 	 * new table. The new table is compatible with the current table, if
