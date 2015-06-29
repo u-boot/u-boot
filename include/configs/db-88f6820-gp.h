@@ -36,6 +36,7 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_SCSI
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_TFTPPUT
