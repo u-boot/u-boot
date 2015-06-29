@@ -1,5 +1,6 @@
 obj-$(CONFIG_AT91_WANTS_COMMON_PHY) += phy.o
 ifneq ($(CONFIG_SPL_BUILD),)
+obj-$(CONFIG_AT91SAM9260) += sdram.o spl_at91.o
 obj-$(CONFIG_AT91SAM9G20) += sdram.o spl_at91.o
 obj-$(CONFIG_AT91SAM9M10G45) += mpddrc.o spl_at91.o
 obj-$(CONFIG_AT91SAM9N12) += mpddrc.o spl_at91.o

@@ -276,6 +276,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_TRIZEPS4WL           1649
 #define MACH_TYPE_TS78XX               1652
 #define MACH_TYPE_SFFSDR               1657
+#define MACH_TYPE_SMARTWEB             1668
 #define MACH_TYPE_PCM037               1673
 #define MACH_TYPE_DB88F6281_BP         1680
 #define MACH_TYPE_RD88F6192_NAS        1681
