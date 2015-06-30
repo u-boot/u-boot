@@ -645,9 +645,13 @@ config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
 	select DM
 	select DM_GPIO
+	select DM_ETH
+	select DM_SERIAL
+	select DM_USB if !USB_MUSB_SUNXI
 	select OF_CONTROL
 	select OF_SEPARATE
 	select SPL_DISABLE_OF_CONTROL
+	select USB
 
 config TARGET_SNOWBALL
 	bool "Support snowball"
