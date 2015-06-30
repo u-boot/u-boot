@@ -667,6 +667,10 @@ config TARGET_SNOWBALL
 	bool "Support snowball"
 	select CPU_V7
 
+config TARGET_TS4800
+	bool "Support TS4800"
+	select CPU_V7
+
 config TARGET_U8500_HREF
 	bool "Support u8500_href"
 	select CPU_V7
@@ -991,6 +995,7 @@ source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/toradex/colibri_vf/Kconfig"
 source "board/trizepsiv/Kconfig"
+source "board/technologic/ts4800/Kconfig"
 source "board/ttcontrol/vision2/Kconfig"
 source "board/udoo/Kconfig"
 source "board/vpac270/Kconfig"
