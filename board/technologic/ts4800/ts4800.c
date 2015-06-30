@@ -21,6 +21,9 @@
 #include <fsl_esdhc.h>
 #include <mc13892.h>
 
+#include <malloc.h>
+#include <netdev.h>
+#include <phy.h>
 #include "ts4800.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -60,6 +63,36 @@ static void setup_iomux_uart(void)
 	};
 
 	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
+}
+
+static void setup_iomux_fec(void)
+{
+	static const iomux_v3_cfg_t fec_pads[] = {
+		NEW_PAD_CTRL(MX51_PAD_EIM_EB2__FEC_MDIO,
+				PAD_CTL_HYS |
+				PAD_CTL_PUS_22K_UP |
+				PAD_CTL_DSE_HIGH | PAD_CTL_SRE_FAST),
+		MX51_PAD_EIM_EB3__FEC_RDATA1,
+		NEW_PAD_CTRL(MX51_PAD_EIM_CS2__FEC_RDATA2, PAD_CTL_HYS),
+		MX51_PAD_EIM_CS3__FEC_RDATA3,
+		MX51_PAD_NANDF_CS2__FEC_TX_ER,
+		MX51_PAD_EIM_CS5__FEC_CRS,
+		MX51_PAD_EIM_CS4__FEC_RX_ER,
+		/* PAD used on TS4800 */
+		MX51_PAD_DI2_PIN2__FEC_MDC,
+		MX51_PAD_DISP2_DAT14__FEC_RDAT0,
+		MX51_PAD_DISP2_DAT10__FEC_COL,
+		MX51_PAD_DISP2_DAT11__FEC_RXCLK,
+		MX51_PAD_DISP2_DAT15__FEC_TDAT0,
+		MX51_PAD_DISP2_DAT6__FEC_TDAT1,
+		MX51_PAD_DISP2_DAT7__FEC_TDAT2,
+		MX51_PAD_DISP2_DAT8__FEC_TDAT3,
+		MX51_PAD_DISP2_DAT9__FEC_TX_EN,
+		MX51_PAD_DISP2_DAT13__FEC_TX_CLK,
+		MX51_PAD_DISP2_DAT12__FEC_RX_DV,
+	};
+
+	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
 }
 
 #ifdef CONFIG_FSL_ESDHC
@@ -113,6 +146,7 @@ int board_mmc_init(bd_t *bis)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
+	setup_iomux_fec();
 
 	return 0;
 }
@@ -123,6 +157,75 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	return 0;
+}
+
+/*
+ * Read the MAC address from FEC's registers PALR PAUR.
+ * User is supposed to configure these registers when MAC address is known
+ * from another source (fuse), but on TS4800, MAC address is not fused and
+ * the bootrom configure these registers on startup.
+ */
+static int fec_get_mac_from_register(uint32_t base_addr)
+{
+	unsigned char ethaddr[6];
+	u32 reg_mac[2];
+	int i;
+
+	reg_mac[0] = in_be32(base_addr + 0xE4);
+	reg_mac[1] = in_be32(base_addr + 0xE8);
+
+	for(i = 0; i < 6; i++)
+		ethaddr[i] = (reg_mac[i / 4] >> ((i % 4) * 8)) & 0xFF;
+
+	if (is_valid_ethaddr(ethaddr)) {
+		eth_setenv_enetaddr("ethaddr", ethaddr);
+		return 0;
+	}
+
+	return -1;
+}
+
+#define TS4800_GPIO_FEC_PHY_RES         IMX_GPIO_NR(2, 14)
+int board_eth_init(bd_t *bd)
+{
+	int dev_id = -1;
+	int phy_id = 0xFF;
+	uint32_t addr = IMX_FEC_BASE;
+
+	uint32_t base_mii;
+	struct mii_dev *bus = NULL;
+	struct phy_device *phydev = NULL;
+	int ret;
+
+	/* reset FEC phy */
+	imx_iomux_v3_setup_pad(MX51_PAD_EIM_A20__GPIO2_14);
+	gpio_direction_output(TS4800_GPIO_FEC_PHY_RES, 0);
+	mdelay(1);
+	gpio_set_value(TS4800_GPIO_FEC_PHY_RES, 1);
+	mdelay(1);
+
+	base_mii = addr;
+	debug("eth_init: fec_probe(bd, %i, %i) @ %08x\n", dev_id, phy_id, addr);
+	bus = fec_get_miibus(base_mii, dev_id);
+	if (!bus)
+		return -ENOMEM;
+
+	phydev = phy_find_by_mask(bus, phy_id, PHY_INTERFACE_MODE_MII);
+	if (!phydev) {
+		free(bus);
+		return -ENOMEM;
+	}
+
+	if (fec_get_mac_from_register(addr))
+		printf("eth_init: failed to get MAC address\n");
+
+	ret = fec_probe(bd, dev_id, addr, bus, phydev);
+	if (ret) {
+		free(phydev);
+		free(bus);
+	}
+
+	return ret;
 }
 
 /*

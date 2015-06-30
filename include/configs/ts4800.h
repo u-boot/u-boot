@@ -73,6 +73,22 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
+/*
+ * Eth Configs
+ */
+#define CONFIG_MII
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_SMSC
+
+#define CONFIG_FEC_MXC
+#define IMX_FEC_BASE	        FEC_BASE_ADDR
+#define CONFIG_ETHPRIME		"FEC"
+#define CONFIG_FEC_MXC_PHYADDR	0
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_MII
+
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE		/* disable vendor parameters protection (serial#, ethaddr) */
 #define CONFIG_CONS_INDEX		1 /* use UART0 : used by serial driver */
