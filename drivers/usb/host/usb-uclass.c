@@ -146,6 +146,9 @@ int usb_stop(void)
 		ret = device_remove(bus);
 		if (ret && !err)
 			err = ret;
+		ret = device_unbind_children(bus);
+		if (ret && !err)
+			err = ret;
 	}
 
 #ifdef CONFIG_SANDBOX
