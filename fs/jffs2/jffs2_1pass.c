@@ -1528,6 +1528,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 		uint32_t sumlen;
 		int ret;
 #endif
+		/* Indicates a sector with a CLEANMARKER was found */
+		int clean_sector = 0;
 
 		/* Set buf_size to maximum length */
 		buf_size = DEFAULT_EMPTY_SCAN_SIZE;
@@ -1652,6 +1654,14 @@ jffs2_1pass_build_lists(struct part_info * part)
 					ofs += 4;
 				}
 				/* Ran off end. */
+				/*
+				 * If this sector had a clean marker at the
+				 * beginning, and immediately following this
+				 * have been a bunch of FF bytes, treat the
+				 * entire sector as empty.
+				 */
+				if (clean_sector)
+					break;
 
 				/* See how much more there is to read in this
 				 * eraseblock...
@@ -1673,6 +1683,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 				buf_ofs = ofs;
 				goto more_empty;
 			}
+			/*
+			 * Found something not erased in the sector, so reset
+			 * the 'clean_sector' flag.
+			 */
+			clean_sector = 0;
 			if (node->magic != JFFS2_MAGIC_BITMASK ||
 					!hdr_crc(node)) {
 				ofs += 4;
@@ -1754,6 +1769,16 @@ jffs2_1pass_build_lists(struct part_info * part)
 						"%d != %zu\n",
 						node->totlen,
 						sizeof(struct jffs2_unknown_node));
+				if ((node->totlen ==
+				     sizeof(struct jffs2_unknown_node)) &&
+				    (ofs == sector_ofs)) {
+					/*
+					 * Found a CLEANMARKER at the beginning
+					 * of the sector. It's in the correct
+					 * place with correct size and CRC.
+					 */
+					clean_sector = 1;
+				}
 				break;
 			case JFFS2_NODETYPE_PADDING:
 				if (node->totlen < sizeof(struct jffs2_unknown_node))
