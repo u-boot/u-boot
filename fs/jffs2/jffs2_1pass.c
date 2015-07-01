@@ -1501,7 +1501,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 	u32 counterF = 0;
 	u32 counterN = 0;
 	u32 max_totlen = 0;
-	u32 buf_size = DEFAULT_EMPTY_SCAN_SIZE;
+	u32 buf_size;
 	char *buf;
 
 	nr_sectors = lldiv(part->size, part->sector_size);
@@ -1513,7 +1513,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 	/* if we are building a list we need to refresh the cache. */
 	jffs_init_1pass_list(part);
 	pL = (struct b_lists *)part->jffs2_priv;
-	buf = malloc(buf_size);
+	buf = malloc(DEFAULT_EMPTY_SCAN_SIZE);
 	puts ("Scanning JFFS2 FS:   ");
 
 	/* start at the beginning of the partition */
@@ -1529,6 +1529,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 		int ret;
 #endif
 
+		/* Set buf_size to maximum length */
+		buf_size = DEFAULT_EMPTY_SCAN_SIZE;
 		WATCHDOG_RESET();
 
 #ifdef CONFIG_JFFS2_SUMMARY
@@ -1603,6 +1605,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 
 		ofs += sector_ofs;
 		prevofs = ofs - 1;
+		/*
+		 * Set buf_size down to the minimum size required.
+		 * This prevents reading in chunks of flash data unnecessarily.
+		 */
+		buf_size = sizeof(union jffs2_node_union);
 
 	scan_more:
 		while (ofs < sector_ofs + part->sector_size) {
@@ -1683,13 +1690,18 @@ jffs2_1pass_build_lists(struct part_info * part)
 			case JFFS2_NODETYPE_INODE:
 				if (buf_ofs + buf_len < ofs + sizeof(struct
 							jffs2_raw_inode)) {
+					buf_len = min_t(uint32_t,
+							sizeof(struct jffs2_raw_inode),
+							sector_ofs +
+							part->sector_size -
+							ofs);
 					get_fl_mem((u32)part->offset + ofs,
 						   buf_len, buf);
 					buf_ofs = ofs;
 					node = (void *)buf;
 				}
-				if (!inode_crc((struct jffs2_raw_inode *) node))
-				       break;
+				if (!inode_crc((struct jffs2_raw_inode *)node))
+					break;
 
 				if (insert_node(&pL->frag, (u32) part->offset +
 						ofs) == NULL) {
@@ -1706,6 +1718,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 							((struct
 							 jffs2_raw_dirent *)
 							node)->nsize) {
+					buf_len = min_t(uint32_t,
+							node->totlen,
+							sector_ofs +
+							part->sector_size -
+							ofs);
 					get_fl_mem((u32)part->offset + ofs,
 						   buf_len, buf);
 					buf_ofs = ofs;
