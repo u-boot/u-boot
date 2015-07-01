@@ -735,8 +735,13 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 #endif
 
 	for (b = pL->frag.listHead; b != NULL; b = b->next) {
-		jNode = (struct jffs2_raw_inode *) get_node_mem(b->offset,
-								pL->readbuf);
+		/*
+		 * Copy just the node and not the data at this point,
+		 * since we don't yet know if we need this data.
+		 */
+		jNode = (struct jffs2_raw_inode *)get_fl_mem(b->offset,
+				sizeof(struct jffs2_raw_inode),
+				pL->readbuf);
 		if (inode == jNode->ino) {
 #if 0
 			putLabeledWord("\r\n\r\nread_inode: totlen = ", jNode->totlen);
@@ -760,7 +765,15 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 #endif
 
 			if(dest) {
-				src = ((uchar *) jNode) + sizeof(struct jffs2_raw_inode);
+				/*
+				 * Now that the inode has been checked,
+				 * read the entire inode, including data.
+				 */
+				put_fl_mem(jNode, pL->readbuf);
+				jNode = (struct jffs2_raw_inode *)
+					get_node_mem(b->offset, pL->readbuf);
+				src = ((uchar *)jNode) +
+					sizeof(struct jffs2_raw_inode);
 				/* ignore data behind latest known EOF */
 				if (jNode->offset > totalSize) {
 					put_fl_mem(jNode, pL->readbuf);
@@ -967,7 +980,6 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 								pL->readbuf);
 		if (pino == jDir->pino) {
 			u32 i_version = 0;
-			struct jffs2_raw_inode ojNode;
 			struct jffs2_raw_inode *jNode, *i = NULL;
 			struct b_node *b2;
 
@@ -1003,8 +1015,10 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 
 			for (b2 = pL->frag.listHead; b2; b2 = b2->next) {
 				jNode = (struct jffs2_raw_inode *)
-					get_fl_mem(b2->offset, sizeof(ojNode), &ojNode);
-				if (jNode->ino == jDir->ino && jNode->version >= i_version) {
+					get_fl_mem(b2->offset, sizeof(*jNode),
+						   NULL);
+				if (jNode->ino == jDir->ino &&
+				    jNode->version >= i_version) {
 					i_version = jNode->version;
 					if (i)
 						put_fl_mem(i, NULL);
@@ -1017,6 +1031,7 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 							       sizeof(*i),
 							       NULL);
 				}
+				put_fl_mem(jNode, NULL);
 			}
 
 			dump_inode(pL, jDir, i);
