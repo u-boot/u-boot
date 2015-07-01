@@ -598,14 +598,18 @@ insert_node(struct b_list *list, u32 offset)
  */
 static int compare_inodes(struct b_node *new, struct b_node *old)
 {
-	struct jffs2_raw_inode ojNew;
-	struct jffs2_raw_inode ojOld;
-	struct jffs2_raw_inode *jNew =
-		(struct jffs2_raw_inode *)get_fl_mem(new->offset, sizeof(ojNew), &ojNew);
-	struct jffs2_raw_inode *jOld =
-		(struct jffs2_raw_inode *)get_fl_mem(old->offset, sizeof(ojOld), &ojOld);
+	/*
+	 * Only read in the version info from flash, not the entire inode.
+	 * This can make a big difference to speed if flash is slow.
+	 */
+	u32 new_version;
+	u32 old_version;
+	get_fl_mem(new->offset + offsetof(struct jffs2_raw_inode, version),
+		   sizeof(new_version), &new_version);
+	get_fl_mem(old->offset + offsetof(struct jffs2_raw_inode, version),
+		   sizeof(old_version), &old_version);
 
-	return jNew->version > jOld->version;
+	return new_version > old_version;
 }
 
 /* Sort directory entries so all entries in the same directory
@@ -615,42 +619,45 @@ static int compare_inodes(struct b_node *new, struct b_node *old)
  */
 static int compare_dirents(struct b_node *new, struct b_node *old)
 {
-	struct jffs2_raw_dirent ojNew;
-	struct jffs2_raw_dirent ojOld;
-	struct jffs2_raw_dirent *jNew =
-		(struct jffs2_raw_dirent *)get_fl_mem(new->offset, sizeof(ojNew), &ojNew);
-	struct jffs2_raw_dirent *jOld =
-		(struct jffs2_raw_dirent *)get_fl_mem(old->offset, sizeof(ojOld), &ojOld);
+	/*
+	 * Using NULL as the buffer for NOR flash prevents the entire node
+	 * being read. This makes most comparisons much quicker as only one
+	 * or two entries from the node will be used most of the time.
+	 */
+	struct jffs2_raw_dirent *jNew = get_node_mem(new->offset, NULL);
+	struct jffs2_raw_dirent *jOld = get_node_mem(old->offset, NULL);
 	int cmp;
+	int ret;
 
-	/* ascending sort by pino */
-	if (jNew->pino != jOld->pino)
-		return jNew->pino > jOld->pino;
-
-	/* pino is the same, so use ascending sort by nsize, so
-	 * we don't do strncmp unless we really must.
-	 */
-	if (jNew->nsize != jOld->nsize)
-		return jNew->nsize > jOld->nsize;
-
-	/* length is also the same, so use ascending sort by name
-	 */
-	cmp = strncmp((char *)jNew->name, (char *)jOld->name, jNew->nsize);
-	if (cmp != 0)
-		return cmp > 0;
-
-	/* we have duplicate names in this directory, so use ascending
-	 * sort by version
-	 */
-	if (jNew->version > jOld->version) {
-		/* since jNew is newer, we know jOld is not valid, so
-		 * mark it with inode 0 and it will not be used
+	if (jNew->pino != jOld->pino) {
+		/* ascending sort by pino */
+		ret = jNew->pino > jOld->pino;
+	} else if (jNew->nsize != jOld->nsize) {
+		/*
+		 * pino is the same, so use ascending sort by nsize,
+		 * so we don't do strncmp unless we really must.
 		 */
-		jOld->ino = 0;
-		return 1;
+		ret = jNew->nsize > jOld->nsize;
+	} else {
+		/*
+		 * length is also the same, so use ascending sort by name
+		 */
+		cmp = strncmp((char *)jNew->name, (char *)jOld->name,
+			jNew->nsize);
+		if (cmp != 0) {
+			ret = cmp > 0;
+		} else {
+			/*
+			 * we have duplicate names in this directory,
+			 * so use ascending sort by version
+			 */
+			ret = jNew->version > jOld->version;
+		}
 	}
+	put_fl_mem(jNew, NULL);
+	put_fl_mem(jOld, NULL);
 
-	return 0;
+	return ret;
 }
 #endif
 
