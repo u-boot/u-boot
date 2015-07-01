@@ -484,8 +484,9 @@ int add_mtd_partitions(struct mtd_info *, const struct mtd_partition *, int);
 int del_mtd_partitions(struct mtd_info *);
 
 int mtd_arg_off(const char *arg, int *idx, loff_t *off, loff_t *size,
-		loff_t *maxsize, int devtype, int chipsize);
+		loff_t *maxsize, int devtype, uint64_t chipsize);
 int mtd_arg_off_size(int argc, char *const argv[], int *idx, loff_t *off,
-		 loff_t *size, loff_t *maxsize, int devtype, int chipsize);
+		     loff_t *size, loff_t *maxsize, int devtype,
+		     uint64_t chipsize);
 #endif
 #endif /* __MTD_MTD_H__ */
