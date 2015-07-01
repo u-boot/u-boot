@@ -241,6 +241,9 @@ int arch_cpu_init(void)
 	 */
 	mvebu_mbus_probe(windows, ARRAY_SIZE(windows));
 
+	/* Disable MBUS error propagation */
+	clrsetbits_le32(SOC_COHERENCY_FABRIC_CTRL_REG, MBUS_ERR_PROP_EN, 0);
+
 	return 0;
 }
 #endif /* CONFIG_ARCH_CPU_INIT */
