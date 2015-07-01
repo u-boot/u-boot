@@ -40,9 +40,7 @@
 #define CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
 #endif
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_PALMAS_POWER
-#endif
 
 #include <asm/arch/cpu.h>
 #include <asm/arch/omap.h>
