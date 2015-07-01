@@ -299,7 +299,7 @@ unsigned long get_board_sys_clk(void);
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_start=0x581100000\0"		\
 	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x2000000\0"
+	"kernel_size=0x2800000\0"
 
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET

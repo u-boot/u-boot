@@ -247,7 +247,7 @@ unsigned long long get_qixis_addr(void);
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_start=0x581200000\0"		\
 	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x2000000\0"		\
+	"kernel_size=0x2800000\0"		\
 	"console=ttyAMA0,38400n8\0"
 
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
