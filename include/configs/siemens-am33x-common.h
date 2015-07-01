@@ -480,7 +480,7 @@
 
 /*
  * Variant 2 partition layout
- * chip-size = 256MiB
+ * chip-size = 256MiB or 512 MiB
  *|         name |        size |           address area |
  *-------------------------------------------------------
  *|          spl | 128.000 KiB | 0x       0..0x   1ffff |
@@ -490,23 +490,23 @@
  *|       u-boot |   1.875 MiB | 0x   80000..0x  25ffff |
  *|   uboot.env0 | 512.000 KiB | 0x  260000..0x  2Dffff |
  *|   uboot.env1 | 512.000 KiB | 0x  2E0000..0x  35ffff |
- *|       rootfs | 148.000 MiB | 0x  360000..0x 975ffff |
- *|      mtdoops | 512.000 KiB | 0x 9760000..0x 98Dffff |
- *|configuration | 104.125 MiB | 0x 97E0000..0x fffffff |
+ *|      mtdoops | 512.000 KiB | 0x  360000..0x  3dffff |
+ *| (256) rootfs | 252.125 MiB | 0x  3E0000..0x fffffff |
+ *| (512) rootfs | 508.125 MiB | 0x  3E0000..0x1fffffff |
  *-------------------------------------------------------
  */
 
 #define MTDPARTS_DEFAULT_V2	"mtdparts=" MTDIDS_NAME_STR ":" \
-					"128k(spl),"		\
-					"128k(spl.backup1),"	\
-					"128k(spl.backup2),"	\
-					"128k(spl.backup3),"	\
-					"1920k(u-boot),"	\
-					"512k(u-boot.env0),"	\
-					"512k(u-boot.env1),"	\
-					"148m(rootfs),"		\
-					"512k(mtdoops),"	\
-					"-(configuration)"
+					"128k(spl)," \
+					"128k(spl.backup1)," \
+					"128k(spl.backup2)," \
+					"128k(spl.backup3)," \
+					"1920k(u-boot)," \
+					"512k(u-boot.env0)," \
+					"512k(u-boot.env1)," \
+					"512k(mtdoops)," \
+					"-(rootfs)"
+
 
 #define DFU_ALT_INFO_NAND_V2 \
 	"spl part 0 1;" \
@@ -516,8 +516,7 @@
 	"u-boot part 0 5;" \
 	"u-boot.env0 part 0 6;" \
 	"u-boot.env1 part 0 7;" \
-	"rootfs partubi 0 8;" \
-	"configuration partubi 0 10"
+	"rootfs partubi 0 9" \
 
 #define CONFIG_ENV_SETTINGS_NAND_V2 \
 	"nand_active_ubi_vol=rootfs_a\0" \
@@ -534,7 +533,7 @@
 			"setenv nand_active_ubi_vol ${rootfs_name}_b;" \
 		"fi;" \
 		"setenv nand_root ubi0:${nand_active_ubi_vol} rw " \
-		"ubi.mtd=7,2048 ubi.mtd=9,2048;" \
+		"ubi.mtd=rootfs,2048;" \
 		"setenv bootargs ${bootargs} " \
 		"root=${nand_root} noinitrd ${mtdparts} " \
 		"rootfstype=${nand_root_fs_type} ip=${ip_method} " \
