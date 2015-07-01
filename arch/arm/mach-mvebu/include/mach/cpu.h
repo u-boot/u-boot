@@ -65,10 +65,14 @@ enum {
 /*
  * Default Device Address MAP BAR values
  */
-#define DEFADR_PCI_MEM		0x90000000
-#define DEFADR_PCI_IO		0xC0000000
-#define DEFADR_SPIF		0xF4000000
-#define DEFADR_BOOTROM		0xF8000000
+#define MBUS_PCI_MEM_BASE	0xE8000000
+#define MBUS_PCI_MEM_SIZE	(128 << 20)
+#define MBUS_PCI_IO_BASE	0xF1100000
+#define MBUS_PCI_IO_SIZE	(64 << 10)
+#define MBUS_SPI_BASE		0xF4000000
+#define MBUS_SPI_SIZE		(8 << 20)
+#define MBUS_BOOTROM_BASE	0xF8000000
+#define MBUS_BOOTROM_SIZE	(8 << 20)
 
 struct mbus_win {
 	u32 base;
