@@ -38,6 +38,10 @@ config DM_DEVICE_REMOVE
 	  device. This is not normally required in SPL, so by default this
 	  option is disabled for SPL.
 
+	  Note that this may have undesirable results in the USB subsystem as
+	  it causes unplugged devices to linger around in the dm-tree, and it
+	  causes USB host controllers to not be stopped when booting the OS.
+
 config DM_STDIO
 	bool "Support stdio registration"
 	depends on DM
