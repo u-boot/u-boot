@@ -102,25 +102,6 @@ void enable_uart_clk(unsigned char enable)
 }
 #endif
 
-#ifdef CONFIG_SPI
-/* spi_num can be from 0 - 4 */
-int enable_cspi_clock(unsigned char enable, unsigned spi_num)
-{
-	u32 mask;
-
-	if (spi_num > 4)
-		return -EINVAL;
-
-	mask = MXC_CCM_CCGR_CG_MASK << (spi_num * 2);
-	if (enable)
-		setbits_le32(&imx_ccm->CCGR1, mask);
-	else
-		clrbits_le32(&imx_ccm->CCGR1, mask);
-
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_MMC
 int enable_usdhc_clk(unsigned char enable, unsigned bus_num)
 {

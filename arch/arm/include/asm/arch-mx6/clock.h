@@ -57,7 +57,6 @@ void hab_caam_clock_enable(unsigned char enable);
 void enable_ocotp_clk(unsigned char enable);
 void enable_usboh3_clk(unsigned char enable);
 void enable_uart_clk(unsigned char enable);
-int enable_cspi_clock(unsigned char enable, unsigned spi_num);
 int enable_usdhc_clk(unsigned char enable, unsigned bus_num);
 int enable_sata_clock(void);
 void disable_sata_clock(void);
