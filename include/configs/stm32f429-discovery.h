@@ -55,7 +55,7 @@
  * 1:   TX:PA9  RX:PA10
  * 2:   TX:PD5  RX:PD6
  * 3:   TX:PC10 RX:PC11
- * 6:   TX:PC6  RX:PC7
+ * 6:   TX:PG14 RX:PG9
  */
 #define CONFIG_STM32_USART		1
 
