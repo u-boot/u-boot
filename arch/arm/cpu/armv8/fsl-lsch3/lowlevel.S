@@ -16,13 +16,71 @@ ENTRY(lowlevel_init)
 	mov	x29, lr			/* Save LR */
 
 	/* Add fully-coherent masters to DVM domain */
-	ldr	x1, =CCI_MN_BASE
-	ldr	x2, [x1, #CCI_MN_RNF_NODEID_LIST]
-	str	x2, [x1, #CCI_MN_DVM_DOMAIN_CTL_SET]
-1:	ldr	x3, [x1, #CCI_MN_DVM_DOMAIN_CTL_SET]
-	mvn	x0, x3
-	tst	x0, x3		/* Wait for domain addition to complete */
-	b.ne	1b
+	ldr	x0, =CCI_MN_BASE
+	ldr	x1, =CCI_MN_RNF_NODEID_LIST
+	ldr	x2, =CCI_MN_DVM_DOMAIN_CTL_SET
+	bl	ccn504_add_masters_to_dvm
+
+	/* Set all RN-I ports to QoS of 15 */
+	ldr	x0, =CCI_S0_QOS_CONTROL_BASE(0)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S1_QOS_CONTROL_BASE(0)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S2_QOS_CONTROL_BASE(0)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+
+	ldr	x0, =CCI_S0_QOS_CONTROL_BASE(2)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S1_QOS_CONTROL_BASE(2)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S2_QOS_CONTROL_BASE(2)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+
+	ldr	x0, =CCI_S0_QOS_CONTROL_BASE(6)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S1_QOS_CONTROL_BASE(6)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S2_QOS_CONTROL_BASE(6)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+
+	ldr	x0, =CCI_S0_QOS_CONTROL_BASE(12)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S1_QOS_CONTROL_BASE(12)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S2_QOS_CONTROL_BASE(12)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+
+	ldr	x0, =CCI_S0_QOS_CONTROL_BASE(16)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S1_QOS_CONTROL_BASE(16)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S2_QOS_CONTROL_BASE(16)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+
+	ldr	x0, =CCI_S0_QOS_CONTROL_BASE(20)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S1_QOS_CONTROL_BASE(20)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
+	ldr	x0, =CCI_S2_QOS_CONTROL_BASE(20)
+	ldr	x1, =0x00FF000C
+	bl	ccn504_set_qos
 
 	/* Set the SMMU page size in the sACR register */
 	ldr	x1, =SMMU_BASE

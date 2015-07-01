@@ -136,6 +136,17 @@
 #define CCI_MN_DVM_DOMAIN_CTL		0x200
 #define CCI_MN_DVM_DOMAIN_CTL_SET	0x210
 
+#define CCI_RN_I_0_BASE			(CCI_MN_BASE + 0x800000)
+#define CCI_RN_I_2_BASE			(CCI_MN_BASE + 0x820000)
+#define CCI_RN_I_6_BASE			(CCI_MN_BASE + 0x860000)
+#define CCI_RN_I_12_BASE		(CCI_MN_BASE + 0x8C0000)
+#define CCI_RN_I_16_BASE		(CCI_MN_BASE + 0x900000)
+#define CCI_RN_I_20_BASE		(CCI_MN_BASE + 0x940000)
+
+#define CCI_S0_QOS_CONTROL_BASE(x) ((CCI_RN_I_0_BASE + (x * 0x10000)) + 0x10)
+#define CCI_S1_QOS_CONTROL_BASE(x) ((CCI_RN_I_0_BASE + (x * 0x10000)) + 0x110)
+#define CCI_S2_QOS_CONTROL_BASE(x) ((CCI_RN_I_0_BASE + (x * 0x10000)) + 0x210)
+
 /* Device Configuration */
 #define DCFG_BASE		0x01e00000
 #define DCFG_PORSR1			0x000

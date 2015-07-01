@@ -42,6 +42,7 @@ obj-y	+= stack.o
 ifdef CONFIG_CPU_V7M
 obj-y	+= interrupts_m.o
 else ifdef CONFIG_ARM64
+obj-y	+= ccn504.o
 obj-y	+= gic_64.o
 obj-y	+= interrupts_64.o
 else
