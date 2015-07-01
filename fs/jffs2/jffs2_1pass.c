@@ -1480,7 +1480,7 @@ dump_dirents(struct b_lists *pL)
 }
 #endif
 
-#define DEFAULT_EMPTY_SCAN_SIZE	4096
+#define DEFAULT_EMPTY_SCAN_SIZE	256
 
 static inline uint32_t EMPTY_SCAN_SIZE(uint32_t sector_size)
 {
