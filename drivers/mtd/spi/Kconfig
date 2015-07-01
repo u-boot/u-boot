@@ -34,6 +34,21 @@ config SPI_FLASH
 
 	  If unsure, say N
 
+config SPI_FLASH_DATAFLASH
+	bool "AT45xxx DataFlash support"
+	depends on SPI_FLASH && DM_SPI_FLASH
+	help
+	  Enable the access for SPI-flash-based AT45xxx DataFlash chips.
+	  DataFlash is a kind of SPI flash. Most AT45 chips have two buffers
+	  in each chip, which may be used for double buffered I/O; but this
+	  driver doesn't (yet) use these for any kind of i/o overlap or prefetching.
+
+	  Sometimes DataFlash is packaged in MMC-format cards, although the
+	  MMC stack can't (yet?) distinguish between MMC and DataFlash
+	  protocols during enumeration.
+
+	  If unsure, say N
+
 config SPI_FLASH_MTD
 	bool "SPI Flash MTD support"
 	depends on SPI_FLASH

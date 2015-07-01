@@ -19,16 +19,6 @@
 
 #include "sf_internal.h"
 
-/*
- * DataFlash is a kind of SPI flash.  Most AT45 chips have two buffers in
- * each chip, which may be used for double buffered I/O; but this driver
- * doesn't (yet) use these for any kind of i/o overlap or prefetching.
- *
- * Sometimes DataFlash is packaged in MMC-format cards, although the
- * MMC stack can't (yet?) distinguish between MMC and DataFlash
- * protocols during enumeration.
- */
-
 /* reads can bypass the buffers */
 #define OP_READ_CONTINUOUS	0xE8
 #define OP_READ_PAGE		0xD2
