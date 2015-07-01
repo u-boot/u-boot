@@ -54,7 +54,7 @@
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
 
-#define SPI_DEFAULT_WORDLEN 8
+#define SPI_DEFAULT_WORDLEN	8
 
 #ifdef CONFIG_DM_SPI
 /* TODO(sjg@chromium.org): Remove this and use max_hz from struct spi_slave */
