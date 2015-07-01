@@ -719,6 +719,12 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 		}
 		put_fl_mem(jNode, pL->readbuf);
 	}
+	/*
+	 * If no destination is provided, we are done.
+	 * Just return the total size.
+	 */
+	if (!dest)
+		return totalSize;
 #endif
 
 	for (b = pL->frag.listHead; b != NULL; b = b->next) {
