@@ -845,7 +845,6 @@ jffs2_1pass_find_inode(struct b_lists * pL, const char *name, u32 pino)
 		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset,
 								pL->readbuf);
 		if ((pino == jDir->pino) && (len == jDir->nsize) &&
-		    (jDir->ino) &&	/* 0 for unlink */
 		    (!strncmp((char *)jDir->name, name, len))) {	/* a match */
 			if (jDir->version < version) {
 				put_fl_mem(jDir, pL->readbuf);
@@ -966,13 +965,43 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 	for (b = pL->dir.listHead; b; b = b->next) {
 		jDir = (struct jffs2_raw_dirent *) get_node_mem(b->offset,
 								pL->readbuf);
-		if ((pino == jDir->pino) && (jDir->ino)) { /* ino=0 -> unlink */
+		if (pino == jDir->pino) {
 			u32 i_version = 0;
 			struct jffs2_raw_inode ojNode;
 			struct jffs2_raw_inode *jNode, *i = NULL;
-			struct b_node *b2 = pL->frag.listHead;
+			struct b_node *b2;
 
-			while (b2) {
+#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
+			/* Check for more recent versions of this file */
+			int match;
+			do {
+				struct b_node *next = b->next;
+				struct jffs2_raw_dirent *jDirNext;
+				if (!next)
+					break;
+				jDirNext = (struct jffs2_raw_dirent *)
+					get_node_mem(next->offset, NULL);
+				match = jDirNext->pino == jDir->pino &&
+					jDirNext->nsize == jDir->nsize &&
+					strncmp((char *)jDirNext->name,
+						(char *)jDir->name,
+						jDir->nsize) == 0;
+				if (match) {
+					/* Use next. It is more recent */
+					b = next;
+					/* Update buffer with the new info */
+					*jDir = *jDirNext;
+				}
+				put_fl_mem(jDirNext, NULL);
+			} while (match);
+#endif
+			if (jDir->ino == 0) {
+				/* Deleted file */
+				put_fl_mem(jDir, pL->readbuf);
+				continue;
+			}
+
+			for (b2 = pL->frag.listHead; b2; b2 = b2->next) {
 				jNode = (struct jffs2_raw_inode *)
 					get_fl_mem(b2->offset, sizeof(ojNode), &ojNode);
 				if (jNode->ino == jDir->ino && jNode->version >= i_version) {
@@ -988,7 +1017,6 @@ jffs2_1pass_list_inodes(struct b_lists * pL, u32 pino)
 							       sizeof(*i),
 							       NULL);
 				}
-				b2 = b2->next;
 			}
 
 			dump_inode(pL, jDir, i);
