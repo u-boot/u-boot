@@ -545,49 +545,19 @@ static struct b_node *
 insert_node(struct b_list *list, u32 offset)
 {
 	struct b_node *new;
-#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
-	struct b_node *b, *prev;
-#endif
 
 	if (!(new = add_node(list))) {
 		putstr("add_node failed!\r\n");
 		return NULL;
 	}
 	new->offset = offset;
+	new->next = NULL;
 
-#ifdef CONFIG_SYS_JFFS2_SORT_FRAGMENTS
-	if (list->listTail != NULL && list->listCompare(new, list->listTail))
-		prev = list->listTail;
-	else if (list->listLast != NULL && list->listCompare(new, list->listLast))
-		prev = list->listLast;
+	if (list->listTail != NULL)
+		list->listTail->next = new;
 	else
-		prev = NULL;
-
-	for (b = (prev ? prev->next : list->listHead);
-	     b != NULL && list->listCompare(new, b);
-	     prev = b, b = b->next) {
-		list->listLoops++;
-	}
-	if (b != NULL)
-		list->listLast = prev;
-
-	if (b != NULL) {
-		new->next = b;
-		if (prev != NULL)
-			prev->next = new;
-		else
-			list->listHead = new;
-	} else
-#endif
-	{
-		new->next = (struct b_node *) NULL;
-		if (list->listTail != NULL) {
-			list->listTail->next = new;
-			list->listTail = new;
-		} else {
-			list->listTail = list->listHead = new;
-		}
-	}
+		list->listHead = new;
+	list->listTail = new;
 
 	return new;
 }
@@ -1800,6 +1770,13 @@ jffs2_1pass_build_lists(struct part_info * part)
 	}
 
 	free(buf);
+#if defined(CONFIG_SYS_JFFS2_SORT_FRAGMENTS)
+	/*
+	 * Sort the lists.
+	 */
+	sort_list(&pL->frag);
+	sort_list(&pL->dir);
+#endif
 	putstr("\b\b done.\r\n");		/* close off the dots */
 
 	/* We don't care if malloc failed - then each read operation will

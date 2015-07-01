@@ -10,4 +10,5 @@ obj-y += compr_rtime.o
 obj-y += compr_rubin.o
 obj-y += compr_zlib.o
 obj-y += jffs2_1pass.o
+obj-$(CONFIG_SYS_JFFS2_SORT_FRAGMENTS) += mergesort.o
 obj-y += mini_inflate.o
