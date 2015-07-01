@@ -126,6 +126,7 @@ int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 {
 	u32 reg;
 	u32 mask;
+	u32 *addr;
 
 	if (i2c_num > 3)
 		return -EINVAL;
@@ -140,14 +141,19 @@ int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 			reg &= ~mask;
 		__raw_writel(reg, &imx_ccm->CCGR2);
 	} else {
-		mask = MXC_CCM_CCGR_CG_MASK
-			<< (MXC_CCM_CCGR1_I2C4_SERIAL_OFFSET);
-		reg = __raw_readl(&imx_ccm->CCGR1);
+		if (is_cpu_type(MXC_CPU_MX6SX)) {
+			mask = MXC_CCM_CCGR6_I2C4_MASK;
+			addr = &imx_ccm->CCGR6;
+		} else {
+			mask = MXC_CCM_CCGR1_I2C4_SERIAL_MASK;
+			addr = &imx_ccm->CCGR1;
+		}
+		reg = __raw_readl(addr);
 		if (enable)
 			reg |= mask;
 		else
 			reg &= ~mask;
-		__raw_writel(reg, &imx_ccm->CCGR1);
+		__raw_writel(reg, addr);
 	}
 	return 0;
 }
