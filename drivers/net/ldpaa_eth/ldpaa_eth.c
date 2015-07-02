@@ -153,6 +153,7 @@ static void ldpaa_eth_tx_conf(struct ldpaa_eth_priv *priv,
 		}
 	}
 
+	flush_dcache_range(fd_addr, fd_addr + LDPAA_ETH_RX_BUFFER_SIZE);
 	qbman_release_desc_clear(&releasedesc);
 	qbman_release_desc_set_bpid(&releasedesc, dflt_dpbp->dpbp_attr.bpid);
 	do {
