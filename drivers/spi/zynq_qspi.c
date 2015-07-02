@@ -174,7 +174,7 @@ struct zynq_qspi_slave {
  * This function performs the following actions
  *	- Disable and clear all the interrupts
  *	- Enable manual slave select
- *	- Enable manual start
+ *	- Enable auto start
  *	- Deselect all the chip select lines
  *	- Set the size of the word to be transferred as 32 bit
  *	- Set the little endian mode of TX FIFO and
@@ -200,6 +200,7 @@ static void zynq_qspi_init_hw(int is_dual, int is_dio, unsigned int cs)
 
 	writel(0x7F, &zynq_qspi_base->isr);
 	config_reg = readl(&zynq_qspi_base->confr);
+	config_reg &= ~ZYNQ_QSPI_CONFIG_MSA_MASK;
 	config_reg |= ZYNQ_QSPI_CONFIG_IFMODE_MASK |
 		ZYNQ_QSPI_CONFIG_MCS_MASK | ZYNQ_QSPI_CONFIG_PCS_MASK |
 		ZYNQ_QSPI_CONFIG_FW_MASK | ZYNQ_QSPI_CONFIG_MSTREN_MASK;
