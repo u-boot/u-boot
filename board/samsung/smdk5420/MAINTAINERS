@@ -14,3 +14,4 @@ M:	Przemyslaw Marczak <p.marczak@samsung.com>
 S:	Maintained
 F:	board/samsung/smdk5420/
 F:	include/configs/odroid_xu3.h
+F:	configs/odroid-xu3_defconfig
