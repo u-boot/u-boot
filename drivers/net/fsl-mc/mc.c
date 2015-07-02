@@ -224,13 +224,13 @@ static int load_mc_dpc(u64 mc_ram_addr, size_t mc_ram_size)
 		 * Don't return with error here, since the MC firmware can
 		 * still boot without a DPC
 		 */
-		printf("fsl-mc: WARNING: No DPC image found\n");
+		printf("\nfsl-mc: WARNING: No DPC image found");
 		return 0;
 	}
 
 	dpc_size = fdt_totalsize(dpc_fdt_hdr);
 	if (dpc_size > CONFIG_SYS_LS_MC_DPC_MAX_LENGTH) {
-		printf("fsl-mc: ERROR: Bad DPC image (too large: %d)\n",
+		printf("\nfsl-mc: ERROR: Bad DPC image (too large: %d)\n",
 		       dpc_size);
 		return -EINVAL;
 	}
@@ -278,13 +278,13 @@ static int load_mc_dpl(u64 mc_ram_addr, size_t mc_ram_size)
 
 	error = fdt_check_header(dpl_fdt_hdr);
 	if (error != 0) {
-		printf("fsl-mc: ERROR: Bad DPL image (bad header)\n");
+		printf("\nfsl-mc: ERROR: Bad DPL image (bad header)\n");
 		return error;
 	}
 
 	dpl_size = fdt_totalsize(dpl_fdt_hdr);
 	if (dpl_size > CONFIG_SYS_LS_MC_DPL_MAX_LENGTH) {
-		printf("fsl-mc: ERROR: Bad DPL image (too large: %d)\n",
+		printf("\nfsl-mc: ERROR: Bad DPL image (too large: %d)\n",
 		       dpl_size);
 		return -EINVAL;
 	}
@@ -329,7 +329,6 @@ static int wait_for_mc(bool booting_mc, u32 *final_reg_gsr)
 	struct mc_ccsr_registers __iomem *mc_ccsr_regs = MC_CCSR_BASE_ADDR;
 
 	dmb();
-	debug("Polling mc_ccsr_regs->reg_gsr ...\n");
 	assert(timeout_ms > 0);
 	for (;;) {
 		udelay(1000);	/* throttle polling */
@@ -344,10 +343,7 @@ static int wait_for_mc(bool booting_mc, u32 *final_reg_gsr)
 	}
 
 	if (timeout_ms == 0) {
-		if (booting_mc)
-			printf("fsl-mc: timeout booting management complex firmware\n");
-		else
-			printf("fsl-mc: timeout deploying data path layout\n");
+		printf("ERROR: timeout\n");
 
 		/* TODO: Get an error status from an MC CCSR register */
 		return -ETIMEDOUT;
@@ -360,14 +356,12 @@ static int wait_for_mc(bool booting_mc, u32 *final_reg_gsr)
 		 * appropriate errno, so that the status property is set to
 		 * failure in the fsl,dprc device tree node.
 		 */
-		if (booting_mc) {
-			printf("fsl-mc: WARNING: Firmware booted with error (GSR: %#x)\n",
-			       reg_gsr);
-		} else {
-			printf("fsl-mc: WARNING: Data path layout deployed with error (GSR: %#x)\n",
-			       reg_gsr);
-		}
+		printf("WARNING: Firmware returned an error (GSR: %#x)\n",
+		       reg_gsr);
+	} else {
+		printf("SUCCESS\n");
 	}
+
 
 	*final_reg_gsr = reg_gsr;
 	return 0;
@@ -464,7 +458,7 @@ int mc_init(void)
 	 */
 	out_le32(&mc_ccsr_regs->reg_gsr, 0xDD00);
 
-	printf("\nfsl-mc: Booting Management Complex ...\n");
+	printf("\nfsl-mc: Booting Management Complex ... ");
 
 	/*
 	 * Deassert reset and release MC core 0 to run
@@ -517,10 +511,11 @@ int mc_init(void)
 	 * Tell the MC to deploy the DPL:
 	 */
 	out_le32(&mc_ccsr_regs->reg_gsr, 0x0);
-	printf("\nfsl-mc: Deploying data path layout ...\n");
+	printf("fsl-mc: Deploying data path layout ... ");
 	error = wait_for_mc(false, &reg_gsr);
 	if (error != 0)
 		goto out;
+
 out:
 	if (error != 0)
 		mc_boot_status = -error;
