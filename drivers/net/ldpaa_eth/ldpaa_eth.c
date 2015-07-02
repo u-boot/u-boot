@@ -112,105 +112,13 @@ static int ldpaa_eth_pull_dequeue_rx(struct eth_device *dev)
 				debug("No frame delivered\n");
 
 				qbman_swp_dqrr_consume(swp, dq);
-				break;
+				continue;
 			}
 
 			fd = ldpaa_dq_fd(dq);
 
 			/* Obtain FD and process it */
 			ldpaa_eth_rx(priv, fd);
-			qbman_swp_dqrr_consume(swp, dq);
-			break;
-		} else {
-			err = -ENODATA;
-			debug("No DQRR entries\n");
-			break;
-		}
-	}
-
-	return err;
-}
-
-static void ldpaa_eth_tx_conf(struct ldpaa_eth_priv *priv,
-			      const struct dpaa_fd *fd)
-{
-	uint64_t fd_addr;
-	struct ldpaa_fas *fas;
-	uint32_t status, err;
-	struct qbman_release_desc releasedesc;
-	struct qbman_swp *swp = dflt_dpio->sw_portal;
-
-	fd_addr = ldpaa_fd_get_addr(fd);
-
-
-	debug("TX Conf frame:data addr=0x%p\n", (u64 *)fd_addr);
-
-	/* Check the status from the Frame Annotation */
-	if (fd->simple.frc & LDPAA_FD_FRC_FASV) {
-		fas = (struct ldpaa_fas *)
-				((uint8_t *)(fd_addr) +
-				priv->buf_layout.private_data_size);
-		status = le32_to_cpu(fas->status);
-		if (status & LDPAA_ETH_TXCONF_ERR_MASK) {
-			printf("TxConf frame error(s): 0x%08x\n",
-			       status & LDPAA_ETH_TXCONF_ERR_MASK);
-		}
-	}
-
-	flush_dcache_range(fd_addr, fd_addr + LDPAA_ETH_RX_BUFFER_SIZE);
-	qbman_release_desc_clear(&releasedesc);
-	qbman_release_desc_set_bpid(&releasedesc, dflt_dpbp->dpbp_attr.bpid);
-	do {
-		/* Release buffer into the QBMAN */
-		err = qbman_swp_release(swp, &releasedesc, &fd_addr, 1);
-	} while (err == -EBUSY);
-}
-
-static int ldpaa_eth_pull_dequeue_tx_conf(struct ldpaa_eth_priv *priv)
-{
-	const struct ldpaa_dq *dq;
-	const struct dpaa_fd *fd;
-	int err = 0;
-	int i = 5, status;
-	u32 timeo = (CONFIG_SYS_HZ * 10) / 1000;
-	u32 time_start;
-	static struct qbman_pull_desc pulldesc;
-	struct qbman_swp *swp = dflt_dpio->sw_portal;
-
-	while (--i) {
-		qbman_pull_desc_clear(&pulldesc);
-		qbman_pull_desc_set_numframes(&pulldesc, 1);
-		qbman_pull_desc_set_fq(&pulldesc, priv->tx_conf_fqid);
-
-		err =  qbman_swp_pull(swp, &pulldesc);
-		if (err < 0) {
-			printf("Dequeue TX conf frames error:0x%08x\n", err);
-			continue;
-		}
-
-		time_start = get_timer(0);
-
-		 do {
-			dq = qbman_swp_dqrr_next(swp);
-		} while (get_timer(time_start) < timeo && !dq);
-
-		if (dq) {
-			/* Check for valid frame. If not sent a consume
-			 * confirmation to QBMAN otherwise give it to NADK
-			 * application and then send consume confirmation to
-			 * QBMAN.
-			 */
-			status = (uint8_t)ldpaa_dq_flags(dq);
-			if ((status & LDPAA_DQ_STAT_VALIDFRAME) == 0) {
-				debug("Dequeue TX conf frames:");
-				debug("No frame is delivered\n");
-
-				qbman_swp_dqrr_consume(swp, dq);
-				break;
-			}
-			fd = ldpaa_dq_fd(dq);
-
-			ldpaa_eth_tx_conf(priv, fd);
 			qbman_swp_dqrr_consume(swp, dq);
 			break;
 		} else {
@@ -284,12 +192,6 @@ static int ldpaa_eth_tx(struct eth_device *net_dev, void *buf, int len)
 		goto error;
 	}
 
-	mdelay(1);
-
-	err = ldpaa_eth_pull_dequeue_tx_conf(priv);
-	if (err < 0)
-		printf("error Tx Conf frame\n");
-
 	return err;
 
 error:
@@ -311,7 +213,6 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 {
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)net_dev->priv;
 	struct dpni_queue_attr rx_queue_attr;
-	struct dpni_tx_flow_attr tx_flow_attr;
 	uint8_t mac_addr[6];
 	int err;
 
@@ -382,21 +283,11 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 		goto err_qdid;
 	}
 
-	err = dpni_get_tx_flow(dflt_mc_io, priv->dpni_handle, priv->tx_flow_id,
-			       &tx_flow_attr);
-	if (err) {
-		printf("dpni_get_tx_flow() failed\n");
-		goto err_tx_flow;
-	}
-
-	priv->tx_conf_fqid = tx_flow_attr.conf_err_attr.queue_attr.fqid;
-
 	if (!priv->phydev->link)
 		printf("%s: No link.\n", priv->phydev->dev->name);
 
 	return priv->phydev->link ? 0 : -1;
 
-err_tx_flow:
 err_qdid:
 err_rx_flow:
 	dpni_disable(dflt_mc_io, priv->dpni_handle);
@@ -663,6 +554,9 @@ static int ldpaa_dpni_bind(struct ldpaa_eth_priv *priv)
 	priv->tx_flow_id = DPNI_NEW_FLOW_ID;
 	memset(&dflt_tx_flow, 0, sizeof(dflt_tx_flow));
 
+	dflt_tx_flow.options = DPNI_TX_FLOW_OPT_ONLY_TX_ERROR;
+	dflt_tx_flow.conf_err_cfg.use_default_queue = 0;
+	dflt_tx_flow.conf_err_cfg.errors_only = 1;
 	err = dpni_set_tx_flow(dflt_mc_io, priv->dpni_handle,
 			       &priv->tx_flow_id, &dflt_tx_flow);
 	if (err) {
