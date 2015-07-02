@@ -518,9 +518,14 @@ int mc_init(void)
 		goto out;
 	}
 
-	if (MC_VER_MAJOR != mc_ver_info.major)
+	if (MC_VER_MAJOR != mc_ver_info.major) {
 		printf("fsl-mc: ERROR: Firmware major version mismatch (found: %d, expected: %d)\n",
 		       mc_ver_info.major, MC_VER_MAJOR);
+		printf("fsl-mc: Update the Management Complex firmware\n");
+
+		error = -ENODEV;
+		goto out;
+	}
 
 	if (MC_VER_MINOR != mc_ver_info.minor)
 		printf("fsl-mc: WARNING: Firmware minor version mismatch (found: %d, expected: %d)\n",
@@ -541,7 +546,7 @@ int mc_init(void)
 
 out:
 	if (error != 0)
-		mc_boot_status = -error;
+		mc_boot_status = error;
 	else
 		mc_boot_status = 0;
 
