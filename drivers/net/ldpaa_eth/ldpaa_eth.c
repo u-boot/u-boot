@@ -221,8 +221,11 @@ static int ldpaa_eth_tx(struct eth_device *net_dev, void *buf, int len)
 	struct dpaa_fd fd;
 	u64 buffer_start;
 	int data_offset, err;
+	u32 timeo = (CONFIG_SYS_HZ * 10) / 1000;
+	u32 time_start;
 	struct qbman_swp *swp = dflt_dpio->sw_portal;
 	struct qbman_eq_desc ed;
+	struct qbman_release_desc releasedesc;
 
 	/* Setup the FD fields */
 	memset(&fd, 0, sizeof(fd));
@@ -258,15 +261,40 @@ static int ldpaa_eth_tx(struct eth_device *net_dev, void *buf, int len)
 	qbman_eq_desc_clear(&ed);
 	qbman_eq_desc_set_no_orp(&ed, 0);
 	qbman_eq_desc_set_qd(&ed, priv->tx_qdid, priv->tx_flow_id, 0);
-	err = qbman_swp_enqueue(swp, &ed, (const struct qbman_fd *)(&fd));
-	if (err < 0)
+
+	time_start = get_timer(0);
+
+	while (get_timer(time_start) < timeo) {
+		err = qbman_swp_enqueue(swp, &ed,
+				(const struct qbman_fd *)(&fd));
+		if (err != -EBUSY)
+			break;
+	}
+
+	if (err < 0) {
 		printf("error enqueueing Tx frame\n");
+		goto error;
+	}
 
 	mdelay(1);
 
 	err = ldpaa_eth_pull_dequeue_tx_conf(priv);
 	if (err < 0)
 		printf("error Tx Conf frame\n");
+
+	return err;
+
+error:
+	qbman_release_desc_clear(&releasedesc);
+	qbman_release_desc_set_bpid(&releasedesc, dflt_dpbp->dpbp_attr.bpid);
+	time_start = get_timer(0);
+	do {
+		/* Release buffer into the QBMAN */
+		err = qbman_swp_release(swp, &releasedesc, &buffer_start, 1);
+	} while (get_timer(time_start) < timeo && err == -EBUSY);
+
+	if (err == -EBUSY)
+		printf("TX data: QBMAN buffer release fails\n");
 
 	return err;
 }
