@@ -14,6 +14,10 @@
 /* Management command result codes */
 #define QBMAN_MC_RSLT_OK      0xf0
 
+/* TBD: as of QBMan 4.1, DQRR will be 8 rather than 4! */
+#define QBMAN_DQRR_SIZE 4
+
+
 /* --------------------- */
 /* portal data structure */
 /* --------------------- */
@@ -48,14 +52,13 @@ struct qbman_swp {
 		 * to whether or not a command can be submitted, not whether or
 		 * not a previously-submitted command is still executing. In
 		 * other words, once proof is seen that the previously-submitted
-		 * command is executing, "vdq" is no longer "busy". TODO:
-		 * convert this to "atomic_t" so that it is thread-safe (without
-		 * locking). */
-		int busy;
+		 * command is executing, "vdq" is no longer "busy".
+		 */
+		atomic_t busy;
 		uint32_t valid_bit; /* 0x00 or 0x80 */
 		/* We need to determine when vdq is no longer busy. This depends
 		 * on whether the "busy" (last-submitted) dequeue command is
-		 * targetting DQRR or main-memory, and detected is based on the
+		 * targeting DQRR or main-memory, and detected is based on the
 		 * presence of the dequeue command's "token" showing up in
 		 * dequeue entries in DQRR or main-memory (respectively). Debug
 		 * builds will, when submitting vdq commands, verify that the
@@ -127,6 +130,7 @@ static inline uint32_t qb_attr_code_decode(const struct qb_attr_code *code,
 	return d32_uint32_t(code->lsoffset, code->width, cacheline[code->word]);
 }
 
+
 /* encode a field to a cacheline */
 static inline void qb_attr_code_encode(const struct qb_attr_code *code,
 				       uint32_t *cacheline, uint32_t val)
@@ -134,6 +138,12 @@ static inline void qb_attr_code_encode(const struct qb_attr_code *code,
 	cacheline[code->word] =
 		r32_uint32_t(code->lsoffset, code->width, cacheline[code->word])
 		| e32_uint32_t(code->lsoffset, code->width, val);
+}
+
+static inline void qb_attr_code_encode_64(const struct qb_attr_code *code,
+				       uint64_t *cacheline, uint64_t val)
+{
+	cacheline[code->word / 2] = val;
 }
 
 /* ---------------------- */
@@ -144,7 +154,7 @@ static inline void qb_attr_code_encode(const struct qb_attr_code *code,
  * a "descriptor" type that the caller can instantiate however they like.
  * Ultimately though, it is just a cacheline of binary storage (or something
  * smaller when it is known that the descriptor doesn't need all 64 bytes) for
- * holding pre-formatted pieces of harware commands. The performance-critical
+ * holding pre-formatted pieces of hardware commands. The performance-critical
  * code can then copy these descriptors directly into hardware command
  * registers more efficiently than trying to construct/format commands
  * on-the-fly. The API user sees the descriptor as an array of 32-bit words in
