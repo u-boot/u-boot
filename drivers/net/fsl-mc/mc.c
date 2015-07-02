@@ -474,7 +474,7 @@ int mc_init(void)
 	out_le32(&mc_ccsr_regs->reg_mcfbalr, reg_mcfbalr);
 	out_le32(&mc_ccsr_regs->reg_mcfbahr,
 		 (u32)(mc_ram_aligned_base_addr >> 32));
-	out_le32(&mc_ccsr_regs->reg_mcfapr, MCFAPR_BYPASS_ICID_MASK);
+	out_le32(&mc_ccsr_regs->reg_mcfapr, FSL_BYPASS_AMQ);
 
 	/*
 	 * Tell the MC that we want delayed DPL deployment.

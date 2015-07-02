@@ -21,10 +21,6 @@
 #define GCR1_M2_DE_RST		BIT(14)
 #define GCR1_M_ALL_DE_RST	(GCR1_M1_DE_RST | GCR1_M2_DE_RST)
 #define GSR_FS_MASK		0x3fffffff
-#define MCFAPR_PL_MASK		(0x1 << 18)
-#define MCFAPR_BMT_MASK		(0x1 << 17)
-#define MCFAPR_BYPASS_ICID_MASK	\
-	(MCFAPR_PL_MASK | MCFAPR_BMT_MASK)
 
 #define SOC_MC_PORTALS_BASE_ADDR    ((void __iomem *)0x00080C000000)
 #define SOC_QBMAN_PORTALS_BASE_ADDR ((void __iomem *)0x000818000000)
