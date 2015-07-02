@@ -3,8 +3,11 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+#include <common.h>
 #include <errno.h>
 #include <asm/io.h>
+#include <libfdt.h>
+#include <fdt_support.h>
 #include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/fsl_mc_sys.h>
 #include <fsl-mc/fsl_mc_private.h>
@@ -185,6 +188,36 @@ static int calculate_mc_private_ram_params(u64 mc_private_ram_start_addr,
 	return 0;
 }
 
+static int mc_fixup_dpc(u64 dpc_addr)
+{
+	void *blob = (void *)dpc_addr;
+	int nodeoffset;
+
+	/* delete any existing ICID pools */
+	nodeoffset = fdt_path_offset(blob, "/resources/icid_pools");
+	if (fdt_del_node(blob, nodeoffset) < 0)
+		printf("\nfsl-mc: WARNING: could not delete ICID pool\n");
+
+	/* add a new pool */
+	nodeoffset = fdt_path_offset(blob, "/resources");
+	if (nodeoffset < 0) {
+		printf("\nfsl-mc: ERROR: DPC is missing /resources\n");
+		return -EINVAL;
+	}
+	nodeoffset = fdt_add_subnode(blob, nodeoffset, "icid_pools");
+	nodeoffset = fdt_add_subnode(blob, nodeoffset, "icid_pool@0");
+	do_fixup_by_path_u32(blob, "/resources/icid_pools/icid_pool@0",
+			     "base_icid", FSL_DPAA2_STREAM_ID_START, 1);
+	do_fixup_by_path_u32(blob, "/resources/icid_pools/icid_pool@0",
+			     "num",
+			     FSL_DPAA2_STREAM_ID_END -
+			     FSL_DPAA2_STREAM_ID_START + 1, 1);
+
+	flush_dcache_range(dpc_addr, dpc_addr + fdt_totalsize(blob));
+
+	return 0;
+}
+
 static int load_mc_dpc(u64 mc_ram_addr, size_t mc_ram_size)
 {
 	u64 mc_dpc_offset;
@@ -238,6 +271,9 @@ static int load_mc_dpc(u64 mc_ram_addr, size_t mc_ram_size)
 	mc_copy_image("MC DPC blob",
 		      (u64)dpc_fdt_hdr, dpc_size, mc_ram_addr + mc_dpc_offset);
 #endif /* not defined CONFIG_SYS_LS_MC_DPC_IN_DDR */
+
+	if (mc_fixup_dpc(mc_ram_addr + mc_dpc_offset))
+		return -EINVAL;
 
 	dump_ram_words("DPC", (void *)(mc_ram_addr + mc_dpc_offset));
 	return 0;
