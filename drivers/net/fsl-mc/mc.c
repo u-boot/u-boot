@@ -610,14 +610,16 @@ int dpio_init(struct dprc_obj_desc obj_desc)
 		printf("dpio_enable() failed %d\n", err);
 		goto err_get_enable;
 	}
-	debug("ce_paddr=0x%llx, ci_paddr=0x%llx, portalid=%d, prios=%d\n",
-	      attr.qbman_portal_ce_paddr,
-	      attr.qbman_portal_ci_paddr,
+	debug("ce_offset=0x%llx, ci_offset=0x%llx, portalid=%d, prios=%d\n",
+	      attr.qbman_portal_ce_offset,
+	      attr.qbman_portal_ci_offset,
 	      attr.qbman_portal_id,
 	      attr.num_priorities);
 
-	p_des.cena_bar = (void *)attr.qbman_portal_ce_paddr;
-	p_des.cinh_bar = (void *)attr.qbman_portal_ci_paddr;
+	p_des.cena_bar = (void *)(SOC_QBMAN_PORTALS_BASE_ADDR
+					+ attr.qbman_portal_ce_offset);
+	p_des.cinh_bar = (void *)(SOC_QBMAN_PORTALS_BASE_ADDR
+					+ attr.qbman_portal_ci_offset);
 
 	dflt_dpio->sw_portal = qbman_swp_init(&p_des);
 	if (dflt_dpio->sw_portal == NULL) {

@@ -27,6 +27,7 @@
 	(MCFAPR_PL_MASK | MCFAPR_BMT_MASK)
 
 #define SOC_MC_PORTALS_BASE_ADDR    ((void __iomem *)0x00080C000000)
+#define SOC_QBMAN_PORTALS_BASE_ADDR ((void __iomem *)0x000818000000)
 #define SOC_MC_PORTAL_STRIDE	    0x10000
 
 #define SOC_MC_PORTAL_ADDR(_portal_id) \

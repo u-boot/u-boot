@@ -10,7 +10,7 @@
 #define _FSL_DPRC_H
 
 /* DPRC Version */
-#define DPRC_VER_MAJOR				2
+#define DPRC_VER_MAJOR				4
 #define DPRC_VER_MINOR				0
 
 /* Command IDs */
@@ -88,6 +88,22 @@ do { \
 	MC_RSP_OP(cmd, 4, 40, 8,  char,	    obj_desc->type[13]);\
 	MC_RSP_OP(cmd, 4, 48, 8,  char,	    obj_desc->type[14]);\
 	MC_RSP_OP(cmd, 4, 56, 8,  char,	    obj_desc->type[15]);\
+	MC_RSP_OP(cmd, 5, 0,  8,  char,	    obj_desc->label[0]);\
+	MC_RSP_OP(cmd, 5, 8,  8,  char,	    obj_desc->label[1]);\
+	MC_RSP_OP(cmd, 5, 16, 8,  char,	    obj_desc->label[2]);\
+	MC_RSP_OP(cmd, 5, 24, 8,  char,	    obj_desc->label[3]);\
+	MC_RSP_OP(cmd, 5, 32, 8,  char,	    obj_desc->label[4]);\
+	MC_RSP_OP(cmd, 5, 40, 8,  char,	    obj_desc->label[5]);\
+	MC_RSP_OP(cmd, 5, 48, 8,  char,	    obj_desc->label[6]);\
+	MC_RSP_OP(cmd, 5, 56, 8,  char,	    obj_desc->label[7]);\
+	MC_RSP_OP(cmd, 6, 0,  8,  char,	    obj_desc->label[8]);\
+	MC_RSP_OP(cmd, 6, 8,  8,  char,	    obj_desc->label[9]);\
+	MC_RSP_OP(cmd, 6, 16, 8,  char,	    obj_desc->label[10]);\
+	MC_RSP_OP(cmd, 6, 24, 8,  char,	    obj_desc->label[11]);\
+	MC_RSP_OP(cmd, 6, 32, 8,  char,	    obj_desc->label[12]);\
+	MC_RSP_OP(cmd, 6, 40, 8,  char,	    obj_desc->label[13]);\
+	MC_RSP_OP(cmd, 6, 48, 8,  char,	    obj_desc->label[14]);\
+	MC_RSP_OP(cmd, 6, 56, 8,  char,	    obj_desc->label[15]);\
 } while (0)
 
 /*                cmd, param, offset, width, type, arg_name */
@@ -175,8 +191,30 @@ do { \
 /*	param, offset, width,	type,		arg_name */
 #define DPRC_RSP_GET_OBJ_REGION(cmd, region_desc) \
 do { \
-	MC_RSP_OP(cmd, 1, 0,  64, uint64_t, region_desc->base_paddr);\
+	MC_RSP_OP(cmd, 1, 0,  64, uint64_t, region_desc->base_offset);\
 	MC_RSP_OP(cmd, 2, 0,  32, uint32_t, region_desc->size); \
+} while (0)
+
+/*                cmd, param, offset, width, type, arg_name */
+#define DPRC_CMD_SET_OBJ_LABEL(cmd, obj_index, label) \
+do { \
+	MC_CMD_OP(cmd, 0, 0,  32, int,      obj_index); \
+	MC_CMD_OP(cmd, 1, 0,  8,  char,	    label[0]);\
+	MC_CMD_OP(cmd, 1, 8,  8,  char,	    label[1]);\
+	MC_CMD_OP(cmd, 1, 16, 8,  char,	    label[2]);\
+	MC_CMD_OP(cmd, 1, 24, 8,  char,	    label[3]);\
+	MC_CMD_OP(cmd, 1, 32, 8,  char,	    label[4]);\
+	MC_CMD_OP(cmd, 1, 40, 8,  char,	    label[5]);\
+	MC_CMD_OP(cmd, 1, 48, 8,  char,	    label[6]);\
+	MC_CMD_OP(cmd, 1, 56, 8,  char,	    label[7]);\
+	MC_CMD_OP(cmd, 2, 0,  8,  char,	    label[8]);\
+	MC_CMD_OP(cmd, 2, 8,  8,  char,	    label[9]);\
+	MC_CMD_OP(cmd, 2, 16, 8,  char,	    label[10]);\
+	MC_CMD_OP(cmd, 2, 24, 8,  char,	    label[11]);\
+	MC_CMD_OP(cmd, 2, 32, 8,  char,	    label[12]);\
+	MC_CMD_OP(cmd, 2, 40, 8,  char,	    label[13]);\
+	MC_CMD_OP(cmd, 2, 48, 8,  char,	    label[14]);\
+	MC_CMD_OP(cmd, 2, 56, 8,  char,	    label[15]);\
 } while (0)
 
 /*                cmd, param, offset, width, type, arg_name */
@@ -294,6 +332,7 @@ do { \
 /* Data Path Resource Container API
  * Contains DPRC API for managing and querying DPAA resources
  */
+
 struct fsl_mc_io;
 
 /**
@@ -366,7 +405,7 @@ int dprc_close(struct fsl_mc_io *mc_io, uint16_t token);
 /* Object initialization allowed - software context associated with this
  * container is allowed to invoke object initialization operations.
  */
-#define DPRC_CFG_OPT_OBJ_CREATE_ALLOWED	0x00000004
+#define DPRC_CFG_OPT_OBJ_CREATE_ALLOWED		0x00000004
 
 /* Topology change allowed - software context associated with this
  * container is allowed to invoke topology operations, such as attach/detach
@@ -389,11 +428,13 @@ int dprc_close(struct fsl_mc_io *mc_io, uint16_t token);
  * @portal_id: Portal ID; if set to 'DPRC_GET_PORTAL_ID_FROM_POOL', a free
  *		portal ID is allocated by the DPRC
  * @options: Combination of 'DPRC_CFG_OPT_<X>' options
+ * @label: Object's label
  */
 struct dprc_cfg {
 	uint16_t icid;
 	int portal_id;
 	uint64_t options;
+	char label[16];
 };
 
 /**
@@ -484,6 +525,7 @@ int dprc_get_obj_count(struct fsl_mc_io *mc_io, uint16_t token, int *obj_count);
  * @irq_count: Number of interrupts supported by the object
  * @region_count: Number of mappable regions supported by the object
  * @state: Object state: combination of DPRC_OBJ_STATE_ states
+ * @label: Object label
  */
 struct dprc_obj_desc {
 	char type[16];
@@ -494,6 +536,7 @@ struct dprc_obj_desc {
 	uint8_t irq_count;
 	uint8_t region_count;
 	uint32_t state;
+	char label[16];
 };
 
 /**
@@ -516,8 +559,8 @@ int dprc_get_obj(struct fsl_mc_io	*mc_io,
 		 struct dprc_obj_desc	*obj_desc);
 
 /**
- * dprc_get_res_count() - Obtains the number of free resources that are assigned
- *		to this container, by pool type
+ * dprc_get_res_count() - Obtains the number of free resources that are
+ *		assigned to this container, by pool type
  * @mc_io:	Pointer to MC portal's I/O object
  * @token:	Token of DPRC object
  * @type:	pool type
@@ -574,11 +617,14 @@ int dprc_get_res_ids(struct fsl_mc_io			*mc_io,
 
 /**
  * struct dprc_region_desc - Mappable region descriptor
- * @base_paddr: Region base physical address
+ * @base_offset: Region offset from region's base address.
+ *	For DPMCP and DPRC objects, region base is offset from SoC MC portals
+ *	base address; For DPIO, region base is offset from SoC QMan portals
+ *	base address
  * @size: Region size (in bytes)
  */
 struct dprc_region_desc {
-	uint64_t base_paddr;
+	uint64_t base_offset;
 	uint32_t size;
 };
 
@@ -642,8 +688,8 @@ int dprc_disconnect(struct fsl_mc_io		*mc_io,
 /**
 * dprc_get_connection() - Get connected endpoint and link status if connection
 *			exists.
-* @mc_io		Pointer to MC portal's I/O object
-* @token		Token of DPRC object
+* @mc_io	Pointer to MC portal's I/O object
+* @token	Token of DPRC object
 * @endpoint1	Endpoint 1 configuration parameters
 * @endpoint2	Returned endpoint 2 configuration parameters
 * @state:	Returned link state: 1 - link is up, 0 - link is down

@@ -313,7 +313,7 @@ int dpni_set_counter(struct fsl_mc_io *mc_io,
 
 int dpni_set_link_cfg(struct fsl_mc_io *mc_io,
 		      uint16_t token,
-		     struct dpni_link_cfg *cfg)
+		     const struct dpni_link_cfg *cfg)
 {
 	struct mc_command cmd = { 0 };
 
