@@ -31,6 +31,8 @@ static void ldpaa_eth_rx(struct ldpaa_eth_priv *priv,
 	uint32_t fd_length;
 	struct ldpaa_fas *fas;
 	uint32_t status, err;
+	u32 timeo = (CONFIG_SYS_HZ * 2) / 1000;
+	u32 time_start;
 	struct qbman_release_desc releasedesc;
 	struct qbman_swp *swp = dflt_dpio->sw_portal;
 
@@ -65,10 +67,15 @@ error:
 	flush_dcache_range(fd_addr, fd_addr + LDPAA_ETH_RX_BUFFER_SIZE);
 	qbman_release_desc_clear(&releasedesc);
 	qbman_release_desc_set_bpid(&releasedesc, dflt_dpbp->dpbp_attr.bpid);
+	time_start = get_timer(0);
 	do {
 		/* Release buffer into the QBMAN */
 		err = qbman_swp_release(swp, &releasedesc, &fd_addr, 1);
-	} while (err == -EBUSY);
+	} while (get_timer(time_start) < timeo && err == -EBUSY);
+
+	if (err == -EBUSY)
+		printf("Rx frame: QBMAN buffer release fails\n");
+
 	return;
 }
 
