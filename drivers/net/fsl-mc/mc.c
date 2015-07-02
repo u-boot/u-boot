@@ -321,6 +321,23 @@ static unsigned long get_mc_boot_timeout_ms(void)
 	return timeout_ms;
 }
 
+#ifdef CONFIG_SYS_LS_MC_AIOP_IMG_IN_NOR
+static int load_mc_aiop_img(u64 mc_ram_addr, size_t mc_ram_size)
+{
+	void *aiop_img;
+
+	/*
+	 * Load the MC AIOP image in the MC private DRAM block:
+	 */
+
+	aiop_img = (void *)CONFIG_SYS_LS_MC_AIOP_IMG_ADDR;
+	mc_copy_image("MC AIOP image",
+		      (u64)aiop_img, CONFIG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH,
+		      mc_ram_addr + CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET);
+
+	return 0;
+}
+#endif
 static int wait_for_mc(bool booting_mc, u32 *final_reg_gsr)
 {
 	u32 reg_gsr;
@@ -439,6 +456,12 @@ int mc_init(void)
 	error = load_mc_dpl(mc_ram_addr, mc_ram_size);
 	if (error != 0)
 		goto out;
+
+#ifdef CONFIG_SYS_LS_MC_AIOP_IMG_IN_NOR
+	error = load_mc_aiop_img(mc_ram_addr, mc_ram_size);
+	if (error != 0)
+		goto out;
+#endif
 
 	debug("mc_ccsr_regs %p\n", mc_ccsr_regs);
 	dump_mc_ccsr_regs(mc_ccsr_regs);
