@@ -77,7 +77,9 @@ static int ldpaa_eth_pull_dequeue_rx(struct eth_device *dev)
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)dev->priv;
 	const struct ldpaa_dq *dq;
 	const struct dpaa_fd *fd;
-	int i = 5, err = 0, status, loop = 20;
+	int i = 5, err = 0, status;
+	u32 timeo = (CONFIG_SYS_HZ * 2) / 1000;
+	u32 time_start;
 	static struct qbman_pull_desc pulldesc;
 	struct qbman_swp *swp = dflt_dpio->sw_portal;
 
@@ -92,13 +94,11 @@ static int ldpaa_eth_pull_dequeue_rx(struct eth_device *dev)
 			continue;
 		}
 
-		do {
-			loop--;
-			dq = qbman_swp_dqrr_next(swp);
+		time_start = get_timer(0);
 
-			if (!loop)
-				break;
-		} while (!dq);
+		 do {
+			dq = qbman_swp_dqrr_next(swp);
+		} while (get_timer(time_start) < timeo && !dq);
 
 		if (dq) {
 			/* Check for valid frame. If not sent a consume
@@ -120,6 +120,10 @@ static int ldpaa_eth_pull_dequeue_rx(struct eth_device *dev)
 			/* Obtain FD and process it */
 			ldpaa_eth_rx(priv, fd);
 			qbman_swp_dqrr_consume(swp, dq);
+			break;
+		} else {
+			err = -ENODATA;
+			debug("No DQRR entries\n");
 			break;
 		}
 	}
@@ -167,7 +171,9 @@ static int ldpaa_eth_pull_dequeue_tx_conf(struct ldpaa_eth_priv *priv)
 	const struct ldpaa_dq *dq;
 	const struct dpaa_fd *fd;
 	int err = 0;
-	int i = 5, status, loop = 20;
+	int i = 5, status;
+	u32 timeo = (CONFIG_SYS_HZ * 10) / 1000;
+	u32 time_start;
 	static struct qbman_pull_desc pulldesc;
 	struct qbman_swp *swp = dflt_dpio->sw_portal;
 
@@ -182,13 +188,11 @@ static int ldpaa_eth_pull_dequeue_tx_conf(struct ldpaa_eth_priv *priv)
 			continue;
 		}
 
-		do {
-			loop--;
-			dq = qbman_swp_dqrr_next(swp);
+		time_start = get_timer(0);
 
-			if (!loop)
-				break;
-		} while (!dq);
+		 do {
+			dq = qbman_swp_dqrr_next(swp);
+		} while (get_timer(time_start) < timeo && !dq);
 
 		if (dq) {
 			/* Check for valid frame. If not sent a consume
@@ -208,6 +212,10 @@ static int ldpaa_eth_pull_dequeue_tx_conf(struct ldpaa_eth_priv *priv)
 
 			ldpaa_eth_tx_conf(priv, fd);
 			qbman_swp_dqrr_consume(swp, dq);
+			break;
+		} else {
+			err = -ENODATA;
+			debug("No DQRR entries\n");
 			break;
 		}
 	}
