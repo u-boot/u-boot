@@ -368,7 +368,7 @@ static ulong scsi_read(int device, lbaint_t blknr, lbaint_t blkcnt,
 {
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
-	unsigned short smallblks;
+	unsigned short smallblks = 0;
 	ccb* pccb=(ccb *)&tempccb;
 	device&=0xff;
 	/* Setup  device
@@ -391,7 +391,7 @@ static ulong scsi_read(int device, lbaint_t blknr, lbaint_t blkcnt,
 			scsi_setup_read16(pccb, start, blocks);
 			start += blocks;
 			blks -= blocks;
-		} else 
+		} else
 #endif
 		if (blks > SCSI_MAX_READ_BLK) {
 			pccb->datalen=scsi_dev_desc[device].blksz * SCSI_MAX_READ_BLK;
