@@ -129,6 +129,7 @@ int dm_i2c_probe(struct udevice *bus, uint chip_addr, uint chip_flags,
  *
  * This reads a single value from the given address in an I2C chip
  *
+ * @dev:	Device to use for transfer
  * @addr:	Address to read from
  * @return value read, or -ve on error
  */
@@ -139,6 +140,7 @@ int dm_i2c_reg_read(struct udevice *dev, uint offset);
  *
  * This writes a single value to the given address in an I2C chip
  *
+ * @dev:	Device to use for transfer
  * @addr:	Address to write to
  * @val:	Value to write (normally a byte)
  * @return 0 on success, -ve on error
