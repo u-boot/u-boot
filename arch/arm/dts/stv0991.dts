@@ -32,11 +32,7 @@
 			reg = <0x80203000 0x100>,
 				<0x40000000 0x1000000>;
 			clocks = <3750000>;
-			ext-decoder = <0>; /* external decoder */
-			num-cs = <4>;
-			fifo-depth = <256>;
 			sram-size = <256>;
-			bus-num = <0>;
 			status = "okay";
 
 			flash0: n25q32@0 {
@@ -48,7 +44,6 @@
 				m25p,fast-read;
 				page-size = <256>;
 				block-size = <16>; 	/* 2^16, 64KB */
-				read-delay = <4>;	/* delay value in read data capture register */
 				tshsl-ns = <50>;
 				tsd2d-ns = <50>;
 				tchsh-ns = <4>;
