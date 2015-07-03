@@ -177,6 +177,23 @@ int uclass_get_device_by_of_offset(enum uclass_id id, int node,
 				   struct udevice **devp);
 
 /**
+ * uclass_get_device_by_phandle() - Get a uclass device by phandle
+ *
+ * This searches the devices in the uclass for one with the given phandle.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @id: uclass ID to look up
+ * @parent: Parent device containing the phandle pointer
+ * @name: Name of property in the parent device node
+ * @devp: Returns pointer to device (there is only one for each node)
+ * @return 0 if OK, -ENOENT if there is no @name present in the node, other
+ *	-ve on error
+ */
+int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
+				 const char *name, struct udevice **devp);
+
+/**
  * uclass_first_device() - Get the first device in a uclass
  *
  * The device returned is probed if necessary, and ready for use
