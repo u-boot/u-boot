@@ -202,6 +202,17 @@ int dm_i2c_write(struct udevice *dev, uint offset, const uint8_t *buffer,
 	}
 }
 
+int dm_i2c_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct dm_i2c_ops *ops = i2c_get_ops(bus);
+
+	if (!ops->xfer)
+		return -ENOSYS;
+
+	return ops->xfer(bus, msg, nmsgs);
+}
+
 int dm_i2c_reg_read(struct udevice *dev, uint offset)
 {
 	uint8_t val;

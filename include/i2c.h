@@ -191,6 +191,19 @@ int dm_i2c_reg_read(struct udevice *dev, uint offset);
 int dm_i2c_reg_write(struct udevice *dev, uint offset, unsigned int val);
 
 /**
+ * dm_i2c_xfer() - Transfer messages over I2C
+ *
+ * This transfers a raw message. It is best to use dm_i2c_reg_read/write()
+ * instead.
+ *
+ * @dev:	Device to use for transfer
+ * @msg:	List of messages to transfer
+ * @nmsgs:	Number of messages to transfer
+ * @return 0 on success, -ve on error
+ */
+int dm_i2c_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs);
+
+/**
  * dm_i2c_set_bus_speed() - set the speed of a bus
  *
  * @bus:	Bus to adjust
