@@ -611,7 +611,9 @@ usage:
 static char zynqaes_help_text[] =
 "zynqaes <srcaddr> <srclen> <dstaddr> <dstlen>  -\n"
 "Decrypts the encrypted image present in source address\n"
-"and places the decrypted image at destination address\n";
+"and places the decrypted image at destination address\n"
+"The destination address should be 0xFFFFFFFF for loading\n"
+"the encrypted bitstreams\n";
 #endif
 
 U_BOOT_CMD(
