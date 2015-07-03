@@ -206,6 +206,22 @@
 		};
 	};
 
+	i2c@12CD0000 {
+		ptn3460: lvds-bridge@20 {
+			compatible = "nxp,ptn3460";
+			reg = <0x20>;
+			sleep-gpios = <&gpy2 5 GPIO_ACTIVE_LOW>;
+			reset-gpios = <&gpx1 5 GPIO_ACTIVE_LOW>;
+			hotplug-gpios = <&gpx0 7 GPIO_ACTIVE_HIGH>;
+			edid-emulation = <5>;
+		};
+
+		soundcodec@22 {
+			reg = <0x22>;
+			compatible = "maxim,max98095-codec";
+		};
+	};
+
 	spi@12d30000 {
 		spi-max-frequency = <50000000>;
 		firmware_storage_spi: flash@0 {
@@ -236,26 +252,6 @@
 
 	sound@12d60000 {
 		status = "disabled";
-	};
-
-	i2c@12CD0000 {
-		soundcodec@22 {
-			reg = <0x22>;
-			compatible = "maxim,max98095-codec";
-		};
-
-		ptn3460-bridge@20 {
-			compatible = "nxp,ptn3460";
-			reg = <0x20>;
-			/*
-			 * TODO(sjg@chromium.org): Use GPIOs here
-			 * powerdown-gpio = <&gpy2 5 0>;
-			 * reset-gpio = <&gpx1 5 0>;
-			 * edid-emulation = <5>;
-			 * pinctrl-names = "default";
-			 * pinctrl-0 = <&ptn3460_gpios>;
-			 */
-		};
 	};
 
 	i2c@12C60000 {
