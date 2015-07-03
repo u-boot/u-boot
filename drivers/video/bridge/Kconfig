@@ -1,0 +1,8 @@
+config VIDEO_BRIDGE
+	bool "Support video bridges"
+	depends on DM
+	help
+	  Some platforms use video bridges to convert from one output to
+	  another. For example, where the SoC only supports eDP and the LCD
+	  requires LVDS, an eDP->LVDS bridge chip can be used to provide the
+	  necessary conversion. This option enables support for these devices.
