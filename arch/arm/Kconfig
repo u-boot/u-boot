@@ -227,6 +227,9 @@ config TARGET_STV0991
 	select CPU_V7
 	select DM
 	select DM_SERIAL
+	select DM_SPI
+	select DM_SPI_FLASH
+	select SPI_FLASH
 
 config TARGET_X600
 	bool "Support x600"
