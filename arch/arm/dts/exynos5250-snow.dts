@@ -25,6 +25,7 @@
 		i2c2 = "/i2c@12C80000";
 		i2c3 = "/i2c@12C90000";
 		i2c4 = "/i2c@12CA0000";
+		i2c104 = &i2c_104;
 		i2c5 = "/i2c@12CB0000";
 		i2c6 = "/i2c@12CC0000";
 		i2c7 = "/i2c@12CD0000";
@@ -43,7 +44,7 @@
 	};
 
 	i2c4: i2c@12CA0000 {
-		cros_ec: cros-ec@1e {
+		cros_ec_old: cros-ec@1e {
 			reg = <0x1e>;
 			compatible = "google,cros-ec-i2c";
 			i2c-max-frequency = <100000>;
@@ -54,6 +55,101 @@
 		power-regulator@48 {
 			compatible = "ti,tps65090";
 			reg = <0x48>;
+		};
+	};
+
+	i2c-arbitrator {
+		compatible = "i2c-arb-gpio-challenge";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c-parent = <&{/i2c@12CA0000}>;
+
+		our-claim-gpio = <&gpf0 3 GPIO_ACTIVE_LOW>;
+		their-claim-gpios = <&gpe0 4 GPIO_ACTIVE_LOW>;
+		slew-delay-us = <10>;
+		wait-retry-us = <3000>;
+		wait-free-us = <50000>;
+
+		/* Use ID 104 as a hint that we're on physical bus 4 */
+		i2c_104: i2c@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			battery: sbs-battery@b {
+				compatible = "sbs,sbs-battery";
+				reg = <0xb>;
+				sbs,poll-retry-count = <1>;
+			};
+
+			cros_ec: embedded-controller {
+				compatible = "google,cros-ec-i2c";
+				reg = <0x1e>;
+				interrupts = <6 IRQ_TYPE_NONE>;
+				interrupt-parent = <&gpx1>;
+				wakeup-source;
+				i2c-max-frequency = <100000>;
+				u-boot,i2c-offset-len = <0>;
+				ec-interrupt = <&gpx1 6 GPIO_ACTIVE_LOW>;
+			};
+
+			power-regulator {
+				compatible = "ti,tps65090";
+				reg = <0x48>;
+
+				regulators {
+					dcdc1 {
+						ti,enable-ext-control;
+					};
+					dcdc2 {
+						ti,enable-ext-control;
+					};
+					dcdc3 {
+						ti,enable-ext-control;
+					};
+					fet1: fet1 {
+						regulator-name = "vcd_led";
+						ti,overcurrent-wait = <3>;
+					};
+					tps65090_fet2: fet2 {
+						regulator-name = "video_mid";
+						regulator-always-on;
+						ti,overcurrent-wait = <3>;
+					};
+					fet3 {
+						regulator-name = "wwan_r";
+						regulator-always-on;
+						ti,overcurrent-wait = <3>;
+					};
+					fet4 {
+						regulator-name = "sdcard";
+						ti,overcurrent-wait = <3>;
+					};
+					fet5 {
+						regulator-name = "camout";
+						regulator-always-on;
+						ti,overcurrent-wait = <3>;
+					};
+					fet6: fet6 {
+						regulator-name = "lcd_vdd";
+						ti,overcurrent-wait = <3>;
+					};
+					tps65090_fet7: fet7 {
+						regulator-name = "video_mid_1a";
+						regulator-always-on;
+						ti,overcurrent-wait = <3>;
+					};
+					ldo1 {
+					};
+					ldo2 {
+					};
+				};
+
+				charger {
+					compatible = "ti,tps65090-charger";
+				};
+			};
 		};
 	};
 
