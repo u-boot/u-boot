@@ -200,3 +200,28 @@ U_BOOT_DRIVER(serial_s5p) = {
 	.ops	= &s5p_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
+
+#ifdef CONFIG_DEBUG_UART_S5P
+
+#include <debug_uart.h>
+
+void debug_uart_init(void)
+{
+	struct s5p_uart *uart = (struct s5p_uart *)CONFIG_DEBUG_UART_BASE;
+
+	s5p_serial_init(uart);
+	s5p_serial_baud(uart, CONFIG_DEBUG_UART_CLOCK, CONFIG_BAUDRATE);
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	struct s5p_uart *uart = (struct s5p_uart *)CONFIG_DEBUG_UART_BASE;
+
+	while (readl(&uart->ufstat) & TX_FIFO_FULL);
+
+	writeb(ch, &uart->utxh);
+}
+
+DEBUG_UART_FUNCS
+
+#endif
