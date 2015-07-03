@@ -473,6 +473,16 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
 int i2c_chip_ofdata_to_platdata(const void *blob, int node,
 				struct dm_i2c_chip *chip);
 
+/**
+ * i2c_dump_msgs() - Dump a list of I2C messages
+ *
+ * This may be useful for debugging.
+ *
+ * @msg:	Message list to dump
+ * @nmsgs:	Number of messages
+ */
+void i2c_dump_msgs(struct i2c_msg *msg, int nmsgs);
+
 #ifndef CONFIG_DM_I2C
 
 /*

@@ -18,6 +18,22 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define I2C_MAX_OFFSET_LEN	4
 
+/* Useful debugging function */
+void i2c_dump_msgs(struct i2c_msg *msg, int nmsgs)
+{
+	int i;
+
+	for (i = 0; i < nmsgs; i++) {
+		struct i2c_msg *m = &msg[i];
+
+		printf("   %s %x len=%x", m->flags & I2C_M_RD ? "R" : "W",
+		       msg->addr, msg->len);
+		if (!(m->flags & I2C_M_RD))
+			printf(": %x", m->buf[0]);
+		printf("\n");
+	}
+}
+
 /**
  * i2c_setup_offset() - Set up a new message with a chip offset
  *
