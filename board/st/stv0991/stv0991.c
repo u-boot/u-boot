@@ -55,12 +55,20 @@ int board_eth_enable(void)
 	return 0;
 }
 
+int board_qspi_enable(void)
+{
+	stv0991_pinmux_config(QSPI_CS_CLK_PAD);
+	clock_setup(QSPI_CLOCK_CFG);
+	return 0;
+}
+
 /*
  * Miscellaneous platform dependent initialisations
  */
 int board_init(void)
 {
 	board_eth_enable();
+	board_qspi_enable();
 	return 0;
 }
 

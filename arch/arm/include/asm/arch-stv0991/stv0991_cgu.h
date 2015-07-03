@@ -113,4 +113,19 @@ struct stv0991_cgu_regs {
 
 #define ETH_CLK_CTRL			(ETH_CLK_RX_EXT_PHY << RX_CLK_SHIFT \
 					| ETH_CLK_TX_EXT_PHY)
+/* CGU qspi clock */
+#define DIV_HCLK1_SHIFT			9
+#define DIV_CRYP_SHIFT			6
+#define MDIV_QSPI_SHIFT			3
+
+#define CLK_QSPI_OSC			0
+#define CLK_QSPI_MCLK			1
+#define CLK_QSPI_PLL1			2
+#define CLK_QSPI_PLL2			3
+
+#define QSPI_CLK_CTRL			(3 << DIV_HCLK1_SHIFT \
+					| 1 << DIV_CRYP_SHIFT \
+					| 0 << MDIV_QSPI_SHIFT \
+					| CLK_QSPI_OSC)
+
 #endif
