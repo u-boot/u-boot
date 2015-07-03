@@ -85,6 +85,7 @@ static void __maybe_unused s5p_serial_baud(struct s5p_uart *uart, uint uclk,
 		writeb(val % 16, &uart->rest.value);
 }
 
+#ifndef CONFIG_SPL_BUILD
 int s5p_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct s5p_serial_platdata *plat = dev->platdata;
@@ -200,6 +201,7 @@ U_BOOT_DRIVER(serial_s5p) = {
 	.ops	= &s5p_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
+#endif
 
 #ifdef CONFIG_DEBUG_UART_S5P
 
