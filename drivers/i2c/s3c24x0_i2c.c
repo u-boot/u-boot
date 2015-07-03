@@ -1035,7 +1035,7 @@ static void process_nodes(const void *blob, int node_list[], int count,
 						CONFIG_SYS_I2C_S3C24X0_SPEED);
 		bus->node = node;
 		bus->bus_num = i;
-		exynos_pinmux_config(PERIPH_ID_I2C0 + bus->id, flags);
+		exynos_pinmux_config(bus->id, flags);
 
 		/* Mark position as used */
 		node_list[i] = -1;
