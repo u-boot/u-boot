@@ -152,13 +152,14 @@ int board_early_init_f(void)
 	board_i2c_init(gd->fdt_blob);
 #endif
 
-#if defined(CONFIG_OF_CONTROL) && defined(CONFIG_EXYNOS_FB)
-/*
- * board_init_f(arch/arm/lib/board.c) calls lcd_setmem() which needs
- * panel_info.vl_col, panel_info.vl_row and panel_info.vl_bpix, to reserve
- * FB memory at a very early stage. So, we need to fill panel_info.vl_col,
- * panel_info.vl_row and panel_info.vl_bpix before lcd_setmem() is called.
- */
+#if defined(CONFIG_EXYNOS_FB)
+	/*
+	 * board_init_f(arch/arm/lib/board.c) calls lcd_setmem() which needs
+	 * panel_info.vl_col, panel_info.vl_row and panel_info.vl_bpix,
+	 * to reserve frame-buffer memory at a very early stage. So, we need
+	 * to fill panel_info.vl_col, panel_info.vl_row and panel_info.vl_bpix
+	 * before lcd_setmem() is called.
+	 */
 	err = exynos_lcd_early_init(gd->fdt_blob);
 	if (err) {
 		debug("LCD early init failed\n");
@@ -179,7 +180,6 @@ int power_init_board(void)
 }
 #endif
 
-#ifdef CONFIG_OF_CONTROL
 #ifdef CONFIG_SMC911X
 static int decode_sromc(const void *blob, struct fdt_sromc *config)
 {
@@ -310,7 +310,6 @@ int checkboard(void)
 	return 0;
 }
 #endif
-#endif /* CONFIG_OF_CONTROL */
 
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
