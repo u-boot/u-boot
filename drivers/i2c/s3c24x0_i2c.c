@@ -258,9 +258,9 @@ static int hsi2c_wait_for_trx(struct exynos5_hsi2c *i2c)
 	return I2C_NOK_TOUT;
 }
 
-static void ReadWriteByte(struct s3c24x0_i2c *i2c)
+static void read_write_byte(struct s3c24x0_i2c *i2c)
 {
-	writel(readl(&i2c->iiccon) & ~I2CCON_IRPND, &i2c->iiccon);
+	clrbits_le32(&i2c->iiccon, I2CCON_IRPND);
 }
 
 #ifdef CONFIG_SYS_I2C
@@ -794,7 +794,7 @@ static int i2c_transfer(struct s3c24x0_i2c *i2c,
 	if (addr && addr_len) {
 		while ((i < addr_len) && (result == I2C_OK)) {
 			writel(addr[i++], &i2c->iicds);
-			ReadWriteByte(i2c);
+			read_write_byte(i2c);
 			result = WaitForXfer(i2c);
 		}
 		i = 0;
@@ -806,7 +806,7 @@ static int i2c_transfer(struct s3c24x0_i2c *i2c,
 	case I2C_WRITE:
 		while ((i < data_len) && (result == I2C_OK)) {
 			writel(data[i++], &i2c->iicds);
-			ReadWriteByte(i2c);
+			read_write_byte(i2c);
 			result = WaitForXfer(i2c);
 		}
 		break;
@@ -822,7 +822,7 @@ static int i2c_transfer(struct s3c24x0_i2c *i2c,
 			/* Generate a re-START. */
 			writel(I2C_MODE_MR | I2C_TXRX_ENA | I2C_START_STOP,
 				&i2c->iicstat);
-			ReadWriteByte(i2c);
+			read_write_byte(i2c);
 			result = WaitForXfer(i2c);
 
 			if (result != I2C_OK)
@@ -835,7 +835,7 @@ static int i2c_transfer(struct s3c24x0_i2c *i2c,
 				writel(readl(&i2c->iiccon)
 				       & ~I2CCON_ACKGEN,
 				       &i2c->iiccon);
-			ReadWriteByte(i2c);
+			read_write_byte(i2c);
 			result = WaitForXfer(i2c);
 			data[i++] = readl(&i2c->iicds);
 		}
@@ -852,7 +852,7 @@ static int i2c_transfer(struct s3c24x0_i2c *i2c,
 bailout:
 	/* Send STOP. */
 	writel(I2C_MODE_MR | I2C_TXRX_ENA, &i2c->iicstat);
-	ReadWriteByte(i2c);
+	read_write_byte(i2c);
 
 	return result;
 }
