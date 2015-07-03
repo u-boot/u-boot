@@ -18,7 +18,7 @@ config ARC
 
 config ARM
 	bool "ARM architecture"
-	select HAVE_PRIVATE_LIBGCC
+	select HAVE_PRIVATE_LIBGCC if !ARM64
 	select HAVE_GENERIC_BOARD
 	select SUPPORT_OF_CONTROL
 
