@@ -14,8 +14,8 @@
 #include <fdtdec.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
-#include <asm/arch/uart.h>
 #include <asm/arch/clk.h>
+#include <asm/arch/uart.h>
 #include <serial.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -59,11 +59,20 @@ static const int udivslot[] = {
 	0xffdf,
 };
 
-int s5p_serial_setbrg(struct udevice *dev, int baudrate)
+static void __maybe_unused s5p_serial_init(struct s5p_uart *uart)
 {
-	struct s5p_serial_platdata *plat = dev->platdata;
-	struct s5p_uart *const uart = plat->reg;
-	u32 uclk = get_uart_clk(plat->port_id);
+	/* enable FIFOs, auto clear Rx FIFO */
+	writel(0x3, &uart->ufcon);
+	writel(0, &uart->umcon);
+	/* 8N1 */
+	writel(0x3, &uart->ulcon);
+	/* No interrupts, no DMA, pure polling */
+	writel(0x245, &uart->ucon);
+}
+
+static void __maybe_unused s5p_serial_baud(struct s5p_uart *uart, uint uclk,
+					   int baudrate)
+{
 	u32 val;
 
 	val = uclk / baudrate;
@@ -74,6 +83,15 @@ int s5p_serial_setbrg(struct udevice *dev, int baudrate)
 		writew(udivslot[val % 16], &uart->rest.slot);
 	else
 		writeb(val % 16, &uart->rest.value);
+}
+
+int s5p_serial_setbrg(struct udevice *dev, int baudrate)
+{
+	struct s5p_serial_platdata *plat = dev->platdata;
+	struct s5p_uart *const uart = plat->reg;
+	u32 uclk = get_uart_clk(plat->port_id);
+
+	s5p_serial_baud(uart, uclk, baudrate);
 
 	return 0;
 }
@@ -83,13 +101,7 @@ static int s5p_serial_probe(struct udevice *dev)
 	struct s5p_serial_platdata *plat = dev->platdata;
 	struct s5p_uart *const uart = plat->reg;
 
-	/* enable FIFOs, auto clear Rx FIFO */
-	writel(0x3, &uart->ufcon);
-	writel(0, &uart->umcon);
-	/* 8N1 */
-	writel(0x3, &uart->ulcon);
-	/* No interrupts, no DMA, pure polling */
-	writel(0x245, &uart->ucon);
+	s5p_serial_init(uart);
 
 	return 0;
 }
