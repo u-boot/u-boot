@@ -61,3 +61,13 @@ config DM_REGULATOR_SANDBOX
 
 	A detailed information can be found in header: '<power/sandbox_pmic.h>'
 	Binding info: 'doc/device-tree-bindings/pmic/max77686.txt'
+
+config REGULATOR_TPS65090
+	bool "Enable driver for TPS65090 PMIC regulators"
+	depends on PMIC_TPS65090
+	---help---
+	The TPS65090 provides several FETs (Field-effect Transistors,
+	effectively switches) which are supported by this driver as
+	regulators, one for each FET. The standard regulator interface is
+	supported, but it is only possible to turn the regulators on or off.
+	There is no voltage/current control.
