@@ -967,7 +967,7 @@ unsigned int exynos_init_dp(void)
 		return ret;
 	}
 
-	printf("Exynos DP init done\n");
+	debug("Exynos DP init done\n");
 
 	return ret;
 }
