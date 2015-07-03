@@ -250,8 +250,12 @@ int gpio_free(unsigned gpio)
 
 static int check_reserved(struct gpio_desc *desc, const char *func)
 {
-	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(desc->dev);
+	struct gpio_dev_priv *uc_priv;
 
+	if (!dm_gpio_is_valid(desc))
+		return -ENOENT;
+
+	uc_priv = dev_get_uclass_priv(desc->dev);
 	if (!uc_priv->name[desc->offset]) {
 		printf("%s: %s: error: gpio %s%d not reserved\n",
 		       desc->dev->name, func,
