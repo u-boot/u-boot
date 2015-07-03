@@ -74,6 +74,49 @@ struct dm_i2c_bus {
 	int speed_hz;
 };
 
+/*
+ * Not all of these flags are implemented in the U-Boot API
+ */
+enum dm_i2c_msg_flags {
+	I2C_M_TEN		= 0x0010, /* ten-bit chip address */
+	I2C_M_RD		= 0x0001, /* read data, from slave to master */
+	I2C_M_STOP		= 0x8000, /* send stop after this message */
+	I2C_M_NOSTART		= 0x4000, /* no start before this message */
+	I2C_M_REV_DIR_ADDR	= 0x2000, /* invert polarity of R/W bit */
+	I2C_M_IGNORE_NAK	= 0x1000, /* continue after NAK */
+	I2C_M_NO_RD_ACK		= 0x0800, /* skip the Ack bit on reads */
+	I2C_M_RECV_LEN		= 0x0400, /* length is first received byte */
+};
+
+/**
+ * struct i2c_msg - an I2C message
+ *
+ * @addr:	Slave address
+ * @flags:	Flags (see enum dm_i2c_msg_flags)
+ * @len:	Length of buffer in bytes, may be 0 for a probe
+ * @buf:	Buffer to send/receive, or NULL if no data
+ */
+struct i2c_msg {
+	uint addr;
+	uint flags;
+	uint len;
+	u8 *buf;
+};
+
+/**
+ * struct i2c_msg_list - a list of I2C messages
+ *
+ * This is called i2c_rdwr_ioctl_data in Linux but the name does not seem
+ * appropriate in U-Boot.
+ *
+ * @msg:	Pointer to i2c_msg array
+ * @nmsgs:	Number of elements in the array
+ */
+struct i2c_msg_list {
+	struct i2c_msg *msgs;
+	uint nmsgs;
+};
+
 /**
  * dm_i2c_read() - read bytes from an I2C chip
  *
@@ -293,49 +336,6 @@ uint8_t i2c_reg_read(uint8_t addr, uint8_t reg);
 void i2c_reg_write(uint8_t addr, uint8_t reg, uint8_t val);
 
 #endif
-
-/*
- * Not all of these flags are implemented in the U-Boot API
- */
-enum dm_i2c_msg_flags {
-	I2C_M_TEN		= 0x0010, /* ten-bit chip address */
-	I2C_M_RD		= 0x0001, /* read data, from slave to master */
-	I2C_M_STOP		= 0x8000, /* send stop after this message */
-	I2C_M_NOSTART		= 0x4000, /* no start before this message */
-	I2C_M_REV_DIR_ADDR	= 0x2000, /* invert polarity of R/W bit */
-	I2C_M_IGNORE_NAK	= 0x1000, /* continue after NAK */
-	I2C_M_NO_RD_ACK		= 0x0800, /* skip the Ack bit on reads */
-	I2C_M_RECV_LEN		= 0x0400, /* length is first received byte */
-};
-
-/**
- * struct i2c_msg - an I2C message
- *
- * @addr:	Slave address
- * @flags:	Flags (see enum dm_i2c_msg_flags)
- * @len:	Length of buffer in bytes, may be 0 for a probe
- * @buf:	Buffer to send/receive, or NULL if no data
- */
-struct i2c_msg {
-	uint addr;
-	uint flags;
-	uint len;
-	u8 *buf;
-};
-
-/**
- * struct i2c_msg_list - a list of I2C messages
- *
- * This is called i2c_rdwr_ioctl_data in Linux but the name does not seem
- * appropriate in U-Boot.
- *
- * @msg:	Pointer to i2c_msg array
- * @nmsgs:	Number of elements in the array
- */
-struct i2c_msg_list {
-	struct i2c_msg *msgs;
-	uint nmsgs;
-};
 
 /**
  * struct dm_i2c_ops - driver operations for I2C uclass
