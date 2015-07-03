@@ -9,6 +9,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/kconfig.h>
 /* SPL */
 /* #if defined(CONFIG_SPL_BUILD) */
 

@@ -44,8 +44,8 @@ static inline int gpt_has_clk_source_osc(void)
 {
 #if defined(CONFIG_MX6)
 	if (((is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) &&
-	     (is_soc_rev(CHIP_REV_1_0) > 0)) || is_cpu_type(MXC_CPU_MX6DL) ||
-	      is_cpu_type(MXC_CPU_MX6SOLO) || is_cpu_type(MXC_CPU_MX6SX))
+	    (soc_rev() > CHIP_REV_1_0)) || is_cpu_type(MXC_CPU_MX6DL) ||
+	     is_cpu_type(MXC_CPU_MX6SOLO) || is_cpu_type(MXC_CPU_MX6SX))
 		return 1;
 
 	return 0;

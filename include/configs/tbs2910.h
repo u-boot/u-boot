@@ -21,6 +21,8 @@
 #define CONFIG_SYS_PROMPT		"Matrix U-Boot> "
 #define CONFIG_SYS_HZ			1000
 
+#define CONFIG_IMX6_THERMAL
+
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		MMDC0_ARB_BASE_ADDR
@@ -48,6 +50,10 @@
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_CONS_INDEX		1
+
+#define CONFIG_PRE_CONSOLE_BUFFER
+#define CONFIG_PRE_CON_BUF_SZ		4096
+#define CONFIG_PRE_CON_BUF_ADDR		0x7C000000
 
 /* *** Command definition *** */
 #define CONFIG_CMD_BMODE

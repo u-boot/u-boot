@@ -86,7 +86,7 @@
 #define CONFIG_CMD_FAT
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_NO_FLASH
+#undef CONFIG_CMD_IMLS
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING
