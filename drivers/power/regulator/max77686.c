@@ -61,8 +61,12 @@ static struct dm_regulator_mode max77686_buck_mode_onoff[] = {
 	MODE(OPMODE_ON, MAX77686_BUCK_MODE_ON, "ON"),
 };
 
-static const char max77686_buck_addr[] = {
+static const char max77686_buck_ctrl[] = {
 	0xff, 0x10, 0x12, 0x1c, 0x26, 0x30, 0x32, 0x34, 0x36, 0x38
+};
+
+static const char max77686_buck_out[] = {
+	0xff, 0x11, 0x14, 0x1e, 0x28, 0x31, 0x33, 0x35, 0x37, 0x39
 };
 
 static int max77686_buck_volt2hex(int buck, int uV)
@@ -368,7 +372,7 @@ static int max77686_buck_val(struct udevice *dev, int op, int *uV)
 		*uV = 0;
 
 	/* &buck_out = ctrl + 1 */
-	adr = max77686_buck_addr[buck] + 1;
+	adr = max77686_buck_out[buck];
 
 	/* mask */
 	switch (buck) {
@@ -549,7 +553,7 @@ static int max77686_buck_mode(struct udevice *dev, int op, int *opmode)
 		return -EINVAL;
 	}
 
-	adr = max77686_buck_addr[buck];
+	adr = max77686_buck_ctrl[buck];
 
 	/* mask */
 	switch (buck) {
