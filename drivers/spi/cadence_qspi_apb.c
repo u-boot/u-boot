@@ -200,17 +200,15 @@ static void cadence_qspi_apb_read_fifo_data(void *dest,
 	unsigned int *dest_ptr = (unsigned int *)dest;
 	unsigned int *src_ptr = (unsigned int *)src_ahb_addr;
 
-	while (remaining > 0) {
-		if (remaining >= CQSPI_FIFO_WIDTH) {
-			*dest_ptr = readl(src_ptr);
-			remaining -= CQSPI_FIFO_WIDTH;
-		} else {
-			/* dangling bytes */
-			temp = readl(src_ptr);
-			memcpy(dest_ptr, &temp, remaining);
-			break;
-		}
+	while (remaining >= sizeof(dest_ptr)) {
+		*dest_ptr = readl(src_ptr);
+		remaining -= sizeof(src_ptr);
 		dest_ptr++;
+	}
+	if (remaining) {
+		/* dangling bytes */
+		temp = readl(src_ptr);
+		memcpy(dest_ptr, &temp, remaining);
 	}
 
 	return;
@@ -219,24 +217,26 @@ static void cadence_qspi_apb_read_fifo_data(void *dest,
 static void cadence_qspi_apb_write_fifo_data(const void *dest_ahb_addr,
 	const void *src, unsigned int bytes)
 {
-	unsigned int temp;
+	unsigned int temp = 0;
+	int i;
 	int remaining = bytes;
 	unsigned int *dest_ptr = (unsigned int *)dest_ahb_addr;
 	unsigned int *src_ptr = (unsigned int *)src;
 
-	while (remaining > 0) {
-		if (remaining >= CQSPI_FIFO_WIDTH) {
-			writel(*src_ptr, dest_ptr);
-			remaining -= sizeof(unsigned int);
-		} else {
-			/* dangling bytes */
-			memcpy(&temp, src_ptr, remaining);
-			writel(temp, dest_ptr);
-			break;
-		}
-		src_ptr++;
+	while (remaining >= CQSPI_FIFO_WIDTH) {
+		for (i = CQSPI_FIFO_WIDTH/sizeof(src_ptr) - 1; i >= 0; i--)
+			writel(*(src_ptr+i), dest_ptr+i);
+		src_ptr += CQSPI_FIFO_WIDTH/sizeof(src_ptr);
+		remaining -= CQSPI_FIFO_WIDTH;
 	}
-
+	if (remaining) {
+		/* dangling bytes */
+		i = remaining/sizeof(dest_ptr);
+		memcpy(&temp, src_ptr+i, remaining % sizeof(dest_ptr));
+		writel(temp, dest_ptr+i);
+		for (--i; i >= 0; i--)
+			writel(*(src_ptr+i), dest_ptr+i);
+	}
 	return;
 }
 
