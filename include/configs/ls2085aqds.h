@@ -272,6 +272,15 @@ unsigned long get_board_ddr_clk(void);
 /* I2C bus multiplexer */
 #define I2C_MUX_CH_DEFAULT      0x8
 
+/* SPI */
+#ifdef CONFIG_FSL_DSPI
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_SST
+#define CONFIG_SPI_FLASH_EON
+#endif
+
 /*
  * MMC
  */
