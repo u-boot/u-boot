@@ -16,3 +16,12 @@ config VIDEO_BRIDGE_PARADE_PS862X
 	  to be connected to an eDP output device such as an SoC that lacks
 	  LVDS capability, or where LVDS requires too many signals to route
 	  on the PCB. Setup parameters are provided in the device tree.
+
+config VIDEO_BRIDGE_NXP_PTN3460
+	bool "Support NXP PTN3460 DP->LVDS bridge"
+	depends on VIDEO_BRIDGE
+	help
+	  The NXP PTN3460 is a DisplayPort-to-LVDS (Low voltage differential
+	  signalling) converter. It enables an LVDS LCD panel to be connected
+	  to an eDP output device such as an SoC that lacks LVDS capability,
+	  or where LVDS requires too many signals to route on the PCB.
