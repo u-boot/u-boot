@@ -32,6 +32,15 @@ config DM_REGULATOR_FIXED
 	features for fixed value regulators. The driver implements get/set api
 	for enable and get only for voltage value.
 
+config REGULATOR_S5M8767
+	bool "Enable support for S5M8767 regulator"
+	depends on DM_REGULATOR && PMIC_S5M8767
+	---help---
+	This enables the regulator features of the S5M8767, allowing voltages
+	to be set, etc. The driver is not fully complete but supports most
+	common requirements, including all LDOs and BUCKs. This allows many
+	supplies to be set automatically using the device tree values.
+
 config DM_REGULATOR_SANDBOX
 	bool "Enable Driver Model for Sandbox PMIC regulator"
 	depends on DM_REGULATOR && DM_PMIC_SANDBOX
