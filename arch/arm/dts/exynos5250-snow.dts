@@ -7,24 +7,27 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
-*/
+ */
 
 /dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/input/input.h>
 #include "exynos5250.dtsi"
 
 / {
 	model = "Google Snow";
-	compatible = "google,snow", "samsung,exynos5250";
+	compatible = "google,snow", "samsung,exynos5250", "samsung,exynos5";
 
 	aliases {
-		i2c0 = "/i2c@12c60000";
-		i2c1 = "/i2c@12c70000";
-		i2c2 = "/i2c@12c80000";
-		i2c3 = "/i2c@12c90000";
-		i2c4 = "/i2c@12ca0000";
-		i2c5 = "/i2c@12cb0000";
-		i2c6 = "/i2c@12cc0000";
-		i2c7 = "/i2c@12cd0000";
+		i2c0 = "/i2c@12C60000";
+		i2c1 = "/i2c@12C70000";
+		i2c2 = "/i2c@12C80000";
+		i2c3 = "/i2c@12C90000";
+		i2c4 = "/i2c@12CA0000";
+		i2c5 = "/i2c@12CB0000";
+		i2c6 = "/i2c@12CC0000";
+		i2c7 = "/i2c@12CD0000";
 		spi0 = "/spi@12d20000";
 		spi1 = "/spi@12d30000";
 		spi2 = "/spi@12d40000";
@@ -39,7 +42,7 @@
 		i2s = "/sound@3830000";
 	};
 
-	i2c4: i2c@12ca0000 {
+	i2c4: i2c@12CA0000 {
 		cros_ec: cros-ec@1e {
 			reg = <0x1e>;
 			compatible = "google,cros-ec-i2c";
@@ -66,6 +69,7 @@
 		spi-max-frequency = <1000000>;
 		spi-deactivate-delay = <100>;
 
+		/* Snow did support SPI but the released version used I2C */
 		embedded-controller {
 			compatible = "google,cros-ec-i2c";
 			reg = <0x1e>;
@@ -85,7 +89,7 @@
 		status = "disabled";
 	};
 
-	i2c@12cd0000 {
+	i2c@12CD0000 {
 		soundcodec@22 {
 			reg = <0x22>;
 			compatible = "maxim,max98095-codec";
@@ -105,8 +109,8 @@
 		};
 	};
 
-	i2c@12c60000 {
-		pmic@9 {
+	i2c@12C60000 {
+		max77686@09 {
 			reg = <0x9>;
 			compatible = "maxim,max77686";
 		};
