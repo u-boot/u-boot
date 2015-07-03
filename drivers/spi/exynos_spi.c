@@ -190,9 +190,9 @@ static int spi_rx_tx(struct exynos_spi_priv *priv, int todo,
 			spi_request_bytes(regs, toread, step);
 		}
 		if (priv->skip_preamble && get_timer(start) > 100) {
-			printf("SPI timeout: in_bytes=%d, out_bytes=%d, ",
-			       in_bytes, out_bytes);
-			return -1;
+			debug("SPI timeout: in_bytes=%d, out_bytes=%d, ",
+			      in_bytes, out_bytes);
+			return -ETIMEDOUT;
 		}
 	}
 
