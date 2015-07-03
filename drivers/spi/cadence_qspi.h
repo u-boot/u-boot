@@ -25,6 +25,7 @@ struct cadence_spi_platdata {
 	u32		tsd2d_ns;
 	u32		tchsh_ns;
 	u32		tslch_ns;
+	u32		sram_size;
 };
 
 struct cadence_spi_priv {

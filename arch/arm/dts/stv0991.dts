@@ -35,6 +35,7 @@
 			ext-decoder = <0>; /* external decoder */
 			num-cs = <4>;
 			fifo-depth = <256>;
+			sram-size = <256>;
 			bus-num = <0>;
 			status = "okay";
 

@@ -36,9 +36,6 @@
 
 #define CQSPI_FIFO_WIDTH			(4)
 
-/* Controller sram size in word */
-#define CQSPI_REG_SRAM_SIZE_WORD		(128)
-#define CQSPI_REG_SRAM_PARTITION_RD		(CQSPI_REG_SRAM_SIZE_WORD/2)
 #define CQSPI_REG_SRAM_THRESHOLD_WORDS		(50)
 
 /* Transfer mode */
@@ -536,8 +533,7 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_platdata *plat)
 	writel(0, plat->regbase + CQSPI_REG_REMAP);
 
 	/* Indirect mode configurations */
-	writel(CQSPI_REG_SRAM_PARTITION_RD,
-	       plat->regbase + CQSPI_REG_SRAMPARTITION);
+	writel((plat->sram_size/2), plat->regbase + CQSPI_REG_SRAMPARTITION);
 
 	/* Disable all interrupts */
 	writel(0, plat->regbase + CQSPI_REG_IRQMASK);
