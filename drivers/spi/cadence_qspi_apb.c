@@ -38,10 +38,7 @@
 
 /* Controller sram size in word */
 #define CQSPI_REG_SRAM_SIZE_WORD		(128)
-#define CQSPI_REG_SRAM_RESV_WORDS		(2)
-#define CQSPI_REG_SRAM_PARTITION_WR		(1)
-#define CQSPI_REG_SRAM_PARTITION_RD		\
-	(CQSPI_REG_SRAM_SIZE_WORD - CQSPI_REG_SRAM_RESV_WORDS)
+#define CQSPI_REG_SRAM_PARTITION_RD		(CQSPI_REG_SRAM_SIZE_WORD/2)
 #define CQSPI_REG_SRAM_THRESHOLD_WORDS		(50)
 
 /* Transfer mode */
@@ -538,6 +535,10 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_platdata *plat)
 	/* Configure the remap address register, no remap */
 	writel(0, plat->regbase + CQSPI_REG_REMAP);
 
+	/* Indirect mode configurations */
+	writel(CQSPI_REG_SRAM_PARTITION_RD,
+	       plat->regbase + CQSPI_REG_SRAMPARTITION);
+
 	/* Disable all interrupts */
 	writel(0, plat->regbase + CQSPI_REG_IRQMASK);
 
@@ -700,10 +701,6 @@ int cadence_qspi_apb_indirect_read_setup(struct cadence_spi_platdata *plat,
 	writel(((u32)plat->ahbbase & CQSPI_INDIRECTTRIGGER_ADDR_MASK),
 	       plat->regbase + CQSPI_REG_INDIRECTTRIGGER);
 
-	/* Configure SRAM partition for read. */
-	writel(CQSPI_REG_SRAM_PARTITION_RD, plat->regbase +
-	       CQSPI_REG_SRAMPARTITION);
-
 	/* Configure the opcode */
 	rd_reg = cmdbuf[0] << CQSPI_REG_RD_INSTR_OPCODE_LSB;
 
@@ -800,9 +797,6 @@ int cadence_qspi_apb_indirect_write_setup(struct cadence_spi_platdata *plat,
 	/* Setup the indirect trigger address */
 	writel(((u32)plat->ahbbase & CQSPI_INDIRECTTRIGGER_ADDR_MASK),
 	       plat->regbase + CQSPI_REG_INDIRECTTRIGGER);
-
-	writel(CQSPI_REG_SRAM_PARTITION_WR,
-	       plat->regbase + CQSPI_REG_SRAMPARTITION);
 
 	/* Configure the opcode */
 	reg = cmdbuf[0] << CQSPI_REG_WR_INSTR_OPCODE_LSB;
