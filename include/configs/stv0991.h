@@ -75,6 +75,5 @@
 #define CONFIG_BOOTCOMMAND                     "go 0x40040000"
 
 #define CONFIG_OF_SEPARATE
-#define CONFIG_OF_CONTROL
 #define CONFIG_OF_LIBFDT
 #endif /* __CONFIG_H */
