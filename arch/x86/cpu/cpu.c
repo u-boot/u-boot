@@ -353,6 +353,8 @@ int x86_cpu_init_f(void)
 
 		gd->arch.has_mtrr = has_mtrr();
 	}
+	/* Don't allow PCI region 3 to use memory in the 2-4GB memory hole */
+	gd->pci_ram_top = 0x80000000U;
 
 	/* Configure fixed range MTRRs for some legacy regions */
 	if (gd->arch.has_mtrr) {
