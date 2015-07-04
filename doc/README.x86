@@ -164,6 +164,23 @@ Now you can build U-Boot and obtain u-boot.rom
 $ make minnowmax_defconfig
 $ make all
 
+The ROM image is broken up into these parts:
+
+Offset   Description         Controlling config
+------------------------------------------------------------
+000000   descriptor.bin      Hard-coded to 0 in ifdtool
+001000   me.bin              Set by the descriptor
+500000   <spare>
+700000   u-boot-dtb.bin      CONFIG_SYS_TEXT_BASE
+790000   vga.bin             CONFIG_X86_OPTION_ROM_ADDR
+7c0000   fsp.bin             CONFIG_FSP_ADDR
+7f8000   <spare>             (depends on size of fsp.bin)
+7fe000   Environment         CONFIG_ENV_OFFSET
+7ff800   U-Boot 16-bit boot  CONFIG_SYS_X86_START16
+
+Overall ROM image size is controlled by CONFIG_ROM_SIZE.
+
+
 Intel Galileo instructions:
 
 Only one binary blob is needed for Remote Management Unit (RMU) within Intel
