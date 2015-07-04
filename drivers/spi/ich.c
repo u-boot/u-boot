@@ -411,6 +411,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev_get_parent(dev);
+	struct ich_spi_platdata *plat = dev_get_platdata(bus);
 	struct ich_spi_priv *ctlr = dev_get_priv(bus);
 	uint16_t control;
 	int16_t opcode_index;
@@ -477,7 +478,10 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (ret < 0)
 		return ret;
 
-	ich_writew(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
+	if (plat->ich_version == 7)
+		ich_writew(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
+	else
+		ich_writeb(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
 
 	spi_setup_type(trans, using_cmd ? bytes : 0);
 	opcode_index = spi_setup_opcode(ctlr, trans);
