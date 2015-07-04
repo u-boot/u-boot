@@ -40,6 +40,7 @@ struct ich_spi_priv {
 	int status;
 	int control;
 	int bbar;
+	int bcr;
 	uint32_t *pr;		/* only for ich9 */
 	int speed;		/* pointer to speed control */
 	ulong max_speed;	/* Maximum bus speed in MHz */
@@ -239,6 +240,7 @@ static int ich_init_controller(struct ich_spi_platdata *plat,
 		ctlr->speed = ctlr->control + 2;
 		ctlr->bbar = offsetof(struct ich9_spi_regs, bbar);
 		ctlr->preop = offsetof(struct ich9_spi_regs, preop);
+		ctlr->bcr = offsetof(struct ich9_spi_regs, bcr);
 		ctlr->pr = &ich9_spi->pr[0];
 		ctlr->base = ich9_spi;
 	} else {
@@ -688,13 +690,10 @@ static int ich_spi_probe(struct udevice *bus)
 	 * v9, deassert SMM BIOS Write Protect Disable.
 	 */
 	if (plat->use_sbase) {
-		struct ich9_spi_regs *ich9_spi;
-
-		ich9_spi = priv->base;
-		bios_cntl = ich_readb(priv, ich9_spi->bcr);
+		bios_cntl = ich_readb(priv, priv->bcr);
 		bios_cntl &= ~(1 << 5);	/* clear Enable InSMM_STS (EISS) */
 		bios_cntl |= 1;		/* Write Protect Disable (WPD) */
-		ich_writeb(priv, bios_cntl, ich9_spi->bcr);
+		ich_writeb(priv, bios_cntl, priv->bcr);
 	} else {
 		pci_read_config_byte(plat->dev, 0xdc, &bios_cntl);
 		if (plat->ich_version == 9)
