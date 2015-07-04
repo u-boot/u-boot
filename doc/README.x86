@@ -164,6 +164,14 @@ Now you can build U-Boot and obtain u-boot.rom
 $ make minnowmax_defconfig
 $ make all
 
+Checksums are as follows (but note that newer versions will invalidate this):
+
+$ md5sum -b board/intel/minnowmax/*.bin
+ffda9a3b94df5b74323afb328d51e6b4  board/intel/minnowmax/descriptor.bin
+69f65b9a580246291d20d08cbef9d7c5  board/intel/minnowmax/fsp.bin
+894a97d371544ec21de9c3e8e1716c4b  board/intel/minnowmax/me.bin
+a2588537da387da592a27219d56e9962  board/intel/minnowmax/vga.bin
+
 The ROM image is broken up into these parts:
 
 Offset   Description         Controlling config
