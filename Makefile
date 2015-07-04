@@ -437,7 +437,7 @@ endif
 ifeq ($(KBUILD_EXTMOD),)
         ifneq ($(filter config %config,$(MAKECMDGOALS)),)
                 config-targets := 1
-                ifneq ($(filter-out config %config,$(MAKECMDGOALS)),)
+                ifneq ($(words $(MAKECMDGOALS)),1)
                         mixed-targets := 1
                 endif
         endif
@@ -1244,12 +1244,6 @@ $(timestamp_h): $(srctree)/Makefile FORCE
 	$(call filechk,timestamp.h)
 
 # ---------------------------------------------------------------------------
-
-PHONY += depend dep
-depend dep:
-	@echo '*** Warning: make $@ is unnecessary now.'
-
-# ---------------------------------------------------------------------------
 quiet_cmd_cpp_lds = LDS     $@
 cmd_cpp_lds = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
 		-D__ASSEMBLY__ -x assembler-with-cpp -P -o $@ $<
@@ -1548,11 +1542,6 @@ ifneq ($(cmd_files),)
   $(cmd_files): ;	# Do not try to update included dependency files
   include $(cmd_files)
 endif
-
-# Shorthand for $(Q)$(MAKE) -f scripts/Makefile.clean obj=dir
-# Usage:
-# $(Q)$(MAKE) $(clean)=dir
-clean := -f $(srctree)/scripts/Makefile.clean obj
 
 endif	# skip-makefile
 
