@@ -635,6 +635,9 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 	void (*func_cb)(struct usb_ep *ep, struct usb_request *req) = NULL;
 	int i;
 
+	if (req->status != 0 || req->length == 0)
+		return;
+
 	for (i = 0; i < ARRAY_SIZE(cmd_dispatch_info); i++) {
 		if (!strcmp_l1(cmd_dispatch_info[i].cmd, cmdbuf)) {
 			func_cb = cmd_dispatch_info[i].cb;
@@ -656,9 +659,7 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		}
 	}
 
-	if (req->status == 0) {
-		*cmdbuf = '\0';
-		req->actual = 0;
-		usb_ep_queue(ep, req, 0);
-	}
+	*cmdbuf = '\0';
+	req->actual = 0;
+	usb_ep_queue(ep, req, 0);
 }
