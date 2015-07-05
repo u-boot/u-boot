@@ -80,7 +80,7 @@
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
-	"console=ttystm0,115200 earlyprintk consoleblank=0 ignore_loglevel"
+	"console=ttyS0,115200 earlyprintk consoleblank=0 ignore_loglevel"
 #define CONFIG_BOOTCOMMAND						\
 	"run bootcmd_romfs"
 
