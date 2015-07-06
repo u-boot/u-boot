@@ -22,7 +22,7 @@
 #ifdef CONFIG_USB_STORAGE
 static int usb_stor_curr_dev = -1; /* current device */
 #endif
-#ifdef CONFIG_USB_HOST_ETHER
+#if defined(CONFIG_USB_HOST_ETHER) && !defined(CONFIG_DM_ETH)
 static int __maybe_unused usb_ether_curr_dev = -1; /* current ethernet device */
 #endif
 
