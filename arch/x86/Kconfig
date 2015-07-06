@@ -188,14 +188,6 @@ config X86_RAMTEST
 	  to work correctly. It is not exhaustive but can save time by
 	  detecting obvious failures.
 
-config MARK_GRAPHICS_MEM_WRCOMB
-	bool "Mark graphics memory as write-combining"
-	default n
-	help
-	  The graphics performance may increase if the graphics
-	  memory is set as write-combining cache type. This option
-	  enables marking the graphics memory as write-combining.
-
 config HAVE_FSP
 	bool "Add an Firmware Support Package binary"
 	help
