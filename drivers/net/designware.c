@@ -528,7 +528,7 @@ static int designware_eth_send(struct udevice *dev, void *packet, int length)
 	return _dw_eth_send(priv, packet, length);
 }
 
-static int designware_eth_recv(struct udevice *dev, uchar **packetp)
+static int designware_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 

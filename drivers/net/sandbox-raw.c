@@ -65,7 +65,7 @@ static int sb_eth_raw_send(struct udevice *dev, void *packet, int length)
 	return sandbox_eth_raw_os_send(packet, length, priv);
 }
 
-static int sb_eth_raw_recv(struct udevice *dev, uchar **packetp)
+static int sb_eth_raw_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct eth_sandbox_raw_priv *priv = dev_get_priv(dev);

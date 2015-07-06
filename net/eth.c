@@ -404,6 +404,7 @@ int eth_rx(void)
 {
 	struct udevice *current;
 	uchar *packet;
+	int flags;
 	int ret;
 	int i;
 
@@ -415,8 +416,10 @@ int eth_rx(void)
 		return -EINVAL;
 
 	/* Process up to 32 packets at one time */
+	flags = ETH_RECV_CHECK_DEVICE;
 	for (i = 0; i < 32; i++) {
-		ret = eth_get_ops(current)->recv(current, &packet);
+		ret = eth_get_ops(current)->recv(current, flags, &packet);
+		flags = 0;
 		if (ret > 0)
 			net_process_received_packet(packet, ret);
 		if (ret >= 0 && eth_get_ops(current)->free_pkt)
