@@ -31,6 +31,7 @@ obj-$(CONFIG_PXA_MMC_GENERIC) += pxa_mmc_gen.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += rpmb.o
 obj-$(CONFIG_S3C_SDI) += s3c_sdi.o
 obj-$(CONFIG_S5P_SDHCI) += s5p_sdhci.o
+obj-$(CONFIG_SANDBOX) += sandbox_mmc.o
 obj-$(CONFIG_SDHCI) += sdhci.o
 obj-$(CONFIG_SH_MMCIF) += sh_mmcif.o
 obj-$(CONFIG_SH_SDHI) += sh_sdhi.o

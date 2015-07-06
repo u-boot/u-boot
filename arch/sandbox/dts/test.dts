@@ -180,6 +180,10 @@
 		};
 	};
 
+	mmc {
+		compatible = "sandbox,mmc";
+	};
+
 	pci: pci-controller {
 		compatible = "sandbox,pci";
 		device_type = "pci";
