@@ -329,7 +329,7 @@ void *dev_get_platdata(struct udevice *dev)
 void *dev_get_parent_platdata(struct udevice *dev)
 {
 	if (!dev) {
-		dm_warn("%s: null device", __func__);
+		dm_warn("%s: null device\n", __func__);
 		return NULL;
 	}
 
@@ -339,7 +339,7 @@ void *dev_get_parent_platdata(struct udevice *dev)
 void *dev_get_uclass_platdata(struct udevice *dev)
 {
 	if (!dev) {
-		dm_warn("%s: null device", __func__);
+		dm_warn("%s: null device\n", __func__);
 		return NULL;
 	}
 
