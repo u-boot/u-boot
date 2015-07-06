@@ -7,6 +7,7 @@
 #define __SANDBOX_STATE_H
 
 #include <config.h>
+#include <reset.h>
 #include <stdbool.h>
 #include <linux/stringify.h>
 
@@ -59,6 +60,8 @@ struct sandbox_state {
 	bool write_state;		/* Write sandbox state on exit */
 	bool ignore_missing_state_on_read;	/* No error if state missing */
 	bool show_lcd;			/* Show LCD on start-up */
+	enum reset_t last_reset;	/* Last reset type */
+	bool reset_allowed[RESET_COUNT];	/* Allowed reset types */
 	enum state_terminal_raw term_raw;	/* Terminal raw/cooked */
 
 	/* Pointer to information for each SPI bus/cs */
