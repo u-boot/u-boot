@@ -389,6 +389,8 @@
  */
 #ifdef CONFIG_MBA6
 #include "tqma6_mba6.h"
+#elif CONFIG_WRU4
+#include "tqma6_wru4.h"
 #else
 #error "No baseboard for the TQMa6 defined!"
 #endif
