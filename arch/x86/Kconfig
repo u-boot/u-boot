@@ -287,6 +287,28 @@ config TSC_FREQ_IN_MHZ
 	help
 	  The running frequency in MHz of Time-Stamp Counter (TSC).
 
+config HAVE_VGA_BIOS
+	bool "Add a VGA BIOS image"
+	help
+	  Select this option if you have a VGA BIOS image that you would
+	  like to add to your ROM.
+
+config VGA_BIOS_FILE
+	string "VGA BIOS image filename"
+	depends on HAVE_VGA_BIOS
+	default "vga.bin"
+	help
+	  The filename of the VGA BIOS image in the board directory.
+
+config VGA_BIOS_ADDR
+	hex "VGA BIOS image location"
+	depends on HAVE_VGA_BIOS
+	default 0xfff90000
+	help
+	  The location of VGA BIOS image in the SPI flash. For example, base
+	  address of 0xfff90000 indicates that the image will be put at offset
+	  0x90000 from the beginning of a 1MB flash device.
+
 menu "System tables"
 
 config GENERATE_PIRQ_TABLE

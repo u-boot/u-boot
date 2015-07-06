@@ -79,7 +79,7 @@ Find the following files:
 * ./northbridge/intel/sandybridge/systemagent-r6.bin
 
 The 3rd one should be renamed to mrc.bin.
-As for the video ROM, you can get it here [3].
+As for the video ROM, you can get it here [3] and rename it to vga.bin.
 Make sure all these binary blobs are put in the board directory.
 
 Now you can build U-Boot and obtain u-boot.rom:

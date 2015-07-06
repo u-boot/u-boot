@@ -79,8 +79,8 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 	if (vendev != mapped_vendev)
 		debug("Device ID mapped to %#08x\n", mapped_vendev);
 
-#ifdef CONFIG_X86_OPTION_ROM_ADDR
-	rom_address = CONFIG_X86_OPTION_ROM_ADDR;
+#ifdef CONFIG_VGA_BIOS_ADDR
+	rom_address = CONFIG_VGA_BIOS_ADDR;
 #else
 
 	if (pciauto_setup_rom(pci_bus_to_hose(PCI_BUS(dev)), dev)) {

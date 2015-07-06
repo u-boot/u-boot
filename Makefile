@@ -1035,8 +1035,8 @@ ifneq ($(CONFIG_HAVE_CMC),)
 IFDTOOL_FLAGS += -w $(CONFIG_CMC_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_CMC_FILE)
 endif
 
-ifneq ($(CONFIG_X86_OPTION_ROM_ADDR),)
-IFDTOOL_FLAGS += -w $(CONFIG_X86_OPTION_ROM_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_X86_OPTION_ROM_FILE)
+ifneq ($(CONFIG_HAVE_VGA_BIOS),)
+IFDTOOL_FLAGS += -w $(CONFIG_VGA_BIOS_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_VGA_BIOS_FILE)
 endif
 
 quiet_cmd_ifdtool = IFDTOOL $@
