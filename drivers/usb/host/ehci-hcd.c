@@ -321,7 +321,7 @@ static void ehci_update_endpt2_dev_n_port(struct usb_device *udev,
 		struct udevice *dev = parent;
 
 		if (device_get_uclass_id(dev->parent) != UCLASS_USB_HUB) {
-			printf("ehci: Error cannot find high speed parent of usb-1 device\n");
+			printf("ehci: Error cannot find high-speed parent of usb-1 device\n");
 			return;
 		}
 
