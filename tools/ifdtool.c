@@ -987,7 +987,7 @@ int main(int argc, char *argv[])
 					print_usage(argv[0]);
 					exit(EXIT_FAILURE);
 				}
-				ifile->addr = strtol(optarg, NULL, 0);
+				ifile->addr = strtoll(optarg, NULL, 0);
 				ifile->type = opt == 'f' ? IF_fdt :
 					opt == 'U' ? IF_uboot : IF_normal;
 				if (ifile->type == IF_fdt)
