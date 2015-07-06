@@ -301,6 +301,15 @@ device tree) and probe.
 Platform Data
 -------------
 
+*** Note: platform data is the old way of doing things. It is
+*** basically a C structure which is passed to drivers to tell them about
+*** platform-specific settings like the address of its registers, bus
+*** speed, etc. Device tree is now the preferred way of handling this.
+*** Unless you have a good reason not to use device tree (the main one
+*** being you need serial support in SPL and don't have enough SRAM for
+*** the cut-down device tree and libfdt libraries) you should stay away
+*** from platform data.
+
 Platform data is like Linux platform data, if you are familiar with that.
 It provides the board-specific information to start up a device.
 
@@ -366,8 +375,12 @@ Device Tree
 -----------
 
 While platdata is useful, a more flexible way of providing device data is
-by using device tree. With device tree we replace the above code with the
-following device tree fragment:
+by using device tree. In U-Boot you should use this where possible. Avoid
+sending patches which make use of the U_BOOT_DEVICE() macro unless strictly
+necessary.
+
+With device tree we replace the above code with the following device tree
+fragment:
 
 	red-square {
 		compatible = "demo-shape";
