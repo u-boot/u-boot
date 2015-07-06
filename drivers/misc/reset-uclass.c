@@ -25,23 +25,34 @@ int reset_request(struct udevice *dev, enum reset_t type)
 	return ops->request(dev, type);
 }
 
-void reset_walk(enum reset_t type)
+int reset_walk(enum reset_t type)
 {
 	struct udevice *dev;
-	int ret = 0;
+	int ret = -ENOSYS;
 
 	while (ret != -EINPROGRESS && type < RESET_COUNT) {
 		for (uclass_first_device(UCLASS_RESET, &dev);
-		dev;
-		uclass_next_device(&dev)) {
+		     dev;
+		     uclass_next_device(&dev)) {
 			ret = reset_request(dev, type);
 			if (ret == -EINPROGRESS)
 				break;
 		}
+		type++;
 	}
 
+	return ret;
+}
+
+void reset_walk_halt(enum reset_t type)
+{
+	int ret;
+
+	ret = reset_walk(type);
+
 	/* Wait for the reset to take effect */
-	mdelay(100);
+	if (ret == -EINPROGRESS)
+		mdelay(100);
 
 	/* Still no reset? Give up */
 	printf("Reset not supported on this platform\n");
@@ -53,7 +64,15 @@ void reset_walk(enum reset_t type)
  */
 void reset_cpu(ulong addr)
 {
-	reset_walk(RESET_WARM);
+	reset_walk_halt(RESET_WARM);
+}
+
+
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	reset_walk_halt(RESET_WARM);
+
+	return 0;
 }
 
 UCLASS_DRIVER(reset) = {

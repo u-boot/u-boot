@@ -51,8 +51,17 @@ int reset_request(struct udevice *dev, enum reset_t type);
  * If this function fails to reset, it will display a message and halt
  *
  * @type:	Reset type to request
+ * @return -EINPROGRESS if a reset is in progress, -ENOSYS if not available
  */
-void reset_walk(enum reset_t type);
+int reset_walk(enum reset_t type);
+
+/**
+ * reset_walk_halt() - try to reset, otherwise halt
+ *
+ * This calls reset_walk(). If it returns, indicating that reset is not
+ * supported, it prints a message and halts.
+ */
+void reset_walk_halt(enum reset_t type);
 
 /**
  * reset_cpu() - calls reset_walk(RESET_WARM)
