@@ -196,6 +196,14 @@
 		};
 	};
 
+	reset@0 {
+		compatible = "sandbox,warm-reset";
+	};
+
+	reset@1 {
+		compatible = "sandbox,reset";
+	};
+
 	spi@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;

@@ -51,7 +51,7 @@ static int sandbox_reset_request(struct udevice *dev, enum reset_t type)
 		state->last_reset = type;
 		if (!state->reset_allowed[type])
 			return -EACCES;
-		/* TODO: sandbox_exit(); */
+		sandbox_exit();
 		break;
 	default:
 		return -ENOSYS;
