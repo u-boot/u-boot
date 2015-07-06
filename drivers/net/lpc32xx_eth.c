@@ -168,6 +168,7 @@ struct lpc32xx_eth_registers {
 #define COMMAND_RXENABLE      0x00000001
 #define COMMAND_TXENABLE      0x00000002
 #define COMMAND_PASSRUNTFRAME 0x00000040
+#define COMMAND_RMII          0x00000200
 #define COMMAND_FULL_DUPLEX   0x00000400
 /* Helper: general reset */
 #define COMMAND_RESETS        0x00000038
@@ -201,6 +202,7 @@ struct lpc32xx_eth_device {
 	struct eth_device dev;
 	struct lpc32xx_eth_registers *regs;
 	struct lpc32xx_eth_buffers *bufs;
+	bool phy_rmii;
 };
 
 #define LPC32XX_ETH_DEVICE_SIZE (sizeof(struct lpc32xx_eth_device))
@@ -359,7 +361,10 @@ int lpc32xx_eth_phy_write(struct mii_dev *bus, int phy_addr, int dev_addr,
 
 static struct lpc32xx_eth_device lpc32xx_eth = {
 	.regs = (struct lpc32xx_eth_registers *)LPC32XX_ETH_BASE,
-	.bufs = (struct lpc32xx_eth_buffers *)LPC32XX_ETH_BUFS
+	.bufs = (struct lpc32xx_eth_buffers *)LPC32XX_ETH_BUFS,
+#if defined(CONFIG_RMII)
+	.phy_rmii = true,
+#endif
 };
 
 #define TX_TIMEOUT 10000
@@ -471,7 +476,10 @@ static int lpc32xx_eth_init(struct eth_device *dev)
 	writel(0x0012, &regs->ipgr);
 
 	/* pass runt (smaller than 64 bytes) frames */
-	writel(COMMAND_PASSRUNTFRAME, &regs->command);
+	if (lpc32xx_eth_device->phy_rmii)
+		writel(COMMAND_PASSRUNTFRAME | COMMAND_RMII, &regs->command);
+	else
+		writel(COMMAND_PASSRUNTFRAME, &regs->command);
 
 	/* Configure Full/Half Duplex mode */
 	if (miiphy_duplex(dev->name, CONFIG_PHY_ADDR) == FULL) {
@@ -559,6 +567,8 @@ static int lpc32xx_eth_halt(struct eth_device *dev)
 #if defined(CONFIG_PHYLIB)
 int lpc32xx_eth_phylib_init(struct eth_device *dev, int phyid)
 {
+	struct lpc32xx_eth_device *lpc32xx_eth_device =
+		container_of(dev, struct lpc32xx_eth_device, dev);
 	struct mii_dev *bus;
 	struct phy_device *phydev;
 	int ret;
@@ -579,7 +589,11 @@ int lpc32xx_eth_phylib_init(struct eth_device *dev, int phyid)
 		return -ENOMEM;
 	}
 
-	phydev = phy_connect(bus, phyid, dev, PHY_INTERFACE_MODE_MII);
+	if (lpc32xx_eth_device->phy_rmii)
+		phydev = phy_connect(bus, phyid, dev, PHY_INTERFACE_MODE_RMII);
+	else
+		phydev = phy_connect(bus, phyid, dev, PHY_INTERFACE_MODE_MII);
+
 	if (!phydev) {
 		printf("phy_connect failed\n");
 		return -ENODEV;
