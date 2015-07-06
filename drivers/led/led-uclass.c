@@ -24,11 +24,12 @@ int led_get_by_label(const char *label, struct udevice **devp)
 	uclass_foreach_dev(dev, uc) {
 		struct led_uclass_plat *uc_plat = dev_get_uclass_platdata(dev);
 
-		if (!strcmp(label, uc_plat->label))
+		/* Ignore the top-level LED node */
+		if (uc_plat->label && !strcmp(label, uc_plat->label))
 			return uclass_get_device_tail(dev, 0, devp);
 	}
 
-	return -ENOENT;
+	return -ENODEV;
 }
 
 int led_set_on(struct udevice *dev, int on)

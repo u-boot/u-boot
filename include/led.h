@@ -35,7 +35,7 @@ struct led_ops {
  *
  * @label:	LED label to look up
  * @devp:	Returns the associated device, if found
- * @return 0 if found, -ve on error
+ * @return 0 if found, -ENODEV if not found, other -ve on error
  */
 int led_get_by_label(const char *label, struct udevice **devp);
 
