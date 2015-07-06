@@ -16,6 +16,7 @@
 #ifndef __CONFIG_BALTOS_H
 #define __CONFIG_BALTOS_H
 
+#include <linux/sizes.h>
 #include <configs/ti_am335x_common.h>
 
 #define MACH_TYPE_TIAM335EVM		3589	/* Until the next sync */
@@ -39,6 +40,7 @@
 #define CONFIG_CMD_PART
 
 /* FIT support */
+#define CONFIG_SYS_BOOTM_LEN         SZ_64M
 #define CONFIG_OF_BOARD_SETUP
 
 /* UBI Support */
@@ -54,8 +56,9 @@
 #undef CONFIG_SYS_OMAP24_I2C_SPEED
 #define CONFIG_SYS_OMAP24_I2C_SPEED 1000
 
+#undef CONFIG_SPL_OS_BOOT
 #ifdef CONFIG_NAND
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x00080000
 #ifdef CONFIG_SPL_OS_BOOT
 #define CONFIG_CMD_SPL_NAND_OFS 0x00080000 /* os parameters */
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x00200000 /* kernel offset */
@@ -78,7 +81,9 @@
 		"ubifsmount ubi0:kernel; " \
 		"ubifsload $loadaddr kernel-fit.itb;" \
 		"ubifsumount; " \
-		"bootm ${loadaddr}#conf${board_name}\0"
+		"bootm ${loadaddr}#conf${board_name}; " \
+		"if test $? -ne 0; then echo Using default FIT config; " \
+		"bootm ${loadaddr}; fi;\0"
 #else
 #define NANDARGS ""
 #endif
@@ -234,6 +239,7 @@
 
 #ifdef CONFIG_NAND
 #define CONFIG_NAND_OMAP_GPMC
+#define CONFIG_NAND_OMAP_GPMC_PREFETCH
 #define CONFIG_NAND_OMAP_ELM
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
