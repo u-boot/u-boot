@@ -28,6 +28,14 @@ enum {
 	PERIPH_ID_COUNT,
 };
 
+/* System controller driver data */
+enum {
+	SYSCON0		= 32,
+	SYSCON1,
+
+	SYSCON_COUNT
+};
+
 /**
  * sandbox_i2c_set_test_mode() - set test mode for running unit tests
  *

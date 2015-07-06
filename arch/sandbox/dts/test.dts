@@ -240,6 +240,16 @@
 		};
 	};
 
+	syscon@0 {
+		compatible = "sandbox,syscon0";
+		reg = <0x10>;
+	};
+
+	syscon@1 {
+		compatible = "sandbox,syscon1";
+		reg = <0x20>;
+	};
+
 	uart0: serial {
 		compatible = "sandbox,serial";
 		u-boot,dm-pre-reloc;
