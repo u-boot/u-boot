@@ -151,7 +151,7 @@ struct lpc32xx_eth_registers {
 #define SUPP_SPEED 0x00000100
 
 /* MCFG register bitfields/masks and offsets (see Table 292) */
-#define MCFG_CLOCK_SELECT_MASK  0x0000001C
+#define MCFG_RESET_MII_MGMT     0x00008000
 /* divide clock by 28 (see Table 293) */
 #define MCFG_CLOCK_SELECT_DIV28 0x0000001C
 
@@ -459,8 +459,19 @@ static int lpc32xx_eth_init(struct eth_device *dev)
 	struct lpc32xx_eth_buffers *bufs = lpc32xx_eth_device->bufs;
 	int index;
 
-	/* Release SOFT reset to let MII talk to PHY */
-	clrbits_le32(&regs->mac1, MAC1_SOFT_RESET);
+	/* Initial MAC initialization */
+	writel(MAC1_PASS_ALL_RX_FRAMES, &regs->mac1);
+	writel(MAC2_PAD_CRC_ENABLE | MAC2_CRC_ENABLE, &regs->mac2);
+	writel(PKTSIZE_ALIGN, &regs->maxf);
+
+	/* Retries: 15 (0xF). Collision window: 57 (0x37). */
+	writel(0x370F, &regs->clrt);
+
+	/* Set IP gap pt 2 to default 0x12 but pt 1 to non-default 0 */
+	writel(0x0012, &regs->ipgr);
+
+	/* pass runt (smaller than 64 bytes) frames */
+	writel(COMMAND_PASSRUNTFRAME, &regs->command);
 
 	/* Configure Full/Half Duplex mode */
 	if (miiphy_duplex(dev->name, CONFIG_PHY_ADDR) == FULL) {
@@ -476,20 +487,6 @@ static int lpc32xx_eth_init(struct eth_device *dev)
 		writel(SUPP_SPEED, &regs->supp);
 	else
 		writel(0, &regs->supp);
-
-	/* Initial MAC initialization */
-	writel(MAC1_PASS_ALL_RX_FRAMES, &regs->mac1);
-	writel(MAC2_PAD_CRC_ENABLE | MAC2_CRC_ENABLE, &regs->mac2);
-	writel(PKTSIZE_ALIGN, &regs->maxf);
-
-	/* Retries: 15 (0xF). Collision window: 57 (0x37). */
-	writel(0x370F, &regs->clrt);
-
-	/* Set IP gap pt 2 to default 0x12 but pt 1 to non-default 0 */
-	writel(0x0012, &regs->ipgr);
-
-	/* pass runt (smaller than 64 bytes) frames */
-	writel(COMMAND_PASSRUNTFRAME, &regs->command);
 
 	/* Save station address */
 	writel((unsigned long) (dev->enetaddr[0] |
@@ -604,7 +601,7 @@ int lpc32xx_eth_initialize(bd_t *bis)
 	 * Set RMII management clock rate. With HCLK at 104 MHz and
 	 * a divider of 28, this will be 3.72 MHz.
 	 */
-
+	writel(MCFG_RESET_MII_MGMT, &regs->mcfg);
 	writel(MCFG_CLOCK_SELECT_DIV28, &regs->mcfg);
 
 	/* Reset all MAC logic */
