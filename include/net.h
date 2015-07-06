@@ -119,7 +119,9 @@ enum eth_recv_flags {
  * mcast: Join or leave a multicast group (for TFTP) - optional
  * write_hwaddr: Write a MAC address to the hardware (used to pass it to Linux
  *		 on some platforms like ARM). This function expects the
- *		 eth_pdata::enetaddr field to be populated - optional
+ *		 eth_pdata::enetaddr field to be populated. The method can
+ *		 return -ENOSYS to indicate that this is not implemented for
+		 this hardware - optional.
  * read_rom_hwaddr: Some devices have a backup of the MAC address stored in a
  *		    ROM on the board. This is how the driver should expose it
  *		    to the network stack. This function should fill in the

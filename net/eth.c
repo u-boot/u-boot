@@ -287,7 +287,13 @@ static int eth_write_hwaddr(struct udevice *dev)
 			return -EINVAL;
 		}
 
+		/*
+		 * Drivers are allowed to decide not to implement this at
+		 * run-time. E.g. Some devices may use it and some may not.
+		 */
 		ret = eth_get_ops(dev)->write_hwaddr(dev);
+		if (ret == -ENOSYS)
+			ret = 0;
 		if (ret)
 			printf("\nWarning: %s failed to set MAC address\n",
 			       dev->name);
