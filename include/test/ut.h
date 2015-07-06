@@ -9,6 +9,8 @@
 #ifndef __TEST_UT_H
 #define __TEST_UT_H
 
+#include <linux/err.h>
+
 struct unit_test_state;
 
 /**
@@ -97,6 +99,19 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 		ut_failf(uts, __FILE__, __LINE__, __func__,		\
 			 #expr " = NULL",				\
 			 "Expected non-null, got NULL");		\
+		return CMD_RET_FAILURE;					\
+	}								\
+}
+
+/* Assert that a pointer is not an error pointer */
+#define ut_assertok_ptr(expr) {					\
+	const void *val = (expr);					\
+									\
+	if (IS_ERR(val)) {						\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 #expr " = NULL",				\
+			 "Expected pointer, got error %ld",		\
+			 PTR_ERR(val));					\
 		return CMD_RET_FAILURE;					\
 	}								\
 }
