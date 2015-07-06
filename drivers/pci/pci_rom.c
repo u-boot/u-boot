@@ -31,6 +31,7 @@
 #include <pci_rom.h>
 #include <vbe.h>
 #include <video_fb.h>
+#include <linux/screen_info.h>
 
 #ifdef CONFIG_HAVE_ACPI_RESUME
 #include <asm/acpi.h>
@@ -227,6 +228,33 @@ int vbe_get_video_info(struct graphic_device *gdev)
 	return gdev->winSizeX ? 0 : -ENOSYS;
 #else
 	return -ENOSYS;
+#endif
+}
+
+void setup_video(struct screen_info *screen_info)
+{
+#ifdef CONFIG_FRAMEBUFFER_SET_VESA_MODE
+	struct vesa_mode_info *vesa = &mode_info.vesa;
+
+	screen_info->orig_video_isVGA = VIDEO_TYPE_VLFB;
+
+	screen_info->lfb_width = vesa->x_resolution;
+	screen_info->lfb_height = vesa->y_resolution;
+	screen_info->lfb_depth = vesa->bits_per_pixel;
+	screen_info->lfb_linelength = vesa->bytes_per_scanline;
+	screen_info->lfb_base = vesa->phys_base_ptr;
+	screen_info->lfb_size =
+		ALIGN(screen_info->lfb_linelength * screen_info->lfb_height,
+		      65536);
+	screen_info->lfb_size >>= 16;
+	screen_info->red_size = vesa->red_mask_size;
+	screen_info->red_pos = vesa->red_mask_pos;
+	screen_info->green_size = vesa->green_mask_size;
+	screen_info->green_pos = vesa->green_mask_pos;
+	screen_info->blue_size = vesa->blue_mask_size;
+	screen_info->blue_pos = vesa->blue_mask_pos;
+	screen_info->rsvd_size = vesa->reserved_mask_size;
+	screen_info->rsvd_pos = vesa->reserved_mask_pos;
 #endif
 }
 
