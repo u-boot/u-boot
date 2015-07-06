@@ -17,8 +17,11 @@
 
 struct regmap *syscon_get_regmap(struct udevice *dev)
 {
-	struct syscon_uc_info *priv = dev_get_uclass_priv(dev);
+	struct syscon_uc_info *priv;
 
+	if (device_get_uclass_id(dev) != UCLASS_SYSCON)
+		return ERR_PTR(-ENOEXEC);
+	priv = dev_get_uclass_priv(dev);
 	return priv->regmap;
 }
 
@@ -52,7 +55,7 @@ struct regmap *syscon_get_regmap_by_driver_data(ulong driver_data)
 		}
 	}
 
-	return ERR_PTR(-ENOENT);
+	return ERR_PTR(-ENODEV);
 }
 
 void *syscon_get_first_range(ulong driver_data)
