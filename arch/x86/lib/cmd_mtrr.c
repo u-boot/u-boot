@@ -37,7 +37,8 @@ static int do_mtrr_list(void)
 		valid = mask & MTRR_PHYS_MASK_VALID;
 		type = mtrr_type_name[base & MTRR_BASE_TYPE_MASK];
 		printf("%d   %-5s %-12s %016llx %016llx %016llx\n", i,
-		       valid ? "Y" : "N", type, base, mask, size);
+		       valid ? "Y" : "N", type, base & ~MTRR_BASE_TYPE_MASK,
+		       mask & ~MTRR_PHYS_MASK_VALID, size);
 	}
 
 	return 0;
