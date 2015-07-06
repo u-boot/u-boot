@@ -353,6 +353,101 @@ int dm_pci_hose_probe_bus(struct pci_controller *hose, pci_dev_t bdf)
 	return sub_bus;
 }
 
+/**
+ * pci_match_one_device - Tell if a PCI device structure has a matching
+ *                        PCI device id structure
+ * @id: single PCI device id structure to match
+ * @dev: the PCI device structure to match against
+ *
+ * Returns the matching pci_device_id structure or %NULL if there is no match.
+ */
+static bool pci_match_one_id(const struct pci_device_id *id,
+			     const struct pci_device_id *find)
+{
+	if ((id->vendor == PCI_ANY_ID || id->vendor == find->vendor) &&
+	    (id->device == PCI_ANY_ID || id->device == find->device) &&
+	    (id->subvendor == PCI_ANY_ID || id->subvendor == find->subvendor) &&
+	    (id->subdevice == PCI_ANY_ID || id->subdevice == find->subdevice) &&
+	    !((id->class ^ find->class) & id->class_mask))
+		return true;
+
+	return false;
+}
+
+/**
+ * pci_find_and_bind_driver() - Find and bind the right PCI driver
+ *
+ * This only looks at certain fields in the descriptor.
+ */
+static int pci_find_and_bind_driver(struct udevice *parent,
+				    struct pci_device_id *find_id, int devfn,
+				    struct udevice **devp)
+{
+	struct pci_driver_entry *start, *entry;
+	const char *drv;
+	int n_ents;
+	int ret;
+	char name[30], *str;
+
+	*devp = NULL;
+
+	debug("%s: Searching for driver: vendor=%x, device=%x\n", __func__,
+	      find_id->vendor, find_id->device);
+	start = ll_entry_start(struct pci_driver_entry, pci_driver_entry);
+	n_ents = ll_entry_count(struct pci_driver_entry, pci_driver_entry);
+	for (entry = start; entry != start + n_ents; entry++) {
+		const struct pci_device_id *id;
+		struct udevice *dev;
+		const struct driver *drv;
+
+		for (id = entry->match;
+		     id->vendor || id->subvendor || id->class_mask;
+		     id++) {
+			if (!pci_match_one_id(id, find_id))
+				continue;
+
+			drv = entry->driver;
+			/*
+			 * We could pass the descriptor to the driver as
+			 * platdata (instead of NULL) and allow its bind()
+			 * method to return -ENOENT if it doesn't support this
+			 * device. That way we could continue the search to
+			 * find another driver. For now this doesn't seem
+			 * necesssary, so just bind the first match.
+			 */
+			ret = device_bind(parent, drv, drv->name, NULL, -1,
+					  &dev);
+			if (ret)
+				goto error;
+			debug("%s: Match found: %s\n", __func__, drv->name);
+			dev->driver_data = find_id->driver_data;
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	/* Bind a generic driver so that the device can be used */
+	sprintf(name, "pci_%x:%x.%x", parent->seq, PCI_DEV(devfn),
+		PCI_FUNC(devfn));
+	str = strdup(name);
+	if (!str)
+		return -ENOMEM;
+	drv = (find_id->class >> 8) == PCI_CLASS_BRIDGE_PCI ? "pci_bridge_drv" :
+			"pci_generic_drv";
+	ret = device_bind_driver(parent, drv, str, devp);
+	if (ret) {
+		debug("%s: Failed to bind generic driver: %d", __func__, ret);
+		return ret;
+	}
+	debug("%s: No match found: bound generic driver instead\n", __func__);
+
+	return 0;
+
+error:
+	debug("%s: No match found: error %d\n", __func__, ret);
+	return ret;
+}
+
 int pci_bind_bus_devices(struct udevice *bus)
 {
 	ulong vendor, device;
@@ -387,25 +482,33 @@ int pci_bind_bus_devices(struct udevice *bus)
 		      bus->seq, bus->name, PCI_DEV(devfn), PCI_FUNC(devfn));
 		pci_bus_read_config(bus, devfn, PCI_DEVICE_ID, &device,
 				    PCI_SIZE_16);
-		pci_bus_read_config(bus, devfn, PCI_CLASS_DEVICE, &class,
-				    PCI_SIZE_16);
+		pci_bus_read_config(bus, devfn, PCI_CLASS_REVISION, &class,
+				    PCI_SIZE_32);
+		class >>= 8;
 
 		/* Find this device in the device tree */
 		ret = pci_bus_find_devfn(bus, devfn, &dev);
 
+		/* Search for a driver */
+
 		/* If nothing in the device tree, bind a generic device */
 		if (ret == -ENODEV) {
-			char name[30], *str;
-			const char *drv;
+			struct pci_device_id find_id;
+			ulong val;
 
-			sprintf(name, "pci_%x:%x.%x", bus->seq,
-				PCI_DEV(devfn), PCI_FUNC(devfn));
-			str = strdup(name);
-			if (!str)
-				return -ENOMEM;
-			drv = class == PCI_CLASS_BRIDGE_PCI ?
-				"pci_bridge_drv" : "pci_generic_drv";
-			ret = device_bind_driver(bus, drv, str, &dev);
+			memset(&find_id, '\0', sizeof(find_id));
+			find_id.vendor = vendor;
+			find_id.device = device;
+			find_id.class = class;
+			if ((header_type & 0x7f) == PCI_HEADER_TYPE_NORMAL) {
+				pci_bus_read_config(bus, devfn,
+						    PCI_SUBSYSTEM_VENDOR_ID,
+						    &val, PCI_SIZE_32);
+				find_id.subvendor = val & 0xffff;
+				find_id.subdevice = val >> 16;
+			}
+			ret = pci_find_and_bind_driver(bus, &find_id, devfn,
+						       &dev);
 		}
 		if (ret)
 			return ret;

@@ -468,7 +468,10 @@ typedef int pci_dev_t;
 #define PCI_ANY_ID		(~0)
 
 struct pci_device_id {
-	unsigned int vendor, device;		/* Vendor and device ID or PCI_ANY_ID */
+	unsigned int vendor, device;	/* Vendor and device ID or PCI_ANY_ID */
+	unsigned int subvendor, subdevice; /* Subsystem ID's or PCI_ANY_ID */
+	unsigned int class, class_mask;	/* (class,subclass,prog-if) triplet */
+	unsigned long driver_data;	/* Data private to the driver */
 };
 
 struct pci_controller;
@@ -1101,7 +1104,79 @@ struct dm_pci_emul_ops {
 int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 			 struct udevice **emulp);
 
-#endif
+#endif /* CONFIG_DM_PCI */
+
+/**
+ * PCI_DEVICE - macro used to describe a specific pci device
+ * @vend: the 16 bit PCI Vendor ID
+ * @dev: the 16 bit PCI Device ID
+ *
+ * This macro is used to create a struct pci_device_id that matches a
+ * specific device.  The subvendor and subdevice fields will be set to
+ * PCI_ANY_ID.
+ */
+#define PCI_DEVICE(vend, dev) \
+	.vendor = (vend), .device = (dev), \
+	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
+
+/**
+ * PCI_DEVICE_SUB - macro used to describe a specific pci device with subsystem
+ * @vend: the 16 bit PCI Vendor ID
+ * @dev: the 16 bit PCI Device ID
+ * @subvend: the 16 bit PCI Subvendor ID
+ * @subdev: the 16 bit PCI Subdevice ID
+ *
+ * This macro is used to create a struct pci_device_id that matches a
+ * specific device with subsystem information.
+ */
+#define PCI_DEVICE_SUB(vend, dev, subvend, subdev) \
+	.vendor = (vend), .device = (dev), \
+	.subvendor = (subvend), .subdevice = (subdev)
+
+/**
+ * PCI_DEVICE_CLASS - macro used to describe a specific pci device class
+ * @dev_class: the class, subclass, prog-if triple for this device
+ * @dev_class_mask: the class mask for this device
+ *
+ * This macro is used to create a struct pci_device_id that matches a
+ * specific PCI class.  The vendor, device, subvendor, and subdevice
+ * fields will be set to PCI_ANY_ID.
+ */
+#define PCI_DEVICE_CLASS(dev_class, dev_class_mask) \
+	.class = (dev_class), .class_mask = (dev_class_mask), \
+	.vendor = PCI_ANY_ID, .device = PCI_ANY_ID, \
+	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
+
+/**
+ * PCI_VDEVICE - macro used to describe a specific pci device in short form
+ * @vend: the vendor name
+ * @dev: the 16 bit PCI Device ID
+ *
+ * This macro is used to create a struct pci_device_id that matches a
+ * specific PCI device.  The subvendor, and subdevice fields will be set
+ * to PCI_ANY_ID. The macro allows the next field to follow as the device
+ * private data.
+ */
+
+#define PCI_VDEVICE(vend, dev) \
+	.vendor = PCI_VENDOR_ID_##vend, .device = (dev), \
+	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID, 0, 0
+
+/**
+ * struct pci_driver_entry - Matches a driver to its pci_device_id list
+ * @driver: Driver to use
+ * @match: List of match records for this driver, terminated by {}
+ */
+struct pci_driver_entry {
+	struct driver *driver;
+	const struct pci_device_id *match;
+};
+
+#define U_BOOT_PCI_DEVICE(__name, __match)				\
+	ll_entry_declare(struct pci_driver_entry, __name, pci_driver_entry) = {\
+		.driver = llsym(struct driver, __name, driver), \
+		.match = __match, \
+		}
 
 #endif /* __ASSEMBLY__ */
 #endif /* _PCI_H */
