@@ -203,6 +203,7 @@ int vbe_get_video_info(struct graphic_device *gdev)
 	gdev->gdfBytesPP = vesa->bits_per_pixel / 8;
 
 	switch (vesa->bits_per_pixel) {
+	case 32:
 	case 24:
 		gdev->gdfIndex = GDF_32BIT_X888RGB;
 		break;
