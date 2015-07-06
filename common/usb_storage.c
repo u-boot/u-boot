@@ -1442,6 +1442,6 @@ static const struct usb_device_id mass_storage_id_table[] = {
 	{ }		/* Terminating entry */
 };
 
-USB_DEVICE(usb_mass_storage, mass_storage_id_table);
+U_BOOT_USB_DEVICE(usb_mass_storage, mass_storage_id_table);
 
 #endif

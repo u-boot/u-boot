@@ -540,8 +540,8 @@ int drv_usb_kbd_init(void)
 	debug("%s: Probing for keyboard\n", __func__);
 #ifdef CONFIG_DM_USB
 	/*
-	 * TODO: We should add USB_DEVICE() declarations to each USB ethernet
-	 * driver and then most of this file can be removed.
+	 * TODO: We should add U_BOOT_USB_DEVICE() declarations to each USB
+	 * keyboard driver and then most of this file can be removed.
 	 */
 	struct udevice *bus;
 	struct uclass *uc;

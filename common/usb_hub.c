@@ -652,6 +652,6 @@ static const struct usb_device_id hub_id_table[] = {
 	{ }	/* Terminating entry */
 };
 
-USB_DEVICE(usb_generic_hub, hub_id_table);
+U_BOOT_USB_DEVICE(usb_generic_hub, hub_id_table);
 
 #endif

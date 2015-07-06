@@ -501,7 +501,23 @@ struct usb_driver_entry {
 	const struct usb_device_id *match;
 };
 
-#define USB_DEVICE(__name, __match)					\
+#define USB_DEVICE_ID_MATCH_DEVICE \
+		(USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_PRODUCT)
+
+/**
+ * USB_DEVICE - macro used to describe a specific usb device
+ * @vend: the 16 bit USB Vendor ID
+ * @prod: the 16 bit USB Product ID
+ *
+ * This macro is used to create a struct usb_device_id that matches a
+ * specific device.
+ */
+#define USB_DEVICE(vend, prod) \
+	.match_flags = USB_DEVICE_ID_MATCH_DEVICE, \
+	.idVendor = (vend), \
+	.idProduct = (prod)
+
+#define U_BOOT_USB_DEVICE(__name, __match) \
 	ll_entry_declare(struct usb_driver_entry, __name, usb_driver_entry) = {\
 		.driver = llsym(struct driver, __name, driver), \
 		.match = __match, \

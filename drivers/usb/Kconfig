@@ -46,8 +46,8 @@ config DM_USB
 
 	  Much of the code is shared but with this option enabled the USB
 	  uclass takes care of device enumeration. USB devices can be
-	  declared with the USB_DEVICE() macro and will be automatically
-	  probed when found on the bus.
+	  declared with the U_BOOT_USB_DEVICE() macro and will be
+	  automatically probed when found on the bus.
 
 source "drivers/usb/host/Kconfig"
 
