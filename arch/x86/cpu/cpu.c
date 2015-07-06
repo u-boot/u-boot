@@ -28,6 +28,8 @@
 #include <asm/cpu.h>
 #include <asm/lapic.h>
 #include <asm/mp.h>
+#include <asm/msr.h>
+#include <asm/mtrr.h>
 #include <asm/post.h>
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
@@ -350,6 +352,26 @@ int x86_cpu_init_f(void)
 		gd->arch.x86_device = cpu.device;
 
 		gd->arch.has_mtrr = has_mtrr();
+	}
+
+	/* Configure fixed range MTRRs for some legacy regions */
+	if (gd->arch.has_mtrr) {
+		u64 mtrr_cap;
+
+		mtrr_cap = native_read_msr(MTRR_CAP_MSR);
+		if (mtrr_cap & MTRR_CAP_FIX) {
+			/* Mark the VGA RAM area as uncacheable */
+			native_write_msr(MTRR_FIX_16K_A0000_MSR, 0, 0);
+
+			/* Mark the PCI ROM area as uncacheable */
+			native_write_msr(MTRR_FIX_4K_C0000_MSR, 0, 0);
+			native_write_msr(MTRR_FIX_4K_C8000_MSR, 0, 0);
+			native_write_msr(MTRR_FIX_4K_D0000_MSR, 0, 0);
+			native_write_msr(MTRR_FIX_4K_D8000_MSR, 0, 0);
+
+			/* Enable the fixed range MTRRs */
+			msr_setbits_64(MTRR_DEF_TYPE_MSR, MTRR_DEF_TYPE_FIX_EN);
+		}
 	}
 
 	return 0;
