@@ -113,6 +113,10 @@ binary using any hex editor (eg: bvi). Go to the offset 0x1fcd8 of the FSP
 binary, change the following five bytes values from orginally E8 42 FF FF FF
 to B8 00 80 0B 00.
 
+As for the video ROM, you need manually extract it from the Intel provided
+BIOS for Crown Bay here [6], using the AMI MMTool [7]. Check PCI option ROM
+ID 8086:4108, extract and save it as vga.bin in the board directory.
+
 Now you can build U-Boot and obtain u-boot.rom
 
 $ make crownbay_defconfig
@@ -254,7 +258,7 @@ If you want to check both consoles, use '-serial stdio'.
 
 CPU Microcode
 -------------
-Modern CPUs usually require a special bit stream called microcode [6] to be
+Modern CPUs usually require a special bit stream called microcode [8] to be
 loaded on the processor after power up in order to function properly. U-Boot
 has already integrated these as hex dumps in the source tree.
 
@@ -265,9 +269,9 @@ Additional application processors (AP) can be brought up by U-Boot. In order to
 have an SMP kernel to discover all of the available processors, U-Boot needs to
 prepare configuration tables which contain the multi-CPUs information before
 loading the OS kernel. Currently U-Boot supports generating two types of tables
-for SMP, called Simple Firmware Interface (SFI) [7] and Multi-Processor (MP) [8]
-tables. The writing of these two tables are controlled by two Kconfig options
-GENERATE_SFI_TABLE and GENERATE_MP_TABLE.
+for SMP, called Simple Firmware Interface (SFI) [9] and Multi-Processor (MP)
+[10] tables. The writing of these two tables are controlled by two Kconfig
+options GENERATE_SFI_TABLE and GENERATE_MP_TABLE.
 
 Driver Model
 ------------
@@ -372,6 +376,8 @@ References
 [3] http://www.coreboot.org/~stepan/pci8086,0166.rom
 [4] http://www.intel.com/content/www/us/en/embedded/design-tools/evaluation-platforms/atom-e660-eg20t-development-kit.html
 [5] http://www.intel.com/fsp
-[6] http://en.wikipedia.org/wiki/Microcode
-[7] http://simplefirmware.org
-[8] http://www.intel.com/design/archives/processors/pro/docs/242016.htm
+[6] http://www.intel.com/content/www/us/en/secure/intelligent-systems/privileged/e6xx-35-b1-cmc22211.html
+[7] http://www.ami.com/products/bios-uefi-tools-and-utilities/bios-uefi-utilities/
+[8] http://en.wikipedia.org/wiki/Microcode
+[9] http://simplefirmware.org
+[10] http://www.intel.com/design/archives/processors/pro/docs/242016.htm
