@@ -31,13 +31,9 @@ PCI_HOSE_OP(write, dword, 32, u32)
 
 pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 {
-	struct pci_child_platdata *pplat;
-	struct udevice *bus, *dev;
+	struct udevice *dev;
 
 	if (pci_find_device_id(ids, index, &dev))
 		return -1;
-	bus = dev->parent;
-	pplat = dev_get_parent_platdata(dev);
-
-	return PCI_ADD_BUS(bus->seq, pplat->devfn);
+	return pci_get_bdf(dev);
 }

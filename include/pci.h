@@ -808,6 +808,14 @@ struct dm_pci_ops {
 #define pci_get_ops(dev)	((struct dm_pci_ops *)(dev)->driver->ops)
 
 /**
+ * pci_get_bdf() - Get the BDF value for a device
+ *
+ * @dev:	Device to check
+ * @return bus/device/function value (see PCI_BDF())
+ */
+pci_dev_t pci_get_bdf(struct udevice *dev);
+
+/**
  * pci_bind_bus_devices() - scan a PCI bus and bind devices
  *
  * Scan a PCI bus looking for devices. Bind each one that is found. If
