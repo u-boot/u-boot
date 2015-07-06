@@ -6,3 +6,4 @@
 #
 
 obj-$(CONFIG_CLK) += clk-uclass.o
+obj-$(CONFIG_SANDBOX) += clk_sandbox.o
