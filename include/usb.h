@@ -493,8 +493,8 @@ struct usb_device_id {
 
 /**
  * struct usb_driver_entry - Matches a driver to its usb_device_ids
- * @compatible: Compatible string
- * @data: Data for this compatible string
+ * @driver: Driver to use
+ * @match: List of match records for this driver, terminated by {}
  */
 struct usb_driver_entry {
 	struct driver *driver;
