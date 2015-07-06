@@ -23,7 +23,7 @@
 static int usb_stor_curr_dev = -1; /* current device */
 #endif
 #ifdef CONFIG_USB_HOST_ETHER
-static int usb_ether_curr_dev = -1; /* current ethernet device */
+static int __maybe_unused usb_ether_curr_dev = -1; /* current ethernet device */
 #endif
 
 /* some display routines (info command) */
@@ -530,10 +530,13 @@ static void do_usb_start(void)
 	/* try to recognize storage devices immediately */
 	usb_stor_curr_dev = usb_stor_scan(1);
 #endif
-#endif
 #ifdef CONFIG_USB_HOST_ETHER
+# ifdef CONFIG_DM_ETH
+#  error "You must use CONFIG_DM_USB if you want to use CONFIG_USB_HOST_ETHER with CONFIG_DM_ETH"
+# endif
 	/* try to recognize ethernet devices immediately */
 	usb_ether_curr_dev = usb_host_eth_scan(1);
+#endif
 #endif
 #ifdef CONFIG_USB_KEYBOARD
 	drv_usb_kbd_init();
