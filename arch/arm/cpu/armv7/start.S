@@ -22,10 +22,9 @@
  *
  * Startup Code (reset vector)
  *
- * do important init only if we don't start from memory!
- * setup Memory and board specific bits prior to relocation.
- * relocate armboot to ram
- * setup stack
+ * Do important init only if we don't start from memory!
+ * Setup memory and board specific bits prior to relocation.
+ * Relocate armboot to ram. Setup stack.
  *
  *************************************************************************/
 

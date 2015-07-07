@@ -1,3 +1,5 @@
+#include <linux/linkage.h>
+
 /* # 1 "libgcc1.S" */
 @ libgcc1 routines for ARM cpu.
 @ Division routines, written by Richard Earnshaw, (rearnsha@armltd.co.uk)
@@ -11,10 +13,9 @@ curbit		.req	r3
 /* lr		.req	r14	*/
 /* pc		.req	r15	*/
 	.text
-	.globl	 __umodsi3
 	.type  __umodsi3       ,function
 	.align 0
- __umodsi3      :
+ ENTRY(__umodsi3)
 	cmp	divisor, #0
 	beq	Ldiv0
 	mov	curbit, #1
@@ -86,3 +87,4 @@ Ldiv0:
 /* # 456 "libgcc1.S" */
 /* # 500 "libgcc1.S" */
 /* # 580 "libgcc1.S" */
+ENDPROC(__umodsi3)
