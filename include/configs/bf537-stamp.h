@@ -84,7 +84,6 @@
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_ALL
 
 
@@ -269,10 +268,6 @@
 /* These are for board tests */
 #if 0
 #define CONFIG_BOOTCOMMAND       "bootldr 0x203f0100"
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT \
-	"autoboot in %d seconds: press space to stop\n", bootdelay
-#define CONFIG_AUTOBOOT_STOP_STR " "
 #endif
 
 

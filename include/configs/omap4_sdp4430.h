@@ -30,6 +30,5 @@
 #define CONFIG_ENV_IS_IN_MMC		1
 #define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
 #define CONFIG_ENV_OFFSET		0xE0000
-#define CONFIG_CMD_SAVEENV
 
 #endif /* __CONFIG_SDP4430_H */

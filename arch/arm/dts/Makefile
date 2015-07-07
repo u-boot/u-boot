@@ -95,6 +95,7 @@ dtb-$(CONFIG_MACH_SUN6I) += \
 	sun6i-a31-hummingbird.dtb \
 	sun6i-a31-i7.dtb \
 	sun6i-a31-m9.dtb \
+	sun6i-a31-mele-a1000g-quad.dtb \
 	sun6i-a31-mixtile-loftq.dtb \
 	sun6i-a31s-cs908.dtb \
 	sun6i-a31s-primo81.dtb
@@ -121,18 +122,24 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-wits-pro-a20-dkt.dtb \
 	sun7i-a20-yones-toptech-bd1078.dtb
 dtb-$(CONFIG_MACH_SUN8I_A23) += \
+	sun8i-a23-evb.dtb \
 	sun8i-a23-ippo-q8h-v5.dtb \
 	sun8i-a23-ippo-q8h-v1.2.dtb
 dtb-$(CONFIG_MACH_SUN8I_A33) += \
-	sun8i-a33-astar-mid756.dtb \
+	sun8i-a33-et-q8-v1.6.dtb \
+	sun8i-a33-ga10h-v1.1.dtb \
 	sun8i-a33-ippo-q8h-v1.2-lcd1024x600.dtb
 dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-optimus.dtb \
 	sun9i-a80-cubieboard4.dtb
 
+dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
+	vf610-colibri.dtb
+
 targets += $(dtb-y)
 
-DTC_FLAGS += -R 4 -p 0x1000
+# Add any required device tree compiler flags here
+DTC_FLAGS +=
 
 PHONY += dtbs
 dtbs: $(addprefix $(obj)/, $(dtb-y))

@@ -15,9 +15,6 @@ config TARGET_RPI_2
 
 endchoice
 
-config PHYS_TO_BUS
-	default y
-
 config SYS_BOARD
 	default "rpi" if TARGET_RPI
 	default "rpi_2" if TARGET_RPI_2

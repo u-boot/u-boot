@@ -5,15 +5,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/*
- * Define _STDBOOL_H here to avoid macro expansion of true and false.
- * If the future code requires macro true or false, remove this define
- * and undef true and false before U_BOOT_CMD. This define and comment
- * shall be removed if change to U_BOOT_CMD is made to take string
- * instead of stringifying it.
- */
-#define _STDBOOL_H
-
 #include <common.h>
 #include <command.h>
 #include <fs.h>
@@ -190,6 +181,9 @@ static int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return expr;
 }
+
+#undef true
+#undef false
 
 U_BOOT_CMD(
 	test,	CONFIG_SYS_MAXARGS,	1,	do_test,

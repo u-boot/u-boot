@@ -205,20 +205,10 @@ unsigned long long get_qixis_addr(void);
 
 /* Command line configuration */
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_BDI
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_FLASH
-#define CONFIG_CMD_IMI
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_RUN
-#define CONFIG_CMD_BOOTD
-#define CONFIG_CMD_ECHO
-#define CONFIG_CMD_SOURCE
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)

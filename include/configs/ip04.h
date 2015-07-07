@@ -91,7 +91,6 @@
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ	30000000
 #define CONFIG_SF_DEFAULT_SPEED	30000000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_WINBOND
 
@@ -136,7 +135,6 @@
 /* Enable this if bootretry required; currently it's disabled */
 #define CONFIG_BOOT_RETRY_TIME	-1
 #define CONFIG_BOOTCOMMAND	"run nandboot"
-#define CONFIG_AUTOBOOT_PROMPT	"autoboot in %d seconds\n"
 
 
 /*

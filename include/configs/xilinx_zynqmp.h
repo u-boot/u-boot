@@ -69,14 +69,12 @@
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_MEMORY
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_ELF
 #define CONFIG_MP
 
 /* SPI */
 #ifdef CONFIG_ZYNQ_SPI
-# define CONFIG_SPI_FLASH
 # define CONFIG_SPI_FLASH_SST
 # define CONFIG_CMD_SF
 #endif

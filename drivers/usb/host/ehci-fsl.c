@@ -76,7 +76,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 		break;
 	default:
 		printf("ERROR: wrong controller index!!\n");
-		break;
+		return -EINVAL;
 	};
 
 	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);

@@ -6,6 +6,8 @@
 
 /dts-v1/;
 
+#include <dt-bindings/gpio/x86-gpio.h>
+
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
 
@@ -20,6 +22,27 @@
 
 	config {
 		silent_console = <0>;
+	};
+
+	pch_pinctrl {
+		compatible = "intel,x86-pinctrl";
+		io-base = <0x4c>;
+
+		pin_usb_host_en0@0 {
+			gpio-offset = <0x80 8>;
+			pad-offset = <0x260>;
+			mode-gpio;
+			output-value = <1>;
+			direction = <PIN_OUTPUT>;
+		};
+
+		pin_usb_host_en1@0 {
+			gpio-offset = <0x80 9>;
+			pad-offset = <0x258>;
+			mode-gpio;
+			output-value = <1>;
+			direction = <PIN_OUTPUT>;
+		};
 	};
 
 	gpioa {

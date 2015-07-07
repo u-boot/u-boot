@@ -9,6 +9,7 @@
 #include <netdev.h>
 #include <phy.h>
 #include <asm/io.h>
+#include <asm/irq.h>
 #include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/processor.h>
@@ -146,4 +147,34 @@ int cpu_eth_init(bd_t *bis)
 		return -1;
 	else
 		return 0;
+}
+
+void cpu_irq_init(void)
+{
+	struct quark_rcba *rcba;
+	u32 base;
+
+	base = x86_pci_read_config32(QUARK_LEGACY_BRIDGE, LB_RCBA);
+	base &= ~MEM_BAR_EN;
+	rcba = (struct quark_rcba *)base;
+
+	/*
+	 * Route Quark PCI device interrupt pin to PIRQ
+	 *
+	 * Route device#23's INTA/B/C/D to PIRQA/B/C/D
+	 * Route device#20,21's INTA/B/C/D to PIRQE/F/G/H
+	 */
+	writew(PIRQC, &rcba->rmu_ir);
+	writew(PIRQA | (PIRQB << 4) | (PIRQC << 8) | (PIRQD << 12),
+	       &rcba->d23_ir);
+	writew(PIRQD, &rcba->core_ir);
+	writew(PIRQE | (PIRQF << 4) | (PIRQG << 8) | (PIRQH << 12),
+	       &rcba->d20d21_ir);
+}
+
+int arch_misc_init(void)
+{
+	pirq_init();
+
+	return 0;
 }

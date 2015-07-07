@@ -30,14 +30,8 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-
-#undef CONFIG_CMD_CONSOLE
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_SOURCE
 
 /*
  * Boot options. Setting delay to -1 stops autostart count down.

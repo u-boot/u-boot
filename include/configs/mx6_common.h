@@ -36,7 +36,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/imx-common/gpio.h>
-#include <config_cmd_default.h>
 
 #ifndef CONFIG_MX6
 #define CONFIG_MX6
@@ -53,11 +52,19 @@
 #define CONFIG_REVISION_TAG
 
 /* Boot options */
+#if (defined(CONFIG_MX6SX) || defined(CONFIG_MX6SL))
+#define CONFIG_LOADADDR		0x82000000
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0x87800000
+#endif
+#else
 #define CONFIG_LOADADDR		0x12000000
-#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0x17800000
 #endif
+#endif
+#define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
+
 #ifndef CONFIG_BOOTDELAY
 #define CONFIG_BOOTDELAY	3
 #endif
@@ -80,7 +87,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_IMLS
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_CMDLINE_EDITING

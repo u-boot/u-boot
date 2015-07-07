@@ -27,8 +27,6 @@
 #define CONFIG_ARMV7_SECURE_BASE	SUNXI_SRAM_B_BASE
 #define CONFIG_TIMER_CLK_FREQ		24000000
 
-#define CONFIG_NAND_SUNXI_GPC_PORTS	{24, 25, 26}
-
 /*
  * Include common sunxi configuration where most the settings are
  */

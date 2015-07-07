@@ -145,7 +145,8 @@ const char *get_imx_type(u32 imxtype)
 
 int print_cpuinfo(void)
 {
-	u32 cpurev, max_freq;
+	u32 cpurev;
+	__maybe_unused u32 max_freq;
 
 #if defined(CONFIG_MX6) && defined(CONFIG_IMX6_THERMAL)
 	struct udevice *thermal_dev;

@@ -15,6 +15,10 @@
 #define CONFIG_DRA7XX
 #define CONFIG_BOARD_EARLY_INIT_F
 
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_IODELAY_RECALIBRATION
+#endif
+
 #ifndef CONFIG_QSPI_BOOT
 /* MMC ENV related defines */
 #define CONFIG_ENV_IS_IN_MMC
@@ -24,7 +28,6 @@
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #endif
-#define CONFIG_CMD_SAVEENV
 
 #if (CONFIG_CONS_INDEX == 1)
 #define CONSOLEDEV			"ttyO0"
@@ -38,6 +41,7 @@
 
 #define CONFIG_SYS_OMAP_ABE_SYSCK
 
+#ifndef CONFIG_SPL_BUILD
 /* Define the default GPT table for eMMC */
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
@@ -91,6 +95,7 @@
 #define CONFIG_USB_FASTBOOT_BUF_SIZE    0x2F000000
 #define CONFIG_FASTBOOT_FLASH
 #define CONFIG_FASTBOOT_FLASH_MMC_DEV   1
+#endif
 
 #include <configs/ti_omap5_common.h>
 
@@ -117,7 +122,6 @@
 /* SPI */
 #undef	CONFIG_OMAP3_SPI
 #define CONFIG_TI_QSPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_SPANSION
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
@@ -248,7 +252,7 @@
 					"128k(NAND.u-boot-env)," \
 					"128k(NAND.u-boot-env.backup1)," \
 					"8m(NAND.kernel)," \
-					"-(NAND.rootfs)"
+					"-(NAND.file-system)"
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
 /* NAND: SPL related configs */
 #ifdef CONFIG_SPL_NAND_SUPPORT
@@ -270,7 +274,6 @@
 #define CONFIG_SYS_FLASH_SIZE		(64 * 1024 * 1024) /* 64 MB */
 /* #define CONFIG_INIT_IGNORE_ERROR */
 #undef CONFIG_SYS_NO_FLASH
-#define CONFIG_CMD_FLASH
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_PROTECTION
 #define CONFIG_SYS_FLASH_CFI

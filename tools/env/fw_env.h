@@ -6,6 +6,8 @@
  */
 
 /* Pull in the current config to define the default environment */
+#include <linux/kconfig.h>
+
 #ifndef __ASSEMBLY__
 #define __ASSEMBLY__ /* get only #defines from config.h */
 #include <config.h>
@@ -13,7 +15,6 @@
 #else
 #include <config.h>
 #endif
-#include <generated/autoconf.h>
 
 /*
  * To build the utility with the static configuration

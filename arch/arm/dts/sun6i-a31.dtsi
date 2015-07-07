@@ -18,11 +18,6 @@
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public
- *     License along with this file; if not, write to the Free
- *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
- *     MA 02110-1301 USA
- *
  * Or, alternatively,
  *
  *  b) Permission is hereby granted, free of charge, to any person
@@ -67,7 +62,8 @@
 		ranges;
 
 		framebuffer@0 {
-			compatible = "allwinner,simple-framebuffer", "simple-framebuffer";
+			compatible = "allwinner,simple-framebuffer",
+				     "simple-framebuffer";
 			allwinner,pipeline = "de_be0-lcd0-hdmi";
 			clocks = <&pll6 0>;
 			status = "disabled";
@@ -104,11 +100,11 @@
 			clocks = <&cpu>;
 			clock-latency = <244144>; /* 8 32k periods */
 			operating-points = <
-				/* kHz    uV */
+				/* kHz	  uV */
 				1008000	1200000
-				864000  1200000
-				720000  1100000
-				480000  1000000
+				864000	1200000
+				720000	1100000
+				480000	1000000
 				>;
 			#cooling-cells = <2>;
 			cooling-min-level = <0>;
@@ -241,6 +237,14 @@
 			reg = <0x01c20054 0x4>;
 			clocks = <&osc32k>, <&osc24M>, <&axi>, <&pll6 0>;
 			clock-output-names = "ahb1";
+
+			/*
+			 * Clock AHB1 from PLL6, instead of CPU/AXI which
+			 * has rate changes due to cpufreq. Also the DMA
+			 * controller requires AHB1 clocked from PLL6.
+			 */
+			assigned-clocks = <&ahb1>;
+			assigned-clock-parents = <&pll6 0>;
 		};
 
 		ahb1_gates: clk@01c20060 {
@@ -296,9 +300,10 @@
 			reg = <0x01c2006c 0x4>;
 			clocks = <&apb2>;
 			clock-output-names = "apb2_i2c0", "apb2_i2c1",
-					"apb2_i2c2", "apb2_i2c3", "apb2_uart0",
-					"apb2_uart1", "apb2_uart2", "apb2_uart3",
-					"apb2_uart4", "apb2_uart5";
+					     "apb2_i2c2", "apb2_i2c3",
+					     "apb2_uart0", "apb2_uart1",
+					     "apb2_uart2", "apb2_uart3",
+					     "apb2_uart4", "apb2_uart5";
 		};
 
 		mmc0_clk: clk@01c20088 {
@@ -375,7 +380,7 @@
 
 		usb_clk: clk@01c200cc {
 			#clock-cells = <1>;
-		        #reset-cells = <1>;
+			#reset-cells = <1>;
 			compatible = "allwinner,sun6i-a31-usb-clk";
 			reg = <0x01c200cc 0x4>;
 			clocks = <&osc24M>;
@@ -385,10 +390,13 @@
 		};
 
 		/*
-		 * The following two are dummy clocks, placeholders used in the gmac_tx
-		 * clock. The gmac driver will choose one parent depending on the PHY
-		 * interface mode, using clk_set_rate auto-reparenting.
-		 * The actual TX clock rate is not controlled by the gmac_tx clock.
+		 * The following two are dummy clocks, placeholders
+		 * used in the gmac_tx clock. The gmac driver will
+		 * choose one parent depending on the PHY interface
+		 * mode, using clk_set_rate auto-reparenting.
+		 *
+		 * The actual TX clock rate is not controlled by the
+		 * gmac_tx clock.
 		 */
 		mii_phy_tx_clk: clk@1 {
 			#clock-cells = <0>;
@@ -426,10 +434,6 @@
 			clocks = <&ahb1_gates 6>;
 			resets = <&ahb1_rst 6>;
 			#dma-cells = <1>;
-
-			/* DMA controller requires AHB1 clocked from PLL6 */
-			assigned-clocks = <&ahb1>;
-			assigned-clock-parents = <&pll6 0>;
 		};
 
 		mmc0: mmc@01c0f000 {
@@ -628,7 +632,8 @@
 			};
 
 			mmc0_pins_a: mmc0@0 {
-				allwinner,pins = "PF0","PF1","PF2","PF3","PF4","PF5";
+				allwinner,pins = "PF0", "PF1", "PF2",
+						 "PF3", "PF4", "PF5";
 				allwinner,function = "mmc0";
 				allwinner,drive = <SUN4I_PINCTRL_30_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
@@ -866,7 +871,8 @@
 		};
 
 		timer@01c60000 {
-			compatible = "allwinner,sun6i-a31-hstimer", "allwinner,sun7i-a20-hstimer";
+			compatible = "allwinner,sun6i-a31-hstimer",
+				     "allwinner,sun7i-a20-hstimer";
 			reg = <0x01c60000 0x1000>;
 			interrupts = <GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>,
@@ -957,7 +963,8 @@
 			ar100: ar100_clk {
 				compatible = "allwinner,sun6i-a31-ar100-clk";
 				#clock-cells = <0>;
-				clocks = <&osc32k>, <&osc24M>, <&pll6 0>, <&pll6 0>;
+				clocks = <&osc32k>, <&osc24M>, <&pll6 0>,
+					 <&pll6 0>;
 				clock-output-names = "ar100";
 			};
 

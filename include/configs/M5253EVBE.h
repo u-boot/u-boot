@@ -49,15 +49,10 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_LOADS
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_MISC
 
 /* ATA */
 #define CONFIG_DOS_PARTITION

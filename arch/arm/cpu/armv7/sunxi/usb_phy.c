@@ -128,10 +128,10 @@ static void sunxi_usb_phy_config(struct sunxi_usb_phy *phy)
 	usb_phy_write(phy, 0x20, 0x14, 5);
 
 	/* threshold adjustment disconnect */
-#if defined CONFIG_MACH_SUN4I || defined CONFIG_MACH_SUN6I
-	usb_phy_write(phy, 0x2a, 3, 2);
-#else
+#if defined CONFIG_MACH_SUN5I || defined CONFIG_MACH_SUN7I
 	usb_phy_write(phy, 0x2a, 2, 2);
+#else
+	usb_phy_write(phy, 0x2a, 3, 2);
 #endif
 
 	return;

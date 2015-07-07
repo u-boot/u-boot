@@ -7,7 +7,7 @@
  */
 
 /dts-v1/;
-#include "sun8i-a23.dtsi"
+#include "sun8i-a33.dtsi"
 
 / {
 	model = "Ippo Q8H V1.2 (A33, 1024x600)";

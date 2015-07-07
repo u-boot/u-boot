@@ -18,11 +18,6 @@
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public
- *     License along with this library; if not, write to the Free
- *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
- *     MA 02110-1301 USA
- *
  * Or, alternatively,
  *
  *  b) Permission is hereby granted, free of charge, to any person
@@ -150,10 +145,16 @@
 
 		ahb: ahb@01c20054 {
 			#clock-cells = <0>;
-			compatible = "allwinner,sun4i-a10-ahb-clk";
+			compatible = "allwinner,sun5i-a13-ahb-clk";
 			reg = <0x01c20054 0x4>;
-			clocks = <&axi>;
+			clocks = <&axi>, <&cpu>, <&pll6 1>;
 			clock-output-names = "ahb";
+			/*
+			 * Use PLL6 as parent, instead of CPU/AXI
+			 * which has rate changes due to cpufreq
+			 */
+			assigned-clocks = <&ahb>;
+			assigned-clock-parents = <&pll6 1>;
 		};
 
 		apb0: apb0@01c20054 {
@@ -276,7 +277,7 @@
 
 		usb_clk: clk@01c200cc {
 			#clock-cells = <1>;
-		        #reset-cells = <1>;
+			#reset-cells = <1>;
 			compatible = "allwinner,sun5i-a13-usb-clk";
 			reg = <0x01c200cc 0x4>;
 			clocks = <&pll6 1>;
@@ -292,44 +293,40 @@
 		};
 	};
 
-	/*
-	 * Note we use the address where the mmio registers start, not where
-	 * the SRAM blocks start, this cannot be changed because that would be
-	 * a devicetree ABI change.
-	 */
 	soc@01c00000 {
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
 
-		sram@00000000 {
-			compatible = "allwinner,sun4i-a10-sram";
-			reg = <0x00000000 0x4000>;
-			allwinner,sram-name = "A1";
-		};
-
-		sram@00004000 {
-			compatible = "allwinner,sun4i-a10-sram";
-			reg = <0x00004000 0x4000>;
-			allwinner,sram-name = "A2";
-		};
-
-		sram@00008000 {
-			compatible = "allwinner,sun4i-a10-sram";
-			reg = <0x00008000 0x4000>;
-			allwinner,sram-name = "A3-A4";
-		};
-
-		sram@00010000 {
-			compatible = "allwinner,sun4i-a10-sram";
-			reg = <0x00010000 0x1000>;
-			allwinner,sram-name = "D";
-		};
-
 		sram-controller@01c00000 {
 			compatible = "allwinner,sun4i-a10-sram-controller";
 			reg = <0x01c00000 0x30>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+
+			sram_a: sram@00000000 {
+				compatible = "mmio-sram";
+				reg = <0x00000000 0xc000>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+				ranges = <0 0x00000000 0xc000>;
+			};
+
+			sram_d: sram@00010000 {
+				compatible = "mmio-sram";
+				reg = <0x00010000 0x1000>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+				ranges = <0 0x00010000 0x1000>;
+
+				otg_sram: sram-section@0000 {
+					compatible = "allwinner,sun4i-a10-sram-d";
+					reg = <0x0000 0x1000>;
+					status = "disabled";
+				};
+			};
 		};
 
 		dma: dma-controller@01c02000 {
@@ -504,7 +501,8 @@
 			};
 
 			mmc0_pins_a: mmc0@0 {
-				allwinner,pins = "PF0","PF1","PF2","PF3","PF4","PF5";
+				allwinner,pins = "PF0", "PF1", "PF2", "PF3",
+						 "PF4", "PF5";
 				allwinner,function = "mmc0";
 				allwinner,drive = <SUN4I_PINCTRL_30_MA>;
 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;

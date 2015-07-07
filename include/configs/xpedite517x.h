@@ -526,8 +526,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Command configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
@@ -536,8 +534,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_JFFS2

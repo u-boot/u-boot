@@ -1295,7 +1295,7 @@ static void draw_bitmap(uchar **fb, uchar *bm, struct palette *p,
 	*fb = (uchar *) addr;	/* return modified address */
 }
 
-static int display_rle8_bitmap(bmp_image_t *img, int xoff, int yoff,
+static int display_rle8_bitmap(struct bmp_image *img, int xoff, int yoff,
 			       int width, int height)
 {
 	unsigned char *bm;
@@ -1304,7 +1304,7 @@ static int display_rle8_bitmap(bmp_image_t *img, int xoff, int yoff,
 	int decode = 1;
 	int x, y, bpp, i, ncolors;
 	struct palette p[256];
-	bmp_color_table_entry_t cte;
+	struct bmp_color_table_entry cte;
 	int green_shift, red_off;
 	int limit = VIDEO_COLS * VIDEO_ROWS;
 	int pixels = 0;
@@ -1447,13 +1447,13 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 {
 	ushort xcount, ycount;
 	uchar *fb;
-	bmp_image_t *bmp = (bmp_image_t *) bmp_image;
+	struct bmp_image *bmp = (struct bmp_image *)bmp_image;
 	uchar *bmap;
 	ushort padded_line;
 	unsigned long width, height, bpp;
 	unsigned colors;
 	unsigned long compression;
-	bmp_color_table_entry_t cte;
+	struct bmp_color_table_entry cte;
 
 #ifdef CONFIG_VIDEO_BMP_GZIP
 	unsigned char *dst = NULL;
@@ -1495,7 +1495,7 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 		/*
 		 * Set addr to decompressed image
 		 */
-		bmp = (bmp_image_t *)(dst+2);
+		bmp = (struct bmp_image *)(dst+2);
 
 		if (!((bmp->header.signature[0] == 'B') &&
 		      (bmp->header.signature[1] == 'M'))) {

@@ -4,9 +4,6 @@ menu "ARC architecture"
 config SYS_ARCH
 	default "arc"
 
-config USE_PRIVATE_LIBGCC
-	default y
-
 config SYS_CPU
 	default "arcv1" if ISA_ARCOMPACT
 	default "arcv2" if ISA_ARCV2

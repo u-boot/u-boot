@@ -81,7 +81,6 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		30000000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_BAR
 /*
@@ -187,7 +186,6 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 #ifdef CONFIG_OF_CONTROL	/* QSPI is controlled via DT */
 #define CONFIG_CADENCE_QSPI
 /* Enable multiple SPI NOR flash manufacturers */
-#define CONFIG_SPI_FLASH		/* SPI flash subsystem */
 #define CONFIG_SPI_FLASH_STMICRO	/* Micron/Numonyx flash */
 #define CONFIG_SPI_FLASH_SPANSION	/* Spansion flash */
 #define CONFIG_SPI_FLASH_MTD

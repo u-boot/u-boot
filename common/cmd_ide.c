@@ -79,7 +79,7 @@ static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len
 
 #ifdef CONFIG_ATAPI
 static void	atapi_inquiry(block_dev_desc_t *dev_desc);
-static ulong atapi_read(int device, ulong blknr, lbaint_t blkcnt,
+static ulong atapi_read(int device, lbaint_t blknr, lbaint_t blkcnt,
 			void *buffer);
 #endif
 
@@ -1388,13 +1388,13 @@ static void atapi_inquiry(block_dev_desc_t *dev_desc)
 #define ATAPI_READ_BLOCK_SIZE	2048	/* assuming CD part */
 #define ATAPI_READ_MAX_BLOCK	(ATAPI_READ_MAX_BYTES/ATAPI_READ_BLOCK_SIZE)
 
-ulong atapi_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer)
+ulong atapi_read(int device, lbaint_t blknr, lbaint_t blkcnt, void *buffer)
 {
 	ulong n = 0;
 	unsigned char ccb[12];	/* Command descriptor block */
 	ulong cnt;
 
-	debug("atapi_read dev %d start %lX, blocks " LBAF " buffer at %lX\n",
+	debug("atapi_read dev %d start " LBAF " blocks " LBAF " buffer at %lX\n",
 	      device, blknr, blkcnt, (ulong) buffer);
 
 	do {

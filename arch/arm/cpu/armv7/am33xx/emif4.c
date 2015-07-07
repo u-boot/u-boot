@@ -124,8 +124,9 @@ void config_ddr(unsigned int pll, const struct ctrl_ioregs *ioregs,
 	/* Set CKE to be controlled by EMIF/DDR PHY */
 	writel(DDR_CKE_CTRL_NORMAL, &ddrctrl->ddrckectrl);
 
-	/* Allow EMIF to control DDR_RESET */
-	writel(0x00000000, &ddrctrl->ddrioctrl);
+	if (emif_sdram_type(regs->sdram_config) == EMIF_SDRAM_TYPE_DDR3)
+		/* Allow EMIF to control DDR_RESET */
+		writel(0x00000000, &ddrctrl->ddrioctrl);
 #endif
 
 	/* Program EMIF instance */

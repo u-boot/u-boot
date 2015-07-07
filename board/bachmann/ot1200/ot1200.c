@@ -120,6 +120,42 @@ static void setup_iomux_features(void)
 		ARRAY_SIZE(feature_pads));
 }
 
+#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
+
+/* I2C2 - EEPROM */
+static struct i2c_pads_info i2c_pad_info1 = {
+	.scl = {
+		.i2c_mode = MX6_PAD_EIM_EB2__I2C2_SCL | PC,
+		.gpio_mode = MX6_PAD_EIM_EB2__GPIO2_IO30 | PC,
+		.gp = IMX_GPIO_NR(2, 30)
+	},
+	.sda = {
+		.i2c_mode = MX6_PAD_EIM_D16__I2C2_SDA | PC,
+		.gpio_mode = MX6_PAD_EIM_D16__GPIO3_IO16 | PC,
+		.gp = IMX_GPIO_NR(3, 16)
+	}
+};
+
+/* I2C3 - IO expander  */
+static struct i2c_pads_info i2c_pad_info2 = {
+	.scl = {
+		.i2c_mode = MX6_PAD_EIM_D17__I2C3_SCL | PC,
+		.gpio_mode = MX6_PAD_EIM_D17__GPIO3_IO17 | PC,
+		.gp = IMX_GPIO_NR(3, 17)
+	},
+	.sda = {
+		.i2c_mode = MX6_PAD_EIM_D18__I2C3_SDA | PC,
+		.gpio_mode = MX6_PAD_EIM_D18__GPIO3_IO18 | PC,
+		.gp = IMX_GPIO_NR(3, 18)
+	}
+};
+
+static void setup_iomux_i2c(void)
+{
+	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+}
+
 static void ccgr_init(void)
 {
 	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -151,6 +187,7 @@ int board_early_init_f(void)
 
 	setup_iomux_uart();
 	setup_iomux_spi();
+	setup_iomux_i2c();
 	setup_iomux_features();
 
 	return 0;
@@ -236,22 +273,6 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-
-/* I2C3 - IO expander  */
-static struct i2c_pads_info i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_EIM_D17__I2C3_SCL | PC,
-		.gpio_mode = MX6_PAD_EIM_D17__GPIO3_IO17 | PC,
-		.gp = IMX_GPIO_NR(3, 17)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_EIM_D18__I2C3_SDA | PC,
-		.gpio_mode = MX6_PAD_EIM_D18__GPIO3_IO18 | PC,
-		.gp = IMX_GPIO_NR(3, 18)
-	}
-};
-
 static iomux_v3_cfg_t const pwm_pad[] = {
 	MX6_PAD_SD1_CMD__PWM4_OUT | MUX_PAD_CTRL(OUTPUT_40OHM),
 };
@@ -314,8 +335,6 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 	backlight_lcd_off();
-
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
 
 	leds_on();
 

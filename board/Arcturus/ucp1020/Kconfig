@@ -12,14 +12,6 @@ config SYS_CONFIG_NAME
 	string
 	default "UCP1020"
 
-config SPI_FLASH
-	bool
-	default y
-
-config SPI_PCI
-	bool
-	default y
-
 choice
 	prompt "Target image select"
 

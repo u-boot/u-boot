@@ -17,30 +17,6 @@
 		stdout-path = "/serial";
 	};
 
-	/* Needs to be available prior to relocation */
-	uart0: serial {
-		compatible = "sandbox,serial";
-		sandbox,text-colour = "cyan";
-	};
-
-	triangle {
-		compatible = "demo-shape";
-		colour = "cyan";
-		sides = <3>;
-		character = <83>;
-		light-gpios = <&gpio_a 2>, <&gpio_b 6 0>;
-	};
-	square {
-		compatible = "demo-shape";
-		colour = "blue";
-		sides = <4>;
-	};
-	hexagon {
-		compatible = "demo-simple";
-		colour = "white";
-		sides = <6>;
-	};
-
 	cros_ec: cros-ec@0 {
 		reg = <0 0>;
 		compatible = "google,cros-ec-sandbox";
@@ -70,10 +46,22 @@
 		};
 	};
 
-	lcd {
-		compatible = "sandbox,lcd-sdl";
-		xres = <1366>;
-		yres = <768>;
+	eth@10002000 {
+		compatible = "sandbox,eth";
+		reg = <0x10002000 0x1000>;
+		fake-host-hwaddr = [00 00 66 44 22 00];
+	};
+
+	eth@80000000 {
+		compatible = "sandbox,eth-raw";
+		reg = <0x80000000 0x1000>;
+		host-raw-interface = "eth0";
+	};
+
+	eth@90000000 {
+		compatible = "sandbox,eth-raw";
+		reg = <0x90000000 0x1000>;
+		host-raw-interface = "lo";
 	};
 
 	gpio_a: gpios@0 {
@@ -90,6 +78,12 @@
 		#gpio-cells = <2>;
 		gpio-bank-name = "b";
 		num-gpios = <10>;
+	};
+
+	hexagon {
+		compatible = "demo-simple";
+		colour = "white";
+		sides = <6>;
 	};
 
 	i2c_0: i2c@0 {
@@ -120,18 +114,10 @@
 		};
 	};
 
-	spi@0 {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0 0>;
-		compatible = "sandbox,spi";
-		cs-gpios = <0>, <&gpio_a 0>;
-		firmware_storage_spi: flash@0 {
-			reg = <0>;
-			compatible = "spansion,m25p16", "sandbox,spi-flash";
-			spi-max-frequency = <40000000>;
-			sandbox,filename = "spi.bin";
-		};
+	lcd {
+		compatible = "sandbox,lcd-sdl";
+		xres = <1366>;
+		yres = <768>;
 	};
 
 	pci: pci-controller {
@@ -150,22 +136,38 @@
 		};
 	};
 
-	eth@10002000 {
-		compatible = "sandbox,eth";
-		reg = <0x10002000 0x1000>;
-		fake-host-hwaddr = [00 00 66 44 22 00];
+	spi@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0 0>;
+		compatible = "sandbox,spi";
+		cs-gpios = <0>, <&gpio_a 0>;
+		firmware_storage_spi: flash@0 {
+			reg = <0>;
+			compatible = "spansion,m25p16", "sandbox,spi-flash";
+			spi-max-frequency = <40000000>;
+			sandbox,filename = "spi.bin";
+		};
 	};
 
-	eth@80000000 {
-		compatible = "sandbox,eth-raw";
-		reg = <0x80000000 0x1000>;
-		host-raw-interface = "eth0";
+	square {
+		compatible = "demo-shape";
+		colour = "blue";
+		sides = <4>;
 	};
 
-	eth@90000000 {
-		compatible = "sandbox,eth-raw";
-		reg = <0x90000000 0x1000>;
-		host-raw-interface = "lo";
+	triangle {
+		compatible = "demo-shape";
+		colour = "cyan";
+		sides = <3>;
+		character = <83>;
+		light-gpios = <&gpio_a 2>, <&gpio_b 6 0>;
+	};
+
+	/* Needs to be available prior to relocation */
+	uart0: serial {
+		compatible = "sandbox,serial";
+		sandbox,text-colour = "cyan";
 	};
 
 	usb@0 {

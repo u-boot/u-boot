@@ -41,6 +41,12 @@ struct fdt_memory {
 	fdt_addr_t end;
 };
 
+#ifdef CONFIG_SPL_BUILD
+#define SPL_BUILD	1
+#else
+#define SPL_BUILD	0
+#endif
+
 #ifdef CONFIG_OF_CONTROL
 # if defined(CONFIG_SPL_BUILD) && defined(SPL_DISABLE_OF_CONTROL)
 #  define OF_CONTROL 0
@@ -122,9 +128,6 @@ static inline fdt_size_t fdt_resource_size(const struct fdt_resource *res)
  */
 enum fdt_compat_id {
 	COMPAT_UNKNOWN,
-	COMPAT_NVIDIA_TEGRA20_USB,	/* Tegra20 USB port */
-	COMPAT_NVIDIA_TEGRA30_USB,	/* Tegra30 USB port */
-	COMPAT_NVIDIA_TEGRA114_USB,	/* Tegra114 USB port */
 	COMPAT_NVIDIA_TEGRA20_EMC,	/* Tegra20 memory controller */
 	COMPAT_NVIDIA_TEGRA20_EMC_TABLE, /* Tegra20 memory timing table */
 	COMPAT_NVIDIA_TEGRA20_KBC,	/* Tegra20 Keyboard */
@@ -176,8 +179,10 @@ enum fdt_compat_id {
 	COMPAT_AMS_AS3722,		/* AMS AS3722 PMIC */
 	COMPAT_INTEL_ICH_SPI,		/* Intel ICH7/9 SPI controller */
 	COMPAT_INTEL_QRK_MRC,		/* Intel Quark MRC */
+	COMPAT_INTEL_X86_PINCTRL,	/* Intel ICH7/9 pin control */
 	COMPAT_SOCIONEXT_XHCI,		/* Socionext UniPhier xHCI */
 	COMPAT_INTEL_PCH,		/* Intel PCH */
+	COMPAT_INTEL_IRQ_ROUTER,	/* Intel Interrupt Router */
 
 	COMPAT_COUNT,
 };

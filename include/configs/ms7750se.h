@@ -18,11 +18,6 @@
 /*
  * Command line configuration.
  */
-/*#include <config_cmd_default.h>*/
-
-#define CONFIG_CMD_FLASH
-#define CONFIG_CMD_SAVEENV
-
 #define CONFIG_SCIF_CONSOLE	1
 #define CONFIG_BAUDRATE		38400
 #define CONFIG_CONS_SCIF1	1

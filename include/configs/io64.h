@@ -46,8 +46,6 @@
 #define CONFIG_SYS_GENERIC_BOARD
 
 #undef CONFIG_ZERO_BOOTDELAY_CHECK	/* ignore keypress on bootdelay==0 */
-#define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot */
-#define CONFIG_AUTOBOOT_STOP_STR " "
 
 /* new uImage format support */
 #define CONFIG_FIT

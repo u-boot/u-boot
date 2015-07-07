@@ -627,15 +627,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_REGINFO
-
-#if defined(CONFIG_SYS_RAMBOOT)
-    #undef CONFIG_CMD_SAVEENV
-#endif
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

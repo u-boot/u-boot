@@ -22,6 +22,8 @@ unsigned long map_len;
 
 void reset_cpu(ulong ignored)
 {
+	/* Do this here while it still has an effect */
+	os_fd_restore();
 	if (state_uninit())
 		os_exit(2);
 
@@ -46,6 +48,11 @@ void __udelay(unsigned long usec)
 }
 
 int cleanup_before_linux(void)
+{
+	return 0;
+}
+
+int cleanup_before_linux_select(int flags)
 {
 	return 0;
 }

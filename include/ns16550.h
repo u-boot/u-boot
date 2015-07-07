@@ -33,7 +33,7 @@
 
 #if !defined(CONFIG_SYS_NS16550_REG_SIZE) || (CONFIG_SYS_NS16550_REG_SIZE == 0)
 #error "Please define NS16550 registers size."
-#elif defined(CONFIG_SYS_NS16550_MEM32)
+#elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_DM_SERIAL)
 #define UART_REG(x) u32 x
 #elif (CONFIG_SYS_NS16550_REG_SIZE > 0)
 #define UART_REG(x)						   \

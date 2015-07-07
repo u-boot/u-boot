@@ -11,6 +11,7 @@ config DM_ETH
 menuconfig NETDEVICES
 	bool "Network device support"
 	depends on NET
+	default y if DM_ETH
 	help
 	  You must select Y to enable any network device support
 	  Generally if you have any networking support this is a given

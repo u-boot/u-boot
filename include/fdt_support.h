@@ -16,8 +16,35 @@ u32 fdt_getprop_u32_default_node(const void *fdt, int off, int cell,
 				const char *prop, const u32 dflt);
 u32 fdt_getprop_u32_default(const void *fdt, const char *path,
 				const char *prop, const u32 dflt);
+
+/**
+ * Add data to the root of the FDT before booting the OS.
+ *
+ * See doc/device-tree-bindings/root.txt
+ *
+ * @param fdt		FDT address in memory
+ * @return 0 if ok, or -FDT_ERR_... on error
+ */
+int fdt_root(void *fdt);
+
+/**
+ * Add chosen data the FDT before booting the OS.
+ *
+ * In particular, this adds the kernel command line (bootargs) to the FDT.
+ *
+ * @param fdt		FDT address in memory
+ * @return 0 if ok, or -FDT_ERR_... on error
+ */
 int fdt_chosen(void *fdt);
+
+/**
+ * Add initrd information to the FDT before booting the OS.
+ *
+ * @param fdt		FDT address in memory
+ * @return 0 if ok, or -FDT_ERR_... on error
+ */
 int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end);
+
 void do_fixup_by_path(void *fdt, const char *path, const char *prop,
 		      const void *val, int len, int create);
 void do_fixup_by_path_u32(void *fdt, const char *path, const char *prop,

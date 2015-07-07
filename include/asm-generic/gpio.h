@@ -42,7 +42,7 @@
  * Note: With driver model, the label is allocated so there is no need for
  * the caller to preserve it.
  *
- * @param gp	GPIO number
+ * @param gpio	GPIO number
  * @param label	User label for this GPIO
  * @return 0 if ok, -1 on error
  */
@@ -127,7 +127,7 @@ struct gpio_desc {
 };
 
 /**
- * dm_gpio_is_valid() - Check if a GPIO is gpio_is_valie
+ * dm_gpio_is_valid() - Check if a GPIO is valid
  *
  * @desc:	GPIO description containing device, offset and flags,
  *		previously returned by gpio_request_by_name()
@@ -167,7 +167,7 @@ int gpio_get_status(struct udevice *dev, int offset, char *buf, int buffsize);
  *
  * @dev:	Device to check
  * @offset:	Offset of device GPIO to check
- * @namep:	If non-NULL, this is set to the nane given when the GPIO
+ * @namep:	If non-NULL, this is set to the name given when the GPIO
  *		was requested, or -1 if it has not been requested
  * @return  -ENODATA if the driver returned an unknown function,
  * -ENODEV if the device is not active, -EINVAL if the offset is invalid.
@@ -186,7 +186,7 @@ int gpio_get_function(struct udevice *dev, int offset, const char **namep);
  *
  * @dev:	Device to check
  * @offset:	Offset of device GPIO to check
- * @namep:	If non-NULL, this is set to the nane given when the GPIO
+ * @namep:	If non-NULL, this is set to the name given when the GPIO
  *		was requested, or -1 if it has not been requested
  * @return  -ENODATA if the driver returned an unknown function,
  * -ENODEV if the device is not active, -EINVAL if the offset is invalid.
@@ -219,7 +219,7 @@ struct fdtdec_phandle_args;
  * Also it would be useful to standardise additional functions like
  * pullup, slew rate and drive strength.
  *
- * gpio_request)( and gpio_free() are optional - if NULL then they will
+ * gpio_request() and gpio_free() are optional - if NULL then they will
  * not be called.
  *
  * Note that @offset is the offset from the base GPIO of the device. So
@@ -271,7 +271,7 @@ struct dm_gpio_ops {
 	 *
 	 * @dev:	GPIO device
 	 * @desc:	Place to put GPIO description
-	 * @args:	Arguments provided in descripion
+	 * @args:	Arguments provided in description
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*xlate)(struct udevice *dev, struct gpio_desc *desc,
@@ -398,7 +398,7 @@ int gpio_request_by_name(struct udevice *dev, const char *list_name,
 /**
  * gpio_request_list_by_name() - Request a list of GPIOs
  *
- * Reads all the GPIOs from a list and requetss them. See
+ * Reads all the GPIOs from a list and requests them. See
  * gpio_request_by_name() for additional details. Lists should not be
  * misused to hold unrelated or optional GPIOs. They should only be used
  * for things like parallel data lines. A zero phandle terminates the list
@@ -533,7 +533,7 @@ int dm_gpio_set_dir_flags(struct gpio_desc *desc, ulong flags);
 /**
  * gpio_get_number() - Get the global GPIO number of a GPIO
  *
- * This should only be used for debugging or interest. It returns the nummber
+ * This should only be used for debugging or interest. It returns the number
  * that should be used for gpio_get_value() etc. to access this GPIO.
  *
  * @desc:	GPIO description containing device, offset and flags,

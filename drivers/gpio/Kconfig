@@ -35,3 +35,10 @@ config SANDBOX_GPIO_COUNT
 	  are specified using the device tree. But you can also have a number
 	  of 'anonymous' GPIOs that do not belong to any device or bank.
 	  Select a suitable value depending on your needs.
+
+config VYBRID_GPIO
+	bool "Vybrid GPIO driver"
+	depends on DM
+	default n
+	help
+	  Say yes here to support Vybrid vf610 GPIOs.

@@ -20,6 +20,8 @@
 #undef CONFIG_SYS_PROMPT
 #define CONFIG_SYS_PROMPT		"pepper# "
 
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
+
 /* Mach type */
 #define MACH_TYPE_PEPPER		4207	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_PEPPER

@@ -100,8 +100,6 @@
 #define CONFIG_CMD_JFFS2		/* JFFS2 Support		*/
 #define CONFIG_CMD_NAND_LOCK_UNLOCK	/* nand (un)lock commands	*/
 
-#undef CONFIG_CMD_FPGA			/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMI			/* iminfo			*/
 #undef CONFIG_CMD_SPI
 #undef CONFIG_CMD_GPIO
 #undef CONFIG_CMD_ASKENV

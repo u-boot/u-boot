@@ -21,6 +21,7 @@
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_LAST_STAGE_INIT
+#define CONFIG_NR_DRAM_BANKS		8
 
 #define CONFIG_LMB
 #define CONFIG_OF_LIBFDT
@@ -36,6 +37,7 @@
 #define CONFIG_SCSI_AHCI
 #ifdef CONFIG_SCSI_AHCI
 #define CONFIG_LIBATA
+#define CONFIG_LBA48
 #define CONFIG_SYS_64BIT_LBA
 
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	2
@@ -75,10 +77,6 @@
 #define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_SUPPORT_VFAT
-/************************************************************
- * ATAPI support (experimental)
- ************************************************************/
-#define CONFIG_ATAPI
 
 /************************************************************
  * DISK Partition support
@@ -102,36 +100,15 @@
 /*-----------------------------------------------------------------------
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_BDI
-#define CONFIG_CMD_BOOTD
-#define CONFIG_CMD_CONSOLE
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_ECHO
-#undef CONFIG_CMD_FLASH
-#define CONFIG_CMD_FPGA
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_GPIO
-#define CONFIG_CMD_IMI
-#undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_IO
 #define CONFIG_CMD_IRQ
-#define CONFIG_CMD_ITEST
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_LOADS
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_MISC
-#undef CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_RUN
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_SETGETDCR
-#define CONFIG_CMD_SOURCE
 #define CONFIG_CMD_TIME
 #define CONFIG_CMD_GETTIME
-#define CONFIG_CMD_XIMG
 #define CONFIG_CMD_SCSI
 
 #define CONFIG_CMD_FAT
@@ -194,7 +171,6 @@
  * FLASH configuration
  */
 #define CONFIG_ICH_SPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_MACRONIX
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SPI_FLASH_GIGADEVICE
@@ -246,6 +222,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS			\
 	CONFIG_STD_DEVICES_SETTINGS			\
+	"pciconfighost=1\0"				\
 	"netdev=eth0\0"					\
 	"consoledev=ttyS0\0"				\
 	"othbootargs=acpi=off\0"			\

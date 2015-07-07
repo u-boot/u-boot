@@ -99,8 +99,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #ifdef CONFIG_VIDEO
 #define CONFIG_CMD_BMP
 #endif
@@ -395,10 +393,6 @@
 #define CONFIG_AUTO_COMPLETE	1
 #define CONFIG_CMDLINE_EDITING	1
 #define CONFIG_SYS_HUSH_PARSER
-
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT "autoboot in %d seconds\n", bootdelay
-#define CONFIG_AUTOBOOT_DELAY_STR	" "
 
 #define CONFIG_LOOPW		1
 #define CONFIG_MX_CYCLIC	1

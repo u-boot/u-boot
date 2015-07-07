@@ -1,2 +1,8 @@
 CONFIG_M68K=y
 CONFIG_TARGET_AMCORE=y
+# CONFIG_CMD_BOOTD is not set
+# CONFIG_CMD_XIMG is not set
+# CONFIG_CMD_FPGA is not set
+# CONFIG_CMD_SETEXPR is not set
+# CONFIG_CMD_NET is not set
+# CONFIG_CMD_NFS is not set

@@ -69,11 +69,11 @@ static inline void bcm2835_sdhci_raw_writel(struct sdhci_host *host, u32 val,
 	 * (Which is just as well - otherwise we'd have to nobble the DMA engine
 	 * too)
 	 */
-	while (get_timer(bcm_host->last_write) < bcm_host->twoticks_delay)
+	while (timer_get_us() - bcm_host->last_write < bcm_host->twoticks_delay)
 		;
 
 	writel(val, host->ioaddr + reg);
-	bcm_host->last_write = get_timer(0);
+	bcm_host->last_write = timer_get_us();
 }
 
 static inline u32 bcm2835_sdhci_raw_readl(struct sdhci_host *host, int reg)

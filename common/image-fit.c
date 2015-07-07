@@ -1464,10 +1464,10 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
 
 	/* Print out all of the specified loadables */
 	for (loadables_index = 0;
-	     !fdt_get_string_index(fit, noffset,
+	     fdt_get_string_index(fit, noffset,
 			FIT_LOADABLE_PROP,
 			loadables_index,
-			(const char **)&uname) > 0;
+			(const char **)&uname) == 0;
 	     loadables_index++)
 	{
 		if (loadables_index == 0) {

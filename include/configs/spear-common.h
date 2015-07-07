@@ -105,15 +105,10 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_RUN
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <config_cmd_default.h>
 
 /*
  * Default Environment Varible definitions
@@ -200,10 +195,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_MISC_INIT_R
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR		" "
-#define CONFIG_AUTOBOOT_PROMPT			\
-		"Hit SPACE in %d seconds to stop autoboot.\n", bootdelay
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
 #define CONFIG_SYS_MEMTEST_END			0x04000000

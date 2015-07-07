@@ -54,12 +54,12 @@
 		"${optargs} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"nandroot=ubi0:rootfs rw ubi.mtd=9,2048\0" \
+	"nandroot=ubi0:rootfs rw ubi.mtd=NAND.file-system,2048\0" \
 	"nandrootfstype=ubifs rootwait=1\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
-		"nand read ${fdtaddr} u-boot-spl-os; " \
-		"nand read ${loadaddr} kernel; " \
+		"nand read ${fdtaddr} NAND.u-boot-spl-os; " \
+		"nand read ${loadaddr} NAND.kernel; " \
 		"bootz ${loadaddr} - ${fdtaddr}\0"
 #else
 #define NANDARGS ""
@@ -248,7 +248,7 @@
 					"128k(NAND.u-boot-env)," \
 					"128k(NAND.u-boot-env.backup1)," \
 					"8m(NAND.kernel)," \
-					"-(NAND.rootfs)"
+					"-(NAND.file-system)"
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
 #undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_NAND
@@ -429,7 +429,6 @@
 
 /* SPI flash. */
 #define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 
@@ -452,7 +451,6 @@
  */
 #if defined(CONFIG_NOR)
 #undef CONFIG_SYS_NO_FLASH
-#define CONFIG_CMD_FLASH
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_PROTECTION
 #define CONFIG_SYS_FLASH_CFI

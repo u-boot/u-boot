@@ -58,9 +58,6 @@
 /* commands to include */
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_USB
-#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMI		/* iminfo			*/
-#undef CONFIG_CMD_NFS		/* NFS support			*/
 
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_UBI		/* UBI-formated MTD partition support */

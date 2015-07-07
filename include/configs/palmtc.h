@@ -54,9 +54,6 @@
 /*
  * Bootloader Components Configuration
  */
-#include <config_cmd_default.h>
-
-#undef	CONFIG_CMD_NFS
 #define	CONFIG_CMD_ENV
 #define	CONFIG_CMD_MMC
 #define	CONFIG_LCD

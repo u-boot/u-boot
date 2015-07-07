@@ -162,7 +162,7 @@ BUR_COMMON_ENV \
 "kernel=zImage\0" \
 "ramdisk=rootfs.cpio.uboot\0" \
 "console=ttyO0,115200n8\0" \
-"optargs=consoleblank=0 quiet lpj=1191936 panic=2\0" \
+"optargs=consoleblank=0 quiet panic=2\0" \
 "nfsroot=/tftpboot/tseries/rootfs-small\0" \
 "nfsopts=nolock\0" \
 "ramargs=setenv bootargs ${optargs} console=${console} root=/dev/ram0\0" \
@@ -266,7 +266,6 @@ MMCARGS
 #define CONFIG_OMAP3_SPI
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SF_DEFAULT_SPEED		24000000
 

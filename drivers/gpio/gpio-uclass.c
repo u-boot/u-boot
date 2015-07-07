@@ -757,6 +757,7 @@ static int gpio_pre_remove(struct udevice *dev)
 UCLASS_DRIVER(gpio) = {
 	.id		= UCLASS_GPIO,
 	.name		= "gpio",
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_probe	= gpio_post_probe,
 	.pre_remove	= gpio_pre_remove,
 	.per_device_auto_alloc_size = sizeof(struct gpio_dev_priv),

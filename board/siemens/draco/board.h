@@ -16,9 +16,13 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
-#define PARGS3(x)	settings.ddr3.x-ddr3_default.x, \
-			settings.ddr3.x, ddr3_default.x
-#define PRINTARGS(y)	printf("%x, %8x, %8x : "#y"\n", PARGS3(y))
+#define PARGS(x)	#x , /* Parameter Name */ \
+			settings.ddr3.x, /* EEPROM Value */ \
+			ddr3_default.x, /* Default Value */ \
+			settings.ddr3.x-ddr3_default.x /* Difference */
+
+#define PRINTARGS(y)	printf("%-20s, %8x, %8x, %4d\n", PARGS(y))
+
 #define MAGIC_CHIP	0x50494843
 
 /* Automatic generated definition */
@@ -69,4 +73,7 @@ void enable_uart4_pin_mux(void);
 void enable_uart5_pin_mux(void);
 void enable_i2c0_pin_mux(void);
 void enable_board_pin_mux(void);
+
+/* Forwared declaration, defined in common board.c */
+void set_env_gpios(unsigned char state);
 #endif

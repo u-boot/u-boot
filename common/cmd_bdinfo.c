@@ -400,6 +400,9 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 	printf("DSP frequency = %ld MHz\n", gd->bd->bi_dsp_freq);
 	printf("DDR frequency = %ld MHz\n", gd->bd->bi_ddr_freq);
 #endif
+#ifdef CONFIG_BOARD_TYPES
+	printf("Board Type  = %ld\n", gd->board_type);
+#endif
 	return 0;
 }
 

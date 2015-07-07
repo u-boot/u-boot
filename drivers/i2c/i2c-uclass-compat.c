@@ -106,3 +106,24 @@ void board_i2c_init(const void *blob)
 {
 	/* Nothing to do here - the init happens through driver model */
 }
+
+uint8_t i2c_reg_read(uint8_t chip_addr, uint8_t offset)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = i2c_compat_get_device(chip_addr, 1, &dev);
+	if (ret)
+		return 0xff;
+	return dm_i2c_reg_read(dev, offset);
+}
+
+void i2c_reg_write(uint8_t chip_addr, uint8_t offset, uint8_t val)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = i2c_compat_get_device(chip_addr, 1, &dev);
+	if (!ret)
+		dm_i2c_reg_write(dev, offset, val);
+}

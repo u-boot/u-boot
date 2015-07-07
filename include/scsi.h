@@ -132,6 +132,7 @@ typedef struct SCSI_cmd_block{
 #define SCSI_MED_REMOVL	0x1E		/* Prevent/Allow medium Removal (O) */
 #define SCSI_READ6		0x08		/* Read 6-byte (MANDATORY) */
 #define SCSI_READ10		0x28		/* Read 10-byte (MANDATORY) */
+#define SCSI_READ16	0x48
 #define SCSI_RD_CAPAC	0x25		/* Read Capacity (MANDATORY) */
 #define SCSI_RD_CAPAC10	SCSI_RD_CAPAC	/* Read Capacity (10) */
 #define SCSI_RD_CAPAC16	0x9e		/* Read Capacity (16) */

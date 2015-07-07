@@ -93,13 +93,10 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_MII
@@ -122,10 +119,6 @@
 #define CONFIG_BOOTDELAY	2	/* autoboot after 2 seconds */
 
 #define CONFIG_SYS_AUTOLOAD	"n"
-
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_PROMPT		"autoboot in %d seconds\n", bootdelay
-#define CONFIG_AUTOBOOT_DELAY_STR	"asdfg"
 
 #undef	CONFIG_BOOTARGS
 #define CONFIG_PREBOOT				"run try_update"

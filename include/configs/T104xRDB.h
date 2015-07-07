@@ -516,7 +516,6 @@
  * eSPI - Enhanced SPI
  */
 #define CONFIG_FSL_ESPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_BAR
 #define CONFIG_CMD_SF
@@ -746,8 +745,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #ifdef CONFIG_T1042RDB_PI
 #define CONFIG_CMD_DATE
 #endif

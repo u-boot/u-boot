@@ -8,7 +8,12 @@
 #include <common.h>
 #include <errno.h>
 #include <asm/gpio.h>
+#include <asm/io.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/mc.h>
+#include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/pmc.h>
 #include <power/as3722.h>
 #include <power/pmic.h>
 #include "pinmux-config-nyan-big.h"
@@ -54,6 +59,70 @@ int tegra_lcd_pmic_init(int board_id)
 	as3722_write(pmic, 0x12, 0x10);
 	as3722_write(pmic, 0x0c, 0x07);
 	as3722_write(pmic, 0x20, 0x10);
+
+	return 0;
+}
+
+/* Setup required information for Linux kernel */
+static void setup_kernel_info(void)
+{
+	struct mc_ctlr *mc = (void *)NV_PA_MC_BASE;
+
+	/* The kernel graphics driver needs this region locked down */
+	writel(0, &mc->mc_video_protect_bom);
+	writel(0, &mc->mc_video_protect_size_mb);
+	writel(1, &mc->mc_video_protect_reg_ctrl);
+}
+
+/*
+ * We need to take ALL audio devices conntected to AHUB (AUDIO, APBIF,
+ * I2S, DAM, AMX, ADX, SPDIF, AFC) out of reset and enable the clocks.
+ * Otherwise reading AHUB devices will hang when the kernel boots.
+ */
+static void enable_required_clocks(void)
+{
+	static enum periph_id ids[] = {
+		PERIPH_ID_I2S0,
+		PERIPH_ID_I2S1,
+		PERIPH_ID_I2S2,
+		PERIPH_ID_I2S3,
+		PERIPH_ID_I2S4,
+		PERIPH_ID_AUDIO,
+		PERIPH_ID_APBIF,
+		PERIPH_ID_DAM0,
+		PERIPH_ID_DAM1,
+		PERIPH_ID_DAM2,
+		PERIPH_ID_AMX0,
+		PERIPH_ID_AMX1,
+		PERIPH_ID_ADX0,
+		PERIPH_ID_ADX1,
+		PERIPH_ID_SPDIF,
+		PERIPH_ID_AFC0,
+		PERIPH_ID_AFC1,
+		PERIPH_ID_AFC2,
+		PERIPH_ID_AFC3,
+		PERIPH_ID_AFC4,
+		PERIPH_ID_AFC5,
+		PERIPH_ID_EXTPERIPH1
+	};
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(ids); i++)
+		clock_enable(ids[i]);
+	udelay(2);
+	for (i = 0; i < ARRAY_SIZE(ids); i++)
+		reset_set_enable(ids[i], 0);
+}
+
+int nvidia_board_init(void)
+{
+	clock_start_periph_pll(PERIPH_ID_EXTPERIPH1, CLOCK_ID_OSC, 12000000);
+	clock_start_periph_pll(PERIPH_ID_I2S1, CLOCK_ID_OSC, 1500000);
+
+	/* For external MAX98090 audio codec */
+	clock_external_output(1);
+	setup_kernel_info();
+	enable_required_clocks();
 
 	return 0;
 }

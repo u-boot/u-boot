@@ -17,17 +17,13 @@
 "defaultip=192.168.60.253\0" \
 "defaultsip=192.168.60.254\0" \
 "netconsole=echo switching to network console ...; " \
-"if dhcp; then " \
-"setenv ncip ${serverip}; else " \
-"setenv ncip 192.168.60.254; " \
-"setenv serverip 192.168.60.254; " \
-"setenv gatewayip 192.168.60.254; " \
-"setenv ipaddr 192.168.60.1; " \
-"fi;" \
-"setenv netdisplay0 '" \
-"setcurs 1 9; puts myip; setcurs 10 9; puts ${ipaddr};" \
-"setcurs 1 10;puts serverip; setcurs 10 10; puts ${serverip};" \
-"run netdisplay0; " \
+"if dhcp; then setenv ncip ${serverip}; " \
+"else " \
+"setenv ncip 192.168.60.254; setenv serverip 192.168.60.254; " \
+"setenv gatewayip 192.168.60.254; setenv ipaddr 192.168.60.1; " \
+"fi; " \
+"setcurs 1 9; lcdputs myip; setcurs 10 9; lcdputs ${ipaddr};" \
+"setcurs 1 10;lcdputs serverip; setcurs 10 10; lcdputs ${serverip};" \
 "setenv stdout nc;setenv stdin nc;setenv stderr nc\0"
 
 #define CONFIG_CMD_TIME
@@ -155,28 +151,6 @@
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-/*
- * For commands to use, we take the default list and add a few other
- * useful commands.  Note that we must have set CONFIG_SYS_NO_FLASH
- * prior to this include, in order to skip a few commands.  When we do
- * have flash, if we expect these commands they must be enabled in that
- * config.  If desired, a specific list of desired commands can be used
- * instead.
- */
-#include <config_cmd_default.h>
-/* undefine commands, which we do not need */
-#undef CONFIG_CMD_EDITENV
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_ITEST
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_LOADB
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_SETGETDCR
-#undef CONFIG_CMD_XIMG
-/* define command we need always */
-#define CONFIG_CMD_ECHO
-#define CONFIG_CMD_SOURCE
 
 /*
  * Our platforms make use of SPL to initalize the hardware (primarily

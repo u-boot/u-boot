@@ -299,7 +299,6 @@ int get_scl(void);
  * eSPI - Enhanced SPI
  */
 #define CONFIG_FSL_ESPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_BAR	/* 4 byte-addressing */
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_SPANSION
@@ -410,8 +409,6 @@ int get_scl(void);
 
 /* we don't need flash support */
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_FLASH
 #undef CONFIG_FLASH_CFI_MTD
 #undef CONFIG_JFFS2_CMDLINE
 

@@ -909,3 +909,19 @@ void print_grouped_ull(unsigned long long int_val, int digits)
 		grab = 3;
 	}
 }
+
+bool str2off(const char *p, loff_t *num)
+{
+	char *endptr;
+
+	*num = simple_strtoull(p, &endptr, 16);
+	return *p != '\0' && *endptr == '\0';
+}
+
+bool str2long(const char *p, ulong *num)
+{
+	char *endptr;
+
+	*num = simple_strtoul(p, &endptr, 16);
+	return *p != '\0' && *endptr == '\0';
+}

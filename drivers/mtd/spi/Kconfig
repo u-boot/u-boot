@@ -1,3 +1,12 @@
+config SPI_FLASH
+	bool "Enable SPI Flash support"
+	help
+	  Enable the legacy SPI flash support. This will include basic
+	  standard support for things like probing, read / write, and
+	  erasing through the MTD layer.
+
+	  If unsure, say N
+
 config DM_SPI_FLASH
 	bool "Enable Driver Model for SPI flash"
 	depends on DM && DM_SPI

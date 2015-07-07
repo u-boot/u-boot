@@ -47,7 +47,6 @@
 #define CONFIG_ETHPRIME		"eTSEC3"
 
 #ifndef CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH	y
 #endif
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
@@ -89,7 +88,6 @@
 #define CONFIG_ETHPRIME		"eTSEC1"
 
 #ifndef CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH	y
 #endif
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
@@ -492,8 +490,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C
@@ -625,17 +621,6 @@
 
 /* default location for tftp and bootm */
 #define CONFIG_LOADADDR		1000000
-
-/*
- * Autobooting
- */
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR	"\x1b"
-#define DEBUG_BOOTKEYS			0
-#undef CONFIG_AUTOBOOT_DELAY_STR
-#undef CONFIG_BOOTARGS
-#define CONFIG_AUTOBOOT_PROMPT	"Autobooting in %d seconds, "	\
-				"press \"<Esc>\" to stop\n", bootdelay
 
 #define CONFIG_BOOTARGS	/* the boot command will set bootargs */
 

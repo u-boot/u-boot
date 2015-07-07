@@ -596,6 +596,7 @@ int pci_bridge_write_config(struct udevice *bus, pci_dev_t devfn, uint offset,
 UCLASS_DRIVER(pci) = {
 	.id		= UCLASS_PCI,
 	.name		= "pci",
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.post_bind	= pci_uclass_post_bind,
 	.pre_probe	= pci_uclass_pre_probe,
 	.post_probe	= pci_uclass_post_probe,

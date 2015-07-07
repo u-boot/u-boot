@@ -17,11 +17,13 @@
 /* Tegra SoC common clock control functions */
 
 #include <common.h>
+#include <errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/clk_rst.h>
+#include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/timer.h>
 #include <div64.h>
 #include <fdtdec.h>
@@ -82,7 +84,7 @@ static struct clk_pll *get_pll(enum clock_id clkid)
 
 	assert(clock_id_is_pll(clkid));
 	if (clkid >= (enum clock_id)TEGRA_CLK_PLLS) {
-		debug("%s: Invalid PLL\n", __func__);
+		debug("%s: Invalid PLL %d\n", __func__, clkid);
 		return NULL;
 	}
 	return &clkrst->crc_pll[clkid];
@@ -118,8 +120,11 @@ int clock_ll_read_pll(enum clock_id clkid, u32 *divm, u32 *divn,
 unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 		u32 divp, u32 cpcon, u32 lfcon)
 {
-	struct clk_pll *pll = get_pll(clkid);
+	struct clk_pll *pll = NULL;
 	u32 misc_data, data;
+
+	if (clkid < (enum clock_id)TEGRA_CLK_PLLS)
+		pll = get_pll(clkid);
 
 	/*
 	 * We cheat by treating all PLL (except PLLU) in the same fashion.
@@ -701,4 +706,19 @@ void tegra30_set_up_pllp(void)
 	writel(reg, &clkrst->crc_pll[CLOCK_ID_PERIPH].pll_out[1]);
 
 	set_avp_clock_source(SCLK_SOURCE_PLLP_OUT4);
+}
+
+int clock_external_output(int clk_id)
+{
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
+
+	if (clk_id >= 1 && clk_id <= 3) {
+		setbits_le32(&pmc->pmc_clk_out_cntrl,
+			     1 << (2 + (clk_id - 1) * 8));
+	} else {
+		printf("%s: Unknown output clock id %d\n", __func__, clk_id);
+		return -EINVAL;
+	}
+
+	return 0;
 }

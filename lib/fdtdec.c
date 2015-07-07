@@ -22,9 +22,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define COMPAT(id, name) name
 static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(UNKNOWN, "<none>"),
-	COMPAT(NVIDIA_TEGRA20_USB, "nvidia,tegra20-ehci"),
-	COMPAT(NVIDIA_TEGRA30_USB, "nvidia,tegra30-ehci"),
-	COMPAT(NVIDIA_TEGRA114_USB, "nvidia,tegra114-ehci"),
 	COMPAT(NVIDIA_TEGRA20_EMC, "nvidia,tegra20-emc"),
 	COMPAT(NVIDIA_TEGRA20_EMC_TABLE, "nvidia,tegra20-emc-table"),
 	COMPAT(NVIDIA_TEGRA20_KBC, "nvidia,tegra20-kbc"),
@@ -75,8 +72,10 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(AMS_AS3722, "ams,as3722"),
 	COMPAT(INTEL_ICH_SPI, "intel,ich-spi"),
 	COMPAT(INTEL_QRK_MRC, "intel,quark-mrc"),
+	COMPAT(INTEL_X86_PINCTRL, "intel,x86-pinctrl"),
 	COMPAT(SOCIONEXT_XHCI, "socionext,uniphier-xhci"),
 	COMPAT(COMPAT_INTEL_PCH, "intel,bd82x6x"),
+	COMPAT(COMPAT_INTEL_IRQ_ROUTER, "intel,irq-router"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)

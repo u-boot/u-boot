@@ -158,4 +158,18 @@ int hash_lookup_algo(const char *algo_name, struct hash_algo **algop);
 int hash_progressive_lookup_algo(const char *algo_name,
 				 struct hash_algo **algop);
 
+/**
+ * hash_parse_string() - Parse hash string into a binary array
+ *
+ * The function parses a hash string into a binary array that
+ * can for example easily be used to compare to hash values.
+ *
+ * @algo_name: Hash algorithm to look up
+ * @str: Hash string to get parsed
+ * @result: Binary array of the parsed hash string
+ *
+ * @return 0 if ok, -EPROTONOSUPPORT for an unknown algorithm.
+ */
+int hash_parse_string(const char *algo_name, const char *str, uint8_t *result);
+
 #endif

@@ -8,9 +8,6 @@ config SYS_CPU
 	default "mips32" if CPU_MIPS32_R1 || CPU_MIPS32_R2
 	default "mips64" if CPU_MIPS64_R1 || CPU_MIPS64_R2
 
-config USE_PRIVATE_LIBGCC
-	default y
-
 choice
 	prompt "Target select"
 	optional

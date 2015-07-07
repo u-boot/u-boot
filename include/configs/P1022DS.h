@@ -479,7 +479,6 @@
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_SPANSION
 
 #define CONFIG_HARD_SPI
@@ -680,8 +679,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_IRQ

@@ -355,7 +355,6 @@
 #ifdef CONFIG_MPC8XXX_SPI
 #define CONFIG_CMD_SPI
 #define CONFIG_USE_SPIFLASH
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_SPANSION
 #define CONFIG_CMD_SF
 #endif
@@ -447,8 +446,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C

@@ -75,7 +75,6 @@
 
 /* SPI support */
 #define CONFIG_SPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_DAVINCI_SPI
 #define CONFIG_SYS_SPI_BASE		DAVINCI_SPI1_BASE
@@ -91,12 +90,6 @@
 #define CONFIG_MMC_MBLOCK
 
 /* U-Boot command configuration */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_BDI
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_SETGETDCR
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP

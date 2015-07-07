@@ -24,8 +24,9 @@
 #include <asm/arch/sromc.h>
 #include <lcd.h>
 #include <i2c.h>
-#include <samsung/misc.h>
 #include <usb.h>
+#include <dwc3-uboot.h>
+#include <samsung/misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -378,5 +379,8 @@ void reset_misc(void)
 
 int board_usb_cleanup(int index, enum usb_init_type init)
 {
+#ifdef CONFIG_USB_DWC3
+	dwc3_uboot_exit(index);
+#endif
 	return 0;
 }

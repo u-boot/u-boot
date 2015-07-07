@@ -166,17 +166,7 @@
 #define CONFIG_CMD_MTDPARTS
 #endif
 
-/*
- * For commands to use, we take the default list and add a few other
- * useful commands.  Note that we must have set CONFIG_SYS_NO_FLASH
- * prior to this include, in order to skip a few commands.  When we do
- * have flash, if we expect these commands they must be enabled in that
- * config.  If desired, a specific list of desired commands can be used
- * instead.
- */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
-#define CONFIG_CMD_ECHO
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
 
@@ -259,6 +249,11 @@
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
+#define CONFIG_SPL_EXT_SUPPORT
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_THUMB_BUILD	/* Thumbs mode to save space in SPL */
 #endif
 
 /* General parts of the framework, required. */
@@ -301,7 +296,8 @@
 		"run netloadfdt; " \
 		"run netargs; " \
 		"bootz ${loadaddr} - ${fdtaddr}\0"
-
+#else
+#define NETARGS ""
 #endif
 
 #endif	/* __CONFIG_TI_ARMV7_COMMON_H__ */

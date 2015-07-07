@@ -97,8 +97,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
@@ -106,7 +104,6 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
 
 

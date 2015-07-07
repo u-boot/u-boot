@@ -15,7 +15,6 @@
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 #define CONFIG_MMC
-#define CONFIG_SPI_FLASH
 #define CONFIG_USB_EHCI
 #if defined(CONFIG_PPC_T2080)
 #define CONFIG_T2080QDS
@@ -793,8 +792,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_ERRATA
@@ -804,7 +801,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_BDI
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI

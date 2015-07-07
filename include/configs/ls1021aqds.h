@@ -7,8 +7,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <config_cmd_default.h>
-
 #define CONFIG_LS102XA
 
 #define CONFIG_SYS_GENERIC_BOARD
@@ -409,16 +407,24 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
-/* QSPI */
+/* SPI */
 #ifdef CONFIG_QSPI_BOOT
+/* QSPI */
 #define CONFIG_FSL_QSPI
 #define QSPI0_AMBA_BASE			0x40000000
 #define FSL_QSPI_FLASH_SIZE		(1 << 24)
 #define FSL_QSPI_FLASH_NUM		2
-
-#define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_SPANSION
+
+/* DSPI */
+#define CONFIG_FSL_DSPI
+
+/* DM SPI */
+#if defined(CONFIG_FSL_DSPI) || defined(CONFIG_FSL_QSPI)
+#define CONFIG_CMD_SF
+#define CONFIG_DM_SPI_FLASH
+#define CONFIG_SF_DATAFLASH
+#endif
 #endif
 
 /*
@@ -539,12 +545,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_CMDLINE_EDITING
 
-#ifdef CONFIG_QSPI_BOOT
-#undef CONFIG_CMD_IMLS
-#else
-#define CONFIG_CMD_IMLS
-#endif
-
 #define CONFIG_ARMV7_NONSEC
 #define CONFIG_ARMV7_VIRT
 #define CONFIG_PEN_ADDR_BIG_ENDIAN
@@ -587,7 +587,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_CMD_ENV_EXISTS
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_MEMINFO
 #define CONFIG_CMD_MEMTEST

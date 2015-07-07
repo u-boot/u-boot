@@ -33,8 +33,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_BEDBUG
 #define CONFIG_CMD_DATE
@@ -72,13 +70,7 @@
  * Autobooting
  */
 #define CONFIG_BOOTDELAY	2	/* autoboot after 2 seconds */
-#define CONFIG_AUTOBOOT_KEYED
-#define CONFIG_AUTOBOOT_STOP_STR	"\x1b\x1b"
-#define DEBUG_BOOTKEYS		0
-#undef CONFIG_AUTOBOOT_DELAY_STR
 #undef CONFIG_BOOTARGS
-#define CONFIG_AUTOBOOT_PROMPT	"Autobooting in %d seconds, "		\
-				"press \"<Esc><Esc>\" to stop\n", bootdelay
 
 #define CONFIG_CMDLINE_EDITING		1	/* add command line history	*/
 #define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/

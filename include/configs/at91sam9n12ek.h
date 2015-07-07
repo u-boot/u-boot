@@ -70,9 +70,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_FPGA
-
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
@@ -97,7 +94,6 @@
 /* DataFlash */
 #ifdef CONFIG_CMD_SF
 #define CONFIG_ATMEL_SPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_ATMEL
 #define CONFIG_SF_DEFAULT_SPEED		30000000
 #define CONFIG_ENV_SPI_MODE		SPI_MODE_3
