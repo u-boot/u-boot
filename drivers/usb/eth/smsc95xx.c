@@ -132,7 +132,7 @@
 #define USB_BULK_SEND_TIMEOUT 5000
 #define USB_BULK_RECV_TIMEOUT 5000
 
-#define AX_RX_URB_SIZE 2048
+#define RX_URB_SIZE 2048
 #define PHY_CONNECT_TIMEOUT 5000
 
 #define TURBO_MODE
@@ -712,7 +712,7 @@ static int smsc95xx_send(struct eth_device *eth, void* packet, int length)
 static int smsc95xx_recv(struct eth_device *eth)
 {
 	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	DEFINE_CACHE_ALIGN_BUFFER(unsigned char, recv_buf, AX_RX_URB_SIZE);
+	DEFINE_CACHE_ALIGN_BUFFER(unsigned char, recv_buf, RX_URB_SIZE);
 	unsigned char *buf_ptr;
 	int err;
 	int actual_len;
@@ -723,16 +723,16 @@ static int smsc95xx_recv(struct eth_device *eth)
 	err = usb_bulk_msg(dev->pusb_dev,
 				usb_rcvbulkpipe(dev->pusb_dev, dev->ep_in),
 				(void *)recv_buf,
-				AX_RX_URB_SIZE,
+				RX_URB_SIZE,
 				&actual_len,
 				USB_BULK_RECV_TIMEOUT);
-	debug("Rx: len = %u, actual = %u, err = %d\n", AX_RX_URB_SIZE,
+	debug("Rx: len = %u, actual = %u, err = %d\n", RX_URB_SIZE,
 	      actual_len, err);
 	if (err != 0) {
 		debug("Rx: failed to receive\n");
 		return -1;
 	}
-	if (actual_len > AX_RX_URB_SIZE) {
+	if (actual_len > RX_URB_SIZE) {
 		debug("Rx: received too many bytes %d\n", actual_len);
 		return -1;
 	}
