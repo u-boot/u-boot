@@ -150,7 +150,7 @@ struct smsc95xx_private {
 /*
  * Smsc95xx infrastructure commands
  */
-static int smsc95xx_write_reg(struct ueth_data *dev, u32 index, u32 data)
+static int smsc95xx_write_reg(struct usb_device *udev, u32 index, u32 data)
 {
 	int len;
 	ALLOC_CACHE_ALIGN_BUFFER(u32, tmpbuf, 1);
@@ -158,10 +158,11 @@ static int smsc95xx_write_reg(struct ueth_data *dev, u32 index, u32 data)
 	cpu_to_le32s(&data);
 	tmpbuf[0] = data;
 
-	len = usb_control_msg(dev->pusb_dev, usb_sndctrlpipe(dev->pusb_dev, 0),
-		USB_VENDOR_REQUEST_WRITE_REGISTER,
-		USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-		00, index, tmpbuf, sizeof(data), USB_CTRL_SET_TIMEOUT);
+	len = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+			      USB_VENDOR_REQUEST_WRITE_REGISTER,
+			      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+			      0, index, tmpbuf, sizeof(data),
+			      USB_CTRL_SET_TIMEOUT);
 	if (len != sizeof(data)) {
 		debug("smsc95xx_write_reg failed: index=%d, data=%d, len=%d",
 		      index, data, len);
@@ -170,15 +171,16 @@ static int smsc95xx_write_reg(struct ueth_data *dev, u32 index, u32 data)
 	return 0;
 }
 
-static int smsc95xx_read_reg(struct ueth_data *dev, u32 index, u32 *data)
+static int smsc95xx_read_reg(struct usb_device *udev, u32 index, u32 *data)
 {
 	int len;
 	ALLOC_CACHE_ALIGN_BUFFER(u32, tmpbuf, 1);
 
-	len = usb_control_msg(dev->pusb_dev, usb_rcvctrlpipe(dev->pusb_dev, 0),
-		USB_VENDOR_REQUEST_READ_REGISTER,
-		USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-		00, index, tmpbuf, sizeof(data), USB_CTRL_GET_TIMEOUT);
+	len = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+			      USB_VENDOR_REQUEST_READ_REGISTER,
+			      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+			      0, index, tmpbuf, sizeof(data),
+			      USB_CTRL_GET_TIMEOUT);
 	*data = tmpbuf[0];
 	if (len != sizeof(data)) {
 		debug("smsc95xx_read_reg failed: index=%d, len=%d",
@@ -191,73 +193,73 @@ static int smsc95xx_read_reg(struct ueth_data *dev, u32 index, u32 *data)
 }
 
 /* Loop until the read is completed with timeout */
-static int smsc95xx_phy_wait_not_busy(struct ueth_data *dev)
+static int smsc95xx_phy_wait_not_busy(struct usb_device *udev)
 {
 	unsigned long start_time = get_timer(0);
 	u32 val;
 
 	do {
-		smsc95xx_read_reg(dev, MII_ADDR, &val);
+		smsc95xx_read_reg(udev, MII_ADDR, &val);
 		if (!(val & MII_BUSY_))
 			return 0;
-	} while (get_timer(start_time) < 1 * 1000 * 1000);
+	} while (get_timer(start_time) < 1000);
 
 	return -ETIMEDOUT;
 }
 
-static int smsc95xx_mdio_read(struct ueth_data *dev, int phy_id, int idx)
+static int smsc95xx_mdio_read(struct usb_device *udev, int phy_id, int idx)
 {
 	u32 val, addr;
 
 	/* confirm MII not busy */
-	if (smsc95xx_phy_wait_not_busy(dev)) {
+	if (smsc95xx_phy_wait_not_busy(udev)) {
 		debug("MII is busy in smsc95xx_mdio_read\n");
 		return -ETIMEDOUT;
 	}
 
 	/* set the address, index & direction (read from PHY) */
 	addr = (phy_id << 11) | (idx << 6) | MII_READ_;
-	smsc95xx_write_reg(dev, MII_ADDR, addr);
+	smsc95xx_write_reg(udev, MII_ADDR, addr);
 
-	if (smsc95xx_phy_wait_not_busy(dev)) {
+	if (smsc95xx_phy_wait_not_busy(udev)) {
 		debug("Timed out reading MII reg %02X\n", idx);
 		return -ETIMEDOUT;
 	}
 
-	smsc95xx_read_reg(dev, MII_DATA, &val);
+	smsc95xx_read_reg(udev, MII_DATA, &val);
 
 	return (u16)(val & 0xFFFF);
 }
 
-static void smsc95xx_mdio_write(struct ueth_data *dev, int phy_id, int idx,
+static void smsc95xx_mdio_write(struct usb_device *udev, int phy_id, int idx,
 				int regval)
 {
 	u32 val, addr;
 
 	/* confirm MII not busy */
-	if (smsc95xx_phy_wait_not_busy(dev)) {
+	if (smsc95xx_phy_wait_not_busy(udev)) {
 		debug("MII is busy in smsc95xx_mdio_write\n");
 		return;
 	}
 
 	val = regval;
-	smsc95xx_write_reg(dev, MII_DATA, val);
+	smsc95xx_write_reg(udev, MII_DATA, val);
 
 	/* set the address, index & direction (write to PHY) */
 	addr = (phy_id << 11) | (idx << 6) | MII_WRITE_;
-	smsc95xx_write_reg(dev, MII_ADDR, addr);
+	smsc95xx_write_reg(udev, MII_ADDR, addr);
 
-	if (smsc95xx_phy_wait_not_busy(dev))
+	if (smsc95xx_phy_wait_not_busy(udev))
 		debug("Timed out writing MII reg %02X\n", idx);
 }
 
-static int smsc95xx_eeprom_confirm_not_busy(struct ueth_data *dev)
+static int smsc95xx_eeprom_confirm_not_busy(struct usb_device *udev)
 {
 	unsigned long start_time = get_timer(0);
 	u32 val;
 
 	do {
-		smsc95xx_read_reg(dev, E2P_CMD, &val);
+		smsc95xx_read_reg(udev, E2P_CMD, &val);
 		if (!(val & E2P_CMD_BUSY_))
 			return 0;
 		udelay(40);
@@ -267,13 +269,13 @@ static int smsc95xx_eeprom_confirm_not_busy(struct ueth_data *dev)
 	return -ETIMEDOUT;
 }
 
-static int smsc95xx_wait_eeprom(struct ueth_data *dev)
+static int smsc95xx_wait_eeprom(struct usb_device *udev)
 {
 	unsigned long start_time = get_timer(0);
 	u32 val;
 
 	do {
-		smsc95xx_read_reg(dev, E2P_CMD, &val);
+		smsc95xx_read_reg(udev, E2P_CMD, &val);
 		if (!(val & E2P_CMD_BUSY_) || (val & E2P_CMD_TIMEOUT_))
 			break;
 		udelay(40);
@@ -286,25 +288,25 @@ static int smsc95xx_wait_eeprom(struct ueth_data *dev)
 	return 0;
 }
 
-static int smsc95xx_read_eeprom(struct ueth_data *dev, u32 offset, u32 length,
+static int smsc95xx_read_eeprom(struct usb_device *udev, u32 offset, u32 length,
 				u8 *data)
 {
 	u32 val;
 	int i, ret;
 
-	ret = smsc95xx_eeprom_confirm_not_busy(dev);
+	ret = smsc95xx_eeprom_confirm_not_busy(udev);
 	if (ret)
 		return ret;
 
 	for (i = 0; i < length; i++) {
 		val = E2P_CMD_BUSY_ | E2P_CMD_READ_ | (offset & E2P_CMD_ADDR_);
-		smsc95xx_write_reg(dev, E2P_CMD, val);
+		smsc95xx_write_reg(udev, E2P_CMD, val);
 
-		ret = smsc95xx_wait_eeprom(dev);
+		ret = smsc95xx_wait_eeprom(udev);
 		if (ret < 0)
 			return ret;
 
-		smsc95xx_read_reg(dev, E2P_DATA, &val);
+		smsc95xx_read_reg(udev, E2P_DATA, &val);
 		data[i] = val & 0xFF;
 		offset++;
 	}
@@ -316,51 +318,55 @@ static int smsc95xx_read_eeprom(struct ueth_data *dev, u32 offset, u32 length,
  *
  * Returns 0 on success, negative on error.
  */
-static int mii_nway_restart(struct ueth_data *dev)
+static int mii_nway_restart(struct usb_device *udev, struct ueth_data *dev)
 {
 	int bmcr;
 	int r = -1;
 
 	/* if autoneg is off, it's an error */
-	bmcr = smsc95xx_mdio_read(dev, dev->phy_id, MII_BMCR);
+	bmcr = smsc95xx_mdio_read(udev, dev->phy_id, MII_BMCR);
 
 	if (bmcr & BMCR_ANENABLE) {
 		bmcr |= BMCR_ANRESTART;
-		smsc95xx_mdio_write(dev, dev->phy_id, MII_BMCR, bmcr);
+		smsc95xx_mdio_write(udev, dev->phy_id, MII_BMCR, bmcr);
 		r = 0;
 	}
 	return r;
 }
 
-static int smsc95xx_phy_initialize(struct ueth_data *dev)
+static int smsc95xx_phy_initialize(struct usb_device *udev,
+				   struct ueth_data *dev)
 {
-	smsc95xx_mdio_write(dev, dev->phy_id, MII_BMCR, BMCR_RESET);
-	smsc95xx_mdio_write(dev, dev->phy_id, MII_ADVERTISE,
-		ADVERTISE_ALL | ADVERTISE_CSMA | ADVERTISE_PAUSE_CAP |
-		ADVERTISE_PAUSE_ASYM);
+	smsc95xx_mdio_write(udev, dev->phy_id, MII_BMCR, BMCR_RESET);
+	smsc95xx_mdio_write(udev, dev->phy_id, MII_ADVERTISE,
+			    ADVERTISE_ALL | ADVERTISE_CSMA |
+			    ADVERTISE_PAUSE_CAP | ADVERTISE_PAUSE_ASYM);
 
 	/* read to clear */
-	smsc95xx_mdio_read(dev, dev->phy_id, PHY_INT_SRC);
+	smsc95xx_mdio_read(udev, dev->phy_id, PHY_INT_SRC);
 
-	smsc95xx_mdio_write(dev, dev->phy_id, PHY_INT_MASK,
-		PHY_INT_MASK_DEFAULT_);
-	mii_nway_restart(dev);
+	smsc95xx_mdio_write(udev, dev->phy_id, PHY_INT_MASK,
+			    PHY_INT_MASK_DEFAULT_);
+	mii_nway_restart(udev, dev);
 
 	debug("phy initialised succesfully\n");
 	return 0;
 }
 
-static int smsc95xx_init_mac_address(struct eth_device *eth,
-		struct ueth_data *dev)
+static int smsc95xx_init_mac_address(unsigned char *enetaddr,
+				     struct usb_device *udev)
 {
+	int ret;
+
 	/* try reading mac address from EEPROM */
-	if (smsc95xx_read_eeprom(dev, EEPROM_MAC_OFFSET, ETH_ALEN,
-			eth->enetaddr) == 0) {
-		if (is_valid_ethaddr(eth->enetaddr)) {
-			/* eeprom values are valid so use them */
-			debug("MAC address read from EEPROM\n");
-			return 0;
-		}
+	ret = smsc95xx_read_eeprom(udev, EEPROM_MAC_OFFSET, ETH_ALEN, enetaddr);
+	if (ret)
+		return ret;
+
+	if (is_valid_ethaddr(enetaddr)) {
+		/* eeprom values are valid so use them */
+		debug("MAC address read from EEPROM\n");
+		return 0;
 	}
 
 	/*
@@ -372,35 +378,36 @@ static int smsc95xx_init_mac_address(struct eth_device *eth,
 	return -ENXIO;
 }
 
-static int smsc95xx_write_hwaddr(struct eth_device *eth)
+static int smsc95xx_write_hwaddr_common(struct usb_device *udev,
+					struct smsc95xx_private *priv,
+					unsigned char *enetaddr)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	struct smsc95xx_private *priv = dev->dev_priv;
-	u32 addr_lo = __get_unaligned_le32(&eth->enetaddr[0]);
-	u32 addr_hi = __get_unaligned_le16(&eth->enetaddr[4]);
+	u32 addr_lo = __get_unaligned_le32(&enetaddr[0]);
+	u32 addr_hi = __get_unaligned_le16(&enetaddr[4]);
 	int ret;
 
 	/* set hardware address */
 	debug("** %s()\n", __func__);
-	ret = smsc95xx_write_reg(dev, ADDRL, addr_lo);
+	ret = smsc95xx_write_reg(udev, ADDRL, addr_lo);
 	if (ret < 0)
 		return ret;
 
-	ret = smsc95xx_write_reg(dev, ADDRH, addr_hi);
+	ret = smsc95xx_write_reg(udev, ADDRH, addr_hi);
 	if (ret < 0)
 		return ret;
 
-	debug("MAC %pM\n", eth->enetaddr);
+	debug("MAC %pM\n", enetaddr);
 	priv->have_hwaddr = 1;
+
 	return 0;
 }
 
 /* Enable or disable Tx & Rx checksum offload engines */
-static int smsc95xx_set_csums(struct ueth_data *dev,
-		int use_tx_csum, int use_rx_csum)
+static int smsc95xx_set_csums(struct usb_device *udev, int use_tx_csum,
+			      int use_rx_csum)
 {
 	u32 read_buf;
-	int ret = smsc95xx_read_reg(dev, COE_CR, &read_buf);
+	int ret = smsc95xx_read_reg(udev, COE_CR, &read_buf);
 	if (ret < 0)
 		return ret;
 
@@ -414,7 +421,7 @@ static int smsc95xx_set_csums(struct ueth_data *dev,
 	else
 		read_buf &= ~Rx_COE_EN_;
 
-	ret = smsc95xx_write_reg(dev, COE_CR, read_buf);
+	ret = smsc95xx_write_reg(udev, COE_CR, read_buf);
 	if (ret < 0)
 		return ret;
 
@@ -422,52 +429,45 @@ static int smsc95xx_set_csums(struct ueth_data *dev,
 	return 0;
 }
 
-static void smsc95xx_set_multicast(struct ueth_data *dev)
+static void smsc95xx_set_multicast(struct smsc95xx_private *priv)
 {
-	struct smsc95xx_private *priv = dev->dev_priv;
-
 	/* No multicast in u-boot */
 	priv->mac_cr &= ~(MAC_CR_PRMS_ | MAC_CR_MCPAS_ | MAC_CR_HPFILT_);
 }
 
 /* starts the TX path */
-static void smsc95xx_start_tx_path(struct ueth_data *dev)
+static void smsc95xx_start_tx_path(struct usb_device *udev,
+				   struct smsc95xx_private *priv)
 {
-	struct smsc95xx_private *priv = dev->dev_priv;
 	u32 reg_val;
 
 	/* Enable Tx at MAC */
 	priv->mac_cr |= MAC_CR_TXEN_;
 
-	smsc95xx_write_reg(dev, MAC_CR, priv->mac_cr);
+	smsc95xx_write_reg(udev, MAC_CR, priv->mac_cr);
 
 	/* Enable Tx at SCSRs */
 	reg_val = TX_CFG_ON_;
-	smsc95xx_write_reg(dev, TX_CFG, reg_val);
+	smsc95xx_write_reg(udev, TX_CFG, reg_val);
 }
 
 /* Starts the Receive path */
-static void smsc95xx_start_rx_path(struct ueth_data *dev)
+static void smsc95xx_start_rx_path(struct usb_device *udev,
+				   struct smsc95xx_private *priv)
 {
-	struct smsc95xx_private *priv = dev->dev_priv;
-
 	priv->mac_cr |= MAC_CR_RXEN_;
-	smsc95xx_write_reg(dev, MAC_CR, priv->mac_cr);
+	smsc95xx_write_reg(udev, MAC_CR, priv->mac_cr);
 }
 
-/*
- * Smsc95xx callbacks
- */
-static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
+static int smsc95xx_init_common(struct usb_device *udev, struct ueth_data *dev,
+				struct smsc95xx_private *priv,
+				unsigned char *enetaddr)
 {
 	int ret;
 	u32 write_buf;
 	u32 read_buf;
 	u32 burst_cap;
 	int timeout;
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
-	struct smsc95xx_private *priv =
-		(struct smsc95xx_private *)dev->dev_priv;
 #define TIMEOUT_RESOLUTION 50	/* ms */
 	int link_detected;
 
@@ -475,13 +475,13 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 	dev->phy_id = SMSC95XX_INTERNAL_PHY_ID; /* fixed phy id */
 
 	write_buf = HW_CFG_LRST_;
-	ret = smsc95xx_write_reg(dev, HW_CFG, write_buf);
+	ret = smsc95xx_write_reg(udev, HW_CFG, write_buf);
 	if (ret < 0)
 		return ret;
 
 	timeout = 0;
 	do {
-		ret = smsc95xx_read_reg(dev, HW_CFG, &read_buf);
+		ret = smsc95xx_read_reg(udev, HW_CFG, &read_buf);
 		if (ret < 0)
 			return ret;
 		udelay(10 * 1000);
@@ -494,13 +494,13 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 	}
 
 	write_buf = PM_CTL_PHY_RST_;
-	ret = smsc95xx_write_reg(dev, PM_CTRL, write_buf);
+	ret = smsc95xx_write_reg(udev, PM_CTRL, write_buf);
 	if (ret < 0)
 		return ret;
 
 	timeout = 0;
 	do {
-		ret = smsc95xx_read_reg(dev, PM_CTRL, &read_buf);
+		ret = smsc95xx_read_reg(udev, PM_CTRL, &read_buf);
 		if (ret < 0)
 			return ret;
 		udelay(10 * 1000);
@@ -510,27 +510,28 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 		debug("timeout waiting for PHY Reset\n");
 		return -ETIMEDOUT;
 	}
-	if (!priv->have_hwaddr && smsc95xx_init_mac_address(eth, dev) == 0)
+	if (!priv->have_hwaddr && smsc95xx_init_mac_address(enetaddr, udev) ==
+			0)
 		priv->have_hwaddr = 1;
 	if (!priv->have_hwaddr) {
 		puts("Error: SMSC95xx: No MAC address set - set usbethaddr\n");
 		return -EADDRNOTAVAIL;
 	}
-	ret = smsc95xx_write_hwaddr(eth);
+	ret = smsc95xx_write_hwaddr_common(udev, priv, enetaddr);
 	if (ret < 0)
 		return ret;
 
-	ret = smsc95xx_read_reg(dev, HW_CFG, &read_buf);
+	ret = smsc95xx_read_reg(udev, HW_CFG, &read_buf);
 	if (ret < 0)
 		return ret;
 	debug("Read Value from HW_CFG : 0x%08x\n", read_buf);
 
 	read_buf |= HW_CFG_BIR_;
-	ret = smsc95xx_write_reg(dev, HW_CFG, read_buf);
+	ret = smsc95xx_write_reg(udev, HW_CFG, read_buf);
 	if (ret < 0)
 		return ret;
 
-	ret = smsc95xx_read_reg(dev, HW_CFG, &read_buf);
+	ret = smsc95xx_read_reg(udev, HW_CFG, &read_buf);
 	if (ret < 0)
 		return ret;
 	debug("Read Value from HW_CFG after writing "
@@ -550,27 +551,27 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 #endif
 	debug("rx_urb_size=%ld\n", (ulong)priv->rx_urb_size);
 
-	ret = smsc95xx_write_reg(dev, BURST_CAP, burst_cap);
+	ret = smsc95xx_write_reg(udev, BURST_CAP, burst_cap);
 	if (ret < 0)
 		return ret;
 
-	ret = smsc95xx_read_reg(dev, BURST_CAP, &read_buf);
+	ret = smsc95xx_read_reg(udev, BURST_CAP, &read_buf);
 	if (ret < 0)
 		return ret;
 	debug("Read Value from BURST_CAP after writing: 0x%08x\n", read_buf);
 
 	read_buf = DEFAULT_BULK_IN_DELAY;
-	ret = smsc95xx_write_reg(dev, BULK_IN_DLY, read_buf);
+	ret = smsc95xx_write_reg(udev, BULK_IN_DLY, read_buf);
 	if (ret < 0)
 		return ret;
 
-	ret = smsc95xx_read_reg(dev, BULK_IN_DLY, &read_buf);
+	ret = smsc95xx_read_reg(udev, BULK_IN_DLY, &read_buf);
 	if (ret < 0)
 		return ret;
 	debug("Read Value from BULK_IN_DLY after writing: "
 			"0x%08x\n", read_buf);
 
-	ret = smsc95xx_read_reg(dev, HW_CFG, &read_buf);
+	ret = smsc95xx_read_reg(udev, HW_CFG, &read_buf);
 	if (ret < 0)
 		return ret;
 	debug("Read Value from HW_CFG: 0x%08x\n", read_buf);
@@ -583,21 +584,21 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 #define NET_IP_ALIGN 0
 	read_buf |= NET_IP_ALIGN << 9;
 
-	ret = smsc95xx_write_reg(dev, HW_CFG, read_buf);
+	ret = smsc95xx_write_reg(udev, HW_CFG, read_buf);
 	if (ret < 0)
 		return ret;
 
-	ret = smsc95xx_read_reg(dev, HW_CFG, &read_buf);
+	ret = smsc95xx_read_reg(udev, HW_CFG, &read_buf);
 	if (ret < 0)
 		return ret;
 	debug("Read Value from HW_CFG after writing: 0x%08x\n", read_buf);
 
 	write_buf = 0xFFFFFFFF;
-	ret = smsc95xx_write_reg(dev, INT_STS, write_buf);
+	ret = smsc95xx_write_reg(udev, INT_STS, write_buf);
 	if (ret < 0)
 		return ret;
 
-	ret = smsc95xx_read_reg(dev, ID_REV, &read_buf);
+	ret = smsc95xx_read_reg(udev, ID_REV, &read_buf);
 	if (ret < 0)
 		return ret;
 	debug("ID_REV = 0x%08x\n", read_buf);
@@ -605,60 +606,60 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 	/* Configure GPIO pins as LED outputs */
 	write_buf = LED_GPIO_CFG_SPD_LED | LED_GPIO_CFG_LNK_LED |
 		LED_GPIO_CFG_FDX_LED;
-	ret = smsc95xx_write_reg(dev, LED_GPIO_CFG, write_buf);
+	ret = smsc95xx_write_reg(udev, LED_GPIO_CFG, write_buf);
 	if (ret < 0)
 		return ret;
 	debug("LED_GPIO_CFG set\n");
 
 	/* Init Tx */
 	write_buf = 0;
-	ret = smsc95xx_write_reg(dev, FLOW, write_buf);
+	ret = smsc95xx_write_reg(udev, FLOW, write_buf);
 	if (ret < 0)
 		return ret;
 
 	read_buf = AFC_CFG_DEFAULT;
-	ret = smsc95xx_write_reg(dev, AFC_CFG, read_buf);
+	ret = smsc95xx_write_reg(udev, AFC_CFG, read_buf);
 	if (ret < 0)
 		return ret;
 
-	ret = smsc95xx_read_reg(dev, MAC_CR, &priv->mac_cr);
+	ret = smsc95xx_read_reg(udev, MAC_CR, &priv->mac_cr);
 	if (ret < 0)
 		return ret;
 
 	/* Init Rx. Set Vlan */
 	write_buf = (u32)ETH_P_8021Q;
-	ret = smsc95xx_write_reg(dev, VLAN1, write_buf);
+	ret = smsc95xx_write_reg(udev, VLAN1, write_buf);
 	if (ret < 0)
 		return ret;
 
 	/* Disable checksum offload engines */
-	ret = smsc95xx_set_csums(dev, 0, 0);
+	ret = smsc95xx_set_csums(udev, 0, 0);
 	if (ret < 0) {
 		debug("Failed to set csum offload: %d\n", ret);
 		return ret;
 	}
-	smsc95xx_set_multicast(dev);
+	smsc95xx_set_multicast(priv);
 
-	ret = smsc95xx_phy_initialize(dev);
+	ret = smsc95xx_phy_initialize(udev, dev);
 	if (ret < 0)
 		return ret;
-	ret = smsc95xx_read_reg(dev, INT_EP_CTL, &read_buf);
+	ret = smsc95xx_read_reg(udev, INT_EP_CTL, &read_buf);
 	if (ret < 0)
 		return ret;
 
 	/* enable PHY interrupts */
 	read_buf |= INT_EP_CTL_PHY_INT_;
 
-	ret = smsc95xx_write_reg(dev, INT_EP_CTL, read_buf);
+	ret = smsc95xx_write_reg(udev, INT_EP_CTL, read_buf);
 	if (ret < 0)
 		return ret;
 
-	smsc95xx_start_tx_path(dev);
-	smsc95xx_start_rx_path(dev);
+	smsc95xx_start_tx_path(udev, priv);
+	smsc95xx_start_rx_path(udev, priv);
 
 	timeout = 0;
 	do {
-		link_detected = smsc95xx_mdio_read(dev, dev->phy_id, MII_BMSR)
+		link_detected = smsc95xx_mdio_read(udev, dev->phy_id, MII_BMSR)
 			& BMSR_LSTATUS;
 		if (!link_detected) {
 			if (timeout == 0)
@@ -677,9 +678,8 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 	return 0;
 }
 
-static int smsc95xx_send(struct eth_device *eth, void* packet, int length)
+static int smsc95xx_send_common(struct ueth_data *dev, void *packet, int length)
 {
-	struct ueth_data *dev = (struct ueth_data *)eth->priv;
 	int err;
 	int actual_len;
 	u32 tx_cmd_a;
@@ -710,7 +710,28 @@ static int smsc95xx_send(struct eth_device *eth, void* packet, int length)
 	debug("Tx: len = %u, actual = %u, err = %d\n",
 	      length + sizeof(tx_cmd_a) + sizeof(tx_cmd_b),
 	      actual_len, err);
+
 	return err;
+}
+
+/*
+ * Smsc95xx callbacks
+ */
+static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+	struct usb_device *udev = dev->pusb_dev;
+	struct smsc95xx_private *priv =
+		(struct smsc95xx_private *)dev->dev_priv;
+
+	return smsc95xx_init_common(udev, dev, priv, eth->enetaddr);
+}
+
+static int smsc95xx_send(struct eth_device *eth, void *packet, int length)
+{
+	struct ueth_data *dev = (struct ueth_data *)eth->priv;
+
+	return smsc95xx_send_common(dev, packet, length);
 }
 
 static int smsc95xx_recv(struct eth_device *eth)
@@ -725,16 +746,14 @@ static int smsc95xx_recv(struct eth_device *eth)
 
 	debug("** %s()\n", __func__);
 	err = usb_bulk_msg(dev->pusb_dev,
-				usb_rcvbulkpipe(dev->pusb_dev, dev->ep_in),
-				(void *)recv_buf,
-				RX_URB_SIZE,
-				&actual_len,
-				USB_BULK_RECV_TIMEOUT);
+			   usb_rcvbulkpipe(dev->pusb_dev, dev->ep_in),
+			   (void *)recv_buf, RX_URB_SIZE, &actual_len,
+			   USB_BULK_RECV_TIMEOUT);
 	debug("Rx: len = %u, actual = %u, err = %d\n", RX_URB_SIZE,
 	      actual_len, err);
 	if (err != 0) {
 		debug("Rx: failed to receive\n");
-		return err;
+		return -err;
 	}
 	if (actual_len > RX_URB_SIZE) {
 		debug("Rx: received too many bytes %d\n", actual_len);
@@ -786,6 +805,15 @@ static int smsc95xx_recv(struct eth_device *eth)
 static void smsc95xx_halt(struct eth_device *eth)
 {
 	debug("** %s()\n", __func__);
+}
+
+static int smsc95xx_write_hwaddr(struct eth_device *eth)
+{
+	struct ueth_data *dev = eth->priv;
+	struct usb_device *udev = dev->pusb_dev;
+	struct smsc95xx_private *priv = dev->dev_priv;
+
+	return smsc95xx_write_hwaddr_common(udev, priv, eth->enetaddr);
 }
 
 /*
