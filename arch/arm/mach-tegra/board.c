@@ -18,6 +18,8 @@
 #include <asm/arch-tegra/sys_proto.h>
 #include <asm/arch-tegra/warmboot.h>
 
+void save_boot_params_ret(void);
+
 DECLARE_GLOBAL_DATA_PTR;
 
 enum {
