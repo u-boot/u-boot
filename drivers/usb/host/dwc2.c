@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <usb.h>
 #include <malloc.h>
@@ -25,18 +26,25 @@
 #define MAX_ENDPOINT			16
 
 struct dwc2_priv {
+#ifdef CONFIG_DM_USB
+	uint8_t aligned_buffer[DWC2_DATA_BUF_SIZE] __aligned(8);
+	uint8_t status_buffer[DWC2_STATUS_BUF_SIZE] __aligned(8);
+#else
 	uint8_t *aligned_buffer;
 	uint8_t *status_buffer;
+#endif
 	int bulk_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
 	struct dwc2_core_regs *regs;
 	int root_hub_devnum;
 };
 
+#ifndef CONFIG_DM_USB
 /* We need doubleword-aligned buffers for DMA transfers */
 DEFINE_ALIGN_BUFFER(uint8_t, aligned_buffer_addr, DWC2_DATA_BUF_SIZE, 8);
 DEFINE_ALIGN_BUFFER(uint8_t, status_buffer_addr, DWC2_STATUS_BUF_SIZE, 8);
 
 static struct dwc2_priv local;
+#endif
 
 /*
  * DWC2 IP interface
@@ -979,6 +987,7 @@ static void dwc2_uninit_common(struct dwc2_core_regs *regs)
 			DWC2_HPRT0_PRTRST);
 }
 
+#ifndef CONFIG_DM_USB
 int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		       int len, struct devrequest *setup)
 {
@@ -1021,3 +1030,91 @@ int usb_lowlevel_stop(int index)
 
 	return 0;
 }
+#endif
+
+#ifdef CONFIG_DM_USB
+static int dwc2_submit_control_msg(struct udevice *dev, struct usb_device *udev,
+				   unsigned long pipe, void *buffer, int length,
+				   struct devrequest *setup)
+{
+	struct dwc2_priv *priv = dev_get_priv(dev);
+
+	debug("%s: dev='%s', udev=%p, udev->dev='%s', portnr=%d\n", __func__,
+	      dev->name, udev, udev->dev->name, udev->portnr);
+
+	return _submit_control_msg(priv, udev, pipe, buffer, length, setup);
+}
+
+static int dwc2_submit_bulk_msg(struct udevice *dev, struct usb_device *udev,
+				unsigned long pipe, void *buffer, int length)
+{
+	struct dwc2_priv *priv = dev_get_priv(dev);
+
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+
+	return _submit_bulk_msg(priv, udev, pipe, buffer, length);
+}
+
+static int dwc2_submit_int_msg(struct udevice *dev, struct usb_device *udev,
+			       unsigned long pipe, void *buffer, int length,
+			       int interval)
+{
+	struct dwc2_priv *priv = dev_get_priv(dev);
+
+	debug("%s: dev='%s', udev=%p\n", __func__, dev->name, udev);
+
+	return _submit_int_msg(priv, udev, pipe, buffer, length, interval);
+}
+
+static int dwc2_usb_ofdata_to_platdata(struct udevice *dev)
+{
+	struct dwc2_priv *priv = dev_get_priv(dev);
+	fdt_addr_t addr;
+
+	addr = dev_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+	priv->regs = (struct dwc2_core_regs *)addr;
+
+	return 0;
+}
+
+static int dwc2_usb_probe(struct udevice *dev)
+{
+	struct dwc2_priv *priv = dev_get_priv(dev);
+
+	return dwc2_init_common(priv);
+}
+
+static int dwc2_usb_remove(struct udevice *dev)
+{
+	struct dwc2_priv *priv = dev_get_priv(dev);
+
+	dwc2_uninit_common(priv->regs);
+
+	return 0;
+}
+
+struct dm_usb_ops dwc2_usb_ops = {
+	.control = dwc2_submit_control_msg,
+	.bulk = dwc2_submit_bulk_msg,
+	.interrupt = dwc2_submit_int_msg,
+};
+
+static const struct udevice_id dwc2_usb_ids[] = {
+	{ .compatible = "brcm,bcm2835-usb" },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_dwc2) = {
+	.name	= "dwc2_exynos",
+	.id	= UCLASS_USB,
+	.of_match = dwc2_usb_ids,
+	.ofdata_to_platdata = dwc2_usb_ofdata_to_platdata,
+	.probe	= dwc2_usb_probe,
+	.remove = dwc2_usb_remove,
+	.ops	= &dwc2_usb_ops,
+	.priv_auto_alloc_size = sizeof(struct dwc2_priv),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};
+#endif
