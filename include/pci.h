@@ -722,15 +722,6 @@ void pci_write_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum,
 u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
 
 /**
- * pciauto_setup_rom() - Set up access to a device ROM
- *
- * @hose:	PCI hose to use
- * @dev:	PCI device to adjust
- * @return 0 if done, -ve on error
- */
-int pciauto_setup_rom(struct pci_controller *hose, pci_dev_t dev);
-
-/**
  * pci_hose_find_devices() - Find devices by vendor/device ID
  *
  * @hose:	PCI hose to search

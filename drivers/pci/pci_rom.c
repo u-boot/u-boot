@@ -84,11 +84,6 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 	rom_address = CONFIG_VGA_BIOS_ADDR;
 #else
 
-	if (pciauto_setup_rom(pci_bus_to_hose(PCI_BUS(dev)), dev)) {
-		debug("Cannot find option ROM\n");
-		return -ENOENT;
-	}
-
 	pci_read_config_dword(dev, PCI_ROM_ADDRESS, &rom_address);
 	if (rom_address == 0x00000000 || rom_address == 0xffffffff) {
 		debug("%s: rom_address=%x\n", __func__, rom_address);
