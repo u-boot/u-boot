@@ -552,17 +552,22 @@ const char *dev_get_uclass_name(struct udevice *dev)
 	return dev->uclass->uc_drv->name;
 }
 
+fdt_addr_t dev_get_addr(struct udevice *dev)
+{
 #ifdef CONFIG_OF_CONTROL
-fdt_addr_t dev_get_addr(struct udevice *dev)
-{
-	return fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
-}
+	fdt_addr_t addr;
+
+	addr = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+	if (addr != FDT_ADDR_T_NONE) {
+		if (device_get_uclass_id(dev->parent) == UCLASS_SIMPLE_BUS)
+			addr = simple_bus_translate(dev->parent, addr);
+	}
+
+	return addr;
 #else
-fdt_addr_t dev_get_addr(struct udevice *dev)
-{
 	return FDT_ADDR_T_NONE;
-}
 #endif
+}
 
 bool device_has_children(struct udevice *dev)
 {

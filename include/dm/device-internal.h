@@ -139,6 +139,18 @@ void device_free(struct udevice *dev);
 static inline void device_free(struct udevice *dev) {}
 #endif
 
+/**
+ * simple_bus_translate() - translate a bus address to a system address
+ *
+ * This handles the 'ranges' property in a simple bus. It translates the
+ * device address @addr to a system address using this property.
+ *
+ * @dev:	Simple bus device (parent of target device)
+ * @addr:	Address to translate
+ * @return new address
+ */
+fdt_addr_t simple_bus_translate(struct udevice *dev, fdt_addr_t addr);
+
 /* Cast away any volatile pointer */
 #define DM_ROOT_NON_CONST		(((gd_t *)gd)->dm_root)
 #define DM_UCLASS_ROOT_NON_CONST	(((gd_t *)gd)->uclass_root)
