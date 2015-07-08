@@ -6,12 +6,13 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <asm/unaligned.h>
 #include <common.h>
+#include <errno.h>
+#include <malloc.h>
 #include <usb.h>
+#include <asm/unaligned.h>
 #include <linux/mii.h>
 #include "usb_ether.h"
-#include <malloc.h>
 
 /* SMSC LAN95xx based USB 2.0 Ethernet Devices */
 
