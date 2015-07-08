@@ -18,7 +18,7 @@ static inline void mips_cache(int op, const volatile void *addr)
 #ifdef __GCC_HAVE_BUILTIN_MIPS_CACHE
 	__builtin_mips_cache(op, addr);
 #else
-	__asm__ __volatile__("cache %0, %1" : : "i"(op), "R"(addr))
+	__asm__ __volatile__("cache %0, %1" : : "i"(op), "R"(addr));
 #endif
 }
 
