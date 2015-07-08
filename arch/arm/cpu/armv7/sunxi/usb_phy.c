@@ -232,6 +232,13 @@ void sunxi_usb_phy_power_off(int index)
 		gpio_set_value(phy->gpio_vbus, 0);
 }
 
+int sunxi_usb_phy_power_is_on(int index)
+{
+	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
+
+	return phy->power_on_count > 0;
+}
+
 int sunxi_usb_phy_vbus_detect(int index)
 {
 	struct sunxi_usb_phy *phy = &sunxi_usb_phy[index];
