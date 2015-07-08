@@ -104,6 +104,10 @@ static int pci_rom_probe(pci_dev_t dev, uint class,
 	if (le16_to_cpu(rom_header->signature) != PCI_ROM_HDR) {
 		printf("Incorrect expansion ROM header signature %04x\n",
 		       le16_to_cpu(rom_header->signature));
+#ifndef CONFIG_VGA_BIOS_ADDR
+		/* Disable expansion ROM address decoding */
+		pci_write_config_dword(dev, PCI_ROM_ADDRESS, rom_address);
+#endif
 		return -EINVAL;
 	}
 
