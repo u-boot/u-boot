@@ -468,14 +468,16 @@ static int rng_init(void)
 
 int sec_init(void)
 {
-	int ret = 0;
-
-#ifdef CONFIG_PHYS_64BIT
 	ccsr_sec_t *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
 	uint32_t mcr = sec_in32(&sec->mcfgr);
+	int ret = 0;
 
-	sec_out32(&sec->mcfgr, mcr | 1 << MCFGR_PS_SHIFT);
+	mcr = (mcr & ~MCFGR_AWCACHE_MASK) | (0x2 << MCFGR_AWCACHE_SHIFT);
+#ifdef CONFIG_PHYS_64BIT
+	mcr |= (1 << MCFGR_PS_SHIFT);
 #endif
+	sec_out32(&sec->mcfgr, mcr);
+
 	ret = jr_init();
 	if (ret < 0) {
 		printf("SEC initialization failed\n");
