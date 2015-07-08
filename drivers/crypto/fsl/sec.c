@@ -155,8 +155,7 @@ static void fdt_fixup_crypto_era(void *blob, u32 era)
 		return;
 	}
 
-	err = fdt_setprop(blob, crypto_node, "fsl,sec-era", &era,
-			  sizeof(era));
+	err = fdt_setprop_u32(blob, crypto_node, "fsl,sec-era", era);
 	if (err < 0) {
 		printf("ERROR: could not set fsl,sec-era property: %s\n",
 		       fdt_strerror(err));
