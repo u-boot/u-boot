@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2015 Google, Inc
  * Copyright (c) 2011 The Chromium OS Authors.
  * Copyright (C) 2009 NVIDIA, Corporation
  * Copyright (C) 2007-2008 SMSC (Steve Glendinning)
@@ -7,6 +8,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <malloc.h>
 #include <usb.h>
@@ -137,11 +139,16 @@
 
 #define TURBO_MODE
 
+#ifndef CONFIG_DM_ETH
 /* local vars */
 static int curr_eth_dev; /* index for name of next device detected */
+#endif
 
 /* driver private */
 struct smsc95xx_private {
+#ifdef CONFIG_DM_ETH
+	struct ueth_data ueth;
+#endif
 	size_t rx_urb_size;  /* maximum USB URB size */
 	u32 mac_cr;  /* MAC control register value */
 	int have_hwaddr;  /* 1 if we have a hardware MAC address */
@@ -714,6 +721,7 @@ static int smsc95xx_send_common(struct ueth_data *dev, void *packet, int length)
 	return err;
 }
 
+#ifndef CONFIG_DM_ETH
 /*
  * Smsc95xx callbacks
  */
@@ -931,3 +939,137 @@ int smsc95xx_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 	eth->priv = ss;
 	return 1;
 }
+#endif /* !CONFIG_DM_ETH */
+
+#ifdef CONFIG_DM_ETH
+static int smsc95xx_eth_start(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parentdata(dev);
+	struct smsc95xx_private *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	/* Driver-model Ethernet ensures we have this */
+	priv->have_hwaddr = 1;
+
+	return smsc95xx_init_common(udev, &priv->ueth, priv, pdata->enetaddr);
+}
+
+void smsc95xx_eth_stop(struct udevice *dev)
+{
+	debug("** %s()\n", __func__);
+}
+
+int smsc95xx_eth_send(struct udevice *dev, void *packet, int length)
+{
+	struct smsc95xx_private *priv = dev_get_priv(dev);
+
+	return smsc95xx_send_common(&priv->ueth, packet, length);
+}
+
+int smsc95xx_eth_recv(struct udevice *dev, int flags, uchar **packetp)
+{
+	struct smsc95xx_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+	uint8_t *ptr;
+	int ret, len;
+	u32 packet_len;
+
+	len = usb_ether_get_rx_bytes(ueth, &ptr);
+	debug("%s: first try, len=%d\n", __func__, len);
+	if (!len) {
+		if (!(flags & ETH_RECV_CHECK_DEVICE))
+			return -EAGAIN;
+		ret = usb_ether_receive(ueth, RX_URB_SIZE);
+		if (ret == -EAGAIN)
+			return ret;
+
+		len = usb_ether_get_rx_bytes(ueth, &ptr);
+		debug("%s: second try, len=%d\n", __func__, len);
+	}
+
+	/*
+	 * 1st 4 bytes contain the length of the actual data plus error info.
+	 * Extract data length.
+	 */
+	if (len < sizeof(packet_len)) {
+		debug("Rx: incomplete packet length\n");
+		goto err;
+	}
+	memcpy(&packet_len, ptr, sizeof(packet_len));
+	le32_to_cpus(&packet_len);
+	if (packet_len & RX_STS_ES_) {
+		debug("Rx: Error header=%#x", packet_len);
+		goto err;
+	}
+	packet_len = ((packet_len & RX_STS_FL_) >> 16);
+
+	if (packet_len > len - sizeof(packet_len)) {
+		debug("Rx: too large packet: %d\n", packet_len);
+		goto err;
+	}
+
+	*packetp = ptr + sizeof(packet_len);
+	return packet_len;
+
+err:
+	usb_ether_advance_rxbuf(ueth, -1);
+	return -EINVAL;
+}
+
+static int smsc95xx_free_pkt(struct udevice *dev, uchar *packet, int packet_len)
+{
+	struct smsc95xx_private *priv = dev_get_priv(dev);
+
+	packet_len = ALIGN(packet_len, 4);
+	usb_ether_advance_rxbuf(&priv->ueth, sizeof(u32) + packet_len);
+
+	return 0;
+}
+
+int smsc95xx_write_hwaddr(struct udevice *dev)
+{
+	struct usb_device *udev = dev_get_parentdata(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct smsc95xx_private *priv = dev_get_priv(dev);
+
+	return smsc95xx_write_hwaddr_common(udev, priv, pdata->enetaddr);
+}
+
+static int smsc95xx_eth_probe(struct udevice *dev)
+{
+	struct smsc95xx_private *priv = dev_get_priv(dev);
+	struct ueth_data *ueth = &priv->ueth;
+
+	return usb_ether_register(dev, ueth, RX_URB_SIZE);
+}
+
+static const struct eth_ops smsc95xx_eth_ops = {
+	.start	= smsc95xx_eth_start,
+	.send	= smsc95xx_eth_send,
+	.recv	= smsc95xx_eth_recv,
+	.free_pkt = smsc95xx_free_pkt,
+	.stop	= smsc95xx_eth_stop,
+	.write_hwaddr = smsc95xx_write_hwaddr,
+};
+
+U_BOOT_DRIVER(smsc95xx_eth) = {
+	.name	= "smsc95xx_eth",
+	.id	= UCLASS_ETH,
+	.probe = smsc95xx_eth_probe,
+	.ops	= &smsc95xx_eth_ops,
+	.priv_auto_alloc_size = sizeof(struct smsc95xx_private),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+};
+
+static const struct usb_device_id smsc95xx_eth_id_table[] = {
+	{ USB_DEVICE(0x05ac, 0x1402) },
+	{ USB_DEVICE(0x0424, 0xec00) },	/* LAN9512/LAN9514 Ethernet */
+	{ USB_DEVICE(0x0424, 0x9500) },	/* LAN9500 Ethernet */
+	{ USB_DEVICE(0x0424, 0x9730) },	/* LAN9730 Ethernet (HSIC) */
+	{ USB_DEVICE(0x0424, 0x9900) },	/* SMSC9500 USB Ethernet (SAL10) */
+	{ USB_DEVICE(0x0424, 0x9e00) },	/* LAN9500A Ethernet */
+	{ }		/* Terminating entry */
+};
+
+U_BOOT_USB_DEVICE(smsc95xx_eth, smsc95xx_eth_id_table);
+#endif
