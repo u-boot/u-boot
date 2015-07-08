@@ -165,7 +165,7 @@ static int smsc95xx_write_reg(struct ueth_data *dev, u32 index, u32 data)
 	if (len != sizeof(data)) {
 		debug("smsc95xx_write_reg failed: index=%d, data=%d, len=%d",
 		      index, data, len);
-		return -1;
+		return -EIO;
 	}
 	return 0;
 }
@@ -183,7 +183,7 @@ static int smsc95xx_read_reg(struct ueth_data *dev, u32 index, u32 *data)
 	if (len != sizeof(data)) {
 		debug("smsc95xx_read_reg failed: index=%d, len=%d",
 		      index, len);
-		return -1;
+		return -EIO;
 	}
 
 	le32_to_cpus(data);
@@ -202,7 +202,7 @@ static int smsc95xx_phy_wait_not_busy(struct ueth_data *dev)
 			return 0;
 	} while (get_timer(start_time) < 1 * 1000 * 1000);
 
-	return -1;
+	return -ETIMEDOUT;
 }
 
 static int smsc95xx_mdio_read(struct ueth_data *dev, int phy_id, int idx)
@@ -212,7 +212,7 @@ static int smsc95xx_mdio_read(struct ueth_data *dev, int phy_id, int idx)
 	/* confirm MII not busy */
 	if (smsc95xx_phy_wait_not_busy(dev)) {
 		debug("MII is busy in smsc95xx_mdio_read\n");
-		return -1;
+		return -ETIMEDOUT;
 	}
 
 	/* set the address, index & direction (read from PHY) */
@@ -221,7 +221,7 @@ static int smsc95xx_mdio_read(struct ueth_data *dev, int phy_id, int idx)
 
 	if (smsc95xx_phy_wait_not_busy(dev)) {
 		debug("Timed out reading MII reg %02X\n", idx);
-		return -1;
+		return -ETIMEDOUT;
 	}
 
 	smsc95xx_read_reg(dev, MII_DATA, &val);
@@ -264,7 +264,7 @@ static int smsc95xx_eeprom_confirm_not_busy(struct ueth_data *dev)
 	} while (get_timer(start_time) < 1 * 1000 * 1000);
 
 	debug("EEPROM is busy\n");
-	return -1;
+	return -ETIMEDOUT;
 }
 
 static int smsc95xx_wait_eeprom(struct ueth_data *dev)
@@ -281,7 +281,7 @@ static int smsc95xx_wait_eeprom(struct ueth_data *dev)
 
 	if (val & (E2P_CMD_TIMEOUT_ | E2P_CMD_BUSY_)) {
 		debug("EEPROM read operation timeout\n");
-		return -1;
+		return -ETIMEDOUT;
 	}
 	return 0;
 }
@@ -367,7 +367,9 @@ static int smsc95xx_init_mac_address(struct eth_device *eth,
 	 * No eeprom, or eeprom values are invalid. Generating a random MAC
 	 * address is not safe. Just return an error.
 	 */
-	return -1;
+	debug("Invalid MAC address read from EEPROM\n");
+
+	return -ENXIO;
 }
 
 static int smsc95xx_write_hwaddr(struct eth_device *eth)
@@ -488,7 +490,7 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 
 	if (timeout >= 100) {
 		debug("timeout waiting for completion of Lite Reset\n");
-		return -1;
+		return -ETIMEDOUT;
 	}
 
 	write_buf = PM_CTL_PHY_RST_;
@@ -506,16 +508,17 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 	} while ((read_buf & PM_CTL_PHY_RST_) && (timeout < 100));
 	if (timeout >= 100) {
 		debug("timeout waiting for PHY Reset\n");
-		return -1;
+		return -ETIMEDOUT;
 	}
 	if (!priv->have_hwaddr && smsc95xx_init_mac_address(eth, dev) == 0)
 		priv->have_hwaddr = 1;
 	if (!priv->have_hwaddr) {
 		puts("Error: SMSC95xx: No MAC address set - set usbethaddr\n");
-		return -1;
+		return -EADDRNOTAVAIL;
 	}
-	if (smsc95xx_write_hwaddr(eth) < 0)
-		return -1;
+	ret = smsc95xx_write_hwaddr(eth);
+	if (ret < 0)
+		return ret;
 
 	ret = smsc95xx_read_reg(dev, HW_CFG, &read_buf);
 	if (ret < 0)
@@ -636,8 +639,9 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 	}
 	smsc95xx_set_multicast(dev);
 
-	if (smsc95xx_phy_initialize(dev) < 0)
-		return -1;
+	ret = smsc95xx_phy_initialize(dev);
+	if (ret < 0)
+		return ret;
 	ret = smsc95xx_read_reg(dev, INT_EP_CTL, &read_buf);
 	if (ret < 0)
 		return ret;
@@ -668,7 +672,7 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 			printf("done.\n");
 	} else {
 		printf("unable to connect.\n");
-		return -1;
+		return -EIO;
 	}
 	return 0;
 }
@@ -685,7 +689,7 @@ static int smsc95xx_send(struct eth_device *eth, void* packet, int length)
 
 	debug("** %s(), len %d, buf %#x\n", __func__, length, (int)msg);
 	if (length > PKTSIZE)
-		return -1;
+		return -ENOSPC;
 
 	tx_cmd_a = (u32)length | TX_CMD_A_FIRST_SEG_ | TX_CMD_A_LAST_SEG_;
 	tx_cmd_b = (u32)length;
@@ -730,11 +734,11 @@ static int smsc95xx_recv(struct eth_device *eth)
 	      actual_len, err);
 	if (err != 0) {
 		debug("Rx: failed to receive\n");
-		return -1;
+		return err;
 	}
 	if (actual_len > RX_URB_SIZE) {
 		debug("Rx: received too many bytes %d\n", actual_len);
-		return -1;
+		return -ENOSPC;
 	}
 
 	buf_ptr = recv_buf;
@@ -745,19 +749,19 @@ static int smsc95xx_recv(struct eth_device *eth)
 		 */
 		if (actual_len < sizeof(packet_len)) {
 			debug("Rx: incomplete packet length\n");
-			return -1;
+			return -EIO;
 		}
 		memcpy(&packet_len, buf_ptr, sizeof(packet_len));
 		le32_to_cpus(&packet_len);
 		if (packet_len & RX_STS_ES_) {
 			debug("Rx: Error header=%#x", packet_len);
-			return -1;
+			return -EIO;
 		}
 		packet_len = ((packet_len & RX_STS_FL_) >> 16);
 
 		if (packet_len > actual_len - sizeof(packet_len)) {
 			debug("Rx: too large packet: %d\n", packet_len);
-			return -1;
+			return -EIO;
 		}
 
 		/* Notify net stack */
