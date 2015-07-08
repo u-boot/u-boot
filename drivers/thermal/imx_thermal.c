@@ -115,7 +115,7 @@ static int read_cpu_temperature(struct udevice *dev)
 	writel(TEMPSENSE0_FINISHED, &anatop->tempsense0_clr);
 
 	/* milli_Tmeas = c2 - Nmeas * c1 */
-	temperature = (c2 - n_meas * c1)/1000;
+	temperature = (long)(c2 - n_meas * c1)/1000;
 
 	/* power down anatop thermal sensor */
 	writel(TEMPSENSE0_POWER_DOWN, &anatop->tempsense0_set);
