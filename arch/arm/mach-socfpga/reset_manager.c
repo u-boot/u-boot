@@ -85,10 +85,10 @@ void socfpga_bridges_reset(int enable)
 		writel(0xffffffff, &reset_manager_base->brg_mod_reset);
 	} else {
 		/* Check signal from FPGA. */
-		if (fpgamgr_poll_fpga_ready()) {
-			/* FPGA not ready. Wait for watchdog timeout. */
-			printf("%s: fpga not ready, hanging.\n", __func__);
-			hang();
+		if (!fpgamgr_test_fpga_ready()) {
+			/* FPGA not ready, do nothing. */
+			printf("%s: FPGA not ready, aborting.\n", __func__);
+			return;
 		}
 
 		/* brdmodrst */
