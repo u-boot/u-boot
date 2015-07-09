@@ -31,8 +31,25 @@ static struct nic301_registers *nic301_regs =
 
 u32 spl_boot_device(void)
 {
+#ifdef CONFIG_SPL_MMC_SUPPORT
+	socfpga_per_reset(SOCFPGA_RESET(SDMMC), 0);
+	socfpga_per_reset(SOCFPGA_RESET(DMA), 0);
+	return BOOT_DEVICE_MMC1;
+#else
 	return BOOT_DEVICE_RAM;
+#endif
 }
+
+#ifdef CONFIG_SPL_MMC_SUPPORT
+u32 spl_boot_mode(void)
+{
+#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+	return MMCSD_MODE_FS;
+#else
+	return MMCSD_MODE_RAW;
+#endif
+}
+#endif
 
 static void socfpga_nic301_slave_ns(void)
 {
