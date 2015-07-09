@@ -20,11 +20,11 @@ void socfpga_watchdog_reset(void)
 {
 	/* assert reset for watchdog */
 	setbits_le32(&reset_manager_base->per_mod_reset,
-		     1 << RSTMGR_PERMODRST_L4WD0_LSB);
+		     1 << RSTMGR_RESET(SOCFPGA_RESET(L4WD0)));
 
 	/* deassert watchdog from reset (watchdog in not running state) */
 	clrbits_le32(&reset_manager_base->per_mod_reset,
-		     1 << RSTMGR_PERMODRST_L4WD0_LSB);
+		     1 << RSTMGR_RESET(SOCFPGA_RESET(L4WD0)));
 }
 
 /*
@@ -94,13 +94,13 @@ void socfpga_emac_reset(int enable)
 	const void *reset = &reset_manager_base->per_mod_reset;
 
 	if (enable) {
-		setbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC0_LSB);
-		setbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC1_LSB);
+		setbits_le32(reset, 1 << RSTMGR_RESET(SOCFPGA_RESET(EMAC0)));
+		setbits_le32(reset, 1 << RSTMGR_RESET(SOCFPGA_RESET(EMAC1)));
 	} else {
 #if (CONFIG_EMAC_BASE == SOCFPGA_EMAC0_ADDRESS)
-		clrbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC0_LSB);
+		clrbits_le32(reset, 1 << RSTMGR_RESET(SOCFPGA_RESET(EMAC0)));
 #elif (CONFIG_EMAC_BASE == SOCFPGA_EMAC1_ADDRESS)
-		clrbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC1_LSB);
+		clrbits_le32(reset, 1 << RSTMGR_RESET(SOCFPGA_RESET(EMAC1)));
 #endif
 	}
 }
@@ -110,8 +110,8 @@ void socfpga_spim_enable(void)
 {
 	const void *reset = &reset_manager_base->per_mod_reset;
 
-	clrbits_le32(reset, (1 << RSTMGR_PERMODRST_SPIM0_LSB) |
-		     (1 << RSTMGR_PERMODRST_SPIM1_LSB));
+	clrbits_le32(reset, (1 << RSTMGR_RESET(SOCFPGA_RESET(SPIM0))) |
+		     (1 << RSTMGR_RESET(SOCFPGA_RESET(SPIM1))));
 }
 
 /* Bring UART0 out of reset. */
@@ -119,7 +119,7 @@ void socfpga_uart0_enable(void)
 {
 	const void *reset = &reset_manager_base->per_mod_reset;
 
-	clrbits_le32(reset, 1 << RSTMGR_PERMODRST_UART0_LSB);
+	clrbits_le32(reset, 1 << RSTMGR_RESET(SOCFPGA_RESET(UART0)));
 }
 
 /* Bring SDRAM controller out of reset. */
@@ -127,7 +127,7 @@ void socfpga_sdram_enable(void)
 {
 	const void *reset = &reset_manager_base->per_mod_reset;
 
-	clrbits_le32(reset, 1 << RSTMGR_PERMODRST_SDR_LSB);
+	clrbits_le32(reset, 1 << RSTMGR_RESET(SOCFPGA_RESET(SDR)));
 }
 
 /* Bring OSC1 timer out of reset. */
@@ -135,5 +135,5 @@ void socfpga_osc1timer_enable(void)
 {
 	const void *reset = &reset_manager_base->per_mod_reset;
 
-	clrbits_le32(reset, 1 << RSTMGR_PERMODRST_OSC1TIMER0_LSB);
+	clrbits_le32(reset, 1 << RSTMGR_RESET(SOCFPGA_RESET(OSC1TIMER0)));
 }
