@@ -40,6 +40,19 @@ void socfpga_per_reset(u32 reset, int set)
 }
 
 /*
+ * Assert reset on every peripheral but L4WD0.
+ * Watchdog must be kept intact to prevent glitches
+ * and/or hangs.
+ */
+void socfpga_per_reset_all(void)
+{
+	const u32 l4wd0 = 1 << RSTMGR_RESET(SOCFPGA_RESET(L4WD0));
+
+	writel(~l4wd0, &reset_manager_base->per_mod_reset);
+	writel(0xffffffff, &reset_manager_base->per2_mod_reset);
+}
+
+/*
  * Write the reset manager register to cause reset
  */
 void reset_cpu(ulong addr)

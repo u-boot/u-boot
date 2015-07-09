@@ -13,6 +13,7 @@ void reset_deassert_peripherals_handoff(void);
 void socfpga_bridges_reset(int enable);
 
 void socfpga_per_reset(u32 reset, int set);
+void socfpga_per_reset_all(void);
 
 struct socfpga_reset_manager {
 	u32	status;
