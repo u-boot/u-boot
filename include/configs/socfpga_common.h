@@ -296,9 +296,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CHUNKSZ_CRC32			(1 * 1024)	/* FIXME: ewww */
 #define CONFIG_CRC32_VERIFY
 
-/* Linker script for SPL */
-#define CONFIG_SPL_LDSCRIPT	"arch/arm/mach-socfpga/u-boot-spl.lds"
-
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_WATCHDOG_SUPPORT
