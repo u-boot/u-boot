@@ -84,8 +84,13 @@ void spl_board_init(void)
 	if (scan_mgr_configure_iocsr())
 		hang();
 
+	sysmgr_config_warmrstcfgio(0);
+
 	/* configure the pin muxing through system manager */
+	sysmgr_config_warmrstcfgio(1);
 	sysmgr_pinmux_init();
+	sysmgr_config_warmrstcfgio(0);
+
 #endif /* CONFIG_SOCFPGA_VIRTUAL_TARGET */
 
 	/* de-assert reset for peripherals and bridges based on handoff */
