@@ -89,6 +89,11 @@ void spl_board_init(void)
 	/* freeze all IO banks */
 	sys_mgr_frzctrl_freeze_req();
 
+	/* Put everything into reset but L4WD0. */
+	socfpga_per_reset_all();
+	/* Put FPGA bridges into reset too. */
+	socfpga_bridges_reset(1);
+
 	socfpga_per_reset(SOCFPGA_RESET(SDR), 0);
 	socfpga_per_reset(SOCFPGA_RESET(UART0), 0);
 	socfpga_per_reset(SOCFPGA_RESET(OSC1TIMER0), 0);
@@ -115,8 +120,9 @@ void spl_board_init(void)
 
 #endif /* CONFIG_SOCFPGA_VIRTUAL_TARGET */
 
-	/* de-assert reset for peripherals and bridges based on handoff */
+	/* De-assert reset for peripherals and bridges based on handoff */
 	reset_deassert_peripherals_handoff();
+	socfpga_bridges_reset(0);
 
 	debug("Unfreezing/Thaw all I/O banks\n");
 	/* unfreeze / thaw all IO banks */
@@ -145,4 +151,6 @@ void spl_board_init(void)
 		puts("SDRAM size check failed!\n");
 		hang();
 	}
+
+	socfpga_bridges_reset(1);
 }
