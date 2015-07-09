@@ -28,6 +28,8 @@ struct socfpga_reset_manager {
 	u32	per_mod_reset;
 	u32	per2_mod_reset;
 	u32	brg_mod_reset;
+	u32	misc_mod_reset;
+	u32	tstscratch;
 };
 
 #if defined(CONFIG_SOCFPGA_VIRTUAL_TARGET)
