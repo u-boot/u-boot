@@ -17,11 +17,27 @@
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/scan_manager.h>
 #include <asm/arch/sdram.h>
+#include <asm/arch/scu.h>
+#include <asm/arch/nic301.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
+static struct scu_registers *scu_regs =
+	(struct scu_registers *)SOCFPGA_MPUSCU_ADDRESS;
+static struct nic301_registers *nic301_regs =
+	(struct nic301_registers *)SOCFPGA_L3REGS_ADDRESS;
+
+static void socfpga_nic301_slave_ns(void)
+{
+	writel(0x1, &nic301_regs->lwhps2fpgaregs);
+	writel(0x1, &nic301_regs->hps2fpgaregs);
+	writel(0x1, &nic301_regs->acp);
+	writel(0x1, &nic301_regs->rom);
+	writel(0x1, &nic301_regs->ocram);
+	writel(0x1, &nic301_regs->sdrdata);
+}
 
 void board_init_f(ulong dummy)
 {
@@ -42,7 +58,13 @@ void board_init_f(ulong dummy)
 
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
+	socfpga_nic301_slave_ns();
+
+	/* Configure ARM MPU SNSAC register. */
+	setbits_le32(&scu_regs->sacr, 0xfff);
+
 	/* Remap SDRAM to 0x0 */
+	writel(0x1, &nic301_regs->remap);	/* remap.mpuzero */
 	writel(0x1, &pl310->pl310_addr_filter_start);
 
 	board_init_r(NULL, 0);
