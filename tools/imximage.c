@@ -288,7 +288,11 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 	hdr_base = entry_point - imximage_init_loadsize +
 		flash_offset;
 	fhdr_v2->self = hdr_base;
-	fhdr_v2->dcd_ptr = hdr_base + offsetof(imx_header_v2_t, dcd_table);
+	if (dcd_len > 0)
+		fhdr_v2->dcd_ptr = hdr_base
+			+ offsetof(imx_header_v2_t, dcd_table);
+	else
+		fhdr_v2->dcd_ptr = 0;
 	fhdr_v2->boot_data_ptr = hdr_base
 			+ offsetof(imx_header_v2_t, boot_data);
 	hdr_v2->boot_data.start = entry_point - imximage_init_loadsize;
