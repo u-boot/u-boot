@@ -78,7 +78,7 @@ void spl_board_init(void)
 	cm_basic_init(cm_default_cfg);
 
 	/* Enable bootrom to configure IOs. */
-	sysmgr_enable_warmrstcfgio();
+	sysmgr_config_warmrstcfgio(1);
 
 	/* configure the IOCSR / IO buffer settings */
 	if (scan_mgr_configure_iocsr())
