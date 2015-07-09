@@ -23,6 +23,8 @@
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_CLOCKS
 
+#define CONFIG_CRC32_VERIFY
+
 #define CONFIG_FIT
 #define CONFIG_OF_LIBFDT
 #define CONFIG_SYS_BOOTMAPSZ		(64 * 1024 * 1024)
@@ -296,9 +298,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SYS_MALLOC_SIMPLE
 #endif
 
-#define CHUNKSZ_CRC32			(1 * 1024)	/* FIXME: ewww */
-#define CONFIG_CRC32_VERIFY
-
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_WATCHDOG_SUPPORT
@@ -331,9 +330,5 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  * Stack setup
  */
 #define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
-
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_PARTITIONS
-#endif
 
 #endif	/* __CONFIG_SOCFPGA_CYCLONE5_COMMON_H__ */
