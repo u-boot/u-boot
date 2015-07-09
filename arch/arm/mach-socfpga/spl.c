@@ -175,9 +175,9 @@ void spl_board_init(void)
 	/* freeze all IO banks */
 	sys_mgr_frzctrl_freeze_req();
 
-	socfpga_sdram_enable();
-	socfpga_uart0_enable();
-	socfpga_osc1timer_enable();
+	socfpga_per_reset(SOCFPGA_RESET(SDR), 0);
+	socfpga_per_reset(SOCFPGA_RESET(UART0), 0);
+	socfpga_per_reset(SOCFPGA_RESET(OSC1TIMER0), 0);
 
 	timer_init();
 

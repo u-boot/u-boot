@@ -39,16 +39,6 @@ void socfpga_per_reset(u32 reset, int set)
 		clrbits_le32(reg, 1 << RSTMGR_RESET(reset));
 }
 
-/* Toggle reset signal to watchdog (WDT is disabled after this operation!) */
-void socfpga_watchdog_reset(void)
-{
-	/* assert reset for watchdog */
-	socfpga_per_reset(SOCFPGA_RESET(L4WD0), 1);
-
-	/* deassert watchdog from reset (watchdog in not running state) */
-	socfpga_per_reset(SOCFPGA_RESET(L4WD0), 0);
-}
-
 /*
  * Write the reset manager register to cause reset
  */
@@ -109,43 +99,3 @@ void socfpga_bridges_reset(int enable)
 	}
 }
 #endif
-
-/* Change the reset state for EMAC 0 and EMAC 1 */
-void socfpga_emac_reset(int enable)
-{
-	if (enable) {
-		socfpga_per_reset(SOCFPGA_RESET(EMAC0), 1);
-		socfpga_per_reset(SOCFPGA_RESET(EMAC1), 1);
-	} else {
-#if (CONFIG_EMAC_BASE == SOCFPGA_EMAC0_ADDRESS)
-		socfpga_per_reset(SOCFPGA_RESET(EMAC0), 0);
-#elif (CONFIG_EMAC_BASE == SOCFPGA_EMAC1_ADDRESS)
-		socfpga_per_reset(SOCFPGA_RESET(EMAC1), 0);
-#endif
-	}
-}
-
-/* SPI Master enable (its held in reset by the preloader) */
-void socfpga_spim_enable(void)
-{
-	socfpga_per_reset(SOCFPGA_RESET(SPIM0), 0);
-	socfpga_per_reset(SOCFPGA_RESET(SPIM1), 0);
-}
-
-/* Bring UART0 out of reset. */
-void socfpga_uart0_enable(void)
-{
-	socfpga_per_reset(SOCFPGA_RESET(UART0), 0);
-}
-
-/* Bring SDRAM controller out of reset. */
-void socfpga_sdram_enable(void)
-{
-	socfpga_per_reset(SOCFPGA_RESET(SDR), 0);
-}
-
-/* Bring OSC1 timer out of reset. */
-void socfpga_osc1timer_enable(void)
-{
-	socfpga_per_reset(SOCFPGA_RESET(OSC1TIMER0), 0);
-}

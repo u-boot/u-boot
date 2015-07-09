@@ -14,13 +14,6 @@ void socfpga_bridges_reset(int enable);
 
 void socfpga_per_reset(u32 reset, int set);
 
-void socfpga_emac_reset(int enable);
-void socfpga_watchdog_reset(void);
-void socfpga_spim_enable(void);
-void socfpga_uart0_enable(void);
-void socfpga_sdram_enable(void);
-void socfpga_osc1timer_enable(void);
-
 struct socfpga_reset_manager {
 	u32	status;
 	u32	ctrl;

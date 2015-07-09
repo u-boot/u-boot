@@ -54,8 +54,10 @@ int cpu_eth_init(bd_t *bis)
 {
 #if CONFIG_EMAC_BASE == SOCFPGA_EMAC0_ADDRESS
 	const int physhift = SYSMGR_EMACGRP_CTRL_PHYSEL0_LSB;
+	const u32 reset = SOCFPGA_RESET(EMAC0);
 #elif CONFIG_EMAC_BASE == SOCFPGA_EMAC1_ADDRESS
 	const int physhift = SYSMGR_EMACGRP_CTRL_PHYSEL1_LSB;
+	const u32 reset = SOCFPGA_RESET(EMAC1);
 #else
 #error "Incorrect CONFIG_EMAC_BASE value!"
 #endif
@@ -66,7 +68,8 @@ int cpu_eth_init(bd_t *bis)
 	 * Putting the EMAC controller to reset when configuring the PHY
 	 * interface select at System Manager
 	 */
-	socfpga_emac_reset(1);
+	socfpga_per_reset(SOCFPGA_RESET(EMAC0), 1);
+	socfpga_per_reset(SOCFPGA_RESET(EMAC1), 1);
 
 	/* Clearing emac0 PHY interface select to 0 */
 	clrbits_le32(&sysmgr_regs->emacgrp_ctrl,
@@ -77,7 +80,7 @@ int cpu_eth_init(bd_t *bis)
 		     SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII << physhift);
 
 	/* Release the EMAC controller from reset */
-	socfpga_emac_reset(0);
+	socfpga_per_reset(reset, 0);
 
 	/* initialize and register the emac */
 	return designware_initialize(CONFIG_EMAC_BASE,
@@ -164,8 +167,10 @@ int arch_cpu_init(void)
 	 * If the HW watchdog is NOT enabled, make sure it is not running,
 	 * for example because it was enabled in the preloader. This might
 	 * trigger a watchdog-triggered reboot of Linux kernel later.
+	 * Toggle watchdog reset, so watchdog in not running state.
 	 */
-	socfpga_watchdog_reset();
+	socfpga_per_reset(SOCFPGA_RESET(L4WD0), 1);
+	socfpga_per_reset(SOCFPGA_RESET(L4WD0), 0);
 #endif
 
 	return 0;
@@ -215,7 +220,8 @@ int arch_early_init_r(void)
 
 #ifdef CONFIG_DESIGNWARE_SPI
 	/* Get Designware SPI controller out of reset */
-	socfpga_spim_enable();
+	socfpga_per_reset(SOCFPGA_RESET(SPIM0), 0);
+	socfpga_per_reset(SOCFPGA_RESET(SPIM1), 0);
 #endif
 
 	return 0;
