@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2014-2015, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -21,8 +21,11 @@
 #include <asm/arch/tegra.h>
 #include <asm/arch/mc.h>
 
-/* Configures VPR.  Right now, all we do is turn it off. */
-void config_vpr(void)
+#include <fdt_support.h>
+
+static bool _configured;
+
+void config_gpu(void)
 {
 	struct mc_ctlr *mc = (struct mc_ctlr *)NV_PA_MC_BASE;
 
@@ -32,4 +35,13 @@ void config_vpr(void)
 	       &mc->mc_video_protect_reg_ctrl);
 	/* read back to ensure the write went through */
 	readl(&mc->mc_video_protect_reg_ctrl);
+
+	debug("configured VPR\n");
+
+	_configured = true;
+}
+
+bool vpr_configured(void)
+{
+	return _configured;
 }

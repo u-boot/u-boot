@@ -29,6 +29,7 @@
 #include <asm/arch-tegra/sys_proto.h>
 #include <asm/arch-tegra/uart.h>
 #include <asm/arch-tegra/warmboot.h>
+#include <asm/arch-tegra/gpu.h>
 #ifdef CONFIG_TEGRA_CLOCK_SCALING
 #include <asm/arch/emc.h>
 #endif
@@ -125,6 +126,8 @@ int board_init(void)
 	/* Do clocks and UART first so that printf() works */
 	clock_init();
 	clock_verify();
+
+	config_gpu();
 
 #ifdef CONFIG_TEGRA_SPI
 	pin_mux_spi();

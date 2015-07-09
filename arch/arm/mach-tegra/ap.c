@@ -226,8 +226,5 @@ void s_init(void)
 
 	/* enable SMMU */
 	smmu_enable();
-
-	/* init vpr */
-	config_vpr();
 }
 #endif

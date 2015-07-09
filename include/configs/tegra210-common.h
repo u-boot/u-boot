@@ -73,4 +73,7 @@
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 1
 
+/* GPU needs setup */
+#define CONFIG_TEGRA_GPU
+
 #endif /* _TEGRA210_COMMON_H_ */

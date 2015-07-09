@@ -64,15 +64,6 @@ int tegra_get_sku_info(void);
 /* Do any chip-specific cache config */
 void config_cache(void);
 
-#if defined(CONFIG_TEGRA124) || defined(CONFIG_TEGRA210)
-/* Do chip-specific vpr config */
-void config_vpr(void);
-#else
-static inline void config_vpr(void)
-{
-}
-#endif
-
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 bool tegra_cpu_is_non_secure(void);
 #endif
