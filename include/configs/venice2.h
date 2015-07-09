@@ -61,4 +61,6 @@
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
+#define CONFIG_OF_BOARD_SETUP
+
 #endif /* __CONFIG_H */

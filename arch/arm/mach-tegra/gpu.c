@@ -45,3 +45,22 @@ bool vpr_configured(void)
 {
 	return _configured;
 }
+
+#if defined(CONFIG_OF_LIBFDT)
+
+int gpu_enable_node(void *blob, const char *gpupath)
+{
+	int offset;
+
+	if (vpr_configured()) {
+		offset = fdt_path_offset(blob, gpupath);
+		if (offset > 0) {
+			fdt_status_okay(blob, offset);
+			debug("enabled GPU node %s\n", gpupath);
+		}
+	}
+
+	return 0;
+}
+
+#endif
