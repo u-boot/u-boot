@@ -284,7 +284,6 @@ int device_probe_child(struct udevice *dev, void *parent_priv)
 			goto fail;
 	}
 
-	dev->flags |= DM_FLAG_ACTIVATED;
 	if (drv->probe) {
 		ret = drv->probe(dev);
 		if (ret) {
