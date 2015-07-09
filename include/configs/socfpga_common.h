@@ -287,7 +287,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  * 0xFFFF_FF00 ...... End of SRAM
  */
 #define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_RAM_DEVICE
 #define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
 #define CONFIG_SYS_SPL_MALLOC_START	CONFIG_SYS_INIT_SP_ADDR

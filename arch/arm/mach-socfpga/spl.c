@@ -29,6 +29,11 @@ static struct scu_registers *scu_regs =
 static struct nic301_registers *nic301_regs =
 	(struct nic301_registers *)SOCFPGA_L3REGS_ADDRESS;
 
+u32 spl_boot_device(void)
+{
+	return BOOT_DEVICE_RAM;
+}
+
 static void socfpga_nic301_slave_ns(void)
 {
 	writel(0x1, &nic301_regs->lwhps2fpgaregs);
@@ -41,9 +46,14 @@ static void socfpga_nic301_slave_ns(void)
 
 void board_init_f(ulong dummy)
 {
+#ifndef CONFIG_SOCFPGA_VIRTUAL_TARGET
+	const struct cm_config *cm_default_cfg = cm_get_default_config();
+#endif
 	struct socfpga_system_manager *sysmgr_regs =
 		(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
+	unsigned long sdram_size;
 	unsigned long reg;
+
 	/*
 	 * First C code to run. Clear fake OCRAM ECC first as SBE
 	 * and DBE might triggered during power on
@@ -67,24 +77,7 @@ void board_init_f(ulong dummy)
 	writel(0x1, &nic301_regs->remap);	/* remap.mpuzero */
 	writel(0x1, &pl310->pl310_addr_filter_start);
 
-	board_init_r(NULL, 0);
-}
-
-u32 spl_boot_device(void)
-{
-	return BOOT_DEVICE_RAM;
-}
-
-/*
- * Board initialization after bss clearance
- */
-void spl_board_init(void)
-{
-	unsigned long sdram_size;
 #ifndef CONFIG_SOCFPGA_VIRTUAL_TARGET
-	const struct cm_config *cm_default_cfg = cm_get_default_config();
-#endif
-
 	debug("Freezing all I/O banks\n");
 	/* freeze all IO banks */
 	sys_mgr_frzctrl_freeze_req();
@@ -153,4 +146,6 @@ void spl_board_init(void)
 	}
 
 	socfpga_bridges_reset(1);
+
+	board_init_r(NULL, 0);
 }
