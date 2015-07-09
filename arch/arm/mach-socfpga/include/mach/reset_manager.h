@@ -12,6 +12,8 @@ void reset_deassert_peripherals_handoff(void);
 
 void socfpga_bridges_reset(int enable);
 
+void socfpga_per_reset(u32 reset, int set);
+
 void socfpga_emac_reset(int enable);
 void socfpga_watchdog_reset(void);
 void socfpga_spim_enable(void);
