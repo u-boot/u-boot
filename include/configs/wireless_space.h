@@ -29,7 +29,6 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* no NOR or SPI flash */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING

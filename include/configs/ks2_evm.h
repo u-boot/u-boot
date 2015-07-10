@@ -72,7 +72,6 @@
 
 /* SPI Configuration */
 #define CONFIG_SPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_DAVINCI_SPI
 #define CONFIG_CMD_SPI
@@ -209,7 +208,6 @@
 #define CONFIG_USB_PHY_CFG_BASE			KS2_USB_PHY_CFG_BASE
 
 /* U-Boot command configuration */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C

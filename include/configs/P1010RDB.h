@@ -680,7 +680,6 @@ extern unsigned long get_sdram_size(void);
 #if !defined(CONFIG_NAND) || !defined(CONFIG_NAND_SECBOOT)
 /* eSPI - Enhanced SPI */
 #define CONFIG_FSL_ESPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_SPANSION
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		10000000
@@ -813,8 +812,6 @@ extern unsigned long get_sdram_size(void);
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_ELF

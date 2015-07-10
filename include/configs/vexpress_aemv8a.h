@@ -10,7 +10,6 @@
 
 /* We use generic board and device manager for v8 Versatile Express */
 #define CONFIG_SYS_GENERIC_BOARD
-#define CONFIG_DM
 
 #ifdef CONFIG_TARGET_VEXPRESS64_BASE_FVP
 #ifndef CONFIG_SEMIHOSTING
@@ -114,7 +113,6 @@
 #endif /* !CONFIG_GICV3 */
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_F_LEN		0x2000
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (8 << 20))
 
 /* Ethernet Configuration */
@@ -130,7 +128,6 @@
 #endif
 
 /* PL011 Serial Configuration */
-#define CONFIG_DM_SERIAL
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_PL01X_SERIAL
@@ -145,22 +142,13 @@
 #define CONFIG_MENU
 /*#define CONFIG_MENU_SHOW*/
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_BDI
 #define CONFIG_CMD_BOOTI
 #define CONFIG_CMD_UNZIP
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PXE
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_IMI
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SAVEENV
-#define CONFIG_CMD_RUN
-#define CONFIG_CMD_BOOTD
-#define CONFIG_CMD_ECHO
-#define CONFIG_CMD_SOURCE
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 
@@ -264,7 +252,6 @@
 #ifndef CONFIG_TARGET_VEXPRESS64_JUNO
 #define CONFIG_SYS_NO_FLASH
 #else
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_ARMFLASH
 #define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER		1

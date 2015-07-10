@@ -93,11 +93,8 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
-
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_BOOTDELAY	1
 

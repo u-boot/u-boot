@@ -63,10 +63,6 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_NAND
 
 #define CONFIG_CMD_CACHE

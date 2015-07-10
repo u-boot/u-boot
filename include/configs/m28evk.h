@@ -18,7 +18,6 @@
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
-#include <config_cmd_default.h>
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FAT_WRITE
@@ -40,7 +39,6 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_TRIMFFS
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
@@ -127,7 +125,6 @@
 
 /* SPI FLASH */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SF_DEFAULT_BUS		2
 #define CONFIG_SF_DEFAULT_CS		0

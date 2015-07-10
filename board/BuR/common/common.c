@@ -64,13 +64,20 @@ void lcdbacklight(int on)
 	unsigned int pwmfrq = getenv_ulong("ds1_pwmfreq", 10, ~0UL);
 #endif
 	unsigned int tmp;
-
-	struct gptimer *const timerhw = (struct gptimer *)DM_TIMER6_BASE;
+	struct gptimer *timerhw;
 
 	if (on)
 		bright = bright != ~0UL ? bright : 50;
 	else
 		bright = 0;
+
+	switch (driver) {
+	case 2:
+		timerhw = (struct gptimer *)DM_TIMER5_BASE;
+		break;
+	default:
+		timerhw = (struct gptimer *)DM_TIMER6_BASE;
+	}
 
 	switch (driver) {
 	case 0:	/* PMIC LED-Driver */
@@ -83,7 +90,8 @@ void lcdbacklight(int on)
 				   bright != 0 ? 0x0A : 0x02,
 				   0xFF);
 		break;
-	case 1: /* PWM using timer6 */
+	case 1:
+	case 2: /* PWM using timer */
 		if (pwmfrq != ~0UL) {
 			timerhw->tiocp_cfg = TCFG_RESET;
 			udelay(10);

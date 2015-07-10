@@ -105,15 +105,10 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_RUN
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
-
-/* This must be included AFTER the definition of CONFIG_COMMANDS (if any) */
-#include <config_cmd_default.h>
 
 /*
  * Default Environment Varible definitions

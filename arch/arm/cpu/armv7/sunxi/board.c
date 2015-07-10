@@ -45,11 +45,11 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(23), SUNXI_GPIO_INPUT);
 #endif
 #if defined(CONFIG_MACH_SUN8I)
-	sunxi_gpio_set_cfgpin(SUNXI_GPF(2), SUN8I_GPF_UART0_TX);
-	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUN8I_GPF_UART0_RX);
+	sunxi_gpio_set_cfgpin(SUNXI_GPF(2), SUN8I_GPF_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUN8I_GPF_UART0);
 #else
-	sunxi_gpio_set_cfgpin(SUNXI_GPF(2), SUNXI_GPF_UART0_TX);
-	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUNXI_GPF_UART0_RX);
+	sunxi_gpio_set_cfgpin(SUNXI_GPF(2), SUNXI_GPF_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPF(4), SUNXI_GPF_UART0);
 #endif
 	sunxi_gpio_set_pull(SUNXI_GPF(4), 1);
 #elif CONFIG_CONS_INDEX == 1 && (defined(CONFIG_MACH_SUN4I) || defined(CONFIG_MACH_SUN7I))
@@ -64,6 +64,10 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(20), SUN6I_GPH_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(21), SUN6I_GPH_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPH(21), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN8I_A33)
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUN8I_A33_GPB_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUN8I_A33_GPB_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPB(1), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN9I)
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(12), SUN9I_GPH_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPH(13), SUN9I_GPH_UART0);
@@ -119,20 +123,11 @@ void s_init(void)
 #ifdef CONFIG_SPL_BUILD
 /* The sunxi internal brom will try to loader external bootloader
  * from mmc0, nand flash, mmc2.
- *
- * Unfortunately we can't check how SPL was loaded so assume it's
- * always the first SD/MMC controller, unless it was explicitly
- * stated that SPL is on nand flash.
+ * Unfortunately we can't check how SPL was loaded so assume
+ * it's always the first SD/MMC controller
  */
 u32 spl_boot_device(void)
 {
-#if defined(CONFIG_SPL_NAND_SUPPORT)
-	/*
-	 * This is compile time configuration informing SPL, that it
-	 * was loaded from nand flash.
-	 */
-	return BOOT_DEVICE_NAND;
-#else
 	/*
 	 * When booting from the SD card, the "eGON.BT0" signature is expected
 	 * to be found in memory at the address 0x0004 (see the "mksunxiboot"
@@ -153,7 +148,6 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_MMC1;
 	else
 		return BOOT_DEVICE_BOARD;
-#endif
 }
 
 /* No confirmation data available in SPL yet. Hardcode bootmode */
@@ -202,6 +196,7 @@ void reset_cpu(ulong addr)
 	writel(WDT_CFG_RESET, &wdog->cfg);
 	writel(WDT_MODE_EN, &wdog->mode);
 	writel(WDT_CTRL_KEY | WDT_CTRL_RESTART, &wdog->ctl);
+	while (1) { }
 #endif
 }
 

@@ -81,7 +81,6 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SF_TEST
 #define CONFIG_CMD_SPI
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_ATMEL
 #define CONFIG_SPI_FLASH_EON
 #define CONFIG_SPI_FLASH_GIGADEVICE
@@ -117,7 +116,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 /* include default commands */
-#include <config_cmd_default.h>
 #include <config_distro_defaults.h>
 
 #define BOOT_TARGET_DEVICES(func) \

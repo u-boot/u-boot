@@ -55,7 +55,6 @@
 #define CONFIG_ENV_SIZE                (SZ_64K)
 
 /* Debug commands */
-#define CONFIG_CMD_BDI
 #define CONFIG_CMD_CACHE
 
 /* Miscellaneous commands */

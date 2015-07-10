@@ -176,7 +176,6 @@
 # define CONFIG_SYS_SPI_BASE		XILINX_SPI_FLASH_BASEADDR
 # define CONFIG_XILINX_SPI		1
 # define CONFIG_SPI			1
-# define CONFIG_SPI_FLASH		1
 # define CONFIG_SPI_FLASH_STMICRO	1
 # define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 # define CONFIG_SF_DEFAULT_SPEED	XILINX_SPI_FLASH_MAX_FREQ
@@ -245,12 +244,9 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
-#define CONFIG_CMD_ECHO
 #define CONFIG_CMD_GPIO
 
 #if defined(CONFIG_DCACHE) || defined(CONFIG_ICACHE)
@@ -259,9 +255,7 @@
 # undef CONFIG_CMD_CACHE
 #endif
 
-#ifndef CONFIG_SYS_ENET
-# undef CONFIG_CMD_NFS
-#else
+#ifdef CONFIG_SYS_ENET
 # define CONFIG_CMD_PING
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_TFTPPUT
@@ -273,15 +267,11 @@
 #endif
 
 #if defined(FLASH)
-# define CONFIG_CMD_ECHO
-# define CONFIG_CMD_FLASH
-# define CONFIG_CMD_IMLS
 # define CONFIG_CMD_JFFS2
 # define CONFIG_CMD_UBI
 # undef CONFIG_CMD_UBIFS
 
 # if !defined(RAMENV)
-#  define CONFIG_CMD_SAVEENV
 #  define CONFIG_CMD_SAVES
 # endif
 
@@ -290,12 +280,9 @@
 # define CONFIG_CMD_SF
 
 # if !defined(RAMENV)
-#  define CONFIG_CMD_SAVEENV
 #  define CONFIG_CMD_SAVES
 # endif
 #else
-# undef CONFIG_CMD_IMLS
-# undef CONFIG_CMD_FLASH
 # undef CONFIG_CMD_JFFS2
 # undef CONFIG_CMD_UBI
 # undef CONFIG_CMD_UBIFS

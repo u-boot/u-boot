@@ -67,8 +67,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_IRQ
@@ -94,7 +92,7 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
+#undef CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 
 #undef	CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser	*/
 

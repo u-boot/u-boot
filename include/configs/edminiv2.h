@@ -135,9 +135,8 @@
 #define	CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE \
 		+sizeof(CONFIG_SYS_PROMPT) + 16)	/* Print Buff */
 /*
- * Commands configuration - using default command set for now
+ * Commands configuration
  */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_IDE
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_USB

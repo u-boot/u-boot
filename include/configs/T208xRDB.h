@@ -16,7 +16,6 @@
 #define CONFIG_T2080RDB
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 #define CONFIG_MMC
-#define CONFIG_SPI_FLASH
 #define CONFIG_USB_EHCI
 #define CONFIG_FSL_SATA_V2
 
@@ -749,17 +748,13 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_ERRATA
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_ECHO
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_BDI
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI

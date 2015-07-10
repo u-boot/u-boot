@@ -43,7 +43,7 @@ static struct draco_baseboard_id __attribute__((section(".data"))) settings;
 /* Default@303MHz-i0 */
 const struct ddr3_data ddr3_default = {
 	0x33524444, 0x56312e35, 0x0080, 0x0000, 0x003A, 0x003F, 0x009F,
-	0x0079, 0x0888A39B, 0x26247FDA, 0x501F821F, 0x00100206, 0x61A44A32,
+	0x0079, 0x0888A39B, 0x26517FDA, 0x501F84EF, 0x00100206, 0x61A44A32,
 	0x0000093B, 0x0000014A,
 	"default name @303MHz           \0",
 	"default marking                \0",
@@ -71,8 +71,8 @@ static void print_ddr3_timings(void)
 	printf("clock:\t\t%d MHz\n", DDR_PLL_FREQ);
 	printf("device:\t\t%s\n", settings.ddr3.manu_name);
 	printf("marking:\t%s\n", settings.ddr3.manu_marking);
-	printf("timing parameters\n");
-	printf("diff\teeprom\tdefault\n");
+	printf("%-20s, %-8s, %-8s, %-4s\n", "timing parameters", "eeprom",
+	       "default", "diff");
 	PRINTARGS(magic);
 	PRINTARGS(version);
 	PRINTARGS(ddr3_sratio);
@@ -96,9 +96,12 @@ static void print_ddr3_timings(void)
 
 static void print_chip_data(void)
 {
+	struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
+	dpll_mpu_opp100.m = am335x_get_efuse_mpu_max_freq(cdev);
 	printf("\nCPU BOARD\n");
 	printf("device: \t'%s'\n", settings.chip.sdevname);
 	printf("hw version: \t'%s'\n", settings.chip.shwver);
+	printf("max freq: \t%d MHz\n", dpll_mpu_opp100.m);
 }
 #endif /* CONFIG_SPL_BUILD */
 
@@ -193,6 +196,11 @@ struct ctrl_ioregs draco_ddr3_ioregs = {
 
 	config_ddr(DDR_PLL_FREQ, &draco_ddr3_ioregs, &draco_ddr3_data,
 		   &draco_ddr3_cmd_ctrl_data, &draco_ddr3_emif_reg_data, 0);
+
+	/* For Samsung 2Gbit RAM we need this delay otherwise config fails after
+	 * soft reset.
+	 */
+	udelay(2000);
 }
 
 static void spl_siemens_board_init(void)
@@ -200,6 +208,26 @@ static void spl_siemens_board_init(void)
 	return;
 }
 #endif /* if def CONFIG_SPL_BUILD */
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	omap_nand_switch_ecc(1, 8);
+#ifdef CONFIG_FACTORYSET
+	/* Set ASN in environment*/
+	if (factory_dat.asn[0] != 0) {
+		setenv("dtb_name", (char *)factory_dat.asn);
+	} else {
+		/* dtb suffix gets added in load script */
+		setenv("dtb_name", "am335x-draco");
+	}
+#else
+	setenv("dtb_name", "am335x-draco");
+#endif
+
+	return 0;
+}
+#endif
 
 #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
 	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
@@ -279,14 +307,5 @@ U_BOOT_CMD(
 );
 #endif /* #if defined(CONFIG_DRIVER_TI_CPSW) */
 #endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) */
-
-#ifdef CONFIG_BOARD_LATE_INIT
-int board_late_init(void)
-{
-	omap_nand_switch_ecc(1, 8);
-
-	return 0;
-}
-#endif
 
 #include "../common/board.c"

@@ -372,11 +372,9 @@ int spi_flash_probe_slave(struct spi_slave *spi, struct spi_flash *flash)
 		puts(" Full access #define CONFIG_SPI_FLASH_BAR\n");
 	}
 #endif
-
-	/* Release spi bus */
-	spi_release_bus(spi);
-
-	return 0;
+#ifdef CONFIG_SPI_FLASH_MTD
+	ret = spi_flash_mtd_register(flash);
+#endif
 
 err_read_id:
 	spi_release_bus(spi);
@@ -430,6 +428,9 @@ struct spi_flash *spi_flash_probe_fdt(const void *blob, int slave_node,
 
 void spi_flash_free(struct spi_flash *flash)
 {
+#ifdef CONFIG_SPI_FLASH_MTD
+	spi_flash_mtd_unregister();
+#endif
 	spi_free_slave(flash->spi);
 	free(flash);
 }

@@ -75,10 +75,6 @@
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_IMLS
-
 #define CONFIG_BOOTDELAY	3
 
 #define CONFIG_ETHPRIME		"smc911x"

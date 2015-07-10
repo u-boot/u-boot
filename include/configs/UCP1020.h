@@ -47,7 +47,6 @@
 #define CONFIG_ETHPRIME		"eTSEC3"
 
 #ifndef CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH	y
 #endif
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
@@ -89,7 +88,6 @@
 #define CONFIG_ETHPRIME		"eTSEC1"
 
 #ifndef CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH	y
 #endif
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
@@ -492,8 +490,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_I2C

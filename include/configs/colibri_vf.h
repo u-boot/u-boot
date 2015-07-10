@@ -13,7 +13,6 @@
 #define __CONFIG_H
 
 #include <asm/arch/imx-regs.h>
-#include <config_cmd_default.h>
 
 #define CONFIG_VF610
 #define CONFIG_SYS_THUMB_BUILD
@@ -70,7 +69,6 @@
 				"512k(u-boot-env),"		\
 				"-(ubi)"
 
-#undef CONFIG_CMD_IMLS
 
 #define CONFIG_MMC
 #define CONFIG_FSL_ESDHC

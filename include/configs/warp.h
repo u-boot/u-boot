@@ -30,9 +30,6 @@
 #define CONFIG_SYS_FSL_ESDHC_HAS_DDR_MODE
 #define CONFIG_SUPPORT_EMMC_BOOT
 
-/* Command definition */
-#undef CONFIG_CMD_NFS
-
 /* Watchdog */
 #define CONFIG_HW_WATCHDOG
 #define CONFIG_IMX_WATCHDOG

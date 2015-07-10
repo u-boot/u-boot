@@ -62,7 +62,6 @@
 #define CONFIG_USART_BASE		ATMEL_BASE_USART1
 #define CONFIG_USART_ID			1
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 
@@ -93,12 +92,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
-/* remove unneeded commands */
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_SETGETDCR
-
 /* add useful commands */
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP

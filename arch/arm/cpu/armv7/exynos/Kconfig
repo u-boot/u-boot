@@ -74,9 +74,6 @@ endchoice
 config SYS_SOC
 	default "exynos"
 
-config DM_USB
-	default y
-
 source "board/samsung/smdkv310/Kconfig"
 source "board/samsung/trats/Kconfig"
 source "board/samsung/universal_c210/Kconfig"

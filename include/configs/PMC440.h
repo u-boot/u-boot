@@ -271,8 +271,6 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
 
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
@@ -283,7 +281,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB

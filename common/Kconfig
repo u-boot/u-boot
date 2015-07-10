@@ -101,11 +101,13 @@ menu "Info commands"
 
 config CMD_BDI
 	bool "bdinfo"
+	default y
 	help
 	  Print board info
 
 config CMD_CONSOLE
 	bool "coninfo"
+	default y
 	help
 	  Print console devices and information.
 
@@ -128,6 +130,7 @@ menu "Boot commands"
 
 config CMD_BOOTD
 	bool "bootd"
+	default y
 	help
 	  Run the command stored in the environment "bootcmd", i.e.
 	  "bootd" does the same thing as "run bootcmd".
@@ -146,21 +149,25 @@ config CMD_GO
 
 config CMD_RUN
 	bool "run"
+	default y
 	help
 	  Run the command in the given environment variable.
 
 config CMD_IMI
 	bool "iminfo"
+	default y
 	help
 	  Print header information for application image.
 
 config CMD_IMLS
 	bool "imls"
+	default y
 	help
 	  List all images found in flash
 
 config CMD_XIMG
 	bool "imxtract"
+	default y
 	help
 	  Extract a part of a multi-image.
 
@@ -182,13 +189,23 @@ config CMD_IMPORTENV
 
 config CMD_EDITENV
 	bool "editenv"
+	default y
 	help
 	  Edit environment variable.
 
 config CMD_SAVEENV
 	bool "saveenv"
+	default y
 	help
-	  Run the command in the given environment variable.
+	  Save all environment variables into the compiled-in persistent
+	  storage.
+
+config CMD_ENV_EXISTS
+	bool "env exists"
+	default y
+	help
+	  Check if a variable is defined in the environment for use in
+	  shell scripting.
 
 endmenu
 
@@ -196,6 +213,7 @@ menu "Memory commands"
 
 config CMD_MEMORY
 	bool "md, mm, nm, mw, cp, cmp, base, loop"
+	default y
 	help
 	  Memeory commands.
 	    md - memory display
@@ -263,16 +281,19 @@ config CMD_DEMO
 
 config CMD_LOADB
 	bool "loadb"
+	default y
 	help
 	  Load a binary file over serial line.
 
 config CMD_LOADS
 	bool "loads"
+	default y
 	help
 	  Load an S-Record file over serial line
 
 config CMD_FLASH
 	bool "flinfo, erase, protect"
+	default y
 	help
 	  NOR flash support.
 	    flinfo - print FLASH memory information
@@ -289,6 +310,11 @@ config CMD_NAND
 	bool "nand"
 	help
 	  NAND support.
+
+config CMD_SF
+	bool "sf"
+	help
+	  SPI Flash support
 
 config CMD_SPI
 	bool "sspi"
@@ -307,6 +333,7 @@ config CMD_USB
 
 config CMD_FPGA
 	bool "fpga"
+	default y
 	help
 	  FPGA support.
 
@@ -317,21 +344,25 @@ menu "Shell scripting commands"
 
 config CMD_ECHO
 	bool "echo"
+	default y
 	help
 	  Echo args to console
 
 config CMD_ITEST
 	bool "itest"
+	default y
 	help
 	  Return true/false on integer compare.
 
 config CMD_SOURCE
 	bool "source"
+	default y
 	help
 	  Run script from memory
 
 config CMD_SETEXPR
 	bool "setexpr"
+	default y
 	help
 	  Evaluate boolean and math expressions and store the result in an env
 	    variable.
@@ -345,6 +376,7 @@ menu "Network commands"
 config CMD_NET
 	bool "bootp, tftpboot"
         select NET
+	default y
 	help
 	  Network commands.
 	  bootp - boot image via network using BOOTP/TFTP protocol
@@ -372,6 +404,7 @@ config CMD_DHCP
 
 config CMD_NFS
 	bool "nfs"
+	default y
 	help
 	  Boot image via network using NFS protocol.
 
@@ -412,6 +445,7 @@ config CMD_TIME
 # TODO: rename to CMD_SLEEP
 config CMD_MISC
 	bool "sleep"
+	default y
 	help
 	  Delay execution for some time
 
@@ -423,6 +457,7 @@ config CMD_TIMER
 config CMD_SETGETDCR
 	bool "getdcr, setdcr, getidcr, setidcr"
 	depends on 4xx
+	default y
 	help
 	  getdcr - Get an AMCC PPC 4xx DCR's value
 	  setdcr - Set an AMCC PPC 4xx DCR's value

@@ -53,8 +53,6 @@
 /*
  * Supported commands
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_AMBAPP
 #define CONFIG_CMD_PING

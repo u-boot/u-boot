@@ -10,6 +10,8 @@
 #include <config.h>
 #include <common.h>
 #include <part.h>
+#include <div64.h>
+#include <linux/math64.h>
 #include "mmc_private.h"
 
 static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
@@ -66,6 +68,7 @@ err_out:
 unsigned long mmc_berase(int dev_num, lbaint_t start, lbaint_t blkcnt)
 {
 	int err = 0;
+	u32 start_rem, blkcnt_rem;
 	struct mmc *mmc = find_mmc_device(dev_num);
 	lbaint_t blk = 0, blk_r = 0;
 	int timeout = 1000;
@@ -73,7 +76,14 @@ unsigned long mmc_berase(int dev_num, lbaint_t start, lbaint_t blkcnt)
 	if (!mmc)
 		return -1;
 
-	if ((start % mmc->erase_grp_size) || (blkcnt % mmc->erase_grp_size))
+	/*
+	 * We want to see if the requested start or total block count are
+	 * unaligned.  We discard the whole numbers and only care about the
+	 * remainder.
+	 */
+	err = div_u64_rem(start, mmc->erase_grp_size, &start_rem);
+	err = div_u64_rem(blkcnt, mmc->erase_grp_size, &blkcnt_rem);
+	if (start_rem || blkcnt_rem)
 		printf("\n\nCaution! Your devices Erase group is 0x%x\n"
 		       "The erase range would be change to "
 		       "0x" LBAF "~0x" LBAF "\n\n",

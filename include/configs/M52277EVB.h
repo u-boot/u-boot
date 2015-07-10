@@ -37,19 +37,11 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Command line configuration */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_LOADB
-#define CONFIG_CMD_LOADS
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_MISC
-#undef CONFIG_CMD_NFS
 #define CONFIG_CMD_REGINFO
 #undef CONFIG_CMD_USB
 #undef CONFIG_CMD_BMP
@@ -140,7 +132,6 @@
 #define CONFIG_SYS_SBFHDR_SIZE		0x7
 #ifdef CONFIG_CMD_SPI
 #	define CONFIG_SYS_DSPI_CS2
-#	define CONFIG_SPI_FLASH
 #	define CONFIG_SPI_FLASH_STMICRO
 
 #	define CONFIG_SYS_DSPI_CTAR0	(DSPI_CTAR_TRSZ(7) | \

@@ -30,7 +30,7 @@
 	dspiflash: at45db021d@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "atmel,dataflash";
 		spi-max-frequency = <16000000>;
 		spi-cpol;
 		spi-cpha;

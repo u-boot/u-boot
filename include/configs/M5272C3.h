@@ -56,18 +56,11 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_MISC
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_FLASH
-#define CONFIG_CMD_MEMORY
 
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_LOADB
 
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_MCFFEC

@@ -313,6 +313,7 @@ struct prcm_regs {
 	u32 prm_rstctrl;
 	u32 prm_rstst;
 	u32 prm_rsttime;
+	u32 prm_io_pmctrl;
 	u32 prm_vc_val_bypass;
 	u32 prm_vc_cfg_i2c_mode;
 	u32 prm_vc_cfg_i2c_clk;
@@ -344,6 +345,10 @@ struct prcm_regs {
 	/* GMAC Clk Ctrl */
 	u32 cm_gmac_gmac_clkctrl;
 	u32 cm_gmac_clkstctrl;
+
+	/* IPU */
+	u32 cm_ipu_clkstctrl;
+	u32 cm_ipu_i2c5_clkctrl;
 };
 
 struct omap_sys_ctrl_regs {
@@ -455,6 +460,8 @@ struct omap_sys_ctrl_regs {
 	u32 control_efuse_12;
 	u32 control_efuse_13;
 	u32 control_padconf_wkup_base;
+	u32 iodelay_config_base;
+	u32 ctrl_core_sma_sw_0;
 };
 
 struct dpll_params {
@@ -583,6 +590,7 @@ s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb);
 
 void usb_fake_mac_from_die_id(u32 *id);
 void usb_set_serial_num_from_die_id(u32 *id);
+void recalibrate_iodelay(void);
 
 void omap_smc1(u32 service, u32 val);
 
@@ -622,11 +630,18 @@ static inline u8 is_omap54xx(void)
 }
 
 #define DRA7XX		0x07000000
+#define DRA72X		0x07200000
 
 static inline u8 is_dra7xx(void)
 {
 	extern u32 *const omap_si_rev;
 	return ((*omap_si_rev & 0xFF000000) == DRA7XX);
+}
+
+static inline u8 is_dra72x(void)
+{
+	extern u32 *const omap_si_rev;
+	return (*omap_si_rev & 0xFFF00000) == DRA72X;
 }
 #endif
 

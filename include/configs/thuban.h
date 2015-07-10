@@ -10,27 +10,28 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_DXR2_H
-#define __CONFIG_DXR2_H
-
-#define CONFIG_SIEMENS_DXR2
-#define MACH_TYPE_DXR2			4315
-#define CONFIG_SIEMENS_MACH_TYPE	MACH_TYPE_DXR2
+#ifndef __CONFIG_THUBAN_H
+#define __CONFIG_THUBAN_H
 
 #include "siemens-am33x-common.h"
 
-#define CONFIG_SYS_MPUCLK	275
+#define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_SYS_MPUCLK	300
 #define DDR_PLL_FREQ	303
 #undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
-#define BOARD_DFU_BUTTON_GPIO	27
-#define BOARD_DFU_BUTTON_LED	64	/* red LED */
-#define BOARD_STATUS_LED	103	/* green LED */
+#define BOARD_DFU_BUTTON_GPIO	27	/* Use as default */
 #define GPIO_LAN9303_NRST	88	/* GPIO2_24 = gpio88 */
+
+#define CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+	"button_dfu0=27\0" \
+	"led0=103,1,0\0" \
+	"led1=64,0,1\0"
 
 #undef CONFIG_DOS_PARTITION
 #undef CONFIG_CMD_FAT
 
+#define CONFIG_BOARD_LATE_INIT
 
  /* Physical Memory Map */
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
@@ -57,14 +58,25 @@
 /* Watchdog */
 #define CONFIG_OMAP_WATCHDOG
 
+/* Define own nand partitions */
+#define CONFIG_ENV_OFFSET_REDUND    0x2E0000
+#define CONFIG_ENV_SIZE_REDUND      0x2000
+#define CONFIG_ENV_RANGE        (4 * CONFIG_SYS_ENV_SECT_SIZE)
+
+
+#define MTDPARTS_DEFAULT	MTDPARTS_DEFAULT_V2
+
 #ifndef CONFIG_SPL_BUILD
 
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"hostname=dxr2\0" \
+	"hostname=thuban\0" \
 	"nand_img_size=0x400000\0" \
 	"optargs=\0" \
-	CONFIG_COMMON_ENV_SETTINGS
+	"preboot=draco_led 0\0" \
+	CONFIG_ENV_SETTINGS_BUTTONS_AND_LEDS \
+	CONFIG_ENV_SETTINGS_V2 \
+	CONFIG_ENV_SETTINGS_NAND_V2
 
 #ifndef CONFIG_RESTORE_FLASH
 /* set to negative value for no autoboot */
@@ -76,6 +88,7 @@
 	"reset; " \
 "fi;" \
 "run nand_boot;" \
+"run nand_boot_backup;" \
 "reset;"
 
 
@@ -90,4 +103,4 @@
 	"fi"
 #endif
 #endif	/* CONFIG_SPL_BUILD */
-#endif	/* ! __CONFIG_DXR2_H */
+#endif	/* ! __CONFIG_THUBAN_H */

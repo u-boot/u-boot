@@ -2,3 +2,11 @@ CONFIG_ARM=y
 CONFIG_ARCH_S5PC1XX=y
 CONFIG_TARGET_S5P_GONI=y
 CONFIG_DEFAULT_DEVICE_TREE="s5pc1xx-goni"
+# CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_XIMG is not set
+# CONFIG_CMD_FLASH is not set
+# CONFIG_CMD_FPGA is not set
+# CONFIG_CMD_SETEXPR is not set
+# CONFIG_CMD_NET is not set
+# CONFIG_CMD_NFS is not set
+# CONFIG_CMD_MISC is not set

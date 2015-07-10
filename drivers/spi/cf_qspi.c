@@ -19,7 +19,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define clamp(x, low, high) (min(max(low, x), high))
 #define to_cf_qspi_slave(s) container_of(s, struct cf_qspi_slave, slave)
 
 struct cf_qspi_slave {
@@ -120,7 +119,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		dev->qmr = 2u;
 	else /* Get the closest baud rate */
 		dev->qmr = clamp(((gd->bus_clk >> 2) + max_hz - 1)/max_hz,
-					2u, 255u);
+					2lu, 255lu);
 
 	/* Map mode to QMR[CPOL] and QMR[CPHA] */
 	if (mode & SPI_CPOL)

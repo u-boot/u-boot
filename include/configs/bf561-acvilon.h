@@ -114,7 +114,6 @@
 #define CONFIG_BFIN_SPI
 #define CONFIG_ENV_SPI_MAX_HZ		10000000
 #define CONFIG_SF_DEFAULT_SPEED		10000000
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_ATMEL
 
 
@@ -122,7 +121,6 @@
  * Env Storage Settings
  */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
-/* #define CONFIG_CMD_SAVEENV */
 #define CONFIG_ENV_SECT_SIZE		(1056 * 8)
 #define CONFIG_ENV_OFFSET			((16 + 256) * 1056)
 #define CONFIG_ENV_SIZE				(8 * 1056)

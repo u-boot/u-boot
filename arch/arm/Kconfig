@@ -346,8 +346,13 @@ config TARGET_DRACO
 	select CPU_V7
 	select SUPPORT_SPL
 
-config TARGET_DXR2
-	bool "Support dxr2"
+config TARGET_THUBAN
+	bool "Support thuban"
+	select CPU_V7
+	select SUPPORT_SPL
+
+config TARGET_RASTABAN
+	bool "Support rastaban"
 	select CPU_V7
 	select SUPPORT_SPL
 
@@ -363,6 +368,14 @@ config TARGET_RUT
 
 config TARGET_PENGWYN
 	bool "Support pengwyn"
+	select CPU_V7
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
+config TARGET_AM335X_BALTOS
+	bool "Support am335x_baltos"
 	select CPU_V7
 	select SUPPORT_SPL
 	select DM
@@ -653,7 +666,11 @@ config ARCH_ZYNQ
 	bool "Xilinx Zynq Platform"
 	select CPU_V7
 	select SUPPORT_SPL
+	select OF_CONTROL
+	select SPL_DISABLE_OF_CONTROL
 	select DM
+	select DM_SPI
+	select DM_SPI_FLASH
 
 config TARGET_XILINX_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
@@ -959,6 +976,7 @@ source "board/trizepsiv/Kconfig"
 source "board/ttcontrol/vision2/Kconfig"
 source "board/udoo/Kconfig"
 source "board/vpac270/Kconfig"
+source "board/vscom/baltos/Kconfig"
 source "board/wandboard/Kconfig"
 source "board/warp/Kconfig"
 source "board/woodburn/Kconfig"

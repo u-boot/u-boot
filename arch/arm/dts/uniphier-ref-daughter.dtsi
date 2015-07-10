@@ -1,11 +1,9 @@
 /*
  * Device Tree Source for UniPhier Reference Daughter Board
  *
- * Copyright (C) 2014-2015 Panasonic Corporation
- * Copyright (C) 2015      Socionext Inc.
- *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+ * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * SPDX-License-Identifier:	GPL-2.0+	X11
  */
 
 &i2c0 {

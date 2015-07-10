@@ -82,9 +82,6 @@
 /*
  * Command definition
  */
-
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP

@@ -148,6 +148,29 @@ static const struct dpll_params idk_dpll_ddr = {
 	400, 23, 1, -1, 2, -1, -1
 };
 
+static const u32 ext_phy_ctrl_const_base_lpddr2[] = {
+	0x00500050,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x40001000,
+	0x08102040
+};
+
 const struct ctrl_ioregs ioregs_lpddr2 = {
 	.cm0ioctl		= LPDDR2_ADDRCTRL_IOCTRL_VALUE,
 	.cm1ioctl		= LPDDR2_ADDRCTRL_WD0_IOCTRL_VALUE,
@@ -317,6 +340,16 @@ static const struct emif_regs ddr3_idk_emif_regs_400Mhz = {
 	.emif_connect_id_serv_2_map	= 0x00000000,
 	.emif_cos_config		= 0x00ffffff
 };
+
+void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
+{
+	if (board_is_eposevm()) {
+		*regs = ext_phy_ctrl_const_base_lpddr2;
+		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_lpddr2);
+	}
+
+	return;
+}
 
 /*
  * get_sys_clk_index : returns the index of the sys_clk read from

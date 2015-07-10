@@ -95,15 +95,12 @@
 #define CONFIG_BOOTP_GATEWAY
 
 /* generic board */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT2
@@ -111,10 +108,6 @@
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MMC
 
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_SETGETDCR
-#undef CONFIG_CMD_SOURCE
-#undef CONFIG_CMD_XIMG
 
 #define CONFIG_ATMEL_USART
 #define CONFIG_MACB

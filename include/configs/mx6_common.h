@@ -36,7 +36,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/imx-common/gpio.h>
-#include <config_cmd_default.h>
 
 #ifndef CONFIG_MX6
 #define CONFIG_MX6

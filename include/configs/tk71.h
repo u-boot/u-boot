@@ -33,7 +33,6 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_SUPPORT_VFAT
 
-#include <config_cmd_default.h>
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_EXT2

@@ -134,8 +134,6 @@
 #define CONFIG_CMD_SCSI
 #endif
 
-#define CONFIG_CMD_MEMORY
-
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
@@ -148,10 +146,8 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_MMC_SUNXI
 #define CONFIG_MMC_SUNXI_SLOT		0
-#if !defined(CONFIG_SPL_NAND_SUPPORT)
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
-#endif /* CONFIG_SPL_NAND_SUPPORT */
 #endif
 
 /* 4MB of malloc() pool */
@@ -160,7 +156,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_CMD_ECHO
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE	1024	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
@@ -187,9 +182,6 @@
 
 #define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_FPGA
 
 #define CONFIG_FAT_WRITE	/* enable write access */
 
@@ -356,24 +348,6 @@ extern int soft_i2c_gpio_scl;
     !defined CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_IS_NOWHERE
 #endif
-
-#ifdef CONFIG_SPL_NAND_SUPPORT
-#define CONFIG_NAND
-#define CONFIG_SYS_NAND_SELF_INIT
-#define CONFIG_NAND_SUNXI
-#define CONFIG_CMD_SPL_WRITE_SIZE		0x000400
-#define CONFIG_SYS_NAND_U_BOOT_OFFS		0x008000
-
-/* \todo Make these parameterisable in kernel config ? */
-#define CONFIG_NAND_SUNXI_PAGE_SIZE		8192
-#define CONFIG_NAND_SUNXI_ECC_STEP		1024
-#define CONFIG_NAND_SUNXI_ECC_STRENGTH		40
-#define CONFIG_NAND_SUNXI_ADDR_CYCLES		5
-
-#ifndef CONFIG_NAND_SUNXI_GPC_PORTS
-#error "No NAND GPC ports defined, NAND unsupported"
-#endif
-#endif /* CONFIG_SPL_NAND_SUPPORT */
 
 #define CONFIG_MISC_INIT_R
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV

@@ -29,12 +29,7 @@
 
 #ifndef __ASSEMBLY__
 
-#ifdef CONFIG_ISA_ARCV2
-void slc_enable(void);
-void slc_disable(void);
-void slc_flush(void);
-void slc_invalidate(void);
-#endif
+void cache_init(void);
 
 #endif /* __ASSEMBLY__ */
 

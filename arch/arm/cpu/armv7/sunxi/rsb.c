@@ -60,10 +60,11 @@ int rsb_init(void)
 	struct sunxi_rsb_reg * const rsb =
 		(struct sunxi_rsb_reg *)SUNXI_RSB_BASE;
 
-	rsb_cfg_io();
-
 	/* Enable RSB and PIO clk, and de-assert their resets */
 	prcm_apb0_enable(PRCM_APB0_GATE_PIO | PRCM_APB0_GATE_RSB);
+
+	/* Setup external pins */
+	rsb_cfg_io();
 
 	writel(RSB_CTRL_SOFT_RST, &rsb->ctrl);
 	rsb_set_clk();

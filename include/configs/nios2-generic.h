@@ -75,15 +75,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-#undef CONFIG_CMD_BOOTD
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_ITEST
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_SETGETDCR
-#undef CONFIG_CMD_XIMG
-
 #ifdef CONFIG_CMD_NET
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_PING

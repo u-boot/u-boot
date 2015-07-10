@@ -29,15 +29,10 @@
 #define CONFIG_WATCHDOG_TIMEOUT	5000	/* timeout in milliseconds, max timeout is 6.71sec */
 
 /* Command line configuration */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #undef CONFIG_CMD_DATE
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_MISC
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING

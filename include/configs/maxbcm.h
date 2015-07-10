@@ -22,7 +22,6 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_I2C
@@ -44,7 +43,6 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_SPANSION
-#define CONFIG_SPI_FLASH_BAR
 
 /* Environment in SPI NOR flash */
 #define CONFIG_ENV_IS_IN_SPI_FLASH

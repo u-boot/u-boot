@@ -14,10 +14,15 @@
 
 	aliases {
 		serial0 = &uart1;
+		spi1 = &spi1;
 	};
 
 	memory {
 		device_type = "memory";
 		reg = <0 0x40000000>;
 	};
+};
+
+&spi1 {
+	status = "okay";
 };

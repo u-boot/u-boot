@@ -1,3 +1,6 @@
 CONFIG_PPC=y
 CONFIG_5xx=y
 CONFIG_TARGET_CMI_MPC5XX=y
+# CONFIG_CMD_SETEXPR is not set
+# CONFIG_CMD_NET is not set
+# CONFIG_CMD_NFS is not set

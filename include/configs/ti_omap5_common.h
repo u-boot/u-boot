@@ -57,9 +57,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		48000000
 
-/* Per-SoC commands */
-#undef CONFIG_CMD_NFS
-
 /*
  * Environment setup
  */
@@ -71,6 +68,7 @@
 #define DFUARGS
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
@@ -146,6 +144,7 @@
 	"setenv mmcroot /dev/mmcblk0p2 rw; " \
 	"run mmcboot;" \
 	""
+#endif
 
 
 /*

@@ -49,7 +49,6 @@
 /*
  * NOR Flash
  */
-#define CONFIG_CMD_FLASH
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	71
 #define CONFIG_SYS_FLASH_BASE		EMC_CS0_BASE
@@ -78,7 +77,6 @@
 /*
  * U-Boot Commands
  */
-#include <config_cmd_default.h>
 #define CONFIG_CMD_CACHE
 
 /*

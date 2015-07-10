@@ -93,13 +93,10 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
-#define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_MII

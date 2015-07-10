@@ -14,7 +14,6 @@
 #define CONFIG_AT32AP7000
 #define CONFIG_ATNGW100
 
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
 
@@ -81,8 +80,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EXT2
@@ -92,10 +89,6 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_SETGETDCR
-#undef CONFIG_CMD_SOURCE
-#undef CONFIG_CMD_XIMG
 
 #define CONFIG_ATMEL_USART
 #define CONFIG_MACB
@@ -107,7 +100,6 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_ATMEL_SPI
 
-#define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_ATMEL
 
 #define CONFIG_SYS_DCACHE_LINESZ		32

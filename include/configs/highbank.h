@@ -54,11 +54,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
-#define CONFIG_CMD_BDI
-#define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_LOADS
 #define CONFIG_CMD_SCSI
 
 #define CONFIG_BOOT_RETRY_TIME		-1

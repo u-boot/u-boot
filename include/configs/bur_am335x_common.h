@@ -151,28 +151,6 @@
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-/*
- * For commands to use, we take the default list and add a few other
- * useful commands.  Note that we must have set CONFIG_SYS_NO_FLASH
- * prior to this include, in order to skip a few commands.  When we do
- * have flash, if we expect these commands they must be enabled in that
- * config.  If desired, a specific list of desired commands can be used
- * instead.
- */
-#include <config_cmd_default.h>
-/* undefine commands, which we do not need */
-#undef CONFIG_CMD_EDITENV
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_IMI
-#undef CONFIG_CMD_ITEST
-#undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_LOADB
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_SETGETDCR
-#undef CONFIG_CMD_XIMG
-/* define command we need always */
-#define CONFIG_CMD_ECHO
-#define CONFIG_CMD_SOURCE
 
 /*
  * Our platforms make use of SPL to initalize the hardware (primarily

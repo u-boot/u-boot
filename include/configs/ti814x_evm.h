@@ -38,8 +38,6 @@
 #define CONFIG_INITRD_TAG		/* for ramdisk support */
 
 /* commands to include */
-# include <config_cmd_default.h>
-
 #define CONFIG_CMD_ASKENV
 #define CONFIG_VERSION_VARIABLE
 
@@ -101,8 +99,6 @@
 /* Clock Defines */
 #define V_OSCK			24000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
-
-#define CONFIG_CMD_ECHO
 
 /* max number of command args */
 #define CONFIG_SYS_MAXARGS		16

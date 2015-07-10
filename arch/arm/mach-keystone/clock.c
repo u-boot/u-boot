@@ -246,17 +246,17 @@ static inline u32 read_efuse_bootrom(void)
 }
 #endif
 
-inline int get_max_dev_speed(void)
-{
-	return get_max_speed(read_efuse_bootrom() & 0xffff, dev_speeds);
-}
-
 #ifndef CONFIG_SOC_K2E
 inline int get_max_arm_speed(void)
 {
-	return get_max_speed((read_efuse_bootrom() >> 16) & 0xffff, arm_speeds);
+	return get_max_speed(read_efuse_bootrom() & 0xffff, arm_speeds);
 }
 #endif
+
+inline int get_max_dev_speed(void)
+{
+	return get_max_speed((read_efuse_bootrom() >> 16) & 0xffff, dev_speeds);
+}
 
 void pass_pll_pa_clk_enable(void)
 {

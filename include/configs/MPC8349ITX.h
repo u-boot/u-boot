@@ -496,8 +496,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_IRQ

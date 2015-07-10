@@ -99,8 +99,6 @@
 /*
  * Command line configuration.
  */
-#include <config_cmd_default.h>
-
 #ifdef CONFIG_VIDEO
 #define CONFIG_CMD_BMP
 #endif
