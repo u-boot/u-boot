@@ -6,10 +6,13 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <ahci.h>
+#include <linux/mbus.h>
 #include <asm/io.h>
 #include <asm/pl310.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <sdhci.h>
 
 #define DDR_BASE_CS_OFF(n)	(0x0000 + ((n) << 3))
 #define DDR_SIZE_CS_OFF(n)	(0x0004 + ((n) << 3))
@@ -242,6 +245,69 @@ int cpu_eth_init(bd_t *bis)
 		mvneta_initialize(bis, enet_base[i], i, phy_addr[i]);
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_MV_SDHCI
+int board_mmc_init(bd_t *bis)
+{
+	mv_sdh_init(MVEBU_SDIO_BASE, 0, 0,
+		    SDHCI_QUIRK_32BIT_DMA_ADDR | SDHCI_QUIRK_WAIT_SEND_CMD);
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_SCSI_AHCI_PLAT
+#define AHCI_VENDOR_SPECIFIC_0_ADDR	0xa0
+#define AHCI_VENDOR_SPECIFIC_0_DATA	0xa4
+
+#define AHCI_WINDOW_CTRL(win)		(0x60 + ((win) << 4))
+#define AHCI_WINDOW_BASE(win)		(0x64 + ((win) << 4))
+#define AHCI_WINDOW_SIZE(win)		(0x68 + ((win) << 4))
+
+static void ahci_mvebu_mbus_config(void __iomem *base)
+{
+	const struct mbus_dram_target_info *dram;
+	int i;
+
+	dram = mvebu_mbus_dram_info();
+
+	for (i = 0; i < 4; i++) {
+		writel(0, base + AHCI_WINDOW_CTRL(i));
+		writel(0, base + AHCI_WINDOW_BASE(i));
+		writel(0, base + AHCI_WINDOW_SIZE(i));
+	}
+
+	for (i = 0; i < dram->num_cs; i++) {
+		const struct mbus_dram_window *cs = dram->cs + i;
+
+		writel((cs->mbus_attr << 8) |
+		       (dram->mbus_dram_target_id << 4) | 1,
+		       base + AHCI_WINDOW_CTRL(i));
+		writel(cs->base >> 16, base + AHCI_WINDOW_BASE(i));
+		writel(((cs->size - 1) & 0xffff0000),
+		       base + AHCI_WINDOW_SIZE(i));
+	}
+}
+
+static void ahci_mvebu_regret_option(void __iomem *base)
+{
+	/*
+	 * Enable the regret bit to allow the SATA unit to regret a
+	 * request that didn't receive an acknowlegde and avoid a
+	 * deadlock
+	 */
+	writel(0x4, base + AHCI_VENDOR_SPECIFIC_0_ADDR);
+	writel(0x80, base + AHCI_VENDOR_SPECIFIC_0_DATA);
+}
+
+void scsi_init(void)
+{
+	printf("MVEBU SATA INIT\n");
+	ahci_mvebu_mbus_config((void __iomem *)MVEBU_SATA0_BASE);
+	ahci_mvebu_regret_option((void __iomem *)MVEBU_SATA0_BASE);
+	ahci_init((void __iomem *)MVEBU_SATA0_BASE);
 }
 #endif
 
