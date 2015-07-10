@@ -11,6 +11,9 @@
 #ifndef _PCI_H
 #define _PCI_H
 
+#define PCI_CFG_SPACE_SIZE	256
+#define PCI_CFG_SPACE_EXP_SIZE	4096
+
 /*
  * Under PCI, each device has 256 bytes of configuration address space,
  * of which the first 64 bytes are standardized as follows:
@@ -413,6 +416,39 @@
 #define PCI_FIND_CAP_TTL 0x48
 #define CAP_START_POS 0x40
 
+/* Extended Capabilities (PCI-X 2.0 and Express) */
+#define PCI_EXT_CAP_ID(header)		(header & 0x0000ffff)
+#define PCI_EXT_CAP_VER(header)		((header >> 16) & 0xf)
+#define PCI_EXT_CAP_NEXT(header)	((header >> 20) & 0xffc)
+
+#define PCI_EXT_CAP_ID_ERR	0x01	/* Advanced Error Reporting */
+#define PCI_EXT_CAP_ID_VC	0x02	/* Virtual Channel Capability */
+#define PCI_EXT_CAP_ID_DSN	0x03	/* Device Serial Number */
+#define PCI_EXT_CAP_ID_PWR	0x04	/* Power Budgeting */
+#define PCI_EXT_CAP_ID_RCLD	0x05	/* Root Complex Link Declaration */
+#define PCI_EXT_CAP_ID_RCILC	0x06	/* Root Complex Internal Link Control */
+#define PCI_EXT_CAP_ID_RCEC	0x07	/* Root Complex Event Collector */
+#define PCI_EXT_CAP_ID_MFVC	0x08	/* Multi-Function VC Capability */
+#define PCI_EXT_CAP_ID_VC9	0x09	/* same as _VC */
+#define PCI_EXT_CAP_ID_RCRB	0x0A	/* Root Complex RB? */
+#define PCI_EXT_CAP_ID_VNDR	0x0B	/* Vendor-Specific */
+#define PCI_EXT_CAP_ID_CAC	0x0C	/* Config Access - obsolete */
+#define PCI_EXT_CAP_ID_ACS	0x0D	/* Access Control Services */
+#define PCI_EXT_CAP_ID_ARI	0x0E	/* Alternate Routing ID */
+#define PCI_EXT_CAP_ID_ATS	0x0F	/* Address Translation Services */
+#define PCI_EXT_CAP_ID_SRIOV	0x10	/* Single Root I/O Virtualization */
+#define PCI_EXT_CAP_ID_MRIOV	0x11	/* Multi Root I/O Virtualization */
+#define PCI_EXT_CAP_ID_MCAST	0x12	/* Multicast */
+#define PCI_EXT_CAP_ID_PRI	0x13	/* Page Request Interface */
+#define PCI_EXT_CAP_ID_AMD_XXX	0x14	/* Reserved for AMD */
+#define PCI_EXT_CAP_ID_REBAR	0x15	/* Resizable BAR */
+#define PCI_EXT_CAP_ID_DPA	0x16	/* Dynamic Power Allocation */
+#define PCI_EXT_CAP_ID_TPH	0x17	/* TPH Requester */
+#define PCI_EXT_CAP_ID_LTR	0x18	/* Latency Tolerance Reporting */
+#define PCI_EXT_CAP_ID_SECPCI	0x19	/* Secondary PCIe Capability */
+#define PCI_EXT_CAP_ID_PMUX	0x1A	/* Protocol Multiplexing */
+#define PCI_EXT_CAP_ID_PASID	0x1B	/* Process Address Space ID */
+
 /* Include the ID list */
 
 #include <pci_ids.h>
@@ -686,6 +722,11 @@ extern int pci_hose_find_cap_start(struct pci_controller *hose, pci_dev_t dev,
 				   u8 hdr_type);
 extern int pci_find_cap(struct pci_controller *hose, pci_dev_t dev, int pos,
 			int cap);
+
+int pci_find_next_ext_capability(struct pci_controller *hose,
+				 pci_dev_t dev, int start, int cap);
+int pci_hose_find_ext_capability(struct pci_controller *hose,
+				 pci_dev_t dev, int cap);
 
 #ifdef CONFIG_PCI_FIXUP_DEV
 extern void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
