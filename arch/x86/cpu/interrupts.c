@@ -32,6 +32,41 @@ DECLARE_GLOBAL_DATA_PTR;
 	"pushl $"#x"\n" \
 	"jmp irq_common_entry\n"
 
+static char *exceptions[] = {
+	"Divide Error",
+	"Debug",
+	"NMI Interrupt",
+	"Breakpoint",
+	"Overflow",
+	"BOUND Range Exceeded",
+	"Invalid Opcode (Undefined Opcode)",
+	"Device Not Avaiable (No Math Coprocessor)",
+	"Double Fault",
+	"Coprocessor Segment Overrun",
+	"Invalid TSS",
+	"Segment Not Present",
+	"Stack Segment Fault",
+	"Gerneral Protection",
+	"Page Fault",
+	"Reserved",
+	"x87 FPU Floating-Point Error",
+	"Alignment Check",
+	"Machine Check",
+	"SIMD Floating-Point Exception",
+	"Virtualization Exception",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved"
+};
+
 static void dump_regs(struct irq_regs *regs)
 {
 	unsigned long cs, eip, eflags;
@@ -110,6 +145,13 @@ static void dump_regs(struct irq_regs *regs)
 		printf("0x%8.8lx : 0x%8.8lx\n", sp, (ulong)readl(sp));
 		sp -= 4;
 	}
+}
+
+static void do_exception(struct irq_regs *regs)
+{
+	printf("%s\n", exceptions[regs->irq_id]);
+	dump_regs(regs);
+	hang();
 }
 
 struct idt_entry {
@@ -228,111 +270,10 @@ void irq_llsr(struct irq_regs *regs)
 	 * Order Number: 253665-029US, November 2008
 	 * Table 6-1. Exceptions and Interrupts
 	 */
-	switch (regs->irq_id) {
-	case 0x00:
-		printf("Divide Error (Division by zero)\n");
-		dump_regs(regs);
-		hang();
-		break;
-	case 0x01:
-		printf("Debug Interrupt (Single step)\n");
-		dump_regs(regs);
-		break;
-	case 0x02:
-		printf("NMI Interrupt\n");
-		dump_regs(regs);
-		break;
-	case 0x03:
-		printf("Breakpoint\n");
-		dump_regs(regs);
-		break;
-	case 0x04:
-		printf("Overflow\n");
-		dump_regs(regs);
-		hang();
-		break;
-	case 0x05:
-		printf("BOUND Range Exceeded\n");
-		dump_regs(regs);
-		hang();
-		break;
-	case 0x06:
-		printf("Invalid Opcode (UnDefined Opcode)\n");
-		dump_regs(regs);
-		hang();
-		break;
-	case 0x07:
-		printf("Device Not Available (No Math Coprocessor)\n");
-		dump_regs(regs);
-		hang();
-		break;
-	case 0x08:
-		printf("Double fault\n");
-		dump_regs(regs);
-		hang();
-		break;
-	case 0x09:
-		printf("Co-processor segment overrun\n");
-		dump_regs(regs);
-		hang();
-		break;
-	case 0x0a:
-		printf("Invalid TSS\n");
-		dump_regs(regs);
-		break;
-	case 0x0b:
-		printf("Segment Not Present\n");
-		dump_regs(regs);
-		hang();
-		break;
-	case 0x0c:
-		printf("Stack Segment Fault\n");
-		dump_regs(regs);
-		hang();
-		break;
-	case 0x0d:
-		printf("General Protection\n");
-		dump_regs(regs);
-		break;
-	case 0x0e:
-		printf("Page fault\n");
-		dump_regs(regs);
-		hang();
-		break;
-	case 0x0f:
-		printf("Floating-Point Error (Math Fault)\n");
-		dump_regs(regs);
-		break;
-	case 0x10:
-		printf("Alignment check\n");
-		dump_regs(regs);
-		break;
-	case 0x11:
-		printf("Machine Check\n");
-		dump_regs(regs);
-		break;
-	case 0x12:
-		printf("SIMD Floating-Point Exception\n");
-		dump_regs(regs);
-		break;
-	case 0x13:
-	case 0x14:
-	case 0x15:
-	case 0x16:
-	case 0x17:
-	case 0x18:
-	case 0x19:
-	case 0x1a:
-	case 0x1b:
-	case 0x1c:
-	case 0x1d:
-	case 0x1e:
-	case 0x1f:
-		printf("Reserved Exception\n");
-		dump_regs(regs);
-		break;
-
-	default:
+	if (regs->irq_id < 32) {
+		/* Architecture defined exception */
+		do_exception(regs);
+	} else {
 		/* Hardware or User IRQ */
 		do_irq(regs->irq_id);
 	}
