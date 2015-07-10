@@ -34,12 +34,39 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void dump_regs(struct irq_regs *regs)
 {
+	unsigned long cs, eip, eflags;
 	unsigned long cr0 = 0L, cr2 = 0L, cr3 = 0L, cr4 = 0L;
 	unsigned long d0, d1, d2, d3, d6, d7;
 	unsigned long sp;
 
+	/*
+	 * Some exceptions cause an error code to be saved on the current stack
+	 * after the EIP value. We should extract CS/EIP/EFLAGS from different
+	 * position on the stack based on the exception number.
+	 */
+	switch (regs->irq_id) {
+	case EXC_DF:
+	case EXC_TS:
+	case EXC_NP:
+	case EXC_SS:
+	case EXC_GP:
+	case EXC_PF:
+	case EXC_AC:
+		cs = regs->context.ctx2.xcs;
+		eip = regs->context.ctx2.eip;
+		eflags = regs->context.ctx2.eflags;
+		/* We should fix up the ESP due to error code */
+		regs->esp += 4;
+		break;
+	default:
+		cs = regs->context.ctx1.xcs;
+		eip = regs->context.ctx1.eip;
+		eflags = regs->context.ctx1.eflags;
+		break;
+	}
+
 	printf("EIP: %04x:[<%08lx>] EFLAGS: %08lx\n",
-			(u16)regs->xcs, regs->eip, regs->eflags);
+			(u16)cs, eip, eflags);
 
 	printf("EAX: %08lx EBX: %08lx ECX: %08lx EDX: %08lx\n",
 		regs->eax, regs->ebx, regs->ecx, regs->edx);
