@@ -423,7 +423,8 @@ uint32_t authenticate_image(uint32_t ddr_start, uint32_t image_size)
 					 * do cache flushes. don't think any
 					 * exist, so we ignore them.
 					 */
-					writel(1, MX6DQ_PU_IROM_MMU_EN_VAR);
+					if (!is_mx6dqp())
+						writel(1, MX6DQ_PU_IROM_MMU_EN_VAR);
 				} else if (is_cpu_type(MXC_CPU_MX6DL) ||
 					   is_cpu_type(MXC_CPU_MX6SOLO)) {
 					writel(1, MX6DLS_PU_IROM_MMU_EN_VAR);
