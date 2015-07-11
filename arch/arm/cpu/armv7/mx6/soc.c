@@ -62,12 +62,12 @@ u32 get_cpu_rev(void)
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
 	u32 reg = readl(&anatop->digprog_sololite);
 	u32 type = ((reg >> 16) & 0xff);
-	u32 major;
+	u32 major, cfg = 0;
 
 	if (type != MXC_CPU_MX6SL) {
 		reg = readl(&anatop->digprog);
 		struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
-		u32 cfg = readl(&scu->config) & 3;
+		cfg = readl(&scu->config) & 3;
 		type = ((reg >> 16) & 0xff);
 		if (type == MXC_CPU_MX6DL) {
 			if (!cfg)
@@ -81,6 +81,13 @@ u32 get_cpu_rev(void)
 
 	}
 	major = ((reg >> 8) & 0xff);
+	if ((major >= 1) &&
+	    ((type == MXC_CPU_MX6Q) || (type == MXC_CPU_MX6D))) {
+		major--;
+		type = MXC_CPU_MX6QP;
+		if (cfg == 1)
+			type = MXC_CPU_MX6DP;
+	}
 	reg &= 0xff;		/* mx6 silicon revision */
 	return (type << 12) | (reg + (0x10 * (major + 1)));
 }

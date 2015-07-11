@@ -122,6 +122,10 @@ unsigned imx_ddr_size(void)
 const char *get_imx_type(u32 imxtype)
 {
 	switch (imxtype) {
+	case MXC_CPU_MX6QP:
+		return "6QP";	/* Quad-Plus version of the mx6 */
+	case MXC_CPU_MX6DP:
+		return "6DP";	/* Dual-Plus version of the mx6 */
 	case MXC_CPU_MX6Q:
 		return "6Q";	/* Quad-core version of the mx6 */
 	case MXC_CPU_MX6D:
