@@ -853,6 +853,11 @@ void enable_ipu_clock(void)
 	reg = readl(&mxc_ccm->CCGR3);
 	reg |= MXC_CCM_CCGR3_IPU1_IPU_MASK;
 	writel(reg, &mxc_ccm->CCGR3);
+
+	if (is_mx6dqp()) {
+		setbits_le32(&mxc_ccm->CCGR6, MXC_CCM_CCGR6_PRG_CLK0_MASK);
+		setbits_le32(&mxc_ccm->CCGR3, MXC_CCM_CCGR3_IPU2_IPU_MASK);
+	}
 }
 #endif
 /***************************************************/
