@@ -342,9 +342,12 @@ static void set_ahb_rate(u32 val)
 static void clear_mmdc_ch_mask(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	u32 reg;
+	reg = readl(&mxc_ccm->ccdr);
 
 	/* Clear MMDC channel mask */
-	writel(0, &mxc_ccm->ccdr);
+	reg &= ~(MXC_CCM_CCDR_MMDC_CH1_HS_MASK | MXC_CCM_CCDR_MMDC_CH0_HS_MASK);
+	writel(reg, &mxc_ccm->ccdr);
 }
 
 static void init_bandgap(void)

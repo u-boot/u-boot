@@ -310,10 +310,12 @@ static u32 get_ipg_per_clk(void)
 	u32 reg, perclk_podf;
 
 	reg = __raw_readl(&imx_ccm->cscmr1);
-#if (defined(CONFIG_MX6SL) || defined(CONFIG_MX6SX))
-	if (reg & MXC_CCM_CSCMR1_PER_CLK_SEL_MASK)
-		return MXC_HCLK; /* OSC 24Mhz */
-#endif
+	if (is_cpu_type(MXC_CPU_MX6SL) || is_cpu_type(MXC_CPU_MX6SX) ||
+	    is_mx6dqp()) {
+		if (reg & MXC_CCM_CSCMR1_PER_CLK_SEL_MASK)
+			return MXC_HCLK; /* OSC 24Mhz */
+	}
+
 	perclk_podf = reg & MXC_CCM_CSCMR1_PERCLK_PODF_MASK;
 
 	return get_ipg_clk() / (perclk_podf + 1);
@@ -324,10 +326,13 @@ static u32 get_uart_clk(void)
 	u32 reg, uart_podf;
 	u32 freq = decode_pll(PLL_USBOTG, MXC_HCLK) / 6; /* static divider */
 	reg = __raw_readl(&imx_ccm->cscdr1);
-#if (defined(CONFIG_MX6SL) || defined(CONFIG_MX6SX))
-	if (reg & MXC_CCM_CSCDR1_UART_CLK_SEL)
-		freq = MXC_HCLK;
-#endif
+
+	if (is_cpu_type(MXC_CPU_MX6SL) || is_cpu_type(MXC_CPU_MX6SX) ||
+	    is_mx6dqp()) {
+		if (reg & MXC_CCM_CSCDR1_UART_CLK_SEL)
+			freq = MXC_HCLK;
+	}
+
 	reg &= MXC_CCM_CSCDR1_UART_CLK_PODF_MASK;
 	uart_podf = reg >> MXC_CCM_CSCDR1_UART_CLK_PODF_OFFSET;
 
@@ -339,8 +344,13 @@ static u32 get_cspi_clk(void)
 	u32 reg, cspi_podf;
 
 	reg = __raw_readl(&imx_ccm->cscdr2);
-	reg &= MXC_CCM_CSCDR2_ECSPI_CLK_PODF_MASK;
-	cspi_podf = reg >> MXC_CCM_CSCDR2_ECSPI_CLK_PODF_OFFSET;
+	cspi_podf = (reg & MXC_CCM_CSCDR2_ECSPI_CLK_PODF_MASK) >>
+		     MXC_CCM_CSCDR2_ECSPI_CLK_PODF_OFFSET;
+
+	if (is_mx6dqp()) {
+		if (reg & MXC_CCM_CSCDR2_ECSPI_CLK_SEL_MASK)
+			return MXC_HCLK / (cspi_podf + 1);
+	}
 
 	return	decode_pll(PLL_USBOTG, MXC_HCLK) / (8 * (cspi_podf + 1));
 }

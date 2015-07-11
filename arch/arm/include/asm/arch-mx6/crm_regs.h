@@ -123,6 +123,8 @@ struct mxc_ccm_reg {
 /* Define the bits in register CCDR */
 #define MXC_CCM_CCDR_MMDC_CH1_HS_MASK			(1 << 16)
 #define MXC_CCM_CCDR_MMDC_CH0_HS_MASK			(1 << 17)
+/* Exists on i.MX6QP */
+#define MXC_CCM_CCDR_MMDC_CH1_AXI_ROOT_CG		(1 << 18)
 
 /* Define the bits in register CSR */
 #define MXC_CCM_CSR_COSC_READY				(1 << 5)
@@ -195,10 +197,8 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CBCMR_GPU3D_SHADER_CLK_SEL_OFFSET	8
 #define MXC_CCM_CBCMR_GPU3D_CORE_CLK_SEL_MASK		(0x3 << 4)
 #define MXC_CCM_CBCMR_GPU3D_CORE_CLK_SEL_OFFSET		4
-#ifndef CONFIG_MX6SX
-#define MXC_CCM_CBCMR_GPU3D_AXI_CLK_SEL			(1 << 1)
-#define MXC_CCM_CBCMR_GPU2D_AXI_CLK_SEL			(1 << 0)
-#endif
+/* Exists on i.MX6QP */
+#define MXC_CCM_CBCMR_PRE_CLK_SEL			(1 << 1)
 
 /* Define the bits in register CSCMR1 */
 #define MXC_CCM_CSCMR1_ACLK_EMI_SLOW_MASK		(0x3 << 29)
@@ -229,10 +229,10 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CSCMR1_QSPI1_CLK_SEL_MASK		(0x7 << 7)
 #define MXC_CCM_CSCMR1_QSPI1_CLK_SEL_OFFSET		7
 #endif
-#if (defined(CONFIG_MX6SL) || defined(CONFIG_MX6SX))
-#define MXC_CCM_CSCMR1_PER_CLK_SEL_MASK			(1 << 6)
+/* CSCMR1_PER_CLK exists on i.MX6SX/SL/QP */
+#define MXC_CCM_CSCMR1_PER_CLK_SEL_MASK (1 << 6)
 #define MXC_CCM_CSCMR1_PER_CLK_SEL_OFFSET		6
-#endif
+
 #define MXC_CCM_CSCMR1_PERCLK_PODF_MASK			0x3F
 
 /* Define the bits in register CSCMR2 */
@@ -244,15 +244,12 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CSCMR2_ESAI_PRE_SEL_OFFSET		19
 #define MXC_CCM_CSCMR2_LDB_DI1_IPU_DIV			(1 << 11)
 #define MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV			(1 << 10)
-#ifdef CONFIG_MX6SX
+/* CSCMR1_CAN_CLK exists on i.MX6SX/QP */
 #define MXC_CCM_CSCMR2_CAN_CLK_SEL_MASK			(0x3 << 8)
 #define MXC_CCM_CSCMR2_CAN_CLK_SEL_OFFSET		8
+
 #define MXC_CCM_CSCMR2_CAN_CLK_PODF_MASK		(0x3F << 2)
 #define MXC_CCM_CSCMR2_CAN_CLK_PODF_OFFSET		2
-#else
-#define MXC_CCM_CSCMR2_CAN_CLK_SEL_MASK			(0x3F << 2)
-#define MXC_CCM_CSCMR2_CAN_CLK_SEL_OFFSET		2
-#endif
 
 /* Define the bits in register CSCDR1 */
 #ifndef CONFIG_MX6SX
@@ -273,16 +270,10 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CSCDR1_USBOH3_CLK_PODF_OFFSET		6
 #define MXC_CCM_CSCDR1_USBOH3_CLK_PODF_MASK		(0x3 << 6)
 #endif
-#ifdef CONFIG_MX6SL
-#define MXC_CCM_CSCDR1_UART_CLK_PODF_MASK		0x1F
-#define MXC_CCM_CSCDR1_UART_CLK_SEL			(1 << 6)
-#else
 #define MXC_CCM_CSCDR1_UART_CLK_PODF_MASK		0x3F
-#ifdef CONFIG_MX6SX
-#define MXC_CCM_CSCDR1_UART_CLK_SEL			(1 << 6)
-#endif
-#endif
 #define MXC_CCM_CSCDR1_UART_CLK_PODF_OFFSET		0
+/* UART_CLK_SEL exists on i.MX6SL/SX/QP */
+#define MXC_CCM_CSCDR1_UART_CLK_SEL			(1 << 6)
 
 /* Define the bits in register CS1CDR */
 #define MXC_CCM_CS1CDR_ESAI_CLK_PODF_MASK		(0x3F << 25)
@@ -316,9 +307,14 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CS2CDR_ENFC_CLK_PRED_MASK		(0x7 << 18)
 #define MXC_CCM_CS2CDR_ENFC_CLK_PRED_OFFSET		18
 #define MXC_CCM_CS2CDR_ENFC_CLK_PRED(v)			(((v) & 0x7) << 18)
-#define MXC_CCM_CS2CDR_ENFC_CLK_SEL_MASK		(0x3 << 16)
-#define MXC_CCM_CS2CDR_ENFC_CLK_SEL_OFFSET		16
-#define MXC_CCM_CS2CDR_ENFC_CLK_SEL(v)			(((v) & 0x3) << 16)
+
+#define MXC_CCM_CS2CDR_ENFC_CLK_SEL_MASK	\
+	(is_mx6dqp() ? (0x7 << 15) : (0x3 << 16))
+#define MXC_CCM_CS2CDR_ENFC_CLK_SEL_OFFSET	\
+	(is_mx6dqp() ? 15 : 16)
+#define MXC_CCM_CS2CDR_ENFC_CLK_SEL(v)		\
+	(is_mx6dqp() ? (((v) & 0x7) << 15) : (((v) & 0x3) << 16))
+
 #endif
 #define MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK		(0x7 << 12)
 #define MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET		12
@@ -384,6 +380,9 @@ struct mxc_ccm_reg {
 /* Define the bits in register CSCDR2 */
 #define MXC_CCM_CSCDR2_ECSPI_CLK_PODF_MASK		(0x3F << 19)
 #define MXC_CCM_CSCDR2_ECSPI_CLK_PODF_OFFSET		19
+/* ECSPI_CLK_SEL exists on i.MX6SX/SL/QP */
+#define MXC_CCM_CSCDR2_ECSPI_CLK_SEL_MASK		(0x1 << 18)
+
 /* All IPU2_DI1 are LCDIF1 on MX6SX */
 #define MXC_CCM_CHSCCDR_IPU2_DI1_PRE_CLK_SEL_MASK	(0x7 << 15)
 #define MXC_CCM_CHSCCDR_IPU2_DI1_PRE_CLK_SEL_OFFSET	15
@@ -727,6 +726,9 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CCGR5_SAI2_OFFSET			30
 #define MXC_CCM_CCGR5_SAI2_MASK				(3 << MXC_CCM_CCGR5_SAI2_OFFSET)
 #endif
+
+/* PRG_CLK0 exists on i.MX6QP */
+#define MXC_CCM_CCGR6_PRG_CLK0_MASK		(3 << 24)
 
 #define MXC_CCM_CCGR6_USBOH3_OFFSET		0
 #define MXC_CCM_CCGR6_USBOH3_MASK		(3 << MXC_CCM_CCGR6_USBOH3_OFFSET)
