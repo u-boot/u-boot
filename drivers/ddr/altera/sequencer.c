@@ -28,10 +28,10 @@ static struct socfpga_sdr_scc_mgr *sdr_scc_mgr =
 	(struct socfpga_sdr_scc_mgr *)(SDR_PHYGRP_SCCGRP_ADDRESS | 0xe00);
 
 static struct socfpga_phy_mgr_cmd *phy_mgr_cmd =
-	(struct socfpga_phy_mgr_cmd *)(BASE_PHY_MGR);
+	(struct socfpga_phy_mgr_cmd *)SDR_PHYGRP_PHYMGRGRP_ADDRESS;
 
 static struct socfpga_phy_mgr_cfg *phy_mgr_cfg =
-	(struct socfpga_phy_mgr_cfg *)(BASE_PHY_MGR + 0x4000);
+	(struct socfpga_phy_mgr_cfg *)(SDR_PHYGRP_PHYMGRGRP_ADDRESS | 0x40);
 
 static struct socfpga_data_mgr *data_mgr =
 	(struct socfpga_data_mgr *)(BASE_DATA_MGR);
@@ -181,7 +181,7 @@ static void reg_file_set_sub_stage(uint32_t set_sub_stage)
 
 static void initialize(void)
 {
-	u32 addr = sdr_get_addr(&phy_mgr_cfg->mux_sel);
+	u32 addr = (u32)&phy_mgr_cfg->mux_sel;
 
 	debug("%s:%d\n", __func__, __LINE__);
 	/* USER calibration has control over path to memory */
@@ -193,14 +193,14 @@ static void initialize(void)
 	writel(0x3, SOCFPGA_SDR_ADDRESS + addr);
 
 	/* USER memory clock is not stable we begin initialization  */
-	addr = sdr_get_addr(&phy_mgr_cfg->reset_mem_stbl);
+	addr = (u32)&phy_mgr_cfg->reset_mem_stbl;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
 	/* USER calibration status all set to zero */
-	addr = sdr_get_addr(&phy_mgr_cfg->cal_status);
+	addr = (u32)&phy_mgr_cfg->cal_status;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&phy_mgr_cfg->cal_debug_info);
+	addr = (u32)&phy_mgr_cfg->cal_debug_info;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
 	if ((dyn_calib_steps & CALIB_SKIP_ALL) != CALIB_SKIP_ALL) {
@@ -1041,7 +1041,7 @@ static void rw_mgr_mem_initialize(void)
 	writel(RW_MGR_INIT_RESET_0_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
 
 	/* indicate that memory is stable */
-	addr = sdr_get_addr(&phy_mgr_cfg->reset_mem_stbl);
+	addr = (u32)&phy_mgr_cfg->reset_mem_stbl;
 	writel(1, SOCFPGA_SDR_ADDRESS + addr);
 
 	/*
@@ -1237,7 +1237,7 @@ static uint32_t rw_mgr_mem_calibrate_read_test_patterns(uint32_t rank_bgn,
 		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS-1; ; vg--) {
 			/* reset the fifos to get pointers to known state */
 
-			addr = sdr_get_addr(&phy_mgr_cmd->fifo_reset);
+			addr = (u32)&phy_mgr_cmd->fifo_reset;
 			writel(0, SOCFPGA_SDR_ADDRESS + addr);
 			addr = sdr_get_addr((u32 *)RW_MGR_RESET_READ_DATAPATH);
 			writel(0, SOCFPGA_SDR_ADDRESS + addr);
@@ -1394,7 +1394,7 @@ static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group
 		tmp_bit_chk = 0;
 		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS-1; ; vg--) {
 			/* reset the fifos to get pointers to known state */
-			addr = sdr_get_addr(&phy_mgr_cmd->fifo_reset);
+			addr = (u32)&phy_mgr_cmd->fifo_reset;
 			writel(0, SOCFPGA_SDR_ADDRESS + addr);
 			addr = sdr_get_addr((u32 *)RW_MGR_RESET_READ_DATAPATH);
 			writel(0, SOCFPGA_SDR_ADDRESS + addr);
@@ -1449,7 +1449,7 @@ static uint32_t rw_mgr_mem_calibrate_read_test_all_ranks(uint32_t group,
 
 static void rw_mgr_incr_vfifo(uint32_t grp, uint32_t *v)
 {
-	uint32_t addr = sdr_get_addr(&phy_mgr_cmd->inc_vfifo_hard_phy);
+	uint32_t addr = (u32)&phy_mgr_cmd->inc_vfifo_hard_phy;
 
 	writel(grp, SOCFPGA_SDR_ADDRESS + addr);
 	(*v)++;
@@ -2572,7 +2572,7 @@ static uint32_t rw_mgr_mem_calibrate_lfifo(void)
 	rw_mgr_mem_calibrate_read_load_patterns(0, 1);
 	found_one = 0;
 
-	addr = sdr_get_addr(&phy_mgr_cfg->phy_rlat);
+	addr = (u32)&phy_mgr_cfg->phy_rlat;
 	do {
 		writel(gbl->curr_read_lat, SOCFPGA_SDR_ADDRESS + addr);
 		debug_cond(DLEVEL == 2, "%s:%d lfifo: read_lat=%u",
@@ -2593,13 +2593,13 @@ static uint32_t rw_mgr_mem_calibrate_lfifo(void)
 
 	/* reset the fifos to get pointers to known state */
 
-	addr = sdr_get_addr(&phy_mgr_cmd->fifo_reset);
+	addr = (u32)&phy_mgr_cmd->fifo_reset;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
 	if (found_one) {
 		/* add a fudge factor to the read latency that was determined */
 		gbl->curr_read_lat += 2;
-		addr = sdr_get_addr(&phy_mgr_cfg->phy_rlat);
+		addr = (u32)&phy_mgr_cfg->phy_rlat;
 		writel(gbl->curr_read_lat, SOCFPGA_SDR_ADDRESS + addr);
 		debug_cond(DLEVEL == 2, "%s:%d lfifo: success: using \
 			   read_lat=%u\n", __func__, __LINE__,
@@ -2790,7 +2790,7 @@ static uint32_t rw_mgr_mem_calibrate_write_test(uint32_t rank_bgn,
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
 		tmp_bit_chk = 0;
-		addr = sdr_get_addr(&phy_mgr_cmd->fifo_reset);
+		addr = (u32)&phy_mgr_cmd->fifo_reset;
 		addr_rw_mgr = SDR_PHYGRP_RWMGRGRP_ADDRESS;
 		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS-1; ; vg--) {
 			/* reset the fifos to get pointers to known state */
@@ -3396,12 +3396,12 @@ static void mem_config(void)
 	if (gbl->curr_read_lat > max_latency)
 		gbl->curr_read_lat = max_latency;
 
-	addr = sdr_get_addr(&phy_mgr_cfg->phy_rlat);
+	addr = (u32)&phy_mgr_cfg->phy_rlat;
 	writel(gbl->curr_read_lat, SOCFPGA_SDR_ADDRESS + addr);
 
 	/* advertise write latency */
 	gbl->curr_write_lat = wlat;
-	addr = sdr_get_addr(&phy_mgr_cfg->afi_wlat);
+	addr = (u32)&phy_mgr_cfg->afi_wlat;
 	writel(wlat - 2, SOCFPGA_SDR_ADDRESS + addr);
 
 	/* initialize bit slips */
@@ -3488,11 +3488,11 @@ static void mem_skip_calibrate(void)
 	 * in sequencer.
 	 */
 	vfifo_offset = CALIB_VFIFO_OFFSET;
-	addr = sdr_get_addr(&phy_mgr_cmd->inc_vfifo_hard_phy);
+	addr = (u32)&phy_mgr_cmd->inc_vfifo_hard_phy;
 	for (j = 0; j < vfifo_offset; j++) {
 		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
 	}
-	addr = sdr_get_addr(&phy_mgr_cmd->fifo_reset);
+	addr = (u32)&phy_mgr_cmd->fifo_reset;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
 	/*
@@ -3500,7 +3500,7 @@ static void mem_skip_calibrate(void)
 	 * generation-time constant.
 	 */
 	gbl->curr_read_lat = CALIB_LFIFO_OFFSET;
-	addr = sdr_get_addr(&phy_mgr_cfg->phy_rlat);
+	addr = (u32)&phy_mgr_cfg->phy_rlat;
 	writel(gbl->curr_read_lat, SOCFPGA_SDR_ADDRESS + addr);
 }
 
@@ -3704,7 +3704,7 @@ static uint32_t run_mem_calibrate(void)
 	debug("%s:%d\n", __func__, __LINE__);
 
 	/* Reset pass/fail status shown on afi_cal_success/fail */
-	addr = sdr_get_addr(&phy_mgr_cfg->cal_status);
+	addr = (u32)&phy_mgr_cfg->cal_status;
 	writel(PHY_MGR_CAL_RESET, SOCFPGA_SDR_ADDRESS + addr);
 
 	addr = sdr_get_addr((u32 *)BASE_MMR);
@@ -3720,7 +3720,7 @@ static uint32_t run_mem_calibrate(void)
 	pass = mem_calibrate();
 
 	mem_precharge_and_activate();
-	addr = sdr_get_addr(&phy_mgr_cmd->fifo_reset);
+	addr = (u32)&phy_mgr_cmd->fifo_reset;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
 	/*
@@ -3734,7 +3734,7 @@ static uint32_t run_mem_calibrate(void)
 		 * 0: AFI Mux Select
 		 * 1: DDIO Mux Select
 		 */
-		addr = sdr_get_addr(&phy_mgr_cfg->mux_sel);
+		addr = (u32)&phy_mgr_cfg->mux_sel;
 		writel(0x2, SOCFPGA_SDR_ADDRESS + addr);
 	}
 
@@ -3759,9 +3759,9 @@ static uint32_t run_mem_calibrate(void)
 		addr = (u32)&sdr_reg_file->fom;
 		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&phy_mgr_cfg->cal_debug_info);
+		addr = (u32)&phy_mgr_cfg->cal_debug_info;
 		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&phy_mgr_cfg->cal_status);
+		addr = (u32)&phy_mgr_cfg->cal_status;
 		writel(PHY_MGR_CAL_SUCCESS, SOCFPGA_SDR_ADDRESS + addr);
 	} else {
 		printf("%s: CALIBRATION FAILED\n", __FILE__);
@@ -3772,9 +3772,9 @@ static uint32_t run_mem_calibrate(void)
 
 		addr = (u32)&sdr_reg_file->failing_stage;
 		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&phy_mgr_cfg->cal_debug_info);
+		addr = (u32)&phy_mgr_cfg->cal_debug_info;
 		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&phy_mgr_cfg->cal_status);
+		addr = (u32)&phy_mgr_cfg->cal_status;
 		writel(PHY_MGR_CAL_FAIL, SOCFPGA_SDR_ADDRESS + addr);
 
 		/* Update the failing group/stage in the register file */
