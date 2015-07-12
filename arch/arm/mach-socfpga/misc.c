@@ -194,6 +194,16 @@ static uint32_t iswgrp_handoff[8];
 int arch_early_init_r(void)
 {
 	int i;
+
+	/*
+	 * Write magic value into magic register to unlock support for
+	 * issuing warm reset. The ancient kernel code expects this
+	 * value to be written into the register by the bootloader, so
+	 * to support that old code, we write it here instead of in the
+	 * reset_cpu() function just before reseting the CPU.
+	 */
+	writel(0xae9efebc, &sysmgr_regs->romcodegrp_warmramgrp_enable);
+
 	for (i = 0; i < 8; i++)	/* Cache initial SW setting regs */
 		iswgrp_handoff[i] = readl(&sysmgr_regs->iswgrp_handoff[i]);
 
