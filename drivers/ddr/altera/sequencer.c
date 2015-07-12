@@ -1248,7 +1248,7 @@ static uint32_t rw_mgr_mem_calibrate_read_test_patterns(uint32_t rank_bgn,
 			       ((group * RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS +
 				vg) << 2));
 
-			addr = sdr_get_addr((u32 *)BASE_RW_MGR);
+			addr = SDR_PHYGRP_RWMGRGRP_ADDRESS;
 			base_rw_mgr = readl(SOCFPGA_SDR_ADDRESS + addr);
 			tmp_bit_chk = tmp_bit_chk | (correct_mask_vg & (~base_rw_mgr));
 
@@ -1406,7 +1406,7 @@ static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group
 			       ((group * RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS +
 			       vg) << 2));
 
-			addr = sdr_get_addr((u32 *)BASE_RW_MGR);
+			addr = SDR_PHYGRP_RWMGRGRP_ADDRESS;
 			base_rw_mgr = readl(SOCFPGA_SDR_ADDRESS + addr);
 			tmp_bit_chk = tmp_bit_chk | (correct_mask_vg & ~(base_rw_mgr));
 
@@ -2789,7 +2789,7 @@ static uint32_t rw_mgr_mem_calibrate_write_test(uint32_t rank_bgn,
 
 		tmp_bit_chk = 0;
 		addr = sdr_get_addr(&phy_mgr_cmd->fifo_reset);
-		addr_rw_mgr = sdr_get_addr((u32 *)BASE_RW_MGR);
+		addr_rw_mgr = SDR_PHYGRP_RWMGRGRP_ADDRESS;
 		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS-1; ; vg--) {
 			/* reset the fifos to get pointers to known state */
 			writel(0, SOCFPGA_SDR_ADDRESS + addr);
