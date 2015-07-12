@@ -3994,35 +3994,27 @@ int sdram_calibration_full(void)
 	printf("%s: Preparing to start memory calibration\n", __FILE__);
 
 	debug("%s:%d\n", __func__, __LINE__);
-	debug_cond(DLEVEL == 1, "DDR3 FULL_RATE ranks=%lu cs/dimm=%lu dq/dqs=%lu,%lu vg/dqs=%lu,%lu ",
-	       (long unsigned int)RW_MGR_MEM_NUMBER_OF_RANKS,
-	       (long unsigned int)RW_MGR_MEM_NUMBER_OF_CS_PER_DIMM,
-	       (long unsigned int)RW_MGR_MEM_DQ_PER_READ_DQS,
-	       (long unsigned int)RW_MGR_MEM_DQ_PER_WRITE_DQS,
-	       (long unsigned int)RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS,
-	       (long unsigned int)RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS);
-	debug_cond(DLEVEL == 1, "dqs=%lu,%lu dq=%lu dm=%lu ptap_delay=%lu dtap_delay=%lu ",
-	       (long unsigned int)RW_MGR_MEM_IF_READ_DQS_WIDTH,
-	       (long unsigned int)RW_MGR_MEM_IF_WRITE_DQS_WIDTH,
-	       (long unsigned int)RW_MGR_MEM_DATA_WIDTH,
-	       (long unsigned int)RW_MGR_MEM_DATA_MASK_WIDTH,
-	       (long unsigned int)IO_DELAY_PER_OPA_TAP,
-	       (long unsigned int)IO_DELAY_PER_DCHAIN_TAP);
-	debug_cond(DLEVEL == 1, "dtap_dqsen_delay=%lu, dll=%lu",
-	       (long unsigned int)IO_DELAY_PER_DQS_EN_DCHAIN_TAP,
-	       (long unsigned int)IO_DLL_CHAIN_LENGTH);
-	debug_cond(DLEVEL == 1, "max values: en_p=%lu dqdqs_p=%lu en_d=%lu dqs_in_d=%lu ",
-	       (long unsigned int)IO_DQS_EN_PHASE_MAX,
-	       (long unsigned int)IO_DQDQS_OUT_PHASE_MAX,
-	       (long unsigned int)IO_DQS_EN_DELAY_MAX,
-	       (long unsigned int)IO_DQS_IN_DELAY_MAX);
-	debug_cond(DLEVEL == 1, "io_in_d=%lu io_out1_d=%lu io_out2_d=%lu ",
-	       (long unsigned int)IO_IO_IN_DELAY_MAX,
-	       (long unsigned int)IO_IO_OUT1_DELAY_MAX,
-	       (long unsigned int)IO_IO_OUT2_DELAY_MAX);
-	debug_cond(DLEVEL == 1, "dqs_in_reserve=%lu dqs_out_reserve=%lu\n",
-	       (long unsigned int)IO_DQS_IN_RESERVE,
-	       (long unsigned int)IO_DQS_OUT_RESERVE);
+	debug_cond(DLEVEL == 1,
+		   "DDR3 FULL_RATE ranks=%u cs/dimm=%u dq/dqs=%u,%u vg/dqs=%u,%u ",
+		   RW_MGR_MEM_NUMBER_OF_RANKS, RW_MGR_MEM_NUMBER_OF_CS_PER_DIMM,
+		   RW_MGR_MEM_DQ_PER_READ_DQS, RW_MGR_MEM_DQ_PER_WRITE_DQS,
+		   RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS,
+		   RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS);
+	debug_cond(DLEVEL == 1,
+		   "dqs=%u,%u dq=%u dm=%u ptap_delay=%u dtap_delay=%u ",
+		   RW_MGR_MEM_IF_READ_DQS_WIDTH, RW_MGR_MEM_IF_WRITE_DQS_WIDTH,
+		   RW_MGR_MEM_DATA_WIDTH, RW_MGR_MEM_DATA_MASK_WIDTH,
+		   IO_DELAY_PER_OPA_TAP, IO_DELAY_PER_DCHAIN_TAP);
+	debug_cond(DLEVEL == 1, "dtap_dqsen_delay=%u, dll=%u",
+		   IO_DELAY_PER_DQS_EN_DCHAIN_TAP, IO_DLL_CHAIN_LENGTH);
+	debug_cond(DLEVEL == 1, "max values: en_p=%u dqdqs_p=%u en_d=%u dqs_in_d=%u ",
+		   IO_DQS_EN_PHASE_MAX, IO_DQDQS_OUT_PHASE_MAX,
+		   IO_DQS_EN_DELAY_MAX, IO_DQS_IN_DELAY_MAX);
+	debug_cond(DLEVEL == 1, "io_in_d=%u io_out1_d=%u io_out2_d=%u ",
+		   IO_IO_IN_DELAY_MAX, IO_IO_OUT1_DELAY_MAX,
+		   IO_IO_OUT2_DELAY_MAX);
+	debug_cond(DLEVEL == 1, "dqs_in_reserve=%u dqs_out_reserve=%u\n",
+		   IO_DQS_IN_RESERVE, IO_DQS_OUT_RESERVE);
 
 	hc_initialize_rom_data();
 
