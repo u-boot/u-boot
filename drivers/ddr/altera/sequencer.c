@@ -840,6 +840,37 @@ static void delay_for_n_mem_clocks(const uint32_t clocks)
 	debug("%s:%d clocks=%u ... end\n", __func__, __LINE__, clocks);
 }
 
+/**
+ * rw_mgr_mem_init_load_regs() - Load instruction registers
+ * @cntr0:	Counter 0 value
+ * @cntr1:	Counter 1 value
+ * @cntr2:	Counter 2 value
+ * @jump:	Jump instruction value
+ *
+ * Load instruction registers.
+ */
+static void rw_mgr_mem_init_load_regs(u32 cntr0, u32 cntr1, u32 cntr2, u32 jump)
+{
+	uint32_t grpaddr = SDR_PHYGRP_RWMGRGRP_ADDRESS |
+			   RW_MGR_RUN_SINGLE_GROUP_OFFSET;
+
+	/* Load counters */
+	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(cntr0),
+	       &sdr_rw_load_mgr_regs->load_cntr0);
+	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(cntr1),
+	       &sdr_rw_load_mgr_regs->load_cntr1);
+	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(cntr2),
+	       &sdr_rw_load_mgr_regs->load_cntr2);
+
+	/* Load jump address */
+	writel(jump, &sdr_rw_load_jump_mgr_regs->load_jump_add0);
+	writel(jump, &sdr_rw_load_jump_mgr_regs->load_jump_add1);
+	writel(jump, &sdr_rw_load_jump_mgr_regs->load_jump_add2);
+
+	/* Execute count instruction */
+	writel(jump, grpaddr);
+}
+
 static void rw_mgr_mem_initialize(void)
 {
 	uint32_t r;
@@ -875,25 +906,9 @@ static void rw_mgr_mem_initialize(void)
 	 * One possible solution is n = 0 , a = 256 , b = 106 => a = FF,
 	 * b = 6A
 	 */
-
-	/* Load counters */
-	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TINIT_CNTR0_VAL),
-	       &sdr_rw_load_mgr_regs->load_cntr0);
-	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TINIT_CNTR1_VAL),
-	       &sdr_rw_load_mgr_regs->load_cntr1);
-	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TINIT_CNTR2_VAL),
-	       &sdr_rw_load_mgr_regs->load_cntr2);
-
-	/* Load jump address */
-	writel(RW_MGR_INIT_RESET_0_CKE_0,
-		&sdr_rw_load_jump_mgr_regs->load_jump_add0);
-	writel(RW_MGR_INIT_RESET_0_CKE_0,
-		&sdr_rw_load_jump_mgr_regs->load_jump_add1);
-	writel(RW_MGR_INIT_RESET_0_CKE_0,
-		&sdr_rw_load_jump_mgr_regs->load_jump_add2);
-
-	/* Execute count instruction */
-	writel(RW_MGR_INIT_RESET_0_CKE_0, grpaddr);
+	rw_mgr_mem_init_load_regs(SEQ_TINIT_CNTR0_VAL, SEQ_TINIT_CNTR1_VAL,
+				  SEQ_TINIT_CNTR2_VAL,
+				  RW_MGR_INIT_RESET_0_CKE_0);
 
 	/* indicate that memory is stable */
 	writel(1, &phy_mgr_cfg->reset_mem_stbl);
@@ -912,24 +927,9 @@ static void rw_mgr_mem_initialize(void)
 	 * One possible solution is n = 2 , a = 131 , b = 256 => a = 83,
 	 * b = FF
 	 */
-
-	/* Load counters */
-	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TRESET_CNTR0_VAL),
-	       &sdr_rw_load_mgr_regs->load_cntr0);
-	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TRESET_CNTR1_VAL),
-	       &sdr_rw_load_mgr_regs->load_cntr1);
-	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TRESET_CNTR2_VAL),
-	       &sdr_rw_load_mgr_regs->load_cntr2);
-
-	/* Load jump address */
-	writel(RW_MGR_INIT_RESET_1_CKE_0,
-		&sdr_rw_load_jump_mgr_regs->load_jump_add0);
-	writel(RW_MGR_INIT_RESET_1_CKE_0,
-		&sdr_rw_load_jump_mgr_regs->load_jump_add1);
-	writel(RW_MGR_INIT_RESET_1_CKE_0,
-		&sdr_rw_load_jump_mgr_regs->load_jump_add2);
-
-	writel(RW_MGR_INIT_RESET_1_CKE_0, grpaddr);
+	rw_mgr_mem_init_load_regs(SEQ_TRESET_CNTR0_VAL, SEQ_TRESET_CNTR1_VAL,
+				  SEQ_TRESET_CNTR2_VAL,
+				  RW_MGR_INIT_RESET_1_CKE_0);
 
 	/* bring up clock enable */
 
