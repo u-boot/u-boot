@@ -417,8 +417,7 @@ static void scc_mgr_set_oct_out1_delay(uint32_t write_group, uint32_t delay)
 		writel(delay, addr + (read_group << 2));
 }
 
-static void scc_mgr_set_dq_out1_delay(uint32_t write_group,
-				      uint32_t dq_in_group, uint32_t delay)
+static void scc_mgr_set_dq_out1_delay(uint32_t dq_in_group, uint32_t delay)
 {
 	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
 
@@ -426,8 +425,7 @@ static void scc_mgr_set_dq_out1_delay(uint32_t write_group,
 	writel(delay, addr + (dq_in_group << 2));
 }
 
-static void scc_mgr_set_dq_in_delay(uint32_t write_group,
-	uint32_t dq_in_group, uint32_t delay)
+static void scc_mgr_set_dq_in_delay(uint32_t dq_in_group, uint32_t delay)
 {
 	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_IN_DELAY_OFFSET;
 
@@ -461,8 +459,7 @@ static void scc_mgr_set_dqs_out1_delay(uint32_t write_group,
 	writel(delay, addr + (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
 }
 
-static void scc_mgr_set_dm_out1_delay(uint32_t write_group,
-					     uint32_t dm, uint32_t delay)
+static void scc_mgr_set_dm_out1_delay(uint32_t dm, uint32_t delay)
 {
 	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
 
@@ -544,9 +541,9 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 		NUM_RANKS_PER_SHADOW_REG) {
 		/* Zero all DQ config settings */
 		for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
-			scc_mgr_set_dq_out1_delay(write_group, i, 0);
+			scc_mgr_set_dq_out1_delay(i, 0);
 			if (!out_only)
-				scc_mgr_set_dq_in_delay(write_group, i, 0);
+				scc_mgr_set_dq_in_delay(i, 0);
 		}
 
 		/* multicast to all DQ enables */
@@ -554,7 +551,7 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 
 		/* Zero all DM config settings */
 		for (i = 0; i < RW_MGR_NUM_DM_PER_WRITE_GROUP; i++) {
-			scc_mgr_set_dm_out1_delay(write_group, i, 0);
+			scc_mgr_set_dm_out1_delay(i, 0);
 		}
 
 		/* multicast to all DM enables */
@@ -627,7 +624,7 @@ static void scc_mgr_apply_group_dq_in_delay(uint32_t write_group,
 	uint32_t i, p;
 
 	for (i = 0, p = group_bgn; i < RW_MGR_MEM_DQ_PER_READ_DQS; i++, p++) {
-		scc_mgr_set_dq_in_delay(write_group, p, delay);
+		scc_mgr_set_dq_in_delay(p, delay);
 		scc_mgr_load_dq(p);
 	}
 }
@@ -640,7 +637,7 @@ static void scc_mgr_apply_group_dq_out1_delay(uint32_t write_group,
 	uint32_t i, p;
 
 	for (i = 0, p = group_bgn; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++, p++) {
-		scc_mgr_set_dq_out1_delay(write_group, i, delay1);
+		scc_mgr_set_dq_out1_delay(i, delay1);
 		scc_mgr_load_dq(i);
 	}
 }
@@ -652,7 +649,7 @@ static void scc_mgr_apply_group_dm_out1_delay(uint32_t write_group,
 	uint32_t i;
 
 	for (i = 0; i < RW_MGR_NUM_DM_PER_WRITE_GROUP; i++) {
-		scc_mgr_set_dm_out1_delay(write_group, i, delay1);
+		scc_mgr_set_dm_out1_delay(i, delay1);
 		scc_mgr_load_dm(i);
 	}
 }
@@ -1823,7 +1820,7 @@ rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
 			debug_cond(DLEVEL == 1, "en_phase_sweep_dq_in_delay: g=%u/%u ",
 			       write_group, read_group);
 			debug_cond(DLEVEL == 1, "r=%u, i=%u p=%u d=%u\n", r, i , p, d);
-			scc_mgr_set_dq_in_delay(write_group, p, d);
+			scc_mgr_set_dq_in_delay(p, d);
 			scc_mgr_load_dq(p);
 		}
 		writel(0, &sdr_scc_mgr->update);
@@ -1840,7 +1837,7 @@ rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
 	     r += NUM_RANKS_PER_SHADOW_REG) {
 		for (i = 0, p = test_bgn; i < RW_MGR_MEM_DQ_PER_READ_DQS;
 			i++, p++) {
-			scc_mgr_set_dq_in_delay(write_group, p, 0);
+			scc_mgr_set_dq_in_delay(p, 0);
 			scc_mgr_load_dq(p);
 		}
 		writel(0, &sdr_scc_mgr->update);
@@ -2183,7 +2180,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 		debug_cond(DLEVEL == 2, "vfifo_center: after: \
 			   shift_dq[%u]=%d\n", i, shift_dq);
 		final_dq[i] = temp_dq_in_delay1 + shift_dq;
-		scc_mgr_set_dq_in_delay(write_group, p, final_dq[i]);
+		scc_mgr_set_dq_in_delay(p, final_dq[i]);
 		scc_mgr_load_dq(p);
 
 		debug_cond(DLEVEL == 2, "vfifo_center: margin[%u]=[%d,%d]\n", i,
@@ -2951,8 +2948,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 		}
 		debug_cond(DLEVEL == 2, "write_center: after: shift_dq[%u]=%d\n",
 			   i, shift_dq);
-		scc_mgr_set_dq_out1_delay(write_group, i, temp_dq_out1_delay +
-					  shift_dq);
+		scc_mgr_set_dq_out1_delay(i, temp_dq_out1_delay + shift_dq);
 		scc_mgr_load_dq(i);
 
 		debug_cond(DLEVEL == 2, "write_center: margin[%u]=[%d,%d]\n", i,
