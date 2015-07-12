@@ -22,7 +22,7 @@ static struct socfpga_sdr_rw_load_jump_manager *sdr_rw_load_jump_mgr_regs =
 	(struct socfpga_sdr_rw_load_jump_manager *)(BASE_RW_MGR + 0xC00);
 
 static struct socfpga_sdr_reg_file *sdr_reg_file =
-	(struct socfpga_sdr_reg_file *)(BASE_REG_FILE);
+	(struct socfpga_sdr_reg_file *)SDR_PHYGRP_REGFILEGRP_ADDRESS;
 
 static struct socfpga_sdr_scc_mgr *sdr_scc_mgr =
 	(struct socfpga_sdr_scc_mgr *)(BASE_SCC_MGR + 0x0E00);
@@ -130,7 +130,7 @@ static void set_failing_group_stage(uint32_t group, uint32_t stage,
 
 static void reg_file_set_group(uint32_t set_group)
 {
-	u32 addr = sdr_get_addr(&sdr_reg_file->cur_stage);
+	u32 addr = (u32)&sdr_reg_file->cur_stage;
 
 	/* Read the current group and stage */
 	uint32_t cur_stage_group = readl(SOCFPGA_SDR_ADDRESS + addr);
@@ -147,7 +147,8 @@ static void reg_file_set_group(uint32_t set_group)
 
 static void reg_file_set_stage(uint32_t set_stage)
 {
-	u32 addr = sdr_get_addr(&sdr_reg_file->cur_stage);
+	u32 addr = (u32)&sdr_reg_file->cur_stage;
+
 	/* Read the current group and stage */
 	uint32_t cur_stage_group = readl(SOCFPGA_SDR_ADDRESS + addr);
 
@@ -163,7 +164,8 @@ static void reg_file_set_stage(uint32_t set_stage)
 
 static void reg_file_set_sub_stage(uint32_t set_sub_stage)
 {
-	u32 addr = sdr_get_addr(&sdr_reg_file->cur_stage);
+	u32 addr = (u32)&sdr_reg_file->cur_stage;
+
 	/* Read the current group and stage */
 	uint32_t cur_stage_group = readl(SOCFPGA_SDR_ADDRESS + addr);
 
@@ -1911,7 +1913,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	if (found_passing_read && found_failing_read)
 		dtaps_per_ptap = d - initial_failing_dtap;
 
-	addr = sdr_get_addr(&sdr_reg_file->dtaps_per_ptap);
+	addr = (u32)&sdr_reg_file->dtaps_per_ptap;
 	writel(dtaps_per_ptap, SOCFPGA_SDR_ADDRESS + addr);
 	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: dtaps_per_ptap=%u \
 		   - %u = %u",  __func__, __LINE__, d,
@@ -3754,7 +3756,7 @@ static uint32_t run_mem_calibrate(void)
 		/* Update the FOM in the register file */
 		debug_info = gbl->fom_in;
 		debug_info |= gbl->fom_out << 8;
-		addr = sdr_get_addr(&sdr_reg_file->fom);
+		addr = (u32)&sdr_reg_file->fom;
 		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
 
 		addr = sdr_get_addr(&phy_mgr_cfg->cal_debug_info);
@@ -3768,7 +3770,7 @@ static uint32_t run_mem_calibrate(void)
 		debug_info |= gbl->error_substage << 8;
 		debug_info |= gbl->error_group << 16;
 
-		addr = sdr_get_addr(&sdr_reg_file->failing_stage);
+		addr = (u32)&sdr_reg_file->failing_stage;
 		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
 		addr = sdr_get_addr(&phy_mgr_cfg->cal_debug_info);
 		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
@@ -3779,7 +3781,7 @@ static uint32_t run_mem_calibrate(void)
 		debug_info = gbl->error_stage;
 		debug_info |= gbl->error_substage << 8;
 		debug_info |= gbl->error_group << 16;
-		addr = sdr_get_addr(&sdr_reg_file->failing_stage);
+		addr = (u32)&sdr_reg_file->failing_stage;
 		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
 	}
 
@@ -3809,25 +3811,25 @@ static void initialize_reg_file(void)
 	uint32_t addr;
 
 	/* Initialize the register file with the correct data */
-	addr = sdr_get_addr(&sdr_reg_file->signature);
+	addr = (u32)&sdr_reg_file->signature;
 	writel(REG_FILE_INIT_SEQ_SIGNATURE, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->debug_data_addr);
+	addr = (u32)&sdr_reg_file->debug_data_addr;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->cur_stage);
+	addr = (u32)&sdr_reg_file->cur_stage;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->fom);
+	addr = (u32)&sdr_reg_file->fom;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->failing_stage);
+	addr = (u32)&sdr_reg_file->failing_stage;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->debug1);
+	addr = (u32)&sdr_reg_file->debug1;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->debug2);
+	addr = (u32)&sdr_reg_file->debug2;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 }
 
@@ -3931,25 +3933,25 @@ static void initialize_tracking(void)
 	concatenated_refresh = concatenated_refresh ^ 1000; /* trefi */
 
 	/* Initialize the register file with the correct data */
-	addr = sdr_get_addr(&sdr_reg_file->dtaps_per_ptap);
+	addr = (u32)&sdr_reg_file->dtaps_per_ptap;
 	writel(dtaps_per_ptap, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->trk_sample_count);
+	addr = (u32)&sdr_reg_file->trk_sample_count;
 	writel(trk_sample_count, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->trk_longidle);
+	addr = (u32)&sdr_reg_file->trk_longidle;
 	writel(concatenated_longidle, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->delays);
+	addr = (u32)&sdr_reg_file->delays;
 	writel(concatenated_delays, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->trk_rw_mgr_addr);
+	addr = (u32)&sdr_reg_file->trk_rw_mgr_addr;
 	writel(concatenated_rw_addr, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->trk_read_dqs_width);
+	addr = (u32)&sdr_reg_file->trk_read_dqs_width;
 	writel(RW_MGR_MEM_IF_READ_DQS_WIDTH, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_reg_file->trk_rfsh);
+	addr = (u32)&sdr_reg_file->trk_rfsh;
 	writel(concatenated_refresh, SOCFPGA_SDR_ADDRESS + addr);
 }
 
