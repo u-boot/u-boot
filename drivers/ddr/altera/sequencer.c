@@ -13,8 +13,6 @@
 #include "sequencer_auto_inst_init.h"
 #include "sequencer_defines.h"
 
-static void scc_mgr_load_dqs_for_write_group(uint32_t write_group);
-
 static struct socfpga_sdr_rw_load_manager *sdr_rw_load_mgr_regs =
 	(struct socfpga_sdr_rw_load_manager *)(SDR_PHYGRP_RWMGRGRP_ADDRESS | 0x800);
 
@@ -532,21 +530,27 @@ static void scc_set_bypass_mode(uint32_t write_group, uint32_t mode)
 	writel(0, &sdr_scc_mgr->update);
 }
 
-static void scc_mgr_load_dqs_for_write_group(uint32_t write_group)
+/**
+ * scc_mgr_load_dqs_for_write_group() - Load DQS settings for Write Group
+ * @write_group:	Write group
+ *
+ * Load DQS settings for Write Group, do not trigger SCC update.
+ */
+static void scc_mgr_load_dqs_for_write_group(const u32 write_group)
 {
-	uint32_t read_group;
-	uint32_t addr = (u32)&sdr_scc_mgr->dqs_ena;
+	const int ratio = RW_MGR_MEM_IF_READ_DQS_WIDTH /
+			  RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
+	const int base = write_group * ratio;
+	int i;
 	/*
+	 * Load the setting in the SCC manager
 	 * Although OCT affects only write data, the OCT delay is controlled
 	 * by the DQS logic block which is instantiated once per read group.
 	 * For protocols where a write group consists of multiple read groups,
-	 * the setting must be scanned multiple times.
+	 * the setting must be set multiple times.
 	 */
-	for (read_group = write_group * RW_MGR_MEM_IF_READ_DQS_WIDTH /
-	     RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
-	     read_group < (write_group + 1) * RW_MGR_MEM_IF_READ_DQS_WIDTH /
-	     RW_MGR_MEM_IF_WRITE_DQS_WIDTH; ++read_group)
-		writel(read_group, addr);
+	for (i = 0; i < ratio; i++)
+		writel(base + i, &sdr_scc_mgr->dqs_ena);
 }
 
 static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
