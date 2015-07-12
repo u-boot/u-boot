@@ -8,9 +8,14 @@
 #include <watchdog.h>
 #include <asm/arch/fpga_manager.h>
 #include <asm/arch/sdram.h>
-#include <asm/arch/sdram_config.h>
 #include <asm/arch/system_manager.h>
 #include <asm/io.h>
+
+/*
+ * FIXME: This path is temporary until the SDRAM driver gets
+ *        a proper thorough cleanup.
+ */
+#include "../../../board/altera/socfpga/qts/sdram_config.h"
 
 /* define constant for 4G memory - used for SDRAM errata workaround */
 #define MEMSIZE_4G (4ULL * 1024ULL * 1024ULL * 1024ULL)
