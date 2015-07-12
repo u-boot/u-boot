@@ -252,94 +252,83 @@ static void set_rank_and_odt_mask(uint32_t rank, uint32_t odt_mode)
 				RW_MGR_SET_CS_AND_ODT_MASK_OFFSET);
 }
 
+/**
+ * scc_mgr_set() - Set SCC Manager register
+ * @off:	Base offset in SCC Manager space
+ * @grp:	Read/Write group
+ * @val:	Value to be set
+ *
+ * This function sets the SCC Manager (Scan Chain Control Manager) register.
+ */
+static void scc_mgr_set(u32 off, u32 grp, u32 val)
+{
+	writel(val, SDR_PHYGRP_SCCGRP_ADDRESS | off | (grp << 2));
+}
+
 static void scc_mgr_initialize(void)
 {
-	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_HHP_RFILE_OFFSET;
-
 	/*
 	 * Clear register file for HPS
 	 * 16 (2^4) is the size of the full register file in the scc mgr:
 	 *	RFILE_DEPTH = log2(MEM_DQ_PER_DQS + 1 + MEM_DM_PER_DQS +
-	 * MEM_IF_READ_DQS_WIDTH - 1) + 1;
+	 *                         MEM_IF_READ_DQS_WIDTH - 1) + 1;
 	 */
-	uint32_t i;
+	int i;
 	for (i = 0; i < 16; i++) {
 		debug_cond(DLEVEL == 1, "%s:%d: Clearing SCC RFILE index %u\n",
 			   __func__, __LINE__, i);
-		writel(0, addr + (i << 2));
+		scc_mgr_set(SCC_MGR_HHP_RFILE_OFFSET, 0, i);
 	}
 }
 
 static void scc_mgr_set_dqdqs_output_phase(uint32_t write_group, uint32_t phase)
 {
-	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQDQS_OUT_PHASE_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(phase, addr + (write_group << 2));
+	scc_mgr_set(SCC_MGR_DQDQS_OUT_PHASE_OFFSET, write_group, phase);
 }
 
 static void scc_mgr_set_dqs_bus_in_delay(uint32_t read_group, uint32_t delay)
 {
-	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQS_IN_DELAY_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(delay, addr + (read_group << 2));
+	scc_mgr_set(SCC_MGR_DQS_IN_DELAY_OFFSET, read_group, delay);
 }
 
 static void scc_mgr_set_dqs_en_phase(uint32_t read_group, uint32_t phase)
 {
-	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQS_EN_PHASE_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(phase, addr + (read_group << 2));
+	scc_mgr_set(SCC_MGR_DQS_EN_PHASE_OFFSET, read_group, phase);
 }
 
 static void scc_mgr_set_dqs_en_delay(uint32_t read_group, uint32_t delay)
 {
-	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQS_EN_DELAY_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(delay + IO_DQS_EN_DELAY_OFFSET, addr + (read_group << 2));
+	scc_mgr_set(SCC_MGR_DQS_EN_DELAY_OFFSET, read_group, delay);
 }
 
 static void scc_mgr_set_dqs_io_in_delay(uint32_t write_group, uint32_t delay)
 {
-	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_IN_DELAY_OFFSET;
-
-	writel(delay, addr + (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
+	scc_mgr_set(SCC_MGR_IO_IN_DELAY_OFFSET, RW_MGR_MEM_DQ_PER_WRITE_DQS,
+		    delay);
 }
 
 static void scc_mgr_set_dq_in_delay(uint32_t dq_in_group, uint32_t delay)
 {
-	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_IN_DELAY_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(delay, addr + (dq_in_group << 2));
+	scc_mgr_set(SCC_MGR_IO_IN_DELAY_OFFSET, dq_in_group, delay);
 }
 
 static void scc_mgr_set_dq_out1_delay(uint32_t dq_in_group, uint32_t delay)
 {
-	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(delay, addr + (dq_in_group << 2));
+	scc_mgr_set(SCC_MGR_IO_OUT1_DELAY_OFFSET, dq_in_group, delay);
 }
 
 static void scc_mgr_set_dqs_out1_delay(uint32_t write_group,
 					      uint32_t delay)
 {
-	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(delay, addr + (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
+	scc_mgr_set(SCC_MGR_IO_OUT1_DELAY_OFFSET, RW_MGR_MEM_DQ_PER_WRITE_DQS,
+		    delay);
 }
 
 static void scc_mgr_set_dm_out1_delay(uint32_t dm, uint32_t delay)
 {
-	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(delay, addr + ((RW_MGR_MEM_DQ_PER_WRITE_DQS + 1 + dm) << 2));
+	scc_mgr_set(SCC_MGR_IO_OUT1_DELAY_OFFSET,
+		    RW_MGR_MEM_DQ_PER_WRITE_DQS + 1 + dm,
+		    delay);
 }
 
 /* load up dqs config settings */
