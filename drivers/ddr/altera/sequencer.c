@@ -36,6 +36,9 @@ static struct socfpga_phy_mgr_cfg *phy_mgr_cfg =
 static struct socfpga_data_mgr *data_mgr =
 	(struct socfpga_data_mgr *)SDR_PHYGRP_DATAMGRGRP_ADDRESS;
 
+static struct socfpga_sdr_ctrl *sdr_ctrl =
+	(struct socfpga_sdr_ctrl *)SDR_CTRLGRP_ADDRESS;
+
 #define DELTA_D		1
 
 /*
@@ -3678,12 +3681,10 @@ static uint32_t run_mem_calibrate(void)
 	addr = (u32)&phy_mgr_cfg->cal_status;
 	writel(PHY_MGR_CAL_RESET, addr);
 
-	addr = SDR_CTRLGRP_ADDRESS;
 	/* stop tracking manger */
-	uint32_t ctrlcfg = readl(addr);
+	uint32_t ctrlcfg = readl(&sdr_ctrl->ctrl_cfg);
 
-	addr = SDR_CTRLGRP_ADDRESS;
-	writel(ctrlcfg & 0xFFBFFFFF, addr);
+	writel(ctrlcfg & 0xFFBFFFFF, &sdr_ctrl->ctrl_cfg);
 
 	initialize();
 	rw_mgr_mem_initialize();
@@ -3709,8 +3710,7 @@ static uint32_t run_mem_calibrate(void)
 		writel(0x2, addr);
 	}
 
-	addr = SDR_CTRLGRP_ADDRESS;
-	writel(ctrlcfg, addr);
+	writel(ctrlcfg, &sdr_ctrl->ctrl_cfg);
 
 	if (pass) {
 		printf("%s: CALIBRATION PASSED\n", __FILE__);
@@ -3807,7 +3807,6 @@ static void initialize_reg_file(void)
 static void initialize_hps_phy(void)
 {
 	uint32_t reg;
-	uint32_t addr;
 	/*
 	 * Tracking also gets configured here because it's in the
 	 * same register.
@@ -3833,8 +3832,7 @@ static void initialize_hps_phy(void)
 	reg |= SDR_CTRLGRP_PHYCTRL_PHYCTRL_0_ADDLATSEL_SET(0);
 	reg |= SDR_CTRLGRP_PHYCTRL_PHYCTRL_0_SAMPLECOUNT_19_0_SET(
 		trk_sample_count);
-	addr = SDR_CTRLGRP_ADDRESS;
-	writel(reg, addr + SDR_CTRLGRP_PHYCTRL_PHYCTRL_0_OFFSET);
+	writel(reg, &sdr_ctrl->phy_ctrl0);
 
 	reg = 0;
 	reg |= SDR_CTRLGRP_PHYCTRL_PHYCTRL_1_SAMPLECOUNT_31_20_SET(
@@ -3842,13 +3840,13 @@ static void initialize_hps_phy(void)
 		SDR_CTRLGRP_PHYCTRL_PHYCTRL_0_SAMPLECOUNT_19_0_WIDTH);
 	reg |= SDR_CTRLGRP_PHYCTRL_PHYCTRL_1_LONGIDLESAMPLECOUNT_19_0_SET(
 		trk_long_idle_sample_count);
-	writel(reg, addr + SDR_CTRLGRP_PHYCTRL_PHYCTRL_1_OFFSET);
+	writel(reg, &sdr_ctrl->phy_ctrl1);
 
 	reg = 0;
 	reg |= SDR_CTRLGRP_PHYCTRL_PHYCTRL_2_LONGIDLESAMPLECOUNT_31_20_SET(
 		trk_long_idle_sample_count >>
 		SDR_CTRLGRP_PHYCTRL_PHYCTRL_1_LONGIDLESAMPLECOUNT_19_0_WIDTH);
-	writel(reg, addr + SDR_CTRLGRP_PHYCTRL_PHYCTRL_2_OFFSET);
+	writel(reg, &sdr_ctrl->phy_ctrl2);
 }
 
 static void initialize_tracking(void)
