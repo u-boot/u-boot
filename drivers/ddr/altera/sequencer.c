@@ -365,10 +365,11 @@ static void scc_mgr_set_dqs_en_phase_all_ranks(uint32_t read_group,
 					       uint32_t phase)
 {
 	uint32_t r;
-	uint32_t update_scan_chains;
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
+		scc_mgr_set_dqs_en_phase(read_group, phase);
+
 		/*
 		 * USER although the h/w doesn't support different phases per
 		 * shadow register, for simplicity our scc manager modeling
@@ -377,11 +378,8 @@ static void scc_mgr_set_dqs_en_phase_all_ranks(uint32_t read_group,
 		 * for efficiency, the scan chain update should occur only
 		 * once to sr0.
 		 */
-		update_scan_chains = (r == 0) ? 1 : 0;
 
-		scc_mgr_set_dqs_en_phase(read_group, phase);
-
-		if (update_scan_chains) {
+		if (r == 0) {
 			writel(read_group, &sdr_scc_mgr->dqs_ena);
 			writel(0, &sdr_scc_mgr->update);
 		}
@@ -392,10 +390,11 @@ static void scc_mgr_set_dqdqs_output_phase_all_ranks(uint32_t write_group,
 						     uint32_t phase)
 {
 	uint32_t r;
-	uint32_t update_scan_chains;
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
+		scc_mgr_set_dqdqs_output_phase(write_group, phase);
+
 		/*
 		 * USER although the h/w doesn't support different phases per
 		 * shadow register, for simplicity our scc manager modeling
@@ -404,11 +403,8 @@ static void scc_mgr_set_dqdqs_output_phase_all_ranks(uint32_t write_group,
 		 * for efficiency, the scan chain update should occur only
 		 * once to sr0.
 		 */
-		update_scan_chains = (r == 0) ? 1 : 0;
 
-		scc_mgr_set_dqdqs_output_phase(write_group, phase);
-
-		if (update_scan_chains) {
+		if (r == 0) {
 			writel(write_group, &sdr_scc_mgr->dqs_ena);
 			writel(0, &sdr_scc_mgr->update);
 		}
@@ -424,7 +420,6 @@ static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
 		r += NUM_RANKS_PER_SHADOW_REG) {
 		scc_mgr_set_dqs_en_delay(read_group, delay);
 
-		writel(read_group, &sdr_scc_mgr->dqs_ena);
 		/*
 		 * In shadow register mode, the T11 settings are stored in
 		 * registers in the core, which are updated by the DQS_ENA
@@ -433,6 +428,8 @@ static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
 		 * select_shadow_regs_for_update with update_scan_chains
 		 * set to 0.
 		 */
+
+		writel(read_group, &sdr_scc_mgr->dqs_ena);
 		writel(0, &sdr_scc_mgr->update);
 	}
 	/*
