@@ -871,12 +871,76 @@ static void rw_mgr_mem_init_load_regs(u32 cntr0, u32 cntr1, u32 cntr2, u32 jump)
 	writel(jump, grpaddr);
 }
 
+/**
+ * rw_mgr_mem_load_user() - Load user calibration values
+ * @fin1:	Final instruction 1
+ * @fin2:	Final instruction 2
+ * @precharge:	If 1, precharge the banks at the end
+ *
+ * Load user calibration values and optionally precharge the banks.
+ */
+static void rw_mgr_mem_load_user(const u32 fin1, const u32 fin2,
+				 const int precharge)
+{
+	u32 grpaddr = SDR_PHYGRP_RWMGRGRP_ADDRESS |
+		      RW_MGR_RUN_SINGLE_GROUP_OFFSET;
+	u32 r;
+
+	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS; r++) {
+		if (param->skip_ranks[r]) {
+			/* request to skip the rank */
+			continue;
+		}
+
+		/* set rank */
+		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_OFF);
+
+		/* precharge all banks ... */
+		if (precharge)
+			writel(RW_MGR_PRECHARGE_ALL, grpaddr);
+
+		/*
+		 * USER Use Mirror-ed commands for odd ranks if address
+		 * mirrorring is on
+		 */
+		if ((RW_MGR_MEM_ADDRESS_MIRRORING >> r) & 0x1) {
+			set_jump_as_return();
+			writel(RW_MGR_MRS2_MIRR, grpaddr);
+			delay_for_n_mem_clocks(4);
+			set_jump_as_return();
+			writel(RW_MGR_MRS3_MIRR, grpaddr);
+			delay_for_n_mem_clocks(4);
+			set_jump_as_return();
+			writel(RW_MGR_MRS1_MIRR, grpaddr);
+			delay_for_n_mem_clocks(4);
+			set_jump_as_return();
+			writel(fin1, grpaddr);
+		} else {
+			set_jump_as_return();
+			writel(RW_MGR_MRS2, grpaddr);
+			delay_for_n_mem_clocks(4);
+			set_jump_as_return();
+			writel(RW_MGR_MRS3, grpaddr);
+			delay_for_n_mem_clocks(4);
+			set_jump_as_return();
+			writel(RW_MGR_MRS1, grpaddr);
+			set_jump_as_return();
+			writel(fin2, grpaddr);
+		}
+
+		if (precharge)
+			continue;
+
+		set_jump_as_return();
+		writel(RW_MGR_ZQCL, grpaddr);
+
+		/* tZQinit = tDLLK = 512 ck cycles */
+		delay_for_n_mem_clocks(512);
+	}
+}
+
 static void rw_mgr_mem_initialize(void)
 {
-	uint32_t r;
-	uint32_t grpaddr = SDR_PHYGRP_RWMGRGRP_ADDRESS |
-			   RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-
 	debug("%s:%d\n", __func__, __LINE__);
 
 	/* The reset / cke part of initialization is broadcasted to all ranks */
@@ -936,49 +1000,8 @@ static void rw_mgr_mem_initialize(void)
 	/* tXRP < 250 ck cycles */
 	delay_for_n_mem_clocks(250);
 
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS; r++) {
-		if (param->skip_ranks[r]) {
-			/* request to skip the rank */
-			continue;
-		}
-
-		/* set rank */
-		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_OFF);
-
-		/*
-		 * USER Use Mirror-ed commands for odd ranks if address
-		 * mirrorring is on
-		 */
-		if ((RW_MGR_MEM_ADDRESS_MIRRORING >> r) & 0x1) {
-			set_jump_as_return();
-			writel(RW_MGR_MRS2_MIRR, grpaddr);
-			delay_for_n_mem_clocks(4);
-			set_jump_as_return();
-			writel(RW_MGR_MRS3_MIRR, grpaddr);
-			delay_for_n_mem_clocks(4);
-			set_jump_as_return();
-			writel(RW_MGR_MRS1_MIRR, grpaddr);
-			delay_for_n_mem_clocks(4);
-			set_jump_as_return();
-			writel(RW_MGR_MRS0_DLL_RESET_MIRR, grpaddr);
-		} else {
-			set_jump_as_return();
-			writel(RW_MGR_MRS2, grpaddr);
-			delay_for_n_mem_clocks(4);
-			set_jump_as_return();
-			writel(RW_MGR_MRS3, grpaddr);
-			delay_for_n_mem_clocks(4);
-			set_jump_as_return();
-			writel(RW_MGR_MRS1, grpaddr);
-			set_jump_as_return();
-			writel(RW_MGR_MRS0_DLL_RESET, grpaddr);
-		}
-		set_jump_as_return();
-		writel(RW_MGR_ZQCL, grpaddr);
-
-		/* tZQinit = tDLLK = 512 ck cycles */
-		delay_for_n_mem_clocks(512);
-	}
+	rw_mgr_mem_load_user(RW_MGR_MRS0_DLL_RESET_MIRR, RW_MGR_MRS0_DLL_RESET,
+			     0);
 }
 
 /*
@@ -987,58 +1010,12 @@ static void rw_mgr_mem_initialize(void)
  */
 static void rw_mgr_mem_handoff(void)
 {
-	uint32_t r;
-	uint32_t grpaddr = SDR_PHYGRP_RWMGRGRP_ADDRESS |
-			   RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-
-	debug("%s:%d\n", __func__, __LINE__);
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS; r++) {
-		if (param->skip_ranks[r])
-			/* request to skip the rank */
-			continue;
-		/* set rank */
-		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_OFF);
-
-		/* precharge all banks ... */
-		writel(RW_MGR_PRECHARGE_ALL, grpaddr);
-
-		/* load up MR settings specified by user */
-
-		/*
-		 * Use Mirror-ed commands for odd ranks if address
-		 * mirrorring is on
-		 */
-		if ((RW_MGR_MEM_ADDRESS_MIRRORING >> r) & 0x1) {
-			set_jump_as_return();
-			writel(RW_MGR_MRS2_MIRR, grpaddr);
-			delay_for_n_mem_clocks(4);
-			set_jump_as_return();
-			writel(RW_MGR_MRS3_MIRR, grpaddr);
-			delay_for_n_mem_clocks(4);
-			set_jump_as_return();
-			writel(RW_MGR_MRS1_MIRR, grpaddr);
-			delay_for_n_mem_clocks(4);
-			set_jump_as_return();
-			writel(RW_MGR_MRS0_USER_MIRR, grpaddr);
-		} else {
-			set_jump_as_return();
-			writel(RW_MGR_MRS2, grpaddr);
-			delay_for_n_mem_clocks(4);
-			set_jump_as_return();
-			writel(RW_MGR_MRS3, grpaddr);
-			delay_for_n_mem_clocks(4);
-			set_jump_as_return();
-			writel(RW_MGR_MRS1, grpaddr);
-			delay_for_n_mem_clocks(4);
-			set_jump_as_return();
-			writel(RW_MGR_MRS0_USER, grpaddr);
-		}
-		/*
-		 * USER  need to wait tMOD (12CK or 15ns) time before issuing
-		 * other commands, but we will have plenty of NIOS cycles before
-		 * actual handoff so its okay.
-		 */
-	}
+	rw_mgr_mem_load_user(RW_MGR_MRS0_USER_MIRR, RW_MGR_MRS0_USER, 1);
+	/*
+	 * USER  need to wait tMOD (12CK or 15ns) time before issuing
+	 * other commands, but we will have plenty of NIOS cycles before
+	 * actual handoff so its okay.
+	 */
 }
 
 /*
