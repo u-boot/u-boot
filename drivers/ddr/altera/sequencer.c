@@ -270,21 +270,20 @@ static void scc_mgr_initialize(void)
 	}
 }
 
-static void scc_mgr_set_dqs_bus_in_delay(uint32_t read_group,
-						uint32_t delay)
+static void scc_mgr_set_dqdqs_output_phase(uint32_t write_group, uint32_t phase)
+{
+	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQDQS_OUT_PHASE_OFFSET;
+
+	/* Load the setting in the SCC manager */
+	writel(phase, addr + (write_group << 2));
+}
+
+static void scc_mgr_set_dqs_bus_in_delay(uint32_t read_group, uint32_t delay)
 {
 	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQS_IN_DELAY_OFFSET;
 
 	/* Load the setting in the SCC manager */
 	writel(delay, addr + (read_group << 2));
-}
-
-static void scc_mgr_set_dqs_io_in_delay(uint32_t write_group,
-	uint32_t delay)
-{
-	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_IN_DELAY_OFFSET;
-
-	writel(delay, addr + (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
 }
 
 static void scc_mgr_set_dqs_en_phase(uint32_t read_group, uint32_t phase)
@@ -293,6 +292,78 @@ static void scc_mgr_set_dqs_en_phase(uint32_t read_group, uint32_t phase)
 
 	/* Load the setting in the SCC manager */
 	writel(phase, addr + (read_group << 2));
+}
+
+static void scc_mgr_set_dqs_en_delay(uint32_t read_group, uint32_t delay)
+{
+	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQS_EN_DELAY_OFFSET;
+
+	/* Load the setting in the SCC manager */
+	writel(delay + IO_DQS_EN_DELAY_OFFSET, addr + (read_group << 2));
+}
+
+static void scc_mgr_set_dqs_io_in_delay(uint32_t write_group, uint32_t delay)
+{
+	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_IN_DELAY_OFFSET;
+
+	writel(delay, addr + (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
+}
+
+static void scc_mgr_set_dq_in_delay(uint32_t dq_in_group, uint32_t delay)
+{
+	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_IN_DELAY_OFFSET;
+
+	/* Load the setting in the SCC manager */
+	writel(delay, addr + (dq_in_group << 2));
+}
+
+static void scc_mgr_set_dq_out1_delay(uint32_t dq_in_group, uint32_t delay)
+{
+	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
+
+	/* Load the setting in the SCC manager */
+	writel(delay, addr + (dq_in_group << 2));
+}
+
+static void scc_mgr_set_dqs_out1_delay(uint32_t write_group,
+					      uint32_t delay)
+{
+	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
+
+	/* Load the setting in the SCC manager */
+	writel(delay, addr + (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
+}
+
+static void scc_mgr_set_dm_out1_delay(uint32_t dm, uint32_t delay)
+{
+	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
+
+	/* Load the setting in the SCC manager */
+	writel(delay, addr + ((RW_MGR_MEM_DQ_PER_WRITE_DQS + 1 + dm) << 2));
+}
+
+/* load up dqs config settings */
+static void scc_mgr_load_dqs(uint32_t dqs)
+{
+	writel(dqs, &sdr_scc_mgr->dqs_ena);
+}
+
+/* load up dqs io config settings */
+static void scc_mgr_load_dqs_io(void)
+{
+	writel(0, &sdr_scc_mgr->dqs_io_ena);
+}
+
+/* load up dq config settings */
+static void scc_mgr_load_dq(uint32_t dq_in_group)
+{
+	writel(dq_in_group, &sdr_scc_mgr->dq_ena);
+}
+
+/* load up dm config settings */
+static void scc_mgr_load_dm(uint32_t dm)
+{
+	writel(dm, &sdr_scc_mgr->dm_ena);
 }
 
 static void scc_mgr_set_dqs_en_phase_all_ranks(uint32_t read_group,
@@ -322,15 +393,6 @@ static void scc_mgr_set_dqs_en_phase_all_ranks(uint32_t read_group,
 	}
 }
 
-static void scc_mgr_set_dqdqs_output_phase(uint32_t write_group,
-						  uint32_t phase)
-{
-	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQDQS_OUT_PHASE_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(phase, addr + (write_group << 2));
-}
-
 static void scc_mgr_set_dqdqs_output_phase_all_ranks(uint32_t write_group,
 						     uint32_t phase)
 {
@@ -356,15 +418,6 @@ static void scc_mgr_set_dqdqs_output_phase_all_ranks(uint32_t write_group,
 			writel(0, &sdr_scc_mgr->update);
 		}
 	}
-}
-
-static void scc_mgr_set_dqs_en_delay(uint32_t read_group, uint32_t delay)
-{
-	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQS_EN_DELAY_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(delay + IO_DQS_EN_DELAY_OFFSET, addr +
-	       (read_group << 2));
 }
 
 static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
@@ -417,22 +470,6 @@ static void scc_mgr_set_oct_out1_delay(uint32_t write_group, uint32_t delay)
 		writel(delay, addr + (read_group << 2));
 }
 
-static void scc_mgr_set_dq_out1_delay(uint32_t dq_in_group, uint32_t delay)
-{
-	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(delay, addr + (dq_in_group << 2));
-}
-
-static void scc_mgr_set_dq_in_delay(uint32_t dq_in_group, uint32_t delay)
-{
-	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_IN_DELAY_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(delay, addr + (dq_in_group << 2));
-}
-
 static void scc_mgr_set_hhp_extras(void)
 {
 	/*
@@ -448,24 +485,6 @@ static void scc_mgr_set_hhp_extras(void)
 	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_HHP_GLOBALS_OFFSET;
 
 	writel(value, addr + SCC_MGR_HHP_EXTRAS_OFFSET);
-}
-
-static void scc_mgr_set_dqs_out1_delay(uint32_t write_group,
-					      uint32_t delay)
-{
-	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(delay, addr + (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
-}
-
-static void scc_mgr_set_dm_out1_delay(uint32_t dm, uint32_t delay)
-{
-	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
-
-	/* Load the setting in the SCC manager */
-	writel(delay, addr +
-		((RW_MGR_MEM_DQ_PER_WRITE_DQS + 1 + dm) << 2));
 }
 
 /*
@@ -532,6 +551,23 @@ static void scc_set_bypass_mode(uint32_t write_group, uint32_t mode)
 	writel(0, &sdr_scc_mgr->update);
 }
 
+static void scc_mgr_load_dqs_for_write_group(uint32_t write_group)
+{
+	uint32_t read_group;
+	uint32_t addr = (u32)&sdr_scc_mgr->dqs_ena;
+	/*
+	 * Although OCT affects only write data, the OCT delay is controlled
+	 * by the DQS logic block which is instantiated once per read group.
+	 * For protocols where a write group consists of multiple read groups,
+	 * the setting must be scanned multiple times.
+	 */
+	for (read_group = write_group * RW_MGR_MEM_IF_READ_DQS_WIDTH /
+	     RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
+	     read_group < (write_group + 1) * RW_MGR_MEM_IF_READ_DQS_WIDTH /
+	     RW_MGR_MEM_IF_WRITE_DQS_WIDTH; ++read_group)
+		writel(read_group, addr);
+}
+
 static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 			       int32_t out_only)
 {
@@ -571,47 +607,6 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 		/* hit update to zero everything */
 		writel(0, &sdr_scc_mgr->update);
 	}
-}
-
-/* load up dqs config settings */
-static void scc_mgr_load_dqs(uint32_t dqs)
-{
-	writel(dqs, &sdr_scc_mgr->dqs_ena);
-}
-
-static void scc_mgr_load_dqs_for_write_group(uint32_t write_group)
-{
-	uint32_t read_group;
-	uint32_t addr = (u32)&sdr_scc_mgr->dqs_ena;
-	/*
-	 * Although OCT affects only write data, the OCT delay is controlled
-	 * by the DQS logic block which is instantiated once per read group.
-	 * For protocols where a write group consists of multiple read groups,
-	 * the setting must be scanned multiple times.
-	 */
-	for (read_group = write_group * RW_MGR_MEM_IF_READ_DQS_WIDTH /
-	     RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
-	     read_group < (write_group + 1) * RW_MGR_MEM_IF_READ_DQS_WIDTH /
-	     RW_MGR_MEM_IF_WRITE_DQS_WIDTH; ++read_group)
-		writel(read_group, addr);
-}
-
-/* load up dqs io config settings */
-static void scc_mgr_load_dqs_io(void)
-{
-	writel(0, &sdr_scc_mgr->dqs_io_ena);
-}
-
-/* load up dq config settings */
-static void scc_mgr_load_dq(uint32_t dq_in_group)
-{
-	writel(dq_in_group, &sdr_scc_mgr->dq_ena);
-}
-
-/* load up dm config settings */
-static void scc_mgr_load_dm(uint32_t dm)
-{
-	writel(dm, &sdr_scc_mgr->dm_ena);
 }
 
 /*
