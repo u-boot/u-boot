@@ -25,7 +25,7 @@ static struct socfpga_sdr_reg_file *sdr_reg_file =
 	(struct socfpga_sdr_reg_file *)SDR_PHYGRP_REGFILEGRP_ADDRESS;
 
 static struct socfpga_sdr_scc_mgr *sdr_scc_mgr =
-	(struct socfpga_sdr_scc_mgr *)(BASE_SCC_MGR + 0x0E00);
+	(struct socfpga_sdr_scc_mgr *)(SDR_PHYGRP_SCCGRP_ADDRESS | 0xe00);
 
 static struct socfpga_phy_mgr_cmd *phy_mgr_cmd =
 	(struct socfpga_phy_mgr_cmd *)(BASE_PHY_MGR);
@@ -387,10 +387,10 @@ static void scc_mgr_set_dqs_en_phase_all_ranks(uint32_t read_group,
 		scc_mgr_set_dqs_en_phase(read_group, phase);
 
 		if (update_scan_chains) {
-			addr = sdr_get_addr(&sdr_scc_mgr->dqs_ena);
+			addr = (u32)&sdr_scc_mgr->dqs_ena;
 			writel(read_group, SOCFPGA_SDR_ADDRESS + addr);
 
-			addr = sdr_get_addr(&sdr_scc_mgr->update);
+			addr = (u32)&sdr_scc_mgr->update;
 			writel(0, SOCFPGA_SDR_ADDRESS + addr);
 		}
 	}
@@ -427,10 +427,10 @@ static void scc_mgr_set_dqdqs_output_phase_all_ranks(uint32_t write_group,
 		scc_mgr_set_dqdqs_output_phase(write_group, phase);
 
 		if (update_scan_chains) {
-			addr = sdr_get_addr(&sdr_scc_mgr->dqs_ena);
+			addr = (u32)&sdr_scc_mgr->dqs_ena;
 			writel(write_group, SOCFPGA_SDR_ADDRESS + addr);
 
-			addr = sdr_get_addr(&sdr_scc_mgr->update);
+			addr = (u32)&sdr_scc_mgr->update;
 			writel(0, SOCFPGA_SDR_ADDRESS + addr);
 		}
 	}
@@ -455,7 +455,7 @@ static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
 		r += NUM_RANKS_PER_SHADOW_REG) {
 		scc_mgr_set_dqs_en_delay(read_group, delay);
 
-		addr = sdr_get_addr(&sdr_scc_mgr->dqs_ena);
+		addr = (u32)&sdr_scc_mgr->dqs_ena;
 		writel(read_group, SOCFPGA_SDR_ADDRESS + addr);
 		/*
 		 * In shadow register mode, the T11 settings are stored in
@@ -465,7 +465,7 @@ static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
 		 * select_shadow_regs_for_update with update_scan_chains
 		 * set to 0.
 		 */
-		addr = sdr_get_addr(&sdr_scc_mgr->update);
+		addr = (u32)&sdr_scc_mgr->update;
 		writel(0, SOCFPGA_SDR_ADDRESS + addr);
 	}
 	/*
@@ -476,7 +476,7 @@ static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
 	 * select_shadow_regs_for_update with update_scan_chains
 	 * set to 0.
 	 */
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 }
 
@@ -587,10 +587,10 @@ static void scc_mgr_zero_all(void)
 	}
 
 	/* multicast to all DQS group enables */
-	addr = sdr_get_addr(&sdr_scc_mgr->dqs_ena);
+	addr = (u32)&sdr_scc_mgr->dqs_ena;
 	writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 }
 
@@ -609,22 +609,22 @@ static void scc_set_bypass_mode(uint32_t write_group, uint32_t mode)
 			  __func__, __LINE__);
 	}
 	/* multicast to all DQ enables */
-	addr = sdr_get_addr(&sdr_scc_mgr->dq_ena);
+	addr = (u32)&sdr_scc_mgr->dq_ena;
 	writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_scc_mgr->dm_ena);
+	addr = (u32)&sdr_scc_mgr->dm_ena;
 	writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
 
 	/* update current DQS IO enable */
-	addr = sdr_get_addr(&sdr_scc_mgr->dqs_io_ena);
+	addr = (u32)&sdr_scc_mgr->dqs_io_ena;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
 	/* update the DQS logic */
-	addr = sdr_get_addr(&sdr_scc_mgr->dqs_ena);
+	addr = (u32)&sdr_scc_mgr->dqs_ena;
 	writel(write_group, SOCFPGA_SDR_ADDRESS + addr);
 
 	/* hit update */
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 }
 
@@ -644,7 +644,7 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 		}
 
 		/* multicast to all DQ enables */
-		addr = sdr_get_addr(&sdr_scc_mgr->dq_ena);
+		addr = (u32)&sdr_scc_mgr->dq_ena;
 		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
 
 		/* Zero all DM config settings */
@@ -653,7 +653,7 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 		}
 
 		/* multicast to all DM enables */
-		addr = sdr_get_addr(&sdr_scc_mgr->dm_ena);
+		addr = (u32)&sdr_scc_mgr->dm_ena;
 		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
 
 		/* zero all DQS io settings */
@@ -665,11 +665,11 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 		scc_mgr_load_dqs_for_write_group(write_group);
 
 		/* multicast to all DQS IO enables (only 1) */
-		addr = sdr_get_addr(&sdr_scc_mgr->dqs_io_ena);
+		addr = (u32)&sdr_scc_mgr->dqs_io_ena;
 		writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
 		/* hit update to zero everything */
-		addr = sdr_get_addr(&sdr_scc_mgr->update);
+		addr = (u32)&sdr_scc_mgr->update;
 		writel(0, SOCFPGA_SDR_ADDRESS + addr);
 	}
 }
@@ -677,7 +677,7 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 /* load up dqs config settings */
 static void scc_mgr_load_dqs(uint32_t dqs)
 {
-	uint32_t addr = sdr_get_addr(&sdr_scc_mgr->dqs_ena);
+	uint32_t addr = (u32)&sdr_scc_mgr->dqs_ena;
 
 	writel(dqs, SOCFPGA_SDR_ADDRESS + addr);
 }
@@ -685,7 +685,7 @@ static void scc_mgr_load_dqs(uint32_t dqs)
 static void scc_mgr_load_dqs_for_write_group(uint32_t write_group)
 {
 	uint32_t read_group;
-	uint32_t addr = sdr_get_addr(&sdr_scc_mgr->dqs_ena);
+	uint32_t addr = (u32)&sdr_scc_mgr->dqs_ena;
 	/*
 	 * Although OCT affects only write data, the OCT delay is controlled
 	 * by the DQS logic block which is instantiated once per read group.
@@ -702,7 +702,7 @@ static void scc_mgr_load_dqs_for_write_group(uint32_t write_group)
 /* load up dqs io config settings */
 static void scc_mgr_load_dqs_io(void)
 {
-	uint32_t addr = sdr_get_addr(&sdr_scc_mgr->dqs_io_ena);
+	uint32_t addr = (u32)&sdr_scc_mgr->dqs_io_ena;
 
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 }
@@ -710,7 +710,7 @@ static void scc_mgr_load_dqs_io(void)
 /* load up dq config settings */
 static void scc_mgr_load_dq(uint32_t dq_in_group)
 {
-	uint32_t addr = sdr_get_addr(&sdr_scc_mgr->dq_ena);
+	uint32_t addr = (u32)&sdr_scc_mgr->dq_ena;
 
 	writel(dq_in_group, SOCFPGA_SDR_ADDRESS + addr);
 }
@@ -718,7 +718,7 @@ static void scc_mgr_load_dq(uint32_t dq_in_group)
 /* load up dm config settings */
 static void scc_mgr_load_dm(uint32_t dm)
 {
-	uint32_t addr = sdr_get_addr(&sdr_scc_mgr->dm_ena);
+	uint32_t addr = (u32)&sdr_scc_mgr->dm_ena;
 
 	writel(dm, SOCFPGA_SDR_ADDRESS + addr);
 }
@@ -859,7 +859,7 @@ static void scc_mgr_apply_group_all_out_delay_add_all_ranks(
 	uint32_t write_group, uint32_t group_bgn, uint32_t delay)
 {
 	uint32_t r;
-	uint32_t addr = sdr_get_addr(&sdr_scc_mgr->update);
+	uint32_t addr = (u32)&sdr_scc_mgr->update;
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
 		r += NUM_RANKS_PER_SHADOW_REG) {
@@ -1967,7 +1967,7 @@ rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
 			scc_mgr_set_dq_in_delay(write_group, p, d);
 			scc_mgr_load_dq(p);
 		}
-		addr = sdr_get_addr(&sdr_scc_mgr->update);
+		addr = (u32)&sdr_scc_mgr->update;
 		writel(0, SOCFPGA_SDR_ADDRESS + addr);
 	}
 
@@ -1985,7 +1985,7 @@ rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
 			scc_mgr_set_dq_in_delay(write_group, p, 0);
 			scc_mgr_load_dq(p);
 		}
-		addr = sdr_get_addr(&sdr_scc_mgr->update);
+		addr = (u32)&sdr_scc_mgr->update;
 		writel(0, SOCFPGA_SDR_ADDRESS + addr);
 	}
 
@@ -2032,7 +2032,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 		right_edge[i] = IO_IO_IN_DELAY_MAX + 1;
 	}
 
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	/* Search for the left edge of the window for each bit */
 	for (d = 0; d <= IO_IO_IN_DELAY_MAX; d++) {
 		scc_mgr_apply_group_dq_in_delay(write_group, test_bgn, d);
@@ -2121,7 +2121,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 			break;
 	}
 
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	/* Search for the right edge of the window for each bit */
 	for (d = 0; d <= IO_DQS_IN_DELAY_MAX - start_dqs; d++) {
 		scc_mgr_set_dqs_bus_in_delay(read_group, d + start_dqs);
@@ -2214,7 +2214,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	}
 
 	/* Check that all bits have a window */
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	for (i = 0; i < RW_MGR_MEM_DQ_PER_READ_DQS; i++) {
 		debug_cond(DLEVEL == 2, "%s:%d vfifo_center: left_edge[%u]: \
 			   %d right_edge[%u]: %d", __func__, __LINE__,
@@ -2364,7 +2364,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	 * Do not remove this line as it makes sure all of our decisions
 	 * have been applied. Apply the update bit.
 	 */
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
 	return (dq_margin >= 0) && (dqs_margin >= 0);
@@ -2875,7 +2875,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	}
 
 	/* Search for the left edge of the window for each bit */
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	for (d = 0; d <= IO_IO_OUT1_DELAY_MAX; d++) {
 		scc_mgr_apply_group_dq_out1_delay(write_group, test_bgn, d);
 
@@ -2959,7 +2959,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	}
 
 	/* Search for the right edge of the window for each bit */
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	for (d = 0; d <= IO_IO_OUT1_DELAY_MAX - start_dqs; d++) {
 		scc_mgr_apply_group_dqs_io_and_oct_out1(write_group,
 							d + start_dqs);
@@ -3133,7 +3133,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 
 	/* Move DQS */
 	scc_mgr_apply_group_dqs_io_and_oct_out1(write_group, new_dqs);
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
 	/* Centre DM */
@@ -3152,7 +3152,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	int32_t win_best = 0;
 
 	/* Search for the/part of the window with DM shift */
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	for (d = IO_IO_OUT1_DELAY_MAX; d >= 0; d -= DELTA_D) {
 		scc_mgr_apply_group_dm_out1_delay(write_group, d);
 		writel(0, SOCFPGA_SDR_ADDRESS + addr);
@@ -3199,7 +3199,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	}
 
 	/* Search for the/part of the window with DQS shifts */
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	for (d = 0; d <= IO_IO_OUT1_DELAY_MAX - new_dqs; d += DELTA_D) {
 		/*
 		 * Note: This only shifts DQS, so are we limiting ourselve to
@@ -3271,7 +3271,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 		dm_margin = left_edge[0] - mid;
 
 	scc_mgr_apply_group_dm_out1_delay(write_group, mid);
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
 	debug_cond(DLEVEL == 2, "%s:%d dm_calib: left=%d right=%d mid=%d \
@@ -3288,7 +3288,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	 * Do not remove this line as it makes sure all of our
 	 * decisions have been applied.
 	 */
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 	return (dq_margin >= 0) && (dqs_margin >= 0) && (dm_margin >= 0);
 }
@@ -3458,20 +3458,20 @@ static void mem_skip_calibrate(void)
 			scc_mgr_set_dqdqs_output_phase(i, (1.25 *
 				IO_DLL_CHAIN_LENGTH - 2));
 		}
-		addr = sdr_get_addr(&sdr_scc_mgr->dqs_ena);
+		addr = (u32)&sdr_scc_mgr->dqs_ena;
 		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&sdr_scc_mgr->dqs_io_ena);
+		addr = (u32)&sdr_scc_mgr->dqs_io_ena;
 		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
 
 		addr = sdr_get_addr((u32 *)SCC_MGR_GROUP_COUNTER);
 		for (i = 0; i < RW_MGR_MEM_IF_WRITE_DQS_WIDTH; i++) {
 			writel(i, SOCFPGA_SDR_ADDRESS + addr);
 		}
-		addr = sdr_get_addr(&sdr_scc_mgr->dq_ena);
+		addr = (u32)&sdr_scc_mgr->dq_ena;
 		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&sdr_scc_mgr->dm_ena);
+		addr = (u32)&sdr_scc_mgr->dm_ena;
 		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&sdr_scc_mgr->update);
+		addr = (u32)&sdr_scc_mgr->update;
 		writel(0, SOCFPGA_SDR_ADDRESS + addr);
 	}
 
@@ -3480,7 +3480,7 @@ static void mem_skip_calibrate(void)
 		scc_mgr_set_dqs_bus_in_delay(i, 10);
 		scc_mgr_load_dqs(i);
 	}
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
 	/*
@@ -3690,7 +3690,7 @@ static uint32_t mem_calibrate(void)
 	 * Do not remove this line as it makes sure all of our decisions
 	 * have been applied.
 	 */
-	addr = sdr_get_addr(&sdr_scc_mgr->update);
+	addr = (u32)&sdr_scc_mgr->update;
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 	return 1;
 }
