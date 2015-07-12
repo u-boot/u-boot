@@ -38,7 +38,7 @@ struct sdram_prot_rule {
 static struct socfpga_system_manager *sysmgr_regs =
 	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 static struct socfpga_sdr_ctrl *sdr_ctrl =
-	(struct socfpga_sdr_ctrl *)(SOCFPGA_SDR_ADDRESS + SDR_CTRLGRP_ADDRESS);
+	(struct socfpga_sdr_ctrl *)SDR_CTRLGRP_ADDRESS;
 
 static int compute_errata_rows(unsigned long long memsize, int cs, int width,
 			       int rows, int banks, int cols)

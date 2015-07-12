@@ -14,7 +14,7 @@ int sdram_calibration_full(void);
 
 extern int sdram_calibration(void);
 
-#define SDR_CTRLGRP_ADDRESS 0x5000
+#define SDR_CTRLGRP_ADDRESS	(SOCFPGA_SDR_ADDRESS | 0x5000)
 
 struct socfpga_sdr_ctrl {
 	u32	ctrl_cfg;

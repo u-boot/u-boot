@@ -101,7 +101,7 @@ static void reg_file_set_group(uint32_t set_group)
 	u32 addr = (u32)&sdr_reg_file->cur_stage;
 
 	/* Read the current group and stage */
-	uint32_t cur_stage_group = readl(SOCFPGA_SDR_ADDRESS + addr);
+	uint32_t cur_stage_group = readl(addr);
 
 	/* Clear the group */
 	cur_stage_group &= 0x0000FFFF;
@@ -110,7 +110,7 @@ static void reg_file_set_group(uint32_t set_group)
 	cur_stage_group |= (set_group << 16);
 
 	/* Write the data back */
-	writel(cur_stage_group, SOCFPGA_SDR_ADDRESS + addr);
+	writel(cur_stage_group, addr);
 }
 
 static void reg_file_set_stage(uint32_t set_stage)
@@ -118,7 +118,7 @@ static void reg_file_set_stage(uint32_t set_stage)
 	u32 addr = (u32)&sdr_reg_file->cur_stage;
 
 	/* Read the current group and stage */
-	uint32_t cur_stage_group = readl(SOCFPGA_SDR_ADDRESS + addr);
+	uint32_t cur_stage_group = readl(addr);
 
 	/* Clear the stage and substage */
 	cur_stage_group &= 0xFFFF0000;
@@ -127,7 +127,7 @@ static void reg_file_set_stage(uint32_t set_stage)
 	cur_stage_group |= (set_stage & 0x000000FF);
 
 	/* Write the data back */
-	writel(cur_stage_group, SOCFPGA_SDR_ADDRESS + addr);
+	writel(cur_stage_group, addr);
 }
 
 static void reg_file_set_sub_stage(uint32_t set_sub_stage)
@@ -135,7 +135,7 @@ static void reg_file_set_sub_stage(uint32_t set_sub_stage)
 	u32 addr = (u32)&sdr_reg_file->cur_stage;
 
 	/* Read the current group and stage */
-	uint32_t cur_stage_group = readl(SOCFPGA_SDR_ADDRESS + addr);
+	uint32_t cur_stage_group = readl(addr);
 
 	/* Clear the substage */
 	cur_stage_group &= 0xFFFF00FF;
@@ -144,7 +144,7 @@ static void reg_file_set_sub_stage(uint32_t set_sub_stage)
 	cur_stage_group |= ((set_sub_stage << 8) & 0x0000FF00);
 
 	/* Write the data back */
-	writel(cur_stage_group, SOCFPGA_SDR_ADDRESS + addr);
+	writel(cur_stage_group, addr);
 }
 
 static void initialize(void)
@@ -158,18 +158,18 @@ static void initialize(void)
 	 * 0: AFI Mux Select
 	 * 1: DDIO Mux Select
 	 */
-	writel(0x3, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0x3, addr);
 
 	/* USER memory clock is not stable we begin initialization  */
 	addr = (u32)&phy_mgr_cfg->reset_mem_stbl;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	/* USER calibration status all set to zero */
 	addr = (u32)&phy_mgr_cfg->cal_status;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	addr = (u32)&phy_mgr_cfg->cal_debug_info;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	if ((dyn_calib_steps & CALIB_SKIP_ALL) != CALIB_SKIP_ALL) {
 		param->read_correct_mask_vg  = ((uint32_t)1 <<
@@ -287,7 +287,7 @@ static void set_rank_and_odt_mask(uint32_t rank, uint32_t odt_mode)
 		((0xFF & odt_mask_0) << 8) |
 		((0xFF & odt_mask_1) << 16);
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_SET_CS_AND_ODT_MASK_OFFSET;
-	writel(cs_and_odt_mask, SOCFPGA_SDR_ADDRESS + addr);
+	writel(cs_and_odt_mask, addr);
 }
 
 static void scc_mgr_initialize(void)
@@ -304,7 +304,7 @@ static void scc_mgr_initialize(void)
 	for (i = 0; i < 16; i++) {
 		debug_cond(DLEVEL == 1, "%s:%d: Clearing SCC RFILE index %u\n",
 			   __func__, __LINE__, i);
-		writel(0, SOCFPGA_SDR_ADDRESS + addr + (i << 2));
+		writel(0, addr + (i << 2));
 	}
 }
 
@@ -314,7 +314,7 @@ static void scc_mgr_set_dqs_bus_in_delay(uint32_t read_group,
 	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQS_IN_DELAY_OFFSET;
 
 	/* Load the setting in the SCC manager */
-	writel(delay, SOCFPGA_SDR_ADDRESS + addr + (read_group << 2));
+	writel(delay, addr + (read_group << 2));
 }
 
 static void scc_mgr_set_dqs_io_in_delay(uint32_t write_group,
@@ -322,7 +322,7 @@ static void scc_mgr_set_dqs_io_in_delay(uint32_t write_group,
 {
 	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_IN_DELAY_OFFSET;
 
-	writel(delay, SOCFPGA_SDR_ADDRESS + addr + (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
+	writel(delay, addr + (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
 }
 
 static void scc_mgr_set_dqs_en_phase(uint32_t read_group, uint32_t phase)
@@ -330,7 +330,7 @@ static void scc_mgr_set_dqs_en_phase(uint32_t read_group, uint32_t phase)
 	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQS_EN_PHASE_OFFSET;
 
 	/* Load the setting in the SCC manager */
-	writel(phase, SOCFPGA_SDR_ADDRESS + addr + (read_group << 2));
+	writel(phase, addr + (read_group << 2));
 }
 
 static void scc_mgr_set_dqs_en_phase_all_ranks(uint32_t read_group,
@@ -356,10 +356,10 @@ static void scc_mgr_set_dqs_en_phase_all_ranks(uint32_t read_group,
 
 		if (update_scan_chains) {
 			addr = (u32)&sdr_scc_mgr->dqs_ena;
-			writel(read_group, SOCFPGA_SDR_ADDRESS + addr);
+			writel(read_group, addr);
 
 			addr = (u32)&sdr_scc_mgr->update;
-			writel(0, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0, addr);
 		}
 	}
 }
@@ -370,7 +370,7 @@ static void scc_mgr_set_dqdqs_output_phase(uint32_t write_group,
 	u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQDQS_OUT_PHASE_OFFSET;
 
 	/* Load the setting in the SCC manager */
-	writel(phase, SOCFPGA_SDR_ADDRESS + addr + (write_group << 2));
+	writel(phase, addr + (write_group << 2));
 }
 
 static void scc_mgr_set_dqdqs_output_phase_all_ranks(uint32_t write_group,
@@ -396,10 +396,10 @@ static void scc_mgr_set_dqdqs_output_phase_all_ranks(uint32_t write_group,
 
 		if (update_scan_chains) {
 			addr = (u32)&sdr_scc_mgr->dqs_ena;
-			writel(write_group, SOCFPGA_SDR_ADDRESS + addr);
+			writel(write_group, addr);
 
 			addr = (u32)&sdr_scc_mgr->update;
-			writel(0, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0, addr);
 		}
 	}
 }
@@ -409,7 +409,7 @@ static void scc_mgr_set_dqs_en_delay(uint32_t read_group, uint32_t delay)
 	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQS_EN_DELAY_OFFSET;
 
 	/* Load the setting in the SCC manager */
-	writel(delay + IO_DQS_EN_DELAY_OFFSET, SOCFPGA_SDR_ADDRESS + addr +
+	writel(delay + IO_DQS_EN_DELAY_OFFSET, addr +
 	       (read_group << 2));
 }
 
@@ -424,7 +424,7 @@ static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
 		scc_mgr_set_dqs_en_delay(read_group, delay);
 
 		addr = (u32)&sdr_scc_mgr->dqs_ena;
-		writel(read_group, SOCFPGA_SDR_ADDRESS + addr);
+		writel(read_group, addr);
 		/*
 		 * In shadow register mode, the T11 settings are stored in
 		 * registers in the core, which are updated by the DQS_ENA
@@ -434,7 +434,7 @@ static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
 		 * set to 0.
 		 */
 		addr = (u32)&sdr_scc_mgr->update;
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 	}
 	/*
 	 * In shadow register mode, the T11 settings are stored in
@@ -445,7 +445,7 @@ static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
 	 * set to 0.
 	 */
 	addr = (u32)&sdr_scc_mgr->update;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 }
 
 static void scc_mgr_set_oct_out1_delay(uint32_t write_group, uint32_t delay)
@@ -464,7 +464,7 @@ static void scc_mgr_set_oct_out1_delay(uint32_t write_group, uint32_t delay)
 	     RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
 	     read_group < (write_group + 1) * RW_MGR_MEM_IF_READ_DQS_WIDTH /
 	     RW_MGR_MEM_IF_WRITE_DQS_WIDTH; ++read_group)
-		writel(delay, SOCFPGA_SDR_ADDRESS + addr + (read_group << 2));
+		writel(delay, addr + (read_group << 2));
 }
 
 static void scc_mgr_set_dq_out1_delay(uint32_t write_group,
@@ -473,7 +473,7 @@ static void scc_mgr_set_dq_out1_delay(uint32_t write_group,
 	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
 
 	/* Load the setting in the SCC manager */
-	writel(delay, SOCFPGA_SDR_ADDRESS + addr + (dq_in_group << 2));
+	writel(delay, addr + (dq_in_group << 2));
 }
 
 static void scc_mgr_set_dq_in_delay(uint32_t write_group,
@@ -482,7 +482,7 @@ static void scc_mgr_set_dq_in_delay(uint32_t write_group,
 	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_IN_DELAY_OFFSET;
 
 	/* Load the setting in the SCC manager */
-	writel(delay, SOCFPGA_SDR_ADDRESS + addr + (dq_in_group << 2));
+	writel(delay, addr + (dq_in_group << 2));
 }
 
 static void scc_mgr_set_hhp_extras(void)
@@ -499,7 +499,7 @@ static void scc_mgr_set_hhp_extras(void)
 	uint32_t value = (0<<8) | (0<<7) | (1<<5) | (1<<2) | (1<<1) | (1<<0);
 	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_HHP_GLOBALS_OFFSET;
 
-	writel(value, SOCFPGA_SDR_ADDRESS + addr + SCC_MGR_HHP_EXTRAS_OFFSET);
+	writel(value, addr + SCC_MGR_HHP_EXTRAS_OFFSET);
 }
 
 static void scc_mgr_set_dqs_out1_delay(uint32_t write_group,
@@ -508,7 +508,7 @@ static void scc_mgr_set_dqs_out1_delay(uint32_t write_group,
 	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
 
 	/* Load the setting in the SCC manager */
-	writel(delay, SOCFPGA_SDR_ADDRESS + addr + (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
+	writel(delay, addr + (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
 }
 
 static void scc_mgr_set_dm_out1_delay(uint32_t write_group,
@@ -517,7 +517,7 @@ static void scc_mgr_set_dm_out1_delay(uint32_t write_group,
 	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
 
 	/* Load the setting in the SCC manager */
-	writel(delay, SOCFPGA_SDR_ADDRESS + addr +
+	writel(delay, addr +
 		((RW_MGR_MEM_DQ_PER_WRITE_DQS + 1 + dm) << 2));
 }
 
@@ -556,10 +556,10 @@ static void scc_mgr_zero_all(void)
 
 	/* multicast to all DQS group enables */
 	addr = (u32)&sdr_scc_mgr->dqs_ena;
-	writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0xff, addr);
 
 	addr = (u32)&sdr_scc_mgr->update;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 }
 
 static void scc_set_bypass_mode(uint32_t write_group, uint32_t mode)
@@ -578,22 +578,22 @@ static void scc_set_bypass_mode(uint32_t write_group, uint32_t mode)
 	}
 	/* multicast to all DQ enables */
 	addr = (u32)&sdr_scc_mgr->dq_ena;
-	writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0xff, addr);
 
 	addr = (u32)&sdr_scc_mgr->dm_ena;
-	writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0xff, addr);
 
 	/* update current DQS IO enable */
 	addr = (u32)&sdr_scc_mgr->dqs_io_ena;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	/* update the DQS logic */
 	addr = (u32)&sdr_scc_mgr->dqs_ena;
-	writel(write_group, SOCFPGA_SDR_ADDRESS + addr);
+	writel(write_group, addr);
 
 	/* hit update */
 	addr = (u32)&sdr_scc_mgr->update;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 }
 
 static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
@@ -613,7 +613,7 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 
 		/* multicast to all DQ enables */
 		addr = (u32)&sdr_scc_mgr->dq_ena;
-		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0xff, addr);
 
 		/* Zero all DM config settings */
 		for (i = 0; i < RW_MGR_NUM_DM_PER_WRITE_GROUP; i++) {
@@ -622,7 +622,7 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 
 		/* multicast to all DM enables */
 		addr = (u32)&sdr_scc_mgr->dm_ena;
-		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0xff, addr);
 
 		/* zero all DQS io settings */
 		if (!out_only)
@@ -634,11 +634,11 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 
 		/* multicast to all DQS IO enables (only 1) */
 		addr = (u32)&sdr_scc_mgr->dqs_io_ena;
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 
 		/* hit update to zero everything */
 		addr = (u32)&sdr_scc_mgr->update;
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 	}
 }
 
@@ -647,7 +647,7 @@ static void scc_mgr_load_dqs(uint32_t dqs)
 {
 	uint32_t addr = (u32)&sdr_scc_mgr->dqs_ena;
 
-	writel(dqs, SOCFPGA_SDR_ADDRESS + addr);
+	writel(dqs, addr);
 }
 
 static void scc_mgr_load_dqs_for_write_group(uint32_t write_group)
@@ -664,7 +664,7 @@ static void scc_mgr_load_dqs_for_write_group(uint32_t write_group)
 	     RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
 	     read_group < (write_group + 1) * RW_MGR_MEM_IF_READ_DQS_WIDTH /
 	     RW_MGR_MEM_IF_WRITE_DQS_WIDTH; ++read_group)
-		writel(read_group, SOCFPGA_SDR_ADDRESS + addr);
+		writel(read_group, addr);
 }
 
 /* load up dqs io config settings */
@@ -672,7 +672,7 @@ static void scc_mgr_load_dqs_io(void)
 {
 	uint32_t addr = (u32)&sdr_scc_mgr->dqs_io_ena;
 
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 }
 
 /* load up dq config settings */
@@ -680,7 +680,7 @@ static void scc_mgr_load_dq(uint32_t dq_in_group)
 {
 	uint32_t addr = (u32)&sdr_scc_mgr->dq_ena;
 
-	writel(dq_in_group, SOCFPGA_SDR_ADDRESS + addr);
+	writel(dq_in_group, addr);
 }
 
 /* load up dm config settings */
@@ -688,7 +688,7 @@ static void scc_mgr_load_dm(uint32_t dm)
 {
 	uint32_t addr = (u32)&sdr_scc_mgr->dm_ena;
 
-	writel(dm, SOCFPGA_SDR_ADDRESS + addr);
+	writel(dm, addr);
 }
 
 /*
@@ -833,7 +833,7 @@ static void scc_mgr_apply_group_all_out_delay_add_all_ranks(
 		r += NUM_RANKS_PER_SHADOW_REG) {
 		scc_mgr_apply_group_all_out_delay_add(write_group,
 						      group_bgn, delay);
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 	}
 }
 
@@ -848,9 +848,9 @@ static void set_jump_as_return(void)
 	 * RETURN instruction so we set the counter to large value so that
 	 * we always jump
 	 */
-	writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0xff, addr);
 	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
-	writel(RW_MGR_RETURN, SOCFPGA_SDR_ADDRESS + addr);
+	writel(RW_MGR_RETURN, addr);
 }
 
 /*
@@ -913,35 +913,35 @@ static void delay_for_n_mem_clocks(const uint32_t clocks)
 	 */
 	if (afi_clocks <= 0x100) {
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
-		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(inner), SOCFPGA_SDR_ADDRESS + addr);
+		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(inner), addr);
 
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
-		writel(RW_MGR_IDLE_LOOP1, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_IDLE_LOOP1, addr);
 
 		addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-		writel(RW_MGR_IDLE_LOOP1, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_IDLE_LOOP1, addr);
 	} else {
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
-		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(inner), SOCFPGA_SDR_ADDRESS + addr);
+		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(inner), addr);
 
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
-		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(outer), SOCFPGA_SDR_ADDRESS + addr);
+		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(outer), addr);
 
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
-		writel(RW_MGR_IDLE_LOOP2, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_IDLE_LOOP2, addr);
 
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
-		writel(RW_MGR_IDLE_LOOP2, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_IDLE_LOOP2, addr);
 
 		/* hack to get around compiler not being smart enough */
 		if (afi_clocks <= 0x10000) {
 			/* only need to run once */
 			addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-			writel(RW_MGR_IDLE_LOOP2, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_IDLE_LOOP2, addr);
 		} else {
 			do {
 				addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-				writel(RW_MGR_IDLE_LOOP2, SOCFPGA_SDR_ADDRESS + addr);
+				writel(RW_MGR_IDLE_LOOP2, addr);
 			} while (c_loop-- != 0);
 		}
 	}
@@ -957,7 +957,7 @@ static void rw_mgr_mem_initialize(void)
 
 	/* The reset / cke part of initialization is broadcasted to all ranks */
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_SET_CS_AND_ODT_MASK_OFFSET;
-	writel(RW_MGR_RANK_ALL, SOCFPGA_SDR_ADDRESS + addr);
+	writel(RW_MGR_RANK_ALL, addr);
 
 	/*
 	 * Here's how you load register for a loop
@@ -986,31 +986,31 @@ static void rw_mgr_mem_initialize(void)
 	/* Load counters */
 	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TINIT_CNTR0_VAL),
-	       SOCFPGA_SDR_ADDRESS + addr);
+	       addr);
 	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TINIT_CNTR1_VAL),
-	       SOCFPGA_SDR_ADDRESS + addr);
+	       addr);
 	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TINIT_CNTR2_VAL),
-	       SOCFPGA_SDR_ADDRESS + addr);
+	       addr);
 
 	/* Load jump address */
 	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
-	writel(RW_MGR_INIT_RESET_0_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(RW_MGR_INIT_RESET_0_CKE_0, addr);
 
 	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
-	writel(RW_MGR_INIT_RESET_0_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(RW_MGR_INIT_RESET_0_CKE_0, addr);
 
 	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
-	writel(RW_MGR_INIT_RESET_0_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(RW_MGR_INIT_RESET_0_CKE_0, addr);
 
 	/* Execute count instruction */
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-	writel(RW_MGR_INIT_RESET_0_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(RW_MGR_INIT_RESET_0_CKE_0, addr);
 
 	/* indicate that memory is stable */
 	addr = (u32)&phy_mgr_cfg->reset_mem_stbl;
-	writel(1, SOCFPGA_SDR_ADDRESS + addr);
+	writel(1, addr);
 
 	/*
 	 * transition the RESET to high
@@ -1030,24 +1030,24 @@ static void rw_mgr_mem_initialize(void)
 	/* Load counters */
 	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TRESET_CNTR0_VAL),
-	       SOCFPGA_SDR_ADDRESS + addr);
+	       addr);
 	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TRESET_CNTR1_VAL),
-	       SOCFPGA_SDR_ADDRESS + addr);
+	       addr);
 	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TRESET_CNTR2_VAL),
-	       SOCFPGA_SDR_ADDRESS + addr);
+	       addr);
 
 	/* Load jump address */
 	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
-	writel(RW_MGR_INIT_RESET_1_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(RW_MGR_INIT_RESET_1_CKE_0, addr);
 	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
-	writel(RW_MGR_INIT_RESET_1_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(RW_MGR_INIT_RESET_1_CKE_0, addr);
 	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
-	writel(RW_MGR_INIT_RESET_1_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(RW_MGR_INIT_RESET_1_CKE_0, addr);
 
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-	writel(RW_MGR_INIT_RESET_1_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(RW_MGR_INIT_RESET_1_CKE_0, addr);
 
 	/* bring up clock enable */
 
@@ -1070,32 +1070,32 @@ static void rw_mgr_mem_initialize(void)
 		if ((RW_MGR_MEM_ADDRESS_MIRRORING >> r) & 0x1) {
 			set_jump_as_return();
 			addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-			writel(RW_MGR_MRS2_MIRR, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS2_MIRR, addr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS3_MIRR, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS3_MIRR, addr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS1_MIRR, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS1_MIRR, addr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS0_DLL_RESET_MIRR, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS0_DLL_RESET_MIRR, addr);
 		} else {
 			set_jump_as_return();
 			addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-			writel(RW_MGR_MRS2, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS2, addr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS3, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS3, addr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS1, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS1, addr);
 			set_jump_as_return();
-			writel(RW_MGR_MRS0_DLL_RESET, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS0_DLL_RESET, addr);
 		}
 		set_jump_as_return();
 		addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-		writel(RW_MGR_ZQCL, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_ZQCL, addr);
 
 		/* tZQinit = tDLLK = 512 ck cycles */
 		delay_for_n_mem_clocks(512);
@@ -1121,7 +1121,7 @@ static void rw_mgr_mem_handoff(void)
 
 		/* precharge all banks ... */
 		addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-		writel(RW_MGR_PRECHARGE_ALL, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_PRECHARGE_ALL, addr);
 
 		/* load up MR settings specified by user */
 
@@ -1132,28 +1132,28 @@ static void rw_mgr_mem_handoff(void)
 		addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
 		if ((RW_MGR_MEM_ADDRESS_MIRRORING >> r) & 0x1) {
 			set_jump_as_return();
-			writel(RW_MGR_MRS2_MIRR, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS2_MIRR, addr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS3_MIRR, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS3_MIRR, addr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS1_MIRR, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS1_MIRR, addr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS0_USER_MIRR, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS0_USER_MIRR, addr);
 		} else {
 			set_jump_as_return();
-			writel(RW_MGR_MRS2, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS2, addr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS3, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS3, addr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS1, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS1, addr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS0_USER, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_MRS0_USER, addr);
 		}
 		/*
 		 * USER  need to wait tMOD (12CK or 15ns) time before issuing
@@ -1192,34 +1192,34 @@ static uint32_t rw_mgr_mem_calibrate_read_test_patterns(uint32_t rank_bgn,
 
 		/* Load up a constant bursts of read commands */
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
-		writel(0x20, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x20, addr);
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
-		writel(RW_MGR_GUARANTEED_READ, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_GUARANTEED_READ, addr);
 
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
-		writel(0x20, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x20, addr);
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
-		writel(RW_MGR_GUARANTEED_READ_CONT, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_GUARANTEED_READ_CONT, addr);
 
 		tmp_bit_chk = 0;
 		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS-1; ; vg--) {
 			/* reset the fifos to get pointers to known state */
 
 			addr = (u32)&phy_mgr_cmd->fifo_reset;
-			writel(0, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0, addr);
 			addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RESET_READ_DATAPATH_OFFSET;
-			writel(0, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0, addr);
 
 			tmp_bit_chk = tmp_bit_chk << (RW_MGR_MEM_DQ_PER_READ_DQS
 				/ RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS);
 
 			addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-			writel(RW_MGR_GUARANTEED_READ, SOCFPGA_SDR_ADDRESS + addr +
+			writel(RW_MGR_GUARANTEED_READ, addr +
 			       ((group * RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS +
 				vg) << 2));
 
 			addr = SDR_PHYGRP_RWMGRGRP_ADDRESS;
-			base_rw_mgr = readl(SOCFPGA_SDR_ADDRESS + addr);
+			base_rw_mgr = readl(addr);
 			tmp_bit_chk = tmp_bit_chk | (correct_mask_vg & (~base_rw_mgr));
 
 			if (vg == 0)
@@ -1229,7 +1229,7 @@ static uint32_t rw_mgr_mem_calibrate_read_test_patterns(uint32_t rank_bgn,
 	}
 
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-	writel(RW_MGR_CLEAR_DQS_ENABLE, SOCFPGA_SDR_ADDRESS + addr + (group << 2));
+	writel(RW_MGR_CLEAR_DQS_ENABLE, addr + (group << 2));
 
 	set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
 	debug_cond(DLEVEL == 1, "%s:%d test_load_patterns(%u,ALL) => (%u == %u) =>\
@@ -1265,31 +1265,31 @@ static void rw_mgr_mem_calibrate_read_load_patterns(uint32_t rank_bgn,
 
 		/* Load up a constant bursts */
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
-		writel(0x20, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x20, addr);
 
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
-		writel(RW_MGR_GUARANTEED_WRITE_WAIT0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_GUARANTEED_WRITE_WAIT0, addr);
 
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
-		writel(0x20, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x20, addr);
 
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
-		writel(RW_MGR_GUARANTEED_WRITE_WAIT1, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_GUARANTEED_WRITE_WAIT1, addr);
 
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
-		writel(0x04, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x04, addr);
 
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
-		writel(RW_MGR_GUARANTEED_WRITE_WAIT2, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_GUARANTEED_WRITE_WAIT2, addr);
 
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr3;
-		writel(0x04, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x04, addr);
 
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
-		writel(RW_MGR_GUARANTEED_WRITE_WAIT3, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_GUARANTEED_WRITE_WAIT3, addr);
 
 		addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-		writel(RW_MGR_GUARANTEED_WRITE, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_GUARANTEED_WRITE, addr);
 	}
 
 	set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
@@ -1327,45 +1327,45 @@ static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
-		writel(0x10, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x10, addr);
 
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
-		writel(RW_MGR_READ_B2B_WAIT1, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_READ_B2B_WAIT1, addr);
 
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
-		writel(0x10, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x10, addr);
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
-		writel(RW_MGR_READ_B2B_WAIT2, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_READ_B2B_WAIT2, addr);
 
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 		if (quick_read_mode)
-			writel(0x1, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0x1, addr);
 			/* need at least two (1+1) reads to capture failures */
 		else if (all_groups)
-			writel(0x06, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0x06, addr);
 		else
-			writel(0x32, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0x32, addr);
 
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
-		writel(RW_MGR_READ_B2B, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_READ_B2B, addr);
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr3;
 		if (all_groups)
 			writel(RW_MGR_MEM_IF_READ_DQS_WIDTH *
 			       RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS - 1,
-			       SOCFPGA_SDR_ADDRESS + addr);
+			       addr);
 		else
-			writel(0x0, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0x0, addr);
 
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
-		writel(RW_MGR_READ_B2B, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_READ_B2B, addr);
 
 		tmp_bit_chk = 0;
 		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS-1; ; vg--) {
 			/* reset the fifos to get pointers to known state */
 			addr = (u32)&phy_mgr_cmd->fifo_reset;
-			writel(0, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0, addr);
 			addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RESET_READ_DATAPATH_OFFSET;
-			writel(0, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0, addr);
 
 			tmp_bit_chk = tmp_bit_chk << (RW_MGR_MEM_DQ_PER_READ_DQS
 				/ RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS);
@@ -1375,12 +1375,12 @@ static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group
 			else
 				addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
 
-			writel(RW_MGR_READ_B2B, SOCFPGA_SDR_ADDRESS + addr +
+			writel(RW_MGR_READ_B2B, addr +
 			       ((group * RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS +
 			       vg) << 2));
 
 			addr = SDR_PHYGRP_RWMGRGRP_ADDRESS;
-			base_rw_mgr = readl(SOCFPGA_SDR_ADDRESS + addr);
+			base_rw_mgr = readl(addr);
 			tmp_bit_chk = tmp_bit_chk | (correct_mask_vg & ~(base_rw_mgr));
 
 			if (vg == 0)
@@ -1390,7 +1390,7 @@ static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group
 	}
 
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-	writel(RW_MGR_CLEAR_DQS_ENABLE, SOCFPGA_SDR_ADDRESS + addr + (group << 2));
+	writel(RW_MGR_CLEAR_DQS_ENABLE, addr + (group << 2));
 
 	if (all_correct) {
 		set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
@@ -1422,7 +1422,7 @@ static void rw_mgr_incr_vfifo(uint32_t grp, uint32_t *v)
 {
 	uint32_t addr = (u32)&phy_mgr_cmd->inc_vfifo_hard_phy;
 
-	writel(grp, SOCFPGA_SDR_ADDRESS + addr);
+	writel(grp, addr);
 	(*v)++;
 }
 
@@ -1885,7 +1885,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 		dtaps_per_ptap = d - initial_failing_dtap;
 
 	addr = (u32)&sdr_reg_file->dtaps_per_ptap;
-	writel(dtaps_per_ptap, SOCFPGA_SDR_ADDRESS + addr);
+	writel(dtaps_per_ptap, addr);
 	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: dtaps_per_ptap=%u \
 		   - %u = %u",  __func__, __LINE__, d,
 		   initial_failing_dtap, dtaps_per_ptap);
@@ -1939,7 +1939,7 @@ rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
 			scc_mgr_load_dq(p);
 		}
 		addr = (u32)&sdr_scc_mgr->update;
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 	}
 
 	found = rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(read_group);
@@ -1957,7 +1957,7 @@ rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
 			scc_mgr_load_dq(p);
 		}
 		addr = (u32)&sdr_scc_mgr->update;
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 	}
 
 	return found;
@@ -1990,9 +1990,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	debug("%s:%d: %u %u", __func__, __LINE__, read_group, test_bgn);
 
 	addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQS_IN_DELAY_OFFSET;
-	start_dqs = readl(SOCFPGA_SDR_ADDRESS + addr + (read_group << 2));
+	start_dqs = readl(addr + (read_group << 2));
 	if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS)
-		start_dqs_en = readl(SOCFPGA_SDR_ADDRESS + addr + ((read_group << 2)
+		start_dqs_en = readl(addr + ((read_group << 2)
 				     - IO_DQS_EN_DELAY_OFFSET));
 
 	/* set the left and right edge of each bit to an illegal value */
@@ -2008,7 +2008,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	for (d = 0; d <= IO_IO_IN_DELAY_MAX; d++) {
 		scc_mgr_apply_group_dq_in_delay(write_group, test_bgn, d);
 
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 
 		/*
 		 * Stop searching when the read test doesn't pass AND when
@@ -2104,7 +2104,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 		}
 		scc_mgr_load_dqs(read_group);
 
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 
 		/*
 		 * Stop searching when the read test doesn't pass AND when
@@ -2203,7 +2203,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 							 start_dqs_en);
 			}
 			scc_mgr_load_dqs(read_group);
-			writel(0, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0, addr);
 
 			debug_cond(DLEVEL == 1, "%s:%d vfifo_center: failed to \
 				   find edge [%u]: %d %d", __func__, __LINE__,
@@ -2288,8 +2288,8 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 		debug_cond(DLEVEL == 2, "vfifo_center: before: \
 			   shift_dq[%u]=%d\n", i, shift_dq);
 
-		temp_dq_in_delay1 = readl(SOCFPGA_SDR_ADDRESS + addr + (p << 2));
-		temp_dq_in_delay2 = readl(SOCFPGA_SDR_ADDRESS + addr + (i << 2));
+		temp_dq_in_delay1 = readl(addr + (p << 2));
+		temp_dq_in_delay2 = readl(addr + (i << 2));
 
 		if (shift_dq + (int32_t)temp_dq_in_delay1 >
 			(int32_t)IO_IO_IN_DELAY_MAX) {
@@ -2336,7 +2336,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	 * have been applied. Apply the update bit.
 	 */
 	addr = (u32)&sdr_scc_mgr->update;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	return (dq_margin >= 0) && (dqs_margin >= 0);
 }
@@ -2545,7 +2545,7 @@ static uint32_t rw_mgr_mem_calibrate_lfifo(void)
 
 	addr = (u32)&phy_mgr_cfg->phy_rlat;
 	do {
-		writel(gbl->curr_read_lat, SOCFPGA_SDR_ADDRESS + addr);
+		writel(gbl->curr_read_lat, addr);
 		debug_cond(DLEVEL == 2, "%s:%d lfifo: read_lat=%u",
 			   __func__, __LINE__, gbl->curr_read_lat);
 
@@ -2565,13 +2565,13 @@ static uint32_t rw_mgr_mem_calibrate_lfifo(void)
 	/* reset the fifos to get pointers to known state */
 
 	addr = (u32)&phy_mgr_cmd->fifo_reset;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	if (found_one) {
 		/* add a fudge factor to the read latency that was determined */
 		gbl->curr_read_lat += 2;
 		addr = (u32)&phy_mgr_cfg->phy_rlat;
-		writel(gbl->curr_read_lat, SOCFPGA_SDR_ADDRESS + addr);
+		writel(gbl->curr_read_lat, addr);
 		debug_cond(DLEVEL == 2, "%s:%d lfifo: success: using \
 			   read_lat=%u\n", __func__, __LINE__,
 			   gbl->curr_read_lat);
@@ -2637,23 +2637,23 @@ static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
 		 * large number so that the jump is always taken.
 		 */
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
-		writel(0xFF, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0xFF, addr);
 
 		/* CNTR 3 - Not used */
 		if (test_dm) {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0_WL_1;
 			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
 			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_DATA,
-			       SOCFPGA_SDR_ADDRESS + addr);
+			       addr);
 			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
 			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP,
-			       SOCFPGA_SDR_ADDRESS + addr);
+			       addr);
 		} else {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0_WL_1;
 			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_DATA, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_LFSR_WR_RD_BANK_0_DATA, addr);
 			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP, addr);
 		}
 	} else if (rw_wl_nop_cycles == 0) {
 		/*
@@ -2662,18 +2662,18 @@ static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
 		 * number so that the jump is always taken.
 		 */
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
-		writel(0xFF, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0xFF, addr);
 
 		/* CNTR 3 - Not used */
 		if (test_dm) {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0;
 			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
 			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_DQS,
-			       SOCFPGA_SDR_ADDRESS + addr);
+			       addr);
 		} else {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0;
 			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_DQS, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_LFSR_WR_RD_BANK_0_DQS, addr);
 		}
 	} else {
 		/*
@@ -2682,55 +2682,55 @@ static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
 		 * address doesn't count.
 		 */
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
-		writel(0x0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x0, addr);
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
-		writel(0x0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x0, addr);
 
 		/*
 		 * CNTR 3 - Set the nop counter to the number of cycles we
 		 * need to loop for, minus 1.
 		 */
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr3;
-		writel(rw_wl_nop_cycles - 1, SOCFPGA_SDR_ADDRESS + addr);
+		writel(rw_wl_nop_cycles - 1, addr);
 		if (test_dm) {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0;
 			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
-			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP, addr);
 		} else {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0;
 			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP, SOCFPGA_SDR_ADDRESS + addr);
+			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP, addr);
 		}
 	}
 
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RESET_READ_DATAPATH_OFFSET;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 	if (quick_write_mode)
-		writel(0x08, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x08, addr);
 	else
-		writel(0x40, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x40, addr);
 
 	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
-	writel(mcc_instruction, SOCFPGA_SDR_ADDRESS + addr);
+	writel(mcc_instruction, addr);
 
 	/*
 	 * CNTR 1 - This is used to ensure enough time elapses
 	 * for read data to come back.
 	 */
 	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
-	writel(0x30, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0x30, addr);
 
 	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
 	if (test_dm) {
-		writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_WAIT, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_WAIT, addr);
 	} else {
-		writel(RW_MGR_LFSR_WR_RD_BANK_0_WAIT, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_LFSR_WR_RD_BANK_0_WAIT, addr);
 	}
 
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-	writel(mcc_instruction, SOCFPGA_SDR_ADDRESS + addr + (group << 2));
+	writel(mcc_instruction, addr + (group << 2));
 }
 
 /* Test writes, can check for a single bit pass or multiple bit pass */
@@ -2765,7 +2765,7 @@ static uint32_t rw_mgr_mem_calibrate_write_test(uint32_t rank_bgn,
 		addr_rw_mgr = SDR_PHYGRP_RWMGRGRP_ADDRESS;
 		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS-1; ; vg--) {
 			/* reset the fifos to get pointers to known state */
-			writel(0, SOCFPGA_SDR_ADDRESS + addr);
+			writel(0, addr);
 
 			tmp_bit_chk = tmp_bit_chk <<
 				(RW_MGR_MEM_DQ_PER_WRITE_DQS /
@@ -2774,7 +2774,7 @@ static uint32_t rw_mgr_mem_calibrate_write_test(uint32_t rank_bgn,
 				RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS+vg,
 				use_dm);
 
-			base_rw_mgr = readl(SOCFPGA_SDR_ADDRESS + addr_rw_mgr);
+			base_rw_mgr = readl(addr_rw_mgr);
 			tmp_bit_chk = tmp_bit_chk | (correct_mask_vg & ~(base_rw_mgr));
 			if (vg == 0)
 				break;
@@ -2830,7 +2830,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	dm_margin = 0;
 
 	addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
-	start_dqs = readl(SOCFPGA_SDR_ADDRESS + addr +
+	start_dqs = readl(addr +
 			  (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
 
 	/* per-bit deskew */
@@ -2850,7 +2850,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	for (d = 0; d <= IO_IO_OUT1_DELAY_MAX; d++) {
 		scc_mgr_apply_group_dq_out1_delay(write_group, test_bgn, d);
 
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 
 		/*
 		 * Stop searching when the read test doesn't pass AND when
@@ -2935,7 +2935,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 		scc_mgr_apply_group_dqs_io_and_oct_out1(write_group,
 							d + start_dqs);
 
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 
 		/*
 		 * Stop searching when the read test doesn't pass AND when
@@ -3078,7 +3078,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 		debug_cond(DLEVEL == 2, "%s:%d write_center: before: shift_dq \
 			   [%u]=%d\n", __func__, __LINE__, i, shift_dq);
 
-		temp_dq_out1_delay = readl(SOCFPGA_SDR_ADDRESS + addr + (i << 2));
+		temp_dq_out1_delay = readl(addr + (i << 2));
 		if (shift_dq + (int32_t)temp_dq_out1_delay >
 			(int32_t)IO_IO_OUT1_DELAY_MAX) {
 			shift_dq = (int32_t)IO_IO_OUT1_DELAY_MAX - temp_dq_out1_delay;
@@ -3105,7 +3105,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	/* Move DQS */
 	scc_mgr_apply_group_dqs_io_and_oct_out1(write_group, new_dqs);
 	addr = (u32)&sdr_scc_mgr->update;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	/* Centre DM */
 	debug_cond(DLEVEL == 2, "%s:%d write_center: DM\n", __func__, __LINE__);
@@ -3126,7 +3126,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	addr = (u32)&sdr_scc_mgr->update;
 	for (d = IO_IO_OUT1_DELAY_MAX; d >= 0; d -= DELTA_D) {
 		scc_mgr_apply_group_dm_out1_delay(write_group, d);
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 
 		if (rw_mgr_mem_calibrate_write_test(rank_bgn, write_group, 1,
 						    PASS_ALL_BITS, &bit_chk,
@@ -3179,7 +3179,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 		scc_mgr_apply_group_dqs_io_and_oct_out1(write_group,
 							d + new_dqs);
 
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 		if (rw_mgr_mem_calibrate_write_test(rank_bgn, write_group, 1,
 						    PASS_ALL_BITS, &bit_chk,
 						    0)) {
@@ -3243,7 +3243,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 
 	scc_mgr_apply_group_dm_out1_delay(write_group, mid);
 	addr = (u32)&sdr_scc_mgr->update;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	debug_cond(DLEVEL == 2, "%s:%d dm_calib: left=%d right=%d mid=%d \
 		   dm_margin=%d\n", __func__, __LINE__, left_edge[0],
@@ -3260,7 +3260,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	 * decisions have been applied.
 	 */
 	addr = (u32)&sdr_scc_mgr->update;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 	return (dq_margin >= 0) && (dqs_margin >= 0) && (dm_margin >= 0);
 }
 
@@ -3302,21 +3302,21 @@ static void mem_precharge_and_activate(void)
 
 		/* precharge all banks ... */
 		addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-		writel(RW_MGR_PRECHARGE_ALL, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_PRECHARGE_ALL, addr);
 
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
-		writel(0x0F, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x0F, addr);
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
-		writel(RW_MGR_ACTIVATE_0_AND_1_WAIT1, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_ACTIVATE_0_AND_1_WAIT1, addr);
 
 		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
-		writel(0x0F, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x0F, addr);
 		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
-		writel(RW_MGR_ACTIVATE_0_AND_1_WAIT2, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_ACTIVATE_0_AND_1_WAIT2, addr);
 
 		/* activate rows */
 		addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-		writel(RW_MGR_ACTIVATE_0_AND_1, SOCFPGA_SDR_ADDRESS + addr);
+		writel(RW_MGR_ACTIVATE_0_AND_1, addr);
 	}
 }
 
@@ -3331,10 +3331,10 @@ static void mem_config(void)
 	debug("%s:%d\n", __func__, __LINE__);
 	/* read in write and read latency */
 	addr = (u32)&data_mgr->t_wl_add;
-	wlat = readl(SOCFPGA_SDR_ADDRESS + addr);
+	wlat = readl(addr);
 
 	addr = (u32)&data_mgr->mem_t_add;
-	wlat += readl(SOCFPGA_SDR_ADDRESS + addr);
+	wlat += readl(addr);
 	/* WL for hard phy does not include additive latency */
 
 	/*
@@ -3345,7 +3345,7 @@ static void mem_config(void)
 	wlat = wlat + 1;
 
 	addr = (u32)&data_mgr->t_rl_add;
-	rlat = readl(SOCFPGA_SDR_ADDRESS + addr);
+	rlat = readl(addr);
 
 	rw_wl_nop_cycles = wlat - 2;
 	gbl->rw_wl_nop_cycles = rw_wl_nop_cycles;
@@ -3368,12 +3368,12 @@ static void mem_config(void)
 		gbl->curr_read_lat = max_latency;
 
 	addr = (u32)&phy_mgr_cfg->phy_rlat;
-	writel(gbl->curr_read_lat, SOCFPGA_SDR_ADDRESS + addr);
+	writel(gbl->curr_read_lat, addr);
 
 	/* advertise write latency */
 	gbl->curr_write_lat = wlat;
 	addr = (u32)&phy_mgr_cfg->afi_wlat;
-	writel(wlat - 2, SOCFPGA_SDR_ADDRESS + addr);
+	writel(wlat - 2, addr);
 
 	/* initialize bit slips */
 	mem_precharge_and_activate();
@@ -3430,20 +3430,20 @@ static void mem_skip_calibrate(void)
 				IO_DLL_CHAIN_LENGTH - 2));
 		}
 		addr = (u32)&sdr_scc_mgr->dqs_ena;
-		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0xff, addr);
 		addr = (u32)&sdr_scc_mgr->dqs_io_ena;
-		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0xff, addr);
 
 		addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_GROUP_COUNTER_OFFSET;
 		for (i = 0; i < RW_MGR_MEM_IF_WRITE_DQS_WIDTH; i++) {
-			writel(i, SOCFPGA_SDR_ADDRESS + addr);
+			writel(i, addr);
 		}
 		addr = (u32)&sdr_scc_mgr->dq_ena;
-		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0xff, addr);
 		addr = (u32)&sdr_scc_mgr->dm_ena;
-		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0xff, addr);
 		addr = (u32)&sdr_scc_mgr->update;
-		writel(0, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0, addr);
 	}
 
 	/* Compensate for simulation model behaviour */
@@ -3452,7 +3452,7 @@ static void mem_skip_calibrate(void)
 		scc_mgr_load_dqs(i);
 	}
 	addr = (u32)&sdr_scc_mgr->update;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	/*
 	 * ArriaV has hard FIFOs that can only be initialized by incrementing
@@ -3461,10 +3461,10 @@ static void mem_skip_calibrate(void)
 	vfifo_offset = CALIB_VFIFO_OFFSET;
 	addr = (u32)&phy_mgr_cmd->inc_vfifo_hard_phy;
 	for (j = 0; j < vfifo_offset; j++) {
-		writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0xff, addr);
 	}
 	addr = (u32)&phy_mgr_cmd->fifo_reset;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	/*
 	 * For ACV with hard lfifo, we get the skip-cal setting from
@@ -3472,7 +3472,7 @@ static void mem_skip_calibrate(void)
 	 */
 	gbl->curr_read_lat = CALIB_LFIFO_OFFSET;
 	addr = (u32)&phy_mgr_cfg->phy_rlat;
-	writel(gbl->curr_read_lat, SOCFPGA_SDR_ADDRESS + addr);
+	writel(gbl->curr_read_lat, addr);
 }
 
 /* Memory calibration entry point */
@@ -3502,7 +3502,7 @@ static uint32_t mem_calibrate(void)
 	uint32_t bypass_mode = 0x1;
 	addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_GROUP_COUNTER_OFFSET;
 	for (i = 0; i < RW_MGR_MEM_IF_READ_DQS_WIDTH; i++) {
-		writel(i, SOCFPGA_SDR_ADDRESS + addr);
+		writel(i, addr);
 		scc_set_bypass_mode(i, bypass_mode);
 	}
 
@@ -3537,7 +3537,7 @@ static uint32_t mem_calibrate(void)
 					continue;
 
 				addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_GROUP_COUNTER_OFFSET;
-				writel(write_group, SOCFPGA_SDR_ADDRESS + addr);
+				writel(write_group, addr);
 				scc_mgr_zero_group(write_group, write_test_bgn,
 						   0);
 
@@ -3662,7 +3662,7 @@ static uint32_t mem_calibrate(void)
 	 * have been applied.
 	 */
 	addr = (u32)&sdr_scc_mgr->update;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 	return 1;
 }
 
@@ -3676,14 +3676,14 @@ static uint32_t run_mem_calibrate(void)
 
 	/* Reset pass/fail status shown on afi_cal_success/fail */
 	addr = (u32)&phy_mgr_cfg->cal_status;
-	writel(PHY_MGR_CAL_RESET, SOCFPGA_SDR_ADDRESS + addr);
+	writel(PHY_MGR_CAL_RESET, addr);
 
 	addr = SDR_CTRLGRP_ADDRESS;
 	/* stop tracking manger */
-	uint32_t ctrlcfg = readl(SOCFPGA_SDR_ADDRESS + addr);
+	uint32_t ctrlcfg = readl(addr);
 
 	addr = SDR_CTRLGRP_ADDRESS;
-	writel(ctrlcfg & 0xFFBFFFFF, SOCFPGA_SDR_ADDRESS + addr);
+	writel(ctrlcfg & 0xFFBFFFFF, addr);
 
 	initialize();
 	rw_mgr_mem_initialize();
@@ -3692,7 +3692,7 @@ static uint32_t run_mem_calibrate(void)
 
 	mem_precharge_and_activate();
 	addr = (u32)&phy_mgr_cmd->fifo_reset;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	/*
 	 * Handoff:
@@ -3706,11 +3706,11 @@ static uint32_t run_mem_calibrate(void)
 		 * 1: DDIO Mux Select
 		 */
 		addr = (u32)&phy_mgr_cfg->mux_sel;
-		writel(0x2, SOCFPGA_SDR_ADDRESS + addr);
+		writel(0x2, addr);
 	}
 
 	addr = SDR_CTRLGRP_ADDRESS;
-	writel(ctrlcfg, SOCFPGA_SDR_ADDRESS + addr);
+	writel(ctrlcfg, addr);
 
 	if (pass) {
 		printf("%s: CALIBRATION PASSED\n", __FILE__);
@@ -3728,12 +3728,12 @@ static uint32_t run_mem_calibrate(void)
 		debug_info = gbl->fom_in;
 		debug_info |= gbl->fom_out << 8;
 		addr = (u32)&sdr_reg_file->fom;
-		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
+		writel(debug_info, addr);
 
 		addr = (u32)&phy_mgr_cfg->cal_debug_info;
-		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
+		writel(debug_info, addr);
 		addr = (u32)&phy_mgr_cfg->cal_status;
-		writel(PHY_MGR_CAL_SUCCESS, SOCFPGA_SDR_ADDRESS + addr);
+		writel(PHY_MGR_CAL_SUCCESS, addr);
 	} else {
 		printf("%s: CALIBRATION FAILED\n", __FILE__);
 
@@ -3742,18 +3742,18 @@ static uint32_t run_mem_calibrate(void)
 		debug_info |= gbl->error_group << 16;
 
 		addr = (u32)&sdr_reg_file->failing_stage;
-		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
+		writel(debug_info, addr);
 		addr = (u32)&phy_mgr_cfg->cal_debug_info;
-		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
+		writel(debug_info, addr);
 		addr = (u32)&phy_mgr_cfg->cal_status;
-		writel(PHY_MGR_CAL_FAIL, SOCFPGA_SDR_ADDRESS + addr);
+		writel(PHY_MGR_CAL_FAIL, addr);
 
 		/* Update the failing group/stage in the register file */
 		debug_info = gbl->error_stage;
 		debug_info |= gbl->error_substage << 8;
 		debug_info |= gbl->error_group << 16;
 		addr = (u32)&sdr_reg_file->failing_stage;
-		writel(debug_info, SOCFPGA_SDR_ADDRESS + addr);
+		writel(debug_info, addr);
 	}
 
 	return pass;
@@ -3767,13 +3767,13 @@ static void hc_initialize_rom_data(void)
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_INST_ROM_WRITE_OFFSET;
 	for (i = 0; i < ARRAY_SIZE(inst_rom_init); i++) {
 		uint32_t data = inst_rom_init[i];
-		writel(data, SOCFPGA_SDR_ADDRESS + addr + (i << 2));
+		writel(data, addr + (i << 2));
 	}
 
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_AC_ROM_WRITE_OFFSET;
 	for (i = 0; i < ARRAY_SIZE(ac_rom_init); i++) {
 		uint32_t data = ac_rom_init[i];
-		writel(data, SOCFPGA_SDR_ADDRESS + addr + (i << 2));
+		writel(data, addr + (i << 2));
 	}
 }
 
@@ -3783,25 +3783,25 @@ static void initialize_reg_file(void)
 
 	/* Initialize the register file with the correct data */
 	addr = (u32)&sdr_reg_file->signature;
-	writel(REG_FILE_INIT_SEQ_SIGNATURE, SOCFPGA_SDR_ADDRESS + addr);
+	writel(REG_FILE_INIT_SEQ_SIGNATURE, addr);
 
 	addr = (u32)&sdr_reg_file->debug_data_addr;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	addr = (u32)&sdr_reg_file->cur_stage;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	addr = (u32)&sdr_reg_file->fom;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	addr = (u32)&sdr_reg_file->failing_stage;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	addr = (u32)&sdr_reg_file->debug1;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 
 	addr = (u32)&sdr_reg_file->debug2;
-	writel(0, SOCFPGA_SDR_ADDRESS + addr);
+	writel(0, addr);
 }
 
 static void initialize_hps_phy(void)
@@ -3834,7 +3834,7 @@ static void initialize_hps_phy(void)
 	reg |= SDR_CTRLGRP_PHYCTRL_PHYCTRL_0_SAMPLECOUNT_19_0_SET(
 		trk_sample_count);
 	addr = SDR_CTRLGRP_ADDRESS;
-	writel(reg, SOCFPGA_SDR_ADDRESS + addr + SDR_CTRLGRP_PHYCTRL_PHYCTRL_0_OFFSET);
+	writel(reg, addr + SDR_CTRLGRP_PHYCTRL_PHYCTRL_0_OFFSET);
 
 	reg = 0;
 	reg |= SDR_CTRLGRP_PHYCTRL_PHYCTRL_1_SAMPLECOUNT_31_20_SET(
@@ -3842,13 +3842,13 @@ static void initialize_hps_phy(void)
 		SDR_CTRLGRP_PHYCTRL_PHYCTRL_0_SAMPLECOUNT_19_0_WIDTH);
 	reg |= SDR_CTRLGRP_PHYCTRL_PHYCTRL_1_LONGIDLESAMPLECOUNT_19_0_SET(
 		trk_long_idle_sample_count);
-	writel(reg, SOCFPGA_SDR_ADDRESS + addr + SDR_CTRLGRP_PHYCTRL_PHYCTRL_1_OFFSET);
+	writel(reg, addr + SDR_CTRLGRP_PHYCTRL_PHYCTRL_1_OFFSET);
 
 	reg = 0;
 	reg |= SDR_CTRLGRP_PHYCTRL_PHYCTRL_2_LONGIDLESAMPLECOUNT_31_20_SET(
 		trk_long_idle_sample_count >>
 		SDR_CTRLGRP_PHYCTRL_PHYCTRL_1_LONGIDLESAMPLECOUNT_19_0_WIDTH);
-	writel(reg, SOCFPGA_SDR_ADDRESS + addr + SDR_CTRLGRP_PHYCTRL_PHYCTRL_2_OFFSET);
+	writel(reg, addr + SDR_CTRLGRP_PHYCTRL_PHYCTRL_2_OFFSET);
 }
 
 static void initialize_tracking(void)
@@ -3905,25 +3905,25 @@ static void initialize_tracking(void)
 
 	/* Initialize the register file with the correct data */
 	addr = (u32)&sdr_reg_file->dtaps_per_ptap;
-	writel(dtaps_per_ptap, SOCFPGA_SDR_ADDRESS + addr);
+	writel(dtaps_per_ptap, addr);
 
 	addr = (u32)&sdr_reg_file->trk_sample_count;
-	writel(trk_sample_count, SOCFPGA_SDR_ADDRESS + addr);
+	writel(trk_sample_count, addr);
 
 	addr = (u32)&sdr_reg_file->trk_longidle;
-	writel(concatenated_longidle, SOCFPGA_SDR_ADDRESS + addr);
+	writel(concatenated_longidle, addr);
 
 	addr = (u32)&sdr_reg_file->delays;
-	writel(concatenated_delays, SOCFPGA_SDR_ADDRESS + addr);
+	writel(concatenated_delays, addr);
 
 	addr = (u32)&sdr_reg_file->trk_rw_mgr_addr;
-	writel(concatenated_rw_addr, SOCFPGA_SDR_ADDRESS + addr);
+	writel(concatenated_rw_addr, addr);
 
 	addr = (u32)&sdr_reg_file->trk_read_dqs_width;
-	writel(RW_MGR_MEM_IF_READ_DQS_WIDTH, SOCFPGA_SDR_ADDRESS + addr);
+	writel(RW_MGR_MEM_IF_READ_DQS_WIDTH, addr);
 
 	addr = (u32)&sdr_reg_file->trk_rfsh;
-	writel(concatenated_refresh, SOCFPGA_SDR_ADDRESS + addr);
+	writel(concatenated_refresh, addr);
 }
 
 int sdram_calibration_full(void)
