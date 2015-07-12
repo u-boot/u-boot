@@ -361,77 +361,64 @@ static void scc_mgr_load_dm(uint32_t dm)
 	writel(dm, &sdr_scc_mgr->dm_ena);
 }
 
-static void scc_mgr_set_dqs_en_phase_all_ranks(uint32_t read_group,
-					       uint32_t phase)
+/**
+ * scc_mgr_set_all_ranks() - Set SCC Manager register for all ranks
+ * @off:	Base offset in SCC Manager space
+ * @grp:	Read/Write group
+ * @val:	Value to be set
+ * @update:	If non-zero, trigger SCC Manager update for all ranks
+ *
+ * This function sets the SCC Manager (Scan Chain Control Manager) register
+ * and optionally triggers the SCC update for all ranks.
+ */
+static void scc_mgr_set_all_ranks(const u32 off, const u32 grp, const u32 val,
+				  const int update)
 {
-	uint32_t r;
+	u32 r;
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
-		scc_mgr_set_dqs_en_phase(read_group, phase);
+		scc_mgr_set(off, grp, val);
 
-		/*
-		 * USER although the h/w doesn't support different phases per
-		 * shadow register, for simplicity our scc manager modeling
-		 * keeps different phase settings per shadow reg, and it's
-		 * important for us to keep them in sync to match h/w.
-		 * for efficiency, the scan chain update should occur only
-		 * once to sr0.
-		 */
-
-		if (r == 0) {
-			writel(read_group, &sdr_scc_mgr->dqs_ena);
+		if (update || (r == 0)) {
+			writel(grp, &sdr_scc_mgr->dqs_ena);
 			writel(0, &sdr_scc_mgr->update);
 		}
 	}
+}
+
+static void scc_mgr_set_dqs_en_phase_all_ranks(u32 read_group, u32 phase)
+{
+	/*
+	 * USER although the h/w doesn't support different phases per
+	 * shadow register, for simplicity our scc manager modeling
+	 * keeps different phase settings per shadow reg, and it's
+	 * important for us to keep them in sync to match h/w.
+	 * for efficiency, the scan chain update should occur only
+	 * once to sr0.
+	 */
+	scc_mgr_set_all_ranks(SCC_MGR_DQS_EN_PHASE_OFFSET,
+			      read_group, phase, 0);
 }
 
 static void scc_mgr_set_dqdqs_output_phase_all_ranks(uint32_t write_group,
 						     uint32_t phase)
 {
-	uint32_t r;
-
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
-	     r += NUM_RANKS_PER_SHADOW_REG) {
-		scc_mgr_set_dqdqs_output_phase(write_group, phase);
-
-		/*
-		 * USER although the h/w doesn't support different phases per
-		 * shadow register, for simplicity our scc manager modeling
-		 * keeps different phase settings per shadow reg, and it's
-		 * important for us to keep them in sync to match h/w.
-		 * for efficiency, the scan chain update should occur only
-		 * once to sr0.
-		 */
-
-		if (r == 0) {
-			writel(write_group, &sdr_scc_mgr->dqs_ena);
-			writel(0, &sdr_scc_mgr->update);
-		}
-	}
+	/*
+	 * USER although the h/w doesn't support different phases per
+	 * shadow register, for simplicity our scc manager modeling
+	 * keeps different phase settings per shadow reg, and it's
+	 * important for us to keep them in sync to match h/w.
+	 * for efficiency, the scan chain update should occur only
+	 * once to sr0.
+	 */
+	scc_mgr_set_all_ranks(SCC_MGR_DQDQS_OUT_PHASE_OFFSET,
+			      write_group, phase, 0);
 }
 
 static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
 					       uint32_t delay)
 {
-	uint32_t r;
-
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
-		r += NUM_RANKS_PER_SHADOW_REG) {
-		scc_mgr_set_dqs_en_delay(read_group, delay);
-
-		/*
-		 * In shadow register mode, the T11 settings are stored in
-		 * registers in the core, which are updated by the DQS_ENA
-		 * signals. Not issuing the SCC_MGR_UPD command allows us to
-		 * save lots of rank switching overhead, by calling
-		 * select_shadow_regs_for_update with update_scan_chains
-		 * set to 0.
-		 */
-
-		writel(read_group, &sdr_scc_mgr->dqs_ena);
-		writel(0, &sdr_scc_mgr->update);
-	}
 	/*
 	 * In shadow register mode, the T11 settings are stored in
 	 * registers in the core, which are updated by the DQS_ENA
@@ -440,6 +427,8 @@ static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
 	 * select_shadow_regs_for_update with update_scan_chains
 	 * set to 0.
 	 */
+	scc_mgr_set_all_ranks(SCC_MGR_DQS_EN_DELAY_OFFSET,
+			      read_group, delay, 1);
 	writel(0, &sdr_scc_mgr->update);
 }
 
