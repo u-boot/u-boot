@@ -178,5 +178,8 @@ void board_init_f(ulong dummy)
 
 	socfpga_bridges_reset(1);
 
+	/* Configure simple malloc base pointer into RAM. */
+	gd->malloc_base = CONFIG_SYS_TEXT_BASE + (1024 * 1024);
+
 	board_init_r(NULL, 0);
 }
