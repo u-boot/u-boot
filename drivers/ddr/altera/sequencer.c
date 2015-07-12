@@ -16,10 +16,10 @@
 static void scc_mgr_load_dqs_for_write_group(uint32_t write_group);
 
 static struct socfpga_sdr_rw_load_manager *sdr_rw_load_mgr_regs =
-	(struct socfpga_sdr_rw_load_manager *)(BASE_RW_MGR + 0x800);
+	(struct socfpga_sdr_rw_load_manager *)(SDR_PHYGRP_RWMGRGRP_ADDRESS | 0x800);
 
 static struct socfpga_sdr_rw_load_jump_manager *sdr_rw_load_jump_mgr_regs =
-	(struct socfpga_sdr_rw_load_jump_manager *)(BASE_RW_MGR + 0xC00);
+	(struct socfpga_sdr_rw_load_jump_manager *)(SDR_PHYGRP_RWMGRGRP_ADDRESS | 0xC00);
 
 static struct socfpga_sdr_reg_file *sdr_reg_file =
 	(struct socfpga_sdr_reg_file *)SDR_PHYGRP_REGFILEGRP_ADDRESS;
@@ -873,7 +873,7 @@ static void scc_mgr_apply_group_all_out_delay_add_all_ranks(
 /* could be applied to other protocols if we wanted to */
 static void set_jump_as_return(void)
 {
-	uint32_t addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr0);
+	uint32_t addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 
 	/*
 	 * to save space, we replace return with jump to special shared
@@ -881,7 +881,7 @@ static void set_jump_as_return(void)
 	 * we always jump
 	 */
 	writel(0xff, SOCFPGA_SDR_ADDRESS + addr);
-	addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add0);
+	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
 	writel(RW_MGR_RETURN, SOCFPGA_SDR_ADDRESS + addr);
 }
 
@@ -944,25 +944,25 @@ static void delay_for_n_mem_clocks(const uint32_t clocks)
 	 * overhead
 	 */
 	if (afi_clocks <= 0x100) {
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr1);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
 		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(inner), SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add1);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
 		writel(RW_MGR_IDLE_LOOP1, SOCFPGA_SDR_ADDRESS + addr);
 
 		addr = sdr_get_addr((u32 *)RW_MGR_RUN_SINGLE_GROUP);
 		writel(RW_MGR_IDLE_LOOP1, SOCFPGA_SDR_ADDRESS + addr);
 	} else {
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr0);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(inner), SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr1);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
 		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(outer), SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add0);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
 		writel(RW_MGR_IDLE_LOOP2, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add1);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
 		writel(RW_MGR_IDLE_LOOP2, SOCFPGA_SDR_ADDRESS + addr);
 
 		/* hack to get around compiler not being smart enough */
@@ -1016,24 +1016,24 @@ static void rw_mgr_mem_initialize(void)
 	 */
 
 	/* Load counters */
-	addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr0);
+	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TINIT_CNTR0_VAL),
 	       SOCFPGA_SDR_ADDRESS + addr);
-	addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr1);
+	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TINIT_CNTR1_VAL),
 	       SOCFPGA_SDR_ADDRESS + addr);
-	addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr2);
+	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TINIT_CNTR2_VAL),
 	       SOCFPGA_SDR_ADDRESS + addr);
 
 	/* Load jump address */
-	addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add0);
+	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
 	writel(RW_MGR_INIT_RESET_0_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add1);
+	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
 	writel(RW_MGR_INIT_RESET_0_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add2);
+	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
 	writel(RW_MGR_INIT_RESET_0_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
 
 	/* Execute count instruction */
@@ -1060,22 +1060,22 @@ static void rw_mgr_mem_initialize(void)
 	 */
 
 	/* Load counters */
-	addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr0);
+	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TRESET_CNTR0_VAL),
 	       SOCFPGA_SDR_ADDRESS + addr);
-	addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr1);
+	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TRESET_CNTR1_VAL),
 	       SOCFPGA_SDR_ADDRESS + addr);
-	addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr2);
+	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
 	writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(SEQ_TRESET_CNTR2_VAL),
 	       SOCFPGA_SDR_ADDRESS + addr);
 
 	/* Load jump address */
-	addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add0);
+	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
 	writel(RW_MGR_INIT_RESET_1_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
-	addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add1);
+	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
 	writel(RW_MGR_INIT_RESET_1_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
-	addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add2);
+	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
 	writel(RW_MGR_INIT_RESET_1_CKE_0, SOCFPGA_SDR_ADDRESS + addr);
 
 	addr = sdr_get_addr((u32 *)RW_MGR_RUN_SINGLE_GROUP);
@@ -1223,14 +1223,14 @@ static uint32_t rw_mgr_mem_calibrate_read_test_patterns(uint32_t rank_bgn,
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
 		/* Load up a constant bursts of read commands */
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr0);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 		writel(0x20, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add0);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
 		writel(RW_MGR_GUARANTEED_READ, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr1);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
 		writel(0x20, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add1);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
 		writel(RW_MGR_GUARANTEED_READ_CONT, SOCFPGA_SDR_ADDRESS + addr);
 
 		tmp_bit_chk = 0;
@@ -1296,28 +1296,28 @@ static void rw_mgr_mem_calibrate_read_load_patterns(uint32_t rank_bgn,
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
 		/* Load up a constant bursts */
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr0);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 		writel(0x20, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add0);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
 		writel(RW_MGR_GUARANTEED_WRITE_WAIT0, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr1);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
 		writel(0x20, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add1);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
 		writel(RW_MGR_GUARANTEED_WRITE_WAIT1, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr2);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
 		writel(0x04, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add2);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
 		writel(RW_MGR_GUARANTEED_WRITE_WAIT2, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr3);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr3;
 		writel(0x04, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add3);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
 		writel(RW_MGR_GUARANTEED_WRITE_WAIT3, SOCFPGA_SDR_ADDRESS + addr);
 
 		addr = sdr_get_addr((u32 *)RW_MGR_RUN_SINGLE_GROUP);
@@ -1358,18 +1358,18 @@ static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group
 		/* set rank */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr1);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
 		writel(0x10, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add1);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
 		writel(RW_MGR_READ_B2B_WAIT1, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr2);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
 		writel(0x10, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add2);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
 		writel(RW_MGR_READ_B2B_WAIT2, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr0);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 		if (quick_read_mode)
 			writel(0x1, SOCFPGA_SDR_ADDRESS + addr);
 			/* need at least two (1+1) reads to capture failures */
@@ -1378,9 +1378,9 @@ static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group
 		else
 			writel(0x32, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add0);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
 		writel(RW_MGR_READ_B2B, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr3);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr3;
 		if (all_groups)
 			writel(RW_MGR_MEM_IF_READ_DQS_WIDTH *
 			       RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS - 1,
@@ -1388,7 +1388,7 @@ static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group
 		else
 			writel(0x0, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add3);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
 		writel(RW_MGR_READ_B2B, SOCFPGA_SDR_ADDRESS + addr);
 
 		tmp_bit_chk = 0;
@@ -2665,23 +2665,23 @@ static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
 		 * instruction that sends out the data. We set the counter to a
 		 * large number so that the jump is always taken.
 		 */
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr2);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
 		writel(0xFF, SOCFPGA_SDR_ADDRESS + addr);
 
 		/* CNTR 3 - Not used */
 		if (test_dm) {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0_WL_1;
-			addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add2);
+			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
 			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_DATA,
 			       SOCFPGA_SDR_ADDRESS + addr);
-			addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add3);
+			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
 			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP,
 			       SOCFPGA_SDR_ADDRESS + addr);
 		} else {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0_WL_1;
-			addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add2);
+			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
 			writel(RW_MGR_LFSR_WR_RD_BANK_0_DATA, SOCFPGA_SDR_ADDRESS + addr);
-			addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add3);
+			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
 			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP, SOCFPGA_SDR_ADDRESS + addr);
 		}
 	} else if (rw_wl_nop_cycles == 0) {
@@ -2690,18 +2690,18 @@ static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
 		 * to the DQS enable instruction. We set the counter to a large
 		 * number so that the jump is always taken.
 		 */
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr2);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
 		writel(0xFF, SOCFPGA_SDR_ADDRESS + addr);
 
 		/* CNTR 3 - Not used */
 		if (test_dm) {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0;
-			addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add2);
+			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
 			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_DQS,
 			       SOCFPGA_SDR_ADDRESS + addr);
 		} else {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0;
-			addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add2);
+			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
 			writel(RW_MGR_LFSR_WR_RD_BANK_0_DQS, SOCFPGA_SDR_ADDRESS + addr);
 		}
 	} else {
@@ -2710,24 +2710,24 @@ static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
 		 * and NOT take the jump. So we set the counter to 0. The jump
 		 * address doesn't count.
 		 */
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr2);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr2;
 		writel(0x0, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add2);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add2;
 		writel(0x0, SOCFPGA_SDR_ADDRESS + addr);
 
 		/*
 		 * CNTR 3 - Set the nop counter to the number of cycles we
 		 * need to loop for, minus 1.
 		 */
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr3);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr3;
 		writel(rw_wl_nop_cycles - 1, SOCFPGA_SDR_ADDRESS + addr);
 		if (test_dm) {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0;
-			addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add3);
+			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
 			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP, SOCFPGA_SDR_ADDRESS + addr);
 		} else {
 			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0;
-			addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add3);
+			addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add3;
 			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP, SOCFPGA_SDR_ADDRESS + addr);
 		}
 	}
@@ -2735,23 +2735,23 @@ static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
 	addr = sdr_get_addr((u32 *)RW_MGR_RESET_READ_DATAPATH);
 	writel(0, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr0);
+	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 	if (quick_write_mode)
 		writel(0x08, SOCFPGA_SDR_ADDRESS + addr);
 	else
 		writel(0x40, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add0);
+	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
 	writel(mcc_instruction, SOCFPGA_SDR_ADDRESS + addr);
 
 	/*
 	 * CNTR 1 - This is used to ensure enough time elapses
 	 * for read data to come back.
 	 */
-	addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr1);
+	addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
 	writel(0x30, SOCFPGA_SDR_ADDRESS + addr);
 
-	addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add1);
+	addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
 	if (test_dm) {
 		writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_WAIT, SOCFPGA_SDR_ADDRESS + addr);
 	} else {
@@ -3333,14 +3333,14 @@ static void mem_precharge_and_activate(void)
 		addr = sdr_get_addr((u32 *)RW_MGR_RUN_SINGLE_GROUP);
 		writel(RW_MGR_PRECHARGE_ALL, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr0);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr0;
 		writel(0x0F, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add0);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add0;
 		writel(RW_MGR_ACTIVATE_0_AND_1_WAIT1, SOCFPGA_SDR_ADDRESS + addr);
 
-		addr = sdr_get_addr(&sdr_rw_load_mgr_regs->load_cntr1);
+		addr = (u32)&sdr_rw_load_mgr_regs->load_cntr1;
 		writel(0x0F, SOCFPGA_SDR_ADDRESS + addr);
-		addr = sdr_get_addr(&sdr_rw_load_jump_mgr_regs->load_jump_add1);
+		addr = (u32)&sdr_rw_load_jump_mgr_regs->load_jump_add1;
 		writel(RW_MGR_ACTIVATE_0_AND_1_WAIT2, SOCFPGA_SDR_ADDRESS + addr);
 
 		/* activate rows */
