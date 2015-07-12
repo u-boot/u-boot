@@ -99,49 +99,20 @@ static void set_failing_group_stage(uint32_t group, uint32_t stage,
 	}
 }
 
-static void reg_file_set_group(uint32_t set_group)
+static void reg_file_set_group(u16 set_group)
 {
-	/* Read the current group and stage */
-	uint32_t cur_stage_group = readl(&sdr_reg_file->cur_stage);
-
-	/* Clear the group */
-	cur_stage_group &= 0x0000FFFF;
-
-	/* Set the group */
-	cur_stage_group |= (set_group << 16);
-
-	/* Write the data back */
-	writel(cur_stage_group, &sdr_reg_file->cur_stage);
+	clrsetbits_le32(&sdr_reg_file->cur_stage, 0xffff0000, set_group << 16);
 }
 
-static void reg_file_set_stage(uint32_t set_stage)
+static void reg_file_set_stage(u8 set_stage)
 {
-	/* Read the current group and stage */
-	uint32_t cur_stage_group = readl(&sdr_reg_file->cur_stage);
-
-	/* Clear the stage and substage */
-	cur_stage_group &= 0xFFFF0000;
-
-	/* Set the stage */
-	cur_stage_group |= (set_stage & 0x000000FF);
-
-	/* Write the data back */
-	writel(cur_stage_group, &sdr_reg_file->cur_stage);
+	clrsetbits_le32(&sdr_reg_file->cur_stage, 0xffff, set_stage & 0xff);
 }
 
-static void reg_file_set_sub_stage(uint32_t set_sub_stage)
+static void reg_file_set_sub_stage(u8 set_sub_stage)
 {
-	/* Read the current group and stage */
-	uint32_t cur_stage_group = readl(&sdr_reg_file->cur_stage);
-
-	/* Clear the substage */
-	cur_stage_group &= 0xFFFF00FF;
-
-	/* Set the sub stage */
-	cur_stage_group |= ((set_sub_stage << 8) & 0x0000FF00);
-
-	/* Write the data back */
-	writel(cur_stage_group, &sdr_reg_file->cur_stage);
+	set_sub_stage &= 0xff;
+	clrsetbits_le32(&sdr_reg_file->cur_stage, 0xff00, set_sub_stage << 8);
 }
 
 static void initialize(void)
