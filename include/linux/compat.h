@@ -36,8 +36,19 @@ extern struct p_current *current;
 #define KERN_INFO
 #define KERN_DEBUG
 
+#define GFP_ATOMIC ((gfp_t) 0)
+#define GFP_KERNEL ((gfp_t) 0)
+#define GFP_NOFS ((gfp_t) 0)
+#define GFP_USER ((gfp_t) 0)
+#define __GFP_NOWARN ((gfp_t) 0)
+#define __GFP_ZERO	((__force gfp_t)0x8000u)	/* Return zeroed page on success */
+
 void *kmalloc(size_t size, int flags);
-void *kzalloc(size_t size, int flags);
+
+static inline void *kzalloc(size_t size, gfp_t flags)
+{
+	return kmalloc(size, flags | __GFP_ZERO);
+}
 #define vmalloc(size)	kmalloc(size, 0)
 #define __vmalloc(size, flags, pgsz)	kmalloc(size, flags)
 static inline void *vzalloc(unsigned long size)
@@ -76,13 +87,6 @@ void *kmem_cache_alloc(struct kmem_cache *obj, int flag);
 
 /* drivers/char/random.c */
 #define get_random_bytes(...)
-
-/* idr.c */
-#define GFP_ATOMIC ((gfp_t) 0)
-#define GFP_KERNEL ((gfp_t) 0)
-#define GFP_NOFS ((gfp_t) 0)
-#define GFP_USER ((gfp_t) 0)
-#define __GFP_NOWARN ((gfp_t) 0)
 
 /* include/linux/leds.h */
 struct led_trigger {};
