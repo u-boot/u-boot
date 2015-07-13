@@ -26,11 +26,6 @@ void *kzalloc(size_t size, int flags)
 	return ptr;
 }
 
-void *vzalloc(unsigned long size)
-{
-	return kzalloc(size, 0);
-}
-
 struct kmem_cache *get_mem(int element_sz)
 {
 	struct kmem_cache *ret;

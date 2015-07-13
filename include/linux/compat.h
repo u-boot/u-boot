@@ -40,6 +40,10 @@ void *kmalloc(size_t size, int flags);
 void *kzalloc(size_t size, int flags);
 #define vmalloc(size)	kmalloc(size, 0)
 #define __vmalloc(size, flags, pgsz)	kmalloc(size, flags)
+static inline void *vzalloc(unsigned long size)
+{
+	return kzalloc(size, 0);
+}
 #define kfree(ptr)	free(ptr)
 #define vfree(ptr)	free(ptr)
 
@@ -188,8 +192,6 @@ struct work_struct {};
 
 unsigned long copy_from_user(void *dest, const void *src,
 			     unsigned long count);
-
-void *vzalloc(unsigned long size);
 
 typedef unused_t spinlock_t;
 typedef int	wait_queue_head_t;
