@@ -16,10 +16,6 @@
 /* arch/x86/cpu/interrupts.c */
 void set_vector(u8 intnum, void *routine);
 
-/* arch/x86/lib/interrupts.c */
-void disable_irq(int irq);
-void enable_irq(int irq);
-
 /* Architecture specific functions */
 void mask_irq(int irq);
 void unmask_irq(int irq);
