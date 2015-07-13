@@ -1780,6 +1780,166 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 	return ret;
 }
 
+/**
+ * search_right_edge() - Find right edge of DQ/DQS working phase
+ * @write:		Perform read (Stage 2) or write (Stage 3) calibration
+ * @rank_bgn:		Rank number
+ * @write_group:	Write Group
+ * @read_group:		Read Group
+ * @start_dqs:		DQS start phase
+ * @start_dqs_en:	DQS enable start phase
+ * @bit_chk:		Resulting bit mask after the test
+ * @sticky_bit_chk:	Resulting sticky bit mask after the test
+ * @left_edge:		Left edge of the DQ/DQS phase
+ * @right_edge:		Right edge of the DQ/DQS phase
+ * @use_read_test:	Perform read test
+ *
+ * Find right edge of DQ/DQS working phase.
+ */
+static int search_right_edge(const int write, const int rank_bgn,
+	const u32 write_group, const u32 read_group,
+	const int start_dqs, const int start_dqs_en,
+	u32 *bit_chk, u32 *sticky_bit_chk,
+	int *left_edge, int *right_edge, const u32 use_read_test)
+{
+	const u32 correct_mask = write ? param->write_correct_mask :
+					 param->read_correct_mask;
+	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
+	const u32 dqs_max = write ? IO_IO_OUT1_DELAY_MAX : IO_DQS_IN_DELAY_MAX;
+	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
+				    RW_MGR_MEM_DQ_PER_READ_DQS;
+	u32 stop;
+	int i, d;
+
+	for (d = 0; d <= dqs_max - start_dqs; d++) {
+		if (write) {	/* WRITE-ONLY */
+			scc_mgr_apply_group_dqs_io_and_oct_out1(write_group,
+								d + start_dqs);
+		} else {	/* READ-ONLY */
+			scc_mgr_set_dqs_bus_in_delay(read_group, d + start_dqs);
+			if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS) {
+				uint32_t delay = d + start_dqs_en;
+				if (delay > IO_DQS_EN_DELAY_MAX)
+					delay = IO_DQS_EN_DELAY_MAX;
+				scc_mgr_set_dqs_en_delay(read_group, delay);
+			}
+			scc_mgr_load_dqs(read_group);
+		}
+
+		writel(0, &sdr_scc_mgr->update);
+
+		/*
+		 * Stop searching when the read test doesn't pass AND when
+		 * we've seen a passing read on every bit.
+		 */
+		if (write) {	/* WRITE-ONLY */
+			stop = !rw_mgr_mem_calibrate_write_test(rank_bgn,
+							write_group,
+							0, PASS_ONE_BIT,
+							bit_chk, 0);
+
+		} else if (use_read_test) {	/* READ-ONLY */
+			stop = !rw_mgr_mem_calibrate_read_test(rank_bgn,
+				read_group, NUM_READ_PB_TESTS, PASS_ONE_BIT,
+				bit_chk, 0, 0);
+		} else {			/* READ-ONLY */
+			rw_mgr_mem_calibrate_write_test(rank_bgn,
+							write_group,
+							0, PASS_ONE_BIT,
+							bit_chk, 0);
+			*bit_chk = *bit_chk >> (per_dqs *
+				(read_group - (write_group *
+					RW_MGR_MEM_IF_READ_DQS_WIDTH /
+					RW_MGR_MEM_IF_WRITE_DQS_WIDTH)));
+			stop = (*bit_chk == 0);
+		}
+		*sticky_bit_chk = *sticky_bit_chk | *bit_chk;
+		stop = stop && (*sticky_bit_chk == correct_mask);
+
+		debug_cond(DLEVEL == 2,
+			   "%s:%d center(right): dtap=%u => %u == %u && %u", __func__, __LINE__, d,
+			   *sticky_bit_chk, correct_mask, stop);
+
+		if (stop == 1) {
+			if (write && (d == 0)) {	/* WRITE-ONLY */
+				for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
+					/*
+					 * d = 0 failed, but it passed when
+					 * testing the left edge, so it must be
+					 * marginal, set it to -1
+					 */
+					if (right_edge[i] == delay_max + 1 &&
+					    left_edge[i] != delay_max + 1)
+						right_edge[i] = -1;
+				}
+			}
+			break;
+		}
+
+		/* stop != 1 */
+		for (i = 0; i < per_dqs; i++) {
+			if (*bit_chk & 1) {
+				/*
+				 * Remember a passing test as
+				 * the right_edge.
+				 */
+				right_edge[i] = d;
+			} else {
+				if (d != 0) {
+					/*
+					 * If a right edge has not
+					 * been seen yet, then a future
+					 * passing test will mark this
+					 * edge as the left edge.
+					 */
+					if (right_edge[i] == delay_max + 1)
+						left_edge[i] = -(d + 1);
+				} else {
+					/*
+					 * d = 0 failed, but it passed
+					 * when testing the left edge,
+					 * so it must be marginal, set
+					 * it to -1
+					 */
+					if (right_edge[i] == delay_max + 1 &&
+					    left_edge[i] != delay_max + 1)
+						right_edge[i] = -1;
+					/*
+					 * If a right edge has not been
+					 * seen yet, then a future
+					 * passing test will mark this
+					 * edge as the left edge.
+					 */
+					else if (right_edge[i] == delay_max + 1)
+						left_edge[i] = -(d + 1);
+				}
+			}
+
+			debug_cond(DLEVEL == 2, "%s:%d center[r,d=%u]: ",
+				   __func__, __LINE__, d);
+			debug_cond(DLEVEL == 2,
+				   "bit_chk_test=%i left_edge[%u]: %d ",
+				   *bit_chk & 1, i, left_edge[i]);
+			debug_cond(DLEVEL == 2, "right_edge[%u]: %d\n", i,
+				   right_edge[i]);
+			*bit_chk = *bit_chk >> 1;
+		}
+	}
+
+	/* Check that all bits have a window */
+	for (i = 0; i < per_dqs; i++) {
+		debug_cond(DLEVEL == 2,
+			   "%s:%d write_center: left_edge[%u]: %d right_edge[%u]: %d",
+			   __func__, __LINE__, i, left_edge[i],
+			   i, right_edge[i]);
+		if ((left_edge[i] == dqs_max + 1) ||
+		    (right_edge[i] == dqs_max + 1))
+			return i + 1;	/* FIXME: If we fail, retval > 0 */
+	}
+
+	return 0;
+}
+
 /* per-bit deskew DQ and center */
 static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	uint32_t write_group, uint32_t read_group, uint32_t test_bgn,
@@ -1803,6 +1963,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	uint32_t stop;
 	uint32_t temp_dq_in_delay1, temp_dq_in_delay2;
 	uint32_t addr;
+	int ret;
 
 	debug("%s:%d: %u %u", __func__, __LINE__, read_group, test_bgn);
 
@@ -1909,132 +2070,38 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	}
 
 	/* Search for the right edge of the window for each bit */
-	for (d = 0; d <= IO_DQS_IN_DELAY_MAX - start_dqs; d++) {
-		scc_mgr_set_dqs_bus_in_delay(read_group, d + start_dqs);
-		if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS) {
-			uint32_t delay = d + start_dqs_en;
-			if (delay > IO_DQS_EN_DELAY_MAX)
-				delay = IO_DQS_EN_DELAY_MAX;
-			scc_mgr_set_dqs_en_delay(read_group, delay);
-		}
-		scc_mgr_load_dqs(read_group);
+	ret = search_right_edge(0, rank_bgn, write_group, read_group,
+				start_dqs, start_dqs_en,
+				&bit_chk, &sticky_bit_chk,
+				left_edge, right_edge, use_read_test);
+	if (ret) {
+		/*
+		 * Restore delay chain settings before letting the loop
+		 * in rw_mgr_mem_calibrate_vfifo to retry different
+		 * dqs/ck relationships.
+		 */
+		scc_mgr_set_dqs_bus_in_delay(read_group, start_dqs);
+		if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS)
+			scc_mgr_set_dqs_en_delay(read_group, start_dqs_en);
 
+		scc_mgr_load_dqs(read_group);
 		writel(0, &sdr_scc_mgr->update);
 
-		/*
-		 * Stop searching when the read test doesn't pass AND when
-		 * we've seen a passing read on every bit.
-		 */
+		debug_cond(DLEVEL == 1,
+			   "%s:%d vfifo_center: failed to find edge [%u]: %d %d",
+			   __func__, __LINE__, i, left_edge[i], right_edge[i]);
 		if (use_read_test) {
-			stop = !rw_mgr_mem_calibrate_read_test(rank_bgn,
-				read_group, NUM_READ_PB_TESTS, PASS_ONE_BIT,
-				&bit_chk, 0, 0);
+			set_failing_group_stage(read_group *
+				RW_MGR_MEM_DQ_PER_READ_DQS + i,
+				CAL_STAGE_VFIFO,
+				CAL_SUBSTAGE_VFIFO_CENTER);
 		} else {
-			rw_mgr_mem_calibrate_write_test(rank_bgn, write_group,
-							0, PASS_ONE_BIT,
-							&bit_chk, 0);
-			bit_chk = bit_chk >> (RW_MGR_MEM_DQ_PER_READ_DQS *
-				(read_group - (write_group *
-					RW_MGR_MEM_IF_READ_DQS_WIDTH /
-					RW_MGR_MEM_IF_WRITE_DQS_WIDTH)));
-			stop = (bit_chk == 0);
+			set_failing_group_stage(read_group *
+				RW_MGR_MEM_DQ_PER_READ_DQS + i,
+				CAL_STAGE_VFIFO_AFTER_WRITES,
+				CAL_SUBSTAGE_VFIFO_CENTER);
 		}
-		sticky_bit_chk = sticky_bit_chk | bit_chk;
-		stop = stop && (sticky_bit_chk == param->read_correct_mask);
-
-		debug_cond(DLEVEL == 2, "%s:%d vfifo_center(right): dtap=%u => %u == \
-			   %u && %u", __func__, __LINE__, d,
-			   sticky_bit_chk, param->read_correct_mask, stop);
-
-		if (stop == 1) {
-			break;
-		} else {
-			for (i = 0; i < RW_MGR_MEM_DQ_PER_READ_DQS; i++) {
-				if (bit_chk & 1) {
-					/* Remember a passing test as
-					the right_edge */
-					right_edge[i] = d;
-				} else {
-					if (d != 0) {
-						/* If a right edge has not been
-						seen yet, then a future passing
-						test will mark this edge as the
-						left edge */
-						if (right_edge[i] ==
-						IO_IO_IN_DELAY_MAX + 1) {
-							left_edge[i] = -(d + 1);
-						}
-					} else {
-						/* d = 0 failed, but it passed
-						when testing the left edge,
-						so it must be marginal,
-						set it to -1 */
-						if (right_edge[i] ==
-							IO_IO_IN_DELAY_MAX + 1 &&
-							left_edge[i] !=
-							IO_IO_IN_DELAY_MAX
-							+ 1) {
-							right_edge[i] = -1;
-						}
-						/* If a right edge has not been
-						seen yet, then a future passing
-						test will mark this edge as the
-						left edge */
-						else if (right_edge[i] ==
-							IO_IO_IN_DELAY_MAX +
-							1) {
-							left_edge[i] = -(d + 1);
-						}
-					}
-				}
-
-				debug_cond(DLEVEL == 2, "%s:%d vfifo_center[r,\
-					   d=%u]: ", __func__, __LINE__, d);
-				debug_cond(DLEVEL == 2, "bit_chk_test=%d left_edge[%u]: %d ",
-					   (int)(bit_chk & 1), i, left_edge[i]);
-				debug_cond(DLEVEL == 2, "right_edge[%u]: %d\n", i,
-					   right_edge[i]);
-				bit_chk = bit_chk >> 1;
-			}
-		}
-	}
-
-	/* Check that all bits have a window */
-	for (i = 0; i < RW_MGR_MEM_DQ_PER_READ_DQS; i++) {
-		debug_cond(DLEVEL == 2, "%s:%d vfifo_center: left_edge[%u]: \
-			   %d right_edge[%u]: %d", __func__, __LINE__,
-			   i, left_edge[i], i, right_edge[i]);
-		if ((left_edge[i] == IO_IO_IN_DELAY_MAX + 1) || (right_edge[i]
-			== IO_IO_IN_DELAY_MAX + 1)) {
-			/*
-			 * Restore delay chain settings before letting the loop
-			 * in rw_mgr_mem_calibrate_vfifo to retry different
-			 * dqs/ck relationships.
-			 */
-			scc_mgr_set_dqs_bus_in_delay(read_group, start_dqs);
-			if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS) {
-				scc_mgr_set_dqs_en_delay(read_group,
-							 start_dqs_en);
-			}
-			scc_mgr_load_dqs(read_group);
-			writel(0, &sdr_scc_mgr->update);
-
-			debug_cond(DLEVEL == 1, "%s:%d vfifo_center: failed to \
-				   find edge [%u]: %d %d", __func__, __LINE__,
-				   i, left_edge[i], right_edge[i]);
-			if (use_read_test) {
-				set_failing_group_stage(read_group *
-					RW_MGR_MEM_DQ_PER_READ_DQS + i,
-					CAL_STAGE_VFIFO,
-					CAL_SUBSTAGE_VFIFO_CENTER);
-			} else {
-				set_failing_group_stage(read_group *
-					RW_MGR_MEM_DQ_PER_READ_DQS + i,
-					CAL_STAGE_VFIFO_AFTER_WRITES,
-					CAL_SUBSTAGE_VFIFO_CENTER);
-			}
-			return 0;
-		}
+		return 0;
 	}
 
 	/* Find middle of window for each DQ bit */
@@ -2729,6 +2796,8 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	uint32_t temp_dq_out1_delay;
 	uint32_t addr;
 
+	int ret;
+
 	debug("%s:%d %u %u", __func__, __LINE__, write_group, test_bgn);
 
 	dm_margin = 0;
@@ -2833,107 +2902,14 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	}
 
 	/* Search for the right edge of the window for each bit */
-	for (d = 0; d <= IO_IO_OUT1_DELAY_MAX - start_dqs; d++) {
-		scc_mgr_apply_group_dqs_io_and_oct_out1(write_group,
-							d + start_dqs);
-
-		writel(0, &sdr_scc_mgr->update);
-
-		/*
-		 * Stop searching when the read test doesn't pass AND when
-		 * we've seen a passing read on every bit.
-		 */
-		stop = !rw_mgr_mem_calibrate_write_test(rank_bgn, write_group,
-			0, PASS_ONE_BIT, &bit_chk, 0);
-
-		sticky_bit_chk = sticky_bit_chk | bit_chk;
-		stop = stop && (sticky_bit_chk == param->write_correct_mask);
-
-		debug_cond(DLEVEL == 2, "write_center (right): dtap=%u => %u == \
-			   %u && %u\n", d, sticky_bit_chk,
-			   param->write_correct_mask, stop);
-
-		if (stop == 1) {
-			if (d == 0) {
-				for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS;
-					i++) {
-					/* d = 0 failed, but it passed when
-					testing the left edge, so it must be
-					marginal, set it to -1 */
-					if (right_edge[i] ==
-						IO_IO_OUT1_DELAY_MAX + 1 &&
-						left_edge[i] !=
-						IO_IO_OUT1_DELAY_MAX + 1) {
-						right_edge[i] = -1;
-					}
-				}
-			}
-			break;
-		} else {
-			for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
-				if (bit_chk & 1) {
-					/*
-					 * Remember a passing test as
-					 * the right_edge.
-					 */
-					right_edge[i] = d;
-				} else {
-					if (d != 0) {
-						/*
-						 * If a right edge has not
-						 * been seen yet, then a future
-						 * passing test will mark this
-						 * edge as the left edge.
-						 */
-						if (right_edge[i] ==
-						    IO_IO_OUT1_DELAY_MAX + 1)
-							left_edge[i] = -(d + 1);
-					} else {
-						/*
-						 * d = 0 failed, but it passed
-						 * when testing the left edge,
-						 * so it must be marginal, set
-						 * it to -1.
-						 */
-						if (right_edge[i] ==
-						    IO_IO_OUT1_DELAY_MAX + 1 &&
-						    left_edge[i] !=
-						    IO_IO_OUT1_DELAY_MAX + 1)
-							right_edge[i] = -1;
-						/*
-						 * If a right edge has not been
-						 * seen yet, then a future
-						 * passing test will mark this
-						 * edge as the left edge.
-						 */
-						else if (right_edge[i] ==
-							IO_IO_OUT1_DELAY_MAX +
-							1)
-							left_edge[i] = -(d + 1);
-					}
-				}
-				debug_cond(DLEVEL == 2, "write_center[r,d=%d):", d);
-				debug_cond(DLEVEL == 2, "bit_chk_test=%d left_edge[%u]: %d",
-					   (int)(bit_chk & 1), i, left_edge[i]);
-				debug_cond(DLEVEL == 2, "right_edge[%u]: %d\n", i,
-					   right_edge[i]);
-				bit_chk = bit_chk >> 1;
-			}
-		}
-	}
-
-	/* Check that all bits have a window */
-	for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
-		debug_cond(DLEVEL == 2, "%s:%d write_center: left_edge[%u]: \
-			   %d right_edge[%u]: %d", __func__, __LINE__,
-			   i, left_edge[i], i, right_edge[i]);
-		if ((left_edge[i] == IO_IO_OUT1_DELAY_MAX + 1) ||
-		    (right_edge[i] == IO_IO_OUT1_DELAY_MAX + 1)) {
-			set_failing_group_stage(test_bgn + i,
-						CAL_STAGE_WRITES,
-						CAL_SUBSTAGE_WRITES_CENTER);
-			return 0;
-		}
+	ret = search_right_edge(1, rank_bgn, write_group, 0,
+				start_dqs, 0,
+				&bit_chk, &sticky_bit_chk,
+				left_edge, right_edge, 0);
+	if (ret) {
+		set_failing_group_stage(test_bgn + ret - 1, CAL_STAGE_WRITES,
+					CAL_SUBSTAGE_WRITES_CENTER);
+		return 0;
 	}
 
 	/* Find middle of window for each DQ bit */
