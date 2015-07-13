@@ -43,6 +43,7 @@
 #else
 #include <common.h>
 #include "linux-compat.h"
+#include <asm/processor.h>
 #endif
 
 #include "musb_core.h"
