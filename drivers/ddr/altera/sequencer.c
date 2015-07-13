@@ -1781,6 +1781,60 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 }
 
 /**
+ * search_stop_check() - Check if the detected edge is valid
+ * @write:		Perform read (Stage 2) or write (Stage 3) calibration
+ * @d:			DQS delay
+ * @rank_bgn:		Rank number
+ * @write_group:	Write Group
+ * @read_group:		Read Group
+ * @bit_chk:		Resulting bit mask after the test
+ * @sticky_bit_chk:	Resulting sticky bit mask after the test
+ * @use_read_test:	Perform read test
+ *
+ * Test if the found edge is valid.
+ */
+static u32 search_stop_check(const int write, const int d, const int rank_bgn,
+			     const u32 write_group, const u32 read_group,
+			     u32 *bit_chk, u32 *sticky_bit_chk,
+			     const u32 use_read_test)
+{
+	const u32 ratio = RW_MGR_MEM_IF_READ_DQS_WIDTH /
+			  RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
+	const u32 correct_mask = write ? param->write_correct_mask :
+					 param->read_correct_mask;
+	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
+				    RW_MGR_MEM_DQ_PER_READ_DQS;
+	u32 ret;
+	/*
+	 * Stop searching when the read test doesn't pass AND when
+	 * we've seen a passing read on every bit.
+	 */
+	if (write) {			/* WRITE-ONLY */
+		ret = !rw_mgr_mem_calibrate_write_test(rank_bgn, write_group,
+							 0, PASS_ONE_BIT,
+							 bit_chk, 0);
+	} else if (use_read_test) {	/* READ-ONLY */
+		ret = !rw_mgr_mem_calibrate_read_test(rank_bgn, read_group,
+							NUM_READ_PB_TESTS,
+							PASS_ONE_BIT, bit_chk,
+							0, 0);
+	} else {			/* READ-ONLY */
+		rw_mgr_mem_calibrate_write_test(rank_bgn, write_group, 0,
+						PASS_ONE_BIT, bit_chk, 0);
+		*bit_chk = *bit_chk >> (per_dqs *
+			(read_group - (write_group * ratio)));
+		ret = (*bit_chk == 0);
+	}
+	*sticky_bit_chk = *sticky_bit_chk | *bit_chk;
+	ret = ret && (*sticky_bit_chk == correct_mask);
+	debug_cond(DLEVEL == 2,
+		   "%s:%d center(left): dtap=%u => %u == %u && %u",
+		   __func__, __LINE__, d,
+		   *sticky_bit_chk, correct_mask, ret);
+	return ret;
+}
+
+/**
  * search_left_edge() - Find left edge of DQ/DQS working phase
  * @write:		Perform read (Stage 2) or write (Stage 3) calibration
  * @rank_bgn:		Rank number
@@ -1800,8 +1854,6 @@ static void search_left_edge(const int write, const int rank_bgn,
 	u32 *bit_chk, u32 *sticky_bit_chk,
 	int *left_edge, int *right_edge, const u32 use_read_test)
 {
-	const u32 correct_mask = write ? param->write_correct_mask :
-					 param->read_correct_mask;
 	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
 	const u32 dqs_max = write ? IO_IO_OUT1_DELAY_MAX : IO_DQS_IN_DELAY_MAX;
 	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
@@ -1817,36 +1869,9 @@ static void search_left_edge(const int write, const int rank_bgn,
 
 		writel(0, &sdr_scc_mgr->update);
 
-		/*
-		 * Stop searching when the read test doesn't pass AND when
-		 * we've seen a passing read on every bit.
-		 */
-		if (write) {			/* WRITE-ONLY */
-			stop = !rw_mgr_mem_calibrate_write_test(rank_bgn,
-						write_group,
-						0, PASS_ONE_BIT,
-						bit_chk, 0);
-		} else if (use_read_test) {	/* READ-ONLY */
-			stop = !rw_mgr_mem_calibrate_read_test(rank_bgn,
-				read_group, NUM_READ_PB_TESTS, PASS_ONE_BIT,
-				bit_chk, 0, 0);
-		} else {			/* READ-ONLY */
-			rw_mgr_mem_calibrate_write_test(rank_bgn,
-							write_group,
-							0, PASS_ONE_BIT,
-							bit_chk, 0);
-			*bit_chk = *bit_chk >> (per_dqs *
-				(read_group - (write_group *
-					RW_MGR_MEM_IF_READ_DQS_WIDTH /
-					RW_MGR_MEM_IF_WRITE_DQS_WIDTH)));
-			stop = (*bit_chk == 0);
-		}
-		*sticky_bit_chk = *sticky_bit_chk | *bit_chk;
-		stop = stop && (*sticky_bit_chk == correct_mask);
-		debug_cond(DLEVEL == 2,
-			   "%s:%d center(left): dtap=%u => %u == %u && %u", __func__, __LINE__, d,
-			   *sticky_bit_chk, correct_mask, stop);
-
+		stop = search_stop_check(write, d, rank_bgn, write_group,
+					 read_group, bit_chk, sticky_bit_chk,
+					 use_read_test);
 		if (stop == 1)
 			break;
 
@@ -1941,8 +1966,6 @@ static int search_right_edge(const int write, const int rank_bgn,
 	u32 *bit_chk, u32 *sticky_bit_chk,
 	int *left_edge, int *right_edge, const u32 use_read_test)
 {
-	const u32 correct_mask = write ? param->write_correct_mask :
-					 param->read_correct_mask;
 	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
 	const u32 dqs_max = write ? IO_IO_OUT1_DELAY_MAX : IO_DQS_IN_DELAY_MAX;
 	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
@@ -1967,38 +1990,9 @@ static int search_right_edge(const int write, const int rank_bgn,
 
 		writel(0, &sdr_scc_mgr->update);
 
-		/*
-		 * Stop searching when the read test doesn't pass AND when
-		 * we've seen a passing read on every bit.
-		 */
-		if (write) {	/* WRITE-ONLY */
-			stop = !rw_mgr_mem_calibrate_write_test(rank_bgn,
-							write_group,
-							0, PASS_ONE_BIT,
-							bit_chk, 0);
-
-		} else if (use_read_test) {	/* READ-ONLY */
-			stop = !rw_mgr_mem_calibrate_read_test(rank_bgn,
-				read_group, NUM_READ_PB_TESTS, PASS_ONE_BIT,
-				bit_chk, 0, 0);
-		} else {			/* READ-ONLY */
-			rw_mgr_mem_calibrate_write_test(rank_bgn,
-							write_group,
-							0, PASS_ONE_BIT,
-							bit_chk, 0);
-			*bit_chk = *bit_chk >> (per_dqs *
-				(read_group - (write_group *
-					RW_MGR_MEM_IF_READ_DQS_WIDTH /
-					RW_MGR_MEM_IF_WRITE_DQS_WIDTH)));
-			stop = (*bit_chk == 0);
-		}
-		*sticky_bit_chk = *sticky_bit_chk | *bit_chk;
-		stop = stop && (*sticky_bit_chk == correct_mask);
-
-		debug_cond(DLEVEL == 2,
-			   "%s:%d center(right): dtap=%u => %u == %u && %u", __func__, __LINE__, d,
-			   *sticky_bit_chk, correct_mask, stop);
-
+		stop = search_stop_check(write, d, rank_bgn, write_group,
+					 read_group, bit_chk, sticky_bit_chk,
+					 use_read_test);
 		if (stop == 1) {
 			if (write && (d == 0)) {	/* WRITE-ONLY */
 				for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
