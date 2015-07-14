@@ -55,6 +55,11 @@ int stv0991_pinmux_config(int peripheral)
 				ETH_M_VDD_CFG, &stv0991_creg->vdd_pad1);
 
 		break;
+	case QSPI_CS_CLK_PAD:
+		writel((readl(&stv0991_creg->mux13) & FLASH_CS_NC_MASK) |
+				CFG_FLASH_CS_NC, &stv0991_creg->mux13);
+		writel((readl(&stv0991_creg->mux13) & FLASH_CLK_MASK) |
+				CFG_FLASH_CLK, &stv0991_creg->mux13);
 	default:
 		break;
 	}
