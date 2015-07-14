@@ -915,7 +915,7 @@ int fdt_get_string_index(const void *fdt, int node, const char *property,
 			 int index, const char **output);
 
 /**
- * fdt_get_string() - obtain the string at a given index in a string list
+ * fdt_get_string() - obtain the first string in a string list
  * @fdt: pointer to the device tree blob
  * @node: offset of the node
  * @property: name of the property containing the string list
