@@ -98,8 +98,7 @@ void pirq_route_irqs(struct irq_info *irq, int num)
 		}
 
 		/* Bus, device, slots IRQs for {A,B,C,D} */
-		pci_assign_irqs(irq->bus, irq->devfn >> 3, irq->devfn & 7,
-				irq_slot);
+		pci_assign_irqs(irq->bus, irq->devfn >> 3, irq_slot);
 
 		irq++;
 	}

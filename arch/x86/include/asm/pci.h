@@ -72,11 +72,10 @@ int pci_x86_write_config(struct udevice *bus, pci_dev_t bdf, uint offset,
  *
  * @bus:	PCI bus number
  * @device:	PCI device number
- * @func:	PCI function number
  * @irq:	An array of IRQ numbers that are assigned to INTA through
  *		INTD of this PCI device.
  */
-void pci_assign_irqs(int bus, int device, int func, u8 irq[4]);
+void pci_assign_irqs(int bus, int device, u8 irq[4]);
 
 #endif /* __ASSEMBLY__ */
 
