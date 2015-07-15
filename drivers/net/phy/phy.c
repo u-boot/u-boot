@@ -763,11 +763,13 @@ struct phy_device *phy_find_by_mask(struct mii_dev *bus, unsigned phy_mask,
 		phy_interface_t interface)
 {
 	/* Reset the bus */
-	if (bus->reset)
+	if (bus->reset) {
 		bus->reset(bus);
 
-	/* Wait 15ms to make sure the PHY has come out of hard reset */
-	udelay(15000);
+		/* Wait 15ms to make sure the PHY has come out of hard reset */
+		udelay(15000);
+	}
+
 	return get_phy_device_by_mask(bus, phy_mask, interface);
 }
 
