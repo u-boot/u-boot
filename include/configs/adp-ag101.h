@@ -9,7 +9,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/arch/ag101.h>
+#include <asm/arch-ag101/ag101.h>
 
 /*
  * CPU and Board Configuration Options
