@@ -21,6 +21,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+__weak u32 omap_sys_boot_device(void)
+{
+	return BOOT_DEVICE_NONE;
+}
+
 void save_omap_boot_params(void)
 {
 	u32 boot_params = *((u32 *)OMAP_SRAM_SCRATCH_BOOT_PARAMS);
@@ -34,9 +39,10 @@ void save_omap_boot_params(void)
 
 	omap_boot_params = (struct omap_boot_parameters *)boot_params;
 
-	/* Boot device */
-
 	boot_device = omap_boot_params->boot_device;
+	boot_mode = MMCSD_MODE_UNDEFINED;
+
+	/* Boot device */
 
 #ifdef BOOT_DEVICE_NAND_I2C
 	/*
@@ -58,16 +64,39 @@ void save_omap_boot_params(void)
 	if (boot_device == BOOT_DEVICE_QSPI_4)
 		boot_device = BOOT_DEVICE_SPI;
 #endif
+#if (defined(BOOT_DEVICE_UART) && !defined(CONFIG_SPL_YMODEM_SUPPORT)) || \
+    (defined(BOOT_DEVICE_USB) && !defined(CONFIG_SPL_USB_SUPPORT)) || \
+    (defined(BOOT_DEVICE_USBETH) && !defined(CONFIG_SPL_USBETH_SUPPORT))
+	/*
+	 * When booting from peripheral booting, the boot device is not usable
+	 * as-is (unless there is support for it), so the boot device is instead
+	 * figured out using the SYS_BOOT pins.
+	 */
+	switch (boot_device) {
+#ifdef BOOT_DEVICE_UART
+	case BOOT_DEVICE_UART:
+#endif
+#ifdef BOOT_DEVICE_USB
+	case BOOT_DEVICE_USB:
+#endif
+		boot_device = omap_sys_boot_device();
+
+		/* MMC raw mode will fallback to FS mode. */
+		if ((boot_device >= MMC_BOOT_DEVICES_START) &&
+		    (boot_device <= MMC_BOOT_DEVICES_END))
+			boot_mode = MMCSD_MODE_RAW;
+
+		break;
+	}
+#endif
 
 	gd->arch.omap_boot_device = boot_device;
 
 	/* Boot mode */
 
-	boot_mode = MMCSD_MODE_UNDEFINED;
-
+#ifdef CONFIG_OMAP34XX
 	if ((boot_device >= MMC_BOOT_DEVICES_START) &&
 	    (boot_device <= MMC_BOOT_DEVICES_END)) {
-#ifdef CONFIG_OMAP34XX
 		switch (boot_device) {
 		case BOOT_DEVICE_MMC1:
 			boot_mode = MMCSD_MODE_FS;
@@ -76,7 +105,16 @@ void save_omap_boot_params(void)
 			boot_mode = MMCSD_MODE_RAW;
 			break;
 		}
+	}
 #else
+	/*
+	 * If the boot device was dynamically changed and doesn't match what
+	 * the bootrom initially booted, we cannot use the boot device
+	 * descriptor to figure out the boot mode.
+	 */
+	if ((boot_device == omap_boot_params->boot_device) &&
+	    (boot_device >= MMC_BOOT_DEVICES_START) &&
+	    (boot_device <= MMC_BOOT_DEVICES_END)) {
 		boot_params = omap_boot_params->boot_device_descriptor;
 		if ((boot_params < NON_SECURE_SRAM_START) ||
 		    (boot_params > NON_SECURE_SRAM_END))
@@ -92,12 +130,12 @@ void save_omap_boot_params(void)
 		if (boot_mode != MMCSD_MODE_FS &&
 		    boot_mode != MMCSD_MODE_RAW)
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
-			boot_mode = MMCSD_MODE_EMMCBOOT
+			boot_mode = MMCSD_MODE_EMMCBOOT;
 #else
 			boot_mode = MMCSD_MODE_UNDEFINED;
 #endif
-#endif
 	}
+#endif
 
 	gd->arch.omap_boot_mode = boot_mode;
 

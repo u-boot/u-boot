@@ -697,4 +697,8 @@ static inline u8 is_dra72x(void)
 #define CH_FLAGS_CHFLASH	(1 << 2)
 #define CH_FLAGS_CHMMCSD	(1 << 3)
 
+#ifndef __ASSEMBLY__
+u32 omap_sys_boot_device(void);
+#endif
+
 #endif /* _OMAP_COMMON_H_ */
