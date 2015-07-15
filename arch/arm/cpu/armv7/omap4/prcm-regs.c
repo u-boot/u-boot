@@ -279,6 +279,7 @@ struct prcm_regs const omap4_prcm = {
 };
 
 struct omap_sys_ctrl_regs const omap4_ctrl = {
+	.control_status				= 0x4A0022C4,
 	.control_id_code			= 0x4A002204,
 	.control_std_fuse_opp_bgap		= 0x4a002260,
 	.control_status				= 0x4a0022c4,
