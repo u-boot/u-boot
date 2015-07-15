@@ -7,6 +7,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <config.h>
+#include <netdev.h>
 #include <asm/system.h>
 #include <asm/iproc-common/armpll.h>
 
@@ -65,5 +66,15 @@ void smp_kick_all_cpus(void)
 
 void smp_waitloop(unsigned previous_address)
 {
+}
+#endif
+
+#ifdef CONFIG_BCM_SF2_ETH
+int board_eth_init(bd_t *bis)
+{
+	int rc = -1;
+	printf("Registering BCM sf2 eth\n");
+	rc = bcm_sf2_eth_register(bis, 0);
+	return rc;
 }
 #endif
