@@ -363,13 +363,26 @@ int x86_cpu_init_f(void)
 		mtrr_cap = native_read_msr(MTRR_CAP_MSR);
 		if (mtrr_cap & MTRR_CAP_FIX) {
 			/* Mark the VGA RAM area as uncacheable */
-			native_write_msr(MTRR_FIX_16K_A0000_MSR, 0, 0);
+			native_write_msr(MTRR_FIX_16K_A0000_MSR,
+					 MTRR_FIX_TYPE(MTRR_TYPE_UNCACHEABLE),
+					 MTRR_FIX_TYPE(MTRR_TYPE_UNCACHEABLE));
 
-			/* Mark the PCI ROM area as uncacheable */
-			native_write_msr(MTRR_FIX_4K_C0000_MSR, 0, 0);
-			native_write_msr(MTRR_FIX_4K_C8000_MSR, 0, 0);
-			native_write_msr(MTRR_FIX_4K_D0000_MSR, 0, 0);
-			native_write_msr(MTRR_FIX_4K_D8000_MSR, 0, 0);
+			/*
+			 * Mark the PCI ROM area as cacheable to improve ROM
+			 * execution performance.
+			 */
+			native_write_msr(MTRR_FIX_4K_C0000_MSR,
+					 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK),
+					 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+			native_write_msr(MTRR_FIX_4K_C8000_MSR,
+					 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK),
+					 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+			native_write_msr(MTRR_FIX_4K_D0000_MSR,
+					 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK),
+					 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
+			native_write_msr(MTRR_FIX_4K_D8000_MSR,
+					 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK),
+					 MTRR_FIX_TYPE(MTRR_TYPE_WRBACK));
 
 			/* Enable the fixed range MTRRs */
 			msr_setbits_64(MTRR_DEF_TYPE_MSR, MTRR_DEF_TYPE_FIX_EN);

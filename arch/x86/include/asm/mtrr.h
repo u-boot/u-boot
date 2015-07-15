@@ -55,6 +55,8 @@
 #define MTRR_FIX_4K_F0000_MSR	0x26e
 #define MTRR_FIX_4K_F8000_MSR	0x26f
 
+#define MTRR_FIX_TYPE(t)	((t << 24) | (t << 16) | (t << 8) | t)
+
 #if !defined(__ASSEMBLER__)
 
 /**
