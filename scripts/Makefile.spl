@@ -163,6 +163,10 @@ ifdef CONFIG_SAMSUNG
 ALL-y	+= $(obj)/$(BOARD)-spl.bin
 endif
 
+ifdef CONFIG_ARCH_SOCFPGA
+ALL-y	+= $(obj)/$(SPL_BIN)-dtb.sfp
+endif
+
 ifdef CONFIG_SUNXI
 ALL-y	+= $(obj)/sunxi-spl.bin
 endif
@@ -229,6 +233,12 @@ $(obj)/$(SPL_BIN).bin: $(obj)/$(SPL_BIN) FORCE
 LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
+endif
+
+ifdef CONFIG_ARCH_SOCFPGA
+MKIMAGEFLAGS_$(SPL_BIN)-dtb.sfp = -T socfpgaimage
+$(obj)/$(SPL_BIN)-dtb.sfp: $(obj)/$(SPL_BIN)-dtb.bin FORCE
+	$(call if_changed,mkimage)
 endif
 
 ifdef CONFIG_SUNXI

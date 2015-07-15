@@ -1020,6 +1020,15 @@ u-boot-nand.gph: u-boot.bin FORCE
 	$(call if_changed,mkimage)
 	@dd if=/dev/zero bs=8 count=1 2>/dev/null >> $@
 
+ifneq ($(CONFIG_ARCH_SOCFPGA),)
+quiet_cmd_socboot = SOCBOOT $@
+cmd_socboot = cat	spl/u-boot-spl-dtb.sfp spl/u-boot-spl-dtb.sfp	\
+			spl/u-boot-spl-dtb.sfp spl/u-boot-spl-dtb.sfp	\
+			u-boot-dtb.img > $@ || rm -f $@
+u-boot-with-spl-dtb.sfp: spl/u-boot-spl-dtb.sfp u-boot-dtb.img FORCE
+	$(call if_changed,socboot)
+endif
+
 # x86 uses a large ROM. We fill it with 0xff, put the 16-bit stuff (including
 # reset vector) at the top, Intel ME descriptor at the bottom, and U-Boot in
 # the middle.
@@ -1296,6 +1305,9 @@ spl/u-boot-spl: tools prepare $(if $(CONFIG_OF_SEPARATE),dts/dt.dtb)
 	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.spl all
 
 spl/sunxi-spl.bin: spl/u-boot-spl
+	@:
+
+spl/u-boot-spl-dtb.sfp: spl/u-boot-spl
 	@:
 
 tpl/u-boot-tpl.bin: tools prepare
