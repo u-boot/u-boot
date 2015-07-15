@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <pci.h>
 #include <asm/io.h>
@@ -220,6 +221,11 @@ phys_addr_t pci_hose_bus_to_phys(struct pci_controller *hose,
 		puts("pci_hose_bus_to_phys: invalid hose\n");
 		return phys_addr;
 	}
+
+#ifdef CONFIG_DM_PCI
+	/* The root controller has the region information */
+	hose = hose->ctlr->uclass_priv;
+#endif
 
 	/*
 	 * if PCI_REGION_MEM is set we do a two pass search with preference

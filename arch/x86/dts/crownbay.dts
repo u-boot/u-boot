@@ -10,6 +10,7 @@
 
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
+/include/ "rtc.dtsi"
 
 / {
 	model = "Intel Crown Bay";
@@ -21,6 +22,26 @@
 
 	config {
 		silent_console = <0>;
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "cpu-x86";
+			reg = <0>;
+			intel,apic-id = <0>;
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "cpu-x86";
+			reg = <1>;
+			intel,apic-id = <1>;
+		};
+
 	};
 
 	gpioa {
@@ -148,10 +169,22 @@
 				/* TunnelCreek PCI devices */
 				PCI_BDF(0, 2, 0) INTA PIRQE
 				PCI_BDF(0, 3, 0) INTA PIRQF
-				PCI_BDF(0, 23, 0) INTA PIRQE
-				PCI_BDF(0, 24, 0) INTA PIRQF
-				PCI_BDF(0, 25, 0) INTA PIRQG
-				PCI_BDF(0, 26, 0) INTA PIRQH
+				PCI_BDF(0, 23, 0) INTA PIRQA
+				PCI_BDF(0, 23, 0) INTB PIRQB
+				PCI_BDF(0, 23, 0) INTC PIRQC
+				PCI_BDF(0, 23, 0) INTD PIRQD
+				PCI_BDF(0, 24, 0) INTA PIRQB
+				PCI_BDF(0, 24, 0) INTB PIRQC
+				PCI_BDF(0, 24, 0) INTC PIRQD
+				PCI_BDF(0, 24, 0) INTD PIRQA
+				PCI_BDF(0, 25, 0) INTA PIRQC
+				PCI_BDF(0, 25, 0) INTB PIRQD
+				PCI_BDF(0, 25, 0) INTC PIRQA
+				PCI_BDF(0, 25, 0) INTD PIRQB
+				PCI_BDF(0, 26, 0) INTA PIRQD
+				PCI_BDF(0, 26, 0) INTB PIRQA
+				PCI_BDF(0, 26, 0) INTC PIRQB
+				PCI_BDF(0, 26, 0) INTD PIRQC
 				PCI_BDF(0, 27, 0) INTA PIRQG
 				/*
 				 * Topcliff PCI devices
@@ -159,29 +192,29 @@
 				 * Note on the Crown Bay board, Topcliff chipset
 				 * is connected to TunnelCreek PCIe port 0, so
 				 * its bus number is 1 for its PCIe port and 2
-				 * for its PCI devices per U-Boot currnet PCI
+				 * for its PCI devices per U-Boot current PCI
 				 * bus enumeration algorithm.
 				 */
 				PCI_BDF(1, 0, 0) INTA PIRQA
 				PCI_BDF(2, 0, 1) INTA PIRQA
 				PCI_BDF(2, 0, 2) INTA PIRQA
-				PCI_BDF(2, 2, 0) INTB PIRQB
-				PCI_BDF(2, 2, 1) INTB PIRQB
-				PCI_BDF(2, 2, 2) INTB PIRQB
-				PCI_BDF(2, 2, 3) INTB PIRQB
-				PCI_BDF(2, 2, 4) INTB PIRQB
+				PCI_BDF(2, 2, 0) INTB PIRQD
+				PCI_BDF(2, 2, 1) INTB PIRQD
+				PCI_BDF(2, 2, 2) INTB PIRQD
+				PCI_BDF(2, 2, 3) INTB PIRQD
+				PCI_BDF(2, 2, 4) INTB PIRQD
 				PCI_BDF(2, 4, 0) INTC PIRQC
 				PCI_BDF(2, 4, 1) INTC PIRQC
-				PCI_BDF(2, 6, 0) INTD PIRQD
+				PCI_BDF(2, 6, 0) INTD PIRQB
 				PCI_BDF(2, 8, 0) INTA PIRQA
 				PCI_BDF(2, 8, 1) INTA PIRQA
 				PCI_BDF(2, 8, 2) INTA PIRQA
 				PCI_BDF(2, 8, 3) INTA PIRQA
-				PCI_BDF(2, 10, 0) INTB PIRQB
-				PCI_BDF(2, 10, 1) INTB PIRQB
-				PCI_BDF(2, 10, 2) INTB PIRQB
-				PCI_BDF(2, 10, 3) INTB PIRQB
-				PCI_BDF(2, 10, 4) INTB PIRQB
+				PCI_BDF(2, 10, 0) INTB PIRQD
+				PCI_BDF(2, 10, 1) INTB PIRQD
+				PCI_BDF(2, 10, 2) INTB PIRQD
+				PCI_BDF(2, 10, 3) INTB PIRQD
+				PCI_BDF(2, 10, 4) INTB PIRQD
 				PCI_BDF(2, 12, 0) INTC PIRQC
 				PCI_BDF(2, 12, 1) INTC PIRQC
 				PCI_BDF(2, 12, 2) INTC PIRQC

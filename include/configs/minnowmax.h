@@ -32,6 +32,7 @@
 #define CONFIG_PCI_IO_PHYS		CONFIG_PCI_IO_BUS
 #define CONFIG_PCI_IO_SIZE		0xe000
 
+#define CONFIG_PCI_CONFIG_HOST_BRIDGE
 #define CONFIG_SYS_EARLY_PCI_INIT
 #define CONFIG_PCI_PNP
 #define CONFIG_RTL8169
@@ -52,9 +53,6 @@
 #undef CONFIG_USB_MAX_CONTROLLER_COUNT
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		1
 
-#define CONFIG_X86_OPTION_ROM_FILE		vga.bin
-#define CONFIG_X86_OPTION_ROM_ADDR		0xfff90000
-
 #define VIDEO_IO_OFFSET				0
 #define CONFIG_X86EMU_RAW_IO
 #define CONFIG_VGA_AS_SINGLE_DEVICE
@@ -65,8 +63,7 @@
 /* Avoid a warning in the Realtek Ethernet driver */
 #define CONFIG_SYS_CACHELINE_SIZE 16
 
-/* Environment in SPI flash is unsupported for now */
-#undef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_SECT_SIZE		0x1000
+#define CONFIG_ENV_OFFSET		0x007fe000
 
 #endif	/* __CONFIG_H */

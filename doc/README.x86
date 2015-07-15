@@ -79,7 +79,7 @@ Find the following files:
 * ./northbridge/intel/sandybridge/systemagent-r6.bin
 
 The 3rd one should be renamed to mrc.bin.
-As for the video ROM, you can get it here [3].
+As for the video ROM, you can get it here [3] and rename it to vga.bin.
 Make sure all these binary blobs are put in the board directory.
 
 Now you can build U-Boot and obtain u-boot.rom:
@@ -112,6 +112,10 @@ did not describe any details. We need manually apply the patch to the FSP
 binary using any hex editor (eg: bvi). Go to the offset 0x1fcd8 of the FSP
 binary, change the following five bytes values from orginally E8 42 FF FF FF
 to B8 00 80 0B 00.
+
+As for the video ROM, you need manually extract it from the Intel provided
+BIOS for Crown Bay here [6], using the AMI MMTool [7]. Check PCI option ROM
+ID 8086:4108, extract and save it as vga.bin in the board directory.
 
 Now you can build U-Boot and obtain u-boot.rom
 
@@ -159,6 +163,31 @@ Now you can build U-Boot and obtain u-boot.rom
 
 $ make minnowmax_defconfig
 $ make all
+
+Checksums are as follows (but note that newer versions will invalidate this):
+
+$ md5sum -b board/intel/minnowmax/*.bin
+ffda9a3b94df5b74323afb328d51e6b4  board/intel/minnowmax/descriptor.bin
+69f65b9a580246291d20d08cbef9d7c5  board/intel/minnowmax/fsp.bin
+894a97d371544ec21de9c3e8e1716c4b  board/intel/minnowmax/me.bin
+a2588537da387da592a27219d56e9962  board/intel/minnowmax/vga.bin
+
+The ROM image is broken up into these parts:
+
+Offset   Description         Controlling config
+------------------------------------------------------------
+000000   descriptor.bin      Hard-coded to 0 in ifdtool
+001000   me.bin              Set by the descriptor
+500000   <spare>
+700000   u-boot-dtb.bin      CONFIG_SYS_TEXT_BASE
+790000   vga.bin             CONFIG_X86_OPTION_ROM_ADDR
+7c0000   fsp.bin             CONFIG_FSP_ADDR
+7f8000   <spare>             (depends on size of fsp.bin)
+7fe000   Environment         CONFIG_ENV_OFFSET
+7ff800   U-Boot 16-bit boot  CONFIG_SYS_X86_START16
+
+Overall ROM image size is controlled by CONFIG_ROM_SIZE.
+
 
 Intel Galileo instructions:
 
@@ -254,9 +283,20 @@ If you want to check both consoles, use '-serial stdio'.
 
 CPU Microcode
 -------------
-Modern CPUs usually require a special bit stream called microcode [6] to be
+Modern CPUs usually require a special bit stream called microcode [8] to be
 loaded on the processor after power up in order to function properly. U-Boot
 has already integrated these as hex dumps in the source tree.
+
+SMP Support
+-----------
+On a multicore system, U-Boot is executed on the bootstrap processor (BSP).
+Additional application processors (AP) can be brought up by U-Boot. In order to
+have an SMP kernel to discover all of the available processors, U-Boot needs to
+prepare configuration tables which contain the multi-CPUs information before
+loading the OS kernel. Currently U-Boot supports generating two types of tables
+for SMP, called Simple Firmware Interface (SFI) [9] and Multi-Processor (MP)
+[10] tables. The writing of these two tables are controlled by two Kconfig
+options GENERATE_SFI_TABLE and GENERATE_MP_TABLE.
 
 Driver Model
 ------------
@@ -361,4 +401,8 @@ References
 [3] http://www.coreboot.org/~stepan/pci8086,0166.rom
 [4] http://www.intel.com/content/www/us/en/embedded/design-tools/evaluation-platforms/atom-e660-eg20t-development-kit.html
 [5] http://www.intel.com/fsp
-[6] http://en.wikipedia.org/wiki/Microcode
+[6] http://www.intel.com/content/www/us/en/secure/intelligent-systems/privileged/e6xx-35-b1-cmc22211.html
+[7] http://www.ami.com/products/bios-uefi-tools-and-utilities/bios-uefi-utilities/
+[8] http://en.wikipedia.org/wiki/Microcode
+[9] http://simplefirmware.org
+[10] http://www.intel.com/design/archives/processors/pro/docs/242016.htm

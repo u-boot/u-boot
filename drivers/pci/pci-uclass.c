@@ -296,6 +296,7 @@ int pci_auto_config_devices(struct udevice *bus)
 	     !ret && dev;
 	     ret = device_find_next_child(&dev)) {
 		struct pci_child_platdata *pplat;
+		struct pci_controller *ctlr_hose;
 
 		pplat = dev_get_parent_platdata(dev);
 		unsigned int max_bus;
@@ -303,7 +304,10 @@ int pci_auto_config_devices(struct udevice *bus)
 
 		bdf = PCI_ADD_BUS(bus->seq, pplat->devfn);
 		debug("%s: device %s\n", __func__, dev->name);
-		max_bus = pciauto_config_device(hose, bdf);
+
+		/* The root controller has the region information */
+		ctlr_hose = hose->ctlr->uclass_priv;
+		max_bus = pciauto_config_device(ctlr_hose, bdf);
 		sub_bus = max(sub_bus, max_bus);
 	}
 	debug("%s: done\n", __func__);
@@ -330,7 +334,7 @@ int dm_pci_hose_probe_bus(struct pci_controller *hose, pci_dev_t bdf)
 
 	sub_bus = pci_get_bus_max() + 1;
 	debug("%s: bus = %d/%s\n", __func__, sub_bus, bus->name);
-	pciauto_prescan_setup_bridge(hose, bdf, bus->seq);
+	pciauto_prescan_setup_bridge(hose, bdf, sub_bus);
 
 	ret = device_probe(bus);
 	if (ret) {
@@ -440,6 +444,7 @@ static int decode_regions(struct pci_controller *hose, const void *blob,
 {
 	int pci_addr_cells, addr_cells, size_cells;
 	int cells_per_record;
+	phys_addr_t addr;
 	const u32 *prop;
 	int len;
 	int i;
@@ -490,8 +495,11 @@ static int decode_regions(struct pci_controller *hose, const void *blob,
 	}
 
 	/* Add a region for our local memory */
-	pci_set_region(hose->regions + hose->region_count++, 0, 0,
-		       gd->ram_size, PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
+	addr = gd->ram_size;
+	if (gd->pci_ram_top && gd->pci_ram_top < addr)
+		addr = gd->pci_ram_top;
+	pci_set_region(hose->regions + hose->region_count++, 0, 0, addr,
+		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 	return 0;
 }

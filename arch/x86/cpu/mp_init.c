@@ -16,11 +16,16 @@
 #include <asm/interrupt.h>
 #include <asm/lapic.h>
 #include <asm/mp.h>
+#include <asm/msr.h>
 #include <asm/mtrr.h>
+#include <asm/processor.h>
 #include <asm/sipi.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <linux/linkage.h>
+
+/* Total CPUs include BSP */
+static int num_cpus;
 
 /* This also needs to match the sipi.S assembly code for saved MSR encoding */
 struct saved_msr {
@@ -54,6 +59,13 @@ static inline void release_barrier(atomic_t *b)
 {
 	mfence();
 	atomic_set(b, 1);
+}
+
+static inline void stop_this_cpu(void)
+{
+	/* Called by an AP when it is ready to halt and wait for a new task */
+	for (;;)
+		cpu_hlt();
 }
 
 /* Returns 1 if timeout waiting for APs. 0 if target APs found */
@@ -314,9 +326,9 @@ static int start_aps(int ap_count, atomic_t *num_aps)
 	}
 
 	/* Send INIT IPI to all but self */
-	lapic_write_around(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
-	lapic_write_around(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
-			   LAPIC_DM_INIT);
+	lapic_write(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
+	lapic_write(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
+		    LAPIC_DM_INIT);
 	debug("Waiting for 10ms after sending INIT.\n");
 	mdelay(10);
 
@@ -331,9 +343,9 @@ static int start_aps(int ap_count, atomic_t *num_aps)
 		}
 	}
 
-	lapic_write_around(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
-	lapic_write_around(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
-			   LAPIC_DM_STARTUP | sipi_vector);
+	lapic_write(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
+	lapic_write(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
+		    LAPIC_DM_STARTUP | sipi_vector);
 	debug("Waiting for 1st SIPI to complete...");
 	if (apic_wait_timeout(10000, 50)) {
 		debug("timed out.\n");
@@ -356,9 +368,9 @@ static int start_aps(int ap_count, atomic_t *num_aps)
 		}
 	}
 
-	lapic_write_around(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
-	lapic_write_around(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
-			   LAPIC_DM_STARTUP | sipi_vector);
+	lapic_write(LAPIC_ICR2, SET_LAPIC_DEST_FIELD(0));
+	lapic_write(LAPIC_ICR, LAPIC_DEST_ALLBUT | LAPIC_INT_ASSERT |
+		    LAPIC_DM_STARTUP | sipi_vector);
 	debug("Waiting for 2nd SIPI to complete...");
 	if (apic_wait_timeout(10000, 50)) {
 		debug("timed out.\n");
@@ -383,7 +395,7 @@ static int bsp_do_flight_plan(struct udevice *cpu, struct mp_params *mp_params)
 	int ret = 0;
 	const int timeout_us = 100000;
 	const int step_us = 100;
-	int num_aps = mp_params->num_cpus - 1;
+	int num_aps = num_cpus - 1;
 
 	for (i = 0; i < mp_params->num_records; i++) {
 		struct mp_flight_record *rec = &mp_params->flight_plan[i];
@@ -415,7 +427,7 @@ static int init_bsp(struct udevice **devp)
 	cpu_get_name(processor_name);
 	debug("CPU: %s.\n", processor_name);
 
-	enable_lapic();
+	lapic_setup();
 
 	apic_id = lapicid();
 	ret = find_cpu_by_apid_id(apic_id, devp);
@@ -451,7 +463,16 @@ int mp_init(struct mp_params *p)
 		return -1;
 	}
 
-	ret = check_cpu_devices(p->num_cpus);
+	num_cpus = cpu_get_count(cpu);
+	if (num_cpus < 0) {
+		debug("Cannot get number of CPUs: err=%d\n", num_cpus);
+		return num_cpus;
+	}
+
+	if (num_cpus < 2)
+		debug("Warning: Only 1 CPU is detected\n");
+
+	ret = check_cpu_devices(num_cpus);
 	if (ret)
 		debug("Warning: Device tree does not describe all CPUs. Extra ones will not be started correctly\n");
 
@@ -471,7 +492,7 @@ int mp_init(struct mp_params *p)
 	wbinvd();
 
 	/* Start the APs providing number of APs and the cpus_entered field */
-	num_aps = p->num_cpus - 1;
+	num_aps = num_cpus - 1;
 	ret = start_aps(num_aps, ap_count);
 	if (ret) {
 		mdelay(1000);

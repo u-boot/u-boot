@@ -273,6 +273,8 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		build_command_line(cmd_line, auto_boot);
 	}
 
+	setup_video(&setup_base->screen_info);
+
 	return 0;
 }
 

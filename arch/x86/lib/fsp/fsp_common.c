@@ -46,3 +46,11 @@ void board_final_cleanup(void)
 
 	return;
 }
+
+int x86_fsp_init(void)
+{
+	if (!gd->arch.hob_list)
+		fsp_init(CONFIG_FSP_TEMP_RAM_ADDR, BOOT_FULL_CONFIG, NULL);
+
+	return 0;
+}

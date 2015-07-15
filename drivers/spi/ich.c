@@ -40,6 +40,7 @@ struct ich_spi_priv {
 	int status;
 	int control;
 	int bbar;
+	int bcr;
 	uint32_t *pr;		/* only for ich9 */
 	int speed;		/* pointer to speed control */
 	ulong max_speed;	/* Maximum bus speed in MHz */
@@ -239,6 +240,7 @@ static int ich_init_controller(struct ich_spi_platdata *plat,
 		ctlr->speed = ctlr->control + 2;
 		ctlr->bbar = offsetof(struct ich9_spi_regs, bbar);
 		ctlr->preop = offsetof(struct ich9_spi_regs, preop);
+		ctlr->bcr = offsetof(struct ich9_spi_regs, bcr);
 		ctlr->pr = &ich9_spi->pr[0];
 		ctlr->base = ich9_spi;
 	} else {
@@ -411,6 +413,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			const void *dout, void *din, unsigned long flags)
 {
 	struct udevice *bus = dev_get_parent(dev);
+	struct ich_spi_platdata *plat = dev_get_platdata(bus);
 	struct ich_spi_priv *ctlr = dev_get_priv(bus);
 	uint16_t control;
 	int16_t opcode_index;
@@ -422,7 +425,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	int using_cmd = 0;
 	int ret;
 
-	/* Ee don't support writing partial bytes. */
+	/* We don't support writing partial bytes */
 	if (bitlen % 8) {
 		debug("ICH SPI: Accessing partial bytes not supported\n");
 		return -EPROTONOSUPPORT;
@@ -477,7 +480,10 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (ret < 0)
 		return ret;
 
-	ich_writew(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
+	if (plat->ich_version == 7)
+		ich_writew(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
+	else
+		ich_writeb(ctlr, SPIS_CDS | SPIS_FCERR, ctlr->status);
 
 	spi_setup_type(trans, using_cmd ? bytes : 0);
 	opcode_index = spi_setup_opcode(ctlr, trans);
@@ -601,7 +607,7 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			return status;
 
 		if (status & SPIS_FCERR) {
-			debug("ICH SPI: Data transaction error\n");
+			debug("ICH SPI: Data transaction error %x\n", status);
 			return -EIO;
 		}
 
@@ -618,7 +624,6 @@ static int ich_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	return 0;
 }
-
 
 /*
  * This uses the SPI controller from the Intel Cougar Point and Panther Point
@@ -685,13 +690,10 @@ static int ich_spi_probe(struct udevice *bus)
 	 * v9, deassert SMM BIOS Write Protect Disable.
 	 */
 	if (plat->use_sbase) {
-		struct ich9_spi_regs *ich9_spi;
-
-		ich9_spi = priv->base;
-		bios_cntl = ich_readb(priv, ich9_spi->bcr);
+		bios_cntl = ich_readb(priv, priv->bcr);
 		bios_cntl &= ~(1 << 5);	/* clear Enable InSMM_STS (EISS) */
 		bios_cntl |= 1;		/* Write Protect Disable (WPD) */
-		ich_writeb(priv, bios_cntl, ich9_spi->bcr);
+		ich_writeb(priv, bios_cntl, priv->bcr);
 	} else {
 		pci_read_config_byte(plat->dev, 0xdc, &bios_cntl);
 		if (plat->ich_version == 9)

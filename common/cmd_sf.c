@@ -303,8 +303,12 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 		else
 			ret = spi_flash_write(flash, offset, len, buf);
 
-		printf("SF: %zu bytes @ %#x %s: %s\n", (size_t)len, (u32)offset,
-		       read ? "Read" : "Written", ret ? "ERROR" : "OK");
+		printf("SF: %zu bytes @ %#x %s: ", (size_t)len, (u32)offset,
+		       read ? "Read" : "Written");
+		if (ret)
+			printf("ERROR %d\n", ret);
+		else
+			printf("OK\n");
 	}
 
 	unmap_physmem(buf, len);

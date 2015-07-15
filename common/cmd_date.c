@@ -37,7 +37,7 @@ static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int old_bus __maybe_unused;
 
 	/* switch to correct I2C bus */
-#ifdef CONFIG_DM_I2C
+#ifdef CONFIG_DM_RTC
 	struct udevice *dev;
 
 	rcode = uclass_get_device(UCLASS_RTC, 0, &dev);
@@ -57,7 +57,7 @@ static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case 2:			/* set date & time */
 		if (strcmp(argv[1],"reset") == 0) {
 			puts ("Reset RTC...\n");
-#ifdef CONFIG_DM_I2C
+#ifdef CONFIG_DM_RTC
 			rcode = dm_rtc_reset(dev);
 			if (!rcode)
 				rcode = dm_rtc_set(dev, &default_tm);
@@ -69,7 +69,7 @@ static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				puts("## Failed to set date after RTC reset\n");
 		} else {
 			/* initialize tm with current time */
-#ifdef CONFIG_DM_I2C
+#ifdef CONFIG_DM_RTC
 			rcode = dm_rtc_get(dev, &tm);
 #else
 			rcode = rtc_get(&tm);
@@ -81,7 +81,7 @@ static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					break;
 				}
 				/* and write to RTC */
-#ifdef CONFIG_DM_I2C
+#ifdef CONFIG_DM_RTC
 				rcode = dm_rtc_set(dev, &tm);
 #else
 				rcode = rtc_set(&tm);
@@ -96,7 +96,7 @@ static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 		/* FALL TROUGH */
 	case 1:			/* get date & time */
-#ifdef CONFIG_DM_I2C
+#ifdef CONFIG_DM_RTC
 		rcode = dm_rtc_get(dev, &tm);
 #else
 		rcode = rtc_get(&tm);
@@ -120,7 +120,7 @@ static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* switch back to original I2C bus */
 #ifdef CONFIG_SYS_I2C
 	i2c_set_bus_num(old_bus);
-#elif !defined(CONFIG_DM_I2C)
+#elif !defined(CONFIG_DM_RTC)
 	I2C_SET_BUS(old_bus);
 #endif
 
