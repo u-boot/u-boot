@@ -75,4 +75,6 @@ void get_dieid(u32 *id);
 void do_omap3_emu_romcode_call(u32 service_id, u32 parameters);
 void omap3_set_aux_cr_secure(u32 acr);
 u32 warm_reset(void);
+
+void save_omap_boot_params(void);
 #endif

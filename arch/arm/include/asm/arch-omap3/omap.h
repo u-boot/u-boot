@@ -142,6 +142,7 @@ struct gpio {
 
 #define NON_SECURE_SRAM_START		0x40208000 /* Works for GP & EMU */
 #define NON_SECURE_SRAM_END		0x40210000
+#define SRAM_SCRATCH_SPACE_ADDR		0x4020E000
 
 #define LOW_LEVEL_SRAM_STACK		0x4020FFFC
 
@@ -244,5 +245,17 @@ struct gpio {
 
 /* ABB tranxdone mask */
 #define OMAP_ABB_MPU_TXDONE_MASK	(0x1 << 26)
+
+/* Boot parameters */
+#ifndef __ASSEMBLY__
+struct omap_boot_parameters {
+	unsigned int boot_message;
+	unsigned char boot_device;
+	unsigned char reserved;
+	unsigned char reset_reason;
+	unsigned char ch_flags;
+	unsigned int boot_device_descriptor;
+};
+#endif
 
 #endif

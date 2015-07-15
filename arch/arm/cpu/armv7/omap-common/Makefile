@@ -26,9 +26,7 @@ ifeq ($(CONFIG_SYS_DCACHE_OFF),)
 obj-y	+= omap-cache.o
 endif
 
-ifeq ($(CONFIG_OMAP34XX),)
 obj-y	+= boot-common.o
-endif
 obj-y	+= lowlevel_init.o
 
 obj-y	+= mem-common.o

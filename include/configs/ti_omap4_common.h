@@ -171,6 +171,7 @@
 /* No need for i2c in SPL mode as we will use SRI2C for PMIC access on OMAP4 */
 #undef CONFIG_SYS_I2C
 #undef CONFIG_SYS_I2C_OMAP24XX
+#undef CONFIG_SPL_I2C_SUPPORT
 #endif
 
 #endif /* __CONFIG_TI_OMAP4_COMMON_H */
