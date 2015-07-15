@@ -48,14 +48,14 @@ void save_omap_boot_params(void)
 	if (boot_device == BOOT_DEVICE_NAND_I2C)
 		boot_device = BOOT_DEVICE_NAND;
 #endif
-#if defined(CONFIG_DRA7XX) || defined(CONFIG_AM57XX)
+#ifdef BOOT_DEVICE_QSPI_4
 	/*
 	 * We get different values for QSPI_1 and QSPI_4 being used, but
 	 * don't actually care about this difference.  Rather than
 	 * mangle the later code, if we're coming in as QSPI_4 just
 	 * change to the QSPI_1 value.
 	 */
-	if (boot_device == 11)
+	if (boot_device == BOOT_DEVICE_QSPI_4)
 		boot_device = BOOT_DEVICE_SPI;
 #endif
 
