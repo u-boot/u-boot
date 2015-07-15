@@ -31,7 +31,7 @@
 #define RCWSR4_SRDS1_PRTCL_SHIFT	24
 #define RCWSR4_SRDS1_PRTCL_MASK		0xff000000
 
-#define TIMER_COMP_VAL			0xffffffff
+#define TIMER_COMP_VAL			0xffffffffffffffffull
 #define ARCH_TIMER_CTRL_ENABLE		(1 << 0)
 #define SYS_COUNTER_CTRL_ENABLE		(1 << 24)
 
