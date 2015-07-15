@@ -28,6 +28,8 @@ void board_init_f(ulong dummy)
 
 	preloader_console_init();
 
+	timer_init();
+
 	/* First init the serdes PHY's */
 	serdes_phy_config();
 
