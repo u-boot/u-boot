@@ -10,6 +10,7 @@
 #include <dt-bindings/interrupt-router/intel-irq.h>
 
 /include/ "skeleton.dtsi"
+/include/ "rtc.dtsi"
 
 / {
 	model = "Intel Galileo";

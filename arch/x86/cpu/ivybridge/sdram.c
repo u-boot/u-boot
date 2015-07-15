@@ -128,6 +128,14 @@ static int get_mrc_entry(struct udevice **devp, struct fmap_entry *entry)
 static int read_seed_from_cmos(struct pei_data *pei_data)
 {
 	u16 c1, c2, checksum, seed_checksum;
+	struct udevice *dev;
+	int rcode = 0;
+
+	rcode = uclass_get_device(UCLASS_RTC, 0, &dev);
+	if (rcode) {
+		debug("Cannot find RTC: err=%d\n", rcode);
+		return -ENODEV;
+	}
 
 	/*
 	 * Read scrambler seeds from CMOS RAM. We don't want to store them in
@@ -135,11 +143,11 @@ static int read_seed_from_cmos(struct pei_data *pei_data)
 	 * the flash too much. So we store these in CMOS and the large MRC
 	 * data in SPI flash.
 	 */
-	pei_data->scrambler_seed = rtc_read32(CMOS_OFFSET_MRC_SEED);
+	rtc_read32(dev, CMOS_OFFSET_MRC_SEED, &pei_data->scrambler_seed);
 	debug("Read scrambler seed    0x%08x from CMOS 0x%02x\n",
 	      pei_data->scrambler_seed, CMOS_OFFSET_MRC_SEED);
 
-	pei_data->scrambler_seed_s3 = rtc_read32(CMOS_OFFSET_MRC_SEED_S3);
+	rtc_read32(dev, CMOS_OFFSET_MRC_SEED_S3, &pei_data->scrambler_seed_s3);
 	debug("Read S3 scrambler seed 0x%08x from CMOS 0x%02x\n",
 	      pei_data->scrambler_seed_s3, CMOS_OFFSET_MRC_SEED_S3);
 
@@ -150,8 +158,8 @@ static int read_seed_from_cmos(struct pei_data *pei_data)
 				 sizeof(u32));
 	checksum = add_ip_checksums(sizeof(u32), c1, c2);
 
-	seed_checksum = rtc_read8(CMOS_OFFSET_MRC_SEED_CHK);
-	seed_checksum |= rtc_read8(CMOS_OFFSET_MRC_SEED_CHK + 1) << 8;
+	seed_checksum = rtc_read8(dev, CMOS_OFFSET_MRC_SEED_CHK);
+	seed_checksum |= rtc_read8(dev, CMOS_OFFSET_MRC_SEED_CHK + 1) << 8;
 
 	if (checksum != seed_checksum) {
 		debug("%s: invalid seed checksum\n", __func__);
@@ -223,13 +231,21 @@ static int build_mrc_data(struct mrc_data_container **datap)
 static int write_seeds_to_cmos(struct pei_data *pei_data)
 {
 	u16 c1, c2, checksum;
+	struct udevice *dev;
+	int rcode = 0;
+
+	rcode = uclass_get_device(UCLASS_RTC, 0, &dev);
+	if (rcode) {
+		debug("Cannot find RTC: err=%d\n", rcode);
+		return -ENODEV;
+	}
 
 	/* Save the MRC seed values to CMOS */
-	rtc_write32(CMOS_OFFSET_MRC_SEED, pei_data->scrambler_seed);
+	rtc_write32(dev, CMOS_OFFSET_MRC_SEED, pei_data->scrambler_seed);
 	debug("Save scrambler seed    0x%08x to CMOS 0x%02x\n",
 	      pei_data->scrambler_seed, CMOS_OFFSET_MRC_SEED);
 
-	rtc_write32(CMOS_OFFSET_MRC_SEED_S3, pei_data->scrambler_seed_s3);
+	rtc_write32(dev, CMOS_OFFSET_MRC_SEED_S3, pei_data->scrambler_seed_s3);
 	debug("Save s3 scrambler seed 0x%08x to CMOS 0x%02x\n",
 	      pei_data->scrambler_seed_s3, CMOS_OFFSET_MRC_SEED_S3);
 
@@ -240,8 +256,8 @@ static int write_seeds_to_cmos(struct pei_data *pei_data)
 				 sizeof(u32));
 	checksum = add_ip_checksums(sizeof(u32), c1, c2);
 
-	rtc_write8(CMOS_OFFSET_MRC_SEED_CHK, checksum & 0xff);
-	rtc_write8(CMOS_OFFSET_MRC_SEED_CHK + 1, (checksum >> 8) & 0xff);
+	rtc_write8(dev, CMOS_OFFSET_MRC_SEED_CHK, checksum & 0xff);
+	rtc_write8(dev, CMOS_OFFSET_MRC_SEED_CHK + 1, (checksum >> 8) & 0xff);
 
 	return 0;
 }

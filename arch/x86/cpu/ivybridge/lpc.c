@@ -252,7 +252,6 @@ static void pch_rtc_init(pci_dev_t dev)
 	/* TODO: Handle power failure */
 	if (rtc_failed)
 		printf("RTC power failed\n");
-	rtc_init();
 }
 
 /* CougarPoint PCH Power Management init */
