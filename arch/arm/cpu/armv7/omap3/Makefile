@@ -8,6 +8,7 @@
 obj-y	:= lowlevel_init.o
 
 obj-y	+= board.o
+obj-y	+= boot.o
 obj-y	+= clock.o
 obj-y	+= sys_info.o
 ifdef CONFIG_SPL_BUILD
