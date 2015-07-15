@@ -107,6 +107,7 @@ include/config.h: scripts/Makefile.autoconf create_symlink FORCE
 # Otherwise, create a symbolic link to arch/$(ARCH)/include/asm/arch-$(SOC).
 PHONY += create_symlink
 create_symlink:
+ifdef CONFIG_CREATE_ARCH_SYMLINK
 ifneq ($(KBUILD_SRC),)
 	$(Q)mkdir -p include/asm
 	$(Q)if [ -d $(KBUILD_SRC)/arch/$(ARCH)/mach-$(SOC)/include/mach ]; then	\
@@ -122,6 +123,7 @@ else
 		dest=arch-$(if $(SOC),$(SOC),$(CPU));			\
 	fi;								\
 	ln -fsn $$dest arch/$(ARCH)/include/asm/arch
+endif
 endif
 
 PHONY += FORCE
