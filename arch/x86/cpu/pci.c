@@ -172,6 +172,8 @@ void pci_assign_irqs(int bus, int device, u8 irq[4])
 			continue;
 
 		line = irq[pin - 1];
+		if (!line)
+			continue;
 
 		debug("Assigning IRQ %d to PCI device %d.%x.%d (INT%c)\n",
 		      line, bus, device, func, 'A' + pin - 1);
