@@ -3612,65 +3612,47 @@ static void initialize_hps_phy(void)
 	writel(reg, &sdr_ctrl->phy_ctrl2);
 }
 
+/**
+ * initialize_tracking() - Initialize tracking
+ *
+ * Initialize the register file with usable initial data.
+ */
 static void initialize_tracking(void)
 {
-	uint32_t concatenated_longidle = 0x0;
-	uint32_t concatenated_delays = 0x0;
-	uint32_t concatenated_rw_addr = 0x0;
-	uint32_t concatenated_refresh = 0x0;
-	uint32_t trk_sample_count = 7500;
-	uint32_t dtaps_per_ptap;
-	uint32_t tmp_delay;
+	/*
+	 * Initialize the register file with the correct data.
+	 * Compute usable version of value in case we skip full
+	 * computation later.
+	 */
+	writel(DIV_ROUND_UP(IO_DELAY_PER_OPA_TAP, IO_DELAY_PER_DCHAIN_TAP) - 1,
+	       &sdr_reg_file->dtaps_per_ptap);
+
+	/* trk_sample_count */
+	writel(7500, &sdr_reg_file->trk_sample_count);
+
+	/* longidle outer loop [15:0] */
+	writel((10 << 16) | (100 << 0), &sdr_reg_file->trk_longidle);
 
 	/*
-	 * compute usable version of value in case we skip full
-	 * computation later
+	 * longidle sample count [31:24]
+	 * trfc, worst case of 933Mhz 4Gb [23:16]
+	 * trcd, worst case [15:8]
+	 * vfifo wait [7:0]
 	 */
-	dtaps_per_ptap = 0;
-	tmp_delay = 0;
-	while (tmp_delay < IO_DELAY_PER_OPA_TAP) {
-		dtaps_per_ptap++;
-		tmp_delay += IO_DELAY_PER_DCHAIN_TAP;
-	}
-	dtaps_per_ptap--;
+	writel((243 << 24) | (14 << 16) | (10 << 8) | (4 << 0),
+	       &sdr_reg_file->delays);
 
-	concatenated_longidle = concatenated_longidle ^ 10;
-		/*longidle outer loop */
-	concatenated_longidle = concatenated_longidle << 16;
-	concatenated_longidle = concatenated_longidle ^ 100;
-		/*longidle sample count */
-	concatenated_delays = concatenated_delays ^ 243;
-		/* trfc, worst case of 933Mhz 4Gb */
-	concatenated_delays = concatenated_delays << 8;
-	concatenated_delays = concatenated_delays ^ 14;
-		/* trcd, worst case */
-	concatenated_delays = concatenated_delays << 8;
-	concatenated_delays = concatenated_delays ^ 10;
-		/* vfifo wait */
-	concatenated_delays = concatenated_delays << 8;
-	concatenated_delays = concatenated_delays ^ 4;
-		/* mux delay */
+	/* mux delay */
+	writel((RW_MGR_IDLE << 24) | (RW_MGR_ACTIVATE_1 << 16) |
+	       (RW_MGR_SGLE_READ << 8) | (RW_MGR_PRECHARGE_ALL << 0),
+	       &sdr_reg_file->trk_rw_mgr_addr);
 
-	concatenated_rw_addr = concatenated_rw_addr ^ RW_MGR_IDLE;
-	concatenated_rw_addr = concatenated_rw_addr << 8;
-	concatenated_rw_addr = concatenated_rw_addr ^ RW_MGR_ACTIVATE_1;
-	concatenated_rw_addr = concatenated_rw_addr << 8;
-	concatenated_rw_addr = concatenated_rw_addr ^ RW_MGR_SGLE_READ;
-	concatenated_rw_addr = concatenated_rw_addr << 8;
-	concatenated_rw_addr = concatenated_rw_addr ^ RW_MGR_PRECHARGE_ALL;
+	writel(RW_MGR_MEM_IF_READ_DQS_WIDTH,
+	       &sdr_reg_file->trk_read_dqs_width);
 
-	concatenated_refresh = concatenated_refresh ^ RW_MGR_REFRESH_ALL;
-	concatenated_refresh = concatenated_refresh << 24;
-	concatenated_refresh = concatenated_refresh ^ 1000; /* trefi */
-
-	/* Initialize the register file with the correct data */
-	writel(dtaps_per_ptap, &sdr_reg_file->dtaps_per_ptap);
-	writel(trk_sample_count, &sdr_reg_file->trk_sample_count);
-	writel(concatenated_longidle, &sdr_reg_file->trk_longidle);
-	writel(concatenated_delays, &sdr_reg_file->delays);
-	writel(concatenated_rw_addr, &sdr_reg_file->trk_rw_mgr_addr);
-	writel(RW_MGR_MEM_IF_READ_DQS_WIDTH, &sdr_reg_file->trk_read_dqs_width);
-	writel(concatenated_refresh, &sdr_reg_file->trk_rfsh);
+	/* trefi [7:0] */
+	writel((RW_MGR_REFRESH_ALL << 24) | (1000 << 0),
+	       &sdr_reg_file->trk_rfsh);
 }
 
 int sdram_calibration_full(void)
