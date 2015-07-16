@@ -113,7 +113,7 @@ static void reg_file_set_sub_stage(u8 set_sub_stage)
 	clrsetbits_le32(&sdr_reg_file->cur_stage, 0xff00, set_sub_stage << 8);
 }
 
-static void initialize(void)
+static void phy_mgr_initialize(void)
 {
 	debug("%s:%d\n", __func__, __LINE__);
 	/* USER calibration has control over path to memory */
@@ -3463,7 +3463,7 @@ static uint32_t run_mem_calibrate(void)
 
 	writel(ctrlcfg & 0xFFBFFFFF, &sdr_ctrl->ctrl_cfg);
 
-	initialize();
+	phy_mgr_initialize();
 	rw_mgr_mem_initialize();
 
 	pass = mem_calibrate();
