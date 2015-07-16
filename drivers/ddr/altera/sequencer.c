@@ -3660,13 +3660,13 @@ int sdram_calibration_full(void)
 	struct param_type my_param;
 	struct gbl_type my_gbl;
 	uint32_t pass;
-	uint32_t i;
+
+	memset(&my_param, 0, sizeof(my_param));
+	memset(&my_gbl, 0, sizeof(my_gbl));
 
 	param = &my_param;
 	gbl = &my_gbl;
 
-	/* Initialize the debug mode flags */
-	gbl->phy_debug_mode_flags = 0;
 	/* Set the calibration enabled by default */
 	gbl->phy_debug_mode_flags |= PHY_DEBUG_ENABLE_CAL_RPT;
 	/*
@@ -3685,13 +3685,6 @@ int sdram_calibration_full(void)
 	scc_mgr_initialize();
 
 	initialize_tracking();
-
-	/* USER Enable all ranks, groups */
-	for (i = 0; i < RW_MGR_MEM_NUMBER_OF_RANKS; i++)
-		param->skip_ranks[i] = 0;
-	for (i = 0; i < NUM_SHADOW_REGS; ++i)
-		param->skip_shadow_regs[i] = 0;
-	param->skip_groups = 0;
 
 	printf("%s: Preparing to start memory calibration\n", __FILE__);
 
