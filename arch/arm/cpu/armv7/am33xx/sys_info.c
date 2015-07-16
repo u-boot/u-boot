@@ -51,15 +51,6 @@ u32 get_cpu_type(void)
 }
 
 /**
- * get_board_rev() - setup to pass kernel board revision information
- * returns: 0 for the ATAG REVISION tag value.
- */
-u32 __weak get_board_rev(void)
-{
-	return 0;
-}
-
-/**
  * get_device_type(): tell if GP/HS/EMU/TST
  */
 u32 get_device_type(void)
