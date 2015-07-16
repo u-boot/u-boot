@@ -3448,44 +3448,57 @@ static uint32_t mem_calibrate(void)
 	return 1;
 }
 
-static uint32_t run_mem_calibrate(void)
+/**
+ * run_mem_calibrate() - Perform memory calibration
+ *
+ * This function triggers the entire memory calibration procedure.
+ */
+static int run_mem_calibrate(void)
 {
-	uint32_t pass;
-	uint32_t debug_info;
+	int pass;
 
 	debug("%s:%d\n", __func__, __LINE__);
 
 	/* Reset pass/fail status shown on afi_cal_success/fail */
 	writel(PHY_MGR_CAL_RESET, &phy_mgr_cfg->cal_status);
 
-	/* stop tracking manger */
-	uint32_t ctrlcfg = readl(&sdr_ctrl->ctrl_cfg);
-
-	writel(ctrlcfg & 0xFFBFFFFF, &sdr_ctrl->ctrl_cfg);
+	/* Stop tracking manager. */
+	clrbits_le32(&sdr_ctrl->ctrl_cfg, 1 << 22);
 
 	phy_mgr_initialize();
 	rw_mgr_mem_initialize();
 
+	/* Perform the actual memory calibration. */
 	pass = mem_calibrate();
 
 	mem_precharge_and_activate();
 	writel(0, &phy_mgr_cmd->fifo_reset);
 
+	/* Handoff. */
+	rw_mgr_mem_handoff();
 	/*
-	 * Handoff:
-	 * Don't return control of the PHY back to AFI when in debug mode.
+	 * In Hard PHY this is a 2-bit control:
+	 * 0: AFI Mux Select
+	 * 1: DDIO Mux Select
 	 */
-	if ((gbl->phy_debug_mode_flags & PHY_DEBUG_IN_DEBUG_MODE) == 0) {
-		rw_mgr_mem_handoff();
-		/*
-		 * In Hard PHY this is a 2-bit control:
-		 * 0: AFI Mux Select
-		 * 1: DDIO Mux Select
-		 */
-		writel(0x2, &phy_mgr_cfg->mux_sel);
-	}
+	writel(0x2, &phy_mgr_cfg->mux_sel);
 
-	writel(ctrlcfg, &sdr_ctrl->ctrl_cfg);
+	/* Start tracking manager. */
+	setbits_le32(&sdr_ctrl->ctrl_cfg, 1 << 22);
+
+	return pass;
+}
+
+/**
+ * debug_mem_calibrate() - Report result of memory calibration
+ * @pass:	Value indicating whether calibration passed or failed
+ *
+ * This function reports the results of the memory calibration
+ * and writes debug information into the register file.
+ */
+static void debug_mem_calibrate(int pass)
+{
+	uint32_t debug_info;
 
 	if (pass) {
 		printf("%s: CALIBRATION PASSED\n", __FILE__);
@@ -3524,7 +3537,7 @@ static uint32_t run_mem_calibrate(void)
 		writel(debug_info, &sdr_reg_file->failing_stage);
 	}
 
-	return pass;
+	printf("%s: Calibration complete\n", __FILE__);
 }
 
 /**
@@ -3732,7 +3745,6 @@ int sdram_calibration_full(void)
 		skip_delay_mask = 0x0;
 
 	pass = run_mem_calibrate();
-
-	printf("%s: Calibration complete\n", __FILE__);
+	debug_mem_calibrate(pass);
 	return pass;
 }
