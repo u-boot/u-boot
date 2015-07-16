@@ -242,10 +242,6 @@ struct gbl_type {
 
 	uint32_t curr_read_lat;
 
-	/* current write latency */
-
-	uint32_t curr_write_lat;
-
 	/* error code */
 
 	uint32_t error_substage;

@@ -3123,57 +3123,44 @@ static void mem_precharge_and_activate(void)
 	}
 }
 
-/* Configure various memory related parameters. */
-static void mem_config(void)
+/**
+ * mem_init_latency() - Configure memory RLAT and WLAT settings
+ *
+ * Configure memory RLAT and WLAT parameters.
+ */
+static void mem_init_latency(void)
 {
-	uint32_t rlat, wlat;
-	uint32_t rw_wl_nop_cycles;
-	uint32_t max_latency;
+	/*
+	 * For AV/CV, LFIFO is hardened and always runs at full rate
+	 * so max latency in AFI clocks, used here, is correspondingly
+	 * smaller.
+	 */
+	const u32 max_latency = (1 << MAX_LATENCY_COUNT_WIDTH) - 1;
+	u32 rlat, wlat;
 
 	debug("%s:%d\n", __func__, __LINE__);
-	/* read in write and read latency */
+
+	/*
+	 * Read in write latency.
+	 * WL for Hard PHY does not include additive latency.
+	 */
 	wlat = readl(&data_mgr->t_wl_add);
 	wlat += readl(&data_mgr->mem_t_add);
 
-	/* WL for hard phy does not include additive latency */
+	gbl->rw_wl_nop_cycles = wlat - 1;
 
-	/*
-	 * add addtional write latency to offset the address/command extra
-	 * clock cycle. We change the AC mux setting causing AC to be delayed
-	 * by one mem clock cycle. Only do this for DDR3
-	 */
-	wlat = wlat + 1;
-
+	/* Read in readl latency. */
 	rlat = readl(&data_mgr->t_rl_add);
 
-	rw_wl_nop_cycles = wlat - 2;
-	gbl->rw_wl_nop_cycles = rw_wl_nop_cycles;
-
-	/*
-	 * For AV/CV, lfifo is hardened and always runs at full rate so
-	 * max latency in AFI clocks, used here, is correspondingly smaller.
-	 */
-	max_latency = (1<<MAX_LATENCY_COUNT_WIDTH)/1 - 1;
-	/* configure for a burst length of 8 */
-
-	/* write latency */
-	/* Adjust Write Latency for Hard PHY */
-	wlat = wlat + 1;
-
-	/* set a pretty high read latency initially */
+	/* Set a pretty high read latency initially. */
 	gbl->curr_read_lat = rlat + 16;
-
 	if (gbl->curr_read_lat > max_latency)
 		gbl->curr_read_lat = max_latency;
 
 	writel(gbl->curr_read_lat, &phy_mgr_cfg->phy_rlat);
 
-	/* advertise write latency */
-	gbl->curr_write_lat = wlat;
-	writel(wlat - 2, &phy_mgr_cfg->afi_wlat);
-
-	/* initialize bit slips */
-	mem_precharge_and_activate();
+	/* Advertise write latency. */
+	writel(wlat, &phy_mgr_cfg->afi_wlat);
 }
 
 /* Set VFIFO and LFIFO to instant-on settings in skip calibration mode */
@@ -3275,15 +3262,19 @@ static uint32_t mem_calibrate(void)
 	uint32_t sr_failed = 0;
 
 	debug("%s:%d\n", __func__, __LINE__);
-	/* Initialize the data settings */
 
+	/* Initialize the data settings */
 	gbl->error_substage = CAL_SUBSTAGE_NIL;
 	gbl->error_stage = CAL_STAGE_NIL;
 	gbl->error_group = 0xff;
 	gbl->fom_in = 0;
 	gbl->fom_out = 0;
 
-	mem_config();
+	/* Initialize WLAT and RLAT. */
+	mem_init_latency();
+
+	/* Initialize bit slips. */
+	mem_precharge_and_activate();
 
 	for (i = 0; i < RW_MGR_MEM_IF_READ_DQS_WIDTH; i++) {
 		writel(i, SDR_PHYGRP_SCCGRP_ADDRESS |
