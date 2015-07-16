@@ -55,8 +55,6 @@
 #include <linux/compat.h>
 #include <linux/mbus.h>
 
-#define BIT(nr)			(1UL << (nr))
-
 /* DDR target is the same on all platforms */
 #define TARGET_DDR		0
 

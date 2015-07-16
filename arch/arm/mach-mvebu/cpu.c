@@ -241,12 +241,29 @@ int arch_cpu_init(void)
 	 */
 	mvebu_mbus_probe(windows, ARRAY_SIZE(windows));
 
+	if (mvebu_soc_family() == MVEBU_SOC_AXP) {
+		/* Enable GBE0, GBE1, LCD and NFC PUP */
+		clrsetbits_le32(ARMADA_XP_PUP_ENABLE, 0,
+				GE0_PUP_EN | GE1_PUP_EN | LCD_PUP_EN |
+				NAND_PUP_EN | SPI_PUP_EN);
+	}
+
+	/* Enable NAND and NAND arbiter */
+	clrsetbits_le32(MVEBU_SOC_DEV_MUX_REG, 0, NAND_EN | NAND_ARBITER_EN);
+
 	/* Disable MBUS error propagation */
 	clrsetbits_le32(SOC_COHERENCY_FABRIC_CTRL_REG, MBUS_ERR_PROP_EN, 0);
 
 	return 0;
 }
 #endif /* CONFIG_ARCH_CPU_INIT */
+
+u32 mvebu_get_nand_clock(void)
+{
+	return CONFIG_SYS_MVEBU_PLL_CLOCK /
+		((readl(MVEBU_CORE_DIV_CLK_CTRL(1)) &
+		  NAND_ECC_DIVCKL_RATIO_MASK) >> NAND_ECC_DIVCKL_RATIO_OFFS);
+}
 
 /*
  * SOC specific misc init
