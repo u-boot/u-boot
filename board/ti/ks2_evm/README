@@ -47,7 +47,6 @@ Board configuration files:
 include/configs/k2hk_evm.h
 include/configs/k2e_evm.h
 include/configs/k2l_evm.h
-include/configs/k2l_evm.h
 
 As u-boot is migrating to Kconfig there is also board defconfig files
 configs/k2e_evm_defconfig
@@ -71,7 +70,7 @@ Don't forget to add ARCH=arm and CROSS_COMPILE.
 
 To build u-boot.bin
   >make k2hk_evm_defconfig
-  >make u-boot-spi.gph
+  >make u-boot.bin
 
 To build u-boot-spi.gph
   >make k2hk_evm_defconfig
