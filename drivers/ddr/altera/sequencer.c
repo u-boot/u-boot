@@ -113,10 +113,17 @@ static void reg_file_set_sub_stage(u8 set_sub_stage)
 	clrsetbits_le32(&sdr_reg_file->cur_stage, 0xff00, set_sub_stage << 8);
 }
 
+/**
+ * phy_mgr_initialize() - Initialize PHY Manager
+ *
+ * Initialize PHY Manager.
+ */
 static void phy_mgr_initialize(void)
 {
+	u32 ratio;
+
 	debug("%s:%d\n", __func__, __LINE__);
-	/* USER calibration has control over path to memory */
+	/* Calibration has control over path to memory */
 	/*
 	 * In Hard PHY this is a 2-bit control:
 	 * 0: AFI Mux Select
@@ -132,21 +139,19 @@ static void phy_mgr_initialize(void)
 
 	writel(0, &phy_mgr_cfg->cal_debug_info);
 
-	if ((dyn_calib_steps & CALIB_SKIP_ALL) != CALIB_SKIP_ALL) {
-		param->read_correct_mask_vg  = ((uint32_t)1 <<
-			(RW_MGR_MEM_DQ_PER_READ_DQS /
-			RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS)) - 1;
-		param->write_correct_mask_vg = ((uint32_t)1 <<
-			(RW_MGR_MEM_DQ_PER_READ_DQS /
-			RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS)) - 1;
-		param->read_correct_mask     = ((uint32_t)1 <<
-			RW_MGR_MEM_DQ_PER_READ_DQS) - 1;
-		param->write_correct_mask    = ((uint32_t)1 <<
-			RW_MGR_MEM_DQ_PER_WRITE_DQS) - 1;
-		param->dm_correct_mask       = ((uint32_t)1 <<
-			(RW_MGR_MEM_DATA_WIDTH / RW_MGR_MEM_DATA_MASK_WIDTH))
-			- 1;
-	}
+	/* Init params only if we do NOT skip calibration. */
+	if ((dyn_calib_steps & CALIB_SKIP_ALL) == CALIB_SKIP_ALL)
+		return;
+
+	ratio = RW_MGR_MEM_DQ_PER_READ_DQS /
+		RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS;
+	param->read_correct_mask_vg = (1 << ratio) - 1;
+	param->write_correct_mask_vg = (1 << ratio) - 1;
+	param->read_correct_mask = (1 << RW_MGR_MEM_DQ_PER_READ_DQS) - 1;
+	param->write_correct_mask = (1 << RW_MGR_MEM_DQ_PER_WRITE_DQS) - 1;
+	ratio = RW_MGR_MEM_DATA_WIDTH /
+		RW_MGR_MEM_DATA_MASK_WIDTH;
+	param->dm_correct_mask = (1 << ratio) - 1;
 }
 
 static void set_rank_and_odt_mask(uint32_t rank, uint32_t odt_mode)
