@@ -503,12 +503,15 @@ static void scc_mgr_zero_all(void)
 	writel(0, &sdr_scc_mgr->update);
 }
 
-static void scc_set_bypass_mode(uint32_t write_group, uint32_t mode)
+/**
+ * scc_set_bypass_mode() - Set bypass mode and trigger SCC update
+ * @write_group:	Write group
+ *
+ * Set bypass mode and trigger SCC update.
+ */
+static void scc_set_bypass_mode(const u32 write_group)
 {
-	/* mode = 0 : Do NOT bypass - Half Rate Mode */
-	/* mode = 1 : Bypass - Full Rate Mode */
-
-	/* only need to set once for all groups, pins, dq, dqs, dm */
+	/* Only needed once to set all groups, pins, DQ, DQS, DM. */
 	if (write_group == 0) {
 		debug_cond(DLEVEL == 1, "%s:%d Setting HHP Extras\n", __func__,
 			   __LINE__);
@@ -516,17 +519,18 @@ static void scc_set_bypass_mode(uint32_t write_group, uint32_t mode)
 		debug_cond(DLEVEL == 1, "%s:%d Done Setting HHP Extras\n",
 			  __func__, __LINE__);
 	}
-	/* multicast to all DQ enables */
+
+	/* Multicast to all DQ enables. */
 	writel(0xff, &sdr_scc_mgr->dq_ena);
 	writel(0xff, &sdr_scc_mgr->dm_ena);
 
-	/* update current DQS IO enable */
+	/* Update current DQS IO enable. */
 	writel(0, &sdr_scc_mgr->dqs_io_ena);
 
-	/* update the DQS logic */
+	/* Update the DQS logic. */
 	writel(write_group, &sdr_scc_mgr->dqs_ena);
 
-	/* hit update */
+	/* Hit update. */
 	writel(0, &sdr_scc_mgr->update);
 }
 
@@ -3314,11 +3318,10 @@ static uint32_t mem_calibrate(void)
 
 	mem_config();
 
-	uint32_t bypass_mode = 0x1;
 	for (i = 0; i < RW_MGR_MEM_IF_READ_DQS_WIDTH; i++) {
 		writel(i, SDR_PHYGRP_SCCGRP_ADDRESS |
 			  SCC_MGR_GROUP_COUNTER_OFFSET);
-		scc_set_bypass_mode(i, bypass_mode);
+		scc_set_bypass_mode(i);
 	}
 
 	if ((dyn_calib_steps & CALIB_SKIP_ALL) == CALIB_SKIP_ALL) {
