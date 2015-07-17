@@ -3419,17 +3419,19 @@ static uint32_t mem_calibrate(void)
 		if (failing_groups != 0)
 			return 0;
 
+		if (STATIC_CALIB_STEPS & CALIB_SKIP_LFIFO)
+			continue;
+
+		/*
+		 * If we're skipping groups as part of debug,
+		 * don't calibrate LFIFO.
+		 */
+		if (param->skip_groups != 0)
+			continue;
+
 		/* Calibrate the LFIFO */
-		if (!((STATIC_CALIB_STEPS) & CALIB_SKIP_LFIFO)) {
-			/*
-			 * If we're skipping groups as part of debug,
-			 * don't calibrate LFIFO.
-			 */
-			if (param->skip_groups == 0) {
-				if (!rw_mgr_mem_calibrate_lfifo())
-					return 0;
-			}
-		}
+		if (!rw_mgr_mem_calibrate_lfifo())
+			return 0;
 	}
 
 	/*
