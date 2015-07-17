@@ -318,7 +318,7 @@ settings file to find them.
 To make this easier, buildman can automatically download and install
 toolchains from kernel.org. First list the available architectures:
 
-$ ./tools/buildman/buildman sandbox --fetch-arch list
+$ ./tools/buildman/buildman --fetch-arch list
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.3/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.2/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.5.1/
@@ -329,7 +329,7 @@ sparc sparc64 tilegx x86_64 xtensa
 
 Then pick one and download it:
 
-$ ./tools/buildman/buildman sandbox --fetch-arch or32
+$ ./tools/buildman/buildman --fetch-arch or32
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.3/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.2/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.5.1/
