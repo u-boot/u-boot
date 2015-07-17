@@ -7,18 +7,21 @@
 #include <common.h>
 #include <dm.h>
 #include <pci.h>
+#include <asm/pci.h>
 
-static const struct dm_pci_ops x86_pci_ops = {
+static const struct dm_pci_ops pci_x86_ops = {
+	.read_config	= pci_x86_read_config,
+	.write_config	= pci_x86_write_config,
 };
 
-static const struct udevice_id x86_pci_ids[] = {
-	{ .compatible = "x86,pci" },
+static const struct udevice_id pci_x86_ids[] = {
+	{ .compatible = "pci-x86" },
 	{ }
 };
 
 U_BOOT_DRIVER(pci_x86) = {
 	.name	= "pci_x86",
 	.id	= UCLASS_PCI,
-	.of_match = x86_pci_ids,
-	.ops	= &x86_pci_ops,
+	.of_match = pci_x86_ids,
+	.ops	= &pci_x86_ops,
 };

@@ -43,7 +43,7 @@ static int get_part(const char *partname, int *idx, loff_t *off, loff_t *size,
 }
 
 int mtd_arg_off(const char *arg, int *idx, loff_t *off, loff_t *size,
-		loff_t *maxsize, int devtype, int chipsize)
+		loff_t *maxsize, int devtype, uint64_t chipsize)
 {
 	if (!str2off(arg, off))
 		return get_part(arg, idx, off, size, maxsize, devtype);
@@ -59,7 +59,8 @@ int mtd_arg_off(const char *arg, int *idx, loff_t *off, loff_t *size,
 }
 
 int mtd_arg_off_size(int argc, char *const argv[], int *idx, loff_t *off,
-		 loff_t *size, loff_t *maxsize, int devtype, int chipsize)
+		     loff_t *size, loff_t *maxsize, int devtype,
+		     uint64_t chipsize)
 {
 	int ret;
 

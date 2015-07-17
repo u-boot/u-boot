@@ -173,6 +173,9 @@ void fsp_init(u32 stack_top, u32 boot_mode, void *nvs_buf)
 
 	post_code(POST_PRE_MRC);
 
+	/* Load GDT for FSP */
+	setup_fsp_gdt();
+
 	/*
 	 * Use ASM code to ensure the register value in EAX & ECX
 	 * will be passed into BlContinuationFunc

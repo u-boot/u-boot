@@ -513,6 +513,16 @@ struct pci_controller {
 
 	int indirect_type;
 
+	/*
+	 * TODO(sjg@chromium.org): With driver model we use struct
+	 * pci_controller for both the controller and any bridge devices
+	 * attached to it. But there is only one region list and it is in the
+	 * top-level controller.
+	 *
+	 * This could be changed so that struct pci_controller is only used
+	 * for PCI controllers and a separate UCLASS (or perhaps
+	 * UCLASS_PCI_GENERIC) is used for bridges.
+	 */
 	struct pci_region regions[MAX_PCI_REGIONS];
 	int region_count;
 
@@ -710,15 +720,6 @@ void pci_write_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum,
  * @return address of the bar, masking out any control bits
  * */
 u32 pci_read_bar32(struct pci_controller *hose, pci_dev_t dev, int barnum);
-
-/**
- * pciauto_setup_rom() - Set up access to a device ROM
- *
- * @hose:	PCI hose to use
- * @dev:	PCI device to adjust
- * @return 0 if done, -ve on error
- */
-int pciauto_setup_rom(struct pci_controller *hose, pci_dev_t dev);
 
 /**
  * pci_hose_find_devices() - Find devices by vendor/device ID

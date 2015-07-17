@@ -93,6 +93,7 @@ typedef struct global_data {
 #endif
 #ifdef CONFIG_PCI
 	struct pci_controller *hose;	/* PCI hose for early use */
+	phys_addr_t pci_ram_top;	/* top of region accessible to PCI */
 #endif
 #ifdef CONFIG_PCI_BOOTDELAY
 	int pcidelay_done;

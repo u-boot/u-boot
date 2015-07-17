@@ -3,6 +3,8 @@
  *
  * Copyright (C) 2009 Nokia
  * Copyright (C) 2009-2010 Texas Instruments
+ *
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _DT_BINDINGS_PINCTRL_OMAP_H

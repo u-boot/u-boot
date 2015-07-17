@@ -246,6 +246,9 @@ __interrupt_handler_16bit = PTR_TO_REAL_MODE(.)
 	push	%fs
 	push	%gs
 
+	/* Save real mode SS */
+	movw	%ss, %cs:__realmode_ss
+
 	/* Clear DF to not break ABI assumptions */
 	cld
 
@@ -258,11 +261,28 @@ __interrupt_handler_16bit = PTR_TO_REAL_MODE(.)
 
 	enter_protected_mode
 
+	/*
+	 * Now we are in protected mode. We need compute the right ESP based
+	 * on saved real mode SS otherwise interrupt_handler() won't get
+	 * correct parameters from the stack.
+	 */
+	movzwl	%cs:__realmode_ss, %ecx
+	shll	$4, %ecx
+	addl	%ecx, %esp
+
 	/* Call the C interrupt handler */
 	movl	$interrupt_handler, %eax
 	call	*%eax
 
+	/* Restore real mode ESP based on saved SS */
+	movzwl	%cs:__realmode_ss, %ecx
+	shll	$4, %ecx
+	subl	%ecx, %esp
+
 	enter_real_mode
+
+	/* Restore real mode SS */
+	movw	%cs:__realmode_ss, %ss
 
 	/*
 	 * Restore all registers, including those manipulated by the C
@@ -275,6 +295,9 @@ __interrupt_handler_16bit = PTR_TO_REAL_MODE(.)
 	pop	%ds
 	popal
 	iret
+
+__realmode_ss = PTR_TO_REAL_MODE(.)
+	.word	0
 
 	.globl asm_realmode_code_size
 asm_realmode_code_size:

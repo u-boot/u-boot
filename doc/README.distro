@@ -28,7 +28,7 @@ decoupling distro install/boot logic from any knowledge of the bootloader.
 
 This model assumes that boards will load boot configuration files from a
 regular storage mechanism (eMMC, SD card, USB Disk, SATA disk, etc.) with
-a standard partitioning scheme (MBR, GPT). Boards that cannnot support this
+a standard partitioning scheme (MBR, GPT). Boards that cannot support this
 storage model are outside the scope of this document, and may still need
 board-specific installer/boot-configuration support in a distro.
 
@@ -37,9 +37,9 @@ that contains U-Boot, and that the user has somehow installed U-Boot to this
 flash before running the distro installer. Even on boards that do not conform
 to this aspect of the model, the extent of the board-specific support in the
 distro installer logic would be to install a board-specific U-Boot package to
-the boot partition partition during installation. This distro-supplied U-Boot
-can still implement the same features as on any other board, and hence the
-distro's boot configuration file generation logic can still be board-agnostic.
+the boot partition during installation. This distro-supplied U-Boot can still
+implement the same features as on any other board, and hence the distro's boot
+configuration file generation logic can still be board-agnostic.
 
 Locating Bootable Disks
 -----------------------
@@ -61,7 +61,7 @@ any other bootloader) will find those boot files and execute them. This is
 conceptually identical to creating a grub2 configuration file on a desktop
 PC.
 
-Note that in the absense of any partition that is explicitly marked bootable,
+Note that in the absence of any partition that is explicitly marked bootable,
 U-Boot falls back to searching the first valid partition of a disk for boot
 configuration files. Other bootloaders are recommended to do the same, since
 I believe that partition table bootable flags aren't so commonly used outside
@@ -238,7 +238,7 @@ kernel_addr_r:
   The kernel should be located within the first 128M of RAM in order for the
   kernel CONFIG_AUTO_ZRELADDR option to work, which is likely enabled on any
   distro kernel. Since the kernel will decompress itself to 0x8000 after the
-  start of RAM, kernel_addr_rshould not overlap that area, or the kernel will
+  start of RAM, kernel_addr_r should not overlap that area, or the kernel will
   have to copy itself somewhere else first before decompression.
 
   A size of 16MB for the kernel is likely adequate.

@@ -114,6 +114,8 @@ void mvebu_sdram_size_adjust(enum memory_bank bank);
 int mvebu_mbus_probe(struct mbus_win windows[], int count);
 int mvebu_soc_family(void);
 
+int mv_sdh_init(unsigned long regbase, u32 max_clk, u32 min_clk, u32 quirks);
+
 /*
  * Highspeed SERDES PHY config init, ported from bin_hdr
  * to mainline U-Boot

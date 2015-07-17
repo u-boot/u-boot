@@ -69,6 +69,21 @@ config X86_RESET_VECTOR
 	bool
 	default n
 
+config RESET_SEG_START
+	hex
+	depends on X86_RESET_VECTOR
+	default 0xffff0000
+
+config RESET_SEG_SIZE
+	hex
+	depends on X86_RESET_VECTOR
+	default 0x10000
+
+config RESET_VEC_LOC
+	hex
+	depends on X86_RESET_VECTOR
+	default 0xfffffff0
+
 config SYS_X86_START16
 	hex
 	depends on X86_RESET_VECTOR
@@ -173,14 +188,6 @@ config X86_RAMTEST
 	  to work correctly. It is not exhaustive but can save time by
 	  detecting obvious failures.
 
-config MARK_GRAPHICS_MEM_WRCOMB
-	bool "Mark graphics memory as write-combining"
-	default n
-	help
-	  The graphics performance may increase if the graphics
-	  memory is set as write-combining cache type. This option
-	  enables marking the graphics memory as write-combining.
-
 config HAVE_FSP
 	bool "Add an Firmware Support Package binary"
 	help
@@ -220,17 +227,6 @@ config FSP_TEMP_RAM_ADDR
 	  Stack top address which is used in FspInit after DRAM is ready and
 	  CAR is disabled.
 
-config MAX_CPUS
-        int "Maximum number of CPUs permitted"
-        default 4
-        help
-          When using multi-CPU chips it is possible for U-Boot to start up
-          more than one CPU. The stack memory used by all of these CPUs is
-          pre-allocated so at present U-Boot wants to know the maximum
-          number of CPUs that may be present. Set this to at least as high
-          as the number of CPUs in your system (it uses about 4KB of RAM for
-          each CPU).
-
 config SMP
 	bool "Enable Symmetric Multiprocessing"
 	default n
@@ -241,8 +237,21 @@ config SMP
 	  only one CPU will be enabled regardless of the number of CPUs
 	  available.
 
+config MAX_CPUS
+	int "Maximum number of CPUs permitted"
+	depends on SMP
+	default 4
+	help
+	  When using multi-CPU chips it is possible for U-Boot to start up
+	  more than one CPU. The stack memory used by all of these CPUs is
+	  pre-allocated so at present U-Boot wants to know the maximum
+	  number of CPUs that may be present. Set this to at least as high
+	  as the number of CPUs in your system (it uses about 4KB of RAM for
+	  each CPU).
+
 config AP_STACK_SIZE
 	hex
+	depends on SMP
 	default 0x1000
 	help
 	  Each additional CPU started by U-Boot requires its own stack. This
@@ -270,6 +279,28 @@ config TSC_FREQ_IN_MHZ
 	help
 	  The running frequency in MHz of Time-Stamp Counter (TSC).
 
+config HAVE_VGA_BIOS
+	bool "Add a VGA BIOS image"
+	help
+	  Select this option if you have a VGA BIOS image that you would
+	  like to add to your ROM.
+
+config VGA_BIOS_FILE
+	string "VGA BIOS image filename"
+	depends on HAVE_VGA_BIOS
+	default "vga.bin"
+	help
+	  The filename of the VGA BIOS image in the board directory.
+
+config VGA_BIOS_ADDR
+	hex "VGA BIOS image location"
+	depends on HAVE_VGA_BIOS
+	default 0xfff90000
+	help
+	  The location of VGA BIOS image in the SPI flash. For example, base
+	  address of 0xfff90000 indicates that the image will be put at offset
+	  0x90000 from the beginning of a 1MB flash device.
+
 menu "System tables"
 
 config GENERATE_PIRQ_TABLE
@@ -295,6 +326,15 @@ config GENERATE_SFI_TABLE
 	  the OS.
 
 	  For more information, see http://simplefirmware.org
+
+config GENERATE_MP_TABLE
+	bool "Generate an MP (Multi-Processor) table"
+	default n
+	help
+	  Generate an MP (Multi-Processor) table for this board. The MP table
+	  provides a way for the operating system to support for symmetric
+	  multiprocessing as well as symmetric I/O interrupt handling with
+	  the local APIC and I/O APIC.
 
 endmenu
 

@@ -116,12 +116,16 @@ car_init_ret:
 	rep	stosb
 
 #ifdef CONFIG_HAVE_FSP
+	test	%esi, %esi
+	jz	skip_hob
+
 	/* Store HOB list */
 	movl	%esp, %edx
 	addl	$GD_HOB_LIST, %edx
 	movl	%esi, (%edx)
-#endif
 
+skip_hob:
+#endif
 	/* Setup first parameter to setup_gdt, pointer to global_data */
 	movl	%esp, %eax
 

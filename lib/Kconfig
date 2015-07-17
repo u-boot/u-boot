@@ -38,6 +38,7 @@ config SYS_VSNPRINTF
 
 config REGEX
 	bool "Enable regular expression support"
+	default y if NET
 	help
 	  If this variable is defined, U-Boot is linked against the
 	  SLRE (Super Light Regular Expression) library, which adds

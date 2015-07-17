@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <usb.h>
 #include "ehci.h"
+#include <linux/mbus.h>
 #include <asm/arch/cpu.h>
 
 #if defined(CONFIG_KIRKWOOD)
@@ -30,6 +31,40 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * USB 2.0 Bridge Address Decoding registers setup
  */
+#ifdef CONFIG_ARMADA_XP
+
+#define MVUSB0_BASE		MVEBU_USB20_BASE
+
+/*
+ * Once all the older Marvell SoC's (Orion, Kirkwood) are converted
+ * to the common mvebu archticture including the mbus setup, this
+ * will be the only function needed to configure the access windows
+ */
+static void usb_brg_adrdec_setup(void)
+{
+	const struct mbus_dram_target_info *dram;
+	int i;
+
+	dram = mvebu_mbus_dram_info();
+
+	for (i = 0; i < 4; i++) {
+		wrl(USB_WINDOW_CTRL(i), 0);
+		wrl(USB_WINDOW_BASE(i), 0);
+	}
+
+	for (i = 0; i < dram->num_cs; i++) {
+		const struct mbus_dram_window *cs = dram->cs + i;
+
+		/* Write size, attributes and target id to control register */
+		wrl(USB_WINDOW_CTRL(i),
+		    ((cs->size - 1) & 0xffff0000) | (cs->mbus_attr << 8) |
+		    (dram->mbus_dram_target_id << 4) | 1);
+
+		/* Write base address to base register */
+		wrl(USB_WINDOW_BASE(i), cs->base);
+	}
+}
+#else
 static void usb_brg_adrdec_setup(void)
 {
 	int i;
@@ -69,6 +104,7 @@ static void usb_brg_adrdec_setup(void)
 		wrl(USB_WINDOW_BASE(i), base);
 	}
 }
+#endif
 
 /*
  * Create the appropriate control structures to manage

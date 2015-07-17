@@ -1,7 +1,7 @@
 VERSION = 2015
 PATCHLEVEL = 07
 SUBLEVEL =
-EXTRAVERSION = -rc3
+EXTRAVERSION =
 NAME =
 
 # *DOCUMENTATION*
@@ -565,6 +565,7 @@ KBUILD_CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
 endif
 
 KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
+KBUILD_CFLAGS += $(call cc-option,-fno-delete-null-pointer-checks)
 
 KBUILD_CFLAGS	+= -g
 # $(KBUILD_AFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
@@ -1034,8 +1035,8 @@ ifneq ($(CONFIG_HAVE_CMC),)
 IFDTOOL_FLAGS += -w $(CONFIG_CMC_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_CMC_FILE)
 endif
 
-ifneq ($(CONFIG_X86_OPTION_ROM_ADDR),)
-IFDTOOL_FLAGS += -w $(CONFIG_X86_OPTION_ROM_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_X86_OPTION_ROM_FILE)
+ifneq ($(CONFIG_HAVE_VGA_BIOS),)
+IFDTOOL_FLAGS += -w $(CONFIG_VGA_BIOS_ADDR):$(srctree)/board/$(BOARDDIR)/$(CONFIG_VGA_BIOS_FILE)
 endif
 
 quiet_cmd_ifdtool = IFDTOOL $@
