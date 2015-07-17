@@ -305,7 +305,7 @@ static void scc_mgr_set_dqs_en_delay(uint32_t read_group, uint32_t delay)
 	scc_mgr_set(SCC_MGR_DQS_EN_DELAY_OFFSET, read_group, delay);
 }
 
-static void scc_mgr_set_dqs_io_in_delay(uint32_t write_group, uint32_t delay)
+static void scc_mgr_set_dqs_io_in_delay(uint32_t delay)
 {
 	scc_mgr_set(SCC_MGR_IO_IN_DELAY_OFFSET, RW_MGR_MEM_DQ_PER_WRITE_DQS,
 		    delay);
@@ -321,8 +321,7 @@ static void scc_mgr_set_dq_out1_delay(uint32_t dq_in_group, uint32_t delay)
 	scc_mgr_set(SCC_MGR_IO_OUT1_DELAY_OFFSET, dq_in_group, delay);
 }
 
-static void scc_mgr_set_dqs_out1_delay(uint32_t write_group,
-					      uint32_t delay)
+static void scc_mgr_set_dqs_out1_delay(uint32_t delay)
 {
 	scc_mgr_set(SCC_MGR_IO_OUT1_DELAY_OFFSET, RW_MGR_MEM_DQ_PER_WRITE_DQS,
 		    delay);
@@ -589,9 +588,9 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
 
 		/* zero all DQS io settings */
 		if (!out_only)
-			scc_mgr_set_dqs_io_in_delay(write_group, 0);
+			scc_mgr_set_dqs_io_in_delay(0);
 		/* av/cv don't have out2 */
-		scc_mgr_set_dqs_out1_delay(write_group, IO_DQS_OUT_RESERVE);
+		scc_mgr_set_dqs_out1_delay(IO_DQS_OUT_RESERVE);
 		scc_mgr_set_oct_out1_delay(write_group, IO_DQS_OUT_RESERVE);
 		scc_mgr_load_dqs_for_write_group(write_group);
 
@@ -607,8 +606,7 @@ static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
  * apply and load a particular input delay for the DQ pins in a group
  * group_bgn is the index of the first dq pin (in the write group)
  */
-static void scc_mgr_apply_group_dq_in_delay(uint32_t write_group,
-					    uint32_t group_bgn, uint32_t delay)
+static void scc_mgr_apply_group_dq_in_delay(uint32_t group_bgn, uint32_t delay)
 {
 	uint32_t i, p;
 
@@ -635,8 +633,7 @@ static void scc_mgr_apply_group_dq_out1_delay(const u32 delay)
 }
 
 /* apply and load a particular output delay for the DM pins in a group */
-static void scc_mgr_apply_group_dm_out1_delay(uint32_t write_group,
-					      uint32_t delay1)
+static void scc_mgr_apply_group_dm_out1_delay(uint32_t delay1)
 {
 	uint32_t i;
 
@@ -651,7 +648,7 @@ static void scc_mgr_apply_group_dm_out1_delay(uint32_t write_group,
 static void scc_mgr_apply_group_dqs_io_and_oct_out1(uint32_t write_group,
 						    uint32_t delay)
 {
-	scc_mgr_set_dqs_out1_delay(write_group, delay);
+	scc_mgr_set_dqs_out1_delay(delay);
 	scc_mgr_load_dqs_io();
 
 	scc_mgr_set_oct_out1_delay(write_group, delay);
@@ -709,7 +706,7 @@ static void scc_mgr_apply_group_all_out_delay_add(uint32_t write_group,
 			   write_group, group_bgn, delay, new_delay,
 			   IO_IO_OUT2_DELAY_MAX, IO_IO_OUT2_DELAY_MAX,
 			   new_delay - IO_IO_OUT2_DELAY_MAX);
-		scc_mgr_set_dqs_out1_delay(write_group, new_delay -
+		scc_mgr_set_dqs_out1_delay(new_delay -
 					   IO_IO_OUT2_DELAY_MAX);
 		new_delay = IO_IO_OUT2_DELAY_MAX;
 	}
@@ -1805,8 +1802,7 @@ rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
-		for (i = 0, p = test_bgn, d = 0; i < RW_MGR_MEM_DQ_PER_READ_DQS;
-			i++, p++, d += delay_step) {
+		for (i = 0, p = test_bgn, d = 0; i < RW_MGR_MEM_DQ_PER_READ_DQS; i++, p++, d += delay_step) {
 			debug_cond(DLEVEL == 1, "%s:%d rw_mgr_mem_calibrate_\
 				   vfifo_find_dqs_", __func__, __LINE__);
 			debug_cond(DLEVEL == 1, "en_phase_sweep_dq_in_delay: g=%u/%u ",
@@ -1932,7 +1928,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	}
 
 	/* Reset DQ delay chains to 0 */
-	scc_mgr_apply_group_dq_in_delay(write_group, test_bgn, 0);
+	scc_mgr_apply_group_dq_in_delay(test_bgn, 0);
 	sticky_bit_chk = 0;
 	for (i = RW_MGR_MEM_DQ_PER_READ_DQS - 1;; i--) {
 		debug_cond(DLEVEL == 2, "%s:%d vfifo_center: left_edge[%u]: \
@@ -2751,7 +2747,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	}
 
 	/* Reset DQ delay chains to 0 */
-	scc_mgr_apply_group_dq_out1_delay(write_group, 0);
+	scc_mgr_apply_group_dq_out1_delay(0);
 	sticky_bit_chk = 0;
 	for (i = RW_MGR_MEM_DQ_PER_WRITE_DQS - 1;; i--) {
 		debug_cond(DLEVEL == 2, "%s:%d write_center: left_edge[%u]: \
@@ -2975,7 +2971,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 
 	/* Search for the/part of the window with DM shift */
 	for (d = IO_IO_OUT1_DELAY_MAX; d >= 0; d -= DELTA_D) {
-		scc_mgr_apply_group_dm_out1_delay(write_group, d);
+		scc_mgr_apply_group_dm_out1_delay(d);
 		writel(0, &sdr_scc_mgr->update);
 
 		if (rw_mgr_mem_calibrate_write_test(rank_bgn, write_group, 1,
@@ -3008,7 +3004,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 
 
 	/* Reset DM delay chains to 0 */
-	scc_mgr_apply_group_dm_out1_delay(write_group, 0);
+	scc_mgr_apply_group_dm_out1_delay(0);
 
 	/*
 	 * Check to see if the current window nudges up aganist 0 delay.
@@ -3090,7 +3086,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	else
 		dm_margin = left_edge[0] - mid;
 
-	scc_mgr_apply_group_dm_out1_delay(write_group, mid);
+	scc_mgr_apply_group_dm_out1_delay(mid);
 	writel(0, &sdr_scc_mgr->update);
 
 	debug_cond(DLEVEL == 2, "%s:%d dm_calib: left=%d right=%d mid=%d \
