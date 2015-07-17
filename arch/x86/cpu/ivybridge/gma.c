@@ -16,7 +16,6 @@
 #include <asm/pci.h>
 #include <asm/arch/pch.h>
 #include <asm/arch/sandybridge.h>
-#include <linux/kconfig.h>
 
 struct gt_powermeter {
 	u16 reg;

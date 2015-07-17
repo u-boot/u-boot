@@ -1,6 +1,5 @@
 #include <common.h>
 #include <asm/arch/dram.h>
-#include <linux/kconfig.h>
 
 static struct dram_para dram_para = {
 	.clock = CONFIG_DRAM_CLK,
