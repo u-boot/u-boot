@@ -3295,152 +3295,161 @@ static uint32_t mem_calibrate(void)
 		scc_set_bypass_mode(i);
 	}
 
+	/* Calibration is skipped. */
 	if ((dyn_calib_steps & CALIB_SKIP_ALL) == CALIB_SKIP_ALL) {
 		/*
 		 * Set VFIFO and LFIFO to instant-on settings in skip
 		 * calibration mode.
 		 */
 		mem_skip_calibrate();
-	} else {
-		for (i = 0; i < NUM_CALIB_REPEAT; i++) {
-			/*
-			 * Zero all delay chain/phase settings for all
-			 * groups and all shadow register sets.
-			 */
-			scc_mgr_zero_all();
 
-			run_groups = ~param->skip_groups;
+		/*
+		 * Do not remove this line as it makes sure all of our
+		 * decisions have been applied.
+		 */
+		writel(0, &sdr_scc_mgr->update);
+		return 1;
+	}
 
-			for (write_group = 0, write_test_bgn = 0; write_group
-				< RW_MGR_MEM_IF_WRITE_DQS_WIDTH; write_group++,
-				write_test_bgn += RW_MGR_MEM_DQ_PER_WRITE_DQS) {
-				/* Initialized the group failure */
-				group_failed = 0;
+	/* Calibration is not skipped. */
+	for (i = 0; i < NUM_CALIB_REPEAT; i++) {
+		/*
+		 * Zero all delay chain/phase settings for all
+		 * groups and all shadow register sets.
+		 */
+		scc_mgr_zero_all();
 
-				current_run = run_groups & ((1 <<
-					RW_MGR_NUM_DQS_PER_WRITE_GROUP) - 1);
-				run_groups = run_groups >>
-					RW_MGR_NUM_DQS_PER_WRITE_GROUP;
+		run_groups = ~param->skip_groups;
 
-				if (current_run == 0)
-					continue;
+		for (write_group = 0, write_test_bgn = 0; write_group
+			< RW_MGR_MEM_IF_WRITE_DQS_WIDTH; write_group++,
+			write_test_bgn += RW_MGR_MEM_DQ_PER_WRITE_DQS) {
+			/* Initialized the group failure */
+			group_failed = 0;
 
-				writel(write_group, SDR_PHYGRP_SCCGRP_ADDRESS |
-						    SCC_MGR_GROUP_COUNTER_OFFSET);
-				scc_mgr_zero_group(write_group, 0);
+			current_run = run_groups & ((1 <<
+				RW_MGR_NUM_DQS_PER_WRITE_GROUP) - 1);
+			run_groups = run_groups >>
+				RW_MGR_NUM_DQS_PER_WRITE_GROUP;
 
+			if (current_run == 0)
+				continue;
+
+			writel(write_group, SDR_PHYGRP_SCCGRP_ADDRESS |
+					    SCC_MGR_GROUP_COUNTER_OFFSET);
+			scc_mgr_zero_group(write_group, 0);
+
+			for (read_group = write_group *
+				RW_MGR_MEM_IF_READ_DQS_WIDTH /
+				RW_MGR_MEM_IF_WRITE_DQS_WIDTH,
+				read_test_bgn = 0;
+				read_group < (write_group + 1) *
+				RW_MGR_MEM_IF_READ_DQS_WIDTH /
+				RW_MGR_MEM_IF_WRITE_DQS_WIDTH &&
+				group_failed == 0;
+				read_group++, read_test_bgn +=
+				RW_MGR_MEM_DQ_PER_READ_DQS) {
+				/* Calibrate the VFIFO */
+				if (!((STATIC_CALIB_STEPS) &
+					CALIB_SKIP_VFIFO)) {
+					if (!rw_mgr_mem_calibrate_vfifo
+						(read_group,
+						read_test_bgn)) {
+						group_failed = 1;
+
+						if (!(gbl->
+						phy_debug_mode_flags &
+					PHY_DEBUG_SWEEP_ALL_GROUPS)) {
+							return 0;
+						}
+					}
+				}
+			}
+
+			/* Calibrate the output side */
+			if (group_failed == 0)	{
+				for (rank_bgn = 0, sr = 0; rank_bgn
+					< RW_MGR_MEM_NUMBER_OF_RANKS;
+					rank_bgn +=
+					NUM_RANKS_PER_SHADOW_REG,
+					++sr) {
+					sr_failed = 0;
+					if (!((STATIC_CALIB_STEPS) &
+					CALIB_SKIP_WRITES)) {
+						if ((STATIC_CALIB_STEPS)
+					& CALIB_SKIP_DELAY_SWEEPS) {
+					/* not needed in quick mode! */
+						} else {
+					/*
+					 * Determine if this set of
+					 * ranks should be skipped
+					 * entirely.
+					 */
+				if (!param->skip_shadow_regs[sr]) {
+					if (!rw_mgr_mem_calibrate_writes
+					(rank_bgn, write_group,
+					write_test_bgn)) {
+						sr_failed = 1;
+						if (!(gbl->
+						phy_debug_mode_flags &
+					PHY_DEBUG_SWEEP_ALL_GROUPS)) {
+							return 0;
+								}
+								}
+							}
+						}
+					}
+					if (sr_failed != 0)
+						group_failed = 1;
+				}
+			}
+
+			if (group_failed == 0) {
 				for (read_group = write_group *
-					RW_MGR_MEM_IF_READ_DQS_WIDTH /
-					RW_MGR_MEM_IF_WRITE_DQS_WIDTH,
-					read_test_bgn = 0;
-					read_group < (write_group + 1) *
-					RW_MGR_MEM_IF_READ_DQS_WIDTH /
-					RW_MGR_MEM_IF_WRITE_DQS_WIDTH &&
+				RW_MGR_MEM_IF_READ_DQS_WIDTH /
+				RW_MGR_MEM_IF_WRITE_DQS_WIDTH,
+				read_test_bgn = 0;
+					read_group < (write_group + 1)
+					* RW_MGR_MEM_IF_READ_DQS_WIDTH
+					/ RW_MGR_MEM_IF_WRITE_DQS_WIDTH &&
 					group_failed == 0;
 					read_group++, read_test_bgn +=
 					RW_MGR_MEM_DQ_PER_READ_DQS) {
-					/* Calibrate the VFIFO */
 					if (!((STATIC_CALIB_STEPS) &
-						CALIB_SKIP_VFIFO)) {
-						if (!rw_mgr_mem_calibrate_vfifo
-							(read_group,
-							read_test_bgn)) {
-							group_failed = 1;
-
-							if (!(gbl->
-							phy_debug_mode_flags &
-						PHY_DEBUG_SWEEP_ALL_GROUPS)) {
-								return 0;
-							}
-						}
-					}
-				}
-
-				/* Calibrate the output side */
-				if (group_failed == 0)	{
-					for (rank_bgn = 0, sr = 0; rank_bgn
-						< RW_MGR_MEM_NUMBER_OF_RANKS;
-						rank_bgn +=
-						NUM_RANKS_PER_SHADOW_REG,
-						++sr) {
-						sr_failed = 0;
-						if (!((STATIC_CALIB_STEPS) &
 						CALIB_SKIP_WRITES)) {
-							if ((STATIC_CALIB_STEPS)
-						& CALIB_SKIP_DELAY_SWEEPS) {
-						/* not needed in quick mode! */
-							} else {
-						/*
-						 * Determine if this set of
-						 * ranks should be skipped
-						 * entirely.
-						 */
-					if (!param->skip_shadow_regs[sr]) {
-						if (!rw_mgr_mem_calibrate_writes
-						(rank_bgn, write_group,
-						write_test_bgn)) {
-							sr_failed = 1;
-							if (!(gbl->
-							phy_debug_mode_flags &
-						PHY_DEBUG_SWEEP_ALL_GROUPS)) {
-								return 0;
-									}
-									}
-								}
-							}
-						}
-						if (sr_failed != 0)
-							group_failed = 1;
-					}
-				}
+				if (!rw_mgr_mem_calibrate_vfifo_end
+					(read_group, read_test_bgn)) {
+						group_failed = 1;
 
-				if (group_failed == 0) {
-					for (read_group = write_group *
-					RW_MGR_MEM_IF_READ_DQS_WIDTH /
-					RW_MGR_MEM_IF_WRITE_DQS_WIDTH,
-					read_test_bgn = 0;
-						read_group < (write_group + 1)
-						* RW_MGR_MEM_IF_READ_DQS_WIDTH
-						/ RW_MGR_MEM_IF_WRITE_DQS_WIDTH &&
-						group_failed == 0;
-						read_group++, read_test_bgn +=
-						RW_MGR_MEM_DQ_PER_READ_DQS) {
-						if (!((STATIC_CALIB_STEPS) &
-							CALIB_SKIP_WRITES)) {
-					if (!rw_mgr_mem_calibrate_vfifo_end
-						(read_group, read_test_bgn)) {
-							group_failed = 1;
-
-						if (!(gbl->phy_debug_mode_flags
-						& PHY_DEBUG_SWEEP_ALL_GROUPS)) {
-								return 0;
-								}
+					if (!(gbl->phy_debug_mode_flags
+					& PHY_DEBUG_SWEEP_ALL_GROUPS)) {
+							return 0;
 							}
 						}
 					}
 				}
-
-				if (group_failed != 0)
-					failing_groups++;
 			}
 
-			/*
-			 * USER If there are any failing groups then report
-			 * the failure.
-			 */
-			if (failing_groups != 0)
-				return 0;
+			if (group_failed != 0)
+				failing_groups++;
+		}
 
-			/* Calibrate the LFIFO */
-			if (!((STATIC_CALIB_STEPS) & CALIB_SKIP_LFIFO)) {
-				/*
-				 * If we're skipping groups as part of debug,
-				 * don't calibrate LFIFO.
-				 */
-				if (param->skip_groups == 0) {
-					if (!rw_mgr_mem_calibrate_lfifo())
-						return 0;
-				}
+		/*
+		 * USER If there are any failing groups then report
+		 * the failure.
+		 */
+		if (failing_groups != 0)
+			return 0;
+
+		/* Calibrate the LFIFO */
+		if (!((STATIC_CALIB_STEPS) & CALIB_SKIP_LFIFO)) {
+			/*
+			 * If we're skipping groups as part of debug,
+			 * don't calibrate LFIFO.
+			 */
+			if (param->skip_groups == 0) {
+				if (!rw_mgr_mem_calibrate_lfifo())
+					return 0;
 			}
 		}
 	}
