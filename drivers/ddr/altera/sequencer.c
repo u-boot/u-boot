@@ -2226,12 +2226,10 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 	/* update info for sims */
 	reg_file_set_group(read_group);
 
-	grp_calibrated = 0;
-
 	reg_file_set_sub_stage(CAL_SUBSTAGE_GUARANTEED_READ);
 	failed_substage = CAL_SUBSTAGE_GUARANTEED_READ;
 
-	for (d = 0; d <= dtaps_per_ptap && grp_calibrated == 0; d += 2) {
+	for (d = 0; d <= dtaps_per_ptap; d += 2) {
 		/*
 		 * In RLDRAMX we may be messing the delay of pins in
 		 * the same write group but outside of the current read
@@ -2243,7 +2241,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 								write_group, d);
 		}
 
-		for (p = 0; p <= IO_DQDQS_OUT_PHASE_MAX && grp_calibrated == 0; p++) {
+		for (p = 0; p <= IO_DQDQS_OUT_PHASE_MAX; p++) {
 			/* set a particular dqdqs phase */
 			scc_mgr_set_dqdqs_output_phase_all_ranks(read_group, p);
 
@@ -2268,49 +2266,52 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 			}
 
 			/* case:56390 */
-			grp_calibrated = 1;
-			if (rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
+			if (!rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
 			    (write_group, read_group, test_bgn)) {
-					/*
-					 * USER Read per-bit deskew can be done on a
-					 * per shadow register basis.
-					 */
-					for (rank_bgn = 0, sr = 0;
-					     rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
-					     rank_bgn += NUM_RANKS_PER_SHADOW_REG, sr++) {
-						/*
-						 * Determine if this set of ranks
-						 * should be skipped entirely.
-						 */
-						if (param->skip_shadow_regs[sr])
-							continue;
-						/*
-						 * If doing read after write
-						 * calibration, do not update
-						 * FOM, now - do it then.
-						 */
-						if (rw_mgr_mem_calibrate_vfifo_center
-								(rank_bgn, write_group,
-								read_group, test_bgn,
-								1, 0))
-							continue;
-
-						grp_calibrated = 0;
-						failed_substage = CAL_SUBSTAGE_VFIFO_CENTER;
-					}
-			} else {
-				grp_calibrated = 0;
 				failed_substage = CAL_SUBSTAGE_DQS_EN_PHASE;
+				continue;
 			}
+
+			/*
+			 * USER Read per-bit deskew can be done on a
+			 * per shadow register basis.
+			 */
+			grp_calibrated = 1;
+			for (rank_bgn = 0, sr = 0;
+			     rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
+			     rank_bgn += NUM_RANKS_PER_SHADOW_REG, sr++) {
+				/*
+				 * Determine if this set of ranks
+				 * should be skipped entirely.
+				 */
+				if (param->skip_shadow_regs[sr])
+					continue;
+				/*
+				 * If doing read after write
+				 * calibration, do not update
+				 * FOM, now - do it then.
+				 */
+				if (rw_mgr_mem_calibrate_vfifo_center(rank_bgn,
+							write_group, read_group,
+							test_bgn, 1, 0))
+
+					continue;
+
+				grp_calibrated = 0;
+				failed_substage = CAL_SUBSTAGE_VFIFO_CENTER;
+			}
+
+			if (grp_calibrated)
+				goto cal_done_ok;
 		}
 	}
 
-	if (grp_calibrated == 0) {
-		set_failing_group_stage(write_group, CAL_STAGE_VFIFO,
-					failed_substage);
-		return 0;
-	}
+	/* Calibration Stage 1 failed. */
+	set_failing_group_stage(write_group, CAL_STAGE_VFIFO, failed_substage);
+	return 0;
 
+	/* Calibration Stage 1 completed OK. */
+cal_done_ok:
 	/*
 	 * Reset the delay chains back to zero if they have moved > 1
 	 * (check for > 1 because loop will increase d even when pass in
