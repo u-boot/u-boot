@@ -618,15 +618,18 @@ static void scc_mgr_apply_group_dq_in_delay(uint32_t write_group,
 	}
 }
 
-/* apply and load a particular output delay for the DQ pins in a group */
-static void scc_mgr_apply_group_dq_out1_delay(uint32_t write_group,
-					      uint32_t group_bgn,
-					      uint32_t delay1)
+/**
+ * scc_mgr_apply_group_dq_out1_delay() - Apply and load an output delay for the DQ pins in a group
+ * @delay:		Delay value
+ *
+ * Apply and load a particular output delay for the DQ pins in a group.
+ */
+static void scc_mgr_apply_group_dq_out1_delay(const u32 delay)
 {
-	uint32_t i, p;
+	int i;
 
-	for (i = 0, p = group_bgn; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++, p++) {
-		scc_mgr_set_dq_out1_delay(i, delay1);
+	for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
+		scc_mgr_set_dq_out1_delay(i, delay);
 		scc_mgr_load_dq(i);
 	}
 }
@@ -2699,7 +2702,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 
 	/* Search for the left edge of the window for each bit */
 	for (d = 0; d <= IO_IO_OUT1_DELAY_MAX; d++) {
-		scc_mgr_apply_group_dq_out1_delay(write_group, test_bgn, d);
+		scc_mgr_apply_group_dq_out1_delay(write_group, d);
 
 		writel(0, &sdr_scc_mgr->update);
 
@@ -2748,7 +2751,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	}
 
 	/* Reset DQ delay chains to 0 */
-	scc_mgr_apply_group_dq_out1_delay(write_group, test_bgn, 0);
+	scc_mgr_apply_group_dq_out1_delay(write_group, 0);
 	sticky_bit_chk = 0;
 	for (i = RW_MGR_MEM_DQ_PER_WRITE_DQS - 1;; i--) {
 		debug_cond(DLEVEL == 2, "%s:%d write_center: left_edge[%u]: \
