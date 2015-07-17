@@ -3268,7 +3268,6 @@ static uint32_t mem_calibrate(void)
 	uint32_t run_groups, current_run;
 	uint32_t failing_groups = 0;
 	uint32_t group_failed = 0;
-	uint32_t sr_failed = 0;
 
 	const u32 rwdqs_ratio = RW_MGR_MEM_IF_READ_DQS_WIDTH /
 				RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
@@ -3361,40 +3360,32 @@ static uint32_t mem_calibrate(void)
 			}
 
 			/* Calibrate the output side */
-			if (group_failed == 0)	{
-				for (rank_bgn = 0, sr = 0; rank_bgn
-					< RW_MGR_MEM_NUMBER_OF_RANKS;
-					rank_bgn +=
-					NUM_RANKS_PER_SHADOW_REG,
-					++sr) {
-					sr_failed = 0;
-					if (!((STATIC_CALIB_STEPS) &
-					CALIB_SKIP_WRITES)) {
-						if ((STATIC_CALIB_STEPS)
-					& CALIB_SKIP_DELAY_SWEEPS) {
-					/* not needed in quick mode! */
-						} else {
+			if (group_failed == 0) {
+				for (rank_bgn = 0, sr = 0;
+				     rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
+				     rank_bgn += NUM_RANKS_PER_SHADOW_REG, sr++) {
+					if (STATIC_CALIB_STEPS & CALIB_SKIP_WRITES)
+						continue;
+
+					/* Not needed in quick mode! */
+					if (STATIC_CALIB_STEPS & CALIB_SKIP_DELAY_SWEEPS)
+						continue;
+
 					/*
-					 * Determine if this set of
-					 * ranks should be skipped
-					 * entirely.
+					 * Determine if this set of ranks
+					 * should be skipped entirely.
 					 */
-				if (!param->skip_shadow_regs[sr]) {
-					if (!rw_mgr_mem_calibrate_writes
-					(rank_bgn, write_group,
-					write_test_bgn)) {
-						sr_failed = 1;
-						if (!(gbl->
-						phy_debug_mode_flags &
-					PHY_DEBUG_SWEEP_ALL_GROUPS)) {
-							return 0;
-								}
-								}
-							}
-						}
-					}
-					if (sr_failed != 0)
-						group_failed = 1;
+					if (param->skip_shadow_regs[sr])
+						continue;
+
+					/* Calibrate WRITEs */
+					if (rw_mgr_mem_calibrate_writes(rank_bgn,
+							write_group, write_test_bgn))
+						continue;
+
+					group_failed = 1;
+					if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_SWEEP_ALL_GROUPS))
+						return 0;
 				}
 			}
 
