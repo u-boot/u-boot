@@ -2245,9 +2245,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 			/* set a particular dqdqs phase */
 			scc_mgr_set_dqdqs_output_phase_all_ranks(read_group, p);
 
-			debug_cond(DLEVEL == 1, "%s:%d calibrate_vfifo: g=%u \
-				   p=%u d=%u\n", __func__, __LINE__,
-				   read_group, p, d);
+			debug_cond(DLEVEL == 1,
+				   "%s:%d calibrate_vfifo: g=%u p=%u d=%u\n",
+				   __func__, __LINE__, read_group, p, d);
 
 			/*
 			 * Load up the patterns used by read calibration
@@ -2257,10 +2257,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 			if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_DISABLE_GUARANTEED_READ)) {
 				if (!rw_mgr_mem_calibrate_read_test_patterns_all_ranks
 								(read_group, 1, &bit_chk)) {
-					debug_cond(DLEVEL == 1, "%s:%d Guaranteed read test failed:",
-						   __func__, __LINE__);
-					debug_cond(DLEVEL == 1, " g=%u p=%u d=%u\n",
-						   read_group, p, d);
+					debug_cond(DLEVEL == 1,
+						   "%s:%d Guaranteed read test failed: g=%u p=%u d=%u\n",
+						   __func__, __LINE__, read_group, p, d);
 					break;
 				}
 			}
