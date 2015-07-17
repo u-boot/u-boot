@@ -115,6 +115,7 @@ static int nand_command(int block, int page, uint32_t offs,
 static int nand_is_bad_block(int block)
 {
 	struct nand_chip *this = mtd.priv;
+	u_char bb_data[2];
 
 	nand_command(block, 0, CONFIG_SYS_NAND_BAD_BLOCK_POS,
 		NAND_CMD_READOOB);
@@ -123,10 +124,12 @@ static int nand_is_bad_block(int block)
 	 * Read one byte (or two if it's a 16 bit chip).
 	 */
 	if (this->options & NAND_BUSWIDTH_16) {
-		if (readw(this->IO_ADDR_R) != 0xffff)
+		this->read_buf(&mtd, bb_data, 2);
+		if (bb_data[0] != 0xff || bb_data[1] != 0xff)
 			return 1;
 	} else {
-		if (readb(this->IO_ADDR_R) != 0xff)
+		this->read_buf(&mtd, bb_data, 1);
+		if (bb_data[0] != 0xff)
 			return 1;
 	}
 
