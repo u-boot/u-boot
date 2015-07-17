@@ -2201,30 +2201,25 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
  *   - DQS input phase  and DQS input delay (DQ/DQS Centering)
  *  - we also do a per-bit deskew on the DQ lines.
  */
-static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
-					   uint32_t test_bgn)
+static int rw_mgr_mem_calibrate_vfifo(const u32 rw_group, const u32 test_bgn)
 {
 	uint32_t p, d, rank_bgn, sr;
 	uint32_t dtaps_per_ptap;
 	uint32_t bit_chk;
 	uint32_t grp_calibrated;
-	uint32_t write_group, write_test_bgn;
 	uint32_t failed_substage;
 
-	debug("%s:%d: %u %u\n", __func__, __LINE__, read_group, test_bgn);
+	debug("%s:%d: %u %u\n", __func__, __LINE__, rw_group, test_bgn);
 
 	/* update info for sims */
 	reg_file_set_stage(CAL_STAGE_VFIFO);
-
-	write_group = read_group;
-	write_test_bgn = test_bgn;
 
 	/* USER Determine number of delay taps for each phase tap */
 	dtaps_per_ptap = DIV_ROUND_UP(IO_DELAY_PER_OPA_TAP,
 				      IO_DELAY_PER_DQS_EN_DCHAIN_TAP) - 1;
 
 	/* update info for sims */
-	reg_file_set_group(read_group);
+	reg_file_set_group(rw_group);
 
 	reg_file_set_sub_stage(CAL_SUBSTAGE_GUARANTEED_READ);
 	failed_substage = CAL_SUBSTAGE_GUARANTEED_READ;
@@ -2232,22 +2227,22 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 	for (d = 0; d <= dtaps_per_ptap; d += 2) {
 		/*
 		 * In RLDRAMX we may be messing the delay of pins in
-		 * the same write group but outside of the current read
-		 * the group, but that's ok because we haven't calibrated
+		 * the same write rw_group but outside of the current read
+		 * the rw_group, but that's ok because we haven't calibrated
 		 * output side yet.
 		 */
 		if (d > 0) {
 			scc_mgr_apply_group_all_out_delay_add_all_ranks(
-								write_group, d);
+								rw_group, d);
 		}
 
 		for (p = 0; p <= IO_DQDQS_OUT_PHASE_MAX; p++) {
 			/* set a particular dqdqs phase */
-			scc_mgr_set_dqdqs_output_phase_all_ranks(read_group, p);
+			scc_mgr_set_dqdqs_output_phase_all_ranks(rw_group, p);
 
 			debug_cond(DLEVEL == 1,
 				   "%s:%d calibrate_vfifo: g=%u p=%u d=%u\n",
-				   __func__, __LINE__, read_group, p, d);
+				   __func__, __LINE__, rw_group, p, d);
 
 			/*
 			 * Load up the patterns used by read calibration
@@ -2256,17 +2251,17 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 			rw_mgr_mem_calibrate_read_load_patterns(0, 1);
 			if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_DISABLE_GUARANTEED_READ)) {
 				if (!rw_mgr_mem_calibrate_read_test_patterns_all_ranks
-								(read_group, 1, &bit_chk)) {
+								(rw_group, 1, &bit_chk)) {
 					debug_cond(DLEVEL == 1,
 						   "%s:%d Guaranteed read test failed: g=%u p=%u d=%u\n",
-						   __func__, __LINE__, read_group, p, d);
+						   __func__, __LINE__, rw_group, p, d);
 					break;
 				}
 			}
 
 			/* case:56390 */
 			if (!rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
-			    (write_group, read_group, test_bgn)) {
+			    (rw_group, rw_group, test_bgn)) {
 				failed_substage = CAL_SUBSTAGE_DQS_EN_PHASE;
 				continue;
 			}
@@ -2291,9 +2286,8 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 				 * FOM, now - do it then.
 				 */
 				if (rw_mgr_mem_calibrate_vfifo_center(rank_bgn,
-							write_group, read_group,
+							rw_group, rw_group,
 							test_bgn, 1, 0))
-
 					continue;
 
 				grp_calibrated = 0;
@@ -2306,7 +2300,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 	}
 
 	/* Calibration Stage 1 failed. */
-	set_failing_group_stage(write_group, CAL_STAGE_VFIFO, failed_substage);
+	set_failing_group_stage(rw_group, CAL_STAGE_VFIFO, failed_substage);
 	return 0;
 
 	/* Calibration Stage 1 completed OK. */
@@ -2317,7 +2311,7 @@ cal_done_ok:
 	 * first case).
 	 */
 	if (d > 2)
-		scc_mgr_zero_group(write_group, 1);
+		scc_mgr_zero_group(rw_group, 1);
 
 	return 1;
 }
