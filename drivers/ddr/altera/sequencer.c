@@ -2185,7 +2185,6 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 {
 	uint32_t p, d, rank_bgn, sr;
 	uint32_t dtaps_per_ptap;
-	uint32_t tmp_delay;
 	uint32_t bit_chk;
 	uint32_t grp_calibrated;
 	uint32_t write_group, write_test_bgn;
@@ -2200,14 +2199,8 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 	write_test_bgn = test_bgn;
 
 	/* USER Determine number of delay taps for each phase tap */
-	dtaps_per_ptap = 0;
-	tmp_delay = 0;
-	while (tmp_delay < IO_DELAY_PER_OPA_TAP) {
-		dtaps_per_ptap++;
-		tmp_delay += IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
-	}
-	dtaps_per_ptap--;
-	tmp_delay = 0;
+	dtaps_per_ptap = DIV_ROUND_UP(IO_DELAY_PER_OPA_TAP,
+				      IO_DELAY_PER_DQS_EN_DCHAIN_TAP) - 1;
 
 	/* update info for sims */
 	reg_file_set_group(read_group);
