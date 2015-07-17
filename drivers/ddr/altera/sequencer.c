@@ -3326,7 +3326,8 @@ static uint32_t mem_calibrate(void)
 		for (write_group = 0, write_test_bgn = 0; write_group
 			< RW_MGR_MEM_IF_WRITE_DQS_WIDTH; write_group++,
 			write_test_bgn += RW_MGR_MEM_DQ_PER_WRITE_DQS) {
-			/* Initialized the group failure */
+
+			/* Initialize the group failure */
 			group_failed = 0;
 
 			current_run = run_groups & ((1 <<
@@ -3343,7 +3344,7 @@ static uint32_t mem_calibrate(void)
 
 			for (read_group = write_group * rwdqs_ratio,
 			     read_test_bgn = 0;
-			     read_group < (write_group + 1) * rwdqs_ratio && group_failed == 0;
+			     read_group < (write_group + 1) * rwdqs_ratio;
 			     read_group++,
 			     read_test_bgn += RW_MGR_MEM_DQ_PER_READ_DQS) {
 				if (STATIC_CALIB_STEPS & CALIB_SKIP_VFIFO)
@@ -3354,62 +3355,69 @@ static uint32_t mem_calibrate(void)
 							       read_test_bgn))
 					continue;
 
+				if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_SWEEP_ALL_GROUPS))
+					return 0;
+
+				/* The group failed, we're done. */
+				goto grp_failed;
+			}
+
+			/* Calibrate the output side */
+			for (rank_bgn = 0, sr = 0;
+			     rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
+			     rank_bgn += NUM_RANKS_PER_SHADOW_REG, sr++) {
+				if (STATIC_CALIB_STEPS & CALIB_SKIP_WRITES)
+					continue;
+
+				/* Not needed in quick mode! */
+				if (STATIC_CALIB_STEPS & CALIB_SKIP_DELAY_SWEEPS)
+					continue;
+
+				/*
+				 * Determine if this set of ranks
+				 * should be skipped entirely.
+				 */
+				if (param->skip_shadow_regs[sr])
+					continue;
+
+				/* Calibrate WRITEs */
+				if (rw_mgr_mem_calibrate_writes(rank_bgn,
+						write_group, write_test_bgn))
+					continue;
+
 				group_failed = 1;
 				if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_SWEEP_ALL_GROUPS))
 					return 0;
 			}
 
-			/* Calibrate the output side */
-			if (group_failed == 0) {
-				for (rank_bgn = 0, sr = 0;
-				     rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
-				     rank_bgn += NUM_RANKS_PER_SHADOW_REG, sr++) {
-					if (STATIC_CALIB_STEPS & CALIB_SKIP_WRITES)
-						continue;
+			/* Some group failed, we're done. */
+			if (group_failed)
+				goto grp_failed;
 
-					/* Not needed in quick mode! */
-					if (STATIC_CALIB_STEPS & CALIB_SKIP_DELAY_SWEEPS)
-						continue;
+			for (read_group = write_group * rwdqs_ratio,
+			     read_test_bgn = 0;
+			     read_group < (write_group + 1) * rwdqs_ratio;
+			     read_group++,
+			     read_test_bgn += RW_MGR_MEM_DQ_PER_READ_DQS) {
+				if (STATIC_CALIB_STEPS & CALIB_SKIP_WRITES)
+					continue;
 
-					/*
-					 * Determine if this set of ranks
-					 * should be skipped entirely.
-					 */
-					if (param->skip_shadow_regs[sr])
-						continue;
+				if (rw_mgr_mem_calibrate_vfifo_end(read_group,
+								read_test_bgn))
+					continue;
 
-					/* Calibrate WRITEs */
-					if (rw_mgr_mem_calibrate_writes(rank_bgn,
-							write_group, write_test_bgn))
-						continue;
+				if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_SWEEP_ALL_GROUPS))
+					return 0;
 
-					group_failed = 1;
-					if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_SWEEP_ALL_GROUPS))
-						return 0;
-				}
+				/* The group failed, we're done. */
+				goto grp_failed;
 			}
 
-			if (group_failed == 0) {
-				for (read_group = write_group * rwdqs_ratio,
-				     read_test_bgn = 0;
-				     read_group < (write_group + 1) * rwdqs_ratio && group_failed == 0;
-				     read_group++,
-				     read_test_bgn += RW_MGR_MEM_DQ_PER_READ_DQS) {
-					if (STATIC_CALIB_STEPS & CALIB_SKIP_WRITES)
-						continue;
+			/* No group failed, continue as usual. */
+			continue;
 
-					if (rw_mgr_mem_calibrate_vfifo_end(read_group,
-									read_test_bgn))
-						continue;
-
-					group_failed = 1;
-					if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_SWEEP_ALL_GROUPS))
-						return 0;
-				}
-			}
-
-			if (group_failed != 0)
-				failing_groups++;
+grp_failed:		/* A group failed, increment the counter. */
+			failing_groups++;
 		}
 
 		/*
