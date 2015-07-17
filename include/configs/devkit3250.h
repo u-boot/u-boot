@@ -21,7 +21,9 @@
 
 #define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_DCACHE_OFF
+#if !defined(CONFIG_SPL_BUILD)
 #define CONFIG_SKIP_LOWLEVEL_INIT
+#endif
 #define CONFIG_BOARD_EARLY_INIT_F
 
 /*
@@ -172,6 +174,57 @@
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_BOOTARGS			"console=ttyS0,115200n8"
 #define CONFIG_LOADADDR			0x80008000
+
+/*
+ * SPL specific defines
+ */
+/* SPL will be executed at offset 0 */
+#define CONFIG_SPL_TEXT_BASE		0x00000000
+
+/* SPL will use SRAM as stack */
+#define CONFIG_SPL_STACK		0x0000FFF8
+#define CONFIG_SPL_BOARD_INIT
+
+/* Use the framework and generic lib */
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+
+/* SPL will use serial */
+#define CONFIG_SPL_SERIAL_SUPPORT
+
+/* SPL loads an image from NAND */
+#define CONFIG_SPL_NAND_SIMPLE
+#define CONFIG_SPL_NAND_RAW_ONLY
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_DRIVERS
+
+#define CONFIG_SYS_NAND_BLOCK_SIZE	0x20000
+#define CONFIG_SYS_NAND_PAGE_SIZE	0x800
+#define CONFIG_SYS_NAND_ECCSIZE		0x100
+#define CONFIG_SYS_NAND_OOBSIZE		64
+#define CONFIG_SYS_NAND_ECCPOS		{ 40, 41, 42, 43, 44, 45, 46, 47, \
+					  48, 49, 50, 51, 52, 53, 54, 55, \
+					  56, 57, 58, 59, 60, 61, 62, 63, }
+#define CONFIG_SYS_NAND_ECCBYTES	3
+#define CONFIG_SYS_NAND_PAGE_COUNT	64
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
+
+#define CONFIG_SPL_NAND_ECC
+#define CONFIG_SPL_NAND_SOFTECC
+
+#define CONFIG_SPL_MAX_SIZE		0x20000
+#define CONFIG_SPL_PAD_TO		CONFIG_SPL_MAX_SIZE
+
+/* U-Boot will be 0x60000 bytes, loaded and run at CONFIG_SYS_TEXT_BASE */
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x40000
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x60000
+
+#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
+
+/* See common/spl/spl.c  spl_set_header_raw_uboot() */
+#define CONFIG_SYS_MONITOR_LEN		CONFIG_SYS_NAND_U_BOOT_SIZE
 
 /*
  * Include SoC specific configuration

@@ -121,6 +121,7 @@ config TARGET_MAXBCM
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
 	select CPU_ARM926EJS
+	select SUPPORT_SPL
 
 config TARGET_WORK_92105
 	bool "Support work_92105"

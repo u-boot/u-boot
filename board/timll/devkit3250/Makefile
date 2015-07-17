@@ -6,3 +6,4 @@
 #
 
 obj-y	:= devkit3250.o
+obj-$(CONFIG_SPL_BUILD) += devkit3250_spl.o
