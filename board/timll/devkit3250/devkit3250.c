@@ -1,23 +1,52 @@
 /*
  * Embest/Timll DevKit3250 board support
  *
- * Copyright (C) 2011 Vladimir Zapolskiy <vz@mleia.com>
+ * Copyright (C) 2011-2015 Vladimir Zapolskiy <vz@mleia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/emc.h>
+#include <asm/arch/wdt.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct emc_regs *emc = (struct emc_regs *)EMC_BASE;
+static struct clk_pm_regs *clk = (struct clk_pm_regs *)CLK_PM_BASE;
+static struct wdt_regs *wdt = (struct wdt_regs *)WDT_BASE;
+
+void reset_periph(void)
+{
+	/* This function resets peripherals by triggering RESOUT_N */
+	setbits_le32(&clk->timclk_ctrl, CLK_TIMCLK_WATCHDOG);
+	writel(WDTIM_MCTRL_RESFRC1, &wdt->mctrl);
+	udelay(300);
+
+	writel(0, &wdt->mctrl);
+	clrbits_le32(&clk->timclk_ctrl, CLK_TIMCLK_WATCHDOG);
+
+	/* Such a long delay is needed to initialize SMSC phy */
+	udelay(10000);
+}
 
 int board_early_init_f(void)
 {
 	lpc32xx_uart_init(CONFIG_SYS_LPC32XX_UART);
+	lpc32xx_i2c_init(1);
+	lpc32xx_i2c_init(2);
+	lpc32xx_ssp_init();
+	lpc32xx_mac_init();
+
+	/*
+	 * nWP may be controlled by GPO19, but unpopulated by default R23
+	 * makes no sense to configure this GPIO level, nWP is always high
+	 */
+	lpc32xx_slc_nand_init();
 
 	return 0;
 }

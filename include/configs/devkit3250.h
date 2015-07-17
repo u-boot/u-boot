@@ -1,7 +1,7 @@
 /*
  * Embest/Timll DevKit3250 board configuration file
  *
- * Copyright (C) 2011 Vladimir Zapolskiy <vz@mleia.com>
+ * Copyright (C) 2011-2015 Vladimir Zapolskiy <vz@mleia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -43,8 +43,42 @@
 /*
  * Serial Driver
  */
-#define CONFIG_SYS_LPC32XX_UART		2   /* UART2 */
+#define CONFIG_SYS_LPC32XX_UART		5   /* UART5 */
 #define CONFIG_BAUDRATE			115200
+
+/*
+ * I2C
+ */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_LPC32XX
+#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_CMD_I2C
+
+/*
+ * GPIO
+ */
+#define CONFIG_LPC32XX_GPIO
+#define CONFIG_CMD_GPIO
+
+/*
+ * SSP/SPI
+ */
+#define CONFIG_LPC32XX_SSP
+#define CONFIG_LPC32XX_SSP_TIMEOUT	100000
+#define CONFIG_CMD_SPI
+
+/*
+ * Ethernet
+ */
+#define CONFIG_RMII
+#define CONFIG_PHY_SMSC
+#define CONFIG_LPC32XX_ETH
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_ADDR			0x1F
+#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
 
 /*
  * NOR Flash
@@ -54,6 +88,29 @@
 #define CONFIG_SYS_FLASH_BASE		EMC_CS0_BASE
 #define CONFIG_SYS_FLASH_SIZE		SZ_4M
 #define CONFIG_SYS_FLASH_CFI
+
+/*
+ * NAND controller
+ */
+#define CONFIG_NAND_LPC32XX_SLC
+#define CONFIG_SYS_NAND_BASE		SLC_NAND_BASE
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
+
+/*
+ * NAND chip timings
+ */
+#define CONFIG_LPC32XX_NAND_SLC_WDR_CLKS	14
+#define CONFIG_LPC32XX_NAND_SLC_WWIDTH		66666666
+#define CONFIG_LPC32XX_NAND_SLC_WHOLD		200000000
+#define CONFIG_LPC32XX_NAND_SLC_WSETUP		50000000
+#define CONFIG_LPC32XX_NAND_SLC_RDR_CLKS	14
+#define CONFIG_LPC32XX_NAND_SLC_RWIDTH		66666666
+#define CONFIG_LPC32XX_NAND_SLC_RHOLD		200000000
+#define CONFIG_LPC32XX_NAND_SLC_RSETUP		50000000
+
+#define CONFIG_SYS_NAND_USE_FLASH_BBT
+#define CONFIG_CMD_NAND
 
 /*
  * U-Boot General Configurations
@@ -71,8 +128,33 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
 
-#define CONFIG_ENV_IS_NOWHERE
+/*
+ * Pass open firmware flat tree
+ */
+#define CONFIG_OF_LIBFDT
+
+/*
+ * Environment
+ */
+#define CONFIG_ENV_IS_IN_NAND		1
 #define CONFIG_ENV_SIZE			SZ_128K
+#define CONFIG_ENV_OFFSET		0x000A0000
+
+#define CONFIG_BOOTCOMMAND			\
+	"dhcp; "				\
+	"tftp ${loadaddr} ${serverip}:${tftpdir}/${bootfile}; "		\
+	"tftp ${dtbaddr} ${serverip}:${tftpdir}/devkit3250.dtb; "	\
+	"setenv nfsargs ip=dhcp root=/dev/nfs nfsroot=${serverip}:${nfsroot},tcp; "	\
+	"setenv bootargs ${bootargs} ${nfsargs} ${userargs}; "			\
+	"bootm ${loadaddr} - ${dtbaddr}"
+
+#define CONFIG_EXTRA_ENV_SETTINGS		\
+	"autoload=no\0"				\
+	"ethaddr=00:01:90:00:C0:81\0"		\
+	"dtbaddr=0x81000000\0"			\
+	"nfsroot=/opt/projects/images/vladimir/oe/devkit3250/rootfs\0"	\
+	"tftpdir=vladimir/oe/devkit3250\0"	\
+	"userargs=oops=panic\0"
 
 /*
  * U-Boot Commands
@@ -85,10 +167,10 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_BOOTDELAY		3
+#define CONFIG_BOOTDELAY		1
 
 #define CONFIG_BOOTFILE			"uImage"
-#define CONFIG_BOOTARGS			"console=ttyS2,115200n8"
+#define CONFIG_BOOTARGS			"console=ttyS0,115200n8"
 #define CONFIG_LOADADDR			0x80008000
 
 /*
