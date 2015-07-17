@@ -3390,28 +3390,21 @@ static uint32_t mem_calibrate(void)
 			}
 
 			if (group_failed == 0) {
-				for (read_group = write_group *
-				RW_MGR_MEM_IF_READ_DQS_WIDTH /
-				RW_MGR_MEM_IF_WRITE_DQS_WIDTH,
-				read_test_bgn = 0;
-					read_group < (write_group + 1)
-					* RW_MGR_MEM_IF_READ_DQS_WIDTH
-					/ RW_MGR_MEM_IF_WRITE_DQS_WIDTH &&
-					group_failed == 0;
-					read_group++, read_test_bgn +=
-					RW_MGR_MEM_DQ_PER_READ_DQS) {
-					if (!((STATIC_CALIB_STEPS) &
-						CALIB_SKIP_WRITES)) {
-				if (!rw_mgr_mem_calibrate_vfifo_end
-					(read_group, read_test_bgn)) {
-						group_failed = 1;
+				for (read_group = write_group * rwdqs_ratio,
+				     read_test_bgn = 0;
+				     read_group < (write_group + 1) * rwdqs_ratio && group_failed == 0;
+				     read_group++,
+				     read_test_bgn += RW_MGR_MEM_DQ_PER_READ_DQS) {
+					if (STATIC_CALIB_STEPS & CALIB_SKIP_WRITES)
+						continue;
 
-					if (!(gbl->phy_debug_mode_flags
-					& PHY_DEBUG_SWEEP_ALL_GROUPS)) {
-							return 0;
-							}
-						}
-					}
+					if (rw_mgr_mem_calibrate_vfifo_end(read_group,
+									read_test_bgn))
+						continue;
+
+					group_failed = 1;
+					if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_SWEEP_ALL_GROUPS))
+						return 0;
 				}
 			}
 
