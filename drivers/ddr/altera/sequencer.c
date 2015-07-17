@@ -2235,8 +2235,8 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 		/*
 		 * In RLDRAMX we may be messing the delay of pins in
 		 * the same write group but outside of the current read
-		 * the group, but that's ok because we haven't
-		 * calibrated output side yet.
+		 * the group, but that's ok because we haven't calibrated
+		 * output side yet.
 		 */
 		if (d > 0) {
 			scc_mgr_apply_group_all_out_delay_add_all_ranks(
@@ -2276,27 +2276,27 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 					 * per shadow register basis.
 					 */
 					for (rank_bgn = 0, sr = 0;
-						rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
-						rank_bgn += NUM_RANKS_PER_SHADOW_REG,
-						++sr) {
+					     rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
+					     rank_bgn += NUM_RANKS_PER_SHADOW_REG, sr++) {
 						/*
 						 * Determine if this set of ranks
 						 * should be skipped entirely.
 						 */
-						if (!param->skip_shadow_regs[sr]) {
-							/*
-							 * If doing read after write
-							 * calibration, do not update
-							 * FOM, now - do it then.
-							 */
-							if (!rw_mgr_mem_calibrate_vfifo_center
-									(rank_bgn, write_group,
-									read_group, test_bgn,
-									1, 0)) {
-								grp_calibrated = 0;
-								failed_substage = CAL_SUBSTAGE_VFIFO_CENTER;
-							}
-						}
+						if (param->skip_shadow_regs[sr])
+							continue;
+						/*
+						 * If doing read after write
+						 * calibration, do not update
+						 * FOM, now - do it then.
+						 */
+						if (rw_mgr_mem_calibrate_vfifo_center
+								(rank_bgn, write_group,
+								read_group, test_bgn,
+								1, 0))
+							continue;
+
+						grp_calibrated = 0;
+						failed_substage = CAL_SUBSTAGE_VFIFO_CENTER;
 					}
 			} else {
 				grp_calibrated = 0;
