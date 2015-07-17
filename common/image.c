@@ -906,6 +906,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 
 	if (argc >= 2)
 		select = argv[1];
+
 	/*
 	 * Look for a '-' which indicates to ignore the
 	 * ramdisk argument
@@ -1005,6 +1006,12 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			images->fit_noffset_rd = rd_noffset;
 			break;
 #endif
+#ifdef CONFIG_ANDROID_BOOT_IMAGE
+		case IMAGE_FORMAT_ANDROID:
+			android_image_get_ramdisk((void *)images->os.start,
+				&rd_data, &rd_len);
+			break;
+#endif
 		default:
 #ifdef CONFIG_SUPPORT_RAW_INITRD
 			end = NULL;
@@ -1035,16 +1042,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 				(ulong)images->legacy_hdr_os);
 
 		image_multi_getimg(images->legacy_hdr_os, 1, &rd_data, &rd_len);
-	}
-#ifdef CONFIG_ANDROID_BOOT_IMAGE
-	else if ((genimg_get_format((void *)images->os.start)
-			== IMAGE_FORMAT_ANDROID) &&
-		 (!android_image_get_ramdisk((void *)images->os.start,
-		 &rd_data, &rd_len))) {
-		/* empty */
-	}
-#endif
-	else {
+	} else {
 		/*
 		 * no initrd image
 		 */
