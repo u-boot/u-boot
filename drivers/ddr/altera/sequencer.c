@@ -2186,11 +2186,19 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	return (dq_margin >= 0) && (dqs_margin >= 0);
 }
 
-/*
- * calibrate the read valid prediction FIFO.
+/**
+ * rw_mgr_mem_calibrate_vfifo() - Calibrate the read valid prediction FIFO
+ * @rw_group:		Read/Write Group
+ * @test_bgn:		Rank at which the test begins
  *
- *  - read valid prediction will consist of finding a good DQS enable phase,
- * DQS enable delay, DQS input phase, and DQS input delay.
+ * Stage 1: Calibrate the read valid prediction FIFO.
+ *
+ * This function implements UniPHY calibration Stage 1, as explained in
+ * detail in Altera EMI_RM 2015.05.04 , "UniPHY Calibration Stages".
+ *
+ * - read valid prediction will consist of finding:
+ *   - DQS enable phase and DQS enable delay (DQS Enable Calibration)
+ *   - DQS input phase  and DQS input delay (DQ/DQS Centering)
  *  - we also do a per-bit deskew on the DQ lines.
  */
 static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
