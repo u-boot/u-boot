@@ -2243,8 +2243,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 								write_group, d);
 		}
 
-		for (p = 0; p <= IO_DQDQS_OUT_PHASE_MAX && grp_calibrated == 0;
-			p++) {
+		for (p = 0; p <= IO_DQDQS_OUT_PHASE_MAX && grp_calibrated == 0; p++) {
 			/* set a particular dqdqs phase */
 			scc_mgr_set_dqdqs_output_phase_all_ranks(read_group, p);
 
@@ -2257,10 +2256,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 			 * using current DQDQS phase.
 			 */
 			rw_mgr_mem_calibrate_read_load_patterns(0, 1);
-			if (!(gbl->phy_debug_mode_flags &
-				PHY_DEBUG_DISABLE_GUARANTEED_READ)) {
+			if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_DISABLE_GUARANTEED_READ)) {
 				if (!rw_mgr_mem_calibrate_read_test_patterns_all_ranks
-				    (read_group, 1, &bit_chk)) {
+								(read_group, 1, &bit_chk)) {
 					debug_cond(DLEVEL == 1, "%s:%d Guaranteed read test failed:",
 						   __func__, __LINE__);
 					debug_cond(DLEVEL == 1, " g=%u p=%u d=%u\n",
@@ -2269,37 +2267,37 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 				}
 			}
 
-/* case:56390 */
+			/* case:56390 */
 			grp_calibrated = 1;
-		if (rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
-		    (write_group, read_group, test_bgn)) {
-				/*
-				 * USER Read per-bit deskew can be done on a
-				 * per shadow register basis.
-				 */
-				for (rank_bgn = 0, sr = 0;
-					rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
-					rank_bgn += NUM_RANKS_PER_SHADOW_REG,
-					++sr) {
+			if (rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
+			    (write_group, read_group, test_bgn)) {
 					/*
-					 * Determine if this set of ranks
-					 * should be skipped entirely.
+					 * USER Read per-bit deskew can be done on a
+					 * per shadow register basis.
 					 */
-					if (!param->skip_shadow_regs[sr]) {
+					for (rank_bgn = 0, sr = 0;
+						rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
+						rank_bgn += NUM_RANKS_PER_SHADOW_REG,
+						++sr) {
 						/*
-						 * If doing read after write
-						 * calibration, do not update
-						 * FOM, now - do it then.
+						 * Determine if this set of ranks
+						 * should be skipped entirely.
 						 */
-					if (!rw_mgr_mem_calibrate_vfifo_center
-						(rank_bgn, write_group,
-						read_group, test_bgn, 1, 0)) {
-							grp_calibrated = 0;
-							failed_substage =
-						CAL_SUBSTAGE_VFIFO_CENTER;
+						if (!param->skip_shadow_regs[sr]) {
+							/*
+							 * If doing read after write
+							 * calibration, do not update
+							 * FOM, now - do it then.
+							 */
+							if (!rw_mgr_mem_calibrate_vfifo_center
+									(rank_bgn, write_group,
+									read_group, test_bgn,
+									1, 0)) {
+								grp_calibrated = 0;
+								failed_substage = CAL_SUBSTAGE_VFIFO_CENTER;
+							}
 						}
 					}
-				}
 			} else {
 				grp_calibrated = 0;
 				failed_substage = CAL_SUBSTAGE_DQS_EN_PHASE;
