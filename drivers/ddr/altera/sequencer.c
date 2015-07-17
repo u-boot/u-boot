@@ -3270,6 +3270,9 @@ static uint32_t mem_calibrate(void)
 	uint32_t group_failed = 0;
 	uint32_t sr_failed = 0;
 
+	const u32 rwdqs_ratio = RW_MGR_MEM_IF_READ_DQS_WIDTH /
+				RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
+
 	debug("%s:%d\n", __func__, __LINE__);
 
 	/* Initialize the data settings */
@@ -3339,31 +3342,22 @@ static uint32_t mem_calibrate(void)
 					    SCC_MGR_GROUP_COUNTER_OFFSET);
 			scc_mgr_zero_group(write_group, 0);
 
-			for (read_group = write_group *
-				RW_MGR_MEM_IF_READ_DQS_WIDTH /
-				RW_MGR_MEM_IF_WRITE_DQS_WIDTH,
-				read_test_bgn = 0;
-				read_group < (write_group + 1) *
-				RW_MGR_MEM_IF_READ_DQS_WIDTH /
-				RW_MGR_MEM_IF_WRITE_DQS_WIDTH &&
-				group_failed == 0;
-				read_group++, read_test_bgn +=
-				RW_MGR_MEM_DQ_PER_READ_DQS) {
-				/* Calibrate the VFIFO */
-				if (!((STATIC_CALIB_STEPS) &
-					CALIB_SKIP_VFIFO)) {
-					if (!rw_mgr_mem_calibrate_vfifo
-						(read_group,
-						read_test_bgn)) {
-						group_failed = 1;
+			for (read_group = write_group * rwdqs_ratio,
+			     read_test_bgn = 0;
+			     read_group < (write_group + 1) * rwdqs_ratio && group_failed == 0;
+			     read_group++,
+			     read_test_bgn += RW_MGR_MEM_DQ_PER_READ_DQS) {
+				if (STATIC_CALIB_STEPS & CALIB_SKIP_VFIFO)
+					continue;
 
-						if (!(gbl->
-						phy_debug_mode_flags &
-					PHY_DEBUG_SWEEP_ALL_GROUPS)) {
-							return 0;
-						}
-					}
-				}
+				/* Calibrate the VFIFO */
+				if (rw_mgr_mem_calibrate_vfifo(read_group,
+							       read_test_bgn))
+					continue;
+
+				group_failed = 1;
+				if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_SWEEP_ALL_GROUPS))
+					return 0;
 			}
 
 			/* Calibrate the output side */
