@@ -663,9 +663,14 @@ static void scc_mgr_apply_group_dqs_io_and_oct_out1(uint32_t write_group,
 	scc_mgr_load_dqs_for_write_group(write_group);
 }
 
-/* apply a delay to the entire output side: DQ, DM, DQS, OCT */
+/**
+ * scc_mgr_apply_group_all_out_delay_add() - Apply a delay to the entire output side: DQ, DM, DQS, OCT
+ * @write_group:	Write group
+ * @delay:		Delay value
+ *
+ * Apply a delay to the entire output side: DQ, DM, DQS, OCT.
+ */
 static void scc_mgr_apply_group_all_out_delay_add(const u32 write_group,
-						  const u32 group_bgn,
 						  const u32 delay)
 {
 	u32 i, new_delay;
@@ -678,36 +683,30 @@ static void scc_mgr_apply_group_all_out_delay_add(const u32 write_group,
 	for (i = 0; i < RW_MGR_NUM_DM_PER_WRITE_GROUP; i++)
 		scc_mgr_load_dm(i);
 
-	/* dqs shift */
-	new_delay = READ_SCC_DQS_IO_OUT2_DELAY;
-	new_delay += delay;
-
+	/* DQS shift */
+	new_delay = READ_SCC_DQS_IO_OUT2_DELAY + delay;
 	if (new_delay > IO_IO_OUT2_DELAY_MAX) {
-		debug_cond(DLEVEL == 1, "%s:%d (%u, %u, %u) DQS: %u > %d => %d;"
-			   " adding %u to OUT1\n", __func__, __LINE__,
-			   write_group, group_bgn, delay, new_delay,
-			   IO_IO_OUT2_DELAY_MAX, IO_IO_OUT2_DELAY_MAX,
+		debug_cond(DLEVEL == 1,
+			   "%s:%d (%u, %u) DQS: %u > %d; adding %u to OUT1\n",
+			   __func__, __LINE__, write_group, delay, new_delay,
+			   IO_IO_OUT2_DELAY_MAX,
 			   new_delay - IO_IO_OUT2_DELAY_MAX);
-		scc_mgr_set_dqs_out1_delay(new_delay -
-					   IO_IO_OUT2_DELAY_MAX);
-		new_delay = IO_IO_OUT2_DELAY_MAX;
+		new_delay -= IO_IO_OUT2_DELAY_MAX;
+		scc_mgr_set_dqs_out1_delay(new_delay);
 	}
 
 	scc_mgr_load_dqs_io();
 
-	/* oct shift */
-	new_delay = READ_SCC_OCT_OUT2_DELAY;
-	new_delay += delay;
-
+	/* OCT shift */
+	new_delay = READ_SCC_OCT_OUT2_DELAY + delay;
 	if (new_delay > IO_IO_OUT2_DELAY_MAX) {
-		debug_cond(DLEVEL == 1, "%s:%d (%u, %u, %u) DQS: %u > %d => %d;"
-			   " adding %u to OUT1\n", __func__, __LINE__,
-			   write_group, group_bgn, delay, new_delay,
-			   IO_IO_OUT2_DELAY_MAX, IO_IO_OUT2_DELAY_MAX,
+		debug_cond(DLEVEL == 1,
+			   "%s:%d (%u, %u) DQS: %u > %d; adding %u to OUT1\n",
+			   __func__, __LINE__, write_group, delay,
+			   new_delay, IO_IO_OUT2_DELAY_MAX,
 			   new_delay - IO_IO_OUT2_DELAY_MAX);
-		scc_mgr_set_oct_out1_delay(write_group, new_delay -
-					   IO_IO_OUT2_DELAY_MAX);
-		new_delay = IO_IO_OUT2_DELAY_MAX;
+		new_delay -= IO_IO_OUT2_DELAY_MAX;
+		scc_mgr_set_oct_out1_delay(write_group, new_delay);
 	}
 
 	scc_mgr_load_dqs_for_write_group(write_group);
@@ -724,8 +723,7 @@ static void scc_mgr_apply_group_all_out_delay_add_all_ranks(
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
 		r += NUM_RANKS_PER_SHADOW_REG) {
-		scc_mgr_apply_group_all_out_delay_add(write_group,
-						      group_bgn, delay);
+		scc_mgr_apply_group_all_out_delay_add(write_group, delay);
 		writel(0, &sdr_scc_mgr->update);
 	}
 }
