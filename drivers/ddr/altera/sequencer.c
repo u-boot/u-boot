@@ -2198,7 +2198,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	uint32_t write_group, uint32_t read_group, uint32_t test_bgn,
 	uint32_t use_read_test, uint32_t update_fom)
 {
-	int i, min_index;
+	const u32 addr =
+		SDR_PHYGRP_SCCGRP_ADDRESS + SCC_MGR_DQS_IN_DELAY_OFFSET +
+		(read_group << 2);
 	/*
 	 * Store these as signed since there are comparisons with
 	 * signed numbers.
@@ -2208,18 +2210,16 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	int32_t left_edge[RW_MGR_MEM_DQ_PER_READ_DQS];
 	int32_t right_edge[RW_MGR_MEM_DQ_PER_READ_DQS];
 	int32_t orig_mid_min, mid_min;
-	int32_t new_dqs, start_dqs, start_dqs_en, final_dqs, final_dqs_en;
+	int32_t new_dqs, start_dqs, start_dqs_en, final_dqs_en;
 	int32_t dq_margin, dqs_margin;
-	uint32_t addr;
+	int i, min_index;
 	int ret;
 
 	debug("%s:%d: %u %u", __func__, __LINE__, read_group, test_bgn);
 
-	addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_DQS_IN_DELAY_OFFSET;
-	start_dqs = readl(addr + (read_group << 2));
+	start_dqs = readl(addr);
 	if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS)
-		start_dqs_en = readl(addr + ((read_group << 2)
-				     - IO_DQS_EN_DELAY_OFFSET));
+		start_dqs_en = readl(addr - IO_DQS_EN_DELAY_OFFSET);
 
 	/* set the left and right edge of each bit to an illegal value */
 	/* use (IO_IO_IN_DELAY_MAX + 1) as an illegal value */
@@ -2302,18 +2302,15 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	center_dq_windows(0, left_edge, right_edge, mid_min, orig_mid_min,
 			  min_index, test_bgn, &dq_margin, &dqs_margin);
 
-	final_dqs = new_dqs;
-	if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS)
-		final_dqs_en = start_dqs_en - mid_min;
-
 	/* Move DQS-en */
 	if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS) {
+		final_dqs_en = start_dqs_en - mid_min;
 		scc_mgr_set_dqs_en_delay(read_group, final_dqs_en);
 		scc_mgr_load_dqs(read_group);
 	}
 
 	/* Move DQS */
-	scc_mgr_set_dqs_bus_in_delay(read_group, final_dqs);
+	scc_mgr_set_dqs_bus_in_delay(read_group, new_dqs);
 	scc_mgr_load_dqs(read_group);
 	debug_cond(DLEVEL == 2,
 		   "%s:%d vfifo_center: dq_margin=%d dqs_margin=%d",
