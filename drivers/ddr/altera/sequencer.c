@@ -260,7 +260,7 @@ static void set_rank_and_odt_mask(uint32_t rank, uint32_t odt_mode)
 				odt_mask_0 = 0x0;
 				odt_mask_1 = 0x3 & (1 << rank);
 			}
-				} else {
+		} else {
 			/* 4 Ranks
 			 * Read:
 			 * ----------+-----------------------+
