@@ -326,7 +326,7 @@ int dm_pci_hose_probe_bus(struct pci_controller *hose, pci_dev_t bdf)
 	parent = hose->bus;
 
 	/* Find the bus within the parent */
-	ret = pci_bus_find_devfn(parent, bdf, &bus);
+	ret = pci_bus_find_devfn(parent, PCI_MASK_BUS(bdf), &bus);
 	if (ret) {
 		debug("%s: Cannot find device %x on bus %s: %d\n", __func__,
 		      bdf, parent->name, ret);
