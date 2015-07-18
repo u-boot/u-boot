@@ -301,14 +301,10 @@ int pci_auto_config_devices(struct udevice *bus)
 	for (ret = device_find_first_child(bus, &dev);
 	     !ret && dev;
 	     ret = device_find_next_child(&dev)) {
-		struct pci_controller *ctlr_hose;
 		unsigned int max_bus;
 
 		debug("%s: device %s\n", __func__, dev->name);
-
-		/* The root controller has the region information */
-		ctlr_hose = hose->ctlr->uclass_priv;
-		max_bus = pciauto_config_device(ctlr_hose, pci_get_bdf(dev));
+		max_bus = pciauto_config_device(hose, pci_get_bdf(dev));
 		sub_bus = max(sub_bus, max_bus);
 	}
 	debug("%s: done\n", __func__);

@@ -213,10 +213,23 @@ void pciauto_setup_device(struct pci_controller *hose,
 void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 					 pci_dev_t dev, int sub_bus)
 {
-	struct pci_region *pci_mem = hose->pci_mem;
-	struct pci_region *pci_prefetch = hose->pci_prefetch;
-	struct pci_region *pci_io = hose->pci_io;
+	struct pci_region *pci_mem;
+	struct pci_region *pci_prefetch;
+	struct pci_region *pci_io;
 	u16 cmdstat, prefechable_64;
+
+#ifdef CONFIG_DM_PCI
+	/* The root controller has the region information */
+	struct pci_controller *ctlr_hose = pci_bus_to_hose(0);
+
+	pci_mem = ctlr_hose->pci_mem;
+	pci_prefetch = ctlr_hose->pci_prefetch;
+	pci_io = ctlr_hose->pci_io;
+#else
+	pci_mem = hose->pci_mem;
+	pci_prefetch = hose->pci_prefetch;
+	pci_io = hose->pci_io;
+#endif
 
 	pci_hose_read_config_word(hose, dev, PCI_COMMAND, &cmdstat);
 	pci_hose_read_config_word(hose, dev, PCI_PREF_MEMORY_BASE,
@@ -295,9 +308,22 @@ void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 					  pci_dev_t dev, int sub_bus)
 {
-	struct pci_region *pci_mem = hose->pci_mem;
-	struct pci_region *pci_prefetch = hose->pci_prefetch;
-	struct pci_region *pci_io = hose->pci_io;
+	struct pci_region *pci_mem;
+	struct pci_region *pci_prefetch;
+	struct pci_region *pci_io;
+
+#ifdef CONFIG_DM_PCI
+	/* The root controller has the region information */
+	struct pci_controller *ctlr_hose = pci_bus_to_hose(0);
+
+	pci_mem = ctlr_hose->pci_mem;
+	pci_prefetch = ctlr_hose->pci_prefetch;
+	pci_io = ctlr_hose->pci_io;
+#else
+	pci_mem = hose->pci_mem;
+	pci_prefetch = hose->pci_prefetch;
+	pci_io = hose->pci_io;
+#endif
 
 	/* Configure bus number registers */
 #ifdef CONFIG_DM_PCI
@@ -425,9 +451,25 @@ void pciauto_config_init(struct pci_controller *hose)
  */
 int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 {
+	struct pci_region *pci_mem;
+	struct pci_region *pci_prefetch;
+	struct pci_region *pci_io;
 	unsigned int sub_bus = PCI_BUS(dev);
 	unsigned short class;
 	int n;
+
+#ifdef CONFIG_DM_PCI
+	/* The root controller has the region information */
+	struct pci_controller *ctlr_hose = pci_bus_to_hose(0);
+
+	pci_mem = ctlr_hose->pci_mem;
+	pci_prefetch = ctlr_hose->pci_prefetch;
+	pci_io = ctlr_hose->pci_io;
+#else
+	pci_mem = hose->pci_mem;
+	pci_prefetch = hose->pci_prefetch;
+	pci_io = hose->pci_io;
+#endif
 
 	pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
 
@@ -436,8 +478,8 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		DEBUGF("PCI Autoconfig: Found P2P bridge, device %d\n",
 		       PCI_DEV(dev));
 
-		pciauto_setup_device(hose, dev, 2, hose->pci_mem,
-			hose->pci_prefetch, hose->pci_io);
+		pciauto_setup_device(hose, dev, 2, pci_mem,
+				     pci_prefetch, pci_io);
 
 #ifdef CONFIG_DM_PCI
 		n = dm_pci_hose_probe_bus(hose, dev);
@@ -467,8 +509,8 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		 * just do a minimal setup of the bridge,
 		 * let the OS take care of the rest
 		 */
-		pciauto_setup_device(hose, dev, 0, hose->pci_mem,
-			hose->pci_prefetch, hose->pci_io);
+		pciauto_setup_device(hose, dev, 0, pci_mem,
+				     pci_prefetch, pci_io);
 
 		DEBUGF("PCI Autoconfig: Found P2CardBus bridge, device %d\n",
 			PCI_DEV(dev));
@@ -502,8 +544,8 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		DEBUGF("PCI AutoConfig: Found PowerPC device\n");
 
 	default:
-		pciauto_setup_device(hose, dev, 6, hose->pci_mem,
-			hose->pci_prefetch, hose->pci_io);
+		pciauto_setup_device(hose, dev, 6, pci_mem,
+				     pci_prefetch, pci_io);
 		break;
 	}
 
