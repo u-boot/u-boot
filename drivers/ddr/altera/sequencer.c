@@ -453,21 +453,33 @@ static void scc_mgr_set_oct_out1_delay(const u32 write_group, const u32 delay)
 		scc_mgr_set(SCC_MGR_OCT_OUT1_DELAY_OFFSET, base + i, delay);
 }
 
+/**
+ * scc_mgr_set_hhp_extras() - Set HHP extras.
+ *
+ * Load the fixed setting in the SCC manager HHP extras.
+ */
 static void scc_mgr_set_hhp_extras(void)
 {
 	/*
 	 * Load the fixed setting in the SCC manager
-	 * bits: 0:0 = 1'b1   - dqs bypass
-	 * bits: 1:1 = 1'b1   - dq bypass
-	 * bits: 4:2 = 3'b001   - rfifo_mode
-	 * bits: 6:5 = 2'b01  - rfifo clock_select
-	 * bits: 7:7 = 1'b0  - separate gating from ungating setting
-	 * bits: 8:8 = 1'b0  - separate OE from Output delay setting
+	 * bits: 0:0 = 1'b1	- DQS bypass
+	 * bits: 1:1 = 1'b1	- DQ bypass
+	 * bits: 4:2 = 3'b001	- rfifo_mode
+	 * bits: 6:5 = 2'b01	- rfifo clock_select
+	 * bits: 7:7 = 1'b0	- separate gating from ungating setting
+	 * bits: 8:8 = 1'b0	- separate OE from Output delay setting
 	 */
-	uint32_t value = (0<<8) | (0<<7) | (1<<5) | (1<<2) | (1<<1) | (1<<0);
-	uint32_t addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_HHP_GLOBALS_OFFSET;
+	const u32 value = (0 << 8) | (0 << 7) | (1 << 5) |
+			  (1 << 2) | (1 << 1) | (1 << 0);
+	const u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS |
+			 SCC_MGR_HHP_GLOBALS_OFFSET |
+			 SCC_MGR_HHP_EXTRAS_OFFSET;
 
-	writel(value, addr + SCC_MGR_HHP_EXTRAS_OFFSET);
+	debug_cond(DLEVEL == 1, "%s:%d Setting HHP Extras\n",
+		   __func__, __LINE__);
+	writel(value, addr);
+	debug_cond(DLEVEL == 1, "%s:%d Done Setting HHP Extras\n",
+		   __func__, __LINE__);
 }
 
 /*
@@ -516,13 +528,8 @@ static void scc_mgr_zero_all(void)
 static void scc_set_bypass_mode(const u32 write_group)
 {
 	/* Only needed once to set all groups, pins, DQ, DQS, DM. */
-	if (write_group == 0) {
-		debug_cond(DLEVEL == 1, "%s:%d Setting HHP Extras\n", __func__,
-			   __LINE__);
+	if (write_group == 0)
 		scc_mgr_set_hhp_extras();
-		debug_cond(DLEVEL == 1, "%s:%d Done Setting HHP Extras\n",
-			  __func__, __LINE__);
-	}
 
 	/* Multicast to all DQ enables. */
 	writel(0xff, &sdr_scc_mgr->dq_ena);
