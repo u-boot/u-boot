@@ -1036,31 +1036,42 @@ static void rw_mgr_mem_handoff(void)
 	 */
 }
 
-/*
- * performs a guaranteed read on the patterns we are going to use during a
- * read test to ensure memory works
+/**
+ * rw_mgr_mem_calibrate_read_test_patterns() - Read back test patterns
+ * @rank_bgn:	Rank number
+ * @group:	Read/Write Group
+ * @all_ranks:	Test all ranks
+ *
+ * Performs a guaranteed read on the patterns we are going to use during a
+ * read test to ensure memory works.
  */
-static uint32_t rw_mgr_mem_calibrate_read_test_patterns(uint32_t rank_bgn,
-	uint32_t group, uint32_t num_tries, uint32_t *bit_chk,
-	uint32_t all_ranks)
+static int
+rw_mgr_mem_calibrate_read_test_patterns(const u32 rank_bgn, const u32 group,
+					const u32 all_ranks)
 {
-	uint32_t r, vg;
-	uint32_t correct_mask_vg;
-	uint32_t tmp_bit_chk;
-	uint32_t rank_end = all_ranks ? RW_MGR_MEM_NUMBER_OF_RANKS :
-		(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
-	uint32_t addr;
-	uint32_t base_rw_mgr;
+	const u32 addr = SDR_PHYGRP_RWMGRGRP_ADDRESS |
+			 RW_MGR_RUN_SINGLE_GROUP_OFFSET;
+	const u32 addr_offset =
+			 (group * RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS) << 2;
+	const u32 rank_end = all_ranks ?
+				RW_MGR_MEM_NUMBER_OF_RANKS :
+				(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
+	const u32 shift_ratio = RW_MGR_MEM_DQ_PER_READ_DQS /
+				RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS;
+	const u32 correct_mask_vg = param->read_correct_mask_vg;
 
-	*bit_chk = param->read_correct_mask;
-	correct_mask_vg = param->read_correct_mask_vg;
+	u32 tmp_bit_chk, base_rw_mgr, bit_chk;
+	int vg, r;
+	int ret = 0;
+
+	bit_chk = param->read_correct_mask;
 
 	for (r = rank_bgn; r < rank_end; r++) {
+		/* Request to skip the rank */
 		if (param->skip_ranks[r])
-			/* request to skip the rank */
 			continue;
 
-		/* set rank */
+		/* Set rank */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
 		/* Load up a constant bursts of read commands */
@@ -1073,38 +1084,36 @@ static uint32_t rw_mgr_mem_calibrate_read_test_patterns(uint32_t rank_bgn,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 
 		tmp_bit_chk = 0;
-		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS-1; ; vg--) {
-			/* reset the fifos to get pointers to known state */
-
+		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS - 1;
+		     vg >= 0; vg--) {
+			/* Reset the FIFOs to get pointers to known state. */
 			writel(0, &phy_mgr_cmd->fifo_reset);
 			writel(0, SDR_PHYGRP_RWMGRGRP_ADDRESS |
 				  RW_MGR_RESET_READ_DATAPATH_OFFSET);
-
-			tmp_bit_chk = tmp_bit_chk << (RW_MGR_MEM_DQ_PER_READ_DQS
-				/ RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS);
-
-			addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-			writel(RW_MGR_GUARANTEED_READ, addr +
-			       ((group * RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS +
-				vg) << 2));
+			writel(RW_MGR_GUARANTEED_READ,
+			       addr + addr_offset + (vg << 2));
 
 			base_rw_mgr = readl(SDR_PHYGRP_RWMGRGRP_ADDRESS);
-			tmp_bit_chk = tmp_bit_chk | (correct_mask_vg & (~base_rw_mgr));
-
-			if (vg == 0)
-				break;
+			tmp_bit_chk <<= shift_ratio;
+			tmp_bit_chk |= correct_mask_vg & ~base_rw_mgr;
 		}
-		*bit_chk &= tmp_bit_chk;
+
+		bit_chk &= tmp_bit_chk;
 	}
 
-	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
 	writel(RW_MGR_CLEAR_DQS_ENABLE, addr + (group << 2));
 
 	set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
-	debug_cond(DLEVEL == 1, "%s:%d test_load_patterns(%u,ALL) => (%u == %u) =>\
-		   %lu\n", __func__, __LINE__, group, *bit_chk, param->read_correct_mask,
-		   (long unsigned int)(*bit_chk == param->read_correct_mask));
-	return *bit_chk == param->read_correct_mask;
+
+	if (bit_chk != param->read_correct_mask)
+		ret = -EIO;
+
+	debug_cond(DLEVEL == 1,
+		   "%s:%d test_load_patterns(%u,ALL) => (%u == %u) => %i\n",
+		   __func__, __LINE__, group, bit_chk,
+		   param->read_correct_mask, ret);
+
+	return ret;
 }
 
 /**
@@ -2200,7 +2209,6 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 static int rw_mgr_mem_calibrate_guaranteed_write(const u32 rw_group,
 						 const u32 phase)
 {
-	u32 bit_chk;
 	int ret;
 
 	/* Set a particular DQ/DQS phase. */
@@ -2223,16 +2231,12 @@ static int rw_mgr_mem_calibrate_guaranteed_write(const u32 rw_group,
 	 * Altera EMI_RM 2015.05.04 :: Figure 1-26
 	 * Back-to-Back reads of the patterns used for calibration.
 	 */
-	ret = rw_mgr_mem_calibrate_read_test_patterns(0, rw_group, 1,
-						      &bit_chk, 1);
-	if (!ret) {	/* FIXME: 0 means failure in this old code :-( */
+	ret = rw_mgr_mem_calibrate_read_test_patterns(0, rw_group, 1);
+	if (ret)
 		debug_cond(DLEVEL == 1,
 			   "%s:%d Guaranteed read test failed: g=%u p=%u\n",
 			   __func__, __LINE__, rw_group, phase);
-		return -EIO;
-	}
-
-	return 0;
+	return ret;
 }
 
 /**
