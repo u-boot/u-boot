@@ -2264,7 +2264,7 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 				CAL_STAGE_VFIFO_AFTER_WRITES,
 				CAL_SUBSTAGE_VFIFO_CENTER);
 		}
-		return 0;
+		return -EIO;
 	}
 
 	min_index = get_window_mid_index(0, left_edge, right_edge, &mid_min);
@@ -2319,7 +2319,10 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 	 */
 	writel(0, &sdr_scc_mgr->update);
 
-	return (dq_margin >= 0) && (dqs_margin >= 0);
+	if ((dq_margin < 0) || (dqs_margin < 0))
+		return -EINVAL;
+
+	return 0;
 }
 
 /**
@@ -2459,7 +2462,7 @@ rw_mgr_mem_calibrate_dq_dqs_centering(const u32 rw_group, const u32 test_bgn,
 							test_bgn,
 							use_read_test,
 							update_fom);
-		if (ret)
+		if (!ret)
 			continue;
 
 		grp_calibrated = 0;
@@ -2594,7 +2597,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_end(uint32_t read_group,
 		/* Determine if this set of ranks should be skipped entirely */
 		if (!param->skip_shadow_regs[sr]) {
 		/* This is the last calibration round, update FOM here */
-			if (!rw_mgr_mem_calibrate_vfifo_center(rank_bgn,
+			if (rw_mgr_mem_calibrate_vfifo_center(rank_bgn,
 								read_group,
 								test_bgn, 0,
 								1)) {
