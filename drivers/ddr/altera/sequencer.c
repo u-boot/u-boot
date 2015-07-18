@@ -2073,6 +2073,48 @@ static int search_right_edge(const int write, const int rank_bgn,
 	return 0;
 }
 
+/**
+ * get_window_mid_index() - Find the best middle setting of DQ/DQS phase
+ * @write:		Perform read (Stage 2) or write (Stage 3) calibration
+ * @left_edge:		Left edge of the DQ/DQS phase
+ * @right_edge:		Right edge of the DQ/DQS phase
+ * @mid_min:		Best DQ/DQS phase middle setting
+ *
+ * Find index and value of the middle of the DQ/DQS working phase.
+ */
+static int get_window_mid_index(const int write, int *left_edge,
+				int *right_edge, int *mid_min)
+{
+	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
+				    RW_MGR_MEM_DQ_PER_READ_DQS;
+	int i, mid, min_index;
+
+	/* Find middle of window for each DQ bit */
+	*mid_min = left_edge[0] - right_edge[0];
+	min_index = 0;
+	for (i = 1; i < per_dqs; i++) {
+		mid = left_edge[i] - right_edge[i];
+		if (mid < *mid_min) {
+			*mid_min = mid;
+			min_index = i;
+		}
+	}
+
+	/*
+	 * -mid_min/2 represents the amount that we need to move DQS.
+	 * If mid_min is odd and positive we'll need to add one to make
+	 * sure the rounding in further calculations is correct (always
+	 * bias to the right), so just add 1 for all positive values.
+	 */
+	if (*mid_min > 0)
+		(*mid_min)++;
+	*mid_min = *mid_min / 2;
+
+	debug_cond(DLEVEL == 1, "%s:%d vfifo_center: *mid_min=%d (index=%u)\n",
+		   __func__, __LINE__, *mid_min, min_index);
+	return min_index;
+}
+
 /* per-bit deskew DQ and center */
 static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	uint32_t write_group, uint32_t read_group, uint32_t test_bgn,
@@ -2155,30 +2197,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 		return 0;
 	}
 
-	/* Find middle of window for each DQ bit */
-	mid_min = left_edge[0] - right_edge[0];
-	min_index = 0;
-	for (i = 1; i < RW_MGR_MEM_DQ_PER_READ_DQS; i++) {
-		mid = left_edge[i] - right_edge[i];
-		if (mid < mid_min) {
-			mid_min = mid;
-			min_index = i;
-		}
-	}
-
-	/*
-	 * -mid_min/2 represents the amount that we need to move DQS.
-	 * If mid_min is odd and positive we'll need to add one to
-	 * make sure the rounding in further calculations is correct
-	 * (always bias to the right), so just add 1 for all positive values.
-	 */
-	if (mid_min > 0)
-		mid_min++;
-
-	mid_min = mid_min / 2;
-
-	debug_cond(DLEVEL == 1, "%s:%d vfifo_center: mid_min=%d (index=%u)\n",
-		   __func__, __LINE__, mid_min, min_index);
+	min_index = get_window_mid_index(0, left_edge, right_edge, &mid_min);
 
 	/* Determine the amount we can change DQS (which is -mid_min) */
 	orig_mid_min = mid_min;
@@ -2888,28 +2907,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 		return 0;
 	}
 
-	/* Find middle of window for each DQ bit */
-	mid_min = left_edge[0] - right_edge[0];
-	min_index = 0;
-	for (i = 1; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
-		mid = left_edge[i] - right_edge[i];
-		if (mid < mid_min) {
-			mid_min = mid;
-			min_index = i;
-		}
-	}
-
-	/*
-	 * -mid_min/2 represents the amount that we need to move DQS.
-	 * If mid_min is odd and positive we'll need to add one to
-	 * make sure the rounding in further calculations is correct
-	 * (always bias to the right), so just add 1 for all positive values.
-	 */
-	if (mid_min > 0)
-		mid_min++;
-	mid_min = mid_min / 2;
-	debug_cond(DLEVEL == 1, "%s:%d write_center: mid_min=%d\n", __func__,
-		   __LINE__, mid_min);
+	min_index = get_window_mid_index(1, left_edge, right_edge, &mid_min);
 
 	/* Determine the amount we can change DQS (which is -mid_min) */
 	orig_mid_min = mid_min;
