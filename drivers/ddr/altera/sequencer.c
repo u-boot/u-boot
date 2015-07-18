@@ -2260,6 +2260,53 @@ static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
 }
 
 /**
+ * rw_mgr_mem_calibrate_dq_dqs_centering() - Centering DQ/DQS
+ * @rw_group:		Read/Write Group
+ * @test_bgn:		Rank at which the test begins
+ * @use_read_test:	Perform a read test
+ * @update_fom:		Update FOM
+ *
+ * The centerin DQ/DQS stage attempts to align DQ and DQS signals on reads
+ * within a group.
+ */
+static int
+rw_mgr_mem_calibrate_dq_dqs_centering(const u32 rw_group, const u32 test_bgn,
+				      const int use_read_test,
+				      const int update_fom)
+
+{
+	int ret, grp_calibrated;
+	u32 rank_bgn, sr;
+
+	/*
+	 * Altera EMI_RM 2015.05.04 :: Figure 1-28
+	 * Read per-bit deskew can be done on a per shadow register basis.
+	 */
+	grp_calibrated = 1;
+	for (rank_bgn = 0, sr = 0;
+	     rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
+	     rank_bgn += NUM_RANKS_PER_SHADOW_REG, sr++) {
+		/* Check if this set of ranks should be skipped entirely. */
+		if (param->skip_shadow_regs[sr])
+			continue;
+
+		ret = rw_mgr_mem_calibrate_vfifo_center(rank_bgn, rw_group,
+							rw_group, test_bgn,
+							use_read_test,
+							update_fom);
+		if (ret)
+			continue;
+
+		grp_calibrated = 0;
+	}
+
+	if (!grp_calibrated)
+		return -EIO;
+
+	return 0;
+}
+
+/**
  * rw_mgr_mem_calibrate_vfifo() - Calibrate the read valid prediction FIFO
  * @rw_group:		Read/Write Group
  * @test_bgn:		Rank at which the test begins
@@ -2276,9 +2323,8 @@ static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
  */
 static int rw_mgr_mem_calibrate_vfifo(const u32 rw_group, const u32 test_bgn)
 {
-	uint32_t p, d, rank_bgn, sr;
+	uint32_t p, d;
 	uint32_t dtaps_per_ptap;
-	uint32_t grp_calibrated;
 	uint32_t failed_substage;
 
 	int ret;
@@ -2322,36 +2368,20 @@ static int rw_mgr_mem_calibrate_vfifo(const u32 rw_group, const u32 test_bgn)
 				continue;
 			}
 
+			/* 3) Centering DQ/DQS */
 			/*
-			 * USER Read per-bit deskew can be done on a
-			 * per shadow register basis.
+			 * If doing read after write calibration, do not update
+			 * FOM now. Do it then.
 			 */
-			grp_calibrated = 1;
-			for (rank_bgn = 0, sr = 0;
-			     rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
-			     rank_bgn += NUM_RANKS_PER_SHADOW_REG, sr++) {
-				/*
-				 * Determine if this set of ranks
-				 * should be skipped entirely.
-				 */
-				if (param->skip_shadow_regs[sr])
-					continue;
-				/*
-				 * If doing read after write
-				 * calibration, do not update
-				 * FOM, now - do it then.
-				 */
-				if (rw_mgr_mem_calibrate_vfifo_center(rank_bgn,
-							rw_group, rw_group,
-							test_bgn, 1, 0))
-					continue;
-
-				grp_calibrated = 0;
+			ret = rw_mgr_mem_calibrate_dq_dqs_centering(rw_group,
+								test_bgn, 1, 0);
+			if (ret) {
 				failed_substage = CAL_SUBSTAGE_VFIFO_CENTER;
+				continue;
 			}
 
-			if (grp_calibrated)
-				goto cal_done_ok;
+			/* All done. */
+			goto cal_done_ok;
 		}
 	}
 
