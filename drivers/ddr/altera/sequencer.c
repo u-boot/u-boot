@@ -1766,57 +1766,6 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	return 1;
 }
 
-/*
- * Try rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase across different
- * dq_in_delay values
- */
-static int
-rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
-(const u32 rw_group, const u32 test_bgn)
-{
-	/* We start at zero, so have one less dq to devide among */
-	const u32 delay_step = IO_IO_IN_DELAY_MAX /
-			       (RW_MGR_MEM_DQ_PER_READ_DQS - 1);
-	int found;
-	u32 i, p, d, r;
-
-	debug("%s:%d (%u,%u)\n", __func__, __LINE__, rw_group, test_bgn);
-
-	/* Try different dq_in_delays since the DQ path is shorter than DQS. */
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
-	     r += NUM_RANKS_PER_SHADOW_REG) {
-		for (i = 0, p = test_bgn, d = 0;
-		     i < RW_MGR_MEM_DQ_PER_READ_DQS;
-		     i++, p++, d += delay_step) {
-			debug_cond(DLEVEL == 1,
-				   "%s:%d: g=%u r=%u i=%u p=%u d=%u\n",
-				   __func__, __LINE__, rw_group, r, i, p, d);
-
-			scc_mgr_set_dq_in_delay(p, d);
-			scc_mgr_load_dq(p);
-		}
-
-		writel(0, &sdr_scc_mgr->update);
-	}
-
-	found = rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(rw_group);
-
-	debug_cond(DLEVEL == 1,
-		   "%s:%d: g=%u found=%u; Reseting delay chain to zero\n",
-		   __func__, __LINE__, rw_group, found);
-
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
-	     r += NUM_RANKS_PER_SHADOW_REG) {
-		scc_mgr_apply_group_dq_in_delay(test_bgn, 0);
-		writel(0, &sdr_scc_mgr->update);
-	}
-
-	if (!found)
-		return -EINVAL;
-
-	return 0;
-}
-
 /* per-bit deskew DQ and center */
 static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	uint32_t write_group, uint32_t read_group, uint32_t test_bgn,
@@ -2244,15 +2193,57 @@ static int rw_mgr_mem_calibrate_guaranteed_write(const u32 rw_group,
 static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
 						       const u32 test_bgn)
 {
-	int ret;
-
 	/*
 	 * Altera EMI_RM 2015.05.04 :: Figure 1-27
 	 * DQS and DQS Eanble Signal Relationships.
 	 */
-	ret = rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay(
-						rw_group, test_bgn);
-	return ret;
+
+	/* We start at zero, so have one less dq to devide among */
+	const u32 delay_step = IO_IO_IN_DELAY_MAX /
+			       (RW_MGR_MEM_DQ_PER_READ_DQS - 1);
+	int found;
+	u32 i, p, d, r;
+
+	debug("%s:%d (%u,%u)\n", __func__, __LINE__, rw_group, test_bgn);
+
+	/* Try different dq_in_delays since the DQ path is shorter than DQS. */
+	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
+	     r += NUM_RANKS_PER_SHADOW_REG) {
+		for (i = 0, p = test_bgn, d = 0;
+		     i < RW_MGR_MEM_DQ_PER_READ_DQS;
+		     i++, p++, d += delay_step) {
+			debug_cond(DLEVEL == 1,
+				   "%s:%d: g=%u r=%u i=%u p=%u d=%u\n",
+				   __func__, __LINE__, rw_group, r, i, p, d);
+
+			scc_mgr_set_dq_in_delay(p, d);
+			scc_mgr_load_dq(p);
+		}
+
+		writel(0, &sdr_scc_mgr->update);
+	}
+
+	/*
+	 * Try rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase across different
+	 * dq_in_delay values
+	 */
+	found = rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(rw_group);
+
+	debug_cond(DLEVEL == 1,
+		   "%s:%d: g=%u found=%u; Reseting delay chain to zero\n",
+		   __func__, __LINE__, rw_group, found);
+
+	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
+	     r += NUM_RANKS_PER_SHADOW_REG) {
+		scc_mgr_apply_group_dq_in_delay(test_bgn, 0);
+		writel(0, &sdr_scc_mgr->update);
+	}
+
+	if (!found)
+		return -EINVAL;
+
+	return 0;
+
 }
 
 /**
