@@ -2192,13 +2192,13 @@ static void center_dq_windows(const int write, int *left_edge, int *right_edge,
 }
 
 /* per-bit deskew DQ and center */
-static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
-	uint32_t write_group, uint32_t read_group, uint32_t test_bgn,
-	uint32_t use_read_test, uint32_t update_fom)
+static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
+			const u32 rw_group, const u32 test_bgn,
+			const int use_read_test, const int update_fom)
 {
 	const u32 addr =
 		SDR_PHYGRP_SCCGRP_ADDRESS + SCC_MGR_DQS_IN_DELAY_OFFSET +
-		(read_group << 2);
+		(rw_group << 2);
 	/*
 	 * Store these as signed since there are comparisons with
 	 * signed numbers.
@@ -2212,7 +2212,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	int i, min_index;
 	int ret;
 
-	debug("%s:%d: %u %u", __func__, __LINE__, read_group, test_bgn);
+	debug("%s:%d: %u %u", __func__, __LINE__, rw_group, test_bgn);
 
 	start_dqs = readl(addr);
 	if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS)
@@ -2227,13 +2227,13 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	}
 
 	/* Search for the left edge of the window for each bit */
-	search_left_edge(0, rank_bgn, write_group, read_group, test_bgn,
+	search_left_edge(0, rank_bgn, rw_group, rw_group, test_bgn,
 			 &sticky_bit_chk,
 			 left_edge, right_edge, use_read_test);
 
 
 	/* Search for the right edge of the window for each bit */
-	ret = search_right_edge(0, rank_bgn, write_group, read_group,
+	ret = search_right_edge(0, rank_bgn, rw_group, rw_group,
 				start_dqs, start_dqs_en,
 				&sticky_bit_chk,
 				left_edge, right_edge, use_read_test);
@@ -2243,23 +2243,23 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 		 * in rw_mgr_mem_calibrate_vfifo to retry different
 		 * dqs/ck relationships.
 		 */
-		scc_mgr_set_dqs_bus_in_delay(read_group, start_dqs);
+		scc_mgr_set_dqs_bus_in_delay(rw_group, start_dqs);
 		if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS)
-			scc_mgr_set_dqs_en_delay(read_group, start_dqs_en);
+			scc_mgr_set_dqs_en_delay(rw_group, start_dqs_en);
 
-		scc_mgr_load_dqs(read_group);
+		scc_mgr_load_dqs(rw_group);
 		writel(0, &sdr_scc_mgr->update);
 
 		debug_cond(DLEVEL == 1,
 			   "%s:%d vfifo_center: failed to find edge [%u]: %d %d",
 			   __func__, __LINE__, i, left_edge[i], right_edge[i]);
 		if (use_read_test) {
-			set_failing_group_stage(read_group *
+			set_failing_group_stage(rw_group *
 				RW_MGR_MEM_DQ_PER_READ_DQS + i,
 				CAL_STAGE_VFIFO,
 				CAL_SUBSTAGE_VFIFO_CENTER);
 		} else {
-			set_failing_group_stage(read_group *
+			set_failing_group_stage(rw_group *
 				RW_MGR_MEM_DQ_PER_READ_DQS + i,
 				CAL_STAGE_VFIFO_AFTER_WRITES,
 				CAL_SUBSTAGE_VFIFO_CENTER);
@@ -2302,13 +2302,13 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	/* Move DQS-en */
 	if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS) {
 		final_dqs_en = start_dqs_en - mid_min;
-		scc_mgr_set_dqs_en_delay(read_group, final_dqs_en);
-		scc_mgr_load_dqs(read_group);
+		scc_mgr_set_dqs_en_delay(rw_group, final_dqs_en);
+		scc_mgr_load_dqs(rw_group);
 	}
 
 	/* Move DQS */
-	scc_mgr_set_dqs_bus_in_delay(read_group, new_dqs);
-	scc_mgr_load_dqs(read_group);
+	scc_mgr_set_dqs_bus_in_delay(rw_group, new_dqs);
+	scc_mgr_load_dqs(rw_group);
 	debug_cond(DLEVEL == 2,
 		   "%s:%d vfifo_center: dq_margin=%d dqs_margin=%d",
 		   __func__, __LINE__, dq_margin, dqs_margin);
@@ -2456,7 +2456,7 @@ rw_mgr_mem_calibrate_dq_dqs_centering(const u32 rw_group, const u32 test_bgn,
 			continue;
 
 		ret = rw_mgr_mem_calibrate_vfifo_center(rank_bgn, rw_group,
-							rw_group, test_bgn,
+							test_bgn,
 							use_read_test,
 							update_fom);
 		if (ret)
@@ -2595,7 +2595,6 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_end(uint32_t read_group,
 		if (!param->skip_shadow_regs[sr]) {
 		/* This is the last calibration round, update FOM here */
 			if (!rw_mgr_mem_calibrate_vfifo_center(rank_bgn,
-								write_group,
 								read_group,
 								test_bgn, 0,
 								1)) {
