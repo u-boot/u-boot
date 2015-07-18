@@ -2235,6 +2235,31 @@ static int rw_mgr_mem_calibrate_guaranteed_write(const u32 rw_group,
 }
 
 /**
+ * rw_mgr_mem_calibrate_dqs_enable_calibration() - DQS Enable Calibration
+ * @rw_group:	Read/Write Group
+ * @test_bgn:	Rank at which the test begins
+ *
+ * DQS enable calibration ensures reliable capture of the DQ signal without
+ * glitches on the DQS line.
+ */
+static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
+						       const u32 test_bgn)
+{
+	int ret;
+
+	/*
+	 * Altera EMI_RM 2015.05.04 :: Figure 1-27
+	 * DQS and DQS Eanble Signal Relationships.
+	 */
+	ret = rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay(
+						rw_group, rw_group, test_bgn);
+	if (!ret)	/* FIXME: 0 means failure in this old code :-( */
+		return -EIO;
+
+	return 0;
+}
+
+/**
  * rw_mgr_mem_calibrate_vfifo() - Calibrate the read valid prediction FIFO
  * @rw_group:		Read/Write Group
  * @test_bgn:		Rank at which the test begins
@@ -2289,9 +2314,10 @@ static int rw_mgr_mem_calibrate_vfifo(const u32 rw_group, const u32 test_bgn)
 			if (ret)
 				break;
 
-			/* case:56390 */
-			if (!rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
-			    (rw_group, rw_group, test_bgn)) {
+			/* 2) DQS Enable Calibration */
+			ret = rw_mgr_mem_calibrate_dqs_enable_calibration(rw_group,
+									  test_bgn);
+			if (ret) {
 				failed_substage = CAL_SUBSTAGE_DQS_EN_PHASE;
 				continue;
 			}
