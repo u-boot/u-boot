@@ -1807,13 +1807,7 @@ rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
-		for (i = 0, p = test_bgn;
-		     i < RW_MGR_MEM_DQ_PER_READ_DQS;
-		     i++, p++) {
-			scc_mgr_set_dq_in_delay(p, 0);
-			scc_mgr_load_dq(p);
-		}
-
+		scc_mgr_apply_group_dq_in_delay(test_bgn, 0);
 		writel(0, &sdr_scc_mgr->update);
 	}
 
