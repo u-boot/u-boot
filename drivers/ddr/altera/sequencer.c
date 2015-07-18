@@ -3160,25 +3160,37 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	return (dq_margin >= 0) && (dqs_margin >= 0) && (dm_margin >= 0);
 }
 
-/* calibrate the write operations */
-static uint32_t rw_mgr_mem_calibrate_writes(uint32_t rank_bgn, uint32_t g,
-	uint32_t test_bgn)
+/**
+ * rw_mgr_mem_calibrate_writes() - Write Calibration Part One
+ * @rank_bgn:		Rank number
+ * @group:		Read/Write Group
+ * @test_bgn:		Rank at which the test begins
+ *
+ * Stage 2: Write Calibration Part One.
+ *
+ * This function implements UniPHY calibration Stage 2, as explained in
+ * detail in Altera EMI_RM 2015.05.04 , "UniPHY Calibration Stages".
+ */
+static int rw_mgr_mem_calibrate_writes(const u32 rank_bgn, const u32 group,
+				       const u32 test_bgn)
 {
-	/* update info for sims */
-	debug("%s:%d %u %u\n", __func__, __LINE__, g, test_bgn);
+	int ret;
 
+	/* Update info for sims */
+	debug("%s:%d %u %u\n", __func__, __LINE__, group, test_bgn);
+
+	reg_file_set_group(group);
 	reg_file_set_stage(CAL_STAGE_WRITES);
 	reg_file_set_sub_stage(CAL_SUBSTAGE_WRITES_CENTER);
 
-	reg_file_set_group(g);
-
-	if (!rw_mgr_mem_calibrate_writes_center(rank_bgn, g, test_bgn)) {
-		set_failing_group_stage(g, CAL_STAGE_WRITES,
+	ret = rw_mgr_mem_calibrate_writes_center(rank_bgn, group, test_bgn);
+	if (!ret) {
+		set_failing_group_stage(group, CAL_STAGE_WRITES,
 					CAL_SUBSTAGE_WRITES_CENTER);
-		return 0;
+		return -EIO;
 	}
 
-	return 1;
+	return 0;
 }
 
 /**
@@ -3472,7 +3484,7 @@ static uint32_t mem_calibrate(void)
 					continue;
 
 				/* Calibrate WRITEs */
-				if (rw_mgr_mem_calibrate_writes(rank_bgn,
+				if (!rw_mgr_mem_calibrate_writes(rank_bgn,
 						write_group, write_test_bgn))
 					continue;
 
