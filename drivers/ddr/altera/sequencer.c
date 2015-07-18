@@ -7,6 +7,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/sdram.h>
+#include <errno.h>
 #include "sequencer.h"
 #include "sequencer_auto.h"
 #include "sequencer_auto_ac_init.h"
@@ -2187,6 +2188,53 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 }
 
 /**
+ * rw_mgr_mem_calibrate_guaranteed_write() - Perform guaranteed write into the device
+ * @rw_group:	Read/Write Group
+ * @phase:	DQ/DQS phase
+ *
+ * Because initially no communication ca be reliably performed with the memory
+ * device, the sequencer uses a guaranteed write mechanism to write data into
+ * the memory device.
+ */
+static int rw_mgr_mem_calibrate_guaranteed_write(const u32 rw_group,
+						 const u32 phase)
+{
+	u32 bit_chk;
+	int ret;
+
+	/* Set a particular DQ/DQS phase. */
+	scc_mgr_set_dqdqs_output_phase_all_ranks(rw_group, phase);
+
+	debug_cond(DLEVEL == 1, "%s:%d guaranteed write: g=%u p=%u\n",
+		   __func__, __LINE__, rw_group, phase);
+
+	/*
+	 * Altera EMI_RM 2015.05.04 :: Figure 1-25
+	 * Load up the patterns used by read calibration using the
+	 * current DQDQS phase.
+	 */
+	rw_mgr_mem_calibrate_read_load_patterns(0, 1);
+
+	if (gbl->phy_debug_mode_flags & PHY_DEBUG_DISABLE_GUARANTEED_READ)
+		return 0;
+
+	/*
+	 * Altera EMI_RM 2015.05.04 :: Figure 1-26
+	 * Back-to-Back reads of the patterns used for calibration.
+	 */
+	ret = rw_mgr_mem_calibrate_read_test_patterns_all_ranks(rw_group, 1,
+								&bit_chk);
+	if (!ret) {	/* FIXME: 0 means failure in this old code :-( */
+		debug_cond(DLEVEL == 1,
+			   "%s:%d Guaranteed read test failed: g=%u p=%u\n",
+			   __func__, __LINE__, rw_group, phase);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+/**
  * rw_mgr_mem_calibrate_vfifo() - Calibrate the read valid prediction FIFO
  * @rw_group:		Read/Write Group
  * @test_bgn:		Rank at which the test begins
@@ -2205,9 +2253,10 @@ static int rw_mgr_mem_calibrate_vfifo(const u32 rw_group, const u32 test_bgn)
 {
 	uint32_t p, d, rank_bgn, sr;
 	uint32_t dtaps_per_ptap;
-	uint32_t bit_chk;
 	uint32_t grp_calibrated;
 	uint32_t failed_substage;
+
+	int ret;
 
 	debug("%s:%d: %u %u\n", __func__, __LINE__, rw_group, test_bgn);
 
@@ -2235,27 +2284,10 @@ static int rw_mgr_mem_calibrate_vfifo(const u32 rw_group, const u32 test_bgn)
 		}
 
 		for (p = 0; p <= IO_DQDQS_OUT_PHASE_MAX; p++) {
-			/* set a particular dqdqs phase */
-			scc_mgr_set_dqdqs_output_phase_all_ranks(rw_group, p);
-
-			debug_cond(DLEVEL == 1,
-				   "%s:%d calibrate_vfifo: g=%u p=%u d=%u\n",
-				   __func__, __LINE__, rw_group, p, d);
-
-			/*
-			 * Load up the patterns used by read calibration
-			 * using current DQDQS phase.
-			 */
-			rw_mgr_mem_calibrate_read_load_patterns(0, 1);
-			if (!(gbl->phy_debug_mode_flags & PHY_DEBUG_DISABLE_GUARANTEED_READ)) {
-				if (!rw_mgr_mem_calibrate_read_test_patterns_all_ranks
-								(rw_group, 1, &bit_chk)) {
-					debug_cond(DLEVEL == 1,
-						   "%s:%d Guaranteed read test failed: g=%u p=%u d=%u\n",
-						   __func__, __LINE__, rw_group, p, d);
-					break;
-				}
-			}
+			/* 1) Guaranteed Write */
+			ret = rw_mgr_mem_calibrate_guaranteed_write(rw_group, p);
+			if (ret)
+				break;
 
 			/* case:56390 */
 			if (!rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase_sweep_dq_in_delay
