@@ -2788,51 +2788,34 @@ cal_done_ok:
 	return 1;
 }
 
-/* VFIFO Calibration -- Read Deskew Calibration after write deskew */
-static uint32_t rw_mgr_mem_calibrate_vfifo_end(uint32_t read_group,
-					       uint32_t test_bgn)
+/**
+ * rw_mgr_mem_calibrate_vfifo_end() - DQ/DQS Centering.
+ * @rw_group:		Read/Write Group
+ * @test_bgn:		Rank at which the test begins
+ *
+ * Stage 3: DQ/DQS Centering.
+ *
+ * This function implements UniPHY calibration Stage 3, as explained in
+ * detail in Altera EMI_RM 2015.05.04 , "UniPHY Calibration Stages".
+ */
+static int rw_mgr_mem_calibrate_vfifo_end(const u32 rw_group,
+					  const u32 test_bgn)
 {
-	uint32_t rank_bgn, sr;
-	uint32_t grp_calibrated;
-	uint32_t write_group;
+	int ret;
 
-	debug("%s:%d %u %u", __func__, __LINE__, read_group, test_bgn);
+	debug("%s:%d %u %u", __func__, __LINE__, rw_group, test_bgn);
 
-	/* update info for sims */
-
+	/* Update info for sims. */
+	reg_file_set_group(rw_group);
 	reg_file_set_stage(CAL_STAGE_VFIFO_AFTER_WRITES);
 	reg_file_set_sub_stage(CAL_SUBSTAGE_VFIFO_CENTER);
 
-	write_group = read_group;
-
-	/* update info for sims */
-	reg_file_set_group(read_group);
-
-	grp_calibrated = 1;
-	/* Read per-bit deskew can be done on a per shadow register basis */
-	for (rank_bgn = 0, sr = 0; rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
-		rank_bgn += NUM_RANKS_PER_SHADOW_REG, ++sr) {
-		/* Determine if this set of ranks should be skipped entirely */
-		if (!param->skip_shadow_regs[sr]) {
-		/* This is the last calibration round, update FOM here */
-			if (rw_mgr_mem_calibrate_vfifo_center(rank_bgn,
-								read_group,
-								test_bgn, 0,
-								1)) {
-				grp_calibrated = 0;
-			}
-		}
-	}
-
-
-	if (grp_calibrated == 0) {
-		set_failing_group_stage(write_group,
+	ret = rw_mgr_mem_calibrate_dq_dqs_centering(rw_group, test_bgn, 0, 1);
+	if (ret)
+		set_failing_group_stage(rw_group,
 					CAL_STAGE_VFIFO_AFTER_WRITES,
 					CAL_SUBSTAGE_VFIFO_CENTER);
-		return 0;
-	}
-
-	return 1;
+	return ret;
 }
 
 /* Calibrate LFIFO to find smallest read latency */
@@ -3483,7 +3466,7 @@ static uint32_t mem_calibrate(void)
 				if (STATIC_CALIB_STEPS & CALIB_SKIP_WRITES)
 					continue;
 
-				if (rw_mgr_mem_calibrate_vfifo_end(read_group,
+				if (!rw_mgr_mem_calibrate_vfifo_end(read_group,
 								read_test_bgn))
 					continue;
 
