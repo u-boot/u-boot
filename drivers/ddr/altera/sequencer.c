@@ -2211,18 +2211,16 @@ static int rw_mgr_mem_calibrate_vfifo(const u32 rw_group, const u32 test_bgn)
 
 	debug("%s:%d: %u %u\n", __func__, __LINE__, rw_group, test_bgn);
 
-	/* update info for sims */
+	/* Update info for sims */
+	reg_file_set_group(rw_group);
 	reg_file_set_stage(CAL_STAGE_VFIFO);
+	reg_file_set_sub_stage(CAL_SUBSTAGE_GUARANTEED_READ);
 
-	/* USER Determine number of delay taps for each phase tap */
+	failed_substage = CAL_SUBSTAGE_GUARANTEED_READ;
+
+	/* USER Determine number of delay taps for each phase tap. */
 	dtaps_per_ptap = DIV_ROUND_UP(IO_DELAY_PER_OPA_TAP,
 				      IO_DELAY_PER_DQS_EN_DCHAIN_TAP) - 1;
-
-	/* update info for sims */
-	reg_file_set_group(rw_group);
-
-	reg_file_set_sub_stage(CAL_SUBSTAGE_GUARANTEED_READ);
-	failed_substage = CAL_SUBSTAGE_GUARANTEED_READ;
 
 	for (d = 0; d <= dtaps_per_ptap; d += 2) {
 		/*
