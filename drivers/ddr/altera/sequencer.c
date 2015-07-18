@@ -2078,7 +2078,8 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	uint32_t write_group, uint32_t read_group, uint32_t test_bgn,
 	uint32_t use_read_test, uint32_t update_fom)
 {
-	uint32_t i, p, min_index;
+	uint32_t p, min_index;
+	int i;
 	/*
 	 * Store these as signed since there are comparisons with
 	 * signed numbers.
@@ -2117,6 +2118,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	search_left_edge(0, rank_bgn, write_group, read_group, test_bgn,
 			 &bit_chk, &sticky_bit_chk,
 			 left_edge, right_edge, use_read_test);
+
 
 	/* Search for the right edge of the window for each bit */
 	ret = search_right_edge(0, rank_bgn, write_group, read_group,
@@ -2198,8 +2200,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	}
 	new_dqs = start_dqs - mid_min;
 
-	debug_cond(DLEVEL == 1, "vfifo_center: start_dqs=%d start_dqs_en=%d \
-		   new_dqs=%d mid_min=%d\n", start_dqs,
+	debug_cond(DLEVEL == 1,
+		   "vfifo_center: start_dqs=%d start_dqs_en=%d new_dqs=%d mid_min=%d\n",
+		   start_dqs,
 		   IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS ? start_dqs_en : -1,
 		   new_dqs, mid_min);
 
@@ -2214,28 +2217,31 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 			(left_edge[min_index] - right_edge[min_index]))/2  +
 			(orig_mid_min - mid_min);
 
-		debug_cond(DLEVEL == 2, "vfifo_center: before: \
-			   shift_dq[%u]=%d\n", i, shift_dq);
+		debug_cond(DLEVEL == 2,
+			   "vfifo_center: before: shift_dq[%u]=%d\n",
+			   i, shift_dq);
 
 		addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_IN_DELAY_OFFSET;
 		temp_dq_in_delay1 = readl(addr + (p << 2));
 		temp_dq_in_delay2 = readl(addr + (i << 2));
 
-		if (shift_dq + (int32_t)temp_dq_in_delay1 >
-			(int32_t)IO_IO_IN_DELAY_MAX) {
-			shift_dq = (int32_t)IO_IO_IN_DELAY_MAX - temp_dq_in_delay2;
-		} else if (shift_dq + (int32_t)temp_dq_in_delay1 < 0) {
-			shift_dq = -(int32_t)temp_dq_in_delay1;
-		}
-		debug_cond(DLEVEL == 2, "vfifo_center: after: \
-			   shift_dq[%u]=%d\n", i, shift_dq);
+		if (shift_dq + temp_dq_in_delay1 > IO_IO_IN_DELAY_MAX)
+			shift_dq = IO_IO_IN_DELAY_MAX - temp_dq_in_delay2;
+		else if (shift_dq + temp_dq_in_delay1 < 0)
+			shift_dq = -temp_dq_in_delay1;
+
+		debug_cond(DLEVEL == 2,
+			   "vfifo_center: after: shift_dq[%u]=%d\n",
+			   i, shift_dq);
 		final_dq[i] = temp_dq_in_delay1 + shift_dq;
 		scc_mgr_set_dq_in_delay(p, final_dq[i]);
 		scc_mgr_load_dq(p);
 
-		debug_cond(DLEVEL == 2, "vfifo_center: margin[%u]=[%d,%d]\n", i,
+		debug_cond(DLEVEL == 2,
+			   "vfifo_center: margin[%u]=[%d,%d]\n", i,
 			   left_edge[i] - shift_dq + (-mid_min),
 			   right_edge[i] + shift_dq - (-mid_min));
+
 		/* To determine values for export structures */
 		if (left_edge[i] - shift_dq + (-mid_min) < dq_margin)
 			dq_margin = left_edge[i] - shift_dq + (-mid_min);
@@ -2257,9 +2263,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	/* Move DQS */
 	scc_mgr_set_dqs_bus_in_delay(read_group, final_dqs);
 	scc_mgr_load_dqs(read_group);
-	debug_cond(DLEVEL == 2, "%s:%d vfifo_center: dq_margin=%d \
-		   dqs_margin=%d", __func__, __LINE__,
-		   dq_margin, dqs_margin);
+	debug_cond(DLEVEL == 2,
+		   "%s:%d vfifo_center: dq_margin=%d dqs_margin=%d",
+		   __func__, __LINE__, dq_margin, dqs_margin);
 
 	/*
 	 * Do not remove this line as it makes sure all of our decisions
