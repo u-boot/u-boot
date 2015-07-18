@@ -2115,13 +2115,90 @@ static int get_window_mid_index(const int write, int *left_edge,
 	return min_index;
 }
 
+/**
+ * center_dq_windows() - Center the DQ/DQS windows
+ * @write:		Perform read (Stage 2) or write (Stage 3) calibration
+ * @left_edge:		Left edge of the DQ/DQS phase
+ * @right_edge:		Right edge of the DQ/DQS phase
+ * @mid_min:		Adjusted DQ/DQS phase middle setting
+ * @orig_mid_min:	Original DQ/DQS phase middle setting
+ * @min_index:		DQ/DQS phase middle setting index
+ * @test_bgn:		Rank number to begin the test
+ * @dq_margin:		Amount of shift for the DQ
+ * @dqs_margin:		Amount of shift for the DQS
+ *
+ * Align the DQ/DQS windows in each group.
+ */
+static void center_dq_windows(const int write, int *left_edge, int *right_edge,
+			      const int mid_min, const int orig_mid_min,
+			      const int min_index, const int test_bgn,
+			      int *dq_margin, int *dqs_margin)
+{
+	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
+	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
+				    RW_MGR_MEM_DQ_PER_READ_DQS;
+	const u32 delay_off = write ? SCC_MGR_IO_OUT1_DELAY_OFFSET :
+				      SCC_MGR_IO_IN_DELAY_OFFSET;
+	const u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | delay_off;
+
+	u32 temp_dq_io_delay1, temp_dq_io_delay2;
+	int shift_dq, i, p;
+
+	/* Initialize data for export structures */
+	*dqs_margin = delay_max + 1;
+	*dq_margin  = delay_max + 1;
+
+	/* add delay to bring centre of all DQ windows to the same "level" */
+	for (i = 0, p = test_bgn; i < per_dqs; i++, p++) {
+		/* Use values before divide by 2 to reduce round off error */
+		shift_dq = (left_edge[i] - right_edge[i] -
+			(left_edge[min_index] - right_edge[min_index]))/2  +
+			(orig_mid_min - mid_min);
+
+		debug_cond(DLEVEL == 2,
+			   "vfifo_center: before: shift_dq[%u]=%d\n",
+			   i, shift_dq);
+
+		temp_dq_io_delay1 = readl(addr + (p << 2));
+		temp_dq_io_delay2 = readl(addr + (i << 2));
+
+		if (shift_dq + temp_dq_io_delay1 > delay_max)
+			shift_dq = delay_max - temp_dq_io_delay2;
+		else if (shift_dq + temp_dq_io_delay1 < 0)
+			shift_dq = -temp_dq_io_delay1;
+
+		debug_cond(DLEVEL == 2,
+			   "vfifo_center: after: shift_dq[%u]=%d\n",
+			   i, shift_dq);
+
+		if (write)
+			scc_mgr_set_dq_out1_delay(i, temp_dq_io_delay1 + shift_dq);
+		else
+			scc_mgr_set_dq_in_delay(p, temp_dq_io_delay1 + shift_dq);
+
+		scc_mgr_load_dq(p);
+
+		debug_cond(DLEVEL == 2,
+			   "vfifo_center: margin[%u]=[%d,%d]\n", i,
+			   left_edge[i] - shift_dq + (-mid_min),
+			   right_edge[i] + shift_dq - (-mid_min));
+
+		/* To determine values for export structures */
+		if (left_edge[i] - shift_dq + (-mid_min) < *dq_margin)
+			*dq_margin = left_edge[i] - shift_dq + (-mid_min);
+
+		if (right_edge[i] + shift_dq - (-mid_min) < *dqs_margin)
+			*dqs_margin = right_edge[i] + shift_dq - (-mid_min);
+	}
+
+}
+
 /* per-bit deskew DQ and center */
 static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	uint32_t write_group, uint32_t read_group, uint32_t test_bgn,
 	uint32_t use_read_test, uint32_t update_fom)
 {
-	uint32_t p, min_index;
-	int i;
+	int i, min_index;
 	/*
 	 * Store these as signed since there are comparisons with
 	 * signed numbers.
@@ -2130,13 +2207,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	uint32_t sticky_bit_chk;
 	int32_t left_edge[RW_MGR_MEM_DQ_PER_READ_DQS];
 	int32_t right_edge[RW_MGR_MEM_DQ_PER_READ_DQS];
-	int32_t final_dq[RW_MGR_MEM_DQ_PER_READ_DQS];
-	int32_t mid;
 	int32_t orig_mid_min, mid_min;
-	int32_t new_dqs, start_dqs, start_dqs_en, shift_dq, final_dqs,
-		final_dqs_en;
+	int32_t new_dqs, start_dqs, start_dqs_en, final_dqs, final_dqs_en;
 	int32_t dq_margin, dqs_margin;
-	uint32_t temp_dq_in_delay1, temp_dq_in_delay2;
 	uint32_t addr;
 	int ret;
 
@@ -2225,49 +2298,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 		   IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS ? start_dqs_en : -1,
 		   new_dqs, mid_min);
 
-	/* Initialize data for export structures */
-	dqs_margin = IO_IO_IN_DELAY_MAX + 1;
-	dq_margin  = IO_IO_IN_DELAY_MAX + 1;
-
-	/* add delay to bring centre of all DQ windows to the same "level" */
-	for (i = 0, p = test_bgn; i < RW_MGR_MEM_DQ_PER_READ_DQS; i++, p++) {
-		/* Use values before divide by 2 to reduce round off error */
-		shift_dq = (left_edge[i] - right_edge[i] -
-			(left_edge[min_index] - right_edge[min_index]))/2  +
-			(orig_mid_min - mid_min);
-
-		debug_cond(DLEVEL == 2,
-			   "vfifo_center: before: shift_dq[%u]=%d\n",
-			   i, shift_dq);
-
-		addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_IN_DELAY_OFFSET;
-		temp_dq_in_delay1 = readl(addr + (p << 2));
-		temp_dq_in_delay2 = readl(addr + (i << 2));
-
-		if (shift_dq + temp_dq_in_delay1 > IO_IO_IN_DELAY_MAX)
-			shift_dq = IO_IO_IN_DELAY_MAX - temp_dq_in_delay2;
-		else if (shift_dq + temp_dq_in_delay1 < 0)
-			shift_dq = -temp_dq_in_delay1;
-
-		debug_cond(DLEVEL == 2,
-			   "vfifo_center: after: shift_dq[%u]=%d\n",
-			   i, shift_dq);
-		final_dq[i] = temp_dq_in_delay1 + shift_dq;
-		scc_mgr_set_dq_in_delay(p, final_dq[i]);
-		scc_mgr_load_dq(p);
-
-		debug_cond(DLEVEL == 2,
-			   "vfifo_center: margin[%u]=[%d,%d]\n", i,
-			   left_edge[i] - shift_dq + (-mid_min),
-			   right_edge[i] + shift_dq - (-mid_min));
-
-		/* To determine values for export structures */
-		if (left_edge[i] - shift_dq + (-mid_min) < dq_margin)
-			dq_margin = left_edge[i] - shift_dq + (-mid_min);
-
-		if (right_edge[i] + shift_dq - (-mid_min) < dqs_margin)
-			dqs_margin = right_edge[i] + shift_dq - (-mid_min);
-	}
+	/* Add delay to bring centre of all DQ windows to the same "level". */
+	center_dq_windows(0, left_edge, right_edge, mid_min, orig_mid_min,
+			  min_index, test_bgn, &dq_margin, &dqs_margin);
 
 	final_dqs = new_dqs;
 	if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS)
@@ -2852,7 +2885,7 @@ static uint32_t rw_mgr_mem_calibrate_write_test(uint32_t rank_bgn,
 static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	uint32_t write_group, uint32_t test_bgn)
 {
-	uint32_t i, p, min_index;
+	uint32_t i, min_index;
 	int32_t d;
 	/*
 	 * Store these as signed since there are comparisons with
@@ -2864,9 +2897,8 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	int32_t right_edge[RW_MGR_MEM_DQ_PER_WRITE_DQS];
 	int32_t mid;
 	int32_t mid_min, orig_mid_min;
-	int32_t new_dqs, start_dqs, shift_dq;
+	int32_t new_dqs, start_dqs;
 	int32_t dq_margin, dqs_margin, dm_margin;
-	uint32_t temp_dq_out1_delay;
 	uint32_t addr;
 
 	int ret;
@@ -2915,43 +2947,10 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	mid_min = 0;
 	debug_cond(DLEVEL == 1, "%s:%d write_center: start_dqs=%d new_dqs=%d \
 		   mid_min=%d\n", __func__, __LINE__, start_dqs, new_dqs, mid_min);
-	/* Initialize data for export structures */
-	dqs_margin = IO_IO_OUT1_DELAY_MAX + 1;
-	dq_margin  = IO_IO_OUT1_DELAY_MAX + 1;
 
-	/* add delay to bring centre of all DQ windows to the same "level" */
-	for (i = 0, p = test_bgn; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++, p++) {
-		/* Use values before divide by 2 to reduce round off error */
-		shift_dq = (left_edge[i] - right_edge[i] -
-			(left_edge[min_index] - right_edge[min_index]))/2  +
-		(orig_mid_min - mid_min);
-
-		debug_cond(DLEVEL == 2, "%s:%d write_center: before: shift_dq \
-			   [%u]=%d\n", __func__, __LINE__, i, shift_dq);
-
-		addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
-		temp_dq_out1_delay = readl(addr + (i << 2));
-		if (shift_dq + (int32_t)temp_dq_out1_delay >
-			(int32_t)IO_IO_OUT1_DELAY_MAX) {
-			shift_dq = (int32_t)IO_IO_OUT1_DELAY_MAX - temp_dq_out1_delay;
-		} else if (shift_dq + (int32_t)temp_dq_out1_delay < 0) {
-			shift_dq = -(int32_t)temp_dq_out1_delay;
-		}
-		debug_cond(DLEVEL == 2, "write_center: after: shift_dq[%u]=%d\n",
-			   i, shift_dq);
-		scc_mgr_set_dq_out1_delay(i, temp_dq_out1_delay + shift_dq);
-		scc_mgr_load_dq(i);
-
-		debug_cond(DLEVEL == 2, "write_center: margin[%u]=[%d,%d]\n", i,
-			   left_edge[i] - shift_dq + (-mid_min),
-			   right_edge[i] + shift_dq - (-mid_min));
-		/* To determine values for export structures */
-		if (left_edge[i] - shift_dq + (-mid_min) < dq_margin)
-			dq_margin = left_edge[i] - shift_dq + (-mid_min);
-
-		if (right_edge[i] + shift_dq - (-mid_min) < dqs_margin)
-			dqs_margin = right_edge[i] + shift_dq - (-mid_min);
-	}
+	/* Add delay to bring centre of all DQ windows to the same "level". */
+	center_dq_windows(1, left_edge, right_edge, mid_min, orig_mid_min,
+			  min_index, 0, &dq_margin, &dqs_margin);
 
 	/* Move DQS */
 	scc_mgr_apply_group_dqs_io_and_oct_out1(write_group, new_dqs);
