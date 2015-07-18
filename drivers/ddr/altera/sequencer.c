@@ -1841,7 +1841,6 @@ static u32 search_stop_check(const int write, const int d, const int rank_bgn,
  * @write_group:	Write Group
  * @read_group:		Read Group
  * @test_bgn:		Rank number to begin the test
- * @bit_chk:		Resulting bit mask after the test
  * @sticky_bit_chk:	Resulting sticky bit mask after the test
  * @left_edge:		Left edge of the DQ/DQS phase
  * @right_edge:		Right edge of the DQ/DQS phase
@@ -1851,14 +1850,14 @@ static u32 search_stop_check(const int write, const int d, const int rank_bgn,
  */
 static void search_left_edge(const int write, const int rank_bgn,
 	const u32 write_group, const u32 read_group, const u32 test_bgn,
-	u32 *bit_chk, u32 *sticky_bit_chk,
+	u32 *sticky_bit_chk,
 	int *left_edge, int *right_edge, const u32 use_read_test)
 {
 	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
 	const u32 dqs_max = write ? IO_IO_OUT1_DELAY_MAX : IO_DQS_IN_DELAY_MAX;
 	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
 				    RW_MGR_MEM_DQ_PER_READ_DQS;
-	u32 stop;
+	u32 stop, bit_chk;
 	int i, d;
 
 	for (d = 0; d <= dqs_max; d++) {
@@ -1870,14 +1869,14 @@ static void search_left_edge(const int write, const int rank_bgn,
 		writel(0, &sdr_scc_mgr->update);
 
 		stop = search_stop_check(write, d, rank_bgn, write_group,
-					 read_group, bit_chk, sticky_bit_chk,
+					 read_group, &bit_chk, sticky_bit_chk,
 					 use_read_test);
 		if (stop == 1)
 			break;
 
 		/* stop != 1 */
 		for (i = 0; i < per_dqs; i++) {
-			if (*bit_chk & 1) {
+			if (bit_chk & 1) {
 				/*
 				 * Remember a passing test as
 				 * the left_edge.
@@ -1893,7 +1892,7 @@ static void search_left_edge(const int write, const int rank_bgn,
 				if (left_edge[i] == delay_max + 1)
 					right_edge[i] = -(d + 1);
 			}
-			*bit_chk = *bit_chk >> 1;
+			bit_chk >>= 1;
 		}
 	}
 
@@ -1952,7 +1951,6 @@ static void search_left_edge(const int write, const int rank_bgn,
  * @read_group:		Read Group
  * @start_dqs:		DQS start phase
  * @start_dqs_en:	DQS enable start phase
- * @bit_chk:		Resulting bit mask after the test
  * @sticky_bit_chk:	Resulting sticky bit mask after the test
  * @left_edge:		Left edge of the DQ/DQS phase
  * @right_edge:		Right edge of the DQ/DQS phase
@@ -1963,14 +1961,14 @@ static void search_left_edge(const int write, const int rank_bgn,
 static int search_right_edge(const int write, const int rank_bgn,
 	const u32 write_group, const u32 read_group,
 	const int start_dqs, const int start_dqs_en,
-	u32 *bit_chk, u32 *sticky_bit_chk,
+	u32 *sticky_bit_chk,
 	int *left_edge, int *right_edge, const u32 use_read_test)
 {
 	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
 	const u32 dqs_max = write ? IO_IO_OUT1_DELAY_MAX : IO_DQS_IN_DELAY_MAX;
 	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
 				    RW_MGR_MEM_DQ_PER_READ_DQS;
-	u32 stop;
+	u32 stop, bit_chk;
 	int i, d;
 
 	for (d = 0; d <= dqs_max - start_dqs; d++) {
@@ -1991,7 +1989,7 @@ static int search_right_edge(const int write, const int rank_bgn,
 		writel(0, &sdr_scc_mgr->update);
 
 		stop = search_stop_check(write, d, rank_bgn, write_group,
-					 read_group, bit_chk, sticky_bit_chk,
+					 read_group, &bit_chk, sticky_bit_chk,
 					 use_read_test);
 		if (stop == 1) {
 			if (write && (d == 0)) {	/* WRITE-ONLY */
@@ -2011,7 +2009,7 @@ static int search_right_edge(const int write, const int rank_bgn,
 
 		/* stop != 1 */
 		for (i = 0; i < per_dqs; i++) {
-			if (*bit_chk & 1) {
+			if (bit_chk & 1) {
 				/*
 				 * Remember a passing test as
 				 * the right_edge.
@@ -2052,10 +2050,10 @@ static int search_right_edge(const int write, const int rank_bgn,
 				   __func__, __LINE__, d);
 			debug_cond(DLEVEL == 2,
 				   "bit_chk_test=%i left_edge[%u]: %d ",
-				   *bit_chk & 1, i, left_edge[i]);
+				   bit_chk & 1, i, left_edge[i]);
 			debug_cond(DLEVEL == 2, "right_edge[%u]: %d\n", i,
 				   right_edge[i]);
-			*bit_chk = *bit_chk >> 1;
+			bit_chk >>= 1;
 		}
 	}
 
@@ -2205,7 +2203,6 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 	 * Store these as signed since there are comparisons with
 	 * signed numbers.
 	 */
-	uint32_t bit_chk;
 	uint32_t sticky_bit_chk;
 	int32_t left_edge[RW_MGR_MEM_DQ_PER_READ_DQS];
 	int32_t right_edge[RW_MGR_MEM_DQ_PER_READ_DQS];
@@ -2231,14 +2228,14 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_center(uint32_t rank_bgn,
 
 	/* Search for the left edge of the window for each bit */
 	search_left_edge(0, rank_bgn, write_group, read_group, test_bgn,
-			 &bit_chk, &sticky_bit_chk,
+			 &sticky_bit_chk,
 			 left_edge, right_edge, use_read_test);
 
 
 	/* Search for the right edge of the window for each bit */
 	ret = search_right_edge(0, rank_bgn, write_group, read_group,
 				start_dqs, start_dqs_en,
-				&bit_chk, &sticky_bit_chk,
+				&sticky_bit_chk,
 				left_edge, right_edge, use_read_test);
 	if (ret) {
 		/*
@@ -2922,13 +2919,13 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 
 	/* Search for the left edge of the window for each bit */
 	search_left_edge(1, rank_bgn, write_group, 0, test_bgn,
-			 &bit_chk, &sticky_bit_chk,
+			 &sticky_bit_chk,
 			 left_edge, right_edge, 0);
 
 	/* Search for the right edge of the window for each bit */
 	ret = search_right_edge(1, rank_bgn, write_group, 0,
 				start_dqs, 0,
-				&bit_chk, &sticky_bit_chk,
+				&sticky_bit_chk,
 				left_edge, right_edge, 0);
 	if (ret) {
 		set_failing_group_stage(test_bgn + ret - 1, CAL_STAGE_WRITES,
