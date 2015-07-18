@@ -207,8 +207,7 @@ int pci_write_config(pci_dev_t bdf, int offset, unsigned long value,
 	if (ret)
 		return ret;
 
-	return pci_bus_write_config(bus, PCI_MASK_BUS(bdf), offset, value,
-				    size);
+	return pci_bus_write_config(bus, bdf, offset, value, size);
 }
 
 int pci_write_config32(pci_dev_t bdf, int offset, u32 value)
@@ -247,8 +246,7 @@ int pci_read_config(pci_dev_t bdf, int offset, unsigned long *valuep,
 	if (ret)
 		return ret;
 
-	return pci_bus_read_config(bus, PCI_MASK_BUS(bdf), offset, valuep,
-				   size);
+	return pci_bus_read_config(bus, bdf, offset, valuep, size);
 }
 
 int pci_read_config32(pci_dev_t bdf, int offset, u32 *valuep)
@@ -383,7 +381,7 @@ static bool pci_match_one_id(const struct pci_device_id *id,
  * This only looks at certain fields in the descriptor.
  */
 static int pci_find_and_bind_driver(struct udevice *parent,
-				    struct pci_device_id *find_id, int devfn,
+				    struct pci_device_id *find_id, pci_dev_t bdf,
 				    struct udevice **devp)
 {
 	struct pci_driver_entry *start, *entry;
@@ -430,8 +428,8 @@ static int pci_find_and_bind_driver(struct udevice *parent,
 	}
 
 	/* Bind a generic driver so that the device can be used */
-	sprintf(name, "pci_%x:%x.%x", parent->seq, PCI_DEV(devfn),
-		PCI_FUNC(devfn));
+	sprintf(name, "pci_%x:%x.%x", parent->seq, PCI_DEV(bdf),
+		PCI_FUNC(bdf));
 	str = strdup(name);
 	if (!str)
 		return -ENOMEM;
@@ -455,42 +453,44 @@ int pci_bind_bus_devices(struct udevice *bus)
 {
 	ulong vendor, device;
 	ulong header_type;
-	pci_dev_t devfn, end;
+	pci_dev_t bdf, end;
 	bool found_multi;
 	int ret;
 
 	found_multi = false;
-	end = PCI_DEVFN(PCI_MAX_PCI_DEVICES - 1, PCI_MAX_PCI_FUNCTIONS - 1);
-	for (devfn = PCI_DEVFN(0, 0); devfn < end; devfn += PCI_DEVFN(0, 1)) {
+	end = PCI_BDF(bus->seq, PCI_MAX_PCI_DEVICES - 1,
+		      PCI_MAX_PCI_FUNCTIONS - 1);
+	for (bdf = PCI_BDF(bus->seq, 0, 0); bdf < end;
+	     bdf += PCI_BDF(0, 0, 1)) {
 		struct pci_child_platdata *pplat;
 		struct udevice *dev;
 		ulong class;
 
-		if (PCI_FUNC(devfn) && !found_multi)
+		if (PCI_FUNC(bdf) && !found_multi)
 			continue;
 		/* Check only the first access, we don't expect problems */
-		ret = pci_bus_read_config(bus, devfn, PCI_HEADER_TYPE,
+		ret = pci_bus_read_config(bus, bdf, PCI_HEADER_TYPE,
 					  &header_type, PCI_SIZE_8);
 		if (ret)
 			goto error;
-		pci_bus_read_config(bus, devfn, PCI_VENDOR_ID, &vendor,
+		pci_bus_read_config(bus, bdf, PCI_VENDOR_ID, &vendor,
 				    PCI_SIZE_16);
 		if (vendor == 0xffff || vendor == 0x0000)
 			continue;
 
-		if (!PCI_FUNC(devfn))
+		if (!PCI_FUNC(bdf))
 			found_multi = header_type & 0x80;
 
 		debug("%s: bus %d/%s: found device %x, function %d\n", __func__,
-		      bus->seq, bus->name, PCI_DEV(devfn), PCI_FUNC(devfn));
-		pci_bus_read_config(bus, devfn, PCI_DEVICE_ID, &device,
+		      bus->seq, bus->name, PCI_DEV(bdf), PCI_FUNC(bdf));
+		pci_bus_read_config(bus, bdf, PCI_DEVICE_ID, &device,
 				    PCI_SIZE_16);
-		pci_bus_read_config(bus, devfn, PCI_CLASS_REVISION, &class,
+		pci_bus_read_config(bus, bdf, PCI_CLASS_REVISION, &class,
 				    PCI_SIZE_32);
 		class >>= 8;
 
 		/* Find this device in the device tree */
-		ret = pci_bus_find_devfn(bus, devfn, &dev);
+		ret = pci_bus_find_devfn(bus, PCI_MASK_BUS(bdf), &dev);
 
 		/* Search for a driver */
 
@@ -504,13 +504,13 @@ int pci_bind_bus_devices(struct udevice *bus)
 			find_id.device = device;
 			find_id.class = class;
 			if ((header_type & 0x7f) == PCI_HEADER_TYPE_NORMAL) {
-				pci_bus_read_config(bus, devfn,
+				pci_bus_read_config(bus, bdf,
 						    PCI_SUBSYSTEM_VENDOR_ID,
 						    &val, PCI_SIZE_32);
 				find_id.subvendor = val & 0xffff;
 				find_id.subdevice = val >> 16;
 			}
-			ret = pci_find_and_bind_driver(bus, &find_id, devfn,
+			ret = pci_find_and_bind_driver(bus, &find_id, bdf,
 						       &dev);
 		}
 		if (ret)
@@ -518,7 +518,7 @@ int pci_bind_bus_devices(struct udevice *bus)
 
 		/* Update the platform data */
 		pplat = dev_get_parent_platdata(dev);
-		pplat->devfn = devfn;
+		pplat->devfn = PCI_MASK_BUS(bdf);
 		pplat->vendor = vendor;
 		pplat->device = device;
 		pplat->class = class;
@@ -689,20 +689,20 @@ static int pci_uclass_child_post_bind(struct udevice *dev)
 	return 0;
 }
 
-int pci_bridge_read_config(struct udevice *bus, pci_dev_t devfn, uint offset,
-			   ulong *valuep, enum pci_size_t size)
+static int pci_bridge_read_config(struct udevice *bus, pci_dev_t bdf,
+				  uint offset, ulong *valuep,
+				  enum pci_size_t size)
 {
 	struct pci_controller *hose = bus->uclass_priv;
-	pci_dev_t bdf = PCI_ADD_BUS(bus->seq, devfn);
 
 	return pci_bus_read_config(hose->ctlr, bdf, offset, valuep, size);
 }
 
-int pci_bridge_write_config(struct udevice *bus, pci_dev_t devfn, uint offset,
-			    ulong value, enum pci_size_t size)
+static int pci_bridge_write_config(struct udevice *bus, pci_dev_t bdf,
+				   uint offset, ulong value,
+				   enum pci_size_t size)
 {
 	struct pci_controller *hose = bus->uclass_priv;
-	pci_dev_t bdf = PCI_ADD_BUS(bus->seq, devfn);
 
 	return pci_bus_write_config(hose->ctlr, bdf, offset, value, size);
 }
