@@ -83,7 +83,7 @@
  * global list name ("outer"); iterators for only a sub-list should use
  * the full sub-list name ("outer_2_inner").
  *
- *  Here is an example of the sections generated from a global list
+ * Here is an example of the sections generated from a global list
  * named "drivers", two sub-lists named "i2c" and "pci", and iterators
  * defined for the whole list and each sub-list:
  *
@@ -103,7 +103,7 @@
  */
 
 /**
- * ll_sym() - Access a linker-generated array entry
+ * llsym() - Access a linker-generated array entry
  * @_type:	Data type of the entry
  * @_name:	Name of the entry
  * @_list:	name of the list. Should contain only characters allowed
@@ -142,7 +142,7 @@
  *    the inner sections are present in the array.
  *
  * Example:
- * ll_entry_declare(struct my_sub_cmd, my_sub_cmd, cmd_sub, cmd.sub) = {
+ * ll_entry_declare(struct my_sub_cmd, my_sub_cmd, cmd_sub) = {
  *         .x = 3,
  *         .y = 4,
  * };
@@ -162,7 +162,7 @@
  * This is like ll_entry_declare() but creates multiple entries. It should
  * be assigned to an array.
  *
- * ll_entry_declare_list(struct my_sub_cmd, my_sub_cmd, cmd_sub, cmd.sub) = {
+ * ll_entry_declare_list(struct my_sub_cmd, my_sub_cmd, cmd_sub) = {
  *	{ .x = 3, .y = 4 },
  *	{ .x = 8, .y = 2 },
  *	{ .x = 1, .y = 7 }
@@ -222,7 +222,7 @@
  */
 #define ll_entry_end(_type, _list)					\
 ({									\
-	static char end[0] __aligned(4) __attribute__((unused,	\
+	static char end[0] __aligned(4) __attribute__((unused,		\
 		section(".u_boot_list_2_"#_list"_3")));			\
 	(_type *)&end;							\
 })
@@ -256,8 +256,8 @@
  * @_name:	Name of the entry
  * @_list:	Name of the list in which this entry is placed
  *
- * This function returns a pointer to a particular entry in LG-array
- * identified by the subsection of u_boot_list where the entry resides
+ * This function returns a pointer to a particular entry in linker-generated
+ * array identified by the subsection of u_boot_list where the entry resides
  * and it's name.
  *
  * Example:
@@ -272,7 +272,7 @@
 	({								\
 		extern _type _u_boot_list_2_##_list##_2_##_name;	\
 		_type *_ll_result =					\
-			&_u_boot_list_2_##_list##_2_##_name;	\
+			&_u_boot_list_2_##_list##_2_##_name;		\
 		_ll_result;						\
 	})
 
@@ -297,7 +297,7 @@
 })
 
 /**
- * ll_entry_end() - Point after last entry of last linker-generated array
+ * ll_end() - Point after last entry of last linker-generated array
  * @_type:	Data type of the entry
  *
  * This function returns (_type *) pointer after the very last entry of
@@ -311,7 +311,7 @@
  */
 #define ll_end(_type)							\
 ({									\
-	static char end[0] __aligned(4) __attribute__((unused,	\
+	static char end[0] __aligned(4) __attribute__((unused,		\
 		section(".u_boot_list_3")));				\
 	(_type *)&end;							\
 })
