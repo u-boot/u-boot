@@ -527,10 +527,6 @@ static void scc_mgr_zero_all(void)
  */
 static void scc_set_bypass_mode(const u32 write_group)
 {
-	/* Only needed once to set all groups, pins, DQ, DQS, DM. */
-	if (write_group == 0)
-		scc_mgr_set_hhp_extras();
-
 	/* Multicast to all DQ enables. */
 	writel(0xff, &sdr_scc_mgr->dq_ena);
 	writel(0xff, &sdr_scc_mgr->dm_ena);
@@ -3332,6 +3328,10 @@ static uint32_t mem_calibrate(void)
 	for (i = 0; i < RW_MGR_MEM_IF_READ_DQS_WIDTH; i++) {
 		writel(i, SDR_PHYGRP_SCCGRP_ADDRESS |
 			  SCC_MGR_GROUP_COUNTER_OFFSET);
+		/* Only needed once to set all groups, pins, DQ, DQS, DM. */
+		if (i == 0)
+			scc_mgr_set_hhp_extras();
+
 		scc_set_bypass_mode(i);
 	}
 
