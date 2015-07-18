@@ -1114,15 +1114,23 @@ static uint32_t rw_mgr_mem_calibrate_read_test_patterns_all_ranks
 		num_tries, bit_chk, 1);
 }
 
-/* load up the patterns we are going to use during a read test */
-static void rw_mgr_mem_calibrate_read_load_patterns(uint32_t rank_bgn,
-	uint32_t all_ranks)
+/**
+ * rw_mgr_mem_calibrate_read_load_patterns() - Load up the patterns for read test
+ * @rank_bgn:	Rank number
+ * @all_ranks:	Test all ranks
+ *
+ * Load up the patterns we are going to use during a read test.
+ */
+static void rw_mgr_mem_calibrate_read_load_patterns(const u32 rank_bgn,
+						    const int all_ranks)
 {
-	uint32_t r;
-	uint32_t rank_end = all_ranks ? RW_MGR_MEM_NUMBER_OF_RANKS :
-		(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
+	const u32 rank_end = all_ranks ?
+			RW_MGR_MEM_NUMBER_OF_RANKS :
+			(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
+	u32 r;
 
 	debug("%s:%d\n", __func__, __LINE__);
+
 	for (r = rank_bgn; r < rank_end; r++) {
 		if (param->skip_ranks[r])
 			/* request to skip the rank */
