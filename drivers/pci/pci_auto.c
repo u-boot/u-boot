@@ -224,10 +224,15 @@ void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 	prefechable_64 &= PCI_PREF_RANGE_TYPE_MASK;
 
 	/* Configure bus number registers */
+#ifdef CONFIG_DM_PCI
+	pci_hose_write_config_byte(hose, dev, PCI_PRIMARY_BUS, PCI_BUS(dev));
+	pci_hose_write_config_byte(hose, dev, PCI_SECONDARY_BUS, sub_bus);
+#else
 	pci_hose_write_config_byte(hose, dev, PCI_PRIMARY_BUS,
 				   PCI_BUS(dev) - hose->first_busno);
 	pci_hose_write_config_byte(hose, dev, PCI_SECONDARY_BUS,
 				   sub_bus - hose->first_busno);
+#endif
 	pci_hose_write_config_byte(hose, dev, PCI_SUBORDINATE_BUS, 0xff);
 
 	if (pci_mem) {
@@ -295,8 +300,12 @@ void pciauto_postscan_setup_bridge(struct pci_controller *hose,
 	struct pci_region *pci_io = hose->pci_io;
 
 	/* Configure bus number registers */
+#ifdef CONFIG_DM_PCI
+	pci_hose_write_config_byte(hose, dev, PCI_SUBORDINATE_BUS, sub_bus);
+#else
 	pci_hose_write_config_byte(hose, dev, PCI_SUBORDINATE_BUS,
 				   sub_bus - hose->first_busno);
+#endif
 
 	if (pci_mem) {
 		/* Round memory allocator to 1MB boundary */
