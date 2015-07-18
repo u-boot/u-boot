@@ -153,7 +153,9 @@ struct clk_pm_regs {
 #define CLK_DMA_ENABLE			(1 << 0)
 
 /* NAND Clock Control Register bits */
+#define CLK_NAND_SLC			(1 << 0)
 #define CLK_NAND_MLC			(1 << 1)
+#define CLK_NAND_SLC_SELECT		(1 << 2)
 #define CLK_NAND_MLC_INT		(1 << 5)
 
 /* SSP Clock Control Register bits */

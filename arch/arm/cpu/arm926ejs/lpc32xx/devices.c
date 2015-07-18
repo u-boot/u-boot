@@ -54,6 +54,12 @@ void lpc32xx_mlc_nand_init(void)
 	writel(CLK_NAND_MLC | CLK_NAND_MLC_INT, &clk->flashclk_ctrl);
 }
 
+void lpc32xx_slc_nand_init(void)
+{
+	/* Enable SLC NAND interface */
+	writel(CLK_NAND_SLC | CLK_NAND_SLC_SELECT, &clk->flashclk_ctrl);
+}
+
 void lpc32xx_i2c_init(unsigned int devnum)
 {
 	/* Enable I2C interface */
