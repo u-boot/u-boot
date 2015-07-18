@@ -1107,13 +1107,6 @@ static uint32_t rw_mgr_mem_calibrate_read_test_patterns(uint32_t rank_bgn,
 	return *bit_chk == param->read_correct_mask;
 }
 
-static uint32_t rw_mgr_mem_calibrate_read_test_patterns_all_ranks
-	(uint32_t group, uint32_t num_tries, uint32_t *bit_chk)
-{
-	return rw_mgr_mem_calibrate_read_test_patterns(0, group,
-		num_tries, bit_chk, 1);
-}
-
 /**
  * rw_mgr_mem_calibrate_read_load_patterns() - Load up the patterns for read test
  * @rank_bgn:	Rank number
@@ -2230,8 +2223,8 @@ static int rw_mgr_mem_calibrate_guaranteed_write(const u32 rw_group,
 	 * Altera EMI_RM 2015.05.04 :: Figure 1-26
 	 * Back-to-Back reads of the patterns used for calibration.
 	 */
-	ret = rw_mgr_mem_calibrate_read_test_patterns_all_ranks(rw_group, 1,
-								&bit_chk);
+	ret = rw_mgr_mem_calibrate_read_test_patterns(0, rw_group, 1,
+						      &bit_chk, 1);
 	if (!ret) {	/* FIXME: 0 means failure in this old code :-( */
 		debug_cond(DLEVEL == 1,
 			   "%s:%d Guaranteed read test failed: g=%u p=%u\n",
