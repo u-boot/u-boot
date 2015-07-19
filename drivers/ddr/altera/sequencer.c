@@ -1378,9 +1378,19 @@ static int sdr_find_phase(int working, const u32 grp, u32 *v, u32 *work,
 	return -EINVAL;
 }
 
-static int sdr_working_phase(uint32_t grp, uint32_t *work_bgn,
-			     uint32_t *v, uint32_t *d, uint32_t *p,
-			     uint32_t *i)
+/**
+ * sdr_working_phase() - Find working DQS enable phase
+ * @grp:	Read/Write group
+ * @work_bgn:	Working window start position
+ * @v:		VFIFO value
+ * @d:		dtaps output value
+ * @p:		DQS Phase Iterator
+ * @i:		Iterator
+ *
+ * Find working DQS enable phase setting.
+ */
+static int sdr_working_phase(const u32 grp, u32 *work_bgn, u32 *v, u32 *d,
+			     u32 *p, u32 *i)
 {
 	const u32 dtaps_per_ptap = IO_DELAY_PER_OPA_TAP /
 				   IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
@@ -1403,11 +1413,19 @@ static int sdr_working_phase(uint32_t grp, uint32_t *work_bgn,
 	return -EINVAL;
 }
 
-static void sdr_backup_phase(uint32_t grp, uint32_t *work_bgn,
-			     uint32_t *v, uint32_t *p)
+/**
+ * sdr_backup_phase() - Find DQS enable backup phase
+ * @grp:	Read/Write group
+ * @work_bgn:	Working window start position
+ * @v:		VFIFO value
+ * @p:		DQS Phase Iterator
+ *
+ * Find DQS enable backup phase setting.
+ */
+static void sdr_backup_phase(const u32 grp, u32 *work_bgn, u32 *v, u32 *p)
 {
-	u32 tmp_delay;
-	u32 bit_chk, d;
+	u32 tmp_delay, bit_chk, d;
+	int ret;
 
 	/* Special case code for backing up a phase */
 	if (*p == 0) {
@@ -1422,9 +1440,9 @@ static void sdr_backup_phase(uint32_t grp, uint32_t *work_bgn,
 	for (d = 0; d <= IO_DQS_EN_DELAY_MAX && tmp_delay < *work_bgn; d++) {
 		scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
 
-		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
-							     PASS_ONE_BIT,
-							     &bit_chk, 0)) {
+		ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
+					PASS_ONE_BIT, &bit_chk, 0);
+		if (ret) {
 			*work_bgn = tmp_delay;
 			break;
 		}
@@ -1432,10 +1450,7 @@ static void sdr_backup_phase(uint32_t grp, uint32_t *work_bgn,
 		tmp_delay += IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
 	}
 
-	/*
-	 * Restore VFIFO to old state before we decremented it
-	 * (if needed).
-	 */
+	/* Restore VFIFO to old state before we decremented it (if needed). */
 	(*p)++;
 	if (*p > IO_DQS_EN_PHASE_MAX) {
 		*p = 0;
@@ -1445,8 +1460,18 @@ static void sdr_backup_phase(uint32_t grp, uint32_t *work_bgn,
 	scc_mgr_set_dqs_en_delay_all_ranks(grp, 0);
 }
 
-static int sdr_nonworking_phase(uint32_t grp, uint32_t *v,
-				uint32_t *p, uint32_t *i, uint32_t *work_end)
+/**
+ * sdr_nonworking_phase() - Find non-working DQS enable phase
+ * @grp:	Read/Write group
+ * @work_end:	Working window end position
+ * @v:		VFIFO value
+ * @p:		DQS Phase Iterator
+ * @i:		Iterator
+ *
+ * Find non-working DQS enable phase setting.
+ */
+static int sdr_nonworking_phase(const u32 grp, u32 *work_end, u32 *v,
+				u32 *p, u32 *i)
 {
 	int ret;
 
@@ -1584,7 +1609,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 		/* ********************************************************* */
 		/* * step 4a: go forward from working phase to non working
 		phase, increment in ptaps * */
-		if (sdr_nonworking_phase(grp, &v, &p, &i, &work_end))
+		if (sdr_nonworking_phase(grp, &work_end, &v, &p, &i))
 			return 0;
 
 		/* ********************************************************* */
