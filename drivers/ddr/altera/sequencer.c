@@ -1343,6 +1343,43 @@ static int find_vfifo_failing_read(const u32 grp)
 }
 
 /**
+ * sdr_find_phase_delay() - Find DQS enable phase or delay
+ * @working:	If 1, look for working phase/delay, if 0, look for non-working
+ * @delay:	If 1, look for delay, if 0, look for phase
+ * @grp:	Read/Write group
+ * @work:	Working window position
+ * @work_inc:	Working window increment
+ * @pd:		DQS Phase/Delay Iterator
+ *
+ * Find working or non-working DQS enable phase setting.
+ */
+static int sdr_find_phase_delay(int working, int delay, const u32 grp,
+				u32 *work, const u32 work_inc, u32 *pd)
+{
+	const u32 max = delay ? IO_DQS_EN_DELAY_MAX : IO_DQS_EN_PHASE_MAX;
+	u32 ret, bit_chk;
+
+	for (; *pd <= max; (*pd)++) {
+		if (delay)
+			scc_mgr_set_dqs_en_delay_all_ranks(grp, *pd);
+		else
+			scc_mgr_set_dqs_en_phase_all_ranks(grp, *pd);
+
+		ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
+					PASS_ONE_BIT, &bit_chk, 0);
+		if (!working)
+			ret = !ret;
+
+		if (ret)
+			return 0;
+
+		if (work)
+			*work += work_inc;
+	}
+
+	return -EINVAL;
+}
+/**
  * sdr_find_phase() - Find DQS enable phase
  * @working:	If 1, look for working phase, if 0, look for non-working phase
  * @grp:	Read/Write group
@@ -1355,26 +1392,17 @@ static int find_vfifo_failing_read(const u32 grp)
 static int sdr_find_phase(int working, const u32 grp, u32 *work,
 			  u32 *i, u32 *p)
 {
-	u32 ret, bit_chk;
 	const u32 end = VFIFO_SIZE + (working ? 0 : 1);
+	int ret;
 
 	for (; *i < end; (*i)++) {
 		if (working)
 			*p = 0;
 
-		for (; *p <= IO_DQS_EN_PHASE_MAX; (*p)++) {
-			scc_mgr_set_dqs_en_phase_all_ranks(grp, *p);
-
-			ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
-						PASS_ONE_BIT, &bit_chk, 0);
-			if (!working)
-				ret = !ret;
-
-			if (ret)
-				return 0;
-
-			*work += IO_DELAY_PER_OPA_TAP;
-		}
+		ret = sdr_find_phase_delay(working, 0, grp, work,
+					   IO_DELAY_PER_OPA_TAP, p);
+		if (!ret)
+			return 0;
 
 		if (*p > IO_DQS_EN_PHASE_MAX) {
 			/* Fiddle with FIFO. */
@@ -1569,7 +1597,6 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(u32 grp)
 {
 	uint32_t d, p, i;
-	uint32_t bit_chk;
 	uint32_t dtaps_per_ptap;
 	uint32_t work_bgn, work_end;
 	uint32_t found_passing_read, found_failing_read, initial_failing_dtap;
@@ -1633,20 +1660,8 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(u32 grp)
 	}
 
 	/* The dtap increment to find the failing edge is done here. */
-	for (; d <= IO_DQS_EN_DELAY_MAX; d++) {
-		debug_cond(DLEVEL == 2, "%s:%d end-2: dtap=%u\n",
-			   __func__, __LINE__, d);
-
-		scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
-
-		if (!rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
-							      PASS_ONE_BIT,
-							      &bit_chk, 0)) {
-			break;
-		}
-
-		work_end += IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
-	}
+	sdr_find_phase_delay(0, 1, grp, &work_end,
+			     IO_DELAY_PER_DQS_EN_DCHAIN_TAP, &d);
 
 	/* Go back to working dtap */
 	if (d != 0)
@@ -1697,37 +1712,17 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(u32 grp)
 	/* Find a passing read. */
 	debug_cond(DLEVEL == 2, "%s:%d find passing read\n",
 		   __func__, __LINE__);
-	found_passing_read = 0;
-	found_failing_read = 0;
+
 	initial_failing_dtap = d;
-	for (; d <= IO_DQS_EN_DELAY_MAX; d++) {
-		debug_cond(DLEVEL == 2, "%s:%d testing read d=%u\n",
-			   __func__, __LINE__, d);
-		scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
 
-		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
-							     PASS_ONE_BIT,
-							     &bit_chk, 0)) {
-			found_passing_read = 1;
-			break;
-		}
-	}
-
+	found_passing_read = !sdr_find_phase_delay(1, 1, grp, NULL, 0, &d);
 	if (found_passing_read) {
 		/* Find a failing read. */
 		debug_cond(DLEVEL == 2, "%s:%d find failing read\n",
 			   __func__, __LINE__);
-		for (d = d + 1; d <= IO_DQS_EN_DELAY_MAX; d++) {
-			debug_cond(DLEVEL == 2, "%s:%d testing read d=%u\n",
-				   __func__, __LINE__, d);
-			scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
-
-			if (!rw_mgr_mem_calibrate_read_test_all_ranks
-				(grp, 1, PASS_ONE_BIT, &bit_chk, 0)) {
-				found_failing_read = 1;
-				break;
-			}
-		}
+		d++;
+		found_failing_read = !sdr_find_phase_delay(0, 1, grp, NULL, 0,
+							   &d);
 	} else {
 		debug_cond(DLEVEL == 1,
 			   "%s:%d failed to calculate dtaps per ptap. Fall back on static value\n",
