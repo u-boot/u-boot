@@ -1378,11 +1378,12 @@ static int sdr_find_phase(int working, const u32 grp, u32 *v, u32 *work,
 	return -EINVAL;
 }
 
-static int sdr_working_phase(uint32_t grp,
-			      uint32_t dtaps_per_ptap, uint32_t *work_bgn,
-			      uint32_t *v, uint32_t *d, uint32_t *p,
-			      uint32_t *i)
+static int sdr_working_phase(uint32_t grp, uint32_t *work_bgn,
+			     uint32_t *v, uint32_t *d, uint32_t *p,
+			     uint32_t *i)
 {
+	const u32 dtaps_per_ptap = IO_DELAY_PER_OPA_TAP /
+				   IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
 	int ret;
 
 	*work_bgn = 0;
@@ -1565,7 +1566,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	/* ******************************************************** */
 	/* * step 2: find first working phase, increment in ptaps * */
 	work_bgn = 0;
-	if (sdr_working_phase(grp, dtaps_per_ptap, &work_bgn, &v, &d, &p, &i))
+	if (sdr_working_phase(grp, &work_bgn, &v, &d, &p, &i))
 		return 0;
 
 	work_end = work_bgn;
