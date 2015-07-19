@@ -3612,22 +3612,22 @@ static uint32_t run_mem_calibrate(void)
 	return pass;
 }
 
+/**
+ * hc_initialize_rom_data() - Initialize ROM data
+ *
+ * Initialize ROM data.
+ */
 static void hc_initialize_rom_data(void)
 {
-	uint32_t i;
-	uint32_t addr;
+	u32 i, addr;
 
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_INST_ROM_WRITE_OFFSET;
-	for (i = 0; i < ARRAY_SIZE(inst_rom_init); i++) {
-		uint32_t data = inst_rom_init[i];
-		writel(data, addr + (i << 2));
-	}
+	for (i = 0; i < ARRAY_SIZE(inst_rom_init); i++)
+		writel(inst_rom_init[i], addr + (i << 2));
 
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_AC_ROM_WRITE_OFFSET;
-	for (i = 0; i < ARRAY_SIZE(ac_rom_init); i++) {
-		uint32_t data = ac_rom_init[i];
-		writel(data, addr + (i << 2));
-	}
+	for (i = 0; i < ARRAY_SIZE(ac_rom_init); i++)
+		writel(ac_rom_init[i], addr + (i << 2));
 }
 
 static void initialize_reg_file(void)
