@@ -1332,7 +1332,7 @@ static int find_vfifo_read(uint32_t grp, uint32_t *bit_chk)
 	}
 }
 
-static int sdr_working_phase(uint32_t grp, uint32_t *bit_chk,
+static int sdr_working_phase(uint32_t grp,
 			      uint32_t dtaps_per_ptap, uint32_t *work_bgn,
 			      uint32_t *v, uint32_t *d, uint32_t *p,
 			      uint32_t *i, uint32_t *max_working_cnt)
@@ -1340,6 +1340,7 @@ static int sdr_working_phase(uint32_t grp, uint32_t *bit_chk,
 	uint32_t found_begin = 0;
 	uint32_t tmp_delay = 0;
 	uint32_t test_status;
+	u32 bit_chk;
 
 	for (*d = 0; *d <= dtaps_per_ptap; (*d)++, tmp_delay +=
 		IO_DELAY_PER_DQS_EN_DCHAIN_TAP) {
@@ -1353,7 +1354,7 @@ static int sdr_working_phase(uint32_t grp, uint32_t *bit_chk,
 
 				test_status =
 				rw_mgr_mem_calibrate_read_test_all_ranks
-				(grp, 1, PASS_ONE_BIT, bit_chk, 0);
+				(grp, 1, PASS_ONE_BIT, &bit_chk, 0);
 
 				if (test_status) {
 					*max_working_cnt = 1;
@@ -1384,12 +1385,13 @@ static int sdr_working_phase(uint32_t grp, uint32_t *bit_chk,
 	}
 }
 
-static void sdr_backup_phase(uint32_t grp, uint32_t *bit_chk,
+static void sdr_backup_phase(uint32_t grp,
 			     uint32_t *work_bgn, uint32_t *v, uint32_t *d,
 			     uint32_t *p, uint32_t *max_working_cnt)
 {
 	uint32_t found_begin = 0;
 	uint32_t tmp_delay;
+	u32 bit_chk;
 
 	/* Special case code for backing up a phase */
 	if (*p == 0) {
@@ -1407,7 +1409,7 @@ static void sdr_backup_phase(uint32_t grp, uint32_t *bit_chk,
 
 		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 							     PASS_ONE_BIT,
-							     bit_chk, 0)) {
+							     &bit_chk, 0)) {
 			found_begin = 1;
 			*work_bgn = tmp_delay;
 			break;
@@ -1431,12 +1433,13 @@ static void sdr_backup_phase(uint32_t grp, uint32_t *bit_chk,
 	scc_mgr_set_dqs_en_delay_all_ranks(grp, 0);
 }
 
-static int sdr_nonworking_phase(uint32_t grp, uint32_t *bit_chk,
+static int sdr_nonworking_phase(uint32_t grp,
 			     uint32_t *work_bgn, uint32_t *v, uint32_t *d,
 			     uint32_t *p, uint32_t *i, uint32_t *max_working_cnt,
 			     uint32_t *work_end)
 {
 	uint32_t found_end = 0;
+	u32 bit_chk;
 
 	(*p)++;
 	*work_end += IO_DELAY_PER_OPA_TAP;
@@ -1452,7 +1455,7 @@ static int sdr_nonworking_phase(uint32_t grp, uint32_t *bit_chk,
 			scc_mgr_set_dqs_en_phase_all_ranks(grp, *p);
 
 			if (!rw_mgr_mem_calibrate_read_test_all_ranks
-				(grp, 1, PASS_ONE_BIT, bit_chk, 0)) {
+				(grp, 1, PASS_ONE_BIT, &bit_chk, 0)) {
 				found_end = 1;
 				break;
 			} else {
@@ -1579,7 +1582,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	/* ******************************************************** */
 	/* * step 2: find first working phase, increment in ptaps * */
 	work_bgn = 0;
-	if (sdr_working_phase(grp, &bit_chk, dtaps_per_ptap, &work_bgn, &v, &d,
+	if (sdr_working_phase(grp, dtaps_per_ptap, &work_bgn, &v, &d,
 			      &p, &i, &max_working_cnt) == 0)
 		return 0;
 
@@ -1595,13 +1598,13 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 		/* * step 3a: if we have room, back off by one and
 		increment in dtaps * */
 
-		sdr_backup_phase(grp, &bit_chk, &work_bgn, &v, &d, &p,
+		sdr_backup_phase(grp, &work_bgn, &v, &d, &p,
 				 &max_working_cnt);
 
 		/* ********************************************************* */
 		/* * step 4a: go forward from working phase to non working
 		phase, increment in ptaps * */
-		if (sdr_nonworking_phase(grp, &bit_chk, &work_bgn, &v, &d, &p,
+		if (sdr_nonworking_phase(grp, &work_bgn, &v, &d, &p,
 					 &i, &max_working_cnt, &work_end) == 0)
 			return 0;
 
