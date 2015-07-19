@@ -1480,7 +1480,16 @@ static int sdr_nonworking_phase(uint32_t *grp, uint32_t *bit_chk,
 	}
 }
 
-static int sdr_find_window_centre(const u32 grp, const u32 work_bgn,
+/**
+ * sdr_find_window_center() - Find center of the working DQS window.
+ * @grp:	Read/Write group
+ * @work_bgn:	First working settings
+ * @work_end:	Last working settings
+ * @val:	VFIFO value
+ *
+ * Find center of the working DQS enable window.
+ */
+static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 				  const u32 work_end, const u32 val)
 {
 	u32 bit_chk, work_mid, v = val;
@@ -1525,23 +1534,19 @@ static int sdr_find_window_centre(const u32 grp, const u32 work_bgn,
 		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 							     PASS_ONE_BIT,
 							     &bit_chk, 0)) {
-			break;
+			debug_cond(DLEVEL == 2,
+				   "%s:%d center: found: vfifo=%u ptap=%u dtap=%u\n",
+				   __func__, __LINE__, v, p, d);
+			return 0;
 		}
 
-		/* fiddle with FIFO */
+		/* Fiddle with FIFO. */
 		rw_mgr_incr_vfifo(grp, &v);
 	}
 
-	if (i >= VFIFO_SIZE) {
-		debug_cond(DLEVEL == 2, "%s:%d center: failed.\n",
-			   __func__, __LINE__);
-		return 0;
-	} else {
-		debug_cond(DLEVEL == 2,
-			   "%s:%d center: found: vfifo=%u ptap=%u dtap=%u\n",
-			   __func__, __LINE__, v, p, d);
-		return 1;
-	}
+	debug_cond(DLEVEL == 2, "%s:%d center: failed.\n",
+		   __func__, __LINE__);
+	return -EINVAL;
 }
 
 /* find a good dqs enable to use */
@@ -1759,8 +1764,8 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 
 	/* ******************************************** */
 	/* * step 6:  Find the centre of the window   * */
-	if (sdr_find_window_centre(grp, work_bgn, work_end, v) == 0)
-		return 0;
+	if (sdr_find_window_centre(grp, work_bgn, work_end, v))
+		return 0; /* FIXME: Old code, return 0 means failure :-( */
 
 	return 1;
 }
