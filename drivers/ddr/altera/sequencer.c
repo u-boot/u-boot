@@ -1232,7 +1232,8 @@ rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add3);
 
 		tmp_bit_chk = 0;
-		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS-1; ; vg--) {
+		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS - 1; vg >= 0;
+		     vg--) {
 			/* reset the fifos to get pointers to known state */
 			writel(0, &phy_mgr_cmd->fifo_reset);
 			writel(0, SDR_PHYGRP_RWMGRGRP_ADDRESS |
@@ -1252,10 +1253,8 @@ rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
 
 			base_rw_mgr = readl(SDR_PHYGRP_RWMGRGRP_ADDRESS);
 			tmp_bit_chk = tmp_bit_chk | (correct_mask_vg & ~(base_rw_mgr));
-
-			if (vg == 0)
-				break;
 		}
+
 		*bit_chk &= tmp_bit_chk;
 	}
 
