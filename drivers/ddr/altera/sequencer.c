@@ -1492,28 +1492,27 @@ static int sdr_find_window_centre(const u32 grp, const u32 work_bgn,
 	debug_cond(DLEVEL == 2, "work_bgn=%d work_end=%d work_mid=%d\n",
 		   work_bgn, work_end, work_mid);
 	/* Get the middle delay to be less than a VFIFO delay */
-	for (p = 0; p <= IO_DQS_EN_PHASE_MAX;
-	     p++, tmp_delay += IO_DELAY_PER_OPA_TAP)
-		;
+	tmp_delay = (IO_DQS_EN_PHASE_MAX + 1) * IO_DELAY_PER_OPA_TAP;
 
 	debug_cond(DLEVEL == 2, "vfifo ptap delay %d\n", tmp_delay);
-	while (work_mid > tmp_delay)
-		work_mid -= tmp_delay;
+	work_mid %= tmp_delay;
 	debug_cond(DLEVEL == 2, "new work_mid %d\n", work_mid);
 
-	tmp_delay = 0;
-	for (p = 0; p <= IO_DQS_EN_PHASE_MAX && tmp_delay < work_mid;
-		p++, tmp_delay += IO_DELAY_PER_OPA_TAP)
-		;
-	tmp_delay -= IO_DELAY_PER_OPA_TAP;
-	debug_cond(DLEVEL == 2, "new p %d, tmp_delay=%d\n", p - 1, tmp_delay);
+	tmp_delay = rounddown(work_mid, IO_DELAY_PER_OPA_TAP);
+	if (tmp_delay > IO_DQS_EN_PHASE_MAX * IO_DELAY_PER_OPA_TAP)
+		tmp_delay = IO_DQS_EN_PHASE_MAX * IO_DELAY_PER_OPA_TAP;
+	p = tmp_delay / IO_DELAY_PER_OPA_TAP;
 
-	for (d = 0; d <= IO_DQS_EN_DELAY_MAX && tmp_delay < work_mid;
-		d++, tmp_delay += IO_DELAY_PER_DQS_EN_DCHAIN_TAP)
-		;
+	debug_cond(DLEVEL == 2, "new p %d, tmp_delay=%d\n", p, tmp_delay);
+
+	d = DIV_ROUND_UP(work_mid - tmp_delay, IO_DELAY_PER_DQS_EN_DCHAIN_TAP);
+	if (d > IO_DQS_EN_DELAY_MAX)
+		d = IO_DQS_EN_DELAY_MAX;
+	tmp_delay += d * IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
+
 	debug_cond(DLEVEL == 2, "new d %d, tmp_delay=%d\n", d, tmp_delay);
 
-	scc_mgr_set_dqs_en_phase_all_ranks(grp, p - 1);
+	scc_mgr_set_dqs_en_phase_all_ranks(grp, p);
 	scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
 
 	/*
@@ -1540,7 +1539,7 @@ static int sdr_find_window_centre(const u32 grp, const u32 work_bgn,
 	} else {
 		debug_cond(DLEVEL == 2,
 			   "%s:%d center: found: vfifo=%u ptap=%u dtap=%u\n",
-			   __func__, __LINE__, v, p - 1, d);
+			   __func__, __LINE__, v, p, d);
 		return 1;
 	}
 }
