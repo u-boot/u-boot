@@ -1234,25 +1234,27 @@ rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
 		tmp_bit_chk = 0;
 		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS - 1; vg >= 0;
 		     vg--) {
-			/* reset the fifos to get pointers to known state */
+			/* Reset the FIFOs to get pointers to known state. */
 			writel(0, &phy_mgr_cmd->fifo_reset);
 			writel(0, SDR_PHYGRP_RWMGRGRP_ADDRESS |
 				  RW_MGR_RESET_READ_DATAPATH_OFFSET);
 
-			tmp_bit_chk = tmp_bit_chk << (RW_MGR_MEM_DQ_PER_READ_DQS
-				/ RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS);
-
-			if (all_groups)
-				addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_ALL_GROUPS_OFFSET;
-			else
-				addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
+			if (all_groups) {
+				addr = SDR_PHYGRP_RWMGRGRP_ADDRESS |
+				       RW_MGR_RUN_ALL_GROUPS_OFFSET;
+			} else {
+				addr = SDR_PHYGRP_RWMGRGRP_ADDRESS |
+				       RW_MGR_RUN_SINGLE_GROUP_OFFSET;
+			}
 
 			writel(RW_MGR_READ_B2B, addr +
 			       ((group * RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS +
 			       vg) << 2));
 
 			base_rw_mgr = readl(SDR_PHYGRP_RWMGRGRP_ADDRESS);
-			tmp_bit_chk = tmp_bit_chk | (correct_mask_vg & ~(base_rw_mgr));
+			tmp_bit_chk <<= RW_MGR_MEM_DQ_PER_READ_DQS /
+					RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS;
+			tmp_bit_chk |= correct_mask_vg & ~(base_rw_mgr);
 		}
 
 		*bit_chk &= tmp_bit_chk;
