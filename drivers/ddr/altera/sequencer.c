@@ -1332,7 +1332,7 @@ static int find_vfifo_read(uint32_t grp, uint32_t *bit_chk)
 	}
 }
 
-static int find_working_phase(uint32_t *grp, uint32_t *bit_chk,
+static int sdr_working_phase(uint32_t *grp, uint32_t *bit_chk,
 			      uint32_t dtaps_per_ptap, uint32_t *work_bgn,
 			      uint32_t *v, uint32_t *d, uint32_t *p,
 			      uint32_t *i, uint32_t *max_working_cnt)
@@ -1579,8 +1579,8 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	/* ******************************************************** */
 	/* * step 2: find first working phase, increment in ptaps * */
 	work_bgn = 0;
-	if (find_working_phase(&grp, &bit_chk, dtaps_per_ptap, &work_bgn, &v, &d,
-				&p, &i, &max_working_cnt) == 0)
+	if (sdr_working_phase(&grp, &bit_chk, dtaps_per_ptap, &work_bgn, &v, &d,
+			      &p, &i, &max_working_cnt) == 0)
 		return 0;
 
 	work_end = work_bgn;
