@@ -1311,36 +1311,35 @@ static void rw_mgr_decr_vfifo(const u32 grp)
 		rw_mgr_incr_vfifo(grp);
 }
 
-static int find_vfifo_read(uint32_t grp, uint32_t *bit_chk)
+/**
+ * find_vfifo_failing_read() - Push VFIFO to get a failing read
+ * @grp:	Read/Write group
+ *
+ * Push VFIFO until a failing read happens.
+ */
+static int find_vfifo_failing_read(const u32 grp)
 {
-	uint32_t v;
-	uint32_t fail_cnt = 0;
-	uint32_t test_status;
+	u32 v, ret, bit_chk, fail_cnt = 0;
 
 	for (v = 0; v < VFIFO_SIZE; v++) {
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: vfifo %u\n",
+		debug_cond(DLEVEL == 2, "%s:%d: vfifo %u\n",
 			   __func__, __LINE__, v);
-		test_status = rw_mgr_mem_calibrate_read_test_all_ranks
-			(grp, 1, PASS_ONE_BIT, bit_chk, 0);
-		if (!test_status) {
+		ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
+						PASS_ONE_BIT, &bit_chk, 0);
+		if (!ret) {
 			fail_cnt++;
 
 			if (fail_cnt == 2)
-				break;
+				return v;
 		}
 
-		/* fiddle with FIFO */
+		/* Fiddle with FIFO. */
 		rw_mgr_incr_vfifo(grp);
 	}
 
-	if (v >= VFIFO_SIZE) {
-		/* no failing read found!! Something must have gone wrong */
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: vfifo failed\n",
-			   __func__, __LINE__);
-		return 0;
-	} else {
-		return v;
-	}
+	/* No failing read found! Something must have gone wrong. */
+	debug_cond(DLEVEL == 2, "%s:%d: vfifo failed\n", __func__, __LINE__);
+	return 0;
 }
 
 /**
@@ -1588,7 +1587,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 
 	/* ********************************************************* */
 	/* * Step 1 : First push vfifo until we get a failing read * */
-	find_vfifo_read(grp, &bit_chk);
+	find_vfifo_failing_read(grp);
 
 	/* ******************************************************** */
 	/* * step 2: find first working phase, increment in ptaps * */
