@@ -1633,8 +1633,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(u32 grp)
 	}
 
 	/* The dtap increment to find the failing edge is done here. */
-	for (; d <= IO_DQS_EN_DELAY_MAX;
-	     d++, work_end += IO_DELAY_PER_DQS_EN_DCHAIN_TAP) {
+	for (; d <= IO_DQS_EN_DELAY_MAX; d++) {
 		debug_cond(DLEVEL == 2, "%s:%d end-2: dtap=%u\n",
 			   __func__, __LINE__, d);
 
@@ -1645,6 +1644,8 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(u32 grp)
 							      &bit_chk, 0)) {
 			break;
 		}
+
+		work_end += IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
 	}
 
 	/* Go back to working dtap */
