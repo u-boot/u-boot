@@ -712,17 +712,21 @@ static void scc_mgr_apply_group_all_out_delay_add(const u32 write_group,
 	scc_mgr_load_dqs_for_write_group(write_group);
 }
 
-/*
- * USER apply a delay to the entire output side (DQ, DM, DQS, OCT)
- * and to all ranks
+/**
+ * scc_mgr_apply_group_all_out_delay_add() - Apply a delay to the entire output side to all ranks
+ * @write_group:	Write group
+ * @delay:		Delay value
+ *
+ * Apply a delay to the entire output side (DQ, DM, DQS, OCT) to all ranks.
  */
-static void scc_mgr_apply_group_all_out_delay_add_all_ranks(
-	uint32_t write_group, uint32_t group_bgn, uint32_t delay)
+static void
+scc_mgr_apply_group_all_out_delay_add_all_ranks(const u32 write_group,
+						const u32 delay)
 {
-	uint32_t r;
+	int r;
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
-		r += NUM_RANKS_PER_SHADOW_REG) {
+	     r += NUM_RANKS_PER_SHADOW_REG) {
 		scc_mgr_apply_group_all_out_delay_add(write_group, delay);
 		writel(0, &sdr_scc_mgr->update);
 	}
@@ -2240,8 +2244,8 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 		 * calibrated output side yet.
 		 */
 		if (d > 0) {
-			scc_mgr_apply_group_all_out_delay_add_all_ranks
-			(write_group, write_test_bgn, d);
+			scc_mgr_apply_group_all_out_delay_add_all_ranks(
+								write_group, d);
 		}
 
 		for (p = 0; p <= IO_DQDQS_OUT_PHASE_MAX && grp_calibrated == 0;
