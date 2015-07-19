@@ -1286,17 +1286,31 @@ static uint32_t rw_mgr_mem_calibrate_read_test_all_ranks(uint32_t group,
 					      bit_chk, all_groups, 1);
 }
 
-static void rw_mgr_incr_vfifo(uint32_t grp, uint32_t *v)
+/**
+ * rw_mgr_incr_vfifo() - Increase VFIFO value
+ * @grp:	Read/Write group
+ * @v:		VFIFO value
+ *
+ * Increase VFIFO value.
+ */
+static void rw_mgr_incr_vfifo(const u32 grp, u32 *v)
 {
 	writel(grp, &phy_mgr_cmd->inc_vfifo_hard_phy);
 	(*v)++;
 }
 
-static void rw_mgr_decr_vfifo(uint32_t grp, uint32_t *v)
+/**
+ * rw_mgr_decr_vfifo() - Decrease VFIFO value
+ * @grp:	Read/Write group
+ * @v:		VFIFO value
+ *
+ * Decrease VFIFO value.
+ */
+static void rw_mgr_decr_vfifo(const u32 grp, u32 *v)
 {
-	uint32_t i;
+	u32 i;
 
-	for (i = 0; i < VFIFO_SIZE-1; i++)
+	for (i = 0; i < VFIFO_SIZE - 1; i++)
 		rw_mgr_incr_vfifo(grp, v);
 }
 
