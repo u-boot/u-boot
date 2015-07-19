@@ -1337,7 +1337,6 @@ static int sdr_working_phase(uint32_t grp,
 			      uint32_t *v, uint32_t *d, uint32_t *p,
 			      uint32_t *i, uint32_t *max_working_cnt)
 {
-	uint32_t found_begin = 0;
 	uint32_t tmp_delay = 0;
 	uint32_t test_status;
 	u32 bit_chk;
@@ -1358,31 +1357,20 @@ static int sdr_working_phase(uint32_t grp,
 
 				if (test_status) {
 					*max_working_cnt = 1;
-					found_begin = 1;
-					break;
+					return 1;
 				}
 			}
-
-			if (found_begin)
-				break;
 
 			if (*p > IO_DQS_EN_PHASE_MAX)
 				/* fiddle with FIFO */
 				rw_mgr_incr_vfifo(grp, v);
 		}
-
-		if (found_begin)
-			break;
 	}
 
-	if (*i >= VFIFO_SIZE) {
-		/* cannot find working solution */
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: no vfifo/\
-			   ptap/dtap\n", __func__, __LINE__);
-		return 0;
-	} else {
-		return 1;
-	}
+	/* Cannot find working solution */
+	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: no vfifo/\
+		   ptap/dtap\n", __func__, __LINE__);
+	return 0;
 }
 
 static void sdr_backup_phase(uint32_t grp,
@@ -1438,7 +1426,6 @@ static int sdr_nonworking_phase(uint32_t grp,
 			     uint32_t *p, uint32_t *i, uint32_t *max_working_cnt,
 			     uint32_t *work_end)
 {
-	uint32_t found_end = 0;
 	u32 bit_chk;
 
 	(*p)++;
@@ -1456,15 +1443,11 @@ static int sdr_nonworking_phase(uint32_t grp,
 
 			if (!rw_mgr_mem_calibrate_read_test_all_ranks
 				(grp, 1, PASS_ONE_BIT, &bit_chk, 0)) {
-				found_end = 1;
-				break;
+				return 1;
 			} else {
 				(*max_working_cnt)++;
 			}
 		}
-
-		if (found_end)
-			break;
 
 		if (*p > IO_DQS_EN_PHASE_MAX) {
 			/* fiddle with FIFO */
@@ -1473,14 +1456,10 @@ static int sdr_nonworking_phase(uint32_t grp,
 		}
 	}
 
-	if (*i >= VFIFO_SIZE + 1) {
-		/* cannot see edge of failing read */
-		debug_cond(DLEVEL == 2, "%s:%d sdr_nonworking_phase: end:\
-			   failed\n", __func__, __LINE__);
-		return 0;
-	} else {
-		return 1;
-	}
+	/* Cannot see edge of failing read. */
+	debug_cond(DLEVEL == 2, "%s:%d sdr_nonworking_phase: end:\
+		   failed\n", __func__, __LINE__);
+	return 0;
 }
 
 /**
