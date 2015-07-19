@@ -1480,40 +1480,41 @@ static int sdr_nonworking_phase(uint32_t *grp, uint32_t *bit_chk,
 	}
 }
 
-static int sdr_find_window_centre(uint32_t *grp, uint32_t *bit_chk,
-				  uint32_t *work_bgn, uint32_t *v, uint32_t *d,
-				  uint32_t *p, uint32_t *work_mid,
-				  uint32_t *work_end)
+static int sdr_find_window_centre(const u32 grp, const u32 work_bgn,
+				  const u32 work_end, const u32 val)
 {
-	int i;
+	u32 bit_chk, work_mid, v = val;
 	int tmp_delay = 0;
+	int i, p, d;
 
-	*work_mid = (*work_bgn + *work_end) / 2;
+	work_mid = (work_bgn + work_end) / 2;
 
 	debug_cond(DLEVEL == 2, "work_bgn=%d work_end=%d work_mid=%d\n",
-		   *work_bgn, *work_end, *work_mid);
+		   work_bgn, work_end, work_mid);
 	/* Get the middle delay to be less than a VFIFO delay */
-	for (*p = 0; *p <= IO_DQS_EN_PHASE_MAX;
-		(*p)++, tmp_delay += IO_DELAY_PER_OPA_TAP)
+	for (p = 0; p <= IO_DQS_EN_PHASE_MAX;
+	     p++, tmp_delay += IO_DELAY_PER_OPA_TAP)
 		;
+
 	debug_cond(DLEVEL == 2, "vfifo ptap delay %d\n", tmp_delay);
-	while (*work_mid > tmp_delay)
-		*work_mid -= tmp_delay;
-	debug_cond(DLEVEL == 2, "new work_mid %d\n", *work_mid);
+	while (work_mid > tmp_delay)
+		work_mid -= tmp_delay;
+	debug_cond(DLEVEL == 2, "new work_mid %d\n", work_mid);
 
 	tmp_delay = 0;
-	for (*p = 0; *p <= IO_DQS_EN_PHASE_MAX && tmp_delay < *work_mid;
-		(*p)++, tmp_delay += IO_DELAY_PER_OPA_TAP)
+	for (p = 0; p <= IO_DQS_EN_PHASE_MAX && tmp_delay < work_mid;
+		p++, tmp_delay += IO_DELAY_PER_OPA_TAP)
 		;
 	tmp_delay -= IO_DELAY_PER_OPA_TAP;
-	debug_cond(DLEVEL == 2, "new p %d, tmp_delay=%d\n", (*p) - 1, tmp_delay);
-	for (*d = 0; *d <= IO_DQS_EN_DELAY_MAX && tmp_delay < *work_mid; (*d)++,
-		tmp_delay += IO_DELAY_PER_DQS_EN_DCHAIN_TAP)
-		;
-	debug_cond(DLEVEL == 2, "new d %d, tmp_delay=%d\n", *d, tmp_delay);
+	debug_cond(DLEVEL == 2, "new p %d, tmp_delay=%d\n", p - 1, tmp_delay);
 
-	scc_mgr_set_dqs_en_phase_all_ranks(*grp, (*p) - 1);
-	scc_mgr_set_dqs_en_delay_all_ranks(*grp, *d);
+	for (d = 0; d <= IO_DQS_EN_DELAY_MAX && tmp_delay < work_mid;
+		d++, tmp_delay += IO_DELAY_PER_DQS_EN_DCHAIN_TAP)
+		;
+	debug_cond(DLEVEL == 2, "new d %d, tmp_delay=%d\n", d, tmp_delay);
+
+	scc_mgr_set_dqs_en_phase_all_ranks(grp, p - 1);
+	scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
 
 	/*
 	 * push vfifo until we can successfully calibrate. We can do this
@@ -1521,22 +1522,25 @@ static int sdr_find_window_centre(uint32_t *grp, uint32_t *bit_chk,
 	 */
 	for (i = 0; i < VFIFO_SIZE; i++) {
 		debug_cond(DLEVEL == 2, "find_dqs_en_phase: center: vfifo=%u\n",
-			   *v);
-		if (rw_mgr_mem_calibrate_read_test_all_ranks(*grp, 1,
+			   v);
+		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 							     PASS_ONE_BIT,
-							     bit_chk, 0)) {
+							     &bit_chk, 0)) {
 			break;
 		}
 
 		/* fiddle with FIFO */
-		rw_mgr_incr_vfifo(*grp, v);
+		rw_mgr_incr_vfifo(grp, &v);
 	}
 
 	if (i >= VFIFO_SIZE) {
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: center: \
-			   failed\n", __func__, __LINE__);
+		debug_cond(DLEVEL == 2, "%s:%d center: failed.\n",
+			   __func__, __LINE__);
 		return 0;
 	} else {
+		debug_cond(DLEVEL == 2,
+			   "%s:%d center: found: vfifo=%u ptap=%u dtap=%u\n",
+			   __func__, __LINE__, v, p - 1, d);
 		return 1;
 	}
 }
@@ -1548,7 +1552,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	uint32_t max_working_cnt;
 	uint32_t bit_chk;
 	uint32_t dtaps_per_ptap;
-	uint32_t work_bgn, work_mid, work_end;
+	uint32_t work_bgn, work_end;
 	uint32_t found_passing_read, found_failing_read, initial_failing_dtap;
 
 	debug("%s:%d %u\n", __func__, __LINE__, grp);
@@ -1756,13 +1760,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 
 	/* ******************************************** */
 	/* * step 6:  Find the centre of the window   * */
-	if (sdr_find_window_centre(&grp, &bit_chk, &work_bgn, &v, &d, &p,
-				   &work_mid, &work_end) == 0)
+	if (sdr_find_window_centre(grp, work_bgn, work_end, v) == 0)
 		return 0;
 
-	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: center found: \
-		   vfifo=%u ptap=%u dtap=%u\n", __func__, __LINE__,
-		   v, p-1, d);
 	return 1;
 }
 
