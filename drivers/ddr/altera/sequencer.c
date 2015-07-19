@@ -3630,6 +3630,11 @@ static void hc_initialize_rom_data(void)
 		writel(ac_rom_init[i], addr + (i << 2));
 }
 
+/**
+ * initialize_reg_file() - Initialize SDR register file
+ *
+ * Initialize SDR register file.
+ */
 static void initialize_reg_file(void)
 {
 	/* Initialize the register file with the correct data */
