@@ -1289,38 +1289,35 @@ static uint32_t rw_mgr_mem_calibrate_read_test_all_ranks(uint32_t group,
 /**
  * rw_mgr_incr_vfifo() - Increase VFIFO value
  * @grp:	Read/Write group
- * @v:		VFIFO value
  *
  * Increase VFIFO value.
  */
-static void rw_mgr_incr_vfifo(const u32 grp, u32 *v)
+static void rw_mgr_incr_vfifo(const u32 grp)
 {
 	writel(grp, &phy_mgr_cmd->inc_vfifo_hard_phy);
-	(*v)++;
 }
 
 /**
  * rw_mgr_decr_vfifo() - Decrease VFIFO value
  * @grp:	Read/Write group
- * @v:		VFIFO value
  *
  * Decrease VFIFO value.
  */
-static void rw_mgr_decr_vfifo(const u32 grp, u32 *v)
+static void rw_mgr_decr_vfifo(const u32 grp)
 {
 	u32 i;
 
 	for (i = 0; i < VFIFO_SIZE - 1; i++)
-		rw_mgr_incr_vfifo(grp, v);
+		rw_mgr_incr_vfifo(grp);
 }
 
 static int find_vfifo_read(uint32_t grp, uint32_t *bit_chk)
 {
-	uint32_t  v;
+	uint32_t v;
 	uint32_t fail_cnt = 0;
 	uint32_t test_status;
 
-	for (v = 0; v < VFIFO_SIZE; ) {
+	for (v = 0; v < VFIFO_SIZE; v++) {
 		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: vfifo %u\n",
 			   __func__, __LINE__, v);
 		test_status = rw_mgr_mem_calibrate_read_test_all_ranks
@@ -1333,7 +1330,7 @@ static int find_vfifo_read(uint32_t grp, uint32_t *bit_chk)
 		}
 
 		/* fiddle with FIFO */
-		rw_mgr_incr_vfifo(grp, &v);
+		rw_mgr_incr_vfifo(grp);
 	}
 
 	if (v >= VFIFO_SIZE) {
@@ -1350,14 +1347,13 @@ static int find_vfifo_read(uint32_t grp, uint32_t *bit_chk)
  * sdr_find_phase() - Find DQS enable phase
  * @working:	If 1, look for working phase, if 0, look for non-working phase
  * @grp:	Read/Write group
- * @v:		VFIFO value
  * @work:	Working window position
  * @i:		Iterator
  * @p:		DQS Phase Iterator
  *
  * Find working or non-working DQS enable phase setting.
  */
-static int sdr_find_phase(int working, const u32 grp, u32 *v, u32 *work,
+static int sdr_find_phase(int working, const u32 grp, u32 *work,
 			  u32 *i, u32 *p)
 {
 	u32 ret, bit_chk;
@@ -1383,7 +1379,7 @@ static int sdr_find_phase(int working, const u32 grp, u32 *v, u32 *work,
 
 		if (*p > IO_DQS_EN_PHASE_MAX) {
 			/* Fiddle with FIFO. */
-			rw_mgr_incr_vfifo(grp, v);
+			rw_mgr_incr_vfifo(grp);
 			if (!working)
 				*p = 0;
 		}
@@ -1396,14 +1392,13 @@ static int sdr_find_phase(int working, const u32 grp, u32 *v, u32 *work,
  * sdr_working_phase() - Find working DQS enable phase
  * @grp:	Read/Write group
  * @work_bgn:	Working window start position
- * @v:		VFIFO value
  * @d:		dtaps output value
  * @p:		DQS Phase Iterator
  * @i:		Iterator
  *
  * Find working DQS enable phase setting.
  */
-static int sdr_working_phase(const u32 grp, u32 *work_bgn, u32 *v, u32 *d,
+static int sdr_working_phase(const u32 grp, u32 *work_bgn, u32 *d,
 			     u32 *p, u32 *i)
 {
 	const u32 dtaps_per_ptap = IO_DELAY_PER_OPA_TAP /
@@ -1415,7 +1410,7 @@ static int sdr_working_phase(const u32 grp, u32 *work_bgn, u32 *v, u32 *d,
 	for (*d = 0; *d <= dtaps_per_ptap; (*d)++) {
 		*i = 0;
 		scc_mgr_set_dqs_en_delay_all_ranks(grp, *d);
-		ret = sdr_find_phase(1, grp, v, work_bgn, i, p);
+		ret = sdr_find_phase(1, grp, work_bgn, i, p);
 		if (!ret)
 			return 0;
 		*work_bgn += IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
@@ -1431,12 +1426,11 @@ static int sdr_working_phase(const u32 grp, u32 *work_bgn, u32 *v, u32 *d,
  * sdr_backup_phase() - Find DQS enable backup phase
  * @grp:	Read/Write group
  * @work_bgn:	Working window start position
- * @v:		VFIFO value
  * @p:		DQS Phase Iterator
  *
  * Find DQS enable backup phase setting.
  */
-static void sdr_backup_phase(const u32 grp, u32 *work_bgn, u32 *v, u32 *p)
+static void sdr_backup_phase(const u32 grp, u32 *work_bgn, u32 *p)
 {
 	u32 tmp_delay, bit_chk, d;
 	int ret;
@@ -1444,7 +1438,7 @@ static void sdr_backup_phase(const u32 grp, u32 *work_bgn, u32 *v, u32 *p)
 	/* Special case code for backing up a phase */
 	if (*p == 0) {
 		*p = IO_DQS_EN_PHASE_MAX;
-		rw_mgr_decr_vfifo(grp, v);
+		rw_mgr_decr_vfifo(grp);
 	} else {
 		(*p)--;
 	}
@@ -1468,7 +1462,7 @@ static void sdr_backup_phase(const u32 grp, u32 *work_bgn, u32 *v, u32 *p)
 	(*p)++;
 	if (*p > IO_DQS_EN_PHASE_MAX) {
 		*p = 0;
-		rw_mgr_incr_vfifo(grp, v);
+		rw_mgr_incr_vfifo(grp);
 	}
 
 	scc_mgr_set_dqs_en_delay_all_ranks(grp, 0);
@@ -1478,14 +1472,12 @@ static void sdr_backup_phase(const u32 grp, u32 *work_bgn, u32 *v, u32 *p)
  * sdr_nonworking_phase() - Find non-working DQS enable phase
  * @grp:	Read/Write group
  * @work_end:	Working window end position
- * @v:		VFIFO value
  * @p:		DQS Phase Iterator
  * @i:		Iterator
  *
  * Find non-working DQS enable phase setting.
  */
-static int sdr_nonworking_phase(const u32 grp, u32 *work_end, u32 *v,
-				u32 *p, u32 *i)
+static int sdr_nonworking_phase(const u32 grp, u32 *work_end, u32 *p, u32 *i)
 {
 	int ret;
 
@@ -1494,10 +1486,10 @@ static int sdr_nonworking_phase(const u32 grp, u32 *work_end, u32 *v,
 	if (*p > IO_DQS_EN_PHASE_MAX) {
 		/* Fiddle with FIFO. */
 		*p = 0;
-		rw_mgr_incr_vfifo(grp, v);
+		rw_mgr_incr_vfifo(grp);
 	}
 
-	ret = sdr_find_phase(0, grp, v, work_end, i, p);
+	ret = sdr_find_phase(0, grp, work_end, i, p);
 	if (ret) {
 		/* Cannot see edge of failing read. */
 		debug_cond(DLEVEL == 2, "%s:%d: end: failed\n",
@@ -1512,14 +1504,13 @@ static int sdr_nonworking_phase(const u32 grp, u32 *work_end, u32 *v,
  * @grp:	Read/Write group
  * @work_bgn:	First working settings
  * @work_end:	Last working settings
- * @val:	VFIFO value
  *
  * Find center of the working DQS enable window.
  */
 static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
-				  const u32 work_end, const u32 val)
+				  const u32 work_end)
 {
-	u32 bit_chk, work_mid, v = val;
+	u32 bit_chk, work_mid;
 	int tmp_delay = 0;
 	int i, p, d;
 
@@ -1556,19 +1547,18 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 	 * because the largest possible margin in 1 VFIFO cycle.
 	 */
 	for (i = 0; i < VFIFO_SIZE; i++) {
-		debug_cond(DLEVEL == 2, "find_dqs_en_phase: center: vfifo=%u\n",
-			   v);
+		debug_cond(DLEVEL == 2, "find_dqs_en_phase: center\n");
 		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 							     PASS_ONE_BIT,
 							     &bit_chk, 0)) {
 			debug_cond(DLEVEL == 2,
-				   "%s:%d center: found: vfifo=%u ptap=%u dtap=%u\n",
-				   __func__, __LINE__, v, p, d);
+				   "%s:%d center: found: ptap=%u dtap=%u\n",
+				   __func__, __LINE__, p, d);
 			return 0;
 		}
 
 		/* Fiddle with FIFO. */
-		rw_mgr_incr_vfifo(grp, &v);
+		rw_mgr_incr_vfifo(grp);
 	}
 
 	debug_cond(DLEVEL == 2, "%s:%d center: failed.\n",
@@ -1579,7 +1569,7 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 /* find a good dqs enable to use */
 static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 {
-	uint32_t v, d, p, i;
+	uint32_t d, p, i;
 	uint32_t bit_chk;
 	uint32_t dtaps_per_ptap;
 	uint32_t work_bgn, work_end;
@@ -1598,12 +1588,12 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 
 	/* ********************************************************* */
 	/* * Step 1 : First push vfifo until we get a failing read * */
-	v = find_vfifo_read(grp, &bit_chk);
+	find_vfifo_read(grp, &bit_chk);
 
 	/* ******************************************************** */
 	/* * step 2: find first working phase, increment in ptaps * */
 	work_bgn = 0;
-	if (sdr_working_phase(grp, &work_bgn, &v, &d, &p, &i))
+	if (sdr_working_phase(grp, &work_bgn, &d, &p, &i))
 		return 0;
 
 	work_end = work_bgn;
@@ -1618,12 +1608,12 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 		/* * step 3a: if we have room, back off by one and
 		increment in dtaps * */
 
-		sdr_backup_phase(grp, &work_bgn, &v, &p);
+		sdr_backup_phase(grp, &work_bgn, &p);
 
 		/* ********************************************************* */
 		/* * step 4a: go forward from working phase to non working
 		phase, increment in ptaps * */
-		if (sdr_nonworking_phase(grp, &work_end, &v, &p, &i))
+		if (sdr_nonworking_phase(grp, &work_end, &p, &i))
 			return 0;
 
 		/* ********************************************************* */
@@ -1632,7 +1622,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 		/* Special case code for backing up a phase */
 		if (p == 0) {
 			p = IO_DQS_EN_PHASE_MAX;
-			rw_mgr_decr_vfifo(grp, &v);
+			rw_mgr_decr_vfifo(grp);
 		} else {
 			p = p - 1;
 		}
@@ -1644,16 +1634,16 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 		the if/else loop to share code */
 		d = 0;
 
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: v/p: \
-			   vfifo=%u ptap=%u\n", __func__, __LINE__,
-			   v, p);
+		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: p: \
+			   ptap=%u\n", __func__, __LINE__,
+			   p);
 	} else {
 		/* ******************************************************* */
 		/* * step 3-5b:  Find the right edge of the window using
 		delay taps   * */
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase:vfifo=%u \
+		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: \
 			   ptap=%u dtap=%u bgn=%u\n", __func__, __LINE__,
-			   v, p, d, work_bgn);
+			   p, d, work_bgn);
 
 		work_end = work_bgn;
 	}
@@ -1676,9 +1666,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	if (d != 0)
 		work_end -= IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
 
-	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: v/p/d: vfifo=%u \
+	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: p/d: \
 		   ptap=%u dtap=%u end=%u\n", __func__, __LINE__,
-		   v, p, d-1, work_end);
+		   p, d-1, work_end);
 
 	if (work_end < work_bgn) {
 		/* nil range */
@@ -1703,15 +1693,15 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	/* Special case code for backing up a phase */
 	if (p == 0) {
 		p = IO_DQS_EN_PHASE_MAX;
-		rw_mgr_decr_vfifo(grp, &v);
+		rw_mgr_decr_vfifo(grp);
 		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: backedup \
-			   cycle/phase: v=%u p=%u\n", __func__, __LINE__,
-			   v, p);
+			   cycle/phase: p=%u\n", __func__, __LINE__,
+			   p);
 	} else {
 		p = p - 1;
 		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: backedup \
-			   phase only: v=%u p=%u", __func__, __LINE__,
-			   v, p);
+			   phase only: p=%u", __func__, __LINE__,
+			   p);
 	}
 
 	scc_mgr_set_dqs_en_phase_all_ranks(grp, p);
@@ -1778,7 +1768,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 
 	/* ******************************************** */
 	/* * step 6:  Find the centre of the window   * */
-	if (sdr_find_window_centre(grp, work_bgn, work_end, v))
+	if (sdr_find_window_centre(grp, work_bgn, work_end))
 		return 0; /* FIXME: Old code, return 0 means failure :-( */
 
 	return 1;
