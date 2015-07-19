@@ -1189,6 +1189,8 @@ static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group
 	*bit_chk = param->read_correct_mask;
 	correct_mask_vg = param->read_correct_mask_vg;
 
+	int ret;
+
 	uint32_t quick_read_mode = (((STATIC_CALIB_STEPS) &
 		CALIB_SKIP_DELAY_SWEEPS) && ENABLE_SUPER_QUICK_CALIBRATION);
 
@@ -1260,22 +1262,23 @@ static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
 	writel(RW_MGR_CLEAR_DQS_ENABLE, addr + (group << 2));
 
+	set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
+
 	if (all_correct) {
-		set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
-		debug_cond(DLEVEL == 2, "%s:%d read_test(%u,ALL,%u) =>\
-			   (%u == %u) => %lu", __func__, __LINE__, group,
-			   all_groups, *bit_chk, param->read_correct_mask,
-			   (long unsigned int)(*bit_chk ==
-			   param->read_correct_mask));
-		return *bit_chk == param->read_correct_mask;
+		ret = (*bit_chk == param->read_correct_mask);
+		debug_cond(DLEVEL == 2,
+			   "%s:%d read_test(%u,ALL,%u) => (%u == %u) => %i\n",
+			   __func__, __LINE__, group, all_groups, *bit_chk,
+			   param->read_correct_mask, ret);
 	} else	{
-		set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
-		debug_cond(DLEVEL == 2, "%s:%d read_test(%u,ONE,%u) =>\
-			   (%u != %lu) => %lu\n", __func__, __LINE__,
-			   group, all_groups, *bit_chk, (long unsigned int)0,
-			   (long unsigned int)(*bit_chk != 0x00));
-		return *bit_chk != 0x00;
+		ret = (*bit_chk != 0x00);
+		debug_cond(DLEVEL == 2,
+			   "%s:%d read_test(%u,ONE,%u) => (%u != %u) => %i\n",
+			   __func__, __LINE__, group, all_groups, *bit_chk,
+			   0, ret);
 	}
+
+	return ret;
 }
 
 /**
