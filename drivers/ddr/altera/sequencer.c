@@ -1403,12 +1403,11 @@ static int sdr_working_phase(uint32_t grp, uint32_t *work_bgn,
 	return -EINVAL;
 }
 
-static void sdr_backup_phase(uint32_t grp,
-			     uint32_t *work_bgn, uint32_t *v, uint32_t *d,
-			     uint32_t *p)
+static void sdr_backup_phase(uint32_t grp, uint32_t *work_bgn,
+			     uint32_t *v, uint32_t *p)
 {
-	uint32_t tmp_delay;
-	u32 bit_chk;
+	u32 tmp_delay;
+	u32 bit_chk, d;
 
 	/* Special case code for backing up a phase */
 	if (*p == 0) {
@@ -1420,9 +1419,8 @@ static void sdr_backup_phase(uint32_t grp,
 	tmp_delay = *work_bgn - IO_DELAY_PER_OPA_TAP;
 	scc_mgr_set_dqs_en_phase_all_ranks(grp, *p);
 
-	for (*d = 0; *d <= IO_DQS_EN_DELAY_MAX && tmp_delay < *work_bgn;
-		(*d)++, tmp_delay += IO_DELAY_PER_DQS_EN_DCHAIN_TAP) {
-		scc_mgr_set_dqs_en_delay_all_ranks(grp, *d);
+	for (d = 0; d <= IO_DQS_EN_DELAY_MAX && tmp_delay < *work_bgn; d++) {
+		scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
 
 		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 							     PASS_ONE_BIT,
@@ -1430,6 +1428,8 @@ static void sdr_backup_phase(uint32_t grp,
 			*work_bgn = tmp_delay;
 			break;
 		}
+
+		tmp_delay += IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
 	}
 
 	/*
@@ -1445,7 +1445,7 @@ static void sdr_backup_phase(uint32_t grp,
 	scc_mgr_set_dqs_en_delay_all_ranks(grp, 0);
 }
 
-static int sdr_nonworking_phase(uint32_t grp, uint32_t *v, uint32_t *d,
+static int sdr_nonworking_phase(uint32_t grp, uint32_t *v,
 				uint32_t *p, uint32_t *i, uint32_t *work_end)
 {
 	int ret;
@@ -1579,12 +1579,12 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 		/* * step 3a: if we have room, back off by one and
 		increment in dtaps * */
 
-		sdr_backup_phase(grp, &work_bgn, &v, &d, &p);
+		sdr_backup_phase(grp, &work_bgn, &v, &p);
 
 		/* ********************************************************* */
 		/* * step 4a: go forward from working phase to non working
 		phase, increment in ptaps * */
-		if (sdr_nonworking_phase(grp, &v, &d, &p, &i, &work_end))
+		if (sdr_nonworking_phase(grp, &v, &p, &i, &work_end))
 			return 0;
 
 		/* ********************************************************* */
