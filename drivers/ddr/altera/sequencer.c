@@ -1445,10 +1445,8 @@ static void sdr_backup_phase(uint32_t grp,
 	scc_mgr_set_dqs_en_delay_all_ranks(grp, 0);
 }
 
-static int sdr_nonworking_phase(uint32_t grp,
-			     uint32_t *work_bgn, uint32_t *v, uint32_t *d,
-			     uint32_t *p, uint32_t *i,
-			     uint32_t *work_end)
+static int sdr_nonworking_phase(uint32_t grp, uint32_t *v, uint32_t *d,
+				uint32_t *p, uint32_t *i, uint32_t *work_end)
 {
 	int ret;
 
@@ -1586,8 +1584,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 		/* ********************************************************* */
 		/* * step 4a: go forward from working phase to non working
 		phase, increment in ptaps * */
-		if (sdr_nonworking_phase(grp, &work_bgn, &v, &d, &p,
-					 &i, &work_end))
+		if (sdr_nonworking_phase(grp, &v, &d, &p, &i, &work_end))
 			return 0;
 
 		/* ********************************************************* */
