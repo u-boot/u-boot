@@ -3647,6 +3647,11 @@ static void initialize_reg_file(void)
 	writel(0, &sdr_reg_file->debug2);
 }
 
+/**
+ * initialize_hps_phy() - Initialize HPS PHY
+ *
+ * Initialize HPS PHY.
+ */
 static void initialize_hps_phy(void)
 {
 	uint32_t reg;
