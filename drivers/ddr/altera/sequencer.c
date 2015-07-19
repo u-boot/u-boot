@@ -1340,12 +1340,11 @@ static int find_vfifo_read(uint32_t grp, uint32_t *bit_chk)
  * @work:	Working window position
  * @i:		Iterator
  * @p:		DQS Phase Iterator
- * @max_working_cnt:	Counter
  *
  * Find working or non-working DQS enable phase setting.
  */
 static int sdr_find_phase(int working, const u32 grp, u32 *v, u32 *work,
-			  u32 *i, u32 *p, u32 *max_working_cnt)
+			  u32 *i, u32 *p)
 {
 	u32 ret, bit_chk;
 	const u32 end = VFIFO_SIZE + (working ? 0 : 1);
@@ -1359,9 +1358,6 @@ static int sdr_find_phase(int working, const u32 grp, u32 *v, u32 *work,
 
 			ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 						PASS_ONE_BIT, &bit_chk, 0);
-			if (ret)
-				(*max_working_cnt)++;
-
 			if (!working)
 				ret = !ret;
 
@@ -1385,7 +1381,7 @@ static int sdr_find_phase(int working, const u32 grp, u32 *v, u32 *work,
 static int sdr_working_phase(uint32_t grp,
 			      uint32_t dtaps_per_ptap, uint32_t *work_bgn,
 			      uint32_t *v, uint32_t *d, uint32_t *p,
-			      uint32_t *i, uint32_t *max_working_cnt)
+			      uint32_t *i)
 {
 	int ret;
 
@@ -1394,7 +1390,7 @@ static int sdr_working_phase(uint32_t grp,
 	for (*d = 0; *d <= dtaps_per_ptap; (*d)++) {
 		*i = 0;
 		scc_mgr_set_dqs_en_delay_all_ranks(grp, *d);
-		ret = sdr_find_phase(1, grp, v, work_bgn, i, p, max_working_cnt);
+		ret = sdr_find_phase(1, grp, v, work_bgn, i, p);
 		if (!ret)
 			return 0;
 		*work_bgn += IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
@@ -1408,9 +1404,8 @@ static int sdr_working_phase(uint32_t grp,
 
 static void sdr_backup_phase(uint32_t grp,
 			     uint32_t *work_bgn, uint32_t *v, uint32_t *d,
-			     uint32_t *p, uint32_t *max_working_cnt)
+			     uint32_t *p)
 {
-	uint32_t found_begin = 0;
 	uint32_t tmp_delay;
 	u32 bit_chk;
 
@@ -1431,15 +1426,10 @@ static void sdr_backup_phase(uint32_t grp,
 		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 							     PASS_ONE_BIT,
 							     &bit_chk, 0)) {
-			found_begin = 1;
 			*work_bgn = tmp_delay;
 			break;
 		}
 	}
-
-	/* We have found a working dtap before the ptap found above */
-	if (found_begin == 1)
-		(*max_working_cnt)++;
 
 	/*
 	 * Restore VFIFO to old state before we decremented it
@@ -1456,7 +1446,7 @@ static void sdr_backup_phase(uint32_t grp,
 
 static int sdr_nonworking_phase(uint32_t grp,
 			     uint32_t *work_bgn, uint32_t *v, uint32_t *d,
-			     uint32_t *p, uint32_t *i, uint32_t *max_working_cnt,
+			     uint32_t *p, uint32_t *i,
 			     uint32_t *work_end)
 {
 	int ret;
@@ -1469,7 +1459,7 @@ static int sdr_nonworking_phase(uint32_t grp,
 		rw_mgr_incr_vfifo(grp, v);
 	}
 
-	ret = sdr_find_phase(0, grp, v, work_end, i, p, max_working_cnt);
+	ret = sdr_find_phase(0, grp, v, work_end, i, p);
 	if (ret) {
 		/* Cannot see edge of failing read. */
 		debug_cond(DLEVEL == 2, "%s:%d: end: failed\n",
@@ -1552,7 +1542,6 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 {
 	uint32_t v, d, p, i;
-	uint32_t max_working_cnt;
 	uint32_t bit_chk;
 	uint32_t dtaps_per_ptap;
 	uint32_t work_bgn, work_end;
@@ -1573,13 +1562,10 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	/* * Step 1 : First push vfifo until we get a failing read * */
 	v = find_vfifo_read(grp, &bit_chk);
 
-	max_working_cnt = 0;
-
 	/* ******************************************************** */
 	/* * step 2: find first working phase, increment in ptaps * */
 	work_bgn = 0;
-	if (sdr_working_phase(grp, dtaps_per_ptap, &work_bgn, &v, &d,
-			      &p, &i, &max_working_cnt))
+	if (sdr_working_phase(grp, dtaps_per_ptap, &work_bgn, &v, &d, &p, &i))
 		return 0;
 
 	work_end = work_bgn;
@@ -1594,14 +1580,13 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 		/* * step 3a: if we have room, back off by one and
 		increment in dtaps * */
 
-		sdr_backup_phase(grp, &work_bgn, &v, &d, &p,
-				 &max_working_cnt);
+		sdr_backup_phase(grp, &work_bgn, &v, &d, &p);
 
 		/* ********************************************************* */
 		/* * step 4a: go forward from working phase to non working
 		phase, increment in ptaps * */
 		if (sdr_nonworking_phase(grp, &work_bgn, &v, &d, &p,
-					 &i, &max_working_cnt, &work_end))
+					 &i, &work_end))
 			return 0;
 
 		/* ********************************************************* */
@@ -1634,13 +1619,6 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 			   v, p, d, work_bgn);
 
 		work_end = work_bgn;
-
-		/* * The actual increment of dtaps is done outside of the
-		if/else loop to share code */
-
-		/* Only here to counterbalance a subtract later on which is
-		not needed if this branch of the algorithm is taken */
-		max_working_cnt++;
 	}
 
 	/* The dtap increment to find the failing edge is done here */
