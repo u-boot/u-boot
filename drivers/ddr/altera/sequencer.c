@@ -1566,7 +1566,7 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 }
 
 /* find a good dqs enable to use */
-static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
+static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(u32 grp)
 {
 	uint32_t d, p, i;
 	uint32_t bit_chk;
@@ -1581,16 +1581,13 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	scc_mgr_set_dqs_en_delay_all_ranks(grp, 0);
 	scc_mgr_set_dqs_en_phase_all_ranks(grp, 0);
 
-	/* ************************************************************** */
-	/* * Step 0 : Determine number of delay taps for each phase tap * */
-	dtaps_per_ptap = IO_DELAY_PER_OPA_TAP/IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
+	/* Step 0: Determine number of delay taps for each phase tap. */
+	dtaps_per_ptap = IO_DELAY_PER_OPA_TAP / IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
 
-	/* ********************************************************* */
-	/* * Step 1 : First push vfifo until we get a failing read * */
+	/* Step 1: First push vfifo until we get a failing read. */
 	find_vfifo_failing_read(grp);
 
-	/* ******************************************************** */
-	/* * step 2: find first working phase, increment in ptaps * */
+	/* Step 2: Find first working phase, increment in ptaps. */
 	work_bgn = 0;
 	if (sdr_working_phase(grp, &work_bgn, &d, &p, &i))
 		return 0;
@@ -1598,25 +1595,25 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	work_end = work_bgn;
 
 	/*
-	 * If d is 0 then the working window covers a phase tap and
-	 * we can follow the old procedure otherwise, we've found the beginning,
+	 * If d is 0 then the working window covers a phase tap and we can
+	 * follow the old procedure. Otherwise, we've found the beginning
 	 * and we need to increment the dtaps until we find the end.
 	 */
 	if (d == 0) {
-		/* ********************************************************* */
-		/* * step 3a: if we have room, back off by one and
-		increment in dtaps * */
-
+		/*
+		 * Step 3a: If we have room, back off by one and
+		 *          increment in dtaps.
+		 */
 		sdr_backup_phase(grp, &work_bgn, &p);
 
-		/* ********************************************************* */
-		/* * step 4a: go forward from working phase to non working
-		phase, increment in ptaps * */
+		/*
+		 * Step 4a: go forward from working phase to non working
+		 * phase, increment in ptaps.
+		 */
 		if (sdr_nonworking_phase(grp, &work_end, &p, &i))
 			return 0;
 
-		/* ********************************************************* */
-		/* * step 5a:  back off one from last, increment in dtaps  * */
+		/* Step 5a: Back off one from last, increment in dtaps. */
 
 		/* Special case code for backing up a phase */
 		if (p == 0) {
@@ -1629,97 +1626,92 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 		work_end -= IO_DELAY_PER_OPA_TAP;
 		scc_mgr_set_dqs_en_phase_all_ranks(grp, p);
 
-		/* * The actual increment of dtaps is done outside of
-		the if/else loop to share code */
 		d = 0;
 
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: p: \
-			   ptap=%u\n", __func__, __LINE__,
-			   p);
+		debug_cond(DLEVEL == 2, "%s:%d p: ptap=%u\n",
+			   __func__, __LINE__, p);
 	} else {
-		/* ******************************************************* */
-		/* * step 3-5b:  Find the right edge of the window using
-		delay taps   * */
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: \
-			   ptap=%u dtap=%u bgn=%u\n", __func__, __LINE__,
-			   p, d, work_bgn);
+		/*
+		 * Step 3-5b: Find the right edge of the window
+		 *            using delay taps.
+		 */
+		debug_cond(DLEVEL == 2,
+			   "%s:%d ptap=%u dtap=%u bgn=%u\n",
+			   __func__, __LINE__, p, d, work_bgn);
 
 		work_end = work_bgn;
 	}
 
-	/* The dtap increment to find the failing edge is done here */
-	for (; d <= IO_DQS_EN_DELAY_MAX; d++, work_end +=
-		IO_DELAY_PER_DQS_EN_DCHAIN_TAP) {
-			debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: \
-				   end-2: dtap=%u\n", __func__, __LINE__, d);
-			scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
+	/* The dtap increment to find the failing edge is done here. */
+	for (; d <= IO_DQS_EN_DELAY_MAX;
+	     d++, work_end += IO_DELAY_PER_DQS_EN_DCHAIN_TAP) {
+		debug_cond(DLEVEL == 2, "%s:%d end-2: dtap=%u\n",
+			   __func__, __LINE__, d);
 
-			if (!rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
-								      PASS_ONE_BIT,
-								      &bit_chk, 0)) {
-				break;
-			}
+		scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
+
+		if (!rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
+							      PASS_ONE_BIT,
+							      &bit_chk, 0)) {
+			break;
+		}
 	}
 
 	/* Go back to working dtap */
 	if (d != 0)
 		work_end -= IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
 
-	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: p/d: \
-		   ptap=%u dtap=%u end=%u\n", __func__, __LINE__,
-		   p, d-1, work_end);
+	debug_cond(DLEVEL == 2,
+		   "%s:%d p/d: ptap=%u dtap=%u end=%u\n",
+		   __func__, __LINE__, p, d - 1, work_end);
 
 	if (work_end < work_bgn) {
 		/* nil range */
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: end-2: \
-			   failed\n", __func__, __LINE__);
+		debug_cond(DLEVEL == 2, "%s:%d end-2: failed\n",
+			   __func__, __LINE__);
 		return 0;
 	}
 
-	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: found range [%u,%u]\n",
+	debug_cond(DLEVEL == 2, "%s:%d found range [%u,%u]\n",
 		   __func__, __LINE__, work_bgn, work_end);
 
-	/* *************************************************************** */
 	/*
-	 * * We need to calculate the number of dtaps that equal a ptap
-	 * * To do that we'll back up a ptap and re-find the edge of the
-	 * * window using dtaps
+	 * We need to calculate the number of dtaps that equal a ptap.
+	 * To do that we'll back up a ptap and re-find the edge of the
+	 * window using dtaps
 	 */
-
-	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: calculate dtaps_per_ptap \
-		   for tracking\n", __func__, __LINE__);
+	debug_cond(DLEVEL == 2, "%s:%d calculate dtaps_per_ptap for tracking\n",
+		   __func__, __LINE__);
 
 	/* Special case code for backing up a phase */
 	if (p == 0) {
 		p = IO_DQS_EN_PHASE_MAX;
 		rw_mgr_decr_vfifo(grp);
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: backedup \
-			   cycle/phase: p=%u\n", __func__, __LINE__,
-			   p);
+		debug_cond(DLEVEL == 2, "%s:%d backedup cycle/phase: p=%u\n",
+			   __func__, __LINE__, p);
 	} else {
 		p = p - 1;
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: backedup \
-			   phase only: p=%u", __func__, __LINE__,
-			   p);
+		debug_cond(DLEVEL == 2, "%s:%d backedup phase only: p=%u",
+			   __func__, __LINE__, p);
 	}
 
 	scc_mgr_set_dqs_en_phase_all_ranks(grp, p);
 
 	/*
 	 * Increase dtap until we first see a passing read (in case the
-	 * window is smaller than a ptap),
-	 * and then a failing read to mark the edge of the window again
+	 * window is smaller than a ptap), and then a failing read to
+	 * mark the edge of the window again.
 	 */
 
-	/* Find a passing read */
-	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: find passing read\n",
+	/* Find a passing read. */
+	debug_cond(DLEVEL == 2, "%s:%d find passing read\n",
 		   __func__, __LINE__);
 	found_passing_read = 0;
 	found_failing_read = 0;
 	initial_failing_dtap = d;
 	for (; d <= IO_DQS_EN_DELAY_MAX; d++) {
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: testing \
-			   read d=%u\n", __func__, __LINE__, d);
+		debug_cond(DLEVEL == 2, "%s:%d testing read d=%u\n",
+			   __func__, __LINE__, d);
 		scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
 
 		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
@@ -1731,12 +1723,12 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 	}
 
 	if (found_passing_read) {
-		/* Find a failing read */
-		debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: find failing \
-			   read\n", __func__, __LINE__);
+		/* Find a failing read. */
+		debug_cond(DLEVEL == 2, "%s:%d find failing read\n",
+			   __func__, __LINE__);
 		for (d = d + 1; d <= IO_DQS_EN_DELAY_MAX; d++) {
-			debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: \
-				   testing read d=%u\n", __func__, __LINE__, d);
+			debug_cond(DLEVEL == 2, "%s:%d testing read d=%u\n",
+				   __func__, __LINE__, d);
 			scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
 
 			if (!rw_mgr_mem_calibrate_read_test_all_ranks
@@ -1746,9 +1738,9 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 			}
 		}
 	} else {
-		debug_cond(DLEVEL == 1, "%s:%d find_dqs_en_phase: failed to \
-			   calculate dtaps", __func__, __LINE__);
-		debug_cond(DLEVEL == 1, "per ptap. Fall back on static value\n");
+		debug_cond(DLEVEL == 1,
+			   "%s:%d failed to calculate dtaps per ptap. Fall back on static value\n",
+			   __func__, __LINE__);
 	}
 
 	/*
@@ -1761,14 +1753,12 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(uint32_t grp)
 		dtaps_per_ptap = d - initial_failing_dtap;
 
 	writel(dtaps_per_ptap, &sdr_reg_file->dtaps_per_ptap);
-	debug_cond(DLEVEL == 2, "%s:%d find_dqs_en_phase: dtaps_per_ptap=%u \
-		   - %u = %u",  __func__, __LINE__, d,
-		   initial_failing_dtap, dtaps_per_ptap);
+	debug_cond(DLEVEL == 2, "%s:%d dtaps_per_ptap=%u - %u = %u",
+		   __func__, __LINE__, d, initial_failing_dtap, dtaps_per_ptap);
 
-	/* ******************************************** */
-	/* * step 6:  Find the centre of the window   * */
+	/* Step 6: Find the centre of the window. */
 	if (sdr_find_window_centre(grp, work_bgn, work_end))
-		return 0; /* FIXME: Old code, return 0 means failure :-( */
+		return 0;
 
 	return 1;
 }
