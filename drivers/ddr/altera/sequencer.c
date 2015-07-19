@@ -1630,16 +1630,6 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(u32 grp)
 
 		debug_cond(DLEVEL == 2, "%s:%d p: ptap=%u\n",
 			   __func__, __LINE__, p);
-	} else {
-		/*
-		 * Step 3-5b: Find the right edge of the window
-		 *            using delay taps.
-		 */
-		debug_cond(DLEVEL == 2,
-			   "%s:%d ptap=%u dtap=%u bgn=%u\n",
-			   __func__, __LINE__, p, d, work_bgn);
-
-		work_end = work_bgn;
 	}
 
 	/* The dtap increment to find the failing edge is done here. */
