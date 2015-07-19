@@ -1278,12 +1278,23 @@ static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group
 	}
 }
 
-static uint32_t rw_mgr_mem_calibrate_read_test_all_ranks(uint32_t group,
-	uint32_t num_tries, uint32_t all_correct, uint32_t *bit_chk,
-	uint32_t all_groups)
+/**
+ * rw_mgr_mem_calibrate_read_test_all_ranks() - Perform READ test on all ranks
+ * @grp:		Read/Write group
+ * @num_tries:		Number of retries of the test
+ * @all_correct:	All bits must be correct in the mask
+ * @all_groups:		Test all R/W groups
+ *
+ * Perform a READ test across all memory ranks.
+ */
+static int
+rw_mgr_mem_calibrate_read_test_all_ranks(const u32 grp, const u32 num_tries,
+					 const u32 all_correct,
+					 const u32 all_groups)
 {
-	return rw_mgr_mem_calibrate_read_test(0, group, num_tries, all_correct,
-					      bit_chk, all_groups, 1);
+	u32 bit_chk;
+	return rw_mgr_mem_calibrate_read_test(0, grp, num_tries, all_correct,
+					      &bit_chk, all_groups, 1);
 }
 
 /**
@@ -1319,13 +1330,13 @@ static void rw_mgr_decr_vfifo(const u32 grp)
  */
 static int find_vfifo_failing_read(const u32 grp)
 {
-	u32 v, ret, bit_chk, fail_cnt = 0;
+	u32 v, ret, fail_cnt = 0;
 
 	for (v = 0; v < VFIFO_SIZE; v++) {
 		debug_cond(DLEVEL == 2, "%s:%d: vfifo %u\n",
 			   __func__, __LINE__, v);
 		ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
-						PASS_ONE_BIT, &bit_chk, 0);
+						PASS_ONE_BIT, 0);
 		if (!ret) {
 			fail_cnt++;
 
@@ -1357,7 +1368,7 @@ static int sdr_find_phase_delay(int working, int delay, const u32 grp,
 				u32 *work, const u32 work_inc, u32 *pd)
 {
 	const u32 max = delay ? IO_DQS_EN_DELAY_MAX : IO_DQS_EN_PHASE_MAX;
-	u32 ret, bit_chk;
+	u32 ret;
 
 	for (; *pd <= max; (*pd)++) {
 		if (delay)
@@ -1366,7 +1377,7 @@ static int sdr_find_phase_delay(int working, int delay, const u32 grp,
 			scc_mgr_set_dqs_en_phase_all_ranks(grp, *pd);
 
 		ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
-					PASS_ONE_BIT, &bit_chk, 0);
+					PASS_ONE_BIT, 0);
 		if (!working)
 			ret = !ret;
 
@@ -1459,7 +1470,7 @@ static int sdr_working_phase(const u32 grp, u32 *work_bgn, u32 *d,
  */
 static void sdr_backup_phase(const u32 grp, u32 *work_bgn, u32 *p)
 {
-	u32 tmp_delay, bit_chk, d;
+	u32 tmp_delay, d;
 	int ret;
 
 	/* Special case code for backing up a phase */
@@ -1476,7 +1487,7 @@ static void sdr_backup_phase(const u32 grp, u32 *work_bgn, u32 *p)
 		scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
 
 		ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
-					PASS_ONE_BIT, &bit_chk, 0);
+					PASS_ONE_BIT, 0);
 		if (ret) {
 			*work_bgn = tmp_delay;
 			break;
@@ -1537,7 +1548,7 @@ static int sdr_nonworking_phase(const u32 grp, u32 *work_end, u32 *p, u32 *i)
 static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 				  const u32 work_end)
 {
-	u32 bit_chk, work_mid;
+	u32 work_mid;
 	int tmp_delay = 0;
 	int i, p, d;
 
@@ -1577,7 +1588,7 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 		debug_cond(DLEVEL == 2, "find_dqs_en_phase: center\n");
 		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 							     PASS_ONE_BIT,
-							     &bit_chk, 0)) {
+							     0)) {
 			debug_cond(DLEVEL == 2,
 				   "%s:%d center: found: ptap=%u dtap=%u\n",
 				   __func__, __LINE__, p, d);
@@ -2427,7 +2438,6 @@ static uint32_t rw_mgr_mem_calibrate_vfifo_end(uint32_t read_group,
 static uint32_t rw_mgr_mem_calibrate_lfifo(void)
 {
 	uint32_t found_one;
-	uint32_t bit_chk;
 
 	debug("%s:%d\n", __func__, __LINE__);
 
@@ -2447,7 +2457,7 @@ static uint32_t rw_mgr_mem_calibrate_lfifo(void)
 		if (!rw_mgr_mem_calibrate_read_test_all_ranks(0,
 							      NUM_READ_TESTS,
 							      PASS_ALL_BITS,
-							      &bit_chk, 1)) {
+							      1)) {
 			break;
 		}
 
