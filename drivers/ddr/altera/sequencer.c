@@ -1174,25 +1174,25 @@ static void rw_mgr_mem_calibrate_read_load_patterns(const u32 rank_bgn,
  * inserted into the mix used to align dqs enable. has more thorough checks
  * than the regular read test.
  */
-static uint32_t rw_mgr_mem_calibrate_read_test(uint32_t rank_bgn, uint32_t group,
-	uint32_t num_tries, uint32_t all_correct, uint32_t *bit_chk,
-	uint32_t all_groups, uint32_t all_ranks)
+static int
+rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
+			       const u32 num_tries, const u32 all_correct,
+			       u32 *bit_chk,
+			       const u32 all_groups, const u32 all_ranks)
 {
-	uint32_t r, vg;
-	uint32_t correct_mask_vg;
-	uint32_t tmp_bit_chk;
-	uint32_t rank_end = all_ranks ? RW_MGR_MEM_NUMBER_OF_RANKS :
+	const u32 rank_end = all_ranks ? RW_MGR_MEM_NUMBER_OF_RANKS :
 		(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
-	uint32_t addr;
-	uint32_t base_rw_mgr;
+	const u32 quick_read_mode =
+		((STATIC_CALIB_STEPS & CALIB_SKIP_DELAY_SWEEPS) &&
+		 ENABLE_SUPER_QUICK_CALIBRATION);
+	u32 correct_mask_vg = param->read_correct_mask_vg;
+	u32 tmp_bit_chk;
+	u32 base_rw_mgr;
+	u32 addr;
+
+	int r, vg, ret;
 
 	*bit_chk = param->read_correct_mask;
-	correct_mask_vg = param->read_correct_mask_vg;
-
-	int ret;
-
-	uint32_t quick_read_mode = (((STATIC_CALIB_STEPS) &
-		CALIB_SKIP_DELAY_SWEEPS) && ENABLE_SUPER_QUICK_CALIBRATION);
 
 	for (r = rank_bgn; r < rank_end; r++) {
 		if (param->skip_ranks[r])
