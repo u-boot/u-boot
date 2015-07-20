@@ -91,18 +91,34 @@ int board_init(void)
 
 int misc_init_r(void)
 {
+	unsigned char keypad_matrix[64] = { 0 };
 	char serial_string[17] = { 0 };
 	char reboot_mode[2] = { 0 };
 	u32 dieid[4] = { 0 };
+	unsigned char keys[3];
 	unsigned char data = 0;
 
 	/* Power button reset init */
 
 	twl4030_power_reset_init();
 
+	/* Keypad */
+
+	twl4030_keypad_scan((unsigned char *)&keypad_matrix);
+
+	keys[0] = twl4030_keypad_key((unsigned char *)&keypad_matrix, 0, 0);
+	keys[1] = twl4030_keypad_key((unsigned char *)&keypad_matrix, 0, 1);
+	keys[2] = twl4030_keypad_key((unsigned char *)&keypad_matrix, 0, 2);
+
 	/* Reboot mode */
 
 	reboot_mode[0] = omap_reboot_mode();
+
+	if (keys[0])
+		reboot_mode[0] = 'r';
+	else if (keys[1])
+		reboot_mode[0] = 'b';
+
 	if (reboot_mode[0] > 0 && isascii(reboot_mode[0])) {
 		if (!getenv("reboot-mode"))
 			setenv("reboot-mode", (char *)reboot_mode);
