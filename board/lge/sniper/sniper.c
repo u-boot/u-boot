@@ -94,6 +94,7 @@ int misc_init_r(void)
 	char serial_string[17] = { 0 };
 	char reboot_mode[2] = { 0 };
 	u32 dieid[4] = { 0 };
+	unsigned char data = 0;
 
 	/* Power button reset init */
 
@@ -107,6 +108,18 @@ int misc_init_r(void)
 			setenv("reboot-mode", (char *)reboot_mode);
 
 		omap_reboot_mode_clear();
+	} else {
+		/*
+		 * When not rebooting, valid power on reasons are either the
+		 * power button, charger plug or USB plug.
+		 */
+
+		data |= twl4030_input_power_button();
+		data |= twl4030_input_charger();
+		data |= twl4030_input_usb();
+
+		if (!data)
+			twl4030_power_off();
 	}
 
 	/* Serial number */
@@ -143,6 +156,11 @@ void get_board_serial(struct tag_serialnr *serialnr)
 		serialnr->high = 0;
 		serialnr->low = 0;
 	}
+}
+
+void reset_misc(void)
+{
+	omap_reboot_mode_store('u');
 }
 
 int fb_set_reboot_flag(void)
