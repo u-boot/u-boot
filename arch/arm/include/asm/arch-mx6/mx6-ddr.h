@@ -16,7 +16,11 @@
 #ifdef CONFIG_MX6SX
 #include "mx6sx-ddr.h"
 #else
+#ifdef CONFIG_MX6UL
+#include "mx6ul-ddr.h"
+#else
 #error "Please select cpu"
+#endif	/* CONFIG_MX6UL */
 #endif	/* CONFIG_MX6SX */
 #endif	/* CONFIG_MX6DL or CONFIG_MX6S */
 #endif	/* CONFIG_MX6Q */
@@ -60,6 +64,44 @@ struct mmdc_p_regs {
 	u32 mpwrdlctl;
 	u32 res10[25];
 	u32 mpmur0;
+};
+
+#define MX6UL_IOM_DDR_BASE	0x020e0200
+struct mx6ul_iomux_ddr_regs {
+	u32 res1[17];
+	u32 dram_dqm0;
+	u32 dram_dqm1;
+	u32 dram_ras;
+	u32 dram_cas;
+	u32 dram_cs0;
+	u32 dram_cs1;
+	u32 dram_sdwe_b;
+	u32 dram_odt0;
+	u32 dram_odt1;
+	u32 dram_sdba0;
+	u32 dram_sdba1;
+	u32 dram_sdba2;
+	u32 dram_sdcke0;
+	u32 dram_sdcke1;
+	u32 dram_sdclk_0;
+	u32 dram_sdqs0;
+	u32 dram_sdqs1;
+	u32 dram_reset;
+};
+
+#define MX6UL_IOM_GRP_BASE	0x020e0400
+struct mx6ul_iomux_grp_regs {
+	u32 res1[36];
+	u32 grp_addds;
+	u32 grp_ddrmode_ctl;
+	u32 grp_b0ds;
+	u32 grp_ddrpk;
+	u32 grp_ctlds;
+	u32 grp_b1ds;
+	u32 grp_ddrhys;
+	u32 grp_ddrpke;
+	u32 grp_ddrmode;
+	u32 grp_ddr_type;
 };
 
 #define MX6SX_IOM_DDR_BASE	0x020e0200
@@ -290,6 +332,9 @@ void mx6sdl_dram_iocfg(unsigned width,
 void mx6sx_dram_iocfg(unsigned width,
 		      const struct mx6sx_iomux_ddr_regs *,
 		      const struct mx6sx_iomux_grp_regs *);
+void mx6ul_dram_iocfg(unsigned width,
+		      const struct mx6ul_iomux_ddr_regs *,
+		      const struct mx6ul_iomux_grp_regs *);
 
 /* configure mx6 mmdc registers */
 void mx6_dram_cfg(const struct mx6_ddr_sysinfo *,
