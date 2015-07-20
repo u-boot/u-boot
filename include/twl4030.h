@@ -208,6 +208,12 @@
 #define TWL4030_PM_MASTER_SW_EVENTS_DEVSLP		(1 << 1)
 #define TWL4030_PM_MASTER_SW_EVENTS_DEVOFF		(1 << 0)
 
+/* HW conditions */
+#define TWL4030_PM_MASTER_STS_HW_CONDITIONS_PWON	(1 << 0)
+#define TWL4030_PM_MASTER_STS_HW_CONDITIONS_CHG		(1 << 1)
+#define TWL4030_PM_MASTER_STS_HW_CONDITIONS_USB		(1 << 2)
+#define TWL4030_PM_MASTER_STS_HW_CONDITIONS_VBUS	(1 << 7)
+
 /* Power transition */
 #define TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_PWON	(1 << 0)
 #define TWL4030_PM_MASTER_CFG_TRANSITION_STARTON_CHG	(1 << 1)
@@ -668,6 +674,14 @@ void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val,
 void twl4030_power_init(void);
 /* For initializing mmc power */
 void twl4030_power_mmc_init(int dev_index);
+
+/*
+ * Input
+ */
+
+int twl4030_input_power_button(void);
+int twl4030_input_charger(void);
+int twl4030_input_usb(void);
 
 /*
  * LED
