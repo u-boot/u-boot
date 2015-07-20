@@ -28,6 +28,9 @@
 #define SCIF3_BASE		0xE6EA8000
 #define SCIF4_BASE		0xE6EE0000
 #define SCIF5_BASE		0xE6EE8000
+#define SCIFA0_BASE		0xE6C40000
+#define SCIFA1_BASE		0xE6C50000
+#define SCIFA2_BASE		0xE6C60000
 
 /* Module stop status register */
 #define MSTPSR0			0xE6150030
