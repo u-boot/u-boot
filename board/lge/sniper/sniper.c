@@ -70,7 +70,9 @@ int board_init(void)
 
 int misc_init_r(void)
 {
+	char serial_string[17] = { 0 };
 	char reboot_mode[2] = { 0 };
+	u32 dieid[4] = { 0 };
 
 	/* Reboot mode */
 
@@ -80,6 +82,17 @@ int misc_init_r(void)
 			setenv("reboot-mode", (char *)reboot_mode);
 
 		omap_reboot_mode_clear();
+	}
+
+	/* Serial number */
+
+	get_dieid((u32 *)&dieid);
+
+	if (!getenv("serial#")) {
+		snprintf(serial_string, sizeof(serial_string),
+			"%08x%08x", dieid[0], dieid[3]);
+
+		setenv("serial#", serial_string);
 	}
 
 	return 0;
