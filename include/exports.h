@@ -2,6 +2,10 @@
 #define __EXPORTS_H__
 
 #ifndef __ASSEMBLY__
+#ifdef CONFIG_PHY_AQUANTIA
+#include <miiphy.h>
+#include <phy.h>
+#endif
 
 struct spi_slave;
 
@@ -34,6 +38,13 @@ unsigned long long ustrtoull(const char *cp, char **endp, unsigned int base);
 int i2c_write (uchar, uint, int , uchar* , int);
 int i2c_read (uchar, uint, int , uchar* , int);
 #endif
+#ifdef CONFIG_PHY_AQUANTIA
+struct mii_dev *mdio_get_current_dev(void);
+struct phy_device *phy_find_by_mask(struct mii_dev *bus, unsigned phy_mask,
+		phy_interface_t interface);
+struct phy_device *mdio_phydev_for_ethname(const char *ethname);
+int miiphy_set_current_dev(const char *devname);
+#endif
 
 void app_startup(char * const *);
 
@@ -46,7 +57,7 @@ struct jt_funcs {
 };
 
 
-#define XF_VERSION	7
+#define XF_VERSION	8
 
 #if defined(CONFIG_X86)
 extern gd_t *global_data;

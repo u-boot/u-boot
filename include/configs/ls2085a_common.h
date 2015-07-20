@@ -19,6 +19,7 @@
 #define CONFIG_ARM_ERRATA_828024
 #define CONFIG_ARM_ERRATA_826974
 
+#include <asm/arch-fsl-lsch3/ls2085a_stream_id.h>
 #include <asm/arch-fsl-lsch3/config.h>
 #if (defined(CONFIG_SYS_FSL_SRDS_1) || defined(CONFIG_SYS_FSL_SRDS_2))
 #define	CONFIG_SYS_HAS_SERDES
@@ -163,21 +164,30 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_SYS_NAND_BASE_PHYS		0x30000000
 
 /* Debug Server firmware */
-#define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(512UL * 1024 * 1024)
+#define CONFIG_FSL_DEBUG_SERVER
 /* 2 sec timeout */
 #define CONFIG_SYS_DEBUG_SERVER_TIMEOUT			(2 * 1000 * 1000)
 
 /* MC firmware */
 #define CONFIG_FSL_MC_ENET
-#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE	(512UL * 1024 * 1024)
 /* TODO Actual DPL max length needs to be confirmed with the MC FW team */
 #define CONFIG_SYS_LS_MC_DPC_MAX_LENGTH	    0x20000
 #define CONFIG_SYS_LS_MC_DRAM_DPC_OFFSET    0x00F00000
 #define CONFIG_SYS_LS_MC_DPL_MAX_LENGTH	    0x20000
 #define CONFIG_SYS_LS_MC_DRAM_DPL_OFFSET    0x00F20000
+#define CONFIG_SYS_LS_MC_AIOP_IMG_MAX_LENGTH	0x200000
+#define CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET	0x07000000
 
-/* Carve out a DDR region which will not be used by u-boot/Linux */
+/*
+ * Carve out a DDR region which will not be used by u-boot/Linux
+ *
+ * It will be used by MC and Debug Server. The MC region must be
+ * 512MB aligned, so the min size to hide is 512MB.
+ */
 #if defined(CONFIG_FSL_MC_ENET) || defined(CONFIG_FSL_DEBUG_SERVER)
+#define CONFIG_SYS_DEBUG_SERVER_DRAM_BLOCK_MIN_SIZE	(256UL * 1024 * 1024)
+#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(256UL * 1024 * 1024)
+#define CONFIG_SYS_MEM_TOP_HIDE_MIN			(512UL * 1024 * 1024)
 #define CONFIG_SYS_MEM_TOP_HIDE		get_dram_size_to_hide()
 #endif
 
@@ -186,7 +196,8 @@ unsigned long long get_qixis_addr(void);
 #define CONFIG_PCIE2		/* PCIE controler 2 */
 #define CONFIG_PCIE3		/* PCIE controler 3 */
 #define CONFIG_PCIE4		/* PCIE controler 4 */
-#define FSL_PCIE_COMPAT "fsl,20851a-pcie"
+#define CONFIG_PCIE_LAYERSCAPE	/* Use common FSL Layerscape PCIe code */
+#define FSL_PCIE_COMPAT "fsl,ls2085a-pcie"
 
 #define CONFIG_SYS_PCI_64BIT
 
@@ -236,13 +247,13 @@ unsigned long long get_qixis_addr(void);
 	"initrd_high=0xffffffffffffffff\0"	\
 	"kernel_start=0x581200000\0"		\
 	"kernel_load=0xa0000000\0"		\
-	"kernel_size=0x1000000\0"		\
+	"kernel_size=0x2800000\0"		\
 	"console=ttyAMA0,38400n8\0"
 
 #define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
 				"earlycon=uart8250,mmio,0x21c0600,115200 " \
-				"default_hugepagesz=2m hugepagesz=2m " \
-				"hugepages=16"
+				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
+				" hugepagesz=2m hugepages=16"
 #define CONFIG_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \
 					"$kernel_size && bootm $kernel_load"
 #define CONFIG_BOOTDELAY		10
@@ -288,5 +299,8 @@ unsigned long get_dram_size_to_hide(void);
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00100000
 #define CONFIG_SYS_SPL_MALLOC_START	0x80200000
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
+
+#define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */
+
 
 #endif /* __LS2_COMMON_H */

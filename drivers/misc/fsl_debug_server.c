@@ -10,6 +10,7 @@
 #include <asm/system.h>
 #include <asm/arch-fsl-lsch3/immap_lsch3.h>
 
+#include <fsl-mc/fsl_mc.h>
 #include <fsl_debug_server.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -150,6 +151,10 @@ int debug_server_init(void)
 	else
 		debug_server_ram_addr =
 			gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;
+
+#ifdef CONFIG_FSL_MC_ENET
+	debug_server_ram_addr += mc_get_dram_block_size();
+#endif
 
 	error = debug_server_parse_firmware_fit_image(&raw_image_addr,
 							&raw_image_size);

@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <malloc.h>
+#include <asm/arch-fsl-lsch3/fdt.h>
 
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS CONFIG_SYS_SDRAM_BASE
@@ -526,5 +527,66 @@ void ft_pci_setup(void *blob, bd_t *bd)
 #else
 void ft_pci_setup(void *blob, bd_t *bd)
 {
+}
+#endif
+
+#ifdef CONFIG_LS2085A
+
+void pcie_set_available_streamids(void *blob, const char *pcie_path,
+				  u32 *stream_ids, int count)
+{
+	int nodeoffset;
+	int i;
+
+	nodeoffset = fdt_path_offset(blob, pcie_path);
+	if (nodeoffset < 0) {
+		printf("\n%s: ERROR: unable to update PCIe node\n", __func__);
+		return;
+	}
+
+	/* for each stream ID, append to mmu-masters */
+	for (i = 0; i < count; i++) {
+		fdt_appendprop_u32(blob, nodeoffset, "available-stream-ids",
+				   stream_ids[i]);
+	}
+}
+
+#define MAX_STREAM_IDS 4
+void fdt_fixup_smmu_pcie(void *blob)
+{
+	int count;
+	u32 stream_ids[MAX_STREAM_IDS];
+
+	#ifdef CONFIG_PCIE1
+	/* PEX1 stream ID fixup */
+	count =	FSL_PEX1_STREAM_ID_END - FSL_PEX1_STREAM_ID_START + 1;
+	alloc_stream_ids(FSL_PEX1_STREAM_ID_START, count, stream_ids,
+			 MAX_STREAM_IDS);
+	pcie_set_available_streamids(blob, "/pcie@3400000", stream_ids, count);
+	#endif
+
+	#ifdef CONFIG_PCIE2
+	/* PEX2 stream ID fixup */
+	count =	FSL_PEX2_STREAM_ID_END - FSL_PEX2_STREAM_ID_START + 1;
+	alloc_stream_ids(FSL_PEX2_STREAM_ID_START, count, stream_ids,
+			 MAX_STREAM_IDS);
+	pcie_set_available_streamids(blob, "/pcie@3500000", stream_ids, count);
+	#endif
+
+	#ifdef CONFIG_PCIE3
+	/* PEX3 stream ID fixup */
+	count =	FSL_PEX3_STREAM_ID_END - FSL_PEX3_STREAM_ID_START + 1;
+	alloc_stream_ids(FSL_PEX3_STREAM_ID_START, count, stream_ids,
+			 MAX_STREAM_IDS);
+	pcie_set_available_streamids(blob, "/pcie@3600000", stream_ids, count);
+	#endif
+
+	#ifdef CONFIG_PCIE4
+	/* PEX4 stream ID fixup */
+	count =	FSL_PEX4_STREAM_ID_END - FSL_PEX4_STREAM_ID_START + 1;
+	alloc_stream_ids(FSL_PEX4_STREAM_ID_START, count, stream_ids,
+			 MAX_STREAM_IDS);
+	pcie_set_available_streamids(blob, "/pcie@3700000", stream_ids, count);
+	#endif
 }
 #endif

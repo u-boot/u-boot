@@ -1,0 +1,35 @@
+/*
+ * Freescale ls2085a RDB board device tree source
+ *
+ * Copyright 2013-2015 Freescale Semiconductor, Inc.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+#include "fsl-ls2085a.dtsi"
+
+/ {
+	model = "Freescale Layerscape 2085a RDB Board";
+	compatible = "fsl,ls2085a-rdb", "fsl,ls2085a";
+
+	aliases {
+		spi1 = &dspi;
+	};
+};
+
+&dspi {
+	bus-num = <0>;
+	status = "okay";
+
+	dflash0: n25q512a {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-flash";
+		spi-max-frequency = <3000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <0>;
+	};
+};

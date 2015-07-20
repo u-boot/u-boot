@@ -149,6 +149,7 @@ struct ccsr_gur {
 #define SCFG_ETSECCMCR_GE1_CLK125	0x08000000
 #define SCFG_PIXCLKCR_PXCKEN		0x80000000
 #define SCFG_QSPI_CLKSEL		0xc0100000
+#define SCFG_ENDIANCR_LE		0x80000000
 
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {
@@ -207,7 +208,7 @@ struct ccsr_scfg {
 	u32 qos2;
 	u32 qos3;
 	u32 cci_cfg;
-	u32 resv8[1];
+	u32 endiancr;
 	u32 etsecdmamcr;
 	u32 usb3prm3cr;
 	u32 resv9[1];

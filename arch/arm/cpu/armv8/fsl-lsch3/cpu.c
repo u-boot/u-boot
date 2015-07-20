@@ -9,6 +9,7 @@
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
+#include <asm/arch-fsl-lsch3/soc.h>
 #include <asm/arch-fsl-lsch3/immap_lsch3.h>
 #include <fsl_debug_server.h>
 #include <fsl-mc/fsl_mc.h>
@@ -21,6 +22,35 @@
 #include "speed.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static struct cpu_type cpu_type_list[] = {
+#ifdef CONFIG_LS2085A
+	CPU_TYPE_ENTRY(LS2085, LS2085, 8),
+	CPU_TYPE_ENTRY(LS2080, LS2080, 8),
+	CPU_TYPE_ENTRY(LS2045, LS2045, 4),
+#endif
+};
+
+void cpu_name(char *name)
+{
+	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	unsigned int i, svr, ver;
+
+	svr = in_le32(&gur->svr);
+	ver = SVR_SOC_VER(svr);
+
+	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
+		if ((cpu_type_list[i].soc_ver & SVR_WO_E) == ver) {
+			strcpy(name, cpu_type_list[i].name);
+
+			if (IS_E_PROCESSOR(svr))
+				strcat(name, "E");
+			break;
+		}
+
+	if (i == ARRAY_SIZE(cpu_type_list))
+		strcpy(name, "unknown");
+}
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 /*
@@ -51,6 +81,12 @@ DECLARE_GLOBAL_DATA_PTR;
 			TCR_SHARED_NON		| \
 			TCR_ORGN_NC		| \
 			TCR_IRGN_NC		| \
+			TCR_T0SZ(LSCH3_VA_BITS))
+#define LSCH3_TCR_FINAL	(TCR_TG0_4K		| \
+			TCR_EL2_PS_40BIT	| \
+			TCR_SHARED_OUTER	| \
+			TCR_ORGN_WBWA		| \
+			TCR_IRGN_WBWA		| \
 			TCR_T0SZ(LSCH3_VA_BITS))
 
 /*
@@ -236,21 +272,8 @@ static inline void final_mmu_setup(void)
 
 	/* point TTBR to the new table */
 	el = current_el();
-	asm volatile("dsb sy");
-	if (el == 1) {
-		asm volatile("msr ttbr0_el1, %0"
-			     : : "r" ((u64)level0_table) : "memory");
-	} else if (el == 2) {
-		asm volatile("msr ttbr0_el2, %0"
-			     : : "r" ((u64)level0_table) : "memory");
-	} else if (el == 3) {
-		asm volatile("msr ttbr0_el3, %0"
-			     : : "r" ((u64)level0_table) : "memory");
-	} else {
-		hang();
-	}
-	asm volatile("isb");
-
+	set_ttbr_tcr_mair(el, (u64)level0_table, LSCH3_TCR_FINAL,
+			  MEMORY_ATTRIBUTES);
 	/*
 	 * MMU is already enabled, just need to invalidate TLB to load the
 	 * new table. The new table is compatible with the current table, if
@@ -380,6 +403,13 @@ int print_cpuinfo(void)
 	unsigned int i, core;
 	u32 type;
 
+	puts("SoC: ");
+
+	cpu_name(buf);
+	printf(" %s (0x%x)\n", buf, in_le32(&gur->svr));
+
+	memset((u8 *)buf, 0x00, ARRAY_SIZE(buf));
+
 	get_sys_info(&sysinfo);
 	puts("Clock Configuration:");
 	for_each_cpu(i, core, cpu_numcores(), cpu_mask()) {
@@ -394,8 +424,8 @@ int print_cpuinfo(void)
 	}
 	printf("\n       Bus:      %-4s MHz  ",
 	       strmhz(buf, sysinfo.freq_systembus));
-	printf("DDR:      %-4s MHz", strmhz(buf, sysinfo.freq_ddrbus));
-	printf("     DP-DDR:   %-4s MHz", strmhz(buf, sysinfo.freq_ddrbus2));
+	printf("DDR:      %-4s MT/s", strmhz(buf, sysinfo.freq_ddrbus));
+	printf("     DP-DDR:   %-4s MT/s", strmhz(buf, sysinfo.freq_ddrbus2));
 	puts("\n");
 
 	/* Display the RCW, so that no one gets confused as to what RCW

@@ -136,4 +136,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 			unsigned int controller_number,
 			unsigned int dimm_number);
+void update_spd_address(unsigned int ctrl_num,
+			unsigned int slot,
+			unsigned int *addr);
 #endif

@@ -128,7 +128,6 @@ struct ldpaa_eth_priv {
 
 	uint32_t rx_dflt_fqid;
 	uint16_t tx_qdid;
-	uint32_t tx_conf_fqid;
 	uint16_t tx_flow_id;
 
 	enum ldpaa_eth_type type;	/* 1G or 10G ethernet */
