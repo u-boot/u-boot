@@ -25,6 +25,10 @@ config MX6SL
 config MX6SX
 	bool
 
+config MX6UL
+	select SYS_L2CACHE_OFF
+	bool
+
 choice
 	prompt "MX6 board select"
 	optional
