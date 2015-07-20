@@ -565,43 +565,47 @@ static void scc_mgr_load_dqs_for_write_group(const u32 write_group)
 		writel(base + i, &sdr_scc_mgr->dqs_ena);
 }
 
-static void scc_mgr_zero_group(uint32_t write_group, uint32_t test_begin,
-			       int32_t out_only)
+/**
+ * scc_mgr_zero_group() - Zero all configs for a group
+ *
+ * Zero DQ, DM, DQS and OCT configs for a group.
+ */
+static void scc_mgr_zero_group(const u32 write_group, const int out_only)
 {
-	uint32_t i, r;
+	int i, r;
 
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS; r +=
-		NUM_RANKS_PER_SHADOW_REG) {
-		/* Zero all DQ config settings */
+	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
+	     r += NUM_RANKS_PER_SHADOW_REG) {
+		/* Zero all DQ config settings. */
 		for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
 			scc_mgr_set_dq_out1_delay(i, 0);
 			if (!out_only)
 				scc_mgr_set_dq_in_delay(i, 0);
 		}
 
-		/* multicast to all DQ enables */
+		/* Multicast to all DQ enables. */
 		writel(0xff, &sdr_scc_mgr->dq_ena);
 
-		/* Zero all DM config settings */
-		for (i = 0; i < RW_MGR_NUM_DM_PER_WRITE_GROUP; i++) {
+		/* Zero all DM config settings. */
+		for (i = 0; i < RW_MGR_NUM_DM_PER_WRITE_GROUP; i++)
 			scc_mgr_set_dm_out1_delay(i, 0);
-		}
 
-		/* multicast to all DM enables */
+		/* Multicast to all DM enables. */
 		writel(0xff, &sdr_scc_mgr->dm_ena);
 
-		/* zero all DQS io settings */
+		/* Zero all DQS IO settings. */
 		if (!out_only)
 			scc_mgr_set_dqs_io_in_delay(0);
-		/* av/cv don't have out2 */
+
+		/* Arria V/Cyclone V don't have out2. */
 		scc_mgr_set_dqs_out1_delay(IO_DQS_OUT_RESERVE);
 		scc_mgr_set_oct_out1_delay(write_group, IO_DQS_OUT_RESERVE);
 		scc_mgr_load_dqs_for_write_group(write_group);
 
-		/* multicast to all DQS IO enables (only 1) */
+		/* Multicast to all DQS IO enables (only 1 in total). */
 		writel(0, &sdr_scc_mgr->dqs_io_ena);
 
-		/* hit update to zero everything */
+		/* Hit update to zero everything. */
 		writel(0, &sdr_scc_mgr->update);
 	}
 }
@@ -2344,7 +2348,7 @@ static uint32_t rw_mgr_mem_calibrate_vfifo(uint32_t read_group,
 	 * first case).
 	 */
 	if (d > 2)
-		scc_mgr_zero_group(write_group, write_test_bgn, 1);
+		scc_mgr_zero_group(write_group, 1);
 
 	return 1;
 }
@@ -3368,8 +3372,7 @@ static uint32_t mem_calibrate(void)
 
 				writel(write_group, SDR_PHYGRP_SCCGRP_ADDRESS |
 						    SCC_MGR_GROUP_COUNTER_OFFSET);
-				scc_mgr_zero_group(write_group, write_test_bgn,
-						   0);
+				scc_mgr_zero_group(write_group, 0);
 
 				for (read_group = write_group *
 					RW_MGR_MEM_IF_READ_DQS_WIDTH /
