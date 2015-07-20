@@ -3258,7 +3258,11 @@ static void mem_skip_calibrate(void)
 	writel(gbl->curr_read_lat, &phy_mgr_cfg->phy_rlat);
 }
 
-/* Memory calibration entry point */
+/**
+ * mem_calibrate() - Memory calibration entry point.
+ *
+ * Perform memory calibration.
+ */
 static uint32_t mem_calibrate(void)
 {
 	uint32_t i;
