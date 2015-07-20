@@ -578,6 +578,13 @@ config TARGET_MX6SXSABRESD
 	select DM
 	select DM_THERMAL
 
+config TARGET_MX6UL_14X14_EVK
+	bool "Support mx6ul_14x14_evk"
+	select CPU_V7
+	select DM
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_GW_VENTANA
 	bool "Support gw_ventana"
 	select CPU_V7
@@ -915,6 +922,7 @@ source "board/freescale/mx6qsabreauto/Kconfig"
 source "board/freescale/mx6sabresd/Kconfig"
 source "board/freescale/mx6slevk/Kconfig"
 source "board/freescale/mx6sxsabresd/Kconfig"
+source "board/freescale/mx6ul_14x14_evk/Kconfig"
 source "board/freescale/vf610twr/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/genesi/mx51_efikamx/Kconfig"
