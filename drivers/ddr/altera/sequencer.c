@@ -164,16 +164,13 @@ static void set_rank_and_odt_mask(const u32 rank, const u32 odt_mode)
 		odt_mask_0 = 0x0;
 		odt_mask_1 = 0x0;
 	} else {	/* RW_MGR_ODT_MODE_READ_WRITE */
-		if (RW_MGR_MEM_NUMBER_OF_RANKS == 1) {
-			/*
-			 * 1 Rank
-			 * Read: ODT = 0
-			 * Write: ODT = 1
-			 */
+		switch (RW_MGR_MEM_NUMBER_OF_RANKS) {
+		case 1:	/* 1 Rank */
+			/* Read: ODT = 0 ; Write: ODT = 1 */
 			odt_mask_0 = 0x0;
 			odt_mask_1 = 0x1;
-		} else if (RW_MGR_MEM_NUMBER_OF_RANKS == 2) {
-			/* 2 Ranks */
+			break;
+		case 2:	/* 2 Ranks */
 			if (RW_MGR_MEM_NUMBER_OF_CS_PER_DIMM == 1) {
 				/* - Dual-Slot , Single-Rank
 				 * (1 chip-select per DIMM)
@@ -198,9 +195,9 @@ static void set_rank_and_odt_mask(const u32 rank, const u32 odt_mode)
 				odt_mask_0 = 0x0;
 				odt_mask_1 = 0x3 & (1 << rank);
 			}
-		} else {
-			/* 4 Ranks
-			 * Read:
+			break;
+		case 4:	/* 4 Ranks */
+			/* Read:
 			 * ----------+-----------------------+
 			 *           |                       |
 			 *           |         ODT           |
@@ -244,6 +241,7 @@ static void set_rank_and_odt_mask(const u32 rank, const u32 odt_mode)
 				odt_mask_1 = 0xA;
 				break;
 			}
+			break;
 		}
 	}
 
