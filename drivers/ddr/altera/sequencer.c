@@ -482,20 +482,21 @@ static void scc_mgr_set_hhp_extras(void)
 		   __func__, __LINE__);
 }
 
-/*
- * USER Zero all DQS config
- * TODO: maybe rename to scc_mgr_zero_dqs_config (or something)
+/**
+ * scc_mgr_zero_all() - Zero all DQS config
+ *
+ * Zero all DQS config.
  */
 static void scc_mgr_zero_all(void)
 {
-	uint32_t i, r;
+	int i, r;
 
 	/*
 	 * USER Zero all DQS config settings, across all groups and all
 	 * shadow registers
 	 */
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS; r +=
-	     NUM_RANKS_PER_SHADOW_REG) {
+	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
+	     r += NUM_RANKS_PER_SHADOW_REG) {
 		for (i = 0; i < RW_MGR_MEM_IF_READ_DQS_WIDTH; i++) {
 			/*
 			 * The phases actually don't exist on a per-rank basis,
@@ -509,12 +510,12 @@ static void scc_mgr_zero_all(void)
 
 		for (i = 0; i < RW_MGR_MEM_IF_WRITE_DQS_WIDTH; i++) {
 			scc_mgr_set_dqdqs_output_phase(i, 0);
-			/* av/cv don't have out2 */
+			/* Arria V/Cyclone V don't have out2. */
 			scc_mgr_set_oct_out1_delay(i, IO_DQS_OUT_RESERVE);
 		}
 	}
 
-	/* multicast to all DQS group enables */
+	/* Multicast to all DQS group enables. */
 	writel(0xff, &sdr_scc_mgr->dqs_ena);
 	writel(0, &sdr_scc_mgr->update);
 }
