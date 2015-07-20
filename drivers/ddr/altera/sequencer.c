@@ -1169,10 +1169,19 @@ static void rw_mgr_mem_calibrate_read_load_patterns(const u32 rank_bgn,
 	set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
 }
 
-/*
- * try a read and see if it returns correct data back. has dummy reads
- * inserted into the mix used to align dqs enable. has more thorough checks
- * than the regular read test.
+/**
+ * rw_mgr_mem_calibrate_read_test() - Perform READ test on single rank
+ * @rank_bgn:		Rank number
+ * @group:		Read/Write group
+ * @num_tries:		Number of retries of the test
+ * @all_correct:	All bits must be correct in the mask
+ * @bit_chk:		Resulting bit mask after the test
+ * @all_groups:		Test all R/W groups
+ * @all_ranks:		Test all ranks
+ *
+ * Try a read and see if it returns correct data back. Test has dummy reads
+ * inserted into the mix used to align DQS enable. Test has more thorough
+ * checks than the regular read test.
  */
 static int
 rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
