@@ -1593,13 +1593,13 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 	return -EINVAL;
 }
 
-/* find a good dqs enable to use */
-static uint32_t rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(u32 grp)
+static u32 rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 {
-	uint32_t d, p, i;
-	uint32_t dtaps_per_ptap;
-	uint32_t work_bgn, work_end;
-	uint32_t found_passing_read, found_failing_read, initial_failing_dtap;
+	u32 d, p, i;
+	u32 dtaps_per_ptap;
+	u32 work_bgn, work_end;
+	u32 found_passing_read, found_failing_read, initial_failing_dtap;
+	int ret;
 
 	debug("%s:%d %u\n", __func__, __LINE__, grp);
 
