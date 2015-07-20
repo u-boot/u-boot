@@ -1593,6 +1593,12 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 	return -EINVAL;
 }
 
+/**
+ * rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase() - Find a good DQS enable to use
+ * @grp:	Read/Write Group
+ *
+ * Find a good DQS enable to use.
+ */
 static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 {
 	u32 d, p, i;
