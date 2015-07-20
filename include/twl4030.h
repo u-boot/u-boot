@@ -683,6 +683,9 @@ int twl4030_input_power_button(void);
 int twl4030_input_charger(void);
 int twl4030_input_usb(void);
 
+int twl4030_keypad_scan(unsigned char *matrix);
+int twl4030_keypad_key(unsigned char *matrix, u8 c, u8 r);
+
 /*
  * LED
  */
