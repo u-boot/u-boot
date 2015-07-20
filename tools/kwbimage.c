@@ -421,15 +421,15 @@ static size_t image_headersz_v1(struct image_tool_params *params,
 			*hasext = 1;
 	}
 
-#if defined(CONFIG_SYS_SPI_U_BOOT_OFFS)
-	if (headersz > CONFIG_SYS_SPI_U_BOOT_OFFS) {
+#if defined(CONFIG_SYS_U_BOOT_OFFS)
+	if (headersz > CONFIG_SYS_U_BOOT_OFFS) {
 		fprintf(stderr, "Error: Image header (incl. SPL image) too big!\n");
-		fprintf(stderr, "header=0x%x CONFIG_SYS_SPI_U_BOOT_OFFS=0x%x!\n",
-			(int)headersz, CONFIG_SYS_SPI_U_BOOT_OFFS);
-		fprintf(stderr, "Increase CONFIG_SYS_SPI_U_BOOT_OFFS!\n");
+		fprintf(stderr, "header=0x%x CONFIG_SYS_U_BOOT_OFFS=0x%x!\n",
+			(int)headersz, CONFIG_SYS_U_BOOT_OFFS);
+		fprintf(stderr, "Increase CONFIG_SYS_U_BOOT_OFFS!\n");
 		return 0;
 	} else {
-		headersz = CONFIG_SYS_SPI_U_BOOT_OFFS;
+		headersz = CONFIG_SYS_U_BOOT_OFFS;
 	}
 #endif
 
