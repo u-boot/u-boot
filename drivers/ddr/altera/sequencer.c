@@ -154,6 +154,13 @@ static void phy_mgr_initialize(void)
 	param->dm_correct_mask = (1 << ratio) - 1;
 }
 
+/**
+ * set_rank_and_odt_mask() - Set Rank and ODT mask
+ * @rank:	Rank mask
+ * @odt_mode:	ODT mode, OFF or READ_WRITE
+ *
+ * Set Rank and ODT mask (On-Die Termination).
+ */
 static void set_rank_and_odt_mask(const u32 rank, const u32 odt_mode)
 {
 	u32 odt_mask_0 = 0;
@@ -172,14 +179,15 @@ static void set_rank_and_odt_mask(const u32 rank, const u32 odt_mode)
 			break;
 		case 2:	/* 2 Ranks */
 			if (RW_MGR_MEM_NUMBER_OF_CS_PER_DIMM == 1) {
-				/* - Dual-Slot , Single-Rank
-				 * (1 chip-select per DIMM)
-				 * OR
-				 * - RDIMM, 4 total CS (2 CS per DIMM)
-				 * means 2 DIMM
-				 * Since MEM_NUMBER_OF_RANKS is 2 they are
-				 * both single rank
-				 * with 2 CS each (special for RDIMM)
+				/*
+				 * - Dual-Slot , Single-Rank (1 CS per DIMM)
+				 *   OR
+				 * - RDIMM, 4 total CS (2 CS per DIMM, 2 DIMM)
+				 *
+				 * Since MEM_NUMBER_OF_RANKS is 2, they
+				 * are both single rank with 2 CS each
+				 * (special for RDIMM).
+				 *
 				 * Read: Turn on ODT on the opposite rank
 				 * Write: Turn on ODT on all ranks
 				 */
@@ -187,10 +195,10 @@ static void set_rank_and_odt_mask(const u32 rank, const u32 odt_mode)
 				odt_mask_1 = 0x3;
 			} else {
 				/*
-				 * USER - Single-Slot , Dual-rank DIMMs
-				 * (2 chip-selects per DIMM)
-				 * USER Read: Turn on ODT off on all ranks
-				 * USER Write: Turn on ODT on active rank
+				 * - Single-Slot , Dual-Rank (2 CS per DIMM)
+				 *
+				 * Read: Turn on ODT off on all ranks
+				 * Write: Turn on ODT on active rank
 				 */
 				odt_mask_0 = 0x0;
 				odt_mask_1 = 0x3 & (1 << rank);
@@ -199,7 +207,6 @@ static void set_rank_and_odt_mask(const u32 rank, const u32 odt_mode)
 		case 4:	/* 4 Ranks */
 			/* Read:
 			 * ----------+-----------------------+
-			 *           |                       |
 			 *           |         ODT           |
 			 * Read From +-----------------------+
 			 *   Rank    |  3  |  2  |  1  |  0  |
@@ -212,7 +219,6 @@ static void set_rank_and_odt_mask(const u32 rank, const u32 odt_mode)
 			 *
 			 * Write:
 			 * ----------+-----------------------+
-			 *           |                       |
 			 *           |         ODT           |
 			 * Write To  +-----------------------+
 			 *   Rank    |  3  |  2  |  1  |  0  |
