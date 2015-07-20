@@ -1593,7 +1593,7 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 	return -EINVAL;
 }
 
-static u32 rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
+static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 {
 	u32 d, p, i;
 	u32 dtaps_per_ptap;
@@ -1616,8 +1616,9 @@ static u32 rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 
 	/* Step 2: Find first working phase, increment in ptaps. */
 	work_bgn = 0;
-	if (sdr_working_phase(grp, &work_bgn, &d, &p, &i))
-		return 0;
+	ret = sdr_working_phase(grp, &work_bgn, &d, &p, &i);
+	if (ret)
+		return ret;
 
 	work_end = work_bgn;
 
@@ -1637,8 +1638,9 @@ static u32 rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 		 * Step 4a: go forward from working phase to non working
 		 * phase, increment in ptaps.
 		 */
-		if (sdr_nonworking_phase(grp, &work_end, &p, &i))
-			return 0;
+		ret = sdr_nonworking_phase(grp, &work_end, &p, &i);
+		if (ret)
+			return ret;
 
 		/* Step 5a: Back off one from last, increment in dtaps. */
 
@@ -1675,7 +1677,7 @@ static u32 rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 		/* nil range */
 		debug_cond(DLEVEL == 2, "%s:%d end-2: failed\n",
 			   __func__, __LINE__);
-		return 0;
+		return -EINVAL;
 	}
 
 	debug_cond(DLEVEL == 2, "%s:%d found range [%u,%u]\n",
@@ -1743,10 +1745,9 @@ static u32 rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 		   __func__, __LINE__, d, initial_failing_dtap, dtaps_per_ptap);
 
 	/* Step 6: Find the centre of the window. */
-	if (sdr_find_window_centre(grp, work_bgn, work_end))
-		return 0;
+	ret = sdr_find_window_center(grp, work_bgn, work_end);
 
-	return 1;
+	return ret;
 }
 
 /* per-bit deskew DQ and center */
@@ -2184,7 +2185,7 @@ static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
 	/* We start at zero, so have one less dq to devide among */
 	const u32 delay_step = IO_IO_IN_DELAY_MAX /
 			       (RW_MGR_MEM_DQ_PER_READ_DQS - 1);
-	int found;
+	int ret;
 	u32 i, p, d, r;
 
 	debug("%s:%d (%u,%u)\n", __func__, __LINE__, rw_group, test_bgn);
@@ -2210,11 +2211,11 @@ static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
 	 * Try rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase across different
 	 * dq_in_delay values
 	 */
-	found = rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(rw_group);
+	ret = rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(rw_group);
 
 	debug_cond(DLEVEL == 1,
 		   "%s:%d: g=%u found=%u; Reseting delay chain to zero\n",
-		   __func__, __LINE__, rw_group, found);
+		   __func__, __LINE__, rw_group, !ret);
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
@@ -2222,11 +2223,7 @@ static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
 		writel(0, &sdr_scc_mgr->update);
 	}
 
-	if (!found)
-		return -EINVAL;
-
-	return 0;
-
+	return ret;
 }
 
 /**
