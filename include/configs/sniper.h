@@ -216,6 +216,42 @@
 					  115200 }
 
 /*
+ * USB gadget
+ */
+
+#define CONFIG_USB_MUSB_PIO_ONLY
+#define CONFIG_USB_MUSB_OMAP2PLUS
+#define CONFIG_TWL4030_USB
+
+#define CONFIG_USB_GADGET
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW	0
+
+/*
+ * Download
+ */
+
+#define CONFIG_USB_GADGET_DOWNLOAD
+
+#define CONFIG_G_DNL_VENDOR_NUM		0x0451
+#define CONFIG_G_DNL_PRODUCT_NUM	0xd022
+#define CONFIG_G_DNL_MANUFACTURER	"Texas Instruments"
+
+/*
+ * Fastboot
+ */
+
+#define CONFIG_USB_FUNCTION_FASTBOOT
+
+#define CONFIG_FASTBOOT_BUF_ADDR	CONFIG_SYS_LOAD_ADDR
+#define CONFIG_FASTBOOT_BUF_SIZE	0x2000000
+
+#define CONFIG_FASTBOOT_FLASH
+#define CONFIG_FASTBOOT_FLASH_MMC_DEV	0
+
+#define CONFIG_CMD_FASTBOOT
+
+/*
  * Environment
  */
 
@@ -255,6 +291,8 @@
 	"setenv boot_mmc_part ${kernel_mmc_part}; " \
 	"if test reboot-${reboot-mode} = reboot-r; then " \
 	"echo recovery; setenv boot_mmc_part ${recovery_mmc_part}; fi; " \
+	"if test reboot-${reboot-mode} = reboot-b; then " \
+	"echo fastboot; fastboot 0; fi; " \
 	"part start mmc ${boot_mmc_dev} ${boot_mmc_part} boot_mmc_start; " \
 	"part size mmc ${boot_mmc_dev} ${boot_mmc_part} boot_mmc_size; " \
 	"mmc dev ${boot_mmc_dev}; " \
