@@ -3091,21 +3091,24 @@ static uint32_t rw_mgr_mem_calibrate_writes(uint32_t rank_bgn, uint32_t g,
 	return 1;
 }
 
-/* precharge all banks and activate row 0 in bank "000..." and bank "111..." */
+/**
+ * mem_precharge_and_activate() - Precharge all banks and activate
+ *
+ * Precharge all banks and activate row 0 in bank "000..." and bank "111...".
+ */
 static void mem_precharge_and_activate(void)
 {
-	uint32_t r;
+	int r;
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS; r++) {
-		if (param->skip_ranks[r]) {
-			/* request to skip the rank */
+		/* Test if the rank should be skipped. */
+		if (param->skip_ranks[r])
 			continue;
-		}
 
-		/* set rank */
+		/* Set rank. */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_OFF);
 
-		/* precharge all banks ... */
+		/* Precharge all banks. */
 		writel(RW_MGR_PRECHARGE_ALL, SDR_PHYGRP_RWMGRGRP_ADDRESS |
 					     RW_MGR_RUN_SINGLE_GROUP_OFFSET);
 
@@ -3117,7 +3120,7 @@ static void mem_precharge_and_activate(void)
 		writel(RW_MGR_ACTIVATE_0_AND_1_WAIT2,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 
-		/* activate rows */
+		/* Activate rows. */
 		writel(RW_MGR_ACTIVATE_0_AND_1, SDR_PHYGRP_RWMGRGRP_ADDRESS |
 						RW_MGR_RUN_SINGLE_GROUP_OFFSET);
 	}
