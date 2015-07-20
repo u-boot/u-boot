@@ -47,8 +47,8 @@ CONFIG_CMD_FASTBOOT and CONFIG_ANDROID_BOOT_IMAGE.
 
 The fastboot protocol requires a large memory buffer for downloads. This
 buffer should be as large as possible for a platform. The location of the
-buffer and size are set with CONFIG_USB_FASTBOOT_BUF_ADDR and
-CONFIG_USB_FASTBOOT_BUF_SIZE.
+buffer and size are set with CONFIG_FASTBOOT_BUF_ADDR and
+CONFIG_FASTBOOT_BUF_SIZE.
 
 Fastboot partition aliases can also be defined for devices where GPT
 limitations prevent user-friendly partition names such as "boot", "system"

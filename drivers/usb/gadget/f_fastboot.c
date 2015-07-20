@@ -380,7 +380,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		!strcmp_l1("max-download-size", cmd)) {
 		char str_num[12];
 
-		sprintf(str_num, "0x%08x", CONFIG_USB_FASTBOOT_BUF_SIZE);
+		sprintf(str_num, "0x%08x", CONFIG_FASTBOOT_BUF_SIZE);
 		strncat(response, str_num, chars_left);
 	} else if (!strcmp_l1("serialno", cmd)) {
 		s = getenv("serial#");
@@ -430,7 +430,7 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 	if (buffer_size < transfer_size)
 		transfer_size = buffer_size;
 
-	memcpy((void *)CONFIG_USB_FASTBOOT_BUF_ADDR + download_bytes,
+	memcpy((void *)CONFIG_FASTBOOT_BUF_ADDR + download_bytes,
 	       buffer, transfer_size);
 
 	pre_dot_num = download_bytes / BYTES_PER_DOT;
@@ -483,7 +483,7 @@ static void cb_download(struct usb_ep *ep, struct usb_request *req)
 
 	if (0 == download_size) {
 		sprintf(response, "FAILdata invalid size");
-	} else if (download_size > CONFIG_USB_FASTBOOT_BUF_SIZE) {
+	} else if (download_size > CONFIG_FASTBOOT_BUF_SIZE) {
 		download_size = 0;
 		sprintf(response, "FAILdata too large");
 	} else {
@@ -544,7 +544,7 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 
 	strcpy(response, "FAILno flash device defined");
 #ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
-	fb_mmc_flash_write(cmd, (void *)CONFIG_USB_FASTBOOT_BUF_ADDR,
+	fb_mmc_flash_write(cmd, (void *)CONFIG_FASTBOOT_BUF_ADDR,
 			   download_bytes, response);
 #endif
 	fastboot_tx_write_str(response);
