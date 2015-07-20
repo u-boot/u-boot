@@ -240,6 +240,7 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
+#define CONFIG_SERIAL_TAG
 
 /*
  * Boot
