@@ -265,15 +265,21 @@ static void scc_mgr_set(u32 off, u32 grp, u32 val)
 	writel(val, SDR_PHYGRP_SCCGRP_ADDRESS | off | (grp << 2));
 }
 
+/**
+ * scc_mgr_initialize() - Initialize SCC Manager registers
+ *
+ * Initialize SCC Manager registers.
+ */
 static void scc_mgr_initialize(void)
 {
 	/*
-	 * Clear register file for HPS
-	 * 16 (2^4) is the size of the full register file in the scc mgr:
-	 *	RFILE_DEPTH = log2(MEM_DQ_PER_DQS + 1 + MEM_DM_PER_DQS +
-	 *                         MEM_IF_READ_DQS_WIDTH - 1) + 1;
+	 * Clear register file for HPS. 16 (2^4) is the size of the
+	 * full register file in the scc mgr:
+	 *	RFILE_DEPTH = 1 + log2(MEM_DQ_PER_DQS + 1 + MEM_DM_PER_DQS +
+	 *                             MEM_IF_READ_DQS_WIDTH - 1);
 	 */
 	int i;
+
 	for (i = 0; i < 16; i++) {
 		debug_cond(DLEVEL == 1, "%s:%d: Clearing SCC RFILE index %u\n",
 			   __func__, __LINE__, i);
