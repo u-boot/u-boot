@@ -154,13 +154,16 @@ static void phy_mgr_initialize(void)
 	param->dm_correct_mask = (1 << ratio) - 1;
 }
 
-static void set_rank_and_odt_mask(uint32_t rank, uint32_t odt_mode)
+static void set_rank_and_odt_mask(const u32 rank, const u32 odt_mode)
 {
-	uint32_t odt_mask_0 = 0;
-	uint32_t odt_mask_1 = 0;
-	uint32_t cs_and_odt_mask;
+	u32 odt_mask_0 = 0;
+	u32 odt_mask_1 = 0;
+	u32 cs_and_odt_mask;
 
-	if (odt_mode == RW_MGR_ODT_MODE_READ_WRITE) {
+	if (odt_mode == RW_MGR_ODT_MODE_OFF) {
+		odt_mask_0 = 0x0;
+		odt_mask_1 = 0x0;
+	} else {	/* RW_MGR_ODT_MODE_READ_WRITE */
 		if (RW_MGR_MEM_NUMBER_OF_RANKS == 1) {
 			/*
 			 * 1 Rank
@@ -242,15 +245,11 @@ static void set_rank_and_odt_mask(uint32_t rank, uint32_t odt_mode)
 				break;
 			}
 		}
-	} else {
-		odt_mask_0 = 0x0;
-		odt_mask_1 = 0x0;
 	}
 
-	cs_and_odt_mask =
-		(0xFF & ~(1 << rank)) |
-		((0xFF & odt_mask_0) << 8) |
-		((0xFF & odt_mask_1) << 16);
+	cs_and_odt_mask = (0xFF & ~(1 << rank)) |
+			  ((0xFF & odt_mask_0) << 8) |
+			  ((0xFF & odt_mask_1) << 16);
 	writel(cs_and_odt_mask, SDR_PHYGRP_RWMGRGRP_ADDRESS |
 				RW_MGR_SET_CS_AND_ODT_MASK_OFFSET);
 }
