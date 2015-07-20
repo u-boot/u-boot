@@ -56,3 +56,41 @@ u32 omap_sys_boot_device(void)
 
 	return boot_devices[sys_boot];
 }
+
+char omap_reboot_mode(void)
+{
+	u32 reboot_mode;
+	char c;
+
+	reboot_mode = readl((u32 *)(OMAP34XX_SCRATCHPAD + 4));
+
+	c = (reboot_mode >> 24) & 0xff;
+	if (c != 'B')
+		return -1;
+
+	c = (reboot_mode >> 16) & 0xff;
+	if (c != 'M')
+		return -1;
+
+	c = reboot_mode & 0xff;
+
+	return c;
+}
+
+int omap_reboot_mode_clear(void)
+{
+	writel(0, (u32 *)(OMAP34XX_SCRATCHPAD + 4));
+
+	return 0;
+}
+
+int omap_reboot_mode_store(char c)
+{
+	u32 reboot_mode;
+
+	reboot_mode = 'B' << 24 | 'M' << 16 | c;
+
+	writel(reboot_mode, (u32 *)(OMAP34XX_SCRATCHPAD + 4));
+
+	return 0;
+}

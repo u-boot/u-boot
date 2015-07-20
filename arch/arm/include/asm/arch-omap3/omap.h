@@ -51,6 +51,9 @@ struct control_prog_io {
 /* Bit definition for CONTROL_PROG_IO1 */
 #define PRG_I2C2_PULLUPRESX		0x00000001
 
+/* Scratchpad memory */
+#define OMAP34XX_SCRATCHPAD		(OMAP34XX_CTRL_BASE + 0x910)
+
 /* UART */
 #define OMAP34XX_UART1			(OMAP34XX_L4_IO_BASE + 0x6a000)
 #define OMAP34XX_UART2			(OMAP34XX_L4_IO_BASE + 0x6c000)
@@ -256,6 +259,10 @@ struct omap_boot_parameters {
 	unsigned char ch_flags;
 	unsigned int boot_device_descriptor;
 };
+
+char omap_reboot_mode(void);
+int omap_reboot_mode_clear(void);
+int omap_reboot_mode_store(char c);
 #endif
 
 #endif
