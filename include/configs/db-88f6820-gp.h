@@ -110,6 +110,17 @@
 	"initrd_high=0x10000000\0"
 
 /* SPL */
+/*
+ * Select the boot device here
+ *
+ * Currently supported are:
+ * SPL_BOOT_SPI_NOR_FLASH	- Booting via SPI NOR flash
+ * SPL_BOOT_SDIO_MMC_CARD	- Booting via SDIO/MMC card (partition 1)
+ */
+#define SPL_BOOT_SPI_NOR_FLASH		1
+#define SPL_BOOT_SDIO_MMC_CARD		2
+#define CONFIG_SPL_BOOT_DEVICE		SPL_BOOT_SPI_NOR_FLASH
+
 /* Defines for SPL */
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_SIZE			(140 << 10)
@@ -131,6 +142,7 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_I2C_SUPPORT
 
+#if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SPI_NOR_FLASH
 /* SPL related SPI defines */
 #define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
@@ -138,6 +150,22 @@
 #define CONFIG_SPL_SPI_BUS		0
 #define CONFIG_SPL_SPI_CS		0
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
+#define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
+#endif
+
+#if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SDIO_MMC_CARD
+/* SPL related MMC defines */
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_LIBDISK_SUPPORT
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION 1
+#define CONFIG_SYS_MMC_U_BOOT_OFFS		(160 << 10)
+#define CONFIG_SYS_U_BOOT_OFFS			CONFIG_SYS_MMC_U_BOOT_OFFS
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	(CONFIG_SYS_U_BOOT_OFFS / 512)
+#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	((512 << 10) / 512) /* 512KiB */
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_FIXED_SDHCI_ALIGNED_BUFFER	0x00180000	/* in SDRAM */
+#endif
+#endif
 
 /* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
 #define CONFIG_SYS_MVEBU_DDR_A38X
