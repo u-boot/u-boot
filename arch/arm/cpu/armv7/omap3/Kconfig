@@ -114,6 +114,13 @@ config TARGET_OMAP3_CAIRO
 	select DM_SERIAL
 	select DM_GPIO
 
+config TARGET_SNIPER
+	bool "Sniper"
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
 endchoice
 
 config SYS_SOC
@@ -142,5 +149,6 @@ source "board/nokia/rx51/Kconfig"
 source "board/technexion/tao3530/Kconfig"
 source "board/technexion/twister/Kconfig"
 source "board/quipos/cairo/Kconfig"
+source "board/lge/sniper/Kconfig"
 
 endif
