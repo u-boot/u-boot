@@ -95,6 +95,10 @@ int misc_init_r(void)
 	char reboot_mode[2] = { 0 };
 	u32 dieid[4] = { 0 };
 
+	/* Power button reset init */
+
+	twl4030_power_reset_init();
+
 	/* Reboot mode */
 
 	reboot_mode[0] = omap_reboot_mode();
