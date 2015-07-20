@@ -35,6 +35,7 @@
  */
 
 #define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_MISC_INIT_R
 
 /*
  * Clocks
@@ -251,6 +252,8 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"setenv boot_mmc_part ${kernel_mmc_part}; " \
+	"if test reboot-${reboot-mode} = reboot-r; then " \
+	"echo recovery; setenv boot_mmc_part ${recovery_mmc_part}; fi; " \
 	"part start mmc ${boot_mmc_dev} ${boot_mmc_part} boot_mmc_start; " \
 	"part size mmc ${boot_mmc_dev} ${boot_mmc_part} boot_mmc_size; " \
 	"mmc dev ${boot_mmc_dev}; " \

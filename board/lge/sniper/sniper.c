@@ -9,6 +9,7 @@
 #include <config.h>
 #include <common.h>
 #include <dm.h>
+#include <linux/ctype.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
@@ -63,6 +64,23 @@ int board_init(void)
 
 	/* ATAGs location */
 	gd->bd->bi_boot_params = OMAP34XX_SDRC_CS0 + 0x100;
+
+	return 0;
+}
+
+int misc_init_r(void)
+{
+	char reboot_mode[2] = { 0 };
+
+	/* Reboot mode */
+
+	reboot_mode[0] = omap_reboot_mode();
+	if (reboot_mode[0] > 0 && isascii(reboot_mode[0])) {
+		if (!getenv("reboot-mode"))
+			setenv("reboot-mode", (char *)reboot_mode);
+
+		omap_reboot_mode_clear();
+	}
 
 	return 0;
 }
