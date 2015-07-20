@@ -115,6 +115,7 @@ struct boot_mode boot_modes[] = {
 	{ 0x78, "sata" },
 	{ 0x9C, "pex"  },
 	{ 0x69, "uart" },
+	{ 0xAE, "sdio" },
 	{},
 };
 
