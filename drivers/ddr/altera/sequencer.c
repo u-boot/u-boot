@@ -2887,24 +2887,26 @@ static uint32_t rw_mgr_mem_calibrate_write_test(uint32_t rank_bgn,
  * center all windows. do per-bit-deskew to possibly increase size of
  * certain windows.
  */
-static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
-	uint32_t write_group, uint32_t test_bgn)
+static int
+rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
+				   const u32 test_bgn)
 {
-	uint32_t i, min_index;
-	int32_t d;
-	/*
-	 * Store these as signed since there are comparisons with
-	 * signed numbers.
-	 */
-	uint32_t bit_chk;
-	uint32_t sticky_bit_chk;
-	int32_t left_edge[RW_MGR_MEM_DQ_PER_WRITE_DQS];
-	int32_t right_edge[RW_MGR_MEM_DQ_PER_WRITE_DQS];
-	int32_t mid;
-	int32_t mid_min, orig_mid_min;
-	int32_t new_dqs, start_dqs;
-	int32_t dq_margin, dqs_margin, dm_margin;
-	uint32_t addr;
+	int i, d;
+	u32 bit_chk;
+	u32 sticky_bit_chk;
+	u32 min_index;
+	u32 addr;
+	int left_edge[RW_MGR_MEM_DQ_PER_WRITE_DQS];
+	int right_edge[RW_MGR_MEM_DQ_PER_WRITE_DQS];
+	int mid;
+	int mid_min, orig_mid_min;
+	int new_dqs, start_dqs;
+	int dq_margin, dqs_margin, dm_margin;
+	int bgn_curr = IO_IO_OUT1_DELAY_MAX + 1;
+	int end_curr = IO_IO_OUT1_DELAY_MAX + 1;
+	int bgn_best = IO_IO_OUT1_DELAY_MAX + 1;
+	int end_best = IO_IO_OUT1_DELAY_MAX + 1;
+	int win_best = 0;
 
 	int ret;
 
@@ -2916,11 +2918,11 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	start_dqs = readl(addr +
 			  (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
 
-	/* per-bit deskew */
+	/* Per-bit deskew. */
 
 	/*
-	 * set the left and right edge of each bit to an illegal value
-	 * use (IO_IO_OUT1_DELAY_MAX + 1) as an illegal value.
+	 * Set the left and right edge of each bit to an illegal value.
+	 * Use (IO_IO_OUT1_DELAY_MAX + 1) as an illegal value.
 	 */
 	sticky_bit_chk = 0;
 	for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
@@ -2928,12 +2930,12 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 		right_edge[i] = IO_IO_OUT1_DELAY_MAX + 1;
 	}
 
-	/* Search for the left edge of the window for each bit */
+	/* Search for the left edge of the window for each bit. */
 	search_left_edge(1, rank_bgn, write_group, 0, test_bgn,
 			 &sticky_bit_chk,
 			 left_edge, right_edge, 0);
 
-	/* Search for the right edge of the window for each bit */
+	/* Search for the right edge of the window for each bit. */
 	ret = search_right_edge(1, rank_bgn, write_group, 0,
 				start_dqs, 0,
 				&sticky_bit_chk,
@@ -2946,12 +2948,13 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 
 	min_index = get_window_mid_index(1, left_edge, right_edge, &mid_min);
 
-	/* Determine the amount we can change DQS (which is -mid_min) */
+	/* Determine the amount we can change DQS (which is -mid_min). */
 	orig_mid_min = mid_min;
 	new_dqs = start_dqs;
 	mid_min = 0;
-	debug_cond(DLEVEL == 1, "%s:%d write_center: start_dqs=%d new_dqs=%d \
-		   mid_min=%d\n", __func__, __LINE__, start_dqs, new_dqs, mid_min);
+	debug_cond(DLEVEL == 1,
+		   "%s:%d write_center: start_dqs=%d new_dqs=%d mid_min=%d\n",
+		   __func__, __LINE__, start_dqs, new_dqs, mid_min);
 
 	/* Add delay to bring centre of all DQ windows to the same "level". */
 	center_dq_windows(1, left_edge, right_edge, mid_min, orig_mid_min,
@@ -2965,18 +2968,13 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	debug_cond(DLEVEL == 2, "%s:%d write_center: DM\n", __func__, __LINE__);
 
 	/*
-	 * set the left and right edge of each bit to an illegal value,
-	 * use (IO_IO_OUT1_DELAY_MAX + 1) as an illegal value,
+	 * Set the left and right edge of each bit to an illegal value.
+	 * Use (IO_IO_OUT1_DELAY_MAX + 1) as an illegal value.
 	 */
 	left_edge[0]  = IO_IO_OUT1_DELAY_MAX + 1;
 	right_edge[0] = IO_IO_OUT1_DELAY_MAX + 1;
-	int32_t bgn_curr = IO_IO_OUT1_DELAY_MAX + 1;
-	int32_t end_curr = IO_IO_OUT1_DELAY_MAX + 1;
-	int32_t bgn_best = IO_IO_OUT1_DELAY_MAX + 1;
-	int32_t end_best = IO_IO_OUT1_DELAY_MAX + 1;
-	int32_t win_best = 0;
 
-	/* Search for the/part of the window with DM shift */
+	/* Search for the/part of the window with DM shift. */
 	for (d = IO_IO_OUT1_DELAY_MAX; d >= 0; d -= DELTA_D) {
 		scc_mgr_apply_group_dm_out1_delay(d);
 		writel(0, &sdr_scc_mgr->update);
@@ -2984,7 +2982,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 		if (rw_mgr_mem_calibrate_write_test(rank_bgn, write_group, 1,
 						    PASS_ALL_BITS, &bit_chk,
 						    0)) {
-			/* USE Set current end of the window */
+			/* Set current end of the window. */
 			end_curr = -d;
 			/*
 			 * If a starting edge of our window has not been seen
@@ -3003,26 +3001,26 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 				end_best = end_curr;
 			}
 		} else {
-			/* We just saw a failing test. Reset temp edge */
+			/* We just saw a failing test. Reset temp edge. */
 			bgn_curr = IO_IO_OUT1_DELAY_MAX + 1;
 			end_curr = IO_IO_OUT1_DELAY_MAX + 1;
-			}
 		}
+	}
 
-
-	/* Reset DM delay chains to 0 */
+	/* Reset DM delay chains to 0. */
 	scc_mgr_apply_group_dm_out1_delay(0);
 
 	/*
 	 * Check to see if the current window nudges up aganist 0 delay.
 	 * If so we need to continue the search by shifting DQS otherwise DQS
-	 * search begins as a new search. */
+	 * search begins as a new search.
+	 */
 	if (end_curr != 0) {
 		bgn_curr = IO_IO_OUT1_DELAY_MAX + 1;
 		end_curr = IO_IO_OUT1_DELAY_MAX + 1;
 	}
 
-	/* Search for the/part of the window with DQS shifts */
+	/* Search for the/part of the window with DQS shifts. */
 	for (d = 0; d <= IO_IO_OUT1_DELAY_MAX - new_dqs; d += DELTA_D) {
 		/*
 		 * Note: This only shifts DQS, so are we limiting ourselve to
@@ -3035,7 +3033,7 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 		if (rw_mgr_mem_calibrate_write_test(rank_bgn, write_group, 1,
 						    PASS_ALL_BITS, &bit_chk,
 						    0)) {
-			/* USE Set current end of the window */
+			/* Set current end of the window. */
 			end_curr = d;
 			/*
 			 * If a beginning edge of our window has not been seen
@@ -3054,40 +3052,42 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 				end_best = end_curr;
 			}
 		} else {
-			/* We just saw a failing test. Reset temp edge */
+			/* We just saw a failing test. Reset temp edge. */
 			bgn_curr = IO_IO_OUT1_DELAY_MAX + 1;
 			end_curr = IO_IO_OUT1_DELAY_MAX + 1;
 
-			/* Early exit optimization: if ther remaining delay
-			chain space is less than already seen largest window
-			we can exit */
+			/*
+			 * Early exit optimization: if the remaining delay
+			 * chain space is less than already seen largest
+			 * window we can exit.
+			 */
 			if ((win_best-1) >
 				(IO_IO_OUT1_DELAY_MAX - new_dqs - d)) {
 					break;
-				}
 			}
 		}
+	}
 
-	/* assign left and right edge for cal and reporting; */
-	left_edge[0] = -1*bgn_best;
+	/* Assign left and right edge for cal and reporting. */
+	left_edge[0] = -1 * bgn_best;
 	right_edge[0] = end_best;
 
-	debug_cond(DLEVEL == 2, "%s:%d dm_calib: left=%d right=%d\n", __func__,
-		   __LINE__, left_edge[0], right_edge[0]);
+	debug_cond(DLEVEL == 2, "%s:%d dm_calib: left=%d right=%d\n",
+		   __func__, __LINE__, left_edge[0], right_edge[0]);
 
-	/* Move DQS (back to orig) */
+	/* Move DQS (back to orig). */
 	scc_mgr_apply_group_dqs_io_and_oct_out1(write_group, new_dqs);
 
 	/* Move DM */
 
-	/* Find middle of window for the DM bit */
+	/* Find middle of window for the DM bit. */
 	mid = (left_edge[0] - right_edge[0]) / 2;
 
-	/* only move right, since we are not moving DQS/DQ */
+	/* Only move right, since we are not moving DQS/DQ. */
 	if (mid < 0)
 		mid = 0;
 
-	/* dm_marign should fail if we never find a window */
+	/* dm_marign should fail if we never find a window. */
 	if (win_best == 0)
 		dm_margin = -1;
 	else
@@ -3096,21 +3096,23 @@ static uint32_t rw_mgr_mem_calibrate_writes_center(uint32_t rank_bgn,
 	scc_mgr_apply_group_dm_out1_delay(mid);
 	writel(0, &sdr_scc_mgr->update);
 
-	debug_cond(DLEVEL == 2, "%s:%d dm_calib: left=%d right=%d mid=%d \
-		   dm_margin=%d\n", __func__, __LINE__, left_edge[0],
-		   right_edge[0], mid, dm_margin);
-	/* Export values */
+	debug_cond(DLEVEL == 2,
+		   "%s:%d dm_calib: left=%d right=%d mid=%d dm_margin=%d\n",
+		   __func__, __LINE__, left_edge[0], right_edge[0],
+		   mid, dm_margin);
+	/* Export values. */
 	gbl->fom_out += dq_margin + dqs_margin;
 
-	debug_cond(DLEVEL == 2, "%s:%d write_center: dq_margin=%d \
-		   dqs_margin=%d dm_margin=%d\n", __func__, __LINE__,
-		   dq_margin, dqs_margin, dm_margin);
+	debug_cond(DLEVEL == 2,
+		   "%s:%d write_center: dq_margin=%d dqs_margin=%d dm_margin=%d\n",
+		   __func__, __LINE__, dq_margin, dqs_margin, dm_margin);
 
 	/*
 	 * Do not remove this line as it makes sure all of our
 	 * decisions have been applied.
 	 */
 	writel(0, &sdr_scc_mgr->update);
+
 	return (dq_margin >= 0) && (dqs_margin >= 0) && (dm_margin >= 0);
 }
 
