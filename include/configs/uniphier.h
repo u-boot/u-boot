@@ -221,7 +221,7 @@
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off;" \
 	"tftpboot; bootm;"
 
-#define CONFIG_BOOTARGS		" user_debug=0x1f init=/sbin/init"
+#define CONFIG_BOOTARGS		" earlyprintk loglevel=8"
 
 #ifdef CONFIG_FIT
 #define CONFIG_BOOTFILE			"fitImage"
