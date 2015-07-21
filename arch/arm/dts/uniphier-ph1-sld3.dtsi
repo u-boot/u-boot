@@ -129,6 +129,15 @@
 			status = "disabled";
 		};
 
+		i2c4: i2c@58600000 {
+			compatible = "panasonic,uniphier-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x58600000 0x40>;
+			clock-frequency = <400000>;
+			status = "okay";
+		};
+
 		system-bus-controller-misc@59800000 {
 			compatible = "socionext,uniphier-system-bus-controller-misc",
 				     "syscon";
