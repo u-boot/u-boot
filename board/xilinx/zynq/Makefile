@@ -25,7 +25,7 @@ ifeq ($(init-objs),)
 ifneq ($(wildcard $(srctree)/$(src)/ps7_init_gpl.c),)
 init-objs := ps7_init_gpl.o
 $(if $(CONFIG_SPL_BUILD),\
-$(warning Put custom ps7_init_gpl.c/h to board/xilinx/zynq/custome_hw_platform/))
+$(warning Put custom ps7_init_gpl.c/h to board/xilinx/zynq/custom_hw_platform/))
 endif
 endif
 
