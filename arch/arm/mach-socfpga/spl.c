@@ -28,19 +28,32 @@ static struct scu_registers *scu_regs =
 	(struct scu_registers *)SOCFPGA_MPUSCU_ADDRESS;
 static struct nic301_registers *nic301_regs =
 	(struct nic301_registers *)SOCFPGA_L3REGS_ADDRESS;
+static struct socfpga_system_manager *sysmgr_regs =
+	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 
 u32 spl_boot_device(void)
 {
-#ifdef CONFIG_SPL_SPI_SUPPORT
-	socfpga_per_reset(SOCFPGA_RESET(QSPI), 0);
-	return BOOT_DEVICE_SPI;
-#elif CONFIG_SPL_MMC_SUPPORT
-	socfpga_per_reset(SOCFPGA_RESET(SDMMC), 0);
-	socfpga_per_reset(SOCFPGA_RESET(DMA), 0);
-	return BOOT_DEVICE_MMC1;
-#else
-	return BOOT_DEVICE_RAM;
-#endif
+	const u32 bsel = readl(&sysmgr_regs->bootinfo);
+
+	switch (bsel & 0x7) {
+	case 0x1:	/* FPGA (HPS2FPGA Bridge) */
+		return BOOT_DEVICE_RAM;
+	case 0x2:	/* NAND Flash (1.8V) */
+	case 0x3:	/* NAND Flash (3.0V) */
+		return BOOT_DEVICE_NAND;
+	case 0x4:	/* SD/MMC External Transceiver (1.8V) */
+	case 0x5:	/* SD/MMC Internal Transceiver (3.0V) */
+		socfpga_per_reset(SOCFPGA_RESET(SDMMC), 0);
+		socfpga_per_reset(SOCFPGA_RESET(DMA), 0);
+		return BOOT_DEVICE_MMC1;
+	case 0x6:	/* QSPI Flash (1.8V) */
+	case 0x7:	/* QSPI Flash (3.0V) */
+		socfpga_per_reset(SOCFPGA_RESET(QSPI), 0);
+		return BOOT_DEVICE_SPI;
+	default:
+		printf("Invalid boot device (bsel=%08x)!\n", bsel);
+		hang();
+	}
 }
 
 #ifdef CONFIG_SPL_MMC_SUPPORT
@@ -69,8 +82,6 @@ void board_init_f(ulong dummy)
 #ifndef CONFIG_SOCFPGA_VIRTUAL_TARGET
 	const struct cm_config *cm_default_cfg = cm_get_default_config();
 #endif
-	struct socfpga_system_manager *sysmgr_regs =
-		(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 	unsigned long sdram_size;
 	unsigned long reg;
 
