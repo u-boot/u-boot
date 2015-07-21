@@ -462,6 +462,9 @@ static void mxs_nand_read_buf(struct mtd_info *mtd, uint8_t *buf, int length)
 
 	mxs_dma_desc_append(channel, d);
 
+	/* Invalidate caches */
+	mxs_nand_inval_data_buf(nand_info);
+
 	/* Execute the DMA chain. */
 	ret = mxs_dma_go(channel);
 	if (ret) {
@@ -627,6 +630,9 @@ static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
 	d->cmd.address = 0;
 
 	mxs_dma_desc_append(channel, d);
+
+	/* Invalidate caches */
+	mxs_nand_inval_data_buf(nand_info);
 
 	/* Execute the DMA chain. */
 	ret = mxs_dma_go(channel);
