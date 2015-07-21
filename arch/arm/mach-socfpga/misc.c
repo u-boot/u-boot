@@ -101,12 +101,25 @@ int cpu_mmc_init(bd_t *bis)
 #endif
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
+const char * const bsel_str[] = {
+	"Reserved",
+	"FPGA (HPS2FPGA Bridge)",
+	"NAND Flash (1.8V)",
+	"NAND Flash (3.0V)",
+	"SD/MMC External Transceiver (1.8V)",
+	"SD/MMC Internal Transceiver (3.0V)",
+	"QSPI Flash (1.8V)",
+	"QSPI Flash (3.0V)",
+};
+
 /*
  * Print CPU information
  */
 int print_cpuinfo(void)
 {
+	const u32 bsel = readl(&sysmgr_regs->bootinfo) & 0x7;
 	puts("CPU:   Altera SoCFPGA Platform\n");
+	printf("BOOT:  %s\n", bsel_str[bsel]);
 	return 0;
 }
 #endif
