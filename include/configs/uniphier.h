@@ -233,6 +233,9 @@
 		"bootm $fit_addr\0" \
 	"nandboot=run add_default_bootargs &&" \
 		"nand read $fit_addr_r $fit_addr $fit_size &&" \
+		"bootm $fit_addr_r\0" \
+	"tftpboot=run add_default_bootargs &&" \
+		"tftpboot $fit_addr_r $bootfile &&" \
 		"bootm $fit_addr_r\0"
 #else
 #define CONFIG_BOOTFILE			"uImage"
@@ -240,18 +243,25 @@
 	"fdt_addr=0x00100000\0" \
 	"fdt_addr_r=0x84100000\0" \
 	"fdt_size=0x00008000\0" \
+	"fdt_file=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"kernel_addr=0x00200000\0" \
 	"kernel_addr_r=0x84200000\0" \
 	"kernel_size=0x00800000\0" \
 	"ramdisk_addr=0x00a00000\0" \
 	"ramdisk_addr_r=0x84a00000\0" \
 	"ramdisk_size=0x00600000\0" \
+	"ramdisk_file=rootfs.cpio.uboot\0" \
 	"norboot=run add_default_bootargs &&" \
 		"bootm $kernel_addr $ramdisk_addr $fdt_addr\0" \
 	"nandboot=run add_default_bootargs &&" \
 		"nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
 		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
 		"nand read $fdt_addr_r $fdt_addr $fdt_size &&" \
+		"bootm $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
+	"tftpboot=run add_default_bootargs &&" \
+		"tftpboot $kernel_addr_r $bootfile &&" \
+		"tftpboot $ramdisk_addr_r $ramdisk_file &&" \
+		"tftpboot $fdt_addr_r $fdt_file &&" \
 		"bootm $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0"
 #endif
 
