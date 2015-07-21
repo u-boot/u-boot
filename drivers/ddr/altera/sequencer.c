@@ -2818,60 +2818,65 @@ static int rw_mgr_mem_calibrate_vfifo_end(const u32 rw_group,
 	return ret;
 }
 
-/* Calibrate LFIFO to find smallest read latency */
+/**
+ * rw_mgr_mem_calibrate_lfifo() - Minimize latency
+ *
+ * Stage 4: Minimize latency.
+ *
+ * This function implements UniPHY calibration Stage 4, as explained in
+ * detail in Altera EMI_RM 2015.05.04 , "UniPHY Calibration Stages".
+ * Calibrate LFIFO to find smallest read latency.
+ */
 static uint32_t rw_mgr_mem_calibrate_lfifo(void)
 {
-	uint32_t found_one;
+	int found_one = 0;
 
 	debug("%s:%d\n", __func__, __LINE__);
 
-	/* update info for sims */
+	/* Update info for sims. */
 	reg_file_set_stage(CAL_STAGE_LFIFO);
 	reg_file_set_sub_stage(CAL_SUBSTAGE_READ_LATENCY);
 
 	/* Load up the patterns used by read calibration for all ranks */
 	rw_mgr_mem_calibrate_read_load_patterns(0, 1);
-	found_one = 0;
 
 	do {
 		writel(gbl->curr_read_lat, &phy_mgr_cfg->phy_rlat);
 		debug_cond(DLEVEL == 2, "%s:%d lfifo: read_lat=%u",
 			   __func__, __LINE__, gbl->curr_read_lat);
 
-		if (!rw_mgr_mem_calibrate_read_test_all_ranks(0,
-							      NUM_READ_TESTS,
-							      PASS_ALL_BITS,
-							      1)) {
+		if (!rw_mgr_mem_calibrate_read_test_all_ranks(0, NUM_READ_TESTS,
+							      PASS_ALL_BITS, 1))
 			break;
-		}
 
 		found_one = 1;
-		/* reduce read latency and see if things are working */
-		/* correctly */
+		/*
+		 * Reduce read latency and see if things are
+		 * working correctly.
+		 */
 		gbl->curr_read_lat--;
 	} while (gbl->curr_read_lat > 0);
 
-	/* reset the fifos to get pointers to known state */
-
+	/* Reset the fifos to get pointers to known state. */
 	writel(0, &phy_mgr_cmd->fifo_reset);
 
 	if (found_one) {
-		/* add a fudge factor to the read latency that was determined */
+		/* Add a fudge factor to the read latency that was determined */
 		gbl->curr_read_lat += 2;
 		writel(gbl->curr_read_lat, &phy_mgr_cfg->phy_rlat);
-		debug_cond(DLEVEL == 2, "%s:%d lfifo: success: using \
-			   read_lat=%u\n", __func__, __LINE__,
-			   gbl->curr_read_lat);
-		return 1;
+		debug_cond(DLEVEL == 2,
+			   "%s:%d lfifo: success: using read_lat=%u\n",
+			   __func__, __LINE__, gbl->curr_read_lat);
 	} else {
 		set_failing_group_stage(0xff, CAL_STAGE_LFIFO,
 					CAL_SUBSTAGE_READ_LATENCY);
 
-		debug_cond(DLEVEL == 2, "%s:%d lfifo: failed at initial \
-			   read_lat=%u\n", __func__, __LINE__,
-			   gbl->curr_read_lat);
-		return 0;
+		debug_cond(DLEVEL == 2,
+			   "%s:%d lfifo: failed at initial read_lat=%u\n",
+			   __func__, __LINE__, gbl->curr_read_lat);
 	}
+
+	return found_one;
 }
 
 /**
