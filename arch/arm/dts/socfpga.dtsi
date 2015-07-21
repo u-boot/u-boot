@@ -20,6 +20,9 @@
 		timer1 = &timer1;
 		timer2 = &timer2;
 		timer3 = &timer3;
+		spi0 = &qspi;
+		spi1 = &spi0;
+		spi2 = &spi1;
 	};
 
 	cpus {

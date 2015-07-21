@@ -22,13 +22,9 @@
 
 	aliases {
 		/* this allow the ethaddr uboot environmnet variable contents
-		* to be added to the gmac1 device tree blob.
-		*/
+		 * to be added to the gmac1 device tree blob.
+		 */
 		ethernet0 = &gmac1;
-
-		spi0 = "/spi@ff705000";		/* QSPI */
-		spi1 = "/spi@fff00000";
-		spi2 = "/spi@fff01000";
 	};
 
 	regulator_3_3v: 3-3-v-regulator {
