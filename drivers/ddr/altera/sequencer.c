@@ -1169,66 +1169,63 @@ static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
 }
 
 /* Test writes, can check for a single bit pass or multiple bit pass */
-static uint32_t rw_mgr_mem_calibrate_write_test(uint32_t rank_bgn,
-	uint32_t write_group, uint32_t use_dm, uint32_t all_correct,
-	uint32_t *bit_chk, uint32_t all_ranks)
+static int
+rw_mgr_mem_calibrate_write_test(const u32 rank_bgn, const u32 write_group,
+				const u32 use_dm, const u32 all_correct,
+				u32 *bit_chk, const u32 all_ranks)
 {
-	uint32_t r;
-	uint32_t correct_mask_vg;
-	uint32_t tmp_bit_chk;
-	uint32_t vg;
-	uint32_t rank_end = all_ranks ? RW_MGR_MEM_NUMBER_OF_RANKS :
-		(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
-	uint32_t addr_rw_mgr;
-	uint32_t base_rw_mgr;
+	const u32 rank_end = all_ranks ?
+				RW_MGR_MEM_NUMBER_OF_RANKS :
+				(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
+	const u32 shift_ratio = RW_MGR_MEM_DQ_PER_WRITE_DQS /
+				RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS;
+	const u32 correct_mask_vg = param->write_correct_mask_vg;
+
+	u32 tmp_bit_chk, base_rw_mgr;
+	int vg, r;
 
 	*bit_chk = param->write_correct_mask;
-	correct_mask_vg = param->write_correct_mask_vg;
 
 	for (r = rank_bgn; r < rank_end; r++) {
-		if (param->skip_ranks[r]) {
-			/* request to skip the rank */
+		/* Request to skip the rank */
+		if (param->skip_ranks[r])
 			continue;
-		}
 
-		/* set rank */
+		/* Set rank */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
 		tmp_bit_chk = 0;
-		addr_rw_mgr = SDR_PHYGRP_RWMGRGRP_ADDRESS;
-		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS-1; ; vg--) {
-			/* reset the fifos to get pointers to known state */
+		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS - 1;
+		     vg >= 0; vg--) {
+			/* Reset the FIFOs to get pointers to known state. */
 			writel(0, &phy_mgr_cmd->fifo_reset);
 
-			tmp_bit_chk = tmp_bit_chk <<
-				(RW_MGR_MEM_DQ_PER_WRITE_DQS /
-				RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS);
-			rw_mgr_mem_calibrate_write_test_issue(write_group *
-				RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS+vg,
+			rw_mgr_mem_calibrate_write_test_issue(
+				write_group *
+				RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS + vg,
 				use_dm);
 
-			base_rw_mgr = readl(addr_rw_mgr);
-			tmp_bit_chk = tmp_bit_chk | (correct_mask_vg & ~(base_rw_mgr));
-			if (vg == 0)
-				break;
+			base_rw_mgr = readl(SDR_PHYGRP_RWMGRGRP_ADDRESS);
+			tmp_bit_chk <<= shift_ratio;
+			tmp_bit_chk |= (correct_mask_vg & ~(base_rw_mgr));
 		}
+
 		*bit_chk &= tmp_bit_chk;
 	}
 
+	set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
 	if (all_correct) {
-		set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
-		debug_cond(DLEVEL == 2, "write_test(%u,%u,ALL) : %u == \
-			   %u => %lu", write_group, use_dm,
-			   *bit_chk, param->write_correct_mask,
-			   (long unsigned int)(*bit_chk ==
-			   param->write_correct_mask));
+		debug_cond(DLEVEL == 2,
+			   "write_test(%u,%u,ALL) : %u == %u => %i\n",
+			   write_group, use_dm, *bit_chk,
+			   param->write_correct_mask,
+			   *bit_chk == param->write_correct_mask);
 		return *bit_chk == param->write_correct_mask;
 	} else {
 		set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
-		debug_cond(DLEVEL == 2, "write_test(%u,%u,ONE) : %u != ",
-		       write_group, use_dm, *bit_chk);
-		debug_cond(DLEVEL == 2, "%lu" " => %lu", (long unsigned int)0,
-			(long unsigned int)(*bit_chk != 0));
+		debug_cond(DLEVEL == 2,
+			   "write_test(%u,%u,ONE) : %u != %i => %i\n",
+			   write_group, use_dm, *bit_chk, 0, *bit_chk != 0);
 		return *bit_chk != 0x00;
 	}
 }
