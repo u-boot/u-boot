@@ -80,10 +80,6 @@ struct gbl_type *gbl;
 struct param_type *param;
 uint32_t curr_shadow_reg;
 
-static uint32_t rw_mgr_mem_calibrate_write_test(uint32_t rank_bgn,
-	uint32_t write_group, uint32_t use_dm,
-	uint32_t all_correct, uint32_t *bit_chk, uint32_t all_ranks);
-
 static void set_failing_group_stage(uint32_t group, uint32_t stage,
 	uint32_t substage)
 {
@@ -1034,6 +1030,207 @@ static void rw_mgr_mem_handoff(void)
 	 * other commands, but we will have plenty of NIOS cycles before
 	 * actual handoff so its okay.
 	 */
+}
+
+/*
+ * issue write test command.
+ * two variants are provided. one that just tests a write pattern and
+ * another that tests datamask functionality.
+ */
+static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
+						  uint32_t test_dm)
+{
+	uint32_t mcc_instruction;
+	uint32_t quick_write_mode = (((STATIC_CALIB_STEPS) & CALIB_SKIP_WRITES) &&
+		ENABLE_SUPER_QUICK_CALIBRATION);
+	uint32_t rw_wl_nop_cycles;
+	uint32_t addr;
+
+	/*
+	 * Set counter and jump addresses for the right
+	 * number of NOP cycles.
+	 * The number of supported NOP cycles can range from -1 to infinity
+	 * Three different cases are handled:
+	 *
+	 * 1. For a number of NOP cycles greater than 0, the RW Mgr looping
+	 *    mechanism will be used to insert the right number of NOPs
+	 *
+	 * 2. For a number of NOP cycles equals to 0, the micro-instruction
+	 *    issuing the write command will jump straight to the
+	 *    micro-instruction that turns on DQS (for DDRx), or outputs write
+	 *    data (for RLD), skipping
+	 *    the NOP micro-instruction all together
+	 *
+	 * 3. A number of NOP cycles equal to -1 indicates that DQS must be
+	 *    turned on in the same micro-instruction that issues the write
+	 *    command. Then we need
+	 *    to directly jump to the micro-instruction that sends out the data
+	 *
+	 * NOTE: Implementing this mechanism uses 2 RW Mgr jump-counters
+	 *       (2 and 3). One jump-counter (0) is used to perform multiple
+	 *       write-read operations.
+	 *       one counter left to issue this command in "multiple-group" mode
+	 */
+
+	rw_wl_nop_cycles = gbl->rw_wl_nop_cycles;
+
+	if (rw_wl_nop_cycles == -1) {
+		/*
+		 * CNTR 2 - We want to execute the special write operation that
+		 * turns on DQS right away and then skip directly to the
+		 * instruction that sends out the data. We set the counter to a
+		 * large number so that the jump is always taken.
+		 */
+		writel(0xFF, &sdr_rw_load_mgr_regs->load_cntr2);
+
+		/* CNTR 3 - Not used */
+		if (test_dm) {
+			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0_WL_1;
+			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_DATA,
+			       &sdr_rw_load_jump_mgr_regs->load_jump_add2);
+			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP,
+			       &sdr_rw_load_jump_mgr_regs->load_jump_add3);
+		} else {
+			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0_WL_1;
+			writel(RW_MGR_LFSR_WR_RD_BANK_0_DATA,
+				&sdr_rw_load_jump_mgr_regs->load_jump_add2);
+			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP,
+				&sdr_rw_load_jump_mgr_regs->load_jump_add3);
+		}
+	} else if (rw_wl_nop_cycles == 0) {
+		/*
+		 * CNTR 2 - We want to skip the NOP operation and go straight
+		 * to the DQS enable instruction. We set the counter to a large
+		 * number so that the jump is always taken.
+		 */
+		writel(0xFF, &sdr_rw_load_mgr_regs->load_cntr2);
+
+		/* CNTR 3 - Not used */
+		if (test_dm) {
+			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0;
+			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_DQS,
+			       &sdr_rw_load_jump_mgr_regs->load_jump_add2);
+		} else {
+			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0;
+			writel(RW_MGR_LFSR_WR_RD_BANK_0_DQS,
+				&sdr_rw_load_jump_mgr_regs->load_jump_add2);
+		}
+	} else {
+		/*
+		 * CNTR 2 - In this case we want to execute the next instruction
+		 * and NOT take the jump. So we set the counter to 0. The jump
+		 * address doesn't count.
+		 */
+		writel(0x0, &sdr_rw_load_mgr_regs->load_cntr2);
+		writel(0x0, &sdr_rw_load_jump_mgr_regs->load_jump_add2);
+
+		/*
+		 * CNTR 3 - Set the nop counter to the number of cycles we
+		 * need to loop for, minus 1.
+		 */
+		writel(rw_wl_nop_cycles - 1, &sdr_rw_load_mgr_regs->load_cntr3);
+		if (test_dm) {
+			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0;
+			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP,
+				&sdr_rw_load_jump_mgr_regs->load_jump_add3);
+		} else {
+			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0;
+			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP,
+				&sdr_rw_load_jump_mgr_regs->load_jump_add3);
+		}
+	}
+
+	writel(0, SDR_PHYGRP_RWMGRGRP_ADDRESS |
+		  RW_MGR_RESET_READ_DATAPATH_OFFSET);
+
+	if (quick_write_mode)
+		writel(0x08, &sdr_rw_load_mgr_regs->load_cntr0);
+	else
+		writel(0x40, &sdr_rw_load_mgr_regs->load_cntr0);
+
+	writel(mcc_instruction, &sdr_rw_load_jump_mgr_regs->load_jump_add0);
+
+	/*
+	 * CNTR 1 - This is used to ensure enough time elapses
+	 * for read data to come back.
+	 */
+	writel(0x30, &sdr_rw_load_mgr_regs->load_cntr1);
+
+	if (test_dm) {
+		writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_WAIT,
+			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
+	} else {
+		writel(RW_MGR_LFSR_WR_RD_BANK_0_WAIT,
+			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
+	}
+
+	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
+	writel(mcc_instruction, addr + (group << 2));
+}
+
+/* Test writes, can check for a single bit pass or multiple bit pass */
+static uint32_t rw_mgr_mem_calibrate_write_test(uint32_t rank_bgn,
+	uint32_t write_group, uint32_t use_dm, uint32_t all_correct,
+	uint32_t *bit_chk, uint32_t all_ranks)
+{
+	uint32_t r;
+	uint32_t correct_mask_vg;
+	uint32_t tmp_bit_chk;
+	uint32_t vg;
+	uint32_t rank_end = all_ranks ? RW_MGR_MEM_NUMBER_OF_RANKS :
+		(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
+	uint32_t addr_rw_mgr;
+	uint32_t base_rw_mgr;
+
+	*bit_chk = param->write_correct_mask;
+	correct_mask_vg = param->write_correct_mask_vg;
+
+	for (r = rank_bgn; r < rank_end; r++) {
+		if (param->skip_ranks[r]) {
+			/* request to skip the rank */
+			continue;
+		}
+
+		/* set rank */
+		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
+
+		tmp_bit_chk = 0;
+		addr_rw_mgr = SDR_PHYGRP_RWMGRGRP_ADDRESS;
+		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS-1; ; vg--) {
+			/* reset the fifos to get pointers to known state */
+			writel(0, &phy_mgr_cmd->fifo_reset);
+
+			tmp_bit_chk = tmp_bit_chk <<
+				(RW_MGR_MEM_DQ_PER_WRITE_DQS /
+				RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS);
+			rw_mgr_mem_calibrate_write_test_issue(write_group *
+				RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS+vg,
+				use_dm);
+
+			base_rw_mgr = readl(addr_rw_mgr);
+			tmp_bit_chk = tmp_bit_chk | (correct_mask_vg & ~(base_rw_mgr));
+			if (vg == 0)
+				break;
+		}
+		*bit_chk &= tmp_bit_chk;
+	}
+
+	if (all_correct) {
+		set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
+		debug_cond(DLEVEL == 2, "write_test(%u,%u,ALL) : %u == \
+			   %u => %lu", write_group, use_dm,
+			   *bit_chk, param->write_correct_mask,
+			   (long unsigned int)(*bit_chk ==
+			   param->write_correct_mask));
+		return *bit_chk == param->write_correct_mask;
+	} else {
+		set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
+		debug_cond(DLEVEL == 2, "write_test(%u,%u,ONE) : %u != ",
+		       write_group, use_dm, *bit_chk);
+		debug_cond(DLEVEL == 2, "%lu" " => %lu", (long unsigned int)0,
+			(long unsigned int)(*bit_chk != 0));
+		return *bit_chk != 0x00;
+	}
 }
 
 /**
@@ -2679,207 +2876,6 @@ static uint32_t rw_mgr_mem_calibrate_lfifo(void)
 			   read_lat=%u\n", __func__, __LINE__,
 			   gbl->curr_read_lat);
 		return 0;
-	}
-}
-
-/*
- * issue write test command.
- * two variants are provided. one that just tests a write pattern and
- * another that tests datamask functionality.
- */
-static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
-						  uint32_t test_dm)
-{
-	uint32_t mcc_instruction;
-	uint32_t quick_write_mode = (((STATIC_CALIB_STEPS) & CALIB_SKIP_WRITES) &&
-		ENABLE_SUPER_QUICK_CALIBRATION);
-	uint32_t rw_wl_nop_cycles;
-	uint32_t addr;
-
-	/*
-	 * Set counter and jump addresses for the right
-	 * number of NOP cycles.
-	 * The number of supported NOP cycles can range from -1 to infinity
-	 * Three different cases are handled:
-	 *
-	 * 1. For a number of NOP cycles greater than 0, the RW Mgr looping
-	 *    mechanism will be used to insert the right number of NOPs
-	 *
-	 * 2. For a number of NOP cycles equals to 0, the micro-instruction
-	 *    issuing the write command will jump straight to the
-	 *    micro-instruction that turns on DQS (for DDRx), or outputs write
-	 *    data (for RLD), skipping
-	 *    the NOP micro-instruction all together
-	 *
-	 * 3. A number of NOP cycles equal to -1 indicates that DQS must be
-	 *    turned on in the same micro-instruction that issues the write
-	 *    command. Then we need
-	 *    to directly jump to the micro-instruction that sends out the data
-	 *
-	 * NOTE: Implementing this mechanism uses 2 RW Mgr jump-counters
-	 *       (2 and 3). One jump-counter (0) is used to perform multiple
-	 *       write-read operations.
-	 *       one counter left to issue this command in "multiple-group" mode
-	 */
-
-	rw_wl_nop_cycles = gbl->rw_wl_nop_cycles;
-
-	if (rw_wl_nop_cycles == -1) {
-		/*
-		 * CNTR 2 - We want to execute the special write operation that
-		 * turns on DQS right away and then skip directly to the
-		 * instruction that sends out the data. We set the counter to a
-		 * large number so that the jump is always taken.
-		 */
-		writel(0xFF, &sdr_rw_load_mgr_regs->load_cntr2);
-
-		/* CNTR 3 - Not used */
-		if (test_dm) {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0_WL_1;
-			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_DATA,
-			       &sdr_rw_load_jump_mgr_regs->load_jump_add2);
-			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP,
-			       &sdr_rw_load_jump_mgr_regs->load_jump_add3);
-		} else {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0_WL_1;
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_DATA,
-				&sdr_rw_load_jump_mgr_regs->load_jump_add2);
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP,
-				&sdr_rw_load_jump_mgr_regs->load_jump_add3);
-		}
-	} else if (rw_wl_nop_cycles == 0) {
-		/*
-		 * CNTR 2 - We want to skip the NOP operation and go straight
-		 * to the DQS enable instruction. We set the counter to a large
-		 * number so that the jump is always taken.
-		 */
-		writel(0xFF, &sdr_rw_load_mgr_regs->load_cntr2);
-
-		/* CNTR 3 - Not used */
-		if (test_dm) {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0;
-			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_DQS,
-			       &sdr_rw_load_jump_mgr_regs->load_jump_add2);
-		} else {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0;
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_DQS,
-				&sdr_rw_load_jump_mgr_regs->load_jump_add2);
-		}
-	} else {
-		/*
-		 * CNTR 2 - In this case we want to execute the next instruction
-		 * and NOT take the jump. So we set the counter to 0. The jump
-		 * address doesn't count.
-		 */
-		writel(0x0, &sdr_rw_load_mgr_regs->load_cntr2);
-		writel(0x0, &sdr_rw_load_jump_mgr_regs->load_jump_add2);
-
-		/*
-		 * CNTR 3 - Set the nop counter to the number of cycles we
-		 * need to loop for, minus 1.
-		 */
-		writel(rw_wl_nop_cycles - 1, &sdr_rw_load_mgr_regs->load_cntr3);
-		if (test_dm) {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0;
-			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP,
-				&sdr_rw_load_jump_mgr_regs->load_jump_add3);
-		} else {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0;
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP,
-				&sdr_rw_load_jump_mgr_regs->load_jump_add3);
-		}
-	}
-
-	writel(0, SDR_PHYGRP_RWMGRGRP_ADDRESS |
-		  RW_MGR_RESET_READ_DATAPATH_OFFSET);
-
-	if (quick_write_mode)
-		writel(0x08, &sdr_rw_load_mgr_regs->load_cntr0);
-	else
-		writel(0x40, &sdr_rw_load_mgr_regs->load_cntr0);
-
-	writel(mcc_instruction, &sdr_rw_load_jump_mgr_regs->load_jump_add0);
-
-	/*
-	 * CNTR 1 - This is used to ensure enough time elapses
-	 * for read data to come back.
-	 */
-	writel(0x30, &sdr_rw_load_mgr_regs->load_cntr1);
-
-	if (test_dm) {
-		writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_WAIT,
-			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
-	} else {
-		writel(RW_MGR_LFSR_WR_RD_BANK_0_WAIT,
-			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
-	}
-
-	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-	writel(mcc_instruction, addr + (group << 2));
-}
-
-/* Test writes, can check for a single bit pass or multiple bit pass */
-static uint32_t rw_mgr_mem_calibrate_write_test(uint32_t rank_bgn,
-	uint32_t write_group, uint32_t use_dm, uint32_t all_correct,
-	uint32_t *bit_chk, uint32_t all_ranks)
-{
-	uint32_t r;
-	uint32_t correct_mask_vg;
-	uint32_t tmp_bit_chk;
-	uint32_t vg;
-	uint32_t rank_end = all_ranks ? RW_MGR_MEM_NUMBER_OF_RANKS :
-		(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
-	uint32_t addr_rw_mgr;
-	uint32_t base_rw_mgr;
-
-	*bit_chk = param->write_correct_mask;
-	correct_mask_vg = param->write_correct_mask_vg;
-
-	for (r = rank_bgn; r < rank_end; r++) {
-		if (param->skip_ranks[r]) {
-			/* request to skip the rank */
-			continue;
-		}
-
-		/* set rank */
-		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
-
-		tmp_bit_chk = 0;
-		addr_rw_mgr = SDR_PHYGRP_RWMGRGRP_ADDRESS;
-		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS-1; ; vg--) {
-			/* reset the fifos to get pointers to known state */
-			writel(0, &phy_mgr_cmd->fifo_reset);
-
-			tmp_bit_chk = tmp_bit_chk <<
-				(RW_MGR_MEM_DQ_PER_WRITE_DQS /
-				RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS);
-			rw_mgr_mem_calibrate_write_test_issue(write_group *
-				RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS+vg,
-				use_dm);
-
-			base_rw_mgr = readl(addr_rw_mgr);
-			tmp_bit_chk = tmp_bit_chk | (correct_mask_vg & ~(base_rw_mgr));
-			if (vg == 0)
-				break;
-		}
-		*bit_chk &= tmp_bit_chk;
-	}
-
-	if (all_correct) {
-		set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
-		debug_cond(DLEVEL == 2, "write_test(%u,%u,ALL) : %u == \
-			   %u => %lu", write_group, use_dm,
-			   *bit_chk, param->write_correct_mask,
-			   (long unsigned int)(*bit_chk ==
-			   param->write_correct_mask));
-		return *bit_chk == param->write_correct_mask;
-	} else {
-		set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
-		debug_cond(DLEVEL == 2, "write_test(%u,%u,ONE) : %u != ",
-		       write_group, use_dm, *bit_chk);
-		debug_cond(DLEVEL == 2, "%lu" " => %lu", (long unsigned int)0,
-			(long unsigned int)(*bit_chk != 0));
-		return *bit_chk != 0x00;
 	}
 }
 
