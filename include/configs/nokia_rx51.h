@@ -109,7 +109,7 @@
 
 /* USB */
 #define CONFIG_MUSB_UDC
-#define CONFIG_MUSB_HDC
+#define CONFIG_MUSB_HCD
 #define CONFIG_USB_OMAP3
 #define CONFIG_TWL4030_USB
 
