@@ -197,7 +197,9 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 /* Enable multiple SPI NOR flash manufacturers */
 #define CONFIG_SPI_FLASH_STMICRO	/* Micron/Numonyx flash */
 #define CONFIG_SPI_FLASH_SPANSION	/* Spansion flash */
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_SPI_FLASH_MTD
+#endif
 /* QSPI reference clock */
 #ifndef __ASSEMBLY__
 unsigned int cm_get_qspi_controller_clk_hz(void);
