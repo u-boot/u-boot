@@ -2191,7 +2191,16 @@ static void center_dq_windows(const int write, int *left_edge, int *right_edge,
 
 }
 
-/* per-bit deskew DQ and center */
+/**
+ * rw_mgr_mem_calibrate_vfifo_center() - Per-bit deskew DQ and centering
+ * @rank_bgn:		Rank number
+ * @rw_group:		Read/Write Group
+ * @test_bgn:		Rank at which the test begins
+ * @use_read_test:	Perform a read test
+ * @update_fom:		Update FOM
+ *
+ * Per-bit deskew DQ and centering.
+ */
 static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 			const u32 rw_group, const u32 test_bgn,
 			const int use_read_test, const int update_fom)
