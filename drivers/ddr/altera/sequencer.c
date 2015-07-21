@@ -2977,7 +2977,6 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	int i;
 	u32 sticky_bit_chk;
 	u32 min_index;
-	u32 addr;
 	int left_edge[RW_MGR_MEM_DQ_PER_WRITE_DQS];
 	int right_edge[RW_MGR_MEM_DQ_PER_WRITE_DQS];
 	int mid;
@@ -2996,8 +2995,8 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 
 	dm_margin = 0;
 
-	addr = SDR_PHYGRP_SCCGRP_ADDRESS | SCC_MGR_IO_OUT1_DELAY_OFFSET;
-	start_dqs = readl(addr +
+	start_dqs = readl((SDR_PHYGRP_SCCGRP_ADDRESS |
+			  SCC_MGR_IO_OUT1_DELAY_OFFSET) +
 			  (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
 
 	/* Per-bit deskew. */
