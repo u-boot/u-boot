@@ -1032,19 +1032,23 @@ static void rw_mgr_mem_handoff(void)
 	 */
 }
 
-/*
- * issue write test command.
- * two variants are provided. one that just tests a write pattern and
- * another that tests datamask functionality.
+
+/**
+ * rw_mgr_mem_calibrate_write_test_issue() - Issue write test command
+ * @group:	Write Group
+ * @use_dm:	Use DM
+ *
+ * Issue write test command. Two variants are provided, one that just tests
+ * a write pattern and another that tests datamask functionality.
  */
-static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
-						  uint32_t test_dm)
+static void rw_mgr_mem_calibrate_write_test_issue(u32 group,
+						  u32 test_dm)
 {
-	uint32_t mcc_instruction;
-	uint32_t quick_write_mode = (((STATIC_CALIB_STEPS) & CALIB_SKIP_WRITES) &&
-		ENABLE_SUPER_QUICK_CALIBRATION);
-	uint32_t rw_wl_nop_cycles;
-	uint32_t addr;
+	const u32 quick_write_mode =
+		(STATIC_CALIB_STEPS & CALIB_SKIP_WRITES) &&
+		ENABLE_SUPER_QUICK_CALIBRATION;
+	u32 mcc_instruction;
+	u32 rw_wl_nop_cycles;
 
 	/*
 	 * Set counter and jump addresses for the right
@@ -1164,8 +1168,9 @@ static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 	}
 
-	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-	writel(mcc_instruction, addr + (group << 2));
+	writel(mcc_instruction, (SDR_PHYGRP_RWMGRGRP_ADDRESS |
+				RW_MGR_RUN_SINGLE_GROUP_OFFSET) +
+				(group << 2));
 }
 
 /**
