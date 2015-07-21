@@ -2967,7 +2967,12 @@ static void search_window(const int search_dm,
 }
 
 /*
- * center all windows. do per-bit-deskew to possibly increase size of
+ * rw_mgr_mem_calibrate_writes_center() - Center all windows
+ * @rank_bgn:		Rank number
+ * @write_group:	Write group
+ * @test_bgn:		Rank at which the test begins
+ *
+ * Center all windows. Do per-bit-deskew to possibly increase size of
  * certain windows.
  */
 static int
