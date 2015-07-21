@@ -1168,7 +1168,17 @@ static void rw_mgr_mem_calibrate_write_test_issue(uint32_t group,
 	writel(mcc_instruction, addr + (group << 2));
 }
 
-/* Test writes, can check for a single bit pass or multiple bit pass */
+/**
+ * rw_mgr_mem_calibrate_write_test() - Test writes, check for single/multiple pass
+ * @rank_bgn:		Rank number
+ * @write_group:	Write Group
+ * @use_dm:		Use DM
+ * @all_correct:	All bits must be correct in the mask
+ * @bit_chk:		Resulting bit mask after the test
+ * @all_ranks:		Test all ranks
+ *
+ * Test writes, can check for a single bit pass or multiple bit pass.
+ */
 static int
 rw_mgr_mem_calibrate_write_test(const u32 rank_bgn, const u32 write_group,
 				const u32 use_dm, const u32 all_correct,
