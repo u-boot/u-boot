@@ -10,12 +10,16 @@ choice
 	prompt "UniPhier SoC select"
 	default MACH_PH1_PRO4
 
-config MACH_PH1_PRO4
-	bool "PH1-Pro4"
+config MACH_PH1_SLD3
+	bool "PH1-sLD3"
 	select UNIPHIER_SMP
 
 config MACH_PH1_LD4
 	bool "PH1-LD4"
+
+config MACH_PH1_PRO4
+	bool "PH1-Pro4"
+	select UNIPHIER_SMP
 
 config MACH_PH1_SLD8
 	bool "PH1-sLD8"
@@ -64,11 +68,11 @@ choice
 
 config DDR_FREQ_1600
 	bool "DDR3 1600"
-	depends on MACH_PH1_PRO4 || MACH_PH1_LD4
+	depends on MACH_PH1_SLD3 || MACH_PH1_LD4 || MACH_PH1_PRO4
 
 config DDR_FREQ_1333
 	bool "DDR3 1333"
-	depends on MACH_PH1_LD4 || MACH_PH1_SLD8
+	depends on MACH_PH1_SLD3 || MACH_PH1_LD4 || MACH_PH1_SLD8
 
 endchoice
 
