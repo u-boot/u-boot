@@ -209,7 +209,6 @@
 
 #define CONFIG_LOADADDR			0x84000000
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-#define CONFIG_BOOTFILE			"fit.itb"
 
 #define CONFIG_CMDLINE_EDITING		/* add command line history	*/
 
@@ -224,23 +223,49 @@
 
 #define CONFIG_BOOTARGS		" user_debug=0x1f init=/sbin/init"
 
-#define	CONFIG_EXTRA_ENV_SETTINGS		\
-	"netdev=eth0\0"				\
-	"image_offset=0x00080000\0"		\
-	"image_size=0x00f00000\0"		\
-	"verify=n\0"				\
-	"nandupdate=nand erase 0 0x100000 &&"				\
-		   "tftpboot u-boot-spl.bin &&"				\
-		   "nand write $loadaddr 0 0x10000 &&"			\
-		   "tftpboot u-boot-dtb.img &&"				\
-		   "nand write $loadaddr 0x10000 0xf0000\0"		\
-	"norboot=run add_default_bootargs &&"				\
-		"bootm $image_offset\0"					\
-	"nandboot=run add_default_bootargs &&"				\
-		 "nand read $loadaddr $image_offset $image_size &&"	\
-		 "bootm\0"						\
-	"add_default_bootargs=setenv bootargs $bootargs"		\
-		" console=ttyS0,$baudrate\0"				\
+#ifdef CONFIG_FIT
+#define CONFIG_BOOTFILE			"fitImage"
+#define LINUXBOOT_ENV_SETTINGS \
+	"fit_addr=0x00100000\0" \
+	"fit_addr_r=0x84100000\0" \
+	"fit_size=0x00f00000\0" \
+	"norboot=run add_default_bootargs &&" \
+		"bootm $fit_addr\0" \
+	"nandboot=run add_default_bootargs &&" \
+		"nand read $fit_addr_r $fit_addr $fit_size &&" \
+		"bootm $fit_addr_r\0"
+#else
+#define CONFIG_BOOTFILE			"uImage"
+#define LINUXBOOT_ENV_SETTINGS \
+	"fdt_addr=0x00100000\0" \
+	"fdt_addr_r=0x84100000\0" \
+	"fdt_size=0x00008000\0" \
+	"kernel_addr=0x00200000\0" \
+	"kernel_addr_r=0x84200000\0" \
+	"kernel_size=0x00800000\0" \
+	"ramdisk_addr=0x00a00000\0" \
+	"ramdisk_addr_r=0x84a00000\0" \
+	"ramdisk_size=0x00600000\0" \
+	"norboot=run add_default_bootargs &&" \
+		"bootm $kernel_addr $ramdisk_addr $fdt_addr\0" \
+	"nandboot=run add_default_bootargs &&" \
+		"nand read $kernel_addr_r $kernel_addr $kernel_size &&" \
+		"nand read $ramdisk_addr_r $ramdisk_addr $ramdisk_size &&" \
+		"nand read $fdt_addr_r $fdt_addr $fdt_size &&" \
+		"bootm $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0"
+#endif
+
+#define	CONFIG_EXTRA_ENV_SETTINGS				\
+	"netdev=eth0\0"						\
+	"verify=n\0"						\
+	"nandupdate=nand erase 0 0x00100000 &&"			\
+		"tftpboot u-boot-spl.bin &&"			\
+		"nand write $loadaddr 0 0x00010000 &&"		\
+		"tftpboot u-boot-dtb.img &&"			\
+		"nand write $loadaddr 0x00010000 0x000f0000\0"	\
+	"add_default_bootargs=setenv bootargs $bootargs"	\
+		" console=ttyS0,$baudrate\0"			\
+	LINUXBOOT_ENV_SETTINGS
 
 /* Open Firmware flat tree */
 #define CONFIG_OF_LIBFDT
