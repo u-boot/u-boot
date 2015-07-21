@@ -79,7 +79,7 @@ static int zynq_spi_ofdata_to_platdata(struct udevice *bus)
 					250000000);
 	plat->speed_hz = plat->frequency / 2;
 
-	debug("zynq_spi_ofdata_to_platdata: regs=%p max-frequency=%d\n",
+	debug("%s: regs=%p max-frequency=%d\n", __func__,
 	      plat->regs, plat->frequency);
 
 	return 0;
