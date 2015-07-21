@@ -3024,7 +3024,7 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	if (ret) {
 		set_failing_group_stage(test_bgn + ret - 1, CAL_STAGE_WRITES,
 					CAL_SUBSTAGE_WRITES_CENTER);
-		return 0;
+		return -EINVAL;
 	}
 
 	min_index = get_window_mid_index(1, left_edge, right_edge, &mid_min);
@@ -3121,7 +3121,10 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	 */
 	writel(0, &sdr_scc_mgr->update);
 
-	return (dq_margin >= 0) && (dqs_margin >= 0) && (dm_margin >= 0);
+	if ((dq_margin < 0) || (dqs_margin < 0) || (dm_margin < 0))
+		return -EINVAL;
+
+	return 0;
 }
 
 /**
@@ -3148,13 +3151,11 @@ static int rw_mgr_mem_calibrate_writes(const u32 rank_bgn, const u32 group,
 	reg_file_set_sub_stage(CAL_SUBSTAGE_WRITES_CENTER);
 
 	ret = rw_mgr_mem_calibrate_writes_center(rank_bgn, group, test_bgn);
-	if (!ret) {
+	if (ret)
 		set_failing_group_stage(group, CAL_STAGE_WRITES,
 					CAL_SUBSTAGE_WRITES_CENTER);
-		return -EIO;
-	}
 
-	return 0;
+	return ret;
 }
 
 /**
