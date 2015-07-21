@@ -85,6 +85,48 @@ Supported devices
  - Support card (SRAM, NOR flash, some peripherals)
 
 
+Micro Support Card
+------------------
+
+The recommended bit switch settings are as follows:
+
+ SW2    OFF(1)/ON(0)   Description
+ ------------------------------------------
+ bit 1   <----         BKSZ[0]
+ bit 2   ---->         BKSZ[1]
+ bit 3   <----         SoC Bus Width 16/32
+ bit 4   <----         SERIAL_SEL[0]
+ bit 5   ---->         SERIAL_SEL[1]
+ bit 6   ---->         BOOTSWAP_EN
+ bit 7   <----         CS1/CS5
+ bit 8   <----         SOC_SERIAL_DISABLE
+
+ SW8    OFF(1)/ON(0)   Description
+ ------------------------------------------
+ bit 1    ---->        CS1_SPLIT
+ bit 2    <----        CASE9_ON
+ bit 3    <----        CASE10_ON
+ bit 4  Don't Care     Reserve
+ bit 5  Don't Care     Reserve
+ bit 6  Don't Care     Reserve
+ bit 7    ---->        BURST_EN
+ bit 8    ---->        FLASHBUS32_16
+
+The BKSZ[1:0] specifies the address range of memory slot and peripherals
+as follows:
+
+ BKSZ    Description              RAM slot            Peripherals
+ --------------------------------------------------------------------
+ 0b00   15MB RAM / 1MB Peri    00000000-0effffff    0f000000-0fffffff
+ 0b01   31MB RAM / 1MB Peri    00000000-1effffff    1f000000-1fffffff
+ 0b10   64MB RAM / 1MB Peri    00000000-3effffff    3f000000-3fffffff
+ 0b11  127MB RAM / 1MB Peri    00000000-7effffff    7f000000-7fffffff
+
+Set BSKZ[1:0] to 0b01 for U-Boot.
+This mode is the most handy because EA[24] is always supported by the save pin
+mode of the system bus.  On the other hand, EA[25] is not supported for some
+newer SoCs.  Even if it is, EA[25] is not connected on most of the boards.
+
 --
-Masahiro Yamada <yamada.m@jp.panasonic.com>
-Feb. 2015
+Masahiro Yamada <yamada.masahiro@socionext.com>
+Jul. 2015
