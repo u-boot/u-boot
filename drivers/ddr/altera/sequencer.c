@@ -2883,6 +2883,89 @@ static uint32_t rw_mgr_mem_calibrate_write_test(uint32_t rank_bgn,
 	}
 }
 
+/**
+ * search_window() - Search for the/part of the window with DM/DQS shift
+ * @search_dm:		If 1, search for the DM shift, if 0, search for DQS shift
+ * @rank_bgn:		Rank number
+ * @write_group:	Write Group
+ * @bgn_curr:		Current window begin
+ * @end_curr:		Current window end
+ * @bgn_best:		Current best window begin
+ * @end_best:		Current best window end
+ * @win_best:		Size of the best window
+ * @new_dqs:		New DQS value (only applicable if search_dm = 0).
+ *
+ * Search for the/part of the window with DM/DQS shift.
+ */
+static void search_window(const int search_dm,
+			  const u32 rank_bgn, const u32 write_group,
+			  int *bgn_curr, int *end_curr, int *bgn_best,
+			  int *end_best, int *win_best, int new_dqs)
+{
+	u32 bit_chk;
+	const int max = IO_IO_OUT1_DELAY_MAX - new_dqs;
+	int d, di;
+
+	/* Search for the/part of the window with DM/DQS shift. */
+	for (di = max; di >= 0; di -= DELTA_D) {
+		if (search_dm) {
+			d = di;
+			scc_mgr_apply_group_dm_out1_delay(d);
+		} else {
+			/* For DQS, we go from 0...max */
+			d = max - di;
+			/*
+			 * Note: This only shifts DQS, so are we limiting ourselve to
+			 * width of DQ unnecessarily.
+			 */
+			scc_mgr_apply_group_dqs_io_and_oct_out1(write_group,
+								d + new_dqs);
+		}
+
+		writel(0, &sdr_scc_mgr->update);
+
+		if (rw_mgr_mem_calibrate_write_test(rank_bgn, write_group, 1,
+						    PASS_ALL_BITS, &bit_chk,
+						    0)) {
+			/* Set current end of the window. */
+			*end_curr = search_dm ? -d : d;
+
+			/*
+			 * If a starting edge of our window has not been seen
+			 * this is our current start of the DM window.
+			 */
+			if (*bgn_curr == IO_IO_OUT1_DELAY_MAX + 1)
+				*bgn_curr = search_dm ? -d : d;
+
+			/*
+			 * If current window is bigger than best seen.
+			 * Set best seen to be current window.
+			 */
+			if ((*end_curr - *bgn_curr + 1) > *win_best) {
+				*win_best = *end_curr - *bgn_curr + 1;
+				*bgn_best = *bgn_curr;
+				*end_best = *end_curr;
+			}
+		} else {
+			/* We just saw a failing test. Reset temp edge. */
+			*bgn_curr = IO_IO_OUT1_DELAY_MAX + 1;
+			*end_curr = IO_IO_OUT1_DELAY_MAX + 1;
+
+			/* Early exit is only applicable to DQS. */
+			if (search_dm)
+				continue;
+
+			/*
+			 * Early exit optimization: if the remaining delay
+			 * chain space is less than already seen largest
+			 * window we can exit.
+			 */
+			if (*win_best - 1 > IO_IO_OUT1_DELAY_MAX - new_dqs - d)
+				break;
+		}
+	}
+}
+
 /*
  * center all windows. do per-bit-deskew to possibly increase size of
  * certain windows.
@@ -2891,8 +2974,7 @@ static int
 rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 				   const u32 test_bgn)
 {
-	int i, d;
-	u32 bit_chk;
+	int i;
 	u32 sticky_bit_chk;
 	u32 min_index;
 	u32 addr;
@@ -2975,37 +3057,8 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	right_edge[0] = IO_IO_OUT1_DELAY_MAX + 1;
 
 	/* Search for the/part of the window with DM shift. */
-	for (d = IO_IO_OUT1_DELAY_MAX; d >= 0; d -= DELTA_D) {
-		scc_mgr_apply_group_dm_out1_delay(d);
-		writel(0, &sdr_scc_mgr->update);
-
-		if (rw_mgr_mem_calibrate_write_test(rank_bgn, write_group, 1,
-						    PASS_ALL_BITS, &bit_chk,
-						    0)) {
-			/* Set current end of the window. */
-			end_curr = -d;
-			/*
-			 * If a starting edge of our window has not been seen
-			 * this is our current start of the DM window.
-			 */
-			if (bgn_curr == IO_IO_OUT1_DELAY_MAX + 1)
-				bgn_curr = -d;
-
-			/*
-			 * If current window is bigger than best seen.
-			 * Set best seen to be current window.
-			 */
-			if ((end_curr-bgn_curr+1) > win_best) {
-				win_best = end_curr-bgn_curr+1;
-				bgn_best = bgn_curr;
-				end_best = end_curr;
-			}
-		} else {
-			/* We just saw a failing test. Reset temp edge. */
-			bgn_curr = IO_IO_OUT1_DELAY_MAX + 1;
-			end_curr = IO_IO_OUT1_DELAY_MAX + 1;
-		}
-	}
+	search_window(1, rank_bgn, write_group, &bgn_curr, &end_curr,
+		      &bgn_best, &end_best, &win_best, 0);
 
 	/* Reset DM delay chains to 0. */
 	scc_mgr_apply_group_dm_out1_delay(0);
@@ -3021,52 +3074,8 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	}
 
 	/* Search for the/part of the window with DQS shifts. */
-	for (d = 0; d <= IO_IO_OUT1_DELAY_MAX - new_dqs; d += DELTA_D) {
-		/*
-		 * Note: This only shifts DQS, so are we limiting ourselve to
-		 * width of DQ unnecessarily.
-		 */
-		scc_mgr_apply_group_dqs_io_and_oct_out1(write_group,
-							d + new_dqs);
-
-		writel(0, &sdr_scc_mgr->update);
-		if (rw_mgr_mem_calibrate_write_test(rank_bgn, write_group, 1,
-						    PASS_ALL_BITS, &bit_chk,
-						    0)) {
-			/* Set current end of the window. */
-			end_curr = d;
-			/*
-			 * If a beginning edge of our window has not been seen
-			 * this is our current begin of the DM window.
-			 */
-			if (bgn_curr == IO_IO_OUT1_DELAY_MAX + 1)
-				bgn_curr = d;
-
-			/*
-			 * If current window is bigger than best seen. Set best
-			 * seen to be current window.
-			 */
-			if ((end_curr-bgn_curr+1) > win_best) {
-				win_best = end_curr-bgn_curr+1;
-				bgn_best = bgn_curr;
-				end_best = end_curr;
-			}
-		} else {
-			/* We just saw a failing test. Reset temp edge. */
-			bgn_curr = IO_IO_OUT1_DELAY_MAX + 1;
-			end_curr = IO_IO_OUT1_DELAY_MAX + 1;
-
-			/*
-			 * Early exit optimization: if the remaining delay
-			 * chain space is less than already seen largest
-			 * window we can exit.
-			 */
-			if ((win_best-1) >
-				(IO_IO_OUT1_DELAY_MAX - new_dqs - d)) {
-					break;
-			}
-		}
-	}
+	search_window(0, rank_bgn, write_group, &bgn_curr, &end_curr,
+		      &bgn_best, &end_best, &win_best, new_dqs);
 
 	/* Assign left and right edge for cal and reporting. */
 	left_edge[0] = -1 * bgn_best;
