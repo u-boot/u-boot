@@ -31,7 +31,10 @@ static struct nic301_registers *nic301_regs =
 
 u32 spl_boot_device(void)
 {
-#ifdef CONFIG_SPL_MMC_SUPPORT
+#ifdef CONFIG_SPL_SPI_SUPPORT
+	socfpga_per_reset(SOCFPGA_RESET(QSPI), 0);
+	return BOOT_DEVICE_SPI;
+#elif CONFIG_SPL_MMC_SUPPORT
 	socfpga_per_reset(SOCFPGA_RESET(SDMMC), 0);
 	socfpga_per_reset(SOCFPGA_RESET(DMA), 0);
 	return BOOT_DEVICE_MMC1;

@@ -301,6 +301,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_WATCHDOG_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_SPI_SUPPORT
 
 /* SPL SDMMC boot support */
 #ifdef CONFIG_SPL_MMC_SUPPORT
@@ -313,6 +314,14 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0xa00 /* offset 2560 sect (1M+256k) */
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	800 /* 400 KB */
 #endif
+#endif
+
+/* SPL QSPI boot support */
+#ifdef CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_DM_SEQ_ALIAS		1
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SPL_SPI_LOAD
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x40000
 #endif
 
 /*
