@@ -22,6 +22,10 @@
 #define IDE1_TIM		0x42
 #define IDE_DECODE_EN		(1 << 15)
 
+/* PCIe ECAM Base Address Register */
+#define PCIEX_BAR		0x60
+#define BAR_EN			(1 << 0)
+
 /* I/O Ports */
 #define CMOS_ADDR_PORT		0x70
 #define CMOS_DATA_PORT		0x71

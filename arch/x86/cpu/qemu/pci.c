@@ -90,6 +90,10 @@ int board_pci_post_scan(struct pci_controller *hose)
 		xbcs = x86_pci_read_config16(PIIX_ISA, XBCS);
 		xbcs |= APIC_EN;
 		x86_pci_write_config16(PIIX_ISA, XBCS, xbcs);
+	} else {
+		/* Configure PCIe ECAM base address */
+		x86_pci_write_config32(PCI_BDF(0, 0, 0), PCIEX_BAR,
+				       CONFIG_PCIE_ECAM_BASE | BAR_EN);
 	}
 
 	/*
