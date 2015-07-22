@@ -25,9 +25,9 @@ void set_pgtable_section(u64 *page_table, u64 index, u64 section,
 /* to activate the MMU we need to set up virtual memory */
 static void mmu_setup(void)
 {
-	int i, j, el;
 	bd_t *bd = gd->bd;
-	u64 *page_table = (u64 *)gd->arch.tlb_addr;
+	u64 *page_table = (u64 *)gd->arch.tlb_addr, i, j;
+	int el;
 
 	/* Setup an identity-mapping for all spaces */
 	for (i = 0; i < (PGTABLE_SIZE >> 3); i++) {
