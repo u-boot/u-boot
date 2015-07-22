@@ -135,6 +135,17 @@ Similar to the above, but skip the first commit and take the next 5. This
 is useful if your top commit is for setting up testing.
 
 
+How to install it
+=================
+
+The most up to date version of patman can be found in the U-boot sources.
+However to use it on other projects it may be more convenient to install it as
+a standalone application. A distutils installer is included, this can be used
+to install patman:
+
+$ cd tools/patman && python setup.py install
+
+
 How to add tags
 ===============
 

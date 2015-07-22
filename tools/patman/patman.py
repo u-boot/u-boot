@@ -14,14 +14,18 @@ import sys
 import unittest
 
 # Our modules
-import checkpatch
-import command
-import gitutil
-import patchstream
-import project
-import settings
-import terminal
-import test
+try:
+    from patman import checkpatch, command, gitutil, patchstream, \
+        project, settings, terminal, test
+except ImportError:
+    import checkpatch
+    import command
+    import gitutil
+    import patchstream
+    import project
+    import settings
+    import terminal
+    import test
 
 
 parser = OptionParser()
