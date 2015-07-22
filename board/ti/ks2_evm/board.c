@@ -48,7 +48,7 @@ int dram_init(void)
 
 int board_init(void)
 {
-	gd->bd->bi_boot_params = CONFIG_LINUX_BOOT_PARAM_ADDR;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	return 0;
 }
