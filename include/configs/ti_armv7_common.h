@@ -18,8 +18,6 @@
 #define __CONFIG_TI_ARMV7_COMMON_H__
 
 /* Common define for many platforms. */
-#define CONFIG_OMAP
-#define CONFIG_OMAP_COMMON
 #define CONFIG_SYS_GENERIC_BOARD
 
 /*
@@ -86,37 +84,18 @@
 #define CONFIG_I2C
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
-#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
-#define CONFIG_SYS_I2C_OMAP24XX
 
 /* MMC/SD IP block */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
-#define CONFIG_OMAP_HSMMC
 #define CONFIG_CMD_MMC
 
 /* McSPI IP block */
 #define CONFIG_SPI
-#define CONFIG_OMAP3_SPI
 #define CONFIG_CMD_SPI
 
 /* GPIO block */
-#define CONFIG_OMAP_GPIO
 #define CONFIG_CMD_GPIO
-
-/*
- * GPMC NAND block.  We support 1 device and the physical address to
- * access CS0 at is 0x8000000.
- */
-#ifdef CONFIG_NAND
-#define CONFIG_NAND_OMAP_GPMC
-#ifndef CONFIG_SYS_NAND_BASE
-#define CONFIG_SYS_NAND_BASE		0x8000000
-#endif
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_CMD_NAND
-#endif
 
 /*
  * The following are general good-enough settings for U-Boot.  We set a

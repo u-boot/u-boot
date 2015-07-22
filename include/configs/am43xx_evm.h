@@ -80,7 +80,7 @@
 #endif
 
 /* Now bring in the rest of the common code. */
-#include <configs/ti_armv7_common.h>
+#include <configs/ti_armv7_omap.h>
 
 /* Always 64 KiB env size */
 #define CONFIG_ENV_SIZE			(64 << 10)
