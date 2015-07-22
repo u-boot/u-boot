@@ -221,8 +221,8 @@ static void ci_flush_qtd(int ep_num)
  */
 static void ci_flush_td(struct ept_queue_item *td)
 {
-	const uint32_t  start = (uint32_t)td;
-	const uint32_t end = (uint32_t) td + ILIST_ENT_SZ;
+	const unsigned long start = (unsigned long)td;
+	const unsigned long end = (unsigned long)td + ILIST_ENT_SZ;
 	flush_dcache_range(start, end);
 }
 
@@ -249,8 +249,8 @@ static void ci_invalidate_qtd(int ep_num)
  */
 static void ci_invalidate_td(struct ept_queue_item *td)
 {
-	const uint32_t start = (uint32_t)td;
-	const uint32_t end = start + ILIST_ENT_SZ;
+	const unsigned long start = (unsigned long)td;
+	const unsigned long end = start + ILIST_ENT_SZ;
 	invalidate_dcache_range(start, end);
 }
 
@@ -459,7 +459,7 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 		if (len) {
 			qtd = (struct ept_queue_item *)
 			       memalign(ILIST_ALIGN, ILIST_ENT_SZ);
-			dtd->next = (uint32_t)qtd;
+			dtd->next = (unsigned long)qtd;
 			dtd = qtd;
 			memset(dtd, 0, ILIST_ENT_SZ);
 		}
@@ -503,10 +503,10 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 
 	ci_flush_qtd(num);
 
-	item = (struct ept_queue_item *)head->next;
+	item = (struct ept_queue_item *)(unsigned long)head->next;
 	while (item->next != TERMINATE) {
-		ci_flush_td((struct ept_queue_item *)item->next);
-		item = (struct ept_queue_item *)item->next;
+		ci_flush_td((struct ept_queue_item *)(unsigned long)item->next);
+		item = (struct ept_queue_item *)(unsigned long)item->next;
 	}
 
 	DBG("ept%d %s queue len %x, req %p, buffer %p\n",
@@ -594,7 +594,8 @@ static void handle_ep_complete(struct ci_ep *ci_ep)
 			printf("EP%d/%s FAIL info=%x pg0=%x\n",
 			       num, in ? "in" : "out", item->info, item->page0);
 		if (j != ci_req->dtd_count - 1)
-			next_td = (struct ept_queue_item *)item->next;
+			next_td = (struct ept_queue_item *)(unsigned long)
+				item->next;
 		if (j != 0)
 			free(item);
 	}
