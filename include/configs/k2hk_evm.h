@@ -20,7 +20,7 @@
 	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
 	"root=ubi0:rootfs rootflags=sync rw ubi.mtd=ubifs,2048\0"	\
 	"name_fdt=k2hk-evm.dtb\0"				\
-	"name_mon=skern-k2hk-evm.bin\0"					\
+	"name_mon=skern-k2hk.bin\0"					\
 	"name_ubi=k2hk-evm-ubifs.ubi\0"					\
 	"name_uboot=u-boot-spi-k2hk-evm.gph\0"				\
 	"name_fs=arago-console-image-k2hk-evm.cpio.gz\0"
