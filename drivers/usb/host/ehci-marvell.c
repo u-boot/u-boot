@@ -30,7 +30,14 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 #ifdef CONFIG_ARMADA_XP
 
-#define MVUSB0_BASE		MVEBU_USB20_BASE
+/*
+ * Armada XP and Armada 38x have different base addresses for
+ * the USB 2.0 EHCI host controller. So we need to provide
+ * a mechnism to support both here.
+ */
+#define MVUSB0_BASE					\
+	(mvebu_soc_family() == MVEBU_SOC_A38X ?		\
+	 MVEBU_USB20_BASE : MVEBU_AXP_USB_BASE)
 
 /*
  * Once all the older Marvell SoC's (Orion, Kirkwood) are converted

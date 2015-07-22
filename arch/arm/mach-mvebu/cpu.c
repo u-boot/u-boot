@@ -179,6 +179,46 @@ static void set_cbar(u32 addr)
 	asm("mcr p15, 4, %0, c15, c0" : : "r" (addr));
 }
 
+#define MV_USB_PHY_BASE			(MVEBU_AXP_USB_BASE + 0x800)
+#define MV_USB_PHY_PLL_REG(reg)		(MV_USB_PHY_BASE | (((reg) & 0xF) << 2))
+#define MV_USB_X3_BASE(addr)		(MVEBU_AXP_USB_BASE | BIT(11) | \
+					 (((addr) & 0xF) << 6))
+#define MV_USB_X3_PHY_CHANNEL(dev, reg)	(MV_USB_X3_BASE((dev) + 1) |	\
+					 (((reg) & 0xF) << 2))
+
+static void setup_usb_phys(void)
+{
+	int dev;
+
+	/*
+	 * USB PLL init
+	 */
+
+	/* Setup PLL frequency */
+	/* USB REF frequency = 25 MHz */
+	clrsetbits_le32(MV_USB_PHY_PLL_REG(1), 0x3ff, 0x605);
+
+	/* Power up PLL and PHY channel */
+	clrsetbits_le32(MV_USB_PHY_PLL_REG(2), 0, BIT(9));
+
+	/* Assert VCOCAL_START */
+	clrsetbits_le32(MV_USB_PHY_PLL_REG(1), 0, BIT(21));
+
+	mdelay(1);
+
+	/*
+	 * USB PHY init (change from defaults) specific for 40nm (78X30 78X60)
+	 */
+
+	for (dev = 0; dev < 3; dev++) {
+		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 3), 0, BIT(15));
+
+		/* Assert REG_RCAL_START in channel REG 1 */
+		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), 0, BIT(12));
+		udelay(40);
+		clrsetbits_le32(MV_USB_X3_PHY_CHANNEL(dev, 1), BIT(12), 0);
+	}
+}
 
 int arch_cpu_init(void)
 {
@@ -246,6 +286,9 @@ int arch_cpu_init(void)
 		clrsetbits_le32(ARMADA_XP_PUP_ENABLE, 0,
 				GE0_PUP_EN | GE1_PUP_EN | LCD_PUP_EN |
 				NAND_PUP_EN | SPI_PUP_EN);
+
+		/* Configure USB PLL and PHYs on AXP */
+		setup_usb_phys();
 	}
 
 	/* Enable NAND and NAND arbiter */
