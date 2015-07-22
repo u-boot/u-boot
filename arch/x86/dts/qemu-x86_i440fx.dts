@@ -24,6 +24,18 @@
 		stdout-path = "/serial";
 	};
 
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "cpu-x86";
+			reg = <0>;
+			intel,apic-id = <0>;
+		};
+	};
+
 	pci {
 		compatible = "pci-x86";
 		#address-cells = <3>;
