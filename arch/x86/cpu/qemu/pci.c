@@ -50,7 +50,7 @@ void board_pci_setup_hose(struct pci_controller *hose)
 int board_pci_post_scan(struct pci_controller *hose)
 {
 	int ret = 0;
-	u16 device;
+	u16 device, xbcs;
 	int pam, i;
 	pci_dev_t vga;
 	ulong start;
@@ -82,6 +82,11 @@ int board_pci_post_scan(struct pci_controller *hose)
 		 */
 		x86_pci_write_config16(PIIX_IDE, IDE0_TIM, IDE_DECODE_EN);
 		x86_pci_write_config16(PIIX_IDE, IDE1_TIM, IDE_DECODE_EN);
+
+		/* Enable I/O APIC */
+		xbcs = x86_pci_read_config16(PIIX_ISA, XBCS);
+		xbcs |= APIC_EN;
+		x86_pci_write_config16(PIIX_ISA, XBCS, xbcs);
 	}
 
 	/*
