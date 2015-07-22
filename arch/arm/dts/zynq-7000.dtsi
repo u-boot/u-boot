@@ -166,7 +166,7 @@
 		};
 
 		spi0: spi@e0006000 {
-			compatible = "xlnx,zynq-spi";
+			compatible = "xlnx,zynq-spi-r1p6";
 			reg = <0xe0006000 0x1000>;
 			status = "disabled";
 			interrupt-parent = <&intc>;
@@ -179,7 +179,7 @@
 		};
 
 		spi1: spi@e0007000 {
-			compatible = "xlnx,zynq-spi";
+			compatible = "xlnx,zynq-spi-r1p6";
 			reg = <0xe0007000 0x1000>;
 			status = "disabled";
 			interrupt-parent = <&intc>;
