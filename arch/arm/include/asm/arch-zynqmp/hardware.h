@@ -55,6 +55,15 @@ struct iou_scntr {
 #define EMMC_MODE	0x00000006
 #define JTAG_MODE	0x00000000
 
+#define ZYNQMP_IOU_SLCR_BASEADDR	0xFF180000
+
+struct iou_slcr_regs {
+	u32 mio_pin[78];
+	u32 reserved[442];
+};
+
+#define slcr_base ((struct iou_slcr_regs *)ZYNQMP_IOU_SLCR_BASEADDR)
+
 #define ZYNQMP_RPU_BASEADDR	0xFF9A0000
 
 struct rpu_regs {
