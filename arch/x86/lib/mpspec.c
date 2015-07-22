@@ -269,6 +269,13 @@ static bool check_dup_entry(struct mpc_config_intsrc *intsrc_base,
 	return (i == entry_num) ? false : true;
 }
 
+/* TODO: move this to driver model */
+__weak int mp_determine_pci_dstirq(int bus, int dev, int func, int pirq)
+{
+	/* PIRQ[A-H] are connected to I/O APIC INTPIN#16-23 */
+	return pirq + 16;
+}
+
 static int mptable_add_intsrc(struct mp_config_table *mc,
 			      int bus_isa, int apicid)
 {
@@ -304,24 +311,27 @@ static int mptable_add_intsrc(struct mp_config_table *mc,
 
 	for (i = 0; i < count; i++) {
 		struct pirq_routing pr;
+		int bus, dev, func;
+		int dstirq;
 
 		pr.bdf = fdt_addr_to_cpu(cell[0]);
 		pr.pin = fdt_addr_to_cpu(cell[1]);
 		pr.pirq = fdt_addr_to_cpu(cell[2]);
+		bus = PCI_BUS(pr.bdf);
+		dev = PCI_DEV(pr.bdf);
+		func = PCI_FUNC(pr.bdf);
 
 		if (check_dup_entry(intsrc_base, intsrc_entries,
-				    PCI_BUS(pr.bdf), PCI_DEV(pr.bdf), pr.pin)) {
+				    bus, dev, pr.pin)) {
 			debug("found entry for bus %d device %d INT%c, skipping\n",
-			      PCI_BUS(pr.bdf), PCI_DEV(pr.bdf),
-			      'A' + pr.pin - 1);
+			      bus, dev, 'A' + pr.pin - 1);
 			cell += sizeof(struct pirq_routing) / sizeof(u32);
 			continue;
 		}
 
-		/* PIRQ[A-H] are always connected to I/O APIC INTPIN#16-23 */
-		mp_write_pci_intsrc(mc, MP_INT, PCI_BUS(pr.bdf),
-				    PCI_DEV(pr.bdf), pr.pin, apicid,
-				    pr.pirq + 16);
+		dstirq = mp_determine_pci_dstirq(bus, dev, func, pr.pirq);
+		mp_write_pci_intsrc(mc, MP_INT, bus, dev, pr.pin,
+				    apicid, dstirq);
 		intsrc_entries++;
 		cell += sizeof(struct pirq_routing) / sizeof(u32);
 	}

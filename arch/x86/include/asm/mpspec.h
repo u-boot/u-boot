@@ -432,6 +432,23 @@ void mp_write_compat_address_space(struct mp_config_table *mc, int busid,
 u32 mptable_finalize(struct mp_config_table *mc);
 
 /**
+ * mp_determine_pci_dstirq() - Determine PCI device's int pin on the I/O APIC
+ *
+ * This determines a PCI device's interrupt pin number on the I/O APIC.
+ *
+ * This can be implemented by platform codes to handle specifal cases, which
+ * do not conform to the normal chipset/board design where PIRQ[A-H] are mapped
+ * directly to I/O APIC INTPIN#16-23.
+ *
+ * @bus:	bus number of the pci device
+ * @dev:	device number of the pci device
+ * @func:	function number of the pci device
+ * @pirq:	PIRQ number the PCI device's interrupt pin is routed to
+ * @return:	interrupt pin number on the I/O APIC
+ */
+int mp_determine_pci_dstirq(int bus, int dev, int func, int pirq);
+
+/**
  * write_mp_table() - Write MP table
  *
  * This writes MP table at a given address.
