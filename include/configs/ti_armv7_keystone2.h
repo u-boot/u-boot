@@ -14,10 +14,7 @@
 
 /* U-Boot Build Configuration */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 2nd stage loader */
-#define CONFIG_SYS_NO_FLASH		/* that is, no *NOR* flash */
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_BOARD_EARLY_INIT_F
-#define CONFIG_SYS_THUMB_BUILD
 
 /* SoC Configuration */
 #define CONFIG_ARCH_CPU_INIT
@@ -28,11 +25,9 @@
 
 /* Memory Configuration */
 #define CONFIG_NR_DRAM_BANKS		2
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_SYS_LPAE_SDRAM_BASE	0x800000000
 #define CONFIG_MAX_RAM_BANK_SIZE	(2 << 30)       /* 2GB */
 #define CONFIG_STACKSIZE		(512 << 10)     /* 512 KiB */
-#define CONFIG_SYS_MALLOC_LEN		(4 << 20)       /* 4 MiB */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - \
 					GENERATED_GBL_DATA_SIZE)
 
@@ -49,15 +44,10 @@
 #define CONFIG_SPL_STACK		(CONFIG_SYS_SPL_MALLOC_START + \
 					CONFIG_SYS_SPL_MALLOC_SIZE + \
 					CONFIG_SPL_STACK_SIZE - 4)
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
-#define CONFIG_SPL_FRAMEWORK
 
 /* UART Configuration */
 #define CONFIG_SYS_NS16550
@@ -68,13 +58,10 @@
 #define CONFIG_SYS_NS16550_COM2		KS2_UART1_BASE
 #define CONFIG_SYS_NS16550_CLK		clk_get_rate(KS2_CLK1_6)
 #define CONFIG_CONS_INDEX		1
-#define CONFIG_BAUDRATE			115200
 
 /* SPI Configuration */
-#define CONFIG_SPI
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_DAVINCI_SPI
-#define CONFIG_CMD_SPI
 #define CONFIG_SYS_SPI_CLK		clk_get_rate(KS2_CLK1_6)
 #define CONFIG_SF_DEFAULT_SPEED		30000000
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
@@ -148,7 +135,6 @@
 #define CONFIG_AEMIF_CNTRL_BASE		KS2_AEMIF_CNTRL_BASE
 
 /* I2C Configuration */
-#define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_DAVINCI
 #define CONFIG_SYS_DAVINCI_I2C_SPEED	100000
 #define CONFIG_SYS_DAVINCI_I2C_SLAVE	0x10 /* SMBus host address */
@@ -185,7 +171,6 @@
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET			0x100000
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE
 #define CONFIG_RBTREE
 #define CONFIG_LZO
 #define MTDIDS_DEFAULT			"nand0=davinci_nand.0"
@@ -198,8 +183,6 @@
 #define CONFIG_USB_XHCI_DWC3
 #define CONFIG_USB_XHCI_KEYSTONE
 #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
-#define CONFIG_USB_STORAGE
-#define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
 #define CONFIG_FS_FAT
 #define CONFIG_SYS_CACHELINE_SIZE		64
@@ -209,39 +192,25 @@
 #define CONFIG_USB_PHY_CFG_BASE			KS2_USB_PHY_CFG_BASE
 
 /* U-Boot command configuration */
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_USB
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
 
 /* U-Boot general configuration */
-#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_MISC_INIT_R
-#define CONFIG_SYS_CBSIZE		1024
-#define CONFIG_SYS_PBSIZE		2048
-#define CONFIG_SYS_MAXARGS		16
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_LONGHELP
 #define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_VERSION_VARIABLE
 #define CONFIG_TIMESTAMP
 
 /* EDMA3 */
 #define CONFIG_TI_EDMA3
 
-#define CONFIG_BOOTDELAY		3
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
@@ -302,14 +271,26 @@
 #define CONFIG_BOOTARGS							\
 
 /* Linux interfacing */
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_OF_LIBFDT		1
 #define CONFIG_OF_BOARD_SETUP
-#define CONFIG_SYS_BARGSIZE		1024
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x08000000)
 
-#define CONFIG_SUPPORT_RAW_INITRD
+/* Now for the remaining common defines */
+#include <configs/ti_armv7_common.h>
+
+/* We wont be loading up OS from SPL for now.. */
+#undef CONFIG_SPL_OS_BOOT
+
+/* We do not have MMC support.. yet.. */
+#undef CONFIG_SPL_LIBDISK_SUPPORT
+#undef CONFIG_SPL_MMC_SUPPORT
+#undef CONFIG_SPL_FAT_SUPPORT
+#undef CONFIG_SPL_EXT_SUPPORT
+#undef CONFIG_MMC
+#undef CONFIG_GENERIC_MMC
+#undef CONFIG_CMD_MMC
+
+/* And no support for GPIO, yet.. */
+#undef CONFIG_SPL_GPIO_SUPPORT
+#undef CONFIG_CMD_GPIO
 
 /* we may include files below only after all above definitions */
 #include <asm/arch/hardware.h>

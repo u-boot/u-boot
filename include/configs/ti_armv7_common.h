@@ -74,8 +74,11 @@
 #define CONFIG_NR_DRAM_BANKS		1
 #endif
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
+
+#ifndef CONFIG_SYS_INIT_SP_ADDR
 #define CONFIG_SYS_INIT_SP_ADDR         (NON_SECURE_SRAM_END - \
 						GENERATED_GBL_DATA_SIZE)
+#endif
 
 /* Timer information. */
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
@@ -140,7 +143,7 @@
  * mtdparts, both for ease of use in U-Boot and for passing information
  * on to the Linux kernel.
  */
-#if defined(CONFIG_SPI_BOOT) || defined(CONFIG_NOR) || defined(CONFIG_NAND)
+#if defined(CONFIG_SPI_BOOT) || defined(CONFIG_NOR) || defined(CONFIG_NAND) || defined(CONFIG_NAND_DAVINCI)
 #define CONFIG_MTD_DEVICE		/* Required for mtdparts */
 #define CONFIG_CMD_MTDPARTS
 #endif

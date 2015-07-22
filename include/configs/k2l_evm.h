@@ -15,8 +15,6 @@
 #define CONFIG_K2L_EVM
 
 /* U-Boot general configuration */
-#define CONFIG_SYS_PROMPT		"K2L EVM # "
-
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
 	"addr_mon=0x0c140000\0"						\
 	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
