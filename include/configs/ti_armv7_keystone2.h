@@ -213,30 +213,26 @@
 
 #define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	DEFAULT_LINUX_BOOT_ENV						\
 	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
 	"boot=ubi\0"							\
 	"tftp_root=/\0"							\
 	"nfs_root=/export\0"						\
 	"mem_lpae=1\0"							\
 	"mem_reserve=512M\0"						\
-	"addr_fdt=0x87000000\0"						\
-	"addr_kern=0x88000000\0"					\
-	"addr_uboot=0x87000000\0"					\
-	"addr_fs=0x82000000\0"						\
 	"addr_ubi=0x82000000\0"						\
 	"addr_secdb_key=0xc000000\0"					\
-	"fdt_high=0xffffffff\0"						\
 	"name_kern=uImage-keystone-evm.bin\0"				\
 	"run_mon=mon_install ${addr_mon}\0"				\
-	"run_kern=bootm ${addr_kern} - ${addr_fdt}\0"			\
+	"run_kern=bootm ${loadaddr} - ${fdtaddr}\0"			\
 	"init_net=run args_all args_net\0"				\
 	"init_ubi=run args_all args_ubi; "				\
 		"ubi part ubifs; ubifsmount ubi:boot;"			\
 		"ubifsload ${addr_secdb_key} securedb.key.bin;\0"       \
-	"get_fdt_net=dhcp ${addr_fdt} ${tftp_root}/${name_fdt}\0"	\
-	"get_fdt_ubi=ubifsload ${addr_fdt} ${name_fdt}\0"		\
-	"get_kern_net=dhcp ${addr_kern} ${tftp_root}/${name_kern}\0"	\
-	"get_kern_ubi=ubifsload ${addr_kern} ${name_kern}\0"		\
+	"get_fdt_net=dhcp ${fdtaddr} ${tftp_root}/${name_fdt}\0"	\
+	"get_fdt_ubi=ubifsload ${fdtaddr} ${name_fdt}\0"		\
+	"get_kern_net=dhcp ${loadaddr} ${tftp_root}/${name_kern}\0"	\
+	"get_kern_ubi=ubifsload ${loadaddr} ${name_kern}\0"		\
 	"get_mon_net=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
 	"get_mon_ubi=ubifsload ${addr_mon} ${name_mon}\0"		\
 	"get_uboot_net=dhcp ${addr_uboot} ${tftp_root}/${name_uboot}\0"	\
@@ -249,10 +245,10 @@
 		"root=/dev/nfs rw nfsroot=${serverip}:${nfs_root},"	\
 		"${nfs_options} ip=dhcp\0"				\
 	"nfs_options=v3,tcp,rsize=4096,wsize=4096\0"			\
-	"get_fdt_ramfs=dhcp ${addr_fdt} ${tftp_root}/${name_fdt}\0"	\
-	"get_kern_ramfs=dhcp ${addr_kern} ${tftp_root}/${name_kern}\0"	\
+	"get_fdt_ramfs=dhcp ${fdtaddr} ${tftp_root}/${name_fdt}\0"	\
+	"get_kern_ramfs=dhcp ${loadaddr} ${tftp_root}/${name_kern}\0"	\
 	"get_mon_ramfs=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
-	"get_fs_ramfs=dhcp ${addr_fs} ${tftp_root}/${name_fs}\0"	\
+	"get_fs_ramfs=dhcp ${rdaddr} ${tftp_root}/${name_fs}\0"	\
 	"get_ubi_net=dhcp ${addr_ubi} ${tftp_root}/${name_ubi}\0"	\
 	"burn_ubi=nand erase.part ubifs; "				\
 		"nand write ${addr_ubi} ubifs ${filesize}\0"		\
