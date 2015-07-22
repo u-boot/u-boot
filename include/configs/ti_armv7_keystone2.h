@@ -211,7 +211,6 @@
 /* EDMA3 */
 #define CONFIG_TI_EDMA3
 
-#define CONFIG_BOOTFILE			"uImage"
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
@@ -222,9 +221,9 @@
 	"mem_reserve=512M\0"						\
 	"addr_ubi=0x82000000\0"						\
 	"addr_secdb_key=0xc000000\0"					\
-	"name_kern=uImage-keystone-evm.bin\0"				\
+	"name_kern=zImage\0"						\
 	"run_mon=mon_install ${addr_mon}\0"				\
-	"run_kern=bootm ${loadaddr} - ${fdtaddr}\0"			\
+	"run_kern=bootz ${loadaddr} - ${fdtaddr}\0"			\
 	"init_net=run args_all args_net\0"				\
 	"init_ubi=run args_all args_ubi; "				\
 		"ubi part ubifs; ubifsmount ubi:boot;"			\
