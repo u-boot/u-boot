@@ -131,8 +131,8 @@ static u32 get_odmdata(void)
 	 * on BCTs for currently supported SoCs, which are locked down.
 	 * If this changes in new chips, we can revisit this algorithm.
 	 */
-
-	u32 bct_start, odmdata;
+	unsigned long bct_start;
+	u32 odmdata;
 
 	bct_start = readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BCTPTR);
 	odmdata = readl(bct_start + BCT_ODMDATA_OFFSET);
