@@ -156,7 +156,7 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 		dfu->data.mmc.dev, dfu->data.mmc.part);
 
 	if (op != DFU_OP_SIZE)
-		sprintf(cmd_buf + strlen(cmd_buf), " 0x%x", (unsigned int)buf);
+		sprintf(cmd_buf + strlen(cmd_buf), " %p", buf);
 
 	sprintf(cmd_buf + strlen(cmd_buf), " %s", dfu->name);
 

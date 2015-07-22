@@ -198,9 +198,9 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 {
 	int ret;
 
-	debug("%s: name: %s buf: 0x%p size: 0x%x p_num: 0x%x offset: 0x%llx bufoffset: 0x%x\n",
+	debug("%s: name: %s buf: 0x%p size: 0x%x p_num: 0x%x offset: 0x%llx bufoffset: 0x%lx\n",
 	      __func__, dfu->name, buf, size, blk_seq_num, dfu->offset,
-	      dfu->i_buf - dfu->i_buf_start);
+	      (unsigned long)(dfu->i_buf - dfu->i_buf_start));
 
 	if (!dfu->inited) {
 		/* initial state */
