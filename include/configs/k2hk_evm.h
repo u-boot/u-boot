@@ -27,7 +27,7 @@
 	"name_uboot=u-boot-spi-k2hk-evm.gph\0"				\
 	"name_fs=arago-console-image-k2hk-evm.cpio.gz\0"
 
-#include <configs/ks2_evm.h>
+#include <configs/ti_armv7_keystone2.h>
 
 /* SPL SPI Loader Configuration */
 #define CONFIG_SPL_TEXT_BASE		0x0c200000
