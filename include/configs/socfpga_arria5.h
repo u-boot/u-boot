@@ -43,7 +43,7 @@
 #else
 #define CONFIG_BOOTCOMMAND	"run mmcload; run mmcboot"
 #endif
-#define CONFIG_LOADADDR		0x8000
+#define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /* Ethernet on SoC (EMAC) */
