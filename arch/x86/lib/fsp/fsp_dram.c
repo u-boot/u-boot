@@ -77,5 +77,11 @@ unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
 		num_entries++;
 	}
 
+	/* Mark PCIe ECAM address range as reserved */
+	entries[num_entries].addr = CONFIG_PCIE_ECAM_BASE;
+	entries[num_entries].size = CONFIG_PCIE_ECAM_SIZE;
+	entries[num_entries].type = E820_RESERVED;
+	num_entries++;
+
 	return num_entries;
 }

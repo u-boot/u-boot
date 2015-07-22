@@ -369,4 +369,14 @@ config PCIE_ECAM_BASE
 	  assigned to PCI devices - i.e. the memory and prefetch regions, as
 	  passed to pci_set_region().
 
+config PCIE_ECAM_SIZE
+	hex
+	default 0x10000000
+	help
+	  This is the size of memory-mapped address of PCI configuration space,
+	  which is only available through the Enhanced Configuration Access
+	  Mechanism (ECAM) with PCI Express. Each bus consumes 1 MiB memory,
+	  so a default 0x10000000 size covers all of the 256 buses which is the
+	  maximum number of PCI buses as defined by the PCI specification.
+
 endmenu
