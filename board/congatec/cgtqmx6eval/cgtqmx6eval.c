@@ -15,6 +15,7 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/sata.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/arch/mxc_hdmi.h>
@@ -449,6 +450,10 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+
+#ifdef CONFIG_CMD_SATA
+	setup_sata();
+#endif
 
 	return 0;
 }
