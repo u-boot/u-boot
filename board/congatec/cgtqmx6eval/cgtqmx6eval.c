@@ -88,6 +88,11 @@ static iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6_PAD_NANDF_D6__GPIO2_IO06    | MUX_PAD_CTRL(NO_PAD_CTRL), /* CD */
 };
 
+static iomux_v3_cfg_t const usb_otg_pads[] = {
+	MX6_PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
 struct i2c_pads_info i2c_pad_info1 = {
 	.scl = {
@@ -218,6 +223,45 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 #endif
+
+int board_ehci_hcd_init(int port)
+{
+	switch (port) {
+	case 0:
+		imx_iomux_v3_setup_multiple_pads(usb_otg_pads,
+						 ARRAY_SIZE(usb_otg_pads));
+		/*
+		 * set daisy chain for otg_pin_id on 6q.
+		 * for 6dl, this bit is reserved
+		 */
+		imx_iomux_set_gpr_register(1, 13, 1, 1);
+		break;
+	case 1:
+		/* nothing to do */
+		break;
+	default:
+		printf("Invalid USB port: %d\n", port);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+int board_ehci_power(int port, int on)
+{
+	switch (port) {
+	case 0:
+		break;
+	case 1:
+		gpio_direction_output(IMX_GPIO_NR(5, 5), on);
+		break;
+	default:
+		printf("Invalid USB port: %d\n", port);
+		return -EINVAL;
+	}
+
+	return 0;
+}
 
 int board_early_init_f(void)
 {
