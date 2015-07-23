@@ -1,3 +1,4 @@
+menu USB
 config USB_ARCH_HAS_HCD
 	def_bool y
 
@@ -87,3 +88,4 @@ endchoice
 endif
 
 endif
+endmenu
