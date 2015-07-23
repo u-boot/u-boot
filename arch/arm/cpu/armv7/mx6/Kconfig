@@ -31,7 +31,6 @@ choice
 
 config TARGET_CM_FX6
 	bool "Support CM-FX6"
-	select CPU_V7
 	select SUPPORT_SPL
 	select DM
 	select DM_SERIAL
@@ -39,11 +38,9 @@ config TARGET_CM_FX6
 
 config TARGET_SECOMX6
 	bool "Support secomx6 boards"
-	select CPU_V7
 
 config TARGET_TQMA6
 	bool "TQ Systems TQMa6 board"
-	select CPU_V7
 
 endchoice
 
