@@ -97,36 +97,51 @@
 #define CONFIG_LBA48
 #define CONFIG_LIBATA
 
-#define CONFIG_DEFAULT_FDT_FILE "imx6q-congatec.dtb"
+/* Command definition */
+
+#define CONFIG_MXC_UART_BASE	UART2_BASE
+#define CONFIG_CONSOLE_DEV	"ttymxc1"
+#define CONFIG_MMCROOT		"/dev/mmcblk0p2"
+#define CONFIG_SYS_MMC_ENV_DEV		0
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
-	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"boot_dir=/boot\0" \
-	"console=ttymxc1\0" \
-	"fdt_high=0xffffffff\0" \
-	"initrd_high=0xffffffff\0" \
-	"fdt_addr=0x18000000\0" \
+	"fdtfile=imx6q-qmx6.dtb\0" \
+	"fdt_addr_r=0x18000000\0" \
 	"boot_fdt=try\0" \
-	"mmcdev=1\0" \
+	"ip_dyn=yes\0" \
+	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"bootm_size=0x10000000\0" \
+	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=1\0" \
-	"mmcroot=/dev/mmcblk0p1 rootwait rw\0" \
+	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
+	"update_sd_firmware=" \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"if mmc dev ${mmcdev}; then "	\
+			"if ${get_cmd} ${update_sd_firmware_filename}; then " \
+				"setexpr fw_sz ${filesize} / 0x200; " \
+				"setexpr fw_sz ${fw_sz} + 1; "	\
+				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
+			"fi; "	\
+		"fi\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
-		"ext2load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
-	"loadimage=ext2load mmc ${mmcdev}:${mmcpart} ${loadaddr} " \
-		"${boot_dir}/${image}\0" \
-	"loadfdt=ext2load mmc ${mmcdev}:${mmcpart} ${fdt_addr} " \
-		"${boot_dir}/${fdt_file}\0" \
+	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
+	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr_r} ${fdtfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
 			"if run loadfdt; then " \
-				"bootz ${loadaddr} - ${fdt_addr}; " \
+				"bootz ${loadaddr} - ${fdt_addr_r}; " \
 			"else " \
 				"if test ${boot_fdt} = try; then " \
 					"bootz; " \
@@ -136,21 +151,44 @@
 			"fi; " \
 		"else " \
 			"bootz; " \
-		"fi;\0"
+		"fi;\0" \
+	"netargs=setenv bootargs console=${console},${baudrate} " \
+		"root=/dev/nfs " \
+		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
+	"netboot=echo Booting from net ...; " \
+		"run netargs; " \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${image}; " \
+		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+			"if ${get_cmd} ${fdt_addr_r} ${fdtfile}; then " \
+				"bootz ${loadaddr} - ${fdt_addr_r}; " \
+			"else " \
+				"if test ${boot_fdt} = try; then " \
+					"bootz; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi; " \
+			"fi; " \
+		"else " \
+			"bootz; " \
+		"fi;\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev};" \
-	   "mmc dev ${mmcdev}; if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			   "if run loadimage; then " \
-				   "run mmcboot; " \
-			   "else "\
-				   "echo ERR: Fail to boot from mmc; " \
-			   "fi; " \
-		   "fi; " \
-	   "else echo ERR: Fail to boot from mmc; fi"
+	"mmc dev ${mmcdev};" \
+	"if mmc rescan; then " \
+		"if run loadbootscript; then " \
+		"run bootscript; " \
+		"else " \
+			"if run loadimage; then " \
+				"run mmcboot; " \
+			"else run netboot; " \
+			"fi; " \
+		"fi; " \
+	"else run netboot; fi"
 
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END	       0x10010000
