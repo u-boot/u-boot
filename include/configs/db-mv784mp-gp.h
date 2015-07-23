@@ -33,6 +33,7 @@
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
+#define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SF
@@ -109,6 +110,10 @@
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_E1000	/* enable Intel E1000 support for testing */
+
+/* NAND */
+#define CONFIG_SYS_NAND_USE_FLASH_BBT
+#define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
