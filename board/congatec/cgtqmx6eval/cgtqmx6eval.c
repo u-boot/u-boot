@@ -17,11 +17,15 @@
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/mxc_i2c.h>
+#include <asm/arch/mxc_hdmi.h>
+#include <asm/arch/crm_regs.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
+#include <linux/fb.h>
+#include <ipu_pixfmt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -263,9 +267,178 @@ int board_ehci_power(int port, int on)
 	return 0;
 }
 
+struct display_info_t {
+	int bus;
+	int addr;
+	int pixfmt;
+	int (*detect)(struct display_info_t const *dev);
+	void (*enable)(struct display_info_t const *dev);
+	struct fb_videomode mode;
+};
+
+static void disable_lvds(struct display_info_t const *dev)
+{
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	clrbits_le32(&iomux->gpr[2], IOMUXC_GPR2_LVDS_CH0_MODE_MASK |
+		     IOMUXC_GPR2_LVDS_CH1_MODE_MASK);
+}
+
+static void do_enable_hdmi(struct display_info_t const *dev)
+{
+	disable_lvds(dev);
+	imx_enable_hdmi_phy();
+}
+
+static struct display_info_t const displays[] = {
+{
+	.bus = -1,
+	.addr = 0,
+	.pixfmt = IPU_PIX_FMT_RGB666,
+	.detect = NULL,
+	.enable = NULL,
+	.mode = {
+		.name =
+		"Hannstar-XGA",
+		.refresh = 60,
+		.xres = 1024,
+		.yres = 768,
+		.pixclock = 15385,
+		.left_margin = 220,
+		.right_margin = 40,
+		.upper_margin = 21,
+		.lower_margin = 7,
+		.hsync_len = 60,
+		.vsync_len = 10,
+		.sync = FB_SYNC_EXT,
+		.vmode = FB_VMODE_NONINTERLACED } },
+{
+	.bus = -1,
+	.addr = 0,
+	.pixfmt = IPU_PIX_FMT_RGB24,
+	.detect = NULL,
+	.enable = do_enable_hdmi,
+	.mode = {
+		.name = "HDMI",
+		.refresh = 60,
+		.xres = 1024,
+		.yres = 768,
+		.pixclock = 15385,
+		.left_margin = 220,
+		.right_margin = 40,
+		.upper_margin = 21,
+		.lower_margin = 7,
+		.hsync_len = 60,
+		.vsync_len = 10,
+		.sync = FB_SYNC_EXT,
+		.vmode = FB_VMODE_NONINTERLACED } }
+};
+
+int board_video_skip(void)
+{
+	int i;
+	int ret;
+	char const *panel = getenv("panel");
+	if (!panel) {
+		for (i = 0; i < ARRAY_SIZE(displays); i++) {
+			struct display_info_t const *dev = displays + i;
+			if (dev->detect && dev->detect(dev)) {
+				panel = dev->mode.name;
+				printf("auto-detected panel %s\n", panel);
+				break;
+			}
+		}
+		if (!panel) {
+			panel = displays[0].mode.name;
+			printf("No panel detected: default to %s\n", panel);
+			i = 0;
+		}
+	} else {
+		for (i = 0; i < ARRAY_SIZE(displays); i++) {
+			if (!strcmp(panel, displays[i].mode.name))
+				break;
+		}
+	}
+	if (i < ARRAY_SIZE(displays)) {
+		ret = ipuv3_fb_init(&displays[i].mode, 0, displays[i].pixfmt);
+		if (!ret) {
+			if (displays[i].enable)
+				displays[i].enable(displays + i);
+			printf("Display: %s (%ux%u)\n",
+			       displays[i].mode.name, displays[i].mode.xres,
+			       displays[i].mode.yres);
+		} else
+			printf("LCD %s cannot be configured: %d\n",
+			       displays[i].mode.name, ret);
+	} else {
+		printf("unsupported panel %s\n", panel);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static void setup_display(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	int reg;
+
+	enable_ipu_clock();
+	imx_setup_hdmi();
+
+	/* Turn on LDB0, LDB1, IPU,IPU DI0 clocks */
+	setbits_le32(&mxc_ccm->CCGR3, MXC_CCM_CCGR3_LDB_DI0_MASK |
+		     MXC_CCM_CCGR3_LDB_DI1_MASK);
+
+	/* set LDB0, LDB1 clk select to 011/011 */
+	reg = readl(&mxc_ccm->cs2cdr);
+	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK |
+		 MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
+	reg |= (3 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET) |
+		(3 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET);
+	writel(reg, &mxc_ccm->cs2cdr);
+
+	setbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV |
+		     MXC_CCM_CSCMR2_LDB_DI1_IPU_DIV);
+
+	setbits_le32(&mxc_ccm->chsccdr, CHSCCDR_CLK_SEL_LDB_DI0 <<
+		     MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET |
+		     CHSCCDR_CLK_SEL_LDB_DI0 <<
+		     MXC_CCM_CHSCCDR_IPU1_DI1_CLK_SEL_OFFSET);
+
+	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES
+		| IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_LOW
+		| IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW
+		| IOMUXC_GPR2_BIT_MAPPING_CH1_SPWG
+		| IOMUXC_GPR2_DATA_WIDTH_CH1_18BIT
+		| IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG
+		| IOMUXC_GPR2_DATA_WIDTH_CH0_18BIT
+		| IOMUXC_GPR2_LVDS_CH0_MODE_DISABLED
+		| IOMUXC_GPR2_LVDS_CH1_MODE_ENABLED_DI0;
+	writel(reg, &iomux->gpr[2]);
+
+	reg = readl(&iomux->gpr[3]);
+	reg = (reg & ~(IOMUXC_GPR3_LVDS1_MUX_CTL_MASK |
+		       IOMUXC_GPR3_HDMI_MUX_CTL_MASK)) |
+		(IOMUXC_GPR3_MUX_SRC_IPU1_DI0 <<
+		 IOMUXC_GPR3_LVDS1_MUX_CTL_OFFSET);
+	writel(reg, &iomux->gpr[3]);
+}
+
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
+{
+	return 1;
+}
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
+	setup_display();
 
 	return 0;
 }
