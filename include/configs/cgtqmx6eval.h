@@ -87,9 +87,6 @@
 		   "fi; " \
 	   "else echo ERR: Fail to boot from mmc; fi"
 
-/* Miscellaneous configurable options */
-#define CONFIG_SYS_PROMPT	       "CGT-QMX6-Quad U-Boot > "
-
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
