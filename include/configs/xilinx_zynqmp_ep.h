@@ -20,6 +20,7 @@
 #define CONFIG_ZYNQ_I2C0
 #define CONFIG_SYS_I2C_ZYNQ
 #define CONFIG_ZYNQ_EEPROM
+#define CONFIG_AHCI
 
 #include <configs/xilinx_zynqmp.h>
 

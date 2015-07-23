@@ -7,6 +7,8 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <ahci.h>
+#include <scsi.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
@@ -50,6 +52,14 @@ int timer_init(void)
 void reset_cpu(ulong addr)
 {
 }
+
+#ifdef CONFIG_SCSI_AHCI_PLAT
+void scsi_init(void)
+{
+	ahci_init((void __iomem *)ZYNQMP_SATA_BASEADDR);
+	scsi_scan(1);
+}
+#endif
 
 int board_eth_init(bd_t *bis)
 {

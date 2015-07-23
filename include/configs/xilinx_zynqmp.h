@@ -169,6 +169,17 @@
 # define CONFIG_SYS_EEPROM_SIZE			(64 * 1024)
 #endif
 
+#ifdef CONFIG_AHCI
+#define CONFIG_LIBATA
+#define CONFIG_SCSI_AHCI
+#define CONFIG_SCSI_AHCI_PLAT
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
+#define CONFIG_SYS_SCSI_MAX_LUN		1
+#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+					 CONFIG_SYS_SCSI_MAX_LUN)
+#define CONFIG_CMD_SCSI
+#endif
+
 #define CONFIG_FIT
 #define CONFIG_FIT_VERBOSE       /* enable fit_format_{error,warning}() */
 
