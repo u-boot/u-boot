@@ -59,4 +59,31 @@ config USB_STORAGE
 	  Say Y here if you want to connect USB mass storage devices to your
 	  board's USB port.
 
+config USB_KEYBOARD
+	bool "USB Keyboard support"
+	---help---
+	  Say Y here if you want to use a USB keyboard for U-Boot command line
+	  input.
+
+if USB_KEYBOARD
+
+choice
+	prompt "USB keyboard polling"
+	optional
+	---help---
+	  Enable a polling mechanism for USB keyboard.
+
+	config SYS_USB_EVENT_POLL
+		bool "Interrupt polling"
+
+	config SYS_USB_EVENT_POLL_VIA_INT_QUEUE
+		bool "Poll via interrupt queue"
+
+	config SYS_USB_EVENT_POLL_VIA_CONTROL_EP
+		bool "Poll via control EP"
+
+endchoice
+
+endif
+
 endif
