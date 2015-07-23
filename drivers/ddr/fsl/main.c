@@ -535,7 +535,7 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 			 * which is currently STEP_ASSIGN_ADDRESSES.
 			 */
 			populate_memctl_options(
-					timing_params[i].all_dimms_registered,
+					&timing_params[i],
 					&pinfo->memctl_opts[i],
 					pinfo->dimm_params[i], i);
 			/*
