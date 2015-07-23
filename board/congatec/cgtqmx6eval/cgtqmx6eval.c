@@ -34,12 +34,12 @@ int dram_init(void)
 	return 0;
 }
 
-iomux_v3_cfg_t const uart2_pads[] = {
+static iomux_v3_cfg_t const uart2_pads[] = {
 	MX6_PAD_EIM_D26__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_EIM_D27__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-iomux_v3_cfg_t const usdhc2_pads[] = {
+static iomux_v3_cfg_t const usdhc2_pads[] = {
 	MX6_PAD_SD2_CLK__SD2_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD2_CMD__SD2_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD2_DAT0__SD2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -49,7 +49,7 @@ iomux_v3_cfg_t const usdhc2_pads[] = {
 	MX6_PAD_GPIO_4__GPIO1_IO04      | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
 
-iomux_v3_cfg_t const usdhc4_pads[] = {
+static iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6_PAD_SD4_CLK__SD4_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD4_CMD__SD4_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD4_DAT0__SD4_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -69,7 +69,7 @@ static void setup_iomux_uart(void)
 }
 
 #ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg usdhc_cfg[] = {
+static struct fsl_esdhc_cfg usdhc_cfg[] = {
 	{USDHC2_BASE_ADDR},
 	{USDHC4_BASE_ADDR},
 };
