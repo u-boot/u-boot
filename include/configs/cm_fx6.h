@@ -50,7 +50,6 @@
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* SPI flash */
-#define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0
 #define CONFIG_SF_DEFAULT_SPEED		25000000
@@ -199,7 +198,6 @@
 #define CONFIG_NET_RETRY_COUNT		5
 
 /* USB */
-#define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6
 #define CONFIG_USB_STORAGE
@@ -212,7 +210,6 @@
 #define CONFIG_SYS_STDIO_DEREGISTER
 
 /* I2C */
-#define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
