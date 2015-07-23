@@ -11,6 +11,7 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_ARMADA_XP		/* SOC Family Name */
+#define CONFIG_ARMADA_38X
 #define CONFIG_DB_88F6820_GP		/* Board target name for DDR training */
 
 #define CONFIG_SYS_L2_PL310
@@ -107,6 +108,40 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
+
+/* SPL */
+/* Defines for SPL */
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_SIZE			(140 << 10)
+#define CONFIG_SPL_TEXT_BASE		0x40000030
+#define CONFIG_SPL_MAX_SIZE		(CONFIG_SPL_SIZE - 0x0030)
+
+#define CONFIG_SPL_BSS_START_ADDR	(0x40000000 + CONFIG_SPL_SIZE)
+#define CONFIG_SPL_BSS_MAX_SIZE		(16 << 10)
+
+#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
+					 CONFIG_SPL_BSS_MAX_SIZE)
+#define CONFIG_SYS_SPL_MALLOC_SIZE	(16 << 10)
+
+#define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
+#define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
+
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_I2C_SUPPORT
+
+/* SPL related SPI defines */
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SPL_SPI_LOAD
+#define CONFIG_SPL_SPI_BUS		0
+#define CONFIG_SPL_SPI_CS		0
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
+
+/* Enable DDR support in SPL (DDR3 training from Marvell bin_hdr) */
+#define CONFIG_SYS_MVEBU_DDR_A38X
+#define CONFIG_DDR3
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

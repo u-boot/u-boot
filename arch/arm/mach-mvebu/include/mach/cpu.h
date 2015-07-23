@@ -125,7 +125,7 @@ int serdes_phy_config(void);
 /*
  * DDR3 init / training code ported from Marvell bin_hdr. Now
  * available in mainline U-Boot in:
- * drivers/ddr/mvebu/
+ * drivers/ddr/marvell
  */
 int ddr3_init(void);
 #endif /* __ASSEMBLY__ */

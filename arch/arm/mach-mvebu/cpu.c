@@ -163,6 +163,14 @@ static void update_sdram_window_sizes(void)
 	}
 }
 
+void mmu_disable(void)
+{
+	asm volatile(
+		"mrc p15, 0, r0, c1, c0, 0\n"
+		"bic r0, #1\n"
+		"mcr p15, 0, r0, c1, c0, 0\n");
+}
+
 #ifdef CONFIG_ARCH_CPU_INIT
 static void set_cbar(u32 addr)
 {
@@ -172,6 +180,16 @@ static void set_cbar(u32 addr)
 
 int arch_cpu_init(void)
 {
+#ifndef CONFIG_SPL_BUILD
+	/*
+	 * Only with disabled MMU its possible to switch the base
+	 * register address on Armada 38x. Without this the SDRAM
+	 * located at >= 0x4000.0000 is also not accessible, as its
+	 * still locked to cache.
+	 */
+	mmu_disable();
+#endif
+
 	/* Linux expects the internal registers to be at 0xf1000000 */
 	writel(SOC_REGS_PHY_BASE, INTREG_BASE_ADDR_REG);
 	set_cbar(SOC_REGS_PHY_BASE + 0xC000);

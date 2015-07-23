@@ -7,7 +7,7 @@
 #ifndef __HIGHSPEED_ENV_SPEC_H
 #define __HIGHSPEED_ENV_SPEC_H
 
-#include "../../../drivers/ddr/mvebu/ddr3_hw_training.h"
+#include "../../../drivers/ddr/marvell/axp/ddr3_hw_training.h"
 
 typedef enum {
 	SERDES_UNIT_UNCONNECTED	= 0x0,
