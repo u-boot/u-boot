@@ -83,6 +83,7 @@ size_t display_count = ARRAY_SIZE(displays);
 static void cm_fx6_setup_display(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	int reg;
 
 	enable_ipu_clock();
@@ -90,6 +91,7 @@ static void cm_fx6_setup_display(void)
 	reg = __raw_readl(&mxc_ccm->CCGR3);
 	reg |= MXC_CCM_CCGR3_IPU1_IPU_DI0_MASK;
 	writel(reg, &mxc_ccm->CCGR3);
+	clrbits_le32(&iomuxc_regs->gpr[3], MXC_CCM_CCGR3_IPU1_IPU_DI0_MASK);
 }
 #else
 static inline void cm_fx6_setup_display(void) {}
