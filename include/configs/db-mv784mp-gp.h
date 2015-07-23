@@ -47,6 +47,7 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_EHCI_MARVELL
 #define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 
 /* SPI NOR flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_SPEED		1000000
