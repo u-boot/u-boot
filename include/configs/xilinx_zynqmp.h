@@ -76,6 +76,16 @@
 #define CONFIG_CMD_ELF
 #define CONFIG_MP
 
+#define CONFIG_CMD_MII
+
+/* BOOTP options */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_MAY_FAIL
+#define CONFIG_BOOTP_SERVERIP
+
 /* SPI */
 #ifdef CONFIG_ZYNQ_SPI
 # define CONFIG_SPI_FLASH_SST
@@ -129,6 +139,17 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_MAXARGS		64
+
+/* Ethernet driver */
+#if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1) || \
+	defined(CONFIG_ZYNQ_GEM2) || defined(CONFIG_ZYNQ_GEM3)
+# define CONFIG_NET_MULTI
+# define CONFIG_ZYNQ_GEM
+# define CONFIG_MII
+# define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
+# define CONFIG_PHYLIB
+# define CONFIG_PHY_MARVELL
+#endif
 
 /* I2C */
 #if defined(CONFIG_SYS_I2C_ZYNQ)
