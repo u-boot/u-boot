@@ -16,8 +16,12 @@
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/boot_mode.h>
+#include <asm/imx-common/mxc_i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
+#include <i2c.h>
+#include <power/pmic.h>
+#include <power/pfuze100_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -26,6 +30,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define USDHC_PAD_CTRL (PAD_CTL_PUS_47K_UP  | PAD_CTL_SPEED_LOW |\
 	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+
+#define I2C_PAD_CTRL	(PAD_CTL_PKE | PAD_CTL_PUE |		\
+	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |		\
+	PAD_CTL_DSE_40ohm | PAD_CTL_HYS |			\
+	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
+
+#define MX6Q_QMX6_PFUZE_MUX		IMX_GPIO_NR(6, 9)
 
 int dram_init(void)
 {
@@ -77,6 +88,78 @@ static iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6_PAD_NANDF_D6__GPIO2_IO06    | MUX_PAD_CTRL(NO_PAD_CTRL), /* CD */
 };
 
+#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
+struct i2c_pads_info i2c_pad_info1 = {
+	.scl = {
+		.i2c_mode = MX6_PAD_KEY_COL3__I2C2_SCL | PC,
+		.gpio_mode = MX6_PAD_KEY_COL3__GPIO4_IO12 | PC,
+		.gp = IMX_GPIO_NR(4, 12)
+	},
+	.sda = {
+		.i2c_mode = MX6_PAD_KEY_ROW3__I2C2_SDA | PC,
+		.gpio_mode = MX6_PAD_KEY_ROW3__GPIO4_IO13 | PC,
+		.gp = IMX_GPIO_NR(4, 13)
+	}
+};
+
+#define I2C_PMIC	1	/* I2C2 port is used to connect to the PMIC */
+
+struct interface_level {
+	char *name;
+	uchar value;
+};
+
+static struct interface_level mipi_levels[] = {
+	{"0V0", 0x00},
+	{"2V5", 0x17},
+};
+
+/* setup board specific PMIC */
+int power_init_board(void)
+{
+	struct pmic *p;
+	u32 id1, id2, i;
+	int ret;
+	char const *lv_mipi;
+
+	/* configure I2C multiplexer */
+	gpio_direction_output(MX6Q_QMX6_PFUZE_MUX, 1);
+
+	power_pfuze100_init(I2C_PMIC);
+	p = pmic_get("PFUZE100");
+	if (!p)
+		return -EINVAL;
+
+	ret = pmic_probe(p);
+	if (ret)
+		return ret;
+
+	pmic_reg_read(p, PFUZE100_DEVICEID, &id1);
+	pmic_reg_read(p, PFUZE100_REVID, &id2);
+	printf("PFUZE100 Rev. [%02x/%02x] detected\n", id1, id2);
+
+	if (id2 >= 0x20)
+		return 0;
+
+	/* set level of MIPI if specified */
+	lv_mipi = getenv("lv_mipi");
+	if (lv_mipi)
+		return 0;
+
+	for (i = 0; i < ARRAY_SIZE(mipi_levels); i++) {
+		if (!strcmp(mipi_levels[i].name, lv_mipi)) {
+			printf("set MIPI level %s\n",
+			       mipi_levels[i].name);
+			ret = pmic_reg_write(p, PFUZE100_VGEN4VOL,
+					     mipi_levels[i].value);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+ 
 static void setup_iomux_uart(void)
 {
 	imx_iomux_v3_setup_multiple_pads(uart2_pads, ARRAY_SIZE(uart2_pads));
@@ -147,6 +230,8 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+
+	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
 
 	return 0;
 }
