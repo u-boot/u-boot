@@ -52,6 +52,9 @@ int splash_screen_prepare(void)
 #ifdef CONFIG_IMX_HDMI
 static void cm_fx6_enable_hdmi(struct display_info_t const *dev)
 {
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	imx_setup_hdmi();
+	setbits_le32(&mxc_ccm->CCGR3, MXC_CCM_CCGR3_IPU1_IPU_DI0_MASK);
 	imx_enable_hdmi_phy();
 }
 
@@ -79,15 +82,9 @@ static struct display_info_t preset_hdmi_1024X768 = {
 
 static void cm_fx6_setup_display(void)
 {
-	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	int reg;
 
 	enable_ipu_clock();
-	imx_setup_hdmi();
-	reg = __raw_readl(&mxc_ccm->CCGR3);
-	reg |= MXC_CCM_CCGR3_IPU1_IPU_DI0_MASK;
-	writel(reg, &mxc_ccm->CCGR3);
 	clrbits_le32(&iomuxc_regs->gpr[3], MXC_CCM_CCGR3_IPU1_IPU_DI0_MASK);
 }
 
