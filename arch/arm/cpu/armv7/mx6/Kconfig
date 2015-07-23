@@ -29,6 +29,14 @@ choice
 	prompt "MX6 board select"
 	optional
 
+config TARGET_CM_FX6
+	bool "Support CM-FX6"
+	select CPU_V7
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
 config TARGET_SECOMX6
 	bool "Support secomx6 boards"
 	select CPU_V7

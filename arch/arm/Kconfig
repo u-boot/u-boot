@@ -625,14 +625,6 @@ config RMOBILE
 	bool "Renesas ARM SoCs"
 	select CPU_V7
 
-config TARGET_CM_FX6
-	bool "Support cm_fx6"
-	select CPU_V7
-	select SUPPORT_SPL
-	select DM
-	select DM_SERIAL
-	select DM_GPIO
-
 config ARCH_SOCFPGA
 	bool "Altera SOCFPGA family"
 	select CPU_V7
