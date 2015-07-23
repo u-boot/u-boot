@@ -87,9 +87,6 @@
 		   "fi; " \
 	   "else echo ERR: Fail to boot from mmc; fi"
 
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END	       0x10010000
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
