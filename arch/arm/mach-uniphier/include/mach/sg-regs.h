@@ -55,11 +55,12 @@
 
 #if defined(CONFIG_MACH_PH1_PRO4)
 # define SG_PINCTRL(n)			(SG_PINCTRL_BASE + (n) * 8)
-#elif defined(CONFIG_MACH_PH1_LD4) || defined(CONFIG_MACH_PH1_SLD8)
+#elif defined(CONFIG_MACH_PH1_SLD3) || defined(CONFIG_MACH_PH1_LD4) || \
+	defined(CONFIG_MACH_PH1_SLD8)
 # define SG_PINCTRL(n)			(SG_PINCTRL_BASE + (n) * 4)
 #endif
 
-#if defined(CONFIG_MACH_PH1_PRO4)
+#if defined(CONFIG_MACH_PH1_SLD3) || defined(CONFIG_MACH_PH1_PRO4)
 #define SG_PINSELBITS			4
 #elif defined(CONFIG_MACH_PH1_LD4) || defined(CONFIG_MACH_PH1_SLD8)
 #define SG_PINSELBITS			8

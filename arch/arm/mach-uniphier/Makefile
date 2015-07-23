@@ -32,6 +32,7 @@ obj-y += timer.o
 obj-$(CONFIG_PFC_MICRO_SUPPORT_CARD) += support_card.o
 obj-$(CONFIG_DCC_MICRO_SUPPORT_CARD) += support_card.o
 
-obj-$(CONFIG_MACH_PH1_LD4) += ph1-ld4/
-obj-$(CONFIG_MACH_PH1_PRO4) += ph1-pro4/
-obj-$(CONFIG_MACH_PH1_SLD8) += ph1-sld8/
+obj-$(CONFIG_MACH_PH1_SLD3)	+= ph1-sld3/
+obj-$(CONFIG_MACH_PH1_LD4)	+= ph1-ld4/
+obj-$(CONFIG_MACH_PH1_PRO4)	+= ph1-pro4/
+obj-$(CONFIG_MACH_PH1_SLD8)	+= ph1-sld8/

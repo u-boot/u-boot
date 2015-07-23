@@ -1,7 +1,7 @@
 /*
  * UniPhier SC (System Control) block registers
  *
- * Copyright (C) 2011-2015 Panasonic Corporation
+ * Copyright (C) 2011-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -9,7 +9,11 @@
 #ifndef ARCH_SC_REGS_H
 #define ARCH_SC_REGS_H
 
+#if defined(CONFIG_MACH_PH1_SLD3)
+#define SC_BASE_ADDR			0xf1840000
+#else
 #define SC_BASE_ADDR			0x61840000
+#endif
 
 #define SC_DPLLCTRL			(SC_BASE_ADDR | 0x1200)
 #define SC_DPLLCTRL_SSC_EN		(0x1 << 31)
