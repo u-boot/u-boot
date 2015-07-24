@@ -32,16 +32,6 @@ int cleanup_before_linux (void)
 
 	disable_interrupts ();
 
-#ifdef CONFIG_LCD
-	{
-		extern void lcd_disable(void);
-		extern void lcd_panel_disable(void);
-
-		lcd_disable(); /* proper disable of lcd & panel */
-		lcd_panel_disable();
-	}
-#endif
-
 	/* turn off I/D-cache */
 	icache_disable();
 	dcache_disable();
