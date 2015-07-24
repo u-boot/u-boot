@@ -522,6 +522,9 @@ int bcm2835_mbox_call_raw(u32 chan, u32 send, u32 *recv);
  * a termination value are expected to immediately follow the header in
  * memory, as required by the property protocol.
  *
+ * Each struct bcm2835_mbox_hdr passed must be allocated with
+ * ALLOC_CACHE_ALIGN_BUFFER(x, y, z) to ensure proper cache flush/invalidate.
+ *
  * Returns 0 for success, any other value for error.
  */
 int bcm2835_mbox_call_prop(u32 chan, struct bcm2835_mbox_hdr *buffer);
