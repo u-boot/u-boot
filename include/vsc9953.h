@@ -21,6 +21,7 @@
 #define VSC9953_OFFSET			(CONFIG_SYS_CCSRBAR_DEFAULT + 0x800000)
 
 #define VSC9953_SYS_OFFSET		0x010000
+#define VSC9953_REW_OFFSET		0x030000
 #define VSC9953_DEV_GMII_OFFSET		0x100000
 #define VSC9953_QSYS_OFFSET		0x200000
 #define VSC9953_ANA_OFFSET		0x280000
@@ -80,8 +81,37 @@
 #define VSC9953_VCAP_MV_CFG		0x0000ffff
 #define VSC9953_VCAP_UPDATE_CTRL	0x01000004
 
+/* Macros for vsc9953_ana_port.vlan_cfg register */
+#define VSC9953_VLAN_CFG_AWARE_ENA	0x00100000
+#define VSC9953_VLAN_CFG_POP_CNT_MASK	0x000c0000
+#define VSC9953_VLAN_CFG_VID_MASK	0x00000fff
+
+/* Macros for vsc9953_rew_port.port_vlan_cfg register */
+#define VSC9953_PORT_VLAN_CFG_VID_MASK	0x00000fff
+
+/* Macros for vsc9953_ana_ana_tables.vlan_tidx register */
+#define VSC9953_ANA_TBL_VID_MASK	0x00000fff
+
+/* Macros for vsc9953_ana_ana_tables.vlan_access register */
+#define VSC9953_VLAN_PORT_MASK		0x00001ffc
+#define VSC9953_VLAN_CMD_MASK		0x00000003
+#define VSC9953_VLAN_CMD_IDLE		0x00000000
+#define VSC9953_VLAN_CMD_READ		0x00000001
+#define VSC9953_VLAN_CMD_WRITE		0x00000002
+#define VSC9953_VLAN_CMD_INIT		0x00000003
+
 /* Macros for vsc9953_qsys_sys.switch_port_mode register */
 #define VSC9953_PORT_ENA		0x00002000
+
+/* Macros for vsc9953_ana_ana.adv_learn register */
+#define VSC9953_VLAN_CHK		0x00000400
+
+/* Macros for vsc9953_rew_port.port_tag_cfg register */
+#define VSC9953_TAG_CFG_MASK		0x00000180
+#define VSC9953_TAG_CFG_NONE		0x00000000
+#define VSC9953_TAG_CFG_ALL_BUT_PVID_ZERO	0x00000080
+#define VSC9953_TAG_CFG_ALL_BUT_ZERO		0x00000100
+#define VSC9953_TAG_CFG_ALL		0x00000180
 
 #define VSC9953_MAX_PORTS		10
 #define VSC9953_PORT_CHECK(port)	\
@@ -91,6 +121,9 @@
 		(port) < VSC9953_MAX_PORTS - 2 || (port) >= VSC9953_MAX_PORTS \
 	) ? 0 : 1 \
 )
+#define VSC9953_MAX_VLAN		4096
+#define VSC9953_VLAN_CHECK(vid)	\
+	(((vid) < 0 || (vid) >= VSC9953_MAX_VLAN) ? 0 : 1)
 
 #define DEFAULT_VSC9953_MDIO_NAME	"VSC9953_MDIO0"
 
@@ -338,6 +371,29 @@ struct vsc9953_system_reg {
 
 /* END VSC9953 SYS structure */
 
+/* VSC9953 REW structure */
+
+struct	vsc9953_rew_port {
+	u32	port_vlan_cfg;
+	u32	port_tag_cfg;
+	u32	port_port_cfg;
+	u32	port_dscp_cfg;
+	u32	port_pcp_dei_qos_map_cfg[16];
+	u32	reserved[12];
+};
+
+struct	vsc9953_rew_common {
+	u32	reserve[4];
+	u32	dscp_remap_dp1_cfg[64];
+	u32	dscp_remap_cfg[64];
+};
+
+struct	vsc9953_rew_reg {
+	struct vsc9953_rew_port	port[12];
+	struct vsc9953_rew_common	common;
+};
+
+/* END VSC9953 REW structure */
 
 /* VSC9953 DEVCPU_GCB structure */
 

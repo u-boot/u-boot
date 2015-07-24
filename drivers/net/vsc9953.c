@@ -10,6 +10,7 @@
 #include <asm/fsl_serdes.h>
 #include <fm_eth.h>
 #include <fsl_memac.h>
+#include <bitfield.h>
 #include <errno.h>
 #include <malloc.h>
 #include <vsc9953.h>
@@ -178,6 +179,256 @@ static int vsc9953_port_init(int port_no)
 	return 0;
 }
 
+static int vsc9953_vlan_table_poll_idle(void)
+{
+	struct vsc9953_analyzer *l2ana_reg;
+	int timeout;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	timeout = 50000;
+	while (((in_le32(&l2ana_reg->ana_tables.vlan_access) &
+		 VSC9953_VLAN_CMD_MASK) != VSC9953_VLAN_CMD_IDLE) && --timeout)
+		udelay(1);
+
+	return timeout ? 0 : -EBUSY;
+}
+
+/* vlan table set/clear all membership of vid */
+static void vsc9953_vlan_table_membership_all_set(int vid, int set_member)
+{
+	uint val;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	if (vsc9953_vlan_table_poll_idle() < 0) {
+		debug("VLAN table timeout\n");
+		return;
+	}
+
+	/* read current vlan configuration */
+	val = in_le32(&l2ana_reg->ana_tables.vlan_tidx);
+	out_le32(&l2ana_reg->ana_tables.vlan_tidx,
+		 bitfield_replace_by_mask(val, VSC9953_ANA_TBL_VID_MASK, vid));
+
+	clrsetbits_le32(&l2ana_reg->ana_tables.vlan_access,
+			VSC9953_VLAN_CMD_MASK, VSC9953_VLAN_CMD_READ);
+
+	if (vsc9953_vlan_table_poll_idle() < 0) {
+		debug("VLAN table timeout\n");
+		return;
+	}
+
+	val = in_le32(&l2ana_reg->ana_tables.vlan_tidx);
+	out_le32(&l2ana_reg->ana_tables.vlan_tidx,
+		 bitfield_replace_by_mask(val, VSC9953_ANA_TBL_VID_MASK, vid));
+
+	clrsetbits_le32(&l2ana_reg->ana_tables.vlan_access,
+			VSC9953_VLAN_PORT_MASK | VSC9953_VLAN_CMD_MASK,
+			VSC9953_VLAN_CMD_WRITE |
+			(set_member ? VSC9953_VLAN_PORT_MASK : 0));
+}
+
+/* Set PVID for a VSC9953 port */
+static void vsc9953_port_vlan_pvid_set(int port_no, int pvid)
+{
+	uint val;
+	struct vsc9953_analyzer *l2ana_reg;
+	struct vsc9953_rew_reg *l2rew_reg;
+
+	/* Administrative down */
+	if (!vsc9953_l2sw.port[port_no].enabled) {
+		printf("Port %d is administrative down\n", port_no);
+		return;
+	}
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+	l2rew_reg = (struct vsc9953_rew_reg *)(VSC9953_OFFSET +
+			VSC9953_REW_OFFSET);
+
+	/* Set PVID on ingress */
+	val = in_le32(&l2ana_reg->port[port_no].vlan_cfg);
+	val = bitfield_replace_by_mask(val, VSC9953_VLAN_CFG_VID_MASK, pvid);
+	out_le32(&l2ana_reg->port[port_no].vlan_cfg, val);
+
+	/* Set PVID on egress */
+	val = in_le32(&l2rew_reg->port[port_no].port_vlan_cfg);
+	val = bitfield_replace_by_mask(val, VSC9953_PORT_VLAN_CFG_VID_MASK,
+				       pvid);
+	out_le32(&l2rew_reg->port[port_no].port_vlan_cfg, val);
+}
+
+static void vsc9953_port_all_vlan_pvid_set(int pvid)
+{
+	int i;
+
+	for (i = 0; i < VSC9953_MAX_PORTS; i++)
+		vsc9953_port_vlan_pvid_set(i, pvid);
+}
+
+/* Enable/disable vlan aware of a VSC9953 port */
+static void vsc9953_port_vlan_aware_set(int port_no, int enabled)
+{
+	struct vsc9953_analyzer *l2ana_reg;
+
+	/* Administrative down */
+	if (!vsc9953_l2sw.port[port_no].enabled) {
+		printf("Port %d is administrative down\n", port_no);
+		return;
+	}
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	if (enabled)
+		setbits_le32(&l2ana_reg->port[port_no].vlan_cfg,
+			     VSC9953_VLAN_CFG_AWARE_ENA);
+	else
+		clrbits_le32(&l2ana_reg->port[port_no].vlan_cfg,
+			     VSC9953_VLAN_CFG_AWARE_ENA);
+}
+
+/* Set all VSC9953 ports' vlan aware  */
+static void vsc9953_port_all_vlan_aware_set(int enabled)
+{
+	int i;
+
+	for (i = 0; i < VSC9953_MAX_PORTS; i++)
+		vsc9953_port_vlan_aware_set(i, enabled);
+}
+
+/* Enable/disable vlan pop count of a VSC9953 port */
+static void vsc9953_port_vlan_popcnt_set(int port_no, int popcnt)
+{
+	uint val;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	/* Administrative down */
+	if (!vsc9953_l2sw.port[port_no].enabled) {
+		printf("Port %d is administrative down\n", port_no);
+		return;
+	}
+
+	if (popcnt > 3 || popcnt < 0) {
+		printf("Invalid pop count value: %d\n", port_no);
+		return;
+	}
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	val = in_le32(&l2ana_reg->port[port_no].vlan_cfg);
+	val = bitfield_replace_by_mask(val, VSC9953_VLAN_CFG_POP_CNT_MASK,
+				       popcnt);
+	out_le32(&l2ana_reg->port[port_no].vlan_cfg, val);
+}
+
+/* Set all VSC9953 ports' pop count  */
+static void vsc9953_port_all_vlan_poncnt_set(int popcnt)
+{
+	int i;
+
+	for (i = 0; i < VSC9953_MAX_PORTS; i++)
+		vsc9953_port_vlan_popcnt_set(i, popcnt);
+}
+
+/* Enable/disable learning for frames dropped due to ingress filtering */
+static void vsc9953_vlan_ingr_fltr_learn_drop(int enable)
+{
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	if (enable)
+		setbits_le32(&l2ana_reg->ana.adv_learn, VSC9953_VLAN_CHK);
+	else
+		clrbits_le32(&l2ana_reg->ana.adv_learn, VSC9953_VLAN_CHK);
+}
+
+/* Egress untag modes of a VSC9953 port */
+enum egress_untag_mode {
+	EGRESS_UNTAG_ALL = 0,
+	EGRESS_UNTAG_PVID_AND_ZERO,
+	EGRESS_UNTAG_ZERO,
+	EGRESS_UNTAG_NONE,
+};
+
+static void vsc9953_port_vlan_egr_untag_set(int port_no,
+					    enum egress_untag_mode mode)
+{
+	struct vsc9953_rew_reg *l2rew_reg;
+
+	/* Administrative down */
+	if (!vsc9953_l2sw.port[port_no].enabled) {
+		printf("Port %d is administrative down\n", port_no);
+		return;
+	}
+
+	l2rew_reg = (struct vsc9953_rew_reg *)(VSC9953_OFFSET +
+			VSC9953_REW_OFFSET);
+
+	switch (mode) {
+	case EGRESS_UNTAG_ALL:
+		clrsetbits_le32(&l2rew_reg->port[port_no].port_tag_cfg,
+				VSC9953_TAG_CFG_MASK, VSC9953_TAG_CFG_NONE);
+		break;
+	case EGRESS_UNTAG_PVID_AND_ZERO:
+		clrsetbits_le32(&l2rew_reg->port[port_no].port_tag_cfg,
+				VSC9953_TAG_CFG_MASK,
+				VSC9953_TAG_CFG_ALL_BUT_PVID_ZERO);
+		break;
+	case EGRESS_UNTAG_ZERO:
+		clrsetbits_le32(&l2rew_reg->port[port_no].port_tag_cfg,
+				VSC9953_TAG_CFG_MASK,
+				VSC9953_TAG_CFG_ALL_BUT_ZERO);
+		break;
+	case EGRESS_UNTAG_NONE:
+		clrsetbits_le32(&l2rew_reg->port[port_no].port_tag_cfg,
+				VSC9953_TAG_CFG_MASK, VSC9953_TAG_CFG_ALL);
+		break;
+	default:
+		printf("Unknown untag mode for port %d\n", port_no);
+	}
+}
+
+static void vsc9953_port_all_vlan_egress_untagged_set(
+		enum egress_untag_mode mode)
+{
+	int i;
+
+	for (i = 0; i < VSC9953_MAX_PORTS; i++)
+		vsc9953_port_vlan_egr_untag_set(i, mode);
+}
+
+/*****************************************************************************
+At startup, the default configuration would be:
+	- HW learning enabled on all ports; (HW default)
+	- All ports are in VLAN 1;
+	- All ports are VLAN aware;
+	- All ports have POP_COUNT 1;
+	- All ports have PVID 1;
+	- All ports have TPID 0x8100; (HW default)
+	- All ports tag frames classified to all VLANs that are not PVID;
+*****************************************************************************/
+void vsc9953_default_configuration(void)
+{
+	int i;
+
+	for (i = 0; i < VSC9953_MAX_VLAN; i++)
+		vsc9953_vlan_table_membership_all_set(i, 0);
+	vsc9953_port_all_vlan_aware_set(1);
+	vsc9953_port_all_vlan_pvid_set(1);
+	vsc9953_port_all_vlan_poncnt_set(1);
+	vsc9953_vlan_table_membership_all_set(1, 1);
+	vsc9953_vlan_ingr_fltr_learn_drop(1);
+	vsc9953_port_all_vlan_egress_untagged_set(EGRESS_UNTAG_PVID_AND_ZERO);
+}
+
 void vsc9953_init(bd_t *bis)
 {
 	u32 i;
@@ -309,6 +560,8 @@ void vsc9953_init(bd_t *bis)
 				debug("Timeout waiting for AN to complete\n");
 		}
 	}
+
+	vsc9953_default_configuration();
 
 	printf("VSC9953 L2 switch initialized\n");
 	return;
