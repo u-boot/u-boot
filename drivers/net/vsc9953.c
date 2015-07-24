@@ -500,6 +500,223 @@ static void vsc9953_port_config_show(int port_no)
 	printf("%8s\n", duplex == DUPLEX_FULL ? "full" : "half");
 }
 
+/* Show VSC9953 ports' statistics */
+static void vsc9953_port_statistics_show(int port_no)
+{
+	u32 rx_val;
+	u32 tx_val;
+	struct vsc9953_system_reg *l2sys_reg;
+
+	/* Administrative down */
+	if (!vsc9953_l2sw.port[port_no].enabled) {
+		printf("Port %d is administrative down\n", port_no);
+		return;
+	}
+
+	l2sys_reg = (struct vsc9953_system_reg *)(VSC9953_OFFSET +
+			VSC9953_SYS_OFFSET);
+
+	printf("Statistics for L2 Switch port %d:\n", port_no);
+
+	/* Set counter view for our port */
+	out_le32(&l2sys_reg->sys.stat_cfg, port_no);
+
+#define VSC9953_STATS_PRINTF "%-15s %10u"
+
+	/* Get number of Rx and Tx frames */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_short) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_frag) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_jabber) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_long) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_64) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_65_127) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_128_255) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_256_511) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_512_1023) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_1024_1526) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_jumbo);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_64) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_65_127) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_128_255) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_256_511) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_512_1023) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_1024_1526) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_jumbo);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx frames:", rx_val, "Tx frames:", tx_val);
+
+	/* Get number of Rx and Tx bytes */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_oct);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_oct);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx bytes:", rx_val, "Tx bytes:", tx_val);
+
+	/* Get number of Rx frames received ok and Tx frames sent ok */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_yellow_prio_0) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_yellow_prio_1) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_yellow_prio_2) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_yellow_prio_3) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_yellow_prio_4) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_yellow_prio_5) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_yellow_prio_6) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_yellow_prio_7) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_green_prio_0) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_green_prio_1) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_green_prio_2) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_green_prio_3) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_green_prio_4) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_green_prio_5) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_green_prio_6) +
+		 in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_green_prio_7);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_64) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_65_127) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_128_255) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_256_511) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_512_1023) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_1024_1526) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_jumbo);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx frames ok:", rx_val, "Tx frames ok:", tx_val);
+
+	/* Get number of Rx and Tx unicast frames */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_uc);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_uc);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx unicast:", rx_val, "Tx unicast:", tx_val);
+
+	/* Get number of Rx and Tx broadcast frames */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_bc);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_bc);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx broadcast:", rx_val, "Tx broadcast:", tx_val);
+
+	/* Get number of Rx and Tx frames of 64B */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_64);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_64);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx 64B:", rx_val, "Tx 64B:", tx_val);
+
+	/* Get number of Rx and Tx frames with sizes between 65B and 127B */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_65_127);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_65_127);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx 65B-127B:", rx_val, "Tx 65B-127B:", tx_val);
+
+	/* Get number of Rx and Tx frames with sizes between 128B and 255B */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_128_255);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_128_255);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx 128B-255B:", rx_val, "Tx 128B-255B:", tx_val);
+
+	/* Get number of Rx and Tx frames with sizes between 256B and 511B */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_256_511);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_256_511);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx 256B-511B:", rx_val, "Tx 256B-511B:", tx_val);
+
+	/* Get number of Rx and Tx frames with sizes between 512B and 1023B */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_512_1023);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_512_1023);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx 512B-1023B:", rx_val, "Tx 512B-1023B:", tx_val);
+
+	/* Get number of Rx and Tx frames with sizes between 1024B and 1526B */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_1024_1526);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_1024_1526);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx 1024B-1526B:", rx_val, "Tx 1024B-1526B:", tx_val);
+
+	/* Get number of Rx and Tx jumbo frames */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_sz_jumbo);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_sz_jumbo);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx jumbo:", rx_val, "Tx jumbo:", tx_val);
+
+	/* Get number of Rx and Tx dropped frames */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_cat_drop) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_tail) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_yellow_prio_0) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_yellow_prio_1) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_yellow_prio_2) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_yellow_prio_3) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_yellow_prio_4) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_yellow_prio_5) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_yellow_prio_6) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_yellow_prio_7) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_green_prio_0) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_green_prio_1) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_green_prio_2) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_green_prio_3) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_green_prio_4) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_green_prio_5) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_green_prio_6) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_green_prio_7);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_drop) +
+		 in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_aged);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx drops:", rx_val, "Tx drops:", tx_val);
+
+	/*
+	 * Get number of Rx frames with CRC or alignment errors
+	 * and number of detected Tx collisions
+	 */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_crc);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_col);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx CRC&align:", rx_val, "Tx coll:", tx_val);
+
+	/*
+	 * Get number of Rx undersized frames and
+	 * number of Tx aged frames
+	 */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_short);
+	tx_val = in_le32(&l2sys_reg->stat.tx_cntrs.c_tx_aged);
+	printf(VSC9953_STATS_PRINTF"\t\t"VSC9953_STATS_PRINTF"\n",
+	       "Rx undersize:", rx_val, "Tx aged:", tx_val);
+
+	/* Get number of Rx oversized frames */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_long);
+	printf(VSC9953_STATS_PRINTF"\n", "Rx oversized:", rx_val);
+
+	/* Get number of Rx fragmented frames */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_frag);
+	printf(VSC9953_STATS_PRINTF"\n", "Rx fragments:", rx_val);
+
+	/* Get number of Rx jabber errors */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_jabber);
+	printf(VSC9953_STATS_PRINTF"\n", "Rx jabbers:", rx_val);
+
+	/*
+	 * Get number of Rx frames filtered due to classification rules or
+	 * no destination ports
+	 */
+	rx_val = in_le32(&l2sys_reg->stat.rx_cntrs.c_rx_cat_drop) +
+		 in_le32(&l2sys_reg->stat.drop_cntrs.c_dr_local);
+	printf(VSC9953_STATS_PRINTF"\n", "Rx filtered:", rx_val);
+
+	printf("\n");
+}
+
+/* Clear statistics for a VSC9953 port */
+static void vsc9953_port_statistics_clear(int port_no)
+{
+	struct vsc9953_system_reg *l2sys_reg;
+
+	/* Administrative down */
+	if (!vsc9953_l2sw.port[port_no].enabled) {
+		printf("Port %d is administrative down\n", port_no);
+		return;
+	}
+
+	l2sys_reg = (struct vsc9953_system_reg *)(VSC9953_OFFSET +
+			VSC9953_SYS_OFFSET);
+
+	/* Clear all counter groups for our ports */
+	out_le32(&l2sys_reg->sys.stat_cfg, port_no |
+		 VSC9953_STAT_CLEAR_RX | VSC9953_STAT_CLEAR_TX |
+		 VSC9953_STAT_CLEAR_DR);
+}
+
 static int vsc9953_port_status_key_func(struct ethsw_command_def *parsed_cmd)
 {
 	int i;
@@ -556,11 +773,50 @@ static int vsc9953_port_config_key_func(struct ethsw_command_def *parsed_cmd)
 	return CMD_RET_SUCCESS;
 }
 
+static int vsc9953_port_stats_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_port_statistics_show(parsed_cmd->port);
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_port_statistics_show(i);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_port_stats_clear_key_func(struct ethsw_command_def
+					     *parsed_cmd)
+{
+	int i;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_port_statistics_clear(parsed_cmd->port);
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_port_statistics_clear(i);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct ethsw_command_func vsc9953_cmd_func = {
 		.ethsw_name = "L2 Switch VSC9953",
 		.port_enable = &vsc9953_port_status_key_func,
 		.port_disable = &vsc9953_port_status_key_func,
 		.port_show = &vsc9953_port_config_key_func,
+		.port_stats = &vsc9953_port_stats_key_func,
+		.port_stats_clear = &vsc9953_port_stats_clear_key_func,
 };
 
 #endif /* CONFIG_CMD_ETHSW */

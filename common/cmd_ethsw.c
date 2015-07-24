@@ -13,6 +13,16 @@
 
 static const char *ethsw_name;
 
+#define ETHSW_PORT_STATS_HELP "ethsw [port <port_no>] statistics " \
+"{ [help] | [clear] } - show an l2 switch port's statistics"
+
+static int ethsw_port_stats_help_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	printf(ETHSW_PORT_STATS_HELP"\n");
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct keywords_to_function {
 	enum ethsw_keyword_id cmd_keyword[ETHSW_MAX_CMD_PARAMS];
 	int cmd_func_offset;
@@ -41,6 +51,31 @@ static struct keywords_to_function {
 			},
 			.cmd_func_offset = offsetof(struct ethsw_command_func,
 						    port_show),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_statistics,
+					ethsw_id_help,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_port_stats_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_statistics,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_stats),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_statistics,
+					ethsw_id_clear,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_stats_clear),
 			.keyword_function = NULL,
 		},
 };
@@ -87,6 +122,12 @@ struct keyword_def {
 				.match = &keyword_match_gen,
 		}, {
 				.keyword_name = "disable",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "statistics",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "clear",
 				.match = &keyword_match_gen,
 		},
 };
@@ -344,4 +385,5 @@ static int do_ethsw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(ethsw, ETHSW_MAX_CMD_PARAMS, 0, do_ethsw,
 	   "Ethernet l2 switch commands",
 	   ETHSW_PORT_CONF_HELP"\n"
+	   ETHSW_PORT_STATS_HELP"\n"
 );
