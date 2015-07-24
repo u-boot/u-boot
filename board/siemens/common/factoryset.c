@@ -144,7 +144,7 @@ int factoryset_read_eeprom(int i2c_addr)
 	unsigned char eeprom_buf[0x3c00], hdr[4], buf[MAX_STRING_LENGTH];
 	unsigned char *cp, *cp1;
 
-#if defined(CONFIG_DFU_FUNCTION)
+#if defined(CONFIG_USB_FUNCTION_DFU)
 	factory_dat.usb_vendor_id = CONFIG_G_DNL_VENDOR_NUM;
 	factory_dat.usb_product_id = CONFIG_G_DNL_PRODUCT_NUM;
 #endif
@@ -202,7 +202,7 @@ int factoryset_read_eeprom(int i2c_addr)
 		cp1 += 3;
 	}
 
-#if defined(CONFIG_DFU_FUNCTION)
+#if defined(CONFIG_USB_FUNCTION_DFU)
 	/* read vid and pid for dfu mode */
 	if (0 <= get_factory_record_val(cp, size, (uchar *)"USBD1",
 					(uchar *)"vid", buf,

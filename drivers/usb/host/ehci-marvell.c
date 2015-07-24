@@ -21,9 +21,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define rdl(off)	readl(MVUSB0_BASE + (off))
-#define wrl(off, val)	writel((val), MVUSB0_BASE + (off))
-
 #define USB_WINDOW_CTRL(i)	(0x320 + ((i) << 4))
 #define USB_WINDOW_BASE(i)	(0x324 + ((i) << 4))
 #define USB_TARGET_DRAM		0x0
@@ -48,20 +45,20 @@ static void usb_brg_adrdec_setup(void)
 	dram = mvebu_mbus_dram_info();
 
 	for (i = 0; i < 4; i++) {
-		wrl(USB_WINDOW_CTRL(i), 0);
-		wrl(USB_WINDOW_BASE(i), 0);
+		writel(0, MVUSB0_BASE + USB_WINDOW_CTRL(i));
+		writel(0, MVUSB0_BASE + USB_WINDOW_BASE(i));
 	}
 
 	for (i = 0; i < dram->num_cs; i++) {
 		const struct mbus_dram_window *cs = dram->cs + i;
 
 		/* Write size, attributes and target id to control register */
-		wrl(USB_WINDOW_CTRL(i),
-		    ((cs->size - 1) & 0xffff0000) | (cs->mbus_attr << 8) |
-		    (dram->mbus_dram_target_id << 4) | 1);
+		writel(((cs->size - 1) & 0xffff0000) | (cs->mbus_attr << 8) |
+		       (dram->mbus_dram_target_id << 4) | 1,
+		       MVUSB0_BASE + USB_WINDOW_CTRL(i));
 
 		/* Write base address to base register */
-		wrl(USB_WINDOW_BASE(i), cs->base);
+		writel(cs->base, MVUSB0_BASE + USB_WINDOW_BASE(i));
 	}
 }
 #else
@@ -95,13 +92,14 @@ static void usb_brg_adrdec_setup(void)
 		size = gd->bd->bi_dram[i].size;
 		base = gd->bd->bi_dram[i].start;
 		if ((size) && (attrib))
-			wrl(USB_WINDOW_CTRL(i),
-				MVCPU_WIN_CTRL_DATA(size, USB_TARGET_DRAM,
-					attrib, MVCPU_WIN_ENABLE));
+			writel(MVCPU_WIN_CTRL_DATA(size, USB_TARGET_DRAM,
+						   attrib, MVCPU_WIN_ENABLE),
+				MVUSB0_BASE + USB_WINDOW_CTRL(i));
 		else
-			wrl(USB_WINDOW_CTRL(i), MVCPU_WIN_DISABLE);
+			writel(MVCPU_WIN_DISABLE,
+			       MVUSB0_BASE + USB_WINDOW_CTRL(i));
 
-		wrl(USB_WINDOW_BASE(i), base);
+		writel(base, MVUSB0_BASE + USB_WINDOW_BASE(i));
 	}
 }
 #endif

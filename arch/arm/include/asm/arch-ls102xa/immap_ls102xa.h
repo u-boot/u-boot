@@ -396,4 +396,5 @@ struct ccsr_cci400 {
 	} pcounter[4];			/* Performance Counter */
 	u8 res_e004[0x10000 - 0xe004];
 };
+
 #endif	/* __ASM_ARCH_LS102XA_IMMAP_H_ */

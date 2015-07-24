@@ -12,11 +12,19 @@
 #include <asm/kona-common/clk.h>
 #include <asm/arch/sysmap.h>
 
+#include <usb.h>
+#include <usb/s3c_udc.h>
+#include <g_dnl.h>
+
 #define SECWATCHDOG_SDOGCR_OFFSET	0x00000000
 #define SECWATCHDOG_SDOGCR_EN_SHIFT	27
 #define SECWATCHDOG_SDOGCR_SRSTEN_SHIFT	26
 #define SECWATCHDOG_SDOGCR_CLKS_SHIFT	20
 #define SECWATCHDOG_SDOGCR_LD_SHIFT	0
+
+#ifndef CONFIG_USB_SERIALNO
+#define CONFIG_USB_SERIALNO "1234567890"
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -83,5 +91,37 @@ int board_mmc_init(bd_t *bis)
 	/* Register SD Card - SDIO4 kona_mmc_init assumes 0 based index */
 	ret = kona_sdhci_init(3, 400000, 0);
 	return ret;
+}
+#endif
+
+#ifdef CONFIG_USB_GADGET
+static struct s3c_plat_otg_data bcm_otg_data = {
+	.regs_otg	= HSOTG_BASE_ADDR
+};
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	debug("%s: performing s3c_udc_probe\n", __func__);
+	return s3c_udc_probe(&bcm_otg_data);
+}
+
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
+{
+	debug("%s\n", __func__);
+	if (!getenv("serial#"))
+		g_dnl_set_serialnumber(CONFIG_USB_SERIALNO);
+	return 0;
+}
+
+int g_dnl_get_board_bcd_device_number(int gcnum)
+{
+	debug("%s\n", __func__);
+	return 1;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	debug("%s\n", __func__);
+	return 0;
 }
 #endif

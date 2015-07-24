@@ -163,7 +163,7 @@ void arch_preboot_os(void)
 }
 #endif
 
-#if defined(CONFIG_CMD_FASTBOOT) && !defined(CONFIG_ENV_IS_NOWHERE)
+#if defined(CONFIG_USB_FUNCTION_FASTBOOT) && !defined(CONFIG_ENV_IS_NOWHERE)
 int fb_set_reboot_flag(void)
 {
 	printf("Setting reboot to fastboot flag ...\n");

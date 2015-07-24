@@ -33,7 +33,7 @@ Board specific
 The fastboot gadget relies on the USB download gadget, so the following
 options must be configured:
 
-CONFIG_USBDOWNLOAD_GADGET
+CONFIG_USB_GADGET_DOWNLOAD
 CONFIG_G_DNL_VENDOR_NUM
 CONFIG_G_DNL_PRODUCT_NUM
 CONFIG_G_DNL_MANUFACTURER
@@ -42,13 +42,13 @@ NOTE: The CONFIG_G_DNL_VENDOR_NUM must be one of the numbers supported by
 the fastboot client. The list of vendor IDs supported can be found in the
 fastboot client source code (fastboot.c) mentioned above.
 
-The fastboot function is enabled by defining CONFIG_CMD_FASTBOOT and
-CONFIG_ANDROID_BOOT_IMAGE.
+The fastboot function is enabled by defining CONFIG_USB_FUNCTION_FASTBOOT,
+CONFIG_CMD_FASTBOOT and CONFIG_ANDROID_BOOT_IMAGE.
 
 The fastboot protocol requires a large memory buffer for downloads. This
 buffer should be as large as possible for a platform. The location of the
-buffer and size are set with CONFIG_USB_FASTBOOT_BUF_ADDR and
-CONFIG_USB_FASTBOOT_BUF_SIZE.
+buffer and size are set with CONFIG_FASTBOOT_BUF_ADDR and
+CONFIG_FASTBOOT_BUF_SIZE.
 
 Fastboot partition aliases can also be defined for devices where GPT
 limitations prevent user-friendly partition names such as "boot", "system"
