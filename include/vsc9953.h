@@ -1,14 +1,9 @@
 /*
- *  vsc9953.h
+ * Copyright 2013, 2015 Freescale Semiconductor, Inc.
  *
- *  Driver for the Vitesse VSC9953 L2 Switch
+ * SPDX-License-Identifier:      GPL-2.0+
  *
- *  This software may be used and distributed according to the
- *  terms of the GNU Public License, Version 2, incorporated
- *  herein by reference.
- *
- * Copyright 2013  Freescale Semiconductor, Inc.
- *
+ * Driver for the Vitesse VSC9953 L2 Switch
  */
 
 #ifndef _VSC9953_H_
