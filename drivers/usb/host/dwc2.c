@@ -27,8 +27,8 @@
 
 struct dwc2_priv {
 #ifdef CONFIG_DM_USB
-	uint8_t aligned_buffer[DWC2_DATA_BUF_SIZE] __aligned(8);
-	uint8_t status_buffer[DWC2_STATUS_BUF_SIZE] __aligned(8);
+	uint8_t aligned_buffer[DWC2_DATA_BUF_SIZE] __aligned(ARCH_DMA_MINALIGN);
+	uint8_t status_buffer[DWC2_STATUS_BUF_SIZE] __aligned(ARCH_DMA_MINALIGN);
 #else
 	uint8_t *aligned_buffer;
 	uint8_t *status_buffer;
@@ -39,9 +39,11 @@ struct dwc2_priv {
 };
 
 #ifndef CONFIG_DM_USB
-/* We need doubleword-aligned buffers for DMA transfers */
-DEFINE_ALIGN_BUFFER(uint8_t, aligned_buffer_addr, DWC2_DATA_BUF_SIZE, 8);
-DEFINE_ALIGN_BUFFER(uint8_t, status_buffer_addr, DWC2_STATUS_BUF_SIZE, 8);
+/* We need cacheline-aligned buffers for DMA transfers and dcache support */
+DEFINE_ALIGN_BUFFER(uint8_t, aligned_buffer_addr, DWC2_DATA_BUF_SIZE,
+		ARCH_DMA_MINALIGN);
+DEFINE_ALIGN_BUFFER(uint8_t, status_buffer_addr, DWC2_STATUS_BUF_SIZE,
+		ARCH_DMA_MINALIGN);
 
 static struct dwc2_priv local;
 #endif
@@ -821,8 +823,11 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 		       &hc_regs->hctsiz);
 
 		if (!in) {
-			memcpy(priv->aligned_buffer, (char *)buffer + done,
-			       len);
+			memcpy(priv->aligned_buffer, (char *)buffer + done, len);
+
+			flush_dcache_range((unsigned long)priv->aligned_buffer,
+				(unsigned long)((void *)priv->aligned_buffer +
+				roundup(len, ARCH_DMA_MINALIGN)));
 		}
 
 		writel(phys_to_bus((unsigned long)priv->aligned_buffer),
@@ -840,6 +845,11 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 
 		if (in) {
 			xfer_len -= sub;
+
+			invalidate_dcache_range((unsigned long)priv->aligned_buffer,
+				(unsigned long)((void *)priv->aligned_buffer +
+				roundup(xfer_len, ARCH_DMA_MINALIGN)));
+
 			memcpy(buffer + done, priv->aligned_buffer, xfer_len);
 			if (sub)
 				stop_transfer = 1;
