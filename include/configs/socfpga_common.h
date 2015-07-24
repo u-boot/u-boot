@@ -199,6 +199,10 @@ unsigned int cm_get_l4_sp_clk_hz(void);
 #define CONFIG_SPI_FLASH_SPANSION	/* Spansion flash */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SPI_FLASH_MTD
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define MTDIDS_DEFAULT			"nor0=ff705000.spi"
 #endif
 /* QSPI reference clock */
 #ifndef __ASSEMBLY__
