@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <vsc9953.h>
+#include <ethsw.h>
 
 static struct vsc9953_info vsc9953_l2sw = {
 		.port[0] = VSC9953_PORT_INFO_INITIALIZER(0),
@@ -405,6 +406,165 @@ static void vsc9953_port_all_vlan_egress_untagged_set(
 		vsc9953_port_vlan_egr_untag_set(i, mode);
 }
 
+#ifdef CONFIG_CMD_ETHSW
+
+/* Enable/disable status of a VSC9953 port */
+static void vsc9953_port_status_set(int port_no, u8 enabled)
+{
+	struct vsc9953_qsys_reg *l2qsys_reg;
+
+	/* Administrative down */
+	if (!vsc9953_l2sw.port[port_no].enabled)
+		return;
+
+	l2qsys_reg = (struct vsc9953_qsys_reg *)(VSC9953_OFFSET +
+			VSC9953_QSYS_OFFSET);
+
+	if (enabled)
+		setbits_le32(&l2qsys_reg->sys.switch_port_mode[port_no],
+			     VSC9953_PORT_ENA);
+	else
+		clrbits_le32(&l2qsys_reg->sys.switch_port_mode[port_no],
+			     VSC9953_PORT_ENA);
+}
+
+/* Start autonegotiation for a VSC9953 PHY */
+static void vsc9953_phy_autoneg(int port_no)
+{
+	if (!vsc9953_l2sw.port[port_no].phydev)
+		return;
+
+	if (vsc9953_l2sw.port[port_no].phydev->drv->startup(
+			vsc9953_l2sw.port[port_no].phydev))
+		printf("Failed to start PHY for port %d\n", port_no);
+}
+
+/* Print a VSC9953 port's configuration */
+static void vsc9953_port_config_show(int port_no)
+{
+	int speed;
+	int duplex;
+	int link;
+	u8 enabled;
+	u32 val;
+	struct vsc9953_qsys_reg *l2qsys_reg;
+
+	l2qsys_reg = (struct vsc9953_qsys_reg *)(VSC9953_OFFSET +
+			VSC9953_QSYS_OFFSET);
+
+	val = in_le32(&l2qsys_reg->sys.switch_port_mode[port_no]);
+	enabled = vsc9953_l2sw.port[port_no].enabled &&
+		  (val & VSC9953_PORT_ENA);
+
+	/* internal ports (8 and 9) are fixed */
+	if (VSC9953_INTERNAL_PORT_CHECK(port_no)) {
+		link = 1;
+		speed = SPEED_2500;
+		duplex = DUPLEX_FULL;
+	} else {
+		if (vsc9953_l2sw.port[port_no].phydev) {
+			link = vsc9953_l2sw.port[port_no].phydev->link;
+			speed = vsc9953_l2sw.port[port_no].phydev->speed;
+			duplex = vsc9953_l2sw.port[port_no].phydev->duplex;
+		} else {
+			link = -1;
+			speed = -1;
+			duplex = -1;
+		}
+	}
+
+	printf("%8d ", port_no);
+	printf("%8s ", enabled == 1 ? "enabled" : "disabled");
+	printf("%8s ", link == 1 ? "up" : "down");
+
+	switch (speed) {
+	case SPEED_10:
+		printf("%8d ", 10);
+		break;
+	case SPEED_100:
+		printf("%8d ", 100);
+		break;
+	case SPEED_1000:
+		printf("%8d ", 1000);
+		break;
+	case SPEED_2500:
+		printf("%8d ", 2500);
+		break;
+	case SPEED_10000:
+		printf("%8d ", 10000);
+		break;
+	default:
+		printf("%8s ", "-");
+	}
+
+	printf("%8s\n", duplex == DUPLEX_FULL ? "full" : "half");
+}
+
+static int vsc9953_port_status_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+	u8 enabled;
+
+	/* Last keyword should tell us if we should enable/disable the port */
+	if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+	    ethsw_id_enable)
+		enabled = 1;
+	else if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+		 ethsw_id_disable)
+		enabled = 0;
+	else
+		return CMD_RET_USAGE;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_port_status_set(parsed_cmd->port, enabled);
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_port_status_set(i, enabled);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_port_config_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_phy_autoneg(parsed_cmd->port);
+		printf("%8s %8s %8s %8s %8s\n",
+		       "Port", "Status", "Link", "Speed",
+		       "Duplex");
+		vsc9953_port_config_show(parsed_cmd->port);
+
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_phy_autoneg(i);
+		printf("%8s %8s %8s %8s %8s\n",
+		       "Port", "Status", "Link", "Speed", "Duplex");
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_port_config_show(i);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static struct ethsw_command_func vsc9953_cmd_func = {
+		.ethsw_name = "L2 Switch VSC9953",
+		.port_enable = &vsc9953_port_status_key_func,
+		.port_disable = &vsc9953_port_status_key_func,
+		.port_show = &vsc9953_port_config_key_func,
+};
+
+#endif /* CONFIG_CMD_ETHSW */
+
 /*****************************************************************************
 At startup, the default configuration would be:
 	- HW learning enabled on all ports; (HW default)
@@ -563,190 +723,11 @@ void vsc9953_init(bd_t *bis)
 
 	vsc9953_default_configuration();
 
+#ifdef CONFIG_CMD_ETHSW
+	if (ethsw_define_functions(&vsc9953_cmd_func) < 0)
+		debug("Unable to use \"ethsw\" commands\n");
+#endif
+
 	printf("VSC9953 L2 switch initialized\n");
 	return;
 }
-
-#ifdef CONFIG_VSC9953_CMD
-/* Enable/disable status of a VSC9953 port */
-static void vsc9953_port_status_set(int port_no, u8 enabled)
-{
-	struct vsc9953_qsys_reg *l2qsys_reg;
-
-	/* Administrative down */
-	if (!vsc9953_l2sw.port[port_no].enabled)
-		return;
-
-	l2qsys_reg = (struct vsc9953_qsys_reg *)(VSC9953_OFFSET +
-			VSC9953_QSYS_OFFSET);
-
-	if (enabled)
-		setbits_le32(&l2qsys_reg->sys.switch_port_mode[port_no],
-			     VSC9953_PORT_ENA);
-	else
-		clrbits_le32(&l2qsys_reg->sys.switch_port_mode[port_no],
-			     VSC9953_PORT_ENA);
-}
-
-/* Set all VSC9953 ports' status */
-static void vsc9953_port_all_status_set(u8 enabled)
-{
-	int i;
-
-	for (i = 0; i < VSC9953_MAX_PORTS; i++)
-		vsc9953_port_status_set(i, enabled);
-}
-
-/* Start autonegotiation for a VSC9953 PHY */
-static void vsc9953_phy_autoneg(int port_no)
-{
-	if (!vsc9953_l2sw.port[port_no].phydev)
-		return;
-
-	if (vsc9953_l2sw.port[port_no].phydev->drv->startup(
-			vsc9953_l2sw.port[port_no].phydev))
-		printf("Failed to start PHY for port %d\n", port_no);
-}
-
-/* Start autonegotiation for all VSC9953 PHYs */
-static void vsc9953_phy_all_autoneg(void)
-{
-	int i;
-
-	for (i = 0; i < VSC9953_MAX_PORTS; i++)
-		vsc9953_phy_autoneg(i);
-}
-
-/* Print a VSC9953 port's configuration */
-static void vsc9953_port_config_show(int port_no)
-{
-	int speed;
-	int duplex;
-	int link;
-	u8 enabled;
-	u32 val;
-	struct vsc9953_qsys_reg	*l2qsys_reg;
-
-	l2qsys_reg = (struct vsc9953_qsys_reg *)(VSC9953_OFFSET +
-			VSC9953_QSYS_OFFSET);
-
-	val = in_le32(&l2qsys_reg->sys.switch_port_mode[port_no]);
-	enabled = vsc9953_l2sw.port[port_no].enabled &&
-		  (val & VSC9953_PORT_ENA);
-
-	/* internal ports (8 and 9) are fixed */
-	if (VSC9953_INTERNAL_PORT_CHECK(port_no)) {
-		link = 1;
-		speed = SPEED_2500;
-		duplex = DUPLEX_FULL;
-	} else {
-		if (vsc9953_l2sw.port[port_no].phydev) {
-			link = vsc9953_l2sw.port[port_no].phydev->link;
-			speed = vsc9953_l2sw.port[port_no].phydev->speed;
-			duplex = vsc9953_l2sw.port[port_no].phydev->duplex;
-		} else {
-			link = -1;
-			speed = -1;
-			duplex = -1;
-		}
-	}
-
-	printf("%8d ", port_no);
-	printf("%8s ", enabled == 1 ? "enabled" : "disabled");
-	printf("%8s ", link == 1 ? "up" : "down");
-
-	switch (speed) {
-	case SPEED_10:
-		printf("%8d ", 10);
-		break;
-	case SPEED_100:
-		printf("%8d ", 100);
-		break;
-	case SPEED_1000:
-		printf("%8d ", 1000);
-		break;
-	case SPEED_2500:
-		printf("%8d ", 2500);
-		break;
-	case SPEED_10000:
-		printf("%8d ", 10000);
-		break;
-	default:
-		printf("%8s ", "-");
-	}
-
-	printf("%8s\n", duplex == DUPLEX_FULL ? "full" : "half");
-}
-
-/* Print VSC9953 ports' configuration */
-static void vsc9953_port_all_config_show(void)
-{
-	int i;
-
-	for (i = 0; i < VSC9953_MAX_PORTS; i++)
-		vsc9953_port_config_show(i);
-}
-
-/* function to interpret commands starting with "ethsw " */
-static int do_ethsw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	u8 enable;
-	u32 port;
-
-	if (argc < 4)
-		return -1;
-
-	if (strcmp(argv[1], "port"))
-		return -1;
-
-	if (!strcmp(argv[3], "show")) {
-		if (!strcmp(argv[2], "all")) {
-			vsc9953_phy_all_autoneg();
-			printf("%8s %8s %8s %8s %8s\n",
-			       "Port", "Status", "Link", "Speed",
-			       "Duplex");
-			vsc9953_port_all_config_show();
-			return 0;
-		} else {
-			port = simple_strtoul(argv[2], NULL, 10);
-			if (!VSC9953_PORT_CHECK(port))
-				return -1;
-			vsc9953_phy_autoneg(port);
-			printf("%8s %8s %8s %8s %8s\n",
-			       "Port", "Status", "Link", "Speed",
-			       "Duplex");
-			vsc9953_port_config_show(port);
-			return 0;
-		}
-	} else if (!strcmp(argv[3], "enable")) {
-		enable = 1;
-	} else if (!strcmp(argv[3], "disable")) {
-		enable = 0;
-	} else {
-		return -1;
-	}
-
-	if (!strcmp(argv[2], "all")) {
-		vsc9953_port_all_status_set(enable);
-		return 0;
-	} else {
-		port = simple_strtoul(argv[2], NULL, 10);
-		if (!VSC9953_PORT_CHECK(port))
-			return -1;
-		vsc9953_port_status_set(port, enable);
-		return 0;
-	}
-
-	return -1;
-}
-
-U_BOOT_CMD(ethsw, 5, 0, do_ethsw,
-	   "vsc9953 l2 switch commands",
-	   "port <port_no> enable|disable\n"
-	   "    - enable/disable an l2 switch port\n"
-	   "      port_no=0..9; use \"all\" for all ports\n"
-	   "ethsw port <port_no> show\n"
-	   "    - show an l2 switch port's configuration\n"
-	   "      port_no=0..9; use \"all\" for all ports\n"
-);
-#endif /* CONFIG_VSC9953_CMD */
