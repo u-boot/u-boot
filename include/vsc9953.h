@@ -143,6 +143,7 @@ struct vsc9953_ana_ana_tables {
 struct vsc9953_ana_ana {
 	u32	adv_learn;
 	u32	vlan_mask;
+	u32	reserved;
 	u32	anag_efil;
 	u32	an_events;
 	u32	storm_limit_burst;
