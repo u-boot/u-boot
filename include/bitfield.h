@@ -54,5 +54,5 @@ static inline uint bitfield_replace(uint reg_val, uint shift, uint width,
 {
 	uint mask = bitfield_mask(shift, width);
 
-	return (reg_val & ~mask) | (bitfield_val << shift);
+	return (reg_val & ~mask) | ((bitfield_val << shift) & mask);
 }
