@@ -202,26 +202,26 @@ void vsc9953_init(bd_t *bis)
 			VSC9953_DEVCPU_GCB);
 
 	out_le32(&l2dev_gcb->chip_regs.soft_rst,
-		 CONFIG_VSC9953_SOFT_SWC_RST_ENA);
+		 VSC9953_SOFT_SWC_RST_ENA);
 	timeout = 50000;
 	while ((in_le32(&l2dev_gcb->chip_regs.soft_rst) &
-			CONFIG_VSC9953_SOFT_SWC_RST_ENA) && --timeout)
+			VSC9953_SOFT_SWC_RST_ENA) && --timeout)
 		udelay(1); /* busy wait for vsc9953 soft reset */
 	if (timeout == 0)
 		debug("Timeout waiting for VSC9953 to reset\n");
 
-	out_le32(&l2sys_reg->sys.reset_cfg, CONFIG_VSC9953_MEM_ENABLE |
-		 CONFIG_VSC9953_MEM_INIT);
+	out_le32(&l2sys_reg->sys.reset_cfg, VSC9953_MEM_ENABLE |
+		 VSC9953_MEM_INIT);
 
 	timeout = 50000;
 	while ((in_le32(&l2sys_reg->sys.reset_cfg) &
-		CONFIG_VSC9953_MEM_INIT) && --timeout)
+		VSC9953_MEM_INIT) && --timeout)
 		udelay(1); /* busy wait for vsc9953 memory init */
 	if (timeout == 0)
 		debug("Timeout waiting for VSC9953 memory to initialize\n");
 
 	out_le32(&l2sys_reg->sys.reset_cfg, (in_le32(&l2sys_reg->sys.reset_cfg)
-			| CONFIG_VSC9953_CORE_ENABLE));
+			| VSC9953_CORE_ENABLE));
 
 	/* VSC9953 Setting to be done once only */
 	out_le32(&l2qsys_reg->sys.ext_cpu_cfg, 0x00000b00);
@@ -233,34 +233,34 @@ void vsc9953_init(bd_t *bis)
 		/* Enable VSC9953 GMII Ports Port ID 0 - 7 */
 		if (VSC9953_INTERNAL_PORT_CHECK(i)) {
 			out_le32(&l2ana_reg->pfc[i].pfc_cfg,
-				 CONFIG_VSC9953_PFC_FC_QSGMII);
+				 VSC9953_PFC_FC_QSGMII);
 			out_le32(&l2sys_reg->pause_cfg.mac_fc_cfg[i],
-				 CONFIG_VSC9953_MAC_FC_CFG_QSGMII);
+				 VSC9953_MAC_FC_CFG_QSGMII);
 		} else {
 			out_le32(&l2ana_reg->pfc[i].pfc_cfg,
-				 CONFIG_VSC9953_PFC_FC);
+				 VSC9953_PFC_FC);
 			out_le32(&l2sys_reg->pause_cfg.mac_fc_cfg[i],
-				 CONFIG_VSC9953_MAC_FC_CFG);
+				 VSC9953_MAC_FC_CFG);
 		}
 		out_le32(&l2dev_gmii_reg->port_mode.clock_cfg,
-			 CONFIG_VSC9953_CLOCK_CFG);
+			 VSC9953_CLOCK_CFG);
 		out_le32(&l2dev_gmii_reg->mac_cfg_status.mac_ena_cfg,
-			 CONFIG_VSC9953_MAC_ENA_CFG);
+			 VSC9953_MAC_ENA_CFG);
 		out_le32(&l2dev_gmii_reg->mac_cfg_status.mac_mode_cfg,
-			 CONFIG_VSC9953_MAC_MODE_CFG);
+			 VSC9953_MAC_MODE_CFG);
 		out_le32(&l2dev_gmii_reg->mac_cfg_status.mac_ifg_cfg,
-			 CONFIG_VSC9953_MAC_IFG_CFG);
+			 VSC9953_MAC_IFG_CFG);
 		/* mac_hdx_cfg varies with port id*/
-		hdx_cfg = (CONFIG_VSC9953_MAC_HDX_CFG | (i << 16));
+		hdx_cfg = VSC9953_MAC_HDX_CFG | (i << 16);
 		out_le32(&l2dev_gmii_reg->mac_cfg_status.mac_hdx_cfg, hdx_cfg);
 		out_le32(&l2sys_reg->sys.front_port_mode[i],
-			 CONFIG_VSC9953_FRONT_PORT_MODE);
+			 VSC9953_FRONT_PORT_MODE);
 		out_le32(&l2qsys_reg->sys.switch_port_mode[i],
-			 CONFIG_VSC9953_PORT_ENA);
+			 VSC9953_PORT_ENA);
 		out_le32(&l2dev_gmii_reg->mac_cfg_status.mac_maxlen_cfg,
-			 CONFIG_VSC9953_MAC_MAX_LEN);
+			 VSC9953_MAC_MAX_LEN);
 		out_le32(&l2sys_reg->pause_cfg.pause_cfg[i],
-			 CONFIG_VSC9953_PAUSE_CFG);
+			 VSC9953_PAUSE_CFG);
 		/* WAIT FOR 2 us*/
 		udelay(2);
 
