@@ -103,6 +103,17 @@ static int ethsw_vlan_learn_help_key_func(struct ethsw_command_def *parsed_cmd)
 	return CMD_RET_SUCCESS;
 }
 
+#define ETHSW_PORT_INGR_FLTR_HELP "ethsw [port <port_no>] ingress filtering" \
+" { [help] | show | enable | disable } " \
+"- enable/disable VLAN ingress filtering on port"
+
+static int ethsw_ingr_fltr_help_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	printf(ETHSW_PORT_INGR_FLTR_HELP"\n");
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct keywords_to_function {
 	enum ethsw_keyword_id cmd_keyword[ETHSW_MAX_CMD_PARAMS];
 	int cmd_func_offset;
@@ -474,6 +485,53 @@ static struct keywords_to_function {
 			.cmd_func_offset = offsetof(struct ethsw_command_func,
 						    vlan_learn_set),
 			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_ingress,
+					ethsw_id_filtering,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_ingr_fltr_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_ingress,
+					ethsw_id_filtering,
+					ethsw_id_help,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_ingr_fltr_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_ingress,
+					ethsw_id_filtering,
+					ethsw_id_show,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_ingr_filt_show),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_ingress,
+					ethsw_id_filtering,
+					ethsw_id_enable,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_ingr_filt_set),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_ingress,
+					ethsw_id_filtering,
+					ethsw_id_disable,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_ingr_filt_set),
+			.keyword_function = NULL,
 		},
 };
 
@@ -596,6 +654,12 @@ struct keyword_def {
 				.match = &keyword_match_gen,
 		}, {
 				.keyword_name = "private",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "ingress",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "filtering",
 				.match = &keyword_match_gen,
 		},
 };
@@ -959,4 +1023,5 @@ U_BOOT_CMD(ethsw, ETHSW_MAX_CMD_PARAMS, 0, do_ethsw,
 	   ETHSW_PORT_UNTAG_HELP"\n"
 	   ETHSW_EGR_VLAN_TAG_HELP"\n"
 	   ETHSW_VLAN_FDB_HELP"\n"
+	   ETHSW_PORT_INGR_FLTR_HELP"\n"
 );

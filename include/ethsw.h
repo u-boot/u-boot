@@ -39,6 +39,8 @@ enum ethsw_keyword_id {
 	ethsw_id_classified,
 	ethsw_id_shared,
 	ethsw_id_private,
+	ethsw_id_ingress,
+	ethsw_id_filtering,
 	ethsw_id_count,	/* keep last */
 };
 
@@ -84,6 +86,8 @@ struct ethsw_command_func {
 	int (*port_egr_vlan_set)(struct ethsw_command_def *parsed_cmd);
 	int (*vlan_learn_show)(struct ethsw_command_def *parsed_cmd);
 	int (*vlan_learn_set)(struct ethsw_command_def *parsed_cmd);
+	int (*port_ingr_filt_show)(struct ethsw_command_def *parsed_cmd);
+	int (*port_ingr_filt_set)(struct ethsw_command_def *parsed_cmd);
 };
 
 int ethsw_define_functions(const struct ethsw_command_func *cmd_func);

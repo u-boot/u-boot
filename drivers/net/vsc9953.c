@@ -1447,6 +1447,33 @@ static int vsc9953_vlan_learning_get(enum vlan_learning_mode *lrn_mode)
 	return 0;
 }
 
+/* Enable/disable VLAN ingress filtering on a VSC9953 port */
+static void vsc9953_port_ingress_filtering_set(int port_no, int enabled)
+{
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	if (enabled)
+		setbits_le32(&l2ana_reg->ana.vlan_mask, 1 << port_no);
+	else
+		clrbits_le32(&l2ana_reg->ana.vlan_mask, 1 << port_no);
+}
+
+/* Return VLAN ingress filtering on a VSC9953 port */
+static int vsc9953_port_ingress_filtering_get(int port_no)
+{
+	u32 val;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	val = in_le32(&l2ana_reg->ana.vlan_mask);
+	return !!(val & (1 << port_no));
+}
+
 static int vsc9953_port_status_key_func(struct ethsw_command_def *parsed_cmd)
 {
 	int i;
@@ -1980,6 +2007,63 @@ static int vsc9953_vlan_learn_set_key_func(struct ethsw_command_def *parsed_cmd)
 	return CMD_RET_SUCCESS;
 }
 
+static int vsc9953_ingr_fltr_show_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+	int enabled;
+
+	printf("%7s\t%18s\n", "Port", "Ingress filtering");
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		enabled = vsc9953_port_ingress_filtering_get(parsed_cmd->port);
+		printf("%7d\t%18s\n", parsed_cmd->port, enabled ? "enable" :
+								  "disable");
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+			enabled = vsc9953_port_ingress_filtering_get(i);
+			printf("%7d\t%18s\n", parsed_cmd->port, enabled ?
+								"enable" :
+								"disable");
+		}
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_ingr_fltr_set_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+	int enable;
+
+	/* keywords for enabling/disabling ingress filtering
+	 * are the last in the array
+	 */
+	if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+	    ethsw_id_enable)
+		enable = 1;
+	else if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+		 ethsw_id_disable)
+		enable = 0;
+	else
+		return CMD_RET_USAGE;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_port_ingress_filtering_set(parsed_cmd->port, enable);
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_port_ingress_filtering_set(i, enable);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct ethsw_command_func vsc9953_cmd_func = {
 		.ethsw_name = "L2 Switch VSC9953",
 		.port_enable = &vsc9953_port_status_key_func,
@@ -2003,6 +2087,8 @@ static struct ethsw_command_func vsc9953_cmd_func = {
 		.port_egr_vlan_set = &vsc9953_egr_vlan_tag_set_key_func,
 		.vlan_learn_show = &vsc9953_vlan_learn_show_key_func,
 		.vlan_learn_set = &vsc9953_vlan_learn_set_key_func,
+		.port_ingr_filt_show = &vsc9953_ingr_fltr_show_key_func,
+		.port_ingr_filt_set = &vsc9953_ingr_fltr_set_key_func
 };
 
 #endif /* CONFIG_CMD_ETHSW */
