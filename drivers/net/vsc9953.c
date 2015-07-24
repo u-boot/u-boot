@@ -259,8 +259,8 @@ void vsc9953_init(bd_t *bis)
 		out_le32(&l2dev_gmii_reg->mac_cfg_status.mac_hdx_cfg, hdx_cfg);
 		out_le32(&l2sys_reg->sys.front_port_mode[i],
 			 VSC9953_FRONT_PORT_MODE);
-		out_le32(&l2qsys_reg->sys.switch_port_mode[i],
-			 VSC9953_PORT_ENA);
+		setbits_le32(&l2qsys_reg->sys.switch_port_mode[i],
+			     VSC9953_PORT_ENA);
 		out_le32(&l2dev_gmii_reg->mac_cfg_status.mac_maxlen_cfg,
 			 VSC9953_MAC_MAX_LEN);
 		out_le32(&l2sys_reg->pause_cfg.pause_cfg[i],

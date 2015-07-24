@@ -81,7 +81,7 @@
 #define VSC9953_VCAP_UPDATE_CTRL	0x01000004
 
 /* Macros for vsc9953_qsys_sys.switch_port_mode register */
-#define VSC9953_PORT_ENA		0x00003a00
+#define VSC9953_PORT_ENA		0x00002000
 
 #define VSC9953_MAX_PORTS		10
 #define VSC9953_PORT_CHECK(port)	\
