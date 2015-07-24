@@ -1398,6 +1398,55 @@ static void vsc9953_port_vlan_egress_tag_get(int port_no,
 		*mode = EGR_TAG_CLASS;
 }
 
+/* VSC9953 VLAN learning modes */
+enum vlan_learning_mode {
+	SHARED_VLAN_LEARNING,
+	PRIVATE_VLAN_LEARNING,
+};
+
+/* Set VLAN learning mode for VSC9953 */
+static void vsc9953_vlan_learning_set(enum vlan_learning_mode lrn_mode)
+{
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	switch (lrn_mode) {
+	case SHARED_VLAN_LEARNING:
+		setbits_le32(&l2ana_reg->ana.agen_ctrl, VSC9953_FID_MASK_ALL);
+		break;
+	case PRIVATE_VLAN_LEARNING:
+		clrbits_le32(&l2ana_reg->ana.agen_ctrl, VSC9953_FID_MASK_ALL);
+		break;
+	default:
+		printf("Unknown VLAN learn mode\n");
+	}
+}
+
+/* Get VLAN learning mode for VSC9953 */
+static int vsc9953_vlan_learning_get(enum vlan_learning_mode *lrn_mode)
+{
+	u32 val;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	val = in_le32(&l2ana_reg->ana.agen_ctrl);
+
+	if (!(val & VSC9953_FID_MASK_ALL)) {
+		*lrn_mode = PRIVATE_VLAN_LEARNING;
+	} else if ((val & VSC9953_FID_MASK_ALL) == VSC9953_FID_MASK_ALL) {
+		*lrn_mode = SHARED_VLAN_LEARNING;
+	} else {
+		printf("Unknown VLAN learning mode\n");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 static int vsc9953_port_status_key_func(struct ethsw_command_def *parsed_cmd)
 {
 	int i;
@@ -1887,6 +1936,50 @@ static int vsc9953_egr_vlan_tag_set_key_func(
 	return CMD_RET_SUCCESS;
 }
 
+static int vsc9953_vlan_learn_show_key_func(
+		struct ethsw_command_def *parsed_cmd)
+{
+	int rc;
+	enum vlan_learning_mode mode;
+
+	rc = vsc9953_vlan_learning_get(&mode);
+	if (rc)
+		return CMD_RET_FAILURE;
+
+	switch (mode) {
+	case SHARED_VLAN_LEARNING:
+		printf("VLAN learning mode: shared\n");
+		break;
+	case PRIVATE_VLAN_LEARNING:
+		printf("VLAN learning mode: private\n");
+		break;
+	default:
+		printf("Unknown VLAN learning mode\n");
+		rc = CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_vlan_learn_set_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	enum vlan_learning_mode mode;
+
+	/* keywords for shared/private are the last in the array */
+	if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+	    ethsw_id_shared)
+		mode = SHARED_VLAN_LEARNING;
+	else if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+		 ethsw_id_private)
+		mode = PRIVATE_VLAN_LEARNING;
+	else
+		return CMD_RET_USAGE;
+
+	vsc9953_vlan_learning_set(mode);
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct ethsw_command_func vsc9953_cmd_func = {
 		.ethsw_name = "L2 Switch VSC9953",
 		.port_enable = &vsc9953_port_status_key_func,
@@ -1908,6 +2001,8 @@ static struct ethsw_command_func vsc9953_cmd_func = {
 		.port_untag_set = &vsc9953_port_untag_set_key_func,
 		.port_egr_vlan_show = &vsc9953_egr_vlan_tag_show_key_func,
 		.port_egr_vlan_set = &vsc9953_egr_vlan_tag_set_key_func,
+		.vlan_learn_show = &vsc9953_vlan_learn_show_key_func,
+		.vlan_learn_set = &vsc9953_vlan_learn_set_key_func,
 };
 
 #endif /* CONFIG_CMD_ETHSW */

@@ -92,6 +92,17 @@ static int ethsw_egr_tag_help_key_func(struct ethsw_command_def *parsed_cmd)
 	return CMD_RET_SUCCESS;
 }
 
+#define ETHSW_VLAN_FDB_HELP "ethsw vlan fdb " \
+"{ [help] | show | shared | private } " \
+"- make VLAN learning shared or private"
+
+static int ethsw_vlan_learn_help_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	printf(ETHSW_VLAN_FDB_HELP"\n");
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct keywords_to_function {
 	enum ethsw_keyword_id cmd_keyword[ETHSW_MAX_CMD_PARAMS];
 	int cmd_func_offset;
@@ -416,6 +427,53 @@ static struct keywords_to_function {
 			.cmd_func_offset = offsetof(struct ethsw_command_func,
 						    port_egr_vlan_set),
 			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_vlan,
+					ethsw_id_fdb,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_vlan_learn_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_vlan,
+					ethsw_id_fdb,
+					ethsw_id_help,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_vlan_learn_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_vlan,
+					ethsw_id_fdb,
+					ethsw_id_show,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    vlan_learn_show),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_vlan,
+					ethsw_id_fdb,
+					ethsw_id_shared,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    vlan_learn_set),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_vlan,
+					ethsw_id_fdb,
+					ethsw_id_private,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    vlan_learn_set),
+			.keyword_function = NULL,
 		},
 };
 
@@ -532,6 +590,12 @@ struct keyword_def {
 				.match = &keyword_match_gen,
 		}, {
 				.keyword_name = "classified",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "shared",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "private",
 				.match = &keyword_match_gen,
 		},
 };
@@ -894,4 +958,5 @@ U_BOOT_CMD(ethsw, ETHSW_MAX_CMD_PARAMS, 0, do_ethsw,
 	   ETHSW_VLAN_HELP"\n"
 	   ETHSW_PORT_UNTAG_HELP"\n"
 	   ETHSW_EGR_VLAN_TAG_HELP"\n"
+	   ETHSW_VLAN_FDB_HELP"\n"
 );
