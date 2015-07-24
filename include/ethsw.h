@@ -30,12 +30,20 @@ enum ethsw_keyword_id {
 	ethsw_id_add,
 	ethsw_id_del,
 	ethsw_id_flush,
+	ethsw_id_pvid,
+	ethsw_id_untagged,
+	ethsw_id_all,
+	ethsw_id_none,
+	ethsw_id_egress,
+	ethsw_id_tag,
+	ethsw_id_classified,
 	ethsw_id_count,	/* keep last */
 };
 
 enum ethsw_keyword_opt_id {
 	ethsw_id_port_no = ethsw_id_count + 1,
 	ethsw_id_vlan_no,
+	ethsw_id_pvid_no,
 	ethsw_id_add_del_no,
 	ethsw_id_add_del_mac,
 	ethsw_id_count_all,	/* keep last */
@@ -64,6 +72,14 @@ struct ethsw_command_func {
 	int (*fdb_flush)(struct ethsw_command_def *parsed_cmd);
 	int (*fdb_entry_add)(struct ethsw_command_def *parsed_cmd);
 	int (*fdb_entry_del)(struct ethsw_command_def *parsed_cmd);
+	int (*pvid_show)(struct ethsw_command_def *parsed_cmd);
+	int (*pvid_set)(struct ethsw_command_def *parsed_cmd);
+	int (*vlan_show)(struct ethsw_command_def *parsed_cmd);
+	int (*vlan_set)(struct ethsw_command_def *parsed_cmd);
+	int (*port_untag_show)(struct ethsw_command_def *parsed_cmd);
+	int (*port_untag_set)(struct ethsw_command_def *parsed_cmd);
+	int (*port_egr_vlan_show)(struct ethsw_command_def *parsed_cmd);
+	int (*port_egr_vlan_set)(struct ethsw_command_def *parsed_cmd);
 };
 
 int ethsw_define_functions(const struct ethsw_command_func *cmd_func);

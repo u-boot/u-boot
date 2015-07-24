@@ -196,6 +196,100 @@ static int vsc9953_vlan_table_poll_idle(void)
 	return timeout ? 0 : -EBUSY;
 }
 
+#ifdef CONFIG_CMD_ETHSW
+/* Add/remove a port to/from a VLAN */
+static void vsc9953_vlan_table_membership_set(int vid, u32 port_no, u8 add)
+{
+	u32 val;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	if (vsc9953_vlan_table_poll_idle() < 0) {
+		debug("VLAN table timeout\n");
+		return;
+	}
+
+	val = in_le32(&l2ana_reg->ana_tables.vlan_tidx);
+	val = bitfield_replace_by_mask(val, VSC9953_ANA_TBL_VID_MASK, vid);
+	out_le32(&l2ana_reg->ana_tables.vlan_tidx, val);
+
+	clrsetbits_le32(&l2ana_reg->ana_tables.vlan_access,
+			VSC9953_VLAN_CMD_MASK, VSC9953_VLAN_CMD_READ);
+
+	if (vsc9953_vlan_table_poll_idle() < 0) {
+		debug("VLAN table timeout\n");
+		return;
+	}
+
+	val = in_le32(&l2ana_reg->ana_tables.vlan_tidx);
+	val = bitfield_replace_by_mask(val, VSC9953_ANA_TBL_VID_MASK, vid);
+	out_le32(&l2ana_reg->ana_tables.vlan_tidx, val);
+
+	val = in_le32(&l2ana_reg->ana_tables.vlan_access);
+	if (!add) {
+		val = bitfield_replace_by_mask(val, VSC9953_VLAN_CMD_MASK,
+						VSC9953_VLAN_CMD_WRITE) &
+		      ~(bitfield_replace_by_mask(0, VSC9953_VLAN_PORT_MASK,
+						 (1 << port_no)));
+		 ;
+	} else {
+		val = bitfield_replace_by_mask(val, VSC9953_VLAN_CMD_MASK,
+						VSC9953_VLAN_CMD_WRITE) |
+		      bitfield_replace_by_mask(0, VSC9953_VLAN_PORT_MASK,
+					       (1 << port_no));
+	}
+	out_le32(&l2ana_reg->ana_tables.vlan_access, val);
+
+	/* wait for VLAN table command to flush */
+	if (vsc9953_vlan_table_poll_idle() < 0) {
+		debug("VLAN table timeout\n");
+		return;
+	}
+}
+
+/* show VLAN membership for a port */
+static void vsc9953_vlan_membership_show(int port_no)
+{
+	u32 val;
+	struct vsc9953_analyzer *l2ana_reg;
+	u32 vid;
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	printf("Port %d VLAN membership: ", port_no);
+
+	for (vid = 0; vid < VSC9953_MAX_VLAN; vid++) {
+		if (vsc9953_vlan_table_poll_idle() < 0) {
+			debug("VLAN table timeout\n");
+			return;
+		}
+
+		val = in_le32(&l2ana_reg->ana_tables.vlan_tidx);
+		val = bitfield_replace_by_mask(val, VSC9953_ANA_TBL_VID_MASK,
+					       vid);
+		out_le32(&l2ana_reg->ana_tables.vlan_tidx, val);
+
+		clrsetbits_le32(&l2ana_reg->ana_tables.vlan_access,
+				VSC9953_VLAN_CMD_MASK, VSC9953_VLAN_CMD_READ);
+
+		if (vsc9953_vlan_table_poll_idle() < 0) {
+			debug("VLAN table timeout\n");
+			return;
+		}
+
+		val = in_le32(&l2ana_reg->ana_tables.vlan_access);
+
+		if (bitfield_extract_by_mask(val, VSC9953_VLAN_PORT_MASK) &
+		    (1 << port_no))
+			printf("%d ", vid);
+	}
+	printf("\n");
+}
+#endif
+
 /* vlan table set/clear all membership of vid */
 static void vsc9953_vlan_table_membership_all_set(int vid, int set_member)
 {
@@ -232,6 +326,30 @@ static void vsc9953_vlan_table_membership_all_set(int vid, int set_member)
 			VSC9953_VLAN_CMD_WRITE |
 			(set_member ? VSC9953_VLAN_PORT_MASK : 0));
 }
+
+#ifdef CONFIG_CMD_ETHSW
+/* Get PVID of a VSC9953 port */
+static int vsc9953_port_vlan_pvid_get(int port_nr, int *pvid)
+{
+	u32 val;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	/* Administrative down */
+	if (vsc9953_l2sw.port[port_nr].enabled) {
+		printf("Port %d is administrative down\n", port_nr);
+		return -1;
+	}
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+				VSC9953_ANA_OFFSET);
+
+	/* Get ingress PVID */
+	val = in_le32(&l2ana_reg->port[port_nr].vlan_cfg);
+	*pvid = bitfield_extract_by_mask(val, VSC9953_VLAN_CFG_VID_MASK);
+
+	return 0;
+}
+#endif
 
 /* Set PVID for a VSC9953 port */
 static void vsc9953_port_vlan_pvid_set(int port_no, int pvid)
@@ -358,6 +476,75 @@ enum egress_untag_mode {
 	EGRESS_UNTAG_ZERO,
 	EGRESS_UNTAG_NONE,
 };
+
+#ifdef CONFIG_CMD_ETHSW
+/* Get egress tagging configuration for a VSC9953 port */
+static int vsc9953_port_vlan_egr_untag_get(int port_no,
+					   enum egress_untag_mode *mode)
+{
+	u32 val;
+	struct vsc9953_rew_reg *l2rew_reg;
+
+	/* Administrative down */
+	if (!vsc9953_l2sw.port[port_no].enabled) {
+		printf("Port %d is administrative down\n", port_no);
+		return -1;
+	}
+
+	l2rew_reg = (struct vsc9953_rew_reg *)(VSC9953_OFFSET +
+			VSC9953_REW_OFFSET);
+
+	val = in_le32(&l2rew_reg->port[port_no].port_tag_cfg);
+
+	switch (val & VSC9953_TAG_CFG_MASK) {
+	case VSC9953_TAG_CFG_NONE:
+		*mode = EGRESS_UNTAG_ALL;
+		return 0;
+	case VSC9953_TAG_CFG_ALL_BUT_PVID_ZERO:
+		*mode = EGRESS_UNTAG_PVID_AND_ZERO;
+		return 0;
+	case VSC9953_TAG_CFG_ALL_BUT_ZERO:
+		*mode = EGRESS_UNTAG_ZERO;
+		return 0;
+	case VSC9953_TAG_CFG_ALL:
+		*mode = EGRESS_UNTAG_NONE;
+		return 0;
+	default:
+		printf("Unknown egress tagging configuration for port %d\n",
+		       port_no);
+		return -1;
+	}
+}
+
+/* Show egress tagging configuration for a VSC9953 port */
+static void vsc9953_port_vlan_egr_untag_show(int port_no)
+{
+	enum egress_untag_mode mode;
+
+	if (vsc9953_port_vlan_egr_untag_get(port_no, &mode)) {
+		printf("%7d\t%17s\n", port_no, "-");
+		return;
+	}
+
+	printf("%7d\t", port_no);
+	switch (mode) {
+	case EGRESS_UNTAG_ALL:
+		printf("%17s\n", "all");
+		break;
+	case EGRESS_UNTAG_NONE:
+		printf("%17s\n", "none");
+		break;
+	case EGRESS_UNTAG_PVID_AND_ZERO:
+		printf("%17s\n", "PVID and 0");
+		break;
+	case EGRESS_UNTAG_ZERO:
+		printf("%17s\n", "0");
+		break;
+	default:
+		printf("%17s\n", "-");
+	}
+}
+#endif
 
 static void vsc9953_port_vlan_egr_untag_set(int port_no,
 					    enum egress_untag_mode mode)
@@ -1166,6 +1353,51 @@ static void vsc9953_mac_table_flush(int port, int vid)
 	vsc9953_mac_table_age(port, vid);
 }
 
+enum egress_vlan_tag {
+	EGR_TAG_CLASS = 0,
+	EGR_TAG_PVID,
+};
+
+/* Set egress tag mode for a VSC9953 port */
+static void vsc9953_port_vlan_egress_tag_set(int port_no,
+					     enum egress_vlan_tag mode)
+{
+	struct vsc9953_rew_reg *l2rew_reg;
+
+	l2rew_reg = (struct vsc9953_rew_reg *)(VSC9953_OFFSET +
+			VSC9953_REW_OFFSET);
+
+	switch (mode) {
+	case EGR_TAG_CLASS:
+		clrbits_le32(&l2rew_reg->port[port_no].port_tag_cfg,
+			     VSC9953_TAG_VID_PVID);
+		break;
+	case EGR_TAG_PVID:
+		setbits_le32(&l2rew_reg->port[port_no].port_tag_cfg,
+			     VSC9953_TAG_VID_PVID);
+		break;
+	default:
+		printf("Unknown egress VLAN tag mode for port %d\n", port_no);
+	}
+}
+
+/* Get egress tag mode for a VSC9953 port */
+static void vsc9953_port_vlan_egress_tag_get(int port_no,
+					     enum egress_vlan_tag *mode)
+{
+	u32 val;
+	struct vsc9953_rew_reg *l2rew_reg;
+
+	l2rew_reg = (struct vsc9953_rew_reg *)(VSC9953_OFFSET +
+			VSC9953_REW_OFFSET);
+
+	val = in_le32(&l2rew_reg->port[port_no].port_tag_cfg);
+	if (val & VSC9953_TAG_VID_PVID)
+		*mode = EGR_TAG_PVID;
+	else
+		*mode = EGR_TAG_CLASS;
+}
+
 static int vsc9953_port_status_key_func(struct ethsw_command_def *parsed_cmd)
 {
 	int i;
@@ -1417,6 +1649,244 @@ static int vsc9953_fdb_entry_del_key_func(struct ethsw_command_def *parsed_cmd)
 	return CMD_RET_SUCCESS;
 }
 
+static int vsc9953_pvid_show_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+	int pvid;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+
+		if (vsc9953_port_vlan_pvid_get(parsed_cmd->port, &pvid))
+			return CMD_RET_FAILURE;
+		printf("%7s %7s\n", "Port", "PVID");
+		printf("%7d %7d\n", parsed_cmd->port, pvid);
+	} else {
+		printf("%7s %7s\n", "Port", "PVID");
+		for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+			if (vsc9953_port_vlan_pvid_get(i, &pvid))
+				continue;
+			printf("%7d %7d\n", i, pvid);
+		}
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_pvid_set_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	/* PVID number should be set in parsed_cmd->vid */
+	if (parsed_cmd->vid == ETHSW_CMD_VLAN_ALL) {
+		printf("Please set a pvid value\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (!VSC9953_VLAN_CHECK(parsed_cmd->vid)) {
+		printf("Invalid VID number: %d\n", parsed_cmd->vid);
+		return CMD_RET_FAILURE;
+	}
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_port_vlan_pvid_set(parsed_cmd->port, parsed_cmd->vid);
+	} else {
+		vsc9953_port_all_vlan_pvid_set(parsed_cmd->vid);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_vlan_show_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_vlan_membership_show(parsed_cmd->port);
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_vlan_membership_show(i);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_vlan_set_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+	int add;
+
+	/* VLAN should be set in parsed_cmd->vid */
+	if (parsed_cmd->vid == ETHSW_CMD_VLAN_ALL) {
+		printf("Please set a vlan value\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (!VSC9953_VLAN_CHECK(parsed_cmd->vid)) {
+		printf("Invalid VID number: %d\n", parsed_cmd->vid);
+		return CMD_RET_FAILURE;
+	}
+
+	/* keywords add/delete should be the last but one in array */
+	if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 2] ==
+	    ethsw_id_add)
+		add = 1;
+	else if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 2] ==
+		 ethsw_id_del)
+		add = 0;
+	else
+		return CMD_RET_USAGE;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_vlan_table_membership_set(parsed_cmd->vid,
+						  parsed_cmd->port, add);
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_vlan_table_membership_set(parsed_cmd->vid, i,
+							  add);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+static int vsc9953_port_untag_show_key_func(
+		struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+
+	printf("%7s\t%17s\n", "Port", "Untag");
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_port_vlan_egr_untag_show(parsed_cmd->port);
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_port_vlan_egr_untag_show(i);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_port_untag_set_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+	enum egress_untag_mode mode;
+
+	/* keywords for the untagged mode are the last in the array */
+	if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+	    ethsw_id_all)
+		mode = EGRESS_UNTAG_ALL;
+	else if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+		 ethsw_id_none)
+		mode = EGRESS_UNTAG_NONE;
+	else if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+		 ethsw_id_pvid)
+		mode = EGRESS_UNTAG_PVID_AND_ZERO;
+	else
+		return CMD_RET_USAGE;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_port_vlan_egr_untag_set(parsed_cmd->port, mode);
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_port_vlan_egr_untag_set(i, mode);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_egr_vlan_tag_show_key_func(
+		struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+	enum egress_vlan_tag mode;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_port_vlan_egress_tag_get(parsed_cmd->port, &mode);
+		printf("%7s\t%12s\n", "Port", "Egress VID");
+		printf("%7d\t", parsed_cmd->port);
+		switch (mode) {
+		case EGR_TAG_CLASS:
+			printf("%12s\n", "classified");
+			break;
+		case EGR_TAG_PVID:
+			printf("%12s\n", "pvid");
+			break;
+		default:
+			printf("%12s\n", "-");
+		}
+	} else {
+		printf("%7s\t%12s\n", "Port", "Egress VID");
+		for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+			vsc9953_port_vlan_egress_tag_get(i, &mode);
+			switch (mode) {
+			case EGR_TAG_CLASS:
+				printf("%7d\t%12s\n", i, "classified");
+				break;
+			case EGR_TAG_PVID:
+				printf("%7d\t%12s\n", i, "pvid");
+				break;
+			default:
+				printf("%7d\t%12s\n", i, "-");
+			}
+		}
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_egr_vlan_tag_set_key_func(
+		struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+	enum egress_vlan_tag mode;
+
+	/* keywords for the egress vlan tag mode are the last in the array */
+	if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+	    ethsw_id_pvid)
+		mode = EGR_TAG_PVID;
+	else if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+		 ethsw_id_classified)
+		mode = EGR_TAG_CLASS;
+	else
+		return CMD_RET_USAGE;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_port_vlan_egress_tag_set(parsed_cmd->port, mode);
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_port_vlan_egress_tag_set(i, mode);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct ethsw_command_func vsc9953_cmd_func = {
 		.ethsw_name = "L2 Switch VSC9953",
 		.port_enable = &vsc9953_port_status_key_func,
@@ -1430,6 +1900,14 @@ static struct ethsw_command_func vsc9953_cmd_func = {
 		.fdb_flush = &vsc9953_fdb_flush_key_func,
 		.fdb_entry_add = &vsc9953_fdb_entry_add_key_func,
 		.fdb_entry_del = &vsc9953_fdb_entry_del_key_func,
+		.pvid_show = &vsc9953_pvid_show_key_func,
+		.pvid_set = &vsc9953_pvid_set_key_func,
+		.vlan_show = &vsc9953_vlan_show_key_func,
+		.vlan_set = &vsc9953_vlan_set_key_func,
+		.port_untag_show = &vsc9953_port_untag_show_key_func,
+		.port_untag_set = &vsc9953_port_untag_set_key_func,
+		.port_egr_vlan_show = &vsc9953_egr_vlan_tag_show_key_func,
+		.port_egr_vlan_set = &vsc9953_egr_vlan_tag_set_key_func,
 };
 
 #endif /* CONFIG_CMD_ETHSW */

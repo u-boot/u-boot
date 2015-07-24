@@ -47,6 +47,51 @@ static int ethsw_fdb_help_key_func(struct ethsw_command_def *parsed_cmd)
 	return CMD_RET_SUCCESS;
 }
 
+#define ETHSW_PVID_HELP "ethsw [port <port_no>] " \
+"pvid { [help] | show | <pvid> } " \
+"- set/show PVID (ingress and egress VLAN tagging) for a port"
+
+static int ethsw_pvid_help_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	printf(ETHSW_PVID_HELP"\n");
+
+	return CMD_RET_SUCCESS;
+}
+
+#define ETHSW_VLAN_HELP "ethsw [port <port_no>] vlan " \
+"{ [help] | show | add <vid> | del <vid> } " \
+"- add a VLAN to a port (VLAN members)"
+
+static int ethsw_vlan_help_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	printf(ETHSW_VLAN_HELP"\n");
+
+	return CMD_RET_SUCCESS;
+}
+
+#define ETHSW_PORT_UNTAG_HELP "ethsw [port <port_no>] untagged " \
+"{ [help] | show | all | none | pvid } " \
+" - set egress tagging mod for a port"
+
+static int ethsw_port_untag_help_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	printf(ETHSW_PORT_UNTAG_HELP"\n");
+
+	return CMD_RET_SUCCESS;
+}
+
+#define ETHSW_EGR_VLAN_TAG_HELP "ethsw [port <port_no>] egress tag " \
+"{ [help] | show | pvid | classified } " \
+"- Configure VID source for egress tag. " \
+"Tag's VID could be the frame's classified VID or the PVID of the port"
+
+static int ethsw_egr_tag_help_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	printf(ETHSW_EGR_VLAN_TAG_HELP"\n");
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct keywords_to_function {
 	enum ethsw_keyword_id cmd_keyword[ETHSW_MAX_CMD_PARAMS];
 	int cmd_func_offset;
@@ -196,6 +241,181 @@ static struct keywords_to_function {
 			.cmd_func_offset = offsetof(struct ethsw_command_func,
 						    fdb_entry_del),
 			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_pvid,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_pvid_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_pvid,
+					ethsw_id_help,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_pvid_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_pvid,
+					ethsw_id_show,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    pvid_show),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_pvid,
+					ethsw_id_pvid_no,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    pvid_set),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_vlan,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_vlan_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_vlan,
+					ethsw_id_help,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_vlan_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_vlan,
+					ethsw_id_show,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    vlan_show),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_vlan,
+					ethsw_id_add,
+					ethsw_id_add_del_no,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    vlan_set),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_vlan,
+					ethsw_id_del,
+					ethsw_id_add_del_no,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    vlan_set),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_untagged,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_port_untag_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_untagged,
+					ethsw_id_help,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_port_untag_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_untagged,
+					ethsw_id_show,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_untag_show),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_untagged,
+					ethsw_id_all,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_untag_set),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_untagged,
+					ethsw_id_none,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_untag_set),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_untagged,
+					ethsw_id_pvid,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_untag_set),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_egress,
+					ethsw_id_tag,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_egr_tag_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_egress,
+					ethsw_id_tag,
+					ethsw_id_help,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = -1,
+			.keyword_function = &ethsw_egr_tag_help_key_func,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_egress,
+					ethsw_id_tag,
+					ethsw_id_show,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_egr_vlan_show),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_egress,
+					ethsw_id_tag,
+					ethsw_id_pvid,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_egr_vlan_set),
+			.keyword_function = NULL,
+		}, {
+			.cmd_keyword = {
+					ethsw_id_egress,
+					ethsw_id_tag,
+					ethsw_id_classified,
+					ethsw_id_key_end,
+			},
+			.cmd_func_offset = offsetof(struct ethsw_command_func,
+						    port_egr_vlan_set),
+			.keyword_function = NULL,
 		},
 };
 
@@ -232,6 +452,9 @@ static int keyword_match_port(enum ethsw_keyword_id key_id, int argc,
 			      char *const argv[], int *argc_nr,
 			      struct ethsw_command_def *parsed_cmd);
 static int keyword_match_vlan(enum ethsw_keyword_id key_id, int argc,
+			      char *const argv[], int *argc_nr,
+			      struct ethsw_command_def *parsed_cmd);
+static int keyword_match_pvid(enum ethsw_keyword_id key_id, int argc,
 			      char *const argv[], int *argc_nr,
 			      struct ethsw_command_def *parsed_cmd);
 static int keyword_match_mac_addr(enum ethsw_keyword_id key_id, int argc,
@@ -288,6 +511,27 @@ struct keyword_def {
 				.match = &keyword_match_mac_addr,
 		}, {
 				.keyword_name = "flush",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "pvid",
+				.match = &keyword_match_pvid,
+		}, {
+				.keyword_name = "untagged",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "all",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "none",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "egress",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "tag",
+				.match = &keyword_match_gen,
+		}, {
+				.keyword_name = "classified",
 				.match = &keyword_match_gen,
 		},
 };
@@ -401,6 +645,28 @@ static int keyword_match_vlan(enum ethsw_keyword_id key_id, int argc,
 	}
 
 	return 0;
+}
+
+/* Function used to match the command's pvid */
+static int keyword_match_pvid(enum ethsw_keyword_id key_id, int argc,
+			      char *const argv[], int *argc_nr,
+			      struct ethsw_command_def *parsed_cmd)
+{
+	unsigned long val;
+
+	if (!keyword_match_gen(key_id, argc, argv, argc_nr, parsed_cmd))
+		return 0;
+
+	if (*argc_nr + 1 >= argc)
+		return 1;
+
+	if (strict_strtoul(argv[*argc_nr + 1], 10, &val) != -EINVAL) {
+		parsed_cmd->vid = val;
+		(*argc_nr)++;
+		parsed_cmd->cmd_to_keywords[*argc_nr] = ethsw_id_pvid_no;
+	}
+
+	return 1;
 }
 
 /* Function used to match the command's MAC address */
@@ -624,4 +890,8 @@ U_BOOT_CMD(ethsw, ETHSW_MAX_CMD_PARAMS, 0, do_ethsw,
 	   ETHSW_PORT_STATS_HELP"\n"
 	   ETHSW_LEARN_HELP"\n"
 	   ETHSW_FDB_HELP"\n"
+	   ETHSW_PVID_HELP"\n"
+	   ETHSW_VLAN_HELP"\n"
+	   ETHSW_PORT_UNTAG_HELP"\n"
+	   ETHSW_EGR_VLAN_TAG_HELP"\n"
 );

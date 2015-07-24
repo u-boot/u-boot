@@ -108,6 +108,8 @@
 /* Macros for vsc9953_ana_port.vlan_cfg register */
 #define VSC9953_VLAN_CFG_AWARE_ENA	0x00100000
 #define VSC9953_VLAN_CFG_POP_CNT_MASK	0x000c0000
+#define VSC9953_VLAN_CFG_POP_CNT_NONE	0x00000000
+#define VSC9953_VLAN_CFG_POP_CNT_ONE	0x00040000
 #define VSC9953_VLAN_CFG_VID_MASK	0x00000fff
 
 /* Macros for vsc9953_rew_port.port_vlan_cfg register */
@@ -142,6 +144,7 @@
 #define VSC9953_TAG_CFG_ALL_BUT_PVID_ZERO	0x00000080
 #define VSC9953_TAG_CFG_ALL_BUT_ZERO		0x00000100
 #define VSC9953_TAG_CFG_ALL		0x00000180
+#define VSC9953_TAG_VID_PVID		0x00000010
 
 /* Macros for vsc9953_ana_ana.anag_efil register */
 #define VSC9953_AGE_PORT_EN		0x00080000
