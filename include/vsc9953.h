@@ -105,6 +105,12 @@
 #define VSC9953_VLAN_CMD_WRITE		0x00000002
 #define VSC9953_VLAN_CMD_INIT		0x00000003
 
+/* Macros for vsc9953_ana_port.port_cfg register */
+#define VSC9953_PORT_CFG_LEARN_ENA	0x00000080
+#define VSC9953_PORT_CFG_LEARN_AUTO	0x00000100
+#define VSC9953_PORT_CFG_LEARN_CPU	0x00000200
+#define VSC9953_PORT_CFG_LEARN_DROP	0x00000400
+
 /* Macros for vsc9953_qsys_sys.switch_port_mode register */
 #define VSC9953_PORT_ENA		0x00002000
 

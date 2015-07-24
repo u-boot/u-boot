@@ -22,6 +22,8 @@ enum ethsw_keyword_id {
 	ethsw_id_disable,
 	ethsw_id_statistics,
 	ethsw_id_clear,
+	ethsw_id_learning,
+	ethsw_id_auto,
 	ethsw_id_count,	/* keep last */
 };
 
@@ -45,6 +47,8 @@ struct ethsw_command_func {
 	int (*port_show)(struct ethsw_command_def *parsed_cmd);
 	int (*port_stats)(struct ethsw_command_def *parsed_cmd);
 	int (*port_stats_clear)(struct ethsw_command_def *parsed_cmd);
+	int (*port_learn)(struct ethsw_command_def *parsed_cmd);
+	int (*port_learn_show)(struct ethsw_command_def *parsed_cmd);
 };
 
 int ethsw_define_functions(const struct ethsw_command_func *cmd_func);

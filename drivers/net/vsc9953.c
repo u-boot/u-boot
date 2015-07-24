@@ -717,6 +717,72 @@ static void vsc9953_port_statistics_clear(int port_no)
 		 VSC9953_STAT_CLEAR_DR);
 }
 
+enum port_learn_mode {
+	PORT_LEARN_NONE,
+	PORT_LEARN_AUTO
+};
+
+/* Set learning configuration for a VSC9953 port */
+static void vsc9953_port_learn_mode_set(int port_no, enum port_learn_mode mode)
+{
+	struct vsc9953_analyzer *l2ana_reg;
+
+	/* Administrative down */
+	if (!vsc9953_l2sw.port[port_no].enabled) {
+		printf("Port %d is administrative down\n", port_no);
+		return;
+	}
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	switch (mode) {
+	case PORT_LEARN_NONE:
+		clrbits_le32(&l2ana_reg->port[port_no].port_cfg,
+			     VSC9953_PORT_CFG_LEARN_DROP |
+			     VSC9953_PORT_CFG_LEARN_CPU |
+			     VSC9953_PORT_CFG_LEARN_AUTO |
+			     VSC9953_PORT_CFG_LEARN_ENA);
+		break;
+	case PORT_LEARN_AUTO:
+		clrsetbits_le32(&l2ana_reg->port[port_no].port_cfg,
+				VSC9953_PORT_CFG_LEARN_DROP |
+				VSC9953_PORT_CFG_LEARN_CPU,
+				VSC9953_PORT_CFG_LEARN_ENA |
+				VSC9953_PORT_CFG_LEARN_AUTO);
+		break;
+	default:
+		printf("Unknown learn mode for port %d\n", port_no);
+	}
+}
+
+/* Get learning configuration for a VSC9953 port */
+static int vsc9953_port_learn_mode_get(int port_no, enum port_learn_mode *mode)
+{
+	u32 val;
+	struct vsc9953_analyzer *l2ana_reg;
+
+	/* Administrative down */
+	if (!vsc9953_l2sw.port[port_no].enabled) {
+		printf("Port %d is administrative down\n", port_no);
+		return -1;
+	}
+
+	l2ana_reg = (struct vsc9953_analyzer *)(VSC9953_OFFSET +
+			VSC9953_ANA_OFFSET);
+
+	/* For now we only support HW learning (auto) and no learning */
+	val = in_le32(&l2ana_reg->port[port_no].port_cfg);
+	if ((val & (VSC9953_PORT_CFG_LEARN_ENA |
+		    VSC9953_PORT_CFG_LEARN_AUTO)) ==
+	    (VSC9953_PORT_CFG_LEARN_ENA | VSC9953_PORT_CFG_LEARN_AUTO))
+		*mode = PORT_LEARN_AUTO;
+	else
+		*mode = PORT_LEARN_NONE;
+
+	return 0;
+}
+
 static int vsc9953_port_status_key_func(struct ethsw_command_def *parsed_cmd)
 {
 	int i;
@@ -810,6 +876,79 @@ static int vsc9953_port_stats_clear_key_func(struct ethsw_command_def
 	return CMD_RET_SUCCESS;
 }
 
+static int vsc9953_learn_show_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+	enum port_learn_mode mode;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		if (vsc9953_port_learn_mode_get(parsed_cmd->port, &mode))
+			return CMD_RET_FAILURE;
+		printf("%7s %11s\n", "Port", "Learn mode");
+		switch (mode) {
+		case PORT_LEARN_NONE:
+			printf("%7d %11s\n", parsed_cmd->port, "disable");
+			break;
+		case PORT_LEARN_AUTO:
+			printf("%7d %11s\n", parsed_cmd->port, "auto");
+			break;
+		default:
+			printf("%7d %11s\n", parsed_cmd->port, "-");
+		}
+	} else {
+		printf("%7s %11s\n", "Port", "Learn mode");
+		for (i = 0; i < VSC9953_MAX_PORTS; i++) {
+			if (vsc9953_port_learn_mode_get(i, &mode))
+				continue;
+			switch (mode) {
+			case PORT_LEARN_NONE:
+				printf("%7d %11s\n", i, "disable");
+				break;
+			case PORT_LEARN_AUTO:
+				printf("%7d %11s\n", i, "auto");
+				break;
+			default:
+				printf("%7d %11s\n", i, "-");
+			}
+		}
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+static int vsc9953_learn_set_key_func(struct ethsw_command_def *parsed_cmd)
+{
+	int i;
+	enum port_learn_mode mode;
+
+	/* Last keyword should tell us the learn mode */
+	if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+	    ethsw_id_auto)
+		mode = PORT_LEARN_AUTO;
+	else if (parsed_cmd->cmd_to_keywords[parsed_cmd->cmd_keywords_nr - 1] ==
+		 ethsw_id_disable)
+		mode = PORT_LEARN_NONE;
+	else
+		return CMD_RET_USAGE;
+
+	if (parsed_cmd->port != ETHSW_CMD_PORT_ALL) {
+		if (!VSC9953_PORT_CHECK(parsed_cmd->port)) {
+			printf("Invalid port number: %d\n", parsed_cmd->port);
+			return CMD_RET_FAILURE;
+		}
+		vsc9953_port_learn_mode_set(parsed_cmd->port, mode);
+	} else {
+		for (i = 0; i < VSC9953_MAX_PORTS; i++)
+			vsc9953_port_learn_mode_set(i, mode);
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct ethsw_command_func vsc9953_cmd_func = {
 		.ethsw_name = "L2 Switch VSC9953",
 		.port_enable = &vsc9953_port_status_key_func,
@@ -817,6 +956,8 @@ static struct ethsw_command_func vsc9953_cmd_func = {
 		.port_show = &vsc9953_port_config_key_func,
 		.port_stats = &vsc9953_port_stats_key_func,
 		.port_stats_clear = &vsc9953_port_stats_clear_key_func,
+		.port_learn = &vsc9953_learn_set_key_func,
+		.port_learn_show = &vsc9953_learn_show_key_func,
 };
 
 #endif /* CONFIG_CMD_ETHSW */
