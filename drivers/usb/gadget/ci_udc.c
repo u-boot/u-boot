@@ -258,10 +258,12 @@ static struct usb_request *
 ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 {
 	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
-	int num;
+	int num = -1;
 	struct ci_req *ci_req;
 
-	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	if (ci_ep->desc)
+		num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+
 	if (num == 0 && controller.ep0_req)
 		return &controller.ep0_req->req;
 
@@ -281,9 +283,11 @@ static void ci_ep_free_request(struct usb_ep *ep, struct usb_request *req)
 {
 	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
 	struct ci_req *ci_req = container_of(req, struct ci_req, req);
-	int num;
+	int num = -1;
 
-	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	if (ci_ep->desc)
+		num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+
 	if (num == 0) {
 		if (!controller.ep0_req)
 			return;
