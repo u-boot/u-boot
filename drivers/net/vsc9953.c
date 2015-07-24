@@ -10,6 +10,8 @@
 #include <asm/fsl_serdes.h>
 #include <fm_eth.h>
 #include <fsl_memac.h>
+#include <errno.h>
+#include <malloc.h>
 #include <vsc9953.h>
 
 static struct vsc9953_info vsc9953_l2sw = {
@@ -25,50 +27,50 @@ static struct vsc9953_info vsc9953_l2sw = {
 		.port[9] = VSC9953_PORT_INFO_INITIALIZER(9),
 };
 
-void vsc9953_port_info_set_mdio(int port, struct mii_dev *bus)
+void vsc9953_port_info_set_mdio(int port_no, struct mii_dev *bus)
 {
-	if (!VSC9953_PORT_CHECK(port))
+	if (!VSC9953_PORT_CHECK(port_no))
 		return;
 
-	vsc9953_l2sw.port[port].bus = bus;
+	vsc9953_l2sw.port[port_no].bus = bus;
 }
 
-void vsc9953_port_info_set_phy_address(int port, int address)
+void vsc9953_port_info_set_phy_address(int port_no, int address)
 {
-	if (!VSC9953_PORT_CHECK(port))
+	if (!VSC9953_PORT_CHECK(port_no))
 		return;
 
-	vsc9953_l2sw.port[port].phyaddr = address;
+	vsc9953_l2sw.port[port_no].phyaddr = address;
 }
 
-void vsc9953_port_info_set_phy_int(int port, phy_interface_t phy_int)
+void vsc9953_port_info_set_phy_int(int port_no, phy_interface_t phy_int)
 {
-	if (!VSC9953_PORT_CHECK(port))
+	if (!VSC9953_PORT_CHECK(port_no))
 		return;
 
-	vsc9953_l2sw.port[port].enet_if = phy_int;
+	vsc9953_l2sw.port[port_no].enet_if = phy_int;
 }
 
-void vsc9953_port_enable(int port)
+void vsc9953_port_enable(int port_no)
 {
-	if (!VSC9953_PORT_CHECK(port))
+	if (!VSC9953_PORT_CHECK(port_no))
 		return;
 
-	vsc9953_l2sw.port[port].enabled = 1;
+	vsc9953_l2sw.port[port_no].enabled = 1;
 }
 
-void vsc9953_port_disable(int port)
+void vsc9953_port_disable(int port_no)
 {
-	if (!VSC9953_PORT_CHECK(port))
+	if (!VSC9953_PORT_CHECK(port_no))
 		return;
 
-	vsc9953_l2sw.port[port].enabled = 0;
+	vsc9953_l2sw.port[port_no].enabled = 0;
 }
 
 static void vsc9953_mdio_write(struct vsc9953_mii_mng *phyregs, int port_addr,
 		int regnum, int value)
 {
-	int			timeout = 50000;
+	int timeout = 50000;
 
 	out_le32(&phyregs->miimcmd, (0x1 << 31) | ((port_addr & 0x1f) << 25) |
 			((regnum & 0x1f) << 20) | ((value & 0xffff) << 4) |
@@ -85,8 +87,8 @@ static void vsc9953_mdio_write(struct vsc9953_mii_mng *phyregs, int port_addr,
 static int vsc9953_mdio_read(struct vsc9953_mii_mng *phyregs, int port_addr,
 		int regnum)
 {
-	int			value = 0xFFFF;
-	int			timeout = 50000;
+	int value = 0xFFFF;
+	int timeout = 50000;
 
 	while ((in_le32(&phyregs->miimstatus) & MIIMIND_OPR_PEND) && --timeout)
 		udelay(1);
@@ -120,8 +122,8 @@ static int vsc9953_mdio_read(struct vsc9953_mii_mng *phyregs, int port_addr,
 
 static int init_phy(struct eth_device *dev)
 {
-	struct vsc9953_port_info	*l2sw_port = dev->priv;
-	struct phy_device		*phydev = NULL;
+	struct vsc9953_port_info *l2sw_port = dev->priv;
+	struct phy_device *phydev = NULL;
 
 #ifdef CONFIG_PHYLIB
 	if (!l2sw_port->bus)
@@ -148,21 +150,21 @@ static int init_phy(struct eth_device *dev)
 	return 0;
 }
 
-static int vsc9953_port_init(int port)
+static int vsc9953_port_init(int port_no)
 {
-	struct eth_device		*dev;
+	struct eth_device *dev;
 
 	/* Internal ports never have a PHY */
-	if (VSC9953_INTERNAL_PORT_CHECK(port))
+	if (VSC9953_INTERNAL_PORT_CHECK(port_no))
 		return 0;
 
 	/* alloc eth device */
 	dev = (struct eth_device *)calloc(1, sizeof(struct eth_device));
 	if (!dev)
-		return 1;
+		return -ENOMEM;
 
-	sprintf(dev->name, "SW@PORT%d", port);
-	dev->priv = &vsc9953_l2sw.port[port];
+	sprintf(dev->name, "SW@PORT%d", port_no);
+	dev->priv = &vsc9953_l2sw.port[port_no];
 	dev->init = NULL;
 	dev->halt = NULL;
 	dev->send = NULL;
@@ -170,7 +172,7 @@ static int vsc9953_port_init(int port)
 
 	if (init_phy(dev)) {
 		free(dev);
-		return 1;
+		return -ENODEV;
 	}
 
 	return 0;
@@ -178,13 +180,15 @@ static int vsc9953_port_init(int port)
 
 void vsc9953_init(bd_t *bis)
 {
-	u32				i, hdx_cfg = 0, phy_addr = 0;
-	int				timeout;
-	struct vsc9953_system_reg	*l2sys_reg;
-	struct vsc9953_qsys_reg		*l2qsys_reg;
-	struct vsc9953_dev_gmii		*l2dev_gmii_reg;
-	struct vsc9953_analyzer		*l2ana_reg;
-	struct vsc9953_devcpu_gcb	*l2dev_gcb;
+	u32 i;
+	u32 hdx_cfg = 0;
+	u32 phy_addr = 0;
+	int timeout;
+	struct vsc9953_system_reg *l2sys_reg;
+	struct vsc9953_qsys_reg *l2qsys_reg;
+	struct vsc9953_dev_gmii *l2dev_gmii_reg;
+	struct vsc9953_analyzer *l2ana_reg;
+	struct vsc9953_devcpu_gcb *l2dev_gcb;
 
 	l2dev_gmii_reg = (struct vsc9953_dev_gmii *)(VSC9953_OFFSET +
 			VSC9953_DEV_GMII_OFFSET);
@@ -312,83 +316,81 @@ void vsc9953_init(bd_t *bis)
 
 #ifdef CONFIG_VSC9953_CMD
 /* Enable/disable status of a VSC9953 port */
-static void vsc9953_port_status_set(int port_nr, u8 enabled)
+static void vsc9953_port_status_set(int port_no, u8 enabled)
 {
-	u32			val;
-	struct vsc9953_qsys_reg	*l2qsys_reg;
+	struct vsc9953_qsys_reg *l2qsys_reg;
 
 	/* Administrative down */
-	if (vsc9953_l2sw.port[port_nr].enabled == 0)
+	if (!vsc9953_l2sw.port[port_no].enabled)
 		return;
 
 	l2qsys_reg = (struct vsc9953_qsys_reg *)(VSC9953_OFFSET +
 			VSC9953_QSYS_OFFSET);
 
-	val = in_le32(&l2qsys_reg->sys.switch_port_mode[port_nr]);
-	if (enabled == 1)
-		val |= (1 << 13);
+	if (enabled)
+		setbits_le32(&l2qsys_reg->sys.switch_port_mode[port_no],
+			     VSC9953_PORT_ENA);
 	else
-		val &= ~(1 << 13);
-
-	out_le32(&l2qsys_reg->sys.switch_port_mode[port_nr], val);
+		clrbits_le32(&l2qsys_reg->sys.switch_port_mode[port_no],
+			     VSC9953_PORT_ENA);
 }
 
 /* Set all VSC9953 ports' status */
 static void vsc9953_port_all_status_set(u8 enabled)
 {
-	int		i;
+	int i;
 
 	for (i = 0; i < VSC9953_MAX_PORTS; i++)
 		vsc9953_port_status_set(i, enabled);
 }
 
 /* Start autonegotiation for a VSC9953 PHY */
-static void vsc9953_phy_autoneg(int port_nr)
+static void vsc9953_phy_autoneg(int port_no)
 {
-	if (!vsc9953_l2sw.port[port_nr].phydev)
+	if (!vsc9953_l2sw.port[port_no].phydev)
 		return;
 
-	if (vsc9953_l2sw.port[port_nr].phydev->drv->startup(
-			vsc9953_l2sw.port[port_nr].phydev))
-		printf("Failed to start PHY for port %d\n", port_nr);
+	if (vsc9953_l2sw.port[port_no].phydev->drv->startup(
+			vsc9953_l2sw.port[port_no].phydev))
+		printf("Failed to start PHY for port %d\n", port_no);
 }
 
 /* Start autonegotiation for all VSC9953 PHYs */
 static void vsc9953_phy_all_autoneg(void)
 {
-	int		i;
+	int i;
 
 	for (i = 0; i < VSC9953_MAX_PORTS; i++)
 		vsc9953_phy_autoneg(i);
 }
 
 /* Print a VSC9953 port's configuration */
-static void vsc9953_port_config_show(int port)
+static void vsc9953_port_config_show(int port_no)
 {
-	int			speed;
-	int			duplex;
-	int			link;
-	u8			enabled;
-	u32			val;
+	int speed;
+	int duplex;
+	int link;
+	u8 enabled;
+	u32 val;
 	struct vsc9953_qsys_reg	*l2qsys_reg;
 
 	l2qsys_reg = (struct vsc9953_qsys_reg *)(VSC9953_OFFSET +
 			VSC9953_QSYS_OFFSET);
 
-	val = in_le32(&l2qsys_reg->sys.switch_port_mode[port]);
-	enabled = vsc9953_l2sw.port[port].enabled &
-			((val & 0x00002000) >> 13);
+	val = in_le32(&l2qsys_reg->sys.switch_port_mode[port_no]);
+	enabled = vsc9953_l2sw.port[port_no].enabled &&
+		  (val & VSC9953_PORT_ENA);
 
 	/* internal ports (8 and 9) are fixed */
-	if (VSC9953_INTERNAL_PORT_CHECK(port)) {
+	if (VSC9953_INTERNAL_PORT_CHECK(port_no)) {
 		link = 1;
 		speed = SPEED_2500;
 		duplex = DUPLEX_FULL;
 	} else {
-		if (vsc9953_l2sw.port[port].phydev) {
-			link = vsc9953_l2sw.port[port].phydev->link;
-			speed = vsc9953_l2sw.port[port].phydev->speed;
-			duplex = vsc9953_l2sw.port[port].phydev->duplex;
+		if (vsc9953_l2sw.port[port_no].phydev) {
+			link = vsc9953_l2sw.port[port_no].phydev->link;
+			speed = vsc9953_l2sw.port[port_no].phydev->speed;
+			duplex = vsc9953_l2sw.port[port_no].phydev->duplex;
 		} else {
 			link = -1;
 			speed = -1;
@@ -396,7 +398,7 @@ static void vsc9953_port_config_show(int port)
 		}
 	}
 
-	printf("%8d ", port);
+	printf("%8d ", port_no);
 	printf("%8s ", enabled == 1 ? "enabled" : "disabled");
 	printf("%8s ", link == 1 ? "up" : "down");
 
@@ -426,7 +428,7 @@ static void vsc9953_port_config_show(int port)
 /* Print VSC9953 ports' configuration */
 static void vsc9953_port_all_config_show(void)
 {
-	int		i;
+	int i;
 
 	for (i = 0; i < VSC9953_MAX_PORTS; i++)
 		vsc9953_port_config_show(i);
@@ -487,11 +489,11 @@ static int do_ethsw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 U_BOOT_CMD(ethsw, 5, 0, do_ethsw,
 	   "vsc9953 l2 switch commands",
-	   "port <port_nr> enable|disable\n"
+	   "port <port_no> enable|disable\n"
 	   "    - enable/disable an l2 switch port\n"
-	   "      port_nr=0..9; use \"all\" for all ports\n"
-	   "ethsw port <port_nr> show\n"
+	   "      port_no=0..9; use \"all\" for all ports\n"
+	   "ethsw port <port_no> show\n"
 	   "    - show an l2 switch port's configuration\n"
-	   "      port_nr=0..9; use \"all\" for all ports\n"
+	   "      port_no=0..9; use \"all\" for all ports\n"
 );
 #endif /* CONFIG_VSC9953_CMD */
