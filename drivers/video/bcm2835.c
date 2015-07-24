@@ -38,8 +38,8 @@ struct msg_setup {
 
 void lcd_ctrl_init(void *lcdbase)
 {
-	ALLOC_ALIGN_BUFFER(struct msg_query, msg_query, 1, 16);
-	ALLOC_ALIGN_BUFFER(struct msg_setup, msg_setup, 1, 16);
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_query, msg_query, 1);
+	ALLOC_CACHE_ALIGN_BUFFER(struct msg_setup, msg_setup, 1);
 	int ret;
 	u32 w, h;
 
