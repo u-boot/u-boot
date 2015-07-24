@@ -5,8 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-extra-y	= start.o
-
-obj-y += ../arm11/
-obj-$(CONFIG_MX31) += mx31/
-obj-$(CONFIG_MX35) += mx35/
+obj-y	= cpu.o
