@@ -9,7 +9,6 @@
 #include <asm/arch/socfpga_base_addrs.h>
 #include "../../board/altera/socfpga/qts/pinmux_config.h"
 #include "../../board/altera/socfpga/qts/iocsr_config.h"
-#include "../../board/altera/socfpga/qts/pll_config.h"
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH

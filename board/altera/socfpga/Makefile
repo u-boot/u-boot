@@ -6,5 +6,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= socfpga.o
+obj-y	:= socfpga.o wrap_pll_config.o
 obj-$(CONFIG_SPL_BUILD) += qts/
