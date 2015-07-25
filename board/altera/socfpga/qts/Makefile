@@ -4,4 +4,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += pinmux_config.o iocsr_config.o
+obj-y += pinmux_config.o

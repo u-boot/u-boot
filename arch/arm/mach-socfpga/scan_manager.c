@@ -48,29 +48,15 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 	uint32_t io_program_iter;
 	uint32_t io_scan_chain_data_residual;
 	uint32_t residual;
-	uint32_t i;
+	uint32_t i, ret;
 	uint32_t index = 0;
-	uint32_t io_scan_chain_len_in_bits,
-	const uint32_t *iocsr_scan_chain;
+	uint32_t io_scan_chain_len_in_bits;
+	const unsigned long *iocsr_scan_chain;
 
-	switch (io_scan_chain_id) {
-	case 0:
-		io_scan_chain_len_in_bits = CONFIG_HPS_IOCSR_SCANCHAIN0_LENGTH;
-		iocsr_scan_chain = iocsr_scan_chain0_table;
-		break;
-	case 1:
-		io_scan_chain_len_in_bits = CONFIG_HPS_IOCSR_SCANCHAIN1_LENGTH;
-		iocsr_scan_chain = iocsr_scan_chain1_table;
-		break;
-	case 2:
-		io_scan_chain_len_in_bits = CONFIG_HPS_IOCSR_SCANCHAIN2_LENGTH;
-		iocsr_scan_chain = iocsr_scan_chain2_table;
-		break;
-	case 3:
-		io_scan_chain_len_in_bits = CONFIG_HPS_IOCSR_SCANCHAIN3_LENGTH;
-		iocsr_scan_chain = iocsr_scan_chain3_table;
-		break;
-	}
+	ret = iocsr_get_config_table(io_scan_chain_id, &iocsr_scan_chain,
+				     &io_scan_chain_len_in_bits);
+	if (ret)
+		return 1;
 
 	/*
 	 * De-assert reinit if the IO scan chain is intended for HIO. In
