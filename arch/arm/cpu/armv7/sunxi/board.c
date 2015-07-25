@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <mmc.h>
 #include <i2c.h>
 #include <serial.h>
 #ifdef CONFIG_SPL_BUILD
@@ -22,6 +23,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/timer.h>
+#include <asm/arch/mmc.h>
 
 #include <linux/compiler.h>
 
@@ -121,17 +123,18 @@ void s_init(void)
 }
 
 #ifdef CONFIG_SPL_BUILD
+DECLARE_GLOBAL_DATA_PTR;
+
 /* The sunxi internal brom will try to loader external bootloader
  * from mmc0, nand flash, mmc2.
- * Unfortunately we can't check how SPL was loaded so assume
- * it's always the first SD/MMC controller
  */
 u32 spl_boot_device(void)
 {
+	struct mmc *mmc0, *mmc1;
 	/*
-	 * When booting from the SD card, the "eGON.BT0" signature is expected
-	 * to be found in memory at the address 0x0004 (see the "mksunxiboot"
-	 * tool, which generates this header).
+	 * When booting from the SD card or NAND memory, the "eGON.BT0"
+	 * signature is expected to be found in memory at the address 0x0004
+	 * (see the "mksunxiboot" tool, which generates this header).
 	 *
 	 * When booting in the FEL mode over USB, this signature is patched in
 	 * memory and replaced with something else by the 'fel' tool. This other
@@ -139,15 +142,40 @@ u32 spl_boot_device(void)
 	 * valid bootable SD card image (because the BROM would refuse to
 	 * execute the SPL in this case).
 	 *
-	 * This branch is just making a decision at runtime whether to load
-	 * the main u-boot binary from the SD card (if the "eGON.BT0" signature
-	 * is found) or return to the FEL code in the BROM to wait and receive
-	 * the main u-boot binary over USB.
+	 * This checks for the signature and if it is not found returns to
+	 * the FEL code in the BROM to wait and receive the main u-boot
+	 * binary over USB. If it is found, it determines where SPL was
+	 * read from.
 	 */
-	if (readl(4) == 0x4E4F4765 && readl(8) == 0x3054422E) /* eGON.BT0 */
-		return BOOT_DEVICE_MMC1;
-	else
+	if (readl(4) != 0x4E4F4765 || readl(8) != 0x3054422E) /* eGON.BT0 */
 		return BOOT_DEVICE_BOARD;
+
+	/* The BROM will try to boot from mmc0 first, so try that first. */
+	mmc_initialize(gd->bd);
+	mmc0 = find_mmc_device(0);
+	if (sunxi_mmc_has_egon_boot_signature(mmc0))
+		return BOOT_DEVICE_MMC1;
+
+	/* Fallback to booting NAND if enabled. */
+	if (IS_ENABLED(CONFIG_SPL_NAND_SUPPORT))
+		return BOOT_DEVICE_NAND;
+
+	if (CONFIG_MMC_SUNXI_SLOT_EXTRA == 2) {
+		mmc1 = find_mmc_device(1);
+		if (sunxi_mmc_has_egon_boot_signature(mmc1)) {
+			/*
+			 * spl_mmc.c: spl_mmc_load_image() is hard-coded to
+			 * use find_mmc_device(0), no matter what we
+			 * return. Swap mmc0 and mmc2 to make this work.
+			 */
+			mmc0->block_dev.dev = 1;
+			mmc1->block_dev.dev = 0;
+			return BOOT_DEVICE_MMC2;
+		}
+	}
+
+	panic("Could not determine boot source\n");
+	return -1;		/* Never reached */
 }
 
 /* No confirmation data available in SPL yet. Hardcode bootmode */

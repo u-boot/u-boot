@@ -433,6 +433,23 @@ static int sunxi_mmc_getcd(struct mmc *mmc)
 	return !gpio_get_value(cd_pin);
 }
 
+int sunxi_mmc_has_egon_boot_signature(struct mmc *mmc)
+{
+	char *buf = malloc(512);
+	int valid_signature = 0;
+
+	if (buf == NULL)
+		panic("Failed to allocate memory\n");
+
+	if (mmc_getcd(mmc) && mmc_init(mmc) == 0 &&
+	    mmc->block_dev.block_read(mmc->block_dev.dev, 16, 1, buf) == 1 &&
+	    strncmp(&buf[4], "eGON.BT0", 8) == 0)
+		valid_signature = 1;
+
+	free(buf);
+	return valid_signature;
+}
+
 static const struct mmc_ops sunxi_mmc_ops = {
 	.send_cmd	= sunxi_mmc_send_cmd,
 	.set_ios	= sunxi_mmc_set_ios,

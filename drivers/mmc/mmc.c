@@ -1762,6 +1762,11 @@ static void do_preinit(void)
 
 int mmc_initialize(bd_t *bis)
 {
+	static int initialized = 0;
+	if (initialized)	/* Avoid initializing mmc multiple times */
+		return 0;
+	initialized = 1;
+
 	INIT_LIST_HEAD (&mmc_devices);
 	cur_dev_num = 0;
 

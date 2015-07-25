@@ -31,7 +31,6 @@
 #include <asm/arch/usb_phy.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <linux/usb/musb.h>
 #include <net.h>
 
 #if defined CONFIG_VIDEO_LCD_PANEL_I2C && !(defined CONFIG_SPL_BUILD)
@@ -294,21 +293,19 @@ int board_mmc_init(bd_t *bis)
 		return -1;
 #endif
 
-#if CONFIG_MMC_SUNXI_SLOT == 0 && CONFIG_MMC_SUNXI_SLOT_EXTRA == 2
+#if !defined(CONFIG_SPL_BUILD) && CONFIG_MMC_SUNXI_SLOT_EXTRA == 2
 	/*
-	 * Both mmc0 and mmc2 are bootable, figure out where we're booting
-	 * from. Try mmc0 first, just like the brom does.
+	 * On systems with an emmc (mmc2), figure out if we are booting from
+	 * the emmc and if we are make it "mmc dev 0" so that boot.scr, etc.
+	 * are searched there first. Note we only do this for u-boot proper,
+	 * not for the SPL, see spl_boot_device().
 	 */
-	if (mmc_getcd(mmc0) && mmc_init(mmc0) == 0 &&
-	    mmc0->block_dev.block_read(0, 16, 1, buf) == 1) {
-		buf[12] = 0;
-		if (strcmp(&buf[4], "eGON.BT0") == 0)
-			return 0;
+	if (!sunxi_mmc_has_egon_boot_signature(mmc0) &&
+	    sunxi_mmc_has_egon_boot_signature(mmc1)) {
+		/* Booting from emmc / mmc2, swap */
+		mmc0->block_dev.dev = 1;
+		mmc1->block_dev.dev = 0;
 	}
-
-	/* no bootable card in mmc0, so we must be booting from mmc2, swap */
-	mmc0->block_dev.dev = 1;
-	mmc1->block_dev.dev = 0;
 #endif
 
 	return 0;
@@ -451,28 +448,6 @@ void sunxi_board_init(void)
 }
 #endif
 
-#if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
-extern const struct musb_platform_ops sunxi_musb_ops;
-
-static struct musb_hdrc_config musb_config = {
-	.multipoint     = 1,
-	.dyn_fifo       = 1,
-	.num_eps        = 6,
-	.ram_bits       = 11,
-};
-
-static struct musb_hdrc_platform_data musb_plat = {
-#if defined(CONFIG_MUSB_HOST)
-	.mode           = MUSB_HOST,
-#else
-	.mode		= MUSB_PERIPHERAL,
-#endif
-	.config         = &musb_config,
-	.power          = 250,
-	.platform_ops	= &sunxi_musb_ops,
-};
-#endif
-
 #ifdef CONFIG_USB_GADGET
 int g_dnl_board_usb_cable_connected(void)
 {
@@ -535,9 +510,8 @@ int misc_init_r(void)
 	if (ret)
 		return ret;
 #endif
-#if defined(CONFIG_MUSB_HOST) || defined(CONFIG_MUSB_GADGET)
-	musb_register(&musb_plat, NULL, (void *)SUNXI_USB0_BASE);
-#endif
+	sunxi_musb_board_init();
+
 	return 0;
 }
 #endif
