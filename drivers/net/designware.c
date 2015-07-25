@@ -612,7 +612,7 @@ static const struct udevice_id designware_eth_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(eth_sandbox) = {
+U_BOOT_DRIVER(eth_designware) = {
 	.name	= "eth_designware",
 	.id	= UCLASS_ETH,
 	.of_match = designware_eth_ids,
