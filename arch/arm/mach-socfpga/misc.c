@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <fdtdec.h>
+#include <libfdt.h>
 #include <altera.h>
 #include <miiphy.h>
 #include <netdev.h>
@@ -16,6 +18,8 @@
 #include <asm/arch/nic301.h>
 #include <asm/arch/scu.h>
 #include <asm/pl310.h>
+
+#include <dt-bindings/reset/altr,rst-mgr.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -50,26 +54,20 @@ void enable_caches(void)
  * DesignWare Ethernet initialization
  */
 #ifdef CONFIG_ETH_DESIGNWARE
-int cpu_eth_init(bd_t *bis)
+static void dwmac_deassert_reset(const unsigned int of_reset_id)
 {
-#if CONFIG_EMAC_BASE == SOCFPGA_EMAC0_ADDRESS
-	const int physhift = SYSMGR_EMACGRP_CTRL_PHYSEL0_LSB;
-	const u32 reset = SOCFPGA_RESET(EMAC0);
-#elif CONFIG_EMAC_BASE == SOCFPGA_EMAC1_ADDRESS
-	const int physhift = SYSMGR_EMACGRP_CTRL_PHYSEL1_LSB;
-	const u32 reset = SOCFPGA_RESET(EMAC1);
-#else
-#error "Incorrect CONFIG_EMAC_BASE value!"
-#endif
+	u32 physhift, reset;
 
-	/* Initialize EMAC. This needs to be done at least once per boot. */
-
-	/*
-	 * Putting the EMAC controller to reset when configuring the PHY
-	 * interface select at System Manager
-	 */
-	socfpga_per_reset(SOCFPGA_RESET(EMAC0), 1);
-	socfpga_per_reset(SOCFPGA_RESET(EMAC1), 1);
+	if (of_reset_id == EMAC0_RESET) {
+		physhift = SYSMGR_EMACGRP_CTRL_PHYSEL0_LSB;
+		reset = SOCFPGA_RESET(EMAC0);
+	} else if (of_reset_id == EMAC1_RESET) {
+		physhift = SYSMGR_EMACGRP_CTRL_PHYSEL1_LSB;
+		reset = SOCFPGA_RESET(EMAC1);
+	} else {
+		printf("GMAC: Invalid reset ID (%i)!\n", of_reset_id);
+		return;
+	}
 
 	/* Clearing emac0 PHY interface select to 0 */
 	clrbits_le32(&sysmgr_regs->emacgrp_ctrl,
@@ -81,6 +79,38 @@ int cpu_eth_init(bd_t *bis)
 
 	/* Release the EMAC controller from reset */
 	socfpga_per_reset(reset, 0);
+}
+
+int cpu_eth_init(bd_t *bis)
+{
+	const void *fdt = gd->fdt_blob;
+	struct fdtdec_phandle_args args;
+	int nodes[2];	/* Max. two GMACs */
+	int ret, count;
+	int i, node;
+
+	/* Put both GMACs into RESET state. */
+	socfpga_per_reset(SOCFPGA_RESET(EMAC0), 1);
+	socfpga_per_reset(SOCFPGA_RESET(EMAC1), 1);
+
+	count = fdtdec_find_aliases_for_id(fdt, "ethernet",
+					   COMPAT_ALTERA_SOCFPGA_DWMAC,
+					   nodes, ARRAY_SIZE(nodes));
+	for (i = 0; i < count; i++) {
+		node = nodes[i];
+		if (node <= 0)
+			continue;
+
+		ret = fdtdec_parse_phandle_with_args(fdt, node, "resets",
+						     "#reset-cells", 1, 0,
+						     &args);
+		if (ret || (args.args_count != 1)) {
+			debug("GMAC%i: Failed to parse DT 'resets'!\n", i);
+			continue;
+		}
+
+		dwmac_deassert_reset(args.args[0]);
+	}
 
 	return 0;
 }

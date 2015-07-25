@@ -75,6 +75,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SOCIONEXT_XHCI, "socionext,uniphier-xhci"),
 	COMPAT(COMPAT_INTEL_PCH, "intel,bd82x6x"),
 	COMPAT(COMPAT_INTEL_IRQ_ROUTER, "intel,irq-router"),
+	COMPAT(ALTERA_SOCFPGA_DWMAC, "altr,socfpga-stmmac"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
