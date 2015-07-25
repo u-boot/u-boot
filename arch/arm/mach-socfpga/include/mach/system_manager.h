@@ -12,9 +12,8 @@
 void sysmgr_pinmux_init(void);
 void sysmgr_config_warmrstcfgio(int enable);
 
-/* declaration for handoff table type */
-extern unsigned long sys_mgr_init_table[CONFIG_HPS_PINMUX_NUM];
-
+void sysmgr_get_pinmux_table(const unsigned long **table,
+			     unsigned int *table_len);
 #endif
 
 struct socfpga_system_manager {

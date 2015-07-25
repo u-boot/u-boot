@@ -57,9 +57,13 @@ static void populate_sysmgr_fpgaintf_module(void)
 void sysmgr_pinmux_init(void)
 {
 	uint32_t regs = (uint32_t)&sysmgr_regs->emacio[0];
+	const unsigned long *sys_mgr_init_table;
+	unsigned int len;
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(sys_mgr_init_table); i++) {
+	sysmgr_get_pinmux_table(&sys_mgr_init_table, &len);
+
+	for (i = 0; i < len; i++) {
 		writel(sys_mgr_init_table[i], regs);
 		regs += sizeof(regs);
 	}
