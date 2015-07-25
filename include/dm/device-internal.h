@@ -155,4 +155,23 @@ fdt_addr_t simple_bus_translate(struct udevice *dev, fdt_addr_t addr);
 #define DM_ROOT_NON_CONST		(((gd_t *)gd)->dm_root)
 #define DM_UCLASS_ROOT_NON_CONST	(((gd_t *)gd)->uclass_root)
 
+/* device resource management */
+/**
+ * devres_release_probe - Release managed resources allocated after probing
+ * @dev: Device to release resources for
+ *
+ * Release all resources allocated for @dev when it was probed or later.
+ * This function is called on driver removal.
+ */
+void devres_release_probe(struct udevice *dev);
+
+/**
+ * devres_release_all - Release all managed resources
+ * @dev: Device to release resources for
+ *
+ * Release all resources associated with @dev.  This function is
+ * called on driver unbinding.
+ */
+void devres_release_all(struct udevice *dev);
+
 #endif

@@ -96,6 +96,7 @@ struct udevice {
 	uint32_t flags;
 	int req_seq;
 	int seq;
+	struct list_head devres_head;
 };
 
 /* Maximum sequence number supported */
@@ -464,5 +465,144 @@ bool device_has_active_children(struct udevice *dev);
  * last in the list.
  */
 bool device_is_last_sibling(struct udevice *dev);
+
+/* device resource management */
+typedef void (*dr_release_t)(struct udevice *dev, void *res);
+typedef int (*dr_match_t)(struct udevice *dev, void *res, void *match_data);
+
+#ifdef CONFIG_DEBUG_DEVRES
+void *__devres_alloc(dr_release_t release, size_t size, gfp_t gfp,
+		     const char *name);
+#define _devres_alloc(release, size, gfp) \
+	__devres_alloc(release, size, gfp, #release)
+#else
+void *_devres_alloc(dr_release_t release, size_t size, gfp_t gfp);
+#endif
+
+/**
+ * devres_alloc - Allocate device resource data
+ * @release: Release function devres will be associated with
+ * @size: Allocation size
+ * @gfp: Allocation flags
+ *
+ * Allocate devres of @size bytes.  The allocated area is associated
+ * with @release.  The returned pointer can be passed to
+ * other devres_*() functions.
+ *
+ * RETURNS:
+ * Pointer to allocated devres on success, NULL on failure.
+ */
+#define devres_alloc(release, size, gfp) \
+	_devres_alloc(release, size, gfp | __GFP_ZERO)
+
+/**
+ * devres_free - Free device resource data
+ * @res: Pointer to devres data to free
+ *
+ * Free devres created with devres_alloc().
+ */
+void devres_free(void *res);
+
+/**
+ * devres_add - Register device resource
+ * @dev: Device to add resource to
+ * @res: Resource to register
+ *
+ * Register devres @res to @dev.  @res should have been allocated
+ * using devres_alloc().  On driver detach, the associated release
+ * function will be invoked and devres will be freed automatically.
+ */
+void devres_add(struct udevice *dev, void *res);
+
+/**
+ * devres_find - Find device resource
+ * @dev: Device to lookup resource from
+ * @release: Look for resources associated with this release function
+ * @match: Match function (optional)
+ * @match_data: Data for the match function
+ *
+ * Find the latest devres of @dev which is associated with @release
+ * and for which @match returns 1.  If @match is NULL, it's considered
+ * to match all.
+ *
+ * RETURNS:
+ * Pointer to found devres, NULL if not found.
+ */
+void *devres_find(struct udevice *dev, dr_release_t release,
+		  dr_match_t match, void *match_data);
+
+/**
+ * devres_get - Find devres, if non-existent, add one atomically
+ * @dev: Device to lookup or add devres for
+ * @new_res: Pointer to new initialized devres to add if not found
+ * @match: Match function (optional)
+ * @match_data: Data for the match function
+ *
+ * Find the latest devres of @dev which has the same release function
+ * as @new_res and for which @match return 1.  If found, @new_res is
+ * freed; otherwise, @new_res is added atomically.
+ *
+ * RETURNS:
+ * Pointer to found or added devres.
+ */
+void *devres_get(struct udevice *dev, void *new_res,
+		 dr_match_t match, void *match_data);
+
+/**
+ * devres_remove - Find a device resource and remove it
+ * @dev: Device to find resource from
+ * @release: Look for resources associated with this release function
+ * @match: Match function (optional)
+ * @match_data: Data for the match function
+ *
+ * Find the latest devres of @dev associated with @release and for
+ * which @match returns 1.  If @match is NULL, it's considered to
+ * match all.  If found, the resource is removed atomically and
+ * returned.
+ *
+ * RETURNS:
+ * Pointer to removed devres on success, NULL if not found.
+ */
+void *devres_remove(struct udevice *dev, dr_release_t release,
+		    dr_match_t match, void *match_data);
+
+/**
+ * devres_destroy - Find a device resource and destroy it
+ * @dev: Device to find resource from
+ * @release: Look for resources associated with this release function
+ * @match: Match function (optional)
+ * @match_data: Data for the match function
+ *
+ * Find the latest devres of @dev associated with @release and for
+ * which @match returns 1.  If @match is NULL, it's considered to
+ * match all.  If found, the resource is removed atomically and freed.
+ *
+ * Note that the release function for the resource will not be called,
+ * only the devres-allocated data will be freed.  The caller becomes
+ * responsible for freeing any other data.
+ *
+ * RETURNS:
+ * 0 if devres is found and freed, -ENOENT if not found.
+ */
+int devres_destroy(struct udevice *dev, dr_release_t release,
+		   dr_match_t match, void *match_data);
+
+/**
+ * devres_release - Find a device resource and destroy it, calling release
+ * @dev: Device to find resource from
+ * @release: Look for resources associated with this release function
+ * @match: Match function (optional)
+ * @match_data: Data for the match function
+ *
+ * Find the latest devres of @dev associated with @release and for
+ * which @match returns 1.  If @match is NULL, it's considered to
+ * match all.  If found, the resource is removed atomically, the
+ * release function called and the resource freed.
+ *
+ * RETURNS:
+ * 0 if devres is found and freed, -ENOENT if not found.
+ */
+int devres_release(struct udevice *dev, dr_release_t release,
+		   dr_match_t match, void *match_data);
 
 #endif

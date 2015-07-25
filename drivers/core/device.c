@@ -47,6 +47,7 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 	INIT_LIST_HEAD(&dev->sibling_node);
 	INIT_LIST_HEAD(&dev->child_head);
 	INIT_LIST_HEAD(&dev->uclass_node);
+	INIT_LIST_HEAD(&dev->devres_head);
 	dev->platdata = platdata;
 	dev->name = name;
 	dev->of_offset = of_offset;
@@ -170,6 +171,8 @@ fail_alloc2:
 		dev->platdata = NULL;
 	}
 fail_alloc1:
+	devres_release_all(dev);
+
 	free(dev);
 
 	return ret;
