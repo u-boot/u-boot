@@ -167,10 +167,6 @@ HOSTCFLAGS_md5.o := -pedantic
 HOSTCFLAGS_sha1.o := -pedantic
 HOSTCFLAGS_sha256.o := -pedantic
 
-# Don't build by default
-#hostprogs-$(CONFIG_PPC) += mpc86x_clk
-#HOSTCFLAGS_mpc86x_clk.o := -pedantic
-
 quiet_cmd_wrap = WRAP    $@
 cmd_wrap = echo "\#include <../$(patsubst $(obj)/%,%,$@)>" >$@
 
