@@ -194,3 +194,37 @@ void devres_release_all(struct udevice *dev)
 {
 	release_nodes(dev, &dev->devres_head, false);
 }
+
+/*
+ * Managed kmalloc/kfree
+ */
+static void devm_kmalloc_release(struct udevice *dev, void *res)
+{
+	/* noop */
+}
+
+static int devm_kmalloc_match(struct udevice *dev, void *res, void *data)
+{
+	return res == data;
+}
+
+void *devm_kmalloc(struct udevice *dev, size_t size, gfp_t gfp)
+{
+	void *data;
+
+	data = _devres_alloc(devm_kmalloc_release, size, gfp);
+	if (unlikely(!data))
+		return NULL;
+
+	devres_add(dev, data);
+
+	return data;
+}
+
+void devm_kfree(struct udevice *dev, void *p)
+{
+	int rc;
+
+	rc = devres_destroy(dev, devm_kmalloc_release, devm_kmalloc_match, p);
+	WARN_ON(rc);
+}

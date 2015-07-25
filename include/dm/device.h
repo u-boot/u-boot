@@ -14,6 +14,8 @@
 #include <dm/uclass-id.h>
 #include <fdtdec.h>
 #include <linker_lists.h>
+#include <linux/compat.h>
+#include <linux/kernel.h>
 #include <linux/list.h>
 
 struct driver_info;
@@ -604,5 +606,47 @@ int devres_destroy(struct udevice *dev, dr_release_t release,
  */
 int devres_release(struct udevice *dev, dr_release_t release,
 		   dr_match_t match, void *match_data);
+
+/* managed devm_k.alloc/kfree for device drivers */
+/**
+ * devm_kmalloc - Resource-managed kmalloc
+ * @dev: Device to allocate memory for
+ * @size: Allocation size
+ * @gfp: Allocation gfp flags
+ *
+ * Managed kmalloc.  Memory allocated with this function is
+ * automatically freed on driver detach.  Like all other devres
+ * resources, guaranteed alignment is unsigned long long.
+ *
+ * RETURNS:
+ * Pointer to allocated memory on success, NULL on failure.
+ */
+void *devm_kmalloc(struct udevice *dev, size_t size, gfp_t gfp);
+static inline void *devm_kzalloc(struct udevice *dev, size_t size, gfp_t gfp)
+{
+	return devm_kmalloc(dev, size, gfp | __GFP_ZERO);
+}
+static inline void *devm_kmalloc_array(struct udevice *dev,
+				       size_t n, size_t size, gfp_t flags)
+{
+	if (size != 0 && n > SIZE_MAX / size)
+		return NULL;
+	return devm_kmalloc(dev, n * size, flags);
+}
+static inline void *devm_kcalloc(struct udevice *dev,
+				 size_t n, size_t size, gfp_t flags)
+{
+	return devm_kmalloc_array(dev, n, size, flags | __GFP_ZERO);
+}
+
+/**
+ * devm_kfree - Resource-managed kfree
+ * @dev: Device this memory belongs to
+ * @p: Memory to free
+ *
+ * Free memory allocated with devm_kmalloc().
+ */
+void devm_kfree(struct udevice *dev, void *p);
+
 
 #endif
