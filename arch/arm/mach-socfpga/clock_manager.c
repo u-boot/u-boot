@@ -88,7 +88,7 @@ static void cm_write_with_phase(uint32_t value,
  * Ungate clocks
  */
 
-void cm_basic_init(const cm_config_t *cfg)
+void cm_basic_init(const struct cm_config *cfg)
 {
 	uint32_t start, timeout;
 

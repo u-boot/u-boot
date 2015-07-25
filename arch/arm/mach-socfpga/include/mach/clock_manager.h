@@ -17,7 +17,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 unsigned int cm_get_spi_controller_clk_hz(void);
 #endif
 
-typedef struct {
+struct cm_config {
 	/* main group */
 	uint32_t main_vco_base;
 	uint32_t mpuclk;
@@ -49,9 +49,9 @@ typedef struct {
 	uint32_t ddr2xdqsclk;
 	uint32_t ddrdqclk;
 	uint32_t s2fuser2clk;
-} cm_config_t;
+};
 
-extern void cm_basic_init(const cm_config_t *cfg);
+extern void cm_basic_init(const struct cm_config *cfg);
 
 struct socfpga_clock_manager_main_pll {
 	u32	vco;

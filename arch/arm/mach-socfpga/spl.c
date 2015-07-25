@@ -85,7 +85,7 @@ void spl_board_init(void)
 {
 	unsigned long sdram_size;
 #ifndef CONFIG_SOCFPGA_VIRTUAL_TARGET
-	cm_config_t cm_default_cfg = {
+	struct cm_config cm_default_cfg = {
 		/* main group */
 		MAIN_VCO_BASE,
 		(CONFIG_HPS_MAINPLLGRP_MPUCLK_CNT <<
