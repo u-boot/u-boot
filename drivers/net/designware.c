@@ -608,6 +608,7 @@ static int designware_eth_ofdata_to_platdata(struct udevice *dev)
 
 static const struct udevice_id designware_eth_ids[] = {
 	{ .compatible = "allwinner,sun7i-a20-gmac" },
+	{ .compatible = "altr,socfpga-stmmac" },
 	{ }
 };
 
