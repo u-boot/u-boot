@@ -98,7 +98,9 @@ struct udevice {
 	uint32_t flags;
 	int req_seq;
 	int seq;
+#ifdef CONFIG_DEVRES
 	struct list_head devres_head;
+#endif
 };
 
 /* Maximum sequence number supported */
@@ -472,6 +474,8 @@ bool device_is_last_sibling(struct udevice *dev);
 typedef void (*dr_release_t)(struct udevice *dev, void *res);
 typedef int (*dr_match_t)(struct udevice *dev, void *res, void *match_data);
 
+#ifdef CONFIG_DEVRES
+
 #ifdef CONFIG_DEBUG_DEVRES
 void *__devres_alloc(dr_release_t release, size_t size, gfp_t gfp,
 		     const char *name);
@@ -648,5 +652,83 @@ static inline void *devm_kcalloc(struct udevice *dev,
  */
 void devm_kfree(struct udevice *dev, void *p);
 
+#else /* ! CONFIG_DEVRES */
+
+static inline void *devres_alloc(dr_release_t release, size_t size, gfp_t gfp)
+{
+	return kzalloc(size, gfp);
+}
+
+static inline void devres_free(void *res)
+{
+	kfree(res);
+}
+
+static inline void devres_add(struct udevice *dev, void *res)
+{
+}
+
+static inline void *devres_find(struct udevice *dev, dr_release_t release,
+				dr_match_t match, void *match_data)
+{
+	return NULL;
+}
+
+static inline void *devres_get(struct udevice *dev, void *new_res,
+			       dr_match_t match, void *match_data)
+{
+	return NULL;
+}
+
+static inline void *devres_remove(struct udevice *dev, dr_release_t release,
+				  dr_match_t match, void *match_data)
+{
+	return NULL;
+}
+
+static inline int devres_destroy(struct udevice *dev, dr_release_t release,
+				 dr_match_t match, void *match_data)
+{
+	return 0;
+}
+
+static inline int devres_release(struct udevice *dev, dr_release_t release,
+				 dr_match_t match, void *match_data)
+{
+	return 0;
+}
+
+static inline void *devm_kmalloc(struct udevice *dev, size_t size, gfp_t gfp)
+{
+	return kmalloc(size, gfp);
+}
+
+static inline void *devm_kzalloc(struct udevice *dev, size_t size, gfp_t gfp)
+{
+	return kzalloc(size, gfp);
+}
+
+static inline void *devm_kmaloc_array(struct udevice *dev,
+				      size_t n, size_t size, gfp_t flags)
+{
+	/* TODO: add kmalloc_array() to linux/compat.h */
+	if (size != 0 && n > SIZE_MAX / size)
+		return NULL;
+	return kmalloc(n * size, flags);
+}
+
+static inline void *devm_kcalloc(struct udevice *dev,
+				 size_t n, size_t size, gfp_t flags)
+{
+	/* TODO: add kcalloc() to linux/compat.h */
+	return kmalloc(n * size, flags | __GFP_ZERO);
+}
+
+static inline void devm_kfree(struct udevice *dev, void *p)
+{
+	kfree(p);
+}
+
+#endif /* ! CONFIG_DEVRES */
 
 #endif

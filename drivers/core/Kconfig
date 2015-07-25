@@ -79,9 +79,22 @@ config SYSCON
 	  by this uclass, including accessing registers via regmap and
 	  assigning a unique number to each.
 
+config DEVRES
+	bool "Managed device resources"
+	depends on DM
+	help
+	  This option enables the Managed device resources core support.
+	  Device resources managed by the devres framework are automatically
+	  released whether initialization fails half-way or the device gets
+	  detached.
+
+	  If this option is disabled, devres functions fall back to
+	  non-managed variants.  For example, devres_alloc() to kzalloc(),
+	  devm_kmalloc() to kmalloc(), etc.
+
 config DEBUG_DEVRES
 	bool "Managed device resources verbose debug messages"
-	depends on DM
+	depends on DEVRES
 	help
 	  If this option is enabled, devres debug messages are printed.
 	  Select this if you are having a problem with devres or want to

@@ -4,7 +4,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	+= device.o lists.o root.o uclass.o util.o devres.o
+obj-y	+= device.o lists.o root.o uclass.o util.o
+obj-$(CONFIG_DEVRES) += devres.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_OF_CONTROL) += simple-bus.o
 endif
