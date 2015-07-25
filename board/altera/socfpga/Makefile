@@ -7,4 +7,4 @@
 #
 
 obj-y	:= socfpga.o
-obj-$(CONFIG_SPL_BUILD) += pinmux_config.o iocsr_config.o
+obj-$(CONFIG_SPL_BUILD) += qts/
