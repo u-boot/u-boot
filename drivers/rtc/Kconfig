@@ -1,3 +1,9 @@
+#
+# RTC drivers configuration
+#
+
+menu "Real Time Clock"
+
 config DM_RTC
 	bool "Enable Driver Model for RTC drivers"
 	depends on DM
@@ -6,3 +12,5 @@ config DM_RTC
 	  then provides the rtc_get()/rtc_set() interface, delegating to
 	  drivers to perform the actual functions. See rtc.h for a
 	  description of the API.
+
+endmenu

@@ -1,3 +1,9 @@
+#
+# Serial device configuration
+#
+
+menu "Serial drivers"
+
 config REQUIRE_SERIAL_CONSOLE
 	bool "Require a serial port for console"
 	# Running without a serial console is not supported by the
@@ -139,3 +145,5 @@ config X86_SERIAL
 	  enabled in the device tree with the correct input clock frequency
 	  provided (default 1843200). Enable this to obtain serial console
 	  output.
+
+endmenu

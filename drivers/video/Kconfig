@@ -1,3 +1,9 @@
+#
+# Video configuration
+#
+
+menu "Graphics support"
+
 config VIDEO_VESA
 	bool "Enable VESA video driver support"
 	default n
@@ -242,3 +248,5 @@ config VIDEO_TEGRA124
 	   have an eDP display connected.
 
 source "drivers/video/bridge/Kconfig"
+
+endmenu

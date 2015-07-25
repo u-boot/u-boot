@@ -1,3 +1,9 @@
+#
+# Multifunction miscellaneous devices
+#
+
+menu "Multifunction device drivers"
+
 config CMD_CROS_EC
 	bool "Enable crosec command"
 	depends on CROS_EC
@@ -82,3 +88,5 @@ config RESET
 	  Each driver can provide a reset method which will be called to
 	  effect a reset. The uclass will try all available drivers when
 	  reset_walk() is called.
+
+endmenu

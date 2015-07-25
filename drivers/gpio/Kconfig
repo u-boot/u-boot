@@ -1,3 +1,9 @@
+#
+# GPIO infrastructure and drivers
+#
+
+menu "GPIO Support"
+
 config DM_GPIO
 	bool "Enable Driver Model for GPIO drivers"
 	depends on DM
@@ -42,3 +48,5 @@ config VYBRID_GPIO
 	default n
 	help
 	  Say yes here to support Vybrid vf610 GPIOs.
+
+endmenu

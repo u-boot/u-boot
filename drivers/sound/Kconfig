@@ -1,3 +1,5 @@
+menu "Sound support"
+
 config SOUND
 	bool "Enable sound support"
 	help
@@ -53,3 +55,5 @@ config SOUND_WM8994
 	  Enable the wm8994 audio codec. This is connected via I2S for
 	  audio data and I2C for codec control. At present it only works
 	  with the Samsung I2S driver.
+
+endmenu

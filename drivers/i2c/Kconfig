@@ -1,3 +1,9 @@
+#
+# I2C subsystem configuration
+#
+
+menu "I2C support"
+
 config DM_I2C
 	bool "Enable Driver Model for I2C drivers"
 	depends on DM
@@ -99,3 +105,5 @@ config SYS_I2C_UNIPHIER_F
 	  This I2C controller is used on PH1-Pro4 or newer UniPhier SoCs.
 
 source "drivers/i2c/muxes/Kconfig"
+
+endmenu

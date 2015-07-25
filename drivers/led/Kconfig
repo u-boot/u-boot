@@ -1,3 +1,5 @@
+menu "LED Support"
+
 config LED
 	bool "Enable LED support"
 	depends on DM
@@ -24,3 +26,5 @@ config LED_GPIO
 	  GPIOs may be on the SoC or some other device which provides GPIOs.
 	  The GPIO driver must used driver model. LEDs are configured using
 	  the device tree.
+
+endmenu

@@ -1,3 +1,5 @@
+menu "Generic Driver Options"
+
 config DM
 	bool "Enable Driver Model"
 	help
@@ -102,3 +104,5 @@ config DEBUG_DEVRES
 	  debug resource management for a managed device.
 
 	  If you are unsure about this, Say N here.
+
+endmenu
