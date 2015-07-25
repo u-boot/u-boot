@@ -38,11 +38,15 @@ static inline uint32_t scan_chain_engine_is_idle(uint32_t max_iter)
 	return 1;
 }
 
-/* Program HPS IO Scan Chain */
-uint32_t scan_mgr_io_scan_chain_prg(
-	uint32_t io_scan_chain_id,
-	uint32_t io_scan_chain_len_in_bits,
-	const uint32_t *iocsr_scan_chain)
+/**
+ * scan_mgr_io_scan_chain_prg() - Program HPS IO Scan Chain
+ * @io_scan_chain_id:		IO scan chain ID
+ * @io_scan_chain_len_in_bits:	IO scan chain length in bits
+ * @iocsr_scan_chain:		IO scan chain table
+ */
+static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id,
+				      uint32_t io_scan_chain_len_in_bits,
+				      const uint32_t *iocsr_scan_chain)
 {
 	uint16_t tdi_tdo_header;
 	uint32_t io_program_iter;

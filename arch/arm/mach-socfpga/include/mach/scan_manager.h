@@ -68,17 +68,6 @@ struct socfpga_scan_manager {
 #define SCANMGR_STAT_ACTIVE_GET(x) (((x) & 0x80000000) >> 31)
 #define SCANMGR_STAT_WFIFOCNT_GET(x) (((x) & 0x70000000) >> 28)
 
-/*
- * Program HPS IO Scan Chain
- * io_scan_chain_id - IO scan chain ID
- * io_scan_chain_len_in_bits - IO scan chain length in bits
- * iocsr_scan_chain - IO scan chain table
- */
-uint32_t scan_mgr_io_scan_chain_prg(
-	uint32_t io_scan_chain_id,
-	uint32_t io_scan_chain_len_in_bits,
-	const uint32_t *iocsr_scan_chain);
-
 extern const uint32_t iocsr_scan_chain0_table[
 	((CONFIG_HPS_IOCSR_SCANCHAIN0_LENGTH / 32) + 1)];
 extern const uint32_t iocsr_scan_chain1_table[
