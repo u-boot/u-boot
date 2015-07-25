@@ -36,6 +36,9 @@ struct driver_info;
 /* Allocate driver private data on a DMA boundary */
 #define DM_FLAG_ALLOC_PRIV_DMA	(1 << 5)
 
+/* Device is bound */
+#define DM_FLAG_BOUND	(1 << 6)
+
 /**
  * struct udevice - An instance of a driver
  *

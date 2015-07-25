@@ -61,6 +61,9 @@ int device_unbind(struct udevice *dev)
 	if (dev->flags & DM_FLAG_ACTIVATED)
 		return -EINVAL;
 
+	if (!(dev->flags & DM_FLAG_BOUND))
+		return -EINVAL;
+
 	drv = dev->driver;
 	assert(drv);
 

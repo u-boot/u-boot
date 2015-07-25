@@ -132,6 +132,8 @@ int device_bind(struct udevice *parent, const struct driver *drv,
 		dm_dbg("Bound device %s to %s\n", dev->name, parent->name);
 	*devp = dev;
 
+	dev->flags |= DM_FLAG_BOUND;
+
 	return 0;
 
 fail_child_post_bind:
