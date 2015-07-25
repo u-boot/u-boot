@@ -23,6 +23,7 @@
 		spi0 = &qspi;
 		spi1 = &spi0;
 		spi2 = &spi1;
+		mmc = &mmc;
 	};
 
 	cpus {
