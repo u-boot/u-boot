@@ -82,9 +82,7 @@ int cpu_eth_init(bd_t *bis)
 	/* Release the EMAC controller from reset */
 	socfpga_per_reset(reset, 0);
 
-	/* initialize and register the emac */
-	return designware_initialize(CONFIG_EMAC_BASE,
-				     CONFIG_PHY_INTERFACE_MODE);
+	return 0;
 }
 #endif
 
