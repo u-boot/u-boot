@@ -52,14 +52,6 @@
 	model = "Utoo P66";
 	compatible = "utoo,p66", "allwinner,sun5i-a13";
 
-	aliases {
-		serial0 = &uart1;
-	};
-
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
-
 	i2c_lcd: i2c@0 {
 		/* The lcd panel i2c interface is hooked up via gpios */
 		compatible = "i2c-gpio";
@@ -224,12 +216,6 @@
 
 &reg_usb0_vbus {
 	gpio = <&pio 1 4 GPIO_ACTIVE_HIGH>; /* PB4 */
-	status = "okay";
-};
-
-&uart1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart1_pins_b>;
 	status = "okay";
 };
 
