@@ -41,12 +41,8 @@ static inline uint32_t scan_chain_engine_is_idle(uint32_t max_iter)
 /**
  * scan_mgr_io_scan_chain_prg() - Program HPS IO Scan Chain
  * @io_scan_chain_id:		IO scan chain ID
- * @io_scan_chain_len_in_bits:	IO scan chain length in bits
- * @iocsr_scan_chain:		IO scan chain table
  */
-static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id,
-				      uint32_t io_scan_chain_len_in_bits,
-				      const uint32_t *iocsr_scan_chain)
+static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 {
 	uint16_t tdi_tdo_header;
 	uint32_t io_program_iter;
@@ -54,6 +50,27 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id,
 	uint32_t residual;
 	uint32_t i;
 	uint32_t index = 0;
+	uint32_t io_scan_chain_len_in_bits,
+	const uint32_t *iocsr_scan_chain;
+
+	switch (io_scan_chain_id) {
+	case 0:
+		io_scan_chain_len_in_bits = CONFIG_HPS_IOCSR_SCANCHAIN0_LENGTH;
+		iocsr_scan_chain = iocsr_scan_chain0_table;
+		break;
+	case 1:
+		io_scan_chain_len_in_bits = CONFIG_HPS_IOCSR_SCANCHAIN1_LENGTH;
+		iocsr_scan_chain = iocsr_scan_chain1_table;
+		break;
+	case 2:
+		io_scan_chain_len_in_bits = CONFIG_HPS_IOCSR_SCANCHAIN2_LENGTH;
+		iocsr_scan_chain = iocsr_scan_chain2_table;
+		break;
+	case 3:
+		io_scan_chain_len_in_bits = CONFIG_HPS_IOCSR_SCANCHAIN3_LENGTH;
+		iocsr_scan_chain = iocsr_scan_chain3_table;
+		break;
+	}
 
 	/*
 	 * De-assert reinit if the IO scan chain is intended for HIO. In
@@ -201,13 +218,9 @@ int scan_mgr_configure_iocsr(void)
 	int status = 0;
 
 	/* configure the IOCSR through scan chain */
-	status |= scan_mgr_io_scan_chain_prg(0,
-		CONFIG_HPS_IOCSR_SCANCHAIN0_LENGTH, iocsr_scan_chain0_table);
-	status |= scan_mgr_io_scan_chain_prg(1,
-		CONFIG_HPS_IOCSR_SCANCHAIN1_LENGTH, iocsr_scan_chain1_table);
-	status |= scan_mgr_io_scan_chain_prg(2,
-		CONFIG_HPS_IOCSR_SCANCHAIN2_LENGTH, iocsr_scan_chain2_table);
-	status |= scan_mgr_io_scan_chain_prg(3,
-		CONFIG_HPS_IOCSR_SCANCHAIN3_LENGTH, iocsr_scan_chain3_table);
+	status |= scan_mgr_io_scan_chain_prg(0);
+	status |= scan_mgr_io_scan_chain_prg(1);
+	status |= scan_mgr_io_scan_chain_prg(2);
+	status |= scan_mgr_io_scan_chain_prg(3);
 	return status;
 }
