@@ -93,10 +93,11 @@ config DEVRES
 	  devm_kmalloc() to kmalloc(), etc.
 
 config DEBUG_DEVRES
-	bool "Managed device resources verbose debug messages"
+	bool "Managed device resources debugging functions"
 	depends on DEVRES
 	help
 	  If this option is enabled, devres debug messages are printed.
+	  Also, a function is available to dump a list of device resources.
 	  Select this if you are having a problem with devres or want to
 	  debug resource management for a managed device.
 

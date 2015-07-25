@@ -13,6 +13,8 @@
 #include <linux/kernel.h>
 #include <linux/list.h>
 #include <dm/device.h>
+#include <dm/root.h>
+#include <dm/util.h>
 
 /**
  * struct devres - Bookkeeping info for managed device resource
@@ -194,6 +196,33 @@ void devres_release_all(struct udevice *dev)
 {
 	release_nodes(dev, &dev->devres_head, false);
 }
+
+#ifdef CONFIG_DEBUG_DEVRES
+static void dump_resources(struct udevice *dev, int depth)
+{
+	struct devres *dr;
+	struct udevice *child;
+
+	printf("- %s\n", dev->name);
+
+	list_for_each_entry(dr, &dev->devres_head, entry)
+		printf("    %p (%lu byte) %s  %s\n", dr,
+		       (unsigned long)dr->size, dr->name,
+		       dr->probe ? "PROBE" : "BIND");
+
+	list_for_each_entry(child, &dev->child_head, sibling_node)
+		dump_resources(child, depth + 1);
+}
+
+void dm_dump_devres(void)
+{
+	struct udevice *root;
+
+	root = dm_root();
+	if (root)
+		dump_resources(root, 0);
+}
+#endif
 
 /*
  * Managed kmalloc/kfree

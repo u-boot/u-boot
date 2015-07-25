@@ -39,4 +39,13 @@ void dm_dump_all(void);
 /* Dump out a list of uclasses and their devices */
 void dm_dump_uclass(void);
 
+#ifdef CONFIG_DEBUG_DEVRES
+/* Dump out a list of device resources */
+void dm_dump_devres(void);
+#else
+static inline void dm_dump_devres(void)
+{
+}
+#endif
+
 #endif
