@@ -951,6 +951,11 @@ static void rw_mgr_mem_load_user(const u32 fin1, const u32 fin2,
 	}
 }
 
+/**
+ * rw_mgr_mem_initialize() - Initialize RW Manager
+ *
+ * Initialize RW Manager.
+ */
 static void rw_mgr_mem_initialize(void)
 {
 	debug("%s:%d\n", __func__, __LINE__);
@@ -969,7 +974,7 @@ static void rw_mgr_mem_initialize(void)
 	 * significant bits
 	 */
 
-	/* start with memory RESET activated */
+	/* Start with memory RESET activated */
 
 	/* tINIT = 200us */
 
@@ -986,7 +991,7 @@ static void rw_mgr_mem_initialize(void)
 				  SEQ_TINIT_CNTR2_VAL,
 				  RW_MGR_INIT_RESET_0_CKE_0);
 
-	/* indicate that memory is stable */
+	/* Indicate that memory is stable. */
 	writel(1, &phy_mgr_cfg->reset_mem_stbl);
 
 	/*
@@ -1007,7 +1012,7 @@ static void rw_mgr_mem_initialize(void)
 				  SEQ_TRESET_CNTR2_VAL,
 				  RW_MGR_INIT_RESET_1_CKE_0);
 
-	/* bring up clock enable */
+	/* Bring up clock enable. */
 
 	/* tXRP < 250 ck cycles */
 	delay_for_n_mem_clocks(250);
