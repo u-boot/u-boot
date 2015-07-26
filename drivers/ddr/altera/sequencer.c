@@ -3169,7 +3169,11 @@ static void mem_init_latency(void)
 	writel(wlat, &phy_mgr_cfg->afi_wlat);
 }
 
-/* Set VFIFO and LFIFO to instant-on settings in skip calibration mode */
+/**
+ * @mem_skip_calibrate() - Set VFIFO and LFIFO to instant-on settings
+ *
+ * Set VFIFO and LFIFO to instant-on settings in skip calibration mode.
+ */
 static void mem_skip_calibrate(void)
 {
 	uint32_t vfifo_offset;
@@ -3178,7 +3182,7 @@ static void mem_skip_calibrate(void)
 	debug("%s:%d\n", __func__, __LINE__);
 	/* Need to update every shadow register set used by the interface */
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
-		r += NUM_RANKS_PER_SHADOW_REG) {
+	     r += NUM_RANKS_PER_SHADOW_REG) {
 		/*
 		 * Set output phase alignment settings appropriate for
 		 * skip calibration.
@@ -3215,8 +3219,8 @@ static void mem_skip_calibrate(void)
 			 *
 			 *    (1.25 * IO_DLL_CHAIN_LENGTH - 2)
 			 */
-			scc_mgr_set_dqdqs_output_phase(i, (1.25 *
-				IO_DLL_CHAIN_LENGTH - 2));
+			scc_mgr_set_dqdqs_output_phase(i,
+					1.25 * IO_DLL_CHAIN_LENGTH - 2);
 		}
 		writel(0xff, &sdr_scc_mgr->dqs_ena);
 		writel(0xff, &sdr_scc_mgr->dqs_io_ena);
@@ -3242,14 +3246,13 @@ static void mem_skip_calibrate(void)
 	 * in sequencer.
 	 */
 	vfifo_offset = CALIB_VFIFO_OFFSET;
-	for (j = 0; j < vfifo_offset; j++) {
+	for (j = 0; j < vfifo_offset; j++)
 		writel(0xff, &phy_mgr_cmd->inc_vfifo_hard_phy);
-	}
 	writel(0, &phy_mgr_cmd->fifo_reset);
 
 	/*
-	 * For ACV with hard lfifo, we get the skip-cal setting from
-	 * generation-time constant.
+	 * For Arria V and Cyclone V with hard LFIFO, we get the skip-cal
+	 * setting from generation-time constant.
 	 */
 	gbl->curr_read_lat = CALIB_LFIFO_OFFSET;
 	writel(gbl->curr_read_lat, &phy_mgr_cfg->phy_rlat);
