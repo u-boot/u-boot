@@ -754,9 +754,11 @@ static void set_jump_as_return(void)
 	writel(RW_MGR_RETURN, &sdr_rw_load_jump_mgr_regs->load_jump_add0);
 }
 
-/*
- * should always use constants as argument to ensure all computations are
- * performed at compile time
+/**
+ * delay_for_n_mem_clocks() - Delay for N memory clocks
+ * @clocks:	Length of the delay
+ *
+ * Delay for N memory clocks.
  */
 static void delay_for_n_mem_clocks(const u32 clocks)
 {
