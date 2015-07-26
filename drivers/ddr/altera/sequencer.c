@@ -732,14 +732,18 @@ scc_mgr_apply_group_all_out_delay_add_all_ranks(const u32 write_group,
 	}
 }
 
-/* optimization used to recover some slots in ddr3 inst_rom */
-/* could be applied to other protocols if we wanted to */
+/**
+ * set_jump_as_return() - Return instruction optimization
+ *
+ * Optimization used to recover some slots in ddr3 inst_rom could be
+ * applied to other protocols if we wanted to
+ */
 static void set_jump_as_return(void)
 {
 	/*
-	 * to save space, we replace return with jump to special shared
+	 * To save space, we replace return with jump to special shared
 	 * RETURN instruction so we set the counter to large value so that
-	 * we always jump
+	 * we always jump.
 	 */
 	writel(0xff, &sdr_rw_load_mgr_regs->load_cntr0);
 	writel(RW_MGR_RETURN, &sdr_rw_load_jump_mgr_regs->load_jump_add0);
