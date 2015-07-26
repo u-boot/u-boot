@@ -767,8 +767,10 @@ static void delay_for_n_mem_clocks(const u32 clocks)
 
 	debug("%s:%d: clocks=%u ... start\n", __func__, __LINE__, clocks);
 
-	/* scale (rounding up) to get afi clocks */
+	/* Scale (rounding up) to get afi clocks. */
 	afi_clocks = DIV_ROUND_UP(clocks, AFI_RATE_RATIO);
+	if (afi_clocks)	/* Temporary underflow protection */
+		afi_clocks--;
 
 	/*
 	 * Note, we don't bother accounting for being off a little
@@ -779,18 +781,18 @@ static void delay_for_n_mem_clocks(const u32 clocks)
 	 */
 	if (afi_clocks == 0) {
 		;
-	} else if (afi_clocks <= 0x100) {
-		inner = afi_clocks - 1;
+	} else if (afi_clocks < 0x100) {
+		inner = afi_clocks;
 		outer = 0;
 		c_loop = 0;
-	} else if (afi_clocks <= 0x10000) {
+	} else if (afi_clocks < 0x10000) {
 		inner = 0xff;
-		outer = (afi_clocks - 1) >> 8;
+		outer = afi_clocks >> 8;
 		c_loop = 0;
-	} else {
+	} else {	/* >= 0x10000 */
 		inner = 0xff;
 		outer = 0xff;
-		c_loop = (afi_clocks - 1) >> 16;
+		c_loop = afi_clocks >> 16;
 	}
 
 	/*
@@ -810,7 +812,7 @@ static void delay_for_n_mem_clocks(const u32 clocks)
 	 * and sequencer rom and keeps the delays more accurate and reduces
 	 * overhead
 	 */
-	if (afi_clocks <= 0x100) {
+	if (afi_clocks < 0x100) {
 		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(inner),
 			&sdr_rw_load_mgr_regs->load_cntr1);
 
