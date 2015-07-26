@@ -5081,6 +5081,18 @@ This firmware often needs to be loaded during U-Boot booting.
 - CONFIG_SYS_MEM_TOP_HIDE_MIN
 	Define minimum DDR size to be hided from top of the DDR memory
 
+Reproducible builds
+-------------------
+
+In order to achieve reproducible builds, timestamps used in the U-Boot build
+process have to be set to a fixed value.
+
+This is done using the SOURCE_DATE_EPOCH environment variable.
+SOURCE_DATE_EPOCH is to be set on the build host's shell, not as a configuration
+option for U-Boot or an environment variable in U-Boot.
+
+SOURCE_DATE_EPOCH should be set to a number of seconds since the epoch, in UTC.
+
 Building the Software:
 ======================
 

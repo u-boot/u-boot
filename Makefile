@@ -1230,9 +1230,10 @@ define filechk_version.h
 endef
 
 define filechk_timestamp.h
-	(LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"'; \
-	LC_ALL=C date +'#define U_BOOT_TIME "%T"'; \
-	LC_ALL=C date +'#define U_BOOT_TZ "%z"')
+	(SOURCE_DATE="$${SOURCE_DATE_EPOCH:+@$$SOURCE_DATE_EPOCH}"; \
+	LC_ALL=C date -u -d "$${SOURCE_DATE:-now}" +'#define U_BOOT_DATE "%b %d %C%y"'; \
+	LC_ALL=C date -u -d "$${SOURCE_DATE:-now}" +'#define U_BOOT_TIME "%T"'; \
+	LC_ALL=C date -u -d "$${SOURCE_DATE:-now}" +'#define U_BOOT_TZ "%z"' )
 endef
 
 $(version_h): include/config/uboot.release FORCE
