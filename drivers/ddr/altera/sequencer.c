@@ -822,18 +822,11 @@ static void delay_for_n_mem_clocks(const u32 clocks)
 		writel(RW_MGR_IDLE_LOOP2,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 
-		/* hack to get around compiler not being smart enough */
-		if (afi_clocks <= 0x10000) {
-			/* only need to run once */
-			writel(RW_MGR_IDLE_LOOP2, SDR_PHYGRP_RWMGRGRP_ADDRESS |
-						  RW_MGR_RUN_SINGLE_GROUP_OFFSET);
-		} else {
-			do {
-				writel(RW_MGR_IDLE_LOOP2,
-					SDR_PHYGRP_RWMGRGRP_ADDRESS |
-					RW_MGR_RUN_SINGLE_GROUP_OFFSET);
-			} while (c_loop-- != 0);
-		}
+		do {
+			writel(RW_MGR_IDLE_LOOP2,
+				SDR_PHYGRP_RWMGRGRP_ADDRESS |
+				RW_MGR_RUN_SINGLE_GROUP_OFFSET);
+		} while (c_loop-- != 0);
 	}
 	debug("%s:%d clocks=%u ... end\n", __func__, __LINE__, clocks);
 }
