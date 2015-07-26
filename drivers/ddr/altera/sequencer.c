@@ -761,9 +761,9 @@ static void set_jump_as_return(void)
 static void delay_for_n_mem_clocks(const u32 clocks)
 {
 	u32 afi_clocks;
-	u16 c_loop = 0;
-	u8 inner = 0;
-	u8 outer = 0;
+	u16 c_loop;
+	u8 inner;
+	u8 outer;
 
 	debug("%s:%d: clocks=%u ... start\n", __func__, __LINE__, clocks);
 
@@ -779,21 +779,9 @@ static void delay_for_n_mem_clocks(const u32 clocks)
 	 * before the decrement, and so always perform the loop
 	 * 1 time more than the counter value
 	 */
-	if (afi_clocks == 0) {
-		;
-	} else if (afi_clocks < 0x100) {
-		inner = afi_clocks;
-		outer = 0;
-		c_loop = 0;
-	} else if (afi_clocks < 0x10000) {
-		inner = 0xff;
-		outer = afi_clocks >> 8;
-		c_loop = 0;
-	} else {	/* >= 0x10000 */
-		inner = 0xff;
-		outer = 0xff;
-		c_loop = afi_clocks >> 16;
-	}
+	c_loop = afi_clocks >> 16;
+	outer = c_loop ? 0xff : (afi_clocks >> 8);
+	inner = outer ? 0xff : afi_clocks;
 
 	/*
 	 * rom instructions are structured as follows:
