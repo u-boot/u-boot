@@ -758,40 +758,39 @@ static void set_jump_as_return(void)
  * should always use constants as argument to ensure all computations are
  * performed at compile time
  */
-static void delay_for_n_mem_clocks(const uint32_t clocks)
+static void delay_for_n_mem_clocks(const u32 clocks)
 {
-	uint32_t afi_clocks;
-	uint8_t inner = 0;
-	uint8_t outer = 0;
-	uint16_t c_loop = 0;
+	u32 afi_clocks;
+	u16 c_loop = 0;
+	u8 inner = 0;
+	u8 outer = 0;
 
 	debug("%s:%d: clocks=%u ... start\n", __func__, __LINE__, clocks);
 
-
-	afi_clocks = (clocks + AFI_RATE_RATIO-1) / AFI_RATE_RATIO;
 	/* scale (rounding up) to get afi clocks */
+	afi_clocks = DIV_ROUND_UP(clocks, AFI_RATE_RATIO);
 
 	/*
-	 * Note, we don't bother accounting for being off a little bit
-	 * because of a few extra instructions in outer loops
-	 * Note, the loops have a test at the end, and do the test before
-	 * the decrement, and so always perform the loop
+	 * Note, we don't bother accounting for being off a little
+	 * bit because of a few extra instructions in outer loops.
+	 * Note, the loops have a test at the end, and do the test
+	 * before the decrement, and so always perform the loop
 	 * 1 time more than the counter value
 	 */
 	if (afi_clocks == 0) {
 		;
 	} else if (afi_clocks <= 0x100) {
-		inner = afi_clocks-1;
+		inner = afi_clocks - 1;
 		outer = 0;
 		c_loop = 0;
 	} else if (afi_clocks <= 0x10000) {
 		inner = 0xff;
-		outer = (afi_clocks-1) >> 8;
+		outer = (afi_clocks - 1) >> 8;
 		c_loop = 0;
 	} else {
 		inner = 0xff;
 		outer = 0xff;
-		c_loop = (afi_clocks-1) >> 16;
+		c_loop = (afi_clocks - 1) >> 16;
 	}
 
 	/*
