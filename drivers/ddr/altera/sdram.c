@@ -22,6 +22,19 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct sdram_prot_rule {
+	u64	sdram_start;	/* SDRAM start address */
+	u64	sdram_end;	/* SDRAM end address */
+	u32	rule;		/* SDRAM protection rule number: 0-19 */
+	int	valid;		/* Rule valid or not? 1 - valid, 0 not*/
+
+	u32	security;
+	u32	portmask;
+	u32	result;
+	u32	lo_prot_id;
+	u32	hi_prot_id;
+};
+
 static struct socfpga_system_manager *sysmgr_regs =
 	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 static struct socfpga_sdr_ctrl *sdr_ctrl =

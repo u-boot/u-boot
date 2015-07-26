@@ -73,19 +73,6 @@ struct socfpga_sdr_ctrl {
 	u32	phy_ctrl2;
 };
 
-struct sdram_prot_rule {
-	uint64_t	sdram_start; /* SDRAM start address */
-	uint64_t	sdram_end; /* SDRAM end address */
-	uint32_t	rule; /* SDRAM protection rule number: 0-19 */
-	int		valid; /* Rule valid or not? 1 - valid, 0 not*/
-
-	uint32_t	security;
-	uint32_t	portmask;
-	uint32_t	result;
-	uint32_t	lo_prot_id;
-	uint32_t	hi_prot_id;
-};
-
 #define SDR_CTRLGRP_CTRLCFG_NODMPINS_LSB 23
 #define SDR_CTRLGRP_CTRLCFG_NODMPINS_MASK 0x00800000
 #define SDR_CTRLGRP_CTRLCFG_DQSTRKEN_LSB 22
