@@ -1018,20 +1018,21 @@ static void rw_mgr_mem_initialize(void)
 			     0);
 }
 
-/*
- * At the end of calibration we have to program the user settings in, and
- * USER  hand off the memory to the user.
+/**
+ * rw_mgr_mem_handoff() - Hand off the memory to user
+ *
+ * At the end of calibration we have to program the user settings in
+ * and hand off the memory to the user.
  */
 static void rw_mgr_mem_handoff(void)
 {
 	rw_mgr_mem_load_user(RW_MGR_MRS0_USER_MIRR, RW_MGR_MRS0_USER, 1);
 	/*
-	 * USER  need to wait tMOD (12CK or 15ns) time before issuing
-	 * other commands, but we will have plenty of NIOS cycles before
-	 * actual handoff so its okay.
+	 * Need to wait tMOD (12CK or 15ns) time before issuing other
+	 * commands, but we will have plenty of NIOS cycles before actual
+	 * handoff so its okay.
 	 */
 }
-
 
 /**
  * rw_mgr_mem_calibrate_write_test_issue() - Issue write test command
