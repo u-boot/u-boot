@@ -281,6 +281,11 @@ QEMU emulates a graphic card which U-Boot supports. Removing '-nographic' will
 show QEMU's VGA console window. Note this will disable QEMU's serial output.
 If you want to check both consoles, use '-serial stdio'.
 
+Multicore is also supported by QEMU via '-smp n' where n is the number of cores
+to instantiate. Currently the default U-Boot built for QEMU supports 2 cores.
+In order to support more cores, you need add additional cpu nodes in the device
+tree and change CONFIG_MAX_CPUS accordingly.
+
 CPU Microcode
 -------------
 Modern CPUs usually require a special bit stream called microcode [8] to be
