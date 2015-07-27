@@ -132,3 +132,12 @@ void dcache_invalid(void)
 	__asm__ __volatile__("movec %0, %%cacr"::"r"(temp));
 #endif
 }
+
+__weak void invalidate_dcache_range(unsigned long start, unsigned long stop)
+{
+	/* An empty stub, real implementation should be in platform code */
+}
+__weak void flush_dcache_range(unsigned long start, unsigned long stop)
+{
+	/* An empty stub, real implementation should be in platform code */
+}
