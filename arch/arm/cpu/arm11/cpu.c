@@ -110,21 +110,12 @@ void flush_dcache_range(unsigned long start, unsigned long stop)
 	asm volatile("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
 }
 
-void flush_cache(unsigned long start, unsigned long size)
-{
-	flush_dcache_range(start, start + size);
-}
-
 #else /* #ifndef CONFIG_SYS_DCACHE_OFF */
 void invalidate_dcache_all(void)
 {
 }
 
 void flush_dcache_all(void)
-{
-}
-
-void flush_cache(unsigned long start, unsigned long size)
 {
 }
 #endif /* #ifndef CONFIG_SYS_DCACHE_OFF */

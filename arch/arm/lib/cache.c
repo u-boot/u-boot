@@ -10,29 +10,13 @@
 #include <common.h>
 #include <malloc.h>
 
+/*
+ * Flush range from all levels of d-cache/unified-cache.
+ * Affects the range [start, start + size - 1].
+ */
 __weak void flush_cache(unsigned long start, unsigned long size)
 {
-#if defined(CONFIG_CPU_ARM1136)
-
-#if !defined(CONFIG_SYS_ICACHE_OFF)
-	asm("mcr p15, 0, r1, c7, c5, 0"); /* invalidate I cache */
-#endif
-
-#if !defined(CONFIG_SYS_DCACHE_OFF)
-	asm("mcr p15, 0, r1, c7, c14, 0"); /* Clean+invalidate D cache */
-#endif
-
-#endif /* CONFIG_CPU_ARM1136 */
-
-#ifdef CONFIG_CPU_ARM926EJS
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
-	/* test and clean, page 2-23 of arm926ejs manual */
-	asm("0: mrc p15, 0, r15, c7, c10, 3\n\t" "bne 0b\n" : : : "memory");
-	/* disable write buffer as well (page 2-22) */
-	asm("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
-#endif
-#endif /* CONFIG_CPU_ARM926EJS */
-	return;
+	flush_dcache_range(start, start + size);
 }
 
 /*

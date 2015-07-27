@@ -253,11 +253,3 @@ void __weak enable_caches(void)
 	icache_enable();
 	dcache_enable();
 }
-
-/*
- * Flush range from all levels of d-cache/unified-cache
- */
-void flush_cache(unsigned long start, unsigned long size)
-{
-	flush_dcache_range(start, start + size);
-}
