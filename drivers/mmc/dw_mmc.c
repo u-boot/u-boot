@@ -110,7 +110,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	struct dwmci_host *host = mmc->priv;
 	ALLOC_CACHE_ALIGN_BUFFER(struct dwmci_idmac, cur_idmac,
 				 data ? DIV_ROUND_UP(data->blocks, 8) : 0);
-	int flags = 0, i;
+	int ret = 0, flags = 0, i;
 	unsigned int timeout = 100000;
 	u32 retry = 10000;
 	u32 mask, ctrl;
@@ -218,20 +218,22 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			/* Error during data transfer. */
 			if (mask & (DWMCI_DATA_ERR | DWMCI_DATA_TOUT)) {
 				printf("%s: DATA ERROR!\n", __func__);
-				bounce_buffer_stop(&bbstate);
-				return -1;
+				ret = -EINVAL;
+				break;
 			}
 
 			/* Data arrived correctly. */
-			if (mask & DWMCI_INTMSK_DTO)
+			if (mask & DWMCI_INTMSK_DTO) {
+				ret = 0;
 				break;
+			}
 
 			/* Check for timeout. */
 			if (get_timer(start) > timeout) {
 				printf("%s: Timeout waiting for data!\n",
 				       __func__);
-				bounce_buffer_stop(&bbstate);
-				return TIMEOUT;
+				ret = TIMEOUT;
+				break;
 			}
 		}
 
@@ -246,7 +248,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	udelay(100);
 
-	return 0;
+	return ret;
 }
 
 static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
