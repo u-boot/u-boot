@@ -422,5 +422,16 @@ void v7_arch_cp15_set_l2aux_ctrl(u32 l2auxctrl, u32 cpu_midr,
 void v7_arch_cp15_set_acr(u32 acr, u32 cpu_midr, u32 cpu_rev_comb,
 			  u32 cpu_variant, u32 cpu_rev)
 {
+
+#ifdef CONFIG_ARM_ERRATA_801819
+	/*
+	 * DRA72x processors are uniprocessors and DONOT have
+	 * ACP (Accelerator Coherency Port) hooked to ACE (AXI Coherency
+	 * Extensions) Hence the erratum workaround is not applicable for
+	 * DRA72x processors.
+	 */
+	if (is_dra72x())
+		acr &= ~((0x3 << 23) | (0x3 << 25));
+#endif
 	omap_smc1(OMAP5_SERVICE_ACR_SET, acr);
 }
