@@ -215,6 +215,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			mask = dwmci_readl(host, DWMCI_RINTSTS);
 			if (mask & (DWMCI_DATA_ERR | DWMCI_DATA_TOUT)) {
 				printf("%s: DATA ERROR!\n", __func__);
+				bounce_buffer_stop(&bbstate);
 				return -1;
 			}
 		} while (!(mask & DWMCI_INTMSK_DTO));
