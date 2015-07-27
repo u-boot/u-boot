@@ -53,6 +53,15 @@ __weak void enable_caches(void)
 	puts("WARNING: Caches not enabled\n");
 }
 
+__weak void invalidate_dcache_range(unsigned long start, unsigned long stop)
+{
+	/* An empty stub, real implementation should be in platform code */
+}
+__weak void flush_dcache_range(unsigned long start, unsigned long stop)
+{
+	/* An empty stub, real implementation should be in platform code */
+}
+
 #ifdef CONFIG_SYS_NONCACHED_MEMORY
 /*
  * Reserve one MMU section worth of address space below the malloc() area that
