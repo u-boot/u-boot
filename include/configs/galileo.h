@@ -17,8 +17,6 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_ARCH_MISC_INIT
 
-#define CONFIG_X86_SERIAL
-
 /* ns16550 UART is memory-mapped in Quark SoC */
 #undef  CONFIG_SYS_NS16550_PORT_MAPPED
 
