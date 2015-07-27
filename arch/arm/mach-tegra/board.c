@@ -198,7 +198,7 @@ void board_init_uart_f(void)
 	setup_uarts(uart_ids);
 }
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !defined(CONFIG_SYS_DCACHE_OFF) && !defined(CONFIG_ARM64)
 void enable_caches(void)
 {
 	/* Enable D-cache. I-cache is already enabled in start.S */
