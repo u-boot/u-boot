@@ -353,15 +353,17 @@ int lpc32xx_eth_phy_write(struct mii_dev *bus, int phy_addr, int dev_addr,
 #endif
 
 /*
+ * Provide default Ethernet buffers base address if target did not.
  * Locate buffers in SRAM at 0x00001000 to avoid cache issues and
  * maximize throughput.
  */
-
-#define LPC32XX_ETH_BUFS 0x00001000
+#if !defined(CONFIG_LPC32XX_ETH_BUFS_BASE)
+#define CONFIG_LPC32XX_ETH_BUFS_BASE 0x00001000
+#endif
 
 static struct lpc32xx_eth_device lpc32xx_eth = {
 	.regs = (struct lpc32xx_eth_registers *)LPC32XX_ETH_BASE,
-	.bufs = (struct lpc32xx_eth_buffers *)LPC32XX_ETH_BUFS,
+	.bufs = (struct lpc32xx_eth_buffers *)CONFIG_LPC32XX_ETH_BUFS_BASE,
 #if defined(CONFIG_RMII)
 	.phy_rmii = true,
 #endif
