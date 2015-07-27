@@ -160,10 +160,13 @@ static void fpgamgr_program_write(const void *rbf_data, unsigned long rbf_size)
 		"	sub	%1,	#32\n"
 		"	subs	%2,	#1\n"
 		"	bne	1b\n"
+		"	cmp	%3,	#0\n"
+		"	beq	3f\n"
 		"2:	ldr	%2,	[%0],	#4\n"
 		"	str	%2,	[%1]\n"
 		"	subs	%3,	#1\n"
 		"	bne	2b\n"
+		"3:	nop\n"
 		: "+r"(src), "+r"(dst), "+r"(loops32), "+r"(loops4) :
 		: "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "cc");
 }
