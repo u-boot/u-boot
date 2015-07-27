@@ -172,12 +172,12 @@ static int lpc32xx_i2c_read(struct i2c_adapter *adap, u8 dev, uint addr,
 				*(data++) = readl(&i2c->rx);
 			}
 		}
+		/* wait for end of transation */
+		while (!((stat = readl(&i2c->stat)) & LPC32XX_I2C_STAT_TDI))
+			;
+		/* clear end-of-transaction flag */
+		writel(1, &i2c->stat);
 	}
-	/* wait for end of transation */
-	while (!((stat = readl(&i2c->stat)) & LPC32XX_I2C_STAT_TDI))
-		;
-	/* clear end-of-transaction flag */
-	writel(1, &i2c->stat);
 	/* success */
 	return 0;
 }
