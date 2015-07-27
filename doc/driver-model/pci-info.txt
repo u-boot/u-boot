@@ -6,7 +6,7 @@ How busses are scanned
 
 Any config read will end up at pci_read_config(). This uses
 uclass_get_device_by_seq() to get the PCI bus for a particular bus number.
-Bus number 0 will need to  be requested first, and the alias in the device
+Bus number 0 will need to be requested first, and the alias in the device
 tree file will point to the correct device:
 
 
@@ -23,7 +23,7 @@ tree file will point to the correct device:
 If there is no alias the devices will be numbered sequentially in the device
 tree.
 
-The call to uclass_get_device by seq() will cause the PCI bus to be probed.
+The call to uclass_get_device() will cause the PCI bus to be probed.
 This does a scan of the bus to locate available devices. These devices are
 bound to their appropriate driver if available. If there is no driver, then
 they are bound to a generic PCI driver which does nothing.
@@ -32,7 +32,7 @@ After probing a bus, the available devices will appear in the device tree
 under that bus.
 
 Note that this is all done on a lazy basis, as needed, so until something is
-touched on PCI it will not be probed.
+touched on PCI (eg: a call to pci_find_devices()) it will not be probed.
 
 PCI devices can appear in the device tree. If they do this serves to specify
 the driver to use for the device. In this case they will be bound at
