@@ -458,6 +458,8 @@ config ARCH_HIGHBANK
 
 config ARCH_INTEGRATOR
 	bool "ARM Ltd. Integrator family"
+	select DM
+	select DM_SERIAL
 
 config ARCH_KEYSTONE
 	bool "TI Keystone"
