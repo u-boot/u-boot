@@ -231,6 +231,8 @@
 #define PCI_MIN_GNT		0x3e	/* 8 bits */
 #define PCI_MAX_LAT		0x3f	/* 8 bits */
 
+#define PCI_INTERRUPT_LINE_DISABLE	0xff
+
 /* Header type 1 (PCI-to-PCI bridges) */
 #define PCI_PRIMARY_BUS		0x18	/* Primary bus number */
 #define PCI_SECONDARY_BUS	0x19	/* Secondary bus number */
