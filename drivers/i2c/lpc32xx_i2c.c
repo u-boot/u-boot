@@ -200,6 +200,8 @@ static int lpc32xx_i2c_write(struct i2c_adapter *adap, u8 dev, uint addr,
 	if (alen | length)
 		/* Address slave in write mode */
 		writel((dev<<1) | LPC32XX_I2C_TX_START, &i2c->tx);
+	else
+		return 0;
 	/* write address bytes */
 	while (alen) {
 		/* wait for transmit fifo not full */
