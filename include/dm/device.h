@@ -318,6 +318,8 @@ const char *dev_get_uclass_name(struct udevice *dev);
  * @dev:	Parent device to check
  * @index:	Child index
  * @devp:	Returns pointer to device
+ * @return 0 if OK, -ENODEV if no such device, other error if the device fails
+ *	   to probe
  */
 int device_get_child(struct udevice *parent, int index, struct udevice **devp);
 
@@ -413,7 +415,7 @@ int device_get_global_by_of_offset(int of_offset, struct udevice **devp);
 int device_find_first_child(struct udevice *parent, struct udevice **devp);
 
 /**
- * device_find_first_child() - Find the first child of a device
+ * device_find_next_child() - Find the next child of a device
  *
  * @devp: Pointer to previous child device on entry. Returns pointer to next
  *		child device, or NULL if none
