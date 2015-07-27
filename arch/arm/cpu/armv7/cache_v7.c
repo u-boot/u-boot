@@ -16,6 +16,23 @@
 #define ARMV7_DCACHE_CLEAN_INVAL_RANGE	4
 
 #ifndef CONFIG_SYS_DCACHE_OFF
+static int check_cache_range(unsigned long start, unsigned long stop)
+{
+	int ok = 1;
+
+	if (start & (CONFIG_SYS_CACHELINE_SIZE - 1))
+		ok = 0;
+
+	if (stop & (CONFIG_SYS_CACHELINE_SIZE - 1))
+		ok = 0;
+
+	if (!ok)
+		debug("CACHE: Misaligned operation at range [%08lx, %08lx]\n",
+			start, stop);
+
+	return ok;
+}
+
 /*
  * Write the level and type you want to Cache Size Selection Register(CSSELR)
  * to get size details from Current Cache Size ID Register(CCSIDR)
@@ -257,6 +274,8 @@ void flush_dcache_all(void)
  */
 void invalidate_dcache_range(unsigned long start, unsigned long stop)
 {
+	check_cache_range(start, stop);
+
 	v7_dcache_maint_range(start, stop, ARMV7_DCACHE_INVAL_RANGE);
 
 	v7_outer_cache_inval_range(start, stop);
@@ -269,6 +288,8 @@ void invalidate_dcache_range(unsigned long start, unsigned long stop)
  */
 void flush_dcache_range(unsigned long start, unsigned long stop)
 {
+	check_cache_range(start, stop);
+
 	v7_dcache_maint_range(start, stop, ARMV7_DCACHE_CLEAN_INVAL_RANGE);
 
 	v7_outer_cache_flush_range(start, stop);
