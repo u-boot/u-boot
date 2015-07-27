@@ -211,14 +211,29 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	}
 
 	if (data) {
-		do {
+		start = get_timer(0);
+		timeout = 1000;
+		for (;;) {
 			mask = dwmci_readl(host, DWMCI_RINTSTS);
+			/* Error during data transfer. */
 			if (mask & (DWMCI_DATA_ERR | DWMCI_DATA_TOUT)) {
 				printf("%s: DATA ERROR!\n", __func__);
 				bounce_buffer_stop(&bbstate);
 				return -1;
 			}
-		} while (!(mask & DWMCI_INTMSK_DTO));
+
+			/* Data arrived correctly. */
+			if (mask & DWMCI_INTMSK_DTO)
+				break;
+
+			/* Check for timeout. */
+			if (get_timer(start) > timeout) {
+				printf("%s: Timeout waiting for data!\n",
+				       __func__);
+				bounce_buffer_stop(&bbstate);
+				return TIMEOUT;
+			}
+		}
 
 		dwmci_writel(host, DWMCI_RINTSTS, mask);
 
