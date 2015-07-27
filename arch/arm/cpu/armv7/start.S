@@ -187,6 +187,27 @@ ENTRY(cpu_init_cp15)
 skip_errata_798870:
 #endif
 
+#ifdef CONFIG_ARM_ERRATA_801819
+	cmp	r2, #0x24		@ Applies to lt including R2p4
+	bgt	skip_errata_801819      @ skip if not affected rev
+	cmp	r2, #0x20		@ Applies to including and above R2p0
+	blt	skip_errata_801819      @ skip if not affected rev
+	mrc	p15, 0, r0, c0, c0, 6	@ pick up REVIDR reg
+	and	r0, r0, #1 << 3		@ check REVIDR[3]
+	cmp	r0, #1 << 3
+	beq	skip_errata_801819	@ skip erratum if REVIDR[3] is set
+
+	mrc	p15, 0, r0, c1, c0, 1	@ read auxilary control register
+	orr	r0, r0, #3 << 27	@ Disables streaming. All write-allocate
+					@ lines allocate in the L1 or L2 cache.
+	orr	r0, r0, #3 << 25	@ Disables streaming. All write-allocate
+					@ lines allocate in the L1 cache.
+	push	{r1-r5}			@ Save the cpu info registers
+	bl	v7_arch_cp15_set_acr
+	pop	{r1-r5}			@ Restore the cpu info - fall through
+skip_errata_801819:
+#endif
+
 #ifdef CONFIG_ARM_ERRATA_454179
 	cmp	r2, #0x21		@ Only on < r2p1
 	bge	skip_errata_454179
