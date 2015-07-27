@@ -418,3 +418,9 @@ void v7_arch_cp15_set_l2aux_ctrl(u32 l2auxctrl, u32 cpu_midr,
 {
 	omap_smc1(OMAP5_SERVICE_L2ACTLR_SET, l2auxctrl);
 }
+
+void v7_arch_cp15_set_acr(u32 acr, u32 cpu_midr, u32 cpu_rev_comb,
+			  u32 cpu_variant, u32 cpu_rev)
+{
+	omap_smc1(OMAP5_SERVICE_ACR_SET, acr);
+}

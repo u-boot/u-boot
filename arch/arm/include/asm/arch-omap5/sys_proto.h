@@ -81,5 +81,6 @@ static inline u32 usec_to_32k(u32 usec)
 }
 
 #define OMAP5_SERVICE_L2ACTLR_SET    0x104
+#define OMAP5_SERVICE_ACR_SET        0x107
 
 #endif
