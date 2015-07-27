@@ -72,7 +72,7 @@ static unsigned int lpc32xx_i2c_set_bus_speed(struct i2c_adapter *adap,
 	if (speed == 0)
 		return -EINVAL;
 
-	half_period = (105000000 / speed) / 2;
+	half_period = (get_hclk_clk_rate() / speed) / 2;
 
 	if ((half_period > 255) || (half_period < 0))
 		return -EINVAL;
