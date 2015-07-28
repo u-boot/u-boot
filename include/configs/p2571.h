@@ -68,6 +68,7 @@
  * TODO(twarren@nvidia.com) - add tegra-common-usb-gadget.h back
  * breaks 64-bit build in ci_udc.c
  */
+#include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
 #define COUNTER_FREQUENCY	38400000
