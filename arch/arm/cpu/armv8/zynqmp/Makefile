@@ -8,3 +8,4 @@
 obj-y	+= clk.o
 obj-y	+= cpu.o
 obj-$(CONFIG_MP)	+= mp.o
+obj-y	+= slcr.o

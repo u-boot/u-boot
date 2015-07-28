@@ -20,6 +20,7 @@
 #include <phy.h>
 #include <miiphy.h>
 #include <watchdog.h>
+#include <asm/system.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
@@ -58,7 +59,14 @@
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000080000 /* Div pclk by 32, 80MHz */
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV2	0x0000c0000 /* Div pclk by 48, 120MHz */
 
-#define ZYNQ_GEM_NWCFG_INIT		(ZYNQ_GEM_NWCFG_FDEN | \
+#ifdef CONFIG_ARM64
+# define ZYNQ_GEM_DBUS_WIDTH	(1 << 21) /* 64 bit bus */
+#else
+# define ZYNQ_GEM_DBUS_WIDTH	(0 << 21) /* 32 bit bus */
+#endif
+
+#define ZYNQ_GEM_NWCFG_INIT		(ZYNQ_GEM_DBUS_WIDTH | \
+					ZYNQ_GEM_NWCFG_FDEN | \
 					ZYNQ_GEM_NWCFG_FSREM | \
 					ZYNQ_GEM_NWCFG_MDCCLKDIV)
 
@@ -130,7 +138,7 @@ struct emac_bd {
 	u32 status;
 };
 
-#define RX_BUF 3
+#define RX_BUF 32
 /* Page table entries are set to 1MB, or multiples of 1MB
  * (not < 1MB). driver uses less bd's so use 1MB bdspace.
  */
@@ -155,7 +163,7 @@ struct zynq_gem_priv {
 static inline int mdio_wait(struct eth_device *dev)
 {
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
-	u32 timeout = 200;
+	u32 timeout = 20000;
 
 	/* Wait till MDIO interface is ready to accept a new transaction. */
 	while (--timeout) {
@@ -395,11 +403,17 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 
 	priv->tx_bd->addr = (u32)ptr;
 	priv->tx_bd->status = (len & ZYNQ_GEM_TXBUF_FRMLEN_MASK) |
-				ZYNQ_GEM_TXBUF_LAST_MASK;
+			       ZYNQ_GEM_TXBUF_LAST_MASK |
+			       ZYNQ_GEM_TXBUF_WRAP_MASK;
 
 	addr = (u32) ptr;
 	addr &= ~(ARCH_DMA_MINALIGN - 1);
 	size = roundup(len, ARCH_DMA_MINALIGN);
+	flush_dcache_range(addr, addr + size);
+
+	addr = (u32)priv->rxbuffers;
+	addr &= ~(ARCH_DMA_MINALIGN - 1);
+	size = roundup((RX_BUF * PKTSIZE_ALIGN), ARCH_DMA_MINALIGN);
 	flush_dcache_range(addr, addr + size);
 	barrier();
 
@@ -436,8 +450,6 @@ static int zynq_gem_recv(struct eth_device *dev)
 	if (frame_len) {
 		u32 addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
 		addr &= ~(ARCH_DMA_MINALIGN - 1);
-		u32 size = roundup(frame_len, ARCH_DMA_MINALIGN);
-		invalidate_dcache_range(addr, addr + size);
 
 		net_process_received_packet((u8 *)addr, frame_len);
 
@@ -511,7 +523,7 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 	priv->rxbuffers = memalign(ARCH_DMA_MINALIGN, RX_BUF * PKTSIZE_ALIGN);
 	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
 
-	/* Align bd_space to 1MB */
+	/* Align bd_space to MMU_SECTION_SHIFT */
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
 	mmu_set_region_dcache_behaviour((phys_addr_t)bd_space,
 					BD_SPACE, DCACHE_OFF);

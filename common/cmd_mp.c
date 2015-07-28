@@ -7,10 +7,31 @@
 #include <common.h>
 #include <command.h>
 
+static int cpu_status_all(void)
+{
+	unsigned long cpuid;
+
+	for (cpuid = 0; ; cpuid++) {
+		if (!is_core_valid(cpuid)) {
+			if (cpuid == 0) {
+				printf("Core num: %lu is not valid\n", cpuid);
+				return 1;
+			}
+			break;
+		}
+		cpu_status(cpuid);
+	}
+
+	return 0;
+}
+
 static int
 cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long cpuid;
+
+	if (argc == 2 && strncmp(argv[1], "status", 6) == 0)
+		  return cpu_status_all();
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
@@ -48,6 +69,7 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_LONGHELP
 static char cpu_help_text[] =
 	    "<num> reset                 - Reset cpu <num>\n"
+	"cpu status                      - Status of all cpus\n"
 	"cpu <num> status                - Status of cpu <num>\n"
 	"cpu <num> disable               - Disable cpu <num>\n"
 	"cpu <num> release <addr> [args] - Release cpu <num> at <addr> with [args]"
