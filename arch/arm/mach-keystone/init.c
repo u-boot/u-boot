@@ -149,3 +149,35 @@ void enable_caches(void)
 	dcache_enable();
 #endif
 }
+
+#if defined(CONFIG_DISPLAY_CPUINFO)
+int print_cpuinfo(void)
+{
+	u16 cpu = get_part_number();
+	u8 rev = cpu_revision();
+
+	puts("CPU: ");
+	switch (cpu) {
+	case CPU_66AK2Hx:
+		puts("66AK2Hx SR");
+		break;
+	case CPU_66AK2Lx:
+		puts("66AK2Lx SR");
+		break;
+	case CPU_66AK2Ex:
+		puts("66AK2Ex SR");
+		break;
+	default:
+		puts("Unknown\n");
+	}
+
+	if (rev == 2)
+		puts("2.0\n");
+	else if (rev == 1)
+		puts("1.1\n");
+	else if (rev == 0)
+		puts("1.0\n");
+
+	return 0;
+}
+#endif
