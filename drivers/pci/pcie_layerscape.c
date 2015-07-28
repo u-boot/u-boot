@@ -689,6 +689,7 @@ void fdt_fixup_smmu_pcie(void *blob)
 {
 	int count;
 	u32 stream_ids[MAX_STREAM_IDS];
+	u32 ctlr_streamid = 0x300;
 
 	#ifdef CONFIG_PCIE1
 	/* PEX1 stream ID fixup */
@@ -696,6 +697,8 @@ void fdt_fixup_smmu_pcie(void *blob)
 	alloc_stream_ids(FSL_PEX1_STREAM_ID_START, count, stream_ids,
 			 MAX_STREAM_IDS);
 	pcie_set_available_streamids(blob, "/pcie@3400000", stream_ids, count);
+	append_mmu_masters(blob, "/iommu@5000000", "/pcie@3400000",
+			   &ctlr_streamid, 1);
 	#endif
 
 	#ifdef CONFIG_PCIE2
@@ -704,6 +707,8 @@ void fdt_fixup_smmu_pcie(void *blob)
 	alloc_stream_ids(FSL_PEX2_STREAM_ID_START, count, stream_ids,
 			 MAX_STREAM_IDS);
 	pcie_set_available_streamids(blob, "/pcie@3500000", stream_ids, count);
+	append_mmu_masters(blob, "/iommu@5000000", "/pcie@3500000",
+			   &ctlr_streamid, 1);
 	#endif
 
 	#ifdef CONFIG_PCIE3
@@ -712,6 +717,8 @@ void fdt_fixup_smmu_pcie(void *blob)
 	alloc_stream_ids(FSL_PEX3_STREAM_ID_START, count, stream_ids,
 			 MAX_STREAM_IDS);
 	pcie_set_available_streamids(blob, "/pcie@3600000", stream_ids, count);
+	append_mmu_masters(blob, "/iommu@5000000", "/pcie@3600000",
+			   &ctlr_streamid, 1);
 	#endif
 
 	#ifdef CONFIG_PCIE4
@@ -720,6 +727,8 @@ void fdt_fixup_smmu_pcie(void *blob)
 	alloc_stream_ids(FSL_PEX4_STREAM_ID_START, count, stream_ids,
 			 MAX_STREAM_IDS);
 	pcie_set_available_streamids(blob, "/pcie@3700000", stream_ids, count);
+	append_mmu_masters(blob, "/iommu@5000000", "/pcie@3700000",
+			   &ctlr_streamid, 1);
 	#endif
 }
 #endif
