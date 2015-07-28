@@ -10,21 +10,6 @@
 #ifndef __ASM_ARCH_CLOCK_K2E_H
 #define __ASM_ARCH_CLOCK_K2E_H
 
-enum ext_clk_e {
-	sys_clk,
-	alt_core_clk,
-	pa_clk,
-	ddr3_clk,
-	mcm_clk,
-	pcie_clk,
-	sgmii_clk,
-	xgmii_clk,
-	usb_clk,
-	ext_clk_count /* number of external clocks */
-};
-
-extern unsigned int external_clk[ext_clk_count];
-
 #define CLK_LIST(CLK)\
 	CLK(0, core_pll_clk)\
 	CLK(1, pass_pll_clk)\

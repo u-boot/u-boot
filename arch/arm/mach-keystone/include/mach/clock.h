@@ -55,6 +55,16 @@ enum {
 	MAX_PLL_COUNT,
 };
 
+enum ext_clk_e {
+	sys_clk,
+	alt_core_clk,
+	pa_clk,
+	tetris_clk,
+	ddr3a_clk,
+	ddr3b_clk,
+	ext_clk_count /* number of external clocks */
+};
+
 enum clk_e {
 	CLK_LIST(GENERATE_ENUM)
 };
@@ -72,6 +82,7 @@ struct pll_init_data {
 	int pll_od;		/* PLL output divider */
 };
 
+extern unsigned int external_clk[ext_clk_count];
 extern const struct keystone_pll_regs keystone_pll_regs[];
 extern s16 divn_val[];
 extern int speeds[];

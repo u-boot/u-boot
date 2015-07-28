@@ -47,7 +47,7 @@ static unsigned long pll_freq_get(int pll)
 			reg = KS2_ARMPLLCTL0;
 			break;
 		case DDR3_PLL:
-			ret = external_clk[ddr3_clk];
+			ret = external_clk[ddr3a_clk];
 			reg = KS2_DDR3APLLCTL0;
 			break;
 		default:

@@ -18,12 +18,7 @@ unsigned int external_clk[ext_clk_count] = {
 	[sys_clk]	= 100000000,
 	[alt_core_clk]	= 100000000,
 	[pa_clk]	= 100000000,
-	[ddr3_clk]	= 100000000,
-	[mcm_clk]	= 312500000,
-	[pcie_clk]	= 100000000,
-	[sgmii_clk]	= 156250000,
-	[xgmii_clk]	= 156250000,
-	[usb_clk]	= 100000000,
+	[ddr3a_clk]	= 100000000,
 };
 
 static struct pll_init_data core_pll_config[NUM_SPDS] = {
