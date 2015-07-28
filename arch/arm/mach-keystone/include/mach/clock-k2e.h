@@ -50,14 +50,6 @@ extern unsigned int external_clk[ext_clk_count];
 
 #define KS2_CLK1_6	sys_clk0_6_clk
 
-/* PLL identifiers */
-enum pll_type_e {
-	CORE_PLL,
-	PASS_PLL,
-	DDR3_PLL,
-	TETRIS_PLL,
-};
-
 #define CORE_PLL_800	{CORE_PLL, 16, 1, 2}
 #define CORE_PLL_850	{CORE_PLL, 17, 1, 2}
 #define CORE_PLL_1000	{CORE_PLL, 20, 1, 2}

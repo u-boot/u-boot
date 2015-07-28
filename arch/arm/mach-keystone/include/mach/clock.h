@@ -24,7 +24,8 @@
 #include <asm/arch/clock-k2l.h>
 #endif
 
-#define MAIN_PLL CORE_PLL
+#define CORE_PLL MAIN_PLL
+#define DDR3_PLL DDR3A_PLL
 
 #include <asm/types.h>
 
@@ -42,6 +43,16 @@ enum {
 	SPD1400,
 	SPD1500,
 	NUM_SPDS,
+};
+
+/* PLL identifiers */
+enum {
+	MAIN_PLL,
+	TETRIS_PLL,
+	PASS_PLL,
+	DDR3A_PLL,
+	DDR3B_PLL,
+	MAX_PLL_COUNT,
 };
 
 enum clk_e {

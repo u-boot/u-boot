@@ -55,15 +55,6 @@ extern unsigned int external_clk[ext_clk_count];
 
 #define KS2_CLK1_6 sys_clk0_6_clk
 
-/* PLL identifiers */
-enum pll_type_e {
-	CORE_PLL,
-	PASS_PLL,
-	TETRIS_PLL,
-	DDR3A_PLL,
-	DDR3B_PLL,
-};
-
 #define CORE_PLL_799    {CORE_PLL,	13,	1,	2}
 #define CORE_PLL_983    {CORE_PLL,	16,	1,	2}
 #define CORE_PLL_999	{CORE_PLL,	122,	15,	1}
