@@ -36,6 +36,10 @@ static struct pll_init_data core_pll_config[] = {
 	CORE_PLL_1500,
 };
 
+s16 divn_val[16] = {
+	0, 0, 1, 4, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+};
+
 static struct pll_init_data pa_pll_config =
 	PASS_PLL_1000;
 

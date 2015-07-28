@@ -52,13 +52,13 @@ struct pll_init_data {
 extern const struct keystone_pll_regs keystone_pll_regs[];
 extern int dev_speeds[];
 extern int arm_speeds[];
+extern s16 divn_val[];
 
 void init_plls(int num_pll, struct pll_init_data *config);
 void init_pll(const struct pll_init_data *data);
 unsigned long clk_get_rate(unsigned int clk);
 unsigned long clk_round_rate(unsigned int clk, unsigned long hz);
 int clk_set_rate(unsigned int clk, unsigned long hz);
-void pass_pll_pa_clk_enable(void);
 int get_max_dev_speed(void);
 int get_max_arm_speed(void);
 

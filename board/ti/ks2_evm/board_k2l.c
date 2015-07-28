@@ -31,6 +31,10 @@ static struct pll_init_data core_pll_config[] = {
 	CORE_PLL_1198,
 };
 
+s16 divn_val[16] = {
+	0, 0, 1, 4, 23, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+};
+
 static struct pll_init_data tetris_pll_config[] = {
 	TETRIS_PLL_799,
 	TETRIS_PLL_1000,

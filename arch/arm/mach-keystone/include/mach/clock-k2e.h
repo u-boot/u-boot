@@ -55,6 +55,7 @@ enum pll_type_e {
 	CORE_PLL,
 	PASS_PLL,
 	DDR3_PLL,
+	TETRIS_PLL,
 };
 
 enum {

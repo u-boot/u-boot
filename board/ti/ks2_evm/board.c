@@ -80,7 +80,6 @@ int board_eth_init(bd_t *bis)
 		return -1;
 	if (psc_enable_module(KS2_LPSC_CRYPTO))
 		return -1;
-	pass_pll_pa_clk_enable();
 
 	port_num = get_num_eth_ports();
 
