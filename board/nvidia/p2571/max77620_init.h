@@ -10,7 +10,8 @@
 
 /* MAX77620-PMIC-specific early init regs */
 
-#define MAX77620_I2C_ADDR		0x78		/* or 0x3C 7-bit */
+#define MAX77620_I2C_ADDR		0x78
+#define MAX77620_I2C_ADDR_7BIT		0x3C
 
 #define MAX77620_SD0_REG		0x16
 #define MAX77620_SD1_REG		0x17
