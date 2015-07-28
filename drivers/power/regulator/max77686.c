@@ -319,9 +319,9 @@ static int max77686_ldo_modes(int ldo, struct dm_regulator_mode **modesp,
 
 static int max77686_ldo_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int ret, hex, adr;
+	unsigned int hex, adr;
 	unsigned char val;
-	int ldo;
+	int ldo, ret;
 
 	if (op == PMIC_OP_GET)
 		*uV = 0;
@@ -360,9 +360,9 @@ static int max77686_ldo_val(struct udevice *dev, int op, int *uV)
 
 static int max77686_buck_val(struct udevice *dev, int op, int *uV)
 {
-	unsigned int hex, ret, mask, adr;
+	unsigned int hex, mask, adr;
 	unsigned char val;
-	int buck;
+	int buck, ret;
 
 	buck = dev->driver_data;
 	if (buck < 1 || buck > MAX77686_BUCK_NUM) {
@@ -414,9 +414,9 @@ static int max77686_buck_val(struct udevice *dev, int op, int *uV)
 
 static int max77686_ldo_mode(struct udevice *dev, int op, int *opmode)
 {
-	unsigned int ret, adr, mode;
+	unsigned int adr, mode;
 	unsigned char val;
-	int ldo;
+	int ldo, ret;
 
 	if (op == PMIC_OP_GET)
 		*opmode = -EINVAL;
@@ -545,9 +545,9 @@ static int max77686_ldo_enable(struct udevice *dev, int op, bool *enable)
 
 static int max77686_buck_mode(struct udevice *dev, int op, int *opmode)
 {
-	unsigned int ret, mask, adr, mode, mode_shift;
+	unsigned int mask, adr, mode, mode_shift;
 	unsigned char val;
-	int buck;
+	int buck, ret;
 
 	buck = dev->driver_data;
 	if (buck < 1 || buck > MAX77686_BUCK_NUM) {
