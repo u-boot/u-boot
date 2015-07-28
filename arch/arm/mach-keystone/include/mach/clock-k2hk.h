@@ -64,15 +64,6 @@ enum pll_type_e {
 	DDR3B_PLL,
 };
 
-enum {
-	SPD800,
-	SPD1000,
-	SPD1200,
-	SPD1350,
-	SPD1400,
-	SPD_RSV
-};
-
 #define CORE_PLL_799    {CORE_PLL,	13,	1,	2}
 #define CORE_PLL_983    {CORE_PLL,	16,	1,	2}
 #define CORE_PLL_999	{CORE_PLL,	122,	15,	1}
@@ -99,5 +90,10 @@ enum {
 #define DDR3_PLL_400(x)	{DDR3##x##_PLL,	16,	1,	4}
 #define DDR3_PLL_800(x)	{DDR3##x##_PLL,	16,	1,	2}
 #define DDR3_PLL_333(x)	{DDR3##x##_PLL,	20,	1,	6}
+
+/* k2h DEV supports 800, 1000, 1200 MHz */
+#define DEV_SUPPORTED_SPEEDS	0x383
+/* k2h ARM supportd 800, 1000, 1200, 1350, 1400 MHz */
+#define ARM_SUPPORTED_SPEEDS	0x3EF
 
 #endif

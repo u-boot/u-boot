@@ -11,7 +11,19 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/clock_defs.h>
 
-#define MAX_SPEEDS		13
+/* DEV and ARM speed definitions as specified in DEVSPEED register */
+int __weak speeds[DEVSPEED_NUMSPDS] = {
+	SPD1000,
+	SPD1200,
+	SPD1350,
+	SPD1400,
+	SPD1500,
+	SPD1400,
+	SPD1350,
+	SPD1200,
+	SPD1000,
+	SPD800,
+};
 
 static void wait_for_completion(const struct pll_init_data *data)
 {
@@ -199,43 +211,44 @@ void init_plls(int num_pll, struct pll_init_data *config)
 		init_pll(&config[i]);
 }
 
-static int get_max_speed(u32 val, int *speeds)
+static int get_max_speed(u32 val, u32 speed_supported)
 {
-	int j;
+	int speed;
 
-	if (!val)
-		return speeds[0];
-
-	for (j = 1; j < MAX_SPEEDS; j++) {
-		if (val == 1)
-			return speeds[j];
-		val >>= 1;
+	/* Left most setbit gives the speed */
+	for (speed = DEVSPEED_NUMSPDS; speed >= 0; speed--) {
+		if ((val & BIT(speed)) & speed_supported)
+			return speeds[speed];
 	}
 
+	/* If no bit is set, use SPD800 */
 	return SPD800;
 }
 
-#ifdef CONFIG_SOC_K2HK
-static u32 read_efuse_bootrom(void)
-{
-	return (cpu_revision() > 1) ? __raw_readl(KS2_EFUSE_BOOTROM) :
-		__raw_readl(KS2_REV1_DEVSPEED);
-}
-#else
 static inline u32 read_efuse_bootrom(void)
 {
-	return __raw_readl(KS2_EFUSE_BOOTROM);
+	if (cpu_is_k2hk() && (cpu_revision() <= 1))
+		return __raw_readl(KS2_REV1_DEVSPEED);
+	else
+		return __raw_readl(KS2_EFUSE_BOOTROM);
 }
-#endif
 
-#ifndef CONFIG_SOC_K2E
-inline int get_max_arm_speed(void)
+int get_max_arm_speed(void)
 {
-	return get_max_speed(read_efuse_bootrom() & 0xffff, arm_speeds);
+	u32 armspeed = read_efuse_bootrom();
+
+	armspeed = (armspeed & DEVSPEED_ARMSPEED_MASK) >>
+		    DEVSPEED_ARMSPEED_SHIFT;
+
+	return get_max_speed(armspeed, ARM_SUPPORTED_SPEEDS);
 }
-#endif
 
-inline int get_max_dev_speed(void)
+int get_max_dev_speed(void)
 {
-	return get_max_speed((read_efuse_bootrom() >> 16) & 0xffff, dev_speeds);
+	u32 devspeed = read_efuse_bootrom();
+
+	devspeed = (devspeed & DEVSPEED_DEVSPEED_MASK) >>
+		    DEVSPEED_DEVSPEED_SHIFT;
+
+	return get_max_speed(devspeed, DEV_SUPPORTED_SPEEDS);
 }

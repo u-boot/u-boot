@@ -26,14 +26,30 @@ unsigned int external_clk[ext_clk_count] = {
 	[usb_clk]	= 100000000,
 };
 
-static struct pll_init_data core_pll_config[] = {
-	CORE_PLL_800,
-	CORE_PLL_850,
-	CORE_PLL_1000,
-	CORE_PLL_1250,
-	CORE_PLL_1350,
-	CORE_PLL_1400,
-	CORE_PLL_1500,
+static struct pll_init_data core_pll_config[NUM_SPDS] = {
+	[SPD800]	= CORE_PLL_800,
+	[SPD850]	= CORE_PLL_850,
+	[SPD1000]	= CORE_PLL_1000,
+	[SPD1250]	= CORE_PLL_1250,
+	[SPD1350]	= CORE_PLL_1350,
+	[SPD1400]	= CORE_PLL_1400,
+	[SPD1500]	= CORE_PLL_1500,
+};
+
+/* DEV and ARM speed definitions as specified in DEVSPEED register */
+int speeds[DEVSPEED_NUMSPDS] = {
+	SPD850,
+	SPD1000,
+	SPD1250,
+	SPD1350,
+	SPD1400,
+	SPD1500,
+	SPD1400,
+	SPD1350,
+	SPD1250,
+	SPD1000,
+	SPD850,
+	SPD800,
 };
 
 s16 divn_val[16] = {

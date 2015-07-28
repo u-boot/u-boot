@@ -58,17 +58,6 @@ enum pll_type_e {
 	TETRIS_PLL,
 };
 
-enum {
-	SPD800,
-	SPD850,
-	SPD1000,
-	SPD1250,
-	SPD1350,
-	SPD1400,
-	SPD1500,
-	SPD_RSV
-};
-
 #define CORE_PLL_800	{CORE_PLL, 16, 1, 2}
 #define CORE_PLL_850	{CORE_PLL, 17, 1, 2}
 #define CORE_PLL_1000	{CORE_PLL, 20, 1, 2}
@@ -82,5 +71,9 @@ enum {
 #define DDR3_PLL_400	{DDR3_PLL, 16, 1, 4}
 #define DDR3_PLL_800	{DDR3_PLL, 16, 1, 2}
 #define DDR3_PLL_333	{DDR3_PLL, 20, 1, 6}
+
+/* k2e DEV supports 800, 850, 1000, 1250, 1350, 1400, 1500 MHz */
+#define DEV_SUPPORTED_SPEEDS	0xFFF
+#define ARM_SUPPORTED_SPEEDS	0
 
 #endif

@@ -25,10 +25,10 @@ unsigned int external_clk[ext_clk_count] = {
 	[usb_clk]	= 100000000,
 };
 
-static struct pll_init_data core_pll_config[] = {
-	CORE_PLL_799,
-	CORE_PLL_1000,
-	CORE_PLL_1198,
+static struct pll_init_data core_pll_config[NUM_SPDS] = {
+	[SPD800]	= CORE_PLL_799,
+	[SPD1000]	= CORE_PLL_1000,
+	[SPD800]	= CORE_PLL_1198,
 };
 
 s16 divn_val[16] = {
@@ -36,11 +36,11 @@ s16 divn_val[16] = {
 };
 
 static struct pll_init_data tetris_pll_config[] = {
-	TETRIS_PLL_799,
-	TETRIS_PLL_1000,
-	TETRIS_PLL_1198,
-	TETRIS_PLL_1352,
-	TETRIS_PLL_1401,
+	[SPD800]	= TETRIS_PLL_799,
+	[SPD1000]	= TETRIS_PLL_1000,
+	[SPD1200]	= TETRIS_PLL_1198,
+	[SPD1350]	= TETRIS_PLL_1352,
+	[SPD1400]	= TETRIS_PLL_1401,
 };
 
 static struct pll_init_data pa_pll_config =

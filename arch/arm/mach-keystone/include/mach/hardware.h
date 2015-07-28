@@ -248,6 +248,13 @@ typedef volatile unsigned int   *dv_reg_p;
 #define CPU_66AK2Ex	0xb9a6
 #define CPU_66AK2Lx	0xb9a7
 
+/* DEVSPEED register */
+#define DEVSPEED_DEVSPEED_SHIFT	16
+#define DEVSPEED_DEVSPEED_MASK	(0xfff << 16)
+#define DEVSPEED_ARMSPEED_SHIFT	0
+#define DEVSPEED_ARMSPEED_MASK	0xfff
+#define DEVSPEED_NUMSPDS	12
+
 #ifdef CONFIG_SOC_K2HK
 #include <asm/arch/hardware-k2hk.h>
 #endif

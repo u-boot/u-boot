@@ -32,6 +32,18 @@
 #define GENERATE_INDX_STR(NUM, STRING) #NUM"\t- "#STRING"\n"
 #define CLOCK_INDEXES_LIST	CLK_LIST(GENERATE_INDX_STR)
 
+enum {
+	SPD800,
+	SPD850,
+	SPD1000,
+	SPD1200,
+	SPD1250,
+	SPD1350,
+	SPD1400,
+	SPD1500,
+	NUM_SPDS,
+};
+
 enum clk_e {
 	CLK_LIST(GENERATE_ENUM)
 };
@@ -50,9 +62,8 @@ struct pll_init_data {
 };
 
 extern const struct keystone_pll_regs keystone_pll_regs[];
-extern int dev_speeds[];
-extern int arm_speeds[];
 extern s16 divn_val[];
+extern int speeds[];
 
 void init_plls(int num_pll, struct pll_init_data *config);
 void init_pll(const struct pll_init_data *data);

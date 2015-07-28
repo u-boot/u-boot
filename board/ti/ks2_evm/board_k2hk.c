@@ -29,10 +29,10 @@ unsigned int external_clk[ext_clk_count] = {
 	[rp1_clk]	=	123456789
 };
 
-static struct pll_init_data core_pll_config[] = {
-	CORE_PLL_799,
-	CORE_PLL_999,
-	CORE_PLL_1200,
+static struct pll_init_data core_pll_config[NUM_SPDS] = {
+	[SPD800]	= CORE_PLL_799,
+	[SPD1000]	= CORE_PLL_999,
+	[SPD1200]	= CORE_PLL_1200,
 };
 
 s16 divn_val[16] = {
@@ -40,11 +40,11 @@ s16 divn_val[16] = {
 };
 
 static struct pll_init_data tetris_pll_config[] = {
-	TETRIS_PLL_800,
-	TETRIS_PLL_1000,
-	TETRIS_PLL_1200,
-	TETRIS_PLL_1350,
-	TETRIS_PLL_1400,
+	[SPD800]	= TETRIS_PLL_800,
+	[SPD1000]	= TETRIS_PLL_1000,
+	[SPD1200]	= TETRIS_PLL_1200,
+	[SPD1350]	= TETRIS_PLL_1350,
+	[SPD1400]	= TETRIS_PLL_1400,
 };
 
 static struct pll_init_data pa_pll_config =
