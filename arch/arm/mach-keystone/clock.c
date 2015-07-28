@@ -264,3 +264,142 @@ int get_max_dev_speed(void)
 
 	return get_max_speed(devspeed, DEV_SUPPORTED_SPEEDS);
 }
+
+/**
+ * pll_freq_get - get pll frequency
+ * @pll:	pll identifier
+ */
+static unsigned long pll_freq_get(int pll)
+{
+	unsigned long mult = 1, prediv = 1, output_div = 2;
+	unsigned long ret;
+	u32 tmp, reg;
+
+	if (pll == MAIN_PLL) {
+		ret = external_clk[sys_clk];
+		if (pllctl_reg_read(pll, ctl) & PLLCTL_PLLEN_MASK) {
+			/* PLL mode */
+			tmp = __raw_readl(KS2_MAINPLLCTL0);
+			prediv = (tmp & CFG_PLLCTL0_PLLD_MASK) + 1;
+			mult = ((tmp & CFG_PLLCTL0_PLLM_HI_MASK) >>
+				CFG_PLLCTL0_PLLM_SHIFT |
+				(pllctl_reg_read(pll, mult) &
+				 PLLM_MULT_LO_MASK)) + 1;
+			output_div = ((pllctl_reg_read(pll, secctl) &
+				       SECCTL_OP_DIV_MASK) >>
+				       SECCTL_OP_DIV_SHIFT) + 1;
+
+			ret = ret / prediv / output_div * mult;
+		}
+	} else {
+		switch (pll) {
+		case PASS_PLL:
+			ret = external_clk[pa_clk];
+			reg = KS2_PASSPLLCTL0;
+			break;
+		case TETRIS_PLL:
+			ret = external_clk[tetris_clk];
+			reg = KS2_ARMPLLCTL0;
+			break;
+		case DDR3A_PLL:
+			ret = external_clk[ddr3a_clk];
+			reg = KS2_DDR3APLLCTL0;
+			break;
+		case DDR3B_PLL:
+			ret = external_clk[ddr3b_clk];
+			reg = KS2_DDR3BPLLCTL0;
+			break;
+		default:
+			return 0;
+		}
+
+		tmp = __raw_readl(reg);
+
+		if (!(tmp & CFG_PLLCTL0_BYPASS_MASK)) {
+			/* Bypass disabled */
+			prediv = (tmp & CFG_PLLCTL0_PLLD_MASK) + 1;
+			mult = ((tmp & CFG_PLLCTL0_PLLM_MASK) >>
+				CFG_PLLCTL0_PLLM_SHIFT) + 1;
+			output_div = ((tmp & CFG_PLLCTL0_CLKOD_MASK) >>
+				      CFG_PLLCTL0_CLKOD_SHIFT) + 1;
+			ret = ((ret / prediv) * mult) / output_div;
+		}
+	}
+
+	return ret;
+}
+
+unsigned long clk_get_rate(unsigned int clk)
+{
+	unsigned long freq = 0;
+
+	switch (clk) {
+	case core_pll_clk:
+		freq = pll_freq_get(CORE_PLL);
+		break;
+	case pass_pll_clk:
+		freq = pll_freq_get(PASS_PLL);
+		break;
+	case tetris_pll_clk:
+		if (!cpu_is_k2e())
+			freq = pll_freq_get(TETRIS_PLL);
+		break;
+	case ddr3a_pll_clk:
+		freq = pll_freq_get(DDR3A_PLL);
+		break;
+	case ddr3b_pll_clk:
+		if (cpu_is_k2hk())
+			freq = pll_freq_get(DDR3B_PLL);
+		break;
+	case sys_clk0_1_clk:
+	case sys_clk0_clk:
+		freq = pll_freq_get(CORE_PLL) / pll0div_read(1);
+		break;
+	case sys_clk1_clk:
+	return pll_freq_get(CORE_PLL) / pll0div_read(2);
+		break;
+	case sys_clk2_clk:
+		freq = pll_freq_get(CORE_PLL) / pll0div_read(3);
+		break;
+	case sys_clk3_clk:
+		freq = pll_freq_get(CORE_PLL) / pll0div_read(4);
+		break;
+	case sys_clk0_2_clk:
+		freq = clk_get_rate(sys_clk0_clk) / 2;
+		break;
+	case sys_clk0_3_clk:
+		freq = clk_get_rate(sys_clk0_clk) / 3;
+		break;
+	case sys_clk0_4_clk:
+		freq = clk_get_rate(sys_clk0_clk) / 4;
+		break;
+	case sys_clk0_6_clk:
+		freq = clk_get_rate(sys_clk0_clk) / 6;
+		break;
+	case sys_clk0_8_clk:
+		freq = clk_get_rate(sys_clk0_clk) / 8;
+		break;
+	case sys_clk0_12_clk:
+		freq = clk_get_rate(sys_clk0_clk) / 12;
+		break;
+	case sys_clk0_24_clk:
+		freq = clk_get_rate(sys_clk0_clk) / 24;
+		break;
+	case sys_clk1_3_clk:
+		freq = clk_get_rate(sys_clk1_clk) / 3;
+		break;
+	case sys_clk1_4_clk:
+		freq = clk_get_rate(sys_clk1_clk) / 4;
+		break;
+	case sys_clk1_6_clk:
+		freq = clk_get_rate(sys_clk1_clk) / 6;
+		break;
+	case sys_clk1_12_clk:
+		freq = clk_get_rate(sys_clk1_clk) / 12;
+		break;
+	default:
+		break;
+	}
+
+	return freq;
+}

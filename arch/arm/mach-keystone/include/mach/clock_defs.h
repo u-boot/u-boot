@@ -69,38 +69,6 @@ static struct pllctl_regs *pllctl_regs[] = {
 
 #define pll0div_read(N) ((pllctl_reg_read(CORE_PLL, div##N) & 0xff) + 1)
 
-#define PLLCTL_BYPASS           BIT(23)
-#define PLL_PLLRST              BIT(14)
-#define PLLCTL_PAPLL            BIT(13)
-#define PLLCTL_CLKMODE          BIT(8)
-#define PLLCTL_PLLSELB          BIT(7)
-#define PLLCTL_ENSAT            BIT(6)
-#define PLLCTL_PLLENSRC         BIT(5)
-#define PLLCTL_PLLDIS           BIT(4)
-#define PLLCTL_PLLRST           BIT(3)
-#define PLLCTL_PLLPWRDN         BIT(1)
-#define PLLCTL_PLLEN            BIT(0)
-#define PLLSTAT_GO              BIT(0)
-
-#define MAIN_ENSAT_OFFSET       6
-
-#define PLLDIV_ENABLE           BIT(15)
-
-#define PLL_DIV_MASK            0x3f
-#define PLL_MULT_MASK           0x1fff
-#define PLL_MULT_SHIFT          6
-#define PLLM_MULT_HI_MASK       0x7f
-#define PLLM_MULT_HI_SHIFT      12
-#define PLLM_MULT_HI_SMASK      (PLLM_MULT_HI_MASK << PLLM_MULT_HI_SHIFT)
-#define PLLM_MULT_LO_MASK       0x3f
-#define PLL_CLKOD_MASK          0xf
-#define PLL_CLKOD_SHIFT         19
-#define PLL_CLKOD_SMASK         (PLL_CLKOD_MASK << PLL_CLKOD_SHIFT)
-#define PLL_BWADJ_LO_MASK       0xff
-#define PLL_BWADJ_LO_SHIFT      24
-#define PLL_BWADJ_LO_SMASK      (PLL_BWADJ_LO_MASK << PLL_BWADJ_LO_SHIFT)
-#define PLL_BWADJ_HI_MASK       0xf
-
 /* PLLCTL Bits */
 #define PLLCTL_PLLENSRC_SHIF	5
 #define PLLCTL_PLLENSRC_MASK	BIT(5)

@@ -27,6 +27,29 @@
 #define CORE_PLL MAIN_PLL
 #define DDR3_PLL DDR3A_PLL
 
+#define CLK_LIST(CLK)\
+	CLK(0, core_pll_clk)\
+	CLK(1, pass_pll_clk)\
+	CLK(2, tetris_pll_clk)\
+	CLK(3, ddr3a_pll_clk)\
+	CLK(4, ddr3b_pll_clk)\
+	CLK(5, sys_clk0_clk)\
+	CLK(6, sys_clk0_1_clk)\
+	CLK(7, sys_clk0_2_clk)\
+	CLK(8, sys_clk0_3_clk)\
+	CLK(9, sys_clk0_4_clk)\
+	CLK(10, sys_clk0_6_clk)\
+	CLK(11, sys_clk0_8_clk)\
+	CLK(12, sys_clk0_12_clk)\
+	CLK(13, sys_clk0_24_clk)\
+	CLK(14, sys_clk1_clk)\
+	CLK(15, sys_clk1_3_clk)\
+	CLK(16, sys_clk1_4_clk)\
+	CLK(17, sys_clk1_6_clk)\
+	CLK(18, sys_clk1_12_clk)\
+	CLK(19, sys_clk2_clk)\
+	CLK(20, sys_clk3_clk)
+
 #include <asm/types.h>
 
 #define GENERATE_ENUM(NUM, ENUM) ENUM = NUM,

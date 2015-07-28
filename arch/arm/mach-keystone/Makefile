@@ -8,9 +8,6 @@
 obj-y	+= init.o
 obj-y	+= psc.o
 obj-y	+= clock.o
-obj-$(CONFIG_SOC_K2HK) += clock-k2hk.o
-obj-$(CONFIG_SOC_K2E) += clock-k2e.o
-obj-$(CONFIG_SOC_K2L) += clock-k2l.o
 obj-y	+= cmd_clock.o
 obj-y	+= cmd_mon.o
 obj-y	+= msmc.o
