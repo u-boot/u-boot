@@ -608,12 +608,6 @@ void clock_init(void)
 	debug("PLLC = %d\n", pll_rate[CLOCK_ID_CGENERAL]);
 	debug("PLLD = %d\n", pll_rate[CLOCK_ID_DISPLAY]);
 	debug("PLLX = %d\n", pll_rate[CLOCK_ID_XCPU]);
-
-	/* Do any special system timer/TSC setup */
-#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
-	if (!tegra_cpu_is_non_secure())
-#endif
-		arch_timer_init();
 }
 
 static void set_avp_clock_source(u32 src)

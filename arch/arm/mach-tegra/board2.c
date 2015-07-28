@@ -196,6 +196,12 @@ void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
 
 int board_early_init_f(void)
 {
+	/* Do any special system timer/TSC setup */
+#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
+	if (!tegra_cpu_is_non_secure())
+#endif
+		arch_timer_init();
+
 	pinmux_init();
 	board_init_uart_f();
 
