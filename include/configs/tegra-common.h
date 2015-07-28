@@ -18,8 +18,11 @@
 
 #include <asm/arch/tegra.h>		/* get chip and board defs */
 
+/* Use the Tegra US timer on ARMv7, but the architected timer on ARMv8. */
+#ifndef CONFIG_ARM64
 #define CONFIG_SYS_TIMER_RATE		1000000
 #define CONFIG_SYS_TIMER_COUNTER	NV_PA_TMRUS_BASE
+#endif
 
 /*
  * Display CPU and Board information
