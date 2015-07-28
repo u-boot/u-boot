@@ -59,6 +59,26 @@ s16 divn_val[16] = {
 static struct pll_init_data pa_pll_config =
 	PASS_PLL_1000;
 
+struct pll_init_data *get_pll_init_data(int pll)
+{
+	int speed;
+	struct pll_init_data *data;
+
+	switch (pll) {
+	case MAIN_PLL:
+		speed = get_max_dev_speed();
+		data = &core_pll_config[speed];
+		break;
+	case PASS_PLL:
+		data = &pa_pll_config;
+		break;
+	default:
+		data = NULL;
+	}
+
+	return data;
+}
+
 #ifdef CONFIG_DRIVER_TI_KEYSTONE_NET
 struct eth_priv_t eth_priv_cfg[] = {
 	{
@@ -128,24 +148,15 @@ int get_num_eth_ports(void)
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 int board_early_init_f(void)
 {
-	int speed;
-
-	speed = get_max_dev_speed();
-	init_pll(&core_pll_config[speed]);
-
-	init_pll(&pa_pll_config);
+	init_plls();
 
 	return 0;
 }
 #endif
 
 #ifdef CONFIG_SPL_BUILD
-static struct pll_init_data spl_pll_config[] = {
-	CORE_PLL_800,
-};
-
 void spl_init_keystone_plls(void)
 {
-	init_plls(ARRAY_SIZE(spl_pll_config), spl_pll_config);
+	init_plls();
 }
 #endif

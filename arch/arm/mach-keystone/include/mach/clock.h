@@ -76,8 +76,9 @@ extern const struct keystone_pll_regs keystone_pll_regs[];
 extern s16 divn_val[];
 extern int speeds[];
 
-void init_plls(int num_pll, struct pll_init_data *config);
+void init_plls(void);
 void init_pll(const struct pll_init_data *data);
+struct pll_init_data *get_pll_init_data(int pll);
 unsigned long clk_get_rate(unsigned int clk);
 unsigned long clk_round_rate(unsigned int clk, unsigned long hz);
 int clk_set_rate(unsigned int clk, unsigned long hz);

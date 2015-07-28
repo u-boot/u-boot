@@ -211,12 +211,16 @@ void init_pll(const struct pll_init_data *data)
 	sdelay(210000);
 }
 
-void init_plls(int num_pll, struct pll_init_data *config)
+void init_plls(void)
 {
-	int i;
+	struct pll_init_data *data;
+	int pll;
 
-	for (i = 0; i < num_pll; i++)
-		init_pll(&config[i]);
+	for (pll = MAIN_PLL; pll < MAX_PLL_COUNT; pll++) {
+		data = get_pll_init_data(pll);
+		if (data)
+			init_pll(data);
+	}
 }
 
 static int get_max_speed(u32 val, u32 speed_supported)
