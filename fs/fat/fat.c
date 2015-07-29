@@ -895,6 +895,7 @@ int do_fat_read_at(const char *filename, loff_t pos, void *buffer,
 	strcpy(fnamecopy, filename);
 	downcase(fnamecopy);
 
+root_reparse:
 	if (*fnamecopy == '\0') {
 		if (!dols)
 			goto exit;
@@ -1179,6 +1180,34 @@ rootdir_done:
 
 		if (isdir && !(dentptr->attr & ATTR_DIR))
 			goto exit;
+
+		/*
+		 * If we are looking for a directory, and found a directory
+		 * type entry, and the entry is for the root directory (as
+		 * denoted by a cluster number of 0), jump back to the start
+		 * of the function, since at least on FAT12/16, the root dir
+		 * lives in a hard-coded location and needs special handling
+		 * to parse, rather than simply following the cluster linked
+		 * list in the FAT, like other directories.
+		 */
+		if (isdir && (dentptr->attr & ATTR_DIR) && !START(dentptr)) {
+			/*
+			 * Modify the filename to remove the prefix that gets
+			 * back to the root directory, so the initial root dir
+			 * parsing code can continue from where we are without
+			 * confusion.
+			 */
+			strcpy(fnamecopy, nextname ?: "");
+			/*
+			 * Set up state the same way as the function does when
+			 * first started. This is required for the root dir
+			 * parsing code operates in its expected environment.
+			 */
+			subname = "";
+			cursect = mydata->rootdir_sect;
+			isdir = 0;
+			goto root_reparse;
+		}
 
 		if (idx >= 0)
 			subname = nextname;
