@@ -32,7 +32,8 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra114-dalmore.dtb \
 	tegra124-jetson-tk1.dtb \
 	tegra124-nyan-big.dtb \
-	tegra124-venice2.dtb
+	tegra124-venice2.dtb \
+	tegra210-p2571.dtb
 dtb-$(CONFIG_ARCH_UNIPHIER) += \
 	uniphier-ph1-sld3-ref.dtb \
 	uniphier-ph1-pro4-ref.dtb \

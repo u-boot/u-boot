@@ -1,11 +1,12 @@
 /*
- *  (C) Copyright 2010-2014
+ *  (C) Copyright 2010-2015
  *  NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
@@ -16,6 +17,8 @@
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/sys_proto.h>
 #include <asm/arch-tegra/warmboot.h>
+
+void save_boot_params_ret(void);
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -28,6 +31,21 @@ enum {
 	UARTE	= 1 << 4,
 	UART_COUNT = 5,
 };
+
+static bool from_spl __attribute__ ((section(".data")));
+
+#ifndef CONFIG_SPL_BUILD
+void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)
+{
+	from_spl = r0 != UBOOT_NOT_LOADED_FROM_SPL;
+	save_boot_params_ret();
+}
+#endif
+
+bool spl_was_boot_source(void)
+{
+	return from_spl;
+}
 
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 #if !defined(CONFIG_TEGRA124)
@@ -125,11 +143,17 @@ static int uart_configs[] = {
 	-1,
 	FUNCMUX_UART4_GMI,	/* UARTD */
 	-1,
-#else	/* Tegra124 */
+#elif defined(CONFIG_TEGRA124)
 	FUNCMUX_UART1_KBC,	/* UARTA */
 	-1,
 	-1,
 	FUNCMUX_UART4_GPIO,	/* UARTD */
+	-1,
+#else	/* Tegra210 */
+	FUNCMUX_UART1_UART1,	/* UARTA */
+	-1,
+	-1,
+	FUNCMUX_UART4_UART4,	/* UARTD */
 	-1,
 #endif
 };
@@ -182,7 +206,7 @@ void board_init_uart_f(void)
 	setup_uarts(uart_ids);
 }
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !defined(CONFIG_SYS_DCACHE_OFF) && !defined(CONFIG_ARM64)
 void enable_caches(void)
 {
 	/* Enable D-cache. I-cache is already enabled in start.S */

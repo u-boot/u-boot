@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2010,2011
+ * (C) Copyright 2010-2015
  * NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -74,6 +74,7 @@ enum {
 	SKU_ID_T114_ENG		= 0x00, /* Dalmore value, unfused */
 	SKU_ID_T114_1		= 0x01,
 	SKU_ID_T124_ENG		= 0x00, /* Venice2 value, unfused */
+	SKU_ID_T210_ENG		= 0x00, /* unfused value TBD */
 };
 
 /*
@@ -88,6 +89,7 @@ enum {
 	TEGRA_SOC_T30,
 	TEGRA_SOC_T114,
 	TEGRA_SOC_T124,
+	TEGRA_SOC_T210,
 
 	TEGRA_SOC_CNT,
 	TEGRA_SOC_UNKNOWN	= -1,

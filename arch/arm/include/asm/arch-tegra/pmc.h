@@ -1,5 +1,5 @@
 /*
- *  (C) Copyright 2010,2011,2014
+ *  (C) Copyright 2010-2015
  *  NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -294,6 +294,7 @@ struct pmc_ctlr {
 #define CRAIL		0
 #define CE0		14
 #define C0NC		15
+#define SOR		17
 
 #define PMC_XOFS_SHIFT	1
 #define PMC_XOFS_MASK	(0x3F << PMC_XOFS_SHIFT)
@@ -303,7 +304,7 @@ struct pmc_ctlr {
 #define TIMER_MULT_MASK		(3 << TIMER_MULT_SHIFT)
 #define TIMER_MULT_CPU_SHIFT	2
 #define TIMER_MULT_CPU_MASK	(3 << TIMER_MULT_CPU_SHIFT)
-#elif defined(CONFIG_TEGRA124)
+#elif defined(CONFIG_TEGRA124) || defined(CONFIG_TEGRA210)
 #define TIMER_MULT_SHIFT	0
 #define TIMER_MULT_MASK		(7 << TIMER_MULT_SHIFT)
 #define TIMER_MULT_CPU_SHIFT	3
@@ -314,7 +315,7 @@ struct pmc_ctlr {
 #define MULT_2			1
 #define MULT_4			2
 #define MULT_8			3
-#if defined(CONFIG_TEGRA124)
+#if defined(CONFIG_TEGRA124) || defined(CONFIG_TEGRA210)
 #define MULT_16			4
 #endif
 

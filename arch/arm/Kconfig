@@ -687,17 +687,6 @@ config ARCH_ZYNQMP
 
 config TEGRA
 	bool "NVIDIA Tegra"
-	select SUPPORT_SPL
-	select SPL
-	select OF_CONTROL
-	select SPL_DISABLE_OF_CONTROL
-	select CPU_V7
-	select DM
-	select DM_SPI_FLASH
-	select DM_SERIAL
-	select DM_I2C
-	select DM_SPI
-	select DM_GPIO
 
 config TARGET_VEXPRESS64_AEMV8A
 	bool "Support vexpress_aemv8a"

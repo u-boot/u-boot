@@ -196,6 +196,12 @@ void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
 
 int board_early_init_f(void)
 {
+	/* Do any special system timer/TSC setup */
+#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
+	if (!tegra_cpu_is_non_secure())
+#endif
+		arch_timer_init();
+
 	pinmux_init();
 	board_init_uart_f();
 
@@ -274,3 +280,19 @@ void pad_init_mmc(struct mmc_host *host)
 #endif	/* T30 */
 }
 #endif	/* MMC */
+
+#ifdef CONFIG_ARM64
+/*
+ * Most hardware on 64-bit Tegra is still restricted to DMA to the lower
+ * 32-bits of the physical address space. Cap the maximum usable RAM area
+ * at 4 GiB to avoid DMA buffers from being allocated beyond the 32-bit
+ * boundary that most devices can address.
+ */
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	if (gd->ram_top > 0x100000000)
+		return 0x100000000;
+
+	return gd->ram_top;
+}
+#endif

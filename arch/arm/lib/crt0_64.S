@@ -74,7 +74,8 @@ zero_gd:
 	cmp	x0, x18
 	b.gt	zero_gd
 #if defined(CONFIG_SYS_MALLOC_F_LEN)
-	sub	x0, x18, #CONFIG_SYS_MALLOC_F_LEN
+	ldr	x0, =CONFIG_SYS_MALLOC_F_LEN
+	sub	x0, x18, x0
 	str	x0, [x18, #GD_MALLOC_BASE]
 #endif
 	bic	sp, x0, #0xf	/* 16-byte alignment for ABI compliance */

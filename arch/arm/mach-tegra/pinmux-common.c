@@ -78,7 +78,7 @@
 	(((hsm) >= PMUX_HSM_DISABLE) && ((hsm) <= PMUX_HSM_ENABLE))
 #endif
 
-#define _R(offset)	(u32 *)(NV_PA_APB_MISC_BASE + (offset))
+#define _R(offset)	(u32 *)((unsigned long)NV_PA_APB_MISC_BASE + (offset))
 
 #if defined(CONFIG_TEGRA20)
 

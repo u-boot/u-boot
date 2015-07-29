@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2010-2011
+ * (C) Copyright 2010-2015
  * NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -23,8 +23,6 @@
 /* AVP/CPU ID */
 #define PG_UP_TAG_0_PID_CPU	0x55555555	/* CPU aka "a9" aka "mpcore" */
 #define PG_UP_TAG_0		0x0
-
-#define CORESIGHT_UNLOCK	0xC5ACCE55;
 
 /* AP base physical address of internal SRAM */
 #define NV_PA_BASE_SRAM		0x40000000
@@ -66,7 +64,7 @@ int tegra_get_sku_info(void);
 /* Do any chip-specific cache config */
 void config_cache(void);
 
-#if defined(CONFIG_TEGRA124)
+#if defined(CONFIG_TEGRA124) || defined(CONFIG_TEGRA210)
 /* Do chip-specific vpr config */
 void config_vpr(void);
 #else

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2010-2014
+ * (C) Copyright 2010-2015
  * NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -14,7 +14,7 @@
 #define NVBL_PLLP_KHZ	216000
 #define CSITE_KHZ	144000
 #elif defined(CONFIG_TEGRA30) || defined(CONFIG_TEGRA114) || \
-	defined(CONFIG_TEGRA124)
+	defined(CONFIG_TEGRA124) || defined(CONFIG_TEGRA210)
 #define NVBL_PLLP_KHZ	408000
 #define CSITE_KHZ	204000
 #else
@@ -35,7 +35,7 @@
 #define PG_UP_TAG_0_PID_CPU	0x55555555	/* CPU aka "a9" aka "mpcore" */
 #define PG_UP_TAG_0             0x0
 
-#define CORESIGHT_UNLOCK	0xC5ACCE55;
+#define CORESIGHT_UNLOCK	0xC5ACCE55
 
 #define EXCEP_VECTOR_CPU_RESET_VECTOR	(NV_PA_EVP_BASE + 0x100)
 #define CSITE_CPU_DBG0_LAR		(NV_PA_CSITE_BASE + 0x10FB0)
@@ -52,6 +52,10 @@
 #define FLOW_MODE_NONE		0
 
 #define SIMPLE_PLLX     (CLOCK_ID_XCPU - CLOCK_ID_FIRST_SIMPLE)
+
+/* SB_AA64_RESET_LOW and _HIGH defines for CPU reset vector */
+#define SB_AA64_RESET_LOW	0x6000C230
+#define SB_AA64_RESET_HIGH	0x6000C234
 
 struct clk_pll_table {
 	u16	n;

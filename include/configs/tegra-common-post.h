@@ -62,11 +62,19 @@
 #define CONFIG_CHROMEOS_EXTRA_ENV_SETTINGS
 #endif
 
+#ifdef CONFIG_ARM64
+#define FDT_HIGH "ffffffffffffffff"
+#define INITRD_HIGH "ffffffffffffffff"
+#else
+#define FDT_HIGH "ffffffff"
+#define INITRD_HIGH "ffffffff"
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	TEGRA_DEVICE_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
-	"fdt_high=ffffffff\0" \
-	"initrd_high=ffffffff\0" \
+	"fdt_high=" FDT_HIGH "\0" \
+	"initrd_high=" INITRD_HIGH "\0" \
 	BOOTENV \
 	BOARD_EXTRA_ENV_SETTINGS \
 	CONFIG_CHROMEOS_EXTRA_ENV_SETTINGS
