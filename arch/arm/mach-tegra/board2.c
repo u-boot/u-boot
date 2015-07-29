@@ -290,11 +290,20 @@ void pad_init_mmc(struct mmc_host *host)
  * 32-bits of the physical address space. Cap the maximum usable RAM area
  * at 4 GiB to avoid DMA buffers from being allocated beyond the 32-bit
  * boundary that most devices can address.
+ *
+ * Additionally, ARM64 devices typically run a secure monitor in EL3 and
+ * U-Boot in EL2, and set up some secure RAM carve-outs to contain the EL3
+ * code and data. These carve-outs are located at the top of 32-bit address
+ * space. Restrict U-Boot's RAM usage to well below the location of those
+ * carve-outs. Ideally, we would the secure monitor would inform U-Boot of
+ * exactly which RAM it could use at run-time. However, I'm not sure how to
+ * do that at present (and even if such a mechanism does exist, it would
+ * likely not be generic across all forms of secure monitor).
  */
 ulong board_get_usable_ram_top(ulong total_size)
 {
-	if (gd->ram_top > 0x100000000)
-		return 0x100000000;
+	if (gd->ram_top > 0xe0000000)
+		return 0xe0000000;
 
 	return gd->ram_top;
 }
