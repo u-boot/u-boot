@@ -929,6 +929,10 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 
 	root_hub_devnum = 0;
 
+	/*  board dependant init */
+	if (board_usb_init(index, USB_INIT_HOST))
+		return -1;
+
 	snpsid = readl(&regs->gsnpsid);
 	printf("Core Release: %x.%03x\n", snpsid >> 12 & 0xf, snpsid & 0xfff);
 
