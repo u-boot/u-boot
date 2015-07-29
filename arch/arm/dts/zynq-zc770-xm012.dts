@@ -1,7 +1,7 @@
 /*
  * Xilinx ZC770 XM012 board DTS
  *
- * Copyright (C) 2013 Xilinx, Inc.
+ * Copyright (C) 2013 - 2015 Xilinx, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -9,15 +9,99 @@
 #include "zynq-7000.dtsi"
 
 / {
-	model = "Zynq ZC770 XM012 Board";
 	compatible = "xlnx,zynq-zc770-xm012", "xlnx,zynq-7000";
+	model = "Xilinx Zynq";
 
 	aliases {
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
 		serial0 = &uart1;
+		spi0 = &spi1;
 	};
 
-	memory {
-		device_type = "memory";
-		reg = <0 0x40000000>;
+	chosen {
+		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
+		linux,stdout-path = &uart1;
+		stdout-path = &uart1;
 	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x40000000>;
+	};
+};
+
+&can1 {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	m24c02_eeprom@52 {
+		compatible = "at,24c02";
+		reg = <0x52>;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	m24c02_eeprom@52 {
+		compatible = "at,24c02";
+		reg = <0x52>;
+	};
+};
+
+&nor0 {
+	status = "okay";
+	bank-width = <1>;
+	xlnx,sram-cycle-t0 = <0xb>;
+	xlnx,sram-cycle-t1 = <0xb>;
+	xlnx,sram-cycle-t2 = <0x4>;
+	xlnx,sram-cycle-t3 = <0x4>;
+	xlnx,sram-cycle-t4 = <0x3>;
+	xlnx,sram-cycle-t5 = <0x3>;
+	xlnx,sram-cycle-t6 = <0x2>;
+	partition@nor-fsbl-uboot {
+		label = "nor-fsbl-uboot";
+		reg = <0x0 0x100000>;
+	};
+	partition@nor-linux {
+		label = "nor-linux";
+		reg = <0x100000 0x500000>;
+	};
+	partition@nor-device-tree {
+		label = "nor-device-tree";
+		reg = <0x600000 0x20000>;
+	};
+	partition@nor-rootfs {
+		label = "nor-rootfs";
+		reg = <0x620000 0x5E0000>;
+	};
+	partition@nor-bitstream {
+		label = "nor-bitstream";
+		reg = <0xC00000 0x400000>;
+	};
+};
+
+&smcc {
+	status = "okay";
+	arm,addr25 = <0x1>;
+	arm,nor-chip-sel0 = <0x1>;
+	arm,nor-chip-sel1 = <0x0>;
+	arm,sram-chip-sel0 = <0x0>;
+	arm,sram-chip-sel1 = <0x0>;
+};
+
+&spi1 {
+	status = "okay";
+	num-cs = <4>;
+	is-decoded-cs = <0>;
+};
+
+&uart1 {
+	status = "okay";
 };

@@ -1,7 +1,7 @@
 /*
  * Xilinx ZC770 XM010 board DTS
  *
- * Copyright (C) 2013 Xilinx, Inc.
+ * Copyright (C) 2013 - 2015 Xilinx, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -9,15 +9,121 @@
 #include "zynq-7000.dtsi"
 
 / {
-	model = "Zynq ZC770 XM010 Board";
 	compatible = "xlnx,zynq-zc770-xm010", "xlnx,zynq-7000";
+	model = "Xilinx Zynq";
 
 	aliases {
+		ethernet0 = &gem0;
+		i2c0 = &i2c0;
 		serial0 = &uart1;
+		spi0 = &qspi;
+		spi1 = &spi1;
 	};
 
-	memory {
-		device_type = "memory";
-		reg = <0 0x40000000>;
+	chosen {
+		bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
+		linux,stdout-path = &uart1;
+		stdout-path = &uart1;
 	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x40000000>;
+	};
+
+	usb_phy0: phy0 {
+		compatible = "usb-nop-xceiv";
+		#phy-cells = <0>;
+	};
+};
+
+&qspi {
+	status = "okay";
+	is-dual = <0>;
+	num-cs = <1>;
+	flash@0 {
+		compatible = "n25q128a11";
+		reg = <0x0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <50000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		partition@qspi-fsbl-uboot {
+			label = "qspi-fsbl-uboot";
+			reg = <0x0 0x100000>;
+		};
+		partition@qspi-linux {
+			label = "qspi-linux";
+			reg = <0x100000 0x500000>;
+		};
+		partition@qspi-device-tree {
+			label = "qspi-device-tree";
+			reg = <0x600000 0x20000>;
+		};
+		partition@qspi-rootfs {
+			label = "qspi-rootfs";
+			reg = <0x620000 0x5E0000>;
+		};
+		partition@qspi-bitstream {
+			label = "qspi-bitstream";
+			reg = <0xC00000 0x400000>;
+		};
+	};
+};
+
+&spi1 {
+	status = "okay";
+	num-cs = <4>;
+	is-decoded-cs = <0>;
+	flash@0 {
+		compatible = "sst25wf080";
+		reg = <1>;
+		spi-max-frequency = <1000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		partition@test {
+			label = "spi-flash";
+			reg = <0x0 0x100000>;
+		};
+	};
+};
+
+&can0 {
+	status = "okay";
+};
+
+&gem0 {
+	status = "okay";
+	phy-mode = "rgmii-id";
+	phy-handle = <&ethernet_phy>;
+
+	ethernet_phy: ethernet-phy@7 {
+		reg = <7>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	m24c02_eeprom@52 {
+		compatible = "at,24c02";
+		reg = <0x52>;
+	};
+
+};
+
+&sdhci0 {
+	status = "okay";
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&usb0 {
+	status = "okay";
+	dr_mode = "host";
+	usb-phy = <&usb_phy0>;
 };
