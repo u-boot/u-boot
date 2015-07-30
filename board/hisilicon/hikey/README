@@ -1,0 +1,160 @@
+Introduction
+============
+
+HiKey is the first certified 96Boards Consumer Edition board. The board/SoC has: -
+* HiSilicon Kirin 6220 eight-core ARM Cortex-A53 64-bit SoC running at 1.2GHz.
+* ARM Mali 450-MP4 GPU
+* 1GB 800MHz LPDDR3 DRAM
+* 4GB eMMC Flash Storage
+* microSD
+* 802.11a/b/g/n WiFi, Bluetooth
+
+The HiKey schematic can be found here: -
+https://github.com/96boards/documentation/blob/master/hikey/96Boards-Hikey-Rev-A1.pdf
+
+A SoC datasheet can be found here: -
+https://github.com/96boards/documentation/blob/master/hikey/
+Hi6220V100_Multi-Mode_Application_Processor_Function_Description.pdf
+
+Currently the u-boot port supports: -
+* USB
+* eMMC
+* SD card
+* GPIO
+
+Compile u-boot
+==============
+
+make CROSS_COMPILE=aarch64-linux-gnu- hikey_config
+make CROSS_COMPILE=aarch64-linux-gnu-
+
+ARM Trusted Firmware (ATF) & l-loader
+=====================================
+
+This u-boot port has been tested with l-loader, booting ATF, which then boots
+u-boot as the bl33.bin executable.
+
+1. Get ATF source code
+git clone https://github.com/96boards/arm-trusted-firmware.git
+
+2. Compile ATF I use the makefile here
+http://people.linaro.org/~peter.griffin/hikey/hikey-u-boot-release_r1/build-tf.mak
+
+3. Get l-loader
+git clone https://github.com/96boards/l-loader.git
+
+4. Make sym links to ATF bip / fip binaries
+ln -s /home/griffinp/aarch64/bl1-hikey.bin bl1.bin
+ln -s /home/griffinp/aarch64/fip-hikey.bin fip.bin
+
+arm-linux-gnueabihf-gcc -c -o start.o start.S
+arm-linux-gnueabihf-gcc -c -o debug.o debug.S
+arm-linux-gnueabihf-ld -Bstatic -Tl-loader.lds -Ttext 0xf9800800 start.o debug.o -o loader
+arm-linux-gnueabihf-objcopy -O binary loader temp
+
+python gen_loader.py -o l-loader.bin --img_loader=temp --img_bl1=bl1.bin
+sudo bash -x generate_ptable.sh
+python gen_loader.py -o ptable.img --img_prm_ptable=prm_ptable.img --img_sec_ptable=sec_ptable.img
+
+These instructions are adapted from
+https://github.com/96boards/documentation/wiki/HiKeyUEFI
+
+FLASHING
+========
+
+1. Connect jumper J2 to go into recovery mode and flash l-loader.bin with
+   fastboot using the hisi-idt.py utility
+
+> git clone https://github.com/96boards/burn-boot.git
+> sudo python /home/griffinp/Software/hikey/burn-boot/hisi-idt.py -d /dev/ttyUSB0 --img1=/tmp/l-loader.bin
+
+2. Once LED 0 comes on solid, it should be detected as a fastboot device
+   (on some boards I've found this to be unreliable)
+
+sudo fastboot devices
+
+3. Flash the images
+wget https://builds.96boards.org/releases/hikey/nvme.img
+sudo fastboot flash ptable ptable.img
+sudo fastboot flash fastboot fip.bin
+sudo fastboot flash nvme nvme.img
+
+4. Disconnect jumper J2, and reset the board and you will now (hopefully)
+   have ATF, booting u-boot from eMMC. On 'new' boards I've had to do the
+   flashing twice in the past to avoid an ATF error.
+
+See working boot trace below: -
+
+debug EMMC boot: print init OK
+debug EMMC boot: send RST_N .
+debug EMMC boot: start eMMC boot......
+load fastboot1!
+Switch to aarch64 mode. CPU0 executes at 0xf9801000!
+NOTICE:  Booting Trusted Firmware
+NOTICE:  BL1: v1.1(release):a0c0399
+NOTICE:  BL1: Built : 13:23:48, May 22 2015
+NOTICE:  succeed to init lpddr3 rank0 dram phy
+INFO:    lpddr3_freq_init, set ddrc 533mhz
+INFO:    init ddr3 rank0
+INFO:    ddr3 rank1 init pass
+INFO:    lpddr3_freq_init, set ddrc 800mhz
+INFO:    init ddr3 rank0
+INFO:    ddr3 rank1 init pass
+INFO:    Elpida DDR
+NOTICE:  BL1: Booting BL2
+INFO:    [BDID] [fff91c18] midr: 0x410fd033
+INFO:    [BDID] [fff91c1c] board type: 0
+INFO:    [BDID] [fff91c20] board id: 0x2b
+INFO:    init_acpu_dvfs: pmic version 17
+INFO:    init_acpu_dvfs: ACPU_CHIP_MAX_FREQ=0x186a00.
+INFO:    acpu_dvfs_volt_init: success!
+INFO:    acpu_dvfs_set_freq: support freq num is 5
+INFO:    acpu_dvfs_set_freq: start prof is 0x4
+INFO:    acpu_dvfs_set_freq: magic is 0x5a5ac5c5
+INFO:    acpu_dvfs_set_freq: voltage:
+INFO:      - 0: 0x3a
+INFO:      - 1: 0x3a
+INFO:      - 2: 0x4a
+INFO:      - 3: 0x5b
+INFO:      - 4: 0x6b
+NOTICE:  acpu_dvfs_set_freq: set acpu freq success!NOTICE:  BL2: v1.1(debug):a0c0399
+NOTICE:  BL2: Built : 10:19:28, May 27 2015
+INFO:    BL2: Loading BL3-0
+INFO:    Using FIP
+WARNING: Failed to access image 'bl30.bin' (-1)
+ERROR:   Failed to load BL3-0 (-1)
+ERROR:   Please burn mcu image:
+ERROR:     sudo fastboot flash mcuimage mcuimage.bin
+INFO:    BL2: TrustZone: protecting 16777216 bytes of memory at 0x3f000000
+INFO:    BL2: Loading BL3-1
+INFO:    Using FIP
+INFO:    Loading file 'bl31.bin' at address 0xf9858000
+INFO:    File 'bl31.bin' loaded: 0xf9858000 - 0xf9860010
+INFO:    BL2: Loading BL3-2
+INFO:    Using FIP
+WARNING: Failed to access image 'bl32.bin' (-1)
+WARNING: Failed to load BL3-2 (-1)
+INFO:    BL2: Loading BL3-3
+INFO:    Using FIP
+INFO:    Loading file 'bl33.bin' at address 0x35000000
+INFO:    File 'bl33.bin' loaded: 0x35000000 - 0x35042938
+NOTICE:  BL1: Booting BL3-1
+NOTICE:  BL3-1: v1.1(debug):a0c0399
+NOTICE:  BL3-1: Built : 10:19:31, May 27 2015
+INFO:    BL3-1: Initializing runtime services
+INFO:    BL3-1: Preparing for EL3 exit to normal world
+INFO:    BL3-1: Next image address = 0x35000000
+INFO:    BL3-1: Next image spsr = 0x3c9
+
+
+U-Boot 2015.04-00007-g1b3d379-dirty (May 27 2015 - 10:18:16) hikey
+
+DRAM:  1008 MiB
+MMC:   sd_card_detect: SD card present
+HiKey DWMMC: 0, HiKey DWMMC: 1
+In:    serial
+Out:   serial
+Err:   serial
+Net:   Net Initialization Skipped
+No ethernet found.
+Hit any key to stop autoboot:  0
