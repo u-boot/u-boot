@@ -44,7 +44,7 @@ static int mmc_load_image_raw_sector(struct mmc *mmc, unsigned long sector)
 
 	/* Read the header too to avoid extra memcpy */
 	count = mmc->block_dev.block_read(0, sector, image_size_sectors,
-					  (void *)spl_image.load_addr);
+					  (void *)(ulong)spl_image.load_addr);
 	debug("read %x sectors to %x\n", image_size_sectors,
 	      spl_image.load_addr);
 
