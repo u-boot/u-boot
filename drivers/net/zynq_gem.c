@@ -348,9 +348,6 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		priv->init++;
 	}
 
-#ifdef CONFIG_ARM64
-	if (!priv->init) {
-#endif
 	phy_detection(dev);
 
 	/* interface - look at tsec */
@@ -384,16 +381,11 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		clk_rate = ZYNQ_GEM_FREQUENCY_10;
 		break;
 	}
-#ifdef CONFIG_ARM64
-	}
-#endif
 
-#ifndef CONFIG_ARM64
 	/* Change the rclk and clk only not using EMIO interface */
 	if (!priv->emio)
 		zynq_slcr_gem_clk_setup(dev->iobase !=
 					ZYNQ_GEM_BASEADDR0, clk_rate);
-#endif
 
 	/* set hardware address because of ... */
 	if (!is_valid_ether_addr(dev->enetaddr)) {
