@@ -1,0 +1,5 @@
+# 96boards HiKey
+CONFIG_ARM=y
+CONFIG_TARGET_HIKEY=y
+CONFIG_NET=y
+# CONFIG_CMD_IMLS is not set

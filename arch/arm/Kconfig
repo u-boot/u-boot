@@ -736,6 +736,13 @@ config TARGET_LS2085ARDB
 	  development platform that supports the QorIQ LS2085A
 	  Layerscape Architecture processor.
 
+config TARGET_HIKEY
+	bool "Support HiKey 96boards Consumer Edition Platform"
+	select ARM64
+	  help
+	  Support for HiKey 96boards platform. It features a HI6220
+	  SoC, with 8xA53 CPU, mali450 gpu, and 1GB RAM.
+
 config TARGET_LS1021AQDS
 	bool "Support ls1021aqds"
 	select CPU_V7
@@ -883,6 +890,7 @@ source "board/Marvell/gplugd/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
+source "board/hisilicon/hikey/Kconfig"
 source "board/bachmann/ot1200/Kconfig"
 source "board/balloon3/Kconfig"
 source "board/barco/platinum/Kconfig"
