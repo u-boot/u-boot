@@ -221,17 +221,6 @@
 # define CONFIG_SYS_EEPROM_SIZE			(64 * 1024)
 #endif
 
-#define CONFIG_FIT
-#define CONFIG_FIT_VERBOSE       /* enable fit_format_{error,warning}() */
-
-#define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
-
-#define CONFIG_CMD_BOOTI
-#define CONFIG_CMD_UNZIP
-
-#define CONFIG_BOARD_EARLY_INIT_R
-#define CONFIG_CLOCKS
-
 #ifdef CONFIG_AHCI
 #define CONFIG_LIBATA
 #define CONFIG_SCSI_AHCI
@@ -242,5 +231,16 @@
 					 CONFIG_SYS_SCSI_MAX_LUN)
 #define CONFIG_CMD_SCSI
 #endif
+
+#define CONFIG_FIT
+#define CONFIG_FIT_VERBOSE       /* enable fit_format_{error,warning}() */
+
+#define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
+
+#define CONFIG_CMD_BOOTI
+#define CONFIG_CMD_UNZIP
+
+#define CONFIG_BOARD_EARLY_INIT_R
+#define CONFIG_CLOCKS
 
 #endif /* __XILINX_ZYNQMP_H */
