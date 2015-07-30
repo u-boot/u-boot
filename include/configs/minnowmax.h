@@ -14,11 +14,9 @@
 #include <configs/x86-common.h>
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_ARCH_EARLY_INIT_R
 
 #define CONFIG_X86_SERIAL
-#define CONFIG_SMSC_LPC47M
 
 #define CONFIG_PCI_MEM_BUS		0xd0000000
 #define CONFIG_PCI_MEM_PHYS		CONFIG_PCI_MEM_BUS
