@@ -235,6 +235,10 @@ void setup_video(struct screen_info *screen_info)
 #ifdef CONFIG_FRAMEBUFFER_SET_VESA_MODE
 	struct vesa_mode_info *vesa = &mode_info.vesa;
 
+	/* Sanity test on VESA parameters */
+	if (!vesa->x_resolution || !vesa->y_resolution)
+		return;
+
 	screen_info->orig_video_isVGA = VIDEO_TYPE_VLFB;
 
 	screen_info->lfb_width = vesa->x_resolution;
