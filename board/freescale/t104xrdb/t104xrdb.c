@@ -39,10 +39,7 @@ int checkboard(void)
 	sw = CPLD_READ(flash_ctl_status);
 	sw = ((sw & CPLD_LBMAP_MASK) >> CPLD_LBMAP_SHIFT);
 
-	if (sw <= 7)
-		printf("vBank: %d\n", sw);
-	else
-		printf("Unsupported Bank=%x\n", sw);
+	printf("vBank: %d\n", sw);
 
 	return 0;
 }
