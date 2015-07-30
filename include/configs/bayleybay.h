@@ -14,6 +14,7 @@
 #include <configs/x86-common.h>
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
+#define CONFIG_ARCH_MISC_INIT
 
 #define CONFIG_X86_SERIAL
 

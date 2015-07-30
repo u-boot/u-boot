@@ -7,6 +7,7 @@
 #include <common.h>
 #include <mmc.h>
 #include <pci_ids.h>
+#include <asm/irq.h>
 #include <asm/post.h>
 
 static struct pci_device_id mmc_supported[] = {
@@ -32,6 +33,13 @@ int arch_cpu_init(void)
 	ret = x86_cpu_init_f();
 	if (ret)
 		return ret;
+
+	return 0;
+}
+
+int arch_misc_init(void)
+{
+	pirq_init();
 
 	return 0;
 }
