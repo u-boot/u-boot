@@ -470,6 +470,21 @@ bool device_has_active_children(struct udevice *dev);
  */
 bool device_is_last_sibling(struct udevice *dev);
 
+/**
+ * device_set_name() - set the name of a device
+ *
+ * This must be called in the device's bind() method and no later. Normally
+ * this is unnecessary but for probed devices which don't get a useful name
+ * this function can be helpful.
+ *
+ * @dev:	Device to update
+ * @name:	New name (this string is allocated new memory and attached to
+ *		the device)
+ * @return 0 if OK, -ENOMEM if there is not enough memory to allocate the
+ * string
+ */
+int device_set_name(struct udevice *dev, const char *name);
+
 /* device resource management */
 typedef void (*dr_release_t)(struct udevice *dev, void *res);
 typedef int (*dr_match_t)(struct udevice *dev, void *res, void *match_data);

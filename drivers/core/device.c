@@ -603,3 +603,13 @@ bool device_is_last_sibling(struct udevice *dev)
 		return false;
 	return list_is_last(&dev->sibling_node, &parent->child_head);
 }
+
+int device_set_name(struct udevice *dev, const char *name)
+{
+	name = strdup(name);
+	if (!name)
+		return -ENOMEM;
+	dev->name = name;
+
+	return 0;
+}
