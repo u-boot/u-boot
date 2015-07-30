@@ -130,7 +130,7 @@ int uclass_get(enum uclass_id key, struct uclass **ucp);
 int uclass_get_device(enum uclass_id id, int index, struct udevice **devp);
 
 /**
- * uclass_get_device_by_name() - Get a uclass device by it's name
+ * uclass_get_device_by_name() - Get a uclass device by its name
  *
  * This searches the devices in the uclass for one with the exactly given name.
  *
