@@ -1,0 +1,134 @@
+/*
+ * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/gpio/x86-gpio.h>
+
+/include/ "skeleton.dtsi"
+/include/ "serial.dtsi"
+/include/ "rtc.dtsi"
+
+/ {
+	model = "Intel Bayley Bay";
+	compatible = "intel,bayleybay", "intel,baytrail";
+
+	aliases {
+		serial0 = &serial;
+		spi0 = "/spi";
+	};
+
+	config {
+		silent_console = <0>;
+	};
+
+	chosen {
+		stdout-path = "/serial";
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "intel,baytrail-cpu";
+			reg = <0>;
+			intel,apic-id = <0>;
+		};
+
+		cpu@1 {
+			device_type = "cpu";
+			compatible = "intel,baytrail-cpu";
+			reg = <1>;
+			intel,apic-id = <2>;
+		};
+
+		cpu@2 {
+			device_type = "cpu";
+			compatible = "intel,baytrail-cpu";
+			reg = <2>;
+			intel,apic-id = <4>;
+		};
+
+		cpu@3 {
+			device_type = "cpu";
+			compatible = "intel,baytrail-cpu";
+			reg = <3>;
+			intel,apic-id = <6>;
+		};
+	};
+
+	spi {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "intel,ich-spi";
+		spi-flash@0 {
+			reg = <0>;
+			compatible = "winbond,w25q64dw", "spi-flash";
+			memory-map = <0xff800000 0x00800000>;
+		};
+	};
+
+	gpioa {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0 0x20>;
+		bank-name = "A";
+	};
+
+	gpiob {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x20 0x20>;
+		bank-name = "B";
+	};
+
+	gpioc {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x40 0x20>;
+		bank-name = "C";
+	};
+
+	gpiod {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x60 0x20>;
+		bank-name = "D";
+	};
+
+	gpioe {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0x80 0x20>;
+		bank-name = "E";
+	};
+
+	gpiof {
+		compatible = "intel,ich6-gpio";
+		u-boot,dm-pre-reloc;
+		reg = <0xA0 0x20>;
+		bank-name = "F";
+	};
+
+	pci {
+		compatible = "pci-x86";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		u-boot,dm-pre-reloc;
+		ranges = <0x02000000 0x0 0x80000000 0x80000000 0 0x40000000
+			  0x42000000 0x0 0xc0000000 0xc0000000 0 0x20000000
+			  0x01000000 0x0 0x2000 0x2000 0 0xe000>;
+	};
+
+	microcode {
+		update@0 {
+#include "microcode/m0230671117.dtsi"
+		};
+	};
+
+};

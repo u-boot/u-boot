@@ -1,4 +1,5 @@
-dtb-y += chromebook_link.dtb \
+dtb-y += bayleybay.dtb \
+	chromebook_link.dtb \
 	chromebox_panther.dtb \
 	crownbay.dtb \
 	galileo.dtb \
