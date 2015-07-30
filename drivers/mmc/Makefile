@@ -13,6 +13,7 @@ obj-$(CONFIG_BFIN_SDH) += bfin_sdh.o
 obj-$(CONFIG_DAVINCI_MMC) += davinci_mmc.o
 obj-$(CONFIG_DWMMC) += dw_mmc.o
 obj-$(CONFIG_EXYNOS_DWMMC) += exynos_dw_mmc.o
+obj-$(CONFIG_HIKEY_DWMMC) += hi6220_dw_mmc.o
 obj-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o
 obj-$(CONFIG_FTSDC010) += ftsdc010_mci.o
 obj-$(CONFIG_FTSDC021) += ftsdc021_sdhci.o
