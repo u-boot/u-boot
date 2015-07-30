@@ -115,6 +115,7 @@ void enable_basic_clocks(void)
 		&cmper->usbphyocp2scp0clkctrl,
 		&cmper->usb1clkctrl,
 		&cmper->usbphyocp2scp1clkctrl,
+		&cmper->spi0clkctrl,
 		0
 	};
 
