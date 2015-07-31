@@ -13,7 +13,7 @@
 #include <image.h>
 #include <linux/compiler.h>
 
-#ifndef CONFIG_DM
+#ifndef CONFIG_SPL_DM
 /* Pointer to as well as the global data structure for SPL */
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -35,7 +35,7 @@ void __weak board_init_f(ulong dummy)
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
-#ifndef CONFIG_DM
+#ifndef CONFIG_SPL_DM
 	/* TODO: Remove settings of the global data pointer here */
 	gd = &gdata;
 #endif
