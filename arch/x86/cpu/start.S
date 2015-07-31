@@ -41,14 +41,18 @@ _x86boot_start:
 	wbinvd
 
 	/* Tell 32-bit code it is being entered from an in-RAM copy */
-	movw	$GD_FLG_WARM_BOOT, %bx
+	movl	$GD_FLG_WARM_BOOT, %ebx
 	jmp	1f
+
+	/* Add a way for tools to discover the _start entry point */
+	.align	4
+	.long	0x12345678
 _start:
 	/*
 	 * This is the 32-bit cold-reset entry point, coming from start16.
-	 * Set %bx to 0 to indicate this.
+	 * Set %ebx to GD_FLG_COLD_BOOT to indicate this.
 	 */
-	movw	$GD_FLG_COLD_BOOT, %bx
+	movl	$GD_FLG_COLD_BOOT, %ebx
 1:
 	/* Save BIST */
 	movl	%eax, %ebp

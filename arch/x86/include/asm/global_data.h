@@ -87,14 +87,14 @@ static inline __attribute__((no_instrument_function)) gd_t *get_fs_gd_ptr(void)
 
 #define gd	get_fs_gd_ptr()
 
+#define DECLARE_GLOBAL_DATA_PTR
+
 #endif
 
 /*
  * Our private Global Data Flags
  */
-#define GD_FLG_COLD_BOOT	0x00100	/* Cold Boot */
-#define GD_FLG_WARM_BOOT	0x00200	/* Warm Boot */
-
-#define DECLARE_GLOBAL_DATA_PTR
+#define GD_FLG_COLD_BOOT	0x10000	/* Cold Boot */
+#define GD_FLG_WARM_BOOT	0x20000	/* Warm Boot */
 
 #endif /* __ASM_GBL_DATA_H */
