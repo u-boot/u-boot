@@ -82,9 +82,9 @@ void pciauto_setup_device(struct pci_controller *hose,
 	pci_size_t bar_size;
 	u16 cmdstat = 0;
 	int bar, bar_nr = 0;
+#ifndef CONFIG_PCI_ENUM_ONLY
 	u8 header_type;
 	int rom_addr;
-#ifndef CONFIG_PCI_ENUM_ONLY
 	pci_addr_t bar_value;
 	struct pci_region *bar_res;
 	int found_mem64 = 0;
@@ -181,6 +181,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 		bar_nr++;
 	}
 
+#ifndef CONFIG_PCI_ENUM_ONLY
 	/* Configure the expansion ROM address */
 	pci_hose_read_config_byte(hose, dev, PCI_HEADER_TYPE, &header_type);
 	if (header_type != PCI_HEADER_TYPE_CARDBUS) {
@@ -201,6 +202,7 @@ void pciauto_setup_device(struct pci_controller *hose,
 			debug("\n");
 		}
 	}
+#endif
 
 	pci_hose_write_config_word(hose, dev, PCI_COMMAND, cmdstat);
 	pci_hose_write_config_byte(hose, dev, PCI_CACHE_LINE_SIZE,
