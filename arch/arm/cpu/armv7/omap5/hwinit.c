@@ -27,18 +27,20 @@ DECLARE_GLOBAL_DATA_PTR;
 
 u32 *const omap_si_rev = (u32 *)OMAP_SRAM_SCRATCH_OMAP_REV;
 
+#ifndef CONFIG_DM_GPIO
 static struct gpio_bank gpio_bank_54xx[8] = {
-	{ (void *)OMAP54XX_GPIO1_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO2_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO3_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO4_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO5_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO6_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO7_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP54XX_GPIO8_BASE, METHOD_GPIO_24XX },
+	{ (void *)OMAP54XX_GPIO1_BASE },
+	{ (void *)OMAP54XX_GPIO2_BASE },
+	{ (void *)OMAP54XX_GPIO3_BASE },
+	{ (void *)OMAP54XX_GPIO4_BASE },
+	{ (void *)OMAP54XX_GPIO5_BASE },
+	{ (void *)OMAP54XX_GPIO6_BASE },
+	{ (void *)OMAP54XX_GPIO7_BASE },
+	{ (void *)OMAP54XX_GPIO8_BASE },
 };
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_54xx;
+#endif
 
 void do_set_mux32(u32 base, struct pad_conf_entry const *array, int size)
 {

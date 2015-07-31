@@ -25,12 +25,12 @@ DECLARE_GLOBAL_DATA_PTR;
 u32 *const omap_si_rev = (u32 *)OMAP_SRAM_SCRATCH_OMAP_REV;
 
 static const struct gpio_bank gpio_bank_44xx[6] = {
-	{ (void *)OMAP44XX_GPIO1_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP44XX_GPIO2_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP44XX_GPIO3_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP44XX_GPIO4_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP44XX_GPIO5_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP44XX_GPIO6_BASE, METHOD_GPIO_24XX },
+	{ (void *)OMAP44XX_GPIO1_BASE },
+	{ (void *)OMAP44XX_GPIO2_BASE },
+	{ (void *)OMAP44XX_GPIO3_BASE },
+	{ (void *)OMAP44XX_GPIO4_BASE },
+	{ (void *)OMAP44XX_GPIO5_BASE },
+	{ (void *)OMAP44XX_GPIO6_BASE },
 };
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_44xx;

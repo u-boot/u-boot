@@ -73,13 +73,13 @@ U_BOOT_DEVICES(am33xx_uarts) = {
 
 #ifndef CONFIG_DM_GPIO
 static const struct gpio_bank gpio_bank_am33xx[] = {
-	{ (void *)AM33XX_GPIO0_BASE, METHOD_GPIO_24XX },
-	{ (void *)AM33XX_GPIO1_BASE, METHOD_GPIO_24XX },
-	{ (void *)AM33XX_GPIO2_BASE, METHOD_GPIO_24XX },
-	{ (void *)AM33XX_GPIO3_BASE, METHOD_GPIO_24XX },
+	{ (void *)AM33XX_GPIO0_BASE },
+	{ (void *)AM33XX_GPIO1_BASE },
+	{ (void *)AM33XX_GPIO2_BASE },
+	{ (void *)AM33XX_GPIO3_BASE },
 #ifdef CONFIG_AM43XX
-	{ (void *)AM33XX_GPIO4_BASE, METHOD_GPIO_24XX },
-	{ (void *)AM33XX_GPIO5_BASE, METHOD_GPIO_24XX },
+	{ (void *)AM33XX_GPIO4_BASE },
+	{ (void *)AM33XX_GPIO5_BASE },
 #endif
 };
 
