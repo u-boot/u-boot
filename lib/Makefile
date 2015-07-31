@@ -7,6 +7,7 @@
 
 ifndef CONFIG_SPL_BUILD
 
+obj-$(CONFIG_EFI) += efi/
 obj-$(CONFIG_RSA) += rsa/
 obj-$(CONFIG_LZMA) += lzma/
 obj-$(CONFIG_LZO) += lzo/

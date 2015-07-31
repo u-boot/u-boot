@@ -18,6 +18,8 @@
 #ifndef _DISK_PART_EFI_H
 #define _DISK_PART_EFI_H
 
+#include <efi.h>
+
 #define MSDOS_MBR_SIGNATURE 0xAA55
 #define EFI_PMBR_OSTYPE_EFI 0xEF
 #define EFI_PMBR_OSTYPE_EFI_GPT 0xEE
@@ -28,13 +30,6 @@
 #define GPT_ENTRY_NAME "gpt"
 #define GPT_ENTRY_NUMBERS		128
 #define GPT_ENTRY_SIZE			128
-
-#define EFI_GUID(a,b,c,d0,d1,d2,d3,d4,d5,d6,d7) \
-	((efi_guid_t) \
-	{{ (a) & 0xff, ((a) >> 8) & 0xff, ((a) >> 16) & 0xff, ((a) >> 24) & 0xff, \
-		(b) & 0xff, ((b) >> 8) & 0xff, \
-		(c) & 0xff, ((c) >> 8) & 0xff, \
-		(d0), (d1), (d2), (d3), (d4), (d5), (d6), (d7) }})
 
 #define PARTITION_SYSTEM_GUID \
 	EFI_GUID( 0xC12A7328, 0xF81F, 0x11d2, \
