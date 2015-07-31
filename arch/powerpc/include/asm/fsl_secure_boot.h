@@ -65,11 +65,13 @@
 	#define	CONFIG_FSL_TRUST_ARCH_v1
 #endif
 
-#if defined(CONFIG_FSL_CORENET)
+#if defined(CONFIG_FSL_CORENET) && !defined(CONFIG_SYS_RAMBOOT)
 /* The key used for verification of next level images
  * is picked up from an Extension Table which has
  * been verified by the ISBC (Internal Secure boot Code)
- * in boot ROM of the SoC
+ * in boot ROM of the SoC.
+ * The feature is only applicable in case of NOR boot and is
+ * not applicable in case of RAMBOOT (NAND, SD, SPI).
  */
 #define CONFIG_FSL_ISBC_KEY_EXT
 #endif
