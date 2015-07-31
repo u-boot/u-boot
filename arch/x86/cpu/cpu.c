@@ -456,7 +456,7 @@ void x86_full_reset(void)
 
 int dcache_status(void)
 {
-	return !(read_cr0() & 0x40000000);
+	return !(read_cr0() & X86_CR0_CD);
 }
 
 /* Define these functions to allow ehch-hcd to function */
