@@ -19,6 +19,7 @@
 #include <asm/processor-flags.h>
 #include <linux/compiler.h>
 #include <asm/msr.h>
+#include <asm/processor.h>
 #include <asm/u-boot-x86.h>
 #include <asm/i8259.h>
 
@@ -46,7 +47,7 @@ static char *exceptions[] = {
 	"Invalid TSS",
 	"Segment Not Present",
 	"Stack Segment Fault",
-	"Gerneral Protection",
+	"General Protection",
 	"Page Fault",
 	"Reserved",
 	"x87 FPU Floating-Point Error",
@@ -165,7 +166,6 @@ struct idt_entry {
 struct desc_ptr {
 	unsigned short size;
 	unsigned long address;
-	unsigned short segment;
 } __packed;
 
 struct idt_entry idt[256] __aligned(16);
@@ -202,14 +202,13 @@ int cpu_init_interrupts(void)
 	for (i = 0; i < 256; i++) {
 		idt[i].access = 0x8e;
 		idt[i].res = 0;
-		idt[i].selector = 0x10;
+		idt[i].selector = X86_GDT_ENTRY_32BIT_CS * X86_GDT_ENTRY_SIZE;
 		set_vector(i, irq_entry);
 		irq_entry += irq_entry_size;
 	}
 
-	idt_ptr.size = 256 * 8;
+	idt_ptr.size = 256 * 8 - 1;
 	idt_ptr.address = (unsigned long) idt;
-	idt_ptr.segment = 0x18;
 
 	load_idt(&idt_ptr);
 
