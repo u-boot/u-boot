@@ -22,6 +22,8 @@
 #include <asm/arch/timestamp.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define COMMAND_LINE_OFFSET 0x9000
 
 /*

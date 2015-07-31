@@ -35,6 +35,8 @@
 #include <asm/io.h>
 #include <asm/pci.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define GPIO_PER_BANK	32
 
 struct ich6_bank_priv {

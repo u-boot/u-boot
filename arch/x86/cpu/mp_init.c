@@ -24,6 +24,8 @@
 #include <dm/uclass-internal.h>
 #include <linux/linkage.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Total CPUs include BSP */
 static int num_cpus;
 
