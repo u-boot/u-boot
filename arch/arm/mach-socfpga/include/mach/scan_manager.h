@@ -18,6 +18,7 @@ struct socfpga_scan_manager {
 };
 
 int scan_mgr_configure_iocsr(void);
+u32 scan_mgr_get_fpga_id(void);
 int iocsr_get_config_table(const unsigned int chain_id,
 			   const unsigned long **table,
 			   unsigned int *table_len);

@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <asm/arch/freeze_controller.h>
 #include <asm/arch/scan_manager.h>
+#include <asm/arch/system_manager.h>
 
 /*
  * Maximum polling loop to wait for IO scan chain engine becomes idle
@@ -33,6 +34,8 @@ static const struct socfpga_scan_manager *scan_manager_base =
 		(void *)(SOCFPGA_SCANMGR_ADDRESS);
 static const struct socfpga_freeze_controller *freeze_controller_base =
 		(void *)(SOCFPGA_SYSMGR_ADDRESS + SYSMGR_FRZCTRL_ADDRESS);
+static struct socfpga_system_manager *sys_mgr_base =
+	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 
 /**
  * scan_chain_engine_is_idle() - Check if the JTAG scan chain is idle
@@ -204,4 +207,56 @@ int scan_mgr_configure_iocsr(void)
 	status |= scan_mgr_io_scan_chain_prg(2);
 	status |= scan_mgr_io_scan_chain_prg(3);
 	return status;
+}
+
+/**
+ * scan_mgr_get_fpga_id() - Obtain FPGA JTAG ID
+ *
+ * This function obtains JTAG ID from the FPGA TAP controller.
+ */
+u32 scan_mgr_get_fpga_id(void)
+{
+	const unsigned long data = 0;
+	u32 id = 0xffffffff;
+	int ret;
+
+	/* Enable HPS to talk to JTAG in the FPGA through the System Manager */
+	writel(0x1, &sys_mgr_base->scanmgrgrp_ctrl);
+
+	/* Enable port 7 */
+	writel(0x80, &scan_manager_base->en);
+	/* write to CSW to make s2f_ntrst reset */
+	writel(0x02, &scan_manager_base->stat);
+
+	/* Add a pause */
+	mdelay(1);
+
+	/* write 0x00 to CSW to clear the s2f_ntrst */
+	writel(0, &scan_manager_base->stat);
+
+	/*
+	 * Go to Test-Logic-Reset state.
+	 * This sets TAP controller into IDCODE mode.
+	 */
+	scan_mgr_jtag_io(JTAG_BP_INSN | JTAG_BP_TMS, 0x1f | (1 << 5), 0x0);
+
+	/* Go to Run-Test/Idle -> DR-Scan -> Capture-DR -> Shift-DR state. */
+	scan_mgr_jtag_io(JTAG_BP_INSN | JTAG_BP_TMS, 0x02 | (1 << 4), 0x0);
+
+	/*
+	 * Push 4 bytes of data through TDI->DR->TDO.
+	 *
+	 * Length of TDI data is 32bits (length - 1) and they are only
+	 * zeroes as we care only for TDO data.
+	 */
+	ret = scan_mgr_jtag_insn_data(0x4, &data, 32);
+	/* Read 32 bit from captured JTAG data. */
+	if (!ret)
+		id = readl(&scan_manager_base->fifo_quad_byte);
+
+	/* Disable all port */
+	writel(0, &scan_manager_base->en);
+	writel(0, &sys_mgr_base->scanmgrgrp_ctrl);
+
+	return id;
 }
