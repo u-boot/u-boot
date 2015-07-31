@@ -113,6 +113,11 @@ typedef		__s64		int64_t;
 
 #endif /* __KERNEL_STRICT_NAMES */
 
+/* this is a special 64bit data type that is 8-byte aligned */
+#define aligned_u64 __u64 __aligned(8)
+#define aligned_be64 __be64 __aligned(8)
+#define aligned_le64 __le64 __aligned(8)
+
 #if defined(CONFIG_USE_STDINT) && defined(__INT64_TYPE__)
 typedef		__UINT64_TYPE__	uint64_t;
 typedef		__UINT64_TYPE__	u_int64_t;
@@ -144,7 +149,6 @@ typedef __u64 __bitwise __be64;
 #endif
 typedef __u16 __bitwise __sum16;
 typedef __u32 __bitwise __wsum;
-
 
 typedef unsigned __bitwise__	gfp_t;
 
