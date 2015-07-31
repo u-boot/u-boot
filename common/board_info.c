@@ -8,7 +8,6 @@
 
 int __weak checkboard(void)
 {
-	printf("Board: Unknown\n");
 	return 0;
 }
 
