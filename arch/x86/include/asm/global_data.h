@@ -76,6 +76,12 @@ struct arch_global_data {
 #include <asm-generic/global_data.h>
 
 #ifndef __ASSEMBLY__
+# ifdef CONFIG_EFI_APP
+
+#define gd global_data_ptr
+
+#define DECLARE_GLOBAL_DATA_PTR   extern struct global_data *global_data_ptr
+# else
 static inline __attribute__((no_instrument_function)) gd_t *get_fs_gd_ptr(void)
 {
 	gd_t *gd_ptr;
@@ -88,6 +94,7 @@ static inline __attribute__((no_instrument_function)) gd_t *get_fs_gd_ptr(void)
 #define gd	get_fs_gd_ptr()
 
 #define DECLARE_GLOBAL_DATA_PTR
+# endif
 
 #endif
 
