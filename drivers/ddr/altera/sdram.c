@@ -15,8 +15,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct sdram_prot_rule {
-	u64	sdram_start;	/* SDRAM start address */
-	u64	sdram_end;	/* SDRAM end address */
+	u32	sdram_start;	/* SDRAM start address */
+	u32	sdram_end;	/* SDRAM end address */
 	u32	rule;		/* SDRAM protection rule number: 0-19 */
 	int	valid;		/* Rule valid or not? 1 - valid, 0 not*/
 
@@ -109,8 +109,8 @@ static int get_errata_rows(const struct socfpga_sdram_config *cfg)
 /* SDRAM protection rules vary from 0-19, a total of 20 rules. */
 static void sdram_set_rule(struct sdram_prot_rule *prule)
 {
-	uint32_t lo_addr_bits;
-	uint32_t hi_addr_bits;
+	u32 lo_addr_bits;
+	u32 hi_addr_bits;
 	int ruleno = prule->rule;
 
 	/* Select the rule */
@@ -118,11 +118,11 @@ static void sdram_set_rule(struct sdram_prot_rule *prule)
 
 	/* Obtain the address bits */
 	lo_addr_bits = prule->sdram_start >> 20ULL;
-	hi_addr_bits = (prule->sdram_end - 1) >> 20ULL;
+	hi_addr_bits = prule->sdram_end >> 20ULL;
 
-	debug("sdram set rule start %x, %lld\n", lo_addr_bits,
+	debug("sdram set rule start %x, %d\n", lo_addr_bits,
 	      prule->sdram_start);
-	debug("sdram set rule end   %x, %lld\n", hi_addr_bits,
+	debug("sdram set rule end   %x, %d\n", hi_addr_bits,
 	      prule->sdram_end);
 
 	/* Set rule addresses */
@@ -174,7 +174,8 @@ static void sdram_get_rule(struct sdram_prot_rule *prule)
 	prule->result = (data >> 13) & 0x1;
 }
 
-static void sdram_set_protection_config(uint64_t sdram_start, uint64_t sdram_end)
+static void
+sdram_set_protection_config(const u32 sdram_start, const u32 sdram_end)
 {
 	struct sdram_prot_rule rule;
 	int rules;
@@ -219,8 +220,8 @@ static void sdram_dump_protection_config(void)
 	for (rules = 0; rules < 20; rules++) {
 		sdram_get_rule(&rule);
 		debug("Rule %d, rules ...\n", rules);
-		debug("    sdram start %llx\n", rule.sdram_start);
-		debug("    sdram end   %llx\n", rule.sdram_end);
+		debug("    sdram start %x\n", rule.sdram_start);
+		debug("    sdram end   %x\n", rule.sdram_end);
 		debug("    low prot id %d, hi prot id %d\n",
 		      rule.lo_prot_id,
 		      rule.hi_prot_id);
@@ -457,7 +458,7 @@ int sdram_mmr_init_full(unsigned int sdr_phy_reg)
 			SDR_CTRLGRP_STATICCFG_APPLYCFG_MASK,
 			1 << SDR_CTRLGRP_STATICCFG_APPLYCFG_LSB);
 
-	sdram_set_protection_config(0, sdram_calculate_size());
+	sdram_set_protection_config(0, sdram_calculate_size() - 1);
 
 	sdram_dump_protection_config();
 
