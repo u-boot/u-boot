@@ -393,15 +393,14 @@ static void set_sdr_addr_rw(void)
 
 static void set_sdr_static_cfg(void)
 {
-	debug("Configuring STATICCFG\n");
-	clrsetbits_le32(&sdr_ctrl->static_cfg, SDR_CTRLGRP_STATICCFG_MEMBL_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_STATICCFG_MEMBL <<
-			SDR_CTRLGRP_STATICCFG_MEMBL_LSB);
-
-	clrsetbits_le32(&sdr_ctrl->static_cfg,
-			SDR_CTRLGRP_STATICCFG_USEECCASDATA_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_STATICCFG_USEECCASDATA <<
+	const u32 static_cfg =
+		(CONFIG_HPS_SDR_CTRLCFG_STATICCFG_MEMBL <<
+			SDR_CTRLGRP_STATICCFG_MEMBL_LSB)	|
+		(CONFIG_HPS_SDR_CTRLCFG_STATICCFG_USEECCASDATA <<
 			SDR_CTRLGRP_STATICCFG_USEECCASDATA_LSB);
+
+	debug("Configuring STATICCFG\n");
+	writel(static_cfg, &sdr_ctrl->static_cfg);
 }
 
 static void set_sdr_fifo_cfg(void)
