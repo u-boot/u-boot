@@ -17,9 +17,6 @@
  */
 #include "../../../board/altera/socfpga/qts/sdram_config.h"
 
-/* define constant for 4G memory - used for SDRAM errata workaround */
-#define MEMSIZE_4G (4ULL * 1024ULL * 1024ULL * 1024ULL)
-
 DECLARE_GLOBAL_DATA_PTR;
 
 struct sdram_prot_rule {
@@ -40,12 +37,26 @@ static struct socfpga_system_manager *sysmgr_regs =
 static struct socfpga_sdr_ctrl *sdr_ctrl =
 	(struct socfpga_sdr_ctrl *)SDR_CTRLGRP_ADDRESS;
 
-static int compute_errata_rows(unsigned long long memsize, int cs, int width,
-			       int rows, int banks, int cols)
+/**
+ * get_errata_rows() - Up the number of DRAM rows to cover entire address space
+ *
+ * SDRAM Failure happens when accessing non-existent memory. Artificially
+ * increase the number of rows so that the memory controller thinks it has
+ * 4GB of RAM. This function returns such amount of rows.
+ */
+static int get_errata_rows(void)
 {
+	/* Define constant for 4G memory - used for SDRAM errata workaround */
+#define MEMSIZE_4G	(4ULL * 1024ULL * 1024ULL * 1024ULL)
+	const unsigned long long memsize = MEMSIZE_4G;
+	const unsigned int cs = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS;
+	const unsigned int rows = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS;
+	const unsigned int banks = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_BANKBITS;
+	const unsigned int cols = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_COLBITS;
+	const unsigned int width = 8;
+
 	unsigned long long newrows;
-	int inewrowslog2;
-	int bits;
+	int bits, inewrowslog2;
 
 	debug("workaround rows - memsize %lld\n", memsize);
 	debug("workaround rows - cs        %d\n", cs);
@@ -410,12 +421,7 @@ static void set_sdr_dram_lowpwr_timing(void)
 
 static void set_sdr_addr_rw(void)
 {
-	int cs = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS;
-	int width = 8;
-	int rows = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS;
-	int banks = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_BANKBITS;
-	int cols = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_COLBITS;
-	unsigned long long workaround_memsize = MEMSIZE_4G;
+	int rows;
 
 	debug("Configuring DRAMADDRW\n");
 	clrsetbits_le32(&sdr_ctrl->dram_addrw, SDR_CTRLGRP_DRAMADDRW_COLBITS_MASK,
@@ -426,8 +432,7 @@ static void set_sdr_addr_rw(void)
 	 * Update Preloader to artificially increase the number of rows so
 	 * that the memory thinks it has 4GB of RAM.
 	 */
-	rows = compute_errata_rows(workaround_memsize, cs, width, rows, banks,
-				   cols);
+	rows = get_errata_rows();
 
 	clrsetbits_le32(&sdr_ctrl->dram_addrw, SDR_CTRLGRP_DRAMADDRW_ROWBITS_MASK,
 			rows << SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB);
