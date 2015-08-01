@@ -258,6 +258,12 @@ static unsigned sdram_write_verify(const u32 *addr, const u32 val)
 	return 0;
 }
 
+/**
+ * sdr_get_ctrlcfg() - Get the value of DRAM CTRLCFG register
+ * @cfg:	SDRAM controller configuration data
+ *
+ * Return the value of DRAM CTRLCFG register.
+ */
 static u32 sdr_get_ctrlcfg(const struct socfpga_sdram_config *cfg)
 {
 	const u32 csbits =
@@ -290,6 +296,12 @@ static u32 sdr_get_ctrlcfg(const struct socfpga_sdram_config *cfg)
 	return ctrl_cfg;
 }
 
+/**
+ * sdr_get_addr_rw() - Get the value of DRAM ADDRW register
+ * @cfg:	SDRAM controller configuration data
+ *
+ * Return the value of DRAM ADDRW register.
+ */
 static u32 sdr_get_addr_rw(const struct socfpga_sdram_config *cfg)
 {
 	/*
