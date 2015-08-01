@@ -465,23 +465,21 @@ static void set_sdr_mp_pacing(void)
 
 static void set_sdr_mp_threshold(void)
 {
-	debug("Configuring MPTHRESHOLDRST_MPTHRESHOLDRST_0\n");
-	clrsetbits_le32(&sdr_ctrl->mp_threshold0,
-			SDR_CTRLGRP_MPTHRESHOLDRST_0_THRESHOLDRSTCYCLES_31_0_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_0_THRESHOLDRSTCYCLES_31_0 <<
+	const u32 mp_threshold0 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_0_THRESHOLDRSTCYCLES_31_0 <<
 			SDR_CTRLGRP_MPTHRESHOLDRST_0_THRESHOLDRSTCYCLES_31_0_LSB);
-
-	clrsetbits_le32(&sdr_ctrl->mp_threshold1,
-			SDR_CTRLGRP_MPTHRESHOLDRST_1_THRESHOLDRSTCYCLES_63_32_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_1_THRESHOLDRSTCYCLES_63_32 <<
+	const u32 mp_threshold1 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_1_THRESHOLDRSTCYCLES_63_32 <<
 			SDR_CTRLGRP_MPTHRESHOLDRST_1_THRESHOLDRSTCYCLES_63_32_LSB);
-
-	clrsetbits_le32(&sdr_ctrl->mp_threshold2,
-			SDR_CTRLGRP_MPTHRESHOLDRST_2_THRESHOLDRSTCYCLES_79_64_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_2_THRESHOLDRSTCYCLES_79_64 <<
+	const u32 mp_threshold2 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_2_THRESHOLDRSTCYCLES_79_64 <<
 			SDR_CTRLGRP_MPTHRESHOLDRST_2_THRESHOLDRSTCYCLES_79_64_LSB);
-}
 
+	debug("Configuring MPTHRESHOLDRST_MPTHRESHOLDRST_0\n");
+	writel(mp_threshold0, &sdr_ctrl->mp_threshold0);
+	writel(mp_threshold1, &sdr_ctrl->mp_threshold1);
+	writel(mp_threshold2, &sdr_ctrl->mp_threshold2);
+}
 
 /* Function to initialize SDRAM MMR */
 unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
