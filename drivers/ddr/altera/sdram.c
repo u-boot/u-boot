@@ -405,14 +405,14 @@ static void set_sdr_static_cfg(void)
 
 static void set_sdr_fifo_cfg(void)
 {
-	debug("Configuring FIFOCFG\n");
-	clrsetbits_le32(&sdr_ctrl->fifo_cfg, SDR_CTRLGRP_FIFOCFG_SYNCMODE_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_FIFOCFG_SYNCMODE <<
-			SDR_CTRLGRP_FIFOCFG_SYNCMODE_LSB);
-
-	clrsetbits_le32(&sdr_ctrl->fifo_cfg, SDR_CTRLGRP_FIFOCFG_INCSYNC_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_FIFOCFG_INCSYNC <<
+	const u32 fifo_cfg =
+		(CONFIG_HPS_SDR_CTRLCFG_FIFOCFG_SYNCMODE <<
+			SDR_CTRLGRP_FIFOCFG_SYNCMODE_LSB)	|
+		(CONFIG_HPS_SDR_CTRLCFG_FIFOCFG_INCSYNC <<
 			SDR_CTRLGRP_FIFOCFG_INCSYNC_LSB);
+
+	debug("Configuring FIFOCFG\n");
+	writel(fifo_cfg, &sdr_ctrl->fifo_cfg);
 }
 
 static void set_sdr_mp_weight(void)
