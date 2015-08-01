@@ -37,6 +37,146 @@ static struct socfpga_system_manager *sysmgr_regs =
 static struct socfpga_sdr_ctrl *sdr_ctrl =
 	(struct socfpga_sdr_ctrl *)SDR_CTRLGRP_ADDRESS;
 
+static struct socfpga_sdram_config {
+	u32	ctrl_cfg;
+	u32	dram_timing1;
+	u32	dram_timing2;
+	u32	dram_timing3;
+	u32	dram_timing4;
+	u32	lowpwr_timing;
+	u32	dram_addrw;
+	u32	static_cfg;
+	u32	fifo_cfg;
+	u32	mp_weight0;
+	u32	mp_weight1;
+	u32	mp_weight2;
+	u32	mp_weight3;
+	u32	mp_pacing0;
+	u32	mp_pacing1;
+	u32	mp_pacing2;
+	u32	mp_pacing3;
+	u32	mp_threshold0;
+	u32	mp_threshold1;
+	u32	mp_threshold2;
+} sdram_config = {
+	.ctrl_cfg =
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMTYPE <<
+			SDR_CTRLGRP_CTRLCFG_MEMTYPE_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMBL <<
+			SDR_CTRLGRP_CTRLCFG_MEMBL_LSB)			|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCEN <<
+			SDR_CTRLGRP_CTRLCFG_ECCEN_LSB)			|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCCORREN <<
+			SDR_CTRLGRP_CTRLCFG_ECCCORREN_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_REORDEREN <<
+			SDR_CTRLGRP_CTRLCFG_REORDEREN_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_STARVELIMIT <<
+			SDR_CTRLGRP_CTRLCFG_STARVELIMIT_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_DQSTRKEN <<
+			SDR_CTRLGRP_CTRLCFG_DQSTRKEN_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_NODMPINS <<
+			SDR_CTRLGRP_CTRLCFG_NODMPINS_LSB),
+	.dram_timing1 =
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_TCWL <<
+			SDR_CTRLGRP_DRAMTIMING1_TCWL_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_AL <<
+			SDR_CTRLGRP_DRAMTIMING1_TAL_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_TCL <<
+			SDR_CTRLGRP_DRAMTIMING1_TCL_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_TRRD <<
+			SDR_CTRLGRP_DRAMTIMING1_TRRD_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_TFAW <<
+			SDR_CTRLGRP_DRAMTIMING1_TFAW_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_TRFC <<
+			SDR_CTRLGRP_DRAMTIMING1_TRFC_LSB),
+	.dram_timing2 =
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING2_IF_TREFI <<
+			SDR_CTRLGRP_DRAMTIMING2_TREFI_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING2_IF_TRCD <<
+			SDR_CTRLGRP_DRAMTIMING2_TRCD_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING2_IF_TRP <<
+			SDR_CTRLGRP_DRAMTIMING2_TRP_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING2_IF_TWR <<
+			SDR_CTRLGRP_DRAMTIMING2_TWR_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING2_IF_TWTR <<
+			SDR_CTRLGRP_DRAMTIMING2_TWTR_LSB),
+	.dram_timing3 =
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING3_TRTP <<
+			SDR_CTRLGRP_DRAMTIMING3_TRTP_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING3_TRAS <<
+			SDR_CTRLGRP_DRAMTIMING3_TRAS_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING3_TRC <<
+			SDR_CTRLGRP_DRAMTIMING3_TRC_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING3_TMRD <<
+			SDR_CTRLGRP_DRAMTIMING3_TMRD_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING3_TCCD <<
+			SDR_CTRLGRP_DRAMTIMING3_TCCD_LSB),
+	.dram_timing4 =
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING4_SELFRFSHEXIT <<
+			SDR_CTRLGRP_DRAMTIMING4_SELFRFSHEXIT_LSB)	|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING4_PWRDOWNEXIT <<
+			SDR_CTRLGRP_DRAMTIMING4_PWRDOWNEXIT_LSB),
+	.lowpwr_timing =
+		(CONFIG_HPS_SDR_CTRLCFG_LOWPWRTIMING_AUTOPDCYCLES <<
+			SDR_CTRLGRP_LOWPWRTIMING_AUTOPDCYCLES_LSB)	|
+		(CONFIG_HPS_SDR_CTRLCFG_LOWPWRTIMING_CLKDISABLECYCLES <<
+			SDR_CTRLGRP_LOWPWRTIMING_CLKDISABLECYCLES_LSB),
+	.dram_addrw =
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_COLBITS <<
+			SDR_CTRLGRP_DRAMADDRW_COLBITS_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_BANKBITS <<
+			SDR_CTRLGRP_DRAMADDRW_BANKBITS_LSB)		|
+		((CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS - 1) <<
+			SDR_CTRLGRP_DRAMADDRW_CSBITS_LSB),
+	.static_cfg =
+		(CONFIG_HPS_SDR_CTRLCFG_STATICCFG_MEMBL <<
+			SDR_CTRLGRP_STATICCFG_MEMBL_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_STATICCFG_USEECCASDATA <<
+			SDR_CTRLGRP_STATICCFG_USEECCASDATA_LSB),
+	.fifo_cfg =
+		(CONFIG_HPS_SDR_CTRLCFG_FIFOCFG_SYNCMODE <<
+			SDR_CTRLGRP_FIFOCFG_SYNCMODE_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_FIFOCFG_INCSYNC <<
+			SDR_CTRLGRP_FIFOCFG_INCSYNC_LSB),
+	.mp_weight0 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPWIEIGHT_0_STATICWEIGHT_31_0 <<
+			SDR_CTRLGRP_MPWEIGHT_MPWEIGHT_0_STATICWEIGHT_31_0_LSB),
+	.mp_weight1 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPWIEIGHT_1_STATICWEIGHT_49_32 <<
+			SDR_CTRLGRP_MPWEIGHT_MPWEIGHT_1_STATICWEIGHT_49_32_LSB) |
+		(CONFIG_HPS_SDR_CTRLCFG_MPWIEIGHT_1_SUMOFWEIGHT_13_0 <<
+			SDR_CTRLGRP_MPWEIGHT_MPWEIGHT_1_SUMOFWEIGHTS_13_0_LSB),
+	.mp_weight2 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPWIEIGHT_2_SUMOFWEIGHT_45_14 <<
+			SDR_CTRLGRP_MPWEIGHT_MPWEIGHT_2_SUMOFWEIGHTS_45_14_LSB),
+	.mp_weight3 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPWIEIGHT_3_SUMOFWEIGHT_63_46 <<
+			SDR_CTRLGRP_MPWEIGHT_MPWEIGHT_3_SUMOFWEIGHTS_63_46_LSB),
+	.mp_pacing0 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPPACING_0_THRESHOLD1_31_0 <<
+			SDR_CTRLGRP_MPPACING_MPPACING_0_THRESHOLD1_31_0_LSB),
+	.mp_pacing1 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPPACING_1_THRESHOLD1_59_32 <<
+			SDR_CTRLGRP_MPPACING_MPPACING_1_THRESHOLD1_59_32_LSB) |
+		(CONFIG_HPS_SDR_CTRLCFG_MPPACING_1_THRESHOLD2_3_0 <<
+			SDR_CTRLGRP_MPPACING_MPPACING_1_THRESHOLD2_3_0_LSB),
+	.mp_pacing2 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPPACING_2_THRESHOLD2_35_4 <<
+			SDR_CTRLGRP_MPPACING_MPPACING_2_THRESHOLD2_35_4_LSB),
+	.mp_pacing3 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPPACING_3_THRESHOLD2_59_36 <<
+			SDR_CTRLGRP_MPPACING_MPPACING_3_THRESHOLD2_59_36_LSB),
+	.mp_threshold0 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_0_THRESHOLDRSTCYCLES_31_0 <<
+			SDR_CTRLGRP_MPTHRESHOLDRST_0_THRESHOLDRSTCYCLES_31_0_LSB),
+	.mp_threshold1 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_1_THRESHOLDRSTCYCLES_63_32 <<
+			SDR_CTRLGRP_MPTHRESHOLDRST_1_THRESHOLDRSTCYCLES_63_32_LSB),
+	.mp_threshold2 =
+		(CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_2_THRESHOLDRSTCYCLES_79_64 <<
+			SDR_CTRLGRP_MPTHRESHOLDRST_2_THRESHOLDRSTCYCLES_79_64_LSB),
+};
+
 /**
  * get_errata_rows() - Up the number of DRAM rows to cover entire address space
  *
@@ -252,26 +392,10 @@ static unsigned sdram_write_verify(unsigned int *addr, unsigned reg_value)
 	return 0;
 }
 
-static void set_sdr_ctrlcfg(void)
+static void set_sdr_ctrlcfg(struct socfpga_sdram_config *cfg)
 {
 	u32 addrorder;
-	u32 ctrl_cfg =
-		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMTYPE <<
-			SDR_CTRLGRP_CTRLCFG_MEMTYPE_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMBL <<
-			SDR_CTRLGRP_CTRLCFG_MEMBL_LSB)		|
-		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCEN <<
-			SDR_CTRLGRP_CTRLCFG_ECCEN_LSB)		|
-		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCCORREN <<
-			SDR_CTRLGRP_CTRLCFG_ECCCORREN_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_REORDEREN <<
-			SDR_CTRLGRP_CTRLCFG_REORDEREN_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_STARVELIMIT <<
-			SDR_CTRLGRP_CTRLCFG_STARVELIMIT_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_DQSTRKEN <<
-			SDR_CTRLGRP_CTRLCFG_DQSTRKEN_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_NODMPINS <<
-			SDR_CTRLGRP_CTRLCFG_NODMPINS_LSB);
+	u32 ctrl_cfg = cfg->ctrl_cfg;
 
 	debug("\nConfiguring CTRLCFG\n");
 
@@ -301,75 +425,25 @@ static void set_sdr_ctrlcfg(void)
 	writel(ctrl_cfg, &sdr_ctrl->ctrl_cfg);
 }
 
-static void set_sdr_dram_timing(void)
+static void set_sdr_dram_timing(struct socfpga_sdram_config *cfg)
 {
-	const u32 dram_timing1 =
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_TCWL <<
-			SDR_CTRLGRP_DRAMTIMING1_TCWL_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_AL <<
-			SDR_CTRLGRP_DRAMTIMING1_TAL_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_TCL <<
-			SDR_CTRLGRP_DRAMTIMING1_TCL_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_TRRD <<
-			SDR_CTRLGRP_DRAMTIMING1_TRRD_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_TFAW <<
-			SDR_CTRLGRP_DRAMTIMING1_TFAW_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING1_TRFC <<
-			SDR_CTRLGRP_DRAMTIMING1_TRFC_LSB);
-
-	const u32 dram_timing2 =
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING2_IF_TREFI <<
-			SDR_CTRLGRP_DRAMTIMING2_TREFI_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING2_IF_TRCD <<
-			SDR_CTRLGRP_DRAMTIMING2_TRCD_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING2_IF_TRP <<
-			SDR_CTRLGRP_DRAMTIMING2_TRP_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING2_IF_TWR <<
-			SDR_CTRLGRP_DRAMTIMING2_TWR_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING2_IF_TWTR <<
-			SDR_CTRLGRP_DRAMTIMING2_TWTR_LSB);
-
-	const u32 dram_timing3 =
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING3_TRTP <<
-			SDR_CTRLGRP_DRAMTIMING3_TRTP_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING3_TRAS <<
-			SDR_CTRLGRP_DRAMTIMING3_TRAS_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING3_TRC <<
-			SDR_CTRLGRP_DRAMTIMING3_TRC_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING3_TMRD <<
-			SDR_CTRLGRP_DRAMTIMING3_TMRD_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING3_TCCD <<
-			SDR_CTRLGRP_DRAMTIMING3_TCCD_LSB);
-
-	const u32 dram_timing4 =
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING4_SELFRFSHEXIT <<
-			SDR_CTRLGRP_DRAMTIMING4_SELFRFSHEXIT_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMTIMING4_PWRDOWNEXIT <<
-			SDR_CTRLGRP_DRAMTIMING4_PWRDOWNEXIT_LSB);
-
-	const u32 lowpwr_timing =
-		(CONFIG_HPS_SDR_CTRLCFG_LOWPWRTIMING_AUTOPDCYCLES <<
-			SDR_CTRLGRP_LOWPWRTIMING_AUTOPDCYCLES_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_LOWPWRTIMING_CLKDISABLECYCLES <<
-			SDR_CTRLGRP_LOWPWRTIMING_CLKDISABLECYCLES_LSB);
-
 	debug("Configuring DRAMTIMING1\n");
-	writel(dram_timing1, &sdr_ctrl->dram_timing1);
+	writel(cfg->dram_timing1, &sdr_ctrl->dram_timing1);
 
 	debug("Configuring DRAMTIMING2\n");
-	writel(dram_timing2, &sdr_ctrl->dram_timing2);
+	writel(cfg->dram_timing2, &sdr_ctrl->dram_timing2);
 
 	debug("Configuring DRAMTIMING3\n");
-	writel(dram_timing3, &sdr_ctrl->dram_timing3);
+	writel(cfg->dram_timing3, &sdr_ctrl->dram_timing3);
 
 	debug("Configuring DRAMTIMING4\n");
-	writel(dram_timing4, &sdr_ctrl->dram_timing4);
+	writel(cfg->dram_timing4, &sdr_ctrl->dram_timing4);
 
 	debug("Configuring LOWPWRTIMING\n");
-	writel(lowpwr_timing, &sdr_ctrl->lowpwr_timing);
+	writel(cfg->lowpwr_timing, &sdr_ctrl->lowpwr_timing);
 }
 
-static void set_sdr_addr_rw(void)
+static void set_sdr_addr_rw(struct socfpga_sdram_config *cfg)
 {
 	/*
 	 * SDRAM Failure When Accessing Non-Existent Memory
@@ -379,106 +453,48 @@ static void set_sdr_addr_rw(void)
 	 * which is the same as "chip selects" - 1.
 	 */
 	const int rows = get_errata_rows();
-	const u32 dram_addrw =
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_COLBITS <<
-			SDR_CTRLGRP_DRAMADDRW_COLBITS_LSB)	|
-		(rows << SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_BANKBITS <<
-			SDR_CTRLGRP_DRAMADDRW_BANKBITS_LSB)	|
-		((CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS - 1) <<
-			SDR_CTRLGRP_DRAMADDRW_CSBITS_LSB);
+
 	debug("Configuring DRAMADDRW\n");
-	writel(dram_addrw, &sdr_ctrl->dram_addrw);
+	writel(cfg->dram_addrw | (rows << SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB),
+	       &sdr_ctrl->dram_addrw);
 }
 
-static void set_sdr_static_cfg(void)
+static void set_sdr_static_cfg(struct socfpga_sdram_config *cfg)
 {
-	const u32 static_cfg =
-		(CONFIG_HPS_SDR_CTRLCFG_STATICCFG_MEMBL <<
-			SDR_CTRLGRP_STATICCFG_MEMBL_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_STATICCFG_USEECCASDATA <<
-			SDR_CTRLGRP_STATICCFG_USEECCASDATA_LSB);
-
 	debug("Configuring STATICCFG\n");
-	writel(static_cfg, &sdr_ctrl->static_cfg);
+	writel(cfg->static_cfg, &sdr_ctrl->static_cfg);
 }
 
-static void set_sdr_fifo_cfg(void)
+static void set_sdr_fifo_cfg(struct socfpga_sdram_config *cfg)
 {
-	const u32 fifo_cfg =
-		(CONFIG_HPS_SDR_CTRLCFG_FIFOCFG_SYNCMODE <<
-			SDR_CTRLGRP_FIFOCFG_SYNCMODE_LSB)	|
-		(CONFIG_HPS_SDR_CTRLCFG_FIFOCFG_INCSYNC <<
-			SDR_CTRLGRP_FIFOCFG_INCSYNC_LSB);
-
 	debug("Configuring FIFOCFG\n");
-	writel(fifo_cfg, &sdr_ctrl->fifo_cfg);
+	writel(cfg->fifo_cfg, &sdr_ctrl->fifo_cfg);
 }
 
-static void set_sdr_mp_weight(void)
+static void set_sdr_mp_weight(struct socfpga_sdram_config *cfg)
 {
-	const u32 mp_weight0 =
-		(CONFIG_HPS_SDR_CTRLCFG_MPWIEIGHT_0_STATICWEIGHT_31_0 <<
-			SDR_CTRLGRP_MPWEIGHT_MPWEIGHT_0_STATICWEIGHT_31_0_LSB);
-	const u32 mp_weight1 =
-		(CONFIG_HPS_SDR_CTRLCFG_MPWIEIGHT_1_STATICWEIGHT_49_32 <<
-			SDR_CTRLGRP_MPWEIGHT_MPWEIGHT_1_STATICWEIGHT_49_32_LSB) |
-		(CONFIG_HPS_SDR_CTRLCFG_MPWIEIGHT_1_SUMOFWEIGHT_13_0 <<
-			SDR_CTRLGRP_MPWEIGHT_MPWEIGHT_1_SUMOFWEIGHTS_13_0_LSB);
-	const u32 mp_weight2 =
-		(CONFIG_HPS_SDR_CTRLCFG_MPWIEIGHT_2_SUMOFWEIGHT_45_14 <<
-			SDR_CTRLGRP_MPWEIGHT_MPWEIGHT_2_SUMOFWEIGHTS_45_14_LSB);
-	const u32 mp_weight3 =
-		(CONFIG_HPS_SDR_CTRLCFG_MPWIEIGHT_3_SUMOFWEIGHT_63_46 <<
-			SDR_CTRLGRP_MPWEIGHT_MPWEIGHT_3_SUMOFWEIGHTS_63_46_LSB);
-
 	debug("Configuring MPWEIGHT_MPWEIGHT_0\n");
-	writel(mp_weight0, &sdr_ctrl->mp_weight0);
-	writel(mp_weight1, &sdr_ctrl->mp_weight1);
-	writel(mp_weight2, &sdr_ctrl->mp_weight2);
-	writel(mp_weight3, &sdr_ctrl->mp_weight3);
+	writel(cfg->mp_weight0, &sdr_ctrl->mp_weight0);
+	writel(cfg->mp_weight1, &sdr_ctrl->mp_weight1);
+	writel(cfg->mp_weight2, &sdr_ctrl->mp_weight2);
+	writel(cfg->mp_weight3, &sdr_ctrl->mp_weight3);
 }
 
-static void set_sdr_mp_pacing(void)
+static void set_sdr_mp_pacing(struct socfpga_sdram_config *cfg)
 {
-	const u32 mp_pacing0 =
-		(CONFIG_HPS_SDR_CTRLCFG_MPPACING_0_THRESHOLD1_31_0 <<
-			SDR_CTRLGRP_MPPACING_MPPACING_0_THRESHOLD1_31_0_LSB);
-	const u32 mp_pacing1 =
-		(CONFIG_HPS_SDR_CTRLCFG_MPPACING_1_THRESHOLD1_59_32 <<
-			SDR_CTRLGRP_MPPACING_MPPACING_1_THRESHOLD1_59_32_LSB) |
-		(CONFIG_HPS_SDR_CTRLCFG_MPPACING_1_THRESHOLD2_3_0 <<
-			SDR_CTRLGRP_MPPACING_MPPACING_1_THRESHOLD2_3_0_LSB);
-	const u32 mp_pacing2 =
-		(CONFIG_HPS_SDR_CTRLCFG_MPPACING_2_THRESHOLD2_35_4 <<
-			SDR_CTRLGRP_MPPACING_MPPACING_2_THRESHOLD2_35_4_LSB);
-	const u32 mp_pacing3 =
-		(CONFIG_HPS_SDR_CTRLCFG_MPPACING_3_THRESHOLD2_59_36 <<
-			SDR_CTRLGRP_MPPACING_MPPACING_3_THRESHOLD2_59_36_LSB);
-
 	debug("Configuring MPPACING_MPPACING_0\n");
-	writel(mp_pacing0, &sdr_ctrl->mp_pacing0);
-	writel(mp_pacing1, &sdr_ctrl->mp_pacing1);
-	writel(mp_pacing2, &sdr_ctrl->mp_pacing2);
-	writel(mp_pacing3, &sdr_ctrl->mp_pacing3);
+	writel(cfg->mp_pacing0, &sdr_ctrl->mp_pacing0);
+	writel(cfg->mp_pacing1, &sdr_ctrl->mp_pacing1);
+	writel(cfg->mp_pacing2, &sdr_ctrl->mp_pacing2);
+	writel(cfg->mp_pacing3, &sdr_ctrl->mp_pacing3);
 }
 
-static void set_sdr_mp_threshold(void)
+static void set_sdr_mp_threshold(struct socfpga_sdram_config *cfg)
 {
-	const u32 mp_threshold0 =
-		(CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_0_THRESHOLDRSTCYCLES_31_0 <<
-			SDR_CTRLGRP_MPTHRESHOLDRST_0_THRESHOLDRSTCYCLES_31_0_LSB);
-	const u32 mp_threshold1 =
-		(CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_1_THRESHOLDRSTCYCLES_63_32 <<
-			SDR_CTRLGRP_MPTHRESHOLDRST_1_THRESHOLDRSTCYCLES_63_32_LSB);
-	const u32 mp_threshold2 =
-		(CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_2_THRESHOLDRSTCYCLES_79_64 <<
-			SDR_CTRLGRP_MPTHRESHOLDRST_2_THRESHOLDRSTCYCLES_79_64_LSB);
-
 	debug("Configuring MPTHRESHOLDRST_MPTHRESHOLDRST_0\n");
-	writel(mp_threshold0, &sdr_ctrl->mp_threshold0);
-	writel(mp_threshold1, &sdr_ctrl->mp_threshold1);
-	writel(mp_threshold2, &sdr_ctrl->mp_threshold2);
+	writel(cfg->mp_threshold0, &sdr_ctrl->mp_threshold0);
+	writel(cfg->mp_threshold1, &sdr_ctrl->mp_threshold1);
+	writel(cfg->mp_threshold2, &sdr_ctrl->mp_threshold2);
 }
 
 /* Function to initialize SDRAM MMR */
@@ -486,6 +502,7 @@ unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
 {
 	unsigned long reg_value;
 	unsigned long status = 0;
+	struct socfpga_sdram_config *cfg = &sdram_config;
 
 #if defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS) && \
 defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS) && \
@@ -496,9 +513,9 @@ defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS)
 	writel(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS,
 	       &sysmgr_regs->iswgrp_handoff[4]);
 #endif
-	set_sdr_ctrlcfg();
-	set_sdr_dram_timing();
-	set_sdr_addr_rw();
+	set_sdr_ctrlcfg(cfg);
+	set_sdr_dram_timing(cfg);
+	set_sdr_addr_rw(cfg);
 
 	debug("Configuring DRAMIFWIDTH\n");
 	clrsetbits_le32(&sdr_ctrl->dram_if_width,
@@ -523,7 +540,7 @@ defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS)
 			CONFIG_HPS_SDR_CTRLCFG_DRAMINTR_INTREN <<
 			SDR_CTRLGRP_DRAMINTR_INTREN_LSB);
 
-	set_sdr_static_cfg();
+	set_sdr_static_cfg(cfg);
 
 	debug("Configuring CTRLWIDTH\n");
 	clrsetbits_le32(&sdr_ctrl->ctrl_width,
@@ -536,7 +553,7 @@ defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS)
 			CONFIG_HPS_SDR_CTRLCFG_PORTCFG_AUTOPCHEN <<
 			SDR_CTRLGRP_PORTCFG_AUTOPCHEN_LSB);
 
-	set_sdr_fifo_cfg();
+	set_sdr_fifo_cfg(cfg);
 
 	debug("Configuring MPPRIORITY\n");
 	clrsetbits_le32(&sdr_ctrl->mp_priority,
@@ -544,9 +561,9 @@ defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS)
 			CONFIG_HPS_SDR_CTRLCFG_MPPRIORITY_USERPRIORITY <<
 			SDR_CTRLGRP_MPPRIORITY_USERPRIORITY_LSB);
 
-	set_sdr_mp_weight();
-	set_sdr_mp_pacing();
-	set_sdr_mp_threshold();
+	set_sdr_mp_weight(cfg);
+	set_sdr_mp_pacing(cfg);
+	set_sdr_mp_threshold(cfg);
 
 	debug("Configuring PHYCTRL_PHYCTRL_0\n");
 	setbits_le32(&sdr_ctrl->phy_ctrl0,
