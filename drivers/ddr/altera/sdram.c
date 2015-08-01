@@ -615,7 +615,12 @@ static void sdr_load_regs(struct socfpga_sdram_config *cfg)
 	writel(cfg->dram_odt, &sdr_ctrl->dram_odt);
 }
 
-/* Function to initialize SDRAM MMR */
+/**
+ * sdram_mmr_init_full() - Function to initialize SDRAM MMR
+ * @sdr_phy_reg:	Value of the PHY control register 0
+ *
+ * Initialize the SDRAM MMR.
+ */
 unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
 {
 	unsigned long status = 0;
