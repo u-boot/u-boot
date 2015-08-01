@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <errno.h>
 #include <fdtdec.h>
 #include <libfdt.h>
 #include <altera.h>
@@ -13,6 +14,7 @@
 #include <netdev.h>
 #include <watchdog.h>
 #include <asm/arch/reset_manager.h>
+#include <asm/arch/scan_manager.h>
 #include <asm/arch/system_manager.h>
 #include <asm/arch/dwmmc.h>
 #include <asm/arch/nic301.h>
@@ -148,6 +150,63 @@ struct {
 	{ "qspi", "QSPI Flash (3.0V)", },
 };
 
+static const struct {
+	const u16	pn;
+	const char	*name;
+	const char	*var;
+} const socfpga_fpga_model[] = {
+	/* Cyclone V E */
+	{ 0x2b15, "Cyclone V, E/A2", "cv_e_a2" },
+	{ 0x2b05, "Cyclone V, E/A4", "cv_e_a4" },
+	{ 0x2b22, "Cyclone V, E/A5", "cv_e_a5" },
+	{ 0x2b13, "Cyclone V, E/A7", "cv_e_a7" },
+	{ 0x2b14, "Cyclone V, E/A9", "cv_e_a9" },
+	/* Cyclone V GX/GT */
+	{ 0x2b01, "Cyclone V, GX/C3", "cv_gx_c3" },
+	{ 0x2b12, "Cyclone V, GX/C4", "cv_gx_c4" },
+	{ 0x2b02, "Cyclone V, GX/C5 or GT/D5", "cv_gx_c5" },
+	{ 0x2b03, "Cyclone V, GX/C7 or GT/D7", "cv_gx_c7" },
+	{ 0x2b04, "Cyclone V, GX/C9 or GT/D9", "cv_gx_c9" },
+	/* Cyclone V SE/SX/ST */
+	{ 0x2d11, "Cyclone V, SE/A2 or SX/C2", "cv_se_a2" },
+	{ 0x2d01, "Cyclone V, SE/A4 or SX/C4", "cv_se_a4" },
+	{ 0x2d12, "Cyclone V, SE/A5 or SX/C5 or ST/D5", "cv_se_a5" },
+	{ 0x2d02, "Cyclone V, SE/A6 or SX/C6 or ST/D6", "cv_se_a6" },
+	/* Arria V */
+	{ 0x2d03, "Arria V, D5", "av_d5" },
+};
+
+static int socfpga_fpga_id(const bool print_id)
+{
+	const u32 altera_mi = 0x6e;
+	const u32 id = scan_mgr_get_fpga_id();
+
+	const u32 lsb = id & 0x00000001;
+	const u32 mi = (id >> 1) & 0x000007ff;
+	const u32 pn = (id >> 12) & 0x0000ffff;
+	const u32 version = (id >> 28) & 0x0000000f;
+	int i;
+
+	if ((mi != altera_mi) || (lsb != 1)) {
+		printf("FPGA:  Not Altera chip ID\n");
+		return -EINVAL;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(socfpga_fpga_model); i++)
+		if (pn == socfpga_fpga_model[i].pn)
+			break;
+
+	if (i == ARRAY_SIZE(socfpga_fpga_model)) {
+		printf("FPGA:  Unknown Altera chip, ID 0x%08x\n", id);
+		return -EINVAL;
+	}
+
+	if (print_id)
+		printf("FPGA:  Altera %s, version 0x%01x\n",
+		       socfpga_fpga_model[i].name, version);
+	return i;
+}
+
 /*
  * Print CPU information
  */
@@ -156,6 +215,7 @@ int print_cpuinfo(void)
 {
 	const u32 bsel = readl(&sysmgr_regs->bootinfo) & 0x7;
 	puts("CPU:   Altera SoCFPGA Platform\n");
+	socfpga_fpga_id(1);
 	printf("BOOT:  %s\n", bsel_str[bsel].name);
 	return 0;
 }
@@ -165,7 +225,10 @@ int print_cpuinfo(void)
 int arch_misc_init(void)
 {
 	const u32 bsel = readl(&sysmgr_regs->bootinfo) & 0x7;
+	const int fpga_id = socfpga_fpga_id(0);
 	setenv("bootmode", bsel_str[bsel].mode);
+	if (fpga_id >= 0)
+		setenv("fpgatype", socfpga_fpga_model[fpga_id].var);
 	return 0;
 }
 #endif
