@@ -231,28 +231,30 @@ static void sdram_dump_protection_config(void)
 	}
 }
 
-/* Function to write to register and verify the write */
-static unsigned sdram_write_verify(unsigned int *addr, unsigned reg_value)
+/**
+ * sdram_write_verify() - write to register and verify the write.
+ * @addr:	Register address
+ * @val:	Value to be written and verified
+ *
+ * This function writes to a register, reads back the value and compares
+ * the result with the written value to check if the data match.
+ */
+static unsigned sdram_write_verify(const u32 *addr, const u32 val)
 {
-#ifndef SDRAM_MMR_SKIP_VERIFY
-	unsigned reg_value1;
-#endif
-	debug("   Write - Address ");
-	debug("0x%08x Data 0x%08x\n", (u32)addr, reg_value);
-	/* Write to register */
-	writel(reg_value, addr);
-#ifndef SDRAM_MMR_SKIP_VERIFY
+	u32 rval;
+
+	debug("   Write - Address 0x%p Data 0x%08x\n", addr, val);
+	writel(val, addr);
+
 	debug("   Read and verify...");
-	/* Read back the wrote value */
-	reg_value1 = readl(addr);
-	/* Indicate failure if value not matched */
-	if (reg_value1 != reg_value) {
-		debug("FAIL - Address 0x%08x Expected 0x%08x Data 0x%08x\n",
-		      (u32)addr, reg_value, reg_value1);
-		return 1;
+	rval = readl(addr);
+	if (rval != val) {
+		debug("FAIL - Address 0x%p Expected 0x%08x Data 0x%08x\n",
+		      addr, val, rval);
+		return -EINVAL;
 	}
+
 	debug("correct!\n");
-#endif	/* SDRAM_MMR_SKIP_VERIFY */
 	return 0;
 }
 
@@ -412,11 +414,11 @@ static void sdr_load_regs(const struct socfpga_sdram_config *cfg)
  */
 int sdram_mmr_init_full(unsigned int sdr_phy_reg)
 {
-	unsigned long status = 0;
 	const struct socfpga_sdram_config *cfg = socfpga_get_sdram_config();
 	const unsigned int rows =
 		(cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_ROWBITS_MASK) >>
 			SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB;
+	int ret;
 
 	writel(rows, &sysmgr_regs->iswgrp_handoff[4]);
 
@@ -427,11 +429,10 @@ int sdram_mmr_init_full(unsigned int sdr_phy_reg)
 
 	/* only enable if the FPGA is programmed */
 	if (fpgamgr_test_fpga_ready()) {
-		if (sdram_write_verify(&sdr_ctrl->fpgaport_rst,
-		    cfg->fpgaport_rst) == 1) {
-			status = 1;
-			return 1;
-		}
+		ret = sdram_write_verify(&sdr_ctrl->fpgaport_rst,
+					 cfg->fpgaport_rst);
+		if (ret)
+			return ret;
 	}
 
 	/* Restore the SDR PHY Register if valid */
@@ -448,7 +449,7 @@ int sdram_mmr_init_full(unsigned int sdr_phy_reg)
 
 	sdram_dump_protection_config();
 
-	return status;
+	return 0;
 }
 
 /**
