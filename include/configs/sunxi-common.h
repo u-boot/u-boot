@@ -262,6 +262,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_CONS_INDEX              1       /* UART0 */
 #endif
 
+#ifdef CONFIG_REQUIRE_SERIAL_CONSOLE
 #if CONFIG_CONS_INDEX == 1
 #ifdef CONFIG_MACH_SUN9I
 #define OF_STDOUT_PATH		"/soc/serial@07000000:115200"
@@ -277,6 +278,7 @@ extern int soft_i2c_gpio_scl;
 #else
 #error Unsupported console port nr. Please fix stdout-path in sunxi-common.h.
 #endif
+#endif /* ifdef CONFIG_REQUIRE_SERIAL_CONSOLE */
 
 /* GPIO */
 #define CONFIG_SUNXI_GPIO
