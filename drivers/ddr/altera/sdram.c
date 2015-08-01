@@ -514,19 +514,16 @@ static u32 sdr_get_addr_rw(struct socfpga_sdram_config *cfg)
 	return dram_addrw | (rows << SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB);
 }
 
-/* Function to initialize SDRAM MMR */
-unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
+/**
+ * sdr_load_regs() - Load SDRAM controller registers
+ * @cfg:	SDRAM controller configuration data
+ *
+ * This function loads the register values into the SDRAM controller block.
+ */
+static void sdr_load_regs(struct socfpga_sdram_config *cfg)
 {
-	unsigned long status = 0;
-	struct socfpga_sdram_config *cfg = &sdram_config;
-	const unsigned int rows =
-		(cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_ROWBITS_MASK) >>
-			SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB;
-
 	const u32 ctrl_cfg = sdr_get_ctrlcfg(cfg);
 	const u32 dram_addrw = sdr_get_addr_rw(cfg);
-
-	writel(rows, &sysmgr_regs->iswgrp_handoff[4]);
 
 	debug("\nConfiguring CTRLCFG\n");
 	writel(ctrl_cfg, &sdr_ctrl->ctrl_cfg);
@@ -616,6 +613,20 @@ unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
 
 	debug("Configuring DRAMODT\n");
 	writel(cfg->dram_odt, &sdr_ctrl->dram_odt);
+}
+
+/* Function to initialize SDRAM MMR */
+unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
+{
+	unsigned long status = 0;
+	struct socfpga_sdram_config *cfg = &sdram_config;
+	const unsigned int rows =
+		(cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_ROWBITS_MASK) >>
+			SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB;
+
+	writel(rows, &sysmgr_regs->iswgrp_handoff[4]);
+
+	sdr_load_regs(cfg);
 
 	/* saving this value to SYSMGR.ISWGRP.HANDOFF.FPGA2SDR */
 	writel(cfg->fpgaport_rst, &sysmgr_regs->iswgrp_handoff[3]);
