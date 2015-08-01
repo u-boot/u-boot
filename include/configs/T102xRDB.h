@@ -11,12 +11,6 @@
 #ifndef __T1024RDB_H
 #define __T1024RDB_H
 
-#if defined(CONFIG_T1023RDB)
-#ifdef CONFIG_SPL
-#define CONFIG_SYS_NO_FLASH
-#endif
-#endif
-
 /* High Level Configuration Options */
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_DISPLAY_BOARDINFO
@@ -320,7 +314,7 @@ unsigned long get_board_ddr_clk(void);
 #if defined(CONFIG_T1024RDB)
 #define CONFIG_SYS_NOR_CSOR	CSOR_NAND_TRHZ_80
 #elif defined(CONFIG_T1023RDB)
-#define CONFIG_SYS_NOR_CSOR    (CSOR_NOR_ADM_SHIFT(4) | \
+#define CONFIG_SYS_NOR_CSOR    (CSOR_NOR_ADM_SHIFT(0) | \
 				CSOR_NAND_TRHZ_80 | CSOR_NOR_ADM_SHFT_MODE_EN)
 #endif
 #define CONFIG_SYS_NOR_FTIM0	(FTIM0_NOR_TACSE(0x4) | \
@@ -395,7 +389,9 @@ unsigned long get_board_ddr_clk(void);
 				| CSOR_NAND_PB(64))	/*Pages Per Block = 64*/
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 #elif defined(CONFIG_T1023RDB)
-#define CONFIG_SYS_NAND_CSOR	(CSOR_NAND_RAL_3	/* RAL 3Bytes */ \
+#define CONFIG_SYS_NAND_CSOR	(CSOR_NAND_ECC_ENC_EN   /* ECC on encode */ \
+				| CSOR_NAND_ECC_DEC_EN  /* ECC on decode */ \
+				| CSOR_NAND_ECC_MODE_4	/* 4-bit ECC */ \
 				| CSOR_NAND_RAL_3	/* RAL 3Bytes */ \
 				| CSOR_NAND_PGS_2K	/* Page Size = 2K */ \
 				| CSOR_NAND_SPRZ_128	/* Spare size = 128 */ \
@@ -557,9 +553,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x118100
 
-#define I2C_MUX_PCA_ADDR		0x77
-#define I2C_MUX_PCA_ADDR_PRI		0x77 /* Primary Mux*/
-
+#define I2C_PCA6408_BUS_NUM		1
+#define I2C_PCA6408_ADDR		0x20
 
 /* I2C bus multiplexer */
 #define I2C_MUX_CH_DEFAULT	0x8
@@ -757,8 +752,10 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_SYS_DPAA_FMAN
 
+#ifdef CONFIG_T1024RDB
 #define CONFIG_QE
 #define CONFIG_U_QE
+#endif
 /* Default address of microcode for the Linux FMan driver */
 #if defined(CONFIG_SPIFLASH)
 /*

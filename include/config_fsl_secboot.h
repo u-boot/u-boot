@@ -55,6 +55,22 @@
 
 /* For secure boot flow, default environment used will be used */
 #if defined(CONFIG_SYS_RAMBOOT)
+#ifdef CONFIG_BOOTSCRIPT_COPY_RAM
+#define CONFIG_BS_COPY_ENV \
+	"setenv bs_hdr_ram " __stringify(CONFIG_BS_HDR_ADDR_RAM)";" \
+	"setenv bs_hdr_flash " __stringify(CONFIG_BS_HDR_ADDR_FLASH)";" \
+	"setenv bs_hdr_size " __stringify(CONFIG_BS_HDR_SIZE)";" \
+	"setenv bs_ram " __stringify(CONFIG_BS_ADDR_RAM)";" \
+	"setenv bs_flash " __stringify(CONFIG_BS_ADDR_FLASH)";" \
+	"setenv bs_size " __stringify(CONFIG_BS_SIZE)";"
+
+#if defined(CONFIG_RAMBOOT_NAND)
+#define CONFIG_BS_COPY_CMD \
+	"nand read $bs_hdr_ram $bs_hdr_flash $bs_hdr_size ;" \
+	"nand read $bs_ram $bs_flash $bs_size ;"
+#endif /* CONFIG_RAMBOOT_NAND */
+#endif /* CONFIG_BOOTSCRIPT_COPY_RAM */
+
 #if defined(CONFIG_RAMBOOT_SPIFLASH)
 #undef CONFIG_ENV_IS_IN_SPI_FLASH
 #elif defined(CONFIG_RAMBOOT_NAND)
@@ -68,6 +84,17 @@
 
 #define CONFIG_ENV_IS_NOWHERE
 
+#ifndef CONFIG_BS_COPY_ENV
+#define CONFIG_BS_COPY_ENV
+#endif
+
+#ifndef CONFIG_BS_COPY_CMD
+#define CONFIG_BS_COPY_CMD
+#endif
+
+#define CONFIG_SECBOOT_CMD	CONFIG_BS_COPY_ENV \
+				CONFIG_BS_COPY_CMD \
+				CONFIG_SECBOOT
 /*
  * We don't want boot delay for secure boot flow
  * before autoboot starts
@@ -75,7 +102,7 @@
 #undef CONFIG_BOOTDELAY
 #define CONFIG_BOOTDELAY	0
 #undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND		CONFIG_SECBOOT
+#define CONFIG_BOOTCOMMAND		CONFIG_SECBOOT_CMD
 
 /*
  * CONFIG_ZERO_BOOTDELAY_CHECK should not be defined for

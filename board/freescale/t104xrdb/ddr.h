@@ -28,6 +28,9 @@ static const struct board_specific_parameters udimm0[] = {
 	 *   num|  hi| rank|  clk| wrlvl |   wrlvl
 	 * ranks| mhz| GB  |adjst| start |   ctl2
 	 */
+#ifdef CONFIG_SYS_FSL_DDR4
+	{2,  1600, 4, 4,     6, 0x07090A0c, 0x0e0f100a},
+#elif defined(CONFIG_SYS_FSL_DDR3)
 	{2,  833,  4, 4,     6, 0x06060607, 0x08080807},
 	{2,  833,  0, 4,     6, 0x06060607, 0x08080807},
 	{2,  1350, 4, 4,     7, 0x0708080A, 0x0A0B0C09},
@@ -40,10 +43,14 @@ static const struct board_specific_parameters udimm0[] = {
 	{1,  1350, 0, 4,     7, 0x0708080A, 0x0A0B0C09},
 	{1,  1666, 4, 4,     7, 0x0808090B, 0x0C0D0E0A},
 	{1,  1666, 0, 4,     7, 0x0808090B, 0x0C0D0E0A},
+#else
+#error DDR type not defined
+#endif
 	{}
 };
+
+#endif
 
 static const struct board_specific_parameters *udimms[] = {
 	udimm0,
 };
-#endif

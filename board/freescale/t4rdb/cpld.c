@@ -47,14 +47,8 @@ void cpld_set_altbank(void)
 
 	switch (curbank) {
 	case CPLD_SELECT_BANK0:
-		altbank = CPLD_SELECT_BANK4;
-		CPLD_WRITE(vbank, altbank);
-		override = CPLD_READ(software_on);
-		CPLD_WRITE(software_on, override | CPLD_BANK_SEL_EN);
-		CPLD_WRITE(sys_reset, CPLD_SYSTEM_RESET);
-		break;
 	case CPLD_SELECT_BANK4:
-		altbank = CPLD_SELECT_BANK0;
+		altbank = CPLD_SELECT_BANK4;
 		CPLD_WRITE(vbank, altbank);
 		override = CPLD_READ(software_on);
 		CPLD_WRITE(software_on, override | CPLD_BANK_SEL_EN);

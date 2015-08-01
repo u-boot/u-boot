@@ -145,6 +145,12 @@ extern void fdt_fixup_liodn(void *blob);
 		FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 16), \
 		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_10G_OFFSET) \
 
+/* enetNum is 0, 1, 2... so we + 8 for type-2 10g to get to HW Port ID */
+#define SET_FMAN_RX_10G_TYPE2_LIODN(fmNum, enetNum, liodn) \
+	SET_LIODN_ENTRY_1("fsl,fman-port-10g-rx", liodn, \
+		FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 8), \
+		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_1G_OFFSET) \
+
 /*
  * handle both old and new versioned SEC properties:
  * "fsl,secX.Y" became "fsl,sec-vX.Y" during development
