@@ -64,7 +64,7 @@ static int compute_errata_rows(unsigned long long memsize, int cs, int width,
 	 * Need to see if result is ordinal power of 2 before
 	 * attempting log2 of result.
 	 */
-	bits = hweight32(newrows);
+	bits = generic_hweight32(newrows);
 
 	debug("rows workaround - bits %d\n", bits);
 
