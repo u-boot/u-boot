@@ -54,13 +54,14 @@ static int compute_errata_rows(unsigned long long memsize, int cs, int width,
 	debug("workaround rows - banks     %d\n", banks);
 	debug("workaround rows - cols      %d\n", cols);
 
-	newrows = lldiv(memsize, (cs * (width / 8)));
+	newrows = lldiv(memsize, cs * (width / 8));
 	debug("rows workaround - term1 %lld\n", newrows);
 
-	newrows = lldiv(newrows, ((1 << banks) * (1 << cols)));
+	newrows = lldiv(newrows, (1 << banks) * (1 << cols));
 	debug("rows workaround - term2 %lld\n", newrows);
 
-	/* Compute the hamming weight - same as number of bits set.
+	/*
+	 * Compute the hamming weight - same as number of bits set.
 	 * Need to see if result is ordinal power of 2 before
 	 * attempting log2 of result.
 	 */
@@ -78,13 +79,12 @@ static int compute_errata_rows(unsigned long long memsize, int cs, int width,
 		return rows;
 	}
 
-	inewrowslog2 = __ilog2((unsigned int)newrows);
+	inewrowslog2 = __ilog2(newrows);
 
-	debug("rows workaround - ilog2 %d, %d\n", inewrowslog2,
-	       (int)newrows);
+	debug("rows workaround - ilog2 %d, %lld\n", inewrowslog2, newrows);
 
 	if (inewrowslog2 == -1) {
-		printf("SDRAM workaround failed, newrows %d\n", (int)newrows);
+		printf("SDRAM workaround failed, newrows %lld\n", newrows);
 		return rows;
 	}
 
