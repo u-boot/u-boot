@@ -73,6 +73,48 @@ struct socfpga_sdr_ctrl {
 	u32	phy_ctrl2;
 };
 
+/* SDRAM configuration structure for the SPL. */
+struct socfpga_sdram_config {
+	u32	ctrl_cfg;
+	u32	dram_timing1;
+	u32	dram_timing2;
+	u32	dram_timing3;
+	u32	dram_timing4;
+	u32	lowpwr_timing;
+	u32	dram_odt;
+	u32	dram_addrw;
+	u32	dram_if_width;
+	u32	dram_dev_width;
+	u32	dram_intr;
+	u32	lowpwr_eq;
+	u32	static_cfg;
+	u32	ctrl_width;
+	u32	cport_width;
+	u32	cport_wmap;
+	u32	cport_rmap;
+	u32	rfifo_cmap;
+	u32	wfifo_cmap;
+	u32	cport_rdwr;
+	u32	port_cfg;
+	u32	fpgaport_rst;
+	u32	fifo_cfg;
+	u32	mp_priority;
+	u32	mp_weight0;
+	u32	mp_weight1;
+	u32	mp_weight2;
+	u32	mp_weight3;
+	u32	mp_pacing0;
+	u32	mp_pacing1;
+	u32	mp_pacing2;
+	u32	mp_pacing3;
+	u32	mp_threshold0;
+	u32	mp_threshold1;
+	u32	mp_threshold2;
+	u32	phy_ctrl0;
+};
+
+const struct socfpga_sdram_config *socfpga_get_sdram_config(void);
+
 #define SDR_CTRLGRP_CTRLCFG_NODMPINS_LSB 23
 #define SDR_CTRLGRP_CTRLCFG_NODMPINS_MASK 0x00800000
 #define SDR_CTRLGRP_CTRLCFG_DQSTRKEN_LSB 22
