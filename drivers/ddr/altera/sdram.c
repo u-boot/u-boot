@@ -80,6 +80,8 @@ static struct socfpga_sdram_config {
 			SDR_CTRLGRP_CTRLCFG_MEMTYPE_LSB)		|
 		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMBL <<
 			SDR_CTRLGRP_CTRLCFG_MEMBL_LSB)			|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ADDRORDER <<
+			SDR_CTRLGRP_CTRLCFG_ADDRORDER_LSB)		|
 		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCEN <<
 			SDR_CTRLGRP_CTRLCFG_ECCEN_LSB)			|
 		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCCORREN <<
@@ -145,6 +147,8 @@ static struct socfpga_sdram_config {
 	.dram_addrw =
 		(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_COLBITS <<
 			SDR_CTRLGRP_DRAMADDRW_COLBITS_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS <<
+			SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB)		|
 		(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_BANKBITS <<
 			SDR_CTRLGRP_DRAMADDRW_BANKBITS_LSB)		|
 		((CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS - 1) <<
@@ -241,20 +245,29 @@ static struct socfpga_sdram_config {
 
 /**
  * get_errata_rows() - Up the number of DRAM rows to cover entire address space
+ * @cfg:	SDRAM controller configuration data
  *
  * SDRAM Failure happens when accessing non-existent memory. Artificially
  * increase the number of rows so that the memory controller thinks it has
  * 4GB of RAM. This function returns such amount of rows.
  */
-static int get_errata_rows(void)
+static int get_errata_rows(struct socfpga_sdram_config *cfg)
 {
 	/* Define constant for 4G memory - used for SDRAM errata workaround */
 #define MEMSIZE_4G	(4ULL * 1024ULL * 1024ULL * 1024ULL)
 	const unsigned long long memsize = MEMSIZE_4G;
-	const unsigned int cs = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS;
-	const unsigned int rows = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS;
-	const unsigned int banks = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_BANKBITS;
-	const unsigned int cols = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_COLBITS;
+	const unsigned int cs =
+		((cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_CSBITS_MASK) >>
+			SDR_CTRLGRP_DRAMADDRW_CSBITS_LSB) + 1;
+	const unsigned int rows =
+		(cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_ROWBITS_MASK) >>
+			SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB;
+	const unsigned int banks =
+		(cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_BANKBITS_MASK) >>
+			SDR_CTRLGRP_DRAMADDRW_BANKBITS_LSB;
+	const unsigned int cols =
+		(cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_COLBITS_MASK) >>
+			SDR_CTRLGRP_DRAMADDRW_COLBITS_LSB;
 	const unsigned int width = 8;
 
 	unsigned long long newrows;
@@ -456,7 +469,13 @@ static unsigned sdram_write_verify(unsigned int *addr, unsigned reg_value)
 
 static void set_sdr_ctrlcfg(struct socfpga_sdram_config *cfg)
 {
-	u32 addrorder;
+	const u32 csbits =
+		((cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_CSBITS_MASK) >>
+			SDR_CTRLGRP_DRAMADDRW_CSBITS_LSB) + 1;
+	u32 addrorder =
+		(cfg->ctrl_cfg & SDR_CTRLGRP_CTRLCFG_ADDRORDER_MASK) >>
+			SDR_CTRLGRP_CTRLCFG_ADDRORDER_LSB;
+
 	u32 ctrl_cfg = cfg->ctrl_cfg;
 
 	debug("\nConfiguring CTRLCFG\n");
@@ -466,22 +485,17 @@ static void set_sdr_ctrlcfg(struct socfpga_sdram_config *cfg)
 	 * Set the addrorder field of the SDRAM control register
 	 * based on the CSBITs setting.
 	 */
-	switch (CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS) {
-	case 1:
-		addrorder = 0; /* chip, row, bank, column */
-		if (CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ADDRORDER != 0)
+	if (csbits == 1) {
+		if (addrorder != 0)
 			debug("INFO: Changing address order to 0 (chip, row, bank, column)\n");
-		break;
-	case 2:
-		addrorder = 2; /* row, chip, bank, column */
-		if (CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ADDRORDER != 2)
+		addrorder = 0;
+	} else if (csbits == 2) {
+		if (addrorder != 2)
 			debug("INFO: Changing address order to 2 (row, chip, bank, column)\n");
-		break;
-	default:
-		addrorder = CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ADDRORDER;
-		break;
+		addrorder = 2;
 	}
 
+	ctrl_cfg &= ~SDR_CTRLGRP_CTRLCFG_ADDRORDER_MASK;
 	ctrl_cfg |= addrorder << SDR_CTRLGRP_CTRLCFG_ADDRORDER_LSB;
 
 	writel(ctrl_cfg, &sdr_ctrl->ctrl_cfg);
@@ -514,10 +528,11 @@ static void set_sdr_addr_rw(struct socfpga_sdram_config *cfg)
 	 * 1 or 2 chip selects, log2(1) => 0, and log2(2) => 1,
 	 * which is the same as "chip selects" - 1.
 	 */
-	const int rows = get_errata_rows();
+	const int rows = get_errata_rows(cfg);
+	u32 dram_addrw = cfg->dram_addrw & ~SDR_CTRLGRP_DRAMADDRW_ROWBITS_MASK;
 
 	debug("Configuring DRAMADDRW\n");
-	writel(cfg->dram_addrw | (rows << SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB),
+	writel(dram_addrw | (rows << SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB),
 	       &sdr_ctrl->dram_addrw);
 }
 
@@ -564,16 +579,12 @@ unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
 {
 	unsigned long status = 0;
 	struct socfpga_sdram_config *cfg = &sdram_config;
+	const unsigned int rows =
+		(cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_ROWBITS_MASK) >>
+			SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB;
 
-#if defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS) && \
-defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS) && \
-defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_BANKBITS) && \
-defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_COLBITS) && \
-defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS)
+	writel(rows, &sysmgr_regs->iswgrp_handoff[4]);
 
-	writel(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS,
-	       &sysmgr_regs->iswgrp_handoff[4]);
-#endif
 	set_sdr_ctrlcfg(cfg);
 	set_sdr_dram_timing(cfg);
 	set_sdr_addr_rw(cfg);
