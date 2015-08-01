@@ -467,7 +467,7 @@ static unsigned sdram_write_verify(unsigned int *addr, unsigned reg_value)
 	return 0;
 }
 
-static void set_sdr_ctrlcfg(struct socfpga_sdram_config *cfg)
+static u32 sdr_get_ctrlcfg(struct socfpga_sdram_config *cfg)
 {
 	const u32 csbits =
 		((cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_CSBITS_MASK) >>
@@ -477,8 +477,6 @@ static void set_sdr_ctrlcfg(struct socfpga_sdram_config *cfg)
 			SDR_CTRLGRP_CTRLCFG_ADDRORDER_LSB;
 
 	u32 ctrl_cfg = cfg->ctrl_cfg;
-
-	debug("\nConfiguring CTRLCFG\n");
 
 	/*
 	 * SDRAM Failure When Accessing Non-Existent Memory
@@ -498,10 +496,10 @@ static void set_sdr_ctrlcfg(struct socfpga_sdram_config *cfg)
 	ctrl_cfg &= ~SDR_CTRLGRP_CTRLCFG_ADDRORDER_MASK;
 	ctrl_cfg |= addrorder << SDR_CTRLGRP_CTRLCFG_ADDRORDER_LSB;
 
-	writel(ctrl_cfg, &sdr_ctrl->ctrl_cfg);
+	return ctrl_cfg;
 }
 
-static void set_sdr_addr_rw(struct socfpga_sdram_config *cfg)
+static u32 sdr_get_addr_rw(struct socfpga_sdram_config *cfg)
 {
 	/*
 	 * SDRAM Failure When Accessing Non-Existent Memory
@@ -513,9 +511,7 @@ static void set_sdr_addr_rw(struct socfpga_sdram_config *cfg)
 	const int rows = get_errata_rows(cfg);
 	u32 dram_addrw = cfg->dram_addrw & ~SDR_CTRLGRP_DRAMADDRW_ROWBITS_MASK;
 
-	debug("Configuring DRAMADDRW\n");
-	writel(dram_addrw | (rows << SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB),
-	       &sdr_ctrl->dram_addrw);
+	return dram_addrw | (rows << SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB);
 }
 
 /* Function to initialize SDRAM MMR */
@@ -527,9 +523,13 @@ unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
 		(cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_ROWBITS_MASK) >>
 			SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB;
 
+	const u32 ctrl_cfg = sdr_get_ctrlcfg(cfg);
+	const u32 dram_addrw = sdr_get_addr_rw(cfg);
+
 	writel(rows, &sysmgr_regs->iswgrp_handoff[4]);
 
-	set_sdr_ctrlcfg(cfg);
+	debug("\nConfiguring CTRLCFG\n");
+	writel(ctrl_cfg, &sdr_ctrl->ctrl_cfg);
 
 	debug("Configuring DRAMTIMING1\n");
 	writel(cfg->dram_timing1, &sdr_ctrl->dram_timing1);
@@ -546,7 +546,8 @@ unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
 	debug("Configuring LOWPWRTIMING\n");
 	writel(cfg->lowpwr_timing, &sdr_ctrl->lowpwr_timing);
 
-	set_sdr_addr_rw(cfg);
+	debug("Configuring DRAMADDRW\n");
+	writel(dram_addrw, &sdr_ctrl->dram_addrw);
 
 	debug("Configuring DRAMIFWIDTH\n");
 	writel(cfg->dram_if_width, &sdr_ctrl->dram_if_width);
