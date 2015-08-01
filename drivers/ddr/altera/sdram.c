@@ -371,34 +371,24 @@ static void set_sdr_dram_timing(void)
 
 static void set_sdr_addr_rw(void)
 {
-	int rows;
-
-	debug("Configuring DRAMADDRW\n");
-	clrsetbits_le32(&sdr_ctrl->dram_addrw, SDR_CTRLGRP_DRAMADDRW_COLBITS_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_COLBITS <<
-			SDR_CTRLGRP_DRAMADDRW_COLBITS_LSB);
 	/*
 	 * SDRAM Failure When Accessing Non-Existent Memory
-	 * Update Preloader to artificially increase the number of rows so
-	 * that the memory thinks it has 4GB of RAM.
-	 */
-	rows = get_errata_rows();
-
-	clrsetbits_le32(&sdr_ctrl->dram_addrw, SDR_CTRLGRP_DRAMADDRW_ROWBITS_MASK,
-			rows << SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB);
-
-	clrsetbits_le32(&sdr_ctrl->dram_addrw, SDR_CTRLGRP_DRAMADDRW_BANKBITS_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_BANKBITS <<
-			SDR_CTRLGRP_DRAMADDRW_BANKBITS_LSB);
-	/* SDRAM Failure When Accessing Non-Existent Memory
 	 * Set SDR_CTRLGRP_DRAMADDRW_CSBITS_LSB to
 	 * log2(number of chip select bits). Since there's only
 	 * 1 or 2 chip selects, log2(1) => 0, and log2(2) => 1,
 	 * which is the same as "chip selects" - 1.
 	 */
-	clrsetbits_le32(&sdr_ctrl->dram_addrw, SDR_CTRLGRP_DRAMADDRW_CSBITS_MASK,
-			(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS - 1) <<
+	const int rows = get_errata_rows();
+	const u32 dram_addrw =
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_COLBITS <<
+			SDR_CTRLGRP_DRAMADDRW_COLBITS_LSB)	|
+		(rows << SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB)	|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_BANKBITS <<
+			SDR_CTRLGRP_DRAMADDRW_BANKBITS_LSB)	|
+		((CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS - 1) <<
 			SDR_CTRLGRP_DRAMADDRW_CSBITS_LSB);
+	debug("Configuring DRAMADDRW\n");
+	writel(dram_addrw, &sdr_ctrl->dram_addrw);
 }
 
 static void set_sdr_static_cfg(void)
