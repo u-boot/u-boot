@@ -117,8 +117,8 @@ static void sdram_set_rule(struct sdram_prot_rule *prule)
 	writel(ruleno, &sdr_ctrl->prot_rule_rdwr);
 
 	/* Obtain the address bits */
-	lo_addr_bits = (uint32_t)(((prule->sdram_start) >> 20ULL) & 0xFFF);
-	hi_addr_bits = (uint32_t)((((prule->sdram_end-1) >> 20ULL)) & 0xFFF);
+	lo_addr_bits = prule->sdram_start >> 20ULL;
+	hi_addr_bits = (prule->sdram_end - 1) >> 20ULL;
 
 	debug("sdram set rule start %x, %lld\n", lo_addr_bits,
 	      prule->sdram_start);
@@ -138,7 +138,7 @@ static void sdram_set_rule(struct sdram_prot_rule *prule)
 	       &sdr_ctrl->prot_rule_data);
 
 	/* write the rule */
-	writel(ruleno | (1L << 5), &sdr_ctrl->prot_rule_rdwr);
+	writel(ruleno | (1 << 5), &sdr_ctrl->prot_rule_rdwr);
 
 	/* Set rule number to 0 by default */
 	writel(0, &sdr_ctrl->prot_rule_rdwr);
@@ -183,7 +183,7 @@ static void sdram_set_protection_config(uint64_t sdram_start, uint64_t sdram_end
 	writel(0x0, &sdr_ctrl->protport_default);
 
 	/* Clear all protection rules for warm boot case */
-	memset(&rule, 0, sizeof(struct sdram_prot_rule));
+	memset(&rule, 0, sizeof(rule));
 
 	for (rules = 0; rules < 20; rules++) {
 		rule.rule = rules;
