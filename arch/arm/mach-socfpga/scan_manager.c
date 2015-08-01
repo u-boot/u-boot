@@ -50,13 +50,57 @@ static u32 scan_chain_engine_is_idle(u32 max_iter)
 	return -ETIMEDOUT;
 }
 
+#define JTAG_BP_INSN		(1 << 0)
+#define JTAG_BP_TMS		(1 << 1)
+#define JTAG_BP_PAYLOAD		(1 << 2)
+#define JTAG_BP_2BYTE		(1 << 3)
+#define JTAG_BP_4BYTE		(1 << 4)
+
+/**
+ * scan_mgr_jtag_io() - Access the JTAG chain
+ * @flags:	Control flags, used to configure the action on the JTAG
+ * @iarg:	Instruction argument
+ * @parg:	Payload argument or data
+ *
+ * Perform I/O on the JTAG chain
+ */
+static void scan_mgr_jtag_io(const u32 flags, const u8 iarg, const u32 parg)
+{
+	u32 data = parg;
+
+	if (flags & JTAG_BP_INSN) {	/* JTAG instruction */
+		/*
+		 * The SCC JTAG register is LSB first, so make
+		 * space for the instruction at the LSB.
+		 */
+		data <<= 8;
+		if (flags & JTAG_BP_TMS) {
+			data |= (0 << 7);	/* TMS instruction. */
+			data |= iarg & 0x3f;	/* TMS arg is 6 bits. */
+			if (flags & JTAG_BP_PAYLOAD)
+				data |= (1 << 6);
+		} else {
+			data |= (1 << 7);	/* TDI/TDO instruction. */
+			data |= iarg & 0xf;	/* TDI/TDO arg is 4 bits. */
+			if (flags & JTAG_BP_PAYLOAD)
+				data |= (1 << 4);
+		}
+	}
+
+	if (flags & JTAG_BP_4BYTE)
+		writel(data, &scan_manager_base->fifo_quad_byte);
+	else if (flags & JTAG_BP_2BYTE)
+		writel(data & 0xffff, &scan_manager_base->fifo_double_byte);
+	else
+		writel(data & 0xff, &scan_manager_base->fifo_single_byte);
+}
+
 /**
  * scan_mgr_io_scan_chain_prg() - Program HPS IO Scan Chain
  * @io_scan_chain_id:		IO scan chain ID
  */
 static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 {
-	uint16_t tdi_tdo_header;
 	uint32_t io_program_iter;
 	uint32_t io_scan_chain_data_residual;
 	uint32_t residual;
@@ -101,27 +145,17 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 	io_scan_chain_data_residual = io_scan_chain_len_in_bits &
 		IO_SCAN_CHAIN_128BIT_MASK;
 
-	/* Construct TDI_TDO packet for 128-bit IO scan chain (2 bytes) */
-	tdi_tdo_header = TDI_TDO_HEADER_FIRST_BYTE |
-		(TDI_TDO_MAX_PAYLOAD <<	TDI_TDO_HEADER_SECOND_BYTE_SHIFT);
-
 	/* Program IO scan chain in 128-bit iteration */
 	for (i = 0; i < io_program_iter; i++) {
-		/* write TDI_TDO packet header to scan manager */
-		writel(tdi_tdo_header,	&scan_manager_base->fifo_double_byte);
-
-		/* calculate array index. Multiply by 4 as write 4 x 32bits */
-		index = i * 4;
+		/* Write TDI_TDO packet header for 128-bit IO scan chain */
+		scan_mgr_jtag_io(JTAG_BP_INSN | JTAG_BP_2BYTE, 0x0,
+				 TDI_TDO_MAX_PAYLOAD);
 
 		/* write 4 successive 32-bit IO scan chain data into WFIFO */
-		writel(iocsr_scan_chain[index],
-		       &scan_manager_base->fifo_quad_byte);
-		writel(iocsr_scan_chain[index + 1],
-		       &scan_manager_base->fifo_quad_byte);
-		writel(iocsr_scan_chain[index + 2],
-		       &scan_manager_base->fifo_quad_byte);
-		writel(iocsr_scan_chain[index + 3],
-		       &scan_manager_base->fifo_quad_byte);
+		scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0, iocsr_scan_chain[index++]);
+		scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0, iocsr_scan_chain[index++]);
+		scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0, iocsr_scan_chain[index++]);
+		scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0, iocsr_scan_chain[index++]);
 
 		/*
 		 * Check if the scan chain engine has completed the
@@ -131,9 +165,6 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 		if (ret)
 			goto error;
 	}
-
-	/* Calculate array index for final TDI_TDO packet */
-	index = io_program_iter * 4;
 
 	/* Final TDI_TDO packet if any */
 	if (io_scan_chain_data_residual) {
@@ -145,29 +176,21 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 			IO_SCAN_CHAIN_32BIT_SHIFT;
 
 		/*
-		 * Construct TDI_TDO packet for remaining IO
-		 * scan chain (2 bytes)
+		 * Program the last part of IO scan chain write TDI_TDO
+		 * packet header (2 bytes) to scan manager.
 		 */
-		tdi_tdo_header	= TDI_TDO_HEADER_FIRST_BYTE |
-			((io_scan_chain_data_residual - 1) <<
-			TDI_TDO_HEADER_SECOND_BYTE_SHIFT);
-
-		/*
-		 * Program the last part of IO scan chain write TDI_TDO packet
-		 * header (2 bytes) to scan manager
-		 */
-		writel(tdi_tdo_header, &scan_manager_base->fifo_double_byte);
+		scan_mgr_jtag_io(JTAG_BP_INSN | JTAG_BP_2BYTE, 0x0,
+				 io_scan_chain_data_residual - 1);
 
 		for (i = 0; i < io_program_iter; i++) {
 			/*
 			 * write remaining scan chain data into scan
 			 * manager WFIFO with 4 bytes write
-			*/
-			writel(iocsr_scan_chain[index + i],
-			       &scan_manager_base->fifo_quad_byte);
+			 */
+			scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0,
+					 iocsr_scan_chain[index++]);
 		}
 
-		index += io_program_iter;
 		residual = io_scan_chain_data_residual &
 			IO_SCAN_CHAIN_32BIT_MASK;
 
@@ -176,8 +199,8 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 			 * write the last 4B scan chain data
 			 * into scan manager WFIFO
 			 */
-			writel(iocsr_scan_chain[index],
-			       &scan_manager_base->fifo_quad_byte);
+			scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0,
+					 iocsr_scan_chain[index]);
 		} else {
 			/*
 			 * write the remaining 1 - 3 bytes scan chain
@@ -189,9 +212,8 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 			 * glitch)
 			 */
 			for (i = 0; i < residual; i += 8) {
-				writel(((iocsr_scan_chain[index] >> i)
-					& IO_SCAN_CHAIN_BYTE_MASK),
-					&scan_manager_base->fifo_single_byte);
+				scan_mgr_jtag_io(0, 0x0,
+					 iocsr_scan_chain[index] >> i);
 			}
 		}
 
