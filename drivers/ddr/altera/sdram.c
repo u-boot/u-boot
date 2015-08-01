@@ -451,14 +451,11 @@ int sdram_mmr_init_full(unsigned int sdr_phy_reg)
 	return status;
 }
 
-/*
- * To calculate SDRAM device size based on SDRAM controller parameters.
- * Size is specified in bytes.
+/**
+ * sdram_calculate_size() - Calculate SDRAM size
  *
- * NOTE:
- * This function is compiled and linked into the preloader and
- * Uboot (there may be others). So if this function changes, the Preloader
- * and UBoot must be updated simultaneously.
+ * Calculate SDRAM device size based on SDRAM controller parameters.
+ * Size is specified in bytes.
  */
 unsigned long sdram_calculate_size(void)
 {
@@ -476,23 +473,17 @@ unsigned long sdram_calculate_size(void)
 	col = (temp & SDR_CTRLGRP_DRAMADDRW_COLBITS_MASK) >>
 		SDR_CTRLGRP_DRAMADDRW_COLBITS_LSB;
 
-	/* SDRAM Failure When Accessing Non-Existent Memory
+	/*
+	 * SDRAM Failure When Accessing Non-Existent Memory
 	 * Use ROWBITS from Quartus/QSys to calculate SDRAM size
 	 * since the FB specifies we modify ROWBITs to work around SDRAM
 	 * controller issue.
-	 *
-	 * If the stored handoff value for rows is 0, it probably means
-	 * the preloader is older than UBoot. Use the
-	 * #define from the SOCEDS Tools per Crucible review
-	 * uboot-socfpga-204. Note that this is not a supported
-	 * configuration and is not tested. The customer
-	 * should be using preloader and uboot built from the
-	 * same tag.
 	 */
 	row = readl(&sysmgr_regs->iswgrp_handoff[4]);
 	if (row == 0)
 		row = rowbits;
-	/* If the stored handoff value for rows is greater than
+	/*
+	 * If the stored handoff value for rows is greater than
 	 * the field width in the sdr.dramaddrw register then
 	 * something is very wrong. Revert to using the the #define
 	 * value handed off by the SOCEDS tool chain instead of
@@ -504,18 +495,16 @@ unsigned long sdram_calculate_size(void)
 	bank = (temp & SDR_CTRLGRP_DRAMADDRW_BANKBITS_MASK) >>
 		SDR_CTRLGRP_DRAMADDRW_BANKBITS_LSB;
 
-	/* SDRAM Failure When Accessing Non-Existent Memory
+	/*
+	 * SDRAM Failure When Accessing Non-Existent Memory
 	 * Use CSBITs from Quartus/QSys to calculate SDRAM size
 	 * since the FB specifies we modify CSBITs to work around SDRAM
 	 * controller issue.
 	 */
-	cs = (temp & SDR_CTRLGRP_DRAMADDRW_CSBITS_MASK) >>
-	      SDR_CTRLGRP_DRAMADDRW_CSBITS_LSB;
-	cs += 1;
-
 	cs = csbits;
 
 	width = readl(&sdr_ctrl->dram_if_width);
+
 	/* ECC would not be calculated as its not addressible */
 	if (width == SDRAM_WIDTH_32BIT_WITH_ECC)
 		width = 32;
@@ -526,7 +515,7 @@ unsigned long sdram_calculate_size(void)
 	temp = 1 << (row + bank + col);
 	temp = temp * cs * (width  / 8);
 
-	debug("sdram_calculate_memory returns %ld\n", temp);
+	debug("%s returns %ld\n", __func__, temp);
 
 	return temp;
 }
