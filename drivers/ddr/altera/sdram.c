@@ -500,7 +500,6 @@ static void set_sdr_mp_threshold(struct socfpga_sdram_config *cfg)
 /* Function to initialize SDRAM MMR */
 unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
 {
-	unsigned long reg_value;
 	unsigned long status = 0;
 	struct socfpga_sdram_config *cfg = &sdram_config;
 
@@ -574,73 +573,36 @@ defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS)
 			SDR_CTRLGRP_CPORTWIDTH_CMDPORTWIDTH_MASK,
 			CONFIG_HPS_SDR_CTRLCFG_CPORTWIDTH_CPORTWIDTH <<
 			SDR_CTRLGRP_CPORTWIDTH_CMDPORTWIDTH_LSB);
-	debug("   Write - Address ");
-	debug("0x%08x Data 0x%08x\n",
-		(unsigned)(&sdr_ctrl->cport_width),
-		(unsigned)reg_value);
-	reg_value = readl(&sdr_ctrl->cport_width);
-	debug("   Read value without verify 0x%08x\n", (unsigned)reg_value);
 
 	debug("Configuring CPORTWMAP\n");
 	clrsetbits_le32(&sdr_ctrl->cport_wmap,
 			SDR_CTRLGRP_CPORTWMAP_CPORTWFIFOMAP_MASK,
 			CONFIG_HPS_SDR_CTRLCFG_CPORTWMAP_CPORTWMAP <<
 			SDR_CTRLGRP_CPORTWMAP_CPORTWFIFOMAP_LSB);
-	debug("   Write - Address ");
-	debug("0x%08x Data 0x%08x\n",
-		(unsigned)(&sdr_ctrl->cport_wmap),
-		(unsigned)reg_value);
-	reg_value = readl(&sdr_ctrl->cport_wmap);
-	debug("   Read value without verify 0x%08x\n", (unsigned)reg_value);
 
 	debug("Configuring CPORTRMAP\n");
 	clrsetbits_le32(&sdr_ctrl->cport_rmap,
 			SDR_CTRLGRP_CPORTRMAP_CPORTRFIFOMAP_MASK,
 			CONFIG_HPS_SDR_CTRLCFG_CPORTRMAP_CPORTRMAP <<
 			SDR_CTRLGRP_CPORTRMAP_CPORTRFIFOMAP_LSB);
-	debug("   Write - Address ");
-	debug("0x%08x Data 0x%08x\n",
-		(unsigned)(&sdr_ctrl->cport_rmap),
-		(unsigned)reg_value);
-	reg_value = readl(&sdr_ctrl->cport_rmap);
-	debug("   Read value without verify 0x%08x\n", (unsigned)reg_value);
 
 	debug("Configuring RFIFOCMAP\n");
 	clrsetbits_le32(&sdr_ctrl->rfifo_cmap,
 			SDR_CTRLGRP_RFIFOCMAP_RFIFOCPORTMAP_MASK,
 			CONFIG_HPS_SDR_CTRLCFG_RFIFOCMAP_RFIFOCMAP <<
 			SDR_CTRLGRP_RFIFOCMAP_RFIFOCPORTMAP_LSB);
-	debug("   Write - Address ");
-	debug("0x%08x Data 0x%08x\n",
-		(unsigned)(&sdr_ctrl->rfifo_cmap),
-		(unsigned)reg_value);
-	reg_value = readl(&sdr_ctrl->rfifo_cmap);
-	debug("   Read value without verify 0x%08x\n", (unsigned)reg_value);
 
 	debug("Configuring WFIFOCMAP\n");
-	reg_value = readl(&sdr_ctrl->wfifo_cmap);
 	clrsetbits_le32(&sdr_ctrl->wfifo_cmap,
 			SDR_CTRLGRP_WFIFOCMAP_WFIFOCPORTMAP_MASK,
 			CONFIG_HPS_SDR_CTRLCFG_WFIFOCMAP_WFIFOCMAP <<
 			SDR_CTRLGRP_WFIFOCMAP_WFIFOCPORTMAP_LSB);
-	debug("   Write - Address ");
-	debug("0x%08x Data 0x%08x\n",
-		(unsigned)(&sdr_ctrl->wfifo_cmap),
-		(unsigned)reg_value);
-	reg_value = readl(&sdr_ctrl->wfifo_cmap);
-	debug("   Read value without verify 0x%08x\n", (unsigned)reg_value);
 
 	debug("Configuring CPORTRDWR\n");
 	clrsetbits_le32(&sdr_ctrl->cport_rdwr,
 			SDR_CTRLGRP_CPORTRDWR_CPORTRDWR_MASK,
 			CONFIG_HPS_SDR_CTRLCFG_CPORTRDWR_CPORTRDWR <<
 			SDR_CTRLGRP_CPORTRDWR_CPORTRDWR_LSB);
-	debug("   Write - Address ");
-	debug("0x%08x Data 0x%08x\n",
-		(unsigned)(&sdr_ctrl->cport_rdwr),
-		(unsigned)reg_value);
-	reg_value = readl(&sdr_ctrl->cport_rdwr);
-	debug("   Read value without verify 0x%08x\n", (unsigned)reg_value);
 
 	debug("Configuring DRAMODT\n");
 	clrsetbits_le32(&sdr_ctrl->dram_odt,
@@ -674,12 +636,6 @@ defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS)
 	debug("Configuring STATICCFG_\n");
 	clrsetbits_le32(&sdr_ctrl->static_cfg, SDR_CTRLGRP_STATICCFG_APPLYCFG_MASK,
 			1 << SDR_CTRLGRP_STATICCFG_APPLYCFG_LSB);
-	debug("   Write - Address ");
-	debug("0x%08x Data 0x%08x\n",
-		(unsigned)(&sdr_ctrl->static_cfg),
-		(unsigned)reg_value);
-	reg_value = readl(&sdr_ctrl->static_cfg);
-	debug("   Read value without verify 0x%08x\n", (unsigned)reg_value);
 
 	sdram_set_protection_config(0, sdram_calculate_size());
 
