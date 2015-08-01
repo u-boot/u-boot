@@ -9,7 +9,7 @@
 #ifndef __ASSEMBLY__
 
 unsigned long sdram_calculate_size(void);
-unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg);
+int sdram_mmr_init_full(unsigned int sdr_phy_reg);
 int sdram_calibration_full(void);
 
 extern int sdram_calibration(void);

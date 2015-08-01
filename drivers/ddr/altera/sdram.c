@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <errno.h>
 #include <div64.h>
 #include <watchdog.h>
 #include <asm/arch/fpga_manager.h>
@@ -621,7 +622,7 @@ static void sdr_load_regs(struct socfpga_sdram_config *cfg)
  *
  * Initialize the SDRAM MMR.
  */
-unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
+int sdram_mmr_init_full(unsigned int sdr_phy_reg)
 {
 	unsigned long status = 0;
 	struct socfpga_sdram_config *cfg = &sdram_config;
