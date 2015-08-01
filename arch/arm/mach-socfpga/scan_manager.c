@@ -18,6 +18,12 @@
  */
 #define SCANMGR_MAX_DELAY		100
 
+/*
+ * Maximum length of TDI_TDO packet payload is 128 bits,
+ * represented by (length - 1) in TDI_TDO header.
+ */
+#define TDI_TDO_MAX_PAYLOAD		127
+
 #define SCANMGR_STAT_ACTIVE		(1 << 31)
 #define SCANMGR_STAT_WFIFOCNT_MASK	0x70000000
 
@@ -101,13 +107,10 @@ static void scan_mgr_jtag_io(const u32 flags, const u8 iarg, const u32 parg)
  */
 static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 {
-	uint32_t io_program_iter;
-	uint32_t io_scan_chain_data_residual;
-	uint32_t residual;
-	uint32_t i, ret;
-	uint32_t index = 0;
-	uint32_t io_scan_chain_len_in_bits;
+	u32 residual;
+	u32 io_scan_chain_len_in_bits;
 	const unsigned long *iocsr_scan_chain;
+	int i, ret, index = 0;
 
 	ret = iocsr_get_config_table(io_scan_chain_id, &iocsr_scan_chain,
 				     &io_scan_chain_len_in_bits);
@@ -136,17 +139,8 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 	 */
 	setbits_le32(&scan_manager_base->en, 1 << io_scan_chain_id);
 
-	/*
-	 * Calculate number of iteration needed for full 128-bit (4 x32-bits)
-	 * bits shifting. Each TDI_TDO packet can shift in maximum 128-bits
-	 */
-	io_program_iter	= io_scan_chain_len_in_bits >>
-		IO_SCAN_CHAIN_128BIT_SHIFT;
-	io_scan_chain_data_residual = io_scan_chain_len_in_bits &
-		IO_SCAN_CHAIN_128BIT_MASK;
-
 	/* Program IO scan chain in 128-bit iteration */
-	for (i = 0; i < io_program_iter; i++) {
+	for (i = 0; i < io_scan_chain_len_in_bits / 128; i++) {
 		/* Write TDI_TDO packet header for 128-bit IO scan chain */
 		scan_mgr_jtag_io(JTAG_BP_INSN | JTAG_BP_2BYTE, 0x0,
 				 TDI_TDO_MAX_PAYLOAD);
@@ -166,23 +160,18 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 			goto error;
 	}
 
-	/* Final TDI_TDO packet if any */
-	if (io_scan_chain_data_residual) {
-		/*
-		 * Calculate number of quad bytes FIFO write
-		 * needed for the final TDI_TDO packet
-		 */
-		io_program_iter	= io_scan_chain_data_residual >>
-			IO_SCAN_CHAIN_32BIT_SHIFT;
+	residual = io_scan_chain_len_in_bits % 128;
 
+	/* Final TDI_TDO packet (if chain length is not aligned to 128 bits) */
+	if (residual) {
 		/*
 		 * Program the last part of IO scan chain write TDI_TDO
 		 * packet header (2 bytes) to scan manager.
 		 */
 		scan_mgr_jtag_io(JTAG_BP_INSN | JTAG_BP_2BYTE, 0x0,
-				 io_scan_chain_data_residual - 1);
+				 residual - 1);
 
-		for (i = 0; i < io_program_iter; i++) {
+		for (i = 0; i < residual / 32; i++) {
 			/*
 			 * write remaining scan chain data into scan
 			 * manager WFIFO with 4 bytes write
@@ -191,10 +180,8 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 					 iocsr_scan_chain[index++]);
 		}
 
-		residual = io_scan_chain_data_residual &
-			IO_SCAN_CHAIN_32BIT_MASK;
-
-		if (IO_SCAN_CHAIN_PAYLOAD_24BIT < residual) {
+		residual = io_scan_chain_len_in_bits % 32;
+		if (residual > 24) {
 			/*
 			 * write the last 4B scan chain data
 			 * into scan manager WFIFO
