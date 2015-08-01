@@ -74,8 +74,11 @@ specified by tags you place in the commits. Use -n to do a dry run first."""
 settings.Setup(parser, options.project, '')
 (options, args) = parser.parse_args()
 
+if __name__ != "__main__":
+    pass
+
 # Run our meagre tests
-if options.test:
+elif options.test:
     import doctest
 
     sys.argv = [sys.argv[0]]
