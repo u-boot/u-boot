@@ -59,15 +59,6 @@ struct socfpga_scan_manager {
 /* Position of second command byte for TDI_TDO packet */
 #define TDI_TDO_HEADER_SECOND_BYTE_SHIFT	8
 
-/*
- * Maximum polling loop to wait for IO scan chain engine
- * becomes idle to prevent infinite loop
- */
-#define SCAN_MAX_DELAY				100
-
-#define SCANMGR_STAT_ACTIVE_GET(x) (((x) & 0x80000000) >> 31)
-#define SCANMGR_STAT_WFIFOCNT_GET(x) (((x) & 0x70000000) >> 28)
-
 int scan_mgr_configure_iocsr(void);
 int iocsr_get_config_table(const unsigned int chain_id,
 			   const unsigned long **table,

@@ -5,9 +5,21 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <asm/io.h>
 #include <asm/arch/freeze_controller.h>
 #include <asm/arch/scan_manager.h>
+
+/*
+ * Maximum polling loop to wait for IO scan chain engine becomes idle
+ * to prevent infinite loop. It is important that this is NOT changed
+ * to delay using timer functions, since at the time this function is
+ * called, timer might not yet be inited.
+ */
+#define SCANMGR_MAX_DELAY		100
+
+#define SCANMGR_STAT_ACTIVE		(1 << 31)
+#define SCANMGR_STAT_WFIFOCNT_MASK	0x70000000
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -16,26 +28,26 @@ static const struct socfpga_scan_manager *scan_manager_base =
 static const struct socfpga_freeze_controller *freeze_controller_base =
 		(void *)(SOCFPGA_SYSMGR_ADDRESS + SYSMGR_FRZCTRL_ADDRESS);
 
-/*
+/**
+ * scan_chain_engine_is_idle() - Check if the JTAG scan chain is idle
+ * @max_iter:	Maximum number of iterations to wait for idle
+ *
  * Function to check IO scan chain engine status and wait if the engine is
  * is active. Poll the IO scan chain engine till maximum iteration reached.
  */
-static inline uint32_t scan_chain_engine_is_idle(uint32_t max_iter)
+static u32 scan_chain_engine_is_idle(u32 max_iter)
 {
-	uint32_t scanmgr_status;
+	const u32 mask = SCANMGR_STAT_ACTIVE | SCANMGR_STAT_WFIFOCNT_MASK;
+	u32 status;
 
-	scanmgr_status = readl(&scan_manager_base->stat);
-
-	/* Poll the engine until the scan engine is inactive */
-	while (SCANMGR_STAT_ACTIVE_GET(scanmgr_status) ||
-	      (SCANMGR_STAT_WFIFOCNT_GET(scanmgr_status) > 0)) {
-		max_iter--;
-		if (max_iter > 0)
-			scanmgr_status = readl(&scan_manager_base->stat);
-		else
+	/* Poll the engine until the scan engine is inactive. */
+	do {
+		status = readl(&scan_manager_base->stat);
+		if (!(status & mask))
 			return 0;
-	}
-	return 1;
+	} while (max_iter--);
+
+	return -ETIMEDOUT;
 }
 
 /**
@@ -70,8 +82,9 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 	 * Check if the scan chain engine is inactive and the
 	 * WFIFO is empty before enabling the IO scan chain
 	 */
-	if (!scan_chain_engine_is_idle(SCAN_MAX_DELAY))
-		return 1;
+	ret = scan_chain_engine_is_idle(SCANMGR_MAX_DELAY);
+	if (ret)
+		return ret;
 
 	/*
 	 * Enable IO Scan chain based on scan chain id
@@ -114,7 +127,8 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 		 * Check if the scan chain engine has completed the
 		 * IO scan chain data shifting
 		 */
-		if (!scan_chain_engine_is_idle(SCAN_MAX_DELAY))
+		ret = scan_chain_engine_is_idle(SCANMGR_MAX_DELAY);
+		if (ret)
 			goto error;
 	}
 
@@ -185,7 +199,8 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 		 * Check if the scan chain engine has completed the
 		 * IO scan chain data shifting
 		 */
-		if (!scan_chain_engine_is_idle(SCAN_MAX_DELAY))
+		ret = scan_chain_engine_is_idle(SCANMGR_MAX_DELAY);
+		if (ret)
 			goto error;
 	}
 
@@ -196,7 +211,7 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 error:
 	/* Disable IO Scan chain when error detected */
 	clrbits_le32(&scan_manager_base->en, 1 << io_scan_chain_id);
-	return 1;
+	return ret;
 }
 
 int scan_mgr_configure_iocsr(void)
