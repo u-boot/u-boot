@@ -254,18 +254,29 @@ static unsigned sdram_write_verify(unsigned int *addr, unsigned reg_value)
 
 static void set_sdr_ctrlcfg(void)
 {
-	int addrorder;
+	u32 addrorder;
+	u32 ctrl_cfg =
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMTYPE <<
+			SDR_CTRLGRP_CTRLCFG_MEMTYPE_LSB)	|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMBL <<
+			SDR_CTRLGRP_CTRLCFG_MEMBL_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCEN <<
+			SDR_CTRLGRP_CTRLCFG_ECCEN_LSB)		|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCCORREN <<
+			SDR_CTRLGRP_CTRLCFG_ECCCORREN_LSB)	|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_REORDEREN <<
+			SDR_CTRLGRP_CTRLCFG_REORDEREN_LSB)	|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_STARVELIMIT <<
+			SDR_CTRLGRP_CTRLCFG_STARVELIMIT_LSB)	|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_DQSTRKEN <<
+			SDR_CTRLGRP_CTRLCFG_DQSTRKEN_LSB)	|
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_NODMPINS <<
+			SDR_CTRLGRP_CTRLCFG_NODMPINS_LSB);
 
 	debug("\nConfiguring CTRLCFG\n");
-	clrsetbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_MEMTYPE_MASK,
-		   CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMTYPE <<
-		   SDR_CTRLGRP_CTRLCFG_MEMTYPE_LSB);
-	clrsetbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_MEMBL_MASK,
-		   CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMBL <<
-		   SDR_CTRLGRP_CTRLCFG_MEMBL_LSB);
 
-
-	/* SDRAM Failure When Accessing Non-Existent Memory
+	/*
+	 * SDRAM Failure When Accessing Non-Existent Memory
 	 * Set the addrorder field of the SDRAM control register
 	 * based on the CSBITs setting.
 	 */
@@ -273,46 +284,21 @@ static void set_sdr_ctrlcfg(void)
 	case 1:
 		addrorder = 0; /* chip, row, bank, column */
 		if (CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ADDRORDER != 0)
-			debug("INFO: Changing address order to 0 (chip, row, \
-			      bank, column)\n");
+			debug("INFO: Changing address order to 0 (chip, row, bank, column)\n");
 		break;
 	case 2:
 		addrorder = 2; /* row, chip, bank, column */
 		if (CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ADDRORDER != 2)
-			debug("INFO: Changing address order to 2 (row, chip, \
-			      bank, column)\n");
+			debug("INFO: Changing address order to 2 (row, chip, bank, column)\n");
 		break;
 	default:
 		addrorder = CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ADDRORDER;
 		break;
 	}
 
-	clrsetbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_ADDRORDER_MASK,
-			addrorder << SDR_CTRLGRP_CTRLCFG_ADDRORDER_LSB);
+	ctrl_cfg |= addrorder << SDR_CTRLGRP_CTRLCFG_ADDRORDER_LSB;
 
-	clrsetbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_ECCEN_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCEN <<
-			SDR_CTRLGRP_CTRLCFG_ECCEN_LSB);
-
-	clrsetbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_ECCCORREN_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCCORREN <<
-			SDR_CTRLGRP_CTRLCFG_ECCCORREN_LSB);
-
-	clrsetbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_REORDEREN_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_REORDEREN <<
-			SDR_CTRLGRP_CTRLCFG_REORDEREN_LSB);
-
-	clrsetbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_STARVELIMIT_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_STARVELIMIT <<
-			SDR_CTRLGRP_CTRLCFG_STARVELIMIT_LSB);
-
-	clrsetbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_DQSTRKEN_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_DQSTRKEN <<
-			SDR_CTRLGRP_CTRLCFG_DQSTRKEN_LSB);
-
-	clrsetbits_le32(&sdr_ctrl->ctrl_cfg, SDR_CTRLGRP_CTRLCFG_NODMPINS_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_NODMPINS <<
-			SDR_CTRLGRP_CTRLCFG_NODMPINS_LSB);
+	writel(ctrl_cfg, &sdr_ctrl->ctrl_cfg);
 }
 
 static void set_sdr_dram_timing1(void)
