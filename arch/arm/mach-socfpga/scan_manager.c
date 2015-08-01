@@ -102,15 +102,46 @@ static void scan_mgr_jtag_io(const u32 flags, const u8 iarg, const u32 parg)
 }
 
 /**
+ * scan_mgr_jtag_insn_data() - Send JTAG instruction and data
+ * @iarg:	Instruction argument
+ * @data:	Associated data
+ * @dlen:	Length of data in bits
+ *
+ * This function is used when programming the IO chains to submit the
+ * instruction followed by variable length payload.
+ */
+static int
+scan_mgr_jtag_insn_data(const u8 iarg, const unsigned long *data,
+			const unsigned int dlen)
+{
+	int i, j;
+
+	scan_mgr_jtag_io(JTAG_BP_INSN | JTAG_BP_2BYTE, iarg, dlen - 1);
+
+	/* 32 bits or more remain */
+	for (i = 0; i < dlen / 32; i++)
+		scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0, data[i]);
+
+	if ((dlen % 32) > 24) {	/* 31...24 bits remain */
+		scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0, data[i]);
+	} else if (dlen % 32) {	/* 24...1 bit remain */
+		for (j = 0; j < dlen % 32; j += 8)
+			scan_mgr_jtag_io(0, 0x0, data[i] >> j);
+	}
+
+	return scan_chain_engine_is_idle(SCANMGR_MAX_DELAY);
+}
+
+/**
  * scan_mgr_io_scan_chain_prg() - Program HPS IO Scan Chain
  * @io_scan_chain_id:		IO scan chain ID
  */
 static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 {
-	u32 residual;
 	u32 io_scan_chain_len_in_bits;
 	const unsigned long *iocsr_scan_chain;
-	int i, ret, index = 0;
+	unsigned int rem, idx = 0;
+	int ret;
 
 	ret = iocsr_get_config_table(io_scan_chain_id, &iocsr_scan_chain,
 				     &io_scan_chain_len_in_bits);
@@ -139,78 +170,18 @@ static int scan_mgr_io_scan_chain_prg(const unsigned int io_scan_chain_id)
 	 */
 	setbits_le32(&scan_manager_base->en, 1 << io_scan_chain_id);
 
-	/* Program IO scan chain in 128-bit iteration */
-	for (i = 0; i < io_scan_chain_len_in_bits / 128; i++) {
-		/* Write TDI_TDO packet header for 128-bit IO scan chain */
-		scan_mgr_jtag_io(JTAG_BP_INSN | JTAG_BP_2BYTE, 0x0,
-				 TDI_TDO_MAX_PAYLOAD);
+	/* Program IO scan chain. */
+	while (io_scan_chain_len_in_bits) {
+		if (io_scan_chain_len_in_bits > 128)
+			rem = 128;
+		else
+			rem = io_scan_chain_len_in_bits;
 
-		/* write 4 successive 32-bit IO scan chain data into WFIFO */
-		scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0, iocsr_scan_chain[index++]);
-		scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0, iocsr_scan_chain[index++]);
-		scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0, iocsr_scan_chain[index++]);
-		scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0, iocsr_scan_chain[index++]);
-
-		/*
-		 * Check if the scan chain engine has completed the
-		 * IO scan chain data shifting
-		 */
-		ret = scan_chain_engine_is_idle(SCANMGR_MAX_DELAY);
+		ret = scan_mgr_jtag_insn_data(0x0, &iocsr_scan_chain[idx], rem);
 		if (ret)
 			goto error;
-	}
-
-	residual = io_scan_chain_len_in_bits % 128;
-
-	/* Final TDI_TDO packet (if chain length is not aligned to 128 bits) */
-	if (residual) {
-		/*
-		 * Program the last part of IO scan chain write TDI_TDO
-		 * packet header (2 bytes) to scan manager.
-		 */
-		scan_mgr_jtag_io(JTAG_BP_INSN | JTAG_BP_2BYTE, 0x0,
-				 residual - 1);
-
-		for (i = 0; i < residual / 32; i++) {
-			/*
-			 * write remaining scan chain data into scan
-			 * manager WFIFO with 4 bytes write
-			 */
-			scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0,
-					 iocsr_scan_chain[index++]);
-		}
-
-		residual = io_scan_chain_len_in_bits % 32;
-		if (residual > 24) {
-			/*
-			 * write the last 4B scan chain data
-			 * into scan manager WFIFO
-			 */
-			scan_mgr_jtag_io(JTAG_BP_4BYTE, 0x0,
-					 iocsr_scan_chain[index]);
-		} else {
-			/*
-			 * write the remaining 1 - 3 bytes scan chain
-			 * data into scan manager WFIFO byte by byte
-			 * to prevent JTAG engine shifting unused data
-			 * from the FIFO and mistaken the data as a
-			 * valid command (even though unused bits are
-			 * set to 0, but just to prevent hardware
-			 * glitch)
-			 */
-			for (i = 0; i < residual; i += 8) {
-				scan_mgr_jtag_io(0, 0x0,
-					 iocsr_scan_chain[index] >> i);
-			}
-		}
-
-		/*
-		 * Check if the scan chain engine has completed the
-		 * IO scan chain data shifting
-		 */
-		ret = scan_chain_engine_is_idle(SCANMGR_MAX_DELAY);
-		if (ret)
-			goto error;
+		io_scan_chain_len_in_bits -= rem;
+		idx += 4;
 	}
 
 	/* Disable IO Scan chain when configuration done*/
