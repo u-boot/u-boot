@@ -44,9 +44,24 @@ static struct socfpga_sdram_config {
 	u32	dram_timing3;
 	u32	dram_timing4;
 	u32	lowpwr_timing;
+	u32	dram_odt;
 	u32	dram_addrw;
+	u32	dram_if_width;
+	u32	dram_dev_width;
+	u32	dram_intr;
+	u32	lowpwr_eq;
 	u32	static_cfg;
+	u32	ctrl_width;
+	u32	cport_width;
+	u32	cport_wmap;
+	u32	cport_rmap;
+	u32	rfifo_cmap;
+	u32	wfifo_cmap;
+	u32	cport_rdwr;
+	u32	port_cfg;
+	u32	fpgaport_rst;
 	u32	fifo_cfg;
+	u32	mp_priority;
 	u32	mp_weight0;
 	u32	mp_weight1;
 	u32	mp_weight2;
@@ -58,6 +73,7 @@ static struct socfpga_sdram_config {
 	u32	mp_threshold0;
 	u32	mp_threshold1;
 	u32	mp_threshold2;
+	u32	phy_ctrl0;
 } sdram_config = {
 	.ctrl_cfg =
 		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMTYPE <<
@@ -121,6 +137,11 @@ static struct socfpga_sdram_config {
 			SDR_CTRLGRP_LOWPWRTIMING_AUTOPDCYCLES_LSB)	|
 		(CONFIG_HPS_SDR_CTRLCFG_LOWPWRTIMING_CLKDISABLECYCLES <<
 			SDR_CTRLGRP_LOWPWRTIMING_CLKDISABLECYCLES_LSB),
+	.dram_odt =
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMODT_READ <<
+			SDR_CTRLGRP_DRAMODT_READ_LSB)			|
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMODT_WRITE <<
+			SDR_CTRLGRP_DRAMODT_WRITE_LSB),
 	.dram_addrw =
 		(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_COLBITS <<
 			SDR_CTRLGRP_DRAMADDRW_COLBITS_LSB)		|
@@ -128,16 +149,56 @@ static struct socfpga_sdram_config {
 			SDR_CTRLGRP_DRAMADDRW_BANKBITS_LSB)		|
 		((CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS - 1) <<
 			SDR_CTRLGRP_DRAMADDRW_CSBITS_LSB),
+	.dram_if_width =
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMIFWIDTH_IFWIDTH <<
+			SDR_CTRLGRP_DRAMIFWIDTH_IFWIDTH_LSB),
+	.dram_dev_width =
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMDEVWIDTH_DEVWIDTH <<
+			SDR_CTRLGRP_DRAMDEVWIDTH_DEVWIDTH_LSB),
+	.dram_intr =
+		(CONFIG_HPS_SDR_CTRLCFG_DRAMINTR_INTREN <<
+			SDR_CTRLGRP_DRAMINTR_INTREN_LSB),
+	.lowpwr_eq =
+		(CONFIG_HPS_SDR_CTRLCFG_LOWPWREQ_SELFRFSHMASK <<
+			SDR_CTRLGRP_LOWPWREQ_SELFRFSHMASK_LSB),
 	.static_cfg =
 		(CONFIG_HPS_SDR_CTRLCFG_STATICCFG_MEMBL <<
 			SDR_CTRLGRP_STATICCFG_MEMBL_LSB)		|
 		(CONFIG_HPS_SDR_CTRLCFG_STATICCFG_USEECCASDATA <<
 			SDR_CTRLGRP_STATICCFG_USEECCASDATA_LSB),
+	.ctrl_width =
+		(CONFIG_HPS_SDR_CTRLCFG_CTRLWIDTH_CTRLWIDTH <<
+			SDR_CTRLGRP_CTRLWIDTH_CTRLWIDTH_LSB),
+	.cport_width =
+		(CONFIG_HPS_SDR_CTRLCFG_CPORTWIDTH_CPORTWIDTH <<
+			SDR_CTRLGRP_CPORTWIDTH_CMDPORTWIDTH_LSB),
+	.cport_wmap =
+		(CONFIG_HPS_SDR_CTRLCFG_CPORTWMAP_CPORTWMAP <<
+			SDR_CTRLGRP_CPORTWMAP_CPORTWFIFOMAP_LSB),
+	.cport_rmap =
+		(CONFIG_HPS_SDR_CTRLCFG_CPORTRMAP_CPORTRMAP <<
+			SDR_CTRLGRP_CPORTRMAP_CPORTRFIFOMAP_LSB),
+	.rfifo_cmap =
+		(CONFIG_HPS_SDR_CTRLCFG_RFIFOCMAP_RFIFOCMAP <<
+			SDR_CTRLGRP_RFIFOCMAP_RFIFOCPORTMAP_LSB),
+	.wfifo_cmap =
+		(CONFIG_HPS_SDR_CTRLCFG_WFIFOCMAP_WFIFOCMAP <<
+			SDR_CTRLGRP_WFIFOCMAP_WFIFOCPORTMAP_LSB),
+	.cport_rdwr =
+		(CONFIG_HPS_SDR_CTRLCFG_CPORTRDWR_CPORTRDWR <<
+			SDR_CTRLGRP_CPORTRDWR_CPORTRDWR_LSB),
+	.port_cfg =
+		(CONFIG_HPS_SDR_CTRLCFG_PORTCFG_AUTOPCHEN <<
+			SDR_CTRLGRP_PORTCFG_AUTOPCHEN_LSB),
+	.fpgaport_rst = CONFIG_HPS_SDR_CTRLCFG_FPGAPORTRST,
 	.fifo_cfg =
 		(CONFIG_HPS_SDR_CTRLCFG_FIFOCFG_SYNCMODE <<
 			SDR_CTRLGRP_FIFOCFG_SYNCMODE_LSB)		|
 		(CONFIG_HPS_SDR_CTRLCFG_FIFOCFG_INCSYNC <<
 			SDR_CTRLGRP_FIFOCFG_INCSYNC_LSB),
+	.mp_priority =
+		(CONFIG_HPS_SDR_CTRLCFG_MPPRIORITY_USERPRIORITY <<
+			SDR_CTRLGRP_MPPRIORITY_USERPRIORITY_LSB),
 	.mp_weight0 =
 		(CONFIG_HPS_SDR_CTRLCFG_MPWIEIGHT_0_STATICWEIGHT_31_0 <<
 			SDR_CTRLGRP_MPWEIGHT_MPWEIGHT_0_STATICWEIGHT_31_0_LSB),
@@ -175,6 +236,7 @@ static struct socfpga_sdram_config {
 	.mp_threshold2 =
 		(CONFIG_HPS_SDR_CTRLCFG_MPTHRESHOLDRST_2_THRESHOLDRSTCYCLES_79_64 <<
 			SDR_CTRLGRP_MPTHRESHOLDRST_2_THRESHOLDRSTCYCLES_79_64_LSB),
+	.phy_ctrl0 = CONFIG_HPS_SDR_CTRLCFG_PHYCTRL_PHYCTRL_0,
 };
 
 /**
@@ -517,112 +579,65 @@ defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS)
 	set_sdr_addr_rw(cfg);
 
 	debug("Configuring DRAMIFWIDTH\n");
-	clrsetbits_le32(&sdr_ctrl->dram_if_width,
-			SDR_CTRLGRP_DRAMIFWIDTH_IFWIDTH_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_DRAMIFWIDTH_IFWIDTH <<
-			SDR_CTRLGRP_DRAMIFWIDTH_IFWIDTH_LSB);
+	writel(cfg->dram_if_width, &sdr_ctrl->dram_if_width);
 
 	debug("Configuring DRAMDEVWIDTH\n");
-	clrsetbits_le32(&sdr_ctrl->dram_dev_width,
-			SDR_CTRLGRP_DRAMDEVWIDTH_DEVWIDTH_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_DRAMDEVWIDTH_DEVWIDTH <<
-			SDR_CTRLGRP_DRAMDEVWIDTH_DEVWIDTH_LSB);
+	writel(cfg->dram_dev_width, &sdr_ctrl->dram_dev_width);
 
 	debug("Configuring LOWPWREQ\n");
-	clrsetbits_le32(&sdr_ctrl->lowpwr_eq,
-			SDR_CTRLGRP_LOWPWREQ_SELFRFSHMASK_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_LOWPWREQ_SELFRFSHMASK <<
-			SDR_CTRLGRP_LOWPWREQ_SELFRFSHMASK_LSB);
+	writel(cfg->lowpwr_eq, &sdr_ctrl->lowpwr_eq);
 
 	debug("Configuring DRAMINTR\n");
-	clrsetbits_le32(&sdr_ctrl->dram_intr, SDR_CTRLGRP_DRAMINTR_INTREN_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_DRAMINTR_INTREN <<
-			SDR_CTRLGRP_DRAMINTR_INTREN_LSB);
+	writel(cfg->dram_intr, &sdr_ctrl->dram_intr);
 
 	set_sdr_static_cfg(cfg);
 
 	debug("Configuring CTRLWIDTH\n");
-	clrsetbits_le32(&sdr_ctrl->ctrl_width,
-			SDR_CTRLGRP_CTRLWIDTH_CTRLWIDTH_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_CTRLWIDTH_CTRLWIDTH <<
-			SDR_CTRLGRP_CTRLWIDTH_CTRLWIDTH_LSB);
+	writel(cfg->ctrl_width, &sdr_ctrl->ctrl_width);
 
 	debug("Configuring PORTCFG\n");
-	clrsetbits_le32(&sdr_ctrl->port_cfg, SDR_CTRLGRP_PORTCFG_AUTOPCHEN_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_PORTCFG_AUTOPCHEN <<
-			SDR_CTRLGRP_PORTCFG_AUTOPCHEN_LSB);
+	writel(cfg->port_cfg, &sdr_ctrl->port_cfg);
 
 	set_sdr_fifo_cfg(cfg);
 
 	debug("Configuring MPPRIORITY\n");
-	clrsetbits_le32(&sdr_ctrl->mp_priority,
-			SDR_CTRLGRP_MPPRIORITY_USERPRIORITY_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_MPPRIORITY_USERPRIORITY <<
-			SDR_CTRLGRP_MPPRIORITY_USERPRIORITY_LSB);
+	writel(cfg->mp_priority, &sdr_ctrl->mp_priority);
 
 	set_sdr_mp_weight(cfg);
 	set_sdr_mp_pacing(cfg);
 	set_sdr_mp_threshold(cfg);
 
 	debug("Configuring PHYCTRL_PHYCTRL_0\n");
-	setbits_le32(&sdr_ctrl->phy_ctrl0,
-		     CONFIG_HPS_SDR_CTRLCFG_PHYCTRL_PHYCTRL_0);
+	writel(cfg->phy_ctrl0, &sdr_ctrl->phy_ctrl0);
 
 	debug("Configuring CPORTWIDTH\n");
-	clrsetbits_le32(&sdr_ctrl->cport_width,
-			SDR_CTRLGRP_CPORTWIDTH_CMDPORTWIDTH_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_CPORTWIDTH_CPORTWIDTH <<
-			SDR_CTRLGRP_CPORTWIDTH_CMDPORTWIDTH_LSB);
+	writel(cfg->cport_width, &sdr_ctrl->cport_width);
 
 	debug("Configuring CPORTWMAP\n");
-	clrsetbits_le32(&sdr_ctrl->cport_wmap,
-			SDR_CTRLGRP_CPORTWMAP_CPORTWFIFOMAP_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_CPORTWMAP_CPORTWMAP <<
-			SDR_CTRLGRP_CPORTWMAP_CPORTWFIFOMAP_LSB);
+	writel(cfg->cport_wmap, &sdr_ctrl->cport_wmap);
 
 	debug("Configuring CPORTRMAP\n");
-	clrsetbits_le32(&sdr_ctrl->cport_rmap,
-			SDR_CTRLGRP_CPORTRMAP_CPORTRFIFOMAP_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_CPORTRMAP_CPORTRMAP <<
-			SDR_CTRLGRP_CPORTRMAP_CPORTRFIFOMAP_LSB);
+	writel(cfg->cport_rmap, &sdr_ctrl->cport_rmap);
 
 	debug("Configuring RFIFOCMAP\n");
-	clrsetbits_le32(&sdr_ctrl->rfifo_cmap,
-			SDR_CTRLGRP_RFIFOCMAP_RFIFOCPORTMAP_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_RFIFOCMAP_RFIFOCMAP <<
-			SDR_CTRLGRP_RFIFOCMAP_RFIFOCPORTMAP_LSB);
+	writel(cfg->rfifo_cmap, &sdr_ctrl->rfifo_cmap);
 
 	debug("Configuring WFIFOCMAP\n");
-	clrsetbits_le32(&sdr_ctrl->wfifo_cmap,
-			SDR_CTRLGRP_WFIFOCMAP_WFIFOCPORTMAP_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_WFIFOCMAP_WFIFOCMAP <<
-			SDR_CTRLGRP_WFIFOCMAP_WFIFOCPORTMAP_LSB);
+	writel(cfg->wfifo_cmap, &sdr_ctrl->wfifo_cmap);
 
 	debug("Configuring CPORTRDWR\n");
-	clrsetbits_le32(&sdr_ctrl->cport_rdwr,
-			SDR_CTRLGRP_CPORTRDWR_CPORTRDWR_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_CPORTRDWR_CPORTRDWR <<
-			SDR_CTRLGRP_CPORTRDWR_CPORTRDWR_LSB);
+	writel(cfg->cport_rdwr, &sdr_ctrl->cport_rdwr);
 
 	debug("Configuring DRAMODT\n");
-	clrsetbits_le32(&sdr_ctrl->dram_odt,
-			SDR_CTRLGRP_DRAMODT_READ_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_DRAMODT_READ <<
-			SDR_CTRLGRP_DRAMODT_READ_LSB);
-
-	clrsetbits_le32(&sdr_ctrl->dram_odt,
-			SDR_CTRLGRP_DRAMODT_WRITE_MASK,
-			CONFIG_HPS_SDR_CTRLCFG_DRAMODT_WRITE <<
-			SDR_CTRLGRP_DRAMODT_WRITE_LSB);
+	writel(cfg->dram_odt, &sdr_ctrl->dram_odt);
 
 	/* saving this value to SYSMGR.ISWGRP.HANDOFF.FPGA2SDR */
-	writel(CONFIG_HPS_SDR_CTRLCFG_FPGAPORTRST,
-	       &sysmgr_regs->iswgrp_handoff[3]);
+	writel(cfg->fpgaport_rst, &sysmgr_regs->iswgrp_handoff[3]);
 
 	/* only enable if the FPGA is programmed */
 	if (fpgamgr_test_fpga_ready()) {
 		if (sdram_write_verify(&sdr_ctrl->fpgaport_rst,
-		    CONFIG_HPS_SDR_CTRLCFG_FPGAPORTRST) == 1) {
+		    cfg->fpgaport_rst) == 1) {
 			status = 1;
 			return 1;
 		}
@@ -632,9 +647,10 @@ defined(CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS)
 	if (sdr_phy_reg != 0xffffffff)
 		writel(sdr_phy_reg, &sdr_ctrl->phy_ctrl0);
 
-/***** Final step - apply configuration changes *****/
-	debug("Configuring STATICCFG_\n");
-	clrsetbits_le32(&sdr_ctrl->static_cfg, SDR_CTRLGRP_STATICCFG_APPLYCFG_MASK,
+	/* Final step - apply configuration changes */
+	debug("Configuring STATICCFG\n");
+	clrsetbits_le32(&sdr_ctrl->static_cfg,
+			SDR_CTRLGRP_STATICCFG_APPLYCFG_MASK,
 			1 << SDR_CTRLGRP_STATICCFG_APPLYCFG_LSB);
 
 	sdram_set_protection_config(0, sdram_calculate_size());
