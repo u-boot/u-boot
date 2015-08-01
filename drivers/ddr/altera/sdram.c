@@ -12,12 +12,6 @@
 #include <asm/arch/system_manager.h>
 #include <asm/io.h>
 
-/*
- * FIXME: This path is temporary until the SDRAM driver gets
- *        a proper thorough cleanup.
- */
-#include "../../../board/altera/socfpga/qts/sdram_config.h"
-
 DECLARE_GLOBAL_DATA_PTR;
 
 struct sdram_prot_rule {
@@ -470,6 +464,13 @@ unsigned long sdram_calculate_size(void)
 {
 	unsigned long temp;
 	unsigned long row, bank, col, cs, width;
+	const struct socfpga_sdram_config *cfg = socfpga_get_sdram_config();
+	const unsigned int csbits =
+		((cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_CSBITS_MASK) >>
+			SDR_CTRLGRP_DRAMADDRW_CSBITS_LSB) + 1;
+	const unsigned int rowbits =
+		(cfg->dram_addrw & SDR_CTRLGRP_DRAMADDRW_ROWBITS_MASK) >>
+			SDR_CTRLGRP_DRAMADDRW_ROWBITS_LSB;
 
 	temp = readl(&sdr_ctrl->dram_addrw);
 	col = (temp & SDR_CTRLGRP_DRAMADDRW_COLBITS_MASK) >>
@@ -490,7 +491,7 @@ unsigned long sdram_calculate_size(void)
 	 */
 	row = readl(&sysmgr_regs->iswgrp_handoff[4]);
 	if (row == 0)
-		row = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS;
+		row = rowbits;
 	/* If the stored handoff value for rows is greater than
 	 * the field width in the sdr.dramaddrw register then
 	 * something is very wrong. Revert to using the the #define
@@ -498,7 +499,7 @@ unsigned long sdram_calculate_size(void)
 	 * using a broken value.
 	 */
 	if (row > 31)
-		row = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_ROWBITS;
+		row = rowbits;
 
 	bank = (temp & SDR_CTRLGRP_DRAMADDRW_BANKBITS_MASK) >>
 		SDR_CTRLGRP_DRAMADDRW_BANKBITS_LSB;
@@ -512,7 +513,7 @@ unsigned long sdram_calculate_size(void)
 	      SDR_CTRLGRP_DRAMADDRW_CSBITS_LSB;
 	cs += 1;
 
-	cs = CONFIG_HPS_SDR_CTRLCFG_DRAMADDRW_CSBITS;
+	cs = csbits;
 
 	width = readl(&sdr_ctrl->dram_if_width);
 	/* ECC would not be calculated as its not addressible */
