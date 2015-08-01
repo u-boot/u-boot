@@ -146,14 +146,14 @@ static void sdram_set_rule(struct sdram_prot_rule *prule)
 
 static void sdram_get_rule(struct sdram_prot_rule *prule)
 {
-	uint32_t addr;
-	uint32_t id;
-	uint32_t data;
+	u32 addr;
+	u32 id;
+	u32 data;
 	int ruleno = prule->rule;
 
 	/* Read the rule */
 	writel(ruleno, &sdr_ctrl->prot_rule_rdwr);
-	writel(ruleno | (1L << 6), &sdr_ctrl->prot_rule_rdwr);
+	writel(ruleno | (1 << 6), &sdr_ctrl->prot_rule_rdwr);
 
 	/* Get the addresses */
 	addr = readl(&sdr_ctrl->prot_rule_addr);
