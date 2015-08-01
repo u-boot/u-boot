@@ -501,24 +501,6 @@ static void set_sdr_ctrlcfg(struct socfpga_sdram_config *cfg)
 	writel(ctrl_cfg, &sdr_ctrl->ctrl_cfg);
 }
 
-static void set_sdr_dram_timing(struct socfpga_sdram_config *cfg)
-{
-	debug("Configuring DRAMTIMING1\n");
-	writel(cfg->dram_timing1, &sdr_ctrl->dram_timing1);
-
-	debug("Configuring DRAMTIMING2\n");
-	writel(cfg->dram_timing2, &sdr_ctrl->dram_timing2);
-
-	debug("Configuring DRAMTIMING3\n");
-	writel(cfg->dram_timing3, &sdr_ctrl->dram_timing3);
-
-	debug("Configuring DRAMTIMING4\n");
-	writel(cfg->dram_timing4, &sdr_ctrl->dram_timing4);
-
-	debug("Configuring LOWPWRTIMING\n");
-	writel(cfg->lowpwr_timing, &sdr_ctrl->lowpwr_timing);
-}
-
 static void set_sdr_addr_rw(struct socfpga_sdram_config *cfg)
 {
 	/*
@@ -536,44 +518,6 @@ static void set_sdr_addr_rw(struct socfpga_sdram_config *cfg)
 	       &sdr_ctrl->dram_addrw);
 }
 
-static void set_sdr_static_cfg(struct socfpga_sdram_config *cfg)
-{
-	debug("Configuring STATICCFG\n");
-	writel(cfg->static_cfg, &sdr_ctrl->static_cfg);
-}
-
-static void set_sdr_fifo_cfg(struct socfpga_sdram_config *cfg)
-{
-	debug("Configuring FIFOCFG\n");
-	writel(cfg->fifo_cfg, &sdr_ctrl->fifo_cfg);
-}
-
-static void set_sdr_mp_weight(struct socfpga_sdram_config *cfg)
-{
-	debug("Configuring MPWEIGHT_MPWEIGHT_0\n");
-	writel(cfg->mp_weight0, &sdr_ctrl->mp_weight0);
-	writel(cfg->mp_weight1, &sdr_ctrl->mp_weight1);
-	writel(cfg->mp_weight2, &sdr_ctrl->mp_weight2);
-	writel(cfg->mp_weight3, &sdr_ctrl->mp_weight3);
-}
-
-static void set_sdr_mp_pacing(struct socfpga_sdram_config *cfg)
-{
-	debug("Configuring MPPACING_MPPACING_0\n");
-	writel(cfg->mp_pacing0, &sdr_ctrl->mp_pacing0);
-	writel(cfg->mp_pacing1, &sdr_ctrl->mp_pacing1);
-	writel(cfg->mp_pacing2, &sdr_ctrl->mp_pacing2);
-	writel(cfg->mp_pacing3, &sdr_ctrl->mp_pacing3);
-}
-
-static void set_sdr_mp_threshold(struct socfpga_sdram_config *cfg)
-{
-	debug("Configuring MPTHRESHOLDRST_MPTHRESHOLDRST_0\n");
-	writel(cfg->mp_threshold0, &sdr_ctrl->mp_threshold0);
-	writel(cfg->mp_threshold1, &sdr_ctrl->mp_threshold1);
-	writel(cfg->mp_threshold2, &sdr_ctrl->mp_threshold2);
-}
-
 /* Function to initialize SDRAM MMR */
 unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
 {
@@ -586,7 +530,22 @@ unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
 	writel(rows, &sysmgr_regs->iswgrp_handoff[4]);
 
 	set_sdr_ctrlcfg(cfg);
-	set_sdr_dram_timing(cfg);
+
+	debug("Configuring DRAMTIMING1\n");
+	writel(cfg->dram_timing1, &sdr_ctrl->dram_timing1);
+
+	debug("Configuring DRAMTIMING2\n");
+	writel(cfg->dram_timing2, &sdr_ctrl->dram_timing2);
+
+	debug("Configuring DRAMTIMING3\n");
+	writel(cfg->dram_timing3, &sdr_ctrl->dram_timing3);
+
+	debug("Configuring DRAMTIMING4\n");
+	writel(cfg->dram_timing4, &sdr_ctrl->dram_timing4);
+
+	debug("Configuring LOWPWRTIMING\n");
+	writel(cfg->lowpwr_timing, &sdr_ctrl->lowpwr_timing);
+
 	set_sdr_addr_rw(cfg);
 
 	debug("Configuring DRAMIFWIDTH\n");
@@ -601,7 +560,8 @@ unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
 	debug("Configuring DRAMINTR\n");
 	writel(cfg->dram_intr, &sdr_ctrl->dram_intr);
 
-	set_sdr_static_cfg(cfg);
+	debug("Configuring STATICCFG\n");
+	writel(cfg->static_cfg, &sdr_ctrl->static_cfg);
 
 	debug("Configuring CTRLWIDTH\n");
 	writel(cfg->ctrl_width, &sdr_ctrl->ctrl_width);
@@ -609,14 +569,28 @@ unsigned sdram_mmr_init_full(unsigned int sdr_phy_reg)
 	debug("Configuring PORTCFG\n");
 	writel(cfg->port_cfg, &sdr_ctrl->port_cfg);
 
-	set_sdr_fifo_cfg(cfg);
+	debug("Configuring FIFOCFG\n");
+	writel(cfg->fifo_cfg, &sdr_ctrl->fifo_cfg);
 
 	debug("Configuring MPPRIORITY\n");
 	writel(cfg->mp_priority, &sdr_ctrl->mp_priority);
 
-	set_sdr_mp_weight(cfg);
-	set_sdr_mp_pacing(cfg);
-	set_sdr_mp_threshold(cfg);
+	debug("Configuring MPWEIGHT_MPWEIGHT_0\n");
+	writel(cfg->mp_weight0, &sdr_ctrl->mp_weight0);
+	writel(cfg->mp_weight1, &sdr_ctrl->mp_weight1);
+	writel(cfg->mp_weight2, &sdr_ctrl->mp_weight2);
+	writel(cfg->mp_weight3, &sdr_ctrl->mp_weight3);
+
+	debug("Configuring MPPACING_MPPACING_0\n");
+	writel(cfg->mp_pacing0, &sdr_ctrl->mp_pacing0);
+	writel(cfg->mp_pacing1, &sdr_ctrl->mp_pacing1);
+	writel(cfg->mp_pacing2, &sdr_ctrl->mp_pacing2);
+	writel(cfg->mp_pacing3, &sdr_ctrl->mp_pacing3);
+
+	debug("Configuring MPTHRESHOLDRST_MPTHRESHOLDRST_0\n");
+	writel(cfg->mp_threshold0, &sdr_ctrl->mp_threshold0);
+	writel(cfg->mp_threshold1, &sdr_ctrl->mp_threshold1);
+	writel(cfg->mp_threshold2, &sdr_ctrl->mp_threshold2);
 
 	debug("Configuring PHYCTRL_PHYCTRL_0\n");
 	writel(cfg->phy_ctrl0, &sdr_ctrl->phy_ctrl0);
