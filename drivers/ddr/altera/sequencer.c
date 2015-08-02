@@ -60,7 +60,7 @@ const struct socfpga_sdram_misc_config *misccfg;
 	STATIC_SKIP_DELAY_LOOPS)
 
 /* calibration steps requested by the rtl */
-uint16_t dyn_calib_steps;
+u16 dyn_calib_steps;
 
 /*
  * To make CALIB_SKIP_DELAY_LOOPS a dynamic conditional option
@@ -71,7 +71,7 @@ uint16_t dyn_calib_steps;
  * zero when skipping
  */
 
-uint16_t skip_delay_mask;	/* mask off bits when skipping/not-skipping */
+u16 skip_delay_mask;	/* mask off bits when skipping/not-skipping */
 
 #define SKIP_DELAY_LOOP_VALUE_OR_ZERO(non_skip_value) \
 	((non_skip_value) & skip_delay_mask)
@@ -79,8 +79,8 @@ uint16_t skip_delay_mask;	/* mask off bits when skipping/not-skipping */
 struct gbl_type *gbl;
 struct param_type *param;
 
-static void set_failing_group_stage(uint32_t group, uint32_t stage,
-	uint32_t substage)
+static void set_failing_group_stage(u32 group, u32 stage,
+	u32 substage)
 {
 	/*
 	 * Only set the global stage if there was not been any other
@@ -286,49 +286,49 @@ static void scc_mgr_initialize(void)
 	}
 }
 
-static void scc_mgr_set_dqdqs_output_phase(uint32_t write_group, uint32_t phase)
+static void scc_mgr_set_dqdqs_output_phase(u32 write_group, u32 phase)
 {
 	scc_mgr_set(SCC_MGR_DQDQS_OUT_PHASE_OFFSET, write_group, phase);
 }
 
-static void scc_mgr_set_dqs_bus_in_delay(uint32_t read_group, uint32_t delay)
+static void scc_mgr_set_dqs_bus_in_delay(u32 read_group, u32 delay)
 {
 	scc_mgr_set(SCC_MGR_DQS_IN_DELAY_OFFSET, read_group, delay);
 }
 
-static void scc_mgr_set_dqs_en_phase(uint32_t read_group, uint32_t phase)
+static void scc_mgr_set_dqs_en_phase(u32 read_group, u32 phase)
 {
 	scc_mgr_set(SCC_MGR_DQS_EN_PHASE_OFFSET, read_group, phase);
 }
 
-static void scc_mgr_set_dqs_en_delay(uint32_t read_group, uint32_t delay)
+static void scc_mgr_set_dqs_en_delay(u32 read_group, u32 delay)
 {
 	scc_mgr_set(SCC_MGR_DQS_EN_DELAY_OFFSET, read_group, delay);
 }
 
-static void scc_mgr_set_dqs_io_in_delay(uint32_t delay)
+static void scc_mgr_set_dqs_io_in_delay(u32 delay)
 {
 	scc_mgr_set(SCC_MGR_IO_IN_DELAY_OFFSET, rwcfg->mem_dq_per_write_dqs,
 		    delay);
 }
 
-static void scc_mgr_set_dq_in_delay(uint32_t dq_in_group, uint32_t delay)
+static void scc_mgr_set_dq_in_delay(u32 dq_in_group, u32 delay)
 {
 	scc_mgr_set(SCC_MGR_IO_IN_DELAY_OFFSET, dq_in_group, delay);
 }
 
-static void scc_mgr_set_dq_out1_delay(uint32_t dq_in_group, uint32_t delay)
+static void scc_mgr_set_dq_out1_delay(u32 dq_in_group, u32 delay)
 {
 	scc_mgr_set(SCC_MGR_IO_OUT1_DELAY_OFFSET, dq_in_group, delay);
 }
 
-static void scc_mgr_set_dqs_out1_delay(uint32_t delay)
+static void scc_mgr_set_dqs_out1_delay(u32 delay)
 {
 	scc_mgr_set(SCC_MGR_IO_OUT1_DELAY_OFFSET, rwcfg->mem_dq_per_write_dqs,
 		    delay);
 }
 
-static void scc_mgr_set_dm_out1_delay(uint32_t dm, uint32_t delay)
+static void scc_mgr_set_dm_out1_delay(u32 dm, u32 delay)
 {
 	scc_mgr_set(SCC_MGR_IO_OUT1_DELAY_OFFSET,
 		    rwcfg->mem_dq_per_write_dqs + 1 + dm,
@@ -336,7 +336,7 @@ static void scc_mgr_set_dm_out1_delay(uint32_t dm, uint32_t delay)
 }
 
 /* load up dqs config settings */
-static void scc_mgr_load_dqs(uint32_t dqs)
+static void scc_mgr_load_dqs(u32 dqs)
 {
 	writel(dqs, &sdr_scc_mgr->dqs_ena);
 }
@@ -348,13 +348,13 @@ static void scc_mgr_load_dqs_io(void)
 }
 
 /* load up dq config settings */
-static void scc_mgr_load_dq(uint32_t dq_in_group)
+static void scc_mgr_load_dq(u32 dq_in_group)
 {
 	writel(dq_in_group, &sdr_scc_mgr->dq_ena);
 }
 
 /* load up dm config settings */
-static void scc_mgr_load_dm(uint32_t dm)
+static void scc_mgr_load_dm(u32 dm)
 {
 	writel(dm, &sdr_scc_mgr->dm_ena);
 }
@@ -399,8 +399,8 @@ static void scc_mgr_set_dqs_en_phase_all_ranks(u32 read_group, u32 phase)
 			      read_group, phase, 0);
 }
 
-static void scc_mgr_set_dqdqs_output_phase_all_ranks(uint32_t write_group,
-						     uint32_t phase)
+static void scc_mgr_set_dqdqs_output_phase_all_ranks(u32 write_group,
+						     u32 phase)
 {
 	/*
 	 * USER although the h/w doesn't support different phases per
@@ -414,8 +414,8 @@ static void scc_mgr_set_dqdqs_output_phase_all_ranks(uint32_t write_group,
 			      write_group, phase, 0);
 }
 
-static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
-					       uint32_t delay)
+static void scc_mgr_set_dqs_en_delay_all_ranks(u32 read_group,
+					       u32 delay)
 {
 	/*
 	 * In shadow register mode, the T11 settings are stored in
@@ -615,9 +615,9 @@ static void scc_mgr_zero_group(const u32 write_group, const int out_only)
  * apply and load a particular input delay for the DQ pins in a group
  * group_bgn is the index of the first dq pin (in the write group)
  */
-static void scc_mgr_apply_group_dq_in_delay(uint32_t group_bgn, uint32_t delay)
+static void scc_mgr_apply_group_dq_in_delay(u32 group_bgn, u32 delay)
 {
-	uint32_t i, p;
+	u32 i, p;
 
 	for (i = 0, p = group_bgn; i < rwcfg->mem_dq_per_read_dqs; i++, p++) {
 		scc_mgr_set_dq_in_delay(p, delay);
@@ -642,9 +642,9 @@ static void scc_mgr_apply_group_dq_out1_delay(const u32 delay)
 }
 
 /* apply and load a particular output delay for the DM pins in a group */
-static void scc_mgr_apply_group_dm_out1_delay(uint32_t delay1)
+static void scc_mgr_apply_group_dm_out1_delay(u32 delay1)
 {
-	uint32_t i;
+	u32 i;
 
 	for (i = 0; i < RW_MGR_NUM_DM_PER_WRITE_GROUP; i++) {
 		scc_mgr_set_dm_out1_delay(i, delay1);
@@ -654,8 +654,8 @@ static void scc_mgr_apply_group_dm_out1_delay(uint32_t delay1)
 
 
 /* apply and load delay on both DQS and OCT out1 */
-static void scc_mgr_apply_group_dqs_io_and_oct_out1(uint32_t write_group,
-						    uint32_t delay)
+static void scc_mgr_apply_group_dqs_io_and_oct_out1(u32 write_group,
+						    u32 delay)
 {
 	scc_mgr_set_dqs_out1_delay(delay);
 	scc_mgr_load_dqs_io();
@@ -840,7 +840,7 @@ static void delay_for_n_mem_clocks(const u32 clocks)
  */
 static void rw_mgr_mem_init_load_regs(u32 cntr0, u32 cntr1, u32 cntr2, u32 jump)
 {
-	uint32_t grpaddr = SDR_PHYGRP_RWMGRGRP_ADDRESS |
+	u32 grpaddr = SDR_PHYGRP_RWMGRGRP_ADDRESS |
 			   RW_MGR_RUN_SINGLE_GROUP_OFFSET;
 
 	/* Load counters */
@@ -2147,7 +2147,7 @@ static int search_right_edge(const int write, const int rank_bgn,
 		} else {	/* READ-ONLY */
 			scc_mgr_set_dqs_bus_in_delay(read_group, d + start_dqs);
 			if (iocfg->shift_dqs_en_when_shift_dqs) {
-				uint32_t delay = d + start_dqs_en;
+				u32 delay = d + start_dqs_en;
 				if (delay > iocfg->dqs_en_delay_max)
 					delay = iocfg->dqs_en_delay_max;
 				scc_mgr_set_dqs_en_delay(read_group, delay);
@@ -2381,7 +2381,7 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 	 * Store these as signed since there are comparisons with
 	 * signed numbers.
 	 */
-	uint32_t sticky_bit_chk;
+	u32 sticky_bit_chk;
 	int32_t left_edge[rwcfg->mem_dq_per_read_dqs];
 	int32_t right_edge[rwcfg->mem_dq_per_read_dqs];
 	int32_t orig_mid_min, mid_min;
@@ -2665,9 +2665,9 @@ rw_mgr_mem_calibrate_dq_dqs_centering(const u32 rw_group, const u32 test_bgn,
  */
 static int rw_mgr_mem_calibrate_vfifo(const u32 rw_group, const u32 test_bgn)
 {
-	uint32_t p, d;
-	uint32_t dtaps_per_ptap;
-	uint32_t failed_substage;
+	u32 p, d;
+	u32 dtaps_per_ptap;
+	u32 failed_substage;
 
 	int ret;
 
@@ -2783,7 +2783,7 @@ static int rw_mgr_mem_calibrate_vfifo_end(const u32 rw_group,
  * detail in Altera EMI_RM 2015.05.04 , "UniPHY Calibration Stages".
  * Calibrate LFIFO to find smallest read latency.
  */
-static uint32_t rw_mgr_mem_calibrate_lfifo(void)
+static u32 rw_mgr_mem_calibrate_lfifo(void)
 {
 	int found_one = 0;
 
@@ -3193,8 +3193,8 @@ static void mem_init_latency(void)
  */
 static void mem_skip_calibrate(void)
 {
-	uint32_t vfifo_offset;
-	uint32_t i, j, r;
+	u32 vfifo_offset;
+	u32 i, j, r;
 
 	debug("%s:%d\n", __func__, __LINE__);
 	/* Need to update every shadow register set used by the interface */
@@ -3279,15 +3279,15 @@ static void mem_skip_calibrate(void)
  *
  * Perform memory calibration.
  */
-static uint32_t mem_calibrate(void)
+static u32 mem_calibrate(void)
 {
-	uint32_t i;
-	uint32_t rank_bgn, sr;
-	uint32_t write_group, write_test_bgn;
-	uint32_t read_group, read_test_bgn;
-	uint32_t run_groups, current_run;
-	uint32_t failing_groups = 0;
-	uint32_t group_failed = 0;
+	u32 i;
+	u32 rank_bgn, sr;
+	u32 write_group, write_test_bgn;
+	u32 read_group, read_test_bgn;
+	u32 run_groups, current_run;
+	u32 failing_groups = 0;
+	u32 group_failed = 0;
 
 	const u32 rwdqs_ratio = rwcfg->mem_if_read_dqs_width /
 				rwcfg->mem_if_write_dqs_width;
@@ -3506,7 +3506,7 @@ static int run_mem_calibrate(void)
  */
 static void debug_mem_calibrate(int pass)
 {
-	uint32_t debug_info;
+	u32 debug_info;
 
 	if (pass) {
 		printf("%s: CALIBRATION PASSED\n", __FILE__);
@@ -3594,13 +3594,13 @@ static void initialize_reg_file(void)
  */
 static void initialize_hps_phy(void)
 {
-	uint32_t reg;
+	u32 reg;
 	/*
 	 * Tracking also gets configured here because it's in the
 	 * same register.
 	 */
-	uint32_t trk_sample_count = 7500;
-	uint32_t trk_long_idle_sample_count = (10 << 16) | 100;
+	u32 trk_sample_count = 7500;
+	u32 trk_long_idle_sample_count = (10 << 16) | 100;
 	/*
 	 * Format is number of outer loops in the 16 MSB, sample
 	 * count in 16 LSB.
@@ -3684,7 +3684,7 @@ int sdram_calibration_full(void)
 {
 	struct param_type my_param;
 	struct gbl_type my_gbl;
-	uint32_t pass;
+	u32 pass;
 
 	memset(&my_param, 0, sizeof(my_param));
 	memset(&my_gbl, 0, sizeof(my_gbl));
