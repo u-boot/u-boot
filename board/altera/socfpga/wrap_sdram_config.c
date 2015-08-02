@@ -12,6 +12,8 @@
 
 #include "qts/sequencer_auto_ac_init.h"
 #include "qts/sequencer_auto_inst_init.h"
+#include "qts/sequencer_auto.h"
+#include "qts/sequencer_defines.h"
 
 static const struct socfpga_sdram_config sdram_config = {
 	.ctrl_cfg =
@@ -182,6 +184,71 @@ static const struct socfpga_sdram_config sdram_config = {
 	.phy_ctrl0 = CONFIG_HPS_SDR_CTRLCFG_PHYCTRL_PHYCTRL_0,
 };
 
+static const struct socfpga_sdram_rw_mgr_config rw_mgr_config = {
+	.activate_0_and_1		= RW_MGR_ACTIVATE_0_AND_1,
+	.activate_0_and_1_wait1		= RW_MGR_ACTIVATE_0_AND_1_WAIT1,
+	.activate_0_and_1_wait2		= RW_MGR_ACTIVATE_0_AND_1_WAIT2,
+	.activate_1			= RW_MGR_ACTIVATE_1,
+	.clear_dqs_enable		= RW_MGR_CLEAR_DQS_ENABLE,
+	.guaranteed_read		= RW_MGR_GUARANTEED_READ,
+	.guaranteed_read_cont		= RW_MGR_GUARANTEED_READ_CONT,
+	.guaranteed_write		= RW_MGR_GUARANTEED_WRITE,
+	.guaranteed_write_wait0		= RW_MGR_GUARANTEED_WRITE_WAIT0,
+	.guaranteed_write_wait1		= RW_MGR_GUARANTEED_WRITE_WAIT1,
+	.guaranteed_write_wait2		= RW_MGR_GUARANTEED_WRITE_WAIT2,
+	.guaranteed_write_wait3		= RW_MGR_GUARANTEED_WRITE_WAIT3,
+	.idle				= RW_MGR_IDLE,
+	.idle_loop1			= RW_MGR_IDLE_LOOP1,
+	.idle_loop2			= RW_MGR_IDLE_LOOP2,
+	.init_reset_0_cke_0		= RW_MGR_INIT_RESET_0_CKE_0,
+	.init_reset_1_cke_0		= RW_MGR_INIT_RESET_1_CKE_0,
+	.lfsr_wr_rd_bank_0		= RW_MGR_LFSR_WR_RD_BANK_0,
+	.lfsr_wr_rd_bank_0_data		= RW_MGR_LFSR_WR_RD_BANK_0_DATA,
+	.lfsr_wr_rd_bank_0_dqs		= RW_MGR_LFSR_WR_RD_BANK_0_DQS,
+	.lfsr_wr_rd_bank_0_nop		= RW_MGR_LFSR_WR_RD_BANK_0_NOP,
+	.lfsr_wr_rd_bank_0_wait		= RW_MGR_LFSR_WR_RD_BANK_0_WAIT,
+	.lfsr_wr_rd_bank_0_wl_1		= RW_MGR_LFSR_WR_RD_BANK_0_WL_1,
+	.lfsr_wr_rd_dm_bank_0		= RW_MGR_LFSR_WR_RD_DM_BANK_0,
+	.lfsr_wr_rd_dm_bank_0_data	= RW_MGR_LFSR_WR_RD_DM_BANK_0_DATA,
+	.lfsr_wr_rd_dm_bank_0_dqs	= RW_MGR_LFSR_WR_RD_DM_BANK_0_DQS,
+	.lfsr_wr_rd_dm_bank_0_nop	= RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP,
+	.lfsr_wr_rd_dm_bank_0_wait	= RW_MGR_LFSR_WR_RD_DM_BANK_0_WAIT,
+	.lfsr_wr_rd_dm_bank_0_wl_1	= RW_MGR_LFSR_WR_RD_DM_BANK_0_WL_1,
+	.mrs0_dll_reset			= RW_MGR_MRS0_DLL_RESET,
+	.mrs0_dll_reset_mirr		= RW_MGR_MRS0_DLL_RESET_MIRR,
+	.mrs0_user			= RW_MGR_MRS0_USER,
+	.mrs0_user_mirr			= RW_MGR_MRS0_USER_MIRR,
+	.mrs1				= RW_MGR_MRS1,
+	.mrs1_mirr			= RW_MGR_MRS1_MIRR,
+	.mrs2				= RW_MGR_MRS2,
+	.mrs2_mirr			= RW_MGR_MRS2_MIRR,
+	.mrs3				= RW_MGR_MRS3,
+	.mrs3_mirr			= RW_MGR_MRS3_MIRR,
+	.precharge_all			= RW_MGR_PRECHARGE_ALL,
+	.read_b2b			= RW_MGR_READ_B2B,
+	.read_b2b_wait1			= RW_MGR_READ_B2B_WAIT1,
+	.read_b2b_wait2			= RW_MGR_READ_B2B_WAIT2,
+	.refresh_all			= RW_MGR_REFRESH_ALL,
+	.rreturn			= RW_MGR_RETURN,
+	.sgle_read			= RW_MGR_SGLE_READ,
+	.zqcl				= RW_MGR_ZQCL,
+
+	.true_mem_data_mask_width	= RW_MGR_TRUE_MEM_DATA_MASK_WIDTH,
+	.mem_address_mirroring		= RW_MGR_MEM_ADDRESS_MIRRORING,
+	.mem_data_mask_width		= RW_MGR_MEM_DATA_MASK_WIDTH,
+	.mem_data_width			= RW_MGR_MEM_DATA_WIDTH,
+	.mem_dq_per_read_dqs		= RW_MGR_MEM_DQ_PER_READ_DQS,
+	.mem_dq_per_write_dqs		= RW_MGR_MEM_DQ_PER_WRITE_DQS,
+	.mem_if_read_dqs_width		= RW_MGR_MEM_IF_READ_DQS_WIDTH,
+	.mem_if_write_dqs_width		= RW_MGR_MEM_IF_WRITE_DQS_WIDTH,
+	.mem_number_of_cs_per_dimm	= RW_MGR_MEM_NUMBER_OF_CS_PER_DIMM,
+	.mem_number_of_ranks		= RW_MGR_MEM_NUMBER_OF_RANKS,
+	.mem_virtual_groups_per_read_dqs =
+		RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS,
+	.mem_virtual_groups_per_write_dqs =
+		RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS,
+};
+
 const struct socfpga_sdram_config *socfpga_get_sdram_config(void)
 {
 	return &sdram_config;
@@ -197,4 +264,9 @@ void socfpga_get_seq_inst_init(const u32 **init, unsigned int *nelem)
 {
 	*init = inst_rom_init;
 	*nelem = ARRAY_SIZE(inst_rom_init);
+}
+
+const struct socfpga_sdram_rw_mgr_config *socfpga_get_sdram_rwmgr_config(void)
+{
+	return &rw_mgr_config;
 }

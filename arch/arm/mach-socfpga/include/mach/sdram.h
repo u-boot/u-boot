@@ -16,6 +16,7 @@ const struct socfpga_sdram_config *socfpga_get_sdram_config(void);
 
 void socfpga_get_seq_ac_init(const u32 **init, unsigned int *nelem);
 void socfpga_get_seq_inst_init(const u32 **init, unsigned int *nelem);
+const struct socfpga_sdram_rw_mgr_config *socfpga_get_sdram_rwmgr_config(void);
 
 #define SDR_CTRLGRP_ADDRESS	(SOCFPGA_SDR_ADDRESS | 0x5000)
 
@@ -114,6 +115,69 @@ struct socfpga_sdram_config {
 	u32	mp_threshold1;
 	u32	mp_threshold2;
 	u32	phy_ctrl0;
+};
+
+struct socfpga_sdram_rw_mgr_config {
+	u8	activate_0_and_1;
+	u8	activate_0_and_1_wait1;
+	u8	activate_0_and_1_wait2;
+	u8	activate_1;
+	u8	clear_dqs_enable;
+	u8	guaranteed_read;
+	u8	guaranteed_read_cont;
+	u8	guaranteed_write;
+	u8	guaranteed_write_wait0;
+	u8	guaranteed_write_wait1;
+	u8	guaranteed_write_wait2;
+	u8	guaranteed_write_wait3;
+	u8	idle;
+	u8	idle_loop1;
+	u8	idle_loop2;
+	u8	init_reset_0_cke_0;
+	u8	init_reset_1_cke_0;
+	u8	lfsr_wr_rd_bank_0;
+	u8	lfsr_wr_rd_bank_0_data;
+	u8	lfsr_wr_rd_bank_0_dqs;
+	u8	lfsr_wr_rd_bank_0_nop;
+	u8	lfsr_wr_rd_bank_0_wait;
+	u8	lfsr_wr_rd_bank_0_wl_1;
+	u8	lfsr_wr_rd_dm_bank_0;
+	u8	lfsr_wr_rd_dm_bank_0_data;
+	u8	lfsr_wr_rd_dm_bank_0_dqs;
+	u8	lfsr_wr_rd_dm_bank_0_nop;
+	u8	lfsr_wr_rd_dm_bank_0_wait;
+	u8	lfsr_wr_rd_dm_bank_0_wl_1;
+	u8	mrs0_dll_reset;
+	u8	mrs0_dll_reset_mirr;
+	u8	mrs0_user;
+	u8	mrs0_user_mirr;
+	u8	mrs1;
+	u8	mrs1_mirr;
+	u8	mrs2;
+	u8	mrs2_mirr;
+	u8	mrs3;
+	u8	mrs3_mirr;
+	u8	precharge_all;
+	u8	read_b2b;
+	u8	read_b2b_wait1;
+	u8	read_b2b_wait2;
+	u8	refresh_all;
+	u8	rreturn;
+	u8	sgle_read;
+	u8	zqcl;
+
+	u8	true_mem_data_mask_width;
+	u8	mem_address_mirroring;
+	u8	mem_data_mask_width;
+	u8	mem_data_width;
+	u8	mem_dq_per_read_dqs;
+	u8	mem_dq_per_write_dqs;
+	u8	mem_if_read_dqs_width;
+	u8	mem_if_write_dqs_width;
+	u8	mem_number_of_cs_per_dimm;
+	u8	mem_number_of_ranks;
+	u8	mem_virtual_groups_per_read_dqs;
+	u8	mem_virtual_groups_per_write_dqs;
 };
 
 #define SDR_CTRLGRP_CTRLCFG_NODMPINS_LSB 23
