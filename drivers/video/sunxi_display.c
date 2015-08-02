@@ -663,11 +663,14 @@ static void sunxi_lcdc_backlight_enable(void)
 		gpio_direction_output(pin, PWM_ON);
 }
 
-static int sunxi_lcdc_get_clk_delay(const struct ctfb_res_modes *mode)
+static int sunxi_lcdc_get_clk_delay(const struct ctfb_res_modes *mode, int tcon)
 {
 	int delay;
 
-	delay = mode->lower_margin + mode->vsync_len + mode->upper_margin - 2;
+	delay = mode->lower_margin + mode->vsync_len + mode->upper_margin;
+	if (tcon == 1)
+		delay -= 2;
+
 	return (delay > 30) ? 30 : delay;
 }
 
@@ -692,7 +695,7 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 	clrsetbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_IO_MAP_MASK,
 			SUNXI_LCDC_CTRL_IO_MAP_TCON0);
 
-	clk_delay = sunxi_lcdc_get_clk_delay(mode);
+	clk_delay = sunxi_lcdc_get_clk_delay(mode, 0);
 	writel(SUNXI_LCDC_TCON0_CTRL_ENABLE |
 	       SUNXI_LCDC_TCON0_CTRL_CLK_DELAY(clk_delay), &lcdc->tcon0_ctrl);
 
@@ -770,7 +773,7 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 	clrsetbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_IO_MAP_MASK,
 			SUNXI_LCDC_CTRL_IO_MAP_TCON1);
 
-	clk_delay = sunxi_lcdc_get_clk_delay(mode);
+	clk_delay = sunxi_lcdc_get_clk_delay(mode, 1);
 	writel(SUNXI_LCDC_TCON1_CTRL_ENABLE |
 	       SUNXI_LCDC_TCON1_CTRL_CLK_DELAY(clk_delay), &lcdc->tcon1_ctrl);
 
