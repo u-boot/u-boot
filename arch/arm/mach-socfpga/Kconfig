@@ -1,28 +1,38 @@
 if ARCH_SOCFPGA
 
+config TARGET_SOCFPGA_ARRIA5
+	bool
+
+config TARGET_SOCFPGA_CYCLONE5
+	bool
+
 choice
 	prompt "Altera SOCFPGA board select"
 	optional
 
-config TARGET_SOCFPGA_ARRIA5
-	bool "Altera SOCFPGA Arria V"
+config TARGET_SOCFPGA_ARRIA5_SOCDK
+	bool "Altera SOCFPGA SoCDK (Arria V)"
+	select TARGET_SOCFPGA_ARRIA5
 
-config TARGET_SOCFPGA_CYCLONE5
-	bool "Altera SOCFPGA Cyclone V"
+config TARGET_SOCFPGA_CYCLONE5_SOCDK
+	bool "Altera SOCFPGA SoCDK (Cyclone V)"
+	select TARGET_SOCFPGA_CYCLONE5
 
 endchoice
 
 config SYS_BOARD
-	default "socfpga"
+	default "socfpga" if TARGET_SOCFPGA_ARRIA5_SOCDK
+	default "socfpga" if TARGET_SOCFPGA_CYCLONE5_SOCDK
 
 config SYS_VENDOR
-	default "altera"
+	default "altera" if TARGET_SOCFPGA_ARRIA5_SOCDK
+	default "altera" if TARGET_SOCFPGA_CYCLONE5_SOCDK
 
 config SYS_SOC
 	default "socfpga"
 
 config SYS_CONFIG_NAME
-	default "socfpga_arria5" if TARGET_SOCFPGA_ARRIA5
-	default "socfpga_cyclone5" if TARGET_SOCFPGA_CYCLONE5
+	default "socfpga_arria5" if TARGET_SOCFPGA_ARRIA5_SOCDK
+	default "socfpga_cyclone5" if TARGET_SOCFPGA_CYCLONE5_SOCDK
 
 endif
