@@ -34,7 +34,7 @@
 	};
 };
 
-&mmc {
+&mmc0 {
 	status = "okay";
 };
 
