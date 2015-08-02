@@ -510,7 +510,7 @@ static void scc_mgr_zero_all(void)
 			 * but there's no harm updating them several times, so
 			 * let's keep the code simple.
 			 */
-			scc_mgr_set_dqs_bus_in_delay(i, IO_DQS_IN_RESERVE);
+			scc_mgr_set_dqs_bus_in_delay(i, iocfg->dqs_in_reserve);
 			scc_mgr_set_dqs_en_phase(i, 0);
 			scc_mgr_set_dqs_en_delay(i, 0);
 		}
@@ -518,7 +518,7 @@ static void scc_mgr_zero_all(void)
 		for (i = 0; i < rwcfg->mem_if_write_dqs_width; i++) {
 			scc_mgr_set_dqdqs_output_phase(i, 0);
 			/* Arria V/Cyclone V don't have out2. */
-			scc_mgr_set_oct_out1_delay(i, IO_DQS_OUT_RESERVE);
+			scc_mgr_set_oct_out1_delay(i, iocfg->dqs_out_reserve);
 		}
 	}
 
@@ -605,8 +605,8 @@ static void scc_mgr_zero_group(const u32 write_group, const int out_only)
 			scc_mgr_set_dqs_io_in_delay(0);
 
 		/* Arria V/Cyclone V don't have out2. */
-		scc_mgr_set_dqs_out1_delay(IO_DQS_OUT_RESERVE);
-		scc_mgr_set_oct_out1_delay(write_group, IO_DQS_OUT_RESERVE);
+		scc_mgr_set_dqs_out1_delay(iocfg->dqs_out_reserve);
+		scc_mgr_set_oct_out1_delay(write_group, iocfg->dqs_out_reserve);
 		scc_mgr_load_dqs_for_write_group(write_group);
 
 		/* Multicast to all DQS IO enables (only 1 in total). */
@@ -692,13 +692,13 @@ static void scc_mgr_apply_group_all_out_delay_add(const u32 write_group,
 
 	/* DQS shift */
 	new_delay = READ_SCC_DQS_IO_OUT2_DELAY + delay;
-	if (new_delay > IO_IO_OUT2_DELAY_MAX) {
+	if (new_delay > iocfg->io_out2_delay_max) {
 		debug_cond(DLEVEL == 1,
 			   "%s:%d (%u, %u) DQS: %u > %d; adding %u to OUT1\n",
 			   __func__, __LINE__, write_group, delay, new_delay,
-			   IO_IO_OUT2_DELAY_MAX,
-			   new_delay - IO_IO_OUT2_DELAY_MAX);
-		new_delay -= IO_IO_OUT2_DELAY_MAX;
+			   iocfg->io_out2_delay_max,
+			   new_delay - iocfg->io_out2_delay_max);
+		new_delay -= iocfg->io_out2_delay_max;
 		scc_mgr_set_dqs_out1_delay(new_delay);
 	}
 
@@ -706,13 +706,13 @@ static void scc_mgr_apply_group_all_out_delay_add(const u32 write_group,
 
 	/* OCT shift */
 	new_delay = READ_SCC_OCT_OUT2_DELAY + delay;
-	if (new_delay > IO_IO_OUT2_DELAY_MAX) {
+	if (new_delay > iocfg->io_out2_delay_max) {
 		debug_cond(DLEVEL == 1,
 			   "%s:%d (%u, %u) DQS: %u > %d; adding %u to OUT1\n",
 			   __func__, __LINE__, write_group, delay,
-			   new_delay, IO_IO_OUT2_DELAY_MAX,
-			   new_delay - IO_IO_OUT2_DELAY_MAX);
-		new_delay -= IO_IO_OUT2_DELAY_MAX;
+			   new_delay, iocfg->io_out2_delay_max,
+			   new_delay - iocfg->io_out2_delay_max);
+		new_delay -= iocfg->io_out2_delay_max;
 		scc_mgr_set_oct_out1_delay(write_group, new_delay);
 	}
 
@@ -1555,7 +1555,7 @@ static int find_vfifo_failing_read(const u32 grp)
 static int sdr_find_phase_delay(int working, int delay, const u32 grp,
 				u32 *work, const u32 work_inc, u32 *pd)
 {
-	const u32 max = delay ? IO_DQS_EN_DELAY_MAX : IO_DQS_EN_PHASE_MAX;
+	const u32 max = delay ? iocfg->dqs_en_delay_max : iocfg->dqs_en_phase_max;
 	u32 ret;
 
 	for (; *pd <= max; (*pd)++) {
@@ -1599,11 +1599,11 @@ static int sdr_find_phase(int working, const u32 grp, u32 *work,
 			*p = 0;
 
 		ret = sdr_find_phase_delay(working, 0, grp, work,
-					   IO_DELAY_PER_OPA_TAP, p);
+					   iocfg->delay_per_opa_tap, p);
 		if (!ret)
 			return 0;
 
-		if (*p > IO_DQS_EN_PHASE_MAX) {
+		if (*p > iocfg->dqs_en_phase_max) {
 			/* Fiddle with FIFO. */
 			rw_mgr_incr_vfifo(grp);
 			if (!working)
@@ -1627,8 +1627,8 @@ static int sdr_find_phase(int working, const u32 grp, u32 *work,
 static int sdr_working_phase(const u32 grp, u32 *work_bgn, u32 *d,
 			     u32 *p, u32 *i)
 {
-	const u32 dtaps_per_ptap = IO_DELAY_PER_OPA_TAP /
-				   IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
+	const u32 dtaps_per_ptap = iocfg->delay_per_opa_tap /
+				   iocfg->delay_per_dqs_en_dchain_tap;
 	int ret;
 
 	*work_bgn = 0;
@@ -1639,7 +1639,7 @@ static int sdr_working_phase(const u32 grp, u32 *work_bgn, u32 *d,
 		ret = sdr_find_phase(1, grp, work_bgn, i, p);
 		if (!ret)
 			return 0;
-		*work_bgn += IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
+		*work_bgn += iocfg->delay_per_dqs_en_dchain_tap;
 	}
 
 	/* Cannot find working solution */
@@ -1663,15 +1663,15 @@ static void sdr_backup_phase(const u32 grp, u32 *work_bgn, u32 *p)
 
 	/* Special case code for backing up a phase */
 	if (*p == 0) {
-		*p = IO_DQS_EN_PHASE_MAX;
+		*p = iocfg->dqs_en_phase_max;
 		rw_mgr_decr_vfifo(grp);
 	} else {
 		(*p)--;
 	}
-	tmp_delay = *work_bgn - IO_DELAY_PER_OPA_TAP;
+	tmp_delay = *work_bgn - iocfg->delay_per_opa_tap;
 	scc_mgr_set_dqs_en_phase_all_ranks(grp, *p);
 
-	for (d = 0; d <= IO_DQS_EN_DELAY_MAX && tmp_delay < *work_bgn; d++) {
+	for (d = 0; d <= iocfg->dqs_en_delay_max && tmp_delay < *work_bgn; d++) {
 		scc_mgr_set_dqs_en_delay_all_ranks(grp, d);
 
 		ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
@@ -1681,12 +1681,12 @@ static void sdr_backup_phase(const u32 grp, u32 *work_bgn, u32 *p)
 			break;
 		}
 
-		tmp_delay += IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
+		tmp_delay += iocfg->delay_per_dqs_en_dchain_tap;
 	}
 
 	/* Restore VFIFO to old state before we decremented it (if needed). */
 	(*p)++;
-	if (*p > IO_DQS_EN_PHASE_MAX) {
+	if (*p > iocfg->dqs_en_phase_max) {
 		*p = 0;
 		rw_mgr_incr_vfifo(grp);
 	}
@@ -1708,8 +1708,8 @@ static int sdr_nonworking_phase(const u32 grp, u32 *work_end, u32 *p, u32 *i)
 	int ret;
 
 	(*p)++;
-	*work_end += IO_DELAY_PER_OPA_TAP;
-	if (*p > IO_DQS_EN_PHASE_MAX) {
+	*work_end += iocfg->delay_per_opa_tap;
+	if (*p > iocfg->dqs_en_phase_max) {
 		/* Fiddle with FIFO. */
 		*p = 0;
 		rw_mgr_incr_vfifo(grp);
@@ -1745,23 +1745,23 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 	debug_cond(DLEVEL == 2, "work_bgn=%d work_end=%d work_mid=%d\n",
 		   work_bgn, work_end, work_mid);
 	/* Get the middle delay to be less than a VFIFO delay */
-	tmp_delay = (IO_DQS_EN_PHASE_MAX + 1) * IO_DELAY_PER_OPA_TAP;
+	tmp_delay = (iocfg->dqs_en_phase_max + 1) * iocfg->delay_per_opa_tap;
 
 	debug_cond(DLEVEL == 2, "vfifo ptap delay %d\n", tmp_delay);
 	work_mid %= tmp_delay;
 	debug_cond(DLEVEL == 2, "new work_mid %d\n", work_mid);
 
-	tmp_delay = rounddown(work_mid, IO_DELAY_PER_OPA_TAP);
-	if (tmp_delay > IO_DQS_EN_PHASE_MAX * IO_DELAY_PER_OPA_TAP)
-		tmp_delay = IO_DQS_EN_PHASE_MAX * IO_DELAY_PER_OPA_TAP;
-	p = tmp_delay / IO_DELAY_PER_OPA_TAP;
+	tmp_delay = rounddown(work_mid, iocfg->delay_per_opa_tap);
+	if (tmp_delay > iocfg->dqs_en_phase_max * iocfg->delay_per_opa_tap)
+		tmp_delay = iocfg->dqs_en_phase_max * iocfg->delay_per_opa_tap;
+	p = tmp_delay / iocfg->delay_per_opa_tap;
 
 	debug_cond(DLEVEL == 2, "new p %d, tmp_delay=%d\n", p, tmp_delay);
 
-	d = DIV_ROUND_UP(work_mid - tmp_delay, IO_DELAY_PER_DQS_EN_DCHAIN_TAP);
-	if (d > IO_DQS_EN_DELAY_MAX)
-		d = IO_DQS_EN_DELAY_MAX;
-	tmp_delay += d * IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
+	d = DIV_ROUND_UP(work_mid - tmp_delay, iocfg->delay_per_dqs_en_dchain_tap);
+	if (d > iocfg->dqs_en_delay_max)
+		d = iocfg->dqs_en_delay_max;
+	tmp_delay += d * iocfg->delay_per_dqs_en_dchain_tap;
 
 	debug_cond(DLEVEL == 2, "new d %d, tmp_delay=%d\n", d, tmp_delay);
 
@@ -1814,7 +1814,7 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 	scc_mgr_set_dqs_en_phase_all_ranks(grp, 0);
 
 	/* Step 0: Determine number of delay taps for each phase tap. */
-	dtaps_per_ptap = IO_DELAY_PER_OPA_TAP / IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
+	dtaps_per_ptap = iocfg->delay_per_opa_tap / iocfg->delay_per_dqs_en_dchain_tap;
 
 	/* Step 1: First push vfifo until we get a failing read. */
 	find_vfifo_failing_read(grp);
@@ -1851,13 +1851,13 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 
 		/* Special case code for backing up a phase */
 		if (p == 0) {
-			p = IO_DQS_EN_PHASE_MAX;
+			p = iocfg->dqs_en_phase_max;
 			rw_mgr_decr_vfifo(grp);
 		} else {
 			p = p - 1;
 		}
 
-		work_end -= IO_DELAY_PER_OPA_TAP;
+		work_end -= iocfg->delay_per_opa_tap;
 		scc_mgr_set_dqs_en_phase_all_ranks(grp, p);
 
 		d = 0;
@@ -1868,11 +1868,11 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 
 	/* The dtap increment to find the failing edge is done here. */
 	sdr_find_phase_delay(0, 1, grp, &work_end,
-			     IO_DELAY_PER_DQS_EN_DCHAIN_TAP, &d);
+			     iocfg->delay_per_dqs_en_dchain_tap, &d);
 
 	/* Go back to working dtap */
 	if (d != 0)
-		work_end -= IO_DELAY_PER_DQS_EN_DCHAIN_TAP;
+		work_end -= iocfg->delay_per_dqs_en_dchain_tap;
 
 	debug_cond(DLEVEL == 2,
 		   "%s:%d p/d: ptap=%u dtap=%u end=%u\n",
@@ -1898,7 +1898,7 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 
 	/* Special case code for backing up a phase */
 	if (p == 0) {
-		p = IO_DQS_EN_PHASE_MAX;
+		p = iocfg->dqs_en_phase_max;
 		rw_mgr_decr_vfifo(grp);
 		debug_cond(DLEVEL == 2, "%s:%d backedup cycle/phase: p=%u\n",
 			   __func__, __LINE__, p);
@@ -1939,7 +1939,7 @@ static int rw_mgr_mem_calibrate_vfifo_find_dqs_en_phase(const u32 grp)
 	/*
 	 * The dynamically calculated dtaps_per_ptap is only valid if we
 	 * found a passing/failing read. If we didn't, it means d hit the max
-	 * (IO_DQS_EN_DELAY_MAX). Otherwise, dtaps_per_ptap retains its
+	 * (iocfg->dqs_en_delay_max). Otherwise, dtaps_per_ptap retains its
 	 * statically calculated value.
 	 */
 	if (found_passing_read && found_failing_read)
@@ -2028,8 +2028,8 @@ static void search_left_edge(const int write, const int rank_bgn,
 	u32 *sticky_bit_chk,
 	int *left_edge, int *right_edge, const u32 use_read_test)
 {
-	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
-	const u32 dqs_max = write ? IO_IO_OUT1_DELAY_MAX : IO_DQS_IN_DELAY_MAX;
+	const u32 delay_max = write ? iocfg->io_out1_delay_max : iocfg->io_in_delay_max;
+	const u32 dqs_max = write ? iocfg->io_out1_delay_max : iocfg->dqs_in_delay_max;
 	const u32 per_dqs = write ? rwcfg->mem_dq_per_write_dqs :
 				    rwcfg->mem_dq_per_read_dqs;
 	u32 stop, bit_chk;
@@ -2139,8 +2139,8 @@ static int search_right_edge(const int write, const int rank_bgn,
 	u32 *sticky_bit_chk,
 	int *left_edge, int *right_edge, const u32 use_read_test)
 {
-	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
-	const u32 dqs_max = write ? IO_IO_OUT1_DELAY_MAX : IO_DQS_IN_DELAY_MAX;
+	const u32 delay_max = write ? iocfg->io_out1_delay_max : iocfg->io_in_delay_max;
+	const u32 dqs_max = write ? iocfg->io_out1_delay_max : iocfg->dqs_in_delay_max;
 	const u32 per_dqs = write ? rwcfg->mem_dq_per_write_dqs :
 				    rwcfg->mem_dq_per_read_dqs;
 	u32 stop, bit_chk;
@@ -2152,10 +2152,10 @@ static int search_right_edge(const int write, const int rank_bgn,
 								d + start_dqs);
 		} else {	/* READ-ONLY */
 			scc_mgr_set_dqs_bus_in_delay(read_group, d + start_dqs);
-			if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS) {
+			if (iocfg->shift_dqs_en_when_shift_dqs) {
 				uint32_t delay = d + start_dqs_en;
-				if (delay > IO_DQS_EN_DELAY_MAX)
-					delay = IO_DQS_EN_DELAY_MAX;
+				if (delay > iocfg->dqs_en_delay_max)
+					delay = iocfg->dqs_en_delay_max;
 				scc_mgr_set_dqs_en_delay(read_group, delay);
 			}
 			scc_mgr_load_dqs(read_group);
@@ -2307,7 +2307,7 @@ static void center_dq_windows(const int write, int *left_edge, int *right_edge,
 			      const int min_index, const int test_bgn,
 			      int *dq_margin, int *dqs_margin)
 {
-	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
+	const u32 delay_max = write ? iocfg->io_out1_delay_max : iocfg->io_in_delay_max;
 	const u32 per_dqs = write ? rwcfg->mem_dq_per_write_dqs :
 				    rwcfg->mem_dq_per_read_dqs;
 	const u32 delay_off = write ? SCC_MGR_IO_OUT1_DELAY_OFFSET :
@@ -2391,7 +2391,7 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 	int32_t left_edge[rwcfg->mem_dq_per_read_dqs];
 	int32_t right_edge[rwcfg->mem_dq_per_read_dqs];
 	int32_t orig_mid_min, mid_min;
-	int32_t new_dqs, start_dqs, start_dqs_en, final_dqs_en;
+	int32_t new_dqs, start_dqs, start_dqs_en = 0, final_dqs_en;
 	int32_t dq_margin, dqs_margin;
 	int i, min_index;
 	int ret;
@@ -2399,15 +2399,15 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 	debug("%s:%d: %u %u", __func__, __LINE__, rw_group, test_bgn);
 
 	start_dqs = readl(addr);
-	if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS)
-		start_dqs_en = readl(addr - IO_DQS_EN_DELAY_OFFSET);
+	if (iocfg->shift_dqs_en_when_shift_dqs)
+		start_dqs_en = readl(addr - iocfg->dqs_en_delay_offset);
 
 	/* set the left and right edge of each bit to an illegal value */
-	/* use (IO_IO_IN_DELAY_MAX + 1) as an illegal value */
+	/* use (iocfg->io_in_delay_max + 1) as an illegal value */
 	sticky_bit_chk = 0;
 	for (i = 0; i < rwcfg->mem_dq_per_read_dqs; i++) {
-		left_edge[i]  = IO_IO_IN_DELAY_MAX + 1;
-		right_edge[i] = IO_IO_IN_DELAY_MAX + 1;
+		left_edge[i]  = iocfg->io_in_delay_max + 1;
+		right_edge[i] = iocfg->io_in_delay_max + 1;
 	}
 
 	/* Search for the left edge of the window for each bit */
@@ -2428,7 +2428,7 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 		 * dqs/ck relationships.
 		 */
 		scc_mgr_set_dqs_bus_in_delay(rw_group, start_dqs);
-		if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS)
+		if (iocfg->shift_dqs_en_when_shift_dqs)
 			scc_mgr_set_dqs_en_delay(rw_group, start_dqs_en);
 
 		scc_mgr_load_dqs(rw_group);
@@ -2456,8 +2456,8 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 	/* Determine the amount we can change DQS (which is -mid_min) */
 	orig_mid_min = mid_min;
 	new_dqs = start_dqs - mid_min;
-	if (new_dqs > IO_DQS_IN_DELAY_MAX)
-		new_dqs = IO_DQS_IN_DELAY_MAX;
+	if (new_dqs > iocfg->dqs_in_delay_max)
+		new_dqs = iocfg->dqs_in_delay_max;
 	else if (new_dqs < 0)
 		new_dqs = 0;
 
@@ -2465,9 +2465,9 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 	debug_cond(DLEVEL == 1, "vfifo_center: new mid_min=%d new_dqs=%d\n",
 		   mid_min, new_dqs);
 
-	if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS) {
-		if (start_dqs_en - mid_min > IO_DQS_EN_DELAY_MAX)
-			mid_min += start_dqs_en - mid_min - IO_DQS_EN_DELAY_MAX;
+	if (iocfg->shift_dqs_en_when_shift_dqs) {
+		if (start_dqs_en - mid_min > iocfg->dqs_en_delay_max)
+			mid_min += start_dqs_en - mid_min - iocfg->dqs_en_delay_max;
 		else if (start_dqs_en - mid_min < 0)
 			mid_min += start_dqs_en - mid_min;
 	}
@@ -2476,7 +2476,7 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 	debug_cond(DLEVEL == 1,
 		   "vfifo_center: start_dqs=%d start_dqs_en=%d new_dqs=%d mid_min=%d\n",
 		   start_dqs,
-		   IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS ? start_dqs_en : -1,
+		   iocfg->shift_dqs_en_when_shift_dqs ? start_dqs_en : -1,
 		   new_dqs, mid_min);
 
 	/* Add delay to bring centre of all DQ windows to the same "level". */
@@ -2484,7 +2484,7 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 			  min_index, test_bgn, &dq_margin, &dqs_margin);
 
 	/* Move DQS-en */
-	if (IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS) {
+	if (iocfg->shift_dqs_en_when_shift_dqs) {
 		final_dqs_en = start_dqs_en - mid_min;
 		scc_mgr_set_dqs_en_delay(rw_group, final_dqs_en);
 		scc_mgr_load_dqs(rw_group);
@@ -2568,7 +2568,7 @@ static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
 	 */
 
 	/* We start at zero, so have one less dq to devide among */
-	const u32 delay_step = IO_IO_IN_DELAY_MAX /
+	const u32 delay_step = iocfg->io_in_delay_max /
 			       (rwcfg->mem_dq_per_read_dqs - 1);
 	int ret;
 	u32 i, p, d, r;
@@ -2687,8 +2687,8 @@ static int rw_mgr_mem_calibrate_vfifo(const u32 rw_group, const u32 test_bgn)
 	failed_substage = CAL_SUBSTAGE_GUARANTEED_READ;
 
 	/* USER Determine number of delay taps for each phase tap. */
-	dtaps_per_ptap = DIV_ROUND_UP(IO_DELAY_PER_OPA_TAP,
-				      IO_DELAY_PER_DQS_EN_DCHAIN_TAP) - 1;
+	dtaps_per_ptap = DIV_ROUND_UP(iocfg->delay_per_opa_tap,
+				      iocfg->delay_per_dqs_en_dchain_tap) - 1;
 
 	for (d = 0; d <= dtaps_per_ptap; d += 2) {
 		/*
@@ -2702,7 +2702,7 @@ static int rw_mgr_mem_calibrate_vfifo(const u32 rw_group, const u32 test_bgn)
 								rw_group, d);
 		}
 
-		for (p = 0; p <= IO_DQDQS_OUT_PHASE_MAX; p++) {
+		for (p = 0; p <= iocfg->dqdqs_out_phase_max; p++) {
 			/* 1) Guaranteed Write */
 			ret = rw_mgr_mem_calibrate_guaranteed_write(rw_group, p);
 			if (ret)
@@ -2861,7 +2861,7 @@ static void search_window(const int search_dm,
 			  int *end_best, int *win_best, int new_dqs)
 {
 	u32 bit_chk;
-	const int max = IO_IO_OUT1_DELAY_MAX - new_dqs;
+	const int max = iocfg->io_out1_delay_max - new_dqs;
 	int d, di;
 
 	/* Search for the/part of the window with DM/DQS shift. */
@@ -2892,7 +2892,7 @@ static void search_window(const int search_dm,
 			 * If a starting edge of our window has not been seen
 			 * this is our current start of the DM window.
 			 */
-			if (*bgn_curr == IO_IO_OUT1_DELAY_MAX + 1)
+			if (*bgn_curr == iocfg->io_out1_delay_max + 1)
 				*bgn_curr = search_dm ? -d : d;
 
 			/*
@@ -2906,8 +2906,8 @@ static void search_window(const int search_dm,
 			}
 		} else {
 			/* We just saw a failing test. Reset temp edge. */
-			*bgn_curr = IO_IO_OUT1_DELAY_MAX + 1;
-			*end_curr = IO_IO_OUT1_DELAY_MAX + 1;
+			*bgn_curr = iocfg->io_out1_delay_max + 1;
+			*end_curr = iocfg->io_out1_delay_max + 1;
 
 			/* Early exit is only applicable to DQS. */
 			if (search_dm)
@@ -2918,7 +2918,7 @@ static void search_window(const int search_dm,
 			 * chain space is less than already seen largest
 			 * window we can exit.
 			 */
-			if (*win_best - 1 > IO_IO_OUT1_DELAY_MAX - new_dqs - d)
+			if (*win_best - 1 > iocfg->io_out1_delay_max - new_dqs - d)
 				break;
 		}
 	}
@@ -2946,10 +2946,10 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	int mid_min, orig_mid_min;
 	int new_dqs, start_dqs;
 	int dq_margin, dqs_margin, dm_margin;
-	int bgn_curr = IO_IO_OUT1_DELAY_MAX + 1;
-	int end_curr = IO_IO_OUT1_DELAY_MAX + 1;
-	int bgn_best = IO_IO_OUT1_DELAY_MAX + 1;
-	int end_best = IO_IO_OUT1_DELAY_MAX + 1;
+	int bgn_curr = iocfg->io_out1_delay_max + 1;
+	int end_curr = iocfg->io_out1_delay_max + 1;
+	int bgn_best = iocfg->io_out1_delay_max + 1;
+	int end_best = iocfg->io_out1_delay_max + 1;
 	int win_best = 0;
 
 	int ret;
@@ -2966,12 +2966,12 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 
 	/*
 	 * Set the left and right edge of each bit to an illegal value.
-	 * Use (IO_IO_OUT1_DELAY_MAX + 1) as an illegal value.
+	 * Use (iocfg->io_out1_delay_max + 1) as an illegal value.
 	 */
 	sticky_bit_chk = 0;
 	for (i = 0; i < rwcfg->mem_dq_per_write_dqs; i++) {
-		left_edge[i]  = IO_IO_OUT1_DELAY_MAX + 1;
-		right_edge[i] = IO_IO_OUT1_DELAY_MAX + 1;
+		left_edge[i]  = iocfg->io_out1_delay_max + 1;
+		right_edge[i] = iocfg->io_out1_delay_max + 1;
 	}
 
 	/* Search for the left edge of the window for each bit. */
@@ -3013,10 +3013,10 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 
 	/*
 	 * Set the left and right edge of each bit to an illegal value.
-	 * Use (IO_IO_OUT1_DELAY_MAX + 1) as an illegal value.
+	 * Use (iocfg->io_out1_delay_max + 1) as an illegal value.
 	 */
-	left_edge[0]  = IO_IO_OUT1_DELAY_MAX + 1;
-	right_edge[0] = IO_IO_OUT1_DELAY_MAX + 1;
+	left_edge[0]  = iocfg->io_out1_delay_max + 1;
+	right_edge[0] = iocfg->io_out1_delay_max + 1;
 
 	/* Search for the/part of the window with DM shift. */
 	search_window(1, rank_bgn, write_group, &bgn_curr, &end_curr,
@@ -3031,8 +3031,8 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	 * search begins as a new search.
 	 */
 	if (end_curr != 0) {
-		bgn_curr = IO_IO_OUT1_DELAY_MAX + 1;
-		end_curr = IO_IO_OUT1_DELAY_MAX + 1;
+		bgn_curr = iocfg->io_out1_delay_max + 1;
+		end_curr = iocfg->io_out1_delay_max + 1;
 	}
 
 	/* Search for the/part of the window with DQS shifts. */
@@ -3212,11 +3212,10 @@ static void mem_skip_calibrate(void)
 		 */
 		for (i = 0; i < rwcfg->mem_if_read_dqs_width; i++) {
 			scc_mgr_set_dqs_en_phase(i, 0);
-#if IO_DLL_CHAIN_LENGTH == 6
-			scc_mgr_set_dqdqs_output_phase(i, 6);
-#else
-			scc_mgr_set_dqdqs_output_phase(i, 7);
-#endif
+			if (iocfg->dll_chain_length == 6)
+				scc_mgr_set_dqdqs_output_phase(i, 6);
+			else
+				scc_mgr_set_dqdqs_output_phase(i, 7);
 			/*
 			 * Case:33398
 			 *
@@ -3235,15 +3234,15 @@ static void mem_skip_calibrate(void)
 			 *
 			 * Hence, to make DQS aligned to CK, we need to delay
 			 * DQS by:
-			 *    (720 - 90 - 180 - 2 * (360 / IO_DLL_CHAIN_LENGTH))
+			 *    (720 - 90 - 180 - 2 * (360 / iocfg->dll_chain_length))
 			 *
-			 * Dividing the above by (360 / IO_DLL_CHAIN_LENGTH)
+			 * Dividing the above by (360 / iocfg->dll_chain_length)
 			 * gives us the number of ptaps, which simplies to:
 			 *
-			 *    (1.25 * IO_DLL_CHAIN_LENGTH - 2)
+			 *    (1.25 * iocfg->dll_chain_length - 2)
 			 */
 			scc_mgr_set_dqdqs_output_phase(i,
-					1.25 * IO_DLL_CHAIN_LENGTH - 2);
+					1.25 * iocfg->dll_chain_length - 2);
 		}
 		writel(0xff, &sdr_scc_mgr->dqs_ena);
 		writel(0xff, &sdr_scc_mgr->dqs_io_ena);
@@ -3656,7 +3655,7 @@ static void initialize_tracking(void)
 	 * Compute usable version of value in case we skip full
 	 * computation later.
 	 */
-	writel(DIV_ROUND_UP(IO_DELAY_PER_OPA_TAP, IO_DELAY_PER_DCHAIN_TAP) - 1,
+	writel(DIV_ROUND_UP(iocfg->delay_per_opa_tap, iocfg->delay_per_dchain_tap) - 1,
 	       &sdr_reg_file->dtaps_per_ptap);
 
 	/* trk_sample_count */
@@ -3734,17 +3733,17 @@ int sdram_calibration_full(void)
 		   "dqs=%u,%u dq=%u dm=%u ptap_delay=%u dtap_delay=%u ",
 		   rwcfg->mem_if_read_dqs_width, rwcfg->mem_if_write_dqs_width,
 		   rwcfg->mem_data_width, rwcfg->mem_data_mask_width,
-		   IO_DELAY_PER_OPA_TAP, IO_DELAY_PER_DCHAIN_TAP);
+		   iocfg->delay_per_opa_tap, iocfg->delay_per_dchain_tap);
 	debug_cond(DLEVEL == 1, "dtap_dqsen_delay=%u, dll=%u",
-		   IO_DELAY_PER_DQS_EN_DCHAIN_TAP, IO_DLL_CHAIN_LENGTH);
+		   iocfg->delay_per_dqs_en_dchain_tap, iocfg->dll_chain_length);
 	debug_cond(DLEVEL == 1, "max values: en_p=%u dqdqs_p=%u en_d=%u dqs_in_d=%u ",
-		   IO_DQS_EN_PHASE_MAX, IO_DQDQS_OUT_PHASE_MAX,
-		   IO_DQS_EN_DELAY_MAX, IO_DQS_IN_DELAY_MAX);
+		   iocfg->dqs_en_phase_max, iocfg->dqdqs_out_phase_max,
+		   iocfg->dqs_en_delay_max, iocfg->dqs_in_delay_max);
 	debug_cond(DLEVEL == 1, "io_in_d=%u io_out1_d=%u io_out2_d=%u ",
-		   IO_IO_IN_DELAY_MAX, IO_IO_OUT1_DELAY_MAX,
-		   IO_IO_OUT2_DELAY_MAX);
+		   iocfg->io_in_delay_max, iocfg->io_out1_delay_max,
+		   iocfg->io_out2_delay_max);
 	debug_cond(DLEVEL == 1, "dqs_in_reserve=%u dqs_out_reserve=%u\n",
-		   IO_DQS_IN_RESERVE, IO_DQS_OUT_RESERVE);
+		   iocfg->dqs_in_reserve, iocfg->dqs_out_reserve);
 
 	hc_initialize_rom_data();
 
