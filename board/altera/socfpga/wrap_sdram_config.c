@@ -267,6 +267,22 @@ struct socfpga_sdram_io_config io_config = {
 	.shift_dqs_en_when_shift_dqs	= IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS,
 };
 
+struct socfpga_sdram_misc_config misc_config = {
+	.afi_rate_ratio			= AFI_RATE_RATIO,
+	.calib_lfifo_offset		= CALIB_LFIFO_OFFSET,
+	.calib_vfifo_offset		= CALIB_VFIFO_OFFSET,
+	.enable_super_quick_calibration	= ENABLE_SUPER_QUICK_CALIBRATION,
+	.max_latency_count_width	= MAX_LATENCY_COUNT_WIDTH,
+	.read_valid_fifo_size		= READ_VALID_FIFO_SIZE,
+	.reg_file_init_seq_signature	= REG_FILE_INIT_SEQ_SIGNATURE,
+	.tinit_cntr0_val		= TINIT_CNTR0_VAL,
+	.tinit_cntr1_val		= TINIT_CNTR1_VAL,
+	.tinit_cntr2_val		= TINIT_CNTR2_VAL,
+	.treset_cntr0_val		= TRESET_CNTR0_VAL,
+	.treset_cntr1_val		= TRESET_CNTR1_VAL,
+	.treset_cntr2_val		= TRESET_CNTR2_VAL,
+};
+
 const struct socfpga_sdram_config *socfpga_get_sdram_config(void)
 {
 	return &sdram_config;
@@ -292,4 +308,9 @@ const struct socfpga_sdram_rw_mgr_config *socfpga_get_sdram_rwmgr_config(void)
 const struct socfpga_sdram_io_config *socfpga_get_sdram_io_config(void)
 {
 	return &io_config;
+}
+
+const struct socfpga_sdram_misc_config *socfpga_get_sdram_misc_config(void)
+{
+	return &misc_config;
 }

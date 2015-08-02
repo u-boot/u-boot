@@ -18,6 +18,7 @@ void socfpga_get_seq_ac_init(const u32 **init, unsigned int *nelem);
 void socfpga_get_seq_inst_init(const u32 **init, unsigned int *nelem);
 const struct socfpga_sdram_rw_mgr_config *socfpga_get_sdram_rwmgr_config(void);
 const struct socfpga_sdram_io_config *socfpga_get_sdram_io_config(void);
+const struct socfpga_sdram_misc_config *socfpga_get_sdram_misc_config(void);
 
 #define SDR_CTRLGRP_ADDRESS	(SOCFPGA_SDR_ADDRESS | 0x5000)
 
@@ -197,6 +198,22 @@ struct socfpga_sdram_io_config {
 	u8	io_out1_delay_max;
 	u8	io_out2_delay_max;
 	u8	shift_dqs_en_when_shift_dqs;
+};
+
+struct socfpga_sdram_misc_config {
+	u32	reg_file_init_seq_signature;
+	u8	afi_rate_ratio;
+	u8	calib_lfifo_offset;
+	u8	calib_vfifo_offset;
+	u8	enable_super_quick_calibration;
+	u8	max_latency_count_width;
+	u8	read_valid_fifo_size;
+	u8	tinit_cntr0_val;
+	u8	tinit_cntr1_val;
+	u8	tinit_cntr2_val;
+	u8	treset_cntr0_val;
+	u8	treset_cntr1_val;
+	u8	treset_cntr2_val;
 };
 
 #define SDR_CTRLGRP_CTRLCFG_NODMPINS_LSB 23
