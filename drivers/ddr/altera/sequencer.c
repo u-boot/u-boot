@@ -1507,7 +1507,7 @@ static void rw_mgr_decr_vfifo(const u32 grp)
 {
 	u32 i;
 
-	for (i = 0; i < VFIFO_SIZE - 1; i++)
+	for (i = 0; i < READ_VALID_FIFO_SIZE - 1; i++)
 		rw_mgr_incr_vfifo(grp);
 }
 
@@ -1521,7 +1521,7 @@ static int find_vfifo_failing_read(const u32 grp)
 {
 	u32 v, ret, fail_cnt = 0;
 
-	for (v = 0; v < VFIFO_SIZE; v++) {
+	for (v = 0; v < READ_VALID_FIFO_SIZE; v++) {
 		debug_cond(DLEVEL == 2, "%s:%d: vfifo %u\n",
 			   __func__, __LINE__, v);
 		ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
@@ -1592,7 +1592,7 @@ static int sdr_find_phase_delay(int working, int delay, const u32 grp,
 static int sdr_find_phase(int working, const u32 grp, u32 *work,
 			  u32 *i, u32 *p)
 {
-	const u32 end = VFIFO_SIZE + (working ? 0 : 1);
+	const u32 end = READ_VALID_FIFO_SIZE + (working ? 0 : 1);
 	int ret;
 
 	for (; *i < end; (*i)++) {
@@ -1773,7 +1773,7 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 	 * push vfifo until we can successfully calibrate. We can do this
 	 * because the largest possible margin in 1 VFIFO cycle.
 	 */
-	for (i = 0; i < VFIFO_SIZE; i++) {
+	for (i = 0; i < READ_VALID_FIFO_SIZE; i++) {
 		debug_cond(DLEVEL == 2, "find_dqs_en_phase: center\n");
 		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 							     PASS_ONE_BIT,
