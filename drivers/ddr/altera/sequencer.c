@@ -10,13 +10,6 @@
 #include <errno.h>
 #include "sequencer.h"
 
-/*
- * FIXME: This path is temporary until the SDRAM driver gets
- *        a proper thorough cleanup.
- */
-#include "../../../board/altera/socfpga/qts/sequencer_auto.h"
-#include "../../../board/altera/socfpga/qts/sequencer_defines.h"
-
 static struct socfpga_sdr_rw_load_manager *sdr_rw_load_mgr_regs =
 	(struct socfpga_sdr_rw_load_manager *)(SDR_PHYGRP_RWMGRGRP_ADDRESS | 0x800);
 
@@ -773,7 +766,7 @@ static void delay_for_n_mem_clocks(const u32 clocks)
 	debug("%s:%d: clocks=%u ... start\n", __func__, __LINE__, clocks);
 
 	/* Scale (rounding up) to get afi clocks. */
-	afi_clocks = DIV_ROUND_UP(clocks, AFI_RATE_RATIO);
+	afi_clocks = DIV_ROUND_UP(clocks, misccfg->afi_rate_ratio);
 	if (afi_clocks)	/* Temporary underflow protection */
 		afi_clocks--;
 
@@ -966,8 +959,8 @@ static void rw_mgr_mem_initialize(void)
 	 * One possible solution is n = 0 , a = 256 , b = 106 => a = FF,
 	 * b = 6A
 	 */
-	rw_mgr_mem_init_load_regs(TINIT_CNTR0_VAL, TINIT_CNTR1_VAL,
-				  TINIT_CNTR2_VAL,
+	rw_mgr_mem_init_load_regs(misccfg->tinit_cntr0_val, misccfg->tinit_cntr1_val,
+				  misccfg->tinit_cntr2_val,
 				  rwcfg->init_reset_0_cke_0);
 
 	/* Indicate that memory is stable. */
@@ -987,8 +980,8 @@ static void rw_mgr_mem_initialize(void)
 	 * One possible solution is n = 2 , a = 131 , b = 256 => a = 83,
 	 * b = FF
 	 */
-	rw_mgr_mem_init_load_regs(TRESET_CNTR0_VAL, TRESET_CNTR1_VAL,
-				  TRESET_CNTR2_VAL,
+	rw_mgr_mem_init_load_regs(misccfg->treset_cntr0_val, misccfg->treset_cntr1_val,
+				  misccfg->treset_cntr2_val,
 				  rwcfg->init_reset_1_cke_0);
 
 	/* Bring up clock enable. */
@@ -1029,7 +1022,7 @@ static void rw_mgr_mem_calibrate_write_test_issue(u32 group,
 {
 	const u32 quick_write_mode =
 		(STATIC_CALIB_STEPS & CALIB_SKIP_WRITES) &&
-		ENABLE_SUPER_QUICK_CALIBRATION;
+		misccfg->enable_super_quick_calibration;
 	u32 mcc_instruction;
 	u32 rw_wl_nop_cycles;
 
@@ -1373,7 +1366,7 @@ rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
 		(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
 	const u32 quick_read_mode =
 		((STATIC_CALIB_STEPS & CALIB_SKIP_DELAY_SWEEPS) &&
-		 ENABLE_SUPER_QUICK_CALIBRATION);
+		 misccfg->enable_super_quick_calibration);
 	u32 correct_mask_vg = param->read_correct_mask_vg;
 	u32 tmp_bit_chk;
 	u32 base_rw_mgr;
@@ -1507,7 +1500,7 @@ static void rw_mgr_decr_vfifo(const u32 grp)
 {
 	u32 i;
 
-	for (i = 0; i < READ_VALID_FIFO_SIZE - 1; i++)
+	for (i = 0; i < misccfg->read_valid_fifo_size - 1; i++)
 		rw_mgr_incr_vfifo(grp);
 }
 
@@ -1521,7 +1514,7 @@ static int find_vfifo_failing_read(const u32 grp)
 {
 	u32 v, ret, fail_cnt = 0;
 
-	for (v = 0; v < READ_VALID_FIFO_SIZE; v++) {
+	for (v = 0; v < misccfg->read_valid_fifo_size; v++) {
 		debug_cond(DLEVEL == 2, "%s:%d: vfifo %u\n",
 			   __func__, __LINE__, v);
 		ret = rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
@@ -1592,7 +1585,7 @@ static int sdr_find_phase_delay(int working, int delay, const u32 grp,
 static int sdr_find_phase(int working, const u32 grp, u32 *work,
 			  u32 *i, u32 *p)
 {
-	const u32 end = READ_VALID_FIFO_SIZE + (working ? 0 : 1);
+	const u32 end = misccfg->read_valid_fifo_size + (working ? 0 : 1);
 	int ret;
 
 	for (; *i < end; (*i)++) {
@@ -1773,7 +1766,7 @@ static int sdr_find_window_center(const u32 grp, const u32 work_bgn,
 	 * push vfifo until we can successfully calibrate. We can do this
 	 * because the largest possible margin in 1 VFIFO cycle.
 	 */
-	for (i = 0; i < READ_VALID_FIFO_SIZE; i++) {
+	for (i = 0; i < misccfg->read_valid_fifo_size; i++) {
 		debug_cond(DLEVEL == 2, "find_dqs_en_phase: center\n");
 		if (rw_mgr_mem_calibrate_read_test_all_ranks(grp, 1,
 							     PASS_ONE_BIT,
@@ -3165,7 +3158,7 @@ static void mem_init_latency(void)
 	 * so max latency in AFI clocks, used here, is correspondingly
 	 * smaller.
 	 */
-	const u32 max_latency = (1 << MAX_LATENCY_COUNT_WIDTH) - 1;
+	const u32 max_latency = (1 << misccfg->max_latency_count_width) - 1;
 	u32 rlat, wlat;
 
 	debug("%s:%d\n", __func__, __LINE__);
@@ -3268,7 +3261,7 @@ static void mem_skip_calibrate(void)
 	 * ArriaV has hard FIFOs that can only be initialized by incrementing
 	 * in sequencer.
 	 */
-	vfifo_offset = CALIB_VFIFO_OFFSET;
+	vfifo_offset = misccfg->calib_vfifo_offset;
 	for (j = 0; j < vfifo_offset; j++)
 		writel(0xff, &phy_mgr_cmd->inc_vfifo_hard_phy);
 	writel(0, &phy_mgr_cmd->fifo_reset);
@@ -3277,7 +3270,7 @@ static void mem_skip_calibrate(void)
 	 * For Arria V and Cyclone V with hard LFIFO, we get the skip-cal
 	 * setting from generation-time constant.
 	 */
-	gbl->curr_read_lat = CALIB_LFIFO_OFFSET;
+	gbl->curr_read_lat = misccfg->calib_lfifo_offset;
 	writel(gbl->curr_read_lat, &phy_mgr_cfg->phy_rlat);
 }
 
@@ -3585,7 +3578,7 @@ static void hc_initialize_rom_data(void)
 static void initialize_reg_file(void)
 {
 	/* Initialize the register file with the correct data */
-	writel(REG_FILE_INIT_SEQ_SIGNATURE, &sdr_reg_file->signature);
+	writel(misccfg->reg_file_init_seq_signature, &sdr_reg_file->signature);
 	writel(0, &sdr_reg_file->debug_data_addr);
 	writel(0, &sdr_reg_file->cur_stage);
 	writel(0, &sdr_reg_file->fom);
