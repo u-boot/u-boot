@@ -66,14 +66,6 @@
 #define CAL_SUBSTAGE_READ_LATENCY	1
 #define CAL_SUBSTAGE_REFRESH		1
 
-#define MAX_RANKS			(RW_MGR_MEM_NUMBER_OF_RANKS)
-#define MAX_DQS				(RW_MGR_MEM_IF_WRITE_DQS_WIDTH > \
-					RW_MGR_MEM_IF_READ_DQS_WIDTH ? \
-					RW_MGR_MEM_IF_WRITE_DQS_WIDTH : \
-					RW_MGR_MEM_IF_READ_DQS_WIDTH)
-#define MAX_DQ				(RW_MGR_MEM_DATA_WIDTH)
-#define MAX_DM				(RW_MGR_MEM_DATA_MASK_WIDTH)
-
 /* length of VFIFO, from SW_MACROS */
 #define VFIFO_SIZE			(READ_VALID_FIFO_SIZE)
 
@@ -212,25 +204,10 @@ struct socfpga_sdr_reg_file {
 
 /* parameter variable holder */
 struct param_type {
-	uint32_t dm_correct_mask;
-	uint32_t read_correct_mask;
-	uint32_t read_correct_mask_vg;
-	uint32_t write_correct_mask;
-	uint32_t write_correct_mask_vg;
-
-	/* set a particular entry to 1 if we need to skip a particular rank */
-
-	uint32_t skip_ranks[MAX_RANKS];
-
-	/* set a particular entry to 1 if we need to skip a particular group */
-
-	uint32_t skip_groups;
-
-	/* set a particular entry to 1 if the shadow register
-	(which represents a set of ranks) needs to be skipped */
-
-	uint32_t skip_shadow_regs[NUM_SHADOW_REGS];
-
+	u32	read_correct_mask;
+	u32	read_correct_mask_vg;
+	u32	write_correct_mask;
+	u32	write_correct_mask_vg;
 };
 
 

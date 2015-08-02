@@ -83,7 +83,6 @@ uint16_t skip_delay_mask;	/* mask off bits when skipping/not-skipping */
 
 struct gbl_type *gbl;
 struct param_type *param;
-uint32_t curr_shadow_reg;
 
 static void set_failing_group_stage(uint32_t group, uint32_t stage,
 	uint32_t substage)
@@ -151,9 +150,6 @@ static void phy_mgr_initialize(void)
 	param->write_correct_mask_vg = (1 << ratio) - 1;
 	param->read_correct_mask = (1 << RW_MGR_MEM_DQ_PER_READ_DQS) - 1;
 	param->write_correct_mask = (1 << RW_MGR_MEM_DQ_PER_WRITE_DQS) - 1;
-	ratio = RW_MGR_MEM_DATA_WIDTH /
-		RW_MGR_MEM_DATA_MASK_WIDTH;
-	param->dm_correct_mask = (1 << ratio) - 1;
 }
 
 /**
@@ -885,11 +881,6 @@ static void rw_mgr_mem_load_user(const u32 fin1, const u32 fin2,
 	u32 r;
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS; r++) {
-		if (param->skip_ranks[r]) {
-			/* request to skip the rank */
-			continue;
-		}
-
 		/* set rank */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_OFF);
 
@@ -1192,10 +1183,6 @@ rw_mgr_mem_calibrate_write_test(const u32 rank_bgn, const u32 write_group,
 	*bit_chk = param->write_correct_mask;
 
 	for (r = rank_bgn; r < rank_end; r++) {
-		/* Request to skip the rank */
-		if (param->skip_ranks[r])
-			continue;
-
 		/* Set rank */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
@@ -1266,10 +1253,6 @@ rw_mgr_mem_calibrate_read_test_patterns(const u32 rank_bgn, const u32 group,
 	bit_chk = param->read_correct_mask;
 
 	for (r = rank_bgn; r < rank_end; r++) {
-		/* Request to skip the rank */
-		if (param->skip_ranks[r])
-			continue;
-
 		/* Set rank */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
@@ -1333,10 +1316,6 @@ static void rw_mgr_mem_calibrate_read_load_patterns(const u32 rank_bgn,
 	debug("%s:%d\n", __func__, __LINE__);
 
 	for (r = rank_bgn; r < rank_end; r++) {
-		if (param->skip_ranks[r])
-			/* request to skip the rank */
-			continue;
-
 		/* set rank */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
@@ -1403,10 +1382,6 @@ rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
 	*bit_chk = param->read_correct_mask;
 
 	for (r = rank_bgn; r < rank_end; r++) {
-		if (param->skip_ranks[r])
-			/* request to skip the rank */
-			continue;
-
 		/* set rank */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
@@ -2662,10 +2637,6 @@ rw_mgr_mem_calibrate_dq_dqs_centering(const u32 rw_group, const u32 test_bgn,
 	for (rank_bgn = 0, sr = 0;
 	     rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
 	     rank_bgn += NUM_RANKS_PER_SHADOW_REG, sr++) {
-		/* Check if this set of ranks should be skipped entirely. */
-		if (param->skip_shadow_regs[sr])
-			continue;
-
 		ret = rw_mgr_mem_calibrate_vfifo_center(rank_bgn, rw_group,
 							test_bgn,
 							use_read_test,
@@ -3159,10 +3130,6 @@ static void mem_precharge_and_activate(void)
 	int r;
 
 	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS; r++) {
-		/* Test if the rank should be skipped. */
-		if (param->skip_ranks[r])
-			continue;
-
 		/* Set rank. */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_OFF);
 
@@ -3380,7 +3347,7 @@ static uint32_t mem_calibrate(void)
 		 */
 		scc_mgr_zero_all();
 
-		run_groups = ~param->skip_groups;
+		run_groups = ~0;
 
 		for (write_group = 0, write_test_bgn = 0; write_group
 			< RW_MGR_MEM_IF_WRITE_DQS_WIDTH; write_group++,
@@ -3432,13 +3399,6 @@ static uint32_t mem_calibrate(void)
 				if (STATIC_CALIB_STEPS & CALIB_SKIP_DELAY_SWEEPS)
 					continue;
 
-				/*
-				 * Determine if this set of ranks
-				 * should be skipped entirely.
-				 */
-				if (param->skip_shadow_regs[sr])
-					continue;
-
 				/* Calibrate WRITEs */
 				if (!rw_mgr_mem_calibrate_writes(rank_bgn,
 						write_group, write_test_bgn))
@@ -3487,13 +3447,6 @@ grp_failed:		/* A group failed, increment the counter. */
 			return 0;
 
 		if (STATIC_CALIB_STEPS & CALIB_SKIP_LFIFO)
-			continue;
-
-		/*
-		 * If we're skipping groups as part of debug,
-		 * don't calibrate LFIFO.
-		 */
-		if (param->skip_groups != 0)
 			continue;
 
 		/* Calibrate the LFIFO */
