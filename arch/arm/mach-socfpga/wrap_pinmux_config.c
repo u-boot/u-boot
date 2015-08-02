@@ -25,7 +25,7 @@
  */
 #define _PRELOADER_PINMUX_CONFIG_H_
 #define CONFIG_HPS_PINMUX_NUM
-#include "qts/pinmux_config.c"
+#include <qts/pinmux_config.c>
 
 void sysmgr_get_pinmux_table(const unsigned long **table,
 			     unsigned int *table_len)

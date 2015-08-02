@@ -6,6 +6,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= socfpga.o wrap_pll_config.o
-obj-$(CONFIG_SPL_BUILD) += wrap_iocsr_config.o wrap_pinmux_config.o	\
-			   wrap_sdram_config.o
+obj-y	:= socfpga.o

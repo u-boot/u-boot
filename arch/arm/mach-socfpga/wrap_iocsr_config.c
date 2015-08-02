@@ -10,7 +10,7 @@
 /*
  * Yes, dear reader, we're including a C file here, this is no mistake :-)
  */
-#include "qts/iocsr_config.c"
+#include <qts/iocsr_config.c>
 
 int iocsr_get_config_table(const unsigned int chain_id,
 			   const unsigned long **table,

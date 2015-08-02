@@ -8,12 +8,12 @@
 #include <errno.h>
 #include <asm/arch/sdram.h>
 /* QTS output file. */
-#include "qts/sdram_config.h"
+#include <qts/sdram_config.h>
 
-#include "qts/sequencer_auto_ac_init.h"
-#include "qts/sequencer_auto_inst_init.h"
-#include "qts/sequencer_auto.h"
-#include "qts/sequencer_defines.h"
+#include <qts/sequencer_auto_ac_init.h>
+#include <qts/sequencer_auto_inst_init.h>
+#include <qts/sequencer_auto.h>
+#include <qts/sequencer_defines.h>
 
 static const struct socfpga_sdram_config sdram_config = {
 	.ctrl_cfg =

@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <asm/arch/clock_manager.h>
-#include "qts/pll_config.h"
+#include <qts/pll_config.h>
 
 #define MAIN_VCO_BASE (					\
 	(CONFIG_HPS_MAINPLLGRP_VCO_DENOM <<		\
