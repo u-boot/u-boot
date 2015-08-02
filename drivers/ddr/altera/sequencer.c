@@ -15,8 +15,6 @@
  *        a proper thorough cleanup.
  */
 #include "../../../board/altera/socfpga/qts/sequencer_auto.h"
-#include "../../../board/altera/socfpga/qts/sequencer_auto_ac_init.h"
-#include "../../../board/altera/socfpga/qts/sequencer_auto_inst_init.h"
 #include "../../../board/altera/socfpga/qts/sequencer_defines.h"
 
 static struct socfpga_sdr_rw_load_manager *sdr_rw_load_mgr_regs =
@@ -3561,15 +3559,19 @@ static void debug_mem_calibrate(int pass)
  */
 static void hc_initialize_rom_data(void)
 {
+	unsigned int nelem = 0;
+	const u32 *rom_init;
 	u32 i, addr;
 
+	socfpga_get_seq_inst_init(&rom_init, &nelem);
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_INST_ROM_WRITE_OFFSET;
-	for (i = 0; i < ARRAY_SIZE(inst_rom_init); i++)
-		writel(inst_rom_init[i], addr + (i << 2));
+	for (i = 0; i < nelem; i++)
+		writel(rom_init[i], addr + (i << 2));
 
+	socfpga_get_seq_ac_init(&rom_init, &nelem);
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_AC_ROM_WRITE_OFFSET;
-	for (i = 0; i < ARRAY_SIZE(ac_rom_init); i++)
-		writel(ac_rom_init[i], addr + (i << 2));
+	for (i = 0; i < nelem; i++)
+		writel(rom_init[i], addr + (i << 2));
 }
 
 /**

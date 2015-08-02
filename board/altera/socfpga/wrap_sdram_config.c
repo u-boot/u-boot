@@ -10,6 +10,9 @@
 /* QTS output file. */
 #include "qts/sdram_config.h"
 
+#include "qts/sequencer_auto_ac_init.h"
+#include "qts/sequencer_auto_inst_init.h"
+
 static const struct socfpga_sdram_config sdram_config = {
 	.ctrl_cfg =
 		(CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_MEMTYPE <<
@@ -182,4 +185,16 @@ static const struct socfpga_sdram_config sdram_config = {
 const struct socfpga_sdram_config *socfpga_get_sdram_config(void)
 {
 	return &sdram_config;
+}
+
+void socfpga_get_seq_ac_init(const u32 **init, unsigned int *nelem)
+{
+	*init = ac_rom_init;
+	*nelem = ARRAY_SIZE(ac_rom_init);
+}
+
+void socfpga_get_seq_inst_init(const u32 **init, unsigned int *nelem)
+{
+	*init = inst_rom_init;
+	*nelem = ARRAY_SIZE(inst_rom_init);
 }

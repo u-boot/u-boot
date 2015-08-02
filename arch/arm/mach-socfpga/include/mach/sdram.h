@@ -14,6 +14,9 @@ int sdram_calibration_full(void);
 
 const struct socfpga_sdram_config *socfpga_get_sdram_config(void);
 
+void socfpga_get_seq_ac_init(const u32 **init, unsigned int *nelem);
+void socfpga_get_seq_inst_init(const u32 **init, unsigned int *nelem);
+
 #define SDR_CTRLGRP_ADDRESS	(SOCFPGA_SDR_ADDRESS | 0x5000)
 
 struct socfpga_sdr_ctrl {
