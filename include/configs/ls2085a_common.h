@@ -250,8 +250,8 @@ unsigned long long get_qixis_addr(void);
 	"kernel_size=0x2800000\0"		\
 	"console=ttyAMA0,38400n8\0"
 
-#define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
-				"earlycon=uart8250,mmio,0x21c0600,115200 " \
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 root=/dev/ram0 " \
+				"earlycon=uart8250,mmio,0x21c0500,115200 " \
 				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
 				" hugepagesz=2m hugepages=16"
 #define CONFIG_BOOTCOMMAND		"cp.b $kernel_start $kernel_load "     \

@@ -321,6 +321,12 @@ unsigned long get_board_sys_clk(void);
 	"kernel_load=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"
 
+#undef CONFIG_BOOTARGS
+#define CONFIG_BOOTARGS		"console=ttyS1,115200 root=/dev/ram0 " \
+				"earlycon=uart8250,mmio,0x21c0600,115200 " \
+				"ramdisk_size=0x2000000 default_hugepagesz=2m" \
+				" hugepagesz=2m hugepages=16"
+
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET
 #define CONFIG_PHYLIB_10G
