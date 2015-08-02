@@ -7,14 +7,14 @@
 #ifndef _SEQUENCER_H_
 #define _SEQUENCER_H_
 
-#define RW_MGR_NUM_DM_PER_WRITE_GROUP (RW_MGR_MEM_DATA_MASK_WIDTH \
-	/ RW_MGR_MEM_IF_WRITE_DQS_WIDTH)
-#define RW_MGR_NUM_TRUE_DM_PER_WRITE_GROUP (RW_MGR_TRUE_MEM_DATA_MASK_WIDTH \
-	/ RW_MGR_MEM_IF_WRITE_DQS_WIDTH)
+#define RW_MGR_NUM_DM_PER_WRITE_GROUP (rwcfg->mem_data_mask_width \
+	/ rwcfg->mem_if_write_dqs_width)
+#define RW_MGR_NUM_TRUE_DM_PER_WRITE_GROUP (rwcfg->true_mem_data_mask_width \
+	/ rwcfg->mem_if_write_dqs_width)
 
-#define RW_MGR_NUM_DQS_PER_WRITE_GROUP (RW_MGR_MEM_IF_READ_DQS_WIDTH \
-	/ RW_MGR_MEM_IF_WRITE_DQS_WIDTH)
-#define NUM_RANKS_PER_SHADOW_REG (RW_MGR_MEM_NUMBER_OF_RANKS / NUM_SHADOW_REGS)
+#define RW_MGR_NUM_DQS_PER_WRITE_GROUP (rwcfg->mem_if_read_dqs_width \
+	/ rwcfg->mem_if_write_dqs_width)
+#define NUM_RANKS_PER_SHADOW_REG (rwcfg->mem_number_of_ranks / NUM_SHADOW_REGS)
 
 #define RW_MGR_RUN_SINGLE_GROUP_OFFSET		0x0
 #define RW_MGR_RUN_ALL_GROUPS_OFFSET		0x0400

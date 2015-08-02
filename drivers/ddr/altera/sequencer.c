@@ -144,12 +144,12 @@ static void phy_mgr_initialize(void)
 	if ((dyn_calib_steps & CALIB_SKIP_ALL) == CALIB_SKIP_ALL)
 		return;
 
-	ratio = RW_MGR_MEM_DQ_PER_READ_DQS /
-		RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS;
+	ratio = rwcfg->mem_dq_per_read_dqs /
+		rwcfg->mem_virtual_groups_per_read_dqs;
 	param->read_correct_mask_vg = (1 << ratio) - 1;
 	param->write_correct_mask_vg = (1 << ratio) - 1;
-	param->read_correct_mask = (1 << RW_MGR_MEM_DQ_PER_READ_DQS) - 1;
-	param->write_correct_mask = (1 << RW_MGR_MEM_DQ_PER_WRITE_DQS) - 1;
+	param->read_correct_mask = (1 << rwcfg->mem_dq_per_read_dqs) - 1;
+	param->write_correct_mask = (1 << rwcfg->mem_dq_per_write_dqs) - 1;
 }
 
 /**
@@ -169,14 +169,14 @@ static void set_rank_and_odt_mask(const u32 rank, const u32 odt_mode)
 		odt_mask_0 = 0x0;
 		odt_mask_1 = 0x0;
 	} else {	/* RW_MGR_ODT_MODE_READ_WRITE */
-		switch (RW_MGR_MEM_NUMBER_OF_RANKS) {
+		switch (rwcfg->mem_number_of_ranks) {
 		case 1:	/* 1 Rank */
 			/* Read: ODT = 0 ; Write: ODT = 1 */
 			odt_mask_0 = 0x0;
 			odt_mask_1 = 0x1;
 			break;
 		case 2:	/* 2 Ranks */
-			if (RW_MGR_MEM_NUMBER_OF_CS_PER_DIMM == 1) {
+			if (rwcfg->mem_number_of_cs_per_dimm == 1) {
 				/*
 				 * - Dual-Slot , Single-Rank (1 CS per DIMM)
 				 *   OR
@@ -313,7 +313,7 @@ static void scc_mgr_set_dqs_en_delay(uint32_t read_group, uint32_t delay)
 
 static void scc_mgr_set_dqs_io_in_delay(uint32_t delay)
 {
-	scc_mgr_set(SCC_MGR_IO_IN_DELAY_OFFSET, RW_MGR_MEM_DQ_PER_WRITE_DQS,
+	scc_mgr_set(SCC_MGR_IO_IN_DELAY_OFFSET, rwcfg->mem_dq_per_write_dqs,
 		    delay);
 }
 
@@ -329,14 +329,14 @@ static void scc_mgr_set_dq_out1_delay(uint32_t dq_in_group, uint32_t delay)
 
 static void scc_mgr_set_dqs_out1_delay(uint32_t delay)
 {
-	scc_mgr_set(SCC_MGR_IO_OUT1_DELAY_OFFSET, RW_MGR_MEM_DQ_PER_WRITE_DQS,
+	scc_mgr_set(SCC_MGR_IO_OUT1_DELAY_OFFSET, rwcfg->mem_dq_per_write_dqs,
 		    delay);
 }
 
 static void scc_mgr_set_dm_out1_delay(uint32_t dm, uint32_t delay)
 {
 	scc_mgr_set(SCC_MGR_IO_OUT1_DELAY_OFFSET,
-		    RW_MGR_MEM_DQ_PER_WRITE_DQS + 1 + dm,
+		    rwcfg->mem_dq_per_write_dqs + 1 + dm,
 		    delay);
 }
 
@@ -379,7 +379,7 @@ static void scc_mgr_set_all_ranks(const u32 off, const u32 grp, const u32 val,
 {
 	u32 r;
 
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
+	for (r = 0; r < rwcfg->mem_number_of_ranks;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
 		scc_mgr_set(off, grp, val);
 
@@ -444,8 +444,8 @@ static void scc_mgr_set_dqs_en_delay_all_ranks(uint32_t read_group,
  */
 static void scc_mgr_set_oct_out1_delay(const u32 write_group, const u32 delay)
 {
-	const int ratio = RW_MGR_MEM_IF_READ_DQS_WIDTH /
-			  RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
+	const int ratio = rwcfg->mem_if_read_dqs_width /
+			  rwcfg->mem_if_write_dqs_width;
 	const int base = write_group * ratio;
 	int i;
 	/*
@@ -501,9 +501,9 @@ static void scc_mgr_zero_all(void)
 	 * USER Zero all DQS config settings, across all groups and all
 	 * shadow registers
 	 */
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
+	for (r = 0; r < rwcfg->mem_number_of_ranks;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
-		for (i = 0; i < RW_MGR_MEM_IF_READ_DQS_WIDTH; i++) {
+		for (i = 0; i < rwcfg->mem_if_read_dqs_width; i++) {
 			/*
 			 * The phases actually don't exist on a per-rank basis,
 			 * but there's no harm updating them several times, so
@@ -514,7 +514,7 @@ static void scc_mgr_zero_all(void)
 			scc_mgr_set_dqs_en_delay(i, 0);
 		}
 
-		for (i = 0; i < RW_MGR_MEM_IF_WRITE_DQS_WIDTH; i++) {
+		for (i = 0; i < rwcfg->mem_if_write_dqs_width; i++) {
 			scc_mgr_set_dqdqs_output_phase(i, 0);
 			/* Arria V/Cyclone V don't have out2. */
 			scc_mgr_set_oct_out1_delay(i, IO_DQS_OUT_RESERVE);
@@ -556,8 +556,8 @@ static void scc_set_bypass_mode(const u32 write_group)
  */
 static void scc_mgr_load_dqs_for_write_group(const u32 write_group)
 {
-	const int ratio = RW_MGR_MEM_IF_READ_DQS_WIDTH /
-			  RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
+	const int ratio = rwcfg->mem_if_read_dqs_width /
+			  rwcfg->mem_if_write_dqs_width;
 	const int base = write_group * ratio;
 	int i;
 	/*
@@ -580,10 +580,10 @@ static void scc_mgr_zero_group(const u32 write_group, const int out_only)
 {
 	int i, r;
 
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
+	for (r = 0; r < rwcfg->mem_number_of_ranks;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
 		/* Zero all DQ config settings. */
-		for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
+		for (i = 0; i < rwcfg->mem_dq_per_write_dqs; i++) {
 			scc_mgr_set_dq_out1_delay(i, 0);
 			if (!out_only)
 				scc_mgr_set_dq_in_delay(i, 0);
@@ -624,7 +624,7 @@ static void scc_mgr_apply_group_dq_in_delay(uint32_t group_bgn, uint32_t delay)
 {
 	uint32_t i, p;
 
-	for (i = 0, p = group_bgn; i < RW_MGR_MEM_DQ_PER_READ_DQS; i++, p++) {
+	for (i = 0, p = group_bgn; i < rwcfg->mem_dq_per_read_dqs; i++, p++) {
 		scc_mgr_set_dq_in_delay(p, delay);
 		scc_mgr_load_dq(p);
 	}
@@ -640,7 +640,7 @@ static void scc_mgr_apply_group_dq_out1_delay(const u32 delay)
 {
 	int i;
 
-	for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
+	for (i = 0; i < rwcfg->mem_dq_per_write_dqs; i++) {
 		scc_mgr_set_dq_out1_delay(i, delay);
 		scc_mgr_load_dq(i);
 	}
@@ -682,7 +682,7 @@ static void scc_mgr_apply_group_all_out_delay_add(const u32 write_group,
 	u32 i, new_delay;
 
 	/* DQ shift */
-	for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++)
+	for (i = 0; i < rwcfg->mem_dq_per_write_dqs; i++)
 		scc_mgr_load_dq(i);
 
 	/* DM shift */
@@ -731,7 +731,7 @@ scc_mgr_apply_group_all_out_delay_add_all_ranks(const u32 write_group,
 {
 	int r;
 
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
+	for (r = 0; r < rwcfg->mem_number_of_ranks;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
 		scc_mgr_apply_group_all_out_delay_add(write_group, delay);
 		writel(0, &sdr_scc_mgr->update);
@@ -752,7 +752,7 @@ static void set_jump_as_return(void)
 	 * we always jump.
 	 */
 	writel(0xff, &sdr_rw_load_mgr_regs->load_cntr0);
-	writel(RW_MGR_RETURN, &sdr_rw_load_jump_mgr_regs->load_jump_add0);
+	writel(rwcfg->rreturn, &sdr_rw_load_jump_mgr_regs->load_jump_add0);
 }
 
 /**
@@ -807,10 +807,10 @@ static void delay_for_n_mem_clocks(const u32 clocks)
 		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(inner),
 			&sdr_rw_load_mgr_regs->load_cntr1);
 
-		writel(RW_MGR_IDLE_LOOP1,
+		writel(rwcfg->idle_loop1,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 
-		writel(RW_MGR_IDLE_LOOP1, SDR_PHYGRP_RWMGRGRP_ADDRESS |
+		writel(rwcfg->idle_loop1, SDR_PHYGRP_RWMGRGRP_ADDRESS |
 					  RW_MGR_RUN_SINGLE_GROUP_OFFSET);
 	} else {
 		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(inner),
@@ -819,14 +819,14 @@ static void delay_for_n_mem_clocks(const u32 clocks)
 		writel(SKIP_DELAY_LOOP_VALUE_OR_ZERO(outer),
 			&sdr_rw_load_mgr_regs->load_cntr1);
 
-		writel(RW_MGR_IDLE_LOOP2,
+		writel(rwcfg->idle_loop2,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add0);
 
-		writel(RW_MGR_IDLE_LOOP2,
+		writel(rwcfg->idle_loop2,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 
 		do {
-			writel(RW_MGR_IDLE_LOOP2,
+			writel(rwcfg->idle_loop2,
 				SDR_PHYGRP_RWMGRGRP_ADDRESS |
 				RW_MGR_RUN_SINGLE_GROUP_OFFSET);
 		} while (c_loop-- != 0);
@@ -880,39 +880,39 @@ static void rw_mgr_mem_load_user(const u32 fin1, const u32 fin2,
 		      RW_MGR_RUN_SINGLE_GROUP_OFFSET;
 	u32 r;
 
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS; r++) {
+	for (r = 0; r < rwcfg->mem_number_of_ranks; r++) {
 		/* set rank */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_OFF);
 
 		/* precharge all banks ... */
 		if (precharge)
-			writel(RW_MGR_PRECHARGE_ALL, grpaddr);
+			writel(rwcfg->precharge_all, grpaddr);
 
 		/*
 		 * USER Use Mirror-ed commands for odd ranks if address
 		 * mirrorring is on
 		 */
-		if ((RW_MGR_MEM_ADDRESS_MIRRORING >> r) & 0x1) {
+		if ((rwcfg->mem_address_mirroring >> r) & 0x1) {
 			set_jump_as_return();
-			writel(RW_MGR_MRS2_MIRR, grpaddr);
+			writel(rwcfg->mrs2_mirr, grpaddr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS3_MIRR, grpaddr);
+			writel(rwcfg->mrs3_mirr, grpaddr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS1_MIRR, grpaddr);
+			writel(rwcfg->mrs1_mirr, grpaddr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
 			writel(fin1, grpaddr);
 		} else {
 			set_jump_as_return();
-			writel(RW_MGR_MRS2, grpaddr);
+			writel(rwcfg->mrs2, grpaddr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS3, grpaddr);
+			writel(rwcfg->mrs3, grpaddr);
 			delay_for_n_mem_clocks(4);
 			set_jump_as_return();
-			writel(RW_MGR_MRS1, grpaddr);
+			writel(rwcfg->mrs1, grpaddr);
 			set_jump_as_return();
 			writel(fin2, grpaddr);
 		}
@@ -921,7 +921,7 @@ static void rw_mgr_mem_load_user(const u32 fin1, const u32 fin2,
 			continue;
 
 		set_jump_as_return();
-		writel(RW_MGR_ZQCL, grpaddr);
+		writel(rwcfg->zqcl, grpaddr);
 
 		/* tZQinit = tDLLK = 512 ck cycles */
 		delay_for_n_mem_clocks(512);
@@ -966,7 +966,7 @@ static void rw_mgr_mem_initialize(void)
 	 */
 	rw_mgr_mem_init_load_regs(SEQ_TINIT_CNTR0_VAL, SEQ_TINIT_CNTR1_VAL,
 				  SEQ_TINIT_CNTR2_VAL,
-				  RW_MGR_INIT_RESET_0_CKE_0);
+				  rwcfg->init_reset_0_cke_0);
 
 	/* Indicate that memory is stable. */
 	writel(1, &phy_mgr_cfg->reset_mem_stbl);
@@ -987,14 +987,14 @@ static void rw_mgr_mem_initialize(void)
 	 */
 	rw_mgr_mem_init_load_regs(SEQ_TRESET_CNTR0_VAL, SEQ_TRESET_CNTR1_VAL,
 				  SEQ_TRESET_CNTR2_VAL,
-				  RW_MGR_INIT_RESET_1_CKE_0);
+				  rwcfg->init_reset_1_cke_0);
 
 	/* Bring up clock enable. */
 
 	/* tXRP < 250 ck cycles */
 	delay_for_n_mem_clocks(250);
 
-	rw_mgr_mem_load_user(RW_MGR_MRS0_DLL_RESET_MIRR, RW_MGR_MRS0_DLL_RESET,
+	rw_mgr_mem_load_user(rwcfg->mrs0_dll_reset_mirr, rwcfg->mrs0_dll_reset,
 			     0);
 }
 
@@ -1006,7 +1006,7 @@ static void rw_mgr_mem_initialize(void)
  */
 static void rw_mgr_mem_handoff(void)
 {
-	rw_mgr_mem_load_user(RW_MGR_MRS0_USER_MIRR, RW_MGR_MRS0_USER, 1);
+	rw_mgr_mem_load_user(rwcfg->mrs0_user_mirr, rwcfg->mrs0_user, 1);
 	/*
 	 * Need to wait tMOD (12CK or 15ns) time before issuing other
 	 * commands, but we will have plenty of NIOS cycles before actual
@@ -1070,16 +1070,16 @@ static void rw_mgr_mem_calibrate_write_test_issue(u32 group,
 
 		/* CNTR 3 - Not used */
 		if (test_dm) {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0_WL_1;
-			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_DATA,
+			mcc_instruction = rwcfg->lfsr_wr_rd_dm_bank_0_wl_1;
+			writel(rwcfg->lfsr_wr_rd_dm_bank_0_data,
 			       &sdr_rw_load_jump_mgr_regs->load_jump_add2);
-			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP,
+			writel(rwcfg->lfsr_wr_rd_dm_bank_0_nop,
 			       &sdr_rw_load_jump_mgr_regs->load_jump_add3);
 		} else {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0_WL_1;
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_DATA,
+			mcc_instruction = rwcfg->lfsr_wr_rd_bank_0_wl_1;
+			writel(rwcfg->lfsr_wr_rd_bank_0_data,
 				&sdr_rw_load_jump_mgr_regs->load_jump_add2);
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP,
+			writel(rwcfg->lfsr_wr_rd_bank_0_nop,
 				&sdr_rw_load_jump_mgr_regs->load_jump_add3);
 		}
 	} else if (rw_wl_nop_cycles == 0) {
@@ -1092,12 +1092,12 @@ static void rw_mgr_mem_calibrate_write_test_issue(u32 group,
 
 		/* CNTR 3 - Not used */
 		if (test_dm) {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0;
-			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_DQS,
+			mcc_instruction = rwcfg->lfsr_wr_rd_dm_bank_0;
+			writel(rwcfg->lfsr_wr_rd_dm_bank_0_dqs,
 			       &sdr_rw_load_jump_mgr_regs->load_jump_add2);
 		} else {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0;
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_DQS,
+			mcc_instruction = rwcfg->lfsr_wr_rd_bank_0;
+			writel(rwcfg->lfsr_wr_rd_bank_0_dqs,
 				&sdr_rw_load_jump_mgr_regs->load_jump_add2);
 		}
 	} else {
@@ -1115,12 +1115,12 @@ static void rw_mgr_mem_calibrate_write_test_issue(u32 group,
 		 */
 		writel(rw_wl_nop_cycles - 1, &sdr_rw_load_mgr_regs->load_cntr3);
 		if (test_dm) {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_DM_BANK_0;
-			writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_NOP,
+			mcc_instruction = rwcfg->lfsr_wr_rd_dm_bank_0;
+			writel(rwcfg->lfsr_wr_rd_dm_bank_0_nop,
 				&sdr_rw_load_jump_mgr_regs->load_jump_add3);
 		} else {
-			mcc_instruction = RW_MGR_LFSR_WR_RD_BANK_0;
-			writel(RW_MGR_LFSR_WR_RD_BANK_0_NOP,
+			mcc_instruction = rwcfg->lfsr_wr_rd_bank_0;
+			writel(rwcfg->lfsr_wr_rd_bank_0_nop,
 				&sdr_rw_load_jump_mgr_regs->load_jump_add3);
 		}
 	}
@@ -1142,10 +1142,10 @@ static void rw_mgr_mem_calibrate_write_test_issue(u32 group,
 	writel(0x30, &sdr_rw_load_mgr_regs->load_cntr1);
 
 	if (test_dm) {
-		writel(RW_MGR_LFSR_WR_RD_DM_BANK_0_WAIT,
+		writel(rwcfg->lfsr_wr_rd_dm_bank_0_wait,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 	} else {
-		writel(RW_MGR_LFSR_WR_RD_BANK_0_WAIT,
+		writel(rwcfg->lfsr_wr_rd_bank_0_wait,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 	}
 
@@ -1171,10 +1171,10 @@ rw_mgr_mem_calibrate_write_test(const u32 rank_bgn, const u32 write_group,
 				u32 *bit_chk, const u32 all_ranks)
 {
 	const u32 rank_end = all_ranks ?
-				RW_MGR_MEM_NUMBER_OF_RANKS :
+				rwcfg->mem_number_of_ranks :
 				(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
-	const u32 shift_ratio = RW_MGR_MEM_DQ_PER_WRITE_DQS /
-				RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS;
+	const u32 shift_ratio = rwcfg->mem_dq_per_write_dqs /
+				rwcfg->mem_virtual_groups_per_write_dqs;
 	const u32 correct_mask_vg = param->write_correct_mask_vg;
 
 	u32 tmp_bit_chk, base_rw_mgr;
@@ -1187,14 +1187,14 @@ rw_mgr_mem_calibrate_write_test(const u32 rank_bgn, const u32 write_group,
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_READ_WRITE);
 
 		tmp_bit_chk = 0;
-		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS - 1;
+		for (vg = rwcfg->mem_virtual_groups_per_write_dqs - 1;
 		     vg >= 0; vg--) {
 			/* Reset the FIFOs to get pointers to known state. */
 			writel(0, &phy_mgr_cmd->fifo_reset);
 
 			rw_mgr_mem_calibrate_write_test_issue(
 				write_group *
-				RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS + vg,
+				rwcfg->mem_virtual_groups_per_write_dqs + vg,
 				use_dm);
 
 			base_rw_mgr = readl(SDR_PHYGRP_RWMGRGRP_ADDRESS);
@@ -1238,12 +1238,12 @@ rw_mgr_mem_calibrate_read_test_patterns(const u32 rank_bgn, const u32 group,
 	const u32 addr = SDR_PHYGRP_RWMGRGRP_ADDRESS |
 			 RW_MGR_RUN_SINGLE_GROUP_OFFSET;
 	const u32 addr_offset =
-			 (group * RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS) << 2;
+			 (group * rwcfg->mem_virtual_groups_per_read_dqs) << 2;
 	const u32 rank_end = all_ranks ?
-				RW_MGR_MEM_NUMBER_OF_RANKS :
+				rwcfg->mem_number_of_ranks :
 				(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
-	const u32 shift_ratio = RW_MGR_MEM_DQ_PER_READ_DQS /
-				RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS;
+	const u32 shift_ratio = rwcfg->mem_dq_per_read_dqs /
+				rwcfg->mem_virtual_groups_per_read_dqs;
 	const u32 correct_mask_vg = param->read_correct_mask_vg;
 
 	u32 tmp_bit_chk, base_rw_mgr, bit_chk;
@@ -1258,21 +1258,21 @@ rw_mgr_mem_calibrate_read_test_patterns(const u32 rank_bgn, const u32 group,
 
 		/* Load up a constant bursts of read commands */
 		writel(0x20, &sdr_rw_load_mgr_regs->load_cntr0);
-		writel(RW_MGR_GUARANTEED_READ,
+		writel(rwcfg->guaranteed_read,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add0);
 
 		writel(0x20, &sdr_rw_load_mgr_regs->load_cntr1);
-		writel(RW_MGR_GUARANTEED_READ_CONT,
+		writel(rwcfg->guaranteed_read_cont,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 
 		tmp_bit_chk = 0;
-		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS - 1;
+		for (vg = rwcfg->mem_virtual_groups_per_read_dqs - 1;
 		     vg >= 0; vg--) {
 			/* Reset the FIFOs to get pointers to known state. */
 			writel(0, &phy_mgr_cmd->fifo_reset);
 			writel(0, SDR_PHYGRP_RWMGRGRP_ADDRESS |
 				  RW_MGR_RESET_READ_DATAPATH_OFFSET);
-			writel(RW_MGR_GUARANTEED_READ,
+			writel(rwcfg->guaranteed_read,
 			       addr + addr_offset + (vg << 2));
 
 			base_rw_mgr = readl(SDR_PHYGRP_RWMGRGRP_ADDRESS);
@@ -1283,7 +1283,7 @@ rw_mgr_mem_calibrate_read_test_patterns(const u32 rank_bgn, const u32 group,
 		bit_chk &= tmp_bit_chk;
 	}
 
-	writel(RW_MGR_CLEAR_DQS_ENABLE, addr + (group << 2));
+	writel(rwcfg->clear_dqs_enable, addr + (group << 2));
 
 	set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
 
@@ -1309,7 +1309,7 @@ static void rw_mgr_mem_calibrate_read_load_patterns(const u32 rank_bgn,
 						    const int all_ranks)
 {
 	const u32 rank_end = all_ranks ?
-			RW_MGR_MEM_NUMBER_OF_RANKS :
+			rwcfg->mem_number_of_ranks :
 			(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
 	u32 r;
 
@@ -1322,25 +1322,25 @@ static void rw_mgr_mem_calibrate_read_load_patterns(const u32 rank_bgn,
 		/* Load up a constant bursts */
 		writel(0x20, &sdr_rw_load_mgr_regs->load_cntr0);
 
-		writel(RW_MGR_GUARANTEED_WRITE_WAIT0,
+		writel(rwcfg->guaranteed_write_wait0,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add0);
 
 		writel(0x20, &sdr_rw_load_mgr_regs->load_cntr1);
 
-		writel(RW_MGR_GUARANTEED_WRITE_WAIT1,
+		writel(rwcfg->guaranteed_write_wait1,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 
 		writel(0x04, &sdr_rw_load_mgr_regs->load_cntr2);
 
-		writel(RW_MGR_GUARANTEED_WRITE_WAIT2,
+		writel(rwcfg->guaranteed_write_wait2,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add2);
 
 		writel(0x04, &sdr_rw_load_mgr_regs->load_cntr3);
 
-		writel(RW_MGR_GUARANTEED_WRITE_WAIT3,
+		writel(rwcfg->guaranteed_write_wait3,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add3);
 
-		writel(RW_MGR_GUARANTEED_WRITE, SDR_PHYGRP_RWMGRGRP_ADDRESS |
+		writel(rwcfg->guaranteed_write, SDR_PHYGRP_RWMGRGRP_ADDRESS |
 						RW_MGR_RUN_SINGLE_GROUP_OFFSET);
 	}
 
@@ -1367,7 +1367,7 @@ rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
 			       u32 *bit_chk,
 			       const u32 all_groups, const u32 all_ranks)
 {
-	const u32 rank_end = all_ranks ? RW_MGR_MEM_NUMBER_OF_RANKS :
+	const u32 rank_end = all_ranks ? rwcfg->mem_number_of_ranks :
 		(rank_bgn + NUM_RANKS_PER_SHADOW_REG);
 	const u32 quick_read_mode =
 		((STATIC_CALIB_STEPS & CALIB_SKIP_DELAY_SWEEPS) &&
@@ -1387,11 +1387,11 @@ rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
 
 		writel(0x10, &sdr_rw_load_mgr_regs->load_cntr1);
 
-		writel(RW_MGR_READ_B2B_WAIT1,
+		writel(rwcfg->read_b2b_wait1,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 
 		writel(0x10, &sdr_rw_load_mgr_regs->load_cntr2);
-		writel(RW_MGR_READ_B2B_WAIT2,
+		writel(rwcfg->read_b2b_wait2,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add2);
 
 		if (quick_read_mode)
@@ -1402,20 +1402,20 @@ rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
 		else
 			writel(0x32, &sdr_rw_load_mgr_regs->load_cntr0);
 
-		writel(RW_MGR_READ_B2B,
+		writel(rwcfg->read_b2b,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add0);
 		if (all_groups)
-			writel(RW_MGR_MEM_IF_READ_DQS_WIDTH *
-			       RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS - 1,
+			writel(rwcfg->mem_if_read_dqs_width *
+			       rwcfg->mem_virtual_groups_per_read_dqs - 1,
 			       &sdr_rw_load_mgr_regs->load_cntr3);
 		else
 			writel(0x0, &sdr_rw_load_mgr_regs->load_cntr3);
 
-		writel(RW_MGR_READ_B2B,
+		writel(rwcfg->read_b2b,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add3);
 
 		tmp_bit_chk = 0;
-		for (vg = RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS - 1; vg >= 0;
+		for (vg = rwcfg->mem_virtual_groups_per_read_dqs - 1; vg >= 0;
 		     vg--) {
 			/* Reset the FIFOs to get pointers to known state. */
 			writel(0, &phy_mgr_cmd->fifo_reset);
@@ -1430,13 +1430,13 @@ rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
 				       RW_MGR_RUN_SINGLE_GROUP_OFFSET;
 			}
 
-			writel(RW_MGR_READ_B2B, addr +
-			       ((group * RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS +
+			writel(rwcfg->read_b2b, addr +
+			       ((group * rwcfg->mem_virtual_groups_per_read_dqs +
 			       vg) << 2));
 
 			base_rw_mgr = readl(SDR_PHYGRP_RWMGRGRP_ADDRESS);
-			tmp_bit_chk <<= RW_MGR_MEM_DQ_PER_READ_DQS /
-					RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS;
+			tmp_bit_chk <<= rwcfg->mem_dq_per_read_dqs /
+					rwcfg->mem_virtual_groups_per_read_dqs;
 			tmp_bit_chk |= correct_mask_vg & ~(base_rw_mgr);
 		}
 
@@ -1444,7 +1444,7 @@ rw_mgr_mem_calibrate_read_test(const u32 rank_bgn, const u32 group,
 	}
 
 	addr = SDR_PHYGRP_RWMGRGRP_ADDRESS | RW_MGR_RUN_SINGLE_GROUP_OFFSET;
-	writel(RW_MGR_CLEAR_DQS_ENABLE, addr + (group << 2));
+	writel(rwcfg->clear_dqs_enable, addr + (group << 2));
 
 	set_rank_and_odt_mask(0, RW_MGR_ODT_MODE_OFF);
 
@@ -1972,12 +1972,12 @@ static u32 search_stop_check(const int write, const int d, const int rank_bgn,
 			     u32 *bit_chk, u32 *sticky_bit_chk,
 			     const u32 use_read_test)
 {
-	const u32 ratio = RW_MGR_MEM_IF_READ_DQS_WIDTH /
-			  RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
+	const u32 ratio = rwcfg->mem_if_read_dqs_width /
+			  rwcfg->mem_if_write_dqs_width;
 	const u32 correct_mask = write ? param->write_correct_mask :
 					 param->read_correct_mask;
-	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
-				    RW_MGR_MEM_DQ_PER_READ_DQS;
+	const u32 per_dqs = write ? rwcfg->mem_dq_per_write_dqs :
+				    rwcfg->mem_dq_per_read_dqs;
 	u32 ret;
 	/*
 	 * Stop searching when the read test doesn't pass AND when
@@ -2029,8 +2029,8 @@ static void search_left_edge(const int write, const int rank_bgn,
 {
 	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
 	const u32 dqs_max = write ? IO_IO_OUT1_DELAY_MAX : IO_DQS_IN_DELAY_MAX;
-	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
-				    RW_MGR_MEM_DQ_PER_READ_DQS;
+	const u32 per_dqs = write ? rwcfg->mem_dq_per_write_dqs :
+				    rwcfg->mem_dq_per_read_dqs;
 	u32 stop, bit_chk;
 	int i, d;
 
@@ -2140,8 +2140,8 @@ static int search_right_edge(const int write, const int rank_bgn,
 {
 	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
 	const u32 dqs_max = write ? IO_IO_OUT1_DELAY_MAX : IO_DQS_IN_DELAY_MAX;
-	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
-				    RW_MGR_MEM_DQ_PER_READ_DQS;
+	const u32 per_dqs = write ? rwcfg->mem_dq_per_write_dqs :
+				    rwcfg->mem_dq_per_read_dqs;
 	u32 stop, bit_chk;
 	int i, d;
 
@@ -2167,7 +2167,7 @@ static int search_right_edge(const int write, const int rank_bgn,
 					 use_read_test);
 		if (stop == 1) {
 			if (write && (d == 0)) {	/* WRITE-ONLY */
-				for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
+				for (i = 0; i < rwcfg->mem_dq_per_write_dqs; i++) {
 					/*
 					 * d = 0 failed, but it passed when
 					 * testing the left edge, so it must be
@@ -2257,8 +2257,8 @@ static int search_right_edge(const int write, const int rank_bgn,
 static int get_window_mid_index(const int write, int *left_edge,
 				int *right_edge, int *mid_min)
 {
-	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
-				    RW_MGR_MEM_DQ_PER_READ_DQS;
+	const u32 per_dqs = write ? rwcfg->mem_dq_per_write_dqs :
+				    rwcfg->mem_dq_per_read_dqs;
 	int i, mid, min_index;
 
 	/* Find middle of window for each DQ bit */
@@ -2307,8 +2307,8 @@ static void center_dq_windows(const int write, int *left_edge, int *right_edge,
 			      int *dq_margin, int *dqs_margin)
 {
 	const u32 delay_max = write ? IO_IO_OUT1_DELAY_MAX : IO_IO_IN_DELAY_MAX;
-	const u32 per_dqs = write ? RW_MGR_MEM_DQ_PER_WRITE_DQS :
-				    RW_MGR_MEM_DQ_PER_READ_DQS;
+	const u32 per_dqs = write ? rwcfg->mem_dq_per_write_dqs :
+				    rwcfg->mem_dq_per_read_dqs;
 	const u32 delay_off = write ? SCC_MGR_IO_OUT1_DELAY_OFFSET :
 				      SCC_MGR_IO_IN_DELAY_OFFSET;
 	const u32 addr = SDR_PHYGRP_SCCGRP_ADDRESS | delay_off;
@@ -2387,8 +2387,8 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 	 * signed numbers.
 	 */
 	uint32_t sticky_bit_chk;
-	int32_t left_edge[RW_MGR_MEM_DQ_PER_READ_DQS];
-	int32_t right_edge[RW_MGR_MEM_DQ_PER_READ_DQS];
+	int32_t left_edge[rwcfg->mem_dq_per_read_dqs];
+	int32_t right_edge[rwcfg->mem_dq_per_read_dqs];
 	int32_t orig_mid_min, mid_min;
 	int32_t new_dqs, start_dqs, start_dqs_en, final_dqs_en;
 	int32_t dq_margin, dqs_margin;
@@ -2404,7 +2404,7 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 	/* set the left and right edge of each bit to an illegal value */
 	/* use (IO_IO_IN_DELAY_MAX + 1) as an illegal value */
 	sticky_bit_chk = 0;
-	for (i = 0; i < RW_MGR_MEM_DQ_PER_READ_DQS; i++) {
+	for (i = 0; i < rwcfg->mem_dq_per_read_dqs; i++) {
 		left_edge[i]  = IO_IO_IN_DELAY_MAX + 1;
 		right_edge[i] = IO_IO_IN_DELAY_MAX + 1;
 	}
@@ -2438,12 +2438,12 @@ static int rw_mgr_mem_calibrate_vfifo_center(const u32 rank_bgn,
 			   __func__, __LINE__, i, left_edge[i], right_edge[i]);
 		if (use_read_test) {
 			set_failing_group_stage(rw_group *
-				RW_MGR_MEM_DQ_PER_READ_DQS + i,
+				rwcfg->mem_dq_per_read_dqs + i,
 				CAL_STAGE_VFIFO,
 				CAL_SUBSTAGE_VFIFO_CENTER);
 		} else {
 			set_failing_group_stage(rw_group *
-				RW_MGR_MEM_DQ_PER_READ_DQS + i,
+				rwcfg->mem_dq_per_read_dqs + i,
 				CAL_STAGE_VFIFO_AFTER_WRITES,
 				CAL_SUBSTAGE_VFIFO_CENTER);
 		}
@@ -2568,17 +2568,17 @@ static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
 
 	/* We start at zero, so have one less dq to devide among */
 	const u32 delay_step = IO_IO_IN_DELAY_MAX /
-			       (RW_MGR_MEM_DQ_PER_READ_DQS - 1);
+			       (rwcfg->mem_dq_per_read_dqs - 1);
 	int ret;
 	u32 i, p, d, r;
 
 	debug("%s:%d (%u,%u)\n", __func__, __LINE__, rw_group, test_bgn);
 
 	/* Try different dq_in_delays since the DQ path is shorter than DQS. */
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
+	for (r = 0; r < rwcfg->mem_number_of_ranks;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
 		for (i = 0, p = test_bgn, d = 0;
-		     i < RW_MGR_MEM_DQ_PER_READ_DQS;
+		     i < rwcfg->mem_dq_per_read_dqs;
 		     i++, p++, d += delay_step) {
 			debug_cond(DLEVEL == 1,
 				   "%s:%d: g=%u r=%u i=%u p=%u d=%u\n",
@@ -2601,7 +2601,7 @@ static int rw_mgr_mem_calibrate_dqs_enable_calibration(const u32 rw_group,
 		   "%s:%d: g=%u found=%u; Reseting delay chain to zero\n",
 		   __func__, __LINE__, rw_group, !ret);
 
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
+	for (r = 0; r < rwcfg->mem_number_of_ranks;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
 		scc_mgr_apply_group_dq_in_delay(test_bgn, 0);
 		writel(0, &sdr_scc_mgr->update);
@@ -2635,7 +2635,7 @@ rw_mgr_mem_calibrate_dq_dqs_centering(const u32 rw_group, const u32 test_bgn,
 	 */
 	grp_calibrated = 1;
 	for (rank_bgn = 0, sr = 0;
-	     rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
+	     rank_bgn < rwcfg->mem_number_of_ranks;
 	     rank_bgn += NUM_RANKS_PER_SHADOW_REG, sr++) {
 		ret = rw_mgr_mem_calibrate_vfifo_center(rank_bgn, rw_group,
 							test_bgn,
@@ -2939,8 +2939,8 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	int i;
 	u32 sticky_bit_chk;
 	u32 min_index;
-	int left_edge[RW_MGR_MEM_DQ_PER_WRITE_DQS];
-	int right_edge[RW_MGR_MEM_DQ_PER_WRITE_DQS];
+	int left_edge[rwcfg->mem_dq_per_write_dqs];
+	int right_edge[rwcfg->mem_dq_per_write_dqs];
 	int mid;
 	int mid_min, orig_mid_min;
 	int new_dqs, start_dqs;
@@ -2959,7 +2959,7 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 
 	start_dqs = readl((SDR_PHYGRP_SCCGRP_ADDRESS |
 			  SCC_MGR_IO_OUT1_DELAY_OFFSET) +
-			  (RW_MGR_MEM_DQ_PER_WRITE_DQS << 2));
+			  (rwcfg->mem_dq_per_write_dqs << 2));
 
 	/* Per-bit deskew. */
 
@@ -2968,7 +2968,7 @@ rw_mgr_mem_calibrate_writes_center(const u32 rank_bgn, const u32 write_group,
 	 * Use (IO_IO_OUT1_DELAY_MAX + 1) as an illegal value.
 	 */
 	sticky_bit_chk = 0;
-	for (i = 0; i < RW_MGR_MEM_DQ_PER_WRITE_DQS; i++) {
+	for (i = 0; i < rwcfg->mem_dq_per_write_dqs; i++) {
 		left_edge[i]  = IO_IO_OUT1_DELAY_MAX + 1;
 		right_edge[i] = IO_IO_OUT1_DELAY_MAX + 1;
 	}
@@ -3129,24 +3129,24 @@ static void mem_precharge_and_activate(void)
 {
 	int r;
 
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS; r++) {
+	for (r = 0; r < rwcfg->mem_number_of_ranks; r++) {
 		/* Set rank. */
 		set_rank_and_odt_mask(r, RW_MGR_ODT_MODE_OFF);
 
 		/* Precharge all banks. */
-		writel(RW_MGR_PRECHARGE_ALL, SDR_PHYGRP_RWMGRGRP_ADDRESS |
+		writel(rwcfg->precharge_all, SDR_PHYGRP_RWMGRGRP_ADDRESS |
 					     RW_MGR_RUN_SINGLE_GROUP_OFFSET);
 
 		writel(0x0F, &sdr_rw_load_mgr_regs->load_cntr0);
-		writel(RW_MGR_ACTIVATE_0_AND_1_WAIT1,
+		writel(rwcfg->activate_0_and_1_wait1,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add0);
 
 		writel(0x0F, &sdr_rw_load_mgr_regs->load_cntr1);
-		writel(RW_MGR_ACTIVATE_0_AND_1_WAIT2,
+		writel(rwcfg->activate_0_and_1_wait2,
 			&sdr_rw_load_jump_mgr_regs->load_jump_add1);
 
 		/* Activate rows. */
-		writel(RW_MGR_ACTIVATE_0_AND_1, SDR_PHYGRP_RWMGRGRP_ADDRESS |
+		writel(rwcfg->activate_0_and_1, SDR_PHYGRP_RWMGRGRP_ADDRESS |
 						RW_MGR_RUN_SINGLE_GROUP_OFFSET);
 	}
 }
@@ -3203,13 +3203,13 @@ static void mem_skip_calibrate(void)
 
 	debug("%s:%d\n", __func__, __LINE__);
 	/* Need to update every shadow register set used by the interface */
-	for (r = 0; r < RW_MGR_MEM_NUMBER_OF_RANKS;
+	for (r = 0; r < rwcfg->mem_number_of_ranks;
 	     r += NUM_RANKS_PER_SHADOW_REG) {
 		/*
 		 * Set output phase alignment settings appropriate for
 		 * skip calibration.
 		 */
-		for (i = 0; i < RW_MGR_MEM_IF_READ_DQS_WIDTH; i++) {
+		for (i = 0; i < rwcfg->mem_if_read_dqs_width; i++) {
 			scc_mgr_set_dqs_en_phase(i, 0);
 #if IO_DLL_CHAIN_LENGTH == 6
 			scc_mgr_set_dqdqs_output_phase(i, 6);
@@ -3247,7 +3247,7 @@ static void mem_skip_calibrate(void)
 		writel(0xff, &sdr_scc_mgr->dqs_ena);
 		writel(0xff, &sdr_scc_mgr->dqs_io_ena);
 
-		for (i = 0; i < RW_MGR_MEM_IF_WRITE_DQS_WIDTH; i++) {
+		for (i = 0; i < rwcfg->mem_if_write_dqs_width; i++) {
 			writel(i, SDR_PHYGRP_SCCGRP_ADDRESS |
 				  SCC_MGR_GROUP_COUNTER_OFFSET);
 		}
@@ -3257,7 +3257,7 @@ static void mem_skip_calibrate(void)
 	}
 
 	/* Compensate for simulation model behaviour */
-	for (i = 0; i < RW_MGR_MEM_IF_READ_DQS_WIDTH; i++) {
+	for (i = 0; i < rwcfg->mem_if_read_dqs_width; i++) {
 		scc_mgr_set_dqs_bus_in_delay(i, 10);
 		scc_mgr_load_dqs(i);
 	}
@@ -3295,8 +3295,8 @@ static uint32_t mem_calibrate(void)
 	uint32_t failing_groups = 0;
 	uint32_t group_failed = 0;
 
-	const u32 rwdqs_ratio = RW_MGR_MEM_IF_READ_DQS_WIDTH /
-				RW_MGR_MEM_IF_WRITE_DQS_WIDTH;
+	const u32 rwdqs_ratio = rwcfg->mem_if_read_dqs_width /
+				rwcfg->mem_if_write_dqs_width;
 
 	debug("%s:%d\n", __func__, __LINE__);
 
@@ -3313,7 +3313,7 @@ static uint32_t mem_calibrate(void)
 	/* Initialize bit slips. */
 	mem_precharge_and_activate();
 
-	for (i = 0; i < RW_MGR_MEM_IF_READ_DQS_WIDTH; i++) {
+	for (i = 0; i < rwcfg->mem_if_read_dqs_width; i++) {
 		writel(i, SDR_PHYGRP_SCCGRP_ADDRESS |
 			  SCC_MGR_GROUP_COUNTER_OFFSET);
 		/* Only needed once to set all groups, pins, DQ, DQS, DM. */
@@ -3350,8 +3350,8 @@ static uint32_t mem_calibrate(void)
 		run_groups = ~0;
 
 		for (write_group = 0, write_test_bgn = 0; write_group
-			< RW_MGR_MEM_IF_WRITE_DQS_WIDTH; write_group++,
-			write_test_bgn += RW_MGR_MEM_DQ_PER_WRITE_DQS) {
+			< rwcfg->mem_if_write_dqs_width; write_group++,
+			write_test_bgn += rwcfg->mem_dq_per_write_dqs) {
 
 			/* Initialize the group failure */
 			group_failed = 0;
@@ -3372,7 +3372,7 @@ static uint32_t mem_calibrate(void)
 			     read_test_bgn = 0;
 			     read_group < (write_group + 1) * rwdqs_ratio;
 			     read_group++,
-			     read_test_bgn += RW_MGR_MEM_DQ_PER_READ_DQS) {
+			     read_test_bgn += rwcfg->mem_dq_per_read_dqs) {
 				if (STATIC_CALIB_STEPS & CALIB_SKIP_VFIFO)
 					continue;
 
@@ -3390,7 +3390,7 @@ static uint32_t mem_calibrate(void)
 
 			/* Calibrate the output side */
 			for (rank_bgn = 0, sr = 0;
-			     rank_bgn < RW_MGR_MEM_NUMBER_OF_RANKS;
+			     rank_bgn < rwcfg->mem_number_of_ranks;
 			     rank_bgn += NUM_RANKS_PER_SHADOW_REG, sr++) {
 				if (STATIC_CALIB_STEPS & CALIB_SKIP_WRITES)
 					continue;
@@ -3417,7 +3417,7 @@ static uint32_t mem_calibrate(void)
 			     read_test_bgn = 0;
 			     read_group < (write_group + 1) * rwdqs_ratio;
 			     read_group++,
-			     read_test_bgn += RW_MGR_MEM_DQ_PER_READ_DQS) {
+			     read_test_bgn += rwcfg->mem_dq_per_read_dqs) {
 				if (STATIC_CALIB_STEPS & CALIB_SKIP_WRITES)
 					continue;
 
@@ -3674,15 +3674,15 @@ static void initialize_tracking(void)
 	       &sdr_reg_file->delays);
 
 	/* mux delay */
-	writel((RW_MGR_IDLE << 24) | (RW_MGR_ACTIVATE_1 << 16) |
-	       (RW_MGR_SGLE_READ << 8) | (RW_MGR_PRECHARGE_ALL << 0),
+	writel((rwcfg->idle << 24) | (rwcfg->activate_1 << 16) |
+	       (rwcfg->sgle_read << 8) | (rwcfg->precharge_all << 0),
 	       &sdr_reg_file->trk_rw_mgr_addr);
 
-	writel(RW_MGR_MEM_IF_READ_DQS_WIDTH,
+	writel(rwcfg->mem_if_read_dqs_width,
 	       &sdr_reg_file->trk_read_dqs_width);
 
 	/* trefi [7:0] */
-	writel((RW_MGR_REFRESH_ALL << 24) | (1000 << 0),
+	writel((rwcfg->refresh_all << 24) | (1000 << 0),
 	       &sdr_reg_file->trk_rfsh);
 }
 
@@ -3724,14 +3724,14 @@ int sdram_calibration_full(void)
 	debug("%s:%d\n", __func__, __LINE__);
 	debug_cond(DLEVEL == 1,
 		   "DDR3 FULL_RATE ranks=%u cs/dimm=%u dq/dqs=%u,%u vg/dqs=%u,%u ",
-		   RW_MGR_MEM_NUMBER_OF_RANKS, RW_MGR_MEM_NUMBER_OF_CS_PER_DIMM,
-		   RW_MGR_MEM_DQ_PER_READ_DQS, RW_MGR_MEM_DQ_PER_WRITE_DQS,
-		   RW_MGR_MEM_VIRTUAL_GROUPS_PER_READ_DQS,
-		   RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS);
+		   rwcfg->mem_number_of_ranks, rwcfg->mem_number_of_cs_per_dimm,
+		   rwcfg->mem_dq_per_read_dqs, rwcfg->mem_dq_per_write_dqs,
+		   rwcfg->mem_virtual_groups_per_read_dqs,
+		   rwcfg->mem_virtual_groups_per_write_dqs);
 	debug_cond(DLEVEL == 1,
 		   "dqs=%u,%u dq=%u dm=%u ptap_delay=%u dtap_delay=%u ",
-		   RW_MGR_MEM_IF_READ_DQS_WIDTH, RW_MGR_MEM_IF_WRITE_DQS_WIDTH,
-		   RW_MGR_MEM_DATA_WIDTH, RW_MGR_MEM_DATA_MASK_WIDTH,
+		   rwcfg->mem_if_read_dqs_width, rwcfg->mem_if_write_dqs_width,
+		   rwcfg->mem_data_width, rwcfg->mem_data_mask_width,
 		   IO_DELAY_PER_OPA_TAP, IO_DELAY_PER_DCHAIN_TAP);
 	debug_cond(DLEVEL == 1, "dtap_dqsen_delay=%u, dll=%u",
 		   IO_DELAY_PER_DQS_EN_DCHAIN_TAP, IO_DLL_CHAIN_LENGTH);
