@@ -12,7 +12,7 @@ unsigned long sdram_calculate_size(void);
 int sdram_mmr_init_full(unsigned int sdr_phy_reg);
 int sdram_calibration_full(void);
 
-extern int sdram_calibration(void);
+const struct socfpga_sdram_config *socfpga_get_sdram_config(void);
 
 #define SDR_CTRLGRP_ADDRESS	(SOCFPGA_SDR_ADDRESS | 0x5000)
 
@@ -112,8 +112,6 @@ struct socfpga_sdram_config {
 	u32	mp_threshold2;
 	u32	phy_ctrl0;
 };
-
-const struct socfpga_sdram_config *socfpga_get_sdram_config(void);
 
 #define SDR_CTRLGRP_CTRLCFG_NODMPINS_LSB 23
 #define SDR_CTRLGRP_CTRLCFG_NODMPINS_MASK 0x00800000
