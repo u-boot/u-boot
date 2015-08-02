@@ -105,4 +105,19 @@ config DEBUG_DEVRES
 
 	  If you are unsure about this, Say N here.
 
+config SIMPLE_BUS
+	bool "Support simple-bus driver"
+	depends on DM && OF_CONTROL
+	default y
+	help
+	  Supports the 'simple-bus' driver, which is used on some systems.
+
+config SPL_SIMPLE_BUS
+	bool "Support simple-bus driver in SPL"
+	depends on SPL_DM && SPL_OF_CONTROL
+	default n
+	help
+	  Supports the 'simple-bus' driver, which is used on some systems
+	  in SPL.
+
 endmenu

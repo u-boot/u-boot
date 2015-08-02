@@ -574,11 +574,9 @@ fdt_addr_t dev_get_addr(struct udevice *dev)
 	fdt_addr_t addr;
 
 	addr = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
-	if (addr != FDT_ADDR_T_NONE) {
-#ifndef CONFIG_SPL_BUILD
+	if (CONFIG_IS_ENABLED(SIMPLE_BUS) && addr != FDT_ADDR_T_NONE) {
 		if (device_get_uclass_id(dev->parent) == UCLASS_SIMPLE_BUS)
 			addr = simple_bus_translate(dev->parent, addr);
-#endif
 	}
 
 	return addr;
