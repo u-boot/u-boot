@@ -966,8 +966,8 @@ static void rw_mgr_mem_initialize(void)
 	 * One possible solution is n = 0 , a = 256 , b = 106 => a = FF,
 	 * b = 6A
 	 */
-	rw_mgr_mem_init_load_regs(SEQ_TINIT_CNTR0_VAL, SEQ_TINIT_CNTR1_VAL,
-				  SEQ_TINIT_CNTR2_VAL,
+	rw_mgr_mem_init_load_regs(TINIT_CNTR0_VAL, TINIT_CNTR1_VAL,
+				  TINIT_CNTR2_VAL,
 				  rwcfg->init_reset_0_cke_0);
 
 	/* Indicate that memory is stable. */
@@ -987,8 +987,8 @@ static void rw_mgr_mem_initialize(void)
 	 * One possible solution is n = 2 , a = 131 , b = 256 => a = 83,
 	 * b = FF
 	 */
-	rw_mgr_mem_init_load_regs(SEQ_TRESET_CNTR0_VAL, SEQ_TRESET_CNTR1_VAL,
-				  SEQ_TRESET_CNTR2_VAL,
+	rw_mgr_mem_init_load_regs(TRESET_CNTR0_VAL, TRESET_CNTR1_VAL,
+				  TRESET_CNTR2_VAL,
 				  rwcfg->init_reset_1_cke_0);
 
 	/* Bring up clock enable. */

@@ -122,51 +122,6 @@
 #define PHY_DEBUG_DISABLE_GUARANTEED_READ 0x00000010
 #define PHY_DEBUG_ENABLE_NON_DESTRUCTIVE_CALIBRATION 0x00000020
 
-/* Init and Reset delay constants - Only use if defined by sequencer_defines.h,
- * otherwise, revert to defaults
- * Default for Tinit = (0+1) * ((202+1) * (2 * 131 + 1) + 1) = 53532 =
- * 200.75us @ 266MHz
- */
-#ifdef TINIT_CNTR0_VAL
-#define SEQ_TINIT_CNTR0_VAL TINIT_CNTR0_VAL
-#else
-#define SEQ_TINIT_CNTR0_VAL 0
-#endif
-
-#ifdef TINIT_CNTR1_VAL
-#define SEQ_TINIT_CNTR1_VAL TINIT_CNTR1_VAL
-#else
-#define SEQ_TINIT_CNTR1_VAL 202
-#endif
-
-#ifdef TINIT_CNTR2_VAL
-#define SEQ_TINIT_CNTR2_VAL TINIT_CNTR2_VAL
-#else
-#define SEQ_TINIT_CNTR2_VAL 131
-#endif
-
-
-/* Default for Treset = (2+1) * ((252+1) * (2 * 131 + 1) + 1) = 133563 =
- * 500.86us @ 266MHz
- */
-#ifdef TRESET_CNTR0_VAL
-#define SEQ_TRESET_CNTR0_VAL TRESET_CNTR0_VAL
-#else
-#define SEQ_TRESET_CNTR0_VAL 2
-#endif
-
-#ifdef TRESET_CNTR1_VAL
-#define SEQ_TRESET_CNTR1_VAL TRESET_CNTR1_VAL
-#else
-#define SEQ_TRESET_CNTR1_VAL 252
-#endif
-
-#ifdef TRESET_CNTR2_VAL
-#define SEQ_TRESET_CNTR2_VAL TRESET_CNTR2_VAL
-#else
-#define SEQ_TRESET_CNTR2_VAL 131
-#endif
-
 struct socfpga_sdr_rw_load_manager {
 	u32	load_cntr0;
 	u32	load_cntr1;
