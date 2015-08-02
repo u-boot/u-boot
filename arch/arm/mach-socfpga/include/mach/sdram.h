@@ -17,6 +17,7 @@ const struct socfpga_sdram_config *socfpga_get_sdram_config(void);
 void socfpga_get_seq_ac_init(const u32 **init, unsigned int *nelem);
 void socfpga_get_seq_inst_init(const u32 **init, unsigned int *nelem);
 const struct socfpga_sdram_rw_mgr_config *socfpga_get_sdram_rwmgr_config(void);
+const struct socfpga_sdram_io_config *socfpga_get_sdram_io_config(void);
 
 #define SDR_CTRLGRP_ADDRESS	(SOCFPGA_SDR_ADDRESS | 0x5000)
 
@@ -178,6 +179,24 @@ struct socfpga_sdram_rw_mgr_config {
 	u8	mem_number_of_ranks;
 	u8	mem_virtual_groups_per_read_dqs;
 	u8	mem_virtual_groups_per_write_dqs;
+};
+
+struct socfpga_sdram_io_config {
+	u16	delay_per_opa_tap;
+	u8	delay_per_dchain_tap;
+	u8	delay_per_dqs_en_dchain_tap;
+	u8	dll_chain_length;
+	u8	dqdqs_out_phase_max;
+	u8	dqs_en_delay_max;
+	u8	dqs_en_delay_offset;
+	u8	dqs_en_phase_max;
+	u8	dqs_in_delay_max;
+	u8	dqs_in_reserve;
+	u8	dqs_out_reserve;
+	u8	io_in_delay_max;
+	u8	io_out1_delay_max;
+	u8	io_out2_delay_max;
+	u8	shift_dqs_en_when_shift_dqs;
 };
 
 #define SDR_CTRLGRP_CTRLCFG_NODMPINS_LSB 23

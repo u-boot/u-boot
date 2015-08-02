@@ -42,6 +42,7 @@ static struct socfpga_sdr_ctrl *sdr_ctrl =
 	(struct socfpga_sdr_ctrl *)SDR_CTRLGRP_ADDRESS;
 
 const struct socfpga_sdram_rw_mgr_config *rwcfg;
+const struct socfpga_sdram_io_config *iocfg;
 
 #define DELTA_D		1
 
@@ -3699,6 +3700,7 @@ int sdram_calibration_full(void)
 	gbl = &my_gbl;
 
 	rwcfg = socfpga_get_sdram_rwmgr_config();
+	iocfg = socfpga_get_sdram_io_config();
 
 	/* Set the calibration enabled by default */
 	gbl->phy_debug_mode_flags |= PHY_DEBUG_ENABLE_CAL_RPT;

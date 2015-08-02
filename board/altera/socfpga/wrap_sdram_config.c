@@ -249,6 +249,24 @@ static const struct socfpga_sdram_rw_mgr_config rw_mgr_config = {
 		RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS,
 };
 
+struct socfpga_sdram_io_config io_config = {
+	.delay_per_dchain_tap		= IO_DELAY_PER_DCHAIN_TAP,
+	.delay_per_dqs_en_dchain_tap	= IO_DELAY_PER_DQS_EN_DCHAIN_TAP,
+	.delay_per_opa_tap		= IO_DELAY_PER_OPA_TAP,
+	.dll_chain_length		= IO_DLL_CHAIN_LENGTH,
+	.dqdqs_out_phase_max		= IO_DQDQS_OUT_PHASE_MAX,
+	.dqs_en_delay_max		= IO_DQS_EN_DELAY_MAX,
+	.dqs_en_delay_offset		= IO_DQS_EN_DELAY_OFFSET,
+	.dqs_en_phase_max		= IO_DQS_EN_PHASE_MAX,
+	.dqs_in_delay_max		= IO_DQS_IN_DELAY_MAX,
+	.dqs_in_reserve			= IO_DQS_IN_RESERVE,
+	.dqs_out_reserve		= IO_DQS_OUT_RESERVE,
+	.io_in_delay_max		= IO_IO_IN_DELAY_MAX,
+	.io_out1_delay_max		= IO_IO_OUT1_DELAY_MAX,
+	.io_out2_delay_max		= IO_IO_OUT2_DELAY_MAX,
+	.shift_dqs_en_when_shift_dqs	= IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS,
+};
+
 const struct socfpga_sdram_config *socfpga_get_sdram_config(void)
 {
 	return &sdram_config;
@@ -269,4 +287,9 @@ void socfpga_get_seq_inst_init(const u32 **init, unsigned int *nelem)
 const struct socfpga_sdram_rw_mgr_config *socfpga_get_sdram_rwmgr_config(void)
 {
 	return &rw_mgr_config;
+}
+
+const struct socfpga_sdram_io_config *socfpga_get_sdram_io_config(void)
+{
+	return &io_config;
 }
