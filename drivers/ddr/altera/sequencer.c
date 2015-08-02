@@ -9,10 +9,15 @@
 #include <asm/arch/sdram.h>
 #include <errno.h>
 #include "sequencer.h"
-#include "sequencer_auto.h"
-#include "sequencer_auto_ac_init.h"
-#include "sequencer_auto_inst_init.h"
-#include "sequencer_defines.h"
+
+/*
+ * FIXME: This path is temporary until the SDRAM driver gets
+ *        a proper thorough cleanup.
+ */
+#include "../../../board/altera/socfpga/qts/sequencer_auto.h"
+#include "../../../board/altera/socfpga/qts/sequencer_auto_ac_init.h"
+#include "../../../board/altera/socfpga/qts/sequencer_auto_inst_init.h"
+#include "../../../board/altera/socfpga/qts/sequencer_defines.h"
 
 static struct socfpga_sdr_rw_load_manager *sdr_rw_load_mgr_regs =
 	(struct socfpga_sdr_rw_load_manager *)(SDR_PHYGRP_RWMGRGRP_ADDRESS | 0x800);
