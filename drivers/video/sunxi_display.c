@@ -445,6 +445,10 @@ static void sunxi_composer_mode_set(const struct ctfb_res_modes *mode,
 	writel(SUNXI_DE_BE_LAYER_ATTR1_FMT_XRGB8888, &de_be->layer0_attr1_ctrl);
 
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_LAYER0_ENABLE);
+	if (mode->vmode == FB_VMODE_INTERLACED)
+		setbits_le32(&de_be->mode,
+			     SUNXI_DE_BE_MODE_DEFLICKER_ENABLE |
+			     SUNXI_DE_BE_MODE_INTERLACE_ENABLE);
 }
 
 static void sunxi_composer_enable(void)
@@ -668,6 +672,8 @@ static int sunxi_lcdc_get_clk_delay(const struct ctfb_res_modes *mode, int tcon)
 	int delay;
 
 	delay = mode->lower_margin + mode->vsync_len + mode->upper_margin;
+	if (mode->vmode == FB_VMODE_INTERLACED)
+		delay /= 2;
 	if (tcon == 1)
 		delay -= 2;
 
@@ -767,7 +773,7 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 {
 	struct sunxi_lcdc_reg * const lcdc =
 		(struct sunxi_lcdc_reg *)SUNXI_LCD0_BASE;
-	int bp, clk_delay, total, val;
+	int bp, clk_delay, total, val, yres;
 
 	/* Use tcon1 */
 	clrsetbits_le32(&lcdc->ctrl, SUNXI_LCDC_CTRL_IO_MAP_MASK,
@@ -775,13 +781,18 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 
 	clk_delay = sunxi_lcdc_get_clk_delay(mode, 1);
 	writel(SUNXI_LCDC_TCON1_CTRL_ENABLE |
+	       ((mode->vmode == FB_VMODE_INTERLACED) ?
+			SUNXI_LCDC_TCON1_CTRL_INTERLACE_ENABLE : 0) |
 	       SUNXI_LCDC_TCON1_CTRL_CLK_DELAY(clk_delay), &lcdc->tcon1_ctrl);
 
-	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(mode->yres),
+	yres = mode->yres;
+	if (mode->vmode == FB_VMODE_INTERLACED)
+		yres /= 2;
+	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(yres),
 	       &lcdc->tcon1_timing_source);
-	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(mode->yres),
+	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(yres),
 	       &lcdc->tcon1_timing_scale);
-	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(mode->yres),
+	writel(SUNXI_LCDC_X(mode->xres) | SUNXI_LCDC_Y(yres),
 	       &lcdc->tcon1_timing_out);
 
 	bp = mode->hsync_len + mode->left_margin;
@@ -791,7 +802,9 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 
 	bp = mode->vsync_len + mode->upper_margin;
 	total = mode->yres + mode->lower_margin + bp;
-	writel(SUNXI_LCDC_TCON1_TIMING_V_TOTAL(2 * total) |
+	if (mode->vmode == FB_VMODE_NONINTERLACED)
+		total *= 2;
+	writel(SUNXI_LCDC_TCON1_TIMING_V_TOTAL(total) |
 	       SUNXI_LCDC_TCON1_TIMING_V_BP(bp), &lcdc->tcon1_timing_v);
 
 	writel(SUNXI_LCDC_X(mode->hsync_len) | SUNXI_LCDC_Y(mode->vsync_len),
@@ -1223,14 +1236,6 @@ void *video_hw_init(void)
 		break;
 	}
 
-	if (mode->vmode != FB_VMODE_NONINTERLACED) {
-		printf("Only non-interlaced modes supported, falling back to 1024x768\n");
-		mode = &res_mode_init[RES_MODE_1024x768];
-	} else {
-		printf("Setting up a %dx%d %s console\n", mode->xres,
-		       mode->yres, sunxi_get_mon_desc(sunxi_display.monitor));
-	}
-
 	sunxi_display.fb_size =
 		(mode->xres * mode->yres * 4 + 0xfff) & ~0xfff;
 	if (sunxi_display.fb_size > CONFIG_SUNXI_MAX_FB_SIZE) {
@@ -1239,6 +1244,10 @@ void *video_hw_init(void)
 		       CONFIG_SUNXI_MAX_FB_SIZE >> 10);
 		return NULL;
 	}
+
+	printf("Setting up a %dx%d%s %s console\n", mode->xres, mode->yres,
+	       (mode->vmode == FB_VMODE_INTERLACED) ? "i" : "",
+	       sunxi_get_mon_desc(sunxi_display.monitor));
 
 	gd->fb_base = gd->bd->bi_dram[0].start +
 		      gd->bd->bi_dram[0].size - sunxi_display.fb_size;
