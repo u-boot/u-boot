@@ -26,11 +26,6 @@
 #define CONFIG_USB_ETH_CDC
 #define CONFIG_NETCONSOLE
 
-#define CONFIG_CMD_FUSE
-#ifdef CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
-#endif
-
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 

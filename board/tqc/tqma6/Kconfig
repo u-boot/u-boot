@@ -64,6 +64,11 @@ config MBA6
 	  Select the MBa6 starterkit. This features a GigE Phy, USB, SD-Card
 	  etc.
 
+config WRU4
+	bool "OHB WRU-IV"
+	help
+	  Select the OHB Systems AG WRU-IV baseboard.
+
 endchoice
 
 config IMX_CONFIG

@@ -94,9 +94,16 @@
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_16M
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
-/* Fuses */
-#define CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
+/* I2C Configs */
+#define CONFIG_CMD_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_SPEED		  100000
+
+/* PMIC */
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_MAX77696
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \

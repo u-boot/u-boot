@@ -100,10 +100,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
 
-/* Fuses */
-#define CONFIG_MXC_OCOTP
-#define CONFIG_CMD_FUSE
-
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
@@ -393,6 +389,8 @@
  */
 #ifdef CONFIG_MBA6
 #include "tqma6_mba6.h"
+#elif CONFIG_WRU4
+#include "tqma6_wru4.h"
 #else
 #error "No baseboard for the TQMa6 defined!"
 #endif

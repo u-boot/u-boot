@@ -17,11 +17,11 @@
 #ifndef __MX6_COMMON_H
 #define __MX6_COMMON_H
 
+#ifndef CONFIG_MX6UL
 #define CONFIG_ARM_ERRATA_743622
 #define CONFIG_ARM_ERRATA_751472
 #define CONFIG_ARM_ERRATA_794072
 #define CONFIG_ARM_ERRATA_761320
-#define CONFIG_BOARD_POSTCLK_INIT
 
 #ifndef CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_L2_PL310
@@ -29,6 +29,8 @@
 #endif
 
 #define CONFIG_MP
+#endif
+#define CONFIG_BOARD_POSTCLK_INIT
 #define CONFIG_MXC_GPT_HCLK
 
 #define CONFIG_SYS_NO_FLASH
@@ -52,7 +54,7 @@
 #define CONFIG_REVISION_TAG
 
 /* Boot options */
-#if (defined(CONFIG_MX6SX) || defined(CONFIG_MX6SL))
+#if (defined(CONFIG_MX6SX) || defined(CONFIG_MX6SL) || defined(CONFIG_MX6UL))
 #define CONFIG_LOADADDR		0x82000000
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0x87800000
@@ -110,5 +112,9 @@
 #define CONFIG_BOUNCE_BUFFER
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_USDHC
+
+/* Fuses */
+#define CONFIG_CMD_FUSE
+#define CONFIG_MXC_OCOTP
 
 #endif

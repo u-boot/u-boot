@@ -23,7 +23,6 @@
 
 #define CONFIG_CMD_BMODE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_FUSE
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MTDPARTS
@@ -102,9 +101,6 @@
 #define CONFIG_APBH_DMA
 #define CONFIG_APBH_DMA_BURST
 #define CONFIG_APBH_DMA_BURST8
-
-/* Fuse support */
-#define CONFIG_MXC_OCOTP
 
 /* Environment in NAND */
 #define CONFIG_ENV_IS_IN_NAND

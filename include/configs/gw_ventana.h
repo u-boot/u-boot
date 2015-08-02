@@ -165,11 +165,6 @@
 #define CONFIG_CMD_EECONFIG      /* Gateworks EEPROM config cmd */
 #define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
-#define CONFIG_CMD_FUSE          /* eFUSE read/write support */
-#ifdef CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
-#endif
-
 
 /* Ethernet support */
 #define CONFIG_FEC_MXC

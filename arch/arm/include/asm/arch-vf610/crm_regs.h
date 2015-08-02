@@ -207,6 +207,7 @@ struct anadig_reg {
 #define CCM_CCGR4_CCM_CTRL_MASK			(0x3 << 22)
 #define CCM_CCGR4_GPC_CTRL_MASK			(0x3 << 24)
 #define CCM_CCGR4_I2C0_CTRL_MASK		(0x3 << 12)
+#define CCM_CCGR4_I2C1_CTRL_MASK		(0x3 << 14)
 #define CCM_CCGR6_OCOTP_CTRL_MASK		(0x3 << 10)
 #define CCM_CCGR6_DSPI2_CTRL_MASK		(0x3 << 24)
 #define CCM_CCGR6_DSPI3_CTRL_MASK		(0x3 << 26)
@@ -216,6 +217,8 @@ struct anadig_reg {
 #define CCM_CCGR9_FEC0_CTRL_MASK		0x3
 #define CCM_CCGR9_FEC1_CTRL_MASK		(0x3 << 2)
 #define CCM_CCGR10_NFC_CTRL_MASK		0x3
+#define CCM_CCGR10_I2C2_CTRL_MASK		(0x3 << 12)
+#define CCM_CCGR10_I2C3_CTRL_MASK		(0x3 << 14)
 
 #define ANADIG_PLL7_CTRL_BYPASS         (1 << 16)
 #define ANADIG_PLL7_CTRL_ENABLE         (1 << 13)

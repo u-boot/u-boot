@@ -13,6 +13,7 @@
 #include <fsl_esdhc.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <errno.h>
 #include <fdt_support.h>
 #include <sata.h>
 #include <splash.h>
@@ -51,45 +52,70 @@ int splash_screen_prepare(void)
 #ifdef CONFIG_IMX_HDMI
 static void cm_fx6_enable_hdmi(struct display_info_t const *dev)
 {
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	imx_setup_hdmi();
+	setbits_le32(&mxc_ccm->CCGR3, MXC_CCM_CCGR3_IPU1_IPU_DI0_MASK);
 	imx_enable_hdmi_phy();
 }
 
-struct display_info_t const displays[] = {
-	{
-		.bus	= -1,
-		.addr	= 0,
-		.pixfmt	= IPU_PIX_FMT_RGB24,
-		.detect	= detect_hdmi,
-		.enable	= cm_fx6_enable_hdmi,
-		.mode	= {
-			.name           = "HDMI",
-			.refresh        = 60,
-			.xres           = 1024,
-			.yres           = 768,
-			.pixclock       = 40385,
-			.left_margin    = 220,
-			.right_margin   = 40,
-			.upper_margin   = 21,
-			.lower_margin   = 7,
-			.hsync_len      = 60,
-			.vsync_len      = 10,
-			.sync           = FB_SYNC_EXT,
-			.vmode          = FB_VMODE_NONINTERLACED,
-		}
-	},
+static struct display_info_t preset_hdmi_1024X768 = {
+	.bus	= -1,
+	.addr	= 0,
+	.pixfmt	= IPU_PIX_FMT_RGB24,
+	.enable	= cm_fx6_enable_hdmi,
+	.mode	= {
+		.name           = "HDMI",
+		.refresh        = 60,
+		.xres           = 1024,
+		.yres           = 768,
+		.pixclock       = 40385,
+		.left_margin    = 220,
+		.right_margin   = 40,
+		.upper_margin   = 21,
+		.lower_margin   = 7,
+		.hsync_len      = 60,
+		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED,
+	}
 };
-size_t display_count = ARRAY_SIZE(displays);
 
 static void cm_fx6_setup_display(void)
 {
-	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-	int reg;
+	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
 	enable_ipu_clock();
-	imx_setup_hdmi();
-	reg = __raw_readl(&mxc_ccm->CCGR3);
-	reg |= MXC_CCM_CCGR3_IPU1_IPU_DI0_MASK;
-	writel(reg, &mxc_ccm->CCGR3);
+	clrbits_le32(&iomuxc_regs->gpr[3], MXC_CCM_CCGR3_IPU1_IPU_DI0_MASK);
+}
+
+int board_video_skip(void)
+{
+	int ret;
+	struct display_info_t *preset;
+	char const *panel = getenv("displaytype");
+
+	if (!panel) /* Also accept panel for backward compatibility */
+		panel = getenv("panel");
+
+	if (!panel)
+		return -ENOENT;
+
+	if (!strcmp(panel, "HDMI"))
+		preset = &preset_hdmi_1024X768;
+	else
+		return -EINVAL;
+
+	ret = ipuv3_fb_init(&preset->mode, 0, preset->pixfmt);
+	if (ret) {
+		printf("Can't init display %s: %d\n", preset->mode.name, ret);
+		return ret;
+	}
+
+	preset->enable(preset);
+	printf("Display: %s (%ux%u)\n", preset->mode.name, preset->mode.xres,
+	       preset->mode.yres);
+
+	return 0;
 }
 #else
 static inline void cm_fx6_setup_display(void) {}

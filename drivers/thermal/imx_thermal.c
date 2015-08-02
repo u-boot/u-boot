@@ -115,7 +115,7 @@ static int read_cpu_temperature(struct udevice *dev)
 	writel(TEMPSENSE0_FINISHED, &anatop->tempsense0_clr);
 
 	/* milli_Tmeas = c2 - Nmeas * c1 */
-	temperature = (c2 - n_meas * c1)/1000;
+	temperature = (long)(c2 - n_meas * c1)/1000;
 
 	/* power down anatop thermal sensor */
 	writel(TEMPSENSE0_POWER_DOWN, &anatop->tempsense0_set);
@@ -130,16 +130,12 @@ int imx_thermal_get_temp(struct udevice *dev, int *temp)
 	int cpu_tmp = 0;
 
 	cpu_tmp = read_cpu_temperature(dev);
-	while (cpu_tmp > priv->minc && cpu_tmp < priv->maxc) {
-		if (cpu_tmp >= priv->critical) {
-			printf("CPU Temperature (%dC) too close to max (%dC)",
-			       cpu_tmp, priv->maxc);
-			puts(" waiting...\n");
-			udelay(5000000);
-			cpu_tmp = read_cpu_temperature(dev);
-		} else {
-			break;
-		}
+	while (cpu_tmp >= priv->critical) {
+		printf("CPU Temperature (%dC) too close to max (%dC)",
+		       cpu_tmp, priv->maxc);
+		puts(" waiting...\n");
+		udelay(5000000);
+		cpu_tmp = read_cpu_temperature(dev);
 	}
 
 	*temp = cpu_tmp;

@@ -303,7 +303,7 @@ static void cm_fx6_setup_uart(void)
 static void cm_fx6_setup_ecspi(void)
 {
 	cm_fx6_set_ecspi_iomux();
-	enable_cspi_clock(1, 0);
+	enable_spi_clk(1, 0);
 }
 #else
 static void cm_fx6_setup_ecspi(void) { }

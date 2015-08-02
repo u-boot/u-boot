@@ -25,7 +25,6 @@
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 #define CONFIG_FAT_WRITE
-#define CONFIG_CMD_FUSE
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
@@ -117,11 +116,6 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	2
-
-/* OCOTP Configs */
-#ifdef CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
-#endif
 
 /* PCI express */
 #ifdef CONFIG_CMD_PCI

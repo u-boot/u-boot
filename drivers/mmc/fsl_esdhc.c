@@ -341,6 +341,9 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 		err = esdhc_setup_data(mmc, data);
 		if(err)
 			return err;
+
+		if (data->flags & MMC_DATA_READ)
+			check_and_invalidate_dcache_range(cmd, data);
 	}
 
 	/* Figure out the transfer arguments */
@@ -437,6 +440,11 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 			}
 		} while ((irqstat & DATA_COMPLETE) != DATA_COMPLETE);
 
+		/*
+		 * Need invalidate the dcache here again to avoid any
+		 * cache-fill during the DMA operations such as the
+		 * speculative pre-fetching etc.
+		 */
 		if (data->flags & MMC_DATA_READ)
 			check_and_invalidate_dcache_range(cmd, data);
 #endif

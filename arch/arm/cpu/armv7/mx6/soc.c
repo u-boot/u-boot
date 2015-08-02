@@ -62,12 +62,12 @@ u32 get_cpu_rev(void)
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
 	u32 reg = readl(&anatop->digprog_sololite);
 	u32 type = ((reg >> 16) & 0xff);
-	u32 major;
+	u32 major, cfg = 0;
 
 	if (type != MXC_CPU_MX6SL) {
 		reg = readl(&anatop->digprog);
 		struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
-		u32 cfg = readl(&scu->config) & 3;
+		cfg = readl(&scu->config) & 3;
 		type = ((reg >> 16) & 0xff);
 		if (type == MXC_CPU_MX6DL) {
 			if (!cfg)
@@ -81,6 +81,13 @@ u32 get_cpu_rev(void)
 
 	}
 	major = ((reg >> 8) & 0xff);
+	if ((major >= 1) &&
+	    ((type == MXC_CPU_MX6Q) || (type == MXC_CPU_MX6D))) {
+		major--;
+		type = MXC_CPU_MX6QP;
+		if (cfg == 1)
+			type = MXC_CPU_MX6DP;
+	}
 	reg &= 0xff;		/* mx6 silicon revision */
 	return (type << 12) | (reg + (0x10 * (major + 1)));
 }
@@ -309,11 +316,10 @@ static void imx_set_wdog_powerdown(bool enable)
 {
 	struct wdog_regs *wdog1 = (struct wdog_regs *)WDOG1_BASE_ADDR;
 	struct wdog_regs *wdog2 = (struct wdog_regs *)WDOG2_BASE_ADDR;
-
-#ifdef CONFIG_MX6SX
 	struct wdog_regs *wdog3 = (struct wdog_regs *)WDOG3_BASE_ADDR;
-	writew(enable, &wdog3->wmcr);
-#endif
+
+	if (is_cpu_type(MXC_CPU_MX6SX) || is_cpu_type(MXC_CPU_MX6UL))
+		writew(enable, &wdog3->wmcr);
 
 	/* Write to the PDE (Power Down Enable) bit */
 	writew(enable, &wdog1->wmcr);
@@ -335,9 +341,12 @@ static void set_ahb_rate(u32 val)
 static void clear_mmdc_ch_mask(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	u32 reg;
+	reg = readl(&mxc_ccm->ccdr);
 
 	/* Clear MMDC channel mask */
-	writel(0, &mxc_ccm->ccdr);
+	reg &= ~(MXC_CCM_CCDR_MMDC_CH1_HS_MASK | MXC_CCM_CCDR_MMDC_CH0_HS_MASK);
+	writel(reg, &mxc_ccm->ccdr);
 }
 
 static void init_bandgap(void)
@@ -520,7 +529,7 @@ void s_init(void)
 	u32 mask528;
 	u32 reg, periph1, periph2;
 
-	if (is_cpu_type(MXC_CPU_MX6SX))
+	if (is_cpu_type(MXC_CPU_MX6SX) || is_cpu_type(MXC_CPU_MX6UL))
 		return;
 
 	/* Due to hardware limitation, on MX6Q we need to gate/ungate all PFDs
