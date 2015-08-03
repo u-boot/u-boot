@@ -2,7 +2,7 @@
  * Display driver for Allwinner SoCs.
  *
  * (C) Copyright 2013-2014 Luc Verhaegen <libv@skynet.be>
- * (C) Copyright 2014 Hans de Goede <hdegoede@redhat.com>
+ * (C) Copyright 2014-2015 Hans de Goede <hdegoede@redhat.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -40,8 +40,12 @@ enum sunxi_monitor {
 	sunxi_monitor_hdmi,
 	sunxi_monitor_lcd,
 	sunxi_monitor_vga,
+	sunxi_monitor_composite_pal,
+	sunxi_monitor_composite_ntsc,
+	sunxi_monitor_composite_pal_m,
+	sunxi_monitor_composite_pal_nc,
 };
-#define SUNXI_MONITOR_LAST sunxi_monitor_vga
+#define SUNXI_MONITOR_LAST sunxi_monitor_composite_pal_nc
 
 struct sunxi_display {
 	GraphicDevice graphic_device;
@@ -49,6 +53,12 @@ struct sunxi_display {
 	unsigned int depth;
 	unsigned int fb_size;
 } sunxi_display;
+
+const struct ctfb_res_modes composite_video_modes[2] = {
+	/*  x     y  hz  pixclk ps/kHz   le   ri  up  lo   hs vs  s  vmode */
+	{ 720,  576, 50, 37037,  27000, 137,   5, 20, 27,   2, 2, 0, FB_VMODE_INTERLACED },
+	{ 720,  480, 60, 37037,  27000, 116,  20, 16, 27,   2, 2, 0, FB_VMODE_INTERLACED },
+};
 
 #ifdef CONFIG_VIDEO_HDMI
 
@@ -390,6 +400,25 @@ static void sunxi_frontend_mode_set(const struct ctfb_res_modes *mode,
 static void sunxi_frontend_enable(void) {}
 #endif
 
+static bool sunxi_is_composite(void)
+{
+	switch (sunxi_display.monitor) {
+	case sunxi_monitor_none:
+	case sunxi_monitor_dvi:
+	case sunxi_monitor_hdmi:
+	case sunxi_monitor_lcd:
+	case sunxi_monitor_vga:
+		return false;
+	case sunxi_monitor_composite_pal:
+	case sunxi_monitor_composite_ntsc:
+	case sunxi_monitor_composite_pal_m:
+	case sunxi_monitor_composite_pal_nc:
+		return true;
+	}
+
+	return false; /* Never reached */
+}
+
 /*
  * This is the entity that mixes and matches the different layers and inputs.
  * Allwinner calls it the back-end, but i like composer better.
@@ -423,11 +452,18 @@ static void sunxi_composer_init(void)
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_ENABLE);
 }
 
+static u32 sunxi_rgb2yuv_coef[12] = {
+	0x00000107, 0x00000204, 0x00000064, 0x00000108,
+	0x00003f69, 0x00003ed6, 0x000001c1, 0x00000808,
+	0x000001c1, 0x00003e88, 0x00003fb8, 0x00000808
+};
+
 static void sunxi_composer_mode_set(const struct ctfb_res_modes *mode,
 				    unsigned int address)
 {
 	struct sunxi_de_be_reg * const de_be =
 		(struct sunxi_de_be_reg *)SUNXI_DE_BE0_BASE;
+	int i;
 
 	sunxi_frontend_mode_set(mode, address);
 
@@ -449,6 +485,14 @@ static void sunxi_composer_mode_set(const struct ctfb_res_modes *mode,
 		setbits_le32(&de_be->mode,
 			     SUNXI_DE_BE_MODE_DEFLICKER_ENABLE |
 			     SUNXI_DE_BE_MODE_INTERLACE_ENABLE);
+
+	if (sunxi_is_composite()) {
+		writel(SUNXI_DE_BE_OUTPUT_COLOR_CTRL_ENABLE,
+		       &de_be->output_color_ctrl);
+		for (i = 0; i < 12; i++)
+			writel(sunxi_rgb2yuv_coef[i],
+			       &de_be->output_color_coef[i]);
+	}
 }
 
 static void sunxi_composer_enable(void)
@@ -539,6 +583,9 @@ static void sunxi_lcdc_pll_set(int tcon, int dotclock,
 		       (best_double ? CCM_LCD_CH1_CTRL_PLL3_2X :
 				      CCM_LCD_CH1_CTRL_PLL3) |
 		       CCM_LCD_CH1_CTRL_M(best_m), &ccm->lcd0_ch1_clk_cfg);
+		if (sunxi_is_composite())
+			setbits_le32(&ccm->lcd0_ch1_clk_cfg,
+				     CCM_LCD_CH1_CTRL_HALF_SCLK1);
 	}
 
 	*clk_div = best_m;
@@ -766,7 +813,7 @@ static void sunxi_lcdc_tcon0_mode_set(const struct ctfb_res_modes *mode,
 	writel(0, &lcdc->tcon0_io_tristate);
 }
 
-#if defined CONFIG_VIDEO_HDMI || defined CONFIG_VIDEO_VGA
+#if defined CONFIG_VIDEO_HDMI || defined CONFIG_VIDEO_VGA || defined CONFIG_VIDEO_COMPOSITE
 static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 				      int *clk_div, int *clk_double,
 				      bool use_portd_hvsync)
@@ -827,7 +874,7 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 	}
 	sunxi_lcdc_pll_set(1, mode->pixclock_khz, clk_div, clk_double);
 }
-#endif /* CONFIG_VIDEO_HDMI || defined CONFIG_VIDEO_VGA */
+#endif /* CONFIG_VIDEO_HDMI || defined CONFIG_VIDEO_VGA || CONFIG_VIDEO_COMPOSITE */
 
 #ifdef CONFIG_VIDEO_HDMI
 
@@ -941,9 +988,9 @@ static void sunxi_hdmi_enable(void)
 
 #endif /* CONFIG_VIDEO_HDMI */
 
-#ifdef CONFIG_VIDEO_VGA
+#if defined CONFIG_VIDEO_VGA || defined CONFIG_VIDEO_COMPOSITE
 
-static void sunxi_vga_mode_set(void)
+static void sunxi_tvencoder_mode_set(void)
 {
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
@@ -953,16 +1000,75 @@ static void sunxi_vga_mode_set(void)
 	/* Clock on */
 	setbits_le32(&ccm->ahb_gate1, 1 << AHB_GATE_OFFSET_TVE0);
 
-	/* Set TVE in VGA mode */
-	writel(SUNXI_TVE_GCTRL_DAC_INPUT(0, 1) |
-	       SUNXI_TVE_GCTRL_DAC_INPUT(1, 2) |
-	       SUNXI_TVE_GCTRL_DAC_INPUT(2, 3), &tve->gctrl);
-	writel(SUNXI_TVE_CFG0_VGA, &tve->cfg0);
-	writel(SUNXI_TVE_DAC_CFG0_VGA, &tve->dac_cfg0);
-	writel(SUNXI_TVE_UNKNOWN1_VGA, &tve->unknown1);
+	switch (sunxi_display.monitor) {
+	case sunxi_monitor_vga:
+		writel(SUNXI_TVE_GCTRL_DAC_INPUT(0, 1) |
+		       SUNXI_TVE_GCTRL_DAC_INPUT(1, 2) |
+		       SUNXI_TVE_GCTRL_DAC_INPUT(2, 3), &tve->gctrl);
+		writel(SUNXI_TVE_CFG0_VGA, &tve->cfg0);
+		writel(SUNXI_TVE_DAC_CFG0_VGA, &tve->dac_cfg0);
+		writel(SUNXI_TVE_UNKNOWN1_VGA, &tve->unknown1);
+		break;
+	case sunxi_monitor_composite_pal_nc:
+		writel(SUNXI_TVE_CHROMA_FREQ_PAL_NC, &tve->chroma_freq);
+		/* Fall through */
+	case sunxi_monitor_composite_pal:
+		writel(SUNXI_TVE_GCTRL_DAC_INPUT(0, 1) |
+		       SUNXI_TVE_GCTRL_DAC_INPUT(1, 2) |
+		       SUNXI_TVE_GCTRL_DAC_INPUT(2, 3) |
+		       SUNXI_TVE_GCTRL_DAC_INPUT(3, 4), &tve->gctrl);
+		writel(SUNXI_TVE_CFG0_PAL, &tve->cfg0);
+		writel(SUNXI_TVE_DAC_CFG0_COMPOSITE, &tve->dac_cfg0);
+		writel(SUNXI_TVE_FILTER_COMPOSITE, &tve->filter);
+		writel(SUNXI_TVE_PORCH_NUM_PAL, &tve->porch_num);
+		writel(SUNXI_TVE_LINE_NUM_PAL, &tve->line_num);
+		writel(SUNXI_TVE_BLANK_BLACK_LEVEL_PAL, &tve->blank_black_level);
+		writel(SUNXI_TVE_UNKNOWN1_COMPOSITE, &tve->unknown1);
+		writel(SUNXI_TVE_CBR_LEVEL_PAL, &tve->cbr_level);
+		writel(SUNXI_TVE_BURST_WIDTH_COMPOSITE, &tve->burst_width);
+		writel(SUNXI_TVE_UNKNOWN2_PAL, &tve->unknown2);
+		writel(SUNXI_TVE_ACTIVE_NUM_COMPOSITE, &tve->active_num);
+		writel(SUNXI_TVE_CHROMA_BW_GAIN_COMP, &tve->chroma_bw_gain);
+		writel(SUNXI_TVE_NOTCH_WIDTH_COMPOSITE, &tve->notch_width);
+		writel(SUNXI_TVE_RESYNC_NUM_PAL, &tve->resync_num);
+		writel(SUNXI_TVE_SLAVE_PARA_COMPOSITE, &tve->slave_para);
+		break;
+	case sunxi_monitor_composite_pal_m:
+		writel(SUNXI_TVE_CHROMA_FREQ_PAL_M, &tve->chroma_freq);
+		writel(SUNXI_TVE_COLOR_BURST_PAL_M, &tve->color_burst);
+		/* Fall through */
+	case sunxi_monitor_composite_ntsc:
+		writel(SUNXI_TVE_GCTRL_DAC_INPUT(0, 1) |
+		       SUNXI_TVE_GCTRL_DAC_INPUT(1, 2) |
+		       SUNXI_TVE_GCTRL_DAC_INPUT(2, 3) |
+		       SUNXI_TVE_GCTRL_DAC_INPUT(3, 4), &tve->gctrl);
+		writel(SUNXI_TVE_CFG0_NTSC, &tve->cfg0);
+		writel(SUNXI_TVE_DAC_CFG0_COMPOSITE, &tve->dac_cfg0);
+		writel(SUNXI_TVE_FILTER_COMPOSITE, &tve->filter);
+		writel(SUNXI_TVE_PORCH_NUM_NTSC, &tve->porch_num);
+		writel(SUNXI_TVE_LINE_NUM_NTSC, &tve->line_num);
+		writel(SUNXI_TVE_BLANK_BLACK_LEVEL_NTSC, &tve->blank_black_level);
+		writel(SUNXI_TVE_UNKNOWN1_COMPOSITE, &tve->unknown1);
+		writel(SUNXI_TVE_CBR_LEVEL_NTSC, &tve->cbr_level);
+		writel(SUNXI_TVE_BURST_PHASE_NTSC, &tve->burst_phase);
+		writel(SUNXI_TVE_BURST_WIDTH_COMPOSITE, &tve->burst_width);
+		writel(SUNXI_TVE_UNKNOWN2_NTSC, &tve->unknown2);
+		writel(SUNXI_TVE_SYNC_VBI_LEVEL_NTSC, &tve->sync_vbi_level);
+		writel(SUNXI_TVE_ACTIVE_NUM_COMPOSITE, &tve->active_num);
+		writel(SUNXI_TVE_CHROMA_BW_GAIN_COMP, &tve->chroma_bw_gain);
+		writel(SUNXI_TVE_NOTCH_WIDTH_COMPOSITE, &tve->notch_width);
+		writel(SUNXI_TVE_RESYNC_NUM_NTSC, &tve->resync_num);
+		writel(SUNXI_TVE_SLAVE_PARA_COMPOSITE, &tve->slave_para);
+		break;
+	case sunxi_monitor_none:
+	case sunxi_monitor_dvi:
+	case sunxi_monitor_hdmi:
+	case sunxi_monitor_lcd:
+		break;
+	}
 }
 
-static void sunxi_vga_enable(void)
+static void sunxi_tvencoder_enable(void)
 {
 	struct sunxi_tve_reg * const tve =
 		(struct sunxi_tve_reg *)SUNXI_TVE0_BASE;
@@ -970,7 +1076,7 @@ static void sunxi_vga_enable(void)
 	setbits_le32(&tve->gctrl, SUNXI_TVE_GCTRL_ENABLE);
 }
 
-#endif /* CONFIG_VIDEO_VGA */
+#endif /* CONFIG_VIDEO_VGA || defined CONFIG_VIDEO_COMPOSITE */
 
 static void sunxi_drc_init(void)
 {
@@ -1085,10 +1191,10 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 #ifdef CONFIG_VIDEO_VGA
 		sunxi_composer_mode_set(mode, address);
 		sunxi_lcdc_tcon1_mode_set(mode, &clk_div, &clk_double, 1);
-		sunxi_vga_mode_set();
+		sunxi_tvencoder_mode_set();
 		sunxi_composer_enable();
 		sunxi_lcdc_enable();
-		sunxi_vga_enable();
+		sunxi_tvencoder_enable();
 #elif defined CONFIG_VIDEO_VGA_VIA_LCD
 		sunxi_composer_mode_set(mode, address);
 		sunxi_lcdc_tcon0_mode_set(mode, true);
@@ -1097,17 +1203,34 @@ static void sunxi_mode_set(const struct ctfb_res_modes *mode,
 		sunxi_vga_external_dac_enable();
 #endif
 		break;
+	case sunxi_monitor_composite_pal:
+	case sunxi_monitor_composite_ntsc:
+	case sunxi_monitor_composite_pal_m:
+	case sunxi_monitor_composite_pal_nc:
+#ifdef CONFIG_VIDEO_COMPOSITE
+		sunxi_composer_mode_set(mode, address);
+		sunxi_lcdc_tcon1_mode_set(mode, &clk_div, &clk_double, 0);
+		sunxi_tvencoder_mode_set();
+		sunxi_composer_enable();
+		sunxi_lcdc_enable();
+		sunxi_tvencoder_enable();
+#endif
+		break;
 	}
 }
 
 static const char *sunxi_get_mon_desc(enum sunxi_monitor monitor)
 {
 	switch (monitor) {
-	case sunxi_monitor_none:	return "none";
-	case sunxi_monitor_dvi:		return "dvi";
-	case sunxi_monitor_hdmi:	return "hdmi";
-	case sunxi_monitor_lcd:		return "lcd";
-	case sunxi_monitor_vga:		return "vga";
+	case sunxi_monitor_none:		return "none";
+	case sunxi_monitor_dvi:			return "dvi";
+	case sunxi_monitor_hdmi:		return "hdmi";
+	case sunxi_monitor_lcd:			return "lcd";
+	case sunxi_monitor_vga:			return "vga";
+	case sunxi_monitor_composite_pal:	return "composite-pal";
+	case sunxi_monitor_composite_ntsc:	return "composite-ntsc";
+	case sunxi_monitor_composite_pal_m:	return "composite-pal-m";
+	case sunxi_monitor_composite_pal_nc:	return "composite-pal-nc";
 	}
 	return NULL; /* never reached */
 }
@@ -1142,6 +1265,15 @@ static bool sunxi_has_vga(void)
 #endif
 }
 
+static bool sunxi_has_composite(void)
+{
+#ifdef CONFIG_VIDEO_COMPOSITE
+	return true;
+#else
+	return false;
+#endif
+}
+
 static enum sunxi_monitor sunxi_get_default_mon(bool allow_hdmi)
 {
 	if (allow_hdmi && sunxi_has_hdmi())
@@ -1150,6 +1282,8 @@ static enum sunxi_monitor sunxi_get_default_mon(bool allow_hdmi)
 		return sunxi_monitor_lcd;
 	else if (sunxi_has_vga())
 		return sunxi_monitor_vga;
+	else if (sunxi_has_composite())
+		return sunxi_monitor_composite_pal;
 	else
 		return sunxi_monitor_none;
 }
@@ -1234,6 +1368,22 @@ void *video_hw_init(void)
 		}
 		sunxi_display.depth = 18;
 		break;
+	case sunxi_monitor_composite_pal:
+	case sunxi_monitor_composite_ntsc:
+	case sunxi_monitor_composite_pal_m:
+	case sunxi_monitor_composite_pal_nc:
+		if (!sunxi_has_composite()) {
+			printf("Composite video not supported on this board\n");
+			sunxi_display.monitor = sunxi_monitor_none;
+			return NULL;
+		}
+		if (sunxi_display.monitor == sunxi_monitor_composite_pal ||
+		    sunxi_display.monitor == sunxi_monitor_composite_pal_nc)
+			mode = &composite_video_modes[0];
+		else
+			mode = &composite_video_modes[1];
+		sunxi_display.depth = 24;
+		break;
 	}
 
 	sunxi_display.fb_size =
@@ -1301,6 +1451,12 @@ int sunxi_simplefb_setup(void *blob)
 #elif defined CONFIG_VIDEO_VGA_VIA_LCD
 		pipeline = PIPELINE_PREFIX "de_be0-lcd0";
 #endif
+		break;
+	case sunxi_monitor_composite_pal:
+	case sunxi_monitor_composite_ntsc:
+	case sunxi_monitor_composite_pal_m:
+	case sunxi_monitor_composite_pal_nc:
+		pipeline = PIPELINE_PREFIX "de_be0-lcd0-tve0";
 		break;
 	}
 

@@ -40,12 +40,15 @@ requires the CONFIG_VIDEO_LCD_MODE Kconfig value to be set.
 
 The sunxi u-boot driver supports the following video-mode options:
 
-- monitor=[none|dvi|hdmi|lcd] - Select the video output to use
+- monitor=[none|dvi|hdmi|lcd|vga|composite-*] - Select the video output to use
  none:     Disable video output.
  dvi/hdmi: Selects output over the hdmi connector with dvi resp. hdmi output
            format, if edid is used the format is automatically selected.
  lcd:      Selects video output to a LCD screen.
- vga:      Selects bideo output over the VGA connector.
+ vga:      Selects video output over the VGA connector.
+ composite-pal/composite-ntsc/composite-pal-m/composite-pal-nc:
+           Selects composite video output, note the specified resolution is
+           ignored with composite video output.
  Defaults to monitor=dvi.
 
 - hpd=[0|1] - Enable use of the hdmi HotPlug Detect feature
