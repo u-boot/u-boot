@@ -514,6 +514,7 @@ config TARGET_VISION2
 config TARGET_UDOO
 	bool "Support udoo"
 	select CPU_V7
+	select SUPPORT_SPL
 
 config TARGET_WANDBOARD
 	bool "Support wandboard"
