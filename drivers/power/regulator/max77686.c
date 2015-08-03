@@ -81,13 +81,15 @@ static int max77686_buck_volt2hex(int buck, int uV)
 		/* hex = (uV - 600000) / 12500; */
 		hex = (uV - MAX77686_BUCK_UV_LMIN) / MAX77686_BUCK_UV_LSTEP;
 		hex_max = MAX77686_BUCK234_VOLT_MAX_HEX;
-		/**
-		 * Those use voltage scaller - temporary not implemented
-		 * so return just 0
-		 */
-		return -ENOSYS;
+		break;
 	default:
-		/* hex = (uV - 750000) / 50000; */
+		/*
+		 * hex = (uV - 750000) / 50000. We assume that dynamic voltage
+		 * scaling via GPIOs is not enabled and don't support that.
+		 * If this is enabled then the driver will need to take that
+		 * into account anrd check different registers depending on
+		 * the current setting See the datasheet for details.
+		 */
 		hex = (uV - MAX77686_BUCK_UV_HMIN) / MAX77686_BUCK_UV_HSTEP;
 		hex_max = MAX77686_BUCK_VOLT_MAX_HEX;
 		break;
@@ -379,11 +381,11 @@ static int max77686_buck_val(struct udevice *dev, int op, int *uV)
 	case 2:
 	case 3:
 	case 4:
-		/* Those use voltage scallers - will support in the future */
 		mask = MAX77686_BUCK234_VOLT_MASK;
-		return -ENOSYS;
+		break;
 	default:
 		mask = MAX77686_BUCK_VOLT_MASK;
+		break;
 	}
 
 	ret = pmic_read(dev->parent, adr, &val, 1);
