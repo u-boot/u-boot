@@ -445,11 +445,11 @@ static int tegra_pcie_parse_dt_ranges(const void *fdt, int node,
 	}
 
 	debug("PCI regions:\n");
-	debug("  I/O: %#x-%#x\n", pcie->io.start, pcie->io.end);
-	debug("  non-prefetchable memory: %#x-%#x\n", pcie->mem.start,
-	      pcie->mem.end);
-	debug("  prefetchable memory: %#x-%#x\n", pcie->prefetch.start,
-	      pcie->prefetch.end);
+	debug("  I/O: %pa-%pa\n", &pcie->io.start, &pcie->io.end);
+	debug("  non-prefetchable memory: %pa-%pa\n", &pcie->mem.start,
+	      &pcie->mem.end);
+	debug("  prefetchable memory: %pa-%pa\n", &pcie->prefetch.start,
+	      &pcie->prefetch.end);
 
 	return 0;
 }
