@@ -95,22 +95,6 @@
 		};
 	};
 
-
-	i2c4: i2c@12CA0000 {
-		cros_ec_old: cros-ec@1e {
-			reg = <0x1e>;
-			compatible = "google,cros-ec-i2c";
-			i2c-max-frequency = <100000>;
-			u-boot,i2c-offset-len = <0>;
-			ec-interrupt = <&gpx1 6 GPIO_ACTIVE_LOW>;
-		};
-
-		power-regulator@48 {
-			compatible = "ti,tps65090";
-			reg = <0x48>;
-		};
-	};
-
 	i2c-arbitrator {
 		compatible = "i2c-arb-gpio-challenge";
 		#address-cells = <1>;
