@@ -15,7 +15,7 @@
 #define CR_EE		(1 << 25)	/* Exception (Big) Endian	*/
 
 #define PGTABLE_SIZE	(0x10000)
-/* 2M granularity */
+/* 2MB granularity */
 #define MMU_SECTION_SHIFT	21
 
 #ifndef __ASSEMBLY__
