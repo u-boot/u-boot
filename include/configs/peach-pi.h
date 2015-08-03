@@ -32,8 +32,6 @@
 #define CONFIG_SYS_PROMPT	"Peach-Pi # "
 #define CONFIG_IDENT_STRING	" for Peach-Pi"
 
-#define CONFIG_VIDEO_PARADE
-
 /* Display */
 #define CONFIG_LCD
 #ifdef CONFIG_LCD

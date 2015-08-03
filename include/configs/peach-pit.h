@@ -32,8 +32,6 @@
 #define CONFIG_SYS_PROMPT	"Peach-Pit # "
 #define CONFIG_IDENT_STRING	" for Peach-Pit"
 
-#define CONFIG_VIDEO_PARADE
-
 /* DRAM Memory Banks */
 #define CONFIG_NR_DRAM_BANKS	4
 #define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */

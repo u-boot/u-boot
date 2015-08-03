@@ -64,7 +64,6 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SANDBOX_LCD_SDL, "sandbox,lcd-sdl"),
 	COMPAT(COMPAT_NXP_PTN3460, "nxp,ptn3460"),
 	COMPAT(SAMSUNG_EXYNOS_SYSMMU, "samsung,sysmmu-v3.3"),
-	COMPAT(PARADE_PS8625, "parade,ps8625"),
 	COMPAT(INTEL_MICROCODE, "intel,microcode"),
 	COMPAT(MEMORY_SPD, "memory-spd"),
 	COMPAT(INTEL_PANTHERPOINT_AHCI, "intel,pantherpoint-ahci"),
