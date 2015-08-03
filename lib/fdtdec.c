@@ -90,45 +90,29 @@ const char *fdtdec_get_compatible(enum fdt_compat_id id)
 fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
 		const char *prop_name, fdt_size_t *sizep)
 {
-	const fdt32_t *ptr, *end;
-	int parent, na, ns, len;
-	fdt_addr_t addr;
+	const fdt_addr_t *cell;
+	int len;
 
 	debug("%s: %s: ", __func__, prop_name);
+	cell = fdt_getprop(blob, node, prop_name, &len);
+	if (cell && ((!sizep && len == sizeof(fdt_addr_t)) ||
+		     len == sizeof(fdt_addr_t) * 2)) {
+		fdt_addr_t addr = fdt_addr_to_cpu(*cell);
+		if (sizep) {
+			const fdt_size_t *size;
 
-	parent = fdt_parent_offset(blob, node);
-	if (parent < 0) {
-		debug("(no parent found)\n");
-		return FDT_ADDR_T_NONE;
+			size = (fdt_size_t *)((char *)cell +
+					sizeof(fdt_addr_t));
+			*sizep = fdt_size_to_cpu(*size);
+			debug("addr=%08lx, size=%llx\n",
+			      (ulong)addr, (u64)*sizep);
+		} else {
+			debug("%08lx\n", (ulong)addr);
+		}
+		return addr;
 	}
-
-	na = fdt_address_cells(blob, parent);
-	ns = fdt_size_cells(blob, parent);
-
-	ptr = fdt_getprop(blob, node, prop_name, &len);
-	if (!ptr) {
-		debug("(not found)\n");
-		return FDT_ADDR_T_NONE;
-	}
-
-	end = ptr + len / sizeof(*ptr);
-
-	if (ptr + na + ns > end) {
-		debug("(not enough data: expected %d bytes, got %d bytes)\n",
-		      (na + ns) * 4, len);
-		return FDT_ADDR_T_NONE;
-	}
-
-	addr = fdtdec_get_number(ptr, na);
-
-	if (sizep) {
-		*sizep = fdtdec_get_number(ptr + na, ns);
-		debug("addr=%pa, size=%pa\n", &addr, sizep);
-	} else {
-		debug("%pa\n", &addr);
-	}
-
-	return addr;
+	debug("(not found)\n");
+	return FDT_ADDR_T_NONE;
 }
 
 fdt_addr_t fdtdec_get_addr(const void *blob, int node,
