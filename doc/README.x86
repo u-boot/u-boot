@@ -668,6 +668,46 @@ boot progress. This can be good for debugging.
 If not, you can try to get serial working as early as possible. The early
 debug serial port may be useful here. See setup_early_uart() for an example.
 
+During the U-Boot porting, one of the important steps is to write correct PIRQ
+routing information in the board device tree. Without it, device drivers in the
+Linux kernel won't function correctly due to interrupt is not working. Please
+refer to U-Boot doc [14] for the device tree bindings of Intel interrupt router.
+Here we have more details on the intel,pirq-routing property below.
+
+	intel,pirq-routing = <
+		PCI_BDF(0, 2, 0) INTA PIRQA
+		...
+	>;
+
+As you see each entry has 3 cells. For the first one, we need describe all pci
+devices mounted on the board. For SoC devices, normally there is a chapter on
+the chipset datasheet which lists all the available PCI devices. For example on
+Bay Trail, this is chapter 4.3 (PCI configuration space). For the second one, we
+can get the interrupt pin either from datasheet or hardware via U-Boot shell.
+The reliable source is the hardware as sometimes chipset datasheet is not 100%
+up-to-date. Type 'pci header' plus the device's pci bus/device/function number
+from U-Boot shell below.
+
+  => pci header 0.1e.1
+    vendor ID =			0x8086
+    device ID =			0x0f08
+    ...
+    interrupt line =		0x09
+    interrupt pin =		0x04
+    ...
+
+It shows this PCI device is using INTD pin as it reports 4 in the interrupt pin
+register. Repeat this until you get interrupt pins for all the devices. The last
+cell is the PIRQ line which a particular interrupt pin is mapped to. On Intel
+chipset, the power-up default mapping is INTA/B/C/D maps to PIRQA/B/C/D. This
+can be changed by registers in LPC bridge. So far Intel FSP does not touch those
+registers so we can write down the PIRQ according to the default mapping rule.
+
+Once we get the PIRQ routing information in the device tree, the interrupt
+allocation and assignment will be done by U-Boot automatically. Now you can
+enable CONFIG_GENERATE_PIRQ_TABLE for testing Linux kernel using i8259 PIC and
+CONFIG_GENERATE_MP_TABLE for testing Linux kernel using local APIC and I/O APIC.
+
 TODO List
 ---------
 - Audio
@@ -689,3 +729,4 @@ References
 [11] https://en.wikipedia.org/wiki/GUID_Partition_Table
 [12] http://events.linuxfoundation.org/sites/events/files/slides/chromeos_and_diy_vboot_0.pdf
 [13] http://events.linuxfoundation.org/sites/events/files/slides/elce-2014.pdf
+[14] doc/device-tree-bindings/misc/intel,irq-router.txt
