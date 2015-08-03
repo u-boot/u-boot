@@ -10,3 +10,9 @@ M:	Akshay Saraswat <akshay.s@samsung.com>
 S:	Maintained
 F:	include/configs/snow.h
 F:	configs/snow_defconfig
+
+SPRING BOARD
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	include/configs/spring.h
+F:	configs/spring_defconfig

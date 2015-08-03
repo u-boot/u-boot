@@ -51,6 +51,12 @@ config TARGET_SNOW
 	select OF_CONTROL
 	select SPL_DISABLE_OF_CONTROL
 
+config TARGET_SPRING
+	bool "Spring board"
+	select SUPPORT_SPL
+	select OF_CONTROL
+	select SPL_DISABLE_OF_CONTROL
+
 config TARGET_SMDK5420
 	bool "SMDK5420 board"
 	select SUPPORT_SPL
