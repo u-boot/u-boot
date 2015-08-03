@@ -16,6 +16,8 @@
 		"stdout=serial,lcd\0" \
 		"stderr=serial,lcd\0"
 
+#define CONFIG_EXYNOS5_DT
+
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_BASE	0x12D30000
 #define FLASH_SIZE		(4 << 20)
