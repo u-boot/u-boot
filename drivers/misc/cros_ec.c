@@ -26,6 +26,7 @@
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 #include <dm/device-internal.h>
+#include <dm/root.h>
 #include <dm/uclass-internal.h>
 
 #ifdef DEBUG_TRACE
@@ -1053,8 +1054,8 @@ int cros_ec_decode_ec_flash(const void *blob, int node,
 	return 0;
 }
 
-int cros_ec_i2c_xfer(struct cros_ec_dev *dev, uchar chip, uint addr,
-		     int alen, uchar *buffer, int len, int is_read)
+int cros_ec_i2c_xfer_old(struct cros_ec_dev *dev, uchar chip, uint addr,
+			 int alen, uchar *buffer, int len, int is_read)
 {
 	union {
 		struct ec_params_i2c_passthru p;
@@ -1130,6 +1131,81 @@ int cros_ec_i2c_xfer(struct cros_ec_dev *dev, uchar chip, uint addr,
 
 	if (read_len)
 		memcpy(buffer, r->data, read_len);
+
+	return 0;
+}
+
+int cros_ec_i2c_tunnel(struct udevice *dev, struct i2c_msg *in, int nmsgs)
+{
+	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
+	union {
+		struct ec_params_i2c_passthru p;
+		uint8_t outbuf[EC_PROTO2_MAX_PARAM_SIZE];
+	} params;
+	union {
+		struct ec_response_i2c_passthru r;
+		uint8_t inbuf[EC_PROTO2_MAX_PARAM_SIZE];
+	} response;
+	struct ec_params_i2c_passthru *p = &params.p;
+	struct ec_response_i2c_passthru *r = &response.r;
+	struct ec_params_i2c_passthru_msg *msg;
+	uint8_t *pdata, *read_ptr = NULL;
+	int read_len;
+	int size;
+	int rv;
+	int i;
+
+	p->port = 0;
+
+	p->num_msgs = nmsgs;
+	size = sizeof(*p) + p->num_msgs * sizeof(*msg);
+
+	/* Create a message to write the register address and optional data */
+	pdata = (uint8_t *)p + size;
+
+	read_len = 0;
+	for (i = 0, msg = p->msg; i < nmsgs; i++, msg++, in++) {
+		bool is_read = in->flags & I2C_M_RD;
+
+		msg->addr_flags = in->addr;
+		msg->len = in->len;
+		if (is_read) {
+			msg->addr_flags |= EC_I2C_FLAG_READ;
+			read_len += in->len;
+			read_ptr = in->buf;
+			if (sizeof(*r) + read_len > sizeof(response)) {
+				puts("Read length too big for buffer\n");
+				return -1;
+			}
+		} else {
+			if (pdata - (uint8_t *)p + in->len > sizeof(params)) {
+				puts("Params too large for buffer\n");
+				return -1;
+			}
+			memcpy(pdata, in->buf, in->len);
+			pdata += in->len;
+		}
+	}
+
+	rv = ec_command(cdev, EC_CMD_I2C_PASSTHRU, 0, p, pdata - (uint8_t *)p,
+			r, sizeof(*r) + read_len);
+	if (rv < 0)
+		return rv;
+
+	/* Parse response */
+	if (r->i2c_status & EC_I2C_STATUS_ERROR) {
+		printf("Transfer failed with status=0x%x\n", r->i2c_status);
+		return -1;
+	}
+
+	if (rv < sizeof(*r) + read_len) {
+		puts("Truncated read response\n");
+		return -1;
+	}
+
+	/* We only support a single read message for each transfer */
+	if (read_len)
+		memcpy(read_ptr, r->data, read_len);
 
 	return 0;
 }
@@ -1267,8 +1343,8 @@ static int cros_ec_i2c_md(struct cros_ec_dev *dev, int flag, int argc,
 
 		linebytes = (nbytes > DISP_LINE_LEN) ? DISP_LINE_LEN : nbytes;
 
-		if (cros_ec_i2c_xfer(dev, chip, addr, alen, linebuf, linebytes,
-				     1))
+		if (cros_ec_i2c_xfer_old(dev, chip, addr, alen, linebuf,
+					 linebytes, 1))
 			puts("Error reading the chip.\n");
 		else {
 			printf("%04x:", addr);
@@ -1333,7 +1409,7 @@ static int cros_ec_i2c_mw(struct cros_ec_dev *dev, int flag, int argc,
 		count = 1;
 
 	while (count-- > 0) {
-		if (cros_ec_i2c_xfer(dev, chip, addr++, alen, &byte, 1, 0))
+		if (cros_ec_i2c_xfer_old(dev, chip, addr++, alen, &byte, 1, 0))
 			puts("Error writing the chip.\n");
 		/*
 		 * Wait for the write to complete.  The write can take
@@ -1633,6 +1709,12 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return ret;
 }
 
+int cros_ec_post_bind(struct udevice *dev)
+{
+	/* Scan for available EC devices (e.g. I2C tunnel) */
+	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+}
+
 U_BOOT_CMD(
 	crosec,	6,	1,	do_cros_ec,
 	"CROS-EC utility command",
@@ -1661,4 +1743,5 @@ UCLASS_DRIVER(cros_ec) = {
 	.id		= UCLASS_CROS_EC,
 	.name		= "cros_ec",
 	.per_device_auto_alloc_size = sizeof(struct cros_ec_dev),
+	.post_bind	= cros_ec_post_bind,
 };

@@ -56,8 +56,8 @@ enum {
  */
 static int tps65090_read(u32 reg, u8 *val)
 {
-	return cros_ec_i2c_xfer(config.dev, TPS65090_ADDR, reg, 1,
-				val, 1, true);
+	return cros_ec_i2c_xfer_old(config.dev, TPS65090_ADDR, reg, 1,
+				    val, 1, true);
 }
 
 /**
@@ -69,8 +69,8 @@ static int tps65090_read(u32 reg, u8 *val)
  */
 static int tps65090_write(u32 reg, u8 val)
 {
-	return cros_ec_i2c_xfer(config.dev, TPS65090_ADDR, reg, 1,
-				&val, 1, false);
+	return cros_ec_i2c_xfer_old(config.dev, TPS65090_ADDR, reg, 1,
+				    &val, 1, false);
 }
 
 /**

@@ -19,6 +19,17 @@ config DM_I2C_COMPAT
 	  to convert all code for a board in a single commit. It should not
 	  be enabled for any board in an official release.
 
+config I2C_CROS_EC_TUNNEL
+	tristate "Chrome OS EC tunnel I2C bus"
+	depends on CROS_EC
+	help
+	  This provides an I2C bus that will tunnel i2c commands through to
+	  the other side of the Chrome OS EC to the I2C bus connected there.
+	  This will work whatever the interface used to talk to the EC (SPI,
+	  I2C or LPC). Some Chromebooks use this when the hardware design
+	  does not allow direct access to the main PMIC from the AP.
+
+
 config DM_I2C_GPIO
 	bool "Enable Driver Model for software emulated I2C bus driver"
 	depends on DM_I2C && DM_GPIO
