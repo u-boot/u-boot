@@ -50,8 +50,6 @@
  */
 #define CONFIG_DISPLAY_CPUINFO
 
-#define CONFIG_SYS_PROMPT	"sunxi# "
-
 /* Serial & console */
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL

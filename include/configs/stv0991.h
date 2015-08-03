@@ -36,7 +36,6 @@
 #define CONFIG_PL01X_SERIAL
 
 /* user interface */
-#define CONFIG_SYS_PROMPT			"STV0991> "
 #define CONFIG_SYS_CBSIZE			1024
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE \
 						+sizeof(CONFIG_SYS_PROMPT) + 16)

@@ -55,7 +55,6 @@
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0 40007000 uImage; bootm 40007000"
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_PROMPT		"SMDKV310 # "
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE

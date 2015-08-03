@@ -25,7 +25,6 @@
 #define CONFIG_TEGRA_VDD_CORE_TPS62361B_SET3
 
 /* High-level configuration options */
-#define V_PROMPT		"Tegra30 (Cardhu) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Cardhu"
 
 #define BOARD_EXTRA_ENV_SETTINGS \

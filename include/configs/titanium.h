@@ -141,9 +141,6 @@
 
 #define CONFIG_BOOTCOMMAND		"run nand_ubifs"
 
-/* Miscellaneous configurable options */
-#define CONFIG_SYS_PROMPT		"Titanium > "
-
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					 sizeof(CONFIG_SYS_PROMPT) + 16)

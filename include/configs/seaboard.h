@@ -20,7 +20,6 @@
 #include "tegra20-common.h"
 
 /* High-level configuration options */
-#define V_PROMPT		"Tegra20 (SeaBoard) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Seaboard"
 
 /* Board-specific serial config */

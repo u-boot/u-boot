@@ -59,6 +59,7 @@
 /*
  * Console configuration
  */
+#undef CONFIG_SYS_PROMPT
 #if defined(CONFIG_SYS_LITTLE_ENDIAN)
 #define CONFIG_SYS_PROMPT		"maltael # "
 #else

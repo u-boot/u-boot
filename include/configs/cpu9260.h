@@ -464,11 +464,6 @@
 
 #define CONFIG_BAUDRATE			115200
 
-#if defined(CONFIG_CPU9G20)
-#define CONFIG_SYS_PROMPT		"CPU9G20=> "
-#elif defined(CONFIG_CPU9260)
-#define CONFIG_SYS_PROMPT		"CPU9260=> "
-#endif
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		\

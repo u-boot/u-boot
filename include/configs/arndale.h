@@ -25,7 +25,6 @@
 #define CONFIG_EXYNOS_SPL
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_PROMPT		"ARNDALE # "
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 
 #define CONFIG_IDENT_STRING		" for ARNDALE"

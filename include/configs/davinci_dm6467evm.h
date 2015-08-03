@@ -94,7 +94,6 @@ extern unsigned int davinci_arm_clk_get(void);
 /* U-Boot general configuration */
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"uImage"	/* Boot file name */
-#define CONFIG_SYS_PROMPT	"DM6467 EVM > "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size  */
 #define CONFIG_SYS_PBSIZE		\
 			(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)

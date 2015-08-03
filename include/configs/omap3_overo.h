@@ -186,12 +186,6 @@
 	"fi;" \
 	"run nanddtsboot; " \
 
-/*
- * Miscellaneous configurable options
- */
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		"Overo # "
-
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \

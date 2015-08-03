@@ -11,9 +11,6 @@
 
 #include <configs/exynos4-common.h>
 
-#define CONFIG_SYS_PROMPT		"ORIGEN # "
-
-
 /* High Level Configuration Options */
 #define CONFIG_EXYNOS4210		1	/* which is a EXYNOS4210 SoC */
 #define CONFIG_ORIGEN			1	/* working with ORIGEN*/

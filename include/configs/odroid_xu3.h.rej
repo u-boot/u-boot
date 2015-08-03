@@ -1,0 +1,10 @@
+--- include/configs/odroid_xu3.h
++++ include/configs/odroid_xu3.h
+@@ -10,7 +10,6 @@
+ 
+ #include "exynos5420-common.h"
+ 
+-#define CONFIG_SYS_PROMPT		"ODROID-XU3 # "
+ #define CONFIG_IDENT_STRING		" for ODROID-XU3"
+ 
+ #define CONFIG_BOARD_COMMON

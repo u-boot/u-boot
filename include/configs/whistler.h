@@ -12,7 +12,6 @@
 #include "tegra20-common.h"
 
 /* High-level configuration options */
-#define V_PROMPT		"Tegra20 (Whistler) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Whistler"
 
 /* Board-specific serial config */

@@ -10,7 +10,6 @@
 #include "tegra20-common.h"
 
 /* High-level configuration options */
-#define V_PROMPT			"Colibri T20 # "
 #define CONFIG_TEGRA_BOARD_STRING	"Toradex Colibri T20"
 
 /* Board-specific serial config */

@@ -102,7 +102,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_PROMPT		"uboot> "
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		256
 /* Print Buffer Size */

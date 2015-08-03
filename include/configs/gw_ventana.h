@@ -226,7 +226,6 @@
 #define CONFIG_IMX_VIDEO_SKIP
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_PROMPT	             "Ventana > "
 #define CONFIG_HWCONFIG
 
 /* Print Buffer Size */

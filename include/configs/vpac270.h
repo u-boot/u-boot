@@ -126,7 +126,6 @@
 
 #define	CONFIG_SYS_LONGHELP
 #ifdef	CONFIG_SYS_HUSH_PARSER
-#define	CONFIG_SYS_PROMPT		"$ "
 #else
 #endif
 #define	CONFIG_SYS_CBSIZE		256

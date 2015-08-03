@@ -53,7 +53,6 @@
 
 /* prompt */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT		"KZM-A9-GT# "
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_PBSIZE		256
 #define CONFIG_SYS_MAXARGS		16

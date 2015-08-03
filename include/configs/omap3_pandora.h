@@ -101,12 +101,6 @@
 	"ubi part boot && ubifsmount ubi:boot && " \
 		"ubifsload ${loadaddr} uImage && bootm ${loadaddr}"
 
-/*
- * Miscellaneous configurable options
- */
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		"Pandora # "
-
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \

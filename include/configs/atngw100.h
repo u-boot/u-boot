@@ -135,7 +135,6 @@
 #define CONFIG_SYS_BOOTPARAMS_LEN		(16 * 1024)
 
 /* Other configuration settings that shouldn't have to change all that often */
-#define CONFIG_SYS_PROMPT			"U-Boot> "
 #define CONFIG_SYS_CBSIZE			256
 #define CONFIG_SYS_MAXARGS			16
 #define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)

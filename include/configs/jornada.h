@@ -55,7 +55,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
-#define CONFIG_SYS_PROMPT		"HP Jornada# "
 #define CONFIG_SYS_CBSIZE		256	/* console buffsize */
 #define CONFIG_SYS_PBSIZE		(256+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */

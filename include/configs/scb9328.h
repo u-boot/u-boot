@@ -51,7 +51,6 @@
  * General options for u-boot. Modify to save memory foot print
  */
 #define CONFIG_SYS_LONGHELP				      /* undef saves memory  */
-#define CONFIG_SYS_PROMPT		"scb9328> "	      /* prompt string	     */
 #define CONFIG_SYS_CBSIZE		256		      /* console I/O buffer  */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* print buffer size   */
 #define CONFIG_SYS_MAXARGS		16		      /* max command args    */

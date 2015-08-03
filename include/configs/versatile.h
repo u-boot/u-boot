@@ -108,6 +108,7 @@
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
 #define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
 /* Monitor Command Prompt	 */
+#undef CONFIG_SYS_PROMPT
 #ifdef CONFIG_ARCH_VERSATILE_AB
 # define CONFIG_SYS_PROMPT	"VersatileAB # "
 #else

@@ -154,7 +154,6 @@
 /* General Boot Parameter */
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_BOOTCOMMAND		"run flashboot"
-#define CONFIG_SYS_PROMPT		"U-Boot> "
 #define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE \

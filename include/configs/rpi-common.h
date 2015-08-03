@@ -115,7 +115,6 @@
 
 /* Shell */
 #define CONFIG_SYS_MAXARGS		8
-#define CONFIG_SYS_PROMPT		"U-Boot> "
 #define CONFIG_COMMAND_HISTORY
 
 /* Commands */

@@ -12,7 +12,6 @@
 #include "tegra30-common.h"
 
 /* High-level configuration options */
-#define V_PROMPT			"Colibri T30 # "
 #define CONFIG_TEGRA_BOARD_STRING	"Toradex Colibri T30"
 
 /* Board-specific serial config */

@@ -41,8 +41,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_PROMPT	"Integrator-CP # "	/* Monitor Command Prompt */
-
 #define PHYS_FLASH_SIZE			0x01000000	/* 16MB */
 #define CONFIG_SYS_MAX_FLASH_SECT	64
 #define CONFIG_ENV_IS_IN_FLASH	1

@@ -17,6 +17,13 @@ config SYS_HUSH_PARSER
 	help
 	  Backward compatibility.
 
+config SYS_PROMPT
+	string "Shell prompt"
+	default "=> "
+	help
+	  This string is displayed in the command line to the left of the
+	  cursor.
+
 menu "Autoboot options"
 
 config AUTOBOOT_KEYED

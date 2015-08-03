@@ -13,7 +13,6 @@
 #include "tegra20-common.h"
 
 /* High-level configuration options */
-#define V_PROMPT			"Tegra20 (TEC) # "
 #define CONFIG_TEGRA_BOARD_STRING	"Avionic Design Tamonten Evaluation Carrier"
 
 /* Board-specific serial config */

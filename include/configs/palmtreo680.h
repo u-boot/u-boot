@@ -92,6 +92,7 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2      "> "
 
 #define CONFIG_SYS_LONGHELP
+#undef CONFIG_SYS_PROMPT
 #ifdef CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT               "$ "
 #else

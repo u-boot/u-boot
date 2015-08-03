@@ -64,8 +64,6 @@
 #undef CONFIG_SYS_IDE_MAXDEVICE
 #define CONFIG_SYS_IDE_MAXBUS           1
 #define CONFIG_SYS_IDE_MAXDEVICE        1
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		"ws> "
 
 /*
  * Ethernet Driver configuration

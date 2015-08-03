@@ -340,7 +340,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{312500, 230400, 115200, 19200, \
 						38400, 57600, 9600 }
 
-#define CONFIG_SYS_PROMPT	"U-Boot> "
 #define CONFIG_SYS_CBSIZE	512		/* Console I/O Buffer Size */
 #define CONFIG_SYS_MAXARGS	32		/* max number of command args */
 #define CONFIG_SYS_PBSIZE	\

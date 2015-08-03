@@ -184,7 +184,6 @@
 
 #define CONFIG_AUTO_COMPLETE
 
-#define CONFIG_SYS_PROMPT	"Sniper # "
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_HUSH_PARSER
 

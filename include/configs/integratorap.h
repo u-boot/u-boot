@@ -36,11 +36,6 @@
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock0 console=ttyAM0 console=tty"
 #define CONFIG_BOOTCOMMAND	""
 
-/*
- * Miscellaneous configurable options
- */
-#define CONFIG_SYS_PROMPT	"Integrator-AP # "	/* Monitor Command Prompt   */
-
 /* Flash settings */
 #define CONFIG_SYS_FLASH_SIZE		0x02000000 /* 32 MiB */
 #define CONFIG_SYS_MAX_FLASH_SECT	128

@@ -129,7 +129,6 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		(5120 << 10)
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT		"U-Boot (BuR V2.0)# "
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV

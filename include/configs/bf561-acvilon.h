@@ -153,7 +153,6 @@
  */
 #define CONFIG_UART_CONSOLE			0
 #define CONFIG_BAUDRATE				57600
-#define CONFIG_SYS_PROMPT "Acvilon> "
 
 /*
  * Pull in common ADI header for remaining command/environment setup

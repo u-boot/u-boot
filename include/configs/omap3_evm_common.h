@@ -179,7 +179,6 @@
  * U-boot features
  * ----------------------------------------------------------------------------
  */
-#define CONFIG_SYS_PROMPT		"OMAP3_EVM # "
 #define CONFIG_SYS_MAXARGS		16	/* max args for a command */
 
 #define CONFIG_MISC_INIT_R

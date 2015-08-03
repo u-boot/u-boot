@@ -316,8 +316,6 @@
 				"1m(cramfs),-(jffs2)"
 #endif
 
-/* Miscellaneous configurable options */
-#define	CONFIG_SYS_PROMPT	"U-Boot-mONStR> "
 /* size of console buffer */
 #define	CONFIG_SYS_CBSIZE	512
  /* print buffer size */

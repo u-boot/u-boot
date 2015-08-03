@@ -26,7 +26,6 @@
 #define CONFIG_CMD_TIMER
 #define CONFIG_CMD_DIAG
 
-#define CONFIG_SYS_PROMPT		"amcore $ "
 /* undef to save memory	*/
 #undef	CONFIG_SYS_LONGHELP
 

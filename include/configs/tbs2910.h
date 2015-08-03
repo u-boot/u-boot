@@ -18,7 +18,6 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
-#define CONFIG_SYS_PROMPT		"Matrix U-Boot> "
 #define CONFIG_SYS_HZ			1000
 
 #define CONFIG_IMX6_THERMAL

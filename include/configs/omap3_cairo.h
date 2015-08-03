@@ -241,10 +241,6 @@
 #define CONFIG_SERIAL2
 #endif
 
-/* Keep old prompt in case some existing script depends on it */
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		"Cairo # "
-
 /* Provide MACH_TYPE for compatibility with non-DT kernels */
 #define MACH_TYPE_OMAP3_CAIRO	3063
 #define CONFIG_MACH_TYPE	MACH_TYPE_OMAP3_CAIRO

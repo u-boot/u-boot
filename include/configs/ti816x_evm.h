@@ -24,7 +24,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (32 * 1024))
 #define CONFIG_SYS_LONGHELP		/* undef save memory */
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT		"u-boot/ti816x# "
 #define CONFIG_MACH_TYPE		MACH_TYPE_TI8168EVM
 
 #define CONFIG_OF_LIBFDT

@@ -12,8 +12,6 @@
 
 #include <configs/exynos4-common.h>
 
-#define CONFIG_SYS_PROMPT	"Trats # "	/* Monitor Command Prompt */
-
 #define CONFIG_TRATS
 
 

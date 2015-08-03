@@ -78,6 +78,7 @@
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 /* Monitor Command Prompt */
+#undef CONFIG_SYS_PROMPT
 #if defined(CONFIG_SYS_LITTLE_ENDIAN)
 #define CONFIG_SYS_PROMPT		"qemu-mipsel # "
 #else

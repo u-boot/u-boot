@@ -43,9 +43,6 @@
  */
 #include "mv-common.h"
 
-#undef CONFIG_SYS_PROMPT	/* previously defined in mv-common.h */
-#define CONFIG_SYS_PROMPT	"DockStar> "	/* Command Prompt */
-
 /*
  *  Environment variables configurations
  */

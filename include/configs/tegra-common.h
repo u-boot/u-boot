@@ -88,10 +88,6 @@
 #endif
 
 /*
- * Miscellaneous configurable options
- */
-#define CONFIG_SYS_PROMPT		V_PROMPT
-/*
  * Increasing the size of the IO buffer as default nfsargs size is more
  *  than 256 and so it is not possible to edit it
  */

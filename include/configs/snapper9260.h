@@ -89,7 +89,6 @@
 #define CONFIG_USART_ID			ATMEL_ID_SYS
 #endif
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_PROMPT		"Snapper> "
 
 /* I2C - Bit-bashed */
 #define CONFIG_SYS_I2C

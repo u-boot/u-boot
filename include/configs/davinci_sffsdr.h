@@ -74,7 +74,6 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_BOOTDELAY	5		/* Autoboot after 5 seconds. */
 #define CONFIG_BOOTFILE		"uImage"	/* Boot file name */
-#define CONFIG_SYS_PROMPT		"U-Boot > "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		1024		/* Console I/O Buffer Size  */
 #define CONFIG_SYS_PBSIZE							\
 		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)	/* Print buffer size */

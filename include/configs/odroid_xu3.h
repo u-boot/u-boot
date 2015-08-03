@@ -12,7 +12,6 @@
 #include <configs/exynos5-common.h>
 
 #undef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_SYS_PROMPT		"ODROID-XU3 # "
 #define CONFIG_IDENT_STRING		" for ODROID-XU3"
 
 #define CONFIG_BOARD_COMMON

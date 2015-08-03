@@ -140,7 +140,6 @@
  * U-Boot general configurations
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT		"BIOS> "	/* prompt string */
 #define CONFIG_SYS_CBSIZE		2048		/* console I/O buffer */
 #define CONFIG_SYS_PBSIZE		\
 				(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)

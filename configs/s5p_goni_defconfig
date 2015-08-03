@@ -10,3 +10,4 @@ CONFIG_DEFAULT_DEVICE_TREE="s5pc1xx-goni"
 # CONFIG_CMD_NET is not set
 # CONFIG_CMD_NFS is not set
 # CONFIG_CMD_MISC is not set
+CONFIG_SYS_PROMPT="Goni # "
