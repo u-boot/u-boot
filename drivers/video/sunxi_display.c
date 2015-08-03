@@ -1101,6 +1101,43 @@ ulong board_get_usable_ram_top(ulong total_size)
 	return gd->ram_top - CONFIG_SUNXI_MAX_FB_SIZE;
 }
 
+static bool sunxi_has_hdmi(void)
+{
+#ifdef CONFIG_VIDEO_HDMI
+	return true;
+#else
+	return false;
+#endif
+}
+
+static bool sunxi_has_lcd(void)
+{
+	char *lcd_mode = CONFIG_VIDEO_LCD_MODE;
+
+	return lcd_mode[0] != 0;
+}
+
+static bool sunxi_has_vga(void)
+{
+#if defined CONFIG_VIDEO_VGA || defined CONFIG_VIDEO_VGA_VIA_LCD
+	return true;
+#else
+	return false;
+#endif
+}
+
+static enum sunxi_monitor sunxi_get_default_mon(bool allow_hdmi)
+{
+	if (allow_hdmi && sunxi_has_hdmi())
+		return sunxi_monitor_dvi;
+	else if (sunxi_has_lcd())
+		return sunxi_monitor_lcd;
+	else if (sunxi_has_vga())
+		return sunxi_monitor_vga;
+	else
+		return sunxi_monitor_none;
+}
+
 void *video_hw_init(void)
 {
 	static GraphicDevice *graphic_device = &sunxi_display.graphic_device;
@@ -1122,12 +1159,8 @@ void *video_hw_init(void)
 	hpd = video_get_option_int(options, "hpd", 1);
 	hpd_delay = video_get_option_int(options, "hpd_delay", 500);
 	edid = video_get_option_int(options, "edid", 1);
-	sunxi_display.monitor = sunxi_monitor_dvi;
-#elif defined CONFIG_VIDEO_VGA_VIA_LCD
-	sunxi_display.monitor = sunxi_monitor_vga;
-#else
-	sunxi_display.monitor = sunxi_monitor_lcd;
 #endif
+	sunxi_display.monitor = sunxi_get_default_mon(true);
 	video_get_option_string(options, "monitor", mon, sizeof(mon),
 				sunxi_get_mon_desc(sunxi_display.monitor));
 	for (i = 0; i <= SUNXI_MONITOR_LAST; i++) {
@@ -1152,16 +1185,7 @@ void *video_hw_init(void)
 				mode = &custom;
 		} else if (hpd) {
 			sunxi_hdmi_shutdown();
-			/* Fallback to lcd / vga / none */
-			if (lcd_mode[0]) {
-				sunxi_display.monitor = sunxi_monitor_lcd;
-			} else {
-#if defined CONFIG_VIDEO_VGA_VIA_LCD || defined CONFIG_VIDEO_VGA
-				sunxi_display.monitor = sunxi_monitor_vga;
-#else
-				sunxi_display.monitor = sunxi_monitor_none;
-#endif
-			}
+			sunxi_display.monitor = sunxi_get_default_mon(false);
 		} /* else continue with hdmi/dvi without a cable connected */
 	}
 #endif
@@ -1171,31 +1195,29 @@ void *video_hw_init(void)
 		return NULL;
 	case sunxi_monitor_dvi:
 	case sunxi_monitor_hdmi:
-#ifdef CONFIG_VIDEO_HDMI
-		break;
-#else
-		printf("HDMI/DVI not supported on this board\n");
-		sunxi_display.monitor = sunxi_monitor_none;
-		return NULL;
-#endif
-	case sunxi_monitor_lcd:
-		if (lcd_mode[0]) {
-			sunxi_display.depth = video_get_params(&custom, lcd_mode);
-			mode = &custom;
-			break;
+		if (!sunxi_has_hdmi()) {
+			printf("HDMI/DVI not supported on this board\n");
+			sunxi_display.monitor = sunxi_monitor_none;
+			return NULL;
 		}
-		printf("LCD not supported on this board\n");
-		sunxi_display.monitor = sunxi_monitor_none;
-		return NULL;
+		break;
+	case sunxi_monitor_lcd:
+		if (!sunxi_has_lcd()) {
+			printf("LCD not supported on this board\n");
+			sunxi_display.monitor = sunxi_monitor_none;
+			return NULL;
+		}
+		sunxi_display.depth = video_get_params(&custom, lcd_mode);
+		mode = &custom;
+		break;
 	case sunxi_monitor_vga:
-#if defined CONFIG_VIDEO_VGA_VIA_LCD || defined CONFIG_VIDEO_VGA
+		if (!sunxi_has_vga()) {
+			printf("VGA not supported on this board\n");
+			sunxi_display.monitor = sunxi_monitor_none;
+			return NULL;
+		}
 		sunxi_display.depth = 18;
 		break;
-#else
-		printf("VGA not supported on this board\n");
-		sunxi_display.monitor = sunxi_monitor_none;
-		return NULL;
-#endif
 	}
 
 	if (mode->vmode != FB_VMODE_NONINTERLACED) {
