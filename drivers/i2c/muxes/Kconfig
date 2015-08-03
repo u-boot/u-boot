@@ -1,0 +1,8 @@
+config I2C_MUX
+	bool "Suport I2C multiplexers"
+	depends on DM_I2C
+	help
+	  This enables I2C buses to be multiplexed, so that you can select
+	  one of several buses using some sort of control mechanism. The
+	  bus select is handled automatically when that bus is accessed,
+	  using a suitable I2C MUX driver.

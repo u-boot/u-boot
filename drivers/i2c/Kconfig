@@ -73,3 +73,5 @@ config SYS_I2C_UNIPHIER_F
 	help
 	  Support for UniPhier FIFO-builtin I2C controller driver.
 	  This I2C controller is used on PH1-Pro4 or newer UniPhier SoCs.
+
+source "drivers/i2c/muxes/Kconfig"

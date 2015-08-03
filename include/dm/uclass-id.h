@@ -35,6 +35,7 @@ enum uclass_id {
 	UCLASS_I2C,		/* I2C bus */
 	UCLASS_I2C_EEPROM,	/* I2C EEPROM device */
 	UCLASS_I2C_GENERIC,	/* Generic I2C device */
+	UCLASS_I2C_MUX,		/* I2C multiplexer */
 	UCLASS_LED,		/* Light-emitting diode (LED) */
 	UCLASS_LPC,		/* x86 'low pin count' interface */
 	UCLASS_MASS_STORAGE,	/* Mass storage device */

@@ -445,6 +445,45 @@ struct dm_i2c_ops {
 #define i2c_get_ops(dev)	((struct dm_i2c_ops *)(dev)->driver->ops)
 
 /**
+ * struct i2c_mux_ops - operations for an I2C mux
+ *
+ * The current mux state is expected to be stored in the mux itself since
+ * it is the only thing that knows how to make things work. The mux can
+ * record the current state and then avoid switching unless it is necessary.
+ * So select() can be skipped if the mux is already in the correct state.
+ * Also deselect() can be made a nop if required.
+ */
+struct i2c_mux_ops {
+	/**
+	 * select() - select one of of I2C buses attached to a mux
+	 *
+	 * This will be called when there is no bus currently selected by the
+	 * mux. This method does not need to deselect the old bus since
+	 * deselect() will be already have been called if necessary.
+	 *
+	 * @mux:	Mux device
+	 * @bus:	I2C bus to select
+	 * @channel:	Channel number correponding to the bus to select
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*select)(struct udevice *mux, struct udevice *bus, uint channel);
+
+	/**
+	 * deselect() - select one of of I2C buses attached to a mux
+	 *
+	 * This is used to deselect the currently selected I2C bus.
+	 *
+	 * @mux:	Mux device
+	 * @bus:	I2C bus to deselect
+	 * @channel:	Channel number correponding to the bus to deselect
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*deselect)(struct udevice *mux, struct udevice *bus, uint channel);
+};
+
+#define i2c_mux_get_ops(dev)	((struct i2c_mux_ops *)(dev)->driver->ops)
+
+/**
  * i2c_get_chip() - get a device to use to access a chip on a bus
  *
  * This returns the device for the given chip address. The device can then
