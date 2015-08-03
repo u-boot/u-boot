@@ -177,11 +177,9 @@
 # define CONFIG_CMD_FS_GENERIC
 #endif
 
-#undef CONFIG_ZYNQ_QSPI /* Temporary solution till DM is added */
 /* QSPI */
 #ifdef CONFIG_ZYNQ_QSPI
 # define CONFIG_SF_DEFAULT_SPEED	30000000
-# define CONFIG_SPI_FLASH_BAR
 # define CONFIG_SPI_FLASH_SPANSION
 # define CONFIG_SPI_FLASH_STMICRO
 # define CONFIG_SPI_FLASH_WINBOND
@@ -519,11 +517,13 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0
 
 /* qspi mode is working fine */
+#if 0
 #ifdef CONFIG_ZYNQ_QSPI
 #define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x100000
+#endif
 #endif
 
 #ifdef DEBUG
