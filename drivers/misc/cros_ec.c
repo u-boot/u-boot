@@ -931,31 +931,32 @@ int cros_ec_write_vbnvcontext(struct cros_ec_dev *dev, const uint8_t *block)
 	return 0;
 }
 
-int cros_ec_set_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t state)
+int cros_ec_set_ldo(struct udevice *dev, uint8_t index, uint8_t state)
 {
+	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	struct ec_params_ldo_set params;
 
 	params.index = index;
 	params.state = state;
 
-	if (ec_command_inptr(dev, EC_CMD_LDO_SET, 0,
-		       &params, sizeof(params),
-		       NULL, 0))
+	if (ec_command_inptr(cdev, EC_CMD_LDO_SET, 0, &params, sizeof(params),
+			     NULL, 0))
 		return -1;
 
 	return 0;
 }
 
-int cros_ec_get_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t *state)
+int cros_ec_get_ldo(struct udevice *dev, uint8_t index, uint8_t *state)
 {
+	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	struct ec_params_ldo_get params;
 	struct ec_response_ldo_get *resp;
 
 	params.index = index;
 
-	if (ec_command_inptr(dev, EC_CMD_LDO_GET, 0,
-		       &params, sizeof(params),
-		       (uint8_t **)&resp, sizeof(*resp)) != sizeof(*resp))
+	if (ec_command_inptr(cdev, EC_CMD_LDO_GET, 0, &params, sizeof(params),
+			     (uint8_t **)&resp, sizeof(*resp)) !=
+			     sizeof(*resp))
 		return -1;
 
 	*state = resp->state;
@@ -1681,9 +1682,9 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			state = simple_strtoul(argv[3], &endp, 10);
 			if (*argv[3] == 0 || *endp != 0)
 				return CMD_RET_USAGE;
-			ret = cros_ec_set_ldo(dev, index, state);
+			ret = cros_ec_set_ldo(udev, index, state);
 		} else {
-			ret = cros_ec_get_ldo(dev, index, &state);
+			ret = cros_ec_get_ldo(udev, index, &state);
 			if (!ret) {
 				printf("LDO%d: %s\n", index,
 					state == EC_LDO_STATE_ON ?

@@ -29,6 +29,19 @@ config I2C_CROS_EC_TUNNEL
 	  I2C or LPC). Some Chromebooks use this when the hardware design
 	  does not allow direct access to the main PMIC from the AP.
 
+config I2C_CROS_EC_LDO
+	bool "Provide access to LDOs on the Chrome OS EC"
+	depends on CROS_EC
+	---help---
+	On many Chromebooks the main PMIC is inaccessible to the AP. This is
+	often dealt with by using an I2C pass-through interface provided by
+	the EC. On some unfortunate models (e.g. Spring) the pass-through
+	is not available, and an LDO message is available instead. This
+	option enables a driver which provides very basic access to those
+	regulators, via the EC. We implement this as an I2C bus	which
+	emulates just the TPS65090 messages we know about. This is done to
+	avoid duplicating the logic in the TPS65090 regulator driver for
+	enabling/disabling an LDO.
 
 config DM_I2C_GPIO
 	bool "Enable Driver Model for software emulated I2C bus driver"

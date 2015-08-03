@@ -350,7 +350,7 @@ int cros_ec_read_build_info(struct cros_ec_dev *dev, char **strp);
  * @param state		new state of the LDO/FET : EC_LDO_STATE_ON|OFF
  * @return 0 if ok, -1 on error
  */
-int cros_ec_set_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t state);
+int cros_ec_set_ldo(struct udevice *dev, uint8_t index, uint8_t state);
 
 /**
  * Read back a LDO / FET current state.
@@ -360,7 +360,7 @@ int cros_ec_set_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t state);
  * @param state		current state of the LDO/FET : EC_LDO_STATE_ON|OFF
  * @return 0 if ok, -1 on error
  */
-int cros_ec_get_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t *state);
+int cros_ec_get_ldo(struct udevice *dev, uint8_t index, uint8_t *state);
 
 /**
  * Get access to the error reported when cros_ec_board_init() was called
