@@ -57,22 +57,30 @@ static int video_bridge_pre_probe(struct udevice *dev)
 		debug("%s: Could not decode sleep-gpios (%d)\n", __func__, ret);
 		return ret;
 	}
-	ret = dm_gpio_set_pull(&uc_priv->sleep, GPIO_PULL_NONE);
-	if (ret) {
-		debug("%s: Could not set sleep pull value\n", __func__);
-		return ret;
-	}
+	/*
+	 * Drop this for now as we do not have driver model pinctrl support
+	 *
+	 * ret = dm_gpio_set_pull(&uc_priv->sleep, GPIO_PULL_NONE);
+	 * if (ret) {
+	 *	debug("%s: Could not set sleep pull value\n", __func__);
+	 *	return ret;
+	 * }
+	 */
 	ret = gpio_request_by_name(dev, "reset-gpios", 0, &uc_priv->reset,
 				   GPIOD_IS_OUT);
 	if (ret) {
 		debug("%s: Could not decode reset-gpios (%d)\n", __func__, ret);
 		return ret;
 	}
-	ret = dm_gpio_set_pull(&uc_priv->reset, GPIO_PULL_NONE);
-	if (ret) {
-		debug("%s: Could not set reset pull value\n", __func__);
-		return ret;
-	}
+	/*
+	 * Drop this for now as we do not have driver model pinctrl support
+	 *
+	 * ret = dm_gpio_set_pull(&uc_priv->reset, GPIO_PULL_NONE);
+	 * if (ret) {
+	 *	debug("%s: Could not set reset pull value\n", __func__);
+	 *	return ret;
+	 * }
+	 */
 	ret = gpio_request_by_name(dev, "hotplug-gpios", 0, &uc_priv->hotplug,
 				   GPIOD_IS_IN);
 	if (ret && ret != -ENOENT) {
