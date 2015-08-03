@@ -21,15 +21,13 @@
  * A typedef for a physical address. Note that fdt data is always big
  * endian even on a litle endian machine.
  */
+typedef phys_addr_t fdt_addr_t;
+typedef phys_size_t fdt_size_t;
 #ifdef CONFIG_PHYS_64BIT
-typedef u64 fdt_addr_t;
-typedef u64 fdt_size_t;
 #define FDT_ADDR_T_NONE (-1ULL)
 #define fdt_addr_to_cpu(reg) be64_to_cpu(reg)
 #define fdt_size_to_cpu(reg) be64_to_cpu(reg)
 #else
-typedef u32 fdt_addr_t;
-typedef u32 fdt_size_t;
 #define FDT_ADDR_T_NONE (-1U)
 #define fdt_addr_to_cpu(reg) be32_to_cpu(reg)
 #define fdt_size_to_cpu(reg) be32_to_cpu(reg)
