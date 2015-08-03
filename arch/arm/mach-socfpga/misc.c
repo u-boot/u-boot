@@ -123,6 +123,12 @@ int cpu_eth_init(bd_t *bis)
  */
 int cpu_mmc_init(bd_t *bis)
 {
+/*
+ * FIXME: Temporarily define CONFIG_HPS_SDMMC_BUSWIDTH to prevent breakage
+ *        due to missing patches in u-boot/master . The upcoming patch will
+ *        switch this to OF probing, so this whole block will go away.
+ */
+#define CONFIG_HPS_SDMMC_BUSWIDTH	8
 	return socfpga_dwmmc_init(SOCFPGA_SDMMC_ADDRESS,
 				  CONFIG_HPS_SDMMC_BUSWIDTH, 0);
 }
