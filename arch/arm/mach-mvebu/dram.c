@@ -12,6 +12,13 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 
+#ifdef CONFIG_SYS_MVEBU_DDR_A38X
+#include "../../../drivers/ddr/marvell/a38x/ddr3_init.h"
+#endif
+#ifdef CONFIG_SYS_MVEBU_DDR_AXP
+#include "../../../drivers/ddr/marvell/axp/ddr3_init.h"
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 struct sdram_bank {
@@ -139,4 +146,16 @@ int dram_init(void)
 void dram_init_banksize(void)
 {
 	dram_init();
+}
+
+void board_add_ram_info(int use_default)
+{
+	u32 reg;
+
+	reg = reg_read(REG_SDRAM_CONFIG_ADDR);
+	if (reg & (1 << REG_SDRAM_CONFIG_ECC_OFFS))
+		printf(" (ECC");
+	else
+		printf(" (ECC not");
+	printf(" enabled)");
 }
