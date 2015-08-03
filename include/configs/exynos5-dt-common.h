@@ -18,11 +18,6 @@
 
 #include "exynos5-common.h"
 
-/* PMIC */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
-#define CONFIG_POWER_TPS65090
-
 /* Enable keyboard */
 #define CONFIG_KEYBOARD
 

@@ -67,6 +67,8 @@
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
 
 /* specific .lds file */
 #define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
@@ -126,10 +128,6 @@
 #define SPI_FLASH_UBOOT_POS	(CONFIG_SEC_FW_SIZE + CONFIG_BL1_SIZE)
 
 /* I2C */
-
-/* TODO(sjg@chromium.org): Move these two options to Kconfig */
-#define CONFIG_DM_I2C
-#define CONFIG_DM_I2C_COMPAT
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C_S3C24X0
 #define CONFIG_SYS_I2C_S3C24X0_SPEED	100000		/* 100 Kbps */
@@ -148,10 +146,6 @@
 #define EXYNOS5_SPI_NUM_CONTROLLERS	5
 #define CONFIG_OF_SPI
 #endif
-
-/* Power */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
 
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_MODE	SPI_MODE_0

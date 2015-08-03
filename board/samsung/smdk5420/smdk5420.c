@@ -50,9 +50,9 @@ static int has_edp_bridge(void)
 
 void exynos_lcd_power_on(void)
 {
+#ifdef CONFIG_POWER_TPS65090
 	int ret;
 
-#ifdef CONFIG_POWER_TPS65090
 	ret = tps65090_init();
 	if (ret < 0) {
 		printf("%s: tps65090_init() failed\n", __func__);

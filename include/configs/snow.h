@@ -18,9 +18,6 @@
 #include <configs/exynos5250-common.h>
 #include <configs/exynos5-dt-common.h>
 
-
-#define CONFIG_POWER_TPS65090_I2C
-
 #define CONFIG_BOARD_COMMON
 
 #define CONFIG_USB_XHCI
