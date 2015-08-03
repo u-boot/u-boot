@@ -13,6 +13,8 @@
 /* A variant of Exynos5420 (Exynos5 Family) */
 #define CONFIG_EXYNOS5800
 
+#define CONFIG_EXYNOS5_DT
+
 #define MACH_TYPE_SMDK5420	8002
 #define CONFIG_MACH_TYPE	MACH_TYPE_SMDK5420
 
