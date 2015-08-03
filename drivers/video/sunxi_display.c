@@ -791,7 +791,7 @@ static void sunxi_lcdc_tcon1_mode_set(const struct ctfb_res_modes *mode,
 
 	bp = mode->vsync_len + mode->upper_margin;
 	total = mode->yres + mode->lower_margin + bp;
-	writel(SUNXI_LCDC_TCON1_TIMING_V_TOTAL(total) |
+	writel(SUNXI_LCDC_TCON1_TIMING_V_TOTAL(2 * total) |
 	       SUNXI_LCDC_TCON1_TIMING_V_BP(bp), &lcdc->tcon1_timing_v);
 
 	writel(SUNXI_LCDC_X(mode->hsync_len) | SUNXI_LCDC_Y(mode->vsync_len),
@@ -944,9 +944,9 @@ static void sunxi_vga_mode_set(void)
 	writel(SUNXI_TVE_GCTRL_DAC_INPUT(0, 1) |
 	       SUNXI_TVE_GCTRL_DAC_INPUT(1, 2) |
 	       SUNXI_TVE_GCTRL_DAC_INPUT(2, 3), &tve->gctrl);
-	writel(SUNXI_TVE_GCTRL_CFG0_VGA, &tve->cfg0);
-	writel(SUNXI_TVE_GCTRL_DAC_CFG0_VGA, &tve->dac_cfg0);
-	writel(SUNXI_TVE_GCTRL_UNKNOWN1_VGA, &tve->unknown1);
+	writel(SUNXI_TVE_CFG0_VGA, &tve->cfg0);
+	writel(SUNXI_TVE_DAC_CFG0_VGA, &tve->dac_cfg0);
+	writel(SUNXI_TVE_UNKNOWN1_VGA, &tve->unknown1);
 }
 
 static void sunxi_vga_enable(void)
