@@ -143,8 +143,6 @@
 #define CONFIG_SPI_FLASH_GIGADEVICE
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED		50000000
-#define EXYNOS5_SPI_NUM_CONTROLLERS	5
-#define CONFIG_OF_SPI
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
@@ -193,7 +191,6 @@
 /* Enable FIT support and comparison */
 #define CONFIG_FIT
 #define CONFIG_FIT_BEST_MATCH
-
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \

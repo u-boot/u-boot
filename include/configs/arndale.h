@@ -13,6 +13,7 @@
 	"fdtfile=exynos5250-arndale.dtb\0"
 
 #include "exynos5250-common.h"
+#include <configs/exynos5-common.h>
 
 /* SD/MMC configuration */
 #define CONFIG_SUPPORT_EMMC_BOOT
@@ -20,24 +21,12 @@
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
-/* USB */
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_EXYNOS
-
-#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	3
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-#define CONFIG_USB_ETHER_ASIX88179
-
 /* MMC SPL */
 #define CONFIG_EXYNOS_SPL
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_PROMPT		"ARNDALE # "
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
-
-#define CONFIG_NR_DRAM_BANKS	8
-#define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
 
 #define CONFIG_IDENT_STRING		" for ARNDALE"
 
@@ -49,6 +38,7 @@
 #define CONFIG_SYS_INIT_SP_ADDR	CONFIG_IRAM_STACK
 
 /* PMIC */
+#define CONFIG_POWER
 #define CONFIG_PMIC
 #define CONFIG_POWER_I2C
 
