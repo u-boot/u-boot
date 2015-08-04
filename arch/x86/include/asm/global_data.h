@@ -69,6 +69,7 @@ struct arch_global_data {
 	char *mrc_output;
 	unsigned int mrc_output_len;
 	void *gdt;			/* Global descriptor table */
+	ulong table;			/* Table pointer from previous loader */
 };
 
 #endif
