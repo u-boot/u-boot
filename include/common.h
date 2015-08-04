@@ -1021,6 +1021,13 @@ int cpu_release(int nr, int argc, char * const argv[]);
 	offsetof(struct structure, member) == offset, \
 	"`struct " #structure "` offset for `" #member "` is not " #offset)
 
+/* Avoid using CONFIG_EFI_STUB directly as we may boot from other loaders */
+#ifdef CONFIG_EFI_STUB
+#define ll_boot_init()	false
+#else
+#define ll_boot_init()	true
+#endif
+
 /* Pull in stuff for the build system */
 #ifdef DO_DEPS_ONLY
 # include <environment.h>

@@ -755,6 +755,7 @@ ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
 ALL-$(CONFIG_REMAKE_ELF) += u-boot.elf
 ALL-$(CONFIG_EFI_APP) += u-boot-app.efi
+ALL-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
 ifneq ($(BUILD_ROM),)
 ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
@@ -789,6 +790,9 @@ cmd_objcopy = $(OBJCOPY) --gap-fill=0xff $(OBJCOPYFLAGS) \
 # Provide a version which does not do this, for use by EFI
 quiet_cmd_zobjcopy = OBJCOPY $@
 cmd_zobjcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
+
+quiet_cmd_efipayload = OBJCOPY $@
+cmd_efipayload = $(OBJCOPY) -I binary -O $(EFIPAYLOAD_BFDTARGET) -B $(EFIPAYLOAD_BFDARCH) $< $@
 
 quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
@@ -1085,6 +1089,26 @@ endif
 
 OBJCOPYFLAGS_u-boot-app.efi := $(OBJCOPYFLAGS_EFI)
 u-boot-app.efi: u-boot FORCE
+	$(call if_changed,zobjcopy)
+
+u-boot-dtb.bin.o: u-boot-dtb.bin FORCE
+	$(call if_changed,efipayload)
+
+u-boot-payload.lds: $(LDSCRIPT_EFI) FORCE
+	$(call if_changed_dep,cpp_lds)
+
+# Rule to link the EFI payload which contains a stub and a U-Boot binary
+quiet_cmd_u-boot_payload ?= LD      $@
+      cmd_u-boot_payload ?= $(LD) $(LDFLAGS_EFI_PAYLOAD) -o $@ \
+      -T u-boot-payload.lds \
+      lib/efi/efi.o lib/efi/efi_stub.o u-boot-dtb.bin.o \
+      $(addprefix arch/$(ARCH)/lib/efi/,$(EFISTUB))
+
+u-boot-payload: u-boot-dtb.bin.o u-boot-payload.lds FORCE
+	$(call if_changed,u-boot_payload)
+
+OBJCOPYFLAGS_u-boot-payload.efi := $(OBJCOPYFLAGS_EFI)
+u-boot-payload.efi: u-boot-payload FORCE
 	$(call if_changed,zobjcopy)
 
 u-boot-img.bin: spl/u-boot-spl.bin u-boot.img FORCE

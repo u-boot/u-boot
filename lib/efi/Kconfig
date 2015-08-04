@@ -20,6 +20,11 @@ config EFI_APP
 	  command prompt and memory and I/O functions. Use 'reset' to return
 	  to EFI.
 
+config EFI_STUB
+	bool "Support running as an EFI payload"
+
+endchoice
+
 config EFI_RAM_SIZE
 	hex "Amount of EFI RAM for U-Boot"
 	depends on EFI_APP
@@ -29,5 +34,21 @@ config EFI_RAM_SIZE
 	  use. U-Boot allocates this from EFI on start-up (along with a few
 	  other smaller amounts) and it can never be increased after that.
 	  It is used as the RAM size in with U-Boot.
+
+choice
+	prompt "EFI 32/64-bit selection"
+	depends on EFI_STUB
+	help
+	  EFI does not support mixing 32-bit and 64-bit modes. This is a
+	  significant problem because it means that you must build a stub with
+	  the correct type for EFI to load it correctly. If you are using
+	  32-bit EFI, select 32-bit here, else select 64-bit. Failure to do
+	  this may produce no error message - it just won't start!
+
+config EFI_STUB_32BIT
+	bool "Produce a stub for running with 32-bit EFI"
+
+config EFI_STUB_64BIT
+	bool "Produce a stub for running with 64-bit EFI"
 
 endchoice

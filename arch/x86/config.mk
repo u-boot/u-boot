@@ -24,6 +24,10 @@ PLATFORM_LDFLAGS += -Bsymbolic -Bsymbolic-functions -m elf_i386
 LDFLAGS_FINAL += --wrap=__divdi3 --wrap=__udivdi3
 LDFLAGS_FINAL += --wrap=__moddi3 --wrap=__umoddi3
 
+# This is used in the top-level Makefile which does not include
+# PLATFORM_LDFLAGS
+LDFLAGS_EFI_PAYLOAD := -Bsymbolic -Bsymbolic-functions -shared --no-undefined
+
 OBJCOPYFLAGS_EFI := -j .text -j .sdata -j .data -j .dynamic -j .dynsym \
 	-j .rel -j .rela -j .reloc
 
@@ -31,6 +35,9 @@ CFLAGS_NON_EFI := -mregparm=3
 CFLAGS_EFI := -fpic -fshort-wchar
 
 EFIARCH = ia32
+EFIPAYLOAD_BFDTARGET = elf32-i386
+
+EFIPAYLOAD_BFDARCH = i386
 
 LDSCRIPT_EFI := $(srctree)/$(CPUDIR)/efi/elf_$(EFIARCH)_efi.lds
 OBJCOPYFLAGS_EFI += --target=efi-app-$(EFIARCH)
