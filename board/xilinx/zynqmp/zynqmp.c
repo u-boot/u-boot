@@ -130,3 +130,9 @@ int board_late_init(void)
 
 	return 0;
 }
+
+int checkboard(void)
+{
+	puts("Board:\tXilinx ZynqMP\n");
+	return 0;
+}
