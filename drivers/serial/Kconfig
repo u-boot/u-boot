@@ -44,6 +44,15 @@ config DEBUG_UART_NS16550
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_EFI_CONSOLE
+	bool "EFI"
+	depends on EFI_APP
+	help
+	  Select this to enable a debug console which calls back to EFI to
+	  output to the console. This can be useful for early debugging of
+	  U-Boot when running on top of EFI (Extensive Firmware Interface).
+	  This is a type of BIOS used by PCs.
+
 endchoice
 
 config DEBUG_UART_BASE
