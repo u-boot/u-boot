@@ -754,6 +754,7 @@ ifneq ($(CONFIG_SPL_TARGET),)
 ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
 ALL-$(CONFIG_REMAKE_ELF) += u-boot.elf
+ALL-$(CONFIG_EFI_APP) += u-boot-app.efi
 
 ifneq ($(BUILD_ROM),)
 ALL-$(CONFIG_X86_RESET_VECTOR) += u-boot.rom
@@ -1081,6 +1082,10 @@ u-boot-dtb-tegra.bin: u-boot-nodtb-tegra.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
 endif
 endif
+
+OBJCOPYFLAGS_u-boot-app.efi := $(OBJCOPYFLAGS_EFI)
+u-boot-app.efi: u-boot FORCE
+	$(call if_changed,zobjcopy)
 
 u-boot-img.bin: spl/u-boot-spl.bin u-boot.img FORCE
 	$(call if_changed,cat)
