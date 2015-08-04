@@ -230,6 +230,15 @@ char *cpu_get_name(char *name);
 void cpu_call64(ulong pgtable, ulong setup_base, ulong target);
 
 /**
+ * cpu_call32() - Jump to a 32-bit entry point
+ *
+ * @code_seg32:	32-bit code segment to use (GDT offset, e.g. 0x20)
+ * @target:	Pointer to the start of the 32-bit U-Boot image/entry point
+ * @table:	Pointer to start of info table to pass to U-Boot
+ */
+void cpu_call32(ulong code_seg32, ulong target, ulong table);
+
+/**
  * cpu_jump_to_64bit() - Jump to a 64-bit Linux kernel
  *
  * The kernel is uncompressed and the 64-bit entry point is expected to be
