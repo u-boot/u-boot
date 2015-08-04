@@ -5,6 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-$(CONFIG_EFI_STUB) += car.o
+obj-$(CONFIG_EFI_STUB) += efi.o
+
 obj-$(CONFIG_EFI_APP) += crt0-efi-ia32.o reloc_ia32.o
 
 ifneq ($(CONFIG_EFI_STUB),)
