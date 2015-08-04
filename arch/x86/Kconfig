@@ -27,6 +27,7 @@ endchoice
 
 # board-specific options below
 source "board/coreboot/Kconfig"
+source "board/efi/Kconfig"
 source "board/emulation/Kconfig"
 source "board/google/Kconfig"
 source "board/intel/Kconfig"
