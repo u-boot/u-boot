@@ -255,7 +255,7 @@
 	"init_ramfs=run args_all args_ramfs get_fs_ramfs\0"		\
 	"args_ramfs=setenv bootargs ${bootargs} "			\
 		"rdinit=/sbin/init rw root=/dev/ram0 "			\
-		"initrd=0x802000000,9M\0"				\
+		"initrd=0x808080000,9M\0"				\
 	"no_post=1\0"							\
 	"mtdparts=mtdparts=davinci_nand.0:"				\
 		"1024k(bootloader)ro,512k(params)ro,-(ubifs)\0"
