@@ -1826,20 +1826,16 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 static int video_logo_xpos;
 static int video_logo_ypos;
 
-static void plot_logo_or_black(void *screen, int width, int x, int y,	\
-			int black);
+static void plot_logo_or_black(void *screen, int x, int y, int black);
 
-static void logo_plot(void *screen, int width, int x, int y)
+static void logo_plot(void *screen, int x, int y)
 {
-	plot_logo_or_black(screen, width, x, y, 0);
+	plot_logo_or_black(screen, x, y, 0);
 }
 
 static void logo_black(void)
 {
-	plot_logo_or_black(video_fb_address, \
-			VIDEO_COLS, \
-			video_logo_xpos, \
-			video_logo_ypos, \
+	plot_logo_or_black(video_fb_address, video_logo_xpos, video_logo_ypos,
 			1);
 }
 
@@ -1858,11 +1854,11 @@ U_BOOT_CMD(
 	   " "
 	   );
 
-static void plot_logo_or_black(void *screen, int width, int x, int y, int black)
+static void plot_logo_or_black(void *screen, int x, int y, int black)
 {
 
 	int xcount, i;
-	int skip = (width - VIDEO_LOGO_WIDTH) * VIDEO_PIXEL_SIZE;
+	int skip = (VIDEO_COLS - VIDEO_LOGO_WIDTH) * VIDEO_PIXEL_SIZE;
 	int ycount = video_logo_height;
 	unsigned char r, g, b, *logo_red, *logo_blue, *logo_green;
 	unsigned char *source;
@@ -1880,7 +1876,7 @@ static void plot_logo_or_black(void *screen, int width, int x, int y, int black)
 		y = max(0, (int)(VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT + y + 1));
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
-	dest = (unsigned char *)screen + (y * width  + x) * VIDEO_PIXEL_SIZE;
+	dest = (unsigned char *)screen + (y * VIDEO_COLS  + x) * VIDEO_PIXEL_SIZE;
 
 #ifdef CONFIG_VIDEO_BMP_LOGO
 	source = bmp_logo_bitmap;
@@ -2009,8 +2005,7 @@ static void *video_logo(void)
 	}
 #endif /* CONFIG_SPLASH_SCREEN */
 
-	logo_plot(video_fb_address, VIDEO_COLS,
-		  video_logo_xpos, video_logo_ypos);
+	logo_plot(video_fb_address, video_logo_xpos, video_logo_ypos);
 
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 	/*
