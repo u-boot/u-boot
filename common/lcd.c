@@ -234,8 +234,8 @@ void lcd_clear(void)
 	lcd_logo();
 #if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
 	addr = (ulong)lcd_base + BMP_LOGO_HEIGHT * lcd_line_length;
-	lcd_init_console((void *)addr, panel_info.vl_row,
-			 panel_info.vl_col, panel_info.vl_rot);
+	lcd_init_console((void *)addr, panel_info.vl_col,
+			 panel_info.vl_row, panel_info.vl_rot);
 #endif
 	lcd_sync();
 }
