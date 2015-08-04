@@ -539,13 +539,6 @@ config VIDEO_LCD_TL059WV5C0
 endchoice
 
 
-config USB_KEYBOARD
-	boolean "Enable USB keyboard support"
-	default y
-	---help---
-	Say Y here to add support for using a USB keyboard (typically used
-	in combination with a graphical console).
-
 config GMAC_TX_DELAY
 	int "GMAC Transmit Clock Delay Chain"
 	default 0

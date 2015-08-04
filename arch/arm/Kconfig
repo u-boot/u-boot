@@ -653,6 +653,7 @@ config ARCH_SUNXI
 	select SPL_DISABLE_OF_CONTROL
 	select USB
 	select USB_STORAGE
+	select USB_KEYBOARD
 
 config TARGET_SNOWBALL
 	bool "Support snowball"
