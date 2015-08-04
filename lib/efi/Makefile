@@ -5,6 +5,7 @@
 #
 
 obj-$(CONFIG_EFI_APP) += efi_app.o efi.o
+obj-$(CONFIG_EFI_STUB) += efi_info.o
 
 CFLAGS_REMOVE_efi_stub.o := -mregparm=3 \
 	$(if $(CONFIG_EFI_STUB_64BIT),-march=i386 -m32)
