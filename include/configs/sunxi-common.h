@@ -318,7 +318,7 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_PHYLIB
 #endif
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_USB_OHCI_SUNXI
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
@@ -326,7 +326,6 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_MUSB_SUNXI
-#define CONFIG_USB_MUSB_HOST
 #define CONFIG_USB_MUSB_PIO_ONLY
 #endif
 
@@ -379,7 +378,7 @@ extern int soft_i2c_gpio_scl;
 #define BOOT_TARGET_DEVICES_SCSI(func)
 #endif
 
-#ifdef CONFIG_USB_EHCI
+#ifdef CONFIG_USB_STORAGE
 #define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
 #else
 #define BOOT_TARGET_DEVICES_USB(func)
