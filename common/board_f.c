@@ -654,6 +654,8 @@ static int setup_dram_config(void)
 
 static int reloc_fdt(void)
 {
+	if (gd->flags & GD_FLG_SKIP_RELOC)
+		return 0;
 	if (gd->new_fdt) {
 		memcpy(gd->new_fdt, gd->fdt_blob, gd->fdt_size);
 		gd->fdt_blob = gd->new_fdt;
@@ -664,6 +666,11 @@ static int reloc_fdt(void)
 
 static int setup_reloc(void)
 {
+	if (gd->flags & GD_FLG_SKIP_RELOC) {
+		debug("Skipping relocation due to flag\n");
+		return 0;
+	}
+
 #ifdef CONFIG_SYS_TEXT_BASE
 	gd->reloc_off = gd->relocaddr - CONFIG_SYS_TEXT_BASE;
 #ifdef CONFIG_M68K
@@ -689,6 +696,8 @@ static int setup_reloc(void)
 
 static int jump_to_copy(void)
 {
+	if (gd->flags & GD_FLG_SKIP_RELOC)
+		return 0;
 	/*
 	 * x86 is special, but in a nice way. It uses a trampoline which
 	 * enables the dcache if possible.

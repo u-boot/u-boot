@@ -117,5 +117,6 @@ typedef struct global_data {
 #define GD_FLG_SERIAL_READY	0x00100	/* Pre-reloc serial console ready  */
 #define GD_FLG_FULL_MALLOC_INIT	0x00200	/* Full malloc() is ready	   */
 #define GD_FLG_SPL_INIT		0x00400	/* spl_init() has been called	   */
+#define GD_FLG_SKIP_RELOC	0x00800	/* Don't relocate */
 
 #endif /* __ASM_GENERIC_GBL_DATA_H */
