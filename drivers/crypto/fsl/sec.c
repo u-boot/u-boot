@@ -60,27 +60,26 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev)
 		return;
 	}
 
-	val = cpu_to_fdt32(sec_rev_prop_list[sec_idx].num_channels);
-	err = fdt_setprop(blob, crypto_node, "fsl,num-channels", &val, 4);
+	err = fdt_setprop_u32(blob, crypto_node, "fsl,num-channels",
+			      sec_rev_prop_list[sec_idx].num_channels);
 	if (err < 0)
 		printf("WARNING: could not set crypto property: %s\n",
 		       fdt_strerror(err));
 
-	val = cpu_to_fdt32(sec_rev_prop_list[sec_idx].descriptor_types_mask);
-	err = fdt_setprop(blob, crypto_node, "fsl,descriptor-types-mask",
-			  &val, 4);
+	err = fdt_setprop_u32(blob, crypto_node, "fsl,descriptor-types-mask",
+			      sec_rev_prop_list[sec_idx].descriptor_types_mask);
 	if (err < 0)
 		printf("WARNING: could not set crypto property: %s\n",
 		       fdt_strerror(err));
 
-	val = cpu_to_fdt32(sec_rev_prop_list[sec_idx].exec_units_mask);
-	err = fdt_setprop(blob, crypto_node, "fsl,exec-units-mask", &val, 4);
+	err = fdt_setprop_u32(blob, crypto_node, "fsl,exec-units-mask",
+			      sec_rev_prop_list[sec_idx].exec_units_mask);
 	if (err < 0)
 		printf("WARNING: could not set crypto property: %s\n",
 		       fdt_strerror(err));
 
-	val = cpu_to_fdt32(sec_rev_prop_list[sec_idx].channel_fifo_len);
-	err = fdt_setprop(blob, crypto_node, "fsl,channel-fifo-len", &val, 4);
+	err = fdt_setprop_u32(blob, crypto_node, "fsl,channel-fifo-len",
+			      sec_rev_prop_list[sec_idx].channel_fifo_len);
 	if (err < 0)
 		printf("WARNING: could not set crypto property: %s\n",
 		       fdt_strerror(err));
@@ -155,8 +154,7 @@ static void fdt_fixup_crypto_era(void *blob, u32 era)
 		return;
 	}
 
-	err = fdt_setprop(blob, crypto_node, "fsl,sec-era", &era,
-			  sizeof(era));
+	err = fdt_setprop_u32(blob, crypto_node, "fsl,sec-era", era);
 	if (err < 0) {
 		printf("ERROR: could not set fsl,sec-era property: %s\n",
 		       fdt_strerror(err));

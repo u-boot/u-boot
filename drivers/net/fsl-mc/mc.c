@@ -547,7 +547,7 @@ int mc_init(void)
 	debug("Checking access to MC portal of root DPRC container (portal_id %d, portal physical addr %p)\n",
 	      portal_id, dflt_mc_io->mmio_regs);
 
-	error = mc_get_version(dflt_mc_io, &mc_ver_info);
+	error = mc_get_version(dflt_mc_io, MC_CMD_NO_FLAGS, &mc_ver_info);
 	if (error != 0) {
 		printf("fsl-mc: ERROR: Firmware version check failed (error: %d)\n",
 		       error);
@@ -634,19 +634,21 @@ int dpio_init(struct dprc_obj_desc obj_desc)
 
 	dflt_dpio->dpio_id = obj_desc.id;
 
-	err = dpio_open(dflt_mc_io, obj_desc.id, &dflt_dpio_handle);
+	err = dpio_open(dflt_mc_io, MC_CMD_NO_FLAGS, obj_desc.id,
+			&dflt_dpio_handle);
 	if (err) {
 		printf("dpio_open() failed\n");
 		goto err_open;
 	}
 
-	err = dpio_get_attributes(dflt_mc_io, dflt_dpio_handle, &attr);
+	err = dpio_get_attributes(dflt_mc_io, MC_CMD_NO_FLAGS,
+				  dflt_dpio_handle, &attr);
 	if (err) {
 		printf("dpio_get_attributes() failed %d\n", err);
 		goto err_get_attr;
 	}
 
-	err = dpio_enable(dflt_mc_io, dflt_dpio_handle);
+	err = dpio_enable(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio_handle);
 	if (err) {
 		printf("dpio_enable() failed %d\n", err);
 		goto err_get_enable;
@@ -671,9 +673,9 @@ int dpio_init(struct dprc_obj_desc obj_desc)
 
 err_get_swp_init:
 err_get_enable:
-	dpio_disable(dflt_mc_io, dflt_dpio_handle);
+	dpio_disable(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio_handle);
 err_get_attr:
-	dpio_close(dflt_mc_io, dflt_dpio_handle);
+	dpio_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpio_handle);
 err_open:
 	free(dflt_dpio);
 	return err;
@@ -710,8 +712,9 @@ int dprc_init_container_obj(struct dprc_obj_desc obj_desc, uint16_t dprc_handle)
 	} else if (!strcmp(obj_desc.type, "dpni")) {
 		strcpy(dpni_endpoint.type, obj_desc.type);
 		dpni_endpoint.id = obj_desc.id;
-		error = dprc_get_connection(dflt_mc_io, dprc_handle,
-				     &dpni_endpoint, &dpmac_endpoint, &state);
+		error = dprc_get_connection(dflt_mc_io, MC_CMD_NO_FLAGS,
+					    dprc_handle, &dpni_endpoint,
+					    &dpmac_endpoint, &state);
 		if (!strcmp(dpmac_endpoint.type, "dpmac"))
 			error = ldpaa_eth_init(obj_desc);
 		if (error < 0)
@@ -728,7 +731,7 @@ int dprc_scan_container_obj(uint16_t dprc_handle, char *obj_type, int i)
 
 	memset((void *)&obj_desc, 0x00, sizeof(struct dprc_obj_desc));
 
-	error = dprc_get_obj(dflt_mc_io, dprc_handle,
+	error = dprc_get_obj(dflt_mc_io, MC_CMD_NO_FLAGS, dprc_handle,
 			     i, &obj_desc);
 	if (error < 0) {
 		printf("dprc_get_obj(i=%d) failed: %d\n",
@@ -761,7 +764,8 @@ int fsl_mc_ldpaa_init(bd_t *bis)
 	if (error < 0)
 		goto error;
 
-	error = dprc_get_container_id(dflt_mc_io, &container_id);
+	error = dprc_get_container_id(dflt_mc_io, MC_CMD_NO_FLAGS,
+				      &container_id);
 	if (error < 0) {
 		printf("dprc_get_container_id() failed: %d\n", error);
 		goto error;
@@ -769,7 +773,8 @@ int fsl_mc_ldpaa_init(bd_t *bis)
 
 	debug("fsl-mc: Container id=0x%x\n", container_id);
 
-	error = dprc_open(dflt_mc_io, container_id, &dflt_dprc_handle);
+	error = dprc_open(dflt_mc_io, MC_CMD_NO_FLAGS, container_id,
+			  &dflt_dprc_handle);
 	if (error < 0) {
 		printf("dprc_open() failed: %d\n", error);
 		goto error;
@@ -777,7 +782,7 @@ int fsl_mc_ldpaa_init(bd_t *bis)
 	dprc_opened = true;
 
 	error = dprc_get_obj_count(dflt_mc_io,
-				   dflt_dprc_handle,
+				   MC_CMD_NO_FLAGS, dflt_dprc_handle,
 				   &num_child_objects);
 	if (error < 0) {
 		printf("dprc_get_obj_count() failed: %d\n", error);
@@ -804,7 +809,7 @@ int fsl_mc_ldpaa_init(bd_t *bis)
 	}
 error:
 	if (dprc_opened)
-		dprc_close(dflt_mc_io, dflt_dprc_handle);
+		dprc_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dprc_handle);
 
 	return error;
 }
@@ -814,17 +819,20 @@ void fsl_mc_ldpaa_exit(bd_t *bis)
 	int err;
 
 	if (get_mc_boot_status() == 0) {
-		err = dpio_disable(dflt_mc_io, dflt_dpio_handle);
+		err = dpio_disable(dflt_mc_io, MC_CMD_NO_FLAGS,
+				   dflt_dpio_handle);
 		if (err < 0) {
 			printf("dpio_disable() failed: %d\n", err);
 			return;
 		}
-		err = dpio_reset(dflt_mc_io, dflt_dpio_handle);
+		err = dpio_reset(dflt_mc_io, MC_CMD_NO_FLAGS,
+				 dflt_dpio_handle);
 		if (err < 0) {
 			printf("dpio_reset() failed: %d\n", err);
 			return;
 		}
-		err = dpio_close(dflt_mc_io, dflt_dpio_handle);
+		err = dpio_close(dflt_mc_io, MC_CMD_NO_FLAGS,
+				 dflt_dpio_handle);
 		if (err < 0) {
 			printf("dpio_close() failed: %d\n", err);
 			return;

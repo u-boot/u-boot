@@ -499,7 +499,7 @@ static inline unsigned int auto_bank_intlv(dimm_params_t *pdimm)
 	return 0;
 }
 
-unsigned int populate_memctl_options(int all_dimms_registered,
+unsigned int populate_memctl_options(const common_timing_params_t *common_dimm,
 			memctl_options_t *popts,
 			dimm_params_t *pdimm,
 			unsigned int ctrl_num)
@@ -640,7 +640,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	popts->ba_intlv_ctl = 0;
 
 	/* Memory Organization Parameters */
-	popts->registered_dimm_en = all_dimms_registered;
+	popts->registered_dimm_en = common_dimm->all_dimms_registered;
 
 	/* Operational Mode Paramters */
 
@@ -778,9 +778,11 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	 * Set this to 0 for global auto precharge
 	 * The value of 0x100 has been used for DDR1, DDR2, DDR3.
 	 * It is not wrong. Any value should be OK. The performance depends on
-	 * applications. There is no one good value for all.
+	 * applications. There is no one good value for all. One way to set
+	 * is to use 1/4 of refint value.
 	 */
-	popts->bstopre = 0x100;
+	popts->bstopre = picos_to_mclk(ctrl_num, common_dimm->refresh_rate_ps)
+			 >> 2;
 
 	/*
 	 * Window for four activates -- tFAW

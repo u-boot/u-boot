@@ -14,7 +14,7 @@
 #include <asm/io.h>
 
 #define MC_CMD_HDR_READ_CMDID(_hdr) \
-	((uint16_t)u64_dec((_hdr), MC_CMD_HDR_CMDID_O, MC_CMD_HDR_CMDID_S))
+	((uint16_t)mc_dec((_hdr), MC_CMD_HDR_CMDID_O, MC_CMD_HDR_CMDID_S))
 
 /**
  * mc_send_command - Send MC command and wait for response

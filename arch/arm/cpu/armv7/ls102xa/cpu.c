@@ -344,5 +344,13 @@ void smp_kick_all_cpus(void)
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 
 	out_be32(&gur->brrl, 0x2);
+
+	/*
+	 * LS1 STANDBYWFE is not captured outside the ARM module in the soc.
+	 * So add a delay to wait bootrom execute WFE.
+	 */
+	udelay(1);
+
+	asm volatile("sev");
 }
 #endif

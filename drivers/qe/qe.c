@@ -313,9 +313,10 @@ static void qe_upload_microcode(const void *base,
 
 	if (ucode->major || ucode->minor || ucode->revision)
 		printf("QE: uploading microcode '%s' version %u.%u.%u\n",
-			ucode->id, ucode->major, ucode->minor, ucode->revision);
+		       (char *)ucode->id, (u16)ucode->major, (u16)ucode->minor,
+		       (u16)ucode->revision);
 	else
-		printf("QE: uploading microcode '%s'\n", ucode->id);
+		printf("QE: uploading microcode '%s'\n", (char *)ucode->id);
 
 	/* Use auto-increment */
 	out_be32(&qe_immr->iram.iadd, be32_to_cpu(ucode->iram_offset) |
@@ -434,7 +435,7 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
 	 * saved microcode information and put in the new.
 	 */
 	memset(&qe_firmware_info, 0, sizeof(qe_firmware_info));
-	strcpy(qe_firmware_info.id, (char *)firmware->id);
+	strncpy(qe_firmware_info.id, (char *)firmware->id, 62);
 	qe_firmware_info.extended_modes = firmware->extended_modes;
 	memcpy(qe_firmware_info.vtraps, firmware->vtraps,
 		sizeof(firmware->vtraps));

@@ -10,11 +10,11 @@
 #define MAKE_UMASK64(_width) \
 	((uint64_t)((_width) < 64 ? ((uint64_t)1 << (_width)) - 1 : -1))
 
-static inline uint64_t u64_enc(int lsoffset, int width, uint64_t val)
+static inline uint64_t mc_enc(int lsoffset, int width, uint64_t val)
 {
 	return (uint64_t)(((uint64_t)val & MAKE_UMASK64(width)) << lsoffset);
 }
-static inline uint64_t u64_dec(uint64_t val, int lsoffset, int width)
+static inline uint64_t mc_dec(uint64_t val, int lsoffset, int width)
 {
 	return (uint64_t)((val >> lsoffset) & MAKE_UMASK64(width));
 }
@@ -39,44 +39,55 @@ enum mc_cmd_status {
 	MC_CMD_STATUS_INVALID_STATE = 0xC /*!< Invalid state */
 };
 
+/*
+ * MC command flags
+ */
+
+/* High priority flag */
+#define MC_CMD_FLAG_PRI		0x00008000
+/* No flags */
+#define MC_CMD_NO_FLAGS		0x00000000
+/* Command completion flag */
+#define MC_CMD_FLAG_INTR_DIS	0x01000000
+
+
 #define MC_CMD_HDR_CMDID_O	52	/* Command ID field offset */
 #define MC_CMD_HDR_CMDID_S	12	/* Command ID field size */
 #define MC_CMD_HDR_STATUS_O	16	/* Status field offset */
 #define MC_CMD_HDR_TOKEN_O	38	/* Token field offset */
 #define MC_CMD_HDR_TOKEN_S	10	/* Token field size */
 #define MC_CMD_HDR_STATUS_S	8	/* Status field size*/
-#define MC_CMD_HDR_PRI_O	15	/* Priority field offset */
-#define MC_CMD_HDR_PRI_S	1	/* Priority field size */
+#define MC_CMD_HDR_FLAGS_O	0	/* Flags field offset */
+#define MC_CMD_HDR_FLAGS_S	32	/* Flags field size*/
+#define MC_CMD_HDR_FLAGS_MASK	0xFF00FF00 /* Command flags mask */
 
 #define MC_CMD_HDR_READ_STATUS(_hdr) \
-	((enum mc_cmd_status)u64_dec((_hdr), \
+	((enum mc_cmd_status)mc_dec((_hdr), \
 		MC_CMD_HDR_STATUS_O, MC_CMD_HDR_STATUS_S))
 
 #define MC_CMD_HDR_READ_TOKEN(_hdr) \
-	((uint16_t)u64_dec((_hdr), MC_CMD_HDR_TOKEN_O, MC_CMD_HDR_TOKEN_S))
-
-#define MC_CMD_PRI_LOW		0 /*!< Low Priority command indication */
-#define MC_CMD_PRI_HIGH		1 /*!< High Priority command indication */
+	((uint16_t)mc_dec((_hdr), MC_CMD_HDR_TOKEN_O, MC_CMD_HDR_TOKEN_S))
 
 #define MC_EXT_OP(_ext, _param, _offset, _width, _type, _arg) \
-	((_ext)[_param] |= u64_enc((_offset), (_width), _arg))
+	((_ext)[_param] |= mc_enc((_offset), (_width), _arg))
 
 #define MC_CMD_OP(_cmd, _param, _offset, _width, _type, _arg) \
-	((_cmd).params[_param] |= u64_enc((_offset), (_width), _arg))
+	((_cmd).params[_param] |= mc_enc((_offset), (_width), _arg))
 
 #define MC_RSP_OP(_cmd, _param, _offset, _width, _type, _arg) \
-	(_arg = (_type)u64_dec(_cmd.params[_param], (_offset), (_width)))
+	(_arg = (_type)mc_dec(_cmd.params[_param], (_offset), (_width)))
 
 static inline uint64_t mc_encode_cmd_header(uint16_t cmd_id,
-					    uint8_t priority,
+					    uint32_t cmd_flags,
 					    uint16_t token)
 {
 	uint64_t hdr;
 
-	hdr = u64_enc(MC_CMD_HDR_CMDID_O, MC_CMD_HDR_CMDID_S, cmd_id);
-	hdr |= u64_enc(MC_CMD_HDR_TOKEN_O, MC_CMD_HDR_TOKEN_S, token);
-	hdr |= u64_enc(MC_CMD_HDR_PRI_O, MC_CMD_HDR_PRI_S, priority);
-	hdr |= u64_enc(MC_CMD_HDR_STATUS_O, MC_CMD_HDR_STATUS_S,
+	hdr = mc_enc(MC_CMD_HDR_CMDID_O, MC_CMD_HDR_CMDID_S, cmd_id);
+	hdr |= mc_enc(MC_CMD_HDR_FLAGS_O, MC_CMD_HDR_FLAGS_S,
+		       (cmd_flags & MC_CMD_HDR_FLAGS_MASK));
+	hdr |= mc_enc(MC_CMD_HDR_TOKEN_O, MC_CMD_HDR_TOKEN_S, token);
+	hdr |= mc_enc(MC_CMD_HDR_STATUS_O, MC_CMD_HDR_STATUS_S,
 		       MC_CMD_STATUS_READY);
 
 	return hdr;
@@ -129,7 +140,5 @@ static inline enum mc_cmd_status mc_read_response(
 
 	return status;
 }
-
-int mc_send_command(struct fsl_mc_io *mc_io, struct mc_command *cmd);
 
 #endif /* __FSL_MC_CMD_H */

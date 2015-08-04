@@ -9,7 +9,7 @@
 
 /* DPIO Version */
 #define DPIO_VER_MAJOR				3
-#define DPIO_VER_MINOR				0
+#define DPIO_VER_MINOR				1
 
 /* Command IDs */
 #define DPIO_CMDID_CLOSE					0x800
@@ -46,6 +46,7 @@ struct fsl_mc_io;
 /**
  * dpio_open() - Open a control session for the specified object
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @dpio_id:	DPIO unique ID
  * @token:	Returned token; use in subsequent API calls
  *
@@ -59,16 +60,22 @@ struct fsl_mc_io;
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dpio_open(struct fsl_mc_io *mc_io, int dpio_id, uint16_t *token);
+int dpio_open(struct fsl_mc_io	*mc_io,
+	      uint32_t		cmd_flags,
+	      int		dpio_id,
+	      uint16_t		*token);
 
 /**
  * dpio_close() - Close the control session of the object
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPIO object
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dpio_close(struct fsl_mc_io *mc_io, uint16_t token);
+int dpio_close(struct fsl_mc_io	*mc_io,
+	       uint32_t		cmd_flags,
+	       uint16_t		token);
 
 /**
  * enum dpio_channel_mode - DPIO notification channel mode
@@ -85,29 +92,38 @@ enum dpio_channel_mode {
 /**
  * dpio_enable() - Enable the DPIO, allow I/O portal operations.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPIO object
  *
  * Return:	'0' on Success; Error code otherwise
  */
-int dpio_enable(struct fsl_mc_io *mc_io, uint16_t token);
+int dpio_enable(struct fsl_mc_io	*mc_io,
+		uint32_t		cmd_flags,
+		uint16_t		token);
 
 /**
  * dpio_disable() - Disable the DPIO, stop any I/O portal operation.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPIO object
  *
  * Return:	'0' on Success; Error code otherwise
  */
-int dpio_disable(struct fsl_mc_io *mc_io, uint16_t token);
+int dpio_disable(struct fsl_mc_io	*mc_io,
+		 uint32_t		cmd_flags,
+		 uint16_t		token);
 
 /**
  * dpio_reset() - Reset the DPIO, returns the object to initial state.
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPIO object
  *
  * Return:	'0' on Success; Error code otherwise.
  */
-int dpio_reset(struct fsl_mc_io *mc_io, uint16_t token);
+int dpio_reset(struct fsl_mc_io	*mc_io,
+	       uint32_t			cmd_flags,
+	       uint16_t		token);
 
 /**
  * struct dpio_attr - Structure representing DPIO attributes
@@ -141,12 +157,14 @@ struct dpio_attr {
 /**
  * dpio_get_attributes() - Retrieve DPIO attributes
  * @mc_io:	Pointer to MC portal's I/O object
+ * @cmd_flags:	Command flags; one or more of 'MC_CMD_FLAG_'
  * @token:	Token of DPIO object
  * @attr:	Returned object's attributes
  *
  * Return:	'0' on Success; Error code otherwise
  */
 int dpio_get_attributes(struct fsl_mc_io	*mc_io,
+			uint32_t		cmd_flags,
 			uint16_t		token,
 			struct dpio_attr	*attr);
 
