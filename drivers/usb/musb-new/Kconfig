@@ -12,3 +12,17 @@ config USB_MUSB_GADGET
 	bool "MUSB gadget mode support"
 	help
 	  Enables the MUSB USB dual-role controller in gadget mode.
+
+if USB_MUSB_HOST || USB_MUSB_GADGET
+
+config USB_MUSB_SUNXI
+	bool "Enable sunxi OTG / DRC USB controller"
+	depends on ARCH_SUNXI
+	default y
+	---help---
+	Say y here to enable support for the sunxi OTG / DRC USB controller
+	used on almost all sunxi boards. Note currently u-boot can only have
+	one usb host controller enabled at a time, so enabling this on boards
+	which also use the ehci host controller will result in build errors.
+
+endif
