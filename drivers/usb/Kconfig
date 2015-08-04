@@ -1,7 +1,5 @@
-menu USB
-
-config USB
-	bool "Support for Host-side USB"
+menuconfig USB
+	bool "USB support"
 	---help---
 	  Universal Serial Bus (USB) is a specification for a serial bus
 	  subsystem which offers higher speeds and more features than the
@@ -15,8 +13,10 @@ config USB
 	  such as scanners, keyboards, mice, modems, cameras, disks,
 	  flash memory, network links, and printers to the PC.
 
-	  Say Y here if your computer has a host-side USB port and you want
-	  to use USB devices.  You then need to say Y to at least one of the
+	  Say Y here if your device has an USB port, either host, peripheral or
+	  dual-role.
+
+	  For an USB host port, you then need to say Y to at least one of the
 	  Host Controller Driver (HCD) options below.  Choose a USB 1.1
 	  controller, such as "UHCI HCD support" or "OHCI HCD support",
 	  and "EHCI HCD (USB 2.0) support" except for older systems that
@@ -50,6 +50,8 @@ config DM_USB
 source "drivers/usb/host/Kconfig"
 
 source "drivers/usb/emul/Kconfig"
+
+comment "USB peripherals"
 
 config USB_STORAGE
 	bool "USB Mass Storage support"
@@ -85,4 +87,3 @@ endchoice
 endif
 
 endif
-endmenu
