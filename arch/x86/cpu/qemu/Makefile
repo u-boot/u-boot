@@ -4,5 +4,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += car.o dram.o qemu.o
+ifndef CONFIG_EFI_STUB
+obj-y += car.o dram.o
+endif
+obj-y += qemu.o
 obj-$(CONFIG_PCI) += pci.o
