@@ -34,7 +34,7 @@ obj-$(CONFIG_SYS_X86_TSC_TIMER)	+= tsc_timer.o
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 obj-$(CONFIG_HAVE_FSP) += fsp/
 
-extra-$(CONFIG_USE_PRIVATE_LIBGCC) := lib.a
+extra-$(CONFIG_USE_PRIVATE_LIBGCC) += lib.a
 
 NORMAL_LIBGCC = $(shell $(CC) $(PLATFORM_CPPFLAGS) -print-libgcc-file-name)
 OBJCOPYFLAGS := --prefix-symbols=__normal_
