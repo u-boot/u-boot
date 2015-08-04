@@ -12,6 +12,8 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
+#include <usb.h>
+#include <dwc3-uboot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -136,3 +138,29 @@ int checkboard(void)
 	puts("Board:\tXilinx ZynqMP\n");
 	return 0;
 }
+
+#ifdef CONFIG_USB_DWC3
+static struct dwc3_device dwc3_device_data = {
+	.maximum_speed = USB_SPEED_HIGH,
+	.base = ZYNQMP_USB0_XHCI_BASEADDR,
+	.dr_mode = USB_DR_MODE_PERIPHERAL,
+	.index = 0,
+};
+
+int usb_gadget_handle_interrupts(void)
+{
+	dwc3_uboot_handle_interrupt(0);
+	return 0;
+}
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	return dwc3_uboot_init(&dwc3_device_data);
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	dwc3_uboot_exit(index);
+	return 0;
+}
+#endif

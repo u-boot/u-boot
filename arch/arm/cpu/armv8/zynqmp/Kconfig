@@ -24,4 +24,7 @@ config SECURE_IOU
 	bool "Configure ZynqMP secure IOU"
 	default n
 
+config ZYNQMP_USB
+	bool "Configure ZynqMP USB"
+
 endif
