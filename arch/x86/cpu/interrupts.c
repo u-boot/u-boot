@@ -258,8 +258,14 @@ int interrupt_init(void)
 	/* Initialize core interrupt and exception functionality of CPU */
 	cpu_init_interrupts();
 
-	/* It is now safe to enable interrupts */
-	enable_interrupts();
+	/*
+	 * It is now safe to enable interrupts.
+	 *
+	 * TODO(sjg@chromium.org): But we don't handle these correctly when
+	 * booted from EFI.
+	 */
+	if (ll_boot_init())
+		enable_interrupts();
 #endif
 
 	return 0;

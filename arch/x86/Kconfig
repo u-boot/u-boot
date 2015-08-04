@@ -194,6 +194,7 @@ config X86_RAMTEST
 
 config HAVE_FSP
 	bool "Add an Firmware Support Package binary"
+	depends on !EFI
 	help
 	  Select this option to add an Firmware Support Package binary to
 	  the resulting U-Boot image. It is a binary blob which U-Boot uses
@@ -309,6 +310,7 @@ menu "System tables"
 
 config GENERATE_PIRQ_TABLE
 	bool "Generate a PIRQ table"
+	depends on !EFI
 	default n
 	help
 	  Generate a PIRQ routing table for this board. The PIRQ routing table
@@ -319,6 +321,7 @@ config GENERATE_PIRQ_TABLE
 
 config GENERATE_SFI_TABLE
 	bool "Generate a SFI (Simple Firmware Interface) table"
+	depends on !EFI
 	help
 	  The Simple Firmware Interface (SFI) provides a lightweight method
 	  for platform firmware to pass information to the operating system
@@ -333,6 +336,7 @@ config GENERATE_SFI_TABLE
 
 config GENERATE_MP_TABLE
 	bool "Generate an MP (Multi-Processor) table"
+	depends on !EFI
 	default n
 	help
 	  Generate an MP (Multi-Processor) table for this board. The MP table
@@ -382,5 +386,7 @@ config PCIE_ECAM_SIZE
 	  Mechanism (ECAM) with PCI Express. Each bus consumes 1 MiB memory,
 	  so a default 0x10000000 size covers all of the 256 buses which is the
 	  maximum number of PCI buses as defined by the PCI specification.
+
+source "arch/x86/lib/efi/Kconfig"
 
 endmenu
