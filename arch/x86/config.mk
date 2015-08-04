@@ -34,13 +34,23 @@ OBJCOPYFLAGS_EFI := -j .text -j .sdata -j .data -j .dynamic -j .dynsym \
 CFLAGS_NON_EFI := -mregparm=3
 CFLAGS_EFI := -fpic -fshort-wchar
 
+ifeq ($(CONFIG_EFI_STUB_64BIT),)
+CFLAGS_EFI += $(call cc-option, -mno-red-zone)
 EFIARCH = ia32
 EFIPAYLOAD_BFDTARGET = elf32-i386
+else
+EFIARCH = x86_64
+EFIPAYLOAD_BFDTARGET = elf64-x86-64
+endif
 
 EFIPAYLOAD_BFDARCH = i386
 
 LDSCRIPT_EFI := $(srctree)/$(CPUDIR)/efi/elf_$(EFIARCH)_efi.lds
+EFISTUB := crt0-efi-$(EFIARCH).o reloc_$(EFIARCH).o
 OBJCOPYFLAGS_EFI += --target=efi-app-$(EFIARCH)
+
+CPPFLAGS_REMOVE_crt0-efi-$(EFIARCH).o += $(CFLAGS_NON_EFI)
+CPPFLAGS_crt0-efi-$(EFIARCH).o += $(CFLAGS_EFI)
 
 ifeq ($(CONFIG_EFI_APP),y)
 

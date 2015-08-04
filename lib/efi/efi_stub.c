@@ -6,8 +6,8 @@
  * EFI information obtained here:
  * http://wiki.phoenix.com/wiki/index.php/EFI_BOOT_SERVICES
  *
- * Loads a payload (U-Boot) within the EFI environment. This is built as a
- * 32-bit EFI application.
+ * Loads a payload (U-Boot) within the EFI environment. This is built as an
+ * EFI application. It can be built either in 32-bit or 64-bit mode.
  */
 
 #include <common.h>
@@ -126,14 +126,16 @@ static void jump_to_uboot(ulong cs32, ulong addr, ulong info)
 
 	((func_t)addr)(0, 0, info);
 #else
-	/* TODO: Implement this */
+	cpu_call32(cs32, CONFIG_SYS_TEXT_BASE, info);
 #endif
 }
 
+#ifdef CONFIG_EFI_STUB_64BIT
 static void get_gdt(struct desctab_info *info)
 {
 	asm volatile ("sgdt %0" : : "m"(*info) : "memory");
 }
+#endif
 
 static inline unsigned long read_cr3(void)
 {
@@ -156,7 +158,71 @@ static int get_codeseg32(void)
 {
 	int cs32 = 0;
 
-	/* TODO(sjg): Implement this for 64-bit mode */
+#ifdef CONFIG_EFI_STUB_64BIT
+	struct desctab_info gdt;
+	uint64_t *ptr;
+	int i;
+
+	get_gdt(&gdt);
+	for (ptr = (uint64_t *)(unsigned long)gdt.addr, i = 0; i < gdt.limit;
+	     i += 8, ptr++) {
+		uint64_t desc = *ptr;
+		uint64_t base, limit;
+
+		/*
+		 * Check that the target U-Boot jump address is within the
+		 * selector and that the selector is of the right type.
+		 */
+		base = ((desc >> GDT_BASE_LOW_SHIFT) & GDT_BASE_LOW_MASK) |
+			((desc >> GDT_BASE_HIGH_SHIFT) & GDT_BASE_HIGH_MASK)
+				<< 16;
+		limit = ((desc >> GDT_LIMIT_LOW_SHIFT) & GDT_LIMIT_LOW_MASK) |
+			((desc >> GDT_LIMIT_HIGH_SHIFT) & GDT_LIMIT_HIGH_MASK)
+				<< 16;
+		base <<= 12;	/* 4KB granularity */
+		limit <<= 12;
+		if ((desc & GDT_PRESENT) && (desc && GDT_NOTSYS) &&
+		    !(desc & GDT_LONG) && (desc & GDT_4KB) &&
+		    (desc & GDT_32BIT) && (desc & GDT_CODE) &&
+		    CONFIG_SYS_TEXT_BASE > base &&
+		    CONFIG_SYS_TEXT_BASE + CONFIG_SYS_MONITOR_LEN < limit
+		) {
+			cs32 = i;
+			break;
+		}
+	}
+
+#ifdef DEBUG
+	puts("\ngdt: ");
+	printhex8(gdt.limit);
+	puts(", addr: ");
+	printhex8(gdt.addr >> 32);
+	printhex8(gdt.addr);
+	for (i = 0; i < gdt.limit; i += 8) {
+		uint32_t *ptr = (uint32_t *)((unsigned long)gdt.addr + i);
+
+		puts("\n");
+		printhex2(i);
+		puts(": ");
+		printhex8(ptr[1]);
+		puts("  ");
+		printhex8(ptr[0]);
+	}
+	puts("\n ");
+	puts("32-bit code segment: ");
+	printhex2(cs32);
+	puts("\n ");
+
+	puts("page_table: ");
+	printhex8(read_cr3());
+	puts("\n ");
+#endif
+	if (!cs32) {
+		puts("Can't find 32-bit code segment\n");
+		return -ENOENT;
+	}
+#endif
+
 	return cs32;
 }
 
