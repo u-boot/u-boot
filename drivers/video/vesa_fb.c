@@ -24,6 +24,14 @@ void *video_hw_init(void)
 	int ret;
 
 	printf("Video: ");
+	if (!ll_boot_init()) {
+		/*
+		 * If we are running from EFI or coreboot, this driver can't
+		 * work.
+		 */
+		printf("Not available (previous bootloader prevents it)\n");
+		return NULL;
+	}
 	if (vbe_get_video_info(gdev)) {
 		dev = pci_find_class(PCI_CLASS_DISPLAY_VGA << 8, 0);
 		if (dev == -1) {
