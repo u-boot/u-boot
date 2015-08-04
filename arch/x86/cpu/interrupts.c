@@ -242,6 +242,11 @@ int disable_interrupts(void)
 
 int interrupt_init(void)
 {
+	/*
+	 * When running as an EFI application we are not in control of
+	 * interrupts and should leave them alone.
+	 */
+#ifndef CONFIG_EFI_APP
 	/* Just in case... */
 	disable_interrupts();
 
@@ -255,6 +260,7 @@ int interrupt_init(void)
 
 	/* It is now safe to enable interrupts */
 	enable_interrupts();
+#endif
 
 	return 0;
 }
