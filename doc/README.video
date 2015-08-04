@@ -68,6 +68,11 @@ The sunxi u-boot driver supports the following video-mode options:
     overrides the xres, yres and refresh from the video-mode env. variable.
  Defaults to edid=1.
 
+- overscan_x/overscan_y=<int> - Set x/y overscan value
+ This configures a black border on the left and right resp. top and bottom
+ to deal with overscanning displays. Defaults to overscan_x=32 and
+ overscan_y=20 for composite monitors, 0 for other monitors.
+
 For example to always use the hdmi connector, even if no cable is inserted,
 using edid info when available and otherwise initalizing it at 1024x768@60Hz,
 use: "setenv video-mode sunxi:1024x768-24@60,monitor=dvi,hpd=0,edid=1".

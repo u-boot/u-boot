@@ -19,6 +19,7 @@
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <i2c.h>
+#include <malloc.h>
 #include <video_fb.h>
 #include "videomodes.h"
 #include "hitachi_tx18d42vm_lcd.h"
@@ -51,6 +52,7 @@ struct sunxi_display {
 	GraphicDevice graphic_device;
 	enum sunxi_monitor monitor;
 	unsigned int depth;
+	unsigned int fb_addr;
 	unsigned int fb_size;
 } sunxi_display;
 
@@ -1297,9 +1299,10 @@ void *video_hw_init(void)
 #ifdef CONFIG_VIDEO_HDMI
 	int ret, hpd, hpd_delay, edid;
 #endif
+	int i, overscan_offset, overscan_x, overscan_y;
+	unsigned int fb_dma_addr;
 	char mon[16];
 	char *lcd_mode = CONFIG_VIDEO_LCD_MODE;
-	int i;
 
 	memset(&sunxi_display, 0, sizeof(struct sunxi_display));
 
@@ -1310,6 +1313,8 @@ void *video_hw_init(void)
 	hpd_delay = video_get_option_int(options, "hpd_delay", 500);
 	edid = video_get_option_int(options, "edid", 1);
 #endif
+	overscan_x = video_get_option_int(options, "overscan_x", -1);
+	overscan_y = video_get_option_int(options, "overscan_y", -1);
 	sunxi_display.monitor = sunxi_get_default_mon(true);
 	video_get_option_string(options, "monitor", mon, sizeof(mon),
 				sunxi_get_mon_desc(sunxi_display.monitor));
@@ -1386,8 +1391,20 @@ void *video_hw_init(void)
 		break;
 	}
 
+	/* Yes these defaults are quite high, overscan on composite sucks... */
+	if (overscan_x == -1)
+		overscan_x = sunxi_is_composite() ? 32 : 0;
+	if (overscan_y == -1)
+		overscan_y = sunxi_is_composite() ? 20 : 0;
+
 	sunxi_display.fb_size =
 		(mode->xres * mode->yres * 4 + 0xfff) & ~0xfff;
+	overscan_offset = (overscan_y * mode->xres + overscan_x) * 4;
+	/* We want to keep the fb_base for simplefb page aligned, where as
+	 * the sunxi dma engines will happily accept an unaligned address. */
+	if (overscan_offset)
+		sunxi_display.fb_size += 0x1000;
+
 	if (sunxi_display.fb_size > CONFIG_SUNXI_MAX_FB_SIZE) {
 		printf("Error need %dkB for fb, but only %dkB is reserved\n",
 		       sunxi_display.fb_size >> 10,
@@ -1395,25 +1412,36 @@ void *video_hw_init(void)
 		return NULL;
 	}
 
-	printf("Setting up a %dx%d%s %s console\n", mode->xres, mode->yres,
+	printf("Setting up a %dx%d%s %s console (overscan %dx%d)\n",
+	       mode->xres, mode->yres,
 	       (mode->vmode == FB_VMODE_INTERLACED) ? "i" : "",
-	       sunxi_get_mon_desc(sunxi_display.monitor));
+	       sunxi_get_mon_desc(sunxi_display.monitor),
+	       overscan_x, overscan_y);
 
 	gd->fb_base = gd->bd->bi_dram[0].start +
 		      gd->bd->bi_dram[0].size - sunxi_display.fb_size;
 	sunxi_engines_init();
-	sunxi_mode_set(mode, gd->fb_base - CONFIG_SYS_SDRAM_BASE);
+
+	fb_dma_addr = gd->fb_base - CONFIG_SYS_SDRAM_BASE;
+	sunxi_display.fb_addr = gd->fb_base;
+	if (overscan_offset) {
+		fb_dma_addr += 0x1000 - (overscan_offset & 0xfff);
+		sunxi_display.fb_addr += (overscan_offset + 0xfff) & ~0xfff;
+		memset((void *)gd->fb_base, 0, sunxi_display.fb_size);
+		flush_cache(gd->fb_base, sunxi_display.fb_size);
+	}
+	sunxi_mode_set(mode, fb_dma_addr);
 
 	/*
 	 * These are the only members of this structure that are used. All the
-	 * others are driver specific. There is nothing to decribe pitch or
-	 * stride, but we are lucky with our hw.
+	 * others are driver specific. The pitch is stored in plnSizeX.
 	 */
-	graphic_device->frameAdrs = gd->fb_base;
+	graphic_device->frameAdrs = sunxi_display.fb_addr;
 	graphic_device->gdfIndex = GDF_32BIT_X888RGB;
 	graphic_device->gdfBytesPP = 4;
-	graphic_device->winSizeX = mode->xres;
-	graphic_device->winSizeY = mode->yres;
+	graphic_device->winSizeX = mode->xres - 2 * overscan_x;
+	graphic_device->winSizeY = mode->yres - 2 * overscan_y;
+	graphic_device->plnSizeX = mode->xres * graphic_device->gdfBytesPP;
 
 	return graphic_device;
 }
@@ -1490,10 +1518,9 @@ int sunxi_simplefb_setup(void *blob)
 		return ret;
 	}
 
-	ret = fdt_setup_simplefb_node(blob, offset, gd->fb_base,
+	ret = fdt_setup_simplefb_node(blob, offset, sunxi_display.fb_addr,
 			graphic_device->winSizeX, graphic_device->winSizeY,
-			graphic_device->winSizeX * graphic_device->gdfBytesPP,
-			"x8r8g8b8");
+			graphic_device->plnSizeX, "x8r8g8b8");
 	if (ret)
 		eprintf("Cannot setup simplefb: Error setting properties\n");
 
