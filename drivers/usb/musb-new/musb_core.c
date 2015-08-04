@@ -1437,7 +1437,7 @@ static int __devinit musb_core_init(u16 musb_type, struct musb *musb)
 		strcat(aInfo, ", dyn FIFOs");
 		musb->dyn_fifo = true;
 	}
-#ifndef CONFIG_MUSB_DISABLE_BULK_COMBINE_SPLIT
+#ifndef CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 	if (reg & MUSB_CONFIGDATA_MPRXE) {
 		strcat(aInfo, ", bulk combine");
 		musb->bulk_combine = true;
@@ -1662,7 +1662,7 @@ irqreturn_t musb_interrupt(struct musb *musb)
 }
 EXPORT_SYMBOL_GPL(musb_interrupt);
 
-#ifndef CONFIG_MUSB_PIO_ONLY
+#ifndef CONFIG_USB_MUSB_PIO_ONLY
 static bool __devinitdata use_dma = 1;
 
 /* "modprobe ... use_dma=0" etc */
@@ -2011,7 +2011,7 @@ musb_init_controller(struct musb_hdrc_platform_data *plat, struct device *dev,
 
 	pm_runtime_get_sync(musb->controller);
 
-#ifndef CONFIG_MUSB_PIO_ONLY
+#ifndef CONFIG_USB_MUSB_PIO_ONLY
 	if (use_dma && dev->dma_mask) {
 		struct dma_controller	*c;
 
@@ -2194,7 +2194,7 @@ fail0:
  * bridge to a platform device; this driver then suffices.
  */
 
-#ifndef CONFIG_MUSB_PIO_ONLY
+#ifndef CONFIG_USB_MUSB_PIO_ONLY
 static u64	*orig_dma_mask;
 #endif
 
@@ -2217,7 +2217,7 @@ static int __devinit musb_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 
-#ifndef CONFIG_MUSB_PIO_ONLY
+#ifndef CONFIG_USB_MUSB_PIO_ONLY
 	/* clobbered by use_dma=n */
 	orig_dma_mask = dev->dma_mask;
 #endif
@@ -2244,7 +2244,7 @@ static int __devexit musb_remove(struct platform_device *pdev)
 	musb_free(musb);
 	iounmap(ctrl_base);
 	device_init_wakeup(&pdev->dev, 0);
-#ifndef CONFIG_MUSB_PIO_ONLY
+#ifndef CONFIG_USB_MUSB_PIO_ONLY
 	pdev->dev.dma_mask = orig_dma_mask;
 #endif
 	return 0;

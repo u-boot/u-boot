@@ -146,7 +146,7 @@
  */
 #ifdef CONFIG_USB_OMAP3
 
-#ifdef CONFIG_MUSB_HCD
+#ifdef CONFIG_USB_MUSB_HCD
 #define CONFIG_CMD_USB
 
 #define CONFIG_USB_STORAGE
@@ -158,9 +158,9 @@
 #define CONFIG_PREBOOT			"usb start"
 #endif /* CONFIG_USB_KEYBOARD */
 
-#endif /* CONFIG_MUSB_HCD */
+#endif /* CONFIG_USB_MUSB_HCD */
 
-#ifdef CONFIG_MUSB_UDC
+#ifdef CONFIG_USB_MUSB_UDC
 /* USB device configuration */
 #define CONFIG_USB_DEVICE
 #define CONFIG_USB_TTY
@@ -171,7 +171,7 @@
 #define CONFIG_USBD_PRODUCTID		0x5678
 #define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
 #define CONFIG_USBD_PRODUCT_NAME	"EVM"
-#endif /* CONFIG_MUSB_UDC */
+#endif /* CONFIG_USB_MUSB_UDC */
 
 #endif /* CONFIG_USB_OMAP3 */
 

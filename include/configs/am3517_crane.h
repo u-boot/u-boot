@@ -91,15 +91,15 @@
 
 /*
  * USB configuration
- * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
- * Enable CONFIG_MUSB_UDC for Device functionalities.
+ * Enable CONFIG_USB_MUSB_HCD for Host functionalities MSC, keyboard
+ * Enable CONFIG_USB_MUSB_UDC for Device functionalities.
  */
 #define CONFIG_USB_AM35X		1
-#define CONFIG_MUSB_HCD			1
+#define CONFIG_USB_MUSB_HCD			1
 
 #ifdef CONFIG_USB_AM35X
 
-#ifdef CONFIG_MUSB_HCD
+#ifdef CONFIG_USB_MUSB_HCD
 #define CONFIG_CMD_USB
 
 #define CONFIG_USB_STORAGE
@@ -111,9 +111,9 @@
 #define CONFIG_PREBOOT "usb start"
 #endif /* CONFIG_USB_KEYBOARD */
 
-#endif /* CONFIG_MUSB_HCD */
+#endif /* CONFIG_USB_MUSB_HCD */
 
-#ifdef CONFIG_MUSB_UDC
+#ifdef CONFIG_USB_MUSB_UDC
 /* USB device configuration */
 #define CONFIG_USB_DEVICE		1
 #define CONFIG_USB_TTY			1
@@ -123,7 +123,7 @@
 #define CONFIG_USBD_PRODUCTID		0x5678
 #define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
 #define CONFIG_USBD_PRODUCT_NAME	"AM3517CRANE"
-#endif /* CONFIG_MUSB_UDC */
+#endif /* CONFIG_USB_MUSB_UDC */
 
 #endif /* CONFIG_USB_AM35X */
 

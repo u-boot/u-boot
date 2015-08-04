@@ -62,7 +62,7 @@ struct musb_hw_ep;
 
 #define	DMA_ADDR_INVALID	(~(dma_addr_t)0)
 
-#ifndef CONFIG_MUSB_PIO_ONLY
+#ifndef CONFIG_USB_MUSB_PIO_ONLY
 #define	is_dma_capable()	(1)
 #else
 #define	is_dma_capable()	(0)

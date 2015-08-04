@@ -78,7 +78,7 @@
 
 /* USB Configuration */
 #define CONFIG_USB_DAVINCI
-#define CONFIG_MUSB_HCD
+#define CONFIG_USB_MUSB_HCD
 
 #ifdef CONFIG_USB_DAVINCI
 #define CONFIG_CMD_USB         /* include support for usb      */
@@ -87,7 +87,7 @@
 #define CONFIG_DOS_PARTITION   /* include support for FAT/storage*/
 #endif
 
-#ifdef CONFIG_MUSB_HCD         /* include support for usb host */
+#ifdef CONFIG_USB_MUSB_HCD         /* include support for usb host */
 #define CONFIG_CMD_USB         /* include support for usb cmd */
 #define CONFIG_USB_STORAGE     /* MSC class support */
 #define CONFIG_CMD_STORAGE     /* inclue support for usb-storage cmd */
@@ -99,9 +99,9 @@
 
 #define CONFIG_PREBOOT "usb start"
 #endif /* CONFIG_USB_KEYBOARD */
-#endif /* CONFIG_MUSB_HCD */
+#endif /* CONFIG_USB_MUSB_HCD */
 
-#ifdef CONFIG_MUSB_UDC
+#ifdef CONFIG_USB_MUSB_UDC
 #define CONFIG_USB_DEVICE              1
 #define CONFIG_USB_TTY                 1
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV   1
@@ -109,7 +109,7 @@
 #define CONFIG_USBD_PRODUCTID          0x5678
 #define CONFIG_USBD_MANUFACTURER       "Texas Instruments"
 #define CONFIG_USBD_PRODUCT_NAME       "DM365VM"
-#endif /* CONFIG_MUSB_UDC */
+#endif /* CONFIG_USB_MUSB_UDC */
 
 /* U-Boot command configuration */
 #define CONFIG_CMD_ASKENV

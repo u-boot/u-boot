@@ -49,7 +49,7 @@
  */
 
 /* USB */
-#define CONFIG_MUSB_UDC			1
+#define CONFIG_USB_MUSB_UDC			1
 #define CONFIG_USB_OMAP3		1
 #define CONFIG_TWL4030_USB		1
 

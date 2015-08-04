@@ -15,7 +15,7 @@
 #include "musb_gadget.h"
 #include "musb_uboot.h"
 
-#ifdef CONFIG_MUSB_HOST
+#ifdef CONFIG_USB_MUSB_HOST
 struct int_queue {
 	struct usb_host_endpoint hep;
 	struct urb urb;
@@ -368,9 +368,9 @@ struct dm_usb_ops musb_usb_ops = {
 	.reset_root_port = musb_reset_root_port,
 };
 #endif /* CONFIG_DM_USB */
-#endif /* CONFIG_MUSB_HOST */
+#endif /* CONFIG_USB_MUSB_HOST */
 
-#ifdef CONFIG_MUSB_GADGET
+#ifdef CONFIG_USB_MUSB_GADGET
 static struct musb *gadget;
 
 int usb_gadget_handle_interrupts(int index)
@@ -420,7 +420,7 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 		driver->unbind(&gadget->g);
 	return 0;
 }
-#endif /* CONFIG_MUSB_GADGET */
+#endif /* CONFIG_USB_MUSB_GADGET */
 
 int musb_register(struct musb_hdrc_platform_data *plat, void *bdata,
 			void *ctl_regs)
@@ -428,12 +428,12 @@ int musb_register(struct musb_hdrc_platform_data *plat, void *bdata,
 	struct musb **musbp;
 
 	switch (plat->mode) {
-#if defined(CONFIG_MUSB_HOST) && !defined(CONFIG_DM_USB)
+#if defined(CONFIG_USB_MUSB_HOST) && !defined(CONFIG_DM_USB)
 	case MUSB_HOST:
 		musbp = &musb_host.host;
 		break;
 #endif
-#ifdef CONFIG_MUSB_GADGET
+#ifdef CONFIG_USB_MUSB_GADGET
 	case MUSB_PERIPHERAL:
 		musbp = &gadget;
 		break;

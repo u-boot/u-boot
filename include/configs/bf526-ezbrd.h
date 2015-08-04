@@ -136,10 +136,10 @@
  */
 #if !defined(__ADSPBF522__) && !defined(__ADSPBF523__)
 #define CONFIG_USB
-#define CONFIG_MUSB_HCD
+#define CONFIG_USB_MUSB_HCD
 #define CONFIG_USB_BLACKFIN
 #define CONFIG_USB_STORAGE
-#define CONFIG_MUSB_TIMEOUT 100000
+#define CONFIG_USB_MUSB_TIMEOUT 100000
 #endif
 
 

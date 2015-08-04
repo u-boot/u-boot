@@ -97,7 +97,7 @@ struct musb_ep;
 #ifndef __UBOOT__
 #define	is_peripheral_capable()	(1)
 #else
-#ifdef CONFIG_MUSB_GADGET
+#ifdef CONFIG_USB_MUSB_GADGET
 #define	is_peripheral_capable()	(1)
 #else
 #define	is_peripheral_capable()	(0)
@@ -118,7 +118,7 @@ extern void musb_g_disconnect(struct musb *);
 #ifndef __UBOOT__
 #define	is_host_capable()	(1)
 #else
-#ifdef CONFIG_MUSB_HOST
+#ifdef CONFIG_USB_MUSB_HOST
 #define	is_host_capable()	(1)
 #else
 #define	is_host_capable()	(0)

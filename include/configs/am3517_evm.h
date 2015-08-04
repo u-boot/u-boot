@@ -97,16 +97,16 @@
 
 /*
  * USB configuration
- * Enable CONFIG_MUSB_HOST for Host functionalities MSC, keyboard
- * Enable CONFIG_MUSB_GADGET for Device functionalities.
+ * Enable CONFIG_USB_MUSB_HOST for Host functionalities MSC, keyboard
+ * Enable CONFIG_USB_MUSB_GADGET for Device functionalities.
  */
 #define CONFIG_USB_MUSB_AM35X
-#define CONFIG_MUSB_HOST
-#define CONFIG_MUSB_PIO_ONLY
+#define CONFIG_USB_MUSB_HOST
+#define CONFIG_USB_MUSB_PIO_ONLY
 
 #ifdef CONFIG_USB_MUSB_AM35X
 
-#ifdef CONFIG_MUSB_HOST
+#ifdef CONFIG_USB_MUSB_HOST
 #define CONFIG_CMD_USB
 
 #define CONFIG_USB_STORAGE
@@ -118,13 +118,13 @@
 #define CONFIG_PREBOOT "usb start"
 #endif /* CONFIG_USB_KEYBOARD */
 
-#endif /* CONFIG_MUSB_HOST */
+#endif /* CONFIG_USB_MUSB_HOST */
 
-#ifdef CONFIG_MUSB_GADGET
+#ifdef CONFIG_USB_MUSB_GADGET
 #define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
-#endif /* CONFIG_MUSB_GADGET */
+#endif /* CONFIG_USB_MUSB_GADGET */
 
 #endif /* CONFIG_USB_MUSB_AM35X */
 

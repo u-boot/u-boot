@@ -96,11 +96,11 @@
 #endif
 
 #ifdef CONFIG_USB_DAVINCI
-#define CONFIG_MUSB_HCD
+#define CONFIG_USB_MUSB_HCD
 #define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
 #else
-#undef CONFIG_MUSB_HCD
+#undef CONFIG_USB_MUSB_HCD
 #undef CONFIG_CMD_USB
 #undef CONFIG_USB_STORAGE
 #endif

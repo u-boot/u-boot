@@ -99,7 +99,7 @@
 #define is_buffer_mapped(req) (is_dma_capable() && \
 					(req->map_state != UN_MAPPED))
 
-#ifndef CONFIG_MUSB_PIO_ONLY
+#ifndef CONFIG_USB_MUSB_PIO_ONLY
 /* Maps the buffer to dma  */
 
 static inline void map_dma_buffer(struct musb_request *request,
@@ -382,7 +382,7 @@ static void txstate(struct musb *musb, struct musb_request *req)
 			epnum, musb_ep->packet_sz, fifo_count,
 			csr);
 
-#ifndef	CONFIG_MUSB_PIO_ONLY
+#ifndef	CONFIG_USB_MUSB_PIO_ONLY
 	if (is_buffer_mapped(req)) {
 		struct dma_controller	*c = musb->dma_controller;
 		size_t request_size;
