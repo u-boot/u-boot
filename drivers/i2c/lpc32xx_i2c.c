@@ -1,7 +1,7 @@
 /*
  * LPC32xx I2C interface driver
  *
- * (C) Copyright 2014  DENX Software Engineering GmbH
+ * (C) Copyright 2014-2015  DENX Software Engineering GmbH
  * Written-by: Albert ARIBAUD - 3ADEV <albert.aribaud@3adev.fr>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -60,7 +60,8 @@ struct lpc32xx_i2c_registers {
 
 static struct lpc32xx_i2c_registers *lpc32xx_i2c[] = {
 	(struct lpc32xx_i2c_registers *)I2C1_BASE,
-	(struct lpc32xx_i2c_registers *)I2C2_BASE
+	(struct lpc32xx_i2c_registers *)I2C2_BASE,
+	(struct lpc32xx_i2c_registers *)(USB_BASE + 0x300)
 };
 
 /* Set I2C bus speed */
@@ -68,11 +69,17 @@ static unsigned int lpc32xx_i2c_set_bus_speed(struct i2c_adapter *adap,
 			unsigned int speed)
 {
 	int half_period;
+	int clk_rate;
 
 	if (speed == 0)
 		return -EINVAL;
 
-	half_period = (get_hclk_clk_rate() / speed) / 2;
+	if (adap->hwadapnr == 2)
+		/* OTG I2C clock source is different. */
+		clk_rate = get_periph_clk_rate();
+	else
+		clk_rate = get_hclk_clk_rate();
+	half_period = (clk_rate / speed) / 2;
 
 	if ((half_period > 255) || (half_period < 0))
 		return -EINVAL;
@@ -249,3 +256,10 @@ U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_1, _i2c_init, lpc32xx_i2c_probe,
 			 CONFIG_SYS_I2C_LPC32XX_SPEED,
 			 CONFIG_SYS_I2C_LPC32XX_SLAVE,
 			 1)
+
+U_BOOT_I2C_ADAP_COMPLETE(lpc32xx_2, _i2c_init, NULL,
+			 lpc32xx_i2c_read, lpc32xx_i2c_write,
+			 lpc32xx_i2c_set_bus_speed,
+			 100000,
+			 0,
+			 2)
