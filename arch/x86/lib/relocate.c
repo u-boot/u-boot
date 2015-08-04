@@ -28,6 +28,8 @@ int copy_uboot_to_ram(void)
 {
 	size_t len = (size_t)&__data_end - (size_t)&__text_start;
 
+	if (gd->flags & GD_FLG_SKIP_RELOC)
+		return 0;
 	memcpy((void *)gd->relocaddr, (void *)&__text_start, len);
 
 	return 0;
@@ -38,6 +40,8 @@ int clear_bss(void)
 	ulong dst_addr = (ulong)&__bss_start + gd->reloc_off;
 	size_t len = (size_t)&__bss_end - (size_t)&__bss_start;
 
+	if (gd->flags & GD_FLG_SKIP_RELOC)
+		return 0;
 	memset((void *)dst_addr, 0x00, len);
 
 	return 0;
@@ -58,6 +62,8 @@ int do_elf_reloc_fixups(void)
 	/* The size of the region of u-boot that runs out of RAM. */
 	uintptr_t size = (uintptr_t)&__bss_end - (uintptr_t)&__text_start;
 
+	if (gd->flags & GD_FLG_SKIP_RELOC)
+		return 0;
 	if (re_src == re_end)
 		panic("No relocation data");
 
