@@ -675,6 +675,11 @@ config ARCH_ZYNQ
 config ARCH_ZYNQMP
 	bool "Support Xilinx ZynqMP Platform"
 	select ARM64
+	select DM
+	select DM_SPI
+	select DM_SPI_FLASH
+	select OF_CONTROL
+	select SPL_DISABLE_OF_CONTROL
 
 config TEGRA
 	bool "NVIDIA Tegra"
