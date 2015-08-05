@@ -489,11 +489,15 @@ static int usb_hub_configure(struct usb_device *dev)
 			portstatus = le16_to_cpu(portsts->wPortStatus);
 			portchange = le16_to_cpu(portsts->wPortChange);
 
-			if ((portchange & USB_PORT_STAT_C_CONNECTION) ==
-				(portstatus & USB_PORT_STAT_CONNECTION))
+			/* No connection change happened, wait a bit more. */
+			if (!(portchange & USB_PORT_STAT_C_CONNECTION))
+				continue;
+
+			/* Test if the connection came up, and if so, exit. */
+			if (portstatus & USB_PORT_STAT_CONNECTION)
 				break;
 
-		} while (get_timer(start) < CONFIG_SYS_HZ * 10);
+		} while (get_timer(start) < CONFIG_SYS_HZ * 1);
 
 		if (ret < 0)
 			continue;
