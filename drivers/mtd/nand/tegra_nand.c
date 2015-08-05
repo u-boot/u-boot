@@ -964,6 +964,9 @@ int tegra_nand_init(struct nand_chip *nand, int devnum)
 	nand->dev_ready  = nand_dev_ready;
 	nand->priv = &nand_ctrl;
 
+	/* Disable subpage writes as we do not provide ecc->hwctl */
+	nand->options |= NAND_NO_SUBPAGE_WRITE;
+
 	/* Adjust controller clock rate */
 	clock_start_periph_pll(PERIPH_ID_NDFLASH, CLOCK_ID_PERIPH, 52000000);
 
