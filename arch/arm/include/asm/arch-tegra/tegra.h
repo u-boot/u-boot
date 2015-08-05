@@ -56,6 +56,8 @@ struct timerus {
 /* Address at which WB code runs, it must not overlap Bootrom's IRAM usage */
 #define NV_WB_RUN_ADDRESS	0x40020000
 
+#define NVBOOTTYPE_RECOVERY	2	/* BR entered RCM */
+#define NVBOOTINFOTABLE_BOOTTYPE 0xC	/* Boot type in BIT in IRAM */
 #define NVBOOTINFOTABLE_BCTSIZE	0x38	/* BCT size in BIT in IRAM */
 #define NVBOOTINFOTABLE_BCTPTR	0x3C	/* BCT pointer in BIT in IRAM */
 
