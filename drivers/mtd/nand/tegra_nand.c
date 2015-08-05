@@ -16,6 +16,7 @@
 #include <asm/errno.h>
 #include <asm/gpio.h>
 #include <fdtdec.h>
+#include <bouncebuf.h>
 #include "tegra_nand.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -92,35 +93,6 @@ struct nand_drv {
 static struct nand_drv nand_ctrl;
 static struct mtd_info *our_mtd;
 static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
-
-#ifdef CONFIG_SYS_DCACHE_OFF
-static inline void dma_prepare(void *start, unsigned long length,
-			       int is_writing)
-{
-}
-#else
-/**
- * Prepare for a DMA transaction
- *
- * For a write we flush out our data. For a read we invalidate, since we
- * need to do this before we read from the buffer after the DMA has
- * completed, so may as well do it now.
- *
- * @param start		Start address for DMA buffer (should be cache-aligned)
- * @param length	Length of DMA buffer in bytes
- * @param is_writing	0 if reading, non-zero if writing
- */
-static void dma_prepare(void *start, unsigned long length, int is_writing)
-{
-	unsigned long addr = (unsigned long)start;
-
-	length = ALIGN(length, ARCH_DMA_MINALIGN);
-	if (is_writing)
-		flush_dcache_range(addr, addr + length);
-	else
-		invalidate_dcache_range(addr, addr + length);
-}
-#endif
 
 /**
  * Wait for command completion
@@ -531,6 +503,8 @@ static int nand_rw_page(struct mtd_info *mtd, struct nand_chip *chip,
 	char *tag_ptr;
 	struct nand_drv *info;
 	struct fdt_nand *config;
+	unsigned int bbflags;
+	struct bounce_buffer bbstate, bbstate_oob;
 
 	if ((uintptr_t)buf & 0x03) {
 		printf("buf %p has to be 4-byte aligned\n", buf);
@@ -547,21 +521,21 @@ static int nand_rw_page(struct mtd_info *mtd, struct nand_chip *chip,
 
 	stop_command(info->reg);
 
-	writel((1 << chip->page_shift) - 1, &info->reg->dma_cfg_a);
-	writel(virt_to_phys(buf), &info->reg->data_block_ptr);
+	if (is_writing)
+		bbflags = GEN_BB_READ;
+	else
+		bbflags = GEN_BB_WRITE;
 
-	if (with_ecc) {
-		writel(virt_to_phys(tag_ptr), &info->reg->tag_ptr);
-		if (is_writing)
-			memcpy(tag_ptr, chip->oob_poi + free->offset,
-				chip->ecc.layout->oobavail +
-				TAG_ECC_BYTES);
-	} else {
-		writel(virt_to_phys(chip->oob_poi), &info->reg->tag_ptr);
-	}
+	bounce_buffer_start(&bbstate, (void *)buf, 1 << chip->page_shift,
+			    bbflags);
+	writel((1 << chip->page_shift) - 1, &info->reg->dma_cfg_a);
+	writel(virt_to_phys(bbstate.bounce_buffer), &info->reg->data_block_ptr);
 
 	/* Set ECC selection, configure ECC settings */
 	if (with_ecc) {
+		if (is_writing)
+			memcpy(tag_ptr, chip->oob_poi + free->offset,
+			       chip->ecc.layout->oobavail + TAG_ECC_BYTES);
 		tag_size = chip->ecc.layout->oobavail + TAG_ECC_BYTES;
 		reg_val |= (CFG_SKIP_SPARE_SEL_4
 			| CFG_SKIP_SPARE_ENABLE
@@ -574,7 +548,8 @@ static int nand_rw_page(struct mtd_info *mtd, struct nand_chip *chip,
 
 		if (!is_writing)
 			tag_size += SKIPPED_SPARE_BYTES;
-		dma_prepare(tag_ptr, tag_size, is_writing);
+		bounce_buffer_start(&bbstate_oob, (void *)tag_ptr, tag_size,
+				    bbflags);
 	} else {
 		tag_size = mtd->oobsize;
 		reg_val |= (CFG_SKIP_SPARE_DISABLE
@@ -582,14 +557,12 @@ static int nand_rw_page(struct mtd_info *mtd, struct nand_chip *chip,
 			| CFG_ECC_EN_TAG_DISABLE
 			| CFG_HW_ECC_DISABLE
 			| (tag_size - 1));
-		dma_prepare(chip->oob_poi, tag_size, is_writing);
+		bounce_buffer_start(&bbstate_oob, (void *)chip->oob_poi,
+				    tag_size, bbflags);
 	}
 	writel(reg_val, &info->reg->config);
-
-	dma_prepare(buf, 1 << chip->page_shift, is_writing);
-
+	writel(virt_to_phys(bbstate_oob.bounce_buffer), &info->reg->tag_ptr);
 	writel(BCH_CONFIG_BCH_ECC_DISABLE, &info->reg->bch_config);
-
 	writel(tag_size - 1, &info->reg->dma_cfg_b);
 
 	nand_clear_interrupt_status(info->reg);
@@ -634,6 +607,9 @@ static int nand_rw_page(struct mtd_info *mtd, struct nand_chip *chip,
 		printf("\n");
 		return -EIO;
 	}
+
+	bounce_buffer_stop(&bbstate_oob);
+	bounce_buffer_stop(&bbstate);
 
 	if (with_ecc && !is_writing) {
 		memcpy(chip->oob_poi, tag_ptr,
@@ -752,6 +728,8 @@ static int nand_rw_oob(struct mtd_info *mtd, struct nand_chip *chip,
 	int tag_size;
 	struct nand_oobfree *free = chip->ecc.layout->oobfree;
 	struct nand_drv *info;
+	unsigned int bbflags;
+	struct bounce_buffer bbstate_oob;
 
 	if (((int)chip->oob_poi) & 0x03)
 		return -EINVAL;
@@ -760,8 +738,6 @@ static int nand_rw_oob(struct mtd_info *mtd, struct nand_chip *chip,
 		return -EINVAL;
 
 	stop_command(info->reg);
-
-	writel(virt_to_phys(chip->oob_poi), &info->reg->tag_ptr);
 
 	/* Set ECC selection */
 	tag_size = mtd->oobsize;
@@ -776,12 +752,19 @@ static int nand_rw_oob(struct mtd_info *mtd, struct nand_chip *chip,
 		CFG_HW_ECC_DISABLE);
 	writel(reg_val, &info->reg->config);
 
-	dma_prepare(chip->oob_poi, tag_size, is_writing);
-
-	writel(BCH_CONFIG_BCH_ECC_DISABLE, &info->reg->bch_config);
-
 	if (is_writing && with_ecc)
 		tag_size -= TAG_ECC_BYTES;
+
+	if (is_writing)
+		bbflags = GEN_BB_READ;
+	else
+		bbflags = GEN_BB_WRITE;
+
+	bounce_buffer_start(&bbstate_oob, (void *)chip->oob_poi, tag_size,
+			    bbflags);
+	writel(virt_to_phys(bbstate_oob.bounce_buffer), &info->reg->tag_ptr);
+
+	writel(BCH_CONFIG_BCH_ECC_DISABLE, &info->reg->bch_config);
 
 	writel(tag_size - 1, &info->reg->dma_cfg_b);
 
@@ -818,6 +801,8 @@ static int nand_rw_oob(struct mtd_info *mtd, struct nand_chip *chip,
 			printf("Write OOB of Page 0x%X timeout\n", page);
 		return -EIO;
 	}
+
+	bounce_buffer_stop(&bbstate_oob);
 
 	if (with_ecc && !is_writing) {
 		reg_val = (u32)check_ecc_error(info->reg, 0, 0,
