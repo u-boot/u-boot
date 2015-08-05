@@ -51,6 +51,9 @@ int arch_misc_init(void)
 		return err;
 	}
 
+	/* make sure SODIMM pin 87 nRESET_OUT is released properly */
+	pinmux_set_func(PMUX_PINGRP_ATA, PMUX_FUNC_GMI);
+
 	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
 	    NVBOOTTYPE_RECOVERY)
 		printf("USB recovery mode\n");
